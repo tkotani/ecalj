@@ -1,0 +1,31 @@
+ -----------------------  START LMF      -----------------------
+ HEADER SrTiO3 cubic
+
+ LMF:      alat = 7.36993  nbas = 5  nspec = 3  vn 7.00(LMF 7.0)  verb 41
+ special:  APW basis
+ pot:      XC:BH
+ bz:       metal(3), tetra, invit 
+bz  nq 10 ( 5 5 5 )  shift  T T T
+dm  L 33 ( 30 3 )  I 0 ( 0 0 )  H 95 ( 95 0 )  N 122
+fp qvl  30.000000  sm  20.347494  loc   9.652506  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -439.4347026  rexc      -332.1159907  rves  -16877.0313814
+fp pot  rex       -318.3325419  rec        -13.7834488
+fp pot  rvvxcv     -38.9909419  rvexcv     -29.8320793
+fp pot  rvexv      -26.2329716  rvecv       -3.5991077
+fp evl
+nv nkp   10  ebot  -1.4151   qval   30.0000  qbg  0.0000  smr  0.0050
+bz met T  tet T  ef -0.142132  sev -21.060960  zval 30.0 qval 30.0 gap 2.1915 eV
+fp evl -1.4059 -1.3320 -1.3320 -1.2012 -1.2012 -1.1936 -0.3787 -0.3592
+fp evl -0.3592 -0.2670 -0.2670 -0.2204 -0.2182 -0.1913 -0.1913  0.0190
+fp evl  0.0249  0.0249  0.2169  0.2169  0.3116  0.3116
+nv nkp   10  ebot  -1.4151   qval   30.0000  qbg  0.0000  smr  0.0050
+bz met T  tet T  ef -0.142132  sev -21.060960  zval 30.0 qval 30.0 gap 2.1915 eV
+fp Har: U  -16877.031381  T    8703.980359  sev    -21.060960  EH   -8505.167013
+fp qvl  30.000000  sm  20.333696  loc   9.666304  qbg   0.000000 dQ   0.000000
+fp pot  rvxc      -439.4336136  rexc      -332.1151677  rves  -16876.9946696
+fp pot  rex       -318.3317468  rec        -13.7834208
+fp pot  rvvxcv     -39.0096564  rvexcv     -29.8462296
+fp pot  rvexv      -26.2466419  rvecv       -3.5995876
+fp KS: U  -16876.9946696 T    8703.9430593 Exc   -332.1151677 EKS  -8505.1667780
+fp elind 1.173  Anderson n 0 beta 1  sm-dq 1.56e-4  mx loc 5.32e-4  dq 3.31e-4
+ wkinfo:  used  2783 K  workspace of 80000 K   in  60 K calls

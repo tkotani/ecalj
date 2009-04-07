@@ -1,0 +1,37 @@
+HEADER  Fe test spin pol, f-orbitals for cls and mull
+TESTLMF lmfa fe
+        lmf fe 
+TESTGW  echo -1 | lmfgwd fe --make-Q0P
+        echo  0 | lmfgwd fe
+        echo  1 | lmfgwd fe
+        echo fe | lmf2gw
+GW      NKABC=nkgw nkgw nkgw GCUTB=2.7 GCUTX=2.2
+TESTCLS lmfa fe >/dev/null
+        lmf --rs=0 --cls:1,1,2 --mull:2 -vnk=4 -vbzj=1 -vmet=3 -vnit=1 fe
+        lmdos --cls --dos:wtfn=cls:npts=1001:window=0.5,2 -vnk=4 -vbzj=1 -vmet=3 fe
+        mv dos.fe dos-cls.fe
+        lmdos --cls --dos:npts=1001:window=0.5,2 -vnk=4 -vbzj=1 -vmet=3 fe
+        mv dos.fe dos-mull.fe
+PLOTCLS echo 5 10 0.5 2 |  pldos -fplot -lst="1,3,5" -lst2="2,4,6" dos-cls.fe
+PLOTMUL echo 20 10 0.5 2 | pldos -fplot -lst="1;3:7:2;9:17:2;19:31:2" -lst2="2;4:8:2;10:18:2;20:32:2" dos-mull.fe
+% const verb=30
+VERS    LMF-6.10 LMASA-6.10
+IO      SHOW=F HELP=F VERBOS={verb} WKP=F
+CONST   ftmesh=20 nit=100 nmix=3 beta=0.3 conv=1d-4 convc=1d-4
+        a=2.87/0.529177 nk=8 nkgw=6 Rf=0.99 R=Rf*sqrt(3)*a/4 bzj=1 met=3
+STRUC   NBAS=1 NSPEC=1 NL=5
+        ALAT=a PLAT= .5 .5 .5  .5 -.5 .5  .5 .5 -.5
+OPTIONS NSPIN=2 REL=T XCFUN=2
+SYMGRP  find
+BZ      NKABC=nk TETRA=1 METAL=met EF0=1.32 DELEF=0.01 N=1 W=0.02
+        NPTS=3001 BZJOB=bzj DOS=0.5 2 SAVDOS=F EFMAX=5 NEVMX=34
+SPEC    ATOM=Fe Z=26 R=R LMX=3 LMXA=3 KMXA=4 LFOCA=1
+        RSMH=R/2 R/2 R/2 R/2 EH= -0.1 -0.1 -0.1 -0.1
+        RSMH2=R/2 R/2 R/2    EH2=-1.1 -1.1 -1.1
+        Q=2 0 6 MMOM=0 0 2.2
+SITE    ATOM=Fe POS= 0 0 0
+EWALD   TOL=1D-8 NKDMX=1999 NKRMX=1999
+MIX     MODE=A6,k=nmix,b=beta CONV=conv CONVC=convc
+        ELIND=-1
+HAM     FTMESH=ftmesh ELIND=-.7
+START   NIT=nit

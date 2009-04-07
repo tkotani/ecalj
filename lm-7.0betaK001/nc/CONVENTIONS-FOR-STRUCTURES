@@ -1,0 +1,16 @@
+s_mdyn:  magnetic dynamics
+1:         version number
+2:   KT:   temperature, atomic units
+3:   ts:   suggested time step size
+4:   nts:  duration of simulation, in units of ts
+5:   iter: current iteration
+6    nequ: number of equilibration steps
+7    modt: mode for thermostat diff eqn.
+8    ct:   coff mode for thermostat diff eqn.
+11-15:  for Bulirsch-Stoer integration
+11:  mode: 1 for BS-integration
+12:  ts0:  minimum time step size
+13:  tol:  tolerance in integration errors
+14:  mx:   order of rational function extrapolation
+15:  mi:   number of midpoint rules
+16-24 nseq:sequence of no. midpoint divisions

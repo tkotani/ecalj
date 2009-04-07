@@ -1,0 +1,28 @@
+fplot
+% var ymin=-0.55 ymax=0.45
+ -frme 0,0.215,0,1 -p0 -x 0,1 -y {ymin},{ymax} -noxn -1p -tl "ASA bands in Cr"
+ -lt 2,bold=3,col=0,0,0,1,.5,.3,.5 -tp 2~0,0.0899,1,0.0899 -lt 1
+ -colsy 2:7 -qr bnd1.dat
+ -font s24 -lblu 0,{ymin-(ymax-ymin)/60} cd G
+ -frme 0.215,0.367,0,1 -p0 -x 0,1 -y {ymin},{ymax} -noxn -1p -noyn
+ -lt 2,bold=3,col=0,0,0,1,.5,.3,.5 -tp 2~0,0.0899,1,0.0899 -lt 1
+ -colsy 2:7 -qr bnd2.dat
+ -font t24 -lblu 0,{ymin-(ymax-ymin)/60} cd H
+ -frme 0.367,0.475,0,1 -p0 -x 0,1 -y {ymin},{ymax} -noxn -1p -noyn
+ -lt 2,bold=3,col=0,0,0,1,.5,.3,.5 -tp 2~0,0.0899,1,0.0899 -lt 1
+ -colsy 2:7 -qr bnd3.dat
+ -font t24 -lblu 0,{ymin-(ymax-ymin)/60} cd N
+ -frme 0.475,0.661,0,1 -p0 -x 0,1 -y {ymin},{ymax} -noxn -1p -noyn
+ -lt 2,bold=3,col=0,0,0,1,.5,.3,.5 -tp 2~0,0.0899,1,0.0899 -lt 1
+ -colsy 2:7 -qr bnd4.dat
+ -font t24 -lblu 0,{ymin-(ymax-ymin)/60} cd P
+ -frme 0.661,0.814,0,1 -p0 -x 0,1 -y {ymin},{ymax} -noxn -1p -noyn
+ -lt 2,bold=3,col=0,0,0,1,.5,.3,.5 -tp 2~0,0.0899,1,0.0899 -lt 1
+ -colsy 2:7 -qr bnd5.dat
+ -font s24 -lblu 0,{ymin-(ymax-ymin)/60} cd G
+ -frme 0.814,1,0,1 -p0 -x 0,1 -y {ymin},{ymax} -noxn -1p -noyn
+ -lt 2,bold=3,col=0,0,0,1,.5,.3,.5 -tp 2~0,0.0899,1,0.0899 -lt 1
+ -colsy 2:6 -qr bnd6.dat
+ -font t24 -lblu 0,{ymin-(ymax-ymin)/60} cd NH
+
+ -font t24 -lblu 1,{ymin-(ymax-ymin)/60} cd P

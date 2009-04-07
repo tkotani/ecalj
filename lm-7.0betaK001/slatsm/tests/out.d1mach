@@ -1,0 +1,16 @@
+ testing d1mach ...  numbers should be:
+ 1,2: smallest positive and largest magnitude;
+ 3,4: the smallest and largest relative spacing;
+ 5: log(2)/log(10).
+  
+ i, d1mach(i)=           1  2.2250738585072014-308
+ i, d1mach(i)=           2  1.7976931348623157+308
+ i, d1mach(i)=           3  1.1102230246251565E-16
+ i, d1mach(i)=           4  2.2204460492503131E-16
+ i, d1mach(i)=           5  0.3010299956639812    
+  
+ testing dmach ...  numbers should be:
+ 1 epsilon, 2 tiny 3 huge
+ i, dmach(i)=           1  2.2204460492503131E-16
+ i, dmach(i)=           2  8.9002954340288055-308
+ i, dmach(i)=           3  1.1235582092889474+307

@@ -1,0 +1,18 @@
+--- GW driver package (v6.11) ---
+
+This package enables a driver to generate LDA-based input needed to for
+all-electronic GW package written by T. Kotani.  See man-gw.tex in
+this directory for documentation.
+
+--- Installation ---
+To install, add switch --enable-gw at configure time.
+
+--- Documentation ---
+See file doc/gw.doc for description of additional input required.
+See file doc/man-gw.tex for documentation of the GW method.
+
+--- Test cases and examples ---
+
+gw/test/test.gw checks out that the driver works properly.  At present
+                there is only test case (antiferromagnetic mno)
+

@@ -1,0 +1,77 @@
+%!
+
+% push size then font onto stack to select font
+/choosefont {findfont exch scalefont setfont} def
+
+/fontsize 14 def
+/jump {0 -60 rmoveto} def /halfjump {0 -30 rmoveto} def
+
+
+72 756 moveto
+
+
+fontsize /Times-Roman choosefont
+gsave (1 2 3 4 5 6 7 8 9 0 - = `) show grestore
+
+halfjump
+fontsize /Symbol choosefont
+gsave (1 2 3 4 5 6 7 8 9 0 - = `) show grestore
+
+jump
+fontsize /Times-Roman choosefont
+gsave (! @ # $ % ^ & * ( ) _ + ~) show grestore
+
+halfjump
+fontsize /Symbol choosefont
+gsave (! @ # $ % ^ & * ( ) _ + ~) show grestore
+
+jump
+fontsize /Times-Roman choosefont
+gsave (q w e r t y u i o p [ ]) show grestore
+
+halfjump
+fontsize /Symbol choosefont
+gsave (q w e r t y u i o p [ ]) show grestore
+
+jump
+fontsize /Times-Roman choosefont
+gsave (Q W E R T Y U I O P { }) show grestore
+
+halfjump
+fontsize /Symbol choosefont
+gsave (Q W E R T Y U I O P { }) show grestore
+
+jump
+fontsize /Times-Roman choosefont
+gsave (a s d f g h j k l ; ') show grestore
+
+halfjump
+fontsize /Symbol choosefont
+gsave (a s d f g h j k l ; ') show grestore
+
+jump
+fontsize /Times-Roman choosefont
+gsave (A S D F G H J K L : " |) show grestore
+
+halfjump
+fontsize /Symbol choosefont
+gsave (A S D F G H J K L : " |) show grestore
+
+jump
+fontsize /Times-Roman choosefont
+gsave (z x c v b n m , . /) show grestore
+
+halfjump
+fontsize /Symbol choosefont
+gsave (z x c v b n m , . /) show grestore
+
+jump
+fontsize /Times-Roman choosefont
+gsave (Z X C V B N M < > ?) show grestore
+
+halfjump
+fontsize /Symbol choosefont
+gsave (Z X C V B N M < > ?) show grestore
+
+showpage
+

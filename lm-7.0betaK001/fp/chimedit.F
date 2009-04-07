@@ -1,0 +1,441 @@
+      subroutine chimedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
+     .  nbas,nat,nspec)
+C- Magnetic Linear response editor
+C ----------------------------------------------------------------------
+Ci Inputs/Outputs
+Ci   sopts :command options performed automatically, before reading
+Ci         :from standard input
+Ci   mode  :0 longitudinal linear response, lmf
+Ci         :1 transverse linear response, lmf
+Ci   sctrl :struct for program flow parameters; see routine uctrl
+Ci     Elts read: zbak lrs
+Ci     Stored:    lrs
+Ci     Passed to: 
+Ci   ssite :struct for site-specific information; see routine usite
+Ci     Elts read:
+Ci     Stored:
+Ci     Passed to: dcopy
+Ci   sspec :struct for species-specific information; see routine uspec
+Ci     Elts read:
+Ci     Stored:
+Ci     Passed to: dcopy
+Ci   slat  :struct for lattice information; see routine ulat
+Ci     Elts read: nabc
+Ci     Stored:
+Ci     Passed to: dcopy rdovfa 
+Ci   spot  :struct for information about the potential; see routine upot
+Ci     Elts read: nlml nlma   
+Ci     Stored:    
+Ci     Passed to: dcopy rdovfa 
+Ci   sbz   :struct for the Brillouin Zone; see routine ubz
+Ci     Elts read:
+Ci     Stored:
+Ci     Passed to: 
+Ci   nbas  :size of basis
+Ci   nat   :number atoms in basis with augmentation sites
+Ci         :Note: if nat<nbas, there is a requirement that
+Ci         :lmxa>-1 for nat sites, and
+Ci         :and lmxa=-1 for nbas-nat sites
+Co Outputs
+Co   chiedit never returns.
+Co   rst file can be written.
+Cr Remarks
+Cr   The density consists of a smooth part (smrho) plus
+Cr   nbas atom-centered densities inside the MT spheres.
+Cr   Their sum is the full charge density.
+Cr   The local density is represented as the difference of the
+Cr   two valence components in orhoat, plus the core density.
+Cr   Density in the MT spheres:
+Cr      mesh parameters rmt,nr,a;
+Cr      total density rho (times r**2) to lmxl;
+Cr      a spherical potential v0 defining the wave functions within rmt
+Cr      pnu and idmod to lmxa
+Cr   Smooth density
+Cr      real part of complex*16 array smrho contains the density
+Cr      k1,k2,k3 are the physical dimensions of the array
+Cr      n1,n2,n3 are the dimensions of the mesh.
+Cl Local variables
+Cu Updates
+Cu   06 Dec 08 First created
+C  ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      character sopts*(*)
+      integer mode,nbas,nat,nspec,ifi,n0
+      parameter (n0=10)
+      double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
+C ... Local parameters
+      integer nglob,fopna,fopng,a2vec,havechi0,iq,nq,nsgrp
+      integer i,j,l,im,m,n,j1,j2,js1,js2,nw,ne,iinear,lqp
+      logical lnsave,lsopts,isanrg,llshft(3)
+      integer nkxyz(3),mxkp,nk1,nk2,nk3,k1,k2,k3
+      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
+      integer nmag,nmagf,magat(100),magatf(100),ix(10)
+      integer opos,ogstar,owgt,oistab,og,oag
+      double precision xx,qpi(3),ddot,plat(3,3),rb(3,3),qb(3,3),
+     .  pos(3,nbas)
+      character dc*1, fn*120, outs*150, strn*120
+      integer,allocatable:: ipq(:,:,:)
+      real(8),allocatable:: qp(:,:),qfbz(:,:),emesh(:),wk(:)
+      complex(8),allocatable:: chi0(:,:,:,:)
+C     For offset q mesh
+      integer is(3),lshft(3),ifac(3)
+C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
+      integer jj1,jj2,jj3,k
+
+c      double precision qk
+c      qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
+c     .                    (jj2*ifac(2)-1)*qb(k,2) +
+c     .                    (jj3*ifac(3)-1)*qb(k,3)
+
+C ... Heap
+      integer w(1)
+      common /w/ w
+
+      if (nglob('nsp') .ne. 2)
+     .  call rx('chim editor for only for magnetic systems')
+
+C --- Setup ---
+      call upack('lat plat opos',slat,plat,opos,0,0,0)
+      call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
+     .  oag,0)
+
+C     should be from sgw?
+      call upack('bz nkabc',sbz,nkxyz,0,0,0,0)
+      call dcopy(3*nbas,w(opos),1,pos,1)
+      call pshpr(0)
+      llshft = .false.
+      call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
+      call poppr
+      lshft = 0
+
+C ... Defaults
+      fn = 'rst1'
+C     havechi0 = 1 when chi0(PP) read in, 2 when chi0(PB) read in
+      havechi0 = 0
+C     nmag = # magnetic sites
+      nmag = 0
+C     number of k-points
+      nq = 0
+C     true if chi saved on disk
+      lnsave = .false.
+C     lqp = has to do with specification qp.
+C     0=>nothing specified, 1=>nq specifed, 2=>qp specified, 4=>qp=irr
+      lqp = 0
+
+      dc = sopts(1:1)
+      if (dc .ne. ' ') then
+        print 301
+  301   format(//' Entering the magnetic response function editor. ',
+     .    'Parsing command-line options ...')
+        lsopts = .true.
+        js2 = 0
+      else
+        print 302
+  302   format(//' Welcome to the magnetic response function editor.  ',
+     .    'Enter ''?'' to see options.')
+        lsopts = .false.
+      endif
+      if (mode .ne. 1) call rx('chimedit not ready for mode ne 1')
+
+C ... Return here to resume parsing for arguments
+   10 continue
+      if (lsopts) then
+        js2 = js2+1
+        if (js2 .gt. len(sopts)) then
+          lsopts = .false.
+          goto 10
+        endif
+        if (sopts(js2:js2) .eq. dc) goto 10
+        js1 = min(len(sopts),js2)
+        call nwordg(sopts,0,dc,1,js1,js2)
+        if (js2 .lt. js1) lsopts = .false.
+      endif
+
+C 306 format(' Failed to parse string ',a,' ... try again.')
+  100 continue
+#if PRTNOCR
+      print '(/'' Option : '',$)'
+#else
+      print '(/'' Option : '')'
+#endif
+      outs = ' '
+      if (lsopts) then
+        print '(a)', trim(sopts(js1:js2))
+        outs = sopts(js1:js2)
+      else
+        read(*,'(a150)') outs
+      endif
+      call locase(outs)
+
+C ... Parse and execute the next command
+      if (.false.) then
+
+      elseif (outs .eq. ' ') then
+        print 304
+  304   format(' Enter ''q'' to exit, ''a'' to abort',
+     .    ' ''?'' to see menu')
+        goto 10
+
+C ... Number of k-points
+      elseif (outs(1:4) .eq. 'new ') then
+
+        call words(outs,nw)
+        if (nw .ne. 2) goto 98
+        call word(outs,2,j1,j2)
+        if (allocated(qp)) deallocate(qp)
+        if (outs(j1:j2) .eq. 'irr') then
+          mxkp = nk1*nk2*nk3
+          if (allocated(qfbz)) deallocate(qfbz)
+          allocate(qfbz(3,mxkp))
+          call defi(ogstar,-mxkp-1)
+          w(ogstar) = -2
+          if (allocated(ipq)) deallocate(ipq)
+          allocate(ipq(nk1,nk2,nk3))
+          call defdr(owgt,-mxkp)
+          call info0(20,1,0,' q-points in full BZ ...')
+          call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,ipq,
+     .      qfbz,w(owgt),nq,mxkp,0,0)
+          call dpzero(w(owgt),mxkp)
+          call info2(20,0,0,' Irr. qp ...',0,0)
+          allocate(qp(3,nq))
+          call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrp,ipq,
+     .      qp,w(owgt),nq,mxkp,w(ogstar),0)
+          lqp = 4
+          call rx('irr still in progress')
+        else
+          j = 0
+          j = a2vec(outs(j1:),len(outs(j1:)),j,2,', ',2,-3,1,ix,nq)
+          allocate(qp(3,nq))
+          lqp = 1
+        endif
+        call info2(0,0,0,'%4p... new chi0:  %i k-points',nq,0)
+        nmag = 0
+        havechi0 = 0
+        lnsave = .true.
+
+
+C --- Read chi0 ---
+      elseif (outs(1:5) .eq. 'read ') then
+
+        if (nq .le. 0) then
+          call info0(0,0,0,'%6p... "new" required before read')
+          goto 98
+        endif
+
+        call words(outs,nw)
+        if (nw .lt. 2) goto 98
+        call word(outs,2,j1,j2)
+
+C   --- Kotani style, full matrix ---
+        if (outs(j1:j2) .eq. 'tk') then
+          call info0(0,0,0,'%6p... not ready for tk')
+          goto 98
+
+C   --- Kotani style, rigid spin approximation ---
+        elseif (outs(j1:j2) .eq. 'tkrs') then
+
+C     ... For each k-point, do
+          do  iq = 1, nq
+C           Make Kotani-style file name
+            fn = 'ChiPM0000.nlfc.mat'
+            write(fn(6:9),'(i4)') iq
+            do  j = 6, 9
+              if (fn(j:j) .eq. ' ') fn(j:j) = '0'
+            enddo
+
+C           Open file, read number and list of magnetic sites 
+            ifi = fopng(trim(fn),-1,1)
+            rewind ifi
+            read(ifi,*) nmagf
+            call info2(0,0,0,'%4p... reading file '//trim(fn)//
+     .        ', %i magnetic sites',nmagf,0)
+            if (nmag .gt. 100) call rx('increase size of magat')
+            read(ifi,*) magatf(1:nmagf)
+
+C           Sanity check
+            if (nmagf .lt. nmag) then
+              call info2(0,0,0,
+     .          '%8pabort: %i magnetic sites sought but file '//
+     .          'contains only %i',nmag,nmagf)
+              call fclr(' ',ifi)
+              goto 10
+            endif
+
+C           If magnetic sites not specified, take from file
+            if (iq .eq. 1) then
+              nmag = nmagf
+              magat(1:nmagf) = magatf(1:nmagf)
+            endif
+C           Sanity check for subsequent qp
+            if (isanrg(nmag,nmagf,nmagf,'        abort: ',
+     .        'nmag',.false.)) goto 10
+            do  j = 1, max(nmag,nmagf)
+              if (magat(j) .ne. magatf(j)) then
+                call info0(0,0,0,
+     .          '%8pabort: magnetic site list does not match file:')
+                print 345, ' sought:',magat(1:nmag)
+                print 345, ' file:',  magat(1:nmagf)
+  345           format(a10,100i4)
+                call fclr(' ',ifi)
+                goto 10
+              endif
+            enddo
+              
+C           Get energy mesh ; put into wk
+            allocate(wk(100000))
+C           Skip next 3 lines
+            read(ifi,*) xx; read(ifi,*) xx; read(ifi,*) xx
+            j = 0
+            do while (.true.)
+              read(ifi,*,end=30,err=30) qpi,wk(j+1)
+              j = j + 1
+            enddo
+   30       continue
+
+C           First qp: allocate and assign 
+            if (iq .eq. 1) then
+              ne = j
+              allocate(emesh(ne))
+              emesh(1:ne) = wk(1:ne)
+              allocate(chi0(nmagf,nmagf,nq,ne))
+            endif
+C           Subsequent qp: assignments and sanity checks
+            if (ne .ne. j) then
+              call info5(0,0,0,'%8pabort, qp %i:  expected %i '//
+     .          'energy points from but read %i',iq,ne,j,0,0)
+              goto 10
+            endif
+            call daxpy(ne,-1d0,emesh,1,wk,1)
+            if (ddot(ne,wk,1,wk,1) .gt. 1d-10) then
+              call info2(0,0,0,'%8pabort, qp %i:  energy '//
+     .          'mesh does not match first qp',iq,0)
+              goto 10
+            endif
+            deallocate(wk)
+            qp(:,iq) = qpi
+            call info2(0,0,0,'%8pread %i energy points, qp=%3;11,6D',
+     .        ne,qpi)
+
+C           Read chi0
+            rewind ifi
+            read(ifi,*) j; read(ifi,*) j
+            read(ifi,*) xx; read(ifi,*) xx; read(ifi,*) xx
+            do j = 1, ne
+              read(ifi,*,end=30,err=30) qpi,xx,chi0(:,:,iq,j)
+            enddo
+
+C           Cleanup for this qp
+            call fclr(' ',ifi)
+          enddo
+
+C         chi0 has been read: cleanup
+          havechi0 = 1
+
+        else
+          goto 98
+
+        endif
+
+C ... Specify list of magnetic sites
+      elseif (outs(1:9) .eq. 'magsites ') then
+
+        if (havechi0 .eq. 0) then
+          call info0(0,0,0,'%6p... "read" required before magsites')
+          goto 98
+        endif
+
+        call words(outs,nw)
+        if (nw .ne. 2) goto 98
+        call word(outs,2,j1,j2)
+        call mkils0(outs(j1:j2),nmag,j)
+        if (nmag .le. 0) then
+          call info0(0,0,0,'%6p... Bad or null list : '//outs(j1:j2))
+          nmag = 0
+          goto 98
+        endif
+        if (nmag .gt. 100) call rx('increase size of magat')
+        call mkilst(outs(j1:j2),nmag,magat)
+        call ilst2a(magat,nmag,strn)
+        call info2(0,0,0,'%3p... %i magnetic site%-1j%?#n==1##s#:  '//
+     .    trim(strn),nmag,0)
+C       Sanity check
+        do  i = 1, nmag
+          j = iinear(nmagf,magat(i),magatf,1)
+          if (magat(i) .ne. magatf(j)) then
+            call ilst2a(magatf,nmagf,strn)
+            call info(0,0,0,'%7pabort, site %i is not among chi0 '//
+     .        'list: '//trim(strn)//' .. restore chi0 list',magat(i),0)
+            nmag = nmagf
+            magat(1:nmagf) = magatf(1:nmagf)
+            goto 10
+          endif
+        enddo
+        call rx('magsites still in progress')
+
+C ... show
+      elseif (outs(1:5) .eq. 'show ') then
+        if (havechi0 .eq. 0) then
+          call info2(0,0,0,' ... no chi0 read, '//
+     .      '%?#n==0#no k-points specified#'//
+     .      '%-1jwaiting to read %i k-points',
+     .      nq,0)
+        elseif (havechi0 .eq. 1) then
+          call info5(0,0,0,' ... chi0 read, '//
+     .      '%i site%-1j%?#n==1##s#:  nq=%i  ne=%i  emax=%;4d Ry',
+     .      nmag,nq,ne,emesh(ne),0)
+        else
+          call rx('not ready for show')
+        endif
+
+C ... Save
+      elseif (outs(1:5) .eq. 'save ' .or. outs(1:6) .eq. 'savea ') then
+        call rx('not ready for save')
+C        lbin = outs(1:5) .eq. 'save '
+C        lnsave = .false.
+
+C ... abort
+      elseif (outs(1:2) .eq. 'a ') then
+        call rx0('aborting chi editor ... no file written')
+
+C ... quit
+      elseif (outs(1:2) .eq. 'q '. or. outs(1:5) .eq. 'quit ') then
+        if (lnsave .and. havechi0 .gt. 0) then
+          print '('' chipm file not saved ... really quit?'')'
+          read(*,'(a150)') outs
+          call locase(outs)
+          if (.not. (outs(1:1) .eq. 'y' .or. outs(1:1) .eq. 'q'))
+     .      goto 10
+        endif
+        call rx0('exit chi editor')
+
+C ... help
+      elseif (outs .eq. '?') then
+        print 310
+        print 311
+  310   format(
+     .    ' Select one of these options:'/
+     .  t4,'new nk|irr',t21,
+     .    'New chi0: specify number of k-points to read.'/t21,
+     .    'Optional irr => irreducible points'/
+     .  t4,'magsites list',t21,'specify magnetic sites in basis'//
+     .  t4,'read tk|tkrs',t21,
+     .    'read chi0.  new must be input first.'/t21,
+     .    'tk   => Kotani style, full matrix'/t21,
+     .    'tkrs => Kotani style, rigid spin approximation')
+
+  311   format(/
+     .  t4,'show',t21, 'Show summary information')
+
+      else
+        print '(1x,''unrecognized option: '',a)', trim(outs)
+
+      endif
+      goto 10
+
+   98 call info0(0,0,0,' chimedit:  improper usage of '//trim(outs)//
+     .  ' ... nothing done')
+      goto 10
+
+      end
+

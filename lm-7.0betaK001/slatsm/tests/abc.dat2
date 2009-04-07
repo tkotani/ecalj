@@ -1,0 +1,9 @@
+% rows 2 cols 2 real l=" testing fopn"                                          
+       11.00       12.00
+       21.00       22.00
+% rows 2 cols 2 real l=" testing fopn"                                          
+       11.00       12.00
+       21.00       22.00
+ ... before ftflsh(-1)
+ ... before ftflsh(ifi)
+ ... after ftflsh(ifi)

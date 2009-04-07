@@ -1,0 +1,7 @@
+#!/bin/csh
+foreach xxx  (`find . -name '*.F'`)
+echo $xxx
+cp $xxx $xxx.orgx
+sed s/integer\(4\)/integer/g $xxx >x
+mv x $xxx
+end

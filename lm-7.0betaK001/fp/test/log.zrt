@@ -1,0 +1,129 @@
+ -----------------------  START LMFA     -----------------------
+ HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
+
+ LMFA:     alat = 6.71519  nbas = 6  nspec = 2  vn 7.00(LMFA 7.0)  verb 30
+ pot:      XC:BH
+fa  Pl  5.5 5.5 4.5  Ql  2 0 2
+fa op 0  11  2.100 -0.100  stf   120  3923  ev -0.25966 -0.34401  pq  5.20  2.00
+fa op 0   1  1.400 -0.100  stf   120  1008  ev -0.17032 -0.34401  pq  5.20  2.00
+fa op 1  11  2.100 -0.100  stf    68  -372  ev -0.09324 -0.11966  pq  5.10  0.00
+fa op 1   1  1.400 -0.100  stf    68 -1537  ev -0.07693 -0.11966  pq  5.10  0.00
+fa op 2  17  1.213 -0.100  stf  1789   274  ev -0.27013 -0.28070  pq  4.82  2.00
+fa op sumev   -1.24942   opt basis   -0.88088   err  0.36853
+fa Z  40.0   rm  47.56  qc 36.00  qspl 0.58762  dq 0.00000  Etot   -7188.971451
+fa  Pl  2.5 2.5 3.5  Ql  2 4 0
+fa op 0  19  0.900 -1.342  stf   154    61  ev -1.75141 -1.75151  pq  2.89  2.00
+fa op 1  19  0.900 -0.430  stf   632   206  ev -0.68152 -0.68192  pq  2.87  4.00
+fa op sumev   -6.23070   opt basis   -6.22890   err  0.00180
+fa Z   8.0   rm  23.78  qc  2.00  qspl 0.00000  dq 0.00000  Etot    -149.071489
+ wkinfo:  used    93 K  workspace of 80000 K   in   0 K calls
+ -----------------------  START LMF      -----------------------
+ HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
+
+ LMF:      alat = 6.71519  nbas = 6  nspec = 2  vn 7.00(LMF 7.0)  verb 30
+ special:  forces
+ pot:      XC:BH
+ bz:       nonmetal, tetra 
+bz  nq 6 ( 4 4 4 )  shift  T T T
+dm  L 108 ( 54 54 )  I 0 ( 0 0 )  H 0 ( 0 0 )  N 0
+ov qvl  31.999999  sm  27.197242  loc   4.802756   bg  0.000000  dQ -0.000001
+fp qvl  31.999999  sm  27.197242  loc   4.802756  qbg   0.000000 dQ  -0.000002
+fp pot  rvxc      -669.2769911  rexc      -505.4736709  rves  -29917.5580586
+fp pot  rex       -486.5640113  rec        -18.9096596
+fp pot  rvvxcv     -41.3498277  rvexcv     -31.6360848
+fp pot  rvexv      -27.8166938  rvecv       -3.8193910
+fp evl -1.3318 -1.2587 -1.2516 -1.1880 -0.3721 -0.3399 -0.3378 -0.3029
+fp evl -0.2783 -0.2445 -0.1464 -0.1388 -0.0978 -0.0845 -0.0748 -0.0677
+nv nkp    6  ebot  -1.3318   qval   32.0000  qbg  0.0000  smr  0.0050
+bz met F  tet F  ef -0.062678  sev -15.015887  zval 32.0 qval 0.0 gap 8.5537 eV
+fp Har: U  -29917.558059  T   15443.545941  sev    -15.015887  EH  -14979.485788
+fp qvl  32.000001  sm  23.988747  loc   8.011254  qbg   0.000000 dQ  -0.000001
+fp pot  rvxc      -672.2734203  rexc      -507.7436853  rves  -29916.3041133
+fp pot  rex       -488.7374668  rec        -19.0062185
+fp pot  rvvxcv     -46.4312391  rvexcv     -35.4847967
+fp pot  rvexv      -31.5046961  rvecv       -3.9801006
+fp KS: U  -29916.3041133 T   15446.6208063 Exc   -507.7436853 EKS -14977.4269923
+fp ib   1  fh     0.00    0.00    0.00   fks     0.00    0.00    0.00
+fp ib   2  fh     0.00    0.00    0.00   fks     0.00    0.00    0.00
+fp ib   3  fh     0.00    0.00   -9.68   fks     0.00    0.00  -63.39
+fp ib   4  fh     0.00    0.00   -9.68   fks     0.00    0.00  -63.39
+fp ib   5  fh     0.00    0.00    9.68   fks     0.00    0.00   63.39
+fp ib   6  fh     0.00    0.00    9.68   fks     0.00    0.00   63.39
+fp elind 1.698  Anderson n 0 beta 1  sm-dq 0.0212  mx loc 0.0456  dq 0.0391
+ wkinfo:  used  1348 K  workspace of 80000 K   in  24 K calls
+ -----------------------  START LMF      -----------------------
+ HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
+
+ LMF:      alat = 6.71519  nbas = 6  nspec = 2  vn 7.00(LMF 7.0)  verb 30
+ special:  forces
+ pot:      XC:BH
+ bz:       nonmetal, tetra 
+bz  nq 6 ( 4 4 4 )  shift  T T T
+dm  L 108 ( 54 54 )  I 0 ( 0 0 )  H 0 ( 0 0 )  N 0
+ wkinfo:  used   310 K  workspace of 80000 K   in   0 K calls
+ -----------------------  START LMF      -----------------------
+ HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
+
+ LMF:      alat = 6.71519  nbas = 6  nspec = 2  vn 7.00(LMF 7.0)  verb 30
+ special:  forces
+ pot:      XC:BH
+ bz:       nonmetal, tetra 
+bz  nq 6 ( 4 4 4 )  shift  T T T
+dm  L 108 ( 54 54 )  I 0 ( 0 0 )  H 0 ( 0 0 )  N 0
+fp qvl  32.000000  sm  23.988746  loc   8.011254  qbg   0.000000 dQ  -0.000001
+fp pot  rvxc      -671.4085436  rexc      -507.0875650  rves  -29918.6168832
+fp pot  rex       -488.1134407  rec        -18.9741243
+fp pot  rvvxcv     -44.3506075  rvexcv     -33.9075520
+fp pot  rvexv      -29.9995301  rvecv       -3.9080219
+fp evl -0.9865 -0.8773 -0.8713 -0.7739 -0.1646 -0.1138 -0.1118 -0.0531
+fp evl  0.0025  0.0549  0.1613  0.1728  0.2175  0.2711  0.3292  0.3354
+nv nkp    6  ebot  -0.9865   qval   32.0000  qbg  0.0000  smr  0.0050
+bz met F  tet F  ef 0.344431  sev -4.801120  zval 32.0 qval 0.0 gap 1.4207 eV
+fp Har: U  -29918.616883  T   15446.094034  sev     -4.801120  EH  -14979.610414
+fp qvl  32.000000  sm  26.961254  loc   5.038746  qbg   0.000000 dQ  -0.000001
+fp pot  rvxc      -666.7284568  rexc      -503.5491384  rves  -29898.4391625
+fp pot  rex       -484.6942879  rec        -18.8548505
+fp pot  rvvxcv     -38.9874521  rvexcv     -29.8498178
+fp pot  rvexv      -26.0912573  rvecv       -3.7585605
+fp KS: U  -29898.4391625 T   15425.0602300 Exc   -503.5491384 EKS -14976.9280709
+fp ib   1  fh     0.00    0.00    0.00   fks     0.00    0.00    0.00
+fp ib   2  fh     0.00    0.00    0.00   fks     0.00    0.00    0.00
+fp ib   3  fh     0.00    0.00   47.00   fks     0.00    0.00  108.50
+fp ib   4  fh     0.00    0.00   47.00   fks     0.00    0.00  108.50
+fp ib   5  fh     0.00    0.00  -47.00   fks     0.00    0.00 -108.50
+fp ib   6  fh     0.00    0.00  -47.00   fks     0.00    0.00 -108.50
+fp elind 1.698  Anderson n 1 beta 1  sm-dq 0.0112  mx loc 0.0492  dq 0.0433
+ wkinfo:  used  1331 K  workspace of 80000 K   in  22 K calls
+ -----------------------  START LMF      -----------------------
+ HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
+
+ LMF:      alat = 6.71519  nbas = 6  nspec = 2  vn 7.00(LMF 7.0)  verb 30
+ special:  forces
+ pot:      XC:BH
+ bz:       nonmetal, tetra 
+bz  nq 6 ( 4 4 4 )  shift  T T T
+dm  L 108 ( 54 54 )  I 0 ( 0 0 )  H 0 ( 0 0 )  N 0
+fp qvl  32.000000  sm  23.988746  loc   8.011254  qbg   0.000000 dQ  -0.000001
+fp pot  rvxc      -671.4085436  rexc      -507.0875650  rves  -29918.6168832
+fp pot  rex       -488.1134407  rec        -18.9741243
+fp pot  rvvxcv     -44.3506075  rvexcv     -33.9075520
+fp pot  rvexv      -29.9995301  rvecv       -3.9080219
+fp evl -0.9865 -0.8773 -0.8713 -0.7739 -0.1646 -0.1138 -0.1118 -0.0531
+fp evl  0.0025  0.0549  0.1613  0.1728  0.2175  0.2711  0.3292  0.3354
+nv nkp    6  ebot  -0.9865   qval   32.0000  qbg  0.0000  smr  0.0050
+bz met F  tet F  ef 0.344431  sev -4.801120  zval 32.0 qval 0.0 gap 1.4207 eV
+fp Har: U  -29918.616883  T   15446.094034  sev     -4.801120  EH  -14979.610414
+fp qvl  32.000000  sm  26.961254  loc   5.038746  qbg   0.000000 dQ  -0.000001
+fp pot  rvxc      -666.7284568  rexc      -503.5491384  rves  -29898.4391625
+fp pot  rex       -484.6942879  rec        -18.8548505
+fp pot  rvvxcv     -38.9874521  rvexcv     -29.8498178
+fp pot  rvexv      -26.0912573  rvecv       -3.7585605
+fp KS: U  -29898.4391625 T   15425.0602300 Exc   -503.5491384 EKS -14976.9280709
+fp ib   1  fh     0.00    0.00    0.00   fks     0.00    0.00    0.00
+fp ib   2  fh     0.00    0.00    0.00   fks     0.00    0.00    0.00
+fp ib   3  fh     0.00    0.00   47.00   fks     0.00    0.00  108.50
+fp ib   4  fh     0.00    0.00   47.00   fks     0.00    0.00  108.50
+fp ib   5  fh     0.00    0.00  -47.00   fks     0.00    0.00 -108.50
+fp ib   6  fh     0.00    0.00  -47.00   fks     0.00    0.00 -108.50
+fp elind 1.698  Anderson n 1 beta 1  sm-dq 0.0112  mx loc 0.0492  dq 0.0433
+ wkinfo:  used  1331 K  workspace of 80000 K   in  22 K calls

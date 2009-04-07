@@ -1,0 +1,51 @@
+% input format for NFP-F (5 Oct 98)
+% set trace
+
+  id       <>
+  control  {nit,add} 0 1 {beta} 0.7  {EKS} 1  {forces} 1
+  restart  {read} 1 {write,auto} 0 0  {ms pos} 0  {ms ef} 0 {ms pnu} 0
+  output   {verb} 31 {logstep} 1  {trace} 0  {profile} 0 {ipdyn} 0
+  mix      {beta} 0.7  {elind} -1  {nmix} 3
+  switches {rel} 1 {spinp} 0 {freeze-aug} 0 {xc} 2 {grad} 0
+  dos      {ldos} 0 {emin,emax} -1 2 {ndos} 1001
+  ftmesh   {nxyz}  16 16 16  {tol} 1e-6
+  ewald    {a, tol} 2 1e-8 {nkdmx,qmx} 400 400
+  kmesh    {job} 0  {nkxyz}  2 2 2
+  lattice  {a} 10.26  {p}  0 0.5 0.5 0.5 0 0.5 0.5 0.5 0
+  stretch  {vx,vy,vz,gam}  0 0 1 1
+  plane    {vx} 1 0 0  {vy} 0 1 0  {center} 0 0 0
+  dplot    {x} 0 1 {y} 0 1  {nx,ny} 25 25
+  plot     {b&s} 0  {atom rho} 0  {lmto basis} 0  {atom wavefct} 0
+  amp      0
+%  symgroup < r4z r2x r3d i>
+   symgroup <i*r3d:t(.25,.25,.25) r4x:t(.25,.25,.25)>
+ 
+  symln 41  .5 .5 .5     0  0 0
+  symln 41   0  0  0     1  0 0
+  symln 21   1  0  0     1 .5 0
+  symln 41   1 .5  0     0  0 0
+
+% site positions
+  pos  <C1>      0.0 0.0 0.0                         0 0 0
+  pos  <C1>      0.25 0.25 0.25                      0 0 0
+  pos  <EC1>     0.5 0.5 0.5                         0 0 0
+  pos  <EC1>     0.75 0.75 0.75                      0 0 0
+ 
+% species data
+  spec  <C1>
+      gen   {z} 14 {mass} 1  {rmt} 2.2732839  {mesh} 561 0.015
+      foca   1 {rfoca} 0.9093136
+      chd   {lmxl} 3  {rg} 0.568321  {rsmv,kv}  0.9093136 15
+      aug   {rsma,kmxa} 0.909314 3  {lmxa} 4 {pnu}   3.88 3.68 -3.2 4.2 5.2
+      bas   <h> {l} 0 3 {rsm} 1.4  {e} -0.2
+      bas   <h> {l} 0 1 {rsm} 1.4  {e} -1.2
+      fa    {rsmfa} 1.1366419  {Q}  2 2 0 0
+  endspec
+  spec  <EC1>
+      gen   {z} 0 {mass} 1  {rmt} 2.2732839  {mesh} 159 0.015
+      foca   0 {rfoca} 0.9093136
+      chd   {lmxl} 3  {rg} 0.568321  {rsmv,kv}  0.9093136 15
+      aug   {rsma,kmxa} 0.909314 3  {lmxa} 4 {pnu}   1.2 2.2 -3.2 4.2 5.2
+      bas   <h> {l} 0 2 {rsm} 1.5  {e} -0.2
+      fa    {rsmfa} 1.1366419  {Q}  0 0 0 0
+  endspec

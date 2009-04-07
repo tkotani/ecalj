@@ -1,0 +1,362 @@
+This file is intended for anyone intending to understand or alter the code.
+
+The lm package is written mostly in standard fortran-77, with some
+minimal extensions.  The most important ones are:
+
+(1) A few routines are written in C; the fortran compiler must have a
+    corresponding (compatible) C compiler.  In particular, the main entry
+    point is in the slatsm library, which immediately calls fortran
+    routine 'fmain.'  This allows us to pick up command-line arguments
+    without in a compiler-independent fashion.  Thus, the 'main'
+    program is actually a subprogram, 'subroutine fmain'
+
+(2) 'double complex' arithmetic is required;
+
+(3) the fp package (and all packages in future releases) requires that
+    the compiler accept automatic arrays.
+
+Because fortran-77 is rather limited, this code adopts some 'modern'
+extensions in a fortran-77 compatible way:
+
+------------------- Dynamic memory allocation --------------------
+A large integer array (called 'w'), plays the role of the heap, is
+defined at the beginning of the main program.  One declares an integer
+array w of some (large) fixed size, and puts it in a common block /w/,
+e.g.
+
+      integer wksize
+      parameter(wksize= 40 000 000)
+      integer w(wksize)
+      common /w/ w
+
+To initialize the memory managment routines (see 'alloc.f' in the
+slatsm library), invoke as one of the first executable statements:
+
+      call wkinit(wksize)
+      call wkfast(T)
+
+NB: The second call isn't necessary, but the memory management
+routines skip certain checks and they run faster.
+
+Memory is allocated by taking pieces from this integer array in common
+block 'w'.  To allocate memory of say size n, do one the following
+(here oname and n are scalar integers):
+
+      call defi (oname, n)    <- integer
+      call defrr(oname, n)    <- double precision
+      call defcc(oname, n)    <- double complex
+
+Then w(oname) is the first element in the array.  Usually it isn't
+useful directly (unless the array is an integer).  In practice you
+allocate the memory in the routine that calls the one where you
+actually need the array, and then you can use it as a 'normal' array
+in the called routine.  Here is an example of allocation of a
+two-dimensional array a2d(n,m):
+
+      call defrr(oa2d, n*m)
+      call mysub(w(oa2d),n,m)
+      ...
+
+      subroutine mysub(a2d,n,m)
+      integer n,m
+      double precision a2d(n,m)
+      a2d(1,1) = 9
+      ...
+
+To free the memory, call 'rlse'.  subroutine rlse frees the array you
+indicate, and all arrays allocated AFTER it.  Thus
+
+      call defrr(ofirst,  m1)
+      call defi (osecond, m2)
+      call defcc(othird,  m3)
+
+      call rlse(osecond)
+
+allocates three arrays.  The 'rlse' command returns the memory allocated
+for the second and third arrays to the heap.
+
+Some other useful function calls:
+  (a) 'wkchk' is for debugging: it runs through the links to ensure
+      that none were overwritten.
+  (b) 'defask' and 'wquery' return information about the amount of
+      free memory and how much is used.
+  (c) 'wkinfo' prints out all the arrays allocated and their memory
+      used
+  (d) Entries 'defsw', 'defps2', etc toggle the top two, three arrays
+      or so on the stack
+
+------------------- Structures --------------------
+
+Fortran-77 simulation of structures is accomplished by creating a
+series of subroutines, one for each structure, each of which contains
+information relevant to that structure.  All these routines are
+collected in file 'lstra.f' and there is a common interface for
+packing and unpacking data out of all structures.  For example, there
+is a structure "slat" that holds information to relevant to a crystal
+lattice, such as the primitive lattice vectors, its symmetry
+operations, Ewald parameters, a specification of a uniform mesh for
+representing charge, etc.  slat is just a double precision array that
+holds this information ordered in some particular way which usually
+you don't have to be concerned with; there is a corresponding
+subroutine 'ulat' in lstra.f that keeps information about the
+organization of structure slat.  There are packing and unpacking
+routines that enable you to extract or poke data in these structures
+without having to bother with the internal organization of the
+structure.
+
+For example, structure 'slat' has has entries such as 'plat' and
+'nsgrp' which hold respectively the primitive lattice translation
+vectors and the number of space group operations.  To extract those
+two quantities we would invoke something like
+
+      subroutine mysub(slat)
+      double precision slat(1)
+      integer nsgrp                  <- note that these are
+      double precision plat(3,3)     <- locally declared variables
+      ...
+      call upack2('lat plat nsgrp',slat,plat,nsgrp)
+      ...
+
+Conversely, if you wanted to pack this same data into slat, use
+
+      call pack2('lat plat nsgrp',slat,plat,nsgrp)
+
+The organization of each structure is described in a series of
+comments at the start of each subroutine.  The name of each entry in
+the structure, its position in the structure, and its meaning are
+described in comments just after the declaration of the routine; see
+for example, comments after subroutine 'ulat'.
+
+In v6.10a, the structure names, and corresponding subroutines are:
+
+    Table 1.
+    Struc    Routine  Function
+    ==============================================
+    sbz      ubz      Brillouin zone integration
+    sarray   uarray   global array offsets and data
+    sctrl    uctrl    control parameters
+    sgw      ugw      GW and dielectric response
+    sham     uham     hamiltonian parameters
+    slat     ulat     lattice structure
+    smix     umix     mixing parameters
+    smove    umove    dynamics
+    soptic   uoptic   optics
+    sordn    uordn    order-N parameters
+    spot     upot     density, potential, matrix elt
+    sspec    uspec    species structure
+    ssite    usite    site structure
+    sstr     ustr     tb-strux parameters
+    sstrn    ustrn    string structure
+
+* Some structures are 'species-specific', i.e. the structure holds
+  entries for different species.  In the above list, the
+  species-specific structures are sspec and ssite.  See below for how
+  to pack/unpack species-specific structures.
+
+* Each subroutine ulat, upot, etc holds information about the total
+  size of the structure, where each entry is placed within a
+  structure, the size of each entry (plat is size 9, nsgrp is size 1
+  in the above example) and the cast of each entry, i.e. whether it is
+  double precision, integer, or character.  (Characters are stored as
+  a double precision word; you must convert it to a character*8
+  variable by routine 'r8tos8' in the slatsm library.)
+
+  Usually  you don't call ulat, upot, etc directly, because
+  these routines just return information about where how is stored
+  in the structure, not the contents structure itself.  Occassionally
+  you do need to, however; for example subroutine rdctrl allocates
+  memory for these structures and it makes such calls to find out
+  how large each structure is.
+
+* Some entries are integers that actually are compounds of many bits.
+  For example, the 'ctrl' structure has many such compounds; the
+  meaning of each individual bit is described in the comments.
+
+* Illustration of some ways to extract data from a structure
+C     Unpack several elements from non species-specific structure
+      call upack('lat plat nsgrp ng',slat,plat,nsgrp,ng,0,0)
+C     Unpack site positions and Euler angles from ssite
+      call upack('site pos eula',ssite,ib,pos,eula,0,0)
+C     Extract lmxb from species j in structure sspec
+      lmxb = igetss('spec lmxb',j,sspec)
+C     extract bits 0 and 2 from entry 'ctrl->ltb'
+      k = igets('ctrl ltb,1+4',sctrl)
+C     Return T if bit 2 of ctrl->ldos is set, otherwise false
+      ltmp = lgors('ctrl ldos,4',sctrl)
+C     Pack/unpack entire array pos(3,1..nsite) into ssite
+      call spackv(11,'site pos',ssite,1,nsite,pos)  <- packs
+      call spackv(10,'site pos',ssite,1,nsite,pos)  <- unpacks
+
+* At the start of file lstra.f reside all the strings that label the
+  various entries in each structure.  If you want to modify or create
+  a new structure, see the comments in 'Remarks' just below the
+  declaration 'subroutine lstra' in file lstra.f.
+
+* Adding an entry to an existing structure.
+
+  You must modify file lstra.f in two places, in subroutine lstra (first
+  routine in file lstra.f), and also in the structure-specific subroutine
+  that handles the indexing for structure elements of that structure.  Each
+  structure as a structure-specific subroutine and they are listed in Table
+  1 above.  All these structure-specific subroutines are also part of file
+  lstra.f (As an example, add entry 'bum' to structure soptic.  As Table 1
+  shows, the soptic-specific subroutine is named uoptic.)
+
+  1.  Find the structure-specific routine in lstra.f (example: uoptic)
+      In the Remarks of that routine, you will see a table, like so:
+   	off offe  name    purpose
+   	 2    1   axes   (abc) axes in xi^(abc) for nonlinear optics
+   	20    2   cll    core level l quantum number
+   	21    3   cln    core level n quantum number
+        ...
+      The 'off' column points to the starting location of the structure
+      element within the structure.  (An element may occupy more than one
+      location).  The 'offe' column is the element index (1 for the first
+      element, 2 for the second, etc).  The third column is the element's
+      name, the string that structure packers and unpackers use to identify
+      an element.  Under 'purpose' is a short description of the meaning of
+      that element.  Note that the elements are ordered alphabetically.
+
+  2.  In the Remarks, insert the new entry keeping alphabetical order.
+      Obviously this doesn't affect execution of the code, but it keeps a
+      proper record of what the structure contains.
+
+  3.  Readjust the 'off' 'offe' columns for your new entry, and every entry
+      below it.  In our example, suppose 'bum' has length 2.  Then the new
+      Remarks should look like:
+      	Cr    2    1   axes   (abc) axes in xi^(abc) for nonlinear optics
+      	Cr   20    2   bum    this is our new addition
+      	Cr   22    3   cll    core level l quantum number
+      	Cr   23    4   cln    core level n quantum number
+      	Cr   24    5   cls    1 or 2 for EELS or XANES
+        ...
+      Now 'bum' will sit at location 20 and 21 and the next element 'cll'
+      was moved to 22.
+
+  4.  Make 'data ilists' exactly correspond to the column 'off' in the
+      comments.  Most routines (but not all; see sspec for an exception)
+      that there be one final entry in ilists that points to the first
+      position past the end of the structure.  This is because these
+      routines usually determine the size of the ith element from
+      ilists(i+1)-ilists(i)
+
+  5.  Insert the cast of the new entry in 'data casts'
+      cast=0 for logical, 2 for integer, 4 for double.
+
+  6.  Increment parameter 'nlists' by 1.  'nlists' is the number of entries
+      in the structure.
+
+  7.  Increment the parameter 'size' by the size of the new element.
+      (In our example, the size of 'bum' is 2.)
+
+  8.  In the branch ... if (offe(1) .eq. -1) then ...
+      there will be a line 'soptic(psize) = size' or something similar.
+      The point is that the element 'size' should reflect the structure's
+      size.  (The first entry in the structure also contains the size.)
+      Which structure should be set to 'size' should correspond to the
+      'off' column in the Remarks associated with element 'size'.
+
+  This ends the change in the structure-specific subroutine.  You must also
+  change two things in lstra (first routine in file lstra.f).
+
+  9. The (alphabetically ordered) names of a given structure are
+     put into a data statement.     Example: for the optics structure :
+         data list9 /'axes','cll','cln',...
+     Add your new element to this list, e.g.
+         data list9 /'axes','bum','cll','cln',...
+
+ 10. For each structure, there is a parameter holding the number of names
+     in the structure.  (Example: nlist9).  Increment this parameter.
+
+ 11. If this parameter (eg nlist9) is larger than the maximum size
+     (parameter nmax) increment nmax.
+
+* Creating a new structure, is rather involved.
+  Comments at the start of routine lstra.f outline the steps to take.
+  If you do alter the a structure, be sure that the comments are
+  correct, that the structure holds what you think it does, and that
+  the casts and sizes of each entry are correct.  You can use 'shstru'
+  to print out the contents of a structure:
+
+      call shstru('array',sarray,0,0)
+
+------------------- Programming style and documentation -----------------
+
+The code is designed around several rules for uniform programming style:
+(For historical reasons, some older routines don't follow these rules)
+
+* subroutine arguments list inputs first followed by outputs :
+      subroutine evxcv(rho,rhosp,n,nsp,lxcf,exc,vxc)
+
+  Here entries rho...lxcf are inputs; exc..vxc are outputs.
+
+* The first line after a declaration looks like
+C- a brief descpription of this subroutine
+
+  This facilitates searching for something with the unix 'grep', e.g.
+  grep -i '^C- .*symmetry' *.f
+
+* Comments at the start of a routine should describe all inputs and
+  outputs.  There is a standard format, which labels inputs with 'Ci'
+  outputs with 'Co', and 'Cr' are for labeling additional Remarks;
+  'Cu' lable updates.  An emacs macro in found in this directory
+  (fortran-list-output-variables.el) will automatically create a
+  template for you within emacs, that specific to the routine you are
+  working with.  Also, it will find some extra information such as
+  what parts of a structure are read or stored.  Here is an example:
+
+      subroutine evxcv(rho,rhosp,n,nsp,lxcf,exc,vxc)
+C- XC energy density and potential for a vector of points.
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   rho   :spin-1 + spin-2 density
+Ci   rhosp :spin-1 density (unused for nsp=1)
+Ci   n     :number of points
+Ci   nsp   :2 for spin-polarized case, otherwise 1
+Ci   lxcf  :local exchange-correlation functional index
+Ci         :1= Ceperly Alder
+Ci         :2= Hedin-Lundqvist
+Co Outputs
+Co   exc   :local exchange energy density for the n points
+Co   vxc   :local exchange potential for the n points
+Cr Remarks
+Cu Updates
+C ----------------------------------------------------------------------
+
+* It is preferable that all variables are explicitly declared, with
+  declarations of passed parameters first, followed by declarations of
+  local variables.
+
+* I prefer to delineate major blocks by comments containing '---' eg
+C --- Vosko-Ceperley-Alder ---
+C --- Hedin-Lundqvist ---
+C --- Taken from ASW ---
+C --- Vosko-Ceperley-Alder, spin polarized case ---
+C --- Barth-Hedin ---
+
+  and minor blocks by comments containing '...' eg
+C ... Unpack arrays, now permuted and padded
+C ... Shift doubly padded bas; repack
+
+In this way major division can easily be found.  For example, there is
+an emacs macro supplied in this directory (list-comment-lines.el) that
+finds mode-specific comment lines (e.g. comments specific to C, TeX,
+and fortran modes), and uses emacs 'Occur' mode to quickly enable one
+to move to a block of interest.
+
+* Any printouts should write to 'standard out' or 'standard log'
+  and should have a verbosity check, e.g.  :
+
+      call getpr(ipr)   <- Gets the "verbosity" set by the input file
+                           (see slatsm iprint.f).
+      stdo = lgunit(1)  <- gets the logical unit for 'standard out'
+      stdl = lgunit(2)  <- gets the logical unit for the log file
+
+      if (ipr .ge. 20 .ipr .le. 30) then
+        write (stdo,102)
+      elseif (ipr .ge. 30) then
+        write (stdo,103)
+      endif
+
+   Important information can be written in an abbreviated form
+   to the log file (logical unit stdl).

@@ -1,0 +1,96 @@
+ -----------------------  START LMCHK (80000K)  -----------------------
+ HEADER Example of an ASA input file : Si with empty spheres
+
+ LMCHK:    alat = 10.26266  nbas = 4  nspec = 2  vn 7.00  verb 40
+ pot:      XC:BH
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol= 270.221506
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat=10.26266   awald= 0.309
+         r1=  1.853   nkd=  87      q1=  5.557   nkg= 169
+
+ SGROUP: 1 symmetry operations from 0 generators
+ SYMLAT: Bravais system is cubic with 48 symmetry operations.
+ SYMCRY: crystal invariant under 48 symmetry operations for tol=1e-5
+ GROUPG: the following are sufficient to generate the space group:
+         i*r3(1,1,-1):(1/4,1/4,1/4) r4x:(1/4,1/4,1/4)
+         i*r3(1,1,-1)::(1/4,1/4,1/4) r4x::(1/4,1/4,1/4)
+ MKSYM:  found 48 space group operations ... includes inversion
+ pairc:    108 pairs total   27 is max cluster size
+
+ Shell decomposition for class SI        class   1  z=14
+ shell   d     nsh csiz  class ...
+   1  0.000000   1    1  1:SI
+   2  0.433013   8    9  1:SI(4)       2:ES(4)
+   3  0.500000   6   15  2:ES(6)
+   4  0.707107  12   27  1:SI(12)
+   5  0.829156  24   51  1:SI(12)      2:ES(12)
+   6  0.866025   8   59  2:ES(8)
+   7  1.000000   6   65  1:SI(6)
+   8  1.089725  24   89  1:SI(12)      2:ES(12)
+   9  1.118034  24  113  2:ES(24)
+  10  1.224745  24  137  1:SI(24)
+  11  1.299038  32  169  1:SI(16)      2:ES(16)
+  12  1.414214  12  181  1:SI(12)
+  13  1.479020  48  229  1:SI(24)      2:ES(24)
+  14  1.500000  30  259  2:ES(30)
+  15  1.581139  24  283  1:SI(24)
+  16  1.639360  24  307  1:SI(12)      2:ES(12)
+  17  1.658312  24  331  2:ES(24)
+  18  1.732051   8  339  1:SI(8)
+  19  1.785357  48  387  1:SI(24)      2:ES(24)
+  20  1.802776  24  411  2:ES(24)
+  21  1.870829  48  459  1:SI(48)
+  22  1.920286  72  531  1:SI(36)      2:ES(36)
+  23  2.000000   6  537  1:SI(6)
+
+ Shell decomposition for class ES        class   2  z= 0
+ shell   d     nsh csiz  class ...
+   1  0.000000   1    1  2:ES
+   2  0.433013   8    9  1:SI(4)       2:ES(4)
+   3  0.500000   6   15  1:SI(6)
+   4  0.707107  12   27  2:ES(12)
+   5  0.829156  24   51  1:SI(12)      2:ES(12)
+   6  0.866025   8   59  1:SI(8)
+   7  1.000000   6   65  2:ES(6)
+   8  1.089725  24   89  1:SI(12)      2:ES(12)
+   9  1.118034  24  113  1:SI(24)
+  10  1.224745  24  137  2:ES(24)
+  11  1.299038  32  169  1:SI(16)      2:ES(16)
+  12  1.414214  12  181  2:ES(12)
+  13  1.479020  48  229  1:SI(24)      2:ES(24)
+  14  1.500000  30  259  1:SI(30)
+  15  1.581139  24  283  2:ES(24)
+  16  1.639360  24  307  1:SI(12)      2:ES(12)
+  17  1.658312  24  331  1:SI(24)
+  18  1.732051   8  339  2:ES(8)
+  19  1.785357  48  387  1:SI(24)      2:ES(24)
+  20  1.802776  24  411  1:SI(24)
+  21  1.870829  48  459  2:ES(48)
+  22  1.920286  72  531  1:SI(36)      2:ES(36)
+  23  2.000000   6  537  2:ES(6)
+
+   Site     Spec            Rmax                Position
+    1      1  SI          2.526526   0.000000   0.000000   0.000000
+    2      1  SI          2.526526   0.250000   0.250000   0.250000
+    3      2  ES          2.526526   0.500000   0.500000   0.500000
+    4      2  ES          2.526526   0.750000   0.750000   0.750000
+
+ Cell volume= 270.22151   Sum of sphere volumes= 270.22151 (1)
+
+ ib jb  cl1     cl2        Pos(jb)-Pos(ib)      Dist  sumrs   Ovlp    %
+  1  2  SI      SI        2.566  2.566  2.566  4.444  5.053   0.61  13.7*
+  1  3  SI      ES        0.000  0.000 -5.131  5.131  5.053  -0.08  -1.5 
+  1  4  SI      ES       -2.566 -2.566 -2.566  4.444  5.053   0.61  13.7*
+  2  3  SI      ES        2.566  2.566  2.566  4.444  5.053   0.61  13.7*
+  2  4  SI      ES        0.000  0.000 -5.131  5.131  5.053  -0.08  -1.5 
+  3  4  ES      ES        2.566  2.566  2.566  4.444  5.053   0.61  13.7*
+
+ OVMIN:     fovl = 4.97751e-6   <ovlp> = 13.1%   max ovlp = 13.7%
+ Exit 0 LMCHK                                                                   
+ CPU time:    0.375s     Wed Feb 11 13:43:16 2009   on waldo.eas.asu.edu
+ wkinfo:  used   106 K  workspace of 80000 K   in   0 K calls

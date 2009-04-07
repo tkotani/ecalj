@@ -1,0 +1,102 @@
+ -----------------------  START LMF (80000K)  -----------------------
+ HEADER Cu
+
+ rdctrl: reset global max nl from 5 to 6
+
+ LMF:      alat = 6.798  nbas = 1  nspec = 1  vn 7.00(LMF 7.0)  verb 31,20
+ special:  APW basis
+ pot:      XC:BH
+ bz:       metal(3), tetra, invit 
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol= 78.538660
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat= 6.79800   awald= 0.467
+         r1=  1.959   nkd= 135      q1=  5.910   nkg= 181
+
+ SGROUP: 1 symmetry operations from 0 generators
+ SYMLAT: Bravais system is cubic with 48 symmetry operations.
+ SYMCRY: crystal invariant under 48 symmetry operations for tol=1e-5
+ GROUPG: the following are sufficient to generate the space group:
+         i*r3(1,1,-1) r4x
+         i*r3(1,1,-1) r4x
+ MKSYM:  found 48 space group operations ... includes inversion
+ 
+ BZMESH:  29 irreducible QP from 512 ( 8 8 8 )  shift= F F F
+ TETIRR: sorting 3072 tetrahedra ...
+ 76 inequivalent ones found
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Cu       2.280  0.912    5    5         5  0.570  1.140    15    1   0.912
+
+ gvlist: cutoff radius   9.803 gives   1243   recips of max   3375
+ SGVSYM: 53 symmetry stars found for 1243 reciprocal lattice vectors
+ 
+
+ Makidx:  hamiltonian dimensions Low, Int, High, Negl: 9 0 27 0
+ suham :  36 augmentation channels, 36 local potential channels  Maximum lmxa=5
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  Cu       0    1.50  -0.28   4.956    2.32E-06     169 
+  Cu       1    1.50  -0.10   5.245    1.10E-06     181 
+  Cu       2    0.95  -0.11   8.973    1.81E-06     941 
+
+ suham:  q-dependent PW basis with  Emin = 0 < E < 5.
+         Est. min,max PW dimension = 12,18.  Use npwpad = 3 => ndham = 30
+
+ iors  : read restart file (binary, mesh density) 
+         use from  restart file: ef window, positions, pnu 
+         ignore in restart file: *
+
+ --- BNDFP:  begin iteration 1 of 20 ---
+
+ avg es pot at rmt= 0.584477  avg sphere pot= 0.639061  vconst=-0.584477
+
+ site  1  z= 29.0  rmt= 2.28000  nr=393   a=0.025  nlml=36  rg=0.570  Vfloat=T
+ sm core charge = 0.295519 (sphere) + 0.00535 (spillout) = 0.300868
+ potential shift to crystal energy zero:    0.000102
+
+
+ Read efermi from weights file : ef = -0.013447
+ suqlst:  generate bands, mode 1
+
+ suqlst:  nq= 21   q1= 0.5000 0.5000 0.5000   q2= 0.0000 0.0000 0.0000
+ bndfp:  kpt 1 of 21, k=  -0.50000  -0.50000  -0.50000   ndimh = 23
+ zhev_tk: ovlmat=
+    1  0.11D-04    2  0.22D-03    3  0.96D-03    4  0.96D-03    5  0.39D-01
+    6  0.39D-01    7  0.63D-01    8  0.16D+00    9  0.16D+00   10  0.21D+00
+   11  0.21D+00   12  0.27D+00   13  0.27D+00   14  0.59D+00   15  0.14D+04
+   16  0.14D+04   17  0.69D+04   18  0.96D+04   19  0.96D+04   20  0.10D+05
+   21  0.10D+05   22  0.14D+05   23  0.27D+05
+ eigenvalue=
+ -0.4043 -0.2525 -0.2525 -0.1442 -0.1442 -0.0958  0.2610  1.5610  1.6187
+ bndfp:  kpt 11 of 21, k=  0.25000  0.25000  0.25000   ndimh = 24
+ -0.5604 -0.2691 -0.2383 -0.2383 -0.1810 -0.1810  0.9318  1.6816  1.7469
+ bndfp:  kpt 21 of 21, k=  0.00000  0.00000  0.00000   ndimh = 24
+ -0.7177 -0.2504 -0.2504 -0.2504 -0.1871 -0.1871  1.6705  1.8605  1.8605
+
+ Read efermi from weights file : ef = -0.013447
+
+ suqlst:  nq= 21   q1= 0.0000 0.0000 0.0000   q2= 1.0000 0.0000 0.0000
+ bndfp:  kpt 1 of 21, k=  0.00000  0.00000  0.00000   ndimh = 24
+ zhev_tk: ovlmat=
+    1  0.94D-06    2  0.51D-03    3  0.51D-03    4  0.51D-03    5  0.35D-01
+    6  0.35D-01    7  0.45D-01    8  0.79D-01    9  0.79D-01   10  0.79D-01
+   11  0.36D+00   12  0.36D+00   13  0.36D+00   14  0.42D+00   15  0.53D+00
+   16  0.10D+05   17  0.10D+05   18  0.10D+05   19  0.10D+05   20  0.10D+05
+   21  0.10D+05   22  0.10D+05   23  0.10D+05   24  0.10D+05
+ eigenvalue=
+ -0.7177 -0.2504 -0.2504 -0.2504 -0.1871 -0.1871  1.6705  1.8605  1.8605
+ bndfp:  kpt 11 of 21, k=  0.50000  0.00000  0.00000   ndimh = 23
+ -0.5127 -0.3045 -0.2218 -0.2001 -0.2001 -0.1664  1.2749  1.2749  1.4281
+ bndfp:  kpt 21 of 21, k=  -1.00000  0.00000  0.00000   ndimh = 23
+ -0.3886 -0.3555 -0.1452 -0.1336 -0.1336  0.0874  0.5202  0.9471  0.9471
+
+ Read efermi from weights file : ef = -0.013447
+ Exit 0 bndfp 
+ wkinfo:  used   488 K  workspace of 80000 K   in  11 K calls

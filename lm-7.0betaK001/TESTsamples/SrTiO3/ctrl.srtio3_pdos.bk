@@ -1,0 +1,107 @@
+#!/bin/csh
+set nk = 3
+foreach da (-0.2 -0.1 0 0.1 0.2) 
+#foreach pwemax (3 5 8 10 12.5 15)
+#  set ncut = 0
+#  if( $pwemax == "5" ) set ncut = 4
+#  if( $pwemax == "8" ) set ncut = 10
+#  if( $pwemax == "10" ) set ncut = 14
+#  if( $pwemax == "12.5" ) set ncut = 14
+#  if( $pwemax == "15" ) set ncut = 14
+  lmf srtio3 -vnk=$nk -vda=$da >out_nk${nk}_da${da}
+end
+#end
+exit
+
+# foreach pwemax (3 5 8 10 12.5 15)
+# foreach da (-0.2 -0.1 0 0.1 0.2) 
+#  set ncut = 0
+#  if( $pwemax == "5" ) set ncut = 4
+#  if( $pwemax == "8" ) set ncut = 10
+#  if( $pwemax == "10" ) set ncut = 14
+# #echo $ncut $pwemax
+#   lmf srtio3 -vovncut=$ncut -vpwemax=$pwemax -vnk=$nk >out_pw${pwemax}_nk${nk}
+# end
+# end
+# exit
+
+#   68  to 68 c pwemax 3    nk 2 ehf -2.7220655 ehk -2.7220648
+#  111 to 107 c pwemax 5    nk 2 ehf -2.7356981 ehk -2.7356989
+#  184 to 174 c pwemax 8    nk 2 ehf -2.7491112 ehk -2.7491116
+#  250 to 237 c pwemax 10   nk 2 ehf -2.7529519 ehk -2.752954
+#  338 to 325 c pwemax 12.5 nk 2 ehf -2.7553926 ehk -2.7553945
+#  422 to 408 x pwemax 15   nk 2 ehf -2.7566886 ehk -2.7566877
+
+ctrlstart ==========================================
+% const pwemax=5 nk=4 da=-.2 ncut=0 kmxa=7  #this calculation requies kmxa >=6. kmxa=5 fails....
+HEADER  SrTiO3 cubic 
+VERS    LMF-6.10 LMASA-6.10 LMF:7 LM:7 FP:7
+IO      SHOW=F VERBOS=verb
+CONST   ro=1.45 rti=2.33479535 rti=2.35348 rsr=3.1
+        verb=41 au=0.529177
+        d0=1.95/au a0=2*d0 v0=a0^3 vfrac=1 v=v0*vfrac a1=v^(1/3)
+        d1=a1/2 rf=0.9 rfsr=0.9
+SYMGRP i*i
+STRUC   NBAS=5 NL=5 NSPEC=3+0+0 ALAT=a1 DALAT={da} PLAT=1 0 0  0 1 0  0 0 1
+SITE
+        ATOM=Sr POS=1/2 1/2 1/2
+        ATOM=Ti POS= 0   0   0+0
+        ATOM=O  POS=1/2  0   0
+        ATOM=O  POS= 0  1/2  0
+        ATOM=O  POS= 0   0  1/2
+SPEC
+        ATOM=Sr Z=38 R=rsr LMXA=5       EREF=-6351.4281
+               RSMH=2.067,2.067,1.873 EH=-0.1,-0.1,-0.1
+               KMXA={kmxa} 
+               PZ=0,4.9 
+
+        ATOM=Ti Z=22 R=rti LMXA=5       EREF=-1703.4890
+                RSMH=1.557,1.55,1.137 EH=-0.1,-0.1,-0.1
+                KMXA={kmxa}
+
+        ATOM=O  Z=8  R=ro  LMX=2 LMXA=5 EREF=-149.1822 
+                RSMH=.854,0.767 
+                KMXA={kmxa} EH=-1.289,-.33
+
+BZ      NKABC={nk} BZJOB=1 METAL=3 DOS=-1,1
+#ITER    CONV=1e-5 CONVC=1e-5 NIT=20
+ITER    MIX=A2,b=.5,n=3;A0,b=.5,n=3 CONV=1e-5 CONVC=1e-5 NIT=20
+HAM     FTMESH=20 20 20 REL=t
+        PWMODE=11  PWEMAX={pwemax}
+        #OVNCUT={ncut}
+        #OVEPS=1d-6 
+OPTIONS HF=f PFLOAT=1 #Q=band
+
+
+
+
+####################### This is not used because SPEC is already give above.
+SPEC
+        ATOM=Sr Z=38 R=rsr LMXA=5  EREF=-6351.4281
+               RSMH=0,0,0,0,0 EH=0,0,0,0,0
+               KMXA={kmxa} 
+               PZ=0,4.9 
+
+        ATOM=Ti Z=22 R=rti LMXA=5  EREF=-1703.4890
+                RSMH=1.557,1.55,1.137 EH=-0.1,-0.1,-0.1
+                KMXA={kmxa}
+
+        ATOM=O  Z=8  R=ro  LMXA=5  EREF=-149.1822 
+                RSMH=.854,0.767 
+                KMXA={kmxa} EH=-1.289,-.33
+
+
+
+SPEC
+        ATOM=Sr Z=38 R=rsr LMXA=5  EREF=-6351.4281
+               RSMH=2.067,2.067,1.873 EH=-0.1,-0.1,-0.1
+               KMXA={kmxa} 
+               PZ=0,4.9 
+
+        ATOM=Ti Z=22 R=rti LMXA=5  EREF=-1703.4890
+                RSMH=1.557,1.55,1.137 EH=-0.1,-0.1,-0.1
+                KMXA={kmxa}
+
+        ATOM=O  Z=8  R=ro  LMXA=5  EREF=-149.1822 
+                RSMH=.854,0.767 
+                KMXA={kmxa} EH=-1.289,-.33

@@ -1,0 +1,24 @@
+* Version 7 has a completely new input system.  
+
+  The structure explicity of the tree format, as described in
+  doc/input.pdf
+  
+  Input files are largely backwardly compatible with version 6, but
+  there are some differences.
+  
+  Program lm67 will read an input file for you and point out what
+  changes need to be made to convert the file from version 6 to version 7.
+  Supposing, e.g. you have an input file designed for the FP program lmf,
+  which you would run as:
+     lmf -va=9.3 myfile
+  Invoke 
+     lm67 --prog=LMF -va=9.3 myfile
+  to get a printout of the changes you need to make.
+  
+  Note: Version 6 can still be compiled; install with 'configure.v6' instead of
+  'configure' but version 6 will no longer be supported.
+
+* The FP code, lmf in version 7, has both APWs and generalized LMTOs
+  as basis functions.  See fp/fp.html.
+
+

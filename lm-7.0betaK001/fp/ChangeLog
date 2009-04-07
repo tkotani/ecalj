@@ -1,0 +1,339 @@
+2008-10-04  Tony Paxton 
+
+	* lmf-MPI now works with APW basis
+	
+2008-10-03  Axel Svane
+
+	* Returns electric field gradients at the nucleus
+
+2008-07-06  Takao Kotani
+
+	* APW addition to MTO basis
+
+2008-07-04  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* New restart file editor
+
+	* Redesign of self-energy modifier, sigm
+
+2007-07-09  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* MPIK enabled for band plotting, FA overlaps, symmerization
+
+	* some bug fixes MPI, including cleaner error exit, LDA+U
+
+	* Better  protections to handle error functions underflow, hsmbl
+
+	* Fixed-spin moment method works in noncollinear case
+
+2007-06-09  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* FS-moment in SO-coupled case
+
+2006-06-08  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* New switch to remove hessian in molecular statics
+
+	* Some fixes for noncollinear case (Mulliken analysis)
+
+	* new 'color' band capability
+
+2006-01-30  A Chantis
+
+	* LDA+U works with local orbitals and spin-orbit coupling
+
+2006-01-11  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* Spin-polarized core hole
+
+2005-07-07  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* Extended local orbitals are properly averaged over sites for each species
+	
+2005-07-02  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* Empty spheres can be floating orbitals (no augmentation)
+
+2005-06-27  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* Bug fix in ppi matrix involving local orbitals
+
+2005-06-08  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* Working LDA+U, apparently works with local orbitals and SO coupling
+
+2005-04-27  Walter Lambrecht and Paul Larson
+
+	* LDA+U, first attempt
+
+2005-04-25  A. Chantis
+
+	* SO coupling works in lmf with local orbitals
+
+2005-02-07  A. Chantis
+
+	* Working implementation of SO coupling in lmf
+
+2005-01-17  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* lmf sampling can handle Fermi distribution
+
+2004-12-21  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* lmf can rotate density and sigma to new coordinate system
+
+2004-09-25  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* Self-energy can have offset BZ mesh
+
+2004-09-25  Tony Paxton 
+
+	* Small changes for MPI
+
+2004-09-01 A. Chantis
+
+	* Implemented Lz.Sz part of spin-orbit coupling
+
+2004-09-01  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+	
+	* First attempt at extended local orbitals
+
+2003-12-19  T. Miyake
+
+	* Exchange and correlation split out for total energy analysis
+
+2003-09-23  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* First cut at automatic optimization of basis functions
+
+	* Some bug fixes for symmetrization of sigma
+
+2003-05-24  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* New interpolation mode for self-energy sigma
+
+	* Added accumulation of density in a specified window
+
+2003-04-02  Tony Paxton 
+
+	* Working MPI for lmf program.  Installation not automatic
+
+2002-07-22  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* New code to fourier transform self-energy sigma(k)
+	  and add to LDA hamiltonian for self-consistent GW
+
+	* small bug fix in gvlist renders GW and FP results slightly
+	  different
+
+2002-06-18  Tony Paxton
+
+	* Small chenges for MPI
+
+2002-05-13  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Allow species-specific freezing of augmentation w.f.
+	  Input with token FRZWF=
+
+2002-04-10  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Revised internal fixed-dimensioned arrays to allow
+	  larger l-cutoffs and more complex basis sets
+
+2002-03-07  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Some changes to accomodate modifications to gw driver
+	  for local orbitals
+
+2002-02-15  Tony Paxton
+
+	* First attempt at implementation of MPI into lmf.
+
+2002-02-15  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* partial dos mode now works with local orbitals
+
+2001-11-21  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* New density mixing modes
+
+2001-11-09  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* added --rs=3 mode (automatically reads fom atom file)
+ 	  hf mode no longer automatically reads fom atom file
+
+2001-10-25  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Expand local density in g_kL for k>0.  Use to
+	  improved mesh respn of local density for charge mixing.
+
+2001-09-24  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Changed pnunew to better handle some pathological cases
+
+2001-09-15  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Working version of local orbitals
+
+2001-08-23  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Added local orbitals, first attempt
+
+2001-08-15  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Writes out integrals int rhoval vxc(rhoval) to log file
+          needed for GW total energy.
+
+2001-06-05  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* bndfp doesn't fail when NEVMX=-1 and lmet=2
+
+	* Redesigned nwit to merge with ASA; moved to subs
+
+2001-06-01  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Redesigned gvlist, gvlst2, mshsiz  Small changes in
+	  results, since hsibl, rsibl now call gvlist.
+
+2001-05-17  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Fixed bug - Fermi level calculated improperly for
+	  magnetic insulator case
+
+	* some changes to iors.f, to accomodate ASA-compatible I/O
+	
+2001-05-07  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Revised pnunew to numerically integrate for log derivative
+	  at band center-of-gravity.  Usually has minor effect on total
+	  energy.  In some cases (AF MnO), the analytic method can
+	  fail and the energy turn out rather different.
+	
+2001-04-29  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* can read/write restart file in ascii mode.
+	  --rs=#1,#2 changed switches to :
+	    #1 = 0 => overlap atomic densities  (identical to old version)
+	         1 => read from binary rst file (identical to old version)
+	         2 => read from ascii rsta file
+	         add 10 to invoke smshft 
+	    #2 = 0 => do not write to rst file  (identical to old version)  
+	         1 => save in binary rst file   (identical to old version)  
+	         2 => sae in  ascii rsta file
+	
+2001-04-25  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* New definition for constant potential: defined to be average of
+	  electrostatic potentials at MT boundaries.  This puts lmf in
+	  accordance with old FP and ASA conventions with the Fermi level
+	  typically falling nar zero.  --oldvc recovers the original convention.
+
+	* Simplified how a plane is specified in writing charge densities
+
+	* Some small bug fixes
+
+2001-04-21  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Some changes to accomodate new lmfgw
+	  some changes to bndfp
+	  mkpot, smves, vesgcm return estat potential at rmt
+	  getcor returns core wave functions and energies
+	  mkpot can make matrix elements of potential w/out exchange
+
+2001-03-28  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Another bug fix in gvlst2; total energy changes slightly
+
+2001-03-27  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Added --pdos option to generate partial DOS inside MT spheres
+
+2001-03-20  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Improve checks on trial Fermi energy, bndfp; small bug fixes
+
+	* lmfa reads rsmfa from ctrl file
+
+	* mixrho properly deletes mixing files when it's supposed to
+
+2001-03-19  Tony Paxton
+
+	* Added Mulliken analysis; changes to core-level spectroscopy input
+
+2001-03-06  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Bug fixes in gvlst2.f, ioden.f
+
+	* Check that lmf can handle fractional z's
+
+2001-03-02  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Bug fix in smhsbl for nkap>1
+
+2001-02-18  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Revised --band option to read Fermi level from wkp file.
+
+2001-02-09  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* revised way fp charge density is written for contour plots
+
+2001-02-07  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Made gvctof,gvlist,gvlst2 use the same tolerances
+	  to eliminate discrepancies in the counting of G vectors
+
+	* freeat prints out core wave functions for l including l>lmxa
+	  Also rseq modified
+
+2001-02-01  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Added --band options for generating energy bands at selected qp
+
+	* First cut at --wden options smoothed charge densities.
+
+	* Restart switches rationalized
+
+	* lmfa handles small z cases better
+
+2001-01-23  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Some bug fixes connected with lrout=0.
+
+2001-01-12  Tony Paxton
+
+	* lmfp stops more smoothly when atomic relaxation is incomplete
+
+2000-12-13  Tony Paxton
+
+	* Added EELS; also lmf can create DOS
+
+	* basis read from ctrl file instead of atom file
+
+2000-10-12  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* new gvlst2, which is to make q-dependent G vector
+	  cutoffs, and allows cutoff to be specified by gmax.
+
+2000-09-19  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Miscellaneous minor improvements and patches:
+	  Patched freeat.f to handle ionized O properly.
+
+2000-08-06  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* lmf empty spheres work properly
+
+2000-07-07  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* New lmf.  Some ftb input conventions changed.  See README
+
+ 5 May 00 Changed ftb input conventions.  See README
+	  lmfa dumps the smoothed-hankel basis optimized for free atom
+15 Jun 99 added switches to mkmas for optics
+          relaxation works with HF=t (though forces are not exact)
+5  Oct 98 revised nfp mixing
+Mar 11 98 (msmsm) make maxit always 1 for HF functional
+                  when .rst or .atm files missing, run appropriate setup
+Jan 30  Asa gan generate full multipole moments and correct l=0 part
+        inside MT spheres nonspherical c.d. in neighboring spheres.

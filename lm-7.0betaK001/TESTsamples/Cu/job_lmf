@@ -1,0 +1,6 @@
+#!/bin/bash
+ddd=cu
+lmdir=../..
+$lmdir/lmfa $ddd  |tee llmfa.$ddd
+rm rst.* mix.* moms.* 
+$lmdir/lmf $ddd   |tee llmf.$ddd

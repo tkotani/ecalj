@@ -1,0 +1,9 @@
+fplot
+% var ymin=-15 ymax=15
+ -frme 0,0.464,0,1 -p0 -x 0,1 -y {ymin},{ymax} -noxn -1p
+ -lt 2,bold=3,col=0,0,0,1,.5,.3,.5 -tp 2~0,0,1,0 -lt 1
+ -colsy 2:10 -qr bnd1.dat.spin1
+ -frme 0.464,1,0,1 -p0 -x 0,1 -y {ymin},{ymax} -noxn -1p -noyn
+ -lt 2,bold=3,col=0,0,0,1,.5,.3,.5 -tp 2~0,0,1,0 -lt 1
+ -colsy 2:9 -qr bnd2.dat.spin1
+

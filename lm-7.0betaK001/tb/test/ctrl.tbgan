@@ -1,0 +1,184 @@
+#rdfiln   11: defect In in GaN, wz12 structure
+#rdfiln   12: lmh=0  hf=0  tpan=2
+TESTTB  tbe tbgan 
+CLEAN   rm -r band.tbgan ctrl.tbgan hssn.tbgan log.tbgan save.tbgan strt.tbgan
+TB      U=f TRH=f FORCES=t PAIR=F STEP=0.03 TOL=1D-3 NIT=nit
+        RMAXH=.5*sqrt(2)
+        RMAXH=.5 PRESS=t VOL=t
+#         MSTAT: t,t,f,f,f,1d-3,.01
+#         MSTAT: broy=t,kill=2,isw=1xtol=.01,g
+DYN     MSTAT: 6,0,0d-3,3d-3,.01,0  NIT=nit
+# version 7
+        MSTAT[ MODE=6 HESS=f XTOL=0 GTOL=3d-3 STEP=.01 NKILL=0 ] 
+ME 1 CLSTYL=2
+   z==14 z==14 ! 16.408036   -3 0  12036.500055  -8 0  0 0 0
+   z==32 z==32 ! 12.777486   -3 0  16634.177405  -8 0  0 0 0
+   z==32 z==14 ! 14.381140   -3 0  14386.667458  -8 0  0 0 0
+   z==14 z==32 ! 14.381140   -3 0  14386.667458  -8 0  0 0 0
+   z==13 z==7  ! 28.971529/2 -3 0  4735.946409/2 -8 0  0 0 0
+   z==7 z==13  ! 28.971529/2 -3 0  4735.946409/2 -8 0  0 0 0
+   z==31 z==7  ! 25.901258/2 -3 0  6393.869160/2 -8 0  0 0 0
+   z==7 z==31  ! 25.901258/2 -3 0  6393.869160/2 -8 0  0 0 0
+   z==49 z==7  ! 15.907196/2 -3 0  15735.665519/2 -8 0 0 0 0
+   z==7 z==49  ! 15.907196/2 -3 0  15735.665519/2 -8 0 0 0 0
+CMD  -sp:z==31,,.05,.75,.65 -wpos=pos -fixpos
+VERS    LMFP-5 LMASA-6 TB-9 LM:7 TB:9
+IO      SHOW=f HELP=F VERBOS=31 20 WKP=F IACTIV=f
+HAM     NSPIN=1 REL=t
+OPTIONS NSPIN=1 REL=t FRZ=F NPAN=3 HF=0 XCN=0 LMH=0
+        LINK=0 TWOC=0 CCOR=t GAMMA=0 ADNF=f SCR=0
+SOLVE   SMODE=0 TOL=.003 H=.0003 EEPS=.00001 VAR=x
+STR     RMAX=3.5 EQUIV=f
+SYMGRP  R3Z MY
+% const nl=2
+STRUC   NBAS=24/2 NSPEC=12/2-0
+        NL={nl} ALAT=a ELINK=-2 TET=tet
+        PLAT= sqrt(3)/2 3/2 0  -sqrt(3)/2 3/2 0   0 0 q
+
+CLASS
+  ATOM=11 LMXB=221 LMXF=4 LMXA={nl-1} A=.012 NR=901
+  Z=49 R/W=1.0176
+  EREF=0
+  ATOM=12 Z=31 R/W=1.0176 IDXDN=1 1 1
+  LMXB=221
+  LMXF=4 LMXA={nl-1} A=.012 NR=901
+  EREF=0 CLINK=0 0 0 -1.5 -1.5 -.8
+  ATOM=13 Z=31 R/W=1.0176 IDXDN=1 1 1
+  LMXB=221
+  LMXF=4 LMXA={nl-1} A=.012 NR=901
+  EREF=0 CLINK=0 0 0 -1.5 -1.5 -.8
+  ATOM=21 Z=7 R/W=1.0176 IDXDN=1 1 2
+  LMXB=221
+  LMXF=4 LMXA={nl-1} A=.012 NR=901
+  EREF=0 CLINK=0 0 0 -1 0 -1.2
+  ATOM=22 Z=7 R/W=1.0176 IDXDN=1 1 2
+  LMXB=221
+  LMXF=4 LMXA={nl-1} A=.012 NR=901
+  EREF=0 CLINK=0 0 0 -1 0 -1.2
+  ATOM=23 Z=7 R/W=1.0176 IDXDN=1 1 2
+  LMXB=221
+  LMXF=4 LMXA={nl-1} A=.012 NR=901
+  EREF=0 CLINK=0 0 0 -1 0 -1.2
+SITE    ATOM=11  POS= 0              0   0*q  RELAX=1 1 0
+        ATOM=21  POS= 0              0   5/8*y*q
+        ATOM=12  POS= 1/sqrt(3)      0   1/2*q
+        ATOM=22  POS= 1/sqrt(3)      0   5/8*y*q-q/2
+        ATOM=13  POS= 0             -1   0*q
+        ATOM=23  POS= 0             -1   5/8*y*q
+        ATOM=12  POS= 1/sqrt(3)     -1   1/2*q
+        ATOM=22  POS= 1/sqrt(3)     -1   5/8*y*q-q/2
+        ATOM=13  POS= -sqrt(3)/2     -.5 0*q
+        ATOM=23  POS= -sqrt(3)/2     -.5 5/8*y*q
+        ATOM=12  POS= -sqrt(3)/6     -.5 1/2*q
+        ATOM=22  POS= -sqrt(3)/6     -.5 5/8*y*q-q/2
+
+        ATOM=E11 POS= 0              0   5/16*y*q
+        ATOM=E12 POS= 1/sqrt(3)      0   (5/8*y+1)/2*q
+        ATOM=E21 POS= 1/sqrt(3)/2  -.5   5/16*y*q
+        ATOM=E22 POS= 1/sqrt(3)/2  -.5   (5/8*y+1)/2*q
+        ATOM=E13 POS= 0             -1   5/16*y*q
+        ATOM=E12 POS= 1/sqrt(3)     -1   (5/8*y+1)/2*q
+        ATOM=E21 POS= 1/sqrt(3)/2 -1.5   5/16*y*q
+        ATOM=E22 POS= 1/sqrt(3)/2 -1.5   (5/8*y+1)/2*q
+        ATOM=E13 POS= -sqrt(3)/2   -.5   5/16*y*q
+        ATOM=E12 POS= -sqrt(3)/6   -.5   (5/8*y+1)/2*q
+        ATOM=E21 POS= -sqrt(3)/3    -1   5/16*y*q
+        ATOM=E22 POS= -sqrt(3)/3    -1   (5/8*y+1)/2*q
+BZ      NKABC=nk nk nk BZJOB=0 0  bzj NKABC2=nk>2?2:nk
+                       BZJOB2=0 0  bzj
+        EFMAX=1 EF0=0 TETRA=1
+        NPTS=5001 DOS=0-7 0+.5 DELEF=.2 METAL=1
+CONST   nk=6 a=6 alatj=a-3*.1
+        bzj=0 q=1.627 tet=1 nit=20
+        sbig=1.14 rwea=1.0176*sbig
+        small=0.68 rwec=1.0176*small
+        xwz=.008
+        xwz=0 y=1-xwz/2
+----------- Master -------------------
+#MASTER  nk=6 a=6
+        JOB  1  alatj=a-3*.1
+        JOB  2  alatj=a-2*.1
+        JOB  3  alatj=a-1*.1
+        JOB  4  alatj=a
+        JOB  5  alatj=a+1*.1
+        JOB  6  alatj=a+2*.1
+        JOB  7  alatj=a+3*.1
+        JOB  8  alatj=a+4*.1
+        JOB  9  alatj=a+5*.1
+
+        JOB  21 x=0.0
+        JOB  22 x=.005
+        JOB  23 x=.005*2
+        JOB  24 x=.005*3
+        JOB  25 x=.005*4
+        JOB  26 x=.005*5
+        JOB  27 x=.005*6
+        JOB  28 x=.005*7
+        JOB  29 x=.005*8
+        JOB  30 x=.005*9
+
+        JOB  31 x=0.0
+        JOB  32 x=-.005
+        JOB  33 x=-.005*2
+        JOB  34 x=-.005*3
+        JOB  35 x=-.005*4
+        JOB  36 x=-.005*5
+        JOB  37 x=-.005*6
+
+
+        JOB  41 z=0.0
+        JOB  42 z=0.005
+        JOB  43 z=-.005
+        JOB  44 z=0.005*2
+        JOB  45 z=-.005*2
+        JOB  46 z=0.005*3
+        JOB  47 z=-.005*3
+        JOB  49 z=-.005*4
+
+        JOB  51 tet= .96
+        JOB  52 tet= .97
+        JOB  53 tet= .98
+        JOB  54 tet= .99
+        JOB  55 tet=1.00
+        JOB  56 tet=1.01
+        JOB  57 tet=1.02
+        JOB  58 tet=1.03
+        JOB  59 tet=1.04
+
+        JOB 61 trig=1 trig+= 0.96-trig kl=(1-trig)/6*1
+        JOB 62 trig=1 trig+= 0.97-trig kl=(1-trig)/6*1
+        JOB 63 trig=1 trig+= 0.98-trig kl=(1-trig)/6*1
+        JOB 64 trig=1 trig+= 0.99-trig kl=(1-trig)/6*1
+        JOB 65 trig=1 trig+= 1.00-trig kl=(1-trig)/6*1
+        JOB 66 trig=1 trig+= 1.01-trig kl=(1-trig)/6*1
+        JOB 67 trig=1 trig+= 1.02-trig kl=(1-trig)/6*1
+        JOB 68 trig=1 trig+= 1.03-trig kl=(1-trig)/6*1
+        JOB 69 trig=1 trig+= 1.04-trig kl=(1-trig)/6*1
+
+FIT     WVS=1 1  NFIT=2 EFIT=-.7 -2.5
+BZ      NKABC=nk nk nk BZJOB=bzj NKABC2=nk>2?2:nk BZJOB2=bzj
+        SAVDOS=t DOS=-1.2 .5
+        EFMAX=1 EF0=0 TETRA=1
+        NPTS=5001 DOS=0-7 0+.5 DELEF=.2 METAL=1
+EWALD   AS=2.0 TOL=1D-12 NKDMX=500 NKRMX=500 ALAT0=a
+ITER    AMIX=T NMIX=2 BETA=.5 BETSW=F CONV=.0001 CONVC=.001*2 NIT=0
+        MIX=B,b=.7,k=8 XIPMX=1 BETXV=.4
+MIX     AMIX=T NMIX=2 BETA=.5 BETSW=F CONV=.0001 CONVC=.001*2
+        MODE=B,b=.7,k=8 XIPMX=1 BETXV=.4
+HARRIS  RHO=T HARRIS  RHO=T  EFIT=-2 -3 -4 -5 -6
+        ATOM=11 RC=0   WIDTH=1/2.5 RNCHAN=0 0 1
+        ATOM=21 RC=2.8 WIDTH=1/2.5 RNCHAN=0 0 1
+        ATOM=12 RC=0   WIDTH=1/2.5 RNCHAN=0 0 1
+        ATOM=22 RC=2.8 WIDTH=1/2.5 RNCHAN=0 0 1
+        ATOM=13 RC=0   WIDTH=1/2.5 RNCHAN=0 0 1
+        ATOM=23 RC=2.8 WIDTH=1/2.5 RNCHAN=0 0 1
+----------- Map --------
+MAP     f   *:   1:  1  \h\t:g
+START   CNTROL=1 BEGMOM=T FREE=f NIT=0
+  ATOM=11 P=4.5 4.5 Q=2 -.972794118 0 1 -.433823529 0
+  ATOM=12 P=4.5 4.5 Q=2 -.972794118 0 1 -.433823529 0
+  ATOM=13 P=4.5 4.5 Q=2 -.972794118 0 1 -.433823529 0
+  ATOM=21 P=2.5 2.5 Q=2 -1.91772059 0 3 -1.06911765 0
+  ATOM=22 P=2.5 2.5 Q=2 -1.91772059 0 3 -1.06911765 0
+  ATOM=23 P=2.5 2.5 Q=2 -1.91772059 0 3 -1.06911765 0
+  ATOM=11 P=5.5 5.5 Q=2 -.884558824 0 1 -.425 0

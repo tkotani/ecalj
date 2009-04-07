@@ -1,0 +1,676 @@
+<HTML><HEAD><TITLE>Empirical tight binding </TITLE><STYLE><!--P{font-size : medium;} --></STYLE></HEAD><BODY bgcolor="#cccccc">
+<H1><B><FONT size="+2">Empirical tight binding</FONT></B></H1>
+<pre>
+  Written by M. van Schilfgaarde, J. E. Klepeis and A. T. Paxton
+  Bugs and comments to <A HREF=MAILTO:Tony.Paxton@QUB.ac.uk>Tony.Paxton@QUB.ac.uk</A>
+  Documentation for Version 9.0 Oct 2008
+</pre>
+
+<OL>
+ <LI> <A HREF=#section1>Background, and specification of matrix elements</A>
+ <LI> <A HREF=#section2>The <b>TB</b> and <b>START</b> categories</A>
+ <LI> <A HREF=#section3>Self consistent, polarisable ion, tight binding</b></A>
+ <LI> <A HREF=#section4>Magnetic tight binding</A>
+ <LI> <A HREF=#section5>Molecular dynamics and statics</A>
+ <LI> <A HREF=#section6>Band and DOS plotting</A>
+ <LI> <A HREF=#section7>Building and invoking <b>tbe</b></A>
+ 
+
+<H2><A name="section1"><FONT size="+1"><FONT size="+1">
+1.  Background, and specification of matrix elements
+ </FONT></FONT></A></H2>
+The empirical tight binding was built around the ASA package so as to exploit the
+sparse matrix handling, symmetrisation, BZ integration and so on. As a
+result, some ASA tokens are sought from <tt>ctrl</tt>, even if they are
+not used. An example is the sphere radius, or R/W, which is a
+<i>compulsory</i> token. Another awkward consequence is the reading of
+the hamiltonian matrix elements which is done via two passes through
+the control file after the driver program,
+<b>tbzint</b>, has been called. There is not unlimited scope for
+specification of the hamiltonian; modern environmental dependent
+matrix elements or complicated functions of distance are not catered
+for.  In such cases the user will have to extend the code, possibly by
+enabling a disc read of tabulated functions, or an adaptation of the
+segment <B>tbham.f</B>.
+
+Diagonal matrix elements are read from the <A HREF=#section2>START category</A>.
+Off diagonal matrix elements of the hamiltonian, overlap and the pair
+potential are read from <tt>ctrl</tt> at the ME category, having the
+following syntax.
+
+<PRE>
+ME    is a category that tells the program what hamiltonian matrix
+      to use. It begins with an integer, which defines a mode
+      to specify the form of matrix elements.  
+      `mode' is one of:
+         0  to indicate that the hopping integrals are fixed
+         1  to use the Harrison universal matrix elements for
+            semiconductors
+         2  for exponential decay
+         3  for inverse power decay
+         4  general power * exponential decay
+         5  for Goodwin Skinner Pettifor (GSP) scaling 
+</PRE>
+
+Each mode has a group of numbers of input, whose meaning (and number)
+depend on the mode.  But for each mode, the hamiltonian is specified
+by a pattern like this:
+<PRE>
+ME  <I>mode</I>
+    #1  #2 | (set-of-numbers-specifying-matrix-elements)
+</PRE>
+#1 and #2 indicate the two classes of atoms; the bar (|) indicates
+that a set of numbers will follow; how many numbers and what they mean depends on  <I>mode</I>.
+
+<BR><BR>
+<I>Mode 0</I>: matrix elements are fixed to constant values, independent
+of, e.g. bond length <I>d</I>.  The hamiltonian matrix elements are given as
+a string of numbers.  Following the bar (|) 10 numbers are read in:
+<PRE>
+     sssigma, spsigma, ppsigma, pppi,  
+     sdsigma, pdsigma, pdpi, ddsigma,
+     ddpi and dddelta integrals (v_ij) in that order
+</PRE>
+
+<BR>
+<I>Modes 2 and 3</I>: additional information is supplied about the
+dependence of the matrix element on bond length <I>d</I>.  This is specified
+by vector following token DECAY=.  For example, in the canonical model of 
+Spanjaard and Desjonqueres:
+<PRE>
+      ME      2 
+              1 1  | 0 0 0 0 0 0 0 -fd*6 fd*4 -fd  
+                     DECAY=0 0 0 0 0 0 0 q q q
+</PRE>
+<BR>
+<I>Mode 4</I>: the matrix element takes the form
+<BR>
+<DD>
+         &sum<SUB><I>i</I></SUB> a<SUB><I>i</I> </SUB><I>d</I><SUP>b<SUB><I>i</I></SUB></SUP> exp(-c<SUB><I>i</I></SUB><I>d</I>)</I>
+</DD>
+<BR>
+where <I>i</I>=1..3 and <I>d</I> is bond length. Thus, each matrix element requires 9 numbers as input.  
+<BR>
+The nine numbers after the bar (|) are the three groups of a b c parameters.
+
+<BR><BR>
+<I>Mode 5</I>: The Goodwin-Skinner-Pettifor matrix elements take the form
+<DD>
+        V (r<SUB>0</SUB>/d)<SUP>n</SUP> exp[n(-{d/r<SUB>c</SUB>}<SUP>n<SUB>c</SUB></SUP>+{r<SUB>0</SUB>/r<SUB>c</SUB>}<SUP>n<SUB>c</SUB></SUP>)]
+</DD>
+<BR>
+In this mode, each matrix element requires 5 numbers, read in the order 
+<PRE>
+        V n n<SUB>c</SUB> r<SUB>0</SUB> r<SUB>c</SUB>
+</PRE>
+     For example, a hamiltonian with s and p orbitals would read as:
+<PRE>
+     ME
+             1 1 | sssigma n nc r0 rc
+                   spsigma n nc r0 rc
+                   ppsigma n nc r0 rc
+                   pppi    n nc r0 rc
+</PRE>
+
+<BR>
+<I>Empirical pair potential</I>: Many tight-binding hamiltonians adopt a classical
+pair potential (energy) to stabilize the lattice at its equilibrium spacing.
+A pair potential may be specified by a shriek (!); the format follows
+the power-law-exponential decay format, i.e.
+<DD>
+      &sum<SUB><I>i</I></SUB> a<SUB><I>i</I> </SUB>d<SUP>b<SUB><I>i</I></SUB></SUP> exp(-c<SUB><I>i</I></SUB><I>d</I>)</I>
+</DD><BR>
+where <I>i</I>=1..3. The nine numbers after the shriek are the three groups of a b c parameters.
+In the canonical model of Spanjaard and Desjonqueres, the hamiltonian and pair potential
+are thus specified as:
+<PRE>
+      ME      2 
+              1 1  | 0 0 0 0 0 0 0 -fd*6 fd*4 -fd  
+                     DECAY=0 0 0 0 0 0 0 q q q
+              1 1  ! b 0 p   0 0 0    0 0 0       
+</PRE>
+
+
+<BR>
+If the power exponents are positive, then the pair potential is
+of Chadi's form, namely a<SUB>1</SUB>&epsilon +  a<SUB>2</SUB>&epsilon<SUB>2</SUB>: the third number in each set
+is the equilibrium bond length.
+
+<BR>
+A line such as this
+<PRE>
+       ! A 1 -1 n nc r0 rc 0 0
+</PRE>
+implements a pair potential of the GSP form. The last two numbers
+should be zero for the standard GWP potential.  If they are nonzero,
+an exponential or power law is <I>added</I> to the GSP potential
+depending whether the last number is positive (last number is decay) or negative
+(last number is the power).  The second-last coefficient is the prefactor.
+
+<BR><BR>
+
+      Additional syntax enables the input of further parameters. Here is a complete
+      list.
+<PRE>
+ME    [...]
+      i-list j-list | rule for Hamiltonian
+      i-list j-list ! rule for the classical repulsive pair potential
+      i-list j-list @ rule for overlap
+      i-list j-list & rule for crystal field
+      i-list j-list % rule for crystal field-overlap
+
+</PRE>
+(<tt><I>i</I>-list</tt> and <tt><I>j</I>-list</tt> are explained below.) Of the last three all take
+exactly the same number of parameters as the hamiltonian. (In general
+an overlap matrix element will take the opposite sign to its
+corresponding hamiltonian matrix element.) The last two implement Jim Chadi's
+empirical crystal field scheme; to a large extent this is now superseded by 
+<A HREF=#section3>self consistent tight binding with polarisable ions</A>. 
+<P>
+<A NAME="spinorbit">
+Empirical spin orbit coupling</A> is enabled by setting
+<tt>NSPIN=2</tt>; exactly two spin orbit coupling parameters being read in at
+the token <tt>VSO=</tt> in category <b>SPEC</b>. An example test file 
+<tt>ctrl.fecr</tt> invokes all of the above features.
+<P>
+The token <tt>CLSTYL=</tt> allows more flexibility to what pairs are
+associated with a specified rule for matrix elements. This is useful
+if there is a large number of species.  To invoke, ME has optional
+CLSTYL, which must follow memode:
+
+<PRE>
+ME    memode [CLSTYL=0 or 1 or 2]  [DECAY0=#]
+      i-list j-list | rule1
+      i-list j-list | rule2
+      ...
+</PRE>
+<tt>CLSTYL=1</tt> uses the original convention for <tt>i-list</tt> and
+<tt>j-list</tt>, namely a list of class numbers using the usual syntax
+in <b>mkilst.f</b>, eg <tt>i-list</tt> looks like 1,2,7:10
+<P>
+<tt>CLSTYL=2</tt> takes any class satisfying an expression involving variables
+ic (the class number) and z (the class atomic number), e.g.
+<tt>i-list</tt> looks like, e.g.
+<BR> <tt>ic<10&z==6</tt> <BR>
+It this case any of the first ten classes with Z=6 will be included
+in <tt>i-list</tt>.
+<P>
+<tt>CLSTYL=3</tt>, for unix systems, uses file names with wild cards.  For each
+class with name 'nam' a file is created, file 'nam.ext' You enter
+<tt>i-list</tt> as a class name with wild cards, eg <tt>i-list</tt> looks like a* Any
+class whose corresponding file the unix shell finds by expanding the
+file '<tt>i-list.ext</tt>' (in this case all classes beginning with 'a') are
+included in the list.
+
+<P>
+Each species of atom may be given basis function orbitals up to <i>l=2</i>, that is,
+<i>s</i>, <i>p</i> and <i>d</i>. To implement <i>f</i> orbitals would
+require an impractically large rewrite of the code. The token
+<tt>NL=</tt> specifies the maximum number of <i>l</i>'s at any site,
+and the tokens <tt>IDXDN=</tt> are used to specify which orbitals are
+required for each species: as in the ASA <tt>IDXDN=1</tt> includes an
+orbital in the basis and <tt>IDXDN=3</tt> excludes it. Thus if
+<tt>NL=3</tt>, a species with <tt>IDXDN=1 3 1</tt> will have an
+<i>sd</i> basis, while a species with <tt>IDXDN=3 1 3</tt> 
+has <i>p</i> orbitals only.
+<P>
+<H2><A name="section2"><FONT size="+1"><FONT size="+1">
+2. The <b>TB</b> and <b>START</b> categories
+ </FONT></FONT></A></H2>
+Most species-independent, <b>tbe</b>-specific input
+is placed in category <b>TB</b>.  Here is part of the listing from invoking
+<PRE><tt>tbe --input</tt></PRE> with some additional remarks.
+<PRE>
+ category  TB
+   token  OVLP=  of cast logical (optional) :
+          Non orthogonal tight-binding
+   token  CRYSF=  of cast logical (optional) :
+          Crystal field terms in hamiltonian
+   token  OVCF=  of cast logical (optional) :
+          Crystal field terms in overlap
+   token  ADDES=  of cast logical (optional) :
+          add ebarLL' * sLL' to hLL'
+   token  RMAXH=  of cast double (optional) :
+          Hamiltonian cut-off length in units of a
+          <i>This applies also to the cut off in the pair potential</i>.
+   token  FORCES=  of cast logical (optional) :
+          calculate forces
+   token  FIJ=  of cast logical (optional) :
+          to get forces by atom pair, e.g., for stresses
+          <i>Not used.</i>
+   token  3PV=  of cast logical (optional) :
+          calculate pressure
+   token  EVDISC=  of cast logical (optional) :
+          can be F for insulators or to save space for metals
+   token  PAIR=  of cast logical (optional) :
+          pair potential only
+          <i> this allows just a pair potential to be used. Combined with UL=T
+	    the program can do classical simulations with point charge Coulomb terms</i>
+   token  TRH=  of cast logical (optional) :
+          calculate local projection of band energies
+   token  RHO=  of cast logical (optional) :
+          calculate local projection of charges
+   token  U1=  of cast logical (optional) :
+          for electrostatics with L>=0 (first model)
+          <i>No longer implemented.</i>
+   token  UL=  of cast logical (optional) :
+          for electrostatics with L>=0
+          <i>see <A HREF=#section3>s-c tight binding (below)</A></i>
+   token  TBU=  of cast logical (optional) :
+          tight-binding+U
+          <i>currently still under development ..</i>
+   ... if U1=T, UL=T or TBU=T, the next two tokens are used:
+   token  NOUAVG=  of cast logical (optional) :
+          use individual U_l from Q=; don't average them
+   token  IODEL=  of cast logical (optional) :
+          Attempt to read increments from disk
+   token  GAMMA=  of cast logical (optional) :
+          do gamma-point only
+   token  MOL=   of cast logical (optional) :
+          <i>Set this token for doing molecules and clusters.
+          For these, PLAT and ALAT may be be arbitrary.</i>
+</PRE>
+<P>
+<A NAME="moments">
+The <b>START</b> category </A> (see its <A HREF="lmto.html#START">
+general description</A> in the ASA documentation)
+is used to input diagonal hamiltonian matrix
+elements and the free-atom density matrix where needed.  The P
+parameters must be set for consistency with the ASA, but they are not
+used. The Q parameters are <i>0th</i> <i>1st</i> and <i>2nd</i>
+moments as in ASA, in that they are respectively, the number of
+electrons, the on-site hamiltonian elements and the Hubbard <i>U</i> for each
+class. <b>tbe</b> uses a hierarchy of choices to determine the total
+number of electrons: if <tt>ZVAL=</tt> is set in the BZ category it
+will use this number; if not then it will taken from <b>START</b> as
+the total <i>0th</i> moment; if these are all zero, <b>tbe</b> will use the
+(compulsory) atomic numbers, <tt>Z=</tt> in category <b>SPEC</b>.
+<H2><A name="section3"><FONT size="+1"><FONT size="+1">
+3. Self consistent, polarisable ion, tight binding
+ </FONT></FONT></A></H2>
+The theory is described in detail in the book <i>Interatomic forces in condensed 
+matter,</i> by Mike Finnis and this branch of <b>tbe</b> is designed to
+implement the scheme, originally proposed by us in a number of guises, <i>
+exactly</i> as written down in Finnis' book. 
+<P>
+It is invoked by setting UL=T in category <b>TB</b>. Polarisability of each
+species is specified through parameters called &Delta<SUB><i>l'l"l</i></SUB>
+They are entered in <tt>ctrl</tt> at the token
+<tt>QPOL=</tt> in category <b>SPEC</b> which takes up to ten numbers of which
+the first seven are 
+<PRE>
+        &Delta<SUB>011</SUB> = &Delta<SUB>101</SUB>
+        &Delta<SUB>112</SUB>
+        &Delta<SUB>022</SUB> = &Delta<SUB>202</SUB>
+        &Delta<SUB>121</SUB> = &Delta<SUB>211</SUB>
+        &Delta<SUB>222</SUB>
+        &Delta<SUB>123</SUB> = &Delta<SUB>213</SUB>
+        &Delta<SUB>224</SUB>
+</PRE>
+internally, these are multiplied by <SQRT>\sqrt{4&pi}</SQRT>/(2<i>l</i>+1) after which
+they are referred to by the symbol M.
+<P>
+The Hubbard <i>U</i> are read from category <b>START</b> (see above). Finnis'
+formulation does not allow for an <i>l</i>-dependent <i>U</i>, which is consistent
+with density functional theory. If <i>U</i> in <b>START</b> are not the same in
+each <i>l</i>-channel then they are averaged internally over the orbitals for
+which <tt>IDXDN=1</tt> on that species. This amounts to setting the token
+<tt>NOUAVG=F</tt> in category <b>TB</b>. The case <tt>NOUAVG=T</tt> constitutes
+an <i>orbital-dependent</i> effective potential as found in theories such as
+SIC, LDA+<i>U</i>. This implementation is under development (Feb 2007) under the
+general heading TB+<i>U</i> and isn't ready yet.
+<P>
+<A NAME="units">
+<b>Important note on units:</b></A> in non self consistent mode <b>tbe</b> can in
+principle take input in any consistent set of units (say, eV and angstrom); however
+if <tt>UL=T</tt> is set, then input must be in atomic Rydberg units.
+<P>
+Token <tt>IODEL=</tt> amounts to a "restart" switch: <b>tbe</b> writes
+the increments of the hamiltonian or the multipole moments of the
+charge to disc and these can be read back in at the start of a new
+calculation.
+<P>
+<A NAME="mixing">
+Mixing is implemented in two modes.</A>
+<ol>
+ <li> The default is to mix the increments to the hamiltonian.
+ <li> The command line option <tt>--mxq</tt> enables mixing of the charge.
+ </ol>
+<P>
+Mixing parameters are set exactly as in ASA using the category <b>MIX</b>, the
+only option being Anderson mixing. A line like this will do
+<PRE>
+%const nmix=5 kmix=10 beta=1
+MIX     MODE=A{nmix},k={kmix},b={beta}
+</PRE>
+Convergence is specified with respect to the <i>rms</i> difference in
+charge through the token <tt>CNVG=</tt> in category <b>START</b>, with
+the maximum number of iterations following the token <tt>NIT=</tt>,
+also in category <b>START</b>.
+
+<H2><A name="section4"><FONT size="+1"><FONT size="+1">
+4. Magnetic tight binding
+ </FONT></FONT></A></H2>
+The most straightforward extension of the Finnis model to magnetic systems, 
+consistent with the local spin density approximation, is to add a term to the
+second order hamiltonian,
+<PRE>
+     -(1/2)&sum<SUB><b>R</b></SUB> J<SUB><b>R</b></SUB> ( &delta</>q<SUB><b>R</b></SUB>(up)<SUP>2</SUP> + &delta</>q<SUB><b>R</b></SUB>(down)<SUP>2</SUP> )
+</PRE>
+which results in an additional term in the effective potential (see Pettifor,
+<i>J. Magnetism and Magn. Materials</i>., <b>15-18</b>, 847 (1980))
+<PRE>
+     -(1/4)&sum<SUB><b>R</b></SUB> J<SUB><b>R</b></SUB> m<SUB><b>R</b></SUB>
+</PRE>
+in which <tt>m<SUB><b>R</b></SUB>=&delta</>q<SUB><b>R</b></SUB>(up) -
+&delta</>q<SUB><b>R</b></SUB>(down)</tt> is the magnetic moment at
+site <b>R</b>. This is a spin-dependent, but orbital
+<i>in</i>dependent potential as long as the Stoner parameter <i>J</i>
+is averaged over the basis orbitals at site <b>R</b>. The orbital and
+spin dependent equivalent of LDA+<i>U</i> is TB+<i>U</i> and is still
+under development.
+
+The Stoner parameters are taken from <tt>ctrl</tt> in category <b>SPEC</b>
+at the token <tt>JH=</tt> which takes <tt>nl</tt> values which are the <i>J</i>
+parameters for each <i>l</i>-channel. This is consistent with the syntax used
+in the LDA+<i>U</i> implementation in <b>lmf</b> <A HREF="fp.html">(q.v.)</A>; as
+with the Hubbard <i>U</i> these are averaged over the site internally.
+
+Mixing can be tricky in magnetic metals and further work may be
+needed. Currently the two schemes, <A HREF=#mixing>above</A>, are implemented
+except in the case of a non orthogonal basis, in which case only charge
+mixing is possible. The magnetic symmetry needs to be broken at the
+start of a calculation (unless the restart option <tt>IODEL=T</tt> is
+used and a legal restart file from a magnetic state can be found on
+disc). For potential mixing (the default) the up and down on-site
+energies must be split and this is done in <tt>ctrl</tt> using the
+token <tt>DELTA=</tt> in category <b>SITE</b>.  For example in the
+test file <tt>ctrl.fecr</tt> there are the lines
+<PRE>
+SITE    ATOM=Cr POS= 0 0 0         DELTA=0 0 -deltaCr 0 0 deltaCr
+        ATOM=Fe POS= 1 0 0+dz+ddz  DELTA=0 0 -deltaFe 0 0 deltaFe
+</PRE>
+which split the the <i>d</i>-electron on-site energies by plus and minus 
+<tt>delta</tt>; NB this is a ferromagnetic starting state: reversing the signs on
+one of the atoms would provide an antiferromagnetic starting state. Self consistency
+will flip these back if there is no local antiferromagnetic solution. In the case
+of charge mixing, invoked by the command line option <tt>--mxq</tt> the input
+charge must have a magnetic moment, achieved by adjusting the input <i>0th</i>
+moments in category <b>START</b> as described <A HREF=#moments>above</A>. Here
+are the lines in the <b>START</b> category from the test file <tt>ctrl.fecr</tt>
+(Again, an antiferromagnetic starting state could be made by using 
+<tt>momCr={nsp==1?0:-3}</tt>, say.
+<PRE>
+%const nsp=2 spd=1 NdFe=6 NdCr=4
+CONST   q0s={spd?1:0} q0p=0 q0dFe={spd?7:NdFe} q0dCr={spd?5:NdCr}
+        esFe=0.2 epFe=0.45 edFe=-0.01 momFe={nsp==1?0:3}
+        esCr=0.2 epCr=0.45 edCr=0.01  momCr={nsp==1?0:3}
+        U=1 Us=U Up=U UdFe=U UdCr=U
+START   CNTROL=T NIT={nitq} CNVG=qtol
+        ATOM=Fe   P= 4 4 3 4 4 3
+                  Q= q0s/{nsp}            esFe   Us
+                     q0p/{nsp}            epFe   Up
+                     (q0dFe+momFe)/{nsp}  edFe  UdFe
+                     q0s/{nsp}            esFe   Us
+                     q0p/{nsp}            epFe   Up
+                     (q0dFe-momFe)/{nsp}  edFe  UdFe
+        ATOM=Cr   P= 4 4 3 4 4 3
+                  Q= q0s/{nsp}            esCr   Us
+                     q0p/{nsp}            epCr   Up
+                     (q0dCr+momCr)/{nsp}  edCr  UdCr
+                     q0s/{nsp}            esCr   Us
+                     q0p/{nsp}            epCr   Up
+                     (q0dCr-momCr)/{nsp}  edCr  UdCr
+</PRE>
+Note the use of the value of the token <tt>NSPIN={nsp}</tt> from category 
+<b>OPTIONS</b> to split the spins in the spin polarised case, yet to provide the
+correct input moments in the non spin polarised case also (<tt>nsp=1</tt>).
+<P>
+It's important to understand the role of the token <tt>NSPIN={nsp}</tt> in category 
+<b>OPTIONS</b> as interpreted by <b>tbe</b>. If token <tt>UL=F</tt> in category
+<b>TB</b> then <b>tbe</b> will do <i>non</i> self consistent tight
+binding, in which case <tt>NSPIN=2</tt> turns on the empirical <A
+HREF=#spinorbit>spin orbit coupled</A> branch of the code. Developers should note
+that internally this case causes variables <tt>nsp</tt> and <tt>nspc</tt> to become respectively
+<i>1</i> and <i>2</i>. <tt>nspc=2</tt> instructs the code to make a single
+diagonalisation at each <b>k</b>-point of a hamiltonian twice the dimension of the
+non spin polarised system. The cross terms contain the spin orbit coupling
+parameters and will also be needed in any future development that implements
+<i>non collinear magnetism</i>. Alternatively if token <tt>UL=T</tt> in category
+<b>TB</b>, <b>tbe</b> will do self consistent tight binding which does not include
+empirical spin orbit coupling; in that case the token <tt>NSPIN=2</tt> in category 
+<b>OPTIONS</b> tells <b>tbe</b> to make a magnetic tight binding
+calculation. Now, as in standard scalar relativistic LSDA, the
+hamiltonian is set up and diagonalised twice at each <b>k</b>-point
+and the spins are uncoupled. (NB, fully relativistic LSDA with spin
+orbit coupling is now implemented in the <b>lmf</b> code <A
+HREF="fp.html">(q.v.)</A>)
+<P>
+
+<H2><A name="section5"><FONT size="+1"><FONT size="+1">
+5. Molecular dynamics and statics
+ </FONT></FONT></A></H2>
+Conventions are in line with the input syntax in <b>lmf</b> and the
+<b>mol</b> code (currently undocumented). Here is the relevant section
+from invoking <tt>tbe --input</tt>
+
+<PRE>
+ category  DYN (optional):  parameters for dynamics
+   token  MSTAT: of cast struc, elements: relax hess xtol gtol step nkill (optional)
+          Parameters for molecular statics:
+          relax=0 (no relaxation) 4 (conjugate gradients) 5 (Fletcher-Powell)
+                6 (Broyden) 
+          hess=T  read hessian matrix
+          xtol=#   convergence criterion in displacements
+                   >0: use length;  <0: use max val; =0: do not use
+          gtol=#   convergence criterion in gradients
+                   >0: use length;  <0: use max val; =0: do not use
+          step=#  step length
+          nkill=# Remove hessian after # iter
+   token  MD: of cast struc, elements: dyn tstep temp rltime time (optional)
+          Parameters for molecular statics:
+          dyn=0 (no relaxation) 1 (molecular dynamics) 
+          tstep=#  time step (a.u.)
+          temp=#   temperature (a.u.)
+          rltime=# Nose-Hoover relaxation time (a.u.)
+          time=# total MD time (a.u.)
+          NB: 1 deg.K = 6.3333e-6 a.u.; 1 fs = 20.67098 a.u.
+          NB: 1 deg.K = 6.333e-6 a.u.; 1 sec = 20.671e15 a.u.
+   token  NIT=  of cast integer (optional) :
+          maximum number of relaxation steps (MSTAT or MD)
+</PRE>
+Category <b>DYN</b> refers to both statics and dynamics which are chosen by reference
+to tokens <tt>relax=</tt> and <tt>dyn=</tt>. <A HREF=#units>Units</A> must be in
+atomic Rydbergs: useful conversion factors are included in the segment of output
+(above). Here's an example few lines from a typical <tt>ctrl</tt> file:
+<PRE>
+DYN
+% const dyn=0 ts=2 time=10000 temp=300 rt=20 fs=0.048377 K=1/0.6333328d-5
+% const relax=0 nitf=100 xtol=1d-4 gtol=1d-4 hess=T step=0.01 nkill=100
+% if dyn==1
+        MD:{dyn},{ts/fs},{temp/K},{rt/fs},{time/fs}
+% elseif relax>0
+        MSTAT:{relax},{hess},{xtol},{gtol},{step},{nkill} NIT={nitf}
+% endif        
+</PRE>
+
+<H2><A name="section6"><FONT size="+1"><FONT size="+1">
+6. Band and DOS plotting
+ </FONT></FONT></A></H2>
+The command line option <tt>--band</tt> turns on the band plotting. There are
+no options, unlike the ASA. There must be a legal symmetry line file as
+described the <A HREF="lmto.html#section4">ASA documentation</A>. In the case
+of non self consistent tight binding, <tt>tbe --band</tt> will only plot bands;
+if <tt>UL=T</tt> is set then <b>tbe</b> will make the hamiltonian self 
+consistent before plotting bands. It will be quicker in that case to invoke
+<b>tbe</b> with <tt>IODEL=T</tt>. In either case <b>tbe</b> looks for the
+Fermi energy on disc. This may be overidden on the command line, as in the ASA,
+with <tt>-ef=#</tt>. 
+<P>
+Fermi surface plotting and Brillouin zone mapping are not currently implemented
+in <b>tbe</b>. 
+<P>
+For plotting the <i>total</i> DOS, the switch <tt>SAVDOS=</tt> in category <b>BZ</b> 
+dumps out a file that can be read by the program <tt>pldos.f</tt> which is in the
+distribution. There is also an option to make Mulliken decomposed densities which
+interfaces with the ASA program <b>lmdos.f</b> 
+(<A href="lmto.html#section9lmdos">q.v.</A>) The procedure is to set the <tt>MULL=</tt>
+token to the required value in category <b>BZ</b>. <tt>MULL=</tt> takes an integer
+whose <i>one's</i> digit translates to a parameter <tt>mull1</tt> that describes
+how the charge on site is deconstructed (by atom, <i>l</i> or <i>lm</i>); whose
+<i>ten's</i> digit enables bond order output (<tt>mull2</tt>); and whose <i>100's</i>
+digit sets a parameter <tt>imfil</tt> that points to an ASCII input file holding
+details of what decomposition is required. The specification of these three parameters
+is as follows (see also the segment <tt>mkwttb.f</tt>)
+<PRE>
+   For (mull=0,1; imfil=0) all the partial DOS channels are generated
+     automatically.  All of the angular momentum channels for a given
+     atom appear consecutively in the DOS file (see below for specific
+     ordering).  The atom ordering follows the class indices for
+     (mull=0) and the basis indices for (mull=1).  In the case of
+     (nsp=2) all of the spin up channels for a given atom or class
+     appear consecutively followed by all of the spin down channels
+     for the same atom or class.
+
+  For (mull=0,1; imfil=1) the partial DOS channels are specified in
+    the file MULL using the class indices (mull=0) or the basis
+    indices (mull=1) and the angular momentum indices below.  The
+    format of the lines in this free format file is:
+
+      <ang mom ind 1> <atom ind 1>
+      ...
+
+    In the case of (nsp=2) the choice of spin up or down is specified
+    in the file MULL by choosing the appropriate lm index (see below).
+
+  For (mull=10,11; imfil=0) the bond charge is automatically
+    generated for all atom pairs.  The ordering of the channels is
+    done according to the class indices for (mull=10) and the basis
+    indices for (mull=11).  The ordering is as follows:
+
+         (mull=11)            (mull=10)
+
+      Atom 1   Atom 2      Atom 1   Atom 2    
+      ------   ------      ------   ------
+         1        1           1        1    On-site contribution
+         1        2           1        1    All others (if existent)
+         1        3           1        2
+       ...      ...         ...      ...       
+         2        2           2        2    On-site contribution
+         2        3           2        2    All others (if existent)
+         2        4           2        3
+       ...      ...         ...      ...
+
+  For (mull=10,11, imfil=1) the bond charge DOS channels are specified
+    in the file MULL using the class indices (mull=10) or the basis
+    indices (mull=11).  The format of the lines in this free format
+    file is:
+
+      <atom ind 1> <atom ind 2> <ionsit>
+      ...
+
+     The switch (ionsit) must always be present and must be equal to
+     zero unless [mod(mull,10)=0] and the two atom class indices are
+     the same.  In this case (ionsit=1) refers to the on-site
+     contribution and (ionsit=0) refers to all other contributions
+     (if they exist).
+
+   For (mull=20,21) and (mull=30,31) the atoms are indexed according
+     to the class index (mull=20,30) or the basis index (mull=21,31).
+     Ths DOS channels are specified in the file MULL using these atom
+     indices and the angular momentum indices indicated below.  The
+     format of the lines in this file is (free format):
+
+       <lm ind 1> <atom ind 1> <lm ind 2> <atom ind 2> <ionsit>
+       ...
+
+     The switch (ionsit) is the same as for (mull=10,11; imfil=1)
+
+     In the case of (nsp=2) the spin combination is specified in the
+     file MULL by choosing the appropriate lm indices (see below).
+
+   The angular momentum channels for each atom or class for
+     (mull=0,20,21) are indexed as follows:
+       lm = 1 : s
+       lm = 2 : p (summed over m = -1, 0, 1)
+       lm = 3 : d (summed over m = -2, -1, 0, 1, 2)
+       ...
+
+     In the case of (nsp=2) all of the spin up lm indices appear
+     consecutively followed by all of the spin down lm indices
+     (i.e. if nl=2 then lm=4 corresponds to spin down p).
+
+   The angular momentum channels for each atom or class for
+     (mull=1,30,31) are indexed as follows:
+       lm = 1     : s
+       lm = 2,3,4 : p_x, p_y, p_z
+       lm = 5-9   : d_xy, d_yz, d_zx, d_(x<SUP>2</SUP>-y<SUP>2</SUP>), d_(3z<SUP>2</SUP>-r<SUP>2</SUP>)
+       ...
+
+     In the case of (nsp=2) all of the spin up lm indices appear
+     consecutively followed by all of the spin down lm indices
+     (i.e. if nl=2 then lm=6 corresponds to spin down p_x).
+
+   The DOS channels are symmetrized if needed [ng > 0 and
+     mod(mull,10) = 1] for (mull=1,11,21).  No symmetrization is done
+     for (mull=30,31) and for (mull=1, L > 2) and therefore the full
+     BZ should be used (no special points) or symmetry-equivalent
+     channels should be averaged.
+</PRE>
+Once <b>tbe</b> has run the DOS is to be contructed using 
+<PRE>lmdos --dos:tbdos:[other switches ..] ext</PRE>
+using the program <A href="lmto.html#section9lmdos">lmdos</A> from the ASA suite.
+In the spin polarised tight binding, use
+<PRE>lmdos --dos:tbu:[other switches ..] ext</PRE>
+When invoking <tt>lmdos</tt>, take care to use the same command line switches
+as used to invoke <tt>tbe</tt>, if for example the number of <b>k</b>-points
+or spins is different from that specified in <tt>ctrl</tt>. The program
+<b>pldos.f</b> in the distribution <tt>FPLOT.*.gz</tt> may used like 
+<PRE>pldos -fplot dos.ext</PRE>
+to produce a file <tt>dosp.dat</tt> containing columns of data that may be used
+in a third party plotting package.
+
+<H2><A name="section7"><FONT size="+1"><FONT size="+1">
+7. Building and invoking <b>tbe</b>
+ </FONT></FONT></A></H2>
+See the textfile <A HREF="README">README</A> in this directory for complete
+installation instructions for the LMTO distribution.
+The program <tt>tbe.f</tt> <A HREF="lmto.html#section10">is generated from</A>
+ <tt>lm.f</tt> in <tt>main</tt> 
+by invoking <PRE>ccomp -uLM -dTBE lm.f tbe.f</PRE>
+It must then be linked as <tt>lm.f</tt> against the archive <tt>tb/subs.a</tt>. 
+The latter is not yet automatically made by <tt>configure</tt> but is easily
+created as follows.
+<PRE>
+% cd $HOME/&#60;lmto distribution directory&#62; (the one containing configure)
+% cd tb
+% ln -s ../Make.inc .
+% ../startup/Maksmakfile > Makefile
+% make subs.a
+</PRE>
+
+<P>The following are command line options specific to <b>tbe</b>.
+<PRE>
+  --mxq           do charge mixing
+
+  --lc            assume monopole moments only in the mixing
+
+  --diagn         assume a diagonal density matrix in TB+<i>U</i>
+
+  --point         point charge self consistency only (saves time in Ewald summation)
+
+  --efield=#,#,#  (MOL=T only) apply an electric field (atomic Rydberg units)
+
+</PRE>
+
+
+
+<BR><BR><BR>
+
+
+
+
+
+
+
+</HTML>

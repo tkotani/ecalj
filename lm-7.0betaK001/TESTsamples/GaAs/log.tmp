@@ -1,0 +1,8 @@
+
+ LMCHK:    alat = 10.66  nbas = 0(+2)  nspec = 2  vn 7.00  verb 35
+ pot:      XC:BH
+fa  Pl  4.5 4.5 4.5 4.5  Ql  2 1 0 0
+fa Z  31.0   rm  49.98  qc 28.00  qspl 0.03833  dq 0.00000  Etot   -3882.111848
+fa  Pl  4.5 4.5 4.5 4.5  Ql  2 3 0 0
+fa Z  33.0   rm  48.93  qc 28.00  qspl 0.00306  dq 0.00000  Etot   -4515.355134
+ wkinfo:  used   106 K  workspace of 80000 K   in   1 K calls

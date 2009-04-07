@@ -1,0 +1,38 @@
+% const pwemax=3 nk=3 da=0 ncut=0 alat=10.66 bzj=0
+VERS    LM=7 FP=7
+SYMGRP  find
+STRUC   NBAS=2 NSPEC=2
+        ALAT={alat} DALAT={da} PLAT= 0 .5 .5    .5 0 .5    .5 .5 0
+
+SITE    ATOM=C1  POS=  0+wto   0+wto   0+wto
+        ATOM=A1  POS= .25-wto+kl .25-wto+kl .25-wto+kl
+
+ITER    CONV=1e-6 CONVC=1e-6 NIT=20
+BZ      NKABC={nk} BZJOB={bzj} NKABC2=3 BZJOB2={bzj} METAL=0
+CONST   avw=2.62434548
+        rw=.88
+        rwec=0 rweb=0 rwea=0
+        lf1=5 lf2=lf1 lmxa=lf1 lmxae=lf2
+        rw=.9 rwc=rw rwb=rwc rwa=rw rwec=rw rweb=rwec rwea=rw
+        alatj=a xx=1 y=0 wto=0 kl=0 
+
+OPTIONS INVIT=f HF=f PFLOAT=1
+IO      SHOW=t VERBOS=35
+HAM     FTMESH=24 XCFUN=2 
+        NSPIN=1 REL=t 
+        PWMODE=11 PWEMAX={pwemax}
+
+SPEC  #BYmergemto : ctrl and mtopara were merged.
+       ATOM= C1 Z= 31 R= 2.254225
+         RSMH= 1.503 1.503  EH= -0.325 -0.100 KMXA=7   PZ=0,0,13.9  P=0,0,4.2
+       ATOM= A1 Z= 33 R= 2.361690
+         RSMH= 1.514 1.524  EH= -0.834 -0.220 KMXA=7 
+
+ITER    CONV=5e-5 CONVC=1e-6 NIT=20
+BZ      NKABC=3 3 3 BZJOB=0 METAL=0
+OPTIONS HF=f PFLOAT=1 #Q=band
+IO      SHOW=t VERBOS=35
+HAM     GMAX=10 #FTMESH=24 
+        XCFUN=2 
+        NSPIN=1 REL=t 
+        PWMODE=11 PWEMAX={pwemax}b

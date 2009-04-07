@@ -1,0 +1,478 @@
+  --- Choose modes below ------------
+   Sx(1) Sc(2) ScoreX(3) 
+   [option --- (+ QPNT.{number} ?)] 
+  --- Put number above ! ------------
+hsfp0_sc: VerNum= 032h2
+  ixc nz=           2           0
+  ### readin BZDATA ###
+  read_bzdata           8           3          27          48           2
+          48
+  nqbz =           8
+  nqibz ngrp=           3          48
+ opening:    10 LMTO                                                            
+  symgrp=  UseSYMOPSfile                                                        
+                                                  
+  alat natom=   10.2600000000000                2
+  nspin nl nnv nnc =           1           5           2           2
+  divisions along reciprocal base vectors G1 G2 G3=           2           2
+           2
+  --- READIN nw from NW. nw=          93
+  --- Freq ---
+     dw   =   2.00000000000000D-002
+     niw  =           6
+     delta=  -1.00000000000000D-004
+     esmr =   3.00000000000000D-003
+  goto prod
+ <... > 
+ lx=  0 readin tolerance=  0.100D-04
+ lx=  1 readin tolerance=  0.100D-04
+ lx=  2 readin tolerance=  0.100D-04
+ lx=  3 readin tolerance=  0.100D-04
+ lx=  4 readin tolerance=  0.100D-04
+ lx=  5 readin tolerance=  0.100D-04
+ lx=  6 readin tolerance=  0.100D-04
+ lx=  7 readin tolerance=  0.100D-04
+ lx=  8 readin tolerance=  0.100D-04
+  --- prod section: tolbas lcutmx=   1.00000000000000D-005
+   1.00000000000000D-005   1.00000000000000D-005   1.00000000000000D-005
+   1.00000000000000D-005   1.00000000000000D-005   1.00000000000000D-005
+   1.00000000000000D-005   1.00000000000000D-005           4
+  --- valence product basis section
+  1  0  1  1  1
+  1  0  2  0  0
+  1  1  1  1  1
+  1  1  2  0  0
+  1  2  1  1  1
+  1  2  2  0  0
+  1  3  1  0  1
+  1  3  2  0  0
+  1  4  1  0  0
+  1  4  2  0  0
+  2  0  1  1  1
+  2  0  2  0  0
+  2  1  1  1  1
+  2  1  2  0  0
+  2  2  1  1  1
+  2  2  2  0  0
+  2  3  1  0  1
+  2  3  2  0  0
+  2  4  1  0  0
+  2  4  2  0  0
+  --- core product basis section
+  1  0  1  0  0  0  0
+  1  0  2  0  0  0  0
+  1  1  1  0  0  0  0
+  2  0  1  0  0  0  0
+  2  0  2  0  0  0  0
+  2  1  1  0  0  0  0
+  ### incwf=-1 Use ForSxc for core
+  nw from rgwinaf=          93
+ opening:    11 ECORE                                                           
+  rcore2 : ic=           1
+  rcore : goto loop over l n
+  rcore2 : ic=           2
+  rcore : goto loop over l n
+  symgrp==UseSYMOPSfile
+ closed :    10 LMTO                                                            
+ closed :    11 ECORE                                                           
+ genallcf_v3
+  iSigma_en=           3
+  status 1=          -3
+  status 2=          -1
+  status 3=          -1
+  nbmx ebmx from GWinput= 9999999  999999  0.25000D+01  0.10000D+11
+  hsfp0: end of genallcf_v3
+  --- Correlation mode --- 
+ opening:    10 SECU                                                            
+ opening:    11 SEC2U                                                           
+ opening:    12 SEC2D                                                           
+  --- computational conditions --- 
+    deltaw  =     0.020000
+    esmr    =     0.003000
+    alat voltot =    10.260000   270.011394
+    niw nw dw   =  6 93     0.020000
+ opening:    13 hbe.d                                                           
+ init_readeigen:
+ read(ifiqg)          16          92   2.70000000000000                8
+ opening:    14 EVU                                                             
+  mrelc.ne.0 file=EVU                                                           
+            208
+ evud is=           1 -0.730341733414392     
+ closed :    14 EVU                                                             
+   --- Readingin CLASS info ---
+         1         1
+         2         1
+  MPTAUO2: search miat tiat for wave function rotation
+ opening:    14 PPBRD_V2_01                                                     
+ closed :    14 PPBRD_V2_01                                                     
+ opening:    14 PPBRD_V2_02                                                     
+ closed :    14 PPBRD_V2_02                                                     
+  ngcmx ngpmx=          74          92
+  rdpp_v3: 
+ opening:    14 PPBRD_V2_01                                                     
+ opening:    15 PPBRD_V2_02                                                     
+  ppbrd size           5           4           4           2           1
+ closed :    14 PPBRD_V2_01                                                     
+ closed :    15 PPBRD_V2_02                                                     
+  rdpp mdimx=          72
+  rotcg:
+ 
+  ROTDLMM:
+  goto do 23
+  end of rotdlmm
+  rotcg end:
+  rdpp_v3:end 
+  end of read QGcou
+ opening:    14 WV.d                                                            
+  WV.d =           8      760384         218          71           6           3
+ opening:    15 WVR                                                             
+  mrelc.ne.0 file=WVR                                                           
+         760384
+ opening:    16 WVI                                                             
+  mrelc.ne.0 file=WVI                                                           
+         760384
+  efsimplef2(gaussian mode):start
+  ia z(ic)=           1   14.0000000000000     
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           0           2           2
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           1           1           6
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           2           0          10
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           3           0          14
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           4           0          18
+  ia z(ic)=           2   14.0000000000000     
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           0           2           2
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           1           1           6
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           2           0          10
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           3           0          14
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           4           0          18
+  valn=   8.00000000000000     
+           1           1 -0.730341733414392       0.250000000000000     
+           2          27 -0.575138661236545        1.25000000000000     
+           3          53 -0.426095937722274        2.00000000000000     
+           4          54 -0.426095937533375        2.75000000000000     
+           5          28 -0.350721966914598        3.75000000000000     
+           6          55  -3.57822464658851D-002   4.50000000000000     
+           7          56  -3.57822461546819D-002   5.25000000000000     
+           8          29   9.09268905174485D-002   6.25000000000000     
+           9          30   9.09280809294395D-002   7.25000000000000     
+          10           2  0.183926692940093        7.50000000000000     
+          11           3  0.183928063674121        7.75000000000000     
+          12           4  0.183928211376940        8.00000000000000     
+ 
+          13          57  0.345174720104162        8.75000000000000     
+          14          58  0.345174720899582        9.50000000000000     
+ valx at efini=  0.264551465740551        8.00000000000000     
+  efsimplef2(gauss):end
+  Ef=  0.264551465740551     
+  wgt nocc=   1.00000000000000        8.00000000000000     
+  ef    =  0.264551465740551     
+  esmr  =   3.00000000000000D-003
+  valn  =   8.00000000000000     
+  ntot  =   8.00000000000000     
+  KeepEigen=T; readin geig and cphi into m_readeigen
+ opening:    17 GEIG                                                            
+  mrelc.ne.0 file=GEIG                                                          
+          38272
+ opening:    18 CPHI                                                            
+  mrelc.ne.0 file=CPHI                                                          
+          41600
+  ifgeig ifcphi=          17          18
+ closed :    18 CPHI                                                            
+ closed :    17 GEIG                                                            
+ Target iq q=    1   0.0000   0.0000   0.0000
+ Target iq q=    2  -0.5000   0.5000   0.5000
+ Target iq q=    3   0.0000   0.0000   1.0000
+  ***
+    1   3  26  nspin  nq  ntq
+ spin = 2   nbloch ngp ngc= 144  89  65  nqbz =     8  nqibz =     3   ef=    0.2646 Rydberg
+ 0.2000000000000000D-01 <= deltaw(Hartree)
+ 0.1026000000000000D+02 <= alat
+ 0.2645514657405508D+00 <= ef 
+ 0.3000000000000000D-02 <= esmr
+ reading QOP
+  *** nqibz nq0i_total=           3           1
+  Used k number in Q0P =           1
+  1      1.000000       -0.152442      0.152442      0.152442
+  1  1     0.02083
+  1  2     0.02083
+  1  3     0.02083
+  1  4     0.02083
+  1  5     0.02083
+  1  6     0.02083
+  1  7     0.02083
+  1  8     0.02083
+  1  9     0.02083
+  1 10     0.02083
+  1 11     0.02083
+  1 12     0.02083
+  1 13     0.02083
+  1 14     0.02083
+  1 15     0.02083
+  1 16     0.02083
+  1 17     0.02083
+  1 18     0.02083
+  1 19     0.02083
+  1 20     0.02083
+  1 21     0.02083
+  1 22     0.02083
+  1 23     0.02083
+  1 24     0.02083
+  1 25     0.02083
+  1 26     0.02083
+  1 27     0.02083
+  1 28     0.02083
+  1 29     0.02083
+  1 30     0.02083
+  1 31     0.02083
+  1 32     0.02083
+  1 33     0.02083
+  1 34     0.02083
+  1 35     0.02083
+  1 36     0.02083
+  1 37     0.02083
+  1 38     0.02083
+  1 39     0.02083
+  1 40     0.02083
+  1 41     0.02083
+  1 42     0.02083
+  1 43     0.02083
+  1 44     0.02083
+  1 45     0.02083
+  1 46     0.02083
+  1 47     0.02083
+  1 48     0.02083
+  *** tot num of q near 0   =   48.0000000000000     
+  sum(wgt0) from Q0P=  0.100000D+01
+ --- freq01x:  ix    x    freqw(a.u.)---
+               1   0.0338  28.6163
+               2   0.1694   4.9034
+               3   0.3807   1.6268
+               4   0.6193   0.6147
+               5   0.8306   0.2039
+               6   0.9662   0.0349
+ opening:    17 emesh.hsfp0                                                     
+  sum of nonzero iirk=           8           8
+  nbmax=          26
+  KeepPPOVL=T; keep PPOVL in m_read_ppovl
+ sum(abs(zsec))=  0.816002440212599D+00
+ sum(abs(zsec))=  0.173610127469177D+01
+ sum(abs(zsec))=  0.265437618493862D+01
+ sum(abs(zsec))=  0.267865791541683D+01
+ sum(abs(zsec))=  0.271406344546028D+01
+ sum(abs(zsec))=  0.275363993379334D+01
+ sum(abs(zsec))=  0.332772518718691D+01
+ sum(abs(zsec))=  0.402440858732250D+01
+ sum(abs(zsec))=  0.473937808336665D+01
+ sum(abs(zsec))=  0.476718900954829D+01
+ sum(abs(zsec))=  0.479616143652306D+01
+ sum(abs(zsec))=  0.483413513763664D+01
+ sum(abs(zsec))=  0.543491934101208D+01
+ sum(abs(zsec))=  0.605665343353121D+01
+ sum(abs(zsec))=  0.687930319173796D+01
+ sum(abs(zsec))=  0.690731989725930D+01
+ sum(abs(zsec))=  0.693833467670730D+01
+ sum(abs(zsec))=  0.697991343272556D+01
+ sum(abs(zsec))=  0.703589969555541D+01
+ sum(abs(zsec))=  0.709200192969927D+01
+ sum(abs(zsec))=  0.714519654689677D+01
+ sum(abs(zsec))=  0.717348848375961D+01
+ sum(abs(zsec))=  0.720253585794248D+01
+ sum(abs(zsec))=  0.724324201541180D+01
+ sum(abs(zsec))=  0.743843981444068D+01
+ sum(abs(zsec))=  0.770507555903747D+01
+ sum(abs(zsec))=  0.800508218768233D+01
+ sum(abs(zsec))=  0.803279462633320D+01
+ sum(abs(zsec))=  0.806205653408209D+01
+ sum(abs(zsec))=  0.810012764836778D+01
+ sum(abs(zsec))=  0.815550920468905D+01
+ sum(abs(zsec))=  0.820822920999584D+01
+ sum(abs(zsec))=  0.826218526112633D+01
+ sum(abs(zsec))=  0.829001031523559D+01
+ sum(abs(zsec))=  0.832185200345429D+01
+ sum(abs(zsec))=  0.836195537341783D+01
+ sum(abs(zsec))=  0.841826768887396D+01
+ sum(abs(zsec))=  0.847184699974674D+01
+ sum(abs(zsec))=  0.852440247580371D+01
+ sum(abs(zsec))=  0.855343558321180D+01
+ sum(abs(zsec))=  0.858194624899629D+01
+ sum(abs(zsec))=  0.861943424516162D+01
+ sum(abs(zsec))=  0.867608430445752D+01
+ sum(abs(zsec))=  0.873373117604625D+01
+ sum(abs(zsec))=  0.878830315309902D+01
+ sum(abs(zsec))=  0.881751765302274D+01
+ sum(abs(zsec))=  0.884811270868615D+01
+ sum(abs(zsec))=  0.888780082594329D+01
+ sum(abs(zsec))=  0.894319711459552D+01
+ sum(abs(zsec))=  0.899273065672115D+01
+ sum(abs(zsec))=  0.904421523157019D+01
+ sum(abs(zsec))=  0.907257869617277D+01
+ sum(abs(zsec))=  0.910814964492747D+01
+ sum(abs(zsec))=  0.914685554801474D+01
+ sum(abs(zsec))=  0.920274987540920D+01
+ sum(abs(zsec))=  0.925231486608387D+01
+ sum(abs(zsec))=  0.930403059838020D+01
+ sum(abs(zsec))=  0.933275009559442D+01
+ sum(abs(zsec))=  0.936835360129382D+01
+ sum(abs(zsec))=  0.940692070914260D+01
+ sum(abs(zsec))=  0.946429554257163D+01
+ sum(abs(zsec))=  0.951389396526109D+01
+ sum(abs(zsec))=  0.956883387750288D+01
+ sum(abs(zsec))=  0.959908966243961D+01
+ sum(abs(zsec))=  0.963472706259416D+01
+ sum(abs(zsec))=  0.967440612502507D+01
+ sum(abs(zsec))=  0.973019698221908D+01
+ sum(abs(zsec))=  0.978467744853833D+01
+ sum(abs(zsec))=  0.983925303606348D+01
+ sum(abs(zsec))=  0.986795866099306D+01
+ sum(abs(zsec))=  0.989794019623844D+01
+ sum(abs(zsec))=  0.993792611395277D+01
+ sum(abs(zsec))=  0.999435081024335D+01
+ sum(abs(zsec))=  0.100507882011532D+02
+ sum(abs(zsec))=  0.101049605699281D+02
+ sum(abs(zsec))=  0.101342023350287D+02
+ sum(abs(zsec))=  0.101656576278423D+02
+ sum(abs(zsec))=  0.102061381396230D+02
+ sum(abs(zsec))=  0.102611163736248D+02
+ sum(abs(zsec))=  0.103137310130863D+02
+ sum(abs(zsec))=  0.103661737771233D+02
+ sum(abs(zsec))=  0.103936384209554D+02
+ sum(abs(zsec))=  0.104239264548903D+02
+ sum(abs(zsec))=  0.104619508226995D+02
+ sum(abs(zsec))=  0.105190361987644D+02
+ sum(abs(zsec))=  0.105749476949601D+02
+ sum(abs(zsec))=  0.106280188798899D+02
+ sum(abs(zsec))=  0.106575135747212D+02
+ sum(abs(zsec))=  0.106865568111955D+02
+ sum(abs(zsec))=  0.107241555233582D+02
+ sum(abs(zsec))=  0.107813801616335D+02
+ sum(abs(zsec))=  0.108310726364585D+02
+ sum(abs(zsec))=  0.108861899694032D+02
+ sum(abs(zsec))=  0.109161620371873D+02
+ sum(abs(zsec))=  0.109518898025082D+02
+ sum(abs(zsec))=  0.109917416882280D+02
+ sum(abs(zsec))=  0.110489233080734D+02
+ sum(abs(zsec))=  0.111062386312958D+02
+ sum(abs(zsec))=  0.111581129263935D+02
+ sum(abs(zsec))=  0.111877025060581D+02
+ sum(abs(zsec))=  0.112184190274212D+02
+ sum(abs(zsec))=  0.112573494063042D+02
+ sum(abs(zsec))=  0.113125343325586D+02
+ sum(abs(zsec))=  0.113654659891334D+02
+ sum(abs(zsec))=  0.114181564058744D+02
+ sum(abs(zsec))=  0.114458518169463D+02
+ sum(abs(zsec))=  0.114763567728677D+02
+ sum(abs(zsec))=  0.115144037420034D+02
+ sum(abs(zsec))=  0.115711032002068D+02
+ sum(abs(zsec))=  0.116257244240865D+02
+ sum(abs(zsec))=  0.116804854412360D+02
+ sum(abs(zsec))=  0.117100214697548D+02
+ sum(abs(zsec))=  0.117401418328216D+02
+ sum(abs(zsec))=  0.117804402994239D+02
+ sum(abs(zsec))=  0.118374283898195D+02
+ sum(abs(zsec))=  0.118940028267451D+02
+ sum(abs(zsec))=  0.119485193841492D+02
+ sum(abs(zsec))=  0.119786282373362D+02
+ sum(abs(zsec))=  0.120102189820216D+02
+ sum(abs(zsec))=  0.120508306564813D+02
+ sum(abs(zsec))=  0.121068785653105D+02
+ sum(abs(zsec))=  0.121596269786820D+02
+ sum(abs(zsec))=  0.122119993270441D+02
+ sum(abs(zsec))=  0.122407166877611D+02
+ sum(abs(zsec))=  0.122711370426117D+02
+ sum(abs(zsec))=  0.123097985486661D+02
+ sum(abs(zsec))=  0.123661416402632D+02
+ sum(abs(zsec))=  0.124159366431422D+02
+ sum(abs(zsec))=  0.124712188733278D+02
+ sum(abs(zsec))=  0.125001516569710D+02
+ sum(abs(zsec))=  0.125359796300957D+02
+ sum(abs(zsec))=  0.125759090261415D+02
+ sum(abs(zsec))=  0.126333244804343D+02
+ sum(abs(zsec))=  0.126893817904752D+02
+ sum(abs(zsec))=  0.127427017003243D+02
+ sum(abs(zsec))=  0.127725194508139D+02
+ sum(abs(zsec))=  0.128017072205399D+02
+ sum(abs(zsec))=  0.128395430476724D+02
+ sum(abs(zsec))=  0.128949558757439D+02
+ sum(abs(zsec))=  0.129477075896359D+02
+ sum(abs(zsec))=  0.130005277564203D+02
+ sum(abs(zsec))=  0.130283436786798D+02
+ sum(abs(zsec))=  0.130586787999447D+02
+ sum(abs(zsec))=  0.130969414456492D+02
+ j iq isp=  1   1 1  q=  0.0000  0.0000  0.0000  eig=-13.5363  Re(Sc) =  5.8807  Img(Sc) =  0.0000
+ j iq isp=  2   1 1  q=  0.0000  0.0000  0.0000  eig= -1.0970  Re(Sc) =  2.5328  Img(Sc) =  0.0000
+ j iq isp=  3   1 1  q=  0.0000  0.0000  0.0000  eig= -1.0969  Re(Sc) =  2.5328  Img(Sc) =  0.0000
+ j iq isp=  4   1 1  q=  0.0000  0.0000  0.0000  eig= -1.0969  Re(Sc) =  2.5328  Img(Sc) =  0.0000
+ j iq isp=  5   1 1  q=  0.0000  0.0000  0.0000  eig=  3.0784  Re(Sc) = -3.9061  Img(Sc) =  0.0000
+ j iq isp=  6   1 1  q=  0.0000  0.0000  0.0000  eig=  3.0785  Re(Sc) = -3.9061  Img(Sc) =  0.0000
+ j iq isp=  7   1 1  q=  0.0000  0.0000  0.0000  eig=  3.0785  Re(Sc) = -3.9061  Img(Sc) =  0.0000
+ j iq isp=  8   1 1  q=  0.0000  0.0000  0.0000  eig=  3.8392  Re(Sc) = -4.6419  Img(Sc) =  0.0000
+ j iq isp=  9   1 1  q=  0.0000  0.0000  0.0000  eig=  9.1355  Re(Sc) = -4.0781  Img(Sc) =  0.0000
+ j iq isp= 10   1 1  q=  0.0000  0.0000  0.0000  eig=  9.1355  Re(Sc) = -4.0781  Img(Sc) =  0.0000
+ j iq isp= 11   1 1  q=  0.0000  0.0000  0.0000  eig=  9.3934  Re(Sc) = -4.6774  Img(Sc) =  0.0000
+ j iq isp= 12   1 1  q=  0.0000  0.0000  0.0000  eig= 16.1393  Re(Sc) = -6.0427  Img(Sc) =  0.0000
+ j iq isp= 13   1 1  q=  0.0000  0.0000  0.0000  eig= 16.1393  Re(Sc) = -6.0427  Img(Sc) =  0.0000
+ j iq isp= 14   1 1  q=  0.0000  0.0000  0.0000  eig= 16.1393  Re(Sc) = -6.0427  Img(Sc) =  0.0000
+ j iq isp= 15   1 1  q=  0.0000  0.0000  0.0000  eig= 22.1350  Re(Sc) = -5.1631  Img(Sc) =  0.0000
+ j iq isp= 16   1 1  q=  0.0000  0.0000  0.0000  eig= 27.6026  Re(Sc) = -6.3578  Img(Sc) =  0.0000
+ j iq isp= 17   1 1  q=  0.0000  0.0000  0.0000  eig= 27.6026  Re(Sc) = -6.3578  Img(Sc) =  0.0000
+ j iq isp= 18   1 1  q=  0.0000  0.0000  0.0000  eig= 29.0715  Re(Sc) = -6.3577  Img(Sc) =  0.0000
+ j iq isp= 19   1 1  q=  0.0000  0.0000  0.0000  eig= 29.0715  Re(Sc) = -6.3577  Img(Sc) =  0.0000
+ j iq isp= 20   1 1  q=  0.0000  0.0000  0.0000  eig= 29.0715  Re(Sc) = -6.3578  Img(Sc) =  0.0000
+ j iq isp= 21   1 1  q=  0.0000  0.0000  0.0000  eig= 40.2820  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 22   1 1  q=  0.0000  0.0000  0.0000  eig= 40.2821  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 23   1 1  q=  0.0000  0.0000  0.0000  eig= 40.2821  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 24   1 1  q=  0.0000  0.0000  0.0000  eig= 41.8326  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 25   1 1  q=  0.0000  0.0000  0.0000  eig= 41.8326  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 26   1 1  q=  0.0000  0.0000  0.0000  eig= 41.8327  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp=  1   2 1  q= -0.5000  0.5000  0.5000  eig=-11.4247  Re(Sc) =  4.8692  Img(Sc) =  0.0000
+ j iq isp=  2   2 1  q= -0.5000  0.5000  0.5000  eig= -8.3713  Re(Sc) =  3.6673  Img(Sc) =  0.0000
+ j iq isp=  3   2 1  q= -0.5000  0.5000  0.5000  eig= -2.3623  Re(Sc) =  2.5997  Img(Sc) =  0.0000
+ j iq isp=  4   2 1  q= -0.5000  0.5000  0.5000  eig= -2.3623  Re(Sc) =  2.5997  Img(Sc) =  0.0000
+ j iq isp=  5   2 1  q= -0.5000  0.5000  0.5000  eig=  1.9359  Re(Sc) = -3.8917  Img(Sc) =  0.0000
+ j iq isp=  6   2 1  q= -0.5000  0.5000  0.5000  eig=  4.0420  Re(Sc) = -3.9297  Img(Sc) =  0.0000
+ j iq isp=  7   2 1  q= -0.5000  0.5000  0.5000  eig=  4.0421  Re(Sc) = -3.9297  Img(Sc) =  0.0000
+ j iq isp=  8   2 1  q= -0.5000  0.5000  0.5000  eig=  9.8838  Re(Sc) = -4.9479  Img(Sc) =  0.0000
+ j iq isp=  9   2 1  q= -0.5000  0.5000  0.5000  eig= 12.0795  Re(Sc) = -4.5720  Img(Sc) =  0.0000
+ j iq isp= 10   2 1  q= -0.5000  0.5000  0.5000  eig= 12.0795  Re(Sc) = -4.5720  Img(Sc) =  0.0000
+ j iq isp= 11   2 1  q= -0.5000  0.5000  0.5000  eig= 12.7299  Re(Sc) = -4.8896  Img(Sc) =  0.0000
+ j iq isp= 12   2 1  q= -0.5000  0.5000  0.5000  eig= 13.8645  Re(Sc) = -5.2113  Img(Sc) =  0.0000
+ j iq isp= 13   2 1  q= -0.5000  0.5000  0.5000  eig= 13.8645  Re(Sc) = -5.2113  Img(Sc) =  0.0000
+ j iq isp= 14   2 1  q= -0.5000  0.5000  0.5000  eig= 15.1545  Re(Sc) = -5.5117  Img(Sc) =  0.0000
+ j iq isp= 15   2 1  q= -0.5000  0.5000  0.5000  eig= 21.6262  Re(Sc) = -5.9209  Img(Sc) =  0.0000
+ j iq isp= 16   2 1  q= -0.5000  0.5000  0.5000  eig= 22.7609  Re(Sc) = -5.5631  Img(Sc) =  0.0000
+ j iq isp= 17   2 1  q= -0.5000  0.5000  0.5000  eig= 24.7719  Re(Sc) = -6.5279  Img(Sc) =  0.0000
+ j iq isp= 18   2 1  q= -0.5000  0.5000  0.5000  eig= 24.7719  Re(Sc) = -6.5279  Img(Sc) =  0.0000
+ j iq isp= 19   2 1  q= -0.5000  0.5000  0.5000  eig= 29.0080  Re(Sc) = -6.2362  Img(Sc) =  0.0000
+ j iq isp= 20   2 1  q= -0.5000  0.5000  0.5000  eig= 29.0080  Re(Sc) = -6.2362  Img(Sc) =  0.0000
+ j iq isp= 21   2 1  q= -0.5000  0.5000  0.5000  eig= 32.3249  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 22   2 1  q= -0.5000  0.5000  0.5000  eig= 36.6491  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 23   2 1  q= -0.5000  0.5000  0.5000  eig= 36.6491  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 24   2 1  q= -0.5000  0.5000  0.5000  eig= 39.6218  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 25   2 1  q= -0.5000  0.5000  0.5000  eig= 39.6218  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 26   2 1  q= -0.5000  0.5000  0.5000  eig= 44.1736  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp=  1   3 1  q=  0.0000  0.0000  1.0000  eig= -9.3968  Re(Sc) =  4.1458  Img(Sc) =  0.0000
+ j iq isp=  2   3 1  q=  0.0000  0.0000  1.0000  eig= -9.3968  Re(Sc) =  4.1458  Img(Sc) =  0.0000
+ j iq isp=  3   3 1  q=  0.0000  0.0000  1.0000  eig= -4.0863  Re(Sc) =  2.7883  Img(Sc) =  0.0000
+ j iq isp=  4   3 1  q=  0.0000  0.0000  1.0000  eig= -4.0863  Re(Sc) =  2.7883  Img(Sc) =  0.0000
+ j iq isp=  5   3 1  q=  0.0000  0.0000  1.0000  eig=  1.0969  Re(Sc) = -3.6371  Img(Sc) =  0.0000
+ j iq isp=  6   3 1  q=  0.0000  0.0000  1.0000  eig=  1.0969  Re(Sc) = -3.6371  Img(Sc) =  0.0000
+ j iq isp=  7   3 1  q=  0.0000  0.0000  1.0000  eig= 11.1198  Re(Sc) = -5.3212  Img(Sc) =  0.0000
+ j iq isp=  8   3 1  q=  0.0000  0.0000  1.0000  eig= 11.1198  Re(Sc) = -5.3212  Img(Sc) =  0.0000
+ j iq isp=  9   3 1  q=  0.0000  0.0000  1.0000  eig= 12.3554  Re(Sc) = -4.4058  Img(Sc) =  0.0000
+ j iq isp= 10   3 1  q=  0.0000  0.0000  1.0000  eig= 12.3554  Re(Sc) = -4.4058  Img(Sc) =  0.0000
+ j iq isp= 11   3 1  q=  0.0000  0.0000  1.0000  eig= 14.6878  Re(Sc) = -5.5076  Img(Sc) =  0.0000
+ j iq isp= 12   3 1  q=  0.0000  0.0000  1.0000  eig= 14.6878  Re(Sc) = -5.5076  Img(Sc) =  0.0000
+ j iq isp= 13   3 1  q=  0.0000  0.0000  1.0000  eig= 14.7966  Re(Sc) = -4.9779  Img(Sc) =  0.0000
+ j iq isp= 14   3 1  q=  0.0000  0.0000  1.0000  eig= 14.7966  Re(Sc) = -4.9779  Img(Sc) =  0.0000
+ j iq isp= 15   3 1  q=  0.0000  0.0000  1.0000  eig= 21.9456  Re(Sc) = -5.5368  Img(Sc) =  0.0000
+ j iq isp= 16   3 1  q=  0.0000  0.0000  1.0000  eig= 21.9456  Re(Sc) = -5.5368  Img(Sc) =  0.0000
+ j iq isp= 17   3 1  q=  0.0000  0.0000  1.0000  eig= 26.2914  Re(Sc) = -5.2160  Img(Sc) =  0.0000
+ j iq isp= 18   3 1  q=  0.0000  0.0000  1.0000  eig= 26.2914  Re(Sc) = -5.2160  Img(Sc) =  0.0000
+ j iq isp= 19   3 1  q=  0.0000  0.0000  1.0000  eig= 27.0146  Re(Sc) = -6.3662  Img(Sc) =  0.0000
+ j iq isp= 20   3 1  q=  0.0000  0.0000  1.0000  eig= 27.0146  Re(Sc) = -6.3662  Img(Sc) =  0.0000
+ j iq isp= 21   3 1  q=  0.0000  0.0000  1.0000  eig= 27.2090  Re(Sc) = -6.0969  Img(Sc) =  0.0000
+ j iq isp= 22   3 1  q=  0.0000  0.0000  1.0000  eig= 27.2090  Re(Sc) = -6.0969  Img(Sc) =  0.0000
+ j iq isp= 23   3 1  q=  0.0000  0.0000  1.0000  eig= 32.2953  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 24   3 1  q=  0.0000  0.0000  1.0000  eig= 32.2953  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 25   3 1  q=  0.0000  0.0000  1.0000  eig= 48.1623  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ j iq isp= 26   3 1  q=  0.0000  0.0000  1.0000  eig= 48.1623  Re(Sc) =  0.0000  Img(Sc) =  0.0000
+ closed :    13 hbe.d                                                           

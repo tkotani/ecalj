@@ -1,0 +1,37 @@
+#!/bin/bash
+# this is a packager. Run it from upper directory.
+if [ $# != 3 ]; then
+echo 
+echo Usage: packlmf {name of tar.gz}  {lmf directory} {fftw directory}
+echo Do it at ecal/.. directory.
+exit
+fi
+echo
+tar -zcvf $1 $2 $3 --exclude *.a --exclude *.o \
+--exclude lmf \
+--exclude lmf-MPI \
+--exclude lmf-MPIK \
+--exclude lmfgw \
+--exclude lmfgw-MPI \
+--exclude lmfgw-MPIK \
+--exclude lmdos \
+--exclude lm67 \
+--exclude lmchk \
+--exclude lmfa \
+--exclude lmf2gw \
+--exclude rdcmd \
+--exclude fplot \
+--exclude plbnds \
+--exclude work* \
+--exclude WORK* \
+--exclude fp/test/mixm.* \
+--exclude fp/test/rst.* \
+--exclude fp/test/moms.* \
+--exclude TESTsamples/*/mixm.* \
+--exclude TESTsamples/*/moms.* \
+--exclude TESTsamples/*/rst.* \
+--exclude NotUsedNow* \
+--exclude pldos
+
+scp $1 kotani@dob.phys.sci.osaka-u.ac.jp:/home1/kotani2/
+exit

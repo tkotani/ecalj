@@ -1,0 +1,14 @@
+#!/bin/bash
+ext=cu
+ddd=${ext}_dos
+echo $ddd $ext
+ln -s rst.$ext rst.${ddd}
+lmdir=../..
+
+rm -rf wkp.$ddd
+$lmdir/lmf $ddd --quit=band    |tee llmf_ef
+$lmdir/lmf --no-fixef0 --quit=band $ddd |tee llmfdos  
+echo 50,10,-1,1|$lmdir/pldos dos.$ddd  -lst='1'
+
+echo 'Check ps.dos*(postscript)!'
+

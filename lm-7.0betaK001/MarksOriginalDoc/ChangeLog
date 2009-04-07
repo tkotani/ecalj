@@ -1,0 +1,733 @@
+2009-02-10  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* An alpha-test of version 7 was released.
+          The input system is completely revamped.
+	
+2009-01-16  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* lmgf can calculate longitudinal susceptibility
+
+2008-08-15  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* Release of 6.17.  Requires slatsm v48.
+
+2008-08-12  Liqin Ke
+
+	* Empty sphere finder, first attempt
+
+2008-07-18  Takao Kotani, Mark van Schilfgaarde
+
+	* New APW to MTO basis in lmf
+
+2007-11-28  Jialei Xu, Mark van Schilfgaarde <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* LDA+U implemented in the ASA, first attempt.
+          lm, lmgf, lmpg have implementations in varying degrees
+
+	* Numerous small changes were made in preparation for new v7
+	
+2007-07-21  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+	* Version 16
+
+	* Adapted for gnu fortran90, and for SGI Altix 3700
+
+	* TB package separated out; lmmol and tbe are optional packages
+
+2006-06-08  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	*  New color band plotting capability
+
+2005-07-02  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* Empty spheres can be floating orbitals (no augmentation)
+
+	* Properly working extended local orbitals
+
+2005-06-27  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* Bug fix in ppi matrix involving local orbitals
+
+2005-05-28  Titus Sandu
+
+	* Self-consistent screened exchange in lmgf
+
+2005-04-27  Walter Lambrecht
+
+	* LDA+U, first attempt, lmf
+
+2005-04-14  T. Sandu
+
+	* First attempt at screened exchange, lmgf
+
+2005-02-07  A. Chantis
+
+	* Working implementation of SO coupling in lmf
+
+2004-12-21  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* lmf can rotate density and sigma to new coordinate system
+
+2004-11-04  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* New functionality in lmimp
+
+2004-09-17  Sergey Faleev
+
+	* Implemented nonequilibrium Green's function
+
+2004-08-28  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* First attempt at extended local orbitals
+
+2004-06-24  A. T. Paxton
+
+	* First working implementation of molecules program lmmc
+
+2004-06-24  A. Chantis
+
+	* Working implementation of GF with Dirac equation (lrel=2)
+
+2004-04-22  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* Implementation of orbital-dependent noncollinear magnetism
+
+2003-12-19  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* lmpg transport mode works in noncollinear case
+
+2003-12-19  T. Kotani
+
+	* Some changes for new GWinput
+	
+2003-12-19  T. Miyake
+
+	* Exchange and correlation split out for total energy analysis
+
+2003-10-31  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* lmf has new ability to optimize parameters in basis functions
+
+	* lm SX code uses new interpolation mode for self-energy sigma
+
+	* Electrostatics of layer Green's function code were revised, to
+	  eliminate confusions and inconsistencies
+
+2003-09-09  John Klepeis
+
+	* ASA optics can use sampling
+
+2003-06-24  A. Chantis
+
+	* Fully relativistic Dirac equation for GF code
+
+2003-05-24  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* New interpolation mode for self-energy sigma
+
+	* Added accumulation of density in a specified window
+
+2003-04-28  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* Working MPIK for lm program.  Installation not automatic
+
+	* New arguments to lmchk, lmscell, for printing and 
+	  using neighbor tables
+	
+2003-04-10  Walter Lambrecht
+
+	* Fixed program lmf so that it works for charged systems.
+
+2003-04-02  Tony Paxton 
+
+	* Working MPI for lmf program.  Installation not automatic
+
+2003-03-18  A. Chantis
+
+	* Start on fully relativistic Dirac equation
+
+2003-03-18  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* Added proper Kohn-Sham energy to ASA functional
+
+	* Added external magnetic field to ASA
+
+2002-07-22  Mark van Schilfgaarde  <markv@Mark.vanSchilfgaarde@asu.edu>
+
+	* Added code for self-consistent GW.
+
+	* small bug fix in gvlist renders GW and FP results slightly
+	  different
+
+2002-04-23  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Added sphere radius rescaler to programs and
+	  and sphere-size finder to lmchk
+
+2002-04-17  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Local orbitals added to GW driver; GW code redesigned
+	  for local orbitals.
+
+2002-04-10  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Revised internal fixed-dimensioned arrays to allow
+	  larger l-cutoffs and more complex basis sets
+
+2002-03-03  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Release of distribution 6.12.  Requires SLATSM.42.
+
+2002-03-01  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* lmimp can import data from rsta files
+
+	* Significant revisions of the layer GF code
+	
+2002-02-15  Tony Paxton
+
+	* First attempt at implementation of MPI into lmf
+	  and tbe programs.  Installation not automatic yet.
+
+2002-02-12  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* lmplan restored to work in v6
+
+2002-01-09  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* pgfasa can rotate to gamma rep'sn
+
+2001-12-17  Derek Stewart <dstewar@sandia.gov>
+
+	* (PGF) Implemented Kudrnovsky transmission formula
+
+2001-12-12  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* (PGF) Sparse mode can compute LR GF for calculating 
+          transmission coefficients
+
+2001-10-28  takao kotani
+
+	* lmfgw reorganized, its functions split into parts.
+
+2001-10-28  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Improved mesh respn of local density for charge mixing
+
+2001-10-03  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* screened exchange correctly handles inequivalent lmx on different sites
+
+2001-09-24  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Local orbitals added to the FP code.
+
+	* Added fixed-spin moment method.  Total energy not correctly
+	  computed yet.
+
+2001-08-23  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Started adding local orbitals to the FP code.
+
+2001-08-17  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Reconstructed micromagnetics program lmmag from ASA v5.
+
+2001-08-14  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* New Kotani format for reading in STRUC and SITE data.
+
+2001-08-13  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* First cut at HTML documentation.  New directory `doc'.
+
+2001-08-06  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* New script vextract
+
+2001-07-23  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Create distribution 6.11
+
+2001-07-20  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* bug fix, choosing default pnu,qnu in spin pol case.
+
+2001-07-02  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* bug fix 2nd gen ASA, noncollinear case w/ neglected orbitals
+
+	* some changes to monitoring of ASA self-consistency,
+	  now more compatible with lmf.
+
+	* ASA can now read restart file.  Some changes to iors
+	  to accomodate this.
+
+2001-06-01  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Redesigned gvlist, gvlst2, mshsiz.  Argument lists changed
+	  Affects G vector lists slightly.
+
+	* switch to standard cutoff in lmfgw;  Affects results slightly.
+
+	* bug fix 2nd gen ASA for noncollinear case when there are
+	  neglected orbitals
+
+2001-05-17  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* ASA can read/write to restart file
+
+2001-05-07  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Revised lmf pnunew to numerically integrate for log
+	  derivative at band center-of-gravity.
+	  Can affect lmf total energies slightly.
+
+2001-04-30  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* lmf can read ascii restart files
+
+2001-04-21  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* First attempt at GW driver for Kotani's GW codes
+
+2001-04-17  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Added QASA=2 mode for ASA band program
+
+	* lmimp will import Stuttgart moments ASA-47+U (switch -47u)
+
+2001-03-28  Tony Paxton, MvS
+
+	* Added Mulliken analysis, core-level optics, partial dos to lmf
+
+2001-02-28  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Added energy mesh mode 2 into lmgf, to evaluate
+	  energy-dependence of charge, exchange interactions
+
+2001-02-19  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* merged lmbnd functionality into lm.  lm and lmf use
+	  the same --band command-line arguments
+
+2001-02-08  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* create v 6.10c.
+
+	* Significant revision of lmdos.  Handle integration
+	  over selected bands, and new modes for integration,
+	  and unification of fp,tb,ASA into one program.
+
+	* GF program can accept inversion from time-reversal symmetry.
+	  Some small modifications to exchange branch.
+
+	* FP lmf has band-plotting capability and first cut at writing
+	  charge density for contour plotting.
+	  Restart switches rationalized
+
+	* Tokens SAVDOS, DOSWT merged into SAVDOS; BZMP removed
+
+	* Some small bugs fixed in fp and asa
+
+2001-01-22  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Extended ASA output density to noncollinear, downfolded case
+
+2000-12-20  Walter Lambrecht
+
+	* optics code works with spin-orbit coupling
+
+2000-12-13  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* (requires SLATSM version 38a)
+
+	* New rdcmd for more universal testing suites.
+
+	* Miscellaneous small changes
+
+2000-12-13  Tony Paxton
+
+	* Added EELS; also lmf can create DOS
+
+	* basis read from ctrl file instead of atom file
+
+	* Molecular statics revised
+
+2000-12-08  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Spin-orbit coupling branch generates orbital moments
+
+2000-10-09  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* New driver lmfgw.  Several routines changed and
+	  are not compatible with prior versions.
+
+2000-09-27  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* NMTO can use R.S. strux.  Requires hrmint from slatsm.
+
+2000-08-28  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* First cut at NMTO-ASA.  Requires slatsm v38.
+	  For now, screened strux by Ewald summation only
+	  No self-consistency, no higher waves allowed.
+
+2000-08-06  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* patches to FP so that empty spheres work
+
+2000-08-18  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Muffin-tin potential may be specified
+
+2000-07-11  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Release of v6.10.
+
+2000-07-07  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* First working lmf (alpha version).  Requires slatsm v37.
+	  Numerous internal changes in all libraries.
+
+2000-05-15  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Vectorize file I/O in linear response.
+
+2000-05-09  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* PGF code is noncollinear.  Numerous internal changes
+	  to accomodate NC-PGF and addition to lmf.  Many
+	  routines are not compatible with prior versions.
+
+2000-04-20  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Begin lmf program
+
+2000-04-04  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* lm program can allow downfolding with SO coupling
+
+2000-03-15  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Redesign gf iwaves as perturbation by l-blocks;
+	  add gf h-waves,
+	  first cut at lin. response using i- and h-waves.
+
+2000-02-29  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Start of fp package: completed lmfa
+
+2000-02-24  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Substantial revision of atom program, to make room for lmfa
+
+2000-02-21  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Initial revision of species structure for fp accomodation
+
+	* First cut at Monte Carlo alloy simulations
+
+2000-01-19  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* allow downfolding in the noncollinear case (bands only)
+
+2000-01-14  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Added trapezoidal energy integration to GF for fermi-level search
+
+1999-12-23  mark van schilfgaarde  <markv@waldo>
+
+	* Added gamma-representation to GF to sweep spurious poles
+        in the potential functions P out of the valence bands.
+
+1999-12-21  mark van schilfgaarde  <markv@waldo>
+
+	* Added downfolding to the GF code.
+
+1999-12-06  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Linear response for charge density in GF code and moments mixing
+	made to work for noncollinear case.  Token SCR= changed slightly.
+
+1999-11-13  mark van schilfgaarde  <markv@waldo>
+
+	* First cut at linear response in GF code to speed convergence in
+	self-consistency.
+
+1999-11-04  mark van schilfgaarde  <markv@waldo>
+
+	* Redesigned exchange routine exasa to fit in with more general
+	linear response framework.
+
+1999-11-02  mark van schilfgaarde  <markv@waldo>
+
+	* Prepare distribution 6.9.
+	  Requires SLATSM.36.
+
+1999-11-02  tony paxton  <Tony.Paxton@QUB.ac.uk>
+
+	* Ported to Portland group pgf77, on i686-pc-linux.
+
+1999-10-16  mark van schilfgaarde  <markv@waldo>
+
+	* Rewrite code segments involving hamiltonian to use
+	  permutation array indxsh (aka iprmb) to obtain information about
+	  hamiltonian offsets, subblocks, and orbital content
+
+1999-09-16  mark van schilfgaarde  <markv@waldo>
+
+	* redesign of ASA package to modularize main blocks
+
+1999-09-03  mark van schilfgaarde  <markv@waldo>
+
+	* Green's function package is noncollinear;
+	  Spinor rotations in noncollinear package simplified.
+
+	* Extensive redesign of layer Green's function package
+
+1999-08-27  mark van schilfgaarde  <markv@waldo>
+
+	* New lmscell
+
+	* New shell scripts test.* to automatically test operation of each
+	package
+
+	* Added structures spos and sham to isolate basis-set and
+	potential dependence.  Green function codes redesigned to hide
+	representations of basis and potential.
+
+	* some command-line arguments take '--'
+
+	* Major redesign of bloch.f
+
+	* exchange coupling satisfies sum rules for >1 atom type
+
+1999-05-14  mark van schilfgaarde  <markv@waldo>
+
+        * revised FTB driver for core-level optics
+
+        * relax.f mstmin minimization now reads only Hessian
+
+14 May 99 Buglet fix in shorps.f
+26 Apr 99 (6.8.5, requires SLATSM.35)
+          A variety of changes to accomodate developing O-N GF code
+          and also some changes to empirical TB code for Gamma-point
+          pairc,clsset,prjpos,siteid,soldhj revised, altered argument list
+          subas has setup for O-N GF
+          tbesel,tbforce,tbtote,tiozll,secmtb revised, altered argument list
+          strux routines like mstrx2 have slightly modified options
+          Major revisions to gf library
+18 Jan 99 (6.8.4, requires SLATSM.34)
+          Implemented iterative inversion for screened strux.
+          Revised clsset for O(N)
+          ovmin revised to call new gradzr
+16 Dec 98 (ATP) first cut at TBE molecular dynamics revision
+ 3 Dec 98 requires SLATSM dated this date or newer.
+          Some significant additions to rdfiln.
+          pqmix can use conjugate gradients
+          trs uses yqinv for inversion
+          small changes in relax, pgzerq to accomodate new
+ 1 Nov 98 change ftb input conventions for RFOCA/W, RSMG/W, etc.
+29 Oct 98 (6.8.3) first cut at crystal Green's function
+12 Oct 98 misc small changes to run under DEC alpha linux
+ 6 Oct 98 ftb now adopts ASA mixing
+ 4 Sep 98 (6.8.2, requires SLATSM.32)
+          patches in empty sphere overlap minimizer,sbloch
+30 Jul 98 (6.8.1) is a prelude to '3rd generation lmto'
+          Strux can be made for site-dependent lmx, with a Watson sphere,
+          for multiple energies, and for various conventions for setting
+          alpha, alpha-dot (see mktral.f)
+          iax array changed dimensions, as did the arguments to several routines
+26 May 98 New Broyden mixing
+ 4 May 98 (6.6.1; requires SLATSM.29)
+          Bug fix so that folding down IDXDN=3 works properly.
+          Incorporated optics code of S. Rashkeev and W. Lambrecht.
+          (package optics.tar) Updated files:
+          atomsr aiocls bndasa cb2sph clsprm lmasa makwts rdccat rdctrl secmat
+          New aiorme,rgrme
+          lstra has fancier upack1
+          (ATP) tbe can incorporate matrix elements proportional to
+          nonspherical terms in the charge.
+20 Apr 98 updated lmimp, aioxtn for v6
+          lsx=1,2 are distinct
+20 Feb 98 (6.5.1; requires SLATSM.28)
+          ioqpp,makwts,potpar  for accumulating nonspherical density
+          pqmix,pvpqm1         can mix qpp for nonspherical density
+          iosave extra switches for higher precision
+          iosite has extra modes
+          iovshf renovated
+          ioxbs  added -shift=x1,x2,x3
+          {addbas,asymop,gensym,groupg,grpgen,latvec,symcry,symlat}.f:
+                 tolerance for atom positions can be user-supplied
+          asa2c,secm2c  can add add 3rd order, cc in pert. theory
+          ioeula  uses rdfiln for reading first line
+          ovlchk  renovated
+          First attempt to make lmgfe
+21 Jan 98 partks can read masks for integers and doubles
+24 Nov 97 changed ovmin to run quickly
+          shoshl has a new set of options
+19 Nov 87 ioeula use rdfiln for reading first line
+13 Oct 97 added read mode=1 iosite
+          added GNU grep option for classed determinates, file rdtbh.
+          small bug fixes, error checks in tbe
+          shoshl has a different format
+19 Sep 97 Added -fixpos to make permanent array adjustments
+          subroutine relax can use Broyden mixing
+16 Sep 97 (6.1.1) first cut at tbe.  Added fixpos, some small bug fixes.
+10 Sep 97 restored sfill; ormax now a permanent array
+          some bug fixes
+23 Mar 97 (6.01.1) scrmom made spin polarized
+          aiopar revised; atom files can no longer read old PPAR
+          Class labels enlarged 8 characters (not fully checked)
+ 3 Mar 97 (5.5.3) bug fix in lmshf
+          atfold argument isw is now an integer
+          Optimized generation of SX sigma, v1
+18 Feb 97 (5.5.2; requires SLATSM.25)
+          added CMD category
+          added sfill, and switches to lmovl
+17 Feb 97 cleaned up many spurious variable declarations.
+          tbe uses spcgrp now.
+ 4 Feb 97 (5.5.1; requires SLATSM.24)
+          completed v2 of SX, with new local part of Sigma
+          Stoner made into a 'ccomp' option
+          shorbz fixed for long, oblong cells
+31 Jan 97 Added dielectric screening to assist self-consistency
+ 4 Jan 97 implemented v2 of SX.  Some problems encountered.
+          Added lmxbs; see asa-tb.doc for description
+          Major revision of lmsf1, adding
+          {addbas,asymop,gensym,groupg,grpgen,latvec,symcry,symlat}.f
+          psymop supercedes tsymop, generating inverse of g
+          lm now requires full space group in SYMGRP line!
+30 Nov 96 (5.4.7) bloch can accumulate bloch sum.
+          SX sigma symmetrized for q=0
+          Real-space sigma relative to q=0
+12 Nov 96 (5.4.6) pqmix can skip mixing of specified classes
+          Added MIX= in CLASS, lmio.f
+          s/o coupling in conjunction with SX
+16 Oct 96 Added ovmin in lmovl, to locate sites that minimize overlap
+          added -qp=filenam to lmbnd
+24 Sep 96 (5.4.5, requires SLATSM.22 for new diagno)
+          Bug fix in shorps, and lmsf1
+14 Sep 96 (for SX) secmat now adds sigm after H orthogonalized
+          corrected space group adding inversion crashing sometimes
+          mxcsiz in pairc may be used as estimate for mxnbr
+          tbe calls pairs, not pairc.  Should have no effect on results
+          some changes in output of tbe
+ 9 Sep 96 Added CLSTYL for category ME, rdtbh.f
+ 4 Sep 96 (5.4.4) SX asasx.f can generate RS sigma
+15 Aug 96 (5.4.3 requires SLATSM.21 for diagno change in lov)
+         *bndasa first cut at option to transform
+          to gamma rep'n and assume orthogonal evecs.
+          optionally saves evecs for screened exchange
+12 Aug 96 (5.4.2 requires SLATSM.20 --- bug fixes for DEC and Cray)
+          New program lminp to map atom files from Stuttgart version.
+          asa2c now makes evals in gamma representation :
+          bloch can use mapped strux
+          bzwts.f now puts efermi + eval+tiny for insulator
+          mksbet calls yqinv for inversion
+          ylmrtg works to lmax=8.
+          switch(64) set up for Rucker's screened exchange.
+          Some additions for switch(64) including:
+          atomsr calculates vintra, for Rucker's screened exchange
+          bndasa has a switch to save all evecs to disk
+          asa2c switch(25) now means transform to gamma-rep'n
+23 Jul 96 (5.4.1: requires SLATSM.19) many internal changes including
+         *new routines spcgrp,orbl,ibloch,rsmsym; revamping of
+          bloch,sbloch,makidx and bndasa and secmat cleaned up.
+         *Also partitions main code into segments, using ccomp, vn 3.
+         *Rewrote ballistic conductivity in lmdos.
+          (prior version produced incorrect results)
+         *STR has EQUIV= for equivalent strx
+ 6 Jun 96 (5.3.1: requires SLATSM.17)
+          STR has EQUIV= for equivalent strx (lmstr, PGF only for now)
+          NB: v5.3 strux files are INCOMPATIBLE with earlier versions.
+          Replaced bzmsh3 with bzmesh that make gstar with changed convention
+          pairc: added arguments iltab,pltabp; changed convention for iax(7)
+          symstr: now uses iax(6).
+          TBE 6.1 corrected permuted hamiltonian (tbloch.f and addes.f)
+          and calls pairc for neighbor table.
+          Added Krishnamurthy's extra (non-slater-koster) term to rdtbh
+          Major additions to pgf (pgf.6); created TBPG.
+ 8 May 96 (5.2.2, requires SLATSM.16) made BZMAP compiled specially
+          major additions to pgf (pgf.4)
+17 Apr 96 (5.2.1 requires SLATSM.15) major additions to pgf (pgf.3)
+          rewrote pairc, changed mksbet,trs to adapt to new yhifa
+          lgen replaced by xlgen, fixing bugs for long nonorthogonal cells
+          aiopar can read algebraic expressions.
+14 Mar 96 (5.1) First cut at PGF; iax defined as iax(8,*)
+ 5 Mar 96 aiopar calls a2vec to allow algebraic input
+          (requires SLATSM.13)
+ 2 Mar 96 (ATP) corrected bug in Stoner (again).
+22 Feb 96 first attempt at embedded cluster, ASA
+          NB: strx file has different aix table.  All
+          routines using iax have changed dimensions;
+          old strux are incompatible with new ones.
+          (see subs/iostr-io-old-format.fortran)
+          first attempt at true spin dynamics
+--- end of v4
+23 Jan 95 (4.7) globally changed iax(5,*) to iax(7,*)
+          corrected bug in SO coupling
+14 Jan 95 (JEK) tbe and asa made more compatible.  Now dostet, dosspl
+          should correctly handle coupled-spin cases.
+ 6 Dec 95 Moved structure-dependent moments file I/O to iomomq,s calls.
+ 4 Dec 95 (JEK) working version with
+          forces, spin-orbit, overpap, crystal field terms,
+          self-consistent TB w/ Hubbard U, partial decomps'n of DOS,
+          molecular dynamics and statics.
+          Bugs: lmdos,tbdos don't work when spins are coupled.
+ 1 Dec 95 Added -sh= option at end of each iteration in lm
+21 Nov 95 added metal=2 option
+20 Nov 95 revised lmio to better tailor token parsing.  Also:
+          BZJOB has just 3 arguments now
+          DEFGRD= in STRUC shortened to 7 characters
+ 6 Nov 95 added -r< switch to parmxp
+27 Oct 95 incorporated added JEK's changes, mostly in TB:
+          maknos now splits nos for spin polarized case.
+          (tb changes incomplete)
+--- end of v4.5
+19 Oct 95 added getenv,vec in rdfiln (slatsm)
+30 Aug 95 Fixed parmxp to return betv
+28 Jul 95 Started implementation of Vanderbilt.
+          NRMIX in OPTIONS has different context.
+          vxc0sp has improved extrapolation of rho to origin.
+18 Jul 95 Added frozen core
+          (ATP) Make Stoner work in ASA.
+--- end of v4.4
+11 Jul 95 (ATP) transform to new representation interactively.
+10 Jun 95 Completed implementation of crystal rotations
+30 May 95 (ATP) added ballistic conductivity to lmdos.
+29 May 95 some bug fixes; rework lmdos,dostet,dosspl to use iomomq.
+ 9 May 95 Added so coupling in nc routines, bands only
+27 Apr 95 atomsr makes matrix elements for SO coupling
+18 Apr 95 tbe (JEK, ATP) added overlaps, spin-orbit coupling
+--- end of v4.3
+17 Mar 95 added -dumprho to atomsr.f
+10 Mar 95 added xipmxs option to program lm
+ 8 Mar 95 sampling bzwts combines up,down spins in finding fermi level
+          (to make compatible with noncollinear)
+ 7 Mar 95 noncollinear magtrq does dynamics, amagnc added
+ 3 Mar 95 add -cont switch in bndasa
+10 Jan 95 allocate extra space for nr in aiogen.
+20 Dec 94 (LMASA 4.3) Collinear spin-pol Fermi level finder treats
+          spins as coupled.
+--- end of v4.2
+ 9 Dec 94 (LMASA 4.2) Orbital-dependent Euler angles.
+--- end of v4.1
+ 6 Dec 94 (ATP and JEK) tbe 5.0.  File moms has different format.
+21 Sep 94 Made sampling handle insulator case properly
+19 Sep 94 noncollinear routines added (special tar file nc needed)
+          Routine magtrq calculates magnetic forces
+          Also allow self-consistency mixing to include Euler angles
+1  Jul 94 (ATP) Range of hamiltonian is in a.u., not in WSR
+                Implement strain, deformation and rotation.
+1  Jul 94 Add lmmix
+21 Jun 94 Implement new mixing scheme
+15 Jun 94 implemented -onesp for self-consistent calculations
+          bndasa,asa2c, and related routines altered for coupled spins.
+          Spin polarized vmtz is now same for up,down spins.
+--- end of v4.0
+2  May 94 Adapted Broyden mixing from Stuttgart lmto43
+1  May 94 Added PGF in lmstr; renumbered switches
+6  Apr 94 Adapted for SGI mp (remove dgemm.o, zgemm.o in slatsm.a)
+5  Apr 94 Bug fixes for dos plotting in bndtb,dosspl,makwts,mkwttb
+5  Nov 93 Implemented for Dec 5000 workstations.

@@ -1,0 +1,355 @@
+ This file documents how the ctrl file (the main input file) is structured.
+ The input file is designed in very flexible format, with the capability of
+ declaring variables and evaluating algebraic expressions.  Before any
+ attemp is made to read data from the input file, it is first parsed by a
+ preprocessor with many capabilities including branching and looping
+ constructs for conditional or multiple reading of input lines.  See file
+ file-preprocessor.doc in this directory for a detailed description of the
+ preprocessor.
+
+ ------------------------ Structure of the control file -------------------
+ The control file is the main input file, and also can serve to document a
+ calculation.  Data is grouped in the control file into CATEGORIES;
+ within each category are TOKENS which tell the input file where to
+ find specific data, as described below.
+
+ Here is a sample input file suitable for an ASA calculation.
+
+ HEADER  Example of an ASA input file : Si with empty spheres
+         You can put here as many lines as you like.
+ # Any line beginning with `#' is a comment and is ignored
+ VERS    LMASA-6
+ IO      SHOW=F HELP=F VERBOS=31,20 WKP=F
+ OPTIONS NSPIN=1 REL=F CCOR=F ADNF=T
+ CONST   a0=.5292 nk=4
+ STR     RMAX=3.6
+ STR     RMAX=2.7
+ SYMGRP  R3D R4Z MZ
+ BZ      NKABC=nk nk nk METAL=F DOSWT=T SAVDOS=F
+         BZJOB=1
+ STRUC   NBAS=4 NCLASS=2 NL=3
+         ALAT=5.431/a0 PLAT= 0 .5 .5   .5 0 .5   .5 .5 0
+ SITE    ATOM=SI   POS= 0 0 0
+         ATOM=SI   POS= .25 .25 .25
+         ATOM=ES   POS= .5 .5 .5
+         ATOM=ES   POS= .75 .75 .75
+ SPEC    ATOM=SI   R/W=1  Z=14
+         ATOM=ES   R/W=1  Z=0
+ MIX     MODE=A,b=.8
+ START   NIT=3
+         BEGMOM=T (=T to begin with moments, =F to begin with band-structure)
+         CNTROL=T (=T to use following to override disk; =F to ignore following)
+           ATOM=SI  P=3.5 3.5 3.5    Q=1 0 0    2 0 0   0 0 0
+           ATOM=ES  P=1.5 2.5 3.5    Q=.5 0 0  .5 0 0   0 0 0
+
+ A category begins with a nonblank character A-Z or a-z in the first
+ column (NB: the parser is case-sensitive); it ends with the next
+ occurence of one.  The name of the category is the string that begins
+ the category; eg.  in the above category `STRUC' begins with `STRUC'
+ and ends before `SPEC'. The above example has the following categories:
+   VERS IO OPTIONS CONST STR SYMGRP BZ STRUC SITE SPEC MIX START
+
+ Categories may be placed in any order; only the first category of a
+ given name is used.  Thus, in the above example, there are two
+ occurences of category `STR'; the second one is never used.  Also,
+ any category not sought by the executable is read in.
+
+ Besides demarcating the beginning of a new category, the first
+ character serves the following other purposes:
+
+ 1. A line beginning with `#' is treated as a comment and is ignored.
+
+ 2. A line beginning with a `%' may be treated as directive at the
+    preprocessing stage, thus are treated not as part of the input, but
+    as a directive to do something, such as declare a variable, to
+    conditionally skip over a block of input lines, or to repeatedly
+    read a block of lines using a looping construct.  For example, for
+    each line of the input file, the preprocessor parses and
+    substitutes expressions enclosed in curly brackets by a character
+    representation of the result of the expression.  Thus, `{2+1}' is
+    replaced by `3'.  Directives recognized by the preprocessor are:
+       const cconst cvar udef var vec char char0 cchar getenv
+       if ifdef ifndef iffile else elseif elseifd endif
+       while repeat end
+       echo show stop exit save trace vfind include includo
+    See file-processor.doc in this directory for a complete description
+    of the preprocessor.
+
+ Data within a category is identified by a token, eg NSPIN=.  A token
+ is a marker for data to follow.  The data consists of an algebraic
+ expression (which may be of the logical, integer, or real types), a
+ character string, or often a sequence of these separated by spaces or
+ commas.  For example, in the above example, the STRUC category has
+ the following tokens
+    NBAS= NCLASS= NL= ALAT= PLAT=
+ The first four are tokens that expect a simple integer expression,
+ while PLAT= expects a sequence of 9 expressions.  Algebraic
+ expressions may include variables, which can be declared either on the
+ command line, via the preprocessor (cf file-preprocessor.doc) or in
+ the CONST category, described below.  Apart from a mild exception to
+ be described in the following paragraph, the order of tokens with a
+ category is also irrelevant.
+
+ As in the case of categories, some tokens are optional (in which case
+ the calling program will assume a default value) while others are
+ required.  Sometimes you need only specify a portion of the data.
+
+ Some categories (e.g. SPEC, SITE, START above) require multiple uses of a
+ subgoup of tokens within a category.  For example, in SPEC above tokens
+    ATOM=  R/W=  Z=
+ are needed for each species declared.  In this case, the parser breaks the
+ category into smaller groups (subcategories) and acts for the purposes of
+ reading those tokens that the category has been shrunk into one of those
+ groups.  It accomplishes this by singling out a particular token for a dual
+ role: in addition being a token it demarcates the beginning of a
+ subcategory (in this example, that token is ATOM=); the subcategory begins
+ with an occurence of ATOM= and ends just before the occurence of the next
+ ATOM=, or the start of the next category, whichever occurs first.  Thus in
+ the above example, there are two subcategories in category SPEC.  They are:
+   ATOM=SI   R/W=1  Z=14
+ and
+   ATOM=ES   R/W=1  Z=0
+ Tokens within a subcategory may occur within any order.
+
+ Subroutine rdccat.f contains the source code for reading categories and
+ tokens.  (It is unfortunately rather complicated, and it is hoped that the
+ code will be simplified in the future.)  The input proceeds as follows:
+
+ 1.  The entire input file is read, and passed through the preprocessor
+     (cf file-preprocessor.doc), and kept in memory.
+
+ 2.  For each category to be read by the calling program:
+
+     2a.  The category is sought.  If it is missing, the program will
+          continue silently for those categories that are optional
+          (e.g. SYMGRP).  Otherwise:
+
+     2b.  Within a category, a sequence of tokens are sought.  What
+          tokens are sought depends on the calling program; and as in
+          the case of categories, some are optional while others are
+          required.  You may put in any tokens you like; only those
+          sought will be used.  This points out one important pitfall
+          with this input style.  You may think a token is being
+          read, but actually it is not (possibly because it was
+          misspelt or put into a wrong category).
+
+ ------------------------ Generic categories -----------------------------
+ Some categories are used by all calling programs, and are described here.
+
+*Category HEADER (optional): provides a space to describe the contents of
+ the control file.  The first line in HEADER is printed out at the start of
+ each program execution.
+
+*Category VERS a version number, to ensure combatibility of the
+ control file with the executing program.
+
+*Category IO (optional):
+   Token SHOW= is a switch that if true, echos input data to the
+   standard output.  Unless you specify otherwise, the program reads
+   the input silently.  Any data sought by the calling program is
+   printed, including whatever default values not explicitly declared
+   in the input file.
+
+   Token HELP= is a switch that if true, shows what kind of categories
+   and tokens the calling program would have sought and data it would
+   have tried to read, without reading anything.
+
+   Token VERBOS= is an integer (or a pair of integers) that fixes the
+   verbosity of output a program sends to standard output.  The output
+   is roughly as follows:
+       0:  nothing is printed
+      10:  very terse
+      20:  terse
+      30:  mildly terse
+      40:  mildly verbose
+     100:  low-level debugging
+     110:  intermediate level debugging
+     120:  very verbose debugging
+
+   In some programs, the (optional) second integer sets the verbosity
+   for some special branch of the code; e.g. a branch dealing with
+   making the potential.  The second number assumes the value of the
+   first, if it is not explicitly declared.
+
+   Token WKP=  is a switch that turns on the 'debug' mode in the dynamic
+   memory routines.  An effective heap is declared as a single integer
+   array in the main program.  Pieces are apportioned dynamically by
+   calls to routine defdr and others.  They can be 'released' to be
+   reused.  See routine alloc.f in the slatsm library for documentation.
+   You can watch the memory grow and shrink if this is turned on.
+
+   Token EXTENS= is archaic.  Under older operating systems, it appended
+   the extension '.ext' when opening all subsequent files (some
+   operating systems only).  At present, the extension is specified
+   on the command line.
+
+   Token IACTIV= is a switch that turns on the 'interactive' mode.
+   When this mode is on, certain break points may arise where you have
+   an option to abort program execution, change the verbosity, toggle
+   the work array debug switch (see WKP= above), or sometimes to change
+   a value of a single variable that may passed to query.  There is
+   also the option to turn off the interactive mode.  At the prompt,
+   enter either a simple carriage return, or one of
+      'Vnnn', where nnn is the new verbosity;
+      'W' to toggle printing of work array;
+      'I' to turn off interactive prompt;
+      'A' to abort program execution
+   or, in the case when a variable is passed, you may also enter a
+      a number to change the parameter's value.
+   Note: if a job is running, and you want to toggle the interactive
+   mode, create a file `iactiv.ext' with the character 'i' as the first line.
+
+*Category CONST
+
+ CONST is a place where symbolic variables are declared, that can used
+ for elsewhere in algebraic expressions.  There are several modes in
+ which variables can be declared, and unfortunately the various
+ possibilities can sometimes be confusing.  Variables are declared
+ with the following precedence:
+
+     1.  On the command line, eg 'lm -vmyvar=11 ...'
+
+     2.  via the preprocessor directives %const and %var (file-preprocessor.doc)
+
+     3.  In category CONST.  For example:
+           CONST  Za=33 Zc=Za-2 bzj=1+1
+         declares and (possibly) assigns three variables; see `a' below.
+
+     There is some important distinctions between variables
+     declared via preprocessor construct `% const' or `% var'and
+     the CONST category:
+
+         Any variables declared by a % directive in the input file are
+         are deleted on exit unless saved by a %save command.
+         Variables declared this way behave approximately as if they
+         are strictly local to the preprocessor.
+
+         variables used by the preprocessor are used to control
+         execution flow, or they are re-expanded into character
+         strings in constructs of the type {expression}, and thus
+         alter the structure of the input file.  Be advised that a
+         character representation of {expression} is not equivalent to
+         a binary one in the case of floating-point numbers.  Usually
+         the distinction isn't very important, but it can be when high
+         precision is needed.
+
+     Some additional information about variables declarations and expressions:
+
+     a.  The syntax of `myvar=expr' means the following: if `myvar'
+         already exists, do nothing.  If it does not exist, add it to
+         the variables table, and assign the value `expr'.  Thus, the
+         first declaration of the variable has the highest precedence:
+         so declaring `myvar' the command line overrides subsequent
+         declarations.  The sole exception to this rule is the
+         preprocessor %var directive, which always assigns `expr' to
+         `myvar'.
+
+     b.  slatsm subroutine a2bin evaluates all expressions; subroutine
+         parsyv evaluates all assignment operators (see `b' and `c').
+         The unary operators include standard library functions
+           (abs,log,etc), and:
+           ~      equivalent to fortran .NOT. and C `!'
+           ciel() rounds up to nearest integer
+           flor() rounds down to nearest integer
+         In addition to the basic binary operators (*, /, +, -) there
+         are
+           ^  (exponentiation)
+           %  (modulus)
+         and the following logical operators
+           <  (.lt.)
+           >  (.gt.)
+           == (.eq.)
+           <> (.ne.)
+           <= (.le.)
+           >= (.ge.)
+           & (.and.)
+           | (.or.)
+           expr1?expr2:expr3
+         The last is a C-like syntax, which evaluates to 'expr2' if
+         expr1 is .true., and expr3 if expr1 is .false.  (Logical
+         expressions such expr1==expr2 evalute to 1 for .true. and 0
+         for .false.) There is a small granularity to the comparison
+         operator a==b.
+
+     c.  There are assignment operators in addition to the special
+         (pseudoassignment) '=' above, following C syntax.  They are:
+           *=  multiply       the variable to the operator's left with `expr'
+           /=  divide         the variable to the operator's left with `expr'
+           +=  add            the variable to the operator's left with `expr'
+           -=  subtract       the variable to the operator's left with `expr'
+           ^=  exponentiate   the variable to the operator's left with `expr'
+         These operators put the result into the variable.
+
+*Category CMD (optional):
+
+ CMD is a vehicle to add to of command-line arguments (some of which
+ are described in the next section) normally specified on the
+ command-line.  In a few places the only way to affect certain program
+ control is through command-lie arguments.  thus CMD category
+ facilitate implementation on non-unix operating systems which don't
+ supply capability for reading from the command-line; or provide a way
+ to permanently append arguments you always want anyway.  The contents
+ are `CMD' are in affect appended to command line arguments already
+ found found, thus extending the number of effective command-line
+ arguments.  Its function is similar to a command-line argument, but
+ not identical, since the preprocessor has already read the input file
+ before the `CMD' switches are read.  Thus the "-v" and "-c" variable
+ declarations have no effect.
+
+ ------------------------ Generic command-line arguments -----------------
+All of the programs have special functions or switches that may be (in
+a few cases, must be) set from command-line switches, Here is an example:
+  lmchk -vns=4 -vnm=5 --wpos=pos
+Following unix style, switches always begin with `-'.  There are many
+command-line arguments that are specific to a particular executable;
+here some generic ones common to most or all programs are described.
+
+Some switches have a single `-'; some have two (`--').  Those with
+a single `-' tend to have an `assignment' function, such as a
+variables declaration (eg -vx=3), while those with two tend to control
+program flow (eg. --wpos=).  Sometimes there is not a clear distinction
+(eg --pr, described below) and you can use either `-' or `--'
+
+These switches can be set from the command line only for an operating
+system that accepts them, such as unix or MS-DOS.  You can also put these
+switches in the CMD category in the input file.  The function is similar to
+a command-line argument, but not identical, since preprocessor has already
+read the input file before the 'CMD' switches are read.  Thus the "-v" and
+"-c" variable declarations have no effect.
+
+There are some switches common to most or all programs.  These are:
+
+--h             lists switches for that program and quits
+                (warning: sometimes documentation is slightly out of date)
+		
+--input         same as turning on HELP=T in category IO; see HELP= above.
+		
+--show          same as turning on SHOW=T in category IO; see SHOW= above.
+		
+--showp         prints out input file after having run through the
+                preprocessor, and exits.
+		
+--pr#1[,#2]     sets print verbosities.  #2 is verbosity for generation
+ -pr#1[,#2]     of the potential, and assumes the value of #1 unless specified.
+		
+--time=#1[,#2]  prints out a summary of timings in various branches of
+                the code at the close of program execution.  Timings
+                are kept to a nesting level of #1.  If #2 is
+                nonzero, timings are printed 'on the fly'
+		
+--iactive       turns on 'interactive' mode.  User is queried at
+                various points, such as whether to continue iterations.
+                You can specify this in ctrl file 'IO IACTIV='
+--no-iactive    turns off 'interactive' mode
+		
+-c"name=strn"   declares a character variable and assigns to value `strn'
+		
+-v"name=expr"   declares a numeric variable and assigns to the value of
+                expression `expr'. Be advised that only the first
+                declaration of a variable is used.  Later declarations
+                have no effect.  In addition to the declaration
+                `name=...'  there are assignment operators
+                '*=','/=','+=','-=','^=' modify existing variables,
+                following C syntax, as described in description of
+                category CONST above.
+

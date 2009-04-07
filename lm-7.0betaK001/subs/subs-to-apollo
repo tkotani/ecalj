@@ -1,0 +1,9 @@
+echo --- subs-to-apollo: ccomp to APOLLO-specific ---
+
+rm -f xx.f ; ccomp -uAPOLLO_BUG bzmsh3.f xx.f
+ccomp -dAPOLLO_BUG xx.f bzmsh3.f
+
+rm -f xx.f ; ccomp -uAPOLLO plana.f xx.f
+ccomp -dAPOLLO xx.f plana.f
+
+rm -f xx.f

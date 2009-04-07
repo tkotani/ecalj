@@ -1,0 +1,161 @@
+  mode(now only =0)? +(pararell iqxini iqxend ?)
+hvccfp0: VerNum= 032i2 :Build 05June2006
+ opening:    10 HVCCIN                                                          
+ allocate(qbz(3,nqbz),bas(3,nbas),rmax(nbas))
+ allocate(qibz(3,nqibz),iqibzx(nqbz))
+  voltot=   270.011394000000     
+ 
+   1     0.000000     0.000000     0.000000
+   2    -0.500000     0.500000     0.500000
+   3     0.000000     0.000000     1.000000
+ allocte(lx,kmx,nblocha,nr,aa,bb,filename,ificrb
+ opening:    11 BASFP01                                                         
+ opening:    12 BASFP02                                                         
+ allocate( nx(0:lxx,nbas) )
+ allocate( rprodx(nrx,nxx,0:lxx,nbas) )
+ scg_sizechk=        22661        3322
+  end of scg: cg coefficients generated.
+ allocate(dlv, qlv, work) 
+
+ lattc:  as= 2.000   tol=1.00E-09   lmax=16   awald= 0.3094   v0=     0.250
+ alat1= 10.26000   estimates:   nkd   220   nkr   387
+  r0=   1.9188   rc=  19.6867   radd=   0.4410   nkd=    225
+  q0=   6.0658   qc=   3.7147   qadd=   1.1112   nkr=    387
+ deallocate(work)
+ Coulomb is exp(eee*r)/r. eee= 0.000000D+00
+  init_readqg ifi=           2
+ allocate( vcoul)
+ --- readin Q0P -------
+ allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+  0.10000D+01    -0.15244D+00  0.15244D+00  0.15244D+00
+  *** goto do iq nqibz nq0i=           3           1
+ Mix0vec.XXX is not empty only when the corresponding q is in Q0P with zero weight.
+ opening:    13 VCCFP                                                           
+ opening:    14 Mix0vec                                                         
+  smooth mixed basis= F
+ 
+###  iqx q ngc =    1    0.0000    0.0000    0.0000   65 #############
+ 
+###  iqx q ngc =    2   -0.5000    0.5000    0.5000   70 #############
+  goto strxq
+ allocate( strx(nlxx,nbas,nlxx,nbas))
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate(rojp,sgpb,fouvb)
+  --- goto mkjp_4           1
+  mkjp_4: use sigintAn1 eee=0(r0c=infty) mode
+  --- goto mkjp_4           2
+  mkjp_4: use sigintAn1 eee=0(r0c=infty) mode
+  goto vcoulq_4
+ vcoulq_4: nblochpmx  nbloch ngc=   218   144    70
+ Diagonal Vcoul =    1  0.1663706180D+02 -0.2353488048D-36
+ Diagonal Vcoul =   21  0.2534153730D+00 -0.2269168959D-46
+ Diagonal Vcoul =   41  0.6992481666D+00  0.8393824448D-47
+ Diagonal Vcoul =   61  0.1155645483D+01 -0.1706125391D-38
+ Diagonal Vcoul =   81  0.8651956575D+00  0.6693897194D-53
+ Diagonal Vcoul =  101  0.7459573079D+00  0.2232708517D-45
+ Diagonal Vcoul =  121  0.2928104272D+00 -0.3607002361D-45
+ Diagonal Vcoul =  141  0.4823430235D+00  0.3202094014D-40
+ Diagonal Vcoul =  161  0.4706694073D+03 -0.6941771698D-15
+ Diagonal Vcoul =  181  0.4010636225D+03  0.3711534997D-14
+ Diagonal Vcoul =  201  0.9492863946D+03 -0.4961358509D-13
+  end of vcoulq_4
+ vcoul trwi=     2  0.19639026945246D+03 -0.47304910348588D-36
+### sum vcoul(1:ngb,      1:ngb)   0.85478201417751D+04 -0.13673637867123D-13    0.31155566301537D+06
+### sum vcoul(1:nbloch,1:nbloch)   0.17338202687210D+03  0.90029445411605D-35    0.50816797585002D+03
+ 
+ ngc ngb/ngbo=    70   214   214
+ 
+###  iqx q ngc =    3    0.0000    0.0000    1.0000   64 #############
+  goto strxq
+ allocate( strx(nlxx,nbas,nlxx,nbas))
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate(rojp,sgpb,fouvb)
+  --- goto mkjp_4           1
+  mkjp_4: use sigintAn1 eee=0(r0c=infty) mode
+  --- goto mkjp_4           2
+  mkjp_4: use sigintAn1 eee=0(r0c=infty) mode
+  goto vcoulq_4
+ vcoulq_4: nblochpmx  nbloch ngc=   218   144    64
+ Diagonal Vcoul =    1  0.1440768292D+02 -0.2348900211D-36
+ Diagonal Vcoul =   21  0.2568144152D+00  0.1858561545D-42
+ Diagonal Vcoul =   41  0.6992479663D+00 -0.4469578553D-41
+ Diagonal Vcoul =   61  0.1151625508D+01 -0.8119350074D-38
+ Diagonal Vcoul =   81  0.8653484174D+00 -0.1477640943D-40
+ Diagonal Vcoul =  101  0.7459821074D+00  0.3194125803D-45
+ Diagonal Vcoul =  121  0.2928086477D+00 -0.5336318312D-41
+ Diagonal Vcoul =  141  0.4823501635D+00  0.3200921524D-40
+ Diagonal Vcoul =  161  0.5657466337D+03  0.5038302398D-15
+ Diagonal Vcoul =  181  0.1103079474D+04 -0.9675456651D-16
+ Diagonal Vcoul =  201  0.6190901392D+03 -0.7958414122D-19
+  end of vcoulq_4
+ vcoul trwi=     3  0.19190923678372D+03 -0.47212695227968D-36
+### sum vcoul(1:ngb,      1:ngb)   0.10430533831764D+05  0.88780896544546D-15    0.26954935902773D+06
+### sum vcoul(1:nbloch,1:nbloch)   0.15431842318043D+03  0.25664632044077D-33    0.38812303708753D+03
+ 
+ ngc ngb/ngbo=    64   208   208
+ 
+###  iqx q ngc =    4   -0.1524    0.1524    0.1524   65 #############
+  goto strxq
+ allocate( strx(nlxx,nbas,nlxx,nbas))
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate( s(nlx1,nlx2))
+ deallocate( s )
+ allocate(rojp,sgpb,fouvb)
+  --- goto mkjp_4           1
+  mkjp_4: use sigintAn1 eee=0(r0c=infty) mode
+  --- goto mkjp_4           2
+  mkjp_4: use sigintAn1 eee=0(r0c=infty) mode
+  goto vcoulq_4
+ vcoulq_4: nblochpmx  nbloch ngc=   218   144    65
+ Diagonal Vcoul =    1  0.8477466390D+02 -0.1053766563D-20
+ Diagonal Vcoul =   21  0.2530970783D+00  0.2093831086D-27
+ Diagonal Vcoul =   41  0.6992447729D+00 -0.5990724565D-33
+ Diagonal Vcoul =   61  0.1157900333D+01 -0.4240130601D-26
+ Diagonal Vcoul =   81  0.8651956575D+00  0.3783720943D-37
+ Diagonal Vcoul =  101  0.7459594468D+00 -0.1696057857D-29
+ Diagonal Vcoul =  121  0.2928138083D+00  0.2653303908D-25
+ Diagonal Vcoul =  141  0.4823218637D+00 -0.5279134666D-28
+ Diagonal Vcoul =  161  0.5353068958D+03 -0.3021738212D-14
+ Diagonal Vcoul =  181  0.3872482519D+04 -0.1987945875D-11
+ Diagonal Vcoul =  201  0.4233822282D+03 -0.5139797363D-15
+  end of vcoulq_4
+ vcoul trwi=     4  0.33334627234105D+03 -0.21180618629958D-20
+### sum vcoul(1:ngb,      1:ngb)   0.22022673742413D+05 -0.74634960069918D-11    0.93103913275512D+06
+### sum vcoul(1:nbloch,1:nbloch)   0.44868987230388D+03  0.53261197978542D-16    0.99514085974911D+03
+ 
+ ngc ngb/ngbo=    65   209   209
+ allocate( ppovl(ngc,ngc))
+  --- goto eigen check1 --- 
+ allocate(hh(ngb,ngb),oo(ngb,ngb),oox,zz,eb,zzr)
+   1 0.4805835143474483D+03
+   2 0.1549847909976207D+02
+   3 0.1210630965538084D+02
+   4 0.1205193091751454D+02
+   5 0.1205193091751454D+02
+ 
+ eig0 must be equal to the largest =  0.4805835143474482D+03 -0.1117175040466276D-13
+ zz norm check=  0.1000000000000000D+01
+ zz norm check=  0.1678453476179873D-21
+ 
+ --- vcoul(exact)=  0.129777D+06 absq2=  0.2614528817244071D-01
+ --- vcoul(cal ) =  0.129763D+06 -0.301650D-11
+ deallocate(hh,oo,zz,eb,oox,zzr)

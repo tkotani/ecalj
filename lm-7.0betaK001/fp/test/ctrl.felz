@@ -1,0 +1,47 @@
+HEADER  Fe test spin pol, f-orbitals for cls and mull
+TESTSZ  lmfa -vrel=1 -vnit=1 -vso=0 felz
+        lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=1
+        lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=1 -voveps=1e-7
+        rm -f mixm.felz
+        lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz
+#         mpix -np=9 lmf-MPIK -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=1
+#         mpix -np=9 lmf-MPIK -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=1 -voveps=1e-7
+#         rm -f mixm.felz
+#         mpix -np=9 lmf-MPIK -vrel=1 -vnit=1 -vso=2 --rs=2 felz
+TESTSO  lmf -vrel=1 -vnit=1 -vso=1 --rs=2 felz
+#        mpix -np=9 lmf-MPIK -vrel=1 -vnit=1 -vso=1 --rs=2 felz
+TESTFSM lmfa -vrel=1 -vnit=1 -vso=0 felz
+        lmf -vrel=1 -vnit=3 -vso=2 --rs=2 felz -vfsmom=-2
+#         mpix -np=9 lmf-MPIK -vrel=1 -vnit=3 -vso=2 --rs=2 felz -vfsmom=-2
+TESTFSS lmf -vrel=1 -vnit=3 -vso=1 --rs=2 felz -vfsmom=-2
+#        mpix -np=9 lmf-MPIK -vrel=1 -vnit=3 -vso=1 --rs=2 felz -vfsmom=-2
+CLEAN   rm -f atm.felz fe.felz mixm.felz out.felz save.felz ctrl.felz log.felz moms.felz rst.felz rsta.felz wkp.felz
+% const verb=30
+VERS    LMF-6.10 LMASA-6.10 LM:7 FP:7
+IO      SHOW=F HELP=F VERBOS={verb} WKP=F
+CONST   gmax=13 nit=100 nmix=3 beta=0.5 conv=1d-4 convc=1d-4
+        a=2.87/0.529177 nk=4 Rf=0.99 R=Rf*sqrt(3)*a/4
+STRUC   NBAS=1 NSPEC=1 NL=5
+        ALAT=a PLAT= .5 .5 .5  .5 -.5 .5  .5 .5 -.5
+% const so=0
+OPTIONS NSPIN=2 REL=T SO={so} XCFUN=2
+SYMGRP  i*i
+SYMGRP  find
+BZ      NKABC=nk TETRA=1 METAL=3 EF0=0.058 DELEF=0.01 N=1 W=0.02
+        NPTS=3001 BZJOB=1 DOS=0.5 2 SAVDOS=F EFMAX=5 NEVMX=34 NOINV=T
+%ifdef fsmom
+        FSMOM={fsmom}
+%endif
+SPEC    ATOM=Fe Z=26 R=R LMX=3 LMXA=3 KMXA=4 LFOCA=1 A=0.03
+        RSMH=R/2 R/2 R/2 R/2 EH=-0.1 -0.1 -0.1 -0.1
+        RSMH2=R/2 R/2 R/2 EH2=-1.1 -1.1 -1.1
+        Q=2 0 6 MMOM=0 0 -2.2
+SITE    ATOM=Fe POS= 0 0 0
+EWALD   TOL=1D-8 NKDMX=1999 NKRMX=1999
+# for version 7
+ITER    MIX=A6,k=nmix,b=beta,elind=-1 CONV=conv CONVC=convc NIT=nit
+MIX     MODE=A6,k=nmix,b=beta,elind=-1 CONV=conv CONVC=convc
+% const pwmode=0 pwemin=1 pwemax=3 oveps=0
+HAM     OPTIONS NSPIN=2 REL=T SO={so} XCFUN=2 GMAX=gmax
+        PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
+START   NIT=nit

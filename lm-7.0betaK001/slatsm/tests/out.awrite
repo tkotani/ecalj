@@ -1,0 +1,55 @@
+three plus one is 4, no?
+three plus one is four, no?
+This string is longer than 28, I see
+This string is longer than 29, no?
+This string is longer than 28
+ so newline!
+check conditional %c==X: cursor now at X? ... No!
+check conditional %c==X: cursor now at X ... Yes
+test %n:     1.00000    2.00000    3.00000
+test %j:     1.00000    2.00000    3.00000
+test %j:     1.00000    2.00000    3.00000
+tabs2 tabs5    tabs4tabs3  tabs2tabs4   tabs3tabs!
+test ':-nblk' :   1.2300  -4.5600     -2      3
+test ':-nblk' :   1.2300  -4.5600    -2    3
+test ':-nblk' :   1.2300  -4.5600       3    -2
+test ':-nblk' :   1.2300  -4.5600     3   -2
+test '5:-1,3;5#11d' : 1.000     -0.500      0.33333   -0.250      0.200     
+test '5:-1;5#11d'   : 1         -0.5        0.33333   -0.25       0.2       
+test '5:2,3;5#11d'  :  1.000      -0.500     0.33333    -0.250     0.200    
+test '5:-1,2;5#11g' : 1.0       -0.50       0.33333   -0.25       0.20      
+try to hijklmnopqrstuvwxyzappend this
+try to hijkl:insert:uvwxyzappend this  at the end
+try to hijkl:inXert:uvwxyzappend this  at the end Z
+try to hijkl:i-7ert:uvwxyzappend this  at the end Z
+try to hijkl:i-7ert:uvwxyzappend something else! 1Z2
+let    us      try %w ....
+let    me      try %w .... now!
+letme cry %w .... now!
+is it clear yet?QQQQQQQQQQQQQQQ
+how about now?
+here come two ( T F) logicals
+big number -123498.77  small  0.0003  to 3 decimals  0.000
+hello there  1  2  3 dolly
+hello there123 dolly %11--
+ ... try awrite to string s:, subsequent write to stdout
+hello there  1  2  3 dolly
+try %,5i format: |    1| |   12| |  123| |*****|
+d (big) 12300000 12300000.00                                            
+d (middle) 1.2349 1.23 1.235 1.2350                                     
+d (small) 0.000001 0.00 0.000001235 0.00000123495010                    
+d (-small) -0.000001 0.00 -0.000001235 -0.00000123495010                
+D (big)    12300000.  12300000.00                                       
+D (middle)         1.       1.23     1. 1.2350                          
+D (small)         0.       0.00         0. .00000123495010              
+e (big) 1.23e7 1.230e7 1.2e7 1.23e7 1.23e7 1.2350e7 1.2e7 1.3e7         
+e (middle) 1.23e1 1.230e1 1.2e1 1.23e1 1.23e1 1.2350e1                  
+e (small) 1.23e-5 1.230e-5 1.2e-5 1.23e-5 1.23e-5 1.2350e-5
+F (12) 1.2345679e11 12345678900. 123.45678900 0.0012345679 1.2345679e-4         
+F (7)  1.235e6 123457. 123.457 12.3457 0.12346 0.00123 1.23e-4          
+F (s)  -0.001 -1e-3  0.0  0. ** -2e-4                                   
+g (very big) 1.23e197 1.230e97 1e97 1.2e97 1.3e9
+g (big) 1.23e7 1.230e7 1e7 1.2e7 1.3e7                                  
+g (middle) 1.23 1.230 1 1.2 1.3, 1.23 1.2300                            
+g (small) 1.23e-5 .0001230 1e-5 1.2e-5 1.3e-5 G 0 .000 1e-5 0           
+g (zero) 0 .00 .00 0.0 0.0e0                                            

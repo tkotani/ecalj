@@ -1,0 +1,2862 @@
+a2bin.f:C#define INTEL_IFC
+a2bin.f:C#define F90
+a2bin.f:C#define FFTW
+a2bin.f:C#define IN_PLACE
+a2bin.f:C#define FORMATTED_READ
+a2bin.f:C#ifdefC HANSMR
+a2bin.f:C#endif
+a2bin.f:C#ifdefC HANSMR
+a2bin.f:C#endif
+a2bin.f:C#ifdef FORMATTED_READ
+a2bin.f:C#elseC
+a2bin.f:C#endif
+a2bin.f:C#ifdef FORMATTED_READ | UNFORMATTED_READ
+a2bin.f:C#ifdef FORMATTED_READ
+a2bin.f:C#elseC
+a2bin.f:C#endif
+a2bin.f:C#ifdefC APOLLO_BUG
+a2bin.f:C#else
+a2bin.f:C#endif
+a2bin.f:C#elseC  (not FORMATTED_READ | UNFORMATTED_READ)
+a2bin.f:C#endif FORMATTED_READ | UNFORMATTED_READ
+a2bina.f:C#define INTEL_IFC
+a2bina.f:C#define F90
+a2bina.f:C#define FFTW
+a2bina.f:C#define IN_PLACE
+a2rotm.f:C#define INTEL_IFC
+a2rotm.f:C#define F90
+a2rotm.f:C#define FFTW
+a2rotm.f:C#define IN_PLACE
+a2vec.f:C#define INTEL_IFC
+a2vec.f:C#define F90
+a2vec.f:C#define FFTW
+a2vec.f:C#define IN_PLACE
+afcmd.f:C#define INTEL_IFC
+afcmd.f:C#define F90
+afcmd.f:C#define FFTW
+afcmd.f:C#define IN_PLACE
+alloc.f:C#define INTEL_IFC
+alloc.f:C#define F90
+alloc.f:C#define FFTW
+alloc.f:C#define IN_PLACE
+amix.f:C#define INTEL_IFC
+amix.f:C#define F90
+amix.f:C#define FFTW
+amix.f:C#define IN_PLACE
+arrprt.f:C#define INTEL_IFC
+arrprt.f:C#define F90
+arrprt.f:C#define FFTW
+arrprt.f:C#define IN_PLACE
+awrite.f:C#define INITEL_IFC
+awrite.f:C#define F90
+awrite.f:C#define FFTW
+awrite.f:C#define IN_PLACE
+awrite.f:C#ifdefC CRAY
+awrite.f:C#endif
+awrite.f:C#ifdefC DEBUG
+awrite.f:C#endif
+awrite.f:C#ifdefC DEBUG
+awrite.f:C#endif
+awrite.f:C#ifdefC CRAY
+awrite.f:C#else
+awrite.f:C#endif
+bin2a.f:C#define INTEL_IFC
+bin2a.f:C#define F90
+bin2a.f:C#define FFTW
+bin2a.f:C#define IN_PLACE
+bitops.f:C#define INTEL_IFC
+bitops.f:C#define F90
+bitops.f:C#define FFTW
+bitops.f:C#define IN_PLACE
+bitops.f:C#ifdefC QUAD
+bitops.f:C#else
+bitops.f:C#endif
+bitops.f:C#ifdefC QUAD
+bitops.f:C#else
+bitops.f:C#endif
+bitops.f:C#ifdefC QUAD
+bitops.f:C#endif
+bitops.f:C#ifdefC QUAD
+bitops.f:C#else
+bitops.f:C#endif
+bitops.f:C#ifdefC QUAD
+bitops.f:C#else
+bitops.f:C#endif
+brentm.f:C#define INTEL_IFC
+brentm.f:C#define F90
+brentm.f:C#define FFTW
+brentm.f:C#define IN_PLACE
+brmin.f:C#define INTEL_IFC
+brmin.f:C#define F90
+brmin.f:C#define FFTW
+brmin.f:C#define IN_PLACE
+broydn.f:C#define INTEL_IFC
+broydn.f:C#define F90
+broydn.f:C#define FFTW
+broydn.f:C#define IN_PLACE
+broyj.f:C#define INTEL_IFC
+broyj.f:C#define F90
+broyj.f:C#define FFTW
+broyj.f:C#define IN_PLACE
+broyj.f:C#define AWRITE
+broyj.f:C#ifdef AWRITE
+broyj.f:C#endif
+broyj.f:C#ifdef AWRITE
+broyj.f:C#endif
+broyj.f:C#ifdef AWRITE
+broyj.f:C#endif
+broyj.f:C#ifdef AWRITE
+broyj.f:C#endif
+cbabk2.f:C#define INTEL_IFC
+cbabk2.f:C#define F90
+cbabk2.f:C#define FFTW
+cbabk2.f:C#define IN_PLACE
+cbal.f:C#define INTEL_IFC
+cbal.f:C#define F90
+cbal.f:C#define FFTW
+cbal.f:C#define IN_PLACE
+cdasin.f:C#define INTEL_IFC
+cdasin.f:C#define F90
+cdasin.f:C#define FFTW
+cdasin.f:C#define IN_PLACE
+cdiv.f:C#define INTEL_IFC
+cdiv.f:C#define F90
+cdiv.f:C#define FFTW
+cdiv.f:C#define IN_PLACE
+cg.f:C#define INTEL_IFC
+cg.f:C#define F90
+cg.f:C#define FFTW
+cg.f:C#define IN_PLACE
+chcase.f:C#define INTEL_IFC
+chcase.f:C#define F90
+chcase.f:C#define FFTW
+chcase.f:C#define IN_PLACE
+chkhss.f:C#define INTEL_IFC
+chkhss.f:C#define F90
+chkhss.f:C#define FFTW
+chkhss.f:C#define IN_PLACE
+cksumf.f:C#define INTEL_IFC
+cksumf.f:C#define F90
+cksumf.f:C#define FFTW
+cksumf.f:C#define IN_PLACE
+cmdopt.f:C#define INTEL_IFC
+cmdopt.f:C#define F90
+cmdopt.f:C#define FFTW
+cmdopt.f:C#define IN_PLACE
+cmdopt.f:C#ifdefC SUN-ULTRA
+cmdopt.f:C#else
+cmdopt.f:C#endif
+cmdstr.f:C#define INTEL_IFC
+cmdstr.f:C#define F90
+cmdstr.f:C#define FFTW
+cmdstr.f:C#define IN_PLACE
+comqr.f:C#define INTEL_IFC
+comqr.f:C#define F90
+comqr.f:C#define FFTW
+comqr.f:C#define IN_PLACE
+comqr2.f:C#define INTEL_IFC
+comqr2.f:C#define F90
+comqr2.f:C#define FFTW
+comqr2.f:C#define IN_PLACE
+corth.f:C#define INTEL_IFC
+corth.f:C#define F90
+corth.f:C#define FFTW
+corth.f:C#define IN_PLACE
+cplxdm.f:C#define INTEL_IFC
+cplxdm.f:C#define F90
+cplxdm.f:C#define FFTW
+cplxdm.f:C#define IN_PLACE
+cpstr.f:C#define INTEL_IFC
+cpstr.f:C#define F90
+cpstr.f:C#define FFTW
+cpstr.f:C#define IN_PLACE
+cpudel.f:C#define INTEL_IFC
+cpudel.f:C#define F90
+cpudel.f:C#define FFTW
+cpudel.f:C#define IN_PLACE
+cpudel.f:C#ifdefC APOLLO
+cpudel.f:C#elseifC AIX
+cpudel.f:C#elseifC CRAY
+cpudel.f:C#elseifC VANILLA
+cpudel.f:C#else
+cpudel.f:C#ifdefC POWER-PC
+cpudel.f:C#else
+cpudel.f:C#endif
+cpudel.f:C#endif
+cpvprm.f:C#define INTEL_IFC
+cpvprm.f:C#define F90
+cpvprm.f:C#define FFTW
+cpvprm.f:C#define IN_PLACE
+crdbf.f:C#define INTEL_IFC
+crdbf.f:C#define F90
+crdbf.f:C#define FFTW
+crdbf.f:C#define IN_PLACE
+cross.f:C#define INTEL_IFC
+cross.f:C#define F90
+cross.f:C#define FFTW
+cross.f:C#define IN_PLACE
+csmaln.f:C#define INTEL_IFC
+csmaln.f:C#define F90
+csmaln.f:C#define FFTW
+csmaln.f:C#define IN_PLACE
+csroot.f:C#define INTEL_IFC
+csroot.f:C#define F90
+csroot.f:C#define FFTW
+csroot.f:C#define IN_PLACE
+d1mach.f:C#define INTEL_IFC
+d1mach.f:C#define F90
+d1mach.f:C#define FFTW
+d1mach.f:C#define IN_PLACE
+d1mach.f:C#define RIEEE
+da2spr.f:C#define INTEL_IFC
+da2spr.f:C#define F90
+da2spr.f:C#define FFTW
+da2spr.f:C#define IN_PLACE
+dampy.f:C#define INTEL_IFC
+dampy.f:C#define F90
+dampy.f:C#define FFTW
+dampy.f:C#define IN_PLACE
+dampy.f:C#define BLAS3
+dampy.f:C#ifdefC APOLLO | HP
+dampy.f:C#endif
+dampy.f:C#ifdef BLAS3
+dampy.f:C#endif
+dampy.f:C#ifdefC TIMING
+dampy.f:C#endif
+dampy.f:C#ifdef BLAS3
+dampy.f:C#ifdefC PARALLEL
+dampy.f:C#else
+dampy.f:C#endif
+dampy.f:C#ifdefC TIMING
+dampy.f:C#endif
+dampy.f:C#endif
+dampy.f:C#ifdefC APOLLO | HP
+dampy.f:C#else
+dampy.f:C#ifdefC BLAS
+dampy.f:C#else
+dampy.f:C#endif
+dampy.f:C#endif
+dampy.f:C#ifdefC TIMING
+dampy.f:C#endif
+daxpby.f:C#define INTEL_IFC
+daxpby.f:C#define F90
+daxpby.f:C#define FFTW
+daxpby.f:C#define IN_PLACE
+dbesj.f:C#define INTEL_IFC
+dbesj.f:C#define F90
+dbesj.f:C#define FFTW
+dbesj.f:C#define IN_PLACE
+dbsstp.f:C#define INTEL_IFC
+dbsstp.f:C#define F90
+dbsstp.f:C#define FFTW
+dbsstp.f:C#define IN_PLACE
+dcabsr.f:C#define INTEL_IFC
+dcabsr.f:C#define F90
+dcabsr.f:C#define FFTW
+dcabsr.f:C#define IN_PLACE
+dci.f:C#define INTEL_IFC
+dci.f:C#define F90
+dci.f:C#define FFTW
+dci.f:C#define IN_PLACE
+dcsqrt.f:C#define INTEL_IFC
+dcsqrt.f:C#define F90
+dcsqrt.f:C#define FFTW
+dcsqrt.f:C#define IN_PLACE
+dcsqrt.f:C#ifdefC FUJITSU
+dcsqrt.f:C#else
+dcsqrt.f:C#endif
+decrnd.f:C#define INTEL_IFC
+decrnd.f:C#define F90
+decrnd.f:C#define FFTW
+decrnd.f:C#define IN_PLACE
+decrnd.f:C#ifdefC TEST
+decrnd.f:C#endif
+derfc.f:C#define INTEL_IFC
+derfc.f:C#define F90
+derfc.f:C#define FFTW
+derfc.f:C#define IN_PLACE
+derfc.f:C#ifdefC DOUBLE16
+derfc.f:C#else
+derfc.f:C#endif
+derfc.f:C#ifdefC TEST
+derfc.f:C#endif
+dfdump.f:C#define INTEL_IFC
+dfdump.f:C#define F90
+dfdump.f:C#define FFTW
+dfdump.f:C#define IN_PLACE
+dgedi.f:C#define INTEL_IFC
+dgedi.f:C#define F90
+dgedi.f:C#define FFTW
+dgedi.f:C#define IN_PLACE
+dgedi.f:C#ifdefC CRAY
+dgedi.f:C#else
+dgedi.f:C#endif
+dgefa.f:C#define INTEL_IFC
+dgefa.f:C#define F90
+dgefa.f:C#define FFTW
+dgefa.f:C#define IN_PLACE
+dgefa.f:C#ifdefC CRAY
+dgefa.f:C#else
+dgefa.f:C#endif
+dgesl.f:C#define INTEL_IFC
+dgesl.f:C#define F90
+dgesl.f:C#define FFTW
+dgesl.f:C#define IN_PLACE
+dgesl.f:C#ifdefC CRAY
+dgesl.f:C#else
+dgesl.f:C#endif
+diagno.f:C#define INTEL_IFC
+diagno.f:C#define F90
+diagno.f:C#define FFTW
+diagno.f:C#define IN_PLACE
+diagno.f:C#ifndef GENERIC
+diagno.f:C#elseC
+diagno.f:C#endif
+diagno.f:C#ifndef GENERIC
+diagno.f:C#elseC
+diagno.f:C#endif
+diagno.f:C#ifndef GENERIC
+diagno.f:C#elseC
+diagno.f:C#endif
+dinv.f:C#define INTEL_IFC
+dinv.f:C#define F90
+dinv.f:C#define FFTW
+dinv.f:C#define IN_PLACE
+dinv33.f:C#define INTEL_IFC
+dinv33.f:C#define F90
+dinv33.f:C#define FFTW
+dinv33.f:C#define IN_PLACE
+discop.f:C#define INTEL_IFC
+discop.f:C#define F90
+discop.f:C#define FFTW
+discop.f:C#define IN_PLACE
+dlnref.f:C#define INTEL_IFC
+dlnref.f:C#define F90
+dlnref.f:C#define FFTW
+dlnref.f:C#define IN_PLACE
+dmadd.f:C#define INTEL_IFC
+dmadd.f:C#define F90
+dmadd.f:C#define FFTW
+dmadd.f:C#define IN_PLACE
+dmcpy.f:C#define INTEL_IFC
+dmcpy.f:C#define F90
+dmcpy.f:C#define FFTW
+dmcpy.f:C#define IN_PLACE
+dmpy.f:C#define INTEL_IFC
+dmpy.f:C#define F90
+dmpy.f:C#define FFTW
+dmpy.f:C#define IN_PLACE
+dmpy.f:C#define BLAS3
+dmpy.f:C#ifdefC APOLLO | HP
+dmpy.f:C#endif
+dmpy.f:C#ifdef BLAS3
+dmpy.f:C#endif
+dmpy.f:C#ifdefC TIMING
+dmpy.f:C#endif
+dmpy.f:C#ifdef BLAS3
+dmpy.f:C#ifdefC PARALLEL
+dmpy.f:C#else
+dmpy.f:C#endif
+dmpy.f:C#ifdefC TIMING
+dmpy.f:C#endif
+dmpy.f:C#endif
+dmpy.f:C#ifdefC CRAY
+dmpy.f:C#elseifC APOLLO | HP
+dmpy.f:C#else
+dmpy.f:C#ifdefC BLAS
+dmpy.f:C#else
+dmpy.f:C#endif
+dmpy.f:C#endif
+dmpy.f:C#ifdefC TIMING
+dmpy.f:C#endif
+dmpy.f:C#ifdefC TIMING
+dmpy.f:C#ifdefC DEBUG
+dmpy.f:C#elseC
+dmpy.f:C#endifC
+dmpy.f:C#endif
+dmpy22.f:C#define INTEL_IFC
+dmpy22.f:C#define F90
+dmpy22.f:C#define FFTW
+dmpy22.f:C#define IN_PLACE
+dmpyt.f:C#define INTEL_IFC
+dmpyt.f:C#define F90
+dmpyt.f:C#define FFTW
+dmpyt.f:C#define IN_PLACE
+dmsadd.f:C#define INTEL_IFC
+dmsadd.f:C#define F90
+dmsadd.f:C#define FFTW
+dmsadd.f:C#define IN_PLACE
+dmscop.f:C#define INTEL_IFC
+dmscop.f:C#define F90
+dmscop.f:C#define FFTW
+dmscop.f:C#define IN_PLACE
+dmx22.f:C#define INTEL_IFC
+dmx22.f:C#define F90
+dmx22.f:C#define FFTW
+dmx22.f:C#define IN_PLACE
+dot3.f:C#define INTEL_IFC
+dot3.f:C#define F90
+dot3.f:C#define FFTW
+dot3.f:C#define IN_PLACE
+dotprd.f:C#define INTEL_IFC
+dotprd.f:C#define F90
+dotprd.f:C#define FFTW
+dotprd.f:C#define IN_PLACE
+dpack.f:C#define INTEL_IFC
+dpack.f:C#define F90
+dpack.f:C#define FFTW
+dpack.f:C#define IN_PLACE
+dpadd.f:C#define INTEL_IFC
+dpadd.f:C#define F90
+dpadd.f:C#define FFTW
+dpadd.f:C#define IN_PLACE
+dpcopy.f:C#define INTEL_IFC
+dpcopy.f:C#define F90
+dpcopy.f:C#define FFTW
+dpcopy.f:C#define IN_PLACE
+dpcopy.f:C#ifdefC CRAY
+dpcopy.f:C#elseifC APOLLO | HP
+dpcopy.f:C#elseifC BLAS
+dpcopy.f:C#else   GENERIC
+dpcopy.f:C#endif
+dpdbyl.f:C#define INTEL_IFC
+dpdbyl.f:C#define F90
+dpdbyl.f:C#define FFTW
+dpdbyl.f:C#define IN_PLACE
+dpdot.f:C#define INTEL_IFC
+dpdot.f:C#define F90
+dpdot.f:C#define FFTW
+dpdot.f:C#define IN_PLACE
+dpdot.f:C#ifdefC APOLLO | HP
+dpdot.f:C#elseifC CRAY
+dpdot.f:C#elseifC BLAS
+dpdot.f:C#else
+dpdot.f:C#endif
+dpdump.f:C#define INTEL_IFC
+dpdump.f:C#define F90
+dpdump.f:C#define FFTW
+dpdump.f:C#define IN_PLACE
+dpmpy.f:C#define INTEL_IFC
+dpmpy.f:C#define F90
+dpmpy.f:C#define FFTW
+dpmpy.f:C#define IN_PLACE
+dpsadd.f:C#define INTEL_IFC
+dpsadd.f:C#define F90
+dpsadd.f:C#define FFTW
+dpsadd.f:C#define IN_PLACE
+dpsadd.f:C#ifdefC CRAY
+dpsadd.f:C#elseifC BLAS
+dpsadd.f:C#else   GENERIC
+dpsadd.f:C#endif
+dpscop.f:C#define INTEL_IFC
+dpscop.f:C#define F90
+dpscop.f:C#define FFTW
+dpscop.f:C#define IN_PLACE
+dpscop.f:C#ifdefC CRAY
+dpscop.f:C#elseifC APOLLO | HP
+dpscop.f:C#elseifC BLAS
+dpscop.f:C#else   GENERIC
+dpscop.f:C#endif
+dpsmpy.f:C#define INTEL_IFC
+dpsmpy.f:C#define F90
+dpsmpy.f:C#define FFTW
+dpsmpy.f:C#define IN_PLACE
+dqinv.f:C#define INTEL_IFC
+dqinv.f:C#define F90
+dqinv.f:C#define FFTW
+dqinv.f:C#define IN_PLACE
+dqinv.f:C#define F90
+dqinv.f:C#ifndefC F90
+dqinv.f:C#else
+dqinv.f:C#endif
+dqinv.f:C#ifdefC DEBUG
+dqinv.f:C#endif
+dqinv.f:C#ifdefC DEBUG
+dqinv.f:C#endif
+dqinv.f:C#ifdefC DEBUG
+dqinv.f:C#endif
+dqinv.f:C#ifdef RECUR | F90
+dqinv.f:C#endif
+dqinv.f:C#ifdef RECUR | F90
+dqinv.f:C#ifdefC DEBUG
+dqinv.f:C#endif
+dqinv.f:C#ifdefC AIX | SUN-ULTRA 
+dqinv.f:C#else
+dqinv.f:C#endif
+dqinv.f:C#ifdefC DEBUG
+dqinv.f:C#endif
+dqinv.f:C#endif
+dqinv.f:C#ifdef RECUR | F90
+dqinv.f:C#endif RECUR
+dqinv.f:C#ifdef RECUR | F90
+dqinv.f:C#ifdefC DEBUG
+dqinv.f:C#endif
+dqinv.f:C#ifdefC AIX | SUN-ULTRA 
+dqinv.f:C#else
+dqinv.f:C#endif
+dqinv.f:C#ifdefC DEBUG
+dqinv.f:C#endif
+dqinv.f:C#endif RECUR
+dqinv.f:C#ifdefC DEBUG
+dqinv.f:C#endif
+dqinvb.f:C#define INTEL_IFC
+dqinvb.f:C#define F90
+dqinvb.f:C#define FFTW
+dqinvb.f:C#define IN_PLACE
+dqinvb.f:C#define F90
+dqinvb.f:C#ifndefC F90
+dqinvb.f:C#else
+dqinvb.f:C#endif
+dqinvb.f:C#ifdefC DEBUG
+dqinvb.f:C#endif
+dqinvb.f:C#ifndefC RECUR | F90
+dqinvb.f:C#endif
+dqinvb.f:C#ifdef RECUR | F90
+dqinvb.f:C#endif
+dqinvb.f:C#ifdefC DEBUG
+dqinvb.f:C#endif
+dqinvb.f:C#ifdef RECUR | F90
+dqinvb.f:C#endif
+dqinvb.f:C#ifdefC DEBUG
+dqinvb.f:C#endif
+dsbak.f:C#define INTEL_IFC
+dsbak.f:C#define F90
+dsbak.f:C#define FFTW
+dsbak.f:C#define IN_PLACE
+dschd.f:C#define INTEL_IFC
+dschd.f:C#define F90
+dschd.f:C#define FFTW
+dschd.f:C#define IN_PLACE
+dsev1.f:C#define INTEL_IFC
+dsev1.f:C#define F90
+dsev1.f:C#define FFTW
+dsev1.f:C#define IN_PLACE
+dshell.f:C#define INTEL_IFC
+dshell.f:C#define F90
+dshell.f:C#define FFTW
+dshell.f:C#define IN_PLACE
+dsi.f:C#define INTEL_IFC
+dsi.f:C#define F90
+dsi.f:C#define FFTW
+dsi.f:C#define IN_PLACE
+dsidi.f:C#define INTEL_IFC
+dsidi.f:C#define F90
+dsidi.f:C#define FFTW
+dsidi.f:C#define IN_PLACE
+dsidi.f:C#ifdefC CRAY
+dsidi.f:C#else
+dsidi.f:C#endif
+dsifa.f:C#define INTEL_IFC
+dsifa.f:C#define F90
+dsifa.f:C#define FFTW
+dsifa.f:C#define IN_PLACE
+dsifa.f:C#ifdefC CRAY
+dsifa.f:C#else
+dsifa.f:C#endif
+dsisl.f:C#define INTEL_IFC
+dsisl.f:C#define F90
+dsisl.f:C#define FFTW
+dsisl.f:C#define IN_PLACE
+dsisl.f:C#ifdefC CRAY
+dsisl.f:C#else
+dsisl.f:C#endif
+dsmpy.f:C#define INTEL_IFC
+dsmpy.f:C#define F90
+dsmpy.f:C#define FFTW
+dsmpy.f:C#define IN_PLACE
+dspbmm.f:C#define INTEL_IFC
+dspbmm.f:C#define F90
+dspbmm.f:C#define FFTW
+dspbmm.f:C#define IN_PLACE
+dspbmm.f:C#ifdefC TEST
+dspbmm.f:C#endif
+dspdi.f:C#define INTEL_IFC
+dspdi.f:C#define F90
+dspdi.f:C#define FFTW
+dspdi.f:C#define IN_PLACE
+dspdi.f:C#ifdefC CRAY
+dspdi.f:C#else
+dspdi.f:C#endif
+dspfa.f:C#define INTEL_IFC
+dspfa.f:C#define F90
+dspfa.f:C#define FFTW
+dspfa.f:C#define IN_PLACE
+dspfa.f:C#ifdefC CRAY
+dspfa.f:C#else
+dspfa.f:C#endif
+dsprmv.f:C#define INTEL_IFC
+dsprmv.f:C#define F90
+dsprmv.f:C#define FFTW
+dsprmv.f:C#define IN_PLACE
+dspsl.f:C#define INTEL_IFC
+dspsl.f:C#define F90
+dspsl.f:C#define FFTW
+dspsl.f:C#define IN_PLACE
+dspsl.f:C#ifdefC CRAY
+dspsl.f:C#else
+dspsl.f:C#endif
+dsred.f:C#define INTEL_IFC
+dsred.f:C#define F90
+dsred.f:C#define FFTW
+dsred.f:C#define IN_PLACE
+dsredx.f:C#define INTEL_IFC
+dsredx.f:C#define F90
+dsredx.f:C#define FFTW
+dsredx.f:C#define IN_PLACE
+dsum.f:C#define INTEL_IFC
+dsum.f:C#define F90
+dsum.f:C#define FFTW
+dsum.f:C#define IN_PLACE
+dsumdf.f:C#define INTEL_IFC
+dsumdf.f:C#define F90
+dsumdf.f:C#define FFTW
+dsumdf.f:C#define IN_PLACE
+dtribx.f:C#define INTEL_IFC
+dtribx.f:C#define F90
+dtribx.f:C#define FFTW
+dtribx.f:C#define IN_PLACE
+dtridx.f:C#define INTEL_IFC
+dtridx.f:C#define F90
+dtridx.f:C#define FFTW
+dtridx.f:C#define IN_PLACE
+dupack.f:C#define INTEL_IFC
+dupack.f:C#define F90
+dupack.f:C#define FFTW
+dupack.f:C#define IN_PLACE
+dvheap.f:C#define INTEL_IFC
+dvheap.f:C#define F90
+dvheap.f:C#define FFTW
+dvheap.f:C#define IN_PLACE
+dvshel.f:C#define INTEL_IFC
+dvshel.f:C#define F90
+dvshel.f:C#define FFTW
+dvshel.f:C#define IN_PLACE
+eigch.f:C#define INTEL_IFC
+eigch.f:C#define F90
+eigch.f:C#define FFTW
+eigch.f:C#define IN_PLACE
+eigch.f:C#ifndef APOLLO-BUG
+eigch.f:C#elseC
+eigch.f:C#endif
+epslon.f:C#define INTEL_IFC
+epslon.f:C#define F90
+epslon.f:C#define FFTW
+epslon.f:C#define IN_PLACE
+extstr.f:C#define INTEL_IFC
+extstr.f:C#define F90
+extstr.f:C#define FFTW
+extstr.f:C#define IN_PLACE
+falsi.f:C#define INTEL_IFC
+falsi.f:C#define F90
+falsi.f:C#define FFTW
+falsi.f:C#define IN_PLACE
+fftz3.f:C#define INTEL_IFC
+fftz3.f:C#define F90
+fftz3.f:C#define FFTW
+fftz3.f:C#define IN_PLACE
+fftz3.f:C#define FFTW3
+fftz3.f:C#define FFTW
+fftz3.f:C#define IN_PLACE
+fftz3.f:C#ifdefC GOEDECKER
+fftz3.f:C#ifdefC SGI | SGI8
+fftz3.f:C#elseifC DECA
+fftz3.f:C#elseC
+fftz3.f:C#endifC
+fftz3.f:C#elseifC ESSL
+fftz3.f:C#else
+fftz3.f:C#endif
+fftz3.f:C#ifdefC GOEDECKER
+fftz3.f:C#endif
+fftz3.f:C#ifdefC GOEDECKER
+fftz3.f:C#ifdefC SGI | SGI8
+fftz3.f:C#elseifC DECA
+fftz3.f:C#elseC
+fftz3.f:C#endifC
+fftz3.f:C#elseifC SGI | SGI8
+fftz3.f:C#elseifC ESSL
+fftz3.f:C#elseif FFTW | FFTW3
+fftz3.f:C#ifdef FFTW3
+fftz3.f:C#elseC
+fftz3.f:C#endif
+fftz3.f:C#ifdef FFTW3
+fftz3.f:C#elseC
+fftz3.f:C#ifdefC IN_PLACE
+fftz3.f:C#elseC
+fftz3.f:C#endifC
+fftz3.f:C#endif
+fftz3.f:C#elseC
+fftz3.f:C#endif
+fftz3.f:C#ifdefC SGI | SGI8
+fftz3.f:C#elseif FFTW | FFTW3
+fftz3.f:C#elseC
+fftz3.f:C#endif
+fftz3.f:C#ifdef SGI | SGI8 | FFTW | FFTW3
+fftz3.f:C#elseC
+fftz3.f:C#endif
+fgtcat.f:C#define INTEL_IFC
+fgtcat.f:C#define F90
+fgtcat.f:C#define FFTW
+fgtcat.f:C#define IN_PLACE
+fgtcat.f:C#ifdefC ANSI | FIXEDLENGTH
+fgtcat.f:C#else
+fgtcat.f:C#endif
+fgtcat.f:C#ifdefC ANSI | FIXEDLENGTH
+fgtcat.f:C#endif
+finits.f:C#define INITEL_IFC
+finits.f:C#define F90
+finits.f:C#define FFTW
+finits.f:C#define IN_PLACE
+finits.f:C#define unix
+finits.f:C#ifdef unix
+finits.f:C#endif
+finits.f:C#ifdefC MPI | MPIK
+finits.f:C#endif
+finits.f:C#ifdefC F77LAHEY
+finits.f:C#endif
+finits.f:C#ifdefC IBM_VM
+finits.f:C#endif
+finits.f:C#ifdefC MPI | MPIK
+finits.f:C#endif
+finits.f:C#ifndef IBM_VM
+finits.f:C#endif
+finits.f:C#ifdefC MPI | MPIK
+finits.f:C#endif 
+finits.f:C#ifdef unix 
+finits.f:C#endif
+finits.f:C#ifndefC unix
+finits.f:C#endif
+fopna.f:C#define INTEL_IFC
+fopna.f:C#define F90
+fopna.f:C#define FFTW
+fopna.f:C#define IN_PLACE
+fopna.f:C#define unix
+fopna.f:C#define PATH
+fopna.f:C#define FEXTENS
+fopna.f:C#ifndef AIX
+fopna.f:C#elseC
+fopna.f:C#endif
+fopna.f:C#ifdef unix
+fopna.f:C#elseifC MSDOS
+fopna.f:C#endif
+fopna.f:C#ifdefC DEBUG
+fopna.f:C#else
+fopna.f:C#endif
+fopna.f:C#ifdef FEXTENS
+fopna.f:C#elseC
+fopna.f:C#endif
+fopna.f:C#ifdefC DEBUG
+fopna.f:C#endif
+fopna.f:C#ifdefC PRECONNECTED_UNITS | IBM_VM
+fopna.f:C#else
+fopna.f:C#endif
+fopna.f:C#ifdefC PRECONNECTED_UNITS | IBM_VM
+fopna.f:C#else
+fopna.f:C#endif
+fopna.f:C#ifdefC PRECONNECTED_UNITS | IBM_VM
+fopna.f:C#elseifC SUN-ULTRA
+fopna.f:C#else
+fopna.f:C#endif
+fopna.f:C#ifdef unix
+fopna.f:C#endif
+fopna.f:C#ifdefC AIX
+fopna.f:C#endif
+fopna.f:C#ifdefC TEST
+fopna.f:C#endif
+fpiint.f:C#define INTEL_IFC
+fpiint.f:C#define F90
+fpiint.f:C#define FFTW
+fpiint.f:C#define IN_PLACE
+garg.f:C#define INTEL_IFC
+garg.f:C#define F90
+garg.f:C#define FFTW
+garg.f:C#define IN_PLACE
+getcat.f:C#define INTEL_IFC
+getcat.f:C#define F90
+getcat.f:C#define FFTW
+getcat.f:C#define IN_PLACE
+gettime.f:C#define INTEL_IFC
+gettime.f:C#define F90
+gettime.f:C#define FFTW
+gettime.f:C#define IN_PLACE
+gettime.f:C#ifdefC SGI
+gettime.f:C#else
+gettime.f:C#endif
+gradzr.f:C#define INTEL_IFC
+gradzr.f:C#define F90
+gradzr.f:C#define FFTW
+gradzr.f:C#define IN_PLACE
+gradzr.f:C#ifdefC TEST
+gradzr.f:CC#ifdef PROB0
+gradzr.f:CC#elseifC PROB1
+gradzr.f:CC#endif
+gradzr.f:CC#ifdef PROB0
+gradzr.f:CC#elseifC PROB1
+gradzr.f:CC#elseifC PROB2 | PROB3
+gradzr.f:CC#elseifC PROB4
+gradzr.f:CC#endif
+gradzr.f:CC#ifdef PROB0
+gradzr.f:CC#elseifC PROB1 | PROB2
+gradzr.f:CC#elseifC PROBN
+gradzr.f:CC#endif
+gradzr.f:CC#ifndefC PROB0 | PROBN
+gradzr.f:CC#endif
+gradzr.f:CC#ifdef PROB0
+gradzr.f:CC#elseifC PROBN
+gradzr.f:CC#elseifC PROB1
+gradzr.f:CC#elseifC PROB2
+gradzr.f:CC#elseifC PROB3 | PROB4
+gradzr.f:CC#elseifC PROB4
+gradzr.f:CC#endif
+gradzr.f:CC#ifdef PROB0
+gradzr.f:CC#endif
+gradzr.f:CC#ifdefC PROBN
+gradzr.f:CC#endif
+gradzr.f:CC#ifdefC PROBN
+gradzr.f:CC#else
+gradzr.f:CC#endif
+gradzr.f:CC#ifdefC PROBN
+gradzr.f:CC#else
+gradzr.f:CC#endif
+gradzr.f:CC#ifdef PROB0
+gradzr.f:CC#endif
+gradzr.f:CC#ifndef PROB1
+gradzr.f:CC#endif
+gradzr.f:C#endif
+gvgetf.f:C#define INTEL_IFC
+gvgetf.f:C#define F90
+gvgetf.f:C#define FFTW
+gvgetf.f:C#define IN_PLACE
+hbak.f:C#define INTEL_IFC
+hbak.f:C#define F90
+hbak.f:C#define FFTW
+hbak.f:C#define IN_PLACE
+hchd.f:C#define INTEL_IFC
+hchd.f:C#define F90
+hchd.f:C#define FFTW
+hchd.f:C#define IN_PLACE
+hcinv.f:C#define INTEL_IFC
+hcinv.f:C#define F90
+hcinv.f:C#define FFTW
+hcinv.f:C#define IN_PLACE
+hcinv.f:C#ifdefC BLAS
+hcinv.f:C#endif
+hcinv.f:C#ifdefC BLAS
+hcinv.f:C#else
+hcinv.f:C#endif
+hcinv.f:C#ifdefC BLAS
+hcinv.f:C#else
+hcinv.f:C#endif
+hred.f:C#define INTEL_IFC
+hred.f:C#define F90
+hred.f:C#define FFTW
+hred.f:C#define IN_PLACE
+hrmint.f:C#define INTEL_IFC
+hrmint.f:C#define F90
+hrmint.f:C#define FFTW
+hrmint.f:C#define IN_PLACE
+hrmint.f:C#define F90
+hrmint.f:C#ifdef AUTO-ARRAY | F90
+hrmint.f:C#elseC
+hrmint.f:C#endif
+hrmint.f:C#ifdef AUTO-ARRAY | F90
+hrmint.f:C#elseC
+hrmint.f:C#endif
+htrib3.f:C#define INTEL_IFC
+htrib3.f:C#define F90
+htrib3.f:C#define FFTW
+htrib3.f:C#define IN_PLACE
+htribk.f:C#define INTEL_IFC
+htribk.f:C#define F90
+htribk.f:C#define FFTW
+htribk.f:C#define IN_PLACE
+htribk.f:C#ifdefC CRAY | BLAS
+htribk.f:C#ifdefC CRAY
+htribk.f:C#elseifC BLAS
+htribk.f:C#endifC  (110 loop)
+htribk.f:C#ifdefC CRAY
+htribk.f:C#elseifC BLAS
+htribk.f:C#endifC  (120 loop)
+htribk.f:C#else
+htribk.f:C#endif
+htribx.f:C#define INTEL_IFC
+htribx.f:C#define F90
+htribx.f:C#define FFTW
+htribx.f:C#define IN_PLACE
+htribx.f:C#ifdefC SGI-PARALLEL
+htribx.f:C#endif
+htribx.f:C#ifdefC BLAS
+htribx.f:C#else
+htribx.f:C#endif
+htribx.f:C#ifdefC BLAS
+htribx.f:C#else
+htribx.f:C#endif
+htrid3.f:C#define INTEL_IFC
+htrid3.f:C#define F90
+htrid3.f:C#define FFTW
+htrid3.f:C#define IN_PLACE
+htridi.f:C#define INTEL_IFC
+htridi.f:C#define F90
+htridi.f:C#define FFTW
+htridi.f:C#define IN_PLACE
+htridi.f:C#ifdefC CRAY
+htridi.f:C#elseifC BLAS
+htridi.f:C#endif
+htridi.f:C#ifdefC CRAY | BLAS
+htridi.f:C#else
+htridi.f:C#ifdefC YDOT
+htridi.f:C#else
+htridi.f:C#endif
+htridi.f:C#endif
+htridx.f:C#define INTEL_IFC
+htridx.f:C#define F90
+htridx.f:C#define FFTW
+htridx.f:C#define IN_PLACE
+htridx.f:C#define SGI
+htridx.f:C#define UNROLL
+htridx.f:C#ifdefC SGI-PARALLEL
+htridx.f:C#endif
+htridx.f:C#ifdef UNROLL | SGI-PARALLEL
+htridx.f:C#ifdefC SGI-PARALLEL
+htridx.f:C#endif
+htridx.f:C#ifdefC SGI-PARALLEL
+htridx.f:C#else
+htridx.f:C#endif
+htridx.f:C#elseC
+htridx.f:C#endif
+htridx.f:C#ifdefC SGI-PARALLEL
+htridx.f:C#else
+htridx.f:C#endif
+htridx.f:C#ifdefC SGI-PARALLEL
+htridx.f:C#endif
+htridx.f:C#ifdefC UNROLL2
+htridx.f:C#ifdefC SGI-PARALLEL
+htridx.f:C#endifC
+htridx.f:C#else
+htridx.f:C#endif
+htridx.f:C#ifdefC SGI-PARALLEL
+htridx.f:C#endif
+hunti.f:C#define INTEL_IFC
+hunti.f:C#define F90
+hunti.f:C#define FFTW
+hunti.f:C#define IN_PLACE
+huntst.f:C#define INTEL_IFC
+huntst.f:C#define F90
+huntst.f:C#define FFTW
+huntst.f:C#define IN_PLACE
+huntx.f:C#define INTEL_IFC
+huntx.f:C#define F90
+huntx.f:C#define FFTW
+huntx.f:C#define IN_PLACE
+i1mach.f:C#define INTEL_IFC
+i1mach.f:C#define F90
+i1mach.f:C#define FFTW
+i1mach.f:C#define IN_PLACE
+i1mach.f:C#define RIEEE
+i1mach.f:C#define EXTENDED
+i1mach.f:C#ifdef EXTENDED
+i1mach.f:C#elseC
+i1mach.f:C#endif
+i1mach.f:C#ifdef IEEE | RIEEE
+i1mach.f:C#ifdef EXTENDED
+i1mach.f:C#elseC
+i1mach.f:C#endif
+i1mach.f:C#endif
+i1mach.f:C#ifdefC CRAY | C90
+i1mach.f:C#ifdefC C90
+i1mach.f:C#elseC
+i1mach.f:C#endifC
+i1mach.f:C#ifdefC EXTENDED
+i1mach.f:C#elseC
+i1mach.f:C#endifC
+i1mach.f:C#endif
+i1mach.f:C#ifdefC IBM_VM | IBM370 | IBM3080 | IBM3090 | FUJITSU
+i1mach.f:C#ifdefC EXTENDED
+i1mach.f:C#elseC
+i1mach.f:C#endifC   EXTENDED
+i1mach.f:C#endif   IBM_VM
+i1mach.f:C#ifdefC VAX | VMS
+i1mach.f:C#ifdefC EXTENDED
+i1mach.f:C#elseC
+i1mach.f:C#endifC
+i1mach.f:C#endif
+i1mach.f:C#ifdef EXTENDED
+i1mach.f:C#elseC
+i1mach.f:C#endif
+i1mach.f:C#ifdefC FTN77
+i1mach.f:C#endif
+i1mach.f:C#ifdef EXTENDED
+i1mach.f:C#elseC
+i1mach.f:C#endif
+iasum.f:C#define INTEL_IFC
+iasum.f:C#define F90
+iasum.f:C#define FFTW
+iasum.f:C#define IN_PLACE
+iaxpy.f:C#define INTEL_IFC
+iaxpy.f:C#define F90
+iaxpy.f:C#define FFTW
+iaxpy.f:C#define IN_PLACE
+ichksm.f:C#define INTEL_IFC
+ichksm.f:C#define F90
+ichksm.f:C#define FFTW
+ichksm.f:C#define IN_PLACE
+icopy.f:C#define INTEL_IFC
+icopy.f:C#define F90
+icopy.f:C#define FFTW
+icopy.f:C#define IN_PLACE
+idmxmn.f:C#define INTEL_IFC
+idmxmn.f:C#define F90
+idmxmn.f:C#define FFTW
+idmxmn.f:C#define IN_PLACE
+idnear.f:C#define INTEL_IFC
+idnear.f:C#define F90
+idnear.f:C#define FFTW
+idnear.f:C#define IN_PLACE
+iiamax.f:C#define INTEL_IFC
+iiamax.f:C#define F90
+iiamax.f:C#define FFTW
+iiamax.f:C#define IN_PLACE
+iinear.f:C#define INTEL_IFC
+iinear.f:C#define F90
+iinear.f:C#define FFTW
+iinear.f:C#define IN_PLACE
+imtql2.f:C#define INTEL_IFC
+imtql2.f:C#define F90
+imtql2.f:C#define FFTW
+imtql2.f:C#define IN_PLACE
+imtqlv.f:C#define INTEL_IFC
+imtqlv.f:C#define F90
+imtqlv.f:C#define FFTW
+imtqlv.f:C#define IN_PLACE
+imxmn.f:C#define INTEL_IFC
+imxmn.f:C#define F90
+imxmn.f:C#define FFTW
+imxmn.f:C#define IN_PLACE
+info.f:C#define INTEL_IFC
+info.f:C#define F90
+info.f:C#define FFTW
+info.f:C#define IN_PLACE
+ipdump.f:C#define INTEL_IFC
+ipdump.f:C#define F90
+ipdump.f:C#define FFTW
+ipdump.f:C#define IN_PLACE
+iprint.f:C#define INTEL_IFC
+iprint.f:C#define F90
+iprint.f:C#define FFTW
+iprint.f:C#define IN_PLACE
+ipsw.f:C#define INTEL_IFC
+ipsw.f:C#define F90
+ipsw.f:C#define FFTW
+ipsw.f:C#define IN_PLACE
+isanrg.f:C#define INTEL_IFC
+isanrg.f:C#define F90
+isanrg.f:C#define FFTW
+isanrg.f:C#define IN_PLACE
+ishell.f:C#define INTEL_IFC
+ishell.f:C#define F90
+ishell.f:C#define FFTW
+ishell.f:C#define IN_PLACE
+isum.f:C#define INTEL_IFC
+isum.f:C#define F90
+isum.f:C#define FFTW
+isum.f:C#define IN_PLACE
+isw.f:C#define INTEL_IFC
+isw.f:C#define F90
+isw.f:C#define FFTW
+isw.f:C#define IN_PLACE
+iswap.f:C#define INTEL_IFC
+iswap.f:C#define F90
+iswap.f:C#define FFTW
+iswap.f:C#define IN_PLACE
+ivheap.f:C#define INTEL_IFC
+ivheap.f:C#define F90
+ivheap.f:C#define FFTW
+ivheap.f:C#define IN_PLACE
+ivshel.f:C#define INTEL_IFC
+ivshel.f:C#define F90
+ivshel.f:C#define FFTW
+ivshel.f:C#define IN_PLACE
+iyamax.f:C#define INTEL_IFC
+iyamax.f:C#define F90
+iyamax.f:C#define FFTW
+iyamax.f:C#define IN_PLACE
+lgand.f:C#define INTEL_IFC
+lgand.f:C#define F90
+lgand.f:C#define FFTW
+lgand.f:C#define IN_PLACE
+lstshr.f:C#define INTEL_IFC
+lstshr.f:C#define F90
+lstshr.f:C#define FFTW
+lstshr.f:C#define IN_PLACE
+macro.f:C#define INTEL_IFC
+macro.f:C#define F90
+macro.f:C#define FFTW
+macro.f:C#define IN_PLACE
+minfit.f:C#define INTEL_IFC
+minfit.f:C#define F90
+minfit.f:C#define FFTW
+minfit.f:C#define IN_PLACE
+mkdlst.f:C#define INTEL_IFC
+mkdlst.f:C#define F90
+mkdlst.f:C#define FFTW
+mkdlst.f:C#define IN_PLACE
+mkilst.f:C#define INTEL_IFC
+mkilst.f:C#define F90
+mkilst.f:C#define FFTW
+mkilst.f:C#define IN_PLACE
+mkilst.f:C#ifdefC TEST
+mkilst.f:C#endif
+mklagw.f:C#define INTEL_IFC
+mklagw.f:C#define F90
+mklagw.f:C#define FFTW
+mklagw.f:C#define IN_PLACE
+mklagw.f:C#ifdefC TEST
+mklagw.f:C#endif
+mklegw.f:C#define INTEL_IFC
+mklegw.f:C#define F90
+mklegw.f:C#define FFTW
+mklegw.f:C#define IN_PLACE
+mpibc.f:C#define INTEL_IFC
+mpibc.f:C#define F90
+mpibc.f:C#define FFTW
+mpibc.f:C#define IN_PLACE
+mpibc.f:C#ifdefC MPI
+mpibc.f:C#endif
+mpibc.f:C#ifdefC MPI
+mpibc.f:C#endif
+mpibc.f:C#ifdefC MPI
+mpibc.f:C#endif
+mpibc.f:C#ifdefC MPI
+mpibc.f:C#endif
+mpibc.f:C#ifdefC MPI
+mpibc.f:C#endif
+mpibc.f:C#ifdefC MPI
+mpibc.f:C#endif
+mpibc.f:C#ifdefC MPI
+mpibc.f:C#endif
+mpibc.f:C#ifdefC MPI
+mpibc.f:C#endif
+mpibc.f:C#ifdefC MPI
+mpibc.f:C#endif
+mpibc.f:C#ifdefC MPI
+mpibc.f:C#else
+mpibc.f:C#endif
+mstmin.f:C#define INTEL_IFC
+mstmin.f:C#define F90
+mstmin.f:C#define FFTW
+mstmin.f:C#define IN_PLACE
+mxint.f:C#define INTEL_IFC
+mxint.f:C#define F90
+mxint.f:C#define FFTW
+mxint.f:C#define IN_PLACE
+nada.f:C#define INTEL_IFC
+nada.f:C#define F90
+nada.f:C#define FFTW
+nada.f:C#define IN_PLACE
+nada.f:C#ifdefC LINUX_PGI
+nada.f:C#endif
+nglob.f:C#define INTEL_IFC
+nglob.f:C#define F90
+nglob.f:C#define FFTW
+nglob.f:C#define IN_PLACE
+nintsp.f:C#define INTEL_IFC
+nintsp.f:C#define F90
+nintsp.f:C#define FFTW
+nintsp.f:C#define IN_PLACE
+nxtarg.f:C#define INTEL_IFC
+nxtarg.f:C#define F90
+nxtarg.f:C#define FFTW
+nxtarg.f:C#define IN_PLACE
+nxtgrp.f:C#define INTEL_IFC
+nxtgrp.f:C#define F90
+nxtgrp.f:C#define FFTW
+nxtgrp.f:C#define IN_PLACE
+packi.f:C#define INTEL_IFC
+packi.f:C#define F90
+packi.f:C#define FFTW
+packi.f:C#define IN_PLACE
+packv.f:C#define INTEL_IFC
+packv.f:C#define F90
+packv.f:C#define FFTW
+packv.f:C#define IN_PLACE
+pade.f:C#define INTEL_IFC
+pade.f:C#define F90
+pade.f:C#define FFTW
+pade.f:C#define IN_PLACE
+pade.f:C#ifdefC NOQUAD
+pade.f:C#else
+pade.f:C#endif
+parchv.f:C#define INTEL_IFC
+parchv.f:C#define F90
+parchv.f:C#define FFTW
+parchv.f:C#define IN_PLACE
+parrng.f:C#define INTEL_IFC
+parrng.f:C#define F90
+parrng.f:C#define FFTW
+parrng.f:C#define IN_PLACE
+pars1v.f:C#define INTEL_IFC
+pars1v.f:C#define F90
+pars1v.f:C#define FFTW
+pars1v.f:C#define IN_PLACE
+parsvc.f:C#define INTEL_IFC
+parsvc.f:C#define F90
+parsvc.f:C#define FFTW
+parsvc.f:C#define IN_PLACE
+pertev.f:C#define INTEL_IFC
+pertev.f:C#define F90
+pertev.f:C#define FFTW
+pertev.f:C#define IN_PLACE
+platsl.f:C#define INTEL_IFC
+platsl.f:C#define F90
+platsl.f:C#define FFTW
+platsl.f:C#define IN_PLACE
+pmblk.f:C#define INTEL_IFC
+pmblk.f:C#define F90
+pmblk.f:C#define FFTW
+pmblk.f:C#define IN_PLACE
+pmblk.f:C#ifdefC TEST
+pmblk.f:C#endif
+polcof.f:C#define INTEL_IFC
+polcof.f:C#define F90
+polcof.f:C#define FFTW
+polcof.f:C#define IN_PLACE
+polcof.f:C#ifdefC NOQUAD
+polcof.f:C#else
+polcof.f:C#endif
+poldif.f:C#define INTEL_IFC
+poldif.f:C#define F90
+poldif.f:C#define FFTW
+poldif.f:C#define IN_PLACE
+poldvm.f:C#define INTEL_IFC
+poldvm.f:C#define F90
+poldvm.f:C#define FFTW
+poldvm.f:C#define IN_PLACE
+polint.f:C#define INTEL_IFC
+polint.f:C#define F90
+polint.f:C#define FFTW
+polint.f:C#define IN_PLACE
+polint.f:C#ifdefC TESTP
+polint.f:C#endif
+polint.f:C#ifdefC TESTR
+polint.f:C#endif
+politg.f:C#define INTEL_IFC
+politg.f:C#define F90
+politg.f:C#define FFTW
+politg.f:C#define IN_PLACE
+poseof.f:C#define INTEL_IFC
+poseof.f:C#define F90
+poseof.f:C#define FFTW
+poseof.f:C#define IN_PLACE
+poseof.f:C#ifdefC SVS | DEC | DECA
+poseof.f:C#endif
+poseof.f:C#ifdefC SVS | DEC | DECA     
+poseof.f:C#endif                
+poseof.f:C#ifdefC AIX
+poseof.f:C#else
+poseof.f:C#endif
+poseof.f:C#ifndef AIX-xlf90
+poseof.f:C#endif
+ppfac.f:C#define INTEL_IFC
+ppfac.f:C#define F90
+ppfac.f:C#define FFTW
+ppfac.f:C#define IN_PLACE
+praxis.f:C#define INTEL_IFC
+praxis.f:C#define F90
+praxis.f:C#define FFTW
+praxis.f:C#define IN_PLACE
+pretty.f:C#define INTEL_IFC
+pretty.f:C#define F90
+pretty.f:C#define FFTW
+pretty.f:C#define IN_PLACE
+pythag.f:C#define INTEL_IFC
+pythag.f:C#define F90
+pythag.f:C#define FFTW
+pythag.f:C#define IN_PLACE
+pzhev.f:C#define INTEL_IFC
+pzhev.f:C#define F90
+pzhev.f:C#define FFTW
+pzhev.f:C#define IN_PLACE
+pzhev.f:C#ifdefC MPI
+pzhev.f:C#ifdefC SUN
+pzhev.f:C#endifC
+pzhev.f:C#endif MPI
+pzhev.f:C#ifdefC MPI
+pzhev.f:C#endif MPI
+qdiv.f:C#define INTEL_IFC
+qdiv.f:C#define F90
+qdiv.f:C#define FFTW
+qdiv.f:C#define IN_PLACE
+qdiv.f:C#ifdefC NOQUAD
+qdiv.f:C#else
+qdiv.f:C#endif
+query.f:C#define INTEL_IFC
+query.f:C#define F90
+query.f:C#define FFTW
+query.f:C#define IN_PLACE
+query.f:C#ifdefC MPI | MPIK
+query.f:C#endif 
+query.f:C#ifdefC MPI | MPIK
+query.f:C#endif 
+r1mach.f:C#define INTEL_IFC
+r1mach.f:C#define F90
+r1mach.f:C#define FFTW
+r1mach.f:C#define IN_PLACE
+r1mach.f:C#define IEEE
+r1mach.f:C#ifdef IEEE | RIEEE
+r1mach.f:C#endif
+r1mach.f:C#ifdefC CRAY
+r1mach.f:C#endif
+r1mach.f:C#ifdefC IBM_VM | IBM370 | IBM3080 | IBM3090
+r1mach.f:C#endif
+r1mach.f:C#ifdefC VMS
+r1mach.f:C#endif
+ran1.f:C#define INTEL_IFC
+ran1.f:C#define F90
+ran1.f:C#define FFTW
+ran1.f:C#define IN_PLACE
+ran1.f:C#ifdefC TEST
+ran1.f:C#ifdefC TEST
+rdfiln.f:C#define INTEL_IFC
+rdfiln.f:C#define F90
+rdfiln.f:C#define FFTW
+rdfiln.f:C#define IN_PLACE
+rdfiln.f:C#ifdefC CSYTLETABCHR
+rdfiln.f:C#else
+rdfiln.f:C#endif
+rdfiln.f:C#ifdefC CRAY
+rdfiln.f:C#else
+rdfiln.f:C#endif
+rdm.f:C#define INTEL_IFC
+rdm.f:C#define F90
+rdm.f:C#define FFTW
+rdm.f:C#define IN_PLACE
+rdm.f:C#ifdefC CCAR
+rdm.f:C#endif
+rdm.f:C#ifdefC CCAR
+rdm.f:C#endif
+rdm2.f:C#define INTEL_IFC
+rdm2.f:C#define F90
+rdm2.f:C#define FFTW
+rdm2.f:C#define IN_PLACE
+rdtok.f:C#define INTEL_IFC
+rdtok.f:C#define F90
+rdtok.f:C#define FFTW
+rdtok.f:C#define IN_PLACE
+rfalsi.f:C#define INTEL_IFC
+rfalsi.f:C#define F90
+rfalsi.f:C#define FFTW
+rfalsi.f:C#define IN_PLACE
+rs.f:C#define INTEL_IFC
+rs.f:C#define F90
+rs.f:C#define FFTW
+rs.f:C#define IN_PLACE
+s8tor8.f:C#define INTEL_IFC
+s8tor8.f:C#define F90
+s8tor8.f:C#define FFTW
+s8tor8.f:C#define IN_PLACE
+setfac.f:C#define INTEL_IFC
+setfac.f:C#define F90
+setfac.f:C#define FFTW
+setfac.f:C#define IN_PLACE
+spchar.f:C#define INTEL_IFC
+spchar.f:C#define F90
+spchar.f:C#define FFTW
+spchar.f:C#define IN_PLACE
+spchar.f:C#ifdefC CRAY
+spchar.f:C#else
+spchar.f:C#endif
+spchar.f:C#ifdefC TEST
+spchar.f:C#endif
+stkops.f:C#define INTEL_IFC
+stkops.f:C#define F90
+stkops.f:C#define FFTW
+stkops.f:C#define IN_PLACE
+strings.f:C#define INTEL_IFC
+strings.f:C#define F90
+strings.f:C#define FFTW
+strings.f:C#define IN_PLACE
+strip.f:C#define INTEL_IFC
+strip.f:C#define F90
+strip.f:C#define FFTW
+strip.f:C#define IN_PLACE
+strxls.f:C#define INTEL_IFC
+strxls.f:C#define F90
+strxls.f:C#define FFTW
+strxls.f:C#define IN_PLACE
+svbksb.f:C#define INTEL_IFC
+svbksb.f:C#define F90
+svbksb.f:C#define FFTW
+svbksb.f:C#define IN_PLACE
+svd.f:C#define INTEL_IFC
+svd.f:C#define F90
+svd.f:C#define FFTW
+svd.f:C#define IN_PLACE
+symvar.f:C#define INTEL_IFC
+symvar.f:C#define F90
+symvar.f:C#define FFTW
+symvar.f:C#define IN_PLACE
+symvar.f:C#define unix
+symvar.f:C#ifdef unix
+symvar.f:C#endif
+symvar.f:C#ifdef unix
+symvar.f:C#endif
+symvar.f:C#ifdef unix
+symvar.f:C#endif
+symvar.f:C#ifdef unix
+symvar.f:C#endif
+symvar.f:C#ifdef unix
+symvar.f:C#elseC
+symvar.f:C#endif
+symvar.f:C#ifdefC TEST
+symvar.f:C#endif
+symvec.f:C#define INTEL_IFC
+symvec.f:C#define F90
+symvec.f:C#define FFTW
+symvec.f:C#define IN_PLACE
+symvec.f:C#define unix
+symvec.f:C#ifdef F90
+symvec.f:C#elseifC POINTER
+symvec.f:C#endif
+symvec.f:C#ifdef unix
+symvec.f:C#endif
+symvec.f:C#ifdef F90
+symvec.f:C#elseifC POINTER
+symvec.f:C#endif
+symvec.f:C#ifdef F90
+symvec.f:C#elseifC POINTER
+symvec.f:C#endif
+symvec.f:C#ifndefC F90 | POINTER
+symvec.f:C#endif
+symvec.f:C#ifdef unix
+symvec.f:C#endif
+symvec.f:C#ifdef F90
+symvec.f:C#elseifC POINTER
+symvec.f:C#endif
+syscall.f:C#define INTEL_IFC
+syscall.f:C#define F90
+syscall.f:C#define FFTW
+syscall.f:C#define IN_PLACE
+syscall.f:C#define FCTIME
+syscall.f:C#define HASGTARGC
+syscall.f:C#define HASNARGC
+syscall.f:C#ifdef HASGTARGC
+syscall.f:C#elseifC HASGETARG
+syscall.f:C#endif
+syscall.f:C#ifdef HASNARGC
+syscall.f:C#elseifC HASIARGC
+syscall.f:C#elseifC HASNARGS
+syscall.f:C#endif
+syscall.f:C#ifdef FCTIME
+syscall.f:C#elseifC FDATE
+syscall.f:C#elseifC 
+syscall.f:C#endif
+syscall.f:C#ifdefC TESTF
+syscall.f:C#endif
+syscall.f:C#ifdefC TESTC
+syscall.f:C#endif
+tc.f:C#define INTEL_IFC
+tc.f:C#define F90
+tc.f:C#define FFTW
+tc.f:C#define IN_PLACE
+tinvit.f:C#define INTEL_IFC
+tinvit.f:C#define F90
+tinvit.f:C#define FFTW
+tinvit.f:C#define IN_PLACE
+tmix.f:C#define INTEL_IFC
+tmix.f:C#define F90
+tmix.f:C#define FFTW
+tmix.f:C#define IN_PLACE
+tql2.f:C#define INTEL_IFC
+tql2.f:C#define F90
+tql2.f:C#define FFTW
+tql2.f:C#define IN_PLACE
+tqlrat.f:C#define INTEL_IFC
+tqlrat.f:C#define F90
+tqlrat.f:C#define FFTW
+tqlrat.f:C#define IN_PLACE
+tred1.f:C#define INTEL_IFC
+tred1.f:C#define F90
+tred1.f:C#define FFTW
+tred1.f:C#define IN_PLACE
+tred2.f:C#define INTEL_IFC
+tred2.f:C#define F90
+tred2.f:C#define FFTW
+tred2.f:C#define IN_PLACE
+verfc.f:C#define INTEL_IFC
+verfc.f:C#define F90
+verfc.f:C#define FFTW
+verfc.f:C#define IN_PLACE
+vmem.f:C#define INTEL_IFC
+vmem.f:C#define F90
+vmem.f:C#define FFTW
+vmem.f:C#define IN_PLACE
+wordg.f:C#define INTEL_IFC
+wordg.f:C#define F90
+wordg.f:C#define FFTW
+wordg.f:C#define IN_PLACE
+words.f:C#define INTEL_IFC
+words.f:C#define F90
+words.f:C#define FFTW
+words.f:C#define IN_PLACE
+ygemm.f:C#define INTEL_IFC
+ygemm.f:C#define F90
+ygemm.f:C#define FFTW
+ygemm.f:C#define IN_PLACE
+ymcpy.f:C#define INTEL_IFC
+ymcpy.f:C#define F90
+ymcpy.f:C#define FFTW
+ymcpy.f:C#define IN_PLACE
+ymsadd.f:C#define INTEL_IFC
+ymsadd.f:C#define F90
+ymsadd.f:C#define FFTW
+ymsadd.f:C#define IN_PLACE
+ymsadd.f:C#ifdefC TEST
+ymsadd.f:C#endif
+ymscop.f:C#define INTEL_IFC
+ymscop.f:C#define F90
+ymscop.f:C#define FFTW
+ymscop.f:C#define IN_PLACE
+ymtrns.f:C#define INTEL_IFC
+ymtrns.f:C#define F90
+ymtrns.f:C#define FFTW
+ymtrns.f:C#define IN_PLACE
+ymtrns.f:C#ifdefC TEST
+ymtrns.f:C#endif
+yqinv.f:C#define INTEL_IFC
+yqinv.f:C#define F90
+yqinv.f:C#define FFTW
+yqinv.f:C#define IN_PLACE
+yqinvb.f:C#define INTEL_IFC
+yqinvb.f:C#define F90
+yqinvb.f:C#define FFTW
+yqinvb.f:C#define IN_PLACE
+ysbnv.f:C#define INTEL_IFC
+ysbnv.f:C#define F90
+ysbnv.f:C#define FFTW
+ysbnv.f:C#define IN_PLACE
+ysbnvb.f:C#define INTEL_IFC
+ysbnvb.f:C#define F90
+ysbnvb.f:C#define FFTW
+ysbnvb.f:C#define IN_PLACE
+yscal.f:C#define INTEL_IFC
+yscal.f:C#define F90
+yscal.f:C#define FFTW
+yscal.f:C#define IN_PLACE
+yspbmm.f:C#define INTEL_IFC
+yspbmm.f:C#define F90
+yspbmm.f:C#define FFTW
+yspbmm.f:C#define IN_PLACE
+yspr2a.f:C#define INTEL_IFC
+yspr2a.f:C#define F90
+yspr2a.f:C#define FFTW
+yspr2a.f:C#define IN_PLACE
+ywrm.f:C#define INTEL_IFC
+ywrm.f:C#define F90
+ywrm.f:C#define FFTW
+ywrm.f:C#define IN_PLACE
+yyaxpy.f:C#define INTEL_IFC
+yyaxpy.f:C#define F90
+yyaxpy.f:C#define FFTW
+yyaxpy.f:C#define IN_PLACE
+yyaxpy.f:C#ifdefC BLAS
+yyaxpy.f:C#elseifC APOLLO | HP
+yyaxpy.f:C#else
+yyaxpy.f:C#endif
+yydot.f:C#define INTEL_IFC
+yydot.f:C#define F90
+yydot.f:C#define FFTW
+yydot.f:C#define IN_PLACE
+yydot.f:C#ifdefC APOLLO | HP
+yydot.f:C#else
+yydot.f:C#endif
+yydotc.f:C#define INTEL_IFC
+yydotc.f:C#define F90
+yydotc.f:C#define FFTW
+yydotc.f:C#define IN_PLACE
+yydotc.f:C#ifdefC APOLLO | HP
+yydotc.f:C#else
+yydotc.f:C#endif
+yygefa.f:C#define INTEL_IFC
+yygefa.f:C#define F90
+yygefa.f:C#define FFTW
+yygefa.f:C#define IN_PLACE
+yygefa.f:C#ifdefC DCMPLX
+yygefa.f:C#else
+yygefa.f:C#endif
+yygemm.f:C#define INTEL_IFC
+yygemm.f:C#define F90
+yygemm.f:C#define FFTW
+yygemm.f:C#define IN_PLACE
+yygesl.f:C#define INTEL_IFC
+yygesl.f:C#define F90
+yygesl.f:C#define FFTW
+yygesl.f:C#define IN_PLACE
+yyhbak.f:C#define INTEL_IFC
+yyhbak.f:C#define F90
+yyhbak.f:C#define FFTW
+yyhbak.f:C#define IN_PLACE
+yyhchd.f:C#define INTEL_IFC
+yyhchd.f:C#define F90
+yyhchd.f:C#define FFTW
+yyhchd.f:C#define IN_PLACE
+yyhchd.f:C#define SGI-PARALLEL
+yyhchd.f:C#define SGI
+yyhchd.f:C#define DDOT
+yyhchd.f:C#ifndefC DDOT
+yyhchd.f:C#ifdefC BLAS
+yyhchd.f:C#elseC
+yyhchd.f:C#endifC
+yyhchd.f:C#else
+yyhchd.f:C#ifdef SGI-PARALLEL
+yyhchd.f:C#endif
+yyhchd.f:C#endif
+yyhchd.f:C#ifdef SGI-PARALLEL
+yyhchd.f:C#endif
+yyhchd.f:C#ifdefC BLAS
+yyhchd.f:C#else
+yyhchd.f:C#endif
+yyhifa.f:C#define INTEL_IFC
+yyhifa.f:C#define F90
+yyhifa.f:C#define FFTW
+yyhifa.f:C#define IN_PLACE
+yyhmpy.f:C#define INTEL_IFC
+yyhmpy.f:C#define F90
+yyhmpy.f:C#define FFTW
+yyhmpy.f:C#define IN_PLACE
+yyhmpy.f:C#define BLAS3
+yyhmpy.f:C#ifdef BLAS3
+yyhmpy.f:C#elseC
+yyhmpy.f:C#endif
+yyhmpy.f:C#ifdef BLAS3
+yyhmpy.f:C#elseC
+yyhmpy.f:C#endif
+yyhmpy.f:C#ifdef BLAS3
+yyhmpy.f:C#endif
+yyhrdx.f:C#define INTEL_IFC
+yyhrdx.f:C#define F90
+yyhrdx.f:C#define FFTW
+yyhrdx.f:C#define IN_PLACE
+yyhred.f:C#define INTEL_IFC
+yyhred.f:C#define F90
+yyhred.f:C#define FFTW
+yyhred.f:C#define IN_PLACE
+yympy.f:C#define INTEL_IFC
+yympy.f:C#define F90
+yympy.f:C#define FFTW
+yympy.f:C#define IN_PLACE
+yympyt.f:C#define INTEL_IFC
+yympyt.f:C#define F90
+yympyt.f:C#define FFTW
+yympyt.f:C#define IN_PLACE
+yympyt.f:C#define BLAS3
+yympyt.f:C#ifdef BLAS3
+yympyt.f:C#elseC
+yympyt.f:C#endif
+yympyt.f:C#ifdef BLAS3
+yympyt.f:C#elseC
+yympyt.f:C#endif
+yyqinv.f:C#define INTEL_IFC
+yyqinv.f:C#define F90
+yyqinv.f:C#define FFTW
+yyqinv.f:C#define IN_PLACE
+yyqinv.f:C#ifndefC F90
+yyqinv.f:C#else
+yyqinv.f:C#endif
+yyqinv.f:C#ifdefC DEBUG
+yyqinv.f:C#endif
+yyqinv.f:C#ifdefC DEBUG
+yyqinv.f:C#endif
+yyqinv.f:C#ifdefC DEBUG
+yyqinv.f:C#endif
+yyqinv.f:C#ifdef RECUR | F90
+yyqinv.f:C#endif
+yyqinv.f:C#ifdef RECUR | F90
+yyqinv.f:C#ifdefC DEBUG
+yyqinv.f:C#endif
+yyqinv.f:C#ifdefC AIX | SUN-ULTRA
+yyqinv.f:C#else
+yyqinv.f:C#endif
+yyqinv.f:C#ifdefC DEBUG
+yyqinv.f:C#endif
+yyqinv.f:C#endif
+yyqinv.f:C#ifdef RECUR | F90
+yyqinv.f:C#endif RECUR
+yyqinv.f:C#ifdef RECUR | F90
+yyqinv.f:C#ifdefC DEBUG
+yyqinv.f:C#endif
+yyqinv.f:C#ifdefC AIX | SUN-ULTRA
+yyqinv.f:C#else
+yyqinv.f:C#endif
+yyqinv.f:C#ifdefC DEBUG
+yyqinv.f:C#endif
+yyqinv.f:C#endif RECUR
+yyqinv.f:C#ifdefC DEBUG
+yyqinv.f:C#endif
+yyqinv.f:C#ifdefC DEBUG
+yyqinv.f:C#endif
+yyqnvb.f:C#define INTEL_IFC
+yyqnvb.f:C#define F90
+yyqnvb.f:C#define FFTW
+yyqnvb.f:C#define IN_PLACE
+yyqnvb.f:C#ifdefC DEBUG
+yyqnvb.f:C#endif
+yysbib.f:C#define INTEL_IFC
+yysbib.f:C#define F90
+yysbib.f:C#define FFTW
+yysbib.f:C#define IN_PLACE
+yysbib.f:C#ifdefC DEBUG
+yysbib.f:C#endif
+yysbib.f:C#ifdefC DEBUG
+yysbib.f:C#endif
+yysbmm.f:C#define INTEL_IFC
+yysbmm.f:C#define F90
+yysbmm.f:C#define FFTW
+yysbmm.f:C#define IN_PLACE
+yysbnv.f:C#define INTEL_IFC
+yysbnv.f:C#define F90
+yysbnv.f:C#define FFTW
+yysbnv.f:C#define IN_PLACE
+yysbnv.f:C#ifndefC F90
+yysbnv.f:C#else
+yysbnv.f:C#endif
+yysbnv.f:C#ifdefC DEBUG
+yysbnv.f:C#endif
+yysbnv.f:C#ifdefC DEBUG
+yysbnv.f:C#endif
+yysbnv.f:C#ifdefC DEBUG
+yysbnv.f:C#endif
+yysbnv.f:C#ifdef RECUR | F90
+yysbnv.f:C#ifdefC AIX | SUN-ULTRA 
+yysbnv.f:C#endif
+yysbnv.f:C#ifdefC DEBUG
+yysbnv.f:C#endif
+yysbnv.f:C#endif RECUR
+yysbnv.f:C#ifdefC DEBUG
+yysbnv.f:C#endif
+yysp2a.f:C#define INTEL_IFC
+yysp2a.f:C#define F90
+yysp2a.f:C#define FFTW
+yysp2a.f:C#define IN_PLACE
+yysp2a.f:C#ifdefC DEBUG
+yysp2a.f:C#endif
+yyxcpy.f:C#define INTEL_IFC
+yyxcpy.f:C#define F90
+yyxcpy.f:C#define FFTW
+yyxcpy.f:C#define IN_PLACE
+yyxcpy.f:C#ifdefC BLAS
+yyxcpy.f:C#elseifC APOLLO | HP
+yyxcpy.f:C#else
+yyxcpy.f:C#endif
+z1btf2.f:C#define INTEL_IFC
+z1btf2.f:C#define F90
+z1btf2.f:C#define FFTW
+z1btf2.f:C#define IN_PLACE
+z1btrf.f:C#define INTEL_IFC
+z1btrf.f:C#define F90
+z1btrf.f:C#define FFTW
+z1btrf.f:C#define IN_PLACE
+z1btrs.f:C#define INTEL_IFC
+z1btrs.f:C#define F90
+z1btrs.f:C#define FFTW
+z1btrs.f:C#define IN_PLACE
+z1tbsv.f:C#define INTEL_IFC
+z1tbsv.f:C#define F90
+z1tbsv.f:C#define FFTW
+z1tbsv.f:C#define IN_PLACE
+z2herm.f:C#define INTEL_IFC
+z2herm.f:C#define F90
+z2herm.f:C#define FFTW
+z2herm.f:C#define IN_PLACE
+zampy.f:C#define INTEL_IFC
+zampy.f:C#define F90
+zampy.f:C#define FFTW
+zampy.f:C#define IN_PLACE
+zampy.f:C#define BLAS3
+zampy.f:C#ifdef BLAS3
+zampy.f:C#endif
+zampy.f:C#ifdef BLAS3
+zampy.f:C#ifdefC TIMING
+zampy.f:C#endif
+zampy.f:C#ifdefC PARALLEL
+zampy.f:C#else
+zampy.f:C#endif
+zampy.f:C#ifdefC TIMING
+zampy.f:C#endif
+zampy.f:C#endif
+zampy.f:C#ifdefC BLAS
+zampy.f:C#else
+zampy.f:C#endif
+zerfc.f:C#define INTEL_IFC
+zerfc.f:C#define F90
+zerfc.f:C#define FFTW
+zerfc.f:C#define IN_PLACE
+zgeevs.f:C#define INTEL_IFC
+zgeevs.f:C#define F90
+zgeevs.f:C#define FFTW
+zgeevs.f:C#define IN_PLACE
+zgeevs.f:C#define F90
+zgeevs.f:C#ifdef AUTO-ARRAY | F90
+zgeevs.f:C#ifdef F90
+zgeevs.f:C#elseifC AUTO-ARRAY
+zgeevs.f:C#endif
+zgeevs.f:C#ifdef F90
+zgeevs.f:C#endif
+zgeevs.f:C#ifdef F90
+zgeevs.f:C#endif
+zgeevs.f:C#elseC
+zgeevs.f:C#endif
+zgefa.f:C#define INTEL_IFC
+zgefa.f:C#define F90
+zgefa.f:C#define FFTW
+zgefa.f:C#define IN_PLACE
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zgefa.f:C#ifdefC DCMPLX
+zgefa.f:C#else
+zgefa.f:C#endif
+zhev.f:C#define F90
+zhev.f:C#ifdefC LAPACK
+zhev.f:C#else
+zhev.f:C#ifndef GENERIC
+zhev.f:C#elseC
+zhev.f:C#endif
+zhev.f:C#ifndef GENERIC
+zhev.f:C#elseC
+zhev.f:C#endif
+zhev.f:C#ifndef GENERIC
+zhev.f:C#elseC
+zhev.f:C#endif
+zhev.f:C#endif
+zhev.f:C#ifdefC LAPACK
+zhev.f:C#else
+zhev.f:C#ifndef GENERIC
+zhev.f:C#elseC
+zhev.f:C#endif
+zhev.f:C#ifndef GENERIC
+zhev.f:C#elseC
+zhev.f:C#endif
+zhev.f:C#ifndef GENERIC
+zhev.f:C#elseC
+zhev.f:C#endif
+zhev.f:C#endif
+zhev.f:C#ifndef LAPACK
+zhev.f:C#endif
+zhev.f:C#ifdef F90
+zhev.f:C#elseC
+zhev.f:C#endif
+zhev.f:C#ifndef LAPACK
+zhev.f:C#endif
+zhev.f:C#ifdef F90
+zhev.f:C#endif
+zhev.f:C#ifdef F90
+zhev.f:C#endif
+zhev.f:C#ifdef F90
+zhev.f:C#elseC
+zhev.f:C#endif
+zhisl.f:C#define INTEL_IFC
+zhisl.f:C#define F90
+zhisl.f:C#define FFTW
+zhisl.f:C#define IN_PLACE
+zhmpy.f:C#define INTEL_IFC
+zhmpy.f:C#define F90
+zhmpy.f:C#define FFTW
+zhmpy.f:C#define IN_PLACE
+zhmpy.f:C#ifdefC BLAS
+zhmpy.f:C#else
+zhmpy.f:C#endif
+zmcpy.f:C#define INTEL_IFC
+zmcpy.f:C#define F90
+zmcpy.f:C#define FFTW
+zmcpy.f:C#define IN_PLACE
+zmpy.f:C#define INTEL_IFC
+zmpy.f:C#define F90
+zmpy.f:C#define FFTW
+zmpy.f:C#define IN_PLACE
+zmpy22.f:C#define INTEL_IFC
+zmpy22.f:C#define F90
+zmpy22.f:C#define FFTW
+zmpy22.f:C#define IN_PLACE
+zmsadd.f:C#define INTEL_IFC
+zmsadd.f:C#define F90
+zmsadd.f:C#define FFTW
+zmsadd.f:C#define IN_PLACE
+zmscop.f:C#define INTEL_IFC
+zmscop.f:C#define F90
+zmscop.f:C#define FFTW
+zmscop.f:C#define IN_PLACE
+zpack.f:C#define INTEL_IFC
+zpack.f:C#define F90
+zpack.f:C#define FFTW
+zpack.f:C#define IN_PLACE
+zpmblk.f:C#define INTEL_IFC
+zpmblk.f:C#define F90
+zpmblk.f:C#define FFTW
+zpmblk.f:C#define IN_PLACE
+zpmblk.f:C#ifdefC TEST
+zpmblk.f:C#endif
+zqinv.f:C#define INTEL_IFC
+zqinv.f:C#define F90
+zqinv.f:C#define FFTW
+zqinv.f:C#define IN_PLACE
+zqinvb.f:C#define INTEL_IFC
+zqinvb.f:C#define F90
+zqinvb.f:C#define FFTW
+zqinvb.f:C#define IN_PLACE
+zsum.f:C#define INTEL_IFC
+zsum.f:C#define F90
+zsum.f:C#define FFTW
+zsum.f:C#define IN_PLACE
+ztoy.f:C#define INTEL_IFC
+ztoy.f:C#define F90
+ztoy.f:C#define FFTW
+ztoy.f:C#define IN_PLACE
+ztoy.f:C#ifdef AUTO-ARRAY | F90
+ztoy.f:C#elseC
+ztoy.f:C#endif
+ztoy.f:C#ifdef F90
+ztoy.f:C#endif
+ztoy.f:C#ifdef F90
+ztoy.f:C#elseC
+ztoy.f:C#endif
+ztoy.f:C#ifdef F90
+ztoy.f:C#elseC
+ztoy.f:C#endif
+ztoy.f:C#ifdefC TEST
+ztoy.f:C#endif
+ztoyy.f:C#define INTEL_IFC
+ztoyy.f:C#define F90
+ztoyy.f:C#define FFTW
+ztoyy.f:C#define IN_PLACE
+ztoyy.f:C#define F90
+ztoyy.f:C#ifdef AUTO-ARRAY | F90
+ztoyy.f:C#elseC
+ztoyy.f:C#endif
+ztoyy.f:C#ifdef AUTO-ARRAY | F90
+ztoyy.f:C#elseC
+ztoyy.f:C#endif
+ztoyy.f:C#ifdef AUTO-ARRAY | F90
+ztoyy.f:C#elseC
+ztoyy.f:C#endif
+ztoyy.f:C#ifdef AUTO-ARRAY | F90
+ztoyy.f:C#elseC
+ztoyy.f:C#endif
+ztoyy.f:C#ifdef AUTO-ARRAY | F90
+ztoyy.f:C#elseC
+ztoyy.f:C#endif
+ztoyy.f:C#ifdefC TEST
+ztoyy.f:C#endif
+a2bin.for:C#define FORMATTED_READ
+a2bin.for:C#ifdefC HANSMR
+a2bin.for:C#endif
+a2bin.for:C#ifdefC HANSMR
+a2bin.for:C#endif
+a2bin.for:C#ifdef FORMATTED_READ
+a2bin.for:C#elseC
+a2bin.for:C#endif
+a2bin.for:C#ifdef FORMATTED_READ | UNFORMATTED_READ
+a2bin.for:C#ifdef FORMATTED_READ
+a2bin.for:C#elseC
+a2bin.for:C#endif
+a2bin.for:C#ifdefC APOLLO_BUG
+a2bin.for:C#else
+a2bin.for:C#endif
+a2bin.for:C#elseC  (not FORMATTED_READ | UNFORMATTED_READ)
+a2bin.for:C#endif FORMATTED_READ | UNFORMATTED_READ
+awrite.for:C#ifdefC CRAY
+awrite.for:C#endif
+awrite.for:C#ifdefC DEBUG
+awrite.for:C#endif
+awrite.for:C#ifdefC DEBUG
+awrite.for:C#endif
+awrite.for:C#ifdefC CRAY
+awrite.for:C#else
+awrite.for:C#endif
+bitops.for:C#ifdefC QUAD
+bitops.for:C#else
+bitops.for:C#endif
+bitops.for:C#ifdefC QUAD
+bitops.for:C#else
+bitops.for:C#endif
+bitops.for:C#ifdefC QUAD
+bitops.for:C#endif
+bitops.for:C#ifdefC QUAD
+bitops.for:C#else
+bitops.for:C#endif
+bitops.for:C#ifdefC QUAD
+bitops.for:C#else
+bitops.for:C#endif
+broyj.for:C#define AWRITE
+broyj.for:C#ifdef AWRITE
+broyj.for:C#endif
+broyj.for:C#ifdef AWRITE
+broyj.for:C#endif
+broyj.for:C#ifdef AWRITE
+broyj.for:C#endif
+broyj.for:C#ifdef AWRITE
+broyj.for:C#endif
+cmdopt.for:C#ifdefC SUN-ULTRA
+cmdopt.for:C#else
+cmdopt.for:C#endif
+cpudel.for:C#ifdefC APOLLO
+cpudel.for:C#elseifC AIX
+cpudel.for:C#elseifC CRAY
+cpudel.for:C#elseifC VANILLA
+cpudel.for:C#else
+cpudel.for:C#ifdefC POWER-PC
+cpudel.for:C#else
+cpudel.for:C#endif
+cpudel.for:C#endif
+d1mach.for:C#define RIEEE
+dampy.for:C#define BLAS3
+dampy.for:C#ifdefC APOLLO | HP
+dampy.for:C#endif
+dampy.for:C#ifdef BLAS3
+dampy.for:C#endif
+dampy.for:C#ifdefC TIMING
+dampy.for:C#endif
+dampy.for:C#ifdef BLAS3
+dampy.for:C#ifdefC PARALLEL
+dampy.for:C#else
+dampy.for:C#endif
+dampy.for:C#ifdefC TIMING
+dampy.for:C#endif
+dampy.for:C#endif
+dampy.for:C#ifdefC APOLLO | HP
+dampy.for:C#else
+dampy.for:C#ifdefC BLAS
+dampy.for:C#else
+dampy.for:C#endif
+dampy.for:C#endif
+dampy.for:C#ifdefC TIMING
+dampy.for:C#endif
+dcsqrt.for:C#ifdefC FUJITSU
+dcsqrt.for:C#else
+dcsqrt.for:C#endif
+decrnd.for:C#ifdefC TEST
+decrnd.for:C#endif
+derfc.for:C#ifdefC DOUBLE16
+derfc.for:C#else
+derfc.for:C#endif
+derfc.for:C#ifdefC TEST
+derfc.for:C#endif
+dgedi.for:C#ifdefC CRAY
+dgedi.for:C#else
+dgedi.for:C#endif
+dgefa.for:C#ifdefC CRAY
+dgefa.for:C#else
+dgefa.for:C#endif
+dgesl.for:C#ifdefC CRAY
+dgesl.for:C#else
+dgesl.for:C#endif
+diagno.for:C#ifndef GENERIC
+diagno.for:C#elseC
+diagno.for:C#endif
+diagno.for:C#ifndef GENERIC
+diagno.for:C#elseC
+diagno.for:C#endif
+diagno.for:C#ifndef GENERIC
+diagno.for:C#elseC
+diagno.for:C#endif
+dmpy.for:C#define BLAS3
+dmpy.for:C#ifdefC APOLLO | HP
+dmpy.for:C#endif
+dmpy.for:C#ifdef BLAS3
+dmpy.for:C#endif
+dmpy.for:C#ifdefC TIMING
+dmpy.for:C#endif
+dmpy.for:C#ifdef BLAS3
+dmpy.for:C#ifdefC PARALLEL
+dmpy.for:C#else
+dmpy.for:C#endif
+dmpy.for:C#ifdefC TIMING
+dmpy.for:C#endif
+dmpy.for:C#endif
+dmpy.for:C#ifdefC CRAY
+dmpy.for:C#elseifC APOLLO | HP
+dmpy.for:C#else
+dmpy.for:C#ifdefC BLAS
+dmpy.for:C#else
+dmpy.for:C#endif
+dmpy.for:C#endif
+dmpy.for:C#ifdefC TIMING
+dmpy.for:C#endif
+dmpy.for:C#ifdefC TIMING
+dmpy.for:C#ifdefC DEBUG
+dmpy.for:C#elseC
+dmpy.for:C#endifC
+dmpy.for:C#endif
+dpcopy.for:C#ifdefC CRAY
+dpcopy.for:C#elseifC APOLLO | HP
+dpcopy.for:C#elseifC BLAS
+dpcopy.for:C#else   GENERIC
+dpcopy.for:C#endif
+dpdot.for:C#ifdefC APOLLO | HP
+dpdot.for:C#elseifC CRAY
+dpdot.for:C#elseifC BLAS
+dpdot.for:C#else
+dpdot.for:C#endif
+dpsadd.for:C#ifdefC CRAY
+dpsadd.for:C#elseifC BLAS
+dpsadd.for:C#else   GENERIC
+dpsadd.for:C#endif
+dpscop.for:C#ifdefC CRAY
+dpscop.for:C#elseifC APOLLO | HP
+dpscop.for:C#elseifC BLAS
+dpscop.for:C#else   GENERIC
+dpscop.for:C#endif
+dqinv.for:C#define F90
+dqinv.for:C#ifndefC F90
+dqinv.for:C#else
+dqinv.for:C#endif
+dqinv.for:C#ifdefC DEBUG
+dqinv.for:C#endif
+dqinv.for:C#ifdefC DEBUG
+dqinv.for:C#endif
+dqinv.for:C#ifdefC DEBUG
+dqinv.for:C#endif
+dqinv.for:C#ifdef RECUR | F90
+dqinv.for:C#endif
+dqinv.for:C#ifdef RECUR | F90
+dqinv.for:C#ifdefC DEBUG
+dqinv.for:C#endif
+dqinv.for:C#ifdefC AIX | SUN-ULTRA 
+dqinv.for:C#else
+dqinv.for:C#endif
+dqinv.for:C#ifdefC DEBUG
+dqinv.for:C#endif
+dqinv.for:C#endif
+dqinv.for:C#ifdef RECUR | F90
+dqinv.for:C#endif RECUR
+dqinv.for:C#ifdef RECUR | F90
+dqinv.for:C#ifdefC DEBUG
+dqinv.for:C#endif
+dqinv.for:C#ifdefC AIX | SUN-ULTRA 
+dqinv.for:C#else
+dqinv.for:C#endif
+dqinv.for:C#ifdefC DEBUG
+dqinv.for:C#endif
+dqinv.for:C#endif RECUR
+dqinv.for:C#ifdefC DEBUG
+dqinv.for:C#endif
+dqinvb.for:C#define F90
+dqinvb.for:C#ifndefC F90
+dqinvb.for:C#else
+dqinvb.for:C#endif
+dqinvb.for:C#ifdefC DEBUG
+dqinvb.for:C#endif
+dqinvb.for:C#ifndefC RECUR | F90
+dqinvb.for:C#endif
+dqinvb.for:C#ifdef RECUR | F90
+dqinvb.for:C#endif
+dqinvb.for:C#ifdefC DEBUG
+dqinvb.for:C#endif
+dqinvb.for:C#ifdef RECUR | F90
+dqinvb.for:C#endif
+dqinvb.for:C#ifdefC DEBUG
+dqinvb.for:C#endif
+dsidi.for:C#ifdefC CRAY
+dsidi.for:C#else
+dsidi.for:C#endif
+dsifa.for:C#ifdefC CRAY
+dsifa.for:C#else
+dsifa.for:C#endif
+dsisl.for:C#ifdefC CRAY
+dsisl.for:C#else
+dsisl.for:C#endif
+dspbmm.for:C#ifdefC TEST
+dspbmm.for:C#endif
+dspdi.for:C#ifdefC CRAY
+dspdi.for:C#else
+dspdi.for:C#endif
+dspfa.for:C#ifdefC CRAY
+dspfa.for:C#else
+dspfa.for:C#endif
+dspsl.for:C#ifdefC CRAY
+dspsl.for:C#else
+dspsl.for:C#endif
+eigch.for:C#ifndef APOLLO-BUG
+eigch.for:C#elseC
+eigch.for:C#endif
+fftz3.for:C#define FFTW3
+fftz3.for:C#define FFTW
+fftz3.for:C#define IN_PLACE
+fftz3.for:C#ifdefC GOEDECKER
+fftz3.for:C#ifdefC SGI | SGI8
+fftz3.for:C#elseifC DECA
+fftz3.for:C#elseC
+fftz3.for:C#endifC
+fftz3.for:C#elseifC ESSL
+fftz3.for:C#else
+fftz3.for:C#endif
+fftz3.for:C#ifdefC GOEDECKER
+fftz3.for:C#endif
+fftz3.for:C#ifdefC GOEDECKER
+fftz3.for:C#ifdefC SGI | SGI8
+fftz3.for:C#elseifC DECA
+fftz3.for:C#elseC
+fftz3.for:C#endifC
+fftz3.for:C#elseifC SGI | SGI8
+fftz3.for:C#elseifC ESSL
+fftz3.for:C#elseif FFTW | FFTW3
+fftz3.for:C#ifdef FFTW3
+fftz3.for:C#elseC
+fftz3.for:C#endif
+fftz3.for:C#ifdef FFTW3
+fftz3.for:C#elseC
+fftz3.for:C#ifdefC IN_PLACE
+fftz3.for:C#elseC
+fftz3.for:C#endifC
+fftz3.for:C#endif
+fftz3.for:C#elseC
+fftz3.for:C#endif
+fftz3.for:C#ifdefC SGI | SGI8
+fftz3.for:C#elseif FFTW | FFTW3
+fftz3.for:C#elseC
+fftz3.for:C#endif
+fftz3.for:C#ifdef SGI | SGI8 | FFTW | FFTW3
+fftz3.for:C#elseC
+fftz3.for:C#endif
+fgtcat.for:C#ifdefC ANSI | FIXEDLENGTH
+fgtcat.for:C#else
+fgtcat.for:C#endif
+fgtcat.for:C#ifdefC ANSI | FIXEDLENGTH
+fgtcat.for:C#endif
+finits.for:C#define unix
+finits.for:C#ifdef unix
+finits.for:C#endif
+finits.for:C#ifdefC MPI | MPIK
+finits.for:C#endif
+finits.for:C#ifdefC F77LAHEY
+finits.for:C#endif
+finits.for:C#ifdefC IBM_VM
+finits.for:C#endif
+finits.for:C#ifdefC MPI | MPIK
+finits.for:C#endif
+finits.for:C#ifndef IBM_VM
+finits.for:C#endif
+finits.for:C#ifdefC MPI | MPIK
+finits.for:C#endif 
+finits.for:C#ifdef unix 
+finits.for:C#endif
+finits.for:C#ifndefC unix
+finits.for:C#endif
+fopna.for:C#define unix
+fopna.for:C#define PATH
+fopna.for:C#define FEXTENS
+fopna.for:C#ifndef AIX
+fopna.for:C#elseC
+fopna.for:C#endif
+fopna.for:C#ifdef unix
+fopna.for:C#elseifC MSDOS
+fopna.for:C#endif
+fopna.for:C#ifdefC DEBUG
+fopna.for:C#else
+fopna.for:C#endif
+fopna.for:C#ifdef FEXTENS
+fopna.for:C#elseC
+fopna.for:C#endif
+fopna.for:C#ifdefC DEBUG
+fopna.for:C#endif
+fopna.for:C#ifdefC PRECONNECTED_UNITS | IBM_VM
+fopna.for:C#else
+fopna.for:C#endif
+fopna.for:C#ifdefC PRECONNECTED_UNITS | IBM_VM
+fopna.for:C#else
+fopna.for:C#endif
+fopna.for:C#ifdefC PRECONNECTED_UNITS | IBM_VM
+fopna.for:C#elseifC SUN-ULTRA
+fopna.for:C#else
+fopna.for:C#endif
+fopna.for:C#ifdef unix
+fopna.for:C#endif
+fopna.for:C#ifdefC AIX
+fopna.for:C#endif
+fopna.for:C#ifdefC TEST
+fopna.for:C#endif
+gettime.for:C#ifdefC SGI
+gettime.for:C#else
+gettime.for:C#endif
+gradzr.for:C#ifdefC TEST
+gradzr.for:CC#ifdef PROB0
+gradzr.for:CC#elseifC PROB1
+gradzr.for:CC#endif
+gradzr.for:CC#ifdef PROB0
+gradzr.for:CC#elseifC PROB1
+gradzr.for:CC#elseifC PROB2 | PROB3
+gradzr.for:CC#elseifC PROB4
+gradzr.for:CC#endif
+gradzr.for:CC#ifdef PROB0
+gradzr.for:CC#elseifC PROB1 | PROB2
+gradzr.for:CC#elseifC PROBN
+gradzr.for:CC#endif
+gradzr.for:CC#ifndefC PROB0 | PROBN
+gradzr.for:CC#endif
+gradzr.for:CC#ifdef PROB0
+gradzr.for:CC#elseifC PROBN
+gradzr.for:CC#elseifC PROB1
+gradzr.for:CC#elseifC PROB2
+gradzr.for:CC#elseifC PROB3 | PROB4
+gradzr.for:CC#elseifC PROB4
+gradzr.for:CC#endif
+gradzr.for:CC#ifdef PROB0
+gradzr.for:CC#endif
+gradzr.for:CC#ifdefC PROBN
+gradzr.for:CC#endif
+gradzr.for:CC#ifdefC PROBN
+gradzr.for:CC#else
+gradzr.for:CC#endif
+gradzr.for:CC#ifdefC PROBN
+gradzr.for:CC#else
+gradzr.for:CC#endif
+gradzr.for:CC#ifdef PROB0
+gradzr.for:CC#endif
+gradzr.for:CC#ifndef PROB1
+gradzr.for:CC#endif
+gradzr.for:C#endif
+hcinv.for:C#ifdefC BLAS
+hcinv.for:C#endif
+hcinv.for:C#ifdefC BLAS
+hcinv.for:C#else
+hcinv.for:C#endif
+hcinv.for:C#ifdefC BLAS
+hcinv.for:C#else
+hcinv.for:C#endif
+hrmint.for:C#define F90
+hrmint.for:C#ifdef AUTO-ARRAY | F90
+hrmint.for:C#elseC
+hrmint.for:C#endif
+hrmint.for:C#ifdef AUTO-ARRAY | F90
+hrmint.for:C#elseC
+hrmint.for:C#endif
+htribk.for:C#ifdefC CRAY | BLAS
+htribk.for:C#ifdefC CRAY
+htribk.for:C#elseifC BLAS
+htribk.for:C#endifC  (110 loop)
+htribk.for:C#ifdefC CRAY
+htribk.for:C#elseifC BLAS
+htribk.for:C#endifC  (120 loop)
+htribk.for:C#else
+htribk.for:C#endif
+htribx.for:C#ifdefC SGI-PARALLEL
+htribx.for:C#endif
+htribx.for:C#ifdefC BLAS
+htribx.for:C#else
+htribx.for:C#endif
+htribx.for:C#ifdefC BLAS
+htribx.for:C#else
+htribx.for:C#endif
+htridi.for:C#ifdefC CRAY
+htridi.for:C#elseifC BLAS
+htridi.for:C#endif
+htridi.for:C#ifdefC CRAY | BLAS
+htridi.for:C#else
+htridi.for:C#ifdefC YDOT
+htridi.for:C#else
+htridi.for:C#endif
+htridi.for:C#endif
+htridx.for:C#define SGI
+htridx.for:C#define UNROLL
+htridx.for:C#ifdefC SGI-PARALLEL
+htridx.for:C#endif
+htridx.for:C#ifdef UNROLL | SGI-PARALLEL
+htridx.for:C#ifdefC SGI-PARALLEL
+htridx.for:C#endif
+htridx.for:C#ifdefC SGI-PARALLEL
+htridx.for:C#else
+htridx.for:C#endif
+htridx.for:C#elseC
+htridx.for:C#endif
+htridx.for:C#ifdefC SGI-PARALLEL
+htridx.for:C#else
+htridx.for:C#endif
+htridx.for:C#ifdefC SGI-PARALLEL
+htridx.for:C#endif
+htridx.for:C#ifdefC UNROLL2
+htridx.for:C#ifdefC SGI-PARALLEL
+htridx.for:C#endifC
+htridx.for:C#else
+htridx.for:C#endif
+htridx.for:C#ifdefC SGI-PARALLEL
+htridx.for:C#endif
+i1mach.for:C#define RIEEE
+i1mach.for:C#define EXTENDED
+i1mach.for:C#ifdef EXTENDED
+i1mach.for:C#elseC
+i1mach.for:C#endif
+i1mach.for:C#ifdef IEEE | RIEEE
+i1mach.for:C#ifdef EXTENDED
+i1mach.for:C#elseC
+i1mach.for:C#endif
+i1mach.for:C#endif
+i1mach.for:C#ifdefC CRAY | C90
+i1mach.for:C#ifdefC C90
+i1mach.for:C#elseC
+i1mach.for:C#endifC
+i1mach.for:C#ifdefC EXTENDED
+i1mach.for:C#elseC
+i1mach.for:C#endifC
+i1mach.for:C#endif
+i1mach.for:C#ifdefC IBM_VM | IBM370 | IBM3080 | IBM3090 | FUJITSU
+i1mach.for:C#ifdefC EXTENDED
+i1mach.for:C#elseC
+i1mach.for:C#endifC   EXTENDED
+i1mach.for:C#endif   IBM_VM
+i1mach.for:C#ifdefC VAX | VMS
+i1mach.for:C#ifdefC EXTENDED
+i1mach.for:C#elseC
+i1mach.for:C#endifC
+i1mach.for:C#endif
+i1mach.for:C#ifdef EXTENDED
+i1mach.for:C#elseC
+i1mach.for:C#endif
+i1mach.for:C#ifdefC FTN77
+i1mach.for:C#endif
+i1mach.for:C#ifdef EXTENDED
+i1mach.for:C#elseC
+i1mach.for:C#endif
+mkilst.for:C#ifdefC TEST
+mkilst.for:C#endif
+mklagw.for:C#ifdefC TEST
+mklagw.for:C#endif
+mpibc.for:C#ifdefC MPI
+mpibc.for:C#endif
+mpibc.for:C#ifdefC MPI
+mpibc.for:C#endif
+mpibc.for:C#ifdefC MPI
+mpibc.for:C#endif
+mpibc.for:C#ifdefC MPI
+mpibc.for:C#endif
+mpibc.for:C#ifdefC MPI
+mpibc.for:C#endif
+mpibc.for:C#ifdefC MPI
+mpibc.for:C#endif
+mpibc.for:C#ifdefC MPI
+mpibc.for:C#endif
+mpibc.for:C#ifdefC MPI
+mpibc.for:C#endif
+mpibc.for:C#ifdefC MPI
+mpibc.for:C#endif
+mpibc.for:C#ifdefC MPI
+mpibc.for:C#else
+mpibc.for:C#endif
+nada.for:C#ifdefC LINUX_PGI
+nada.for:C#endif
+pade.for:C#ifdefC NOQUAD
+pade.for:C#else
+pade.for:C#endif
+pmblk.for:C#ifdefC TEST
+pmblk.for:C#endif
+polcof.for:C#ifdefC NOQUAD
+polcof.for:C#else
+polcof.for:C#endif
+polint.for:C#ifdefC TESTP
+polint.for:C#endif
+polint.for:C#ifdefC TESTR
+polint.for:C#endif
+poseof.for:C#ifdefC SVS | DEC | DECA
+poseof.for:C#endif
+poseof.for:C#ifdefC SVS | DEC | DECA     
+poseof.for:C#endif                
+poseof.for:C#ifdefC AIX
+poseof.for:C#else
+poseof.for:C#endif
+poseof.for:C#ifndef AIX-xlf90
+poseof.for:C#endif
+pzhev.for:C#ifdefC MPI
+pzhev.for:C#ifdefC SUN
+pzhev.for:C#endifC
+pzhev.for:C#endif MPI
+pzhev.for:C#ifdefC MPI
+pzhev.for:C#endif MPI
+qdiv.for:C#ifdefC NOQUAD
+qdiv.for:C#else
+qdiv.for:C#endif
+query.for:C#ifdefC MPI | MPIK
+query.for:C#endif 
+query.for:C#ifdefC MPI | MPIK
+query.for:C#endif 
+r1mach.for:C#define IEEE
+r1mach.for:C#ifdef IEEE | RIEEE
+r1mach.for:C#endif
+r1mach.for:C#ifdefC CRAY
+r1mach.for:C#endif
+r1mach.for:C#ifdefC IBM_VM | IBM370 | IBM3080 | IBM3090
+r1mach.for:C#endif
+r1mach.for:C#ifdefC VMS
+r1mach.for:C#endif
+ran1.for:C#ifdefC TEST
+ran1.for:C#ifdefC TEST
+rdfiln.for:C#ifdefC CSYTLETABCHR
+rdfiln.for:C#else
+rdfiln.for:C#endif
+rdfiln.for:C#ifdefC CRAY
+rdfiln.for:C#else
+rdfiln.for:C#endif
+rdm.for:C#ifdefC CCAR
+rdm.for:C#endif
+rdm.for:C#ifdefC CCAR
+rdm.for:C#endif
+spchar.for:C#ifdefC CRAY
+spchar.for:C#else
+spchar.for:C#endif
+spchar.for:C#ifdefC TEST
+spchar.for:C#endif
+symvar.for:C#define unix
+symvar.for:C#ifdef unix
+symvar.for:C#endif
+symvar.for:C#ifdef unix
+symvar.for:C#endif
+symvar.for:C#ifdef unix
+symvar.for:C#endif
+symvar.for:C#ifdef unix
+symvar.for:C#endif
+symvar.for:C#ifdef unix
+symvar.for:C#elseC
+symvar.for:C#endif
+symvar.for:C#ifdefC TEST
+symvar.for:C#endif
+symvec.for:C#define unix
+symvec.for:C#ifdef F90
+symvec.for:C#elseifC POINTER
+symvec.for:C#endif
+symvec.for:C#ifdef unix
+symvec.for:C#endif
+symvec.for:C#ifdef F90
+symvec.for:C#elseifC POINTER
+symvec.for:C#endif
+symvec.for:C#ifdef F90
+symvec.for:C#elseifC POINTER
+symvec.for:C#endif
+symvec.for:C#ifndefC F90 | POINTER
+symvec.for:C#endif
+symvec.for:C#ifdef unix
+symvec.for:C#endif
+symvec.for:C#ifdef F90
+symvec.for:C#elseifC POINTER
+symvec.for:C#endif
+syscall.for:C#define FCTIME
+syscall.for:C#define HASGTARGC
+syscall.for:C#define HASNARGC
+syscall.for:C#ifdef HASGTARGC
+syscall.for:C#elseifC HASGETARG
+syscall.for:C#endif
+syscall.for:C#ifdef HASNARGC
+syscall.for:C#elseifC HASIARGC
+syscall.for:C#elseifC HASNARGS
+syscall.for:C#endif
+syscall.for:C#ifdef FCTIME
+syscall.for:C#elseifC FDATE
+syscall.for:C#elseifC 
+syscall.for:C#endif
+syscall.for:C#ifdefC TESTF
+syscall.for:C#endif
+syscall.for:C#ifdefC TESTC
+syscall.for:C#endif
+ymsadd.for:C#ifdefC TEST
+ymsadd.for:C#endif
+ymtrns.for:C#ifdefC TEST
+ymtrns.for:C#endif
+yyaxpy.for:C#ifdefC BLAS
+yyaxpy.for:C#elseifC APOLLO | HP
+yyaxpy.for:C#else
+yyaxpy.for:C#endif
+yydot.for:C#ifdefC APOLLO | HP
+yydot.for:C#else
+yydot.for:C#endif
+yydotc.for:C#ifdefC APOLLO | HP
+yydotc.for:C#else
+yydotc.for:C#endif
+yygefa.for:C#ifdefC DCMPLX
+yygefa.for:C#else
+yygefa.for:C#endif
+yyhchd.for:C#define SGI-PARALLEL
+yyhchd.for:C#define SGI
+yyhchd.for:C#define DDOT
+yyhchd.for:C#ifndefC DDOT
+yyhchd.for:C#ifdefC BLAS
+yyhchd.for:C#elseC
+yyhchd.for:C#endifC
+yyhchd.for:C#else
+yyhchd.for:C#ifdef SGI-PARALLEL
+yyhchd.for:C#endif
+yyhchd.for:C#endif
+yyhchd.for:C#ifdef SGI-PARALLEL
+yyhchd.for:C#endif
+yyhchd.for:C#ifdefC BLAS
+yyhchd.for:C#else
+yyhchd.for:C#endif
+yyhmpy.for:C#define BLAS3
+yyhmpy.for:C#ifdef BLAS3
+yyhmpy.for:C#elseC
+yyhmpy.for:C#endif
+yyhmpy.for:C#ifdef BLAS3
+yyhmpy.for:C#elseC
+yyhmpy.for:C#endif
+yyhmpy.for:C#ifdef BLAS3
+yyhmpy.for:C#endif
+yympyt.for:C#define BLAS3
+yympyt.for:C#ifdef BLAS3
+yympyt.for:C#elseC
+yympyt.for:C#endif
+yympyt.for:C#ifdef BLAS3
+yympyt.for:C#elseC
+yympyt.for:C#endif
+yyqinv.for:C#ifndef F90
+yyqinv.for:C#elseC
+yyqinv.for:C#endif
+yyqinv.for:C#ifdefC DEBUG
+yyqinv.for:C#endif
+yyqinv.for:C#ifdefC DEBUG
+yyqinv.for:C#endif
+yyqinv.for:C#ifdefC DEBUG
+yyqinv.for:C#endif
+yyqinv.for:C#ifdefC RECUR | F90
+yyqinv.for:C#endif
+yyqinv.for:C#ifdefC RECUR | F90
+yyqinv.for:C#ifdefC DEBUG
+yyqinv.for:C#endifC
+yyqinv.for:C#ifdefC AIX | SUN-ULTRA
+yyqinv.for:C#elseC
+yyqinv.for:C#endifC
+yyqinv.for:C#ifdefC DEBUG
+yyqinv.for:C#endifC
+yyqinv.for:C#endif
+yyqinv.for:C#ifdefC RECUR | F90
+yyqinv.for:C#endif RECUR
+yyqinv.for:C#ifdefC RECUR | F90
+yyqinv.for:C#ifdefC DEBUG
+yyqinv.for:C#endifC
+yyqinv.for:C#ifdefC AIX | SUN-ULTRA
+yyqinv.for:C#elseC
+yyqinv.for:C#endifC
+yyqinv.for:C#ifdefC DEBUG
+yyqinv.for:C#endifC
+yyqinv.for:C#endif RECUR
+yyqinv.for:C#ifdefC DEBUG
+yyqinv.for:C#endif
+yyqinv.for:C#ifdefC DEBUG
+yyqinv.for:C#endif
+yyqnvb.for:C#ifdefC DEBUG
+yyqnvb.for:C#endif
+yysbib.for:C#ifdefC DEBUG
+yysbib.for:C#endif
+yysbib.for:C#ifdefC DEBUG
+yysbib.for:C#endif
+yysbnv.for:C#ifndef F90
+yysbnv.for:C#elseC
+yysbnv.for:C#endif
+yysbnv.for:C#ifdefC DEBUG
+yysbnv.for:C#endif
+yysbnv.for:C#ifdefC DEBUG
+yysbnv.for:C#endif
+yysbnv.for:C#ifdefC DEBUG
+yysbnv.for:C#endif
+yysbnv.for:C#ifdefC RECUR | F90
+yysbnv.for:C#ifdefC AIX | SUN-ULTRA 
+yysbnv.for:C#endifC
+yysbnv.for:C#ifdefC DEBUG
+yysbnv.for:C#endifC
+yysbnv.for:C#endif RECUR
+yysbnv.for:C#ifdefC DEBUG
+yysbnv.for:C#endif
+yysp2a.for:C#ifdefC DEBUG
+yysp2a.for:C#endif
+yyxcpy.for:C#ifdefC BLAS
+yyxcpy.for:C#elseifC APOLLO | HP
+yyxcpy.for:C#else
+yyxcpy.for:C#endif
+zampy.for:C#define BLAS3
+zampy.for:C#ifdef BLAS3
+zampy.for:C#endif
+zampy.for:C#ifdef BLAS3
+zampy.for:C#ifdefC TIMING
+zampy.for:C#endif
+zampy.for:C#ifdefC PARALLEL
+zampy.for:C#else
+zampy.for:C#endif
+zampy.for:C#ifdefC TIMING
+zampy.for:C#endif
+zampy.for:C#endif
+zampy.for:C#ifdefC BLAS
+zampy.for:C#else
+zampy.for:C#endif
+zgeevs.for:C#define F90
+zgeevs.for:C#ifdef AUTO-ARRAY | F90
+zgeevs.for:C#ifdef F90
+zgeevs.for:C#elseifC AUTO-ARRAY
+zgeevs.for:C#endif
+zgeevs.for:C#ifdef F90
+zgeevs.for:C#endif
+zgeevs.for:C#ifdef F90
+zgeevs.for:C#endif
+zgeevs.for:C#elseC
+zgeevs.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zgefa.for:C#ifdefC DCMPLX
+zgefa.for:C#else
+zgefa.for:C#endif
+zhev.for:C#define F90
+zhev.for:C#define LAPACK
+zhev.for:C#ifdef LAPACK
+zhev.for:C#elseC
+zhev.for:C#ifndefC GENERIC
+zhev.for:C#elseC
+zhev.for:C#endifC
+zhev.for:C#ifndefC GENERIC
+zhev.for:C#elseC
+zhev.for:C#endifC
+zhev.for:C#ifndefC GENERIC
+zhev.for:C#elseC
+zhev.for:C#endifC
+zhev.for:C#endif
+zhev.for:C#ifdef LAPACK
+zhev.for:C#elseC
+zhev.for:C#ifndefC GENERIC
+zhev.for:C#elseC
+zhev.for:C#endifC
+zhev.for:C#ifndefC GENERIC
+zhev.for:C#elseC
+zhev.for:C#endifC
+zhev.for:C#ifndefC GENERIC
+zhev.for:C#elseC
+zhev.for:C#endifC
+zhev.for:C#endif
+zhev.for:C#ifndefC LAPACK
+zhev.for:C#endif
+zhev.for:C#ifdef F90
+zhev.for:C#elseC
+zhev.for:C#endif
+zhev.for:C#ifndefC LAPACK
+zhev.for:C#endif
+zhev.for:C#ifdef F90
+zhev.for:C#endif
+zhev.for:C#ifdef F90
+zhev.for:C#endif
+zhmpy.for:C#ifdefC BLAS
+zhmpy.for:C#else
+zhmpy.for:C#endif
+zpmblk.for:C#ifdefC TEST
+zpmblk.for:C#endif
+ztoy.for:C#ifdefC AUTO-ARRAY | F90
+ztoy.for:C#else
+ztoy.for:C#endif
+ztoy.for:C#ifdefC F90
+ztoy.for:C#endif
+ztoy.for:C#ifdefC F90
+ztoy.for:C#else
+ztoy.for:C#endif
+ztoy.for:C#ifdefC F90
+ztoy.for:C#else
+ztoy.for:C#endif
+ztoy.for:C#ifdefC TEST
+ztoy.for:C#endif
+ztoyy.for:C#define F90
+ztoyy.for:C#ifdef AUTO-ARRAY | F90
+ztoyy.for:C#elseC
+ztoyy.for:C#endif
+ztoyy.for:C#ifdef AUTO-ARRAY | F90
+ztoyy.for:C#elseC
+ztoyy.for:C#endif
+ztoyy.for:C#ifdef AUTO-ARRAY | F90
+ztoyy.for:C#elseC
+ztoyy.for:C#endif
+ztoyy.for:C#ifdef AUTO-ARRAY | F90
+ztoyy.for:C#elseC
+ztoyy.for:C#endif
+ztoyy.for:C#ifdef AUTO-ARRAY | F90
+ztoyy.for:C#elseC
+ztoyy.for:C#endif
+ztoyy.for:C#ifdefC TEST
+ztoyy.for:C#endif

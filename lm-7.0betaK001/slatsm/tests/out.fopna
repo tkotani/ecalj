@@ -1,0 +1,267 @@
+ test fopng(fnam=xyz.123,-1,4)
+ FOPEN: file xyz.123 unit 8  status 4 open=F
+ FOPEN: opening UNFORMATTED file 'xyz.123', status=UNKNOWN, unit=  8
+
+ fopen:  1 files in table.  ext='.dat'
+ file    unit   mode  open
+ xyz.123  8    unfmt   T
+  
+
+ test fclose:
+
+ fopen:  1 files in table.  ext='.dat'
+ file    unit   mode  open
+ xyz.123  8    unfmt   F
+  
+
+ test fopna(fnam=pqr,ifi,0)
+ FOPEN: file pqr.dat unit 10  status 0 open=F
+ FOPEN: opening FORMATTED   file 'pqr.dat', status=UNKNOWN, unit= 10
+
+ fopen:  2 files in table.  ext='.dat'
+ file    unit   mode  open
+ xyz.123  8    unfmt   F
+ pqr.dat 10      fmt   T
+  
+
+ test fhndl(xyz),fhndl(pqr)
+ FOPEN: file pqr.dat unit 10  status -1 open=T
+  -1  10
+
+ retest fopng(fnam=xyz.123,-1,4)
+ FOPEN: file xyz.123 unit 8  status 4 open=F
+ FOPEN: opening UNFORMATTED file 'xyz.123', status=UNKNOWN, unit=  8
+
+ fopen:  2 files in table.  ext='.dat'
+ file    unit   mode  open
+ xyz.123  8    unfmt   T
+ pqr.dat 10      fmt   T
+  
+% rows 2 cols 2 real l=" testing fopng"                                         
+       11.00       12.00
+       21.00       22.00
+
+ retest fopng, file already open
+ FOPEN: file xyz.123 unit 8  status 4 open=T
+
+ fopen:  2 files in table.  ext='.dat'
+ file    unit   mode  open
+ xyz.123  8    unfmt   T
+ pqr.dat 10      fmt   T
+  
+
+ test fopng, file already open
+ FOPEN: file xyz.123 unit 8  status 4 open=T
+
+ fopen:  2 files in table.  ext='.dat'
+ file    unit   mode  open
+ xyz.123  8    unfmt   T
+ pqr.dat 10      fmt   T
+  
+
+ test fadd, file=abc
+ FOPEN: file abc.dat unit 14  status 0 open=F
+
+ fopen:  3 files in table.  ext='.dat'
+ file    unit   mode  open
+ xyz.123  8    unfmt   T
+ pqr.dat 10      fmt   T
+ abc.dat 14      fmt   F
+  
+
+ call fext ext=dat2
+ FOPNX: set ext to ".dat2"
+
+ fopen:  3 files in table.  ext='.dat2'
+ file    unit   mode  open
+ xyz.123  8    unfmt   T
+ pqr.dat 10      fmt   T
+ abc.dat 14      fmt   F
+  
+
+ test fadd, file=abc with diff ext
+ FOPEN: file abc.dat2 unit 9  status 0 open=F
+
+ fopen:  4 files in table.  ext='.dat2'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ pqr.dat  10      fmt   T
+ abc.dat  14      fmt   F
+ abc.dat2  9      fmt   F
+  
+
+ test fopn (abc)
+ FOPEN: file abc.dat2 unit 9  status 0 open=F
+ FOPEN: opening FORMATTED   file 'abc.dat2', status=UNKNOWN, unit=  9
+ FOPEN: file abc.dat2 unit 9  status 0 open=T
+
+ fopen:  4 files in table.  ext='.dat2'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ pqr.dat  10      fmt   T
+ abc.dat  14      fmt   F
+ abc.dat2  9      fmt   T
+  
+ FOPEN: file abc.dat2 unit 9  status 0 open=T
+
+ test ftflsh (stdout, abc.dat2)
+ ... testing ftflsh(6) ... after ftflsh(6)
+ ... calling ftflsh(-1)
+ ... calling ftflsh(ifi)
+ ... invoking system  call 'cat abc.dat2' ...
+% rows 2 cols 2 real l=" testing fopn"                                          
+       11.00       12.00
+       21.00       22.00
+% rows 2 cols 2 real l=" testing fopn"                                          
+       11.00       12.00
+       21.00       22.00
+ ... before ftflsh(-1)
+ ... before ftflsh(ifi)
+ ... after ftflsh(ifi)
+
+ ... system  call 'cat abc.dat2' returned... 0
+
+ restore ext to dat
+ FOPNX: set ext to ".dat"
+
+ test fclr (abc) by name
+
+ fopen:  3 files in table.  ext='.dat'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ pqr.dat  10      fmt   T
+ abc.dat2  9      fmt   T
+  
+
+ test fclr (pqr) by number
+
+ fopen:  2 files in table.  ext='.dat'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ abc.dat2  9      fmt   T
+  
+
+ test fopna (xyz) to show suppression of list
+ FOPEN: file xyz.dat unit 10  status 0 open=F
+ FOPEN: opening FORMATTED   file 'xyz.dat', status=UNKNOWN, unit= 10
+
+ fopen:  2 files in table.  ext='.dat'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ abc.dat2  9      fmt   T
+  
+ FOPEN: file xyz.dat unit 10  status 0 open=F
+ FOPEN: opening FORMATTED   file 'xyz.dat', status=UNKNOWN, unit= 10
+ after opening, read from xyz:  test               
+
+ ... test fxst (xyz) to show suppression of list
+ FOPEN: file xyz.dat unit 10  status -1 open=T
+ FOPEN: file zzz.dat unit 11  status -1 open=F
+ FOPEN: file xyz.123 unit 8  status -1 open=T
+ ifi for xyz is 1, for zzz is 0, for xyz.123 1
+
+ fopen:  3 files in table.  ext='.dat'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ abc.dat2  9      fmt   T
+ xyz.dat  10      fmt   T
+  
+
+ ... show fopn works without fadd
+ FOPEN: file tmp.dat unit 11  status 0 open=F
+ FOPEN: opening FORMATTED   file 'tmp.dat', status=UNKNOWN, unit= 11
+
+ fopen:  4 files in table.  ext='.dat'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ abc.dat2  9      fmt   T
+ xyz.dat  10      fmt   T
+ tmp.dat  11      fmt   T
+  
+
+ ... call fopnx to test locase, "NEW","OLD"
+ FOPEN: file TMP unit 12  status 2 open=F
+ FOPEN: opening FORMATTED   file 'TMP', status=NEW    , unit= 12
+
+ fopen:  5 files in table.  ext='.dat'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ abc.dat2  9      fmt   T
+ xyz.dat  10      fmt   T
+ tmp.dat  11      fmt   T
+ TMP      12      fmt   F
+  
+ FOPEN: file TMP unit 12  status 9 open=F
+ FOPEN: opening FORMATTED   file 'TMP', status=OLD    , unit= 12
+
+ fopen:  5 files in table.  ext='.dat'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ abc.dat2  9      fmt   T
+ xyz.dat  10      fmt   T
+ tmp.dat  11      fmt   T
+ TMP      12      fmt   T
+  
+
+ ... use path as pre-extension
+ FOPNX: set ext to ""
+ FOPNX: set path to "dat."
+ FOPEN: file dat.tmp unit 13  status 0 open=F
+ FOPEN: opening FORMATTED   file 'dat.tmp', status=UNKNOWN, unit= 13
+
+ fopen:  6 files in table.  path='dat.'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ abc.dat2  9      fmt   T
+ xyz.dat  10      fmt   T
+ tmp.dat  11      fmt   T
+ TMP      12      fmt   T
+ dat.tmp  13      fmt   T
+  
+
+ fopen:  5 files in table.  path='dat.'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ abc.dat2  9      fmt   T
+ xyz.dat  10      fmt   T
+ tmp.dat  11      fmt   T
+ TMP      12      fmt   T
+  
+
+ ... check opening as NEW
+ FOPEN: file dat.str unit 13  status 30 open=F
+ FOPEN: opening UNFORMATTED file 'dat.str', status=NEW    , unit= 13
+
+ fopen:  6 files in table.  path='dat.'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ abc.dat2  9      fmt   T
+ xyz.dat  10      fmt   T
+ tmp.dat  11      fmt   T
+ TMP      12      fmt   T
+ dat.str  13    unfmt   T
+  
+
+ ... check fopn, UNFORMATTED
+ FOPEN: file dat.str unit 13  status 0 open=F
+ FOPEN: opening UNFORMATTED file 'dat.str', status=UNKNOWN, unit= 13
+
+ fopen:  6 files in table.  path='dat.'
+ file     unit   mode  open
+ xyz.123   8    unfmt   T
+ abc.dat2  9      fmt   T
+ xyz.dat  10      fmt   T
+ tmp.dat  11      fmt   T
+ TMP      12      fmt   T
+ dat.str  13    unfmt   T
+  
+
+ fopen:  6 files in table.  path='dat.'
+ file     unit   mode  open
+ xyz.123   8    unfmt   F
+ abc.dat2  9      fmt   F
+ xyz.dat  10      fmt   F
+ tmp.dat  11      fmt   F
+ TMP      12      fmt   F
+ dat.str  13    unfmt   F
+  

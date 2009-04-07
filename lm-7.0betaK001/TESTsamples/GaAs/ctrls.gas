@@ -1,0 +1,4 @@
+% const da=0 
+STRUC   ALAT=10.66 DALAT={da} PLAT= 0 .5 .5    .5 0 .5    .5 .5 0
+SITE    ATOM=Ga  POS=0   0   0
+        ATOM=As  POS=.25 .25 .25

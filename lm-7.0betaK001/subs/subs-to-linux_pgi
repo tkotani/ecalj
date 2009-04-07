@@ -1,0 +1,10 @@
+echo --- subs-to-linux_pgi: ccomp to LINUX_PGI-specific ---
+
+../startup/ccomp-files -CCOMP=`egrep -E '\bCCOMP\b' Make.inc  | awk '{print $3}'` LINUX_PGI .
+
+# if (`grep 'FC =' Make.inc | awk '{print $3}'` == "pgf77") then
+# echo ... pgf77-specific: does not allow automatic arrays
+#   ../startup/ccomp-files -u AUTO-ARRAY .
+# endif
+
+echo --- completed subs-to-linux_pgi ---

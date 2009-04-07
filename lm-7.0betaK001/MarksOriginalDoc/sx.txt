@@ -1,0 +1,53 @@
+--- Screened-exchange package (v6.11) ---
+
+This is the ASA screened-exchange (SX) code adapted from Holger Rucker.
+It is still under development.
+
+The call entry is asasx, which executes the following flow :
+
+    1.   Make the unscreened static response function P0 (asxp0).
+         This is an asa-version: which means in this context,
+         (a) "bare" potential V0 is just Madelung matrix + local terms
+         (b) local term is a single number for each l.
+
+    2.   Make the nonlocal, static screened W from P0 and V0 (wstat)
+
+    3.   Subtract of the "local part" to W, done in one of two ways.
+         (v1)  the local part of P0 is calculated, and W[ploc] taken
+         for the static part
+         (v2)  W(q->0) estimated assuming W(q) prop q**2.
+
+    4.   Make Sigma(W) - Sigma(Wloc).  This is a perturbation correction
+
+    5.   (Optional) inverse Bloch transform Sigma.
+
+    6.   For each qp, add delta Sigma to potential, recalculate evals
+         and evecs.
+
+         Repeat steps 4,5,6 for niter times.
+
+--- Additions to the input file ---
+To create sigma, add token in category OPTIONS:
+
+ SX= #, where # signifies:
+     0 do nothing
+     1 Create ASA SX Sigma
+    11 Create ASA SX Sigma, including on-site interaction W
+
+To read sigma and add to hamiltonian, add token in category HAM
+ RDSIG= #
+     0 do not read sigma or add to hamiltonian
+     1 read sigma and add to hamiltonian
+     2 read sigma, symmetrize it, and add to hamiltonian
+
+
+ and optionally, a string with list of options separated by `;'
+
+ SXOPTS= string[;string...]
+
+         string:
+         nit=#         iterates for sigma # times, updating sigma
+                       with new evals but fixed P0.
+
+--- Test cases ---
+See file sx/README.

@@ -1,0 +1,21 @@
+%char0 ltdos="1,bold=3,col=0,0,0"
+
+fplot
+
+% var ymax=1.4 dy=0.035 dw=.00 ymax+=dy emin=-0.5 emax=0.5 ef=0.08988
+
+% var ymax-=dy+dw dy=0.035 dmin=0 dmax=5
+ -frme 0,1,{ymax-dy},{ymax} -p0 -x {emin},{emax} -y {dmin},{dmax} -1p -noxn
+ -colsy 2 -lt {ltdos} -qr dosp.dat
+ -lt 2,bold=3,col=0,0,0,2,.5,.05,.5 -tp 2~{ef},{dmin},{ef},{dmax}
+
+% var ymax-=dy+dw dy=0.035 dmin=0 dmax=5
+ -frme 0,1,{ymax-dy},{ymax} -p0 -x {emin},{emax} -y {dmin},{dmax} -1p -noxn
+ -colsy 3 -lt {ltdos} -qr dosp.dat
+ -lt 2,bold=3,col=0,0,0,2,.5,.05,.5 -tp 2~{ef},{dmin},{ef},{dmax}
+
+% var ymax-=dy+dw dy=0.28 dmin=0 dmax=40
+ -frme 0,1,{ymax-dy},{ymax} -p0 -x {emin},{emax} -y {dmin},{dmax} -1p
+ -colsy 4 -lt {ltdos} -qr dosp.dat
+ -lt 2,bold=3,col=0,0,0,2,.5,.05,.5 -tp 2~{ef},{dmin},{ef},{dmax}
+

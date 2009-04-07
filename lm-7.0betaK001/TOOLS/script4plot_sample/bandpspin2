@@ -1,0 +1,21 @@
+#!/bin/csh
+set ddd =  $argv[1]
+echo $ddd
+
+##############################################
+#if(-e wkp.$ddd) rm wkp.$ddd
+#lmf $ddd --quit=band    >llmf_ef
+##############################################
+#lmf --band:fn=syml $ddd >llmf_band
+
+foreach spin (spin1 spin2)
+echo -8,4,15,15|plbnds -fplot -ef=0 -scl=13.605 -$spin $ddd
+foreach xxx ( bnd*.dat)
+cp $xxx $xxx.$spin
+end
+cp plot.plbnds plot.plbnds.$ddd.$spin
+fplot -f plot.plbnds.$ddd.$spin
+mv ps.dat band.$ddd.$spin.ps
+end
+
+#plbnds -fplot -ef=0 -scl=13.605 -spin2 eras

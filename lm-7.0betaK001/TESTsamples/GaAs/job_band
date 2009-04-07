@@ -1,0 +1,11 @@
+#!/bin/bash
+ddd=gas
+lmdir=../..
+rm -rf wkp.$ddd
+$lmdir/lmf $ddd --quit=band    |tee llmf_ef
+$lmdir/lmf --band:fn=syml $ddd 
+
+echo -15,15,15,15|$lmdir/plbnds -fplot -ef=0 -scl=13.605 $ddd
+$lmdir/fplot -f plot.plbnds
+echo 'Check ps.dat(postscript)!'
+

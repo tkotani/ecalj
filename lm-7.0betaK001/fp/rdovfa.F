@@ -1,0 +1,318 @@
+      subroutine rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,orhoat)
+C- Read and overlap free atom densities.
+C  Also allocates orhoca with free-atom core density.
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   nbas  :size of basis
+Ci   nspec :number of species
+Ci   ssite :struct containing site-specific information
+Ci   sspec :struct containing species-specific information
+Ci   slat  :struct containing information about the lattice
+Ci   qbg   :constant background charge
+Co Outputs
+Co   orhoat:vector of offsets containing site density, in standard
+Co          3-component form (true rho, smoothed rho, core rho)
+Co   smrho :smoothed interstitial density
+Co         :* for smrho = smoothed mesh density, smrho is complex and
+Co         :  smrho = smrho(k1,k2,k3)
+Cl Local variables
+Ci   k1,k2,k3 dimensions of smrho for smoothed mesh density
+Cr Remarks
+Cu Updates
+Cu   12 May 07 package mpi-specific calls
+Cu   02 Jan 06 generates core magnetic moment, checks against spec->qcor
+Cu   01 Jul 05 Zero-radius empty spheres treated as local orbitals
+Cu   12 Apr 03 (WRL) Added constant charge background
+Cu   15 Feb 02 (ATP) Added MPI parallelization
+Cu   13 Jun 00 spin polarized
+Cu   21 Apr 00 Adapted from nfp rdovfa.f
+C ----------------------------------------------------------------------
+C     implicit none
+C ... Passed parameters
+      integer procid, master, mpipid
+      integer nbas,nspec,orhoat(3,nbas)
+      double precision ssite(1),sspec(1),slat(1),spot(1),qbg
+C ... Local parameters
+      integer nrmx, n0
+      parameter ( nrmx=1501, n0=10 )
+      integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
+      double precision rsmfa(nspec),pnu(n0,2),exi(n0,nspec),
+     .  hfc(n0,2,nspec),hfct(n0,2,nspec)
+      character*8 spid(nspec),spidr
+      integer ipr,iprint,ngabc(3),n1,n2,n3,k1,k2,k3,nsp,nglob,lgunit,
+     .  stdo,stdl,i,ifi,fopna,is,nr,lfoc,nr0,i1,nch,ib,igetss,lmxl,nlml,
+     .  ov0,ov1,orwgt,ng,ogv,okv,ocv,iofa,osmrho,kcor,lcor
+      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+      double precision alat,plat(3,3),a,rmt,z,rfoc,z0,rmt0,a0,qc,ccof,
+     .  ceh,stc,ztot,ctot,corm,sum,fac,sum1,sum2,sqloc,dq,vol,smom,
+     .  slmom,qcor(2)
+      character msg*23, strn*120
+      logical mlog,cmdopt,lfail
+C ... Heap
+      integer w(1)
+      common /w/ w
+
+      call tcn('rdovfa')
+      ipr   = iprint()
+      stdo  = lgunit(1)
+      stdl  = lgunit(2)
+      nsp   = nglob('nsp')
+      msg   = '         File mismatch:'
+      call upack1('pot osmrho',spot,osmrho)
+      procid = mpipid(1)
+C     numprocs = mpipid(0)
+      master = 0
+      mlog = cmdopt('--mlog',6,0,strn)
+
+      if (ipr .ge. 10) write(stdo,700)
+  700 format(/' rdovfa: read and overlap free-atom densities',
+     .        ' (mesh density) ...')
+      call upack('lat alat plat vol nabc',slat,alat,plat,vol,ngabc,0)
+      call fftz30(n1,n2,n3,k1,k2,k3)
+      call dpzero(hfc,n0*2*nspec)
+      call dpzero(pnu,n0*2)
+
+C  --- Read free-atom density for all species ---
+C      if (ipr .ge. 30) write(stdo,*) ' '
+       if (procid .eq. master) then
+         ifi = fopna('atm',-1,0)
+         rewind ifi
+       endif
+       do  10  is = 1, nspec
+        call defrr(orhofa(is),   -nrmx*nsp)
+        call defrr(orhoca(is),   -nrmx*nsp)
+        call defrr(ov0a(is),     -nrmx*nsp)
+        call spacks(0,'spec name',sspec,spid(is),is,is)
+        call upack('spec a nr rmt z',sspec,is,a,nr,rmt,z)
+        call upack('spec lfoca rfoca',sspec,is,lfoc,rfoc,0,0)
+        lfail = .false.
+        if (procid .eq. master) then
+        if (z .eq. 0 .and. rmt .eq. 0) then
+          nxi(is) = 0
+          call dpzero(exi(1,is),n0)
+          call dpzero(hfc(1,1,is),2*n0)
+          call dpzero(hfct(1,1,is),2*n0)
+          rsmfa(is) = 0
+          z0=0
+          rmt0=0
+          a0=0
+          nr0=0
+          qc=0
+          ccof=0
+          ceh=0
+          stc=0
+          call rlse(ov0a(is))
+          call rlse(orhoca(is))
+          call rlse(orhofa(is))
+        else
+          lfail = 
+     .     (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
+     .      hfct(1,1,is),rsmfa(is),z0,rmt0,a0,nr0,qc,ccof,
+     .      ceh,stc,w(orhofa(is)),w(orhoca(is)),w(ov0a(is)),ifi)
+     .      .lt. 0)
+        endif
+        endif
+        call mpibc1(nr0,1,2,mlog,'rdovfa','nr0')
+        call mpibc1(lfail,1,1,mlog,'rdovfa','read error')
+        if (lfail) call rxs('missing species data, species ',spid(is))
+C       i = mpipid(3)
+C   ... Broadcast file data
+        call mpibc1(nxi(is),1,2,mlog,'rdovfa','nxi')
+        call mpibc1(exi(1,is),nxi(is),4,mlog,'rdovfa','exi')
+        call mpibc1(hfc(1,1,is),nsp*n0,4,mlog,'rdovfa','hfc')
+        call mpibc1(hfct(1,1,is),nsp*n0,4,mlog,'rdovfa','hfct')
+        call mpibc1(rsmfa(is),1,4,mlog,'rdovfa','rsmfa')
+        call mpibc1(a0,1,4,mlog,'rdovfa','a0')
+        call mpibc1(w(orhofa(is)),nr0*nsp,4,mlog,'rdovfa','rhofa')
+        call mpibc1(w(orhoca(is)),nr0*nsp,4,mlog,'rdovfa','rhoca')
+        call mpibc1(w(ov0a(is)),nr0*nsp,4,mlog,'rdovfa','v0a')
+        i = mpipid(3)
+
+C ...   Defaults
+        if (procid .eq. master) then
+          call strip(spid(is),i1,nch)
+          if (ipr .ge. 30 .and. rmt0 .ne. 0)
+     .      write(stdo,400) spid(is)(1:nch),spidr,rmt0,nr0,a0
+  400     format(' rdovfa: expected ',a,',',T27,' read ',a,
+     .           ' with rmt=',f8.4,'  mesh',i6,f7.3)
+        endif
+        if (nr .le. 0)   nr = nr0
+        if (a .le. 1d-6) a = a0
+        if (z .eq. 0 .and. rmt .eq. 0) then
+          a = 0
+          nr = 0
+        endif
+
+C ...   Sanity checks
+        if (procid .eq. master) then
+          call fsanrg(z0,z,z,0d-9,msg,'z',.true.)
+          call fsanrg(rmt0,rmt,rmt,1d-6,msg,'rmt',.true.)
+          call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
+          call isanrg(nr0,nr,nr,msg,'nr',.true.)
+        endif
+
+C ...   Pack into sspec
+        call pack5('spec a nr qc',sspec,is,a,nr,qc,0)
+        call pack5('spec nxi exi chfa rsmfa',sspec,is,nxi(is),
+     .    exi(1,is),hfc(1,1,is),rsmfa(is))
+        call pack5('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
+     .    orhoca(is))
+   10 continue
+C     Wait for all proccesses to synchronize
+      i = mpipid(3)
+C     Re-broadcast entire species structure, and arrays used below
+      call mpibc1(sspec,nspec*nint(sspec(1)),4,0,'rdovfa','sspec')
+      if (procid .eq. master) then
+        call fclose(ifi)
+      endif
+
+C --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
+      ztot = 0d0
+      ctot = 0d0
+      corm = 0d0
+      do  20  ib = 1, nbas
+        is = igetss('site spec',ib,ssite)
+        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+        call upack('spec lmxl z qc',sspec,is,lmxl,z,qc,0)
+        call upack('spec lfoca',sspec,is,lfoc,0,0,0)
+C        call upack('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
+C     .      orca)
+
+        nlml = (lmxl+1)**2
+        call defrr (orhoat(1,ib),  nr*nlml*nsp)
+        call defrr (orhoat(2,ib),  nr*nlml*nsp)
+        call defrr (orhoat(3,ib),  nr*nsp)
+        call defrr (ov0,           nr*nsp)
+        call defrr (ov1,           nr*nsp)
+
+C       Core magnetic moment (possible if magnetized core hole)
+        if (nsp .eq. 2 .and. lmxl .gt. -1) then
+          call defrr(orwgt, nr)
+          call radwgt(rmt,a,nr,w(orwgt))
+          call radsum(nr,nr,1,nsp,w(orwgt),w(orhoca(is)),sum)
+          call radsum(nr,nr,1,1,w(orwgt),w(orhoca(is)),sum1)
+          sum2 = sum - sum1
+          call gtpcor(sspec,is,kcor,lcor,qcor)
+
+          if (dabs(qcor(2)-(sum1-sum2)) .gt. 0.01d0) then
+            call info5(10,0,0,' (warning) core moment mismatch spec %i:'
+     .        //'  input file=%;6d  atom file=%;6d',
+     .        is,qcor(2),sum1-sum2,0,0)
+          endif
+          corm = corm + qcor(2)
+          call rlse(orwgt)
+        endif
+
+        if (lmxl .gt. -1) then
+          call dpcopy(w(ov0a(is)),  w(ov0),  1,nr*nsp,1d0)
+          call dpcopy(w(ov0a(is)),  w(ov1),  1,nr*nsp,1d0)
+          call dpcopy(w(orhoca(is)),w(orhoat(3,ib)),1,nr*nsp,1d0)
+  
+          if (lfoc .eq. 0) then
+            call defrr(orwgt, nr)
+            call radwgt(rmt,a,nr,w(orwgt))
+            call radsum(nr,nr,1,nsp,w(orwgt),w(orhoat(3,ib)),sum)
+            fac = 1d0
+            if(dabs(sum) .gt. 1d-7) fac = qc/sum
+            if (ipr .ge. 40) write(stdo,787) is,qc,sum,fac
+  787       format(' scale foca=0 core species',i2,': qc,sum,scale=',
+     .        3f12.6,f12.6)
+            call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
+            call rlse(orwgt)
+          endif
+        endif
+
+        call pack5('site ov0 ov1',ssite,ib,ov0,ov1,0,0)
+        ztot = ztot+z
+        ctot = ctot+qc
+
+C     end loop over sites
+   20 continue
+
+C --- Overlap smooth hankels to get smooth interstitial density ---
+      call upack('lat ng ogv okv',slat,ng,ogv,okv,0,0)
+      call defcc(ocv, ng*nsp)
+      call ovlpfa(ssite,slat,nbas,nxi,n0,exi,hfc,rsmfa,ng,ng,w(ogv),
+     .  w(ocv))
+
+ccccccccccccccc
+c        is=1
+c        call upack('spec nr',sspec,is,nr,0,0,0)
+c        print *,' qqq: aaaaaaaaaaaaaaaaaaaaaaa is nr='
+c     &     ,is, nr,ng,nsp,k1,k2,k3,okv,ocv,osmrho
+c        call wkchk('qqq: aaa')
+c        print *,' qqq: okv ocv osmrho=', okv,ocv,osmrho
+ccccccccccccccc
+
+      call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocv),w(osmrho))
+
+ccccccccccccccc
+c        is=1
+c        call upack('spec nr',sspec,is,nr,0,0,0)
+c        call wkchk('qqq: 1bb')
+c        print *,'qqq: 2 aaaaaaaaaaaaaaaaaaaaaaa is nr=',is, nr
+c        stop 'xxxxxxx'
+ccccccccccccccc
+      call rlse(ocv)
+
+
+
+C ... FFT to real-space mesh
+      call fftz3(w(osmrho),n1,n2,n3,k1,k2,k3,nsp,0,1)
+C ... Add compensating uniform electron density to compensate background
+      call addbkgsm(w(osmrho),k1,k2,k3,nsp,qbg,vol,-1d0)
+C ... integrate
+      call mshint(vol,nsp,n1,n2,n3,k1,k2,k3,w(osmrho),sum1,sum2)
+      if (nsp .eq. 2) then
+        call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmrho),smom,sum2)
+        smom = 2*smom - sum1
+      endif
+C --- Set up local densities using rmt from atm file ---
+
+
+      call ovlocr(nbas,ssite,sspec,slat,n0,nxi,exi,hfc,rsmfa,orhofa,
+     .  orhoat,sqloc,slmom)
+C --- Add compensating uniform electron density to compensate background
+      call adbkql(orhoat,nbas,nsp,qbg,vol,-1d0,sspec,ssite)
+      if (abs(qbg) .ne. 0) call info(10,0,0,' Uniform '//
+     .  'density added to neutralize background, q=%;6,6d',qbg,0)
+
+C --- Print charges ---
+      dq = sum1+sqloc+ctot-ztot+qbg
+      if (nsp .eq. 1) then
+        if (ipr .ge. 10)
+     .  write(stdo,895) sum1,sqloc,sum1+sqloc,ctot,-ztot,qbg,dq
+  895   format(/' Smooth charge on mesh:    ',f16.6
+     .     /    ' Sum of local charges:     ',f16.6
+     .     /    ' Total valence charge:     ',f16.6
+     .     /    ' Sum of core charges:      ',f16.6
+     .     /    ' Sum of nuclear charges:   ',f16.6
+     .     /    ' Homogeneous background:   ',f16.6
+     .     /    ' Deviation from neutrality:',f16.6)
+        if (ipr .ge. 10) write (stdl,710) sum1+sqloc,sum1,sqloc,qbg,dq
+  710   format('ov qvl',f11.6,'  sm',f11.6,'  loc',f11.6,
+     .    '   bg',f10.6,'  dQ',f10.6)
+      else
+        if (ipr .ge. 10) write(stdo,896) sum1,smom,sqloc,slmom,
+     .    sum1+sqloc,smom+slmom,ctot,corm,-ztot,qbg,dq
+  896   format(/' Smooth charge on mesh:    ',f16.6,4x,'moment', f12.6,
+     .     /    ' Sum of local charges:     ',f16.6,4x,'moments',f11.6,
+     .     /    ' Total valence charge:     ',f16.6,4x,'moment', f12.6,
+     .     /    ' Sum of core charges:      ',f16.6,4x,'moment', f12.6,
+     .     /    ' Sum of nuclear charges:   ',f16.6
+     .     /    ' Homogeneous background:   ',f16.6
+     .     /    ' Deviation from neutrality:',f16.6)
+        if (ipr .ge. 10)
+     .  write (stdl,711) sum1+sqloc,sum1,sqloc,qbg,smom+slmom
+  711   format('ov qvl',f11.6,'  sm',f11.6,'  loc',f11.6,
+     .    '   bg',f11.6,' mm',f11.6)
+      endif
+
+      if (dabs(dq) .gt. 1d-4 .and. ipr .gt. 0)
+     .  call awrit1(' rdovfa (warning) overlapped'
+     .  //' density not neutral'//', dq= %d',' ',80,stdo,dq)
+
+      call tcx('rdovfa')
+
+      end
+

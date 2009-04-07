@@ -1,0 +1,13 @@
+h minx=1 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=3 conv=1e-4 les=1 ehf=-14561.1415765 ehk=-14561.1270583
+i minx=1 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=3 conv=1e-4 les=1 ehf=-14561.131196 ehk=-14561.1311873
+c minx=1 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=3 conv=1e-4 les=1 ehf=-14561.1311545 ehk=-14561.1311593
+i minx=1 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=3 conv=1e-4 les=1 ehf=-14561.1404363 ehk=-14561.1389176
+i minx=1 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=3 conv=1e-4 les=1 ehf=-14561.13972 ehk=-14561.1397004
+c minx=1 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=3 conv=1e-4 les=1 ehf=-14561.1398138 ehk=-14561.1398067
+i minx=1 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=3 conv=1e-4 les=1 ehf=-14561.1394741 ehk=-14561.1394304
+c minx=1 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=3 conv=1e-4 les=1 ehf=-14561.1393951 ehk=-14561.1393948
+C minx=1 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=3 conv=1e-4 les=1 ehf=-14561.1393951 ehk=-14561.1393948
+i minx=0 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=5 conv=1e-4 pwmode=11 ehf=-14561.1423349 ehk=-14561.1423224
+c minx=0 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=5 conv=1e-4 pwmode=11 ehf=-14561.1423193 ehk=-14561.1423182
+i minx=0 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=3 conv=1e-4 ehf=-14561.1354124 ehk=-14561.1353874
+c minx=0 nk=3 nit=20 lf1=4 lmxl=4 ngd=20 kmx=3 conv=1e-4 ehf=-14561.1354136 ehk=-14561.1354126

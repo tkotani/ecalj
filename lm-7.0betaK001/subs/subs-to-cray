@@ -1,0 +1,8 @@
+echo --- subs-to-cray: ccomp to CRAY-specific ---
+
+foreach i  ( ` egrep -l 'ifn*defC* CRAY' *.f ` )
+  rm -f xx.f ; ccomp -uCRAY $i xx.f
+  ccomp -dCRAY xx.f $i
+end
+
+rm -f xx.f

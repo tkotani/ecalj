@@ -1,0 +1,107 @@
+The biggest externally visible change wrt version 5 is that species
+are now entered as opposed to classes.  Program internally splits
+species up into classes.
+
+The internals of the ASA suite were significantly redesigned, mostly
+in that it mimics C-like structures in an fortran-77 ansi standard
+like way.  The biggest externally visible change is that species are
+now entered as opposed to classes.  Category 'CLASS' is now obsolete,
+and is replaced by 'SPEC', though you can still continue to use CLASS
+for compatibility with previous versions.
+
+Classes must be symmetry related; species need not be.  All elements
+belonging to a species will have the same atomic number, basis, MT
+radius, lmx, etc.  The program internally splits species into
+classes.
+
+'SYMGRP' is no longer required.  If you neglect it, the program will
+find the space group for you, and print out a list of generators
+needed to create the group.  Alternatively, you can include the
+keyword 'find' among the generators you do list, and the program will
+add to space group you specify.  Whenever the program tries to add to
+the space group, it checks to ensure the basis is compatible with the
+group.  If you enter an incompatible group, the program will enlarge
+the basis for you to make it compatible, and exit (you must change the
+input file to reflect the added basis).  Also, you may encounter a
+message like
+
+ ADDBAS: atom 347, SPEC E13  POS=  2.25000 -2.25000 -1.25000
+     and atom 275, SPEC E14  POS=  2.25000  2.25000  3.25000
+     are at the same positions. 
+
+you must do something to rectify the problem.
+
+If you do NOT have the program to complete the group for you,
+no checks are made on the compatibilty of the basis and the
+atom positions.  In that case, if they are inconsistent,
+the program may hang when attempting to split up the classes.
+The last output you see will be a line such as:
+
+ MK_SYM: found 24 space group operations; adding inversion generated 48 ops
+
+
+A few quantities in the input file are of a new 'structure' type.
+For now, structures are read in using the a format like 
+
+   TOKEN: entry1,entry2,...
+
+There are many internal changes, to make way for future unification of
+full-potential programs with the ASA suite.  Data are stored in
+structures (see lstra.f).
+
+Version 6.12
+
+1. Documentation extensively revised, and written in html.
+
+2. Local orbitals added to program lmf.
+
+3. New program lmmag
+
+Version 6.11
+
+1.  New program lmfgw
+
+Version 6.10
+
+1.  New program lmf
+
+2.  New categories HAM and DYN were created.
+    MSTAT and MDYN should were moved from OPTIONS or TB to here.
+
+3.  Most switches (--input, --show, etc) now require two dashes.
+
+Version 6.1
+
+1.  The switch to see a description of input was changed to 
+    -input (it was -help)
+
+2.  The switch to see the parsed input file was changed to
+    -showp (it was -show0)
+
+3.  METAL= switch (BZ) is an integer, to allow for several kinds of 
+    treatment. Not all of the modes work as yet.
+
+4.  gradient corrections switch (OPTIONS) was changed to 
+    GRCOR=t from LMH=t
+
+5.  MTCOR,ZBAK have been merged into a structure of the type
+    ZBAK: switch,zbak.
+
+6.  Input for spin dynamics is a a structure that looks like
+    SDYN:  force,sd-mode,sdprms
+    There is no longer a second argument to NONCOL=
+
+7.  Euler angles can be l- or lm-dependent; one flags this by
+    setting e.g. 'neula 9' or 'neula 3' in the euler angles
+    file.  See nc/test/eula-l.ran and eula-lm.ran for examples.
+
+8.  The STONER= input will change slightly.  As of now the
+    Stoner branch does not work.
+
+9.  Token INVIT= was moved to the BZ category.
+
+10. Token TET= was replaced by the vector input SHEAR=
+
+11. (lmfit--not relevant anyway) rfit is scaled by 1/avw
+
+12. lmovl is superceded by lmchk.  lmsf1 is no longer needed.

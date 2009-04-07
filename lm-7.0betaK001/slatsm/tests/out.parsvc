@@ -1,0 +1,12 @@
+ lsw=T  ip=8  v= 1 0 0 z(1,0,0)zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz )z
+ lsw=T  ip=8  v= 0 1 0 z(0,1,0)zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz )z
+ lsw=T  ip=8  v= 0 0 1 z(0,0,1)zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz )z
+ lsw=T  ip=8  v= 1 1 1 z(1,1,1)zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz )z
+ lsw=T  ip=14  v= 0.333333 0.25 0.3 z(1/3,1/4,0.3)zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+ lsw=T  ip=21  v= 0.3333333 0.25 0.3 z(0.3333333,0.25,0.3)zzzzzzzzzzzzzzzzzzzzzz
+ lsw=T  ip=38  v= 0.7216878 -0.8660254 0.2886751 z(5*sqrt(3)/12,-1*sqrt(3)/2,sqrt(3)/6)zzzzzzzz
+ lsw=T  ip=2  v= 1 0 0 xa
+ lsw=T  ip=2  v= 0 1 0 yb
+ lsw=T  ip=2  v= 0 0 1 zc
+ lsw=T  ip=2  v= 1 1 1 Dd
+ lsw=T  ip=14  v= 0.1 1 0.785398 )e

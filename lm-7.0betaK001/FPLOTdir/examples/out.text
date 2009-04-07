@@ -1,0 +1,24 @@
+ fplot file "-tp"  pass 1
+ fplot file "-tp"  pass 1
+ fplot file "-tp"  pass 1
+ expand:  4 points generated
+ fplot file "-tp"  pass 2
+ mapdat: 2 points
+ FRME : axes at x=0 1  y=0 1  bold=3
+       xt1=0 tsx=.1 mtx=2  yt1=0 tsy=.1 mty=2
+ plcrv: new curve, 2 pts lt 1 bold 3
+ fplot: set line type 1 bold 1
+ expand:  4 points generated
+ fplot file "-tp"  pass 2
+ mapdat: 2 points
+ plcrv: new curve, 2 pts lt 1 bold 1
+ fplot: set line type 1 bold 1
+ expand:  4 points generated
+ fplot file "-tp"  pass 2
+ mapdat: 2 points
+ plcrv: new curve, 2 pts lt 1 bold 1
+ pstr: rc: blk=T  "~{Dj}_{t_{2_{g}}}~{-a}^{4}" at .3,.2(u) 262.8,313.2(m)
+ pstr: lc: blk=T  "2^{~{b}}~{P}_{k^{2}}=2^{~{a}}" at .3,.7(u) 262.8,511.2(m)
+ pstr: ru: blk=T  "Text above horizontal line" at .3,.4(u) 262.8,392.4(m)
+ pstr: ld: blk=T  "Text in ld orientation (eV)" at .3,.4(u) 262.8,392.4(m)
+ pstr: rc: rot=55 blk=T  "Text at 55 degree angle" at .3,.4(u) 262.8,392.4(m)

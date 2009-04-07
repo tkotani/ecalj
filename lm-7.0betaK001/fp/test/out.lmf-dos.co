@@ -1,0 +1,491 @@
+rdcmd:  lmfa  co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv
+ -----------------------  START LMFA (80000K)  -----------------------
+ HEADER Master file for transition and other elemental metals
+
+ LMFA:     alat = 4.70314  nbas = 2  nspec = 1  vn 7.00(LMFA 7.0)  verb 31,20
+ pot:      spin-pol, XC:BH
+
+                Plat                                  Qlat
+   0.000000  -1.000000   0.000000        0.577350  -1.000000   0.000000
+   0.866025   0.500000   0.000000        1.154701   0.000000   0.000000
+   0.000000   0.000000   1.632993        0.000000   0.000000   0.612372
+  Cell vol= 147.121922
+
+ LATTC:  as= 2.000   tol=1.00E-06   alat= 4.70314   awald= 0.379
+         r1=  3.072   nkd=  75      q1=  2.875   nkg= 135
+
+ SGROUP: 1 symmetry operations from 0 generators
+ SYMLAT: Bravais system is hexagonal with 24 symmetry operations.
+ SYMCRY: crystal invariant under 24 symmetry operations for tol=1e-5
+ GROUPG: the following are sufficient to generate the space group:
+         i*r3z:(-1*sqrt(3)/6,-1/2,-0.8164966) r2z:(-1*sqrt(3)/6,-1/2,0.8164966) r2x
+         i*r3z::(1/3,-1/3,-1/2) r2z::(1/3,-1/3,1/2) r2x
+ MKSYM:  found 24 space group operations ... includes inversion
+ 
+conf:SPEC_ATOM= A : --- Table for atomic configuration ---
+conf int(P)z = int(P) where P is replaced by PZ if it is semicore
+conf:  isp  l  int(P) int(P)z    Qval    Qcore   CoreConf
+conf:    1  0       4  4        1.000    3.000 => 1,2,3,
+conf:    1  1       4  4        0.000    6.000 => 2,3,
+conf:    1  2       3  3        2.500    0.000 => 
+conf:-----------------------------------------------------
+conf:    2  0       4  4        1.000    3.000 => 1,2,3,
+conf:    2  1       4  4        0.000    6.000 => 2,3,
+conf:    2  2       3  3        4.500    0.000 => 
+conf:-----------------------------------------------------
+
+ Species A:  Z=27  Qc=18  R=2.599279  Q=0  mom=-2
+ mesh:   rmt=2.599279  rmax=49.169856  a=0.01  nr=993  nr(rmax)=1287
+  Pl=  4.5     4.5     3.5     spn 2   4.5     4.5     3.5    
+  Ql=  1.0     0.0     2.5     spn 2   1.0     0.0     4.5    
+
+  iter     qint         drho          vh0          rho0          vsum     beta
+    1   27.000000   1.052E+04      135.0000    0.1343E+03      -54.2860   0.30
+   55   27.000000   4.505E-05      247.1917    0.2068E+05     -154.0943   0.30
+
+ Spin 1:
+ vrmax=    -0.00002    sumev=     -1.78947    sumec=  -813.65755
+ rhovh= -2137.07385    rhoeps=   -55.01586    rhomu=   -72.14255
+ Spin 2:
+ vrmax=    -0.00002    sumev=     -3.52947    sumec=  -814.54138
+ rhovh= -2167.40780    rhoeps=   -58.83956    rhomu=   -78.54143
+
+ sumev=-5.318948  etot=-2781.537089  eref=-2781.652400  diff= 0.115311
+
+ Free-atom wavefunctions:
+ valence:      eval       node at      max at       c.t.p.   rho(r>rmt)
+   4s      -0.40952         0.963       2.333       3.633     0.549649
+   4p      -0.10371         1.055       3.283       6.554     0.827608
+   3d      -0.55198         0.000       0.667       3.126     0.036616
+
+ core:        ecore       node at      max at       c.t.p.   rho(r>rmt)
+   1s    -556.73759         0.000       0.037       0.075     0.000000
+   2s     -65.86374         0.076       0.214       0.334     0.000000
+   2p     -56.48619         0.000       0.172       0.365     0.000000
+   3s      -7.40172         0.314       0.669       0.976     0.000082
+   3p      -4.73198         0.284       0.678       1.179     0.000473
+
+ spin 2:
+   4s      -0.43705         0.959       2.277       3.516     0.522125
+   4p      -0.11245         1.047       3.145       6.291     0.805419
+   3d      -0.68721         0.000       0.663       2.821     0.027833
+
+ core:        ecore       node at      max at       c.t.p.   rho(r>rmt)
+   1s    -556.73856         0.000       0.037       0.075     0.000000
+   2s     -65.94393         0.076       0.214       0.334     0.000000
+   2p     -56.54805         0.000       0.172       0.366     0.000000
+   3s      -7.55906         0.314       0.669       0.975     0.000076
+   3p      -4.88523         0.284       0.678       1.176     0.000429
+
+ Optimise free-atom basis for species A, rmt=2.599279
+ l  it    Rsm      Eh     stiffR   stiffE      Eval      Exact     Pnu    Ql
+ 0  24   2.395  -0.348     101.3    303.6   -0.40943  -0.40952    4.80   1.00
+ ... rsm exceeded rmt*2/3 .. repeat with rsm=rmt
+ 0   4   1.733  -0.172     101.3   2275.8   -0.40377  -0.40952    4.80   1.00
+ 1  12   2.518  -0.100      95.5    947.5   -0.10057  -0.10371    4.64   0.00
+ ... rsm exceeded rmt*2/3 .. repeat with rsm=rmt
+ 1   1   1.733  -0.100      95.5   -538.0   -0.04991  -0.10371    4.64   0.00
+ 2  30   1.048  -0.236      69.4     52.4   -0.55190  -0.55198    3.90   2.50
+ eigenvalue sum:  exact  -1.78947    opt basis  -1.78352    error 0.00596
+
+ Optimise free-atom basis for species A, rmt=2.599279
+ l  it    Rsm      Eh     stiffR   stiffE      Eval      Exact     Pnu    Ql
+ 0  34   2.299  -0.361     110.7    309.4   -0.43699  -0.43705    4.81   1.00
+ ... rsm exceeded rmt*2/3 .. repeat with rsm=rmt
+ 0   5   1.733  -0.196     110.7   1713.3   -0.43247  -0.43705    4.81   1.00
+ 1  13   2.403  -0.100     113.1   1070.8   -0.10967  -0.11245    4.66   0.00
+ ... rsm exceeded rmt*2/3 .. repeat with rsm=rmt
+ 1   1   1.733  -0.100     113.1   -183.9   -0.06996  -0.11245    4.66   0.00
+ 2  30   1.012  -0.333      45.7     33.4   -0.68715  -0.68721    3.90   4.50
+ eigenvalue sum:  exact  -3.52947    opt basis  -3.52463    error 0.00485
+
+ tailsm: fit tails to 6 smoothed hankels, rmt= 2.59928, rsm= 1.29964
+ E:    -1.00000    -2.00000    -4.00000    -6.00000    -9.00000    -15.0000
+ C:    -0.00590    6.673302    -80.8337    509.0685    -2426.88    18063.48
+        r          rho         fit         diff
+    2.599279    0.006226    0.006223    0.000003
+    2.872661    0.004272    0.004273   -0.000001
+    3.174795    0.002816    0.002815    0.000001
+    3.508705    0.001769    0.001769    0.000000
+    3.877732    0.001053    0.001053    0.000000
+    4.285570    0.000589    0.000589    0.000000
+    4.736301    0.000308    0.000308    0.000000
+    5.234435    0.000150    0.000150    0.000000
+    5.784959    0.000067    0.000067    0.000000
+    6.393382    0.000027    0.000028    0.000000
+    7.065793    0.000010    0.000010    0.000000
+    7.808922    0.000003    0.000003    0.000000
+    8.630207    0.000001    0.000001    0.000000
+    q(fit):     0.641194    rms diff:   0.000002
+    fit: r>rmt  0.641194   r<rmt  1.271618   qtot  1.912812
+    rho: r>rmt  0.641194   r<rmt  2.858806   qtot  3.500000
+
+ tailsm: spin 2 ...
+ E:    -1.00000    -2.00000    -4.00000    -6.00000    -9.00000    -15.0000
+ C:    -0.06261    6.790287    -108.043    858.1153    -4605.96    36770.92
+        r          rho         fit         diff
+    2.599279    0.007170    0.007163    0.000007
+    2.872661    0.004672    0.004674   -0.000002
+    3.174795    0.002941    0.002939    0.000001
+    3.508705    0.001773    0.001773    0.000000
+    3.877732    0.001016    0.001016   -0.000001
+    4.285570    0.000549    0.000548    0.000000
+    4.736301    0.000277    0.000277    0.000000
+    5.234435    0.000130    0.000130    0.000000
+    5.784959    0.000056    0.000057    0.000000
+    6.393382    0.000022    0.000023    0.000000
+    7.065793    0.000008    0.000008    0.000000
+    7.808922    0.000003    0.000003    0.000000
+    q(fit):     0.647380    rms diff:   0.000004
+    fit: r>rmt  0.647380   r<rmt  1.791701   qtot  2.439080
+    rho: r>rmt  0.647380   r<rmt  4.852620   qtot  5.500000
+
+ coretail: q=0.00181, rho(rmt)=0.00286.  Fit with Hankel e=-21.358  coeff=774.9
+      r            rhoc          fit
+    2.599279    0.01222049    0.01222049
+    2.651791    0.00977463    0.00978091
+    2.787757    0.00547684    0.00548525
+    2.930695    0.00297493    0.00297867
+    3.080962    0.00156421    0.00156364
+    3.238933    0.00079487    0.00079212
+    3.405003    0.00038972    0.00038653
+    3.579588    0.00018402    0.00018134
+    3.763124    0.00008353    0.00008163
+    3.956070    0.00003637    0.00003518
+    4.158908    0.00001516    0.00001448
+    4.372147    0.00000603    0.00000568
+    4.596318    0.00000229    0.00000212
+    4.831983    0.00000083    0.00000075
+    5.079730    0.00000028    0.00000025
+    5.340180    0.00000009    0.00000008
+    5.613984    0.00000003    0.00000002
+ 
+  Write mtopara.* ...
+
+ Sum of reference energies: -5563.3048
+ Exit 0 LMFA 
+ wkinfo:  used   142 K  workspace of 80000 K   in   0 K calls
+rdcmd:  lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2
+ -----------------------  START LMF (80000K)  -----------------------
+ HEADER Master file for transition and other elemental metals
+
+ LMF:      alat = 4.70314  nbas = 2  nspec = 1  vn 7.00(LMF 7.0)  verb 31,20
+ pot:      spin-pol, XC:BH
+ bz:       metal(4), tetra 
+
+                Plat                                  Qlat
+   0.000000  -1.000000   0.000000        0.577350  -1.000000   0.000000
+   0.866025   0.500000   0.000000        1.154701   0.000000   0.000000
+   0.000000   0.000000   1.632993        0.000000   0.000000   0.612372
+  Cell vol= 147.121922
+
+ LATTC:  as= 2.000   tol=1.00E-06   alat= 4.70314   awald= 0.379
+         r1=  3.072   nkd=  75      q1=  2.875   nkg= 135
+
+ Generator 1 already in group as element 1
+ SGROUP: 1 symmetry operations from 1 generators
+ MKSYM:  found 1 space group operations; adding inversion generated 2 ops
+
+ SPLCLS:  1 species split into 2 classes
+ Species  Class      Sites...
+ A        1:A        1
+          2:A2       2
+ 
+ BZMESH:  260 irreducible QP from 512 ( 8 8 8 )  shift= F F F
+ TETIRR: sorting 3072 tetrahedra ...
+ 1536 inequivalent ones found
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ A        2.599  1.040    2    3         2  0.650  1.300    15    1   1.040
+
+ gvlist: cutoff radius   8.016 gives   1273   recips of max   2880
+ SGVSYM: 1273 symmetry stars found for 1273 reciprocal lattice vectors
+ 
+
+ Makidx:  hamiltonian dimensions Low, Int, High, Negl: 18 0 0 0
+ suham :  18 augmentation channels, 18 local potential channels  Maximum lmxa=2
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  A        0*   1.70  -0.10   4.373    1.01E-06     209 
+  A        1    1.70  -0.10   4.608    2.02E-06     245 
+  A        2    1.05  -0.30   8.080    1.50E-06    1273*
+
+ iors  : read restart file (binary, mesh density) 
+ iors  : empty file ... nothing read
+
+ rdovfa: read and overlap free-atom densities (mesh density) ...
+ rdovfa: expected A,       read A        with rmt=  2.5993  mesh   993  0.010
+
+ ovlpfa: overlap smooth part of FA densities
+ site   1  spec  1  pos -0.2887 -0.5000  0.8165  Qsmooth 4.351892  mom -0.52627
+ site   2  spec  1  pos  0.0000  0.0000  0.0000  Qsmooth 4.351892  mom -0.52627
+ total smooth Q = 8.703783  moment = -1.05254
+
+ Free atom and overlapped crystal site charges:
+   ib    true(FA)    smooth(FA)  true(OV)    smooth(OV)    local
+    1    7.711426    3.063318    9.055042    4.406933    4.648108
+ amom   -1.993814   -0.520083   -2.010464   -0.536732   -1.473731
+    2    7.711426    3.063318    9.055042    4.406933    4.648108
+ amom   -1.993814   -0.520083   -2.010464   -0.536732   -1.473731
+
+ Smooth charge on mesh:            8.703783    moment   -1.052537
+ Sum of local charges:             9.296217    moments  -2.947463
+ Total valence charge:            18.000000    moment   -4.000000
+ Sum of core charges:             36.000000    moment    0.000000
+ Sum of nuclear charges:         -54.000000
+ Homogeneous background:           0.000000
+ Deviation from neutrality:        0.000000
+
+ --- BNDFP:  begin iteration 1 of 1 ---
+
+ avg es pot at rmt= 0.660334  avg sphere pot= 0.729575  vconst=-0.660334
+
+ site  1  z= 27.0  rmt= 2.59928  nr=993   a=0.010  nlml= 9  rg=0.650  Vfloat=T
+ sm core charge = 0.179853 (sphere) + 0.002864 (spillout) = 0.182718
+ potential shift to crystal energy zero:    0.000403
+
+ site  2  z= 27.0  rmt= 2.59928  nr=993   a=0.010  nlml= 9  rg=0.650  Vfloat=T
+ sm core charge = 0.179853 (sphere) + 0.002864 (spillout) = 0.182718
+ potential shift to crystal energy zero:    0.000403
+
+
+ subzi: tetrahedron integration of bands; sampling integration of density
+        sampling integration uses:  N=0  W=0.002  ef0=0  def=0.1
+
+ sumlst: Site   l_max
+            2     2
+ sumlst:  Partial DOS mode 5 (site list lm-projected)  1 sites 9 channels
+ bndfp:  kpt 1 of 260, k=  0.00000  0.00000  0.00000
+ -0.6678 -0.3181 -0.0770 -0.0716 -0.0716 -0.0453 -0.0453 -0.0247 -0.0108
+ bndfp:  kpt 1 of 260, k=  0.00000  0.00000  0.00000
+ -0.7094 -0.4087 -0.2066 -0.2010 -0.2010 -0.1777 -0.1777 -0.1466 -0.1466
+ bndfp:  kpt 11 of 260, k=  -0.07217  0.37500  0.00000
+ -0.4179 -0.2188 -0.2096 -0.1664 -0.0851 -0.0734 -0.0489  0.0109  0.0543
+ bndfp:  kpt 11 of 260, k=  -0.07217  0.37500  0.00000
+ -0.4674 -0.3269 -0.3117 -0.2749 -0.2111 -0.1969 -0.1751 -0.1253 -0.0850
+ bndfp:  kpt 21 of 260, k=  0.21651  0.12500  0.00000
+ -0.5510 -0.2473 -0.1608 -0.1378 -0.0722 -0.0572 -0.0298 -0.0252 -0.0083
+ bndfp:  kpt 21 of 260, k=  0.21651  0.12500  0.00000
+ -0.5940 -0.3460 -0.2580 -0.2575 -0.1990 -0.1874 -0.1634 -0.1541 -0.1422
+ bndfp:  kpt 31 of 260, k=  -0.50518  -0.12500  0.00000
+ -0.2956 -0.2421 -0.2338 -0.1614 -0.0932 -0.0772 -0.0490  0.0683  0.0890
+ bndfp:  kpt 31 of 260, k=  -0.50518  -0.12500  0.00000
+ -0.3739 -0.3488 -0.3396 -0.2480 -0.2179 -0.1992 -0.1750 -0.0724 -0.0549
+ bndfp:  kpt 41 of 260, k=  -0.14434  0.25000  0.07655
+ -0.5060 -0.2437 -0.1874 -0.1371 -0.0850 -0.0492 -0.0488  0.0069  0.0070
+ bndfp:  kpt 41 of 260, k=  -0.14434  0.25000  0.07655
+ -0.5507 -0.3415 -0.2871 -0.2524 -0.2111 -0.1803 -0.1724 -0.1285 -0.1283
+ bndfp:  kpt 51 of 260, k=  0.28868  0.00000  0.07655
+ -0.5060 -0.2437 -0.1874 -0.1371 -0.0850 -0.0492 -0.0488  0.0069  0.0070
+ bndfp:  kpt 51 of 260, k=  0.28868  0.00000  0.07655
+ -0.5507 -0.3415 -0.2871 -0.2524 -0.2111 -0.1803 -0.1724 -0.1285 -0.1283
+ bndfp:  kpt 61 of 260, k=  0.57735  -0.25000  0.07655
+ -0.2401 -0.2118 -0.2109 -0.1930 -0.1075 -0.0976 -0.0309  0.0635  0.0670
+ bndfp:  kpt 61 of 260, k=  0.57735  -0.25000  0.07655
+ -0.3405 -0.3157 -0.3136 -0.2848 -0.2284 -0.2141 -0.1584 -0.0777 -0.0745
+ bndfp:  kpt 71 of 260, k=  0.28868  0.50000  0.07655
+ -0.3018 -0.2657 -0.2259 -0.1642 -0.0766 -0.0506 -0.0448  0.0849  0.0945
+ bndfp:  kpt 71 of 260, k=  0.28868  0.50000  0.07655
+ -0.3921 -0.3693 -0.3282 -0.2588 -0.2053 -0.1748 -0.1467 -0.0587 -0.0498
+ bndfp:  kpt 81 of 260, k=  -0.57735  0.25000  0.07655
+ -0.2401 -0.2118 -0.2109 -0.1930 -0.1075 -0.0976 -0.0309  0.0635  0.0670
+ bndfp:  kpt 81 of 260, k=  -0.57735  0.25000  0.07655
+ -0.3405 -0.3157 -0.3136 -0.2848 -0.2284 -0.2141 -0.1584 -0.0777 -0.0745
+ bndfp:  kpt 91 of 260, k=  -0.14434  0.00000  0.07655
+ -0.6164 -0.2987 -0.1174 -0.1038 -0.0658 -0.0561 -0.0506 -0.0315 -0.0118
+ bndfp:  kpt 91 of 260, k=  -0.14434  0.00000  0.07655
+ -0.6584 -0.3867 -0.2292 -0.2125 -0.1959 -0.1867 -0.1745 -0.1646 -0.1472
+ bndfp:  kpt 101 of 260, k=  0.14434  -0.25000  0.15309
+ -0.4779 -0.2690 -0.1888 -0.1308 -0.0979 -0.0583 -0.0440  0.0037  0.0231
+ bndfp:  kpt 101 of 260, k=  0.14434  -0.25000  0.15309
+ -0.5242 -0.3490 -0.2973 -0.2472 -0.2229 -0.1791 -0.1756 -0.1313 -0.1151
+ bndfp:  kpt 111 of 260, k=  -0.14434  0.50000  0.15309
+ -0.2990 -0.2481 -0.2036 -0.1704 -0.0947 -0.0507 -0.0325  0.0507  0.0704
+ bndfp:  kpt 111 of 260, k=  -0.14434  0.50000  0.15309
+ -0.3875 -0.3456 -0.3069 -0.2785 -0.2179 -0.1630 -0.1503 -0.0889 -0.0710
+ bndfp:  kpt 121 of 260, k=  0.14434  0.25000  0.15309
+ -0.4779 -0.2690 -0.1888 -0.1308 -0.0979 -0.0583 -0.0440  0.0037  0.0231
+ bndfp:  kpt 121 of 260, k=  0.14434  0.25000  0.15309
+ -0.5242 -0.3490 -0.2973 -0.2472 -0.2229 -0.1791 -0.1756 -0.1313 -0.1151
+ bndfp:  kpt 131 of 260, k=  -0.57735  0.00000  0.15309
+ -0.3100 -0.2682 -0.1948 -0.1889 -0.0606 -0.0497  0.0167  0.0622  0.0951
+ bndfp:  kpt 131 of 260, k=  -0.57735  0.00000  0.15309
+ -0.4027 -0.3672 -0.2997 -0.2940 -0.1905 -0.1682 -0.0825 -0.0787 -0.0493
+ bndfp:  kpt 141 of 260, k=  -0.28868  -0.25000  0.15309
+ -0.3894 -0.2438 -0.1984 -0.1539 -0.1002 -0.0689 -0.0499  0.0180  0.0529
+ bndfp:  kpt 141 of 260, k=  -0.28868  -0.25000  0.15309
+ -0.4439 -0.3337 -0.3097 -0.2639 -0.2216 -0.1885 -0.1784 -0.1175 -0.0873
+ bndfp:  kpt 151 of 260, k=  0.00000  -0.50000  0.15309
+ -0.2812 -0.2339 -0.1903 -0.1733 -0.1017 -0.0987 -0.0460  0.0341  0.0541
+ bndfp:  kpt 151 of 260, k=  0.00000  -0.50000  0.15309
+ -0.3558 -0.3371 -0.2968 -0.2792 -0.2189 -0.2160 -0.1726 -0.1038 -0.0864
+ bndfp:  kpt 161 of 260, k=  -0.28868  0.25000  0.15309
+ -0.3894 -0.2438 -0.1984 -0.1539 -0.1002 -0.0689 -0.0499  0.0180  0.0529
+ bndfp:  kpt 161 of 260, k=  -0.28868  0.25000  0.15309
+ -0.4439 -0.3337 -0.3097 -0.2639 -0.2216 -0.1885 -0.1784 -0.1175 -0.0873
+ bndfp:  kpt 171 of 260, k=  0.14434  0.00000  0.22964
+ -0.5315 -0.3920 -0.1433 -0.1088 -0.0934 -0.0686 -0.0637 -0.0506  0.0304
+ bndfp:  kpt 171 of 260, k=  0.14434  0.00000  0.22964
+ -0.5749 -0.4464 -0.2554 -0.2332 -0.2193 -0.1940 -0.1937 -0.1818 -0.1087
+ bndfp:  kpt 181 of 260, k=  0.43301  -0.25000  0.22964
+ -0.2687 -0.2433 -0.1752 -0.1540 -0.1195 -0.1068 -0.0372  0.0083  0.0703
+ bndfp:  kpt 181 of 260, k=  0.43301  -0.25000  0.22964
+ -0.3515 -0.3416 -0.2836 -0.2583 -0.2380 -0.2177 -0.1665 -0.1275 -0.0705
+ bndfp:  kpt 191 of 260, k=  0.14434  0.50000  0.22964
+ -0.2937 -0.2635 -0.1867 -0.1591 -0.0928 -0.0473 -0.0130  0.0246  0.0754
+ bndfp:  kpt 191 of 260, k=  0.14434  0.50000  0.22964
+ -0.3852 -0.3570 -0.2989 -0.2712 -0.2088 -0.1545 -0.1361 -0.1104 -0.0664
+ bndfp:  kpt 201 of 260, k=  0.43301  0.25000  0.22964
+ -0.2687 -0.2433 -0.1752 -0.1540 -0.1195 -0.1068 -0.0372  0.0083  0.0703
+ bndfp:  kpt 201 of 260, k=  0.43301  0.25000  0.22964
+ -0.3515 -0.3416 -0.2836 -0.2583 -0.2380 -0.2177 -0.1665 -0.1275 -0.0705
+ bndfp:  kpt 211 of 260, k=  -0.28868  0.00000  0.22964
+ -0.4340 -0.3196 -0.1740 -0.1324 -0.1039 -0.0730 -0.0352 -0.0089  0.0369
+ bndfp:  kpt 211 of 260, k=  -0.28868  0.00000  0.22964
+ -0.4833 -0.3841 -0.2888 -0.2517 -0.2237 -0.1924 -0.1673 -0.1429 -0.1026
+ bndfp:  kpt 221 of 260, k=  0.00000  -0.25000  0.22964
+ -0.4631 -0.3369 -0.1667 -0.1246 -0.1073 -0.0813 -0.0397 -0.0213  0.0364
+ bndfp:  kpt 221 of 260, k=  0.00000  -0.25000  0.22964
+ -0.5092 -0.3950 -0.2823 -0.2462 -0.2312 -0.2058 -0.1712 -0.1533 -0.1014
+ bndfp:  kpt 231 of 260, k=  -0.28868  0.50000  -0.30619
+ -0.2987 -0.2987 -0.1796 -0.1796 -0.0040 -0.0040  0.0176  0.0176  0.0984
+ bndfp:  kpt 231 of 260, k=  -0.28868  0.50000  -0.30619
+ -0.3924 -0.3924 -0.2944 -0.2944 -0.1385 -0.1385 -0.0906 -0.0906 -0.0463
+ bndfp:  kpt 241 of 260, k=  0.36084  -0.12500  -0.30619
+ -0.3182 -0.3182 -0.1583 -0.1583 -0.1001 -0.1001 -0.0138 -0.0138  0.0829
+ bndfp:  kpt 241 of 260, k=  0.36084  -0.12500  -0.30619
+ -0.3882 -0.3882 -0.2721 -0.2721 -0.2149 -0.2149 -0.1472 -0.1472 -0.0600
+ bndfp:  kpt 251 of 260, k=  -0.50518  -0.37500  0.30619
+ -0.2280 -0.2280 -0.1589 -0.1589 -0.1290 -0.1290 -0.0094 -0.0094  0.0844
+ bndfp:  kpt 251 of 260, k=  -0.50518  -0.37500  0.30619
+ -0.3289 -0.3289 -0.2721 -0.2721 -0.2326 -0.2326 -0.1418 -0.1418 -0.0586
+
+ Interpolate to Fermi energy for qval=   18.000
+ trial Fermi energies:     -0.10000     0.00000     0.10000
+ band occupations:         12.56347    18.01927    21.64380
+ magnetic moment:          -3.76459    -3.32682    -0.71167
+ weights from quad fit:     0.00213     0.99998    -0.00211
+ interpolated charge:      12.56347    18.01927    21.64380  ->   18.00000
+ eigenvalue sum:           -3.10255    -3.42303    -3.20517  ->   -3.42281
+ entropy term:             -0.00013    -0.00004    -0.00013  ->   -0.00004
+ interpolated moment:      -3.76459    -3.32682    -0.71167  ->   -3.33328
+ old energy window:   ef=   0.00000   plusminus  0.10000
+ new energy window:   ef=  -0.00042   plusminus  0.02500
+ efldos:  Ef = -0.001182  sumev = -3.423062  ebot = -0.713500  DOS(Ef) = 15.12
+ ipol:  sev=   -3.422847   ef=   -0.000424
+ dos:   sev=   -3.423062   ef=   -0.001182
+ use:   sev=   -3.423062   ef=   -0.001182
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.001648;  18.000000 electrons
+         Sum occ. bands:   -3.422302, incl. Bloechl correction: -0.004183
+         Mag. moment:      -3.303270
+
+ Saved qp weights ...
+
+ ... Generating total DOS
+
+ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+   1    8.977526    3.885331    5.092195     -1.657034   -0.095146   -1.561889
+   2    8.977526    3.885331    5.092195     -1.657034   -0.095146   -1.561889
+
+ Symmetrize density..
+
+ Smooth density not symmetrized (ngrp=1)
+
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:A       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.336541   -0.511879    4.660000    4.609600    4.500000    4.609600
+ spn 2 0    0.327579   -0.558234    4.660000    4.608414    4.500000    4.608414
+ 1     0    0.425423   -0.436374    4.410000    4.335751    4.250000    4.335751
+ spn 2 0    0.378678   -0.506234    4.410000    4.325366    4.250000    4.325366
+ 2     0    2.898281   -0.208231    3.830000    3.608675    3.147584    3.608675
+ spn 2 0    4.611023   -0.197654    3.830000    3.862091    3.147584    3.862091
+
+ site    2   species   1:A       
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.336541   -0.511879    4.660000    4.609600    4.500000    4.609600
+ spn 2 0    0.327579   -0.558234    4.660000    4.608414    4.500000    4.608414
+ 1     0    0.425423   -0.436374    4.410000    4.335751    4.250000    4.335751
+ spn 2 0    0.378678   -0.506234    4.410000    4.325366    4.250000    4.325366
+ 2     0    2.898281   -0.208231    3.830000    3.608675    3.147584    3.608675
+ spn 2 0    4.611023   -0.197654    3.830000    3.862091    3.147584    3.862091
+
+ Harris energy:
+ sumev=       -3.422302  val*vef=    -240.975494   sumtv=     237.553192
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    5408.445824
+ rhoeps=    -229.267671     utot=  -10981.021767    ehar=   -5564.290423
+
+ ekin=5643.129233  rho*v=-11207.419056  ehf=-5564.290423  ehks=-5564.289823
+  
+ mixing: mode=B  nmix=3  it 1 of 5  beta=.7  elind=1.887  wgt=1,1
+ mixrho:  sought 3 iter from file mixm; read 0.  RMS DQ=3.76e-2
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       8.703783      7.815610      7.815610      0.024341      8.082062
+ mmom        -1.052537     -0.209499                                 -0.462410
+ site    1    4.648108      5.092195      5.092195      0.017674      4.958969
+ mmom        -1.473731     -1.561889                                 -1.535441
+ site    2    4.648108      5.092195      5.092195      0.017674      4.958969
+ mmom        -1.473731     -1.561889                                 -1.535441
+ AMIX: nmix=0 mmix=8  nelts=11140  beta=0.7  tm=5  rmsdel=1.88e-2
+ unscreened rms difference:  smooth  0.025097   local  0.017674
+   screened rms difference:  smooth  0.024341   local  0.017674   tot  0.037561
+
+ iors  : write restart file (binary, mesh density) 
+
+   it  1  of  1    ehf=      -0.985623   ehk=      -0.985023
+h met=4 lmf=1 nk=8 nit=1 pdos=1 mmom=-3.3332763 ehf=-.9856229 ehk=-.9850228
+ Exit 0 LMF 
+ wkinfo:  used  1605 K  workspace of 80000 K   in 215 K calls
+rdcmd:  mv dos.co tdos.co
+rdcmd:  echo 501 -.8 .7 | lmdos co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2
+ -----------------------  START LMDOS (80000K)  -----------------------
+ HEADER Master file for transition and other elemental metals
+
+ LMDOS:    alat = 4.70314  nbas = 2  nspec = 1  vn 7.00  verb 31,20
+ bz:       metal(4), tetra 
+
+                Plat                                  Qlat
+   0.000000  -1.000000   0.000000        0.577350  -1.000000   0.000000
+   0.866025   0.500000   0.000000        1.154701   0.000000   0.000000
+   0.000000   0.000000   1.632993        0.000000   0.000000   0.612372
+  Cell vol= 147.121922
+
+ LATTC:  as= 2.000   tol=1.00E-06   alat= 4.70314   awald= 0.379
+         r1=  3.072   nkd=  75      q1=  2.875   nkg= 135
+
+ Generator 1 already in group as element 1
+ SGROUP: 1 symmetry operations from 1 generators
+ MKSYM:  found 1 space group operations; adding inversion generated 2 ops
+
+ SPLCLS:  1 species split into 2 classes
+ Species  Class      Sites...
+ A        1:A        1
+          2:A2       2
+ sumlst: Site   l_max
+            2     2
+ sumlst:  Partial DOS mode 5 (site list lm-projected)  1 sites 9 channels
+ 
+ BZMESH:  260 irreducible QP from 512 ( 8 8 8 )  shift= F F F
+ TETIRR: sorting 3072 tetrahedra ...
+ 1536 inequivalent ones found
+
+ ASADOS: reading weights from file MOMS
+         expecting file to be resolved by l and m
+         file has 9 channel(s)
+ Enter npts (def=501), emin and emax (def=-1,0.5): 
+ IOMOMQ: read 260 qp  efermi=-0.001648  vmtz=0.000000
+
+ ASADOS:  make dos for 501 points from 18 bands in window (-0.8,0.7)
+
+ Channels in dos file generated by LMDOS:
+ site class label   spin-1                       spin-2
+    2    2   A2     1:17:2                       2:18:2
+ Exit 0 LMDOS 
+ wkinfo:  used   298 K  workspace of 80000 K   in   0 K calls
+rdcmd:  mv dos.co pdos.co

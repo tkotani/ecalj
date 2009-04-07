@@ -1,0 +1,164 @@
+ -----------------------  START LMF (80000K)  -----------------------
+ HEADER Cu
+
+ rdctrl: reset global max nl from 5 to 6
+
+ LMF:      alat = 6.798  nbas = 1  nspec = 1  vn 7.00(LMF 7.0)  verb 31,20
+ special:  APW basis
+ pot:      XC:BH
+ bz:       metal(3), tetra, invit 
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol= 78.538660
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat= 6.79800   awald= 0.467
+         r1=  1.959   nkd= 135      q1=  5.910   nkg= 181
+
+ SGROUP: 1 symmetry operations from 0 generators
+ SYMLAT: Bravais system is cubic with 48 symmetry operations.
+ SYMCRY: crystal invariant under 48 symmetry operations for tol=1e-5
+ GROUPG: the following are sufficient to generate the space group:
+         i*r3(1,1,-1) r4x
+         i*r3(1,1,-1) r4x
+ MKSYM:  found 48 space group operations ... includes inversion
+ 
+ BZMESH:  72 irreducible QP from 1728 ( 12 12 12 )  shift= F F F
+ TETIRR: sorting 10368 tetrahedra ...
+ 247 inequivalent ones found
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Cu       2.280  0.912    5    5         5  0.570  1.140    15    1   0.912
+
+ gvlist: cutoff radius   9.803 gives   1243   recips of max   3375
+ SGVSYM: 53 symmetry stars found for 1243 reciprocal lattice vectors
+ 
+
+ Makidx:  hamiltonian dimensions Low, Int, High, Negl: 9 0 27 0
+ suham :  36 augmentation channels, 36 local potential channels  Maximum lmxa=5
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  Cu       0    1.50  -0.28   4.956    2.32E-06     169 
+  Cu       1    1.50  -0.10   5.245    1.10E-06     181 
+  Cu       2    0.95  -0.11   8.973    1.81E-06     941 
+
+ suham:  q-dependent PW basis with  Emin = 0 < E < 5.
+         Est. min,max PW dimension = 12,18.  Use npwpad = 3 => ndham = 30
+
+ iors  : read restart file (binary, mesh density) 
+         use from  restart file: ef window, positions, pnu 
+         ignore in restart file: *
+
+ --- BNDFP:  begin iteration 1 of 20 ---
+
+ avg es pot at rmt= 0.584477  avg sphere pot= 0.639061  vconst=-0.584477
+
+ site  1  z= 29.0  rmt= 2.28000  nr=393   a=0.025  nlml=36  rg=0.570  Vfloat=T
+ sm core charge = 0.295519 (sphere) + 0.00535 (spillout) = 0.300868
+ potential shift to crystal energy zero:    0.000102
+
+
+ subzi: tetrahedron integration of bands; tetrahedron integration of density
+
+ Start first of two band passes ...
+ bndfp:  kpt 1 of 72, k=  0.00000  0.00000  0.00000   ndimh = 24
+ zhev_tk: ovlmat=
+    1  0.94D-06    2  0.51D-03    3  0.51D-03    4  0.51D-03    5  0.35D-01
+    6  0.35D-01    7  0.45D-01    8  0.79D-01    9  0.79D-01   10  0.79D-01
+   11  0.36D+00   12  0.36D+00   13  0.36D+00   14  0.42D+00   15  0.53D+00
+   16  0.10D+05   17  0.10D+05   18  0.10D+05   19  0.10D+05   20  0.10D+05
+   21  0.10D+05   22  0.10D+05   23  0.10D+05   24  0.10D+05
+ eigenvalue=
+ -0.7177 -0.2504 -0.2504 -0.2504 -0.1871 -0.1871  1.6705  1.8605  1.8605
+ bndfp:  kpt 11 of 72, k=  -0.25000  0.25000  0.41667   ndimh = 25
+ -0.4841 -0.2726 -0.2452 -0.2354 -0.1670 -0.1606  0.7401  1.5094  1.5876
+ bndfp:  kpt 21 of 72, k=  -0.16667  0.16667  0.50000   ndimh = 25
+ -0.4755 -0.2967 -0.2460 -0.2168 -0.1624 -0.1576  0.8780  1.3365  1.4617
+ bndfp:  kpt 31 of 72, k=  -0.25000  0.25000  0.75000   ndimh = 24
+ -0.3553 -0.3124 -0.2481 -0.2014 -0.1412  0.0488  0.4832  0.9414  1.1892
+ bndfp:  kpt 41 of 72, k=  -0.08333  0.08333  0.91667   ndimh = 26
+ -0.3826 -0.3503 -0.1571 -0.1516 -0.1366  0.0813  0.5783  0.8393  0.9754
+ bndfp:  kpt 51 of 72, k=  -0.16667  0.33333  0.66667   ndimh = 23
+ -0.3650 -0.2998 -0.2633 -0.2071 -0.1501 -0.0169  0.5421  1.0917  1.1327
+ bndfp:  kpt 61 of 72, k=  0.00000  0.16667  0.83333   ndimh = 26
+ -0.3772 -0.3422 -0.1900 -0.1538 -0.1439  0.0275  0.7128  0.8665  0.8965
+ bndfp:  kpt 71 of 72, k=  0.00000  0.33333  -1.00000   ndimh = 25
+ -0.3500 -0.3261 -0.2347 -0.1758 -0.1336  0.2789  0.5616  0.6349  0.7283
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.016085;  11.000000 electrons
+         Sum occ. bands:   -2.748815, incl. Bloechl correction: -0.004147
+
+ Saved qp weights ...
+ Start second band pass ...
+ bndfp:  kpt 1 of 72, k=  0.00000  0.00000  0.00000   ndimh = 24
+ zhev_tk: ovlmat=
+    1  0.94D-06    2  0.51D-03    3  0.51D-03    4  0.51D-03    5  0.35D-01
+    6  0.35D-01    7  0.45D-01    8  0.79D-01    9  0.79D-01   10  0.79D-01
+   11  0.36D+00   12  0.36D+00   13  0.36D+00   14  0.42D+00   15  0.53D+00
+   16  0.10D+05   17  0.10D+05   18  0.10D+05   19  0.10D+05   20  0.10D+05
+   21  0.10D+05   22  0.10D+05   23  0.10D+05   24  0.10D+05
+ eigenvalue=
+ -0.7177 -0.2504 -0.2504 -0.2504 -0.1871 -0.1871  1.6705  1.8605  1.8605
+ bndfp:  kpt 11 of 72, k=  -0.25000  0.25000  0.41667   ndimh = 25
+ -0.4841 -0.2726 -0.2452 -0.2354 -0.1670 -0.1606  0.7401  1.5094  1.5876
+ bndfp:  kpt 21 of 72, k=  -0.16667  0.16667  0.50000   ndimh = 25
+ -0.4755 -0.2967 -0.2460 -0.2168 -0.1624 -0.1576  0.8780  1.3365  1.4617
+ bndfp:  kpt 31 of 72, k=  -0.25000  0.25000  0.75000   ndimh = 24
+ -0.3553 -0.3124 -0.2481 -0.2014 -0.1412  0.0488  0.4832  0.9414  1.1892
+ bndfp:  kpt 41 of 72, k=  -0.08333  0.08333  0.91667   ndimh = 26
+ -0.3826 -0.3503 -0.1571 -0.1516 -0.1366  0.0813  0.5783  0.8393  0.9754
+ bndfp:  kpt 51 of 72, k=  -0.16667  0.33333  0.66667   ndimh = 23
+ -0.3650 -0.2998 -0.2633 -0.2071 -0.1501 -0.0169  0.5421  1.0917  1.1327
+ bndfp:  kpt 61 of 72, k=  0.00000  0.16667  0.83333   ndimh = 26
+ -0.3772 -0.3422 -0.1900 -0.1538 -0.1439  0.0275  0.7128  0.8665  0.8965
+ bndfp:  kpt 71 of 72, k=  0.00000  0.33333  -1.00000   ndimh = 25
+ -0.3500 -0.3261 -0.2347 -0.1758 -0.1336  0.2789  0.5616  0.6349  0.7283
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.016085;  11.000000 electrons
+         Sum occ. bands:   -2.748815, incl. Bloechl correction: -0.004147
+
+ Saved qp weights ...
+
+ ... Generating total DOS
+
+ mkrout:  Qtrue      sm,loc       local
+   1   10.062038    2.898081    7.163957
+
+ Symmetrize density..
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:Cu      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.456953   -0.419634    4.654850    4.654478    4.500000    4.654478
+ 1     0    0.387325   -0.279778    4.380399    4.380634    4.250000    4.380634
+ 2     0    9.195343   -0.231981    3.878936    3.878965    3.147584    3.878965
+ 3     0    0.017428   -0.237628    4.121226    4.121256    4.102416    4.121256
+ 4     0    0.003913   -0.236409    5.085272    5.085273    5.077979    5.085273
+ 5     0    0.001076   -0.220825    6.066540    6.066540    6.062833    6.066540
+
+ Harris energy:
+ sumev=       -2.748815  val*vef=    -190.117267   sumtv=     187.368452
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    3171.756639
+ rhoeps=    -129.921055     utot=   -6533.967347    ehar=   -3304.763309
+
+ ekin=3359.180149  rho*v=-6663.943454  ehf=-3304.763309  ehks=-3304.763305
+  
+ mixrho:  sought 8 iter from file mixm; read 1.  RMS DQ=1.09e-4
+ charges:       old           new         screened      rms diff       lin mix
+ smooth       3.837675      3.836043      3.836043      0.000046      3.836043
+ site    1    7.162325      7.163957      7.163957      0.000072      7.163957
+ AMIX: Reducing nmix to  0: t_j exceeds tm: tj= 13.84102
+ AMIX: nmix=0 mmix=8  nelts=2678  beta=1  tm=5  rmsdel=1.09e-4
+ unscreened rms difference:  smooth  0.000046   local  0.000072
+
+   it  1  of 20    ehf=   -3304.763309   ehk=   -3304.763305
+i ehf=-3304.7633094 ehk=-3304.7633053
+ Exit 0 lmf : exit (--quit=band) 
+ wkinfo:  used  1013 K  workspace of 80000 K   in  43 K calls

@@ -1,0 +1,285 @@
+/* Main and support programs to link unix shell with fortran programs.
+ */
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef MPI
+#include "mpi.h"
+#define MAXARGS 100
+#endif
+
+static int ret_val=0, aargc;
+static char **pargv;
+
+/* These parameters concern how the first entry point is named */
+/* They have been predetermined for some particular mnemnonics */
+/* UPCASEMAIN   if 1, main entry is upper case; else lower case */
+/* USCOREMAIN   number of underscores following main declaration */
+/*              Not defined => main has no underscores   */
+/* NOPASSEDARGS if 1 then argc, argv are not passed to entry point */
+/* Next 23 lines are commented out in order to use definitions from configure*/
+/*
+#if ( LINUXI | LINUXA | LINUXF )
+#define UPCASEMAIN 1
+#define USCOREMAIN 2
+#define NOPASSEDARGS 1
+#endif
+#ifdef LINUX_PGI
+#define UPCASEMAIN 1
+#define USCOREMAIN 1
+#endif
+#ifdef LAHEY_LF95
+#define UPCASEMAIN 1
+#define USCOREMAIN 2
+#define PASSEDARGS
+#endif
+
+#ifndef UPCASEMAIN
+#define UPCASEMAIN 0
+#endif
+#ifndef NOPASSEDARGS
+#define NOPASSEDARGS 0
+#endif
+#ifndef USCOREMAIN
+#define USCOREMAIN 0
+#endif 
+*/
+
+/* --- Interface between fortran and C function calls --- */
+/* FC_UPPERCASE  if 1, means fortran converts a function name to upper case */
+/* FC_UNDERSCORE if 1, means fortran appends an underscore to a function */
+/* FC_UNDERSCORE if 2, means fortran appends two underscores to function names that already contain underscores */
+/* Predetermine paramters for some particular mnemnonics */
+/* Note: switches should be done by the caller */
+/* Next 12 lines are commented out in order to use definitions from configure*/
+/*
+#ifdef CRAY
+#define FC_UPPERCASE 1
+#endif
+#if ! (CRAY | HP | AIX)
+#define FC_UNDERSCORE 1
+#endif
+
+#ifndef FC_UPPERCASE
+#define FC_UPPERCASE 0
+#endif
+#ifndef FC_UNDERSCORE
+#define FC_UNDERSCORE 0
+#endif
+*/
+
+
+/* --- Reading command-line arguments --- */
+/* There are two function calls needed for the command-line argument: */
+/* nargc()        returns the number of arguments */
+/* gtargc(iarg,s) (or getarg(iarg,s)) returns particular argument iarg */
+/*                in string s. NB: getarg is the high-level routine */
+/* 	       called by the programs; gtargc is a low-level routine */
+/* 	       implemented here, designed to supply the information for */
+/* 	       getarg when not otherwise available.  gtargc is named */
+/* 	       differently from getarg to avoid confusion, as may */
+/* 	       occur when getarg is a library-supplied function. */
+
+/* One way to extract these arguments is to follow C conventions: the */
+/* entry point is the C routine main, which has as arguments argc and */
+/* argv.  Routine nargc here returns the number of arguments and */
+/* gtargc returns a particular argument. */
+
+/* For some architectures, because of the mixed fortran/C languages, the */
+/* loader does not use main(argc,argv) as its entry point, and the */
+/* functionality of nargc and gtargc have to be supplied some other way. */
+/* (see NOPASSEDARGS above) The gnu Linux doesn't, for example. What to */
+/* do in that case depends on the architecture.  Often system calls narg */
+/* and getarg work, and their functionality need not be supplied by fmain.c */
+
+/* In particular for the gnu compilers running under Linux, */
+/*  * the functionality of nargc() is available through system call */
+/*    iargc(). */
+/*  * The system call to getarg works. */
+
+/* These parameters concern how the to extract command-line data when */
+/* not available from the command-line (when NOPASSEDARGS is nonzero): */
+/* HAVE_IARGC   if 1, system call iargc_()+1 is available */
+#if (LINUXI | LINUXA | LINUXF | LINUX_PGI | LINUX)
+/* Note: switches should be done by the caller */
+#define HAVE_IARGC 1
+#endif
+
+/* macro FC_FUNC converts a standard name to a fortranized version */
+/* FC_FUNC must be bypassed for sun systems
+#if FC_UPPERCASE == 1
+#  if FC_UNDERSCORE == 1
+#    define FC_FUNC(x,X) X ## _
+#  else
+#    if FC_UNDERSCORE == 2
+#      define FC_FUNC(x,X) X ## _  two underscores are added ONLY to names that already contain an underscore!   
+#    else
+#      define FC_FUNC(x,X) X
+#    endif
+#  endif
+#else
+#  if FC_UNDERSCORE == 1
+#    define FC_FUNC(x,X) x ## _
+#  else
+#    if FC_UNDERSCORE == 2
+#      define FC_FUNC(x,X) x ## _  
+#    else
+#      define FC_FUNC(x,X) x
+#    endif
+#  endif
+#endif
+*/
+
+/* --- Entry point --- */
+#if NOPASSEDARGS == 0
+CMAIN(argc,argv)
+int argc; char *argv[];
+#endif
+#if NOPASSEDARGS == 1
+CMAIN()
+#endif
+
+{
+   
+#if (FC_UNDERSCORE == 0 && FC_UPPERCASE == 1)
+  void FMAIN();
+#endif
+#if (FC_UNDERSCORE == 1 && FC_UPPERCASE == 1)
+  void FMAIN_();
+#endif
+#if (FC_UNDERSCORE == 2 && FC_UPPERCASE == 1)
+  void FMAIN_();
+#endif
+#if (FC_UNDERSCORE == 0 && FC_UPPERCASE == 0)
+  void fmain();
+#endif
+#if (FC_UNDERSCORE == 1 && FC_UPPERCASE == 0)
+  void fmain_();
+#endif
+#if (FC_UNDERSCORE == 2 && FC_UPPERCASE == 0)
+  void fmain_();
+#endif
+  
+/*
+#if HP | AIX
+  void fmain();
+#endif
+#if !(HP | AIX | CRAY)
+  void fmain_();
+#endif
+*/
+
+#ifdef MPI
+  char *argv_copy[MAXARGS];
+  size_t bytes;
+  int len, i, procid, master;
+  MPI_Init(&argc,&argv);
+  MPI_Comm_rank(MPI_COMM_WORLD,&procid);
+  master = 0;
+  MPI_Bcast(&argc,1,MPI_INT,master,MPI_COMM_WORLD);
+  for (i = 0; i < argc; i++) {
+    if (procid == master) {
+      len = 1 + strlen(argv[i]);
+    }
+    MPI_Bcast(&len,1,MPI_INT,0,MPI_COMM_WORLD);
+    bytes = len * sizeof(char);
+    if ( !(argv_copy[i] = malloc(bytes)) ) {
+      printf("Process %d: unable to allocate %d bytes\n",procid,bytes);
+      exit(-1);
+    }
+    strcpy(argv_copy[i], argv[i]);
+    MPI_Bcast(argv_copy[i],len,MPI_CHAR,master,MPI_COMM_WORLD);
+  }
+  pargv = argv_copy;
+#endif
+
+#if ! (NOPASSEDARGS == 1)
+  aargc = argc;
+  pargv = argv;
+#endif
+
+#ifdef AIX
+   save_me();  /* so we won't get killed when page space is low */
+#endif
+
+/* --- Pass control to routine fmain --- */
+   
+fmain_();
+
+/*FC_FUNC(fmain,FMAIN)(); no fc_func for sun systems */
+
+ /* This is normal from fortran call */
+ exit (ret_val);
+}
+
+/* --- function cexit: if *ps is nonzero, exit with retval pv --- */
+cexit_(pv,ps)
+
+/*FC_FUNC(cexit,CEXIT)(pv,ps) */
+int *pv,*ps;
+{
+  ret_val = *pv;
+#ifdef CRAY2
+  exit (ret_val);
+#else
+  if (*ps) exit (ret_val);
+#endif
+}
+
+/* --- function nargc: retun the number of command-line arguments --- */
+int nargc_()
+     /* int FC_FUNC(nargc,NARGC)()*/
+{
+#if HAVE_IARGC == 1
+  int i,iargc_();
+  return(iargc_()+1);
+#else
+  return(aargc);
+#endif
+}
+
+/* A fortran-callable 'getarg'.  Originally called 'getarg' but
+  the HP f90 compiler links in its own library routine before getarg,
+  but does not return command line arguments.
+
+  This routine only make sense when argc,argv were passed to the
+  entry routine above (i.e. when NOPASSEDARGS is not 1)
+  The linux compilers don't start with C main; and argc and argv
+  above are not passed.  In that case, the system call to getarg works
+  and we use that.
+*/
+
+#if ! (NOPASSEDARGS == 1)
+gtargc_(iarg,ps,len)
+     /*FC_FUNC(gtargc,GTARGC)(iarg,ps,len)*/
+int *iarg; char *ps; short len;
+{
+  int i,maxlen; char *pps;
+
+/* to handle fortran bug ... */
+  len = (len < 0) ? -len : len;
+
+  if (*iarg > aargc)
+    { puts("getarg: request for nonexistent command line arg");
+      exit(-1);
+    }
+
+/*copy string to ps, filling with blanks if passed string longer ...*/
+  maxlen = strlen(*(pargv + *iarg));
+  maxlen = (maxlen < len) ? maxlen : len;
+  for (i = -1, pps=ps ; ++i<maxlen ;) *pps++ = *(*(pargv + *iarg) + i);
+  while (i < len) {*pps++ = ' '; i++;}
+
+}
+#endif
+
+/* void fmain() { void ftime(); printf("hello, world"); ftime();} */
+
+#if DEC
+void s_abort()
+{
+  exit(-1);
+}
+#endif

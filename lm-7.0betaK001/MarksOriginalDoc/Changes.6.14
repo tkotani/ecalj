@@ -1,0 +1,25 @@
+------ Release of v6.14 ----
+  Requires SLATSM.43
+
+* Major changes:
+  See ChangeLog in separate directories for fuller description of changes.
+	
+  * Spin-orbit coupling added to programs lmf and lmfgw
+
+  * Programs lmf and lmfgw now can add self-energy sigma to hamiltonian
+    for self-consistent GW.  New code for analyzing GW output
+    to make RPA total energy.
+
+  * ASA code has proper Kohn-Sham energy functional.
+
+  * External Zeeman field can be added in ASA.
+
+  * Codes lmf and lm parallelized for MPI
+    Code lmf can deal with charged systems.
+
+  * Green's function lmgf can run in fully relativistic mode
+    (not fully functional)
+
+  * Layer Green's function lmpg modified for proper treatment 
+    of potential shifts.  Transport mode works correctly, also in
+    noncollinear mode.

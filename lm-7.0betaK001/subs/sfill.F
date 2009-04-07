@@ -1,0 +1,217 @@
+      subroutine sfill(sfargs,slabl,sctrl,sarray,slat,sspec,ssite)
+C- Adjust sphere sizes to fill to specified fraction of cell volume
+C ----------------------------------------------------------------
+Ci Inputs
+Ci   sfargs string specifying how rmax to be scaled.
+Ci          First character is the delimiter separating switches.
+Ci          Last argument specifies which classes are to be included.
+Ci          For now, there are no special switches.
+Ci   slabl :vector of species labels
+Ci   sctrl :struct for program flow parameters; see routine uctrl
+Ci     Elts read: nbas nclass nspec modep sclwsr omax1 omax2 wsrmax
+Ci     Stored:    *
+Ci     Passed to: *
+Ci   sarray:structure containing offsets to various arrays
+Ci     Elts read: npadl npadr nclasp oipc oics oclabl ormax
+Ci     Stored:    ormax
+Ci     Passed to: *
+Ci   slat  :struct for lattice information; see routine ulat
+Ci     Elts read: avw alat plat vol opos
+Ci     Stored:    *
+Ci     Passed to: *
+Ci   sspec :struct for species-specific information; see routine uspec
+Ci     Elts read: z mxcst rmt
+Ci     Stored:    rmt
+Ci     Passed to: *
+Ci   ssite :struct for site-specific information; see routine usite
+Ci     Elts read: *
+Ci     Stored:    *
+Ci     Passed to: *
+Co Outputs
+Co   sspec->rmax and sarray->rmax
+Cr Remarks
+Cr   Using automatic scaling routine sclwsr, program tries to
+Cr   rescale sphere radii so that sum-of-sphere volumes = specified
+Cr   volume fraction of cell volume.
+Cr   Constraints are imposed through the following (see routine sclwsr)
+Cr     1 maximum overlaps may not exceed omax1 and omax2
+Cr     2 specific radii maybe locked (2's digit of spec->mxcst)
+Cr     3 If wsrmax is nonzero, no sphere may exceed wsrmax.
+Cr
+Cr   OLD method: user supplies class list and program scales those
+Cr   classes to satisfy volume requirements.  This method is kept
+Cr   for now, but will be discarded in future.
+Cr   A subset of the nclass rmax are scaled to fulfill some criterion.
+Cr   For now rmax are scaled fill the cell volume.
+Cu Updates
+Cu   17 May 02  Modified MT radii scaling to lower priority for E.S.
+Cu   23 Apr 02  Added automatic rescaling using sclwsr.  New arg list.
+C ----------------------------------------------------------------
+C     implicit none
+C Passed parameters
+      double precision sctrl(1),sarray(1),slat(1),sspec(1),ssite(1)
+      character*(*) sfargs
+      character*8 slabl(*)
+C Heap:
+      integer w(1)
+      common /w/ w
+C Local:
+      character dc*1
+      integer nbas,nbasp,nclass,nspec,npadl,npadr,nclasp
+      integer ls,lstyle,i,iv,j1,j2,m,parg,nlist,lgunit,ipr,ic,
+     .  ormax,ormx2,olist
+      integer modep(3),bitand,igetss,isw
+      integer oips,oipc,opos,oics,oclabl,oz,ormt,olock,ormax2,opt
+      double precision plat(3,3),alat,avw,vol,rmax,wsrmax,omax1(3),
+     .  omax2(3),fovl,vol0,vols,scale,dval,volfac
+      character*8 clabl
+
+      call upack('ctrl nbas nclass nspec modep',sctrl,nbas,nclass,nspec,
+     .  modep,0)
+      call upack('array npadl npadr nclasp',sarray,npadl,npadr,nclasp,0,
+     .  0)
+      call upack('array oipc oics oclabl ormax',sarray,oipc,oics,oclabl,
+     .  ormax,0)
+      call upack('lat avw alat plat vol opos',slat,avw,alat,plat,vol,
+     .  opos)
+      call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
+      nbasp = nbas + npadl + npadr
+      call getpr(ipr)
+
+C ... Do nothing if no specifications
+      if (sfargs .eq. ' ') return
+      ls = len(sfargs)
+      if (sfargs(1:4) .ne. 'auto') goto 100
+
+C ... Use sclwsr
+C  10 continue
+      call upack('ctrl sclwsr omax1 omax2 wsrmax',sctrl,volfac,omax1,
+     .  omax2,wsrmax,0)
+      opt = volfac/10
+      opt = 10*opt
+      volfac = volfac-opt
+      if (volfac .eq. 0) return
+      call defrr(opos,3*nbasp)
+      call spackv(10,'site pos',ssite,1,nbasp,w(opos))
+      call defrr(oips,nbasp)
+      call spackv(10,'site spec',ssite,1,nbasp,w(oips))
+      call defrr(oz,nspec)
+      call spackv(10,'spec z',sspec,1,nspec,w(oz))
+      call defrr(ormt,nspec)
+      call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
+      call defi(olock,-nspec)
+      do  i = 1, nspec
+        call ivset(w(olock),i,i,bitand(igetss('spec mxcst',i,sspec),2))
+      enddo
+      i = 3
+      if (modep(3) .ne. 2) i = 2
+      if (ipr .ge. 30) then
+        call awrit2('%N SFILL:  automatic scaling of sphere radii.'//
+     .    '%?#n#  Constrain rmax<=%d##',
+     .    ' ',160,lgunit(1),isw(wsrmax.ne.0),wsrmax)
+      endif
+      call sclwsr(opt,nbas,nbasp,nspec,alat,plat,w(opos),w(oips),modep,
+     .  slabl,w(oz),w(olock),volfac,wsrmax,omax1,omax2,w(ormt))
+      call rlse(opos)
+      if (i .eq. 2) call rx('sfill needs update for 2D')
+C     Poke back into spec->rmt
+      call spackv(11,'spec rmt',sspec,1,nspec,w(ormt))
+C     nclspp = max(2*nclasp-nclass,nspec)
+C     Poke back into array->rmax
+      call sp2cls('spec rmt',sspec,w(oics),1,1,nclasp,ormax2)
+      call dcopy(nclasp,w(ormax2),1,w(ormax),1)
+      call pack1('array ormax',sarray,ormax)
+      call rlse(opos)
+      return
+
+C --- OLD style ---
+  100 continue
+      j1 = 0
+      call skipbl(sfargs,ls,j1)
+      j1 = j1+1
+      dc = sfargs(j1:j1)
+      j1 = j1+1
+      lstyle = 1
+
+C ... Return here to resume parsing for arguments
+  101 continue
+      call nwordg(sfargs,0,dc//' ',1,j1,j2)
+      j2 = j2+1
+
+C ... Parse special arguments
+      if (sfargs(j2:j2) .ne. ' ')  then
+        m = j1-1
+        i = parg('style=',2,sfargs,m,ls,dc,1,1,iv,lstyle)
+        j1 = j2+1
+        goto 101
+      endif
+
+C --- Change subset of rmax to fill cell volume ---
+C ... Make the list of classes to include in the scaling, backup rmax
+      call defi(olist, nclass)
+      call defrr(ormx2,nclass)
+      call clist(lstyle,sfargs(j1:j2),w(oclabl),w(oz),nclass,nlist,
+     .  w(olist))
+      call dcopy(nclass,w(ormax),1,w(ormx2),1)
+
+C ... Cell volume
+C ... Sum of sphere volumes
+      call pshpr(0)
+      call ovlchk(nbas,nbasp,w(opos),alat,w(ormax),w(ormax),w(oclabl),
+     .  w(oipc),modep,plat,fovl,vols)
+
+C ... vol0 <- volume of all spheres not in list
+      call psfil2(nclass,nlist,w(olist),1d0,w(ormx2),0d0,w(ormx2),
+     .  w(ormax))
+      call ovlchk(nbas,nbasp,w(opos),alat,w(ormax),w(ormax),w(oclabl),
+     .  w(oipc),modep,plat,fovl,vol0)
+
+C ... scale <- relative change in sphere sizes to make vols = vol
+      scale = ((vol-vol0)/(vols-vol0))**(1d0/3d0)
+      call psfil2(nclass,nlist,w(olist),1d0,w(ormx2),scale,w(ormx2),
+     .  w(ormax))
+
+C ... Poke back into sspec
+      do  120  ic = 1, nclasp
+        rmax = dval(w(ormax),ic)
+        call pack2('spec rmt',sspec,ic,rmax)
+  120 continue
+
+      if (ipr .ge. 10) then
+        call awrit6('%N SFILL:  Cell vol %;8g   Sum of sphere vol '//
+     .    '%;8g (%1;5d)%N%9fRelative vol of %i classes to resize: %;4d'
+     .    //'  scale=%;5d',' ',160,lgunit(1),vol,vols,vols/vol,
+     .    nlist,(vols-vol0)/vols,scale)
+C        call awrit2(' change rmax in classes:  %n:1i',' ',80,
+C     .    lgunit(1),nlist,w(olist))
+        if (ipr .ge. 30 .and. dabs(scale-1d0) .gt. 1d-5) then
+          call awrit0('  Class%8fOld rmax    New rmax',' ',80,
+     .      lgunit(1))
+          do  130  i = 1, nlist
+            ic = w(olist+i-1)
+            call r8tos8(dval(w(oclabl),ic),clabl)
+            print 351, ic,clabl,dval(w(ormx2),ic),dval(w(ormax),ic)
+  351       format(i3,2x,a,f10.6,f12.6)
+  130     continue
+        endif
+      endif
+
+C ... Debugging to make sure it worked
+      call ovlchk(nbas,nbasp,w(opos),alat,w(ormax),w(ormax),w(oclabl),
+     .  w(oipc),modep,plat,fovl,vols)
+
+      call poppr
+      end
+      subroutine psfil2(nclass,nlist,list,s1,rmax1,s2,rmax2,rmax)
+C- Copy s1*rmax1 to rmax, except for elements in list copy rmax2*scale
+C     implicit none
+      integer nclass,nlist,list(nlist)
+      double precision s1,s2,rmax1(nclass),rmax2(nclass),rmax(nclass)
+      integer i
+
+      call dpcopy(rmax1,rmax,1,nclass,s1)
+      do  10  i = 1, nlist
+   10 rmax(list(i)) = rmax2(list(i))*s2
+
+      end
+

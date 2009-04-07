@@ -1,0 +1,1 @@
+-uSGI -dIN_PLACE -dFFTW fftz3.f fftz3.f~

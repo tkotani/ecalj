@@ -1,0 +1,5 @@
+echo --- subs-to-linuxi: ccomp to LINUXI-specific ---
+
+../startup/ccomp-files -CCOMP=`egrep -E '\bCCOMP\b' Make.inc  | awk '{print $3}'` LINUXI .
+
+echo --- completed subs-to-linuxi ---

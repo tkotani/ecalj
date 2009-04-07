@@ -1,0 +1,9 @@
+ n1 n2 n3 : number of k-points for GW
+  4  4  4
+ Plane wave cut off for |q+G| in a.u. ngp,ngc
+ 2.7 2.2
+ Parameter for offset gamma points Q0P
+ 1
+ Number of bands
+ 9999 999.0         Energy cutoff for hx0fp0
+ 9999 2.5           Energy cutoff for hsfp0

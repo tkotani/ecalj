@@ -1,0 +1,7 @@
+echo --- subs-to-risc: ccomp files for RISC architecture ---
+
+#foreach i (secmat.f secm2c.f)
+#rm -f xx.f ; ccomp -uBLAS3 $i xx.f; ccomp -dBLAS3 xx.f $i
+#end
+
+#rm -f xx.f

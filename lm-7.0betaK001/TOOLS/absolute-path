@@ -1,0 +1,46 @@
+#! /bin/sh
+
+# A shell script to return the absolute path of a supplied path.
+# this is taken from the Free Software Foundation.
+# It avoids running the path through pwd unnecessary, since pwd can
+# give you automounter prefixes, which can go away
+
+# If the first argument is a directory:
+#   absolute-path echos the absolute-path name of the directory
+# Otherwise
+#   absolute-path echos nothing and returns the value -1
+
+# Usage: absolute-path pathname
+# pathname can refer to a file, not a directory.
+# In that case, absolute-path returns the directory corresponding to the path
+
+APNAME=$1
+
+if test -d $APNAME ; then
+  case "$APNAME" in
+    /* ) ;;
+    . )
+      ## We may be able to use the $PWD environment variable to make this
+      ## absolute.  But sometimes PWD is inaccurate.
+      ## Make sure CDPATH doesn't affect cd (in case PWD is relative).
+      unset CDPATH
+      if test "${PWD}" != "" && test "`(cd ${PWD} ; sh -c pwd)`" = "`pwd`"  ;
+      then
+	APNAME="$PWD"
+      else
+	APNAME="`(cd $APNAME; pwd)`"
+      fi
+    ;;
+    *  ) APNAME="`(cd ${APNAME}; pwd)`" ;;
+  esac
+  echo $APNAME
+  exit 0
+elif test -r "$APNAME" ; then
+  if (echo $APNAME) | grep / >/dev/null; then
+    $0 ` echo $APNAME | sed 's:\(.*\)/[^/]*$:\1:' `
+  else
+    $0 .
+  fi
+else
+  exit -1
+fi

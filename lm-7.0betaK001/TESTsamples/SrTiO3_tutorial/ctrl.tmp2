@@ -1,0 +1,31 @@
+# Do lmf --input to see all effective category and token #
+VERS    LM=7 FP=7
+             # version check. Fixed.
+IO      SHOW=T VERBOS=35
+             # SHOW=T shows readin data (and default setting at the begining of console output)
+	     # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
+	     #
+	     # lerger VERBOSE gives more detailed console output.
+SYMGRP find  # 'find' evaluate space-group symmetry automatically.
+             # Usually 'find is OK', but lmf may use lower symmetry
+	     # because of numerical problem.
+             # Do lmchk to check how it is evaluated.
+%const kmxa=7  # kmxa=7 is good for pwemax=5 or lower.
+               # larger kmxa is better but time-consuming (maybe not the critical part for large systems).
+%const da=0 au=0.529177
+%const d0=1.95/au a0=2*d0 v0=a0^3 vfrac=1 v=v0*vfrac a1=v^(1/3)
+% show vars
+HEADER  SrTiO3 cubic 
+STRUC   ALAT={a1} DALAT={da} 
+        PLAT=1 0 0  0 1 0  0 0 1
+  NBAS= 5  NSPEC=3
+SITE
+  ATOM=Sr POS=1/2 1/2 1/2
+  ATOM=Ti POS= 0   0   0+0
+  ATOM=O  POS=1/2  0   0
+  ATOM=O  POS= 0  1/2  0
+  ATOM=O  POS= 0   0  1/2
+SPEC
+   ATOM= Sr Z= 38 R= 3.616323
+       ATOM= Ti Z= 22 R= 2.089960
+       ATOM= O Z= 8 R=1.595007

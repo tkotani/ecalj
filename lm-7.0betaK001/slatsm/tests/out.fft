@@ -1,0 +1,2 @@
+ tfft: check fft for simple 2x2x4 matrix
+ compare fftz3 ... arrays have the same results

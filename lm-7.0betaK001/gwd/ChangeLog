@@ -1,0 +1,86 @@
+2007-07-21  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* bug fix: expunging floating orbitals from class list, file CLASS
+
+	* lmfgw only makes file Q0P when switch --make-Q0P is used
+
+2005-06-13  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* lmfgw writes sphere densities to file
+
+2004-12-23  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* GW input category no longer required
+
+2003-12-19  T. Kotani
+
+	* Some changes for new GWinput
+	
+2003-09-23  Tony Paxton
+
+	* Partial core occupation
+
+	* Bug fixes in core-level spectroscopy
+
+2002-07-22  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* Added code for self-consistent GW.
+
+	* small bug fix in gvlist renders GW and FP results slightly
+	  different
+
+2002-06-40  Sergey Faleev
+
+	* Changed sugw for self-consistent GW.
+
+2002-06-18  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Added debugging code in sugw to check hamiltonian
+	  rotation routine
+	
+2002-05-13  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Adapt GWIN_V2 to handle Sergey Faleev's quadratic energy mesh
+	  for energy integration.
+
+2002-04-17  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* Local orbitals added to GW driver; GW code redesigned
+	  for local orbitals.
+
+2002-03-07  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* First cut at including local orbitals to gw driver.
+	  gw code is not ready to use them yet.
+
+2001-10-28  takao kotani
+
+	* lmfgw reorganized, its functions split into parts,
+	  and band plotting mode added.
+
+2001-07-14  mark van schilfgaarde
+
+	* Release of v6.11
+
+	* Changed sugw from Takao's original convention for GcutH in making
+	  matrix elements between IPW's (GcutH = gcutb*1.5d0) to using
+	  lmf gmax : GcutH = gmax.
+
+2001-06-01  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* fp/hsibl, fp/rsibl use slightly different G vector lists.
+	
+2001-05-18  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* end of v6.10x
+
+	* Some bug fixes for spin polarized case
+
+2001-04-23  mark van schilfgaarde  <markv@waldo.ran.sandia.gov>
+
+	* First cut at GW driver
+	
+2001-04-xx  takao
+
+	*  fixed dcmplx error in routine vcoulq in hvccfp.f.
+

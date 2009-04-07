@@ -1,0 +1,15 @@
+------ Release of v6.12 ----
+  Requires SLATSM v42.
+
+* Major changes:
+  See ChangeLog in separate directories for fuller description of changes.
+	
+  * Documentation extensively revised, and written in html.
+
+  * Local orbitals added to programs lmf and lmfgw
+
+  * New program lmmag (noncollinear package)
+
+  * lmfgw reorganized, its functions split into parts and local orbitals added
+
+  * Automatic sphere resizers added

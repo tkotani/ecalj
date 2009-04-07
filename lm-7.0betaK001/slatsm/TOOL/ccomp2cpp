@@ -1,0 +1,48 @@
+#!/usr/bin/python
+# Make ccomp style to cpp style
+# Apr2007 takao kotani
+# Usage:   ccomp2 lm.f
+import os
+import sys
+import string
+import re
+#n  = len(sys.argv)
+#fn = sys.argv[n-1]
+fn = sys.argv[1]
+oxx = open(fn,'rt').read()
+oxx = string.split(oxx,'\n')
+tf=0
+ckey='^C#(if|ifdef|ifndef|else|elseif|endif)'
+for il in oxx:
+	iline=il
+
+	if(re.search(ckey+'C',iline)):
+		tf=1
+		iline= re.sub('^C#','#',iline)
+		iline= re.sub('(?P<h1>(def|if|else))C','\g<h1>',iline)
+	elif(re.search(ckey,iline)):
+		iline= re.sub('^C#','#',iline)
+		tf=0
+
+#		print '222axxxxxxxxxxxxx',iline
+#		sys.exit()
+#	iline= re.sub('^#define','C!!!defined_in_ccomp ',iline)
+
+	iline= re.sub('^#elseif','#elif',iline)
+	iline= re.sub('^#ifdef', '#if',iline)
+
+	iline= re.sub('^C#define', '#define',iline)
+	iline= re.sub('(?P<i1>(?<=(^#define))\s+\w+)','\g<i1> 1',iline)
+
+        iline= re.sub('SUN-ULTRA', 'SUN_ULTRA',iline)
+        iline= re.sub('APOLLO-BUG','APOLLO_BUG',iline)
+        iline= re.sub('POWER-PC',  'POWER_PC',iline)
+        iline= re.sub('AUTO-ARRAY','AUTO_ARRAY',iline)
+        iline= re.sub('SGI-PARALLEL','SGI_PARALLEL',iline)
+        iline= re.sub('AIX-xlf90', 'AIX_xlf90',iline)
+
+	if(tf):
+		print re.sub('^C','',iline)
+	else:
+		print iline
+		

@@ -1,0 +1,262 @@
+# Check of local orbitals and floating orbitals for SrTiO3, cubic space group Pm-3m
+# The Sr 4p and Ti 3p orbitals are included in the valence as local orbitals.
+# The Sr 5p and Ti 4p valence states are augmented in the usual way.
+# Floating orbitals can optionally be turned on with -vles=t
+#
+# This file was adapted from Tony Paxton.
+#
+# The following table shows that forces are correctly computed.
+# Parameter tiz is the Ti displacement along z (see SITE below)
+# To duplicate this table, make self-consistent at tiz=0; then set FRZWF:=t
+#   lmf  -vfrz=t -veloc=1 -vles=f -vconvc=5e-6 srtio3 -vtiz=.. --rs=11,1,1
+#   Differentiate total energy with mc -diff:nord=5 -s-1/7.37/.001
+#                           w/out floating orbitals                     with floating orbitals
+#                      bigbas=f                     bigbas=t
+#    tiz     force      etot     force      force      etot     force      force      etot     force
+#          (analytic)            (diff)   (analytic)            (diff)   (analytic)            (diff)
+#   -.03     60.77   -2.702957    60.95     58.07    -2.715130   57.90     56.59   -2.722897   56.36
+#   -.02     32.99   -2.706351    33.06     31.45    -2.718358   31.48     30.13   -2.726014   30.12
+#   -.01     14.19   -2.708054    14.29     13.58    -2.719980   13.60     12.87   -2.727558   12.88
+#     0       0.00   -2.708567     0.00      0.00    -2.720468   -0.01      0.00   -2.728020   -0.01
+#    .01    -14.31   -2.708054   -14.29    -13.58    -2.719980  -13.58    -12.87   -2.727558  -12.88
+#    .02    -33.01   -2.706350   -33.07    -31.36    -2.718361  -31.43    -30.13   -2.726014  -30.12
+#    .03    -60.78   -2.702957   -60.89    -57.96    -2.715132  -58.03    -56.59   -2.722897  -56.36
+#
+#  Equilibrium volume (alat=a=7.36993 at da=0.  For B, use vol*E''*147e12)
+#                w/out floating orbitals    with floating orbitals
+#        da      small bas    bigbas         small bas    bigbas
+#    -0.300000   -2.680727  -2.693554        -2.697755  -2.712607
+#    -0.200000   -2.701101  -2.713549        -2.719769  -2.732283
+#    -0.100000   -2.709803  -2.721949        -2.729742  -2.740714
+#     0.000000   -2.708575  -2.720463        -2.728075  -2.739262
+#     0.100000   -2.698890  -2.710542        -2.717985  -2.729349
+#     0.200000   -2.681955  -2.693402        -2.700663  -2.712186
+#     0.300000   -2.658842  -2.670111        -2.677181	-2.688839
+#       a*        7.306      7.303            7.307      7.304
+#       E*       -2.7104    -2.7225          -2.7302    -2.7413  
+#       B(Mbar)   2.10       2.11             2.25       2.10
+#                                          (poor fit)
+# ----------- repeat with frozen w.f. --------
+#    -0.300000  -2.663146  -2.685656
+#    -0.200000  -2.689507  -2.710482
+#    -0.100000  -2.702406  -2.721994
+#     0.000000  -2.704075  -2.722415
+#     0.100000  -2.696354  -2.713573
+#     0.200000  -2.680758  -2.696974
+#     0.300000  -2.658546  -2.673861
+#       a*        7.335     7.323
+#       E*       -2.7047   -2.7235  
+#       B(Mbar)   2.23      2.25
+
+
+# For ASA calculation of defect:
+# lm -vfrz=f -vtiz=.00 srtio3 -vnit=0 -vasa=t -vba=t --iactiv -vfile=t -vdefect=22
+
+% const asa=f les=asa ba=f defect=0 file=0 hf=0 eloc=0
+% const rfrac=0.64 rcrit=0.5*(sqrt(3)+1-sqrt(2)) afrac=1
+% const beta=0.5 conv=1d-5 convc=3d-5 nk=3 nit=100 ftmesh=36
+HEADER  SrTiO3 cubic Sr 4p and Ti 4p with using local orbitals
+VERS    LMF-6.10 LMASA-6.10 LM:7 ASA:7 FP:7
+IO      SHOW=F VERBOS=verb
+TESTLMF lmfa -vfrz=f -vtiz=.00 -veloc=0 srtio3
+        lmf  -vfrz=f -vtiz=.00 -veloc=0 srtio3
+        rm mixm.srtio3
+        lmf  -vfrz=f -vtiz=.01 -veloc=0 srtio3 --rs=11,1,1
+        rm mixm.srtio3
+        lmf  -vfrz=f -vtiz=.01 -veloc=1 srtio3 --rs=11,1,1,1,1
+#         mpix -np=4 lmf-MPIK -vfrz=f -vtiz=.00 -veloc=0 srtio3 --rs=0
+#         rm mixm.srtio3
+#         mpix -np=6 lmf-MPIK  -vfrz=f -vtiz=.01 -veloc=0 srtio3 --rs=11,1,1
+CLEAN   rm -f ctrl.srtio3 wkp.srtio3 save.srtio3 out.lmf.srtio3 log.srtio3 atm.srtio3 moms.srtio3 rst.srtio3 mixm.srtio3
+CONST   ro=1.45 rti=2.33479535 rti=2.35348 rsr=3.1
+        verb=40 au=0.529177
+        d0={ba?2.00:1.95}/au a0=2*d0 v0=a0^3 vfrac=1 v=v0*vfrac a1=v^(1/3) da=0
+        d1=a1/2 rf=0.9 rfsr=0.9
+STRUC   NBAS=5+{defect?1:0}+{les?12:0} NL=4 NSPEC=3+{defect?1:0}+{les?1:0} ALAT=a1 DALAT=da PLAT=1 0 0  0 1 0  0 0 1
+% ifdef file
+        FILE=site
+% endif
+SPEC
+        SCLWSR={asa} OMAX1={asa?.20:.04},{asa?.24:.04},{asa?.20:.04} OMAX2=.45,.61,.61 WSRMAX=3.5 A
+
+%ifndef ba
+        ATOM=Sr Z=38 R=rsr LMXA=3 A=.025 KMXA=5 EREF=-6351.4281 LFOCA=1 FRZWF=t A=0.03
+                P=5.5 5.3 4.3  PZ=0,{eloc<0?0:(eloc?14.93:4.93)} IDMOD=0 0 1
+%else
+        ATOM=Sr Z=56 R=rsr LMXA=3 A=.025 KMXA=5 EREF=-6351.4281 LFOCA=1 FRZWF=t A=0.03
+                P=6.5 6.3 5.3  PZ=0,{eloc<0?0:(eloc?15.93:5.9)} IDMOD=0 0 1
+%endif
+
+%ifdef bigbas
+                RSMH=1.0,1.0,1.0,1.0 EH=-.1,-.1,-.1,-.1
+                RSMH2={eloc>0?0:1},1.0,0  EH2=-1,-.8,-1
+%else
+                RSMH=1.0,1.2,1.0,1.0 EH=-.1,-.8,-.1,-.1
+%endif
+
+        ATOM=Ti Z=22 R=rti LMXA=3 KMXA=5 EREF=-1703.4890 A=0.03
+                P=4.5 4.3 3.5 PZ=0,{eloc<0?0:(eloc?13.93:3.9)} Q=2 0 2 LFOCA=1 IDMOD=0 0 0
+%ifdef bigbas
+                RSMH=1.8,1.0,1.0 EH=-.1,-.1,-.1
+                RSMH2=1.8,1.0,1.0 EH2=-1.2,-1.2,-1.2
+%else
+                RSMH=1.8,.9,1.0 EH=-.1,-1.5,-.1
+%endif
+
+        ATOM=O  Z=8  R=ro  LMX=2 LFOCA=0 EREF=-149.1822 A=0.03
+
+%ifdef bigbas
+                  RSMH=.85,0.80,2.4 EH=-1.2,-.1,-.1
+                  RSMH2=0,0.80,0 EH2=-1,-1,-1
+%else
+                  RSMH=.85,0.80,2.4 EH=-1,-.1,-.1
+%endif
+
+%ifdef defect>0
+        ATOM=D Z={defect} R=rti LMXA=3 KMXA=5 EREF=0 A=0.03
+                P=4.5 4.3 3.5 PZ=0,3.9 Q=2 0 2 LFOCA=1 IDMOD=0 1 0
+%ifdef bigbas
+                RSMH=1.8,1.0,1.0 EH=-.1,-.1,-.1
+                RSMH2=1.8,1.0,1.0 EH2=-1.2,-1.2,-1.2
+%else
+                RSMH=1.8,.9,1.0 EH=-.1,-1.5,-.1
+%endif
+%endif
+
+% ifdef asa
+          ATOM=E  Z=0 R=1.1 LMX=1 LFOCA=0 EREF=0 IDXDN=1 2 A=0.03
+% else
+          ATOM=E  Z=0 R=0 LMX=1 RSMH=1.8,1.8 EH=-1,-1 A=0.03
+% endif
+
+%const tiz=0
+SITE
+% ifdef file
+        FILE=site
+% endif
+        ATOM=Sr POS=1/2 1/2 1/2
+        ATOM=Ti POS= 0   0   0+{tiz}
+        ATOM=O  POS=1/2  0   0
+        ATOM=O  POS= 0  1/2  0
+        ATOM=O  POS= 0   0  1/2
+
+        ATOM=E  POS=0.30973307 0.30973307 0.00000000
+        ATOM=E  POS=0.30973307 -.30973307 0.00000000
+        ATOM=E  POS=-.30973307 0.30973307 0.00000000
+        ATOM=E  POS=-.30973307 -.30973307 0.00000000
+        ATOM=E  POS=0.30973307 0.00000000 0.30973307
+        ATOM=E  POS=0.30973307 0.00000000 -.30973307
+        ATOM=E  POS=-.30973307 0.00000000 0.30973307
+        ATOM=E  POS=-.30973307 0.00000000 -.30973307
+        ATOM=E  POS=0.00000000 0.30973307 0.30973307
+        ATOM=E  POS=0.00000000 0.30973307 -.30973307
+        ATOM=E  POS=0.00000000 -.30973307 0.30973307
+        ATOM=E  POS=0.00000000 -.30973307 -.30973307
+
+BZ      NKABC={nk} {nk} {nk} BZJOB=1 METAL={defect<>0} TETRA=1 SAVDOS=0
+% ifdef hf
+        NEVMX=-1
+% endif
+.MIX     MODE=A0,b={beta} CONV={conv} CONVC={convc}
+ITER    MIX=A2,b={beta} CONV={conv} CONVC={convc} NIT={nit}
+MIX     MODE=A2,b={beta} CONV={conv} CONVC={convc}
+ITER    MIX=A2,b={beta},n=3;A0,b={beta},n=3 CONV={conv} CONVC={convc} NIT={nit}
+MIX     MODE=A2,b={beta},n=3;A0,b={beta},n=3 CONV={conv} CONVC={convc}
+% const frz=f
+HAM     ELIND=-.8 FTMESH={ftmesh} {ftmesh} {ftmesh} FORCES={hf?0:12} FRZWF={frz}
+        QASA=3
+OPTIONS AsA[ CCOR=t ]
+START   CNTROL={nit==0} BEGMOM={nit==0} NIT={nit}
+        ATOM=Sr       P=  5.3033089  5.3000000  4.3000000  4.1117862
+                      Q=  0.2300693  0.0000000  0.0198972
+                          0.3972277 -0.1612042  0.0912415
+                          0.6110311 -0.1090988  0.0506596
+                          0.1861455  0.0000000  0.0332966
+        ATOM=Ti       P=  4.3884571  4.3000000  3.3531937  4.1166164
+                      Q=  0.4282588  0.0000000  0.0451821
+                          0.8196281 -0.2956449  0.2242465
+                          2.1334106  0.0000000  0.1215807
+                          0.3812719  0.0000000  0.0521027
+        ATOM=O        P=  2.8639875  2.8365869  3.1843289
+                      Q=  1.5984900  0.0000000  0.0306762
+                          3.7911161  0.0000000  0.0469695
+                          0.0060280  0.0000000  0.0222352
+        ATOM=E        P=  1.5115653  2.2537229
+                      Q=  0.1567866  0.0000000  0.0342060
+                          0.0620513  0.0000000  0.0126152
+
+%ifdef ba
+        ATOM=Sr       P=  6.2218316  6.3000000  5.3000000  4.1209959
+                      Q=  0.1549450  0.0000000  0.0119192
+                          0.3079854 -0.1704686  0.1094316
+                          0.5424561 -0.0682030  0.0376281
+                          0.1782070  0.0000000  0.0187193
+        ATOM=Ti       P=  4.4108677  4.3000000  3.3380002  4.1123188
+                      Q=  0.4410464  0.0000000  0.0353656
+                          0.8240602 -0.2528585  0.1913251
+                          2.1581233  0.0000000  0.1047289
+                          0.4012544  0.0000000  0.0572889
+        ATOM=O        P=  2.8696770  2.8390575  3.1801298
+                      Q=  1.6183801  0.0000000  0.0216288
+                          3.8650202  0.0000000  0.0377110
+                          0.0059356  0.0000000  0.0311443
+        ATOM=E        P=  1.4999906  2.2516684
+                      Q=  0.1472831  0.0000000  0.0347083
+                          0.0630432  0.0000000  0.0126350
+%endif
+
+#         ATOM=Sr       P=  6.2209324  6.3000000  5.3000000  4.1210393
+#                       Q=  0.1505689  0.0000000  0.0122664
+#                           0.3019612 -0.1673013  0.1074261
+#                           0.5416590 -0.0671052  0.0380032
+#                           0.1777907  0.0000000  0.0187887
+#         ATOM=Ti       P=  4.4084157  4.3000000  3.3398722  4.1126347
+#                       Q=  0.4475883  0.0000000  0.0341485
+#                           0.8333961 -0.2500126  0.1874428
+#                           2.1622975  0.0000000  0.1113597
+#                           0.4027315  0.0000000  0.0542622
+#         ATOM=O        P=  2.8689223  2.8393164  3.1858869
+#                       Q=  1.6174320  0.0000000  0.0213252
+#                           3.8383115  0.0000000  0.0419558
+#                           0.0074270  0.0000000  0.0291685
+#         ATOM=D        P=  4.4508023  4.3000000  3.4819655  4.1115423
+#                       Q=  0.4809689  0.0000000  0.0391203
+#                           0.8775276 -0.1691042  0.1644969
+#                           1.2031290  0.0000000  0.1643368
+#                           0.3973982  0.0000000  0.0573188
+#         ATOM=E        P=  1.4941978  2.2511109
+#                       Q=  0.1452132  0.0000000  0.0352378
+#                           0.0649681  0.0000000  0.0130949
+#         ATOM=Ti2      P=  4.4091730  4.3000000  3.3360198  4.1124996
+#                       Q=  0.4521767  0.0000000  0.0347510
+#                           0.8401166 -0.2506141  0.1887298
+#                           2.1456850  0.0000000  0.1059178
+#                           0.4043808  0.0000000  0.0547573
+#         ATOM=O2       P=  2.8694361  2.8389980  3.1815341
+#                       Q=  1.6176502  0.0000000  0.0203210
+#                           3.8665656  0.0000000  0.0384913
+#                           0.0060035  0.0000000  0.0293280
+#         ATOM=E2       P=  1.5000911  2.2516261
+#                       Q=  0.1462309  0.0000000  0.0349265
+#                           0.0629232  0.0000000  0.0126812
+#         ATOM=Ti3      P=  4.4098524  4.3000000  3.3343241  4.1125118
+#                       Q=  0.4528959  0.0000000  0.0349476
+#                           0.8409356 -0.2496014  0.1884125
+#                           2.1396832  0.0000000  0.1023063
+#                           0.4045305  0.0000000  0.0548582
+#         ATOM=O3       P=  2.8694646  2.8389238  3.1807314
+#                       Q=  1.6178296  0.0000000  0.0204661
+#                           3.8673918  0.0000000  0.0387046
+#                           0.0057510  0.0000000  0.0293594
+#         ATOM=E3       P=  1.5002760  2.2517965
+#                       Q=  0.1471790  0.0000000  0.0347760
+#                           0.0633857  0.0000000  0.0127055
+#         ATOM=E4       P=  1.5002105  2.2517248
+#                       Q=  0.1469857  0.0000000  0.0347391
+#                           0.0632291  0.0000000  0.0126631
+#         ATOM=E5       P=  1.5001470  2.2517531
+#                       Q=  0.1465968  0.0000000  0.0346963
+#                           0.0632682  0.0000000  0.0126739
+#         ATOM=E6       P=  1.5002337  2.2517381
+#                       Q=  0.1469661  0.0000000  0.0346928
+#                           0.0632257  0.0000000  0.0126485

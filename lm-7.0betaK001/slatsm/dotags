@@ -1,0 +1,4 @@
+etags `pwd`/*.c
+etags -a `pwd`/*.f
+etags -a `pwd`/BLAS/*.f
+etags -a `pwd`/LAPACK/*.f

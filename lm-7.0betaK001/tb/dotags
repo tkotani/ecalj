@@ -1,0 +1,2 @@
+etags `pwd`/*.f
+cat ../mol/TAGS >>TAGS

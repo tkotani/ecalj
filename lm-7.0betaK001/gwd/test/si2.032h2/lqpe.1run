@@ -1,0 +1,125 @@
+  q+band index for zero?
+hqpe_sc: VerNum= 032h2
+  ... reading input sigma from file sigm
+  rwsigma: Reading sigm (Binary)===
+  ===     1  1   0.00000   0.00000   0.00000
+  ===     2  1  -0.50000   0.50000   0.50000
+  ===     3  1   0.00000   0.00000   1.00000
+  === rwsigma:  sum check of sigma_m=   1.87181445198431     
+ 
+  iSigma_en=           3
+  ndimh ntq nsp nnn =          26          26           1           8
+  --- is=           1
+  ###  readin XCU
+  ###  readin SEXU
+  ###  readin SEXcoreU
+  ###  readin SECU
+  eshift is so as to be zero for UP of (it iq)=            4           1
+  end of qpe1
+ ntq ntqxx=   26   20
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ ntq ntqxx=   26   20
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ ntq ntqxx=   26   22
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ ========= Sigma mixing section using mixsigma =======
+  rwsigma: Reading sigm (Binary)===
+  ===     1  1   0.00000   0.00000   0.00000
+  ===     2  1  -0.50000   0.50000   0.50000
+  ===     3  1   0.00000   0.00000   1.00000
+  === rwsigma:  sum check of sigma_m=   2.38346250800667     
+ 
+ mixsigma: Anderson mixing sigma with mixing beta =    1.000000
+ ... reading file mixsigma
+ ... using input sigma read from sigm file
+ sum sss=   2.46828146162313     
+ AMIX: nmix=0 mmix=3  nelts=  4056  beta=1.00000  tm= 5.00000  rmsdel=1.27D-03
+ 
+ === Write sigma to files (Binary and ASCII) ========
+  rwsigma  Writing sigm (Binary)===
+  ===     1  1   0.00000   0.00000   0.00000
+  ===     2  1  -0.50000   0.50000   0.50000
+  ===     3  1   0.00000   0.00000   1.00000
+  === rwsigma:  sum check of sigma_m=   2.38346250800667     
+ 
+  rwsigmaa: Writing sigma (ASCII)===
+  ===     1  1   0.00000   0.00000   0.00000
+  ===     2  1  -0.50000   0.50000   0.50000
+  ===     3  1   0.00000   0.00000   1.00000
+  === rwsigmaa: sum check of sigma_m=   2.38346250800667     
+ 

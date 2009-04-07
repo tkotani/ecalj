@@ -1,0 +1,7 @@
+echo --- subs-to-aix: ccomp to AIX-specific ---
+
+foreach i (aiomom.f aiopar.f)
+  rm -f xx.f ; ccomp -uAIX $i xx.f
+  ccomp -dAIX xx.f $i
+end
+rm -f xx.f

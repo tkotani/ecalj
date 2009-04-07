@@ -1,0 +1,5 @@
+#!/bin/csh
+foreach i (`ls [a-h]*.f`)
+echo cp $i $i.org
+cp $i $i.org 
+end

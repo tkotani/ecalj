@@ -1,0 +1,20 @@
+% const pwemax=5 nk=12 da=0
+HEADER  Cu
+VERS    LM=7 FP=7
+IO      SHOW=f HELP=f VERBOS=31 20 
+
+SYMGRP  find
+STRUC   NBAS=1 NL=5 NSPEC=1 ALAT=6.798 DALAT={da}
+        PLAT=  0.0 0.5 0.5  0.5 0.0 0.5   0.5 0.5 0.0
+SITE    ATOM=Cu POS=0 0 0
+SPEC    ATOM=Cu Z=29 
+        R=2.28 LMXA=5 KMXA=5
+        RSMH=1.5 1.5 0.951 EH= -0.284 -0.1 -0.112
+
+BZ      NKABC={nk} METAL=3 SAVDOS=T DOS=-1 1 NPTS=2001
+HAM     FTMESH=15 XCFUN=2 REL=t 
+        PWMODE=11  PWEMAX={pwemax}
+
+OPTIONS HF=f PFLOAT=1
+
+ITER    CONV=1e-5 CONVC=1e-5 NIT=20

@@ -1,0 +1,22 @@
+--- Full-potential program lmf (v6.11) ---
+
+ This package contains a full-potential code, using a generalized LMTO
+ basis.  See doc/fp.html for documentation of the input file and links
+ to a description of the method.  It also is required for the
+ full-potential GW driver that connects with the all-electron GW
+ program written by Takao Kotani.
+
+--- Installation ---
+Invoke `configure' with --enable-fp; see doc/README.
+
+--- Documentation ---
+See file doc/fp.html for documentation and 
+doc/FPtutorial.html for a tutorial.
+
+--- Test cases and examples ---
+
+fp/test/test.fp checks out that the package is working properly.
+                and also illustrates some of the features.
+
+You can invoke all tests using
+  fp/test/test.fp --all

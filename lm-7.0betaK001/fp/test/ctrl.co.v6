@@ -1,0 +1,528 @@
+HEADER  Master file for transition and other elemental metals
+% const asa=t lmf=f scale=.983 lmxf=6 hf=f tp=t xcn=0 lmh=f co=t so=f sharm=f
+% const nit=0 ccor=t twoc=f gamrep=twoc gfmod=0 version=6
+% const Zn=f Cd=f
+%ifdef Li (a0e)
+%const  vol=6.547^3/2 Z=3 nd0=0 np0=0 mom=0 ef0=0
+%const  eref=lmh?-14.8363:-14.7106 bcc=t
+%elseifd Be (a0e,c0e)
+%const  vol=4.275^3*0.961/sqrt(2) Z=4 nd0=0 np0=0 mom=0 ef0=0
+%const  eref=lmh?-29.0952:-28.9148 hcp=t
+%elseifd C
+%const  vol=7.67^3/4 Z=6 nd0=0 np0=2 mom=0 ef0=0
+%const  eref=lmh?-75.3053:-74.9949
+%var    tp=f
+%elseifd N
+%const  vol=7.67^3/4 Z=7 nd0=0 np0=3 mom=0 ef0=0
+%const  eref=lmh?-108.7417:-108.3613
+%var    tp=f
+%elseifd O
+%const  vol=7.67^3/4 Z=8 nd0=0 np0=4 mom=0 ef0=0
+%const  eref=lmh?-149.6055:-149.1822
+%elseifd Fl
+%const  vol=7.67^3/4 Z=9 nd0=0 np0=5 mom=0 ef0=0
+%const  eref=lmh?-198.9010:-198.4228
+%elseifd Na (a0e)
+%const  vol=7.964^3/2 Z=11 nd0=0 np0=0 mom=0 ef0=0
+%const  eref=lmh?-323.9536:-323.3409 bcc=t
+%elseifd Mg (a0e,c0e)
+%const  vol=6.008^3*.994/sqrt(2) Z=12 nd0=0 np0=0 mom=0 ef0=0
+%const  eref=lmh?-399.5824:-398.9159 hcp=t
+%elseifd Al (a0e)
+%const  vol=7.606^3/4 Z=13 nd0=0 np0=1 mom=0 ef0=0
+%const  eref=lmh?-484.2945:-483.5463 fcc=t
+%var    tp=f
+%elseifd Si
+%const  vol=7.67^3/4 Z=14 nd0=0 np0=2 mom=0 ef0=0
+%const  eref=lmh?-578.53355:-577.69658
+%var    tp=f
+%elseifd P
+%const  vol=7.67^3/4 Z=15 nd0=0 np0=3 mom=0 ef0=0
+%const  eref=lmh?-682.6306:-681.7019
+%var    tp=f
+%elseifd S
+%const  vol=7.67^3/4 Z=16 nd0=0 np0=4 mom=0 ef0=0
+%const  eref=lmh?-796.7102:-795.7136
+%elseifd Cl
+%const  vol=7.67^3/4 Z=17 nd0=0 np0=5 mom=0 ef0=0
+%const  eref=lmh?-921.3120:-920.2358
+%elseifd K (a0e)
+%const  vol=9.876^3/2 Z=19 nd0=0 np0=0 mom=0 ef0=0
+%const  eref=lmh?-1202.3534:-1201.1108 bcc=t
+%elseifd Ca (a0e)
+%const  vol=10.49^3/4 Z=20 nd0=0 np0=0 mom=0 ef0=0
+%const  eref=lmh?-1358.6611:-1357.3538 fcc=t
+%elseifd Sc (a0e,c0e)  s2d1
+%const  vol=6.234^3*.974/sqrt(2) Z=21 nd0=1 np0=0 mom=0 ef0=0
+%const  eref=lmh?-1526.0016:-1524.6173 hcp=t
+%elseifd Ti (a0e,c0e)  s1d3
+%const  vol=5.560^3*.97/sqrt(2) Z=22 nd0=2 np0=0 mom=0 ef0=0
+%const  eref=lmh?-1704.9844:-1703.4890 hcp=t
+%elseifd V (a0e)    s1d4
+%const  vol=5.707^3/2 Z=23 nd0=3 np0=0 mom=0 ef0=0
+%const  eref=lmh?-1895.8753:-1894.2951 bcc=t
+%elseifd Cr (a0e)   s1d5
+%const  vol=5.433^3/2 Z=24 nd0=4 np0=0 mom=0 ef0=0
+%const  eref=lmh?-2098.9693:-2097.3033 bcc=t
+%elseifd Mn   s1d5
+%const  vol=5.2^3/2 Z=25 nd0=5 np0=0 mom=0 ef0=0
+%const  eref=lmh?-2314.3248:-2312.6092 bcc=t
+%elseifd Fe (a0e)
+%const  vol=5.394^3/2 Z=26 nd0=6 np0=0 ef0=0
+%const  eref=lmh?-2542.3426:-2540.5681 mom=2.2 bcc=t nsp=2
+%elseifd Co (a0e,c0e)  s2d7  lmh depends sensitively on RMAX
+%const  vol=4.711^3*.995/sqrt(2) Z=27 nd0=7 np0=0 ef0=0 mom=1.6
+%const  eref=lmh?-2783.53:-2781.6524 hcp=t nsp=2
+%elseifd Ni (a0e)   s1d9
+%const  vol=6.621^3/4 Z=28 nd0=8 np0=0 mom=.6 ef0=0 nsp=2
+%const  eref=lmh?-3038.1050:-3036.1820 fcc=t
+%elseifd Cu (a0e) s1d10
+%const  vol=6.798^3/4 Z=29 nd0=9 np0=0 mom=0 ef0=0
+%const  eref=lmh?-3306.4359:-3304.4345 fcc=t
+%elseifd Zn (a0e,c0e) s2d10
+%const  vol=5.018^3*1.12/sqrt(2) Z=30 nd0=10 np0=0 mom=0 ef0=0
+%const  eref=lmh?-3588.5895:-3586.5189 hcp=t
+%elseifd Ga
+%const  vol=7.67^3/4 Z=31 nd0=0 np0=1 mom=0 ef0=0
+%const  eref=lmh?-3884.2872:-3882.1256
+%elseifd As
+%const  vol=7.67^3/4 Z=33 nd0=0 np0=3 mom=0 ef0=0
+%const  eref=lmh?-4517.8415:-4515.4714
+%elseifd Se
+%const  vol=8.24^3*.696/sqrt(2) Z=34 nd0=0 np0=4 mom=0 ef0=0
+%const  eref=lmh?-4855.9134:-4853.4670
+%elseifd Rb
+%const  vol=vol=10.57^3/2 Z=37 nd0=0 np0=0 mom=0 ef0=0
+%const  eref=lmh?-5957.8443:-5955.1147 bcc=t
+%elseifd Sr (a0e) s2
+%const  vol=11.43^3/4 Z=38 nd0=0 np0=0 mom=0 ef0=0
+%const  eref=lmh?-6354.2361:-6351.4281 fcc=t
+%elseifd Y (a0e,c0e)
+%const  vol=6.886^3*.958/sqrt(2) Z=39 nd0=1 np0=0 mom=0 ef0=0
+%const  eref=lmh?-6765.4799:-6762.5727 hcp=t
+%elseifd Zr (a0e,c0e) s1d3
+%const  vol=6.106^3*.974/sqrt(2) Z=40 nd0=2 np0=0 mom=0 ef0=0
+%const  eref=lmh?-7192.0796:-7189.0263 hcp=t
+%elseifd Nb (a0e)
+%const  vol=6.222^3/2 Z=41 nd0=3 np0=0 mom=0 ef0=0
+%const  eref=lmh?-7634.2494:-7631.0823 bcc=t
+%elseifd Mo (a0e) s1d5
+%const  vol=5.937^3/2 Z=42 nd0=4 np0=0 mom=0 ef0=0
+%const  eref=lmh?-8092.2041:-8088.9209 bcc=t
+%elseifd Tc
+%const  vol=5.18^3*.982/sqrt(2) Z=43 nd0=5 np0=0 ef0=0 mom=0
+%const  eref=lmh?-8565.9731:-8562.5418 hcp=t
+%elseifd Ru (a0e,c0e)
+%const  vol=5.106^3*.968/sqrt(2) Z=44 nd0=6 np0=0 ef0=0 mom=0
+%const  eref=lmh?-9055.8738:-9052.4204 hcp=t
+%elseifd Rh (a0e)
+%const  vol=7.169^3/4 Z=45 nd0=7 np0=0 ef0=0 mom=0
+%const  eref=lmh?-9562.3473:-9558.7907 fcc=t
+%elseifd Pd (a0e) s1d8
+%const  vol=7.327^3/4 Z=46 nd0=8 np0=0 ef0=0 mom=0
+%const  eref=lmh?-10085.5577:-10081.8924 fcc=t
+%elseifd Ag (a0e) s1d10
+%const  vol=7.674^3/4 Z=47 nd0=9 np0=0 ef0=0 mom=0
+%const  eref=lmh?-10625.7667:-10621.9685 fcc=t
+%elseifd Cd (a0e,c0e)
+%const  vol=5.603^3*1.14/sqrt(2) Z=48 nd0=10 np0=0 mom=0 ef0=0
+%const  eref=lmh?-11182.7667:-11178.8931 hcp=t
+%elseifd In 2s1p
+%const  abct=6.13 cbct=9.33 vol=abct^2*cbct/2 Z=49
+%const  eref=lmh?-11756.5524:-11752.5630 nd0=0 np0=1 mom=0 ef0=0 bct=t
+%elseifd Sn 2s2p
+%const  vol=12.24^3/4/2 Z=50 nd0=0 np0=2 mom=0 ef0=0
+%const  eref=lmh?-12347.5389:-12343.4222
+%elseifd Te 2s4p
+%const  vol=8.41^3*.814/sqrt(2) Z=52 nd0=0 np0=4 mom=0 ef0=0
+%const  eref=lmh?-13581.7015:-13577.3544
+%elseifd Cs
+%const  vol=vol=11.43^3/2 Z=55 nd0=0 np0=0 mom=0 ef0=0
+%const  eref=lmh?-15565.9590:-15561.2527 bcc=t
+%elseifd Ba (a0e)
+%const  vol=9.433^3/2 Z=56 nd0=0 np0=0 mom=0 ef0=0
+%const  eref=lmh?-16262.9903:-16258.1782 bcc=t
+%elseifd La s2d1
+%const  vol=7.09^3*.991/sqrt(2) Z=57 nd0=1 np0=0 mom=0 ef0=0
+%const  eref=lmh?-16978.2357:-16973.2948 hcp=t
+%elseifd Haf (a0e,c0e) s2d2
+%const  vol=6.03^3*.968/sqrt(2) Z=72 nd0=2 np0=0 mom=0 ef0=0
+%const  eref=lmh?-30144.5720:-30137.6046 hcp=t
+%elseifd Ta (a0e)
+%const  vol=6.226^3/2 Z=73 nd0=3 np0=0 mom=0 ef0=0
+%const  eref=lmh?-31197.1092:-31189.9017 bcc=t
+%elseifd W (a0e)
+%const  vol=5.966^3/2 Z=74 nd0=4 np0=0 mom=0 ef0=0
+%const  eref=lmh?-32272.8772:-32265.5134 bcc=t
+%elseifd Re (a0e,c0e)
+%const  vol=5.209^3*.989/sqrt(2) Z=75 nd0=5 np0=0 mom=0 ef0=0
+%const  eref=lmh?-33371.9218:-33364.4264 hcp=t
+%elseifd Os (a0e,c0e) s2d6
+%const  vol=5.163^3*.966/sqrt(2) Z=76 nd0=6 np0=0 mom=0 ef0=0
+%const  eref=lmh?-34494.8876:-34487.2370 hcp=t
+%elseifd Ir (a0e) s1d8
+%const  vol=7.239^3/4 Z=77 nd0=7 np0=0 ef0=0 mom=0
+%const  eref=lmh?-35641.9213:-35634.0931 fcc=t
+%elseifd Pt (a0e) s1d9
+%const  vol=7.381^3/4 Z=78 nd0=8 np0=0 ef0=0 mom=0
+%const  eref=lmh?-36813.4896:-36805.4789 fcc=t
+%elseifd Au (a0e) s1d10
+%const  vol=7.67^3/4 Z=79 nd0=9 np0=0 ef0=0 mom=0
+%const  eref=lmh?-38009.8780:-38001.6756 fcc=t
+%elseifd Hg s2d10
+%const  vol=7.71^3/4 Z=80 nd0=10 np0=0 ef0=0 mom=0
+%const  eref=lmh?-39231.2340:-39222.8479
+%elseifd Tl s2p1d10
+%const  vol=6.486^3*.977/sqrt(2) Z=81 nd0=10 np0=1 ef0=0 mom=0 hcp=t
+%const  eref=lmh?-40477.3968:-40468.8134
+%elseifd Pb (a0e)
+%const  vol=9.263^3/4 Z=82 nd0=10 np0=2 ef0=0 mom=0
+%const  eref=lmh?0:0
+%else
+%stop 1 stop 1 'no element defined'
+%endif
+
+%const  afcc=(4*vol)^(1/3) abcc=(2*vol)^(1/3) ahcp=(vol*sqrt(2))^(1/3)
+
+TESTLMF lmfa  co -vmet=4 -vlmf=1 -vnk=8 -vnit=10 --pr31 --no-iactiv
+        lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 --no-iactiv --rs=0
+        rm mixm.co
+        lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 --no-iactiv 
+        rm mixm.co
+        lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=10 -vw1=1 --pr31 --no-iactiv --time=5
+#       lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=10 --pr31 --no-iactiv --time=5 --band:fn=syml
+#       This one assigns weights to majority bands
+#       lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=10 --pr31 --no-iactiv -vso=t --band~col=1:18~fn=syml
+#       This one assigns weights to Co d bands
+#       lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=10 --pr31 --no-iactiv -vso=t --band~col=5:9,14:18,18+5:18+9,18+14:18+18~fn=syml
+#       This one assigns 1st weight to majority Co d band, 2nd weight to minority
+        lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=10 --pr31 --no-iactiv -vso=t --band~col=5:9,14:18~col2=18+5:18+9,18+14:18+18~fn=syml
+MPIK version
+        mpix -np=13 lmf-MPIK   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 --no-iactiv --rs=0
+        rm mixm.co
+        mpix -np=13 lmf-MPIK   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 --no-iactiv
+        rm mixm.co
+        mpix -np=13 lmf-MPIK   co -vmet=4 -vlmf=1 -vnk=8 -vnit=10 -vw1=1 --pr31 --no-iactiv --time=5
+        mpix -np=13 lmf-MPIK   co -vmet=4 -vlmf=1 -vnk=8 -vnit=10 --pr31 --no-iactiv -vso=t --band~fn=syml
+TSTPDOS lmfa  co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv
+        lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2
+        mv dos.co tdos.co
+        echo 501 -.8 .7 | lmdos co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2
+        mv dos.co pdos.co
+PLOTBND echo -10,5,5,10 | plbnds -fplot -ef=0 -scl=13.6 -lt=1,col=0,0,1,colw=1,0,0,colw2=0,1,0 -lbl=M,G,A,L,G,K bnds.co
+PLOTDOS echo 30 15 -.8 .7 | pldos '-lst=1;3,5,7;9,11,13,15,17' '-lst2=2;4,6,8;10,12,14,16,18' -fplot pdos.co
+#mc -qr dosp.dat -e2 x1 x2+x3+x4 -e2 x1 'x1*x2' -int -.8 -0.00165 -qr dosp2.dat -e2 x1 x2+x3+x4 -e2 x1 'x1*x2' -int -.8 -0.00165 -s-1 -+ -s2
+CLEAN   rm -f atm.co dos.co mixm.co out.lmf.co save.co ctrl.co log.co moms.co rst.co wkp.co out.lmf-dos.co pdos.co tdos.co syml.co q.bulk
+VERS    LMFP-4.0 LMASA-6 LMF-6
+% ifdef mapj==3
+MAP   F *: 2: 2,-1 \h\t:\{job-1} \h\t:\{job-2}
+% elseifd mapj==2
+MAP   F *: \h\t:\{job-1}
+% elseifd mapj==1
+MAP   F *: \h\t:\{job}
+% endif
+% ifdef lmh
+MAP     F *:  \h\t:lmh
+% endif
+MAP     F *:  \h\t:g
+IO      SHOW=f HELP=F VERBOS=31 20 WKP=F IACTIV=t
+% const strx=t hcp=f fcc=f bcc=f bct=f nsp=1
+%ifdef asa==0
+MASTER  a={fcc?afcc:(bcc?abcc:(hcp?ahcp:bct))} job=5
+%if strx
+        JOB  1  alatj=a*{scale}^(5-job)
+        JOB  2  alatj=a*{scale}^(5-job)
+        JOB  3  alatj=a*{scale}^(5-job)
+        JOB  4  alatj=a*{scale}^(5-job)
+        JOB  5  alatj=a*{scale}^(5-job)
+        JOB  6  alatj=a*{scale}^(5-job)
+        JOB  7  alatj=a*{scale}^(5-job)
+        JOB  8  alatj=a*{scale}^(5-job)
+        JOB  9  alatj=a*{scale}^(5-job)
+
+        JOB  11 tet=.96
+        JOB  12 tet=.97
+        JOB  13 tet=.98
+        JOB  14 tet=.99
+        JOB  15 tet=1.00
+        JOB  16 tet=1.01
+        JOB  17 tet=1.02
+        JOB  18 tet=1.03
+        JOB  19 tet=1.04
+        JOB  20 tet=1.05
+        JOB  21 tet=1.06
+        JOB  22 tet=1.07
+        JOB  23 tet=1.08
+        JOB  24 tet=1.09
+        JOB  25 tet=1.10
+        JOB  26 tet=1.11
+        JOB  27 tet=1.12
+        JOB  28 tet=1.13
+        JOB  29 tet=1.14
+
+        JOB  31 trig=1-.04*2/3
+        JOB  32 trig=1-.03*2/3
+        JOB  33 trig=1-.02*2/3
+        JOB  34 trig=1-.01*2/3
+        JOB  35 trig=1
+        JOB  36 trig=1+.01*2/3
+        JOB  37 trig=1+.02*2/3
+        JOB  38 trig=1+.03*2/3
+        JOB  39 trig=1+.04*2/3
+%endif
+%ifdef harris
+        JOB   1   rc=3.5
+        JOB   2   rc=4
+        JOB   3   rc=4.5
+        JOB   4   rc=5
+        JOB   5   rc=5.5
+        JOB   6   rc=6
+        JOB   7   rc=20
+
+        JOB  11   ns=1.8  nd=nd0+2-ns
+        JOB  12   ns=1.9  nd=nd0+2-ns
+        JOB  13   ns=2    nd=nd0+2-ns
+        JOB  14   ns=2.1  nd=nd0+2-ns
+        JOB  15   ns=2.2  nd=nd0+2-ns
+        JOB  16   ns=2.3  nd=nd0+2-ns
+        JOB  17   ns=2.4  nd=nd0+2-ns
+        JOB  18   ns=2.5  nd=nd0+2-ns
+
+        JOB  21   ns=1.8/2 np=ns  nd=nd0+2-ns-np
+        JOB  22   ns=1.9/2 np=ns  nd=nd0+2-ns-np
+        JOB  23   ns=2.0/2 np=ns  nd=nd0+2-ns-np
+        JOB  24   ns=2.1/2 np=ns  nd=nd0+2-ns-np
+        JOB  25   ns=2.2/2 np=ns  nd=nd0+2-ns-np
+        JOB  26   ns=2.3/2 np=ns  nd=nd0+2-ns-np
+        JOB  27   ns=2.4/2 np=ns  nd=nd0+2-ns-np
+        JOB  28   ns=2.5/2 np=ns  nd=nd0+2-ns-np
+        JOB  29   ns=2.6/2 np=ns  nd=nd0+2-ns-np
+%endif
+%endif
+
+% cchar strn twoc==0 p3 t ""
+% cchar strn levec==1 {strn};evec  t {strn}
+% cchar strn ldmat==1 {strn};sdmat  t {strn}
+% cchar strn ldmat==2 {strn};dmat t {strn}
+GF      MODE={gfmod} GFOPTS={strn}
+STR     RMAX=3.5
+CONST   rc=0 nk=16 tet=1 bzj={fcc?1:bcc?4:0} mom={mom} cbya=sqrt(8/3)
+        a={fcc?afcc:(bcc?abcc:(hcp?ahcp:bct))}
+% ifdef Li | Na | K | Rb | Cs
+        ns=1 nd=0
+% endif
+% ifdef ns
+        ns={ns}
+% endif
+        lmxb={Z>=46?321:221} ns=2 np={np0} nd={nd0}+2+{np0}-ns-np
+% const nl=3
+STRUC   NBAS={hcp?2:1} NCLASS=1 NSPEC=1 NL={nl} EBAS=-.01 -1 -2 SHEAR=0 0 1 tet
+%ifdef hcp
+#       The following for NRL conventions
+#       ALAT=a PLAT=1/2 sqrt(3)/2 0 1/2 -sqrt(3)/2 0   0 0 cbya
+        ALAT=a PLAT=0 -1 0  sqrt(3)/2 1/2 0   0 0 cbya
+        ALAT=a PLAT=1 0 0   1/2 sqrt(3)/2 0   0 0 cbya
+%ifdef pdos
+SYMGRP  i*i
+%endif
+SYMGRP  find
+SYMGRP  R6Z:T(.5,1/sqrt(12),cbya/2) MZ MX
+%elseifd bct
+        ALAT=a PLAT= -.5  .5  {.5*cbct/abct}
+                      .5 -.5  {.5*cbct/abct}
+                      .5  .5 -{.5*cbct/abct}
+SYMGRP R4Z MZ R2X
+%elseifd fcc
+        ALAT=a PLAT=  .0 .5 .5  .5  .0 .5  .5 .5  .0
+%elseifd bcc
+        ALAT=a PLAT= -.5 .5 .5  .5 -.5 .5  .5 .5 -.5
+% endif
+% ifdef stet
+SYMGRP  R4Z MX
+% elseifd strig
+SYMGRP  R3D M(1,-1,0)
+% endif
+SYMGRP  R3D R4Z MZ
+
+% ifdef zn | cd
+% const rw=asa?1:.84
+% elseifd stet | strig
+% const rw=asa?1:(fcc+hcp?.86:.84)
+% else
+% const rw=asa?1:(fcc+hcp?.88:.86)
+% endif
+CLASS   ATOM=A Z={Z} R/W={rw} LMXB=lmxb LMXF={lmxf} EREF={eref} A=.01 LMX=2 MMOM=0 0 -2
+        RSMH= 1.70,1.70,1.05  EH= -0.1,-0.1,-0.3
+% if Z<=12
+        NR=901
+% endif
+#       The following for NRL conventions
+# version 7
+% ifdef version==7
+SITE    ATOM=A XPOS=1/3 -1/3 1/2
+        ATOM=A XPOS= 0 0 0
+% endif
+SITE    MODE=1
+        ATOM=A POS=1/3 -1/3 1/2
+        ATOM=A POS= 0 0 0
+SITE    ATOM=A POS=-1/2/2  -1/2/sqrt(3)/2  -cbya/2/2
+        ATOM=A POS= 1/2/2   1/2/sqrt(3)/2   cbya/2/2
+SITE    ATOM=A POS= 0 0 0
+%if hcp
+        ATOM=A POS=1/2  1/2/sqrt(3)  cbya/2
+%endif
+% const scr=0
+OPTIONS NSPIN={nsp} REL=t TPAN={tp} XCFUN=2 XCN={xcn} HF={hf}
+        Q =BAND INVIT=T GRCOR={lmh} LMH={lmh} SO={so} SHARM={sharm}
+        CCOR={ccor} TWOC={twoc} GAMMA={gamrep} SAVVEC={gfmod>=10} SCR={scr}
+        PFLOAT=0
+% ifdef Li | Na | K | Rb | Cs | Ba | Sr
+FIT     WVS=1 1  NFIT=2  EFIT=-.2 -1
+% endif
+FIT     WVS=1 1  NFIT=2  EFIT=-.5 -2
+% const ng=12 ng2=20 met=1
+HAM     ELIND=-.8 FRZ=f FTMESH={ng} {ng} {ng2} TOL=1d-6
+        NSPIN={nsp} REL=t SO={so} XCFUN=2
+BZ      NKABC=nk BZJOB=bzj W=.002 NPTS=1001 NKABC2=6 JOB2=bzj SAVDOS=t
+        EF0={ef0} DELEF=.1 TETRA=2 DOS={ef0}-1 {ef0}+.5 METAL={met}
+%ifdef gfmod>=10 | lmf
+        NEVMX=18 EFMAX=10
+%endif
+        EMESH=12 10 -1 -.025 .5 .5 INVIT=f NOINV=f
+EWALD   AS=2.0 TOL=1D-6 ALAT0=a
+# for version 7
+% const w1=1 w2=1
+ITER    MIX=B3,n=5,b=.7,w={w1},{w2}  NIT={nit}
+MIX     MODE=B3,n=5,b=.7,w={w1},{w2} NIT={nit}
+HARRIS  RHO=T RC=rc WIDTH=1/2.5 RNCHAN=0 0 1 EFIT=-1 -2 -3 -4 -5 -6
+# --- START ---
+START   CNTROL={nit==0} BEGMOM={nit==0} NIT={nit} FREE=f
+%if nsp==1
+%ifdef Li | Be
+        ATOM=A P=2.63 2.55 3.19 4.11 5.08 6.07 7.06
+        Q=ns 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  TPAN=2 1 1
+%elseifd Mg
+        ATOM=A P=0.73 0.46 0.22 0.11 0.08 .06 .05
+        Q=2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  TPAN=1 2 1
+%elseifd Al
+        ATOM=A P=0.79 0.57 0.24 0.11 0.08 .07 .06
+%elseifd Na | K
+        ATOM=A P=0.64 0.31 0.24 0.10 0.06 .05 .05
+%elseifd Ca
+        ATOM=A P=4.68 4.36 3.39 4.11 5.07 6.05 7.05
+%elseifd Sc
+        ATOM=A P=0.61 0.34 0.58 0.11 0.08 .07 .06
+%elseifd Ti
+        ATOM=A P=0.57 0.31 0.67 0.11 0.08 .07 .06
+%elseifd V
+        ATOM=A P=0.52 0.28 0.73 0.11 0.08 .07 .06
+%elseifd Cr
+        ATOM=A P=0.51 0.28 0.76 0.11 0.08 .07 .06
+%elseifd Mn
+        ATOM=A P=0.53 0.30 0.80 0.11 0.08 .07 .06
+%elseifd Fe
+        ATOM=A P=0.58 0.33 0.83 0.11 0.08 .07 .06
+%elseifd Co
+        ATOM=A P=0.61 0.36 0.85 0.11 0.08 .07 .06
+%elseifd Ni
+        ATOM=A P=0.61 0.36 0.87 0.11 0.08 .07 .06
+%elseifd Cu
+        ATOM=A P=4.65 4.39 3.88 4.11 5.08 6.07 7.06
+%elseifd Zn
+        ATOM=A P=4.77 4.47 3.90 4.11 5.08 6.07 7.06
+        Q=2 0 0 0 0 0 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0  TPAN=1 2 1
+%elseifd Sr
+        ATOM=A P=5.70 5.32 4.42 4.11 5.07 6.05 7.05
+%elseifd Y
+        ATOM=A P=0.61 0.34 0.58 0.11 0.08 .07 .06
+%elseifd Zr
+        ATOM=A P=0.54 0.23 0.68 0.11 0.08 .07 .06
+%elseifd Nb
+        ATOM=A P=0.50 0.22 0.74 0.11 0.08 .07 .06
+%elseifd Mo
+        ATOM=A P=0.50 0.22 0.77 0.11 0.08 .07 .06
+%elseifd Tc
+        ATOM=A P=0.52 0.24 0.80 0.11 0.08 .07 .06
+%elseifd Ru
+        ATOM=A P=0.55 0.27 0.83 0.12 0.08 .07 .06
+%elseifd Rh
+        ATOM=A P=0.58 0.29 0.86 0.12 0.08 .07 .06
+%elseifd Pd
+        ATOM=A P=0.60 0.31 0.88 0.11 0.08 .07 .06
+%elseifd Ag
+        ATOM=A P=0.63 0.33 -0.90 0.11 0.08 .07 .06
+%elseifd Cd
+        ATOM=A P=5.79 5.45 4.91 4.11 5.08 6.06 7.05
+        Q=2 0 0 0 0 0 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0  TPAN=1 2 1
+%elseifd In
+        ATOM=A P=5.85 5.58 4.92 4.11 5.08 6.06 7.05
+        Q=2 0 0 1 0 0 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0  TPAN=1 2 1
+%elseifd Te Guess
+        ATOM=A  P=0.79 0.57 0.24 0.11 0.08 .07 .06
+        Q=2 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  TPAN=0 0 2
+%elseifd Cs | Rb
+        ATOM=A P=0.79 0.57 0.24 0.11 0.08 .07 .06
+        Q=1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  TPAN=2 2 1
+        TPAN=2 2 1 1  IDMOD=0 0 0 0
+%elseifd Ba
+        ATOM=A P=0.68 0.31 0.43 0.11 5.07 6.05 7.05
+        TPAN=2 2 1 1  IDMOD=0 0 0 0
+%elseifd La
+        ATOM=A P=0.48 0.19 0.65 0.11 0.08 .07 .06
+        TPAN=2 2 1 1  IDMOD=0 0 0 0
+%elseifd Haf
+        ATOM=A P=0.65 0.28 0.65 4.93 0.08 .07 .06
+        TPAN=2 2 1 1  IDMOD=0 0 0 0
+        Q=ns 0 0 np 0 0 nd 0 0 14 0 0 0 0 0 0 0 0 0 0 0
+%elseifd Ta
+#        ATOM=A P=0.60 0.24 0.72 0.13 0.08 .07 .06
+#        TPAN=2 2 1 2  IDMOD=0 0 0 1
+        ATOM=A P=0.60 0.24 0.72 4.93 0.08 .07 .06
+        TPAN=2 2 1 1  IDMOD=0 0 0 0
+        Q=ns 0 0 np 0 0 nd 0 0 14 0 0 0 0 0 0 0 0 0 0 0
+%elseifd W
+        ATOM=A P=0.59 0.24 0.76 0.15 0.08 .07 .06
+        TPAN=2 2 1 2  IDMOD=0 0 0 0
+%elseifd Re
+        ATOM=A P=0.62 0.27 0.79 0.15 0.08 .07 .06
+        TPAN=2 2 1 2  IDMOD=0 0 0 0
+%elseifd Os
+        ATOM=A P=0.63 0.28 0.82 0.15 0.08 .07 .06
+        TPAN=2 2 1 1  IDMOD=0 0 0 0
+%elseifd Ir
+        ATOM=A P=0.65 0.29 0.85 0.14 0.08 .07 .06
+        TPAN=2 2 1 1  IDMOD=0 0 0 0
+%elseifd Pt
+        ATOM=A P=0.68 0.31 0.87 0.12 0.08 .07 .06
+        TPAN=2 2 1 1  IDMOD=0 0 0 0
+%elseifd Au | Hg | Tl
+        ATOM=A P=0.67 0.34 -0.89 0.11 0.08 .07 .06
+        TPAN=2 2 1 1  IDMOD=0 0 0 0
+%else
+%stop 1 Aborting ... no element defined
+%endif
+        Q=ns 0 0 np 0 0 nd 0 0 0 0 0 0 0 0 0 0 0 0 0 0  TPAN=2 2 1
+%endif  nsp==1
+# Generic spin-pol
+%ifdef nsp==2&asa
+        ATOM=A P=0.51 0.28 0.76  0.51 0.28 0.76 TPAN=0 2 1
+        Q=ns==1?1:ns/2 0 0 np 0 0    mom/2+nd/2 0 0
+          ns==1?0:ns/2 0 0  0 0 0   -mom/2+nd/2 0 0
+%endif
+%ifdef nsp==2&asa==0
+% ifdef Au | Hg | Tl
+     ATOM=A P=0.51 0.28 -.9 .11 .08 .07 .06
+              0.51 0.28 -.9 .11 .08 .07 .06
+% else
+     ATOM=A P=0.51 0.28 0.76 .11 .08 .07 .06
+              0.51 0.28 0.76 .11 .08 .07 .06
+% endif
+     Q=ns==1?1:ns/2 0 0 np 0 0 (-mom+nd)/2 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+       ns==1?0:ns/2 0 0  0 0 0 (mom+nd)/2  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+     TPAN=2 {Z<=10?1:2} 1
+%endif
+%ifdef asa
+% char nam=A
+% include q.bulk
+%endif
+JOB   5

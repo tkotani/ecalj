@@ -1,0 +1,323 @@
+#!/bin/csh
+# Shell script for self-consistent GW calculation.
+# Required inputs are:
+#  ctrl.ext rst.ext used or created by lmf
+#  GWinput
+#  ... or
+#  GWIN0 GWIN_V2
+#  You can create files GWinput, and also GWIN0 GWIN_V2 using lmfgw, job -1.
+#  NB: you should edit these files.
+#
+#  Updates
+#    28 Mar 04  Added --multitet switch
+
+set lmgw = $HOME/bin
+set lmgw = $0:h
+set metal
+set nfpgw = --sc
+set noexec = 0
+set varlst
+set maxit = 999
+set sigtol = 1e-5
+
+while (`echo $1 | sed -e 's/\(.\).*/\1/' `  ==  "-")
+  set arg1 = $1; shift
+
+  switch ($arg1)
+
+    case "--metal":
+      set metal = "--metal"
+      breaksw
+
+    case "--insul=*":
+      set metal="$arg1"
+      breaksw
+
+    case "--no-scrho":
+      set noscrho
+      breaksw
+
+    case "--bin=*":
+    case "-bin=*":
+      set nfpgw=($nfpgw $arg1)
+      breaksw
+
+    case "--band*":
+      set bnds
+      set nfpgw=($nfpgw $arg1)
+      breaksw
+
+    case "--big":
+      set nfpgw=($nfpgw $arg1)
+      breaksw
+
+    case "--gwbin=*":
+    case "-gwbin=*":
+      set nfpgw=($nfpgw $arg1)
+      breaksw
+
+    case "--lmbin=*":
+    case "-lmbin=*":
+      set nfpgw=($nfpgw $arg1)
+      breaksw
+
+    case "-v*=*":
+      set varlst=($varlst $arg1)
+      breaksw
+
+    case "--maxit=*":
+      set maxit = `echo $arg1 | sed s/--maxit=//`
+      breaksw
+
+    case "-maxit=*":
+      set maxit = `echo $arg1 | sed s/-maxit=//`
+      breaksw
+
+    case "--tol=*":
+      set sigtol = `echo $arg1 | sed s/--tol=//`
+      breaksw
+
+    case "-tol=*":
+      set sigtol = `echo $arg1 | sed s/-tol=//`
+      breaksw
+
+    case "--iter=*":
+      set ix = `echo $arg1 | sed s/--iter=//`
+      breaksw
+
+    case "-iter=*":
+      set ix = `echo $arg1 | sed s/-iter=//`
+      breaksw
+
+    case "--help":
+    case "--h":
+      goto usage
+
+    case "--getsigp":
+      set nfpgw=($nfpgw $arg1)
+      breaksw
+
+    case "--multitet":
+      set nfpgw=($nfpgw $arg1)
+      breaksw
+
+    case "--getesig":
+      set nfpgw=($nfpgw $arg1)
+      breaksw
+
+    case "--getnk":
+      set nfpgw=($nfpgw $arg1)
+      breaksw
+
+    case "--noexec":
+      set noexec = 1
+      breaksw
+
+    default:
+      echo "unrecognized switch '$arg1' ... aborting"
+      goto usage
+
+  endsw
+end
+if ($#argv < 1) goto usage
+
+# --- Iteration-independent setup before GW call ---
+# Check for existence of necessary files
+set ext = $1
+
+set list = "GWinput ctrl.$ext"
+if (! -e GWinput) then
+  set list = "GWIN0 GWIN_V2 ctrl.$ext"
+endif
+foreach i ($list)
+if (! -e $i) then
+  echo "lmgwsc: missing or empty file $i ... aborting"
+  exit -1
+endif
+end
+# switch whether self-consistency in charge, or not
+if (! $?noscrho) then
+  set nfpgw=(--scrho $nfpgw)
+endif
+
+# --- Start of iteration loop ---
+if (! $?ix) then
+  set ix = 0
+  if (-e sigm.$argv[1]) set ix = 1
+endif
+@ ix = $ix - 1
+while ($ix < $maxit)
+@ ix = $ix + 1
+echo "    lmgwsc : starting iteration $ix of $maxit"
+
+# --- Iteration-dependent setup ---
+if (-e sigm.$argv[1]) set havesigm
+
+# --- GW call ---
+echo "    lmgwsc : invoking $lmgw/lmgw $varlst $nfpgw $metal $ext"
+if ($noexec == 0) then
+                  $lmgw/lmgw $varlst $nfpgw $metal $ext
+                  if ($status) then
+                    echo "    lmscgw: oops! lmgw returned with nonzero exit status ... aborting "
+                    exit -1
+                  endif         
+else
+                  $lmgw/lmgw --noexec $varlst $nfpgw $metal $ext
+                  if ($status) then
+                    echo "    lmscgw: oops! lmgw returned with nonzero exit status ... aborting "
+                    exit -1
+                  endif         
+endif
+
+# --- Cleanup before next iteration ---
+echo "           cp evec.$argv[1] evec_prev_iter"
+if ($noexec == 0) then
+                 cp evec.$argv[1] evec_prev_iter
+endif
+# this is used by hqpe_sc when isigma_en==5
+if (! $?havesigm) then
+echo "           cp evec.$argv[1] evec0"
+  if ($noexec == 0) then
+                 cp evec.$argv[1] evec0
+  endif
+endif
+
+echo "           ln -s -f sigm sigm.$argv[1]"
+if ($noexec == 0) then
+                 ln -s -f sigm sigm.$argv[1]
+endif
+
+rm -f dat
+if (-e QPU) infgw --qpu --sc > dat
+foreach file (sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx llmfgw01 evecfix.chk llmf dat) 
+if (! -d ${ix}run) mkdir ${ix}run
+if (-e $file) cp $file ${ix}run
+end
+if ($?bnds && $noexec == 0) then
+ cp bnds.$argv[1] ${ix}run
+endif
+if (-e lsc) then
+  grep -vE 'before|after|irot|readqg|after.*Cpu|ntqxx=|drvmelp2:' lsc  >${ix}run/lsc
+endif
+if (-e lqpe) then
+ grep -Ev 'S1nn|S2nn' lqpe >${ix}run/lqpe
+endif
+if (-e lx0) then
+  grep -vE 'end Cpu|begin Cpu|elements Cpu|cycle Cpu|begin x0kf|readqg|begin dispersion' lx0  >${ix}run/lx0
+endif
+if (-e lsx) then
+  grep -vE 'before|after|irot|readqg|after.*Cpu|ntqxx=|drvmelp2:' lsx  >${ix}run/lsx
+endif
+
+# check whether to continue iterations
+if (! -e sigm.$argv[1]) then
+  echo "    Exit -1 lmgwsc : missing file sigm.$ext"
+  exit -1
+endif
+
+if (-r maxit) then
+set maxit = `head -1 maxit`
+echo "    lmgwsc : found file maxit ... resetting maxit to $maxit"
+rm maxit
+endif
+
+if ($?havesigm && `echo $sigtol 0 | awk '{if (($1-$2) > 0) {print 1} else {print 0}}'` == 1) then
+  set rmssig = `grep rmsdel lqpe | tail -1 | awk '{sub(".*rmsdel=",""); print $0}' | sed s/D/E/`
+  if ($ix >= $maxit) then
+    echo "    lmgwsc : iter $ix of $maxit  RMS change in sigma = $rmssig  Tolerance = $sigtol  more=F" `date`
+    exit
+  else if (`echo $rmssig $sigtol | awk '{if (($1-$2) > 0) {print 1} else {print 0}}'` == 1) then
+    echo "    lmgwsc : iter $ix of $maxit  RMS change in sigma = $rmssig  Tolerance = $sigtol  more=T" `date`
+  else
+    echo "    lmgwsc : iter $ix of $maxit  RMS change in sigma = $rmssig  Tolerance = $sigtol  more=F" `date`
+    exit
+  endif
+else if ($ix >= $maxit) then
+  echo "    lmgwsc : completed iteration $ix of $maxit  more=F"  `date`
+  exit
+else
+  echo "    lmgwsc : completed iteration $ix of $maxit  more=T"  `date`
+endif
+
+set havesigm
+
+end
+
+exit
+usage:
+echo 'usage : lmgwsc [--switches] extension'
+echo '        switches:'
+echo '          --help'
+echo '          --h'
+echo '            show this message'
+echo ' '
+echo '          --metal'
+echo ' '
+echo '          --insul=# insulator, with # occupied bands (only affects QP* file)'
+echo ' '
+echo '          --no-scrho'
+echo  '             self-consistency limited to self-consistency in sigma ---'
+echo  '             no self-consistency in the charge density'
+echo ' '
+echo '          --tol=#'
+echo '           -tol=#'
+echo  '             # is tolerance for RMS change in sigma (default=1e-6).'
+echo  '             lmgwsc iterate until RMS change in sigma falls below tolerance'
+echo  '             or until the maximum number of iterations is exceeded'
+echo ' '
+echo '          --maxit=#'
+echo '           -maxit=#'
+echo  '             # is maximum number of iterations to attempt.'
+echo  '             lmgwsc iterate until RMS change in sigma falls below tolerance'
+echo  '             or until the maximum number of iterations is exceeded'
+echo ' '
+echo '          --iter=#'
+echo '           -iter=#'
+echo  '             Set starting iteration counter to #.'
+echo ' '
+echo '          --bin=dir'
+echo '           -bin=dir'
+echo  '             combination of switches --lmbin and --gwbin'
+echo ' '
+echo '          --lmbin=dir'
+echo '           -lmbin=dir'
+echo  '             take LDA binaries lmf, lmfgw, and lmf2gw from directory "dir".'
+echo  '             Default is directory containing this script ('"$0:h)"
+echo ' '
+echo '          --gwbin=dir'
+echo '           -gwbin=dir'
+echo  '             take GW binaries from directory "dir".'
+echo  '             Default is directory containing this script ('"$0:h)"
+echo ' '
+echo '          -vVAR=VAL'
+echo  '             assign VAR to VAL, and pass to LDA programs lmf, lmfgw'
+echo ' '
+echo '          --band[:args]'
+echo  '             generate energy bands after GW pass'
+echo ' '
+echo '          --getsigp'
+echo  '             (only used in conjunction with the --sc switch)'
+echo  '             Get some parameters for GWinput or GWIN0 file.'
+echo  '             Equivalent to --getesig and --getnk and,'
+echo  '             (if --multitet not specified) --multitet=no'
+echo ' '
+echo '          --getesig'
+echo  '             Before execution, alter esigcut in file GWINput or GWIN0 to the following:'
+echo  '             Extract the contents of SIGP:emax and add 0.5 Ry.'
+echo  '             NB: only used in conjunction with the --sc switch'
+echo ' '
+echo '          --getnk'
+echo  '             Before execution, alter nk in file GWINput or GWIN0 to the following:'
+echo  '             Extract the contents of SIGP:emax and add 0.5 Ry.'
+echo  '             NB: only used in conjunction with the --sc switch'
+echo ' '
+echo '          --multitet'
+echo  '             Before execution, uncomment multitet line in file GWinput'
+echo  '             NB: only used in conjunction with the --sc switch'
+echo ' '
+echo '          --big'
+echo  '             Use lmf-big and lmfgw-big in place of lmf and lmfgw'
+echo ' '
+echo '          --noexec'
+echo  '             show what codes would execute without executing them'
+exit -1

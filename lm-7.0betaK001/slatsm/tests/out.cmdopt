@@ -1,0 +1,36 @@
+ acmdop:  8 file command switches:
+   1  "hi there, johnny!"
+   2  "and"
+   3  "now,"
+   4  "what?"
+   5  "here"
+   6  "are"
+   7  "some"
+   8  "new args"
+ acmdop:  10 file command switches:
+   1  "hi there, johnny!"
+   2  "and"
+   3  "now,"
+   4  "what?"
+   5  "here"
+   6  "are"
+   7  "some"
+   8  "new args"
+   9  "funny"
+  10  "  ~\{W\}"
+ 1 hi there, johnny!                                                       
+ 2 and                                                                     
+ 3 now,                                                                    
+ 4 what?                                                                   
+ 5 here                                                                    
+ 6 are                                                                     
+ 7 some                                                                    
+ 8 new args                                                                
+ 9 funny                                                                   
+ 10   ~\{W\}                                                                
+ 11                                                                         
+  
+ we did not find "abc"
+ we found "and"
+ we did not find "what!"
+ we found "what"

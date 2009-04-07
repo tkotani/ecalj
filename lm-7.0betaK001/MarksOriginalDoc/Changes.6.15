@@ -1,0 +1,26 @@
+* Major changes:
+  See ChangeLog in separate directories for fuller description of changes.
+	
+	* (W. Lambrecht) optics has nonlinear capability
+
+	* (W. Lambrecht) lmf has LDA+U functional
+
+	* (T. Sandu) lmgf has capability to make screened exchange
+
+	* (A. Chantis) L.S spin-orbit coupling implemented into lmf
+
+	* (M. van Schilfgaarde) Noncollinear magnetism can be orbital-dependent
+
+	* (A. Chantis) Fully relativistic mode in lm, lmgf, lmpg codes
+
+	* (A. T. Paxton) Incorporation of molecules program into package
+
+	* (M. van Schilfgaarde) lmf has extended local orbitals.  Other
+   	changes result in slight changes in potential, total energy
+	relative to v6.14
+
+	* (M. van Schilfgaarde) implemented floating orbitals
+        (envelope functions with no head augmentation sphere)  
+          
+	* (S. Faleev) Nonequilibrium Green's function implemented in layer
+	Green's function

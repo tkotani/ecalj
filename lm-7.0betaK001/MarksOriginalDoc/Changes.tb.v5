@@ -1,0 +1,89 @@
+Make the following changes to convert a version 4.0 control file into a
+version 5.0 control file:
+
+1.  In category VERS change TB-4.0 to TB-5.1.
+
+2.  In category OPTIONS the tokens SO and STONER are new logical
+    switches;  SO=T turns on spin-orbit interactions (NSPIN=2) and
+    STONER=T invokes the rigid band Stoner model for d-band magnetism.
+
+3.  In category TB the tokens DONLY, CRYSF, OVLP, OVCF, ADDES, FIJ,
+    RHO, and CGMIN are new logical switches.  DONLY=T means
+    generate DOS only but not the energy, E_F, etc. (e.g. nkp=1).
+    CRYSF=T means tight-binding with crystal field terms [see D.J.
+    Chadi in ``Atomistic Simulation of Materials Beyond Pair
+    Potentials'', edited by V. Vitek and D. Srolovitz (Plenum, 1989),
+    page 309].  OVLP=T means non-orthogonal tight-binding (with an
+    overlap matrix).  OVCF=T means include crystal field terms in the
+    overlap matrix.  ADDES=T means add ebarLL' * sLL' to Hamiltonian
+    matrix elements hLL' (only if have overlap matrix, OVLP=T).  FIJ=T
+    to calculate the forces by atom pair in order to calculate the
+    stress (not implemented yet).  RHO=T means calculate the local
+    effective charges for each atom.  If CGMIN=T use conjugate
+    gradients to minimize the forces (not implemented yet).
+
+4.  Also in category TB the tokens TSTEP and TEMP are the MD time step
+    and initial temperature in atomic units while the new tokens TS/FS
+    and T/K are the time step in femtoseconds and the temperature in
+    Kelvin. 
+
+5.  Also in category TB the tokens RMAXH and RMAXR are the cut-offs
+    in the range of the hamiltonian and density matrix, respectively.
+    RMAXH is also the cut-off in the range of the pair potential and
+    is in units of ALAT rather than the Wigner-Seitz radius.
+
+6.  In category MIX the token NITMIX is no longer used.  The token NIT
+    in category START replaces the old functionality (i.e. consistent
+    with the LM programs).
+
+7.  In category BZ the tokens PUTQP and BZMP are new logical switches.
+    PUTQP=T means write the q-points to the file QPTS.  BZMP=T means
+    generate a BZ map (integrated DOS vs k; see getbzp).
+
+8.  Also in category BZ the new token MULL is a switch for Mulliken DOS.
+    (see mkwttb).
+
+9.  Also in category BZ there is a new switch NOINV which defaults to
+    false.  If set to true then inversion is not automatically added
+    to the symmetry operations used in generating the q-points.
+
+10. Also in category BZ there is a new switch IO which defaults to
+    false.  If set to true then graphical Stoner output is written to
+    the DOS file (see stoner.f).
+
+11. Also in category BZ the new tokens MMAX and MNPTS are parameters
+    for the Stoner model (see stoner.f).
+
+12. In category STR there is a new token MXNBR which is the maximum
+    number of neighbors for a given atom.  The default is zero in which
+    case the number is calculated using RMAX and the Wigner-Seitz radius.
+    MXNBR is used in generating the neighbor lists for the tight-binding
+    matrix elements and for the number of shells and bond angles (LMOVL).
+
+13. In category CLASS the new token VSO is the p- and d- spin-orbit
+    interaction parameters (the s- parameter is zero).
+
+14. Also in category CLASS there is a new token RFREE which is the
+    approximate sphere radius used for "free" atoms.  If the input
+    value is less than 10 or none is specified then a default value of
+    40 is used.
+
+15. Also in category CLASS there is a new token I which is the Stoner
+    parameter.
+
+16. In category SITE the token RELAX is now a set of four logical
+    switches.  If the first is T then all three Cartesian components
+    of the atom position are allowed to relax.  If the first switch is F
+    then the remaining three switches indicate which of the Cartesian
+    components are fixed (=F) or allowed to relax (=T).
+
+17. Also in category SITE the token DELTA is no longer used.  The token
+    V in category START replaces the old functionality (i.e. consistent
+    with the LM programs).  Recall that RDVES=T is required in order for
+    the token V to be read.
+
+18. In category START the ordering for the token Q (moments) is now
+    consistent with the LM programs:
+      Q= <s- charge>  <s- site energy>  <s- U parameter>
+         <p- charge>  <p- site energy>  <p- U parameter>
+         <d- charge>  <d- site energy>  <d- U parameter>

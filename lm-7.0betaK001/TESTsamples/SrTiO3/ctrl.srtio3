@@ -1,0 +1,36 @@
+% const nk=3 da=0 
+HEADER  SrTiO3 cubic 
+VERS    LM=7 FP=7
+IO      SHOW=F VERBOS=verb
+CONST   ro=1.45 rti=2.33479535 rti=2.35348 rsr=3.1
+        verb=35 au=0.529177
+        d0=1.95/au a0=2*d0 v0=a0^3 vfrac=1 v=v0*vfrac a1=v^(1/3)
+        d1=a1/2 rf=0.9 rfsr=0.9
+SYMGRP  find
+STRUC   NBAS=5 NL=5 NSPEC=3+0+0 ALAT=a1 DALAT={da} 
+        PLAT=1 0 0  0 1 0  0 0 1
+SITE
+        ATOM[Sr POS=1/2 1/2 1/2 ]
+        ATOM[Ti POS= 0   0   0+0]
+        ATOM[O  POS=1/2  0   0  ]
+        ATOM[O  POS= 0  1/2  0  ]
+        ATOM[O  POS= 0   0  1/2 ]
+
+BZ      NKABC={nk} BZJOB=1 METAL=0
+ITER    CONV=1e-5 CONVC=1e-5 NIT=20
+HAM     FTMESH=20 20 20 REL=t
+        ELIND=-.8 PWMODE=11  PWEMAX=3
+
+OPTIONS HF=f PFLOAT=1 #Q=band
+
+SPEC  #BYmergemto : ctrl and mtopara were merged.
+
+# this is for high PW to remove liner dependency due to Sr 5s orbital 
+#       ATOM[Sr Z= 38 R= 3.616323   EREF=-6351.4281
+#         RSMH= 0 2.411 2.094  EH= 0 -0.100 -0.100 KMXA=7   PZ=0,14.9  P=0,5.3]
+       ATOM[Sr Z= 38 R= 3.616323  
+         RSMH= 2.411 2.411 2.094  EH= -0.100 -0.100 -0.100 KMXA=7   PZ=0,14.9  P=0,5.3]
+       ATOM[Ti Z= 22 R= 2.089960  
+         RSMH= 1.393 1.393 1.055  EH= -0.100 -0.100 -0.100 KMXA=7] 
+       ATOM[O Z= 8 R= 1.595007    
+         RSMH= 0.900 0.900  EH= -1.360 -0.512 KMXA=7 ]

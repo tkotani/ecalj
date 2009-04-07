@@ -1,0 +1,627 @@
+  --- Choose omodes below ----------------
+   Sx(1) Sc(2) ScoreX(3) Spectrum(4) 
+   EXX_val-val (5)  Exx_core-val(6) 
+   Sx_sf(11) Sc_sf(12) 
+   [option --- (+ QPNT.{number} ?)] 
+  --- Put number above ! -----------------
+hsfp0: VerNum= 032h2
+  ixc nz=           1           0
+  verbose=           0
+  ### readin BZDATA ###
+  read_bzdata           8           3          27          48           2
+          48
+  nqbz  =           8
+  nqibz ngrp=           3           0
+ opening:    10 LMTO                                                            
+  symgrp=  UseSYMOPSfile                                                        
+                                                  
+  alat natom=   10.2600000000000                2
+  nspin nl nnv nnc =           1           5           2           2
+  divisions along reciprocal base vectors G1 G2 G3=           2           2
+           2
+  --- Freq ---
+     dw   =   2.00000000000000D-002
+     niw  =           6
+     delta=  -1.00000000000000D-004
+     esmr =   3.00000000000000D-003
+  goto prod
+ <... > 
+ lx=  0 readin tolerance=  0.100D-04
+ lx=  1 readin tolerance=  0.100D-04
+ lx=  2 readin tolerance=  0.100D-04
+ lx=  3 readin tolerance=  0.100D-04
+ lx=  4 readin tolerance=  0.100D-04
+ lx=  5 readin tolerance=  0.100D-04
+ lx=  6 readin tolerance=  0.100D-04
+ lx=  7 readin tolerance=  0.100D-04
+ lx=  8 readin tolerance=  0.100D-04
+  --- prod section: tolbas lcutmx=   1.00000000000000D-005
+   1.00000000000000D-005   1.00000000000000D-005   1.00000000000000D-005
+   1.00000000000000D-005   1.00000000000000D-005   1.00000000000000D-005
+   1.00000000000000D-005   1.00000000000000D-005           4
+  --- valence product basis section
+  1  0  1  1  1
+  1  0  2  0  0
+  1  1  1  1  1
+  1  1  2  0  0
+  1  2  1  1  1
+  1  2  2  0  0
+  1  3  1  0  1
+  1  3  2  0  0
+  1  4  1  0  0
+  1  4  2  0  0
+  2  0  1  1  1
+  2  0  2  0  0
+  2  1  1  1  1
+  2  1  2  0  0
+  2  2  1  1  1
+  2  2  2  0  0
+  2  3  1  0  1
+  2  3  2  0  0
+  2  4  1  0  0
+  2  4  2  0  0
+  --- core product basis section
+  1  0  1  0  0  0  0
+  1  0  2  0  0  0  0
+  1  1  1  0  0  0  0
+  2  0  1  0  0  0  0
+  2  0  2  0  0  0  0
+  2  1  1  0  0  0  0
+  ### incwf=-1 Use ForSxc for core
+  nw from rgwinaf=        -999
+ opening:    11 ECORE                                                           
+  rcore2 : ic=           1
+  rcore : goto loop over l n
+  rcore2 : ic=           2
+  rcore : goto loop over l n
+  symgrp==UseSYMOPSfile
+ closed :    10 LMTO                                                            
+ closed :    11 ECORE                                                           
+ CPU=       0.0000 secs    0.0 mins
+ genallcf_v3
+  status 1=          -3
+  status 2=          -1
+  status 3=          -1
+  nbmx ebmx from GWinput= 9999999  999999  0.25000D+01  0.10000D+11
+  hsfp0: end of genallcf2
+  --- Exchange mode --- 
+ opening:    10 XCU                                                             
+ opening:    11 SEXU                                                            
+  --- computational conditions --- 
+    deltaw  =     0.020000
+    esmr    =     0.003000
+    alat voltot =    10.260000   270.011394
+    niw nw dw   =  6***     0.020000
+ opening:    12 hbe.d                                                           
+ init_readeigen:
+ read(ifiqg)          16          92   2.70000000000000                8
+ opening:    13 EVU                                                             
+  mrelc.ne.0 file=EVU                                                           
+            208
+ evud is=           1 -0.692059429443798     
+ closed :    13 EVU                                                             
+   --- Readingin CLASS info ---
+         1         1
+         2         1
+  MPTAUO2: search miat tiat for wave function rotation
+ opening:    13 PPBRD_V2_01                                                     
+ closed :    13 PPBRD_V2_01                                                     
+ opening:    13 PPBRD_V2_02                                                     
+ closed :    13 PPBRD_V2_02                                                     
+  ngcmx ngpmx=          74          92
+  rdpp_v3: 
+ opening:    13 PPBRD_V2_01                                                     
+ opening:    14 PPBRD_V2_02                                                     
+  ppbrd size           5           4           4           2           1
+ closed :    13 PPBRD_V2_01                                                     
+ closed :    14 PPBRD_V2_02                                                     
+  rdpp mdimx=          72
+  rotcg:
+ 
+  ROTDLMM:
+  goto do 23
+  end of rotdlmm
+  rotcg end:
+  rdpp_v3:end 
+  init_readqg ifi=           1
+  init_readqg ifi=           2
+  end of read QGcou
+  efsimplef2(gaussian mode):start
+  ia z(ic)=           1   14.0000000000000     
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           0           2           2
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           1           1           6
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           2           0          10
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           3           0          14
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           4           0          18
+  ia z(ic)=           2   14.0000000000000     
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           0           2           2
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           1           1           6
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           2           0          10
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           3           0          14
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           4           0          18
+  valn=   8.00000000000000     
+           1           1 -0.692059429443798       0.250000000000000     
+           2          27 -0.521736214014890        1.25000000000000     
+           3          53 -0.389795956425448        2.00000000000000     
+           4          54 -0.389795956254860        2.75000000000000     
+           5          28 -0.329782529996130        3.75000000000000     
+           6          55  -2.45969257294067D-002   4.50000000000000     
+           7          56  -2.45969254256891D-002   5.25000000000000     
+           8          29   9.74771084907252D-002   6.25000000000000     
+           9          30   9.74783036853649D-002   7.25000000000000     
+          10           2  0.185196640970959        7.50000000000000     
+          11           3  0.185198017487750        7.75000000000000     
+          12           4  0.185198172111985        8.00000000000000     
+ 
+          13          57  0.230931402041932        8.75000000000000     
+          14          58  0.230931402888532        9.50000000000000     
+ valx at efini=  0.208064787076958        8.00000000000001     
+  efsimplef2(gauss):end
+  Ef=  0.208064787076958     
+  wgt nocc=   1.00000000000000        8.00000000000000     
+  ef    =  0.208064787076958     
+  esmr  =   3.00000000000000D-003
+  valn  =   8.00000000000000     
+  ntot  =   8.00000000000000     
+  KeepEigen=T; readin geig and cphi into m_readeigen
+ opening:    13 GEIG                                                            
+  mrelc.ne.0 file=GEIG                                                          
+          38272
+ opening:    14 CPHI                                                            
+  mrelc.ne.0 file=CPHI                                                          
+          41600
+  ifgeig ifcphi=          13          14
+ closed :    14 CPHI                                                            
+ closed :    13 GEIG                                                            
+ opening:    13 VCCFP                                                           
+  ifqpnt ret=          14          12
+  1     0.000000     0.000000     0.000000
+  2    -0.500000     0.500000     0.500000
+  3     0.000000     0.000000     1.000000
+ reading QOP
+  *** nqibz nq0i_total=           3           1
+  Used k number in Q0P =           1
+  1      1.000000       -0.152442      0.152442      0.152442
+  1  1     0.02083
+  1  2     0.02083
+  1  3     0.02083
+  1  4     0.02083
+  1  5     0.02083
+  1  6     0.02083
+  1  7     0.02083
+  1  8     0.02083
+  1  9     0.02083
+  1 10     0.02083
+  1 11     0.02083
+  1 12     0.02083
+  1 13     0.02083
+  1 14     0.02083
+  1 15     0.02083
+  1 16     0.02083
+  1 17     0.02083
+  1 18     0.02083
+  1 19     0.02083
+  1 20     0.02083
+  1 21     0.02083
+  1 22     0.02083
+  1 23     0.02083
+  1 24     0.02083
+  1 25     0.02083
+  1 26     0.02083
+  1 27     0.02083
+  1 28     0.02083
+  1 29     0.02083
+  1 30     0.02083
+  1 31     0.02083
+  1 32     0.02083
+  1 33     0.02083
+  1 34     0.02083
+  1 35     0.02083
+  1 36     0.02083
+  1 37     0.02083
+  1 38     0.02083
+  1 39     0.02083
+  1 40     0.02083
+  1 41     0.02083
+  1 42     0.02083
+  1 43     0.02083
+  1 44     0.02083
+  1 45     0.02083
+  1 46     0.02083
+  1 47     0.02083
+  1 48     0.02083
+  *** tot num of q near 0   =   48.0000000000000     
+  sum(wgt0) from Q0P=  0.100000D+01
+  ***
+    1   3   2  nspin  nq  ntq
+ spin = 2   nbloch ngp ngc= 144  89  65  nqbz =     8  nqibz =     3   ef=    0.2081 Rydberg
+ 0.2000000000000000D-01 <= deltaw(Hartree)
+ 0.1026000000000000D+02 <= alat
+ 0.2080647870769583D+00 <= ef 
+ 0.3000000000000000D-02 <= esmr
+  OPEN VXCFP 
+ opening:    14 VXCFP                                                           
+ closed :    14 VXCFP                                                           
+ 
+ j iq isp=  4   1 1  q=  0.0000  0.0000  0.0000  eig=   -0.3111  Sxc(LDA)=  -13.5931
+ j iq isp=  5   1 1  q=  0.0000  0.0000  0.0000  eig=    2.2347  Sxc(LDA)=  -11.7748
+ j iq isp=  4   2 1  q= -0.5000  0.5000  0.5000  eig=   -1.5046  Sxc(LDA)=  -13.2750
+ j iq isp=  5   2 1  q= -0.5000  0.5000  0.5000  eig=    1.1351  Sxc(LDA)=  -12.6613
+ j iq isp=  4   3 1  q=  0.0000  0.0000  1.0000  eig=   -3.1655  Sxc(LDA)=  -12.5755
+ j iq isp=  5   3 1  q=  0.0000  0.0000  1.0000  eig=    0.3111  Sxc(LDA)=  -10.3144
+ closed :    10 XCU                                                             
+ --- freq01x:  ix    x    freqw(a.u.)---
+               1   0.0338  28.6163
+               2   0.1694   4.9034
+               3   0.3807   1.6268
+               4   0.6193   0.6147
+               5   0.8306   0.2039
+               6   0.9662   0.0349
+  sum of nonzero iirk=           8           8
+  1  out of  48  rotations  CPU=       0.1900 secs    0.0 mins
+  KeepPPOVL=T; keep PPOVL in m_read_ppovl
+ngb nn= 214 214 214
+ngb nn= 208 208 208
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.128381851855254D+00
+ngb nn= 214 214 214
+ngb nn= 208 208 208
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.260187267844488D+00
+ngb nn= 214 214 214
+ngb nn= 208 208 208
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.376889846486891D+00
+  2  out of  48  rotations  CPU=       0.5200 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.382137036753684D+00
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.387416143151961D+00
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.392627365538529D+00
+  3  out of  48  rotations  CPU=       0.6600 secs    0.0 mins
+ngb nn= 214 214 214
+ngb nn= 208 208 208
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.533341134683930D+00
+ngb nn= 214 214 214
+ngb nn= 208 208 208
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.662432427794524D+00
+ngb nn= 214 214 214
+ngb nn= 208 208 208
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.783758233292342D+00
+  4  out of  48  rotations  CPU=       0.9400 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.789089731585064D+00
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.794350725035240D+00
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.799561947380915D+00
+  5  out of  48  rotations  CPU=       1.0900 secs    0.0 mins
+ngb nn= 214 214 214
+ngb nn= 208 208 208
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.927720469249786D+00
+ngb nn= 214 214 214
+ngb nn= 208 208 208
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.106703167970892D+01
+ngb nn= 214 214 214
+ngb nn= 208 208 208
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.119314557702083D+01
+  6  out of  48  rotations  CPU=       1.3400 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.119847707979226D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.120383294390159D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.120900516360404D+01
+  7  out of  48  rotations  CPU=       1.4900 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.121433666189683D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.121959765534711D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.122481186641443D+01
+  8  out of  48  rotations  CPU=       1.6300 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.123014336470715D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.123540435815733D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.124061558050300D+01
+  9  out of  48  rotations  CPU=       1.7800 secs    0.0 mins
+ngb nn= 214 214 214
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.130973595127690D+01
+ngb nn= 214 214 214
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.137789613855793D+01
+ngb nn= 214 214 214
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.144744109357330D+01
+ 10  out of  48  rotations  CPU=       1.9900 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.145268822579882D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.145790028067609D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.146307250012046D+01
+ 11  out of  48  rotations  CPU=       2.1300 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.146840400289198D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.147375986700132D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.147893516478515D+01
+ 12  out of  48  rotations  CPU=       2.2700 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.148426666755658D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.148962253166591D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.149479475136836D+01
+ 13  out of  48  rotations  CPU=       2.4200 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.150004188359389D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.150525393847115D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.151042615791553D+01
+ 14  out of  48  rotations  CPU=       2.5600 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.151567329014106D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.152088534501835D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.152606064254668D+01
+ 15  out of  48  rotations  CPU=       2.7100 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.153139214083940D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.153665313428958D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.154186435663525D+01
+ 16  out of  48  rotations  CPU=       2.8500 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.154719585492804D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.155245684837832D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.155767105944564D+01
+ 17  out of  48  rotations  CPU=       2.9900 secs    0.0 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.156291824971247D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.156819735611076D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.157341156720829D+01
+ 18  out of  48  rotations  CPU=       3.1400 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.157865875747509D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.158393786387336D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.158914908625993D+01
+ 19  out of  48  rotations  CPU=       3.2800 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.159439627652677D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.159967538292506D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.160488959402259D+01
+ 20  out of  48  rotations  CPU=       3.4200 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.161013678428938D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.161541589068766D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.162062711307423D+01
+ 21  out of  48  rotations  CPU=       3.5700 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.162587430334102D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.163115340973930D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.163636463212587D+01
+ 22  out of  48  rotations  CPU=       3.7100 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.164161182239270D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.164689092879099D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.165210513988853D+01
+ 23  out of  48  rotations  CPU=       3.8500 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.165735227211405D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.166256432699131D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.166773654643569D+01
+ 24  out of  48  rotations  CPU=       4.0000 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.167298367866122D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.167819573353851D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.168337103106684D+01
+ 25  out of  48  rotations  CPU=       4.1400 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.168861816329238D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.169383021816966D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.169900551569800D+01
+ 26  out of  48  rotations  CPU=       4.2800 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.170425264792352D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.170946470280079D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.171463692224516D+01
+ 27  out of  48  rotations  CPU=       4.4200 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.171996842501659D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.172532428912592D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.173049650882837D+01
+ 28  out of  48  rotations  CPU=       4.5700 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.173582801159989D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.174118387570923D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.174635917349306D+01
+ 29  out of  48  rotations  CPU=       4.7100 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.175169067178578D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.175695166523596D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.176216288758164D+01
+ 30  out of  48  rotations  CPU=       4.8500 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.176749438587442D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.177275537932470D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.177796959039202D+01
+ 31  out of  48  rotations  CPU=       5.0000 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.178321678065881D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.178849588705709D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.179370710944366D+01
+ 32  out of  48  rotations  CPU=       5.1400 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.179895429971049D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.180423340610878D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.180944761720631D+01
+ 33  out of  48  rotations  CPU=       5.2800 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.181477911549910D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.182004010894938D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.182525432001670D+01
+ 34  out of  48  rotations  CPU=       5.4200 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.183058581830942D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.183584681175960D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.184105803410527D+01
+ 35  out of  48  rotations  CPU=       5.5700 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.184638953687670D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.185174540098603D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.185691762068848D+01
+ 36  out of  48  rotations  CPU=       5.7100 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.186224912346000D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.186760498756934D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.187278028535317D+01
+ 37  out of  48  rotations  CPU=       5.8500 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.187802741757869D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.188323947245596D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.188841169190034D+01
+ 38  out of  48  rotations  CPU=       6.0000 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.189365882412587D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.189887087900316D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.190404617653149D+01
+ 39  out of  48  rotations  CPU=       6.1400 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.190929330875702D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.191450536363431D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.191968066116264D+01
+ 40  out of  48  rotations  CPU=       6.2800 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.192492779338817D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.193013984826543D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.193531206770981D+01
+ 41  out of  48  rotations  CPU=       6.4200 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.194064357048132D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.194599943459066D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.195117473237450D+01
+ 42  out of  48  rotations  CPU=       6.5700 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.195650623514593D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.196186209925525D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.196703431895771D+01
+ 43  out of  48  rotations  CPU=       6.7100 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.197228150922450D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.197756061562278D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.198277183800935D+01
+ 44  out of  48  rotations  CPU=       6.8500 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.198801902827618D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.199329813467447D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.199851234577200D+01
+ 45  out of  48  rotations  CPU=       6.9900 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.200384384406473D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.200910483751490D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.201431605986058D+01
+ 46  out of  48  rotations  CPU=       7.1400 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.201964755815336D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.202490855160364D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.203012276267096D+01
+ 47  out of  48  rotations  CPU=       7.2800 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.203545426544239D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.204081012955172D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.204598234925417D+01
+ 48  out of  48  rotations  CPU=       7.4200 secs    0.1 mins
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.205131385202569D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.205666971613503D+01
+ngb nn= 209 209 209
+ sum(abs(zsec))=  0.206184501391886D+01
+ 
+ j iq isp=  4   1 1  q=  0.0000  0.0000  0.0000  eig=   -0.3111  Sx=  -14.1859
+ j iq isp=  5   1 1  q=  0.0000  0.0000  0.0000  eig=    2.2347  Sx=   -4.8379
+ j iq isp=  4   2 1  q= -0.5000  0.5000  0.5000  eig=   -1.5046  Sx=  -14.0358
+ j iq isp=  5   2 1  q= -0.5000  0.5000  0.5000  eig=    1.1351  Sx=   -5.0274
+ j iq isp=  4   3 1  q=  0.0000  0.0000  1.0000  eig=   -3.1655  Sx=  -13.8111
+ j iq isp=  5   3 1  q=  0.0000  0.0000  1.0000  eig=    0.3111  Sx=   -4.2080
+ closed :    12 hbe.d                                                           
+ CPU=       7.5700 secs    0.1 mins

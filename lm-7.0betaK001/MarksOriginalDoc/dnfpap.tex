@@ -1,0 +1,287 @@
+\font\bigtenrm=cmr10 scaled\magstep1
+\font\bigsl=cmsl10 scaled\magstep1
+\font\bigit=cmti10 scaled\magstep1
+\font\bigbf=cmbx10 scaled\magstep1
+\font\type=cmtt10 scaled\magstep1
+\hsize 16.1cm \vsize 22cm
+\baselineskip 18pt
+\leftskip 0.5in
+\bigskip
+\bigbf
+\bigskip
+
+\centerline{\hfil Minimal Basis Sets:  Practical LMTO Downfolding\hfil}
+\bigskip
+\bigtenrm
+\centerline{\hfil A. T. Paxton and Mark van Schilfgaarde,
+SRI International\hfil}
+\vskip5pt
+\centerline{\hfil 333 Ravenswood Ave, Menlo Park, CA 94025\hfil}
+\vskip15pt
+\centerline{\hfil O. K. Andersen, Max-Planck Institut f\"ur
+Festk\"orperforschung\hfil}
+\vskip5pt
+\centerline{\hfil 7000 Stuttgart-80\hfil}
+\bigskip
+
+These notes describe the practical considerations involved in
+incorporating orbital downfolding into an existing LMTO program.
+The starting point is assumed to be a working code in the tight-binding
+representation, here denoted $\alpha$. However, the development is
+equally valid for any starting representation, so that, for example,
+one could set $\alpha=0$ in all that follows.
+
+Downfolding is effected by a basis transformation to an LMTO
+representation we will call $\beta$, defined as
+$$\beta_l = \alpha_l;\qquad\beta_i=1/P^0(e_\nu)$$
+where $l$, $i$ refer to the lower and intermediate
+sets respectively and $\alpha$ are the conventional tight-binding
+screening constants.
+The $i$-orbitals are those which will be downfolded
+so that they do not contribute to the dimension of the secular problem.
+$1/P^0(e_\nu)$ is the inverse potential function (which
+may be thought of as minus the tangent of the KKR phase shift) evaluated
+at $e_\nu$.
+
+Lambrecht and Andersen have shown that orbital downfolding amounts
+to a linearisation of $1/P^0$ about the energy $V^\sigma$
+for any general representation $\sigma$, including $\sigma=0$.
+$V^\sigma$ is the energy at which the radial solution $\varphi^\sigma$
+has logarithmic derivative equal to $\ell$.
+
+The choice of $\beta$-representation has the main advantage that $1/P^0$
+is linearised about $V^\beta=e_\nu$ which leads to the smallest error in
+the linear method.  Two other advantages are that the moments of the
+charge density in the $l$ and $i$ sets are uncoupled; and that the
+$i$-wave eigenvectors, three-centre integrals and $\dot\beta_i$ can be
+expressed in a representation-independent form (these will be discussed
+below).
+
+In a self-consistent LMTO-ASA procedure, the downfolded band
+calculation comprises the following steps. 1. Transformation of
+the structure constants to the $\beta$-representation. (This
+depends on the potential from the previous iteration.) 2. Assembling
+the overlap and hamiltonian matrices. 3. Computing eigenvalues and
+eigenvectors. 4. Accumulating the moments of the new charge density.
+
+\vskip 10pt
+\line {1. Transforming the structure constants\hfil}
+\vskip 5pt
+
+We begin with the Bloch transformed, tight-binding structure constants,
+$S^\alpha$, and their energy derivatives at
+$\kappa^2=0$, $\dot S^\alpha$.
+We need not invert the whole structure constant matrix as might appear
+necessary from the usual expressions for the change of basis, because
+only the screening constants in the $i$-set are different from the
+tight-binding values. In this case, Andersen has shown
+(Varenna notes, p.~103) that if we
+partition the structure constant matrices into square
+$l$-wave and $i$-wave blocks (denoted by subscripts $ii$ and $ll$)
+connected by a rectangular $il$ block, then
+defining the vector $\xi_i=(\beta_i-\alpha_i)$ and
+$A_{il}={(\xi^{-1}_i - S^\alpha_{ii})}^{-1} S^\alpha_{il}$, one has
+$$S^\beta_{ll}=S^\alpha_{ll} + (S^\alpha_{il})^\dagger A_{il}$$
+and
+$$S^\beta_{il}=\xi^{-1}_i A_{il}$$
+Note that in the present case, $\xi^{-1}_i$ is the vector of
+inverse potential functions at $e_\nu$, of the $i$-waves, in the
+tight-binding representation.
+
+In order to transform ${\dot S}^\alpha$ we need the vector
+$\dot\xi_i=(\dot\beta_i-\dot\alpha_i)$,
+where the choice of $\dot\xi_i$ is
+arbitrary. We choose $\dot\xi_i$ so as to cause three-centre overlap
+integrals over the $i$-waves to vanish as will be discussed below.
+If $\dot\beta_l=\dot\alpha_l$, Andersen has shown that
+$${\dot S}^\beta_{ll} = {\dot S}^\alpha_{ll}
+                               + A_{il}^\dagger {\dot S}^\alpha_{il}
+                               + ({\dot S}^\alpha_{il})^\dagger A_{il}
+-A_{il}^\dagger ({\dot\xi}^{-1}_i - {\dot S}^\alpha_{ii}) A_{il}$$
+and
+$${\dot S}^\beta_{il} = -({\dot\xi}^{-1}_i - {\dot S}^\alpha_{ii}) A_{il}$$
+where ${\dot\xi}^{-1}_i=-\xi^{-1}_i {\dot\xi}_i \xi^{-1}_i$.
+
+\vskip 10pt
+\line {2. Overlap and Hamiltonian\hfil}
+\nobreak\vskip 5pt\nobreak
+It is convenient to divide $O$ and $H$ into ASA and CC (Combined
+Correction) contributions.  Each of these has three terms to third order
+{\it viz.,} one- two- and three-centre integrals.  Here we give explicit
+expressions for each of the six terms in the downfolded matrices.  Due
+to our choice of $\beta$ and $\dot\beta$, we may express all quantities
+in terms of $S^\beta$ and ${\dot S}^\beta$, $e_\nu$, and the five
+traditional tight-binding parameters, $d^\alpha$, $c^\alpha$, $o^\alpha$
+and $p^\alpha$ (see Varenna notes).  The reason is that it turns out
+that in expressions for $i$-wave three-centre integrals, eigenvectors
+and $\dot\xi_i$, the potential parameters
+appear only in the combination,
+$${{\sqrt\Delta}\over{C-e_\nu}}=
+{\sqrt{d^\alpha}\over{c^\alpha-e_\nu}}$$
+which is representation-independent,
+and is equal to the potential parameter
+$\Gamma^{-\scriptstyle{1\over 2}}$
+when in the representation $\beta_i$ (that is, when $e_\nu=V^\beta$).
+Thus we have, for the $i$-waves only,
+$${\sqrt{d^\alpha}\over{c^\alpha-e_\nu}}=
+{1\over\sqrt{\Gamma^\beta}}$$
+Therefore we may conveniently use the tight-binding potential
+parameters even for the $i$-waves, and in
+what follows we supress the superscript $\alpha$ on these.
+(This is consistent with the present development being independent
+of the original representation.) It is convenient to
+define matrices,
+$$S_d\equiv\sqrt{d}S^\beta\sqrt{d}\qquad{\rm and}\qquad
+\dot S_d\equiv\sqrt{d}\dot S^\beta\sqrt{d}$$
+and for the
+CC-terms, we write the diagonal matrices that appear in eq.~3.87 in the
+Kanpur notes as follows.
+$$D^{(0)}={2\over{2\ell -1}}\biggl({w\over s}\biggr)^{2\ell -1}$$
+$$D^{(1)}={{(s/w)^2}\over{2(2\ell +1)}} + \beta{2\over{2\ell -1}}
+  \biggl({w\over s}\biggr)^{2\ell -1}$$
+$$D^{(2)}=-{1\over{2(2\ell +1)^2(2\ell +3)}}
+  \biggl( {s\over w}\biggr)^{2\ell +3}
+  + \beta{(s/w)^2\over {2\ell +1}}
+  + \beta^2{2\over{2\ell -1}}\biggl({w\over s}\biggr)^{2\ell -1}
+  + w^{-2}\dot\alpha$$
+where $s$ and $w$ are atomic sphere radius and average Wigner-Seitz
+radius.  Note, they are constructed with $\dot\alpha$ for both the $l$-
+and $i$-sets (this is simply for computational convenience).  These can
+be made once the screening constants in the $i$-channels have been
+replaced by the inverse potential functions.
+
+The orbitals that are folded down can only provide $\dot\varphi$-like
+tails to the basis, so that in these channels there is only an
+$\Omega$ matrix and no $\Pi$ matrix (see eq. 2.25a -- Ghent notes and
+eq. 2.26 -- Kanpur notes). Therefore once the $i$-waves have been folded
+in to the structure constants during the basis transformation, their
+only explicit contributions to $O$ and $H$ come {\it via} the
+three-centre integrals $\Omega^\dagger p \Omega$  and
+$\Omega^\dagger e_\nu p \Omega$  and three-centre CC terms.
+We now choose $\dot\xi_i$ so that these terms in $O$ sum to zero.
+By setting the terms in brackets in eq. 3.90 -- Kanpur notes to zero
+(with $V^\beta=e_\nu$) we arrive at the condition
+$$\dot\xi_i =-w^2 D^{(2)}_i - {1\over\Gamma^\beta_i}$$
+in which $\dot\xi_i$ depends only
+on representation through the explicit
+appearance of $\beta$ in $D^{(2)}$ and not through the potential
+parameters.
+
+Three-centre integrals over the $i$-set can also be cast in a
+representation-independent form: using eq. 3.91 -- Kanpur notes, we
+have for the $i$-wave hamiltonian entries,
+$$\sqrt{d_l}(S^\beta_{il})^\dagger
+\biggl({e_\nu-V_{\rm mtz}\over\Gamma^\beta_i}\biggr)
+S^\beta_{il}\sqrt{d_l}$$
+where $V_{\rm mtz}$ is the muffin-tin zero of energy.
+Note that the CC term in $D^{(2)}_i$ has been cancelled by our choice of
+$\dot\xi_i$ which has elliminated all $i$-wave three-centre terms in $O$
+and all but the ASA three-centre terms in $H$.
+
+The remaining contribution to $O$ and $H$ come from the $l$-waves, and
+have the traditional form as follows.
+\vskip 5pt
+\line{Overlap ASA:\hfil}
+\vskip2pt
+\line{One-centre\hfil $1+2(c-e_\nu)o+p(c-e_\nu)^2$\hfil}
+\vskip2pt
+\line{Two-centre\hfil $S_d \bigl(o+p(c-e_\nu)\bigr)+
+                       \bigl(o+p(c-e_\nu)\bigr)S_d$\hfil}
+\vskip2pt
+\line{Three-centre\hfil $S_d p S_d$\hfil}
+\vskip 5pt
+\line{Overlap CC:\hfil}
+\vskip2pt
+\line{One-centre\hfil $w^2 D^{(0)} d$\hfil}
+\vskip2pt
+\line{Two-centre\hfil $w^2 (S_d D^{(1)} + D^{(1)} S_d)$\hfil}
+\vskip2pt
+\line{Three-centre\hfil $w^2 S_d (D^{(2)}/d) S_d - \dot S_d$\hfil}
+\vskip 5pt
+\line{Hamiltonian ASA:\hfil}
+\vskip2pt
+\line{One-centre\hfil $c+(c-e_\nu)\bigl(2oe_\nu
+                        +(c-e_\nu)(o+pe_\nu)\bigr)$\hfil}
+\vskip2pt
+\line{Two-centre\hfil $S_d
+      \bigl({\scriptstyle 1\over 2}+oe_\nu+(c-e_\nu)(o+pe_\nu)\bigr)+
+      \bigl({\scriptstyle 1\over 2}+oe_\nu+(c-e_\nu)(o+pe_\nu)\bigr)
+                          S_d$\hfil}
+\vskip2pt
+\line{Three-centre\hfil $S_d(o+pe_\nu)S_d$\hfil}
+\vskip 5pt
+\line{Hamiltonian CC:\hfil}
+\vskip2pt
+\line{One-centre\hfil $V_{\rm mtz} w^2 D^{(0)} d$\hfil}
+\vskip2pt
+\line{Two-centre\hfil $V_{\rm mtz}w^2(S_d D^{(1)}+D^{(1)}S_d)$\hfil}
+\vskip2pt
+\line{Three-centre\hfil $V_{\rm mtz}\bigl(w^2 S_d(D^{(2)}/d)S_d
+                         - \dot S_d\bigr)$\hfil}
+\vskip5pt
+Formulating the problem in this way has the advantage that downfolding
+can be incorporated into a standard tight-binding LMTO program with a
+minimal number of changes. The only difficult part is the scatter/gather
+and index pointing needed in partitioning the $S$, $O$ and $H$ matrices and
+the potential parameter, screening constant and CC vectors.
+\vskip 10pt
+\line{3. Eigenvalues and Eigenvectors\hfil}
+\nobreak\vskip 5pt\nobreak
+Although only the $ll$ block of the hamiltonian is diagonalised, one
+may obtain an expression for the zero-order eigenvectors in the $i$-set
+in terms of the eigenvectors of the $l$-waves. (See, for example,
+Varrena notes, eq.~147.)
+The success of orbital downfolding is due to the effect of the basis
+transformation which is to make the tails of the $\dot\varphi$-like
+$i$-waves mimic as closely as possible the actual $\varphi$ orbitals in
+the $i$-set had they remained in the basis.  The way to achieve this is
+to make $o^\beta$ as large as possible so that in the transformation
+$\dot\varphi^\beta_i=\dot\varphi_i+\varphi_i o^\beta$ the last term
+dominates.  In fact, in the $\beta_i$-representation in which
+downfolding is most effective, the conventional potential parameters $d$
+and $c-e_\nu$ are zero, whilst $o$ and $p$ are infinite. (This is why we
+have emphasised the use of these parameters in the original
+$\alpha$-representation.) The first-order hamiltonian, $h^\beta=c^\beta
+-e_\nu + \sqrt{d^\beta}S^\beta\sqrt{d^\beta}$ is therefore zero in the
+$i$-set, but $o^\beta h^\beta$ is finite and $\varphi^\beta_i$ can be
+properly normalised if the LMTO
+$$\vert\chi\rangle=\vert\varphi_l\rangle+\vert\dot\varphi_l\rangle
+h_{ll}+\vert\dot\varphi_i\rangle h_{il}+\vert\kappa\rangle$$
+becomes
+$$\vert\chi^\beta\rangle=\vert\varphi_l\rangle+
+\vert\dot\varphi_l^\beta\rangle h_{ll}^\beta
++\vert\varphi_i^\beta\rangle {-1\over\sqrt{\Gamma^\beta_i}}
+S_{il}^\beta\sqrt{d_l}+\vert\kappa^\beta\rangle$$
+where the expansion coefficients of the $\varphi^\beta_i$ are the
+correct limit of $o^\beta_i h^\beta_{il}$ (see Varenna notes p.~106).
+
+The $i$-wave eigevectors, $z_i$ in terms of the
+eigenvectors of the $ll$ block of the hamiltonian, $z_l$ are, therefore,
+$$z_i({\bf k})={1\over\sqrt{\Gamma^\beta_i}} S^\beta_{il}
+      \sqrt{d_l} z_l({\bf k})$$
+Note that, again, we need only use the tight-binding potential
+parameters even in the $i$-set.
+\vskip 10pt
+\line{4. Accumulating the charge density\hfil}
+\nobreak\vskip 5pt\nobreak
+Having recovered eigenvectors in the $i$-channels one may proceed to
+calculate moments of the spherical ASA charge density. Explicit
+expressions are given in equations 2.66 and 2.67 in the Kanpur notes.
+In the $\beta$-representation we have chosen, there is no coupling
+of the moments between the $l$- and $i$-channels since matrix elements
+of the first order hamiltonian, $h^\beta$ are zero in the $i$-channels.
+Therefore the moments in the $l$ and $i$ channels may be accumulated
+independently. Since the $i$-eigenvectors are only correct to zeroth
+order, their first and second moments are, in fact, not defined in any
+representation. However, in order to estimate new logarithmic
+derivatives
+(or $e_\nu$'s) for the next iteration, the first and second moments
+are accumulated at each k-point from the eigenvalues of the hamiltonian.
+Thus the moments in the $i$-channels are
+$$m^0_i=\sum_{n,{\bf k}{\rm (occ.)}}\vert z_i({\bf k})\vert^2$$
+$$m^r_i=\sum_{n,{\bf k}{\rm (occ.)}}
+m^0_i (e_{n,{\bf k}} - e_\nu)^r\quad,\qquad r=1,2$$
+In this way, charge is properly distributed into the $i$-waves and the
+$e_\nu$ correctly shifted to the centres of the occupied bands during
+the self-consistency procedure.
+\end

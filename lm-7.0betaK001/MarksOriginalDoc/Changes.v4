@@ -1,0 +1,80 @@
+Version 4.6
+
+1.  Token BZJOB has only three arguments now
+
+2.  in BZ, METAL=2 option added, that accumulates moments on the
+    fly, using bands and weights from a prior iteration
+
+3.  Some enhancements were added to the charge mixing
+
+4.  tbe has been enhanced significantly
+
+5.  Input is bettered tailored to individual programs
+
+6.  First implementation of lmmag.
+
+Version 4.4.7
+1.  NRMIX in OPTIONS is now a vector of two elements.
+    First element denotes maximum number of iterations in small loop
+    (atom program) to attempt.
+    Second element plays role of old first element.
+
+Version 4.3
+
+1.  (collinear spin-pol) BZ integrations combined up,down to
+    determine E_f, making it constitent with noncollinear case.
+    (NB: this can be overridden with switch -oldbz)
+
+Version 4.2:
+1.  Contains tbe 5.0
+
+2.  Noncollinear Euler angles may be orbital-dependent.
+
+Version 4.1:
+1.  (spin-pol) VMTZ is no longer spin-dependent.
+    (NB: this can be overridden with switch -novmza for collinear case)
+
+2.  dostet and dosspl generate dos strictly for each channel.
+    dos are no longer weighted by the number of equivalent classes
+    or extra factor of 2 for spin degeneracy.
+
+Version 4.0:
+1.  VAR category now called CONST (functionality is unchanged)
+
+2.  rdfile now has constructs
+       const var char cchar echo show stop dump repeat end 
+       if ifdef elseif elseifd else endif include
+
+3.  Broyden mixing and MIX has a new syntax (see lm.doc).
+
+
+---------- Changes from v3.3 ---------------
+Make the following changes to convert a version 3.3 control file into a
+version 4.0 control file:
+
+1.  In category VERS change LMASA-3.3 to LMASA-4.0.
+
+2.  In category IO token EXTENS is no longer used.
+
+3.  Rename category VAR as CONST.  The functionality is unchanged.
+
+4.  In category BZ the token BZJOB is now a set of four logical switches.
+    The first switch shifts all three axes of the mesh;  the last three
+    switches can be used to shift individual axes.
+
+5.  Also in category BZ, change token DRNGE to DOS.
+
+6.  In category CLASS the token AMASS is the atomic weight.
+
+7.  In category START the token DV is a constant shift in the
+    electrostatic potential (ves) for a given atom.
+
+8.  In category TB the token START is a logical switch;  START=T means
+    start a new MD run (do not use STRT file).  START defaults to true.
+
+9.  In category TB the token TSTEP is the timestep in femtoseconds and
+    TEMP is the temperature in Kelvin.
+
+10. Also in category TB, the token NITEQU is the number of equilibration
+    steps after which the forces are damped by a factor proportional to the
+    atom velocities;  the factor is also proportional to the token SYRUP.

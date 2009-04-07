@@ -1,0 +1,168 @@
+The following lists checks using standard test cases.
+The following checks are made:
+
+ASAband program         testing/test.lm -all
+fp                      fp/test/test.fp -all
+sx                      sx/test/test.sx -all
+optics                  optics/test/test.optics -all
+gf                      gf/test/test.gf -all
+pgf                     pgf/test/fe/testpgf -all
+nc                      nc/test/test.nc -all
+gw                      gw/test/test.gw -all
+mol                     mol/test/test.mol --all
+
+version  CPU/system             config.guess                    uname -smr                              compiler                Problems
+
+6.16
+        DEC EV6 264DP           alphaev6-unknown-linux-gnu      Linux 2.4.18-27.7.x.hpsmp alpha         fort V1.1.0-1534        Pass
+
+        Intel Xeon              i686-pc-linux-gnu               Linux 2.6.18-8.1.8.el5 i686             ifort 10.0              Pass
+                                                                                                        (gnu) f95               Some problems with OS supplied lapack
+                                                                                                                                lm, REL=2, doesn't work
+                                                                                                                                pgf doesn't work
+
+        Intel Pentium 4         i686-pc-linux-gnu               Linux 2.4.21-32.0.1.ELsmp i686          ifort l_fc_pc_8.1.024   Pass
+
+        AMD Athlon MP 2000+     i686-pc-linux-gnu               Linux 2.4.20-28.7smp i686               pgf90 4.0-1             lmmc fails
+
+        Intel Xeon(64 bit)      x86_64-unknown-linux-gnu        Linux 2.4.21-20.EL x86_64               pgf90 6.2-5             Pass
+
+        SGI Altix 3700 /
+        IA-64 Itanium2          ia64-unknown-linux-gnu          Linux 2.6.5-7.283-sn2 ia64              fort 8.1,icc            Mostly ok ... isolated problems
+                                                                                                                                not easily identified.
+
+        IBM Power4-system       powerpc-ibm-aix5.1.0.0          AIX 1 0037D54A4C00                      xlf                     compiles; execution not checked.
+
+6.15
+        DEC EV6 264DP           alphaev6-unknown-linux-gnu      Linux 2.4.18-27.7.x.hpsmp alpha         fort V1.1.0-1534        Pass
+
+        Intel Xeon              i686-pc-linux-gnu               Linux 2.4.20-i4smp i686                 ifc 7.0                 Pass
+
+        Intel Pentium 4         i686-pc-linux-gnu               Linux 2.4.21-32.0.1.ELsmp i686          ifort l_fc_pc_8.1.024   Pass
+
+        AMD Opteron 248         x86_64-unknown-linux-gnu        Linux 2.4.27-294r0048.Scyldsmp x86_64   pgf90 6.0-2 64-bit      Pass
+
+        Intel Xeon(64 bit)      x86_64-unknown-linux-gnu        Linux 2.4.21-20.EL x86_64               l_fce_pc_8.1.025        Pass
+
+        Athlon MP 2000+         i686-pc-linux-gnu               Linux 2.4.20-28.7smp i686               pgf90 4.0-1             Pass
+
+        SGI IP25                mips-sgi-irix6.5                IRIX64 6.5 IP25                         MIPSpro f90 7.2.1       Pass
+
+        SUNW,Ultra-80           sparc-sun-solaris2.7                                                    f90-6.1                 Not checked
+
+        PowerPC                 powerpc-ibm-aix4.3.2.0          ?                                       xlf90                   Yes(?)
+
+
+version  hardware,OS        uname -r              config.guess                  compiler            Pass?
+6.14     EV 6               2.4.18-27.7.x.hpsmp alphaev6-unknown-linux-gnu      fort-2.96           Pass
+                                                                                cc-2.96
+         Intel i686         R.H.Linux           i686-pc-linux-gnu               ifc-6.0.1           Pass
+                                                                                icc-6.0.1
+         Intel i686         R.H.Linux           i686-pc-linux-gnu               pgf90-4.0-2         Yes (but lmscell does not work)
+                                                                                gcc-2.96
+         Athlon MP 2000+   2.4.20-19.7smp       i686-pc-linux-gnu               pgf90-4.0-1         Pass
+                                                                                pgcc-4.0-1
+         Intel i686         2.4.20-8smp         i686-pc-linux-gnu               f77-3.2.2           Yes (but lmscell does not work)
+                                                                                cc-3.2.2
+         SUNW,Ultra-80      solaris             sparc-sun-solaris2.7            f90-6.1             No (probably due to faulty compilers
+                                                                                cc-5.2                   on specific machine)
+         SUNW,Ultra-80      solaris             sparc-sun-solaris2.7            f77-5.2             No (probably due to faulty compilers
+                                                                                cc-5.2                   on specific machine)
+         SGI IP25           IRIX 6.5            mips-sgi-irix6.5                f77-7.2.1           Pass
+                                                                                cc-7.2.1
+         SGI IP25           IRIX 6.5            mips-sgi-irix6.5                f90-7.2.1           Yes (but ysbnv test fails)
+                                                                                cc-7.2.1
+         PowerPC            AIX                 powerpc-ibm-aix4.3.2.0          xlf                 No  (this specific machine could not handle
+
+6.12    DEC EV6   R.H.Linux  alphaev56-unknown-linux-gnu  Compaq V1.1.0-1534  all
+        DEC EV5   DEC unix   alphaev56-dec-osf5.1         f90 V5.5-1877-48BBF all
+
+        SGI IP30   6.5       mips-sgi-irix6.5             f90 7.3.1.3m        all
+
+        HP 780    B.10.20    hppa1.1-hp-hpux10.20         f90                 all except: tbe
+                                                                                          fp errors slightly larger than usual tolerance
+                                                                                          lmf2gw doesn' link
+        Sun      solaris     sparc-sun-solaris2.5.1       f90                 all but GW
+
+        IBM                  rs6000-ibm-aix3.2.5                              not checked
+
+        Intel     R.H.Linux  i686-pc-linux-gnu            gcc,pgf90 v3.1-3    Yes but problems with libfftw, using 21 divisions
+        Intel     R.H.Linux  i686-pc-linux-gnu            gcc,g77  2.96       all but FP, GW
+
+
+6.11    DEC EV6   R.H.Linux  alphaev6-unknown-linux-gnu  Compaq fort V1.0-920 all
+        DEC EV6   R.H.Linux  alphaev56-unknown-linux-gnu  g77 0.5.24-19981002 all
+
+        DEC EV5   DEC unix   alphaev56-dec-osf4.0f        f90 V5.4A-1472      all
+                  R.H.Linux  alphaev56-unknown-linux-gnu  g77 0.5.24-19981002 all
+
+        SGI IP30   6.5       mips-sgi-irix6.5             f90 7.3.1.2m        all
+
+        HP 735    B.10.20    hppa1.1-hp-hpux10.20         fort77              ASA
+           780                                            f90                 Pass
+
+        Sun      solaris     sparc-sun-solaris2.5.1       f77                 all but GW
+
+        IBM                  rs6000-ibm-aix3.2.5                              not checked
+
+        Intel     R.H.Linux  i686-pc-linux-gnu            gcc,pgf90 v3.1-3    Pass
+
+version machine     OS       startup/config.guess         compiler            Pass?
+6.10    DEC EV5    Unix      alphaev56-dec-osf4.0d         5.0                all
+        DEC EV5   R.H.Linux  alphaev56-unknown-linux-gnu Compaq fort V1.0-920 all
+        DEC EV6   R.H.Linux  alphaev6-unknown-linux-gnu  Compaq fort V1.0-920 all
+
+       SGI Octane  6.5       mips-sgi-irix6.5             f77 v7.3            all
+
+        HP 735    B.10.20    hppa1.1-hp-hpux10.20                             not checked
+
+        Intel     R.H.Linux  i686-pc-linux-gnu            g77 egcs-2.90.27    all
+        Intel     R.H.Linux  i686-pc-linux-gnu            pgcc, pg77 v. 3     not checked
+
+        IBM                  rs6000-ibm-aix3.2.5                              not checked
+
+        Sun      solaris     sparc-sun-solaris2.5.1       f77                 all, except optics
+                                                                              NB: problems with awk
+
+version machine     OS       startup/config.guess         compiler            Pass?
+ 6.9    DEC EV5    Unix      alphaev56-dec-osf4.0d         5.0                all
+        DEC EV5   R.H.Linux  alphaev56-unknown-linux-gnu  g77 0.5.24-19981002 all
+        DEC EV5   R.H.Linux  alphaev56-unknown-linux-gnu  Compaq-T1.0-861     all
+        DEC EV6   R.H.Linux  alphaev56-unknown-linux-gnu  g77 0.5.24-19981002 all
+        DEC EV6   R.H.Linux  alphaev56-unknown-linux-gnu  Compaq-T1.0-861     all
+
+       SGI Octane  6.5       mips-sgi-irix6.5             7.3                 all
+       SGI IP27    6.4       mips-sgi-irix6.4             7.2.1               all
+
+        HP 735    B.10.20    hppa1.1-hp-hpux10.20                             all
+
+        Intel     R.H.Linux  i686-pc-linux-gnu            g77 egcs-2.90.27    all
+        Intel     R.H.Linux  i686-pc-linux-gnu            pgcc, pg77 v. 3     basic
+
+        IBM                  rs6000-ibm-aix3.2.5                              all
+
+        Sun      solaris     sparc-sun-solaris2.5.1       f77                 basic
+
+
+version ASA-sc  pgf   sx  ftb  optics  gf  nc  empirical-tb
+6.8.2    x      x     x    x     x     x   x      x             SGI8, compiler 7.20
+         x                 x     x     x   x      x             AIX90
+         x            x          x         x      tbu fails     HP
+         x            x          x     x*  x                    DEC alpha
+
+6.8.3
+         x                                                      DEC alpha Unix
+
+6.8.4    x            x    x     x     x   x      x             SGI8, compiler 7.20
+         x            x    x     x     x   x      x             SGI8, compiler 6.20
+         x            x  fails   x     x   x      x             AIX90
+         x            x    x     x     x   x      tbu fails     HP
+         x            x  fails   x     x   x      fails         DEC alpha
+         x            x    x     x     x   x       x            LINUX, DEC alpha
+
+
+6.8.5    x            x    x     x     x   x      x             SGI8, compiler 7.20
+         x            x   fails  x     x   x      fails         DEC alpha
+         x                       x     x          x             AIX90
+
+

@@ -1,0 +1,6 @@
+#!/bin/bash
+ddd=gas
+lmdir=../..
+$lmdir/lmfa gas  |tee llmfa
+rm rst.* mixm.* moms.* 
+$lmdir/lmf gas   |tee llmf

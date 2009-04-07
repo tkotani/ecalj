@@ -1,0 +1,718 @@
+30
+ rdfiln 3: trace set to 2
+.SYMGRP R4Z MX I
+.START   NIT=0 FREE=F BEGMOM=T CNTROL=t CNVG=1D-6 RDVES=t
+#rf 6: 'const', added ... no new vars
+#rf 7: 'const', added na, nb, fm, dble, twoc, dbxy, fe, v
+#rf 8: 'const', added ss, qss, nc, theta, beta, sdyn, sdmod
+#rf 9: 'const', added nca, ncb, nk1, nk2, vfe, dvfe
+#rf 10: 'const', added sc, bulkm, nspin, nit, xclas, ordalloy
+#rf 11: 'ifdef', read following lines: yes
+#rf 12: 'vec', added silly
+#rf 13: 'vec', added ... no new vars
+#rf 14: 'endif', read following lines: yes
+#rf 15: 'var', added ... no new vars
+#rf 16: 'var', added ... no new vars
+#rf 20: 'const', added asa, lmxf, lmxb, ef0
+#rf 21: 'const', added ksdw
+#rf 22: 'const', added xv, ecnst
+
+#rf 24: 'getenv', added abc
+#rf   25: HOME environment variable is: /home/markv
+
+#rf 27: 'ifdef', read following lines: yes
+try vectors ... 9 110 990
+#rf 29: 'endif', read following lines: yes
+
+  show that indirection works ...
+#rf 32: 'const', added essi, esge
+#rf 33: 'char', added nam
+#rf 34: 'const', added es
+#rf   35: es is 10, essi
+#rf 36: 'char', added ... no new vars
+#rf 37: 'var', added ... no new vars
+#rf   38: is is 20, esge
+
+  show that cchar works ...
+#rf 41: 'char', added eltc, elta, eltb
+#rf 42: 'var', added i
+% while i-=1 i>=0', read following lines: yes
+#rf 44: 'cchar', added elt
+#rf   45: for i=3, elt is In
+#rf 46: 'end', read following lines: yes
+% while i-=1 i>=0', read following lines: yes
+#rf 44: 'cchar', added ... no new vars
+#rf   45: for i=2, elt is N
+#rf 46: 'end', read following lines: yes
+% while i-=1 i>=0', read following lines: yes
+#rf 44: 'cchar', added ... no new vars
+#rf   45: for i=1, elt is Ga
+#rf 46: 'end', read following lines: yes
+% while i-=1 i>=0', read following lines: yes
+#rf 44: 'cchar', var elt not changed
+#rf   45: for i=0, elt is Ga
+#rf 46: 'end', read following lines: yes
+% while i-=1 i>=0', read following lines: no
+#rf 46: 'end', read following lines: yes
+
+#rf 48: 'cchar', var elt not changed
+#rf   49: now elt is Ga
+#rf 50: 'var', added ... no new vars
+#rf 51: 'cchar', added ... no new vars
+#rf   52: now elt is N
+
+#rf 55: 'cconst', added za, abccm, erefa, sbccm
+#rf 56: 'ifdef', read following lines: yes
+#rf 57: 'char', added me
+#rf 58: 'endif', read following lines: yes
+#rf 59: 'ifdef', read following lines: no
+#rf 62: 'endif', read following lines: yes
+#rf 64: 'ifdef', read following lines: no
+#rf 67: 'endif', read following lines: yes
+#rf 68: 'ifdef', read following lines: yes
+#rf 69: 'var', added zb, abccs, erefb, sbccs
+#rf 70: 'char', added se
+#rf 71: 'endif', read following lines: yes
+#rf 72: 'ifdef', read following lines: no
+#rf 75: 'endif', read following lines: yes
+#rf 76: 'ifdef', read following lines: no
+#rf 79: 'endif', read following lines: yes
+#rf 80: 'ifdef', read following lines: no
+#rf 83: 'endif', read following lines: yes
+#rf 84: 'ifdef', read following lines: no
+#rf 87: 'endif', read following lines: yes
+#rf 88: 'char', added strn
+#rf 89: 'ifdef', read following lines: no
+#rf 91: 'endif', read following lines: yes
+#rf 92: 'ifdef', read following lines: no
+#rf 94: 'endif', read following lines: yes
+#rf 95: 'ifdef', read following lines: no
+#rf 97: 'endif', read following lines: yes
+#rf   98: n=4,12 fm=1(1) nk=60,8 fe/v
+#rf 99: 'var', added zs
+#rf 100: 'var', added ... no new vars
+#rf 101: 'ifdef', read following lines: no
+#rf 103: 'endif', read following lines: yes
+
+VERS    LMASA-4.1 LMFP-4
+IO      SHOW=f HELP=F VERBOS=31 20 WKP=f IACTIV=f
+#rf 107: 'ifdef', read following lines: yes
+MIX     MODE=B4,w=2,1,b=.2,n=4;A2,w=1,2,n=4 XIPMX=0 BETV=.2
+        AMODE=A,w=0,0,wa=1,fn=ma,n=2,b=1
+MIX     MODE=B4,w=2,1,b=.2,n=4;A2,w=1,2,n=4 XIPMX=0 BETV=.05
+        AMODE=A,w=0,0,wa=1,fn=ma,n=2,b=1
+MIX     MODE=B6,w=2,1,b=.2,k=4 XIPMX=0 BETV=.05
+MIX     MODE=B6,w=2,1,wa=1,b=.2,k=4 XIPMX=0 BETV=.05
+        AMODE=A,w=0,0,wa=1,fn=ma,n=2,b=1
+#rf 118: 'else', read following lines: no
+#rf 125: 'endif', read following lines: yes
+SOLVE   SMODE=0 TOL=.01 H=.01 EEPS=1d-5 VAR=hi
+MASTER  a=5.72 nb=12 fm=1
+        JOB  1
+CONST   pi4b3=4*pi/3
+        nit=200 beta=.3 betv=.015 nv1=1 nv2=-6
+
+        hb=.5 ha=.5*.947552448^3 hi=(ha+hb)/2
+        hc=2*hi+(4-1)*ha+hb*(12-1)
+        nplane=16 hi=(ha+hb)/2
+
+        vola=a^3*ha                   volb=a^3*hb
+        Ra=(vola/pi4b3)^(1/3)         Rb=(volb/pi4b3)^(1/3)
+        delV=(2*hi-ha-hb)*a^3/4/pi4b3 hend=hc-hi delV*=
+        Rai=(delV+Ra^3)^(1/3)         Rbi=(delV+Rb^3)^(1/3)
+
+    bzj=11 rwa=1 rwb=1 nsp=2 mom=2.2*(nsp-1)
+    zb0=ha*3+hi-hb
+
+OPTIONS NSPIN=nsp REL=t TWOC=0 F ELIN=-.10 INVIT=t XCN=11 TPAN=t
+#rf 145: 'ifdef', read following lines: no
+#rf 147: 'endif', read following lines: yes
+#rf 148: 'ifdef', read following lines: no
+#rf 150: 'endif', read following lines: yes
+#rf 151: 'if', read following lines: yes
+        Q=BAND
+#rf 153: 'endif', read following lines: yes
+EWALD   TOL=1d-12 NKDMX=1500 NKRMX=1500
+#rf 155: 'ifdef', read following lines: no
+#rf 157: 'elseifd', read following lines: no
+#rf 159: 'elseif', read following lines: no
+#rf 161: 'else', read following lines: yes
+SYMGRP  MX MY R4Z I
+#rf 163: 'endif', read following lines: yes
+BZ      NKABC=60 60 8 BZJOB=bzj NKABC2=3 BZJOB2=0
+        TETRA=t METAL=t DOS=-.8 .8 EF0=0 DELEF=.001
+#rf 166: 'if', read following lines: yes
+        NEVMX=-1
+#rf 168: 'endif', read following lines: yes
+STR     RMAX=3.5 MODE=0
+
+#rf 172: 'ifdef', read following lines: no
+#rf 176: 'endif', read following lines: yes
+#rf 177: 'ifdef', read following lines: no
+#rf 181: 'else' (nesting=2), read following lines: (blocked by level 1)
+#rf 183: 'endif', read following lines: no
+#rf 186: 'endif', read following lines: yes
+#rf 187: 'ifdef', read following lines: no
+#rf 190: 'endif', read following lines: yes
+#rf 191: 'ifdef', read following lines: no
+#rf 194: 'endif', read following lines: yes
+#rf 195: 'ifdef', read following lines: no
+#rf 199: 'endif', read following lines: yes
+#rf 200: 'ifdef', read following lines: no
+#rf 204: 'endif', read following lines: yes
+#rf 205: 'ifdef', read following lines: no
+#rf 209: 'endif', read following lines: yes
+#rf 210: 'ifdef', read following lines: no
+#rf 214: 'endif', read following lines: yes
+#rf 215: 'ifdef', read following lines: no
+#rf 218: 'endif', read following lines: yes
+... enlarge cell by 2 nonmagnetic side (use 1st map only if nb even)
+MAP     F xb6: a.cr
+          xb5:  2: .5 .5  xb5\t a.cr
+... enlarge cell by 1 mag side (odd->even)
+MAP     F  a2:  2: .5 0.5  \h\t a.fe
+          xa2:  2: .5 .5    \h\t a.fe
+
+#rf 227: 'var', added nclass
+#rf 230: 'ifdef', read following lines: no
+#rf 232: 'endif', read following lines: yes
+STRUC   NBAS=nplane*1 NCLASS=8 NL=3
+#rf 234: 'ifdef', read following lines: no
+#rf 236: 'elseifd', read following lines: no
+#rf 238: 'endif', read following lines: yes
+        ALAT=a PLAT= 1 0 0   0 1 0   0 0 hc*1 TET=1
+CLASS
+#rf 241: 'ifdef', read following lines: no
+#rf 243: 'endif', read following lines: yes
+#rdfiln  244: id -> 1
+#rf 244: 'repeat' over 1 values; read following lines: yes
+#rf 245: 'cchar', added x
+#rf 246: 'cchar', added g
+#rf 247: 'char', added i
+#rdfiln  248: k -> 1 2
+#rf 248: 'repeat' over 2 values; read following lines: yes
+ ATOM=XA1 Z=26 IDMOD=0 0 0 EREF=-2540.5681 GROUP=1
+  R=Rai*rwa LMXB=221 LMXF=4 NR=601 A=.02 GRP2=1
+#rf 251: 'if', read following lines: no
+#rf 254: 'endif', read following lines: yes
+#rf 255: 'char', added ... no new vars
+#rf 256: 'end', repeat loop over 'k' with val=1; reread 8 lines
+ ATOM=XA2 Z=26 IDMOD=0 0 0 EREF=-2540.5681 GROUP=2
+  R=Ra*rwa LMXB=221 LMXF=4 NR=601 A=.02 GRP2=2
+#rf 251: 'if', read following lines: no
+#rf 254: 'endif', read following lines: yes
+#rf 255: 'char', added ... no new vars
+#rf 256: 'end', read following lines: yes
+#rf 257: 'char', added ... no new vars
+#rdfiln  258: k -> 1 2 3 4 5 6
+#rf 258: 'repeat' over 6 values; read following lines: yes
+#rf 259: 'ifdef', read following lines: no
+#rf 262: 'else', read following lines: yes
+ ATOM=XB1 Z=23 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-1
+#rf 264: 'endif', read following lines: yes
+  R=Rbi*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=3.5
+#rf 266: 'if', read following lines: no
+#rf 269: 'endif', read following lines: yes
+#rf 270: 'char', added ... no new vars
+#rf 271: 'end', repeat loop over 'k' with val=1; reread 13 lines
+#rf 259: 'ifdef', read following lines: no
+#rf 262: 'else', read following lines: yes
+ ATOM=XB2 Z=23 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-2
+#rf 264: 'endif', read following lines: yes
+  R=Rb*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=4.5
+#rf 266: 'if', read following lines: no
+#rf 269: 'endif', read following lines: yes
+#rf 270: 'char', added ... no new vars
+#rf 271: 'end', repeat loop over 'k' with val=2; reread 13 lines
+#rf 259: 'ifdef', read following lines: no
+#rf 262: 'else', read following lines: yes
+ ATOM=XB3 Z=23 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-3
+#rf 264: 'endif', read following lines: yes
+  R=Rb*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=5.5
+#rf 266: 'if', read following lines: no
+#rf 269: 'endif', read following lines: yes
+#rf 270: 'char', added ... no new vars
+#rf 271: 'end', repeat loop over 'k' with val=3; reread 13 lines
+#rf 259: 'ifdef', read following lines: no
+#rf 262: 'else', read following lines: yes
+ ATOM=XB4 Z=23 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-4
+#rf 264: 'endif', read following lines: yes
+  R=Rb*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=6.5
+#rf 266: 'if', read following lines: no
+#rf 269: 'endif', read following lines: yes
+#rf 270: 'char', added ... no new vars
+#rf 271: 'end', repeat loop over 'k' with val=4; reread 13 lines
+#rf 259: 'ifdef', read following lines: no
+#rf 262: 'else', read following lines: yes
+ ATOM=XB5 Z=23 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-5
+#rf 264: 'endif', read following lines: yes
+  R=Rb*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=7.5
+#rf 266: 'if', read following lines: no
+#rf 269: 'endif', read following lines: yes
+#rf 270: 'char', added ... no new vars
+#rf 271: 'end', repeat loop over 'k' with val=5; reread 13 lines
+#rf 259: 'ifdef', read following lines: no
+#rf 262: 'else', read following lines: yes
+ ATOM=XB6 Z=23 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-6
+#rf 264: 'endif', read following lines: yes
+  R=Rb*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=8.5
+#rf 266: 'if', read following lines: no
+#rf 269: 'endif', read following lines: yes
+#rf 270: 'char', added ... no new vars
+#rf 271: 'end', read following lines: yes
+#rf 272: 'ifdef', read following lines: no
+#rf 274: 'endif', read following lines: yes
+#rf 275: 'end', read following lines: yes
+#rf 277: 'char', added ... no new vars
+#rdfiln  278: k -> 1 2 3 4 5 6
+#rf 278: 'repeat' over 6 values; read following lines: yes
+ ATOM=B1 Z=24 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-101
+  R=Rbi*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=103.5
+#rf 281: 'char', added ... no new vars
+#rf 282: 'end', repeat loop over 'k' with val=1; reread 4 lines
+ ATOM=B2 Z=24 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-102
+  R=Rb*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=104.5
+#rf 281: 'char', added ... no new vars
+#rf 282: 'end', repeat loop over 'k' with val=2; reread 4 lines
+ ATOM=B3 Z=24 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-103
+  R=Rb*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=105.5
+#rf 281: 'char', added ... no new vars
+#rf 282: 'end', repeat loop over 'k' with val=3; reread 4 lines
+ ATOM=B4 Z=24 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-104
+  R=Rb*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=106.5
+#rf 281: 'char', added ... no new vars
+#rf 282: 'end', repeat loop over 'k' with val=4; reread 4 lines
+ ATOM=B5 Z=24 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-105
+  R=Rb*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=107.5
+#rf 281: 'char', added ... no new vars
+#rf 282: 'end', repeat loop over 'k' with val=5; reread 4 lines
+ ATOM=B6 Z=24 IDMOD=0 0 0 EREF=-1894.2951 GROUP=-106
+  R=Rb*rwb LMXB=221 LMXF=4 NR=601 A=.02 GRP2=108.5
+#rf 281: 'char', added ... no new vars
+#rf 282: 'end', read following lines: yes
+
+SITE
+#rf 291: 'var', added n
+#rdfiln  293: id -> 1
+#rf 293: 'repeat' over 1 values; read following lines: yes
+#rf 294: 'cchar', added ... no new vars
+#rdfiln  295: k -> 1 2 3 4
+#rf 295: 'repeat' over 4 values; read following lines: yes
+#rf 296: 'var', added k2
+#rf 297: 'ifdef', read following lines: no
+#rf 300: 'else', read following lines: yes
+#rf 301: 'if' (nesting=2), read following lines: yes
+        ATOM=XA1  POS= 0/2 0/2 hc*0+ha*0
+     ROT=z:0,y:pi/180*90 RELAX=1
+#rf 304: 'else' (nesting=2), read following lines: no
+#rf 308: 'endif' (nesting=2), read following lines: no
+#rf 312: 'endif' (nesting=2), read following lines: no
+#rf 316: 'endif' (nesting=2), read following lines: no
+#rf 317: 'endif', read following lines: yes
+#rf 318: 'endif', read following lines: yes
+#rf 319: 'end', repeat loop over 'k' with val=1; reread 24 lines
+#rf 296: 'var', added ... no new vars
+#rf 297: 'ifdef', read following lines: no
+#rf 300: 'else', read following lines: yes
+#rf 301: 'if' (nesting=2), read following lines: yes
+        ATOM=XA2  POS= 1/2 1/2 hc*0+ha*1
+     ROT=z:0,y:pi/180*90 RELAX=0
+#rf 304: 'else' (nesting=2), read following lines: no
+#rf 308: 'endif' (nesting=2), read following lines: no
+#rf 312: 'endif' (nesting=2), read following lines: no
+#rf 316: 'endif' (nesting=2), read following lines: no
+#rf 317: 'endif', read following lines: yes
+#rf 318: 'endif', read following lines: yes
+#rf 319: 'end', repeat loop over 'k' with val=2; reread 24 lines
+#rf 296: 'var', added ... no new vars
+#rf 297: 'ifdef', read following lines: no
+#rf 300: 'else', read following lines: yes
+#rf 301: 'if' (nesting=2), read following lines: yes
+        ATOM=XA2  POS= 0/2 0/2 hc*0+ha*2
+     ROT=z:0,y:pi/180*90 RELAX=0
+#rf 304: 'else' (nesting=2), read following lines: no
+#rf 308: 'endif' (nesting=2), read following lines: no
+#rf 312: 'endif' (nesting=2), read following lines: no
+#rf 316: 'endif' (nesting=2), read following lines: no
+#rf 317: 'endif', read following lines: yes
+#rf 318: 'endif', read following lines: yes
+#rf 319: 'end', repeat loop over 'k' with val=3; reread 24 lines
+#rf 296: 'var', added ... no new vars
+#rf 297: 'ifdef', read following lines: no
+#rf 300: 'else', read following lines: yes
+#rf 301: 'if' (nesting=2), read following lines: yes
+        ATOM=XA1  POS= 1/2 1/2 hc*0+ha*3
+     ROT=z:0,y:pi/180*90 RELAX=1
+#rf 304: 'else' (nesting=2), read following lines: no
+#rf 308: 'endif' (nesting=2), read following lines: no
+#rf 312: 'endif' (nesting=2), read following lines: no
+#rf 316: 'endif' (nesting=2), read following lines: no
+#rf 317: 'endif', read following lines: yes
+#rf 318: 'endif', read following lines: yes
+#rf 319: 'end', read following lines: yes
+
+#rdfiln  324: k -> 1 2 3 4 5 6 7 8 9 10 11 12
+#rf 324: 'repeat' over 12 values; read following lines: yes
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added xx
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB1  POS= 0/2 0/2 hc*0+hb*0+ha*3+hi
+            ROT=z:pi*1,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', repeat loop over 'k' with val=1; reread 32 lines
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added ... no new vars
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB2  POS= 1/2 1/2 hc*0+hb*1+ha*3+hi
+            ROT=z:pi*2,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', repeat loop over 'k' with val=2; reread 32 lines
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added ... no new vars
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB3  POS= 0/2 0/2 hc*0+hb*2+ha*3+hi
+            ROT=z:pi*3,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', repeat loop over 'k' with val=3; reread 32 lines
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added ... no new vars
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB4  POS= 1/2 1/2 hc*0+hb*3+ha*3+hi
+            ROT=z:pi*4,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', repeat loop over 'k' with val=4; reread 32 lines
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added ... no new vars
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB5  POS= 0/2 0/2 hc*0+hb*4+ha*3+hi
+            ROT=z:pi*5,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', repeat loop over 'k' with val=5; reread 32 lines
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added ... no new vars
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB6  POS= 1/2 1/2 hc*0+hb*5+ha*3+hi
+            ROT=z:pi*6,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', repeat loop over 'k' with val=6; reread 32 lines
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added ... no new vars
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB6  POS= 0/2 0/2 hc*0+hb*6+ha*3+hi
+            ROT=z:pi*7,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', repeat loop over 'k' with val=7; reread 32 lines
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added ... no new vars
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB5  POS= 1/2 1/2 hc*0+hb*7+ha*3+hi
+            ROT=z:pi*8,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', repeat loop over 'k' with val=8; reread 32 lines
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added ... no new vars
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB4  POS= 0/2 0/2 hc*0+hb*8+ha*3+hi
+            ROT=z:pi*9,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', repeat loop over 'k' with val=9; reread 32 lines
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added ... no new vars
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB3  POS= 1/2 1/2 hc*0+hb*9+ha*3+hi
+            ROT=z:pi*10,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', repeat loop over 'k' with val=10; reread 32 lines
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added ... no new vars
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB2  POS= 0/2 0/2 hc*0+hb*10+ha*3+hi
+            ROT=z:pi*11,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', repeat loop over 'k' with val=11; reread 32 lines
+#rf 325: 'var', added ... no new vars
+#rf 326: 'cchar', added ... no new vars
+#rf 327: 'char', added ... no new vars
+#rf 330: 'ifdef', read following lines: no
+#rf 334: 'elseifd', read following lines: yes
+       ATOM=XB1  POS= 1/2 1/2 hc*0+hb*11+ha*3+hi
+            ROT=z:pi*12,y:pi/180*90
+#rf 338: 'else', read following lines: no
+#rf 347: 'endif', read following lines: no
+#rf 354: 'endif', read following lines: no
+#rf 355: 'endif', read following lines: yes
+#rf 356: 'end', read following lines: yes
+#rf 357: 'end', read following lines: yes
+
+#rf 360: 'ifdef', read following lines: yes
+START   NIT=nit FREE=F BEGMOM=T CNTROL=f CNVG=1D-5
+#rf 362: 'endif', read following lines: yes
+#rf 364: 'ifdef', read following lines: yes
+#rf 365: 'include' opening file 'q.fev'
+#rf closing include file: 0 lines
+#rf 366: 'elseifd', read following lines: no
+#rf 368: 'else', read following lines: no
+#rf 370: 'endif', read following lines: yes
+#rf 372: 'ifdef', read following lines: yes
+#rf  373: reading START bulk moments (bulkm==1) ...
+. nit<0 skips reading ctrl file for moments, nit=0 reads, no iter
+START NIT=1 BEGMOM=t CNTROL=1 CNVG=1D-5 RDVES=T
+#rdfiln  376: id -> 1
+#rf 376: 'repeat' over 1 values; read following lines: yes
+#rf 377: 'cchar', added ... no new vars
+#rdfiln  378: k -> 1 2
+#rf 378: 'repeat' over 2 values; read following lines: yes
+ ATOM=XA1
+#rf 380: 'if' (nesting=2), read following lines: no
+#rf 382: 'endif', read following lines: yes
+#rf 383: 'if' (nesting=2), read following lines: yes
+#rf 384: 'include' opening file 'q1.fe'
+#rf closing include file: 0 lines
+#rf 385: 'endif', read following lines: yes
+#rf 386: 'if' (nesting=2), read following lines: no
+#rf 388: 'endif', read following lines: yes
+                   V=  vfe
+#rf 390: 'end', repeat loop over 'k' with val=1; reread 12 lines
+ ATOM=XA2
+#rf 380: 'if' (nesting=2), read following lines: no
+#rf 382: 'endif', read following lines: yes
+#rf 383: 'if' (nesting=2), read following lines: yes
+#rf 384: 'include' opening file 'q1.fe'
+#rf closing include file: 0 lines
+#rf 385: 'endif', read following lines: yes
+#rf 386: 'if' (nesting=2), read following lines: no
+#rf 388: 'endif', read following lines: yes
+                   V=  vfe
+#rf 390: 'end', read following lines: yes
+
+#rdfiln  392: k -> 1 2 3 4 5 6
+#rf 392: 'repeat' over 6 values; read following lines: yes
+ ATOM=XB1
+#rf 394: 'if' (nesting=2), read following lines: no
+#rf 396: 'endif', read following lines: yes
+#rf 397: 'if' (nesting=2), read following lines: yes
+#rf 398: 'include' opening file 'q12.v'
+#rf closing include file: 0 lines
+#rf 399: 'endif', read following lines: yes
+                   V= 0
+#rf 401: 'end', repeat loop over 'k' with val=1; reread 9 lines
+ ATOM=XB2
+#rf 394: 'if' (nesting=2), read following lines: no
+#rf 396: 'endif', read following lines: yes
+#rf 397: 'if' (nesting=2), read following lines: yes
+#rf 398: 'include' opening file 'q12.v'
+#rf closing include file: 0 lines
+#rf 399: 'endif', read following lines: yes
+                   V= 0
+#rf 401: 'end', repeat loop over 'k' with val=2; reread 9 lines
+ ATOM=XB3
+#rf 394: 'if' (nesting=2), read following lines: no
+#rf 396: 'endif', read following lines: yes
+#rf 397: 'if' (nesting=2), read following lines: yes
+#rf 398: 'include' opening file 'q12.v'
+#rf closing include file: 0 lines
+#rf 399: 'endif', read following lines: yes
+                   V= 0
+#rf 401: 'end', repeat loop over 'k' with val=3; reread 9 lines
+ ATOM=XB4
+#rf 394: 'if' (nesting=2), read following lines: no
+#rf 396: 'endif', read following lines: yes
+#rf 397: 'if' (nesting=2), read following lines: yes
+#rf 398: 'include' opening file 'q12.v'
+#rf closing include file: 0 lines
+#rf 399: 'endif', read following lines: yes
+                   V= 0
+#rf 401: 'end', repeat loop over 'k' with val=4; reread 9 lines
+ ATOM=XB5
+#rf 394: 'if' (nesting=2), read following lines: no
+#rf 396: 'endif', read following lines: yes
+#rf 397: 'if' (nesting=2), read following lines: yes
+#rf 398: 'include' opening file 'q12.v'
+#rf closing include file: 0 lines
+#rf 399: 'endif', read following lines: yes
+                   V= 0
+#rf 401: 'end', repeat loop over 'k' with val=5; reread 9 lines
+ ATOM=XB6
+#rf 394: 'if' (nesting=2), read following lines: no
+#rf 396: 'endif', read following lines: yes
+#rf 397: 'if' (nesting=2), read following lines: yes
+#rf 398: 'include' opening file 'q12.v'
+#rf closing include file: 0 lines
+#rf 399: 'endif', read following lines: yes
+                   V= 0
+#rf 401: 'end', read following lines: yes
+#rf 402: 'end', read following lines: yes
+#rf 403: 'endif', read following lines: yes
+#rf 405: 'ifdef', read following lines: no
+#rf 425: 'endif', read following lines: yes
+START   NIT=0 FREE=F BEGMOM=T CNTROL=f CNVG=1D-5
+
+  show that literal quoting of characters works:
+we should see that {this doesn't get expanded}
+
+
+  show that multiple nesting works
+#rf 434: 'const', added es173
+
+  illustrate the syntax {?~expr~strn1~strn2}
+
+    MODE=B9
+
+#rf 440: 'ifdef', read following lines: yes
+  show that multiple nesting and indirection works
+#rf 442: 'vec', added v_20_2
+-11 -22 -33
+#rf 444: 'endif', read following lines: yes
+
+#rf 446: 'char', added bassi
+#rf 447: 'ifdef', read following lines: yes
+#rf  448: test nesting of ifdef
+#rf 449: 'endif', read following lines: yes
+
+  illustrate subexpressions in character variables
+#rf 452: 'char', added beta
+#rf 453: 'char', added delta1
+#rf 454: 'char', added delta2
+  delta1 should look like: '->567<-'
+  delta1 is :              '->567<-'
+  delta2 should look like: '->6<-'
+  delta2 is :              '->6<-'
+  show string substitution: | -a b c- 67654534| and |456765 -d e f-34| and | -hij-6765 -hij-34|
+#rf 460:
+  Var       Name                 Val
+   1        t                   1.0000    
+   2        f                   0.0000    
+   3        pi                  3.1416    
+   4        yesvec              1.0000    
+   5        na                  4.0000    
+   6        nb                  12.000    
+   7        fm                  1.0000    
+   8        dble                1.0000    
+   9        twoc                0.0000    
+  10        dbxy                0.0000    
+  11        fe                  1.0000    
+  12        v                   1.0000    
+  13        ss                  0.0000    
+  14        qss                 0.0000    
+  15        nc                  0.0000    
+  16        theta               0.0000    
+  17        beta                90.000    
+  18        sdyn                0.0000    
+  19        sdmod               1.0000    
+  20        nca                 2.5000    
+  21        ncb                 6.5000    
+  22        nk1                 60.000    
+  23        nk2                 8.0000    
+  24        vfe                 0.0000    
+  25        dvfe                0.0000    
+  26        sc                  0.0000    
+  27        bulkm               1.0000    
+  28        nspin               2.0000    
+  29        nit                 1.0000    
+  30        xclas               0.0000    
+  31        ordalloy            0.0000    
+  32        asa                 1.0000    
+  33        lmxf                4.0000    
+  34        lmxb                221.00    
+  35        ef0                 0.0000    
+  36        ksdw               0.92308    
+  37        xv                  1.0000    
+  38        ecnst               0.0000    
+  39        essi                10.000    
+  40        esge                20.000    
+  41        es                  20.000    
+  42        i                   2.0000    
+  43        za                  26.000    
+  44        abccm               5.4200    
+  45        erefa              -2540.6    
+  46        sbccm               1.0000    
+  47        zb                  23.000    
+  48        abccs               5.7200    
+  49        erefb              -1894.3    
+  50        sbccs               1.0000    
+  51        zs                  23.000    
+  52        nclass              8.0000    
+  53        id                  1.0000    
+  54        k                   6.0000    
+  55        n                   1.0000    
+  56        k2                  1.0000    
+  57        es173               2.0000    
+ ----
+  Vec       Name            Size   Val[1..n]
+   1        silly             12    1.0000        112.00    
+   2        v_20_2             3   -11.000       -33.000    
+ ---- character variables:
+   1  progname              ./trdfiln                                                                                                               
+   2  abc                   /home/markv                                                                                                             
+   3  nam                   si                                                                                                                      
+   4  eltc                  Ga                                                                                                                      
+   5  elta                  N                                                                                                                       
+   6  eltb                  In                                                                                                                      
+   7  elt                   N                                                                                                                       
+   8  me                    fe                                                                                                                      
+   9  se                    v                                                                                                                       
+  10  strn                  fe/v                                                                                                                    
+  11  x                     X                                                                                                                       
+  12  g                                                                                                                                             
+  13  i                                                                                                                                             
+  14  xx                    X                                                                                                                       
+  15  bassi                                                                                                                                         
+  16  beta                  4567654534                                                                                                              
+  17  delta1                ->567<-                                                                                                                 
+  18  delta2                ->6<-                                                                                                                   
+

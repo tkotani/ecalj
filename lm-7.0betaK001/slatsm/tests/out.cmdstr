@@ -1,0 +1,10 @@
+ to agree with test outfile, invoke with: a.out one 2 3
+ start nargf= 4   nxargc= 4
+ added nargf= 4   nxargc= 7
+   1 T one                      
+   2 T 2                        
+   3 T 3                        
+   4 T xfirst                   
+   5 T xsecond                  
+   6 T this is xthird           
+   7 F 1234567890123456789012345

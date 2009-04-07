@@ -1,0 +1,44 @@
+   4   4
+   5   0
+  Now ; is;the:time; for;all:good:Men:to;come;to;the;aid:of:their:country
+ ------------- nw=  16
+  1  2  5|Now |  term=;
+  2  8  9|is|  term=;
+  3 11 13|the|  term=:
+  4 15 18|time|  term=;
+  5 21 23|for|  term=;
+  6 25 27|all|  term=:
+  7 29 32|good|  term=:
+  8 34 36|Men|  term=:
+  9 38 39|to|  term=;
+ 10 41 44|come|  term=;
+ 11 46 47|to|  term=;
+ 12 49 51|the|  term=;
+ 13 53 55|aid|  term=:
+ 14 57 58|of|  term=:
+ 15 60 64|their|  term=:
+ 16 66 72|country|  term= 
+   1   0
+ ------------- nw=  17
+  1  2  4|Now|  term= 
+  2  6  5||  term=;
+  3  8  9|is|  term=;
+  4 11 13|the|  term=:
+  5 15 18|time|  term=;
+  6 21 23|for|  term=;
+  7 25 27|all|  term=:
+  8 29 32|good|  term=:
+  9 34 36|Men|  term=:
+ 10 38 39|to|  term=;
+ 11 41 44|come|  term=;
+ 12 46 47|to|  term=;
+ 13 49 51|the|  term=;
+ 14 53 55|aid|  term=:
+ 15 57 58|of|  term=:
+ 16 60 64|their|  term=:
+ 17 66 72|country|  term= 
+   1   0
+   1   3 str = abc
+   5   4 str = 
+   6   5 str = 
+   7  -1 str = 

@@ -1,0 +1,22 @@
+echo --- subs-to-generic: ccomp to generic ---
+
+foreach i (aiomom.f aiopar.f)
+  rm -f xx.f ; mv $i xx.f
+  ccomp -uAIX xx.f $i
+end
+
+rm -f xx.f ; mv bzmsh3.f xx.f
+ccomp -uAPOLLO_BUG xx.f bzmsh3.f
+
+rm -f xx.f ; mv plana.f xx.f
+ccomp -uAPOLLO xx.f plana.f
+
+rm -f xx.f ; mv secmat.f xx.f
+ccomp -uBLAS3 xx.f secmat.f
+
+foreach i (trs.f trsdot.f)
+  rm -f xx.f ; mv $i xx.f
+  ccomp -uCRAY xx.f $i
+end
+
+rm -f xx.f

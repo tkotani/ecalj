@@ -1,0 +1,229 @@
+######################################################
+#
+# $lmdir, which is defined in Makefile in ./ and in other 
+# directories, should point at this root directory.
+#
+######################################################
+
+#### jump to target (keep this as it is) ###
+target:	ALL
+
+
+
+############################################
+# Libraries BLAS LAPACK FFTW 
+############################################
+### For a case of ifort.
+eee = /home/takao/ecal
+LIBLOC = \
+  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
+  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
+  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
+  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a -pthread 
+
+# -lsvml
+#
+### for a case of MPI
+#eee = /home/takao/ecal
+#LIBLOC = \
+#  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
+#  /home/takao/SCALAPACK/scalapack.a \
+#  /home/takao/BLACS/LIB/blacsF77init_MPI-LINUX-0.a \
+#  /home/takao/BLACS/LIB/blacs_MPI-LINUX-0.a \
+#  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
+#  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
+#  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a -pthread 
+##-lsvml
+#
+### kino's case
+# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
+# $(HOME)/kit/numericallib/LAPACK/lapack_LinuxCore2.a \
+# $(HOME)/kit/numericallib/LAPACK/blas_LinuxCore2.a \
+# $(HOME)/kit/numericallib/LAPACK/tmglib_LinuxCore2.a 
+
+
+
+############################################
+# Fortran compiler and flags, and linker 
+############################################
+#FC = mpif90
+#LK = mpif90
+FC = f95
+LK = f95
+#
+# where is modules?
+#module = -module $(lmdir)
+module = -J $(lmdir)
+#
+FFLAGS = -O3   $(CPP_SW) $(module)
+FFLAGS_LESS = -O2   $(CPP_SW) $(module)
+FFLAGS_LESS2 = -O1  $(CPP_SW) $(module)
+FFLAGS_LESS3 = -O0  $(CPP_SW) $(module)
+FFLAGS_NONE = -g    $(CPP_SW) $(module)
+#
+# safer option (debug)
+#FFLAGS =      -g -cm -WB  $(CPP_SW) $(module)
+#FFLAGS_LESS = -g -cm -WB  $(CPP_SW) $(module)
+#FFLAGS_LESS2 = -g -cm -WB  $(CPP_SW) $(module)
+#FFLAGS_LESS3 = -g -cm -WB  $(CPP_SW) $(module)
+#FFLAGS_NONE = -g -cm -WB  $(CPP_SW) $(module)
+
+
+###################################################
+# CPP switches (instead of old ccomp procedure
+###################################################
+CPP_SW =  -DHASGETARG -DHASNARGS -DFDATE -DNOQUAD
+
+#
+#MPI  case
+#CPP_SW = -DHASGETARG -DHASNARGS -DFDATE -UMPE -UMPIK -DMPI 
+#
+##MPIK case k-point parallelizaion in MPI
+#CPP_SW = -DHASGETARG -DHASNARGS -DFDATE -UMPE -DMPIK -UMPI 
+
+$(SLATSM)(syscall.o): syscall.F
+	fpp $(CPP_SW) syscall.F  > xxx.F
+	$(FC) $(FFLAGS_NONE) -c xxx.F
+	mv xxx.o syscall.o
+	ar rv $(SLATSM) syscall.o
+
+
+
+############################################
+### Patches for intel ifc ##################
+#
+# Note that $SLATSM... are defined below.
+#
+############################################
+## ... patch section for ./slatsm/slatsm.a
+$(SLATSM)(huntx.o): huntx.F
+	$(FC) $(FFLAGS_LESS3) -c huntx.F
+	ar rv $(SLATSM) huntx.o
+	rm -f huntx.o
+ 
+$(SLATSM)(hunti.o): hunti.F
+	$(FC) $(FFLAGS_LESS3) -c hunti.F
+	ar rv $(SLATSM) hunti.o
+	rm -f hunti.o
+ 
+#$(SLATSM)(polcof.o): polcof.F
+#	$(FC) $(FFLAGS_LESS3) -c polcof.F
+#	ar rv $(SLATSM) polcof.o
+#	rm -f polcof.o
+ 
+#$(SLATSM)(rdfiln.o): rdfiln.F
+#	$(FC) $(FFLAGS_LESS3) -c rdfiln.F
+#	ar rv $(SLATSM) rdfiln.o
+#	rm -f rdfiln.o
+
+## patch section for ./subs/subs.a
+$(SUBS)(ropbes.o): $(lmdir)subs/ropbes.F
+	$(FC) $(FFLAGS_LESS3) -c ropbes.F
+	ar rv $(SUBS) ropbes.o
+	rm -f ropbes.o
+ 
+$(SUBS)(ropyln.o): $(lmdir)subs/ropyln.F
+	$(FC) $(FFLAGS_LESS3) -c ropyln.F
+	ar rv $(SUBS) ropyln.o
+	rm -f ropyln.o
+ 
+$(SUBS)(spcgrp.o): $(lmdir)subs/spcgrp.F
+	$(FC) $(FFLAGS_LESS) -c spcgrp.F
+	ar rv $(SUBS) spcgrp.o
+	rm -f spcgrp.o
+
+$(SUBS)(m_toksw.o) $(lmdir)m_toksw.mod $(lmdir)m_gtv.mod:	$(lmdir)subs/m_toksw.F
+	$(FC) $(FFLAGS_NONE) -c m_toksw.F
+	ar rv $(SUBS) m_toksw.o
+	rm -f m_toksw.o
+
+$(SUBS)(m_rdctrl.o) $(lmdir)m_rdctrl.mod:	$(lmdir)subs/m_rdctrl.F
+	$(FC) $(FFLAGS_NONE) -c m_rdctrl.F
+	ar rv $(SUBS) m_rdctrl.o
+	rm -f m_rdctrl.o
+
+$(SUBS)(m_rdctrlchk.o) $(lmdir)m_rdctrlchk.mod:	$(lmdir)subs/m_rdctrlchk.F
+	$(FC) $(FFLAGS_NONE) -c m_rdctrlchk.F
+	ar rv $(SUBS) m_rdctrlchk.o
+	rm -f m_rdctrlchk.o
+
+## ... patch section for ./fp/subs.a
+$(FP)(rhogkl.o): rhogkl.F
+	$(FC) $(FFLAGS_LESS) -c rhogkl.F
+	ar rv $(FP) rhogkl.o
+	rm -f rhogkl.o
+
+
+
+################################################
+# module dependency (fixed). What *.F contains what modules.
+################################################
+$(SUBS)(m_rdctrl.o):	$(lmdir)m_gtv.mod $(lmdir)m_toksw.mod
+$(SUBS)(m_rdctrlchk.o):	$(lmdir)m_gtv.mod $(lmdir)m_toksw.mod
+$(SUBS)(rdctrl2.o):	$(lmdir)m_gtv.mod $(lmdir)m_rdctrl.mod
+$(SUBS)(rdctrlchk.o):	$(lmdir)m_gtv.mod $(lmdir)m_rdctrlchk.mod
+$(FP)(bndfp.o):	$(lmdir)m_rdctrl.mod
+
+
+
+################################################
+# --- Make rules ---(fixed).
+################################################
+.F.o: 
+	fpp $(CPP_SW) $@  > xxx.F
+	$(FC) $(FFLAGS_NONE) -c xxx.F
+	mv xxx.o $@.o
+	ar rv $(SLATSM) $@.o
+	rm -f $@.o xxx.F
+ 
+.F.a: 
+	fpp $(CPP_SW) $<  > xxx.F
+	$(FC) $(FFLAGS_NONE) -c xxx.F -o xxx.o
+	mv xxx.o $%
+	ar rv $@ $%
+
+#	rm -f $%
+
+
+################################################
+# archiver (maybe fixed).
+################################################
+AR = ar
+ARFLAGS = rv
+RANLIB = ranlib
+
+
+################################################
+# program and libraries (choose one of sections; normal, MPI, or MPIK)
+################################################
+programs = lmf lmfa lmfgw lmdos lmchk lmf2gw lm67 rdcmd
+SUBS   = libsubs.a
+FP     = libfp.a
+GWD    = libgwd.a
+SLATSM = slatsm.a
+#NC     = libnc.a
+#TB     = libtb.a
+#
+### MPI case #####
+#programs = lmf-MPI lmfgw-MPI
+#SUBS   = libsubs-MPI.a
+#FP     = libfp-MPI.a
+#GWD    = libgwd-MPI.a
+#SLATSM = slatsm-MPI.a
+#
+##### MPIK case ##
+#programs = lmf-MPIK lmfgw-MPIK
+#SUBS   = libsubs-MPIK.a 
+#FP     = libfp-MPIK.a
+#GWD    = libgwd-MPIK.a
+#SLATSM = slatsm-MPI.a  #slatsm-MPI = slatsm-MPIK
+
+
+### path to libraries (fixed) #########
+LIBSUBS = $(lmdir)/subs/$(SUBS)
+LIBFP   = $(lmdir)/fp/$(FP)
+LIBGWD  = $(lmdir)/gwd/$(GWD)
+LIBSLA  = $(lmdir)/slatsm/$(SLATSM)
+#LIBNC   = $(lmdir)/nc/$(NC)
+#LIBTB   = $(lmdir)/tb/$(TB)
+LIBES = $(LIBSLA) $(LIBLOC)

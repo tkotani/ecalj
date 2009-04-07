@@ -1,0 +1,35 @@
+ -----------------------  START LMCHK (80000K)  -----------------------
+
+ LMCHK:    alat = 7.606  nbas = 1  nspec = 1  vn 7.00  verb 31,30
+ pot:      XC:BH
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol= 110.004125
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat= 7.60600   awald= 0.417
+         r1=  1.931   nkd= 135      q1=  5.817   nkg= 181
+
+ SGROUP: 1 symmetry operations from 0 generators
+ SYMLAT: Bravais system is cubic with 48 symmetry operations.
+ SYMCRY: crystal invariant under 48 symmetry operations for tol=1e-5
+ GROUPG: the following are sufficient to generate the space group:
+         i*r3(1,1,-1) r4x
+         i*r3(1,1,-1) r4x
+ MKSYM:  found 48 space group operations ... includes inversion
+ Use default rmaxs = 8.025 a.u. = 2.7*avw = 1.055*alat
+
+   Site     Spec            Rmax                Position
+    1      1  A           2.704881   0.000000   0.000000   0.000000
+
+ Cell volume= 110.00413   Sum of sphere volumes= 82.89592 (0.75357)
+
+ ib jb  cl1     cl2        Pos(jb)-Pos(ib)      Dist  sumrs   Ovlp    %
+  1  1  A       A         0.000 -3.803 -3.803  5.378  5.410   0.03   0.6*
+
+ OVMIN:     fovl = 4.04277e-14   <ovlp> = 0.6%   max ovlp = 0.6%
+ Exit 0 LMCHK 
+ CPU time:    0.277s     Wed Feb 11 14:13:48 2009   on waldo.eas.asu.edu
+ wkinfo:  used   104 K  workspace of 80000 K   in   0 K calls

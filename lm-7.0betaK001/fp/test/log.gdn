@@ -1,0 +1,47 @@
+ -----------------------  START LMF      -----------------------
+ HEADER rocksalt GdN
+
+ LMF:      alat = 9.40517  nbas = 2  nspec = 2  vn 7.00(LMF 7.0)  verb 40
+ special:  spherical-harmonics
+ pot:      spin-pol, LDA+U, XC:BH
+ noncoll:  Non-coll, Spin-orbit
+ bz:       metal(2), tetra, invit 
+bz  nq 216 ( 6 6 6 )  shift  F F F
+dm  L 29 ( 25 4 )  I 0 ( 0 0 )  H 21 ( 0 21 )  N 14
+fp qvl  15.000000  sm   7.808453  loc   7.191547  qbg   0.000000 dQ   0.000000
+fp mag    7.00008  sm    0.56413  loc    6.43595
+fp pot  rvxc      -660.0666755  rexc      -497.5696856  rves  -46737.1472272
+fp pot  rex       -483.6779589  rec        -13.8917267
+fp pot  rvvxcv     -26.3304517  rvexcv     -20.0143763
+fp pot  rvexv      -13.6988189  rvecv       -3.6389448
+fp evl
+nv nkp  216  ebot  -0.9641   qval   15.0000  qbg  0.0000  smr  0.0050
+bz met T  tet T  ef -0.015983  sev -6.226218  zval 15.0 qval 15.0
+fp evl -0.9641 -0.9609 -0.5193 -0.5067 -0.5014 -0.5004 -0.4795 -0.4718
+fp evl -0.4674 -0.0550 -0.0526 -0.0497 -0.0064 -0.0043 -0.0024  0.1707
+fp evl  0.1747  0.1798  0.2302  0.2355  0.2414  0.2455  0.2596  0.3311
+fp evl  0.3315  0.3608  0.3879  0.3995  0.4036  0.4037  0.4077  0.4192
+fp evl  0.4199  0.4371  1.7528  1.7666  1.7983  1.8198  1.8299  1.8384
+fp evl  2.5017  2.5032  2.5048  2.5500  2.5516  2.5531  2.5701  2.5951
+fp evl  2.6395  2.6759  2.6952  2.7121  2.8717  2.9188  3.2322  3.2322
+fp evl  3.2979  3.2979
+nv nkp  216  ebot  -0.9641   qval   15.0000  qbg  0.0000  smr  0.0050
+bz met T  tet T  ef -0.015983  sev -6.226218  zval 15.0 qval 15.0
+fp Har: U  -46737.147227  T   24596.354486  sev     -6.226218  EH  -22638.362427
+fp qvl  15.000000  sm   7.848441  loc   7.151559  qbg   0.000000 dQ  -0.000001
+fp mag    6.99269  sm    0.58521  loc    6.40748
+fp pot  rvxc      -660.0295834  rexc      -497.5416088  rves  -46737.0714949
+fp pot  rex       -483.6520814  rec        -13.8895274
+fp pot  rvvxcv     -26.2797462  rvexcv     -19.9761108
+fp pot  rvexv      -13.6669593  rvecv       -3.6303500
+fp KS: U  -46737.0714949 T   24598.0064890 Exc   -497.5416088 EKS -22636.6066147
+fp 4g  ;Anderson n 0 beta 0.2  sm-dq 6.02e-4  mx loc 9.48e-4  dq 5.22e-4
+ldau EHK  -22636.606615  U    0.022450  ELDA+U  -22636.584165
+ wkinfo:  used  3904 K  workspace of 80000 K   in 364 K calls
+ -----------------------  START LMDOS    -----------------------
+ HEADER rocksalt GdN
+
+ LMDOS:    alat = 9.40517  nbas = 2  nspec = 2  vn 7.00  verb 40
+ bz:       metal(2), tetra, invit 
+bz  nq 216 ( 6 6 6 )  shift  F F F
+ wkinfo:  used   509 K  workspace of 80000 K   in   0 K calls
