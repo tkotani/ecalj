@@ -6,7 +6,7 @@
 ######################################################
 
 #### jump to target (keep this as it is) ###
-target:	ALL
+#target:	ALL
 
 
 
@@ -14,32 +14,32 @@ target:	ALL
 # Libraries BLAS LAPACK FFTW 
 ############################################
 ### For a case of ifort.
-#eee = /home/takao/ecal
-#LIBLOC = \
-#  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
-#  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
-#  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
-#  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a -pthread 
-## -lsvml
-#
-### for a case of MPI
 eee = /home/takao/ecal
 LIBLOC = \
   $(eee)/fftw-3.1.2/.libs/libfftw3.a \
-  /home/takao/SCALAPACK/scalapack.a \
-  /home/takao/BLACS/LIB/blacsF77init_MPI-LINUX-0.a \
-  /home/takao/BLACS/LIB/blacs_MPI-LINUX-0.a \
   $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
   $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
   $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a 
-#-pthread 
-#-lsvml
+# -pthread 
+# -lsvml
+#
+### for a case of MPI
+#eee = /home/takao/ecal
+#LIBLOC = \
+#  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
+#  /home/takao/SCALAPACK/scalapack.a \
+#  /home/takao/BLACS/LIB/blacsF77init_MPI-LINUX-0.a \
+#  /home/takao/BLACS/LIB/blacs_MPI-LINUX-0.a \
+#  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
+#  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
+#  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a -pthread 
+##-lsvml
 #
 ### kino's case
-# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
-# $(HOME)/kit/numericallib/LAPACK/lapack_LinuxCore2.a \
-# $(HOME)/kit/numericallib/LAPACK/blas_LinuxCore2.a \
-# $(HOME)/kit/numericallib/LAPACK/tmglib_LinuxCore2.a 
+ LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
+ $(HOME)/kit/numericallib/LAPACK/lapack_LinuxCore2.a \
+ $(HOME)/kit/numericallib/LAPACK/blas_LinuxCore2.a \
+ $(HOME)/kit/numericallib/LAPACK/tmglib_LinuxCore2.a 
 
 
 
@@ -52,7 +52,7 @@ LK = mpif90
 #LK = ifort
 #
 # where is modules?
-moddir = $(lmdir)MODDIR/MPIK/
+moddir = MODDIR/
 module = -module $(moddir)
 #
 FFLAGS = -O3 -cm -WB  -cpp $(CPP_SW) $(module)
@@ -61,7 +61,7 @@ FFLAGS_LESS2 = -O1 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_LESS3 = -O0 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_NONE = -g -cm -WB   -cpp $(CPP_SW) $(module)
 #
-# safer option 
+# safer option (debug)
 #FFLAGS =      -g -cm -WB -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS = -g -cm -WB -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS2 = -g -cm -WB -cpp $(CPP_SW) $(module)
@@ -69,11 +69,24 @@ FFLAGS_NONE = -g -cm -WB   -cpp $(CPP_SW) $(module)
 #FFLAGS_NONE = -g -cm -WB -cpp $(CPP_SW) $(module)
 
 
-
-############################################
+###################################################
 # CPP switches (instead of old ccomp procedure
-############################################
-CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME  -DHASGETENVIRONMENTVARIABLE  -DNOQUAD  -DNOT_OVERLAP_VAR  -UMPE -DMPIK -UMPI 
+###################################################
+CPP_SW=-DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT  
+#
+#MPI  case add  -UMPE -UMPIK -DMPI 
+#
+##MPIK case k-point parallelizaion in MPI add -UMPE -DMPIK -UMPI 
+
+
+
+
+#$(SLATSM)(zhev.o): zhev.F
+#	$(FC) $(FFLAGS_NONE) -c zhev.F
+#	$(AR) $(ARFLAGS) $(SLATSM) zhev.o
+#	rm -f zhev.o
+
+
 
 
 
@@ -84,84 +97,62 @@ CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME  -DHASGETENVIRONMENTVARI
 #
 ############################################
 ## ... patch section for ./slatsm/slatsm.a
-$(SLATSM)(huntx.o): huntx.F
-	$(FC) $(FFLAGS_LESS3) -c huntx.F
-	$(AR) $(ARFLAGS) $(SLATSM) huntx.o
-	rm -f huntx.o
+$(sla_obj_path)/huntx.o:slatsm/huntx.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
  
-$(SLATSM)(hunti.o): hunti.F
-	$(FC) $(FFLAGS_LESS3) -c hunti.F
-	$(AR) $(ARFLAGS) $(SLATSM) hunti.o
-	rm -f hunti.o
+$(sla_obj_path)/hunti.o: slatsm/hunti.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
  
-$(SLATSM)(polcof.o): polcof.F
-	$(FC) $(FFLAGS_LESS3) -c polcof.F
-	$(AR) $(ARFLAGS) $(SLATSM) polcof.o
-	rm -f polcof.o
+$(sla_obj_path)/polcof.o: slatsm/polcof.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
  
-$(SLATSM)(rdfiln.o): rdfiln.F
-	$(FC) $(FFLAGS_LESS3) -c rdfiln.F
-	$(AR) $(ARFLAGS) $(SLATSM) rdfiln.o
-	rm -f rdfiln.o
+$(sla_obj_path)/rdfiln.o: slatsm/rdfiln.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
 
 ## patch section for ./subs/subs.a
-$(SUBS)(ropbes.o): $(lmdir)subs/ropbes.F
-	$(FC) $(FFLAGS_LESS3) -c ropbes.F
-	$(AR) $(ARFLAGS) $(SUBS) ropbes.o
-	rm -f ropbes.o
+$(subs_obj_path)/ropbes.o: subs/ropbes.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
  
-$(SUBS)(ropyln.o): $(lmdir)subs/ropyln.F
-	$(FC) $(FFLAGS_LESS3) -c ropyln.F
-	$(AR) $(ARFLAGS) $(SUBS) ropyln.o
-	rm -f ropyln.o
+$(subs_obj_path)/ropyln.o: subs/ropyln.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
  
-$(SUBS)(spcgrp.o): $(lmdir)subs/spcgrp.F
-	$(FC) $(FFLAGS_LESS) -c spcgrp.F
-	$(AR) $(ARFLAGS) $(SUBS) spcgrp.o
-	rm -f spcgrp.o
-
+$(subs_obj_path)/spcgrp.o: subs/spcgrp.F
+	$(FC) $(FFLAGS_LESS) -c $< -o $@
 
 ### these modules requies no optimization ---> safer.
-$(SUBS)(m_toksw.o) $(moddir)m_toksw.mod $(moddir)m_gtv.mod:	m_toksw.F
-	$(FC) $(FFLAGS_NONE) -c m_toksw.F
-	$(AR) $(ARFLAGS) $(SUBS) m_toksw.o
-	rm -f m_toksw.o
+$(subs_obj_path)/m_toksw.o $(moddir)m_toksw.mod $(moddir)m_gtv.mod:	subs/m_toksw.F
+	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_toksw.o
 
-$(SUBS)(m_rdctrl.o) $(moddir)m_rdctrl.mod:	$(lmdir)subs/m_rdctrl.F
-	$(FC) $(FFLAGS_NONE) -c m_rdctrl.F
-	$(AR) $(ARFLAGS) $(SUBS) m_rdctrl.o
-	rm -f m_rdctrl.o
+$(subs_obj_path)/m_rdctrl.o $(moddir)m_rdctrl.mod:	subs/m_rdctrl.F
+	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrl.o 
 
-$(SUBS)(m_rdctrlchk.o) $(moddir)m_rdctrlchk.mod:	$(lmdir)subs/m_rdctrlchk.F
-	$(FC) $(FFLAGS_NONE) -c m_rdctrlchk.F
-	$(AR) $(ARFLAGS) $(SUBS) m_rdctrlchk.o
-	rm -f m_rdctrlchk.o
+$(subs_obj_path)/m_rdctrlchk.o $(moddir)m_rdctrlchk.mod:	subs/m_rdctrlchk.F
+	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrlchk.o
 
 ## ... patch section for ./fp/subs.a
-$(FP)(rhogkl.o): rhogkl.F
-	$(FC) $(FFLAGS_LESS) -c rhogkl.F
-	$(AR) $(ARFLAGS) $(FP) rhogkl.o
-	rm -f rhogkl.o
+$(fp_obj_path)/rhogkl.o: fp/rhogkl.F
+	$(FC) $(FFLAGS_LESS) -c $< -o $@
 
 
 
 ################################################
 # module dependency (fixed). What *.F contains what modules.
 ################################################
-$(SUBS)(m_rdctrl.o):	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
-$(SUBS)(m_rdctrlchk.o):	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
-$(SUBS)(rdctrl2.o):	$(moddir)m_gtv.mod $(moddir)m_rdctrl.mod
-$(SUBS)(rdctrlchk.o):	$(moddir)m_gtv.mod $(moddir)m_rdctrlchk.mod
-$(FP)(bndfp.o):	$(moddir)m_rdctrl.mod
+$(subs_obj_path)/m_rdctrl.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
+$(subs_obj_path)/m_rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
+$(subs_obj_path)/rdctrl2.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrl.mod
+$(subs_obj_path)/rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrlchk.mod
+$(fp_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
+$(gwd_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
 
 
 
 ################################################
 # --- Make rules ---(fixed).
 ################################################
-.F.o: 
-	$(FC) $(FFLAGS) -c $<
- 
+#.F.o: 
+#	$(FC) $(FFLAGS) -c $<
+# 
 #.F.a: 
 #	$(FC) $(FFLAGS) -c $<
 #	$(AR) $(ARFLAGS) $@ $%
@@ -171,21 +162,21 @@ $(FP)(bndfp.o):	$(moddir)m_rdctrl.mod
 ################################################
 # archiver (maybe fixed).
 ################################################
-AR = ar
-ARFLAGS = rv
-RANLIB = ranlib
+AR := ar
+ARFLAGS := rv
+RANLIB := ranlib
 
 
 ################################################
 # program and libraries (choose one of sections; normal, MPI, or MPIK)
 ################################################
-#programs = lmf lmfa lmfgw lmdos lmchk lmf2gw
-#SUBS   = libsubs.a
-#FP     = libfp.a
-#GWD    = libgwd.a
-#SLATSM = slatsm.a
-##NC     = libnc.a
-##TB     = libtb.a
+#programs = lmf lmfa lmfgw lmdos lmchk lmf2gw lm67 rdcmd
+#SUBS   := libsubs.a
+#FP     := libfp.a
+#GWD    := libgwd.a
+#SLATSM := slatsm.a
+#NC     = libnc.a
+#TB     = libtb.a
 #
 ### MPI case #####
 #programs = lmf-MPI lmfgw-MPI
@@ -199,30 +190,36 @@ programs = lmf-MPIK lmfgw-MPIK
 SUBS   = libsubs-MPIK.a 
 FP     = libfp-MPIK.a
 GWD    = libgwd-MPIK.a
-SLATSM = slatsm-MPI.a  
-#Note that slatsm-MPI = slatsm-MPIK
+SLATSM = slatsm-MPI.a  #slatsm-MPI = slatsm-MPIK
 
 
 ### path to libraries (fixed) #########
-LIBSUBS = $(lmdir)/subs/$(SUBS)
-LIBFP   = $(lmdir)/fp/$(FP)
-LIBGWD  = $(lmdir)/gwd/$(GWD)
-LIBSLA  = $(lmdir)/slatsm/$(SLATSM)
-#LIBNC   = $(lmdir)/nc/$(NC)
-#LIBTB   = $(lmdir)/tb/$(TB)
-LIBES = $(LIBSLA) $(LIBLOC)
+LIBSUBS := subs/$(SUBS)
+LIBFP   := fp/$(FP)
+LIBGWD  := gwd/$(GWD)
+LIBSLA  := slatsm/$(SLATSM)
+#LIBNC   = nc/$(NC)
+#LIBTB   = tb/$(TB)
+#LIBES := $(LIBSLA) $(LIBLOC)
 
 
-####### for MPIK
-lmf-MPIK.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMF -c lmv7.F -o $@
+#???
+# $(LIBSUBS): $(subs_obj)   fails
+#	$(AR) $(ARFLAGS) $@ $(subs_obj)
+#
 
-lmf-MPIK:	lmf-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBFP) $(LIBSUBS) $(LIBES) $(LKFLAGS2) -o $@
+subs/$(SUBS):$(subs_obj)
+	$(AR) $(ARFLAGS) $@ $(subs_obj)
 
-lmfgw-MPIK.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMFGWD -c lmv7.F -o $@
+fp/$(FP): $(fp_obj)
+	$(AR) $(ARFLAGS) $@ $(fp_obj)
 
-lmfgw-MPIK:	lmfgw-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBGWD) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBGWD) $(LIBFP) $(LIBSUBS) $(LIBES) $(LKFLAGS2) -o $@
+slatsm/$(SLATSM): $(sla_obj)
+	$(AR) $(ARFLAGS) $@ $(sla_obj)
+
+gwd/$(GWD): $(gwd_obj)
+	$(AR) $(ARFLAGS) $@ $(gwd_obj)
+
+
+
 
