@@ -286,7 +286,6 @@ subs_list:=\
 	pairg.o \
 	pairp6.o \
 	parmxp.o \
-	partks.o \
 	pgbasp.o \
 	pgfp.o \
 	pgfset.o \
@@ -316,8 +315,6 @@ subs_list:=\
 	radkj.o \
 	radmsh.o \
 	radpkl.o \
-	rdccat.o \
-	rdctrl.o \
 	rdeq.o \
 	rdsigm.o \
 	relax.o \

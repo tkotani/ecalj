@@ -2,8 +2,8 @@
 #choose macine dependent PLATFORM
 ###################################
 
-PLATFORM=gfortran
-#PLATFORM=ifort
+#PLATFORM=gfortran
+PLATFORM=ifort
 #PLATFORM=ifort_mpi
 #PLATFORM=ifort_mpik
 
