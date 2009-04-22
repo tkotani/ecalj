@@ -294,7 +294,6 @@ $(SUBS):	$(SUBS)(acoord.o) \
 	$(SUBS)(pairg.o) \
 	$(SUBS)(pairp6.o) \
 	$(SUBS)(parmxp.o) \
-	$(SUBS)(partks.o) \
 	$(SUBS)(pgbasp.o) \
 	$(SUBS)(pgfp.o) \
 	$(SUBS)(pgfset.o) \
@@ -324,8 +323,6 @@ $(SUBS):	$(SUBS)(acoord.o) \
 	$(SUBS)(radkj.o) \
 	$(SUBS)(radmsh.o) \
 	$(SUBS)(radpkl.o) \
-	$(SUBS)(rdccat.o) \
-	$(SUBS)(rdctrl.o) \
 	$(SUBS)(rdeq.o) \
 	$(SUBS)(rdsigm.o) \
 	$(SUBS)(relax.o) \
@@ -428,7 +425,6 @@ $(SUBS):	$(SUBS)(acoord.o) \
 	$(SUBS)(sumsro.o) \
 	$(SUBS)(supcel.o) \
 	$(SUBS)(supot.o) \
-	$(SUBS)(suqlst.o) \
 	$(SUBS)(susite.o) \
 	$(SUBS)(swapdv.o) \
 	$(SUBS)(sylm.o) \
@@ -479,9 +475,14 @@ $(SUBS):	$(SUBS)(acoord.o) \
 	$(SUBS)(m_rdctrlchk.o) \
 	$(SUBS)(rdctrlchk.o) \
 	$(SUBS)(m_toksw.o) \
-	$(SUBS)(writebasis.o)
+	$(SUBS)(writebasis.o) \
+	$(SUBS)(suqlst.o) 
 	$(RANLIB) $@
  
 clean: 
 	-rm -f $(SUBS) 
 
+
+# 	$(SUBS)(partks.o) \
+#	$(SUBS)(rdctrl.o) \
+# 	$(SUBS)(rdccat.o) \

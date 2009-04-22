@@ -1,3 +1,6 @@
+# This is for core i7 with ifort ver.11
+#
+
 ######################################################
 #
 # $lmdir, which is defined in Makefile in ./ and in other 
@@ -9,20 +12,23 @@
 target:	ALL
 
 
-
 ############################################
 # Libraries BLAS LAPACK FFTW 
 ############################################
 ### For a case of ifort.
-eee = /home/takao/ecal
-LIBLOC = \
-  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
-  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
-  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
-  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a 
-# -pthread 
-# -lsvml
-#
+#eee = /home/takao/ecal
+#LIBLOC = 
+#  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
+#  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
+#  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
+#  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a 
+
+#LIBLOC= -static -lmkl_lapack64 /home/takao/GotoBLAS/libgoto.a -lguide -lfftw3
+
+LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
+
+#LIBLOC=-L/home/takao/MATHLIB/ATLAS/MyObj/lib -llapack -lcblas -lf77blas -latlas -lgfortran -lfftw3
+
 ### for a case of MPI
 #eee = /home/takao/ecal
 #LIBLOC = \
@@ -48,14 +54,20 @@ LIBLOC = \
 ############################################
 #FC = mpif90
 #LK = mpif90
-FC = ifort
-LK = ifort
+ FC = ifort
+ LK = ifort
+#FC = ifort -openmp
+#LK = ifort -openmp
 #
 # where is modules?
 moddir = $(lmdir)MODDIR/
 module = -module $(moddir)
 #
 FFLAGS = -O3 -cm -WB  -cpp $(CPP_SW) $(module)
+#FFLAGS = -O2 -cm -WB  -cpp $(CPP_SW) $(module)
+#FFLAGS = -O1 -cm -WB  -cpp $(CPP_SW) $(module)
+#FFLAGS = -O2 -cm -WB  -cpp $(CPP_SW) $(module)
+#FFLAGS = -O0 -cm -WB  -cpp $(CPP_SW) $(module)
 FFLAGS_LESS = -O2 -cm -WB  -cpp $(CPP_SW) $(module)
 FFLAGS_LESS2 = -O1 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_LESS3 = -O0 -cm -WB -cpp $(CPP_SW) $(module)

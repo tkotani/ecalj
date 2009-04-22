@@ -131,7 +131,8 @@ $(FP):	$(FP)(addbkg.o) \
 	$(FP)(vlm2us.o) \
 	$(FP)(vxcnsp.o) \
 	$(FP)(vxtrap.o) \
-	$(FP)(wrhomt.o)
+	$(FP)(wrhomt.o) \
+	$(FP)(ncutcorrect.o)
 	$(RANLIB) $@
  
 clean: 

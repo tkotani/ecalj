@@ -32,7 +32,10 @@ def skipc(flines,fin):  #  remove comment, treat continuous lines,
 	il=0
 	fff =[]
 	init=1
+	#ixxx=0
 	for fl in flines:
+		#ixxx=ixxx+1
+		#print ixxx, fl
 		il=il+1
 		if(not re.search('( |#)',fl[0:1])): continue  # skip comment line
 		flx = re.split('!',fl)[0]
@@ -86,13 +89,14 @@ rprog        = re.compile( 'program', re.IGNORECASE)
 rent         = re.compile( 'entry', re.IGNORECASE)
 rblock       = re.compile( 'blockdata', re.IGNORECASE)
 
+nargv = len(sys.argv) -1
+if(nargv==0) :
+	print 'usage: analyze.py {name of top routine} source files ... (order them as you link them).'
+	sys.exit()
 
-
-#tmp ='chekckmodule.tmp'
-#tmp = 'tmp'
-#print '######### check module ############# ',sys.argv[1:]
-src  = connect(sys.argv[1:])
-#print '######### check module ############# src =', src
+print '######### analyze.py ###### Generate tree for ####### ' ,sys.argv[1]
+src  = connect(sys.argv[2:])
+#print '################## src =', src
 #fff = os.system(zzz+ ' > ' + tmp)
 #sys.exit()
 ffiles=src
@@ -113,8 +117,7 @@ ffiles=src
 # #			print ffile
 #ffiles = uniqlist(ffiles)
 ffiles = re.split(' *',ffiles)[1:]
-#print ffiles
-
+print ffiles
 
 ####################################################
 # test
@@ -134,7 +137,7 @@ sdef={}
 mdef={}
 for ffilein in ffiles:
 	print 
-	print ffilein ," -------------------------"
+	print ffilein ," ------------------------"
 	flines = string.split(open(ffilein,'rt').read(),'\n')
 	flines = skipc(flines,ffilein) #flines are list
 
@@ -160,7 +163,7 @@ for ffilein in ffiles:
 #		print fline
 		if(  re_mod.search(fline)):
 			level=level+1
-			subname= re.sub('^ *','',rmod.split(fline)[1])
+			subname= re.sub('^ *','',rmod.split(fline,maxsplit=1)[1])
 			subname= re.split("( |^Z)",subname)[0]
 			fff= ['mod: '+subname,fdat[0],fdat[1],fdat[3]]
 			sstack.append(fff)
@@ -171,25 +174,25 @@ for ffilein in ffiles:
 			mdef[subname]= fff[1:3] + [fdat[1]] + [fff[3]] +[''] +['']#add range end
 		elif(re_program.search(fline) ):
 			level=level+1
-			subname= string.split( rprog.split(fline)[1]," " )[1]
+			subname= string.split( rprog.split(fline,maxsplit=1)[1]," " )[1]
 			subname= rsp(subname)
 			fff= ['mai: '+subname,fdat[0],fdat[1],fdat[3]]
 			sstack.append(fff)
 		elif(re_subroutine.search(fline) ):
 			level=level+1
-			subname= string.split( rsub.split(fline)[1],"(" )[0]
+			subname= string.split( rsub.split(fline,maxsplit=1)[1],"(" )[0]
 			subname= rsp(subname)
 			fff= ['sub: '+subname,fdat[0],fdat[1],fdat[3]]
 			sstack.append(fff)
 		elif(re_entry.search(fline) ):
 			level=level
-			subname= string.split( rent.split(fline)[1],"(" )[0]
+			subname= string.split( rent.split(fline,maxsplit=1)[1],"(" )[0]
 			subname= rsp(subname)
 			fff= ['sub: '+subname,fdat[0],fdat[1],fdat[3]]
 			sstack.append(fff)
 		elif(re_function.search(fline) or re_function2.search(fline) ):
 			level=level+1
-			subname= string.split( reff.split(fline)[1],"(" )[0]
+			subname= string.split( reff.split(fline,maxsplit=1)[1],"(" )[0]
 			subname= rsp(subname)
 			fff= ['fun: '+subname,fdat[0],fdat[1],fdat[3]]
 			sstack.append(fff)
@@ -216,17 +219,17 @@ for ffilein in ffiles:
 			slines=[]
 			calllist=[]
 		elif(re_call.search(fline)):
-			subname= rsp( string.split( rcall.split(fline)[1],"(" )[0] )
+			subname= rsp( string.split( rcall.split(fline,maxsplit=1)[1],"(" )[0] )
 			fff= [subname,fdat[0],fdat[1],fdat[3]]
 			calllist.append(fff)
 		elif(re_use.search(fline)):
-			subname= re.sub('^ *','',ruse.split(fline)[1])
+			subname= re.sub('^ *','',ruse.split(fline,maxsplit=1)[1])
 			subname= rsp( re.split("(,|^Z| )", subname)[0] )
 			fff= [subname,fdat[0],fdat[1],fdat[3]]
 			calllist.append(fff)
 		elif(re_blockdata.search(fline) ):
 			level=level+1
-			subname= rsp( re.split("(\  |\n)", rblock.split(fline)[1])[0] )
+			subname= rsp( re.split("(\  |\n)", rblock.split(fline,maxsplit=1)[1])[0] )
 			fff= [subname,fdat[0],fdat[1],fdat[3]]
 			sstack.append(fff)
 		else:
@@ -325,7 +328,7 @@ for i in skeys:
 	sdef[ii]= sss
 
 ### tree generation ####################
-i='lmfp'
+i=sys.argv[1]
 once = 1
 print '###### call tree for ', i,' ##########'
 

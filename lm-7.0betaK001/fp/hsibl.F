@@ -106,7 +106,7 @@ C     Shared variables
       double precision eh1(n0,nkap0),rsmh1(n0,nkap0)
       double precision eh2(n0,nkap0),rsmh2(n0,nkap0)
       double precision xx(n0),p1(3),p2(3)
-      integer ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3
+      integer ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3,oiv1
 C$    integer mp_numthreads,mp_my_threadnum
 #if MPI
       double precision, dimension(:), allocatable :: buffer
@@ -152,7 +152,7 @@ C     call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1000,0,ng,xx,xx,xx,xx)
 C      call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1009,ng,ng,w(okv),
 C     .  w(ogv),w(oiv),w(oiv))
       call gvlist(alat,plat,q,n1,n2,n3,gmax,509,ng,ng,w(okv),w(ogv),
-     .  w(oiv),w(oiv))
+     .  w(oiv),w(oiv)) !Only former one, igv(ng,3), is effective for job=509
       call poppr
       call tcx('gvlist')
 
@@ -302,6 +302,13 @@ C           Assemble hkl(G+q)
 
 C     ... Scalar products phi1*vsm*phi2 for all orbitals in (ib1,ib2)
           call defcc(owk2,-ndim1*ndim2)
+
+ctakao Apr2009
+c ncuti give by lmfp-suham-sugcut(1,..) lmfp-bndfp-suham2-sugcut(2,..) (1 is for normal MTO, 2 is for lo)
+c are only at Gamma point; thus symmetry can not be kept well for other k points.
+          call ncutcorrect(ncuti,ndim2,w(ogv),ng)
+c
+
           call hsibl2(ndim1,ndim2,ng,ncuti,w(oc1),w(ocf1),
      .      w(oc2),w(ocf2),ndim1,0,0,w(owk2))
 
@@ -751,7 +758,7 @@ Cu   04 Jul 08 (T Kotani) first created
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer ng,napw,ndimh,nlmto,igv(3,ng),igapw(3,napw)
+      integer ng,napw,ndimh,nlmto,igv(ng,3),igapw(3,napw)
       integer offl1(*),blks1(*)
       double complex h(ndimh,ndimh),c1(ng,nlmto),cf1(nlmto)
 C ... Local parameters

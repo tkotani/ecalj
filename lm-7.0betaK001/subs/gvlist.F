@@ -106,6 +106,10 @@ C ... Heap
 C ... External calls
       external awrit0,awrit4,awrit6,defrr,dinv33,dpcopy,dpzero,isanrg,
      .         pvglst,rlse,rx,shorbz
+cccccccccccccc
+      integer,save:: i,iyy
+      integer,allocatable:: ixx(:,:)
+cccccccccccccc
 
 C ... Setup
       stdo = lgunit(1)
@@ -246,7 +250,38 @@ C ... Sort the list of vectors
      .  igv2)
       call rlse(ogg)
 
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c      if(job==509) print *,'509q=',q
+c$$$c      print *,'ggg: 1 job=',job
+c$$$      allocate(ixx(ng,3))
+c$$$      do i=1,ng
+c$$$         ixx(i,1)=i*1
+c$$$         ixx(i,2)=i*2
+c$$$         ixx(i,3)=i*3
+c$$$      enddo
+c$$$c      print *,'ggg: x job=',job
+c$$$      if(job==509) then
+c$$$        iyy=iyy+1
+c$$$        write(6,"('ggg509:',5i12,d13.5)") ngmx,ng,sum(ixx*kv(1:ng,:)),
+c$$$     &  sum(ixx*igv(1:ng,1:3)),
+c$$$c     &  sum(transpose(ixx)*igv2(1:3,1:ng)),
+c$$$     &  sum(ixx*gv(1:ng,:))
+c$$$         if(iyy<5) then
+c$$$          do i=1,ng
+c$$$c         write(6,"('ggg509:',i5,4d13.5)")i,gv(i,:),sqrt(sum(gv(i,:)**2))
+c$$$          write(6,"('ggg509:',i5,14d13.5)")i,gv(i,:)-tau,
+c$$$     &   sqrt( sum((gv(i,:)-tau)**2))
+c$$$          enddo
+c$$$         endif
+c$$$      endif
+c$$$      if(job==8) then
+c$$$      write(6,"('ggg008:',3i12,d13.5)") ngmx,ng,sum(ixx*kv(1:ng,:)),
+c$$$     &  sum(ixx*gv(1:ng,:))
+c$$$      endif
+c$$$      deallocate(ixx)
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
+
       subroutine pvglst(gg,kk,iwk,p,ngmx,ng,ligv,ligv2,gv,kv,igv,igv2)
 C- Kernel called by gvlist to sort gv and kv
 C ----------------------------------------------------------------------
@@ -279,11 +314,15 @@ C     implicit none
 C Local variables
       integer ig,m,jg,PRTG,iprint
       parameter (PRTG=80)
+c      parameter (PRTG=0)
 C ... External calls
       external dvshel
 
-      do  10  ig = 1, ng
-   10 gg(ig) = (gv(ig,1)+p(1))**2+(gv(ig,2)+p(2))**2+(gv(ig,3)+p(3))**2
+      do  ig = 1, ng
+       gg(ig)= (gv(ig,1)+p(1))**2+(gv(ig,2)+p(2))**2+(gv(ig,3)+p(3))**2
+ctakao Apr2009. Ordering is clealy fixed---without this, ordering can be ambigous when gg is degenerated.
+       gg(ig)= gg(ig) *(1d0 + 1d-15*ig)
+      enddo
 
 C     dvshel seems to work a little faster for vectors this size
       call dvshel(1,ng,gg,iwk,1)
@@ -325,7 +364,8 @@ C ... Rearrange gv,kv,igv,igv2
       if (iprint() .ge. PRTG) then
       print 333, p
   333 format(' gvlist: g vectors after sorting: p=',3f12.6)
-      do  30  ig = 1, min(ng,50)
+c      do  30  ig = 1, min(ng,50)
+      do  30  ig = 1, ng
         gg(ig)=(gv(ig,1)+p(1))**2+(gv(ig,2)+p(2))**2+(gv(ig,3)+p(3))**2
 C        print 550, ig,gv(ig,1)+p(1),gv(ig,2)+p(2),gv(ig,3)+p(3),
         print 550, ig,gv(ig,1),gv(ig,2),gv(ig,3),

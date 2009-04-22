@@ -333,8 +333,11 @@ C Local variables
       if (ng .gt. ngmxx) call rxi('gvlst2: increase ngmx, need',ng)
 #endif
 
-      do  10  ig = 1, ng
-   10 gg(ig) = gv(ig,1)**2 + gv(ig,2)**2 + gv(ig,3)**2
+      do  ig = 1, ng
+        gg(ig) = gv(ig,1)**2 + gv(ig,2)**2 + gv(ig,3)**2
+ctakao test case1 Apr2009
+        gg(ig)= gg(ig) *(1d0 + 1d-15*ig)
+      enddo
 
       call dvshel(1,ng,gg,iprm,1)
 C     call dvheap(1,ng,gg,iprm,0d0,11)

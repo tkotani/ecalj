@@ -462,7 +462,8 @@ C ... Local parameters
       double precision e,rsm,eh(n0,nkap0),rsmh(n0,nkap0),f0(3)
       double precision xx(n0),wt,p(3)
       integer ib,is,io,jo,l2,kp,ie,ir,ioff,nlm1,nlm2,iq,kb,lt,i
-
+c takao
+      integer::ncutt
       call dpzero(psi, 2*ng*nspc*nvec)
 
       if (nlmto .eq. 0) return
@@ -492,7 +493,11 @@ C       Block into groups with consecutive l and common (e,rsm)
           nlm2 = nlm1 + blks(io)-1
           rsm = rtab(ir)
           e   = etab(ie)
-          call rsibl5(ie,ir,e,rsm,vol,nlm1,nlm2,ng,min(ng,ncut(lt+1,kp))
+c takao
+          ncutt=ncut(lt+1,kp)
+          call ncutcorrect(ncutt,1,gq,ng)
+c
+          call rsibl5(ie,ir,e,rsm,vol,nlm1,nlm2,ng,min(ng,ncutt)
      .      ,yl,ylw,he,hr,wk2,ioff,evec(1,1,ivec),ndimh,nspc,nvec,psi0)
         endif
         enddo
