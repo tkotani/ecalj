@@ -1,4 +1,5 @@
       module m_rdctrl
+      use m_struc_def
 C     implicit none
 
 C ... Fixed parameters
@@ -106,7 +107,8 @@ C ... SITE
 
 C ... Iterations
       character(128) :: iter_mix=' ',iter_amix=' '
-      real(8):: smix(37),ctrl_tol(3)=1d-4
+      real(8):: ctrl_tol(3)=1d-4
+      type (s_mix):: vmix
       integer:: iter_maxit=1
 
 C ... BZ
@@ -287,7 +289,8 @@ C ... Local variables
 
       integer:: lp1,lpzi,nlmax,nrmx=1501
       integer,parameter:: mxspec=256
-      real(8):: xx,samix(37)
+      real(8):: xx
+      type (s_mix) :: vamix 
       real(8)::  avwsr
       integer::izerv(n0)=(/(0,i=1,n0)/)
       real(8)::   zerov(n0)=(/(0d0,i=1,n0)/)
@@ -2137,34 +2140,35 @@ C --- Ewald sums ---
      .  ' padded in oblong geometries')
 
 C --- Iterations (formerly MIX) ---
-      smix(2) = NULLI           ! Not set
+      vmix%b = NULLI           ! Not set
       if (tksw(prgn,'ITER')/=2) then
       if (io_show+io_help/=0)
      .  call info0(1,1,0,' --- Parameters for iterations ---')
 C     Default values for smix (array has same same structure as lstra smix)
-      smix = 0
-      smix(2) = 1               ! beta
-      smix(4) = 1               ! bv
-C     smix(5) =  0              ! elind
-      call s8tor8('mixm',smix(6)) ! file name
-      smix(7) =  0              ! nkill
-      smix(8) =  0              ! lxpot
-      smix(9) = -1              ! mmix
-      smix(10) = 0              ! mode (0=Anderson)
-C     smix(11) = 0              ! model = previous mixing mode
-C     smix(12) = 0              ! n     = Number of iterations for this species
-C     smix(13) = 1              ! nitu  = max number of LDA+U iterations
-C     smix(14) = 1              ! nmix  = actual number mixed
-      smix(15) = 8              ! nsave = # iter to save on disk
-      call s8tor8(' ',smix(16)) ! expression for rmscst
-      smix(32) = 0              ! tolu
-      smix(33) = 1              ! umix (mixing parm for LDA+U)
-      smix(34) = 1              ! w(1)
-      smix(35) = 1              ! w(2)
-      smix(37) = -1             ! wc
+      call s_mix_init(vmix) 
+      vmix%b = 1               ! beta
+      vmix%bv = 1               ! bv
+C     vmix%elind =  0              ! elind
+      call s8tor8('mixm',vmix%fn) ! file name
+      vmix%kill =  0              ! nkill
+      vmix%lxpot =  0              ! lxpot
+      vmix%mmix = -1              ! mmix
+      vmix%mode = 0              ! mode (0=Anderson)
+C     vmix%model = 0              ! model = previous mixing mode
+C     vmix%n = 0              ! n     = Number of iterations for this species
+C     vmix%nitu = 1              ! nitu  = max number of LDA+U iterations
+C     vmix%nmix = 1              ! nmix  = actual number mixed
+      vmix%nsave = 8              ! nsave = # iter to save on disk
+      call s8tor8(' ',vmix%r) ! expression for rmscst
+      vmix%tolu = 0              ! tolu
+      vmix%umix = 1              ! umix (mixing parm for LDA+U)
+      vmix%w(1) = 1              ! w(1)
+      vmix%w(2) = 1              ! w(2)
+      vmix%wc = -1             ! wc
       smalit = NULLI
-      call dcopy(37,smix,1,samix,1)
-      call s8tor8('mixa',samix(6)) ! file name
+c      call dcopy(37,smix,1,samix,1)
+      vamix = vmix 
+      call s8tor8('mixa',vamix%fn) ! file name
 
       nm='ITER_NIT';call gtv(trim(nm),tksw(prgn,nm),iter_maxit,
      .  def_i4=30,
@@ -2184,11 +2188,11 @@ C     smix(14) = 1              ! nmix  = actual number mixed
      .  '[,k=nkill]')
 C ... Sanity check and printout
       if (nout==1 .and. io_help==0 .and. sw/=2) then
-        call r8tos8(smix(6),alabl)
+        call r8tos8(vmix%fn,alabl)
         if (io_show==0) call pshpr(0)
         if (.not. parmxp(-1,iter_mix,len_trim(iter_mix),
-     .    int(smix(10)),int(smix(14)),smix(34),smix(2),smix(5),
-     .    alabl,smix(37),smix(7),smix(4),xx)) then 
+     .    int(vmix%mode),int(vmix%nmix),vmix%w(1),vmix%b,vmix%elind,
+     .    alabl,vmix%wc,vmix%kill,vmix%bv,xx)) then 
           if (io_show==0) call poppr
           call rx( 'RDCCAT: parse in parmxp failed 1')
         endif
@@ -2200,11 +2204,11 @@ C ... Sanity check and printout
      .  'Mixing rules for Euler angles.  Syntax as in MIX')
 C ... Sanity check and printout
       if (nout==1 .and. io_help==0 .and. sw/=2) then
-        call r8tos8(samix(6),alabl)
+        call r8tos8(vamix%fn,alabl)
         if (io_show==0) call pshpr(0)
         if (.not. parmxp(-1,iter_amix,len_trim(iter_amix),
-     .    int(samix(10)),int(samix(14)),samix(34),samix(2),samix(5),
-     .    alabl,samix(37),samix(7),samix(4),xx)) then
+     .    int(vamix%mode),int(vamix%nmix),vamix%w(1),vamix%b,vamix%elind,
+     .    alabl,vamix%wc,vamix%kill,vamix%bv,xx)) then
           if (io_show==0) call poppr
           call rx('READCTRL: parse in parmxp failed 2')
         endif
@@ -2244,15 +2248,15 @@ c    .    ' for self-consistency')
         call isanrg(i0,0,3,'rdctrl','XIPMX',T)
         if (i0 .gt. 0) lves = .true.
       endif
-      smix(8) = i0
+      vmix%lxpot = i0
 
-      nm='ITER_UMIX'; call gtv(trim(nm),tksw(prgn,nm),smix(33),
+      nm='ITER_UMIX'; call gtv(trim(nm),tksw(prgn,nm),vmix%umix,
      .  def_r8=1d0,note='Mixing parameter for densmat in LDA+U')
-      nm='ITER_TOLU'; call gtv(trim(nm),tksw(prgn,nm),smix(32),
+      nm='ITER_TOLU'; call gtv(trim(nm),tksw(prgn,nm),vmix%tolu,
      .  def_r8=0d0,note='Tolerance for densmat in LDA+U')
       nm='ITER_NITU'; call gtv(trim(nm),tksw(prgn,nm),i0,
      .  def_i4=0,note='Max number of LDA+U iterations of densmat')
-      smix(13) = i0
+      vmix%nitu = i0
 
       endif                     ! iterations category
 

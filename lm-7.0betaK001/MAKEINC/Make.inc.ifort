@@ -55,18 +55,18 @@ LK = ifort
 moddir = MODDIR/
 module = -module $(moddir)
 #
-FFLAGS = -O3 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS = -O2 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS2 = -O1 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS3 = -O0 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_NONE = -g -cm -WB   -cpp $(CPP_SW) $(module)
+FFLAGS = -O3 -cm -WB  -cpp $(CPP_SW) $(module) -132
+FFLAGS_LESS = -O2 -cm -WB  -cpp $(CPP_SW) $(module) -132
+FFLAGS_LESS2 = -O1 -cm -WB -cpp $(CPP_SW) $(module) -132
+FFLAGS_LESS3 = -O0 -cm -WB -cpp $(CPP_SW) $(module) -132
+FFLAGS_NONE = -g -cm -WB   -cpp $(CPP_SW) $(module) -132
 #
 # safer option (debug)
-#FFLAGS =      -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS = -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_NONE = -g -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS =      -g -cm -WB -cpp $(CPP_SW) $(module) -132
+FFLAGS_LESS = -g -cm -WB -cpp $(CPP_SW) $(module) -132
+FFLAGS_LESS2 = -g -cm -WB -cpp $(CPP_SW) $(module) -132
+FFLAGS_LESS3 = -g -cm -WB -cpp $(CPP_SW) $(module) -132
+FFLAGS_NONE = -g -cm -WB -cpp $(CPP_SW) $(module) -132
 
 
 ###################################################

@@ -505,8 +505,9 @@ C --- Allocate and copy input to smix ---
       call umix(w(osmix),-1,-000,0,0,0)
       call redfrr(osmix,nint(dval(w(osmix),1)))
 ckino's fix for SR11000 size() return's integer(8), right?
-      nnn = size(smix)
-      call dcopy(nnn,smix,1,w(osmix),1)
+c      nnn = size(smix)
+      nnn = sizeof(vmix)/kind(w)
+      call dcopy(nnn,vmix,1,w(osmix),1)
 
 C ... Allocate and initialize sordn
       call defrr(osordn,1000)
@@ -690,7 +691,8 @@ C       Pack P,Q,PZ for both spins
      .    orbp(1,1,2),orbp(1,1,3),z(j))
         call pack5('spec colxbs radxbs',w(osspec),j,
      .    colxbs(1,j),radxbs(j),0,0)
-        call pack5('spec rcfa rcut rfoca rg rham',w(osspec),j,
+c        call pack5('spec rcfa rcut rfoca rg rham',w(osspec),j,
+        call pack5('spec rcfa rcut rfoca rg',w(osspec),j,
      .    rcfa(1,j),rcut(j),rfoca(j),rg(j))
         call pack5('spec rmt rs3 rsma rsmfa',w(osspec),j,
      .    rmt(j),rs3(j),rsma(j),rsmfa(j))
@@ -1181,7 +1183,8 @@ C --- Debugging printout ---
         call shstru('array',w(osarry),0,0)
 C       call shstru('pot',w(ospot),0,0)
         call shstru('ham',w(osham),0,0)
-        if (smix(2) /= NULLI)
+c        if (smix(2) /= NULLI)
+        if (vmix%b /= NULLI)
      .  call shstru('mix',w(osmix),0,0)
         call shstru('move',w(osmove),0,0)
         call shstru('optic',w(osoptc),0,0)

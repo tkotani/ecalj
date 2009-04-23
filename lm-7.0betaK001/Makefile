@@ -77,6 +77,11 @@ subs-dir:
 $(subs_obj_path)/%.o: subs/%.F
 	$(FC) $(FFLAGS) -c $< -o $@ 
 
+$(subs_obj_path)/struc_main.o: $(subs_obj_path)/m_struc_def.o $(subs_obj_path)/m_struc_func.o
+$(subs_obj_path)/struc_sub.o: $(subs_obj_path)/m_struc_def.o $(subs_obj_path)/m_struc_func.o
+$(subs_obj_path)/m_struc_func.o: $(subs_obj_path)/m_struc_def.o 
+
+
 fp_obj=$(addprefix fp/$(obj_path)/,$(fp_list))
 fp_obj_path=fp/$(obj_path)
 fp-lib: $(fp_obj)  
