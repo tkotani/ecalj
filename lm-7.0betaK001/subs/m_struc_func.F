@@ -13,7 +13,7 @@
       real(8) ::  v
       integer::val
       integer,intent(in):: n,irange1,irange2
-      character:: rw
+      character,intent(in):: rw
       call struc_eval_io_r8_realbody(v,rw,n,irange1,irange2,val)
       end subroutine struc_eval_io_r8
 
@@ -22,7 +22,7 @@
       real(8) ::  v(:)
       integer::val
       integer,intent(in):: n,irange1,irange2
-      character:: rw
+      character,intent(in):: rw
       call struc_eval_io_r8_realbody(v,rw,n,irange1,irange2,val)
       end subroutine struc_eval_io_r8v
 
@@ -31,7 +31,7 @@
       integer(8) ::  v
       integer ::val
       integer,intent(in):: n,irange1,irange2
-      character:: rw
+      character,intent(in):: rw
       call struc_eval_io_i8_realbody(v,rw,n,irange1,irange2,val)
       end subroutine struc_eval_io_i8
 
@@ -40,13 +40,13 @@
       integer(8) ::  v(:)
       integer ::val
       integer,intent(in):: n,irange1,irange2
-      character:: rw
+      character,intent(in):: rw
       call struc_eval_io_i8_realbody(v,rw,n,irange1,irange2,val)
       end subroutine struc_eval_io_i8v
 
       subroutine struc_strtok(str0, mlist,  nlist,ilist )
-      character(*):: str0
-      integer:: mlist
+      character(*),intent(in):: str0
+      integer,intent(in):: mlist
       integer:: nlist
       integer:: ilist(mlist,2)
 
@@ -109,7 +109,7 @@ c     accept 0-9,A-Z,a-z,' '
       implicit none
       real(8):: v(n), val(n)
       integer,intent(in):: n,irange1,irange2
-      character:: rw
+      character,intent(in):: rw
       integer:: ir1,ir2
       integer:: i
 
@@ -140,7 +140,7 @@ c     accept 0-9,A-Z,a-z,' '
       integer(8):: v(n)
       integer:: val(n)
       integer,intent(in):: n,irange1,irange2
-      character:: rw
+      character,intent(in):: rw
       integer:: ir1,ir2
       integer:: i
 

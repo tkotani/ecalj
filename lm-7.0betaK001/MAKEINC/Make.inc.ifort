@@ -62,11 +62,11 @@ FFLAGS_LESS3 = -O0 -cm -WB -cpp $(CPP_SW) $(module) -132
 FFLAGS_NONE = -g -cm -WB   -cpp $(CPP_SW) $(module) -132
 #
 # safer option (debug)
-FFLAGS =      -g -cm -WB -cpp $(CPP_SW) $(module) -132
-FFLAGS_LESS = -g -cm -WB -cpp $(CPP_SW) $(module) -132
-FFLAGS_LESS2 = -g -cm -WB -cpp $(CPP_SW) $(module) -132
-FFLAGS_LESS3 = -g -cm -WB -cpp $(CPP_SW) $(module) -132
-FFLAGS_NONE = -g -cm -WB -cpp $(CPP_SW) $(module) -132
+#FFLAGS =      -g -cm -WB -cpp $(CPP_SW) $(module) -132
+#FFLAGS_LESS = -g -cm -WB -cpp $(CPP_SW) $(module) -132
+#FFLAGS_LESS2 = -g -cm -WB -cpp $(CPP_SW) $(module) -132
+#FFLAGS_LESS3 = -g -cm -WB -cpp $(CPP_SW) $(module) -132
+#FFLAGS_NONE = -g -cm -WB -cpp $(CPP_SW) $(module) -132
 
 
 ###################################################
@@ -150,14 +150,12 @@ $(fp_obj_path)/rhogkl.o: fp/rhogkl.F
 ################################################
 # module dependency (fixed). What *.F contains what modules.
 ################################################
-$(subs_obj_path)/m_rdctrl.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
+$(subs_obj_path)/m_rdctrl.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod $(subs_obj_path)/m_struc_def.o $(subs_obj_path)/m_struc_func.o 
 $(subs_obj_path)/m_rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
-$(subs_obj_path)/rdctrl2.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrl.mod
+$(subs_obj_path)/rdctrl2.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrl.mod $(subs_obj_path)/m_struc_def.o $(subs_obj_path)/m_struc_func.o
 $(subs_obj_path)/rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrlchk.mod
 $(fp_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
 $(gwd_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
-
-
 
 
 

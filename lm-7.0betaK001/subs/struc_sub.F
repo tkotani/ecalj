@@ -45,6 +45,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('def')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_bz%def,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -58,6 +59,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('dosw')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_bz%dosw,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -71,6 +73,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ef')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_bz%ef,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -84,6 +87,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('efmax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_bz%efmax,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -97,6 +101,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('fsmom')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_bz%fsmom,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -110,6 +115,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lcond')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_bz%lcond,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -123,6 +129,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lio')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%lio,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -136,6 +143,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmet')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%lmet,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -149,6 +157,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmull')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%lmull,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -162,6 +171,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lopt')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%lopt,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -175,6 +185,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lshft')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%lshft,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -188,6 +199,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('n')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%n,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -201,6 +213,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ndos')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%ndos,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -214,6 +227,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nevmx')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%nevmx,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -227,6 +241,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nkabc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%nkabc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -240,6 +255,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nkp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%nkp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -253,6 +269,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ntet')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%ntet,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -266,6 +283,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('odos')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%odos,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -279,6 +297,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oidtet')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%oidtet,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -292,6 +311,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oipq')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%oipq,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -305,6 +325,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opdos')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%opdos,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -318,6 +339,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oqp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%oqp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -331,6 +353,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ostar')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%ostar,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -344,6 +367,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('owtkp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_bz%owtkp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -357,6 +381,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('range')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_bz%range,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -370,6 +395,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('semsh')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_bz%semsh,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -383,6 +409,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('stnr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_bz%stnr,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -396,6 +423,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('w')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_bz%w,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -409,6 +437,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('zval')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_bz%zval,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -473,6 +502,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ncl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%ncl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -486,6 +516,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nclasp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%nclasp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -499,6 +530,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nofgl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%nofgl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -512,6 +544,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nofgr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%nofgr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -525,6 +558,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('npadl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%npadl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -538,6 +572,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('npadr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%npadr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -551,6 +586,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('npl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%npl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -564,6 +600,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oclabl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%oclabl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -577,6 +614,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ocllst')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%ocllst,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -590,6 +628,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oclp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%oclp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -603,6 +642,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oclssl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%oclssl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -616,6 +656,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ogroup')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%ogroup,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -629,6 +670,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ogrp2')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%ogrp2,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -642,6 +684,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ohave')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%ohave,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -655,6 +698,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oics')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%oics,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -668,6 +712,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oifrlx')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%oifrlx,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -681,6 +726,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oipc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%oipc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -694,6 +740,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oipcp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%oipcp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -707,6 +754,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oips')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%oips,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -720,6 +768,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('omxcst')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%omxcst,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -733,6 +782,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('onrc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%onrc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -746,6 +796,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('onrcp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%onrcp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -759,6 +810,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opgfsl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%opgfsl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -772,6 +824,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opgfvl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%opgfvl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -785,6 +838,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opgord')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%opgord,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -798,6 +852,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opgplp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%opgplp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -811,6 +866,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opos')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%opos,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -824,6 +880,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ormax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%ormax,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -837,6 +894,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('osordn')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%osordn,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -850,6 +908,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ostni')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%ostni,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -863,6 +922,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ozos')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_array%ozos,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -927,6 +987,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('defm')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%defm,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -940,6 +1001,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('elin')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%elin,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -953,6 +1015,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lasa')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lasa,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -966,6 +1029,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lbas')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lbas,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -979,6 +1043,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lcd')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lcd,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -992,6 +1057,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lcgf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lcgf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1005,6 +1071,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ldos')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%ldos,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1018,6 +1085,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lfp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lfp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1031,6 +1099,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lfrce')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lfrce,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1044,6 +1113,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lgen3')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lgen3,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1057,6 +1127,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lham')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lham,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1070,6 +1141,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmet')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lmet,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1083,6 +1155,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lncol')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lncol,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1096,6 +1169,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('loptc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%loptc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1109,6 +1183,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lordn')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lordn,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1122,6 +1197,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lpgf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lpgf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1135,6 +1211,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lqp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lqp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1148,6 +1225,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lrel')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lrel,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1161,6 +1239,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lrs')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lrs,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1174,6 +1253,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lscr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lscr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1187,6 +1267,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lstonr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lstonr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1200,6 +1281,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lstr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lstr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1213,6 +1295,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lsx')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lsx,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1226,6 +1309,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ltb')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%ltb,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1239,6 +1323,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lves')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lves,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1252,6 +1337,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lxcf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%lxcf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1265,6 +1351,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('maxit')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%maxit,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1278,6 +1365,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('mdprm')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%mdprm,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1291,6 +1379,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('modep')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%modep,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1304,6 +1393,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nbas')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%nbas,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1317,6 +1407,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nbasp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%nbasp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1330,6 +1421,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nclass')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%nclass,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1343,6 +1435,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nesabc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%nesabc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1356,6 +1449,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nitmv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%nitmv,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1369,6 +1463,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%nl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1382,6 +1477,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nmap')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%nmap,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1395,6 +1491,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('npl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%npl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1408,6 +1505,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nsite')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%nsite,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1421,6 +1519,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nspec')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%nspec,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1434,6 +1533,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nspin')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%nspin,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1447,6 +1547,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nvario')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%nvario,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1460,6 +1561,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('omax1')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%omax1,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1473,6 +1575,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('omax2')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%omax2,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1486,6 +1589,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pfloat')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%pfloat,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1499,6 +1603,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('quit')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%quit,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1512,6 +1617,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rmaxes')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%rmaxes,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1525,6 +1631,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rmines')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%rmines,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1538,6 +1645,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('sclwsr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%sclwsr,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1551,6 +1659,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('sdmod')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%sdmod,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1564,6 +1673,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('sdprm')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%sdprm,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1577,6 +1687,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('sdxsi')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%sdxsi,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1590,6 +1701,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('smalit')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ctrl%smalit,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1603,6 +1715,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('tol')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%tol,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1616,6 +1729,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('wsrmax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%wsrmax,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1629,6 +1743,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('zbak')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ctrl%zbak,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1693,6 +1808,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('delre')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_gw%delre,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1706,6 +1822,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('deltaw')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_gw%deltaw,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1719,6 +1836,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('deltax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_gw%deltax,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1732,6 +1850,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ecuts')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_gw%ecuts,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1745,6 +1864,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('gcutb')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_gw%gcutb,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1758,6 +1878,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('gcutx')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_gw%gcutx,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1771,6 +1892,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('gsmear')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_gw%gsmear,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1784,6 +1906,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lgw')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_gw%lgw,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1797,6 +1920,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmxpb')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_gw%lmxpb,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1810,6 +1934,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('mksig')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_gw%mksig,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1823,6 +1948,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nband')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_gw%nband,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1836,6 +1962,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nime')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_gw%nime,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1849,6 +1976,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nkabc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_gw%nkabc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1862,6 +1990,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pb1')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_gw%pb1,rw,1,range1,range2,v_ri%r)
             v_ri%t= 1
             v_ri%i= nint(v_ri%r)
@@ -1875,6 +2004,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pb2')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_gw%pb2,rw,1,range1,range2,v_ri%r)
             v_ri%t= 1
             v_ri%i= nint(v_ri%r)
@@ -1888,6 +2018,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pbtol')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_gw%pbtol,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1901,6 +2032,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('qoffp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_gw%qoffp,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1914,6 +2046,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rdsig')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_gw%rdsig,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -1978,6 +2111,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('alfsi')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%alfsi,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -1991,6 +2125,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('amgm')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%amgm,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2004,6 +2139,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('bandw')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%bandw,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2017,6 +2153,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('dabc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%dabc,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2030,6 +2167,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ehf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%ehf,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2043,6 +2181,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ehk')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%ehk,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2056,6 +2195,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('elind')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%elind,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2069,6 +2209,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('eterms')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%eterms,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2082,6 +2223,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('hord')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%hord,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2095,6 +2237,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('kmto')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%kmto,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2108,6 +2251,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lasa')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%lasa,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2121,6 +2265,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ldham')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%ldham,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2134,6 +2279,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lgen3')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%lgen3,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2147,6 +2293,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lham')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%lham,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2160,6 +2307,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmaxu')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%lmaxu,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2173,6 +2321,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmxax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%lmxax,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2186,6 +2335,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lncol')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%lncol,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2199,6 +2349,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lsig')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%lsig,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2212,6 +2363,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ltb')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%ltb,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2225,6 +2377,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lxcf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%lxcf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2238,6 +2391,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nbf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%nbf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2251,6 +2405,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ndham')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%ndham,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2264,6 +2419,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ndhrs')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%ndhrs,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2277,6 +2433,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ndofH')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%ndofH,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2290,6 +2447,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('neula')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%neula,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2303,6 +2461,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nkaph')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%nkaph,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2316,6 +2475,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nlibu')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%nlibu,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2329,6 +2489,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nmto')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%nmto,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2342,6 +2503,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('npwmin')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%npwmin,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2355,6 +2517,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('npwpad')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%npwpad,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2368,6 +2531,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nqsig')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%nqsig,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2381,6 +2545,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('obdots')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%obdots,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2394,6 +2559,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oeula')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%oeula,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2407,6 +2573,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ohrs')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%ohrs,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2420,6 +2587,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oiaxs')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%oiaxs,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2433,6 +2601,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oindxo')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%oindxo,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2446,6 +2615,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('olmxa')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%olmxa,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2459,6 +2629,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('omagf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%omagf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2472,6 +2643,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ontabs')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%ontabs,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2485,6 +2657,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ooffH')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%ooffH,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2498,6 +2671,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oqsig')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%oqsig,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2511,6 +2685,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oveps')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%oveps,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2524,6 +2699,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pmax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%pmax,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2537,6 +2713,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pmin')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%pmin,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2550,6 +2727,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pwemax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%pwemax,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2563,6 +2741,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pwemin')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%pwemin,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2576,6 +2755,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pwmode')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%pwmode,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2589,6 +2769,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('qpoff')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%qpoff,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2602,6 +2783,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('qss')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%qss,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2615,6 +2797,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rsrnge')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%rsrnge,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2628,6 +2811,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rsstol')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%rsstol,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2641,6 +2825,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('seref')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%seref,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2654,6 +2839,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('sigp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%sigp,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2667,6 +2853,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('thrpv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ham%thrpv,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2680,6 +2867,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('udiag')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ham%udiag,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2744,6 +2932,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('alat')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%alat,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2757,6 +2946,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('as')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%as,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2770,6 +2960,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('avw')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%avw,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2783,6 +2974,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('awald')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%awald,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2796,6 +2988,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('dist')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%dist,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2809,6 +3002,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('gam')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%gam,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2822,6 +3016,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('gmax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%gmax,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -2835,6 +3030,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ldist')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%ldist,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2848,6 +3044,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nabc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%nabc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2861,6 +3058,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ng')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%ng,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2874,6 +3072,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nkd')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%nkd,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2887,6 +3086,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nkdmx')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%nkdmx,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2900,6 +3100,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nkq')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%nkq,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2913,6 +3114,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nkqmx')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%nkqmx,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2926,6 +3128,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('npgrp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%npgrp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2939,6 +3142,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nsgrp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%nsgrp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2952,6 +3156,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oag')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%oag,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2965,6 +3170,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('obgv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%obgv,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2978,6 +3184,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ocg')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%ocg,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -2991,6 +3198,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ocy')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%ocy,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3004,6 +3212,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('odlv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%odlv,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3017,6 +3226,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ogv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%ogv,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3030,6 +3240,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oidxcg')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%oidxcg,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3043,6 +3254,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oips0')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%oips0,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3056,6 +3268,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oistab')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%oistab,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3069,6 +3282,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ojcg')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%ojcg,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3082,6 +3296,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('okv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%okv,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3095,6 +3310,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opos')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%opos,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3108,6 +3324,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oqlv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%oqlv,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3121,6 +3338,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('osymgr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_lat%osymgr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3134,6 +3352,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('plat')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%plat,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3147,6 +3366,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('plat0')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%plat0,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3160,6 +3380,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('plat2')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%plat2,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3173,6 +3394,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('plate')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%plate,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3186,6 +3408,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('platl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%platl,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3199,6 +3422,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('platr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%platr,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3212,6 +3436,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('qlat')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%qlat,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3225,6 +3450,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rpad')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%rpad,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3238,6 +3464,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('slat')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%slat,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3251,6 +3478,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('tol')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%tol,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3264,6 +3492,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('tolft')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%tolft,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3277,6 +3506,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('vol')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_lat%vol,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3341,6 +3571,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('b')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%b,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3354,6 +3585,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('bl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%bl,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3367,6 +3599,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('bv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%bv,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3380,6 +3613,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('elind')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%elind,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3393,6 +3627,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('fn')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%fn,rw,1,range1,range2,v_ri%r)
             v_ri%t= 1
             v_ri%i= nint(v_ri%r)
@@ -3406,6 +3641,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('kill')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_mix%kill,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3419,6 +3655,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lxpot')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_mix%lxpot,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3432,6 +3669,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('mmix')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_mix%mmix,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3445,6 +3683,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('mode')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_mix%mode,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3458,6 +3697,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('model')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_mix%model,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3471,6 +3711,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('n')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_mix%n,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3484,6 +3725,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nitu')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_mix%nitu,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3497,6 +3739,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nmix')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_mix%nmix,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3510,6 +3753,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nsave')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_mix%nsave,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3523,6 +3767,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('r')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%r,rw,1,range1,range2,v_ri%r)
             v_ri%t= 1
             v_ri%i= nint(v_ri%r)
@@ -3536,6 +3781,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rms1')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%rms1,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3549,6 +3795,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rms2')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%rms2,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3562,6 +3809,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('tj')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%tj,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3575,6 +3823,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('tolu')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%tolu,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3588,6 +3837,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('umix')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%umix,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3601,6 +3851,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('w')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%w,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3614,6 +3865,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('wc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_mix%wc,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3678,6 +3930,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ct')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_move%ct,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3691,6 +3944,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('gyro')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_move%gyro,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3704,6 +3958,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('kt')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_move%kt,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3717,6 +3972,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('modt')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_move%modt,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3730,6 +3986,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nmodt')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_move%nmodt,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3743,6 +4000,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('prmint')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_move%prmint,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3756,6 +4014,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('tnow')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_move%tnow,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3769,6 +4028,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ts')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_move%ts,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3782,6 +4042,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('tsequ')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_move%tsequ,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3795,6 +4056,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('tstot')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_move%tstot,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3859,6 +4121,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('axes')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_optic%axes,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3872,6 +4135,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('cll')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_optic%cll,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3885,6 +4149,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('cln')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_optic%cln,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3898,6 +4163,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('cls')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_optic%cls,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3911,6 +4177,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('clsite')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_optic%clsite,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3924,6 +4191,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('esciss')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_optic%esciss,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -3937,6 +4205,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('mode')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_optic%mode,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3950,6 +4219,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nchi2')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_optic%nchi2,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3963,6 +4233,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ne')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_optic%ne,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3976,6 +4247,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ocrng')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_optic%ocrng,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -3989,6 +4261,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('unrng')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_optic%unrng,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4002,6 +4275,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('window')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_optic%window,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -4066,6 +4340,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('efre')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ordn%efre,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -4079,6 +4354,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('mode')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ordn%mode,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4092,6 +4368,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ncl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ordn%ncl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4105,6 +4382,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ndofh')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ordn%ndofh,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4118,6 +4396,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oclp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ordn%oclp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4131,6 +4410,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oclssl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ordn%oclssl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4144,6 +4424,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oiaxg')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ordn%oiaxg,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4157,6 +4438,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('omapgv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ordn%omapgv,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4170,6 +4452,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ooffch')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_ordn%ooffch,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4183,6 +4466,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rmaxg')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_ordn%rmaxg,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -4247,6 +4531,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('bfield')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_pot%bfield,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -4260,6 +4545,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nlma')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%nlma,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4273,6 +4559,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nlml')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%nlml,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4286,6 +4573,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nrhos')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%nrhos,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4299,6 +4587,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oaamom')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oaamom,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4312,6 +4601,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('obxc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%obxc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4325,6 +4615,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('odddpf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%odddpf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4338,6 +4629,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oddpf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oddpf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4351,6 +4643,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oddpfr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oddpfr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4364,6 +4657,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('odel')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%odel,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4377,6 +4671,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('odpf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%odpf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4390,6 +4685,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('odpfr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%odpfr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4403,6 +4699,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ofes')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%ofes,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4416,6 +4713,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ogma')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%ogma,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4429,6 +4727,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ogmar')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%ogmar,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4442,6 +4741,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ogrrme')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%ogrrme,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4455,6 +4755,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ohab')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%ohab,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4468,6 +4769,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oivso')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oivso,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4481,6 +4783,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('omad')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%omad,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4494,6 +4797,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oorhat')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oorhat,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4507,6 +4811,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opalp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%opalp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4520,6 +4825,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opapg')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%opapg,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4533,6 +4839,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opdel')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%opdel,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4546,6 +4853,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%opf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4559,6 +4867,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opfnc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%opfnc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4572,6 +4881,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opfr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%opfr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4585,6 +4895,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opmpol')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%opmpol,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4598,6 +4909,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opnu')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%opnu,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4611,6 +4923,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%opp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4624,6 +4937,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oppi')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oppi,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4637,6 +4951,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oppn')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oppn,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4650,6 +4965,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opprel')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%opprel,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4663,6 +4979,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('opti')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%opti,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4676,6 +4993,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oqc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oqc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4689,6 +5007,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oqmom')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oqmom,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4702,6 +5021,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oqnu')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oqnu,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4715,6 +5035,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oqpp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oqpp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4728,6 +5049,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oqt')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oqt,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4741,6 +5063,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('orhos')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%orhos,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4754,6 +5077,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('orhrmx')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%orhrmx,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4767,6 +5091,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('osab')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%osab,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4780,6 +5105,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('osgw')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%osgw,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4793,6 +5119,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('osmpot')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%osmpot,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4806,6 +5133,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('osmrho')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%osmrho,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4819,6 +5147,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('osop')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%osop,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4832,6 +5161,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('osoptc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%osoptc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4845,6 +5175,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('osrout')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%osrout,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4858,6 +5189,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('otau')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%otau,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4871,6 +5203,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ovab')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%ovab,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4884,6 +5217,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ovdif')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%ovdif,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4897,6 +5231,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oves')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%oves,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4910,6 +5245,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ovintr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%ovintr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4923,6 +5259,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ovrmax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%ovrmax,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4936,6 +5273,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ovshf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_pot%ovshf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -4949,6 +5287,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('vconst')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_pot%vconst,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -4962,6 +5301,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('vmtz')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_pot%vmtz,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -4975,6 +5315,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('vmtz0')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_pot%vmtz0,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5039,6 +5380,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('z')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%z,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5052,6 +5394,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('mass')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%mass,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5065,6 +5408,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rmt')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%rmt,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5078,6 +5422,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ntorb')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%ntorb,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5091,6 +5436,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('naug')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%naug,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5104,6 +5450,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('norb')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%norb,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5117,6 +5464,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rsmfa')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%rsmfa,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5130,6 +5478,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rsma')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%rsma,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5143,6 +5492,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rg')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%rg,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5156,6 +5506,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmxa')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%lmxa,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5169,6 +5520,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('kmxh')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%kmxh,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5182,6 +5534,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmxl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%lmxl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5195,6 +5548,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('kmxt')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%kmxt,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5208,6 +5562,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rsmv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%rsmv,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5221,6 +5576,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('norp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%norp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5234,6 +5590,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('coreh')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%coreh,rw,1,range1,range2,v_ri%r)
             v_ri%t= 1
             v_ri%i= nint(v_ri%r)
@@ -5247,6 +5604,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('coreq')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%coreq,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5260,6 +5618,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('a')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%a,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5273,6 +5632,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%nr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5286,6 +5646,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('eref')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%eref,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5299,6 +5660,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('etf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%etf,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5312,6 +5674,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('beta')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%beta,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5325,6 +5688,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lfoca')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%lfoca,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5338,6 +5702,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ctail')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%ctail,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5351,6 +5716,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('etail')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%etail,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5364,6 +5730,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('name')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%name,rw,1,range1,range2,v_ri%r)
             v_ri%t= 1
             v_ri%i= nint(v_ri%r)
@@ -5377,6 +5744,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('orhoc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%orhoc,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5390,6 +5758,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('stc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%stc,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5403,6 +5772,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmxb')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%lmxb,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5416,6 +5786,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmxf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%lmxf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5429,6 +5800,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('stni')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%stni,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5442,6 +5814,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('stnm')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%stnm,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5455,6 +5828,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rham')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%rham,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5468,6 +5842,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rfoca')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%rfoca,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5481,6 +5856,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('dv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%dv,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5494,6 +5870,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('mxcst')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%mxcst,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5507,6 +5884,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('group')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%group,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5520,6 +5898,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('grp2')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%grp2,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5533,6 +5912,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nxi')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%nxi,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5546,6 +5926,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('qc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%qc,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5559,6 +5940,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmxpb')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%lmxpb,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5572,6 +5954,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pb1')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%pb1,rw,1,range1,range2,v_ri%r)
             v_ri%t= 1
             v_ri%i= nint(v_ri%r)
@@ -5585,6 +5968,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pb2')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%pb2,rw,1,range1,range2,v_ri%r)
             v_ri%t= 1
             v_ri%i= nint(v_ri%r)
@@ -5598,6 +5982,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('colxbs')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%colxbs,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5611,6 +5996,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lxi')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%lxi,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5624,6 +6010,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('radxbs')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%radxbs,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5637,6 +6024,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rcut')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%rcut,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5650,6 +6038,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rint')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%rint,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5663,6 +6052,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('eh3')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%eh3,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5676,6 +6066,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rs3')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%rs3,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5689,6 +6080,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('vmtz')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%vmtz,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5702,6 +6094,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('kmxv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%kmxv,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5715,6 +6108,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rcfa')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%rcfa,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5728,6 +6122,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('p')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%p,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5741,6 +6136,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('q')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%q,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5754,6 +6150,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('alpha')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%alpha,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5767,6 +6164,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('idmod')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%idmod,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5780,6 +6178,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('idxdn')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%idxdn,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5793,6 +6192,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('hcr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%hcr,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5806,6 +6206,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('exi')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%exi,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5819,6 +6220,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ngcut')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%ngcut,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5832,6 +6234,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('qpol')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%qpol,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5845,6 +6248,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('chfa')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%chfa,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5858,6 +6262,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('orbp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%orbp,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5871,6 +6276,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('enu')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%enu,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5884,6 +6290,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pz')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%pz,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5897,6 +6304,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('idu')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%idu,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5910,6 +6318,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('uh')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%uh,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5923,6 +6332,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('jh')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%jh,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5936,6 +6346,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('iq1')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%iq1,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5949,6 +6360,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ivso')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_spec%ivso,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -5962,6 +6374,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ehvl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%ehvl,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -5975,6 +6388,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('vso')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_spec%vso,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6039,6 +6453,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('bfield')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%bfield,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6052,6 +6467,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('clabel')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%clabel,rw,1,range1,range2,v_ri%r)
             v_ri%t= 1
             v_ri%i= nint(v_ri%r)
@@ -6065,6 +6481,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('class')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%class,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6078,6 +6495,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('cli')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%cli,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6091,6 +6509,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('delta')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%delta,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6104,6 +6523,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('dpole')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%dpole,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6117,6 +6537,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('eula')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%eula,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6130,6 +6551,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('force')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%force,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6143,6 +6565,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('mpole')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%mpole,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6156,6 +6579,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ndelta')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%ndelta,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6169,6 +6593,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('norb')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%norb,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6182,6 +6607,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('offh')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%offh,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6195,6 +6621,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('orho')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%orho,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6208,6 +6635,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ov0')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%ov0,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6221,6 +6649,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ov1')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%ov1,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6234,6 +6663,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%pl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6247,6 +6677,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('plv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%plv,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6260,6 +6691,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pnu')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%pnu,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6273,6 +6705,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pos')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%pos,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6286,6 +6719,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pos0')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%pos0,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6299,6 +6733,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('pz')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%pz,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6312,6 +6747,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('relax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%relax,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6325,6 +6761,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('sid')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%sid,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6338,6 +6775,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('spec')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_site%spec,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6351,6 +6789,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('vel')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%vel,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6364,6 +6803,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('vshft')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_site%vshft,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6428,6 +6868,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('adec')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_str%adec,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6441,6 +6882,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('amode')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%amode,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6454,6 +6896,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('drwats')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_str%drwats,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6467,6 +6910,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('iinv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_str%iinv,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6480,6 +6924,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ivl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%ivl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6493,6 +6938,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('kaps')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_str%kaps,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6506,6 +6952,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lequiv')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%lequiv,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6519,6 +6966,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lmaxw')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%lmaxw,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6532,6 +6980,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('loka')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%loka,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6545,6 +6994,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('lshow')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%lshow,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6558,6 +7008,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('mxnbr')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%mxnbr,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6571,6 +7022,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nalf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%nalf,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6584,6 +7036,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nbisi')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%nbisi,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6597,6 +7050,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ncupl')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%ncupl,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6610,6 +7064,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ndust')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%ndust,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6623,6 +7078,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nitab')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%nitab,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6636,6 +7092,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nkaps')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%nkaps,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6649,6 +7106,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nttab')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%nttab,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6662,6 +7120,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oadot')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%oadot,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6675,6 +7134,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oalp')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%oalp,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6688,6 +7148,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('oiax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%oiax,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6701,6 +7162,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ontab')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%ontab,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6714,6 +7176,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('os')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%os,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6727,6 +7190,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('osdot')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_str%osdot,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6740,6 +7204,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rfit')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_str%rfit,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6753,6 +7218,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rmax')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_str%rmax,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6766,6 +7232,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rmaxg')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_str%rmaxg,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6779,6 +7246,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('skmsh')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_str%skmsh,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6792,6 +7260,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('wztcf')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_str%wztcf,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6856,6 +7325,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('alam')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_tb%alam,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6869,6 +7339,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('alsc')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_tb%alsc,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6882,6 +7353,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('ebfit')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_tb%ebfit,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)
@@ -6895,6 +7367,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('fmode')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_tb%fmode,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6908,6 +7381,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('nbfit')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_i8_realbody( v_tb%nbfit,rw,1,range1,range2,v_ri%i)
             v_ri%t=2
             v_ri%r= v_ri%i
@@ -6921,6 +7395,7 @@ C arr='a': use val and pack/unpack
           endif
         case ('rmfit')
           if (arr.eq.'1') then
+            if ( range2.eq.-1 ) range2 = range1
             call struc_eval_io_r8_realbody( v_tb%rmfit,rw,1,range1,range2,v_ri%r)
             v_ri%t= 4
             v_ri%i= nint(v_ri%r)

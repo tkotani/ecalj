@@ -39,12 +39,12 @@ c---------------------------------------------------
       use m_struc_def
       use m_struc_func
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
 c     integer(8):: struc(:)
 c      integer(8):: struc(*)
       real(8):: struc(*)
       integer:: x1,x2,x3,x4,x5
-      character:: rw
+      character,intent(in):: rw
       type (s_ri):: v_ri 
 
       integer,parameter:: mlist=20
@@ -111,6 +111,7 @@ c      integer(8):: struc(*)
      .           arr,rw,range(1,i-1),range(2,i-1), x5,v_ri) 
          case default
             write(*,*) thisname,': error, nlist>max, nlist=',nlist
+            write(*,*) thisname,': sname=<',sname,'>'
             stop
          end select
       enddo
@@ -148,6 +149,7 @@ c      integer(8):: struc(*)
      .           struc(ith),arr,rw,range(1,i-1),range(2,i-1),x5,v_ri)
          case default
             write(*,*) thisname,': error ith-mode, nlist>max, nlist=',nlist
+            write(*,*) thisname,': sname=<',sname,'>'
             stop
          end select
       enddo
@@ -160,10 +162,11 @@ c      integer(8):: struc(*)
       use m_struc_def
       use m_struc_func
       implicit none
-      integer:: lpack 
+      integer,intent(in):: lpack 
       character(*):: sname
       real(8):: struc(*)
-      integer:: is1,is2,n,x1(*)
+      integer,intent(in):: is1,is2,n
+      integer::x1(*)
 
       character:: rw,arr
       integer,parameter:: mlist=20
@@ -226,10 +229,10 @@ c      integer(8):: struc(*)
       use m_struc_def
       use m_struc_func
       implicit none
-      integer:: lpack 
+      integer,intent(in):: lpack 
       character(*):: sname
       real(8):: struc(*)
-      integer:: is1,is2,n
+      integer,intent(in):: is1,is2,n
       real(8) :: x1(*)
 
       character:: rw,arr
@@ -296,7 +299,7 @@ c----------------------------------------------------------
 
       subroutine pack1(sname,struc,x1)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1
       character :: rw
@@ -308,7 +311,7 @@ c     write(*,*) 'pack2: ',sname
 
       subroutine pack2(sname,struc,x1,x2)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1,x2
       character :: rw
@@ -319,7 +322,7 @@ c     write(*,*) 'pack2: ',sname
 
       subroutine pack3(sname,struc,x1,x2,x3)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1,x2,x3
       character :: rw
@@ -329,7 +332,7 @@ c     write(*,*) 'pack2: ',sname
 
       subroutine pack4(sname,struc,x1,x2,x3,x4)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1,x2,x3,x4
       character :: rw
@@ -339,7 +342,7 @@ c     write(*,*) 'pack2: ',sname
 
       subroutine pack5(sname,struc,x1,x2,x3,x4,x5)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1,x2,x3,x4,x5
       character :: rw
@@ -350,7 +353,7 @@ c     write(*,*) 'pack5: address=',%loc(struc)
 
       subroutine pack(sname,struc,x1,x2,x3,x4,x5)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1,x2,x3,x4,x5
       call pack5(sname,struc,x1,x2,x3,x4,x5)
@@ -359,7 +362,7 @@ c     write(*,*) 'pack5: address=',%loc(struc)
 
       subroutine upack1(sname,struc,x1)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1
       character :: rw
@@ -370,7 +373,7 @@ c     write(*,*) 'pack5: address=',%loc(struc)
       
       subroutine upack2(sname,struc,x1,x2)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1,x2
       character :: rw
@@ -380,7 +383,7 @@ c     write(*,*) 'pack5: address=',%loc(struc)
 
       subroutine upack3(sname,struc,x1,x2,x3)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1,x2,x3
       character :: rw
@@ -390,7 +393,7 @@ c     write(*,*) 'pack5: address=',%loc(struc)
 
       subroutine upack4(sname,struc,x1,x2,x3,x4)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1,x2,x3,x4
       character :: rw
@@ -400,7 +403,7 @@ c     write(*,*) 'pack5: address=',%loc(struc)
 
       subroutine upack5(sname,struc,x1,x2,x3,x4,x5)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1,x2,x3,x4,x5
       character :: rw
@@ -410,7 +413,7 @@ c     write(*,*) 'pack5: address=',%loc(struc)
 
       subroutine upack(sname,struc,x1,x2,x3,x4,x5)
       implicit none
-      character(*):: sname
+      character(*),intent(in):: sname
       real(8):: struc
       integer:: x1,x2,x3,x4,x5
       call upack5(sname,struc,x1,x2,x3,x4,x5)
@@ -621,10 +624,10 @@ C     ----------------------------------------------------------------
       use m_struc_def 
       use m_struc_func
       implicit none
-      character(*):: sname
-      real(8):: struc
-      logical:: lval
-      integer:: mask
+      character(*),intent(in):: sname
+      real(8),intent(in):: struc
+      logical,intent(in):: lval
+      integer,intent(in):: mask
 
       real(8):: ret
       integer,parameter:: mlist=10
@@ -697,8 +700,8 @@ C     not tested, probabaly works
 C     - Logical OR of bits in one (masked) entry in a structure
 
       implicit none
-      character*(*) sname
-      real(8):: struc(*)
+      character*(*),intent(in):: sname
+      real(8),intent(in):: struc(*)
       integer mask(5),bitand,range(2,5),ival,i,k
       double precision x1(20),x2(20),x3(20),x4(20),x5(20)
       character*40 trunam,alias,switch
@@ -724,8 +727,8 @@ C     - Logical OR of bits in one (masked) entry in a structure
 C     - Logical AND of all bits corresponding to mask in a structure entry
 
       implicit none
-      character*(*) sname
-      real(8):: struc(*)
+      character*(*),intent(in):: sname
+      real(8),intent(in):: struc(*)
       integer mask(5),bitand,range(2,5),ival,i,k
       double precision x1(20),x2(20),x3(20),x4(20),x5(20)
       character*40 trunam,alias,switch
@@ -742,7 +745,7 @@ C     - Logical AND of all bits corresponding to mask in a structure entry
 #endif
 
 
-      subroutine spackv(lpack,sname,struc,is1,is2,x1)
+      subroutine spackv(lpack0,sname,struc,is1,is2,x1)
 C     - Pack/unpack a vector of one element type from a struc containing spec
 C     ----------------------------------------------------------------
 C     i Inputs
@@ -760,11 +763,13 @@ C     r   Structure types must be consistent with those in lstra, above
       use m_struc_def
       use m_struc_func
       implicit none
-      integer:: lpack
-      character(*):: sname
+      integer,intent(in):: lpack0
+      character(*),intent(in):: sname
       real(8):: struc(*)
-      integer:: is1,is2,x1
+      integer,intent(in):: is1,is2 
+      integer::x1
       
+      integer:: lpack  
       character:: rw
       integer:: n,itype
 
@@ -781,17 +786,28 @@ C     r   Structure types must be consistent with those in lstra, above
 
       character(6):: thisname='spackv'
 
+      lpack=lpack0
+
       call salias(sname,trunam,alias,switch,range,mask)
 
 
       select case (lpack)
-c     case (00)  ! unpack, same for all,  not supported
+c      case (00)  ! unpack, same for all,  not supported
       case (01)                 ! pack,  same for all
       case (10)                 ! unpack, different
       case (11)                 ! pack, different
       case default
+         if (lpack.eq.0 .and. is1.eq.is2) then
+            lpack=10
+c            write(*,*) thisname,': change lpack=',lpack,' and continue'
+         else
+
          write(*,*) thisname,': unsupported lpack, lpack=',lpack
+         write(*,*) thisname,': sname=<',sname,'>'
+         write(*,*) thisname,': is1,is2=',is1,is2
          stop
+
+         endif
       end select
 
       select case ( mod(lpack,10) )
@@ -828,6 +844,8 @@ c it is ok to call using sname, not trunam
          call struc_spackv_r8v(lpack,sname,struc,is1,is2,n,x1)
       case default
          write(*,*) thisname,': wrong itype=',itype
+         write(*,*) thisname,': sname=<',sname,'>'
+         write(*,*) thisname,': is1,is2=',is1,is2
          stop
       end select
 
@@ -844,11 +862,11 @@ C     For structure without species, set both to 0
 C     ----------------------------------------------------------------
 
       implicit none
-      integer:: lpack
-      character(*):: sname
+      integer,intent(in):: lpack
+      character(*),intent(in):: sname
       real(8):: struc(*)
       character(*):: name(is1:is2)
-      integer:: is1,is2
+      integer,intent(in):: is1,is2
 
       real(8),allocatable:: v_r(:)
       integer:: i
