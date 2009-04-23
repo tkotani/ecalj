@@ -215,7 +215,7 @@ c      integer(8):: struc(*)
      .           struc(size_struc*(i-1)+1),arr,rw,range(1,1),range(2,1),x1,v_ri)
          case(1)
             call struc_packupack_val1(trunam(ia1:ia2), trunam(ib1:ib2),
-     .           struc(size_struc*(i-1)+1),arr,rw,range(1,1),range(2,1),x1(1+(i-1)*n),v_ri)
+     .           struc(size_struc*(i-1)+1),arr,rw,range(1,1),range(2,1),x1(1+(i-is1)*n),v_ri)
          end select
       enddo 
 
@@ -283,7 +283,7 @@ c      integer(8):: struc(*)
      .           struc(size_struc*(i-1)+1),arr,rw,range(1,1),range(2,1),x1,v_ri)
          case(1)
             call struc_packupack_val1(trunam(ia1:ia2), trunam(ib1:ib2),
-     .           struc(size_struc*(i-1)+1),arr,rw,range(1,1),range(2,1),x1(1+(i-1)*n),v_ri)
+     .           struc(size_struc*(i-1)+1),arr,rw,range(1,1),range(2,1),x1(1+(i-is1)*n),v_ri)
          end select
       enddo 
 
