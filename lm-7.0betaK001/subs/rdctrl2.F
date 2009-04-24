@@ -178,6 +178,7 @@ C ... Heap
 c takao 
       real(8):: pnux(20)
       integer:: nnn
+      integer:: umix_size
 
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -506,7 +507,7 @@ C --- Allocate and copy input to smix ---
       call redfrr(osmix,nint(dval(w(osmix),1)))
 ckino's fix for SR11000 size() return's integer(8), right?
 c      nnn = size(smix)
-      nnn = sizeof(vmix)/kind(w)
+      nnn = umix_size()
       call dcopy(nnn,vmix,1,w(osmix),1)
 
 C ... Allocate and initialize sordn

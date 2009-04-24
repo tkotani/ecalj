@@ -2145,7 +2145,7 @@ C --- Iterations (formerly MIX) ---
       if (io_show+io_help/=0)
      .  call info0(1,1,0,' --- Parameters for iterations ---')
 C     Default values for smix (array has same same structure as lstra smix)
-      call s_mix_init(vmix) 
+      call umix_init(vmix) 
       vmix%b = 1               ! beta
       vmix%bv = 1               ! bv
 C     vmix%elind =  0              ! elind

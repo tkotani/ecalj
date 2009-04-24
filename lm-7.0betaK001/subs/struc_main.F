@@ -67,7 +67,6 @@ c      integer(8):: struc(*)
 #endif
 
 
-
       call salias(sname,trunam,alias,switch,range,mask)
 
       call struc_strtok(trunam, mlist,nlist,ilist)
@@ -276,6 +275,8 @@ c      integer(8):: struc(*)
       if (size_struc<=0) then
          write(*,*) thisname,': size=',size_struc
          write(*,*) thisname,': sname=',sname
+         write(*,*) thisname,': arr,rw=',arr,rw
+         if ( trunam(ia1:ia2).eq.'gw' ) call ugw_show(struc)
          stop
       endif
 
@@ -982,39 +983,4 @@ c     must query type
       subroutine shstru
       end subroutine shstru
 
-      subroutine s_mix_init(v)
-      use m_struc_def
-      implicit none
-      type (s_mix) :: v
-      real(8) :: v_r
-      integer :: v_i
-
-        v_i = sizeof (v) / kind(v_r) +2
-        if (mod(v_i,2).eq.1) v_i=v_i+1
-        v%size = v_i 
-
-        v%b = 0.0d0
-        v%bl =0.0d0
-        v%bv =0.0d0
-        v%elind =0.0d0
-        v%fn =0.0d0 !string
-         v%kill=0
-         v%lxpot=0
-         v%mmix=0
-         v%mode=0
-         v%model=0
-         v%n=0
-         v%nitu=0
-         v%nmix=0
-         v%nsave=0
-        v%r(:)=0.0d0 !string
-        v%rms1=0.0d0
-        v%rms2=0.0d0
-        v%tj(:)=0.0d0
-        v%tolu=0.0d0
-        v%umix=0.0d0
-        v%w(:)=0.0d0
-        v%wc=0.0d0
-
-      end subroutine s_mix_init 
 

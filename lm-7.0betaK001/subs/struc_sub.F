@@ -8,17 +8,65 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call ubz_init(struc)
         else
           write(*,*) 'ubz offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine ubz
+       
+        integer function ubz_size()
+        integer:: n
+        n= 47
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        ubz_size=n
+        end function ubz_size
+       
+        subroutine ubz_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_bz):: struc
+        write(*,*) struc
+        end subroutine ubz_show
+       
+        subroutine ubz_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_bz):: struc
+        integer:: ubz_size
+        struc%size=ubz_size()
+        struc%def=0.0d0
+        struc%dosw(:)=0.0d0
+        struc%ef=0.0d0
+        struc%efmax=0.0d0
+        struc%fsmom=0.0d0
+        struc%lcond(:)=0.0d0
+        struc%lio=0
+        struc%lmet=0
+        struc%lmull=0
+        struc%lopt=0
+        struc%lshft(:)=0
+        struc%n=0
+        struc%ndos=0
+        struc%nevmx=0
+        struc%nkabc(:)=0
+        struc%nkp=0
+        struc%ntet=0
+        struc%odos=0
+        struc%oidtet=0
+        struc%oipq=0
+        struc%opdos=0
+        struc%oqp=0
+        struc%ostar=0
+        struc%owtkp=0
+        struc%range=0.0d0
+        struc%semsh(:)=0.0d0
+        struc%stnr=0.0d0
+        struc%w=0.0d0
+        struc%zval=0.0d0
+        end subroutine ubz_init
        
         subroutine struc_ubz_io(v_bz,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -51,10 +99,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_bz%def)/kind(v_bz%def)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%def)/kind(v_bz%def)
+             n= 1
             call struc_eval_io( v_bz%def,rw,n,range1,range2,val)
           endif
         case ('dosw')
@@ -65,10 +113,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_bz%dosw)/kind(v_bz%dosw)
+             v_ri%i= size(v_bz%dosw)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%dosw)/kind(v_bz%dosw)
+             n= size(v_bz%dosw)
             call struc_eval_io( v_bz%dosw,rw,n,range1,range2,val)
           endif
         case ('ef')
@@ -79,10 +127,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_bz%ef)/kind(v_bz%ef)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%ef)/kind(v_bz%ef)
+             n= 1
             call struc_eval_io( v_bz%ef,rw,n,range1,range2,val)
           endif
         case ('efmax')
@@ -93,10 +141,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_bz%efmax)/kind(v_bz%efmax)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%efmax)/kind(v_bz%efmax)
+             n= 1
             call struc_eval_io( v_bz%efmax,rw,n,range1,range2,val)
           endif
         case ('fsmom')
@@ -107,10 +155,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_bz%fsmom)/kind(v_bz%fsmom)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%fsmom)/kind(v_bz%fsmom)
+             n= 1
             call struc_eval_io( v_bz%fsmom,rw,n,range1,range2,val)
           endif
         case ('lcond')
@@ -121,10 +169,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_bz%lcond)/kind(v_bz%lcond)
+             v_ri%i= size(v_bz%lcond)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%lcond)/kind(v_bz%lcond)
+             n= size(v_bz%lcond)
             call struc_eval_io( v_bz%lcond,rw,n,range1,range2,val)
           endif
         case ('lio')
@@ -135,10 +183,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%lio)/kind(v_bz%lio)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%lio)/kind(v_bz%lio)
+             n= 1
             call struc_eval_io( v_bz%lio,rw,n,range1,range2,val)
           endif
         case ('lmet')
@@ -149,10 +197,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%lmet)/kind(v_bz%lmet)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%lmet)/kind(v_bz%lmet)
+             n= 1
             call struc_eval_io( v_bz%lmet,rw,n,range1,range2,val)
           endif
         case ('lmull')
@@ -163,10 +211,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%lmull)/kind(v_bz%lmull)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%lmull)/kind(v_bz%lmull)
+             n= 1
             call struc_eval_io( v_bz%lmull,rw,n,range1,range2,val)
           endif
         case ('lopt')
@@ -177,10 +225,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%lopt)/kind(v_bz%lopt)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%lopt)/kind(v_bz%lopt)
+             n= 1
             call struc_eval_io( v_bz%lopt,rw,n,range1,range2,val)
           endif
         case ('lshft')
@@ -191,10 +239,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%lshft)/kind(v_bz%lshft)
+             v_ri%i= size(v_bz%lshft)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%lshft)/kind(v_bz%lshft)
+             n= size(v_bz%lshft)
             call struc_eval_io( v_bz%lshft,rw,n,range1,range2,val)
           endif
         case ('n')
@@ -205,10 +253,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%n)/kind(v_bz%n)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%n)/kind(v_bz%n)
+             n= 1
             call struc_eval_io( v_bz%n,rw,n,range1,range2,val)
           endif
         case ('ndos')
@@ -219,10 +267,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%ndos)/kind(v_bz%ndos)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%ndos)/kind(v_bz%ndos)
+             n= 1
             call struc_eval_io( v_bz%ndos,rw,n,range1,range2,val)
           endif
         case ('nevmx')
@@ -233,10 +281,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%nevmx)/kind(v_bz%nevmx)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%nevmx)/kind(v_bz%nevmx)
+             n= 1
             call struc_eval_io( v_bz%nevmx,rw,n,range1,range2,val)
           endif
         case ('nkabc')
@@ -247,10 +295,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%nkabc)/kind(v_bz%nkabc)
+             v_ri%i= size(v_bz%nkabc)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%nkabc)/kind(v_bz%nkabc)
+             n= size(v_bz%nkabc)
             call struc_eval_io( v_bz%nkabc,rw,n,range1,range2,val)
           endif
         case ('nkp')
@@ -261,10 +309,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%nkp)/kind(v_bz%nkp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%nkp)/kind(v_bz%nkp)
+             n= 1
             call struc_eval_io( v_bz%nkp,rw,n,range1,range2,val)
           endif
         case ('ntet')
@@ -275,10 +323,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%ntet)/kind(v_bz%ntet)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%ntet)/kind(v_bz%ntet)
+             n= 1
             call struc_eval_io( v_bz%ntet,rw,n,range1,range2,val)
           endif
         case ('odos')
@@ -289,10 +337,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%odos)/kind(v_bz%odos)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%odos)/kind(v_bz%odos)
+             n= 1
             call struc_eval_io( v_bz%odos,rw,n,range1,range2,val)
           endif
         case ('oidtet')
@@ -303,10 +351,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%oidtet)/kind(v_bz%oidtet)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%oidtet)/kind(v_bz%oidtet)
+             n= 1
             call struc_eval_io( v_bz%oidtet,rw,n,range1,range2,val)
           endif
         case ('oipq')
@@ -317,10 +365,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%oipq)/kind(v_bz%oipq)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%oipq)/kind(v_bz%oipq)
+             n= 1
             call struc_eval_io( v_bz%oipq,rw,n,range1,range2,val)
           endif
         case ('opdos')
@@ -331,10 +379,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%opdos)/kind(v_bz%opdos)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%opdos)/kind(v_bz%opdos)
+             n= 1
             call struc_eval_io( v_bz%opdos,rw,n,range1,range2,val)
           endif
         case ('oqp')
@@ -345,10 +393,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%oqp)/kind(v_bz%oqp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%oqp)/kind(v_bz%oqp)
+             n= 1
             call struc_eval_io( v_bz%oqp,rw,n,range1,range2,val)
           endif
         case ('ostar')
@@ -359,10 +407,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%ostar)/kind(v_bz%ostar)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%ostar)/kind(v_bz%ostar)
+             n= 1
             call struc_eval_io( v_bz%ostar,rw,n,range1,range2,val)
           endif
         case ('owtkp')
@@ -373,10 +421,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_bz%owtkp)/kind(v_bz%owtkp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%owtkp)/kind(v_bz%owtkp)
+             n= 1
             call struc_eval_io( v_bz%owtkp,rw,n,range1,range2,val)
           endif
         case ('range')
@@ -387,10 +435,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_bz%range)/kind(v_bz%range)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%range)/kind(v_bz%range)
+             n= 1
             call struc_eval_io( v_bz%range,rw,n,range1,range2,val)
           endif
         case ('semsh')
@@ -401,10 +449,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_bz%semsh)/kind(v_bz%semsh)
+             v_ri%i= size(v_bz%semsh)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%semsh)/kind(v_bz%semsh)
+             n= size(v_bz%semsh)
             call struc_eval_io( v_bz%semsh,rw,n,range1,range2,val)
           endif
         case ('stnr')
@@ -415,10 +463,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_bz%stnr)/kind(v_bz%stnr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%stnr)/kind(v_bz%stnr)
+             n= 1
             call struc_eval_io( v_bz%stnr,rw,n,range1,range2,val)
           endif
         case ('w')
@@ -429,10 +477,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_bz%w)/kind(v_bz%w)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%w)/kind(v_bz%w)
+             n= 1
             call struc_eval_io( v_bz%w,rw,n,range1,range2,val)
           endif
         case ('zval')
@@ -443,10 +491,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_bz%zval)/kind(v_bz%zval)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_bz%zval)/kind(v_bz%zval)
+             n= 1
             call struc_eval_io( v_bz%zval,rw,n,range1,range2,val)
           endif
         case default
@@ -465,17 +513,67 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call uarray_init(struc)
         else
           write(*,*) 'uarray offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine uarray
+       
+        integer function uarray_size()
+        integer:: n
+        n= 32
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        uarray_size=n
+        end function uarray_size
+       
+        subroutine uarray_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_array):: struc
+        write(*,*) struc
+        end subroutine uarray_show
+       
+        subroutine uarray_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_array):: struc
+        integer:: uarray_size
+        struc%size=uarray_size()
+        struc%ncl=0
+        struc%nclasp=0
+        struc%nofgl=0
+        struc%nofgr=0
+        struc%npadl=0
+        struc%npadr=0
+        struc%npl=0
+        struc%oclabl=0
+        struc%ocllst=0
+        struc%oclp=0
+        struc%oclssl=0
+        struc%ogroup=0
+        struc%ogrp2=0
+        struc%ohave=0
+        struc%oics=0
+        struc%oifrlx=0
+        struc%oipc=0
+        struc%oipcp=0
+        struc%oips=0
+        struc%omxcst=0
+        struc%onrc=0
+        struc%onrcp=0
+        struc%opgfsl=0
+        struc%opgfvl=0
+        struc%opgord=0
+        struc%opgplp=0
+        struc%opos=0
+        struc%ormax=0
+        struc%osordn=0
+        struc%ostni=0
+        struc%ozos=0
+        end subroutine uarray_init
        
         subroutine struc_uarray_io(v_array,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -508,10 +606,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%ncl)/kind(v_array%ncl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%ncl)/kind(v_array%ncl)
+             n= 1
             call struc_eval_io( v_array%ncl,rw,n,range1,range2,val)
           endif
         case ('nclasp')
@@ -522,10 +620,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%nclasp)/kind(v_array%nclasp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%nclasp)/kind(v_array%nclasp)
+             n= 1
             call struc_eval_io( v_array%nclasp,rw,n,range1,range2,val)
           endif
         case ('nofgl')
@@ -536,10 +634,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%nofgl)/kind(v_array%nofgl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%nofgl)/kind(v_array%nofgl)
+             n= 1
             call struc_eval_io( v_array%nofgl,rw,n,range1,range2,val)
           endif
         case ('nofgr')
@@ -550,10 +648,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%nofgr)/kind(v_array%nofgr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%nofgr)/kind(v_array%nofgr)
+             n= 1
             call struc_eval_io( v_array%nofgr,rw,n,range1,range2,val)
           endif
         case ('npadl')
@@ -564,10 +662,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%npadl)/kind(v_array%npadl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%npadl)/kind(v_array%npadl)
+             n= 1
             call struc_eval_io( v_array%npadl,rw,n,range1,range2,val)
           endif
         case ('npadr')
@@ -578,10 +676,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%npadr)/kind(v_array%npadr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%npadr)/kind(v_array%npadr)
+             n= 1
             call struc_eval_io( v_array%npadr,rw,n,range1,range2,val)
           endif
         case ('npl')
@@ -592,10 +690,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%npl)/kind(v_array%npl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%npl)/kind(v_array%npl)
+             n= 1
             call struc_eval_io( v_array%npl,rw,n,range1,range2,val)
           endif
         case ('oclabl')
@@ -606,10 +704,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%oclabl)/kind(v_array%oclabl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%oclabl)/kind(v_array%oclabl)
+             n= 1
             call struc_eval_io( v_array%oclabl,rw,n,range1,range2,val)
           endif
         case ('ocllst')
@@ -620,10 +718,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%ocllst)/kind(v_array%ocllst)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%ocllst)/kind(v_array%ocllst)
+             n= 1
             call struc_eval_io( v_array%ocllst,rw,n,range1,range2,val)
           endif
         case ('oclp')
@@ -634,10 +732,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%oclp)/kind(v_array%oclp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%oclp)/kind(v_array%oclp)
+             n= 1
             call struc_eval_io( v_array%oclp,rw,n,range1,range2,val)
           endif
         case ('oclssl')
@@ -648,10 +746,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%oclssl)/kind(v_array%oclssl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%oclssl)/kind(v_array%oclssl)
+             n= 1
             call struc_eval_io( v_array%oclssl,rw,n,range1,range2,val)
           endif
         case ('ogroup')
@@ -662,10 +760,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%ogroup)/kind(v_array%ogroup)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%ogroup)/kind(v_array%ogroup)
+             n= 1
             call struc_eval_io( v_array%ogroup,rw,n,range1,range2,val)
           endif
         case ('ogrp2')
@@ -676,10 +774,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%ogrp2)/kind(v_array%ogrp2)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%ogrp2)/kind(v_array%ogrp2)
+             n= 1
             call struc_eval_io( v_array%ogrp2,rw,n,range1,range2,val)
           endif
         case ('ohave')
@@ -690,10 +788,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%ohave)/kind(v_array%ohave)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%ohave)/kind(v_array%ohave)
+             n= 1
             call struc_eval_io( v_array%ohave,rw,n,range1,range2,val)
           endif
         case ('oics')
@@ -704,10 +802,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%oics)/kind(v_array%oics)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%oics)/kind(v_array%oics)
+             n= 1
             call struc_eval_io( v_array%oics,rw,n,range1,range2,val)
           endif
         case ('oifrlx')
@@ -718,10 +816,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%oifrlx)/kind(v_array%oifrlx)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%oifrlx)/kind(v_array%oifrlx)
+             n= 1
             call struc_eval_io( v_array%oifrlx,rw,n,range1,range2,val)
           endif
         case ('oipc')
@@ -732,10 +830,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%oipc)/kind(v_array%oipc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%oipc)/kind(v_array%oipc)
+             n= 1
             call struc_eval_io( v_array%oipc,rw,n,range1,range2,val)
           endif
         case ('oipcp')
@@ -746,10 +844,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%oipcp)/kind(v_array%oipcp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%oipcp)/kind(v_array%oipcp)
+             n= 1
             call struc_eval_io( v_array%oipcp,rw,n,range1,range2,val)
           endif
         case ('oips')
@@ -760,10 +858,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%oips)/kind(v_array%oips)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%oips)/kind(v_array%oips)
+             n= 1
             call struc_eval_io( v_array%oips,rw,n,range1,range2,val)
           endif
         case ('omxcst')
@@ -774,10 +872,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%omxcst)/kind(v_array%omxcst)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%omxcst)/kind(v_array%omxcst)
+             n= 1
             call struc_eval_io( v_array%omxcst,rw,n,range1,range2,val)
           endif
         case ('onrc')
@@ -788,10 +886,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%onrc)/kind(v_array%onrc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%onrc)/kind(v_array%onrc)
+             n= 1
             call struc_eval_io( v_array%onrc,rw,n,range1,range2,val)
           endif
         case ('onrcp')
@@ -802,10 +900,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%onrcp)/kind(v_array%onrcp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%onrcp)/kind(v_array%onrcp)
+             n= 1
             call struc_eval_io( v_array%onrcp,rw,n,range1,range2,val)
           endif
         case ('opgfsl')
@@ -816,10 +914,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%opgfsl)/kind(v_array%opgfsl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%opgfsl)/kind(v_array%opgfsl)
+             n= 1
             call struc_eval_io( v_array%opgfsl,rw,n,range1,range2,val)
           endif
         case ('opgfvl')
@@ -830,10 +928,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%opgfvl)/kind(v_array%opgfvl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%opgfvl)/kind(v_array%opgfvl)
+             n= 1
             call struc_eval_io( v_array%opgfvl,rw,n,range1,range2,val)
           endif
         case ('opgord')
@@ -844,10 +942,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%opgord)/kind(v_array%opgord)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%opgord)/kind(v_array%opgord)
+             n= 1
             call struc_eval_io( v_array%opgord,rw,n,range1,range2,val)
           endif
         case ('opgplp')
@@ -858,10 +956,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%opgplp)/kind(v_array%opgplp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%opgplp)/kind(v_array%opgplp)
+             n= 1
             call struc_eval_io( v_array%opgplp,rw,n,range1,range2,val)
           endif
         case ('opos')
@@ -872,10 +970,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%opos)/kind(v_array%opos)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%opos)/kind(v_array%opos)
+             n= 1
             call struc_eval_io( v_array%opos,rw,n,range1,range2,val)
           endif
         case ('ormax')
@@ -886,10 +984,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%ormax)/kind(v_array%ormax)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%ormax)/kind(v_array%ormax)
+             n= 1
             call struc_eval_io( v_array%ormax,rw,n,range1,range2,val)
           endif
         case ('osordn')
@@ -900,10 +998,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%osordn)/kind(v_array%osordn)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%osordn)/kind(v_array%osordn)
+             n= 1
             call struc_eval_io( v_array%osordn,rw,n,range1,range2,val)
           endif
         case ('ostni')
@@ -914,10 +1012,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%ostni)/kind(v_array%ostni)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%ostni)/kind(v_array%ostni)
+             n= 1
             call struc_eval_io( v_array%ostni,rw,n,range1,range2,val)
           endif
         case ('ozos')
@@ -928,10 +1026,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_array%ozos)/kind(v_array%ozos)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_array%ozos)/kind(v_array%ozos)
+             n= 1
             call struc_eval_io( v_array%ozos,rw,n,range1,range2,val)
           endif
         case default
@@ -950,17 +1048,91 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call uctrl_init(struc)
         else
           write(*,*) 'uctrl offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine uctrl
+       
+        integer function uctrl_size()
+        integer:: n
+        n= 88
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        uctrl_size=n
+        end function uctrl_size
+       
+        subroutine uctrl_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_ctrl):: struc
+        write(*,*) struc
+        end subroutine uctrl_show
+       
+        subroutine uctrl_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_ctrl):: struc
+        integer:: uctrl_size
+        struc%size=uctrl_size()
+        struc%defm(:)=0.0d0
+        struc%elin=0.0d0
+        struc%lasa=0
+        struc%lbas=0
+        struc%lcd=0
+        struc%lcgf=0
+        struc%ldos=0
+        struc%lfp=0
+        struc%lfrce=0
+        struc%lgen3=0
+        struc%lham=0
+        struc%lmet=0
+        struc%lncol=0
+        struc%loptc=0
+        struc%lordn=0
+        struc%lpgf(:)=0
+        struc%lqp=0
+        struc%lrel=0
+        struc%lrs=0
+        struc%lscr=0
+        struc%lstonr(:)=0
+        struc%lstr=0
+        struc%lsx=0
+        struc%ltb=0
+        struc%lves=0
+        struc%lxcf=0
+        struc%maxit=0
+        struc%mdprm(:)=0.0d0
+        struc%modep(:)=0
+        struc%nbas=0
+        struc%nbasp=0
+        struc%nclass=0
+        struc%nesabc(:)=0
+        struc%nitmv=0
+        struc%nl=0
+        struc%nmap=0
+        struc%npl=0
+        struc%nsite=0
+        struc%nspec=0
+        struc%nspin=0
+        struc%nvario=0
+        struc%omax1(:)=0.0d0
+        struc%omax2(:)=0.0d0
+        struc%pfloat=0
+        struc%quit=0
+        struc%rmaxes=0.0d0
+        struc%rmines=0.0d0
+        struc%sclwsr=0.0d0
+        struc%sdmod=0
+        struc%sdprm(:)=0.0d0
+        struc%sdxsi(:)=0.0d0
+        struc%smalit(:)=0
+        struc%tol(:)=0.0d0
+        struc%wsrmax=0.0d0
+        struc%zbak(:)=0.0d0
+        end subroutine uctrl_init
        
         subroutine struc_uctrl_io(v_ctrl,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -993,10 +1165,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%defm)/kind(v_ctrl%defm)
+             v_ri%i= size(v_ctrl%defm)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%defm)/kind(v_ctrl%defm)
+             n= size(v_ctrl%defm)
             call struc_eval_io( v_ctrl%defm,rw,n,range1,range2,val)
           endif
         case ('elin')
@@ -1007,10 +1179,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%elin)/kind(v_ctrl%elin)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%elin)/kind(v_ctrl%elin)
+             n= 1
             call struc_eval_io( v_ctrl%elin,rw,n,range1,range2,val)
           endif
         case ('lasa')
@@ -1021,10 +1193,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lasa)/kind(v_ctrl%lasa)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lasa)/kind(v_ctrl%lasa)
+             n= 1
             call struc_eval_io( v_ctrl%lasa,rw,n,range1,range2,val)
           endif
         case ('lbas')
@@ -1035,10 +1207,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lbas)/kind(v_ctrl%lbas)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lbas)/kind(v_ctrl%lbas)
+             n= 1
             call struc_eval_io( v_ctrl%lbas,rw,n,range1,range2,val)
           endif
         case ('lcd')
@@ -1049,10 +1221,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lcd)/kind(v_ctrl%lcd)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lcd)/kind(v_ctrl%lcd)
+             n= 1
             call struc_eval_io( v_ctrl%lcd,rw,n,range1,range2,val)
           endif
         case ('lcgf')
@@ -1063,10 +1235,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lcgf)/kind(v_ctrl%lcgf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lcgf)/kind(v_ctrl%lcgf)
+             n= 1
             call struc_eval_io( v_ctrl%lcgf,rw,n,range1,range2,val)
           endif
         case ('ldos')
@@ -1077,10 +1249,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%ldos)/kind(v_ctrl%ldos)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%ldos)/kind(v_ctrl%ldos)
+             n= 1
             call struc_eval_io( v_ctrl%ldos,rw,n,range1,range2,val)
           endif
         case ('lfp')
@@ -1091,10 +1263,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lfp)/kind(v_ctrl%lfp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lfp)/kind(v_ctrl%lfp)
+             n= 1
             call struc_eval_io( v_ctrl%lfp,rw,n,range1,range2,val)
           endif
         case ('lfrce')
@@ -1105,10 +1277,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lfrce)/kind(v_ctrl%lfrce)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lfrce)/kind(v_ctrl%lfrce)
+             n= 1
             call struc_eval_io( v_ctrl%lfrce,rw,n,range1,range2,val)
           endif
         case ('lgen3')
@@ -1119,10 +1291,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lgen3)/kind(v_ctrl%lgen3)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lgen3)/kind(v_ctrl%lgen3)
+             n= 1
             call struc_eval_io( v_ctrl%lgen3,rw,n,range1,range2,val)
           endif
         case ('lham')
@@ -1133,10 +1305,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lham)/kind(v_ctrl%lham)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lham)/kind(v_ctrl%lham)
+             n= 1
             call struc_eval_io( v_ctrl%lham,rw,n,range1,range2,val)
           endif
         case ('lmet')
@@ -1147,10 +1319,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lmet)/kind(v_ctrl%lmet)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lmet)/kind(v_ctrl%lmet)
+             n= 1
             call struc_eval_io( v_ctrl%lmet,rw,n,range1,range2,val)
           endif
         case ('lncol')
@@ -1161,10 +1333,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lncol)/kind(v_ctrl%lncol)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lncol)/kind(v_ctrl%lncol)
+             n= 1
             call struc_eval_io( v_ctrl%lncol,rw,n,range1,range2,val)
           endif
         case ('loptc')
@@ -1175,10 +1347,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%loptc)/kind(v_ctrl%loptc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%loptc)/kind(v_ctrl%loptc)
+             n= 1
             call struc_eval_io( v_ctrl%loptc,rw,n,range1,range2,val)
           endif
         case ('lordn')
@@ -1189,10 +1361,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lordn)/kind(v_ctrl%lordn)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lordn)/kind(v_ctrl%lordn)
+             n= 1
             call struc_eval_io( v_ctrl%lordn,rw,n,range1,range2,val)
           endif
         case ('lpgf')
@@ -1203,10 +1375,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lpgf)/kind(v_ctrl%lpgf)
+             v_ri%i= size(v_ctrl%lpgf)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lpgf)/kind(v_ctrl%lpgf)
+             n= size(v_ctrl%lpgf)
             call struc_eval_io( v_ctrl%lpgf,rw,n,range1,range2,val)
           endif
         case ('lqp')
@@ -1217,10 +1389,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lqp)/kind(v_ctrl%lqp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lqp)/kind(v_ctrl%lqp)
+             n= 1
             call struc_eval_io( v_ctrl%lqp,rw,n,range1,range2,val)
           endif
         case ('lrel')
@@ -1231,10 +1403,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lrel)/kind(v_ctrl%lrel)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lrel)/kind(v_ctrl%lrel)
+             n= 1
             call struc_eval_io( v_ctrl%lrel,rw,n,range1,range2,val)
           endif
         case ('lrs')
@@ -1245,10 +1417,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lrs)/kind(v_ctrl%lrs)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lrs)/kind(v_ctrl%lrs)
+             n= 1
             call struc_eval_io( v_ctrl%lrs,rw,n,range1,range2,val)
           endif
         case ('lscr')
@@ -1259,10 +1431,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lscr)/kind(v_ctrl%lscr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lscr)/kind(v_ctrl%lscr)
+             n= 1
             call struc_eval_io( v_ctrl%lscr,rw,n,range1,range2,val)
           endif
         case ('lstonr')
@@ -1273,10 +1445,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lstonr)/kind(v_ctrl%lstonr)
+             v_ri%i= size(v_ctrl%lstonr)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lstonr)/kind(v_ctrl%lstonr)
+             n= size(v_ctrl%lstonr)
             call struc_eval_io( v_ctrl%lstonr,rw,n,range1,range2,val)
           endif
         case ('lstr')
@@ -1287,10 +1459,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lstr)/kind(v_ctrl%lstr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lstr)/kind(v_ctrl%lstr)
+             n= 1
             call struc_eval_io( v_ctrl%lstr,rw,n,range1,range2,val)
           endif
         case ('lsx')
@@ -1301,10 +1473,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lsx)/kind(v_ctrl%lsx)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lsx)/kind(v_ctrl%lsx)
+             n= 1
             call struc_eval_io( v_ctrl%lsx,rw,n,range1,range2,val)
           endif
         case ('ltb')
@@ -1315,10 +1487,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%ltb)/kind(v_ctrl%ltb)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%ltb)/kind(v_ctrl%ltb)
+             n= 1
             call struc_eval_io( v_ctrl%ltb,rw,n,range1,range2,val)
           endif
         case ('lves')
@@ -1329,10 +1501,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lves)/kind(v_ctrl%lves)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lves)/kind(v_ctrl%lves)
+             n= 1
             call struc_eval_io( v_ctrl%lves,rw,n,range1,range2,val)
           endif
         case ('lxcf')
@@ -1343,10 +1515,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%lxcf)/kind(v_ctrl%lxcf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%lxcf)/kind(v_ctrl%lxcf)
+             n= 1
             call struc_eval_io( v_ctrl%lxcf,rw,n,range1,range2,val)
           endif
         case ('maxit')
@@ -1357,10 +1529,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%maxit)/kind(v_ctrl%maxit)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%maxit)/kind(v_ctrl%maxit)
+             n= 1
             call struc_eval_io( v_ctrl%maxit,rw,n,range1,range2,val)
           endif
         case ('mdprm')
@@ -1371,10 +1543,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%mdprm)/kind(v_ctrl%mdprm)
+             v_ri%i= size(v_ctrl%mdprm)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%mdprm)/kind(v_ctrl%mdprm)
+             n= size(v_ctrl%mdprm)
             call struc_eval_io( v_ctrl%mdprm,rw,n,range1,range2,val)
           endif
         case ('modep')
@@ -1385,10 +1557,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%modep)/kind(v_ctrl%modep)
+             v_ri%i= size(v_ctrl%modep)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%modep)/kind(v_ctrl%modep)
+             n= size(v_ctrl%modep)
             call struc_eval_io( v_ctrl%modep,rw,n,range1,range2,val)
           endif
         case ('nbas')
@@ -1399,10 +1571,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%nbas)/kind(v_ctrl%nbas)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%nbas)/kind(v_ctrl%nbas)
+             n= 1
             call struc_eval_io( v_ctrl%nbas,rw,n,range1,range2,val)
           endif
         case ('nbasp')
@@ -1413,10 +1585,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%nbasp)/kind(v_ctrl%nbasp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%nbasp)/kind(v_ctrl%nbasp)
+             n= 1
             call struc_eval_io( v_ctrl%nbasp,rw,n,range1,range2,val)
           endif
         case ('nclass')
@@ -1427,10 +1599,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%nclass)/kind(v_ctrl%nclass)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%nclass)/kind(v_ctrl%nclass)
+             n= 1
             call struc_eval_io( v_ctrl%nclass,rw,n,range1,range2,val)
           endif
         case ('nesabc')
@@ -1441,10 +1613,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%nesabc)/kind(v_ctrl%nesabc)
+             v_ri%i= size(v_ctrl%nesabc)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%nesabc)/kind(v_ctrl%nesabc)
+             n= size(v_ctrl%nesabc)
             call struc_eval_io( v_ctrl%nesabc,rw,n,range1,range2,val)
           endif
         case ('nitmv')
@@ -1455,10 +1627,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%nitmv)/kind(v_ctrl%nitmv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%nitmv)/kind(v_ctrl%nitmv)
+             n= 1
             call struc_eval_io( v_ctrl%nitmv,rw,n,range1,range2,val)
           endif
         case ('nl')
@@ -1469,10 +1641,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%nl)/kind(v_ctrl%nl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%nl)/kind(v_ctrl%nl)
+             n= 1
             call struc_eval_io( v_ctrl%nl,rw,n,range1,range2,val)
           endif
         case ('nmap')
@@ -1483,10 +1655,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%nmap)/kind(v_ctrl%nmap)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%nmap)/kind(v_ctrl%nmap)
+             n= 1
             call struc_eval_io( v_ctrl%nmap,rw,n,range1,range2,val)
           endif
         case ('npl')
@@ -1497,10 +1669,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%npl)/kind(v_ctrl%npl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%npl)/kind(v_ctrl%npl)
+             n= 1
             call struc_eval_io( v_ctrl%npl,rw,n,range1,range2,val)
           endif
         case ('nsite')
@@ -1511,10 +1683,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%nsite)/kind(v_ctrl%nsite)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%nsite)/kind(v_ctrl%nsite)
+             n= 1
             call struc_eval_io( v_ctrl%nsite,rw,n,range1,range2,val)
           endif
         case ('nspec')
@@ -1525,10 +1697,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%nspec)/kind(v_ctrl%nspec)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%nspec)/kind(v_ctrl%nspec)
+             n= 1
             call struc_eval_io( v_ctrl%nspec,rw,n,range1,range2,val)
           endif
         case ('nspin')
@@ -1539,10 +1711,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%nspin)/kind(v_ctrl%nspin)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%nspin)/kind(v_ctrl%nspin)
+             n= 1
             call struc_eval_io( v_ctrl%nspin,rw,n,range1,range2,val)
           endif
         case ('nvario')
@@ -1553,10 +1725,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%nvario)/kind(v_ctrl%nvario)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%nvario)/kind(v_ctrl%nvario)
+             n= 1
             call struc_eval_io( v_ctrl%nvario,rw,n,range1,range2,val)
           endif
         case ('omax1')
@@ -1567,10 +1739,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%omax1)/kind(v_ctrl%omax1)
+             v_ri%i= size(v_ctrl%omax1)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%omax1)/kind(v_ctrl%omax1)
+             n= size(v_ctrl%omax1)
             call struc_eval_io( v_ctrl%omax1,rw,n,range1,range2,val)
           endif
         case ('omax2')
@@ -1581,10 +1753,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%omax2)/kind(v_ctrl%omax2)
+             v_ri%i= size(v_ctrl%omax2)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%omax2)/kind(v_ctrl%omax2)
+             n= size(v_ctrl%omax2)
             call struc_eval_io( v_ctrl%omax2,rw,n,range1,range2,val)
           endif
         case ('pfloat')
@@ -1595,10 +1767,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%pfloat)/kind(v_ctrl%pfloat)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%pfloat)/kind(v_ctrl%pfloat)
+             n= 1
             call struc_eval_io( v_ctrl%pfloat,rw,n,range1,range2,val)
           endif
         case ('quit')
@@ -1609,10 +1781,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%quit)/kind(v_ctrl%quit)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%quit)/kind(v_ctrl%quit)
+             n= 1
             call struc_eval_io( v_ctrl%quit,rw,n,range1,range2,val)
           endif
         case ('rmaxes')
@@ -1623,10 +1795,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%rmaxes)/kind(v_ctrl%rmaxes)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%rmaxes)/kind(v_ctrl%rmaxes)
+             n= 1
             call struc_eval_io( v_ctrl%rmaxes,rw,n,range1,range2,val)
           endif
         case ('rmines')
@@ -1637,10 +1809,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%rmines)/kind(v_ctrl%rmines)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%rmines)/kind(v_ctrl%rmines)
+             n= 1
             call struc_eval_io( v_ctrl%rmines,rw,n,range1,range2,val)
           endif
         case ('sclwsr')
@@ -1651,10 +1823,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%sclwsr)/kind(v_ctrl%sclwsr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%sclwsr)/kind(v_ctrl%sclwsr)
+             n= 1
             call struc_eval_io( v_ctrl%sclwsr,rw,n,range1,range2,val)
           endif
         case ('sdmod')
@@ -1665,10 +1837,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%sdmod)/kind(v_ctrl%sdmod)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%sdmod)/kind(v_ctrl%sdmod)
+             n= 1
             call struc_eval_io( v_ctrl%sdmod,rw,n,range1,range2,val)
           endif
         case ('sdprm')
@@ -1679,10 +1851,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%sdprm)/kind(v_ctrl%sdprm)
+             v_ri%i= size(v_ctrl%sdprm)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%sdprm)/kind(v_ctrl%sdprm)
+             n= size(v_ctrl%sdprm)
             call struc_eval_io( v_ctrl%sdprm,rw,n,range1,range2,val)
           endif
         case ('sdxsi')
@@ -1693,10 +1865,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%sdxsi)/kind(v_ctrl%sdxsi)
+             v_ri%i= size(v_ctrl%sdxsi)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%sdxsi)/kind(v_ctrl%sdxsi)
+             n= size(v_ctrl%sdxsi)
             call struc_eval_io( v_ctrl%sdxsi,rw,n,range1,range2,val)
           endif
         case ('smalit')
@@ -1707,10 +1879,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ctrl%smalit)/kind(v_ctrl%smalit)
+             v_ri%i= size(v_ctrl%smalit)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%smalit)/kind(v_ctrl%smalit)
+             n= size(v_ctrl%smalit)
             call struc_eval_io( v_ctrl%smalit,rw,n,range1,range2,val)
           endif
         case ('tol')
@@ -1721,10 +1893,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%tol)/kind(v_ctrl%tol)
+             v_ri%i= size(v_ctrl%tol)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%tol)/kind(v_ctrl%tol)
+             n= size(v_ctrl%tol)
             call struc_eval_io( v_ctrl%tol,rw,n,range1,range2,val)
           endif
         case ('wsrmax')
@@ -1735,10 +1907,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%wsrmax)/kind(v_ctrl%wsrmax)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%wsrmax)/kind(v_ctrl%wsrmax)
+             n= 1
             call struc_eval_io( v_ctrl%wsrmax,rw,n,range1,range2,val)
           endif
         case ('zbak')
@@ -1749,10 +1921,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ctrl%zbak)/kind(v_ctrl%zbak)
+             v_ri%i= size(v_ctrl%zbak)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ctrl%zbak)/kind(v_ctrl%zbak)
+             n= size(v_ctrl%zbak)
             call struc_eval_io( v_ctrl%zbak,rw,n,range1,range2,val)
           endif
         case default
@@ -1771,17 +1943,54 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call ugw_init(struc)
         else
           write(*,*) 'ugw offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine ugw
+       
+        integer function ugw_size()
+        integer:: n
+        n= 22
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        ugw_size=n
+        end function ugw_size
+       
+        subroutine ugw_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_gw):: struc
+        write(*,*) struc
+        end subroutine ugw_show
+       
+        subroutine ugw_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_gw):: struc
+        integer:: ugw_size
+        struc%size=ugw_size()
+        struc%delre(:)=0.0d0
+        struc%deltaw=0.0d0
+        struc%deltax=0.0d0
+        struc%ecuts=0.0d0
+        struc%gcutb=0.0d0
+        struc%gcutx=0.0d0
+        struc%gsmear=0.0d0
+        struc%lgw=0
+        struc%lmxpb=0
+        struc%mksig=0
+        struc%nband=0
+        struc%nime=0
+        struc%nkabc(:)=0
+        struc%pb1=0.0d0
+        struc%pb2=0.0d0
+        struc%pbtol=0.0d0
+        struc%qoffp=0.0d0
+        struc%rdsig=0
+        end subroutine ugw_init
        
         subroutine struc_ugw_io(v_gw,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -1814,10 +2023,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_gw%delre)/kind(v_gw%delre)
+             v_ri%i= size(v_gw%delre)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%delre)/kind(v_gw%delre)
+             n= size(v_gw%delre)
             call struc_eval_io( v_gw%delre,rw,n,range1,range2,val)
           endif
         case ('deltaw')
@@ -1828,10 +2037,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_gw%deltaw)/kind(v_gw%deltaw)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%deltaw)/kind(v_gw%deltaw)
+             n= 1
             call struc_eval_io( v_gw%deltaw,rw,n,range1,range2,val)
           endif
         case ('deltax')
@@ -1842,10 +2051,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_gw%deltax)/kind(v_gw%deltax)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%deltax)/kind(v_gw%deltax)
+             n= 1
             call struc_eval_io( v_gw%deltax,rw,n,range1,range2,val)
           endif
         case ('ecuts')
@@ -1856,10 +2065,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_gw%ecuts)/kind(v_gw%ecuts)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%ecuts)/kind(v_gw%ecuts)
+             n= 1
             call struc_eval_io( v_gw%ecuts,rw,n,range1,range2,val)
           endif
         case ('gcutb')
@@ -1870,10 +2079,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_gw%gcutb)/kind(v_gw%gcutb)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%gcutb)/kind(v_gw%gcutb)
+             n= 1
             call struc_eval_io( v_gw%gcutb,rw,n,range1,range2,val)
           endif
         case ('gcutx')
@@ -1884,10 +2093,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_gw%gcutx)/kind(v_gw%gcutx)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%gcutx)/kind(v_gw%gcutx)
+             n= 1
             call struc_eval_io( v_gw%gcutx,rw,n,range1,range2,val)
           endif
         case ('gsmear')
@@ -1898,10 +2107,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_gw%gsmear)/kind(v_gw%gsmear)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%gsmear)/kind(v_gw%gsmear)
+             n= 1
             call struc_eval_io( v_gw%gsmear,rw,n,range1,range2,val)
           endif
         case ('lgw')
@@ -1912,10 +2121,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_gw%lgw)/kind(v_gw%lgw)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%lgw)/kind(v_gw%lgw)
+             n= 1
             call struc_eval_io( v_gw%lgw,rw,n,range1,range2,val)
           endif
         case ('lmxpb')
@@ -1926,10 +2135,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_gw%lmxpb)/kind(v_gw%lmxpb)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%lmxpb)/kind(v_gw%lmxpb)
+             n= 1
             call struc_eval_io( v_gw%lmxpb,rw,n,range1,range2,val)
           endif
         case ('mksig')
@@ -1940,10 +2149,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_gw%mksig)/kind(v_gw%mksig)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%mksig)/kind(v_gw%mksig)
+             n= 1
             call struc_eval_io( v_gw%mksig,rw,n,range1,range2,val)
           endif
         case ('nband')
@@ -1954,10 +2163,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_gw%nband)/kind(v_gw%nband)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%nband)/kind(v_gw%nband)
+             n= 1
             call struc_eval_io( v_gw%nband,rw,n,range1,range2,val)
           endif
         case ('nime')
@@ -1968,10 +2177,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_gw%nime)/kind(v_gw%nime)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%nime)/kind(v_gw%nime)
+             n= 1
             call struc_eval_io( v_gw%nime,rw,n,range1,range2,val)
           endif
         case ('nkabc')
@@ -1982,10 +2191,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_gw%nkabc)/kind(v_gw%nkabc)
+             v_ri%i= size(v_gw%nkabc)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%nkabc)/kind(v_gw%nkabc)
+             n= size(v_gw%nkabc)
             call struc_eval_io( v_gw%nkabc,rw,n,range1,range2,val)
           endif
         case ('pb1')
@@ -1996,10 +2205,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 1
-             v_ri%i= sizeof(v_gw%pb1)/kind(v_gw%pb1)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%pb1)/kind(v_gw%pb1)
+             n= 1
             call struc_eval_io( v_gw%pb1,rw,n,range1,range2,val)
           endif
         case ('pb2')
@@ -2010,10 +2219,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 1
-             v_ri%i= sizeof(v_gw%pb2)/kind(v_gw%pb2)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%pb2)/kind(v_gw%pb2)
+             n= 1
             call struc_eval_io( v_gw%pb2,rw,n,range1,range2,val)
           endif
         case ('pbtol')
@@ -2024,10 +2233,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_gw%pbtol)/kind(v_gw%pbtol)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%pbtol)/kind(v_gw%pbtol)
+             n= 1
             call struc_eval_io( v_gw%pbtol,rw,n,range1,range2,val)
           endif
         case ('qoffp')
@@ -2038,10 +2247,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_gw%qoffp)/kind(v_gw%qoffp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%qoffp)/kind(v_gw%qoffp)
+             n= 1
             call struc_eval_io( v_gw%qoffp,rw,n,range1,range2,val)
           endif
         case ('rdsig')
@@ -2052,10 +2261,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_gw%rdsig)/kind(v_gw%rdsig)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_gw%rdsig)/kind(v_gw%rdsig)
+             n= 1
             call struc_eval_io( v_gw%rdsig,rw,n,range1,range2,val)
           endif
         case default
@@ -2074,17 +2283,91 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call uham_init(struc)
         else
           write(*,*) 'uham offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine uham
+       
+        integer function uham_size()
+        integer:: n
+        n= 129
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        uham_size=n
+        end function uham_size
+       
+        subroutine uham_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_ham):: struc
+        write(*,*) struc
+        end subroutine uham_show
+       
+        subroutine uham_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_ham):: struc
+        integer:: uham_size
+        struc%size=uham_size()
+        struc%alfsi=0.0d0
+        struc%amgm=0.0d0
+        struc%bandw=0
+        struc%dabc(:)=0.0d0
+        struc%ehf=0.0d0
+        struc%ehk=0.0d0
+        struc%elind=0.0d0
+        struc%eterms(:)=0.0d0
+        struc%hord=0
+        struc%kmto(:)=0.0d0
+        struc%lasa=0
+        struc%ldham(:)=0
+        struc%lgen3=0
+        struc%lham=0
+        struc%lmaxu=0
+        struc%lmxax=0
+        struc%lncol=0
+        struc%lsig=0
+        struc%ltb=0
+        struc%lxcf=0
+        struc%nbf=0
+        struc%ndham=0
+        struc%ndhrs=0
+        struc%ndofH=0
+        struc%neula=0
+        struc%nkaph=0
+        struc%nlibu=0
+        struc%nmto=0
+        struc%npwmin=0
+        struc%npwpad=0
+        struc%nqsig=0
+        struc%obdots=0
+        struc%oeula=0
+        struc%ohrs=0
+        struc%oiaxs=0
+        struc%oindxo=0
+        struc%olmxa=0
+        struc%omagf=0
+        struc%ontabs=0
+        struc%ooffH=0
+        struc%oqsig=0
+        struc%oveps=0.0d0
+        struc%pmax(:)=0.0d0
+        struc%pmin(:)=0.0d0
+        struc%pwemax=0.0d0
+        struc%pwemin=0.0d0
+        struc%pwmode=0
+        struc%qpoff(:)=0.0d0
+        struc%qss(:)=0.0d0
+        struc%rsrnge=0.0d0
+        struc%rsstol=0.0d0
+        struc%seref=0.0d0
+        struc%sigp(:)=0.0d0
+        struc%thrpv=0.0d0
+        struc%udiag=0
+        end subroutine uham_init
        
         subroutine struc_uham_io(v_ham,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -2117,10 +2400,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%alfsi)/kind(v_ham%alfsi)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%alfsi)/kind(v_ham%alfsi)
+             n= 1
             call struc_eval_io( v_ham%alfsi,rw,n,range1,range2,val)
           endif
         case ('amgm')
@@ -2131,10 +2414,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%amgm)/kind(v_ham%amgm)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%amgm)/kind(v_ham%amgm)
+             n= 1
             call struc_eval_io( v_ham%amgm,rw,n,range1,range2,val)
           endif
         case ('bandw')
@@ -2145,10 +2428,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%bandw)/kind(v_ham%bandw)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%bandw)/kind(v_ham%bandw)
+             n= 1
             call struc_eval_io( v_ham%bandw,rw,n,range1,range2,val)
           endif
         case ('dabc')
@@ -2159,10 +2442,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%dabc)/kind(v_ham%dabc)
+             v_ri%i= size(v_ham%dabc)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%dabc)/kind(v_ham%dabc)
+             n= size(v_ham%dabc)
             call struc_eval_io( v_ham%dabc,rw,n,range1,range2,val)
           endif
         case ('ehf')
@@ -2173,10 +2456,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%ehf)/kind(v_ham%ehf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%ehf)/kind(v_ham%ehf)
+             n= 1
             call struc_eval_io( v_ham%ehf,rw,n,range1,range2,val)
           endif
         case ('ehk')
@@ -2187,10 +2470,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%ehk)/kind(v_ham%ehk)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%ehk)/kind(v_ham%ehk)
+             n= 1
             call struc_eval_io( v_ham%ehk,rw,n,range1,range2,val)
           endif
         case ('elind')
@@ -2201,10 +2484,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%elind)/kind(v_ham%elind)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%elind)/kind(v_ham%elind)
+             n= 1
             call struc_eval_io( v_ham%elind,rw,n,range1,range2,val)
           endif
         case ('eterms')
@@ -2215,10 +2498,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%eterms)/kind(v_ham%eterms)
+             v_ri%i= size(v_ham%eterms)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%eterms)/kind(v_ham%eterms)
+             n= size(v_ham%eterms)
             call struc_eval_io( v_ham%eterms,rw,n,range1,range2,val)
           endif
         case ('hord')
@@ -2229,10 +2512,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%hord)/kind(v_ham%hord)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%hord)/kind(v_ham%hord)
+             n= 1
             call struc_eval_io( v_ham%hord,rw,n,range1,range2,val)
           endif
         case ('kmto')
@@ -2243,10 +2526,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%kmto)/kind(v_ham%kmto)
+             v_ri%i= size(v_ham%kmto)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%kmto)/kind(v_ham%kmto)
+             n= size(v_ham%kmto)
             call struc_eval_io( v_ham%kmto,rw,n,range1,range2,val)
           endif
         case ('lasa')
@@ -2257,10 +2540,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%lasa)/kind(v_ham%lasa)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%lasa)/kind(v_ham%lasa)
+             n= 1
             call struc_eval_io( v_ham%lasa,rw,n,range1,range2,val)
           endif
         case ('ldham')
@@ -2271,10 +2554,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%ldham)/kind(v_ham%ldham)
+             v_ri%i= size(v_ham%ldham)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%ldham)/kind(v_ham%ldham)
+             n= size(v_ham%ldham)
             call struc_eval_io( v_ham%ldham,rw,n,range1,range2,val)
           endif
         case ('lgen3')
@@ -2285,10 +2568,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%lgen3)/kind(v_ham%lgen3)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%lgen3)/kind(v_ham%lgen3)
+             n= 1
             call struc_eval_io( v_ham%lgen3,rw,n,range1,range2,val)
           endif
         case ('lham')
@@ -2299,10 +2582,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%lham)/kind(v_ham%lham)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%lham)/kind(v_ham%lham)
+             n= 1
             call struc_eval_io( v_ham%lham,rw,n,range1,range2,val)
           endif
         case ('lmaxu')
@@ -2313,10 +2596,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%lmaxu)/kind(v_ham%lmaxu)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%lmaxu)/kind(v_ham%lmaxu)
+             n= 1
             call struc_eval_io( v_ham%lmaxu,rw,n,range1,range2,val)
           endif
         case ('lmxax')
@@ -2327,10 +2610,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%lmxax)/kind(v_ham%lmxax)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%lmxax)/kind(v_ham%lmxax)
+             n= 1
             call struc_eval_io( v_ham%lmxax,rw,n,range1,range2,val)
           endif
         case ('lncol')
@@ -2341,10 +2624,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%lncol)/kind(v_ham%lncol)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%lncol)/kind(v_ham%lncol)
+             n= 1
             call struc_eval_io( v_ham%lncol,rw,n,range1,range2,val)
           endif
         case ('lsig')
@@ -2355,10 +2638,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%lsig)/kind(v_ham%lsig)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%lsig)/kind(v_ham%lsig)
+             n= 1
             call struc_eval_io( v_ham%lsig,rw,n,range1,range2,val)
           endif
         case ('ltb')
@@ -2369,10 +2652,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%ltb)/kind(v_ham%ltb)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%ltb)/kind(v_ham%ltb)
+             n= 1
             call struc_eval_io( v_ham%ltb,rw,n,range1,range2,val)
           endif
         case ('lxcf')
@@ -2383,10 +2666,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%lxcf)/kind(v_ham%lxcf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%lxcf)/kind(v_ham%lxcf)
+             n= 1
             call struc_eval_io( v_ham%lxcf,rw,n,range1,range2,val)
           endif
         case ('nbf')
@@ -2397,10 +2680,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%nbf)/kind(v_ham%nbf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%nbf)/kind(v_ham%nbf)
+             n= 1
             call struc_eval_io( v_ham%nbf,rw,n,range1,range2,val)
           endif
         case ('ndham')
@@ -2411,10 +2694,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%ndham)/kind(v_ham%ndham)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%ndham)/kind(v_ham%ndham)
+             n= 1
             call struc_eval_io( v_ham%ndham,rw,n,range1,range2,val)
           endif
         case ('ndhrs')
@@ -2425,10 +2708,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%ndhrs)/kind(v_ham%ndhrs)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%ndhrs)/kind(v_ham%ndhrs)
+             n= 1
             call struc_eval_io( v_ham%ndhrs,rw,n,range1,range2,val)
           endif
         case ('ndofH')
@@ -2439,10 +2722,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%ndofH)/kind(v_ham%ndofH)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%ndofH)/kind(v_ham%ndofH)
+             n= 1
             call struc_eval_io( v_ham%ndofH,rw,n,range1,range2,val)
           endif
         case ('neula')
@@ -2453,10 +2736,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%neula)/kind(v_ham%neula)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%neula)/kind(v_ham%neula)
+             n= 1
             call struc_eval_io( v_ham%neula,rw,n,range1,range2,val)
           endif
         case ('nkaph')
@@ -2467,10 +2750,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%nkaph)/kind(v_ham%nkaph)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%nkaph)/kind(v_ham%nkaph)
+             n= 1
             call struc_eval_io( v_ham%nkaph,rw,n,range1,range2,val)
           endif
         case ('nlibu')
@@ -2481,10 +2764,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%nlibu)/kind(v_ham%nlibu)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%nlibu)/kind(v_ham%nlibu)
+             n= 1
             call struc_eval_io( v_ham%nlibu,rw,n,range1,range2,val)
           endif
         case ('nmto')
@@ -2495,10 +2778,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%nmto)/kind(v_ham%nmto)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%nmto)/kind(v_ham%nmto)
+             n= 1
             call struc_eval_io( v_ham%nmto,rw,n,range1,range2,val)
           endif
         case ('npwmin')
@@ -2509,10 +2792,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%npwmin)/kind(v_ham%npwmin)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%npwmin)/kind(v_ham%npwmin)
+             n= 1
             call struc_eval_io( v_ham%npwmin,rw,n,range1,range2,val)
           endif
         case ('npwpad')
@@ -2523,10 +2806,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%npwpad)/kind(v_ham%npwpad)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%npwpad)/kind(v_ham%npwpad)
+             n= 1
             call struc_eval_io( v_ham%npwpad,rw,n,range1,range2,val)
           endif
         case ('nqsig')
@@ -2537,10 +2820,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%nqsig)/kind(v_ham%nqsig)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%nqsig)/kind(v_ham%nqsig)
+             n= 1
             call struc_eval_io( v_ham%nqsig,rw,n,range1,range2,val)
           endif
         case ('obdots')
@@ -2551,10 +2834,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%obdots)/kind(v_ham%obdots)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%obdots)/kind(v_ham%obdots)
+             n= 1
             call struc_eval_io( v_ham%obdots,rw,n,range1,range2,val)
           endif
         case ('oeula')
@@ -2565,10 +2848,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%oeula)/kind(v_ham%oeula)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%oeula)/kind(v_ham%oeula)
+             n= 1
             call struc_eval_io( v_ham%oeula,rw,n,range1,range2,val)
           endif
         case ('ohrs')
@@ -2579,10 +2862,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%ohrs)/kind(v_ham%ohrs)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%ohrs)/kind(v_ham%ohrs)
+             n= 1
             call struc_eval_io( v_ham%ohrs,rw,n,range1,range2,val)
           endif
         case ('oiaxs')
@@ -2593,10 +2876,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%oiaxs)/kind(v_ham%oiaxs)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%oiaxs)/kind(v_ham%oiaxs)
+             n= 1
             call struc_eval_io( v_ham%oiaxs,rw,n,range1,range2,val)
           endif
         case ('oindxo')
@@ -2607,10 +2890,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%oindxo)/kind(v_ham%oindxo)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%oindxo)/kind(v_ham%oindxo)
+             n= 1
             call struc_eval_io( v_ham%oindxo,rw,n,range1,range2,val)
           endif
         case ('olmxa')
@@ -2621,10 +2904,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%olmxa)/kind(v_ham%olmxa)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%olmxa)/kind(v_ham%olmxa)
+             n= 1
             call struc_eval_io( v_ham%olmxa,rw,n,range1,range2,val)
           endif
         case ('omagf')
@@ -2635,10 +2918,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%omagf)/kind(v_ham%omagf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%omagf)/kind(v_ham%omagf)
+             n= 1
             call struc_eval_io( v_ham%omagf,rw,n,range1,range2,val)
           endif
         case ('ontabs')
@@ -2649,10 +2932,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%ontabs)/kind(v_ham%ontabs)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%ontabs)/kind(v_ham%ontabs)
+             n= 1
             call struc_eval_io( v_ham%ontabs,rw,n,range1,range2,val)
           endif
         case ('ooffH')
@@ -2663,10 +2946,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%ooffH)/kind(v_ham%ooffH)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%ooffH)/kind(v_ham%ooffH)
+             n= 1
             call struc_eval_io( v_ham%ooffH,rw,n,range1,range2,val)
           endif
         case ('oqsig')
@@ -2677,10 +2960,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%oqsig)/kind(v_ham%oqsig)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%oqsig)/kind(v_ham%oqsig)
+             n= 1
             call struc_eval_io( v_ham%oqsig,rw,n,range1,range2,val)
           endif
         case ('oveps')
@@ -2691,10 +2974,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%oveps)/kind(v_ham%oveps)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%oveps)/kind(v_ham%oveps)
+             n= 1
             call struc_eval_io( v_ham%oveps,rw,n,range1,range2,val)
           endif
         case ('pmax')
@@ -2705,10 +2988,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%pmax)/kind(v_ham%pmax)
+             v_ri%i= size(v_ham%pmax)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%pmax)/kind(v_ham%pmax)
+             n= size(v_ham%pmax)
             call struc_eval_io( v_ham%pmax,rw,n,range1,range2,val)
           endif
         case ('pmin')
@@ -2719,10 +3002,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%pmin)/kind(v_ham%pmin)
+             v_ri%i= size(v_ham%pmin)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%pmin)/kind(v_ham%pmin)
+             n= size(v_ham%pmin)
             call struc_eval_io( v_ham%pmin,rw,n,range1,range2,val)
           endif
         case ('pwemax')
@@ -2733,10 +3016,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%pwemax)/kind(v_ham%pwemax)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%pwemax)/kind(v_ham%pwemax)
+             n= 1
             call struc_eval_io( v_ham%pwemax,rw,n,range1,range2,val)
           endif
         case ('pwemin')
@@ -2747,10 +3030,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%pwemin)/kind(v_ham%pwemin)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%pwemin)/kind(v_ham%pwemin)
+             n= 1
             call struc_eval_io( v_ham%pwemin,rw,n,range1,range2,val)
           endif
         case ('pwmode')
@@ -2761,10 +3044,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%pwmode)/kind(v_ham%pwmode)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%pwmode)/kind(v_ham%pwmode)
+             n= 1
             call struc_eval_io( v_ham%pwmode,rw,n,range1,range2,val)
           endif
         case ('qpoff')
@@ -2775,10 +3058,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%qpoff)/kind(v_ham%qpoff)
+             v_ri%i= size(v_ham%qpoff)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%qpoff)/kind(v_ham%qpoff)
+             n= size(v_ham%qpoff)
             call struc_eval_io( v_ham%qpoff,rw,n,range1,range2,val)
           endif
         case ('qss')
@@ -2789,10 +3072,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%qss)/kind(v_ham%qss)
+             v_ri%i= size(v_ham%qss)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%qss)/kind(v_ham%qss)
+             n= size(v_ham%qss)
             call struc_eval_io( v_ham%qss,rw,n,range1,range2,val)
           endif
         case ('rsrnge')
@@ -2803,10 +3086,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%rsrnge)/kind(v_ham%rsrnge)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%rsrnge)/kind(v_ham%rsrnge)
+             n= 1
             call struc_eval_io( v_ham%rsrnge,rw,n,range1,range2,val)
           endif
         case ('rsstol')
@@ -2817,10 +3100,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%rsstol)/kind(v_ham%rsstol)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%rsstol)/kind(v_ham%rsstol)
+             n= 1
             call struc_eval_io( v_ham%rsstol,rw,n,range1,range2,val)
           endif
         case ('seref')
@@ -2831,10 +3114,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%seref)/kind(v_ham%seref)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%seref)/kind(v_ham%seref)
+             n= 1
             call struc_eval_io( v_ham%seref,rw,n,range1,range2,val)
           endif
         case ('sigp')
@@ -2845,10 +3128,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%sigp)/kind(v_ham%sigp)
+             v_ri%i= size(v_ham%sigp)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%sigp)/kind(v_ham%sigp)
+             n= size(v_ham%sigp)
             call struc_eval_io( v_ham%sigp,rw,n,range1,range2,val)
           endif
         case ('thrpv')
@@ -2859,10 +3142,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ham%thrpv)/kind(v_ham%thrpv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%thrpv)/kind(v_ham%thrpv)
+             n= 1
             call struc_eval_io( v_ham%thrpv,rw,n,range1,range2,val)
           endif
         case ('udiag')
@@ -2873,10 +3156,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ham%udiag)/kind(v_ham%udiag)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ham%udiag)/kind(v_ham%udiag)
+             n= 1
             call struc_eval_io( v_ham%udiag,rw,n,range1,range2,val)
           endif
         case default
@@ -2895,17 +3178,78 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call ulat_init(struc)
         else
           write(*,*) 'ulat offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine ulat
+       
+        integer function ulat_size()
+        integer:: n
+        n= 120
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        ulat_size=n
+        end function ulat_size
+       
+        subroutine ulat_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_lat):: struc
+        write(*,*) struc
+        end subroutine ulat_show
+       
+        subroutine ulat_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_lat):: struc
+        integer:: ulat_size
+        struc%size=ulat_size()
+        struc%alat=0.0d0
+        struc%as=0.0d0
+        struc%avw=0.0d0
+        struc%awald=0.0d0
+        struc%dist(:)=0.0d0
+        struc%gam(:)=0.0d0
+        struc%gmax=0.0d0
+        struc%ldist=0
+        struc%nabc(:)=0
+        struc%ng=0
+        struc%nkd=0
+        struc%nkdmx=0
+        struc%nkq=0
+        struc%nkqmx=0
+        struc%npgrp=0
+        struc%nsgrp=0
+        struc%oag=0
+        struc%obgv=0
+        struc%ocg=0
+        struc%ocy=0
+        struc%odlv=0
+        struc%ogv=0
+        struc%oidxcg=0
+        struc%oips0=0
+        struc%oistab=0
+        struc%ojcg=0
+        struc%okv=0
+        struc%opos=0
+        struc%oqlv=0
+        struc%osymgr=0
+        struc%plat(:)=0.0d0
+        struc%plat0(:)=0.0d0
+        struc%plat2(:)=0.0d0
+        struc%plate(:)=0.0d0
+        struc%platl(:)=0.0d0
+        struc%platr(:)=0.0d0
+        struc%qlat(:)=0.0d0
+        struc%rpad=0.0d0
+        struc%slat(:)=0.0d0
+        struc%tol=0.0d0
+        struc%tolft=0.0d0
+        struc%vol=0.0d0
+        end subroutine ulat_init
        
         subroutine struc_ulat_io(v_lat,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -2938,10 +3282,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%alat)/kind(v_lat%alat)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%alat)/kind(v_lat%alat)
+             n= 1
             call struc_eval_io( v_lat%alat,rw,n,range1,range2,val)
           endif
         case ('as')
@@ -2952,10 +3296,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%as)/kind(v_lat%as)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%as)/kind(v_lat%as)
+             n= 1
             call struc_eval_io( v_lat%as,rw,n,range1,range2,val)
           endif
         case ('avw')
@@ -2966,10 +3310,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%avw)/kind(v_lat%avw)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%avw)/kind(v_lat%avw)
+             n= 1
             call struc_eval_io( v_lat%avw,rw,n,range1,range2,val)
           endif
         case ('awald')
@@ -2980,10 +3324,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%awald)/kind(v_lat%awald)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%awald)/kind(v_lat%awald)
+             n= 1
             call struc_eval_io( v_lat%awald,rw,n,range1,range2,val)
           endif
         case ('dist')
@@ -2994,10 +3338,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%dist)/kind(v_lat%dist)
+             v_ri%i= size(v_lat%dist)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%dist)/kind(v_lat%dist)
+             n= size(v_lat%dist)
             call struc_eval_io( v_lat%dist,rw,n,range1,range2,val)
           endif
         case ('gam')
@@ -3008,10 +3352,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%gam)/kind(v_lat%gam)
+             v_ri%i= size(v_lat%gam)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%gam)/kind(v_lat%gam)
+             n= size(v_lat%gam)
             call struc_eval_io( v_lat%gam,rw,n,range1,range2,val)
           endif
         case ('gmax')
@@ -3022,10 +3366,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%gmax)/kind(v_lat%gmax)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%gmax)/kind(v_lat%gmax)
+             n= 1
             call struc_eval_io( v_lat%gmax,rw,n,range1,range2,val)
           endif
         case ('ldist')
@@ -3036,10 +3380,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%ldist)/kind(v_lat%ldist)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%ldist)/kind(v_lat%ldist)
+             n= 1
             call struc_eval_io( v_lat%ldist,rw,n,range1,range2,val)
           endif
         case ('nabc')
@@ -3050,10 +3394,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%nabc)/kind(v_lat%nabc)
+             v_ri%i= size(v_lat%nabc)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%nabc)/kind(v_lat%nabc)
+             n= size(v_lat%nabc)
             call struc_eval_io( v_lat%nabc,rw,n,range1,range2,val)
           endif
         case ('ng')
@@ -3064,10 +3408,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%ng)/kind(v_lat%ng)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%ng)/kind(v_lat%ng)
+             n= 1
             call struc_eval_io( v_lat%ng,rw,n,range1,range2,val)
           endif
         case ('nkd')
@@ -3078,10 +3422,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%nkd)/kind(v_lat%nkd)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%nkd)/kind(v_lat%nkd)
+             n= 1
             call struc_eval_io( v_lat%nkd,rw,n,range1,range2,val)
           endif
         case ('nkdmx')
@@ -3092,10 +3436,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%nkdmx)/kind(v_lat%nkdmx)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%nkdmx)/kind(v_lat%nkdmx)
+             n= 1
             call struc_eval_io( v_lat%nkdmx,rw,n,range1,range2,val)
           endif
         case ('nkq')
@@ -3106,10 +3450,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%nkq)/kind(v_lat%nkq)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%nkq)/kind(v_lat%nkq)
+             n= 1
             call struc_eval_io( v_lat%nkq,rw,n,range1,range2,val)
           endif
         case ('nkqmx')
@@ -3120,10 +3464,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%nkqmx)/kind(v_lat%nkqmx)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%nkqmx)/kind(v_lat%nkqmx)
+             n= 1
             call struc_eval_io( v_lat%nkqmx,rw,n,range1,range2,val)
           endif
         case ('npgrp')
@@ -3134,10 +3478,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%npgrp)/kind(v_lat%npgrp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%npgrp)/kind(v_lat%npgrp)
+             n= 1
             call struc_eval_io( v_lat%npgrp,rw,n,range1,range2,val)
           endif
         case ('nsgrp')
@@ -3148,10 +3492,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%nsgrp)/kind(v_lat%nsgrp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%nsgrp)/kind(v_lat%nsgrp)
+             n= 1
             call struc_eval_io( v_lat%nsgrp,rw,n,range1,range2,val)
           endif
         case ('oag')
@@ -3162,10 +3506,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%oag)/kind(v_lat%oag)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%oag)/kind(v_lat%oag)
+             n= 1
             call struc_eval_io( v_lat%oag,rw,n,range1,range2,val)
           endif
         case ('obgv')
@@ -3176,10 +3520,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%obgv)/kind(v_lat%obgv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%obgv)/kind(v_lat%obgv)
+             n= 1
             call struc_eval_io( v_lat%obgv,rw,n,range1,range2,val)
           endif
         case ('ocg')
@@ -3190,10 +3534,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%ocg)/kind(v_lat%ocg)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%ocg)/kind(v_lat%ocg)
+             n= 1
             call struc_eval_io( v_lat%ocg,rw,n,range1,range2,val)
           endif
         case ('ocy')
@@ -3204,10 +3548,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%ocy)/kind(v_lat%ocy)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%ocy)/kind(v_lat%ocy)
+             n= 1
             call struc_eval_io( v_lat%ocy,rw,n,range1,range2,val)
           endif
         case ('odlv')
@@ -3218,10 +3562,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%odlv)/kind(v_lat%odlv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%odlv)/kind(v_lat%odlv)
+             n= 1
             call struc_eval_io( v_lat%odlv,rw,n,range1,range2,val)
           endif
         case ('ogv')
@@ -3232,10 +3576,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%ogv)/kind(v_lat%ogv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%ogv)/kind(v_lat%ogv)
+             n= 1
             call struc_eval_io( v_lat%ogv,rw,n,range1,range2,val)
           endif
         case ('oidxcg')
@@ -3246,10 +3590,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%oidxcg)/kind(v_lat%oidxcg)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%oidxcg)/kind(v_lat%oidxcg)
+             n= 1
             call struc_eval_io( v_lat%oidxcg,rw,n,range1,range2,val)
           endif
         case ('oips0')
@@ -3260,10 +3604,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%oips0)/kind(v_lat%oips0)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%oips0)/kind(v_lat%oips0)
+             n= 1
             call struc_eval_io( v_lat%oips0,rw,n,range1,range2,val)
           endif
         case ('oistab')
@@ -3274,10 +3618,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%oistab)/kind(v_lat%oistab)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%oistab)/kind(v_lat%oistab)
+             n= 1
             call struc_eval_io( v_lat%oistab,rw,n,range1,range2,val)
           endif
         case ('ojcg')
@@ -3288,10 +3632,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%ojcg)/kind(v_lat%ojcg)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%ojcg)/kind(v_lat%ojcg)
+             n= 1
             call struc_eval_io( v_lat%ojcg,rw,n,range1,range2,val)
           endif
         case ('okv')
@@ -3302,10 +3646,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%okv)/kind(v_lat%okv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%okv)/kind(v_lat%okv)
+             n= 1
             call struc_eval_io( v_lat%okv,rw,n,range1,range2,val)
           endif
         case ('opos')
@@ -3316,10 +3660,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%opos)/kind(v_lat%opos)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%opos)/kind(v_lat%opos)
+             n= 1
             call struc_eval_io( v_lat%opos,rw,n,range1,range2,val)
           endif
         case ('oqlv')
@@ -3330,10 +3674,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%oqlv)/kind(v_lat%oqlv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%oqlv)/kind(v_lat%oqlv)
+             n= 1
             call struc_eval_io( v_lat%oqlv,rw,n,range1,range2,val)
           endif
         case ('osymgr')
@@ -3344,10 +3688,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_lat%osymgr)/kind(v_lat%osymgr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%osymgr)/kind(v_lat%osymgr)
+             n= 1
             call struc_eval_io( v_lat%osymgr,rw,n,range1,range2,val)
           endif
         case ('plat')
@@ -3358,10 +3702,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%plat)/kind(v_lat%plat)
+             v_ri%i= size(v_lat%plat)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%plat)/kind(v_lat%plat)
+             n= size(v_lat%plat)
             call struc_eval_io( v_lat%plat,rw,n,range1,range2,val)
           endif
         case ('plat0')
@@ -3372,10 +3716,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%plat0)/kind(v_lat%plat0)
+             v_ri%i= size(v_lat%plat0)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%plat0)/kind(v_lat%plat0)
+             n= size(v_lat%plat0)
             call struc_eval_io( v_lat%plat0,rw,n,range1,range2,val)
           endif
         case ('plat2')
@@ -3386,10 +3730,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%plat2)/kind(v_lat%plat2)
+             v_ri%i= size(v_lat%plat2)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%plat2)/kind(v_lat%plat2)
+             n= size(v_lat%plat2)
             call struc_eval_io( v_lat%plat2,rw,n,range1,range2,val)
           endif
         case ('plate')
@@ -3400,10 +3744,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%plate)/kind(v_lat%plate)
+             v_ri%i= size(v_lat%plate)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%plate)/kind(v_lat%plate)
+             n= size(v_lat%plate)
             call struc_eval_io( v_lat%plate,rw,n,range1,range2,val)
           endif
         case ('platl')
@@ -3414,10 +3758,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%platl)/kind(v_lat%platl)
+             v_ri%i= size(v_lat%platl)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%platl)/kind(v_lat%platl)
+             n= size(v_lat%platl)
             call struc_eval_io( v_lat%platl,rw,n,range1,range2,val)
           endif
         case ('platr')
@@ -3428,10 +3772,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%platr)/kind(v_lat%platr)
+             v_ri%i= size(v_lat%platr)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%platr)/kind(v_lat%platr)
+             n= size(v_lat%platr)
             call struc_eval_io( v_lat%platr,rw,n,range1,range2,val)
           endif
         case ('qlat')
@@ -3442,10 +3786,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%qlat)/kind(v_lat%qlat)
+             v_ri%i= size(v_lat%qlat)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%qlat)/kind(v_lat%qlat)
+             n= size(v_lat%qlat)
             call struc_eval_io( v_lat%qlat,rw,n,range1,range2,val)
           endif
         case ('rpad')
@@ -3456,10 +3800,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%rpad)/kind(v_lat%rpad)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%rpad)/kind(v_lat%rpad)
+             n= 1
             call struc_eval_io( v_lat%rpad,rw,n,range1,range2,val)
           endif
         case ('slat')
@@ -3470,10 +3814,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%slat)/kind(v_lat%slat)
+             v_ri%i= size(v_lat%slat)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%slat)/kind(v_lat%slat)
+             n= size(v_lat%slat)
             call struc_eval_io( v_lat%slat,rw,n,range1,range2,val)
           endif
         case ('tol')
@@ -3484,10 +3828,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%tol)/kind(v_lat%tol)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%tol)/kind(v_lat%tol)
+             n= 1
             call struc_eval_io( v_lat%tol,rw,n,range1,range2,val)
           endif
         case ('tolft')
@@ -3498,10 +3842,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%tolft)/kind(v_lat%tolft)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%tolft)/kind(v_lat%tolft)
+             n= 1
             call struc_eval_io( v_lat%tolft,rw,n,range1,range2,val)
           endif
         case ('vol')
@@ -3512,10 +3856,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_lat%vol)/kind(v_lat%vol)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_lat%vol)/kind(v_lat%vol)
+             n= 1
             call struc_eval_io( v_lat%vol,rw,n,range1,range2,val)
           endif
         case default
@@ -3534,17 +3878,58 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call umix_init(struc)
         else
           write(*,*) 'umix offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine umix
+       
+        integer function umix_size()
+        integer:: n
+        n= 36
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        umix_size=n
+        end function umix_size
+       
+        subroutine umix_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_mix):: struc
+        write(*,*) struc
+        end subroutine umix_show
+       
+        subroutine umix_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_mix):: struc
+        integer:: umix_size
+        struc%size=umix_size()
+        struc%b=0.0d0
+        struc%bl=0.0d0
+        struc%bv=0.0d0
+        struc%elind=0.0d0
+        struc%fn=0.0d0
+        struc%kill=0
+        struc%lxpot=0
+        struc%mmix=0
+        struc%mode=0
+        struc%model=0
+        struc%n=0
+        struc%nitu=0
+        struc%nmix=0
+        struc%nsave=0
+        struc%r(:)=0.0d0
+        struc%rms1=0.0d0
+        struc%rms2=0.0d0
+        struc%tj(:)=0.0d0
+        struc%tolu=0.0d0
+        struc%umix=0.0d0
+        struc%w(:)=0.0d0
+        struc%wc=0.0d0
+        end subroutine umix_init
        
         subroutine struc_umix_io(v_mix,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -3577,10 +3962,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_mix%b)/kind(v_mix%b)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%b)/kind(v_mix%b)
+             n= 1
             call struc_eval_io( v_mix%b,rw,n,range1,range2,val)
           endif
         case ('bl')
@@ -3591,10 +3976,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_mix%bl)/kind(v_mix%bl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%bl)/kind(v_mix%bl)
+             n= 1
             call struc_eval_io( v_mix%bl,rw,n,range1,range2,val)
           endif
         case ('bv')
@@ -3605,10 +3990,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_mix%bv)/kind(v_mix%bv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%bv)/kind(v_mix%bv)
+             n= 1
             call struc_eval_io( v_mix%bv,rw,n,range1,range2,val)
           endif
         case ('elind')
@@ -3619,10 +4004,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_mix%elind)/kind(v_mix%elind)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%elind)/kind(v_mix%elind)
+             n= 1
             call struc_eval_io( v_mix%elind,rw,n,range1,range2,val)
           endif
         case ('fn')
@@ -3633,10 +4018,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 1
-             v_ri%i= sizeof(v_mix%fn)/kind(v_mix%fn)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%fn)/kind(v_mix%fn)
+             n= 1
             call struc_eval_io( v_mix%fn,rw,n,range1,range2,val)
           endif
         case ('kill')
@@ -3647,10 +4032,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_mix%kill)/kind(v_mix%kill)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%kill)/kind(v_mix%kill)
+             n= 1
             call struc_eval_io( v_mix%kill,rw,n,range1,range2,val)
           endif
         case ('lxpot')
@@ -3661,10 +4046,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_mix%lxpot)/kind(v_mix%lxpot)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%lxpot)/kind(v_mix%lxpot)
+             n= 1
             call struc_eval_io( v_mix%lxpot,rw,n,range1,range2,val)
           endif
         case ('mmix')
@@ -3675,10 +4060,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_mix%mmix)/kind(v_mix%mmix)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%mmix)/kind(v_mix%mmix)
+             n= 1
             call struc_eval_io( v_mix%mmix,rw,n,range1,range2,val)
           endif
         case ('mode')
@@ -3689,10 +4074,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_mix%mode)/kind(v_mix%mode)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%mode)/kind(v_mix%mode)
+             n= 1
             call struc_eval_io( v_mix%mode,rw,n,range1,range2,val)
           endif
         case ('model')
@@ -3703,10 +4088,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_mix%model)/kind(v_mix%model)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%model)/kind(v_mix%model)
+             n= 1
             call struc_eval_io( v_mix%model,rw,n,range1,range2,val)
           endif
         case ('n')
@@ -3717,10 +4102,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_mix%n)/kind(v_mix%n)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%n)/kind(v_mix%n)
+             n= 1
             call struc_eval_io( v_mix%n,rw,n,range1,range2,val)
           endif
         case ('nitu')
@@ -3731,10 +4116,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_mix%nitu)/kind(v_mix%nitu)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%nitu)/kind(v_mix%nitu)
+             n= 1
             call struc_eval_io( v_mix%nitu,rw,n,range1,range2,val)
           endif
         case ('nmix')
@@ -3745,10 +4130,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_mix%nmix)/kind(v_mix%nmix)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%nmix)/kind(v_mix%nmix)
+             n= 1
             call struc_eval_io( v_mix%nmix,rw,n,range1,range2,val)
           endif
         case ('nsave')
@@ -3759,10 +4144,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_mix%nsave)/kind(v_mix%nsave)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%nsave)/kind(v_mix%nsave)
+             n= 1
             call struc_eval_io( v_mix%nsave,rw,n,range1,range2,val)
           endif
         case ('r')
@@ -3773,10 +4158,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 1
-             v_ri%i= sizeof(v_mix%r)/kind(v_mix%r)
+             v_ri%i= size(v_mix%r)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%r)/kind(v_mix%r)
+             n= size(v_mix%r)
             call struc_eval_io( v_mix%r,rw,n,range1,range2,val)
           endif
         case ('rms1')
@@ -3787,10 +4172,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_mix%rms1)/kind(v_mix%rms1)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%rms1)/kind(v_mix%rms1)
+             n= 1
             call struc_eval_io( v_mix%rms1,rw,n,range1,range2,val)
           endif
         case ('rms2')
@@ -3801,10 +4186,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_mix%rms2)/kind(v_mix%rms2)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%rms2)/kind(v_mix%rms2)
+             n= 1
             call struc_eval_io( v_mix%rms2,rw,n,range1,range2,val)
           endif
         case ('tj')
@@ -3815,10 +4200,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_mix%tj)/kind(v_mix%tj)
+             v_ri%i= size(v_mix%tj)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%tj)/kind(v_mix%tj)
+             n= size(v_mix%tj)
             call struc_eval_io( v_mix%tj,rw,n,range1,range2,val)
           endif
         case ('tolu')
@@ -3829,10 +4214,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_mix%tolu)/kind(v_mix%tolu)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%tolu)/kind(v_mix%tolu)
+             n= 1
             call struc_eval_io( v_mix%tolu,rw,n,range1,range2,val)
           endif
         case ('umix')
@@ -3843,10 +4228,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_mix%umix)/kind(v_mix%umix)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%umix)/kind(v_mix%umix)
+             n= 1
             call struc_eval_io( v_mix%umix,rw,n,range1,range2,val)
           endif
         case ('w')
@@ -3857,10 +4242,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_mix%w)/kind(v_mix%w)
+             v_ri%i= size(v_mix%w)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%w)/kind(v_mix%w)
+             n= size(v_mix%w)
             call struc_eval_io( v_mix%w,rw,n,range1,range2,val)
           endif
         case ('wc')
@@ -3871,10 +4256,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_mix%wc)/kind(v_mix%wc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_mix%wc)/kind(v_mix%wc)
+             n= 1
             call struc_eval_io( v_mix%wc,rw,n,range1,range2,val)
           endif
         case default
@@ -3893,17 +4278,46 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call umove_init(struc)
         else
           write(*,*) 'umove offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine umove
+       
+        integer function umove_size()
+        integer:: n
+        n= 34
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        umove_size=n
+        end function umove_size
+       
+        subroutine umove_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_move):: struc
+        write(*,*) struc
+        end subroutine umove_show
+       
+        subroutine umove_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_move):: struc
+        integer:: umove_size
+        struc%size=umove_size()
+        struc%ct(:)=0.0d0
+        struc%gyro=0.0d0
+        struc%kt=0.0d0
+        struc%modt(:)=0
+        struc%nmodt=0
+        struc%prmint(:)=0.0d0
+        struc%tnow=0.0d0
+        struc%ts=0.0d0
+        struc%tsequ=0.0d0
+        struc%tstot=0.0d0
+        end subroutine umove_init
        
         subroutine struc_umove_io(v_move,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -3936,10 +4350,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_move%ct)/kind(v_move%ct)
+             v_ri%i= size(v_move%ct)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_move%ct)/kind(v_move%ct)
+             n= size(v_move%ct)
             call struc_eval_io( v_move%ct,rw,n,range1,range2,val)
           endif
         case ('gyro')
@@ -3950,10 +4364,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_move%gyro)/kind(v_move%gyro)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_move%gyro)/kind(v_move%gyro)
+             n= 1
             call struc_eval_io( v_move%gyro,rw,n,range1,range2,val)
           endif
         case ('kt')
@@ -3964,10 +4378,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_move%kt)/kind(v_move%kt)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_move%kt)/kind(v_move%kt)
+             n= 1
             call struc_eval_io( v_move%kt,rw,n,range1,range2,val)
           endif
         case ('modt')
@@ -3978,10 +4392,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_move%modt)/kind(v_move%modt)
+             v_ri%i= size(v_move%modt)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_move%modt)/kind(v_move%modt)
+             n= size(v_move%modt)
             call struc_eval_io( v_move%modt,rw,n,range1,range2,val)
           endif
         case ('nmodt')
@@ -3992,10 +4406,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_move%nmodt)/kind(v_move%nmodt)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_move%nmodt)/kind(v_move%nmodt)
+             n= 1
             call struc_eval_io( v_move%nmodt,rw,n,range1,range2,val)
           endif
         case ('prmint')
@@ -4006,10 +4420,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_move%prmint)/kind(v_move%prmint)
+             v_ri%i= size(v_move%prmint)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_move%prmint)/kind(v_move%prmint)
+             n= size(v_move%prmint)
             call struc_eval_io( v_move%prmint,rw,n,range1,range2,val)
           endif
         case ('tnow')
@@ -4020,10 +4434,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_move%tnow)/kind(v_move%tnow)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_move%tnow)/kind(v_move%tnow)
+             n= 1
             call struc_eval_io( v_move%tnow,rw,n,range1,range2,val)
           endif
         case ('ts')
@@ -4034,10 +4448,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_move%ts)/kind(v_move%ts)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_move%ts)/kind(v_move%ts)
+             n= 1
             call struc_eval_io( v_move%ts,rw,n,range1,range2,val)
           endif
         case ('tsequ')
@@ -4048,10 +4462,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_move%tsequ)/kind(v_move%tsequ)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_move%tsequ)/kind(v_move%tsequ)
+             n= 1
             call struc_eval_io( v_move%tsequ,rw,n,range1,range2,val)
           endif
         case ('tstot')
@@ -4062,10 +4476,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_move%tstot)/kind(v_move%tstot)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_move%tstot)/kind(v_move%tstot)
+             n= 1
             call struc_eval_io( v_move%tstot,rw,n,range1,range2,val)
           endif
         case default
@@ -4084,17 +4498,48 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call uoptic_init(struc)
         else
           write(*,*) 'uoptic offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine uoptic
+       
+        integer function uoptic_size()
+        integer:: n
+        n= 33
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        uoptic_size=n
+        end function uoptic_size
+       
+        subroutine uoptic_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_optic):: struc
+        write(*,*) struc
+        end subroutine uoptic_show
+       
+        subroutine uoptic_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_optic):: struc
+        integer:: uoptic_size
+        struc%size=uoptic_size()
+        struc%axes(:)=0
+        struc%cll=0
+        struc%cln=0
+        struc%cls=0
+        struc%clsite=0
+        struc%esciss=0.0d0
+        struc%mode=0
+        struc%nchi2=0
+        struc%ne=0
+        struc%ocrng(:)=0
+        struc%unrng(:)=0
+        struc%window(:)=0.0d0
+        end subroutine uoptic_init
        
         subroutine struc_uoptic_io(v_optic,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -4127,10 +4572,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_optic%axes)/kind(v_optic%axes)
+             v_ri%i= size(v_optic%axes)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%axes)/kind(v_optic%axes)
+             n= size(v_optic%axes)
             call struc_eval_io( v_optic%axes,rw,n,range1,range2,val)
           endif
         case ('cll')
@@ -4141,10 +4586,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_optic%cll)/kind(v_optic%cll)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%cll)/kind(v_optic%cll)
+             n= 1
             call struc_eval_io( v_optic%cll,rw,n,range1,range2,val)
           endif
         case ('cln')
@@ -4155,10 +4600,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_optic%cln)/kind(v_optic%cln)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%cln)/kind(v_optic%cln)
+             n= 1
             call struc_eval_io( v_optic%cln,rw,n,range1,range2,val)
           endif
         case ('cls')
@@ -4169,10 +4614,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_optic%cls)/kind(v_optic%cls)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%cls)/kind(v_optic%cls)
+             n= 1
             call struc_eval_io( v_optic%cls,rw,n,range1,range2,val)
           endif
         case ('clsite')
@@ -4183,10 +4628,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_optic%clsite)/kind(v_optic%clsite)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%clsite)/kind(v_optic%clsite)
+             n= 1
             call struc_eval_io( v_optic%clsite,rw,n,range1,range2,val)
           endif
         case ('esciss')
@@ -4197,10 +4642,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_optic%esciss)/kind(v_optic%esciss)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%esciss)/kind(v_optic%esciss)
+             n= 1
             call struc_eval_io( v_optic%esciss,rw,n,range1,range2,val)
           endif
         case ('mode')
@@ -4211,10 +4656,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_optic%mode)/kind(v_optic%mode)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%mode)/kind(v_optic%mode)
+             n= 1
             call struc_eval_io( v_optic%mode,rw,n,range1,range2,val)
           endif
         case ('nchi2')
@@ -4225,10 +4670,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_optic%nchi2)/kind(v_optic%nchi2)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%nchi2)/kind(v_optic%nchi2)
+             n= 1
             call struc_eval_io( v_optic%nchi2,rw,n,range1,range2,val)
           endif
         case ('ne')
@@ -4239,10 +4684,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_optic%ne)/kind(v_optic%ne)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%ne)/kind(v_optic%ne)
+             n= 1
             call struc_eval_io( v_optic%ne,rw,n,range1,range2,val)
           endif
         case ('ocrng')
@@ -4253,10 +4698,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_optic%ocrng)/kind(v_optic%ocrng)
+             v_ri%i= size(v_optic%ocrng)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%ocrng)/kind(v_optic%ocrng)
+             n= size(v_optic%ocrng)
             call struc_eval_io( v_optic%ocrng,rw,n,range1,range2,val)
           endif
         case ('unrng')
@@ -4267,10 +4712,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_optic%unrng)/kind(v_optic%unrng)
+             v_ri%i= size(v_optic%unrng)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%unrng)/kind(v_optic%unrng)
+             n= size(v_optic%unrng)
             call struc_eval_io( v_optic%unrng,rw,n,range1,range2,val)
           endif
         case ('window')
@@ -4281,10 +4726,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_optic%window)/kind(v_optic%window)
+             v_ri%i= size(v_optic%window)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_optic%window)/kind(v_optic%window)
+             n= size(v_optic%window)
             call struc_eval_io( v_optic%window,rw,n,range1,range2,val)
           endif
         case default
@@ -4303,17 +4748,46 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call uordn_init(struc)
         else
           write(*,*) 'uordn offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine uordn
+       
+        integer function uordn_size()
+        integer:: n
+        n= 13
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        uordn_size=n
+        end function uordn_size
+       
+        subroutine uordn_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_ordn):: struc
+        write(*,*) struc
+        end subroutine uordn_show
+       
+        subroutine uordn_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_ordn):: struc
+        integer:: uordn_size
+        struc%size=uordn_size()
+        struc%efre=0.0d0
+        struc%mode=0
+        struc%ncl=0
+        struc%ndofh=0
+        struc%oclp=0
+        struc%oclssl=0
+        struc%oiaxg=0
+        struc%omapgv=0
+        struc%ooffch=0
+        struc%rmaxg(:)=0.0d0
+        end subroutine uordn_init
        
         subroutine struc_uordn_io(v_ordn,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -4346,10 +4820,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ordn%efre)/kind(v_ordn%efre)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ordn%efre)/kind(v_ordn%efre)
+             n= 1
             call struc_eval_io( v_ordn%efre,rw,n,range1,range2,val)
           endif
         case ('mode')
@@ -4360,10 +4834,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ordn%mode)/kind(v_ordn%mode)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ordn%mode)/kind(v_ordn%mode)
+             n= 1
             call struc_eval_io( v_ordn%mode,rw,n,range1,range2,val)
           endif
         case ('ncl')
@@ -4374,10 +4848,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ordn%ncl)/kind(v_ordn%ncl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ordn%ncl)/kind(v_ordn%ncl)
+             n= 1
             call struc_eval_io( v_ordn%ncl,rw,n,range1,range2,val)
           endif
         case ('ndofh')
@@ -4388,10 +4862,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ordn%ndofh)/kind(v_ordn%ndofh)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ordn%ndofh)/kind(v_ordn%ndofh)
+             n= 1
             call struc_eval_io( v_ordn%ndofh,rw,n,range1,range2,val)
           endif
         case ('oclp')
@@ -4402,10 +4876,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ordn%oclp)/kind(v_ordn%oclp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ordn%oclp)/kind(v_ordn%oclp)
+             n= 1
             call struc_eval_io( v_ordn%oclp,rw,n,range1,range2,val)
           endif
         case ('oclssl')
@@ -4416,10 +4890,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ordn%oclssl)/kind(v_ordn%oclssl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ordn%oclssl)/kind(v_ordn%oclssl)
+             n= 1
             call struc_eval_io( v_ordn%oclssl,rw,n,range1,range2,val)
           endif
         case ('oiaxg')
@@ -4430,10 +4904,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ordn%oiaxg)/kind(v_ordn%oiaxg)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ordn%oiaxg)/kind(v_ordn%oiaxg)
+             n= 1
             call struc_eval_io( v_ordn%oiaxg,rw,n,range1,range2,val)
           endif
         case ('omapgv')
@@ -4444,10 +4918,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ordn%omapgv)/kind(v_ordn%omapgv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ordn%omapgv)/kind(v_ordn%omapgv)
+             n= 1
             call struc_eval_io( v_ordn%omapgv,rw,n,range1,range2,val)
           endif
         case ('ooffch')
@@ -4458,10 +4932,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_ordn%ooffch)/kind(v_ordn%ooffch)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ordn%ooffch)/kind(v_ordn%ooffch)
+             n= 1
             call struc_eval_io( v_ordn%ooffch,rw,n,range1,range2,val)
           endif
         case ('rmaxg')
@@ -4472,10 +4946,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_ordn%rmaxg)/kind(v_ordn%rmaxg)
+             v_ri%i= size(v_ordn%rmaxg)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_ordn%rmaxg)/kind(v_ordn%rmaxg)
+             n= size(v_ordn%rmaxg)
             call struc_eval_io( v_ordn%rmaxg,rw,n,range1,range2,val)
           endif
         case default
@@ -4494,17 +4968,93 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call upot_init(struc)
         else
           write(*,*) 'upot offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine upot
+       
+        integer function upot_size()
+        integer:: n
+        n= 63
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        upot_size=n
+        end function upot_size
+       
+        subroutine upot_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_pot):: struc
+        write(*,*) struc
+        end subroutine upot_show
+       
+        subroutine upot_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_pot):: struc
+        integer:: upot_size
+        struc%size=upot_size()
+        struc%bfield(:)=0.0d0
+        struc%nlma=0
+        struc%nlml=0
+        struc%nrhos=0
+        struc%oaamom=0
+        struc%obxc=0
+        struc%odddpf=0
+        struc%oddpf=0
+        struc%oddpfr=0
+        struc%odel=0
+        struc%odpf=0
+        struc%odpfr=0
+        struc%ofes=0
+        struc%ogma=0
+        struc%ogmar=0
+        struc%ogrrme=0
+        struc%ohab=0
+        struc%oivso=0
+        struc%omad=0
+        struc%oorhat=0
+        struc%opalp=0
+        struc%opapg=0
+        struc%opdel=0
+        struc%opf=0
+        struc%opfnc=0
+        struc%opfr=0
+        struc%opmpol=0
+        struc%opnu=0
+        struc%opp=0
+        struc%oppi=0
+        struc%oppn=0
+        struc%opprel=0
+        struc%opti=0
+        struc%oqc=0
+        struc%oqmom=0
+        struc%oqnu=0
+        struc%oqpp=0
+        struc%oqt=0
+        struc%orhos=0
+        struc%orhrmx=0
+        struc%osab=0
+        struc%osgw=0
+        struc%osmpot=0
+        struc%osmrho=0
+        struc%osop=0
+        struc%osoptc=0
+        struc%osrout=0
+        struc%otau=0
+        struc%ovab=0
+        struc%ovdif=0
+        struc%oves=0
+        struc%ovintr=0
+        struc%ovrmax=0
+        struc%ovshf=0
+        struc%vconst(:)=0.0d0
+        struc%vmtz=0.0d0
+        struc%vmtz0=0.0d0
+        end subroutine upot_init
        
         subroutine struc_upot_io(v_pot,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -4537,10 +5087,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_pot%bfield)/kind(v_pot%bfield)
+             v_ri%i= size(v_pot%bfield)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%bfield)/kind(v_pot%bfield)
+             n= size(v_pot%bfield)
             call struc_eval_io( v_pot%bfield,rw,n,range1,range2,val)
           endif
         case ('nlma')
@@ -4551,10 +5101,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%nlma)/kind(v_pot%nlma)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%nlma)/kind(v_pot%nlma)
+             n= 1
             call struc_eval_io( v_pot%nlma,rw,n,range1,range2,val)
           endif
         case ('nlml')
@@ -4565,10 +5115,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%nlml)/kind(v_pot%nlml)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%nlml)/kind(v_pot%nlml)
+             n= 1
             call struc_eval_io( v_pot%nlml,rw,n,range1,range2,val)
           endif
         case ('nrhos')
@@ -4579,10 +5129,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%nrhos)/kind(v_pot%nrhos)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%nrhos)/kind(v_pot%nrhos)
+             n= 1
             call struc_eval_io( v_pot%nrhos,rw,n,range1,range2,val)
           endif
         case ('oaamom')
@@ -4593,10 +5143,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oaamom)/kind(v_pot%oaamom)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oaamom)/kind(v_pot%oaamom)
+             n= 1
             call struc_eval_io( v_pot%oaamom,rw,n,range1,range2,val)
           endif
         case ('obxc')
@@ -4607,10 +5157,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%obxc)/kind(v_pot%obxc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%obxc)/kind(v_pot%obxc)
+             n= 1
             call struc_eval_io( v_pot%obxc,rw,n,range1,range2,val)
           endif
         case ('odddpf')
@@ -4621,10 +5171,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%odddpf)/kind(v_pot%odddpf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%odddpf)/kind(v_pot%odddpf)
+             n= 1
             call struc_eval_io( v_pot%odddpf,rw,n,range1,range2,val)
           endif
         case ('oddpf')
@@ -4635,10 +5185,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oddpf)/kind(v_pot%oddpf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oddpf)/kind(v_pot%oddpf)
+             n= 1
             call struc_eval_io( v_pot%oddpf,rw,n,range1,range2,val)
           endif
         case ('oddpfr')
@@ -4649,10 +5199,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oddpfr)/kind(v_pot%oddpfr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oddpfr)/kind(v_pot%oddpfr)
+             n= 1
             call struc_eval_io( v_pot%oddpfr,rw,n,range1,range2,val)
           endif
         case ('odel')
@@ -4663,10 +5213,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%odel)/kind(v_pot%odel)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%odel)/kind(v_pot%odel)
+             n= 1
             call struc_eval_io( v_pot%odel,rw,n,range1,range2,val)
           endif
         case ('odpf')
@@ -4677,10 +5227,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%odpf)/kind(v_pot%odpf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%odpf)/kind(v_pot%odpf)
+             n= 1
             call struc_eval_io( v_pot%odpf,rw,n,range1,range2,val)
           endif
         case ('odpfr')
@@ -4691,10 +5241,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%odpfr)/kind(v_pot%odpfr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%odpfr)/kind(v_pot%odpfr)
+             n= 1
             call struc_eval_io( v_pot%odpfr,rw,n,range1,range2,val)
           endif
         case ('ofes')
@@ -4705,10 +5255,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%ofes)/kind(v_pot%ofes)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%ofes)/kind(v_pot%ofes)
+             n= 1
             call struc_eval_io( v_pot%ofes,rw,n,range1,range2,val)
           endif
         case ('ogma')
@@ -4719,10 +5269,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%ogma)/kind(v_pot%ogma)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%ogma)/kind(v_pot%ogma)
+             n= 1
             call struc_eval_io( v_pot%ogma,rw,n,range1,range2,val)
           endif
         case ('ogmar')
@@ -4733,10 +5283,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%ogmar)/kind(v_pot%ogmar)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%ogmar)/kind(v_pot%ogmar)
+             n= 1
             call struc_eval_io( v_pot%ogmar,rw,n,range1,range2,val)
           endif
         case ('ogrrme')
@@ -4747,10 +5297,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%ogrrme)/kind(v_pot%ogrrme)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%ogrrme)/kind(v_pot%ogrrme)
+             n= 1
             call struc_eval_io( v_pot%ogrrme,rw,n,range1,range2,val)
           endif
         case ('ohab')
@@ -4761,10 +5311,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%ohab)/kind(v_pot%ohab)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%ohab)/kind(v_pot%ohab)
+             n= 1
             call struc_eval_io( v_pot%ohab,rw,n,range1,range2,val)
           endif
         case ('oivso')
@@ -4775,10 +5325,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oivso)/kind(v_pot%oivso)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oivso)/kind(v_pot%oivso)
+             n= 1
             call struc_eval_io( v_pot%oivso,rw,n,range1,range2,val)
           endif
         case ('omad')
@@ -4789,10 +5339,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%omad)/kind(v_pot%omad)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%omad)/kind(v_pot%omad)
+             n= 1
             call struc_eval_io( v_pot%omad,rw,n,range1,range2,val)
           endif
         case ('oorhat')
@@ -4803,10 +5353,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oorhat)/kind(v_pot%oorhat)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oorhat)/kind(v_pot%oorhat)
+             n= 1
             call struc_eval_io( v_pot%oorhat,rw,n,range1,range2,val)
           endif
         case ('opalp')
@@ -4817,10 +5367,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%opalp)/kind(v_pot%opalp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%opalp)/kind(v_pot%opalp)
+             n= 1
             call struc_eval_io( v_pot%opalp,rw,n,range1,range2,val)
           endif
         case ('opapg')
@@ -4831,10 +5381,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%opapg)/kind(v_pot%opapg)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%opapg)/kind(v_pot%opapg)
+             n= 1
             call struc_eval_io( v_pot%opapg,rw,n,range1,range2,val)
           endif
         case ('opdel')
@@ -4845,10 +5395,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%opdel)/kind(v_pot%opdel)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%opdel)/kind(v_pot%opdel)
+             n= 1
             call struc_eval_io( v_pot%opdel,rw,n,range1,range2,val)
           endif
         case ('opf')
@@ -4859,10 +5409,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%opf)/kind(v_pot%opf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%opf)/kind(v_pot%opf)
+             n= 1
             call struc_eval_io( v_pot%opf,rw,n,range1,range2,val)
           endif
         case ('opfnc')
@@ -4873,10 +5423,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%opfnc)/kind(v_pot%opfnc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%opfnc)/kind(v_pot%opfnc)
+             n= 1
             call struc_eval_io( v_pot%opfnc,rw,n,range1,range2,val)
           endif
         case ('opfr')
@@ -4887,10 +5437,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%opfr)/kind(v_pot%opfr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%opfr)/kind(v_pot%opfr)
+             n= 1
             call struc_eval_io( v_pot%opfr,rw,n,range1,range2,val)
           endif
         case ('opmpol')
@@ -4901,10 +5451,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%opmpol)/kind(v_pot%opmpol)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%opmpol)/kind(v_pot%opmpol)
+             n= 1
             call struc_eval_io( v_pot%opmpol,rw,n,range1,range2,val)
           endif
         case ('opnu')
@@ -4915,10 +5465,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%opnu)/kind(v_pot%opnu)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%opnu)/kind(v_pot%opnu)
+             n= 1
             call struc_eval_io( v_pot%opnu,rw,n,range1,range2,val)
           endif
         case ('opp')
@@ -4929,10 +5479,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%opp)/kind(v_pot%opp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%opp)/kind(v_pot%opp)
+             n= 1
             call struc_eval_io( v_pot%opp,rw,n,range1,range2,val)
           endif
         case ('oppi')
@@ -4943,10 +5493,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oppi)/kind(v_pot%oppi)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oppi)/kind(v_pot%oppi)
+             n= 1
             call struc_eval_io( v_pot%oppi,rw,n,range1,range2,val)
           endif
         case ('oppn')
@@ -4957,10 +5507,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oppn)/kind(v_pot%oppn)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oppn)/kind(v_pot%oppn)
+             n= 1
             call struc_eval_io( v_pot%oppn,rw,n,range1,range2,val)
           endif
         case ('opprel')
@@ -4971,10 +5521,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%opprel)/kind(v_pot%opprel)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%opprel)/kind(v_pot%opprel)
+             n= 1
             call struc_eval_io( v_pot%opprel,rw,n,range1,range2,val)
           endif
         case ('opti')
@@ -4985,10 +5535,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%opti)/kind(v_pot%opti)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%opti)/kind(v_pot%opti)
+             n= 1
             call struc_eval_io( v_pot%opti,rw,n,range1,range2,val)
           endif
         case ('oqc')
@@ -4999,10 +5549,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oqc)/kind(v_pot%oqc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oqc)/kind(v_pot%oqc)
+             n= 1
             call struc_eval_io( v_pot%oqc,rw,n,range1,range2,val)
           endif
         case ('oqmom')
@@ -5013,10 +5563,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oqmom)/kind(v_pot%oqmom)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oqmom)/kind(v_pot%oqmom)
+             n= 1
             call struc_eval_io( v_pot%oqmom,rw,n,range1,range2,val)
           endif
         case ('oqnu')
@@ -5027,10 +5577,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oqnu)/kind(v_pot%oqnu)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oqnu)/kind(v_pot%oqnu)
+             n= 1
             call struc_eval_io( v_pot%oqnu,rw,n,range1,range2,val)
           endif
         case ('oqpp')
@@ -5041,10 +5591,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oqpp)/kind(v_pot%oqpp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oqpp)/kind(v_pot%oqpp)
+             n= 1
             call struc_eval_io( v_pot%oqpp,rw,n,range1,range2,val)
           endif
         case ('oqt')
@@ -5055,10 +5605,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oqt)/kind(v_pot%oqt)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oqt)/kind(v_pot%oqt)
+             n= 1
             call struc_eval_io( v_pot%oqt,rw,n,range1,range2,val)
           endif
         case ('orhos')
@@ -5069,10 +5619,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%orhos)/kind(v_pot%orhos)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%orhos)/kind(v_pot%orhos)
+             n= 1
             call struc_eval_io( v_pot%orhos,rw,n,range1,range2,val)
           endif
         case ('orhrmx')
@@ -5083,10 +5633,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%orhrmx)/kind(v_pot%orhrmx)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%orhrmx)/kind(v_pot%orhrmx)
+             n= 1
             call struc_eval_io( v_pot%orhrmx,rw,n,range1,range2,val)
           endif
         case ('osab')
@@ -5097,10 +5647,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%osab)/kind(v_pot%osab)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%osab)/kind(v_pot%osab)
+             n= 1
             call struc_eval_io( v_pot%osab,rw,n,range1,range2,val)
           endif
         case ('osgw')
@@ -5111,10 +5661,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%osgw)/kind(v_pot%osgw)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%osgw)/kind(v_pot%osgw)
+             n= 1
             call struc_eval_io( v_pot%osgw,rw,n,range1,range2,val)
           endif
         case ('osmpot')
@@ -5125,10 +5675,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%osmpot)/kind(v_pot%osmpot)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%osmpot)/kind(v_pot%osmpot)
+             n= 1
             call struc_eval_io( v_pot%osmpot,rw,n,range1,range2,val)
           endif
         case ('osmrho')
@@ -5139,10 +5689,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%osmrho)/kind(v_pot%osmrho)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%osmrho)/kind(v_pot%osmrho)
+             n= 1
             call struc_eval_io( v_pot%osmrho,rw,n,range1,range2,val)
           endif
         case ('osop')
@@ -5153,10 +5703,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%osop)/kind(v_pot%osop)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%osop)/kind(v_pot%osop)
+             n= 1
             call struc_eval_io( v_pot%osop,rw,n,range1,range2,val)
           endif
         case ('osoptc')
@@ -5167,10 +5717,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%osoptc)/kind(v_pot%osoptc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%osoptc)/kind(v_pot%osoptc)
+             n= 1
             call struc_eval_io( v_pot%osoptc,rw,n,range1,range2,val)
           endif
         case ('osrout')
@@ -5181,10 +5731,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%osrout)/kind(v_pot%osrout)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%osrout)/kind(v_pot%osrout)
+             n= 1
             call struc_eval_io( v_pot%osrout,rw,n,range1,range2,val)
           endif
         case ('otau')
@@ -5195,10 +5745,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%otau)/kind(v_pot%otau)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%otau)/kind(v_pot%otau)
+             n= 1
             call struc_eval_io( v_pot%otau,rw,n,range1,range2,val)
           endif
         case ('ovab')
@@ -5209,10 +5759,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%ovab)/kind(v_pot%ovab)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%ovab)/kind(v_pot%ovab)
+             n= 1
             call struc_eval_io( v_pot%ovab,rw,n,range1,range2,val)
           endif
         case ('ovdif')
@@ -5223,10 +5773,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%ovdif)/kind(v_pot%ovdif)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%ovdif)/kind(v_pot%ovdif)
+             n= 1
             call struc_eval_io( v_pot%ovdif,rw,n,range1,range2,val)
           endif
         case ('oves')
@@ -5237,10 +5787,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%oves)/kind(v_pot%oves)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%oves)/kind(v_pot%oves)
+             n= 1
             call struc_eval_io( v_pot%oves,rw,n,range1,range2,val)
           endif
         case ('ovintr')
@@ -5251,10 +5801,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%ovintr)/kind(v_pot%ovintr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%ovintr)/kind(v_pot%ovintr)
+             n= 1
             call struc_eval_io( v_pot%ovintr,rw,n,range1,range2,val)
           endif
         case ('ovrmax')
@@ -5265,10 +5815,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%ovrmax)/kind(v_pot%ovrmax)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%ovrmax)/kind(v_pot%ovrmax)
+             n= 1
             call struc_eval_io( v_pot%ovrmax,rw,n,range1,range2,val)
           endif
         case ('ovshf')
@@ -5279,10 +5829,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_pot%ovshf)/kind(v_pot%ovshf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%ovshf)/kind(v_pot%ovshf)
+             n= 1
             call struc_eval_io( v_pot%ovshf,rw,n,range1,range2,val)
           endif
         case ('vconst')
@@ -5293,10 +5843,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_pot%vconst)/kind(v_pot%vconst)
+             v_ri%i= size(v_pot%vconst)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%vconst)/kind(v_pot%vconst)
+             n= size(v_pot%vconst)
             call struc_eval_io( v_pot%vconst,rw,n,range1,range2,val)
           endif
         case ('vmtz')
@@ -5307,10 +5857,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_pot%vmtz)/kind(v_pot%vmtz)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%vmtz)/kind(v_pot%vmtz)
+             n= 1
             call struc_eval_io( v_pot%vmtz,rw,n,range1,range2,val)
           endif
         case ('vmtz0')
@@ -5321,10 +5871,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_pot%vmtz0)/kind(v_pot%vmtz0)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_pot%vmtz0)/kind(v_pot%vmtz0)
+             n= 1
             call struc_eval_io( v_pot%vmtz0,rw,n,range1,range2,val)
           endif
         case default
@@ -5343,17 +5893,109 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call uspec_init(struc)
         else
           write(*,*) 'uspec offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine uspec
+       
+        integer function uspec_size()
+        integer:: n
+        n= 352
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        uspec_size=n
+        end function uspec_size
+       
+        subroutine uspec_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_spec):: struc
+        write(*,*) struc
+        end subroutine uspec_show
+       
+        subroutine uspec_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_spec):: struc
+        integer:: uspec_size
+        struc%size=uspec_size()
+        struc%z=0.0d0
+        struc%mass=0.0d0
+        struc%rmt=0.0d0
+        struc%ntorb=0
+        struc%naug=0
+        struc%norb=0
+        struc%rsmfa=0.0d0
+        struc%rsma=0.0d0
+        struc%rg=0.0d0
+        struc%lmxa=0
+        struc%kmxh=0
+        struc%lmxl=0
+        struc%kmxt=0
+        struc%rsmv=0.0d0
+        struc%norp=0
+        struc%coreh=0.0d0
+        struc%coreq(:)=0.0d0
+        struc%a=0.0d0
+        struc%nr=0
+        struc%eref=0.0d0
+        struc%etf=0.0d0
+        struc%beta=0.0d0
+        struc%lfoca=0
+        struc%ctail=0.0d0
+        struc%etail=0.0d0
+        struc%name=0.0d0
+        struc%orhoc=0
+        struc%stc=0.0d0
+        struc%lmxb=0
+        struc%lmxf=0
+        struc%stni=0.0d0
+        struc%stnm=0.0d0
+        struc%rham=0.0d0
+        struc%rfoca=0.0d0
+        struc%dv=0.0d0
+        struc%mxcst=0
+        struc%group=0
+        struc%grp2=0
+        struc%nxi=0
+        struc%qc=0.0d0
+        struc%lmxpb=0
+        struc%pb1=0.0d0
+        struc%pb2=0.0d0
+        struc%colxbs(:)=0.0d0
+        struc%lxi=0
+        struc%radxbs=0.0d0
+        struc%rcut=0.0d0
+        struc%rint=0.0d0
+        struc%eh3=0.0d0
+        struc%rs3=0.0d0
+        struc%vmtz=0.0d0
+        struc%kmxv=0
+        struc%rcfa(:)=0.0d0
+        struc%p(:)=0.0d0
+        struc%q(:)=0.0d0
+        struc%alpha(:)=0.0d0
+        struc%idmod(:)=0
+        struc%idxdn(:)=0
+        struc%hcr(:)=0.0d0
+        struc%exi(:)=0.0d0
+        struc%ngcut(:)=0
+        struc%qpol(:)=0.0d0
+        struc%chfa(:)=0.0d0
+        struc%orbp(:)=0.0d0
+        struc%enu(:)=0.0d0
+        struc%pz(:)=0.0d0
+        struc%idu(:)=0
+        struc%uh(:)=0.0d0
+        struc%jh(:)=0.0d0
+        struc%iq1(:)=0
+        struc%ivso(:)=0
+        struc%ehvl(:)=0.0d0
+        struc%vso(:)=0.0d0
+        end subroutine uspec_init
        
         subroutine struc_uspec_io(v_spec,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -5386,10 +6028,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%z)/kind(v_spec%z)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%z)/kind(v_spec%z)
+             n= 1
             call struc_eval_io( v_spec%z,rw,n,range1,range2,val)
           endif
         case ('mass')
@@ -5400,10 +6042,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%mass)/kind(v_spec%mass)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%mass)/kind(v_spec%mass)
+             n= 1
             call struc_eval_io( v_spec%mass,rw,n,range1,range2,val)
           endif
         case ('rmt')
@@ -5414,10 +6056,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%rmt)/kind(v_spec%rmt)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%rmt)/kind(v_spec%rmt)
+             n= 1
             call struc_eval_io( v_spec%rmt,rw,n,range1,range2,val)
           endif
         case ('ntorb')
@@ -5428,10 +6070,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%ntorb)/kind(v_spec%ntorb)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%ntorb)/kind(v_spec%ntorb)
+             n= 1
             call struc_eval_io( v_spec%ntorb,rw,n,range1,range2,val)
           endif
         case ('naug')
@@ -5442,10 +6084,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%naug)/kind(v_spec%naug)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%naug)/kind(v_spec%naug)
+             n= 1
             call struc_eval_io( v_spec%naug,rw,n,range1,range2,val)
           endif
         case ('norb')
@@ -5456,10 +6098,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%norb)/kind(v_spec%norb)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%norb)/kind(v_spec%norb)
+             n= 1
             call struc_eval_io( v_spec%norb,rw,n,range1,range2,val)
           endif
         case ('rsmfa')
@@ -5470,10 +6112,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%rsmfa)/kind(v_spec%rsmfa)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%rsmfa)/kind(v_spec%rsmfa)
+             n= 1
             call struc_eval_io( v_spec%rsmfa,rw,n,range1,range2,val)
           endif
         case ('rsma')
@@ -5484,10 +6126,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%rsma)/kind(v_spec%rsma)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%rsma)/kind(v_spec%rsma)
+             n= 1
             call struc_eval_io( v_spec%rsma,rw,n,range1,range2,val)
           endif
         case ('rg')
@@ -5498,10 +6140,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%rg)/kind(v_spec%rg)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%rg)/kind(v_spec%rg)
+             n= 1
             call struc_eval_io( v_spec%rg,rw,n,range1,range2,val)
           endif
         case ('lmxa')
@@ -5512,10 +6154,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%lmxa)/kind(v_spec%lmxa)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%lmxa)/kind(v_spec%lmxa)
+             n= 1
             call struc_eval_io( v_spec%lmxa,rw,n,range1,range2,val)
           endif
         case ('kmxh')
@@ -5526,10 +6168,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%kmxh)/kind(v_spec%kmxh)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%kmxh)/kind(v_spec%kmxh)
+             n= 1
             call struc_eval_io( v_spec%kmxh,rw,n,range1,range2,val)
           endif
         case ('lmxl')
@@ -5540,10 +6182,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%lmxl)/kind(v_spec%lmxl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%lmxl)/kind(v_spec%lmxl)
+             n= 1
             call struc_eval_io( v_spec%lmxl,rw,n,range1,range2,val)
           endif
         case ('kmxt')
@@ -5554,10 +6196,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%kmxt)/kind(v_spec%kmxt)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%kmxt)/kind(v_spec%kmxt)
+             n= 1
             call struc_eval_io( v_spec%kmxt,rw,n,range1,range2,val)
           endif
         case ('rsmv')
@@ -5568,10 +6210,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%rsmv)/kind(v_spec%rsmv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%rsmv)/kind(v_spec%rsmv)
+             n= 1
             call struc_eval_io( v_spec%rsmv,rw,n,range1,range2,val)
           endif
         case ('norp')
@@ -5582,10 +6224,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%norp)/kind(v_spec%norp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%norp)/kind(v_spec%norp)
+             n= 1
             call struc_eval_io( v_spec%norp,rw,n,range1,range2,val)
           endif
         case ('coreh')
@@ -5596,10 +6238,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 1
-             v_ri%i= sizeof(v_spec%coreh)/kind(v_spec%coreh)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%coreh)/kind(v_spec%coreh)
+             n= 1
             call struc_eval_io( v_spec%coreh,rw,n,range1,range2,val)
           endif
         case ('coreq')
@@ -5610,10 +6252,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%coreq)/kind(v_spec%coreq)
+             v_ri%i= size(v_spec%coreq)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%coreq)/kind(v_spec%coreq)
+             n= size(v_spec%coreq)
             call struc_eval_io( v_spec%coreq,rw,n,range1,range2,val)
           endif
         case ('a')
@@ -5624,10 +6266,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%a)/kind(v_spec%a)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%a)/kind(v_spec%a)
+             n= 1
             call struc_eval_io( v_spec%a,rw,n,range1,range2,val)
           endif
         case ('nr')
@@ -5638,10 +6280,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%nr)/kind(v_spec%nr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%nr)/kind(v_spec%nr)
+             n= 1
             call struc_eval_io( v_spec%nr,rw,n,range1,range2,val)
           endif
         case ('eref')
@@ -5652,10 +6294,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%eref)/kind(v_spec%eref)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%eref)/kind(v_spec%eref)
+             n= 1
             call struc_eval_io( v_spec%eref,rw,n,range1,range2,val)
           endif
         case ('etf')
@@ -5666,10 +6308,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%etf)/kind(v_spec%etf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%etf)/kind(v_spec%etf)
+             n= 1
             call struc_eval_io( v_spec%etf,rw,n,range1,range2,val)
           endif
         case ('beta')
@@ -5680,10 +6322,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%beta)/kind(v_spec%beta)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%beta)/kind(v_spec%beta)
+             n= 1
             call struc_eval_io( v_spec%beta,rw,n,range1,range2,val)
           endif
         case ('lfoca')
@@ -5694,10 +6336,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%lfoca)/kind(v_spec%lfoca)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%lfoca)/kind(v_spec%lfoca)
+             n= 1
             call struc_eval_io( v_spec%lfoca,rw,n,range1,range2,val)
           endif
         case ('ctail')
@@ -5708,10 +6350,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%ctail)/kind(v_spec%ctail)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%ctail)/kind(v_spec%ctail)
+             n= 1
             call struc_eval_io( v_spec%ctail,rw,n,range1,range2,val)
           endif
         case ('etail')
@@ -5722,10 +6364,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%etail)/kind(v_spec%etail)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%etail)/kind(v_spec%etail)
+             n= 1
             call struc_eval_io( v_spec%etail,rw,n,range1,range2,val)
           endif
         case ('name')
@@ -5736,10 +6378,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 1
-             v_ri%i= sizeof(v_spec%name)/kind(v_spec%name)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%name)/kind(v_spec%name)
+             n= 1
             call struc_eval_io( v_spec%name,rw,n,range1,range2,val)
           endif
         case ('orhoc')
@@ -5750,10 +6392,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%orhoc)/kind(v_spec%orhoc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%orhoc)/kind(v_spec%orhoc)
+             n= 1
             call struc_eval_io( v_spec%orhoc,rw,n,range1,range2,val)
           endif
         case ('stc')
@@ -5764,10 +6406,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%stc)/kind(v_spec%stc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%stc)/kind(v_spec%stc)
+             n= 1
             call struc_eval_io( v_spec%stc,rw,n,range1,range2,val)
           endif
         case ('lmxb')
@@ -5778,10 +6420,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%lmxb)/kind(v_spec%lmxb)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%lmxb)/kind(v_spec%lmxb)
+             n= 1
             call struc_eval_io( v_spec%lmxb,rw,n,range1,range2,val)
           endif
         case ('lmxf')
@@ -5792,10 +6434,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%lmxf)/kind(v_spec%lmxf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%lmxf)/kind(v_spec%lmxf)
+             n= 1
             call struc_eval_io( v_spec%lmxf,rw,n,range1,range2,val)
           endif
         case ('stni')
@@ -5806,10 +6448,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%stni)/kind(v_spec%stni)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%stni)/kind(v_spec%stni)
+             n= 1
             call struc_eval_io( v_spec%stni,rw,n,range1,range2,val)
           endif
         case ('stnm')
@@ -5820,10 +6462,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%stnm)/kind(v_spec%stnm)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%stnm)/kind(v_spec%stnm)
+             n= 1
             call struc_eval_io( v_spec%stnm,rw,n,range1,range2,val)
           endif
         case ('rham')
@@ -5834,10 +6476,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%rham)/kind(v_spec%rham)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%rham)/kind(v_spec%rham)
+             n= 1
             call struc_eval_io( v_spec%rham,rw,n,range1,range2,val)
           endif
         case ('rfoca')
@@ -5848,10 +6490,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%rfoca)/kind(v_spec%rfoca)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%rfoca)/kind(v_spec%rfoca)
+             n= 1
             call struc_eval_io( v_spec%rfoca,rw,n,range1,range2,val)
           endif
         case ('dv')
@@ -5862,10 +6504,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%dv)/kind(v_spec%dv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%dv)/kind(v_spec%dv)
+             n= 1
             call struc_eval_io( v_spec%dv,rw,n,range1,range2,val)
           endif
         case ('mxcst')
@@ -5876,10 +6518,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%mxcst)/kind(v_spec%mxcst)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%mxcst)/kind(v_spec%mxcst)
+             n= 1
             call struc_eval_io( v_spec%mxcst,rw,n,range1,range2,val)
           endif
         case ('group')
@@ -5890,10 +6532,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%group)/kind(v_spec%group)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%group)/kind(v_spec%group)
+             n= 1
             call struc_eval_io( v_spec%group,rw,n,range1,range2,val)
           endif
         case ('grp2')
@@ -5904,10 +6546,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%grp2)/kind(v_spec%grp2)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%grp2)/kind(v_spec%grp2)
+             n= 1
             call struc_eval_io( v_spec%grp2,rw,n,range1,range2,val)
           endif
         case ('nxi')
@@ -5918,10 +6560,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%nxi)/kind(v_spec%nxi)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%nxi)/kind(v_spec%nxi)
+             n= 1
             call struc_eval_io( v_spec%nxi,rw,n,range1,range2,val)
           endif
         case ('qc')
@@ -5932,10 +6574,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%qc)/kind(v_spec%qc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%qc)/kind(v_spec%qc)
+             n= 1
             call struc_eval_io( v_spec%qc,rw,n,range1,range2,val)
           endif
         case ('lmxpb')
@@ -5946,10 +6588,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%lmxpb)/kind(v_spec%lmxpb)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%lmxpb)/kind(v_spec%lmxpb)
+             n= 1
             call struc_eval_io( v_spec%lmxpb,rw,n,range1,range2,val)
           endif
         case ('pb1')
@@ -5960,10 +6602,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 1
-             v_ri%i= sizeof(v_spec%pb1)/kind(v_spec%pb1)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%pb1)/kind(v_spec%pb1)
+             n= 1
             call struc_eval_io( v_spec%pb1,rw,n,range1,range2,val)
           endif
         case ('pb2')
@@ -5974,10 +6616,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 1
-             v_ri%i= sizeof(v_spec%pb2)/kind(v_spec%pb2)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%pb2)/kind(v_spec%pb2)
+             n= 1
             call struc_eval_io( v_spec%pb2,rw,n,range1,range2,val)
           endif
         case ('colxbs')
@@ -5988,10 +6630,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%colxbs)/kind(v_spec%colxbs)
+             v_ri%i= size(v_spec%colxbs)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%colxbs)/kind(v_spec%colxbs)
+             n= size(v_spec%colxbs)
             call struc_eval_io( v_spec%colxbs,rw,n,range1,range2,val)
           endif
         case ('lxi')
@@ -6002,10 +6644,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%lxi)/kind(v_spec%lxi)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%lxi)/kind(v_spec%lxi)
+             n= 1
             call struc_eval_io( v_spec%lxi,rw,n,range1,range2,val)
           endif
         case ('radxbs')
@@ -6016,10 +6658,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%radxbs)/kind(v_spec%radxbs)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%radxbs)/kind(v_spec%radxbs)
+             n= 1
             call struc_eval_io( v_spec%radxbs,rw,n,range1,range2,val)
           endif
         case ('rcut')
@@ -6030,10 +6672,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%rcut)/kind(v_spec%rcut)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%rcut)/kind(v_spec%rcut)
+             n= 1
             call struc_eval_io( v_spec%rcut,rw,n,range1,range2,val)
           endif
         case ('rint')
@@ -6044,10 +6686,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%rint)/kind(v_spec%rint)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%rint)/kind(v_spec%rint)
+             n= 1
             call struc_eval_io( v_spec%rint,rw,n,range1,range2,val)
           endif
         case ('eh3')
@@ -6058,10 +6700,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%eh3)/kind(v_spec%eh3)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%eh3)/kind(v_spec%eh3)
+             n= 1
             call struc_eval_io( v_spec%eh3,rw,n,range1,range2,val)
           endif
         case ('rs3')
@@ -6072,10 +6714,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%rs3)/kind(v_spec%rs3)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%rs3)/kind(v_spec%rs3)
+             n= 1
             call struc_eval_io( v_spec%rs3,rw,n,range1,range2,val)
           endif
         case ('vmtz')
@@ -6086,10 +6728,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%vmtz)/kind(v_spec%vmtz)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%vmtz)/kind(v_spec%vmtz)
+             n= 1
             call struc_eval_io( v_spec%vmtz,rw,n,range1,range2,val)
           endif
         case ('kmxv')
@@ -6100,10 +6742,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%kmxv)/kind(v_spec%kmxv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%kmxv)/kind(v_spec%kmxv)
+             n= 1
             call struc_eval_io( v_spec%kmxv,rw,n,range1,range2,val)
           endif
         case ('rcfa')
@@ -6114,10 +6756,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%rcfa)/kind(v_spec%rcfa)
+             v_ri%i= size(v_spec%rcfa)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%rcfa)/kind(v_spec%rcfa)
+             n= size(v_spec%rcfa)
             call struc_eval_io( v_spec%rcfa,rw,n,range1,range2,val)
           endif
         case ('p')
@@ -6128,10 +6770,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%p)/kind(v_spec%p)
+             v_ri%i= size(v_spec%p)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%p)/kind(v_spec%p)
+             n= size(v_spec%p)
             call struc_eval_io( v_spec%p,rw,n,range1,range2,val)
           endif
         case ('q')
@@ -6142,10 +6784,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%q)/kind(v_spec%q)
+             v_ri%i= size(v_spec%q)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%q)/kind(v_spec%q)
+             n= size(v_spec%q)
             call struc_eval_io( v_spec%q,rw,n,range1,range2,val)
           endif
         case ('alpha')
@@ -6156,10 +6798,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%alpha)/kind(v_spec%alpha)
+             v_ri%i= size(v_spec%alpha)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%alpha)/kind(v_spec%alpha)
+             n= size(v_spec%alpha)
             call struc_eval_io( v_spec%alpha,rw,n,range1,range2,val)
           endif
         case ('idmod')
@@ -6170,10 +6812,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%idmod)/kind(v_spec%idmod)
+             v_ri%i= size(v_spec%idmod)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%idmod)/kind(v_spec%idmod)
+             n= size(v_spec%idmod)
             call struc_eval_io( v_spec%idmod,rw,n,range1,range2,val)
           endif
         case ('idxdn')
@@ -6184,10 +6826,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%idxdn)/kind(v_spec%idxdn)
+             v_ri%i= size(v_spec%idxdn)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%idxdn)/kind(v_spec%idxdn)
+             n= size(v_spec%idxdn)
             call struc_eval_io( v_spec%idxdn,rw,n,range1,range2,val)
           endif
         case ('hcr')
@@ -6198,10 +6840,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%hcr)/kind(v_spec%hcr)
+             v_ri%i= size(v_spec%hcr)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%hcr)/kind(v_spec%hcr)
+             n= size(v_spec%hcr)
             call struc_eval_io( v_spec%hcr,rw,n,range1,range2,val)
           endif
         case ('exi')
@@ -6212,10 +6854,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%exi)/kind(v_spec%exi)
+             v_ri%i= size(v_spec%exi)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%exi)/kind(v_spec%exi)
+             n= size(v_spec%exi)
             call struc_eval_io( v_spec%exi,rw,n,range1,range2,val)
           endif
         case ('ngcut')
@@ -6226,10 +6868,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%ngcut)/kind(v_spec%ngcut)
+             v_ri%i= size(v_spec%ngcut)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%ngcut)/kind(v_spec%ngcut)
+             n= size(v_spec%ngcut)
             call struc_eval_io( v_spec%ngcut,rw,n,range1,range2,val)
           endif
         case ('qpol')
@@ -6240,10 +6882,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%qpol)/kind(v_spec%qpol)
+             v_ri%i= size(v_spec%qpol)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%qpol)/kind(v_spec%qpol)
+             n= size(v_spec%qpol)
             call struc_eval_io( v_spec%qpol,rw,n,range1,range2,val)
           endif
         case ('chfa')
@@ -6254,10 +6896,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%chfa)/kind(v_spec%chfa)
+             v_ri%i= size(v_spec%chfa)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%chfa)/kind(v_spec%chfa)
+             n= size(v_spec%chfa)
             call struc_eval_io( v_spec%chfa,rw,n,range1,range2,val)
           endif
         case ('orbp')
@@ -6268,10 +6910,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%orbp)/kind(v_spec%orbp)
+             v_ri%i= size(v_spec%orbp)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%orbp)/kind(v_spec%orbp)
+             n= size(v_spec%orbp)
             call struc_eval_io( v_spec%orbp,rw,n,range1,range2,val)
           endif
         case ('enu')
@@ -6282,10 +6924,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%enu)/kind(v_spec%enu)
+             v_ri%i= size(v_spec%enu)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%enu)/kind(v_spec%enu)
+             n= size(v_spec%enu)
             call struc_eval_io( v_spec%enu,rw,n,range1,range2,val)
           endif
         case ('pz')
@@ -6296,10 +6938,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%pz)/kind(v_spec%pz)
+             v_ri%i= size(v_spec%pz)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%pz)/kind(v_spec%pz)
+             n= size(v_spec%pz)
             call struc_eval_io( v_spec%pz,rw,n,range1,range2,val)
           endif
         case ('idu')
@@ -6310,10 +6952,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%idu)/kind(v_spec%idu)
+             v_ri%i= size(v_spec%idu)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%idu)/kind(v_spec%idu)
+             n= size(v_spec%idu)
             call struc_eval_io( v_spec%idu,rw,n,range1,range2,val)
           endif
         case ('uh')
@@ -6324,10 +6966,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%uh)/kind(v_spec%uh)
+             v_ri%i= size(v_spec%uh)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%uh)/kind(v_spec%uh)
+             n= size(v_spec%uh)
             call struc_eval_io( v_spec%uh,rw,n,range1,range2,val)
           endif
         case ('jh')
@@ -6338,10 +6980,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%jh)/kind(v_spec%jh)
+             v_ri%i= size(v_spec%jh)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%jh)/kind(v_spec%jh)
+             n= size(v_spec%jh)
             call struc_eval_io( v_spec%jh,rw,n,range1,range2,val)
           endif
         case ('iq1')
@@ -6352,10 +6994,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%iq1)/kind(v_spec%iq1)
+             v_ri%i= size(v_spec%iq1)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%iq1)/kind(v_spec%iq1)
+             n= size(v_spec%iq1)
             call struc_eval_io( v_spec%iq1,rw,n,range1,range2,val)
           endif
         case ('ivso')
@@ -6366,10 +7008,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_spec%ivso)/kind(v_spec%ivso)
+             v_ri%i= size(v_spec%ivso)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%ivso)/kind(v_spec%ivso)
+             n= size(v_spec%ivso)
             call struc_eval_io( v_spec%ivso,rw,n,range1,range2,val)
           endif
         case ('ehvl')
@@ -6380,10 +7022,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%ehvl)/kind(v_spec%ehvl)
+             v_ri%i= size(v_spec%ehvl)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%ehvl)/kind(v_spec%ehvl)
+             n= size(v_spec%ehvl)
             call struc_eval_io( v_spec%ehvl,rw,n,range1,range2,val)
           endif
         case ('vso')
@@ -6394,10 +7036,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_spec%vso)/kind(v_spec%vso)
+             v_ri%i= size(v_spec%vso)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_spec%vso)/kind(v_spec%vso)
+             n= size(v_spec%vso)
             call struc_eval_io( v_spec%vso,rw,n,range1,range2,val)
           endif
         case default
@@ -6416,17 +7058,62 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call usite_init(struc)
         else
           write(*,*) 'usite offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine usite
+       
+        integer function usite_size()
+        integer:: n
+        n= 86
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        usite_size=n
+        end function usite_size
+       
+        subroutine usite_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_site):: struc
+        write(*,*) struc
+        end subroutine usite_show
+       
+        subroutine usite_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_site):: struc
+        integer:: usite_size
+        struc%size=usite_size()
+        struc%bfield(:)=0.0d0
+        struc%clabel=0.0d0
+        struc%class=0
+        struc%cli=0
+        struc%delta(:)=0.0d0
+        struc%dpole(:)=0.0d0
+        struc%eula(:)=0.0d0
+        struc%force(:)=0.0d0
+        struc%mpole=0.0d0
+        struc%ndelta=0
+        struc%norb=0
+        struc%offh=0
+        struc%orho=0
+        struc%ov0=0
+        struc%ov1=0
+        struc%pl=0
+        struc%plv=0
+        struc%pnu(:)=0.0d0
+        struc%pos(:)=0.0d0
+        struc%pos0(:)=0.0d0
+        struc%pz(:)=0.0d0
+        struc%relax(:)=0
+        struc%sid=0
+        struc%spec=0
+        struc%vel(:)=0.0d0
+        struc%vshft=0.0d0
+        end subroutine usite_init
        
         subroutine struc_usite_io(v_site,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -6459,10 +7146,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%bfield)/kind(v_site%bfield)
+             v_ri%i= size(v_site%bfield)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%bfield)/kind(v_site%bfield)
+             n= size(v_site%bfield)
             call struc_eval_io( v_site%bfield,rw,n,range1,range2,val)
           endif
         case ('clabel')
@@ -6473,10 +7160,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 1
-             v_ri%i= sizeof(v_site%clabel)/kind(v_site%clabel)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%clabel)/kind(v_site%clabel)
+             n= 1
             call struc_eval_io( v_site%clabel,rw,n,range1,range2,val)
           endif
         case ('class')
@@ -6487,10 +7174,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%class)/kind(v_site%class)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%class)/kind(v_site%class)
+             n= 1
             call struc_eval_io( v_site%class,rw,n,range1,range2,val)
           endif
         case ('cli')
@@ -6501,10 +7188,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%cli)/kind(v_site%cli)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%cli)/kind(v_site%cli)
+             n= 1
             call struc_eval_io( v_site%cli,rw,n,range1,range2,val)
           endif
         case ('delta')
@@ -6515,10 +7202,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%delta)/kind(v_site%delta)
+             v_ri%i= size(v_site%delta)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%delta)/kind(v_site%delta)
+             n= size(v_site%delta)
             call struc_eval_io( v_site%delta,rw,n,range1,range2,val)
           endif
         case ('dpole')
@@ -6529,10 +7216,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%dpole)/kind(v_site%dpole)
+             v_ri%i= size(v_site%dpole)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%dpole)/kind(v_site%dpole)
+             n= size(v_site%dpole)
             call struc_eval_io( v_site%dpole,rw,n,range1,range2,val)
           endif
         case ('eula')
@@ -6543,10 +7230,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%eula)/kind(v_site%eula)
+             v_ri%i= size(v_site%eula)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%eula)/kind(v_site%eula)
+             n= size(v_site%eula)
             call struc_eval_io( v_site%eula,rw,n,range1,range2,val)
           endif
         case ('force')
@@ -6557,10 +7244,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%force)/kind(v_site%force)
+             v_ri%i= size(v_site%force)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%force)/kind(v_site%force)
+             n= size(v_site%force)
             call struc_eval_io( v_site%force,rw,n,range1,range2,val)
           endif
         case ('mpole')
@@ -6571,10 +7258,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%mpole)/kind(v_site%mpole)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%mpole)/kind(v_site%mpole)
+             n= 1
             call struc_eval_io( v_site%mpole,rw,n,range1,range2,val)
           endif
         case ('ndelta')
@@ -6585,10 +7272,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%ndelta)/kind(v_site%ndelta)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%ndelta)/kind(v_site%ndelta)
+             n= 1
             call struc_eval_io( v_site%ndelta,rw,n,range1,range2,val)
           endif
         case ('norb')
@@ -6599,10 +7286,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%norb)/kind(v_site%norb)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%norb)/kind(v_site%norb)
+             n= 1
             call struc_eval_io( v_site%norb,rw,n,range1,range2,val)
           endif
         case ('offh')
@@ -6613,10 +7300,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%offh)/kind(v_site%offh)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%offh)/kind(v_site%offh)
+             n= 1
             call struc_eval_io( v_site%offh,rw,n,range1,range2,val)
           endif
         case ('orho')
@@ -6627,10 +7314,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%orho)/kind(v_site%orho)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%orho)/kind(v_site%orho)
+             n= 1
             call struc_eval_io( v_site%orho,rw,n,range1,range2,val)
           endif
         case ('ov0')
@@ -6641,10 +7328,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%ov0)/kind(v_site%ov0)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%ov0)/kind(v_site%ov0)
+             n= 1
             call struc_eval_io( v_site%ov0,rw,n,range1,range2,val)
           endif
         case ('ov1')
@@ -6655,10 +7342,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%ov1)/kind(v_site%ov1)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%ov1)/kind(v_site%ov1)
+             n= 1
             call struc_eval_io( v_site%ov1,rw,n,range1,range2,val)
           endif
         case ('pl')
@@ -6669,10 +7356,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%pl)/kind(v_site%pl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%pl)/kind(v_site%pl)
+             n= 1
             call struc_eval_io( v_site%pl,rw,n,range1,range2,val)
           endif
         case ('plv')
@@ -6683,10 +7370,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%plv)/kind(v_site%plv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%plv)/kind(v_site%plv)
+             n= 1
             call struc_eval_io( v_site%plv,rw,n,range1,range2,val)
           endif
         case ('pnu')
@@ -6697,10 +7384,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%pnu)/kind(v_site%pnu)
+             v_ri%i= size(v_site%pnu)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%pnu)/kind(v_site%pnu)
+             n= size(v_site%pnu)
             call struc_eval_io( v_site%pnu,rw,n,range1,range2,val)
           endif
         case ('pos')
@@ -6711,10 +7398,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%pos)/kind(v_site%pos)
+             v_ri%i= size(v_site%pos)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%pos)/kind(v_site%pos)
+             n= size(v_site%pos)
             call struc_eval_io( v_site%pos,rw,n,range1,range2,val)
           endif
         case ('pos0')
@@ -6725,10 +7412,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%pos0)/kind(v_site%pos0)
+             v_ri%i= size(v_site%pos0)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%pos0)/kind(v_site%pos0)
+             n= size(v_site%pos0)
             call struc_eval_io( v_site%pos0,rw,n,range1,range2,val)
           endif
         case ('pz')
@@ -6739,10 +7426,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%pz)/kind(v_site%pz)
+             v_ri%i= size(v_site%pz)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%pz)/kind(v_site%pz)
+             n= size(v_site%pz)
             call struc_eval_io( v_site%pz,rw,n,range1,range2,val)
           endif
         case ('relax')
@@ -6753,10 +7440,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%relax)/kind(v_site%relax)
+             v_ri%i= size(v_site%relax)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%relax)/kind(v_site%relax)
+             n= size(v_site%relax)
             call struc_eval_io( v_site%relax,rw,n,range1,range2,val)
           endif
         case ('sid')
@@ -6767,10 +7454,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%sid)/kind(v_site%sid)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%sid)/kind(v_site%sid)
+             n= 1
             call struc_eval_io( v_site%sid,rw,n,range1,range2,val)
           endif
         case ('spec')
@@ -6781,10 +7468,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_site%spec)/kind(v_site%spec)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%spec)/kind(v_site%spec)
+             n= 1
             call struc_eval_io( v_site%spec,rw,n,range1,range2,val)
           endif
         case ('vel')
@@ -6795,10 +7482,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%vel)/kind(v_site%vel)
+             v_ri%i= size(v_site%vel)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%vel)/kind(v_site%vel)
+             n= size(v_site%vel)
             call struc_eval_io( v_site%vel,rw,n,range1,range2,val)
           endif
         case ('vshft')
@@ -6809,10 +7496,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_site%vshft)/kind(v_site%vshft)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_site%vshft)/kind(v_site%vshft)
+             n= 1
             call struc_eval_io( v_site%vshft,rw,n,range1,range2,val)
           endif
         case default
@@ -6831,17 +7518,65 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call ustr_init(struc)
         else
           write(*,*) 'ustr offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine ustr
+       
+        integer function ustr_size()
+        integer:: n
+        n= 46
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        ustr_size=n
+        end function ustr_size
+       
+        subroutine ustr_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_str):: struc
+        write(*,*) struc
+        end subroutine ustr_show
+       
+        subroutine ustr_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_str):: struc
+        integer:: ustr_size
+        struc%size=ustr_size()
+        struc%adec=0.0d0
+        struc%amode=0
+        struc%drwats=0.0d0
+        struc%iinv(:)=0.0d0
+        struc%ivl=0
+        struc%kaps(:)=0.0d0
+        struc%lequiv=0
+        struc%lmaxw=0
+        struc%loka=0
+        struc%lshow=0
+        struc%mxnbr=0
+        struc%nalf=0
+        struc%nbisi(:)=0
+        struc%ncupl=0
+        struc%ndust=0
+        struc%nitab=0
+        struc%nkaps=0
+        struc%nttab=0
+        struc%oadot=0
+        struc%oalp=0
+        struc%oiax=0
+        struc%ontab=0
+        struc%os=0
+        struc%osdot=0
+        struc%rfit=0.0d0
+        struc%rmax=0.0d0
+        struc%rmaxg=0.0d0
+        struc%skmsh(:)=0.0d0
+        struc%wztcf=0.0d0
+        end subroutine ustr_init
        
         subroutine struc_ustr_io(v_str,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -6874,10 +7609,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_str%adec)/kind(v_str%adec)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%adec)/kind(v_str%adec)
+             n= 1
             call struc_eval_io( v_str%adec,rw,n,range1,range2,val)
           endif
         case ('amode')
@@ -6888,10 +7623,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%amode)/kind(v_str%amode)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%amode)/kind(v_str%amode)
+             n= 1
             call struc_eval_io( v_str%amode,rw,n,range1,range2,val)
           endif
         case ('drwats')
@@ -6902,10 +7637,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_str%drwats)/kind(v_str%drwats)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%drwats)/kind(v_str%drwats)
+             n= 1
             call struc_eval_io( v_str%drwats,rw,n,range1,range2,val)
           endif
         case ('iinv')
@@ -6916,10 +7651,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_str%iinv)/kind(v_str%iinv)
+             v_ri%i= size(v_str%iinv)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%iinv)/kind(v_str%iinv)
+             n= size(v_str%iinv)
             call struc_eval_io( v_str%iinv,rw,n,range1,range2,val)
           endif
         case ('ivl')
@@ -6930,10 +7665,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%ivl)/kind(v_str%ivl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%ivl)/kind(v_str%ivl)
+             n= 1
             call struc_eval_io( v_str%ivl,rw,n,range1,range2,val)
           endif
         case ('kaps')
@@ -6944,10 +7679,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_str%kaps)/kind(v_str%kaps)
+             v_ri%i= size(v_str%kaps)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%kaps)/kind(v_str%kaps)
+             n= size(v_str%kaps)
             call struc_eval_io( v_str%kaps,rw,n,range1,range2,val)
           endif
         case ('lequiv')
@@ -6958,10 +7693,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%lequiv)/kind(v_str%lequiv)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%lequiv)/kind(v_str%lequiv)
+             n= 1
             call struc_eval_io( v_str%lequiv,rw,n,range1,range2,val)
           endif
         case ('lmaxw')
@@ -6972,10 +7707,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%lmaxw)/kind(v_str%lmaxw)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%lmaxw)/kind(v_str%lmaxw)
+             n= 1
             call struc_eval_io( v_str%lmaxw,rw,n,range1,range2,val)
           endif
         case ('loka')
@@ -6986,10 +7721,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%loka)/kind(v_str%loka)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%loka)/kind(v_str%loka)
+             n= 1
             call struc_eval_io( v_str%loka,rw,n,range1,range2,val)
           endif
         case ('lshow')
@@ -7000,10 +7735,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%lshow)/kind(v_str%lshow)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%lshow)/kind(v_str%lshow)
+             n= 1
             call struc_eval_io( v_str%lshow,rw,n,range1,range2,val)
           endif
         case ('mxnbr')
@@ -7014,10 +7749,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%mxnbr)/kind(v_str%mxnbr)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%mxnbr)/kind(v_str%mxnbr)
+             n= 1
             call struc_eval_io( v_str%mxnbr,rw,n,range1,range2,val)
           endif
         case ('nalf')
@@ -7028,10 +7763,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%nalf)/kind(v_str%nalf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%nalf)/kind(v_str%nalf)
+             n= 1
             call struc_eval_io( v_str%nalf,rw,n,range1,range2,val)
           endif
         case ('nbisi')
@@ -7042,10 +7777,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%nbisi)/kind(v_str%nbisi)
+             v_ri%i= size(v_str%nbisi)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%nbisi)/kind(v_str%nbisi)
+             n= size(v_str%nbisi)
             call struc_eval_io( v_str%nbisi,rw,n,range1,range2,val)
           endif
         case ('ncupl')
@@ -7056,10 +7791,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%ncupl)/kind(v_str%ncupl)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%ncupl)/kind(v_str%ncupl)
+             n= 1
             call struc_eval_io( v_str%ncupl,rw,n,range1,range2,val)
           endif
         case ('ndust')
@@ -7070,10 +7805,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%ndust)/kind(v_str%ndust)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%ndust)/kind(v_str%ndust)
+             n= 1
             call struc_eval_io( v_str%ndust,rw,n,range1,range2,val)
           endif
         case ('nitab')
@@ -7084,10 +7819,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%nitab)/kind(v_str%nitab)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%nitab)/kind(v_str%nitab)
+             n= 1
             call struc_eval_io( v_str%nitab,rw,n,range1,range2,val)
           endif
         case ('nkaps')
@@ -7098,10 +7833,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%nkaps)/kind(v_str%nkaps)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%nkaps)/kind(v_str%nkaps)
+             n= 1
             call struc_eval_io( v_str%nkaps,rw,n,range1,range2,val)
           endif
         case ('nttab')
@@ -7112,10 +7847,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%nttab)/kind(v_str%nttab)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%nttab)/kind(v_str%nttab)
+             n= 1
             call struc_eval_io( v_str%nttab,rw,n,range1,range2,val)
           endif
         case ('oadot')
@@ -7126,10 +7861,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%oadot)/kind(v_str%oadot)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%oadot)/kind(v_str%oadot)
+             n= 1
             call struc_eval_io( v_str%oadot,rw,n,range1,range2,val)
           endif
         case ('oalp')
@@ -7140,10 +7875,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%oalp)/kind(v_str%oalp)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%oalp)/kind(v_str%oalp)
+             n= 1
             call struc_eval_io( v_str%oalp,rw,n,range1,range2,val)
           endif
         case ('oiax')
@@ -7154,10 +7889,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%oiax)/kind(v_str%oiax)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%oiax)/kind(v_str%oiax)
+             n= 1
             call struc_eval_io( v_str%oiax,rw,n,range1,range2,val)
           endif
         case ('ontab')
@@ -7168,10 +7903,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%ontab)/kind(v_str%ontab)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%ontab)/kind(v_str%ontab)
+             n= 1
             call struc_eval_io( v_str%ontab,rw,n,range1,range2,val)
           endif
         case ('os')
@@ -7182,10 +7917,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%os)/kind(v_str%os)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%os)/kind(v_str%os)
+             n= 1
             call struc_eval_io( v_str%os,rw,n,range1,range2,val)
           endif
         case ('osdot')
@@ -7196,10 +7931,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_str%osdot)/kind(v_str%osdot)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%osdot)/kind(v_str%osdot)
+             n= 1
             call struc_eval_io( v_str%osdot,rw,n,range1,range2,val)
           endif
         case ('rfit')
@@ -7210,10 +7945,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_str%rfit)/kind(v_str%rfit)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%rfit)/kind(v_str%rfit)
+             n= 1
             call struc_eval_io( v_str%rfit,rw,n,range1,range2,val)
           endif
         case ('rmax')
@@ -7224,10 +7959,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_str%rmax)/kind(v_str%rmax)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%rmax)/kind(v_str%rmax)
+             n= 1
             call struc_eval_io( v_str%rmax,rw,n,range1,range2,val)
           endif
         case ('rmaxg')
@@ -7238,10 +7973,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_str%rmaxg)/kind(v_str%rmaxg)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%rmaxg)/kind(v_str%rmaxg)
+             n= 1
             call struc_eval_io( v_str%rmaxg,rw,n,range1,range2,val)
           endif
         case ('skmsh')
@@ -7252,10 +7987,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_str%skmsh)/kind(v_str%skmsh)
+             v_ri%i= size(v_str%skmsh)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%skmsh)/kind(v_str%skmsh)
+             n= size(v_str%skmsh)
             call struc_eval_io( v_str%skmsh,rw,n,range1,range2,val)
           endif
         case ('wztcf')
@@ -7266,10 +8001,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_str%wztcf)/kind(v_str%wztcf)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_str%wztcf)/kind(v_str%wztcf)
+             n= 1
             call struc_eval_io( v_str%wztcf,rw,n,range1,range2,val)
           endif
         case default
@@ -7288,17 +8023,42 @@ C offe=-1 is only supported
         integer:: offe(1),nli,is,off,cast,nelt
         integer::val
         if (offe(1).eq.-1) then
-C  +2 is margin
-C next call will overwrite nsize if rw='u'
-          val=sizeof(struc)/8+2
-          if (mod(val,2).eq.1) val=val+1
-          call dcopy(val,dble(nli),0,struc,1)
-          struc%size=val
+          call utb_init(struc)
         else
           write(*,*) 'utb offe=',offe(1),' not suppoted'
           stop
         endif
         end subroutine utb
+       
+        integer function utb_size()
+        integer:: n
+        n= 10
+C  +2 is margin
+        n=n+2
+        if (mod(n,2).eq.1) n=n+1
+        utb_size=n
+        end function utb_size
+       
+        subroutine utb_show(struc)
+        use m_struc_def
+        implicit none
+        type(s_tb):: struc
+        write(*,*) struc
+        end subroutine utb_show
+       
+        subroutine utb_init(struc)
+        use m_struc_def
+        implicit none
+        type(s_tb):: struc
+        integer:: utb_size
+        struc%size=utb_size()
+        struc%alam=0.0d0
+        struc%alsc=0.0d0
+        struc%ebfit(:)=0.0d0
+        struc%fmode=0
+        struc%nbfit(:)=0
+        struc%rmfit(:)=0.0d0
+        end subroutine utb_init
        
         subroutine struc_utb_io(v_tb,name,arr,rw,range1,range2,val,v_ri)
 C use val or v_ri
@@ -7331,10 +8091,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_tb%alam)/kind(v_tb%alam)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_tb%alam)/kind(v_tb%alam)
+             n= 1
             call struc_eval_io( v_tb%alam,rw,n,range1,range2,val)
           endif
         case ('alsc')
@@ -7345,10 +8105,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_tb%alsc)/kind(v_tb%alsc)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_tb%alsc)/kind(v_tb%alsc)
+             n= 1
             call struc_eval_io( v_tb%alsc,rw,n,range1,range2,val)
           endif
         case ('ebfit')
@@ -7359,10 +8119,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_tb%ebfit)/kind(v_tb%ebfit)
+             v_ri%i= size(v_tb%ebfit)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_tb%ebfit)/kind(v_tb%ebfit)
+             n= size(v_tb%ebfit)
             call struc_eval_io( v_tb%ebfit,rw,n,range1,range2,val)
           endif
         case ('fmode')
@@ -7373,10 +8133,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_tb%fmode)/kind(v_tb%fmode)
+             v_ri%i= 1
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_tb%fmode)/kind(v_tb%fmode)
+             n= 1
             call struc_eval_io( v_tb%fmode,rw,n,range1,range2,val)
           endif
         case ('nbfit')
@@ -7387,10 +8147,10 @@ C arr='a': use val and pack/unpack
             v_ri%r= v_ri%i
            else if (arr.eq.'s') then
              v_ri%t= 2
-             v_ri%i= sizeof(v_tb%nbfit)/kind(v_tb%nbfit)
+             v_ri%i= size(v_tb%nbfit)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_tb%nbfit)/kind(v_tb%nbfit)
+             n= size(v_tb%nbfit)
             call struc_eval_io( v_tb%nbfit,rw,n,range1,range2,val)
           endif
         case ('rmfit')
@@ -7401,10 +8161,10 @@ C arr='a': use val and pack/unpack
             v_ri%i= nint(v_ri%r)
            else if (arr.eq.'s') then
              v_ri%t= 4
-             v_ri%i= sizeof(v_tb%rmfit)/kind(v_tb%rmfit)
+             v_ri%i= size(v_tb%rmfit)
              v_ri%r= v_ri%i
           else
-            n= sizeof(v_tb%rmfit)/kind(v_tb%rmfit)
+             n= size(v_tb%rmfit)
             call struc_eval_io( v_tb%rmfit,rw,n,range1,range2,val)
           endif
         case default
