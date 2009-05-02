@@ -1,0 +1,121 @@
+#!/bin/csh
+# --------------------------------
+# Total energy 
+#
+# Required inputs are 
+#  ctrl.si  : 
+#  rst.si   : given by lmf--- self-consistent LDA .
+#  GWinput  :  
+#           
+#---------------------------------------------
+set n = $0
+set nfpgw = ${n:h}
+echo $nfpgw
+echo $argv[1]
+
+if(-e NoCore) then
+  rm -f NoCore 
+endif
+if(-e QPU) then
+ rm -f QP[UD]
+endif
+
+#goto xxx
+
+############## preparatoy gw stage ################
+echo 0 |$nfpgw/lmfgw  $argv[1] > llmfgw00
+echo ' --- ALAT = ' `head -1  LATTC |awk '{print $1}'`  'a.u.'
+echo 1 |$nfpgw/qg4gw           > lqg4gw
+echo 1 |$nfpgw/lmfgw  $argv[1] > llmfgw01
+@ exinfo = `tail -3 llmfgw01 | head -1|awk '{print $2}'`
+if($exinfo == 0 ) then
+  echo " OK! lmfgw mode=1 "
+else
+  echo `tail -3 llmfgw01 `
+endif
+echo $argv[1]|$nfpgw/lmf2gw    > llmf2gw
+
+
+############## main gw stage ################
+$nfpgw/rdata4gw_v2      >lrdata4gw_v2
+
+rm gwb.* gw1.* gw2.* gwa.* evec.* vxc.*
+
+
+# -- get EFERMI for hx0fp0
+echo 1|$nfpgw/heftet      >leftet
+
+# -- hchknw only calculate NW, which contains the number of nw corresponding to QPNT -----
+# This is dummy
+#if ( ! -e NW) then
+  echo 0 | cat >NW
+#endif
+#$nfpgw/hchknw         >lchknw
+
+#- Core-core exchange--------  TEEXXcc ---
+echo 5|$nfpgw/hbasfp0  >lexxCC
+echo ' --- Ex(core-core)   in TEEXXcc = ' `head -5  TEEXXcc | tail -1|awk '{print $1}'`  'eV'
+#--------------------------------
+
+#- Core-valence exchange------ TEEXXcv ------
+echo 6|$nfpgw/hbasfp0  >lbasCV
+echo 0|$nfpgw/hvccfp0  >lvccCV
+echo 6|$nfpgw/hsfp0    >lexxCV
+echo ' --- 2*Ex(core-val ) in TEEXXcv = ' `head -5  TEEXXcv | tail -1|awk '{print 2*$1}'` 'eV'
+#--------------------------------
+
+#- Valence-valence exchange---- TEEXXvv ----
+echo 7|$nfpgw/hbasfp0 >lbasVV
+echo 0|$nfpgw/hvccfp0 >lvccVV	
+echo 5|$nfpgw/hsfp0   >lexxVV
+echo ' --- Ex( val-val)    in TEEXXvv = ' `head -5  TEEXXvv | tail -1|awk '{print $1}'` 'eV'
+#-------------------------------
+
+#- Correlation ---------------- TEECORR ---
+echo 0|$nfpgw/hbasfp0  >lbas_cor
+echo 0|$nfpgw/hvccfp0  >lvcc_cor	
+echo 12|$nfpgw/hx0fp0 >lx0_cor
+#$nfpgw/hecor           >lecor
+echo ' --- Ec             in TEECORR2 = ' `head -5  TEECORR2 | tail -1|awk '{print $1}'` 'eV'
+#--------------------------------
+
+xxx:
+#---Get LDA part of energies --- log.*-------
+if(-e ETOTLDA) then
+  rm -f ETOTLDA RoVxcLDA 
+endif
+
+cp ctrl.$argv[1] ctrl.$argv[1].bk
+echo 'START NIT=1' | cat > xxxx
+cat ctrl.$argv[1] >> xxxx
+mv  xxxx  ctrl.$argv[1]
+#echo ' --- running lmf_exec'
+#$nfpgw/lmf_exec  --rs=1,0 $argv[1] >llmf_elad
+$nfpgw/lmf --etot --rs=1,0 $argv[1] >llmf_elda
+$nfpgw/extract_elda_from_log_file $argv[1]
+
+@ exinfo = `tail -3 llmf_elda | head -1|awk '{print $2}'`
+if($exinfo == 0 ) then
+  echo " OK! lmf --etot generate LDA datas "
+else
+  echo `tail -3 lmf --etot `
+endif
+mv ctrl.$argv[1].bk ctrl.$argv[1]
+head -2 ETOTLDA
+#echo ' --- \int rho exc(LDA) = '  `tail -8  log.$argv[1] | head -1| awk '{print $5 "  " $6}'`  'Ry'
+#echo ' ---          EKS(LDA) = '  `tail -4  log.$argv[1] | head -1| awk '{print $9 "  " $10}'`  'Ry'
+$nfpgw/eout2 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

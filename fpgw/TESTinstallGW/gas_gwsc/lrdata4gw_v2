@@ -1,0 +1,472 @@
+rdata4gw_v2: VerNum= 033a4: 08Sep2008
+ readin nout=           1
+ readin nout=           3
+  aaaaaaaaaaa success           3          -1
+ QpGcut_psi QpGcutCou nnnn from QGpsi QGcou=   2.94708504089099     
+   2.06295952862369                8
+ reading QOP
+ reading DATA4GW_V2
+  DATA4GW_V2 size=           1           4           4         673           6
+                 =           4         138          66         206          24
+                 =         206           3
+ gwinput_v2x: DATA4GW_V2 readin size=           1           4           4
+         673           6
+                  =           4         138          66         206          24
+ ncoremx=           6
+ ecup=  -749.948563110965       -92.2663089435983       -10.5369196197001     
+  -80.3605561616988       -6.95260834859996       0.000000000000000E+000
+  dummy iclass=           1           2           3           4
+ 
+  --- Radial function indexing --- 
+ nradmx=   11
+  ---- ibas nrad(ibas) =           1          11
+      irad=  1 nindx_r lindx_r=  1  0
+      irad=  2 nindx_r lindx_r=  1  1
+      irad=  3 nindx_r lindx_r=  1  2
+      irad=  4 nindx_r lindx_r=  1  3
+      irad=  5 nindx_r lindx_r=  1  4
+      irad=  6 nindx_r lindx_r=  2  0
+      irad=  7 nindx_r lindx_r=  2  1
+      irad=  8 nindx_r lindx_r=  2  2
+      irad=  9 nindx_r lindx_r=  2  3
+      irad= 10 nindx_r lindx_r=  2  4
+      irad= 11 nindx_r lindx_r=  3  2
+  ---- ibas nrad(ibas) =           2          11
+      irad=  1 nindx_r lindx_r=  1  0
+      irad=  2 nindx_r lindx_r=  1  1
+      irad=  3 nindx_r lindx_r=  1  2
+      irad=  4 nindx_r lindx_r=  1  3
+      irad=  5 nindx_r lindx_r=  1  4
+      irad=  6 nindx_r lindx_r=  2  0
+      irad=  7 nindx_r lindx_r=  2  1
+      irad=  8 nindx_r lindx_r=  2  2
+      irad=  9 nindx_r lindx_r=  2  3
+      irad= 10 nindx_r lindx_r=  2  4
+      irad= 11 nindx_r lindx_r=  3  0
+  ---- ibas nrad(ibas) =           3          10
+      irad=  1 nindx_r lindx_r=  1  0
+      irad=  2 nindx_r lindx_r=  1  1
+      irad=  3 nindx_r lindx_r=  1  2
+      irad=  4 nindx_r lindx_r=  1  3
+      irad=  5 nindx_r lindx_r=  1  4
+      irad=  6 nindx_r lindx_r=  2  0
+      irad=  7 nindx_r lindx_r=  2  1
+      irad=  8 nindx_r lindx_r=  2  2
+      irad=  9 nindx_r lindx_r=  2  3
+      irad= 10 nindx_r lindx_r=  2  4
+  ---- ibas nrad(ibas) =           4          10
+      irad=  1 nindx_r lindx_r=  1  0
+      irad=  2 nindx_r lindx_r=  1  1
+      irad=  3 nindx_r lindx_r=  1  2
+      irad=  4 nindx_r lindx_r=  1  3
+      irad=  5 nindx_r lindx_r=  1  4
+      irad=  6 nindx_r lindx_r=  2  0
+      irad=  7 nindx_r lindx_r=  2  1
+      irad=  8 nindx_r lindx_r=  2  2
+      irad=  9 nindx_r lindx_r=  2  3
+      irad= 10 nindx_r lindx_r=  2  4
+ ldim2 nband=  206   66
+  mrelc.ne.0 file=
+ EVU                                                                      132
+  mrelc.ne.0 file=
+ CPHI                                                                   54384
+  mrelc.ne.0 file=
+ GEIG                                                                   36432
+ rmeshrefine:
+  delr nclass=  3.000000000000000E-003           4
+ ic aa bb=    1 0.150000D-01 0.109132D-03  665
+ rmaxx aa_n bb_n= 0.230942D+01 0.129832D-02 0.126085D-02
+ ic aa bb=    2 0.150000D-01 0.967907D-04  673
+ rmaxx aa_n bb_n= 0.230942D+01 0.129840D-02 0.111819D-02
+ ic aa bb=    3 0.150000D-01 0.238149D+00  159
+ rmaxx aa_n bb_n= 0.230942D+01-0.247782D-03-0.144168D+02
+ ic aa bb=    4 0.150000D-01 0.238149D+00  159
+ rmaxx aa_n bb_n= 0.230942D+01-0.247782D-03-0.144168D+02
+  New nrmx =        5881
+  input  nr a b =  665 0.150000D-01 0.109132D-03
+ output  nr a b = 5789 0.129832D-02 0.125941D-02
+  input  nr a b =  673 0.150000D-01 0.967907D-04
+ output  nr a b = 5881 0.129840D-02 0.111702D-02
+  input  nr a b =  159 0.150000D-01 0.238149D+00
+ output  nr a b =  707-0.247782D-03-0.143900D+02
+  input  nr a b =  159 0.150000D-01 0.238149D+00
+ output  nr a b =  707-0.247782D-03-0.143900D+02
+ rmeshrefine: end
+ ########## goto atomic part ##############
+ 
+  ### ibas ic =           1           1
+5789   4   1   5  0.129832D-02  0.125941D-02
+  gx_raw normcheck ======================
+ l isp n1 n2 =   0  1  1  1   0.999927D+00
+ l isp n1 n2 =   0  1  1  2                -0.176328D-04
+ l isp n1 n2 =   1  1  1  1   0.999934D+00
+ l isp n1 n2 =   1  1  1  2                -0.774000D-05
+ l isp n1 n2 =   2  1  1  1   0.999815D+00
+ l isp n1 n2 =   2  1  1  2                 0.338561D-04
+ l isp n1 n2 =   2  1  1  3                -0.235972D+00
+ l isp n1 n2 =   3  1  1  1   0.999944D+00
+ l isp n1 n2 =   3  1  1  2                 0.268853D-05
+ l isp n1 n2 =   4  1  1  1   0.999910D+00
+ l isp n1 n2 =   4  1  1  2                 0.329868D-05
+ l isp n1 n2 =   0  1  2  1                -0.176328D-04
+ l isp n1 n2 =   0  1  2  2   0.329243D-01
+ l isp n1 n2 =   1  1  2  1                -0.774000D-05
+ l isp n1 n2 =   1  1  2  2   0.166363D-01
+ l isp n1 n2 =   2  1  2  1                 0.338561D-04
+ l isp n1 n2 =   2  1  2  2   0.637815D-01
+ l isp n1 n2 =   2  1  2  3                 0.208007D+00
+ l isp n1 n2 =   3  1  2  1                 0.268853D-05
+ l isp n1 n2 =   3  1  2  2   0.501948D-02
+ l isp n1 n2 =   4  1  2  1                 0.329868D-05
+ l isp n1 n2 =   4  1  2  2   0.229260D-02
+ l isp n1 n2 =   2  1  3  1                -0.235972D+00
+ l isp n1 n2 =   2  1  3  2                 0.208007D+00
+ l isp n1 n2 =   2  1  3  3   0.852631D+00
+  end of gx_raw normcheck ==============
+ eb=    0.039509    1.099920
+ eb=    0.019964    1.099928
+ eb=    0.010660    0.861017    1.413078
+ eb=    0.006023    1.099938
+ eb=    0.002751    1.099901
+ 
+  core_orth= F
+  -- norm check: <core|core> ----------------- 
+ --- isp l=  1  0 icore1 icore =   1  1   0.987486D+00
+ --- isp l=  1  0 icore1 icore =   2  1                 0.460837D-02
+ --- isp l=  1  0 icore1 icore =   3  1                -0.172904D-02
+ --- isp l=  1  0 icore1 icore =   1  2                 0.460837D-02
+ --- isp l=  1  0 icore1 icore =   2  2   0.997596D+00
+ --- isp l=  1  0 icore1 icore =   3  2                 0.101449D-02
+ --- isp l=  1  0 icore1 icore =   1  3                -0.172904D-02
+ --- isp l=  1  0 icore1 icore =   2  3                 0.101449D-02
+ --- isp l=  1  0 icore1 icore =   3  3   0.999456D+00
+ --- isp l=  1  1 icore1 icore =   4  4   0.997633D+00
+ --- isp l=  1  1 icore1 icore =   5  4                 0.812492D-03
+ --- isp l=  1  1 icore1 icore =   4  5                 0.812492D-03
+ --- isp l=  1  1 icore1 icore =   5  5   0.999513D+00
+  -- norm check: <gx_orth|core> -------------- 
+ --- isp  l1 n1=  1  0  1 icore =   1  -0.693606D-03
+ --- isp  l1 n1=  1  0  2 icore =   1  -0.569518D-03
+ --- isp  l1 n1=  1  0  1 icore =   2   0.394645D-03
+ --- isp  l1 n1=  1  0  2 icore =   2   0.327133D-03
+ --- isp  l1 n1=  1  0  1 icore =   3  -0.208538D-01
+ --- isp  l1 n1=  1  0  2 icore =   3   0.472152D-02
+ --- isp  l1 n1=  1  1  1 icore =   4   0.290886D-03
+ --- isp  l1 n1=  1  1  2 icore =   4   0.254729D-03
+ --- isp  l1 n1=  1  1  1 icore =   5  -0.875486D-01
+ --- isp  l1 n1=  1  1  2 icore =   5   0.203230D-01
+ 
+  --- norm check: normalized  gx_orth --- 
+ l isp n1 n2 =   0  1  1  1   0.100000D+01
+ l isp n1 n2 =   0  1  1  2                 0.193422D-15
+ l isp n1 n2 =   1  1  1  1   0.100000D+01
+ l isp n1 n2 =   1  1  1  2                 0.340006D-15
+ l isp n1 n2 =   2  1  1  1   0.100000D+01
+ l isp n1 n2 =   2  1  1  2                 0.209786D-14
+ l isp n1 n2 =   2  1  1  3                -0.689842D-15
+ l isp n1 n2 =   3  1  1  1   0.100000D+01
+ l isp n1 n2 =   3  1  1  2                 0.140513D-15
+ l isp n1 n2 =   4  1  1  1   0.100000D+01
+ l isp n1 n2 =   4  1  1  2                -0.873144D-16
+ l isp n1 n2 =   0  1  2  1                 0.193422D-15
+ l isp n1 n2 =   0  1  2  2   0.100000D+01
+ l isp n1 n2 =   1  1  2  1                 0.340006D-15
+ l isp n1 n2 =   1  1  2  2   0.100000D+01
+ l isp n1 n2 =   2  1  2  1                 0.209786D-14
+ l isp n1 n2 =   2  1  2  2   0.100000D+01
+ l isp n1 n2 =   2  1  2  3                 0.567688D-15
+ l isp n1 n2 =   3  1  2  1                 0.140513D-15
+ l isp n1 n2 =   3  1  2  2   0.100000D+01
+ l isp n1 n2 =   4  1  2  1                -0.873144D-16
+ l isp n1 n2 =   4  1  2  2   0.100000D+01
+ l isp n1 n2 =   2  1  3  1                -0.689842D-15
+ l isp n1 n2 =   2  1  3  2                 0.567688D-15
+ l isp n1 n2 =   2  1  3  3   0.100000D+01
+ 
+  ### ibas ic =           2           2
+5881   4   1   6  0.129840D-02  0.111702D-02
+  gx_raw normcheck ======================
+ l isp n1 n2 =   0  1  1  1   0.999903D+00
+ l isp n1 n2 =   0  1  1  2                -0.290906D-04
+ l isp n1 n2 =   0  1  1  3                -0.115740D+01
+ l isp n1 n2 =   1  1  1  1   0.999925D+00
+ l isp n1 n2 =   1  1  1  2                -0.163728D-04
+ l isp n1 n2 =   2  1  1  1   0.999868D+00
+ l isp n1 n2 =   2  1  1  2                 0.223996D-04
+ l isp n1 n2 =   3  1  1  1   0.999944D+00
+ l isp n1 n2 =   3  1  1  2                 0.261765D-05
+ l isp n1 n2 =   4  1  1  1   0.999910D+00
+ l isp n1 n2 =   4  1  1  2                 0.328537D-05
+ l isp n1 n2 =   0  1  2  1                -0.290906D-04
+ l isp n1 n2 =   0  1  2  2   0.599736D-01
+ l isp n1 n2 =   0  1  2  3                -0.186201D+00
+ l isp n1 n2 =   1  1  2  1                -0.163728D-04
+ l isp n1 n2 =   1  1  2  2   0.314751D-01
+ l isp n1 n2 =   2  1  2  1                 0.223996D-04
+ l isp n1 n2 =   2  1  2  2   0.289243D-01
+ l isp n1 n2 =   3  1  2  1                 0.261765D-05
+ l isp n1 n2 =   3  1  2  2   0.541996D-02
+ l isp n1 n2 =   4  1  2  1                 0.328537D-05
+ l isp n1 n2 =   4  1  2  2   0.237861D-02
+ l isp n1 n2 =   0  1  3  1                -0.115740D+01
+ l isp n1 n2 =   0  1  3  2                -0.186201D+00
+ l isp n1 n2 =   0  1  3  3   0.199278D+01
+  end of gx_raw normcheck ==============
+ eb=    0.006873    0.326472    3.429137
+ eb=    0.037770    1.099917
+ eb=    0.034709    1.099855
+ eb=    0.006504    1.099938
+ eb=    0.002854    1.099901
+ 
+  core_orth= F
+  -- norm check: <core|core> ----------------- 
+ --- isp l=  1  0 icore1 icore =   1  1   0.985768D+00
+ --- isp l=  1  0 icore1 icore =   2  1                 0.527595D-02
+ --- isp l=  1  0 icore1 icore =   3  1                -0.200740D-02
+ --- isp l=  1  0 icore1 icore =   1  2                 0.527595D-02
+ --- isp l=  1  0 icore1 icore =   2  2   0.997226D+00
+ --- isp l=  1  0 icore1 icore =   3  2                 0.118745D-02
+ --- isp l=  1  0 icore1 icore =   1  3                -0.200740D-02
+ --- isp l=  1  0 icore1 icore =   2  3                 0.118745D-02
+ --- isp l=  1  0 icore1 icore =   3  3   0.999353D+00
+ --- isp l=  1  1 icore1 icore =   4  4   0.997269D+00
+ --- isp l=  1  1 icore1 icore =   5  4                 0.957077D-03
+ --- isp l=  1  1 icore1 icore =   4  5                 0.957077D-03
+ --- isp l=  1  1 icore1 icore =   5  5   0.999413D+00
+ --- isp l=  1  2 icore1 icore =   6  6   0.999548D+00
+  -- norm check: <gx_orth|core> -------------- 
+ --- isp  l1 n1=  1  0  1 icore =   1   0.789289D-03
+ --- isp  l1 n1=  1  0  2 icore =   1   0.592007D-03
+ --- isp  l1 n1=  1  0  3 icore =   1  -0.107207D-02
+ --- isp  l1 n1=  1  0  1 icore =   2  -0.447140D-03
+ --- isp  l1 n1=  1  0  2 icore =   2  -0.337009D-03
+ --- isp  l1 n1=  1  0  3 icore =   2   0.616632D-03
+ --- isp  l1 n1=  1  0  1 icore =   3  -0.168872D-01
+ --- isp  l1 n1=  1  0  2 icore =   3   0.274527D-02
+ --- isp  l1 n1=  1  0  3 icore =   3   0.392468D-03
+ --- isp  l1 n1=  1  1  1 icore =   4   0.360960D-03
+ --- isp  l1 n1=  1  1  2 icore =   4   0.291106D-03
+ --- isp  l1 n1=  1  1  1 icore =   5  -0.238805D-01
+ --- isp  l1 n1=  1  1  2 icore =   5   0.558109D-02
+ --- isp  l1 n1=  1  2  1 icore =   6  -0.845577D+00
+ --- isp  l1 n1=  1  2  2 icore =   6   0.190747D+00
+ 
+  --- norm check: normalized  gx_orth --- 
+ l isp n1 n2 =   0  1  1  1   0.100000D+01
+ l isp n1 n2 =   0  1  1  2                -0.192988D-13
+ l isp n1 n2 =   0  1  1  3                -0.218192D-14
+ l isp n1 n2 =   1  1  1  1   0.100000D+01
+ l isp n1 n2 =   1  1  1  2                 0.101481D-15
+ l isp n1 n2 =   2  1  1  1   0.100000D+01
+ l isp n1 n2 =   2  1  1  2                -0.121142D-15
+ l isp n1 n2 =   3  1  1  1   0.100000D+01
+ l isp n1 n2 =   3  1  1  2                 0.112757D-15
+ l isp n1 n2 =   4  1  1  1   0.100000D+01
+ l isp n1 n2 =   4  1  1  2                 0.427898D-16
+ l isp n1 n2 =   0  1  2  1                -0.192988D-13
+ l isp n1 n2 =   0  1  2  2   0.100000D+01
+ l isp n1 n2 =   0  1  2  3                 0.455437D-15
+ l isp n1 n2 =   1  1  2  1                 0.101481D-15
+ l isp n1 n2 =   1  1  2  2   0.100000D+01
+ l isp n1 n2 =   2  1  2  1                -0.121142D-15
+ l isp n1 n2 =   2  1  2  2   0.100000D+01
+ l isp n1 n2 =   3  1  2  1                 0.112757D-15
+ l isp n1 n2 =   3  1  2  2   0.100000D+01
+ l isp n1 n2 =   4  1  2  1                 0.427898D-16
+ l isp n1 n2 =   4  1  2  2   0.100000D+01
+ l isp n1 n2 =   0  1  3  1                -0.218192D-14
+ l isp n1 n2 =   0  1  3  2                 0.455437D-15
+ l isp n1 n2 =   0  1  3  3   0.100000D+01
+ 
+  ### ibas ic =           3           3
+ 707   4   1   0 -0.247782D-03 -0.143900D+02
+  gx_raw normcheck ======================
+ l isp n1 n2 =   0  1  1  1   0.100000D+01
+ l isp n1 n2 =   0  1  1  2                 0.348716D-06
+ l isp n1 n2 =   1  1  1  1   0.999987D+00
+ l isp n1 n2 =   1  1  1  2                 0.213894D-05
+ l isp n1 n2 =   2  1  1  1   0.999965D+00
+ l isp n1 n2 =   2  1  1  2                 0.328307D-05
+ l isp n1 n2 =   3  1  1  1   0.999932D+00
+ l isp n1 n2 =   3  1  1  2                 0.420424D-05
+ l isp n1 n2 =   4  1  1  1   0.999890D+00
+ l isp n1 n2 =   4  1  1  2                 0.491604D-05
+ l isp n1 n2 =   0  1  2  1                 0.348716D-06
+ l isp n1 n2 =   0  1  2  2   0.485631D-01
+ l isp n1 n2 =   1  1  2  1                 0.213894D-05
+ l isp n1 n2 =   1  1  2  2   0.123971D-01
+ l isp n1 n2 =   2  1  2  1                 0.328307D-05
+ l isp n1 n2 =   2  1  2  2   0.463893D-02
+ l isp n1 n2 =   3  1  2  1                 0.420424D-05
+ l isp n1 n2 =   3  1  2  2   0.210455D-02
+ l isp n1 n2 =   4  1  2  1                 0.491604D-05
+ l isp n1 n2 =   4  1  2  2   0.112358D-02
+  end of gx_raw normcheck ==============
+ eb=    0.058276    1.100000
+ eb=    0.014877    1.099986
+ eb=    0.005567    1.099961
+ eb=    0.002525    1.099925
+ eb=    0.001348    1.099879
+ 
+  core_orth= F
+  -- norm check: <core|core> ----------------- 
+  -- norm check: <gx_orth|core> -------------- 
+ 
+  --- norm check: normalized  gx_orth --- 
+ l isp n1 n2 =   0  1  1  1   0.100000D+01
+ l isp n1 n2 =   0  1  1  2                -0.293457D-15
+ l isp n1 n2 =   1  1  1  1   0.100000D+01
+ l isp n1 n2 =   1  1  1  2                 0.114492D-15
+ l isp n1 n2 =   2  1  1  1   0.100000D+01
+ l isp n1 n2 =   2  1  1  2                -0.190820D-16
+ l isp n1 n2 =   3  1  1  1   0.100000D+01
+ l isp n1 n2 =   3  1  1  2                -0.272352D-15
+ l isp n1 n2 =   4  1  1  1   0.100000D+01
+ l isp n1 n2 =   4  1  1  2                 0.138778D-16
+ l isp n1 n2 =   0  1  2  1                -0.293457D-15
+ l isp n1 n2 =   0  1  2  2   0.100000D+01
+ l isp n1 n2 =   1  1  2  1                 0.114492D-15
+ l isp n1 n2 =   1  1  2  2   0.100000D+01
+ l isp n1 n2 =   2  1  2  1                -0.190820D-16
+ l isp n1 n2 =   2  1  2  2   0.100000D+01
+ l isp n1 n2 =   3  1  2  1                -0.272352D-15
+ l isp n1 n2 =   3  1  2  2   0.100000D+01
+ l isp n1 n2 =   4  1  2  1                 0.138778D-16
+ l isp n1 n2 =   4  1  2  2   0.100000D+01
+ 
+  ### ibas ic =           4           4
+ 707   4   1   0 -0.247782D-03 -0.143900D+02
+  gx_raw normcheck ======================
+ l isp n1 n2 =   0  1  1  1   0.100000D+01
+ l isp n1 n2 =   0  1  1  2                 0.331305D-06
+ l isp n1 n2 =   1  1  1  1   0.999987D+00
+ l isp n1 n2 =   1  1  1  2                 0.221989D-05
+ l isp n1 n2 =   2  1  1  1   0.999964D+00
+ l isp n1 n2 =   2  1  1  2                 0.342678D-05
+ l isp n1 n2 =   3  1  1  1   0.999930D+00
+ l isp n1 n2 =   3  1  1  2                 0.440533D-05
+ l isp n1 n2 =   4  1  1  1   0.999884D+00
+ l isp n1 n2 =   4  1  1  2                 0.523362D-05
+ l isp n1 n2 =   0  1  2  1                 0.331305D-06
+ l isp n1 n2 =   0  1  2  2   0.489825D-01
+ l isp n1 n2 =   1  1  2  1                 0.221989D-05
+ l isp n1 n2 =   1  1  2  2   0.121706D-01
+ l isp n1 n2 =   2  1  2  1                 0.342678D-05
+ l isp n1 n2 =   2  1  2  2   0.444096D-02
+ l isp n1 n2 =   3  1  2  1                 0.440533D-05
+ l isp n1 n2 =   3  1  2  2   0.196431D-02
+ l isp n1 n2 =   4  1  2  1                 0.523362D-05
+ l isp n1 n2 =   4  1  2  2   0.100332D-02
+  end of gx_raw normcheck ==============
+ eb=    0.058779    1.100000
+ eb=    0.014605    1.099986
+ eb=    0.005329    1.099961
+ eb=    0.002357    1.099923
+ eb=    0.001204    1.099873
+ 
+  core_orth= F
+  -- norm check: <core|core> ----------------- 
+  -- norm check: <gx_orth|core> -------------- 
+ 
+  --- norm check: normalized  gx_orth --- 
+ l isp n1 n2 =   0  1  1  1   0.100000D+01
+ l isp n1 n2 =   0  1  1  2                -0.780626D-17
+ l isp n1 n2 =   1  1  1  1   0.100000D+01
+ l isp n1 n2 =   1  1  1  2                 0.157282D-15
+ l isp n1 n2 =   2  1  1  1   0.100000D+01
+ l isp n1 n2 =   2  1  1  2                 0.965663D-16
+ l isp n1 n2 =   3  1  1  1   0.100000D+01
+ l isp n1 n2 =   3  1  1  2                -0.601371D-16
+ l isp n1 n2 =   4  1  1  1   0.100000D+01
+ l isp n1 n2 =   4  1  1  2                 0.123744D-15
+ l isp n1 n2 =   0  1  2  1                -0.780626D-17
+ l isp n1 n2 =   0  1  2  2   0.100000D+01
+ l isp n1 n2 =   1  1  2  1                 0.157282D-15
+ l isp n1 n2 =   1  1  2  2   0.100000D+01
+ l isp n1 n2 =   2  1  2  1                 0.965663D-16
+ l isp n1 n2 =   2  1  2  2   0.100000D+01
+ l isp n1 n2 =   3  1  2  1                -0.601371D-16
+ l isp n1 n2 =   3  1  2  2   0.100000D+01
+ l isp n1 n2 =   4  1  2  1                 0.123744D-15
+ l isp n1 n2 =   4  1  2  2   0.100000D+01
+ ########## goto Eigfun part ############## 
+  ikp=           1
+  nbandx=          66
+   ikp ngp=           1         137
+  nbandx=          66
+   ikp ngp=           2         138
+  nbandx=          66
+   ikp ngp=           3         138
+  nbandx=          66
+   ikp ngp=           4         116
+  nbandx=          66
+   ikp ngp=           5         138
+  nbandx=          66
+   ikp ngp=           6         116
+  nbandx=          66
+   ikp ngp=           7         116
+  nbandx=          66
+   ikp ngp=           8         138
+  nbandx=          66
+   ikp ngp=           9         132
+  nbandx=          66
+   ikp ngp=          10         133
+  ikp=          11
+  nbandx=          66
+   ikp ngp=          11         133
+  nbandx=          66
+   ikp ngp=          12         129
+  nbandx=          66
+   ikp ngp=          13         138
+  nbandx=          66
+   ikp ngp=          14         129
+  nbandx=          66
+   ikp ngp=          15         129
+  nbandx=          66
+   ikp ngp=          16         133
+  nbandx=          66
+   ikp ngp=          17         132
+  nbandx=          66
+   ikp ngp=          18         133
+  nbandx=          66
+   ikp ngp=          19         133
+  ikp=          20
+  nbandx=          66
+   ikp ngp=          20         129
+  ikp=          21
+  nbandx=          66
+   ikp ngp=          21         138
+  ikp=          22
+  nbandx=          66
+   ikp ngp=          22         129
+  ikp=          23
+  nbandx=          66
+   ikp ngp=          23         129
+  ikp=          24
+  nbandx=          66
+   ikp ngp=          24         133
+  end of eigensection-----
+ --- Readin QIBZ --- 
+  qibz=  1     0.00000     0.00000     0.00000
+  qibz=  2    -0.50000     0.50000     0.50000
+  qibz=  3     0.00000     0.00000     1.00000
+ 
+  ngrp  =  24
+ symops = UseSYMOPSfile                 
+  qibz=  1     0.00000     0.00000     0.00000
+  qibz=  2    -0.50000     0.50000     0.50000
+  qibz=  3     0.00000     0.00000     1.00000
+ nqnumt nqibz nq0i iadd =     5     3     2     0
+ job1 iqi qx ngc2x=    1   0.000   0.000   0.000    1067
+ job1 iqi qx ngc2x=    2  -0.500   0.500   0.500    1056
+ job1 iqi qx ngc2x=    3   0.000   0.000   1.000    1034
+ job1 iqi qx ngc2x=    4  -0.152   0.152   0.152    1031
+ job1 iqi qx ngc2x=    5   0.152  -0.152  -0.152    1031
+  ngc2mx nqnumt=        1067           5
+ qx iqi iq ngc ngc2= 0.0000 0.0000 0.0000    1    1   59 1067
+ qx iqi iq ngc ngc2=-0.5000 0.5000 0.5000    2    5   40 1056
+ qx iqi iq ngc ngc2= 0.0000 0.0000 1.0000    3    7   40 1034
+ qx iqi iq ngc ngc2=-0.1524 0.1524 0.1524    4    1   59 1031
+ qx iqi iq ngc ngc2= 0.1524-0.1524-0.1524    5    1   59 1031
+ Write LMTO file(crystal structure and so)...
+  OK! end of rdata4gw_v2 

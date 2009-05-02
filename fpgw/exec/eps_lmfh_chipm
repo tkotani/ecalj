@@ -1,0 +1,63 @@
+#!/bin/csh -f
+######## \epsilon calculation.
+set n = $0
+set nfpgw = ${n:h}
+echo $nfpgw
+
+echo $argv[1]
+setenv LMJOB $argv[1]
+
+rm -f NoCore QPU*
+
+### Check the existence of EPScond
+#if (! -e EPScond) then
+#   echo ' Not exist EPScond: Maximum omega. intervals for plotting .'
+#   echo ' Now I made a sample of EPScond.tmp'
+#   echo ' 1d0 0.1d0 ' > EPScond.tmp   
+#   exit 1
+#endif 
+
+### Get LATTC and SYMOPS
+echo 0 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw00
+
+
+### Add q points  to Q0P file.  -----------------
+# moved to <QforEPS> in GWinput
+echo 2|$nfpgw/qg4gw  >lqg4gw02
+
+#eigenvalues for micro-tetrahedron method.
+if(-e Qmtet) then
+  mv Qmtet Qeigval 
+  echo 5 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw_eigval
+  mv eigval eigmtet
+endif
+
+###
+#echo 1 | $nfpgw/ng0  >lng01
+#echo 2 | $nfpgw/ng0  >lng02
+#$nfpgw/nfp4gw        >lnfp4gw
+echo 1 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw01
+#@ exinfo = `tail -3 llmfgw01 | head -1|awk '{print $2}'`
+set exinfo = `echo $?`
+
+if($exinfo == 0 ) then
+  echo " OK! lmfgw mode=1 "
+else
+  echo `tail -3 llmfgw01 `
+endif
+echo $argv[1]|$nfpgw/lmf2gw   > llmf2gw
+
+echo 1|$nfpgw/rdata4gw_v2      >lrdata4gw
+
+# get EFERMI
+echo 1|$nfpgw/heftet      >leftet
+
+echo 8|$nfpgw/hbasfp0 >lbas
+echo 202|$nfpgw/hvccfp0        >lvcc	
+echo 223|$nfpgw/hx0fp0  >lx0
+
+
+
+
+ 
+

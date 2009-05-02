@@ -205,6 +205,9 @@ C ... Heap
       integer w(1)
       common /w/ w
 
+      real(8):: dnn(3),qlatinv(3,3)
+      integer:: inn(3)
+
 C --- Setup ---
       call getpr(ipr)
       call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
@@ -224,15 +227,15 @@ C     lsig = 0
 C     lshft(1) = 0
 C     lshft(2) = 0
 C     lshft(3) = 0
-C     See Local variables, above for meaning of loldpw
-      loldpw = 0
-      if (cmdopt('--pwmat2',8,0,strn)) then
-        loldpw = 1
-      endif
-      if (cmdopt('--pwmatoldq',11,0,strn)) then
-      elseif (cmdopt('--pwmatnewq',11,0,strn)) then
-        loldpw = loldpw+2
-      endif
+c$$$C     See Local variables, above for meaning of loldpw
+c$$$      loldpw = 0
+c$$$      if (cmdopt('--pwmat2',8,0,strn)) then
+c$$$        loldpw = 1
+c$$$      endif
+c$$$      if (cmdopt('--pwmatoldq',11,0,strn)) then
+c$$$      elseif (cmdopt('--pwmatnewq',11,0,strn)) then
+c$$$        loldpw = loldpw+2
+c$$$      endif
 
 C     for now
       nphimx = 3
@@ -690,9 +693,12 @@ C --- Main loop for eigenfunction generation ---
         if (job .ne. 1) deallocate(ngvecp, ngvecc)
 
  1021   continue
+
+
         call shorbz(q,qp,qlat,plat)
         if (ipr .gt. 41) write (stdo,578) iq,q,qp
   578   format(' iq=',i4,'  q=',3f7.3,'  shortened to',3f7.3)
+
 
 C   ... For this qp, G vectors for PW basis and hamiltonian dimension
         if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
@@ -724,9 +730,9 @@ C   ... For this qp, G vectors for PW basis and hamiltonian dimension
         endif
 
 C   ... Must pass shortened qp to pwmat in APW case
-        if (napw .gt. 0 .and. loldpw .lt. 2) then
-          loldpw = loldpw + 2
-        endif
+c$$$        if (napw .gt. 0 .and. loldpw .lt. 2) then
+c$$$          loldpw = loldpw + 2
+c$$$        endif
 
         allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh))
         allocate(vxc(ndimh,ndimh))
@@ -865,13 +871,26 @@ C         Note: pzovl is only used as an intermediate construction, old branch
 C         Pass qx to pwmat (or pwmat2):
 C         qx = (unshortened) q if 2s digit loldpw = 0
 C         qx = (shortened)  qp if 2s digit loldpw = 1
-          qx = q
-          if (mod(loldpw/2,2) .eq. 1) qx = qp
+c$$$          qx = q
+C$$$          if (mod(loldpw/2,2) .eq. 1) qx = qp
 C         Old convention: call pwmat
-          if (mod(loldpw,2) .eq. 0) then
+c          if (mod(loldpw,2) .eq. 0) then
             allocate(phovl(ngp,ndimh))
+
+ctakao 
+c We have  q+G(igvx; internal in pwmat) = qp + G(igv2)
+c Thus, we have
+c           igv(internally in pwmat) = igv2 + qlatinv*(qp-q)
+c            inn = qlatinv*(qp-q)
+            call dinv33(qlat,0,qlatinv,dum)
+            call rtoint(matmul(qlatinv,qp-q),inn,3)
+c            write(6,"('goto pwmat: qlatinv*(qp-q)=',3f13.5,3i5)")
+c     &        matmul(qlatinv,qp-q),inn
+
             call pwmat(slat,ssite,sspec,nbas,ndimh,napw,w(oigv2),
-     .        w(oiprmb),qx,ngp,nlmax,ngvecp,gmax,ppovl,phovl)
+c     .        w(oiprmb),qx,ngp,nlmax,ngvecp,gmax,ppovl,phovl)
+     .        w(oiprmb),q,ngp,nlmax,ngvecp,gmax,inn,ppovl,phovl)
+
             call zgemm('N','N',ngp,ndimh,ndimh,(1d0,0d0),phovl,ngp,
      .        evec,ndimh,(0d0,0d0),pwz,ngp)
             deallocate(phovl)
@@ -892,24 +911,24 @@ C           call zprm('pzovl = ppovl * pwz',2,pwz,ngp,ngp,ndimh)
             deallocate(wk)
 C           call zprm('pwz',2,pwz,ngp,ngp,ndimh)
 
-C         New convention: call pwmat
-          else
-            allocate(pwh(ngp,ndimh))
-            call pwmat2(slat,ssite,sspec,nbas,ndimh,napw,w(oigv2),
-     .        w(oiprmb),qx,ngp,nlmax,ngvecp,ppovl,pwh)
-C           call zprm('pwh',2,pwh,ngp,ngp,ndimh)
-            call zgemm('N','N',ngp,ndimh,ndimh,(1d0,0d0),pwh,ngp,
-     .        evec,ndimh,(0d0,0d0),pwz,ngp)
-            deallocate(pwh)
-C           call zprm('pwz',2,pwz,ngp,ngp,ndimh)
-C           Diagonal part of ppovl
-            if (lchk .ge. 1) then
-              allocate(ppovld(ngp))
-              do  i = 1, ngp
-                ppovld(i) = ppovl(i,i)
-              enddo
-            endif
-          endif
+c$$$C         New convention: call pwmat
+c$$$          else
+c$$$            allocate(pwh(ngp,ndimh))
+c$$$            call pwmat2(slat,ssite,sspec,nbas,ndimh,napw,w(oigv2),
+c$$$     .        w(oiprmb),qx,ngp,nlmax,ngvecp,ppovl,pwh)
+c$$$C           call zprm('pwh',2,pwh,ngp,ngp,ndimh)
+c$$$            call zgemm('N','N',ngp,ndimh,ndimh,(1d0,0d0),pwh,ngp,
+c$$$     .        evec,ndimh,(0d0,0d0),pwz,ngp)
+c$$$            deallocate(pwh)
+c$$$C           call zprm('pwz',2,pwz,ngp,ngp,ndimh)
+c$$$C           Diagonal part of ppovl
+c$$$            if (lchk .ge. 1) then
+c$$$              allocate(ppovld(ngp))
+c$$$              do  i = 1, ngp
+c$$$                ppovld(i) = ppovl(i,i)
+c$$$              enddo
+c$$$            endif
+c$$$          endif
         endif
 
 C   --- File output, job=1 ---
@@ -948,7 +967,11 @@ C        endif
 C        deallocate(evec_,evl_,cphi_,ngvecp_,ngvecc_,pwz_)
 
         write (ifi) q, ndimh
-        write (ifi) evec,evl(1:ndimh,isp),cphi(:,:,isp)
+        write (6,"('q ndimh=',3f10.5,i10)") q, ndimh
+c        print *,'uuu ndimh=',ndimh
+c takao Apr2009
+c       write (ifi) evec,evl(1:ndimh,isp),cphi(:,:,isp)
+        write (ifi) evl(1:ndimh,isp),cphi(:,:,isp)
         write (ifi) ngp,ngc
         write (ifi) ngvecp, ngvecc, pwz
 
@@ -965,11 +988,11 @@ C         = (PWZ)+ O (PWZ) = (PZOVL)+ (PWZ)  (old style)
         if (lchk .ge. 1 .and. ngp .gt. 0) then
 
           allocate(testc(ndimh,ndimh),testcd(ndimh))
-          if (mod(loldpw,2) .eq. 1) then
-            allocate(pzovl(ngp,ndimh))
-            call zgemm('N','N',ngp,ndimh,ngp,dcmplx(1d0,0d0),
-     .        ppovl,ngp,pwz,ngp,dcmplx(0d0,0d0),pzovl,ngp)
-          endif
+c$$$          if (mod(loldpw,2) .eq. 1) then
+c$$$            allocate(pzovl(ngp,ndimh))
+c$$$            call zgemm('N','N',ngp,ndimh,ngp,dcmplx(1d0,0d0),
+c$$$     .        ppovl,ngp,pwz,ngp,dcmplx(0d0,0d0),pzovl,ngp)
+c$$$          endif
           call zgemm('C','N',ndimh,ndimh,ngp,(1d0,0d0),
      .      pzovl,ngp,pwz,ngp,(0d0,0d0),testc,ndimh)
           deallocate(pzovl)
@@ -1407,3 +1430,16 @@ C       Test whether this class should be purged
       end
 
 
+      subroutine rtoint(a,k,n)
+      real(8):: a(n),eps=1d-12
+      integer:: k(n),ix
+      do i=1,n
+        if(abs(a(i))<eps) then
+          k(i)=0
+        elseif(a(i)>0) then
+          k(i) = a(i) + eps
+        else
+          k(i) = a(i) - eps
+        endif
+      enddo
+      end

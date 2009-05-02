@@ -245,7 +245,7 @@ C       Contribution to mag outsite rmt: extrapolate tail to infinity
 
 C   --- Make new core density and core eigenvalue sum ---
         if (lfoc .eq. 0) then
-          call pshpr(ipr-11)
+          call pshpr(ipr+11)
           call getcor(0,z,a,pnu,pnz,nr,lmxa,w(orofi),w(ov01),kcor,lcor,
      .      qcor,smec,smtc,w(orhoat(3,ib)),ncore,0d0,0d0)
           call poppr

@@ -493,7 +493,7 @@ C       Block into groups with consecutive l and common (e,rsm)
           nlm2 = nlm1 + blks(io)-1
           rsm = rtab(ir)
           e   = etab(ie)
-c takao
+c takao Apr2009
           ncutt=ncut(lt+1,kp)
           call ncutcorrect(ncutt,1,gq,ng)
 c

@@ -1,0 +1,5 @@
+  qg4gw: Generate Q0P->1; Readin Q0P ->2; band mode ->3;
+qg4gw: VerNum= 033a4: 08Sep2008
+  mode iq0pin =         -100
+ gwinputexist= F
+  --- Convert data from GWIN0 to GWinput. --- 

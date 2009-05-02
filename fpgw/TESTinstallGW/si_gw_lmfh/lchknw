@@ -1,0 +1,167 @@
+  --- Choose modes below ------------
+   From QPNT (0 or return). Fullband(1) 
+  --- Put number above ! ------------
+hchknw: VerNum= 033a4: 08Sep2008
+  ### readin BZDATA ###
+  read_bzdata           8           3          27          48           2
+          48
+  nqbz qbz =           8
+  nqibz ngrp=           3           0
+ readin nout=           1
+  symgrp=
+   UseSYMOPSfile                                                                
+                                          
+  alat natom=   10.2600000000000                2
+  nspin nl nnv nnc =           1           5           2           2
+  divisions along reciprocal base vectors G1 G2 G3=           2           2
+           2
+  --- READIN ef from EFERMI. ef=  0.208069950342178     
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+  --- Freq ---
+     dw   =  4.000000000000000E-002
+     niw  =           6
+     delta= -1.000000000000000E-004
+     esmr =  3.000000000000000E-003
+  goto prod
+ readin nout=           1
+ readin nout=           1
+ <... > 
+ lx=  0 readin tolerance=  0.100D-04
+ lx=  1 readin tolerance=  0.100D-04
+ lx=  2 readin tolerance=  0.100D-04
+ lx=  3 readin tolerance=  0.100D-04
+ lx=  4 readin tolerance=  0.100D-04
+ lx=  5 readin tolerance=  0.100D-04
+ lx=  6 readin tolerance=  0.100D-04
+ lx=  7 readin tolerance=  0.100D-04
+ lx=  8 readin tolerance=  0.100D-04
+  --- prod section: tolbas lcutmx=  1.000000000000000E-005
+  1.000000000000000E-005  1.000000000000000E-005  1.000000000000000E-005
+  1.000000000000000E-005  1.000000000000000E-005  1.000000000000000E-005
+  1.000000000000000E-005  1.000000000000000E-005           4
+  --- valence product basis section
+  1  0  1  1  1
+  1  0  2  0  0
+  1  1  1  1  1
+  1  1  2  0  0
+  1  2  1  1  1
+  1  2  2  0  0
+  1  3  1  0  1
+  1  3  2  0  0
+  1  4  1  0  0
+  1  4  2  0  0
+  2  0  1  1  1
+  2  0  2  0  0
+  2  1  1  1  1
+  2  1  2  0  0
+  2  2  1  1  1
+  2  2  2  0  0
+  2  3  1  0  1
+  2  3  2  0  0
+  2  4  1  0  0
+  2  4  2  0  0
+  --- core product basis section
+  1  0  1  0  0  0  0
+  1  0  2  0  0  0  0
+  1  1  1  0  0  0  0
+  2  0  1  0  0  0  0
+  2  0  2  0  0  0  0
+  2  1  1  0  0  0  0
+  ### Use unocc occ ForX0 for core
+  nw from rgwinaf=        -999
+  rcore2 : ic=           1
+  rcore : goto loop over l n
+  rcore2 : ic=           2
+  rcore : goto loop over l n
+  symgrp==UseSYMOPSfile
+ CPU=       0.0000 secs    0.0 mins
+ genallcf_v3
+ genallcf_v3_dump:
+ genallcf_v3_dump:2
+ genallcf_v3_dump:3
+ genallcf_v3_dump:4 nw=        -999
+ genallcf_v3_dump:5
+  hchknw: end of genallc
+ readin nout=           1
+ readin nout=           1
+  end of getkeyvalue------ ifqpnt=          11
+  1     0.000000     0.000000     0.000000
+  2    -0.500000     0.500000     0.500000
+  3     0.000000     0.000000     1.000000
+ init_readeigen:
+ read(ifiqg)          16          92   2.70000000000000                8
+  mrelc.ne.0 file=
+ EVU                                                                       52
+ readin nout=           1
+  efsimplef2(gaussian mode):start
+  ia z(ic)=           1   14.0000000000000     
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           0           2           2
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           1           1           6
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           2           0          10
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           3           0          14
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           4           0          18
+  ia z(ic)=           2   14.0000000000000     
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           0           2           2
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           1           1           6
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           2           0          10
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           3           0          14
+  l (konfig(l,ic)-l-1) 2*(2l+1)=           4           0          18
+  valn=   8.00000000000000     
+           1           1 -0.692053972900581       0.250000000000000     
+           2          27 -0.521732126288324        1.25000000000000     
+           3          53 -0.389792029653471        2.00000000000000     
+           4          54 -0.389792029482898        2.75000000000000     
+           5          28 -0.329776134120812        3.75000000000000     
+           6          55 -2.459075526730448E-002   4.50000000000000     
+           7          56 -2.459075496399476E-002   5.25000000000000     
+           8          29  9.748068086436326E-002   6.25000000000000     
+           9          30  9.748187632494668E-002   7.25000000000000     
+          10           2  0.185198276924236        7.50000000000000     
+          11           3  0.185199653746170        7.75000000000000     
+          12           4  0.185199808397295        8.00000000000000     
+ 
+          13          57  0.230941387919744        8.75000000000000     
+          14          58  0.230941388766473        9.50000000000000     
+ valx at efini=  0.208070598158520        8.00000000000001     
+  efsimplef2(gauss):end
+  Ef=  0.208070598158520     
+  wgt nocc=   1.00000000000000        8.00000000000000     
+  ef    =  0.208070598158520     
+  esmr=  3.000000000000000E-003
+  valn  =   8.00000000000000     
+  ntot  =   8.00000000000000     
+ reading QOP
+  *** nqibz nq0i_total=           3           1
+  k in Q0P =           1
+  1     -0.152442      0.152442      0.152442
+  is ip it eee=  0.145199808397295       0.185199808397295     
+  is ip it eee=  0.225199808397295       0.185199808397295     
+  is ip it eee=  0.332317929808812       0.372317929808812     
+  is ip it eee=  0.412317929808812       0.372317929808812     
+  is ip it eee=  5.748187632494667E-002  9.748187632494668E-002
+  is ip it eee=  0.137481876324947       9.748187632494668E-002
+  is ip it eee=  0.251496666742468       0.291496666742468     
+  is ip it eee=  0.331496666742468       0.291496666742468     
+  is ip it eee= -6.459075496399476E-002 -2.459075496399476E-002
+  is ip it eee=  1.540924503600524E-002 -2.459075496399476E-002
+  is ip it eee=  0.190941387919744       0.230941387919744     
+  is ip it eee=  0.270941387919744       0.230941387919744     
+ 
+  --------------------------------
+  emaxv=   0.230941388766473     
+  eminc=   0.000000000000000E+000
+  omegav ip it= -6.459075496399476E-002           3           1
+  omegac ip it=  0.412317929808812                1           2
+  we max for <ef  0.295532143730468     
+  we max for >ef  0.412317929808812     
+  *** required we nw=    0.302661353122514                6
+ write nw to NW
+  --- computational conditions --- 
+    deltaw  =     0.020000
+    esmr    =     0.003000
+    alat voltot =    10.260000   270.011394
+    niw nw dw   =     6     6     0.040000

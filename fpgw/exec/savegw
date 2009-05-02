@@ -1,0 +1,49 @@
+#! /bin/csh
+echo $argv[1]
+set fff = $argv[1]
+if (-e $fff) then
+   echo $fff already exist! Use another name!
+   exit
+endif
+mkdir    $fff
+cp l*    $fff
+cp GW*  $fff
+cp SE*   $fff
+cp QP*   $fff
+cp XC*   $fff
+cp *.mas $fff
+cp *.rst $fff
+cp *.d   $fff
+cp X*    $fff
+cp N*    $fff
+cp EFERMI* $fff
+cp ECORE $fff
+cp TOTE*  $fff
+cp QPNT*  $fff
+cp LMTO  $fff
+cp CLASS $fff
+cp LATTC $fff
+cp LEGAS $fff
+cp SYMOPS $fff
+cp NQIBZ   $fff
+cp EV*    $fff
+cp DOS*    $fff
+cp ctrl.*  $fff
+cp rst.*   $fff
+cp wkp.*   $fff
+cp save.*  $fff
+cp TE* $fff
+cp Ro* $fff
+cp ET* $fff
+cp *run $fff
+cp Core* $fff
+cp sigm* $fff
+cp EPS* $fff
+cp site* $fff
+cp switch* $fff
+cp Q0P $fff
+if(-e ANFcond) cp ANFcond $fff
+head -3000 VXCFP.chk > $fff/VXCFP.chk.head
+if(-e normchk.dia) head -3000 normchk.dia > $fff/normchk.dia.head
+if(-e normchk.off) head -3000 normchk.dia > $fff/normchk.off.head
+head -3000  `ls | grep 'normchk.[^do]'`   > $fff/normchk.head

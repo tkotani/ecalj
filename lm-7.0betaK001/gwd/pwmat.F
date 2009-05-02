@@ -1,5 +1,5 @@
       subroutine pwmat(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
-     .  ngp,nlmax,igv,GcutH,ppovl,pwhovl)
+     .  ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
 C- Matrix elements (IPW,IPW) and (IPW,envelope function)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -52,8 +52,15 @@ Cu   29 Jan 09 Incorporate APW basis
 Cu   25 Aug 04 Adapted to extended local orbitals
 Cu   10 Apr 02 Redimensionsed eh,rsmh to accomodate larger lmax
 Cu   09 Apr 01 Adapted from Kotani's pplmat2
+C
+Ci inn:  takao added 27 Apr2009
+c   We have  q+G(igvx; internal in pwmat) = qp + G(igapw). 
+c   (because qp(shortedned q)  is used when w(oigv2)=igapw is generated. igapw is used in  hambls).
+c   Thus, we need to uss
+c           igv(internally in pwmat) = igapw + inn, where inn = qlatinv*(qp-q).
+c
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1),
      .  napw,igapw(3,napw)
@@ -76,6 +83,7 @@ C ... Local parameters
       double precision,allocatable:: yl(:)
       double complex,allocatable:: pwh(:,:),ppovlx(:,:)
 
+      integer :: inn(3)
 C --- Setup ---
       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
       pi  = 4d0*datan(1d0)
@@ -162,8 +170,9 @@ C     APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
       do  iga = 1, napw
         pwh(:,iga+nlmto) = 0d0
 C       Index to igvx that corresponds to igapw
-        ig = ifindiv2(igapw(1,iga),igvx,ngmx)
-        pwh(ig,iga+nlmto) = 1/srvol
+c        ig = ifindiv2(igapw(1,iga),igvx,ngmx)
+        ig = ifindiv2(igapw(1:3,iga)+inn(1:3),igvx,ngmx)
+        pwh(ig,iga+nlmto) = 1d0/srvol
       enddo
 
 C     call zprm('pwh',2,pwh,ngmx,ngmx,ndimh)
@@ -181,6 +190,13 @@ C --- Cleanup ---
       deallocate(yl,igvx,pwh,kv,ppovlx)
 
       end
+
+
+
+
+
+
+
 
       subroutine pwmat2(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
      .  ngp,nlmax,igv,ovlp,pwh)
@@ -309,7 +325,7 @@ C     APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
       do  iga = 1, napw
 C       Index to igv that corresponds to igapw
         ig = ifindiv2(igapw(1,iga),igv,ngp)
-        pwh(ig,iga+nlmto) = 1/srvol
+        pwh(ig,iga+nlmto) = 1d0/srvol
       enddo
 
 C     call zprm('pwh',2,pwh,ngp,ngp,ndimh)

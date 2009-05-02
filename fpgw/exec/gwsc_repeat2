@@ -1,0 +1,88 @@
+#!/bin/csh
+# --------------------------------
+# self-consistent GW itteration .
+#---------------------------------
+if(-e NoCore) then
+  rm -f NoCore 
+endif
+if(-e QPU) then
+ rm -f QP[UD]
+endif
+
+set n = $0
+set nfpgw = ${n:h}
+echo $nfpgw
+echo $argv[1]
+
+
+############## main gw stage ################
+$nfpgw/rdata4gw_v2      >lrdata4gw_v2
+
+#if($ix == 0) then
+#  cp evec.$argv[1] evec0  # this is used in hqpe_sc for isigma_en==5
+#endif
+
+#if(-e ANFcond) cp EVU EVD  ########### This is for ANFcond
+
+
+# -- get EFERMI for hx0fp0
+echo 1|$nfpgw/heftet      >leftet
+
+# -- hchknw only calculate NW, which contains the number of nw corresponding to QPNT -----
+echo 1|$nfpgw/hchknw         >lchknw
+
+
+### Core1 exchange self-energy 
+# -- product basis for core
+echo 3|$nfpgw/hbasfp0 >lbasC
+# -- Coulobm matrix
+echo 0|$nfpgw/hvccfp0        >lvccC
+
+###################################################
+#mkdir core
+#cp BASFP* PPBR* VCCFP core
+###################################################
+
+
+# -- the self energy from core1
+echo 3|$nfpgw/hsfp0_sc   >lsxC
+
+
+###################################################
+#echo ' --- end of test gw_lmf2 --- '
+#exit 
+###################################################
+
+
+### Valence part of the self-energy
+echo 0|$nfpgw/hbasfp0  >lbas
+# -- Coulobm matrix
+echo 0|$nfpgw/hvccfp0  >lvcc	
+
+# -- Sergey.F the exchange self energy from valence core2+valence elctrons 
+echo 1|$nfpgw/hsfp0_sc   >lsx
+
+# -- Sergey.F the screened coulom interaction 
+echo 11|$nfpgw/hx0fp0_sc  >lx0
+
+#########################################################
+#mkdir val
+#cp BASFP* PPBR* VCCFP NW WV* val
+##########################################################
+
+# -- Sergey. F the correlation self-energy from valence core2+valence elctrons 
+echo 2|$nfpgw/hsfp0_sc   >lsc
+
+# -- Make summary 
+echo 0|$nfpgw/hqpe_sc    >lqpe
+
+### end of itteration loop #########################################################
+cp evec.$argv[1] evec_prev_iter
+ln -s -f sigm sigm.$argv[1]
+foreach file (sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf) 
+  if(-e $file) cp $file $file.${ix}run
+end
+echo $ix 'iteration over'
+end
+end
+exit

@@ -67,6 +67,11 @@ c      equivalence( recrd(0),w(1))
       character*1,allocatable:: recrd(:)
 
       real(8),parameter::    NULLR =-99999
+cMay1 patch for MPI from y.Yoshimoto
+#if MPI|MPIK
+      include 'mpif.h'
+      integer ierr
+#endif
 
 C -------------- First executable statement ---------------
 C     Link in routines that cause potential library conflicts
@@ -92,6 +97,9 @@ C --- Version ---
       vn(2) = vn(2) + vn2(2)/1d5
       stdo = lgunit(1)
       i = dglob('stdo',dble(stdo),1)
+#if MPI|MPIK
+      call mpi_init(ierr)
+#endif
       master = 0
       procid = mpipid(1)
       nproc  = mpipid(0)

@@ -293,6 +293,9 @@ C For self-energy
 C     Data statements
       data T /.true./ F /.false./
 
+
+      integer,allocatable:: nevls(:,:)
+
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
 
@@ -832,6 +835,11 @@ C     Next line is re-entry point for 2nd spin when writing sigma
 C       endif
       endif
 
+ctakao
+      if(allocated(nevls)) deallocate(nevls)
+      allocate(nevls(nkp,nsp))
+      nevls=0
+      
 C Start k and isp loop (first loop in parallel mode)
 C     h,s,evecs are dimensioned ndimh in this loop (may be q dependent)
 C     evl is dimensioned evl(ndham,2)
@@ -1097,7 +1105,6 @@ c     .        nevl,nev,evl(1,jsp),w(oww),ndimhx,w(ot))
 c takao version. Not in lm-7.0beta
             call zhev_tk(ndimhx-napw,ndimhx,w(oh),w(os),nmx,epsovl,
      .        ncutovl,nevl,nev,evl(1,jsp),w(oww),ndimhx,w(ot),iq==1)
-
             eomin = dval(w(oww),1)
           endif
           call rlse(oww)
@@ -1109,6 +1116,9 @@ C       to avoid mixing up integration routines
         elseif (ndham*nspc .gt. nevl) then
           call dvset(evl(1,jsp),1+nevl,ndham,99999d0)
         endif
+ctakao
+        nevls(iq,isp)=nevl
+c        print *,'iq isp nevls=',iq,isp,nevls(iq,isp)
 
 #ifndef MPIK
         if (epsovl .ne. 0) then
@@ -1384,6 +1394,9 @@ C     Share bands among all processors
         call xmpbnd(kpproc,nlmax*ndham*3*nsites,nkp,nsp,w(oausc))
       endif
 
+ctakao
+      call mpibc2(nevls,nkp*nsp,2,mlog,'bndfp','nevls')
+
 ckino 05Feb09, use kpproc later, move it.
 c      deallocate(kpproc, stat=ierr)
 
@@ -1469,7 +1482,10 @@ C         isp serves as a flag for the noncollinear case
             if (mod(i1,10) .ne. 1) call poppr
             i = nsp
             if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-            call suqlsw(ndimhx,jsp,i,evl(1,jsp))
+ctakao 
+c            call suqlsw(ndimhx,jsp,i,evl(1,jsp))
+            print *,'nevls(iq,jsp)=',iq,jsp,nevls(iq,jsp)
+            call suqlsw(nevls(iq,jsp),jsp,i,evl(1,jsp))
           endif
         enddo
       enddo
@@ -1579,6 +1595,9 @@ C end second loop over iq
 ckino 05Feb09
       if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
 #endif 
+ctakao
+      deallocate(nevls)
+
 c###### second loop over qp (parallel k-points mode)
 
 C     For now, SO by site, not by class

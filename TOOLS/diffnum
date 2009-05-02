@@ -1,0 +1,47 @@
+#!/usr/bin/python
+import sys
+import string
+import os
+import os.path
+import zlib
+print
+print "========= plotg  ========="
+try:
+	print "Readin two files =     ", sys.argv[1], sys.argv[2]
+except:	
+	print "usage: dqpu QPU1 QPU2"
+	sys.exit()
+
+file1=sys.argv[1]
+root,ext = os.path.splitext(file1)
+fr = open(file1,'rt')
+print fr.read()
+sys.exit()
+
+oxx=zlib.decompress(fr.read())
+print ext
+sys.exit()
+
+
+oxx=string.split(oxx,'\n')
+fr.close()
+
+fr = open(sys.argv[2],'rt')
+oyy=fr.read()
+oyy=string.split(oyy,'\n')
+fr.close()
+
+for ix in range(len(oxx)):
+	iline=oxx[ix]
+	ilin2=oyy[ix]
+	if ix>=6:
+		print iline[0:32],
+		try:
+			for iw in range(4,16,1):
+				w1=string.atof(string.split(iline)[iw])
+				w2=string.atof(string.split(ilin2)[iw])
+				print '%6.2f' % (w1-w2),
+			print
+		except:
+			print
+

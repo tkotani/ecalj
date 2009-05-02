@@ -1,0 +1,395 @@
+ --- Input normal(=0); coremode(=3); ptest(=4); Excore(=5); for core-valence Ex(=6); val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?
+hbasfp0: VerNum= 033a4: 08Sep2008
+   ### coremode; Product basis for SEXcore ### 
+ readin nout=           1
+  goto lmto
+  divisions along reciprocal base vectors G1 G2 G3=           2           2
+           2
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+  --- Freq ---
+     dw   =  4.000000000000000E-002
+     niw  =           6
+     delta= -1.000000000000000E-004
+     esmr =  3.000000000000000E-003
+  goto prod
+ readin nout=           1
+ readin nout=           1
+ <... > 
+ lx=  0 readin tolerance=  0.100D-04
+ lx=  1 readin tolerance=  0.100D-04
+ lx=  2 readin tolerance=  0.100D-04
+ lx=  3 readin tolerance=  0.100D-04
+ lx=  4 readin tolerance=  0.100D-04
+ lx=  5 readin tolerance=  0.100D-04
+ lx=  6 readin tolerance=  0.100D-04
+ lx=  7 readin tolerance=  0.100D-04
+ lx=  8 readin tolerance=  0.100D-04
+  --- prod section: tolbas lcutmx=  1.000000000000000E-005
+  1.000000000000000E-005  1.000000000000000E-005  1.000000000000000E-005
+  1.000000000000000E-005  1.000000000000000E-005  1.000000000000000E-005
+  1.000000000000000E-005  1.000000000000000E-005           4
+  --- valence product basis section
+  1  0  1  1  1
+  1  0  2  0  0
+  1  1  1  1  1
+  1  1  2  0  0
+  1  2  1  1  1
+  1  2  2  0  0
+  1  3  1  0  1
+  1  3  2  0  0
+  1  4  1  0  0
+  1  4  2  0  0
+  2  0  1  1  1
+  2  0  2  0  0
+  2  1  1  1  1
+  2  1  2  0  0
+  2  2  1  1  1
+  2  2  2  0  0
+  2  3  1  0  1
+  2  3  2  0  0
+  2  4  1  0  0
+  2  4  2  0  0
+  --- core product basis section
+  1  0  1  0  0  0  0
+  1  0  2  0  0  0  0
+  1  1  1  0  0  0  0
+  2  0  1  0  0  0  0
+  2  0  2  0  0  0  0
+  2  1  1  0  0  0  0
+  ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis 
+ibitand::   1  1  1  1
+ibitand::   2  1  1  1
+ibitand::   3  1  1  1
+ibitand::   4  1  0  1
+ibitand::   5  0  0  0
+ibitand::   6  0  0  0
+ibitand::   7  0  0  0
+ibitand::   8  0  0  0
+ibitand::   9  0  0  0
+ibitand::  10  0  0  0
+ibitand::  11  1  1  1
+ibitand::  12  1  1  1
+ibitand::  13  1  1  1
+ibitand::  14  1  0  1
+ibitand::  15  0  0  0
+ibitand::  16  0  0  0
+ibitand::  17  0  0  0
+ibitand::  18  0  0  0
+ibitand::  19  0  0  0
+ibitand::  20  0  0  0
+ end of rgwinf
+ readin nout=           1
+ readin nout=           1
+ lcutmxa=  4  4
+  --- end of reindx ---
+  --- read PHIVC of ibas=           1
+           ---  isp nrad ncore(ic)=           1          10           3
+  --- read PHIVC of ibas=           2
+           ---  isp nrad ncore(ic)=           1          10           3
+  ANFcond exist? = F
+  basnfp_v2: ********** start ******** nrofi=        4391
+ norm check for phi=  0  1 0.997558D+00
+ norm check for phi=  0  2 0.999655D+00
+ norm check for phi=  0  3 0.999941D+00
+ norm check for phi=  0  4 0.341372D-01
+ norm check for phi=  1  1 0.999676D+00
+ norm check for phi=  1  2 0.999949D+00
+ norm check for phi=  1  3 0.221238D-01
+ norm check for phi=  2  1 0.999966D+00
+ norm check for phi=  2  2 0.115883D-01
+ norm check for phi=  3  1 0.999932D+00
+ norm check for phi=  3  2 0.267643D-02
+ norm check for phi=  4  1 0.999891D+00
+ norm check for phi=  4  2 0.131169D-02
+ ---  lx l1 l2 n1 n2 iprad=     0    0    0    1    3    1
+ ---  lx l1 l2 n1 n2 iprad=     1    0    1    1    2    2
+ ---  lx l1 l2 n1 n2 iprad=     2    0    2    1    1    3
+ ---  lx l1 l2 n1 n2 iprad=     3    0    3    1    1    4
+ ---  lx l1 l2 n1 n2 iprad=     0    0    0    2    3    5
+ ---  lx l1 l2 n1 n2 iprad=     1    0    1    2    2    6
+ ---  lx l1 l2 n1 n2 iprad=     2    0    2    2    1    7
+ ---  lx l1 l2 n1 n2 iprad=     3    0    3    2    1    8
+ ---  lx l1 l2 n1 n2 iprad=     0    0    0    3    3    9
+ ---  lx l1 l2 n1 n2 iprad=     1    0    1    3    2   10
+ ---  lx l1 l2 n1 n2 iprad=     2    0    2    3    1   11
+ ---  lx l1 l2 n1 n2 iprad=     3    0    3    3    1   12
+ ---  lx l1 l2 n1 n2 iprad=     1    1    0    1    3   13
+ ---  lx l1 l2 n1 n2 iprad=     0    1    1    1    2   14
+ ---  lx l1 l2 n1 n2 iprad=     2    1    1    1    2   14
+ ---  lx l1 l2 n1 n2 iprad=     1    1    2    1    1   15
+ ---  lx l1 l2 n1 n2 iprad=     3    1    2    1    1   15
+ ---  lx l1 l2 n1 n2 iprad=     2    1    3    1    1   16
+ ---  lx l1 l2 n1 n2 iprad=     4    1    3    1    1   16
+ ---  lx l1 l2 n1 n2 iprad=     0    1    1    2    2   17
+ ---  lx l1 l2 n1 n2 iprad=     2    1    1    2    2   17
+ ---  lx l1 l2 n1 n2 iprad=     1    1    2    2    1   18
+ ---  lx l1 l2 n1 n2 iprad=     3    1    2    2    1   18
+ ---  lx l1 l2 n1 n2 iprad=     2    1    3    2    1   19
+ ---  lx l1 l2 n1 n2 iprad=     4    1    3    2    1   19
+ ---  lx l1 l2 n1 n2 iprad=     0    2    2    1    1   20
+ ---  lx l1 l2 n1 n2 iprad=     2    2    2    1    1   20
+ ---  lx l1 l2 n1 n2 iprad=     4    2    2    1    1   20
+ ---  lx l1 l2 n1 n2 iprad=     1    2    3    1    1   21
+ ---  lx l1 l2 n1 n2 iprad=     3    2    3    1    1   21
+  number of radial basis: nprad=          22
+lx nx number ipx=   0   1   1   1
+lx nx number ipx=   0   2   1   5
+lx nx number ipx=   0   3   1   9
+lx nx number ipx=   0   4   1  14
+lx nx number ipx=   0   5   1  17
+lx nx number ipx=   0   6   1  20
+lx nx number ipx=   0   7   1  22
+lx nx number ipx=   1   1   3   2
+lx nx number ipx=   1   2   3   6
+lx nx number ipx=   1   3   3  10
+lx nx number ipx=   1   4   3  13
+lx nx number ipx=   1   5   3  15
+lx nx number ipx=   1   6   3  18
+lx nx number ipx=   1   7   3  21
+lx nx number ipx=   2   1   5   3
+lx nx number ipx=   2   2   5   7
+lx nx number ipx=   2   3   5  11
+lx nx number ipx=   2   4   5  14
+lx nx number ipx=   2   5   5  16
+lx nx number ipx=   2   6   5  17
+lx nx number ipx=   2   7   5  19
+lx nx number ipx=   2   8   5  20
+lx nx number ipx=   3   1   7   4
+lx nx number ipx=   3   2   7   8
+lx nx number ipx=   3   3   7  12
+lx nx number ipx=   3   4   7  15
+lx nx number ipx=   3   5   7  18
+lx nx number ipx=   3   6   7  21
+lx nx number ipx=   4   1   9  16
+lx nx number ipx=   4   2   9  19
+lx nx number ipx=   4   3   9  20
+  *** total number of product basis nprod=         137
+ 
+    ib eb=    7 0.962978D+01  ecut= 0.100000D-04
+    ib eb=    6 0.445631D+01  ecut= 0.100000D-04
+    ib eb=    5 0.138409D+01  ecut= 0.100000D-04
+    ib eb=    4 0.103690D+00  ecut= 0.100000D-04
+    ib eb=    3 0.580628D-01  ecut= 0.100000D-04
+    ib eb=    2 0.323330D-01  ecut= 0.100000D-04
+    ib eb=    1 0.375975D-03  ecut= 0.100000D-04
+    Diag ibx ovv=  1 0.1000000000000002D+01 eb=   0.9629780143D+01 nod=   4
+    Diag ibx ovv=  2 0.1000000000000004D+01 eb=   0.4456313635D+01 nod=   1
+    Diag ibx ovv=  3 0.1000000000000001D+01 eb=   0.1384085978D+01 nod=   1
+    Diag ibx ovv=  4 0.1000000000000020D+01 eb=   0.1036901761D+00 nod=   5
+    Diag ibx ovv=  5 0.9999999999999939D+00 eb=   0.5806276692D-01 nod=   2
+    Diag ibx ovv=  6 0.1000000000000027D+01 eb=   0.3233300492D-01 nod=   5
+    Diag ibx ovv=  7 0.1000000000004110D+01 eb=   0.3759749906D-03 nod=   6
+  *** lx  *** Used nb =           0           7
+ 
+    ib eb=    7 0.204680D+01  ecut= 0.100000D-04
+    ib eb=    6 0.127711D+01  ecut= 0.100000D-04
+    ib eb=    5 0.891389D+00  ecut= 0.100000D-04
+    ib eb=    4 0.653965D-01  ecut= 0.100000D-04
+    ib eb=    3 0.217238D-01  ecut= 0.100000D-04
+    ib eb=    2 0.402376D-03  ecut= 0.100000D-04
+    ib eb=    1 0.261772D-04  ecut= 0.100000D-04
+    Diag ibx ovv=  1 0.1000000000000005D+01 eb=   0.2046801710D+01 nod=   2
+    Diag ibx ovv=  2 0.9999999999999978D+00 eb=   0.1277113551D+01 nod=   3
+    Diag ibx ovv=  3 0.9999999999999994D+00 eb=   0.8913894701D+00 nod=   2
+    Diag ibx ovv=  4 0.1000000000000004D+01 eb=   0.6539649091D-01 nod=   2
+    Diag ibx ovv=  5 0.9999999999999957D+00 eb=   0.2172383632D-01 nod=   4
+    Diag ibx ovv=  6 0.9999999999993666D+00 eb=   0.4023755961D-03 nod=   5
+    Diag ibx ovv=  7 0.1000000000029315D+01 eb=   0.2617718083D-04 nod=   6
+  *** lx  *** Used nb =           1           7
+ 
+    ib eb=    8 0.117081D+01  ecut= 0.100000D-04
+    ib eb=    7 0.863712D+00  ecut= 0.100000D-04
+    ib eb=    6 0.463572D-01  ecut= 0.100000D-04
+    ib eb=    5 0.242151D-01  ecut= 0.100000D-04
+    ib eb=    4 0.305646D-03  ecut= 0.100000D-04
+    ib eb=    3 0.819108D-04  ecut= 0.100000D-04
+    ib eb=    2 0.282226D-05  ecut= 0.100000D-04
+    ib eb=    1 0.152178D-06  ecut= 0.100000D-04
+    Diag ibx ovv=  1 0.1000000000000003D+01 eb=   0.1170806601D+01 nod=   0
+    Diag ibx ovv=  2 0.9999999999999968D+00 eb=   0.8637123211D+00 nod=   1
+    Diag ibx ovv=  3 0.9999999999999973D+00 eb=   0.4635717160D-01 nod=   2
+    Diag ibx ovv=  4 0.9999999999999969D+00 eb=   0.2421513260D-01 nod=   3
+    Diag ibx ovv=  5 0.9999999999993089D+00 eb=   0.3056455219D-03 nod=   4
+    Diag ibx ovv=  6 0.9999999999904338D+00 eb=   0.8191084547D-04 nod=   5
+  *** lx  *** Used nb =           2           6
+ 
+    ib eb=    6 0.899830D+00  ecut= 0.100000D-04
+    ib eb=    5 0.438373D-01  ecut= 0.100000D-04
+    ib eb=    4 0.147253D-01  ecut= 0.100000D-04
+    ib eb=    3 0.740079D-03  ecut= 0.100000D-04
+    ib eb=    2 0.136391D-04  ecut= 0.100000D-04
+    ib eb=    1 0.694447D-06  ecut= 0.100000D-04
+    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.8998300544D+00 nod=   1
+    Diag ibx ovv=  2 0.1000000000000000D+01 eb=   0.4383731008D-01 nod=   1
+    Diag ibx ovv=  3 0.9999999999999721D+00 eb=   0.1472527311D-01 nod=   2
+    Diag ibx ovv=  4 0.1000000000000735D+01 eb=   0.7400788362D-03 nod=   3
+    Diag ibx ovv=  5 0.1000000000016760D+01 eb=   0.1363905397D-04 nod=   4
+  *** lx  *** Used nb =           3           5
+ 
+    ib eb=    3 0.633407D+00  ecut= 0.100000D-04
+    ib eb=    2 0.466928D-02  ecut= 0.100000D-04
+    ib eb=    1 0.554632D-04  ecut= 0.100000D-04
+    Diag ibx ovv=  1 0.9999999999999961D+00 eb=   0.6334069173D+00 nod=   2
+    Diag ibx ovv=  2 0.9999999999999698D+00 eb=   0.4669281766D-02 nod=   1
+    Diag ibx ovv=  3 0.9999999999910750D+00 eb=   0.5546322565D-04 nod=   3
+  *** lx  *** Used nb =           4           3
+  reserve rprodx...
+  read rprodx...
+ basnfp: BASFP... kmx nblocha=   28  120
+  Calculate radial matrix elements...
+  basnfp_v2: end  
+  basnfp_v2: ********** start ******** nrofi=        4391
+ norm check for phi=  0  1 0.997558D+00
+ norm check for phi=  0  2 0.999655D+00
+ norm check for phi=  0  3 0.999941D+00
+ norm check for phi=  0  4 0.341372D-01
+ norm check for phi=  1  1 0.999676D+00
+ norm check for phi=  1  2 0.999949D+00
+ norm check for phi=  1  3 0.221238D-01
+ norm check for phi=  2  1 0.999966D+00
+ norm check for phi=  2  2 0.115883D-01
+ norm check for phi=  3  1 0.999932D+00
+ norm check for phi=  3  2 0.267643D-02
+ norm check for phi=  4  1 0.999891D+00
+ norm check for phi=  4  2 0.131169D-02
+ ---  lx l1 l2 n1 n2 iprad=     0    0    0    1    3    1
+ ---  lx l1 l2 n1 n2 iprad=     1    0    1    1    2    2
+ ---  lx l1 l2 n1 n2 iprad=     2    0    2    1    1    3
+ ---  lx l1 l2 n1 n2 iprad=     3    0    3    1    1    4
+ ---  lx l1 l2 n1 n2 iprad=     0    0    0    2    3    5
+ ---  lx l1 l2 n1 n2 iprad=     1    0    1    2    2    6
+ ---  lx l1 l2 n1 n2 iprad=     2    0    2    2    1    7
+ ---  lx l1 l2 n1 n2 iprad=     3    0    3    2    1    8
+ ---  lx l1 l2 n1 n2 iprad=     0    0    0    3    3    9
+ ---  lx l1 l2 n1 n2 iprad=     1    0    1    3    2   10
+ ---  lx l1 l2 n1 n2 iprad=     2    0    2    3    1   11
+ ---  lx l1 l2 n1 n2 iprad=     3    0    3    3    1   12
+ ---  lx l1 l2 n1 n2 iprad=     1    1    0    1    3   13
+ ---  lx l1 l2 n1 n2 iprad=     0    1    1    1    2   14
+ ---  lx l1 l2 n1 n2 iprad=     2    1    1    1    2   14
+ ---  lx l1 l2 n1 n2 iprad=     1    1    2    1    1   15
+ ---  lx l1 l2 n1 n2 iprad=     3    1    2    1    1   15
+ ---  lx l1 l2 n1 n2 iprad=     2    1    3    1    1   16
+ ---  lx l1 l2 n1 n2 iprad=     4    1    3    1    1   16
+ ---  lx l1 l2 n1 n2 iprad=     0    1    1    2    2   17
+ ---  lx l1 l2 n1 n2 iprad=     2    1    1    2    2   17
+ ---  lx l1 l2 n1 n2 iprad=     1    1    2    2    1   18
+ ---  lx l1 l2 n1 n2 iprad=     3    1    2    2    1   18
+ ---  lx l1 l2 n1 n2 iprad=     2    1    3    2    1   19
+ ---  lx l1 l2 n1 n2 iprad=     4    1    3    2    1   19
+ ---  lx l1 l2 n1 n2 iprad=     0    2    2    1    1   20
+ ---  lx l1 l2 n1 n2 iprad=     2    2    2    1    1   20
+ ---  lx l1 l2 n1 n2 iprad=     4    2    2    1    1   20
+ ---  lx l1 l2 n1 n2 iprad=     1    2    3    1    1   21
+ ---  lx l1 l2 n1 n2 iprad=     3    2    3    1    1   21
+  number of radial basis: nprad=          22
+lx nx number ipx=   0   1   1   1
+lx nx number ipx=   0   2   1   5
+lx nx number ipx=   0   3   1   9
+lx nx number ipx=   0   4   1  14
+lx nx number ipx=   0   5   1  17
+lx nx number ipx=   0   6   1  20
+lx nx number ipx=   0   7   1  22
+lx nx number ipx=   1   1   3   2
+lx nx number ipx=   1   2   3   6
+lx nx number ipx=   1   3   3  10
+lx nx number ipx=   1   4   3  13
+lx nx number ipx=   1   5   3  15
+lx nx number ipx=   1   6   3  18
+lx nx number ipx=   1   7   3  21
+lx nx number ipx=   2   1   5   3
+lx nx number ipx=   2   2   5   7
+lx nx number ipx=   2   3   5  11
+lx nx number ipx=   2   4   5  14
+lx nx number ipx=   2   5   5  16
+lx nx number ipx=   2   6   5  17
+lx nx number ipx=   2   7   5  19
+lx nx number ipx=   2   8   5  20
+lx nx number ipx=   3   1   7   4
+lx nx number ipx=   3   2   7   8
+lx nx number ipx=   3   3   7  12
+lx nx number ipx=   3   4   7  15
+lx nx number ipx=   3   5   7  18
+lx nx number ipx=   3   6   7  21
+lx nx number ipx=   4   1   9  16
+lx nx number ipx=   4   2   9  19
+lx nx number ipx=   4   3   9  20
+  *** total number of product basis nprod=         137
+ 
+    ib eb=    7 0.962978D+01  ecut= 0.100000D-04
+    ib eb=    6 0.445631D+01  ecut= 0.100000D-04
+    ib eb=    5 0.138409D+01  ecut= 0.100000D-04
+    ib eb=    4 0.103690D+00  ecut= 0.100000D-04
+    ib eb=    3 0.580628D-01  ecut= 0.100000D-04
+    ib eb=    2 0.323330D-01  ecut= 0.100000D-04
+    ib eb=    1 0.375975D-03  ecut= 0.100000D-04
+    Diag ibx ovv=  1 0.1000000000000002D+01 eb=   0.9629780143D+01 nod=   4
+    Diag ibx ovv=  2 0.1000000000000004D+01 eb=   0.4456313635D+01 nod=   1
+    Diag ibx ovv=  3 0.1000000000000001D+01 eb=   0.1384085978D+01 nod=   1
+    Diag ibx ovv=  4 0.1000000000000020D+01 eb=   0.1036901761D+00 nod=   5
+    Diag ibx ovv=  5 0.9999999999999939D+00 eb=   0.5806276692D-01 nod=   2
+    Diag ibx ovv=  6 0.1000000000000027D+01 eb=   0.3233300492D-01 nod=   5
+    Diag ibx ovv=  7 0.1000000000004110D+01 eb=   0.3759749906D-03 nod=   6
+  *** lx  *** Used nb =           0           7
+ 
+    ib eb=    7 0.204680D+01  ecut= 0.100000D-04
+    ib eb=    6 0.127711D+01  ecut= 0.100000D-04
+    ib eb=    5 0.891389D+00  ecut= 0.100000D-04
+    ib eb=    4 0.653965D-01  ecut= 0.100000D-04
+    ib eb=    3 0.217238D-01  ecut= 0.100000D-04
+    ib eb=    2 0.402376D-03  ecut= 0.100000D-04
+    ib eb=    1 0.261772D-04  ecut= 0.100000D-04
+    Diag ibx ovv=  1 0.1000000000000005D+01 eb=   0.2046801710D+01 nod=   2
+    Diag ibx ovv=  2 0.9999999999999978D+00 eb=   0.1277113551D+01 nod=   3
+    Diag ibx ovv=  3 0.9999999999999994D+00 eb=   0.8913894701D+00 nod=   2
+    Diag ibx ovv=  4 0.1000000000000004D+01 eb=   0.6539649091D-01 nod=   2
+    Diag ibx ovv=  5 0.9999999999999957D+00 eb=   0.2172383632D-01 nod=   4
+    Diag ibx ovv=  6 0.9999999999993666D+00 eb=   0.4023755961D-03 nod=   5
+    Diag ibx ovv=  7 0.1000000000029315D+01 eb=   0.2617718083D-04 nod=   6
+  *** lx  *** Used nb =           1           7
+ 
+    ib eb=    8 0.117081D+01  ecut= 0.100000D-04
+    ib eb=    7 0.863712D+00  ecut= 0.100000D-04
+    ib eb=    6 0.463572D-01  ecut= 0.100000D-04
+    ib eb=    5 0.242151D-01  ecut= 0.100000D-04
+    ib eb=    4 0.305646D-03  ecut= 0.100000D-04
+    ib eb=    3 0.819108D-04  ecut= 0.100000D-04
+    ib eb=    2 0.282226D-05  ecut= 0.100000D-04
+    ib eb=    1 0.152178D-06  ecut= 0.100000D-04
+    Diag ibx ovv=  1 0.1000000000000003D+01 eb=   0.1170806601D+01 nod=   0
+    Diag ibx ovv=  2 0.9999999999999968D+00 eb=   0.8637123211D+00 nod=   1
+    Diag ibx ovv=  3 0.9999999999999973D+00 eb=   0.4635717160D-01 nod=   2
+    Diag ibx ovv=  4 0.9999999999999969D+00 eb=   0.2421513260D-01 nod=   3
+    Diag ibx ovv=  5 0.9999999999993089D+00 eb=   0.3056455219D-03 nod=   4
+    Diag ibx ovv=  6 0.9999999999904338D+00 eb=   0.8191084547D-04 nod=   5
+  *** lx  *** Used nb =           2           6
+ 
+    ib eb=    6 0.899830D+00  ecut= 0.100000D-04
+    ib eb=    5 0.438373D-01  ecut= 0.100000D-04
+    ib eb=    4 0.147253D-01  ecut= 0.100000D-04
+    ib eb=    3 0.740079D-03  ecut= 0.100000D-04
+    ib eb=    2 0.136391D-04  ecut= 0.100000D-04
+    ib eb=    1 0.694447D-06  ecut= 0.100000D-04
+    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.8998300544D+00 nod=   1
+    Diag ibx ovv=  2 0.1000000000000000D+01 eb=   0.4383731008D-01 nod=   1
+    Diag ibx ovv=  3 0.9999999999999721D+00 eb=   0.1472527311D-01 nod=   2
+    Diag ibx ovv=  4 0.1000000000000735D+01 eb=   0.7400788362D-03 nod=   3
+    Diag ibx ovv=  5 0.1000000000016760D+01 eb=   0.1363905397D-04 nod=   4
+  *** lx  *** Used nb =           3           5
+ 
+    ib eb=    3 0.633407D+00  ecut= 0.100000D-04
+    ib eb=    2 0.466928D-02  ecut= 0.100000D-04
+    ib eb=    1 0.554632D-04  ecut= 0.100000D-04
+    Diag ibx ovv=  1 0.9999999999999961D+00 eb=   0.6334069173D+00 nod=   2
+    Diag ibx ovv=  2 0.9999999999999698D+00 eb=   0.4669281766D-02 nod=   1
+    Diag ibx ovv=  3 0.9999999999910750D+00 eb=   0.5546322565D-04 nod=   3
+  *** lx  *** Used nb =           4           3
+  reserve rprodx...
+  read rprodx...
+ basnfp: BASFP... kmx nblocha=   28  120
+  Calculate radial matrix elements...
+  basnfp_v2: end  

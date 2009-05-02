@@ -1,0 +1,30 @@
+#!/bin/csh
+echo $argv[1] $argv[2] $argv[3] $argv[4]
+set id = $argv[1] 
+set xx = $argv[2]
+set yy = $argv[3]
+set xmax = $argv[4]
+#ETOTeV.fc_${id}_222_rmt.800 dat1
+#ETOTeV.fc_${id}_222_rmt.850 dat2
+set sft1 = 0
+#1.4
+set id2 = 11
+cat <<EOF >ggg
+#!/usr/bin/gnuplot -persist
+set xrange [0: ${xmax}]
+plot  "${id}"  using (\$${xx}):(\$${yy}) with lines, \
+      "${id}"  using (\$${xx}):(\$${yy}) with points
+set term postscript enhanced color
+set output "pl.eps"
+replot
+EOF
+chmod +x ggg
+./ggg
+
+exit
+      "ETOTeV.fc_${id}_222_rmt.850"  using 2:(\$6) with lines,\
+      "ETOTeV.fc_${id}_222_rmt.850"  using 2:(\$6) with points, \
+      "ETOTeV.fc_${id2}_222_rmt.800"  using 2:(\$6+$sft1) with lines,\
+      "ETOTeV.fc_${id2}_222_rmt.800"  using 2:(\$6+$sft1) with points,\
+      "ETOTeV.fc_${id2}_222_rmt.850"  using 2:(\$6+$sft1) with lines,\
+      "ETOTeV.fc_${id2}_222_rmt.850"  using 2:(\$6+$sft1) with points

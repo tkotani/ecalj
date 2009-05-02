@@ -1,0 +1,321 @@
+#!ngraph
+#%creator: Ngraph for X11 [Linux(glibc2) + Open Motif] 
+#%version: 6.03
+
+#-----------------------------------------------
+axisnum=0
+ipanel=0
+
+
+textplot(){
+new text
+	text::hidden=false
+	text::R=0
+	text::G=0
+	text::B=0
+	text::clip=true
+	text::redraw_flag=true
+	text::text=$text1
+	text::x=`iexpr $xleft   - 200`
+	text::y=`iexpr $ybottom + 600`
+	text::pt=2000
+	text::font='Helvetica'
+	text::jfont='Gothic'
+	text::space=0
+	text::direction=0
+	text::script_size=7000
+	text::raw=false
+}
+
+
+panelplot(){
+
+#echo aaaaaa $ipanel `iexpr $ipanel + 1`
+#echo `iexpr  4*$ipanel - 4  `
+xlength=`dexpr $xright - $xleft`
+
+ipanel=`iexpr $ipanel + 1`
+i1=`iexpr 4*$ipanel - 4`
+i2=`iexpr 4*$ipanel - 4 + 1`
+i3=`iexpr 4*$ipanel - 4 + 2`
+i4=`iexpr 4*$ipanel - 4 + 3`
+axisx='axis:'$i1
+axisy='axis:'$i2
+axisu='axis:'$i3
+axisr='axis:'$i4
+
+echo axis::grouping $ipanel $i1 $i2 $i3 $i4
+echo $axisx $axisy $axisu $axisr
+
+
+new axis name=axisx
+	axis::x=$xleft
+	axis::y=$ybottom
+	axis::length=$xlength
+	axis::hidden=false
+	axis::R=0
+	axis::G=0
+	axis::B=0
+	axis::clip=true
+	axis::redraw_flag=true
+	axis::min=$xmin
+	axis::max=$xmax
+	axis::inc=1.0
+	axis::div=0
+	axis::type=linear
+	axis::direction=0
+	axis::baseline=true
+	axis::width=40
+	axis::style=
+	axis::adjust_axis=
+	axis::adjust_position=0
+	axis::arrow=none
+	axis::arrow_length=72426
+	axis::arrow_width=60000
+	axis::wave=none
+	axis::wave_length=312
+	axis::wave_width=41
+	axis::reference=
+	axis::gauge=none
+	axis::gauge_min=0.000000000000000e+00
+	axis::gauge_max=0.000000000000000e+00
+	axis::gauge_style=
+	axis::gauge_length1=104
+	axis::gauge_width1=$gauge_w
+	axis::gauge_length2=208
+	axis::gauge_width2=$gauge_w
+	axis::gauge_length3=312
+	axis::gauge_width3=$gauge_w
+	axis::gauge_R=0
+	axis::gauge_G=0
+	axis::gauge_B=0
+	axis::num=none
+	axis::num_begin=0
+	axis::num_step=0
+	axis::num_num=-1
+	axis::num_auto_norm=5
+	axis::num_head=
+	axis::num_format='%g'
+	axis::num_tail=
+	axis::num_log_pow=true
+	axis::num_pt=2080
+	axis::num_space=0
+	axis::num_font='Helvetica'
+	axis::num_jfont='Gothic'
+	axis::num_script_size=7000
+	axis::num_align=center
+	axis::num_no_zero=false
+	axis::num_direction=normal
+	axis::num_shift_p=0
+	axis::num_shift_n=100
+	axis::num_R=0
+	axis::num_G=0
+	axis::num_B=0
+
+new axis name=axisy
+	axis::x=$xleft
+	axis::y=$ybottom
+	axis::length=$ylength
+	axis::min=$ymin
+	axis::max=$ymax
+	axis::hidden=false
+	axis::R=0
+	axis::G=0
+	axis::B=0
+	axis::clip=true
+	axis::redraw_flag=true
+	axis::div=0
+	axis::type=linear
+	axis::direction=9000
+	axis::baseline=true
+	axis::width=41
+	axis::style=
+	axis::adjust_axis=
+	axis::adjust_position=0
+	axis::arrow=none
+	axis::arrow_length=72426
+	axis::arrow_width=60000
+	axis::wave=none
+	axis::wave_length=312
+	axis::wave_width=41
+	axis::reference=
+	axis::gauge=right
+	axis::gauge_min=0.000000000000000e+00
+	axis::gauge_max=0.000000000000000e+00
+	axis::gauge_style=
+	axis::gauge_length1=104
+	axis::gauge_width1=$gauge_w
+	axis::gauge_length2=208
+	axis::gauge_width2=$gauge_w
+	axis::gauge_length3=312
+	axis::gauge_width3=$gauge_w
+	axis::gauge_R=0
+	axis::gauge_G=0
+	axis::gauge_B=0
+	axis::num=$numy
+	axis::num_begin=0
+	axis::num_step=0
+	axis::num_num=-1
+	axis::num_auto_norm=5
+	axis::num_head=
+	axis::num_format='%g'
+	axis::num_tail=
+	axis::num_log_pow=true
+	axis::num_pt=2080
+	axis::num_space=0
+	axis::num_font='Helvetica'
+	axis::num_jfont='Gothic'
+	axis::num_script_size=7000
+	axis::num_align=right
+	axis::num_no_zero=false
+	axis::num_direction=normal
+	axis::num_shift_p=0
+	axis::num_shift_n=100
+	axis::num_R=0
+	axis::num_G=0
+	axis::num_B=0
+
+new axis name=axisu
+	axis::x=$xleft
+	axis::y=$ytop
+	axis::length=$xlength
+	axis::reference=$axisx
+	axis::hidden=false
+	axis::R=0
+	axis::G=0
+	axis::B=0
+	axis::clip=true
+	axis::redraw_flag=true
+	axis::min=$xmin
+	axis::max=$xmax
+	axis::inc=0.000000000000000e+00
+	axis::div=0
+	axis::type=linear
+	axis::direction=0
+	axis::baseline=true
+	axis::width=41
+	axis::style=
+	axis::adjust_axis=
+	axis::adjust_position=0
+
+new axis name=axisr
+	axis::x=$xright
+	axis::y=$ybottom
+	axis::length=$ylength
+	axis::reference=$axisy
+	axis::hidden=false
+	axis::R=0
+	axis::G=0
+	axis::B=0
+	axis::clip=true
+	axis::redraw_flag=true
+	axis::min=$ymin
+	axis::max=$ymax
+	axis::inc=0.000000000000000e+00
+	axis::div=0
+	axis::type=linear
+	axis::direction=9000
+	axis::baseline=true
+	axis::width=41
+	axis::style=
+	axis::adjust_axis=
+	axis::adjust_position=0
+
+axis::grouping $ipanel $i1 $i2 $i3 $i4
+
+#n=2
+#while [ $n -le $cols ]
+#do
+echo Readin data --- $panel
+ new file
+	file::hidden=false
+	file::R=0
+	file::G=0
+	file::B=0
+	file::clip=true
+	file::redraw_flag=true
+	file::save_path=unchange
+	file::x=1
+	file::y=2
+	file::type=line
+	file::interpolation=spline
+	file::fit=
+	file::math_x=
+	file::math_y=
+	file::func_f=
+	file::func_g=
+	file::func_h=
+	file::smooth_x=0
+	file::smooth_y=0
+	file::mark_type=0
+	file::mark_size=200
+	file::line_width=40
+	file::line_style=
+	file::line_join=miter
+	file::line_miter_limit=1000
+	file::R2=255
+	file::G2=255
+	file::B2=255
+	file::remark='#%'\'''
+	file::ifs=' ,	()'
+	file::csv=false
+	file::head_skip=0
+	file::read_step=1
+	file::final_line=-1
+	file::mask=
+	file::move_data=
+	file::move_data_x=
+	file::move_data_y=
+	file::axis_x=$axisx  
+	file::axis_y=$axisy  
+	file::data_clip=true
+	file::file=$panel
+#n=`iexpr $n + 1`
+#done
+}
+
+zeroline(){
+new axis
+	axis::hidden=false
+	axis::R=0
+	axis::G=0
+	axis::B=0
+	axis::clip=true
+	axis::min=0.000000000000000e+00
+	axis::max=1.000000000000000e+00
+	axis::inc=0.000000000000000e+00
+	axis::div=0
+	axis::type=linear
+	axis::x=$xleftmx
+	axis::y=$y0
+	axis::direction=0
+	axis::baseline=true
+	axis::length=$xwidth
+	axis::width=$gauge_w
+	axis::style=
+	axis::adjust_axis=
+	axis::adjust_position=0
+	axis::arrow=none
+	axis::wave=none
+	axis::reference=
+	axis::gauge=none
+	axis::num=none
+}
+
+new text
+        text::hidden=false
+        text::R=0
+        text::G=0
+        text::B=0
+        text::clip=true
+        text::redraw_flag=true
+        text::text='eV'
+        text::x=1400
+        text::y=8600
+        text::pt=2000
+        text::font='Helvetica'
+        text::jfont='Gothic'
+        text::space=0
+        text::direction=9000
+        text::script_size=7000
+        text::raw=false

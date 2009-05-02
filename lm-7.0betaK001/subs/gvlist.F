@@ -307,7 +307,7 @@ Cu Updates
 Cu   20 Jul 02 Bug fix for nonzero tau
 Cu   01 Jun 01  Added igv,igv2
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
       logical ligv,ligv2
       integer ngmx,ng,kk(ng),iwk(ng),kv(ngmx,3),igv(ngmx,3),igv2(3,*)
       double precision gv(ngmx,3),gg(ng),p(3)

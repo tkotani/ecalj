@@ -1,0 +1,85 @@
+#!/bin/csh
+# --------------------------------
+# GW run. Sergey's mode
+# Required inputs are 
+#   ctrl.si rst.si GWinput (ANFcond)
+#---------------------------------------------
+set n = $0
+set nfpgw = ${n:h}
+if ($#argv != 1) goto usage
+echo $nfpgw
+echo $argv[1]
+
+pushd $nfpgw >& /dev/null
+if (! -x hbasfp0 || ! -x hvccfp0 || ! -x hx0fp0 || ! -x hsfp0 || ! -x hqpe || ! -x hchknw || ! -x qg4gw || ! -x heftet || ! -x rdata4gw_v2 || ! -x hx0fp0_sc || ! -x hsfp0_sc || ! -x hqpe_sc) then
+  echo "lmgw (abort) one or more of the following is missing from $nfpgw, or is not executable:"
+  echo "  hbasfp0 hvccfp0 hx0fp0 hsfp0 hqpe hchknw qg4gw heftet rdata4gw_v2 hx0fp0_sc hsfp0_sc hqpe_sc"
+  exit -1
+endif
+popd >& /dev/null
+
+if (! -e ctrl.$argv[1]) then
+  echo "missing file ctrl.$argv[1]"
+  shift
+  goto usage
+endif
+if (! -e rst.$argv[1] && ! -e rsta.$argv[1]) then
+  echo "missing file neither rst.$argv[1] nor rsta..$argv[1]"
+  shift
+  goto usage
+endif
+
+if(-e NoCore) then
+  rm -f NoCore 
+endif
+if(-e QPU) then
+ echo "QPU is moved to QPU.old"
+ mv QPU QPU.old
+endif
+if(-e QPD) then
+ mv QPD QPD.old
+ echo "QPD is moved to QPD.old"
+endif
+     
+
+
+### Core1 exchange self-energy 
+# -- product basis for core
+#echo 3|$nfpgw/hbasfp0 >lbasC
+# -- Coulobm matrix
+#echo 0|$nfpgw/hvccfp0        >lvccC
+
+
+# -- the self energy from core1
+#echo 3|$nfpgw/hsfp0   >lsxC
+
+
+### Valence part of the self-energy
+echo 0|$nfpgw/hbasfp0  >lbas
+# -- Coulobm matrix
+echo 0|$nfpgw/hvccfp0  >lvcc	
+
+# -- Sergey.F the exchange self energy from valence core2+valence elctrons 
+echo 11|$nfpgw/hsfp0   >lsx_sf
+
+# -- Sergey.F the screened coulom interaction 
+echo 11|$nfpgw/hx0fp0  >lx0_sf
+# -- Sergey. F the correlation self-energy from valence core2+valence elctrons 
+echo 12|$nfpgw/hsfp0   >lsc_sf
+
+# -- Make summary 
+echo 0|$nfpgw/hqpe    >lqpe
+
+
+exit
+
+
+##############################################################################
+usage:
+echo '   --- One-shot GW calculation to get QP energies ---'
+echo '             generate imaginary weights in hx0fp0 and'
+echo '             real weights from Hilbert transform (S. Faleev).'
+echo '      usage : gw_lmfh extension'
+echo '         e.g. gw_lmfh si   '
+echo '              for ctrl.si rst.si and GWinput (or GWIN0 GWIN_V2)'
+exit -1

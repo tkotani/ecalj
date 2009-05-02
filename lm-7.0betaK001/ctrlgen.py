@@ -985,8 +985,8 @@ if(iexit==0):
 else:
 	print 
 	print ' lmchk --getwsr can not find the muffin-tin radius SPEC_ATOM_R.'
-	print ' Wrong ctrls? '
-        print ' Or you have to write rmt.tmp by yourself.'
+	print ' Wrong ctrls? or bug in ctrlgen.py? (see llmchk_getwsr)'
+        print '   or you have to write rmt.tmp by yourself.'
 	print ' rmt.tmp consists of "specname R" for each line. For example,---'
         print '       --- rmt.tmp for SrTiO3 --- '
 	print '       Sr          3.616323'

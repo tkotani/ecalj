@@ -51,7 +51,7 @@ Cu             At present, must compile with SGI with local orbitals!
 Cu   12 Oct 00 Use q-dependent list of G vectors
 Cu   22 May 00 Adapted from nfp hsi_q.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 #if MPI
 #if MPE
       include "mpef.h"

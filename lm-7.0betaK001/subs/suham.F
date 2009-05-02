@@ -203,11 +203,13 @@ C       to set up upper bound to hamiltonian dimension
      .                 (qlat(m,3)/nqdiv)*j3
               enddo
               call pshpr(iprint()-40)
-              call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
-     .          xx,xx,xx)
-C             call shorbz(q,q,qlat,plat)
-C             call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
-C    .          xx,xx,xx)
+ctakao nqdiv is large but fixed... So this is safer?
+c              call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
+c     .          xx,xx,xx)
+c             write(6,"('GVLST2:goto q=',3f13.5)")q
+c             call shorbz(q,q,qlat,plat)
+             call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
+     &          xx,xx,xx)
               call poppr
               npwmin = min(npwmin,npw)
               npwmax = max(npwmax,npw)

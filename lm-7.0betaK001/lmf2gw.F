@@ -87,7 +87,7 @@ c
      &  geig_d(:,:,:,:)
       integer,allocatable:: nindx(:),lindx(:),ibasindx(:)
 
-      logical :: cphigeigmode=.true.
+c      logical :: cphigeigmode=.true.
       integer:: ificg
 c-----------------------------------------------------------------------
 
@@ -131,16 +131,18 @@ c---
      & '#   qvec                 ikp iband    eigen
      &       VXC(ntotal)     VXC(nvalence)'
 c---
-      inquire(file='NoCore',exist=nocore)
-      if(nocore) then
-          write(6,"(a)")
-     &  ' FIND NoCore. So we caluculate Vxc(nvalence)
-     &   from *.gw3 given by ng0 with mode 3.'
-        ifigwx3 =336
-          print *,' If you can not find *.gw3. Do echo 3|ng0.'
-C       call mopen(ifigwx3,'gw3','u')
-        ifigwx3 = fopna('gw3',-1,4)
-      endif
+c for simplicity.
+      nocore=.false.
+c$$$      inquire(file='NoCore',exist=nocore)
+c$$$      if(nocore) then
+c$$$          write(6,"(a)")
+c$$$     &  ' FIND NoCore. So we caluculate Vxc(nvalence)
+c$$$     &   from *.gw3 given by ng0 with mode 3.'
+c$$$        ifigwx3 =336
+c$$$          print *,' If you can not find *.gw3. Do echo 3|ng0.'
+c$$$C       call mopen(ifigwx3,'gw3','u')
+c$$$        ifigwx3 = fopna('gw3',-1,4)
+c$$$      endif
 c---
       read (ifigwb) nbas,nsp,ldim2,ndimh,alat,qlat,ef0,
 c     &              n1q,n2q,n3q,plat(1:3,1:3)
@@ -174,8 +176,6 @@ c --- takao --- readin GWIN0.
 !      close(ifigw0)
 !      if(nband>ndimh) nband = ndimh
 !      write(6,'('' File GWIN0: nband  ='',i4)') nband
-      nband=ndimh
-      write(6,'('' nband=ndimh (fixed) '',i5)') nband
 c
       lmxamx = maxval(lmxaa(1:nbas))
 c      nqbz  = n1q*n2q*n3q
@@ -199,8 +199,6 @@ c
       allocate(
      &  qbze(3,nqbze),
      &  lmxa_d   (nclass),
-     &  evl_d    (nband, nqbze, nsp),
-     &  vxclda (nband, nqbze, nsp),
      &  nr     (nclass),
      &  ncore_d(nclass) ,
      &  konf_d(0:lmxamx,nclass),
@@ -212,15 +210,15 @@ c
 ! cphigeigmode=T stores cphi and geig into CphiGeig.
 ! This procedure can omit memory allocation of cphi and geig.
 !
-      if(cphigeigmode) then
+c      if(cphigeigmode) then
         ificg=421
         open(ificg,file='CphiGeig',form='unformatted')
-      else   
-        allocate(
-     &  cphi_d(ldim2, nband, nqbze,nsp),
-     &  geig_d(ngpmx, nband, nqbze,nsp)
-     &  )
-      endif
+c      else   
+c        allocate(
+c     &  cphi_d(ldim2, nband, nqbze,nsp),
+c     &  geig_d(ngpmx, nband, nqbze,nsp)
+c     &  )
+c      endif
 c
         rewind ifefclass
         do ibas=1,nbas
@@ -229,47 +227,66 @@ c
         enddo
         close(321)
 
-c --- Band Part:
-      allocate( cphi  ( ldim2,  ndimh), evl(ndimh)
-     & , zegf(ndimh,ndimh)
-     & ,vvv1(ndimh),vvv2(ndimh),vvv3(ndimh))
+c --- Band Part
+      nbandmx = ndimh
+      write(6,'(" nqbze nqpz ndimh(max)=",3i5)') nqbze,nqbz,ndimh
+c      write(6,'('' nband=ndimh (max) '',i5)') nbandmx
+      allocate( evl_d (nbandmx, nqbze, nsp),
+     &  vxclda(nbandmx, nqbze, nsp),
+     &  vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),
+     &  cphi(ldim2, nbandmx), evl(nbandmx) )
 
-      print *,' nqbze=',nqbze
+      evl_d=1d20
+      vxclda=1d20
       do ikp = 1,nqbze
       do isp = 1, nsp
-C       print *,'ikp isp=', ikp ,isp
-        read (ifigwb) qbze(:,ikp)
-        read (ifigwb) zegf,evl, cphi
-C       call zprm('zegf',2,zegf,ndimh,ndimh,ndimh)
-C       call prmx('evl',evl,ndimh,ndimh,1)
-C       call prmx('cphi',cphi,ldim2,ldim2,ndimh)
-        if(cphigeigmode) then
-          write(ificg) cphi(1:ldim2,1:nband)
-        else
-          cphi_d(:,:, ikp,isp) = cphi(:,1:nband)
-        endif  
-        evl_d (:,     ikp,isp) = evl (1:nband)
+        read (ifigwb) qbze(:,ikp),nband
+        write(6,"(a,3i6,3x,3f11.6)") 'ikp isp nband q=',
+     &  ikp,isp,nband, qbze(:,ikp)
+
+c     &  zegf(nband,nband)
+c        read (ifigwb) zegf,evl, cphi
+        evl =1d20
+        cphi=1d20 
+       read (ifigwb) evl(1:nband), cphi(:,1:nband)
+
+C       call zprm('zegf',2,zegf,nband,nband,nband)
+C       call prmx('evl',evl,nband,nband,1)
+C       call prmx('cphi',cphi,ldim2,ldim2,nband)
+c        if(cphigeigmode) then
+        write(ificg) cphi(1:ldim2,1:nbandmx)
+c        else
+c          cphi_d(:,:, ikp,isp) = cphi(:,1:nband)
+c        endif  
+        evl_d (1:nband, ikp,isp) = evl (1:nband)
+
+c        do iband=1,nbandmx
+c          print *,'lll sum cphir=',iband, sum(abs(cphi(:,iband)))
+c        enddo
+
 
 c --- Plane wave part
         read (ifigwb) ngp,ngc
-        allocate( geig(ngp, ndimh),
+        allocate( geig(ngp, nbandmx),
      &            ngvecp(3,ngp),ngvecc(3,ngc) )
-
-        read(ifigwb) ngvecp, ngvecc,geig
-        if(cphigeigmode) then
+        geig=1d20
+        read(ifigwb) ngvecp, ngvecc,geig(:,1:nband)
+c        if(cphigeigmode) then
           write(ificg) ngp
-          write(ificg) geig(1:ngp,1:nband)
-        else
-          geig_d(1:ngp,1:nband,ikp,isp) = geig(1:ngp,1:nband)
-        endif
+          write(ificg) geig(1:ngp,1:nbandmx)
+c        else
+c          geig_d(1:ngp,1:nband,ikp,isp) = geig(1:ngp,1:nband)
+c        endif
         deallocate( geig,ngvecp,ngvecc )
-        if(ikp>nqbz) cycle
+
+        if(ikp>nqbz) goto 888
+
 
 c --- VXCFP
-        read (ifigwx1 ) qqq, (vvv1(i),i=1,ndimh)
-        read (ifigwx2 ) qqq, (vvv2(i),i=1,ndimh)
+        read (ifigwx1 ) qqq, (vvv1(i),i=1,nband)
+        read (ifigwx2 ) qqq, (vvv2(i),i=1,nband)
         if(nocore) then
-          read (ifigwx3 ) qqq, (vvv3(i),i=1,ndimh)
+          read (ifigwx3 ) qqq, (vvv3(i),i=1,nband)
           vxclda (1:nband, ikp,isp)= vvv3(1:nband)-vvv2(1:nband)
 c          write(ifvxcfpv) qqq, vvv3(1:nband)-vvv2(1:nband) !Vxc valence only vxcfp(1:nband)
         else
@@ -286,18 +303,22 @@ c - check write
      &    rydberg*(vvv3(ibx)-vvv2(ibx))
           enddo
        else
-          vvv3=vvv2
+        vvv3=vvv2
         do ibx =1,nband
           write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,ikp,ibx,
      &    vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
      &    rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),
      &    rydberg*(vvv3(ibx)-vvv2(ibx))
-          enddo
-         endif
+        enddo
+       endif
+ 888   continue
       enddo
       enddo
+      print *,' rrr: xxxxxxxxxxxxxxxxxxxx'
+c      if(cphigeigmode) 
+      close(ificg)
+      deallocate( cphi,evl, vvv1,vvv2,vvv3)
 
-      if(cphigeigmode) close(ificg)
 
 C- GET nrxx and ncoremx ----------------------
       nrmx    = 0
@@ -443,12 +464,12 @@ C#ifdef V2
       open (ifi,file='DATA4GW_V2',form='unformatted')
       call gwinput_v2x(-ifi,
      &  nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &  lmxamx, ngpmx,  nband,  ldim2,   nqbze ,
+     &  lmxamx, ngpmx,  nbandmx,  ldim2,   nqbze ,
      &  nphi,nphimx, nindx, lindx, ibasindx,
      &  iclass,lmxa_d,nr,konf_d,ncore_d,
      &  zz,aa,bb,bas,alat,plat,
-     &  qbze,efermi,ec_d,evl_d,vxclda,gx_d,gcore_d,cphi_d,geig_d,nocore,
-     &  cphigeigmode)
+     &  qbze,efermi,ec_d,evl_d,vxclda,gx_d,gcore_d,cphi_d,geig_d,nocore)
+c     &  cphigeigmode)
       close(ifi)
       stop ' OK! lmf2gw: end --- DATA4GW_V2 is written '
 C#elseC
@@ -1501,127 +1522,127 @@ C     implicit none
       data vstack /30,30,30,30,30,30/, stackp /0/
       end
 
-      subroutine gwinput(ifi,
-     &  nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &  lmxamx,ngpmx,  nband,  ldim,   nqbze ,
-c
-     &  iclass,lmxa,nr,konf,ncore,
-     &  zz,aa,bb,bas,alat,plat,
-     &  qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore )
-c- Read and Write the informations required for GW calculations.
-c
-cr When you write these data, you first have to open a file DATA4GW with the file handle ifi>0.
-cr ,e.g,  open(ifi ,file='DATA4GW',form='unformatted')
-cr
-cr Radial mesh is specified from, nr, aa, and bb; mesh is r(i) = bb*(exp(aa*(i-1)) -1) ,i=1,nr
-cr
-cr When you read these data, you first need to read the sizes by the subbroutine gwinput0
-cr in order to allocate required arrays.
-cr
-c----------------------------------------------------------------------------------------------
-C     implicit none
-      integer :: ifi, !File handle. Write for ifi<0. Read for ifi>0.
-     &  nsp,      ! =1 or 2, corresponding to para or ferro.
-     &  nbas,     ! Number of atom in the primitive cell
-     &  nclass,   ! Number of atomic class (or type) for in the primitive cell
-     &  nrmx,     ! = maxval(nr(1:nclass))  Maximum number of nr
-     &  ncoremx,  ! = maxval(ncore(1:nclass))
-c
-     &  lmxamx,   ! = maxval(lmxa(1:nclass))
-     &  ngpmx,    ! Maximum number of G vector.
-     &  nband,    ! Number of bands given by GWIN0
-     &  ldim,     ! = sum ( (lmxa(1:nbas)+1)**2 )
-     &  nqbze,    ! = nqbz*(1+nq0i). Number of q points given by qg4gw
-c----
-     &  iclass(nbas),   ! class is starting from 1.
-     &  lmxa  (nclass), ! Maximum l number for each atom for argumentation.
-     &  nr(nclass),     ! Size of radial mesh.
-     &  konf(0:lmxamx,nclass),! Principle quantum numbers of valence electron.
-                              ! For example, 4s4p3d means konf(0)=4, konf(1)=4, konf(2)=3.
-                              ! Core orbitals are specified by
-                              !   1, 2,... konf(0)-1 for s
-                              !   2, 3,... konf(1)-1 for p
-                              !   3, 4,... konf(2)-1 for d, and so on.
-                              ! The 10s digit is used as a separate
-                              ! number to mark whether this channel
-                              ! contains a local orbital:
-                              ! 10s digit
-                              ! 0 -> no local orbital in this channel
-                              ! 1 -> local orbital with energy below valence
-                              ! 2 -> local orbital with energy above valence
-     &  ncore(nclass)   ! ncore = \sum_l  (konf(l)-1) - l
-                        ! Number of different core orbitals for each atom.
-      real(8) ::
-     &  zz(nclass),     ! Atomic number.
-     &  aa(nclass),bb(nclass),! Radial mesh are specified by these parameters with nr.
-     &  bas(3,nbas),    ! Atomic posion in the Cartesian coordinate (alat unit),.
-     &  alat,           ! Lattice constant in a.u.
-     &  plat(3,3),      ! Primitive translation vector in the unit of alat. plat(1:3,1) is 1st vector, ans so on.
-     &  qbze(3,nqbze),  ! q points given by qg4gw
-     &  efermi,         ! Fermi energy. It should be calculated for n1 n2 n3 given by GIWN0.
-c----
-     &  ec(ncoremx, nclass, nsp),   ! Eigenvalues for core
-     &  evl    (nband, nqbze, nsp), ! Eigenvalues
-     &  vxclda (nband, nqbze, nsp), ! Lda XC potential <psi|Vxc(n_total)  |psi>
-                                    !  or   <psi|Vxc(n_valence)|psi>. See nocore.
-     &  gx (nrmx, 0:lmxamx, 2,  nclass,nsp), ! Radial function. gx (nrmx, lmxamx, 1, nclass,nsp) is phi
-                                          !                  gx (nrmx, lmxaxm, 2, nclass,nsp) is phidot
-     &  gcore(nrmx, ncoremx, nclass,nsp)  ! Core radial function.
-c
-c     These radial functions are only the major part given by the scalar relativistic calculations.
-c     gx and gcore = r \phi(r) = u(r), where \phi is the major part of the true radial functions.
-c     gx is normalized as 1 = \int dr gx**2
-c     gcore is the major part of the true radial functions.
-c
-      complex(8)::
-     &  cphi(ldim, 2, nband, nqbze,nsp),! Coefficients of eigenfunction
-                                        ! for phi    = cphi(ldim, 1, nband, nqbze), and
-                                        ! for phidot = cphi(ldim, 2, nband, nqbze).
-     &  geig(ngpmx,   nband, nqbze,nsp) ! Coefficients of eigenfunction for IPW.
-      logical ::
-     &   nocore  ! Flag file NoCore exist or not.
-                 ! nocore is obtained by inquire(file='NoCore',exist=nocore) in the upper routine.
-                 ! If nocore exist. you have to supply
-                 !  <psi|Vxc(n_valence)|psi>  to  vxclda (nband, nqbze).
-                 ! If not, <psi|Vxc(n_total)|psi>  to  vxclda.
-c----
-      if(ifi>0) then
-        read(ifi)
-     &              iclass,lmxa,nr,konf,ncore,
-     &              zz,aa,bb,bas,alat,plat,
-     &              qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore
-      elseif(ifi<0) then
-        write(-ifi)
-     &              nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &              lmxamx,ngpmx,  nband,  ldim,   nqbze
-c
-        write(6,*)
-        write(6,*)' *** DATA4GW size=', nsp,  nbas, nclass, nrmx,ncoremx
-        write(6,*)'                 =', lmxamx,ngpmx, nband, ldim, nqbze
-
-        write(-ifi)
-     &              iclass,lmxa,nr,konf,ncore,
-     &              zz,aa,bb,bas,alat,plat,
-     &              qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore
-      else
-        stop 'gwinput: wrong ifi'
-      endif
-      end
+c$$$      subroutine gwinput(ifi,
+c$$$     &  nsp,   nbas,   nclass, nrmx,   ncoremx,
+c$$$     &  lmxamx,ngpmx,  nband,  ldim,   nqbze ,
+c$$$c
+c$$$     &  iclass,lmxa,nr,konf,ncore,
+c$$$     &  zz,aa,bb,bas,alat,plat,
+c$$$     &  qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore )
+c$$$c- Read and Write the informations required for GW calculations.
+c$$$c
+c$$$cr When you write these data, you first have to open a file DATA4GW with the file handle ifi>0.
+c$$$cr ,e.g,  open(ifi ,file='DATA4GW',form='unformatted')
+c$$$cr
+c$$$cr Radial mesh is specified from, nr, aa, and bb; mesh is r(i) = bb*(exp(aa*(i-1)) -1) ,i=1,nr
+c$$$cr
+c$$$cr When you read these data, you first need to read the sizes by the subbroutine gwinput0
+c$$$cr in order to allocate required arrays.
+c$$$cr
+c$$$c----------------------------------------------------------------------------------------------
+c$$$C     implicit none
+c$$$      integer :: ifi, !File handle. Write for ifi<0. Read for ifi>0.
+c$$$     &  nsp,      ! =1 or 2, corresponding to para or ferro.
+c$$$     &  nbas,     ! Number of atom in the primitive cell
+c$$$     &  nclass,   ! Number of atomic class (or type) for in the primitive cell
+c$$$     &  nrmx,     ! = maxval(nr(1:nclass))  Maximum number of nr
+c$$$     &  ncoremx,  ! = maxval(ncore(1:nclass))
+c$$$c
+c$$$     &  lmxamx,   ! = maxval(lmxa(1:nclass))
+c$$$     &  ngpmx,    ! Maximum number of G vector.
+c$$$     &  nband,    ! Number of bands given by GWIN0
+c$$$     &  ldim,     ! = sum ( (lmxa(1:nbas)+1)**2 )
+c$$$     &  nqbze,    ! = nqbz*(1+nq0i). Number of q points given by qg4gw
+c$$$c----
+c$$$     &  iclass(nbas),   ! class is starting from 1.
+c$$$     &  lmxa  (nclass), ! Maximum l number for each atom for argumentation.
+c$$$     &  nr(nclass),     ! Size of radial mesh.
+c$$$     &  konf(0:lmxamx,nclass),! Principle quantum numbers of valence electron.
+c$$$                              ! For example, 4s4p3d means konf(0)=4, konf(1)=4, konf(2)=3.
+c$$$                              ! Core orbitals are specified by
+c$$$                              !   1, 2,... konf(0)-1 for s
+c$$$                              !   2, 3,... konf(1)-1 for p
+c$$$                              !   3, 4,... konf(2)-1 for d, and so on.
+c$$$                              ! The 10s digit is used as a separate
+c$$$                              ! number to mark whether this channel
+c$$$                              ! contains a local orbital:
+c$$$                              ! 10s digit
+c$$$                              ! 0 -> no local orbital in this channel
+c$$$                              ! 1 -> local orbital with energy below valence
+c$$$                              ! 2 -> local orbital with energy above valence
+c$$$     &  ncore(nclass)   ! ncore = \sum_l  (konf(l)-1) - l
+c$$$                        ! Number of different core orbitals for each atom.
+c$$$      real(8) ::
+c$$$     &  zz(nclass),     ! Atomic number.
+c$$$     &  aa(nclass),bb(nclass),! Radial mesh are specified by these parameters with nr.
+c$$$     &  bas(3,nbas),    ! Atomic posion in the Cartesian coordinate (alat unit),.
+c$$$     &  alat,           ! Lattice constant in a.u.
+c$$$     &  plat(3,3),      ! Primitive translation vector in the unit of alat. plat(1:3,1) is 1st vector, ans so on.
+c$$$     &  qbze(3,nqbze),  ! q points given by qg4gw
+c$$$     &  efermi,         ! Fermi energy. It should be calculated for n1 n2 n3 given by GIWN0.
+c$$$c----
+c$$$     &  ec(ncoremx, nclass, nsp),   ! Eigenvalues for core
+c$$$     &  evl    (nband, nqbze, nsp), ! Eigenvalues
+c$$$     &  vxclda (nband, nqbze, nsp), ! Lda XC potential <psi|Vxc(n_total)  |psi>
+c$$$                                    !  or   <psi|Vxc(n_valence)|psi>. See nocore.
+c$$$     &  gx (nrmx, 0:lmxamx, 2,  nclass,nsp), ! Radial function. gx (nrmx, lmxamx, 1, nclass,nsp) is phi
+c$$$                                          !                  gx (nrmx, lmxaxm, 2, nclass,nsp) is phidot
+c$$$     &  gcore(nrmx, ncoremx, nclass,nsp)  ! Core radial function.
+c$$$c
+c$$$c     These radial functions are only the major part given by the scalar relativistic calculations.
+c$$$c     gx and gcore = r \phi(r) = u(r), where \phi is the major part of the true radial functions.
+c$$$c     gx is normalized as 1 = \int dr gx**2
+c$$$c     gcore is the major part of the true radial functions.
+c$$$c
+c$$$      complex(8)::
+c$$$     &  cphi(ldim, 2, nband, nqbze,nsp),! Coefficients of eigenfunction
+c$$$                                        ! for phi    = cphi(ldim, 1, nband, nqbze), and
+c$$$                                        ! for phidot = cphi(ldim, 2, nband, nqbze).
+c$$$     &  geig(ngpmx,   nband, nqbze,nsp) ! Coefficients of eigenfunction for IPW.
+c$$$      logical ::
+c$$$     &   nocore  ! Flag file NoCore exist or not.
+c$$$                 ! nocore is obtained by inquire(file='NoCore',exist=nocore) in the upper routine.
+c$$$                 ! If nocore exist. you have to supply
+c$$$                 !  <psi|Vxc(n_valence)|psi>  to  vxclda (nband, nqbze).
+c$$$                 ! If not, <psi|Vxc(n_total)|psi>  to  vxclda.
+c$$$c----
+c$$$      if(ifi>0) then
+c$$$        read(ifi)
+c$$$     &              iclass,lmxa,nr,konf,ncore,
+c$$$     &              zz,aa,bb,bas,alat,plat,
+c$$$     &              qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore
+c$$$      elseif(ifi<0) then
+c$$$        write(-ifi)
+c$$$     &              nsp,   nbas,   nclass, nrmx,   ncoremx,
+c$$$     &              lmxamx,ngpmx,  nband,  ldim,   nqbze
+c$$$c
+c$$$        write(6,*)
+c$$$        write(6,*)' *** DATA4GW size=', nsp,  nbas, nclass, nrmx,ncoremx
+c$$$        write(6,*)'                 =', lmxamx,ngpmx, nband, ldim, nqbze
+c$$$
+c$$$        write(-ifi)
+c$$$     &              iclass,lmxa,nr,konf,ncore,
+c$$$     &              zz,aa,bb,bas,alat,plat,
+c$$$     &              qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore
+c$$$      else
+c$$$        stop 'gwinput: wrong ifi'
+c$$$      endif
+c$$$      end
 c----------------------------------------------------------------------
-      subroutine gwinput0(ifi,
-     &              nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &              lmxamx,ngpmx,  nband,  ldim,   nqbze    )
-c  Read dimensions only.
-C     implicit none
-      integer::  ifi,
-     &              nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &              lmxamx,ngpmx,  nband,  ldim,   nqbze
-      read(ifi)
-     &              nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &              lmxamx,ngpmx,  nband,  ldim,   nqbze
-c    write(6,*)' 0 DATA4GW size=', nsp,   nbas, nclass, nrmx,ncoremx
-c    write(6,*)'                 =', lmxamx,ngpmx,  nband,  ldim, nqbze
-      end
+C       subroutine gwinput0(ifi,
+C      &              nsp,   nbas,   nclass, nrmx,   ncoremx,
+C      &              lmxamx,ngpmx,  nband,  ldim,   nqbze    )
+C c  Read dimensions only.
+C C     implicit none
+C       integer::  ifi,
+C      &              nsp,   nbas,   nclass, nrmx,   ncoremx,
+C      &              lmxamx,ngpmx,  nband,  ldim,   nqbze
+C       read(ifi)
+C      &              nsp,   nbas,   nclass, nrmx,   ncoremx,
+C      &              lmxamx,ngpmx,  nband,  ldim,   nqbze
+C c    write(6,*)' 0 DATA4GW size=', nsp,   nbas, nclass, nrmx,ncoremx
+C c    write(6,*)'                 =', lmxamx,ngpmx,  nband,  ldim, nqbze
+C       end
       subroutine ishell(n,iarray)
       integer n
       integer iarray(1)
@@ -1655,9 +1676,9 @@ c----------------------------------------------------------------------
      &  nphi,nphimx,nindx,lindx,ibasindx,
      &  iclass,lmxa,nr,konf,ncore,
      &  zz,aa,bb,bas,alat,plat,
-     &  qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore,
+     &  qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore)
 c
-     &  ifomit ) !If ifomit=T, omit to store cphi and geig
+c     &  ifomit ) !If ifomit=T, omit to store cphi and geig
 c- Read and Write the informations required for GW calculations.
 c
 cr When you write these data, you first have to open a file DATA4GW with the file handle ifi>0.
@@ -1752,24 +1773,24 @@ c
                  ! If nocore exist. you have to supply
                  !  <psi|Vxc(n_valence)|psi>  to  vxclda (nband, nqbze).
                  ! If not, <psi|Vxc(n_total)|psi>  to  vxclda.
-      logical :: ifomit
+c      logical :: ifomit
 c----
       if(ifi>0) then
-        if(ifomit) then
+c        if(ifomit) then
           read(ifi)
      &              iclass,lmxa,nr,konf,ncore,
      &              zz,aa,bb,bas,alat,plat,
      &              qbze,efermi,ec,evl,vxclda,gx,gcore,nocore !omit cphi and geig
 cv2
      &              ,nindx,lindx,ibasindx
-        else
-          read(ifi)
-     &              iclass,lmxa,nr,konf,ncore,
-     &              zz,aa,bb,bas,alat,plat,
-     &              qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore
-cv2
-     &              ,nindx,lindx,ibasindx
-        endif
+c        else
+c          read(ifi)
+c     &              iclass,lmxa,nr,konf,ncore,
+c     &              zz,aa,bb,bas,alat,plat,
+c     &              qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore
+ccv2
+c     &              ,nindx,lindx,ibasindx
+c        endif
 ccccccccccccccccc
       write(6,*)'gwinput_v2x: DATA4GW_V2 readin size=',
      &  nsp,nbas, nclass, nrmx,ncoremx
@@ -1807,42 +1828,43 @@ c
         write(6,*)'                 =', lmxamx,ngpmx, nband,ldim2, nqbze
         write(6,*)'                 =', nphi, nphimx
 
-        if(ifomit) then
+c        if(ifomit) then
           write(-ifi)
      &              iclass,lmxa,nr,konf,ncore,
      &              zz,aa,bb,bas,alat,plat,
      &              qbze,efermi,ec,evl,vxclda,gx,gcore,nocore !omit cphi and geig
 cv2
      &              ,nindx,lindx,ibasindx
-        else
-          write(-ifi)
-     &              iclass,lmxa,nr,konf,ncore,
-     &              zz,aa,bb,bas,alat,plat,
-     &              qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore
-cv2
-     &              ,nindx,lindx,ibasindx
-        endif  
+c        else
+c          write(-ifi)
+c     &              iclass,lmxa,nr,konf,ncore,
+c     &              zz,aa,bb,bas,alat,plat,
+c     &              qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore
+ccv2
+c     &              ,nindx,lindx,ibasindx
+c        endif  
       else
         stop 'gwinput: wrong ifi'
       endif
       end
 c----------------------------------------------------------------------
-      subroutine gwinput0_v2(ifi,
-     &              nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &              lmxamx,ngpmx,  nband,  ldim2,   nqbze,
-     &              nphi, nphimx)
-c  Read dimensions only.
-C     implicit none
-      integer::  ifi,
-     &              nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &              lmxamx,ngpmx,  nband,  ldim2,   nqbze ,
-     &              nphi, nphimx
-      read(ifi)
-     &              nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &              lmxamx,ngpmx,  nband,  ldim2,   nqbze,
-     &              nphi, nphimx
-      end
+C       subroutine gwinput0_v2(ifi,
+C      &              nsp,   nbas,   nclass, nrmx,   ncoremx,
+C      &              lmxamx,ngpmx,  nband,  ldim2,   nqbze,
+C      &              nphi, nphimx)
+C c  Read dimensions only.
+C C     implicit none
+C       integer::  ifi,
+C      &              nsp,   nbas,   nclass, nrmx,   ncoremx,
+C      &              lmxamx,ngpmx,  nband,  ldim2,   nqbze ,
+C      &              nphi, nphimx
+C       read(ifi)
+C      &              nsp,   nbas,   nclass, nrmx,   ncoremx,
+C      &              lmxamx,ngpmx,  nband,  ldim2,   nqbze,
+C      &              nphi, nphimx
+C       end
 c--------------------
+
       subroutine rdibasindx2(ldim2,nphi,nphimx,nindx,lindx,ibasindx,ifi)
 C- Reads indexing data for augmentation functions
 C ----------------------------------------------------------------------

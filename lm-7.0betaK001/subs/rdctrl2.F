@@ -192,47 +192,47 @@ C --- Initialize gtv; copy recrd to rcd ---
       call gtv_setst(stdo,stdl,stde)
       call gtv_setrcd(recrd,nrecs,recln)
 
-      if (pass2) then
-        call upack('ctrl nbas nclass nspec nspin nl',w(osctrl),
-     .    nsite,nclass,nspec,nsp,nl)
-        nbas = nsite
-        call upack('pot opnu oqnu oves',w(ospot),opnu,oqnu,oves,0,0)
-        call upack2('pot opp osoptc',w(ospot),opp,osoptc)
-        call upack('array oics oclabl nclasp ohave',w(osarry),
-     .    oics,oclabl,nclasp,ohave,0)
-        allocate(clabl(nclasp))
-        allocate(lmxa(nclasp),pnuc(nl,nsp,nclasp),qnuc(3,nl,nsp,nclasp),
-     .    pp(6,nl,nsp,nclasp),ves(nclasp),zc(nclasp),
-     .    initc(nclasp),ics(nclasp))
-        call dpcopy(w(opnu),pnuc,1,nl*nsp*nclasp,1d0)
-        call dpcopy(w(oqnu),qnuc,1,3*nl*nsp*nclasp,1d0)
-        call dpcopy(w(opp),pp,1,6*nl*nsp*nclasp,1d0)
-        call dpcopy(w(oves),ves,1,nclasp,1d0)
-        call icopy(nclasp,w(ohave),1,initc,1)
-        call icopy(nclasp,w(oics),1,ics,1)
-        do  j = 1, nclasp
-          xx = dval(w(oclabl),j)
-          call r8tos8(xx,clabl(j))
-          is = w(oics+j-1)
-          call upack('spec lmxa z',w(osspec),is,
-     .      lmxa(j),zc(j),0,0)
-        enddo
-
-
-        call readctrlpq(prgnam,nclasp,nl,nsp,pnuc,qnuc,pp,zc,
-     .    ves,initc,ics,clabl)
-
-        call dpcopy(pnuc,w(opnu),1,nl*nsp*nclasp,1d0)
-        call dpcopy(qnuc,w(oqnu),1,3*nl*nsp*nclasp,1d0)
-        call dpcopy(pp,w(opp),1,6*nl*nsp*nclasp,1d0)
-        call dpcopy(ves,w(oves),1,nclasp,1d0)
-        call icopy(nclasp,initc,1,w(ohave),1)
-        deallocate(lmxa,pnuc,qnuc,pp,ves,zc,initc,ics,clabl)
-        call upack('ctrl lasa',w(osctrl),lasa,0,0,0,0)
-        lasa = lasa + lasa3 + 8*isw(lasa8)
-        call pack5('ctrl lasa',w(osctrl),lasa,0,0,0,0)
-        return
-      endif
+c$$$      if (pass2) then
+c$$$        call upack('ctrl nbas nclass nspec nspin nl',w(osctrl),
+c$$$     .    nsite,nclass,nspec,nsp,nl)
+c$$$        nbas = nsite
+c$$$        call upack('pot opnu oqnu oves',w(ospot),opnu,oqnu,oves,0,0)
+c$$$        call upack2('pot opp osoptc',w(ospot),opp,osoptc)
+c$$$        call upack('array oics oclabl nclasp ohave',w(osarry),
+c$$$     .    oics,oclabl,nclasp,ohave,0)
+c$$$        allocate(clabl(nclasp))
+c$$$        allocate(lmxa(nclasp),pnuc(nl,nsp,nclasp),qnuc(3,nl,nsp,nclasp),
+c$$$     .    pp(6,nl,nsp,nclasp),ves(nclasp),zc(nclasp),
+c$$$     .    initc(nclasp),ics(nclasp))
+c$$$        call dpcopy(w(opnu),pnuc,1,nl*nsp*nclasp,1d0)
+c$$$        call dpcopy(w(oqnu),qnuc,1,3*nl*nsp*nclasp,1d0)
+c$$$        call dpcopy(w(opp),pp,1,6*nl*nsp*nclasp,1d0)
+c$$$        call dpcopy(w(oves),ves,1,nclasp,1d0)
+c$$$        call icopy(nclasp,w(ohave),1,initc,1)
+c$$$        call icopy(nclasp,w(oics),1,ics,1)
+c$$$        do  j = 1, nclasp
+c$$$          xx = dval(w(oclabl),j)
+c$$$          call r8tos8(xx,clabl(j))
+c$$$          is = w(oics+j-1)
+c$$$          call upack('spec lmxa z',w(osspec),is,
+c$$$     .      lmxa(j),zc(j),0,0)
+c$$$        enddo
+c$$$
+c$$$
+c$$$        call readctrlpq(prgnam,nclasp,nl,nsp,pnuc,qnuc,pp,zc,
+c$$$     .    ves,initc,ics,clabl)
+c$$$
+c$$$        call dpcopy(pnuc,w(opnu),1,nl*nsp*nclasp,1d0)
+c$$$        call dpcopy(qnuc,w(oqnu),1,3*nl*nsp*nclasp,1d0)
+c$$$        call dpcopy(pp,w(opp),1,6*nl*nsp*nclasp,1d0)
+c$$$        call dpcopy(ves,w(oves),1,nclasp,1d0)
+c$$$        call icopy(nclasp,initc,1,w(ohave),1)
+c$$$        deallocate(lmxa,pnuc,qnuc,pp,ves,zc,initc,ics,clabl)
+c$$$        call upack('ctrl lasa',w(osctrl),lasa,0,0,0,0)
+c$$$        lasa = lasa + lasa3 + 8*isw(lasa8)
+c$$$        call pack5('ctrl lasa',w(osctrl),lasa,0,0,0,0)
+c$$$        return
+c$$$      endif
 
 C --- Read input parameters from contents of rcd ---
       call readctrl(prgnam,vrsion(1),vn(1))

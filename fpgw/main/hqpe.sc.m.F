@@ -1,0 +1,1143 @@
+      program hqpe_sc
+c     subroutine fmain()
+C     - make Sigma-Vxc --------------
+!     This is a developing version, not completely documented...
+!     This uses amix in order to guess a better Sigma-Vxc from previous iterations.
+!     * If ANFcond exsit, it add dummy part (zero Sigma-Vxc ) for isp=2.
+!     * iSigma_en==5 is for diagonal-only Sigma-Vxc in LDA basis set.
+!     (Then you need evec0, which contains eigenvector of LDA).
+!
+
+c------------------------------------------------------------------
+c     calculates quasiparticle energies
+c     E(k,t) = e(k,t) + Z [SEx(k,t) + SEc(k,t) - xcLDA(k,t)]
+c     e(k,t) = LDA eigenvalue
+c     Z      = [1 - dSEc(e(k,t))/dw]^(-1)
+c     SEx(k,t)   = <psi(k,t)| SEx |psi(k,t)>
+c     SEc(k,t)   = <psi(k,t)| SEc |psi(k,t)>, SEc = GWc
+c     xcLDA(k,t) = <psi(k,t)| vxc |psi(k,t)>
+c     SEx and xcLDA are in file SEX
+c     SEc is in file SEC
+c-----------------------------------------------------------------------
+      use keyvalue
+      implicit real*8 (a-h,o-z)
+
+c     local data
+      logical laf,sigma_mixing,lsi, lsigin
+      dimension ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2)
+     &     ,iftote(2),iftote2(2),ifsex2(2),ifsexcore2(2),ifsec2(2) !sf..3June
+      integer(4),allocatable :: itxc(:),itc(:),itx(:)
+      real(8),allocatable :: qxc(:,:,:),eldaxc(:,:),vxc(:,:),
+     &     qc(:,:,:),eldac(:,:),sex(:,:),sexcore(:,:),
+     &     qx(:,:,:),eldax(:,:),rsec(:,:),csec(:,:) !sf..13May
+     &     ,qqq(:,:,:)          !sf..3June
+     &     ,qqqx_m(:,:,:)
+      complex(8), allocatable :: sex2(:,:,:),sexcore2(:,:,:),
+     &     sec2(:,:,:), se(:,:,:),work(:),evec_inv(:,:),evec_invt(:,:), !sf.beg
+     &     se_ev(:,:), ev_se_ev(:,:), sen(:,:),sen2(:,:),se_in(:,:),           
+     &     v_xc(:,:,:,:),evec(:,:,:,:),evec0(:,:),sigma_m(:,:,:,:),
+     &     sigin(:,:,:,:),
+     &     evec00(:,:,:,:) ,evec00inv(:,:)
+      real(8) qx2(3) ,qqqx(3) ,del ,mix_fac
+      integer, allocatable :: ipiv(:) !sf.end
+      real(8) ::  rydberg,hartree, qqqx0(3)
+      integer(4) ::  n1,n2,n3, ifse_out, ifse_in
+      logical :: AddDummySig,evec0ex=.false.
+
+      complex(8),allocatable:: sigma_m_out(:,:,:,:),pmat(:,:)
+     &     ,pmatd(:,:),sigmv(:,:,:)
+
+c----------------------------------------------
+      integer(4),allocatable:: ibasf(:),ldima(:)
+      real(8),allocatable :: pos(:,:)
+
+      real(8):: anfvec(3)
+      character(2):: soflag
+      real(8) :: wex
+      logical :: exonly
+      integer(4):: ret
+
+
+      character(3):: iaaa
+cccccccccccccccccccccccccccccccccccccccccccccccc
+c     logical :: core3ptest=.false. ! This is for test for NiO_bigbas
+c     ! Project out the 3p(LDA) part from Sigma-Vxc.
+c     ! This requires evec0(LDA eigenfunctions)
+cccccccccccccccccccccccccccccccccccccccccccccccc
+c     if(core3ptest) print *,' core3ptest=',core3ptest
+
+c----
+      hartree=2d0*rydberg()
+c     shift quasiparticle energies (eV)
+      write (*,*)' q+band index for zero?'
+      read (*,*)jin
+      call headver('hqpe_sc',jin)
+
+c     open files
+c     > input files
+c     ifqpnt     = iopenxx ('QPNT')
+c     laf        = .false.
+c
+c     call readx   (ifqpnt,10)
+c     read (ifqpnt,*) iqall,iaf
+c     if (iaf .eq. 1) laf = .true.
+
+
+      call getkeyvalue("GWinput","EXonly",wex,default=0d0,status=ret)
+      if(wex==0d0) then
+        exonly=.false.
+      else
+        exonly=.true.
+        print *,' exonly=T wex=',wex
+      endif
+
+
+      inquire(file='ANFcond',EXIST=laf)
+      if(laf) then
+        ifianf = 211
+        open(ifianf,file='ANFcond')
+        read(ifianf,*) soflag
+        if(soflag=='SO') then
+          print *,' ANFcond found. but SO case is not implimented. Not using ANF symm'
+          laf=.false.
+        else
+          print *, 'Find ANFcond--- up only'
+        endif
+        close(ifianf)
+      endif
+
+c     '      if(laf) print *, 'Find ANFcond--- up only'
+
+      ifsex(1) = iopenxx ('SEXU')
+      ifxc(1)  = iopenxx ('XCU')
+      open(UNIT=3001, file='SEX2U',form='UNFORMATTED', status='OLD') !sf.beg
+      ifsex2(1)=3001
+
+      if(.not.exonly) then
+        ifsec(1)     = iopenxx ('SECU')
+        open(UNIT=3003,   file='SEC2U',form='UNFORMATTED', status='OLD')
+        ifsec2(1)=3003         !sf.end
+      endif
+      ifsexcore(1) = iopenxx ('SEXcoreU')
+      open(UNIT=3002,file='SEXcore2U',form='UNFORMATTED',status='OLD')
+      ifsexcore2(1)=3002
+
+      call readx (ifsex(1),50)
+      read (ifsex(1),*) nspin,nq,ntq
+      if(nspin .eq. 2 .and. .not. laf) then
+        ifsex(2)   = iopenxx ('SEXD')
+        ifxc(2)    = iopenxx ('XCD')
+        open(UNIT=3004, file='SEX2D',form='UNFORMATTED', status='OLD') !sf.beg
+        ifsex2(2)=3004
+        if(.not.exonly) then
+          ifsec(2)   = iopenxx ('SECD')
+          open(UNIT=3006, file='SEC2D',form='UNFORMATTED', status='OLD')
+          ifsec2(2)=3006      !sf.end
+        endif
+        ifsexcore(2)   = iopenxx ('SEXcoreD')
+        open(UNIT=3005,file='SEXcore2D',form='UNFORMATTED',status='OLD')
+        ifsexcore2(2)=3005
+      endif
+
+      rewind (ifsex(1))
+
+
+c     > output file
+      ifqpe(1)   = iopenxx ('QPU')
+      iftote(1)  = iopenxx ('TOTE.UP')
+      iftote2(1) = iopenxx ('TOTE2.UP')
+
+C     3 Feb 2004 read sigma and pass to mixing routine
+      INQUIRE (FILE='sigm', EXIST = lsigin)
+      open(UNIT=3009, file='sigm',form='UNFORMATTED') !sf
+      ifse_out=3009
+      if (lsigin) then
+        rewind ifse_out
+        print *, ' ... reading input sigma from file sigm'
+        read(ifse_out) nspin,nhqin,n1,n2,n3,nqx
+        if (nqx .ne. nq) then
+          print 368, nqx,nq
+ 368      format (6x,' (warning) file mismatch : file nq=',i4,
+     .           ' but expected',i4)
+          lsigin = .false.
+        else
+          rewind ifse_out
+          allocate(sigin(nhqin,nhqin,nq,nspin),qqqx_m(3,nq,nspin))
+          call rwsigma(ifse_out,sigin,qqqx_m,nspin,nhqin,n1,n2,n3,nq)
+          deallocate(qqqx_m)
+        endif
+      endif
+      rewind ifse_out
+      !sf
+      if (nspin == 2) then
+        ifqpe(2)   = iopenxx ('QPD')
+        iftote(2)  = iopenxx ('TOTE.DN')
+        iftote2(2) = iopenxx ('TOTE2.DN')
+        !open(UNIT=3010, file='SED',form='UNFORMATTED')                !sf
+        !ifse_out(2)=3010                                              !sf
+      endif
+
+
+      if(jin == -101) goto 9998
+
+      open(UNIT=3007,file='v_xc',form='UNFORMATTED',status='OLD') !sf.beg
+      ifv_xc=3007
+      open(UNIT=3008,file='evec',form='UNFORMATTED',status='OLD')
+      ifevec=3008               !sf.end
+c-----------reading self-energy mode parameter from file 'GWIN_V2'
+      call readd_iSigma_en(ifinin,iSigma_en) !sf..21May02
+      if(isigma_en==5) then     !.or.core3ptest) then
+c     inquire(file='evec0',exist=evec0ex)
+cccccccccccccccccccccccccc
+        evec0ex=.false.        !true before 12Aug2006 ---> but it caused a problem maybe because of degeneracy.
+cccccccccccccccccccccccccc
+        if(evec0ex) then
+          ifevec0 =3018
+          open(ifevec0,file='evec0',form='UNFORMATTED',status='OLD')
+          ifevecchk=4019
+          if(isigma_en==5) open(ifevecchk,file='evecfix.chk')
+        endif
+      endif
+c-----
+      read(ifv_xc) ndimh, nsp,nnn !sf.beg
+      if(evec0ex) read(ifevec0) ndimhx0, nspx0,nnnx0
+      read(ifevec) ndimhx, nspx,nnnx
+      nhq=ndimh
+      print *,' ndimh ntq nsp nnn =',nhq,ntq,nsp,nnn
+      if (nspin .ne. nsp)   stop 'hqpe: wrong nspin v_xc'
+      if (nspin .ne. nspx)  stop 'hqpe: wrong nspin evec'
+c     if (ntq .ne. ndimh)   stop 'hqpe: SC ndimh/= ntq v_xc'
+c     if (ntq .ne. ndimhx)  stop 'hqpe: SC ndimh/= ntq evec'
+      if (ndimhx /= ndimh)   stop 'hqpe: SC ndimhx/= ndimx'
+      if (nnn .ne. nnnx) stop 'hqpe: wrong nnn evec or v_xc' !sf.end
+      allocate(qqq(3,nnn,nspin)) !,se_in(ntq,ntq))                 !sf.beg
+      allocate(v_xc(nhq,nhq,nnn,nspin),evec(nhq,nhq,nnn,nspin))
+      if(evec0ex) allocate(evec00(nhq,nhq,nnn,nspin))
+c     print *,' nnn =',nnn
+      do iq=1,nnn               !now nnn is not necessary to be nqbz !nnn=nqbz
+        do is=1,nspin
+          read(ifv_xc) qqq(1:3,iq,is),v_xc(1:nhq,1:nhq,iq,is)
+          read(ifevec)  qqqx(1:3),    evec(1:nhq,1:nhq,iq,is)
+          if(evec0ex) read(ifevec0) qqqx0(1:3), evec00(1:nhq,1:nhq,iq,is)
+          if (sum(abs( qqq(:,iq,is )-qqqx(:) )) .gt. 1d-10)
+     &           stop 'hqpe: qqq/=qqqx'
+        enddo
+      enddo                     !sf.end
+      allocate(sigmv(nhq,nhq,nq))
+
+
+c----------------------------------------
+ 9998 continue
+c----------------------------------------
+
+c     loop over spin
+      do      is = 1,nspin
+        print *, ' --- is=',is
+c     read dimensions
+        call readx   (ifsex(is),50)
+        read (ifsex(is),*) nspinx,nqx,ntqx
+c     call readx   (ifsex(is),50)
+        read (ifsex(is),*)
+        read (ifsex(is),*) deltaw
+        read (ifsex(is),*) alat
+        read (ifsex(is),*) ef
+c
+c
+        print *,' xxxxxxxxxxx111111111'
+        call readx   (ifxc(is),50)
+        read (ifxc(is),*) nspinxc,nqxc,ntqxc
+        read(ifsex2(is))  nspinx2, nqx2, ntqx2, nqbz ,  nqibz,  n1,n2,n3 !sf.beg
+        if(.not.exonly)  then
+          call readx(ifsec(is),50)
+          read (ifsec(is),*) nspinc,nqc,ntqc
+          read(ifsec2(is))  nspinc2, nqc2, ntqc2, nqbzc2, nqibzc2,n1,n2,n3 !sf.end
+        endif
+        read(ifsexcore2(is)) nspinxc2,nqxc2,ntqxc2,nqbzxc2,nqibzxc2
+
+        if (nspin .ne. nspinx)   stop 'hqpe: wrong nspin SEx'
+        if (nspin .ne. nspinxc)  stop 'hqpe: wrong nspin vxc'
+        if (nspin .ne. nspinx2)  stop 'hqpe: wrong nspin SEx2' !sf.beg
+        if (nq .ne. nqx)         stop 'hqpe: wrong nq SEx'
+        if (nq .ne. nqxc)        stop 'hqpe: wrong nq vxc'
+        if (nq .ne. nqx2)        stop 'hqpe: wrong nq SEx2'
+        if (ntq .ne. ntqx)       stop 'hqpe: wrong ntq SEx'
+        if (ntq .ne. ntqxc)      stop 'hqpe: wrong ntq vxc'
+        if (ntq .ne. ntqx2)      stop 'hqpe: wrong ntq SEx2'
+        if(.not.exonly) then
+          if (nqbz .ne.  nqbzxc2)  stop 'hqpe: wrong nqbzx2'
+          if (nqibz .ne. nqibzxc2) stop 'hqpe: wrong nqibzxc2'
+          if (nspin .ne. nspinxc2) stop 'hqpe: wrong nspin SExcore2'
+          if (nspin .ne. nspinc)   stop 'hqpe: wrong nspin SEc'
+          if (nspin .ne. nspinc2)  stop 'hqpe: wrong nspin SEc2'
+          if (nq .ne. nqc)         stop 'hqpe: wrong nq SEc'
+          if (nq .ne. nqc2)        stop 'hqpe: wrong nq SEc2'
+          if (nqbz .ne. nqbzc2)    stop 'hqpe: wrong nqbzxc2'
+          if (ntq .ne. ntqc2)      stop 'hqpe: wrong ntq SEc2'
+          if (nq .ne. nqxc2)       stop 'hqpe: wrong nq SExcore2'
+          if (ntq .ne. ntqxc2)     stop 'hqpe: wrong ntq SExcore2'
+        endif
+c     if (jin/=-101.and.nqbz .ne. nnn)       stop 'hqpe: wrong nnn'
+c     if (nqibz .ne. nqibzx2)  stop 'hqpe: wrong nqibzx2'
+c     if (nqibz .ne. nq)       stop 'hqpe: SC nq /= nqibz'             !sf.end
+cccc  last statement should be commented if  less then nqibz
+cccc  momentums in output SEU(D) wanted
+c
+        if(is==1) print *,' ###  readin XCU'
+        if(is==2) print *,' ###  readin XCD'
+        allocate( itxc(ntq),qxc(3,ntq,nq),eldaxc(ntq,nq),vxc(ntq,nq) )
+        call readx (ifxc(is),50)
+        read(ifxc(is),*)
+        do ip = 1,nq
+          do i  = 1,ntq
+            read(ifxc(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16)")
+     &              itxc(i),ipxx,isxxx, qxc(1:3,i,ip), eldaxc(i,ip), 
+     &              vxc(i,ip)
+          enddo
+        enddo
+c
+        if(is==1) print *,' ###  readin SEXU'
+        if(is==2) print *,' ###  readin SEXD'
+        allocate( itx(ntq), qx (3,ntq,nq),eldax (ntq,nq),sex(ntq,nq) )
+        allocate( sex2(ntq,ntq,nq)) !sf..3June
+        call readx   (ifsex(is),50)
+        read(ifsex(is),*)
+        do ip = 1,nq
+          do i  = 1,ntq
+            read(ifsex(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16)")
+     &              itx(i),ipxx,isxxx, qx(1:3,i,ip), eldax(i,ip), 
+     &              sex(i,ip)
+          enddo
+          read(ifsex2(is)) isx,qx2,sex2(1:ntq,1:ntq,ip) !sf..3June
+        enddo
+c
+        allocate( sexcore(ntq,nq),sexcore2(ntq,ntq,nq) ) !sf..3June
+c     if(exonly) then !zero for exonly case
+c     print *,' set sexcore=0 for exonly case'
+c     sexcore=0d0; sexcore2=0d0
+c     else
+        if(is==1) print *,' ###  readin SEXcoreU'
+        if(is==2) print *,' ###  readin SEXcoreD'
+        call readx   (ifsexcore(is),50)
+        call readx   (ifsexcore(is),50)
+        read(ifsexcore(is),*)
+        do ip = 1,nq
+          do i  = 1,ntq
+            read(ifsexcore(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16)")
+     &              ixx1,ixx2,ixx3, qxxx1,qxxx2,qxxx3, exxx, sexcore(i,ip)
+          enddo
+          read(ifsexcore2(is)) isx,qx2,sexcore2(1:ntq,1:ntq,ip) !sf..3June
+        enddo
+
+c     endif
+c
+        allocate( itc(ntq), qc (3,ntq,nq),eldac (ntq,nq)
+     &        ,rsec(ntq,nq),csec(ntq,nq),sec2(ntq,ntq,nq)) !sf..3June
+        if(exonly) then        !zero for exonly case
+          print *,' set sec=0 for exonly case'
+          itc=0d0;qc=0d0;eldac=0d0;rsec=0d0;csec=0d0;sec2=0d0
+        else
+          if(is==1) print *,' ###  readin SECU'
+          if(is==2) print *,' ###  readin SECD'
+          call readx   (ifsec(is),50)
+          read(ifsec(is),*)
+          do ip = 1,nq
+            do i  = 1,ntq
+              read(ifsec(is),"(3i5,3d24.16,3x,d24.16,3x,d24.16, 
+     &                 3x,d24.16)") !sf13May2002     ,3x,d24.16)")
+     &                 itc(i),ipxxx,isxxx, qc(1:3,i,ip), eldac(i,ip), 
+     &                 rsec(i,ip),csec(i,ip) !sf..13May2002   ,zfac(i,ip)
+c
+c     print *," itc=",itc(i)
+            enddo
+            read(ifsec2(is)) isx,qx2,sec2(1:ntq,1:ntq,ip) !sf..3June
+          enddo
+        endif
+
+c     check that LDA eigenvalues are the same
+c     mod 93.06.29
+c     chev       = compvv (w(ieldax),w(ieldac),ntq*nq,tol,'eLDA x,c')
+c     chev       = compvv (w(ieldax),w(ieldaxc),ntq*nq,tol,'eLDA x,xc')
+c     chq        = compvv (w(iqx),w(iqc),3*nq,tol,'q-vec x,c')
+c     chq        = compvv (w(iqx),w(iqxc),3*nq,tol,'q-vec x,xc')
+c-----
+c     itxc       = icompvv (w(iitx),w(iitc),ntq,'state-label x,c')
+c     itxc       = icompvv (w(iitx),w(iitxc),ntq,'state-label x,xc')
+        if(.not.exonly) itxcxxx=icompvv2(itx, itc,ntq,' state-label x c')
+        if(.not.exonly) itxcxxx=icompvv2(itx,itxc,ntq,' state-label x xc')
+
+c     calculate quasiparticle energies and write them on file QPE
+c     call qpe     (ifqpe(is),iftote,w(iitc),w(iqc),
+c     i              w(ieldac),w(ivxc),w(isex),
+c     i              w(irsec),w(icsec),w(izfac),eshift,
+c     d              ntq,nq,is,
+c     o              w(ieqp),w(iwqp))
+        call qpe1_sc  (ifqpe(is),iftote(is),iftote2(is),itx,qx, !itc,qc
+     i        eldax,vxc,sex,sexcore,
+     i        rsec,csec,jin,deltaw,alat,ef, !sf..13May |it was zfac after csec
+     d        ntq,nq,is,
+     o        eshift0,eshift02,eshtlda)
+c     o              w(ieqp),w(iwqp))
+        print *,' end of qpe1'
+        close(ifqpe(is))
+        close(iftote(is))
+        close(iftote2(is))
+
+        if(jin==-101) cycle
+
+
+!------------------------------------------------------------------------------
+ccccccbegin making SE_ij-VXC_ij, ij are 'basis functions' indexes !sf..3June
+!------------------------------------------------------------------------------
+        allocate(se(ntq,ntq,nq),ipiv(nhq),work(nhq*nhq)
+     &        ,evec_inv(nhq,nhq) ,evec_invt(nhq,nhq))
+        allocate(ev_se_ev(nhq,nhq)) !se_ev(ntq,nhq),
+        if(evec0ex) allocate(evec00inv(nhq,nhq))
+        do ip=1,nq
+          do itp=1,ntq
+            do itpp=1,ntq    !make Sigma hermitean
+              if(.not.exonly) then
+                se(itpp,itp,ip)=sex2(itpp,itp,ip)+sexcore2(itpp,itp,ip)
+     &                    +.5d0*(sec2(itpp,itp,ip)+dconjg(sec2(itp,itpp,ip)))
+              else
+                se(itpp,itp,ip)= wex*sex2(itpp,itp,ip)+sexcore2(itpp,itp,ip)
+ccc   se(itpp,itp,ip)= wex*sex2(itpp,itp,ip)
+              endif
+cccccccccccccccccccccccc
+c     c takao test ex only test
+c     se(itpp,itp,ip)= 0.3*sex2(itpp,itp,ip)+ sexcore2(itpp,itp,ip)
+ccccccccccccccc
+c     c takao test2---reduce screen
+c     se(itpp,itp,ip)=sex2(itpp,itp,ip)+sexcore2(itpp,itp,ip)+
+c     &        .1d0*(sec2(itpp,itp,ip)+dconjg(sec2(itp,itpp,ip)))
+cccccccccccccc
+            enddo
+          enddo
+        enddo
+c     print *,' xxx1'
+        do ip=1,nq
+          do itp=1,ntq
+            do itpp=1,ntq    !make Sigma hermitian
+              if(abs(se(itpp,itp,ip)-dconjg(se(itp,itpp,ip)) ) .gt. 1d-8) then
+                write(*,*)'sex2',sex2(itpp,itp,ip),sex2(itp,itpp,ip)
+                write(*,*)'sexc2',sexcore2(itpp,itp,ip),sexcore2(itp,itpp,ip)
+                stop "hqpe: Sigma_nn' is not hermitian"
+              endif
+            enddo
+          enddo
+        enddo
+
+        if (is == 1) write(ifse_out) nspin,ndimh,n1,n2,n3,nq,0,0,0
+
+        do ip=1,nq
+          do ikp=1,nnn        !nqbz
+            if (sum ( (qqq(1:3,ikp,is)-qx(1:3,1,ip))**2 ) < 1d-10 ) then
+              ikpx=ikp      !qc(:,i,:) does not depents on band index i=1:ntq
+              goto 100
+            endif
+          enddo               !ikp
+          stop 'hqpe: not find ikp 100'
+ 100      continue
+c
+c     print *,' xxx2'
+
+          evec_inv(1:nhq,1:nhq)=evec(1:nhq,1:nhq,ikpx,is)
+          !evec(i,n), i-basis, n - band argumants
+c---  make inverse evec_inv(n,i) matrix \psi_n=sum_i evec(i,n)\phi_i,
+c---  where \psi is eigenfunction and \phi is basis function
+          call zgetrf(nhq,nhq,evec_inv,nhq,ipiv,info)
+          if (info /= 0)  stop 'hqpe: zgetrf info/=0'
+          call zgetri(nhq,evec_inv,nhq,ipiv,work,nhq**2,info)
+          !inverse matrix evec_inv(n,i), i-basis, n - band argumants
+          if (info /= 0)  stop 'hqpe: zgetri info/=0'
+
+C---  takao
+          if(evec0ex.and.iSigma_en==5) then
+            evec00inv(1:nhq,1:nhq)=evec00(1:nhq,1:nhq,ikpx,is)
+            !evec(i,n), i-basis, n - band argumants
+            call zgetrf(nhq,nhq,evec00inv,nhq,ipiv,info)
+            if (info /= 0)  stop 'hqpe: zgetrf 00 info/=0'
+            call zgetri(nhq,evec00inv,nhq,ipiv,work,nhq**2,info)
+            !inverse matrix evec_inv(n,i), i-basis, n - band argumants
+            if (info /= 0)  stop 'hqpe: zgetri 00 info/=0'
+            itppxs=0
+            do itp=1,nhq
+              sum0=0d0
+              sum1=0d0
+              do itpp=1,nhq
+c     print *,evec_inv(itp,itpp)
+                aaa=abs(sum(evec_inv(itp,:)*evec00(:,itpp,ikpx,is)))**2
+                if(aaa>sum1) then
+                  sum1 =aaa
+                  itppx=itpp
+                endif
+                sum0=sum0+aaa
+              enddo
+              evec_inv(itp,:)    =  evec00inv(itppx,:)
+              evec(:,itp,ikpx,is)=  evec00(:,itppx,ikpx,is)
+              itppxs = itppxs+itppx
+              write(ifevecchk,"(3i5,2d13.5)")itp,ikpx,is, sum0, sum1
+c     if(abs(sum0-1d0)>0.1) stop "!!! sum0 is not unity ==="
+            enddo
+            if(nhq*(nhq+1)/2 /= itppxs) then
+              print *,'nhq_sum itppxs=', nhq*(nhq+1)/2,itppxs
+              stop "hqpe: nhq*(nhq+1)/2 /= itppxs"
+            endif
+          endif
+
+c     print *,' xxx3'
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c     takao test only diagonal
+c     call onlydiag(se(1:ntq,1:ntq,ip),ntq)
+c     do itp=1,ntq
+c     se(itp,itp,ip)=se(itp,itp,ip) - 0.5*vxc(itp,ip)/rydberg()
+c     enddo
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+!     Bug fix ntqxx had been undefined! Jan2004.
+          ntqxx=ntq
+          do itp=ntq,1,-1
+            if(se(itp,itp,ip)/=0d0) then
+              ntqxx = itp
+              exit
+            endif
+          enddo
+          write(6,"( ' ntq ntqxx=',2i5)")ntq,ntqxx
+
+          do itp = 1,ntqxx
+            do itpp= 1,ntqxx
+              if(itp/=itpp.and.isigma_en==5) then
+                se(itp,itpp,ip)= 0d0
+              else
+c     Aug2004
+                if(.not.exonly) then
+                  se(itp,itpp,ip)= se(itp,itpp,ip)
+     &                       -.5d0* sum(dconjg(evec(:,itp,ikpx,is))*
+     &                       matmul(v_xc(:,:,ikpx,is),evec(:,itpp,ikpx,is)))
+                else
+                  se(itp,itpp,ip)= se(itp,itpp,ip)
+     &                       -wex*.5d0* sum(dconjg(evec(:,itp,ikpx,is))*
+     &                       matmul(v_xc(:,:,ikpx,is),evec(:,itpp,ikpx,is)))
+                endif
+
+              endif
+            enddo
+          enddo
+
+c     print *,' zzz1'
+c     - make self-energy in basis of 'basis functions'
+c     call zgemm('n','n',ntq,ntq,ntq,(1d0,0d0),se(1:ntq,1:ntq,ip),
+c     &         ntq,evec_inv,ntq,(0d0,0d0), se_ev ,ntq)
+c     call zgemm('c','n',ntq,ntq,ntq,(1d0,0d0),evec_inv,
+c     &         ntq,se_ev,ntq,(0d0,0d0), ev_se_ev ,ntq)
+          evec_invt= dconjg(transpose(evec_inv))
+
+c     print *,' zzz2'
+          ev_se_ev = matmul(evec_invt(1:nhq,1:ntq)
+     &           ,matmul(se(1:ntq,1:ntq,ip),evec_inv(1:ntq,1:nhq)))
+
+c     print *,' zzz3'
+
+c     - write SE_ij-Vxc_ij where ij are basis function indices
+          do itp=1,nhq
+            do itpp=1,nhq
+              if( abs(ev_se_ev(itpp,itp) - dconjg(ev_se_ev(itp,itpp)) )
+     &                 .gt. 1d-8  ) then
+                print *,itp,itpp
+                print *,ev_se_ev(itpp,itp)
+                print *,ev_se_ev(itp,itpp)
+                stop 'hqpe: Sigma_ij is not hermitean'
+              endif
+              if( abs(v_xc(itp,itpp,ikpx,is)-dconjg(v_xc(itpp,itp,ikpx,is)))
+     &                 .gt. 1d-8  ) stop 'hqpe: v_xc is not hermitean'
+            enddo
+          enddo
+          write(ifse_out) qqq(1:3,ikpx,is)
+
+c     sigma_mixing = .false.
+c     if (sigma_mixing) then
+c     read(ifse_in) qqqx(1:3)
+c     if (sum(abs( qqq(:,ikpx,is )-qqqx(:) )) .gt. 1d-10)
+c     &       stop 'hqpe: qqq/=qqqx in'
+c     read(ifse_in) se_in(1:ntq,1:ntq)
+c     write(ifse_out)      !se_factor -> NEW.............................
+c     & mix_fac*(2d0*ev_se_ev(1:ntq,1:ntq)-v_xc(1:ntq,1:ntq,ikpx,is)) +
+c     & (1d0-mix_fac)*se_in(1:ntq,1:ntq)
+c     else !sigma_mixing == false
+
+c     if(isigma_en==5) then
+c     sigmv(:,:,ip) = 2d0*ev_se_ev(1:nhq,1:nhq)
+c     elseif(core3ptest) then
+c     evec00inv(1:nhq,1:nhq)= evec00(1:nhq,1:nhq,ikpx,is)
+c     !evec(i,n), i-basis, n - band argumants
+c     call zgetrf(nhq,nhq,evec00inv,nhq,ipiv,info)
+c     if (info /= 0)  stop 'hqpe: zgetrf 00 info/=0'
+c     call zgetri(nhq,evec00inv,nhq,ipiv,work,nhq**2,info)
+c     !inverse matrix evec_inv(n,i), i-basis, n - band argumants
+c     if(info /= 0)  stop 'hqpe: zgetri 00 info/=0'
+c     allocate(pmat(ntq,ntq),pmatd(ntq,ntq))
+c     pmat = matmul(evec00(:,1:6,ikpx,is),evec00inv(1:6,:))
+c     do i=1,ntq
+c     pmat(i,i)= 1d0 - pmat(i,i)
+c     enddo
+c     c------------------
+c     pmatd=0d0
+c     do ix=1,6
+c     edia= sum( dconjg(evec00(1:ntq,ix,ikpx,is))*
+c     &      matmul((2d0*ev_se_ev(1:ntq,1:ntq)-v_xc(1:ntq,1:ntq,ikpx,is))
+c     &             ,evec00(1:ntq,ix,ikpx,is)))
+c     do i=1,ntq; do j=1,ntq
+c     pmatd(i,j)=pmatd(i,j)
+c     &      + dconjg(evec00inv(ix,i))*edia* evec00inv(ix,j)
+c     enddo; enddo
+c     enddo
+c     c-------------------
+c     sigmv(:,:,ip) = matmul( matmul(transpose(dconjg(pmat)),
+c     &      (2d0*ev_se_ev(1:ntq,1:ntq)-v_xc(1:ntq,1:ntq,ikpx,is))),pmat)
+c     &      + pmatd
+c     deallocate(pmat,pmatd)
+c
+c     else
+c     sigmv(:,:,ip) =
+c     &    (2d0*ev_se_ev(1:nhq,1:nhq)-v_xc(1:nhq,1:nhq,ikpx,is)) !in rydberg
+c     endif
+
+          sigmv(:,:,ip) =  2d0*ev_se_ev(1:nhq,1:nhq)
+          write(ifse_out) sigmv(:,:,ip)
+
+c     c       2*ev_se_ev bacause v_xc in sugw.f was in rydberg while SE was in hartree
+c     endif !mixing_factor
+
+c--   check diagonal elements (SE-Vxc)_nn, where n is band index
+          allocate(sen(nhq,nhq),sen2(nhq,nhq),evec0(nhq,nhq))
+          evec0(1:nhq,1:nhq)=evec(1:nhq,1:nhq,ikpx,is)
+          do itp =1,nhq
+            do itpp=1,nhq
+              sen(itpp,itp)= ev_se_ev(itpp,itp)*hartree
+c     takao
+c     if(isigma_en==5) then
+c     sen(itpp,itp)= ev_se_ev(itpp,itp)*hartree
+c     else
+c     sen(itpp,itp)= ev_se_ev(itpp,itp)*hartree  -
+c     &      v_xc(itpp,itp,ikpx,is)*rydberg()
+c     endif
+c     sen(itpp,itp)=ev_se_ev(itpp,itp)*hartree
+c     !v_xc is from sugw.f and was defined there in rydbergs
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+            enddo
+          enddo
+          call zgemm('n','n',nhq,nhq,nhq,(1d0,0d0),sen,
+     &           nhq,evec0,nhq,(0d0,0d0), sen2 ,nhq)
+          call zgemm('c','n',nhq,nhq,nhq,(1d0,0d0),evec0,
+     &           nhq,sen2,nhq,(0d0,0d0), sen ,nhq)
+          do i=1,ntq
+            del=abs(rsec(i,ip)+sex(i,ip)+sexcore(i,ip)-vxc(i,ip)-
+     &              sen(i,i))
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c     takao
+            write(*,*)'S1nn=',rsec(i,ip)+sex(i,ip)+sexcore(i,ip)-vxc(i,ip)
+            write(*,*)'S2nn=',dreal(sen(i,i)),dimag(sen(i,i))
+            write(*,*)
+c     write(*,*)'Se  =',dreal(se(i,i,ip))*hartree
+c     &                    ,dimag(se(i,i,ip))*hartree
+c     &     ,sen(i,i)/(rsec(i,ip)+sex(i,ip)+sexcore(i,ip))
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccc
+c     if (del .gt. 1d-8) then
+c     write(*,*)'n=',i,'ip=', ip
+c     write(*,*)'S1nn=',rsec(i,ip)+sex(i,ip)+sexcore(i,ip)-vxc(i,ip)
+c     write(*,*)'S2nn=',sen(i,i)
+c     print *,' S1nn/=S2nn'
+c     takao
+c     stop 'hqpe: S1nn/=S2nn'
+c     endif
+          enddo               !i
+          deallocate(sen,sen2,evec0)
+c--   end check diagonal elements
+        enddo                  !ip
+
+c     - ANFcond case  ---------------------------------
+        if(laf) then
+          print *, ' Find ANFcond --- Call anfsig.'
+          ildima = 211
+          open(ildima,file='ldima')
+          read(ildima,'(a3)') iaaa
+          close(ildima)
+
+C     ... June2007 for floating orbitals
+!     ldima is generaged by lmfgw; it contains number of MTO including
+!     floating orbital, and positions.
+          open(ildima,file='ldima')
+          if(iaaa=='***') then
+            read(ildima,*) iaaa,natom
+            allocate( ibasf(natom),ldima(natom),pos(1:3,natom) )
+            do ibas = 1,natom
+              read(ildima,*) ldima(ibas),pos(1:3,ibas)
+              write(6,"('ldima pos=',i5,3f10.4)")ldima(ibas),pos(1:3,ibas)
+            enddo
+          else
+            ilmto = 212
+            open(ilmto,file='LMTO')
+            do ix=1,12
+              read(ilmto,*)
+            enddo
+            read(ilmto,*)natom
+            allocate(ibasf(natom),ldima(natom)
+     &              ,pos(1:3,natom))
+            write(6,"(' natom=',i3)") natom
+            read(ilmto,*)
+            do ibas = 1,natom
+              read(ilmto,*) pos(1:3,ibas)
+              write(6,*) pos(1:3,ibas)
+            enddo
+            close(ilmto)
+
+            do ibas=1,natom
+              read(ildima,*) ldima(ibas)
+              write(6,*) 'ldima=',ldima(ibas)
+            enddo
+          endif
+          close(ildima)
+
+          ifianf = 211
+          open(ifianf,file='ANFcond')
+          read(ifianf,*)
+          read(ifianf,*)
+          read(ifianf,*) anfvec(1:3)
+          write(6,'(" ANFcond=",3f13.6)') anfvec
+          do ibas=1,natom
+            read(ifianf,*) ibas1, ibasf(ibas)
+            if(ibas1/=ibas) stop ' readin ANFcond error:ibas1/=ibas'
+            write(6,"(' anf ',2i3,f13.6)") ibas1,ibasf(ibas)
+          enddo
+          close(ifianf)
+
+          do ip = 1,nq
+c     do ikp=1,nqbz
+c     if (sum ( (qqq(1:3,ikp,is)-qx(1:3,1,ip))**2 ) < 1d-10 ) then
+c     ikpx=ikp !qx(:,i,:) does not depents on band index i=1:ntq
+c     goto 101
+c     endif
+c     enddo !ikp
+            call anfsig( natom, ldima, pos, nhq,
+     i              qx(1:3,1,ip),           
+     i              anfvec, ibasf, ! these are antiferro informations.
+     i              sigmv(1:nhq,1:nhq,ip)) ! i/o
+            write(ifse_out) qx(1:3,1,ip)
+            write(ifse_out) sigmv(1:nhq,1:nhq,ip)
+          enddo
+        endif
+        deallocate(sex2,sexcore2,sec2,se,ipiv,work)
+        deallocate(evec_inv,evec_invt,ev_se_ev) !,se_ev
+        if(evec0ex) deallocate(evec00inv)
+
+C     - end making SE_ij-VXC_ij cccccccccccccccccccccccccccccccccc  !sf..3June
+        deallocate( itxc,qxc,eldaxc,vxc ,itc, qc ,eldac,
+     &        sexcore ,rsec,csec, !zfac,  !sf..13May2002 
+     &        itx, qx ,eldax,sex)
+
+        if (laf) exit
+        if (jin .gt. 0) jin = 999999
+      enddo                     ! spin
+c-------------------------------
+      if(jin==-101) goto 9999
+
+      deallocate(v_xc,evec)     !, se_in)                                        !sf..3June
+      close(ifse_out)
+
+C     --- mixing sigma -------------------------------------
+C     ... Once readin sigma
+      open(UNIT=ifse_out, file='sigm',form='UNFORMATTED')
+      allocate(sigma_m(nhq,nhq,nq,nspin),qqqx_m(3,nq,nspin))
+      print *,"========= Sigma mixing section using mixsigma ======="
+      call rwsigma (ifse_out,sigma_m,qqqx_m, nspin,nhq,n1,n2,n3,nq)
+C     print *,"==== Have read sigm and goto mixsigma ===="
+C     MvS Feb 04 Allocate sigin if not already done so
+      if (lsigin .and. nhqin .ne. nhq) then
+        deallocate(sigin)
+        print *, '... input sigma dimension mismatch ... discarding'
+        lsigin = .false.
+      endif
+      if (.not. lsigin) then
+        allocate(sigin(1,1,1,1))
+        sigin = 0d0
+      endif
+      call mixsigma(sigma_m, lsigin, sigin, 2*nhq**2*nq*nspin)
+
+C     ... write sigm Binary format ---------------------------------------
+      write(6,*)
+      write(6,*) "=== Write sigma to files (Binary and ASCII) ========"
+      rewind ifse_out
+      call rwsigma (-ifse_out,sigma_m,qqqx_m, nspin,nhq,n1,n2,n3,nq)
+      close(ifse_out)
+
+C     ... Write sigma ASCII format ---------------------------------------
+      open(UNIT=ifse_out, file='sigma')
+      call rwsigmaa (-ifse_out,sigma_m,qqqx_m, nspin,nhq,n1,n2,n3,nq)
+      close(ifse_out)
+ 9999 stop ' OK! hqpe_sc '
+      end
+
+c------------------------------------------------------
+      subroutine testfff(a,b,nnn)
+      real(8):: a(nnn),b(nnn)
+      do i=1,nnn
+        if(i/=nnn) then
+          b(i)= +  (-1d0)**i*a(i+1) + i/10d0
+        else
+          b(i)=   a(i)**2 - 1d0
+        endif
+      enddo
+      end
+
+c------------------------------------------------------
+      subroutine onlydiag(sigm,ndimh)
+      complex(8):: sigm(ndimh,ndimh)
+      do ix=1,ndimh
+        do iy=1,ndimh
+          if(ix/=iy) sigm(ix,iy)=0d0
+        enddo
+      enddo
+      end
+
+C----------------------------------------------------------------------
+      subroutine rwsigma(ifs,sigma_m,qqqx_m,nspin,ntq,n1,n2,n3,nq)
+      complex(8)::sigma_m(ntq,ntq,nq,nspin)
+      real(8)::qqqx_m(3,nq,nspin)
+      ntm1=0;ntm2=0;ntm3=0
+      if(ifs>0) print *, " rwsigma: Reading sigm (Binary)==="
+      if(ifs<0) print *, " rwsigma  Writing sigm (Binary)==="
+      if(ifs>0) read ( ifs) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
+      if(ifs<0) write(-ifs) nspin,ntq,n1,n2,n3,nq, ntm1,ntm2,ntm3
+      do is=1,nspin
+        do ip=1,nq
+          if(ifs>0) read (ifs)  qqqx_m(1:3,ip,is)
+          if(ifs>0) read (ifs)  sigma_m(1:ntq,1:ntq,ip,is)
+          if(ifs<0) write(-ifs) qqqx_m(1:3,ip,is)
+          if(ifs<0) write(-ifs) sigma_m(1:ntq,1:ntq,ip,is)
+          write(6,"('  === ',i5,i3,3f10.5)")ip,is,qqqx_m(1:3,ip,is)
+        enddo
+      enddo
+      print *,' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
+      print *
+      end
+c
+      subroutine rwsigmaa(ifs,sigma_m,qqqx_m, nspin,ntq,n1,n2,n3,nq)
+      complex(8)::sigma_m(ntq,ntq,nq,nspin)
+      real(8)::qqqx_m(3,nq,nspin)
+      ntm1=0;ntm2=0;ntm3=0
+      if(ifs>0) print *, " rwsigmaa: Reading sigma (ASCII)==="
+      if(ifs<0) print *, " rwsigmaa: Writing sigma (ASCII)==="
+      if(ifs>0)read ( ifs,*)      nspin,ntq,n1,n2,n3,nq,ntm1,ntm2,ntm3
+      if(ifs<0)write(-ifs,"(i10)")nspin,ntq,n1,n2,n3,nq,ntm1,ntm2,ntm3
+      do is=1,nspin
+        do ip=1,nq
+          if(ifs>0) read (ifs,*)  qqqx_m(1:3,ip,is)
+          if(ifs<0) write(-ifs,"(3d24.16)") qqqx_m(1:3,ip,is)
+          do j=1,ntq
+            do i=1,ntq
+              if(ifs>0) read (ifs,"(2d24.16)")  sigma_m(i,j,ip,is)
+              if(ifs<0) write(-ifs,"(2d24.16,2i5)") sigma_m(i,j,ip,is),i,j
+            enddo
+          enddo
+          write(6,"('  === ',i5,i3,3f10.5)")ip,is,qqqx_m(1:3,ip,is)
+        enddo
+      enddo
+      print *,' === rwsigmaa: sum check of sigma_m=',sum(abs(sigma_m))
+      print *
+      end
+
+C----------------------------------------------------------------------
+      subroutine mixsigma(sss, lsigin, sigin, nda)
+c  subroutine pqmixa(nda,nmix,mmix,mxsav,beta,rms2,a,tj)
+C- Mixing routine for sigma. Modified from pqmixa in subs/pqmix.f
+C- Anderson mixing of a vector
+Ci  mmix: number of iterates available to mix
+Cio nmix: nmix > 0: number of iter to try and mix
+Ci        nmix < 0: use mmix instead of nmix.
+Co  nmix: (abs)  number of iter actually mixed.
+Co        (sign) <0, intended that caller update nmix for next call.
+C  MvS Feb 04 use sigin as input sigma if available (lsigin=T)
+C             Add mixnit as parameter
+      use keyvalue
+      implicit none
+      logical lsigin
+      integer nda,nmix,mmix
+      integer(4),parameter:: mxsav=3
+      double precision rms2,tj(mxsav),beta
+      integer im,imix,jmix,iprint,amix,onorm,okpvt,oa
+      integer iprintxx,ifi,nitr,ndaf
+      real(8)::sss(nda),sigin(nda)
+      real(8):: tjmax
+
+      real(8),allocatable::norm(:),a(:,:,:)
+      integer(4),allocatable:: kpvt(:)
+
+c      logical :: readgwinput,ret
+      integer(4)::ret
+
+c heap
+c      integer(4),parameter::iwksize=10*1000*1000
+c      integer(4):: w
+c      common /w/ w(iwksize)
+      character*8 fff
+      logical fexist
+
+      real(8):: acc
+      integer(4):: ido
+
+c      call wkinit(iwksize)
+      iprintxx = 30
+
+      beta=1d0
+C      if(readgwinput()) then
+      call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
+C      endif
+c      fff="MIX"
+c      INQUIRE (FILE =fff, EXIST = fexist)
+c      if(fexist) then
+c        open(ifi,file=fff,form='formatted')
+c        read(ifi,*) beta
+c        close(ifi)
+c      endif
+
+      print '('' mixsigma: Anderson mixing sigma with mixing beta ='',f12.6)',beta
+
+C' ... reads prior iteration INCLUDING starting sigma for current iteration
+      allocate ( a(nda,0:mxsav+1,2) )
+      fff="mixsigma"
+      INQUIRE (FILE =fff, EXIST = fexist)
+      if(fexist)      print *,'... reading file mixsigma'
+      if(.not.fexist) print *,'... No file mixsigma'
+      ifi=3021
+      open(ifi,file=fff,form='unformatted')
+      if(fexist) then
+        read(ifi,err=903,end=903) nitr,ndaf
+        if (ndaf .ne. nda) goto 903
+C       print *,' read mixsigma: nitr=',nitr
+        read(ifi,err=903,end=903) a
+C       print *,' read end of mixsigma'
+        goto 902
+      endif
+      goto 901
+
+  903 continue
+      print 368
+  368 format(5x,'(warning) file mismatch ... mixing file not read')
+  901 continue
+      nitr = 0
+C      goto 902
+C      rewind(ifi)
+C      print *,'--- New mixsigma  --- '
+C      print *,'--- writing sigma to mixsigma  --- '
+C      print *
+C      a = 0d0
+C      a(:,0,2) = sss
+C      nitr = 1
+C      write(ifi) nitr,nda
+C      write(ifi) a
+C      close(ifi)
+C      return
+
+ 902  continue
+c      beta     =  .5d0
+c      if(nitr>10)  beta=1d0
+C     beta=1d0
+
+      a(:,0,1) = sss      !output
+C     if input sigma available, use it instead of file a(:,0,2)
+      if (lsigin) then
+        print *,'... using input sigma read from sigm file'
+        a(:,0,2) = sigin  !input
+      endif
+
+      print *,'sum sss=',sum(abs(sss))
+
+C     Restrict maximum number of prior iterations
+      call getkeyvalue("GWinput","mixpriorit",imix,default=9,status=ret)
+      mmix = min(max(nitr-1,0),imix)
+
+      if (mmix > mxsav) mmix = mxsav
+
+c      nmix = mmix
+c      print *,'mixsigma: 3333'
+C ... default nmix
+c      if (nmix .lt. 0) nmix = 2
+c      nmix = min(mmix,nmix)
+
+c      if (beta .lt. 0) nmix = -nmix
+C ... imix is a local copy of nmix
+c      imix = nmix
+
+c      if (imix .lt. 0) imix = mmix
+C ... save PQ array
+c      call defdr(oa,nda*(mxsav+2)*2)
+c      call dcopy(nda*(mxsav+2)*2,a,1,w(oa),1)
+
+c      print *,'mixsigma: goto daxpy'
+C ... for iterations 1,2,... amix needs F-x
+c    1 continue
+c      do  10  jmix = 1, nmix
+c   10 call daxpy(nda,-1d0,a(1,jmix,2),1,a(1,jmix,1),1)
+ccc      call query('beta',4,beta)
+c      jmix = min(mmix,iabs(imix))
+
+C     print *,'mixsigma: goto amix'
+c      call defdr(onorm,mxsav**2)
+c      call defi (okpvt,mxsav)
+      allocate(norm(mxsav**2),kpvt(mxsav))
+C     this information already printed out by amix
+C     print *,'mixing parameters for amix are fixed in mixsigma'
+C     print *,'   beta       =', beta
+C     print *,'   tjmax      =', tjmax
+C     print *,'   mmix mxsav =', mmix,mxsav
+
+C     iprintxx = 61
+
+      call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
+      if(acc/=0d0) then
+        print *,' readin mixtj from GWinput: mixtj=',acc
+        tjmax=abs(acc)+1d-3
+        if(mmix==1) then
+          tj(1)=1d0
+        else
+          tj(1)= acc
+          tj(2)= 1-acc
+          mmix=2
+        endif
+        ido=2
+      else
+        tjmax=5d0
+        ido=0
+      endif
+      imix = amix(nda,mmix,mxsav,ido,dabs(beta),iprintxx,tjmax,
+c     .  w(onorm),w(okpvt),a,tj,rms2)
+     .  norm,kpvt,a,tj,rms2)
+      deallocate(norm, kpvt)
+c      call rlse(onorm)
+
+C ... Restore PQ array, updating new x
+c      call dpscop(a,w(oa),nda,1+nda*(mxsav+2),1+nda*(mxsav+2),1d0)
+c      call dcopy(nda*(mxsav+2)*2,w(oa),1,a,1)
+c ...
+      sss = a(:,0,2)
+      rewind(ifi)
+      write(ifi) nitr+1,nda
+      write(ifi) a
+      close(ifi)
+      end
+
+c
+      subroutine readd_iSigma_en(ifinin,iSigma_en) !from extensiton.f
+      use keyvalue
+      integer(4):: iSigma_en
+c      logical :: readgwinput
+c      if(readgwinput()) then
+      call getkeyvalue("GWinput","iSigMode",iSigma_en )
+c      else
+c        ifinin=iopen('GWIN_V2',1,0,0)
+c        read(ifinin,*)
+c        read(ifinin,*)
+c        read(ifinin,*) blank,blank,iSigma_en
+cc        iSigma_en parameter which determines approximation for  self-energy,
+cc        stored in GWIN_V2.
+cc        iSigma_en==0 SE_nn'(ef)+imag intgrl:delta_nn'(SE_nn(e_n)-SE_nn(ef))
+cc        iSigma_en==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
+cc        iSigma_en==2 SE_nn'((e_n+e_n')/2)
+cc        iSigma_en==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2
+cc        iSigma_en==5 delta_nn' SE_nn(e_n)
+cc        output file should contain hermitean part of SE for energies to be real
+cc        (for example, hermitean conjunction of SE_nn'(e_n) means SE_n'n(e_n')^* )
+c        is=iclose('GWIN_V2')
+c      endif
+      print *,' iSigma_en=',iSigma_en
+      end
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine anfsig( natom,ldima,bas, nbloch,
+     i  q,           ! for q+G
+     i  anfvec,iaf,  ! these are antiferro informations.
+     i  zxq)  ! i/o
+C- antiferro part is added to sism
+c We assume that the crystal has a magnetic symmetry described by (translataion + spin flip).
+c The translation is specified by a vector,
+c   AFvector = anfvec(1:3)*alat, which is the true real vector in Cartesian coodinate.
+c   The anfvec(1:3) is given in ANFcond file.
+c
+c Each mixed basis is mapped to the other mixed basis.
+c E.g. the product basis B({\bf r}-{\bf a}) is mapped to
+c  B({\bf r}-{\bf a}-{\bf A}) = B({\bf r}-{\bf a}'-{\bf T}_0),
+c  by the translation specified by AFvec={\bf A}.
+c  Here {\bf T}_0 is some crystal tralslation vector.
+c  In this code you see,
+c      bas(1:3,ia1)+ anfvec  = bas(1:3,iaf(ia1)) + transaf(1:3,ia1)
+c  ==   {\bf a}    +{\bf A}  = {\bf a}'          + {\bf T}_0
+c
+c ---- The corresponding atoms should have the same product basis.
+c
+      implicit none
+      integer natom, nbloch, nclass
+      integer ldima(natom), iaf(natom), iof(natom),
+     &  ix,ia1,ia2,ic1,ic2,ifi,i,j, iaf1,iaf2,igp,im1,im2
+      integer(4):: iam(nbloch),imf(nbloch)
+      real(8) :: qt(natom), rf,cf,q(3),qlat(3,3),bas(3,natom),
+     &         anfvec(3),transaf(3,natom),qg(3)
+      complex(8) :: zxq (nbloch,nbloch),fac(nbloch)
+      complex(8):: imagtwopi ,imag=(0d0,1d0)
+      complex(8),allocatable :: zxqw(:,:)
+      real(8) :: pi=3.1415926535897932d0
+cr
+cr    True_q(1:3)     = 2*pi/alat * q(1:3)
+cr  True G is given by
+cr    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvecc(1:3,igp)) ,igp=1,ngp
+c------------------------
+c      imagtwopi = 2d0*(0d0,3.1415926535897932d0)
+      write(6,"(' q=', 3d23.15)") q
+      do ia1 = 1, natom
+        transaf(1:3,ia1)= bas(1:3,ia1)+ anfvec - bas(1:3,iaf(ia1))
+        write(6,"(' ia1 transaf=',i3, 3d23.15)") ia1,transaf(1:3,ia1)
+      enddo
+      iof(1) = 0
+      do ia1 = 1, natom-1
+        iof(ia1+1)= iof(ia1) + ldima(ia1)
+        iam(iof(ia1)+1:iof(ia1+1)) = ia1
+      enddo
+      iam(iof(natom)+1:nbloch) = natom
+      write(6,*) (ia1, ldima(ia1),ia1 = 1, natom)
+
+
+c (we had a problem at June18 2007)
+c  this sanitiy check should be removed in fufture...
+      if( nbloch /= iof(natom) +ldima(natom) )
+     &  stop ' anfsig: nbloch.ne.... not yet for floting orbital case'
+
+c phase shifts
+      do ia1 = 1, natom
+        qt(ia1) = 2d0*pi*sum(q*transaf(1:3,ia1))
+c        write( 6, "(i3,2x,d23.15)") iaf(ia1),sum(q*transaf(1:3,ia1))
+c        write( 6, "(3x,2x,d23.15)") 2d0*pi*sum(q*transaf(1:3,ia1))
+      enddo
+      write(6,*) ' anfsig:  nbloch=',nbloch
+      do im1 = 1,nbloch
+        ia1  = iam(im1)
+        i    = im1 - iof(ia1)
+        imf (im1) = i + iof(iaf(ia1))
+        fac (im1) = exp( imag*qt(ia1) )
+cccccccccccccccccccccccc
+        write( 6, "(5i6,2d13.5)") ia1,iaf(ia1), i, im1, imf(im1)
+     &  ,fac(im1)
+cccccccccccccccccccccccc
+      enddo
+      allocate(zxqw(nbloch,nbloch))
+      zxqw = zxq
+      do im1 = 1,nbloch
+        do im2 = 1,nbloch
+          zxq(im1, im2)= 
+     &               + zxqw(imf(im1),imf(im2))*fac(im1)*dconjg(fac(im2))
+        enddo
+      enddo
+      write(6,*) ' anfsig: end '
+      return
+      end

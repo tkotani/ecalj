@@ -1,0 +1,539 @@
+--- Type numbers #1 #2 #3 [#2 and #3 are options] ---
+ #1:run mode
+    1   : normal
+    2   : epsNolfc
+    3   : eps
+    22  : chi^+- NoLFC
+    23  : chi^+- 
+    101 : total energy Miyake
+    11  : normal    Sergey
+    202 : epsNoLFC  Sergey
+    203 : eps       Sergey
+    222 : chi^+- NoLFC Sergey
+    223 : chi^+- Sergey
+    12  : total energy Miyake Sergey
+    -9999: just show version num
+ #2=iqxini   #3=iqxend
+-------------------------------------------------------
+hx0fp0: VerNum= 033a4: 08Sep2008
+ ixc =   11
+  OK ixc=11 s.f.'s normal mode 
+  ### readin BZDATA ###
+  read_bzdata           8           3          27          48           2
+          24
+i qbz=  1  0.0000  0.0000  0.0000
+i qbz=  2  0.5000  0.5000 -0.5000
+i qbz=  3  0.5000 -0.5000  0.5000
+i qbz=  4  1.0000  0.0000  0.0000
+i qbz=  5 -0.5000  0.5000  0.5000
+i qbz=  6  0.0000  1.0000  0.0000
+i qbz=  7  0.0000  0.0000  1.0000
+i qbz=  8  0.5000  0.5000  0.5000
+  nqbz nqibz =           8           3
+ ScaledGapX0=1.000
+  symgrp=
+   UseSYMOPSfile                                                                
+                                          
+  alat natom=   10.6600000000000                2
+  nspin nl nnv nnc =           1           5           3           3
+  divisions along reciprocal base vectors G1 G2 G3=           2           2
+           2
+  --- READIN ef from EFERMI. ef=  0.120776593685150     
+  --- READIN nw from NW. nw=          63
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+ readin nout=           1
+  --- Freq ---
+     dw   =  1.000000000000000E-002
+     niw  =           6
+     delta= -1.000000000000000E-004
+     esmr =  3.000000000000000E-003
+  goto prod
+ readin nout=           1
+ readin nout=           1
+ <... > 
+ lx=  0 readin tolerance=  0.100D-04
+ lx=  1 readin tolerance=  0.100D-04
+ lx=  2 readin tolerance=  0.100D-04
+ lx=  3 readin tolerance=  0.100D-04
+ lx=  4 readin tolerance=  0.100D-04
+ lx=  5 readin tolerance=  0.100D-04
+ lx=  6 readin tolerance=  0.100D-04
+ lx=  7 readin tolerance=  0.100D-04
+ lx=  8 readin tolerance=  0.100D-04
+  --- prod section: tolbas lcutmx=  1.000000000000000E-005
+  1.000000000000000E-005  1.000000000000000E-005  1.000000000000000E-005
+  1.000000000000000E-005  1.000000000000000E-005  1.000000000000000E-005
+  1.000000000000000E-005  1.000000000000000E-005           4
+  --- valence product basis section
+  1  0  1  1  1
+  1  0  2  0  0
+  1  1  1  1  1
+  1  1  2  0  0
+  1  2  1  1  1
+  1  2  2  0  0
+  1  2  3  1  1
+  1  3  1  0  1
+  1  3  2  0  0
+  1  4  1  0  0
+  1  4  2  0  0
+  2  0  1  1  1
+  2  0  2  0  0
+  2  1  1  1  1
+  2  1  2  0  0
+  2  2  1  1  1
+  2  2  2  0  0
+  2  3  1  0  1
+  2  3  2  0  0
+  2  4  1  0  0
+  2  4  2  0  0
+  --- core product basis section
+  1  0  1  0  0  0  0
+  1  0  2  0  0  0  0
+  1  0  3  0  0  0  0
+  1  1  1  0  0  0  0
+  1  1  2  0  0  0  0
+  2  0  1  0  0  0  0
+  2  0  2  0  0  0  0
+  2  0  3  0  0  0  0
+  2  1  1  0  0  0  0
+  2  1  2  0  0  0  0
+  2  2  1  0  0  0  0
+  ### Use unocc occ ForX0 for core
+  nw from rgwinaf=          63
+  rcore2 : ic=           1
+  rcore : goto loop over l n
+  rcore2 : ic=           2
+  rcore : goto loop over l n
+  symgrp==UseSYMOPSfile
+ CPU=       0.0000 secs    0.0 mins
+ genallcf_v3
+  ncore=           0           0
+  iclass=           1           2
+ nw delta=          63 -1.000000000000000E-004
+  hx0fp0: tetrahedron mode delta=  1.000000000000000E-004
+  *** nqibz nq0i=           3           2
+  num of zero weight q0p=           0
+  1      0.500000       -0.152442      0.152442      0.152442
+  2      0.500000        0.152442     -0.152442     -0.152442
+  ngcmx ngpmx=          82         113
+  rdpp_v3: 
+  ppbrd size           5           5           6           2           1
+  rdpp mdimx=         106
+  rotcg:
+ 
+  ROTDLMM:
+  goto do 23
+  end of rotdlmm
+  rotcg end:
+  rdpp_v3:end 
+  nqibz nqibze=           3           5
+ init_readeigen:
+ read(ifiqg)          24         113   2.70000000000000                8
+  mrelc.ne.0 file=
+ EVU                                                                      282
+  KeepEigen=T; readin geig and cphi into m_readeigen
+  mrelc.ne.0 file=
+ GEIG                                                                   63732
+  mrelc.ne.0 file=
+ CPHI                                                                   59220
+  ifgeig ifcphi=          12          13
+ readin nout=           1
+ dw, omg_c=   1.000000000000000E-002  4.000000000000000E-002
+  emin emax omg2max=  -1.02084308750406        13.0527088808127     
+   7.23677598415838     
+  we set frhis nwhis=          75
+  freqimg: niw =           6
+  writeemesh: ifi=          12
+  mrelc.ne.0 file=
+ WVR                                                                   270400
+  mrelc.ne.0 file=
+ WVI                                                                   270400
+  ANFcond exist? = F
+ nbcut nbcutlowto=    0    0
+ CPU=       0.0800 secs    0.0 mins
+  init_readqg ifi=           2
+do 1001: iq q=    2  -0.5000   0.5000   0.5000 qq=  -0.5000   0.5000   0.5000
+ rcxq alloc ngb nwhis npm ---         254          75           1
+ ***    2   1 out of nqibz+n0qi nsp=   5   1 *** 
+ tetra mode niw nw nwhis=    6   21   75
+ -- First tetwt5 is to get size of array --
+  tetwt5_dtet3:init job efermi:= 0 0.120777D+00
+  tetwt5_dtet3: maxval(nwgt(1:nqbz,1:npm)) sum(nwgt)=    1089    8622 count(iwgt) =      8622
+  rsvwwk: kx nbnbmax=           9        1089
+  Tetra mode: nctot noccxv=            0           9
+  --- Frequency  histogram  sections (a.u.)---- 
+ ihis Init  End=   1     0.000000     0.011250
+ ihis Init  End=   2     0.011250     0.025000
+ ihis Init  End=   3     0.025000     0.041250
+ ihis Init  End=   4     0.041250     0.060000
+ ihis Init  End=   5     0.060000     0.081250
+ ihis Init  End=   6     0.081250     0.105000
+ ihis Init  End=   7     0.105000     0.131250
+ ihis Init  End=   8     0.131250     0.160000
+ ihis Init  End=   9     0.160000     0.191250
+ ihis Init  End=  10     0.191250     0.225000
+ ihis Init  End=  11     0.225000     0.261250
+ ihis Init  End=  12     0.261250     0.300000
+ ihis Init  End=  13     0.300000     0.341250
+ ihis Init  End=  14     0.341250     0.385000
+ ihis Init  End=  15     0.385000     0.431250
+ ihis Init  End=  16     0.431250     0.480000
+ ihis Init  End=  17     0.480000     0.531250
+ ihis Init  End=  18     0.531250     0.585000
+ ihis Init  End=  19     0.585000     0.641250
+ ihis Init  End=  20     0.641250     0.700000
+ ihis Init  End=  21     0.700000     0.761250
+ ihis Init  End=  22     0.761250     0.825000
+ ihis Init  End=  23     0.825000     0.891250
+ ihis Init  End=  24     0.891250     0.960000
+ ihis Init  End=  25     0.960000     1.031250
+ ihis Init  End=  26     1.031250     1.105000
+ ihis Init  End=  27     1.105000     1.181250
+ ihis Init  End=  28     1.181250     1.260000
+ ihis Init  End=  29     1.260000     1.341250
+ ihis Init  End=  30     1.341250     1.425000
+ ihis Init  End=  31     1.425000     1.511250
+ ihis Init  End=  32     1.511250     1.600000
+ ihis Init  End=  33     1.600000     1.691250
+ ihis Init  End=  34     1.691250     1.785000
+ ihis Init  End=  35     1.785000     1.881250
+ ihis Init  End=  36     1.881250     1.980000
+ ihis Init  End=  37     1.980000     2.081250
+ ihis Init  End=  38     2.081250     2.185000
+ ihis Init  End=  39     2.185000     2.291250
+ ihis Init  End=  40     2.291250     2.400000
+ ihis Init  End=  41     2.400000     2.511250
+ ihis Init  End=  42     2.511250     2.625000
+ ihis Init  End=  43     2.625000     2.741250
+ ihis Init  End=  44     2.741250     2.860000
+ ihis Init  End=  45     2.860000     2.981250
+ ihis Init  End=  46     2.981250     3.105000
+ ihis Init  End=  47     3.105000     3.231250
+ ihis Init  End=  48     3.231250     3.360000
+ ihis Init  End=  49     3.360000     3.491250
+ ihis Init  End=  50     3.491250     3.625000
+ ihis Init  End=  51     3.625000     3.761250
+ ihis Init  End=  52     3.761250     3.900000
+ ihis Init  End=  53     3.900000     4.041250
+ ihis Init  End=  54     4.041250     4.185000
+ ihis Init  End=  55     4.185000     4.331250
+ ihis Init  End=  56     4.331250     4.480000
+ ihis Init  End=  57     4.480000     4.631250
+ ihis Init  End=  58     4.631250     4.785000
+ ihis Init  End=  59     4.785000     4.941250
+ ihis Init  End=  60     4.941250     5.100000
+ ihis Init  End=  61     5.100000     5.261250
+ ihis Init  End=  62     5.261250     5.425000
+ ihis Init  End=  63     5.425000     5.591250
+ ihis Init  End=  64     5.591250     5.760000
+ ihis Init  End=  65     5.760000     5.931250
+ ihis Init  End=  66     5.931250     6.105000
+ ihis Init  End=  67     6.105000     6.281250
+ ihis Init  End=  68     6.281250     6.460000
+ ihis Init  End=  69     6.460000     6.641250
+ ihis Init  End=  70     6.641250     6.825000
+ ihis Init  End=  71     6.825000     7.011250
+ ihis Init  End=  72     7.011250     7.200000
+ ihis Init  End=  73     7.200000     7.391250
+ ihis Init  End=  74     7.391250     7.585000
+ ihis Init  End=  75     7.585000     7.781250
+  ----------------nbnbx nqbz=         1089           8
+  nhwtot=       34909
+  tetwt5_dtet3:init job efermi:= 1 0.120777D+00
+  --- goto x0kf_v4hz 
+ x0kf_v4hz: q= -0.5000  0.5000  0.5000 CPU=       0.4200 secs    0.0 mins
+ readin nout=           1
+ readin nout=           1
+  nbmx ebmx from GWinput=       999 0.999000D+03
+ x0kf_v4hz: k rk=   1    0.0000    0.0000    0.0000 CPU=       0.4300 secs    0.0 mins
+ nkRange  nkqRange=     1     9      10   133
+  nctot ncc=           0           0
+  init_readqg ifi=           1
+  KeepPPOVL=T; keep PPOVL in m_read_ppovl
+ 
+ x0kf_v4hz: k rk=   2    0.5000    0.5000   -0.5000 CPU=       4.6500 secs    0.1 mins
+ nkRange  nkqRange=     1     9      10   129
+ 
+ x0kf_v4hz: k rk=   3    0.5000   -0.5000    0.5000 CPU=       8.8700 secs    0.1 mins
+ nkRange  nkqRange=     1     9      10   129
+ 
+ x0kf_v4hz: k rk=   4    1.0000    0.0000    0.0000 CPU=      13.1100 secs    0.2 mins
+ nkRange  nkqRange=     1     9      10   133
+ 
+ x0kf_v4hz: k rk=   5   -0.5000    0.5000    0.5000 CPU=      17.5300 secs    0.3 mins
+ x0kf_v4hz: k rk=   8    0.5000    0.5000    0.5000
+ nkRange  nkqRange=     1     9      10   129
+ 
+  x0kf_v4hz: end
+goto dpsion5: 
+
+nwhis nw_i niw nw_w nmbas_in=   75    0   21    6    1
+ sumchk rcxq goto dpsion5=   28.7743261788865     
+ dpsion5: start...     nw_w nwhis=   21   75
+ CPU=      33.2400 secs    0.6 mins
+  --- realomega --- 
+  --- realomega dgemm--- 
+         end dpsion5  CPU=      34.6800 secs    0.6 mins
+  --- end of dpsion5 ----
+  trace check for W-V
+freq_r iq iw realomg trwv=    0.0000    2    0 -0.59506489585451D+02 -0.37696690727395D-13 -0.18940049713598D+05  0.81398206020892D-11
+freq_r iq iw realomg trwv=    0.0056    2    1 -0.59531547801174D+02 -0.96533077324960D-14 -0.18948493439043D+05  0.58869883331990D-11
+freq_r iq iw realomg trwv=    0.0181    2    2 -0.59809079131413D+02 -0.24766115567298D-05 -0.19040670992171D+05 -0.74004145319200D-03
+freq_r iq iw realomg trwv=    0.0331    2    3 -0.60599521128065D+02 -0.21260210127141D+00 -0.19304049358223D+05 -0.64303863774424D+02
+freq_r iq iw realomg trwv=    0.0506    2    4 -0.61596818907393D+02 -0.14600231206527D+01 -0.19661972826249D+05 -0.44503380149584D+03
+freq_r iq iw realomg trwv=    0.0706    2    5 -0.62192281760017D+02 -0.37132631910925D+01 -0.19937981676915D+05 -0.11500074357209D+04
+freq_r iq iw realomg trwv=    0.0931    2    6 -0.61799158173254D+02 -0.71015799041130D+01 -0.19939537757214D+05 -0.23727629241546D+04
+freq_r iq iw realomg trwv=    0.1181    2    7 -0.57941182665351D+02 -0.83141895711865D+01 -0.18818254689038D+05 -0.30280637291782D+04
+freq_r iq iw realomg trwv=    0.1456    2    8 -0.56334626117142D+02 -0.48679092869566D+01 -0.18099684875625D+05 -0.20378897036028D+04
+freq_r iq iw realomg trwv=    0.1756    2    9 -0.58523513328633D+02 -0.59959853931288D+01 -0.18781546169267D+05 -0.25435544947561D+04
+freq_r iq iw realomg trwv=    0.2081    2   10 -0.58868068822540D+02 -0.65424119733436D+01 -0.18777401035605D+05 -0.27962648884463D+04
+freq_r iq iw realomg trwv=    0.2431    2   11 -0.60353263778814D+02 -0.62101433764186D+01 -0.19231493016497D+05 -0.26215761053199D+04
+freq_r iq iw realomg trwv=    0.2806    2   12 -0.63762998304880D+02 -0.97303681046144D+01 -0.20670329852994D+05 -0.41817079403302D+04
+freq_r iq iw realomg trwv=    0.3206    2   13 -0.61152023940993D+02 -0.14649660623117D+02 -0.18944038202163D+05 -0.70560499332112D+04
+freq_r iq iw realomg trwv=    0.3631    2   14 -0.63935506186822D+02 -0.12672468382501D+02 -0.19272324308420D+05 -0.56339273449085D+04
+freq_r iq iw realomg trwv=    0.4081    2   15 -0.64407733783491D+02 -0.15616866286244D+02 -0.18570743556836D+05 -0.60521379511280D+04
+freq_r iq iw realomg trwv=    0.4556    2   16 -0.69254821029566D+02 -0.14738782461052D+02 -0.20284117275530D+05 -0.48144567960255D+04
+freq_r iq iw realomg trwv=    0.5056    2   17 -0.81746624350759D+02 -0.25177256836193D+02 -0.24055212198932D+05 -0.77374179398115D+04
+freq_r iq iw realomg trwv=    0.5581    2   18 -0.79148301307736D+02 -0.39114361294115D+02 -0.24161489687805D+05 -0.11717980549089D+05
+freq_r iq iw realomg trwv=    0.6131    2   19 -0.86635797963649D+02 -0.49590504797716D+02 -0.27240121473294D+05 -0.12602738690192D+05
+freq_r iq iw realomg trwv=    0.6706    2   20 -0.40913104690966D+02 -0.87126445243895D+02 -0.21741032857730D+05 -0.27620850002069D+05
+freq_r iq iw realomg trwv=    0.7306    2   21 -0.30752998580703D+02 -0.80479692067367D+02 -0.98156913112130D+04 -0.35106617808260D+05
+  goto imag omega
+freq_i iq iw imgomg  trwv=   28.6163    2    1 -0.11575325100071D+00  0.53961138390383D-16 -0.24469394634761D+02  0.57409353040106D-13
+freq_i iq iw imgomg  trwv=    4.9034    2    2 -0.32593277247159D+01 -0.73193530900499D-15 -0.73530999980174D+03  0.40147152788545D-13
+freq_i iq iw imgomg  trwv=    1.6268    2    3 -0.15595841708296D+02 -0.23594194482166D-14 -0.40991681789762D+04  0.10913782659841D-13
+freq_i iq iw imgomg  trwv=    0.6147    2    4 -0.35539443645239D+02  0.13149066434194D-13 -0.10502467877842D+05  0.69961119261658D-11
+freq_i iq iw imgomg  trwv=    0.2039    2    5 -0.51458712984480D+02  0.20295943366129D-14 -0.16037753482860D+05  0.29393616931702D-11
+freq_i iq iw imgomg  trwv=    0.0349    2    6 -0.58741172020487D+02 -0.21712597103553D-13 -0.18677530269190D+05 -0.25768289109534D-11
+ CPU=      47.6700 secs    0.8 mins
+do 1001: iq q=    3   0.0000   0.0000   1.0000 qq=   0.0000   0.0000   1.0000
+ rcxq alloc ngb nwhis npm ---         258          75           1
+ ***    3   1 out of nqibz+n0qi nsp=   5   1 *** 
+ tetra mode niw nw nwhis=    6   21   75
+ -- First tetwt5 is to get size of array --
+  tetwt5_dtet3:init job efermi:= 0 0.120777D+00
+  tetwt5_dtet3: maxval(nwgt(1:nqbz,1:npm)) sum(nwgt)=    1089    8622 count(iwgt) =      8622
+  rsvwwk: kx nbnbmax=           9        1089
+  Tetra mode: nctot noccxv=            0           9
+  --- Frequency  histogram  sections (a.u.)---- 
+  ----------------nbnbx nqbz=         1089           8
+  nhwtot=       35151
+  tetwt5_dtet3:init job efermi:= 1 0.120777D+00
+  --- goto x0kf_v4hz 
+ x0kf_v4hz: q=  0.0000  0.0000  1.0000 CPU=      47.9600 secs    0.8 mins
+ readin nout=           1
+ readin nout=           1
+  nbmx ebmx from GWinput=       999 0.999000D+03
+ x0kf_v4hz: k rk=   1    0.0000    0.0000    0.0000 CPU=      47.9700 secs    0.8 mins
+ nkRange  nkqRange=     1     9      10   129
+ 
+ x0kf_v4hz: k rk=   2    0.5000    0.5000   -0.5000 CPU=      52.1900 secs    0.9 mins
+ nkRange  nkqRange=     1     9      10   133
+ 
+ x0kf_v4hz: k rk=   3    0.5000   -0.5000    0.5000 CPU=      56.5800 secs    0.9 mins
+ nkRange  nkqRange=     1     9      10   133
+ 
+ x0kf_v4hz: k rk=   4    1.0000    0.0000    0.0000 CPU=      61.0100 secs    1.0 mins
+ nkRange  nkqRange=     1     9      10   129
+ 
+ x0kf_v4hz: k rk=   5   -0.5000    0.5000    0.5000 CPU=      65.4400 secs    1.1 mins
+ x0kf_v4hz: k rk=   8    0.5000    0.5000    0.5000
+ nkRange  nkqRange=     1     9      10   133
+ 
+  x0kf_v4hz: end
+goto dpsion5: 
+
+nwhis nw_i niw nw_w nmbas_in=   75    0   21    6    1
+ sumchk rcxq goto dpsion5=   23.8792352331617     
+ dpsion5: start...     nw_w nwhis=   21   75
+ CPU=      82.9700 secs    1.4 mins
+  --- realomega --- 
+  --- realomega dgemm--- 
+         end dpsion5  CPU=      84.4800 secs    1.4 mins
+  --- end of dpsion5 ----
+  trace check for W-V
+freq_r iq iw realomg trwv=    0.0000    3    0 -0.57130723145352D+02 -0.34258633866671D-14 -0.17339235087310D+05 -0.32002115455223D-11
+freq_r iq iw realomg trwv=    0.0056    3    1 -0.57151984112865D+02 -0.27281179540573D-14 -0.17346858698411D+05  0.15206105138753D-11
+freq_r iq iw realomg trwv=    0.0181    3    2 -0.57364098269976D+02 -0.55038359233105D-14 -0.17422754894167D+05  0.24851489452149D-11
+freq_r iq iw realomg trwv=    0.0331    3    3 -0.58135362775446D+02 -0.28416020566388D-02 -0.17695268185404D+05 -0.95274893560553D+00
+freq_r iq iw realomg trwv=    0.0506    3    4 -0.59598398159737D+02 -0.88786922792449D+00 -0.18224184221354D+05 -0.30159361887675D+03
+freq_r iq iw realomg trwv=    0.0706    3    5 -0.60365198428206D+02 -0.45100313251043D+01 -0.18505112629008D+05 -0.15543971247674D+04
+freq_r iq iw realomg trwv=    0.0931    3    6 -0.58533457201239D+02 -0.76060037577671D+01 -0.17924099573013D+05 -0.26462646553840D+04
+freq_r iq iw realomg trwv=    0.1181    3    7 -0.54236822884876D+02 -0.68047159588465D+01 -0.16634344869391D+05 -0.24650212466762D+04
+freq_r iq iw realomg trwv=    0.1456    3    8 -0.55131452408496D+02 -0.31302432145312D+01 -0.16977685131083D+05 -0.13591791693884D+04
+freq_r iq iw realomg trwv=    0.1756    3    9 -0.58017369287066D+02 -0.63458697629673D+01 -0.17980387278720D+05 -0.29908315514664D+04
+freq_r iq iw realomg trwv=    0.2081    3   10 -0.56874285923756D+02 -0.80805572172642D+01 -0.17039621072202D+05 -0.38398255553173D+04
+freq_r iq iw realomg trwv=    0.2431    3   11 -0.56558949688242D+02 -0.59611304010865D+01 -0.16480258132642D+05 -0.25465092730739D+04
+freq_r iq iw realomg trwv=    0.2806    3   12 -0.60856104853794D+02 -0.92940070139033D+01 -0.18101657021939D+05 -0.41120812140587D+04
+freq_r iq iw realomg trwv=    0.3206    3   13 -0.57460735358126D+02 -0.12187888410012D+02 -0.16657963358839D+05 -0.45355788154055D+04
+freq_r iq iw realomg trwv=    0.3631    3   14 -0.61664599111594D+02 -0.10307520528412D+02 -0.18072301725303D+05 -0.42057883492237D+04
+freq_r iq iw realomg trwv=    0.4081    3   15 -0.64440713068998D+02 -0.16043931968163D+02 -0.18515842626071D+05 -0.62546375340340D+04
+freq_r iq iw realomg trwv=    0.4556    3   16 -0.65537806959282D+02 -0.14669073581064D+02 -0.18545061790261D+05 -0.51713722136143D+04
+freq_r iq iw realomg trwv=    0.5056    3   17 -0.77000805490402D+02 -0.24405053357004D+02 -0.22162401433701D+05 -0.87742897624875D+04
+freq_r iq iw realomg trwv=    0.5581    3   18 -0.77861753891609D+02 -0.39032561271892D+02 -0.21634645369436D+05 -0.12880924615143D+05
+freq_r iq iw realomg trwv=    0.6131    3   19 -0.81008612535784D+02 -0.52800694036844D+02 -0.20736605576926D+05 -0.17678395648197D+05
+freq_r iq iw realomg trwv=    0.6706    3   20 -0.26516675867307D+02 -0.81616984589850D+02 -0.81438229689462D+04 -0.21500107329247D+05
+freq_r iq iw realomg trwv=    0.7306    3   21 -0.25071361171507D+02 -0.58482895326190D+02 -0.80738510137926D+04 -0.17063446335397D+05
+  goto imag omega
+freq_i iq iw imgomg  trwv=   28.6163    3    1 -0.11382554644745D+00 -0.44061181625531D-17 -0.22542253233313D+02  0.61599011632007D-14
+freq_i iq iw imgomg  trwv=    4.9034    3    2 -0.31990402199256D+01  0.35167166582359D-15 -0.67650492078591D+03  0.18824004765921D-12
+freq_i iq iw imgomg  trwv=    1.6268    3    3 -0.15202214847212D+02  0.17286704970515D-15 -0.37450362162803D+04 -0.11295976542264D-11
+freq_i iq iw imgomg  trwv=    0.6147    3    4 -0.34325208347700D+02 -0.12501877085402D-14 -0.95065284910013D+04  0.58835899943154D-12
+freq_i iq iw imgomg  trwv=    0.2039    3    5 -0.49488519104833D+02  0.21764677789243D-15 -0.14557243202346D+05  0.15965275287591D-12
+freq_i iq iw imgomg  trwv=    0.0349    3    6 -0.56437571719664D+02 -0.23964996831176D-14 -0.17089339703996D+05  0.77184995375306D-11
+ CPU=      98.8400 secs    1.6 mins
+do 1001: iq q=    4  -0.1524   0.1524   0.1524 qq=   0.0000   0.0000   0.0000
+ rcxq alloc ngb nwhis npm ---         243          75           1
+ ***    4   1 out of nqibz+n0qi nsp=   5   1 *** 
+ tetra mode niw nw nwhis=    6   21   75
+ -- First tetwt5 is to get size of array --
+  tetwt5_dtet3:init job efermi:= 0 0.120777D+00
+  tetwt5_dtet3: maxval(nwgt(1:nqbz,1:npm)) sum(nwgt)=    1062    8496 count(iwgt) =      8496
+  rsvwwk: kx nbnbmax=           9        1062
+  Tetra mode: nctot noccxv=            0           9
+  --- Frequency  histogram  sections (a.u.)---- 
+  ----------------nbnbx nqbz=         1062           8
+  nhwtot=       25795
+  tetwt5_dtet3:init job efermi:= 1 0.120777D+00
+  --- goto x0kf_v4hz 
+ x0kf_v4hz: q= -0.1524  0.1524  0.1524 CPU=      99.1000 secs    1.7 mins
+ readin nout=           1
+ readin nout=           1
+  nbmx ebmx from GWinput=       999 0.999000D+03
+ x0kf_v4hz: k rk=   1    0.0000    0.0000    0.0000 CPU=      99.1000 secs    1.7 mins
+ nkRange  nkqRange=     1     9      10   135
+ 
+ x0kf_v4hz: k rk=   2    0.5000    0.5000   -0.5000 CPU=     102.9800 secs    1.7 mins
+ nkRange  nkqRange=     1     9      10   128
+ 
+ x0kf_v4hz: k rk=   3    0.5000   -0.5000    0.5000 CPU=     106.6600 secs    1.8 mins
+ nkRange  nkqRange=     1     9      10   128
+ 
+ x0kf_v4hz: k rk=   4    1.0000    0.0000    0.0000 CPU=     110.5600 secs    1.8 mins
+ nkRange  nkqRange=     1     9      10   127
+ 
+ x0kf_v4hz: k rk=   5   -0.5000    0.5000    0.5000 CPU=     114.0700 secs    1.9 mins
+ x0kf_v4hz: k rk=   8    0.5000    0.5000    0.5000
+ nkRange  nkqRange=     1     9      10   128
+ 
+  x0kf_v4hz: end
+goto dpsion5: 
+
+nwhis nw_i niw nw_w nmbas_in=   75    0   21    6    1
+ sumchk rcxq goto dpsion5=   40.5262745163287     
+ dpsion5: start...     nw_w nwhis=   21   75
+ CPU=     127.6700 secs    2.1 mins
+  --- realomega --- 
+  --- realomega dgemm--- 
+         end dpsion5  CPU=     128.9800 secs    2.1 mins
+  --- end of dpsion5 ----
+  trace check for W-V
+freq_r iq iw realomg trwv=    0.0000    4    0 -0.20153292378198D+03 -0.13406603866639D-13 -0.92777798721477D+05 -0.48622953881692D-12
+freq_r iq iw realomg trwv=    0.0056    4    1 -0.20155776322286D+03 -0.34247673553689D-13 -0.92788841348592D+05 -0.35330438131532D-11
+freq_r iq iw realomg trwv=    0.0181    4    2 -0.20179517078801D+03  0.40737512004902D-13 -0.92894252873210D+05 -0.37519818643279D-10
+freq_r iq iw realomg trwv=    0.0331    4    3 -0.20246151870395D+03 -0.54582747650108D-13 -0.93188590652409D+05 -0.19558529364539D-10
+freq_r iq iw realomg trwv=    0.0506    4    4 -0.20406692709702D+03 -0.64428842531761D-01 -0.93887748294301D+05 -0.26672212418474D+02
+freq_r iq iw realomg trwv=    0.0706    4    5 -0.20632225684228D+03 -0.14412761753318D+01 -0.94880578268433D+05 -0.58766440777233D+03
+freq_r iq iw realomg trwv=    0.0931    4    6 -0.20859230127827D+03 -0.41772093338775D+01 -0.95933897114092D+05 -0.16900529209042D+04
+freq_r iq iw realomg trwv=    0.1181    4    7 -0.21087354436166D+03 -0.81127011213281D+01 -0.97029532053636D+05 -0.33832549482650D+04
+freq_r iq iw realomg trwv=    0.1456    4    8 -0.21019861454713D+03 -0.11555489989366D+02 -0.96889488681394D+05 -0.48528911225241D+04
+freq_r iq iw realomg trwv=    0.1756    4    9 -0.20766065620307D+03 -0.93788320233417D+01 -0.96219755647731D+05 -0.39544810417995D+04
+freq_r iq iw realomg trwv=    0.2081    4   10 -0.21673325107354D+03 -0.11629396216540D+02 -0.10038803442894D+06 -0.48380611104138D+04
+freq_r iq iw realomg trwv=    0.2431    4   11 -0.22847270593442D+03 -0.88905648232671D+01 -0.10666915869081D+06 -0.37241312443492D+04
+freq_r iq iw realomg trwv=    0.2806    4   12 -0.22869367438563D+03 -0.28561200664741D+02 -0.10596898912374D+06 -0.13629823791046D+05
+freq_r iq iw realomg trwv=    0.3206    4   13 -0.23147670211264D+03 -0.30435285787941D+02 -0.10700807082759D+06 -0.14087137545693D+05
+freq_r iq iw realomg trwv=    0.3631    4   14 -0.24586730850094D+03 -0.33229620788640D+02 -0.11410174550520D+06 -0.14601056636403D+05
+freq_r iq iw realomg trwv=    0.4081    4   15 -0.26526219512677D+03 -0.45644160158656D+02 -0.12438513606089D+06 -0.20884021275546D+05
+freq_r iq iw realomg trwv=    0.4556    4   16 -0.26532006182955D+03 -0.71934416496864D+02 -0.12404221431614D+06 -0.33201274790575D+05
+freq_r iq iw realomg trwv=    0.5056    4   17 -0.26832693761869D+03 -0.79874487478586D+02 -0.12527519963916D+06 -0.35541543282124D+05
+freq_r iq iw realomg trwv=    0.5581    4   18 -0.30506671857551D+03 -0.83545469783969D+02 -0.14712618943307D+06 -0.36522139473152D+05
+freq_r iq iw realomg trwv=    0.6131    4   19 -0.34654493020891D+03 -0.12565188587705D+03 -0.16938335468555D+06 -0.59145045334268D+05
+freq_r iq iw realomg trwv=    0.6706    4   20 -0.40077281384572D+03 -0.17634674095620D+03 -0.20057578831777D+06 -0.89766034134991D+05
+freq_r iq iw realomg trwv=    0.7306    4   21 -0.46618971745302D+03 -0.35448119073846D+03 -0.22245981393539D+06 -0.18535603146360D+06
+  goto imag omega
+freq_i iq iw imgomg  trwv=   28.6163    4    1 -0.26509375979855D+00 -0.87151771076196D-14 -0.10121921352898D+03  0.19284065584683D-11
+freq_i iq iw imgomg  trwv=    4.9034    4    2 -0.79186999880347D+01  0.89596509591383D-13 -0.31346124478515D+04 -0.15537220834497D-10
+freq_i iq iw imgomg  trwv=    1.6268    4    3 -0.45662062815426D+02 -0.13283469589066D-13 -0.19611301582889D+05  0.38862626459773D-10
+freq_i iq iw imgomg  trwv=    0.6147    4    4 -0.12303955596790D+03 -0.58427282367577D-12 -0.55792860183257D+05 -0.18358830048803D-10
+freq_i iq iw imgomg  trwv=    0.2039    4    5 -0.18306348065516D+03  0.83262913628035D-13 -0.84257328578005D+05 -0.22928216567392D-10
+freq_i iq iw imgomg  trwv=    0.0349    4    6 -0.20062794479679D+03  0.10536139344157D-12 -0.92373904576126D+05  0.23953827681191D-10
+ CPU=     152.0300 secs    2.5 mins
+do 1001: iq q=    5   0.1524  -0.1524  -0.1524 qq=   0.0000   0.0000   0.0000
+ rcxq alloc ngb nwhis npm ---         243          75           1
+ ***    5   1 out of nqibz+n0qi nsp=   5   1 *** 
+ tetra mode niw nw nwhis=    6   21   75
+ -- First tetwt5 is to get size of array --
+  tetwt5_dtet3:init job efermi:= 0 0.120777D+00
+  tetwt5_dtet3: maxval(nwgt(1:nqbz,1:npm)) sum(nwgt)=    1062    8496 count(iwgt) =      8496
+  rsvwwk: kx nbnbmax=           9        1062
+  Tetra mode: nctot noccxv=            0           9
+  --- Frequency  histogram  sections (a.u.)---- 
+  ----------------nbnbx nqbz=         1062           8
+  nhwtot=       25795
+  tetwt5_dtet3:init job efermi:= 1 0.120777D+00
+  --- goto x0kf_v4hz 
+ x0kf_v4hz: q=  0.1524 -0.1524 -0.1524 CPU=     152.3300 secs    2.5 mins
+ readin nout=           1
+ readin nout=           1
+  nbmx ebmx from GWinput=       999 0.999000D+03
+ x0kf_v4hz: k rk=   1    0.0000    0.0000    0.0000 CPU=     152.3300 secs    2.5 mins
+ nkRange  nkqRange=     1     9      10   135
+ 
+ x0kf_v4hz: k rk=   2    0.5000    0.5000   -0.5000 CPU=     156.2300 secs    2.6 mins
+ nkRange  nkqRange=     1     9      10   128
+ 
+ x0kf_v4hz: k rk=   3    0.5000   -0.5000    0.5000 CPU=     159.5200 secs    2.7 mins
+ nkRange  nkqRange=     1     9      10   128
+ 
+ x0kf_v4hz: k rk=   4    1.0000    0.0000    0.0000 CPU=     163.1000 secs    2.7 mins
+ nkRange  nkqRange=     1     9      10   127
+ 
+ x0kf_v4hz: k rk=   5   -0.5000    0.5000    0.5000 CPU=     166.6000 secs    2.8 mins
+ x0kf_v4hz: k rk=   8    0.5000    0.5000    0.5000
+ nkRange  nkqRange=     1     9      10   128
+ 
+  x0kf_v4hz: end
+goto dpsion5: 
+
+nwhis nw_i niw nw_w nmbas_in=   75    0   21    6    1
+ sumchk rcxq goto dpsion5=   40.5262745179980     
+ dpsion5: start...     nw_w nwhis=   21   75
+ CPU=     180.6700 secs    3.0 mins
+  --- realomega --- 
+  --- realomega dgemm--- 
+         end dpsion5  CPU=     181.9800 secs    3.0 mins
+  --- end of dpsion5 ----
+  trace check for W-V
+freq_r iq iw realomg trwv=    0.0000    5    0 -0.20153292378194D+03  0.39319327569352D-13 -0.92777798721458D+05 -0.23454439767602D-10
+freq_r iq iw realomg trwv=    0.0056    5    1 -0.20155776322281D+03  0.47376288668694D-13 -0.92788841348574D+05  0.40665024359870D-10
+freq_r iq iw realomg trwv=    0.0181    5    2 -0.20179517078797D+03  0.42835286527636D-13 -0.92894252873192D+05  0.12720096840978D-10
+freq_r iq iw realomg trwv=    0.0331    5    3 -0.20246151870391D+03 -0.98843943869599D-14 -0.93188590652392D+05 -0.24008580410563D-10
+freq_r iq iw realomg trwv=    0.0506    5    4 -0.20406692709697D+03 -0.64428842537928D-01 -0.93887748294286D+05 -0.26672212421065D+02
+freq_r iq iw realomg trwv=    0.0706    5    5 -0.20632225684223D+03 -0.14412761753487D+01 -0.94880578268416D+05 -0.58766440778148D+03
+freq_r iq iw realomg trwv=    0.0931    5    6 -0.20859230127820D+03 -0.41772093338762D+01 -0.95933897114072D+05 -0.16900529209105D+04
+freq_r iq iw realomg trwv=    0.1181    5    7 -0.21087354436159D+03 -0.81127011213475D+01 -0.97029532053616D+05 -0.33832549482844D+04
+freq_r iq iw realomg trwv=    0.1456    5    8 -0.21019861454707D+03 -0.11555489989383D+02 -0.96889488681376D+05 -0.48528911225577D+04
+freq_r iq iw realomg trwv=    0.1756    5    9 -0.20766065620291D+03 -0.93788320232925D+01 -0.96219755647651D+05 -0.39544810417967D+04
+freq_r iq iw realomg trwv=    0.2081    5   10 -0.21673325107345D+03 -0.11629396216575D+02 -0.10038803442890D+06 -0.48380611104340D+04
+freq_r iq iw realomg trwv=    0.2431    5   11 -0.22847270593446D+03 -0.88905648235484D+01 -0.10666915869086D+06 -0.37241312444895D+04
+freq_r iq iw realomg trwv=    0.2806    5   12 -0.22869367438471D+03 -0.28561200664985D+02 -0.10596898912328D+06 -0.13629823791151D+05
+freq_r iq iw realomg trwv=    0.3206    5   13 -0.23147670211086D+03 -0.30435285787286D+02 -0.10700807082683D+06 -0.14087137545193D+05
+freq_r iq iw realomg trwv=    0.3631    5   14 -0.24586730850089D+03 -0.33229620785985D+02 -0.11410174550553D+06 -0.14601056635244D+05
+freq_r iq iw realomg trwv=    0.4081    5   15 -0.26526219512689D+03 -0.45644160156890D+02 -0.12438513606133D+06 -0.20884021274891D+05
+freq_r iq iw realomg trwv=    0.4556    5   16 -0.26532006183106D+03 -0.71934416496182D+02 -0.12404221431724D+06 -0.33201274790542D+05
+freq_r iq iw realomg trwv=    0.5056    5   17 -0.26832693761913D+03 -0.79874487480231D+02 -0.12527519963964D+06 -0.35541543283462D+05
+freq_r iq iw realomg trwv=    0.5581    5   18 -0.30506671857168D+03 -0.83545469789735D+02 -0.14712618943170D+06 -0.36522139476834D+05
+freq_r iq iw realomg trwv=    0.6131    5   19 -0.34654493019623D+03 -0.12565188587571D+03 -0.16938335467938D+06 -0.59145045334604D+05
+freq_r iq iw realomg trwv=    0.6706    5   20 -0.40077281381515D+03 -0.17634674093956D+03 -0.20057578830032D+06 -0.89766034132781D+05
+freq_r iq iw realomg trwv=    0.7306    5   21 -0.46618971751044D+03 -0.35448119062474D+03 -0.22245981396480D+06 -0.18535603140035D+06
+  goto imag omega
+freq_i iq iw imgomg  trwv=   28.6163    5    1 -0.26509375980116D+00 -0.27638776751033D-14 -0.10121921353052D+03  0.24510317948244D-12
+freq_i iq iw imgomg  trwv=    4.9034    5    2 -0.79186999880703D+01  0.19943647570927D-13 -0.31346124478725D+04  0.10201756452294D-10
+freq_i iq iw imgomg  trwv=    1.6268    5    3 -0.45662062815364D+02  0.76822248694573D-13 -0.19611301582840D+05 -0.64737252928559D-10
+freq_i iq iw imgomg  trwv=    0.6147    5    4 -0.12303955596795D+03 -0.29182248925774D-12 -0.55792860183221D+05  0.88468429981741D-10
+freq_i iq iw imgomg  trwv=    0.2039    5    5 -0.18306348065517D+03  0.90345654429125D-13 -0.84257328577992D+05  0.43523240336070D-10
+freq_i iq iw imgomg  trwv=    0.0349    5    6 -0.20062794479675D+03 -0.43352437790068D-13 -0.92373904576107D+05 -0.31076482705664D-10
+ CPU=     204.9100 secs    3.4 mins

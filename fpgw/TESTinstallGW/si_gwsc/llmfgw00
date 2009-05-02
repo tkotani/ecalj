@@ -1,0 +1,527 @@
+ -----------------------  START LMFGWD (80000K)  -----------------------
+ DEFPQ, z=14: P=  3.50  3.50  3.50  4.20  5.20
+        z=14: Q=  2.00  2.00  0.00  0.00  0.00
+
+ rdctrl: reset global max nl from 3 to 5
+
+ LMFGWD:   alat = 10.26  nbas = 2  nspec = 1  vn 7.00(LMFGWD 7.0)  verb 55
+ special:  forces
+ pot:      XC:BH, read Sigma
+ bz:       nonmetal, invit 
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol= 270.011394
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat=10.26000   awald= 0.309
+         r1=  1.853   nkd=  87      q1=  5.558   nkg= 169
+
+ SGROUP: 1 symmetry operations from 0 generators
+ ADDBAS: basis is already complete --- no sites added
+ SYMLAT: Bravais system is cubic with 48 symmetry operations.
+ SYMCRY: crystal invariant under 48 symmetry operations for tol=1e-5
+ GROUPG: the following are sufficient to generate the space group:
+         i*r3(1,1,-1):(1/4,1/4,1/4) r4x:(1/4,1/4,1/4)
+         i*r3(1,1,-1)::(1/4,1/4,1/4) r4x::(1/4,1/4,1/4)
+ MKSYM:  found 48 space group operations
+         no attempt to add inversion symmetry
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ C1       2.212  0.885    4    3         4  0.553  1.106    15    1   0.885
+
+ lmfp : shortening basis vectors ... 
+ lmfp : potential setup ... 
+
+ supot : potential setup ... 
+
+ GVCTOF: mesh has  16 * 16 * 16 divisions  (length = 0.453 * 0.453 * 0.453)
+ Reciprocal lattice: use sphere of radius 6.928, keeping 1459 vectors of 4096
+
+ gvlist: cutoff radius   6.928 gives   1459   recips of max   4096
+ SGVSYM: 59 symmetry stars found for 1459 reciprocal lattice vectors
+ lmfp : basis setup ... 
+
+ Makidx:  basis arranged in downfolding order:
+  ib     low      intermed       high        .. offH ..
+   1   spd (9)        (0)       fg (16)      0    0    0
+  k2    sp (4)        (0)      dfg (21)      9    0   16
+   2   spd (9)        (0)       fg (16)     13    0   37
+  k2    sp (4)        (0)      dfg (21)     22    0   53
+
+ Makidx:  hamiltonian dimensions Low, Int, High, Negl: 26 0 74 0
+ kappa   Low   Int   High  L+I  L+I+H  Neglected
+   1      18     0    32    18    50       0
+   2       8     0    42     8    50       0
+  all     26     0    74    26   100       0
+
+ Orbital positions in hamiltonian, resolved by l:
+ Site  Spec  Total    By l ...
+   1   C1    1:13   1:1(s)   2:4(p)   5:9(d)   10:10(s) 11:13(p)                                                        
+   2   C1   14:26   14:14(s) 15:17(p) 18:22(d) 23:23(s) 24:26(p)                                                        
+ suham :  50 augmentation channels, 50 local potential channels  Maximum lmxa=4
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-08
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       0*   1.40  -0.20   6.131    1.05E-08    1067 
+  C1       1*   1.40  -0.20   6.434    1.53E-08    1243 
+  C1       2    1.40  -0.20   6.736    1.19E-08    1411 
+  C1       0*   1.40  -1.20   6.131    1.05E-08    1067 
+  C1       1    1.40  -1.20   6.434    1.53E-08    1243 
+
+ iors  : read restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Thu Apr 30 22:17:44 2009
+         use from  restart file: ef window, positions, pnu 
+         ignore in restart file: *
+   atom   1    species   1:C1      
+   atom   2    species   1:C1      
+
+ Basis, after reading restart file
+ site spec        pos (Cartesian coordinates)         pos (multiples of plat)
+   1  C1        0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
+   2  C1        0.250000   0.250000   0.250000    0.250000   0.250000   0.250000
+
+ --- BNDFP:  begin iteration 1 of 1 ---
+
+ Make potential without XC part ...
+
+ rhomom:   ib   ilm      qmom        Qval       Qc        Z
+            1     1   -0.132558   -0.469904    10.00    14.00
+            1    11    0.014952
+            1    21   -0.006158
+            1    25   -0.005204
+            2     1   -0.132558   -0.469904    10.00    14.00
+            2    11   -0.014952
+            2    21   -0.006158
+            2    25   -0.005204
+
+ vesgcm: smooth density G=0 term =  -0.033109   0.000000   Q =    -8.939809
+
+ after vesgcomp: forces are:
+   1    0.000000    0.000000    0.000000
+   2    0.000000    0.000000    0.000000
+ Symmetry class  1   nrclas=  2   nlml= 25
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1    0.769671    0.217120
+              11   -0.129083
+              21    0.076829
+              25    0.064932
+
+ avg es pot at rmt= 0.217120  avg sphere pot= 0.135460  vconst=-0.217120
+ average electrostatic potential at MT boundaries after shift
+ Site    ves       Site    ves
+   1  0.000000  |    2  0.000000  |
+
+ mshint: real part: min,max  0.003107  0.093113    integral    8.939809
+         imag part: min,max  0.000000  0.000000    integral    0.000000
+
+ meshdot: integral   -6.355330    0.000000
+
+ after ugcomp: forces are
+   1    0.000000    0.000000    0.000000
+   2    0.000000    0.000000    0.000000
+ u00,u0g,ugg=      3.742496    -10.097826     75.679890
+
+ smooth rhoves     29.613367   charge     8.939809
+
+ locpot:
+
+ site  1  z= 14.0  rmt= 2.21177  nr=557   a=0.015  nlml=25  rg=0.553  Vfloat=T
+ sm core charge = 0.080683 (sphere) + 0.001227 (spillout) = 0.081911
+ mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 557
+ vxcnsp: loc rmu= -51.343814  rep= -38.872468  q =  12.371759
+ rho*vtot   472.967285 ... by l:   472.994521  0.000000  0.000000 -0.024781 -0.002455
+ exchange for smooth density, foca=1:
+ mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 557
+ vxcnsp: loc rmu=  -2.709659  rep=  -2.081219  q =   2.923574
+ rho*vtot    -7.555756 ... by l:    -7.529724  0.000000  0.000000 -0.023659 -0.002373
+
+ ilm         rho*vtrue       rho*vsm
+   1        -11.469385      -7.117448
+  11         -0.024781      -0.023659
+  21         -0.001435      -0.001387
+  25         -0.001020      -0.000986
+
+ local terms:     true           smooth         local
+ rhoeps:       -38.872468      -2.081219     -36.791249
+ rhomu:        -51.343814      -2.709659     -48.634155
+ val*vef       -11.496622      -3.621958      -7.874663
+ val chg:        2.372986       2.842890      -0.469904
+ core chg:       9.998773       9.998773       0.000000
+ potential shift to crystal energy zero:    0.002342
+
+ potpus : pnu = 3.779520 3.561565 3.196000 4.116201 5.092351
+ l        enu         v           c          srdel        qpar        ppar
+ 0     -0.479116   -1.130004   -0.571219    0.481987      2.4054    5.464004
+ 1     -0.274225   -1.234248    0.631763    0.441072      9.5918    6.703596
+ 2     -0.584950   -1.290454    2.342911    0.447672     18.1293    9.323147
+ 3     -0.459379   -1.116107    6.028240    0.540509     24.4531   19.267304
+ 4      0.325447   -1.041406   10.000418    0.581618     32.6387   27.626984
+
+ l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
+ 0      2.211767    1.000000    -2.665366   10.912645    0.443021   -0.166243
+ 1      2.211767    1.000000    -0.433199   13.295916    0.541330   -0.134555
+ 2      2.211767    1.000000     3.126111   18.027217    0.704570   -0.095247
+ 3      2.211767    1.000000     5.787165   27.371096    0.862470   -0.053716
+ 4      2.211767    1.000000     7.408236   33.323736    0.947187   -0.040735
+
+ site  2  z= 14.0  rmt= 2.21177  nr=557   a=0.015  nlml=25  rg=0.553  Vfloat=T
+ sm core charge = 0.080683 (sphere) + 0.001227 (spillout) = 0.081911
+ mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 557
+ vxcnsp: loc rmu= -51.343814  rep= -38.872468  q =  12.371759
+ rho*vtot   472.967285 ... by l:   472.994521  0.000000  0.000000 -0.024781 -0.002455
+ exchange for smooth density, foca=1:
+ mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 557
+ vxcnsp: loc rmu=  -2.709659  rep=  -2.081219  q =   2.923574
+ rho*vtot    -7.555756 ... by l:    -7.529724  0.000000  0.000000 -0.023659 -0.002373
+
+ ilm         rho*vtrue       rho*vsm
+   1        -11.469385      -7.117448
+  11         -0.024781      -0.023659
+  21         -0.001435      -0.001387
+  25         -0.001020      -0.000986
+
+ local terms:     true           smooth         local
+ rhoeps:       -38.872468      -2.081219     -36.791249
+ rhomu:        -51.343814      -2.709659     -48.634155
+ val*vef       -11.496622      -3.621958      -7.874663
+ val chg:        2.372986       2.842890      -0.469904
+ core chg:       9.998773       9.998773       0.000000
+ potential shift to crystal energy zero:    0.002342
+
+ potpus : pnu = 3.779520 3.561565 3.196000 4.116201 5.092351
+ l        enu         v           c          srdel        qpar        ppar
+ 0     -0.479116   -1.130004   -0.571219    0.481987      2.4054    5.464004
+ 1     -0.274225   -1.234248    0.631763    0.441072      9.5918    6.703596
+ 2     -0.584950   -1.290454    2.342911    0.447672     18.1293    9.323147
+ 3     -0.459379   -1.116107    6.028240    0.540509     24.4531   19.267304
+ 4      0.325447   -1.041406   10.000418    0.581618     32.6387   27.626984
+
+ l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
+ 0      2.211767    1.000000    -2.665366   10.912645    0.443021   -0.166243
+ 1      2.211767    1.000000    -0.433199   13.295916    0.541330   -0.134555
+ 2      2.211767    1.000000     3.126111   18.027217    0.704570   -0.095247
+ 3      2.211767    1.000000     5.787165   27.371096    0.862470   -0.053716
+ 4      2.211767    1.000000     7.408236   33.323736    0.947187   -0.040735
+
+ Electric Field Gradient:
+ Site      Tensor axes     esu/cm^2    V/m^2      eta    line splitting
+                            x10^13     x10^19                (mm/s)
+   1    0.292-0.936 0.198      0.00      0.00      0.000      0.00000
+        0.771 0.109-0.627      0.00      0.00
+        0.565 0.336 0.754      0.00      0.00
+
+   2    0.292-0.936 0.198      0.00      0.00      0.000      0.00000
+        0.771 0.109-0.627      0.00      0.00
+        0.565 0.336 0.754      0.00      0.00
+
+
+ Energy terms:             smooth           local           total
+   rhoval*vef             -8.296342        -8.708465       -17.004807
+   rhoval*ves             -1.255481       -15.646159       -16.901640
+   psnuc*ves              60.482215     -4514.941723     -4454.459508
+   utot                   29.613367     -2265.293941     -2235.680574
+   rho*exc                 0.000000       -73.582498       -73.582498
+   rho*vxc                 0.000000       -97.268310       -97.268310
+   valence chg             8.939809        -0.939809         8.000000
+   core charge            20.000000         0.000000        20.000000
+
+ Charges:  valence     8.00000   cores    20.00000   nucleii   -28.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ rhomom:   ib   ilm      qmom        Qval       Qc        Z
+            1     1   -0.132558   -0.469904    10.00    14.00
+            1    11    0.014952
+            1    21   -0.006158
+            1    25   -0.005204
+            2     1   -0.132558   -0.469904    10.00    14.00
+            2    11   -0.014952
+            2    21   -0.006158
+            2    25   -0.005204
+
+ vesgcm: smooth density G=0 term =  -0.033109   0.000000   Q =    -8.939809
+
+ after vesgcomp: forces are:
+   1    0.000000    0.000000    0.000000
+   2    0.000000    0.000000    0.000000
+ Symmetry class  1   nrclas=  2   nlml= 25
+
+ site class  ilm      vval      ves(rmax)
+   1     1     1    0.769671    0.217120
+              11   -0.129083
+              21    0.076829
+              25    0.064932
+
+ avg es pot at rmt= 0.217120  avg sphere pot= 0.135460  vconst=-0.217120
+ average electrostatic potential at MT boundaries after shift
+ Site    ves       Site    ves
+   1  0.000000  |    2  0.000000  |
+
+ mshint: real part: min,max  0.003107  0.093113    integral    8.939809
+         imag part: min,max  0.000000  0.000000    integral    0.000000
+
+ meshdot: integral   -6.355330    0.000000
+
+ after ugcomp: forces are
+   1    0.000000    0.000000    0.000000
+   2    0.000000    0.000000    0.000000
+ u00,u0g,ugg=      3.742496    -10.097826     75.679890
+
+ smooth rhoves     29.613367   charge     8.939809
+
+ mshint: real part: min,max  0.003108  0.109374    integral    9.103630
+         imag part: min,max  0.000000  0.000000    integral    0.000000
+ smooth rhoeps =   -5.860372   rhomu =   -7.624266  avg vxc =   -0.695462 
+
+ meshdot: integral   -7.462216    0.000000
+
+ meshdot: integral   -5.735981    0.000000
+
+ xc-force from foca:
+   1    0.000000    0.000000    0.000000
+   2    0.000000    0.000000    0.000000
+
+ locpot:
+
+ site  1  z= 14.0  rmt= 2.21177  nr=557   a=0.015  nlml=25  rg=0.553  Vfloat=T
+ writing sphere density to file rhoMT.1 ...
+ sm core charge = 0.080683 (sphere) + 0.001227 (spillout) = 0.081911
+ mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 557
+ vxcnsp: loc rmu= -51.343814  rep= -38.872468  q =  12.371759
+ rho*vtot   472.967285 ... by l:   472.994521  0.000000  0.000000 -0.024781 -0.002455
+ exchange for smooth density, foca=1:
+ mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 557
+ vxcnsp: loc rmu=  -2.709659  rep=  -2.081219  q =   2.923574
+ rho*vtot    -7.555756 ... by l:    -7.529724  0.000000  0.000000 -0.023659 -0.002373
+
+ ilm         rho*vtrue       rho*vsm
+   1        -11.469385      -7.117448
+  11         -0.024781      -0.023659
+  21         -0.001435      -0.001387
+  25         -0.001020      -0.000986
+
+ local terms:     true           smooth         local
+ rhoeps:       -38.872468      -2.081219     -36.791249
+ rhomu:        -51.343814      -2.709659     -48.634155
+ val*vef       -11.496622      -3.621958      -7.874663
+ val chg:        2.372986       2.842890      -0.469904
+ core chg:       9.998773       9.998773       0.000000
+ potential shift to crystal energy zero:    0.002342
+
+ potpus : pnu = 3.779520 3.561565 3.196000 4.116201 5.092351
+ l        enu         v           c          srdel        qpar        ppar
+ 0     -0.479116   -1.130004   -0.571219    0.481987      2.4054    5.464004
+ 1     -0.274225   -1.234248    0.631763    0.441072      9.5918    6.703596
+ 2     -0.584950   -1.290454    2.342911    0.447672     18.1293    9.323147
+ 3     -0.459379   -1.116107    6.028240    0.540509     24.4531   19.267304
+ 4      0.325447   -1.041406   10.000418    0.581618     32.6387   27.626984
+
+ l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
+ 0      2.211767    1.000000    -2.665366   10.912645    0.443021   -0.166243
+ 1      2.211767    1.000000    -0.433199   13.295916    0.541330   -0.134555
+ 2      2.211767    1.000000     3.126111   18.027217    0.704570   -0.095247
+ 3      2.211767    1.000000     5.787165   27.371096    0.862470   -0.053716
+ 4      2.211767    1.000000     7.408236   33.323736    0.947187   -0.040735
+
+ site  2  z= 14.0  rmt= 2.21177  nr=557   a=0.015  nlml=25  rg=0.553  Vfloat=T
+ writing sphere density to file rhoMT.2 ...
+ sm core charge = 0.080683 (sphere) + 0.001227 (spillout) = 0.081911
+ mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 557
+ vxcnsp: loc rmu= -51.343814  rep= -38.872468  q =  12.371759
+ rho*vtot   472.967285 ... by l:   472.994521  0.000000  0.000000 -0.024781 -0.002455
+ exchange for smooth density, foca=1:
+ mesh:   nth,nph= -62   0   gives  62  angular points,   nrad= 557
+ vxcnsp: loc rmu=  -2.709659  rep=  -2.081219  q =   2.923574
+ rho*vtot    -7.555756 ... by l:    -7.529724  0.000000  0.000000 -0.023659 -0.002373
+
+ ilm         rho*vtrue       rho*vsm
+   1        -11.469385      -7.117448
+  11         -0.024781      -0.023659
+  21         -0.001435      -0.001387
+  25         -0.001020      -0.000986
+
+ local terms:     true           smooth         local
+ rhoeps:       -38.872468      -2.081219     -36.791249
+ rhomu:        -51.343814      -2.709659     -48.634155
+ val*vef       -11.496622      -3.621958      -7.874663
+ val chg:        2.372986       2.842890      -0.469904
+ core chg:       9.998773       9.998773       0.000000
+ potential shift to crystal energy zero:    0.002342
+
+ potpus : pnu = 3.779520 3.561565 3.196000 4.116201 5.092351
+ l        enu         v           c          srdel        qpar        ppar
+ 0     -0.479116   -1.130004   -0.571219    0.481987      2.4054    5.464004
+ 1     -0.274225   -1.234248    0.631763    0.441072      9.5918    6.703596
+ 2     -0.584950   -1.290454    2.342911    0.447672     18.1293    9.323147
+ 3     -0.459379   -1.116107    6.028240    0.540509     24.4531   19.267304
+ 4      0.325447   -1.041406   10.000418    0.581618     32.6387   27.626984
+
+ l,E        a      <phi phi>       a*D        a*Ddot      phi(a)      phip(a)
+ 0      2.211767    1.000000    -2.665366   10.912645    0.443021   -0.166243
+ 1      2.211767    1.000000    -0.433199   13.295916    0.541330   -0.134555
+ 2      2.211767    1.000000     3.126111   18.027217    0.704570   -0.095247
+ 3      2.211767    1.000000     5.787165   27.371096    0.862470   -0.053716
+ 4      2.211767    1.000000     7.408236   33.323736    0.947187   -0.040735
+
+ Electric Field Gradient:
+ Site      Tensor axes     esu/cm^2    V/m^2      eta    line splitting
+                            x10^13     x10^19                (mm/s)
+   1    0.292-0.936 0.198      0.00      0.00      0.000      0.00000
+        0.771 0.109-0.627      0.00      0.00
+        0.565 0.336 0.754      0.00      0.00
+
+   2    0.292-0.936 0.198      0.00      0.00      0.000      0.00000
+        0.771 0.109-0.627      0.00      0.00
+        0.565 0.336 0.754      0.00      0.00
+
+
+ Energy terms:             smooth           local           total
+   rhoval*vef            -15.758558        -8.708465       -24.467023
+   rhoval*ves             -1.255481       -15.646159       -16.901640
+   psnuc*ves              60.482215     -4514.941723     -4454.459508
+   utot                   29.613367     -2265.293941     -2235.680574
+   rho*exc                -5.860372       -73.582498       -79.442870
+   rho*vxc                -7.624266       -97.268310      -104.892576
+   valence chg             8.939809        -0.939809         8.000000
+   core charge            20.000000         0.000000        20.000000
+
+ Charges:  valence     8.00000   cores    20.00000   nucleii   -28.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1.5
+         For high states Sigii = 0.100 + 0.070 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1.5 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:4205 neighbors in range  5.000
+ pairc, ib=  2:4205 neighbors in range  5.000
+ pairc:   8410 pairs total 4205 is max cluster size
+ hft2rs: found 32 connecting vectors out of 32 possible for FFT
+ symiax: enlarged neighbor table from 32 to 70 pairs (48 symops)
+
+  ib  jb         --- r(jb)-r(ib) ---          d       -x-plat-  map ord  id
+ pairc, ib=  1:  35 neighbors in range  5.000
+   1   1   0.000000   0.000000   0.000000   0.0000     0  0  0    1  35  18
+   1   2   0.250000   0.250000   0.250000   0.4330     0  0  0   37  20  27
+   1   2   0.250000  -0.250000  -0.250000   0.4330    -1  0  0   39  23  24
+   1   2  -0.250000  -0.250000   0.250000   0.4330     0  0 -1   40   7  10
+   1   2  -0.250000   0.250000  -0.250000   0.4330     0 -1  0   38  11  11
+   1   1   0.000000   0.500000  -0.500000   0.7071     0 -1  1   12  14  20
+   1   1  -0.500000  -0.500000   0.000000   0.7071     0  0 -1   13  15   4
+   1   1   0.500000   0.000000  -0.500000   0.7071    -1  0  1   14  19  33
+   1   1   0.500000  -0.500000   0.000000   0.7071    -1  1  0   15  21  32
+   1   1   0.000000  -0.500000  -0.500000   0.7071    -1  0  0   16   4  15
+   1   1  -0.500000   0.000000  -0.500000   0.7071     0 -1  0   17   5   5
+   1   1   0.000000  -0.500000   0.500000   0.7071     0  1 -1    6  24  16
+   1   1   0.500000   0.500000   0.000000   0.7071     0  0  1    7  25  35
+   1   1  -0.500000   0.000000   0.500000   0.7071     1  0 -1    8  33   6
+   1   1  -0.500000   0.500000   0.000000   0.7071     1 -1  0    9  10   7
+   1   1   0.000000   0.500000   0.500000   0.7071     1  0  0   10  12  21
+   1   1   0.500000   0.000000   0.500000   0.7071     0  1  0   11  30  34
+   1   2   0.250000   0.250000  -0.750000   0.8292    -1 -1  1   56   1  26
+   1   2  -0.250000  -0.750000  -0.250000   0.8292    -1  0 -1   53  31   8
+   1   2  -0.750000  -0.250000  -0.250000   0.8292     0 -1 -1   54   6   2
+   1   2  -0.250000  -0.250000  -0.750000   0.8292    -1 -1  0   55  16   9
+   1   2   0.250000   0.750000  -0.250000   0.8292     0 -1  1   60  32  29
+   1   2  -0.750000   0.250000   0.250000   0.8292     1 -1 -1   57  28   3
+   1   2  -0.250000   0.250000   0.750000   0.8292     1  0 -1   58   3  12
+   1   2  -0.250000   0.750000   0.250000   0.8292     1 -1  0   59  27  13
+   1   2   0.750000   0.250000  -0.250000   0.8292    -1  0  1   64  18  39
+   1   2   0.250000  -0.250000   0.750000   0.8292     0  1 -1   61   2  25
+   1   2   0.250000  -0.750000   0.250000   0.8292    -1  1 -1   62  22  23
+   1   2   0.750000  -0.250000   0.250000   0.8292    -1  1  0   63   9  38
+   1   1   0.000000   0.000000  -1.000000   1.0000    -1 -1  1   31   8  17
+   1   1   0.000000   0.000000   1.000000   1.0000     1  1 -1   30  17  19
+   1   1   0.000000   1.000000   0.000000   1.0000     1 -1  1   33  13  22
+   1   1   0.000000  -1.000000   0.000000   1.0000    -1  1 -1   32  29  14
+   1   1   1.000000   0.000000   0.000000   1.0000    -1  1  1   35  26  42
+   1   1  -1.000000   0.000000   0.000000   1.0000     1 -1 -1   34  34   1
+ pairc, ib=  2:  35 neighbors in range  5.000
+   2   2   0.000000   0.000000   0.000000   0.0000     0  0  0   36  35  27
+   2   1  -0.250000  -0.250000  -0.250000   0.4330     0  0  0    2  29  18
+   2   1   0.250000  -0.250000   0.250000   0.4330     0  1  0    5  28  34
+   2   1  -0.250000   0.250000   0.250000   0.4330     1  0  0    3  11  21
+   2   1   0.250000   0.250000  -0.250000   0.4330     0  0  1    4   9  35
+   2   2   0.500000   0.000000  -0.500000   0.7071    -1  0  1   47  12  39
+   2   2   0.000000   0.500000  -0.500000   0.7071     0 -1  1   48  16  29
+   2   2   0.000000  -0.500000  -0.500000   0.7071    -1  0  0   49  25  24
+   2   2  -0.500000   0.000000  -0.500000   0.7071     0 -1  0   50   2  11
+   2   2   0.500000  -0.500000   0.000000   0.7071    -1  1  0   51  21  38
+   2   2  -0.500000  -0.500000   0.000000   0.7071     0  0 -1   52  26  10
+   2   2  -0.500000   0.000000   0.500000   0.7071     1  0 -1   41   4  12
+   2   2   0.000000  -0.500000   0.500000   0.7071     0  1 -1   42  27  25
+   2   2   0.000000   0.500000   0.500000   0.7071     1  0  0   43  33  30
+   2   2   0.500000   0.000000   0.500000   0.7071     0  1  0   44   8  40
+   2   2  -0.500000   0.500000   0.000000   0.7071     1 -1  0   45  13  13
+   2   2   0.500000   0.500000   0.000000   0.7071     0  0  1   46  30  41
+   2   1   0.250000   0.750000   0.250000   0.8292     1  0  1   19   1  37
+   2   1   0.750000   0.250000   0.250000   0.8292     0  1  1   20  31  43
+   2   1   0.250000   0.250000   0.750000   0.8292     1  1  0   21   7  36
+   2   1  -0.250000  -0.250000   0.750000   0.8292     1  1 -1   18  14  19
+   2   1   0.750000  -0.250000  -0.250000   0.8292    -1  1  1   23  32  42
+   2   1   0.250000  -0.250000  -0.750000   0.8292    -1  0  1   24  24  33
+   2   1   0.250000  -0.750000  -0.250000   0.8292    -1  1  0   25  23  32
+   2   1  -0.250000  -0.750000   0.250000   0.8292     0  1 -1   22   3  16
+   2   1  -0.250000   0.250000  -0.750000   0.8292     0 -1  1   27   5  20
+   2   1  -0.250000   0.750000  -0.250000   0.8292     1 -1  1   28  20  22
+   2   1  -0.750000   0.250000  -0.250000   0.8292     1 -1  0   29  18   7
+   2   1  -0.750000  -0.250000   0.250000   0.8292     1  0 -1   26  10   6
+   2   2   0.000000   0.000000  -1.000000   1.0000    -1 -1  1   66   6  26
+   2   2   0.000000   0.000000   1.000000   1.0000     1  1 -1   65  15  28
+   2   2   0.000000   1.000000   0.000000   1.0000     1 -1  1   68  17  31
+   2   2   0.000000  -1.000000   0.000000   1.0000    -1  1 -1   67  22  23
+   2   2   1.000000   0.000000   0.000000   1.0000    -1  1  1   70  19  44
+   2   2  -1.000000   0.000000   0.000000   1.0000     1 -1 -1   69  34   3
+ pairc:     70 pairs total   35 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+              Qx          Qy          Qz      Multiplicity    Weight
+    1      0.000000    0.000000    0.000000         1        0.250000
+    2     -0.500000    0.500000    0.500000         1        0.250000
+    3      0.500000   -0.500000    0.500000         1        0.250000
+    4      0.000000    0.000000    1.000000         1        0.250000
+    5      0.500000    0.500000   -0.500000         1        0.250000
+    6      0.000000    1.000000    0.000000         1        0.250000
+    7      1.000000    0.000000    0.000000         1        0.250000
+    8      0.500000    0.500000    0.500000         1        0.250000
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+              Qx          Qy          Qz      Multiplicity    Weight
+    1      0.000000    0.000000    0.000000         1        0.250000
+    2     -0.500000    0.500000    0.500000         4        1.000000
+    3      0.000000    0.000000    1.000000         3        0.750000
+ 
+ hft2rs created hrs:  ndhrs=13  max Re(hrs) = 0.0242  max Im(hrs) = 3.08e-4
+ comparing s(iq) to interpolated sq for iq=   1  errmx= 6.9E-18 at i,j=   9   9
+ comparing s(iq) to interpolated sq for iq=   2  errmx= 3.5E-18 at i,j=   9   9
+ comparing s(iq) to interpolated sq for iq=   3  errmx= 3.8E-18 at i,j=  18   7
+ check FT s(R) against s(q) ... maximum error = 6.9e-18 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..70) using 48 group operations
+ symstr: max asymmetry = 2.13e-12
+ comparing s(iq) to interpolated sq for iq=   1  errmx= 1.0E-07 at i,j=  17   6
+ comparing s(iq) to interpolated sq for iq=   2  errmx= 1.0E-07 at i,j=   9   7
+ comparing s(iq) to interpolated sq for iq=   3  errmx= 9.8E-08 at i,j=  22  20
+ check FT s(R) against s(q) ... maximum error = 1e-7
+ subzi : nonmetal
+
+  lmfgw: input one of the following jobs:
+   -1 : creates files GWinput, QIBZ, KPTin1BZ
+    0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima
+    1 : GW setup mode
+    4 : band mode 
+    5 : eigenvalue-only mode 
+  job?
+
+ gw setup, job 0
+
+ Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima
+
+ OK! lmfgw mode=0 generated LATTC SYMOPS CLASS NLAindx ldima

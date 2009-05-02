@@ -1,0 +1,92 @@
+hvccfp0: VerNum= 033a4: 08Sep2008
+ mode(now only =0)? +(pararell iqxini iqxend ?)
+  voltot=   270.011394000000     
+ 
+   1     0.000000     0.000000     0.000000
+   2    -0.500000     0.500000     0.500000
+   3     0.000000     0.000000     1.000000
+ scg_sizechk=        22661        3322
+
+ lattc:  as= 2.000   tol=1.00E-09   lmax=16   awald= 0.3094   v0=     0.250
+ alat1= 10.26000   estimates:   nkd   220   nkr   387
+  r0=   1.9188   rc=  19.6867   radd=   0.4410   nkd=    225
+  q0=   6.0658   qc=   3.7147   qadd=   1.1112   nkr=    387
+ Coulomb is exp(eee*r)/r. eee= 0.000000D+00
+  init_readqg ifi=           2
+ --- readin Q0P -------
+  0.10000D+01    -0.15244D+00  0.15244D+00  0.15244D+00
+  *** goto do iq nqibz nq0i=           3           1
+ Mix0vec.XXX is not empty only when the corresponding q is in Q0P with zero weight.
+  smooth mixed basis= F
+ 
+###  iqx q ngc =    1    0.0001    0.0000    0.0000   65 #############
+ 
+###  iqx q ngc =    2   -0.5000    0.5000    0.5000   70 #############
+ vcoulq_4: nblochpmx  nbloch ngc=   218   144    70
+ Diagonal Vcoul =    1  0.1663360275D+02  0.5791705157D-40
+ Diagonal Vcoul =   21  0.2550704616D+00  0.1562004140D-35
+ Diagonal Vcoul =   41  0.7004006734D+00  0.8981977163D-38
+ Diagonal Vcoul =   61  0.1155724842D+01  0.1735694230D-39
+ Diagonal Vcoul =   81  0.8653253859D+00 -0.1776657130D-43
+ Diagonal Vcoul =  101  0.7483358640D+00  0.2612668932D-38
+ Diagonal Vcoul =  121  0.2949707824D+00  0.1788618983D-38
+ Diagonal Vcoul =  141  0.4701550172D+00 -0.8198254753D-41
+ Diagonal Vcoul =  161  0.4706694073D+03 -0.2396520482D-14
+ Diagonal Vcoul =  181  0.4010636225D+03  0.1453828377D-13
+ Diagonal Vcoul =  201  0.9492863946D+03 -0.2023837674D-13
+ vcoul trwi=     2  0.19618612672409D+03  0.11641149421830D-39
+### sum vcoul(1:ngb,      1:ngb)   0.85468098274320D+04 -0.16419411047675D-11    0.31152632311284D+06
+### sum vcoul(1:nbloch,1:nbloch)   0.17368046170705D+03 -0.10514757473149D-29    0.50694869287654D+03
+ 
+ ngc ngb/ngbo=    70   214   214
+ 
+###  iqx q ngc =    3    0.0000    0.0000    1.0000   64 #############
+ vcoulq_4: nblochpmx  nbloch ngc=   218   144    64
+ Diagonal Vcoul =    1  0.1440419918D+02 -0.4343778868D-40
+ Diagonal Vcoul =   21  0.2584755374D+00  0.2189513248D-40
+ Diagonal Vcoul =   41  0.7004004771D+00 -0.5518513712D-41
+ Diagonal Vcoul =   61  0.1151704903D+01 -0.6974103377D-39
+ Diagonal Vcoul =   81  0.8654585807D+00  0.1332492848D-43
+ Diagonal Vcoul =  101  0.7483605980D+00  0.3659059633D-43
+ Diagonal Vcoul =  121  0.2949690860D+00 -0.1213205536D-41
+ Diagonal Vcoul =  141  0.4701611367D+00  0.6148691065D-41
+ Diagonal Vcoul =  161  0.5657466337D+03 -0.3521457290D-14
+ Diagonal Vcoul =  181  0.1103079474D+04 -0.1924185284D-14
+ Diagonal Vcoul =  201  0.6190901392D+03 -0.8985225806D-15
+ vcoul trwi=     3  0.19170509405536D+03 -0.87308620649629D-40
+### sum vcoul(1:ngb,      1:ngb)   0.10430153708183D+05 -0.20184676899522D-12    0.26952451504792D+06
+### sum vcoul(1:nbloch,1:nbloch)   0.15461817780968D+03  0.10421163905720D-29    0.38718369360815D+03
+ 
+ ngc ngb/ngbo=    64   208   208
+ 
+###  iqx q ngc =    4   -0.1524    0.1524    0.1524   65 #############
+ vcoulq_4: nblochpmx  nbloch ngc=   218   144    65
+ Diagonal Vcoul =    1  0.8477195917D+02  0.7523028568D-25
+ Diagonal Vcoul =   21  0.2547516019D+00 -0.3792037121D-25
+ Diagonal Vcoul =   41  0.7003973470D+00  0.4042764900D-22
+ Diagonal Vcoul =   61  0.1157979671D+01 -0.2957805899D-19
+ Diagonal Vcoul =   81  0.8653253859D+00 -0.2307756003D-28
+ Diagonal Vcoul =  101  0.7483379973D+00  0.1392182402D-21
+ Diagonal Vcoul =  121  0.2949740057D+00 -0.4896078767D-23
+ Diagonal Vcoul =  141  0.4701368818D+00 -0.1064897177D-25
+ Diagonal Vcoul =  161  0.5353068958D+03  0.2635085618D-14
+ Diagonal Vcoul =  181  0.3872482519D+04 -0.1628105895D-11
+ Diagonal Vcoul =  201  0.4233822282D+03  0.1228726322D-14
+ vcoul trwi=     4  0.33314212961268D+03  0.15121056268567D-24
+### sum vcoul(1:ngb,      1:ngb)   0.22016381693740D+05 -0.41901388529202D-10    0.93099585176836D+06
+### sum vcoul(1:nbloch,1:nbloch)   0.44970106510842D+03 -0.54157668440279D-13    0.99382702090614D+03
+ 
+ ngc ngb/ngbo=    65   209   209
+  --- goto eigen check1 --- 
+   1 0.4805834982075276D+03
+   2 0.1549839175069460D+02
+   3 0.1210610652678975D+02
+   4 0.1205187049685481D+02
+   5 0.1205187049685478D+02
+ 
+ eig0 must be equal to the largest =  0.4805834982075278D+03  0.2386144544188568D-13
+ zz norm check=  0.1000000000000001D+01
+ zz norm check= -0.3575686333739863D-21
+ 
+ --- vcoul(exact)=  0.129777D+06 absq2=  0.2614528817244070D-01
+ --- vcoul(cal ) =  0.129763D+06  0.644286D-11

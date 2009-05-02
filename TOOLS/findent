@@ -1,0 +1,201 @@
+#!/usr/bin/perl
+#
+# Usage: findent [-c] [-l linelength] [-n num] [file ...] > outfile
+#
+# Indent a Fortran program
+#
+# The -c option formats comments with 2 spaces after the C.
+#
+# The -n num option sets the indent increment to num rather than 2.
+#
+# The -l linelength option specifies the maximum length of your
+#	Fortran lines.  The default is 72.
+#
+# It will strip off trailing blanks.
+#
+# Version 2 - It can now deal with (most) multi-line 'if' statements.
+#
+# Bugs:
+#	It assumes you have already run your code through the
+#	   redo program or at least don't have any 'do' loops like:
+#
+#       do 210 i=1,10
+#  210      mm(i) = i
+#
+#	It checks to see if lines are too long, but complains
+#	  to STDERR instead of fixing them.
+#
+#	It doesn't like multiline 'if' tests with comments or blank
+# 	  lines interspersed.
+#
+# Written by:
+#	Kate Hedstrom
+#	kate@ahab.rutgers.edu
+# With some tips from Sverre Froyen's relabel program.
+#
+# do while patch by himanshu (hoberoi@limerick.cbs.umn.edu)
+#
+# Every do loop and if-then-else gets indented by $delta1.
+#
+$line_len = 132;
+$indent = 0;
+$section_no = 0;
+$s_pref = $section_no."_";
+
+use Getopt::Std;
+&getopts('n:l:c');
+if ($opt_l) {
+	$line_len = $opt_l;
+}
+if ($opt_n) {
+	$delta1 = $opt_n;
+} else {
+	$delta1 = 2;
+}
+#
+# first, remove all indentation
+#
+$lookahead = <>;
+statement: while ($_ = &get_line()) {
+#
+# Delete trailing spaces
+#
+	s/ *$//;
+#
+# Skip comments and blank lines
+#
+	if (/^[*c#!]|^$/i) {
+		if ($opt_c) { s/^[*c!] */!  /; }
+		print;
+		next;
+	}
+#
+# Replace tabs with spaces
+#
+	s/\t/        /g;
+#
+# Check for new section (function or subroutine)
+#
+	if (/function|subroutine/is && $` !~ /'/) {
+		++$section_no;
+		$s_pref = $section_no."_";
+	}
+#
+# Remove current indentation
+#
+	$match = /^(.{6}) */;
+	if ($match) {
+		$before = $1;
+		$after = $';
+	} else {
+		die "Illegal Fortran statement ";
+	}
+#
+# Look for if-then-else and do loops 
+#
+	$outy = 0;
+	$_ = $after;
+	if (/^ *if *\(/i) {
+		$_ = $';
+		$parexp = &find_match(1);
+		if (/^ *then|^ *\n     \S *then/is) {
+			++$indent;
+			$outy = 1;
+		}
+	}
+	elsif (/^ *else/i) {
+		$outy = 1;
+	}
+	elsif (/^ *end *if|^ *end *do/i) {
+		--$indent;
+		if ($indent < 0) { die "Too many endif/enddo's"; }
+	}
+	elsif (/^ *do *\w+ *= *[-+*\/\w() ]+ *, *[-+*\/\w() ]+/i) {
+		++$indent;
+		$outy = 1;
+#		print 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+	}
+	elsif (/^ *do *while *\(/i) {
+		++$indent;
+		$outy = 1;
+	}
+	elsif (/^ *do *([0-9]+) *\w+ *= *[-+*\/\w() ]+ *, *[-+*\/\w() ]+/i) {
+		$type{$s_pref.$1} = "enddo";
+		++$count{$s_pref.$1};
+		$outy = 1;
+		if ($count{$s_pref.$1} == 1) {
+			++$indent;
+		}
+	}
+# takao added
+	elsif (/^ *do *?( |\n)/i) {
+		++$indent;
+		$outy = 1;
+#		print 'yyyyyyyyyyyyyyyyy';
+ 	}
+	elsif (/^ *continue/i) {
+		if ($before =~ /^ *([0-9]+)/) {
+			if ($type{$s_pref.$1} eq "enddo") {
+				--$indent;
+				if ($indent < 0) {
+					die "Too many endif/enddo's";
+				}
+			}
+		}
+	}
+
+
+#
+# Put string back together
+#
+	$_ = $before.' ' x ($delta1*($indent-$outy)).$after;
+#
+# Check for falling off the edge of the world
+#
+	@lines = split(/^/);
+	foreach $line (@lines) {
+		if (length($line) > $line_len+1 &&    # +1 for '\n'
+		    !(substr($_,0,$line_len+1) =~ /!/)) {      # don't complain about long comments
+			print STDERR "Line ", $.-1, " too long. Fix it\n";
+		}
+		print $line;
+	}
+}
+#
+# end of main program
+#
+# get a line, combining continuation lines
+#
+sub get_line {
+	$thisline = $lookahead;
+	if ($lookahead) {
+		line: while ($lookahead = <>) {
+#			if ($lookahead =~ /^     \S|^$|^[\*c#!]/i) {
+			if ($lookahead =~ /^     \S/) {
+				$thisline .= $lookahead;
+			}
+			else {
+				last line;
+			}
+		}
+	}
+	$thisline;
+}
+#
+# find matching parentheses
+#
+sub find_match {
+	my $left = shift;
+	my $parexp = '';
+
+	while (/[()]/) {
+		$parexp .= $`;
+		$parexp .= $&;
+		$_ = $';
+		if ($& eq "(") { ++$left; }
+		else           { --$left; }
+		if ($left == 0) { last; }
+	}
+	if ($left != 0) { die "Illegal if statement"; }
+	$parexp;
+}

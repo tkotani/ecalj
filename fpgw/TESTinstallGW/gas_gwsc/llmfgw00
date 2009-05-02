@@ -1,0 +1,171 @@
+ -----------------------  START LMFGWD (80000K)  -----------------------
+
+ LMFGWD:   alat = 10.66  nbas = 4  nspec = 4  vn 7.00(LMFGWD 7.0)  verb 41,20
+ special:  forces
+ pot:      XC:BH, read Sigma
+ bz:       nonmetal 
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol= 302.838874
+
+ LATTC:  as= 2.000   tol=1.00E-10   alat=10.66000   awald= 0.298
+         r1=  2.009   nkd= 141      q1=  6.076   nkg= 259
+
+ SGROUP: 24 symmetry operations from 3 generators
+ ADDBAS: basis is already complete --- no sites added
+ SYMLAT: Bravais system is cubic with 48 symmetry operations.
+ SYMCRY: crystal invariant under 24 symmetry operations for tol=1e-5
+ GROUPG: 0 generator(s) were added to complete the group
+ MKSYM:  found 24 space group operations
+         no attempt to add inversion symmetry
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ C1       2.309  0.924    4    3         4  0.577  1.155    15    1   0.924
+ A1       2.309  0.924    4    3         4  0.577  1.155    15    1   0.924
+ EA1      2.309  0.924    4    3         4  0.577  1.155    15    0   0.924
+ EC1      2.309  0.924    4    3         4  0.577  1.155    15    0   0.924
+
+ gvlist: cutoff radius  10.003 gives   5029   recips of max  13824
+ SGVSYM: 297 symmetry stars found for 5029 reciprocal lattice vectors
+ 
+
+ Makidx:  hamiltonian dimensions Low, Int, High, Negl: 66 0 140 94
+ kappa   Low   Int   High  L+I  L+I+H  Neglected
+   1      50     0    50    50   100       0
+   2      10     0    90    10   100       0
+   3       6     0     0     6     6      94
+  all     66     0   140    66   206      94
+ suham :  100 augmentation channels, 100 local potential channels  Maximum lmxa=4
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       0*   1.60  -0.30   4.646    2.01E-06     531 
+  C1       1*   1.60  -0.30   4.906    1.32E-06     609 
+  C1       2*   1.60  -0.30   5.169    1.21E-06     725 
+  C1       3    1.60  -0.30   5.433    1.22E-06     869 
+  C1       0    1.30  -1.30   5.718    1.58E-06     941 
+  A1       0    1.30  -0.60   5.718    1.58E-06     941 
+  A1       1*   1.30  -0.30   6.080    1.41E-06    1139 
+  A1       2*   1.30  -0.30   6.444    1.62E-06    1363 
+  A1       3    1.30  -0.30   6.806    1.20E-06    1639 
+  A1       0    1.30  -1.30   5.718    1.58E-06     941 
+  A1       1*   1.30  -1.10   6.080    1.41E-06    1139 
+  A1       2    1.30  -1.10   6.444    1.62E-06    1363 
+  EA1      0*   1.50  -0.30   4.956    1.69E-06     609 
+  EA1      1*   1.50  -0.30   5.245    1.82E-06     725 
+  EA1      2    1.50  -0.30   5.536    1.04E-06     893 
+  EC1      0*   1.50  -0.30   4.956    1.69E-06     609 
+  EC1      1*   1.50  -0.30   5.245    1.82E-06     725 
+  EC1      2    1.50  -0.30   5.536    1.04E-06     893 
+
+ iors  : read restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Thu Apr 30 22:02:06 2009
+         use from  restart file: ef window, positions, pnu 
+         ignore in restart file: *
+   atom   1    species   1:C1      
+   atom   2    species   2:A1      
+   atom   3    species   3:EA1     
+   atom   4    species   4:EC1     
+
+ --- BNDFP:  begin iteration 1 of 1 ---
+
+ Make potential without XC part ...
+
+ avg es pot at rmt= 0.406047  avg sphere pot= 0.309464  vconst=-0.406047
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.927   -1.129084   -0.226671   0.95452  -2.12395   0.06179   -0.226671 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000284
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000100
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000234
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000068
+
+
+ avg es pot at rmt= 0.406047  avg sphere pot= 0.309464  vconst=-0.406047
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.927   -1.129085   -0.226672   0.95452  -2.12395   0.06179   -0.226672 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000284
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000100
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000234
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000068
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>2.5
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<2.5 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.231  max Im(hrs) = 3.05e-12
+ check FT s(R) against s(q) ... maximum error = 5.6e-17 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 5.47e-9
+ check FT s(R) against s(q) ... maximum error = 3.7e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.12   8.938    1.16E-06    3695 
+  lmfgw: input one of the following jobs:
+   -1 : creates files GWinput, QIBZ, KPTin1BZ
+    0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima
+    1 : GW setup mode
+    4 : band mode 
+    5 : eigenvalue-only mode 
+  job?
+
+ gw setup, job 0
+
+ Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima
+
+ OK! lmfgw mode=0 generated LATTC SYMOPS CLASS NLAindx ldima

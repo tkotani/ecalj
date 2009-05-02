@@ -1,0 +1,65 @@
+#!/bin/csh
+#echo $argv[1] $argv[2] $argv[3]
+set max = 500 #$argv[1] 
+set xx = 4'*(13.605)*1000'
+set yy = 7
+set zz = 8
+
+set sft1 = 0
+set czero =  0.440056906648924
+#0.0375953263999705
+#0.0379792090686804
+#0.03612654905870469
+#0.0378799720306835
+#0.0358908442892205
+#0.03612654905870469
+#0.0382289369028356
+
+# 0.0382289369028356
+#0.03612654905870469
+#0.03612710611797819
+#0.03686256168851994
+#0.03632330613664854
+#0.03395405260269771
+#0.03390388385698683
+#0.03686460553368991
+#0.03438302787561028
+#0.4400017263054394
+#0.4407
+
+#1.4
+set id2 = 11
+
+cat <<EOF >ggg
+#!/usr/bin/gnuplot -persist
+set yrange [0: ${max}]
+set noclabel
+set grid
+set nolabel
+plot  \
+  "ChiPM02.dat"  using (-\$${xx}):(\$${zz}/((\$${yy}+${czero})**2+\$${zz}**2)) ti "0.1" with points ,\
+  "ChiPM02.dat"  using (-\$${xx}):(\$${zz}/((\$${yy}+${czero})**2+\$${zz}**2)) ti "" with lines , \
+  "ChiPM03.dat"  using (-\$${xx}):(\$${zz}/((\$${yy}+${czero})**2+\$${zz}**2)) ti "0.2" with points, \
+  "ChiPM03.dat"  using (-\$${xx}):(\$${zz}/((\$${yy}+${czero})**2+\$${zz}**2)) ti "" with lines, \
+  "ChiPM04.dat"  using (-\$${xx}):(\$${zz}/((\$${yy}+${czero})**2+\$${zz}**2)) ti "0.3" with lines , \
+  "ChiPM04.dat"  using (-\$${xx}):(\$${zz}/((\$${yy}+${czero})**2+\$${zz}**2)) ti "" with points 
+set term postscript enhanced color
+set output "ETOTeV.eps"
+replot
+save "Etot11.plt"
+EOF
+chmod +x ggg
+./ggg
+
+exit
+
+  "ChiPM07.dat"  using (\$${xx}):(\$${zz}/((\$${yy}+${czero})**2+\$${zz}**2)) ti "0.5" with lines,\
+  "ChiPM09.dat"  using (\$${xx}):(\$${zz}/((\$${yy}+${czero})**2+\$${zz}**2)) ti "0.7" with lines
+
+      "ETOTeV.fc_${id}_222_rmt.850"  using 2:(\$6) with lines,\
+      "ETOTeV.fc_${id}_222_rmt.850"  using 2:(\$6) with points, \
+      "ETOTeV.fc_${id2}_222_rmt.800"  using 2:(\$6+$sft1) with lines,\
+      "ETOTeV.fc_${id2}_222_rmt.800"  using 2:(\$6+$sft1) with points,\
+      "ETOTeV.fc_${id2}_222_rmt.850"  using 2:(\$6+$sft1) with lines,\
+      "ETOTeV.fc_${id2}_222_rmt.850"  using 2:(\$6+$sft1) with points
+

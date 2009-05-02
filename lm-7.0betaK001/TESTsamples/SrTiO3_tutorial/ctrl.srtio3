@@ -27,7 +27,7 @@ SITE
   ATOM=O  POS= 0   0  1/2
 SPEC
  ATOM= Sr Z= 38 R=3.616323
-      RSMH= 2.411 2.411 2.094  EH= -0.100 -0.100 -0.100  PZ=0 14.9 P=0 5.3
+      RSMH= 2.411 2.411 2.094  EH= -0.100 -0.100 -0.100  PZ=0 4.9 P=0 5.3
       KMXA={kmxa} LMXA=4
      MMOM=0 0 0 0
 
@@ -72,5 +72,5 @@ HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initia
                       # about overcompleteness. See GetStarted.
       ELIND=-1  # this is only for accelaration of convergence. Not need to change.
       
-OPTIONS PFLOAT=1 # Q=band (this is quit switch if you like to add)
+OPTIONS PFLOAT=1 #Q=band (this is quit switch if you like to add)
                  # 

@@ -1,0 +1,130 @@
+ -----------------------  START LMFGWD (80000K)  -----------------------
+ HEADER fe for gw
+
+ LMFGWD:   alat = 5.408  nbas = 1  nspec = 1  vn 7.00(LMFGWD 7.0)  verb 31,20
+ special:  forces
+ pot:      spin-pol, XC:BH, read Sigma
+ bz:       metal(3), tetra 
+
+                Plat                                  Qlat
+  -0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
+   0.500000  -0.500000   0.500000        1.000000   0.000000   1.000000
+   0.500000   0.500000  -0.500000        1.000000   1.000000   0.000000
+  Cell vol= 79.082439
+
+ LATTC:  as= 2.000   tol=1.00E-08   alat= 5.40800   awald= 0.466
+         r1=  2.467   nkd= 137      q1=  4.689   nkg= 201
+
+ SGROUP: 1 symmetry operations from 0 generators
+ SYMLAT: Bravais system is cubic with 48 symmetry operations.
+ SYMCRY: crystal invariant under 48 symmetry operations for tol=1e-5
+ GROUPG: the following are sufficient to generate the space group:
+         i*r3d r2(1,1,0)
+         i*r3d r2(1,1,0)
+ MKSYM:  found 48 space group operations
+         no attempt to add inversion symmetry
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ Fe       2.225  0.890    4    4         4  0.556  1.112    15    1   0.890
+
+ MSHSIZ: mesh has 11 x 11 x 11 divisions; length 0.426, 0.426, 0.426
+         generated from gmax = 9.0 a.u. : 959 vectors of 1331 (72%)
+
+ gvlist: cutoff radius   9.000 gives    959   recips of max   1331
+ SGVSYM: 38 symmetry stars found for 959 reciprocal lattice vectors
+ 
+
+ Makidx:  hamiltonian dimensions Low, Int, High, Negl: 30 0 25 20
+ kappa   Low   Int   High  L+I  L+I+H  Neglected
+   1      16     0     9    16    25       0
+   2       9     0    16     9    25       0
+   3       5     0     0     5     5      20
+  all     30     0    25    30    55      20
+ suham :  25 augmentation channels, 25 local potential channels  Maximum lmxa=4
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  Fe       0*   1.30  -0.40   5.718    1.14E-06     249 
+  Fe       1    1.30  -0.40   6.080    2.15E-06     321 
+  Fe       2    0.95  -0.40   8.983    1.67E-06     959*
+  Fe       3    1.30  -0.40   6.806    1.18E-06     429 
+  Fe       0*   1.30  -1.20   5.718    1.14E-06     249 
+  Fe       1    1.30  -1.20   6.080    2.15E-06     321 
+  Fe       2    0.95  -1.20   8.983    1.67E-06     959*
+
+ iors  : read restart file (binary, mesh density) 
+         use from  restart file: ef window, positions, pnu 
+         ignore in restart file: *
+
+ bndfp (warning): no sigm file found ... LDA calculation only
+
+ --- BNDFP:  begin iteration 1 of 1 ---
+
+ Make potential without XC part ...
+
+ avg es pot at rmt= 0.642247  avg sphere pot= 0.598038  vconst=-0.642247
+
+ site  1  z= 26.0  rmt= 2.22485  nr=383   a=0.025  nlml=25  rg=0.556  Vfloat=T
+ sm core charge = 0.939394 (sphere) + 0.022003 (spillout) = 0.961397
+ potential shift to crystal energy zero:    0.000044
+
+
+ avg es pot at rmt= 0.642247  avg sphere pot= 0.598038  vconst=-0.642247
+
+ site  1  z= 26.0  rmt= 2.22485  nr=383   a=0.025  nlml=25  rg=0.556  Vfloat=T
+ sm core charge = 0.939394 (sphere) + 0.022003 (spillout) = 0.961397
+ potential shift to crystal energy zero:    0.000044
+
+
+ subzi: sampling integration of bands; sampling integration of density
+        sampling integration uses:  N=0  W=0.002  ef0=0.050828
+
+ Start first of two band passes ...
+  lmfgw: input one of the following jobs:
+   -1 : creates files GWinput, QIBZ, KPTin1BZ
+    0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima
+    1 : GW setup mode
+    4 : band mode 
+    5 : eigenvalue-only mode 
+  job?
+
+ gw setup, job 1
+
+ ... Generate core wave functions (file gwa)
+
+ sum q= 9.00  sum ec=  -742.12110  sum tc=  1241.93625  rho(rmax) 0.00077
+ sum q= 9.00  sum ec=  -741.09745  sum tc=  1241.90920  rho(rmax) 0.00083
+
+ ... Make LDA w.f. and matrix elements, 64 qp: file(s) gwb, vxc, evec
+
+ sugw:  kpt 1 of 64, k=  0.00000  0.00000  0.00000
+ -0.5739 -0.1153 -0.1153 -0.1153 -0.0188 -0.0188  1.8400  1.8400  1.8400
+ sugw:  kpt 1 of 64, k=  0.00000  0.00000  0.00000
+ -0.5449  0.0247  0.0247  0.0247  0.1580  0.1580  1.8553  1.8553  1.8553
+ sugw:  kpt 11 of 64, k=  0.00000  0.50000  -0.50000
+ -0.3061 -0.1935 -0.0173 -0.0052  0.0723  0.0791  0.5647  1.3486  1.4613
+ sugw:  kpt 11 of 64, k=  0.00000  0.50000  -0.50000
+ -0.2108 -0.0663  0.0999  0.1513  0.1759  0.2408  0.6693  1.3719  1.5101
+ sugw:  kpt 21 of 64, k=  0.25000  0.25000  0.50000
+ -0.2448 -0.1885 -0.1456 -0.0255  0.0067  0.2113  0.8327  0.8875  1.4422
+ sugw:  kpt 21 of 64, k=  0.25000  0.25000  0.50000
+ -0.1615 -0.0689 -0.0351  0.1404  0.1794  0.3357  0.9094  0.9496  1.4907
+ sugw:  kpt 31 of 64, k=  -0.75000  -0.25000  0.00000
+ -0.2499 -0.2114 -0.0881 -0.0434  0.0693  0.4088  0.5999  1.0211  1.2737
+ sugw:  kpt 31 of 64, k=  -0.75000  -0.25000  0.00000
+ -0.1328 -0.0943  0.0479  0.0995  0.2298  0.4893  0.6853  1.0749  1.3370
+ sugw:  kpt 41 of 64, k=  0.50000  -0.50000  0.00000
+ -0.3061 -0.1935 -0.0173 -0.0052  0.0723  0.0791  0.5647  1.3486  1.4613
+ sugw:  kpt 41 of 64, k=  0.50000  -0.50000  0.00000
+ -0.2108 -0.0664  0.0999  0.1514  0.1759  0.2408  0.6694  1.3719  1.5101
+ sugw:  kpt 51 of 64, k=  0.50000  0.25000  -0.25000
+ -0.2448 -0.1885 -0.1456 -0.0255  0.0067  0.2113  0.8327  0.8875  1.4422
+ sugw:  kpt 51 of 64, k=  0.50000  0.25000  -0.25000
+ -0.1615 -0.0689 -0.0351  0.1405  0.1794  0.3357  0.9094  0.9496  1.4907
+ sugw:  kpt 61 of 64, k=  -0.25000  -0.25000  -0.50000
+ -0.2448 -0.1885 -0.1456 -0.0255  0.0067  0.2113  0.8327  0.8875  1.4422
+ sugw:  kpt 61 of 64, k=  -0.25000  -0.25000  -0.50000
+ -0.1615 -0.0689 -0.0351  0.1404  0.1794  0.3357  0.9094  0.9496  1.4907
+ Exit 0 bndfp 
+ wkinfo:  used   999 K  workspace of 80000 K   in 598 K calls

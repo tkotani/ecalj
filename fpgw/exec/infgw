@@ -1,0 +1,45 @@
+#! /bin/csh
+echo '--- eQP  eShift  eQP(noZ) eShift   eLDA       q                ib'
+
+set fn = QPU
+if (-e QP) set fn = QP
+
+cat $fn | awk '{if(NF>15){printf "%7.2f %7.2f %7.2f %7.2f %7.2f     %5.2f %5.2f %5.2f %3d \n",  \
+                      $12,$9,$13,$10,$11,$1,$2,$3,$4 };     \
+                      if(NF==0){printf "\n"}}'
+echo ' --- parameters ---- '
+head -1 hbe.d |awk '{printf " %9d ",$6}'          ;echo ' = nband'
+head -1 hbe.d |awk '{printf " %9d ",$4}'          ;echo ' = lmto dim'
+head -3  GWIN_V2 |tail -1|awk '{printf " %9.4f ",$1}';echo ' = dw a.u. '
+head -5  GWIN_V2 |tail -1|awk '{printf " %9d ",$1}'  ;echo ' = niw '
+head -9  GWIN_V2 |tail -1|awk '{printf " %9.4f ",$1}'  ;echo ' = deltaw a.u. '
+head -11 GWIN_V2 |tail -1|awk '{printf " %9.4f ",$1}'  ;echo ' = esmr Ry '
+head -2 GWIN0 |tail -1|awk '{printf " %3d%3d%3d ",$1,$2,$3}'  ;echo ' = n1 n2 n3 '
+head -4 GWIN0 |tail -1|awk '{printf " %9.2f ",$1}' ;echo ' = |q+G|max for phi '
+head -4 GWIN0 |tail -1|awk '{printf " %9.2f ",$2}' ;echo ' = |q+G|max for Vcou '
+head -17 GWIN_V2 |tail -1|awk '{printf " %9.5f ",$1}'  ;echo ' = tolerance for p-basis '
+head -19 GWIN_V2 |tail -1|awk '{printf " %9d ",$1}'    ;echo ' = lcutmx '
+grep frhis lx0 >/dev/null
+if ($status == 0) then
+  grep frhis lx0 | awk '{printf " %9d  = number of points on real energy axis\n",$5}'
+endif
+
+if (-e lsx_sf) then
+  grep ngc lsx_sf|head -1  |awk '{printf " %9d  = ngp\n %9d  = ngc \n %9d  = nbloch\n",$8,$9,$7}'
+else
+  grep ngc lsx|head -1  |awk '{printf " %9d  = ngp\n %9d  = ngc \n %9d  = nbloch\n",$8,$9,$7}'
+endif
+grep nblocha lbas |awk '{printf "    %9d = nblocha \n",$6}'    ;
+if (-e lx0_sf) then
+  tail -1 lx0_sf |awk '{printf " %9.1f min = %.1fh for lx0 \n" ,$4,$4/60}'
+  tail -1 lsc_sf |awk '{printf " %9.1f min = %.1fh for lsc \n" ,$4,$4/60}'
+else
+  tail -1 lx0 |awk '{printf " %9.1f min = %.1fh for lx0 \n" ,$4,$4/60}'
+  tail -1 lsc |awk '{printf " %9.1f min = %.1fh for lsc \n" ,$4,$4/60}'
+endif
+grep shift $fn |awk '{printf " %9.4f  = E_shift eV\n",$3}'    ;
+echo -n `sum ctrl.* | awk '{print $1}'`; echo ' = sum check of ctrl.* '
+echo -n `sum rst.*  | awk '{print $1}'`; echo ' = sum check of rst.* '
+
+
+

@@ -1,0 +1,102 @@
+#! /bin/csh
+ 
+# keep head part -----------------
+foreach ddd (`find . -type d`)
+  pushd . >null 
+  cd $ddd
+  if( -e 'GWinput') then
+  echo cleaning $ddd ... ------------------------------------------
+  if ( -e 'lqpe' ) then
+    if(! -e l.lqpe) then
+    grep rms lqpe*   >l.lqpe
+    endif
+  endif
+  if ( -e 'lbas' ) grep -e '\*\*\* lx' -e 'nbloch' lbas >l.lbas
+  grep Exit llmf* > l.llmfexit
+  if( -e 'lx0') head -1000 lx0 > lx0.head
+  if( -e 'lsc') head -1000 lsc > lsc.head
+  ls -1 T*run|grep -v `ls lqpe*run |sed -e 's/lqpe.//' -e 's/run//'|sort -n |tail -1`run >pipipipi
+  rm -rf `cat pipipipi`
+  ls -1 s*run|grep -v `ls lqpe*run |sed -e 's/lqpe.//' -e 's/run//'|sort -n |tail -1`run >pipipipi
+  rm -rf `cat pipipipi`
+  ls -1 Q*run|grep -v -e `ls lqpe*run |sed -e 's/lqpe.//' -e 's/run//'|sort -n |tail -1`run  \
+                      -e `ls lqpe*run |sed -e 's/lqpe.//' -e 's/run//'|sort -n |tail -2|head -1`run \
+                      -e `ls lqpe*run |sed -e 's/lqpe.//' -e 's/run//'|sort -n |tail -3|head -1`run  >pipipipi
+  rm -rf `cat pipipipi`
+  ls lqpe*| grep -v `ls lqpe*run |sed -e 's/lqpe.//' -e 's/run//'|sort -n |tail -1`run >pipipipi
+  foreach xxx (`cat pipipipi`)
+    echo $xxx
+    rm $xxx
+    touch $xxx
+  end
+
+  if(-e VXCFP.chk) head -1000 VXCFP.chk > VXCFP.chk.head
+  foreach  xxx (`find . -name "normchk.*"|grep -v head`)
+    echo $xxx
+    head -1000 $xxx > $xxx.head
+    rm -rf $xxx
+  end
+rm -rf v_xc evec VCC PLN WVR WVI EVU EVD PPB BAS fort BAS VXCFPV PPOVL DATA4GW gwa gwb gw1 gw2 gw3 PHI
+rm -rf HVCCIN CPHI CphiGeig GEIG QGpsi QGcou mixm mixsigma sigma lx0 lsx lsc pipipipi llmfgw01 VXCFP BZDATA
+rm -rf SE*2*
+rm -rf vxc.* 
+rm -rf evec.*
+rm -rf QGc*
+
+  if(! -e 'tail.lx0')  then
+    tail lx0* >tail.lx0
+  endif
+  if(! -e 'tail.llmf') then
+    tail llmf*>tail.llmf
+  endif
+  if(! -e 'tail.lsx')  then
+    tail lsx* >tail.lsx
+  endif
+  if(! -e 'tail.lsc') then
+    tail lsc* >tail.lsc
+  endif
+#c  rm -rf lx0* 
+#c  rm -rf llmf* 
+#  rm -rf lsx* 
+#  rm -rf lsc*
+  endif
+  popd
+end
+
+exit
+
+
+
+
+
+cd $argv[1]
+foreach  xxx (`find . -name VXCFP.chk`)
+    echo $xxx
+    head -1000 $xxx > $xxx.head
+    rm $xxx
+end
+
+
+exit
+
+rm -f VCC*
+rm -f PLN
+rm -f WVR
+rm -f WVI
+rm -f PPB*
+rm -f BAS*
+rm -f fort.*
+rm -f HVCCIN
+rm -f PHI*
+rm -f EV*
+rm -f CPH*
+rm -f VXCFP
+rm -f VXCFPV
+rm -f PPOVL
+rm -f DATA4GW*
+rm -f gwa.*
+rm -f gwb.*
+rm -f gw1.*
+rm -f gw2.*
+rm -f gw3.*
+

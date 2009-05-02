@@ -568,9 +568,9 @@ C --- Read available class parameters from file ---
       call aiocls(.false.,12,w(osarry),w(osctrl),w(osham),w(ospot),
      .  w(osspec),w(oslat),1,0)
 #endif
-      call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,T,
-     .  slabl,osbz,osctrl,osham,ospot,oslat,osmix,osspec,ossite,osstr,
-     .  osarry,osmove,ostb,sstrn)
+c$$$      call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,T,
+c$$$     .  slabl,osbz,osctrl,osham,ospot,oslat,osmix,osspec,ossite,osstr,
+c$$$     .  osarry,osmove,ostb,sstrn)
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif

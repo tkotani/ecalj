@@ -1,0 +1,23 @@
+#!/bin/csh
+# --------------------------------
+# Get GWIN.tmp and QPNT.tmp
+#
+set n = $0
+set nfpgw = ${n:h}
+echo $nfpgw
+echo $argv[1]
+
+echo 2|$nfpgw/heftet >lheftet2
+echo 3|$nfpgw/heftet >lheftet3
+echo 4|$nfpgw/heftet >lheftet4
+
+echo -1|$nfpgw/hqpe  >lqpemetal
+
+
+
+
+
+
+
+
+ 
