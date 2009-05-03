@@ -1,5 +1,5 @@
  readin nout=           1
-rdata4gw_v2: VerNum= 033a4: 08Sep2008
+rdata4gw_v2: VerNum= 033a5: 02May2009
  readin nout=           3
   aaaaaaaaaaa success           3          -1
  QpGcut_psi QpGcutCou nnnn from QGpsi QGcou=   2.70000000000000     
@@ -13,7 +13,7 @@ rdata4gw_v2: VerNum= 033a4: 08Sep2008
          557           3
                   =           4          92          26         100          16
  ncoremx=           3
- ecup=  -130.020202114343       -9.56137025615213       -6.38727402774873     
+ ecup=  -130.020201057821       -9.56137012582028       -6.38727382547556     
   dummy iclass=           1           1
  
   --- Radial function indexing --- 
@@ -65,18 +65,18 @@ rdata4gw_v2: VerNum= 033a4: 08Sep2008
  l isp n1 n2 =   1  1  1  1   0.999949D+00
  l isp n1 n2 =   1  1  1  2                -0.738133D-05
  l isp n1 n2 =   2  1  1  1   0.999966D+00
- l isp n1 n2 =   2  1  1  2                 0.152286D-05
+ l isp n1 n2 =   2  1  1  2                 0.152285D-05
  l isp n1 n2 =   3  1  1  1   0.999932D+00
- l isp n1 n2 =   3  1  1  2                 0.370454D-05
+ l isp n1 n2 =   3  1  1  2                 0.370453D-05
  l isp n1 n2 =   4  1  1  1   0.999891D+00
  l isp n1 n2 =   4  1  1  2                 0.422312D-05
  l isp n1 n2 =   0  1  2  1                -0.146189D-04
  l isp n1 n2 =   0  1  2  2   0.341372D-01
  l isp n1 n2 =   1  1  2  1                -0.738133D-05
  l isp n1 n2 =   1  1  2  2   0.221238D-01
- l isp n1 n2 =   2  1  2  1                 0.152286D-05
- l isp n1 n2 =   2  1  2  2   0.115883D-01
- l isp n1 n2 =   3  1  2  1                 0.370454D-05
+ l isp n1 n2 =   2  1  2  1                 0.152285D-05
+ l isp n1 n2 =   2  1  2  2   0.115884D-01
+ l isp n1 n2 =   3  1  2  1                 0.370453D-05
  l isp n1 n2 =   3  1  2  2   0.267643D-02
  l isp n1 n2 =   4  1  2  1                 0.422312D-05
  l isp n1 n2 =   4  1  2  2   0.131169D-02
@@ -90,8 +90,8 @@ rdata4gw_v2: VerNum= 033a4: 08Sep2008
   core_orth= F
   -- norm check: <core|core> ----------------- 
  --- isp l=  1  0 icore1 icore =   1  1   0.997558D+00
- --- isp l=  1  0 icore1 icore =   2  1                 0.776452D-03
- --- isp l=  1  0 icore1 icore =   1  2                 0.776452D-03
+ --- isp l=  1  0 icore1 icore =   2  1                 0.776451D-03
+ --- isp l=  1  0 icore1 icore =   1  2                 0.776451D-03
  --- isp l=  1  0 icore1 icore =   2  2   0.999655D+00
  --- isp l=  1  1 icore1 icore =   3  3   0.999676D+00
   -- norm check: <gx_orth|core> -------------- 
@@ -99,29 +99,29 @@ rdata4gw_v2: VerNum= 033a4: 08Sep2008
  --- isp  l1 n1=  1  0  2 icore =   1   0.273390D-03
  --- isp  l1 n1=  1  0  1 icore =   2  -0.266915D-01
  --- isp  l1 n1=  1  0  2 icore =   2   0.549769D-02
- --- isp  l1 n1=  1  1  1 icore =   3  -0.785881D-01
+ --- isp  l1 n1=  1  1  1 icore =   3  -0.785880D-01
  --- isp  l1 n1=  1  1  2 icore =   3   0.176320D-01
  
   --- norm check: normalized  gx_orth --- 
  l isp n1 n2 =   0  1  1  1   0.100000D+01
- l isp n1 n2 =   0  1  1  2                 0.326417D-15
+ l isp n1 n2 =   0  1  1  2                 0.335380D-15
  l isp n1 n2 =   1  1  1  1   0.100000D+01
- l isp n1 n2 =   1  1  1  2                -0.256161D-15
+ l isp n1 n2 =   1  1  1  2                 0.278712D-15
  l isp n1 n2 =   2  1  1  1   0.100000D+01
- l isp n1 n2 =   2  1  1  2                -0.239970D-15
+ l isp n1 n2 =   2  1  1  2                 0.265991D-15
  l isp n1 n2 =   3  1  1  1   0.100000D+01
- l isp n1 n2 =   3  1  1  2                 0.425007D-15
+ l isp n1 n2 =   3  1  1  2                 0.117961D-15
  l isp n1 n2 =   4  1  1  1   0.100000D+01
- l isp n1 n2 =   4  1  1  2                 0.144560D-15
- l isp n1 n2 =   0  1  2  1                 0.326417D-15
+ l isp n1 n2 =   4  1  1  2                 0.121431D-15
+ l isp n1 n2 =   0  1  2  1                 0.335380D-15
  l isp n1 n2 =   0  1  2  2   0.100000D+01
- l isp n1 n2 =   1  1  2  1                -0.256161D-15
+ l isp n1 n2 =   1  1  2  1                 0.278712D-15
  l isp n1 n2 =   1  1  2  2   0.100000D+01
- l isp n1 n2 =   2  1  2  1                -0.239970D-15
+ l isp n1 n2 =   2  1  2  1                 0.265991D-15
  l isp n1 n2 =   2  1  2  2   0.100000D+01
- l isp n1 n2 =   3  1  2  1                 0.425007D-15
+ l isp n1 n2 =   3  1  2  1                 0.117961D-15
  l isp n1 n2 =   3  1  2  2   0.100000D+01
- l isp n1 n2 =   4  1  2  1                 0.144560D-15
+ l isp n1 n2 =   4  1  2  1                 0.121431D-15
  l isp n1 n2 =   4  1  2  2   0.100000D+01
  
   ### ibas ic =           2           1
@@ -132,18 +132,18 @@ rdata4gw_v2: VerNum= 033a4: 08Sep2008
  l isp n1 n2 =   1  1  1  1   0.999949D+00
  l isp n1 n2 =   1  1  1  2                -0.738133D-05
  l isp n1 n2 =   2  1  1  1   0.999966D+00
- l isp n1 n2 =   2  1  1  2                 0.152286D-05
+ l isp n1 n2 =   2  1  1  2                 0.152285D-05
  l isp n1 n2 =   3  1  1  1   0.999932D+00
- l isp n1 n2 =   3  1  1  2                 0.370454D-05
+ l isp n1 n2 =   3  1  1  2                 0.370453D-05
  l isp n1 n2 =   4  1  1  1   0.999891D+00
  l isp n1 n2 =   4  1  1  2                 0.422312D-05
  l isp n1 n2 =   0  1  2  1                -0.146189D-04
  l isp n1 n2 =   0  1  2  2   0.341372D-01
  l isp n1 n2 =   1  1  2  1                -0.738133D-05
  l isp n1 n2 =   1  1  2  2   0.221238D-01
- l isp n1 n2 =   2  1  2  1                 0.152286D-05
- l isp n1 n2 =   2  1  2  2   0.115883D-01
- l isp n1 n2 =   3  1  2  1                 0.370454D-05
+ l isp n1 n2 =   2  1  2  1                 0.152285D-05
+ l isp n1 n2 =   2  1  2  2   0.115884D-01
+ l isp n1 n2 =   3  1  2  1                 0.370453D-05
  l isp n1 n2 =   3  1  2  2   0.267643D-02
  l isp n1 n2 =   4  1  2  1                 0.422312D-05
  l isp n1 n2 =   4  1  2  2   0.131169D-02
@@ -157,8 +157,8 @@ rdata4gw_v2: VerNum= 033a4: 08Sep2008
   core_orth= F
   -- norm check: <core|core> ----------------- 
  --- isp l=  1  0 icore1 icore =   1  1   0.997558D+00
- --- isp l=  1  0 icore1 icore =   2  1                 0.776452D-03
- --- isp l=  1  0 icore1 icore =   1  2                 0.776452D-03
+ --- isp l=  1  0 icore1 icore =   2  1                 0.776451D-03
+ --- isp l=  1  0 icore1 icore =   1  2                 0.776451D-03
  --- isp l=  1  0 icore1 icore =   2  2   0.999655D+00
  --- isp l=  1  1 icore1 icore =   3  3   0.999676D+00
   -- norm check: <gx_orth|core> -------------- 
@@ -166,126 +166,142 @@ rdata4gw_v2: VerNum= 033a4: 08Sep2008
  --- isp  l1 n1=  1  0  2 icore =   1   0.273390D-03
  --- isp  l1 n1=  1  0  1 icore =   2  -0.266915D-01
  --- isp  l1 n1=  1  0  2 icore =   2   0.549769D-02
- --- isp  l1 n1=  1  1  1 icore =   3  -0.785881D-01
+ --- isp  l1 n1=  1  1  1 icore =   3  -0.785880D-01
  --- isp  l1 n1=  1  1  2 icore =   3   0.176320D-01
  
   --- norm check: normalized  gx_orth --- 
  l isp n1 n2 =   0  1  1  1   0.100000D+01
- l isp n1 n2 =   0  1  1  2                 0.326417D-15
+ l isp n1 n2 =   0  1  1  2                 0.335380D-15
  l isp n1 n2 =   1  1  1  1   0.100000D+01
- l isp n1 n2 =   1  1  1  2                -0.256161D-15
+ l isp n1 n2 =   1  1  1  2                 0.278712D-15
  l isp n1 n2 =   2  1  1  1   0.100000D+01
- l isp n1 n2 =   2  1  1  2                -0.239970D-15
+ l isp n1 n2 =   2  1  1  2                 0.265991D-15
  l isp n1 n2 =   3  1  1  1   0.100000D+01
- l isp n1 n2 =   3  1  1  2                 0.425007D-15
+ l isp n1 n2 =   3  1  1  2                 0.117961D-15
  l isp n1 n2 =   4  1  1  1   0.100000D+01
- l isp n1 n2 =   4  1  1  2                 0.144560D-15
- l isp n1 n2 =   0  1  2  1                 0.326417D-15
+ l isp n1 n2 =   4  1  1  2                 0.121431D-15
+ l isp n1 n2 =   0  1  2  1                 0.335380D-15
  l isp n1 n2 =   0  1  2  2   0.100000D+01
- l isp n1 n2 =   1  1  2  1                -0.256161D-15
+ l isp n1 n2 =   1  1  2  1                 0.278712D-15
  l isp n1 n2 =   1  1  2  2   0.100000D+01
- l isp n1 n2 =   2  1  2  1                -0.239970D-15
+ l isp n1 n2 =   2  1  2  1                 0.265991D-15
  l isp n1 n2 =   2  1  2  2   0.100000D+01
- l isp n1 n2 =   3  1  2  1                 0.425007D-15
+ l isp n1 n2 =   3  1  2  1                 0.117961D-15
  l isp n1 n2 =   3  1  2  2   0.100000D+01
- l isp n1 n2 =   4  1  2  1                 0.144560D-15
+ l isp n1 n2 =   4  1  2  1                 0.121431D-15
  l isp n1 n2 =   4  1  2  2   0.100000D+01
- ########## goto Eigfun part ##############
+ ########## goto Eigfun part ############## 
   ikp=           1
+  nbandx=          26
    ikp ngp=           1          89
   goto GEIG
-geig sumcheck     1   0.0000   0.0000   0.0000     92   89 0.338840D+00 0.260798D-07
+geig sumcheck     1   0.0000   0.0000   0.0000     92   89 0.338840D+00-0.671039D-07
   mkppovl2:
   mkppovl2: 1            6          -6           6          -6           6
           -6
   mkppovl2: 2            6          -6           6          -6           6
           -6
+  nbandx=          26
    ikp ngp=           2          90
   goto GEIG
-geig sumcheck     2   0.5000   0.5000  -0.5000     92   90 0.594201D+00-0.722460D-08
+geig sumcheck     2   0.5000   0.5000  -0.5000     92   90 0.594201D+00-0.725208D-08
   mkppovl2:
   mkppovl2: 1            6          -6           6          -6           5
           -5
   mkppovl2: 2            6          -6           6          -6           5
           -5
+  nbandx=          26
    ikp ngp=           3          90
   goto GEIG
-geig sumcheck     3   0.5000  -0.5000   0.5000     92   90 0.811729D+00-0.214823D-08
+geig sumcheck     3   0.5000  -0.5000   0.5000     92   90 0.811729D+00-0.214915D-08
   mkppovl2:
   mkppovl2: 1            6          -6           5          -5           6
           -6
   mkppovl2: 2            6          -6           5          -5           6
           -6
+  nbandx=          26
    ikp ngp=           4          92
   goto GEIG
-geig sumcheck     4   1.0000   0.0000   0.0000     92   92-0.451731D+00 0.191807D-09
+geig sumcheck     4   1.0000   0.0000   0.0000     92   92-0.138997D+01 0.190020D-09
   mkppovl2:
   mkppovl2: 1            6          -6           5          -5           5
           -5
   mkppovl2: 2            6          -6           5          -5           5
           -5
+  nbandx=          26
    ikp ngp=           5          90
   goto GEIG
-geig sumcheck     5  -0.5000   0.5000   0.5000     92   90-0.440145D+00 0.566173D-08
+geig sumcheck     5  -0.5000   0.5000   0.5000     92   90-0.440145D+00 0.565798D-08
   mkppovl2:
   mkppovl2: 1            5          -5           6          -6           6
           -6
   mkppovl2: 2            5          -5           6          -6           6
           -6
+  nbandx=          26
    ikp ngp=           6          92
   goto GEIG
-geig sumcheck     6   0.0000   1.0000   0.0000     92   92-0.370055D+00 0.166020D-01
+geig sumcheck     6   0.0000   1.0000   0.0000     92   92-0.370055D+00 0.166228D-01
   mkppovl2:
   mkppovl2: 1            5          -5           6          -6           5
           -5
   mkppovl2: 2            5          -5           6          -6           5
           -5
+  nbandx=          26
    ikp ngp=           7          92
   goto GEIG
-geig sumcheck     7   0.0000   0.0000   1.0000     92   92 0.863699D+00-0.403137D-03
+geig sumcheck     7   0.0000   0.0000   1.0000     92   92 0.991443D-01-0.403878D-03
   mkppovl2:
   mkppovl2: 1            5          -5           5          -5           6
           -6
   mkppovl2: 2            5          -5           5          -5           6
           -6
+  nbandx=          26
    ikp ngp=           8          90
   goto GEIG
-geig sumcheck     8   0.5000   0.5000   0.5000     92   90 0.811729D+00 0.214969D-08
+geig sumcheck     8   0.5000   0.5000   0.5000     92   90 0.811729D+00 0.214892D-08
   mkppovl2:
   mkppovl2: 1            5          -5           5          -5           5
           -5
   mkppovl2: 2            5          -5           5          -5           5
           -5
+  nbandx=          26
    ikp ngp=           9          89
   goto GEIG
-geig sumcheck     9  -0.1524   0.1524   0.1524     92   89-0.144076D+00-0.461271D-01
+geig sumcheck     9  -0.1524   0.1524   0.1524     92   89-0.144078D+00-0.461271D-01
+  nbandx=          26
    ikp ngp=          10          87
   goto GEIG
-geig sumcheck    10   0.3476   0.6524  -0.3476     92   87-0.364581D+00-0.668566D+00
+geig sumcheck    10   0.3476   0.6524  -0.3476     92   87-0.364581D+00-0.668565D+00
   ikp=          11
+  nbandx=          26
    ikp ngp=          11          87
   goto GEIG
-geig sumcheck    11   0.3476  -0.3476   0.6524     92   87-0.364575D+00-0.668568D+00
+geig sumcheck    11   0.3476  -0.3476   0.6524     92   87-0.364575D+00-0.668567D+00
   ikp=          12
+  nbandx=          26
    ikp ngp=          12          92
   goto GEIG
-geig sumcheck    12   0.8476   0.1524   0.1524     92   92 0.380699D+00 0.770346D+00
+geig sumcheck    12   0.8476   0.1524   0.1524     92   92 0.380698D+00 0.770347D+00
   ikp=          13
+  nbandx=          26
    ikp ngp=          13          92
   goto GEIG
-geig sumcheck    13  -0.6524   0.6524   0.6524     92   92-0.688876D-01-0.630479D+00
+geig sumcheck    13  -0.6524   0.6524   0.6524     92   92-0.688881D-01-0.630479D+00
   ikp=          14
+  nbandx=          26
    ikp ngp=          14          92
   goto GEIG
-geig sumcheck    14  -0.1524   1.1524   0.1524     92   92-0.574385D+00 0.105846D+00
+geig sumcheck    14  -0.1524   1.1524   0.1524     92   92-0.574428D+00 0.105805D+00
   ikp=          15
+  nbandx=          26
    ikp ngp=          15          92
   goto GEIG
-geig sumcheck    15  -0.1524   0.1524   1.1524     92   92-0.574460D+00 0.105839D+00
+geig sumcheck    15  -0.1524   0.1524   1.1524     92   92-0.574457D+00 0.105841D+00
   ikp=          16
+  nbandx=          26
    ikp ngp=          16          87
   goto GEIG
-geig sumcheck    16   0.3476   0.6524   0.6524     92   87 0.499827D-02-0.593359D+00
+geig sumcheck    16   0.3476   0.6524   0.6524     92   87 0.500057D-02-0.593361D+00
   end of eigensection-----
  --- Readin QIBZ --- 
   qibz=  1     0.00000     0.00000     0.00000

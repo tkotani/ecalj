@@ -1,5 +1,5 @@
  mode=(1-4)?
-heftet: VerNum= 033a4: 08Sep2008
+heftet: VerNum= 033a5: 02May2009
  --- heftet: calculation mode =           1
   ### readin BZDATA ###
   read_bzdata           8           3          27          48           2
@@ -98,7 +98,7 @@ heftet: VerNum= 033a4: 08Sep2008
  -------- qibz=    1    1   0.0000   0.0000   0.0000
  -------- qibz=    2    1  -0.5000   0.5000   0.5000
  -------- qibz=    3    1   0.0000   0.0000   1.0000
- end of efrang2: e1 e2 nteti=  0.1207766D+00  0.1207766D+00     2
- elo ehi =  -0.1020843D+01  0.1000000D+21
+ end of efrang2: e1 e2 nteti=  0.1207775D+00  0.1207775D+00     2
+ elo ehi =  -0.1020844D+01  0.1000000D+21
  heftet: only filled or empty bands encountered.
- Tet EFERMI gap =        0.120776593685150       0.017464096171676
+ Tet EFERMI gap =        0.120777465403080       0.017462415929066

@@ -262,15 +262,15 @@
 
  Make potential without XC part ...
 
- avg es pot at rmt= 0.273201  avg sphere pot= 0.314258  vconst=-0.273201
+ avg es pot at rmt= 0.273190  avg sphere pot= 0.314258  vconst=-0.273190
 
- smooth rhoves     36.514698   charge    10.073037
+ smooth rhoves     36.514719   charge    10.073033
 
  elocp:
 
  Fit local orbitals to sm hankels, species Ga, rmt=2.254225
   l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
-  2  low    3.924   -1.002110   -0.201493   1.00000  -2.75788   0.07744    0.231047*
+  2  low    3.924   -1.002121   -0.201517   1.00000  -2.75790   0.07744    0.231039*
 
  locpot:
 
@@ -283,28 +283,28 @@
  potential shift to crystal energy zero:    0.000126
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -11.712888      -286.160427      -297.873316
-   rhoval*ves            -70.024569      -196.114148      -266.138717
-   psnuc*ves             143.053964    -33205.658130    -33062.604166
-   utot                   36.514698    -16700.886139    -16664.371441
-   rho*exc                 0.000000      -300.095018      -300.095018
-   rho*vxc                 0.000000      -397.599645      -397.599645
-   valence chg            10.073037         7.926963        18.000000
+   rhoval*vef            -11.712835      -286.160811      -297.873646
+   rhoval*ves            -70.024521      -196.114506      -266.139028
+   psnuc*ves             143.053960    -33205.658436    -33062.604476
+   utot                   36.514719    -16700.886471    -16664.371752
+   rho*exc                 0.000000      -300.095034      -300.095034
+   rho*vxc                 0.000000      -397.599667      -397.599667
+   valence chg            10.073033         7.926967        18.000000
    core charge            46.000000         0.000000        46.000000
 
  Charges:  valence    18.00000   cores    46.00000   nucleii   -64.00000
     hom background     0.00000   deviation from neutrality:      0.00000
 
- avg es pot at rmt= 0.273201  avg sphere pot= 0.314258  vconst=-0.273201
+ avg es pot at rmt= 0.273190  avg sphere pot= 0.314258  vconst=-0.273190
 
- smooth rhoves     36.514698   charge    10.073037
- smooth rhoeps =   -7.388400   rhomu =   -9.649847  avg vxc =   -0.672109 
+ smooth rhoves     36.514719   charge    10.073033
+ smooth rhoeps =   -7.388361   rhomu =   -9.649795  avg vxc =   -0.672117 
 
  elocp:
 
  Fit local orbitals to sm hankels, species Ga, rmt=2.254225
   l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
-  2  low    3.924   -1.002110   -0.201493   1.00000  -2.75788   0.07744    0.231047*
+  2  low    3.924   -1.002111   -0.201499   1.00000  -2.75790   0.07744    0.231039*
 
  locpot:
 
@@ -319,20 +319,20 @@
  potential shift to crystal energy zero:    0.000126
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -20.590973      -286.160427      -306.751400
-   rhoval*ves            -70.024569      -196.114148      -266.138717
-   psnuc*ves             143.053964    -33205.658130    -33062.604166
-   utot                   36.514698    -16700.886139    -16664.371441
-   rho*exc                -7.388400      -300.095018      -307.483418
-   rho*vxc                -9.649847      -397.599645      -407.249492
-   valence chg            10.073037         7.926963        18.000000
+   rhoval*vef            -20.590868      -286.160811      -306.751679
+   rhoval*ves            -70.024521      -196.114506      -266.139028
+   psnuc*ves             143.053960    -33205.658436    -33062.604476
+   utot                   36.514719    -16700.886471    -16664.371752
+   rho*exc                -7.388361      -300.095034      -307.483395
+   rho*vxc                -9.649795      -397.599667      -407.249462
+   valence chg            10.073033         7.926967        18.000000
    core charge            46.000000         0.000000        46.000000
 
  Charges:  valence    18.00000   cores    46.00000   nucleii   -64.00000
     hom background     0.00000   deviation from neutrality:      0.00000
 
  subzi: sampling integration of bands; sampling integration of density
-        sampling integration uses:  N=0  W=0.005  ef0=0.112045
+        sampling integration uses:  N=0  W=0.005  ef0=0.112049
 
  Start first of two band passes ...
 
