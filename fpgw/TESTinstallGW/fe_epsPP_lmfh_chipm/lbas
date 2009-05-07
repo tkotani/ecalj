@@ -1,5 +1,5 @@
  --- Input normal(=0); coremode(=3); ptest(=4); Excore(=5); for core-valence Ex(=6); val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?
-hbasfp0: VerNum= 033a4: 08Sep2008
+hbasfp0: VerNum= 033a5: 02May2009
   ### usual mode use occ and unocc for core and <rho_spin |B(I)> ### 
   goto lmto
   divisions along reciprocal base vectors G1 G2 G3=           2           2
@@ -69,8 +69,8 @@ hbasfp0: VerNum= 033a4: 08Sep2008
  norm check for phi=  1  2 0.999686D+00
  norm check for phi=  1  3 0.999855D+00
  norm check for phi=  1  4 0.132038D-01
- norm check for phi=  2  1 0.992866D+00
- norm check for phi=  2  2 0.450622D+00
+ norm check for phi=  2  1 0.992865D+00
+ norm check for phi=  2  2 0.450621D+00
  norm check for phi=  2  3 0.318252D+01
  norm check for phi=  3  1 0.999932D+00
  norm check for phi=  3  2 0.442055D-02
@@ -93,32 +93,32 @@ lx nx number ipx=   1   3   3   9
   *** total number of product basis nprod=          13
  
     ib eb=    4 0.457827D+01  ecut= 0.100000D-02
-    ib eb=    3 0.595828D+00  ecut= 0.100000D-02
+    ib eb=    3 0.595826D+00  ecut= 0.100000D-02
     ib eb=    2 0.230073D+00  ecut= 0.100000D-02
     ib eb=    1 0.446770D-01  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.4578268521D+01 nod=   0
-    Diag ibx ovv=  2 0.9999999999999964D+00 eb=   0.5958282828D+00 nod=   2
-    Diag ibx ovv=  3 0.1000000000000000D+01 eb=   0.2300732914D+00 nod=   4
-    Diag ibx ovv=  4 0.9999999999999979D+00 eb=   0.4467703594D-01 nod=   5
+    Diag ibx ovv=  1 0.9999999999999978D+00 eb=   0.4578268046D+01 nod=   0
+    Diag ibx ovv=  2 0.1000000000000009D+01 eb=   0.5958260957D+00 nod=   2
+    Diag ibx ovv=  3 0.1000000000000002D+01 eb=   0.2300731755D+00 nod=   4
+    Diag ibx ovv=  4 0.1000000000000001D+01 eb=   0.4467701493D-01 nod=   5
   *** lx  *** Used nb =           0           4
  
     ib eb=    3 0.485462D+00  ecut= 0.100000D-02
-    ib eb=    2 0.343106D+00  ecut= 0.100000D-02
+    ib eb=    2 0.343105D+00  ecut= 0.100000D-02
     ib eb=    1 0.236426D-01  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.1000000000000003D+01 eb=   0.4854617183D+00 nod=   5
-    Diag ibx ovv=  2 0.1000000000000004D+01 eb=   0.3431057528D+00 nod=   5
-    Diag ibx ovv=  3 0.1000000000000012D+01 eb=   0.2364259526D-01 nod=   4
+    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.4854622276D+00 nod=   5
+    Diag ibx ovv=  2 0.9999999999999999D+00 eb=   0.3431051180D+00 nod=   5
+    Diag ibx ovv=  3 0.1000000000000005D+01 eb=   0.2364257799D-01 nod=   4
   *** lx  *** Used nb =           1           3
   reserve rprodx...
   read rprodx...
  basnfp: BASFP... kmx nblocha=    7   13
   Calculate radial matrix elements...
   rho1 xxx=         383          50           0           0           2
- charge: ilm charge=    1     4.470458     2.241327
-ttt:     1     1  0.4101764441957705D+00    4.4704579208  2.2413274219  0.6713527798227164D+01 ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>
-ttt:     1     2 -0.6405639030214461D+00    4.4704579208  2.2413274219  0.8548380171803610D+00 ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>
-ttt:     1     3  0.4193742811353298D-01    4.4704579208  2.2413274219  0.5700431242703123D+00 ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>
-ttt:     1     4  0.1525167486293917D-01    4.4704579208  2.2413274219 -0.6086067818530411D-01 ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>
+ charge: ilm charge=    1     4.470437     2.241347
+ttt:     1     1  0.4101701361731095D+00    4.4704368111  2.2413471003  0.6713528069092362D+01 ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>
+ttt:     1     2 -0.6405668589805301D+00    4.4704368111  2.2413471003  0.8548360814080557D+00 ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>
+ttt:     1     3  0.4194242883193931D-01    4.4704368111  2.2413471003  0.5700428414819635D+00 ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>
+ttt:     1     4  0.1525336016050564D-01    4.4704368111  2.2413471003 -0.6086063727821693D-01 ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>
  charge: ilm charge=    2     0.000000     0.000000
 ttt:     2     1  0.0000000000000000D+00    0.0000000000  0.0000000000  0.0000000000000000D+00 ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>
 ttt:     2     2  0.0000000000000000D+00    0.0000000000  0.0000000000  0.0000000000000000D+00 ! I=(ilm, nx), <spin|B(I)>, intrho(1:nsp) <1|B(I)>

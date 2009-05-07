@@ -64,7 +64,7 @@
 
  iors  : read restart file (binary, mesh density) 
          id -  lmfp:
-         written by -  takao on  at: Sat Apr 25 19:56:57 2009
+         written by -  takao on  at: Sun May  3 15:38:25 2009
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
    atom   1    species   1:C1      
@@ -82,7 +82,7 @@
 
  Fit local orbitals to sm hankels, species C1, rmt=2.309424
   l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
-  2  low    3.927   -1.133939   -0.237234   0.95302  -2.11742   0.06142   -0.237234 
+  2  low    3.927   -1.133953   -0.237247   0.95302  -2.11743   0.06142   -0.237247 
 
  site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
  sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
@@ -103,7 +103,7 @@
 
  Fit local orbitals to sm hankels, species C1, rmt=2.309424
   l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
-  2  low    3.927   -1.133941   -0.237236   0.95302  -2.11741   0.06142   -0.237236 
+  2  low    3.927   -1.133940   -0.237234   0.95303  -2.11746   0.06142   -0.237234 
 
  site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
  sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813

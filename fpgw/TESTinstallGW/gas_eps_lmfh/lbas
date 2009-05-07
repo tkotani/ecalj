@@ -1,5 +1,5 @@
  --- Input normal(=0); coremode(=3); ptest(=4); Excore(=5); for core-valence Ex(=6); val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?
-hbasfp0: VerNum= 033a4: 08Sep2008
+hbasfp0: VerNum= 033a5: 02May2009
    ### usual mode use occ and unocc for core ### 
   goto lmto
   divisions along reciprocal base vectors G1 G2 G3=           2           2
@@ -110,10 +110,10 @@ hbasfp0: VerNum= 033a4: 08Sep2008
  norm check for phi=  1  1 0.997633D+00
  norm check for phi=  1  2 0.999512D+00
  norm check for phi=  1  3 0.999934D+00
- norm check for phi=  1  4 0.167586D-01
+ norm check for phi=  1  4 0.167587D-01
  norm check for phi=  2  1 0.999817D+00
- norm check for phi=  2  2 0.625059D-01
- norm check for phi=  2  3 0.874059D+00
+ norm check for phi=  2  2 0.625061D-01
+ norm check for phi=  2  3 0.874013D+00
  norm check for phi=  3  1 0.999944D+00
  norm check for phi=  3  2 0.501181D-02
  norm check for phi=  4  1 0.999910D+00
@@ -174,64 +174,64 @@ lx nx number ipx=   4   3   9  11
 lx nx number ipx=   4   4   9  13
   *** total number of product basis nprod=         127
  
-    ib eb=    6 0.560403D+01  ecut= 0.100000D-02
-    ib eb=    5 0.293988D+01  ecut= 0.100000D-02
-    ib eb=    4 0.124205D+00  ecut= 0.100000D-02
-    ib eb=    3 0.593818D-01  ecut= 0.100000D-02
-    ib eb=    2 0.108497D-01  ecut= 0.100000D-02
-    ib eb=    1 0.649470D-04  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.9999999999999986D+00 eb=   0.5604027250D+01 nod=   0
-    Diag ibx ovv=  2 0.9999999999999983D+00 eb=   0.2939877123D+01 nod=   2
-    Diag ibx ovv=  3 0.1000000000000023D+01 eb=   0.1242054509D+00 nod=   2
-    Diag ibx ovv=  4 0.9999999999999942D+00 eb=   0.5938180524D-01 nod=   5
-    Diag ibx ovv=  5 0.9999999999999859D+00 eb=   0.1084966585D-01 nod=   6
+    ib eb=    6 0.560390D+01  ecut= 0.100000D-02
+    ib eb=    5 0.293972D+01  ecut= 0.100000D-02
+    ib eb=    4 0.124204D+00  ecut= 0.100000D-02
+    ib eb=    3 0.593819D-01  ecut= 0.100000D-02
+    ib eb=    2 0.108496D-01  ecut= 0.100000D-02
+    ib eb=    1 0.649424D-04  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.9999999999999999D+00 eb=   0.5603898647D+01 nod=   0
+    Diag ibx ovv=  2 0.1000000000000002D+01 eb=   0.2939715430D+01 nod=   2
+    Diag ibx ovv=  3 0.9999999999999999D+00 eb=   0.1242036738D+00 nod=   2
+    Diag ibx ovv=  4 0.9999999999999903D+00 eb=   0.5938194003D-01 nod=   5
+    Diag ibx ovv=  5 0.1000000000000009D+01 eb=   0.1084964285D-01 nod=   6
   *** lx  *** Used nb =           0           5
  
-    ib eb=    5 0.744778D+00  ecut= 0.100000D-02
-    ib eb=    4 0.284142D+00  ecut= 0.100000D-02
-    ib eb=    3 0.524868D-01  ecut= 0.100000D-02
-    ib eb=    2 0.746729D-02  ecut= 0.100000D-02
-    ib eb=    1 0.154675D-02  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.1000000000000002D+01 eb=   0.7447778110D+00 nod=   5
-    Diag ibx ovv=  2 0.1000000000000006D+01 eb=   0.2841418246D+00 nod=   3
-    Diag ibx ovv=  3 0.1000000000000006D+01 eb=   0.5248684794D-01 nod=   4
-    Diag ibx ovv=  4 0.1000000000000009D+01 eb=   0.7467286611D-02 nod=   5
-    Diag ibx ovv=  5 0.1000000000000315D+01 eb=   0.1546752798D-02 nod=   5
+    ib eb=    5 0.744777D+00  ecut= 0.100000D-02
+    ib eb=    4 0.284130D+00  ecut= 0.100000D-02
+    ib eb=    3 0.524867D-01  ecut= 0.100000D-02
+    ib eb=    2 0.746706D-02  ecut= 0.100000D-02
+    ib eb=    1 0.154672D-02  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.9999999999999986D+00 eb=   0.7447766687D+00 nod=   5
+    Diag ibx ovv=  2 0.1000000000000006D+01 eb=   0.2841300420D+00 nod=   3
+    Diag ibx ovv=  3 0.9999999999999986D+00 eb=   0.5248672088D-01 nod=   4
+    Diag ibx ovv=  4 0.1000000000000023D+01 eb=   0.7467056211D-02 nod=   5
+    Diag ibx ovv=  5 0.1000000000000260D+01 eb=   0.1546716410D-02 nod=   5
   *** lx  *** Used nb =           1           5
  
-    ib eb=    7 0.404126D+01  ecut= 0.100000D-02
-    ib eb=    6 0.869831D+00  ecut= 0.100000D-02
-    ib eb=    5 0.190608D+00  ecut= 0.100000D-02
-    ib eb=    4 0.395672D-01  ecut= 0.100000D-02
-    ib eb=    3 0.159010D-01  ecut= 0.100000D-02
-    ib eb=    2 0.420173D-02  ecut= 0.100000D-02
-    ib eb=    1 0.536921D-04  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.1000000000000004D+01 eb=   0.4041259783D+01 nod=   0
-    Diag ibx ovv=  2 0.9999999999999994D+00 eb=   0.8698310837D+00 nod=   2
-    Diag ibx ovv=  3 0.1000000000000004D+01 eb=   0.1906075172D+00 nod=   4
-    Diag ibx ovv=  4 0.9999999999999920D+00 eb=   0.3956722172D-01 nod=   3
-    Diag ibx ovv=  5 0.9999999999999704D+00 eb=   0.1590098248D-01 nod=   5
-    Diag ibx ovv=  6 0.9999999999998903D+00 eb=   0.4201727296D-02 nod=   4
+    ib eb=    7 0.404097D+01  ecut= 0.100000D-02
+    ib eb=    6 0.869824D+00  ecut= 0.100000D-02
+    ib eb=    5 0.190599D+00  ecut= 0.100000D-02
+    ib eb=    4 0.395662D-01  ecut= 0.100000D-02
+    ib eb=    3 0.159009D-01  ecut= 0.100000D-02
+    ib eb=    2 0.420166D-02  ecut= 0.100000D-02
+    ib eb=    1 0.536903D-04  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.4040970546D+01 nod=   0
+    Diag ibx ovv=  2 0.1000000000000006D+01 eb=   0.8698240976D+00 nod=   2
+    Diag ibx ovv=  3 0.1000000000000003D+01 eb=   0.1905987670D+00 nod=   4
+    Diag ibx ovv=  4 0.1000000000000048D+01 eb=   0.3956615454D-01 nod=   3
+    Diag ibx ovv=  5 0.1000000000000010D+01 eb=   0.1590089719D-01 nod=   5
+    Diag ibx ovv=  6 0.1000000000000323D+01 eb=   0.4201658272D-02 nod=   4
   *** lx  *** Used nb =           2           6
  
-    ib eb=    5 0.724790D+00  ecut= 0.100000D-02
-    ib eb=    4 0.300646D+00  ecut= 0.100000D-02
-    ib eb=    3 0.235966D-01  ecut= 0.100000D-02
-    ib eb=    2 0.182066D-02  ecut= 0.100000D-02
+    ib eb=    5 0.724789D+00  ecut= 0.100000D-02
+    ib eb=    4 0.300635D+00  ecut= 0.100000D-02
+    ib eb=    3 0.235960D-01  ecut= 0.100000D-02
+    ib eb=    2 0.182060D-02  ecut= 0.100000D-02
     ib eb=    1 0.551641D-05  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.7247900841D+00 nod=   3
-    Diag ibx ovv=  2 0.1000000000000001D+01 eb=   0.3006463331D+00 nod=   2
-    Diag ibx ovv=  3 0.1000000000000015D+01 eb=   0.2359655875D-01 nod=   2
-    Diag ibx ovv=  4 0.1000000000000184D+01 eb=   0.1820658214D-02 nod=   4
+    Diag ibx ovv=  1 0.9999999999999957D+00 eb=   0.7247887738D+00 nod=   3
+    Diag ibx ovv=  2 0.9999999999999979D+00 eb=   0.3006347054D+00 nod=   2
+    Diag ibx ovv=  3 0.9999999999999937D+00 eb=   0.2359604600D-01 nod=   2
+    Diag ibx ovv=  4 0.1000000000000123D+01 eb=   0.1820602997D-02 nod=   4
   *** lx  *** Used nb =           3           4
  
-    ib eb=    4 0.381783D+01  ecut= 0.100000D-02
-    ib eb=    3 0.459562D+00  ecut= 0.100000D-02
-    ib eb=    2 0.348860D-01  ecut= 0.100000D-02
-    ib eb=    1 0.539274D-03  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.9999999999999978D+00 eb=   0.3817825489D+01 nod=   0
-    Diag ibx ovv=  2 0.9999999999999992D+00 eb=   0.4595618236D+00 nod=   2
-    Diag ibx ovv=  3 0.9999999999999858D+00 eb=   0.3488604452D-01 nod=   2
+    ib eb=    4 0.381754D+01  ecut= 0.100000D-02
+    ib eb=    3 0.459559D+00  ecut= 0.100000D-02
+    ib eb=    2 0.348841D-01  ecut= 0.100000D-02
+    ib eb=    1 0.539262D-03  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.9999999999999978D+00 eb=   0.3817537840D+01 nod=   0
+    Diag ibx ovv=  2 0.9999999999999999D+00 eb=   0.4595591102D+00 nod=   2
+    Diag ibx ovv=  3 0.1000000000000138D+01 eb=   0.3488411394D-01 nod=   2
   *** lx  *** Used nb =           4           3
   reserve rprodx...
   read rprodx...
@@ -251,9 +251,9 @@ lx nx number ipx=   4   4   9  13
  norm check for phi=  1  4 0.313528D-01
  norm check for phi=  2  1 0.999549D+00
  norm check for phi=  2  2 0.999863D+00
- norm check for phi=  2  3 0.329706D-01
+ norm check for phi=  2  3 0.329705D-01
  norm check for phi=  3  1 0.999944D+00
- norm check for phi=  3  2 0.541964D-02
+ norm check for phi=  3  2 0.541965D-02
  norm check for phi=  4  1 0.999910D+00
  norm check for phi=  4  2 0.237908D-02
  ---  lx l1 l2 n1 n2 iprad=     0    0    0    4    4    1
@@ -298,50 +298,50 @@ lx nx number ipx=   4   2   9  11
  
     ib eb=    5 0.529523D+01  ecut= 0.100000D-02
     ib eb=    4 0.776830D+00  ecut= 0.100000D-02
-    ib eb=    3 0.223686D+00  ecut= 0.100000D-02
+    ib eb=    3 0.223685D+00  ecut= 0.100000D-02
     ib eb=    2 0.347961D-01  ecut= 0.100000D-02
     ib eb=    1 0.497836D-02  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.9999999999999950D+00 eb=   0.5295228436D+01 nod=   0
-    Diag ibx ovv=  2 0.9999999999999974D+00 eb=   0.7768300178D+00 nod=   7
-    Diag ibx ovv=  3 0.1000000000000000D+01 eb=   0.2236855404D+00 nod=   2
-    Diag ibx ovv=  4 0.1000000000000009D+01 eb=   0.3479612423D-01 nod=   6
-    Diag ibx ovv=  5 0.1000000000000042D+01 eb=   0.4978355854D-02 nod=   5
+    Diag ibx ovv=  1 0.9999999999999994D+00 eb=   0.5295228503D+01 nod=   0
+    Diag ibx ovv=  2 0.9999999999999990D+00 eb=   0.7768301489D+00 nod=   7
+    Diag ibx ovv=  3 0.1000000000000003D+01 eb=   0.2236852165D+00 nod=   2
+    Diag ibx ovv=  4 0.1000000000000074D+01 eb=   0.3479612635D-01 nod=   6
+    Diag ibx ovv=  5 0.9999999999999233D+00 eb=   0.4978359149D-02 nod=   5
   *** lx  *** Used nb =           0           5
  
     ib eb=    4 0.104838D+01  ecut= 0.100000D-02
     ib eb=    3 0.388605D+00  ecut= 0.100000D-02
     ib eb=    2 0.397426D-01  ecut= 0.100000D-02
     ib eb=    1 0.655564D-02  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.1000000000000003D+01 eb=   0.1048382460D+01 nod=   5
-    Diag ibx ovv=  2 0.1000000000000002D+01 eb=   0.3886049310D+00 nod=   6
-    Diag ibx ovv=  3 0.1000000000000009D+01 eb=   0.3974263913D-01 nod=   5
-    Diag ibx ovv=  4 0.1000000000000099D+01 eb=   0.6555640293D-02 nod=   7
+    Diag ibx ovv=  1 0.1000000000000005D+01 eb=   0.1048382784D+01 nod=   5
+    Diag ibx ovv=  2 0.1000000000000007D+01 eb=   0.3886049135D+00 nod=   6
+    Diag ibx ovv=  3 0.1000000000000028D+01 eb=   0.3974261850D-01 nod=   5
+    Diag ibx ovv=  4 0.1000000000000156D+01 eb=   0.6555636624D-02 nod=   7
   *** lx  *** Used nb =           1           4
  
     ib eb=    5 0.129436D+01  ecut= 0.100000D-02
     ib eb=    4 0.340443D+00  ecut= 0.100000D-02
     ib eb=    3 0.110335D+00  ecut= 0.100000D-02
-    ib eb=    2 0.343722D-01  ecut= 0.100000D-02
+    ib eb=    2 0.343723D-01  ecut= 0.100000D-02
     ib eb=    1 0.136899D-02  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.1000000000000002D+01 eb=   0.1294361968D+01 nod=   4
-    Diag ibx ovv=  2 0.9999999999999973D+00 eb=   0.3404431518D+00 nod=   6
-    Diag ibx ovv=  3 0.9999999999999920D+00 eb=   0.1103352661D+00 nod=   3
-    Diag ibx ovv=  4 0.1000000000000009D+01 eb=   0.3437224511D-01 nod=   1
-    Diag ibx ovv=  5 0.9999999999995488D+00 eb=   0.1368991699D-02 nod=   5
+    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.1294361732D+01 nod=   4
+    Diag ibx ovv=  2 0.1000000000000001D+01 eb=   0.3404429577D+00 nod=   6
+    Diag ibx ovv=  3 0.9999999999999883D+00 eb=   0.1103351447D+00 nod=   3
+    Diag ibx ovv=  4 0.1000000000000026D+01 eb=   0.3437225189D-01 nod=   1
+    Diag ibx ovv=  5 0.9999999999995541D+00 eb=   0.1368991747D-02 nod=   5
   *** lx  *** Used nb =           2           5
  
     ib eb=    3 0.692777D+00  ecut= 0.100000D-02
     ib eb=    2 0.528252D-01  ecut= 0.100000D-02
-    ib eb=    1 0.207906D-01  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.9999999999999992D+00 eb=   0.6927765692D+00 nod=   3
-    Diag ibx ovv=  2 0.1000000000000009D+01 eb=   0.5282520304D-01 nod=   4
-    Diag ibx ovv=  3 0.1000000000000006D+01 eb=   0.2079055925D-01 nod=   3
+    ib eb=    1 0.207905D-01  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.9999999999999974D+00 eb=   0.6927765785D+00 nod=   3
+    Diag ibx ovv=  2 0.1000000000000008D+01 eb=   0.5282518740D-01 nod=   4
+    Diag ibx ovv=  3 0.9999999999999886D+00 eb=   0.2079054230D-01 nod=   3
   *** lx  *** Used nb =           3           3
  
     ib eb=    2 0.628619D+00  ecut= 0.100000D-02
-    ib eb=    1 0.957016D-01  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.9999999999999991D+00 eb=   0.6286188952D+00 nod=   0
-    Diag ibx ovv=  2 0.1000000000000001D+01 eb=   0.9570159548D-01 nod=   1
+    ib eb=    1 0.957015D-01  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.6286186325D+00 nod=   0
+    Diag ibx ovv=  2 0.1000000000000003D+01 eb=   0.9570147421D-01 nod=   1
   *** lx  *** Used nb =           4           2
   reserve rprodx...
   read rprodx...
@@ -354,7 +354,7 @@ lx nx number ipx=   4   2   9  11
  norm check for phi=  1  1 0.999987D+00
  norm check for phi=  1  2 0.122981D-01
  norm check for phi=  2  1 0.999965D+00
- norm check for phi=  2  2 0.456133D-02
+ norm check for phi=  2  2 0.456132D-02
  norm check for phi=  3  1 0.999932D+00
  norm check for phi=  3  2 0.208432D-02
  norm check for phi=  4  1 0.999890D+00
@@ -378,25 +378,25 @@ lx nx number ipx=   3   1   7   5
   *** total number of product basis nprod=          26
  
     ib eb=    3 0.459593D+01  ecut= 0.100000D-02
-    ib eb=    2 0.460054D-01  ecut= 0.100000D-02
-    ib eb=    1 0.248116D-04  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.9999999999999992D+00 eb=   0.4595926512D+01 nod=   0
-    Diag ibx ovv=  2 0.9999999999999911D+00 eb=   0.4600540152D-01 nod=   1
+    ib eb=    2 0.460055D-01  ecut= 0.100000D-02
+    ib eb=    1 0.248115D-04  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.9999999999999992D+00 eb=   0.4595926519D+01 nod=   0
+    Diag ibx ovv=  2 0.9999999999999963D+00 eb=   0.4600553077D-01 nod=   1
   *** lx  *** Used nb =           0           2
  
     ib eb=    2 0.554871D+00  ecut= 0.100000D-02
     ib eb=    1 0.102370D-01  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.9999999999999991D+00 eb=   0.5548708262D+00 nod=   0
-    Diag ibx ovv=  2 0.9999999999999959D+00 eb=   0.1023695762D-01 nod=   1
+    Diag ibx ovv=  1 0.9999999999999997D+00 eb=   0.5548709711D+00 nod=   0
+    Diag ibx ovv=  2 0.1000000000000012D+01 eb=   0.1023696818D-01 nod=   1
   *** lx  *** Used nb =           1           2
  
-    ib eb=    2 0.541861D+00  ecut= 0.100000D-02
-    ib eb=    1 0.255498D-06  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.9999999999999997D+00 eb=   0.5418614513D+00 nod=   0
+    ib eb=    2 0.541862D+00  ecut= 0.100000D-02
+    ib eb=    1 0.255636D-06  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.5418615767D+00 nod=   0
   *** lx  *** Used nb =           2           1
  
-    ib eb=    1 0.317321D+00  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.1000000000000000D+01 eb=   0.3173214914D+00 nod=   0
+    ib eb=    1 0.317322D+00  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.3173216535D+00 nod=   0
   *** lx  *** Used nb =           3           1
   reserve rprodx...
   read rprodx...
@@ -405,11 +405,11 @@ lx nx number ipx=   3   1   7   5
   basnfp_v2: end  
   basnfp_v2: ********** start ******** nrofi=         707
  norm check for phi=  0  1 0.100000D+01
- norm check for phi=  0  2 0.490425D-01
+ norm check for phi=  0  2 0.490430D-01
  norm check for phi=  1  1 0.999987D+00
  norm check for phi=  1  2 0.121764D-01
  norm check for phi=  2  1 0.999964D+00
- norm check for phi=  2  2 0.439991D-02
+ norm check for phi=  2  2 0.439992D-02
  norm check for phi=  3  1 0.999930D+00
  norm check for phi=  3  2 0.196212D-02
  norm check for phi=  4  1 0.999884D+00
@@ -433,25 +433,25 @@ lx nx number ipx=   3   1   7   5
   *** total number of product basis nprod=          26
  
     ib eb=    3 0.459594D+01  ecut= 0.100000D-02
-    ib eb=    2 0.467325D-01  ecut= 0.100000D-02
-    ib eb=    1 0.229988D-04  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.4595941873D+01 nod=   0
-    Diag ibx ovv=  2 0.9999999999999846D+00 eb=   0.4673250246D-01 nod=   1
+    ib eb=    2 0.467323D-01  ecut= 0.100000D-02
+    ib eb=    1 0.229919D-04  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.4595941816D+01 nod=   0
+    Diag ibx ovv=  2 0.1000000000000022D+01 eb=   0.4673229077D-01 nod=   1
   *** lx  *** Used nb =           0           2
  
-    ib eb=    2 0.555925D+00  ecut= 0.100000D-02
-    ib eb=    1 0.106535D-01  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.9999999999999999D+00 eb=   0.5559249039D+00 nod=   0
-    Diag ibx ovv=  2 0.1000000000000043D+01 eb=   0.1065349380D-01 nod=   1
+    ib eb=    2 0.555924D+00  ecut= 0.100000D-02
+    ib eb=    1 0.106536D-01  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.5559242411D+00 nod=   0
+    Diag ibx ovv=  2 0.9999999999999938D+00 eb=   0.1065356688D-01 nod=   1
   *** lx  *** Used nb =           1           2
  
     ib eb=    2 0.542338D+00  ecut= 0.100000D-02
-    ib eb=    1 0.157421D-06  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.1000000000000000D+01 eb=   0.5423383510D+00 nod=   0
+    ib eb=    1 0.157367D-06  ecut= 0.100000D-02
+    Diag ibx ovv=  1 0.1000000000000001D+01 eb=   0.5423376117D+00 nod=   0
   *** lx  *** Used nb =           2           1
  
     ib eb=    1 0.319023D+00  ecut= 0.100000D-02
-    Diag ibx ovv=  1 0.1000000000000000D+01 eb=   0.3190232676D+00 nod=   0
+    Diag ibx ovv=  1 0.1000000000000002D+01 eb=   0.3190230706D+00 nod=   0
   *** lx  *** Used nb =           3           1
   reserve rprodx...
   read rprodx...

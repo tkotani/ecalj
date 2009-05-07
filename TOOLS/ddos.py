@@ -3,11 +3,11 @@ import sys
 import string
 import os
 print
-print "========= plotg  ========="
+print "========= ddos compare  ========="
 try:
 	print "Readin two files =     ", sys.argv[1], sys.argv[2]
 except:	
-	print "usage: dqpu QPU1 QPU2"
+	print "usage: dqpu dos.x dos.y"
 	sys.exit()
 
 fr = open(sys.argv[1],'rt')

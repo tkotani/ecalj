@@ -262,77 +262,77 @@
 
  Make potential without XC part ...
 
- avg es pot at rmt= 0.255521  avg sphere pot= 0.313500  vconst=-0.255521
+ avg es pot at rmt= 0.255540  avg sphere pot= 0.313546  vconst=-0.255540
 
- smooth rhoves     36.949600   charge    10.206495
+ smooth rhoves     36.954480   charge    10.206146
 
  elocp:
 
  Fit local orbitals to sm hankels, species Ga, rmt=2.254225
   l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
-  2  low    3.924   -0.982576   -0.189472   1.00000  -2.71315   0.07838    0.245599*
+  2  low    3.924   -0.982948   -0.189822   1.00000  -2.71400   0.07836    0.245323*
 
  locpot:
 
  site  1  z= 31.0  rmt= 2.25422  nr=397   a=0.025  nlml=49  rg=0.564  Vfloat=T
- sm core charge = 0.112506 (sphere) + 0.001619 (spillout) = 0.114125
- potential shift to crystal energy zero:    0.000174
+ sm core charge = 0.112751 (sphere) + 0.001624 (spillout) = 0.114375
+ potential shift to crystal energy zero:    0.000175
 
  site  2  z= 33.0  rmt= 2.36169  nr=405   a=0.025  nlml=49  rg=0.590  Vfloat=T
- sm core charge = 0.571426 (sphere) + 0.01563 (spillout) = 0.587056
+ sm core charge = 0.573355 (sphere) + 0.015714 (spillout) = 0.589069
  potential shift to crystal energy zero:    0.000026
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -12.440852      -284.780307      -297.221158
-   rhoval*ves            -69.660592      -196.090146      -265.750738
-   psnuc*ves             143.559791    -33206.024192    -33062.464401
-   utot                   36.949600    -16701.057169    -16664.107570
-   rho*exc                 0.000000      -299.512148      -299.512148
-   rho*vxc                 0.000000      -396.773774      -396.773774
-   valence chg            10.206495         7.793505        18.000000
+   rhoval*vef            -12.443702      -284.807979      -297.251681
+   rhoval*ves            -69.664468      -196.115160      -265.779629
+   psnuc*ves             143.573429    -33205.268960    -33061.695531
+   utot                   36.954480    -16700.692060    -16663.737580
+   rho*exc                 0.000000      -299.495485      -299.495485
+   rho*vxc                 0.000000      -396.751675      -396.751675
+   valence chg            10.206146         7.793854        18.000000
    core charge            46.000000         0.000000        46.000000
 
  Charges:  valence    18.00000   cores    46.00000   nucleii   -64.00000
     hom background     0.00000   deviation from neutrality:      0.00000
 
- avg es pot at rmt= 0.255521  avg sphere pot= 0.313500  vconst=-0.255521
+ avg es pot at rmt= 0.255540  avg sphere pot= 0.313546  vconst=-0.255540
 
- smooth rhoves     36.949600   charge    10.206495
- smooth rhoeps =   -7.545119   rhomu =   -9.823814  avg vxc =   -0.688604 
+ smooth rhoves     36.954480   charge    10.206146
+ smooth rhoeps =   -7.547685   rhomu =   -9.827173  avg vxc =   -0.688605 
 
  elocp:
 
  Fit local orbitals to sm hankels, species Ga, rmt=2.254225
   l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
-  2  low    3.924   -0.982575   -0.189471   1.00000  -2.71315   0.07838    0.245599*
+  2  low    3.924   -0.982944   -0.189810   1.00000  -2.71400   0.07836    0.245323*
 
  locpot:
 
  site  1  z= 31.0  rmt= 2.25422  nr=397   a=0.025  nlml=49  rg=0.564  Vfloat=T
  writing sphere density to file rhoMT.1 ...
- sm core charge = 0.112506 (sphere) + 0.001619 (spillout) = 0.114125
- potential shift to crystal energy zero:    0.000174
+ sm core charge = 0.112751 (sphere) + 0.001624 (spillout) = 0.114375
+ potential shift to crystal energy zero:    0.000175
 
  site  2  z= 33.0  rmt= 2.36169  nr=405   a=0.025  nlml=49  rg=0.590  Vfloat=T
  writing sphere density to file rhoMT.2 ...
- sm core charge = 0.571426 (sphere) + 0.01563 (spillout) = 0.587056
+ sm core charge = 0.573355 (sphere) + 0.015714 (spillout) = 0.589069
  potential shift to crystal energy zero:    0.000026
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -21.481713      -284.780307      -306.262020
-   rhoval*ves            -69.660592      -196.090146      -265.750738
-   psnuc*ves             143.559791    -33206.024192    -33062.464401
-   utot                   36.949600    -16701.057169    -16664.107570
-   rho*exc                -7.545119      -299.512148      -307.057267
-   rho*vxc                -9.823814      -396.773774      -406.597588
-   valence chg            10.206495         7.793505        18.000000
+   rhoval*vef            -21.485228      -284.807979      -306.293207
+   rhoval*ves            -69.664468      -196.115160      -265.779629
+   psnuc*ves             143.573429    -33205.268960    -33061.695531
+   utot                   36.954480    -16700.692060    -16663.737580
+   rho*exc                -7.547685      -299.495485      -307.043171
+   rho*vxc                -9.827173      -396.751675      -406.578849
+   valence chg            10.206146         7.793854        18.000000
    core charge            46.000000         0.000000        46.000000
 
  Charges:  valence    18.00000   cores    46.00000   nucleii   -64.00000
     hom background     0.00000   deviation from neutrality:      0.00000
 
  subzi: sampling integration of bands; sampling integration of density
-        sampling integration uses:  N=0  W=0.005  ef0=0.098948
+        sampling integration uses:  N=0  W=0.005  ef0=0.098738
 
  Start first of two band passes ...
 

@@ -1,6 +1,3 @@
-# This is for core i7 with ifort ver.11
-#
-
 ######################################################
 #
 # $lmdir, which is defined in Makefile in ./ and in other 
@@ -12,25 +9,24 @@
 target:	ALL
 
 
+
 ############################################
 # Libraries BLAS LAPACK FFTW 
 ############################################
 ### For a case of ifort.
 #eee = /home/takao/ecal
-#LIBLOC = 
+#LIBLOC = \
 #  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
 #  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
 #  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
-#  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a 
-
-#LIBLOC= -static -lmkl_lapack64 /home/takao/GotoBLAS/libgoto.a -lguide -lfftw3
+#  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a -pthread 
+## -lsvml
+#
+### for a case of MPI
+eee = /home/takao/ecal
 
 LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 
-#LIBLOC=-L/home/takao/MATHLIB/ATLAS/MyObj/lib -llapack -lcblas -lf77blas -latlas -lgfortran -lfftw3
-
-### for a case of MPI
-#eee = /home/takao/ecal
 #LIBLOC = \
 #  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
 #  /home/takao/SCALAPACK/scalapack.a \
@@ -38,8 +34,9 @@ LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 #  /home/takao/BLACS/LIB/blacs_MPI-LINUX-0.a \
 #  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
 #  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
-#  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a -pthread 
-##-lsvml
+#  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a 
+#-pthread 
+#-lsvml
 #
 ### kino's case
 # LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
@@ -52,28 +49,22 @@ LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 ############################################
 # Fortran compiler and flags, and linker 
 ############################################
-#FC = mpif90
-#LK = mpif90
- FC = ifort
- LK = ifort
-#FC = ifort -openmp
-#LK = ifort -openmp
+FC = mpif90
+LK = mpif90
+#FC = ifort
+#LK = ifort
 #
 # where is modules?
-moddir = $(lmdir)MODDIR/
+moddir = $(lmdir)MODDIR/MPIK/
 module = -module $(moddir)
 #
 FFLAGS = -O3 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS = -O2 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS = -O1 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS = -O2 -cm -WB  -cpp $(CPP_SW) $(module)
-#FFLAGS = -O0 -cm -WB  -cpp $(CPP_SW) $(module)
 FFLAGS_LESS = -O2 -cm -WB  -cpp $(CPP_SW) $(module)
 FFLAGS_LESS2 = -O1 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_LESS3 = -O0 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_NONE = -g -cm -WB   -cpp $(CPP_SW) $(module)
 #
-# safer option (debug)
+# safer option 
 #FFLAGS =      -g -cm -WB -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS = -g -cm -WB -cpp $(CPP_SW) $(module)
 #FFLAGS_LESS2 = -g -cm -WB -cpp $(CPP_SW) $(module)
@@ -81,25 +72,12 @@ FFLAGS_NONE = -g -cm -WB   -cpp $(CPP_SW) $(module)
 #FFLAGS_NONE = -g -cm -WB -cpp $(CPP_SW) $(module)
 
 
-###################################################
+
+############################################
 # CPP switches (instead of old ccomp procedure
-###################################################
-CPP_SW=-DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT  
-#
-#MPI  case add  -UMPE -UMPIK -DMPI 
-#
-##MPIK case k-point parallelizaion in MPI add -UMPE -DMPIK -UMPI 
-
-
-
-
-#$(SLATSM)(zhev.o): zhev.F
-#	$(FC) $(FFLAGS_NONE) -c zhev.F
-#	$(AR) $(ARFLAGS) $(SLATSM) zhev.o
-#	rm -f zhev.o
-
-
-
+############################################
+#CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME  -DHASGETENVIRONMENTVARIABLE  -DNOQUAD  -DNOT_OVERLAP_VAR  -UMPE -DMPIK -UMPI 
+CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT  -UMPE -DMPIK -UMPI 
 
 
 ############################################
@@ -178,7 +156,6 @@ $(SUBS)(m_rdctrlchk.o):	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
 $(SUBS)(rdctrl2.o):	$(moddir)m_gtv.mod $(moddir)m_rdctrl.mod
 $(SUBS)(rdctrlchk.o):	$(moddir)m_gtv.mod $(moddir)m_rdctrlchk.mod
 $(FP)(bndfp.o):	$(moddir)m_rdctrl.mod
-$(GWD)(bndfp.o):	$(moddir)m_rdctrl.mod
 
 
 
@@ -205,13 +182,13 @@ RANLIB = ranlib
 ################################################
 # program and libraries (choose one of sections; normal, MPI, or MPIK)
 ################################################
-programs = lmf lmfa lmfgw lmdos lmchk lmf2gw lm67 rdcmd
-SUBS   = libsubs.a
-FP     = libfp.a
-GWD    = libgwd.a
-SLATSM = slatsm.a
-#NC     = libnc.a
-#TB     = libtb.a
+#programs = lmf lmfa lmfgw lmdos lmchk lmf2gw
+#SUBS   = libsubs.a
+#FP     = libfp.a
+#GWD    = libgwd.a
+#SLATSM = slatsm.a
+##NC     = libnc.a
+##TB     = libtb.a
 #
 ### MPI case #####
 #programs = lmf-MPI lmfgw-MPI
@@ -221,11 +198,12 @@ SLATSM = slatsm.a
 #SLATSM = slatsm-MPI.a
 #
 ##### MPIK case ##
-#programs = lmf-MPIK lmfgw-MPIK
-#SUBS   = libsubs-MPIK.a 
-#FP     = libfp-MPIK.a
-#GWD    = libgwd-MPIK.a
-#SLATSM = slatsm-MPI.a  #slatsm-MPI = slatsm-MPIK
+programs = lmf-MPIK lmfgw-MPIK
+SUBS   = libsubs-MPIK.a 
+FP     = libfp-MPIK.a
+GWD    = libgwd-MPIK.a
+SLATSM = slatsm-MPI.a  
+#Note that slatsm-MPI = slatsm-MPIK
 
 
 ### path to libraries (fixed) #########
@@ -236,3 +214,18 @@ LIBSLA  = $(lmdir)/slatsm/$(SLATSM)
 #LIBNC   = $(lmdir)/nc/$(NC)
 #LIBTB   = $(lmdir)/tb/$(TB)
 LIBES = $(LIBSLA) $(LIBLOC)
+
+
+####### for MPIK
+lmf-MPIK.o: lmv7.F
+	$(FC) $(FFLAGS) -DLMF -c lmv7.F -o $@
+
+lmf-MPIK:	lmf-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
+	$(LK) $(LKFLAGS1) $@.o $(LIBFP) $(LIBSUBS) $(LIBES) $(LKFLAGS2) -o $@
+
+lmfgw-MPIK.o: lmv7.F
+	$(FC) $(FFLAGS) -DLMFGWD -c lmv7.F -o $@
+
+lmfgw-MPIK:	lmfgw-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBGWD) $(LIBSLA)
+	$(LK) $(LKFLAGS1) $@.o $(LIBGWD) $(LIBFP) $(LIBSUBS) $(LIBES) $(LKFLAGS2) -o $@
+

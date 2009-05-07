@@ -1,5 +1,5 @@
  --- Input normal(=0); coremode(=3); ptest(=4); Excore(=5); for core-valence Ex(=6); val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?
-hbasfp0: VerNum= 033a4: 08Sep2008
+hbasfp0: VerNum= 033a5: 02May2009
   ### ptest mode. now special for Q0P. GWIN_V2 is neglected ### 
    See basnfp.f of ptest section.
   goto lmto

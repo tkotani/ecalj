@@ -78,7 +78,7 @@
 
 
  subzi: sampling integration of bands; sampling integration of density
-        sampling integration uses:  N=0  W=0.002  ef0=0.050828
+        sampling integration uses:  N=0  W=0.005  ef0=0.050831
 
  Start first of two band passes ...
   lmfgw: input one of the following jobs:
