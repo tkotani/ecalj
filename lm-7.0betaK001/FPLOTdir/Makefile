@@ -1,5 +1,5 @@
-lmdir= ../
-include ../Make.inc
+#lmdir= ../
+
 
 # Allow configure to specify the install program.
 INSTALL = /usr/bin/install -c
@@ -20,13 +20,13 @@ PROGS = fplot pldos plbnds
 ALL:	$(PROGS)
 
 fplot:	fplot.o fpsub.o plsub.o contour.o
-	$(LK) $(LKFLAGS1) $@.o fpsub.o plsub.o contour.o $(LIBES) $(LKFLAGS2) -o $@
+	$(LK) $(LKFLAGS1) $@.o fpsub.o plsub.o contour.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 pldos:	pldos.o plsub.o
-	$(LK) $(LKFLAGS1) $@.o plsub.o $(LIBES) $(LKFLAGS2) -o $@
+	$(LK) $(LKFLAGS1) $@.o plsub.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 plbnds:	plbnds.o plsub.o
-	$(LK) $(LKFLAGS1) $@.o plsub.o $(LIBES) $(LKFLAGS2) -o $@
+	$(LK) $(LKFLAGS1) $@.o plsub.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 progs:
 	make -f Makefile fplot pldos plbnds
@@ -38,7 +38,9 @@ tar:
 	rm -r -f plot
  
 clean:	
-	rm -f $(PROGS)
+	rm -f $(PROGS) 
+cleanobj:
+	rm -f $(PROGS)  *.o 
 
 veryclean:
 	for p in  fplot pldos plbnds; do \
@@ -55,3 +57,7 @@ check:
 	 examples/test.plbnds --quiet $(ADD0)
 
  
+include ../MAKEINC/Make.inc.$(PLATFORM)
+# use serial version, overwrite LIBSLA 
+LIBSLA=../slatsm/slatsm.a
+

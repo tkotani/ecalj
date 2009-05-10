@@ -6,7 +6,7 @@
 ######################################################
 
 #### jump to target (keep this as it is) ###
-target:	ALL
+#target:	ALL
 
 
 
@@ -36,10 +36,10 @@ LIBLOC = \
 ##-lsvml
 #
 ### kino's case
-# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
-# $(HOME)/kit/numericallib/LAPACK/lapack_LinuxCore2.a \
-# $(HOME)/kit/numericallib/LAPACK/blas_LinuxCore2.a \
-# $(HOME)/kit/numericallib/LAPACK/tmglib_LinuxCore2.a 
+ LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
+ $(HOME)/kit/numericallib/LAPACK/lapack_LinuxCore2.a \
+ $(HOME)/kit/numericallib/LAPACK/blas_LinuxCore2.a \
+ $(HOME)/kit/numericallib/LAPACK/tmglib_LinuxCore2.a 
 
 
 
@@ -52,7 +52,7 @@ FC = ifort
 LK = ifort
 #
 # where is modules?
-moddir = $(lmdir)MODDIR/
+moddir = MODDIR/
 module = -module $(moddir)
 #
 FFLAGS = -O3 -cm -WB  -cpp $(CPP_SW) $(module)
@@ -80,91 +80,11 @@ CPP_SW=-DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHAS
 
 
 
-############################################
-### Patches for intel ifc ##################
-#
-# Note that $SLATSM... are defined below.
-#
-############################################
-## ... patch section for ./slatsm/slatsm.a
-$(SLATSM)(huntx.o): huntx.F
-	$(FC) $(FFLAGS_LESS3) -c huntx.F
-	$(AR) $(ARFLAGS) $(SLATSM) huntx.o
-	rm -f huntx.o
- 
-$(SLATSM)(hunti.o): hunti.F
-	$(FC) $(FFLAGS_LESS3) -c hunti.F
-	$(AR) $(ARFLAGS) $(SLATSM) hunti.o
-	rm -f hunti.o
- 
-$(SLATSM)(polcof.o): polcof.F
-	$(FC) $(FFLAGS_LESS3) -c polcof.F
-	$(AR) $(ARFLAGS) $(SLATSM) polcof.o
-	rm -f polcof.o
- 
-$(SLATSM)(rdfiln.o): rdfiln.F
-	$(FC) $(FFLAGS_LESS3) -c rdfiln.F
-	$(AR) $(ARFLAGS) $(SLATSM) rdfiln.o
-	rm -f rdfiln.o
-
-## patch section for ./subs/subs.a
-$(SUBS)(ropbes.o): $(lmdir)subs/ropbes.F
-	$(FC) $(FFLAGS_LESS3) -c ropbes.F
-	$(AR) $(ARFLAGS) $(SUBS) ropbes.o
-	rm -f ropbes.o
- 
-$(SUBS)(ropyln.o): $(lmdir)subs/ropyln.F
-	$(FC) $(FFLAGS_LESS3) -c ropyln.F
-	$(AR) $(ARFLAGS) $(SUBS) ropyln.o
-	rm -f ropyln.o
- 
-$(SUBS)(spcgrp.o): $(lmdir)subs/spcgrp.F
-	$(FC) $(FFLAGS_LESS) -c spcgrp.F
-	$(AR) $(ARFLAGS) $(SUBS) spcgrp.o
-	rm -f spcgrp.o
-
-
-### these modules requies no optimization ---> safer.
-$(SUBS)(m_toksw.o) $(moddir)m_toksw.mod $(moddir)m_gtv.mod:	m_toksw.F
-	$(FC) $(FFLAGS_NONE) -c m_toksw.F
-	$(AR) $(ARFLAGS) $(SUBS) m_toksw.o
-	rm -f m_toksw.o
-
-$(SUBS)(m_rdctrl.o) $(moddir)m_rdctrl.mod:	$(lmdir)subs/m_rdctrl.F
-	$(FC) $(FFLAGS_NONE) -c m_rdctrl.F
-	$(AR) $(ARFLAGS) $(SUBS) m_rdctrl.o
-	rm -f m_rdctrl.o
-
-$(SUBS)(m_rdctrlchk.o) $(moddir)m_rdctrlchk.mod:	$(lmdir)subs/m_rdctrlchk.F
-	$(FC) $(FFLAGS_NONE) -c m_rdctrlchk.F
-	$(AR) $(ARFLAGS) $(SUBS) m_rdctrlchk.o
-	rm -f m_rdctrlchk.o
-
-## ... patch section for ./fp/subs.a
-$(FP)(rhogkl.o): rhogkl.F
-	$(FC) $(FFLAGS_LESS) -c rhogkl.F
-	$(AR) $(ARFLAGS) $(FP) rhogkl.o
-	rm -f rhogkl.o
-
-
-
-################################################
-# module dependency (fixed). What *.F contains what modules.
-################################################
-$(SUBS)(m_rdctrl.o):	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
-$(SUBS)(m_rdctrlchk.o):	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
-$(SUBS)(rdctrl2.o):	$(moddir)m_gtv.mod $(moddir)m_rdctrl.mod
-$(SUBS)(rdctrlchk.o):	$(moddir)m_gtv.mod $(moddir)m_rdctrlchk.mod
-$(FP)(bndfp.o):	$(moddir)m_rdctrl.mod
-$(GWD)(bndfp.o):	$(moddir)m_rdctrl.mod
-
-
-
 ################################################
 # --- Make rules ---(fixed).
 ################################################
-.F.o: 
-	$(FC) $(FFLAGS) -c $<
+#.F.o: 
+#	$(FC) $(FFLAGS) -c $<
  
 #.F.a: 
 #	$(FC) $(FFLAGS) -c $<
@@ -172,22 +92,91 @@ $(GWD)(bndfp.o):	$(moddir)m_rdctrl.mod
 #	rm -f $%
 
 
+
+#$(SLATSM)(zhev.o): zhev.F
+#	$(FC) $(FFLAGS_NONE) -c zhev.F
+#	$(AR) $(ARFLAGS) $(SLATSM) zhev.o
+#	rm -f zhev.o
+
+
+
+
+
+############################################
+### Patches for intel ifc ##################
+#
+# Note that $SLATSM... are defined below.
+#
+############################################
+## ... patch section for ./slatsm/slatsm.a
+$(sla_obj_path)/huntx.o:slatsm/huntx.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+ 
+$(sla_obj_path)/hunti.o: slatsm/hunti.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+ 
+$(sla_obj_path)/polcof.o: slatsm/polcof.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+ 
+$(sla_obj_path)/rdfiln.o: slatsm/rdfiln.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+
+## patch section for ./subs/subs.a
+$(subs_obj_path)/ropbes.o: subs/ropbes.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+ 
+$(subs_obj_path)/ropyln.o: subs/ropyln.F
+	$(FC) $(FFLAGS_LESS3) -c $< -o $@
+ 
+$(subs_obj_path)/spcgrp.o: subs/spcgrp.F
+	$(FC) $(FFLAGS_LESS) -c $< -o $@
+
+### these modules requies no optimization ---> safer.
+$(subs_obj_path)/m_toksw.o $(moddir)m_toksw.mod $(moddir)m_gtv.mod:	subs/m_toksw.F
+	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_toksw.o
+
+$(subs_obj_path)/m_rdctrl.o $(moddir)m_rdctrl.mod:	subs/m_rdctrl.F
+	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrl.o 
+
+$(subs_obj_path)/m_rdctrlchk.o $(moddir)m_rdctrlchk.mod:	subs/m_rdctrlchk.F
+	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrlchk.o
+
+## ... patch section for ./fp/subs.a
+$(fp_obj_path)/rhogkl.o: fp/rhogkl.F
+	$(FC) $(FFLAGS_LESS) -c $< -o $@
+
+
+
+################################################
+# module dependency (fixed). What *.F contains what modules.
+################################################
+$(subs_obj_path)/m_rdctrl.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
+$(subs_obj_path)/m_rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
+$(subs_obj_path)/rdctrl2.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrl.mod
+$(subs_obj_path)/rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrlchk.mod
+$(fp_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
+$(gwd_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
+
+
+
+
+
 ################################################
 # archiver (maybe fixed).
 ################################################
-AR = ar
-ARFLAGS = rv
-RANLIB = ranlib
+AR := ar
+ARFLAGS := rv
+RANLIB := ranlib
 
 
 ################################################
 # program and libraries (choose one of sections; normal, MPI, or MPIK)
 ################################################
 programs = lmf lmfa lmfgw lmdos lmchk lmf2gw lm67 rdcmd
-SUBS   = libsubs.a
-FP     = libfp.a
-GWD    = libgwd.a
-SLATSM = slatsm.a
+SUBS   := libsubs.a
+FP     := libfp.a
+GWD    := libgwd.a
+SLATSM := slatsm.a
 #NC     = libnc.a
 #TB     = libtb.a
 #
@@ -207,10 +196,32 @@ SLATSM = slatsm.a
 
 
 ### path to libraries (fixed) #########
-LIBSUBS = $(lmdir)/subs/$(SUBS)
-LIBFP   = $(lmdir)/fp/$(FP)
-LIBGWD  = $(lmdir)/gwd/$(GWD)
-LIBSLA  = $(lmdir)/slatsm/$(SLATSM)
-#LIBNC   = $(lmdir)/nc/$(NC)
-#LIBTB   = $(lmdir)/tb/$(TB)
-LIBES = $(LIBSLA) $(LIBLOC)
+LIBSUBS := subs/$(SUBS)
+LIBFP   := fp/$(FP)
+LIBGWD  := gwd/$(GWD)
+LIBSLA  := slatsm/$(SLATSM)
+#LIBNC   = nc/$(NC)
+#LIBTB   = tb/$(TB)
+#LIBES := $(LIBSLA) $(LIBLOC)
+
+
+#???
+# $(LIBSUBS): $(subs_obj)   fails
+#	$(AR) $(ARFLAGS) $@ $(subs_obj)
+#
+
+subs/$(SUBS):$(subs_obj)
+	$(AR) $(ARFLAGS) $@ $(subs_obj)
+
+fp/$(FP): $(fp_obj)
+	$(AR) $(ARFLAGS) $@ $(fp_obj)
+
+slatsm/$(SLATSM): $(sla_obj)
+	$(AR) $(ARFLAGS) $@ $(sla_obj)
+
+gwd/$(GWD): $(gwd_obj)
+	$(AR) $(ARFLAGS) $@ $(gwd_obj)
+
+
+
+
