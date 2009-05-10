@@ -14,7 +14,7 @@ ALL:
 #	(cd tb; make -f Makefile )
 
 
-# Generate main routines
+# Generate main routines axxxxx
 lmchk.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMCHK -DFP -c lmv7.F -o $@
 #lm.o: lmv7.F
