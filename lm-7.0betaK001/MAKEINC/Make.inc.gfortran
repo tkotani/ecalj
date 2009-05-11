@@ -9,17 +9,16 @@
 #target:	ALL
 
 
-
 ############################################
 # Libraries BLAS LAPACK FFTW 
 ############################################
 ### For a case of ifort.
-eee = /home/takao/ecal
-LIBLOC = \
-  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
-  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
-  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
-  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a 
+#eee = /home/takao/ecal
+#LIBLOC = \
+#  $(eee)/fftw-3.1.2/.libs/libfftw3.a \
+#  $(eee)/BLASplusLAPACK/LAPACK_A/lapack_a.a \
+#  $(eee)/BLASplusLAPACK/GotoBLAS/xerbla.o  \
+#  $(eee)/BLASplusLAPACK/GotoBLAS/libgoto.a 
 # -pthread 
 # -lsvml
 #
@@ -36,12 +35,15 @@ LIBLOC = \
 ##-lsvml
 #
 ### kino's case
- LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
- $(HOME)/kit/numericallib/LAPACK/lapack_LinuxCore2.a \
- $(HOME)/kit/numericallib/LAPACK/blas_LinuxCore2.a \
- $(HOME)/kit/numericallib/LAPACK/tmglib_LinuxCore2.a \
- -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
+# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
+# $(HOME)/kit/numericallib/LAPACK/lapack_LinuxCore2.a \
+# $(HOME)/kit/numericallib/LAPACK/blas_LinuxCore2.a \
+# $(HOME)/kit/numericallib/LAPACK/tmglib_LinuxCore2.a \
+# -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
 
+#LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
+#LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
+LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
 
 
 
@@ -54,8 +56,7 @@ FC = f95
 LK = f95
 #
 # where is modules?
-moddir = $(lmdir)MODDIR/
-module = -module $(moddir)
+moddir = MODDIR/$(obj_path)
 module = -J$(moddir) -I$(moddir)
 #
 FFLAGS = -O3  -fomit-frame-pointer -funroll-loops  -ffast-math  $(CPP_SW) $(module)
@@ -83,29 +84,6 @@ CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME  -DHASGETENVIRONMENTVARI
 #MPI  case add  -UMPE -UMPIK -DMPI 
 #
 ##MPIK case k-point parallelizaion in MPI add -UMPE -DMPIK -UMPI 
-
-
-
-################################################
-# --- Make rules ---(fixed).
-################################################
-#.F.o: 
-#	$(FC) $(FFLAGS) -c $<
- 
-#.F.a: 
-#	$(FC) $(FFLAGS) -c $<
-#	$(AR) $(ARFLAGS) $@ $%
-#	rm -f $%
-
-
-
-#$(SLATSM)(zhev.o): zhev.F
-#	$(FC) $(FFLAGS_NONE) -c zhev.F
-#	$(AR) $(ARFLAGS) $(SLATSM) zhev.o
-#	rm -f zhev.o
-
-
-
 
 
 ############################################
@@ -138,13 +116,13 @@ $(subs_obj_path)/spcgrp.o: subs/spcgrp.F
 	$(FC) $(FFLAGS_LESS) -c $< -o $@
 
 ### these modules requies no optimization ---> safer.
-$(subs_obj_path)/m_toksw.o $(moddir)m_toksw.mod $(moddir)m_gtv.mod:	subs/m_toksw.F
+$(subs_obj_path)/m_toksw.o $(moddir)/m_toksw.mod $(moddir)/m_gtv.mod:	subs/m_toksw.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_toksw.o
 
-$(subs_obj_path)/m_rdctrl.o $(moddir)m_rdctrl.mod:	subs/m_rdctrl.F
+$(subs_obj_path)/m_rdctrl.o $(moddir)/m_rdctrl.mod:	subs/m_rdctrl.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrl.o 
 
-$(subs_obj_path)/m_rdctrlchk.o $(moddir)m_rdctrlchk.mod:	subs/m_rdctrlchk.F
+$(subs_obj_path)/m_rdctrlchk.o $(moddir)/m_rdctrlchk.mod:	subs/m_rdctrlchk.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrlchk.o
 
 ## ... patch section for ./fp/subs.a
@@ -156,15 +134,12 @@ $(fp_obj_path)/rhogkl.o: fp/rhogkl.F
 ################################################
 # module dependency (fixed). What *.F contains what modules.
 ################################################
-$(subs_obj_path)/m_rdctrl.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
-$(subs_obj_path)/m_rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
-$(subs_obj_path)/rdctrl2.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrl.mod
-$(subs_obj_path)/rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrlchk.mod
-$(fp_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
-$(gwd_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
-
-
-
+$(subs_obj_path)/m_rdctrl.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod
+$(subs_obj_path)/m_rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod
+$(subs_obj_path)/rdctrl2.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod
+$(subs_obj_path)/rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrlchk.mod
+$(fp_obj_path)/bndfp.o:		$(moddir)/m_rdctrl.mod
+$(gwd_obj_path)/bndfp.o:	$(moddir)/m_rdctrl.mod
 
 
 ################################################

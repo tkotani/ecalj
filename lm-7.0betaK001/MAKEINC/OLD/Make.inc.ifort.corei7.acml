@@ -1,4 +1,4 @@
-# This is for core i7 with ifort ver.11
+# This is for core i7 with ifort ver.11 acml 
 #
 
 ######################################################
@@ -60,7 +60,7 @@ LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 #LK = ifort -openmp
 #
 # where is modules?
-moddir = $(lmdir)MODDIR/
+moddir = MODDIR/
 module = -module $(moddir)
 #
 FFLAGS = -O3 -cm -WB  -cpp $(CPP_SW) $(module)
@@ -169,29 +169,16 @@ $(FP)(rhogkl.o): rhogkl.F
 	rm -f rhogkl.o
 
 
-
 ################################################
 # module dependency (fixed). What *.F contains what modules.
 ################################################
-$(SUBS)(m_rdctrl.o):	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
-$(SUBS)(m_rdctrlchk.o):	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
-$(SUBS)(rdctrl2.o):	$(moddir)m_gtv.mod $(moddir)m_rdctrl.mod
-$(SUBS)(rdctrlchk.o):	$(moddir)m_gtv.mod $(moddir)m_rdctrlchk.mod
-$(FP)(bndfp.o):	$(moddir)m_rdctrl.mod
-$(GWD)(bndfp.o):	$(moddir)m_rdctrl.mod
+$(subs_obj_path)/m_rdctrl.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
+$(subs_obj_path)/m_rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
+$(subs_obj_path)/rdctrl2.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrl.mod
+$(subs_obj_path)/rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrlchk.mod
+$(fp_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
+$(gwd_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
 
-
-
-################################################
-# --- Make rules ---(fixed).
-################################################
-.F.o: 
-	$(FC) $(FFLAGS) -c $<
- 
-#.F.a: 
-#	$(FC) $(FFLAGS) -c $<
-#	$(AR) $(ARFLAGS) $@ $%
-#	rm -f $%
 
 
 ################################################
@@ -206,10 +193,10 @@ RANLIB = ranlib
 # program and libraries (choose one of sections; normal, MPI, or MPIK)
 ################################################
 programs = lmf lmfa lmfgw lmdos lmchk lmf2gw lm67 rdcmd
-SUBS   = libsubs.a
-FP     = libfp.a
-GWD    = libgwd.a
-SLATSM = slatsm.a
+SUBS   := libsubs.a
+FP     := libfp.a
+GWD    := libgwd.a
+SLATSM := slatsm.a
 #NC     = libnc.a
 #TB     = libtb.a
 #
@@ -229,10 +216,29 @@ SLATSM = slatsm.a
 
 
 ### path to libraries (fixed) #########
-LIBSUBS = $(lmdir)/subs/$(SUBS)
-LIBFP   = $(lmdir)/fp/$(FP)
-LIBGWD  = $(lmdir)/gwd/$(GWD)
-LIBSLA  = $(lmdir)/slatsm/$(SLATSM)
-#LIBNC   = $(lmdir)/nc/$(NC)
-#LIBTB   = $(lmdir)/tb/$(TB)
-LIBES = $(LIBSLA) $(LIBLOC)
+LIBSUBS := subs/$(SUBS)
+LIBFP   := fp/$(FP)
+LIBGWD  := gwd/$(GWD)
+LIBSLA  := slatsm/$(SLATSM)
+#LIBNC   = nc/$(NC)
+#LIBTB   = tb/$(TB)
+#LIBES := $(LIBSLA) $(LIBLOC)
+
+
+#???
+# $(LIBSUBS): $(subs_obj)   fails
+#	$(AR) $(ARFLAGS) $@ $(subs_obj)
+#
+
+subs/$(SUBS):$(subs_obj)
+	$(AR) $(ARFLAGS) $@ $(subs_obj)
+
+fp/$(FP): $(fp_obj)
+	$(AR) $(ARFLAGS) $@ $(fp_obj)
+
+slatsm/$(SLATSM): $(sla_obj)
+	$(AR) $(ARFLAGS) $@ $(sla_obj)
+
+gwd/$(GWD): $(gwd_obj)
+	$(AR) $(ARFLAGS) $@ $(gwd_obj)
+

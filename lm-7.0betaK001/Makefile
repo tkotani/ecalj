@@ -1,17 +1,28 @@
-###################################
-#choose macine dependent PLATFORM
-###################################
+######################################################################################################
+# How to install. 
+# 1. Choose machine dependent $PLATFORM below.
+#   ./MAKEINC/Make.inc.$PLATFORM should exist.
+#    You have to set math library and so on in the Make.inc.$PLATFORM.
+# 2. Need gnumake. MAKE=gmake
+#
+# 3. Type "make".
+#    There are make options .PHONY targets.
+#
+#  * Be careful---> you can not add any space at the end of PLATFORM.
+#  * When you switch to different platform in a machine, you have to clean up FPLOTdir/*.o *.o in advance by hand, 
+#    or use 'make clean'.
+######################################################################################################
 
-#PLATFORM=gfortran
-PLATFORM=ifort
+# It will reads MAKEINC/Make.inc.$(PLATFORM).
+PLATFORM=gfortran
+#PLATFORM=ifort
 #PLATFORM=ifort_mpi
 #PLATFORM=ifort_mpik
 
-# It will reads MAKEINC/Make.inc.$(PLATFORM).
 
-########################################
-#don't edit lines below 
-########################################
+###########################################################################
+# Don't edit lines below 
+###########################################################################
 
 obj_path=obj.$(PLATFORM)
 
@@ -21,7 +32,7 @@ include fp/make.inc
 include gwd/make.inc
 
 #################################
-.PHONY: slatsm-lib gwd-lib fp-lib subs-lib  slatsm-dir gwd-dir fp-dir subs-dir libs progs clean cleanobj veryclean distclean check checkgw install 
+.PHONY: slatsm-lib gwd-lib fp-lib subs-lib  slatsm-dir gwd-dir fp-dir subs-dir mod-dir libs progs clean cleanobj veryclean distclean check checkgw install 
 #################################
 
 
@@ -42,23 +53,22 @@ ALL: libs
 
 
 # Generate main routines
-libs:
+libs: mod-dir slatsm-dir subs-dir fp-dir gwd-dir 
 	$(MAKE) -f Makefile slatsm-lib
 	$(MAKE) -f Makefile subs-lib
 	$(MAKE) -f Makefile fp-lib
 	$(MAKE) -f Makefile gwd-lib
 
-slatsm-lib: slatsm-dir
-subs-lib: subs-dir
-fp-lib: fp-dir subs-lib
-gwd-lib: gwd-dir subs-lib
+#slatsm-lib: slatsm-dir
+#subs-lib: subs-dir
+#fp-lib: fp-dir subs-lib
+#gwd-lib: gwd-dir subs-lib
 
 
 
 ########################################
 # general rules
 ########################################
-
 %.o:%.F
 	$(FC) $(FFLAGS) -c $<
 
@@ -100,6 +110,8 @@ $(gwd_obj_path)/%.o: gwd/%.F
 ########################################
 
 include MAKEINC/Make.inc.$(PLATFORM)
+mod-dir:
+	[ -d $(moddir) ] || mkdir  $(moddir) 
 
 
 ########################################
@@ -202,19 +214,19 @@ lmfgw-MPIK:     lmfgw-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBGWD) $(LIBSLA)
 progs: $(programs)
 
 clean:
+	rm -f $(programs) $(fplotprogs) */*.a *.o
+	(cd FPLOTdir; rm *.o;$(MAKE) PLATFORM=$(PLATFORM) clean)
+
+cleanbin:
 	rm -f $(programs) $(fplotprogs)
 	(cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) clean)
 
+
 cleanobj:
-	rm -f $(programs) $(fplotprogs) $(LIBSUBS) $(LIBFP) $(LIBGWD) $(LIBSLA) */obj.*/*.o  *.o  */*.o  */*.a 
+	rm -f $(programs) $(fplotprogs) $(LIBSUBS) $(LIBFP) $(LIBGWD) $(LIBSLA) */obj.*/*.o  *.o  */*.a 
 	(cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) cleanobj)
 	rm -rf MODDIR
 	mkdir MODDIR
-	mkdir MODDIR/MPI
-	mkdir MODDIR/MPIK
-	touch MODDIR/dummy
-	touch MODDIR/MPI/dummy
-	touch MODDIR/MPIK/dummy
  
 veryclean:
 	for p in $(programs) ; do \
@@ -236,7 +248,7 @@ distclean:
 
 check:
 	(cd fp/test;./test.fp --all --quiet) 
-	
+
 checkgw:
 	echo 'For GW driver, run samples in TESTinstallGW.'
 
@@ -245,6 +257,3 @@ checkgw:
 
 install: 
 	cp $(programs) $(fplotprogs) ~/bin
-
-
-

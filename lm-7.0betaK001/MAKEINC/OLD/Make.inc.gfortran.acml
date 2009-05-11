@@ -36,15 +36,13 @@
 ##-lsvml
 #
 ### kino's case
-#LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
+# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
 # $(HOME)/kit/numericallib/LAPACK/lapack_LinuxCore2.a \
 # $(HOME)/kit/numericallib/LAPACK/blas_LinuxCore2.a \
-# $(HOME)/kit/numericallib/LAPACK/tmglib_LinuxCore2.a 
+# $(HOME)/kit/numericallib/LAPACK/tmglib_LinuxCore2.a \
+# -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
 
-LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
-#LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lfftw3 -lguide
-
-
+LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
 
 
 ############################################
@@ -52,35 +50,61 @@ LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 ############################################
 #FC = mpif90
 #LK = mpif90
-FC = ifort
-LK = ifort
+FC = f95
+LK = f95
 #
 # where is modules?
-moddir = MODDIR/$(obj_path)
+moddir = $(lmdir)MODDIR/
 module = -module $(moddir)
+module = -J$(moddir) -I$(moddir)
 #
-FFLAGS = -O3 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS = -O2 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS2 = -O1 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS3 = -O0 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_NONE = -g -cm -WB   -cpp $(CPP_SW) $(module)
+FFLAGS = -O3  -fomit-frame-pointer -funroll-loops  -ffast-math  $(CPP_SW) $(module)
+FFLAGS_LESS = -O2 -fomit-frame-pointer $(CPP_SW) $(module)
+FFLAGS_LESS2 = -O1 -fomit-frame-pointer $(CPP_SW) $(module)
+FFLAGS_LESS3 = -O0 -fomit-frame-pointer $(CPP_SW) $(module)
+FFLAGS_NONE = -g  $(CPP_SW) $(module)
 #
 # safer option (debug)
-#FFLAGS =      -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS = -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_NONE = -g -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS =      -g  $(CPP_SW) $(module)
+#FFLAGS_LESS = -g  $(CPP_SW) $(module)
+#FFLAGS_LESS2 = -g  $(CPP_SW) $(module)
+#FFLAGS_LESS3 = -g  $(CPP_SW) $(module)
+#FFLAGS_NONE = -g  $(CPP_SW) $(module)
+
+
 
 
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
-CPP_SW=-DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT  
+CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME  -DHASGETENVIRONMENTVARIABLE  -DNOQUAD  -DNOT_OVERLAP_VAR
+
 #
 #MPI  case add  -UMPE -UMPIK -DMPI 
 #
 ##MPIK case k-point parallelizaion in MPI add -UMPE -DMPIK -UMPI 
+
+
+
+################################################
+# --- Make rules ---(fixed).
+################################################
+#.F.o: 
+#	$(FC) $(FFLAGS) -c $<
+ 
+#.F.a: 
+#	$(FC) $(FFLAGS) -c $<
+#	$(AR) $(ARFLAGS) $@ $%
+#	rm -f $%
+
+
+
+#$(SLATSM)(zhev.o): zhev.F
+#	$(FC) $(FFLAGS_NONE) -c zhev.F
+#	$(AR) $(ARFLAGS) $(SLATSM) zhev.o
+#	rm -f zhev.o
+
+
 
 
 
@@ -114,13 +138,13 @@ $(subs_obj_path)/spcgrp.o: subs/spcgrp.F
 	$(FC) $(FFLAGS_LESS) -c $< -o $@
 
 ### these modules requies no optimization ---> safer.
-$(subs_obj_path)/m_toksw.o $(moddir)/m_toksw.mod $(moddir)/m_gtv.mod:	subs/m_toksw.F
+$(subs_obj_path)/m_toksw.o $(moddir)m_toksw.mod $(moddir)m_gtv.mod:	subs/m_toksw.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_toksw.o
 
-$(subs_obj_path)/m_rdctrl.o $(moddir)/m_rdctrl.mod:	subs/m_rdctrl.F
+$(subs_obj_path)/m_rdctrl.o $(moddir)m_rdctrl.mod:	subs/m_rdctrl.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrl.o 
 
-$(subs_obj_path)/m_rdctrlchk.o $(moddir)/m_rdctrlchk.mod:	subs/m_rdctrlchk.F
+$(subs_obj_path)/m_rdctrlchk.o $(moddir)m_rdctrlchk.mod:	subs/m_rdctrlchk.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrlchk.o
 
 ## ... patch section for ./fp/subs.a
@@ -128,15 +152,19 @@ $(fp_obj_path)/rhogkl.o: fp/rhogkl.F
 	$(FC) $(FFLAGS_LESS) -c $< -o $@
 
 
+
 ################################################
 # module dependency (fixed). What *.F contains what modules.
 ################################################
-$(subs_obj_path)/m_rdctrl.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod
-$(subs_obj_path)/m_rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod
-$(subs_obj_path)/rdctrl2.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod
-$(subs_obj_path)/rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrlchk.mod
-$(fp_obj_path)/bndfp.o:		$(moddir)/m_rdctrl.mod
-$(gwd_obj_path)/bndfp.o:	$(moddir)/m_rdctrl.mod
+$(subs_obj_path)/m_rdctrl.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
+$(subs_obj_path)/m_rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_toksw.mod
+$(subs_obj_path)/rdctrl2.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrl.mod
+$(subs_obj_path)/rdctrlchk.o:	$(moddir)m_gtv.mod $(moddir)m_rdctrlchk.mod
+$(fp_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
+$(gwd_obj_path)/bndfp.o:	$(moddir)m_rdctrl.mod
+
+
+
 
 
 ################################################

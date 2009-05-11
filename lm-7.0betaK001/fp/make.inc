@@ -121,5 +121,5 @@ fp_list=\
 	vlm2us.o \
 	vxcnsp.o \
 	vxtrap.o \
-	wrhomt.o
- 
+	wrhomt.o \
+	ncutcorrect.o
