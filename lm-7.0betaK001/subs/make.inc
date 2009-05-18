@@ -206,7 +206,6 @@ subs_list:=\
 	lmasa.o \
 	lmaux.o \
 	lscoul.o \
-	lstra.o \
 	lx2vec.o \
 	maadot.o \
 	madmat.o \
@@ -383,7 +382,6 @@ subs_list:=\
 	soldhj.o \
 	solgsg.o \
 	soprm.o \
-	sp2cls.o \
 	spbndw.o \
 	spcgrp.o \
 	spinav.o \
@@ -468,5 +466,10 @@ subs_list:=\
 	m_rdctrlchk.o \
 	rdctrlchk.o \
 	m_toksw.o \
-	writebasis.o
+	writebasis.o \
+        m_struc_def.o \
+        m_struc_func.o \
+        struc_sub.o \
+        struc_main.o\
+        struc_strn.o 
 

@@ -104,6 +104,20 @@ gwd-dir:
 $(gwd_obj_path)/%.o: gwd/%.F
 	$(FC) $(FFLAGS) -c $< -o $@ 
 
+################################################
+# module dependency (fixed). What *.F contains what modules.
+################################################
+# $(subs_obj_path)/m_rdctrl.o:    $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_toksw.o $(subs_obj_path)/m_struc_def.o $(subs_obj_path)/m_struc_func.o 
+# $(subs_obj_path)/m_rdctrlchk.o: $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_toksw.o
+# $(subs_obj_path)/rdctrl2.o:     $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_rdctrl.o $(subs_obj_path)/m_struc_def.o $(subs_obj_path)/m_struc_func.o
+# $(subs_obj_path)/rdctrlchk.o:   $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_rdctrlchk.o
+# $(fp_obj_path)/bndfp.o: $(subs_obj_path)/m_rdctrl.o
+# $(gwd_obj_path)/bndfp.o:        $(subs_obj_path)/m_rdctrl.o
+# #
+# $(subs_obj_path)/struc_main.o: $(susb_obj_path)/m_struc_def.o $(susb_obj_path)/m_struc_func.o
+# $(subs_obj_path)/struc_sub.o: $(susb_obj_path)/m_struc_def.o $(susb_obj_path)/m_struc_func.o
+# $(subs_obj_path)/m_struc_func.o: $(susb_obj_path)/m_struc_def.o 
+
 ########################################
 # machie dependent rules
 # I must load Make.inc here
@@ -111,8 +125,8 @@ $(gwd_obj_path)/%.o: gwd/%.F
 
 include MAKEINC/Make.inc.$(PLATFORM)
 mod-dir:
+	[ -d MODDIR ] || mkdir  MODDIR 
 	[ -d $(moddir) ] || mkdir  $(moddir) 
-
 
 ########################################
 # Generate main routines

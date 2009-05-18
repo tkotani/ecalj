@@ -169,8 +169,6 @@ sla_list=\
 	nintsp.o \
 	nxtarg.o \
 	nxtgrp.o \
-	packi.o \
-	packv.o \
 	pade.o \
 	parchv.o \
 	parrng.o \

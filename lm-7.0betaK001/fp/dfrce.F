@@ -471,7 +471,8 @@ C     tpiba = 2*pi/alat
 C --- Unscreened rigid charge density shift, job 1, in cdn0 ---
       if (job0 .eq. 1) then
 C       call upack('site spec pos',ssite,ib,is,tau,0,0)
-        call upack('spec z p pz lmxa lmxl',sspec,is,z,pnu,pnz,lmxa)
+c        call upack('spec z p pz lmxa lmxl',sspec,is,z,pnu,pnz,lmxa)
+        call upack('spec z p pz lmxa',sspec,is,z,pnu,pnz,lmxa)
         call upack('spec a nr rmt lmxl',sspec,is,a,nr,rmt,lmxl)
         call upack('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,rsmfa)
         call gtpcor(sspec,is,kcor,lcor,qcor)
