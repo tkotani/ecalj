@@ -1,0 +1,85 @@
+#!/bin/csh -f
+######## THIS IS for no lfc mode. See hbasfp0 and hx0fp0 c2 case.
+set n = $0
+set nfpgw = ${n:h}
+echo $nfpgw
+
+echo $argv[1]
+setenv LMJOB $argv[1]
+
+rm -f NoCore 
+#QPU*
+
+### Check the existence of EPScond
+#if (! -e EPScond) then
+#   echo ' Not exist EPScond: Maximum omega. intervals for plotting .'
+#   echo ' Now I made a sample of EPScond.tmp'
+#   echo ' 1d0 0.1d0 ' > EPScond.tmp   
+#   exit 1
+#endif 
+
+### Get LATTC and SYMOPS
+echo 0 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw00
+
+
+### Add  two q points (0.05 0 0 ) (0.1 0 0) to Q0P file.  -----------------
+#echo 1|$nfpgw/qg4gw  >lqg4gw01
+#cp Q0P Q0P0
+#gawk ' {if(NF==1){print $1 +2  ;}else{print $0;}}' Q0P0 >Q0P
+#echo ' 0d0 0.05d0 0d0 0d0 ' >> Q0P
+#echo ' 0d0 0.10d0 0d0 0d0 ' >> Q0P
+#echo 2|$nfpgw/qg4gw  >lqg4gw02
+
+### Add one q points (0.025 0 0 ) to Q0P file.  -----------------
+#echo 1|$nfpgw/qg4gw  >lqg4gw01
+#cp Q0P Q0P0
+#gawk ' {if(NF==1){print $1 + 1 ;}else{print $0;}}' Q0P0 >Q0P
+#echo ' 0d0 0.025d0 0d0 0d0 ' >> Q0P
+
+### Add q points  to Q0P file.  -----------------
+# read <QforEPS> in GWinput
+echo 2|$nfpgw/qg4gw  >lqg4gw02
+
+
+#eigenvalues for micro-tetrahedron method.
+if(-e Qmtet) then
+  mv Qmtet Qeigval 
+  echo 5 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw_eigval
+  mv eigval eigmtet
+endif
+
+###
+#echo 1 | $nfpgw/ng0  >lng01
+#echo 2 | $nfpgw/ng0  >lng02
+#$nfpgw/nfp4gw        >lnfp4gw
+echo 1 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw01
+set exinfo = $?
+if($exinfo == 0 ) then
+  echo " OK! lmfgw mode=1 "
+else
+  echo `tail -3 llmfgw01 `
+endif
+echo $argv[1]|$nfpgw/lmf2gw   > llmf2gw
+
+
+echo 1|$nfpgw/rdata4gw_v2      >lrdata4gw
+
+# get EFERMI
+echo 1|$nfpgw/heftet  >leftet
+
+# mode 4 is for ptest !!!!!!!!!!
+echo 4|$nfpgw/hbasfp0 >lbas
+echo 202|$nfpgw/hvccfp0 >lvcc	
+
+echo 2|$nfpgw/hx0fp0  >lx0
+#mkdir EpsP$qqq
+#mv lqg4gw lbas lvcc lx0 Q0P EPSnolfc* EpsP$qqq
+
+
+ 
+
+
+
+
+
+ 

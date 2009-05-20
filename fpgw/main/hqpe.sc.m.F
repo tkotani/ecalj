@@ -418,7 +418,9 @@ c     print *,' xxx1'
           do itp=1,ntq
             do itpp=1,ntq    !make Sigma hermitian
               if(abs(se(itpp,itp,ip)-dconjg(se(itp,itpp,ip)) ) .gt. 1d-8) then
-                write(*,*)'sex2',sex2(itpp,itp,ip),sex2(itp,itpp,ip)
+                write(*,*)'diff=', se(itpp,itp,ip)-dconjg(se(itp,itpp,ip))
+                write(*,*)'se   ', se(itpp,itp,ip), se(itp,itpp,ip)
+                write(*,*)'sex2 ',sex2(itpp,itp,ip),sex2(itp,itpp,ip)
                 write(*,*)'sexc2',sexcore2(itpp,itp,ip),sexcore2(itp,itpp,ip)
                 stop "hqpe: Sigma_nn' is not hermitian"
               endif
@@ -531,9 +533,15 @@ c     call zgemm('n','n',ntq,ntq,ntq,(1d0,0d0),se(1:ntq,1:ntq,ip),
 c     &         ntq,evec_inv,ntq,(0d0,0d0), se_ev ,ntq)
 c     call zgemm('c','n',ntq,ntq,ntq,(1d0,0d0),evec_inv,
 c     &         ntq,se_ev,ntq,(0d0,0d0), ev_se_ev ,ntq)
-          evec_invt= dconjg(transpose(evec_inv))
 
-c     print *,' zzz2'
+
+ctakao May2009
+c    I don't know, but gfortran did not allow next line.
+c    So I made a replacement. to 
+c        evec_invt= dconjg(transpose(evec_inv))  !this did not work for gfortran
+         evec_invt= transpose(dconjg(evec_inv))  !this works for gfortran
+c
+
           ev_se_ev = matmul(evec_invt(1:nhq,1:ntq)
      &           ,matmul(se(1:ntq,1:ntq,ip),evec_inv(1:ntq,1:nhq)))
 
@@ -547,7 +555,7 @@ c     - write SE_ij-Vxc_ij where ij are basis function indices
                 print *,itp,itpp
                 print *,ev_se_ev(itpp,itp)
                 print *,ev_se_ev(itp,itpp)
-                stop 'hqpe: Sigma_ij is not hermitean'
+                stop 'hqpe: Sigma_ij is not hermitian'
               endif
               if( abs(v_xc(itp,itpp,ikpx,is)-dconjg(v_xc(itpp,itp,ikpx,is)))
      &                 .gt. 1d-8  ) stop 'hqpe: v_xc is not hermitean'

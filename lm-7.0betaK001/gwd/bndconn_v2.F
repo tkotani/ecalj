@@ -110,6 +110,7 @@ c      print *, ' end of bndconn',cpusec()
 
       subroutine matm(a,b,c,n1,n2,n3)
 c-- interface for matrix multiplication  c=a*b -------------------------
+c a and b are destroied (zgemm)
 c assumed size-array
 c
 c!!! takao 2000 Sep.  If you use this routine with cxml of zgemm(GOTO),

@@ -23,10 +23,10 @@ alpha_OffG 1    !(a.u.) parameter in the auxiliary function in the offset-Gamma
 !nband_chi0 999 !nband cutoff for chi0  (Optional)
 !emax_chi0 999. !emax  cutoff for chi0, Ry  (Optional)
 !nband_sigm 999 !nband cutoff for Sigma (Optional)
-emax_sigm 3   ! Energy cutoff for Sigma, Ry (Optional)
+emax_sigm 1.5  ! Energy cutoff for Sigma, Ry (Optional)
 dw       0.01  !mesh spacing along Real axis (Ry)
 !omg_c   0.04   !Used in S. Faleev's real-axis mode
-omg_c    .2     !Used in S. Faleev's real-axis mode
+omg_c    .04    !Used in S. Faleev's real-axis mode
 iSigMode 3      !scGW mode switch (scGW only)
 niw      6      !# freq. on Im axis; used for integration to make Sigma_c
 delta    -1e-8  !delta-function broadening for calc. x0, a.u.. delta<0-->tetrahedron
@@ -40,9 +40,9 @@ GaussSmear on   !on --> broadening of poles in G(LDA) by Gaussian
 ! #################################################
 <PRODUCT_BASIS>   ! Product basis block exactly as in GWIN_V2
   tolerance = minimum eigenvalue in PB overlap
-   1.00000E-03
+   1.00000E-02
   lcutmx(atom) = l-cutoff for the product basis
-  4  4  3  3
+  2 2 2 2 !4  4  3  3
   atom   l  nnvv  nnc ! nnvv: num. radial functions (valence) for augmentation-waves. nnc = num. for core.
     1    0    2    3
     1    1    2    2

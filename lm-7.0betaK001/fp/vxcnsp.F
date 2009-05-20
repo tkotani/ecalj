@@ -628,9 +628,8 @@ C ... Local parameters
      .    write(stdo,341) strn,sum(isp),(suml(l,isp),l = 0,lmax)
         if (isp .eq. 2)
      .    write(stdo,342) sum(isp),(suml(l,isp),l = 0,lmax)
-  341   format(1x,a8,f13.6,' ... by l: ',f12.6,4f10.6:/(18x,4f10.6))
-  342   format('  spin 2:',f13.6,' ... by l: ',f12.6,
-     .    4f10.6:/(18x,4f10.6))
+  341   format(1x,a8,f13.6,' ... by l: ',f12.6,255f10.6)
+  342   format('  spin 2:',f13.6,' ... by l: ',f12.6,255f10.6)
       endif
 
       enddo

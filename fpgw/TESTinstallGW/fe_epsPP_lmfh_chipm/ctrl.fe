@@ -8,14 +8,19 @@ GW      NKABC=nkgw nkgw nkgw2 GCUTB=2.7 GCUTX=2.2 MKSIG=3 ECUTS=2
 IO      SHOW=f HELP=F VERBOS=31 20 WKP=F IACTIV=0
 GF      MODE=0 GFOPTS=p3
 STR     RMAX=3.5
-CONST   rc=0 nk=16 nk2=nk bzj=0 cbya=1.63299316 nkgw=8 nkgw2=nk2
+CONST   rc=0 nk=8 nk2=nk bzj=0 cbya=1.63299316 nkgw=8 nkgw2=nk2
 
 HEADER  fe for gw
 
-STRUC   FILE=site NL=5 NSPEC=1
+STRUC   NL=5 NSPEC=1
         DALAT=0
+        ALAT=5.408
+        NBAS=1
+        PLAT= -.5 0.5 0.5  0.5 -.5 0.5   0.5 0.5 -.5
+
 SYMGRP  find
-SITE    FILE=site
+SITE    
+         ATOM=Fe POS=0 0 0
 SPEC
 
         ATOM=Fe Z=26 R/A=.4114 LMXA=4 EREF=-2540.5681 A=.025

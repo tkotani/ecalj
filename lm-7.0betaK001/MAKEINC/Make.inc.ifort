@@ -59,11 +59,11 @@ LK = ifort
 moddir = MODDIR/$(obj_path)
 module = -module $(moddir)
 #
-FFLAGS = -O3 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS = -O2 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS2 = -O1 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS3 = -O0 -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_NONE = -g -cm -WB   -cpp $(CPP_SW) $(module)
+FFLAGS = -132 -O3 -cm -WB  -cpp $(CPP_SW) $(module)
+FFLAGS_LESS = -132 -O2 -cm -WB  -cpp $(CPP_SW) $(module)
+FFLAGS_LESS2 = -132 -O1 -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
 #
 # safer option (debug)
 #FFLAGS =      -g -cm -WB -cpp $(CPP_SW) $(module)
@@ -82,6 +82,16 @@ CPP_SW=-DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHAS
 #
 ##MPIK case k-point parallelizaion in MPI add -UMPE -DMPIK -UMPI 
 
+
+################################################
+# module dependency (fixed). What *.F contains what modules.
+################################################
+$(subs_obj_path)/m_rdctrl.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod
+$(subs_obj_path)/m_rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod
+$(subs_obj_path)/rdctrl2.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod
+$(subs_obj_path)/rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrlchk.mod $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod
+$(fp_obj_path)/bndfp.o:		$(moddir)/m_rdctrl.mod
+$(gwd_obj_path)/bndfp.o:	$(moddir)/m_rdctrl.mod
 
 
 ############################################
@@ -123,20 +133,16 @@ $(subs_obj_path)/m_rdctrl.o $(moddir)/m_rdctrl.mod:	subs/m_rdctrl.F
 $(subs_obj_path)/m_rdctrlchk.o $(moddir)/m_rdctrlchk.mod:	subs/m_rdctrlchk.F
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrlchk.o
 
+$(subs_obj_path)/m_struc_def.o $(moddir)/m_struc_def.mod:	subs/m_struc_def.F
+	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_struc_def.o
+
+$(subs_obj_path)/m_struc_func.o $(moddir)/m_struc_func.mod:	subs/m_struc_func.F
+	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_struc_func.o
+
+
 ## ... patch section for ./fp/subs.a
 $(fp_obj_path)/rhogkl.o: fp/rhogkl.F
 	$(FC) $(FFLAGS_LESS) -c $< -o $@
-
-
-################################################
-# module dependency (fixed). What *.F contains what modules.
-################################################
-$(subs_obj_path)/m_rdctrl.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod
-$(subs_obj_path)/m_rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod
-$(subs_obj_path)/rdctrl2.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod
-$(subs_obj_path)/rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrlchk.mod
-$(fp_obj_path)/bndfp.o:		$(moddir)/m_rdctrl.mod
-$(gwd_obj_path)/bndfp.o:	$(moddir)/m_rdctrl.mod
 
 
 ################################################

@@ -208,6 +208,7 @@ C ... Heap
       real(8):: dnn(3),qlatinv(3,3)
       integer:: inn(3)
 
+      logical :: debug=.false.
 C --- Setup ---
       call getpr(ipr)
       call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
@@ -890,10 +891,16 @@ c     &        matmul(qlatinv,qp-q),inn
             call pwmat(slat,ssite,sspec,nbas,ndimh,napw,w(oigv2),
 c     .        w(oiprmb),qx,ngp,nlmax,ngvecp,gmax,ppovl,phovl)
      .        w(oiprmb),q,ngp,nlmax,ngvecp,gmax,inn,ppovl,phovl)
-
+            if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
+            if(debug) print *,'sss: phovl=',sum(abs(phovl))
+            if(debug) print *,'sss: evec =',sum(abs(evec))
+            if(debug) print *,'sss:       '
             call zgemm('N','N',ngp,ndimh,ndimh,(1d0,0d0),phovl,ngp,
      .        evec,ndimh,(0d0,0d0),pwz,ngp)
+            if(debug) print *,'sss: pwz =',sum(abs(pwz))
+            if(debug) print *,'sss:       '
             deallocate(phovl)
+
 C           call zprm('ppovl',2,ppovl,ngp,ngp,ngp)
 C           call zprm('pzovl = ppovl * pwz',2,pwz,ngp,ngp,ndimh)
             if (lchk .ge. 1) then

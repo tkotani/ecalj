@@ -180,7 +180,7 @@ ccccccccccccccccccccccccccccccccccc
 
 c      if(bzcase()==2) then
       if(job<0) write(ifbz,"(3d24.16,' !dq_bzcase2')") dq_bzcase2
-      if(job>0) read (ifbz,"(3d24.16,' !dq_bzcase2')") dq_bzcase2
+      if(job>0) read (ifbz,"(3d24.16)") dq_bzcase2
 c      endif
 
       end

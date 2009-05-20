@@ -24,7 +24,8 @@ c-----------------------------------------------------
       integer(4),allocatable :: ngvecc2s(:,:,:),ngvecc2s0(:,:,:),
      &   ngcs(:), ngc2s(:),ngvecc2_0(:,:)
       real(8),allocatable :: qxs(:,:)
-      logical :: KeepPPOVL,verbose
+      logical :: KeepPPOVL
+      integer:: verbose
 c--- KeepPPOVL=F to reduce memory usage.
       if(allocated(ppx)    ) deallocate(ppx)
       if(allocated(ngvecc2)) deallocate(ngvecc2)

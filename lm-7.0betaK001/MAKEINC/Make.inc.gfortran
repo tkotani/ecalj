@@ -43,7 +43,16 @@
 
 #LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
-LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
+
+# I had a problem in zgemm in pwmat. 
+#LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
+
+# centos yum install blas, yum install lapack
+LIBLOC= -lfftw3 /usr/lib64/liblapack.so.3.0.3 /usr/lib64/libblas.a 
+
+#LIBLOC = -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
+#          /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
+#          /usr/lib64/atlas/libatlas.so.3 -lfftw3
 
 
 
@@ -59,11 +68,17 @@ LK = f95
 moddir = MODDIR/$(obj_path)
 module = -J$(moddir) -I$(moddir)
 #
-FFLAGS = -O3  -fomit-frame-pointer -funroll-loops  -ffast-math  $(CPP_SW) $(module)
-FFLAGS_LESS = -O2 -fomit-frame-pointer $(CPP_SW) $(module)
-FFLAGS_LESS2 = -O1 -fomit-frame-pointer $(CPP_SW) $(module)
-FFLAGS_LESS3 = -O0 -fomit-frame-pointer $(CPP_SW) $(module)
-FFLAGS_NONE = -g  $(CPP_SW) $(module)
+FFLAGS = -O3  -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132 $(CPP_SW) $(module)
+FFLAGS_LESS = -O2 -fomit-frame-pointer $(CPP_SW) -ffixed-line-length-132 $(module)
+FFLAGS_LESS2 = -O1 -fomit-frame-pointer $(CPP_SW) -ffixed-line-length-132 $(module)
+FFLAGS_LESS3 = -O0 -fomit-frame-pointer $(CPP_SW) -ffixed-line-length-132 $(module)
+FFLAGS_NONE = -g  -ffixed-line-length-132 $(CPP_SW) $(module)
+
+#FFLAGS = -O3  -fomit-frame-pointer -funroll-loops  -ffast-math  $(CPP_SW) $(module)
+#FFLAGS_LESS = -O2 -fomit-frame-pointer $(CPP_SW) $(module)
+#FFLAGS_LESS2 = -O1 -fomit-frame-pointer $(CPP_SW) $(module)
+#FFLAGS_LESS3 = -O0 -fomit-frame-pointer $(CPP_SW) $(module)
+#FFLAGS_NONE = -g  $(CPP_SW) $(module)
 #
 # safer option (debug)
 #FFLAGS =      -g  $(CPP_SW) $(module)
@@ -89,20 +104,12 @@ CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME  -DHASGETENVIRONMENTVARI
 ################################################
 # module dependency (fixed). What *.F contains what modules.
 ################################################
-#$(subs_obj_path)/m_rdctrl.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod
-#$(subs_obj_path)/m_rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod
-#$(subs_obj_path)/rdctrl2.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod
-#$(subs_obj_path)/rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrlchk.mod
-#$(fp_obj_path)/bndfp.o:		$(moddir)/m_rdctrl.mod
-#$(gwd_obj_path)/bndfp.o:	$(moddir)/m_rdctrl.mod
-
 $(subs_obj_path)/m_rdctrl.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod
 $(subs_obj_path)/m_rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_toksw.mod
 $(subs_obj_path)/rdctrl2.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod
-$(subs_obj_path)/rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrlchk.mod $(modir)/m_struc_def.mod $(moddir)/m_struc_func.mod
+$(subs_obj_path)/rdctrlchk.o:	$(moddir)/m_gtv.mod $(moddir)/m_rdctrlchk.mod $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod
 $(fp_obj_path)/bndfp.o:		$(moddir)/m_rdctrl.mod
 $(gwd_obj_path)/bndfp.o:	$(moddir)/m_rdctrl.mod
-
 
 
 ############################################

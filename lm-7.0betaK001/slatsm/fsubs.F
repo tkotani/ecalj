@@ -147,6 +147,8 @@ c     ----- fortran2003std
 #ifdef HASSETENVQQ
 c --- intel fortran
         ret=  setenvqq(pnam)
+        write(*,*) 'ptenv() is called with ',pnam
+        write(*,*) 'ptenv() is supported.'
 #else
         write(*,*) 'ptenv() is called with ',pnam
         write(*,*) 'ptenv() not supported, but continue.'

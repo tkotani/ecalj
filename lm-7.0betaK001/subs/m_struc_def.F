@@ -1,3 +1,5 @@
+C this is translated from lstra.F in lmv7-beta
+C Kino April2009.
         module m_struc_def
        
         type s_ri

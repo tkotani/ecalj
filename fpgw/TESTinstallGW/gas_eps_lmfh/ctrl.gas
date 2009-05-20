@@ -1,11 +1,3 @@
- -----------------------  START LMFGW (160000K)  -----------------------
-
-#rf  101: (In)GaAs in the ZB structure
-
-
-#rf 2369: Ga parms : Z=31 eref=-3882.1256
-#rf 2369: As parms : Z=33 eref=-4515.4714
-#rf 2369: In parms : Z=49 eref=-11752.563
 ---------------- ZB structure ----------------
 SYMGRP  R4Z*I MX*I R3D find
 STRUC   NBAS=4/1 NSPEC=4/1 NL=5 ELINK=-2
@@ -38,7 +30,7 @@ CONST   a=10.66 bzj=0 avw=2.62434548 lf1=4 lf2=lf1 lmxa=lf1 lmxae=lf2
         rw=.88
         rwec=.88
         rwea=.88
-        rw=.9 rwc=rw rwa=rw rwec=rw rwea=rw nk=6 nk2=nk nkgw=4 nkgw2=nkgw
+        rw=.9 rwc=rw rwa=rw rwec=rw rwea=rw nk=2 nk2=nk nkgw=4 nkgw2=nkgw
         alatj=a da=0 xx=1 y=0 wto=0 kl=0 tet=1 nit=10
 EWALD   AS=2.0 TOL=1D-10 ALAT0=a NKRMX=400 NKDMX=400
 OPTIONS INVIT=f HF=0

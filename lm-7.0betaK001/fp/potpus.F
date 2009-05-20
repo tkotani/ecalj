@@ -210,6 +210,8 @@ C --- Loop over spins, lmxa ---
      .      80,0,nsp,i,0,0,0,0,0,0)
           call awrit3('%nfpz  =%n:1,6d',' ',80,stdo,ir,lmxa+1,pnz(1,i))
         endif
+      endif
+      if(ipr>=50) then
         write(stdo,698)
   698   format(' l',8x,'enu',9x,'v',11x,'c',10x,'srdel',
      .    8x,'qpar',8x,'ppar')
@@ -365,7 +367,7 @@ C ... 2nd generation potential parameters (Methfessel scaling)
       qpar = 1d0/q
       ppar = 1d0/dsqrt(p)
 
-      if (ipr .ge. 40) write(stdo,699) l,'    ',ev,vl,c,srdel,qpar,ppar
+      if (ipr .ge. 50) write(stdo,699) l,'    ',ev,vl,c,srdel,qpar,ppar
   699 format(i2,a,f10.6,3f12.6,f12.4,f12.6)
       pp(k,i,1) = enu
       pp(k,i,2) = c
@@ -389,7 +391,7 @@ C ... NMTO potential parameters, no backwards integration, <phi phi>=1
 C ... 2nd generation potential sc parameters (Methfessel scaling)
 C     NB: overwrites c,vl,srdel,q,qpar
 C     ppars not saved; only printed out
-      if (lpzi(l) .ne. 0 .and. ipr .ge. 40) then
+      if (lpzi(l) .ne. 0 .and. ipr .ge. 50) then
         dlphz  = rmax*dphz/phz
         dlphzp = rmax*dphzp/phzp
         umegam = -(phz/phzp)*(-l-1-dlphz)/(-l-1-dlphzp)

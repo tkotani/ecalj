@@ -7,7 +7,7 @@ echo $nfpgw
 echo $argv[1]
 setenv LMJOB $argv[1]
 
-rm -f NoCore QPU*
+rm -f NoCore QPU* >& /dev/null
 
 ### Get LATTC and SYMOPS
 echo 0 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw00
@@ -24,13 +24,16 @@ endif
 
 echo 1 |$nfpgw/lmfgw --novxc  $argv[1] > llmfgw01
 #@ exinfo = `tail -3 llmfgw01 | head -1|awk '{print $2}'`
-set exinfo = `echo $?`
+set exinfo = $?
 
 if($exinfo == 0 ) then
   echo " OK! lmfgw mode=1 "
 else
+  echo Error in echo 1\|lmfgw $argv[1]
   echo `tail -3 llmfgw01 `
+  exit
 endif
+
 echo $argv[1]|$nfpgw/lmf2gw   > llmf2gw
 rm gwa.$argv[1] gwb.$argv[1] gw1.$argv[1] gw2.$argv[1]
 

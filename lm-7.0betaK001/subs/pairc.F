@@ -373,8 +373,7 @@ C --- Printout ---
         if (alat .ne. 1)
      .      write(stdo,345) ib,ntab(ib+1)-ntab(ib),rcut/alat,rcut
         if (alat .eq. 1) write(stdo,345) ib,ntab(ib+1)-ntab(ib),rcut
-  345 format(' pairc, ib=',i3,':',i4,' neighbors in range',f7.3:
-     .    '*alat =',f7.2)
+  345 format(' pairc, ib=',i3,':',i4,' neighbors in range',f7.3)
         endif
         i = ib
         if (ipr .gt. 40) write(stdo,334) iax(1,it),iax(2,it),

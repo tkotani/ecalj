@@ -84,6 +84,7 @@ C ... Local parameters
       double complex,allocatable:: pwh(:,:),ppovlx(:,:)
 
       integer :: inn(3)
+      logical:: debug=.false.
 C --- Setup ---
       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
       pi  = 4d0*datan(1d0)
@@ -181,10 +182,19 @@ C --- Matrix elements between each (IPW,envelope function) pair ---
 C     See Remarks
       allocate(ppovlx(ngp,ngmx))
       call ipwovl(alat,plat,qlat,ngp,igv,ngmx,igvx,nbas,rmax,bas,ppovlx)
-C     call matm(ppovlx,pwh,pwhovl,ngp,ngmx,ndimh)
-      call zgemm('N','N',ngp,ndimh,ngmx,dcmplx(1d0,0d0),
-     .  ppovlx,ngp,pwh,ngmx,dcmplx(0d0,0d0),pwhovl,ngp)
+
+      if(debug) print *,'sss:  pwmat ppovlx=',sum(abs(ppovlx))
+      if(debug) print *,'sss:  pwmat pwh   =',sum(abs(pwh))
+
+c takao find acml4.2.0 for gfortran gives wrong results.
+c      pwhovl= matmul(ppovlx,pwh)
+      call matm(ppovlx,pwh,pwhovl,ngp,ngmx,ndimh)
+c2      call zgemm('N','N',ngp,ndimh,ngmx,dcmplx(1d0,0d0),
+c2     .  ppovlx,ngp,pwh,ngmx,dcmplx(0d0,0d0),pwhovl,ngp)
+
+
 C     call zprm('pwhovl',2,pwhovl,ngp,ngp,ndimh)
+      if(debug) print *,'sss:  pwmat pwhovl=',sum(abs(pwhovl))
 
 C --- Cleanup ---
       deallocate(yl,igvx,pwh,kv,ppovlx)
