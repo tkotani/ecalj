@@ -1,0 +1,3841 @@
+ -----------------------  START LMF (80000K)  -----------------------
+ ptenv() is called with EXT=gas
+ ptenv() not supported, but continue.
+
+ LMF:      alat = 10.66  nbas = 4  nspec = 4  vn 7.00(LMF 7.0)  verb 41,20
+ special:  forces
+ pot:      XC:BH, read Sigma
+ bz:       nonmetal 
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol= 302.838874
+
+ LATTC:  as= 2.000   tol=1.00E-10   alat=10.66000   awald= 0.298
+         r1=  2.009   nkd= 141      q1=  6.076   nkg= 259
+
+ SGROUP: 24 symmetry operations from 3 generators
+ ADDBAS: basis is already complete --- no sites added
+ SYMLAT: Bravais system is cubic with 48 symmetry operations.
+ SYMCRY: crystal invariant under 24 symmetry operations for tol=1e-5
+ GROUPG: 0 generator(s) were added to complete the group
+ MKSYM:  found 24 space group operations; adding inversion generated 48 ops
+ 
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+
+ species data:  augmentation                           density
+ spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
+ C1       2.309  0.924    4    3         4  0.577  1.155    15    1   0.924
+ A1       2.309  0.924    4    3         4  0.577  1.155    15    1   0.924
+ EA1      2.309  0.924    4    3         4  0.577  1.155    15    0   0.924
+ EC1      2.309  0.924    4    3         4  0.577  1.155    15    0   0.924
+
+ gvlist: cutoff radius  10.003 gives   5029   recips of max  13824
+ SGVSYM: 297 symmetry stars found for 5029 reciprocal lattice vectors
+ 
+
+ Makidx:  hamiltonian dimensions Low, Int, High, Negl: 66 0 140 94
+ kappa   Low   Int   High  L+I  L+I+H  Neglected
+   1      50     0    50    50   100       0
+   2      10     0    90    10   100       0
+   3       6     0     0     6     6      94
+  all     66     0   140    66   206      94
+ suham :  100 augmentation channels, 100 local potential channels  Maximum lmxa=4
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       0*   1.60  -0.30   4.646    2.01E-06     531 
+  C1       1*   1.60  -0.30   4.906    1.32E-06     609 
+  C1       2*   1.60  -0.30   5.169    1.21E-06     725 
+  C1       3    1.60  -0.30   5.433    1.22E-06     869 
+  C1       0    1.30  -1.30   5.718    1.58E-06     941 
+  A1       0    1.30  -0.60   5.718    1.58E-06     941 
+  A1       1*   1.30  -0.30   6.080    1.41E-06    1139 
+  A1       2*   1.30  -0.30   6.444    1.62E-06    1363 
+  A1       3    1.30  -0.30   6.806    1.20E-06    1639 
+  A1       0    1.30  -1.30   5.718    1.58E-06     941 
+  A1       1*   1.30  -1.10   6.080    1.41E-06    1139 
+  A1       2    1.30  -1.10   6.444    1.62E-06    1363 
+  EA1      0*   1.50  -0.30   4.956    1.69E-06     609 
+  EA1      1*   1.50  -0.30   5.245    1.82E-06     725 
+  EA1      2    1.50  -0.30   5.536    1.04E-06     893 
+  EC1      0*   1.50  -0.30   4.956    1.69E-06     609 
+  EC1      1*   1.50  -0.30   5.245    1.82E-06     725 
+  EC1      2    1.50  -0.30   5.536    1.04E-06     893 
+
+ iors  : read restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:04:54 2009
+         use from  restart file: ef window, positions, pnu 
+         ignore in restart file: *
+   atom   1    species   1:C1      
+   atom   2    species   2:A1      
+   atom   3    species   3:EA1     
+   atom   4    species   4:EC1     
+
+ --- BNDFP:  begin iteration 1 of 30 ---
+
+ avg es pot at rmt= 0.408403  avg sphere pot= 0.308663  vconst=-0.408403
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.927   -1.139737   -0.245779   0.95217  -2.11884   0.06109   -0.245779 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000289
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000103
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000241
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000069
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.12   8.961    1.26E-06    3695 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9308 -0.8723 -0.8723 -0.8723 -0.8615 -0.8615  0.0645  0.0645  0.0645
+  0.1413  0.3751  0.3751  0.3751  0.5890  0.8811  0.8811  0.9027  0.9027
+  0.9027  1.0932  1.8166  1.8166  1.8166  2.0202  2.0202  2.0202  2.0214
+  2.0214  2.1145  2.1145  2.1145  2.7493  2.7493  2.7853  2.7853  2.7853
+  3.0779  3.1838  3.2133  3.2133  3.2133  3.2431  3.2431  3.2431  3.4642
+  3.4642  3.4960  3.4961  3.4961  3.6270  3.6270  3.6270  4.0217  4.0217
+  4.0218  4.1493  4.2056  4.2056  4.2056  4.8773  4.8773  5.0733  5.2636
+  5.2637  5.2637  8.7120
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.71202  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.872338  -0.861526  -0.861526   0.064502   0.064502   0.064503
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9017 -0.8696 -0.8696 -0.8612 -0.8612 -0.7730 -0.5138 -0.0398 -0.0398
+  0.1616  0.4380  0.4380  0.5962  0.8826  0.9934  0.9934  1.0445  1.1127
+  1.1127  1.4687  1.6231  1.6560  1.6560  1.7502  1.7502  1.9983  1.9983
+  2.0595  2.0939  2.1937  2.1937  2.2087  2.4451  2.4878  2.4878  2.5795
+  2.5795  2.7969  3.0806  3.0806  3.1348  3.1447  3.1447  3.2461  3.4037
+  3.5022  3.5022  3.7709  3.8619  3.8619  4.1158  4.1158  4.2762  4.2762
+  4.2884  4.4368  4.4368  4.5453  4.8647  5.0279  5.0280  5.0643  5.4963
+  5.4963  6.0222  8.3758
+ state:          4          5          6          7          8          9
+ evl:    -0.861246  -0.861246  -0.772980  -0.513828  -0.039835  -0.039835
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.8985 -0.8653 -0.8648 -0.8648 -0.8572 -0.7177 -0.5163 -0.1770 -0.1770
+  0.1533  0.1994  0.9033  0.9033  0.9525  1.0959  1.1129  1.1246  1.1246
+  1.1628  1.4464  1.5033  1.5033  1.5159  1.5347  1.5525  1.5525  1.6488
+  1.9521  2.2493  2.2720  2.2720  2.4759  2.5439  2.5439  2.5688  2.6942
+  2.8147  2.8868  2.8868  3.0087  3.0087  3.0920  3.2104  3.2154  3.2542
+  3.3872  3.3873  3.9103  3.9106  3.9545  3.9761  3.9761  4.2372  4.2421
+  4.4909  4.4909  4.5861  4.6695  4.8364  4.8365  5.1083  5.2126  5.4814
+  5.4815  5.9746  9.0391
+ state:          4          5          6          7          8          9
+ evl:    -0.864815  -0.857221  -0.717705  -0.516331  -0.176967  -0.176967
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0844,0.1939  fit : 0.1206 + 0.0473 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.064503;  18 electrons;  Sum occ. bands: -11.453253
+ VBmax = 0.064503  CBmin = 0.141261  gap = 0.076758 Ry = 1.04390 eV
+ Highest occ. level = 0.06450  Lowest unocc. = 0.14126  average = 0.10288
+
+ Saved Fermi level to weights file ... ef = 0.102882
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.485182    3.259143    8.226039
+ foca..  use smtc =    3687.571044
+   2    3.413597    4.139290   -0.725693
+ foca..  use smtc =    4591.031242
+   3    0.408919    0.408531    0.000388
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.368686    0.372474   -0.003789
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.703503   -0.526375
+    1    0.865636   -0.457551
+    2    0.100594   -0.012854
+    3    0.015032   -0.010114
+    4    0.002107   -0.000304
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.227989   -1.102022
+    1    2.134671   -0.709837
+    2    0.044648   -0.031984
+    3    0.010732   -0.011119
+    4    0.001639   -0.001321
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.121555   -0.056848
+    1    0.193062   -0.050303
+    2    0.079420   -0.010313
+    3    0.012900   -0.000683
+    4    0.001988    0.000423
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.125619   -0.062011
+    1    0.167282   -0.056063
+    2    0.061989   -0.015699
+    3    0.011787   -0.003227
+    4    0.002014   -0.000695
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.703503   -0.748221    4.730573    4.723801    4.500000    4.723801
+ 1     0    0.865636   -0.528571    4.446207    4.451284    4.250000    4.451284
+ 2     0    0.100594   -0.127779    4.300000    4.167947    4.147584    4.300000
+ 2     0    sc         -1.139741    3.927149    3.927149    3.147584   13.927149
+ 3     1    0.015032   -0.672842    4.150000    4.114513    4.102416    4.150000
+ 4     1    0.002107   -0.144338    5.120000    5.088645    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.227989   -0.897420    4.834082    4.828833    4.500000    4.828833
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.134671   -0.332527    4.719206    4.710820    4.250000    4.710820
+ 2     0    0.044648   -0.716369    4.172940    4.172284    4.147584    4.172284
+ 3     1    0.010732   -1.036098    4.150000    4.108087    4.102416    4.150000
+ 4     1    0.001639   -0.806513    5.120000    5.081913    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.121555   -0.467675    1.500000    1.403444    1.500000    1.500000
+ 1     0    0.193062   -0.260556    2.256798    2.258703    2.250000    2.258703
+ 2     0    0.079420   -0.129859    3.158170    3.158136    3.147584    3.158136
+ 3     0    0.012900   -0.052975    4.108402    4.108310    4.102416    4.108310
+ 4     0    0.001988    0.212551    5.083552    5.083601    5.077979    5.083601
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.125619   -0.493645    1.500000    1.393846    1.500000    1.500000
+ 1     0    0.167282   -0.335138    2.250000    2.246249    2.250000    2.250000
+ 2     0    0.061989   -0.253252    3.151083    3.151494    3.147584    3.151494
+ 3     0    0.011787   -0.273746    4.103827    4.103770    4.102416    4.103770
+ 4     0    0.002014   -0.345206    5.077979    5.078053    5.077979    5.078053
+
+ Harris energy:
+ sumev=      -11.453253  val*vef=    -308.780867   sumtv=     297.327614
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -307.102644     utot=  -16663.576367    ehar=   -8394.749111
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.414762  avg sphere pot= 0.308940  vconst=-0.414762
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8567.957864  rho*v=-16965.899648  ehf=-8394.749111  ehks=-8397.941783
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.31e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 3.  RMS DQ=4.69e-3
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.412334     10.503043     10.503043      0.001220     10.475831
+ site    1    8.339675      8.226039      8.226039      0.004813      8.260130
+ site    2   -0.755403     -0.725693     -0.725693      0.001147     -0.734606
+ site    3    0.002874      0.000388      0.000388      0.000081      0.001134
+ site    4    0.000519     -0.003789     -0.003789      0.000136     -0.002496
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=4.69e-3
+   tj: 1.00006
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.001337   local  0.004813   tot
+   screened rms difference:  smooth  0.001220   local  0.004813   tot  0.004692
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:39 2009
+
+   it  1  of 30    ehf=       2.847889   ehk=      -0.344783
+i ehf=2.8478894 ehk=-.3447832
+
+ --- BNDFP:  begin iteration 2 of 30 ---
+
+ avg es pot at rmt= 0.408403  avg sphere pot= 0.308663  vconst=-0.408403
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.927   -1.139741   -0.245783   0.95216  -2.11885   0.06109   -0.245783 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000289
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000103
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000241
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000069
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.12   8.961    1.26E-06    3695 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9309 -0.8723 -0.8723 -0.8723 -0.8615 -0.8615  0.0645  0.0645  0.0645
+  0.1417  0.3751  0.3751  0.3751  0.5892  0.8805  0.8805  0.9026  0.9026
+  0.9026  1.0933  1.8066  1.8066  1.8067  2.0114  2.0114  2.0205  2.0205
+  2.0205  2.1145  2.1145  2.1145  2.7386  2.7386  2.7760  2.7760  2.7760
+  3.0787  3.1838  3.2132  3.2132  3.2132  3.2433  3.2433  3.2433  3.4642
+  3.4642  3.4958  3.4959  3.4959  3.6270  3.6270  3.6270  4.0207  4.0208
+  4.0208  4.1506  4.2020  4.2020  4.2020  4.8615  4.8615  5.0739  5.2514
+  5.2514  5.2514  8.7126
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.7126  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.872330  -0.861509  -0.861509   0.064534   0.064534   0.064535
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9017 -0.8696 -0.8696 -0.8612 -0.8612 -0.7730 -0.5138 -0.0398 -0.0398
+  0.1618  0.4380  0.4380  0.5963  0.8830  0.9931  0.9931  1.0444  1.1120
+  1.1120  1.4669  1.6206  1.6524  1.6524  1.7493  1.7493  1.9884  1.9884
+  2.0581  2.0938  2.1934  2.1934  2.2087  2.4373  2.4804  2.4804  2.5788
+  2.5788  2.7967  3.0709  3.0709  3.1347  3.1377  3.1378  3.2461  3.3994
+  3.4987  3.4988  3.7649  3.8605  3.8606  4.1131  4.1131  4.2745  4.2745
+  4.2898  4.4302  4.4302  4.5450  4.8642  5.0257  5.0257  5.0623  5.4971
+  5.4971  6.0222  8.3754
+ state:          4          5          6          7          8          9
+ evl:    -0.861230  -0.861230  -0.772968  -0.513826  -0.039821  -0.039820
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.8985 -0.8653 -0.8648 -0.8648 -0.8572 -0.7177 -0.5163 -0.1770 -0.1770
+  0.1534  0.1994  0.9035  0.9035  0.9531  1.0960  1.1115  1.1237  1.1237
+  1.1628  1.4428  1.5022  1.5022  1.5158  1.5348  1.5522  1.5522  1.6453
+  1.9430  2.2425  2.2692  2.2692  2.4583  2.5403  2.5403  2.5663  2.6939
+  2.8145  2.8767  2.8767  3.0041  3.0041  3.0919  3.2075  3.2154  3.2513
+  3.3847  3.3847  3.8972  3.9106  3.9541  3.9767  3.9767  4.2251  4.2382
+  4.4896  4.4897  4.5798  4.6688  4.8361  4.8361  5.1057  5.2118  5.4815
+  5.4816  5.9731  9.0386
+ state:          4          5          6          7          8          9
+ evl:    -0.864811  -0.857204  -0.717683  -0.516328  -0.176962  -0.176962
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0844,0.1940  fit : 0.1207 + 0.0473 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.064535;  18 electrons;  Sum occ. bands: -11.453065
+ VBmax = 0.064535  CBmin = 0.141664  gap = 0.077129 Ry = 1.04895 eV
+ Highest occ. level = 0.06453  Lowest unocc. = 0.14166  average = 0.10310
+
+ Saved Fermi level to weights file ... ef = 0.103099
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.485392    3.260094    8.225298
+ foca..  use smtc =    3687.571044
+   2    3.413352    4.140365   -0.727013
+ foca..  use smtc =    4591.031242
+   3    0.408904    0.408499    0.000404
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.368699    0.372476   -0.003776
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.703463   -0.526437
+    1    0.865920   -0.457830
+    2    0.100592   -0.012912
+    3    0.015027   -0.010119
+    4    0.002107   -0.000304
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.227638   -1.101970
+    1    2.134444   -0.709618
+    2    0.044711   -0.031993
+    3    0.010734   -0.011121
+    4    0.001639   -0.001323
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.121566   -0.056786
+    1    0.193043   -0.050319
+    2    0.079417   -0.010348
+    3    0.012897   -0.000689
+    4    0.001988    0.000421
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.125625   -0.061979
+    1    0.167285   -0.056072
+    2    0.061999   -0.015729
+    3    0.011783   -0.003232
+    4    0.002013   -0.000696
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.703463   -0.748351    4.723801    4.723750    4.500000    4.723750
+ 1     0    0.865920   -0.528721    4.451284    4.451221    4.250000    4.451221
+ 2     0    0.100592   -0.128362    4.300000    4.167881    4.147584    4.300000
+ 2     0    sc         -1.139734    3.927149    3.927149    3.147584   13.927149
+ 3     1    0.015027   -0.673395    4.150000    4.114499    4.102416    4.150000
+ 4     1    0.002107   -0.144385    5.120000    5.088645    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.227638   -0.897634    4.828833    4.828773    4.500000    4.828773
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.134444   -0.332460    4.710820    4.710851    4.250000    4.710851
+ 2     0    0.044711   -0.715547    4.172284    4.172351    4.147584    4.172351
+ 3     1    0.010734   -1.036000    4.150000    4.108090    4.102416    4.150000
+ 4     1    0.001639   -0.807292    5.120000    5.081905    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.121566   -0.467118    1.500000    1.403681    1.500000    1.500000
+ 1     0    0.193043   -0.260660    2.258703    2.258680    2.250000    2.258680
+ 2     0    0.079417   -0.130300    3.158136    3.158109    3.147584    3.158109
+ 3     0    0.012897   -0.053391    4.108310    4.108300    4.102416    4.108300
+ 4     0    0.001988    0.211902    5.083601    5.083593    5.077979    5.083593
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.125625   -0.493369    1.500000    1.393939    1.500000    1.500000
+ 1     0    0.167285   -0.335190    2.250000    2.246227    2.250000    2.250000
+ 2     0    0.061999   -0.253703    3.151494    3.151465    3.147584    3.151465
+ 3     0    0.011783   -0.274262    4.103770    4.103757    4.102416    4.103757
+ 4     0    0.002013   -0.345495    5.078053    5.078049    5.077979    5.078049
+
+ Harris energy:
+ sumev=      -11.453065  val*vef=    -308.780930   sumtv=     297.327864
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -307.102663     utot=  -16663.576493    ehar=   -8394.749005
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.414806  avg sphere pot= 0.308907  vconst=-0.414806
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8567.952340  rho*v=-16965.894113  ehf=-8394.749005  ehks=-8397.941773
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.45e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 4.  RMS DQ=4.70e-3  last it=4.69e-3
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.412326     10.505076     10.505076      0.001218     10.477251
+ site    1    8.339680      8.225298      8.225298      0.004827      8.259613
+ site    2   -0.755400     -0.727013     -0.727013      0.001116     -0.735529
+ site    3    0.002874      0.000404      0.000404      0.000080      0.001145
+ site    4    0.000519     -0.003776     -0.003776      0.000136     -0.002488
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: nmix=2 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=4.7e-3
+   tj: 0.00334   1.00006
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.001330   local  0.004827   tot
+   screened rms difference:  smooth  0.001218   local  0.004827   tot  0.004695
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:41 2009
+
+   it  2  of 30    ehf=       2.847995   ehk=      -0.344773
+ From last iter    ehf=       2.847889   ehk=      -0.344783
+ diffe(q)=  0.000011 (0.004695)    tol= 0.000050 (0.000001)   more=T
+i ehf=2.847995 ehk=-.3447727
+
+ --- BNDFP:  begin iteration 3 of 30 ---
+
+ avg es pot at rmt= 0.408403  avg sphere pot= 0.308663  vconst=-0.408403
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.927   -1.139734   -0.245516   0.95222  -2.11937   0.06110   -0.245516 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000289
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000103
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000241
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000069
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.12   8.961    1.26E-06    3695 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9309 -0.8722 -0.8722 -0.8722 -0.8613 -0.8613  0.0645  0.0645  0.0645
+  0.1417  0.3751  0.3751  0.3751  0.5892  0.8806  0.8806  0.9026  0.9026
+  0.9026  1.0933  1.8077  1.8077  1.8077  2.0125  2.0125  2.0205  2.0205
+  2.0205  2.1145  2.1145  2.1145  2.7397  2.7397  2.7769  2.7769  2.7769
+  3.0787  3.1838  3.2132  3.2132  3.2132  3.2433  3.2433  3.2433  3.4642
+  3.4642  3.4958  3.4959  3.4959  3.6270  3.6270  3.6270  4.0208  4.0208
+  4.0209  4.1506  4.2024  4.2024  4.2024  4.8631  4.8631  5.0739  5.2526
+  5.2526  5.2526  8.7126
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.71261  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.872154  -0.861326  -0.861326   0.064538   0.064538   0.064539
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9016 -0.8694 -0.8694 -0.8610 -0.8610 -0.7729 -0.5138 -0.0398 -0.0398
+  0.1619  0.4380  0.4380  0.5963  0.8830  0.9931  0.9931  1.0444  1.1121
+  1.1121  1.4671  1.6209  1.6528  1.6528  1.7494  1.7494  1.9895  1.9895
+  2.0582  2.0938  2.1934  2.1934  2.2087  2.4381  2.4812  2.4812  2.5789
+  2.5789  2.7967  3.0719  3.0719  3.1347  3.1385  3.1385  3.2461  3.3999
+  3.4991  3.4991  3.7655  3.8607  3.8607  4.1134  4.1134  4.2746  4.2746
+  4.2898  4.4309  4.4309  4.5451  4.8642  5.0259  5.0259  5.0625  5.4971
+  5.4972  6.0223  8.3754
+ state:          4          5          6          7          8          9
+ evl:    -0.861048  -0.861047  -0.772914  -0.513825  -0.039819  -0.039818
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.8983 -0.8651 -0.8646 -0.8646 -0.8570 -0.7177 -0.5163 -0.1770 -0.1770
+  0.1534  0.1994  0.9035  0.9035  0.9531  1.0960  1.1116  1.1238  1.1238
+  1.1628  1.4432  1.5023  1.5023  1.5158  1.5348  1.5523  1.5523  1.6457
+  1.9440  2.2432  2.2695  2.2695  2.4601  2.5407  2.5407  2.5666  2.6940
+  2.8145  2.8778  2.8778  3.0045  3.0045  3.0920  3.2078  3.2154  3.2515
+  3.3849  3.3849  3.8985  3.9106  3.9541  3.9767  3.9767  4.2263  4.2387
+  4.4898  4.4898  4.5806  4.6688  4.8361  4.8362  5.1059  5.2122  5.4816
+  5.4816  5.9733  9.0387
+ state:          4          5          6          7          8          9
+ evl:    -0.864632  -0.857018  -0.717650  -0.516326  -0.176962  -0.176962
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0844,0.1940  fit : 0.1207 + 0.0473 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.064539;  18 electrons;  Sum occ. bands: -11.451256
+ VBmax = 0.064539  CBmin = 0.141668  gap = 0.077129 Ry = 1.04895 eV
+ Highest occ. level = 0.06454  Lowest unocc. = 0.14167  average = 0.10310
+
+ Saved Fermi level to weights file ... ef = 0.103103
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.485354    3.259923    8.225431
+ foca..  use smtc =    3687.571044
+   2    3.413352    4.140362   -0.727010
+ foca..  use smtc =    4591.031242
+   3    0.408910    0.408507    0.000404
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.368710    0.372485   -0.003775
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.703464   -0.526438
+    1    0.865917   -0.457820
+    2    0.100594   -0.012909
+    3    0.015027   -0.010119
+    4    0.002107   -0.000304
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.227633   -1.101967
+    1    2.134446   -0.709631
+    2    0.044709   -0.031995
+    3    0.010735   -0.011121
+    4    0.001638   -0.001323
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.121568   -0.056787
+    1    0.193047   -0.050321
+    2    0.079417   -0.010350
+    3    0.012897   -0.000689
+    4    0.001988    0.000421
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.125629   -0.061979
+    1    0.167290   -0.056070
+    2    0.061999   -0.015728
+    3    0.011783   -0.003232
+    4    0.002013   -0.000696
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.703464   -0.748350    4.723750    4.723750    4.500000    4.723750
+ 1     0    0.865917   -0.528711    4.451221    4.451225    4.250000    4.451225
+ 2     0    0.100594   -0.128325    4.300000    4.167886    4.147584    4.300000
+ 2     0    sc         -1.139735    3.927149    3.927149    3.147584   13.927149
+ 3     1    0.015027   -0.673372    4.150000    4.114499    4.102416    4.150000
+ 4     1    0.002107   -0.144373    5.120000    5.088645    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.227633   -0.897635    4.828773    4.828773    4.500000    4.828773
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.134446   -0.332466    4.710851    4.710849    4.250000    4.710849
+ 2     0    0.044709   -0.715622    4.172351    4.172346    4.147584    4.172346
+ 3     1    0.010735   -1.035998    4.150000    4.108090    4.102416    4.150000
+ 4     1    0.001638   -0.807321    5.120000    5.081905    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.121568   -0.467126    1.500000    1.403676    1.500000    1.500000
+ 1     0    0.193047   -0.260669    2.258680    2.258678    2.250000    2.258678
+ 2     0    0.079417   -0.130318    3.158109    3.158108    3.147584    3.158108
+ 3     0    0.012897   -0.053392    4.108300    4.108300    4.102416    4.108300
+ 4     0    0.001988    0.211958    5.083593    5.083594    5.077979    5.083594
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.125629   -0.493351    1.500000    1.393942    1.500000    1.500000
+ 1     0    0.167290   -0.335165    2.250000    2.246228    2.250000    2.250000
+ 2     0    0.061999   -0.253678    3.151465    3.151466    3.147584    3.151466
+ 3     0    0.011783   -0.274246    4.103757    4.103757    4.102416    4.103757
+ 4     0    0.002013   -0.345466    5.078049    5.078049    5.077979    5.078049
+
+ Harris energy:
+ sumev=      -11.451256  val*vef=    -308.780937   sumtv=     297.329681
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -307.102664     utot=  -16663.576497    ehar=   -8394.747193
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.414806  avg sphere pot= 0.308910  vconst=-0.414806
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8567.950403  rho*v=-16965.892140  ehf=-8394.747193  ehks=-8397.941737
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.28e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 4.  RMS DQ=4.70e-3  last it=4.70e-3
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.412322     10.504938     10.504938      0.001217     10.477153
+ site    1    8.339682      8.225431      8.225431      0.004828      8.259706
+ site    2   -0.755397     -0.727010     -0.727010      0.001116     -0.735526
+ site    3    0.002874      0.000404      0.000404      0.000080      0.001145
+ site    4    0.000519     -0.003775     -0.003775      0.000136     -0.002487
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: Reducing nmix to  0: t_j exceeds tm: tj=433.02927
+ AMIX: nmix=0 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=4.7e-3
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.001330   local  0.004828   tot
+   screened rms difference:  smooth  0.001217   local  0.004828   tot  0.004697
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:42 2009
+
+   it  3  of 30    ehf=       2.849807   ehk=      -0.344737
+ From last iter    ehf=       2.847995   ehk=      -0.344773
+ diffe(q)=  0.000036 (0.004697)    tol= 0.000050 (0.000001)   more=T
+i ehf=2.849807 ehk=-.3447368
+
+ --- BNDFP:  begin iteration 4 of 30 ---
+
+ avg es pot at rmt= 0.411793  avg sphere pot= 0.308836  vconst=-0.411793
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.927   -1.139735   -0.245437   0.95224  -2.11954   0.06110   -0.245437 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000289
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000104
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000240
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000070
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.12   8.961    1.26E-06    3695 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9938 -0.9938 -0.9938 -0.9846 -0.9846 -0.9411  0.0506  0.0506  0.0506
+  0.1263  0.3638  0.3638  0.3638  0.5806  0.8711  0.8711  0.8990  0.8990
+  0.8990  1.0938  1.8065  1.8065  1.8065  2.0073  2.0073  2.0073  2.0096
+  2.0096  2.1076  2.1076  2.1076  2.7463  2.7463  2.7728  2.7728  2.7728
+  3.0646  3.1766  3.2044  3.2045  3.2045  3.2361  3.2361  3.2361  3.4525
+  3.4525  3.4872  3.4873  3.4873  3.6188  3.6188  3.6188  4.0191  4.0191
+  4.0192  4.1379  4.1964  4.1964  4.1964  4.8821  4.8821  5.0648  5.2622
+  5.2622  5.2622  8.7017
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.70165  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.984598  -0.984598  -0.941094   0.050602   0.050602   0.050603
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -1.0039 -0.9916 -0.9916 -0.9844 -0.9844 -0.8052 -0.5242 -0.0519 -0.0519
+  0.1485  0.4282  0.4282  0.5939  0.8736  0.9843  0.9843  1.0292  1.1015
+  1.1015  1.4604  1.6102  1.6495  1.6495  1.7433  1.7433  1.9877  1.9877
+  2.0525  2.0924  2.1807  2.1807  2.2014  2.4384  2.4794  2.4794  2.5693
+  2.5693  2.7902  3.0747  3.0747  3.1276  3.1370  3.1370  3.2390  3.3922
+  3.4987  3.4987  3.7606  3.8549  3.8549  4.1113  4.1113  4.2675  4.2675
+  4.2824  4.4331  4.4331  4.5404  4.8555  5.0203  5.0204  5.0511  5.4899
+  5.4900  6.0128  8.3656
+ state:          4          5          6          7          8          9
+ evl:    -0.984417  -0.984417  -0.805164  -0.524152  -0.051941  -0.051940
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -1.0063 -0.9878 -0.9878 -0.9869 -0.9808 -0.7431 -0.5311 -0.1865 -0.1865
+  0.1467  0.1893  0.8896  0.8896  0.9423  1.0817  1.1074  1.1150  1.1150
+  1.1494  1.4413  1.4981  1.4981  1.5096  1.5305  1.5455  1.5455  1.6365
+  1.9412  2.2353  2.2583  2.2583  2.4726  2.5384  2.5384  2.5601  2.6885
+  2.8080  2.8819  2.8819  3.0016  3.0016  3.0805  3.2004  3.2077  3.2505
+  3.3843  3.3844  3.9028  3.9074  3.9463  3.9644  3.9644  4.2358  4.2391
+  4.4813  4.4814  4.5811  4.6567  4.8263  4.8264  5.0998  5.2056  5.4762
+  5.4762  5.9659  9.0295
+ state:          4          5          6          7          8          9
+ evl:    -0.986908  -0.980797  -0.743065  -0.531145  -0.186471  -0.186471
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0832,0.1940  fit : 0.1215 + 0.0462 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.050603;  18 electrons;  Sum occ. bands: -12.771688
+ VBmax = 0.050603  CBmin = 0.126300  gap = 0.075697 Ry = 1.02948 eV
+ Highest occ. level = 0.05060  Lowest unocc. = 0.12630  average = 0.08845
+
+ Saved Fermi level to weights file ... ef = 0.088451
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.537218    3.189566    8.347652
+ foca..  use smtc =    3687.571044
+   2    3.411669    4.150824   -0.739155
+ foca..  use smtc =    4591.031242
+   3    0.399513    0.399148    0.000366
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.356763    0.359889   -0.003126
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.716365   -0.543867
+    1    0.875830   -0.471970
+    2    0.098017   -0.020210
+    3    0.014992   -0.010349
+    4    0.002107   -0.000360
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.231780   -1.119885
+    1    2.130442   -0.741008
+    2    0.043442   -0.031027
+    3    0.010317   -0.010597
+    4    0.001619   -0.001167
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.117746   -0.056181
+    1    0.188978   -0.050869
+    2    0.078093   -0.011113
+    3    0.012736   -0.000896
+    4    0.001967    0.000397
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.120313   -0.060019
+    1    0.162348   -0.055133
+    2    0.060597   -0.015535
+    3    0.011553   -0.003166
+    4    0.001957   -0.000621
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.716365   -0.759204    4.723750    4.728621    4.500000    4.728621
+ 1     0    0.875830   -0.538883    4.451225    4.455629    4.250000    4.455629
+ 2     0    0.098017   -0.206191    4.300000    4.166872    4.147584    4.300000
+ 2     0    sc         -1.245190    3.927149    3.928553    3.147584   13.928553
+ 3     1    0.014992   -0.690337    4.150000    4.114312    4.102416    4.150000
+ 4     1    0.002107   -0.170796    5.120000    5.088415    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.231780   -0.909160    4.828773    4.828989    4.500000    4.828989
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.130442   -0.347819    4.710849    4.709087    4.250000    4.709087
+ 2     0    0.043442   -0.714223    4.172346    4.173307    4.147584    4.173307
+ 3     1    0.010317   -1.027101    4.150000    4.108479    4.102416    4.150000
+ 4     1    0.001619   -0.720977    5.120000    5.082914    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.117746   -0.477138    1.500000    1.399101    1.500000    1.500000
+ 1     0    0.188978   -0.269178    2.258678    2.257139    2.250000    2.257139
+ 2     0    0.078093   -0.142303    3.158108    3.157436    3.147584    3.157436
+ 3     0    0.012736   -0.070346    4.108300    4.107939    4.102416    4.107939
+ 4     0    0.001967    0.201738    5.083594    5.083486    5.077979    5.083486
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.120313   -0.498852    1.500000    1.390562    1.500000    1.500000
+ 1     0    0.162348   -0.339599    2.250000    2.245230    2.250000    2.250000
+ 2     0    0.060597   -0.256359    3.151466    3.151261    3.147584    3.151261
+ 3     0    0.011553   -0.274047    4.103757    4.103740    4.102416    4.103740
+ 4     0    0.001957   -0.317243    5.078049    5.078298    5.077979    5.078298
+
+ Harris energy:
+ sumev=      -12.771688  val*vef=    -306.948844   sumtv=     294.177156
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -306.861762     utot=  -16660.871563    ehar=   -8394.953882
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.410074  avg sphere pot= 0.308666  vconst=-0.410074
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8573.422723  rho*v=-16971.388546  ehf=-8394.953882  ehks=-8397.965824
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 4.  RMS DQ=4.60e-3  last it=4.70e-3
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.477162     10.394252     10.394252      0.001123     10.419125
+ site    1    8.259706      8.347652      8.347652      0.004304      8.321268
+ site    2   -0.735526     -0.739155     -0.739155      0.000123     -0.738066
+ site    3    0.001145      0.000366      0.000366      0.000025      0.000599
+ site    4   -0.002487     -0.003126     -0.003126      0.000020     -0.002935
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=4.6e-3
+   tj: 0.49458
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.001027   local  0.004304   tot
+   screened rms difference:  smooth  0.001123   local  0.004304   tot  0.004599
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:44 2009
+
+   it  4  of 30    ehf=       2.643118   ehk=      -0.368824
+ From last iter    ehf=       2.849807   ehk=      -0.344737
+ diffe(q)= -0.024087 (0.004599)    tol= 0.000050 (0.000001)   more=T
+i ehf=2.6431181 ehk=-.3688239
+
+ --- BNDFP:  begin iteration 5 of 30 ---
+
+ avg es pot at rmt= 0.411384  avg sphere pot= 0.308776  vconst=-0.411384
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.929   -1.244369   -0.344522   0.95000  -2.27061   0.05696   -0.338483*
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000288
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000104
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000240
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000069
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.27   8.983    1.02E-06    3719 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9420 -0.9197 -0.9197 -0.9197 -0.9093 -0.9093  0.0511  0.0511  0.0511
+  0.1267  0.3650  0.3650  0.3650  0.5821  0.8735  0.8735  0.8998  0.8998
+  0.8998  1.0942  1.8214  1.8214  1.8214  2.0087  2.0087  2.0088  2.0256
+  2.0256  2.1067  2.1067  2.1067  2.7648  2.7648  2.7910  2.7910  2.7910
+  3.0643  3.1758  3.2048  3.2048  3.2048  3.2358  3.2358  3.2358  3.4556
+  3.4557  3.4887  3.4888  3.4888  3.6179  3.6179  3.6179  4.0205  4.0205
+  4.0206  4.1381  4.2028  4.2028  4.2028  4.9091  4.9091  5.0646  5.2832
+  5.2832  5.2833  8.6994
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.69945  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.919742  -0.909318  -0.909318   0.051066   0.051066   0.051067
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9396 -0.9173 -0.9173 -0.9091 -0.9091 -0.7954 -0.5238 -0.0519 -0.0519
+  0.1498  0.4297  0.4297  0.5944  0.8733  0.9853  0.9853  1.0310  1.1042
+  1.1042  1.4632  1.6157  1.6546  1.6546  1.7452  1.7452  2.0031  2.0031
+  2.0563  2.0928  2.1827  2.1827  2.2005  2.4506  2.4919  2.4919  2.5724
+  2.5724  2.7909  3.0912  3.0912  3.1272  3.1499  3.1499  3.2382  3.4023
+  3.5049  3.5049  3.7719  3.8570  3.8570  4.1163  4.1163  4.2696  4.2696
+  4.2831  4.4460  4.4460  4.5423  4.8556  5.0248  5.0248  5.0557  5.4917
+  5.4917  6.0154  8.3645
+ state:          4          5          6          7          8          9
+ evl:    -0.909138  -0.909138  -0.795436  -0.523798  -0.051882  -0.051881
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.9396 -0.9129 -0.9129 -0.9122 -0.9050 -0.7368 -0.5294 -0.1868 -0.1868
+  0.1481  0.1911  0.8906  0.8906  0.9416  1.0836  1.1085  1.1167  1.1167
+  1.1520  1.4459  1.4998  1.4998  1.5100  1.5311  1.5470  1.5470  1.6433
+  1.9564  2.2475  2.2636  2.2636  2.5002  2.5437  2.5437  2.5660  2.6903
+  2.8079  2.8970  2.8970  3.0115  3.0115  3.0824  3.2040  3.2127  3.2561
+  3.3887  3.3888  3.9013  3.9298  3.9470  3.9644  3.9644  4.2439  4.2603
+  4.4836  4.4836  4.5977  4.6565  4.8292  4.8292  5.1042  5.2120  5.4772
+  5.4773  5.9692  9.0280
+ state:          4          5          6          7          8          9
+ evl:    -0.912248  -0.904970  -0.736756  -0.529393  -0.186786  -0.186786
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0832,0.1940  fit : 0.1216 + 0.0461 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.051067;  18 electrons;  Sum occ. bands: -12.023862
+ VBmax = 0.051067  CBmin = 0.126720  gap = 0.075653 Ry = 1.02888 eV
+ Highest occ. level = 0.05107  Lowest unocc. = 0.12672  average = 0.08889
+
+ Saved Fermi level to weights file ... ef = 0.088894
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.514456    3.254172    8.260284
+ foca..  use smtc =    3687.571044
+   2    3.423052    4.164607   -0.741555
+ foca..  use smtc =    4591.031242
+   3    0.400947    0.400553    0.000394
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.359424    0.362966   -0.003542
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.713018   -0.540644
+    1    0.871350   -0.470042
+    2    0.099833   -0.017855
+    3    0.015084   -0.010381
+    4    0.002125   -0.000353
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.233906   -1.123550
+    1    2.138453   -0.742847
+    2    0.044516   -0.031955
+    3    0.010550   -0.010927
+    4    0.001622   -0.001249
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.118243   -0.056034
+    1    0.189615   -0.050761
+    2    0.078297   -0.011122
+    3    0.012814   -0.000891
+    4    0.001984    0.000405
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.121598   -0.060474
+    1    0.163342   -0.055607
+    2    0.060916   -0.015866
+    3    0.011604   -0.003277
+    4    0.001969   -0.000687
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.713018   -0.758248    4.728621    4.727560    4.500000    4.727560
+ 1     0    0.871350   -0.539441    4.455629    4.454029    4.250000    4.454029
+ 2     0    0.099833   -0.178848    4.300000    4.167553    4.147584    4.300000
+ 2     0    sc         -1.210799    3.928553    3.928117    3.147584   13.928117
+ 3     1    0.015084   -0.688216    4.150000    4.114374    4.102416    4.150000
+ 4     1    0.002125   -0.166157    5.120000    5.088481    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.233906   -0.910564    4.828989    4.829393    4.500000    4.829393
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.138453   -0.347376    4.709087    4.710340    4.250000    4.710340
+ 2     0    0.044516   -0.717843    4.173307    4.173207    4.147584    4.173207
+ 3     1    0.010550   -1.035820    4.150000    4.108321    4.102416    4.150000
+ 4     1    0.001622   -0.769952    5.120000    5.082402    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.118243   -0.473891    1.500000    1.400480    1.500000    1.500000
+ 1     0    0.189615   -0.267706    2.257139    2.257406    2.250000    2.257406
+ 2     0    0.078297   -0.142054    3.157436    3.157455    3.147584    3.157455
+ 3     0    0.012814   -0.069554    4.107939    4.107959    4.102416    4.107959
+ 4     0    0.001984    0.203937    5.083486    5.083511    5.077979    5.083511
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.121598   -0.497328    1.500000    1.391195    1.500000    1.500000
+ 1     0    0.163342   -0.340430    2.250000    2.245103    2.250000    2.250000
+ 2     0    0.060916   -0.260454    3.151261    3.151056    3.147584    3.151056
+ 3     0    0.011604   -0.282407    4.103740    4.103580    4.102416    4.103580
+ 4     0    0.001969   -0.348789    5.078298    5.078012    5.077979    5.078012
+
+ Harris energy:
+ sumev=      -12.023862  val*vef=    -307.898171   sumtv=     295.874309
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -306.938657     utot=  -16662.062705    ehar=   -8394.524766
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.412559  avg sphere pot= 0.308233  vconst=-0.412559
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8570.945818  rho*v=-16968.905311  ehf=-8394.524766  ehks=-8397.959493
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 7.06e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 4.  RMS DQ=6.82e-4  last it=4.60e-3
+ ...  deleting file mixm : nkill=5
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.447833     10.484408     10.484408      0.000289     10.473435
+ site    1    8.290821      8.260284      8.260284      0.001201      8.269445
+ site    2   -0.736810     -0.741555     -0.741555      0.000157     -0.740132
+ site    3    0.000869      0.000394      0.000394      0.000015      0.000536
+ site    4   -0.002713     -0.003542     -0.003542      0.000026     -0.003293
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: nmix=2 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=6.82e-4
+   tj: 0.18177   0.18036
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.000342   local  0.001201   tot
+   screened rms difference:  smooth  0.000289   local  0.001201   tot  0.000682
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:46 2009
+
+   it  5  of 30    ehf=       3.072234   ehk=      -0.362493
+ From last iter    ehf=       2.643118   ehk=      -0.368824
+ diffe(q)=  0.006331 (0.000682)    tol= 0.000050 (0.000001)   more=T
+i ehf=3.0722338 ehk=-.3624932
+
+ --- BNDFP:  begin iteration 6 of 30 ---
+
+ avg es pot at rmt= 0.411852  avg sphere pot= 0.308534  vconst=-0.411852
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.928   -1.211061   -0.310426   0.95038  -2.21948   0.05819   -0.310426 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000288
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000104
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000240
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000069
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.22   8.979    1.01E-06    3719 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9436 -0.9372 -0.9372 -0.9372 -0.9270 -0.9270  0.0490  0.0490  0.0490
+  0.1247  0.3638  0.3638  0.3638  0.5812  0.8723  0.8723  0.8993  0.8993
+  0.8993  1.0939  1.8199  1.8199  1.8199  2.0072  2.0072  2.0072  2.0243
+  2.0243  2.1055  2.1055  2.1055  2.7647  2.7647  2.7901  2.7901  2.7901
+  3.0625  3.1744  3.2036  3.2036  3.2036  3.2344  3.2344  3.2344  3.4548
+  3.4548  3.4878  3.4878  3.4879  3.6166  3.6166  3.6166  4.0202  4.0202
+  4.0203  4.1367  4.2021  4.2021  4.2022  4.9102  4.9102  5.0634  5.2832
+  5.2832  5.2832  8.6977
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.69771  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.937195  -0.927016  -0.927016   0.049041   0.049041   0.049041
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9544 -0.9348 -0.9348 -0.9268 -0.9268 -0.8002 -0.5252 -0.0536 -0.0536
+  0.1482  0.4285  0.4285  0.5939  0.8717  0.9841  0.9841  1.0294  1.1029
+  1.1029  1.4621  1.6143  1.6536  1.6536  1.7443  1.7443  2.0018  2.0018
+  2.0555  2.0925  2.1811  2.1811  2.1993  2.4496  2.4910  2.4910  2.5715
+  2.5715  2.7899  3.0905  3.0905  3.1258  3.1493  3.1493  3.2370  3.4014
+  3.5044  3.5044  3.7707  3.8559  3.8559  4.1157  4.1157  4.2685  4.2685
+  4.2818  4.4456  4.4456  4.5414  4.8542  5.0242  5.0243  5.0542  5.4907
+  5.4908  6.0144  8.3627
+ state:          4          5          6          7          8          9
+ evl:    -0.926831  -0.926831  -0.800168  -0.525163  -0.053642  -0.053641
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.9553 -0.9306 -0.9306 -0.9298 -0.9228 -0.7406 -0.5312 -0.1882 -0.1882
+  0.1472  0.1899  0.8889  0.8889  0.9398  1.0820  1.1075  1.1153  1.1153
+  1.1509  1.4448  1.4991  1.4991  1.5093  1.5305  1.5463  1.5463  1.6420
+  1.9551  2.2461  2.2619  2.2619  2.4997  2.5428  2.5428  2.5652  2.6896
+  2.8068  2.8961  2.8961  3.0108  3.0108  3.0812  3.2029  3.2121  3.2557
+  3.3882  3.3882  3.8998  3.9298  3.9458  3.9626  3.9626  4.2427  4.2609
+  4.4824  4.4825  4.5969  4.6548  4.8283  4.8283  5.1033  5.2115  5.4763
+  5.4763  5.9680  9.0264
+ state:          4          5          6          7          8          9
+ evl:    -0.929808  -0.922825  -0.740580  -0.531170  -0.188190  -0.188190
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0832,0.1940  fit : 0.1217 + 0.0459 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.049041;  18 electrons;  Sum occ. bands: -12.213691
+ VBmax = 0.049041  CBmin = 0.124715  gap = 0.075674 Ry = 1.02917 eV
+ Highest occ. level = 0.04904  Lowest unocc. = 0.12472  average = 0.08688
+
+ Saved Fermi level to weights file ... ef = 0.086878
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.518398    3.242105    8.276293
+ foca..  use smtc =    3687.571044
+   2    3.425230    4.169086   -0.743856
+ foca..  use smtc =    4591.031242
+   3    0.399720    0.399317    0.000402
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.357863    0.361274   -0.003411
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.713813   -0.542144
+    1    0.871375   -0.471526
+    2    0.099490   -0.018422
+    3    0.015098   -0.010427
+    4    0.002128   -0.000362
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.234988   -1.126803
+    1    2.139808   -0.747567
+    2    0.044340   -0.031879
+    3    0.010513   -0.010879
+    4    0.001629   -0.001235
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.117767   -0.056019
+    1    0.189060   -0.050882
+    2    0.078118   -0.011228
+    3    0.012796   -0.000924
+    4    0.001984    0.000399
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.120937   -0.060328
+    1    0.162655   -0.055543
+    2    0.060716   -0.015844
+    3    0.011589   -0.003273
+    4    0.001971   -0.000675
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.713813   -0.759505    4.727560    4.727979    4.500000    4.727979
+ 1     0    0.871375   -0.541128    4.454029    4.454191    4.250000    4.454191
+ 2     0    0.099490   -0.185165    4.300000    4.167210    4.147584    4.300000
+ 2     0    sc         -1.215713    3.928117    3.928179    3.147584   13.928179
+ 3     1    0.015098   -0.690601    4.150000    4.114352    4.102416    4.150000
+ 4     1    0.002128   -0.170004    5.120000    5.088450    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.234988   -0.912400    4.829393    4.829540    4.500000    4.829540
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.139808   -0.349362    4.710340    4.710403    4.250000    4.710403
+ 2     0    0.044340   -0.718975    4.173207    4.173276    4.147584    4.173276
+ 3     1    0.010513   -1.034760    4.150000    4.108381    4.102416    4.150000
+ 4     1    0.001629   -0.758347    5.120000    5.082543    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.117767   -0.475674    1.500000    1.399730    1.500000    1.500000
+ 1     0    0.189060   -0.269133    2.257406    2.257160    2.250000    2.257160
+ 2     0    0.078118   -0.143736    3.157455    3.157363    3.147584    3.157363
+ 3     0    0.012796   -0.072208    4.107959    4.107903    4.102416    4.107903
+ 4     0    0.001984    0.201209    5.083511    5.083482    5.077979    5.083482
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.120937   -0.498838    1.500000    1.390545    1.500000    1.500000
+ 1     0    0.162655   -0.341481    2.250000    2.244924    2.250000    2.250000
+ 2     0    0.060716   -0.260953    3.151056    3.151027    3.147584    3.151027
+ 3     0    0.011589   -0.282435    4.103580    4.103578    4.102416    4.103578
+ 4     0    0.001971   -0.342515    5.078012    5.078068    5.077979    5.078068
+
+ Harris energy:
+ sumev=      -12.213691  val*vef=    -307.959968   sumtv=     295.746277
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -306.929176     utot=  -16662.075483    ehar=   -8394.656096
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.412041  avg sphere pot= 0.308366  vconst=-0.412041
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8571.227952  rho*v=-16969.189847  ehf=-8394.656096  ehks=-8397.961895
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.88e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 0.  RMS DQ=3.82e-4  last it=6.82e-4
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.464242     10.470561     10.470561      0.000132     10.468665
+ site    1    8.277108      8.276293      8.276293      0.000408      8.276538
+ site    2   -0.738925     -0.743856     -0.743856      0.000171     -0.742377
+ site    3    0.000658      0.000402      0.000402      0.000008      0.000479
+ site    4   -0.003083     -0.003411     -0.003411      0.000010     -0.003313
+ AMIX: nmix=0 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=3.82e-4
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.000227   local  0.000408   tot
+   screened rms difference:  smooth  0.000132   local  0.000408   tot  0.000382
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:47 2009
+
+   it  6  of 30    ehf=       2.940904   ehk=      -0.364895
+ From last iter    ehf=       3.072234   ehk=      -0.362493
+ diffe(q)= -0.002402 (0.000382)    tol= 0.000050 (0.000001)   more=T
+i ehf=2.9409043 ehk=-.364895
+
+ --- BNDFP:  begin iteration 7 of 30 ---
+
+ avg es pot at rmt= 0.411990  avg sphere pot= 0.308416  vconst=-0.411990
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.928   -1.215676   -0.313983   0.95041  -2.22737   0.05803   -0.313983 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000288
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000104
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000240
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000069
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.23   8.979    1.00E-06    3719 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9450 -0.9335 -0.9335 -0.9335 -0.9232 -0.9232  0.0476  0.0476  0.0476
+  0.1231  0.3630  0.3630  0.3630  0.5805  0.8719  0.8719  0.8990  0.8990
+  0.8990  1.0934  1.8208  1.8208  1.8208  2.0061  2.0061  2.0061  2.0255
+  2.0255  2.1044  2.1044  2.1044  2.7673  2.7673  2.7920  2.7920  2.7920
+  3.0609  3.1730  3.2025  3.2025  3.2025  3.2333  3.2333  3.2333  3.4546
+  3.4546  3.4872  3.4873  3.4873  3.6154  3.6154  3.6154  4.0201  4.0201
+  4.0202  4.1354  4.2024  4.2024  4.2024  4.9148  4.9148  5.0624  5.2864
+  5.2864  5.2864  8.6958
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.69578  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.933523  -0.923229  -0.923229   0.047557   0.047557   0.047558
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9517 -0.9311 -0.9311 -0.9230 -0.9230 -0.8008 -0.5262 -0.0550 -0.0550
+  0.1471  0.4279  0.4279  0.5934  0.8703  0.9833  0.9833  1.0283  1.1023
+  1.1023  1.4615  1.6138  1.6536  1.6536  1.7439  1.7439  2.0029  2.0029
+  2.0552  2.0922  2.1801  2.1801  2.1981  2.4505  2.4921  2.4921  2.5711
+  2.5711  2.7891  3.0924  3.0924  3.1246  3.1507  3.1507  3.2360  3.4020
+  3.5048  3.5048  3.7714  3.8552  3.8552  4.1158  4.1158  4.2678  4.2678
+  4.2809  4.4472  4.4472  4.5408  4.8530  5.0243  5.0243  5.0536  5.4901
+  5.4902  6.0139  8.3609
+ state:          4          5          6          7          8          9
+ evl:    -0.923045  -0.923045  -0.800820  -0.526229  -0.055014  -0.055014
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.9523 -0.9268 -0.9268 -0.9261 -0.9190 -0.7416 -0.5323 -0.1894 -0.1894
+  0.1467  0.1893  0.8877  0.8877  0.9383  1.0809  1.1069  1.1145  1.1145
+  1.1504  1.4444  1.4987  1.4987  1.5088  1.5301  1.5459  1.5460  1.6418
+  1.9562  2.2466  2.2613  2.2613  2.5032  2.5429  2.5429  2.5653  2.6892
+  2.8059  2.8974  2.8974  3.0119  3.0119  3.0804  3.2025  3.2123  3.2561
+  3.3884  3.3884  3.8983  3.9330  3.9450  3.9611  3.9611  4.2429  4.2644
+  4.4818  4.4818  4.5987  4.6533  4.8279  4.8279  5.1030  5.2119  5.4756
+  5.4757  5.9675  9.0247
+ state:          4          5          6          7          8          9
+ evl:    -0.926062  -0.918999  -0.741638  -0.532272  -0.189368  -0.189368
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0832,0.1940  fit : 0.1218 + 0.0458 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.047558;  18 electrons;  Sum occ. bands: -12.187145
+ VBmax = 0.047558  CBmin = 0.123128  gap = 0.075570 Ry = 1.02776 eV
+ Highest occ. level = 0.04756  Lowest unocc. = 0.12313  average = 0.08534
+
+ Saved Fermi level to weights file ... ef = 0.085343
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.517152    3.246770    8.270382
+ foca..  use smtc =    3687.571044
+   2    3.428862    4.175239   -0.746376
+ foca..  use smtc =    4591.031242
+   3    0.399047    0.398625    0.000421
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.357287    0.360692   -0.003405
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.713993   -0.542888
+    1    0.870880   -0.472466
+    2    0.099652   -0.018464
+    3    0.015127   -0.010468
+    4    0.002134   -0.000367
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.236181   -1.130091
+    1    2.142113   -0.751809
+    2    0.044496   -0.032027
+    3    0.010536   -0.010908
+    4    0.001633   -0.001240
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.117506   -0.055992
+    1    0.188753   -0.050953
+    2    0.078011   -0.011322
+    3    0.012797   -0.000951
+    4    0.001986    0.000396
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.120747   -0.060356
+    1    0.162356   -0.055620
+    2    0.060632   -0.015910
+    3    0.011585   -0.003295
+    4    0.001973   -0.000680
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.713993   -0.760355    4.727979    4.728168    4.500000    4.728168
+ 1     0    0.870880   -0.542516    4.454191    4.454113    4.250000    4.454113
+ 2     0    0.099652   -0.185283    4.300000    4.167146    4.147584    4.300000
+ 2     0    sc         -1.214591    3.928179    3.928165    3.147584   13.928165
+ 3     1    0.015127   -0.692021    4.150000    4.114349    4.102416    4.150000
+ 4     1    0.002134   -0.172072    5.120000    5.088440    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.236181   -0.914180    4.829540    4.829706    4.500000    4.829706
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.142113   -0.350966    4.710403    4.710632    4.250000    4.710632
+ 2     0    0.044496   -0.719768    4.173276    4.173373    4.147584    4.173373
+ 3     1    0.010536   -1.035277    4.150000    4.108405    4.102416    4.150000
+ 4     1    0.001633   -0.759093    5.120000    5.082550    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.117506   -0.476505    1.500000    1.399413    1.500000    1.500000
+ 1     0    0.188753   -0.269948    2.257160    2.257023    2.250000    2.257023
+ 2     0    0.078011   -0.145127    3.157363    3.157286    3.147584    3.157286
+ 3     0    0.012797   -0.074346    4.107903    4.107857    4.102416    4.107857
+ 4     0    0.001986    0.199525    5.083482    5.083464    5.077979    5.083464
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.120747   -0.499852    1.500000    1.390169    1.500000    1.500000
+ 1     0    0.162356   -0.342582    2.250000    2.244747    2.250000    2.250000
+ 2     0    0.060632   -0.262403    3.151027    3.150950    3.147584    3.150950
+ 3     0    0.011585   -0.284452    4.103578    4.103537    4.102416    4.103537
+ 4     0    0.001973   -0.344743    5.078068    5.078047    5.077979    5.078047
+
+ Harris energy:
+ sumev=      -12.187145  val*vef=    -308.128641   sumtv=     295.941496
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -306.931945     utot=  -16662.240246    ehar=   -8394.628408
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.412154  avg sphere pot= 0.308340  vconst=-0.412154
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8571.026184  rho*v=-16968.987532  ehf=-8394.628408  ehks=-8397.961348
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.97e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 1.  RMS DQ=2.09e-4  last it=3.82e-4
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.468673     10.478966     10.478966      0.000087     10.475878
+ site    1    8.276538      8.270382      8.270382      0.000202      8.272229
+ site    2   -0.742377     -0.746376     -0.746376      0.000143     -0.745177
+ site    3    0.000479      0.000421      0.000421      0.000002      0.000439
+ site    4   -0.003313     -0.003405     -0.003405      0.000003     -0.003378
+ AMIX: nmix=1 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=2.09e-4
+   tj: 0.30924
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.000120   local  0.000202   tot
+   screened rms difference:  smooth  0.000087   local  0.000202   tot  0.000209
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:49 2009
+
+   it  7  of 30    ehf=       2.968592   ehk=      -0.364348
+ From last iter    ehf=       2.940904   ehk=      -0.364895
+ diffe(q)=  0.000547 (0.000209)    tol= 0.000050 (0.000001)   more=T
+i ehf=2.9685922 ehk=-.3643479
+
+ --- BNDFP:  begin iteration 8 of 30 ---
+
+ avg es pot at rmt= 0.412058  avg sphere pot= 0.308379  vconst=-0.412058
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.928   -1.214599   -0.311942   0.95067  -2.22821   0.05810   -0.311942 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000289
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000104
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000240
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000068
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.23   8.976    1.34E-06    3695 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9456 -0.9369 -0.9369 -0.9369 -0.9267 -0.9267  0.0469  0.0469  0.0469
+  0.1223  0.3625  0.3625  0.3625  0.5799  0.8716  0.8716  0.8988  0.8988
+  0.8988  1.0930  1.8218  1.8218  1.8218  2.0055  2.0055  2.0055  2.0265
+  2.0265  2.1040  2.1040  2.1040  2.7691  2.7691  2.7931  2.7931  2.7931
+  3.0601  3.1723  3.2020  3.2020  3.2020  3.2329  3.2329  3.2329  3.4542
+  3.4542  3.4868  3.4868  3.4868  3.6150  3.6150  3.6150  4.0200  4.0200
+  4.0200  4.1347  4.2026  4.2026  4.2026  4.9178  4.9178  5.0619  5.2885
+  5.2885  5.2885  8.6952
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.69516  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.936944  -0.926691  -0.926690   0.046890   0.046890   0.046891
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9546 -0.9345 -0.9345 -0.9265 -0.9265 -0.8020 -0.5268 -0.0556 -0.0556
+  0.1465  0.4275  0.4275  0.5931  0.8697  0.9829  0.9829  1.0275  1.1019
+  1.1019  1.4613  1.6135  1.6538  1.6538  1.7438  1.7438  2.0039  2.0039
+  2.0548  2.0921  2.1796  2.1796  2.1977  2.4514  2.4928  2.4928  2.5708
+  2.5708  2.7887  3.0938  3.0938  3.1241  3.1515  3.1516  3.2356  3.4024
+  3.5052  3.5052  3.7721  3.8551  3.8551  4.1160  4.1160  4.2676  4.2676
+  4.2805  4.4483  4.4483  4.5405  4.8525  5.0244  5.0244  5.0533  5.4898
+  5.4899  6.0137  8.3604
+ state:          4          5          6          7          8          9
+ evl:    -0.926510  -0.926510  -0.801965  -0.526755  -0.055608  -0.055607
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.9553 -0.9303 -0.9303 -0.9295 -0.9225 -0.7426 -0.5330 -0.1899 -0.1899
+  0.1463  0.1888  0.8870  0.8870  0.9376  1.0801  1.1069  1.1141  1.1141
+  1.1499  1.4445  1.4986  1.4986  1.5085  1.5298  1.5457  1.5457  1.6416
+  1.9573  2.2469  2.2610  2.2610  2.5060  2.5431  2.5431  2.5654  2.6890
+  2.8055  2.8985  2.8985  3.0128  3.0128  3.0799  3.2020  3.2125  3.2562
+  3.3886  3.3886  3.8978  3.9352  3.9446  3.9605  3.9605  4.2432  4.2668
+  4.4816  4.4816  4.5998  4.6527  4.8275  4.8275  5.1031  5.2121  5.4754
+  5.4754  5.9674  9.0243
+ state:          4          5          6          7          8          9
+ evl:    -0.929485  -0.922468  -0.742611  -0.532951  -0.189850  -0.189850
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0832,0.1940  fit : 0.1218 + 0.0457 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.046891;  18 electrons;  Sum occ. bands: -12.226276
+ VBmax = 0.046891  CBmin = 0.122341  gap = 0.075450 Ry = 1.02612 eV
+ Highest occ. level = 0.04689  Lowest unocc. = 0.12234  average = 0.08462
+
+ Saved Fermi level to weights file ... ef = 0.084616
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.518848    3.244048    8.274800
+ foca..  use smtc =    3687.571044
+   2    3.429142    4.176394   -0.747252
+ foca..  use smtc =    4591.031242
+   3    0.398632    0.398206    0.000426
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.356857    0.360229   -0.003372
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.714505   -0.543624
+    1    0.871273   -0.473118
+    2    0.099584   -0.018721
+    3    0.015131   -0.010482
+    4    0.002134   -0.000370
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.236460   -1.131140
+    1    2.142151   -0.753536
+    2    0.044489   -0.032019
+    3    0.010528   -0.010894
+    4    0.001634   -0.001234
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.117353   -0.056007
+    1    0.188566   -0.051002
+    2    0.077944   -0.011368
+    3    0.012790   -0.000965
+    4    0.001986    0.000395
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.120580   -0.060353
+    1    0.162163   -0.055626
+    2    0.060572   -0.015916
+    3    0.011577   -0.003297
+    4    0.001971   -0.000678
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.714505   -0.760840    4.728168    4.728390    4.500000    4.728390
+ 1     0    0.871273   -0.543019    4.454113    4.454299    4.250000    4.454299
+ 2     0    0.099584   -0.187987    4.300000    4.167097    4.147584    4.300000
+ 2     0    sc         -1.217989    3.928165    3.928210    3.147584   13.928210
+ 3     1    0.015131   -0.692782    4.150000    4.114344    4.102416    4.150000
+ 4     1    0.002134   -0.173367    5.120000    5.088430    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.236460   -0.914821    4.829706    4.829728    4.500000    4.829728
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.142151   -0.351766    4.710632    4.710572    4.250000    4.710572
+ 2     0    0.044489   -0.719708    4.173373    4.173426    4.147584    4.173426
+ 3     1    0.010528   -1.034784    4.150000    4.108428    4.102416    4.150000
+ 4     1    0.001634   -0.755502    5.120000    5.082594    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.117353   -0.477253    1.500000    1.399130    1.500000    1.500000
+ 1     0    0.188566   -0.270475    2.257023    2.256935    2.250000    2.256935
+ 2     0    0.077944   -0.145846    3.157286    3.157246    3.147584    3.157246
+ 3     0    0.012790   -0.075430    4.107857    4.107834    4.102416    4.107834
+ 4     0    0.001986    0.198730    5.083464    5.083455    5.077979    5.083455
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.120580   -0.500520    1.500000    1.389943    1.500000    1.500000
+ 1     0    0.162163   -0.343025    2.250000    2.244679    2.250000    2.250000
+ 2     0    0.060572   -0.262768    3.150950    3.150930    3.147584    3.150930
+ 3     0    0.011577   -0.284790    4.103537    4.103530    4.102416    4.103530
+ 4     0    0.001971   -0.343736    5.078047    5.078056    5.077979    5.078056
+
+ Harris energy:
+ sumev=      -12.226276  val*vef=    -308.097443   sumtv=     295.871166
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -306.924324     utot=  -16662.179200    ehar=   -8394.630072
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.411997  avg sphere pot= 0.308345  vconst=-0.411997
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8571.182487  rho*v=-16969.144440  ehf=-8394.630072  ehks=-8397.961953
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.95e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 2.  RMS DQ=9.84e-5  last it=2.09e-4
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.473656     10.475387     10.475387      0.000068     10.474868
+ site    1    8.273561      8.274800      8.274800      0.000071      8.274428
+ site    2   -0.744311     -0.747252     -0.747252      0.000104     -0.746370
+ site    3    0.000451      0.000426      0.000426      0.000001      0.000433
+ site    4   -0.003358     -0.003372     -0.003372      0.000000     -0.003368
+ AMIX: nmix=2 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=9.84e-5
+   tj: 0.08400  -0.18879
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.000100   local  0.000104   tot
+   screened rms difference:  smooth  0.000068   local  0.000104   tot  0.000098
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:51 2009
+
+   it  8  of 30    ehf=       2.966928   ehk=      -0.364953
+ From last iter    ehf=       2.968592   ehk=      -0.364348
+ diffe(q)= -0.000605 (0.000098)    tol= 0.000050 (0.000001)   more=T
+i ehf=2.9669284 ehk=-.3649528
+
+ --- BNDFP:  begin iteration 9 of 30 ---
+
+ avg es pot at rmt= 0.412043  avg sphere pot= 0.308345  vconst=-0.412043
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.928   -1.217962   -0.314953   0.95059  -2.23304   0.05797   -0.314953 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000289
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000104
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000240
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000068
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.23   8.977    1.34E-06    3695 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9462 -0.9367 -0.9367 -0.9367 -0.9264 -0.9264  0.0462  0.0462  0.0462
+  0.1216  0.3621  0.3621  0.3621  0.5793  0.8713  0.8713  0.8987  0.8987
+  0.8987  1.0924  1.8223  1.8223  1.8223  2.0050  2.0050  2.0050  2.0271
+  2.0271  2.1036  2.1036  2.1036  2.7704  2.7704  2.7939  2.7939  2.7939
+  3.0593  3.1715  3.2015  3.2015  3.2015  3.2324  3.2324  3.2324  3.4539
+  3.4539  3.4864  3.4864  3.4864  3.6145  3.6145  3.6145  4.0198  4.0198
+  4.0199  4.1339  4.2026  4.2026  4.2026  4.9199  4.9200  5.0614  5.2899
+  5.2899  5.2899  8.6944
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.69438  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.936657  -0.926380  -0.926380   0.046229   0.046229   0.046229
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9545 -0.9342 -0.9342 -0.9262 -0.9262 -0.8025 -0.5273 -0.0562 -0.0562
+  0.1459  0.4272  0.4272  0.5927  0.8690  0.9825  0.9826  1.0269  1.1016
+  1.1016  1.4609  1.6132  1.6538  1.6538  1.7436  1.7436  2.0045  2.0045
+  2.0544  2.0918  2.1791  2.1791  2.1972  2.4519  2.4932  2.4932  2.5706
+  2.5706  2.7883  3.0947  3.0947  3.1235  3.1521  3.1521  3.2352  3.4026
+  3.5054  3.5054  3.7724  3.8548  3.8548  4.1161  4.1161  4.2673  4.2673
+  4.2800  4.4490  4.4490  4.5401  4.8519  5.0243  5.0243  5.0529  5.4895
+  5.4896  6.0134  8.3597
+ state:          4          5          6          7          8          9
+ evl:    -0.926202  -0.926202  -0.802477  -0.527270  -0.056214  -0.056213
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.9552 -0.9300 -0.9300 -0.9292 -0.9221 -0.7432 -0.5335 -0.1904 -0.1904
+  0.1460  0.1884  0.8865  0.8865  0.9369  1.0794  1.1067  1.1137  1.1137
+  1.1496  1.4442  1.4984  1.4984  1.5082  1.5295  1.5455  1.5455  1.6414
+  1.9579  2.2471  2.2607  2.2607  2.5077  2.5431  2.5431  2.5654  2.6887
+  2.8050  2.8990  2.8990  3.0134  3.0134  3.0795  3.2017  3.2125  3.2562
+  3.3885  3.3885  3.8972  3.9366  3.9442  3.9598  3.9598  4.2433  4.2685
+  4.4813  4.4813  4.6006  4.6520  4.8272  4.8272  5.1030  5.2121  5.4750
+  5.4751  5.9672  9.0236
+ state:          4          5          6          7          8          9
+ evl:    -0.929175  -0.922147  -0.743200  -0.533526  -0.190362  -0.190361
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0832,0.1940  fit : 0.1218 + 0.0457 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.046229;  18 electrons;  Sum occ. bands: -12.228075
+ VBmax = 0.046229  CBmin = 0.121579  gap = 0.075349 Ry = 1.02475 eV
+ Highest occ. level = 0.04623  Lowest unocc. = 0.12158  average = 0.08390
+
+ Saved Fermi level to weights file ... ef = 0.083904
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.519147    3.245944    8.273203
+ foca..  use smtc =    3687.571044
+   2    3.430221    4.178668   -0.748447
+ foca..  use smtc =    4591.031242
+   3    0.398285    0.397844    0.000441
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.356571    0.359921   -0.003350
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.714773   -0.544134
+    1    0.871359   -0.473662
+    2    0.099628   -0.018820
+    3    0.015142   -0.010500
+    4    0.002136   -0.000373
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.236884   -1.132467
+    1    2.142759   -0.755423
+    2    0.044550   -0.032066
+    3    0.010534   -0.010900
+    4    0.001635   -0.001234
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.117231   -0.056023
+    1    0.188404   -0.051044
+    2    0.077883   -0.011413
+    3    0.012787   -0.000979
+    4    0.001986    0.000393
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.120493   -0.060397
+    1    0.162015   -0.055664
+    2    0.060525   -0.015941
+    3    0.011572   -0.003305
+    4    0.001971   -0.000679
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.714773   -0.761268    4.728390    4.728541    4.500000    4.728541
+ 1     0    0.871359   -0.543590    4.454299    4.454370    4.250000    4.454370
+ 2     0    0.099628   -0.188903    4.300000    4.167070    4.147584    4.300000
+ 2     0    sc         -1.218824    3.928210    3.928221    3.147584   13.928221
+ 3     1    0.015142   -0.693475    4.150000    4.114342    4.102416    4.150000
+ 4     1    0.002136   -0.174461    5.120000    5.088423    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.236884   -0.915581    4.829728    4.829777    4.500000    4.829777
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.142759   -0.352547    4.710572    4.710605    4.250000    4.710605
+ 2     0    0.044550   -0.719789    4.173426    4.173483    4.147584    4.173483
+ 3     1    0.010534   -1.034742    4.150000    4.108444    4.102416    4.150000
+ 4     1    0.001635   -0.754662    5.120000    5.082610    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.117231   -0.477884    1.500000    1.398909    1.500000    1.500000
+ 1     0    0.188404   -0.270928    2.256935    2.256857    2.250000    2.256857
+ 2     0    0.077883   -0.146539    3.157246    3.157206    3.147584    3.157206
+ 3     0    0.012787   -0.076523    4.107834    4.107809    4.102416    4.107809
+ 4     0    0.001986    0.197913    5.083455    5.083446    5.077979    5.083446
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.120493   -0.501243    1.500000    1.389725    1.500000    1.500000
+ 1     0    0.162015   -0.343574    2.250000    2.244595    2.250000    2.250000
+ 2     0    0.060525   -0.263384    3.150930    3.150897    3.147584    3.150897
+ 3     0    0.011572   -0.285629    4.103530    4.103512    4.102416    4.103512
+ 4     0    0.001971   -0.344433    5.078056    5.078049    5.077979    5.078049
+
+ Harris energy:
+ sumev=      -12.228075  val*vef=    -308.141968   sumtv=     295.913893
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -306.922576     utot=  -16662.212080    ehar=   -8394.618477
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.412002  avg sphere pot= 0.308319  vconst=-0.412002
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8571.170984  rho*v=-16969.132922  ehf=-8394.618477  ehks=-8397.961938
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.98e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 3.  RMS DQ=3.49e-5  last it=9.84e-5
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.476132     10.478141     10.478141      0.000030     10.477538
+ site    1    8.273845      8.273203      8.273203      0.000026      8.273396
+ site    2   -0.747023     -0.748447     -0.748447      0.000050     -0.748020
+ site    3    0.000425      0.000441      0.000441      0.000001      0.000436
+ site    4   -0.003379     -0.003350     -0.003350      0.000001     -0.003358
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: nmix=2 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=3.49e-5
+   tj:-0.52939  -0.20932
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.000042   local  0.000050   tot
+   screened rms difference:  smooth  0.000030   local  0.000050   tot  0.000035
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:52 2009
+
+   it  9  of 30    ehf=       2.978523   ehk=      -0.364938
+ From last iter    ehf=       2.966928   ehk=      -0.364953
+ diffe(q)=  0.000015 (0.000035)    tol= 0.000050 (0.000001)   more=T
+i ehf=2.9785229 ehk=-.3649383
+
+ --- BNDFP:  begin iteration 10 of 30 ---
+
+ avg es pot at rmt= 0.412008  avg sphere pot= 0.308304  vconst=-0.412008
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.928   -1.218817   -0.315391   0.95064  -2.23499   0.05794   -0.315391 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000289
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000104
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000240
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000068
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.23   8.976    1.34E-06    3695 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9467 -0.9371 -0.9371 -0.9371 -0.9268 -0.9268  0.0457  0.0457  0.0457
+  0.1210  0.3618  0.3618  0.3618  0.5788  0.8712  0.8712  0.8985  0.8985
+  0.8985  1.0917  1.8228  1.8228  1.8228  2.0045  2.0045  2.0045  2.0277
+  2.0277  2.1033  2.1033  2.1033  2.7715  2.7715  2.7946  2.7946  2.7946
+  3.0587  3.1708  3.2011  3.2011  3.2011  3.2321  3.2321  3.2321  3.4538
+  3.4538  3.4861  3.4861  3.4861  3.6141  3.6141  3.6141  4.0196  4.0196
+  4.0197  4.1333  4.2026  4.2026  4.2027  4.9217  4.9218  5.0610  5.2911
+  5.2911  5.2911  8.6938
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.69381  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.937067  -0.926786  -0.926786   0.045736   0.045736   0.045737
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9549 -0.9347 -0.9347 -0.9266 -0.9266 -0.8030 -0.5277 -0.0567 -0.0567
+  0.1455  0.4270  0.4270  0.5923  0.8684  0.9823  0.9823  1.0264  1.1014
+  1.1014  1.4607  1.6130  1.6538  1.6538  1.7434  1.7434  2.0051  2.0051
+  2.0540  2.0916  2.1788  2.1788  2.1969  2.4523  2.4935  2.4935  2.5704
+  2.5704  2.7879  3.0955  3.0955  3.1230  3.1526  3.1526  3.2349  3.4028
+  3.5055  3.5055  3.7727  3.8546  3.8546  4.1161  4.1161  4.2671  4.2671
+  4.2796  4.4496  4.4496  4.5397  4.8514  5.0243  5.0243  5.0526  5.4893
+  5.4893  6.0132  8.3592
+ state:          4          5          6          7          8          9
+ evl:    -0.926609  -0.926609  -0.802958  -0.527659  -0.056659  -0.056659
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.9556 -0.9304 -0.9304 -0.9296 -0.9225 -0.7437 -0.5340 -0.1907 -0.1907
+  0.1457  0.1881  0.8861  0.8861  0.9363  1.0788  1.1066  1.1134  1.1134
+  1.1494  1.4440  1.4983  1.4983  1.5080  1.5292  1.5453  1.5453  1.6412
+  1.9584  2.2472  2.2605  2.2605  2.5093  2.5432  2.5432  2.5655  2.6885
+  2.8046  2.8996  2.8996  3.0139  3.0139  3.0792  3.2014  3.2125  3.2561
+  3.3885  3.3885  3.8968  3.9378  3.9438  3.9593  3.9593  4.2434  4.2700
+  4.4811  4.4811  4.6011  4.6515  4.8269  4.8269  5.1029  5.2121  5.4748
+  5.4748  5.9670  9.0232
+ state:          4          5          6          7          8          9
+ evl:    -0.929577  -0.922549  -0.743697  -0.533971  -0.190732  -0.190732
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0832,0.1940  fit : 0.1218 + 0.0457 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.045737;  18 electrons;  Sum occ. bands: -12.235694
+ VBmax = 0.045737  CBmin = 0.120995  gap = 0.075259 Ry = 1.02352 eV
+ Highest occ. level = 0.04574  Lowest unocc. = 0.12100  average = 0.08337
+
+ Saved Fermi level to weights file ... ef = 0.083366
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.519601    3.246395    8.273207
+ foca..  use smtc =    3687.571044
+   2    3.430901    4.180287   -0.749386
+ foca..  use smtc =    4591.031242
+   3    0.398015    0.397557    0.000457
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.356347    0.359666   -0.003319
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.715013   -0.544551
+    1    0.871487   -0.474091
+    2    0.099642   -0.018918
+    3    0.015150   -0.010514
+    4    0.002137   -0.000375
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.237178   -1.133416
+    1    2.143122   -0.756827
+    2    0.044588   -0.032094
+    3    0.010537   -0.010901
+    4    0.001637   -0.001233
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.117143   -0.056053
+    1    0.188276   -0.051080
+    2    0.077832   -0.011447
+    3    0.012784   -0.000989
+    4    0.001987    0.000392
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.120433   -0.060450
+    1    0.161895   -0.055694
+    2    0.060485   -0.015956
+    3    0.011568   -0.003310
+    4    0.001971   -0.000679
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.715013   -0.761596    4.728541    4.728671    4.500000    4.728671
+ 1     0    0.871487   -0.544002    4.454370    4.454449    4.250000    4.454449
+ 2     0    0.099642   -0.189861    4.300000    4.167039    4.147584    4.300000
+ 2     0    sc         -1.219735    3.928221    3.928233    3.147584   13.928233
+ 3     1    0.015150   -0.693997    4.150000    4.114341    4.102416    4.150000
+ 4     1    0.002137   -0.175347    5.120000    5.088417    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.237178   -0.916130    4.829777    4.829810    4.500000    4.829810
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.143122   -0.353142    4.710605    4.710613    4.250000    4.710613
+ 2     0    0.044588   -0.719790    4.173483    4.173528    4.147584    4.173528
+ 3     1    0.010537   -1.034565    4.150000    4.108459    4.102416    4.150000
+ 4     1    0.001637   -0.753357    5.120000    5.082629    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.117143   -0.478502    1.500000    1.398698    1.500000    1.500000
+ 1     0    0.188276   -0.271304    2.256857    2.256792    2.250000    2.256792
+ 2     0    0.077832   -0.147070    3.157206    3.157173    3.147584    3.157173
+ 3     0    0.012784   -0.077390    4.107809    4.107789    4.102416    4.107789
+ 4     0    0.001987    0.197259    5.083446    5.083438    5.077979    5.083438
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.120433   -0.501939    1.500000    1.389529    1.500000    1.500000
+ 1     0    0.161895   -0.344010    2.250000    2.244530    2.250000    2.250000
+ 2     0    0.060485   -0.263800    3.150897    3.150872    3.147584    3.150872
+ 3     0    0.011568   -0.286175    4.103512    4.103499    4.102416    4.103499
+ 4     0    0.001971   -0.344498    5.078049    5.078047    5.077979    5.078047
+
+ Harris energy:
+ sumev=      -12.235694  val*vef=    -308.169708   sumtv=     295.934014
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -306.920661     utot=  -16662.229167    ehar=   -8394.613528
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.411978  avg sphere pot= 0.308310  vconst=-0.411978
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8571.183686  rho*v=-16969.145703  ehf=-8394.613528  ehks=-8397.962017
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.98e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 4.  RMS DQ=1.09e-5  last it=3.49e-5
+ ...  deleting file mixm : nkill=5
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.479307     10.479029     10.479029      0.000005     10.479113
+ site    1    8.273094      8.273207      8.273207      0.000014      8.273173
+ site    2   -0.749488     -0.749386     -0.749386      0.000005     -0.749417
+ site    3    0.000437      0.000457      0.000457      0.000001      0.000451
+ site    4   -0.003349     -0.003319     -0.003319      0.000001     -0.003328
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: nmix=2 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=1.09e-5
+   tj: 0.02285   0.07474
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.000007   local  0.000014   tot
+   screened rms difference:  smooth  0.000005   local  0.000014   tot  0.000011
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:54 2009
+
+   it 10  of 30    ehf=       2.983472   ehk=      -0.365017
+ From last iter    ehf=       2.978523   ehk=      -0.364938
+ diffe(q)= -0.000078 (0.000011)    tol= 0.000050 (0.000001)   more=T
+i ehf=2.983472 ehk=-.3650166
+
+ --- BNDFP:  begin iteration 11 of 30 ---
+
+ avg es pot at rmt= 0.411994  avg sphere pot= 0.308312  vconst=-0.411994
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.928   -1.219728   -0.316004   0.95067  -2.23675   0.05791   -0.316004 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000289
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000104
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000240
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000068
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.24   8.976    1.34E-06    3695 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9466 -0.9365 -0.9365 -0.9365 -0.9262 -0.9262  0.0458  0.0458  0.0458
+  0.1211  0.3618  0.3618  0.3618  0.5789  0.8713  0.8713  0.8986  0.8986
+  0.8986  1.0917  1.8234  1.8234  1.8234  2.0046  2.0046  2.0046  2.0282
+  2.0282  2.1033  2.1033  2.1033  2.7721  2.7721  2.7951  2.7951  2.7951
+  3.0588  3.1709  3.2011  3.2011  3.2011  3.2322  3.2322  3.2322  3.4538
+  3.4538  3.4861  3.4862  3.4862  3.6142  3.6142  3.6142  4.0197  4.0197
+  4.0197  4.1333  4.2029  4.2029  4.2029  4.9226  4.9226  5.0611  5.2918
+  5.2918  5.2919  8.6939
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.69392  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.936456  -0.926168  -0.926168   0.045845   0.045845   0.045846
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9544 -0.9340 -0.9340 -0.9260 -0.9260 -0.8028 -0.5276 -0.0566 -0.0566
+  0.1455  0.4270  0.4270  0.5923  0.8685  0.9824  0.9824  1.0265  1.1015
+  1.1015  1.4608  1.6132  1.6541  1.6541  1.7435  1.7435  2.0057  2.0057
+  2.0541  2.0916  2.1789  2.1789  2.1970  2.4528  2.4939  2.4939  2.5705
+  2.5705  2.7879  3.0961  3.0961  3.1230  3.1530  3.1530  3.2350  3.4031
+  3.5058  3.5058  3.7731  3.8547  3.8548  4.1163  4.1163  4.2673  4.2673
+  4.2797  4.4501  4.4501  4.5398  4.8515  5.0244  5.0245  5.0528  5.4894
+  5.4894  6.0134  8.3594
+ state:          4          5          6          7          8          9
+ evl:    -0.925991  -0.925991  -0.802765  -0.527584  -0.056563  -0.056562
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.9550 -0.9298 -0.9298 -0.9290 -0.9219 -0.7435 -0.5339 -0.1907 -0.1907
+  0.1457  0.1882  0.8861  0.8861  0.9364  1.0789  1.1067  1.1135  1.1135
+  1.1495  1.4442  1.4983  1.4984  1.5081  1.5292  1.5454  1.5454  1.6415
+  1.9590  2.2476  2.2608  2.2608  2.5103  2.5434  2.5434  2.5657  2.6885
+  2.8047  2.9000  2.9001  3.0144  3.0144  3.0792  3.2015  3.2127  3.2563
+  3.3886  3.3887  3.8969  3.9386  3.9439  3.9594  3.9594  4.2437  4.2707
+  4.4812  4.4812  4.6017  4.6516  4.8270  4.8270  5.1031  5.2124  5.4748
+  5.4749  5.9672  9.0233
+ state:          4          5          6          7          8          9
+ evl:    -0.928962  -0.921924  -0.743530  -0.533878  -0.190653  -0.190653
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0832,0.1940  fit : 0.1218 + 0.0457 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.045846;  18 electrons;  Sum occ. bands: -12.228776
+ VBmax = 0.045846  CBmin = 0.121100  gap = 0.075254 Ry = 1.02346 eV
+ Highest occ. level = 0.04585  Lowest unocc. = 0.12110  average = 0.08347
+
+ Saved Fermi level to weights file ... ef = 0.083473
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.519458    3.246519    8.272939
+ foca..  use smtc =    3687.571044
+   2    3.430754    4.179982   -0.749228
+ foca..  use smtc =    4591.031242
+   3    0.398080    0.397624    0.000455
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.356421    0.359744   -0.003323
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.714975   -0.544476
+    1    0.871484   -0.474007
+    2    0.099650   -0.018894
+    3    0.015149   -0.010511
+    4    0.002137   -0.000374
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.237118   -1.133223
+    1    2.143035   -0.756557
+    2    0.044587   -0.032093
+    3    0.010538   -0.010903
+    4    0.001636   -0.001233
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.117167   -0.056057
+    1    0.188305   -0.051077
+    2    0.077842   -0.011442
+    3    0.012785   -0.000988
+    4    0.001987    0.000392
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.120464   -0.060457
+    1    0.161929   -0.055694
+    2    0.060494   -0.015954
+    3    0.011568   -0.003310
+    4    0.001971   -0.000679
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.714975   -0.761531    4.728671    4.728650    4.500000    4.728650
+ 1     0    0.871484   -0.543908    4.454449    4.454443    4.250000    4.454443
+ 2     0    0.099650   -0.189607    4.300000    4.167055    4.147584    4.300000
+ 2     0    sc         -1.219579    3.928233    3.928231    3.147584   13.928231
+ 3     1    0.015149   -0.693862    4.150000    4.114342    4.102416    4.150000
+ 4     1    0.002137   -0.175149    5.120000    5.088419    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.237118   -0.916018    4.829810    4.829802    4.500000    4.829802
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.143035   -0.353031    4.710613    4.710607    4.250000    4.710607
+ 2     0    0.044587   -0.719779    4.173528    4.173519    4.147584    4.173519
+ 3     1    0.010538   -1.034599    4.150000    4.108456    4.102416    4.150000
+ 4     1    0.001636   -0.753772    5.120000    5.082623    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.117167   -0.478432    1.500000    1.398729    1.500000    1.500000
+ 1     0    0.188305   -0.271245    2.256792    2.256803    2.250000    2.256803
+ 2     0    0.077842   -0.146988    3.157173    3.157178    3.147584    3.157178
+ 3     0    0.012785   -0.077242    4.107789    4.107793    4.102416    4.107793
+ 4     0    0.001987    0.197429    5.083438    5.083440    5.077979    5.083440
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.120464   -0.501867    1.500000    1.389562    1.500000    1.500000
+ 1     0    0.161929   -0.343939    2.250000    2.244542    2.250000    2.250000
+ 2     0    0.060494   -0.263737    3.150872    3.150876    3.147584    3.150876
+ 3     0    0.011568   -0.286121    4.103499    4.103500    4.102416    4.103500
+ 4     0    0.001971   -0.344656    5.078047    5.078045    5.077979    5.078045
+
+ Harris energy:
+ sumev=      -12.228776  val*vef=    -308.163456   sumtv=     295.934680
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -306.920949     utot=  -16662.224831    ehar=   -8394.608814
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.411991  avg sphere pot= 0.308309  vconst=-0.411991
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8571.177026  rho*v=-16969.138964  ehf=-8394.608814  ehks=-8397.961938
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.99e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 0.  RMS DQ=9.17e-6  last it=1.09e-5
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.478767     10.479145     10.479145      0.000005     10.479032
+ site    1    8.273272      8.272939      8.272939      0.000011      8.273039
+ site    2   -0.749157     -0.749228     -0.749228      0.000002     -0.749207
+ site    3    0.000450      0.000455      0.000455      0.000000      0.000454
+ site    4   -0.003332     -0.003323     -0.003323      0.000000     -0.003326
+ AMIX: nmix=0 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=9.17e-6
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.000005   local  0.000011   tot
+   screened rms difference:  smooth  0.000005   local  0.000011   tot  0.000009
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:56 2009
+
+   it 11  of 30    ehf=       2.988186   ehk=      -0.364938
+ From last iter    ehf=       2.983472   ehk=      -0.365017
+ diffe(q)=  0.000078 (0.000009)    tol= 0.000050 (0.000001)   more=T
+i ehf=2.9881861 ehk=-.3649382
+
+ --- BNDFP:  begin iteration 12 of 30 ---
+
+ avg es pot at rmt= 0.411993  avg sphere pot= 0.308310  vconst=-0.411993
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.928   -1.219580   -0.315917   0.95066  -2.23644   0.05792   -0.315917 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000289
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000104
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000240
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000068
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.24   8.976    1.34E-06    3695 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9466 -0.9367 -0.9367 -0.9367 -0.9265 -0.9265  0.0458  0.0458  0.0458
+  0.1211  0.3618  0.3618  0.3618  0.5788  0.8713  0.8713  0.8986  0.8986
+  0.8986  1.0917  1.8233  1.8233  1.8233  2.0046  2.0046  2.0046  2.0281
+  2.0281  2.1033  2.1033  2.1033  2.7720  2.7720  2.7950  2.7950  2.7950
+  3.0588  3.1709  3.2011  3.2011  3.2011  3.2322  3.2322  3.2322  3.4538
+  3.4538  3.4861  3.4861  3.4861  3.6142  3.6142  3.6142  4.0196  4.0197
+  4.0197  4.1333  4.2028  4.2028  4.2028  4.9224  4.9224  5.0611  5.2916
+  5.2917  5.2917  8.6939
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.69391  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.936743  -0.926460  -0.926460   0.045829   0.045829   0.045829
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9546 -0.9343 -0.9343 -0.9263 -0.9263 -0.8028 -0.5276 -0.0566 -0.0566
+  0.1455  0.4270  0.4270  0.5923  0.8685  0.9823  0.9823  1.0265  1.1015
+  1.1015  1.4608  1.6131  1.6540  1.6540  1.7435  1.7435  2.0055  2.0055
+  2.0540  2.0916  2.1789  2.1789  2.1970  2.4527  2.4938  2.4938  2.5705
+  2.5705  2.7879  3.0959  3.0959  3.1230  3.1529  3.1529  3.2350  3.4030
+  3.5057  3.5057  3.7730  3.8547  3.8547  4.1163  4.1163  4.2673  4.2673
+  4.2797  4.4500  4.4500  4.5397  4.8515  5.0244  5.0244  5.0527  5.4894
+  5.4894  6.0133  8.3594
+ state:          4          5          6          7          8          9
+ evl:    -0.926283  -0.926283  -0.802827  -0.527599  -0.056576  -0.056576
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.9553 -0.9301 -0.9301 -0.9293 -0.9222 -0.7436 -0.5339 -0.1907 -0.1907
+  0.1457  0.1882  0.8861  0.8861  0.9364  1.0788  1.1067  1.1135  1.1135
+  1.1494  1.4442  1.4983  1.4983  1.5081  1.5292  1.5454  1.5454  1.6414
+  1.9589  2.2475  2.2607  2.2607  2.5101  2.5434  2.5434  2.5656  2.6885
+  2.8047  2.8999  2.8999  3.0143  3.0143  3.0792  3.2015  3.2127  3.2562
+  3.3886  3.3886  3.8969  3.9384  3.9439  3.9594  3.9594  4.2436  4.2705
+  4.4812  4.4812  4.6015  4.6516  4.8270  4.8270  5.1030  5.2123  5.4748
+  5.4748  5.9671  9.0233
+ state:          4          5          6          7          8          9
+ evl:    -0.929252  -0.922218  -0.743574  -0.533900  -0.190662  -0.190662
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0832,0.1940  fit : 0.1218 + 0.0457 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.045829;  18 electrons;  Sum occ. bands: -12.231785
+ VBmax = 0.045829  CBmin = 0.121079  gap = 0.075249 Ry = 1.02339 eV
+ Highest occ. level = 0.04583  Lowest unocc. = 0.12108  average = 0.08345
+
+ Saved Fermi level to weights file ... ef = 0.083454
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.519574    3.246408    8.273167
+ foca..  use smtc =    3687.571044
+   2    3.430721    4.179978   -0.749256
+ foca..  use smtc =    4591.031242
+   3    0.398065    0.397608    0.000457
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.356404    0.359723   -0.003319
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.715000   -0.544506
+    1    0.871513   -0.474032
+    2    0.099644   -0.018907
+    3    0.015148   -0.010511
+    4    0.002137   -0.000374
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.237116   -1.133235
+    1    2.143007   -0.756592
+    2    0.044585   -0.032090
+    3    0.010537   -0.010902
+    4    0.001636   -0.001233
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.117163   -0.056059
+    1    0.188298   -0.051078
+    2    0.077839   -0.011443
+    3    0.012784   -0.000988
+    4    0.001987    0.000392
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.120459   -0.060460
+    1    0.161920   -0.055693
+    2    0.060491   -0.015954
+    3    0.011568   -0.003310
+    4    0.001971   -0.000679
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.715000   -0.761547    4.728650    4.728660    4.500000    4.728660
+ 1     0    0.871513   -0.543918    4.454443    4.454454    4.250000    4.454454
+ 2     0    0.099644   -0.189748    4.300000    4.167052    4.147584    4.300000
+ 2     0    sc         -1.219754    3.928231    3.928233    3.147584   13.928233
+ 3     1    0.015148   -0.693890    4.150000    4.114342    4.102416    4.150000
+ 4     1    0.002137   -0.175197    5.120000    5.088418    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.237116   -0.916029    4.829802    4.829801    4.500000    4.829801
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.143007   -0.353051    4.710607    4.710602    4.250000    4.710602
+ 2     0    0.044585   -0.719758    4.173519    4.173521    4.147584    4.173521
+ 3     1    0.010537   -1.034568    4.150000    4.108457    4.102416    4.150000
+ 4     1    0.001636   -0.753565    5.120000    5.082626    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.117163   -0.478470    1.500000    1.398716    1.500000    1.500000
+ 1     0    0.188298   -0.271261    2.256803    2.256800    2.250000    2.256800
+ 2     0    0.077839   -0.147002    3.157178    3.157177    3.147584    3.157177
+ 3     0    0.012784   -0.077273    4.107793    4.107792    4.102416    4.107792
+ 4     0    0.001987    0.197400    5.083440    5.083439    5.077979    5.083439
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.120459   -0.501911    1.500000    1.389551    1.500000    1.500000
+ 1     0    0.161920   -0.343953    2.250000    2.244539    2.250000    2.250000
+ 2     0    0.060491   -0.263735    3.150876    3.150875    3.147584    3.150875
+ 3     0    0.011568   -0.286109    4.103500    4.103500    4.102416    4.103500
+ 4     0    0.001971   -0.344564    5.078045    5.078046    5.077979    5.078046
+
+ Harris energy:
+ sumev=      -12.231785  val*vef=    -308.161140   sumtv=     295.929355
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -306.920583     utot=  -16662.221105    ehar=   -8394.610047
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.411982  avg sphere pot= 0.308308  vconst=-0.411982
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8571.186852  rho*v=-16969.148834  ehf=-8394.610047  ehks=-8397.961981
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.99e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 1.  RMS DQ=8.57e-6  last it=9.17e-6
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.479040     10.478940     10.478940      0.000003     10.478970
+ site    1    8.273039      8.273167      8.273167      0.000008      8.273128
+ site    2   -0.749207     -0.749256     -0.749256      0.000002     -0.749241
+ site    3    0.000454      0.000457      0.000457      0.000000      0.000456
+ site    4   -0.003326     -0.003319     -0.003319      0.000000     -0.003321
+ AMIX: nmix=1 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=8.57e-6
+   tj: 0.48138
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.000003   local  0.000008   tot
+   screened rms difference:  smooth  0.000003   local  0.000008   tot  0.000009
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:57 2009
+
+   it 12  of 30    ehf=       2.986953   ehk=      -0.364981
+ From last iter    ehf=       2.988186   ehk=      -0.364938
+ diffe(q)= -0.000043 (0.000009)    tol= 0.000050 (0.000001)   more=T
+i ehf=2.9869531 ehk=-.3649815
+
+ --- BNDFP:  begin iteration 13 of 30 ---
+
+ avg es pot at rmt= 0.411990  avg sphere pot= 0.308309  vconst=-0.411990
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.928   -1.219752   -0.316084   0.95065  -2.23666   0.05791   -0.316084 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000289
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000104
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000240
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000068
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.24   8.976    1.34E-06    3695 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9466 -0.9366 -0.9366 -0.9366 -0.9263 -0.9263  0.0458  0.0458  0.0458
+  0.1211  0.3618  0.3618  0.3618  0.5788  0.8713  0.8713  0.8986  0.8986
+  0.8986  1.0917  1.8233  1.8233  1.8233  2.0046  2.0046  2.0046  2.0281
+  2.0281  2.1033  2.1033  2.1033  2.7720  2.7720  2.7950  2.7950  2.7950
+  3.0588  3.1709  3.2011  3.2011  3.2011  3.2322  3.2322  3.2322  3.4538
+  3.4538  3.4861  3.4861  3.4861  3.6142  3.6142  3.6142  4.0196  4.0197
+  4.0197  4.1333  4.2028  4.2028  4.2028  4.9224  4.9225  5.0611  5.2917
+  5.2917  5.2917  8.6939
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.6939  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.936612  -0.926327  -0.926327   0.045830   0.045830   0.045831
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9545 -0.9342 -0.9342 -0.9262 -0.9262 -0.8028 -0.5276 -0.0566 -0.0566
+  0.1455  0.4270  0.4270  0.5923  0.8685  0.9823  0.9823  1.0265  1.1015
+  1.1015  1.4608  1.6132  1.6540  1.6540  1.7435  1.7435  2.0056  2.0056
+  2.0540  2.0916  2.1789  2.1789  2.1970  2.4527  2.4939  2.4939  2.5705
+  2.5705  2.7879  3.0959  3.0960  3.1230  3.1529  3.1530  3.2350  3.4030
+  3.5057  3.5057  3.7731  3.8547  3.8547  4.1163  4.1163  4.2673  4.2673
+  4.2797  4.4500  4.4500  4.5397  4.8515  5.0244  5.0244  5.0527  5.4894
+  5.4894  6.0133  8.3594
+ state:          4          5          6          7          8          9
+ evl:    -0.926150  -0.926150  -0.802804  -0.527597  -0.056575  -0.056575
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.9552 -0.9300 -0.9300 -0.9291 -0.9221 -0.7436 -0.5339 -0.1907 -0.1907
+  0.1457  0.1882  0.8861  0.8861  0.9364  1.0788  1.1067  1.1135  1.1135
+  1.1495  1.4442  1.4983  1.4983  1.5081  1.5292  1.5454  1.5454  1.6414
+  1.9589  2.2475  2.2607  2.2607  2.5101  2.5434  2.5434  2.5656  2.6885
+  2.8047  2.9000  2.9000  3.0143  3.0143  3.0792  3.2015  3.2127  3.2562
+  3.3886  3.3886  3.8969  3.9385  3.9439  3.9594  3.9594  4.2436  4.2706
+  4.4812  4.4812  4.6016  4.6516  4.8270  4.8270  5.1031  5.2123  5.4748
+  5.4748  5.9671  9.0233
+ state:          4          5          6          7          8          9
+ evl:    -0.929120  -0.922085  -0.743559  -0.533896  -0.190662  -0.190662
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0832,0.1940  fit : 0.1218 + 0.0457 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.045831;  18 electrons;  Sum occ. bands: -12.230459
+ VBmax = 0.045831  CBmin = 0.121080  gap = 0.075249 Ry = 1.02338 eV
+ Highest occ. level = 0.04583  Lowest unocc. = 0.12108  average = 0.08346
+
+ Saved Fermi level to weights file ... ef = 0.083455
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.519531    3.246537    8.272994
+ foca..  use smtc =    3687.571044
+   2    3.430743    4.180008   -0.749265
+ foca..  use smtc =    4591.031242
+   3    0.398068    0.397611    0.000457
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.356410    0.359729   -0.003319
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.714993   -0.544500
+    1    0.871504   -0.474027
+    2    0.099648   -0.018903
+    3    0.015149   -0.010511
+    4    0.002137   -0.000374
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.237120   -1.133240
+    1    2.143023   -0.756594
+    2    0.044587   -0.032092
+    3    0.010538   -0.010902
+    4    0.001636   -0.001233
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.117164   -0.056059
+    1    0.188299   -0.051078
+    2    0.077840   -0.011443
+    3    0.012784   -0.000988
+    4    0.001987    0.000392
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.120462   -0.060462
+    1    0.161922   -0.055694
+    2    0.060492   -0.015954
+    3    0.011568   -0.003310
+    4    0.001971   -0.000679
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.714993   -0.761545    4.728660    4.728658    4.500000    4.728658
+ 1     0    0.871504   -0.543918    4.454454    4.454451    4.250000    4.454451
+ 2     0    0.099648   -0.189695    4.300000    4.167053    4.147584    4.300000
+ 2     0    sc         -1.219684    3.928233    3.928232    3.147584   13.928232
+ 3     1    0.015149   -0.693885    4.150000    4.114342    4.102416    4.150000
+ 4     1    0.002137   -0.175188    5.120000    5.088418    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.237120   -0.916031    4.829801    4.829802    4.500000    4.829802
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.143023   -0.353050    4.710602    4.710604    4.250000    4.710604
+ 2     0    0.044587   -0.719763    4.173521    4.173521    4.147584    4.173521
+ 3     1    0.010538   -1.034581    4.150000    4.108457    4.102416    4.150000
+ 4     1    0.001636   -0.753651    5.120000    5.082625    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.117164   -0.478469    1.500000    1.398718    1.500000    1.500000
+ 1     0    0.188299   -0.271259    2.256800    2.256800    2.250000    2.256800
+ 2     0    0.077840   -0.147001    3.157177    3.157177    3.147584    3.157177
+ 3     0    0.012784   -0.077272    4.107792    4.107792    4.102416    4.107792
+ 4     0    0.001987    0.197405    5.083439    5.083439    5.077979    5.083439
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.120462   -0.501916    1.500000    1.389551    1.500000    1.500000
+ 1     0    0.161922   -0.343956    2.250000    2.244539    2.250000    2.250000
+ 2     0    0.060492   -0.263741    3.150875    3.150875    3.147584    3.150875
+ 3     0    0.011568   -0.286124    4.103500    4.103500    4.102416    4.103500
+ 4     0    0.001971   -0.344618    5.078046    5.078046    5.077979    5.078046
+
+ Harris energy:
+ sumev=      -12.230459  val*vef=    -308.163045   sumtv=     295.932586
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -306.920739     utot=  -16662.223512    ehar=   -8394.609378
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.411987  avg sphere pot= 0.308307  vconst=-0.411987
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8571.182081  rho*v=-16969.144042  ehf=-8394.609378  ehks=-8397.961962
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.99e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 2.  RMS DQ=2.00e-6  last it=8.57e-6
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.479008     10.479121     10.479121      0.000002     10.479087
+ site    1    8.273085      8.272994      8.272994      0.000003      8.273022
+ site    2   -0.749225     -0.749265     -0.749265      0.000001     -0.749253
+ site    3    0.000455      0.000457      0.000457      0.000000      0.000456
+ site    4   -0.003323     -0.003319     -0.003319      0.000000     -0.003320
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=2e-6
+   tj: 0.04458
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.000003   local  0.000003   tot
+   screened rms difference:  smooth  0.000002   local  0.000003   tot  0.000002
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:08:59 2009
+
+   it 13  of 30    ehf=       2.987622   ehk=      -0.364962
+ From last iter    ehf=       2.986953   ehk=      -0.364981
+ diffe(q)=  0.000020 (0.000002)    tol= 0.000050 (0.000001)   more=T
+i ehf=2.9876217 ehk=-.3649616
+
+ --- BNDFP:  begin iteration 14 of 30 ---
+
+ avg es pot at rmt= 0.411989  avg sphere pot= 0.308308  vconst=-0.411989
+
+ Fit local orbitals to sm hankels, species C1, rmt=2.309424
+  l  type    Pnu      Eval        K.E.       Rsm       Eh      Q(r>rmt)    Fit K.E.
+  2  low    3.928   -1.219685   -0.316015   0.95066  -2.23658   0.05791   -0.316015 
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+ potential shift to crystal energy zero:    0.000289
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+ potential shift to crystal energy zero:    0.000104
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000240
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=T
+ potential shift to crystal energy zero:    0.000068
+
+
+ RDSIGM: read file sigm and create COMPLEX sigma(R) by FT ...
+         Sigm will be approximated by:  diagonal Sigma for high and low states 
+         Approximate sigma for energies E(lda)>1
+         For high states Sigii = 0.000 + 0.060 * E(lda) 
+         Linear fit to diagonal sigma for E(lda)>0 and E(lda)<1 
+         sigm file has 3 irreducible QP: nk = ( 2 2 2 )  shift= F F F
+ hft2rs: make neighbor table for r.s. hamiltonian using range = 5 * alat
+
+ pairc, ib=  1:8363 neighbors in range  5.000
+ pairc, ib=  2:8363 neighbors in range  5.000
+ pairc, ib=  3:8363 neighbors in range  5.000
+ pairc, ib=  4:8363 neighbors in range  5.000
+ pairc:  33452 pairs total 8363 is max cluster size
+ hft2rs: found 128 connecting vectors out of 128 possible for FFT
+ symiax: enlarged neighbor table from 128 to 260 pairs (24 symops)
+
+ pairc, ib=  1:  65 neighbors in range  5.000
+ pairc, ib=  2:  65 neighbors in range  5.000
+ pairc, ib=  3:  65 neighbors in range  5.000
+ pairc, ib=  4:  65 neighbors in range  5.000
+ pairc:    260 pairs total   65 is max cluster size
+
+ q-points in full BZ where sigma calculable ...
+ BZMESH:  8 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ Irr. qp for which sigma is calculated ...
+ BZMESH:  3 irreducible QP from 8 ( 2 2 2 )  shift= F F F
+ 
+ hft2rs created hrs:  ndhrs=26  max Re(hrs) = 0.258  max Im(hrs) = 4.92e-13
+ check FT s(R) against s(q) ... maximum error = 1.1e-16 < tol (5e-6)
+ rsmsym: symmetrizing complex s(1..260) using 24 group operations
+ symstr: max asymmetry = 4e-9
+ check FT s(R) against s(q) ... maximum error = 3.8e-7
+ subzi : nonmetal
+
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  C1       2    0.95  -2.24   8.976    1.34E-06    3695 
+ bndfp:  kpt 1 of 3, k=  0.00000  0.00000  0.00000
+ -0.9466 -0.9366 -0.9366 -0.9366 -0.9264 -0.9264  0.0458  0.0458  0.0458
+  0.1211  0.3618  0.3618  0.3618  0.5788  0.8713  0.8713  0.8986  0.8986
+  0.8986  1.0916  1.8233  1.8233  1.8233  2.0046  2.0046  2.0046  2.0281
+  2.0281  2.1033  2.1033  2.1033  2.7720  2.7720  2.7950  2.7950  2.7950
+  3.0588  3.1709  3.2011  3.2011  3.2011  3.2322  3.2322  3.2322  3.4538
+  3.4538  3.4861  3.4861  3.4861  3.6142  3.6142  3.6142  4.0196  4.0197
+  4.0197  4.1333  4.2028  4.2028  4.2028  4.9224  4.9225  5.0611  5.2917
+  5.2917  5.2917  8.6939
+ nev, nmx, dim=  66  66  66  ev(nev) = 8.6939  emx = 1
+ state:          4          5          6          7          8          9
+ evl:    -0.936639  -0.926354  -0.926354   0.045825   0.045825   0.045826
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 2 of 3, k=  0.50000  -0.50000  -0.50000
+ -0.9545 -0.9342 -0.9342 -0.9262 -0.9262 -0.8028 -0.5276 -0.0566 -0.0566
+  0.1455  0.4270  0.4270  0.5923  0.8685  0.9823  0.9823  1.0265  1.1015
+  1.1015  1.4608  1.6131  1.6540  1.6540  1.7435  1.7435  2.0055  2.0055
+  2.0540  2.0916  2.1789  2.1789  2.1970  2.4527  2.4939  2.4939  2.5705
+  2.5705  2.7879  3.0959  3.0959  3.1230  3.1529  3.1530  3.2350  3.4030
+  3.5057  3.5057  3.7731  3.8547  3.8547  4.1163  4.1163  4.2673  4.2673
+  4.2797  4.4500  4.4500  4.5397  4.8515  5.0244  5.0244  5.0527  5.4894
+  5.4894  6.0133  8.3594
+ state:          4          5          6          7          8          9
+ evl:    -0.926177  -0.926177  -0.802812  -0.527601  -0.056580  -0.056579
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ bndfp:  kpt 3 of 3, k=  0.00000  0.00000  -1.00000
+ -0.9552 -0.9300 -0.9300 -0.9291 -0.9221 -0.7436 -0.5339 -0.1907 -0.1907
+  0.1457  0.1882  0.8861  0.8861  0.9364  1.0788  1.1067  1.1135  1.1135
+  1.1495  1.4441  1.4983  1.4983  1.5081  1.5292  1.5454  1.5454  1.6414
+  1.9589  2.2475  2.2607  2.2607  2.5101  2.5434  2.5434  2.5656  2.6885
+  2.8047  2.8999  2.9000  3.0143  3.0143  3.0792  3.2015  3.2127  3.2562
+  3.3886  3.3886  3.8969  3.9384  3.9439  3.9594  3.9594  4.2436  4.2705
+  4.4812  4.4812  4.6015  4.6516  4.8270  4.8270  5.1031  5.2123  5.4748
+  5.4748  5.9671  9.0233
+ state:          4          5          6          7          8          9
+ evl:    -0.929147  -0.922112  -0.743566  -0.533900  -0.190665  -0.190665
+ w1:      1.000000   1.000000   1.000000   1.000000   1.000000   1.000000
+ 
+ hambls: smallest nmax encountered for sigm middle block = 18
+ hambls: sig(low,high) = 0.0832,0.1940  fit : 0.1218 + 0.0457 * E(lda) (28 points)
+
+ BZWTS : --- Non-metal sampling ---
+ Fermi energy: 0.045826;  18 electrons;  Sum occ. bands: -12.230761
+ VBmax = 0.045826  CBmin = 0.121073  gap = 0.075248 Ry = 1.02337 eV
+ Highest occ. level = 0.04583  Lowest unocc. = 0.12107  average = 0.08345
+
+ Saved Fermi level to weights file ... ef = 0.083450
+
+ mkrout:  Qtrue      sm,loc       local
+   1   11.519539    3.246511    8.273028
+ foca..  use smtc =    3687.571044
+   2    3.430750    4.180028   -0.749278
+ foca..  use smtc =    4591.031242
+   3    0.398065    0.397607    0.000457
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+   4    0.356408    0.359725   -0.003318
+ getcor:  qcore=  0.00  qsc=  0.00  konf = 1  2  3  4  5 
+
+ state  chg          ecor0          ecore          tcore    nre  rho(rmax)
+ sum q= 0.00  sum ec=     0.00000  sum tc=     0.00000  rho(rmax) 0.00000
+
+ Symmetrize density..
+
+ Symmetry class  1   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  1
+    0    0.714995   -0.544504
+    1    0.871505   -0.474031
+    2    0.099648   -0.018904
+    3    0.015149   -0.010512
+    4    0.002137   -0.000374
+
+ Symmetry class  2   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  2
+    0    1.237123   -1.133249
+    1    2.143028   -0.756608
+    2    0.044587   -0.032092
+    3    0.010538   -0.010902
+    4    0.001636   -0.001233
+
+ Symmetry class  3   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  3
+    0    0.117163   -0.056060
+    1    0.188298   -0.051078
+    2    0.077839   -0.011443
+    3    0.012784   -0.000988
+    4    0.001987    0.000392
+
+ Symmetry class  4   nrclas=  1   nlml= 25
+ psymr: did    6  of  625
+ psymr: did    6  of  625
+ symmetrized qbyl,hbyl for class containing ib=  4
+    0    0.120462   -0.060464
+    1    0.161921   -0.055694
+    2    0.060491   -0.015954
+    3    0.011568   -0.003310
+    4    0.001971   -0.000679
+
+ Make new boundary conditions for phi,phidot..
+
+ site    1   species   1:C1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.714995   -0.761548    4.728658    4.728659    4.500000    4.728659
+ 1     0    0.871505   -0.543923    4.454451    4.454452    4.250000    4.454452
+ 2     0    0.099648   -0.189709    4.300000    4.167052    4.147584    4.300000
+ 2     0    sc         -1.219694    3.928232    3.928233    3.147584   13.928233
+ 3     1    0.015149   -0.693890    4.150000    4.114342    4.102416    4.150000
+ 4     1    0.002137   -0.175198    5.120000    5.088418    5.077979    5.120000
+
+ site    2   species   2:A1      
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    1.237123   -0.916036    4.829802    4.829802    4.500000    4.829802
+ 0     0    sc          0.000000    5.500000    5.500000    5.500000    5.500000
+ 1     0    2.143028   -0.353056    4.710604    4.710604    4.250000    4.710604
+ 2     0    0.044587   -0.719763    4.173521    4.173522    4.147584    4.173522
+ 3     1    0.010538   -1.034576    4.150000    4.108457    4.102416    4.150000
+ 4     1    0.001636   -0.753620    5.120000    5.082625    5.077979    5.120000
+
+ site    3   species   3:EA1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.117163   -0.478479    1.500000    1.398714    1.500000    1.500000
+ 1     0    0.188298   -0.271263    2.256800    2.256799    2.250000    2.256799
+ 2     0    0.077839   -0.147005    3.157177    3.157177    3.147584    3.157177
+ 3     0    0.012784   -0.077281    4.107792    4.107792    4.102416    4.107792
+ 4     0    0.001987    0.197399    5.083439    5.083439    5.077979    5.083439
+
+ site    4   species   4:EC1     
+ l  idmod     ql         ebar        pold        ptry        pfree        pnew
+ 0     0    0.120462   -0.501931    1.500000    1.389548    1.500000    1.500000
+ 1     0    0.161921   -0.343961    2.250000    2.244538    2.250000    2.250000
+ 2     0    0.060491   -0.263742    3.150875    3.150875    3.147584    3.150875
+ 3     0    0.011568   -0.286125    4.103500    4.103500    4.102416    4.103500
+ 4     0    0.001971   -0.344601    5.078046    5.078046    5.077979    5.078046
+
+ Harris energy:
+ sumev=      -12.230761  val*vef=    -308.163328   sumtv=     295.932566
+ sumec=        0.000000  cor*vef=       0.000000   ttcor=    8278.602287
+ rhoeps=    -306.920718     utot=  -16662.223689    ehar=   -8394.609553
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ shift forces to make zero average correction:            0.00    0.00    0.00
+
+ avg es pot at rmt= 0.411986  avg sphere pot= 0.308308  vconst=-0.411986
+
+ site  1  z= 31.0  rmt= 2.30942  nr=665   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.087598 (sphere) + 0.001215 (spillout) = 0.088813
+
+ site  2  z= 33.0  rmt= 2.30942  nr=673   a=0.015  nlml=25  rg=0.577  Vfloat=F
+ sm core charge = 0.658493 (sphere) + 0.018873 (spillout) = 0.677366
+
+ site  3  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+ site  4  z=  0.0  rmt= 2.30942  nr=159   a=0.015  nlml=25  rg=0.577  Vfloat=F
+
+
+ ekin=8571.182512  rho*v=-16969.144477  ehf=-8394.609553  ehks=-8397.961965
+
+ Forces, with eigenvalue correction
+  ib           estatic                  eigval                    total
+   1    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   2    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   3    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+   4    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+  KS    0.00    0.00    0.00     0.00    0.00    0.00     0.00    0.00    0.00
+ Maximum Harris force = 6.99e-10 mRy/au (site 1)  Max eval correction = 0
+
+ Symmetrize forces ...
+  
+ mixing: mode=A  nmix=3  beta=.7  elind=.849  kill=5
+ mixrho:  sought 3 iter from file mixm; read 3.  RMS DQ=6.21e-7  last it=2.00e-6
+ charges:       old           new         screened      rms diff       lin mix
+ smooth      10.479090     10.479099     10.479099      0.000002     10.479096
+ site    1    8.273026      8.273028      8.273028      0.000000      8.273027
+ site    2   -0.749253     -0.749278     -0.749278      0.000001     -0.749270
+ site    3    0.000456      0.000457      0.000457      0.000000      0.000457
+ site    4   -0.003320     -0.003318     -0.003318      0.000000     -0.003318
+ AMIX: condition of normal eqns >100000. Reducing nmix to 2
+ AMIX: condition of normal eqns >100000. Reducing nmix to 1
+ AMIX: nmix=1 mmix=8  nelts=10142  beta=0.7  tm=5  rmsdel=6.21e-7
+   tj:-0.05995
+ add q=  0.000008 to preserve neutrality
+ unscreened rms difference:  smooth  0.000002   local  0.000001   tot
+   screened rms difference:  smooth  0.000002   local  0.000001   tot  0.000001
+
+ iors  : write restart file (binary, mesh density) 
+         id -  lmfp:
+         written by -  takao on mar.damp.tottori-u.ac.jp at: Sun May 24 19:09:01 2009
+
+   it 14  of 30    ehf=       2.987447   ehk=      -0.364965
+ From last iter    ehf=       2.987622   ehk=      -0.364962
+ diffe(q)= -0.000004 (0.000001)    tol= 0.000050 (0.000001)   more=F
+c ehf=2.9874466 ehk=-.3649652
+ Exit 0 LMF 
+ wkinfo:  used  3076 K  workspace of 80000 K   in 129 K calls

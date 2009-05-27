@@ -14,8 +14,11 @@
 ######################################################################################################
 
 # It will reads MAKEINC/Make.inc.$(PLATFORM).
-PLATFORM=gfortran
+#PLATFORM=gfortran
+#PLATFORM=gfortran_mpi
+PLATFORM=gfortran_mpik
 #PLATFORM=ifort
+
 #PLATFORM=ifort_mpi
 #PLATFORM=ifort_mpik
 

@@ -1,0 +1,362 @@
+takao@mar:~/ecal/fpgw/TESTinstallGW$ ./testgw.py --enforce --all
+### TEST run ###
+  ecaldir = /home/takao/ecal
+  initialize: copy lm-7.0betaK001/lmfa lmf lmfgw lmfgw fpgw/exec/
+
+=== gas_eps_lmfh ========================================
+--> start run for gas_eps_lmfh/ ===
+ commanddir = /home/takao/ecal/fpgw/exec/
+ datadir    = /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/
+ workdir    = /home/takao/ecal/fpgw/TESTinstallGW/temp_gas_eps_lmfh/
+   cp ctrl.gas to workdir
+   cp GWinput to workdir
+--> We will perform commands: 
+   /home/takao/ecal/fpgw/exec/lmfa gas > llmfa
+   /home/takao/ecal/fpgw/exec/lmf gas>llmf
+   /home/takao/ecal/fpgw/exec/eps_lmfh gas
+--> now we statrt them successively.
+   Runnning /home/takao/ecal/fpgw/exec/lmfa gas > llmfa
+     lmfa gas > llmfa --> OK!  UsedCPUtime= 1.678744
+   Runnning /home/takao/ecal/fpgw/exec/lmf gas>llmf
+     lmf gas>llmf --> OK!  UsedCPUtime= 62.021572
+   Runnning /home/takao/ecal/fpgw/exec/eps_lmfh gas
+/home/takao/ecal/fpgw/exec
+gas
+STOP  OK! qg4gw mode=2 Readin Q0P mode
+ OK! lmfgw mode=1 
+STOP  OK! lmf2gw: end --- DATA4GW_V2 is written 
+STOP  OK! rdata4gw_v2
+STOP  OK! heftet mode=1 EFERMI generated 
+STOP  OK! hbasfp0 ix=0 normal mode 
+STOP  OK! hvccfp0 imode=202 only for Q0P
+STOP  OK! hx0fp0 mode=203 sergeyv eps LFC 
+     eps_lmfh gas --> OK!  UsedCPUtime= 163.297175
+
+--> Compare your results with previous results
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum EPS0001.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0001.nlfc.dat 
+   Readin two files =      EPS0001.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0001.nlfc.dat
+   Comparison OK!  MaxDiff= 1.90189863858e-10 < tol= 1.1e-05  between   EPS0001.nlfc.dat   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0001.nlfc.dat
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum EPS0003.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0003.nlfc.dat 
+   Readin two files =      EPS0003.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0003.nlfc.dat
+   Comparison OK!  MaxDiff= 2.7502444766e-12 < tol= 1.1e-05  between   EPS0003.nlfc.dat   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0003.nlfc.dat
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum EPS0004.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0004.nlfc.dat 
+   Readin two files =      EPS0004.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0004.nlfc.dat
+   Comparison OK!  MaxDiff= 9.99644811372e-13 < tol= 1.1e-05  between   EPS0004.nlfc.dat   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0004.nlfc.dat
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum EPS0001.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0001.dat 
+   Readin two files =      EPS0001.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0001.dat
+   Comparison OK!  MaxDiff= 4.57430093803e-10 < tol= 1.1e-05  between   EPS0001.dat   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0001.dat
+   Compare --> OK!pwd
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum EPS0003.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0003.dat 
+   Readin two files =      EPS0003.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0003.dat
+   Comparison OK!  MaxDiff= 2.41007214186e-12 < tol= 1.1e-05  between   EPS0003.dat   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0003.dat
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum EPS0004.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0004.dat 
+   Readin two files =      EPS0004.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0004.dat
+   Comparison OK!  MaxDiff= 9.09938790983e-13 < tol= 1.1e-05  between   EPS0004.dat   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_eps_lmfh/EPS0004.dat
+   Compare --> OK!
+
+--> we did calculations at workdir= /home/takao/ecal/fpgw/TESTinstallGW/temp_gas_eps_lmfh/
+
+
+=== gas_epsPP_lmfh ========================================
+--> start run for gas_epsPP_lmfh/ ===
+ commanddir = /home/takao/ecal/fpgw/exec/
+ datadir    = /home/takao/ecal/fpgw/TESTinstallGW/gas_epsPP_lmfh/
+ workdir    = /home/takao/ecal/fpgw/TESTinstallGW/temp_gas_epsPP_lmfh/
+   cp ctrl.gas to workdir
+   cp GWinput to workdir
+--> We will perform commands: 
+   /home/takao/ecal/fpgw/exec/lmfa gas > llmfa
+   /home/takao/ecal/fpgw/exec/lmf gas>llmf
+   /home/takao/ecal/fpgw/exec/epsPP_lmfh gas
+--> now we statrt them successively.
+   Runnning /home/takao/ecal/fpgw/exec/lmfa gas > llmfa
+     lmfa gas > llmfa --> OK!  UsedCPUtime= 1.675746
+   Runnning /home/takao/ecal/fpgw/exec/lmf gas>llmf
+     lmf gas>llmf --> OK!  UsedCPUtime= 181.316435
+   Runnning /home/takao/ecal/fpgw/exec/epsPP_lmfh gas
+/home/takao/ecal/fpgw/exec
+gas
+STOP  OK! qg4gw mode=2 Readin Q0P mode
+ OK! lmfgw mode=1 
+STOP  OK! lmf2gw: end --- DATA4GW_V2 is written 
+STOP  OK! rdata4gw_v2
+STOP  OK! heftet mode=1 EFERMI generated 
+STOP  OK! hbasfp0 ix=4 ptest mode  
+STOP  OK! hvccfp0 imode=202 only for Q0P
+STOP  OK! hx0fp0 mode=202 sergeyv epsPP NoLFC
+     epsPP_lmfh gas --> OK!  UsedCPUtime= 253.153515
+
+--> Compare your results with previous results
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum EPS0001.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_epsPP_lmfh/EPS0001.nlfc.dat 
+   Readin two files =      EPS0001.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_epsPP_lmfh/EPS0001.nlfc.dat
+   Comparison OK!  MaxDiff= 7.25290050241e-09 < tol= 1.1e-05  between   EPS0001.nlfc.dat   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_epsPP_lmfh/EPS0001.nlfc.dat
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum EPS0003.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_epsPP_lmfh/EPS0003.nlfc.dat 
+   Readin two files =      EPS0003.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_epsPP_lmfh/EPS0003.nlfc.dat
+   Comparison OK!  MaxDiff= 1.05459507793e-09 < tol= 1.1e-05  between   EPS0003.nlfc.dat   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_epsPP_lmfh/EPS0003.nlfc.dat
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum EPS0005.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_epsPP_lmfh/EPS0005.nlfc.dat 
+   Readin two files =      EPS0005.nlfc.dat /home/takao/ecal/fpgw/TESTinstallGW/gas_epsPP_lmfh/EPS0005.nlfc.dat
+   Comparison OK!  MaxDiff= 9.39710087522e-10 < tol= 1.1e-05  between   EPS0005.nlfc.dat   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_epsPP_lmfh/EPS0005.nlfc.dat
+   Compare --> OK!
+
+--> we did calculations at workdir= /home/takao/ecal/fpgw/TESTinstallGW/temp_gas_epsPP_lmfh/
+
+
+=== fe_epsPP_lmfh_chipm ========================================
+--> start run for fe_epsPP_lmfh_chipm/ ===
+ commanddir = /home/takao/ecal/fpgw/exec/
+ datadir    = /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/
+ workdir    = /home/takao/ecal/fpgw/TESTinstallGW/temp_fe_epsPP_lmfh_chipm/
+   cp ctrl.fe to workdir
+   cp GWinput to workdir
+--> We will perform commands: 
+   /home/takao/ecal/fpgw/exec/lmfa fe > llmfa
+   /home/takao/ecal/fpgw/exec/lmf fe>llmf
+   /home/takao/ecal/fpgw/exec/epsPP_lmfh_chipm fe
+--> now we statrt them successively.
+   Runnning /home/takao/ecal/fpgw/exec/lmfa fe > llmfa
+     lmfa fe > llmfa --> OK!  UsedCPUtime= 1.070838
+   Runnning /home/takao/ecal/fpgw/exec/lmf fe>llmf
+     lmf fe>llmf --> OK!  UsedCPUtime= 128.604449
+   Runnning /home/takao/ecal/fpgw/exec/epsPP_lmfh_chipm fe
+/home/takao/ecal/fpgw/exec
+fe
+STOP  OK! qg4gw mode=2 Readin Q0P mode
+ OK! lmfgw mode=1 
+STOP  OK! lmf2gw: end --- DATA4GW_V2 is written 
+STOP  OK! rdata4gw_v2
+STOP  OK! heftet mode=1 EFERMI generated 
+STOP  OK! hbasfp0 ix=8 normal(ix==0) + <B|spin den> 
+STOP  OK! hvccfp0 imode=202 only for Q0P
+STOP  OK! hx0fp0 mode=222 chi+- NoLFC sergeyv
+     epsPP_lmfh_chipm fe --> OK!  UsedCPUtime= 58.050175
+
+--> Compare your results with previous results
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum ChiPM0001.nlfc.mat /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0001.nlfc.mat 
+   Readin two files =      ChiPM0001.nlfc.mat /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0001.nlfc.mat
+   Comparison OK!  MaxDiff= 2.69103850314e-10 < tol= 1.1e-05  between   ChiPM0001.nlfc.mat   and   /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0001.nlfc.mat
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum ChiPM0002.nlfc.mat /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0002.nlfc.mat 
+   Readin two files =      ChiPM0002.nlfc.mat /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0002.nlfc.mat
+   Comparison OK!  MaxDiff= 1.22894630028e-08 < tol= 1.1e-05  between   ChiPM0002.nlfc.mat   and   /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0002.nlfc.mat
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum ChiPM0003.nlfc.mat /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0003.nlfc.mat 
+   Readin two files =      ChiPM0003.nlfc.mat /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0003.nlfc.mat
+   Comparison OK!  MaxDiff= 1.23073995439e-09 < tol= 1.1e-05  between   ChiPM0003.nlfc.mat   and   /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0003.nlfc.mat
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum ChiPM0004.nlfc.mat /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0004.nlfc.mat 
+   Readin two files =      ChiPM0004.nlfc.mat /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0004.nlfc.mat
+   Comparison OK!  MaxDiff= 8.43296016351e-10 < tol= 1.1e-05  between   ChiPM0004.nlfc.mat   and   /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0004.nlfc.mat
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum ChiPM0005.nlfc.mat /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0005.nlfc.mat 
+   Readin two files =      ChiPM0005.nlfc.mat /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0005.nlfc.mat
+   Comparison OK!  MaxDiff= 4.8863002533e-10 < tol= 1.1e-05  between   ChiPM0005.nlfc.mat   and   /home/takao/ecal/fpgw/TESTinstallGW/fe_epsPP_lmfh_chipm/ChiPM0005.nlfc.mat
+   Compare --> OK!
+
+--> we did calculations at workdir= /home/takao/ecal/fpgw/TESTinstallGW/temp_fe_epsPP_lmfh_chipm/
+
+
+=== si_gw_lmfh ========================================
+--> start run for si_gw_lmfh/ ===
+ commanddir = /home/takao/ecal/fpgw/exec/
+ datadir    = /home/takao/ecal/fpgw/TESTinstallGW/si_gw_lmfh/
+ workdir    = /home/takao/ecal/fpgw/TESTinstallGW/temp_si_gw_lmfh/
+   cp ctrl.si to workdir
+   cp GWinput to workdir
+--> We will perform commands: 
+   /home/takao/ecal/fpgw/exec/lmfa si > llmfa
+   /home/takao/ecal/fpgw/exec/lmf si > llmf_lda
+   /home/takao/ecal/fpgw/exec/gw_lmfh si
+--> now we statrt them successively.
+   Runnning /home/takao/ecal/fpgw/exec/lmfa si > llmfa
+     lmfa si > llmfa --> OK!  UsedCPUtime= 0.738887
+   Runnning /home/takao/ecal/fpgw/exec/lmf si > llmf_lda
+     lmf si > llmf_lda --> OK!  UsedCPUtime= 7.711828
+   Runnning /home/takao/ecal/fpgw/exec/gw_lmfh si
+/home/takao/ecal/fpgw/exec
+si
+STOP  OK! qg4gw mode=1 normal mode
+ OK! lmfgw mode=1 
+STOP  OK! lmf2gw: end --- DATA4GW_V2 is written 
+STOP  OK! rdata4gw_v2
+STOP  OK! heftet mode=1 EFERMI generated 
+STOP  OK! hchknw: write nw to NW
+STOP  OK! hbasfp0 ix=3 core mode 
+STOP  OK! hvccfp0 
+STOP  OK! hsfp0: Core-exchange mode
+STOP  OK! hbasfp0 ix=0 normal mode 
+STOP  OK! hvccfp0 
+STOP  OK! hsfp0: Exchange mode
+STOP  OK! hx0fp0 mode=11 normal sergeyv
+STOP  OK! hsfp0: Correlation mode
+STOP  OK! hqpe 
+     gw_lmfh si --> OK!  UsedCPUtime= 36.994376
+
+--> Compare your results with previous results
+   Compare results by /home/takao/ecal/fpgw/exec/dqpu QPU /home/takao/ecal/fpgw/TESTinstallGW/si_gw_lmfh/QPU
+   Readin two files =      QPU /home/takao/ecal/fpgw/TESTinstallGW/si_gw_lmfh/QPU
+   Comparison OK!  Difference<1e-4 between:   QPU   and   /home/takao/ecal/fpgw/TESTinstallGW/si_gw_lmfh/QPU
+   Compare --> OK!
+
+--> we did calculations at workdir= /home/takao/ecal/fpgw/TESTinstallGW/temp_si_gw_lmfh/
+
+
+=== gas_pw_gw_lmfh ========================================
+--> start run for gas_pw_gw_lmfh/ ===
+ commanddir = /home/takao/ecal/fpgw/exec/
+ datadir    = /home/takao/ecal/fpgw/TESTinstallGW/gas_pw_gw_lmfh/
+ workdir    = /home/takao/ecal/fpgw/TESTinstallGW/temp_gas_pw_gw_lmfh/
+   cp ctrl.gas to workdir
+   cp GWinput to workdir
+--> We will perform commands: 
+   /home/takao/ecal/fpgw/exec/lmfa gas > llmfa
+   /home/takao/ecal/fpgw/exec/lmf gas > llmf_lda
+   /home/takao/ecal/fpgw/exec/gw_lmfh gas
+--> now we statrt them successively.
+   Runnning /home/takao/ecal/fpgw/exec/lmfa gas > llmfa
+     lmfa gas > llmfa --> OK!  UsedCPUtime= 1.188819
+   Runnning /home/takao/ecal/fpgw/exec/lmf gas > llmf_lda
+     lmf gas > llmf_lda --> OK!  UsedCPUtime= 13.835897
+   Runnning /home/takao/ecal/fpgw/exec/gw_lmfh gas
+/home/takao/ecal/fpgw/exec
+gas
+STOP  OK! qg4gw mode=1 normal mode
+ OK! lmfgw mode=1 
+STOP  OK! lmf2gw: end --- DATA4GW_V2 is written 
+STOP  OK! rdata4gw_v2
+STOP  OK! heftet mode=1 EFERMI generated 
+STOP  OK! hchknw: write nw to NW
+STOP  OK! hbasfp0 ix=3 core mode 
+STOP  OK! hvccfp0 
+STOP  OK! hsfp0: Core-exchange mode
+STOP  OK! hbasfp0 ix=0 normal mode 
+STOP  OK! hvccfp0 
+STOP  OK! hsfp0: Exchange mode
+STOP  OK! hx0fp0 mode=11 normal sergeyv
+STOP  OK! hsfp0: Correlation mode
+STOP  OK! hqpe 
+     gw_lmfh gas --> OK!  UsedCPUtime= 107.626638
+
+--> Compare your results with previous results
+   Compare results by /home/takao/ecal/fpgw/exec/dqpu QPU /home/takao/ecal/fpgw/TESTinstallGW/gas_pw_gw_lmfh/QPU
+   Readin two files =      QPU /home/takao/ecal/fpgw/TESTinstallGW/gas_pw_gw_lmfh/QPU
+   Comparison OK!  Difference<1e-4 between:   QPU   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_pw_gw_lmfh/QPU
+   Compare --> OK!
+
+--> we did calculations at workdir= /home/takao/ecal/fpgw/TESTinstallGW/temp_gas_pw_gw_lmfh/
+
+
+=== si_gwsc ========================================
+--> start run for si_gwsc/ ===
+ commanddir = /home/takao/ecal/fpgw/exec/
+ datadir    = /home/takao/ecal/fpgw/TESTinstallGW/si_gwsc/
+ workdir    = /home/takao/ecal/fpgw/TESTinstallGW/temp_si_gwsc/
+   cp ctrl.si to workdir
+   cp GWinput to workdir
+--> We will perform commands: 
+   /home/takao/ecal/fpgw/exec/lmfa si > llmfa
+   /home/takao/ecal/fpgw/exec/gwsc1shot si
+--> now we statrt them successively.
+   Runnning /home/takao/ecal/fpgw/exec/lmfa si > llmfa
+     lmfa si > llmfa --> OK!  UsedCPUtime= 0.762884
+   Runnning /home/takao/ecal/fpgw/exec/gwsc1shot si
+/home/takao/ecal/fpgw/exec
+si
+--- No sigm nor sigm.$argv[1] files for starting ---
+ ---- goto sc calculation with given sigma-vxc --- ix=,0
+No sigm ---> LDA caculation for eigenfunctions 
+STOP  OK! qg4gw mode=1 normal mode
+ OK! lmfgw mode=1 
+STOP  OK! lmf2gw: end --- DATA4GW_V2 is written 
+STOP  OK! rdata4gw_v2
+STOP  OK! heftet mode=1 EFERMI generated 
+STOP  OK! hchknw: write nw to NW
+STOP  OK! hbasfp0 ix=3 core mode 
+STOP  OK! hvccfp0 
+STOP  OK! hsfp0_sc: Core-exchange mode
+STOP  OK! hbasfp0 ix=0 normal mode 
+STOP  OK! hvccfp0 
+STOP  OK! hsfp0_sc: Exchange mode
+STOP  OK! hx0fp0_sc ixc=11 Sergey F. mode
+STOP  OK! hsfp0_sc: Correlation mode
+STOP  OK! hqpe_sc 
+     gwsc1shot si --> OK!  UsedCPUtime= 270.931812
+
+--> Compare your results with previous results
+   Compare results by /home/takao/ecal/fpgw/exec/dqpu QPU /home/takao/ecal/fpgw/TESTinstallGW/si_gwsc/QPU
+   Readin two files =      QPU /home/takao/ecal/fpgw/TESTinstallGW/si_gwsc/QPU
+   Comparison OK!  Difference<1e-4 between:   QPU   and   /home/takao/ecal/fpgw/TESTinstallGW/si_gwsc/QPU
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum llmf /home/takao/ecal/fpgw/TESTinstallGW/si_gwsc/llmf
+   Readin two files =      llmf /home/takao/ecal/fpgw/TESTinstallGW/si_gwsc/llmf
+   Comparison OK!  MaxDiff= 0.0 < tol= 1.1e-05  between   llmf   and   /home/takao/ecal/fpgw/TESTinstallGW/si_gwsc/llmf
+   Compare --> OK!
+
+--> we did calculations at workdir= /home/takao/ecal/fpgw/TESTinstallGW/temp_si_gwsc/
+
+
+=== gas_gwsc ========================================
+--> start run for gas_gwsc/ ===
+ commanddir = /home/takao/ecal/fpgw/exec/
+ datadir    = /home/takao/ecal/fpgw/TESTinstallGW/gas_gwsc/
+ workdir    = /home/takao/ecal/fpgw/TESTinstallGW/temp_gas_gwsc/
+   cp ctrl.gas to workdir
+   cp GWinput to workdir
+--> We will perform commands: 
+   /home/takao/ecal/fpgw/exec/lmfa gas > llmfa
+   /home/takao/ecal/fpgw/exec/gwsc1shot gas
+--> now we statrt them successively.
+   Runnning /home/takao/ecal/fpgw/exec/lmfa gas > llmfa
+     lmfa gas > llmfa --> OK!  UsedCPUtime= 1.687744
+   Runnning /home/takao/ecal/fpgw/exec/gwsc1shot gas
+/home/takao/ecal/fpgw/exec
+gas
+--- No sigm nor sigm.$argv[1] files for starting ---
+ ---- goto sc calculation with given sigma-vxc --- ix=,0
+No sigm ---> LDA caculation for eigenfunctions 
+STOP  OK! qg4gw mode=1 normal mode
+ OK! lmfgw mode=1 
+STOP  OK! lmf2gw: end --- DATA4GW_V2 is written 
+STOP  OK! rdata4gw_v2
+STOP  OK! heftet mode=1 EFERMI generated 
+STOP  OK! hchknw: write nw to NW
+STOP  OK! hbasfp0 ix=3 core mode 
+STOP  OK! hvccfp0 
+STOP  OK! hsfp0_sc: Core-exchange mode
+STOP  OK! hbasfp0 ix=0 normal mode 
+STOP  OK! hvccfp0 
+STOP  OK! hsfp0_sc: Exchange mode
+STOP  OK! hx0fp0_sc ixc=11 Sergey F. mode
+STOP  OK! hsfp0_sc: Correlation mode
+STOP  OK! hqpe_sc 
+     gwsc1shot gas --> OK!  UsedCPUtime= 529.134559
+
+--> Compare your results with previous results
+   Compare results by /home/takao/ecal/fpgw/exec/dqpu QPU /home/takao/ecal/fpgw/TESTinstallGW/gas_gwsc/QPU
+   Readin two files =      QPU /home/takao/ecal/fpgw/TESTinstallGW/gas_gwsc/QPU
+   Comparison OK!  Difference<1e-4 between:   QPU   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_gwsc/QPU
+   Compare --> OK!
+
+   Compare results by /home/takao/ecal/fpgw/exec/diffnum llmf /home/takao/ecal/fpgw/TESTinstallGW/gas_gwsc/llmf
+   Readin two files =      llmf /home/takao/ecal/fpgw/TESTinstallGW/gas_gwsc/llmf
+   Comparison OK!  MaxDiff= 5e-12 < tol= 1.1e-05  between   llmf   and   /home/takao/ecal/fpgw/TESTinstallGW/gas_gwsc/llmf
+   Compare --> OK!
+
+--> we did calculations at workdir= /home/takao/ecal/fpgw/TESTinstallGW/temp_gas_gwsc/
