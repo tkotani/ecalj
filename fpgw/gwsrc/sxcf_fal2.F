@@ -278,7 +278,7 @@ c for exchange --------------------
       complex(8),allocatable :: z1p(:,:,:),vcoul(:,:),vcoult(:,:)
 
 c- debug write ---------------------
-      logical :: debug=.true. ,onceww
+      logical :: debug=.false. ,onceww
 
 cccccccccccccc
 c tetra
@@ -687,6 +687,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      i       dreal(zzmel), dimag(zzmel), nbloch, nt,nctot,
      o       rmelt,cmelt)
 
+c        if(debug) write(6,"('sss: sum of       zmelt=',4d23.16)") sum(zmel),sum(abs(zmel))
+
 c zmel(I,ij) = dcmplx(rmelt, cmelt) = < psi_i psi^*_j | M_I>
 c oct2005
         if(nbcut/=0.and.(.not.exchange)) then
@@ -818,7 +820,7 @@ cccccccccccccccccccccccccccccccccccccccccccccc
         deallocate(zzmel) !rmel,cmel)
 c
         if(debug) print *, ' sxcf: goto wtt'
-        if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum( rmelt),sum(cmelt)
+        if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum(rmelt),sum(cmelt)
 
         if(bzcase()==2)then
           if(kx<=nqibz) then

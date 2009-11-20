@@ -236,8 +236,9 @@ C        endif
           do  i = 1, 3
             qpg(i)= q(i) + qlat(i,1)*i1 + qlat(i,2)*i2 + qlat(i,3)*i3
           enddo
-          q2 = (qpg(1)**2+qpg(2)**2+qpg(3)**2)*tpiba**2
+          q2 = (qpg(1)**2+qpg(2)**2+qpg(3)**2) *tpiba**2
           write(stdo,334)  ig,i1,i2,i3,q2
+          write(stdo,"('q  qpg=',3d13.5,3x,3d13.5)")  q,qpg
   334     format(i5,1x,3i5,2x,f8.4)
         enddo
       endif

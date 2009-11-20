@@ -176,8 +176,8 @@ C ... External calls
       mode1 = mod(mode/10,10)
       mode2 = mod(mode/100,10)
       mode3 = mod(mode/1000,10)
-      call isanrg(mode1,0,1,'hft2rs:','10s digit mode',.true.)
-      call isanrg(mode2,0,1,'hft2rs:','100s digit mode',.true.)
+      call isanrg(mode1,0,1,'hft2rs:a','10s digit mode',.true.)
+      call isanrg(mode2,0,1,'hft2rs:b','100s digit mode',.true.)
 
 C --- Mode 0 (setup) make and reduce iax table ---
       if (mode0 .eq. 0) then
@@ -203,6 +203,10 @@ C     ... Mark all members in iax table with vector in sfz (for FFT)
      .      nviax,nvtot,dmx)
           call info(30,0,0,' hft2rs: found %i connecting vectors out'//
      .      ' of %i possible for FFT',nviax,nvtot)
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c        stop 'test end xxxxxxxxxxxxxxxxxxxxxx111222'
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C     ... Reduce iax table to elements on mesh in common with pairc
           call defi(oiwk,(niax+1)*mxcsiz)
@@ -230,6 +234,7 @@ C     ... Fill out iax(6,7,10)
      .      nttab,w(ontab),w(oiax),mxcsiz)
           call poppr
         endif
+
 
 C   ... iax is now complete ... reallocate array
         call redfi(oiax,niax*nttab)
@@ -369,9 +374,11 @@ C ... External calls
 
       call defrr(o,1)
       id = offH(1,1,ia2+1)-offH(1,1,ia1)
-      call isanrg(idim,id,id,'hft2rs:','idim',.true.)
+      print *,'idim id=',idim,id
+      call isanrg(idim,id,id,'hft2rs:1 ','idim',.true.)
       jd = offH(1,1,ib2+1) - offH(1,1,ib1)
-      call isanrg(jdim,jd,jd,'hft2rs:','jdim',.true.)
+      print *,'idim jd=',jdim,jd
+      call isanrg(jdim,jd,jd,'hft2rs:2 ','jdim',.true.)
       ltrans = mod(mode/10000,10) .ne. 0
       dmx(1) = 0
       dmx(2) = 0

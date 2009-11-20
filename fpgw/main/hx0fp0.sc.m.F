@@ -556,6 +556,9 @@ C ... for frhis_m
           ! and one more point omg=frhis_m(nw) needed for extropolation
           ! used in subroutine alagr3z in  sxcf.f.
           omg2 = (freqr2(iw-2)+freqr2(iw-1))/2d0
+cccccccccccccccccc
+          print *,'iw omg2=',iw,omg2,dw,nw_input
+cccccccccccccccccc
           if (omg2 > dw*(nw_input-3)) then
             nw=iw
             exit       ! 'nw_input' is only used to get maximum frequency for
@@ -1089,9 +1092,9 @@ c             print *,' ik ibib = ',ik,ibib
 c              ib1=  n1b(ibib,ik)
 c              ib2 = n2b(ibib,ik)
 cccccccccccc
-              print *,' goto histrange=',ib1,ib2,jpm
-     &         ,demin(n1b(ibib,ik,jpm),n2b(ibib,ik,jpm),ik,jpm)
-     &         ,demax(n1b(ibib,ik,jpm),n2b(ibib,ik,jpm),ik,jpm)
+c              print *,' goto histrange=',ib1,ib2,jpm
+c     &         ,demin(n1b(ibib,ik,jpm),n2b(ibib,ik,jpm),ik,jpm)
+c     &         ,demax(n1b(ibib,ik,jpm),n2b(ibib,ik,jpm),ik,jpm)
 cccccccccccc
                   call hisrange( frhis, nwhis,  
      i         demin(n1b(ibib,ik,jpm),n2b(ibib,ik,jpm),ik,jpm),

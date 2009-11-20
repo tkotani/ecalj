@@ -207,9 +207,50 @@ C ... Heap
       integer w(1)
       common /w/ w
 
+      complex(8),allocatable:: smrnewbk(:,:,:,:)
 C     print *, '!!' ; call pshpr(40)
       if (mixmod .eq. 'none') return
       call tcn('mixrho')
+
+ccccccccccccccccccccccccccccccccccccc
+c      allocate(smrnewbk(k1,k2,k3,nsp))
+c      smrnewbk= (smrnew+smrho)/2d0
+cccccccccccccccccccccccccccccccccccccc
+      nnnew=0
+c      open(1898,file='test2vvv_smrho')
+      do  i3 = 1, k3
+      do  i2 = 1, k2
+      do  i1 = 1, k1
+        if (dreal(smrho(i1,i2,i3,1)) .lt. 0) nnnew = nnnew+1
+c        if( (i1==1.and.i2==1).or.
+c     &      (i3==1.and.i2==1).or.
+c     &      (i1==1.and.i3==1) ) then
+c        write(1898,"(3i5,2d13.5)")i1,i2,i3,smrho(i1,i2,i3,1)
+c        endif
+      enddo
+      enddo
+      enddo
+c      close(1898)
+c      print *,'vvv'
+      print *,'mixrho: sum smrho  init =',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
+      nnnew=0
+c      open(1898,file='test2vvv_smrnew')
+      do  i3 = 1, k3
+      do  i2 = 1, k2
+      do  i1 = 1, k1
+        if (dreal(smrnew(i1,i2,i3,1)) .lt. 0) nnnew = nnnew+1
+c        if( (i1==1.and.i2==1).or.
+c     &      (i3==1.and.i2==1).or.
+c     &      (i1==1.and.i3==1) ) then
+c          write(1898,"(3i5,2d13.5)")i1,i2,i3,smrnew(i1,i2,i3,1)-smrho(i1,i2,i3,1)
+c        endif
+      enddo
+      enddo
+      enddo
+c      close(1898)
+      print *,'mixrho: sum smrnew new  =',sum(smrnew(:,:,:,1)),sum(abs(smrnew(:,:,:,1))),nnnew
+ccccccccccccccccccccccccccccccccccccc
+
 
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
@@ -234,7 +275,11 @@ C --- Setup ---
       kkk = k1*k2*k3
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
-      locmix = 3
+ccccccccccccccccccccccccccccccccc
+      locmix = 3 !original lmv7 by mark.
+c      locmix = 3 
+c      print *,'vvv mixrho locmix=',locmix
+ccccccccccccccccccccccccccccccccc
       qmix(2) = 0
       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
       alat = dgets('lat alat',slat)
@@ -491,7 +536,7 @@ C ... 8. FFT smooth densities -> rho(G) for mixing
       call fftz3(w(owk),n1,n2,n3,k1,k2,k3,nsp,0,-1)
       call gvgetf(ng,nsp,w(okv),k1,k2,k3,w(owk),w(ocn))
 C     call zprm('cn-u',2,w(ocn),ng,ng,nsp)
-      call lgstar(1,ng,nsp,w(ogv),i,w(oips0),w(ocn))
+      call lgstar(1,ng,nsp,w(ogv),i,w(oips0),w(ocn))   !ocn new
 C     call zprm('cn-c',2,w(ocn),ng,ng0,nsp)
 C     call lgstar(2,ng,nsp,w(ogv),i,w(oips0),w(ocn))
 C     call zprm('cn-u',2,w(ocn),ng,ng,nsp)
@@ -499,7 +544,10 @@ C     call zprm('cn-u',2,w(ocn),ng,ng,nsp)
       call fftz3(w(owk),n1,n2,n3,k1,k2,k3,nsp,0,-1)
       call gvgetf(ng,nsp,w(okv),k1,k2,k3,w(owk),w(oco))
 C     call zprm('co-u',2,w(oco),ng,ng,nsp)
-      call lgstar(1,ng,nsp,w(ogv),i,w(oips0),w(oco))
+      call lgstar(1,ng,nsp,w(ogv),i,w(oips0),w(oco))   !oco init
+ccccccccccc
+c      print *,'vvv lgstar i=',i
+ccccccccccc
 C     call zprm('co-c',2,w(oco),ng,ng0,nsp)
       call rlse(owk)
       call defrr(oa,-nda*nsp*(mxsav+2)*2)
@@ -713,6 +761,11 @@ C     Net system charge
 C     Add constant to smrho to force charge neutrality
       xx = qcell/(vol*nsp)
       summ = 0
+
+cccccccccccccccccccccccccc
+c       print *,'vvv no xx test'
+c       xx=0d0
+ccccccccccccccccccccccccc
       do  64  i  = 1, nsp
       do  64  i3 = 1, n3
       do  64  i2 = 1, n2
@@ -764,6 +817,48 @@ C      call zprm3('exit sm rho, spin2',0,smrho(1,1,1,2),k1,k2,k3)
       call tcx('mixrho')
 C     print *, '!!' ; call poppr
 C     stop 'for now'
+      nnnew = 0
+      nnmix = 0
+      do  i3 = 1, n3
+      do  i2 = 1, n2
+      do  i1 = 1, n1
+        sumo = sumo + dble(smrho(i1,i2,i3,1))
+        sums = sums + dble(smrnew(i1,i2,i3,1))
+        dif = dble(smrnew(i1,i2,i3,1)-smrho(i1,i2,i3,1))
+        rms = rms + dif*dif
+        top = dmax1(top,dabs(dif))
+        xxc = beta*smrnew(i1,i2,i3,1) + (1d0-beta)*smrho(i1,i2,i3,1)
+        if (dble(smrnew(i1,i2,i3,1)) .lt. 0) nnnew = nnnew+1
+        if (dble(xxc) .lt. 0) nnmix = nnmix+1
+c       smrho(i1,i2,i3) = xxc
+        summ = summ + dble(xxc)
+      enddo
+      enddo
+      enddo
+cccccccccccccccccccccccccccccccccccc
+      nnnew=0
+c      open(1898,file='test3vvv')
+      do  i3 = 1, k3
+      do  i2 = 1, k2
+      do  i1 = 1, k1
+c        write(1898,"(3i5,2d13.5)")i1,i2,i3,smrho(i1,i2,i3,1)
+        if (dreal(smrho(i1,i2,i3,1)) .lt. 0) nnnew = nnnew+1
+      enddo
+      enddo
+      enddo
+c      close(1898)
+      print *,'mixrho: sum smrho output=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
+c      nnnew=0
+c      do  i3 = 1, k3
+c      do  i2 = 1, k2
+c      do  i1 = 1, k1
+c        if(dreal(smrho(i1,i2,i3,1))<1d-10) smrho(i1,i2,i3,1)=1d-10
+c        if (dreal(smrho(i1,i2,i3,1)) .lt. 0) nnnew = nnnew+1
+c      enddo
+c      enddo
+c      enddo
+c      print *,'vvv mixrho sum smrho output 222=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
+ccccccccccccccccccccccccccccccccc
       end
 
       subroutine pvmix3(ssite,sspec,nbas,nsp,beta,locmix,wt,kmxr,nlm0,
@@ -1478,6 +1573,24 @@ C     double precision dval,rmskm(100),rmsmx
 
 C ... This is the result of linear mixing, q=0 smooth rho
 C     sqmix = a(1,0,1)*beta + a(1,0,2)*(1-beta)
+      real(8):: aaa(nda)
+
+ccccccccccccccccccccccccccccccccccccccccc
+c takao simple mixing test
+c      print *,' vvv: takao simple mixing test'
+c      aaa = a(:,0,2)
+c      aaa = .2d0*a(:,0,1)+.8d0*a(:,0,2)
+c      aaa = .40d0*a(:,0,1)+.6d0*a(:,0,2)
+
+c      aaa = .9d0*a(:,0,1)+.1d0*a(:,0,2)
+c      aaa = 1.d0*a(:,0,1)+.0d0*a(:,0,2)
+c       aaa = .5d0*a(:,0,1)+.5d0*a(:,0,2)
+c      aaa = .8d0*a(:,0,1)+.2d0*a(:,0,2)
+c      call dcopy(nda,aaa,1,a(1,0,1),1)
+c      call dcopy(nda,aaa,1,a(1,0,2),1)
+c      return
+cccccccccccccccccccccccccccccccccccccccccc
+
 
 C --- Anderson mixing ---
       if (nmix .eq. 0 .or. nmix .eq. 1 .or. broy .eq. 0) then
@@ -1568,11 +1681,13 @@ C ... Heap
 C ... Restore mixed smoothed density
       do  i = 1, nsp
 C       Add difference of mixed, old to minimize perturbation
+ccccccccccccccccc
+c        print *,' vvv pvmix7 TEST!!! a=0 test'
+c        a=0d0
+ccccccccccccccc
         call dscal(2*ng0,-1d0,crho(1,i),1)
         call daxpy(2*ng0,1d0,a(1,i),1,crho(1,i),1)
-C       call zprm('del cn-compress',0,crho,ng0,ng0,nsp)
         call lgstar(2,ng,1,gv,m,ips0,crho(1,i))
-C       call zprm('del cn-mixed',0,crho,ng,ng,nsp)
         call gvputf(ng,1,kv,k1,k2,k3,crho(1,i),wk)
         call fftz3(wk,n1,n2,n3,k1,k2,k3,1,0,1)
         call daxpy(2*k1*k2*k3,1d0,wk,1,smrho(1,1,1,i),1)

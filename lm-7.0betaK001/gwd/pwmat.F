@@ -83,8 +83,8 @@ C ... Local parameters
       double precision,allocatable:: yl(:)
       double complex,allocatable:: pwh(:,:),ppovlx(:,:)
 
-      integer :: inn(3)
-      logical:: debug=.false.
+      integer :: inn(3),matmul_pwhovl
+      logical:: debug=.true.
 C --- Setup ---
       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
       pi  = 4d0*datan(1d0)
@@ -187,10 +187,16 @@ C     See Remarks
       if(debug) print *,'sss:  pwmat pwh   =',sum(abs(pwh))
 
 c takao find acml4.2.0 for gfortran gives wrong results.
-c      pwhovl= matmul(ppovlx,pwh)
-      call matm(ppovlx,pwh,pwhovl,ngp,ngmx,ndimh)
-c2      call zgemm('N','N',ngp,ndimh,ngmx,dcmplx(1d0,0d0),
-c2     .  ppovlx,ngp,pwh,ngmx,dcmplx(0d0,0d0),pwhovl,ngp)
+      if(matmul_pwhovl()==1) then
+        pwhovl= matmul(ppovlx,pwh)
+      elseif(matmul_pwhovl()==2) then
+        call matm(ppovlx,pwh,pwhovl,ngp,ngmx,ndimh)
+      elseif(matmul_pwhovl()==3) then
+        call zgemm('N','N',ngp,ndimh,ngmx,dcmplx(1d0,0d0),
+     .  ppovlx,ngp,pwh,ngmx,dcmplx(0d0,0d0),pwhovl,ngp)
+      else
+         stop 'pwmat: matmul_pwovl is wrong'
+      endif
 
 
 C     call zprm('pwhovl',2,pwhovl,ngp,ngp,ndimh)

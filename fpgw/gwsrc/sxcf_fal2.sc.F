@@ -1,3 +1,60 @@
+C----------------------------------------------------------------------------
+      module m_nbandgw
+      real(8),allocatable,private:: qq(:,:,:)
+      integer,allocatable,private:: ispp(:),intqxx(:,:)
+      integer,private::nn
+      contains
+
+      subroutine getnbandgw(qin,isp,ginv,ntqxx) !june2009
+c obtain ntqxx for given q and isp
+      implicit none
+      real(8):: a,qin(3),ginv(*),qqq(3)
+      integer:: isave=0,idummy,i,isp,ntqxx,ifi,ixx,iopen,iclose,indxq,iqindx,ispp,iii
+      if(isave==0) then
+         ifi= iopen ('NBANDGW',1,0,0)
+         nn=0
+         do 
+         read(ifi, *,end=1011) a
+         nn=nn+1
+         enddo
+ 1011    continue
+
+         rewind ifi
+         allocate(qq(3,nn,2),intqxx(nn,2))
+         do i=1,nn
+           read(ifi, *,end=1011) qqq,ispp,idummy,iii
+           qq(:,i,ispp)   = qqq
+           intqxx(i,ispp) = iii
+           write(6,*) 'xxx: ',i,qq(:,i,ispp),ispp,intqxx(i,ispp)
+         enddo
+         ixx= iclose('NBANDGW')
+         isave=1
+      endif
+c
+      print *,' qin indx=',qin
+      ixx = iqindx(qin, ginv,qq(:,:,isp),nn)
+      ntqxx = intqxx( ixx,isp)
+      print *,' intqxx  ntqxx=',ntqxx,ixx
+      end subroutine
+
+
+
+      integer function indxq(qin,isp, q,ispp,nn)
+      real(8):: qin(3),q(3,nn)
+      integer:: nn,i,ispp(nn),isp
+      do i=1,nn
+        if(sum( abs(q(:,i)-qin(:)) ) <1d-8 .and. isp==ispp(i) ) then
+           indxq=i
+           return
+        endif
+      enddo
+      stop 'indxq: sxcf_fac2.sc.F. can not find iddex for q'
+      end function
+
+      end module
+
+
+C----------------------------------------------------------------------------
       subroutine sxcf_fal3_scz(kount,ip,q,irot,itq,ntq,ef,esmr,tr,iatomp,
 c     i                  ifev, !removed at Jan2004
      i                   nsp,isp, !ifcphi, !12jan2004 ifrb,ifcb,ifrhb,ifchb,
@@ -32,6 +89,8 @@ c
       use m_readqg
       use m_readeigen
       use keyvalue
+      use m_nbandgw,only: getnbandgw
+
 C- Calcualte full simga_ij(e_i)= <i|Re[S](e_i)|j> ---------------------
 Ci  exchange=T : Calculate the exchange self-energy
 Ci          =F : Calculate correlated part of the self-energy
@@ -607,9 +666,15 @@ c-------------
         if(debug) print *, ' sxcf: 1100c'
 
 c-----------
+c ntqxx is number of bands for <i|sigma|j>.
         ntqxx = nocc (omega,ebmx(1),.true.,ntq)
         ntqxx = min(ntqxx, nbmx(1))
-        if(debug) write(6,"( ' ntq ntqxx=',2i5)")ntq,ntqxx
+
+c override these by takao jun 2009
+c        call getnbandgw(q,isp,ginv,ntqxx) !june2009
+c        if(debug) write(6,"( ' ntq ntqxx=',2i5)")ntq,ntqxx
+
+
 c-----------
 
 
@@ -1739,4 +1804,6 @@ c         if (allocated(zwz4))deallocate(zwz4)
 c         if (allocated(zmel_))deallocate(zmel_)
 c         if (allocated(zwz))deallocate(zwz)
       end
+
+
 

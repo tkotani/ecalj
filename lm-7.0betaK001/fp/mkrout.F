@@ -347,6 +347,11 @@ C     cpp = cpp(kmax+1,kmax+1,0:lmxa,0:lmxa,nlml,nsp)
       parameter (n0=10,nkap0=3)
       integer ltba(n0*nkap0),ktba(n0*nkap0),blka(n0*nkap0)
 
+ccccccccccccccccccccc
+c      print *,'sumcheck qhh,qhp,qpp=',sum(qhh),sum(qhp),sum(qpp)
+c      stop 'test end'
+ccccccccccccccccccccc
+
 C     lmxl = ll(nlml)
       lmxa = ll(nlma)
       lmxh = ll(nlmh)

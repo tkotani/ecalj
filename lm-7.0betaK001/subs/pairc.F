@@ -1,3 +1,302 @@
+      subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,  nlat,qwgt)
+c find 
+c
+ci   pos,nbas,plot,nk,npairmx,range.
+co   npair(rewritten), nlat,qwgt.
+cr   qwgt is the weight for integration. Total number of qwgt is nk =nk1*nk2*nk3. 
+c
+      implicit none
+      integer:: nbas,nk1,nk2,nk3,nparimx,npair(nbas,nbas),npairmx
+      integer:: ib1,ib2,nnn,ik,nmax(3),ix,i,j,ik1,ik2,ik3,nout,ni
+      integer:: nlat(3,npairmx,nbas,nbas),nd(3)
+      integer,parameter:: noutmx=100
+      integer:: nlatout(3,noutmx)
+      real(8):: pos(3,nbas),plat(3,3), pi,qlat(3,3),q(3),pin(3),rmax2 !,nrmax(3)
+      real(8):: qwgt(npairmx,nbas,nbas),eps=1d-8
+      real(8):: posp(3),rxlat(3,3),xmx2(3),rxprod(3,3),dummy,rrr,rmax
+      logical :: ok
+!
+      call tcn('gennlat')
+      print *,'gennlat:'
+      ok=.true.
+      pi=4d0*datan(1d0)
+      call dinv33(plat,1,qlat,dummy)
+! periodicity for R mesh for nk1 nk2 nk3 division.
+      rxlat(:,1)=plat(:,1)*nk1
+      rxlat(:,2)=plat(:,2)*nk2
+      rxlat(:,3)=plat(:,3)*nk3
+      call shortn3_initialize(rxlat)
+c      do i=1,3
+c      do j=1,3
+c        rxprod(i,j) = sum(rxlat(:,i)*rxlat(:,j))
+c      enddo
+c      enddo
+c      print *, 'goto ellips',rxprod
+c      call ellipsoidxmax(rxprod,xmx2)
+c      print *, 'end of ellips xmx2=',xmx2
+      !Get Maxmum x_i**2 for ellipsoid for 1d0 = sum_{i,j} x_i rxprod(i,j) x_j
+      ! Maximum value for x_i for ellipsoid
+      ! Ellipsoid is given as 1d0 = sum x_i nn(i,j) x_j.
+!
+      npair=0
+      do ib1=1,nbas
+      do ib2=1,nbas
+        print *
+        print *,' ---- ib1 ib2=',ib1,ib2
+        posp = matmul( pos(:,ib1)-pos(:,ib2), qlat(:,:)) !posp is on plat-coodinate
+        nnn=0
+        do ik1=0,nk1-1
+        do ik2=0,nk2-1
+        do ik3=0,nk3-1
+          !print *,' ik1,ik2,ik3=',ik1,ik2,ik3
+          nd=(/ik1,ik2,ik3/)
+          if( ik1 >nk1/2) nd= nd-(/nk1, 0,  0/)
+          if( ik2 >nk2/2) nd= nd-(/0, nk2,  0/)
+          if( ik3 >nk3/2) nd= nd-(/0, 0,  nk3/)
+          ! above procedures are not necessary, but these may accelarate shortn3 a little.
+          pin(1)= (posp(1)+nd(1))/nk1
+          pin(2)= (posp(2)+nd(2))/nk2
+          pin(3)= (posp(3)+nd(3))/nk3
+          call shortn3(pin,noutmx, nout,nlatout)
+
+c          rmax2 = sum(pin*matmul(rxprod,pin)) + eps  ! eps is to make degeneracy safe.
+c          nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix used in shortn2
+c          nmax =  nrmax
+cccccccccccccc
+c          print *,'pin=',pin
+c          print *,' rmax2xmx=',rmax2,nrmax,nmax
+c          nmax=4
+cccccccccccccc
+c          call shortn2(pin,nmax,rxprod,noutmx, nout,nlatout)
+          ! find smallest nlat for mod(posp+dx, {rxlat(:,1),rxlat(:,2),rxlat(:,3)})
+c          write(6,"(3i4,' nmax=',3i4,' nout=',i3)")nd(1:3),nmax(1:3),nout
+          if(nnn+nout>npairmx) then
+            ok=.false.
+            return
+          endif
+          do ix=1,nout
+            nlat(:,nnn+ix,ib1,ib2)=
+     &        nd + (/nk1*nlatout(1,ix),nk2*nlatout(2,ix),nk3*nlatout(3,ix)/)
+            qwgt(nnn+ix,ib1,ib2)= 1d0/nout
+          enddo
+          nnn = nnn+nout
+        enddo
+        enddo
+        enddo
+        npair(ib1,ib2)= nnn
+
+c check write
+        write(6,"(a,2i4,2x,i6)") ' ib1 ib2 npair=',ib1,ib2,npair(ib1,ib2)
+        do ni = 1,npair(ib1,ib2)
+          posp =  pos(:,ib1)-pos(:,ib2) + matmul(plat,nlat(:,ni,ib1,ib2))
+          rrr = sqrt(sum(posp**2))
+          write(6,"(i6,3x,3i3,2f8.3)") ni,nlat(1:3,ni,ib1,ib2),rrr,qwgt(ni,ib1,ib2)
+        enddo
+
+      enddo
+      enddo
+      qwgt=qwgt/(nk1*nk2*nk3)
+      call tcx('gennlat')
+      end
+
+
+      subroutine pairtakao(job,pos,nbas,plat,nk,npair, npairmx,range, nlat,qwgt)
+c Obtain pair table of atomic sites. 
+c    number of pairs are larger than nk. range(ib1,ib2) is calculated.
+c job=1 
+ci   pos,nbas,plat,nk
+co   npairmx,range
+c job=2
+ci   pos,nbas,plot,nk,npairmx,range.
+co   npair(rewritten), nlat,qwgt.
+cr   qwgt is the weight for integration. Total number of qwgt is nk =nk1*nk2*nk3. 
+c
+      implicit none
+      integer::nbas,job,nk,npair(nbas,nbas),npairmx,ibas,ib1,ib2,ni,isig,nnn,iwend,nend,iwinit
+      real(8):: pos(3,nbas),plat(3,3), xx,pi,qlat(3,3),q(3),rrr(3),rx
+      integer :: nlat(3,npairmx,nbas,nbas)
+      real(8)::     qwgt(npairmx,nbas,nbas)
+      real(8),allocatable:: rr(:,:,:),rrx(:)
+      integer,allocatable:: iord(:),nlatx(:,:)
+      real(8):: range(nbas,nbas),rangex
+      logical:: exiton
+      pi=4d0*datan(1d0)
+      call dinv33(plat,1,qlat,xx)
+      print *,'job=',job,nk,npairmx
+      if(job==1) then !determine range,and npairmx
+        npair=0
+        do ib1=1,nbas
+        do ib2=1,nbas
+          exiton=.false.
+          rangex=0d0
+          do
+           rangex= rangex+.2d0 !We will improve this to give some better guess.
+           call getgv2( 2d0*pi,qlat,plat,pos(:,ib1)-pos(:,ib2), rangex,job,
+     o                npair(ib1,ib2), nlat(:,:,ib1,ib2) )
+           if(npair(ib1,ib2)>=nk) then 
+             rangex= rangex+.1d0 !We will improve this to give some better guess.
+             call getgv2( 2d0*pi,qlat,plat,pos(:,ib1)-pos(:,ib2), rangex,job,
+     o                    npair(ib1,ib2), nlat(:,:,ib1,ib2) )
+             range(ib1,ib2)=rangex ! rangex + 0.01d0 is to make degeneracy safe.
+             print *,' ib1 ib2 rangex nk npair',ib1,ib2,rangex,nk,npair(ib1,ib2)
+             exit
+           endif
+          enddo
+        enddo
+        enddo
+        npairmx = maxval(npair)
+        npair=-99999 !not the output
+        return
+      elseif(job==2) then
+        allocate(rr(npairmx,nbas,nbas))
+        do ib1=1,nbas
+        do ib2=1,nbas
+          call getgv2( 2d0*pi,qlat,plat,pos(:,ib1)-pos(:,ib2), range(ib1,ib2),job,
+     o                npair(ib1,ib2), nlat(:,:,ib1,ib2) )
+          nnn = npair(ib1,ib2)
+          do ni=1,nnn
+            rr(ni,ib1,ib2)= sqrt(sum((pos(:,ib1)-pos(:,ib2)+ matmul(plat, nlat(:,ni,ib1,ib2)))**2))
+          enddo
+c sort
+          allocate(iord(nnn),nlatx(3,nnn),rrx(nnn))
+          call sortea(rr(:,ib1,ib2),iord,nnn,isig)
+          nlatx = nlat(:,1:nnn,ib1,ib2) 
+          rrx   = rr(1:nnn,ib1,ib2)
+          do ni = 1,nnn
+            nlat(:,ni,ib1,ib2) = nlatx(:,iord(ni))
+            rr(ni,ib1,ib2)     = rrx(iord(ni))
+          enddo
+          deallocate(iord,nlatx,rrx)
+c weight            
+          rx = rr(nk,ib1,ib2)
+          iwinit=-99
+          qwgt(:,ib1,ib2)=0d0
+          do ni=1,nnn
+             if(abs(rr(ni,ib1,ib2)-rx)< 1d-6.and.iwinit==-99) iwinit=ni
+             if(abs(rr(ni,ib1,ib2)-rx)< 1d-6) iwend=ni
+          enddo
+          qwgt(1:iwinit-1,ib1,ib2)=1d0
+          qwgt(iwinit:iwend,ib1,ib2)=dble(nk-iwinit+1)/(iwend-iwinit+1)
+          npair(ib1,ib2)=iwend
+          qwgt(:,ib1,ib2)=qwgt(:,ib1,ib2)/nk
+          if(abs(sum(qwgt(:,ib1,ib2))-1d0)>1d-8) then
+            stop 'paritakao: abs(sum(qwgt(:,ib1,ib2))-nk)/=0'
+          endif
+c check write
+          write(6,"(a,2i4,2x,i6)") ' ib1 ib2 npair=',ib1,ib2,npair(ib1,ib2)
+          do ni = 1,npair(ib1,ib2)
+            write(6,"(i6,3x,3i3,2f8.3)") ni,nlat(1:3,ni,ib1,ib2),rr(ni,ib1,ib2),qwgt(ni,ib1,ib2)
+          enddo
+c          do ni = npair(ib1,ib2)+1,nnn
+c            write(6,"(i6,3x,3i3,2f8.3)") ni,nlat(1:3,ni,ib1,ib2),rr(ni,ib1,ib2)
+c          enddo
+        enddo
+        enddo
+        deallocate(rr)
+      endif
+      end
+c--- takao's getgv2. This is in fpgw/gwsrc/.
+      subroutine getgv2(alat,plat,qlat,q, QpGcut,job,
+     o                 ng, ngvec)
+C-  Set up a list of recip vectors within cutoff |Q+G| < QpGcut a.u.
+c takao
+c job==1 -> return ng (number of G ) only
+c job==2 -> return ng and ngvec
+c True G is given by
+c    G(1:3,1:ng) = 2*pi/alat * matmul(qlat * ngvec(1:3,1:ng))
+c
+      implicit none
+      integer(4) :: ng
+      real(8):: s_lat(1),q(3),plat(3,3),qlat(3,3),qpg(3),enor(3)
+     & ,pi,alat,tpiba,QpGmax,QpGmax2,QpGcut,Qenor
+      integer(4) ::  
+     &    n1max,n1min,n2max,n2min,n3max,n3min,
+     &    i1,i2,i3,ig,job
+      integer(4),optional ::  ngvec(3,ng)
+      pi=4d0*datan(1d0)
+c      call u_lat_vecs(s_lat,alat,plat,qlat)
+      tpiba=2*pi/alat
+      QpGmax   = QpGcut/tpiba  ! QpGcut in a.u.= tpiba*Qcut
+      QpGmax2  = QpGmax**2
+c search range of n1 n2 n3
+      call eprod(qlat(1:3,2),qlat(1:3,3),enor)
+      Qenor = sum(qlat(1:3,1)*enor)
+      n1max =  QpGmax/abs(Qenor) - sum(q*enor)/Qenor +1
+      n1min = -QpGmax/abs(Qenor) - sum(q*enor)/Qenor -1
+
+      call eprod(qlat(1:3,3),qlat(1:3,1),enor)
+      Qenor = sum(qlat(1:3,2)*enor)
+      n2max =  QpGmax/abs(Qenor) - sum(q*enor)/Qenor +1
+      n2min = -QpGmax/abs(Qenor) - sum(q*enor)/Qenor -1
+
+      call eprod(qlat(1:3,1),qlat(1:3,2),enor)
+      Qenor = sum(qlat(1:3,3)*enor)
+      n3max =  QpGmax/abs(Qenor) - sum(q*enor)/Qenor +1
+      n3min = -QpGmax/abs(Qenor) - sum(q*enor)/Qenor -1
+
+c get ngvec within the limit.
+      ig=0
+      do i1 = n1min, n1max
+        do i2 = n2min, n2max
+          do i3 = n3min, n3max
+ccccccccc TEST
+c      do i1 = n1min-3, n1max+3
+c      do i2 = n2min-3, n2max+3
+c      do i3 = n3min-3, n3max+3
+            qpg(1:3)= q(1:3) + 
+     &    qlat(1:3,1)*i1 +qlat(1:3,2)*i2 +qlat(1:3,3)*i3
+            if( sum(qpg(1:3)**2) < QpGmax2) then
+              ig = ig+1
+              if(job==2) ngvec(1:3,ig) = (/i1,i2,i3/)
+c          if(job==2) write(1116,'(f8.4,3i3)')
+c     &      tpiba*sqrt(sum(qpg(1:3)**2)),ngvec(1:3,ig) ! check write
+            endif
+          enddo
+        enddo
+      enddo
+      ng = ig
+      end
+cccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine eprod(a,b, c)
+c- c gives normalized normal vector for a and b.
+      real(8) :: a(3),b(3),c(3),cnorm !anorm,bnorm,
+      c(1)= a(2)*b(3)-a(3)*b(2)
+      c(2)= a(3)*b(1)-a(1)*b(3)
+      c(3)= a(1)*b(2)-a(2)*b(1)
+c      anorm = sqrt(sum(a(1:3)**2))
+c      bnorm = sqrt(sum(b(1:3)**2))
+c      c = c/anorm/bnorm
+      cnorm = sqrt(sum(c(1:3)**2))
+      c = c/cnorm
+      end
+      subroutine sortea(ea,ieaord,n,isig)
+c mini-sort routine.
+      implicit real*8(a-h,o-z)
+      real(8)::        ea(n)
+      integer(4):: ieaord(n)
+c sorting of ea
+      isig = 1
+*poption noparallel
+      do i = 1,n
+        ieaord(i) = i
+      enddo
+*poption noparallel
+      do ix= 2,n
+*poption noparallel
+        do i=ix,2,-1
+          if( ea(ieaord(i-1)) >ea(ieaord(i) ) ) then
+            itmp = ieaord(i-1)
+            ieaord(i-1) = ieaord(i)
+            ieaord(i) = itmp
+            isig= -isig
+            cycle
+          endif
+          exit
+        enddo
+      enddo
+      end
+
+
       subroutine pairs(nbas,nbasp,alat,plat,rmax,baspp,ipsp,nd,iltab,
      .  pltab,nttab,ontab,oiax,mxcsiz)
 C- Allocate memory for and create neighbor table for a crystal
@@ -373,7 +672,7 @@ C --- Printout ---
         if (alat .ne. 1)
      .      write(stdo,345) ib,ntab(ib+1)-ntab(ib),rcut/alat,rcut
         if (alat .eq. 1) write(stdo,345) ib,ntab(ib+1)-ntab(ib),rcut
-  345 format(' pairc, ib=',i3,':',i4,' neighbors in range',f7.3)
+  345 format(' pairc, ib=',i3,':',i4,' neighbors in range',2f7.3)
         endif
         i = ib
         if (ipr .gt. 40) write(stdo,334) iax(1,it),iax(2,it),

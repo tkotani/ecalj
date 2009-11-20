@@ -845,11 +845,11 @@ C ----------------------------------------------------------------
 C Passed parameters
       integer n,nev,nmx,ltime,ngv,lz,nevl,ncut
       logical ipr
-      double precision e(n),wk(1),emx
+      double precision e(n),wk(1),emx,eee
       complex(8):: h(n,n),s(n,n),z(lz,n)
       complex(8),allocatable:: omat(:,:),imat(:,:),wk11(:),
      & zz(:,:),hh(:,:),omat2(:,:),pmat(:,:),omat2i(:,:),oo(:,:),
-     & hhm(:,:)
+     & hhm(:,:),zzz(:)
       integer:: i,j,nlmto,ni,nm,ik,ik2
       real(8):: omax_mto, omax_g,ex ,  ddd2,ddd,epsovl
       real(8),allocatable:: scale(:),rwork(:)
@@ -1010,6 +1010,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      do ix=1,nm
 c        write(6,"('hh dia',i5,2f13.4)") ix,hh(ix,ix)
 c      enddo
+c      print *,'nm=',nm
 ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C ... diagonalize
@@ -1038,6 +1039,25 @@ C ... diagonalize
 c      nev=nm
 c      deallocate(wk11,rwork) ! move to the line after calling zheev 
       deallocate(omat,scale,zz,hh)
+
+cccccccccccccccccccccccccccccccccccccccc
+c takao test for singlet O.
+c      print *,'vvv zhev: takao special test for O singlet'
+c      if(abs(e(3)-e(4))<0.001) then
+c      if(.false.) then !abs(e(3)-e(4))<0.03) then
+c         eee= e(2)
+c         e(2)= e(3)
+c         e(3)= e(4)
+c         e(4)= eee+1d0
+c         allocate(zzz(n))
+c         zzz   = z(:,2)
+c         z(:,2)= z(:,3)
+c         z(:,3)= z(:,4)
+c         z(:,4)= zzz
+c         deallocate(zzz)
+c      endif
+ccccccccccccccccccccccccccccccccccccccccc
+
 
 c      do i=1,nev
 c      do j=1,nev

@@ -127,7 +127,7 @@ C ... for LDA+U
       data irlxsh /0/ dist0 /9*0d0/
 
 c takao test
-      real(8):: pnu(20)
+      real(8):: pnu(20),bz_w
 
 #if MPI
       integer:: ierr
@@ -362,7 +362,9 @@ C ... Setup of hamiltonian, augmentation
         call info0(30,0,0,' ')
       endif
       call subasi(sctrl,sspec,sham)
-      call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn)
+
+      call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
+
 
 C ... Quit if --quit=ham given
       if (igets('ctrl quit',sctrl) .eq. 8) then
@@ -465,6 +467,7 @@ c      do  i = 1, nbas
 c        call upack2('site pnu',ssite,i,pnu)
 c        print *,'check before reentry pnu=',i,pnu(1:20)
 c      enddo
+
 cccccccccccccccccc
 
 
@@ -501,8 +504,12 @@ C     Harris-Foulkes -> always overlap free-atom densities
           if (.not. lbin) ifi = fopna('rsta',-1,0)
         endif
         call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
+ctakao BZ_W is 
+        call upack('bz w',sbz,bz_w,0,0,0,0)
         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,
      .    nspec,w(oorhat),w,nit1,lbin,ifi)
+ctakao 
+        call pack5('bz w',sbz,bz_w,0,0,0,0)
         if (k .lt. 0 .and. nproc .gt. 0) then
 C         irs(1) = irs(1) - mod(irs(1),4)
           call rx('MPI: rst read failed. Restart with --rs=0')
@@ -537,6 +544,7 @@ C          call pvsms2(ssite,sspec,xv,nbas,nsp,w(oorhat))
           call pack5('ctrl lrs',sctrl,i,0,0,0,0)
         endif
       endif
+
 cccccccccccccccccccccccccccccccccccccccccccccc
 ctakao
 c      do  i = 1, nbas

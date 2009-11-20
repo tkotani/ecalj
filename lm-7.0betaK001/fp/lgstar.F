@@ -28,7 +28,12 @@ C     implicit none
       double complex cg(ng,n)
       integer i,i0,i00,irep,k,j,j0,lwarn,m
       double precision v(3),df
-
+ccccccccccccccccccccc
+c      print *,'vvv takao test no lgstar'
+c      ng0=ng
+c      ips0=999999
+c      return
+ccccccccccccccccccccc
       if (mode.lt.0 .or. mode.gt.2) call rxi('lgstar, bad mode',mode)
       lwarn = 0
       if (mode .eq. 2) goto 200

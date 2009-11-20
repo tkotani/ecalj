@@ -1,0 +1,685 @@
+(cd fp/test;./test.fp --all --quiet) 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case copt: a distorted L12 environment with four atoms.
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         rm -f {atm,eula,moms,mixm,rst,rsta,save,log,hssn,wkp,cv,bsmv,bnds,dmats,dmats-save,sigm,qpp}.copt out.lmf.copt
+         cp ./ctrl.copt ./spec.prop .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTLMF --noerr ctrl.copt"
+           lmfa copt -vnsp=2 -cstrx=l12 --pr41,41 -vmet=3 -vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 --rs=0 -vnit=3 --time=5 --no-iactiv
+           lmf  copt -vnsp=2 -cstrx=l12 --pr41,41 -vmet=3 -vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 --rs=0 -vnit=3 --time=5 --no-iactiv --cvK:158,790 -vpwmode=0
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTLMF --noerr ctrl.copt  >& out.lmf.copt
+         Job(s) completed successfully; output in out.lmf.copt
+         FA etot (last species) (-36805.450714) within tol (2e-6) of reference (-36805.450714)? ... yes
+         1st  iter ehf (-2.2636444) within tol (2e-6) of reference (-2.2636444)? ... yes
+         1st  iter max force (39.6) within tol (0.1) of reference (39.6)? ... yes
+         1st  iter mmom (-4.8995818) within tol (1e-4) of reference (-4.8995818)? ... yes
+         last iter ehf (-1.9709171) within tol (2e-6) of reference (-1.9709171)? ... yes
+         last iter max force (35.7) within tol (0.1) of reference (35.7)? ... yes
+         last iter mmom (-4.9991798) within tol (1e-4) of reference (-4.9991798)? ... yes
+         last iter RMS dq (3.16e-2) within tol (1e-4) of reference (3.16e-2)? ... yes
+         test 1 PASSED (copt)
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         ... skipping test : missing reference file ./out.lmf-dos.copt.gz
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.copt.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.copt.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.copt.gz
+ 
+         ./test.fp : all tests PASSED (copt)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case te: molecular statics in an open structure
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         rm -f {atm,eula,moms,mixm,rst,rsta,save,log,hssn,wkp,cv,bsmv,bnds,dmats,dmats-save,sigm,qpp}.te out.lmf.te
+         cp ./ctrl.te .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTLMF --noerr ctrl.te"
+           lmfa te -vminx=t --rs=0,1 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv --wpos=pos
+           lmf  te -vminx=t --rs=0,1 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv --wpos=pos -vles=t
+           rm -f mixm.te
+           lmf  te -vminx=0 --rs=11,0 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1d-4 --no-iactiv -vpwmode=11
+           rm -f mixm.te
+           lmf  te -vminx=0 --rs=11,0 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTLMF --noerr ctrl.te  >& out.lmf.te
+         Job(s) completed successfully; output in out.lmf.te
+         FA etot (last species) (-4853.416830) within tol (2e-6) of reference (-4853.416830)? ... yes
+         1st  iter ehf (-14561.1415765) within tol (2e-6) of reference (-14561.1415765)? ... yes
+         1st  iter max force (46.9) within tol (0.1) of reference (46.9)? ... yes
+         last iter ehf (-14561.1354136) within tol (2e-6) of reference (-14561.1354136)? ... yes
+         last iter E(MTO+PW) (-14561.1423193) within tol (2e-6) of reference (-14561.1423193)? ... yes
+         last iter max force (1.44) within tol (0.002) of reference (1.44)? ... yes
+         last iter RMS dq (4.50e-5) within tol (1e-6) of reference (4.50e-5)? ... yes
+         test 1 PASSED (te)
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         ... skipping test : missing reference file ./out.lmf-dos.te.gz
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.te.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.te.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.te.gz
+ 
+         ./test.fp : all tests PASSED (te)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case zrt: ZrO_2 fluorite in tetragonal setting, with tetragonal distortion
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         rm -f {atm,eula,moms,mixm,rst,rsta,save,log,hssn,wkp,cv,bsmv,bnds,dmats,dmats-save,sigm,qpp}.zrt out.lmf.zrt
+         cp ./ctrl.zrt .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTLMF --noerr ctrl.zrt"
+           lmfa -vfp=1 zrt --no-iactiv
+           lmf  -vnitq=1 -vforce=1 -vfp=1 zrt
+           cp mixm.zrt mixm.zrt~
+           lmf  -vnitq=0 -vforce=1 -vfp=1 zrt --rs=1,2
+           lmf  -vnitq=1 -vforce=1 -vfp=1 zrt --rs=1,1
+           mv mixm.zrt~ mixm.zrt
+           lmf  -vnitq=1 -vforce=1 -vfp=1 zrt --rs=2,0
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTLMF --noerr ctrl.zrt  >& out.lmf.zrt
+         Job(s) completed successfully; output in out.lmf.zrt
+         FA etot (last species) (-149.071489) within tol (2e-6) of reference (-149.071489)? ... yes
+         1st  iter ehf (-14979.4857882) within tol (2e-6) of reference (-14979.4857882)? ... yes
+         1st  iter max force (9.68) within tol (0.01) of reference (9.68)? ... yes
+         last iter ehf (-14979.6104145) within tol (6e-6) of reference (-14979.6104144)? ... yes
+         last iter max force (47) within tol (0.1) of reference (47)? ... yes
+         last iter RMS dq (4.33e-2) within tol (1e-4) of reference (4.33e-2)? ... yes
+         test 1 PASSED (zrt)
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         ... skipping test : missing reference file ./out.lmf-dos.zrt.gz
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.zrt.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.zrt.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.zrt.gz
+ 
+         ./test.fp : all tests PASSED (zrt)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case co: a hexagonal environment with two equivalent atoms.
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         rm -f {atm,eula,moms,mixm,rst,rsta,save,log,hssn,wkp,cv,bsmv,bnds,dmats,dmats-save,sigm,qpp}.co out.lmf.co
+         cp ./ctrl.co ./syml.co .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTLMF --noerr ctrl.co"
+           lmfa  co -vmet=4 -vlmf=1 -vnk=8 -vnit=10 --pr31 --no-iactiv
+           lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 --no-iactiv --rs=0
+           rm mixm.co
+           lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 --no-iactiv
+           rm mixm.co
+           lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=10 -vw1=1 --pr31 --no-iactiv --time=5
+           lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=10 --pr31 --no-iactiv -vso=t --band~col=5:9,14:18~col2=18+5:18+9,18+14:18+18~fn=syml
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTLMF --noerr ctrl.co  >& out.lmf.co
+         Job(s) completed successfully; output in out.lmf.co
+         FA etot (last species) (-2781.537089) within tol (2e-6) of reference (-2781.537089)? ... yes
+         1st  iter ehf (-.985623) within tol (2e-6) of reference (-.985623)? ... yes
+         1st  iter mmom (-3.3332757) within tol (1e-4) of reference (-3.3332757)? ... yes
+         last iter ehf (-.9889676) within tol (2e-6) of reference (-.9889676)? ... yes
+         last iter mmom (-3.2343768) within tol (1e-4) of reference (-3.2343768)? ... yes
+         last iter RMS dq (1.21e-5) within tol (1e-6) of reference (1.21e-5)? ... yes
+         Max deviation in bnds.co from reference (1.0000e-04) within tol (1e-4)? ... yes
+         test 1 PASSED (co)
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         cp ./ctrl.co ./syml.co .
+         rm -f {atm,mixm,rst,save,log,hssn,wkp,dos,tdos,pdos,dos-mull,qpp}.co out.lmf-dos.co
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TSTPDOS --noerr ctrl.co"
+           lmfa  co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv
+           lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2
+           mv dos.co tdos.co
+           echo 501 -.8 .7 | lmdos co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2
+           mv dos.co pdos.co
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TSTPDOS --noerr ctrl.co  >& out.lmf-dos.co
+         Job(s) completed successfully; output in out.lmf-dos.co
+ 
+         Max deviation in pdos from reference (6.7000e-03) within tol (0.01)? ... yes
+         test 2 PASSED (co)
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.co.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.co.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.co.gz
+ 
+         ./test.fp : all tests PASSED (co)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case cr3si6: a hexagonal environment with several atoms, two classes
+         Other checks:
+         verbose output, insulator, forces(mode 1)
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         rm -f {atm,eula,moms,mixm,rst,rsta,save,log,hssn,wkp,cv,bsmv,bnds,dmats,dmats-save,sigm,qpp}.cr3si6 out.lmf.cr3si6
+         cp ./ctrl.cr3si6 .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTLMF --noerr ctrl.cr3si6"
+           lmfa cr3si6 --pr51 -vnit=2 --time=6 --no-iactiv
+           lmf  cr3si6 --pr51 -vnit=2 --time=6 --no-iactiv
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTLMF --noerr ctrl.cr3si6  >& out.lmf.cr3si6
+         Job(s) completed successfully; output in out.lmf.cr3si6
+         FA etot (last species) (-577.640890) within tol (2e-6) of reference (-577.640890)? ... yes
+         1st  iter ehf (-9762.2281912) within tol (2e-6) of reference (-9762.2281912)? ... yes
+         1st  iter max force (20) within tol (0.1) of reference (20)? ... yes
+         last iter ehf (-9762.2645473) within tol (2e-6) of reference (-9762.2645473)? ... yes
+         last iter max force (31.1) within tol (0.1) of reference (31.1)? ... yes
+         last iter RMS dq (5.98e-2) within tol (1e-4) of reference (5.98e-2)? ... yes
+         test 1 PASSED (cr3si6)
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         ... skipping test : missing reference file ./out.lmf-dos.cr3si6.gz
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.cr3si6.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.cr3si6.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.cr3si6.gz
+ 
+         ./test.fp : all tests PASSED (cr3si6)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case Fe: spin-polarized Fe in bcc structure
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         ... skipping test : missing reference file ./out.lmf.fe.gz
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         cp ./ctrl.fe .
+         rm -f {atm,mixm,rst,save,log,hssn,wkp,dos,tdos,pdos,dos-mull,qpp}.fe out.lmf-dos.fe
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTCLS --noerr ctrl.fe"
+           lmfa fe >/dev/null
+           lmf --rs=0 --cls:1,1,2 --mull:mode=2 -vnk=6 -vnit=1 fe
+           mv dos.fe tdos.fe
+           lmdos --cls --dos:wtfn=cls:npts=1001:window=-.7,.8 -vnk=6 fe
+           mv dos.fe dos-cls.fe
+           lmdos --nosym --mull:mode=2 --dos:npts=1001:window=-.7,.8 -vnk=6 fe
+           mv dos.fe dos-mull.fe
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTCLS --noerr ctrl.fe  >& out.lmf-dos.fe
+         Job(s) completed successfully; output in out.lmf-dos.fe
+ 
+         Max deviation in dos-cls from reference (4.7100e-04) within tol (.0015)? ... yes
+         ... files dos-mull.fe and ./dos-mull.fe.gz equivalent to 6 digits? ... no ... to 3 digits? ... ok (1 difference(s) of 174594)
+         test 2 PASSED (fe)
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.fe.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.fe.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.fe.gz
+ 
+         ./test.fp : all tests PASSED (fe)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case cu: illustration of high-lying local orbitals
+                  and bands of Cu up to ~50 eV.
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         rm -f {atm,eula,moms,mixm,rst,rsta,save,log,hssn,wkp,cv,bsmv,bnds,dmats,dmats-save,sigm,qpp}.cu out.lmf.cu
+         cp ./ctrl.cu ./syml.cu .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTLMF --noerr ctrl.cu"
+           lmfa --no-iactiv cu -vnk=8 -vbigbas=f
+           lmf  --no-iactiv cu -vnk=8 -vbigbas=f
+           rm mixm.cu
+           lmf  --no-iactiv cu -vnk=8 -vbigbas=t -vpwmode=0 -voveps=0d-7
+           lmf  --no-iactiv cu -vnk=8 -vbigbas=t -vpwmode=0 -voveps=0d-7 --band:fn=syml
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTLMF --noerr ctrl.cu  >& out.lmf.cu
+         Job(s) completed successfully; output in out.lmf.cu
+         FA etot (last species) (-3304.416258) within tol (2e-6) of reference (-3304.416258)? ... yes
+         1st  iter ehf (-.397568) within tol (2e-6) of reference (-.397568)? ... yes
+         last iter ehf (-.3286618) within tol (2e-6) of reference (-.3286618)? ... yes
+         last iter RMS dq (3.06e-6) within tol (1e-6) of reference (3.06e-6)? ... yes
+         Max deviation in bnds.cu from reference (0.0000e+00) within tol (1e-4)? ... yes
+         test 1 PASSED (cu)
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         ... skipping test : missing reference file ./out.lmf-dos.cu.gz
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.cu.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.cu.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.cu.gz
+ 
+         ./test.fp : all tests PASSED (cu)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case srtio3: an oxide with local orbitals.
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         rm -f {atm,eula,moms,mixm,rst,rsta,save,log,hssn,wkp,cv,bsmv,bnds,dmats,dmats-save,sigm,qpp}.srtio3 out.lmf.srtio3
+         cp ./ctrl.srtio3 .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTLMF --noerr ctrl.srtio3"
+           lmfa -vfrz=f -vtiz=.00 -veloc=0 srtio3
+           lmf  -vfrz=f -vtiz=.00 -veloc=0 srtio3
+           rm mixm.srtio3
+           lmf  -vfrz=f -vtiz=.01 -veloc=0 srtio3 --rs=11,1,1
+           rm mixm.srtio3
+           lmf  -vfrz=f -vtiz=.01 -veloc=0 srtio3 --rs=11,0,1 -vpwmode=1
+           rm mixm.srtio3
+           lmf  -vfrz=f -vtiz=.01 -veloc=1 srtio3 --rs=11,1,1,1,1
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTLMF --noerr ctrl.srtio3  >& out.lmf.srtio3
+         Job(s) completed successfully; output in out.lmf.srtio3
+         FA etot (last species) (-149.071489) within tol (2e-6) of reference (-149.071489)? ... yes
+         1st  iter ehf (-2.8545004) within tol (2e-6) of reference (-2.8545004)? ... yes
+         1st  iter max force (1.83e-5) within tol (1e-5) of reference (1.83e-5)? ... yes
+         last iter ehf (-2.7080585) within tol (2e-6) of reference (-2.7080585)? ... yes
+         last iter E(MTO+PW) (-2.7237563) within tol (2e-6) of reference (-2.7237563)? ... yes
+         last iter max force (14.3) within tol (0.1) of reference (14.3)? ... yes
+         last iter RMS dq (1.45e-5) within tol (2e-6) of reference (1.45e-5)? ... yes
+         test 1 PASSED (srtio3)
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         ... skipping test : missing reference file ./out.lmf-dos.srtio3.gz
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.srtio3.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.srtio3.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.srtio3.gz
+ 
+         ./test.fp : all tests PASSED (srtio3)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case felz: spin-polarized Fe spin-orbit coupling
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         ... skipping test : missing reference file ./out.lmf.felz.gz
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         ... skipping test : missing reference file ./out.lmf-dos.felz.gz
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         rm -f {mixm,rst,save,log,hssn,wkp,bsmv,bnds}.felz
+         cp ./lzsz/ctrl.felz ./lzsz/rsta.felz .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTFSM --noerr ctrl.felz"
+           lmfa -vrel=1 -vnit=1 -vso=0 felz
+           lmf -vrel=1 -vnit=3 -vso=2 --rs=2 felz -vfsmom=-2
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTFSM --noerr ctrl.felz  >& out.lmf.felz
+         Job(s) completed successfully; output in out.lmf.felz
+         FA etot (last species) (-2540.381937) within tol (2e-6) of reference (-2540.381937)? ... yes
+         1st  iter ehf (-2540.9572291) within tol (2e-6) of reference (-2540.9572291)? ... yes
+         1st  iter unconst. mmom (-2.247982) within tol (1e-4) of reference (-2.247982)? ... yes
+         1st  iter mmom (-2.000000) within tol (1e-4) of reference (-2.000000)? ... yes
+         last iter ehf (-2540.976153) within tol (2e-6) of reference (-2540.976153)? ... yes
+         last iter mmom (-2.0000001) within tol (1e-4) of reference (-2.0000001)? ... yes
+         last iter RMS dq (3.41e-4) within tol (1e-4) of reference (3.41e-4)? ... yes
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+ 
+         rm -f {atm,ctrl,fs,moms,mixm,rst,save,log,hssn,wkp,bsmv,syml,bnds}.felz
+         cp ./lzsz/ctrl.felz ./lzsz/rsta.felz .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTSZ --noerr ctrl.felz"
+           lmfa -vrel=1 -vnit=1 -vso=0 felz
+           lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=1
+           lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=1 -voveps=1e-7
+           rm -f mixm.felz
+           lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTSZ --noerr ctrl.felz  >& out.lmf.lzsz.felz
+         Job(s) completed successfully; output in out.lmf.lzsz.felz
+ 
+         last iteration Harris energy     = -2541.0314008
+         last iteration reference energy  = -2541.0314008
+         difference                       = 0
+ 
+         last iteration K-Sham energy     = -2541.0314008
+         last iteration reference energy  = -2541.0314008
+         difference                       = 0
+ 
+         last iteration E(MTO + APW)      = -2541.0346099
+         last iteration ref E(MTO + APW)  = -2541.0346099
+         difference                       = 0
+ 
+         Orbital magnetic moment          = -0.036188
+                reference moment          = -0.036188
+         difference                       = 0
+ 
+         Orbital moment (-0.036188) within tol (0.00001) of reference (-0.036188)? ... yes
+         last iter ehf (-2541.0314008) within tol (2e-6) of reference (-2541.0314008)? ... yes
+         last iter ehk (-2541.0314008) within tol (2e-6) of reference (-2541.0314008)? ... yes
+         last iter E(MTO+PW) (-2541.0346099) within tol (2e-6) of reference (-2541.0346099)? ... yes
+         test 4a PASSED
+ 
+         Calculate orbital moment with FULL SPIN ORBIT
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTSO --noerr ctrl.felz"
+           lmf -vrel=1 -vnit=1 -vso=1 --rs=2 felz
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTSO --noerr ctrl.felz  >& out.lmf.ls.felz
+         Job(s) completed successfully; output in out.lmf.ls.felz
+ 
+         Orbital magnetic moment WITH FULL SPIN ORBIT= -0.036932
+                 reference moment                    = -0.036932
+ 
+         Orbital moment (-0.036188) within tol (0.00001) of reference (-0.036188)? ... yes
+         test 4b PASSED
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.felz.gz
+ 
+         ./test.fp : all tests PASSED (felz)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case GaAs: GaAs with spin-orbit coupling
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         ... skipping test : missing reference file ./out.lmf.gasls.gz
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         ... skipping test : missing reference file ./out.lmf-dos.gasls.gz
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.gasls.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.gasls.gz
+ 
+         rm -f {ctrl,rst,syml,wkp,bnds}.gasls
+         cp ./ls/ctrl.gasls ./ls/rsta.gasls ./ls/syml.gasls .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTSO --noerr ctrl.gasls"
+           lmf --rs=2 -vso=1 -vnit=1 gasls --band:fn=syml -vpwmode=0
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTSO --noerr ctrl.gasls  >& out.lmf.gasls
+         Job(s) completed successfully; output in out.lmf.gasls
+         Spin-Orbit splitting at the Gamma point = 0.0000 eV ( states -1.1579 and -1.1579 )
+                reference splitting              = 0.3347 eV
+ 
+         Levels at the Gamma point match reference? ... no
+         Splitting at the Gamma point (0.0000) within tol (0.0001) of reference (0.3347)? ... no
+         test 4c FAILED
+ 
+         ./test.fp : These tests FAILED: 4c
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case GdN: Test of LDA+U, and also LDA with spin polarized 4f core
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         rm -f {atm,eula,moms,mixm,rst,rsta,save,log,hssn,wkp,cv,bsmv,bnds,dmats,dmats-save,sigm,qpp}.gdn out.lmf.gdn
+         cp ./ctrl.gdn ./occnum.gdn .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTLMF --noerr ctrl.gdn"
+           lmfa gdn
+           lmf  gdn
+           mv rst.gdn rst-save.gdn
+           mv dmats.gdn dmats-save.gdn
+           rm -f rst.gdn wkp.gdn mixm.gdn
+           cp rst-save.gdn rst.gdn
+           cp dmats-save.gdn dmats.gdn
+           lmf  gdn --rs=1,0 -vpwmode=1
+           rm -f rst.gdn wkp.gdn mixm.gdn
+           lmfa gdn -vcoref=t
+           lmf  gdn -vcoref=t
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTLMF --noerr ctrl.gdn  >& out.lmf.gdn
+         Job(s) completed successfully; output in out.lmf.gdn
+         FA etot (last species) (-108.129589) within tol (2e-6) of reference (-108.129589)? ... yes
+         1st  iter ehf (-2.9628095) within tol (2e-6) of reference (-2.9628096)? ... yes
+         1st  iter mmom (6.9999955) within tol (1e-4) of reference (6.9999955)? ... yes
+         last iter ehf (-.9331799) within tol (2e-6) of reference (-.9331799)? ... yes
+         last iter E(LDA+U) (-22636.651731) within tol (2e-6) of reference (-22636.651731)? ... yes
+         last iter E(MTO+PW) (-2.855337) within tol (2e-6) of reference (-2.855337)? ... yes
+         last iter mmom (7.0928665) within tol (1e-4) of reference (7.0928665)? ... yes
+         last iter RMS dq (6.76e-6) within tol (1e-4) of reference (6.76e-6)? ... yes
+         test 1 PASSED (gdn)
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         cp ./ctrl.gdn ./occnum.gdn .
+         rm -f {atm,mixm,rst,save,log,hssn,wkp,dos,tdos,pdos,dos-mull,qpp}.gdn out.lmf-dos.gdn
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTCLS --noerr ctrl.gdn"
+           cp rst-save.gdn rst.gdn
+           cp dmats-save.gdn dmats.gdn
+           lmf gdn --mull:mode=1 -vnk=6 -vnit=1 -vso=t
+           mv dos.gdn tdos.gdn
+           lmdos --nosym -vso=t --mull:mode=1 --dos:fpdos:npts=1001:window=-1,1 -vnk=6 gdn
+           mv dos.gdn dos-mull.gdn
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTCLS --noerr ctrl.gdn  >& out.lmf-dos.gdn
+         Job(s) completed successfully; output in out.lmf-dos.gdn
+ 
+         ... files dos-mull.gdn and ./dos-mull.gdn.gz equivalent to 6 digits? ... no ... to 3 digits? ... ok (52 difference(s) of 72539)
+         test 2 PASSED (gdn)
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.gdn.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.gdn.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.gdn.gz
+ 
+         ./test.fp : all tests PASSED (gdn)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case ErAs: Test of LDA+U
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         rm -f {atm,eula,moms,mixm,rst,rsta,save,log,hssn,wkp,cv,bsmv,bnds,dmats,dmats-save,sigm,qpp}.eras out.lmf.eras
+         cp ./ctrl.eras ./occnum.eras .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTLMF --noerr ctrl.eras"
+           lmfa eras
+           lmf -vnit=1 --pr51 eras
+           lmf -vnit=30 eras
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTLMF --noerr ctrl.eras  >& out.lmf.eras
+         Job(s) completed successfully; output in out.lmf.eras
+         FA etot (last species) (-4515.355214) within tol (2e-6) of reference (-4515.355214)? ... yes
+         1st  iter ehf (-3.5796172) within tol (2e-6) of reference (-3.5796173)? ... yes
+         1st  iter mmom (3.0017847) within tol (1e-4) of reference (3.0017847)? ... yes
+         last iter ehf (-3.821588) within tol (2e-6) of reference (-3.8215882)? ... yes
+         last iter E(LDA+U) (-30671.630583) within tol (2e-6) of reference (-30671.630583)? ... yes
+         last iter mmom (3.0068062) within tol (1e-4) of reference (3.0068062)? ... yes
+         last iter RMS dq (8.90e-6) within tol (1e-4) of reference (8.91e-6)? ... yes
+         test 1 PASSED (eras)
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         ... skipping test : missing reference file ./out.lmf-dos.eras.gz
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.eras.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.eras.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.eras.gz
+ 
+         ./test.fp : all tests PASSED (eras)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case C: test of homogeneous background
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         ... skipping test : missing reference file ./out.lmf.c.gz
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         ... skipping test : missing reference file ./out.lmf-dos.c.gz
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         rm -f {mixm,rst,save,log,hssn,wkp,bsmv,bnds}.c
+         cp ./ctrl.c .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTLMF --noerr ctrl.c"
+           lmfa --no-iactiv c -vzbak=0
+           lmf  --no-iactiv c -vzbak=0
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTLMF --noerr ctrl.c  >& out.lmf.c
+         Job(s) completed successfully; output in out.lmf.c
+         FA etot (last species) (-74.994908) within tol (2e-6) of reference (-74.994908)? ... yes
+         1st  iter ehf (-.0010887) within tol (2e-6) of reference (-.0010887)? ... yes
+         1st  iter max force (0) within tol (0.1) of reference (0)? ... yes
+         1st  iter mmom (1.9999996) within tol (1e-4) of reference (1.9999996)? ... yes
+         last iter ehf (-.001038) within tol (2e-6) of reference (-.001038)? ... yes
+         last iter max force (0) within tol (0.1) of reference (0)? ... yes
+         last iter mmom (1.9999997) within tol (1e-4) of reference (1.9999997)? ... yes
+         last iter RMS dq (1.85e-4) within tol (5e-6) of reference (1.85e-4)? ... yes
+ 
+         ... repeat for ionized case
+ 
+         rm -f {mixm,rst,save,log,hssn,wkp,bsmv,bnds}.c
+         cp ./ctrl.c .
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTION --noerr ctrl.c"
+           lmfa --no-iactiv c -vzbak=1
+           lmf  --no-iactiv c -vzbak=1
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTION --noerr ctrl.c  >& out.lmf.c
+         Job(s) completed successfully; output in out.lmf.c
+         FA etot (last species) (-74.994908) within tol (2e-6) of reference (-74.994908)? ... yes
+         1st  iter ehf (.4093368) within tol (2e-6) of reference (.4093368)? ... yes
+         1st  iter max force (0) within tol (0.1) of reference (0)? ... yes
+         1st  iter mmom (.9999997) within tol (1e-4) of reference (.9999997)? ... yes
+         last iter ehf (.5520506) within tol (2e-6) of reference (.5520506)? ... yes
+         last iter max force (0) within tol (0.1) of reference (0)? ... yes
+         last iter mmom (.9999997) within tol (1e-4) of reference (.9999997)? ... yes
+         last iter RMS dq (2.40e-5) within tol (5e-6) of reference (2.40e-5)? ... yes
+         test 3 PASSED (c)
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.c.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.c.gz
+ 
+         ./test.fp : all tests PASSED (c)
+ 
+ 
+         ---- test.fp: test FP program lmf ---
+         Case CrN: test of CLS with core hole
+
+         --- Test 1.  Basic check of programs lmfa,lmf ---
+         Checks that program lmfa produces a sensible atm file
+         and that program lmf iterates to the proper energy.
+
+         ... skipping test : missing reference file ./out.lmf.crn.gz
+
+         --- Test 2.  Core-level spectroscopy (EELS), Mulliken analysis, partial DOS ---
+
+         cp ./ctrl.crn .
+         rm -f {atm,mixm,rst,save,log,hssn,wkp,dos,tdos,pdos,dos-mull,qpp}.crn out.lmf-dos.crn
+         ... the following job(s) will be executed by invoking "rdcmd -cat:TESTCLS --noerr ctrl.crn"
+           lmfa crn
+           lmf crn
+           lmf --rs=1,0 --cls:5,0,1 -vnit=1 -vmetal=2 crn
+           lmdos --dos:cls:window=0,1:npts=101 --cls crn
+           mv dos.crn dos-cls.crn
+         ... starting invocation of rdcmd:
+         /home/takao/ecal/lm-7.0betaK001/rdcmd '-f:#rdcmd:%2f' -cat:TESTCLS --noerr ctrl.crn  >& out.lmf-dos.crn
+         Job(s) completed successfully; output in out.lmf-dos.crn
+ 
+         Max deviation in dos-cls from reference (3.1000e-05) within tol (1e-4)? ... yes
+         test 2 PASSED (crn)
+
+         --- Test 3.  Check of miscellaneous special features, programs lmfa,lmf ---
+
+         ... skipping test : missing reference file ./out.lmf.neutral.crn.gz
+
+         --- Test case 4:  Spin-orbit coupling ---
+
+         ... skipping orbital moments test : missing reference file ./out.lmf.lzsz.crn.gz
+         ... skipping band splitting test :  missing reference file ./out.lmf.ls-bands.crn.gz
+ 
+         ./test.fp : all tests PASSED (crn)
+ 
+         checks FAILED for the following materials:  gasls

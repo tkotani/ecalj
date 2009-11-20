@@ -264,8 +264,8 @@ C ... Run through links, come back here (81)
   81  write(lgunit(1),600) irnd(ipmax-1),irnd(limit),irnd(ncall)
       if (lgunit(2) .gt. 0)
      .write(lgunit(2),600) irnd(ipmax-1),irnd(limit),irnd(ncall)
-  600 format(' wkinfo:  used',i6,' K  workspace of',i6,
-     .  ' K   in',i4,' K calls')
+  600 format(' wkinfo:  used ',i8,' K  workspace of ',i8,
+     .  ' K   in',i6,' K calls')
       if (ipfree .eq. qqq) return
       if (jpr .gt. 0) write(*,602)
   602 FORMAT(/'    array',5X,'begin',7X,'end',6X,'length')

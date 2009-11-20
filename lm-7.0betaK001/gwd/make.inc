@@ -10,5 +10,4 @@ gwd_list=\
 	stonerpb.o \
 	stonerrsa.o \
 	sugw.o \
-	sugwin.o \
 	suq0x.o

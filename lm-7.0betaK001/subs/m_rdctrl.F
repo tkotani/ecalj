@@ -1110,6 +1110,10 @@ C     endif
      .  kmxt(nspec),kmxv(nspec),
      .  lfoca(nspec),lmxl(nspec),lxi(nspec),lmxa(nspec),lmxb(nspec))
 
+ctakao Sep2009
+      mxcst1=F
+      mxcst2=F
+      mxcst4=F
 
 c      jc = 0
 c      if (optio .eq. 2) nkaph = nglob('nkaph')
@@ -1137,6 +1141,9 @@ c      stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
       idmod = NULLI
       ehvl = NULLR
       do  j = 1, nspec
+cccccccccccccccccccccctakao
+      if(debug) print *,'nspec mxcst j-loop j nspec',j,nspec
+ccccccccccccccccccccccc
         colxbs(:,j) = NULLR; radxbs(j) = NULLR
         rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
         rham(j) = NULLR; rsma(j) = 0d0; rsmfa(j) = 0d0
@@ -1159,6 +1166,8 @@ c      stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
         nm='SPEC_ATOM_Z'; call gtv(trim(nm),tksw(prgn,nm),z(j),
      .    cindx=jj,note='Atomic number')
 
+cccccccccccccccccccccctakao
+      if(debug) print *,'nspec aaa mxcst j-loop j nspec',j,nspec
         sw = tksw(prgn,'SPEC_ATOM_R')
         if (sw /= 2) then
           nout = 0
@@ -1182,6 +1191,9 @@ c takao for lmchk even when R is not given. See default of LMCHK
           endif
         endif
         if (ltbe) rmt(j) = 1d0
+
+cccccccccccccccccccccctakao
+      if(debug) print *,'nspec bbb mxcst j-loop j nspec',j,nspec
 
 C   ... Radial mesh parameters: determine default value of a
         i0 = NULLI
@@ -1233,6 +1245,8 @@ C       nlbji: ditto, but used to specify number of default values
           nlbji = NULLI
           nlbj = 0
         endif
+cccccccccccccccccccccctakao
+      if(debug) print *,'nspec ccc mxcst j-loop j nspec',j,nspec
 
 C   ... Basis set for lmf
         nm='SPEC_ATOM_RSMH'; call gtv(trim(nm),tksw(prgn,nm),
@@ -1270,6 +1284,8 @@ C         Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
      .    eh2(1:nlbj,j),nmin=nn,cindx=jj,
      .    note='Basis kinetic energies, second group')
         endif
+cccccccccccccccccccccctakao
+      if(debug) print *,'nspec ddd mxcst j-loop j nspec',j,nspec
 
         nm='SPEC_ATOM_EHVL'; call gtv(trim(nm),tksw(prgn,nm),
      .    ehvl(1:nlbj,j),cindx=jj,def_r8v=(/(-0.5d0,i=1,n0)/),
@@ -1277,6 +1293,9 @@ C         Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
 
 C   ... Determine lmxa: floating orbitals have no lmxa
         nm='SPEC_ATOM_LMXA'; sw = tksw(prgn,nm)
+ccccccccccccccccccc takao ccccc
+      if(debug) print *,'nspec ddd000 mxcst j rmt io_help lmxa=',j,rmt(j),io_help,lmxa(j)
+cccccccccccccccccccccccccccccc
         if (rmt(j) == 0.and.io_help/=1) then !takao iohelp/=1 added.
           lmxa(j) = -1
         elseif (sw == 2) then   !lmxa not read: look for subsitute
@@ -1306,6 +1325,9 @@ C       nlaj = number of elements associated with lmxa
 C              0 => no elements
 C       nlaji: ditto, but used to specify number of default values
         nlaj = 1+lmxaj
+ccccccccccccccccccc takao ccccc
+      if(debug) print *,'nspec ddd111 mxcst j-loop j nspec nlaj lmxaj=',j,nspec,nlaj,lmxaj
+cccccccccccccccccccccccccccccc
         nlaji = nlaj
         if (io_help .eq. 1) then
           nlaji = NULLI
@@ -1316,6 +1338,7 @@ C       nlaji: ditto, but used to specify number of default values
         endif
 C        if (lmxaj == NULLI) nlaj = NULLI
 C        if (lmxaj == NULLI) nlaji = NULLI
+
 
 
 C   ... Parameters that depend on the existence of an augmentation sphere
@@ -1345,7 +1368,11 @@ C       rsmv(j) = rmt(j)*.5d0   !Not input
         pnu(1,1,j) = NULLI      !If sought, default will be set below
         qnu(1,1,j) = NULLI      !If sought, default will be set below
 
-        if (nlaj .ne. 0) then
+cccccccccccccccccccccctakao
+      if(debug) print *,'nspec ddd222 mxcst j-loop j nspec nlaj=',j,nspec,nlaj
+ccccccccccccccccccccccccccc
+
+       if (nlaj .ne. 0) then
 
          nm='SPEC_ATOM_LMXL'; call gtv(trim(nm),tksw(prgn,nm),lmxl(j),
      .      cindx=jj,def_i4=lmxaj,note=
@@ -1490,6 +1517,9 @@ C       'Hard Core' radius entering into strux
           call dscal(nout,rmt(j),hcr(1,j),1)
         endif
 
+cccccccccccccccccccccctakao
+      if(debug) print *,'nspec eee mxcst j-loop j nspec',j,nspec
+
 C       ASA tight-binding alpha parameters
         call dpzero(xv,n0)
         lp1 = nlbj
@@ -1510,6 +1540,7 @@ C         Determine effective 1+lmxb: neglected orbitals => reduce lmxb
           call dcopy(5,tbalph(1,lp1),1,xv,1)
         endif
         endif
+
         i0 = lp1
         if (lmxbj == NULLI) i0 = NULLI
 C       Copy all 5 screening parameters, to avoid division zero
@@ -1525,11 +1556,16 @@ C       Copy all 5 screening parameters, to avoid division zero
         nm='SPEC_ATOM_DV'; call gtv(trim(nm),tksw(prgn,nm),dv(j),
      .    def_r8=0d0,cindx=jj,note='Artificial constant potential '//
      .    'shift added to spheres belonging to this species')
-
+ccccccccccccccc
+c        mxcst1(j)=F
+ccccccccccccccc
         nm='SPEC_ATOM_MIX'; call gtv(trim(nm),tksw(prgn,nm),mxcst1(j),
      .    def_lg=F,cindx=jj,note='Set to suppress '//
      .    'self-consistency of classes in this spec')
-
+ccccccccccccccccccccccccc
+        if(debug) print *,' mxcst nspec 111 =',nspec,j,jj,mxcst1(j)
+c        stop 'xxxxxxxxxxxx'
+ccccccccccccccccccccccccc
         nm='SPEC_ATOM_CSTRMX'; call gtv(trim(nm),tksw(prgn,nm),
      .    mxcst2(j),cindx=jj,def_lg=F,note='Set to exclude this'//
      .    ' species when automatically resizing sphere radii'//
@@ -1540,7 +1576,9 @@ C       Copy all 5 screening parameters, to avoid division zero
      .    mxcst4(j),cindx=jj,def_lg=F,note=
      .    'Set to freeze augmentation wave functions for this species')
 
-        endif    ! end of input dependent on presence of aug sphere.
+      endif    ! end of input dependent on presence of aug sphere.
+cccccccccccccccccccccctakao
+      if(debug) print *,'nspec eee222 mxcst j-loop j nspec',j,nspec
 
         nm='SPEC_ATOM_RHAM'; call gtv(trim(nm),tksw(prgn,nm),rham(j),
      .    cindx=jj,note='Radius delimiting range of r.s. hamiltonian')
@@ -2060,7 +2098,6 @@ C --- Brillouin Zone ---
      .  def_r8=5d-3,note=
      .  'N>=0: Line broadening for sampling integration%N%3f'//
      .  'N<0 : Temperature for Fermi distribution (Ry)')
-
       nm='BZ_EF0'; call gtv(trim(nm),tksw(prgn,nm),bz_ef,
      .  def_r8=0d0,note='Initial guess at Fermi energy')
       nm='BZ_DELEF'; call gtv(trim(nm),tksw(prgn,nm),bz_def,
@@ -3118,6 +3155,13 @@ C      call tkadd(" DYN_MD~")
 C      call tkadd(" DYN_MSTAT~")
 C      call tkadd(" DYN_NIT~")
 C      call tkadd(" DYN_PDEF~")
+
+c This call tkadd(" SPEC_ATOM_MIX~") was missing,
+c then the initialization of default values for mxcst are not supplied
+c   --->this results in a strange behevior!!  
+c takao Sep11-tukuba 2009
+      call tkadd(" SPEC_ATOM_MIX~")
+
 C --- LMFGWD switches ---
       call nswadd()
       call tkadd(" LMFGWD::" )
@@ -3313,6 +3357,15 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" SPEC_ATOM_R/W")
       call tkadd(" SPEC_ATOM_UH~")
       call tkadd(" SPEC_ATOM_Z")
+
+
+c This call tkadd(" SPEC_ATOM_MIX~") was missing,
+c then the initialization of default values for mxcst are not supplied
+c   --->this results in a strange behevior!!  
+c takao Sep11-tukuba 2009
+      call tkadd(" SPEC_ATOM_MIX~")
+
+
 C ... for LMFRS
       call tkadd(" SPEC_ATOM_HCR~")
       call tkadd(" SPEC_ATOM_HCR/R~")

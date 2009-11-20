@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 # This routine checks module-dependency in fortran90 and compile them in right order.
 #
 import os
@@ -309,6 +309,9 @@ print ' rfun=',rfun
 for i in skeys:
 	filen= sdef[i][0] 
 	slines=sdef[i][5]
+
+# 	print 'fff ',filen, slines
+
 #	init = sdef[i][1]
 #	end  = sdef[i][2]
 #	print 'def@  ', i,filen,init,end 
@@ -336,6 +339,7 @@ for i in skeys:
 #	for ic in sdef[i][4]:
 #		print 'cal@  ', i,' ',ic[0],ic[1],ic[2]
 
+#sys.exit()
 
 ### Write definition and call. ####
 print '#############################################'

@@ -320,6 +320,7 @@ c extensiton to nbloch+ngc
       cmelt (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,1:ntp0)
      & = dimag( zmelpl(1:ngc,         1:nt0,        1:ntp0) )
       deallocate(zmelpl)
+
       end
 
 c------------------------------------------------------
@@ -389,7 +390,6 @@ c      qdiff = matmul(symope,qibz(1:3,k)) - qbz(:,iq) + qbz(:,kp)
       endif
 
       allocate( zmelpl(ngc,nt0,ntp0) )
-
 cccccccccccccccccccccccccccccccccccccccccccccccc
 c      if(.false.) then !old version
 c      call melpln( ngp1, ngvecpB  (:,1:ngp1, iq)
@@ -630,16 +630,17 @@ c-------------------------------------------------
       integer(4):: ngp1, ngvecp1(3,ngp1), ngp2, ngvecp2(3,ngp2),
      &     itp,it, ngc,nnum,inum,ig1,ig2,igc,ntp0,nt0,
      &     nadd(3)   !ngvecc(3,ngc)
-      complex(8):: geigq1(ngp1,ntp0), geigq1_(ntp0,ngp1),!sf
-     &          geigq2(ngp2,nt0),ge2,zmelp(ngc,nt0,ntp0), !sf
+      complex(8):: geigq1(ngp1,ntp0), geigq1_(ntp0,ngp1),
+     &          geigq2(ngp2,nt0),ge2,zmelp(ngc,nt0*ntp0),  !it was zmelp(ngc,nt0,ntp0); but no effect sep2009.
      &             img=(0d0,1d0) ,phas         ,phase2
       real(8)::  q(3),qi(3),qg(3),qbas(3,3),shtv(3)
      & ,pi=3.1415926535897932D0, symope(3,3)   ,qx(3)
       integer(4),allocatable :: ipp(:,:,:)
-      complex(8),allocatable :: gg(:,:,:),gg_(:,:,:),xxx(:,:)
+      complex(8),allocatable :: gg(:,:),gg_(:,:,:),xxx(:,:)
       integer(4) :: iqi,igc2,ngcx,nn(1:3),
      &       nxmin,nymin,nzmin,nxmax,nymax,nzmax,ix,iy
-      integer(4)::verbose
+      integer(4)::verbose,nomatm
+
 c------------------------------
       if(verbose()>=100) print *,' melpln2: '
 c- Get ppx and ngvecc2
@@ -692,15 +693,15 @@ c      enddo
 c      print *," melpln2:goto ig1 ig2 loop"
 c #ifdef EXPAND_MELPLN2
 
-      allocate(gg(ngc2,nt0,ntp0),gg_(ntp0,nt0,ngc2)) !sf
+      allocate(gg(ngc2,nt0*ntp0),gg_(ntp0,nt0,ngc2)) !sf
       gg_=0d0 !sf
       do ig1 = 1,ngp1
-        do ig2 = 1,ngp2
-          nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd
-          if(nn(1)<nxmin.or.nn(1)>nxmax) stop "melpln2:nn(1) out of range"
-          if(nn(2)<nymin.or.nn(2)>nymax) stop "melpln2:nn(2) out of range"
-          if(nn(3)<nzmin.or.nn(3)>nzmax) stop "melpln2:nn(3) out of range"
-        enddo
+      do ig2 = 1,ngp2
+        nn(1:3) = ngvecp1(1:3,ig1)-ngvecp2(1:3,ig2) - nadd
+        if(nn(1)<nxmin.or.nn(1)>nxmax) stop "melpln2:nn(1) out of range"
+        if(nn(2)<nymin.or.nn(2)>nymax) stop "melpln2:nn(2) out of range"
+        if(nn(3)<nzmin.or.nn(3)>nzmax) stop "melpln2:nn(3) out of range"
+      enddo
       enddo
 
 
@@ -722,18 +723,19 @@ c #ifdef EXPAND_MELPLN2
 !$OMP end parallel do
       enddo
 
-
       do itp=1,ntp0
         do it =1,nt0
           do igc2=1,ngc2
-            gg(igc2,it,itp)=gg_(itp,it,igc2)
+            gg(igc2,it+(itp-1)*nt0)=gg_(itp,it,igc2)
           enddo
         enddo
       enddo
-
-
-      deallocate(gg_) ! sf
-      call matm(ppx,gg,zmelp,ngc,ngc2,ntp0*nt0)
+      deallocate(gg_)
+c      if(nomatm()==1) then !sep2009 for case to avoid bug in zgemm (called in matm)
+c        zmelp = matmul(ppx(1:ngc,1:ngc2),gg)
+c      else
+       call matm(ppx,gg,zmelp,ngc,ngc2,ntp0*nt0)
+c      endif
       deallocate(ppx,gg,ngvecc2,ipp)
       zmelp = dconjg(zmelp) ! <P^Gc Psi2| Psi1> -> <Psi1| Psi2 P^Gc >
       end

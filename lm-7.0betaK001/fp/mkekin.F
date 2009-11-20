@@ -185,7 +185,7 @@ C     Note that it does not include the term (n0~-n0) Ves0~
       call mshint(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,qum1,qum2)
       srmesh = sum1 + vconst*qum1
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      write(6,"('rrrr: mkekin :sum1 vconst*qum1 ',10d13.6)") 
+c      write(6,"('vvv: mkekin :sum1 vconst*qum1 ',10d13.6)") 
 c     &  sum1,vconst*qum1
 c      write(6,"(a,12d13.5)")'rrrrs: smchk smrho 1'
 c     &  , sum(smrho(:,:,:,1)), sum(abs(smrho(:,:,:,1)))

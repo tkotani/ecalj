@@ -507,6 +507,7 @@ eout2: $(EO2)
  $(gwsrc)rw.o \
  $(gwsrc)rydberg.o \
  $(gwsrc)iprint.o \
+ $(gwsrc)rwbzdata.o \
  $(slatsmlib)dmcpy.o \
  $(slatsmlib)dsifa.o \
  $(slatsmlib)dsisl.o \

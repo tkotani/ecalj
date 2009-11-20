@@ -1142,7 +1142,7 @@ HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initia
       GMAX=9    # this is for real space mesh. See GetStarted.
       REL=T     # T:Scaler relativistic, F:non rela.
 
-      XCFUN=1   # =1 for Vosko-Ceperly-Alder; GGA is not yet.
+      XCFUN=1   # =1 for VWN; GGA is not yet.
                 # XCFUN=2 shows a bug for Hydrogen atom. 
 		# (subs/evxc.F works only for XCFUN=1 if rho(up)=0 or rho(down)=0).
 

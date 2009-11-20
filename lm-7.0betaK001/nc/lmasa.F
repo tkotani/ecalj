@@ -541,7 +541,7 @@ C ... Keep a copy of input P,Q and related parameters
         call dcopy(2*nqpp*4*nsp*nbas,w(oqpp),1,w(oqppo),1)
       endif
 
-      call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn)
+      call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
 
 C ... Quit if --quit=ham given
       if (igets('ctrl quit',sctrl) .eq. 8) then

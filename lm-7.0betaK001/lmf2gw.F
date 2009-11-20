@@ -241,7 +241,7 @@ c      write(6,'('' nband=ndimh (max) '',i5)') nbandmx
       do ikp = 1,nqbze
       do isp = 1, nsp
         read (ifigwb) qbze(:,ikp),nband
-        write(6,"(a,3i6,3x,3f11.6)") 'ikp isp nband q=',
+        write(6,"(a,3i6,3x,3f11.6,$)") 'ikp isp nband q=',
      &  ikp,isp,nband, qbze(:,ikp)
 
 c     &  zegf(nband,nband)
@@ -274,6 +274,9 @@ c --- Plane wave part
 c        if(cphigeigmode) then
           write(ificg) ngp
           write(ificg) geig(1:ngp,1:nbandmx)
+c sum check
+        write(6,'("  geig sumcheck= ",2d13.6)') sum(geig(1:ngp,1:nband))
+
 c        else
 c          geig_d(1:ngp,1:nband,ikp,isp) = geig(1:ngp,1:nband)
 c        endif

@@ -31,7 +31,6 @@ C ... Local parameters
 C ... Heap
       integer w(1)
       common /w/ w
-
       call info0(50,1,0,' supot : potential setup ... ')
 
       call upack('ctrl nbas nbasp nspin',sctrl,nbas,nbasp,nsp,0,0)
@@ -58,7 +57,6 @@ C --- Setup for FT charge density, potential representation ---
 C   ... Generate energy cutoff gmax or n1..n3
         call pshpr(iprint()-0)
         call mshsiz(alat,plat,0,gmax,ngabc,ngmx)
-        call poppr
         call fftz30(n1,n2,n3,k1,k2,k3)
 
 C   ... Make list of lattice vectors within cutoff

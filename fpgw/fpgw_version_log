@@ -1,5 +1,14 @@
 === Version log ==== Check version by echo -9999|qg4gw and so. ===============
 
+18Nov2009
+
+Still developing QSGW on PMT version.
+interpolation with PW do not work well yet.
+
+Go through testgw.py for fpgw, and make check for lmf.
+Need to change subs/newsigmaswitch.F for new sigma-interpolation (developing).
+
+
 30April 2009
 temporary version. with lmv7.
 It reproduced old TESTintall (for fe_chipm I saw slight

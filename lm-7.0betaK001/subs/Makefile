@@ -476,7 +476,8 @@ $(SUBS):	$(SUBS)(acoord.o) \
 	$(SUBS)(rdctrlchk.o) \
 	$(SUBS)(m_toksw.o) \
 	$(SUBS)(writebasis.o) \
-	$(SUBS)(suqlst.o) 
+	$(SUBS)(suqlst.o) \
+	$(SUBS)(switch.o)
 	$(RANLIB) $@
  
 clean: 

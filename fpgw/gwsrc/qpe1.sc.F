@@ -103,8 +103,8 @@ c loop over q-vector
 c    &'           q               state  SEx   SExcore SEc    vxc    dSE
 c    &  dSEnoZ  eLDA  eQPnoZ  eQPnoZ  eHF  Z=1  FWHM=2Z*Simg  ReS(elda)'
      &'           q               state  SEx   SExcore SEc    vxc   ---'
-     &// '  dSEnoZ  eQP    '//
-     &'------  ------  eHF  Z=1  FWHM=2Z*Simg ReS(elda)'
+     &// '   dSEnoZ  eQP(starting by lmf)'//
+     &'  eHF  Z=1  FWHM=2Z*Simg ReS(elda)'
 c
       do      iq = 1,nq
         do      it = 1,ntq
@@ -118,13 +118,22 @@ c
           fwhm  =  2d0*csec(it,iq) * zfac(it,iq)  !takao multiply zfac  !sf..13May2002
           ehf   =  elda(it,iq) + sex(it,iq)+ sexcore(it,iq) - vxc(it,iq)
 
-          write(ifqpe,6100) q(1:3,it,iq),itq(it),sex(it,iq),sexcore(it,iq)
-     &     ,rsec(it,iq),                                 !sf
-     &     vxc(it,iq), 0d0, eshift2,elda(it,iq)+eshtlda,
-c     &      eqp(it,iq), eqp2(it,iq), ehf,zfac(it,iq),fwhm, 
-     &      0d0, 0d0, ehf,zfac(it,iq),fwhm, 
-     .      sex(it,iq)+sexcore(it,iq)+rsec(it,iq)        !sf
- 6100     format (3f9.5,1x,i2,1x,10f7.2,f5.2,f10.5,3x,f10.5)
+          
+          if(elda(it,iq)<1d20) then
+            ehfx = ehf
+            dsenoz = eshift2 
+            if(abs(sex(it,iq))+abs(sexcore(it,iq))+abs(rsec(it,iq))==0d0) then
+              dsenoz= 0d0
+              ehfx  = 0d0
+            endif
+            write(ifqpe,6100) q(1:3,it,iq),itq(it),sex(it,iq),sexcore(it,iq)
+     &        ,rsec(it,iq),                                 !sf
+     &        vxc(it,iq), 0d0, dsenoz, elda(it,iq)+eshtlda,
+c     &       eqp(it,iq), eqp2(it,iq), ehf,zfac(it,iq),fwhm, 
+     &        0d0, 0d0, ehfx,zfac(it,iq),fwhm, 
+     .        sex(it,iq)+sexcore(it,iq)+rsec(it,iq)        !sf
+ 6100       format (3f9.5,1x,i2,1x,10f7.2,f5.2,f10.5,3x,f10.5)
+          endif
 
           eqp01= elda(it,iq) + eshift
           eqp02= elda(it,iq) + eshift2

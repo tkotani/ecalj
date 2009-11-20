@@ -2,6 +2,8 @@
      . prgnam,vrsion,vn,vn2,
      . pass2,slabl_,osbz,osctrl,osham,ospot,oslat,osmix,osspec,ossite,
      . osstr,osarry,osmove,ostb,sstrn)
+      use m_rdctrl
+      use m_gtv
 C- Main input for LMTO programs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -134,8 +136,6 @@ Cu   15 Feb 02 (ATP) Added MPI parallelization
 Cu   24 Aug 01 Extended to handle local orbitals.
 Cu   28 Apr 98 code for new category 'OPTICS'
 C ----------------------------------------------------------------------
-      use m_rdctrl
-      use m_gtv
 C     implicit none
 C     include "mpif.h"
 C ... Passed parameters
@@ -676,6 +676,10 @@ C       Set idxdn
      .    lmxa(j),lmxb(j),lmxl(j),lmxpb(j))
 C       pack mxcst(j)        
         i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
+ccccccccccccccccccccccc
+        print *,' mxcst switch =',j,i,mxcst1(j),mxcst2(j),mxcst4(j)
+c        i=0
+ccccccccccccccccccccccc
 C       pack orbp(j)
         call dpzero(orbp,n0*2*nkap0)
         call dcopy(n0,rsmh(1,j),1,orbp(1,1,1),1)

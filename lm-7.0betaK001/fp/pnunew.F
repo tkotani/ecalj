@@ -134,6 +134,7 @@ C           dphip = (slo(2)-phip)/rmt
               dl = rmt*slo(1)/val(1) - 1
               p1 = 0.5d0 - datan(dl)/pi
             elseif (ipr .ge. 10) then
+              print *,' node =',nn
               call info2(10,0,0,' (warning) failed to find proper '
      .          //'node count for l=%i  ebar=%;4d: pnu not calc',l,
      .          ebar)

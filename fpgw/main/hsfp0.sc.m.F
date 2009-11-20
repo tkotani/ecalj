@@ -783,10 +783,12 @@ c     loop over spins
               write(ifoutsex,"(3i5,3d24.16,3x,d24.16,3x,d24.16)")
      &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), 
      &                 vxcfp(i,ip,is)
+              if(eqx(i,ip,is) <1d20.and.vxcfp(i,ip,is)/=0d0) then  !takao june2009. See lmf2gw (evl_d=1d20; in Ry.. but eqx is in eV. no problem for inequality).
               write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,
      &                 '  eig=',f10.4,'  Sxc(LDA)=',f10.4)") 
      &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is),
      &                 vxcfp(i,ip,is)
+              endif
             end do
           end do
 c     end of spin-loop
@@ -1254,11 +1256,12 @@ c-------------------------
               write(ifoutsex,"(3i5,3d24.16,3x,d24.16,3x,d24.16)")
      &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), 
      &                 hartree*dreal(zsec(i,i,ip)) !sf 21May02
+              if( eqx(i,ip,is)<1d20.and.abs(zsec(i,i,ip))/=0d0 ) then  !takao june2009
               write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,
      &                 '  eig=',f10.4,'  Sx=',f10.4)")
-c     &     '  eig=',f10.4,'  Sx=',d15.7)") 
      &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is),
      &                 hartree*dreal(zsec(i,i,ip)) !sf 21May02
+              endif
             end do
             write(ifsex2(is)) is, q(1:3,ip), zsec(1:ntq,1:ntq,ip) !SEC_nn' out
           end do
@@ -1288,11 +1291,13 @@ c     zfac2   = 1d0/(1d0-dscdw2)
 c     dscdw  = (dreal(zsec(1,i,ip)) - dreal(zsec(-1,i,ip)))
 c     &             /(2d0*deltaw)
 c     zfac   = 1d0/(1d0-dscdw)
-              write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,
-     &                 '  eig=',f8.4,'  Re(Sc) =',f8.4,'  Img(Sc) =',f8.4 )") !sf 21May02
-     &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), 
-     &                 hartree*dreal(zsec(i,i,ip)), !sf 21May02
-     &                 hartree*dimag(zsec(i,i,ip)) !,zfac,zfac1,zfac2  !sf 21May02
+              if( eqx(i,ip,is)<1d20.and.abs(zsec(i,i,ip))/=0d0 ) then  !takao june2009
+                write(6,"(' j iq isp=' i3,i4,i2,'  q=',3f8.4,
+     &          '  eig=',f8.4,'  Re(Sc) =',f8.4,'  Img(Sc) =',f8.4 )") !sf 21May02
+     &          itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), 
+     &          hartree*dreal(zsec(i,i,ip)), !sf 21May02
+     &          hartree*dimag(zsec(i,i,ip)) !,zfac,zfac1,zfac2  !sf 21May02
+              endif
               write(ifoutsec,"(3i5,3d24.16,3x,d24.16,3x,d24.16, 
      &                 3x,d24.16)")
      &                 itq(i),ip,is, q(1:3,ip), eqx(i,ip,is), 

@@ -352,7 +352,9 @@ C ... Setup of hamiltonian, augmentation
         call info0(30,0,0,' ')
       endif
       call subasi(sctrl,sspec,sham)
-      call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn)
+      call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
+
+
 
 C ... Quit if --quit=ham given
       if (igets('ctrl quit',sctrl) .eq. 8) then

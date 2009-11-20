@@ -1,0 +1,9 @@
+fp/bndfp.F:      use m_hamindex
+fp/bndfp.F:                                       ! rdsigm2 use m_hamindex (napwk    
+gwd/bndfp.F:      use m_hamindex
+gwd/bndfp.F:                                       ! rdsigm2 use m_hamindex (napwk    
+subs/hamfb3.F:      use m_hamindex
+subs/rdsigm2.F:      use m_hamindex
+subs/rotwv.F:      use m_hamindex
+subs/rotwv.F:      use m_hamindex
+subs/suham.F:      use m_hamindex

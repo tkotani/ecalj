@@ -77,14 +77,29 @@ def testrun(testname, commanddir,datadir,workdir,commands,start,testc,enforce,de
 
 ##### main routine ##########################
 testdir = os.getcwd()
-ecaldir = os.path.dirname((os.path.dirname(testdir)))
+ecaldir = os.path.dirname(os.path.dirname(testdir)) #+'/ecal'
 exe= ecaldir+'/fpgw/exec/'
+print 'exe=',exe
+print 'testdir=',testdir
+print 'ecal directory=',ecaldir
+dat=raw_input(' --- Is ecal diretory OK? (return or name of directory. or edit testgw.py) --- ')
+if(dat==''):
+	pass
+else:
+	ecaldir=dat
+	print 'ecal=',ecaldir
 
 ### Definition of tests
 testname=[]
 commands=[]
 startfile=[]
 testcommand=[]
+
+
+###########
+comparekey=" 'fp pot' 'fp evl'"
+
+
 
 #
 testn='gas_eps_lmfh'
@@ -95,15 +110,15 @@ datadir  = testdir+ '/' + testn+'/'
 ef1='EPS0001.nlfc.dat '
 ef3='EPS0003.nlfc.dat '
 ef4='EPS0004.nlfc.dat '
-comp1= 'diffnum '+ef1+ datadir+ef1
-comp3= 'diffnum '+ef3+ datadir+ef3
-comp4= 'diffnum '+ef4+ datadir+ef4
+comp1= 'diffnum '+ef1+ datadir+ef1+comparekey
+comp3= 'diffnum '+ef3+ datadir+ef3+comparekey
+comp4= 'diffnum '+ef4+ datadir+ef4+comparekey
 ef1a='EPS0001.dat '
 ef3a='EPS0003.dat '
 ef4a='EPS0004.dat '
-comp1a= 'diffnum '+ef1a+ datadir+ef1a
-comp3a= 'diffnum '+ef3a+ datadir+ef3a
-comp4a= 'diffnum '+ef4a+ datadir+ef4a
+comp1a= 'diffnum '+ef1a+ datadir+ef1a+comparekey
+comp3a= 'diffnum '+ef3a+ datadir+ef3a+comparekey
+comp4a= 'diffnum '+ef4a+ datadir+ef4a+comparekey
 testcommand.append([comp1,comp3,comp4,comp1a,comp3a,comp4a ])
 
 #
@@ -115,9 +130,9 @@ datadir  = testdir+ '/' + testn+'/'
 ef1='EPS0001.nlfc.dat '
 ef3='EPS0003.nlfc.dat '
 ef5='EPS0005.nlfc.dat '
-comp1= 'diffnum '+ef1+ datadir+ef1
-comp3= 'diffnum '+ef3+ datadir+ef3
-comp5= 'diffnum '+ef5+ datadir+ef5
+comp1= 'diffnum '+ef1+ datadir+ef1+comparekey
+comp3= 'diffnum '+ef3+ datadir+ef3+comparekey
+comp5= 'diffnum '+ef5+ datadir+ef5+comparekey
 testcommand.append([comp1,comp3,comp5 ])
 
 #
@@ -131,11 +146,11 @@ ef2='ChiPM0002.nlfc.mat '
 ef3='ChiPM0003.nlfc.mat '
 ef4='ChiPM0004.nlfc.mat '
 ef5='ChiPM0005.nlfc.mat '
-comp1= 'diffnum '+ef1+ datadir+ef1
-comp2= 'diffnum '+ef2+ datadir+ef2
-comp3= 'diffnum '+ef3+ datadir+ef3
-comp4= 'diffnum '+ef4+ datadir+ef4
-comp5= 'diffnum '+ef5+ datadir+ef5
+comp1= 'diffnum '+ef1+ datadir+ef1+comparekey
+comp2= 'diffnum '+ef2+ datadir+ef2+comparekey
+comp3= 'diffnum '+ef3+ datadir+ef3+comparekey
+comp4= 'diffnum '+ef4+ datadir+ef4+comparekey
+comp5= 'diffnum '+ef5+ datadir+ef5+comparekey
 testcommand.append([comp1,comp2,comp3,comp4,comp5 ])
 
 #
@@ -160,7 +175,8 @@ testname.append(testn)
 startfile.append('ctrl.si GWinput')
 commands.append(['lmfa si > llmfa','gwsc1shot si'])
 datadir  = testdir+ '/' + testn+'/'
-testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum llmf '+datadir+'llmf'])
+testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.si '+datadir+'log.si'+comparekey])
+#testcommand.append(['dqpu QPU '+datadir+'QPU','diff log.si '+datadir+'log.si'])
 
 #
 testn='gas_gwsc'
@@ -168,17 +184,19 @@ testname.append(testn)
 startfile.append('ctrl.gas GWinput')
 commands.append(['lmfa gas > llmfa','gwsc1shot gas'])
 datadir  = testdir+ '/' + testn+'/'
-testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum llmf '+datadir+'llmf'])
+#testcommand.append(['dqpu QPU '+datadir+'QPU','diff log.gas '+datadir+'log.gas'])
+testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.gas '+datadir+'log.gas'+comparekey])
 
 
 # This is still too simplified --> too bad answer. But it is a test for instalation for NSPIN=2.
 #
-#testn='nio_gwsc'
-#testname.append(testn)
-#startfile.append('ctrl.nio GWinput')
-#commands.append(['lmfa nio > llmfa','gwsc1shot nio'])
-#datadir  = testdir+ '/' + testn+'/'
-#testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum llmf '+datadir+'llmf'])
+testn='nio_gwsc'
+testname.append(testn)
+startfile.append('ctrl.nio GWinput')
+commands.append(['lmfa nio > llmfa','gwsc1shot nio'])
+datadir  = testdir+ '/' + testn+'/'
+testcommand.append(['dqpu QPU '+datadir+'QPU','diffnum log.nio '+datadir+'log.nio'+comparekey])
+#testcommand.append(['dqpu QPU '+datadir+'QPU','diff log.nio '+datadir+'log.nio'])
 
 
 ### Readin flags ####################################
@@ -224,6 +242,8 @@ if(not ecaldir+'/lm-7.0betaK001/lmfgw',commanddir+'lmfgw'):
 	shutil.copy(ecaldir+'/lm-7.0betaK001/lmfgw',  commanddir)
 if(not ecaldir+'/lm-7.0betaK001/lmf2gw',commanddir+'lmf2gw'):
 	shutil.copy(ecaldir+'/lm-7.0betaK001/lmf2gw',  commanddir)
+if(not ecaldir+'/TOOLS/diffnum',commanddir+'diffnum'):
+	shutil.copy(ecaldir+'/TOOLS/diffnum',  commanddir)
 print
 
 

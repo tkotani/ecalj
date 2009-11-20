@@ -1,6 +1,17 @@
 #define unix 1
 #define PATH 1
 #define FEXTENS 1
+
+ctakao's new file opener and closer for f90. This can be consistent with fopna
+c      integer function open90(fnam,options)
+c      character*(*)::fnam, options
+c        inquire(fnum,number
+c        ifio=9038
+c        inquire(unit=ifio,opened=nexist)
+c        if(nexist) 
+c     &  stop 'bndfp: I assumed ifio=9038 is not used(too sloppy)'
+
+
       integer function fopna(fnam,lunit,ista)
 C- File opening
 C ----------------------------------------------------------------

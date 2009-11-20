@@ -210,6 +210,15 @@ C.....titus
 C ... Heap
       integer w(1)
       common /w/ w
+
+      real(8):: eseavr
+      integer:: debugmode
+ccccccccccccccccccccccccccccccc
+c      integer:: oss
+ccccccccccccccccccccccccccccccc
+
+
+
       qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
      .                    (jj2*ifac(2)-1)*qb(k,2) +
      .                    (jj3*ifac(3)-1)*qb(k,3)
@@ -382,11 +391,11 @@ C         Write header for sigm3
           call iosigh(0,0,nsp,ndimz,nk1,nk2,nk3,nqp,
      .      lshft(1),lshft(2),lshft(3),-ifis2)
 
-
 C         For each qp, rotate sigm(lda)->sigm(orb)
           do  iq = 1, nqp
 C         Check that qp match
-          read(ifis) qp
+          read(ifis) qp, eseavr !add eseavr june2009 
+          print *,' uuu1 eseavr=',iq,eseavr
           read(ifiz) tmp
           call daxpy(3,-1d0,qp,1,tmp,1)
           if (ddot(3,tmp,1,tmp,1) .gt. 1d-9)
@@ -443,7 +452,6 @@ C         No sigma for LDA eigenvectors; early exit
         endif
       endif
       endif
-
 
       call tcn('rdsigm')
 
@@ -517,6 +525,7 @@ C ... Setup for r.s. hamiltonian: allocate and create iax,ntab; allocate hrs
 C      print *, '!!'; i = 1000*0 + 10*hreal + 0
       if (mod(lssym,4) .ge. 2) i = 10*hreal + 0
       if (ltrans) i = i + 10000
+      if(debugmode()>0) print *,' go to hft2rs i=',i
       call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,1,nsp,nbas,w(og),w(oag),
      .  nsgrp,rsrnge,w(ooffH),1,nbas,ndimh,ndimh,w,plat,w(opos),ontabs,
      .  oiaxs,ndhrs,w)
@@ -527,6 +536,10 @@ C     Allocate memory for hrs
       else
         call defdc(ohrs,-ndhrs**2*nttabs*nsp)
       endif
+
+c      stop 'xxxxxxxxxxxxxxxx takao test1 in rdsigm.F xxxxxxxxxx'
+
+
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
@@ -602,8 +615,13 @@ C ... titus
       nl = nglob('nl')
       nspc = 1
       call defcc(osigm,ndimh**2)
+ccccccccccccccccccccccccc
+ctakaox
+c      call defcc(oss,ndimh**2)
+ccccccccccccccccccccccccc
       do  iq1 = 1, nqps
-        read(ifis) qp
+        read(ifis) qp,  eseavr !june2009  add eseavr
+        print *,' uuu2 iq1 eseavr=',iq1,eseavr
         call dpscop(qp,tmp,3,1,1,1d0)
         call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
         call dpsadd(tmp,qoffi,3,1,1,-1d0)
@@ -628,6 +646,18 @@ C        if (isp .eq. 2) then
 C          print *, iq1,isp
 C         call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
 C        endif
+
+cccccccccccccccccccccccccccccccccccccc
+ctakaox !see also bndfp.F and hambls.F
+c        if(iq1==1) then
+c          print *,'reading ovlmat'
+c          ifio = fopna('ovlmat',-1,4)
+c        endif
+c        call dpdump(w(oss),ndimh**2*2,ifio)
+c        print *,'read ovlmat for iq1=',iq1
+c        call divctakao(w(osigm),w(oss),ndimh)
+ccccccccccccccccccccccccccccccccccccc
+
         if (alf(1) .ne. 1d0) then
           call dscal(ndimh**2*2,alf(1),w(osigm),1)
         endif
@@ -668,6 +698,17 @@ C ... titus
      .    w(ogstar),ifac,ndimh,ndimh,ndimh,nspc,qb,w(osigm),w(owk),
      .    w(owk),w(osfz))
       enddo
+
+
+cccccccccccccccccccccccccccccccccccccccccccc
+ctakaox !see also bndfp.F and hambls.F
+c      print *,' end of iq1 loop'
+c      call fclose(ifio)
+c      call rlse(oss)
+c      print *,' end of iq1 loop xxxx'
+cccccccccccccccccccccccccccccccccccccccccccc
+
+
 
 C      print *, 'one element of sigma(k)'
 C      call pvtrod(w(osfz),k1,k2,k3,ndimh)
@@ -1008,7 +1049,6 @@ C ... Passed parameters
      .  mode
 C ... Local parameters
       integer jfi,i1,i2,i3,i4,i5,i6,i7,i8,i9,ivsn,modef
-
       if (ifi .lt. 0) then
         ivsn = 1
 C       if (mode .eq. 0) ivsn = 0
@@ -1067,6 +1107,7 @@ C       Assign header parameters or check with file correspondence
    99 continue
       call rx('iosigh: failed to read header from file')
       end
+
       subroutine chksgr(opt,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
      .  iprmb,nttabs,iaxs,hrs,ndhrs,tols,nqp,qplst,nbas,lrot,rotm,
      .  delT)
@@ -1932,7 +1973,16 @@ C      endif
 C
 C      end
 
-      subroutine psigd(mode,ndimh,sig,eval,sigp,n123,sigd)
+      subroutine psigd(mode,ndimh,sig,eval,sigp,n123,sigd, q,isp,iout,iprx)
+c psigd is also called from hambls.F. Then I found present(iout) is alwasy T even when iout is missing.
+c This will be a bug in gfortran.
+c GNU Fortran (GCC) 4.1.2 20080704 (Red Hat 4.1.2-44)
+c
+
+ctakao's modified version if iout exists.
+c if iout exist. constant part of self-energy is overridden by ESEAVR, which should be given by
+c hqpe_sc.
+c
 C- Approximate sigma for low,higher energies with diagonal part,
 C- and further add constraints for the higher energies
 C ----------------------------------------------------------------------
@@ -2010,6 +2060,18 @@ C ... Local parameters
       double precision emin,emax,asig,bsig,tol,siglin
       double complex zer,sigii
       parameter (zer=(0d0,0d0),tol=1d-7,PRTE=45)
+ctakao
+      integer,optional,intent(in):: iout,isp
+      integer:: fopna
+      integer:: ifiogw,ifiese,ispx
+      real(8),optional,intent(in):: q(3) 
+      logical:: nexist
+      real(8):: sigiir
+      integer,optional,intent(in):: iprx
+c
+c      print *,'psigd',present(iout)
+c      print *,' iout=',iout
+
 
       call getpr(ipr)
       stdo = lgunit(1)
@@ -2047,6 +2109,8 @@ C ... Local parameters
         call rxi('psigd: bad mode ',mode)
       endif
 
+      imin=ndimh
+      imax=1
       do  i = 1, ndimh
 
 C       Require evals to be ordered
@@ -2105,18 +2169,56 @@ C       Printout
         endif
 
 C       Overwrite full sigma with diagonal matrix, or write to sigd
+c
+c        takao
         if (llow .or. lhigh) then
+c
+          if(present(iout).and.iout==1) then
+           inquire(file='ESEAVR',number=ifiese)
+           rewind ifiese
+           do iii=1,3
+             read(ifiese,*) sigiir,ispx
+             sigii=sigiir
+             if(ndimh==i.and.present(iprx)) write(6,"(a,2d13.6,i3)")'ESEAVR: ',sigii,ispx
+             if(isp==ispx) goto 898
+           enddo
+           stop 'psigd: can not find ESEAVR for given isp'
+ 898       continue
+          endif
+
           if (mode .eq. 0) then
-            call zscal(ndimh,zer,sig(1,i),1)
-            call zscal(ndimh,zer,sig(i,1),ndimh)
+            call zscal(ndimh,zer,sig(1,i),1)     !sig(i,:)=0d0
+            call zscal(ndimh,zer,sig(i,1),ndimh) !sig(:,i)=0d0
             sig(i,i) = sigii
           else
             sigd(i) = sigii
           endif
+
         endif
 
+        if(.not.llow) then
+          if(i<imin) imin=i
+        endif
+        if(.not.lhigh) imax=i
+cccccccccccccccccccccccccccccccccccccccc
+ctakaox
+c           write(6,"('rrr:',i3,d13.5,2x,l,2x,l,2d13.5)")
+c     &     i,eval(i)+dreal(sigii),llow,lhigh,sigii
+cccccccccccccccccccccccccccccccccccccccc
       enddo
-
+cccccccccccccccccccccccccccccccccccccccc
+c       if (llow .or. lhigh) then
+c         print *,'takaoxxx2:mode i=',mode,i
+c         sig(i,:) = 0d0
+c         sig(:,i) = 0d0
+c         sig(i,i) = sigii
+c       endif
+      if(present(iout).and.iout==1) then
+         inquire(file='NBANDGW',number=ifiogw)
+         !print *,'ifiogw=',ifiogw
+         write(ifiogw,"(3d23.15,i3,3x,2i8)") q,isp,imin,imax
+c         print *,'xxx uuu xxx',ifio,q,isp,imin,imax
+      endif
       end
 
 
@@ -2153,3 +2255,24 @@ C      call zprm3('gf(2,1)',0,sfz(1,1,1,2,1),k1,k2,k3)
 C      call zprm3('gf(1,2)',0,sfz(1,1,1,1,2),k1,k2,k3)
 C      end
 
+
+ctakaox
+      subroutine divctakao(a,b,n)
+      integer:: n,i,j
+      complex(8):: a(n,n),b(n,n)
+      print *,' sum check 1=',sum(abs(a))
+      print *,' sum check 1=',sum(abs(b))
+      do i=1,n
+      do j=1,n
+c        write(6,"(2i5,2x, 4d13.4,3x,2d13.5)") 
+c     &  i,j,atan(dimag(a(i,j)/dreal(a(i,j))))       if( abs(a(i,j))>1d-3 ) 
+c     &   write(6,"(2i5,2x, 4d13.4,3x,2d13.5)")i,j,a(i,j)
+c     &   ,atan(dimag(a(i,j)/dreal(a(i,j))))
+c,b(i,j),
+c     &  a(i,j)/( b(i,j)+b(i,j)*0.01/abs(b(i,j)) )
+c        a(i,j) = a(i,j)/ ( b(i,j)+b(i,j)*0.01/abs(b(i,j)) )
+c        a(i,j)=a(i,j)/b(i,j)
+      enddo
+      enddo
+      print *,' sum check 2=',sum(abs(a))
+      end

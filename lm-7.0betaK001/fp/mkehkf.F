@@ -85,6 +85,9 @@ C     stdl = lgunit(2)
         etot  = ekin + utot + rhoexc
         eh    = etot
         amom  = valmom
+ccccccccccccccc
+c      print *,'vvv ekin=',ekin,sumtv,ttcor
+ccccccccccccccc
       elseif (mode .eq. 2) then
 C   ... double counting from sigma
         if (rhosig .ne. -99) then
@@ -93,8 +96,10 @@ C   ... double counting from sigma
         ekin = sumtv + sumtc
         etot = ekin + utot + rhoexc
         eks  = etot
+ccccccccccccccc
+c      print *,'vvv ekin=',ekin,sumtv,sumtc
+ccccccccccccccc
       endif
-
       call pack1('ham eterms',sham,eterms)
       if (mode .eq. 0) return
 

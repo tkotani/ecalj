@@ -44,12 +44,22 @@
 #LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
 
-# I had a problem in zgemm in pwmat. 
+# I had a problem in zgemm in pwmat for 4.2.0. Wrong normchk.dia
 #LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
 
-# centos yum install blas, yum install lapack
+# I had a problem in zgemm in pwmat. Wrong normchk.dia
+#LIBLOC= /opt/acml4.1.0/gfortran64/lib/libacml.a -lfftw3
+
+
+
+# centos yum install blas, yum install lapack #this works OK.
 LIBLOC= -lfftw3 /usr/lib64/liblapack.so.3.0.3 /usr/lib64/libblas.a 
 
+#ububntu apt-get install
+#LIBLOC=  /usr/lib64/libfftw3.so.3.1.2 /usr/lib64/liblapack.a /usr/lib64/libblas-3.a 
+
+
+# centos yum install. Zgemm did not work for larger size of matrix.
 #LIBLOC = -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
 #          /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
 #          /usr/lib64/atlas/libatlas.so.3 -lfftw3

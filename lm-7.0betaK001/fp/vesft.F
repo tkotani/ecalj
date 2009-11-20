@@ -16,7 +16,7 @@ Cr Remarks
 Cu Updates
 Cu   22 Apr 00 Adapted from nfp ves_ft.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer ng
       integer kv(ng,3),k1,k2,k3
@@ -39,6 +39,10 @@ C ... Gather density coefficients
 C ... smpot(G) = 8 pi /G**2 smrho(G)
 C     call info2(30,1,0,' vesft:  smooth density coeff to (0,0,0) '//
 C    .  'is %;12,6D',cv(1),0)
+cccccccccccccc
+c      print *,'ng=',ng
+c      stop 'xxxxxxxxxx vesft'
+cccccccccccccc
       sum = 0d0
       cv(1) = 0
       do  i = 2, ng

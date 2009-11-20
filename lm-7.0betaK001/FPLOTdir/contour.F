@@ -117,7 +117,8 @@ c     l=1 means horizontal line, l=2 means vertical line.
       ii = i + i1(l)
       jj = j + i1(3-l)
       if (z(ii,jj).gt.dmax) go to 130
-      assign 100 to jump
+c      assign 100 to jump !takao
+      jump=100
 c     the next 15 statements (or so) detect boundaries.
    60 ix = 1
       if (ij(3-l).eq.1) go to 80
@@ -131,9 +132,15 @@ c     the next 15 statements (or so) detect boundaries.
    80 ii = i + i1(3-l)
       jj = j + i1(l)
       if (z(ii,jj).gt.dmax) go to 90
-      if (z(i+1,j+1).lt.dmax) go to jump, (100, 280)
+c      if (z(i+1,j+1).lt.dmax) go to jump, (100, 280)
+      if (z(i+1,j+1).lt.dmax) then
+         if(jump==100) goto 100
+         if(jump==280) goto 280
+      endif
    90 ix = ix + 2
-      go to jump, (100, 280)
+c      go to jump, (100, 280)
+       if(jump==100) goto 100
+       if(jump==280) goto 280
   100 if (ix.eq.3) go to 130
       if (ix+ibkey.eq.0) go to 130
 c     now determine whether the line segment is crossed by the contour.
@@ -237,7 +244,8 @@ c     at edge ks of the current cell.
 c
   260 l = ks
       iflag = 1
-      assign 280 to jump
+c      assign 280 to jump
+      jump=280
       if (ks.lt.3) go to 270
       i = i + i3(ks)
       j = j + i3(ks+2)

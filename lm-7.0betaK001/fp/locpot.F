@@ -250,7 +250,9 @@ C         100's digit job > 0 set   OR:
 C         4's bit mxcst=0   AND   10's digit job=0  AND  1's digit job=1
         lfltwf = mod(job,1000) .ge. 100 .or.
      .  mod(i/4,2).eq.0 .and. mod(job/10,10).eq.0 .and. mod(job,10).eq.1
-
+cccccccccccccc
+        print *,' i job kmax lfltwf=',i,job,kmax,lfltwf
+cccccccccccccc
         call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
         call spacks(0,'spec coreh',sspec,chole,is,is)
         call gtpcor(sspec,is,kcor,lcor,qcor)
@@ -359,6 +361,7 @@ C       Check for core moment mismatch ; add to total moment
         endif
 
 C   --- Make augmentation matrices sig, tau, ppi ---
+c        print *,'vvv locpot job=',job
         if (mod(job,10) .eq. 1) then
 
 C     ... Smooth Hankel tails for local orbitals

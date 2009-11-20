@@ -1,23 +1,4 @@
-      program main
-      implicit none
-#if MPI|MPIK
-      include 'mpif.h'
-      integer ierr, nsize, id 
-      character(14):: testbuf
-      call mpi_init(ierr)
-cstart--- check mpi. You can delete this. 
-      call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
-      call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
-      write(*,*) 'mpi: size and id=',nsize,id
-cend-----
-#endif      
-      call fmain()
-#if MPI|MPIK
-      call mpi_finalize(ierr)
-#endif
-      end program main
-
-      subroutine fmain
+      program plbnds
 C- Band plotter using bnds file in standard format for lmto programs.
 C ----------------------------------------------------------------------
 Cl Local variables
@@ -36,13 +17,7 @@ C ----------------------------------------------------------------------
       parameter(nqmx=450, maxlin=50, louts=140, nouts=80 )
       double precision xline(0:maxlin),xdum(2),ydum(2)
       double precision xq(0:nqmx),eq(nqmx)
-C#ifdef F90
       real(8),allocatable:: eb(:,:),ebw(:,:,:),eb2(:),ebw2(:,:)
-C#elseC
-C      integer nbmx
-C      parameter (nbmx=2000)
-C      double precision eb(nbmx,nqmx),ebw(nbmx,nqmx,2),eb2(nbmx)
-C#endif
       double precision dq,emin,ebot,ebotb,etopb,emax,htcm,
      .  etik,xmin,xmax,ql1,ql2,ql3,e,h,x,q1,q2,q3,eferm,efermm,widcm,
      .  etop,xq0,efnew,scl,syma(4),clip(4),fgs(0:3),sgs(0:4),qm1,qm2,
@@ -64,9 +39,6 @@ C Heap allocation
      .  xnfmt*20,ynfmt*20,datnam*10,scol3*512,fncol3*80
       character*10 lab(maxlin)
       integer fontsz
-C#ifndefC F90
-C      common /static/ eb,ebw
-C#endif
       integer fopna,fopnx,lgcmd,fopng,lenf,awrite
       integer iarg
 

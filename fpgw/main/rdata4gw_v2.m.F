@@ -792,7 +792,7 @@ c     6200   format(1x,f5.1,2i5,f13.5,d13.6,i4)                   !ECORE
  6200   format(1x,f5.1,2i10,f13.5,d14.6,i4) !ECORE 31jan2006 a and b can be negative
 !     i10 May2006
         write(ifec,*)' configuration   !!! LocalOrbital 2=upper 1=lower' !ECORE
-        write(ifec,"($,1x,10i3)")     (vkonf(l,ic),  l=0,lmxa(ic)) !ECORE
+        write(ifec,"($,1x,10i3)") (vkonf(l,ic),  l=0,lmxa(ic)) !ECORE
         ! principl quantum  number of valence minimum
         write(ifec,"('      ',10i3)") (konf(l,ic)/10,l=0,lmxa(ic)) !ECORE
         ! related to LocalOrbital part lower(=1) upper(=2).
@@ -1454,9 +1454,14 @@ c     write(ifplane) ngvecp, ngvecc, geigr(1:ngp,1:nband,1:nsp)
           if(ngpmx/=0) write(ifgeig, rec=ikpisp) geigr(1:ngpmx,1:nband,isp)
 c     write(ifgeig) geigr(1:ngpmx,1:nband,isp) !geigr(1:ngp,1:nband,isp)
 cccccccccccccccccccccc
-          if(verbose()>40) 
-     &           write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)') 
-     &           ikp,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nbandx,isp))
+          if(verbose()>40) then
+             write(6,'("geig sumcheck ",i5,3f9.4,"  ",2i5,2d13.6)') 
+     &       ikp,qqqa,ngpmx,ngp,sum(geigr(1:ngp,1:nbandx,isp))
+             do ix=1,nbandx
+               write(6,'("geig sumcheck ",i5,2d13.6)') 
+     &         ix,sum(geigr(1:ngp,ix,isp))
+             enddo
+          endif
 cccccccccccccccccccccc
         enddo
 

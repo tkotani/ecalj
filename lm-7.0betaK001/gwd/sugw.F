@@ -205,10 +205,14 @@ C ... Heap
       integer w(1)
       common /w/ w
 
-      real(8):: dnn(3),qlatinv(3,3)
-      integer:: inn(3)
+      real(8):: dnn(3),qlatinv(3,3),qout(3),qtarget(3),qrr(3),axx,bxx,qxxx(3),qxx1(3),qxx2(3)
+      integer:: inn(3),iqzz,nqzz,iiiii
 
       logical :: debug=.false.
+      complex(8),allocatable:: evecout(:,:),evecr(:,:)
+
+      real(8),allocatable:: qzz(:,:)
+
 C --- Setup ---
       call getpr(ipr)
       call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
@@ -701,11 +705,28 @@ C --- Main loop for eigenfunction generation ---
   578   format(' iq=',i4,'  q=',3f7.3,'  shortened to',3f7.3)
 
 
+ccccccccccccccccccc
+ctakao test for eigenfunction.
+c  I found that eigenfunction at q=.2 -.2 .6 and .2 .2 .6 (different sign for two .2) 
+c   gives slightly differnt eigenfunctions. tested at temp_si_gw_lmfh2. this is not related to rotater itself.
+c  This is related to some difference in the construction of H and O. (eigenvalue are in agreemnet into 4th digit.
+c        qxx1=(/.6d0,.2d0,-.2d0/)
+c        qxx2=(/-0.2d0,-0.2d0,.6d0/)
+c        if(sum(abs(qp-qxx1))<1d-6) goto 1119
+c        if(sum(abs(qp-qxx2))<1d-6) goto 1119
+c        deallocate(ngvecp, ngvecc )
+c        cycle
+c 1119   continue
+ccccccccccccccccccc
+
+
 C   ... For this qp, G vectors for PW basis and hamiltonian dimension
         if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
           pwgmin = dsqrt(pwemin)
           pwgmax = dsqrt(pwemax)
+ctakao
           call pshpr(1)
+c          call pshpr(101)
           call dpzero(xx,3)
           if (mod(pwmode/10,10) .eq. 1) call dpcopy(qp,xx,1,3,1d0)
           call gvlst2(alat,plat,xx,0,0,0,pwgmin,pwgmax,0,
@@ -717,6 +738,7 @@ C   ... For this qp, G vectors for PW basis and hamiltonian dimension
           call gvlst2(alat,plat,xx,0,0,0,pwgmin,pwgmax,0,
      .      2,0,napw,w(okv),dum,dum,w(oigv2))
           call rlse(okv)
+cc          call poppr
           call poppr
           ndimh = ldim + napw
           if (mod(pwmode,10) .eq. 2) ndimh = napw
@@ -758,6 +780,12 @@ C   --- vxc <- LDA vxc ---
 C   --- Write matrix elments of vxc to disk (Faleev May 2002) ---
         if (lwvxc) then
           ifiv = fopna('vxc',-1,4)
+
+c          write(ifv_xc) ndimh !june209 takao --->why did I do so? I don't remember sep3.2009.
+c move back to original ifiv
+          write(ifiv) ndimh 
+
+
           write(ifiv) q,vxc
 C         call zprm('vxc',2,vxc,ndimh,ndimh,ndimh)
         endif
@@ -826,11 +854,93 @@ C       call prmx('eval',evl,ndham,ndimh,1)
         endif
 
         if (mod(iq,10) .ne. 1) call poppr
+        print *,' lwvxc=',lwvxc
         if (lwvxc) then
           ifi = fopna('evec',-1,4)
           write(ifi) q, evec(1:ndimh,1:ndimh)
 C         call zprm('z',2,evec,ndimh,ndimh,ndimh)
         endif
+
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ctest for takao wave function rotater si 5x5x5.
+c 
+c
+       if(.false.) then
+c       if(iq==8) then
+         open( 1012, file='evecx' )
+         ifi=1025
+         open(ifi,file='QBZ')
+         read(ifi,*) nqzz
+         allocate(qzz(3,nqzz))
+         do i=1,nqzz
+           read(ifi,*) qzz(:,i)
+         enddo
+         
+         allocate(evecout(ndimh,ndimh))
+         do iqzz = 1,nqzz 
+           qtarget = qzz(:,iqzz)
+c
+           call rotwv(q,qtarget,ndimh,napw,ndimh, plat,qlat,evec,evecout,ierr)
+           if(ierr/=0) cycle
+
+           do 
+             read(1012,*,end=1019) iiiii
+             read(1012,*) qrr, ndimh
+             print *,'qrr ndimh=',qrr,ndimh
+             allocate(evecr(ndimh,ndimh))
+             print *,'qrr ndimh xxx=',qrr,ndimh
+             do j= 1,ndimh
+             do i= 1,ndimh
+               read(1012,*) axx,bxx
+               evecr(i,j)=dcmplx(axx,bxx)
+             enddo
+             enddo
+             if(sum(abs(qrr-qtarget))<1d-8) exit
+             deallocate(evecr)
+           enddo
+           rewind 1012
+
+           call shorbz(qtarget,qxxx,qlat,plat)
+
+           write(1013,"(i10)") 11111
+           write(1013,"(3f8.3,i10)") qtarget,ndimh
+c           write(1013,"(i10,3f8.3,i10)") 11111,qout,ndimh
+           do j=1,ndimh
+           do i=1,ndimh
+           if(abs(evecout(i,j))+abs(evecr(i,j))>1d-4) then
+           write(1013,"(2i4,2d13.5,2x,2d13.5,2x,2d12.4,2x,2d12.4,3f8.3)") i,j,evecout(i,j), evecr(i,j), evecout(i,j)/evecr(i,j),
+     &     abs(evecout(i,j)), abs(evecr(i,j)),qxxx
+           endif
+           enddo
+           write(1013,*)
+           enddo
+
+           deallocate(evecr)
+         enddo
+         deallocate(evecout)
+         stop 'test end xxxxxxxx'
+ 1019    continue
+         stop 'uuuuuuuuuuuuuuu'
+       endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ctakao write eigenfunctions to file fort.1012.
+       if(.false.) then
+        write(1012,"(i10)") 11111
+        write(1012,"(3f8.3,i10)") q,ndimh
+        do j=1,ndimh
+        do i=1,ndimh
+           write(1012,"(2i4,2d13.5,2x,d13.5)") i,j,evec(i,j),abs(evec(i,j))
+c          write(1012,"(2d23.15)") evec(i,j)
+        enddo
+        enddo
+       endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
+
 
 C   --- Project wf into augmentation spheres, Kotani conventions ---
         nlmax = nglob('mxorb') / nglob('nkaph')
@@ -1433,20 +1543,5 @@ C       Test whether this class should be purged
           ipcx(ip) = ic - nelim
         endif
       enddo
-
       end
 
-
-      subroutine rtoint(a,k,n)
-      real(8):: a(n),eps=1d-12
-      integer:: k(n),ix
-      do i=1,n
-        if(abs(a(i))<eps) then
-          k(i)=0
-        elseif(a(i)>0) then
-          k(i) = a(i) + eps
-        else
-          k(i) = a(i) - eps
-        endif
-      enddo
-      end

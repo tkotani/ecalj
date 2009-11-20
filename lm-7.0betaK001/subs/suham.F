@@ -1,4 +1,250 @@
-      subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn)
+      module m_hamindex
+c index for Hamiltonian
+      implicit none
+      integer,parameter:: null=-999999
+      integer:: ngrp=null, lxx=null, kxx=null, norbt=null, napwmx=null, nkt=null,ndimham=null
+      integer,allocatable:: ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),invgx(:),miat(:,:),offlrev(:,:,:),ibastab(:)
+      real(8),allocatable:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:)
+      integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),ibasindex(:)
+      contains
+
+      integer function getikt(qin)
+      integer::i,debugmode
+      real(8):: qin(3)
+      if(debugmode()>0) print *,'nkt=',nkt
+      do i=1, nkt
+         if(debugmode()>0) print *,i,qin, qq(:,i)
+         if(sum (abs(qin-qq(:,i)))<1d-8) then
+           getikt=i
+           return
+         endif
+      enddo
+      print *,' getikt: error qin=',qin
+      call rx(' getikt can not find ikt for given q')
+      end function
+
+      end module
+
+
+      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas,iprmb,ldim,qplist,nkp,siginit) !from showbs
+      use m_hamindex
+C- Set up m_hamiltonian. Index for Hamiltonian.  Generated index are stored into m_hamindex
+C ----------------------------------------------------------------------
+Ci Inputs all arguments are input
+Co all output is in m_hamindex
+C
+Cr     iprmb is hard to understand (Mark's convension).  But, in anyway,
+Cr     it is converted into clean indexing for Hamiltonian block.
+Cr As you see in subroutine rotwv, the index for Hamiltonian reads as;
+c      do iorb=1,norbt             !orbital-blocks are specified by ibas, l, and k. 
+c        ibas  = ibastab(iorb)
+c         l    = ltab(iorb)
+c         k    = ktab(iorb)        !kappa (diffent MTO index for each l)
+c        init1 = offl(iorb)+1      !starting index for the block iorb
+c        iend1 = offl(iorb)+2*l+1  !end of the block for the iorb
+c      enddo
+Ch takao june2009
+C ----------------------------------------------------------------------
+      implicit none
+C Passed parameters
+      double precision sspec(1),ssite(1),slat(1),sbz(1),sham(1)
+c      integer nkaph,iprma(*)
+      integer iprmb(*),nl
+C Local parameters
+      integer nkap0,n0, oag,og,ibas,k
+c      parameter (nkap0=3,n0=10)
+      integer l,ndim,ipr,nglob,nbas,ldim,off,offs,
+     .  specw,fieldw,iorb,offsi,ib,is,opos,norb
+c     .  ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
+c      logical lprmib
+c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
+      character spid*8
+      integer w(1)
+      common /w/ w
+      real(8):: plat(3,3),qlat(3,3),alat,dum,qb(3,3),ddd(3)
+      integer,allocatable:: ltabx(:,:),ktabx(:,:),offlx(:,:)
+      integer,parameter :: n0nkap0=30
+      integer:: nkabc(3),nkp,lshft(3),pwmode,napwx,ig,nini
+      integer:: nk1,nk2,nk3,ik1,ik2,ik3,ikt
+      integer,allocatable:: kv(:)
+      real(8):: pwgmax, pwemax, pwgmin, pwemin, QpGcut_psi,qxx(3)
+
+      integer:: nqnum, ngpmx, nqbz,ifiqg,iq,fopnx,nnn(3),ixx,imx,ndummy
+      real(8):: qplist(3,nkp)
+      logical:: siginit
+C
+      call upack('lat oag osymgr nsgrp',slat,oag,og,ngrp,0,0)
+      call upack('lat plat opos qlat alat',slat,plat,opos,qlat,alat,0)
+      if(.not.siginit) goto 1011
+
+      allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas),ispec(nbas))
+      write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
+      write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+C --- MTO part
+C ... obtain norbt, lxx,kxx
+      norbt=0
+      kxx=-1
+      lxx=-1
+      ndimham = 0 !dimension of mto part of hamiltonian
+      do  ib = 1, nbas
+        call upack('site spec',ssite,ib,is,0,0,0)
+        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
+        do iorb = 1, norb
+          norbt = norbt+1
+          if(ltabx(iorb,ib)>lxx)  lxx = ltabx(iorb,ib)
+          if(ktabx(iorb,ib)>kxx)  kxx = ktabx(iorb,ib)
+          ndimham = ndimham+ 2*ltabx(iorb,ib)+1
+        enddo
+      enddo
+c ... make index table
+      allocate( ibasindex(ndimham))
+      allocate( ltab(norbt),ktab(norbt),offl(norbt),ibastab(norbt) )
+      norbt=0
+      ndimham = 0 !dimension of mto part of hamiltonian
+      do  ib = 1, nbas
+        call upack('site spec',ssite,ib,is,0,0,0)
+        call spacks(0,'spec name',sspec,spid,is,is)
+        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
+        do  iorb = 1, norb
+          norbt=norbt+1
+          ibastab(norbt)= ib
+          ltab(norbt)   = ltabx(iorb,ib)
+          ktab(norbt)   = ktabx(iorb,ib)  
+          offl(norbt)   = offlx(iorb,ib)
+          nini = ndimham+ 1
+          ndimham = ndimham+ 2*ltabx(iorb,ib)+1
+          ibasindex(nini:ndimham) = ib
+          write(6,"(3i3,2x,2i5,3x,a)") 
+     &    ib,ltab(norbt),ktab(norbt), offl(norbt)+1,offl(norbt)+2*ltab(norbt)+1,trim(spid)
+        enddo
+      enddo
+c ... reverse maping of offset-index for hamiltonian
+      allocate(offlrev(nbas,0:lxx,kxx))
+      do iorb=1,norbt
+         ibas = ibastab(iorb)
+          l   = ltab(iorb)
+          k   = ktab(iorb)  
+          offlrev(ibas,l,k)= offl(iorb)
+      enddo
+
+C ... symmetry operation 
+      allocate(symops(3,3,ngrp),ag(3,ngrp))
+      call dcopy(ngrp*9,w(og),1,symops,1)
+      call dcopy(ngrp*3,w(oag),1,ag,1)
+
+      allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
+      do ib=1,nbas
+        call upack('site class',ssite,ib,iclasst(ib),0,0,0)
+      enddo
+c ... get space group information
+      call mptauof(symops,ngrp,plat,nbas,w(opos),iclasst
+     o     ,miat,tiat,invgx,shtvg )
+c ... get rotation matrix dlmm
+      allocate( dlmm( -lxx:lxx, -lxx:lxx, 0:lxx, ngrp))
+      call rotdlmm(symops,ngrp, lxx+1, dlmm)
+      print *,' end of rotdlmm'
+      
+C --- APW part
+ 1011 continue
+C q on mesh and shortened q.
+      ifiqg  = fopnx('QGpsi',2,4,-1)
+      read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz
+      nkt = 2*nqbz + 2*nkp
+      if(allocated(qq)) deallocate(qq)
+      allocate( qq(3,nkt) )
+      print *,'gen_hamindex: nkt nqbz=',nkt,nqbz
+      do  iq = 1, nqbz
+        read(ifiqg)  qxx  ! q, and number of G vectors for
+        read(ifiqg)  
+        qq(:,iq)=qxx
+        call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
+        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
+c        call shorbz( qxx, qq(:,iq), qlat, plat)
+      enddo  
+      print *
+      call fclr(' ',ifiqg)
+      do iq = nqbz+1, nqbz+nkp
+        qq(:,iq) = qplist(:,iq-nqbz)
+        call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
+        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
+      enddo  
+c
+      call upack3('ham pwmode pwemin pwemax',sham,pwmode,pwemin,pwemax)
+      if(pwmode==0) then
+         allocate(napwk(nkt))
+         napwk=0
+         napwmx=0
+         return
+      endif
+
+c ... self-energy is on the mesh points specified by QGpsi (I think correct. takao).
+c
+c      call upack('bz nkp nkabc lshft',sbz,nkp,nkabc,lshft,0,0)
+c      nk1 = nkabc(1)
+c      nk2 = nkabc(2)
+c      nk3 = nkabc(3)
+c      qb(:,1) = qlat(:,1)/nk1
+c      qb(:,2) = qlat(:,2)/nk2
+c      qb(:,3) = qlat(:,3)/nk3
+c      ddd=0d0
+c      if( lshft(1)/=0) ddd = ddd+ qb(:,1)/2d0
+c      if( lshft(2)/=0) ddd = ddd+ qb(:,2)/2d0
+c      if( lshft(3)/=0) ddd = ddd+ qb(:,3)/2d0
+c      nkt=nk1*nk2*nk3
+
+
+C ... Get igv2(3,iapw,ikt). pwmode>=10 only
+      print *,' goto APW part pwmode=',pwmode,pwemin,pwemax
+      if(allocated(napwk)) deallocate(napwk,igv2,igv2rev)
+      allocate( napwk(nkt))
+      if(pwmode<10) call rx('gen_hamindex: takao assumes pwmode>=10')
+      pwgmax = dsqrt(pwemax)
+      pwgmin = dsqrt(pwemin) !this will be removed.
+      napwmx = 0
+      call pshpr(0)
+      do ikt=1,nkt
+         !print *,' 111 ikt nkt=',ikt,nkt,qq(:,ikt)
+         !print *,' 111 alat plat=',alat,plat
+         !print *,' 111 qq pwgmin pwgmax =',qq(:,ikt),pwgmin,pwgmax
+         call gvlst2(alat,plat,qq(:,ikt),0,0,0,pwgmin,pwgmax,0,
+     .      0,0,napwx,dum,dum,dum,dum)
+         !print *,' 111x   =',napwmx
+        napwk(ikt) = napwx
+        if(napwmx<napwx) napwmx = napwx
+      enddo
+      call poppr
+      !print *,'zzzzzzzzzz1'
+      allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
+      !print *,'zzzzzzzzzz2'
+      do ikt = 1,nkt
+        print *,' 222 ikt=',ikt
+        call gvlst2(alat,plat,qq(:,ikt),0,0,0,pwgmin,pwgmax,0,
+     .      2,0,napwk(ikt),kv,dum,dum, igv2(1,1,ikt))
+      enddo
+      deallocate(kv)
+
+C ... Reverse table of igv2 --->igv2rev
+      imx=-999
+      do ikt = 1,nkt
+        ixx = maxval( abs(igv2(1:3,1:napwk(ikt),ikt)))
+        if(ixx>imx) imx=ixx
+      enddo
+      allocate( igv2rev(-imx:imx,-imx:imx,-imx:imx,nkt) )
+      igv2rev=999999
+      do ikt = 1,nkt
+         print *
+      do ig  = 1,napwk( ikt )
+        nnn  = igv2(1:3, ig, ikt)
+        igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig 
+        !write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
+      enddo
+      enddo
+      print *,' --- nkt,napwmx = ',nkt,napwmx
+
+      end
+
+
+      subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -63,7 +309,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       double precision sctrl(1),slat(1),sspec(1),ssite(1),sarray(1),
-     .  sham(1),spot(1)
+     .  sham(1),spot(1),sbz(1)
       character*(*) sstrn
 C ... Local parameters
       integer nkap0,n0H
@@ -92,6 +338,8 @@ C     double precision kmto(10),avw,dglob
 C ... Heap
       integer w(1)
       common /w/ w
+
+c      integer :: sigswitch
 
 C --- Setup ---
       call upack('array oips oipc',sarray,oips,oipc,0,0,0)
@@ -145,14 +393,9 @@ C ... Make rest of ldham
       call pack5('ham ndofH ooffH oindxo ldham',sham,nbasp+1,offH,
      .  oidxsh,ldham,0)
 
-C ... Printout orbital positions in hamiltonian, resolved by l
-      if (iprint() .gt. 50) then
-        call showbs(ssite,sspec,nkaph,0,w(oidxsh),ldham)
-      endif
-
 C ------- Potential- and implementation- specific setup -------
-
 C --- FP setup ---
+      call upack3('lat alat plat qlat',slat,alat,plat,qlat)
       if (lfp .ne. 0) then
         nvi = 0
         nvl = 0
@@ -177,7 +420,6 @@ C         Find largest lmxa
         call info5(30,0,0,' suham :  %i augmentation'//
      .    ' channels, %i local potential channels  Maximum lmxa=%i',
      .    nvi,nvl,lmxax,0,0)
-
         call upack('lat ng ogv alat tolft',slat,ng,ogv,alat,tolgv,0)
         call sugcut(1,nspec,sspec,alat,ng,w(ogv),tolgv)
 
@@ -186,7 +428,6 @@ C       to set up upper bound to hamiltonian dimension
         call upack2('ham pwmode pwemax',sham,pwmode,pwemax)
         if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
 
-          call upack3('lat alat plat qlat',slat,alat,plat,qlat)
           Gmin = dsqrt(pwemin)
           Gmax = dsqrt(pwemax)
           if (mod(pwmode/10,10) .eq. 1) then
@@ -265,9 +506,23 @@ C    ...  Printout
         endif
       endif
 
+C ... Printout orbital positions in hamiltonian, resolved by l
+c      if (iprint() .gt. 50) then
+c        call showbs(ssite,sspec,slat,nkaph,nl,0,w(oidxsh),ldham)
+c      endif
+
+
+
+
+c this must be used for the case of QSGW.
+c      if(sigswitch()>0) then
+c        call gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbasp,w(oidxsh),ldim)
+c      endif
+
+
 C --- Third-generation NMTO ---
       if (lgen3 .ne. 0) then
-
+         stop 'xxxxxxxxxxx third generation nmto path. not meaningful'
 C        call upack('ham nmto kmto',sham,nmto,kmto,0,0,0)
 C        call isanrg(nmto,2,5,'suham','nmto',.true.)
 C        call defdr(otral,-4*nl**2*nbasp*nmto)
@@ -363,87 +618,359 @@ C ... Make B.sigma for magnetic field
       call pack1('ham obdots',sham,obs)
 
       end
-      subroutine showbs(ssite,sspec,nkaph,iprma,iprmb,ldham)
-C- Makes hamiltonian offsets and permutation indices
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   nkaph :number of types of one l-quantum number in the basis
-Ci   iprma :if supplied, iprma holds a permutation table of site
-Ci         :indices.  Orbital of the hamiltonian are ordered by
-Ci         :sites iprma(1),iprma(2),iprma(3),...
-Ci         :iprma(1)=0=> iprma is not supplied.  Then the orbitals
-Ci         :are ordered by sites 1,2,3,...
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read:   spid
-Ci     Stored:
-Co Outputs
-C ----------------------------------------------------------------------
-C     implicit none
-C Passed parameters
-      double precision sspec(1),ssite(1)
-      integer nkaph,iprma(*)
-      integer iprmb(*),ldham(4)
-C Local parameters
-      integer nkap0,n0
-      parameter (nkap0=3,n0=10)
-      integer l,ndim,ipr,nglob,nbas,ldim,off,offs,
-     .  specw,fieldw,iorb,offsi,ib,is,norb,
-     .  ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
-      logical lprmib
-      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
 
-C --- Setup ---
-      nbas = nglob('nbas')
-      ldim = ldham(1)
-      if (nkaph .gt. nkap0) call rx('showbs: increase nkap0')
-C     stdo = lgunit(1)
-C     stdl = lgunit(2)
-      lprmib = iprma(1) .gt. 0
-      if (lprmib) call rx('showbs not ready for iprma')
-      call getpr(ipr)
-      if (ipr .lt. 10) return
-      spdlab = 'spdfghi'
 
-C     Field width = number of digits each offset uses * 2 + padding
-      fieldw = int(dlog(dble(ldim))/dlog(10d0)+1d-14)+1
 
-C     Get longest spec name + site
-      specw = 0
-      do  ib = 1, nbas
-        call upack('site spec',ssite,ib,is,0,0,0)
-        call spacks(0,'spec name',sspec,spid,is,is)
-        specw = max(specw,len(trim(spid)))
-      enddo
-      call awrit2('(i4,3x,a%i,i%i)',fmt,len(fmt),0,specw+2,fieldw+1)
-      offs = 4+2 + specw+2 + 2*fieldw + 6
 
-      call info0(0,1,0,
-     .  ' Orbital positions in hamiltonian, resolved by l:%N'//
-     .  ' Site  Spec  Total    By l ...')
 
-C     Loop over sites
-      do  ib = 1, nbas
-        call upack('site spec',ssite,ib,is,0,0,0)
-        call spacks(0,'spec name',sspec,spid,is,is)
-        call orbl(ib,0,ldim,iprmb,norb,ltab,ktab,off,offl,ndim)
+      subroutine mptauof(symops,ng,plat,nbas,bas,
+     &             iclass,miat,tiat,invg,delta)
+C- Mapping of each atom by points group operations------------------c
+C Modded by okuda 1994 March.
+C Simplified by kotani 1994 7/31.
+Ci  Input
+Ci     symops(1,ng),ng,plat,nbas,bas(3,nbas)
+Ci     iclass(nbas); denote class for each atom
+Co  Output
+Co    miat(ibas  ,ig); ibas-th atom is mapped to miat-th atom, by the ig-th
+Co    points group operation.  Origin is (0,0,0).
+Co    tiat(k,ibas,ig);
+Co    delta : shifting vector for non-symmorphic group.
+Co            r' = matmul (am, r) + delta
+Cr  Remarks
+Cr
+Cr (1) The ibas-th atom (position at bas(k,ibas) ) is mapped to
+Cr
+Cr    bas( k,miat(ibas,ig) )+ tiat(k,ibas,ig), k=1~3.
+Cr
+Cr (2) tiat= unit translation
+Cr
+C--------------------------------------------------------------------
+      implicit none
+      integer ng,nbas, miat(nbas,ng),iclass(nbas),invg(ng),
+     &        nbmx, nsymx, ig,igd,i,j,ibas,mi,i1,i2,i3
+      double precision SYMOPS(9,ng),plat(3,3),
+     &                 tiat(3,nbas,ng),am(3,3),b1,b2,b3,bas(3,nbas),
+     &                 tr1,tr2,tr3,ep, dd1,dd2,dd3,t1,t2,t3
+      integer  iprint
+      external iprint
+      integer ires(3, nbas, ng)
+      integer(4):: ib1,ib2
+c
+      real(8) ::tran(3),delta(3,ng)
+      data ep/1.0d-3/
+c      data ep/1.0d-7/
+c
+      write(6,*)'MPTAUOf: search miat tiat for wave function rotation'
 
-        write(sout,fmt) ib, spid, offl(1)+1
-        call awrit1('%a:%i',sout,len(sout),0,offl(1)+ndim)
+      do 10 ig=1,ng
+        do igd=1,ng
+c seach for inverse  ig->igd
+          if( abs( symops(1,ig)-symops(1,igd) ).le.ep.and.
+     &        abs( symops(2,ig)-symops(4,igd) ).le.ep.and.
+     &        abs( symops(3,ig)-symops(7,igd) ).le.ep.and.
+     &        abs( symops(4,ig)-symops(2,igd) ).le.ep.and.
+     &        abs( symops(5,ig)-symops(5,igd) ).le.ep.and.
+     &        abs( symops(6,ig)-symops(8,igd) ).le.ep.and.
+     &        abs( symops(7,ig)-symops(3,igd) ).le.ep.and.
+     &        abs( symops(8,ig)-symops(6,igd) ).le.ep.and.
+     &        abs( symops(9,ig)-symops(9,igd) ).le.ep  ) then
+            invg(ig)=igd
+            goto 16
+          endif
+        end do
+ 16     continue
+c
+        if(iprint() .ge.41) then
+          print *,' '
+          print *,' '
+          print *,' **** group ops no. ig (igd)= ', ig, invg(ig)
+          write(6,1731)symops(1,ig),symops(4,ig),symops(7,ig)
+          write(6,1731)symops(2,ig),symops(5,ig),symops(8,ig)
+          write(6,1731)symops(3,ig),symops(6,ig),symops(9,ig)
+ 1731     format (' ',3f9.4)
+        endif
 
-C       Loop over orbitals
-        do  iorb = 1, norb
-          l   = ltab(iorb)
-C           = ktab(iorb)  <- not needed for single-kappa hamiltonians
-          off = offl(iorb)
+        do i=1,3
+          do j=1,3
+            am(i,j)=symops(i+3*(j-1),ig)
+          end do
+        end do
+c
+c trial shift vector tran
+        do 20 ib1=1,nbas
+        do 20 ib2=1,nbas
+          tran =  bas(:,ib2)  - matmul(am,bas(:,ib1))
+c
+          do 30 ibas=1,nbas
+            b1=am(1,1)*bas(1,ibas)
+     &        +am(1,2)*bas(2,ibas)+am(1,3)*bas(3,ibas)
+     &        +tran(1)
+c     .        +( tr1*plat(1,1)+tr2*plat(1,2)+tr3*plat(1,3) )
+            b2=am(2,1)*bas(1,ibas)
+     &        +am(2,2)*bas(2,ibas)+am(2,3)*bas(3,ibas)
+     &        +tran(2)
+c     .        +( tr1*plat(2,1)+tr2*plat(2,2)+tr3*plat(2,3) )
+            b3=am(3,1)*bas(1,ibas)
+     &        +am(3,2)*bas(2,ibas)+am(3,3)*bas(3,ibas)
+     &        +tran(3)
+c     .        +( tr1*plat(3,1)+tr2*plat(3,2)+tr3*plat(3,3) )
+c
+            do 40 mi=1,nbas
+              if( iclass(mi).ne.iclass(ibas) ) go to 40
 
-          offsi = (iorb-1)*(2*fieldw + 5)
-          lsym = spdlab(l+1:l+1)
-          call awrit3('%np%i:%i('//lsym//')',sout,len(sout),0,
-     .      offs+offsi,offl(iorb)+1,offl(iorb)+2*l+1)
-        enddo
-        call info0(0,0,0,sout)
+              do 50 i1=-3,3
+              do 50 i2=-3,3
+              do 50 i3=-3,3
+                dd1 = ( i1 *plat(1,1)+i2 *plat(1,2)+i3 *plat(1,3) )
+                dd2 = ( i1 *plat(2,1)+i2 *plat(2,2)+i3 *plat(2,3) )
+                dd3 = ( i1 *plat(3,1)+i2 *plat(3,2)+i3 *plat(3,3) )
 
-      enddo
+                t1 = b1 - (bas(1,mi)+dd1)
+                t2 = b2 - (bas(2,mi)+dd2)
+                t3 = b3 - (bas(3,mi)+dd3)
+                if(abs(t1).le.ep.and.abs(t2).le.ep.and.
+     &             abs(t3).le.ep) go to 60
+   50         continue
+   40       continue
+c seach failed, Not found mi and dd1. Try next (tr).
+            goto 20
 
+   60       continue
+            miat(ibas,ig)  = mi
+            tiat(1,ibas,ig)= dd1
+            tiat(2,ibas,ig)= dd2
+            tiat(3,ibas,ig)= dd3
+            ires(1,ibas,ig)= i1
+            ires(2,ibas,ig)= i2
+            ires(3,ibas,ig)= i3
+c
+   30     continue
+c When the do-30 loop has been completed, we get out of do-20 loop
+          goto 21
+   20   continue
+        stop 'mptauof: Can not find miat and tiat'
+c
+   21   continue
+        delta(:,ig) = tran          ! r' = am(3,3) r +  delta  !Jun 2000
+
+c- have gotten the translation-> check write --------------------
+        if(iprint().ge.40) then
+c          write(6,4658)tr1,tr2,tr3
+          write(6,4658)tran
+ 4658     format('  Obtained translation operation=',3d12.4)
+          do 123  ibas=1,nbas
+            write(6,150) ibas, miat(ibas,ig), tiat(1,ibas,ig),
+     &    tiat(2,ibas,ig), tiat(3,ibas,ig),
+     &    ires(1,ibas,ig),ires(2,ibas,ig),ires(3,ibas,ig)
+  150       format(' ibas=',i3,' miat=',i3,' tiat=',3f11.4,' i1i2i3=',3i3)
+  123     continue
+        endif
+c---------------------------------------------------
+   10 continue
       end
 
+      subroutine rotdlmm(symops,ng,nl ,dlmm)
+c- Generate rotation matrix D^l_{m,m'} for L-representaiton, corresponding
+c  to points group operations.
+Ci symops(9,ng),ng; point ops.
+Ci nl; num.of l =lmax+1
+Co dlmm(2*nl-1,2*nl-1,0:nl-1,ng,2); D^l_{m,m'}. Indexes are for Real harmonics.
+Cr   dlmmc is used as work area about 200kbyte used for  s,p,d,f -> nl=4
+c-----------------------------------------------------------------
+      implicit double precision (a-h,o-z)
+      integer ng,nl
+      double precision SYMOPS(9,ng),
+     .        am(3,3) ,fac1,fac2
+      double precision dlmm( -(nl-1):(nl-1),-(nl-1):(nl-1),0:nl-1,ng)
+
+      double complex   dlmmc(-(nl-1):(nl-1),-(nl-1):(nl-1),0:nl-1,ng)
+      double precision det,igann,osq2
+      double complex   msc(0:1,2,2), mcs(0:1,2,2),Img
+     &            ,dum(2)
+      parameter(Img=(0d0,1d0))
+      integer:: debugmode
+      print *; print *,' ROTDLMM:'
+      do 10 ig =1,ng
+        do 20 i=1,3
+        do 20 j=1,3
+          am(i,j) = symops(i+3*(j-1),ig)
+   20   continue
+c calculate determinant(signature)
+        det= am(1,1)*am(2,2)*am(3,3)
+     &        -am(1,1)*am(3,2)*am(2,3)
+     &        -am(2,1)*am(1,2)*am(3,3)
+     &        +am(2,1)*am(3,2)*am(1,3)
+     &        +am(3,1)*am(1,2)*am(2,3)
+     &        -am(3,1)*am(2,2)*am(1,3)
+        if(abs(abs(det)-1d0).ge.1d-10) then
+          print *,' rotdlmm: det/=1 ig and det=',ig,det
+          stop
+        endif
+c seek Euler angle   print *,' goto cbeta',ig,det
+        cbeta = am(3,3)/det
+c added region correction so as to go beyond domain error for functions, dsqrt and acos.
+        if(abs(cbeta-1d0).le.1d-6) cbeta= 1d0
+        if(abs(cbeta+1d0).le.1d-6) cbeta=-1d0
+        beta = dacos(cbeta)
+        sbeta= sin(beta)
+c beta= 0~pi
+        if(sbeta.le.1.0d-6) then
+          calpha= 1d0
+          salpha= 0d0
+          alpha = 0d0
+          cgamma= am(2,2)/det
+          sgamma= am(2,1)/det
+        else
+          salpha =  am(2,3)/sbeta/det
+          calpha =  am(1,3)/sbeta/det
+          sgamma =  am(3,2)/sbeta/det
+          cgamma = -am(3,1)/sbeta/det
+        endif
+        co2 = dcos(beta/2d0)
+        so2 = dsin(beta/2d0)
+c         print *,' calpha=',calpha
+        if(abs(calpha-1.0d0).le.1.0d-6) calpha= 1.0d0
+        if(abs(calpha+1.0d0).le.1.0d-6) calpha=-1.0d0
+        if(abs(cgamma-1.0d0).le.1.0d-6) cgamma= 1.0d0
+        if(abs(cgamma+1.0d0).le.1.0d-6) cgamma=-1.0d0
+        alpha=dacos(calpha)
+        if(salpha.lt.0d0) alpha=-alpha
+        gamma=dacos(cgamma)
+        if(sgamma.lt.0d0) gamma=-gamma
+c         print *,'alpha beta gamma det=',alpha,beta,gamma,det
+        do 30 l =  0, nl-1
+        do 30 md= -l, l
+        do 30 m = -l, l
+c  from 'Ele theo. ang. mom. by M. E. Rose 5th 1967 Wisley and Sons.  p.52 (4.13)
+          fac1 = dsqrt( igann(l+m)*igann(l-m)*igann(l+md)*igann(l-md) )
+          fac2 = 0d0
+          do 40 ikap=0,2*l
+            if(l-md-ikap.ge.0 .and. l+m-ikap.ge.0
+     &          .and.ikap+md-m.ge.0) then
+              add= dble((-1)**ikap)/( igann(l-md-ikap)*igann(l+m-ikap)
+     &           *igann(ikap+md-m)*igann(ikap) )
+              if(2*l+m-md-2*ikap.ne.0) add=add*co2**(2*l+m-md-2*ikap)
+              if(md-m+2*ikap.ne.0)     add=add*(-so2)**(md-m+2*ikap)
+              fac2 = fac2+add
+            endif
+   40     continue
+c l-th rep. is odd or even according to (det)**l
+          dlmmc(md,m,l,ig) = fac1*fac2*det**l*
+     &        cdexp( -Img*(alpha*md+gamma*m) )
+   30   continue
+
+        am(1,1)= cos(beta)*cos(alpha)*cos(gamma)-sin(alpha)*sin(gamma)
+        am(1,2)=-cos(beta)*cos(alpha)*sin(gamma)-sin(alpha)*cos(gamma)
+        am(1,3)= sin(beta)*cos(alpha)
+        am(2,1)= cos(beta)*sin(alpha)*cos(gamma)+cos(alpha)*sin(gamma)
+        am(2,2)=-cos(beta)*sin(alpha)*sin(gamma)+cos(alpha)*cos(gamma)
+        am(2,3)= sin(beta)*sin(alpha)
+        am(3,1)=-sin(beta)*cos(gamma)
+        am(3,2)= sin(beta)*sin(gamma)
+        am(3,3)= cos(beta)
+
+        if(abs(am(1,1)*det-symops(1,ig)).gt.1.0d-8.or.
+     &    abs(am(2,1)*det-symops(2,ig)).gt.1.0d-8.or.
+     &    abs(am(3,1)*det-symops(3,ig)).gt.1.0d-8.or.
+     &    abs(am(1,2)*det-symops(4,ig)).gt.1.0d-8.or.
+     &    abs(am(2,2)*det-symops(5,ig)).gt.1.0d-8.or.
+     &    abs(am(3,2)*det-symops(6,ig)).gt.1.0d-8.or.
+     &    abs(am(1,3)*det-symops(7,ig)).gt.1.0d-8.or.
+     &    abs(am(2,3)*det-symops(8,ig)).gt.1.0d-8.or.
+     &    abs(am(3,3)*det-symops(9,ig)).gt.1.0d-8) then
+          print *,' rotdlmm: not agree. symgrp and one by eular angle'
+          stop
+        endif
+cccccccccccccccccccccccc
+c        if(iprint().ge.140) then
+        if(debugmode()>9) then
+          print *;print *;print *,' **** group ops no. ig=', ig
+          write(6,1731)symops(1,ig),symops(4,ig),symops(7,ig)
+          write(6,1731)symops(2,ig),symops(5,ig),symops(8,ig)
+          write(6,1731)symops(3,ig),symops(6,ig),symops(9,ig)
+          print *,' by Eular angle '
+          write(6,1731)am(1,1)*det,am(1,2)*det,am(1,3)*det
+          write(6,1731)am(2,1)*det,am(2,2)*det,am(2,3)*det
+          write(6,1731)am(3,1)*det,am(3,2)*det,am(3,3)*det
+        endif
+ 1731   format (' ',3f9.4)
+cccccccccccccccccccccccc
+   10 continue
+c conversion to cubic rep. Belows are from csconvs
+c  msc mcs conversion matrix generation 2->m 1->-m for m>0
+      osq2 = 1d0/sqrt(2d0)
+      do m = 0,1
+        Msc(m,1,1)= osq2*(-1)**m
+        Msc(m,1,2)=-osq2*Img*(-1)**m
+        Msc(m,2,1)= osq2
+        Msc(m,2,2)= osq2*Img
+
+        Mcs(m,1,1)= osq2*(-1)**m
+        Mcs(m,1,2)= osq2
+        Mcs(m,2,1)= osq2*Img*(-1)**m
+        Mcs(m,2,2)=-osq2*Img
+      enddo
+c
+      if(debugmode()>1) print * ,' goto do 23'
+      do 23 is=1,ng
+        if(.false.) then
+c        if(iprint().ge.150) then
+          print *; print *,' **** group ops no. ig=', is
+          write(6,1731) symops(1,is),symops(4,is),symops(7,is)
+          write(6,1731) symops(2,is),symops(5,is),symops(8,is)
+          write(6,1731) symops(3,is),symops(6,is),symops(9,is)
+        endif
+c convert to cubic rep.
+      do 23   l =0,nl-1
+        do 33 m2=-l,l
+        do 33 m1= 1,l
+          dum(1)= dlmmc(m2, m1,l,is)
+          dum(2)= dlmmc(m2,-m1,l,is)
+          mx    = mod(m1,2)
+          dlmmc(m2,  m1,l,is)=
+     &                       dum(1)*msc(mx,1,1)
+     &                      +dum(2)*msc(mx,2,1)
+          dlmmc(m2, -m1,l,is)=
+     &                       dum(1)*msc(mx,1,2)
+     &                      +dum(2)*msc(mx,2,2)
+   33   continue
+        do 43 m2=  1,l
+        do 43 m1= -l,l
+          dum(1)=dlmmc( m2, m1,l,is)
+          dum(2)=dlmmc(-m2, m1,l,is)
+          mx=mod(m2,2)
+          dlmmc( m2, m1,l,is)=
+     &                       mcs(mx,1,1)*dum(1)
+     &                      +mcs(mx,1,2)*dum(2)
+          dlmmc(-m2, m1,l,is)=
+     &                       mcs(mx,2,1)*dum(1)
+     &                      +mcs(mx,2,2)*dum(2)
+   43   continue
+        do 53 m2=-l,l
+        do 53 m1=-l,l
+          dlmm(m2,m1,l,is)=dreal( dlmmc(m2,m1,l,is) )
+          if( abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12 ) stop
+     &      ' rotdlmm: abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12'
+   53   continue
+ccccccccccccccccccccc
+        if(.false.) then
+c        if(.true.) then
+c        if(iprint().ge.41) then
+          print *; print *,'  points ops  ig, l=', is,l,' cubic   '
+          do m2=-l,l
+            write(6,"(28f10.5)")( dreal(dlmmc (m2, m1,l,is) ), m1=-l,l)
+c    &    , ( dimag(dlmmc (m2, m1,l,is) ), m1=-l,l),( dlmm(m2, m1,l,is), m1=-l,l)
+          enddo
+        endif
+cccccccccccccccccccccc
+   23 continue
+      if(debugmode()>1) print *,' end of rotdlmm'
+      end
+c--------------------------------------------
+      double precision function igann(i)
+      igann  = 1d0
+      do ix =1,i
+        igann=igann*dble(ix)
+      enddo
+      end

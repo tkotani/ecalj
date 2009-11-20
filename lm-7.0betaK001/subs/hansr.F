@@ -237,7 +237,8 @@ C     implicit none
       integer nrx,nr,lmin,lmax,nmax,nm1,nm2
       double precision rsq(nrx),e,xi(nrx,lmin:lmax),rsm,rmax
 C Local vairables
-      parameter (nmax=40,nm1=14,nm2=20)
+c      parameter (nmax=40,nm1=14,nm2=20)
+      parameter (nmax=60,nm1=14,nm2=20)
       double precision derfc,cof0(-1:20),cofl(0:nmax),tol
       double precision a,a2,add,akap,al,cc,fac,rhs,ta,ta2l,y0,r2max,x
       integer i,l,ir,m,nmaxl

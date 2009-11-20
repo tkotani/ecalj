@@ -43,6 +43,7 @@ C ... Local parameters
 C     parameter (fmax=360,tolg=1d0,PRTG=30)
       parameter (fmax=600,tolg=1d0,PRTG=30)
       integer mshlst(0:3*fmax)
+      logical:: fullmesh
 
       stdo = lgunit(1)
       call dpzero(q,3)
@@ -85,6 +86,16 @@ C ... Count the number of G vectors for initial n1..n3
 C     Hold on to the upper bound to know when we fall below tolerance
       nginit = ng
 
+
+ctakao
+      if(fullmesh()) then
+        print *,
+     &   ' Full mesh mode: taka all G for charge density. n1*n2*n3'
+        ng = ngabc(1)*ngabc(2)*ngabc(3)
+        goto 18
+      endif
+
+      
 C ... Reduce gmax slowly until at least one of n1..n3 changes
    10 continue
       do  k = 1, 99
@@ -108,9 +119,24 @@ C       Don't assign, ngabcn(i) = nn but find next one smaller in mshlst
       enddo
    12 continue
 
+
+ctakao
+ 18   continue
+      if(fullmesh()) then
+        ngabcn=ngabc
+        gmax=1d10
+        ngn=ngabcn(1)*ngabcn(2)*ngabcn(3)
+      endif  
+
+
 C ... Count the number of G vectors for (smaller) trial n1..n3
       call gvlist(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3),gmax,000,
      .  0,ngn,xx,xx,xx,xx)
+
+
+ctakao
+      if(fullmesh()) goto 21
+
 
 C     If the G vector count doesn't fall by more than tolg, use trial
       if (dble(ngn) .ge. nginit*tolg) then
@@ -118,9 +144,10 @@ C     If the G vector count doesn't fall by more than tolg, use trial
         call icopy(3,ngabcn,1,ngabc,1)
         goto 10
       endif
-      call poppr
 
 C ... Check if fmax is too small
+ 21   continue !takao
+      call poppr
       i1 = ngabc(1)
       i2 = ngabc(2)
       i3 = ngabc(3)

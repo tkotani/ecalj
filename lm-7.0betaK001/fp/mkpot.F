@@ -1,7 +1,7 @@
       subroutine mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,
      .  k1,k2,k3,smrho,orhoat,qbg,smpot,qmom,vconst,vesrmt,osig,otau,
      .  oppi,ppn,hab,vab,sab,qval,qsc,gpot0,vval,fes,job,
-     .  vorb,nlibu,lmaxu,lldau)
+     .  vorb,nlibu,lmaxu,lldau,  itest)
 C- Make the potential from the density.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -190,6 +190,7 @@ C ... Local parameters
 C     double precision tmp(2)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 
+
 C     This ordering must match sham->eterms; see uham
       double precision eterms(20)
       equivalence (eterms(1),eh)
@@ -209,10 +210,33 @@ C ... Heap
       integer w(1)
       common /w/ w
 
+ccccccccccccccccccccc
+      integer:: itest
+      complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
+cccccccccccccccccccccc
+
+
 C      print *, '!!'
 C      job = job + 30000
 
       call tcn('mkpot')
+ccccccccccccccccccccccccccccccccc
+c      print *,'vvv mkpot sum smrho=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1)))
+c      open(1898,file='test1vvv')
+c      nnnew=0
+c      do  i3 = 1, k3
+c      do  i2 = 1, k2
+c      do  i1 = 1, k1
+c        if (dreal(smrho(i1,i2,i3,1)) .lt. 0) nnnew = nnnew+1
+cc        write(1898,"(3i5,2d13.6)")i1,i2,i3,dreal(smrho(i1,i2,i3,1))
+c      enddo
+c      enddo
+c      enddo
+cc      close(1898)
+c      print *,'vvv mkpot sum smrho=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
+cc      stop 'xxxxxxxxxx 1111'
+ccccccccccccccccccccccccccccccccc
+
       ipr = iprint()
       ipl = ipr
       lso =   isw(lgors('ham lncol,4',sham))
@@ -259,9 +283,40 @@ C  334 format(' vsum=',f14.6,'   vconst=',f14.6)
 
       i = 1
       if (cmdopt('--oldvc',7,0,outs)) i = 0
+
+cccccccccccccccccccccc
+c      smpot(:,:,:,1)=0d0
+c      allocate(smpotbk(k1,k2,k3))
+c      smpotbk=smpot(:,:,:,1)
+ccccccccccccccccccccc
+
       call smves(i,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,vval,
      .  w(ohpot0),sgp0,smrho,smpot,vconst,smq,qsmc,fes,rhvsm,zvnsm,zsum,
      .  vesrmt,qbg)
+
+cccccccccccccccccc
+c      print *,'vvv fix smves'
+c      open(2021,file='smpot.bk')
+c      do i3=1,k3
+c      do i2=1,k2
+c      do i1=1,k1
+c        read(2021,"(2d23.15)")smpot(i1,i2,i3,1)
+cc        write(2021,"(2d23.15)")smpot(i1,i2,i3,1)
+c      enddo
+c      enddo
+c      enddo
+c      close(2021)
+c      stop 'eeeeeeeeeeeeeeeeeee'
+cccccccccccccccccc
+
+c      if(itest==1) then
+c      print *,'vvv: skip smves for smpot'
+c      smpot(:,:,:,1)=smpotbk
+c      deallocate(smpotbk)
+c      stop 'xxxxxxxxxxxxxx'
+c      endif
+ccccccccccccccccc
+
       smag = 0
       if (nsp .eq. 2) then
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho,smag,sum2)
@@ -297,10 +352,54 @@ C     .    tmp,tmp(2))
 C   ... Smooth exchange-correlation potential
         call dpzero(w(osmvxc), k1*k2*k3*nsp)
         call dpzero(w(osmexc), k1*k2*k3)
+
+
+cccccccccccccccccccccccc
+c      open(2021,file='smpot2.bk')
+c      do i3=1,k3
+c      do i2=1,k2
+c      do i1=1,k1
+c        read(2021,"(2d23.15)")smpot(i1,i2,i3,1)
+c      enddo
+c      enddo
+c      enddo
+c      close(2021)
+c      stop 'ccccccccccccccccccc'
+ccccccccccccccccccccccc
+
+c      smpot(:,:,:,1)=0d0
+c      allocate(smpotbkx(k1,k2,k3))
+c      smpotbkx=smpot(:,:,:,1)
+cccccccccccccccccc
+
         call smvxcm(ssite,sspec,slat,nbas,lfrce,k1,k2,k3,
      .    smrho,smpot,w(osmvxc),w(osmvx),w(osmvc),w(osmexc),repsm,
      .    repsmx,repsmc,rmusm,rvmusm,rvepsm,
      .    fcexc0,fcex0,fcec0,fcvxc0,w(ofxc))
+
+
+cccccccccccccccccccccccc
+ccc      print *,'vvv readin smpot vxc'
+c      open(2021,file='smpot2.bk')
+c      allocate(smpotbk(k1,k2,k3))
+c      do i3=1,k3
+c      do i2=1,k2
+c      do i1=1,k1
+cc         write(2021,"(2d23.15)")smpot(i1,i2,i3,1)-smpotbkx(i1,i2,i3)
+c        read(2021,"(2d23.15)") smpotbk(i1,i2,i3)
+c      enddo
+c      enddo
+c      enddo
+c      close(2021)
+c      smpot(:,:,:,1) = smpotbkx + smpotbk
+c      stop 'xxxxxxx smpot2.bk write'
+ccccccccccccccccccccccccc
+
+
+ccccccccccccc
+c        print *,'vvv sum smrho=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1)))
+c        print *,'vvv repsm=',repsm
+cccccccccccc
         if (lfrce .ne. 0) call dpadd(fes,w(ofxc),1,3*nbas,1d0)
         call rlse(osmvxc)
       else
@@ -369,10 +468,16 @@ C    *Also add fcvxc0(1) to smooth part because
 C     rvmusm+fcvxc0 is perturbative approximation for rvmusm
 C     when cores are not treated perturbatively.
       valfsm = rhvsm + rvmusm(1) - sgp0 - vconst*qbg
+ccccccccccccccc
+c      write(6,"('vvv: mkpot : rhvsm, sgp0, rhvsm-sgp0',10d13.6)") rhvsm, sgp0, rhvsm-sgp0
+ccccccccccccccc
       valftr = valvfa + sgp0
       valfsm = valfsm + fcvxc0(1)
       valftr = valftr - fcvxca(1)
       valvef = valfsm + valftr
+cccccccccccccccccc
+c      print *,'vvv takao valvef valvfsm valvtr valvfa',valvef,valfsm,valftr,valvfa
+cccccccccccccccccc
 
 C ... Integral of core+nucleus times estatic potential
       cpnves = zvnsm + cpnvsa
@@ -429,6 +534,10 @@ C --- Printout ---
      .   '   nucleii',f12.5/'    hom background',f12.5,
      .   '   deviation from neutrality: ',f12.5)
 
+ccccccccccccccccccc takao sep2009
+c      print *,'vvv ipl=1'
+c      ipl=1
+ccccccccccccccccccc
       if (ipl .ge. 1) then
         write (stdl,710) smq+sqloc,smq,sqloc,qbg,dq
   710   format('fp qvl',f11.6,'  sm',f11.6,'  loc',f11.6,

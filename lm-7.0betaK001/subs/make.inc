@@ -471,5 +471,8 @@ subs_list:=\
         m_struc_func.o \
         struc_sub.o \
         struc_main.o\
-        struc_strn.o 
+        struc_strn.o \
+        switch.o \
+        rdsigm2.o\
+        rotwv.o
 

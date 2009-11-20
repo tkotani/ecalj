@@ -150,6 +150,7 @@ C ... Put n0(G) into psrho and cn
       xx0 = dval(w(ocn),1)
 
 C ... Add sum of local gaussian densities to mesh density
+      print *,' modrhg=',modrhg
       if (modrhg .ge. 0 .or. modrhg .le. -2) then
         if (modrhg .eq.  0) i = 131
         if (modrhg .eq.  1) i =  31

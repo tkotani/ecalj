@@ -1,3 +1,86 @@
+      subroutine hamfb3k(qin,iq,nk1,nk2,nk3,
+     i  k1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,plat,qlat,ldim,ifac,igstar,
+     i  hq,
+     o  gfbz)
+      use m_hamindex
+C- Generate gfbz (full BZ) from hq (1st BZ).
+Ci q iq: q and index for q
+Ci   nk1,nk2,nk3:  no. divisions for the qp in 3 recip. latt. vecs
+Ci   k1,k2,k3: leading dimensions of gfbz
+Ci   ipq   :ipq(i1,i2,i3) points to the irreducible qp into which
+Ci          mesh point (i1,i2,i3) is mapped (bzmesh.f)
+Ci-temp  igstar:contains group operation needed to rotated a k-point
+Ci          to its irreducible one (bzmesh.f) !this is just for check.
+Ci   ndimh: dim of self energy hq at qin
+Ci   ldima :dimensions gfbz; also the number of rows in gfbz to fill.
+Ci         :usually dimension of lower (or l+i) block for crystal
+Ci   ldimb :dimensions gfbz; also the number of columns in gfbz to fill
+Ci         :usually dimension of lower (or l+i) block for crystal
+Ci   qb    :vectors of a microcell in the Brillouin zone
+Ci   hq    : Self-energy (or non-local potential for this iq
+Ci read date in m_hamindex .
+Co Outputs
+Co   gfbz  : For those qp in star iq, hq stored
+C ----------------------------------------------------------------------
+      implicit none
+      integer:: nk1,nk2,nk3,k1,k2,k3,ipq(1),igstar(0:1),ndimh,ldima,ldimb,napw_in
+      real(8)::    hq(ndimh,ndimh),qin(3),qb(3,3),plat(3,3),qlat(3,3)
+      complex(8):: gfbz(k1,k2,k3,ldima,ldimb)
+      integer:: i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,nl,ierr,ifac(3),j1,j2,ik1,ik2,ik3,isp,ldim
+      real(8):: q1(3),qk
+C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
+      qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
+     .                    (jj2*ifac(2)-1)*qb(k,2) +
+     .                    (jj3*ifac(3)-1)*qb(k,3)
+      call tcn('hamfb3k')
+      print *, 'hamfb3k: start...'
+      iq1 = 0
+      do  i3 = 1, nk3
+      do  i2 = 1, nk2
+      do  i1 = 1, nk1
+        iq1 = iq1+1
+        print *,'iq iq1 ipq(iq1)',iq,iq1,ipq(iq1)
+        if (ipq(iq1) .ne. iq) cycle
+        q1(1) = qk(1,i1,i2,i3)
+        q1(2) = qk(2,i1,i2,i3)
+        q1(3) = qk(3,i1,i2,i3)
+        print *,q1
+c        ig = igstar(iq1)
+c        write(6,"(a,i4)") 'symops',ig
+c        write(6,"(3f10.5)")symops(1,:,ig)
+c        write(6,"(3f10.5)")symops(2,:,ig)
+c        write(6,"(3f10.5)")symops(3,:,ig)
+c        write(6,"(a,3f13.5)")' input          qin = ', qin
+c        write(6,"(a,3f13.5)")' target a        q1 = ', q1   ! qin = g(:,:,ig)^{-1}*q1
+c       write(6,"(a,2i3, 3f13.5)")' target b   qp = ',iq1,ig, matmul(symops(:,:,ig),qin)-q1
+c       write(6,"(a,3f13.5)")
+        call rotsig(qin,q1,ndimh,napw_in,plat,qlat,ldim,hq,gfbz(i1,i2,i3,:,:),ierr)
+      enddo
+      enddo
+      enddo
+      print *, 'hamfb3k: end...'
+      call tcx('hamfb3k')
+
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$       isp=1
+c$$$       open(3013,file="sfz_gfbz")
+c$$$       do j1=1,ldima
+c$$$       do j2=1,ldimb
+c$$$        do ik1=1,k1
+c$$$        do ik2=1,k2
+c$$$        do ik3=1,k3
+c$$$          write(3013,"(6i4,2d13.5)")ik1,ik2,ik3,j1,j2,isp,gfbz(ik1,ik2,ik3,j1,j2)
+c$$$c           write(3012,"(6i4,2d13.5)")ik1,ik2,ik3,j1,j2,isp,sfz(ik1,ik2,ik3,j1,j2)
+c$$$        enddo
+c$$$        enddo
+c$$$        enddo
+c$$$       enddo
+c$$$       enddo
+c$$$       close(3013)
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
+      end
+
+
       subroutine hamfb3(nbas,nl,offH,iprmb,opt,pos,iq,nk1,nk2,nk3,
      .  k1,k2,k3,ipq,istab,g,ag,igstar,ifac,lidim,ldima,ldimb,nspc,
      .  qb,hq,hw,hw2,gfbz)
@@ -83,8 +166,8 @@ C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
      .                    (jj2*ifac(2)-1)*qb(k,2) +
      .                    (jj3*ifac(3)-1)*qb(k,3)
 
-
       call tcn('hamfb3')
+
 C     optrot = opt, with 1s digit stripped
       optrot = opt + 0 - mod(opt,10)
       lidimx = lidim*nspc
@@ -112,6 +195,7 @@ C   ... skip this qp unless it is related to iq
 
 C   ... Make g by rotation of g(iq): symop relating iq1 to iq
         ig = igstar(iq1)
+
 C   ... q into which h is rotated
         q1(1) = qk(1,i1,i2,i3)
         q1(2) = qk(2,i1,i2,i3)
@@ -165,6 +249,24 @@ C     Restore hq to complex*16 storage mode
 
       call tcx('hamfb3')
 C     call yprm('gf',3,gfbz,0,k1*k2*k3,k1*k2*k3,ldima*ldimb)
+
+
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$       open(3013,file="sfz_gfbz")
+c$$$       do j1=1,ldima
+c$$$       do j2=1,ldimb
+c$$$        do ik1=1,k1
+c$$$        do ik2=1,k2
+c$$$        do ik3=1,k3
+c$$$          write(3013,"(6i4,2d13.5)")ik1,ik2,ik3,j1,j2,isp,gfbz(ik1,ik2,ik3,j1,1,j2,1)
+c$$$c           write(3012,"(6i4,2d13.5)")ik1,ik2,ik3,j1,j2,isp,sfz(ik1,ik2,ik3,j1,j2,isp)
+c$$$        enddo
+c$$$        enddo
+c$$$        enddo
+c$$$       enddo
+c$$$       enddo
+c$$$       close(3013)
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
 
       end
 

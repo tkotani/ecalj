@@ -60,9 +60,9 @@ C Event numbers:
 C Heap allocation
       integer wksize
 #if MPI | MPIK
-      parameter(wksize= 120 000 000)
+      parameter(wksize= 300 000 000)
 #else
-      parameter(wksize= 80 000 000)
+      parameter(wksize= 300 000 000)
 #endif
       integer w(wksize)
 C     Next two lines guarantee w is aligned along a d.p. boundary
@@ -188,6 +188,10 @@ c      equivalence( recrd(0),w(1))
       character*1,allocatable:: recrd(:)
 
       real(8),parameter::    NULLR =-99999
+      real(8)::pwmode,pwemin,pwemax
+
+
+      real(8):: bz_w !test
 
 C -------------- First executable statement ---------------
 C     Link in routines that cause potential library conflicts

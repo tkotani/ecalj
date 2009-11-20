@@ -318,7 +318,7 @@ c
 C --- check write of dse
             do iag = 1,nag(iline)
               it = itqinv( ibidx(ibr,iqq_ag(iag,iline),iline) )
-              write(6,"(' iline ibr iag =',3i5 \)") iline, ibr,iag
+              write(6,"(' iline ibr iag =',3i5,/)") iline,ibr,iag
               write(6,"(' it iq iqq q dse1 dse2=',3i5,3f12.6,2f14.6)") 
      &      it,iq_ag(iag,iline), iqq_ag(iag,iline),
      &      qb(1:3,iqq_ag(iag,iline),iline),

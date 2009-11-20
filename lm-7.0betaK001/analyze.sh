@@ -6,7 +6,7 @@ echo    This generate a call tree file 'lmfp_tree' for fp/lmfp.f, which is calle
 echo    If you like, change keyword 'lmfp' in TOOLS/ANALYZE/analyze.py
 echo    This routine generate a tree up to 3rd lower level.
 echo    
-echo  --- Now generating a file 'lmfp_tree' ... Wait 10~30sec or so! 
+echo  --- Now generating a file 'lmfp_tree' ... Wait 10~30sec or so! A little buggy. Not perfect
 echo ##############
-../TOOLS/ANALYZE/analyze.py lmfp fp/*.F subs/*.F slatsm/*.F gwd/*.F >callcaller.dat ; grep tree callcaller.dat > lmfp_tree
+../TOOLS/ANALYZE/analyze.py rdsigm fp/*.F subs/*.F slatsm/*.F gwd/*.F >callcaller.dat ; grep tree callcaller.dat > rdsigm_tree
 

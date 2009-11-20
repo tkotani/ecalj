@@ -390,6 +390,7 @@ c        call rwdd1   (ifev(is), iq, nband, eqt) !direct access read b,hb and e(
           do it=1,ntq
             eee = eqt(itq(it)) - 2d0*deltaw  !2.d0*(-1d0-shtw)*deltaw
             print *,' is ip it eee=',eee,eqt(itq(it))
+            if(eee>=1d20-1d10) cycle !takao jun2009
             if( eee <ef .and. eee< omegav )  then
               omegav = eee
               ipx1 = ip

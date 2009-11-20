@@ -30,7 +30,7 @@ c---------------------------------------------------
       integer(4):: ifbz
       integer(4):: bzcase
 c      logical :: readgwinput
-      integer(4):: nqnumm,ifiqmtet,verbose, nq0x,q0pchoice,nn1,nn2 !,auxfunq0p
+      integer(4):: nqnumm,ifiqmtet,verbose, nq0x,q0pchoice,nn1,nn2,ifiqbz,iqbz !,auxfunq0p
       real(8)::aaij,bbij,wgtq0p, qdum(6)
       logical:: qbzreg
 
@@ -188,6 +188,16 @@ C ... Write QIBZ
         write(ifiqibz,"(3d24.16,3x,d24.16)") qibz(1:3,iqibz),wibz(iqibz)
       enddo
       close(ifiqibz)
+
+C ... Write QBZ
+      ifiqbz = 6661
+      open (ifiqbz, file='QBZ') !write q-points in IBZ.
+      write(ifiqbz,"(i10)") nqbz
+      do iqbz = 1,nqbz
+        write(ifiqbz,"(3d24.16,3x,d24.16)") qbz(1:3,iqbz)
+      enddo
+      close(ifiqbz)
+
 
 C ... Write to file KPNTin1BZ
       ifkpt = 335
@@ -396,6 +406,7 @@ c read q-points and states
         deallocate(q0i)
         allocate(q0i(3,nq0i))
         q0i=qsave
+        deallocate(qsave)
         close(ifqpnt)
       endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccc

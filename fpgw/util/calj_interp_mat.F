@@ -1,3 +1,37 @@
+C Dec2008 reply to Liqin, as for the correspondense to my SW paper.
+C  
+C Hi Liqin,  
+C (1) 
+C mmnorm = sqrt(<M|M>).  See L1100 hx0fp0.m.F
+C e(r)    = M(r)/M
+C ebar(r) = M(r) M / <M|M>, where e(r) ebar(r) is defined in my paper.
+C           <e|ebar>=1, M is the moment.
+
+C (2) 
+C Definition of D_0 is in eq.8 with ebar.
+C   D_0  = <ebar |chi0 | ebar> =  <M | chi0|M> M^2 / <M|M>^2
+C  (D_0)^{-1}  = <M|M>^2 M^2 /<M | chi0|M>
+
+
+C (3) xinv is calculated in calj_interp_mat L208 around as
+C   C --- get xinv = x
+C   c      allocate(eval(nmbas))
+C         do iw=1,nx
+C   c        xinv(:,:,iw) = x0mean(:,:,iw) - uu0(1:nmbas,1:nmbas)
+C   c     &   - freq(iw) * uu1(1:nmbas,1:nmbas)
+C           xinv(:,:,iw) = x0mean(:,:,iw)
+C           do ix=1,nmbas
+C             xinv(ix,ix,iw) = xinv(ix,ix,iw) -  uu0(ix,ix)-uuo(ix,iw)  <---
+C           enddo
+C Note the normalization of xinv.
+C This xinv is xinv= ((D_0)^{-1} + Ubar) M^2 / <M|M>
+C So the term propotional to omg is
+C    Ubar M^2/<M|M> = omg M /<M|M>  = omg* momsite/ mmnorm**2
+C as seen in  calj_interp_mat L171 around
+C              uuo(i,iw)= ( - omg*momsite(i)/mmnorm(i) + rrr) /mmnorm(i)
+C
+C takao
+
 C make interpolation ---spectrum function for metal
 C   usage:   echo ChiPM*.mat |calj_interp (but do ChiPM0001.nlfc.mat, which is for q=0 first)
 C   You get interpolation

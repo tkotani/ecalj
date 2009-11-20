@@ -1,4 +1,5 @@
-      subroutine pzhev(lov,n,oh,os,nb,nprow,npcol,emx,nmx,nev,e,ot)
+c      subroutine pzhev(lov,n,oh,os,nb,nprow,npcol,emx,nmx,nev,e,ot)
+      subroutine pzhev(lov,n,hamm,ovlm,nb,nprow,npcol,emx,nmx,nev,e,ot)
 C- MPI parallel diagonaliser
 C ----------------------------------------------------------------------
 Ci Inputs: 
@@ -61,7 +62,9 @@ C BLACS process configuration
 C E-vals (output)
       double precision e(n)
 C Pointers to H, S (input) and Z (output)
-      integer oh,os,ot
+c      integer oh,os,ot !oh --> hamm takao
+      integer ot 
+      complex(8):: hamm(*),ovlm(*)
 C Pointers to local distributed arrays
       integer oa,ob,oz
 C Work arrays
@@ -185,13 +188,13 @@ C Get dimensions of local matrices a, b and z
       endif
 C Distribute h and s into local arrays
       call defcc(oa, lda*mda)
-      call dstmt(desca,n,w(oh),w(oa))
-      call dcopy(2*lda*mda,w(oa),1,w(oh),1)
+      call dstmt(desca,n,hamm,w(oa))
+      call dcopy(2*lda*mda,w(oa),1,hamm,1)
       call rlse(oa)
       if (lov) then
         call defcc(ob, ldb*mdb)
-        call dstmt(descb,n,w(os),w(ob))
-        call dcopy(2*ldb*mdb,w(ob),1,w(os),1)
+        call dstmt(descb,n,ovlm,w(ob))
+        call dcopy(2*ldb*mdb,w(ob),1,ovlm,1)
         call rlse(ob)
       endif
       call defcc(oz, ldz*mdz)
@@ -212,12 +215,12 @@ C Distribute h and s into local arrays
       abstol = d1mach(3)
 C Workspace query
       if (lov) then
-        call PZHEGVX(ibtype,jobz,range,'U',n,w(oh),1,1,desca,w(os),1,1,
+        call PZHEGVX(ibtype,jobz,range,'U',n,hamm,1,1,desca,ovlm,1,1,
      .               descb,VL,VU,1,IU,abstol,m,nz,e,
      .               zero,w(oz),1,1,descz,swork,-1,srwork,-1,
      .               liwork,-1,ifail,iclustr,gap,info)
       else
-        call PZHEEVX(jobz,range,'U',n,w(oh),1,1,desca,
+        call PZHEEVX(jobz,range,'U',n,hamm,1,1,desca,
      .               VL,VU,1,IU,abstol,m,nz,e,
      .               zero,w(oz),1,1,descz,swork,-1,srwork,-1,
      .               liwork,-1,ifail,iclustr,gap,info)
@@ -238,12 +241,12 @@ C Workspace query
       call defi (oifail,  n)
 C Diagonalise
       if (lov) then
-        call PZHEGVX(ibtype,jobz,range,'U',n,w(oh),1,1,desca,w(os),1,1,
+        call PZHEGVX(ibtype,jobz,range,'U',n,hamm,1,1,desca,ovlm,1,1,
      .               descb,VL,VU,1,IU,abstol,m,nz,e,
      .               zero,w(oz),1,1,descz,w(owork),lwork,w(orwork),
      .               lrwork,w(oiwork),liwork,w(oifail),iclustr,gap,info)
       else
-        call PZHEEVX(jobz,range,'U',n,w(oh),1,1,desca,
+        call PZHEEVX(jobz,range,'U',n,hamm,1,1,desca,
      .               VL,VU,1,IU,abstol,m,nz,e,
      .               zero,w(oz),1,1,descz,w(owork),lwork,w(orwork),
      .               lrwork,w(oiwork),liwork,w(oifail),iclustr,gap,info)
@@ -271,13 +274,13 @@ C Diagonalise
         call ftflsh(-1)
       endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-C Poke distributed array into t (use heap location oh for temp)
-      call dcopy(2*ldz*mdz,w(oz),1,w(oh),1)
+C Poke distributed array into t (use heap location hamm for temp)
+      call dcopy(2*ldz*mdz,w(oz),1,hamm,1)
       if (mlog) then
         call gettime(datim)
         call awrit2(' pzhev '//datim//' Process %i of %i on '
      .    //shortname(procid)(1:namelen(procid))//
-     .    ' poked oz to oh',' ',256,lgunit(3),
+     .    ' poked oz to hamm',' ',256,lgunit(3),
      .    procid,numprocs)
         call ftflsh(-1)
       endif
@@ -291,7 +294,7 @@ C Poke distributed array into t (use heap location oh for temp)
      .    procid,numprocs)
         call ftflsh(-1)
       endif
-      call udstmt(descz,n,w(oh),w(ot))
+      call udstmt(descz,n,hamm,w(ot))
       if (mlog) then
         call gettime(datim)
         call awrit2(' pzhev '//datim//' Process %i of %i on '

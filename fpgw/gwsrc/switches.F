@@ -1,13 +1,18 @@
+c      integer function nomatm()
+cc In cases (corei7+gfortran and so on in my case),zgemm did not work.
+cc now in ppbafp.fal.F
+c      nomatm=1 !use matmul instead of zgemm called from a subroutine matm
+c      end
 c===========================================================
       subroutine headver(head,id1)
       character*(*) head
-      write(6,"(a,a)") head,": VerNum= 033a5: 02May2009"
+      write(6,"(a,a)") head,": VerNum= 033a6: 20Nov2009"
       if(id1==-9999) stop '---end of version check!'
       end
 c============================================================
       logical function is_mix0vec()
 !is_mis0vec=0 is original version. But it caused a problem at BZ bounday.
-      is_mix0vec=1
+      is_mix0vec=.true. 
       end
 
       logical function evaltest()

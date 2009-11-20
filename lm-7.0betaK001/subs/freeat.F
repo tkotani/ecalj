@@ -715,7 +715,7 @@ Cl Local variables
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer lmxa,nr,nrmt,nsp,n0,isw
       double precision a,rmax,rmt,z
@@ -731,7 +731,7 @@ C ... Local parameters
      .  lgunit,lplawv,lrel,nglob,nn,nrep,og,ogp,oh,opsi,stdo,stdl
       double precision b,deh,deh0,dphi,dphip,drsm,drsm0,e1,e2,e3,eadd,
      .  eaddx,eh,elim1,elim2,enew,enu,eval,p,phi,phip,pnu,qvl,radd,
-     .  raddx,rlim1,rlim2,rnew,rsm,stife,stifr,sume1,sume2,qrmt
+     .  raddx,rlim1,rlim2,rnew,rsm,stife,stifr,sume1,sume2,qrmt,rmtmx
 C ... Heap
       integer w(1)
       common /w/ w
@@ -756,11 +756,13 @@ C --- Parameters for minimisation ---
       drsm0 = 0.1d0
 c takao makes "safer setting"
 ctakao
-c      rlim1 = 0.3d0
-      rlim1 = 0.9d0
+c      rlim1 = 0.9d0
+      rlim1 = 0.3d0 !original
+c      rlim1 = 0.8d0
+
+      rlim2 = 2*rmt
 ctakao
-c      rlim2 = 2*rmt
-      rlim2 = rmt+1d-6
+c      rlim2 = rmt+1d-6
  
       raddx = 0.2d0
 
@@ -843,14 +845,16 @@ C   ... End of iteration loop
 
 C   ... Possibly constrain rsm
 ctakao
-        if (mod(isw,10) .eq. 1 .and. rsm .gt. rmt*2d0/3d0) then
+        rmtmx= rmt*2d0/3d0
+        if(rmtmx<.5d0) rmtmx=.5d0
+        if(l>=2) rmtmx=rmt
+
+        if (mod(isw,10) .eq. 1 .and. rsm .gt. rmtmx) then
         if (ipr .ge. 20)
      .  write(stdo,
-c takao '('' ... rsm exceeded rmt .. repeat with rsm=rmt'')')
-     .  '('' ... rsm exceeded rmt*2/3 .. repeat with rsm=rmt'')')
-c takao
-c        rsm = rmt
-        rsm = rmt*2d0/3d0
+     .  '('' ...rsm exceeded rmtmx.. repeat with rsm= rmtmx ='',f8.5)') rmtmx
+        rsm = rmtmx
+
         sume2 = sume2 - qvl*e2
 
         do  112  irep = 1,50

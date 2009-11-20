@@ -130,6 +130,7 @@ C      data q0 /0.370925d0,-0.401855d0,0.370925d0/,dq/.15d0/
       stdo = lgunit(1)
       ndmx = mxxyz()
       lstar = igstar(0)
+      print *,'lstar xxx=',lstar
       lpbc01 = mod(lpbc,100)
       lpbc2  = lpbc/100
       nsgrp = wgt(1)

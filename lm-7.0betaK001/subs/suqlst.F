@@ -1,4 +1,3 @@
-#define F90 1
 #define MULLIKEN 1
       subroutine suqlst(sopts,iop,nband,efermi,nsp,evl,nfbn,ifblst,nq,
      .  qp,onesp)
@@ -166,26 +165,19 @@ C ... Local variables
       integer oqp,nqall,imode
       double precision x1,x2,y1,y2,evmxn,evmnn,
      .  q1(3),q2(3),ql(3),vectx(3),vecty(3),vect3(3)
-#if F90
       real(8),allocatable :: evsav(:,:,:,:)
-#elif AUTO_ARRAY
-      integer oev
-#else
-      integer oev
-#endif
 C ... MPI
       integer procid,master,mpipid
+
+ctakao
+      real(8)::qlx(3)
 C ... Heap
       integer w(1)
       common /w/ w
       common /suqlsd/
      .  q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
      .  iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
-#if F90
       save evsav
-#else
-      save oev
-#endif
 
       procid = mpipid(1)
       master = 0
@@ -420,14 +412,10 @@ C         call daxpy(3,-sclp(vectx,vecty),vectx,1,vecty,1)
           if (dabs(sclp(vectx,vecty)) .gt. 1d-6 .and. iprint().gt.20)
      .    print *,'suqlst (warning): input plane vectors not orthogonal'
           endif
-#if F90
+
           if (iop .eq. 0) then
           allocate(evsav(nqx,nqy,nblst,nsp))
           endif
-#else
-          call defdr(oev,nblst*nq)
-          call rx('suqlst : contour branch requires F90 compiler')
-#endif
 
 C       Contour plot, cleanup.
 C       Note: cleanup handled by suqlsw when last qp is called.
@@ -541,13 +529,10 @@ C         if (nblst .le. 5) prfmt = '(8f10.6)'
         stdo = nglob('stdo')
         if (iprint() .ge. 60) write(stdo,345) i+1,j+1,ql
   345   format(' saving point, iq=',i5,' jq=',i5,'  qp=',3f12.5)
-#if F90
+
         do  k = 1, nblst
           evsav(i+1,j+1,k,jsp) = evl(iblst(k))
         enddo
-#else
-        call rx('not ready mode=3')
-#endif
 
 C   ... If last qp generated, dump to file and exit
         if (i+1 .eq. nqx .and. j+1 .eq. nqy .and. jsp .eq. nsp) then
@@ -564,13 +549,86 @@ C   ... If last qp generated, dump to file and exit
             if (nsp .eq. 2)
      .        call awrit3('%% rows %i cols %i spin %i',' ',80,
      .        ifib,nqx,nqy,j1)
-#if F90
+
             do  i = 1, nqx
               write(ifib,prfmt) (evsav(i,j,k,j1), j=1,nqy)
             enddo
-#else
-        call rx('not ready mode=3')
-#endif
+          enddo
+          enddo
+          call rx0('finished generating bands on q-mesh')
+        endif
+      endif
+
+C ... Keep running tab on smallest,largest eval
+      if (nevn .ne. 0) then
+        evmxn = max(evmxn,evl(nevn))
+        evmnn = min(evmnn,evl(nevn))
+      endif
+
+
+      entry suqlsw2(nband,jsp,nsp,evl,qlx) !takao added ql
+C- Write or store the energy bands to file for this qp
+      ql=qlx
+      if (mode .eq. 1) then
+        if (nblst .eq. 0) then
+          prfmt = '(3f10.5,i6/(10f8.4))'
+          write(ifib,prfmt) ql, nband, (evl(i),i=1,nband)
+        elseif (nblst .gt. 0) then
+          prfmt = '(3f10.5/(10f8.4))'
+          write(ifib,prfmt) ql, (evl(iblst(i)),i=1,nblst)
+        else
+          call rx('bug in suqlsw')
+        endif
+
+      elseif (mode .eq. 2) then
+        if (fmlong .and. nblst .eq. 0) then
+          prfmt = '(3f15.10,i6/(5f15.10))'
+        elseif (nblst .eq. 0) then
+          prfmt = '(3f10.6,i6/(8f10.6))'
+        elseif (fmlong .and. nblst .gt. 0) then
+          prfmt = '(3f15.10/(5f15.10))'
+        elseif (nblst .gt. 0) then
+          prfmt = '(3f10.6/(8f10.6))'
+C         if (nblst .le. 5) prfmt = '(8f10.6)'
+        else
+          call rx('bug in suqlsw')
+        endif
+        if (nblst .eq. 0) then
+          write(ifib,prfmt) ql, nband, (evl(i),i=1,nband)
+        else
+          write(ifib,prfmt) ql, (evl(iblst(i)),i=1,nblst)
+        endif
+
+      elseif (mode .eq. 3) then
+        j = mod(iq-2,nqy)
+        i = (iq-2-j)/nqy
+        stdo = nglob('stdo')
+        if (iprint() .ge. 60) write(stdo,345) i+1,j+1,ql
+c  345   format(' saving point, iq=',i5,' jq=',i5,'  qp=',3f12.5)
+
+        do  k = 1, nblst
+          evsav(i+1,j+1,k,jsp) = evl(iblst(k))
+        enddo
+
+C   ... If last qp generated, dump to file and exit
+        if (i+1 .eq. nqx .and. j+1 .eq. nqy .and. jsp .eq. nsp) then
+          if (fmlong) then
+            prfmt = '(5f15.10/(5f15.10))'
+          else
+            prfmt = '(8f10.6/(8f10.6))'
+          endif
+          rewind ifib
+          do  j1 = 1, nsp
+          do  k  = 1, nblst
+            if (nsp .eq. 1)
+     .        call awrit2('%% rows %i cols %i',' ',80,ifib,nqx,nqy)
+            if (nsp .eq. 2)
+     .        call awrit3('%% rows %i cols %i spin %i',' ',80,
+     .        ifib,nqx,nqy,j1)
+
+            do  i = 1, nqx
+              write(ifib,prfmt) (evsav(i,j,k,j1), j=1,nqy)
+            enddo
           enddo
           enddo
           call rx0('finished generating bands on q-mesh')
@@ -627,32 +685,17 @@ C ... Local parameters
       common /suqlsd/
      .  q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
      .  iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
-#if F90
       integer ipiv(ndimhx)
       real(8),allocatable :: evsav(:,:,:,:)
       complex(8),allocatable:: evecc(:,:),work(:,:)
-#elif AUTO_ARRAY
-      integer ipiv(ndimhx)
-      double complex evecc(ndimhx,ndimhx),work(ndimhx,ndimhx)
-      integer oev
-#else
-      integer oev
-#endif
 
-#if F90
       allocate(evecc(ndimhx,ndimhx),work(ndimhx,ndimhx))
-#endif
 
 #if MULLIKEN
-#if F90 | AUTO_ARRAY
       call zcopy(ndimhx**2,evec,1,evecc,1)
       call zgetrf(ndimhx,ndimhx,evecc,ndimhx,ipiv,j)
       if (j .ne. 0) call rx('mullmf: failed to generate overlap')
       call zgetri(ndimhx,evecc,ndimhx,ipiv,work,ndimhx**2,j)
-#else
-      call rx(
-     .  'suqlst: this branch requires compiler with allocatable arrays')
-#endif
 #endif
       do  i = 1, ndimhx
         wk(i) = 0
@@ -663,19 +706,19 @@ C ... Local parameters
      .        ' outside range (1:%i)',k,ndimhx)
           endif
 #if MULLIKEN
-#if F90 | AUTO_ARRAY
-          wk(i) = wk(i) + evecc(i,k)*evec(k,i)
-#endif
+         wk(i) = wk(i) + evecc(i,k)*evec(k,i)
 #else
          wk(i) = wk(i) + dconjg(evec(k,i))*evec(k,i)
 #endif
         enddo
+
 #ifndef MULLIKEN
        wk(i) = wk(i) / zdotc(ndimhx,evec(1,i),1,evec(1,i),1)
-        if (wk(i) .lt. 0 .or. wk(i) .gt. 1+1d-14) then
+       if (wk(i) .lt. 0 .or. wk(i) .gt. 1+1d-14) then
           call rx('bug in suqlse')
-        endif
+       endif
 #endif
+
       enddo
 
       if (mode .eq. 1) then
@@ -706,13 +749,10 @@ C         if (nblst .gt. 0 .and. nblst .le. 5) prfmt = '(8f10.6)'
         stdo = nglob('stdo')
         if (iprint() .ge. 60) write(stdo,345) i+1,j+1,ql
   345   format(' saving point, iq=',i5,' jq=',i5,'  qp=',3f12.5)
-#if F90
+
         do  k = 1, nblst
           evsav(i+1,j+1,k,jsp) = wk(iblst(k))
         enddo
-#else
-        call rx('not ready mode=3')
-#endif
 
 C   ... If last qp generated, dump to file and exit
         if (i+1 .eq. nqx .and. j+1 .eq. nqy .and. jsp .eq. nsp) then
@@ -729,22 +769,18 @@ C   ... If last qp generated, dump to file and exit
             if (nsp .eq. 2)
      .        call awrit3('%% rows %i cols %i spin %i',' ',80,
      .        ifib,nqx,nqy,j1)
-#if F90
+
             do  i = 1, nqx
               write(ifib,prfmt) (evsav(i,j,k,j1), j=1,nqy)
             enddo
-#else
-        call rx('not ready mode=3')
-#endif
+
           enddo
           enddo
           call rx0('finished generating bands on q-mesh')
         endif
       endif
 
-#if F90
       deallocate(evecc,work)
-#endif
 
       end
 

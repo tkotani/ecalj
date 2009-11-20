@@ -43,7 +43,7 @@ C ... Local parameters
 C ... Heap
       integer w(1)
       common /w/ w
-
+      print *,'tailsm: init'
       fpi = 16*datan(1d0)
       call getpr(ipr)
       stdo = lgunit(1)
@@ -59,7 +59,9 @@ C --- Tabulate smoothed Hankels on a radial mesh ---
 C     Patch to properly handle case when rsm=0
       lzero = rsq(1) .eq. 0 .and. rsm .eq. 0
       if (lzero) rsq(1) = rsq(2)/100
+      print *,'tailsm:xxx1'
       call hansr(rsm,0,0,nxi,lx0,exi,rsq,nr,nr,w(oidx),w(owk),0,w(oxi))
+      print *,'tailsm:xxx2'
       if (lzero) rsq(1) = 0
       call rlse(oidx)
 
@@ -137,5 +139,6 @@ C
    20 continue
       call rlse(oxi)
 
+      print *,'tailsm: end'
       end
 

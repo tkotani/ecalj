@@ -30,13 +30,13 @@ CPPSWITCH_INTELLINUXIFC  = \
 
 
 #(3) Compilar options ###################
-#
+# 
 ### INTEL FORTRAN PENTIUM4 LINUX ###
 #FFLAGS_c0 = -O0 -Vaxlib  -cpp $(CPPSWITCH_INTELLINUXIFC)
 #FFLAGS    = -Vaxlib -tpp7 -cpp $(CPPSWITCH_INTELLINUXIFC)   # for .o
 #FFLAGS=-O3 -cm -WB
 
-FFLAGS=  -O3  -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+FFLAGS=  -O3  $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 #FFLAGS=  -O0  -ffixed-line-length-132
 
 #
@@ -107,15 +107,35 @@ tet5_g = .o
 
 #LIBMATH= -lgoto -L/usr/local/lib/ATLAS/ -lf77blas -latlas -L/opt/intel/mkl/lib/32 -lmkl_lapack -lmkl_def -lguide -lsvml -lPEPCF90 $(ECAL)/BLASplusLAPACK/LAPACK_A/lapack_a.a 
 
-#LIBMATH= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 # I had a problem in zgemm in pwmat. 
-
 #LIBLOC= /opt/acml4.2.0/gfortran64/lib/libacml.a -lfftw3
+
+
+# it caused segmentation fault during lmf. (just after BNDFP: started).
+#LIBMATH= /opt/acml4.1.0/gfortran64/lib/libacml.a -lfftw3
+
+
+
 
 
 # centos yum install blas, yum install lapack
 LIBLOC= -lfftw3 /usr/lib64/liblapack.so.3.0.3 /usr/lib64/libblas.a 
+
+#for ubuntu thinkpadt61.
+#LIBLOC=  /usr/lib64/libfftw3.so.3.1.2 /usr/lib64/liblapack.a
+
+#/usr/lib64/libblas-3.a 
+
+#LIBLOC = -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
+#          /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
+#          /usr/lib64/atlas/libatlas.so.3 -lfftw3
+
 LIBMATH= $(LIBLOC)
+
+
+
+
+
 
 # yum install atlas --> this did not work... normchk.si gave NaN
 #LIBMATH = -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
