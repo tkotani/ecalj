@@ -41,7 +41,7 @@ install2:
 	 cp  $(script) $(BINDIR)
 
 cleanall:  
-	 rm -f  $(progs2) $(main)*.o $(gwsrc)*.o 
+	 rm -f  $(progs2) $(main)*.o $(gwsrc)*.o  $(nfpsrc)*.o  *.mod  $(slatsmlib)*.o $(tote)*.o  $(maxloc)*.o 
 
 # This is necesaly to compile *.f in right order.
 # When you recompile and link, just repeat 'make' (not necessary to repeat 'make init').

@@ -17,8 +17,8 @@
 PLATFORM=gfortran
 #PLATFORM=gfortran_mpi
 #PLATFORM=gfortran_mpik
+#
 #PLATFORM=ifort
-
 #PLATFORM=ifort_mpi
 #PLATFORM=ifort_mpik
 

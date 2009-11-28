@@ -235,7 +235,7 @@ c
 C- sigma rotator. sig at qin to sig at qout.
 Cr Both of q and qtarget should be in qq table(in m_hamindex) which is given by gen_hamindex (read from QGpsi).
       implicit none
-      integer   :: ig,ndimh,napw_in,ibaso,iorb,nnn(3),getikt,igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k,ix
+      integer   :: ig,ndimh,napw_in,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k,ix
       real(8):: qin(3),qout(3)
       real(8)   :: q(3),delta(3),ddd(3),qpg(3),plat(3,3),qlat(3,3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3)
       complex(8):: phase,img=(0d0,1d0),img2pi
@@ -392,7 +392,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C- wave function rotator. evec at q to evecout at qg=g(q).
 Cr Both of q and qtarget should be in qq table(in m_hamindex) which is given by gen_hamindex (read from QGpsi).
       implicit none
-      integer   :: ig,ndimh,napw_in,nband,ibaso,iorb,nnn(3),getikt,igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k
+      integer   :: ig,ndimh,napw_in,nband,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k
       real(8)   :: q(3),gout(3),delta(3),ddd(3),qpg(3),plat(3,3),qlat(3,3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3)
       complex(8):: evec(ndimh,nband),evecout(ndimh,nband),phase,img=(0d0,1d0),img2pi
       img2pi=2*4d0*datan(1d0)*img

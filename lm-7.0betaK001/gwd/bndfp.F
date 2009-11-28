@@ -288,7 +288,7 @@ C ... Heap
       logical :: debug=.false.
 #if MPIK
       integer obuf,oqptr
-      integer ib,is,igetss,lmxa,lmxh,nlma,nlmh,nelt(3),nkaph,kmax
+      integer igetss,lmxa,lmxh,nlma,nlmh,nelt(3),nkaph,kmax
       integer, dimension(:),allocatable :: kpproc
       double precision sttime,entime
 #endif

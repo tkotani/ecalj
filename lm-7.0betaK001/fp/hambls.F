@@ -2,6 +2,7 @@
       subroutine hambls(mode,nbas,ssite,sspec,slat,sham,isp,ispc,q,k1,
      .  k2,k3,qsig,nqsig,smpot,vconst,osig,otau,oppi,lcplxp,lso,alfa,
      .  ndimh,napw,igvapw,h,s,ismidb)
+      use m_psigd
 C- Hamiltonian and overlap of LDA+(sigma-vxc) for one k-point.
 C ----------------------------------------------------------------------
 Ci Inputs
