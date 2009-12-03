@@ -113,7 +113,9 @@ c ------- gfortran
         tsec = int(x)
         tusec = int((x-tsec)*1000000.0)
 #else
-#error "needs subroutine to get cpu time"
+c#error "needs subroutine to get cpu time"
+        tsec=0.0
+        tusec=0.0
 #endif
 
         end subroutine sectim
