@@ -8,6 +8,10 @@
 ../gwsrc/sxcf.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/readeigen.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
 ../gwsrc/wse.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v2h.o:../gwsrc/readeigen.o
@@ -49,6 +53,7 @@
 ../main/hchknw.m.o:../gwsrc/rwbzdata.o
 ../main/hef.m.o:../gwsrc/rwbzdata.o
 ../main/heftet.m.o:../gwsrc/rwbzdata.o
+../main/hqpe.sc.m.o:../gwsrc/rwbzdata.o
 ../main/hsfp0.m.o:../gwsrc/rwbzdata.o
 ../main/hsfp0.sc.m.o:../gwsrc/rwbzdata.o
 ../main/hx0fp0.m.o:../gwsrc/rwbzdata.o
@@ -73,6 +78,10 @@
 ../gwsrc/sxcf.o:../gwsrc/readqg.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readqg.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/readqg.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
 ../gwsrc/x0kf.o:../gwsrc/readqg.o
 ../gwsrc/x0kf_v2h.o:../gwsrc/readqg.o
 ../gwsrc/x0kf_v3h.o:../gwsrc/readqg.o
@@ -159,6 +168,10 @@
 ../gwsrc/switches.o:../gwsrc/keyvalue.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/keyvalue.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/keyvalue.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/sxcf_fal2.sc.o
 ../gwsrc/tetwt4.o:../gwsrc/keyvalue.o
 ../gwsrc/tetwt5.o:../gwsrc/keyvalue.o
 ../gwsrc/x0kf.o:../gwsrc/keyvalue.o

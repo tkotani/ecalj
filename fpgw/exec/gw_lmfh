@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/tcsh
 # --------------------------------
 # GW run. Sergey's mode
 # Required inputs are 

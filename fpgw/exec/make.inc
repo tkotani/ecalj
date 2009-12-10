@@ -4,8 +4,8 @@
 #(1) Compilar ###################
 # ... Fortran and linker switches for machine LINUX with intel fortran
 
-FC = ifort -132 -cm -w90 -w95
-#FC = f95 
+#FC = ifort -132 -cm -w90 -w95
+FC = f95 
 
 # -cm is supress all comment.
 # -w95 and -w90 is to remove noisy warning related to f90 and f95 recommendations.
@@ -34,8 +34,9 @@ CPPSWITCH_INTELLINUXIFC  = \
 ### INTEL FORTRAN PENTIUM4 LINUX ###
 #FFLAGS_c0 = -O0 -Vaxlib  -cpp $(CPPSWITCH_INTELLINUXIFC)
 #FFLAGS    = -Vaxlib -tpp7 -cpp $(CPPSWITCH_INTELLINUXIFC)   # for .o
-FFLAGS=-O3 -cm -WB
+#FFLAGS=-O3 -cm -WB
 
+FFLAGS= $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 #FFLAGS=  -O3  $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 #FFLAGS=  -O0  -ffixed-line-length-132
 
@@ -114,6 +115,8 @@ tet5_g = .o
 # it caused segmentation fault during lmf. (just after BNDFP: started).
 #LIBMATH= /opt/acml4.1.0/gfortran64/lib/libacml.a -lfftw3
 
+# ubuntu 9.10
+LIBLOC= /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a 
 
 
 
@@ -125,8 +128,8 @@ tet5_g = .o
 # $(HOME)/kit/numericallib/LAPACK/blas_core2gfortran.a \
 # $(HOME)/kit/numericallib/LAPACK/tmglib_core2gfortran.a 
 
-LIBLOC= -lfftw3 -L/opt/intel/mkl/10.0.2.018/lib/em64t/lib \
- -lmkl_lapack -lmkl_em64t  -lmkl_core 
+#LIBLOC= -lfftw3 -L/opt/intel/mkl/10.0.2.018/lib/em64t/lib \
+# -lmkl_lapack -lmkl_em64t  -lmkl_core 
 
 #for ubuntu thinkpadt61.
 #LIBLOC=  /usr/lib64/libfftw3.so.3.1.2 /usr/lib64/liblapack.a
@@ -157,8 +160,8 @@ LIBMATH= $(LIBLOC)
 ###for sr8k
 #LKFLAGS2 = $(COMMON) $(ECAL)/slatsm/slatsm.a  -lblas -llapack -lpl -parallel  -lm
 
-#LK = f95
-LK= ifort -parallel 
+LK = f95
+#LK= ifort -parallel 
 
 LKFLAGS2 = $(LIBMATH) 
 #-Vaxlib -tpp7

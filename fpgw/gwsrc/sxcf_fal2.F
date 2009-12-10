@@ -1260,7 +1260,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
                   ua2_(ix) = sqrt(- 1d0/freqw1*log(ratio))
 c            write(6,"(' ix freqw1=',i4,f10.4)") ix,freqw1
                 enddo
-                write(6,"(' sxcf_fal2: ua=sqrt(1/w1*log(v0/v1))= ',12f8.4)") ua2_(1:niw)
+                write(6,"(' sxcf_fal2: ua=sqrt(1/w1*log(v0/v1))=',
+     &         12f8.4)") ua2_(1:niw)
               endif
 
 c          if(ua_auto) then
@@ -1598,6 +1599,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               write(6,"(' uuu: weavx omg ef ekc esmr=',14d13.6)") 
      &       weavx2(omg,ef, ekc(it),esmr), omg, ef, ekc(it), esmr
               write(6,"(' uuu: fffr=',d13.6,2x,3d13.6)") we,fffr
+              print *,'zwz3mode=',zwz3mode
             endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             if(zwz3mode) then

@@ -273,8 +273,8 @@ C Local variables
      .  vrwk(2),pprout(32*36*2),veswk,cof,scof
       character*1 s(0:71),ch(2),chp(4),ss*72,fnam*40,alabl*8
       equivalence (s,ss)
-#if unix
       character*13 LIBPTH
+#if unix
       data LIBPTH /'/usr/lmto/lib'/
 #endif
       data ch /' ','.'/, chp /'$','~','/','.'/

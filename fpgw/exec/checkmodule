@@ -91,7 +91,7 @@ for f0 in Rule.keys():
 
 								fin5 = fout4
 								if(Rule.has_key(fin5)):
-									for fout4 in Rule[fin5]:
+									for fout5 in Rule[fin5]:
 										nn=15
 										print nn*" "+' rule: ', fin5,fout5
 										i=i+1

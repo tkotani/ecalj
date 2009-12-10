@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#!/bin/tcsh -f
 ######## THIS IS for no lfc mode. See hbasfp0 and hx0fp0 c2 case.
 set n = $0
 set nfpgw = ${n:h}
