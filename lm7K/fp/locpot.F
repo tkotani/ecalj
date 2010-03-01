@@ -499,6 +499,8 @@ Co         :v1(nr,1,1)-2*z/y0/rmt = v2(nr,1,1)
 Co         :See Remarks concerning boundary condition at rmt
 Co  efg    :l=2 potential at nucleus
 Cl Local variables
+Cl   rhol1 :full electron density, rho1 + rhoc 
+Cl   rhol2 :full smooth compensated density rho2 + gval + gcor + gnuc
 Cl   rhochs:Part of smooth core density contains Hankel tails
 Cl         :Used to make vxc[n2] and exc[n2]
 Cl         :rhochs = srfpi*cofh*xi(0)*r*r

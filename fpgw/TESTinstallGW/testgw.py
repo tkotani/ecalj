@@ -233,15 +233,15 @@ else:
 print '### TEST run ###'
 print '  ecaldir =',ecaldir
 commanddir = ecaldir+'/fpgw/exec/'
-print '  initialize: copy lm-7.0betaK001/lmfa lmf lmfgw lmfgw fpgw/exec/'
-if(not ecaldir+'/lm-7.0betaK001/lmfa',commanddir+'lmfa'):
-	shutil.copy(ecaldir+'/lm-7.0betaK001/lmfa',  commanddir)
-if(not ecaldir+'/lm-7.0betaK001/lmf',commanddir+'lmf'):
-	shutil.copy(ecaldir+'/lm-7.0betaK001/lmf',  commanddir)
-if(not ecaldir+'/lm-7.0betaK001/lmfgw',commanddir+'lmfgw'):
-	shutil.copy(ecaldir+'/lm-7.0betaK001/lmfgw',  commanddir)
-if(not ecaldir+'/lm-7.0betaK001/lmf2gw',commanddir+'lmf2gw'):
-	shutil.copy(ecaldir+'/lm-7.0betaK001/lmf2gw',  commanddir)
+print '  initialize: copy lm7K/lmfa lmf lmfgw lmfgw fpgw/exec/'
+if(not ecaldir+'/lm7K/lmfa',commanddir+'lmfa'):
+	shutil.copy(ecaldir+'/lm7K/lmfa',  commanddir)
+if(not ecaldir+'/lm7K/lmf',commanddir+'lmf'):
+	shutil.copy(ecaldir+'/lm7K/lmf',  commanddir)
+if(not ecaldir+'/lm7K/lmfgw',commanddir+'lmfgw'):
+	shutil.copy(ecaldir+'/lm7K/lmfgw',  commanddir)
+if(not ecaldir+'/lm7K/lmf2gw',commanddir+'lmf2gw'):
+	shutil.copy(ecaldir+'/lm7K/lmf2gw',  commanddir)
 if(not ecaldir+'/TOOLS/diffnum',commanddir+'diffnum'):
 	shutil.copy(ecaldir+'/TOOLS/diffnum',  commanddir)
 print

@@ -898,11 +898,18 @@ except:
 	print 
 	print " Purpose: Generate ctrl.{ext} file from ctrls.{ext}"
 	print
-	print " Usage  : ctrlgen {extension of ctrl file}"
+	print " Usage  : ctrlgen {extension of ctrl file} [option]"
+	print "        : option = --readrmt"
 	print
 	sys.exit()
 ctrls = "ctrls." + ext
 
+nargv = len(sys.argv) -1
+argset= set(sys.argv[1:])
+if ('--readrmt' in  argset):
+	readrmt=1
+else:
+	readrmt=0
 
 #### Read in ctrls #####
 f=open(ctrls,'rt')
@@ -973,15 +980,20 @@ f.write(alltmp)
 f.close()
 
 ### Get R= by lmchk
-os.system("lmchk --getwsr tmp > llmchk_getwsr; echo $? >exitcode")
-f=open("exitcode",'rt')
-iexit=int(f.read())
-f.close()
+if(readrmt==0):
+	os.system("lmchk --getwsr tmp > llmchk_getwsr; echo $? >exitcode")
+	f=open("exitcode",'rt')
+	iexit=int(f.read())
+	f.close()
+else:
+	iexit=2
 
 if(iexit==0):
 	print ' -----tail of llmchk_getwsr ----------------------------'
 	os.system("tail llmchk_getwsr")
 	print ' --- lmchk --getwsr has done successfully! rmt.tmp is generated -----'
+elif(iexit==2):
+	print ' readin rmt.tmp! because of --readrmt '
 else:
 	print 
 	print ' lmchk --getwsr can not find the muffin-tin radius SPEC_ATOM_R.'
