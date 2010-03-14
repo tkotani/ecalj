@@ -6,6 +6,7 @@
 
 #FC = ifort -132 -cm -w90 -w95
 FC = f95 
+#FC = gfortran-4.3 
 
 # -cm is supress all comment.
 # -w95 and -w90 is to remove noisy warning related to f90 and f95 recommendations.

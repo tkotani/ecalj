@@ -42,6 +42,8 @@ C ... Local parameters
       character flg*3
       save ehf1,ehk1
 
+      character*255:: formatc(903:904),lbll
+
       stdo = nglob('stdo')
       nsp  = nglob('nsp')
 C     Assume not self-consistent
@@ -55,16 +57,16 @@ C     Assume not self-consistent
 
 
 C --- Decide whether to iterate on ---
-      assign 904 to lbl
-      if (maxit .gt. 999 .or. iter .gt. 999) assign 903 to lbl
-c takao
-c this did not work
-c      lbl=904
-c      if (maxit .gt. 999 .or. iter .gt. 999) lbl=903
-      if (mod(lhk,10) .eq. 1) write(stdo,lbl) iter,maxit,etot(1),etot(2)
-      if (mod(lhk,10) .eq. 0) write(stdo,lbl) iter,maxit,etot(1)
-  903 format(/  ' it',i4,'  of',i4,'    ehf=',f15.6:'   ehk=',f15.6)
-  904 format(/'   it',i3,'  of',i3,'    ehf=',f15.6:'   ehk=',f15.6)
+c  903 format(/  ' it',i4,'  of',i4,'    ehf=',f15.6:'   ehk=',f15.6)
+c  904 format(/'   it',i3,'  of',i3,'    ehf=',f15.6:'   ehk=',f15.6)
+      formatc(903)="(/  ' it',i4,'  of',i4,'    ehf=',f15.6:'   ehk=',f15.6)"
+      formatc(904)="(/'   it',i3,'  of',i3,'    ehf=',f15.6:'   ehk=',f15.6)"
+      lbl=904 !assign 904 to lbl
+      if (maxit .gt. 999 .or. iter .gt. 999) lbl=903 !assign 903 to lbl
+      lbll=formatc(lbl)
+
+      if (mod(lhk,10) .eq. 1) write(stdo,trim(lbll)) iter,maxit,etot(1),etot(2)
+      if (mod(lhk,10) .eq. 0) write(stdo,trim(lbll)) iter,maxit,etot(1)
       if (iter .gt. 1 .or. etol .eq. 0) then
         diffe = etot(1)-ehf1
         if (lhk .eq. 11) diffe = etot(2)-ehk1

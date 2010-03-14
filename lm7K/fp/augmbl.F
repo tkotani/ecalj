@@ -524,10 +524,10 @@ C ... Passed parameters
       integer mode,mode1,ia,isp,kmax,nkaph,nlma,lmxha,nlmha,iprmb(1),
      .  ndimh,nlmto
       double precision
-     .sighh(nkaph,nkaph,0:lmxha,1),sighp(nkaph,0:kmax,0:lmxha,1)
+     . sighh(nkaph,nkaph,0:lmxha,1),sighp(nkaph,0:kmax,0:lmxha,1)
       double complex
-     .ppihh(nkaph,nkaph,nlmha,nlmha,isp+2*mode1),
-     .ppihp(nkaph,0:kmax,nlmha,nlma,isp+2*mode1)
+     . ppihh(nkaph,nkaph,nlmha,nlmha,isp+2*mode1),
+     . ppihp(nkaph,0:kmax,nlmha,nlma,isp+2*mode1)
       double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),
      . h(ndimh,ndimh),hso(ndimh,ndimh)
 C ... Local parameters

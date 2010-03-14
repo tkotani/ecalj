@@ -2486,7 +2486,7 @@ C Local parameters
       double precision x,y,xold,yold
       integer nsym
       parameter (nsym=10)
-      integer nb,ib,ipr,ip,is,nsyma(nsym),type,msyma,ttype
+      integer nb,ib,ipr,ip,is,nsyma(nsym),typex,msyma,ttype
       double precision tpi,phi0,radx,rady,d,dx,dy,hsyma
       character*80 s
       character*7 synam(nsym),nam*(*)
@@ -2505,8 +2505,8 @@ C- return index to name of symbol
 
 C --- Setup ---
     1 continue
-      type = mod(stype,100)
-      if (type .eq. 0) return
+      typex = mod(stype,100)
+      if (typex .eq. 0) return
       msyma = stype/100
       if (msyma .gt. 0) hsyma = syma(msyma)
       call getpr(ipr)
@@ -2514,8 +2514,8 @@ C --- Setup ---
       s = ' '
       call plcrve(medium,pstat,-2d0,s,is)
       if (is .gt. 0) write(stream,*) s(1:is)
-      call awrit5('plsym: '//synam(type)//' %i pts  gs=%1;5d  attr=%'
-     .  //char(ichar('0')+nsyma(type))//':1;5d  x,y(1)=%1;4g %1;4g',
+      call awrit5('plsym: '//synam(typex)//' %i pts  gs=%1;5d  attr=%'
+     .  //char(ichar('0')+nsyma(typex))//':1;5d  x,y(1)=%1;4g %1;4g',
      .  s,80,0,np,symcs(1),syma,xp,yp)
       call skpblb(s,79,is)
       if (ipr .ge. 40) print *, s(1:is+1)
@@ -2531,12 +2531,12 @@ C --- For each point, do ----
         if (msyma .gt. 0) syma(msyma) = zp(ip)
         call mve(xp(ip),yp(ip))
         x = .015d0*syma(1)*scalxg/scalxu
-        if (syma(2) .ne. 0 .and. iabs(type) .le. 4) then
+        if (syma(2) .ne. 0 .and. iabs(typex) .le. 4) then
           y = .015d0*syma(2)*scalyg/scalyu
         else
           y = .015d0*syma(1)*scalyg/scalyu
         endif
-        goto (10,20,30,40,50,60,70,80,90,100), iabs(type)
+        goto (10,20,30,40,50,60,70,80,90,100), iabs(typex)
         goto 5
 
 C --- Symbol type cross ---

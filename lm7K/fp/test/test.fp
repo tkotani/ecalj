@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#!/bin/tcsh -f
 
 # A shell script testing operation of fp suite
 # set verbose

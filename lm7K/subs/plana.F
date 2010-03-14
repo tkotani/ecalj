@@ -47,7 +47,7 @@ C Local parameters
       double precision z(nbaspp),bas(3,nbaspp),wsr(nbaspp)
       integer oplan,oiplan,nplane,i1mach,mcont2,recln0,offset,iosw,i,
      .  fext,fopn,iarg(10),iout,j,lgunit,iosits,
-     .  oqzpl,oqplan,odqpln,ovharp,ovmadp,opotqz,quit,
+     .  oqzpl,oqplan,odqpln,ovharp,ovmadp,opotqz, !quit,
      .  k,m,n,ifi,npl,mapc(200),owk,ib,ic,is,iclbas,obas2,onatpl,l,lio
       integer nbas,nclspp,nl,nsp,nglob,idxdn(1),mxint,nbasp,nclasp,nspec
       double precision darg(10),cellen,ddot,avw,carea,vol,hhat(3),hvc
@@ -104,6 +104,7 @@ C --- Input from from stdin ---
 C Offset in work array so that read ctrl file read at end ...
       offset = wksize*i1mach(6) - 1*recln0 - 100
   100 continue
+ 1001 continue !this is quit
       print 332
   332 format(/'Menu for plane options.  Type help for help')
       do  110  i = 0, mcont2
@@ -118,7 +119,7 @@ C Offset in work array so that read ctrl file read at end ...
       goto 100
 
   120 continue
-      assign 100 to quit
+      !assign 100 to quit !takao replace quit to 1001
       goto (100,100,3,4,5,6,7,8,9,10,11,12,13,14,15,16), iout
 
 C --- Write file ---
@@ -131,7 +132,7 @@ C     print *, 'implementing write'
       call prtbas(nbasp,ipc,clabl,1,nclasp,mapc,-1,1,bas,z,avw,wsr,
      .  ves,switch,nl,pnu,qnu)
       call dscal(nclspp,avw,wsr,1)
-      goto quit
+      goto 1001
 
 C --- Read plane ---
     4 continue
@@ -195,7 +196,7 @@ C --- Make new plane table ---
       call defi(oiplan,nbasp)
       call gtplan(npadl,npadr,nbasp,bas,planvc(1,3),ipc,clabl,
      .  nplane,w(oplan),w(oiplan),w(onatpl))
-      goto quit
+      goto 1001
 
 C --- Write a single plane to plan file  ---
     5 continue
@@ -205,7 +206,7 @@ C --- Write a single plane to plan file  ---
      .   pnu,qnu,
      .   idxdn,
      .   ipc,bas,w(oiplan),iarg,-fopn('PLAN'))
-      goto quit
+      goto 1001
 
 C --- Skip over planes  ---
     6 continue
@@ -220,14 +221,14 @@ C --- Skip over planes  ---
      .    idxdn,
      .    ipc,bas,w(oiplan),npl,ifi)
    61 continue
-      goto quit
+      goto 1001
 
 C --- Change extension to name  ---
     7 continue
       call fclose(fopn('PLAN'))
       ifi = fext(carg)
       ifi = fopn('PLAN')
-      goto quit
+      goto 1001
 
 C --- Stretch plat ---
     8 continue
@@ -239,7 +240,7 @@ C --- Stretch plat ---
       print 350, ((plat0(m,k),m=1,3),(plat(m,k),m=1,3),k=1,3)
   351 format(/13x,'ORG PLAT',26x,'NEW PLAT')
   350 format(3f10.5,5x,3f10.5)
-      goto quit
+      goto 1001
 
 C --- Sum charge in plane ---
     9 continue
@@ -256,7 +257,7 @@ C --- Sum charge in plane ---
      .  qt,dq,cellen,carea,w(oqplan),w(odqpln),w(oqzpl),w(ovharp),
      .  w(onatpl),wsr,w(ovmadp),darg,w(opotqz))
       call rlse(oqplan)
-      goto quit
+      goto 1001
 
 C --- Slide planes ---
    10 continue
@@ -278,7 +279,7 @@ C --- Make new plane table ---
       call defi(oiplan,nbasp)
       call gtplan(npadl,npadr,nbasp,bas,planvc(1,3),ipc,clabl,
      .  nplane,w(oplan),w(oiplan),w(onatpl))
-      goto quit
+      goto 1001
 
 C --- Rename classes ---
    11 continue
@@ -291,7 +292,7 @@ C --- Rename classes ---
         read(*,'(a4)') nam
         if (nam .ne. ' ')  clabl(ic) = nam
   111 continue
-      goto quit
+      goto 1001
 
 C --- Shift ves in planes ---
    12 continue
@@ -304,7 +305,7 @@ C --- Shift ves in planes ---
           ves(ic) = ves(ic)+darg(1)
         endif
   122 continue
-      goto quit
+      goto 1001
 
 C --- Rotate plat ---
    13 continue
@@ -357,7 +358,7 @@ c      hhat(3) = .5
       call dmpy(tmp2,3,1,bas,3,1,w(obas2),3,1,3,nbasp,3)
       call dcopy(3*nbasp,w(obas2),1,bas,1)
       call rlse(obas2)
-      goto quit
+      goto 1001
 
 C --- Display projection of basis vectors onto planvc ---
    14 continue
@@ -385,7 +386,7 @@ C --- Adjust bas to proper projection onto h ---
         tmp(3,1) = bas(3,ib) + hhat(3)*(darg(1) - hdotb)
         print 342, ib, (bas(j,ib), j=1,3), (tmp(j,1), j=1,3)
   146 continue
-      goto quit
+      goto 1001
 
 C --- Atomic positions within range of plane ---
 C To circumscribe 3 planes, first 4 classes only, use eg
@@ -472,7 +473,7 @@ C ... Write out table of positions within (lo,hi)
       call awrit3(' pos: %i points written; %i satisfied constraints'//
      .  ' out of %i',carg,80,i1mach(2),m,l,k)
       call rlse(obas2)
-      goto quit
+      goto 1001
 
 C --- Write to site file ---
    16 continue
@@ -502,7 +503,7 @@ C     Some padding sites .. possibly alter k, tmp
       lio = 1000*(2+4+8+16+32) + 1
       j = iosits(lio,3d0,0,carg,ifi,slabl,alat,tmp,k,nspec,sspec,ssite)
       call fclose(ifi)
-      goto quit
+      goto 1001
 
       end
       subroutine ioplan(nbas,nl,nsp,nclspp,plat,

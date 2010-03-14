@@ -1,0 +1,101 @@
+K 25
+svn:wc:ra_dav:version-url
+V 30
+/svn/!svn/ver/20/trunk/fparser
+END
+doc.txt
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/2/trunk/fparser/doc.txt
+END
+pattern_tools.py
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/5/trunk/fparser/pattern_tools.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/2/trunk/fparser/__init__.py
+END
+setup.py
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/!svn/ver/16/trunk/fparser/setup.py
+END
+utils.py
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/!svn/ver/17/trunk/fparser/utils.py
+END
+block_statements.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/17/trunk/fparser/block_statements.py
+END
+splitline.py
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/5/trunk/fparser/splitline.py
+END
+parsefortran.py
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/10/trunk/fparser/parsefortran.py
+END
+readfortran.py
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/19/trunk/fparser/readfortran.py
+END
+api.py
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/8/trunk/fparser/api.py
+END
+sourceinfo.py
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/2/trunk/fparser/sourceinfo.py
+END
+script_options.py
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/20/trunk/fparser/script_options.py
+END
+Fortran2003.py
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/2/trunk/fparser/Fortran2003.py
+END
+typedecl_statements.py
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/18/trunk/fparser/typedecl_statements.py
+END
+base_classes.py
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/15/trunk/fparser/base_classes.py
+END
+statements.py
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/12/trunk/fparser/statements.py
+END

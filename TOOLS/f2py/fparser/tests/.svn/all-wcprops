@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/19/trunk/fparser/tests
+END
+test_api.py
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/8/trunk/fparser/tests/test_api.py
+END
+modfile.f95
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/8/trunk/fparser/tests/modfile.f95
+END
+test_parser.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/3/trunk/fparser/tests/test_parser.py
+END
+test_issue4.py
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/14/trunk/fparser/tests/test_issue4.py
+END
+test_issue5.py
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/17/trunk/fparser/tests/test_issue5.py
+END
+test_issue7.py
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/19/trunk/fparser/tests/test_issue7.py
+END
+test_Fortran2003.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/4/trunk/fparser/tests/test_Fortran2003.py
+END
+funcfile.f95
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/8/trunk/fparser/tests/funcfile.f95
+END

@@ -15,6 +15,7 @@
 
 # It will reads MAKEINC/Make.inc.$(PLATFORM).
 PLATFORM=gfortran
+#PLATFORM=gfortran.fpp
 #PLATFORM=gfortran_mpi
 #PLATFORM=gfortran_mpik
 #

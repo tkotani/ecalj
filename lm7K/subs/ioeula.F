@@ -155,28 +155,32 @@ C ... Local parameters
       integer i,j,k,lgunit,stdo,mode0,mode1,lbl
       double precision rotm(3,3)
       character*72 outs, clabl*8
+      character*255:: formatc(344:346),lbll
 
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       stdo = lgunit(1)
       clabl = ' '
       if (mode0 .ne. 0) then
-        assign 344 to lbl
-        if (mode1 .ne. 0) assign 345 to lbl
-        if (mode1 .eq. 0 .and. mode0 .ne. 0) assign 346 to lbl
-c takao
-c this did not work
-c        lbl=344
-c        if (mode1 .ne. 0) lbl=345
-c        if (mode1 .eq. 0 .and. mode0 .ne. 0) lbl=346
+c        assign 344 to lbl
+c        if (mode1 .ne. 0) assign 345 to lbl
+c        if (mode1 .eq. 0 .and. mode0 .ne. 0) assign 346 to lbl
+        lbl=344
+        if (mode1 .ne. 0) lbl=345
+        if (mode1 .eq. 0 .and. mode0 .ne. 0) lbl=346
+        formatc(344)="('   ib     alpha        beta       gamma':6x,a)"
+        formatc(345)="('   ib      bx          by          bz  ':6x,a)"
+        formatc(346)="('   ib   alpha      beta     gamma':5x,a,"//
+     .  "11x,'z axis rotated to:')"
+        lbll=formatc(lbl)
 
-        if (ssite(1) .eq. 0 .or. neul .gt. 1)  write(outs,lbl)
-        if (ssite(1) .ne. 0 .and. neul .eq. 1) write(outs,lbl) 'class'
+        if (ssite(1) .eq. 0 .or. neul .gt. 1)  write(outs,trim(lbll))
+        if (ssite(1) .ne. 0 .and. neul .eq. 1) write(outs,trim(lbll)) 'class'
       endif
-  344 format('   ib     alpha        beta       gamma':6x,a)
-  345 format('   ib      bx          by          bz  ':6x,a)
-  346 format('   ib   alpha      beta     gamma':5x,a,
-     .  11x,'z axis rotated to:')
+c  344 format('   ib     alpha        beta       gamma':6x,a)
+c  345 format('   ib      bx          by          bz  ':6x,a)
+c  346 format('   ib   alpha      beta     gamma':5x,a,
+c     .  11x,'z axis rotated to:')
       if (neul .gt. 4) then
         call awrit0('%a     lm',outs,len(outs),0)
       elseif (neul .gt. 1) then

@@ -43,7 +43,7 @@ C Local variables
       if(lmx. ge. n0 .or. pmax .gt. n0)
      .  call rxi(' solgsg: Increase n0 up to at least ',max0(lmx,pmax))
       if(pmax. lt. 1) call
-     .rxi(' solgsg: pmax = %i should be at least 1 for gradients',pmax)
+     .  rxi(' solgsg: pmax = %i should be at least 1 for gradients',pmax)
 
       lmax = lmx
       call sylm(px,yl,lmax+1,r1)

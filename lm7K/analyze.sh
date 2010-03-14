@@ -8,5 +8,5 @@ echo    This routine generate a tree up to 3rd lower level.
 echo    
 echo  --- Now generating a file 'lmfp_tree' ... Wait 10~30sec or so! A little buggy. Not perfect
 echo ##############
-../TOOLS/ANALYZE/analyze.py rdsigm fp/*.F subs/*.F slatsm/*.F gwd/*.F >callcaller.dat ; grep tree callcaller.dat > rdsigm_tree
+../TOOLS/ANALYZE/analyze.py freeat fp/*.F subs/*.F slatsm/*.F gwd/*.F >callcaller.dat ; grep tree callcaller.dat > lmfa_tree
 
