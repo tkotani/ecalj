@@ -1,6 +1,6 @@
 #define unix 1
 #define PATH 1
-#define FEXTENS 1
+c #define FEXTENS 1
 
 ctakao's new file opener and closer for f90. This can be consistent with fopna
 c      integer function open90(fnam,options)
@@ -167,12 +167,13 @@ C     implicit none
       integer i,fopnx
       filnam = fnam
       i = fopnx(filnam,160,0,-1)
-      end
-
 #else
       mode = 100 + 70*mod(ista/8,2)
       fopna = fopnx(fnam,mode,mod(ista,8),lunit)
+#endif
       end
+
+#ifdef AIX
       integer function fopng(fnam,lunit,ista)
 C      implicit none
       character*(*) fnam
@@ -404,16 +405,16 @@ C Local variables
 C Parameters concerning limits to string size in filenames:
 C plen: path length; extlen: ext length; maxsiz: name (including ext)
       integer maxsiz,extlen,plen
-#if unix
+c #if unix
       parameter (extlen=20, plen=80, maxsiz=100)
-#elif MSDOS
-      parameter (extlen=4, plen=1, maxsiz=12)
-#endif
-#if DEBUG
-      parameter (IDBG=10)
-#else
+c #elif MSDOS
+c      parameter (extlen=4, plen=1, maxsiz=12)
+c #endif
+c #if DEBUG
+c      parameter (IDBG=10)
+c #else
       parameter (IDBG=110)
-#endif
+c #endif
 C Save list of filenames
       integer mxnam
       parameter (mxnam=30)
@@ -423,12 +424,13 @@ C Save list of filenames
       integer tabsw(mxnam), tabuni(mxnam),nnam,lgunit
       save tabnam, tabsw, tabuni, nnam, ext, path
       data nnam /0/
-#if FEXTENS
+c #if FEXTENS
       data ext /'.dat'/
-#else
-      data ext /' '/
-#endif
+c #else
+c      data ext /' '/
+c #endif
       data path /' '/
+
 
       bittst(n,bit) = (mod(n,bit+bit) - mod(n,bit) .eq. bit)
 

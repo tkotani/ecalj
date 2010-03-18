@@ -68,7 +68,9 @@ C ... Local parameters
      .   ds0(ndim0,ndim0,3),wk(ndim0,ndim0),dwk(ndim0,ndim0,3)
 C ... For parallel threads
       integer nlmx,npmx,ip,mp,nbmx
-#ifndef SGI_PARALLEL
+
+
+c #ifndef SGI_PARALLEL
       parameter (nlmx=64, npmx=1, nbmx=256)
 #if F90 | AUTO_ARRAY
       double precision xf(3,nbas,npmx),xhpot0(nbas,npmx),
@@ -77,11 +79,14 @@ C ... For parallel threads
       double precision xf(3,nbmx,npmx),xhpot0(nbmx,npmx),
      .  xgpot0(nlmx*nbmx,npmx),xugg(npmx)
 #endif
-#else
-      parameter (nlmx=64, npmx=32)
-      double precision xf(3,nbas,npmx),xhpot0(nbas,npmx),
-     .  xgpot0(nlmx*nbas,npmx),xugg(npmx)
-#endif
+c #else
+c      parameter (nlmx=64, npmx=32)
+c      double precision xf(3,nbas,npmx),xhpot0(nbas,npmx),
+c     .  xgpot0(nlmx*nbas,npmx),xugg(npmx)
+c #endif
+
+
+
 #if MPI | MPIK
       integer , dimension(:), allocatable :: bproc
       double precision , dimension(:), allocatable :: buffer
@@ -92,6 +97,7 @@ C ... Heap
       integer w(1)
       common /w/ w
 
+      integer:: ibini,ibend
       call tcn('ugcomp')
 
 #if MPI | MPIK
@@ -109,7 +115,8 @@ C ... Heap
       fpi = 4d0*pi
       srfpi = dsqrt(fpi)
       y0 = 1d0/srfpi
-#if ! (F90 | AUTO_ARRAY | SGI_PARALLEL)
+c #if ! (F90 | AUTO_ARRAY | SGI_PARALLEL)
+#if ! (F90 | AUTO_ARRAY)
       if (nbas .gt. nbmx) call rx('ugcomp: increase nbkmx')
 #endif
 
@@ -137,7 +144,17 @@ C --- Loop over sites where charge lump making pot is centered ---
 #endif 
       allocate (bproc(0:numprocs), stat=ierr)
       call dstrbp(nbas,numprocs,1,bproc(0))
-      do  ib = bproc(procid), bproc(procid+1)-1
+c      do  ib = bproc(procid), bproc(procid+1)-1
+      ibini= bproc(procid)
+      ibend= bproc(procid+1)-1
+#else
+c      do  ib = 1, nbas
+      ibini=1
+      ibend=nbas
+#endif 
+
+      do ib=ibini,ibend
+#if MPI
         if (mlog .and. ib .eq. bproc(procid)) then
           call gettime(datim)
           call awrit4(' ugcomp '//datim//' Process %i of %i on '
@@ -146,10 +163,7 @@ C --- Loop over sites where charge lump making pot is centered ---
      .        procid,numprocs,bproc(procid),bproc(procid+1)-1)
         endif
         iv0 = iiv0(ib)
-#else
-      do  ib = 1, nbas
-#endif 
-
+#endif   
         call upack('site spec pos',ssite,ib,is,tau1,0,0)
         call upack('spec lmxl rg',sspec,is,lmax1,rg1,0,0)
         call corprm(sspec,is,qcorg1,qcorh1,qsc1,cofg1,cofh1,ceh1,lfoc1,

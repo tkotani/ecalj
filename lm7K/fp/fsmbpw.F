@@ -85,6 +85,7 @@ C ... Local parameters
 C ... Heap
       integer w(1)
       common /w/ w
+      integer:: ibini,ibend
 
 C --- Setup ---
       if (nevec .le. 0) return
@@ -126,7 +127,17 @@ C --- Loop over first and second site indices ---
 #endif
       allocate (index(0:numprocs-1,0:nbas-1), stat=ierr)
       call dstrbp(nbas,numprocs,-1,index(0,0))
-      do  iloop = 1, index(procid,0)
+c      do  iloop = 1, index(procid,0)
+      ibini=1
+      ibend=index(procid,0)
+#else
+c      do  ib1 = 1, nbas
+      ibini=1
+      ibend=nbas
+#endif
+
+      do  ib1 = ibini,ibend
+#if MPI
         ib1 = index(procid,iloop)
         if (mlog) then
           call gettime(datim)
@@ -135,9 +146,8 @@ C --- Loop over first and second site indices ---
      .        ' starting atom %i of %i',' ',256,lgunit(3),
      .        procid,numprocs,ib1,index(procid,0))
         endif
-#else
-      do  ib1 = 1, nbas
 #endif
+
         call upack('site spec pos',ssite,ib1,is1,p1,0,0)
         call uspecb(0,2,sspec,is1,is1,lh1,rsm1,e1,nkap1)
 C       Row info telling fsmbpw where to poke s0 made by hhibl

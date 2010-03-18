@@ -163,11 +163,11 @@ C ... Return here to resume parsing for arguments
 
 C 306 format(' Failed to parse string ',a,' ... try again.')
   100 continue
-#if PRTNOCR
-      print '(/'' Option : '',$)'
-#else
+c#if PRTNOCR
+c      print '(/'' Option : '',$)'
+c#else
       print '(/'' Option : '')'
-#endif
+c#endif
       outs = ' '
       if (lsopts) then
         print '(a)', trim(sopts(js1:js2))
@@ -178,9 +178,11 @@ C 306 format(' Failed to parse string ',a,' ... try again.')
       call locase(outs)
 
 C ... Parse and execute the next command
-      if (.false.) then
+c      if (.false.) then
+c
+c      else
 
-      elseif (outs .eq. ' ') then
+      if(outs .eq. ' ') then
         print 304
   304   format(' Enter ''q'' to exit, ''a'' to abort',
      .    ' ''?'' to see menu')
@@ -678,9 +680,7 @@ C ... help
      .    'read 2nd density from ascii restart file.  Use "fn" for ',
      .    'file name,'/t15,'or "rst.ext" if "fn" is not supplied'/
      .  t4,'readb [fn]',t15, 'same as "read"'//
-
      .  t4,'wrhoat',t15, 'Write atomic densities to rhoMT.{1..nbas}'//
-
      .  t4,'show',t15, 'Show summary information about densities'//
      .  t4,'...The following affect the charge or magnetic moment',
      .    ' of a density.'/

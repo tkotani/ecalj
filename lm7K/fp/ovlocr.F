@@ -53,6 +53,7 @@ C ... Heap
       integer w(1)
       common /w/ w
       data q /0d0,0d0,0d0/
+      integer:: ibini,ibend
 
       call tcn('ovlocr')
       ipr  = iprint()
@@ -88,14 +89,19 @@ C$&        MP_SCHEDTYPE=RUNTIME
       call poppr
       ipr = 0
       call pshpr(10)
-      do ib = ibproc(procid), ibproc(procid+1)-1
+c      do ib = ibproc(procid), ibproc(procid+1)-1
+      ibini= ibproc(procid)
+      ibend= ibproc(procid+1)-1
 #else
       if (ipr .ge. 30) write (stdo,300)
   300 format(/' Free atom and overlapped crystal site charges:'
      .   /'   ib    true(FA)    smooth(FA)  true(OV)',
      .   '    smooth(OV)    local')
-      do  ib = 1, nbas
+c      do  ib = 1, nbas
+      ibini= 1
+      ibend= nbas
 #endif
+      do  ib = ibini,ibend
         call upack('site spec pos',ssite,ib,is,p1,0,0)
         call upack('spec lmxl kmxv rsmv',sspec,is,lmxl,kmxv,rsmv,0)
         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)

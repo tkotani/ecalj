@@ -64,11 +64,12 @@ C     implicit none
       character*1 strn(1), sout*(*)
 C Local variables
       integer mxarg,lcmd
-#if SUN_ULTRA
-      parameter (mxarg=2000,lcmd=2048)
-#else
+cRemoved SUN_ULTRA. takao 2010mar
+c #if SUN_ULTRA
+c       parameter (mxarg=2000,lcmd=2048)
+c #else
       parameter (mxarg=2000,lcmd=20000)
-#endif
+c #endif
       integer marker(0:mxarg),nxarg,i1,i2,it,ia,i,lgunit,n,iarg
       character*(lcmd) cmdarg, ch*3
       save nxarg,marker

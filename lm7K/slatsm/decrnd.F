@@ -28,16 +28,16 @@ C This construction avoids taking integer part of negative number
       scale = 10d0**(n-1-scale)
       decrnd = nint(x*scale)/scale
       end
-#if TEST
-      double precision decrnd,x
-      x = 12345678
-C     x = -x
-      do  20 j = 1,7
-        do  10  i = -20,20
-   10   print *, decrnd(x*(10d0**i),j), decrnd(x*(10d0**i),j)/
-     .      (x*(10d0**i))
-        print *, '----'
-   20 continue
-      end
-#endif
+c$$$#if TEST
+c$$$      double precision decrnd,x
+c$$$      x = 12345678
+c$$$C     x = -x
+c$$$      do  20 j = 1,7
+c$$$        do  10  i = -20,20
+c$$$   10   print *, decrnd(x*(10d0**i),j), decrnd(x*(10d0**i),j)/
+c$$$     .      (x*(10d0**i))
+c$$$        print *, '----'
+c$$$   20 continue
+c$$$      end
+c$$$#endif
 

@@ -501,11 +501,11 @@ C     as the nesting level changes.
      .  LTOP=14,LNCLUD=15,LAVE=16,LEC=17,LENV=18,LHAR0=19,LCONST=20,
      .  LVAR=21,LDEF=22,LNCLUO=23,LHILE=24,LRACE=25,LFNDEF=26,LFIND=27,
      .  LXIT=28,LFILE=29,LACRO=30)
-#if CSYTLETABCHR
-      parameter (tab='\t')
-#else
+c #if CSYTLETABCHR
+c      parameter (tab='\t')
+c #else
       parameter (tab='	')
-#endif
+c #endif
       save nchr,lshow,cc1,cc2,cex,lcc,lex,notab,nkeepv,liff,liff0,
      .  nlev,nrd,niff,lunit,unit0,filstk,nrdstk,ltrace
 C ... Allowed characters in a name
@@ -1512,11 +1512,11 @@ C ----------------------------------------------------------------
 C Local variables
       logical a2bin,a2bina,lqchr
       character*1 qchr,match
-#if CRAY
-      parameter (qchr='\')
-#else
+c #if CRAY
+c      parameter (qchr='\')
+c #else
       parameter (qchr='\\')
-#endif
+c #endif
       integer i,j,k,m,ival,kkk,i1,i2,ip1,ip2,
      .  ip,ii(2),ix(2),istr1,istr2,a2vec,iaa21,iaa22,iaa2,iaa3
       equivalence (i1,ii(1)), (i2,ii(2))

@@ -1,7 +1,7 @@
 K 25
 svn:wc:ra_dav:version-url
 V 36
-/svn/!svn/ver/19/trunk/fparser/tests
+/svn/!svn/ver/24/trunk/fparser/tests
 END
 test_api.py
 K 25
@@ -37,13 +37,19 @@ test_issue7.py
 K 25
 svn:wc:ra_dav:version-url
 V 51
-/svn/!svn/ver/19/trunk/fparser/tests/test_issue7.py
+/svn/!svn/ver/21/trunk/fparser/tests/test_issue7.py
 END
 test_Fortran2003.py
 K 25
 svn:wc:ra_dav:version-url
 V 55
 /svn/!svn/ver/4/trunk/fparser/tests/test_Fortran2003.py
+END
+test_comment.py
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/24/trunk/fparser/tests/test_comment.py
 END
 funcfile.f95
 K 25

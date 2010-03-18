@@ -41,7 +41,8 @@ for ffile in argset:
     reader.set_mode(isfree=False,isstrict=False)
     #for item in reader:
     for item in reader:
-         print 'xxxxxx: ',item.__class__.__name__
+         print 'xxxxxx: ',item.__class__.__name__, item.span
+         continue
          print 
          #for i in dir(item):
          #    print '   ', i

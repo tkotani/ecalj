@@ -132,6 +132,9 @@ C ... For the basis
 C Event numbers:
       include "events.ins"
 #endif
+      integer:: initbas, endbas
+
+
 C ... Heap
       integer w(1)
       common /w/ w
@@ -146,6 +149,8 @@ C ... Heap
       namelen(procid) = i-1
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
+#else
+      numprocs=1
 #endif
 
 C --- Setup ---
@@ -174,7 +179,15 @@ C --- Loop over augmentation sites --- ---
       endif
       allocate (bproc(0:numprocs), stat=ierr)
       call dstrbp(nbas,numprocs,1,bproc(0))
-      do  ia = bproc(procid), bproc(procid+1)-1
+      initbas=bproc(procid)
+      endbas =bproc(procid+1)-1
+#else
+      initbas=1
+      endbas=nbas
+#endif
+
+      do  ia = initbas, endbas
+#if MPI|MPIK
         if (mlog .and. ia .eq. bproc(procid)) then
           call gettime(datim)
           call awrit4(' augmbl '//datim//' Process %i of %i on '
@@ -182,9 +195,8 @@ C --- Loop over augmentation sites --- ---
      .        ' starting atoms %i to %i',' ',256,lgunit(3),
      .        procid,numprocs,bproc(procid),bproc(procid+1)-1)
         endif
-#else
-      do  ia = 1, nbas
 #endif
+
         call upack('site spec pos',ssite,ia,isa,pa,0,0)
         call upack('spec lmxa lmxb kmxt rsma',sspec,isa,lmxa,lmxha,kmax,
      .    rsma)

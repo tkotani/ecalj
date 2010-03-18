@@ -200,23 +200,38 @@ c     if you use the C preprocessor).
       integer FFTW_REAL_TO_COMPLEX,FFTW_COMPLEX_TO_REAL
       parameter (FFTW_REAL_TO_COMPLEX=-1,FFTW_COMPLEX_TO_REAL=1)
 
-#if FFTW3
-      integer FFTW_ESTIMATE,FFTW_MEASURE
-      parameter (FFTW_ESTIMATE=64,FFTW_MEASURE=0)
-      INTEGER FFTW_PRESERVE_INPUT
-      parameter (FFTW_PRESERVE_INPUT=16)
-#else
-      integer FFTW_ESTIMATE,FFTW_MEASURE
-      parameter (FFTW_ESTIMATE=0,FFTW_MEASURE=1)
-      integer FFTW_OUT_OF_PLACE,FFTW_IN_PLACE,FFTW_USE_WISDOM
-      parameter (FFTW_OUT_OF_PLACE=0)
-      parameter (FFTW_IN_PLACE=8,FFTW_USE_WISDOM=16)
-#endif
-
       integer FFTW_THREADSAFE
       parameter (FFTW_THREADSAFE=128)
 C ... End of include file fftw_f77.i that comes with the fftw package
       integer plan(2),jsig
+
+C$$$#if FFTW3
+C$$$      integer FFTW_ESTIMATE,FFTW_MEASURE
+C$$$      INTEGER FFTW_PRESERVE_INPUT
+C$$$      parameter (FFTW_ESTIMATE=64,FFTW_MEASURE=0)
+C$$$      parameter (FFTW_PRESERVE_INPUT=16)
+C$$$#else
+C$$$      integer FFTW_ESTIMATE,FFTW_MEASURE
+C$$$      integer FFTW_OUT_OF_PLACE,FFTW_IN_PLACE,FFTW_USE_WISDOM
+C$$$      parameter (FFTW_ESTIMATE=0,FFTW_MEASURE=1)
+C$$$      parameter (FFTW_OUT_OF_PLACE=0)
+C$$$      parameter (FFTW_IN_PLACE=8,FFTW_USE_WISDOM=16)
+C$$$#endif
+
+      integer FFTW_ESTIMATE,FFTW_MEASURE
+      INTEGER FFTW_PRESERVE_INPUT
+      integer FFTW_OUT_OF_PLACE,FFTW_IN_PLACE,FFTW_USE_WISDOM
+
+      parameter (FFTW_ESTIMATE=64,FFTW_MEASURE=0)
+      parameter (FFTW_PRESERVE_INPUT=16)
+
+#ifndef FFTW3
+      FFTW_ESTIMATE=0
+      FFTW_MEASURE=1
+      FFTW_OUT_OF_PLACE=0
+      FFTW_IN_PLACE=8
+      FFTW_USE_WISDOM=16
+#endif
 
       call tcn('fftz3')
       if (n1 .eq. 1 .and. n2 .eq. 1 .and. n3 .eq. 1) goto 99

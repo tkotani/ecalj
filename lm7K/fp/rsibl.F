@@ -132,6 +132,7 @@ C ... Heap
       integer w(1)
       common /w/ w
 
+      integer:: ivecini,ivecend
 C     call wkprnt(1)
 
       nproc  = mpipid(0)
@@ -246,6 +247,7 @@ C$OMP PARALLEL PRIVATE (psi,psir,vpsi,cosi,sini,wk,wk2,xsmrho,fr)
       call defcc(of,    k1*k2*k3)
 #endif
 
+
 #if MPI
 #if MPE
       ierr = MPE_LOG_EVENT(EVENT_START_RSIBL,procid,"rsibl")
@@ -256,7 +258,20 @@ C$OMP PARALLEL PRIVATE (psi,psir,vpsi,cosi,sini,wk,wk2,xsmrho,fr)
         allocate(fr(3,nbas,numq))
         call dpzero(fr,3*nbas*numq)
       endif
-      do  ivec = vproc(procid), vproc(procid+1)-1, nblk
+c      do  ivec = vproc(procid), vproc(procid+1)-1, nblk
+      ivecini= vproc(procid)
+      ivecend= vproc(procid+1)-1
+#else
+C$OMP DO schedule(static,1) PRIVATE (ivec,nvec)
+c      do  ivec = 1, nevec, nblk
+c        nvec = min(nblk, nevec-ivec+1)
+      ivecini= 1
+      ivecend= nevec
+#endif
+
+
+      do  ivec = ivecini,ivecend, nblk
+#if MPI
         if (mlog .and. ivec .eq. vproc(procid)) then
           call gettime(datim)
           call awrit5(' rsibl '//datim//' Process %i of %i on '
@@ -270,10 +285,10 @@ C$OMP PARALLEL PRIVATE (psi,psir,vpsi,cosi,sini,wk,wk2,xsmrho,fr)
      .        ',ivec=%i,nvec=%i',' ',256,lgunit(3),procid,vproc(procid),
      .        vproc(procid+1)-1,ivec,nvec)
 #else
-C$OMP DO schedule(static,1) PRIVATE (ivec,nvec)
-      do  ivec = 1, nevec, nblk
         nvec = min(nblk, nevec-ivec+1)
 #endif
+
+
 #if F90
 C   ... Add together total smooth wavefunction
         call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,

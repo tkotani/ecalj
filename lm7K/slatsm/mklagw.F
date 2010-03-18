@@ -139,51 +139,51 @@ C --- jljm1 is j*L_(j-1);  cj is 2*j - 1 - x; ljp1 is L_j + 1 ---
       lnolnp = ln*x/(n*ln - jljm1)
       end
 
-#if TEST
-C shows z and weights integrate x**i from i=0..2n-1 exactly
-      implicit none
-      double precision z(200),w(200),alfa,z0
-      double precision zz(200),ww(200),r1,r2,r3,resg
-      integer n,iopt,ipr,i,j,nn
-      double precision facti,dsum,res
-
-      iopt = 0
-      ipr = 80
-      print *, 'n,alfa,z0,iopt='
-      read(*,*) n,alfa,z0,iopt
-      call mklagw(n,iopt,alfa,z0,z,w,ipr)
-      nn = 200
-      call mklegw(nn,zz,ww,0)
-
-      facti = 1
-      print *, 'sum z,w is', dsum(n,z,1), dsum(n,w,1)
-      print *,
-     .  '  i          int           int/int(0,infty)          err'
-      do  10  i = 1, 2*n+1
-        facti = facti * i
-        res = 0
-        if (iopt .eq. 0) then
-          do  20  j = 1, n
-   20     res = res + w(j)*z(j)**i
-        else
-          do  22  j = 1, n
-   22     res = res + w(j)*z(j)**i*exp(-alfa*z(j))
-        endif
-
-
-C ...  Do integral from 0 to z0 using mlegw
-        r1 = (z0-0)/2
-        r2 = (z0+0)/2
-        resg = 0
-        do  40  j = 1, nn
-
-        r3 = r1*zz(nn-j+1) + r2
-   40   resg = resg + ww(j-1+1)*r1*r3**i*exp(-alfa*r3)
-        print 333, i, res, res/facti*alfa**(i+1),
-     .    (res+resg)/facti*alfa**(i+1)-1
-  333   format(i4,1x,3f20.15)
-        if (i .eq. 2*n-1) print *, ' ------ exact ends here ---- '
-   10 continue
-      end
-#endif
+c$$$#if TEST
+c$$$C shows z and weights integrate x**i from i=0..2n-1 exactly
+c$$$      implicit none
+c$$$      double precision z(200),w(200),alfa,z0
+c$$$      double precision zz(200),ww(200),r1,r2,r3,resg
+c$$$      integer n,iopt,ipr,i,j,nn
+c$$$      double precision facti,dsum,res
+c$$$
+c$$$      iopt = 0
+c$$$      ipr = 80
+c$$$      print *, 'n,alfa,z0,iopt='
+c$$$      read(*,*) n,alfa,z0,iopt
+c$$$      call mklagw(n,iopt,alfa,z0,z,w,ipr)
+c$$$      nn = 200
+c$$$      call mklegw(nn,zz,ww,0)
+c$$$
+c$$$      facti = 1
+c$$$      print *, 'sum z,w is', dsum(n,z,1), dsum(n,w,1)
+c$$$      print *,
+c$$$     .  '  i          int           int/int(0,infty)          err'
+c$$$      do  10  i = 1, 2*n+1
+c$$$        facti = facti * i
+c$$$        res = 0
+c$$$        if (iopt .eq. 0) then
+c$$$          do  20  j = 1, n
+c$$$   20     res = res + w(j)*z(j)**i
+c$$$        else
+c$$$          do  22  j = 1, n
+c$$$   22     res = res + w(j)*z(j)**i*exp(-alfa*z(j))
+c$$$        endif
+c$$$
+c$$$
+c$$$C ...  Do integral from 0 to z0 using mlegw
+c$$$        r1 = (z0-0)/2
+c$$$        r2 = (z0+0)/2
+c$$$        resg = 0
+c$$$        do  40  j = 1, nn
+c$$$
+c$$$        r3 = r1*zz(nn-j+1) + r2
+c$$$   40   resg = resg + ww(j-1+1)*r1*r3**i*exp(-alfa*r3)
+c$$$        print 333, i, res, res/facti*alfa**(i+1),
+c$$$     .    (res+resg)/facti*alfa**(i+1)-1
+c$$$  333   format(i4,1x,3f20.15)
+c$$$        if (i .eq. 2*n-1) print *, ' ------ exact ends here ---- '
+c$$$   10 continue
+c$$$      end
+c$$$#endif
 

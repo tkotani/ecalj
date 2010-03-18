@@ -110,7 +110,7 @@ C ... ix-th component of connecting vector of pair i
 #if MPI | MPIK
       integer, dimension(:),allocatable :: igproc
 #endif
-      integer procid, master, mpipid, numprocs
+      integer procid, master, mpipid, numprocs,igini,igend
       logical mlog,cmdopt
       character strn*120
 
@@ -184,10 +184,16 @@ C      call poppr
 #endif
 
 #if MPI | MPIK
-      do ig = max(igproc(procid),2), igproc(procid+1)-1
+c      do ig = max(igproc(procid),2), igproc(procid+1)-1
+      igini = max(igproc(procid),2)
+      igend = igproc(procid+1)-1
 #else
-      do  ig = 2, ng
+c      do  ig = 2, ng
+      igini = 2
+      igend = ng
 #endif
+
+      do ig=igini,igend   
 
 C   ... Rotation matrix for this ig
         call ylmrtg(nlm,g(1,ig),rmat)

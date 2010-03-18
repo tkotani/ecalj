@@ -68,11 +68,8 @@ C Local
       DO i=0,np-1
         WRITE (*,'(3x,3i7)') i,inode(i),xnode(i)
       END DO
-
-      END SUBROUTINE dstrbp
-#else
-      end
 #endif 
+      END SUBROUTINE dstrbp
 
 #if MPI | MPIK
       SUBROUTINE single(nloop,np,xnode,inode)

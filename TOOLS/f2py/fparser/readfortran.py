@@ -1,18 +1,12 @@
 #!/usr/bin/env python
-"""
-Defines FortranReader classes for reading Fortran codes from
-files and strings. FortranReader handles comments and line continuations
-of both fix and free format Fortran codes.
+"""Provides Fortran reader classes.
 
------
-Permission to use, modify, and distribute this software is given under the
-terms of the NumPy License. See http://scipy.org.
-
-NO WARRANTY IS EXPRESSED OR IMPLIED.  USE AT YOUR OWN RISK.
-Author: Pearu Peterson <pearu@cens.ioc.ee>
-Created: May 2006
------
+Provides FortranReader classes for reading Fortran codes from files and
+strings. FortranReader handles comments and line continuations of both
+fix and free format Fortran codes.
 """
+#Author: Pearu Peterson <pearu@cens.ioc.ee>
+#Created: May 2006
 
 __all__ = ['FortranFileReader',
            'FortranStringReader',
@@ -39,7 +33,7 @@ _is_fix_cont = lambda line: line and len(line)>5 and line[5]!=' ' and line[:5]==
 _is_f90_cont = lambda line: line and '&' in line and line.rstrip()[-1]=='&'
 _f90label_re = re.compile(r'\s*(?P<label>(\w+\s*:|\d+))\s*(\b|(?=&)|\Z)',re.I)
 _is_include_line = re.compile(r'\s*include\s*("[^"]+"|\'[^\']+\')\s*\Z',re.I).match
-_is_fix_comment = lambda line: line and line[0] in '*cC!'
+_is_fix_comment = lambda line: line and line[0] in '*cC!#'
 _hollerith_start_search = re.compile(r'(?P<pre>\A|,\s*)(?P<num>\d+)h',re.I).search
 _is_call_stmt = re.compile(r'call\b', re.I).match
 
@@ -157,6 +151,14 @@ class SyntaxErrorLine(Line, FortranReaderError):
 
 class Comment(object):
     """ Holds Fortran comment.
+
+    Attributes
+    ----------
+    comment : str
+      comment multiline string
+    span : 2-tuple
+      starting and ending line numbers
+    reader : FortranReaderBase
     """
     def __init__(self, comment, linenospan, reader):
         self.comment = comment
@@ -166,12 +168,23 @@ class Comment(object):
         return self.__class__.__name__+'(%r,%s)' \
                % (self.comment, self.span)
     def isempty(self, ignore_comments=False):
-        return ignore_comments or len(self.comment)<2
+        return ignore_comments # or len(self.comment)<2
 
 class MultiLine(object):
-    """ Holds (prefix, line list, suffix) representing multiline
-    syntax in .pyf files:
+    """ Holds PYF file multiline.
+
+    PYF file multiline is represented as follows::
       prefix+'''+lines+'''+suffix.
+    
+    Attributes
+    ----------
+    prefix : str
+    block : list
+      list of lines
+    suffix : str
+    span : 2-tuple
+      starting and ending line numbers
+    reader : FortranReaderBase
     """
     def __init__(self, prefix, block, suffix, linenospan, reader):
         self.prefix = prefix
@@ -310,9 +323,12 @@ class FortranReaderBase(object):
         self.linecount += 1
         # expand tabs, replace special symbols, get rid of nl characters
         line = line.expandtabs().replace('\xa0',' ').rstrip()
+        #print 'llllllllllllll line get_single line', line
         self.source_lines.append(line)
-        if not line:
-            return self.get_single_line()
+##takao These are to skip  linw only with \n        
+##       if not line:
+##           return self.get_single_line()
+        ##print 'llllllllllllll line get_single line', line
         return line
 
     def get_next_line(self):
@@ -338,7 +354,6 @@ class FortranReaderBase(object):
         return self
 
     def next(self, ignore_comments = False):
-
         try:
             if self.reader is not None:
                 try:
@@ -412,6 +427,7 @@ class FortranReaderBase(object):
         comments = []
         start = item.span[0]
         while isinstance(item, Comment):
+            #print 'aaaaaaaa= ', item.comment
             comments.append(item.comment)
             end = item.span[1]
             while 1:
@@ -691,6 +707,7 @@ class FortranReaderBase(object):
                 # mixing fix format and f90 line continuations is not allowed
                 # nor detected, just eject warnings.
                 line2 = get_single_line()
+                #print 'line2=', line2
                 if _is_fix_comment(line2):
                     # handle fix format comments inside line continuations
                     citem = self.comment_item(line2,self.linecount,self.linecount)

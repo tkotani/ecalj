@@ -1277,17 +1277,14 @@ C      implicit none
       integer ndim,iter,k,ir,isw,i,j,ifi,ifl,fopna
       double precision gtol,pio2,f1dim
       double precision angl
-#if PROB0
-      parameter(ndim=2*19,pio2=1.5707963d0)
-      double precision f(ndim)
+      parameter(pio2=1.5707963d0)
+c      double precision f(ndim)
+      real(8),allocatable:: f(:)
+
       integer ietype
       double precision rcut,amu,azero
-#elif PROB1 | PROB2
-      parameter(ndim=3,pio2=1.5707963d0)
-#elif PROBN
-      parameter(ndim=2*19,pio2=1.5707963d0)
-      double precision f(ndim)
-#endif
+
+
       integer nvclst,owk,oiwk,nlin,nlinmx
       double precision hess(ndim,ndim),p(ndim*(11+2*ndim)),dxmx,xtol,xx,
      .  xn,veclst(3,5),wk(0:26),dx
@@ -1303,6 +1300,15 @@ C ... for mstmin
       logical cmdopt
       integer w(10000)
       common /w/ w
+
+#if PROB0
+      ndim=2*19
+#elif PROB1 | PROB2
+      ndim=3
+#elif PROBN
+      ndim=2*19
+#endif
+      allocate(f(ndim))
 
 C ... for suhsmp
       call pshpr(0)
@@ -1582,10 +1588,13 @@ C   ... Make true hessian
      .     ndim)
         call fclose(ifi)
         print *, 'wrote true hessian to file to file thssn.dat'
+
 #ifndef PROB1
+       deallocate(f)
        call cexit(1,1)
 #endif
    11 continue
+      deallocate(f)
       end
 #endif
 

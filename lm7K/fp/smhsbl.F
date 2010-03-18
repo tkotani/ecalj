@@ -181,7 +181,7 @@ C ... for PW part
 #if MPI
       double complex, dimension(:,:), allocatable :: hbuf, sbuf
       integer, dimension(:,:), allocatable :: index
-      integer iloop,obuff
+      integer obuff
 #endif
 #if MPE
 C Event numbers:
@@ -190,6 +190,8 @@ C Event numbers:
 C ... Heap
       integer w(1)
       common /w/ w
+
+      integer:: iloop,iloopmx
 
       call tcn('smhsbl')
 
@@ -282,7 +284,13 @@ c      call MPI_abort(MPI_COMM_WORLD,ierr)
 cccccccccccccccccccccc
 c      print *,'procid=',procid,index(procid,0)
 ccccccccccccccccccccc
-      do  iloop = 1, index(procid,0)
+      iloopmx= index(procid,0)
+#else
+      iloopmx= nbas
+#endif
+
+      do iloop = 1,iloopmx
+#if MPI
         ib1 = index(procid,iloop)
         if (mlog) then
           call gettime(datim)
@@ -292,8 +300,9 @@ ccccccccccccccccccccc
      .        procid,numprocs,ib1,index(procid,0))
         endif
 #else
-      do  ib1 = 1, nbas
+        ib1=iloop
 #endif
+
         call upack('site spec pos',ssite,ib1,is1,p1,0,0)
         call uspecb(0,2,sspec,is1,is1,lh1,rsm1,e1,nkap1)
 C       Row info telling smhsbl where to poke s0 made by hhibl

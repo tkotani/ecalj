@@ -527,11 +527,12 @@ C Local Variables
       equivalence (s,ss)
 
       data chx /':',' '/
-#if CRAY
-      data hch /'\h'/ tch /'\t'/ sch /'\'/ pch /'\{'/
-#else
+c CRAY is removed. takao mar2010
+c #if CRAY 
+c       data hch /'\h'/ tch /'\t'/ sch /'\'/ pch /'\{'/
+c #else
       data hch /'\\h'/ tch /'\\t'/ sch /'\\'/ pch /'\\{'/
-#endif
+c #endif
 
 C --- Until a key matches atom file, do ---
       if (iprint() .ge. 30) print *

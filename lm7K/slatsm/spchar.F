@@ -12,25 +12,26 @@ C     implicit none
       character*(1) ch
       character*1 sch*1,tch*1,nch*1
 
-#if CRAY
-      data sch /'\'/ tch /'	'/  nch /''/
-#else
+c #if CRAY
+c      data sch /'\'/ tch /'	'/  there was nch /'^M'/
+c       --> but nch=ctrl+M ---> this caused compilar error in machines.
+c #else
       data sch /'\\'/ tch /'\t'/  nch /'\n'/
-#endif
+c #endif
 
       if (i .eq. 1) ch = sch
       if (i .eq. 2) ch = tch
       if (i .eq. 3) ch = nch
 
       end
-#if TEST
-      character ch*1
-      call spchar(1,ch)
-      print 333, 'backslash',ch
-      call spchar(2,ch)
-      print 333, 'tab',ch
-      call spchar(3,ch)
-      print 333, 'newline',ch
-  333 format(a,' :',a1,':')
-      end
-#endif
+C$$$#if TEST
+C$$$      character ch*1
+C$$$      call spchar(1,ch)
+C$$$      print 333, 'backslash',ch
+C$$$      call spchar(2,ch)
+C$$$      print 333, 'tab',ch
+C$$$      call spchar(3,ch)
+C$$$      print 333, 'newline',ch
+C$$$  333 format(a,' :',a1,':')
+C$$$      end
+C$$$#endif

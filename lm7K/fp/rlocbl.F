@@ -152,6 +152,7 @@ C$    integer mp_numthreads,mp_my_threadnum
 C ... Heap
       integer w(1)
       common /w/ w
+      integer:: iaini,iaend
 
 #if MPI
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
@@ -226,7 +227,15 @@ C --- Loop over augmentation sites ---
 #endif
       allocate (bproc(0:numprocs), stat=ierr)
       call dstrbp(nbas,numprocs,1,bproc(0))
-      do  ia = bproc(procid), bproc(procid+1)-1
+c      do  ia = bproc(procid), bproc(procid+1)-1
+      iaini=bproc(procid)
+      iaend=bproc(procid+1)-1
+#else
+      iaini=1
+      iaend=nbas
+#endif
+      do ia = iaini,iaend
+#if MPI
         if (mlog .and. ia .eq. bproc(procid)) then
           call gettime(datim)
           call awrit4(' rlocbl '//datim//' Process %i of %i on '
@@ -234,8 +243,6 @@ C --- Loop over augmentation sites ---
      .        ' starting atoms %i to %i',' ',256,lgunit(3),
      .        procid,numprocs,bproc(procid),bproc(procid+1)-1)
         endif
-#else
-      do  ia = 1, nbas
 #endif
         ip=1
 C$      ip=mp_my_threadnum()+1

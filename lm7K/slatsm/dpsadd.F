@@ -3,18 +3,19 @@ C- shift and add. nel=number of elements, n1,n2= start in asrc,adest
 C     implicit none
       integer n1,n2,i,iadd,ntop,nel
       double precision asrc(1),adest(1),fac
-
-#if CRAY
-      call scopy(nel,asrc(n2),1,adest(n1),1)
-      call saxpy(nel,fac,asrc(n2),1,adest(n1),1)
-#elif BLAS
-     call daxpy(nel,fac,asrc(n2),1,adest(n1),1)
-#else
-      iadd = n1-n2
-      ntop = n2+nel-1
-      do  10  i = n2, ntop
-   10 adest(i+iadd) = adest(i+iadd) + fac*asrc(i)
-#endif
+c No CRAY takao 2010jan BLAS is assumed
+c #if CRAY
+c      call scopy(nel,asrc(n2),1,adest(n1),1)
+c      call saxpy(nel,fac,asrc(n2),1,adest(n1),1)
+c #elif BLAS
+c#if BLAS
+      call daxpy(nel,fac,asrc(n2),1,adest(n1),1)
+c#else
+c      iadd = n1-n2
+c      ntop = n2+nel-1
+c      do  10  i = n2, ntop
+c   10 adest(i+iadd) = adest(i+iadd) + fac*asrc(i)
+c#endif
       end
 C      program test
 C      implicit none

@@ -49,6 +49,7 @@ C     integer ifi,fopna
       logical mlog,cmdopt
       character strn*120
 #endif
+      integer:: ibini,ibend
 
       call tcn('ovlpfa')
       ipr  = iprint()
@@ -76,10 +77,16 @@ C --- Loop over sites ---
       call dstrbp(nbas,numprocs,1,kpproc(0))
       call poppr
       ipr = 0
-      do ib = kpproc(procid), kpproc(procid+1)-1
+c      do ib = kpproc(procid), kpproc(procid+1)-1
+      ibini = kpproc(procid)
+      ibend = kpproc(procid+1)-1
 #else
-      do  ib = 1, nbas
+c      do  ib = 1, nbas
+      ibini=1
+      ibend=nbas
 #endif
+
+      do ib=ibini,ibend
         call upack('site spec pos',ssite,ib,is,pos,0,0)
         nx = nxi(is)
 

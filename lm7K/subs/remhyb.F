@@ -10,8 +10,8 @@ C     implicit none
       integer ldim,nl,nbas
       double precision h(0:ldim-1,0:ldim-1,2),o(0:ldim-1,0:ldim-1,2)
 
-      integer nl2,ip,jp,nlm1,nlm2
-
+      integer nl2,ip,jp,nlm1,nlm2,nlm2x
+      logical nlm2l
       if (nl .eq. 1) return
 
       nl2 = nl**2
@@ -19,10 +19,11 @@ C     implicit none
         if (nlm1 .eq. 0) then
           do  1  nlm2 = 0, nl2-1
 #if SP
-            if (nlm2 .gt. 3) then
+             nlm2x=3
 #else
-            if (nlm2 .gt. 0) then
+             nlm2x=0
 #endif
+            if (nlm2 .gt. nlm2x) then
               do  11  ip = 0, (nbas-1)*nl2, nl2
               do  11  jp = 0, (nbas-1)*nl2, nl2
                 h(nlm1+ip,nlm2+jp,1) = 0d0
@@ -36,10 +37,11 @@ C     implicit none
         elseif (nlm1 .lt. 4) then
           do  2  nlm2 = 0, nl2-1
 #if SP
-            if (nlm2 .gt. 3) then
+            nlm2l=nlm2 .gt. 3
 #else
-            if (nlm2 .eq. 0 .or. nlm2 .gt. 3) then
+            nlm2l=(nlm2 .eq. 0 .or. nlm2 .gt. 3)
 #endif
+            if (nlm2l) then
               do  12  ip = 0, (nbas-1)*nl2, nl2
               do  12  jp = 0, (nbas-1)*nl2, nl2
                 h(nlm1+ip,nlm2+jp,1) = 0d0

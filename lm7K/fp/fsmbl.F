@@ -87,6 +87,7 @@ C ... Local parameters
 C ... Heap
       integer w(1)
       common /w/ w
+      integer:: iloopend
 
 C --- Setup ---
       if (nevec .le. 0) return
@@ -122,7 +123,15 @@ C --- Loop over first and second site indices ---
 #endif
       allocate (index(0:numprocs-1,0:nbas-1), stat=ierr)
       call dstrbp(nbas,numprocs,-1,index(0,0))
-      do  iloop = 1, index(procid,0)
+c      do  iloop = 1, index(procid,0)
+      iloopend=index(procid,0)
+#else
+      iloopend=nbas
+#endif
+
+
+      do  iloop = 1, iloopend
+#if MPI
         ib1 = index(procid,iloop)
         if (mlog) then
           call gettime(datim)
@@ -132,7 +141,7 @@ C --- Loop over first and second site indices ---
      .        procid,numprocs,ib1,index(procid,0))
         endif
 #else
-      do  ib1 = 1, nbas
+        ib1=iloop
 #endif
         call upack('site spec pos',ssite,ib1,is1,p1,0,0)
         call uspecb(0,2,sspec,is1,is1,lh1,rsm1,e1,nkap1)

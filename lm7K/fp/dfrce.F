@@ -88,6 +88,7 @@ C Local variables
       integer, dimension(:), allocatable :: bproc, iiv0
       integer pid,jb
 #endif
+      integer::ibini,ibend
 C ... for SGI parallel
 C$    integer nbmx,mp_my_threadnum,mp_numthreads
 C$     parameter (nbmx=512)
@@ -281,7 +282,15 @@ C$&        MP_SCHEDTYPE=RUNTIME
 #endif 
       allocate (bproc(0:numprocs), stat=ierr)
       call dstrbp(nbas,numprocs,1,bproc(0))
-      do  ib = bproc(procid), bproc(procid+1)-1
+      ibini = bproc(procid)
+      ibend = bproc(procid+1)-1
+#else
+      ibini=1
+      ibend=nbas
+#endif 
+
+      do  ib = ibini, ibend
+#if MPI | MPIK
         if (mlog .and. ib .eq. bproc(procid)) then
           call gettime(datim)
           call awrit4(' dfrce '//datim//' Process %i of %i on '
@@ -290,9 +299,8 @@ C$&        MP_SCHEDTYPE=RUNTIME
      .        procid,numprocs,bproc(procid),bproc(procid+1)-1)
         endif
         iv0 = iiv0(ib)
-#else
-      do  ib = 1, nbas
 #endif 
+
         is = igetss('site spec',ib,ssite)
         lmxl = igetss('spec lmxl',is,sspec)
         if (lmxl .eq. -1) goto 20

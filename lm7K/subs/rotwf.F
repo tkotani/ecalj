@@ -66,11 +66,11 @@ C ... Local parameters
      .  ncut,of0i
       double precision twopi,sp,cosP,sinP,tbas(3)
       double precision zz(ldz,ldz,2),cdabs2
-#if SGI
-      parameter (ncut=9)
-#else
+c #if SGI
+c       parameter (ncut=9)
+c #else
       parameter (ncut=4)
-#endif
+c #endif
 #else
       integer ofzi,kcplx,ixx,ldzr,opt1,nl2
       double precision wk(nl*nl,nl*nl,2)
