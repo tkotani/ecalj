@@ -790,7 +790,7 @@ C Passed parameters
       i = fopnx(fnam,111,0,lunit)
       return
 
-      entry fshow
+      entry fshow()
       i = fopnx(' ',190,0,-1)
       end
       subroutine ffnam(fnam,filnam)
@@ -1289,7 +1289,7 @@ C     implicit none
       goto 10
 
 C --- Close all open files ---
-      entry closea
+      entry closea()
       do  50  i = 0, nopen-1
         if (iprint() .ge. 100) print *,'CLOSEA: closing file ',unitab(i)
         close(unit=unitab(i),status='KEEP')
@@ -1484,8 +1484,8 @@ C     implicit none
       vb = vstack(stackp)
       return
 
-      entry popprt
-      entry poppr
+      entry popprt()
+      entry poppr()
       stackp = mod(stackp+1,nstack)
       return
 
@@ -1493,7 +1493,7 @@ C     implicit none
       vstack(mod(stackp+istk,nstack)) = vb
       return
 
-      entry shopr
+      entry shopr()
       print 333, (vstack(mod(stackp+j,nstack)), j=0,nstack-1)
   333 format(' vb stack',10i4)
       end
@@ -1507,7 +1507,7 @@ C     implicit none
       common /iprnt/ vstack,stackp
       integer itmp,jtmp
 
-      entry togpr
+      entry togpr()
       itmp = vstack(stackp)
       call popprt
       jtmp = vstack(stackp)
@@ -1673,6 +1673,7 @@ C       end
       return
       end
 c----------------------------------------------------------------------
+
       subroutine gwinput_v2x(ifi,
      &  nsp,   nbas,   nclass, nrmx,   ncoremx,
      &  lmxamx,ngpmx,  nband,  ldim2,   nqbze ,
@@ -1718,15 +1719,15 @@ c----
      &  lmxa  (nclass), ! Maximum l number for each atom for augmentation.
      &  nr(nclass),     ! Size of radial mesh.
      &  konf(0:lmxamx,nclass),! Principle quantum numbers of valence electron.
-                              ! For example, 4s4p3d means konf(0)=4, konf(1)=4, konf(2)=3.
-                              ! Core orbitals are specified by
-                              !   1, 2,... konf(0)-1 for s
-                              !   2, 3,... konf(1)-1 for p
-                              !   3, 4,... konf(2)-1 for d, and so on.
-                              !
+c                              ! For example, 4s4p3d means konf(0)=4, konf(1)=4, konf(2)=3.
+c                              ! Core orbitals are specified by
+c                              !   1, 2,... konf(0)-1 for s
+c                              !   2, 3,... konf(1)-1 for p
+c                              !   3, 4,... konf(2)-1 for d, and so on.
+c                              !
      &  ncore(nclass)   ! ncore = \sum_l  (konf(l)-1) - l
-                        ! Number of different core orbitals for each atom.
-
+c                        ! Number of different core orbitals for each atom.
+c
 cv2
       integer:: nphi,          ! number of augmentation nRl channels, as distinct from:
      &             ldim2,         ! number of nRLm channels = 2*ldim for phi+phidot case.
@@ -1747,12 +1748,12 @@ c----
      &  ec(ncoremx, nclass, nsp),   ! Eigenvalues for core
      &  evl    (nband, nqbze, nsp), ! Eigenvalues
      &  vxclda (nband, nqbze, nsp), ! Lda XC potential <psi|Vxc(n_total)  |psi>
-                                    !  or   <psi|Vxc(n_valence)|psi>. See nocore.
-
+c                                    !  or   <psi|Vxc(n_valence)|psi>. See nocore.
+c
 cv2     &  gx (nrmx, 0:lmxamx, 2,  nclass,nsp), ! Radial function. gx (nrmx, lmxamx, 1, nclass,nsp) is phi
 cv2                                          !                  gx (nrmx, lmxaxm, 2, nclass,nsp) is phidot
      &  gx (nrmx, 0:lmxamx, nphimx, nclass,nsp), ! Radial function. gx (nrmx, lmxamx, 1, nclass,nsp) is phi
-                                          !                  gx (nrmx, lmxaxm, 2, nclass,nsp) is phidot
+c                                          !                  gx (nrmx, lmxaxm, 2, nclass,nsp) is phidot
      &  gcore(nrmx, ncoremx, nclass,nsp)  ! Core radial function.
 c
 c     These radial functions are only the major part given by the scalar relativistic calculations.

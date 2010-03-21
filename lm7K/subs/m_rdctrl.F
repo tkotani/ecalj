@@ -247,7 +247,6 @@ c      integer :: VERBOS(5),nclasstest, n_verbos
 c      character(16) :: atom(50)
 !
       contains
-
       subroutine readctrl(prgn,vstrn,vn)
 C- Reads data parsed from ctrl file into m_rdctrl
 C ----------------------------------------------------------------------

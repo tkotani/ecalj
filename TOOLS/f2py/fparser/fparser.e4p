@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.6.dtd">
 <!-- eric4 project file for project fparser -->
-<!-- Saved: 2010-03-17, 16:12:36 -->
+<!-- Saved: 2010-03-21, 20:09:30 -->
 <!-- Copyright (C) 2010 ,  -->
 <Project version="4.6">
   <Language></Language>
@@ -21,7 +21,6 @@
     <Source>tests/test_parser.py</Source>
     <Source>tests/test_Fortran2003.py</Source>
     <Source>tests/test_issue7.py</Source>
-    <Source>tests/test_comment.py</Source>
     <Source>tests/test_issue4.py</Source>
     <Source>splitline.py</Source>
     <Source>__init__.py</Source>
