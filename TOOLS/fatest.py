@@ -23,7 +23,8 @@ for ffile in argset:
     tree = parse(ffile,isfree=False,isstrict=False,ignore_comments=False,analyze=True)
     #print dir(tree)
     #print tree.content
-    print tree.torepr(500)
+    print tree.torepr()
+    #print tree.torepr(3)
     #tree
     #print tree.item
 

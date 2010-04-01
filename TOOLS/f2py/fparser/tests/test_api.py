@@ -4,10 +4,11 @@ Test parsing of whole fortran files; 'blackbox' tests here.
 
 from fparser import api
 import sys
-from os.path import abspath
+from os.path import abspath, join, dirname
 
 def test_use_module():
-    sources = [abspath('tests/modfile.f95'), abspath('tests/funcfile.f95')]
+    d = dirname(__file__)
+    sources = [join(d,'modfile.f95'), join(d,'funcfile.f95')]
     file_to_parse = sources[1]
     tree = api.parse(file_to_parse, isfree=True, isstrict=False, source_only = sources)
 
@@ -96,3 +97,18 @@ def test_provides():
     assert mod6.a.module_provides.keys() ==  []
     assert mod6.a.use_provides.keys() ==  ['fp', 'dummy', 'b', 'e', 'qgp', 'a2', 'a', 'b2']
     assert mod6.a.use_provides['qgp'].name == 'gp'
+
+def test_walk():
+    source_str = '''\
+    ! before foo 
+    subroutine foo
+    integer i, r
+    do i = 1,100
+      r = r + 1
+    end do
+    ! after end do
+    end subroutine foo
+    '''
+    tree = api.parse(source_str, isfree=True, isstrict=False, ignore_comments=False)
+    for stmt, depth in api.walk(tree, 1):
+        print depth, stmt.item

@@ -436,7 +436,7 @@ class Statement(object):
     """
     __metaclass__ = classes
 
-    modes = ['free90','fix90','fix77','pyf']
+    modes = ['free','fix','f77','pyf']
     _repr_attr_names = []
 
     def __init__(self, parent, item):
@@ -501,8 +501,8 @@ class Statement(object):
             l.append(ttab + 'a=' + self.a.torepr(depth-1,incrtab+'  ').lstrip())
         return '\n'.join(l)
 
-    def get_indent_tab(self,colon=None,deindent=False,isfix=None):
-        if isfix is None: isfix = self.reader.isfix
+    def get_indent_tab(self,deindent=False,isfix=None):
+        if isfix is None: isfix = self.reader.isfixed
         if isfix:
             tab = ' '*6
         else:
@@ -513,21 +513,15 @@ class Statement(object):
             p = p.parent
         if deindent:
             tab = tab[:-2]
-        if self.item is None or not hasattr(self.item, 'label'):
+        label = getattr(self.item, 'label', None)
+        if label is None:
             return tab
-        s = self.item.label
-        if colon is None:
-            if isfix:
-                colon = ''
-            else:
-                colon = ':'
-        if s:
-            c = ''
-            if isfix:
-                c = ' '
-            tab = tab[len(c+s)+len(colon):]
-            if not tab: tab = ' '
-            tab = c + s + colon + tab
+        s = str(label)
+        if isfix:
+            s = ' '+s
+        tab = tab[len(s):]
+        if not tab: tab = ' '
+        tab = s + tab
         return tab
 
     def __str__(self):
@@ -601,7 +595,7 @@ class Statement(object):
         return
 
 class BeginStatement(Statement):
-    """ <blocktype> <name>
+    """[ construct_name : ] <blocktype> [ <name> ]
 
     BeginStatement instances have additional attributes:
       name
@@ -611,6 +605,7 @@ class BeginStatement(Statement):
       content - list of Line or Statement instances
       name    - name of the block, unnamed blocks are named
                 with the line label
+      construct_name - name of a construct
       parent  - Block or FortranParser instance
       item    - Line instance containing the block start statement
       get_item, put_item - methods to retrive/submit Line instances
@@ -620,7 +615,7 @@ class BeginStatement(Statement):
       stmt_cls, end_stmt_cls
 
     """
-    _repr_attr_names = ['blocktype','name'] + Statement._repr_attr_names
+    _repr_attr_names = ['blocktype','name','construct_name'] + Statement._repr_attr_names
     def __init__(self, parent, item=None):
 
         self.content = []
@@ -631,6 +626,7 @@ class BeginStatement(Statement):
         if not hasattr(self, 'name'):
             # process_item may change this
             self.name = '__'+self.blocktype.upper()+'__'
+        self.construct_name = getattr(item,'name',None)
         Statement.__init__(self, parent, item)
         return
 
@@ -638,7 +634,9 @@ class BeginStatement(Statement):
         return self.blocktype.upper() + ' '+ self.name
 
     def tofortran(self, isfix=None):
-        l=[self.get_indent_tab(colon=':', isfix=isfix) + self.tostr()]
+        construct_name = self.construct_name
+        construct_name = construct_name + ': ' if construct_name else ''
+        l=[self.get_indent_tab(isfix=isfix) + construct_name + self.tostr()]
         for c in self.content:
             l.append(c.tofortran(isfix=isfix))
         return '\n'.join(l)
@@ -671,9 +669,9 @@ class BeginStatement(Statement):
         """
 
         mode = self.reader.mode
-        classes = self.get_classes()
-        self.classes = [cls for cls in classes if mode in cls.modes]
-        self.pyf_classes = [cls for cls in classes if 'pyf' in cls.modes]
+        class_list = self.get_classes()
+        self.classes = [cls for cls in class_list if mode in cls.modes]
+        self.pyf_classes = [cls for cls in class_list if 'pyf' in cls.modes]
 
         item = self.get_item()
         while item is not None:
@@ -682,7 +680,8 @@ class BeginStatement(Statement):
                     end_flag = True
                     break
             elif isinstance(item, Comment):
-                self.content.append(CommentBlock(self, item))
+                # TODO: FIX ME, Comment content is a string
+                self.content.append(classes.Comment(self, item))
             else:
                 raise NotImplementedError(`item`)
             item = self.get_item()
@@ -725,7 +724,7 @@ class BeginStatement(Statement):
 
         # Check if f77 code contains inline comments or other f90
         # constructs that got undetected by get_source_info.
-        if item.reader.isfix77:
+        if item.reader.isf77:
             i = line.find('!')
             if i != -1:
                 message = item.reader.format_message(\
@@ -739,11 +738,11 @@ class BeginStatement(Statement):
                 newitem = item.copy(line[:i].rstrip())
                 return self.process_subitem(newitem)
 
-            # try fix90 statement classes
+            # try fix statement classes
             f77_classes = self.classes
             classes = []
             for cls in self.get_classes():
-                if 'fix90' in cls.modes and cls not in f77_classes:
+                if 'f77' in cls.modes and cls not in f77_classes:
                     classes.append(cls)
             if classes:
                 message = item.reader.format_message(\
@@ -820,22 +819,24 @@ class EndStatement(Statement):
                 # not the end of expected block
                 line = ''
                 self.isvalid = False
+        if self.parent.construct_name:
+            name = self.parent.construct_name
+        else:
+            name = self.parent.name
         if line:
-            if not line==self.parent.name:
+            if line!=name:
                 self.warning(\
                     'expected the end of %r block but got the end of %r, skipping.'\
-                    % (self.parent.name, line))
+                    % (name, line))
                 self.isvalid = False
-        self.name = self.parent.name
+        self.name = name
 
     def analyze(self):
         return
 
-    def get_indent_tab(self,colon=None,deindent=False,isfix=None):
-        return Statement.get_indent_tab(self, colon=colon, deindent=True,isfix=isfix)
+    def get_indent_tab(self,deindent=False,isfix=None):
+        return Statement.get_indent_tab(self, deindent=True,isfix=isfix)
 
     def tofortran(self, isfix=None):
         return self.get_indent_tab(isfix=isfix) + 'END %s %s'\
                % (self.blocktype.upper(),self.name or '')
-
-from statements import CommentBlock

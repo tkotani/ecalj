@@ -2,11 +2,10 @@
 echo ##############
 echo  This script do not require arguments. 
 echo    
-echo    This generate a call tree file 'lmfp_tree' for fp/lmfp.f, which is called from the main routine lmv7.f.
-echo    If you like, change keyword 'lmfp' in TOOLS/ANALYZE/analyze.py
-echo    This routine generate a tree up to 3rd lower level.
+echo    This generate a call-caller data for *.F files in lmf.
 echo    
-echo  --- Now generating a file 'lmfp_tree' ... Wait 10~30sec or so! A little buggy. Not perfect
+echo  --- Now generating a file 'callcaller.dat' ... Wait 1 minutes or so! 
 echo ##############
-../TOOLS/ANALYZE/analyze.py freeat fp/*.F subs/*.F slatsm/*.F gwd/*.F >callcaller.dat ; grep tree callcaller.dat > lmfa_tree
+#../TOOLS/ANALYZE/analyze.py freeat fp/*.F subs/*.F slatsm/*.F gwd/*.F >callcaller.dat ; grep tree callcaller.dat > lmfa_tree
+../TOOLS/f_calltree.py fp/*.F subs/*.F slatsm/*.F gwd/*.F >callcaller.dat 2>callcaller.err
 

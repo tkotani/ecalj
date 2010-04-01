@@ -241,7 +241,7 @@ class BeginSource(BeginStatement):
         # so it should never end until all lines are read.
         # However, sometimes F77 programs lack the PROGRAM statement,
         # and here we fix that:
-        if self.reader.isfix77:
+        if self.reader.isf77:
             line = item.get_line()
             if line=='end':
                 message = item.reader.format_message(\
@@ -314,7 +314,10 @@ class Module(BeginStatement, HasAttributes,
                     stmt.analyze()
                     self.a.module_subprogram[stmt.name] = stmt
                 stmt = content.pop(0)
-                assert isinstance(stmt, EndModule),`stmt`
+                while isinstance(stmt, Comment):
+                    stmt = content.pop(0)
+                if not isinstance(stmt, EndModule):
+                    stmt.error('Expected END MODULE statement (analyzer).')
                 continue
             stmt.analyze()
 
@@ -451,7 +454,7 @@ class Interface(BeginStatement, HasAttributes, HasImplicitStmt, HasUseStmt,
                         | WRITE ( UNFORMATTED )
 
     """
-    modes = ['free90', 'fix90', 'pyf']
+    modes = ['free', 'fix', 'pyf']
     match = re.compile(r'(interface\s*(\w+\s*\(.*\)|\w*)|abstract\s*interface)\Z',re.I).match
     end_stmt_cls = EndInterface
     blocktype = 'interface'
@@ -769,7 +772,7 @@ class Select(BeginStatement):
         return 'SELECT CASE ( %s )' % (self.expr)
     def process_item(self):
         self.expr = self.item.get_line()[6:].lstrip()[4:].lstrip()[1:-1].strip()
-        self.name = self.item.label
+        self.construct_name = self.item.name
         return BeginStatement.process_item(self)
 
     def get_classes(self):
@@ -796,7 +799,7 @@ class Where(BeginStatement):
         return 'WHERE ( %s )' % (self.expr)
     def process_item(self):
         self.expr = self.item.get_line()[5:].lstrip()[1:-1].strip()
-        self.name = self.item.label
+        self.construct_name = self.item.name
         return BeginStatement.process_item(self)
 
     def get_classes(self):
@@ -871,7 +874,7 @@ class IfThen(BeginStatement):
         line = item.get_line()[2:-4].strip()
         assert line[0]=='(' and line[-1]==')',`line`
         self.expr = line[1:-1].strip()
-        self.name = item.label
+        self.construct_name = item.name
         return BeginStatement.process_item(self)
 
     def get_classes(self):
@@ -920,7 +923,7 @@ class If(BeginStatement):
         return 'IF (%s) %s' % (self.expr, str(self.content[0]).lstrip())
 
     def tofortran(self,isfix=None):
-        return self.get_indent_tab(colon=':',isfix=isfix) + self.tostr()
+        return self.get_indent_tab(isfix=isfix) + self.tostr()
 
     def get_classes(self):
         return action_stmt
@@ -947,14 +950,21 @@ class Do(BeginStatement):
     name = ''
 
     def tostr(self):
-        return 'DO %s %s' % (self.endlabel, self.loopcontrol)
+        l = ['DO']
+        for part in [self.endlabel, self.loopcontrol]:
+            if part:
+                l.append(str(part))
+        return ' '.join(l)
 
     def process_item(self):
         item = self.item
         line = item.get_line()
         m = self.item_re(line)
-        self.endlabel = m.group('label').strip()
-        self.name = item.label
+        label = m.group('label').strip() or None
+        if label:
+            label = int(label)
+        self.endlabel = label
+        self.construct_name = item.name
         self.loopcontrol = m.group('loopcontrol').strip()
         return BeginStatement.process_item(self)
 

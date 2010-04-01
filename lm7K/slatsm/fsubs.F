@@ -14,7 +14,7 @@
          endif
          endif
 #endif
-         call exit(pv);
+         call exit(pv)
       endif
       
       end subroutine cexit
@@ -83,7 +83,7 @@ c        intel ifort accepts both
         character(*) ps
         integer::i,n,shift
         n=len_trim(ps)
-        shift=-ichar('A')+ichar('a') ;
+        shift=-ichar('A')+ichar('a') 
         do i=1,n
            if ( ichar(ps(i:i)) >= ichar('A')
      .      .and. ichar(ps(i:i)) <= ichar('Z') ) then
@@ -177,20 +177,20 @@ c emax
         u = dlamch('l')
 c        write(*,*) b,eps,l,u
 
-         t = int(1.0-(log(eps)/log(b)));
+         t = int(1.0-(log(eps)/log(b)))
 c         write(*,*) 't=',t
 
          dmach(0) = b**(1.-t)
          dmach(1) = 100.*b**(l+t)
-         dmach(2) = (b**(u-t))/100.0;
+         dmach(2) = (b**(u-t))/100.0
 
-         d1mach(0) = (b**(l-1.));
-         ubt = u*(1.0-(b**(-t)));
-         bubt = b*b**(ubt-1.0);
-         d1mach(1) = bubt;
-         d1mach(2) = (b**(-t));
-         d1mach(3) = (b**(1.0-t));
-         d1mach(4) = log(b)/log(10.0);
+         d1mach(0) = (b**(l-1.))
+         ubt = u*(1.0-(b**(-t)))
+         bubt = b*b**(ubt-1.0)
+         d1mach(1) = bubt
+         d1mach(2) = (b**(-t))
+         d1mach(3) = (b**(1.0-t))
+         d1mach(4) = log(b)/log(10.0)
         end subroutine mkdcon
 
 

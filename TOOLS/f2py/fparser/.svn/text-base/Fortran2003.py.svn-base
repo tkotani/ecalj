@@ -288,6 +288,8 @@ class BinaryOpBase(Base):
             lhs, op, rhs = t
             lhs = lhs.rstrip()
             rhs = rhs.lstrip()
+            #if not lhs or not rhs:
+            #    return
             op = op.upper()
         if not lhs: return
         if not rhs: return
@@ -491,15 +493,14 @@ class StmtBase(Base):
     """
     def tofortran(self, tab='', isfix=None):
         label = None
-        if self.item is not None: label = self.item.label
+        if self.item is not None:
+            label = self.item.label
         if isfix:
-            colon = ''
             c = ' '
         else:
-            colon = ':'
             c = ''
         if label:
-            t = c + label + colon
+            t = c + str(label)
             if isfix:
                 while len(t)<6: t += ' '
             else:
@@ -919,8 +920,9 @@ class Label(StringBase): # R313
     <label> = <digit> [ <digit> [ <digit> [ <digit> [ <digit> ] ] ] ]
     """
     subclass_names = []
-    def match(string): return StringBase.match(pattern.abs_label, string)
-    match = staticmethod(match)
+    @staticmethod
+    def match(string):
+        return StringBase.match(pattern.abs_label, string)
 
 ###############################################################################
 ############################### SECTION  4 ####################################
@@ -2243,7 +2245,7 @@ class Bind_Stmt(StmtBase): # R522
         if i==-1:
             i = string.find(')')
             if i==-1: return
-            lhs. rhs = string[:i], string[i+1:]
+            lhs, rhs = string[:i], string[i+1:]
         else:
             lhs, rhs = string.split('::',1)
         lhs = lhs.rstrip()
@@ -2267,20 +2269,66 @@ class Bind_Entity(BracketBase): # R523
 
 class Data_Stmt(StmtBase): # R524
     """
+:F03R:524::
     <data-stmt> = DATA <data-stmt-set> [ [ , ] <data-stmt-set> ]...
     """
     subclass_names = []
     use_names = ['Data_Stmt_Set']
 
+    @staticmethod
+    def match(string):
+        if string[:4].upper()!='DATA':
+            return
+        line, repmap = string_replace_map(string[4:].lstrip())
+        i = line.find('/')
+        if i==-1: return
+        i = line.find('/',i+1)
+        if i==-1: return
+        items = [Data_Stmt_Set(repmap(line[:i+1]))]
+        line = line[i+1:].lstrip()
+        while line:
+            if line.startswith(','):
+                line = line[1:].lstrip()
+            i = line.find('/')
+            if i==-1: return
+            i = line.find('/',i+1)
+            if i==-1: return
+            items.append(Data_Stmt_Set(repmap(line[:i+1])))
+            line = line[i+1:].lstrip()
+        return tuple(items)
+
+    def tostr(self):
+        return 'DATA ' + ', '.join(map(str, self.items))
+    
 class Data_Stmt_Set(Base): # R525
     """
+:F03R:525::
     <data-stmt-set> = <data-stmt-object-list> / <data-stmt-value-list> /
     """
     subclass_names = []
     use_names = ['Data_Stmt_Object_List', 'Data_Stmt_Value_List']
 
+    @staticmethod
+    def match(string):
+        if not string.endswith('/'):
+            return
+        line, repmap = string_replace_map(string)
+        i = line.find('/')
+        if i==-1:
+            return
+        data_stmt_object_list = Data_Stmt_Object_List(repmap(line[:i].rstrip()))
+        data_stmt_value_list = Data_Stmt_Value_List(repmap(line[i+1:-1].strip()))
+        return data_stmt_object_list, data_stmt_value_list
+
+    data_stmt_object_list = property(lambda self: self.items[0])
+    data_stmt_value_list = property(lambda self: self.items[1])
+
+    def tostr(self):
+        return '%s / %s /' % tuple(self.items)
+
 class Data_Stmt_Object(Base): # R526
     """
+:F03R:526::
     <data-stmt-object> = <variable>
                          | <data-implied-do>
     """
@@ -2288,10 +2336,49 @@ class Data_Stmt_Object(Base): # R526
 
 class Data_Implied_Do(Base): # R527
     """
+:F03R:527::
     <data-implied-do> = ( <data-i-do-object-list> , <data-i-do-variable> = <scalar-int-expr > , <scalar-int-expr> [ , <scalar-int-expr> ] )
     """
     subclass_names = []
     use_names = ['Data_I_Do_Object_List', 'Data_I_Do_Variable', 'Scalar_Int_Expr']
+
+    @staticmethod
+    def match(string):
+        if not (string.startswith('(') and string.endswith(')')):
+            return
+        line, repmap = string_replace_map(string[1:-1].strip())
+        s = line.split('=',1)
+        if len(s) != 2:
+            return
+        lhs = s[0].rstrip()
+        rhs = s[1].lstrip()
+        s1 = lhs.rsplit(',',1)
+        if len(s1) != 2:
+            return
+        s2 = rhs.split(',')
+        if len(s2) not in [2,3]:
+            return
+        data_i_do_object_list = Data_I_Do_Object_List(repmap(s1[0].rstrip()))
+        data_i_do_variable = Data_I_Do_Variable(repmap(s1[1].lstrip()))
+        scalar_int_expr1 = Scalar_Int_Expr(repmap(s2[0].rstrip()))
+        scalar_int_expr2 = Scalar_Int_Expr(repmap(s2[1].strip()))
+        if len(s2)==3:
+            scalar_int_expr3 = Scalar_Int_Expr(repmap(s2[2].lstrip()))
+        else:
+            scalar_int_expr3 = None
+        return data_i_do_object_list, data_i_do_variable, scalar_int_expr1, scalar_int_expr2, scalar_int_expr3
+
+    data_i_do_object_list = property(lambda self: self.items[0])
+    data_i_do_variable = property(lambda self: self.items[1])
+    scalar_int_expr1 = property(lambda self: self.items[2])
+    scalar_int_expr2 = property(lambda self: self.items[3])
+    scalar_int_expr3 = property(lambda self: self.items[4])
+    
+    def tostr(self):
+        l = '%s, %s = %s, %s' % tuple(self.items[:4])
+        if self.items[4] is not None:
+            l += ', %s' % (self.items[4])
+        return '('+l+')'
 
 class Data_I_Do_Object(Base): # R528
     """
@@ -2315,7 +2402,7 @@ class Data_Stmt_Value(Base): # R530
     use_names = ['Data_Stmt_Repeat']
     def match(string):
         line, repmap = string_replace_map(string)
-        s = line.split('*')
+        s = line.split('*',1)
         if len(s)!=2: return
         lhs = repmap(s[0].rstrip())
         rhs = repmap(s[1].lstrip())
@@ -2479,7 +2566,7 @@ class Saved_Entity(BracketBase): # R544
     """
     subclass_names = ['Object_Name', 'Proc_Pointer_Name']
     use_names = ['Common_Block_Name']
-    def match(string): return BracketBase.match('//',CommonBlockName, string)
+    def match(string): return BracketBase.match('//',Common_Block_Name, string)
     match = staticmethod(match)
 
 class Proc_Pointer_Name(Base): # R545
@@ -3082,8 +3169,8 @@ class Level_1_Expr(UnaryOpBase): # R702
     subclass_names = ['Primary']
     use_names = []
     def match(string):
-        if pattern.non_defined_binary_op.match(string):
-            raise NoMatchError,'%s: %r' % (Level_1_Expr.__name__, string)
+        #if pattern.non_defined_binary_op.match(string):
+        #    raise NoMatchError,'%s: %r' % (Level_1_Expr.__name__, string)
         return UnaryOpBase.match(\
             pattern.defined_unary_op.named(),Primary,string)
     match = staticmethod(match)
@@ -3251,7 +3338,8 @@ class Expr(BinaryOpBase): # R722
     use_names = ['Expr']
     def match(string):
         return BinaryOpBase.match(Expr, pattern.defined_binary_op.named(), Level_5_Expr,
-                                   string)
+                                  string)
+        
     match = staticmethod(match)
 
 class Defined_Unary_Op(STRINGBase): # R723
@@ -3984,7 +4072,7 @@ class Block_Do_Construct(BlockBase): # R826
         if obj is None: return
         content.append(obj)
         if isinstance(obj, Label_Do_Stmt):
-            label = str(obj.dolabel)
+            label = str(obj.label)
             while 1:
                 try:
                     obj = Execution_Part_Construct(reader)
@@ -3999,7 +4087,7 @@ class Block_Do_Construct(BlockBase): # R826
         else:
             obj = End_Do(reader)
             content.append(obj)
-            raise NotImplementedError
+            raise NotImplementedError(`obj`)
         return content,
     match = staticmethod(match)
 
@@ -4030,6 +4118,7 @@ class Label_Do_Stmt(StmtBase): # R828
     """
     subclass_names = []
     use_names = ['Do_Construct_Name', 'Label', 'Loop_Control']
+    @staticmethod
     def match(string):
         if string[:2].upper()!='DO': return
         line = string[2:].lstrip()
@@ -4037,12 +4126,23 @@ class Label_Do_Stmt(StmtBase): # R828
         if m is None: return
         label = m.group()
         line = line[m.end():].lstrip()
-        if line: return Label(label), Loop_Control(line)
-        return Label(label), None
-    match = staticmethod(match)
+        if line:
+            return None, Label(label), Loop_Control(line)
+        return None, Label(label), None
     def tostr(self):
-        if self.itens[1] is None: return 'DO %s' % (self.items[0])
-        return 'DO %s %s' % self.items
+        name, label, loop_control = self.items
+        if name is None:
+            s = 'DO %s' % (label)
+        else:
+            s = '%s: DO %s' % (label)
+        if loop_control is not None:
+            s += ' %s' % (loop_control)
+        return s
+
+    do_construct_name = property(lambda self: self.items[0])
+    label = property(lambda self: self.items[1])
+    loop_control = property(lambda self: self.items[2])
+
 
 class Nonlabel_Do_Stmt(StmtBase, WORDClsBase): # R829
     """
@@ -4105,8 +4205,10 @@ class End_Do_Stmt(EndStmtBase): # R834
     """
     subclass_names = []
     use_names = ['Do_Construct_Name']
-    def match(string): return EndStmtBase.match('DO',Do_Construct_Name, string, require_stmt_type=True)
-    match = staticmethod(match)
+    @staticmethod
+    def match(string):
+        return EndStmtBase.match('DO',Do_Construct_Name, string, require_stmt_type=True)
+
 
 class Nonblock_Do_Construct(Base): # R835
     """
@@ -5549,6 +5651,49 @@ class Function_Stmt(StmtBase): # R1224
     """
     subclass_names = []
     use_names = ['Prefix','Function_Name','Dummy_Arg_Name_List', 'Suffix']
+
+    @staticmethod
+    def match(string):
+        line, repmap = string_replace_map(string)
+        m = pattern.function.search(line)
+        if m is None:
+            return
+        prefix = line[:m.start()].rstrip() or None
+        if prefix is not None:
+            prefix = Prefix(repmap(prefix))
+        line = line[m.end():].lstrip()
+        m = pattern.name.match(line)
+        if m is None:
+            return
+        name = Function_Name(m.group())
+        line = line[m.end():].lstrip()
+        if not line.startswith('('):
+            return
+        i = line.find(')')
+        if i==-1:
+            return
+        dummy_args = line[1:i].strip() or None
+        if dummy_args is not None:
+            dummy_args = Dummy_Arg_List(repmap(dummy_args))
+        line = line[i+1:].lstrip()
+        suffix = None
+        if line:
+            suffix = Suffix(repmap(line))
+        return prefix, name, dummy_args, suffix
+
+    def tostr(self):
+        prefix, name, dummy_args, suffix = self.items
+        if prefix is not None:
+            s = '%s FUNCTION %s' % (prefix, name)
+        else:
+            s = 'FUNCTION %s' % (name)
+        if dummy_args is not None:
+            s += '(%s)' % (dummy_args)
+        else:
+            s += '()'
+        if suffix is not None:
+            s += ' %s' % (suffix)
+        return s
 
 class Proc_Language_Binding_Spec(Base): #1225
     """
