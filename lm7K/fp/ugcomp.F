@@ -154,7 +154,7 @@ c      do  ib = 1, nbas
 #endif 
 
       do ib=ibini,ibend
-#if MPI
+#if MPI |MPIK
         if (mlog .and. ib .eq. bproc(procid)) then
           call gettime(datim)
           call awrit4(' ugcomp '//datim//' Process %i of %i on '

@@ -136,7 +136,7 @@ c      do  ib1 = 1, nbas
       ibend=nbas
 #endif
 
-      do  ib1 = ibini,ibend
+      do iloop = ibini,ibend
 #if MPI
         ib1 = index(procid,iloop)
         if (mlog) then
@@ -146,6 +146,8 @@ c      do  ib1 = 1, nbas
      .        ' starting atom %i of %i',' ',256,lgunit(3),
      .        procid,numprocs,ib1,index(procid,0))
         endif
+#else
+        ib1=iloop
 #endif
 
         call upack('site spec pos',ssite,ib1,is1,p1,0,0)

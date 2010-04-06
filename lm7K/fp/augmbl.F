@@ -187,7 +187,7 @@ C --- Loop over augmentation sites --- ---
 #endif
 
       do  ia = initbas, endbas
-#if MPI|MPIK
+#if MPI
         if (mlog .and. ia .eq. bproc(procid)) then
           call gettime(datim)
           call awrit4(' augmbl '//datim//' Process %i of %i on '

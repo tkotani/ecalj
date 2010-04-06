@@ -111,8 +111,8 @@ C$    integer mp_numthreads,mp_my_threadnum
 #if MPI
       double precision, dimension(:), allocatable :: buffer
       integer, dimension(:,:), allocatable :: index
-      integer oh,ohbuf,iloop
 #endif 
+      integer oh,ohbuf,iloop
 C ... Heap
       integer w(1)
       common /w/ w
@@ -226,7 +226,7 @@ c      do  ib1 = 1, nbas
       ibend=nbas
 #endif 
 
-      do  ib1 = ibini,ibend
+      do  iloop = ibini,ibend
 #if MPI
         ib1 = index(procid,iloop)
         if (mlog) then
@@ -236,6 +236,8 @@ c      do  ib1 = 1, nbas
      .        ' starting atom %i of %i',' ',256,lgunit(3),
      .        procid,numprocs,ib1,index(procid,0))
         endif
+#else
+        ib1=iloop
 #endif 
         ip = 1
 C$      ip = mp_my_threadnum()+1
