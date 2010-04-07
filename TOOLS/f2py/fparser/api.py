@@ -8,7 +8,7 @@ Module content
 
 __autodoc__ = ['get_reader', 'parse', 'walk']
 
-import Fortran2003
+#import Fortran2003
 # import all Statement classes:
 from base_classes import EndStatement, classes
 from block_statements import *

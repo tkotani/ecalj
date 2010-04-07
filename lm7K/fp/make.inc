@@ -13,8 +13,6 @@ fp_list=\
 	dfratm.o \
 	dfrce.o \
 	diagcv.o \
-	dpdbyl.o \
-	dpdftr.o \
 	efldos.o \
 	elocp.o \
 	fklbl.o \
@@ -53,7 +51,6 @@ fp_list=\
 	hxpgbl.o \
 	hxpos.o \
 	ioden.o \
-	iors.o \
 	jxpos.o \
 	lgstar.o \
 	lindsc.o \
@@ -102,7 +99,6 @@ fp_list=\
 	smcorm.o \
 	smhsbl.o \
 	smrpos.o \
-	smshft.o \
 	smves.o \
 	smvxcm.o \
 	sopert.o \
@@ -122,4 +118,16 @@ fp_list=\
 	vxcnsp.o \
 	vxtrap.o \
 	wrhomt.o \
-	ncutcorrect.o
+	ncutcorrect.o \
+	stonerpb.o \
+	stonerrsa.o \
+	polinta.o \
+	lmaux.o \
+	bndconn_v2.o \
+	bndfp.o \
+	genqbz.o \
+	gwcphi.o \
+	pwmat.o \
+	sugw.o \
+	suq0x.o  \
+	smshft.o

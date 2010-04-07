@@ -55,7 +55,7 @@ C --- Setup for FT charge density, potential representation ---
      .    0)
 
 C   ... Generate energy cutoff gmax or n1..n3
-        call pshpr(iprint()-0)
+c        call pshpr(iprint()-0)
         call mshsiz(alat,plat,0,gmax,ngabc,ngmx)
         call fftz30(n1,n2,n3,k1,k2,k3)
 

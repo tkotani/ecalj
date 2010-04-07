@@ -1,3 +1,4 @@
+#define FP 1
       integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
      .  fid,nbas,nat,nspec,orhoat,qnu,nit,lbin,ifi)
 C- I/O for charge density

@@ -535,10 +535,11 @@ C --- Printout ---
      .   '   deviation from neutrality: ',f12.5)
 
 ccccccccccccccccccc takao sep2009
-c      print *,'vvv ipl=1'
+c      print *,'vvvvvv ipl=',ipl
 c      ipl=1
 ccccccccccccccccccc
       if (ipl .ge. 1) then
+c         print *,'stdl=',stdl
         write (stdl,710) smq+sqloc,smq,sqloc,qbg,dq
   710   format('fp qvl',f11.6,'  sm',f11.6,'  loc',f11.6,
      .         '  qbg',f11.6,' dQ',f11.6)

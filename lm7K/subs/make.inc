@@ -204,7 +204,6 @@ subs_list:=\
 	lgen.o \
 	ll.o \
 	lmasa.o \
-	lmaux.o \
 	lscoul.o \
 	lx2vec.o \
 	maadot.o \
@@ -264,7 +263,6 @@ subs_list:=\
 	mxmymz.o \
 	newalp.o \
 	nghbor.o \
-	nglob.o \
 	nmefac.o \
 	nm.o \
 	nmham.o \
@@ -414,7 +412,6 @@ subs_list:=\
 	sumlst.o \
 	sumsro.o \
 	supcel.o \
-	supot.o \
 	suqlst.o \
 	susite.o \
 	swapdv.o \
@@ -474,5 +471,7 @@ subs_list:=\
         struc_strn.o \
         switch.o \
         rdsigm2.o\
-        rotwv.o
-
+        rotwv.o \
+        dpdbyl.o \
+	dpdftr.o \
+	pvsms2.o

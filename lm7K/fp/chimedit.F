@@ -58,6 +58,42 @@ Cl Local variables
 Cu Updates
 Cu   06 Dec 08 First created
 C  ----------------------------------------------------------------------
+Ci Inputs
+Ci   nx       : cutoff number of w points in calculation, such  X0(q,w)
+Ci   cutw     : cutoff value(in meV)  of w in calculation of X(q,w)
+Ci   nbloch   : dimension of product basis
+Ci   ngbin    : dimension of mix basis
+Ci   nq       : total number of q points in calculation of X(q,w)	
+Ci   qpi      : vector of current q,   X(q,w)  
+Ci   qgbin    : vector of all q points,   qgbin(3,nq0i)
+Ci   imbas    : magnetic atom index   
+Ci   momsite  : magnetic moment m
+Ci   svec     : <B_I|m_a>  svec(nbloch,nmbas)
+Ci   mmnorm   : |m|=sqrt(<m|B> <B|m> )=norm(svec) ; this is not m.
+Ci            : ~e_a(r)=m_a(r) / sqrt(\int m_a(r)**2 dr)  then <~e_a|~e_a>=1
+Ci            : <B_i|~e_a>=svec/mmnorm
+Ci   biubj    : <B|U|B>  stoner matrix U(nbloch,nbloch)
+Ci   zxq      : <B|X0|B>   chi0 matrix zxq(nbloch,nbloch,nx) denpend on (q,w)
+Ci   chi0     : <~e|X0|~e> = <m|B><B|X0|B><B|m> / norm(<m_i|m_i>) /norm(<m_j|m_j>)
+Ci            :            = <m|x0|m'>/ norm(<m_i|m_i>) /norm(<B|m_j>)
+Ci            :            = <m_a|x0|m_a'>/(sqrt(<m_i|m_i> sqrt(<m_j|m_j>)
+Ci            :     |~e_a> = |m_a>/<m_a|m_a>   
+Ci   gbvec    : <e^iqr|B+>  projection of |e^iqr> on mix basis set,  gbvec(ngbin,nq0i)	
+Ci   gbvec0   : <e^iqr|B>   subset(prod. bas. part) of gbvec,  gbvec0(nbloch,nq0i)
+Ci   eiqrm    : eiqrm_i = <~e_i|e^{iqr}> =  <M_i|eiqr>/sqrt(<M_i|M_i>)
+Ci            : sum( dconjg(gbvec(1:nbloch))*svec(1:nbloch,imb) )/mmnorm(imb)
+Ci   freq     : frequency w in unit of ryberg
+Ci   freq_meV : frequency w in unit of meV 
+Ci   mx2m     : <m|x|m>  from rigid spin approximation 
+Ci   mx0m     : <m|x0|m> from rigid spin approximation 
+Co Outputs:
+Co   mim      : <m|i|m>  stoner parameter from rigid spin approximation 
+Co   x0meanx  : <m|B><B|X0|B><B|m> 
+Co   mUm      : <m|B><B|U|B><B|m> 
+Co   chike    : <m|B><B|X|B><B|m> 
+Co   iqrXiqr  : <e^{iqr}|B><B|X|B><B|e^{iqr}>
+
+
 C     implicit none
 C ... Passed parameters
       character sopts*(*)
@@ -67,27 +103,36 @@ C ... Passed parameters
 C ... Local parameters
       integer nglob,fopna,fopng,a2vec,havechi0,iq,nq,nsgrp
       integer i,j,l,im,m,n,j1,j2,js1,js2,nw,ne,iinear,lqp
+
       logical lnsave,lsopts,isanrg,llshft(3)
       integer nkxyz(3),mxkp,nk1,nk2,nk3,k1,k2,k3
       equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
-      integer nmag,nmagf,magat(100),magatf(100),ix(10)
+      integer nmag,nmagf,magat(100),magatf(100),ix(10),nmbas
       integer opos,ogstar,owgt,oistab,og,oag
       double precision xx,qpi(3),ddot,plat(3,3),rb(3,3),qb(3,3),
      .  pos(3,nbas)
       character dc*1, fn*120, outs*150, strn*120
       integer,allocatable:: ipq(:,:,:)
       real(8),allocatable:: qp(:,:),qfbz(:,:),emesh(:),wk(:)
-      complex(8),allocatable:: chi0(:,:,:,:)
+     .     ,momsite(:), mmnorm(:)
+     .     ,chi0_r(:,:,:,:),chi0_i(:,:,:,:), eiqrm_r(:,:), eiqrm_i(:,:)
+      complex(8),allocatable:: chi0(:,:,:,:), eiqrm(:,:)
+      integer iy,iz, i1,i2,i3,i4
+C     Local parameters-product basis
+      integer nbloch, natom,nmbas2, iqxini,iqxend,nw_i,nw2
+     .     ,ifchipm,nx, iw
+      integer,allocatable :: imbas(:),nblocha(:)
+      real(8),allocatable:: svec(:,:)
+      complex(8),allocatable:: zzr(:,:),zxq(:,:,:,:),x0meanx(:,:)
+
 C     For offset q mesh
       integer is(3),lshft(3),ifac(3)
 C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
-      integer jj1,jj2,jj3,k
-
 c      double precision qk
+c      integer jj1,jj2,jj3,k
 c      qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
 c     .                    (jj2*ifac(2)-1)*qb(k,2) +
 c     .                    (jj3*ifac(3)-1)*qb(k,3)
-
 C ... Heap
       integer w(1)
       common /w/ w
@@ -228,9 +273,53 @@ C --- Read chi0 ---
         call word(outs,2,j1,j2)
 
 C   --- Kotani style, full matrix ---
-        if (outs(j1:j2) .eq. 'tk') then
-          call info0(0,0,0,'%6p... not ready for tk')
+c run  fe --pr29 '--chimedit~new 1~read tkpb'     
+        if (outs(j1:j2) .eq. 'tkpb') then
+c          call info0(0,0,0,'%6p... not ready for tkpb')
+          do  iq = 1, nq
+            fn = 'ChiPM0000.fmat'
+            write(fn(6:9),'(i4)') iq       ! idummy
+            do  j = 6, 9
+              if (fn(j:j) .eq. ' ') fn(j:j) = '0'
+            enddo
+            ifi = fopng(trim(fn),-1,5)
+            rewind ifi
+c             open(333, file='ChiPM0001.fmat',form='unformatted' )
+            read(ifi) nbloch,natom,nmbas, iqxini,iqxend,nw_i,nw2
+            write(6,308) nbloch,natom,nmbas, iqxini,iqxend, nw_i,nw2
+ 308        format (i4,6i8)
+            if (natom.ne.nbas) call rx0('natom ne nbas')
+
+C           First qp: allocate and assign 
+
+            nx=200
+            if (iq .eq. 1) then
+               if (allocated(momsite)) deallocate(momsite)
+               if (allocated(mmnorm )) deallocate(mmnorm)
+               allocate(imbas(nmbas), momsite(nmbas), mmnorm(nmbas)
+     &             ,nblocha(1:natom),svec(1:nbloch,1:nmbas)
+     &             ,zzr(nbloch,1) )
+               allocate( zxq(nbloch,nbloch,nq,nx) )
+               allocate( emesh(nx)) 
+            endif
+
+               read(ifi) imbas(1:nmbas),momsite(1:nmbas),mmnorm(1:nmbas)
+               read(ifi) nblocha(1:natom),svec(1:nbloch,1:nmbas)
+               read(ifi) zzr(1:nbloch,1)
+
+            do iw=1,nx
+               read(ifi)  qpi,emesh(iw), zxq(1:nbloch,1:nbloch,iq,iw)
+            enddo
+            qp(:,iq) = qpi
+
+C===read in matrix X0
+          enddo
+
+          call stonerpb(nq,nx,nmbas,nbloch,qp,momsite,mmnorm,emesh,zxq)
+
+
           goto 98
+
 
 C   --- Kotani style, rigid spin approximation ---
         elseif (outs(j1:j2) .eq. 'tkrs') then
@@ -239,7 +328,7 @@ C     ... For each k-point, do
           do  iq = 1, nq
 C           Make Kotani-style file name
             fn = 'ChiPM0000.nlfc.mat'
-            write(fn(6:9),'(i4)') iq
+            write(fn(6:9),'(i4)') iq       ! idummy
             do  j = 6, 9
               if (fn(j:j) .eq. ' ') fn(j:j) = '0'
             enddo
@@ -247,11 +336,11 @@ C           Make Kotani-style file name
 C           Open file, read number and list of magnetic sites 
             ifi = fopng(trim(fn),-1,1)
             rewind ifi
-            read(ifi,*) nmagf
+            read(ifi,*) nmagf       ! number of magnetic atoms, 'nmbas
             call info2(0,0,0,'%4p... reading file '//trim(fn)//
      .        ', %i magnetic sites',nmagf,0)
             if (nmag .gt. 100) call rx('increase size of magat')
-            read(ifi,*) magatf(1:nmagf)
+            read(ifi,*) magatf(1:nmagf)  ! magnetic atom index  'imbas
 
 C           Sanity check
             if (nmagf .lt. nmag) then
@@ -265,7 +354,7 @@ C           Sanity check
 C           If magnetic sites not specified, take from file
             if (iq .eq. 1) then
               nmag = nmagf
-              magat(1:nmagf) = magatf(1:nmagf)
+              magat(1:nmagf) = magatf(1:nmagf)      ! magat- first q point
             endif
 C           Sanity check for subsequent qp
             if (isanrg(nmag,nmagf,nmagf,'        abort: ',
@@ -285,20 +374,31 @@ C           Sanity check for subsequent qp
 C           Get energy mesh ; put into wk
             allocate(wk(100000))
 C           Skip next 3 lines
-            read(ifi,*) xx; read(ifi,*) xx; read(ifi,*) xx
+
+            read(ifi,*) xx; read(ifi,*) xx; read(ifi,*) xx   !neglect the first 3 lines
             j = 0
             do while (.true.)
-              read(ifi,*,end=30,err=30) qpi,wk(j+1)
+              read(ifi,*,end=30,err=30) qpi,wk(j+1)   ! readin q and omega
               j = j + 1
             enddo
    30       continue
+            if (iq .eq. 1) then
+               if(sum(abs(qpi(:))).ne.0d0) call rx('1st /= Gamma pnt')
+            endif
 
 C           First qp: allocate and assign 
             if (iq .eq. 1) then
+              nmbas=nmag
               ne = j
               allocate(emesh(ne))
               emesh(1:ne) = wk(1:ne)
-              allocate(chi0(nmagf,nmagf,nq,ne))
+              allocate( momsite(nmagf), mmnorm(nmagf) )
+              allocate( eiqrm(nmagf,nq),
+     .                eiqrm_r(nmagf,nq),eiqrm_i(nmagf,nq) )
+              allocate(chi0(nmagf,nmagf,nq,ne)
+     .         ,chi0_r(nmagf,nmagf,nq,ne), chi0_i(nmagf,nmagf,nq,ne) )
+
+c              allocate( ,e1(nmagf),e2(nmagf))              
             endif
 C           Subsequent qp: assignments and sanity checks
             if (ne .ne. j) then
@@ -320,15 +420,60 @@ C           Subsequent qp: assignments and sanity checks
 C           Read chi0
             rewind ifi
             read(ifi,*) j; read(ifi,*) j
-            read(ifi,*) xx; read(ifi,*) xx; read(ifi,*) xx
+            read(ifi,*) momsite(1:nmagf)
+            read(ifi,*) mmnorm(1:nmagf) 
+            read(ifi,*) (eiqrm_r(iy,iq),eiqrm_i(iy,iq),iy=1,nmbas) 
+            eiqrm(:,iq) = dcmplx(eiqrm_r(:,iq),eiqrm_i(:,iq) ) ! <e(iqr)|m>. 
             do j = 1, ne
-              read(ifi,*,end=30,err=30) qpi,xx,chi0(:,:,iq,j)
+              read(ifi,*,end=40,err=40) qpi,xx , ( (chi0_r(iy,iz,iq,j)
+     &      ,chi0_i(iy,iz,iq,j),iy=1,nmbas),iz=1,nmbas)
+              chi0(:,:,iq,j)= dcmplx(chi0_r(:,:,iq,j),chi0_i(:,:,iq,j))
             enddo
+
+ 40         continue
 
 C           Cleanup for this qp
             call fclr(' ',ifi)
+          enddo   ! end of iq loop
+
+c     check output 
+c          write(6,"(255i5)") nmagf
+c          write(6,"(255i5)") magat(1:nmagf)
+c          write(6,"(255d23.15)") momsite(1:nmagf)
+c          write(6,"(255d23.15)")  mmnorm(1:nmagf)
+c          write(6,*)
+c          do  iq = 1, nq
+c             write(6,"(255d23.15)")  eiqrm(1:nmagf,iq)
+c          enddo
+c          write(6,*)
+c          do  iq = 1, 1
+c             do j =1,ne
+c                write(6,"(255d23.15)") emesh(j), chi0(:,:,iq,j)
+c             enddo
+c          enddo
+
+          do i =1,nmagf
+             if (abs(momsite(i)).lt.1d-3) call rx('non-magnetic site ?')
           enddo
 
+          call stonerrsa(nq,ne,nmagf,qp,momsite,mmnorm,eiqrm,emesh,chi0)
+
+          do 45 iq = 1, nq          
+          do 45 j =1,ne
+          do 45 i1 = 1,nmbas
+          do 45 i2 = 1,nmbas
+             chi0(i1,i2,iq,j)=              !D_{i,j}=<ebar_i|X0|ebar_j>
+     .       chi0(i1,i2,iq,j)*momsite(i1)*momsite(i2)
+     .                        /mmnorm(i1) /mmnorm(i2)
+ 45       continue
+
+
+c omg
+
+
+
+c     ./lmf lsmo56 --chimedit
+c
 C         chi0 has been read: cleanup
           havechi0 = 1
 

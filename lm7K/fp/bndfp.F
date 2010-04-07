@@ -1,7 +1,7 @@
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau,
      .  ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit,evl,frc,
-     .  dmatu,vorb)
+     .  dmatu,vorb,llmfgw)
       use m_rdctrl, only: ncutovl
       use m_hamindex
       use m_struc_def
@@ -171,6 +171,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
+      logical :: llmfgw
 #if MPI | MPIK
       include "mpif.h"
 #if MPE
@@ -239,12 +240,12 @@ C ... Local parameters
       integer osig(3,nbx),otau(3,nbx),oppi(3,nbx),oqkkl(3,nbx),
      .  oeqkkl(3,nbx),orhat1(3,nbx)
       equivalence (ldim,ldham(1,1))
-#if LMFGW
+
       logical a2bin
       integer osigx(3,nbx),otaux(3,nbx),oppix(3,nbx),ospotx,osmrox,osgw
-#else
+
       double precision sigp(10)
-#endif
+
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       !equivalence (nk1,nkabc(1)), (nk2,nkabc(2)), (nk3,nkabc(3)) 
       double precision ef00,eferm,emax,emin,esmear,qval,qsc,sev,
@@ -384,6 +385,9 @@ C     npqn = nglob('npqn')
       stdo = lgunit(1)
       stdl = lgunit(2)
 
+c ipr and stdl are processor dependent in mpi modes.
+c      print *,'zzzzzzzzzz =',ipl,stdl,lgunit(1),lgunit(2),lgunit(3)
+
 ctakao's test for replacement.
       ldos = igets('ctrl ldos,1',sctrl)
       lrsig= igets('ham lsig',sham)
@@ -430,14 +434,13 @@ c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxx2222'
 #if MPIK
       lpdiag = 0
 #endif
-#if LMFGW
+      if(llmfgw) then
       i = 7
       if (cmdopt('-jobgw=',i,0,strn)) then
         if (.not. a2bin(strn,jobgw,2,0,' ',i,-1)) call
      .    rxs2('BNDFP: failed to parse "',strn(1:30),'%a"')
       endif
-#endif
-
+      endif
 
       call upack('pot oorhat osmrho osmpot osoptc',spot,oorhat,osmrho,
      .  osmpot,osoptc,0)
@@ -551,7 +554,7 @@ C  10 continue
       call dfaugm(nbas,lcplxp,lso,ssite,sspec,osig,otau,oppi)
 
 C --- Make the potential sans XC part ---
-#if LMFGW
+      if(llmfgw) then
       if (jobgw .eq. 1 .or. jobgw .eq. -999) then
         call info(20,1,0,' Make potential without XC part ...',0,0)
         call togpr()
@@ -585,11 +588,7 @@ c      if (jobgw .eq. -1) then
 c        call sugwin(ssite,sspec,slat,sham,w(osgw),sbz,nbas,qval)
 c        call rx0('lmfgw, job -1')
 c      endif
-#endif
-
-
-
-
+      endif
 
 
 
@@ -615,9 +614,9 @@ C --- Make the potential and total energy terms ---
       else if (cmdopt('--wpotmt',8,0,strn)) then
         i = i + 20000
       endif
-#if LMFGW
-      i = i + 10000
-#endif
+
+      if(llmfgw) i = i + 10000
+
 ctakao sep2009
 c      print *,'vvv'
 
@@ -765,7 +764,7 @@ ctakaox june2009
       endif
 
 
-#if LMFGW
+      if(llmfgw) then
 C --- GW driver ---
       call upack2('pot osgw nlma',spot,osgw,nchan)
 C ... Modes 0..4
@@ -780,7 +779,7 @@ C        goto 10
 C      endif
       call tcx('bndfp')
       call rx0('bndfp')
-#endif
+      endif
 
 
 
@@ -2516,13 +2515,12 @@ c          call dcopy(k1*k2*k3*4,w(osmpot),1,w(osmpotbk),1)
 ccccccccccccccccccccc
 
 ctakao sep2009
-c          call pshpr(ipr-20)
+c          call pshpr(ipr-4)
           call mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,
      .      k1,k2,k3,w(osrout),orhat1,qbg,w(osmpot),w(oqmom),vconst,
      .      vrmt,osig,otau,oppi,w(oppnl),w(ohab),w(ovab),w(osab),
      .      qval,qsc,w(ogpot0),w(ovval),w(ofes2),0,vorb,nlibu,lmaxu,
      .      lldau, 0)
-
 ccccccccccccccccccccccccccccccccccc
 ctakao test mkekin repeat
 c          print *,'vvv takao mkekin repeat 001x ---newpot x newrho'
@@ -2537,8 +2535,8 @@ c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpotbk),w(osmrho),sev,sumtvxxx)
 c          call rlse(osmpotbk)
 c          stop 'xxxxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccc
-
 c          call poppr()
+c          call pshpr(ipr-20)
 c          print *,'vvv takao goto mkehfk mode2'
           call mkehkf(2,sham,sev,sumqv(2,1),sumtv,eks)
           call togpr()

@@ -124,7 +124,7 @@ C    .       /' sumec= ',f17.8,'  cor*vef=',f17.8,'   ttcor=',f17.8
 C    .       /' rhoeps=',f17.8,'     utot=',f17.8,'    etot=',f17.8)
       elseif (ipr .ge. 10) then
         call awrit4('%N ekin=%,6;6d  rho*v=%,6;6d  sumev=%,6;6d'//
-     .    '  ehf=%,6;6d',' ',80,stdo,ekin,utot+rhoexc,sev,eh)
+     .    ' ehf =%,6;6d',' ',80,stdo,ekin,utot+rhoexc,sev,eh)
       endif
       if (ipr.gt.0 .and. ipl.gt.0) write (stdl,720) utot,ekin,sev,etot
   720 format('fp Har: U',f15.6,'  T',f15.6,'  sev',f14.6,'  EH ',f14.6)
@@ -147,8 +147,8 @@ C    .       /' rhoeps=',f17.8,'     utot=',f17.8,'    etot=',f17.8)
   412   format(' mag. mom=',f13.6,'  (bands)',f16.6,'  (output rho)')
 
       elseif (ipr .ge. 10) then
-        call awrit4('%N ekin=%,6;6d  rho*v=%,6;6d  ehf=%,6;6d'//
-     .    '  ehks=%,6;6d',' ',80,stdo,ekin,utot+rhoexc,eh,eks)
+        call awrit4('%N ekin=%,6;6d  rho*v=%,6;6d ehf =%,6;6d'//
+     .    '  ehks =%,6;6d',' ',80,stdo,ekin,utot+rhoexc,eh,eks)
       endif
       if (ipr.gt.0 .and. ipl.gt.0) write (stdl,721) utot,ekin,rhoexc,eks
   721 format('fp KS: U',f16.7,' T',f16.7,' Exc',f15.7,' EKS',f15.7)

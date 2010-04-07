@@ -1,4 +1,3 @@
-#if 0
       integer function nglob(name)
 C- Returns value of integer global variable
 C ----------------------------------------------------------------------
@@ -73,7 +72,6 @@ C ----------------------------------------------------------------------
 
       end
 
-#endif
 
 C      subroutine fmain
 C

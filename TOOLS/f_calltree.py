@@ -21,6 +21,7 @@ print argset
 #for i in classes:
 #    print i
 
+rr=re.compile("\'.*?\'|\".*?\"")
 
 functions=[] # save defined functions in array.
 
@@ -65,7 +66,9 @@ for ffile in argset:
         if(isinstance(ins, classes.Function)):  
             print "@def Func:"+ins.name+loc1+loc,type(ins) #,ins.a
             functions.append(ins.name)
-        if(isinstance(ins, classes.Entry)):         print "@def Entr:"+ins.name+loc1+loc
+        if(isinstance(ins, classes.Entry)):         
+            print "@def Entr:"+ins.name+loc1+loc
+            functions.append(ins.name)
         if(isinstance(ins, classes.Module)):        print "@def Modu:"+ins.name+loc1+loc
         if(isinstance(ins, block_statements.Type)): print "@def Type:"+ins.name+loc1+loc
 
@@ -74,11 +77,14 @@ for ffile in argset:
     print '---- '+ffile+'  end   -----'
     print 
 
-
 print '--- Looking for function calls=',functions
+targetf = "("+'\Z|'.join(functions)+"\Z)"
+if('|'.join(functions)==''): targetf='xx xx xx xx xx'
+pf=re.compile(targetf,re.I)
+
 # Find function calls
 for ffile in argset:
-    print '---- '+ffile+' start -----'
+#    print '---- '+ffile+' start -----'
     reader = FortranFileReader(ffile)
     reader.set_mode(isfree=False,isstrict=False)
     parser=FortranParser(reader,ignore_comments=False)
@@ -102,11 +108,36 @@ for ffile in argset:
         loc  =  ' '+ffile+(":L%d" % ins.item.span[0])
 
         line= ins.item.line
-        #print 'ppppp',line
-        for fun in functions:
-            if(fun in line) :
-                print "@cal Func:"+fun+loc1+loc,type(ins) #ins.item.line
+        line= rr.sub("''",line)
+#        print 'ppppp',depth,line,[x.name for x in sstack[1:]]
+#        print 'pppp2',depth,rr.sub("''",line)
+#        deptho=depth
+#        inso=ins
+#        continue
+
+        if(isinstance(ins, classes.Function) or isinstance(ins,classes.EndStatement) ):  
+            deptho=depth
+            inso=ins
+            continue
+
+        a=pf.search(line)
+        if(a):
+            #print 'aaa',a.group().lower(),'bbb'
+            frame3= [x.name for x in sstack[1:] if x.__class__.__name__ in ranktag]
+            #print frame3
+            mother= frame3[-1].lower()
+            child=a.group().lower()
+            if(mother != child): 
+                #lll=(mother+"->"+child+";").lower()
+                #if(pn.search(lll)): continue
+                print "@cal Func:"+child+loc1+loc,type(ins)
         deptho=depth
         inso=ins
-    print '---- '+ffile+' end   -----'
-    print 
+#print 'ppppp',line
+#         for fun in functions:
+#             if(fun in line) :
+#                 print "@cal Func:"+fun+loc1+loc,type(ins) #ins.item.line
+#         deptho=depth
+#         inso=ins
+#    print '---- '+ffile+' end   -----'
+#    print 

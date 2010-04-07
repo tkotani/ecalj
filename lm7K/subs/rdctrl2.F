@@ -371,6 +371,11 @@ C       256 rotate local density after reading
       endif
       irs(1) = mod(mod(irs(1),10),4) + 4*getdig(irs(1),1,10)
      .       + 8*getdig(irs(1),1,100)
+
+ccccccccccccccccccccccccccccccccccccccccccc
+c      print *,'xxxxxxxxxx irs(1)=',irs(1)
+ccccccccccccccccccccccccccccccccccccccccccc
+
       lrs = 1*mod(irs(1),8)+8*irs(2)+32*irs(3)+64*irs(4)+128*irs(5)
      .    + 256*mod(irs(1)/8,2)
 C     lqp 1 do not add inversion 2 inverse iteration

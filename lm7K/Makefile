@@ -33,10 +33,9 @@ obj_path=obj.$(PLATFORM)
 include slatsm/make.inc
 include subs/make.inc
 include fp/make.inc
-include gwd/make.inc
 
 #################################
-.PHONY: slatsm-lib gwd-lib fp-lib subs-lib  slatsm-dir gwd-dir fp-dir subs-dir mod-dir libs progs clean cleanobj veryclean distclean check checkgw install 
+.PHONY: slatsm-lib fp-lib subs-lib  slatsm-dir fp-dir subs-dir mod-dir libs progs clean cleanobj veryclean distclean check checkgw install 
 #################################
 
 
@@ -48,7 +47,6 @@ ALL: libs
 #	(cd slatsm; make -f Makefile SLATSM=$(SLATSM))
 #	(cd subs; make -f Makefile SUBS=$(SUBS))
 #	(cd fp; make -f Makefile FP=$(FP))
-#	(cd gwd; make -f Makefile GWD=$(GWD))
 #	(cd FPLOTdir; make;cp $(fplotprogs) ../)
 #	make -f Makefile $(programs)
 
@@ -57,16 +55,14 @@ ALL: libs
 
 
 # Generate main routines
-libs: mod-dir slatsm-dir subs-dir fp-dir gwd-dir 
+libs: mod-dir slatsm-dir subs-dir fp-dir
 	$(MAKE) -f Makefile slatsm-lib
 	$(MAKE) -f Makefile subs-lib
 	$(MAKE) -f Makefile fp-lib
-	$(MAKE) -f Makefile gwd-lib
 
 #slatsm-lib: slatsm-dir
 #subs-lib: subs-dir
 #fp-lib: fp-dir subs-lib
-#gwd-lib: gwd-dir subs-lib
 
 
 
@@ -100,13 +96,6 @@ fp-dir:
 $(fp_obj_path)/%.o: fp/%.F
 	$(FC) $(FFLAGS) -c $< -o $@ 
 
-gwd_obj=$(addprefix gwd/$(obj_path)/,$(gwd_list))
-gwd_obj_path=gwd/$(obj_path)
-gwd-lib: $(gwd_obj)  
-gwd-dir:
-	[ -d $(gwd_obj_path) ] || mkdir  $(gwd_obj_path) 
-$(gwd_obj_path)/%.o: gwd/%.F
-	$(FC) $(FFLAGS) -c $< -o $@ 
 
 ################################################
 # module dependency (fixed). What *.F contains what modules.
@@ -116,7 +105,6 @@ $(gwd_obj_path)/%.o: gwd/%.F
 # $(subs_obj_path)/rdctrl2.o:     $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_rdctrl.o $(subs_obj_path)/m_struc_def.o $(subs_obj_path)/m_struc_func.o
 # $(subs_obj_path)/rdctrlchk.o:   $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_rdctrlchk.o
 # $(fp_obj_path)/bndfp.o: $(subs_obj_path)/m_rdctrl.o
-# $(gwd_obj_path)/bndfp.o:        $(subs_obj_path)/m_rdctrl.o
 # #
 # $(subs_obj_path)/struc_main.o: $(susb_obj_path)/m_struc_def.o $(susb_obj_path)/m_struc_func.o
 # $(subs_obj_path)/struc_sub.o: $(susb_obj_path)/m_struc_def.o $(susb_obj_path)/m_struc_func.o
@@ -183,8 +171,8 @@ lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA)
 #lm:	lm.o  $(LIBSUBS) 
 #	$(LK) $(LKFLAGS1) $@.o $(LIBNC) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
  
-lmfgw:	lmfgw.o $(LIBSUBS) $(LIBFP) $(LIBGWD) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBGWD) $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+lmfgw:	lmfgw.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
+	$(LK) $(LKFLAGS1) $@.o  $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lm67:	lm67.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
 	$(LK) $(LKFLAGS1) $@.o  $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
@@ -209,8 +197,8 @@ lmf-MPI:        lmf-MPI.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
 lmfgw-MPI.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMFGWD -c lmv7.F -o $@
 
-lmfgw-MPI:      lmfgw-MPI.o $(LIBSUBS) $(LIBFP) $(LIBGWD) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBGWD) $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+lmfgw-MPI:      lmfgw-MPI.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
+	$(LK) $(LKFLAGS1) $@.o  $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 ####### for MPIK
 lmf-MPIK.o: lmv7.F
@@ -222,8 +210,8 @@ lmf-MPIK:       lmf-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
 lmfgw-MPIK.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMFGWD -c lmv7.F -o $@
 
-lmfgw-MPIK:     lmfgw-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBGWD) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBGWD) $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+lmfgw-MPIK:     lmfgw-MPIK.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
+	$(LK) $(LKFLAGS1) $@.o  $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 
 ##########################################
@@ -241,7 +229,7 @@ cleanbin:
 
 
 cleanobj:
-	rm -f $(programs) $(fplotprogs) $(LIBSUBS) $(LIBFP) $(LIBGWD) $(LIBSLA) */obj.*/*.o  *.o  */*.a 
+	rm -f $(programs) $(fplotprogs) $(LIBSUBS) $(LIBFP) $(LIBSLA) */obj.*/*.o  *.o  */*.a 
 	(cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) cleanobj)
 	rm -rf MODDIR
 	mkdir MODDIR
@@ -252,7 +240,6 @@ veryclean:
 	done
 	testing/test.lm --quiet --clean
 	fp/test/test.fp --all --quiet --clean
-	gwd/test/test.gwd --all --quiet --clean
  
 distclean:
 	for p in $(programs) ; do \
@@ -260,8 +247,7 @@ distclean:
 	done
 	testing/test.lm --quiet --clean
 	fp/test/test.fp --all --quiet --clean
-	gwd/test/test.gwd --all --quiet --clean
-	rm -f v7input/subs.a subs/subs.a fp/subs.a gwd/subs.a
+	rm -f v7input/subs.a subs/subs.a fp/subs.a 
 	rm -f v7input/{m_gtv,m_rdctrl,m_rdctrlchk,m_toksw}.mod
 
 check:

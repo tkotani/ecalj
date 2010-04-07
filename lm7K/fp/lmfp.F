@@ -128,7 +128,7 @@ C ... for LDA+U
 
 c takao test
       real(8):: pnu(20),bz_w
-
+      logical :: llmfgw
 #if MPI
       integer:: ierr
       include "mpif.h"
@@ -598,10 +598,13 @@ C --- Make and diagonalize hamiltonian, make new charge density ---
       if (maxit .eq. 0) call info0(20,1,0,
      .  ' lmfp  : zero iterations sought ... no band pass')
 
+      llmfgw=.false. !takao now just lmfgw mode by lmfgw switch.
+      if(trim(prgnam)=='LMFGWD') llmfgw=.true.
+
       call bndfp(nbas,nsp,nlibu,lmaxu,w(olldau),
      .  ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit,w(oevl),w(ofrc),
-     .  w(odmatu),w(ovorb))
+     .  w(odmatu),w(ovorb),llmfgw)
 
 C ... check convergence of dmatu and update it and vorb if necessary
       if (nlibu .gt. 0 .and. maxit .gt. 0 .and. lrout .gt. 0) then

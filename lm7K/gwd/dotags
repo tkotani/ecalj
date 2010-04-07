@@ -1,2 +1,0 @@
-etags `pwd`/*.f
-cat ../tb/TAGS >>TAGS

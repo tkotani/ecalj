@@ -69,7 +69,6 @@ sla_list=\
 	dpack.o \
 	dpadd.o \
 	dpcopy.o \
-	dpdbyl.o \
 	dpdot.o \
 	dpdump.o \
 	dpmpy.o \
