@@ -220,7 +220,7 @@ c      double precision ssite(1),sspec(1)
       type(s_pot)::  spot
       type(s_bz)  ::  sbz
 c      type(s_site):: ssitev(nbas)
-      type(s_spec),allocatable:: sspecv(:)
+CKI      type(s_spec),allocatable:: sspecv(:)
 
       
 C ... Local parameters
@@ -401,16 +401,16 @@ c      print *,'ttt1: lrsig,ldos,lfrzw=',lrsig,ldos,lfrzw
 c$$$ctakao test
       nspec= sctrl%nspec
 ctakao
-!      allocate(sspecv(nspec+1)) ! I don't know why but nspec+1 is necessary to avoid run time error.
-      allocate(sspecv(nspec+1)) !+1 makes it safer. (see below)
-      do i=1,nspec
-c Be careful for this procedure; the size uspec_size() is probably larger than the size of s_sspec.
-c Thus we needed to allocate it as sspecv(nspec+1).
-c Without this, deallocate(sspecv) caused a problem---this may mean memeory destruction.
-         call dcopy(uspec_size(),sspec(1+(i-1)*uspec_size()),1,sspecv(i),1)
-         if(debug) print *,'ttt: sspecv%idmod=',i,sspecv(i)%nr,sspecv(i)%a
-      enddo
-      deallocate(sspecv)
+CKI!      allocate(sspecv(nspec+1)) ! I don't know why but nspec+1 is necessary to avoid run time error.
+CKI      allocate(sspecv(nspec+1)) !+1 makes it safer. (see below)
+CKI      do i=1,nspec
+CKIc Be careful for this procedure; the size uspec_size() is probably larger than the size of s_sspec.
+CKIc Thus we needed to allocate it as sspecv(nspec+1).
+CKIc Without this, deallocate(sspecv) caused a problem---this may mean memeory destruction.
+CKI         call dcopy(uspec_size(),sspec(1+(i-1)*uspec_size()),1,sspecv(i),1)
+CKI         if(debug) print *,'ttt: sspecv%idmod=',i,sspecv(i)%nr,sspecv(i)%a
+CKI      enddo
+CKI      deallocate(sspecv)
 c      stop 'xxxxxxxxxxxxxxx aaaaaaaaaaa'
 c      print *,'ttt fxstsigm=',fxst('sigm')
 
