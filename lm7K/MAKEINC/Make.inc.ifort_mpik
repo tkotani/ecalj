@@ -166,8 +166,11 @@ $(gwd_obj_path)/bndfp.o  : $(moddir)/m_rdctrl.mod $(moddir)/m_hamindex.mod $(mod
 	$(FC) $(FFLAGS) -c gwd/bndfp.F -o $@
 $(subs_obj_path)/hamfb3.o  : $(moddir)/m_hamindex.mod subs/hamfb3.F
 	$(FC) $(FFLAGS) -c  subs/hamfb3.F -o $@
-$(subs_obj_path)/rdctrl2.o  : $(moddir)/m_rdctrl.mod $(moddir)/m_gtv.mod subs/rdctrl2.F
-	$(FC) $(FFLAGS) -c  subs/rdctrl2.F -o $@
+$(subs_obj_path)/rdctrl2.o $(moddir)/m_rdctrl2_func.mod  : subs/rdctrl2.F $(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod $(moddir)/m_susite_func.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdctrl2.o subs/rdctrl2.F
+$(subs_obj_path)/susite.o $(moddir)/m_susite_func.mod  : subs/susite.F $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/susite.o subs/susite.F
+
 $(subs_obj_path)/rdctrlchk.o  : $(moddir)/m_rdctrlchk.mod $(moddir)/m_gtv.mod subs/rdctrlchk.F
 	$(FC) $(FFLAGS) -c  -o $@  subs/rdctrlchk.F
 $(subs_obj_path)/rdsigm2.o  : $(moddir)/m_hamindex.mod subs/rdsigm2.F
@@ -206,7 +209,7 @@ RANLIB := ranlib
 ################################################
 # program and libraries (choose one of sections; normal, MPI, or MPIK)
 ################################################
-#programs = lmf lmfa lmfgw lmdos lmchk lmf2gw lm67 rdcmd
+#programs = lmf lmfa lmfgw lmdos lmchk lmf2gw  rdcmd
 #SUBS   := libsubs.a
 #FP     := libfp.a
 #GWD    := libgwd.a

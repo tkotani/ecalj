@@ -1,9 +1,14 @@
+      module m_rdctrl2_func
+      contains
       subroutine rdctrl2(recrd,recln,nrecs,
      . prgnam,vrsion,vn,vn2,
-     . pass2,slabl_,osbz,osctrl,osham,ospot,oslat,osmix,osspec,ossite,
-     . osstr,osarry,osmove,ostb,sstrn)
+     . pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
+     . v_sstr,v_sarry,v_smove,v_stb,sstrn)
       use m_rdctrl
       use m_gtv
+      use m_struc_def
+      use m_struc_func
+      use m_susite_func, only: susite
 C- Main input for LMTO programs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -113,7 +118,7 @@ Cg   stdo  :standard output file
 Cr Remarks
 Cr rdctrl does:
 Cr  1. allocate the following structure arrays
-Cr     osbz,osctrl,osham,ospot,oslat,osmix,osspec,ossite,osstr,osarry
+Cr     v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,v_sarry
 Cr  2. read input data specified by tokens
 Cr  3. If pass2, read class parameters from START
 Cu Updates
@@ -144,8 +149,21 @@ C ... Passed parameters
       character strn*(recln)
       character*(1000) recrd
       logical pass2
-      integer osbz,osctrl,osham,ospot,oslat,osmix,osspec,
-     .  ossite,osstr,osarry,osmove,ostb
+Cki      integer v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,
+Cki     .  v_ssite,v_sstr,v_sarry,v_smove,v_stb
+      type(s_bz):: v_sbz
+      type(s_ctrl):: v_sctrl
+      type(s_ham):: v_sham
+      type(s_pot):: v_spot
+      type(s_lat):: v_slat
+      type(s_mix):: v_smix
+      type(s_str):: v_sstr
+      type(s_array):: v_sarry
+      type(s_move):: v_smove
+      type(s_tb):: v_stb 
+      type(s_spec),pointer:: v_sspec(:)
+      type(s_site),pointer:: v_ssite(:)
+
       character  prgnam*(*), sstrn*(*)
 c      character toksw(0:30)*(*), vrsion*6
 C     character  vrsion*6
@@ -178,7 +196,7 @@ C ... Heap
 c takao 
       real(8):: pnux(20)
       integer:: nnn
-      integer:: umix_size
+CKi      integer:: umix_size
 
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -194,12 +212,12 @@ C --- Initialize gtv; copy recrd to rcd ---
       call gtv_setrcd(recrd,nrecs,recln)
 
 c$$$      if (pass2) then
-c$$$        call upack('ctrl nbas nclass nspec nspin nl',w(osctrl),
+c$$$        call upack('ctrl nbas nclass nspec nspin nl',v_sctrl,
 c$$$     .    nsite,nclass,nspec,nsp,nl)
 c$$$        nbas = nsite
-c$$$        call upack('pot opnu oqnu oves',w(ospot),opnu,oqnu,oves,0,0)
-c$$$        call upack2('pot opp osoptc',w(ospot),opp,osoptc)
-c$$$        call upack('array oics oclabl nclasp ohave',w(osarry),
+c$$$        call upack('pot opnu oqnu oves',v_spot,opnu,oqnu,oves,0,0)
+c$$$        call upack2('pot opp osoptc',v_spot,opp,osoptc)
+c$$$        call upack('array oics oclabl nclasp ohave',v_sarry,
 c$$$     .    oics,oclabl,nclasp,ohave,0)
 c$$$        allocate(clabl(nclasp))
 c$$$        allocate(lmxa(nclasp),pnuc(nl,nsp,nclasp),qnuc(3,nl,nsp,nclasp),
@@ -215,7 +233,7 @@ c$$$        do  j = 1, nclasp
 c$$$          xx = dval(w(oclabl),j)
 c$$$          call r8tos8(xx,clabl(j))
 c$$$          is = w(oics+j-1)
-c$$$          call upack('spec lmxa z',w(osspec),is,
+c$$$          call upack('spec lmxa z',v_sspec,is,
 c$$$     .      lmxa(j),zc(j),0,0)
 c$$$        enddo
 c$$$
@@ -229,9 +247,9 @@ c$$$        call dpcopy(pp,w(opp),1,6*nl*nsp*nclasp,1d0)
 c$$$        call dpcopy(ves,w(oves),1,nclasp,1d0)
 c$$$        call icopy(nclasp,initc,1,w(ohave),1)
 c$$$        deallocate(lmxa,pnuc,qnuc,pp,ves,zc,initc,ics,clabl)
-c$$$        call upack('ctrl lasa',w(osctrl),lasa,0,0,0,0)
+c$$$        call upack('ctrl lasa',v_sctrl,lasa,0,0,0,0)
 c$$$        lasa = lasa + lasa3 + 8*isw(lasa8)
-c$$$        call pack5('ctrl lasa',w(osctrl),lasa,0,0,0,0)
+c$$$        call pack5('ctrl lasa',v_sctrl,lasa,0,0,0,0)
 c$$$        return
 c$$$      endif
 
@@ -274,24 +292,27 @@ C ... Initialize sstrn
       sstrn = ' '
 
 C --- Allocate and copy input to sbz ---
-      call defdr(osbz,1000)
-      call ubz(w(osbz),-1,-000,0,0,0)
-      call redfrr(osbz,nint(dval(w(osbz),1)))
-      call pack5('bz def dosw ef efmax fsmom',w(osbz),
+Cki      call defdr(v_sbz,1000)
+Cki      call ubz(v_sbz,-1,-000,0,0,0)
+Cki      call redfrr(v_sbz,nint(dval(v_sbz,1)))
+        v_sbz%size=ubz_size()
+
+      call pack5('bz def dosw ef efmax fsmom',v_sbz,
      .  bz_def,bz_dosw,bz_ef,bz_efmax,bz_fsmom)
       i = 1*isw(bz_lio1)+2*isw(bz_lio2)+8*isw(bz_lio8)
-      call pack5('bz lcond lio lmet lmull lopt',w(osbz),
+      call pack5('bz lcond lio lmet lmull lopt',v_sbz,
      .  bz_lcond,i,bz_lmet,bz_lmull,0)
-      call pack5('bz lshft n ndos nevmx nkabc',w(osbz),
+      call pack5('bz lshft n ndos nevmx nkabc',v_sbz,
      .  bz_lshft,bz_n,bz_ndos,bz_nevmx,bz_nabc)
-      call pack5('bz range semsh w zval',w(osbz),
+      call pack5('bz range semsh w zval',v_sbz,
      .  bz_range,bz_semsh,bz_w,bz_zval,0)
 
 C --- Allocate and copy input to sctrl ---
-      call defdr(osctrl,1000)
-      call uctrl(w(osctrl),-1,0,0,0,0)
-      call redfrr(osctrl,nint(dval(w(osctrl),1)))
-      call uctrl(w(osctrl),-1,0,0,0,0)
+Cki      call defdr(v_sctrl,1000)
+Cki      call uctrl(v_sctrl,-1,0,0,0,0)
+Cki      call redfrr(v_sctrl,nint(dval(v_sctrl,1)))
+Cki      call uctrl(v_sctrl,-1,0,0,0,0)
+       v_sctrl%size=uctrl_size()
 
 C     lasa: 1 Make V from P,Q  2 Make pp  4 ccor  8 free atm
 C          16 map  32 nonspherical mpol moms 64 MT corr
@@ -313,11 +334,11 @@ C         16 unused
 C         32 unused
 C         64 (molecules) XC potential by FFT
       k = 1*isw(lcd1)+2*isw(lcd2)+4*isw(lcd4)+8*isw(lcd8)+64*isw(lcd64)
-      call pack5('ctrl defm elin lasa lbas lcd',w(osctrl),
+      call pack5('ctrl defm elin lasa lbas lcd',v_sctrl,
      .  lat_defm,asa_elin,lasa,j,k)
       k = isw(nmto.gt.1)
       if (nmto.gt.1) k = k+2*isw(ham_ewald)
-      call pack5('ctrl lcgf ldos lfp lfrce lgen3',w(osctrl),
+      call pack5('ctrl lcgf ldos lfp lfrce lgen3',v_sctrl,
      . ctrl_lcgf,ctrl_ldos,lfp,ctrl_lfrce,k)
 C     lham  1 (ASA) 2-center
 C           1 (molecules) two-panel
@@ -350,7 +371,7 @@ C     If spin-orbit or SS, also turn on noncollinear
       lncol = 1*isw(lncol1)+2*isw(lncol2)+4*isw(lncol4)+8*isw(lncol8)+
      .  16*isw(lncol16)+32*isw(lncol32)+64*isw(lncol64)
       lordn = 0
-      call pack5('ctrl lham lmet lncol loptc lordn',w(osctrl),
+      call pack5('ctrl lham lmet lncol loptc lordn',v_sctrl,
      .  lham,lmet,lncol,ctrl_loptc,lordn)
 C     lrs  switches concerning restart mode.
 C         1 Read from restart file
@@ -393,7 +414,7 @@ C            Add 1 to combine mode 1 with another mode
 C            Add 10*k to compute intra-site contribution to
 C            vbare each kth iteration
 C            Add 100*k to compute response function only each kth iteration
-       call pack5('ctrl lpgf lqp lrel lrs lscr',w(osctrl),
+       call pack5('ctrl lpgf lqp lrel lrs lscr',v_sctrl,
      .  ctrl_lpgf,lqp,lrel,lrs,lscr)
        
 C      lstr  no longer used.
@@ -411,7 +432,7 @@ C      2^15 L>0 estat   2^16 disc read incr 2^17 gamma-pt
      .   +2**15*isw(ltb215)+2**16*isw(ltb216)+2**17*isw(ltb217)
      .   +2**18*isw(ltb218)
 C      lves    1 take ves as input
-       call pack5('ctrl lstonr lstr lsx ltb lves',w(osctrl),
+       call pack5('ctrl lstonr lstr lsx ltb lves',v_sctrl,
      .   lstonr,0,lsx,i,lves)
 C      lxcf   parameter defining XC functional
 C      1s digit:
@@ -430,7 +451,7 @@ C      Set modep
        ix(1:3) = 2
        if (prgnam == 'LMPG') ix(3) = 0
        if (prgnam == 'LMMC') ix(1:3) = 0
-       call pack5('ctrl lxcf maxit mdprm modep nbas',w(osctrl),
+       call pack5('ctrl lxcf maxit mdprm modep nbas',v_sctrl,
      .   i,iter_maxit,mdprm,ix(1:3),nbas)
 C      Reset nl
        if (nl .ne. max(lmxbx,lmxax)+1 .and. io_help == 0) then
@@ -438,93 +459,107 @@ C      Reset nl
      .     nl,max(lmxbx,lmxax)+1)
          nl = max(lmxbx,lmxax)+1
        endif
-C      call pack5('ctrl nbasp nclass nesabc nitmv nl',w(osctrl),
-       call pack5('ctrl nbasp nesabc nitmv nl',w(osctrl),
+C      call pack5('ctrl nbasp nclass nesabc nitmv nl',v_sctrl,
+       call pack5('ctrl nbasp nesabc nitmv nl',v_sctrl,
      .   nbasp,nesabc,nitmv,nl,0)
-C      call pack5('ctrl nlibu nmap npl nsite nspec',w(osctrl),
-       call pack5('ctrl nsite nspec',w(osctrl),
+C      call pack5('ctrl nlibu nmap npl nsite nspec',v_sctrl,
+       call pack5('ctrl nsite nspec',v_sctrl,
      .   nsite,nspec,0,0,0)
 C      call shosyv(0,0,0,6)
-       call pack5('ctrl nspin nvario omax1 omax2 quit',w(osctrl),
+       call pack5('ctrl nspin nvario omax1 omax2 quit',v_sctrl,
      .   nsp,nvario,omax1,omax2,quit)
-       call pack5('ctrl rmaxes rmines sclwsr sdmod sdprm',w(osctrl),
+       call pack5('ctrl rmaxes rmines sclwsr sdmod sdprm',v_sctrl,
      .   rmaxes,rmines,sclwsr,sdmod,sdprm)
-       call pack5('ctrl smalit tol wsrmax zbak pfloat',w(osctrl),
+       call pack5('ctrl smalit tol wsrmax zbak pfloat',v_sctrl,
      .   smalit,ctrl_tol,wsrmax,zbak,lpfloat)
 
 C --- Allocate and copy input to slat ---
-      call defdr(oslat,1000)
-      call ulat(w(oslat),-1,0,0,0,0)
-      call redfrr(oslat,nint(dval(w(oslat),1)))
+CKi      call defdr(v_slat,1000)
+CKi      call ulat(v_slat,-1,0,0,0,0)
+CKi      call redfrr(v_slat,nint(dval(v_slat,1)))
+         v_slat%size=ulat_size()
+
       if (dalat == NULLR) dalat=0
-      call pack5('lat alat as avw nkdmx nkqmx',w(oslat),
+      call pack5('lat alat as avw nkdmx nkqmx',v_slat,
      .  alat+dalat,lat_as,avw,lat_nkdmx,lat_nkdmx)
-      call pack5('lat gam gmax nabc',w(oslat),
+      call pack5('lat gam gmax nabc',v_slat,
      .  lat_gam,lat_gmax,ftmesh,0,0)
-      call pack5('lat gam ldist dist',w(oslat),
+      call pack5('lat gam ldist dist',v_slat,
      .  lat_gam,lat_ldist,lat_dist,0,0)
-      call pack5('lat plat plat2',w(oslat),plat,slat_plat2,0,0,0)
-      call pack5('lat rpad slat tol tolft vol',w(oslat),
+      call pack5('lat plat plat2',v_slat,plat,slat_plat2,0,0,0)
+      call pack5('lat rpad slat tol tolft vol',v_slat,
      .  lat_rpad,lat_slat,lat_tol,tolft,vol)
       call dcopy(6,plat,1,xx,1)
       call dcopy(3,platl,1,xx(7),1)
-      call pack5('lat platl',w(oslat),xx,0,0,0,0)
+      call pack5('lat platl',v_slat,xx,0,0,0,0)
       call dcopy(3,platr,1,xx(7),1)
-      call pack5('lat platr',w(oslat),xx,0,0,0,0)
+      call pack5('lat platr',v_slat,xx,0,0,0,0)
 
 C --- Allocate and copy input to sham ---
-      call defdr(osham,1000)
-      call uham(w(osham),-1,-000,0,0,0)
-      call redfrr(osham,nint(dval(w(osham),1)))
-      call pack5('ham alfsi dabc elind nmto kmto',w(osham),
+CKi      call defdr(v_sham,1000)
+CKi      call uham(v_sham,-1,-000,0,0,0)
+CKi      call redfrr(v_sham,nint(dval(v_sham,1)))
+      v_sham%size=uham_size()
+
+      call pack5('ham alfsi dabc elind nmto kmto',v_sham,
      .  alfsi,dabc,elind,nmto,kmto)
 C     Replicate ctrl->lncol in ham->lncol, ditto for lham,lgen3
-      call pack1('ham lncol',w(osham),igets('ctrl lncol',w(osctrl)))
-      call pack1('ham lham',w(osham),igets('ctrl lham',w(osctrl)))
-      call pack1('ham lgen3',w(osham),igets('ctrl lgen3',w(osctrl)))
+      call pack1('ham lncol',v_sham,igets('ctrl lncol',v_sctrl))
+      call pack1('ham lham',v_sham,igets('ctrl lham',v_sctrl))
+      call pack1('ham lgen3',v_sham,igets('ctrl lgen3',v_sctrl))
 C     Mop up integer parts of sigp
       sigp(1) = sigp_mode
       sigp(2) = sigp_nmin
       sigp(4) = sigp_nmax
-      call pack5('ham nkaph pmax pmin lsig sigp',w(osham),
+      call pack5('ham nkaph pmax pmin lsig sigp',v_sham,
      .  nkaph,pmax,pmin,lrsig,sigp)
-      call pack5('ham qss rsrnge rsstol udiag',w(osham),
+      call pack5('ham qss rsrnge rsstol udiag',v_sham,
      .  ham_qss,rsrnge,rsstol,ham_udiag,0)
 C     Parameters for APW
-      call pack5('ham pwmode npwpad pwemin pwemax',w(osham),pwmode,
+      call pack5('ham pwmode npwpad pwemin pwemax',v_sham,pwmode,
      .  npwpad,pwemin,pwemax,0)
-      call pack1('ham oveps',w(osham),oveps)
+      call pack1('ham oveps',v_sham,oveps)
 
 C ... Allocate and initialize sarray
-      call defrr(osarry,1000)
-      call uarray(w(osarry),-1,NULLI,0,0,0)
-      call redfrr(osarry,nint(dval(w(osarry),1)))
+CKi      call defrr(v_sarry,1000)
+CKi      call uarray(v_sarry,-1,NULLI,0,0,0)
+CKi      call redfrr(v_sarry,nint(dval(v_sarry,1)))
+         v_sarry%size=uarray_size()
 
 C ... Allocate and initialize spot
-      call defdr(ospot,1000)
-      call upot(w(ospot),-1,-000,0,0,0)
-      call redfrr(ospot,nint(dval(w(ospot),1)))
-      call pack5('pot vmtz0',w(ospot),vmtz,0,0,0,0)
+CKi      call defdr(v_spot,1000)
+CKi      call upot(v_spot,-1,-000,0,0,0)
+CKi      call redfrr(v_spot,nint(dval(v_spot,1)))
+      v_spot%size=upot_size()
+
+      call pack5('pot vmtz0',v_spot,vmtz,0,0,0,0)
 
 C --- Allocate and copy input to smix ---
-      call defrr(osmix,1000)
-      call umix(w(osmix),-1,-000,0,0,0)
-      call redfrr(osmix,nint(dval(w(osmix),1)))
+CKi      call defrr(v_smix,1000)
+CKi      call umix(v_smix,-1,-000,0,0,0)
+CKi      call redfrr(v_smix,nint(dval(v_smix,1)))
+       v_smix%size=umix_size()
+
 ckino's fix for SR11000 size() return's integer(8), right?
 c      nnn = size(smix)
       nnn = umix_size()
-      call dcopy(nnn,vmix,1,w(osmix),1)
+      call dcopy(nnn,vmix,1,v_smix,1)
 
 C ... Allocate and initialize sordn
+Cki delete sordn
+#if 0
       call defrr(osordn,1000)
       call uordn(w(osordn),-1,0,0,0,0)
       call redfrr(osordn,nint(dval(w(osordn),1)))
-      call pack1('array osordn',w(osarry),osordn)
+      call pack1('array osordn',v_sarry,osordn)
+#endif
 
 C --- Allocate and copy input to smove ---
-      call defrr(osmove,1000)
-      call umove(w(osmove),-1,0,0,0,0)
-      call redfrr(osmove,nint(dval(w(osmove),1)))
+Cki      call defrr(v_smove,1000)
+Cki      call umove(v_smove,-1,0,0,0,0)
+Cki      call redfrr(v_smove,nint(dval(v_smove,1)))
+       v_smove%size=umove_size()
+
       if (lbsprm) then          !Load Bulirsch-Stoer parameters into structure
         prmint(2) = isw(prmint_new)
         prmint(3) = prmint_ts0
@@ -535,23 +570,28 @@ C --- Allocate and copy input to smove ---
 C        print 331, prmint(1:17)
 C  331   format(17f8.4)
       endif
-      call pack5('move gyro nmodt modt ct prmint',w(osmove),
+      call pack5('move gyro nmodt modt ct prmint',v_smove,
      .  2d0,gd_nmodt,gd_modt,gd_ct,prmint)
-      call pack5('move kt ts tsequ tstot',w(osmove),
+      call pack5('move kt ts tsequ tstot',v_smove,
      .  move_kt,move_ts,move_tsequ,move_tstot,0)
 
 C --- Allocate and copy input to soptic ---
+Cki  delete soptc
+#if 0
       call defrr(osoptc,1000)
       call uoptic(w(osoptc),-1,0,0,0,0)
       call redfrr(osoptc,nint(dval(w(osoptc),1)))
-      call pack1('pot osoptc',w(ospot),osoptc)
+      call pack1('pot osoptc',v_spot,osoptc)
       call pack5('optic ne window ocrng unrng esciss',w(osoptc),
      .  optic_ne,optic_window,optic_ocrng,optic_unrng,optic_esciss)
       call pack2('optic mode nchi2',w(osoptc),isw(optic_mode1),
      .  optic_nchi2)
       call pack1('optic axes',w(osoptc),optic_axes) ! nchi2 must be
+#endif
                                                     ! packed beforehand
 C --- Allocate and copy input to sgw ---
+Cki delete sgw
+#if 0
       call defrr(osgw,1000)
       call ugw(w(osgw),-1,0,0,0,0)
       call redfrr(osgw,nint(dval(w(osgw),1)))
@@ -574,24 +614,26 @@ C     call spacks(1,'gw pb2',w(osgw),'1111',0,0)
      .  gw_nime,gw_deltax,gw_deltaw,gw_pbtol,0)
       call spacks(1,'gw pb1',w(osgw),'111',0,0)
       call spacks(1,'gw pb2',w(osgw),'1111',0,0)
-      call pack1('pot osgw',w(ospot),osgw)
-
+      call pack1('pot osgw',v_spot,osgw)
+#endif
 C --- Allocate and copy input to sstr ---
-      call defrr(osstr,1000)
-      call ustr(w(osstr),-1,0,0,0,0)
-      call redfrr(osstr,nint(dval(w(osstr),1)))
+CKi      call defrr(v_sstr,1000)
+CKi      call ustr(v_sstr,-1,0,0,0,0)
+CKi      call redfrr(v_sstr,nint(dval(v_sstr,1)))
+       v_sstr%size=ustr_size()
+
 C     Old defaults
 C     xx(1) = 0
 C     xx(2) = -1
 C     xx(3) = -2.3d0
 C     if (prgnam .eq. 'TBE') then
-C       call pack5('str nkaps rmax rfit kaps lmaxw',w(osstr),1,
+C       call pack5('str nkaps rmax rfit kaps lmaxw',v_sstr,1,
 C    .    0d0,.8d0,xx,-1)
 C     else
-C       call pack5('str nkaps rmax rfit kaps lmaxw',w(osstr),1,
+C       call pack5('str nkaps rmax rfit kaps lmaxw',v_sstr,1,
 C    .    0d0,.8d0,xx,-1)
 C     endif
-C     call pack2('str loka drwats',w(osstr),1,.1d0)
+C     call pack2('str loka drwats',v_sstr,1,.1d0)
 C    loka switch
       i = 1
       if (str_mode .eq. 1 .or. str_mode .eq. 3) i = 0
@@ -600,84 +642,89 @@ C     Pack iinv parameters
       xx(1) = iinv_nit 
       xx(2) = iinv_ncut
       xx(3) = iinv_tol
-      call pack5('str adec amode drwats iinv',w(osstr),
+      call pack5('str adec amode drwats iinv',v_sstr,
      .  tcf_adec,str_mode,str_drwats,xx,0)
-      call pack5('str lequiv loka lmaxw lshow mxnbr',w(osstr),
+      call pack5('str lequiv loka lmaxw lshow mxnbr',v_sstr,
      .  isw(str_lequiv1),i,str_lmaxw,isw(str_lshow1),str_mxnbr)
-      call pack5('str nalf nbisi ncupl ndust wztcf',w(osstr),
+      call pack5('str nalf nbisi ncupl ndust wztcf',v_sstr,
      .  tcf_nalf,tcf_nbisi,tcf_ncupl,tcf_ndust,tcf_wztcf)
-      call pack5('str nkaps rmax rfit kaps',w(osstr),
+      call pack5('str nkaps rmax rfit kaps',v_sstr,
      .  str_nkaps,str_rmax,0.8d0,str_kaps,0)
-      call pack5('str rmaxg ivl',w(osstr),str_rmaxg,str_ivl,0,0,0)
+      call pack5('str rmaxg ivl',v_sstr,str_rmaxg,str_ivl,0,0,0)
 
 C --- Allocate and copy input to stb ---
-      call defrr(ostb,1000)
-      call utb(w(ostb),-1,NULLI,0,0,0)
-      call redfrr(ostb,nint(dval(w(ostb),1)))
+Cki      call defrr(v_stb,1000)
+Cki      call utb(v_stb,-1,NULLI,0,0,0)
+Cki      call redfrr(v_stb,nint(dval(v_stb,1)))
+        v_stb%size=utb_size()
+
 C     old defaults
-C      call pack1('tb alam',w(ostb),.001d0)
-C      call pack1('tb alsc',w(ostb),10d0)
-      call pack5('tb alam alsc',w(ostb),
+C      call pack1('tb alam',v_stb,.001d0)
+C      call pack1('tb alsc',v_stb,10d0)
+      call pack5('tb alam alsc',v_stb,
      .  tb_alam,tb_alsc,0,0,0)
-      call pack5('tb ebfit fmode nbfit rmfit',w(ostb),
+      call pack5('tb ebfit fmode nbfit rmfit',v_stb,
      .  tb_ebfit,tb_fmode,tb_nbfit,tb_rmfit,0)
 
 
 C --- Allocate and copy input to sspec ---
-      call defrr(osspec,1000)
-      call uspec(w(osspec),-1,0,1,0,0,0)
-      call redfrr(osspec,nspec*nint(dval(w(osspec),1)))
-      call uspec(w(osspec),-1,-000,nspec,0,0,0)
+Cki      call defrr(v_sspec,1000)
+Cki      call uspec(v_sspec,-1,0,1,0,0,0)
+Cki      call redfrr(v_sspec,nspec*nint(dval(v_sspec,1)))
+Cki      call uspec(v_sspec,-1,-000,nspec,0,0,0)
+       allocate(v_sspec(nspec))
+       do i=1,nspec; v_sspec(i)%size=uspec_size(); enddo
+
 C ... old defaults
-C      call spackv(1,'spec rs3',w(osspec),1,nspec,1d0)
-C      call spackv(1,'spec vmtz',w(osspec),1,nspec,-0.5d0)
+C      call spackv(1,'spec rs3',v_sspec,1,nspec,1d0)
+C      call spackv(1,'spec vmtz',v_sspec,1,nspec,-0.5d0)
 CC ... Init default for sigma,lmxa,lmxf
 C      call dvset(xx,1,10,-1d0)
 CC ... First set lmxa to 4 to set def. hcr to l=4
-C      call spackv(1,'spec lmxa',w(osspec),1,nspec,4)
-C      call spackv(1,'spec lmxpb',w(osspec),1,nspec,3)
-C      call spackv(1,'spec hcr',w(osspec),1,nspec,xx)
-C      call spackv(1,'spec lmxa',w(osspec),1,nspec,nl-1)
-C      call spackv(1,'spec lmxf',w(osspec),1,nspec,2*nl-2)
+C      call spackv(1,'spec lmxa',v_sspec,1,nspec,4)
+C      call spackv(1,'spec lmxpb',v_sspec,1,nspec,3)
+C      call spackv(1,'spec hcr',v_sspec,1,nspec,xx)
+C      call spackv(1,'spec lmxa',v_sspec,1,nspec,nl-1)
+C      call spackv(1,'spec lmxf',v_sspec,1,nspec,2*nl-2)
 C      xx(1) = -1
 C      xx(2) = 0
-C      call spackv(1,'spec coreq',w(osspec),1,nspec,xx)
+C      call spackv(1,'spec coreq',v_sspec,1,nspec,xx)
 C      if (prgnam(1:2) .eq. 'TB')
-C     .  call spackv(1,'spec rmt',w(osspec),1,nspec,1d0)
+C     .  call spackv(1,'spec rmt',v_sspec,1,nspec,1d0)
 C      do  j = 1, nspec
-CC       call spacks(1,'spec pb1',w(osspec),'111     ',j,j)
-CC       call spacks(1,'spec pb2',w(osspec),'1111    ',j,j)
-C        call spacks(1,'spec pb1',w(osspec),'        ',j,j)
-C        call spacks(1,'spec pb2',w(osspec),'        ',j,j)
-C        call spacks(1,'spec coreh',w(osspec),'        ',j,j)
+CC       call spacks(1,'spec pb1',v_sspec,'111     ',j,j)
+CC       call spacks(1,'spec pb2',v_sspec,'1111    ',j,j)
+C        call spacks(1,'spec pb1',v_sspec,'        ',j,j)
+C        call spacks(1,'spec pb2',v_sspec,'        ',j,j)
+C        call spacks(1,'spec coreh',v_sspec,'        ',j,j)
 C      enddo
-      call spackv(1,'spec eh3',w(osspec),1,nspec,-0.5d0)
-      call spackv(1,'spec etf',w(osspec),1,nspec,-1d0)
-      call spackv(1,'spec lmxf',w(osspec),1,nspec,2*nl-2)
-      call spackv(1,'spec norp',w(osspec),1,nspec,2)
-      call spackv(1,'spec vmtz',w(osspec),1,nspec,-0.5d0)
+      call spackv(1,'spec eh3',v_sspec,1,nspec,-0.5d0)
+      call spackv(1,'spec etf',v_sspec,1,nspec,-1d0)
+      call spackv(1,'spec lmxf',v_sspec,1,nspec,2*nl-2)
+      call spackv(1,'spec norp',v_sspec,1,nspec,2)
+      call spackv(1,'spec vmtz',v_sspec,1,nspec,-0.5d0)
 
       do  j = 1, nspec
         slabl_(j) = slabl(j)
-        call spacks(1,'spec pb1',w(osspec),pb1(j),j,j)
-        call spacks(1,'spec pb2',w(osspec),pb2(j),j,j)
-        call spacks(1,'spec coreh',w(osspec),coreh(j),j,j)
-        call spacks(1,'spec name',w(osspec),slabl(j),j,j)
-        call pack5('spec a nr alpha coreq ',w(osspec),j,
+        call spacks(1,'spec pb1',v_sspec,pb1(j),j,j)
+        call spacks(1,'spec pb2',v_sspec,pb2(j),j,j)
+        call spacks(1,'spec coreh',v_sspec,coreh(j),j,j)
+        call spacks(1,'spec name',v_sspec,slabl(j),j,j)
+        call pack5('spec a nr alpha coreq ',v_sspec,j,
      .    spec_a(j),nr(j),alpha(1,j),coreq(1,j))
-        call pack5('spec lxi nxi exi',w(osspec),j,
+        call pack5('spec lxi nxi exi',v_sspec,j,
      .    lxi(j),nxi(j),exi(1,j),0)
-        call pack5('spec group grp2 hcr idmod',w(osspec),j,
+        call pack5('spec group grp2 hcr idmod',v_sspec,j,
      .    grp(j),grp2(j),hcr(1,j),idmod(1,j))
-        call pack5('spec ehvl',w(osspec),j,ehvl(1,j),0,0,0)
+        call pack5('spec ehvl',v_sspec,j,ehvl(1,j),0,0,0)
 C       Set idxdn
         call ivset(ix,1,n0*nkap0,1)
         call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
-        call pack5('spec idxdn idu jh uh',w(osspec),j,
+        call pack5('spec idxdn idu jh uh',v_sspec,j,
      .    ix,idu(1,j),jh(1,j),uh(1,j))
-        call pack5('spec kmxt kmxv lfoca rsmv',w(osspec),j,
+        call pack5('spec kmxt kmxv lfoca rsmv',v_sspec,j,
      .    kmxt(j),kmxv(j),lfoca(j),rsmv(j))
-        call pack5('spec lmxa lmxb lmxl lmxpb',w(osspec),j,
+        call pack5('spec lmxa lmxb lmxl lmxpb',v_sspec,j,
      .    lmxa(j),lmxb(j),lmxl(j),lmxpb(j))
 C       pack mxcst(j)        
         i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
@@ -691,62 +738,65 @@ C       pack orbp(j)
         call dcopy(n0,eh(1,j),1,orbp(1,2,1),1)
         call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
         call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
-        call pack5('spec mass mxcst orbp',w(osspec),j,mass(j),i,orbp,0)
+        call pack5('spec mass mxcst orbp',v_sspec,j,mass(j),i,orbp,0)
 C       Pack P,Q,PZ for both spins        
         call dpzero(orbp,n0*6)
         call dcopy(n0*nsp,pnu(1,1,j),1,orbp(1,1,1),1)
         call dcopy(n0*nsp,pz(1,1,j),1,orbp(1,1,2),1)
         call dcopy(n0*nsp,qnu(1,1,j),1,orbp(1,1,3),1)
-        call pack5('spec p pz q z',w(osspec),j,orbp,
+        call pack5('spec p pz q z',v_sspec,j,orbp,
      .    orbp(1,1,2),orbp(1,1,3),z(j))
-        call pack5('spec colxbs radxbs',w(osspec),j,
+        call pack5('spec colxbs radxbs',v_sspec,j,
      .    colxbs(1,j),radxbs(j),0,0)
-c        call pack5('spec rcfa rcut rfoca rg rham',w(osspec),j,
-        call pack5('spec rcfa rcut rfoca rg',w(osspec),j,
+c        call pack5('spec rcfa rcut rfoca rg rham',v_sspec,j,
+        call pack5('spec rcfa rcut rfoca rg',v_sspec,j,
      .    rcfa(1,j),rcut(j),rfoca(j),rg(j))
-        call pack5('spec rmt rs3 rsma rsmfa',w(osspec),j,
+        call pack5('spec rmt rs3 rsma rsmfa',v_sspec,j,
      .    rmt(j),rs3(j),rsma(j),rsmfa(j))
         if (ltbe) then
-          call pack5('spec iq1 ivso stni vso',w(osspec),j,
+          call pack5('spec iq1 ivso stni vso',v_sspec,j,
      .      iq1(1,j),ivso(1,j),stni(j),tbvso(1,j))
-          call pack5('spec qpol',w(osspec),j,qpol(1,j),0,0,0)
+          call pack5('spec qpol',v_sspec,j,qpol(1,j),0,0,0)
           if (ltb217 .or. ltb218) then
-           call pack1('bz nkabc',w(osbz),dvec1)
-           call pack1('bz lshft',w(osbz),dvec2)
+           call pack1('bz nkabc',v_sbz,dvec1)
+           call pack1('bz lshft',v_sbz,dvec2)
           endif
         endif
-        call pack5('spec dv eref rham rint',w(osspec),j,
+        call pack5('spec dv eref rham rint',v_sspec,j,
      .    dv(j),eref(j),rham(j),rint(j))
       enddo
-C     call shstru('spec',w(osspec),1,nspec);stop
+C     call shstru('spec',v_sspec,1,nspec);stop
 cccccccccccccc
-c       call upack('spec p ',w(osspec),1,pnux,0,0,0)
+c       call upack('spec p ',v_sspec,1,pnux,0,0,0)
 c       print *,'xxx:111 222 ini pnu=',pnu
 cccccccccccccc
 
 
 C --- Allocate and copy input to ssite ---
 C     NB: essential that ssite is LAST array allocated here
-      call defrr(ossite,1000)
-      call usite(w(ossite),-1,0,1,0,0,0)
-      call redfrr(ossite,nsite*nint(dval(w(ossite),1)))
-      call usite(w(ossite),-1,0,nsite,0,0,0)
+CKi      call defrr(v_ssite,1000)
+CKi      call usite(v_ssite,-1,0,1,0,0,0)
+CKi      call redfrr(v_ssite,nsite*nint(dval(v_ssite,1)))
+CKi      call usite(v_ssite,-1,0,nsite,0,0,0)
+       allocate(v_ssite(nsite))
+       do i=1,nsite; v_ssite(i)%size=usite_size(); enddo
+
 C     Old defaults
 C     call ivset(ix,1,n0*nkap0,1)
-C     call spackv(1,'site relax',w(ossite),1,nsite,ix)
+C     call spackv(1,'site relax',v_ssite,1,nsite,ix)
       do  j = 1, nsite
 C       Pack spec into class in case spec info is sufficient
 C       and spid into class label
-        call pack5('site spec class dpole mpole',w(ossite),j,
+        call pack5('site spec class dpole mpole',v_ssite,j,
      .    ips(j),ips(j),dpole(1,j),mpole(j))
-        call spacks(1,'site clabel',w(ossite),slabl(ips(j)),j,j)
-        call pack5('site pl plv pos vel',w(ossite),j,
+        call spacks(1,'site clabel',v_ssite,slabl(ips(j)),j,j)
+        call pack5('site pl plv pos vel',v_ssite,j,
      .    ipl(j),plv(j),pos(1,j),vel(1,j))
-        call pack5('site vshft relax eula',w(ossite),j,
+        call pack5('site vshft relax eula',v_ssite,j,
      .    vshft(j),irlx(1,j),eula(1,j),0)
         if (ltbe) then
-          call pack2('site ndelta',w(ossite),j,ndelta(j))
-          call pack2('site delta',w(ossite),j,delta(1,j))
+          call pack2('site ndelta',v_ssite,j,ndelta(j))
+          call pack2('site delta',v_ssite,j,delta(1,j))
         endif
       enddo
 
@@ -819,10 +869,10 @@ C     Switches that turn off automatic finder, incl. inversion
 C ... End of copy
 
 C --- Miscellaneous cleanup and initialization ---
-      if (lgors('ctrl lgen3',w(osctrl))) then
-        nkap = dgets('str skmsh:1.1',w(osstr))
-        xx(1) = dgets('str skmsh:2.2',w(osstr))
-        xx(2) = dgets('str skmsh:3.3',w(osstr))
+      if (lgors('ctrl lgen3',v_sctrl)) then
+        nkap = dgets('str skmsh:1.1',v_sstr)
+        xx(1) = dgets('str skmsh:2.2',v_sstr)
+        xx(2) = dgets('str skmsh:3.3',v_sstr)
         call gausq(nkap,xx(1),xx(2),ekap,xx(3),0,0)
       endif
 
@@ -835,13 +885,13 @@ C ... Read the basis from the atm file
         endif
 
 C       Number of envelope functions before modifications
-        call uspecb(0,1,w(osspec),1,nspec,xx,xx,xx,k1)
+        call uspecb(0,1,v_sspec,1,nspec,xx,xx,xx,k1)
 
 C       Read new parms; return in k2 max no. env. fns/site read
         call strip(fileid,i,j)
         ifi = fopna(fileid(1:j),-1,0)
         rewind ifi
-        if (.not. ioorbp(111,2,1,nspec,w(osspec),k2,ifi))
+        if (.not. ioorbp(111,2,1,nspec,v_sspec,k2,ifi))
      .    call rxs2('lmfp: failed to find BASIS: token in file "',
      .    fileid(1:j),'"')
         k2 = mod(k2,10)
@@ -853,24 +903,24 @@ C       If so, increment nkaph by 1; keep old nkaph in k1 for later
           k1 = nglob('nkaph')
           xx(1) = dglob('nkaph',dble(k1+1),1)
           k = nglob('nkaph')
-          call uspecb(0,-1,w(osspec),1,nspec,xx,xx,xx,xx)
-          nlmax = igets('ctrl nl',w(osctrl))**2
+          call uspecb(0,-1,v_sspec,1,nspec,xx,xx,xx,xx)
+          nlmax = igets('ctrl nl',v_sctrl)**2
           xx(1) = dglob('mxorb',dble(k)*nlmax,1)
         endif
       endif
 
 C     Add dalat to alat
-      call pack1('lat alat',w(oslat),dgets('lat alat',w(oslat))+dalat)
+      call pack1('lat alat',v_slat,dgets('lat alat',v_slat)+dalat)
 C     Replicate ctrl->lncol in ham->lncol
-      call pack1('ham lncol',w(osham),lncol)
+      call pack1('ham lncol',v_sham,lncol)
       lsx1 = mod(lsx,2)
-      if (lasa32) call pack1('mix nsave',w(osmix),3)
+      if (lasa32) call pack1('mix nsave',v_smix,3)
 C ... Use true spherical harmonics
       if (bittst(lncol,4) .or. ctrl_loptc .ne. 0 .or. lrel .eq. 2)
-     .  call lsets('ctrl lham',w(osctrl),.true.,256)
+     .  call lsets('ctrl lham',v_sctrl,.true.,256)
 
 C ... Dirac equation requires spin polarization
-      if (nsp.eq.1 .and. igets('ctrl lrel',w(osctrl)).eq.2) then
+      if (nsp.eq.1 .and. igets('ctrl lrel',v_sctrl).eq.2) then
         call rx('rdccat: Dirac equation requires NSPIN=2')
       endif
 
@@ -878,23 +928,23 @@ C ... Suppress inversion when noncollinear magnetism, SX, NLO
       if (lncol+lsx1 .ne. 0 .or. ctrl_loptc .ge. 10 .or.
      .   (mod(lscr,10) .eq. 1 .and. prgnam .eq. 'LM'))
      .  lqp = lqp-bitand(lqp,1)+1
-      call pack5('ctrl lqp',w(osctrl),lqp,0,0,0,0) !repack lqp
+      call pack5('ctrl lqp',v_sctrl,lqp,0,0,0,0) !repack lqp
 
 C ... Special pgf initialization
       if (ctrl_lpgf(1) .ne. 0) then
-        call lsets('ctrl lmet',w(osctrl),.false.,2)
-        call redfrr(ossite,3*nsite*nint(dval(w(ossite),1)))
+        call lsets('ctrl lmet',v_sctrl,.false.,2)
+        call redfrr(v_ssite,3*nsite*nint(dval(v_ssite,1)))
       endif
 
 C ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
-      j = igets('ctrl lham,4',w(osctrl))/4
+      j = igets('ctrl lham,4',v_sctrl)/4
       j = 2*(1-j)
 C     No screening => no downfolding; also lmxb<l<=lmxa => 'high'
 C     Probably ought to have lmxb<l<=lmxa => 'high' always
-      if (lgors('ctrl lbas,1',w(osctrl))) j = 3
+      if (lgors('ctrl lbas,1',v_sctrl)) j = 3
 C     nfp-style basis:
-      if (lgors('ctrl lbas,2',w(osctrl))) j = j+10
-      call suidx(nglob('nkaph'),j,nspec,w(osspec))
+      if (lgors('ctrl lbas,2',v_sctrl)) j = j+10
+      call suidx(nglob('nkaph'),j,nspec,v_sspec)
 
 C ... Set some global variables
       xx(1) = dglob('nspec',dble(nspec),1)
@@ -902,9 +952,9 @@ C ... Set some global variables
       xx(1) = dglob('nbasp',dble(nbasp),1)
       xx(1) = dglob('nsp',dble(nsp),1)
       xx(1) = dglob('nl',dble(nl),1)
-      xx(1) = dglob('avw',dgets('lat avw',w(oslat)),1)
+      xx(1) = dglob('avw',dgets('lat avw',v_slat),1)
       xx(1) = dglob('lrel',dble(lrel),1)
-      lxcf  = igets('ctrl lxcf',w(osctrl))
+      lxcf  = igets('ctrl lxcf',v_sctrl)
       xx(1) = dglob('lxcf',dble(lxcf),1)
       xx(1) = dglob('stdo',dble(stdo),1)
       xx(1) = dglob('stdl',dble(stdl),1)
@@ -916,8 +966,8 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid .eq. master) then
       nat = nbas
       do  i = 1, nbas
-        call upack('site spec',w(ossite),i,j,0,0,0)
-        call upack('spec lmxa',w(osspec),j,l,0,0,0)
+        call upack('site spec',v_ssite,i,j,0,0,0)
+        call upack('spec lmxa',v_sspec,j,l,0,0,0)
         if (l .eq. -1) nat = nat-1
       enddo
       endif
@@ -928,15 +978,15 @@ C ... Set modep
       ix(1) = 2
       ix(2) = 2
       ix(3) = 2
-      if (lgors('ctrl lpgf,-1',w(osctrl))) ix(3) = 0
-      call pack1('ctrl modep',w(osctrl),ix)
-      call pack1('ham lxcf',w(osham),lxcf)
+      if (lgors('ctrl lpgf,-1',v_sctrl)) ix(3) = 0
+      call pack1('ctrl modep',v_sctrl,ix)
+      call pack1('ham lxcf',v_sham,lxcf)
 
 C ... Count LDA+U blocks (printout only)
       call defi(owk,-nbas)
       call pshpr(0)
-      call suldau(nbas,w(osspec),w(ossite),nlibu,k,w(owk))
-      call pack5('ham nlibu lmaxu',w(osham),nlibu,k,0,0,0)
+      call suldau(nbas,v_sspec,v_ssite,nlibu,k,w(owk))
+      call pack5('ham nlibu lmaxu',v_sham,nlibu,k,0,0,0)
       call poppr
       call rlse(owk)
 
@@ -960,13 +1010,13 @@ C --- Printout ---
           call awrit4(
      .    '%N %a:%12palat = %;5d  '//
      .    'nbas = %i%?#n#%-1j(+%i)##'//
-     .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',w(oslat)),
+     .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',v_slat),
      .      nbas,nsite-nbas,nspec)
         else
           call awrit6(
      .    '%N %a:%12palat = %;5d  '//
      .    'nbas = %i%?#n#%-1j(+%i)##%?#n#+%i#%j#'//
-     .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',w(oslat)),
+     .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',v_slat),
      .    nat,nbas-nat,nbas-nsite,nsite,nspec)
         endif
         if (vn(2) .eq. 0) then
@@ -980,9 +1030,9 @@ C --- Printout ---
      .    iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
         endif
 
-        call upack('ctrl lxcf',w(osctrl),lxcf,0,0,0,0)
-        i = igets('ctrl lham,256',w(osctrl))
-        lfrzw = isw(lgors('ctrl lbas,16',w(osctrl)))
+        call upack('ctrl lxcf',v_sctrl,lxcf,0,0,0,0)
+        i = igets('ctrl lham,256',v_sctrl)
+        lfrzw = isw(lgors('ctrl lbas,16',v_sctrl))
 
         call awrit8(' special:%10p'//
      .    '%?;n; forces,;;'//
@@ -1034,7 +1084,7 @@ C --- Printout ---
      .    (10,0,0,'%10f(warning) mixing incompatible functionals')
 
         if (bitand(lncol,1+2+4+8+32+64) .ne. 0) then
-          i = igets('ctrl sdmod',w(osctrl))
+          i = igets('ctrl sdmod',v_sctrl)
           if (.not. bittst(lncol,16)) i = -1
           call awrit8(' noncoll: '//
      .    '%?;n; Non-coll,;;'//
@@ -1051,7 +1101,7 @@ C --- Printout ---
         endif
 
         if (asa) then
-          call upack('ctrl lham lcd',w(osctrl),lham,lcd,0,0,0)
+          call upack('ctrl lham lcd',v_sctrl,lham,lcd,0,0,0)
           call awrit8('%x asa:%10p'//
      .      '%?;n; no-ccor,;;'//
      .      '%?;n; gam-rep,;;'//
@@ -1065,16 +1115,16 @@ C --- Printout ---
      .      bitand(lasa,4).eq.0,
      .      bitand(lham,128),
      .      bitand(lham,3),bitand(lham,2),
-     .      bitand(lasa,16),igets('mix lxpot,3',w(osmix)),
+     .      bitand(lasa,16),igets('mix lxpot,3',v_smix),
      .      bitand(lasa,64),bitand(lcd,1))
           if (strn .ne. ' asa') call awrit0(strn,' ',-80,lgunit(k))
         endif
 
         if (prgnam(1:2) .eq. 'TB') then
-          call upack2('ctrl mdprm ltb',w(osctrl),xx,ltb)
+          call upack2('ctrl mdprm ltb',v_sctrl,xx,ltb)
           ix(1) = nint(xx(1))
           ix(2) = nint(xx(2))
-          call upack1('str rmax',w(osstr),xx)
+          call upack1('str rmax',v_sstr,xx)
           call awrit1('%x TB: %11prmaxh = %d,',strn,scrwid,0,xx)
           call awrit6('%a'//
      .      '%?;n; s-c multipoles,;;'//
@@ -1130,30 +1180,30 @@ c       ltmp = prgnam.eq.'LM'   .or. prgnam.eq.'LMMC'  .or.
      .    '%?;(n>0); %-1jmull=%i,;;'//
      .    '%?;n; fixed-spin-mom,;;%b ',
      .    strn,scrwid,lgunit(k),
-     .    igets('bz lmet',w(osbz)),
-     .    bitand(lmet,2),igets('bz lio,1',w(osbz)),
-     .    igets('ctrl lqp,2',w(osctrl)),
-     .    igets('bz lio,8',w(osbz)),
-     .    igets('bz lmull',w(osbz)),
-     .    isw(dgets('bz fsmom',w(osbz)).ne.0))
+     .    igets('bz lmet',v_sbz),
+     .    bitand(lmet,2),igets('bz lio,1',v_sbz),
+     .    igets('ctrl lqp,2',v_sctrl),
+     .    igets('bz lio,8',v_sbz),
+     .    igets('bz lmull',v_sbz),
+     .    isw(dgets('bz fsmom',v_sbz).ne.0))
 
    90   continue
       endif
 
 C --- Sanity checks and other initialization ---
-      if (lgors('ctrl ldos,8',w(osctrl)) .and.
-     .    lgors('ctrl ldos,4+2',w(osctrl)))
+      if (lgors('ctrl ldos,8',v_sctrl) .and.
+     .    lgors('ctrl ldos,4+2',v_sctrl))
      .  call rx('inconsistent DOS options')
-      call rxx(lgors('ctrl lstonr,-1',w(osctrl)) .and. nsp .eq. 2,
+      call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and. nsp .eq. 2,
      .  'Stoner model not compatible with nsp=2')
-      call rxx(lgors('ctrl lstonr,-1',w(osctrl)) .and.
-     . lgors('ctrl lham,4',w(osctrl)),'Stoner not compatible with ADNF')
+      call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and.
+     . lgors('ctrl lham,4',v_sctrl),'Stoner not compatible with ADNF')
 
 C --- Check and order principal layers, and sites by PL ---
-      call susite(w(osctrl),w(osham),w(ospot),w(osarry),w(oslat),
-     .  w(osspec),ossite)
+      call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,
+     .  v_sspec,v_ssite)
 
-      call pack1('ham lham',w(osham),igets('ctrl lham',w(osctrl)))
+      call pack1('ham lham',v_sham,igets('ctrl lham',v_sctrl))
 
       if (procid .eq. master) then
       if (iprint() .ge. 20) then
@@ -1168,7 +1218,7 @@ C --- Check and order principal layers, and sites by PL ---
       endif
       endif
 C     Broadcast spec structure to fix floating orbitals case
-      call mpibc1(w(osspec),nspec*nint(dval(w(osspec),1)),4,0,
+      call mpibc1(v_sspec,nspec*nint(dval(v_sspec,1)),4,0,
      .  'rdctrl','sspec')
 
 C --- Debugging printout ---
@@ -1187,26 +1237,26 @@ C --- Debugging printout ---
         call upacks('strn sxopt',i,j)
         print *, 'sxopt:', sstrn(i:j)
 
-        call shstru('ctrl',w(osctrl),0,0)
-        call shstru('bz',w(osbz),0,0)
-        call shstru('lat',w(oslat),0,0)
-        call shstru('array',w(osarry),0,0)
-C       call shstru('pot',w(ospot),0,0)
-        call shstru('ham',w(osham),0,0)
+        call shstru('ctrl',v_sctrl,0,0)
+        call shstru('bz',v_sbz,0,0)
+        call shstru('lat',v_slat,0,0)
+        call shstru('array',v_sarry,0,0)
+C       call shstru('pot',v_spot,0,0)
+        call shstru('ham',v_sham,0,0)
 c        if (smix(2) /= NULLI)
         if (vmix%b /= NULLI)
-     .  call shstru('mix',w(osmix),0,0)
-        call shstru('move',w(osmove),0,0)
+     .  call shstru('mix',v_smix,0,0)
+        call shstru('move',v_smove,0,0)
         call shstru('optic',w(osoptc),0,0)
         call shstru('gw',w(osgw),0,0)
-        call shstru('str',w(osstr),0,0)
-        call shstru('tb',w(ostb),0,0)
-        call shstru('spec',w(osspec),1,nspec)
-        call shstru('site',w(ossite),1,nsite)
+        call shstru('str',v_sstr,0,0)
+        call shstru('tb',v_stb,0,0)
+        call shstru('spec',v_sspec,1,nspec)
+        call shstru('site',v_ssite,1,nsite)
         call rx0('done show')
       endif
 C     call rx0('done')
-      end
+      end subroutine rdctrl2
 
 C      subroutine string_replace(rcd,aaa,bbb)
 C      character*(*):: rcd,aaa,bbb
@@ -1218,4 +1268,4 @@ Cc      print *,'nrecsnrecs',ii, '!'//rcd(ii:ii+aaalen-1)//'!'
 C      rcd(ii:ii+lenaaa-1)=bbb
 C      end
 C
-
+       end module m_rdctrl2_func

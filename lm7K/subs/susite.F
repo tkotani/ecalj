@@ -1,4 +1,6 @@
-      subroutine susite(sctrl,sham,spot,sarray,slat,sspec,ossite)
+      module m_susite_func
+      contains
+      subroutine susite(sctrl,sham,spot,sarray,slat,sspec,v_ssite)
 C- Sets up permanent arrays related to basis
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -27,7 +29,7 @@ Ci   sspec :struct for species-specific information; see routine uspec
 Ci     Elts read: eref name
 Ci     Stored:    *
 Ci     Passed to: *
-Ci   w(ossite): array containing site data
+Ci   v_ssite: array containing site data
 Ci     Elts read: *
 Ci     Stored:    clabel pos spec pl plv eula
 Ci     Passed to: dvprm dvperm pgfpp pvsub2
@@ -65,9 +67,21 @@ Cu   13 Oct 98 convention for pgplp extended to non-layer case
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer ossite
-      double precision sctrl(1),sham(1),spot(1),sarray(1),slat(1),
-     .  sspec(1)
+Cki      integer v_ssite
+Cki      double precision sctrl(1),sham(1),spot(1),sarray(1),slat(1),
+Cki     .  sspec(1)
+      use m_struc_def
+      use m_struc_func
+
+      type(s_site),pointer:: v_ssite(:)
+      type(s_site),allocatable:: v_ssite2(:)
+      type(s_ctrl)::sctrl
+      type(s_ham):: sham
+      type(s_pot):: spot
+      type(s_array)::sarray
+      type(s_lat):: slat
+      type(s_spec):: sspec(:)
+      
 C ... Local parameters
       integer procid,master,mpipid
       logical lgors,pass1,lorder,mlog
@@ -79,6 +93,8 @@ C ... Local parameters
       double precision plat(9),platl(9),platr(9),pgfn(3),xsi(5)
       double precision dval,dglob,seref,dgetss
       character*8 spid
+
+      real(8),allocatable:: woeula(:),womagf(:)
 C ... Heap
       integer w(1)
       common /w/ w
@@ -86,7 +102,8 @@ C ... Heap
       call upack('ctrl nsite nbas nl',sctrl,nsite,nbas,nl,0,0)
 
 C     call rxx(nsite.ne.nbas,'susite not set up for nsite.ne.nbas')
-      ssize = nint(dval(w(ossite),1))
+Cki      ssize = nint(dval(v_ssite,1))
+      ssize=v_ssite(1)%size
       pass1 = .false.
       nbasp = nbas
       npl   = nbas
@@ -97,11 +114,11 @@ C     call rxx(nsite.ne.nbas,'susite not set up for nsite.ne.nbas')
 C ... Pack species labels; make sumeref
       seref = 0
       do  ib = 1, nsite
-        i = igetss('site spec',ib,w(ossite))
+        i = igetss('site spec',ib,v_ssite)
 C       Skip over sites with no species (e.g. multipoles)
         if (i .gt. 0) then
           call spacks(0,'spec name',sspec,spid,i,i)
-          call spacks(1,'site clabel',w(ossite),spid,ib,ib)
+          call spacks(1,'site clabel',v_ssite,spid,ib,ib)
           seref = seref + dgetss('spec eref',i,sspec)
         endif
       enddo
@@ -111,9 +128,9 @@ C ... Start again if ssite was reallocated
    10 pass1 = .not. pass1
       call upack('lat plat platl platr',slat,plat,platl,platr,0,0)
       call defrr(opos,3*nsite)
-      call spackv(10,'site pos',w(ossite),1,nsite,w(opos))
+      call spackv(10,'site pos',v_ssite,1,nsite,w(opos))
       call defi(oips,nsite)
-      call spackv(10,'site spec',w(ossite),1,nsite,w(oips))
+      call spackv(10,'site spec',v_ssite,1,nsite,w(oips))
 
 C --- Order-N: group all sites in a crystal into clusters ---
       if (lgors('ctrl lordn,-1',sctrl)) then
@@ -126,18 +143,18 @@ C --- Order-N: group all sites in a crystal into clusters ---
 
 C   ... Reorder the site structure according to clord
         call defdr(owk, ssize*nsite)
-        call dvprm(ssize,nsite,w(ossite),w(owk),w(oclord),.true.)
+        call dvprm(ssize,nsite,v_ssite,w(owk),w(oclord),.true.)
         call rlse(owk)
-        call dvset(w(ossite),1,1,dble(ssize))
+        call dvset(v_ssite,1,1,dble(ssize))
 C   ... Unpack arrays, now permuted; shorten pos
         ix(1) = 1
         ix(2) = 1
         ix(3) = 1
-        call spackv(10,'site pos',w(ossite),1,nsite,w(opos))
+        call spackv(10,'site pos',v_ssite,1,nsite,w(opos))
         call shorps(nbas,plat,ix,w(opos),w(opos))
-        call spackv(11,'site pos',w(ossite),1,nsite,w(opos))
-        call spackv(10,'site spec',w(ossite),1,nsite,w(oips))
-C       call shstru('site',w(ossite),1,nsite)
+        call spackv(11,'site pos',v_ssite,1,nsite,w(opos))
+        call spackv(10,'site spec',v_ssite,1,nsite,w(oips))
+C       call shstru('site',v_ssite,1,nsite)
         call redfi(oclp,   nclp*(ncl+1))
         call pack5('array ncl ocllst oclp oclssl',sarray,ncl,ocllst,
      .    oclp,oclssl,0)
@@ -147,9 +164,9 @@ C --- Check and order principal layers, and sites by PL ---
       lpgf = igets('ctrl lpgf',sctrl)
       if (lpgf .ne. 0) then
         call defi(opgfsl,-nsite)
-        call spackv(10,'site pl',w(ossite),1,nsite,w(opgfsl))
+        call spackv(10,'site pl',v_ssite,1,nsite,w(opgfsl))
         call defi(opgfvl,-nsite)
-        call spackv(10,'site plv',w(ossite),1,nsite,w(opgfvl))
+        call spackv(10,'site plv',v_ssite,1,nsite,w(opgfvl))
         call defdr(ovshft, -8-2*nbasp)
         call defi(opgplp,  6*(npl+2))
 C        print *, 'debuging susite'
@@ -170,34 +187,43 @@ C       call prmx('pos before pgfset',w(opos),3,3,nbas)
         nsite = nbas + 2*(npadl + npadr)
         if (pass1) then
           call poppr
-          call redfrr(ossite,nsite*ssize)
+Cki          call redfrr(v_ssite,nsite*ssize)
+           allocate(v_ssite2(nsite))
+           nsite_old=size(v_ssite)
+           v_ssite2(1:nsite_old)=v_ssite(1:nsite_old)
+           deallocate(v_ssite)
+           allocate(v_ssite(nsite))
+           do i=1,nsite; v_ssite(i)%size=usite_size(); enddo 
+           v_ssite(1:nsite_old)=v_ssite2(1:nsite_old)
+           deallocate(v_ssite2)
+
 C         Zero out enlarged last part of it
           call defrr(owk,-nsite*ssize)
-          call dcopy(nbas*ssize,w(ossite),1,w(owk),1)
-          call dcopy(nsite*ssize,w(owk),1,w(ossite),1)
+          call dcopy(nbas*ssize,v_ssite,1,w(owk),1)
+          call dcopy(nsite*ssize,w(owk),1,v_ssite,1)
           call rlse(owk)
           goto 10
         endif
         call defdr(owk, ssize*nbas)
 C   ... Reset pos,pfgsl, since they may be shifted by pgfset
-        call spackv(11,'site pos',w(ossite),1,nsite,w(opos))
-        call spackv(11,'site pl',w(ossite),1,nsite,w(opgfsl))
+        call spackv(11,'site pos',v_ssite,1,nsite,w(opos))
+        call spackv(11,'site pl',v_ssite,1,nsite,w(opgfsl))
 C   ... Reorder the site structure according to pgord
         do  12  i = 1, nbas
    12   w(opgord+i-1) = w(opgord+i-1)-1
 C       call awrit2('%n:1i',' ',100,6,nbas,w(opgord))
-C       call prmx('ssite before perm',w(ossite),ssize,ssize,nbas)
-        call dvperm(ssize,nbas,w(ossite),w(owk),w(opgord),.true.)
-        call dvset(w(ossite),1,1,dble(ssize))
-C       call prmx('ssite after perm',w(ossite),ssize,ssize,nbas)
+C       call prmx('ssite before perm',v_ssite,ssize,ssize,nbas)
+        call dvperm(ssize,nbas,v_ssite,w(owk),w(opgord),.true.)
+        call dvset(v_ssite,1,1,dble(ssize))
+C       call prmx('ssite after perm',v_ssite,ssize,ssize,nbas)
 C   ... Doubly pad ssite
         call pgfpp(nbas,npadl,npadr,ssize,1,.false.,.false.,
-     .    w(ossite),w(ossite))
+     .    v_ssite,v_ssite)
 C   ... Unpack arrays, now permuted and padded
-        call spackv(10,'site pl',w(ossite),1,nsite,w(opgfsl))
-        call spackv(10,'site plv',w(ossite),1,nsite,w(opgfvl))
-        call spackv(10,'site pos',w(ossite),1,nsite,w(opos))
-        call spackv(10,'site spec',w(ossite),1,nsite,w(oips))
+        call spackv(10,'site pl',v_ssite,1,nsite,w(opgfsl))
+        call spackv(10,'site plv',v_ssite,1,nsite,w(opgfvl))
+        call spackv(10,'site pos',v_ssite,1,nsite,w(opos))
+        call spackv(10,'site spec',v_ssite,1,nsite,w(oips))
 
 C   ... Shift doubly padded bas; repack
         if (nbasp .gt. nbas) then
@@ -205,23 +231,23 @@ C   ... Shift doubly padded bas; repack
         call dscal(9,2d0,platl,1)
         call pgbasp(nbasp,npadl,npadr,w(owk),plat,platl,platr,w(opos))
         call dscal(9,.5d0,platl,1)
-        call spackv(11,'site pos',w(ossite),1,nsite,w(opos))
+        call spackv(11,'site pos',v_ssite,1,nsite,w(opos))
 C       call prmx('pos, double pad',w(opos),3,3,nsite)
-C       call prmx('ssite, double pad',w(ossite),ssize,ssize,nsite)
+C       call prmx('ssite, double pad',v_ssite,ssize,ssize,nsite)
 C   ... Shift pgfsl in padding layers, and repack
         call pvsub1(w(opgfsl),nbas,npadl,npadr)
-        call spackv(11,'site pl',w(ossite),1,nsite,w(opgfsl))
+        call spackv(11,'site pl',v_ssite,1,nsite,w(opgfsl))
 C        call awrit2('%n:1i',' ',100,6,nsite,w(opgfsl))
 C        call awrit2('%n:1i',' ',100,6,nbas,w(opgfvl))
 C   ... Pick up padded ips,pgfsl,pgfvl
-        call spackv(10,'site spec',w(ossite),1,nsite,w(oips))
-        call spackv(10,'site plv',w(ossite),1,nsite,w(opgfvl))
+        call spackv(10,'site spec',v_ssite,1,nsite,w(oips))
+        call spackv(10,'site plv',v_ssite,1,nsite,w(opgfvl))
         call redfi(opgplp,   6*(npl+2))
         call pack5('array opgfsl opgfvl opgplp',sarray,opgfsl,opgfvl,
      .    opgplp,0,0)
         call pack1('ctrl npl',sctrl,npl)
         call pack1('pot ovshf',spot,ovshft)
-C       call shstru('site',w(ossite),1,nsite)
+C       call shstru('site',v_ssite,1,nsite)
         endif
         call rlse(opgord)
         call pack5('ctrl nsite nbasp',sctrl,nsite,nbasp,0,0,0)
@@ -243,7 +269,12 @@ C --- Euler angles and external magnetic fields ---
         call defdr(oeula, -nbasp*nl**2*3+3)
         call dpzero(xsi,5)
         if (procid .eq. master) then
-          call pvsub2(0,w(ossite),nbas,nbasp,nl,w(oeula),neul,xsi)
+          allocate(woeula(nbasp*nl**2*3+3))
+          call dcopy(nbasp*nl**2*3+3, w(oeula),1,woeula,1)
+CKi          call pvsub2(0,v_ssite,nbas,nbasp,nl,w(oeula),neul,xsi)
+          call pvsub2(0,v_ssite,nbas,nbasp,nl,woeula,neul,xsi)
+          call dcopy(nbasp*nl**2*3+3, woeula,1,w(oeula),1)
+          deallocate(woeula)
         endif
         call mpibc1(neul,1,2,mlog,'susite','neul')
         call mpibc1(xsi,5,4,mlog,'susite','xsi')
@@ -257,7 +288,12 @@ C --- Euler angles and external magnetic fields ---
         if (lgors('ctrl lncol,8',sctrl)) then
           call defdr(omagf, -nbasp*nl**2*3)
           if (procid .eq. master) then
-            call pvsub2(1,w(ossite),nbas,nbasp,nl,w(omagf),nbf,xsi)
+            allocate(womagf(nbasp*nl**2*3))
+            call dcopy(nbasp*nl**2*3, w(omagf),1,womagf,1)
+CKi            call pvsub2(1,v_ssite,nbas,nbasp,nl,w(omagf),nbf,xsi)
+            call pvsub2(1,v_ssite,nbas,nbasp,nl,womagf,nbf,xsi)
+            call dcopy(nbasp*nl**2*3, womagf,1,w(omagf),1)
+            deallocate(womagf)
           endif
           call mpibc1(nbf,1,2,mlog,'susite','nbf')
           call mpibc1(w(omagf),nbas*neul*3,4,mlog,'susite','magf')
@@ -277,9 +313,9 @@ C         call prmx('b field',w(omagf),nbasp*nbf,nbasp*nbf,3)
       call pack5('array opos oips npadl npadr',sarray,opos,oips,npadl,
      .  npadr,0)
 C     call pack5('ctrl nsite nbasp',sctrl,nsite,nbasp,0,0,0)
-C     call shstru('site',w(ossite),1,nsite)
+C     call shstru('site',v_ssite,1,nsite)
 
-      end
+      end subroutine susite
       subroutine pvsub1(pgfsl,nbas,npadl,npadr)
 C- Sets PL indices for padding layers
 C     implicit none
@@ -294,7 +330,7 @@ C     implicit none
       pgfsl(nbas+npadl+i) = pgfsl(nbas+npadl+i) + 1
    20 pgfsl(nbasp+npadl+i) = pgfsl(nbasp+npadl+i) + 2
 
-      end
+      end subroutine pvsub1
       subroutine pvsub2(mode,ssite,nbas,nbasp,nl,eula,neul,xsi)
 C- Unpacks Euler angles or magnetic fields; reads from disk
 C ----------------------------------------------------------------------
@@ -322,8 +358,11 @@ Cu   29 Jan 03 Added mode to also read b-field
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
+      use m_struc_def
       integer mode,nbas,nbasp,nl,neul
-      double precision ssite(1),eula(nbasp,*)
+CKi      double precision ssite(1),eula(nbasp,*)
+      double precision eula(nbasp,*)
+      type(s_site)::ssite(:)
 C ... Local parameters
       integer oeula,ifi,fopn,fxst
       double precision xsi(5)
@@ -338,7 +377,12 @@ C ... Heap
 
       neul = 1
       call defr(oeula,3*nbasp)
-      call spackv(10,'site '//name,ssite,1,nbasp,w(oeula))
+Cki      call spackv(10,'site '//name,ssite,1,nbasp,w(oeula))
+      if (mode.eq.0) then
+      call spackv(10,'site eula',ssite,1,nbasp,w(oeula))
+      else if (mode.eq.1) then
+      call spackv(10,'site bfield',ssite,1,nbasp,w(oeula))
+      endif
 C     call prmx(name,w(oeula),3,3,nbasp)
       call dmcpy(w(oeula),1,3,eula,nbasp,1,nbasp,3)
 C     call prmx(name//' transposed',eula,nbasp,nbasp,3)
@@ -360,10 +404,17 @@ C     At present, no noncollinearity in padding layers
 C     Repack if neula is 1
       if (neul .eq. 1) then
         call dmcpy(eula,nbasp,1,w(oeula),1,3,nbasp,3)
-        call spackv(11,'site '//name,ssite,1,nbasp,w(oeula))
+CKi        call spackv(11,'site '//name,ssite,1,nbasp,w(oeula))
+        if (mode.eq.0) then
+        call spackv(11,'site eula',ssite,1,nbasp,w(oeula))
+        else
+        call spackv(11,'site bfield',ssite,1,nbasp,w(oeula))
+        endif
       endif
 
       call rlse(oeula)
 
-      end
+      end subroutine pvsub2
+
+      end module m_susite_func
 

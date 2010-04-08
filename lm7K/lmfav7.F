@@ -1,14 +1,13 @@
       program lmfa
-
+      use m_struc_def
+      use m_rdctrl2_func, only: rdctrl2
       implicit none
 
       integer procid, master, mpipid, nproc
-# 58
 
 
 C Heap allocation
       integer wksize
-# 64
 
       parameter(wksize= 80 000 000)
 
@@ -29,8 +28,23 @@ C ... Structure for strings
 C ... For structures
       logical lgors
       integer mxspec
-      integer osbz,osctrl,oslat,osham,ospot,osmix,osspec,ossite,osarry,
-     *  osmove,osstr,ostb
+CKi      integer v_sbz,v_sctrl,v_slat,v_sham,v_spot,v_smix,v_sspec,v_ssite,v_sarry,
+CKi     *  v_smove,v_sstr,v_stb
+      type(s_bz):: v_sbz
+      type(s_ctrl):: v_sctrl
+      type(s_lat):: v_slat
+      type(s_ham):: v_sham
+      type(s_pot):: v_spot
+      type(s_mix):: v_smix
+      type(s_array):: v_sarry
+      type(s_move):: v_smove
+      type(s_str):: v_sstr
+      type(s_tb):: v_stb
+
+      type(s_spec),pointer:: v_sspec(:)
+      type(s_site),pointer:: v_ssite(:)
+
+
       parameter (mxspec=256)
       character*8 slabl(mxspec)
 
@@ -41,22 +55,16 @@ C ... miscellaneous local variables
       double precision vn(2),vn2(2),dglob
       logical T,F,swtmp,cmdopt,ltet
       parameter (T=.true., F=.false., NULLI=-99999)
-# 98
 
-# 101
 
-# 105
 
 
 C ... Program-dependent name and help
-# 110
 
       data prgnam /'LMFA'/
-# 151
 
 
 C ... Program-dependent cagetories
-# 181
 
 
       integer:: nfilin,mxrecs,recln0,nrecs,fopna
@@ -64,7 +72,11 @@ C ... Program-dependent cagetories
       character*8 alabl
 c      character*1 recrd(0:1)
 c      equivalence( recrd(0),w(1))
-      character*1,allocatable:: recrd(:)
+CKi      character*1,allocatable:: recrd(:)
+      character:: recrd_(0:mxrecs*recln0-1)
+      character*(1000):: recrd
+      equivalence ( recrd, recrd_ )
+
 
       real(8),parameter::    NULLR =-99999
 cMay1 patch for MPI from y.Yoshimoto
@@ -86,12 +98,10 @@ C --- Version ---
       vn2(1) = 0
       vn(2) = 0.00d0
       vn2(2) = 0
-# 209
 
       vrsion(2) = 'FP'
       vn(2) = 7.00d0
       vn2(2) = 0
-# 225
 
       vn(1) = vn(1) + vn2(1)/1d5
       vn(2) = vn(2) + vn2(2)/1d5
@@ -114,7 +124,6 @@ C --- Help ---
       endif
 
 C --- Dynamic memory allocation and other initialization ---
-# 349
 
 C     Add version to variables table?
 C     j = 0
@@ -134,12 +143,10 @@ C     call addsyv('version',vn,i)
       if (j .ge. i) call ptenv('EXT='//ext(i:j))
 
 
-# 371
 
 
 C ... Abort with error message if ctrl file is missing (swtmp = .true.)
       swtmp = .false.
-# 377
 
       if (cmdopt('--input',6,0,strn)) then
         if (nproc .gt. 0) call rx('--input not allowed with MPI')
@@ -150,7 +157,6 @@ C ... Abort with error message if ctrl file is missing (swtmp = .true.)
           swtmp = .true.
         endif
       endif
-# 389
 
       call mpibc1(swtmp,1,1,.false.,'lmf','error')
       if (swtmp) call cexit(-1,1)
@@ -164,9 +170,7 @@ C     sttmpd is located at the bottom of this file.
 C ... File logical units
       i = fadd('TMP',-1,4)
       i = fadd('BAND',-1,4)
-# 405
 
-# 409
 
 
 C --- Set the top-level verbosity if spec'd from cmd line ---
@@ -179,7 +183,7 @@ C --- Set the top-level verbosity if spec'd from cmd line ---
 C --- Input from ctrl file ---
 C     recrd, nrecs are obtained.
       nrecs  = 0
-      allocate( recrd( 0:mxrecs*recln0-1 ) )
+CKi      allocate( recrd( 0:mxrecs*recln0-1 ) )
       if (procid .eq. master) then
       if (.not.cmdopt('--input',7,0,strn)) then
         nfilin = fopna('CTRL',-1,1)
@@ -204,7 +208,6 @@ c        stop 'xxxxxxxxxxxxxxxxx'
         if (cmdopt('--showp',7,0,strn)) call cexit(0,1)
       endif
       endif
-# 450
 
 
 C      write(stdo,*)' === TEST out recrd === '
@@ -218,17 +221,14 @@ C      call rx('done')
 
 C --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
-     *  slabl,osbz,osctrl,osham,ospot,oslat,osmix,osspec,ossite,osstr,
-     *  osarry,osmove,ostb,sstrn)
-
-# 475
+     *  slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
+     *  v_sarry,v_smove,v_stb,sstrn)
 
 
-# 509
+
 
 
 C ... Input to scale MT radii (define RESIZE)
-# 514
 
 
 
@@ -237,8 +237,8 @@ C ... Input to scale MT radii (define RESIZE)
 C --- Lattice setup ---
 
 ctakao will add |1)
-      call setcg(w(oslat),8,12)
-      call lattic(w(oslat),w(osctrl),w(ossite),w(osarry))
+      call setcg(v_slat,8,12)
+      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
 
 
 C --- Generate symmetry operations; split species into classes  ---
@@ -247,60 +247,54 @@ C --- Generate symmetry operations; split species into classes  ---
       if (j .ge. i) strn = sstrn(i:j+1)
       if (cmdopt('--nosym',7,0,outs)) strn = ' '
       lc = 20
-# 538
 
-# 541
 
 
 C      lc = 0
 
-# 547
 
 
-      if (.not. lgors('ctrl lqp,1',w(osctrl))) lc = lc+2
+      if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
 
 
 ctakao will add |1)
-      call mksym(lc,slabl,strn,w(osctrl),w(oslat),w(ossite),w(osarry))
-# 556
+      call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
 
 
 C --- Allocate permanent class arrays, maps and other initialization ---
       if (lc .ge. 20)
-     *  call clsprm(1,w(osctrl),w(osarry),w(osham),w(ospot),w(osspec),
-     *  w(oslat),w(osbz),w(osstr),sstrn)
+     *  call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
+     *  v_slat,v_sbz,v_sstr,sstrn)
 
 C --- Read available class parameters from file ---
-# 586
 
 C     Discard contents of input file
-      deallocate(recrd)
+Cki      deallocate(recrd)
 
 C --- Optionally resize spheres ---
 
       if (cmdopt('--sfill',7,0,strn)) then
         print *, '*** --sfill DEPRECATED .. see lmto.html'
-        call sfill(strn(8:),slabl,w(osctrl),w(osarry),w(oslat),
-     *    w(osspec),w(ossite))
+        call sfill(strn(8:),slabl,v_sctrl,v_sarry,v_slat,
+     *    v_sspec,v_ssite)
       else
-        call sfill('auto',slabl,w(osctrl),w(osarry),w(oslat),w(osspec),
-     *    w(ossite))
+        call sfill('auto',slabl,v_sctrl,v_sarry,v_slat,v_sspec,
+     *    v_ssite)
       endif
 
 
 C ... Set default values for species data
-      call defspc(w(osspec))
+      call defspc(v_sspec)
 
 C ... Patch for now ... maybe replace
-# 612
 
 
 C ... quit after SHOW
-      if (igets('ctrl quit',w(osctrl)) .eq. 1) then
+      if (igets('ctrl quit',v_sctrl) .eq. 1) then
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
       endif
-      call freeat(w(osctrl),w(osspec),w(osham),w(ospot))
+      call freeat(v_sctrl,v_sspec,v_sham,v_spot)
       call rx0(prgnam)
       end
 

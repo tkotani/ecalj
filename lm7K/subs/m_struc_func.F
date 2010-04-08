@@ -8,6 +8,173 @@
 
       contains
 
+
+        integer function uarray_size()
+        integer:: n
+        n= 32
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uarray_size=n
+        end function uarray_size
+       
+        integer function ubz_size()
+        integer:: n
+        n= 47
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        ubz_size=n
+        end function ubz_size
+       
+        integer function uctrl_size()
+        integer:: n
+        n= 88
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uctrl_size=n
+        end function uctrl_size
+       
+        integer function ugw_size()
+        integer:: n
+        n= 22
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        ugw_size=n
+        end function ugw_size
+       
+        integer function uham_size()
+        integer:: n
+        n= 129
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uham_size=n
+        end function uham_size
+       
+        integer function ulat_size()
+        integer:: n
+        n= 120
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        ulat_size=n
+        end function ulat_size
+       
+        integer function umix_size()
+        integer:: n
+        n= 36
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        umix_size=n
+        end function umix_size
+       
+        integer function umove_size()
+        integer:: n
+        n= 34
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        umove_size=n
+        end function umove_size
+       
+        integer function uoptic_size()
+        integer:: n
+        n= 33
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uoptic_size=n
+        end function uoptic_size
+       
+        integer function uordn_size()
+        integer:: n
+        n= 13
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uordn_size=n
+        end function uordn_size
+       
+        integer function upot_size()
+        integer:: n
+        n= 63
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        upot_size=n
+        end function upot_size
+       
+        integer function usite_size()
+        integer:: n
+        n= 86
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        usite_size=n
+        end function usite_size
+       
+        integer function uspec_size()
+        integer:: n
+        n= 352
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uspec_size=n
+        end function uspec_size
+       
+        integer function ustr_size()
+        integer:: n
+        n= 46
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        ustr_size=n
+        end function ustr_size
+       
+        integer function utb_size()
+        integer:: n
+        n= 10
+C  +2 is margin
+C         n=n+2
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        utb_size=n
+        end function utb_size
+       
+
       subroutine struc_eval_io_r8( v,rw, n,irange1,irange2,val)
       implicit none
       real(8) ::  v
