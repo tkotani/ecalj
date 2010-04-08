@@ -35,14 +35,18 @@
 ##-lsvml
 #
 ### kino's case
+# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
+# $(HOME)/kit/numericallib/LAPACK/lapack_core2gfortran.a \
+# $(HOME)/kit/numericallib/LAPACK/blas_core2gfortran.a \
+# $(HOME)/kit/numericallib/LAPACK/tmglib_core2gfortran.a \
+# -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
+
  LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
- $(HOME)/kit/numericallib/LAPACK/lapack_core2gfortran.a \
- $(HOME)/kit/numericallib/LAPACK/blas_core2gfortran.a \
- $(HOME)/kit/numericallib/LAPACK/tmglib_core2gfortran.a \
+ $(HOME)/kit/numericallib/LAPACK.intel11/lapack_LinuxCore2.a \
+ $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
+ $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
  -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
 
-LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
--L/opt/intel/mkl/10.0.2.018/lib/em64t/ -lmkl_lapack -lmkl_em64t -lmkl_core
 
 #LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
@@ -73,7 +77,7 @@ LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
 # Fortran compiler and flags, and linker 
 ############################################
 FC = mpif90
-LK = mpif90 -parallel 
+LK = mpif90
 #FC = ifort
 #LK = ifort  -parallel 
 #
@@ -88,11 +92,11 @@ FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
 #
 # safer option (debug)
-#FFLAGS =      -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS = -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS2 = -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_LESS3 = -g -cm -WB -cpp $(CPP_SW) $(module)
-#FFLAGS_NONE = -g -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS3 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_NONE = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
 
 
 
@@ -101,7 +105,7 @@ FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
-CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT -UMPE -DMPIK -UMPI 
+CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT -UMPE -DMPIK -UMPI
 
 #
 #MPI  case add  -UMPE -UMPIK -DMPI 
@@ -202,7 +206,7 @@ RANLIB := ranlib
 ################################################
 # program and libraries (choose one of sections; normal, MPI, or MPIK)
 ################################################
-programs = lmf lmfa lmfgw lmdos lmchk lmf2gw lm67 rdcmd
+#programs = lmf lmfa lmfgw lmdos lmchk lmf2gw lm67 rdcmd
 #SUBS   := libsubs.a
 #FP     := libfp.a
 #GWD    := libgwd.a
@@ -230,8 +234,8 @@ LIBSUBS := subs/$(SUBS)
 LIBFP   := fp/$(FP)
 LIBGWD  := gwd/$(GWD)
 LIBSLA  := slatsm/$(SLATSM)
-LIBNC   = nc/$(NC)
-LIBTB   = tb/$(TB)
+#LIBNC   = nc/$(NC)
+#LIBTB   = tb/$(TB)
 #LIBES := $(LIBSLA) $(LIBLOC)
 
 
