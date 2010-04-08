@@ -755,6 +755,8 @@ ctakaox june2009
       if(nexist) 
      &  stop 'bndfp: I assumed ifio=9038 is not used(too sloppy)'
       open(ifiogw,file='NBANDGW')
+Cki  ifiese default value is not set.  set it to 0
+      ifiese=0
       if(lrsig/=0) then
         ifiese=9039
         inquire(unit=ifiese,opened=nexist)
@@ -2578,7 +2580,8 @@ ccccccccccccccccccccccccc
       call tcx('bndfp')
 ctakaox june2009
       close(ifiogw)
-      close(ifiese)
+Cki
+      if ( ifiese>0 ) close(ifiese)
       call xxxbfp ! Patch to avoid PGI compiler bug on AMD processor
       end
 
