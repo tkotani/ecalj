@@ -1,4 +1,17 @@
+Cgetarg...info...           structure ['aioxtn', 'array', 'sarray']
+Cgetarg...info...           structure ['aioxtn', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['aioxtn', 'lat', 'slat']
+Cgetarg...info...           structure ['aioxtn', 'site', 'ssite']
+Cgetarg...info...           structure ['aioxtn', 'site', 'v_ssite']
+Cgetarg...info...           structure ['aioxtn', 'spec', 'v_sspec']
+Cgetarg...info...           structure ['aioxtn', 'spec', 'sspec']
+Cgetarg...info...           structure ['aioxt1', 'site', 'ssitei']
+Cgetarg...info...           use_to_add ['aioxt1', 'm_struc_def']
+Cgetarg...info...           use_to_add ['aioxtn', 'm_struc_def']
       subroutine aioxtn(sctrl,sspec,ssite,sarray,slat,slabl,pnuc,qnuc)
+       
+       use m_struc_def  !Cgetarg
+       use m_struc_func
 C- I/O moments and pp's for all classes, other formats
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -46,7 +59,13 @@ Cu   01 Mar 02 First cut at import mode from rst files (ASA mode)
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      double precision sctrl(1),sspec(1),ssite(1),slat(1),sarray(1)
+Cgetarg       double precision sctrl(1),sspec(1),ssite(1),slat(1),sarray(1)
+       type(s_ctrl)::sctrl
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+       type(s_lat)::slat
+       type(s_array)::sarray
+
       double precision pnuc(*),qnuc(*)
       character*8 slabl(*)
 C ... Local parameters
@@ -58,10 +77,22 @@ C ... Local parameters
      .  pnl(2*9),qnl(3*2*9),pp(3*2*9),evrl(9*2),dsum,wk(10)
       double precision awald,alat,vol,plat(9),tau(3),emad,
      .  trumad,vmtz(2),dglob
-      integer odlv,oqlv,onrcp,oves,ospot,oclabl,oics,ov,is,oipc,oips,
-     .  oqt,ormax,omad,opos,ovrmax,ossite,osspec,oslat,osbz,nbasi,a2vec,
-     .  nspeci,nit,irs,igets,opnui,oqnui,n0,opnus,oqnus,oipa,nlsts,nw,
-     .  nlstd,ip,lsts(10000),lstd(10000),oz,olmx,oqcs,oqts,oamoms,owk
+Cgetarg       integer odlv,oqlv,onrcp,oves,v_spot,oclabl,oics,ov,is,oipc,oips,
+Cgetarg      .  oqt,ormax,omad,opos,ovrmax,v_ssite,v_sspec,v_slat,v_sbz,nbasi,a2vec,
+Cgetarg      .  nspeci,nit,irs,igets,opnui,oqnui,n0,opnus,oqnus,oipa,nlsts,nw,
+Cgetarg      .  nlstd,ip,lsts(10000),lstd(10000),oz,olmx,oqcs,oqts,oamoms,owk
+       integer:: odlv , oqlv , onrcp , oves  , oclabl , oics 
+     . , ov , is , oipc , oips , oqt , ormax , omad , opos , ovrmax 
+     . , nbasi , a2vec , nspeci , nit , irs , igets 
+     . , opnui , oqnui , n0 , opnus , oqnus , oipa , nlsts , nw , nlstd 
+     . , ip , lsts(10000) , lstd(10000) , oz , olmx , oqcs , oqts , 
+     . oamoms , owk 
+       type(s_site),allocatable::v_ssite(:)
+       type(s_spec),allocatable::v_sspec(:)
+       type(s_pot):: v_spot
+       type(s_lat):: v_slat
+       type(s_bz):: v_sbz
+
       integer opos1,opos2,opos3
       parameter (n0=10)
       character outs*80, clabl*8, alabel*4, fnam*80
@@ -76,13 +107,45 @@ C ... Heap
       integer w(1)
       common /w/ w
 
-      call upack('array oclabl oics onrcp',sarray,oclabl,oics,onrcp,0,0)
-      call upack('ctrl nbas nbasp nclass nl nspin',sctrl,nbas,nbasp,
-     .  nclass,nl,nsp)
-      call upack('lat alat plat',slat,alat,plat,0,0,0)
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg...info...           integer :: onrcp , integer(8) :: sarray%onrcp 1
+Cgetarg       call upack('array oclabl oics onrcp',sarray,oclabl,oics,onrcp,0,0)
+       
+       oclabl=sarray%oclabl
+       oics=sarray%oics
+       onrcp=sarray%onrcp
+
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg       call upack('ctrl nbas nbasp nclass nl nspin',sctrl,nbas,nbasp,
+Cgetarg      .  nclass,nl,nsp)
+       
+       nbas=sctrl%nbas
+       nbasp=sctrl%nbasp
+       nclass=sctrl%nclass
+       nl=sctrl%nl
+       nsp=sctrl%nspin
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
+Cgetarg       call upack('lat alat plat',slat,alat,plat,0,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
       nspec = nglob('nspec')
       call defi(oipc,nbasp)
-      call spackv(10,'site class',ssite,1,nbasp,w(oipc))
+Cgetarg       call spackv(10,'site class',ssite,1,nbasp,w(oipc))
+       i_copy_size=1; 
+       do i_spackv=1,nbasp 
+       call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
+       enddo
+
 C     call upack('lat alat vol opos',slat,alat,vol,opos,0,0)
       stdo = lgunit(1)
 
@@ -100,24 +163,34 @@ c     if charges at all sites are found, lqtot=.true.
 c   ... import from rst files
         if (lrs) then
 
-          irs = igets('ctrl lrs',sctrl)
+Cgetarg           irs = igets('ctrl lrs',sctrl)
+           irs = int(sctrl%lrs) 
+
 
           call defi(oips,nbasp)
-          call spackv(10,'site spec',ssite,1,nbasp,w(oips))
+Cgetarg           call spackv(10,'site spec',ssite,1,nbasp,w(oips))
+           i_copy_size=1; 
+           do i_spackv=1,nbasp 
+           call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+           enddo
+
           call sp2cls('spec z',sspec,w(oips),1,1,nbasp,oz)
           call sp2cls('spec lmxa',sspec,w(oips),1,1,nbasp,olmx)
 
-          call defdr(ospot,1000)
-          call upot(w(ospot),-1,-000,0,0,0)
-          call redfrr(ospot,nint(dval(w(ospot),1)))
+CKi          call defdr(v_spot,1000)
+CKi          call upot(v_spot,-1,-000,0,0,0)
+CKi          call redfrr(v_spot,nint(dval(v_spot,1)))
+          v_spot%size=upot_size()
 
-          call defdr(osbz,1000)
-          call ubz(w(osbz),-1,-000,0,0,0)
-          call redfrr(osbz,nint(dval(w(osbz),1)))
+CKi          call defdr(v_sbz,1000)
+CKi          call ubz(v_sbz,-1,-000,0,0,0)
+CKi          call redfrr(v_sbz,nint(dval(v_sbz,1)))
+          v_sbz%size=ubz_size()
 
-          call defdr(oslat,1000)
-          call ulat(w(oslat),-1,0,0,0,0)
-          call redfrr(oslat,nint(dval(w(oslat),1)))
+CKi          call defdr(v_slat,1000)
+CKi          call ulat(v_slat,-1,0,0,0,0)
+CKi          call redfrr(v_slat,nint(dval(v_slat,1)))
+           v_slat%size=ulat_size()
 
           call defrr(opnus,-n0*nsp*nbasp)
           call defrr(oqnus,-3*n0*nsp*nbasp)
@@ -173,11 +246,12 @@ c   ... import from rst files
 
             nbasn = nbasp + j-i+1
 C           duplicate ssite
-            k = nint(ssite(1))
-            call defrr(ossite,k*nbasn)
-            call dcopy(k*nbasp,ssite,1,w(ossite),1)
-            call dmscop(ssite,k,w(ossite),k,1,k,i,nbasp,1,j+1,1d0)
-            call aioxt3(k,w(ossite),nbasp,ssite,nbasn)
+            k = nint(ssite(1)%size)
+Cki            call defrr(v_ssite,k*nbasn)
+              allocate(v_ssite(nbasn) )
+            call dcopy(k*nbasp,ssite,1,v_ssite,1)
+            call dmscop(ssite,k,v_ssite,k,1,k,i,nbasp,1,j+1,1d0)
+            call aioxt3(k,v_ssite,nbasp,ssite,nbasn)
 C           duplicate pnu
             k = n0*nsp
             owk = opnus
@@ -197,12 +271,28 @@ C           Update nbas,nbasp
             nbasp = nbasn
             i = dglob('nbasp',dble(nbasp),1)
             i = dglob('nbas',dble(nbas),1)
-            call pack5('ctrl nbas nbasp',sctrl,nbas,nbasp,0,0,0)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+Cgetarg             call pack5('ctrl nbas nbasp',sctrl,nbas,nbasp,0,0,0)
+             
+             sctrl%nbas=nbas 
+             sctrl%nbasp=nbasp 
+
 C           Update ipc,ips,z,lmxa
             call defi(oipc,nbasp)
-            call spackv(10,'site class',ssite,1,nbasp,w(oipc))
+Cgetarg             call spackv(10,'site class',ssite,1,nbasp,w(oipc))
+             i_copy_size=1; 
+             do i_spackv=1,nbasp 
+             call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
+             enddo
+
             call defi(oips,nbasp)
-            call spackv(10,'site spec',ssite,1,nbasp,w(oips))
+Cgetarg             call spackv(10,'site spec',ssite,1,nbasp,w(oips))
+             i_copy_size=1; 
+             do i_spackv=1,nbasp 
+             call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+             enddo
+
             call sp2cls('spec z',sspec,w(oips),1,1,nbasp,oz)
             call sp2cls('spec lmxa',sspec,w(oips),1,1,nbasp,olmx)
 
@@ -238,9 +328,19 @@ C           Update ipc,ips,z,lmxa
   314       format(/' Enter dx dy dz: ',$)
             read(*,*) tau
             call defrr(opos,3*nbasp)
-            call spackv(10,'site pos',ssite,1,nbasp,w(opos))
+Cgetarg             call spackv(10,'site pos',ssite,1,nbasp,w(opos))
+             i_copy_size=size(ssite(1)%pos)
+             do i_spackv=1,nbasp 
+             call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+             enddo
+
             call aioxt2(i,j,tau,w(opos))
-            call spackv(11,'site pos',ssite,1,nbasp,w(opos))
+Cgetarg             call spackv(11,'site pos',ssite,1,nbasp,w(opos))
+             i_copy_size=size(ssite(1)%pos)
+             do i_spackv=1,nbasp 
+             call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+             enddo
+
             call rlse(opos)
             goto 100
 
@@ -254,7 +354,12 @@ C           Update ipc,ips,z,lmxa
      .        w(oics),sspec,w(oqcs),w(oqts),w(oamoms))
 
             call defrr(opos,3*nbasp)
-            call spackv(10,'site pos',ssite,1,nbasp,w(opos))
+Cgetarg             call spackv(10,'site pos',ssite,1,nbasp,w(opos))
+             i_copy_size=size(ssite(1)%pos)
+             do i_spackv=1,nbasp 
+             call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+             enddo
+
             call defrr(opos1,nbasp)
             call defrr(opos2,nbasp)
             call defrr(opos3,nbasp)
@@ -321,7 +426,7 @@ C         call pshpr(110)
           ifi = fopnx(fnam,72,0,-1)
 C         call poppr
 
-          i = iors(-1,sctrl,w,w,w(oslat),w,w(osbz),
+          i = iors(-1,sctrl,w,w,v_slat,w,v_sbz,
      .      jobid,nbasi,nati,nspeci,w,w,nit,.false.,ifi)
 
           call word(fnam,1,j1,j2)
@@ -329,28 +434,51 @@ C         call poppr
   303     format(' file ',a,' contains nbas =',i4,' and nspec =',i4)
 
 C         setup for file read ... much of the data will be discarded
-          call pack1('ctrl lrs',sctrl,0)
+Cgetarg           call pack1('ctrl lrs',sctrl,0)
+           
+           sctrl%lrs=0 
 
-          call defrr(ossite,1000)
-          call usite(w(ossite),-1,0,1,0,0,0)
-          call redfrr(ossite,nbasi*nint(dval(w(ossite),1)))
-          call usite(w(ossite),-1,0,nbasi,0,0,0)
-          call spackv(1,'site spec',w(ossite),1,nbasi,-1)
 
-          call defrr(osspec,1000)
-          call uspec(w(osspec),-1,0,1,0,0,0)
-          call redfrr(osspec,nspeci*nint(dval(w(osspec),1)))
-          call uspec(w(osspec),-1,-000,nspeci,0,0,0)
+Cki          call defrr(v_ssite,1000)
+Cki          call usite(v_ssite,-1,0,1,0,0,0)
+Cki          call redfrr(v_ssite,nbasi*nint(dval(v_ssite,1)))
+Cki          call usite(v_ssite,-1,0,nbasi,0,0,0)
+          allocate(v_ssite(nbasi))
+          do i_spackv=1,nbasi; v_ssite(i_spackv)%size=usite_size(); enddo
+
+Cgetarg           call spackv(1,'site spec',v_ssite,1,nbasi,-1)
+           i_copy_size=1; 
+           do i_spackv=1,nbasi 
+           call spackv_array_copy_i8_i('p',v_ssite(i_spackv)%spec,i_copy_size,1,-1)
+           enddo
+
+
+Cki          call defrr(v_sspec,1000)
+Cki          call uspec(v_sspec,-1,0,1,0,0,0)
+Cki          call redfrr(v_sspec,nspeci*nint(dval(v_sspec,1)))
+Cki          call uspec(v_sspec,-1,-000,nspeci,0,0,0)
+          allocate(v_sspec(nspeci))
+          do i_spacks=1,nspeci; v_sspec(i)%size=uspec_size(); enddo 
+
           do  i = 1, nspeci
-            call spacks(1,'spec name',w(osspec),'zz',i,i)
+Cgetarg...info...          check_variable 'zz' not found
+Cgetarg             call spacks(1,'spec name',v_sspec,'zz',i,i)
+             do i_spacks=i,i 
+             call spacks_copy('p',v_sspec(i_spacks)%name,i,i,'zz',i_spacks)
+             enddo
+
           enddo
 C         call defrr(opnui,-1*n0*nsp*nbasi)
           call defrr(oqnui,-3*n0*nsp*nbasi)
 
-          i = iors(0,sctrl,w(ossite),w(osspec),w(oslat),w(ospot),
-     .      w(osbz),jobid,nbasi,nati,nspeci,w,w(oqnui),nit,.false.,ifi)
+          i = iors(0,sctrl,v_ssite,v_sspec,v_slat,v_spot,
+     .      v_sbz,jobid,nbasi,nati,nspeci,w,w(oqnui),nit,.false.,ifi)
 
-          call pack1('ctrl lrs',sctrl,irs)
+Cgetarg...info...           integer :: irs , integer(8) :: sctrl%lrs 1
+Cgetarg           call pack1('ctrl lrs',sctrl,irs)
+           
+           sctrl%lrs=irs 
+
           call fclose(ifi)
 
 
@@ -450,7 +578,7 @@ C         call defrr(opnui,-1*n0*nsp*nbasi)
 C         Poke imported site->pnu and qnui to pnus and qnus
           mode = 1
           if (nlsts .eq. 1) mode = 0
-          call aioxt1(mode,nlstd,lsts,lstd,nsp,nbasi,w(ossite),
+          call aioxt1(mode,nlstd,lsts,lstd,nsp,nbasi,v_ssite,
      .      w(oqnui),nbasp,w(opnus),w(oqnus))
 
           goto 101
@@ -462,6 +590,10 @@ C     ... Cleanup and exit rst editor
           call asars1(31,ssite,nbasp,nsp,nl,ov,w(opnus),w(oqnus),
      .      w(oipc),w(oipa),pnuc,qnuc)
           call rlse(oipc)
+
+Cki
+          if (allocated(v_ssite)) deallocate(v_ssite)
+          if (allocated(v_sspec)) deallocate(v_sspec)
 
           return
 
@@ -480,7 +612,15 @@ c     call pshpr(110)
         rhrmx(2) = 0
         call r8tos8(dval(w(oclabl),ic),clabl)
         is = w(oics+ic-1)
-        call upack('spec lmxa rmt z',sspec,is,lmx,rmax,z,0)
+Cgetarg...info...           integer :: lmx , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           real(8) :: rmax , real(8) :: sspec%rmt 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg         call upack('spec lmxa rmt z',sspec,is,lmx,rmax,z,0)
+         
+         lmx=sspec(is)%lmxa
+         rmax=sspec(is)%rmt
+         z=sspec(is)%z
+
         lstutt = cmdopt('-3s ',4,0,outs) .or.
      .           cmdopt('-4s ',4,0,outs) .or.
      .           cmdopt('-47u',4,0,outs) .or.
@@ -601,9 +741,29 @@ c     sphere charges are known ... get madelung potential to shift pot
         if (lqtot) then
 
         print '('' ... undo madelung shift in site potentials'')'
-        call upack('lat alat vol opos',slat,alat,vol,opos,0,0)
-        call upack('lat awald nkd nkq odlv oqlv',slat,awald,nkd,nkq,
-     .    odlv,oqlv)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg         call upack('lat alat vol opos',slat,alat,vol,opos,0,0)
+         
+         alat=slat%alat
+         vol=slat%vol
+         opos=slat%opos
+
+Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
+Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
+Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
+Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
+Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
+Cgetarg         call upack('lat awald nkd nkq odlv oqlv',slat,awald,nkd,nkq,
+Cgetarg      .    odlv,oqlv)
+         
+         awald=slat%awald
+         nkd=slat%nkd
+         nkq=slat%nkq
+         odlv=slat%odlv
+         oqlv=slat%oqlv
+
         call defdr(omad,nbasp**2)
         call madmat(nbasp,w(opos),awald,alat,vol,w(odlv),nkd,
      .    w(oqlv),nkq,w(omad))
@@ -618,11 +778,18 @@ c     sphere charges are known ... get madelung potential to shift pot
         endif
       endif
 
+          if (allocated(v_ssite)) deallocate(v_ssite)
+          if (allocated(v_sspec)) deallocate(v_sspec)
 
-      end
+Cgetarg       end
+       end subroutine aioxtn 
+
 
       subroutine aioxt1(mode,nlst,lsts,lstd,nsp,nbasi,ssitei,qnui,
      .  nbas,pnu,qnu)
+       
+       use m_struc_def  !Cgetarg
+
 C- Poke P,Q parameters from source list into destination list
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -652,7 +819,9 @@ C     implicit none
 C ... Passed parameters
       integer mode,nlst,nsp,lsts(nlst),lstd(nlst),n0,nbasi,nbas
       parameter (n0=10)
-      double precision ssitei(1)
+Cgetarg       double precision ssitei(1)
+       type(s_site)::ssitei(*)
+
       double precision qnui(3,n0,nsp,*)
       double precision pnu(n0,nsp,nbas),qnu(3,n0,nsp,nbas)
 C ... Local parameters
@@ -676,16 +845,24 @@ C ... Local parameters
           print 334, 'dest'
         else
           print *, ' '
-          call upack2('site pnu',ssitei,ibs,ploc)
+Cgetarg...info...           real(8) :: ploc(n0,2) , real(8) :: ssitei%pnu 20
+Cgetarg           call upack2('site pnu',ssitei,ibs,ploc)
+           
+           i_copy_size=size(ssitei(ibs)%pnu) 
+           call dcopy(i_copy_size,ssitei(ibs)%pnu,1,ploc,1) 
+
           call dcopy(n0*nsp,ploc,1,pnu(1,1,ibd),1)
           call dcopy(3*n0*nsp,qnui(1,1,1,ibs),1,qnu(1,1,1,ibd),1)
         endif
       enddo
-      end
+Cgetarg       end
+       end subroutine aioxt1 
+
 
 c ---- file i/o atomic data, v4 ---
       logical function io4g(alabel,z,rmax,lmx,nsp,lrel,nr,a,
      . qc,dq,vrmax,sumec,sumev,thrpv,ekin,utot,rhoeps,etot,ifi)
+
 c- file i/o for atomic general data.  ifi>0 for read, <0 for write
 c ----------------------------------------------------------------
 ci inputs
@@ -729,9 +906,12 @@ c local parameters
   201 format(3x,2x,f2.0,5x,f2.0,7x,f9.6,8x,2f9.6,9x,f12.6)
   202 format(2(9x,f15.7,7x,f15.7,8x,f15.7/))
 
-      end
+Cgetarg       end
+       end function io4g 
+
 
       logical function io3smm(albl,pl,ql,idmod,nl,lmax,nsp,rh,vrmax,ifi)
+
 c- file i/o for moments.  ifi>0 for read, <0 for write
 c ----------------------------------------------------------------
 ci inputs
@@ -827,9 +1007,12 @@ C --- handle read exception ---
       else
         io3smm = .false.
       endif
-      end
+Cgetarg       end
+       end function io3smm 
+
 
       logical function io4mm(albl,pl,ql,idmod,nl,lmax,nsp,rh,vrmax,ifi)
+
 C- File I/O for moments.  IFI>0 for read, <0 for write
 C ----------------------------------------------------------------
 Ci Inputs
@@ -924,9 +1107,12 @@ C --- handle read exception ---
       else
         io4mm = .false.
       endif
-      end
+Cgetarg       end
+       end function io4mm 
+
 
       logical function io4pp(albl,pp,ves,nl,lmax,nsp,ifi)
+
 C- File I/O for potential parameters.
 C ----------------------------------------------------------------
 Ci Inputs
@@ -1028,9 +1214,12 @@ C --- handle read exception ---
    21 format('PPAR:  ',a4,'  ves=',f12.8/ ' l',5x,'e_nu',10x,'C',8x,
      .       '+/-del',5x,'1/sqrt(p)',6x,'gam',9x,'alp')
 
-      end
+Cgetarg       end
+       end function io4pp 
+
 
       logical function io4pt(nr,nsp,a,rmax,v,ifi)
+
 C- File I/O for cell potential.
 C ----------------------------------------------------------------
 Ci Inputs
@@ -1085,11 +1274,14 @@ c          read(ifi,101,err=15) (v(i,isp),i = 1,nr)
   101 format(1p,5d16.9)
   102 format(2i5,2f12.5)
       return
-      end
+Cgetarg       end
+       end function io4pt 
+
 
 C ---- File I/O atomic data, Stuttgart v4 ---
       logical function io4sg(alabel,z,rmax,lmx,nsp,lrel,nr,a,
      .  qc,dq,vrmax,sumec,sumev,thrpv,ekin,utot,rhoeps,etot,ifi)
+
 C     implicit none
 C Passed parameters
       integer lmx,nsp,nr,ifi
@@ -1125,9 +1317,12 @@ C Local parameters
   201 format(3X,2X,F2.0,5X,F2.0,7X,F9.6,8X,2F9.6,9X,F12.6)
   202 format(2(9X,F15.6,7X,F15.6,8X,F15.6/))
 
-      end
+Cgetarg       end
+       end function io4sg 
+
       logical function io4smm(alabl,pl,ql,evrl,idmod,nl,lmax,nsp,vrmax,
      .        ifi)
+
 C- File I/O for moments.  IFI>0 for read, <0 for write
 C ----------------------------------------------------------------
 Ci Inputs
@@ -1208,8 +1403,11 @@ C --- handle read exception ---
       else
         io4smm = .false.
       endif
-      end
+Cgetarg       end
+       end function io4smm 
+
       logical function io4spp(alabl,pp,ves,nl,lmax,nsp,ifi)
+
 C- File I/O for potential parameters.
 C ----------------------------------------------------------------
 Ci Inputs
@@ -1288,8 +1486,11 @@ C --- handle read exception ---
    21 format('PPAR:  ',A4,'  VES=',F10.6/ ' L',8X,'ENU',9X,'C',8X,
      .       '+/-DEL',4X,'1/SQRT(P)',6X,'GAM',9X,'ALP')
 
-      end
+Cgetarg       end
+       end function io4spp 
+
       logical function io4spt(nr,nsp,a,rmax,v,ifi)
+
 C- File I/O for cell potential.
 C ----------------------------------------------------------------
 Ci Inputs
@@ -1340,11 +1541,14 @@ c          read(ifi,101,err=15) (v(i,isp),i = 1,nr)
   101 format(1p,5d16.9)
   102 format(2i5,2f12.5)
       return
-      end
+Cgetarg       end
+       end function io4spt 
+
 
 C ---- File I/O atomic data, Stuttgart v47+u ---
 C ... aiogen is same as 5g
       logical function io47um(clabl,lmx,nl,nsp,pnl,idmod,qnl,vrmax,ifi)
+
 C- File I/O for moments.  IFI>0 for read, <0 for write
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1461,9 +1665,12 @@ C --- handle read exception ---
 401   format(' IO47UM: ATOM ',a4,':spin 2 input missing;',
      .       ' moments split.$')
 402   format(' IO47UM: I/O error, iostat=',i3,'$')
-      end
+Cgetarg       end
+       end function io47um 
+
 
       logical function io47up(clabl,lmx,nl,nsp,pp,ves,ifi)
+
 C- File I/O for moments.  ifi > 0 for read, < 0 for write
 C ----------------------------------------------------------------------
 Ci Inputs: (pp: if file write : ifi < 0)
@@ -1578,11 +1785,14 @@ C --- handle read exception ---
      .       '; missing potential parameters$')
 402   format(' IO47UP: I/O error, iostat=',i3,'$')
 500   format(7x,a4,6x,f10.6/,1x)
-      end
+Cgetarg       end
+       end function io47up 
+
 
 C ---- File I/O atomic data, Stuttgart v56 ---
       logical function io5sg(a,clabl,etot,lmx,lrel,nr,nsp,qc,qtot,
      .                       wsr,z,ifi)
+
 C- File I/O for atomic general data.  IFI>0 for read, <0 for write
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -1692,8 +1902,11 @@ C --- handle read exception ---
      .       '|        WSR  ',': actual value:',f8.4 ,'   read:',f8.4,
      .       '|        Z    ',': actual value:',i8   ,'   read:',i8,'$')
 401   format(' AIOGEN: I/O error, iostat=',i3,'$')
-      end
+Cgetarg       end
+       end function io5sg 
+
       logical function io5smm(clabl,idmenu,lmx,nl,nsp,pnl,qnl,vrmax,ifi)
+
 C- File I/O for moments.  IFI>0 for read, <0 for write
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1808,8 +2021,11 @@ C --- handle read exception ---
 401   format(' AIOMOM: ATOM ',a4,':spin 2 input missing;',
      .       ' moments split.$')
 402   format(' AIOMOM: I/O error, iostat=',i3,'$')
-      end
+Cgetarg       end
+       end function io5smm 
+
       logical function io5spp(clabl,lmx,nl,nsp,pp,ves,ifi)
+
 C- File I/O for moments.  ifi > 0 for read, < 0 for write
 C ----------------------------------------------------------------------
 Ci Inputs: (pp: if file write : ifi < 0)
@@ -1923,8 +2139,11 @@ C --- handle read exception ---
 401   format(' AIOPAR: ATOM ',a4,':spin ',i1,', l=',i1,
      .       '; missing potential parameters$')
 402   format(' AIOPAR: I/O error, iostat=',i3,'$')
-      end
+Cgetarg       end
+       end function io5spp 
+
       logical function io5spt(nr,nsp,a,wsr,v,ifi)
+
 C- File I/O for cell potential.
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -2001,8 +2220,11 @@ C --- handle read exception ---
      .       '|        A  ',': actual value:',f8.4,'   read:',f8.4,
      .       '|        WSR',': actual value:',f8.4,'   read:',f8.4,'$')
 401   format(' AIOPOT: I/O error, iostat=',i3,'$')
-      end
+Cgetarg       end
+       end function io5spt 
+
       subroutine aioxt2(i1,i2,tau,pos)
+
 C- Shifts pos(1..3,i1..i2) by a const tau
 C     implicit none
       integer i1,i2
@@ -2013,10 +2235,15 @@ C     implicit none
           pos(j,i) = pos(j,i) + tau(j)
         enddo
       enddo
-      end
+Cgetarg       end
+       end subroutine aioxt2 
+
       subroutine aioxt3(k,ssite1,n1,ssite2,n2)
+
       integer n1,n2,k
       double precision ssite1(k,n1),ssite2(k,n2)
 
-      end
+Cgetarg       end
+       end subroutine aioxt3 
+
 
