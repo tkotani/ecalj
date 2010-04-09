@@ -1,3 +1,6 @@
+Cgetarg...info...           structure ['fmain', 'ctrl', 'w(osctrl)']
+Cgetarg...info...           structure ['fmain', 'ctrl', 'w(osbz)']
+Cgetarg...info...           use_to_add ['fmain', 'm_struc_def']
       program main
       implicit none
 #if MPI|MPIK
@@ -33,6 +36,9 @@ C ... Operating system permitting, The true main is in slatsm.a (fmain.c)
 C#define unix
 C#ifdef unix
       subroutine fmain
+       
+       use m_struc_def  !Cgetarg
+
 C#endif
       implicit none
 
@@ -525,7 +531,9 @@ C#ifdefC LMF
 C      lc = 10
 C#endif
 C#ifndef LMFGWD
-      if (.not. lgors('ctrl lqp,1',w(osctrl))) lc = lc+2
+Cgetarg       if (.not. lgors('ctrl lqp,1',w(osctrl))) lc = lc+2
+       if ( .not. iand(1,int(w(osctrl)%lqp)) .ne.0 ) lc = lc+2 
+
 C#endif
 C#ifndef LMMC
       call mksym(lc,slabl,strn,w(osctrl),w(oslat),w(ossite),w(osarry))
@@ -576,14 +584,18 @@ C ... Set default values for species data
 C ... Patch for now ... maybe replace
 C#ifdef LM | TBE | LMGF | LMF
 C#ifndef LMFGWD
-      ltet = lgors('ctrl lmet,1',w(osctrl)) .or.
-     .       lgors('ctrl ldos,4+2+1',w(osbz))
+Cgetarg       ltet = lgors('ctrl lmet,1',w(osctrl)) .or.
+Cgetarg      .       lgors('ctrl ldos,4+2+1',w(osbz))
+       ltet = iand(1,int(w(osctrl)%lmet)) .ne.0 .or. iand(4+2+1,int(w(osbz)%ldos)) .ne.0 
+
       call mkqp(w(osctrl),w(osbz),w(oslat),ltet,F,1,-2)
 C#endif
 C#endif
 
 C ... quit after SHOW
-      if (igets('ctrl quit',w(osctrl)) .eq. 1) then
+Cgetarg       if (igets('ctrl quit',w(osctrl)) .eq. 1) then
+       if ( int(w(osctrl)%quit) .eq. 1 ) then 
+
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
       endif
@@ -715,8 +727,11 @@ C#else
       call rx0(prgnam)
 C#endif
 
-      end
+Cgetarg       end
+       end subroutine fmain 
+
       subroutine lmhelp(prgnam,vn,vn2,wksize)
+
 C- Help printout
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -954,8 +969,11 @@ C     . disp#rcut#expr-center-list#expr-neighbor-list
       call info2(0,0,0,'%N version %,2d'//ch//'   worksize %i K',
      .  vn-vn2/1d5,wksize/1000)
       call fexit(0,0,' ',0)
-      end
+Cgetarg       end
+       end subroutine lmhelp 
+
       subroutine sttmpd
+
 C- Creates special tmpdir for saving temporary files
 C  User may wish to customize this routine.
       character tmpdir*100
@@ -993,7 +1011,9 @@ C      call fshow
 C      print *, ifi
 C      write(ifi,*) 'test'
 C      call rx('done')
-      end
+Cgetarg       end
+       end subroutine sttmpd 
+
 
 
 c      subroutine set_optio( optio_in )
@@ -1006,6 +1026,7 @@ c      optio=optio_in
 c      end
 
       subroutine findctrlstart(nfilin)
+
       character(len=9):: strn, ccc
       do
         read(nfilin,"(a)",err=1010,end=1010) strn
@@ -1013,4 +1034,6 @@ c      end
       enddo
  1010 continue
       rewind(nfilin)
-      end
+Cgetarg       end
+       end subroutine findctrlstart 
+

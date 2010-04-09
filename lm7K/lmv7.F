@@ -1,3 +1,6 @@
+Cgetarg...info...           structure ['fmain', 'lat', 'v_slat']
+Cgetarg...info...           structure ['fmain', 'ctrl', 'v_sctrl']
+Cgetarg...info...           structure ['fmain', 'ctrl', 'v_sbz']
       program main
       implicit none
 #if MPI|MPIK
@@ -32,6 +35,7 @@ C ... Operating system permitting, The true main is in slatsm.a (fmain.c)
 #define unix 1
 #if unix
       subroutine fmain
+
 #endif
       use m_struc_def
       use m_rdctrl2_func, only: rdctrl2
@@ -499,10 +503,29 @@ C --- Read recrd ---
 
 #if LMSCELL
       call setcg(v_slat,8,12)
-      call pack5('lat as tol nkdmx nkqmx',v_slat,1d0,dmach(2),150000,
-     .  150000,0)
+Cgetarg...info...           real(8) :: dmach , real(8) :: v_slat%tol 1
+Cgetarg       call pack5('lat as tol nkdmx nkqmx',v_slat,1d0,dmach(2),150000,
+Cgetarg      .  150000,0)
+       
+       v_slat%as=1d0 
+       v_slat%tol=dmach(2) 
+       v_slat%nkdmx=150000 
+       v_slat%nkqmx=150000 
+
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
-      call upack('lat nkd odlv plat slat',v_slat,nkd,odlv,plat,plx,0)
+Cgetarg...info...           integer :: nkd , integer(8) :: v_slat%nkd 1
+Cgetarg...info...           integer :: odlv , integer(8) :: v_slat%odlv 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: v_slat%plat 9
+Cgetarg...info...           real(8) :: plx(3,3) , real(8) :: v_slat%slat 9
+Cgetarg       call upack('lat nkd odlv plat slat',v_slat,nkd,odlv,plat,plx,0)
+       
+       nkd=v_slat%nkd
+       odlv=v_slat%odlv
+       i_copy_size=size(v_slat%plat) 
+       call dcopy(i_copy_size,v_slat%plat,1,plat,1) 
+       i_copy_size=size(v_slat%slat) 
+       call dcopy(i_copy_size,v_slat%slat,1,plx,1) 
+
 
 C ... Set default values for species data
       call defspc(v_sspec)
@@ -553,7 +576,12 @@ C --- Generate symmetry operations; split species into classes  ---
       if (cmdopt('--nosym',7,0,outs)) strn = ' '
       lc = 20
 #if TBE
-      call upack('ctrl mdprm',v_sctrl,mdprm,0,0,0,0)
+Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: v_sctrl%mdprm 6
+Cgetarg       call upack('ctrl mdprm',v_sctrl,mdprm,0,0,0,0)
+       
+       i_copy_size=size(v_sctrl%mdprm) 
+       call dcopy(i_copy_size,v_sctrl%mdprm,1,mdprm,1) 
+
       if (nint(mdprm(1)) .eq. 1 .or. nint(mdprm(1)) .eq. 2) then
         strn = ' '
       endif
@@ -569,7 +597,9 @@ C      lc = 0
       lc = 10
 #endif
 #ifndef LMFGWD
-      if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
+Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
+       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2 
+
 #endif
 #if ! LMMC
 ctakao will add |LMFA)
@@ -628,14 +658,18 @@ C ... Set default values for species data
 C ... Patch for now ... maybe replace
 #if LM | TBE | LMGF | LMF
 #ifndef LMFGWD
-      ltet = lgors('ctrl lmet,1',v_sctrl) .or.
-     .       lgors('ctrl ldos,4+2+1',v_sbz)
+Cgetarg       ltet = lgors('ctrl lmet,1',v_sctrl) .or.
+Cgetarg      .       lgors('ctrl ldos,4+2+1',v_sbz)
+       ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0 
+
       call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
 #endif
 #endif
 
 C ... quit after SHOW
-      if (igets('ctrl quit',v_sctrl) .eq. 1) then
+Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
+       if ( int(v_sctrl%quit) .eq. 1 ) then 
+
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
       endif
@@ -707,7 +741,9 @@ C ... quit after SHOW
 #endif
 
 #if LMGF
-      i = igets('ctrl lcgf',v_sctrl)
+Cgetarg       i = igets('ctrl lcgf',v_sctrl)
+       i = int(v_sctrl%lcgf) 
+
 C ... Special branch for exchange coupling
       if (i .ge. 10 .and. i .lt. 30) then
       call exasa(v_sbz,v_sctrl,v_sham,v_spot,v_slat,
@@ -772,8 +808,11 @@ C -------------- End of program -------------
       call rx0(prgnam)
 #endif
 
-      end
+Cgetarg       end
+       end subroutine fmain 
+
       subroutine lmhelp(prgnam,vn,vn2,wksize)
+
 C- Help printout
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -988,8 +1027,11 @@ C     . disp#rcut#expr-center-list#expr-neighbor-list
       call info2(0,0,0,'%N version %,2d'//ch//'   worksize %i K',
      .  vn-vn2/1d5,wksize/1000)
       call fexit(0,0,' ',0)
-      end
+Cgetarg       end
+       end subroutine lmhelp 
+
       subroutine sttmpd
+
 C- Creates special tmpdir for saving temporary files
 C  User may wish to customize this routine.
       character tmpdir*100
@@ -1027,10 +1069,13 @@ C      call fshow
 C      print *, ifi
 C      write(ifi,*) 'test'
 C      call rx('done')
-      end
+Cgetarg       end
+       end subroutine sttmpd 
+
 
 
       subroutine findctrlstart(nfilin)
+
       character(len=9):: strn, ccc
       do
         read(nfilin,"(a)",err=1010,end=1010) strn
@@ -1038,4 +1083,6 @@ C      call rx('done')
       enddo
  1010 continue
       rewind(nfilin)
-      end
+Cgetarg       end
+       end subroutine findctrlstart 
+

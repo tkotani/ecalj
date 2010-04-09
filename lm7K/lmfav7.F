@@ -1,3 +1,4 @@
+Cgetarg...info...           structure ['', 'ctrl', 'v_sctrl']
       program lmfa
       use m_struc_def
       use m_rdctrl2_func, only: rdctrl2
@@ -254,7 +255,9 @@ C      lc = 0
 
 
 
-      if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
+Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
+       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2 
+
 
 
 ctakao will add |1)
@@ -290,13 +293,17 @@ C ... Patch for now ... maybe replace
 
 
 C ... quit after SHOW
-      if (igets('ctrl quit',v_sctrl) .eq. 1) then
+Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
+       if ( int(v_sctrl%quit) .eq. 1 ) then 
+
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
       endif
       call freeat(v_sctrl,v_sspec,v_sham,v_spot)
       call rx0(prgnam)
-      end
+Cgetarg       end
+       end   
+
 
 
 
@@ -305,6 +312,7 @@ C ... quit after SHOW
 
 
       subroutine lmhelp(prgnam,vn,vn2,wksize)
+
 C- Help printout
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -519,8 +527,11 @@ C     . disp#rcut#expr-center-list#expr-neighbor-list
       call info2(0,0,0,'%N version %,2d'//ch//'   worksize %i K',
      *  vn-vn2/1d5,wksize/1000)
       call fexit(0,0,' ',0)
-      end
+Cgetarg       end
+       end subroutine lmhelp 
+
       subroutine sttmpd
+
 C- Creates special tmpdir for saving temporary files
 C  User may wish to customize this routine.
       character tmpdir*100
@@ -558,10 +569,13 @@ C      call fshow
 C      print *, ifi
 C      write(ifi,*) 'test'
 C      call rx('done')
-      end
+Cgetarg       end
+       end subroutine sttmpd 
+
 
 
       subroutine findctrlstart(nfilin)
+
       character(len=9):: strn, ccc
       do
         read(nfilin,"(a)",err=1010,end=1010) strn
@@ -569,4 +583,6 @@ C      call rx('done')
       enddo
  1010 continue
       rewind(nfilin)
-      end
+Cgetarg       end
+       end subroutine findctrlstart 
+
