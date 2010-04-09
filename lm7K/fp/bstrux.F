@@ -1,6 +1,12 @@
+Cgetarg...info...           structure ['bstrux', 'lat', 'slat']
+Cgetarg...info...           structure ['bstrux', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['bstrux', 'm_struc_def']
 #define F90 1
       subroutine bstrux(mode,slat,ssite,sspec,cg,indxcg,jcg,cy,iprmb,
      .  nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,b,db)
+       
+       use m_struc_def  !Cgetarg
+
 C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -54,7 +60,12 @@ Cu   05 Jul 08 (T. Kotani) adapted from augmbl; new PW part.
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      double precision ssite(1),sspec(1),slat(1),pa(3),q(3)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),pa(3),q(3)
+       real(8):: pa(3) , q(3) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double precision cg(1),cy(1),rsma
       integer kmax,nbas,ndimh,mode,ia,nlma,napw
       integer iprmb(1),igapw(3,napw),indxcg(1),jcg(1)
@@ -72,7 +83,16 @@ C ... Local parameters
       complex(8),allocatable:: b0(:),db0(:),bos(:)
 
 C --- Setup ---
-      call upack('lat alat qlat vol',slat,alat,qlat,vol,0,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat alat qlat vol',slat,alat,qlat,vol,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+       vol=slat%vol
+
       srvol = dsqrt(vol)
       nlmto = ndimh-napw
 
@@ -91,7 +111,14 @@ C --- b for MTO  (Written as C_kl in LMTO book) ---
         allocate(db0((kmax+1)*nlma*nlmbx*3))
       endif
       do  ib = 1, nbas
-        call upack('site spec pos',ssite,ib,is,p,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib,is,p,0,0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pos) 
+         call dcopy(i_copy_size,ssite(ib)%pos,1,p,1) 
+
 C       This line augments no local orbitals
 C       ik = 1
 C       This line augments onsite extended local orbitals only
@@ -155,9 +182,12 @@ C       call zprm('b mode 1 or 2',2,b,ndimh,ndimh,(kmax+1)*nlma)
 #else
       call rx('bstrux requires F90')
 #endif
-      end
+Cgetarg       end
+       end subroutine bstrux 
+
 
       subroutine paugq1(kmax,nlma,k0,ik,norb,ltab,ktab,rsmh,offl,b0,b)
+
 C- Poke strux from b0 to full array b
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -219,10 +249,13 @@ C         i1 = index to hamiltonian offset
         endif
       enddo
 
-      end
+Cgetarg       end
+       end subroutine paugq1 
+
 
       subroutine paugqp(mode,kmax,nlma,k0,ndimh,napw,igapw,alat,qlat,
      .  srvol,q,pa,rsma,b0,b1,db)
+
 C- Make PW part of strux b
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -409,9 +442,12 @@ C     deallocate(fac2l,yl,bpw)
       call rx('bstrux requires F90')
 #endif
 
-      end
+Cgetarg       end
+       end subroutine paugqp 
+
 
       subroutine paugq2(kmax,nlmh,nlma,bos,b0)
+
 C- Subtract on-site strux for ib=ia, leaving tail expansion
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -438,10 +474,13 @@ C ... Local parameters
           b0(k,ilm,ilm) = b0(k,ilm,ilm)-bos(k,ilm)
         enddo
       enddo
-      end
+Cgetarg       end
+       end subroutine paugq2 
+
 
       subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
      .  nlma,kmax,b0,db0,b,db)
+
 C- Poke strux and grads from b0,db0 to full arrays b,db
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -517,5 +556,7 @@ C     .      ' start=',i4,' stop=',i4)
           enddo
         endif
       enddo
-      end
+Cgetarg       end
+       end subroutine prlcb1 
+
 

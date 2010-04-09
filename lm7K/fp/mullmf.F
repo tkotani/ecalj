@@ -1,6 +1,12 @@
+Cgetarg...info...           structure ['mullmf', 'site', 'ssite']
+Cgetarg...info...           structure ['mullmf', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['mullmf', 'm_struc_def']
 #define F90 1
       subroutine mullmf(nbas,ssite,sspec,iprmb,z,n,nspc,iq,isp,mode,
      .  nsites,lsites,lmxch,nchan,lchan,lmdim,nddos,doswt)
+       
+       use m_struc_def  !Cgetarg
+
 C- Make Mulliken decomposition of the norm at this k-point
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -39,7 +45,11 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nspc,iq,isp,n,iprmb(1),mode,nsites,
      .  lsites(nsites),nchan,lchan(nchan),lmxch,lmdim,nddos
-      double precision ssite(1),sspec(1),doswt(nchan,nddos*nspc,nspc)
+Cgetarg       double precision ssite(1),sspec(1),doswt(nchan,nddos*nspc,nspc)
+       real(8):: doswt(nchan,nddos*nspc,nspc) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       double complex z(n,nspc,n*nspc)
 C ... Local parameters
       logical lmp,lp,atp
@@ -109,8 +119,16 @@ C --- Decompose by l:
 C --- Loop over channels ---
       do  isite = 1, nsites
         ib = lsites(isite)
-        call upack('site spec',ssite,ib,is,0,0,0)
-        call upack('spec lmxb',sspec,is,lmxb,0,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
+         
+         is=ssite(ib)%spec
+
+Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
+Cgetarg         call upack('spec lmxb',sspec,is,lmxb,0,0,0)
+         
+         lmxb=sspec(is)%lmxb
+
 C   ... Loop over all orbitals centered at this site
         call orbl(ib,0,n,iprmb,norb,ltab,ktab,xx,offl,xx)
 C   ... Block into groups of consecutive l
@@ -171,5 +189,7 @@ C      enddo
 #endif
       call tcx('mullmf')
 
-      end
+Cgetarg       end
+       end subroutine mullmf 
+
 

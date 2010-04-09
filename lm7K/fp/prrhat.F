@@ -1,9 +1,18 @@
+Cgetarg...info...           structure ['prrhat', 'site', 'ssite']
+Cgetarg...info...           structure ['prrhat', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['prrhat', 'm_struc_def']
       subroutine prrhat(nbas,ssite,sspec,orhoat)
+       
+       use m_struc_def  !Cgetarg
+
 C- Print info about the atomic charge densities
 C     implicit none
 C ... Passed parameters
       integer nbas,orhoat(3,nbas)
-      double precision ssite(1),sspec(1)
+Cgetarg       double precision ssite(1),sspec(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer stdo,lgunit,ib,lmxl,nr,orofi,orwgt,nlml,is,igetss,nsp,
      .  nglob
@@ -15,8 +24,20 @@ C ... Heap
       nsp  = nglob('nsp')
       stdo = lgunit(1)
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec lmxl a nr rmt',sspec,is,lmxl,a,nr,rmt)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec lmxl a nr rmt',sspec,is,lmxl,a,nr,rmt)
+         
+         lmxl=sspec(is)%lmxl
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
         if (lmxl .eq. -1) goto 10
         call defrr(orofi, nr)
         call defrr(orwgt, nr)
@@ -38,9 +59,12 @@ C ... Heap
    10   continue
       enddo
 
-      end
+Cgetarg       end
+       end subroutine prrhat 
+
 
       subroutine prlrho(str,nr,nlm,nsp,rofi,rwgt,rho)
+
 C- Print info about site density
 C     implicit none
 C ... Passed parameters
@@ -87,5 +111,7 @@ C ... Local parameters
   601   format(/' prlrho: ',a/'  ilm',6x,'rhomin    pnt',
      .     7x,'rhomax    pnt       moment')
       enddo
-      end
+Cgetarg       end
+       end subroutine prlrho 
+
 

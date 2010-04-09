@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['mkpdos', 'site', 'ssite']
+Cgetarg...info...           structure ['mkpdos', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['mkpdos', 'm_struc_def']
       subroutine mkpdos(mode,ssite,sspec,isp,nsp,nlmax,ndham,nev,
      .  nchan,npd,lsite,nsite,ppnl,aus,doswt)
+       
+       use m_struc_def  !Cgetarg
+
 C- Decomposition of norm from projection of w.f into MT sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -40,7 +46,10 @@ C ... Passed parameters
       integer mode,isp,nsp,nlmax,ndham,nchan,nsite,lsite(nsite),nev,npd
       integer n0,nppn
       parameter (n0=10,nppn=12)
-      double precision ssite(1),sspec(1)
+Cgetarg       double precision ssite(1),sspec(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       double precision ppnl(nppn,n0,nsp,*),doswt(nchan,npd,nev)
       double complex aus(nlmax,ndham,3,nsp,*)
 C ... Local parameters
@@ -59,8 +68,16 @@ C ... Local parameters
         else
           ib = lsite(i)
         endif
-        is = igetss('site spec',ib,ssite)
-        call upack('spec lmxa rmt',sspec,is,lmxa,rmt,0,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec lmxa rmt',sspec,is,lmxa,rmt,0,0)
+         
+         lmxa=sspec(is)%lmxa
+         rmt=sspec(is)%rmt
+
         lmxa = min(lmxa,lmxax)
         if (lmxa .eq. -1) goto 10
 
@@ -133,5 +150,7 @@ C            endif
 
       call isanrg(ichan,1,nchan,' mkpdos','nchan',.true.)
 
-      end
+Cgetarg       end
+       end subroutine mkpdos 
+
 

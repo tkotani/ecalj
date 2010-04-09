@@ -1,7 +1,14 @@
+Cgetarg...info...           structure ['augmbl', 'lat', 'slat']
+Cgetarg...info...           structure ['augmbl', 'site', 'ssite']
+Cgetarg...info...           structure ['augmbl', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['augmbl', 'm_struc_def']
 #define F90 1
       subroutine augmbl(mode,ssite,sspec,slat,isp,lcplxp,q,
      .                  osig,otau,oppi,iprmb,ndimh,
      .                  napw,igapw,h,hso,s)
+       
+       use m_struc_def  !Cgetarg
+
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -100,7 +107,12 @@ C ... Passed parameters
 #endif
       integer mode,lcplxp,isp,ndimh,napw,igapw(3,napw),iprmb(ndimh),
      .  osig(3,1),otau(3,1),oppi(3,1)
-      double precision ssite(1),sspec(1),slat(1),q(3)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3)
+       real(8):: q(3) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex h(ndimh,ndimh),s(ndimh,ndimh),hso(ndimh,ndimh)
 C ... Local parameters
       integer nlmbx,nlmax,ktop0,lofb,mode0
@@ -159,8 +171,27 @@ C --- Setup ---
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       nlmto = ndimh-napw
-      call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-      call upack('lat alat qlat vol',slat,alat,qlat,vol,0,0)
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+       
+       ocg=slat%ocg
+       ojcg=slat%ojcg
+       oidxcg=slat%oidxcg
+       ocy=slat%ocy
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat alat qlat vol',slat,alat,qlat,vol,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+       vol=slat%vol
+
 C     tpiba = 2d0*4d0*datan(1d0)/alat
 
 #if F90
@@ -197,9 +228,26 @@ C --- Loop over augmentation sites --- ---
         endif
 #endif
 
-        call upack('site spec pos',ssite,ia,isa,pa,0,0)
-        call upack('spec lmxa lmxb kmxt rsma',sspec,isa,lmxa,lmxha,kmax,
-     .    rsma)
+Cgetarg...info...           integer :: isa , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pa(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ia,isa,pa,0,0)
+         
+         isa=ssite(ia)%spec
+         i_copy_size=size(ssite(ia)%pos) 
+         call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxha , integer(8) :: sspec%lmxb 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
+Cgetarg         call upack('spec lmxa lmxb kmxt rsma',sspec,isa,lmxa,lmxha,kmax,
+Cgetarg      .    rsma)
+         
+         lmxa=sspec(isa)%lmxa
+         lmxha=sspec(isa)%lmxb
+         kmax=sspec(isa)%kmxt
+         rsma=sspec(isa)%rsma
+
         nlmha = (lmxha+1)**2
         nlma  = (lmxa+1)**2
         if (lmxa .eq. -1) goto 10
@@ -216,7 +264,14 @@ C        allocate (b(0:kmax,nlma,ndimh))
 C       Zero out strux to eliminate contributions from local orbitals
         call dpzero(b,(kmax+1)*nlma*ndimh*2)
         do  ib = 1, nbas
-          call upack('site spec pos',ssite,ib,is,p,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
+Cgetarg           call upack('site spec pos',ssite,ib,is,p,0,0)
+           
+           is=ssite(ib)%spec
+           i_copy_size=size(ssite(ib)%pos) 
+           call dcopy(i_copy_size,ssite(ib)%pos,1,p,1) 
+
 C         This line augments no local orbitals
 C         ik = 1
 C         This line augments onsite extended local orbitals only
@@ -361,10 +416,13 @@ C      call zprm('s-aug',2,s,ndimh,ndimh,ndimh)
 
       call tcx ('augmbl')
 
-      end
+Cgetarg       end
+       end subroutine augmbl 
+
 
       subroutine augq12(mode,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
      .  nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h)
+
 C- Add one and two-center terms to hamiltonian and overlap matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -480,10 +538,13 @@ C     ... One-center terms
         enddo
       enddo
 
-      end
+Cgetarg       end
+       end subroutine augq12 
+
 
       subroutine augq2z(mode,mode1,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
      .  nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h,hso)
+
 C- Add one and two-center terms to h,s for complex potential
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -651,9 +712,12 @@ C     ... One-center terms
 #endif
       endif
 
-      end
+Cgetarg       end
+       end subroutine augq2z 
+
 
       subroutine augqs3(kmax,lmxa,nlma,ndimh,isp,g,sig,b,s)
+
 C- Add B+ sig B to s for L-diagonal sig
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -710,9 +774,12 @@ c         csum=zdotc(kjtop,b(0,1,i1),1,g,1)
       enddo
 C     call tcx('augqs3')
 
-      end
+Cgetarg       end
+       end subroutine augqs3 
+
 
       subroutine augqp3(kmax,nlma,ndimh,isp,g,ppi,b,h)
+
 C- Add B+ ppi B to H for non-L-diagonal matrix ppi
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -767,9 +834,12 @@ C         csum=zdotc(kjtop,b(0,1,i1),1,g,1)
         enddo
       enddo
 C     call tcx('augqp3')
-      end
+Cgetarg       end
+       end subroutine augqp3 
+
 
       subroutine augq3z(mode1,kmax,nlma,ndimh,isp,g,ppi,b,h,hso)
+
 C- Add B+ ppi B to H for non-L-diagonal, complex matrix ppi
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -836,5 +906,7 @@ C     ...  Make LxSx+LySy part of SO
         enddo
       enddo
 C     call tcx('augqp3')
-      end
+Cgetarg       end
+       end subroutine augq3z 
+
 

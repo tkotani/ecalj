@@ -1,4 +1,10 @@
+Cgetarg...info...           structure ['rhogkl', 'site', 'ssite']
+Cgetarg...info...           structure ['rhogkl', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['rhogkl', 'm_struc_def']
       subroutine rhogkl(ib1,ib2,nsp,mode,ssite,sspec,orhoat,kmax,qkl)
+       
+       use m_struc_def  !Cgetarg
+
 C- G_kL expansion of valence sphere densities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -36,7 +42,11 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ib1,ib2,nsp,mode,orhoat(3,1),kmax
-      double precision ssite(1),sspec(1),qkl(0:kmax,1)
+Cgetarg       double precision ssite(1),sspec(1),qkl(0:kmax,1)
+       real(8):: qkl(0:kmax,1) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer stdo,ipr,iprint,lgunit,orofi,nrmx,orwgt,oh,
      .  j1,ib,is,igetss,lmxl,nr,nlml,ilm,j,lfoc,k,l,m
@@ -58,10 +68,32 @@ C --- Setup ---
 C --- Loop over sites ---
       j1 = 1
       do  ib = ib1, ib2
-        is = igetss('site spec',ib,ssite)
-        call upack('spec lmxl z qc',sspec,is,lmxl,z,qc,0)
-        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-        call upack2('spec rg',sspec,is,rg)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg         call upack('spec lmxl z qc',sspec,is,lmxl,z,qc,0)
+         
+         lmxl=sspec(is)%lmxl
+         z=sspec(is)%z
+         qc=sspec(is)%qc
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg         call upack2('spec rg',sspec,is,rg)
+         
+         rg=sspec(is)%rg
+
         if (lmxl .eq. -1) goto 10
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         qc = qcorg+qcorh
@@ -101,10 +133,13 @@ C --- Loop over sites ---
       enddo
 
       call rlse(orofi)
-      end
+Cgetarg       end
+       end subroutine rhogkl 
+
 
       subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc,
      .  pkl,cofh,rg,ceh,rfoc,z,qkl)
+
 C- Multipole moments for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -258,9 +293,12 @@ C ... Scale to get coefficients of the G_kL; see radpkl
         dfact = dfact*(2*l+3)
       enddo
 
-      end
+Cgetarg       end
+       end subroutine pvrgkl 
+
 #if DEBUG
       subroutine prtrkl(opt,kmax,rg,nr,nlml,nsp,rofi,rho1,rho2,rhoc,qkl)
+
 C- Printout pkl expansion of rho, for debugging
 C  Example for integrating tabulated moment:
 C  mc out.te -e4 x1 x2 'x5*x1' 'x7*x1*x1' -int 0 2.113465
@@ -304,6 +342,8 @@ C       call radpkl(rofi(ir),rg,kmax,lmxl,kmax,g)
       if (mod(opt,10) .eq. 1) then
         call daxpy(nr*nlml*nsp,1d0,rho2,1,rho1,1)
       endif
-      end
+Cgetarg       end
+       end subroutine prtrkl 
+
 #endif
 

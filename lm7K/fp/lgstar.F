@@ -1,4 +1,5 @@
       subroutine lgstar(mode,ng,n,gv,ng0,ips0,cg)
+
 C- Compresses F.T. of a real function, using fact it is hermitian
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -104,5 +105,7 @@ C ... Unpack hermitian points
         if (k .gt. 0) cg(i,m) = dconjg(cg(k,m))
   220 continue
 
-      end
+Cgetarg       end
+       end subroutine lgstar 
+
 

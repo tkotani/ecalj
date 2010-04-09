@@ -1,5 +1,21 @@
+Cgetarg...info...           structure ['dfrce', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['dfrce', 'lat', 'slat']
+Cgetarg...info...           structure ['dfrce', 'spec', 'sspec']
+Cgetarg...info...           structure ['dfrce', 'site', 'ssite']
+Cgetarg...info...           structure ['pvdf1', 'lat', 'slat']
+Cgetarg...info...           structure ['pvdf1', 'site', 'ssite']
+Cgetarg...info...           structure ['pvdf1', 'spec', 'sspec']
+Cgetarg...info...           structure ['pvdf4', 'lat', 'slat']
+Cgetarg...info...           structure ['pvdf4', 'site', 'ssite']
+Cgetarg...info...           structure ['pvdf4', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['pvdf1', 'm_struc_def']
+Cgetarg...info...           use_to_add ['dfrce', 'm_struc_def']
+Cgetarg...info...           use_to_add ['pvdf4', 'm_struc_def']
       subroutine dfrce(ssite,sspec,slat,sctrl,k1,k2,k3,nvl,
      .  orhoat,orhat1,elind,qmom,smrho,smrout,dfh)
+       
+       use m_struc_def  !Cgetarg
+
 C-Correction to force theorem, Harris functional
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -70,8 +86,14 @@ C Event numbers:
       include "events.ins"
 #endif 
       integer nvl,k1,k2,k3,orhoat(3,1),orhat1(3,1)
-      double precision ssite(1),sspec(1),slat(1),sctrl(1),dfh(3,1),
-     .  qmom(1)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),sctrl(1),dfh(3,1),
+Cgetarg      .  qmom(1)
+       real(8):: dfh(3,1) , qmom(1) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_ctrl)::sctrl
+
       double complex smrho(k1,k2,k3,*),smrout(k1,k2,k3,*)
 C Local variables
       integer nbas,job,n1,n2,n3,ng,iprint,nsp,nglob,ib,is,lmxl,iv0,nlm,
@@ -99,7 +121,9 @@ C ... Heap
       integer w(1)
       common /w/ w
 
-      job = igets('ctrl lfrce',sctrl)
+Cgetarg       job = igets('ctrl lfrce',sctrl)
+       job = int(sctrl%lfrce) 
+
       if (job .le. 0) return
       call tcn('dfrce')
 
@@ -122,8 +146,31 @@ C ... Heap
 #endif
 
 C --- Setup ---
-      call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
-      call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
+Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
+Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       ng=slat%ng
+       ogv=slat%ogv
+       okv=slat%okv
+       vol=slat%vol
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
       c = 1000
       stdo = lgunit(1)
       nsp  = nglob('nsp')
@@ -140,7 +187,9 @@ C ... Arrays needed for pvdf1
 C ... Set up for vectorized Y_lm and gaussians
       ltop = 0
       do   is = 1, nspec
-        lmxl = igetss('spec lmxl',is,sspec)
+Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
+         lmxl = int(sspec(is)%lmxl) 
+
         ltop = max0(ltop,lmxl)
       enddo
       nlmtop = (ltop+1)**2
@@ -242,8 +291,12 @@ C ... Setup array iiv0 = (vector of iv0 for parallel); allocate work arrays
       iv0 = 0
       allocate(iiv0(1:nbas), stat=ierr)
       do  12  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        lmxl = igetss('spec lmxl',is,sspec)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
+         lmxl = int(sspec(is)%lmxl) 
+
         nlm = (lmxl+1)**2
         iiv0(ib) = iv0
         iv0 = iv0+nlm
@@ -301,8 +354,12 @@ C$&        MP_SCHEDTYPE=RUNTIME
         iv0 = iiv0(ib)
 #endif 
 
-        is = igetss('site spec',ib,ssite)
-        lmxl = igetss('spec lmxl',is,sspec)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
+         lmxl = int(sspec(is)%lmxl) 
+
         if (lmxl .eq. -1) goto 20
 
         nlm = (lmxl+1)**2
@@ -395,11 +452,16 @@ C ... Shift all forces to make avg correction zero
   331 format(' shift forces to make zero average correction:',8x,3f8.2)
       call rlse(oceps)
       call tcx('dfrce')
-      end
+Cgetarg       end
+       end subroutine dfrce 
+
 
       subroutine pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,qmout,ng,gv,
      .  g2,yl,cs,sn,iv,qlat,kmax,cnomin,ceps,cdn0,cdn,cdv,cdvxc,cvin,
      .  orhoat,fes1,fes2,fxc)
+       
+       use m_struc_def  !Cgetarg
+
 C- Estimate shift in local density for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -431,9 +493,15 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ng,nsp,iv0,kmax,ib,job,orhoat(3),iv(ng,3)
-      double precision ssite(1),sspec(1),slat(1),qmom(1),qmout(1),
-     .  gv(ng,3),tau(3),fes1(3),fes2(3),fxc(3),g2(ng),yl(ng,1),
-     .  cs(ng),sn(ng),qlat(3,3)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),qmom(1),qmout(1),
+Cgetarg      .  gv(ng,3),tau(3),fes1(3),fes2(3),fxc(3),g2(ng),yl(ng,1),
+Cgetarg      .  cs(ng),sn(ng),qlat(3,3)
+       real(8):: qmom(1) , qmout(1) , gv(ng,3) , tau(3) , fes1(3) , 
+     . fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex cdn0(ng,nsp),cdn(ng),cdv(ng),ceps(ng),
      .  cnomin(ng),cdvxc(ng,nsp),cvin(ng)
 C ... Local parameters
@@ -457,7 +525,16 @@ C ... Heap
       data q0 /0d0,0d0,0d0/
 
       call tcn('pvdf1')
-      call upack('lat nabc alat vol',slat,ngabc,alat,vol,0,0)
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat nabc alat vol',slat,ngabc,alat,vol,0,0)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       alat=slat%alat
+       vol=slat%vol
+
       call stdfac(20,df)
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
@@ -473,16 +550,57 @@ C     tpiba = 2*pi/alat
       call dpzero(fxc,3)
       call dpzero(fesdn,3)
       call dpzero(gpot0,nlmx*3)
-      call upack('site spec pos',ssite,ib,is,tau,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
+Cgetarg       call upack('site spec pos',ssite,ib,is,tau,0,0)
+       
+       is=ssite(ib)%spec
+       i_copy_size=size(ssite(ib)%pos) 
+       call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
       call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
 
 C --- Unscreened rigid charge density shift, job 1, in cdn0 ---
       if (job0 .eq. 1) then
 C       call upack('site spec pos',ssite,ib,is,tau,0,0)
 c        call upack('spec z p pz lmxa lmxl',sspec,is,z,pnu,pnz,lmxa)
-        call upack('spec z p pz lmxa',sspec,is,z,pnu,pnz,lmxa)
-        call upack('spec a nr rmt lmxl',sspec,is,a,nr,rmt,lmxl)
-        call upack('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,rsmfa)
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg         call upack('spec z p pz lmxa',sspec,is,z,pnu,pnz,lmxa)
+         
+         z=sspec(is)%z
+         i_copy_size=size(sspec(is)%p) 
+         call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
+         i_copy_size=size(sspec(is)%pz) 
+         call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
+         lmxa=sspec(is)%lmxa
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg         call upack('spec a nr rmt lmxl',sspec,is,a,nr,rmt,lmxl)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+         lmxl=sspec(is)%lmxl
+
+Cgetarg...info...           integer :: nxi , integer(8) :: sspec%nxi 1
+Cgetarg...info...           real(8) :: exi(n0) , real(8) :: sspec%exi 10
+Cgetarg...info...           real(8) :: hfc(n0,2) , real(8) :: sspec%chfa 20
+Cgetarg...info...           real(8) :: rsmfa , real(8) :: sspec%rsmfa 1
+Cgetarg         call upack('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,rsmfa)
+         
+         nxi=sspec(is)%nxi
+         i_copy_size=size(sspec(is)%exi) 
+         call dcopy(i_copy_size,sspec(is)%exi,1,exi,1) 
+         i_copy_size=size(sspec(is)%chfa) 
+         call dcopy(i_copy_size,sspec(is)%chfa,1,hfc,1) 
+         rsmfa=sspec(is)%rsmfa
+
         call gtpcor(sspec,is,kcor,lcor,qcor)
         if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
         call radwgt(rmt,a,nr,rwgt)
@@ -540,8 +658,21 @@ C   ... Vectorized version
       endif
 
 C --- Coefficients defining local valence + core density ---
-      call upack('site spec pos',ssite,ib,is,tau,0,0)
-      call upack('spec lmxl rg',sspec,is,lmxl,rg,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
+Cgetarg       call upack('site spec pos',ssite,ib,is,tau,0,0)
+       
+       is=ssite(ib)%spec
+       i_copy_size=size(ssite(ib)%pos) 
+       call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg       call upack('spec lmxl rg',sspec,is,lmxl,rg,0,0)
+       
+       lmxl=sspec(is)%lmxl
+       rg=sspec(is)%rg
+
       call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
       nlm = (lmxl+1)**2
       if (nlm .gt. nlmx) call rxi('pvdf1: increase nlmx to',nlm)
@@ -660,8 +791,21 @@ C --- Integral of dves~ (output-input local charge) for all sites ---
       call dpzero(feso,3)
       jv0 = 0
       do  40  jb = 1, nbas
-        call upack('site spec pos',ssite,jb,js,tau,0,0)
-        call upack('spec lmxl rg',sspec,js,lmxl,rg,0,0)
+Cgetarg...info...           integer :: js , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,jb,js,tau,0,0)
+         
+         js=ssite(jb)%spec
+         i_copy_size=size(ssite(jb)%pos) 
+         call dcopy(i_copy_size,ssite(jb)%pos,1,tau,1) 
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg         call upack('spec lmxl rg',sspec,js,lmxl,rg,0,0)
+         
+         lmxl=sspec(js)%lmxl
+         rg=sspec(js)%rg
+
         nlm = (lmxl+1)**2
 
 C ... For this jb, mesh density for all G vectors
@@ -723,15 +867,22 @@ C      print 339, 'qmom(out-in) dv     ',fes2
       call dpadd(fes2,fesgg,1,3,-1d0)
       call tcx('pvdf1')
 
-      end
+Cgetarg       end
+       end subroutine pvdf1 
+
 
       subroutine pvdf2(nbas,nsp,ssite,sspec,slat,n1,n2,n3,k1,k2,k3,
      .  smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
+      use m_struc_def
 C- Makes derivative of smoothed xc potential wrt density.
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,n1,n2,n3,k1,k2,k3
-      double precision ssite(1),sspec(1),slat(1)
+Cgetarg       double precision ssite(1),sspec(1),slat(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex vxcp(k1,k2,k3,nsp),vxcm(k1,k2,k3,nsp),
      .               dvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp),
      .               wk1(k1,k2,k3,nsp),wk2(k1,k2,k3,nsp),
@@ -846,9 +997,12 @@ C ... dvxc/drho into dvxc
 C     call zprm3('d vxc / dn',0,dvxc,k1,k2,k3*nsp)
       call poppr
 
-      end
+Cgetarg       end
+       end subroutine pvdf2 
+
 
       subroutine pvdf3(n1,n2,n3,k1,k2,k3,nsp,deln0,dvxc)
+
 C- Overwrites dvxc with (nout-nin)*dvxc
 C     implicit none
 C ... Passed parameters
@@ -865,9 +1019,14 @@ C ... Local parameters
 
 C     call zprm3('dvxc/dn * (nout-nin)',0,dvxc,k1,k2,k3*nsp)
 
-      end
+Cgetarg       end
+       end subroutine pvdf3 
+
 
       subroutine pvdf4(ssite,sspec,slat,qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
+       
+       use m_struc_def  !Cgetarg
+
 C- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -907,8 +1066,13 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ng,iv(ng,3)
-      double precision ssite(1),sspec(1),qmom(1),slat(1),g2(ng),
-     .  yl(ng,1),cs(ng),sn(ng),qlat(3,3)
+Cgetarg       double precision ssite(1),sspec(1),qmom(1),slat(1),g2(ng),
+Cgetarg      .  yl(ng,1),cs(ng),sn(ng),qlat(3,3)
+       real(8):: qmom(1) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex cv(ng)
 C ... Local parameters
       integer ig,ib,ilm,is,iv0,l,lmxl,m,nbas,nlm,nlmx,nglob,n1,n2,n3,
@@ -928,13 +1092,33 @@ C      double complex gkl(0:k0,nlmx)
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
       nbas = nglob('nbas')
-      call upack('lat nabc vol',slat,ngabc,vol,0,0,0)
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat nabc vol',slat,ngabc,vol,0,0,0)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       vol=slat%vol
+
 
 C --- FT of gaussian density, all sites, for list of G vectors ---
       iv0 = 0
       do  10  ib = 1, nbas
-        call upack('site spec pos',ssite,ib,is,tau,0,0)
-        call upack('spec lmxl rg',sspec,is,lmxl,rg,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pos) 
+         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg         call upack('spec lmxl rg',sspec,is,lmxl,rg,0,0)
+         
+         lmxl=sspec(is)%lmxl
+         rg=sspec(is)%rg
+
         if (lmxl .eq. -1) goto 10
 
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
@@ -975,5 +1159,7 @@ C --- Potential is 8pi/G**2 * density; overwrite cv with potential ---
    40 cv(ig) = (8*pi)*cv(ig)/g2(ig)
 
       call tcx('pvdf4')
-      end
+Cgetarg       end
+       end subroutine pvdf4 
+
 

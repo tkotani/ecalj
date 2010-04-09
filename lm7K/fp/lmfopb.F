@@ -1,4 +1,12 @@
+Cgetarg...info...           structure ['lmfopb', 'spec', 'sspec']
+Cgetarg...info...           structure ['lmfopb', 'lat', 'slat']
+Cgetarg...info...           structure ['lmfop2', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['lmfop2', 'm_struc_def']
+Cgetarg...info...           use_to_add ['lmfopb', 'm_struc_def']
       subroutine lmfopb(sopts,slat,sspec,ehf)
+       
+       use m_struc_def  !Cgetarg
+
 C- Optimize lmf basis
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -25,7 +33,11 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       character sopts*(*)
-      double precision slat(1),sspec(1),ehf
+Cgetarg       double precision slat(1),sspec(1),ehf
+       real(8):: ehf 
+       type(s_lat)::slat
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       logical lrsm,leh,ioorbp,ix !takao ioorpb is a logical function
       integer mxcall,nvmax
@@ -76,7 +88,11 @@ C       print *, sopts(j1:j2)
           call nwordg(sopts,0,dc//', ',1,j1,j3)
           call locase(sopts(j1+5:j3))
           do  is = 1, nspec
-            call spacks(0,'spec name',sspec,slabl,is,is)
+Cgetarg             call spacks(0,'spec name',sspec,slabl,is,is)
+             do i_spacks=is,is 
+             call spacks_copy('u',sspec(i_spacks)%name,is,is,slabl,i_spacks)
+             enddo
+
             call locase(slabl)
 C           Found a species: add orbitals to list
             if (slabl .eq. sopts(j1+5:j3)) then
@@ -107,7 +123,11 @@ C         ... Add specification to list
               if (.not. lrsm .and. .not. leh) lrsm = .true.
               call strip(strnl,j1,j3)
               read(strnl,'(6I1)') (llst(j1), j1=1,j3)
-              call upack('spec lmxb',sspec,is,lmxb,0,0,0)
+Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
+Cgetarg               call upack('spec lmxb',sspec,is,lmxb,0,0,0)
+               
+               lmxb=sspec(is)%lmxb
+
 C             Exclude states l>lmxb
               do  j1 = 1, j3
                 if (llst(j1) .gt. lmxb) llst(j1) = -1
@@ -182,8 +202,16 @@ C       Put rs variables in ascending order
           is = optls0(1,i)
           l  = optls0(2,i)
           lt = optls0(3,i)
-          call upack('spec rmt',sspec,is,rmt,0,0,0)
-          call spacks(0,'spec name',sspec,slabl,is,is)
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg           call upack('spec rmt',sspec,is,rmt,0,0,0)
+           
+           rmt=sspec(is)%rmt
+
+Cgetarg           call spacks(0,'spec name',sspec,slabl,is,is)
+           do i_spacks=is,is 
+           call spacks_copy('u',sspec(i_spacks)%name,is,is,slabl,i_spacks)
+           enddo
+
           call lmfop2(0,is,sspec,rsmh,eh)
           wk(i) = min(rsmh(l+1,ik),rmt)
         enddo
@@ -195,8 +223,16 @@ C       Put e variables in ascending order
           is = optls0(1,i)
           l  = optls0(2,i)
           lt = optls0(3,i)
-          call upack('spec rmt',sspec,is,rmt,0,0,0)
-          call spacks(0,'spec name',sspec,slabl,is,is)
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg           call upack('spec rmt',sspec,is,rmt,0,0,0)
+           
+           rmt=sspec(is)%rmt
+
+Cgetarg           call spacks(0,'spec name',sspec,slabl,is,is)
+           do i_spacks=is,is 
+           call spacks_copy('u',sspec(i_spacks)%name,is,is,slabl,i_spacks)
+           enddo
+
           call lmfop2(0,is,sspec,rsmh,eh)
           wk(i-j1) = eh(l+1,ik)
         enddo
@@ -208,13 +244,21 @@ C --- First pass: copy sorted table to permanent array ---
       if (lpass .eq. 0) then
 
 C       Keep static record of these variables; reset each new pass
-        call upack1('lat gmax',slat,gmax)
+Cgetarg...info...           real(8) :: gmax , real(8) :: slat%gmax 1
+Cgetarg         call upack1('lat gmax',slat,gmax)
+         
+         gmax=slat%gmax
+
 
         call icopy(3*nvar,optls0,1,optlst,1)
         lpass = 1
       else
 C       Restore these variables
-        call pack2('lat gmax',slat,gmax,0)
+Cgetarg...info...           real(8) :: gmax , real(8) :: slat%gmax 1
+Cgetarg         call pack2('lat gmax',slat,gmax,0)
+         
+         slat%gmax=gmax 
+
       endif
 
 C --- Minimization procedure for next variable ---
@@ -253,8 +297,16 @@ C --- Initial Setup ---
           l  = optlst(2,j1)
           lt = optlst(3,j1)
 
-          call upack('spec rmt',sspec,is,rmt,0,0,0)
-          call spacks(0,'spec name',sspec,slabl,is,is)
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg           call upack('spec rmt',sspec,is,rmt,0,0,0)
+           
+           rmt=sspec(is)%rmt
+
+Cgetarg           call spacks(0,'spec name',sspec,slabl,is,is)
+           do i_spacks=is,is 
+           call spacks_copy('u',sspec(i_spacks)%name,is,is,slabl,i_spacks)
+           enddo
+
 C         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
           call lmfop2(0,is,sspec,rsmh,eh)
 C         Starting guesses; also set limit to range
@@ -279,7 +331,11 @@ C ... Get parameters for this variable
       lt = optlst(3,ivar)
 C     call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
       call lmfop2(0,is,sspec,rsmh,eh)
-      call upack('spec rmt',sspec,is,rmt,0,0,0)
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg       call upack('spec rmt',sspec,is,rmt,0,0,0)
+       
+       rmt=sspec(is)%rmt
+
 
 C ... Starting guesses; also set limit to range
       if (ncall .eq. 0) then
@@ -306,12 +362,20 @@ C ... Starting guesses; also set limit to range
         vhist(1,1) = ax
         vhist(1,2) = cx
 
-        call spacks(0,'spec name',sspec,slabl,is,is)
+Cgetarg         call spacks(0,'spec name',sspec,slabl,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,slabl,i_spacks)
+         enddo
+
         call info5(20,1,0,' LMFOPB:  begin optimization of var #%i in'//
      .    ' species '//slabl//'%a: start=%d range=(%d,%d)',ivar,ax,
      .    xmin,xmax,0)
       else
-        call spacks(0,'spec name',sspec,slabl,is,is)
+Cgetarg         call spacks(0,'spec name',sspec,slabl,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,slabl,i_spacks)
+         enddo
+
         call info2(20,1,0,' LMFOPB: continue optimization of var #%i,'//
      .    ' species '//slabl//'%a val=%d',ivar,vhist(1,ncall))
       endif
@@ -417,12 +481,19 @@ C     Done with this variable; start another
 
 C     return
   999 call rxs('lmfopb: failed to parse switch: ',sopts(j1:j2))
-      end
+Cgetarg       end
+       end subroutine lmfopb 
+
       subroutine lmfop2(lpack,is,sspec,rsmh,eh)
+       
+       use m_struc_def  !Cgetarg
+
 C- Pack or unpack species parameters
 C     implicit none
       integer lpack,is
-      double precision sspec(1)
+Cgetarg       double precision sspec(1)
+       type(s_spec)::sspec(*)
+
       integer nkap0,n0
       parameter (nkap0=3,n0=10)
 C     integer lh(nkap0),nkapi,npqni,ik
@@ -432,7 +503,12 @@ C Local
       double precision orbp(n0,2,nkap0)
 
       call dpzero(orbp,n0*nkap0*2)
-      call upack2('spec orbp',sspec,is,orbp)
+Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%orbp 60
+Cgetarg       call upack2('spec orbp',sspec,is,orbp)
+       
+       i_copy_size=size(sspec(is)%orbp) 
+       call dcopy(i_copy_size,sspec(is)%orbp,1,orbp,1) 
+
 C ... Unpack
       if (lpack .eq. 0) then
 C       call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
@@ -443,11 +519,19 @@ C       call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         ikap = 1
         call dcopy(n0,rsmh(1,ikap),1,orbp(1,1,ikap),1)
         call dcopy(n0,eh(1,ikap),1,orbp(1,2,ikap),1)
-        call pack2('spec orbp',sspec,is,orbp)
+Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%orbp 60
+Cgetarg         call pack2('spec orbp',sspec,is,orbp)
+         
+         i_copy_size=size(sspec(is)%orbp) 
+         call dcopy(i_copy_size,orbp,1,sspec(is)%orbp,1) 
+
       endif
-      end
+Cgetarg       end
+       end subroutine lmfop2 
+
 
       double precision function fopb(x,nfcn0,ir)
+
       double precision x(1)
       integer nfcn0,ir
 
@@ -469,5 +553,7 @@ C       call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         vhist(1,iter) = x(1)
         fopb = 0
       endif
-      end
+Cgetarg       end
+       end function fopb 
+
 

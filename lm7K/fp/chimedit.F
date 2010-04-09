@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['chimedit', 'lat', 'slat']
+Cgetarg...info...           structure ['chimedit', 'bz', 'sbz']
+Cgetarg...info...           use_to_add ['chimedit', 'm_struc_def']
       subroutine chimedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
      .  nbas,nat,nspec)
+       
+       use m_struc_def  !Cgetarg
+
 C- Magnetic Linear response editor
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -99,7 +105,14 @@ C ... Passed parameters
       character sopts*(*)
       integer mode,nbas,nat,nspec,ifi,n0
       parameter (n0=10)
-      double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
+Cgetarg       double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
+       type(s_ctrl)::sctrl
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_pot)::spot
+       type(s_bz)::sbz
+
 C ... Local parameters
       integer nglob,fopna,fopng,a2vec,havechi0,iq,nq,nsgrp
       integer i,j,l,im,m,n,j1,j2,js1,js2,nw,ne,iinear,lqp
@@ -141,12 +154,34 @@ C ... Heap
      .  call rx('chim editor for only for magnetic systems')
 
 C --- Setup ---
-      call upack('lat plat opos',slat,plat,opos,0,0,0)
-      call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
-     .  oag,0)
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg       call upack('lat plat opos',slat,plat,opos,0,0,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       opos=slat%opos
+
+Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
+Cgetarg       call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
+Cgetarg      .  oag,0)
+       
+       nsgrp=slat%nsgrp
+       oistab=slat%oistab
+       og=slat%osymgr
+       oag=slat%oag
+
 
 C     should be from sgw?
-      call upack('bz nkabc',sbz,nkxyz,0,0,0,0)
+Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
+Cgetarg       call upack('bz nkabc',sbz,nkxyz,0,0,0,0)
+       
+       i_copy_size=size(sbz%nkabc) 
+       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
+
       call dcopy(3*nbas,w(opos),1,pos,1)
       call pshpr(0)
       llshft = .false.
@@ -582,5 +617,7 @@ C ... help
      .  ' ... nothing done')
       goto 10
 
-      end
+Cgetarg       end
+       end subroutine chimedit 
+
 

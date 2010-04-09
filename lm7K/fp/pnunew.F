@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['pnunew', 'site', 'ssite']
+Cgetarg...info...           structure ['pnunew', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['pnunew', 'm_struc_def']
       subroutine pnunew(nbas,nsp,ssite,sspec,pmin,pmax,lfrzw,hab,sab,
      .  qbyl,hbyl)
+       
+       use m_struc_def  !Cgetarg
+
 C- Makes new boundary conditions pnu for phi,phidot
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -42,9 +48,14 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nsp,lfrzw,n0,nab
       parameter(n0=10,nab=9)
-      double precision ssite(1),sspec(1),pmin(n0),pmax(n0),
-     .  qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas),
-     .  sab(nab,n0,nsp,nbas),hab(nab,n0,nsp,nbas)
+Cgetarg       double precision ssite(1),sspec(1),pmin(n0),pmax(n0),
+Cgetarg      .  qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas),
+Cgetarg      .  sab(nab,n0,nsp,nbas),hab(nab,n0,nsp,nbas)
+       real(8):: pmin(n0) , pmax(n0) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) 
+     . , sab(nab,n0,nsp,nbas) , hab(nab,n0,nsp,nbas) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       logical lpz,lfrzv,lfrzz
       integer idmod(n0),stdo,lgunit,ipr,ib,is,lmxa,l,ipqn,m,isp,ov0,nr,
@@ -66,11 +77,38 @@ C ... Heap
 
 C --- For each site, do ---
       do  ib = 1, nbas
-        call upack('site spec pnu pz ov0',ssite,ib,is,pnu,pnz,ov0)
-        call upack('spec lmxa rmt idmod mxcst',sspec,is,lmxa,rmt,idmod,
-     .    mxcst)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
+Cgetarg         call upack('site spec pnu pz ov0',ssite,ib,is,pnu,pnz,ov0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pnu) 
+         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
+         i_copy_size=size(ssite(ib)%pz) 
+         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+         ov0=ssite(ib)%ov0
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
+Cgetarg...info...           integer :: mxcst , integer(8) :: sspec%mxcst 1
+Cgetarg         call upack('spec lmxa rmt idmod mxcst',sspec,is,lmxa,rmt,idmod,
+Cgetarg      .    mxcst)
+         
+         lmxa=sspec(is)%lmxa
+         rmt=sspec(is)%rmt
+         i_copy_size=size(sspec(is)%idmod) 
+         call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
+         mxcst=sspec(is)%mxcst
+
         if (lmxa .eq. -1) goto 10
-        call spacks(0,'spec name',sspec,spid,is,is)
+Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+         enddo
+
         if (mod(mxcst/4,2) .ne. 0) call ivset(idmod,1,n0,1)
 
         if (ipr .ge. 20) write(stdo,320) ib,is,spid
@@ -92,8 +130,20 @@ C         if (dabs(qbyl(m,isp,ib)) .gt. 1d-8 .and. .not. lpz) then
             ebar = hbyl(m,isp,ib)/qbyl(m,isp,ib)
 
 C       ... Log derivative by direct num integration
-            call upack2('site spec',ssite,ib,is)
-            call upack('spec z a nr',sspec,is,z,a,nr,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg             call upack2('site spec',ssite,ib,is)
+             
+             is=ssite(ib)%spec
+
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg             call upack('spec z a nr',sspec,is,z,a,nr,0)
+             
+             z=sspec(is)%z
+             a=sspec(is)%a
+             nr=sspec(is)%nr
+
             call defrr(og,nr*2)
             call defrr(orofi,nr*2)
             call radmsh(rmt,a,nr,w(orofi))
@@ -255,9 +305,19 @@ C         ... Permit pnu no lower than free electron value
         enddo
         enddo
 
-        call pack5('site pnu pz',ssite,ib,pnu,pnz,0,0)
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg         call pack5('site pnu pz',ssite,ib,pnu,pnz,0,0)
+         
+         i_copy_size=size(ssite(ib)%pnu) 
+         call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1) 
+         i_copy_size=size(ssite(ib)%pz) 
+         call dcopy(i_copy_size,pnz,1,ssite(ib)%pz,1) 
+
    10   continue
       enddo
 
-      end
+Cgetarg       end
+       end subroutine pnunew 
+
 

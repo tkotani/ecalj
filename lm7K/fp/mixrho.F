@@ -1,5 +1,21 @@
+Cgetarg...info...           structure ['mixrho', 'lat', 'slat']
+Cgetarg...info...           structure ['mixrho', 'site', 'ssite']
+Cgetarg...info...           structure ['mixrho', 'spec', 'sspec']
+Cgetarg...info...           structure ['pvmix3', 'site', 'ssite']
+Cgetarg...info...           structure ['pvmix3', 'spec', 'sspec']
+Cgetarg...info...           structure ['pvmix5', 'site', 'ssite']
+Cgetarg...info...           structure ['pvmix5', 'spec', 'sspec']
+Cgetarg...info...           structure ['pvmix7', 'site', 'ssite']
+Cgetarg...info...           structure ['pvmix7', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['pvmix3', 'm_struc_def']
+Cgetarg...info...           use_to_add ['pvmix7', 'm_struc_def']
+Cgetarg...info...           use_to_add ['mixrho', 'm_struc_def']
+Cgetarg...info...           use_to_add ['pvmix5', 'm_struc_def']
       subroutine mixrho(ssite,sspec,slat,nsp,iter,mixmod,qval,elind,
      .  orhnew,orhold,k1,k2,k3,dmxp,smrnew,smrho)
+       
+       use m_struc_def  !Cgetarg
+
 C- Mix old and new charge densities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -184,7 +200,11 @@ C ... Passed parameters
 #endif
       integer nsp,k1,k2,k3,orhold(3,1),orhnew(3,1),iter,procid,master
       character*(*) mixmod
-      double precision ssite(1),sspec(1),slat(1)
+Cgetarg       double precision ssite(1),sspec(1),slat(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double precision qval,elind,dmxp(25)
       double complex smrnew(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
 C ... Local parameters
@@ -281,8 +301,23 @@ c      locmix = 3
 c      print *,'vvv mixrho locmix=',locmix
 ccccccccccccccccccccccccccccccccc
       qmix(2) = 0
-      call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
-      alat = dgets('lat alat',slat)
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
+Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
+Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       ng=slat%ng
+       ogv=slat%ogv
+       okv=slat%okv
+       vol=slat%vol
+
+Cgetarg       alat = dgets('lat alat',slat)
+       alat = slat%alat 
+
       elinl = elind
       kmxs = 3
       kmxr = 8
@@ -454,9 +489,27 @@ C --- 7. Project cn = screening density into local densities ---
       call defcc(ofkl,(k0+1)*nlm0*nbas)
       call ftlxp(nbas,ssite,sspec,alat,ng,w(ogv),w(ocn),k0,nlm0,w(ofkl))
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-        call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: rsmv , real(8) :: sspec%rsmv 1
+Cgetarg...info...           integer :: kmxv , integer(8) :: sspec%kmxv 1
+Cgetarg         call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
+         
+         lmxl=sspec(is)%lmxl
+         rsmv=sspec(is)%rsmv
+         kmxv=sspec(is)%kmxv
+
         if (lmxl .lt. 0) cycle
         nlml = (lmxl+1)**2
         if (nlml.gt.nlm0) call rxi('mixrho: nlml.gt.nlm0, need',nlml)
@@ -504,9 +557,15 @@ C --- Fancy mixing of smoothed + some representation of local rho ---
 C ... Count number of elts from local densities for fancy mixing scheme
       nda = 0
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        nr = igetss('spec nr',is,sspec)
-        lmxl = igetss('spec lmxl',is,sspec)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg         nr = igetss('spec nr',is,sspec)
+         nr = int(sspec(is)%nr) 
+
+Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
+         lmxl = int(sspec(is)%lmxl) 
+
         nlml = (lmxl+1)**2
         if (lmxl .eq. -1) goto 20
 C       include spherical part of local densities only
@@ -703,9 +762,27 @@ C      call zprm3('mixed sm rho, spin2',0,smrho(1,1,1,2),k1,k2,k3)
 C ... 15. Restore local densities: rho+ +/- rho-  -> rho+, rho-'
       call dpzero(qmix,2)
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-        call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: rsmv , real(8) :: sspec%rsmv 1
+Cgetarg...info...           integer :: kmxv , integer(8) :: sspec%kmxv 1
+Cgetarg         call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
+         
+         lmxl=sspec(is)%lmxl
+         rsmv=sspec(is)%rsmv
+         kmxv=sspec(is)%kmxv
+
         if (lmxl .lt. 0) cycle
         nlml = (lmxl+1)**2
         if (nlml.gt.nlm0) call rxi('mixrho: nlml.gt.nlm0, need',nlml)
@@ -859,10 +936,15 @@ c      enddo
 c      enddo
 c      print *,'vvv mixrho sum smrho output 222=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
 ccccccccccccccccccccccccccccccccc
-      end
+Cgetarg       end
+       end subroutine mixrho 
+
 
       subroutine pvmix3(ssite,sspec,nbas,nsp,beta,locmix,wt,kmxr,nlm0,
      .  k9,qkl,orhold,orhnew,difx)
+       
+       use m_struc_def  !Cgetarg
+
 C- Linearly mix local densities, possibly subtracting G_kL expansion
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -909,8 +991,12 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nsp,kmxr,nlm0,locmix,k9
       integer orhold(3,nbas),orhnew(3,nbas)
-      double precision ssite(1),sspec(1),difx,beta,wt(2),
-     .  qkl(0:kmxr,nlm0,nsp,4,nbas)
+Cgetarg       double precision ssite(1),sspec(1),difx,beta,wt(2),
+Cgetarg      .  qkl(0:kmxr,nlm0,nsp,4,nbas)
+       real(8):: difx , beta , wt(2) , qkl(0:kmxr,nlm0,nsp,4,nbas) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer ib,is,igetss,nr,nlml,m,lmxl,k9l
       integer ori,orwgt,orsm(4),i
@@ -921,9 +1007,23 @@ C ... Heap
 
       difx  = 0
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec a nr rmt rg',sspec,is,a,nr,rmt,rg)
-        lmxl = igetss('spec lmxl',is,sspec)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg         call upack('spec a nr rmt rg',sspec,is,a,nr,rmt,rg)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+         rg=sspec(is)%rg
+
+Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
+         lmxl = int(sspec(is)%lmxl) 
+
         if (lmxl .eq. -1) goto 10
         nlml = (lmxl+1)**2
         call defrr(ori, nr)
@@ -985,11 +1085,14 @@ C   ... Linear mix, this site
         call rlse(ori)
    10   continue
       enddo
-      end
+Cgetarg       end
+       end subroutine pvmix3 
+
 
       subroutine pvmix4(nr,nlml,nsp,ri,locmix,wt,beta,ib,
      .  rhos1,rhos2,rhns1,rhns2,
      .  rho1,rho2,rho3,rhn1,rhn2,rhn3,rwgt,dif)
+
 C- Linear mixing of local densities for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1129,11 +1232,16 @@ C       print *, 'end of pvmix4'
 C       call prrmsh('rho1 after lin mix',ri,rho1,nr,nr,nlml*nsp)
 C       call prrmsh('rho2 after lin mix',ri,rho2,nr,nr,nlml*nsp)
 
-      end
+Cgetarg       end
+       end subroutine pvmix4 
+
 
       subroutine pvmix5(nmix,mxsav,fnam,ifi,lbin,rmsdel,locmix,k9,nbas,
      .  kmxr,nlm0,ssite,sspec,nsp,orhold,orhnew,co,cn,ng,ng0,cnst,nda,a,
      .  qkl,rms2,nmixr)
+       
+       use m_struc_def  !Cgetarg
+
 C- Copy rho into holding array, read prior iterations from disk
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1230,8 +1338,12 @@ C ... Passed parameters
      .  k9,kmxr,nlm0
       integer orhold(3,1),orhnew(3,1)
       double precision a(nda,nsp,mxsav+2,2),rms2,rmsdel
-      double precision ssite(1),sspec(1),co(2,ng,nsp),cn(2,ng,nsp),
-     .  qkl(0:kmxr,nlm0,nsp,4,1)
+Cgetarg       double precision ssite(1),sspec(1),co(2,ng,nsp),cn(2,ng,nsp),
+Cgetarg      .  qkl(0:kmxr,nlm0,nsp,4,1)
+       real(8):: co(2,ng,nsp) , cn(2,ng,nsp) , qkl(0:kmxr,nlm0,nsp,4,1) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       character fnam*8
 C ... Local parameters
       integer stdo,lgunit,ib,na,i,j,k,m,np,iprint,nmixr,is,igetss,
@@ -1271,8 +1383,20 @@ C   ... FT Mesh density
 
 C   ... Site densities, depending on locmix
         do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec a nr rmt lmxl',sspec,is,aat,nr,rmt,lmxl)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           real(8) :: aat , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg         call upack('spec a nr rmt lmxl',sspec,is,aat,nr,rmt,lmxl)
+         
+         aat=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+         lmxl=sspec(is)%lmxl
+
         if (lmxl .eq. -1) cycle
         rf = rmt/3
         nlml = (lmxl+1)**2
@@ -1538,9 +1662,12 @@ C       call prm('a after write',a,nda*nsp,nda*nsp,(mxsav+2)*2)
 #endif
       endif
 
-      end
+Cgetarg       end
+       end subroutine pvmix5 
+
 
       subroutine pvmix6(broy,nmix,mmix,mxsav,beta,wc,nda,a)
+
 C- Mixing of the total density
 C ------------------------------------------------------------------
 Ci  broy   : 0 for Anderson mixing
@@ -1618,11 +1745,16 @@ C   ... Copy x*=a(*,0,2) to a(*,0,1)
 C ... Add the change relative to linear mixing
 C     sqmix = (a(1,0,1) - sqmix)*vol
 
-      end
+Cgetarg       end
+       end subroutine pvmix6 
+
 
       subroutine pvmix7(ssite,sspec,nbas,nsp,nda,a,n1,n2,n3,k1,k2,k3,
      .  locmix,wt,k9,kmxr,nlm0,qkl,ng,ng0,kv,ips0,gv,crho,wk,orhold,
      .  smrho)
+       
+       use m_struc_def  !Cgetarg
+
 C- Restore mixed density into specific arrays
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1667,8 +1799,13 @@ C ... Passed parameters
       integer nsp,n1,n2,n3,k1,k2,k3,ng,ng0,nda,na,nr,nbas,locmix,k9,
      .  kv(ng,3),ips0(ng),kmxr,nlm0
       integer orhold(3,1)
-      double precision ssite(1),sspec(1),gv(ng,3),a(nda,nsp),
-     .  qkl(0:kmxr,nlm0,nsp,4,nbas),rf,wt(2)
+Cgetarg       double precision ssite(1),sspec(1),gv(ng,3),a(nda,nsp),
+Cgetarg      .  qkl(0:kmxr,nlm0,nsp,4,nbas),rf,wt(2)
+       real(8):: gv(ng,3) , a(nda,nsp) , qkl(0:kmxr,nlm0,nsp,4,nbas) 
+     . , rf , wt(2) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       double complex crho(ng,nsp),smrho(k1,k2,k3,nsp),wk(k1,k2,k3)
 C ... Local parameters
       integer orofi,orwgt
@@ -1697,11 +1834,27 @@ C ... Update local densities
       na = 1 + 2*ng0
       k9l = k9 - mod(k9,10)
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec a nr rmt lmxl',sspec,is,aat,nr,rmt,lmxl)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           real(8) :: aat , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg         call upack('spec a nr rmt lmxl',sspec,is,aat,nr,rmt,lmxl)
+         
+         aat=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+         lmxl=sspec(is)%lmxl
+
         if (lmxl .eq. -1) cycle
         rf = rmt/3
-        call upack2('spec rg',sspec,is,rg)
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg         call upack2('spec rg',sspec,is,rg)
+         
+         rg=sspec(is)%rg
+
         nlml = (lmxl+1)**2
         call defrr(orofi, nr)
         call defrr(orwgt, nr)
@@ -1768,7 +1921,9 @@ C      call prrmsh('rho2,mixed',w(orofi),w(orhold(2,ib)),nr,nr,nlml*nsp)
       na = na-1
       if (nda .ne. na) call rx('mixrho: bug in pvmix7')
 
-      end
+Cgetarg       end
+       end subroutine pvmix7 
+
 
 C      subroutine pvmix8(mode,nr,nlml,nsp,rho1,rho2)
 CC- Handle possible constraints for change in smooth density
@@ -1825,6 +1980,7 @@ C      call splrho(i+1,nsp,nr,nlml,rho1,rho2,xx)
 C
 C      end
       subroutine pvmix9(mode,linv,nr,nlml,off,rf,rofi,rho1,rho2)
+
 C- Transformation of local densities rho1,rho2 for mixing
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1922,5 +2078,7 @@ C ... Inverse
 C      call prrmsh('pvmix9 rho1',rofi,rho1,nr,nr,nlml)
 C      call prrmsh('pvmix9,rho2',rofi,rho2,nr,nr,nlml)
 
-      end
+Cgetarg       end
+       end subroutine pvmix9 
+
 

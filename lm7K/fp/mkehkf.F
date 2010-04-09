@@ -1,4 +1,9 @@
+Cgetarg...info...           structure ['mkehkf', 'ham', 'sham']
+Cgetarg...info...           use_to_add ['mkehkf', 'm_struc_def']
       subroutine mkehkf(mode,sham,sev,valmom,sumtv,etot)
+       
+       use m_struc_def  !Cgetarg
+
 C- Make Harris energy or Kohn-Sham energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -44,7 +49,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode
-      double precision sham(1),sev,etot,sumtv,valmom
+Cgetarg       double precision sham(1),sev,etot,sumtv,valmom
+       real(8):: sev , etot , sumtv , valmom 
+       type(s_ham)::sham
+
 C ... Local parameters
       integer stdo,stdl,ipr,ipl,nsp,nglob
       double precision eh,eks,rhoexc,sumec,utot,valvef,xcore,
@@ -75,7 +83,12 @@ C     stdl = lgunit(2)
       stdl = nglob('stdl')
       call getpr(ipr)
       ipl = 1
-      call upack1('ham eterms',sham,eterms)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call upack1('ham eterms',sham,eterms)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,sham%eterms,1,eterms,1) 
+
       sumev = sev
 
       if (mode .eq. 1) then
@@ -100,7 +113,12 @@ ccccccccccccccc
 c      print *,'vvv ekin=',ekin,sumtv,sumtc
 ccccccccccccccc
       endif
-      call pack1('ham eterms',sham,eterms)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call pack1('ham eterms',sham,eterms)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,eterms,1,sham%eterms,1) 
+
       if (mode .eq. 0) return
 
 C      print *, sumev(1,1)-sev
@@ -163,5 +181,7 @@ C      write(ifet,"(d23.16,a)")  utot,   ' ! U '
 C      write(ifet,"(d23.16,a)")  ekin,   ' ! T '
 C      close(ifet)
 
-      end
+Cgetarg       end
+       end subroutine mkehkf 
+
 

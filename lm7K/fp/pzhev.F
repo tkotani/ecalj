@@ -1,5 +1,6 @@
 c      subroutine pzhev(lov,n,oh,os,nb,nprow,npcol,emx,nmx,nev,e,ot)
       subroutine pzhev(lov,n,hamm,ovlm,nb,nprow,npcol,emx,nmx,nev,e,ot)
+
 C- MPI parallel diagonaliser
 C ----------------------------------------------------------------------
 Ci Inputs: 
@@ -311,9 +312,12 @@ C      call blacs_exit(1)
 #endif
 #endif
 c##### MPI
-      end
+Cgetarg       end
+       end subroutine pzhev 
+
 #if MPI & BLACS 
       subroutine dstmt(desc,n,ag,al)
+
 C Distribute global matrix ag into local matrix al
       implicit none
       integer desc(1),n
@@ -324,8 +328,11 @@ C Distribute global matrix ag into local matrix al
            CALL PZELSET( al, i, j, desc, ag(i,j))
          enddo
        enddo
-       end
+Cgetarg        end
+        end subroutine dstmt 
+
       subroutine udstmt(desc,n,al,ag)
+
 C Undistribute local matrix al into global matrix ag
       implicit none
       integer desc(1),n
@@ -340,7 +347,9 @@ C Undistribute local matrix al into global matrix ag
           ag(i,j) = alpha
         enddo
       enddo
-      end
+Cgetarg       end
+       end subroutine udstmt 
+
 #endif
 c###### MPI
 

@@ -1,6 +1,13 @@
+Cgetarg...info...           structure ['smvxcm', 'lat', 'slat']
+Cgetarg...info...           structure ['smvxc4', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['smvxcm', 'm_struc_def']
+Cgetarg...info...           use_to_add ['smvxc4', 'm_struc_def']
       subroutine smvxcm(ssite,sspec,slat,nbas,lfrce,k1,k2,k3,smrho,
      .  smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm,
      .  rvepsm,focexc,focex,focec,focvxc,f)
+       
+       use m_struc_def  !Cgetarg
+
 C- XC potential for smooth mesh density
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -71,9 +78,15 @@ C     implicit none
 C ... Passed parameters
       integer nbas,lfrce,k1,k2,k3,ngabc(3)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      double precision ssite(1),sspec(1),slat(1),f(3,1),
-     .  repsm(2),repsmx(2),repsmc(2),rmusm(2),rvmusm(2),rvepsm(2),
-     .  focexc(2),focex(2),focec(2),focvxc(2)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),f(3,1),
+Cgetarg      .  repsm(2),repsmx(2),repsmc(2),rmusm(2),rvmusm(2),rvepsm(2),
+Cgetarg      .  focexc(2),focex(2),focec(2),focvxc(2)
+       real(8):: f(3,1) , repsm(2) , repsmx(2) , repsmc(2) , rmusm(2) 
+     . , rvmusm(2) , rvepsm(2) , focexc(2) , focex(2) , focec(2) , focvxc(2) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2),
      .  smvxc(k1,k2,k3,2),smvx(k1,k2,k3,2),smvc(k1,k2,k3,2),
      .  smexc(k1,k2,k3)
@@ -90,8 +103,29 @@ C ... Heap
       nsp  = nglob('nsp')
       lxcfun = nglob('lxcf')
       call tcn('smvxc')
-      call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
-      call upack('lat alat vol ocy',slat,alat,vol,ocy,0,0)
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
+Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
+Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       ng=slat%ng
+       ogv=slat%ogv
+       okv=slat%okv
+       vol=slat%vol
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call upack('lat alat vol ocy',slat,alat,vol,ocy,0,0)
+       
+       alat=slat%alat
+       vol=slat%vol
+       ocy=slat%ocy
+
       if (excsan(lxcfun,0) .lt. 0) x1 = excsan(lxcfun,stdo)
 
 C ... Sum of foca hankel heads; break into direct and pert. parts
@@ -214,10 +248,13 @@ C --- Force from foca sm-head; cgh1 is workspace ---
 
       call tcx('smvxc')
 
-      end
+Cgetarg       end
+       end subroutine smvxcm 
+
 
       subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho,
      .  smvxc,smvx,smvc,smexc,dsmvxc,rhoeps,rhoex,rhoec,rhomu,vxcavg)
+
 C- Makes smooth xc potential smvxc and optionally dsmvxc/drho
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -451,10 +488,13 @@ C        call zprm3('smvxc spin 2',0,smvxc(1,1,1,2),n1,n2,n3)
 C        call zprm3('dsmvxc spin 2',0,dsmvxc(1,1,1,2),n1,n2,n3)
 C      endif
 
-      end
+Cgetarg       end
+       end subroutine smvxc2 
+
 
       subroutine smvxc3(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,smcor,dsmvxc,
      .  smvxc,rmuxcc)
+
 C- Smooth core density times dvxc/drho
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -500,8 +540,13 @@ C ... Local parameters
 C     write(stdo,862) csum
 C 862 format(' csum=',2f14.8)
 
-      end
+Cgetarg       end
+       end subroutine smvxc3 
+
       subroutine smvxc4(nbas,nsp,ssite,sspec,alat,vol,cy,ng,gv,cvxc,f)
+       
+       use m_struc_def  !Cgetarg
+
 C- For foca, adds force from shift of smH-head against Vxc.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -529,8 +574,12 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,ng
-      double precision ssite(1),sspec(1),gv(ng,3),alat,vol,
-     .   cy(1),f(3,nbas)
+Cgetarg       double precision ssite(1),sspec(1),gv(ng,3),alat,vol,
+Cgetarg      .   cy(1),f(3,nbas)
+       real(8):: gv(ng,3) , alat , vol , cy(1) , f(3,nbas) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       double complex cvxc(ng,nsp)
 C ... Local parameters
       integer stdo,k0,nlmx,lgunit,kmax,ib,is,lfoc,i,kb,iprint
@@ -547,7 +596,14 @@ C ... Local parameters
 C --- Loop over sites ---
       if (iprint() .ge. 50) write(stdo,400)
       do  ib = 1, nbas
-        call upack('site spec pos',ssite,ib,is,tau,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pos) 
+         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         if (lfoc .gt. 0 .and. cofh .ne. 0) then
           sum1 = 0d0
@@ -583,4 +639,6 @@ C --- Loop over sites ---
   340 format(i4,3f12.6)
   400 format(/' xc-force from foca:')
 
-      end
+Cgetarg       end
+       end subroutine smvxc4 
+

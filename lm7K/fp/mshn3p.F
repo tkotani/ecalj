@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['mshn3p', 'site', 'ssite']
+Cgetarg...info...           structure ['mshn3p', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['mshn3p', 'm_struc_def']
       subroutine mshn3p(nbas,ssite,sspec,lmet,lrout,lfrce,qval,ef0,def,
      .  sumqv,sumev,n1,n2,n3,k1,k2,k3,smrho,oqkkl,f,lrep)
+       
+       use m_struc_def  !Cgetarg
+
 C- Interpolate the density on the three-point energy mesh for metals
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -52,8 +58,12 @@ C     implicit none
 C ... Passed parameters
       integer n1,n2,n3,k1,k2,k3,lmet,lfrce,lrout,lrep,nbas,oqkkl(3,1)
       double precision def,ef0,qval
-      double precision ssite(1),sspec(1),sumev(2,3),sumqv(3,2),
-     .  f(3,nbas,*)
+Cgetarg       double precision ssite(1),sspec(1),sumev(2,3),sumqv(3,2),
+Cgetarg      .  f(3,nbas,*)
+       real(8):: sumev(2,3) , sumqv(3,2) , f(3,nbas,*) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       double complex smrho(k1,k2,k3,3,2)
 C ... Local parameters
       integer stdo,stdl,ib,ipl,is,kmax,lmxa,lmxh,lmxl,m,nelt1,nelt2,
@@ -175,9 +185,30 @@ C ... Interpolate sumev,sumqv
 C --- Interpolate coeffs of local density ---
       if (lrout .gt. 0) then
       do  ib = 1, nbas
-        call upack('site spec pos',ssite,ib,is,p,0,0)
-        call upack('spec rsma lmxl lmxb',sspec,is,rsm,lmxl,lmxh,0)
-        call upack('spec lmxa kmxt',sspec,is,lmxa,kmax,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib,is,p,0,0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pos) 
+         call dcopy(i_copy_size,ssite(ib)%pos,1,p,1) 
+
+Cgetarg...info...           real(8) :: rsm , real(8) :: sspec%rsma 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
+Cgetarg         call upack('spec rsma lmxl lmxb',sspec,is,rsm,lmxl,lmxh,0)
+         
+         rsm=sspec(is)%rsma
+         lmxl=sspec(is)%lmxl
+         lmxh=sspec(is)%lmxb
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg         call upack('spec lmxa kmxt',sspec,is,lmxa,kmax,0,0)
+         
+         lmxa=sspec(is)%lmxa
+         kmax=sspec(is)%kmxt
+
 C       call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
 
         nlma = (lmxa+1)**2
@@ -224,9 +255,12 @@ C --- Choose new energy window ---
       if (ipl .gt. 0) write(stdl,711) w1,w2,w3,ef0,def,sev,sen
   711 format('nf w',3f7.3,'  ef',2f8.5,'   E0',f12.6,'  -sgS',f10.6)
 
-      end
+Cgetarg       end
+       end subroutine mshn3p 
+
 
       subroutine mshn31(w1,w2,w3,nelt,nsp,qkkl)
+
 C- Interpolate coeffs of local density
 C     implicit none
 C ... Passed parameters
@@ -243,9 +277,12 @@ C ... Local parameters
       enddo
       enddo
       if (nsp .eq. 2) call dcopy(nelt,qkkl(1,1,2),1,qkkl(1,2,1),1)
-      end
+Cgetarg       end
+       end subroutine mshn31 
+
 
       subroutine mshn32(w1,w2,w3,n1,n2,n3,k1,k2,k3,nsp,smrho)
+
 C- Interpolate smooth mesh density
 C     implicit none
 C ... Passed parameters
@@ -268,5 +305,7 @@ C ... Local parameters
       enddo
       if (nsp .eq. 2)
      .  call dcopy(2*k1*k2*k3,smrho(1,1,1,1,2),1,smrho(1,1,1,2,1),1)
-      end
+Cgetarg       end
+       end subroutine mshn32 
+
 

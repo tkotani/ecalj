@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['ugcomp', 'site', 'ssite']
+Cgetarg...info...           structure ['ugcomp', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['ugcomp', 'm_struc_def']
 #define F90 1
       subroutine ugcomp(nbas,ssite,sspec,slat,qmom,gpot0,hpot0,ugg,f)
+       
+       use m_struc_def  !Cgetarg
+
 C- Part of the smooth estatic energy from compensating G's alone.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -54,8 +60,13 @@ C Event numbers:
       include "events.ins"
 #endif 
       integer nbas
-      double precision ssite(1),sspec(1),qmom(1),
-     .  gpot0(1),slat(1),f(3,nbas),hpot0(nbas),ugg
+Cgetarg       double precision ssite(1),sspec(1),qmom(1),
+Cgetarg      .  gpot0(1),slat(1),f(3,nbas),hpot0(nbas),ugg
+       real(8):: qmom(1) , gpot0(1) , f(3,nbas) , hpot0(nbas) , ugg 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
 C ... Local parameters
       integer ndim,ndim0,i,ib,ilm1,ilm2,is,iv0,jb,js,jv0,nvl,l1,l2,
      .  lfoc1,lfoc2,ll,lmax1,lmax2,m,nlm1,nlm2
@@ -164,8 +175,21 @@ c      do  ib = 1, nbas
         endif
         iv0 = iiv0(ib)
 #endif   
-        call upack('site spec pos',ssite,ib,is,tau1,0,0)
-        call upack('spec lmxl rg',sspec,is,lmax1,rg1,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau1(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib,is,tau1,0,0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pos) 
+         call dcopy(i_copy_size,ssite(ib)%pos,1,tau1,1) 
+
+Cgetarg...info...           integer :: lmax1 , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: rg1 , real(8) :: sspec%rg 1
+Cgetarg         call upack('spec lmxl rg',sspec,is,lmax1,rg1,0,0)
+         
+         lmax1=sspec(is)%lmxl
+         rg1=sspec(is)%rg
+
         call corprm(sspec,is,qcorg1,qcorh1,qsc1,cofg1,cofh1,ceh1,lfoc1,
      .    rh1,z1)
         nlm1 = (lmax1+1)**2
@@ -174,8 +198,21 @@ C   ... Loop over sites where charge lump sees the potential
         if (lmax1 .gt. -1) then
         jv0 = 0
         do  jb = 1, nbas
-          call upack('site spec pos',ssite,jb,js,tau2,0,0)
-          call upack('spec lmxl rg',sspec,js,lmax2,rg2,0,0)
+Cgetarg...info...           integer :: js , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau2(3) , real(8) :: ssite%pos 3
+Cgetarg           call upack('site spec pos',ssite,jb,js,tau2,0,0)
+           
+           js=ssite(jb)%spec
+           i_copy_size=size(ssite(jb)%pos) 
+           call dcopy(i_copy_size,ssite(jb)%pos,1,tau2,1) 
+
+Cgetarg...info...           integer :: lmax2 , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: rg2 , real(8) :: sspec%rg 1
+Cgetarg           call upack('spec lmxl rg',sspec,js,lmax2,rg2,0,0)
+           
+           lmax2=sspec(js)%lmxl
+           rg2=sspec(js)%rg
+
           if (lmax2 .gt. -1) then
           call corprm(sspec,js,qcorg2,qcorh2,qsc2,cofg2,cofh2,ceh2,
      .      lfoc2,rh2,z2)
@@ -350,5 +387,7 @@ C ... Assemble data from separate threads
 C      print *, ugg
 C      call prmx('qmom',qmom,nvl,nvl,1)
 C      call prm('gpot0',gpot0,nvl,nvl,1)
-      end
+Cgetarg       end
+       end subroutine ugcomp 
+
 

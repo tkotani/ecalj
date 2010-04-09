@@ -1,6 +1,17 @@
+Cgetarg...info...           structure ['makusq', 'site', 'ssite']
+Cgetarg...info...           structure ['makusq', 'ham', 'sham']
+Cgetarg...info...           structure ['makusq', 'spec', 'sspec']
+Cgetarg...info...           structure ['pusq1', 'lat', 'slat']
+Cgetarg...info...           structure ['pusq1', 'site', 'ssite']
+Cgetarg...info...           structure ['pusq1', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['pusq1', 'm_struc_def']
+Cgetarg...info...           use_to_add ['makusq', 'm_struc_def']
       subroutine makusq(mode,ssite,sspec,slat,sham,nbas,nsites,isite,
      .  nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
      .  aus)
+       
+       use m_struc_def  !Cgetarg
+
 C- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -87,7 +98,13 @@ C ... Passed parameters
      .  ndham,ndimh,napw,igvapw(3,napw),nev,nlmax,n0,nppn,
      .  nsites,isite(nsites)
       parameter (n0=10,nppn=12)
-      double precision ssite(1),sspec(1),slat(1),sham(1),q(3)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),sham(1),q(3)
+       real(8):: q(3) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_ham)::sham
+
       double precision ppnl(nppn,n0,nsp,nbas)
       double complex evec(ndimh,nsp,nev),
      .  aus(nlmax,ndham*nspc,3,nsp,nsites,iq)
@@ -114,13 +131,41 @@ C --- Start loop over atoms ---
         else
           ib = isite(i)
         endif
-        is = igetss('site spec',ib,ssite)
-        call upack('ham oindxo',sham,oiprmb,0,0,0,0)
-        call upack('spec rsma lmxa lmxl kmxt',sspec,is,rsma,lmxa,lmxl,
-     .    kmax)
-        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
+Cgetarg         call upack('ham oindxo',sham,oiprmb,0,0,0,0)
+         
+         oiprmb=sham%oindxo
+
+Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg         call upack('spec rsma lmxa lmxl kmxt',sspec,is,rsma,lmxa,lmxl,
+Cgetarg      .    kmax)
+         
+         rsma=sspec(is)%rsma
+         lmxa=sspec(is)%lmxa
+         lmxl=sspec(is)%lmxl
+         kmax=sspec(is)%kmxt
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
-        call upack('spec lmxb',sspec,is,lmxh,0,0,0)
+Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
+Cgetarg         call upack('spec lmxb',sspec,is,lmxh,0,0,0)
+         
+         lmxh=sspec(is)%lmxb
+
         if (lmxa .eq. -1) goto 10
 
 C   --- Set up all radial head and tail functions, and their BC's
@@ -152,11 +197,16 @@ C        call zprm('loc',2,aus(1,1,3,isp,ib,iq),nlmax,(lmxa+1)**2,nev)
    10   continue
       enddo
       call tcx('makusq')
-      end
+Cgetarg       end
+       end subroutine makusq 
+
 
       subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite,
      .  sspec,slat,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl,
      .  au,as,az)
+       
+       use m_struc_def  !Cgetarg
+
 C- Add to the coefficient for the projection onto (u,s) for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -218,7 +268,12 @@ C ... Passed parameters
       integer iprmb(ndimh)
       double precision ppnl(nppn,n0,2)
       double precision vp(*),dp(*),vh(*),dh(*)
-      double precision q(3),ssite(1),sspec(1),slat(1)
+Cgetarg       double precision q(3),ssite(1),sspec(1),slat(1)
+       real(8):: q(3) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex evec(ndimh,nspc,ndimh),
      .  au(nlmax,ndham*nspc,3,2),
      .  as(nlmax,ndham*nspc,3,2),
@@ -238,11 +293,42 @@ C ... Heap
       common /w/ w
 
       call tcn ('pusq1')
-      call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-      call upack('site spec pos',ssite,ia,isa,pa,0,0)
-      call upack('spec lmxa lmxb kmxt rsma',sspec,isa,lmxa,lmxha,kmax,
-     .            rsma)
-      call upack2('spec rmt',sspec,isa,rmt)
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+       
+       ocg=slat%ocg
+       ojcg=slat%ojcg
+       oidxcg=slat%oidxcg
+       ocy=slat%ocy
+
+Cgetarg...info...           integer :: isa , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pa(3) , real(8) :: ssite%pos 3
+Cgetarg       call upack('site spec pos',ssite,ia,isa,pa,0,0)
+       
+       isa=ssite(ia)%spec
+       i_copy_size=size(ssite(ia)%pos) 
+       call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxha , integer(8) :: sspec%lmxb 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
+Cgetarg       call upack('spec lmxa lmxb kmxt rsma',sspec,isa,lmxa,lmxha,kmax,
+Cgetarg      .            rsma)
+       
+       lmxa=sspec(isa)%lmxa
+       lmxha=sspec(isa)%lmxb
+       kmax=sspec(isa)%kmxt
+       rsma=sspec(isa)%rsma
+
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg       call upack2('spec rmt',sspec,isa,rmt)
+       
+       rmt=sspec(isa)%rmt
+
       if (lmxa .eq. -1) return
       nlmto = ndimh-napw
 
@@ -307,10 +393,13 @@ C ... end loop over noncollinear spins
       call rlse(ob)
       call tcx('pusq1')
 
-      end
+Cgetarg       end
+       end subroutine pusq1 
+
 
       subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,iprmb,
      .  cPkL,r,evec,vh,dh,vp,dp,au,as,az)
+
 C- Extract projection of eigenstate onto (u,s,z) for sphere at site ia
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -415,7 +504,9 @@ C     Rotate to (phi,phidot)
       endif
 
 C     call tcx('pusq2')
-      end
+Cgetarg       end
+       end subroutine pusq2 
+
 
 C      subroutine pusq3(ndimh,nlma,kmax,evec,b,a)
 CC- Add together coeffs to expand wavefct at this site

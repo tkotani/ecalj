@@ -1,7 +1,13 @@
+Cgetarg...info...           structure ['mkpot', 'ham', 'sham']
+Cgetarg...info...           structure ['mkpot', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['mkpot', 'm_struc_def']
       subroutine mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,
      .  k1,k2,k3,smrho,orhoat,qbg,smpot,qmom,vconst,vesrmt,osig,otau,
      .  oppi,ppn,hab,vab,sab,qval,qsc,gpot0,vval,fes,job,
      .  vorb,nlibu,lmaxu,lldau,  itest)
+       
+       use m_struc_def  !Cgetarg
+
 C- Make the potential from the density.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -167,9 +173,17 @@ C ... Passed parameters
       parameter (n0=10,nppn=12,nab=9)
       double precision qbg,qval,qsc,vconst,vesrmt(nbas)
       integer osig(nbas),otau(nbas),oppi(nbas),orhoat(3,nbas)
-      double precision ssite(1),sspec(1),slat(1),sham(1),spot(1),
-     .  qmom(1),fes(3,1),gpot0(1),vval(1),ppn(nppn,n0,nbas),
-     .  hab(nab,n0,nbas),sab(nab,n0,nbas),vab(nab,n0,nbas)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),sham(1),spot(1),
+Cgetarg      .  qmom(1),fes(3,1),gpot0(1),vval(1),ppn(nppn,n0,nbas),
+Cgetarg      .  hab(nab,n0,nbas),sab(nab,n0,nbas),vab(nab,n0,nbas)
+       real(8):: qmom(1) , fes(3,1) , gpot0(1) , vval(1) , ppn(nppn,n0,nbas) 
+     . , hab(nab,n0,nbas) , sab(nab,n0,nbas) , vab(nab,n0,nbas) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_ham)::sham
+       type(s_pot)::spot
+
       double complex smrho(k1,k2,k3,*),smpot(k1,k2,k3,*)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,nlibu)
 C ... Local parameters
@@ -239,9 +253,12 @@ ccccccccccccccccccccccccccccccccc
 
       ipr = iprint()
       ipl = ipr
-      lso =   isw(lgors('ham lncol,4',sham))
-     .    + 2*isw(lgors('ham lncol,32',sham))
-     .    + 3*isw(lgors('ham lncol,64',sham))
+Cgetarg       lso =   isw(lgors('ham lncol,4',sham))
+Cgetarg      .    + 2*isw(lgors('ham lncol,32',sham))
+Cgetarg      .    + 3*isw(lgors('ham lncol,64',sham))
+       lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
+     . ) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 ) 
+
       if (lso .ne. 0 .and. lcplxp .eq. 0)
      .  call rx('mkpot: incompatible lso,lcplxp')
       if (isum(nbas,lldau,1) .ne. 0 .and. lcplxp .eq. 0)
@@ -251,8 +268,20 @@ ccccccccccccccccccccccccccccccccc
       nsp  = nglob('nsp')
       lxcfun = nglob('lxcf')
       pi   = 4d0*datan(1d0)
-      call upack2('lat nabc vol',slat,ngabc,vol)
-      call upack1('ham eterms',sham,eterms)
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack2('lat nabc vol',slat,ngabc,vol)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       vol=slat%vol
+
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call upack1('ham eterms',sham,eterms)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,sham%eterms,1,eterms,1) 
+
 
 C --- Ensure density is positive definite ---
       if (cmdopt('--rhopos',8,0,outs)) then
@@ -568,9 +597,16 @@ c------------------
       endif
       if (dabs(dq) .gt. 1d-3 .and. iprint() .gt. 0) call awrit1(
      .  ' (warning) system not neutral, dq=%d',' ',80,lgunit(1),dq)
-      call pack1('ham eterms',sham,eterms)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call pack1('ham eterms',sham,eterms)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,eterms,1,sham%eterms,1) 
+
 
       call tcx('mkpot')
 
-      end
+Cgetarg       end
+       end subroutine mkpot 
+
 

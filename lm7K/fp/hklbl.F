@@ -1,5 +1,10 @@
+Cgetarg...info...           structure ['hklbl', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['hklbl', 'm_struc_def']
 #define F90 1
       subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,slat,hkl)
+       
+       use m_struc_def  !Cgetarg
+
 C- Bloch-sums of k,L-dependent smooth Hankel functions.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -23,7 +28,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k0,kmax,nlm
-      double precision e,rsm,slat(1),q(3),p(3),cy(1)
+Cgetarg       double precision e,rsm,slat(1),q(3),p(3),cy(1)
+       real(8):: e , rsm , q(3) , p(3) , cy(1) 
+       type(s_lat)::slat
+
       double complex hkl(0:k0,nlm)
 C ... Local parameters
       integer nlm0,ilm,job,k,ll,lmax,nkd,nkq,nrx,odlv,oqlv,owk,oyl
@@ -50,7 +58,17 @@ C ... Heap
       lmax = ll(nlm)
 
 C ... Shorten p, multiply by corresponding phase later
-      call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
       call shorbz(p,p1,plat,qlat)
       sp = 2*pi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
       phase = dcmplx(dcos(sp),dsin(sp))
@@ -60,8 +78,26 @@ C     call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, hkl)
 C     call hsmbl(p1,rsm,e,q,lmax,cy,slat, hsm,hsmp)
 
 C ... Alternatively, use vectorized equivalents (about 2x faster)
-      call upack('lat awald tol vol',slat,awald,tol,vol,0,0)
-      call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
+Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
+Cgetarg...info...           real(8) :: tol , real(8) :: slat%tol 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat awald tol vol',slat,awald,tol,vol,0,0)
+       
+       awald=slat%awald
+       tol=slat%tol
+       vol=slat%vol
+
+Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
+Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
+Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
+Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
+Cgetarg       call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
+       
+       nkd=slat%nkd
+       nkq=slat%nkq
+       odlv=slat%odlv
+       oqlv=slat%oqlv
+
       nrx = max(nkd,nkq)
 #if F90
 c      print *,'hklbl:aaa'
@@ -126,5 +162,7 @@ C ... Put in phase to undo shortening
    20 continue
       endif
 
-      end
+Cgetarg       end
+       end subroutine hklbl 
+
 

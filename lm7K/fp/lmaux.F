@@ -1,5 +1,17 @@
+Cgetarg...info...           structure ['lmaux', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['lmaux', 'array', 'sarray']
+Cgetarg...info...           structure ['lmaux', 'ham', 'sham']
+Cgetarg...info...           structure ['lmaux', 'pot', 'spot']
+Cgetarg...info...           structure ['lmaux', 'lat', 'slat']
+Cgetarg...info...           structure ['lmaux', 'str', 'sstr']
+Cgetarg...info...           structure ['lmaux', 'spec', 'sspec']
+Cgetarg...info...           structure ['lmaux', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['lmaux', 'm_struc_def']
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite,sstr,
      .  sarray,sbz,slabl,sstrn,mode,wksize)
+       
+       use m_struc_def  !Cgetarg
+
 C- Auxilliary programs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -69,8 +81,18 @@ C ... Passed parameters
       integer mode,wksize
       character*(*) sstrn, prgnam*8
       character*8 slabl(*)
-      double precision sarray(1),sctrl(1),sham(1),spot(1),slat(1),
-     .  sspec(1),ssite(1),sstr(1),sbz(1)
+Cgetarg       double precision sarray(1),sctrl(1),sham(1),spot(1),slat(1),
+Cgetarg      .  sspec(1),ssite(1),sstr(1),sbz(1)
+       type(s_array)::sarray
+       type(s_ctrl)::sctrl
+       type(s_ham)::sham
+       type(s_pot)::spot
+       type(s_lat)::slat
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+       type(s_str)::sstr
+       type(s_bz)::sbz
+
 C ... Local parameters
       character*120 outs,fnam*8
       integer NULLI
@@ -90,29 +112,141 @@ C ... Local parameters
      .  dval,avw,ekap(2),enu,rmaxs,qss(4),ckbas,cksumf,ehterm(4),
      .  qlat(9),emad,trumad,vmtz(2),omax1(3),omax2(3),wsrmax
       parameter (ngmx=48,mxclas=1000)
+
+      integer:: i_copy_size, i_spackv, i_spacks
 C ... Heap
       integer w(1)
       common /w/ w
 
-      call upack('ctrl nbas nclass nl nspec nspin',sctrl,nbas,nclass,nl,
-     .  nspec,nsp)
-      call upack('ctrl lncol modep',sctrl,lncol,modep,0,0,0)
-      lpgf = igets('ctrl lpgf',sctrl)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg       call upack('ctrl nbas nclass nl nspec nspin',sctrl,nbas,nclass,nl,
+Cgetarg      .  nspec,nsp)
+       
+       nbas=sctrl%nbas
+       nclass=sctrl%nclass
+       nl=sctrl%nl
+       nspec=sctrl%nspec
+       nsp=sctrl%nspin
+
+Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
+Cgetarg...info...           integer :: modep(3) , integer(8) :: sctrl%modep 3
+Cgetarg       call upack('ctrl lncol modep',sctrl,lncol,modep,0,0,0)
+       
+       lncol=sctrl%lncol
+       i_copy_size=size(sctrl%modep) 
+       call i8icopy(i_copy_size,sctrl%modep,1,modep,1) 
+
+Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
+       lpgf = int(sctrl%lpgf(1)) 
+
 C     lpbc = 0 for pbc in 3 dimensions, 11 pgf padded geometry
       lpbc = 0
       if (lpgf .gt. 0 .and. lpgf .lt. 10) lpbc = 11
-      call upack('array ohave oics oclabl onrc',sarray,oinitc,oics,
-     .  oclabl,onrc,0)
-      call upack('array npadl npadr nclasp opgfsl ormax',sarray,npadl,
-     .  npadr,nclasp,opgfsl,ormax)
-      call upack('array opos oipc oips',sarray,opos,oipc,oips,0,0)
-      call upack('ham oeula neula qss',sham,oeula,neul,qss,0,0)
-      call upack('pot opnu oqnu opp oqc oqt',spot,opnu,oqnu,opp,oqc,oqt)
-      call upack('pot oaamom orhrmx oves ovrmax',spot,oaamom,orhrmx,
-     .  oves,ovrmax,0)
-      call upack('lat avw alat plat plat2',slat,avw,alat,plat,plat2,0)
-      call upack('lat nkd odlv nkq oqlv',slat,nkd,odlv,nkq,oqlv,0)
-      call upack2('str mxnbr rmax',sstr,mxnbr,rmaxs)
+Cgetarg...info...           integer :: oinitc , integer(8) :: sarray%ohave 1
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg...info...           integer :: onrc , integer(8) :: sarray%onrc 1
+Cgetarg       call upack('array ohave oics oclabl onrc',sarray,oinitc,oics,
+Cgetarg      .  oclabl,onrc,0)
+       
+       oinitc=sarray%ohave
+       oics=sarray%oics
+       oclabl=sarray%oclabl
+       onrc=sarray%onrc
+
+Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
+Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: opgfsl , integer(8) :: sarray%opgfsl 1
+Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
+Cgetarg       call upack('array npadl npadr nclasp opgfsl ormax',sarray,npadl,
+Cgetarg      .  npadr,nclasp,opgfsl,ormax)
+       
+       npadl=sarray%npadl
+       npadr=sarray%npadr
+       nclasp=sarray%nclasp
+       opgfsl=sarray%opgfsl
+       ormax=sarray%ormax
+
+Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
+Cgetarg       call upack('array opos oipc oips',sarray,opos,oipc,oips,0,0)
+       
+       opos=sarray%opos
+       oipc=sarray%oipc
+       oips=sarray%oips
+
+Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
+Cgetarg...info...           integer :: neul , integer(8) :: sham%neula 1
+Cgetarg...info...           real(8) :: qss(4) , real(8) :: sham%qss 4
+Cgetarg       call upack('ham oeula neula qss',sham,oeula,neul,qss,0,0)
+       
+       oeula=sham%oeula
+       neul=sham%neula
+       i_copy_size=size(sham%qss) 
+       call dcopy(i_copy_size,sham%qss,1,qss,1) 
+
+Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
+Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
+Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
+Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
+Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
+Cgetarg       call upack('pot opnu oqnu opp oqc oqt',spot,opnu,oqnu,opp,oqc,oqt)
+       
+       opnu=spot%opnu
+       oqnu=spot%oqnu
+       opp=spot%opp
+       oqc=spot%oqc
+       oqt=spot%oqt
+
+Cgetarg...info...           integer :: oaamom , integer(8) :: spot%oaamom 1
+Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
+Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
+Cgetarg...info...           integer :: ovrmax , integer(8) :: spot%ovrmax 1
+Cgetarg       call upack('pot oaamom orhrmx oves ovrmax',spot,oaamom,orhrmx,
+Cgetarg      .  oves,ovrmax,0)
+       
+       oaamom=spot%oaamom
+       orhrmx=spot%orhrmx
+       oves=spot%oves
+       ovrmax=spot%ovrmax
+
+Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: plat2(9) , real(8) :: slat%plat2 9
+Cgetarg       call upack('lat avw alat plat plat2',slat,avw,alat,plat,plat2,0)
+       
+       avw=slat%avw
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%plat2) 
+       call dcopy(i_copy_size,slat%plat2,1,plat2,1) 
+
+Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
+Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
+Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
+Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
+Cgetarg       call upack('lat nkd odlv nkq oqlv',slat,nkd,odlv,nkq,oqlv,0)
+       
+       nkd=slat%nkd
+       odlv=slat%odlv
+       nkq=slat%nkq
+       oqlv=slat%oqlv
+
+Cgetarg...info...           integer :: mxnbr , integer(8) :: sstr%mxnbr 1
+Cgetarg...info...           real(8) :: rmaxs , real(8) :: sstr%rmax 1
+Cgetarg       call upack2('str mxnbr rmax',sstr,mxnbr,rmaxs)
+       
+       mxnbr=sstr%mxnbr
+       rmaxs=sstr%rmax
+
       call sp2cls('spec idmod',sspec,w(oics),nl,1,nclasp,oidmod)
       call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx)
       call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
@@ -129,7 +263,9 @@ C     lpbc = 0 for pbc in 3 dimensions, 11 pgf padded geometry
 
 C ... Read from restart file
       if (cmdopt('--rs=',5,0,outs)) then
-        irs(1) = igets('ctrl lrs,7',sctrl)
+Cgetarg         irs(1) = igets('ctrl lrs,7',sctrl)
+         irs ( 1 ) = iand(7,int(sctrl%lrs)) 
+
         if (irs(1) .gt. 0) then
           ifi = fopna('rsta',-1,0)
           call asars(0,sctrl,ssite,sspec,slat,spot,sbz,
@@ -160,7 +296,9 @@ C ... Get neighbor table iax for each atom in the cluster
       else
         call rx('ASASTR: not implemented for lpbc>1')
       endif
-      mxcsiz = igets('str mxnbr',sstr)
+Cgetarg       mxcsiz = igets('str mxnbr',sstr)
+       mxcsiz = int(sstr%mxnbr) 
+
       call pshpr(iprint()-20)
       call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
      .  -1,i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
@@ -197,12 +335,25 @@ C        xx = dglob('lrel',1d0,1)
 C        xx = dglob('nsp',1d0,1)
 C       Initial estimate for sphere radii: overlapping atom potentials
         call defrr(ozz,nspec)
-        call spackv(10,'spec z',sspec,1,nspec,w(ozz))
+Cgetarg         call spackv(10,'spec z',sspec,1,nspec,w(ozz))
+         i_copy_size=1; 
+         do i_spackv=1,nspec 
+         call spackv_array_copy_r8_r8('u',sspec(i_spackv)%z,i_copy_size,i_spackv+1-1,w(ozz))
+         enddo
+
         call defrr(ormt,nspec)
-        call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
+Cgetarg         call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
+         i_copy_size=1; 
+         do i_spackv=1,nspec 
+         call spackv_array_copy_r8_r8('u',sspec(i_spackv)%rmt,i_copy_size,i_spackv+1-1,w(ormt))
+         enddo
+
         call defi(olock,-nspec)
         do  i = 1, nspec
-        call ivset(w(olock),i,i,bitand(igetss('spec mxcst',i,sspec),2))
+Cgetarg         call ivset(w(olock),i,i,bitand(igetss('spec mxcst',i,sspec),2))
+         call ivset ( w ( olock ) , i , i , bitand ( int(sspec(i)%mxcst) 
+     .   , 2 ) ) 
+
         enddo
         if (lpbc .eq. 0) then
           i = 3
@@ -214,14 +365,33 @@ C       Initial estimate for sphere radii: overlapping atom potentials
         call makrm0(101,nspec,nbas,alat,plat,w(opos),slabl,w(oips),
      .    modep,w(olock),w(ozz),w(ormt))
 C   ... Scale sphere radii satisfying constraints
-        call upack('ctrl omax1 omax2 wsrmax',sctrl,omax1,omax2,wsrmax,0,
-     .    0)
+Cgetarg...info...           real(8) :: omax1(3) , real(8) :: sctrl%omax1 3
+Cgetarg...info...           real(8) :: omax2(3) , real(8) :: sctrl%omax2 3
+Cgetarg...info...           real(8) :: wsrmax , real(8) :: sctrl%wsrmax 1
+Cgetarg         call upack('ctrl omax1 omax2 wsrmax',sctrl,omax1,omax2,wsrmax,0,
+Cgetarg      .    0)
+         
+         i_copy_size=size(sctrl%omax1) 
+         call dcopy(i_copy_size,sctrl%omax1,1,omax1,1) 
+         i_copy_size=size(sctrl%omax2) 
+         call dcopy(i_copy_size,sctrl%omax2,1,omax2,1) 
+         wsrmax=sctrl%wsrmax
+
         call sclwsr(20,nbas,nbasp,nspec,alat,plat,w(opos),w(oips),modep,
      .    slabl,w(ozz),w(olock),1d0,wsrmax,omax1,omax2,w(ormt))
-        call spackv(11,'spec rmt',sspec,1,nspec,w(ormt))
+Cgetarg         call spackv(11,'spec rmt',sspec,1,nspec,w(ormt))
+         i_copy_size=1; 
+         do i_spackv=1,nspec 
+         call spackv_array_copy_r8_r8('p',sspec(i_spackv)%rmt,i_copy_size,i_spackv+1-1,w(ormt))
+         enddo
+
         nclspp = max(2*nclasp-nclass,nspec)
         call sp2cls('spec rmt',sspec,w(oics),1,1,nclspp,ormax)
-        call pack1('array ormax',sarray,ormax)
+Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
+Cgetarg         call pack1('array ormax',sarray,ormax)
+         
+         sarray%ormax=ormax 
+
       endif
 
 C --- Show neighbors by shell ---
@@ -249,8 +419,18 @@ C       call upack('lat nsgrp osymgr',slat,ngrp,og,0,0,0)
      .    sspec,ssite)
         call defrr(opos2,3*nbas)
         call defi (oips2, nbas)
-        call spackv(10,'site pos',ssite,1,nbas,w(opos2))
-        call spackv(10,'site spec',ssite,1,nbas,w(oips2))
+Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos2))
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=1,nbas 
+         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
+         enddo
+
+Cgetarg         call spackv(10,'site spec',ssite,1,nbas,w(oips2))
+         i_copy_size=1; 
+         do i_spackv=1,nbas 
+         call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips2))
+         enddo
+
 
         call defrr(og,   9*ngmx)
         call symlat(plat,ngrp,w(og),j)
@@ -303,8 +483,26 @@ C ... Inner products between Euler angles
 
 C --- Plane analysis branch ---
       if (getdig(mode,1,2) .ne. 0) then
-        call upack('ctrl nbas nbasp nl',sctrl,nbas,nbasp,nl,0,0)
-        call upack('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg         call upack('ctrl nbas nbasp nl',sctrl,nbas,nbasp,nl,0,0)
+         
+         nbas=sctrl%nbas
+         nbasp=sctrl%nbasp
+         nl=sctrl%nl
+
+Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
+Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
+Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
+Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
+Cgetarg         call upack('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
+         
+         opnu=spot%opnu
+         oqnu=spot%oqnu
+         oqc=spot%oqc
+         oqt=spot%oqt
+
         call defrr(oves,nbaspp)
         call supot(1,sctrl,slat,spot)
         call asamad(sctrl,spot,sarray,slat,sspec,0,
@@ -412,7 +610,7 @@ C --- Display poles of potential functions ---
 C --- Import data in other formats ---
       if (getdig(mode,6,2) .ne. 0) then
 
-        j = nint(ssite(1)) * nbasp
+        j = nint(ssite(1)%size) * nbasp
         call defrr(ossite,-100*j)
         call dcopy(j,ssite,1,w(ossite),1)
         call aioxtn(sctrl,sspec,w(ossite),sarray,slat,slabl,w(opnu),
@@ -420,7 +618,9 @@ C --- Import data in other formats ---
 
 C       Output to restart file
         if (cmdopt('--rs=',5,0,outs)) then
-          irs(2) = igets('ctrl lrs,8+16',sctrl)/8
+Cgetarg           irs(2) = igets('ctrl lrs,8+16',sctrl)/8
+           irs ( 2 ) = iand(8+16,int(sctrl%lrs)) /8 
+
           if (irs(2) .gt. 0) then
             ifi = fopna('rsta',-1,0)
             call asars(0,sctrl,w(ossite),sspec,slat,spot,sbz,
@@ -432,15 +632,36 @@ C       Output to restart file
 
 C --- Empty sphere finder ---
       if (getdig(mode,7,2) .ne. 0) then
-        call upack('lat nsgrp osymgr oag',slat,nsgrp,og,oag,0,0)
+Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
+Cgetarg         call upack('lat nsgrp osymgr oag',slat,nsgrp,og,oag,0,0)
+         
+         nsgrp=slat%nsgrp
+         og=slat%osymgr
+         oag=slat%oag
+
         call defrr(oz,nspec)
-        call spackv(10,'spec z',sspec,1,nspec,w(oz))
+Cgetarg         call spackv(10,'spec z',sspec,1,nspec,w(oz))
+         i_copy_size=1; 
+         do i_spackv=1,nspec 
+         call spackv_array_copy_r8_r8('u',sspec(i_spackv)%z,i_copy_size,i_spackv+1-1,w(oz))
+         enddo
+
         call defrr(ormt,nspec)
-        call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
+Cgetarg         call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
+         i_copy_size=1; 
+         do i_spackv=1,nspec 
+         call spackv_array_copy_r8_r8('u',sspec(i_spackv)%rmt,i_copy_size,i_spackv+1-1,w(ormt))
+         enddo
+
 
         call defi(olock,-nspec)
         do  i = 1, nspec
-        call ivset(w(olock),i,i,bitand(igetss('spec mxcst',i,sspec),2))
+Cgetarg         call ivset(w(olock),i,i,bitand(igetss('spec mxcst',i,sspec),2))
+         call ivset ( w ( olock ) , i , i , bitand ( int(sspec(i)%mxcst) 
+     .   , 2 ) ) 
+
         enddo
         call defrr(ozc,mxclas)
         call defrr(ormtc,mxclas)
@@ -457,9 +678,12 @@ C --- Empty sphere finder ---
 
       endif
 
-      end
+Cgetarg       end
+       end subroutine lmaux 
+
 
        subroutine spec2c(nspec,nclass,ics,rmts,rmtc,z,zc,lock,lockc)
+
 C- Copy species data to class data
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -496,6 +720,8 @@ C       if (iprint() .gt. 60) write(*,310) k,rmtc(k)
 
 C 310 format(1x,'class ',I3,T15,'rmt = ',f10.7)
 
-      end
+Cgetarg       end
+       end subroutine spec2c 
+
         
 

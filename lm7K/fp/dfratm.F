@@ -1,4 +1,10 @@
+Cgetarg...info...           structure ['dfratm', 'site', 'ssite']
+Cgetarg...info...           structure ['dfratm', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['dfratm', 'm_struc_def']
       subroutine dfratm(nbas,ssite,sspec,orhoat)
+       
+       use m_struc_def  !Cgetarg
+
 C- Allocate arrays for local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -17,15 +23,26 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,orhoat(3,nbas)
-      double precision ssite(1),sspec(1)
+Cgetarg       double precision ssite(1),sspec(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer ib,is,igetss,lmxl,nlml,nr,nsp,nglob
 
       nsp = nglob('nsp')
 
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec nr lmxl',sspec,is,nr,lmxl,0,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg         call upack('spec nr lmxl',sspec,is,nr,lmxl,0,0)
+         
+         nr=sspec(is)%nr
+         lmxl=sspec(is)%lmxl
+
         nlml = (lmxl+1)**2
         if (lmxl .gt. -1) then
         call defrr (orhoat(1,ib),  nr*nlml*nsp)
@@ -33,5 +50,7 @@ C ... Local parameters
         call defrr (orhoat(3,ib),  nr*nsp)
         endif
       enddo
-      end
+Cgetarg       end
+       end subroutine dfratm 
+
 

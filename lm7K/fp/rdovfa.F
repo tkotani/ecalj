@@ -1,4 +1,12 @@
+Cgetarg...info...           structure ['rdovfa', 'pot', 'spot']
+Cgetarg...info...           structure ['rdovfa', 'lat', 'slat']
+Cgetarg...info...           structure ['rdovfa', 'spec', 'sspec']
+Cgetarg...info...           structure ['rdovfa', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['rdovfa', 'm_struc_def']
       subroutine rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,orhoat)
+       
+       use m_struc_def  !Cgetarg
+
 C- Read and overlap free atom densities.
 C  Also allocates orhoca with free-atom core density.
 C ----------------------------------------------------------------------
@@ -31,7 +39,13 @@ C     implicit none
 C ... Passed parameters
       integer procid, master, mpipid
       integer nbas,nspec,orhoat(3,nbas)
-      double precision ssite(1),sspec(1),slat(1),spot(1),qbg
+Cgetarg       double precision ssite(1),sspec(1),slat(1),spot(1),qbg
+       real(8):: qbg 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_pot)::spot
+
 C ... Local parameters
       integer nrmx, n0
       parameter ( nrmx=1501, n0=10 )
@@ -58,7 +72,11 @@ C ... Heap
       stdl  = lgunit(2)
       nsp   = nglob('nsp')
       msg   = '         File mismatch:'
-      call upack1('pot osmrho',spot,osmrho)
+Cgetarg...info...           integer :: osmrho , integer(8) :: spot%osmrho 1
+Cgetarg       call upack1('pot osmrho',spot,osmrho)
+       
+       osmrho=spot%osmrho
+
       procid = mpipid(1)
 C     numprocs = mpipid(0)
       master = 0
@@ -67,7 +85,19 @@ C     numprocs = mpipid(0)
       if (ipr .ge. 10) write(stdo,700)
   700 format(/' rdovfa: read and overlap free-atom densities',
      .        ' (mesh density) ...')
-      call upack('lat alat plat vol nabc',slat,alat,plat,vol,ngabc,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg       call upack('lat alat plat vol nabc',slat,alat,plat,vol,ngabc,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       vol=slat%vol
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
       call fftz30(n1,n2,n3,k1,k2,k3)
       call dpzero(hfc,n0*2*nspec)
       call dpzero(pnu,n0*2)
@@ -82,9 +112,29 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
         call defrr(orhofa(is),   -nrmx*nsp)
         call defrr(orhoca(is),   -nrmx*nsp)
         call defrr(ov0a(is),     -nrmx*nsp)
-        call spacks(0,'spec name',sspec,spid(is),is,is)
-        call upack('spec a nr rmt z',sspec,is,a,nr,rmt,z)
-        call upack('spec lfoca rfoca',sspec,is,lfoc,rfoc,0,0)
+Cgetarg         call spacks(0,'spec name',sspec,spid(is),is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid(is),i_spacks)
+         enddo
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg         call upack('spec a nr rmt z',sspec,is,a,nr,rmt,z)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+         z=sspec(is)%z
+
+Cgetarg...info...           integer :: lfoc , integer(8) :: sspec%lfoca 1
+Cgetarg...info...           real(8) :: rfoc , real(8) :: sspec%rfoca 1
+Cgetarg         call upack('spec lfoca rfoca',sspec,is,lfoc,rfoc,0,0)
+         
+         lfoc=sspec(is)%lfoca
+         rfoc=sspec(is)%rfoca
+
         lfail = .false.
         if (procid .eq. master) then
         if (z .eq. 0 .and. rmt .eq. 0) then
@@ -152,16 +202,46 @@ C ...   Sanity checks
         endif
 
 C ...   Pack into sspec
-        call pack5('spec a nr qc',sspec,is,a,nr,qc,0)
-        call pack5('spec nxi exi chfa rsmfa',sspec,is,nxi(is),
-     .    exi(1,is),hfc(1,1,is),rsmfa(is))
-        call pack5('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
-     .    orhoca(is))
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg         call pack5('spec a nr qc',sspec,is,a,nr,qc,0)
+         
+         sspec(is)%a=a 
+         sspec(is)%nr=nr 
+         sspec(is)%qc=qc 
+
+Cgetarg...info...           integer :: nxi(nspec) , integer(8) :: sspec%nxi 1
+Cgetarg...info...           real(8) :: exi(n0,nspec) , real(8) :: sspec%exi 10
+Cgetarg...info...           real(8) :: hfc(n0,2,nspec) , real(8) :: sspec%chfa 20
+Cgetarg...info...           real(8) :: rsmfa(nspec) , real(8) :: sspec%rsmfa 1
+Cgetarg         call pack5('spec nxi exi chfa rsmfa',sspec,is,nxi(is),
+Cgetarg      .    exi(1,is),hfc(1,1,is),rsmfa(is))
+         
+         sspec(is)%nxi=nxi(is) 
+         i_copy_size=size(sspec(is)%exi) 
+         call dcopy(i_copy_size,exi(1,is),1,sspec(is)%exi,1) 
+         i_copy_size=size(sspec(is)%chfa) 
+         call dcopy(i_copy_size,hfc(1,1,is),1,sspec(is)%chfa,1) 
+         sspec(is)%rsmfa=rsmfa(is) 
+
+Cgetarg...info...           real(8) :: ccof , real(8) :: sspec%ctail 1
+Cgetarg...info...           real(8) :: ceh , real(8) :: sspec%etail 1
+Cgetarg...info...           real(8) :: stc , real(8) :: sspec%stc 1
+Cgetarg...info...           integer :: orhoca(nspec) , integer(8) :: sspec%orhoc 1
+Cgetarg         call pack5('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
+Cgetarg      .    orhoca(is))
+         
+         sspec(is)%ctail=ccof 
+         sspec(is)%etail=ceh 
+         sspec(is)%stc=stc 
+         sspec(is)%orhoc=orhoca(is) 
+
    10 continue
 C     Wait for all proccesses to synchronize
       i = mpipid(3)
 C     Re-broadcast entire species structure, and arrays used below
-      call mpibc1(sspec,nspec*nint(sspec(1)),4,0,'rdovfa','sspec')
+      call mpibc1(sspec,nspec*nint(sspec(1)%size),4,0,'rdovfa','sspec')
       if (procid .eq. master) then
         call fclose(ifi)
       endif
@@ -171,10 +251,32 @@ C --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
       ctot = 0d0
       corm = 0d0
       do  20  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-        call upack('spec lmxl z qc',sspec,is,lmxl,z,qc,0)
-        call upack('spec lfoca',sspec,is,lfoc,0,0,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg         call upack('spec lmxl z qc',sspec,is,lmxl,z,qc,0)
+         
+         lmxl=sspec(is)%lmxl
+         z=sspec(is)%z
+         qc=sspec(is)%qc
+
+Cgetarg...info...           integer :: lfoc , integer(8) :: sspec%lfoca 1
+Cgetarg         call upack('spec lfoca',sspec,is,lfoc,0,0,0)
+         
+         lfoc=sspec(is)%lfoca
+
 C        call upack('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
 C     .      orca)
 
@@ -222,7 +324,13 @@ C       Core magnetic moment (possible if magnetized core hole)
           endif
         endif
 
-        call pack5('site ov0 ov1',ssite,ib,ov0,ov1,0,0)
+Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
+Cgetarg...info...           integer :: ov1 , integer(8) :: ssite%ov1 1
+Cgetarg         call pack5('site ov0 ov1',ssite,ib,ov0,ov1,0,0)
+         
+         ssite(ib)%ov0=ov0 
+         ssite(ib)%ov1=ov1 
+
         ztot = ztot+z
         ctot = ctot+qc
 
@@ -230,7 +338,15 @@ C     end loop over sites
    20 continue
 
 C --- Overlap smooth hankels to get smooth interstitial density ---
-      call upack('lat ng ogv okv',slat,ng,ogv,okv,0,0)
+Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
+Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
+Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
+Cgetarg       call upack('lat ng ogv okv',slat,ng,ogv,okv,0,0)
+       
+       ng=slat%ng
+       ogv=slat%ogv
+       okv=slat%okv
+
       call defcc(ocv, ng*nsp)
       call ovlpfa(ssite,slat,nbas,nxi,n0,exi,hfc,rsmfa,ng,ng,w(ogv),
      .  w(ocv))
@@ -314,5 +430,7 @@ C --- Print charges ---
 
       call tcx('rdovfa')
 
-      end
+Cgetarg       end
+       end subroutine rdovfa 
+
 

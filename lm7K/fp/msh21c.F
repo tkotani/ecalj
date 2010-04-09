@@ -1,5 +1,12 @@
+Cgetarg...info...           structure ['msh21c', 'lat', 'slat']
+Cgetarg...info...           structure ['msh21c', 'site', 'ssite']
+Cgetarg...info...           structure ['msh21c', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['msh21c', 'm_struc_def']
 #define F90 1
       subroutine msh21c(ib,ssite,sspec,slat,ng,gv,kv,k1,k2,k3,fn)
+       
+       use m_struc_def  !Cgetarg
+
 C- One-center expansion at one site of a function tabulated on a mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -32,7 +39,12 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ib,k1,k2,k3,ng,kv(ng,3)
-      double precision ssite(1),sspec(1),slat(1),gv(ng,3)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),gv(ng,3)
+       real(8):: gv(ng,3) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex fn(k1,k2,k3)
 C ... Local parameters
       integer i,is,lmxx,nlmx,lmxl,nlm,ngabc(3),
@@ -54,10 +66,41 @@ C     double precision q(3),qlat(3,3)
 
       call getpr(ipr)
       pi = 4d0*datan(1d0)
-      call upack('lat alat plat nabc',slat,alat,plat,ngabc,0,0)
-      call upack('site spec pos',ssite,ib,is,tau,0,0)
-      call upack('spec rmt lmxl',sspec,is,rmt,lmxl,0,0)
-      call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg       call upack('lat alat plat nabc',slat,alat,plat,ngabc,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
+Cgetarg       call upack('site spec pos',ssite,ib,is,tau,0,0)
+       
+       is=ssite(ib)%spec
+       i_copy_size=size(ssite(ib)%pos) 
+       call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg       call upack('spec rmt lmxl',sspec,is,rmt,lmxl,0,0)
+       
+       rmt=sspec(is)%rmt
+       lmxl=sspec(is)%lmxl
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg       call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+       
+       a=sspec(is)%a
+       nr=sspec(is)%nr
+       rmt=sspec(is)%rmt
+
       nlm = (lmxl+1)**2
       tpiba = 2*pi/alat
       call gvgetf(ng,1,kv,k1,k2,k3,fn,cv)
@@ -117,5 +160,7 @@ C   ... Sum_G 4*pi*(i*r)**l j_l(|r*G|)/(r*G)**l YL(G) G**l
       deallocate(yl,f1c)
 #endif
 
-      end
+Cgetarg       end
+       end subroutine msh21c 
+
 

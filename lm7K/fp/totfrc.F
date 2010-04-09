@@ -1,4 +1,10 @@
+Cgetarg...info...           structure ['totfrc', 'site', 'ssite']
+Cgetarg...info...           structure ['totfrc', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['totfrc', 'm_struc_def']
       subroutine totfrc(nbas,ssite,slat,leks,fes1,fes2,dfhf,f)
+       
+       use m_struc_def  !Cgetarg
+
 C- Add together and print contributions to force
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -22,8 +28,12 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,leks
-      double precision ssite(*),slat(*),f(3,nbas),fes1(3,nbas),
-     .  fes2(3,nbas),dfhf(3,nbas)
+Cgetarg       double precision ssite(*),slat(*),f(3,nbas),fes1(3,nbas),
+Cgetarg      .  fes2(3,nbas),dfhf(3,nbas)
+       real(8):: f(3,nbas) , fes1(3,nbas) , fes2(3,nbas) , dfhf(3,nbas) 
+       type(s_site)::ssite(*)
+       type(s_lat)::slat
+
 C ... Local parameters
       integer stdo,stdl,lgunit,ipr,ipl,ib,m,owk,ng,oistab,og,ibmx,isw
       double precision fev1(3),fev2(3),fhar(3),fks(3),c,ddot,fmax,dfmax
@@ -69,14 +79,26 @@ C ... Heap
   200   format(i4,3f8.2,1x,3f8.2,1x,3f8.2)
         if (leks. eq. 0 .and. ipl .gt. 0 .and. ipr .ge. 30)
      .      write(stdl,710) ib,(c*fhar(m),m=1,3)
-        call pack2('site force',ssite,ib,f(1,ib))
+Cgetarg...info...           real(8) :: f(3,nbas) , real(8) :: ssite%force 3
+Cgetarg         call pack2('site force',ssite,ib,f(1,ib))
+         
+         i_copy_size=size(ssite(ib)%force) 
+         call dcopy(i_copy_size,f(1,ib),1,ssite(ib)%force,1) 
+
   710   format('fp ib',i4,'  fh ',3f8.2,2x,3f8.2)
 
         if (leks .ge. 1) then
           do  m = 1, 3
             fks(m)  = fev2(m) + fes2(m,ib)
             if (leks .gt. 1) f(m,ib) = fks(m)
-            if (leks .gt. 1) call pack2('site force',ssite,ib,fks)
+Cgetarg...info...           real(8) :: fks(3) , real(8) :: ssite%force 3
+Cgetarg             if (leks .gt. 1) call pack2('site force',ssite,ib,fks)
+             if ( leks .gt. 1 ) then 
+             
+             i_copy_size=size(ssite(ib)%force) 
+             call dcopy(i_copy_size,fks,1,ssite(ib)%force,1) 
+             endif 
+
           enddo
           if (ipr .gt. 40) write(stdo,210) (c*fes2(m,ib),m=1,3),
      .       (c*fev2(m),m=1,3),(c*fks(m),m=1,3)
@@ -91,7 +113,15 @@ C ... Heap
      .  c*fmax,ibmx,isw(dfmax.gt.0),c*dfmax,0)
 
 C     Symmetrize forces to machine precision
-      call upack('lat nsgrp oistab osymgr',slat,ng,oistab,og,0,0)
+Cgetarg...info...           integer :: ng , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg       call upack('lat nsgrp oistab osymgr',slat,ng,oistab,og,0,0)
+       
+       ng=slat%nsgrp
+       oistab=slat%oistab
+       og=slat%osymgr
+
       if (ng .gt. 1) then
       call info(30,1,0,' Symmetrize forces ...',0,0)
       call defdr(owk,3*nbas)
@@ -99,5 +129,7 @@ C     Symmetrize forces to machine precision
       call rlse(owk)
       endif
 
-      end
+Cgetarg       end
+       end subroutine totfrc 
+
 

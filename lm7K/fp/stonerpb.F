@@ -1,5 +1,6 @@
       subroutine stonerpb(nq,nw,nmbas,nbloch, qp,momsite,mmnorm
      i                          ,emesh,zxq)
+
 C=============================================================
 C ---  <~e| X | e~>  matrix calculation. by using X^{-1}=X0^{-1}+U
 C ----------------------------------------------------------------------

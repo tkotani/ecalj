@@ -1,4 +1,14 @@
+Cgetarg...info...           structure ['sugwin', 'lat', 'slat']
+Cgetarg...info...           structure ['sugwin', 'gw', 'sgw']
+Cgetarg...info...           structure ['sugwin', 'ham', 'sham']
+Cgetarg...info...           structure ['sugwin', 'bz', 'sbz']
+Cgetarg...info...           structure ['sugwin', 'site', 'ssite']
+Cgetarg...info...           structure ['sugwin', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['sugwin', 'm_struc_def']
       subroutine sugwin(ssite,sspec,slat,sham,sgw,sbz,nbas,qval)
+       
+       use m_struc_def  !Cgetarg
+
 C- Creates these input files as setup to GW: GWinput, QIBZ 
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -46,7 +56,14 @@ C     implicit none
 C ... Passed parameters
       integer nbas,n0,nkap0
       parameter (n0=10,nkap0=3)
-      double precision ssite(1),sspec(1),slat(1),sham(1),sgw(1),sbz(1)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),sham(1),sgw(1),sbz(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_ham)::sham
+       type(s_gw)::sgw
+       type(s_bz)::sbz
+
       double precision qval
 C ... Local parameters
       logical cmdopt,ltmp
@@ -77,36 +94,97 @@ C ... Heap
 
 C --- Setup ---
       call getpr(ipr)
-      call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
-      call upack('lat npgrp nsgrp osymgr',slat,npgrp,nsgrp,og,0,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg       call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
+Cgetarg...info...           integer :: npgrp , integer(8) :: slat%npgrp 1
+Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg       call upack('lat npgrp nsgrp osymgr',slat,npgrp,nsgrp,og,0,0)
+       
+       npgrp=slat%npgrp
+       nsgrp=slat%nsgrp
+       og=slat%osymgr
+
       call fftz30(n1,n2,n3,k1,k2,k3)
       stdo = lgunit(1)
       nsp  = nglob('nsp')
       nl   = nglob('nl')
-      mksig = igets('gw mksig',sgw)
+Cgetarg       mksig = igets('gw mksig',sgw)
+       mksig = int(sgw%mksig) 
+
       if (cmdopt('--sc',4,0,outs)) then
         if (mksig .eq. 0) mksig = 1
       endif
-      lgw = igets('gw lgw',sgw)
-      if (mksig .ne. 0) lgw = 1
-      call upack('gw nkabc nband qoffp gcutb gcutx',sgw,nkgw,nband,alp,
-     .  gcutb,gcutx)
-      call upack1('gw ecuts',sgw,ecuts)
+Cgetarg       lgw = igets('gw lgw',sgw)
+       lgw = int(sgw%lgw) 
 
-      call upack('ham ldham',sham,ldham,0,0,0,0)
+      if (mksig .ne. 0) lgw = 1
+Cgetarg...info...           integer :: nkgw(3) , integer(8) :: sgw%nkabc 3
+Cgetarg...info...           integer :: nband , integer(8) :: sgw%nband 1
+Cgetarg...info...           real(8) :: alp , real(8) :: sgw%qoffp 1
+Cgetarg...info...           real(8) :: gcutb , real(8) :: sgw%gcutb 1
+Cgetarg...info...           real(8) :: gcutx , real(8) :: sgw%gcutx 1
+Cgetarg       call upack('gw nkabc nband qoffp gcutb gcutx',sgw,nkgw,nband,alp,
+Cgetarg      .  gcutb,gcutx)
+       
+       i_copy_size=size(sgw%nkabc) 
+       call i8icopy(i_copy_size,sgw%nkabc,1,nkgw,1) 
+       nband=sgw%nband
+       alp=sgw%qoffp
+       gcutb=sgw%gcutb
+       gcutx=sgw%gcutx
+
+Cgetarg...info...           real(8) :: ecuts , real(8) :: sgw%ecuts 1
+Cgetarg       call upack1('gw ecuts',sgw,ecuts)
+       
+       ecuts=sgw%ecuts
+
+
+Cgetarg...info...           integer :: ldham(8,2) , integer(8) :: sham%ldham 16
+Cgetarg       call upack('ham ldham',sham,ldham,0,0,0,0)
+       
+       i_copy_size=size(sham%ldham) 
+       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
+
       call info0(30,0,0,' ... Creating files GWinput, QIBZ, KPTin1BZ')
 
       if (n1q*n2q*n3q .eq. 0) then
         call info(30,0,0,
      .    ' ... (warning) using k-points from BZ category',0,0)
-        call upack('bz nkabc lshft',sbz,nkgw,lshft,0,0,0)
+Cgetarg...info...           integer :: nkgw(3) , integer(8) :: sbz%nkabc 3
+Cgetarg...info...           integer :: lshft(3) , integer(8) :: sbz%lshft 3
+Cgetarg         call upack('bz nkabc lshft',sbz,nkgw,lshft,0,0,0)
+         
+         i_copy_size=size(sbz%nkabc) 
+         call i8icopy(i_copy_size,sbz%nkabc,1,nkgw,1) 
+         i_copy_size=size(sbz%lshft) 
+         call i8icopy(i_copy_size,sbz%lshft,1,lshft,1) 
+
       endif
 
 C ... Count number of atoms : exclude floating orbitals
       nat = 0
       do  i = 1, nbas
-        call upack('site spec',ssite,i,is,0,0,0)
-        lmaxa = igetss('spec lmxa',is,sspec)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site spec',ssite,i,is,0,0,0)
+         
+         is=ssite(i)%spec
+
+Cgetarg         lmaxa = igetss('spec lmxa',is,sspec)
+         lmaxa = int(sspec(is)%lmxa) 
+
         if (lmaxa .gt. -1) then
           nat = nat + 1
         endif
@@ -232,9 +310,26 @@ C     if (mksig .ne. 0) j = ldim
 
 C ... Create file GWIN_V2
       if (.not. cmdopt('--no-GWinput',12,0,outs)) then
-      call upack('gw nime delre deltax deltaw pbtol',sgw,niw,dw,
-     .  delta,deltaw,tolopt)
-      call upack1('gw gsmear',sgw,esmr)
+Cgetarg...info...           integer :: niw , integer(8) :: sgw%nime 1
+Cgetarg...info...           real(8) :: dw(2) , real(8) :: sgw%delre 2
+Cgetarg...info...           real(8) :: delta , real(8) :: sgw%deltax 1
+Cgetarg...info...           real(8) :: deltaw , real(8) :: sgw%deltaw 1
+Cgetarg...info...           real(8) :: tolopt , real(8) :: sgw%pbtol 1
+Cgetarg       call upack('gw nime delre deltax deltaw pbtol',sgw,niw,dw,
+Cgetarg      .  delta,deltaw,tolopt)
+       
+       niw=sgw%nime
+       i_copy_size=size(sgw%delre) 
+       call dcopy(i_copy_size,sgw%delre,1,dw,1) 
+       delta=sgw%deltax
+       deltaw=sgw%deltaw
+       tolopt=sgw%pbtol
+
+Cgetarg...info...           real(8) :: esmr , real(8) :: sgw%gsmear 1
+Cgetarg       call upack1('gw gsmear',sgw,esmr)
+       
+       esmr=sgw%gsmear
+
 C     write(ifi,'(a)') '! Input from GWIN_V2'
       call awrit1('dw       %d%16p!mesh spacing along Real axis (Ry)',
      .  ' ',80,ifii,dw)
@@ -268,9 +363,26 @@ C     write(ifi,'(a)') '! Input from GWIN_V2'
       if (cmdopt('--make-GWIN',11,0,outs)) then
       ifi = fopnx('GWIN_V2',2,2,-1)
       rewind ifi
-      call upack('gw nime delre deltax deltaw pbtol',sgw,niw,dw,
-     .  delta,deltaw,tolopt)
-      call upack1('gw gsmear',sgw,esmr)
+Cgetarg...info...           integer :: niw , integer(8) :: sgw%nime 1
+Cgetarg...info...           real(8) :: dw(2) , real(8) :: sgw%delre 2
+Cgetarg...info...           real(8) :: delta , real(8) :: sgw%deltax 1
+Cgetarg...info...           real(8) :: deltaw , real(8) :: sgw%deltaw 1
+Cgetarg...info...           real(8) :: tolopt , real(8) :: sgw%pbtol 1
+Cgetarg       call upack('gw nime delre deltax deltaw pbtol',sgw,niw,dw,
+Cgetarg      .  delta,deltaw,tolopt)
+       
+       niw=sgw%nime
+       i_copy_size=size(sgw%delre) 
+       call dcopy(i_copy_size,sgw%delre,1,dw,1) 
+       delta=sgw%deltax
+       deltaw=sgw%deltaw
+       tolopt=sgw%pbtol
+
+Cgetarg...info...           real(8) :: esmr , real(8) :: sgw%gsmear 1
+Cgetarg       call upack1('gw gsmear',sgw,esmr)
+       
+       esmr=sgw%gsmear
+
 
       write(ifi,'(a)') ' --- FREQUENCIES ---'
 C     dw = 0.04d0
@@ -312,9 +424,17 @@ C ... Write to both GWIN_V2 and GWinput
       write(jfi,*) ' lcutmx(atom) = l-cutoff for the product basis'
       iat = 0
       do  i = 1, nbas
-        call upack('site spec',ssite,i,is,0,0,0)
-        lmaxa = igetss('spec lmxa',is,sspec)
-        z =     dgetss('spec z',is,sspec)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site spec',ssite,i,is,0,0,0)
+         
+         is=ssite(i)%spec
+
+Cgetarg         lmaxa = igetss('spec lmxa',is,sspec)
+         lmaxa = int(sspec(is)%lmxa) 
+
+Cgetarg         z =     dgetss('spec z',is,sspec)
+         z = (sspec(is)%z) 
+
         if (lmaxa .gt. -1) then
           iat = iat + 1
           lcutmx(iat) = lmaxa
@@ -329,8 +449,20 @@ C ... Write to both GWIN_V2 and GWinput
      .  ' nnc = num. for core.'
       nnvv = 2
       do  i = 1, nbas
-        call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
-        lmaxa = igetss('spec lmxa',is,sspec)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg         call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
+         
+         is=ssite(i)%spec
+         i_copy_size=size(ssite(i)%pnu) 
+         call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1) 
+         i_copy_size=size(ssite(i)%pz) 
+         call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1) 
+
+Cgetarg         lmaxa = igetss('spec lmxa',is,sspec)
+         lmaxa = int(sspec(is)%lmxa) 
+
         if (lmaxa .gt. -1) then
           call atwf(0,w,lmaxa,w,nsp,pnu,pnz,w,w,w,w,w,k,ncore,konfig,w,
      .      w,w)
@@ -361,11 +493,36 @@ C      endif
         strn8 = '     *'
         pbi = '  ------'
         pbi = '        '
-        is = igetss('site spec',i,ssite)
-        z =  dgetss('spec z',is,sspec)
-        call upack('spec lmxa p pz idxdn',sspec,is,lmaxa,pnu,pnz,idxdn)
-        call spacks(0,'spec pb1',sspec,pb1,is,is)
-        call spacks(0,'spec pb2',sspec,pb2,is,is)
+Cgetarg         is = igetss('site spec',i,ssite)
+         is = int(ssite(i)%spec) 
+
+Cgetarg         z =  dgetss('spec z',is,sspec)
+         z = (sspec(is)%z) 
+
+Cgetarg...info...           integer :: lmaxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
+Cgetarg...info...           integer :: idxdn(n0,nkap0) , integer(8) :: sspec%idxdn 30
+Cgetarg         call upack('spec lmxa p pz idxdn',sspec,is,lmaxa,pnu,pnz,idxdn)
+         
+         lmaxa=sspec(is)%lmxa
+         i_copy_size=size(sspec(is)%p) 
+         call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
+         i_copy_size=size(sspec(is)%pz) 
+         call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
+         i_copy_size=size(sspec(is)%idxdn) 
+         call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1) 
+
+Cgetarg         call spacks(0,'spec pb1',sspec,pb1,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%pb1,is,is,pb1,i_spacks)
+         enddo
+
+Cgetarg         call spacks(0,'spec pb2',sspec,pb2,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%pb2,is,is,pb2,i_spacks)
+         enddo
+
         if (lmaxa .gt. -1) then
         do  l = 0, lmaxa
         npqn = 2
@@ -434,8 +591,20 @@ C         Create string for comment appended to PB line
       write(jfi,*) ' atom   l    n  occ unocc   ',
      .  'ForX0 ForSxc :CoreState(1=yes, 0=no)'
       do  i = 1, nbas
-        call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
-        lmaxa = igetss('spec lmxa',is,sspec)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg         call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
+         
+         is=ssite(i)%spec
+         i_copy_size=size(ssite(i)%pnu) 
+         call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1) 
+         i_copy_size=size(ssite(i)%pz) 
+         call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1) 
+
+Cgetarg         lmaxa = igetss('spec lmxa',is,sspec)
+         lmaxa = int(sspec(is)%lmxa) 
+
         if (lmaxa .gt. -1) then
           call atwf(0,w,lmaxa,w,nsp,pnu,pnz,w,w,w,w,w,k,ncore,konfig,w,
      .      w,w)
@@ -513,7 +682,13 @@ C      call info(30,1,0,'Special gamma-points (file Q0P)',0,0)
       allocate(q0x(3,6*nx0), wt0(6*nx0), wt(6*nx0), q0i(3,6*nx0))
       call suq0x(alat,plat,alp,qbz,nkp,nx0,xn,q0x,wt0)
 C     No support for point groups yet ... use space group
-      call upack('lat nsgrp osymgr',slat,nsgrp,og,0,0,0)
+Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg       call upack('lat nsgrp osymgr',slat,nsgrp,og,0,0,0)
+       
+       nsgrp=slat%nsgrp
+       og=slat%osymgr
+
       call q0irre(q0x,wt0,nx0*6,w(og),nsgrp,q0i,nq0i,wt)
 C     Open the file with no case change or extension added
       ifi = fopnx('Q0P',2,2,-1)
@@ -621,5 +796,7 @@ C       True q, as distinct from -q in LMTO.ver.4 used by Ferdi's hx0kw
       call fclr(' ',ifi)
       endif
 
-      end
+Cgetarg       end
+       end subroutine sugwin 
+
 

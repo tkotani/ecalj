@@ -1,5 +1,12 @@
+Cgetarg...info...           structure ['vesgcm', 'lat', 'slat']
+Cgetarg...info...           structure ['vesgcm', 'site', 'ssite']
+Cgetarg...info...           structure ['vesgcm', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['vesgcm', 'm_struc_def']
       subroutine vesgcm(nbas,ssite,sspec,slat,cy,qmom,ng,gv,
      .  kv,cv,cg1,cgsum,k1,k2,k3,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
+       
+       use m_struc_def  !Cgetarg
+
 C- Adds contribution from compensating gaussians to smooth estat pot.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -57,8 +64,14 @@ C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,nbas,ng,kv(ng,3)
       double precision qsmc,zsum
-      double precision ssite(1),sspec(1),qmom(1),gv(ng,3),cy(1),slat(1),
-     .  f(3,nbas),gpot0(1),hpot0(nbas),vrmt(nbas)
+Cgetarg       double precision ssite(1),sspec(1),qmom(1),gv(ng,3),cy(1),slat(1),
+Cgetarg      .  f(3,nbas),gpot0(1),hpot0(nbas),vrmt(nbas)
+       real(8):: qmom(1) , gv(ng,3) , cy(1) , f(3,nbas) , gpot0(1) , 
+     . hpot0(nbas) , vrmt(nbas) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex smpot(k1,k2,k3),cv(ng),cg1(ng),cgsum(ng)
 C ... Local parameters
       integer stdo,k0,nlmx,i,ib,ilm,iprint,is,iv0,kb,kmax,l,lgunit,ll,
@@ -76,7 +89,13 @@ C ... Local parameters
       stdo = lgunit(1)
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
-      call upack2('lat alat vol',slat,alat,vol)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack2('lat alat vol',slat,alat,vol)
+       
+       alat=slat%alat
+       vol=slat%vol
+
       tpiba = 2*pi/alat
 
       call gvgetf(ng,1,kv,k1,k2,k3,smpot,cv)
@@ -89,8 +108,21 @@ C     and make integrals g*phi0, h*phi0
       qsmc = 0d0
       zsum = 0d0
       do  ib = 1, nbas
-        call upack('site spec pos',ssite,ib,is,tau,0,0)
-        call upack('spec lmxl rg',sspec,is,lmxl,rg,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pos) 
+         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg         call upack('spec lmxl rg',sspec,is,lmxl,rg,0,0)
+         
+         lmxl=sspec(is)%lmxl
+         rg=sspec(is)%rg
+
         if (lmxl .eq. -1) goto 10
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         qc = qcorg+qcorh
@@ -172,9 +204,20 @@ C --- Electrostatic potential at rmt ---
       call dpzero(vrmt,nbas)
       img = (0d0,1d0)
       do  ib = 1, nbas
-        call upack('site spec pos',ssite,ib,is,tau,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pos) 
+         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
         call dscal(3,alat,tau,1)
-        call upack2('spec rmt',sspec,is,rmt)
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack2('spec rmt',sspec,is,rmt)
+         
+         rmt=sspec(is)%rmt
+
 C       Add a negligibly small amount to rmt to handle case rmt=0
         rmt = rmt+1d-32
         do  i = 2, ng
@@ -193,5 +236,7 @@ C --- Put cv back into smpot array ---
       call gvputf(ng,1,kv,k1,k2,k3,cv,smpot)
 
       call tcx('vesgcm')
-      end
+Cgetarg       end
+       end subroutine vesgcm 
+
 

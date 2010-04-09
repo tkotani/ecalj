@@ -1,4 +1,9 @@
+Cgetarg...info...           structure ['hsmbl', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['hsmbl', 'm_struc_def']
       subroutine hsmbl(p,rsm,e,q,lmax,cy,slat,hsm,hsmp)
+       
+       use m_struc_def  !Cgetarg
+
 C- Bloch-sum of smooth Hankel functions and energy derivatives
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -23,7 +28,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer lmax
-      double precision rsm,e,slat(50),q(3),p(3),cy(1)
+Cgetarg       double precision rsm,e,slat(50),q(3),p(3),cy(1)
+       real(8):: rsm , e , q(3) , p(3) , cy(1) 
+       type(s_lat)::slat
+
       double complex hsm(1),hsmp(1)
 C ... Local parameters
       integer nkd,nkq,odlv,oqlv,ilm,l,m
@@ -35,7 +43,17 @@ C ... Heap
       common /w/ w
 
 C ... Shorten p, multiply by corresponding phase later
-      call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(9) , real(8) :: slat%qlat 9
+Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
       call shorbz(p,p1,plat,qlat)
 C      print *, '!!'
 C      p1 = p
@@ -43,8 +61,26 @@ C      p1 = p
       sp = 2*pi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
       phase = dcmplx(dcos(sp),dsin(sp))
 
-      call upack('lat awald tol vol',slat,awald,tol,vol,0,0)
-      call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
+Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
+Cgetarg...info...           real(8) :: tol , real(8) :: slat%tol 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat awald tol vol',slat,awald,tol,vol,0,0)
+       
+       awald=slat%awald
+       tol=slat%tol
+       vol=slat%vol
+
+Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
+Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
+Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
+Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
+Cgetarg       call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
+       
+       nkd=slat%nkd
+       nkq=slat%nkq
+       odlv=slat%odlv
+       oqlv=slat%oqlv
+
       rwald = 1d0/awald
       asm = 1d0/rsm
 
@@ -64,9 +100,12 @@ C ... Multiply by phase to undo shortening
       ilm = ilm+1
       hsm(ilm)  = cfac*cy(ilm)*hsm(ilm)
    28 hsmp(ilm) = cfac*cy(ilm)*hsmp(ilm)
-      end
+Cgetarg       end
+       end subroutine hsmbl 
+
 
       subroutine hsmblq(p,e,q,a,lmax,alat,qlv,nkq,vol,dl,dlp)
+
 C- k-space part of smooth hankel bloch sum
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -121,9 +160,12 @@ C ... Local parameters
       do  35  ilm = 1, nlm
       dl(ilm)  = fpibv*dl(ilm)
    35 dlp(ilm) = fpibv*dlp(ilm) + gamma*dl(ilm)
-      end
+Cgetarg       end
+       end subroutine hsmblq 
+
 
       subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
+
 C- Adds real space part of reduced structure constants (ewald).
 Cu Updates
 Cu   10 May 07 New protections to handle error functions underflow
@@ -284,5 +326,7 @@ C          zchi2(-1) = expikr/zikap + dimag(zuplus)/kap
    38 cfac = cfac*dcmplx(0d0,1d0)
    20 continue
 
-      end
+Cgetarg       end
+       end subroutine hsmbld 
+
 

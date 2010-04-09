@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['gwcphi', 'site', 'ssite']
+Cgetarg...info...           structure ['gwcphi', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['gwcphi', 'm_struc_def']
       subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas,
      .  ipb,lmxax,nlindx,ndima,ppnl,aus,cphi,cphin)
+       
+       use m_struc_def  !Cgetarg
+
 C- Project (phi,phidot) onto MT sphere, Kotani's GW conventions
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -119,7 +125,10 @@ C ... Passed parameters
      .  nlindx(3,0:lmxax,nbas)
       integer n0,nppn
       parameter (n0=10,nppn=12)
-      double precision ssite(1),sspec(1)
+Cgetarg       double precision ssite(1),sspec(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       double precision ppnl(nppn,n0,nsp,*),cphin(2,nev)
       double complex aus(nlmax,ndham,3,nsp,*),cphi(ndima,nev)
 C ... Local parameters
@@ -132,9 +141,21 @@ C ... Local parameters
       call dpzero(cphin,2*nev)
 C     ichan0 = 0
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
         ia = ipb(ib)
-        call upack('spec p pz lmxa',sspec,is,pnu,pnz,lmxa,0)
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg         call upack('spec p pz lmxa',sspec,is,pnu,pnz,lmxa,0)
+         
+         i_copy_size=size(sspec(is)%p) 
+         call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
+         i_copy_size=size(sspec(is)%pz) 
+         call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
+         lmxa=sspec(is)%lmxa
+
         if (lmxa .eq. -1) goto 10
 
         do  iv = 1, nev
@@ -203,5 +224,7 @@ C       ichan0 = ichan
    10   continue
       enddo
 
-      end
+Cgetarg       end
+       end subroutine gwcphi 
+
 

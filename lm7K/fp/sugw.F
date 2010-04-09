@@ -1,8 +1,16 @@
+Cgetarg...info...           structure ['sugw', 'lat', 'slat']
+Cgetarg...info...           structure ['sugw', 'ham', 'sham']
+Cgetarg...info...           structure ['sugw', 'site', 'ssite']
+Cgetarg...info...           structure ['sugw', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['sugw', 'm_struc_def']
 #define V2 1
       subroutine sugw(ssite,sspec,slat,sham,nbas,ndham,
      .  smpot,vconst,lcplxp,osig,otau,oppi,ppn,vrmt,
      .  spotx,osigx,otaux,oppix,
      .  jobgw)
+       
+       use m_struc_def  !Cgetarg
+
 C- Driver to set up GW
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -138,8 +146,15 @@ C ... Passed parameters
       parameter (n0=10, nppn=12, nkap0=3)
       integer jobgw,osig(3,nbas),otau(3,nbas),oppi(3,nbas),lh(n0)
       integer osigx(3,nbas),otaux(3,nbas),oppix(3,nbas)
-      real(8) ssite(1),sspec(1),slat(1),sham(1),rsml(n0),ehl(n0),
-     .  ppn(nppn,n0,nbas),vconst,smpot(1),spotx(1),vrmt(nbas)
+Cgetarg       real(8) ssite(1),sspec(1),slat(1),sham(1),rsml(n0),ehl(n0),
+Cgetarg      .  ppn(nppn,n0,nbas),vconst,smpot(1),spotx(1),vrmt(nbas)
+       real(8):: rsml(n0) , ehl(n0) , ppn(nppn,n0,nbas) , vconst , smpot(1) 
+     . , spotx(1) , vrmt(nbas) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_ham)::sham
+
 C ... Local parameters
       logical :: bandmode=.false.,endofline=.false.,lwvxc
       logical cmdopt
@@ -215,19 +230,52 @@ C ... Heap
 
 C --- Setup ---
       call getpr(ipr)
-      call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
-      call upack1('lat gmax',slat,gmax)
-      call upack('lat npgrp nsgrp osymgr',slat,npgrp,nsgrp,og,0,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg       call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
+Cgetarg...info...           real(8) :: gmax , real(8) :: slat%gmax 1
+Cgetarg       call upack1('lat gmax',slat,gmax)
+       
+       gmax=slat%gmax
+
+Cgetarg...info...           integer :: npgrp , integer(8) :: slat%npgrp 1
+Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg       call upack('lat npgrp nsgrp osymgr',slat,npgrp,nsgrp,og,0,0)
+       
+       npgrp=slat%npgrp
+       nsgrp=slat%nsgrp
+       og=slat%osymgr
+
       call fftz30(n1,n2,n3,k1,k2,k3)
       stdo = lgunit(1)
       lchk = 1
       nsp  = nglob('nsp')
       nspc = nglob('nspc')
-      lrsig= igets('ham lsig',sham)
+Cgetarg       lrsig= igets('ham lsig',sham)
+       lrsig = int(sham%lsig) 
+
       lwvxc = .not. cmdopt('--novxc',7,0,strn)
       lsig = 1
 C     lsig = 0
-      call upack2('ham nqsig oqsig',sham,nqsig,oqsig)
+Cgetarg...info...           integer :: nqsig , integer(8) :: sham%nqsig 1
+Cgetarg...info...           integer :: oqsig , integer(8) :: sham%oqsig 1
+Cgetarg       call upack2('ham nqsig oqsig',sham,nqsig,oqsig)
+       
+       nqsig=sham%nqsig
+       oqsig=sham%oqsig
+
       if (oqsig .eq. 0) oqsig = 1
 C     lshft(1) = 0
 C     lshft(2) = 0
@@ -248,8 +296,14 @@ C     for now
 C ... Count number of atoms : exclude floating orbitals
       nat = 0
       do  i = 1, nbas
-        call upack('site spec',ssite,i,is,0,0,0)
-        lmaxa = igetss('spec lmxa',is,sspec)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site spec',ssite,i,is,0,0,0)
+         
+         is=ssite(i)%spec
+
+Cgetarg         lmaxa = igetss('spec lmxa',is,sspec)
+         lmaxa = int(sspec(is)%lmxa) 
+
         if (lmaxa .gt. -1) then
           nat = nat + 1
         endif
@@ -286,17 +340,43 @@ C ... Count number of atoms : exclude floating orbitals
       if (bandmode) lsig=0
 
       napw = 0
-      call upack('ham oindxo',sham,oiprmb,0,0,0,0)
-      call upack('ham ldham pwmode pwemin pwemax',sham,ldham,pwmode,
-     .  pwemin,pwemax,0)
+Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
+Cgetarg       call upack('ham oindxo',sham,oiprmb,0,0,0,0)
+       
+       oiprmb=sham%oindxo
+
+Cgetarg...info...           integer :: ldham(8,2) , integer(8) :: sham%ldham 16
+Cgetarg...info...           integer :: pwmode , integer(8) :: sham%pwmode 1
+Cgetarg...info...           real(8) :: pwemin , real(8) :: sham%pwemin 1
+Cgetarg...info...           real(8) :: pwemax , real(8) :: sham%pwemax 1
+Cgetarg       call upack('ham ldham pwmode pwemin pwemax',sham,ldham,pwmode,
+Cgetarg      .  pwemin,pwemax,0)
+       
+       i_copy_size=size(sham%ldham) 
+       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
+       pwmode=sham%pwmode
+       pwemin=sham%pwemin
+       pwemax=sham%pwemax
+
       allocate(evl(ndham,nsp))
 
 C ... Generate ndima
       ndima = 0
       lmxax = -1
       do  ib = 1, nbas
-        call upack2('site spec',ssite,ib,is)
-        call upack('spec lmxa pz',sspec,is,lmaxa,pnz,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack2('site spec',ssite,ib,is)
+         
+         is=ssite(ib)%spec
+
+Cgetarg...info...           integer :: lmaxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
+Cgetarg         call upack('spec lmxa pz',sspec,is,lmaxa,pnz,0,0)
+         
+         lmaxa=sspec(is)%lmxa
+         i_copy_size=size(sspec(is)%pz) 
+         call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
+
         lmxax = max(lmxax,lmaxa)
         if (lmaxa .gt. -1) then
           do  l = 0, lmaxa
@@ -315,11 +395,18 @@ C   ... Create file SYMOPS
         call wsymops(w(og),nsgrp)
 C   ... Create file LATTC
         allocate(ips(nbas),lmxa(nbas),bas(3,nbas))
-        call spackv(10,'site spec',ssite,1,nbas,ips)
+Cgetarg         call spackv(10,'site spec',ssite,1,nbas,ips)
+         i_copy_size=1; 
+         do i_spackv=1,nbas 
+         call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+         enddo
+
         ifi = fopnx('ldima',2,2,-1)
         rewind ifi
         do  i = 1, nbas
-          lmxa(i) = igetss('spec lmxa',ips(i),sspec)
+Cgetarg           lmxa(i) = igetss('spec lmxa',ips(i),sspec)
+           lmxa ( i ) = int(sspec(ips(i))%lmxa) 
+
           if (lmxa(i) .gt. -1) then
           call orbl(i,0,ldim,w(oiprmb),norb,ltab,ktab,xx,offl,i1)
           write(ifi,"(3i10)") i1
@@ -329,7 +416,17 @@ C   ... Create file LATTC
         lmxax = mxint(nbas,lmxa)
         allocate(konft(0:lmxax,nbas,nsp))
         do  i = 1, nbas
-          call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg           call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
+           
+           is=ssite(i)%spec
+           i_copy_size=size(ssite(i)%pnu) 
+           call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1) 
+           i_copy_size=size(ssite(i)%pz) 
+           call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1) 
+
           do  isp = 1, nsp
             do  l  = 0, lmxa(i)
               konft(l,i,isp) = pnu(l+1,isp)
@@ -349,9 +446,26 @@ C   ... Create file NLAindx
 C       This loop order is backwardly compatible with prior versions
         do  ipqn = 1, 3
           do  ib = 1, nbas
-            call upack2('site spec',ssite,ib,is)
-            call upack('spec lmxa p pz idxdn',sspec,is,lmaxa,pnu,pnz,
-     .        idxdn)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg             call upack2('site spec',ssite,ib,is)
+             
+             is=ssite(ib)%spec
+
+Cgetarg...info...           integer :: lmaxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
+Cgetarg...info...           integer :: idxdn(n0,nkap0) , integer(8) :: sspec%idxdn 30
+Cgetarg             call upack('spec lmxa p pz idxdn',sspec,is,lmaxa,pnu,pnz,
+Cgetarg      .        idxdn)
+             
+             lmaxa=sspec(is)%lmxa
+             i_copy_size=size(sspec(is)%p) 
+             call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
+             i_copy_size=size(sspec(is)%pz) 
+             call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
+             i_copy_size=size(sspec(is)%idxdn) 
+             call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1) 
+
             if (lmaxa .gt. -1) then
             do  l = 0, lmaxa
               npqn = 2
@@ -378,7 +492,12 @@ C   ... Create file CLASS
         ifi = fopnx('CLASS',2,2,-1)
         rewind ifi
         allocate(ipc(nbas),ipcx(nbas))
-        call spackv(10,'site class',ssite,1,nbas,ipc)
+Cgetarg         call spackv(10,'site class',ssite,1,nbas,ipc)
+         i_copy_size=1; 
+         do i_spackv=1,nbas 
+         call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,ipc)
+         enddo
+
         call pvsug1(nbas,lmxa,ipc,ipcx)
         do  i = 1, nbas
           if (lmxa(i) .gt. -1) then
@@ -426,15 +545,27 @@ C       write(ifi) nbas,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !takao 200
         write(ifi) nbas,nsp,nchan,ndham,alat,qlat,ef0,n1q,n2q,n3q,plat
 #endif
         allocate(ips(nbas),lmxa(nat),bas(3,nat))
-        call spackv(10,'site spec',ssite,1,nbas,ips)
+Cgetarg         call spackv(10,'site spec',ssite,1,nbas,ips)
+         i_copy_size=1; 
+         do i_spackv=1,nbas 
+         call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+         enddo
+
 C       call spackv(10,'site pos',ssite,1,nbas,bas)
         iat = 0
         do  i = 1, nbas
-          lmaxa = igetss('spec lmxa',ips(i),sspec)
+Cgetarg           lmaxa = igetss('spec lmxa',ips(i),sspec)
+           lmaxa = int(sspec(ips(i))%lmxa) 
+
           if (lmaxa .gt. -1) then
             iat = iat + 1
             if (iat .gt. nat) call rx('bug in sugw')
-            call upack('site pos',ssite,i,bas(1,iat),0,0,0)
+Cgetarg...info...           real(8) :: bas(:,:) , real(8) :: ssite%pos 3
+Cgetarg             call upack('site pos',ssite,i,bas(1,iat),0,0,0)
+             
+             i_copy_size=size(ssite(i)%pos) 
+             call dcopy(i_copy_size,ssite(i)%pos,1,bas(1,iat),1) 
+
             lmxa(iat) = lmaxa
           endif
         enddo
@@ -444,9 +575,31 @@ C       call spackv(10,'site pos',ssite,1,nbas,bas)
 C   ... Determine nphimx
         nphimx = 0
         do  i = 1, nbas
-          call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
-          call upack('spec a nr z rmt',sspec,is,a,nr,z,rmt(i))
-          lmaxa = igetss('spec lmxa',is,sspec)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg           call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
+           
+           is=ssite(i)%spec
+           i_copy_size=size(ssite(i)%pnu) 
+           call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1) 
+           i_copy_size=size(ssite(i)%pz) 
+           call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1) 
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: rmt(nbas) , real(8) :: sspec%rmt 1
+Cgetarg           call upack('spec a nr z rmt',sspec,is,a,nr,z,rmt(i))
+           
+           a=sspec(is)%a
+           nr=sspec(is)%nr
+           z=sspec(is)%z
+           rmt(i)=sspec(is)%rmt
+
+Cgetarg           lmaxa = igetss('spec lmxa',is,sspec)
+           lmaxa = int(sspec(is)%lmxa) 
+
           if (lmaxa .gt. -1) then
             call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(i),z,w,i1,
      .        ncore,konfig,ecore,w,w)
@@ -466,9 +619,33 @@ C   ... Atom data (gwa)
         ifi = fopna('gwa',-1,4)
         rewind ifi
         do  ib = 1, nbas
-          call upack('site spec pnu pz ov0',ssite,ib,is,pnu,pnz,ov0)
-          call upack('spec a nr z rmt',sspec,is,a,nr,z,rmt(ib))
-          lmaxa = igetss('spec lmxa',is,sspec)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
+Cgetarg           call upack('site spec pnu pz ov0',ssite,ib,is,pnu,pnz,ov0)
+           
+           is=ssite(ib)%spec
+           i_copy_size=size(ssite(ib)%pnu) 
+           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
+           i_copy_size=size(ssite(ib)%pz) 
+           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+           ov0=ssite(ib)%ov0
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: rmt(nbas) , real(8) :: sspec%rmt 1
+Cgetarg           call upack('spec a nr z rmt',sspec,is,a,nr,z,rmt(ib))
+           
+           a=sspec(is)%a
+           nr=sspec(is)%nr
+           z=sspec(is)%z
+           rmt(ib)=sspec(is)%rmt
+
+Cgetarg           lmaxa = igetss('spec lmxa',is,sspec)
+           lmaxa = int(sspec(is)%lmxa) 
+
           if (lmaxa .gt. -1) then
           call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
      .      i1,ncore,konfig,ecore,w,w)
@@ -816,7 +993,9 @@ C            call rlse(oww)
           endif
 C         call diagcv(ovl,ham,evec,ndimh,evl(1,isp),ndimh,1d60,nev)
           call defrr(oww,  11*ndimh)
-          epsovl = dgets('ham oveps',sham)
+Cgetarg           epsovl = dgets('ham oveps',sham)
+           epsovl = sham%oveps 
+
           if (epsovl .le. 0) then
             call zhev(ndimh,ham,ovl,.true.,.true.,ndimh,1d60,nev,w(oww),
      .        .false.,-1,evl(1,isp),evec)
@@ -1299,9 +1478,12 @@ C       File write
       endif
       endif
 
-      end
+Cgetarg       end
+       end subroutine sugw 
+
 
       subroutine ioaindx(npqn,lmxax,nbas,ndima,nlindx,ifi)
+
 C-  File I/O of NlAindx
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1347,9 +1529,12 @@ C --- File write ---
         call rx('ioaindx: file write not implemented')
       endif
 
-      end
+Cgetarg       end
+       end subroutine ioaindx 
+
 
       subroutine wsymops(symops,ngrp)
+
 c inequivalent points
 C     implicit none
       integer :: i,ngrp,ig,ifi,fopnx
@@ -1370,9 +1555,12 @@ c        print *, ' ig=',ig
         enddo
       enddo
       call fclr(' ',ifi)
-      end
+Cgetarg       end
+       end subroutine wsymops 
+
 
       subroutine wlattc(alat,plat,nbas,nat,ipb,lmxax,lmxa,nsp,konf)
+
 C- Write LATTC file
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1428,11 +1616,14 @@ C     open (ifi, file='LATTC')
       enddo
       enddo
       call fclr(' ',ifi)
-      end
+Cgetarg       end
+       end subroutine wlattc 
+
 
       subroutine mkppovl2(alat,plat,qlat, ng1,ngvec1,ng2,ngvec2,
      i         nbas, rmax, bas,
      o         ppovl)
+
 C- < G1 | G2 > matrix where G1 denotes IPW, zero within MT sphere.
 c
 C     implicit none
@@ -1477,7 +1668,9 @@ c
       enddo
       enddo
       deallocate(ppox)
-      end
+Cgetarg       end
+       end subroutine mkppovl2 
+
 
 C      subroutine fmain
 CC- debugs pvsug1
@@ -1493,6 +1686,7 @@ C      call pvsug1(nbas,lmxa,ipc,ipcx)
 C
 C      end
       subroutine pvsug1(nbas,lmxa,ipc,ipcx)
+
 C- Remakes class table, expunging classes with floating orbitals.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1543,5 +1737,7 @@ C       Test whether this class should be purged
           ipcx(ip) = ic - nelim
         endif
       enddo
-      end
+Cgetarg       end
+       end subroutine pvsug1 
+
 

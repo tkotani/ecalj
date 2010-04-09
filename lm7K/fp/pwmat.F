@@ -1,5 +1,16 @@
+Cgetarg...info...           structure ['pwmat', 'lat', 'slat']
+Cgetarg...info...           structure ['pwmat', 'site', 'ssite']
+Cgetarg...info...           structure ['pwmat', 'spec', 'sspec']
+Cgetarg...info...           structure ['pwmat2', 'lat', 'slat']
+Cgetarg...info...           structure ['pwmat2', 'site', 'ssite']
+Cgetarg...info...           structure ['pwmat2', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['pwmat2', 'm_struc_def']
+Cgetarg...info...           use_to_add ['pwmat', 'm_struc_def']
       subroutine pwmat(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
      .  ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
+       
+       use m_struc_def  !Cgetarg
+
 C- Matrix elements (IPW,IPW) and (IPW,envelope function)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -64,7 +75,12 @@ C ----------------------------------------------------------------------
 C ... Passed parameters
       integer ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1),
      .  napw,igapw(3,napw)
-      double precision ssite(1),sspec(1),slat(1),q(3),GcutH
+Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3),GcutH
+       real(8):: q(3) , GcutH 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex ppovl(ngp,ngp), pwhovl(ngp,ndimh)
 C ... Local parameters
       integer ips(nbas),ib,is,igetss,ngmx,ig,lmxax,ll,iwk(3),nlmto,iga,
@@ -85,8 +101,22 @@ C ... Local parameters
 
       integer :: inn(3),matmul_pwhovl
       logical:: debug=.true.
+
+      integer:: i_copy_size, i_spackv, i_spacks
 C --- Setup ---
-      call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+       vol=slat%vol
+
       pi  = 4d0*datan(1d0)
       pi4 = 4d0*pi
       tpiba = 2*pi/alat
@@ -98,11 +128,25 @@ C --- Setup ---
         mimgl(l) = (-img)**l
       enddo
 C     Create bas,ips,rmax
-      call spackv(10,'site pos',ssite,1,nbas,bas)
-      call spackv(10,'site spec',ssite,1,nbas,ips)
+Cgetarg       call spackv(10,'site pos',ssite,1,nbas,bas)
+       i_copy_size=size(ssite(1)%pos)
+       do i_spackv=1,nbas 
+       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
+       enddo
+
+Cgetarg       call spackv(10,'site spec',ssite,1,nbas,ips)
+       i_copy_size=1; 
+       do i_spackv=1,nbas 
+       call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+       enddo
+
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        rmax(ib) = dgetss('spec rmt',is,sspec)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg         rmax(ib) = dgetss('spec rmt',is,sspec)
+         rmax ( ib ) = (sspec(is)%rmt) 
+
       enddo
       nlmto = ndimh-napw
 
@@ -141,7 +185,9 @@ C     Could be optimized, ala hsibl, but not a critical step for GW.
         call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
         do  ib = 1, nbas
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
-          is = igetss('site spec',ib,ssite)
+Cgetarg           is = igetss('site spec',ib,ssite)
+           is = int(ssite(ib)%spec) 
+
           call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
           call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
           call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
@@ -205,7 +251,9 @@ C     call zprm('pwhovl',2,pwhovl,ngp,ngp,ndimh)
 C --- Cleanup ---
       deallocate(yl,igvx,pwh,kv,ppovlx)
 
-      end
+Cgetarg       end
+       end subroutine pwmat 
+
 
 
 
@@ -216,6 +264,9 @@ C --- Cleanup ---
 
       subroutine pwmat2(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
      .  ngp,nlmax,igv,ovlp,pwh)
+       
+       use m_struc_def  !Cgetarg
+
 C- Matrix elements (IPW,IPW); expansion coefficients of basis fns in IPWs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -259,7 +310,12 @@ C     implicit none
 C ... Passed parameters
       integer ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1),
      .  napw,igapw(3,napw)
-      double precision ssite(1),sspec(1),slat(1),q(3)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3)
+       real(8):: q(3) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex ovlp(ngp,ngp), pwh(ngp,ndimh)
 C ... Local parameters
       integer ips(nbas),ib,is,igetss,ig,lmxax,ll,nlmto,iga,ifindiv2
@@ -276,7 +332,19 @@ C ... Local parameters
       double precision,allocatable:: yl(:)
 
 C --- Setup ---
-      call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+       vol=slat%vol
+
       pi  = 4d0*datan(1d0)
       pi4 = 4d0*pi
       tpiba = 2*pi/alat
@@ -288,11 +356,25 @@ C --- Setup ---
         mimgl(l) = (-img)**l
       enddo
 C     Create bas,ips,rmax
-      call spackv(10,'site pos',ssite,1,nbas,bas)
-      call spackv(10,'site spec',ssite,1,nbas,ips)
+Cgetarg       call spackv(10,'site pos',ssite,1,nbas,bas)
+       i_copy_size=size(ssite(1)%pos)
+       do i_spackv=1,nbas 
+       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
+       enddo
+
+Cgetarg       call spackv(10,'site spec',ssite,1,nbas,ips)
+       i_copy_size=1; 
+       do i_spackv=1,nbas 
+       call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+       enddo
+
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        rmax(ib) = dgetss('spec rmt',is,sspec)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg         rmax(ib) = dgetss('spec rmt',is,sspec)
+         rmax ( ib ) = (sspec(is)%rmt) 
+
       enddo
       nlmto = ndimh-napw
 
@@ -311,7 +393,9 @@ C ... Fourier coefficients of smoothed hankels for all LMTOs
         call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
         do  ib = 1, nbas
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
-          is = igetss('site spec',ib,ssite)
+Cgetarg           is = igetss('site spec',ib,ssite)
+           is = int(ssite(ib)%spec) 
+
           call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
           call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
           call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
@@ -349,10 +433,13 @@ C     call zprm('pwh',2,pwh,ngp,ngp,ndimh)
 C --- Cleanup ---
       deallocate(yl)
 
-      end
+Cgetarg       end
+       end subroutine pwmat2 
+
 
       subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas,
      .  rmax,bas,ppovl)
+
 C- Overlap matrix elements between interstitial plane waves
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -423,9 +510,12 @@ C ... For each G2*G1, poke integral into ppovl
       enddo
 
       deallocate(ppox)
-      end
+Cgetarg       end
+       end subroutine ipwovl 
+
 
       subroutine matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,igv,ppovl)
+
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   alat  :length scale of lattice and basis vectors, a.u.
@@ -483,5 +573,7 @@ C     Integral of exp(i G.r) = v0l * delta_(G,0)
      .      * pi4/absg**3 * ( -grmx * cos(grmx) + sin(grmx) )
         endif
       enddo
-      end
+Cgetarg       end
+       end subroutine matgg2 
+
 

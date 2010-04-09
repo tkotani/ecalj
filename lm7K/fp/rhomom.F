@@ -1,4 +1,10 @@
+Cgetarg...info...           structure ['rhomom', 'site', 'ssite']
+Cgetarg...info...           structure ['rhomom', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['rhomom', 'm_struc_def']
       subroutine rhomom(nbas,ssite,sspec,orhoat,qmom,vsum)
+       
+       use m_struc_def  !Cgetarg
+
 C- Multipole moments of valence sphere densities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -24,7 +30,11 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,orhoat(3,1)
-      double precision ssite(1),sspec(1),qmom(1),vsum
+Cgetarg       double precision ssite(1),sspec(1),qmom(1),vsum
+       real(8):: qmom(1) , vsum 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer stdo,ipr,iprint,lgunit,orofi,nrmx,orwgt,oh,ov,nsp,nglob,
      .  j1,ib,is,igetss,lmxl,nr,nlml,ilm,j,lfoc
@@ -51,10 +61,32 @@ C --- Loop over sites ---
       j1 = 1
       vsum = 0d0
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec lmxl z qc',sspec,is,lmxl,z,qc,0)
-        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-        call upack2('spec rg',sspec,is,rg)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg         call upack('spec lmxl z qc',sspec,is,lmxl,z,qc,0)
+         
+         lmxl=sspec(is)%lmxl
+         z=sspec(is)%z
+         qc=sspec(is)%qc
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg         call upack2('spec rg',sspec,is,rg)
+         
+         rg=sspec(is)%rg
+
         if (lmxl .eq. -1) goto 10
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         qc = qcorg+qcorh
@@ -85,10 +117,13 @@ C --- Loop over sites ---
       enddo
 
       call rlse(orofi)
-      end
+Cgetarg       end
+       end subroutine rhomom 
+
 
       subroutine pvrhom(nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc,
      .  cofg,cofh,rg,ceh,rfoc,z,h,qmom)
+
 C- Multipole moments for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -199,10 +234,13 @@ C     .   ' Core spill-out charge is',f12.6)
 C      write(stdo,821) delq
 C  821 format('delq=',f12.6)
 
-      end
+Cgetarg       end
+       end subroutine pvrhom 
+
 
       subroutine pvrhm2(z,a,nr,nlml,nsp,rofi,rwgt,rho1,rho2,rhoc,qmom,
      .  cofg,cofh,rg,ceh,rfoc,h,v,vsum1,vsum2)
+
 C- Integral over electrostatic potential, to fix energy origin
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -289,5 +327,7 @@ C ... Smooth density, including compensating gaussians
 
 C      write (stdo,400) q1,q2,vsum1,vsum2
 C  400 format(' qsph=',2f12.6,'   vsum=',2f12.6)
-      end
+Cgetarg       end
+       end subroutine pvrhm2 
+
 

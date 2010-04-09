@@ -1,4 +1,11 @@
+Cgetarg...info...           structure ['rhgcmp', 'lat', 'slat']
+Cgetarg...info...           structure ['rhgcmp', 'spec', 'sspec']
+Cgetarg...info...           structure ['rhgcmp', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['rhgcmp', 'm_struc_def']
       subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,orhat,kmax,ng,cg)
+       
+       use m_struc_def  !Cgetarg
+
 C- Adds density of compensating gaussians to FT list
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -61,7 +68,11 @@ C     implicit none
 C ... Passed parameters
       integer mode,ib1,ib2,ng,kmax
       integer orhat
-      double precision ssite(1),sspec(1),slat(1)
+Cgetarg       double precision ssite(1),sspec(1),slat(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex cg(ng)
 C ... Local parameters
       integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nglob,nlm,
@@ -80,8 +91,31 @@ C ... Heap
 
       call tcn('rhgcmp')
       call stdfac(20,df)
-      call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
-      call upack('lat nabc ng ogv okv vol',slat,ngabc,ng1,ogv,okv,vol)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           integer :: ng1 , integer(8) :: slat%ng 1
+Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
+Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng1,ogv,okv,vol)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       ng1=slat%ng
+       ogv=slat%ogv
+       okv=slat%okv
+       vol=slat%vol
+
       nspec = nglob('nspec')
       nsp   = nglob('nsp')
       modgkl = mode
@@ -98,7 +132,9 @@ C      call isanrg(mode,0,3,'rhgcmp:','mode', .true.)
 C --- Set up help arrays ---
       ltop = 0
       do  is = 1, nspec
-        lmxl = igetss('spec lmxl',is,sspec)
+Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
+         lmxl = int(sspec(is)%lmxl) 
+
         ltop = max0(ltop,lmxl)
       enddo
       nlmtop = (ltop+1)**2
@@ -116,8 +152,21 @@ C --- Set up help arrays ---
 C --- Loop over sites ---
       iv0 = 0
       do  ib = ib1, ib2
-        call upack('site spec pos',ssite,ib,is,tau,0,0)
-        call upack('spec lmxl rg',sspec,is,lmxl,rg,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pos) 
+         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg         call upack('spec lmxl rg',sspec,is,lmxl,rg,0,0)
+         
+         lmxl=sspec(is)%lmxl
+         rg=sspec(is)%rg
+
         if (lmxl .eq. -1) goto 10
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         if (mode .eq. 2) cofh = 0
@@ -140,10 +189,13 @@ C --- Loop over sites ---
 
       call rlse (oyl)
       call tcx('rhgcmp')
-      end
+Cgetarg       end
+       end subroutine rhgcmp 
+
 
       subroutine rhgcm2(vol,rg,rfoc,ceh,cofh,kmax,lcor,qkl,nlm,ng,g2,yl,
      .  cs,sn,cg)
+
 C- Convert G_kL expansion of function centered at a site to PW's
 C     implicit none
 C ... Passed parameters
@@ -191,8 +243,11 @@ C ... Local parameters
 
       enddo
 
-      end
+Cgetarg       end
+       end subroutine rhgcm2 
+
       subroutine rhgcm3(z,vol,ng,cs,sn,cg)
+
 C- PW expansion of Z * delta(r)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -225,5 +280,7 @@ C ... Local parameters
         cg(i) = cg(i) + z*phase/vol
       enddo
 
-      end
+Cgetarg       end
+       end subroutine rhgcm3 
+
 

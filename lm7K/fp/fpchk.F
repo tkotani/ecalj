@@ -1,4 +1,8 @@
+Cgetarg...info...           structure ['chkxpn', 'site', 'ssite']
+Cgetarg...info...           structure ['chkxpn', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['chkxpn', 'm_struc_def']
       subroutine fpchk(sspec,ssite)
+      use m_struc_def
 C- Routines to check various quantities in FP code
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -15,18 +19,29 @@ Cu   23 Apr 02 Added option (mode=0) to find MT radii
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      double precision sspec(1),ssite(1)
+Cgetarg       double precision sspec(1),ssite(1)
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+
 
       call info(5,2,0,
      .   ' ----- Check accuracy of augmentation expansion -----',0,0)
       call chkxpn(ssite,sspec)
-      end
+Cgetarg       end
+       end subroutine fpchk 
+
 
       subroutine chkxpn(ssite,sspec)
+       
+       use m_struc_def  !Cgetarg
+
 C- Check accuracy of Pkl expansions of augmented functions
 C     implicit none
 C ... Passed parameters
-      double precision ssite(1),sspec(1)
+Cgetarg       double precision ssite(1),sspec(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer k0,nlm0,nrx,n0,nkap0,stdo,lgunit
       parameter (k0=20, nlm0=25, nrx=201)
@@ -57,7 +72,12 @@ C ... setup
      .   /' Only column ''tail'' matters for program accuracy.')
 
       call defi(oips,nbas)
-      call spackv(10,'site spec',ssite,1,nbas,w(oips))
+Cgetarg       call spackv(10,'site spec',ssite,1,nbas,w(oips))
+       i_copy_size=1; 
+       do i_spackv=1,nbas 
+       call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+       enddo
+
 
 C --- Loop over species ---
       do  40  is = 1, nspec
@@ -69,9 +89,23 @@ C --- Loop over species ---
           goto 40
         endif
 
-        call spacks(0,'spec name',sspec,spid,is,is)
-        call upack('spec rmt rsma lmxa kmxt',sspec,is,rmt,rsma,lmxa,
-     .    kmax)
+Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+         enddo
+
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg         call upack('spec rmt rsma lmxa kmxt',sspec,is,rmt,rsma,lmxa,
+Cgetarg      .    kmax)
+         
+         rmt=sspec(is)%rmt
+         rsma=sspec(is)%rsma
+         lmxa=sspec(is)%lmxa
+         kmax=sspec(is)%kmxt
+
 C        call u_spec_p(sspec,is,!z,lmxl,lmxa,pnu,idmod,!a0,!nr0,rmt)
 C        call u_spec_a(sspec,is,lmxa,lmxh,kmax,rsma)
         a = 0.02d0
@@ -162,5 +196,7 @@ C         call hxps(rsmh,rsma,e,kmax,nlm,k0,c)
         enddo
         enddo
   40  continue
-      end
+Cgetarg       end
+       end subroutine chkxpn 
+
 

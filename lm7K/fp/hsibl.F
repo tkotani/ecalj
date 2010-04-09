@@ -1,6 +1,13 @@
+Cgetarg...info...           structure ['hsibl', 'lat', 'slat']
+Cgetarg...info...           structure ['hsibl', 'site', 'ssite']
+Cgetarg...info...           structure ['hsibl', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['hsibl', 'm_struc_def']
 #define SGI 1
       subroutine hsibl(ssite,sspec,slat,k1,k2,k3,vsm,isp,q,ndimh,iprmb,
      .  napw,igapw,h)
+       
+       use m_struc_def  !Cgetarg
+
 C- Interstitial ME of smooth Bloch Hankels, smooth potential.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -78,7 +85,12 @@ C Event numbers:
 
 C ... Passed parameters
       integer k1,k2,k3,isp,ndimh,iprmb(1),napw,igapw(3,napw)
-      double precision q(3),ssite(1),sspec(1),slat(1)
+Cgetarg       double precision q(3),ssite(1),sspec(1),slat(1)
+       real(8):: q(3) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex h(ndimh,ndimh),vsm(k1,k2,k3,isp)
 C ... Local parameters
       integer n0,npmx,nkap0,nkape,nermx,nspec,ngabc(3),nhblk,nlmto
@@ -118,6 +130,7 @@ C ... Heap
       common /w/ w
       
       integer:: ibini,ibend
+      integer:: i_copy_size
 
       call tcn('hsibl')
 
@@ -136,8 +149,29 @@ C ... First setup
       nspec = nglob('nspec')
       nlmto = ndimh - napw
       if (nspec .gt. nermx) call rx('hsibl: increase nermx')
-      call upack('lat alat plat qlat gmax',slat,alat,plat,qlat,gmax,0)
-      call upack('lat nabc ng vol',slat,ngabc,ng,vol,0,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg...info...           real(8) :: gmax , real(8) :: slat%gmax 1
+Cgetarg       call upack('lat alat plat qlat gmax',slat,alat,plat,qlat,gmax,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+       gmax=slat%gmax
+
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat nabc ng vol',slat,ngabc,ng,vol,0,0)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       ng=slat%ng
+       vol=slat%vol
+
 
 C --- <MTO | V | MTO and < MTO | V PW> parts of h ---
       if (nlmto .gt. 0) then
@@ -254,7 +288,14 @@ C$      ip = mp_my_threadnum()+1
         of    = oif(ip)
         ndim1 = 0
 
-        call upack('site spec pos',ssite,ib1,is1,p1,0,0)
+Cgetarg...info...           integer :: is1 , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: p1(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib1,is1,p1,0,0)
+         
+         is1=ssite(ib1)%spec
+         i_copy_size=size(ssite(ib1)%pos) 
+         call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1) 
+
         call suphas(q,p1,ng,w(oiv),n1,n2,n3,qlat,w(ocos1),w(osin1))
 C       List of orbitals, their l- and k- indices, and ham offsets
         call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
@@ -284,8 +325,20 @@ C   ... Loop over second of (ib1,ib2) site pairs
         do  ib2 = ib1, nbas
           ndim2 = 0
 
-          call upack('site spec pos',ssite,ib2,is2,p2,0,0)
-          call upack2('spec ngcut',sspec,is2,ncut)
+Cgetarg...info...           integer :: is2 , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: p2(3) , real(8) :: ssite%pos 3
+Cgetarg           call upack('site spec pos',ssite,ib2,is2,p2,0,0)
+           
+           is2=ssite(ib2)%spec
+           i_copy_size=size(ssite(ib2)%pos) 
+           call dcopy(i_copy_size,ssite(ib2)%pos,1,p2,1) 
+
+Cgetarg...info...           integer :: ncut(n0,nkap0) , integer(8) :: sspec%ngcut 30
+Cgetarg           call upack2('spec ngcut',sspec,is2,ncut)
+           
+           i_copy_size=size(sspec(is2)%ngcut) 
+           call i8icopy(i_copy_size,sspec(is2)%ngcut,1,ncut,1) 
+
           call suphas(q,p2,ng,w(oiv),n1,n2,n3,qlat,w(ocos2),w(osin2))
 C         List of orbitals, their l- and k- indices, and ham offsets
           call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
@@ -407,9 +460,12 @@ C ... Occupy second half of matrix
       enddo
       call tcx('hsibl')
 C     call zprm('h-i',2,h,ndimh,ndimh,ndimh)
-      end
+Cgetarg       end
+       end subroutine hsibl 
+
 
       subroutine hsibl1(net,et,nrt,rt,ltop,alat,q,ng,gv,g,g2,yl,he,hr)
+
 C- Make yl's, energy and rsm factors for list of G vectors
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -466,9 +522,12 @@ C ... Make the rsm factors
           hr(i,ir) = dexp(-gam*g2(i))
         enddo
       enddo
-      end
+Cgetarg       end
+       end subroutine hsibl1 
+
 
       subroutine hsibl2(n1,n2,ng,ncut2,c1,cf1,c2,cf2,ndimh,ofh1,ofh2,h)
+
 C- Add scalar product (phi1 (vsm*phi2)) to  h
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -566,10 +625,13 @@ C         This reduces accuracy, but makes exactly compatible
 #endif
 
       call tcx('hsibl2')
-      end
+Cgetarg       end
+       end subroutine hsibl2 
+
 
       subroutine hsibl3(ie,ir,etab,rtab,vol,nlm1,nlm2,offlm,ng,yl,he,hr,
      .  cosgp,singp,wk,c,cfac)
+
 C- FT of smooth Hankels, without constant factors
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -636,8 +698,11 @@ C     Constant factor
 
       call tcx('hsibl3')
 
-      end
+Cgetarg       end
+       end subroutine hsibl3 
+
       subroutine hsibl4(n1,n2,n3,k1,k2,k3,vsm,f,ng,kv,nc,c)
+
 C- FFT to real space, multiply by potential, FTT back
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -682,9 +747,12 @@ c       call zprm3('v*psir',0,f,n1,n2,n3)
         call gvgetf(ng,1,kv,k1,k2,k3,f,c(1,i))
       enddo
       call tcx('hsibl4')
-      end
+Cgetarg       end
+       end subroutine hsibl4 
+
       subroutine hsibl5(norb1,blks1,offl1,ndim1,norb2,blks2,offl2,ndim2,
      .                  ndimh,hwk,h)
+
 C- Adds a subblock of matrix elements into the hamiltonian
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -748,10 +816,13 @@ C     .      ofw1+1,ofw2+1,blks1(io1),blks2(io2)
       endif
       enddo
 
-      end
+Cgetarg       end
+       end subroutine hsibl5 
+
 
       subroutine hsibl6(ndimh,nlmto,norb1,blks1,offl1,ng,igv,napw,igapw,
      .  c1,cf1,h)
+
 C- Make matrix elements <Hsm | V | PW>
 C ----------------------------------------------------------------------
 Ci   ndimh :dimension of hamiltonian
@@ -793,9 +864,12 @@ C       index matching igv,igapw
           ofw1 = ofw1 + blks1(io1)
         enddo
       enddo
-      end
+Cgetarg       end
+       end subroutine hsibl6 
+
 
       integer function ifindiv(igapw,igv,ng)
+
 C- Find index in igv that corresponds to igapw 
 C ----------------------------------------------------------------------
 Ci   igapw :vector of APWs, in units of reciprocal lattice vectors
@@ -826,9 +900,12 @@ C        write(6,'(i5,2x,10i5)') ig, igv(ig,:)
 C      enddo
       call rx('ifindiv: igapw not found in igv')
 
-      end
+Cgetarg       end
+       end function ifindiv 
+
 
       integer function ifindiv2(igapw,igv2,ng)
+
 C- Find index in igv2 that corresponds to igapw 
 C ----------------------------------------------------------------------
 Ci   igapw :vector of APWs, in units of reciprocal lattice vectors
@@ -859,5 +936,7 @@ C        write(6,'(i5,2x,10i5)') ig, igv2(ig,:)
 C      enddo
       call rx('ifindiv2: igapw not found in igv')
 
-      end
+Cgetarg       end
+       end function ifindiv2 
+
 

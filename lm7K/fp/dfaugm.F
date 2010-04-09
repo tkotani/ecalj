@@ -1,4 +1,10 @@
+Cgetarg...info...           structure ['dfaugm', 'site', 'ssite']
+Cgetarg...info...           structure ['dfaugm', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['dfaugm', 'm_struc_def']
       subroutine dfaugm(nbas,lcplxp,lso,ssite,sspec,osig,otau,oppi)
+       
+       use m_struc_def  !Cgetarg
+
 C- Allocate augmentation matrices sigma,tau,pi for all atoms
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -45,7 +51,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,lcplxp,lso,osig(3,nbas),otau(3,nbas),oppi(3,nbas)
-      double precision  ssite(1),sspec(1)
+Cgetarg       double precision  ssite(1),sspec(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh,
      .  nsp,nspc,nkaph,nso
@@ -60,8 +69,18 @@ C     double precision z,rmt
 
 C --- Loop over sites, allocating sig,tau,pi for each site ---
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg         call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
+         
+         lmxa=sspec(is)%lmxa
+         lmxh=sspec(is)%lmxb
+         kmax=sspec(is)%kmxt
+
 C       call upack('spec z rmt',sspec,is,z,rmt,0,0)
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
@@ -104,5 +123,7 @@ C   ... Case Hsm*Pkl
    10   continue
       enddo
 
-      end
+Cgetarg       end
+       end subroutine dfaugm 
+
 

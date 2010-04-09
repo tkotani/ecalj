@@ -1,6 +1,17 @@
+Cgetarg...info...           structure ['mshvmt', 'lat', 'slat']
+Cgetarg...info...           structure ['mshvmt', 'site', 'ssite']
+Cgetarg...info...           structure ['mshvmt', 'spec', 'sspec']
+Cgetarg...info...           structure ['symvvl', 'lat', 'slat']
+Cgetarg...info...           structure ['symvvl', 'site', 'ssite']
+Cgetarg...info...           structure ['symvvl', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['mshvmt', 'm_struc_def']
+Cgetarg...info...           use_to_add ['symvvl', 'm_struc_def']
 #define F90 1
       subroutine mshvmt(nbas,ssite,sspec,slat,ng,gv,
      .  kv,cv,k1,k2,k3,smpot,vval)
+       
+       use m_struc_def  !Cgetarg
+
 C- Makes potential at MT surfaces given potential on a uniform mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -41,8 +52,13 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,nbas,ng,kv(ng,3)
-      double precision ssite(1),sspec(1),gv(ng,3),slat(1),
-     .  vval(1)
+Cgetarg       double precision ssite(1),sspec(1),gv(ng,3),slat(1),
+Cgetarg      .  vval(1)
+       real(8):: gv(ng,3) , vval(1) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex smpot(k1,k2,k3),cv(ng)
 C ... Local parameters
       integer i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,ngabc(3),
@@ -67,7 +83,17 @@ C     double precision q(3),qlat(3,3)
 #endif
       call getpr(ipr)
       pi = 4d0*datan(1d0)
-      call upack('lat alat plat nabc',slat,alat,plat,ngabc,0,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg       call upack('lat alat plat nabc',slat,alat,plat,ngabc,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
       tpiba = 2*pi/alat
       call gvgetf(ng,1,kv,k1,k2,k3,smpot,cv)
 
@@ -81,8 +107,21 @@ C --- YL(G)*G**l, agv=|G| for each g ---
 C --- For each ib in nbas, do ---
       iv0 = 0
       do  ib = 1, nbas
-        call upack('site spec pos',ssite,ib,is,tau,0,0)
-        call upack('spec rmt lmxl',sspec,is,rmt,lmxl,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pos) 
+         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg         call upack('spec rmt lmxl',sspec,is,rmt,lmxl,0,0)
+         
+         rmt=sspec(is)%rmt
+         lmxl=sspec(is)%lmxl
+
         if (lmxl .eq. -1) goto 10
         nlm = (lmxl+1)**2
         if (nlm .gt. nlmx) call rxi('mshvmt: increase nlmx to',nlm)
@@ -148,9 +187,14 @@ C        endif
       deallocate(gv2,agv,cgp,sgp)
 #endif
       call tcx('mshvmt')
-      end
+Cgetarg       end
+       end subroutine mshvmt 
+
 
       subroutine symvvl(nbas,ssite,sspec,slat,vval,vrmt)
+       
+       use m_struc_def  !Cgetarg
+
 C- Symmetrizes the potential at the MT boundary.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -181,7 +225,12 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas
-      double precision ssite(1),sspec(1),slat(1),vval(1),vrmt(nbas)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),vval(1),vrmt(nbas)
+       real(8):: vval(1) , vrmt(nbas) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
 C ... Local parameters
       integer ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,stdo,iv0
       integer ipc(nbas),ips(nbas),lmxl(nbas)
@@ -193,13 +242,41 @@ C ... Heap
 
       stdo = lgunit(1)
       call getpr(ipr)
-      call upack('lat plat nsgrp osymgr oag',slat,plat,ngrp,og,oag,0)
-      call spackv(10,'site class',ssite,1,nbas,ipc)
-      call spackv(10,'site spec', ssite,1,nbas,ips)
-      call spackv(10,'site pos',ssite,1,nbas,pos)
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: ngrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
+Cgetarg       call upack('lat plat nsgrp osymgr oag',slat,plat,ngrp,og,oag,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       ngrp=slat%nsgrp
+       og=slat%osymgr
+       oag=slat%oag
+
+Cgetarg       call spackv(10,'site class',ssite,1,nbas,ipc)
+       i_copy_size=1; 
+       do i_spackv=1,nbas 
+       call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,ipc)
+       enddo
+
+Cgetarg       call spackv(10,'site spec', ssite,1,nbas,ips)
+       i_copy_size=1; 
+       do i_spackv=1,nbas 
+       call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+       enddo
+
+Cgetarg       call spackv(10,'site pos',ssite,1,nbas,pos)
+       i_copy_size=size(ssite(1)%pos)
+       do i_spackv=1,nbas 
+       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,pos)
+       enddo
+
       nclass = mxint(nbas,ipc)
       do  ib = 1, nbas
-        lmxl(ib) = igetss('spec lmxl',ips(ib),sspec)
+Cgetarg         lmxl(ib) = igetss('spec lmxl',ips(ib),sspec)
+         lmxl ( ib ) = int(sspec(ips(ib))%lmxl) 
+
       enddo
 
       do  ic = 1, nclass
@@ -258,5 +335,7 @@ C   ... Printout
    10  continue
       enddo
 
-      end
+Cgetarg       end
+       end subroutine symvvl 
+
 

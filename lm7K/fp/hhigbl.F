@@ -1,5 +1,8 @@
+Cgetarg...info...           structure ['phhigb', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['phhigb', 'm_struc_def']
       subroutine hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,
      .  ndim1,ndim2,k0,cg,indxcg,jcg,cy,slat,s,ds)
+      use m_struc_def
 C- Integrals between smooth hankels with k-th power of Laplace operator
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -42,8 +45,12 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2,k0
-      double precision p1(3),p2(3),q(3),cg(1),cy(1),slat(1),
-     .  rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*)
+Cgetarg       double precision p1(3),p2(3),q(3),cg(1),cy(1),slat(1),
+Cgetarg      .  rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*)
+       real(8):: p1(3) , p2(3) , q(3) , cg(1) , cy(1) , rsm1(0:*) , 
+     . rsm2(0:*) , e1(0:*) , e2(0:*) 
+       type(s_lat)::slat
+
       double complex s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
 C ... Local parameters
       integer ilm,jlm,k,l1,l1t,l2,l2t,ll,lm11,lm12,lm21,lm22,lmx1,lmx2,m
@@ -93,9 +100,14 @@ C         l2t = l2
      .      lm21,lm22,kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy,slat,s,ds)
    22   continue
    20 continue
-      end
+Cgetarg       end
+       end subroutine hhigbl 
+
       subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,
      .  kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy,slat,s,ds)
+       
+       use m_struc_def  !Cgetarg
+
 C- Integrals between smooth hankels with k-th power of Laplace operator
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -131,7 +143,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2,k0,mlm1,mlm2
-      double precision q(3),cg(1),cy(1),slat(1),dr(3),rsm1,rsm2,e1,e2
+Cgetarg       double precision q(3),cg(1),cy(1),slat(1),dr(3),rsm1,rsm2,e1,e2
+       real(8):: q(3) , cg(1) , cy(1) , dr(3) , rsm1 , rsm2 , e1 , e2 
+       type(s_lat)::slat
+
       double complex s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
 C ... Local parameters
       integer nlm0,ktop0,lmax1,ll,lmax2,lmaxx,nlmx,nlmxp1,ktop,ktopp1,
@@ -143,7 +158,9 @@ C ... Local parameters
       double complex hkl1(0:ktop0,nlm0),hkl2(0:ktop0,nlm0),
      .  ghkl(0:ktop0,nlm0,3),hsm(nlm0),hsmp(nlm0)
 
-      vol = dgets('lat vol',slat)
+Cgetarg       vol = dgets('lat vol',slat)
+       vol = slat%vol 
+
       fpi = 16d0*datan(1.d0)
       gam1 = 0.25d0*rsm1*rsm1
       gam2 = 0.25d0*rsm2*rsm2
@@ -242,5 +259,7 @@ C ... Extra term when e1 or e2 is zero (but not both)
         s(1,1,0) = s(1,1,0) + add
       endif
 
-      end
+Cgetarg       end
+       end subroutine phhigb 
+
 

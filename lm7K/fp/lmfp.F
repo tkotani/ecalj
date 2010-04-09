@@ -1,5 +1,21 @@
+Cgetarg...info...           structure ['lmfp', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['lmfp', 'bz', 'sbz']
+Cgetarg...info...           structure ['lmfp', 'array', 'sarray']
+Cgetarg...info...           structure ['lmfp', 'lat', 'slat']
+Cgetarg...info...           structure ['lmfp', 'site', 'ssite']
+Cgetarg...info...           structure ['lmfp', 'mix', 'smix']
+Cgetarg...info...           structure ['lmfp', 'pot', 'spot']
+Cgetarg...info...           structure ['lmfp', 'ham', 'sham']
+Cgetarg...info...           structure ['lmfp', 'spec', 'sspec']
+Cgetarg...info...           structure ['lmfp', 'ctrl', 'sbz']
+Cgetarg...info...           structure ['cppos', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['lmfp', 'm_struc_def']
+Cgetarg...info...           use_to_add ['cppos', 'm_struc_def']
       subroutine lmfp(prgnam,sbz,sctrl,sham,spot,slat,smix,
      .  sspec,ssite,sstr,smove,sarray,sstrn)
+       
+       use m_struc_def  !Cgetarg
+
 C- LM-FP self-consistency loop
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -82,8 +98,20 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters:
       character sstrn*(*), prgnam*8
-      double precision sarray(1),sbz(1),sctrl(1),slat(1),smix(1),
-     .  sspec(1),ssite(1),sham(1),spot(1),sstr(1),smove(1)
+Cgetarg       double precision sarray(1),sbz(1),sctrl(1),slat(1),smix(1),
+Cgetarg      .  sspec(1),ssite(1),sham(1),spot(1),sstr(1),smove(1)
+       type(s_array)::sarray
+       type(s_bz)::sbz
+       type(s_ctrl)::sctrl
+       type(s_lat)::slat
+       type(s_mix)::smix
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+       type(s_ham)::sham
+       type(s_pot)::spot
+       type(s_str)::sstr
+       type(s_move)::smove
+
 C ... Heap
       integer w(1)
       common /w/ w
@@ -169,7 +197,11 @@ C ... MPI-specific
       mlog = cmdopt('--mlog',6,0,strn)
 ckino. Mark says nproc <= nbas should be for MPI.
 #if MPI
-       call upack('ctrl nbas',sctrl,nbas,0,0,0,0)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg        call upack('ctrl nbas',sctrl,nbas,0,0,0,0)
+        
+        nbas=sctrl%nbas
+
 c   mpipic() is defined in slatsm
        if ( nbas < nproc ) then
          if (procid == master ) then
@@ -197,10 +229,19 @@ C -------------------------- Basis optimization -------------------
       if (cmdopt('--optbas',8,0,strn)) then
 C       call wkdbg2
 C       No self-consistency
-        call pack1('bz nevmx',sbz,-1)
+Cgetarg         call pack1('bz nevmx',sbz,-1)
+         
+         sbz%nevmx=-1 
+
 C       No forces or dynamics
         call dpzero(mdprm,6)
-        call pack2('ctrl lfrce mdprm',sctrl,0,mdprm)
+Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
+Cgetarg         call pack2('ctrl lfrce mdprm',sctrl,0,mdprm)
+         
+         sctrl%lfrce=0 
+         i_copy_size=size(sctrl%mdprm) 
+         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1) 
+
         call lmfopb(strn(9:),slat,sspec,etot(1)-dgets('ham seref',sham))
 C       call wkdbg2
 
@@ -208,12 +249,27 @@ C -------------------------- Total energy mode -------------------
       elseif (cmdopt('--etot',6,0,strn)) then
 C       No forces or dynamics
         call dpzero(mdprm,6)
-        call pack2('ctrl lfrce mdprm',sctrl,0,mdprm)
+Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
+Cgetarg         call pack2('ctrl lfrce mdprm',sctrl,0,mdprm)
+         
+         sctrl%lfrce=0 
+         i_copy_size=size(sctrl%mdprm) 
+         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1) 
+
 C       Suppress writing output density
-        call lsets('ctrl lrs',sctrl,.false.,8)
-        call lsets('ctrl lrs',sctrl,.false.,16)
+Cgetarg         call lsets('ctrl lrs',sctrl,.false.,8)
+         
+         call lsets_bitop_i8(sctrl%lrs,1,.false.,8)
+
+Cgetarg         call lsets('ctrl lrs',sctrl,.false.,16)
+         
+         call lsets_bitop_i8(sctrl%lrs,1,.false.,16)
+
 C       Exactly one iteration
-        call pack1('ctrl maxit',sctrl,1)
+Cgetarg         call pack1('ctrl maxit',sctrl,1)
+         
+         sctrl%maxit=1 
+
 C       Suppress mixing of output density
         call lstra('strn mix',i,j,k)
         call ustrn(i,-j,1,k,i,4)
@@ -224,16 +280,51 @@ C       print *, sstrn(i:j)
 
 C -------------------------- Unpack & initialization -------------------
       call getpr(ipr)
-      call upack('ctrl nbas nl nspec nspin',sctrl,nbas,nl,nspec,nsp,0)
-      call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
-      call upack('ctrl lpgf lcgf lscr lsx',sctrl,lpgf,lcgf,iscr,lsx,0)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg       call upack('ctrl nbas nl nspec nspin',sctrl,nbas,nl,nspec,nsp,0)
+       
+       nbas=sctrl%nbas
+       nl=sctrl%nl
+       nspec=sctrl%nspec
+       nsp=sctrl%nspin
+
+Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
+Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
+Cgetarg       call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
+       
+       npadl=sarray%npadl
+       npadr=sarray%npadr
+
+Cgetarg...info...           integer :: lpgf , integer(8) :: sctrl%lpgf 2
+Cgetarg...info...           integer :: lcgf , integer(8) :: sctrl%lcgf 1
+Cgetarg...info...           integer :: iscr , integer(8) :: sctrl%lscr 1
+Cgetarg...info...           integer :: lsx , integer(8) :: sctrl%lsx 1
+Cgetarg       call upack('ctrl lpgf lcgf lscr lsx',sctrl,lpgf,lcgf,iscr,lsx,0)
+       
+       i_copy_size=size(sctrl%lpgf) 
+       call i8icopy(i_copy_size,sctrl%lpgf,1,lpgf,1) 
+       lcgf=sctrl%lcgf
+       iscr=sctrl%lscr
+       lsx=sctrl%lsx
+
 C     call upack('ctrl lncol',sctrl,lncol,0,0,0,0)
       nat = nglob('nat')
 
-      qbg    = dgets('ctrl zbak',sctrl)
-      maxit  = igets('ctrl maxit',sctrl)
-      lrel   = isw(lgors('ctrl lrel,-1',sctrl))
-      lhf    = lgors('ctrl lcd,2',sctrl)
+Cgetarg       qbg    = dgets('ctrl zbak',sctrl)
+       qbg = sctrl%zbak(1) 
+
+Cgetarg       maxit  = igets('ctrl maxit',sctrl)
+       maxit = int(sctrl%maxit) 
+
+Cgetarg       lrel   = isw(lgors('ctrl lrel,-1',sctrl))
+       lrel = isw ( iand(-1,int(sctrl%lrel)) .ne.0 ) 
+
+Cgetarg       lhf    = lgors('ctrl lcd,2',sctrl)
+       lhf = iand(2,int(sctrl%lcd)) .ne.0 
+
       if (lhf) maxit = 1
 C     nbasp  = nbas +    npadl + npadr
       nbaspp = nbas + 2*(npadl + npadr)
@@ -241,14 +332,27 @@ C     nbasp  = nbas +    npadl + npadr
 C     stdl   = lgunit(2)
       call setcc(lrel)
 
-      irs(1) =     igets('ctrl lrs,7',sctrl)
-     .       +     8*isw(lgors('ctrl lrs,256',sctrl))
-      irs(2) =     igets('ctrl lrs,8+16',sctrl)/8
-      irs(3) = isw(lgors('ctrl lrs,32',sctrl))
-      irs(4) = isw(lgors('ctrl lrs,64',sctrl))
-      irs(5) = isw(lgors('ctrl lrs,128',sctrl))
+Cgetarg       irs(1) =     igets('ctrl lrs,7',sctrl)
+Cgetarg      .       +     8*isw(lgors('ctrl lrs,256',sctrl))
+       irs ( 1 ) = iand(7,int(sctrl%lrs)) + 8 * isw ( iand(256,int(sctrl%lrs)) .ne.0 
+     . ) 
+
+Cgetarg       irs(2) =     igets('ctrl lrs,8+16',sctrl)/8
+       irs ( 2 ) = iand(8+16,int(sctrl%lrs)) /8 
+
+Cgetarg       irs(3) = isw(lgors('ctrl lrs,32',sctrl))
+       irs ( 3 ) = isw ( iand(32,int(sctrl%lrs)) .ne.0 ) 
+
+Cgetarg       irs(4) = isw(lgors('ctrl lrs,64',sctrl))
+       irs ( 4 ) = isw ( iand(64,int(sctrl%lrs)) .ne.0 ) 
+
+Cgetarg       irs(5) = isw(lgors('ctrl lrs,128',sctrl))
+       irs ( 5 ) = isw ( iand(128,int(sctrl%lrs)) .ne.0 ) 
+
 C ... --rs=3 => always read from atom file
-      if (igets('ctrl lrs,3',sctrl) .eq. 3) irs(1) = 0
+Cgetarg       if (igets('ctrl lrs,3',sctrl) .eq. 3) irs(1) = 0
+       if ( iand(3,int(sctrl%lrs)) .eq. 3 ) irs ( 1 ) = 0 
+
 C ... This shouldn't be ... for backwards compatibility
 C     if (lhf) irs(1) = 0
 
@@ -266,20 +370,39 @@ C       call pr_basis (sspec,0)
       endif
 
 C ... Setup for no screening transformation
-      if (igets('ctrl lbas,1',sctrl) .ne. 0) then
+Cgetarg       if (igets('ctrl lbas,1',sctrl) .ne. 0) then
+       if ( iand(1,int(sctrl%lbas)) .ne. 0 ) then 
+
 
 C       Shorten site positions
-        call upack2('lat plat opos',slat,plat,opos)
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg         call upack2('lat plat opos',slat,plat,opos)
+         
+         i_copy_size=size(slat%plat) 
+         call dcopy(i_copy_size,slat%plat,1,plat,1) 
+         opos=slat%opos
+
         if (.not. cmdopt('--shorten=no',12,0,strn)) then
 C       unpack from site structure
         call defrr(opos2,3*nbas)
-        call spackv(10,'site pos',ssite,1,nbas,w(opos2))
+Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos2))
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=1,nbas 
+         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
+         enddo
+
         ix(1) = 2
         ix(2) = 2
         ix(3) = 2
         call info0(50,1,0,' lmfp : shortening basis vectors ... ')
         call shorps(nbas,plat,ix,w(opos2),w(opos))
-        call spackv(11,'site pos',ssite,1,nbaspp,w(opos))
+Cgetarg         call spackv(11,'site pos',ssite,1,nbaspp,w(opos))
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=1,nbaspp 
+         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+         enddo
+
 C       Debugging printout
 C       call prmx('starting basis vectors',w(opos2),3,3,nbas)
 C       call prmx('shortened basis vectors',w(opos),3,3,nbas)
@@ -289,16 +412,35 @@ C       call prmx('shortened basis vectors',w(opos),3,3,nbas)
 
 C ... Setup for charge mixing
       call dpzero(dmxp,33)
-      call upack('mix b bv w wc',smix,dmxp(2),dmxp(9),dmxp(4),dmxp(3),0)
-      dmxp(6) = igets('mix nsave',smix)
-      dmxp(7) = igets('mix mmix',smix)
+Cgetarg...info...           real(8) :: dmxp(33) , real(8) :: smix%b 1
+Cgetarg...info...           real(8) :: dmxp(33) , real(8) :: smix%bv 1
+Cgetarg...info...           real(8) :: dmxp(33) , real(8) :: smix%w 3
+Cgetarg...info...           real(8) :: dmxp(33) , real(8) :: smix%wc 1
+Cgetarg       call upack('mix b bv w wc',smix,dmxp(2),dmxp(9),dmxp(4),dmxp(3),0)
+       
+       dmxp(2)=smix%b
+       dmxp(9)=smix%bv
+       i_copy_size=size(smix%w) 
+       call dcopy(i_copy_size,smix%w,1,dmxp(4),1) 
+       dmxp(3)=smix%wc
+
+Cgetarg       dmxp(6) = igets('mix nsave',smix)
+       dmxp ( 6 ) = int(smix%nsave) 
+
+Cgetarg       dmxp(7) = igets('mix mmix',smix)
+       dmxp ( 7 ) = int(smix%mmix) 
+
       call parms0(0,0,0d0,0)
 
 C ... Allocate memory for forces
-      lfrce = igets('ctrl lfrce',sctrl)
+Cgetarg       lfrce = igets('ctrl lfrce',sctrl)
+       lfrce = int(sctrl%lfrce) 
+
       if (lfrce .ne. 0) then
         numq = 1
-        if (igets('bz lmet',sbz) .eq. 4) numq = 3
+Cgetarg         if (igets('bz lmet',sbz) .eq. 4) numq = 3
+         if ( int(sbz%lmet) .eq. 4 ) numq = 3 
+
         call defrr(ofrc,3*nbas*numq)
       endif
 
@@ -306,26 +448,62 @@ C ... Relaxation setup
       itrlx = 1
 C     nstack = 0
 C     Initial shear was already folded into plat
-      call upack2('lat gam opos',slat,gam,opos)
+Cgetarg...info...           real(8) :: gam(4) , real(8) :: slat%gam 4
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg       call upack2('lat gam opos',slat,gam,opos)
+       
+       i_copy_size=size(slat%gam) 
+       call dcopy(i_copy_size,slat%gam,1,gam,1) 
+       opos=slat%opos
+
       gam1 = gam(4)
       gam(4) = 1
-      call pack2('lat gam ldist',slat,gam,0)
+Cgetarg...info...           real(8) :: gam(4) , real(8) :: slat%gam 4
+Cgetarg       call pack2('lat gam ldist',slat,gam,0)
+       
+       i_copy_size=size(slat%gam) 
+       call dcopy(i_copy_size,gam,1,slat%gam,1) 
+       slat%ldist=0 
 
-      call upack('ctrl nitmv mdprm ltb',sctrl,nitrlx,mdprm,ltb,0,0)
+
+Cgetarg...info...           integer :: nitrlx , integer(8) :: sctrl%nitmv 1
+Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
+Cgetarg...info...           integer :: ltb , integer(8) :: sctrl%ltb 1
+Cgetarg       call upack('ctrl nitmv mdprm ltb',sctrl,nitrlx,mdprm,ltb,0,0)
+       
+       nitrlx=sctrl%nitmv
+       i_copy_size=size(sctrl%mdprm) 
+       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
+       ltb=sctrl%ltb
+
       lshr = nint(mdprm(1)) .gt. 100
       if (nint(mdprm(1)) .eq. 0) nitrlx = 0
       if (nint(mdprm(1)) .gt. 0 .and. nint(mdprm(1)) .lt. 4) then
         call rx('lmf not set up for MD yet')
       endif
       if (nitrlx .gt. 0) then
-        call pack1('ctrl mdprm',sctrl,mdprm)
-        call pack1('ctrl ltb',sctrl,bitor(ltb,16))
+Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
+Cgetarg         call pack1('ctrl mdprm',sctrl,mdprm)
+         
+         i_copy_size=size(sctrl%mdprm) 
+         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1) 
+
+Cgetarg...info...           integer :: bitor , integer(8) :: sctrl%ltb 1
+Cgetarg         call pack1('ctrl ltb',sctrl,bitor(ltb,16))
+         
+         sctrl%ltb=bitor(ltb,16) 
+
         call defi(oindrx,6*nbas)
 C       Next lines in case lattice relaxation
         if (lshr) then
           if (abs(gam(4)-1) .gt. 1d-10) call rx('lmfp: '//
      .        'use of SHEAR= incompatible w/ lattice relaxation')
-          call upack('lat plat0',slat,plat0,0,0,0,0)
+Cgetarg...info...           real(8) :: plat0(9) , real(8) :: slat%plat0 9
+Cgetarg           call upack('lat plat0',slat,plat0,0,0,0,0)
+           
+           i_copy_size=size(slat%plat0) 
+           call dcopy(i_copy_size,slat%plat0,1,plat0,1) 
+
         endif
         call rlxstp(sctrl,ssite,natrlx,nvrelx,w(oindrx),xyzfrz,pdim)
         call rlse(oindrx)
@@ -335,7 +513,9 @@ C       Next lines in case lattice relaxation
           call defdr(ow,nvrelx*nvrelx)
           call defdr(op,pdim)
         endif
-        alat = dgets('lat alat',slat)
+Cgetarg         alat = dgets('lat alat',slat)
+         alat = slat%alat 
+
         if (procid .eq. master) then
         ifi = fopna('bsmv',-1,0)
         call defrr(opos2,3*nbas)
@@ -367,23 +547,41 @@ C ... Setup of hamiltonian, augmentation
 
 
 C ... Quit if --quit=ham given
-      if (igets('ctrl quit',sctrl) .eq. 8) then
+Cgetarg       if (igets('ctrl quit',sctrl) .eq. 8) then
+       if ( int(sctrl%quit) .eq. 8 ) then 
+
         call rx0('quit = ham')
       endif
 
 C --- Setup for iterations in a self-consistency cycle ---
 C ... Unpack or allocate some permanent arrays
-      call upack('pot oorhat osmrho osmpot',spot,oorhat,osmrho,osmpot,0,
-     .  0)
+Cgetarg...info...           integer :: oorhat , integer(8) :: spot%oorhat 1
+Cgetarg...info...           integer :: osmrho , integer(8) :: spot%osmrho 1
+Cgetarg...info...           integer :: osmpot , integer(8) :: spot%osmpot 1
+Cgetarg       call upack('pot oorhat osmrho osmpot',spot,oorhat,osmrho,osmpot,0,
+Cgetarg      .  0)
+       
+       oorhat=spot%oorhat
+       osmrho=spot%osmrho
+       osmpot=spot%osmpot
+
       call defrr (oftot,   3*nbas)
-      call upack1('ham ndham',sham,ndham)
+Cgetarg...info...           integer :: ndham , integer(8) :: sham%ndham 1
+Cgetarg       call upack1('ham ndham',sham,ndham)
+       
+       ndham=sham%ndham
+
       call defrr (oevl,    ndham*2)
 
 C ... Set various switches
 C     Whether forces, and how to calculate non Helman-Feynman corr.
-      lfrce = igets('ctrl lfrce',sctrl)
+Cgetarg       lfrce = igets('ctrl lfrce',sctrl)
+       lfrce = int(sctrl%lfrce) 
+
 C     Maximum number of eigenvalues
-      nevmx = igets('bz nevmx',sbz)
+Cgetarg       nevmx = igets('bz nevmx',sbz)
+       nevmx = int(sbz%nevmx) 
+
 C     Whether to evaluate output density and/or KS energy
       lrout = 1
       leks = 1
@@ -395,7 +593,11 @@ C     Whether to evaluate output density and/or KS energy
       if (nevmx .eq. -1) then
         lrout = 0
         leks = 0
-        call pack1('bz nevmx',sbz,nevmx)
+Cgetarg...info...           integer :: nevmx , integer(8) :: sbz%nevmx 1
+Cgetarg         call pack1('bz nevmx',sbz,nevmx)
+         
+         sbz%nevmx=nevmx 
+
       endif
 C     Whether to float pnu's
       lpnu = 1
@@ -437,9 +639,23 @@ C     Check for LDA+U ... return nlibu > 0 if any U blocks
         call defcc(odmatu,-i)
         call defcc(odmato,-i)
 C       need group info to symmetrize site density matrix
-        call upack('lat nsgrp oistab osymgr',slat,ng,oistab,og,0,0)
+Cgetarg...info...           integer :: ng , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg         call upack('lat nsgrp oistab osymgr',slat,ng,oistab,og,0,0)
+         
+         ng=slat%nsgrp
+         oistab=slat%oistab
+         og=slat%osymgr
+
 C       defaults
-        call upack('mix umix tolu',smix,umix,tolu,0,0,0)
+Cgetarg...info...           real(8) :: umix , real(8) :: smix%umix 1
+Cgetarg...info...           real(8) :: tolu , real(8) :: smix%tolu 1
+Cgetarg         call upack('mix umix tolu',smix,umix,tolu,0,0,0)
+         
+         umix=smix%umix
+         tolu=smix%tolu
+
         if (umix .eq. 0) umix = 1
 C       if (tolu .eq. 0d0) tolu = 1d-4
 C       initialize density matrix for LDA+U
@@ -505,11 +721,19 @@ C     Harris-Foulkes -> always overlap free-atom densities
         endif
         call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
 ctakao BZ_W is 
-        call upack('bz w',sbz,bz_w,0,0,0,0)
+Cgetarg...info...           real(8) :: bz_w , real(8) :: sbz%w 1
+Cgetarg         call upack('bz w',sbz,bz_w,0,0,0,0)
+         
+         bz_w=sbz%w
+
         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,
      .    nspec,w(oorhat),w,nit1,lbin,ifi)
 ctakao 
-        call pack5('bz w',sbz,bz_w,0,0,0,0)
+Cgetarg...info...           real(8) :: bz_w , real(8) :: sbz%w 1
+Cgetarg         call pack5('bz w',sbz,bz_w,0,0,0,0)
+         
+         sbz%w=bz_w 
+
         if (k .lt. 0 .and. nproc .gt. 0) then
 C         irs(1) = irs(1) - mod(irs(1),4)
           call rx('MPI: rst read failed. Restart with --rs=0')
@@ -520,28 +744,56 @@ C         irs(1) = irs(1) - mod(irs(1),4)
         call mpibc1(k,1,2,mlog,'lmfp','k')
 
 C   ... Write positions array from site structure
-        call upack('lat opos',slat,opos,0,0,0,0)
-        call spackv(10,'site pos',ssite,1,nbaspp,w(opos))
-        call mpibc1(slat,nint(slat(1)),4,.false.,'lmfp','slat')
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg         call upack('lat opos',slat,opos,0,0,0,0)
+         
+         opos=slat%opos
+
+Cgetarg         call spackv(10,'site pos',ssite,1,nbaspp,w(opos))
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=1,nbaspp 
+         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+         enddo
+
+        call mpibc1(slat,nint(slat%size),4,.false.,'lmfp','slat')
         if (k .lt. 0) then
           irs(1) = 0
           goto 10
         endif
         if (mod(irs(1),8) .ge. 4) then
 C         If no force switch set, use default
-          k = igets('ctrl lfrce',sctrl)
-          if (k .eq. 0) call pack5('ctrl lfrce',sctrl,1,0,0,0,0)
+Cgetarg           k = igets('ctrl lfrce',sctrl)
+           k = int(sctrl%lfrce) 
+
+Cgetarg           if (k .eq. 0) call pack5('ctrl lfrce',sctrl,1,0,0,0,0)
+           if ( k .eq. 0 ) then 
+           
+           sctrl%lfrce=1 
+           endif 
+
           call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
 C         Restore force switch
-          if (k .eq. 0) call pack5('ctrl lfrce',sctrl,k,0,0,0,0)
+Cgetarg...info...           integer :: k , integer(8) :: sctrl%lfrce 1
+Cgetarg           if (k .eq. 0) call pack5('ctrl lfrce',sctrl,k,0,0,0,0)
+           if ( k .eq. 0 ) then 
+           
+           sctrl%lfrce=k 
+           endif 
+
         endif
         if (mod(irs(1),16) .ge. 8) then
 C          call upack('lat dist',slat,xv,0,0,0,0)
 C          call pvsms2(ssite,sspec,xv,nbas,nsp,w(oorhat))
           irs(1) = irs(1)-8
-          i = igets('ctrl lrs',sctrl)
+Cgetarg           i = igets('ctrl lrs',sctrl)
+           i = int(sctrl%lrs) 
+
           i = i-256
-          call pack5('ctrl lrs',sctrl,i,0,0,0,0)
+Cgetarg...info...           integer :: i , integer(8) :: sctrl%lrs 1
+Cgetarg           call pack5('ctrl lrs',sctrl,i,0,0,0,0)
+           
+           sctrl%lrs=i 
+
         endif
       endif
 
@@ -560,8 +812,19 @@ C ... Write positions after file read, and repack
      .  'pos (multiples of plat)')
       call dinv33(plat,1,qlat,xv)
       do  i = 1, nbas
-        call upack('site spec pos',ssite,i,j,xv,0,0)
-        call spacks(0,'spec name',sspec,alabl,j,j)
+Cgetarg...info...           integer :: j , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: xv(10) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,i,j,xv,0,0)
+         
+         j=ssite(i)%spec
+         i_copy_size=size(ssite(i)%pos) 
+         call dcopy(i_copy_size,ssite(i)%pos,1,xv,1) 
+
+Cgetarg         call spacks(0,'spec name',sspec,alabl,j,j)
+         do i_spacks=j,j 
+         call spacks_copy('u',sspec(i_spacks)%name,j,j,alabl,i_spacks)
+         enddo
+
         call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
         write(stdo,345) i, alabl, (xv(j),j=1,3), (xv(3+j),j=1,3)
   345   format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
@@ -571,7 +834,12 @@ C ... Write positions after file read, and repack
 C --- Optionally re-shorten basis vectors ---
       if (cmdopt('--shorps',8,0,strn)) then
         call defrr(opos2,3*nbas)
-        call spackv(10,'site pos',ssite,1,nbas,w(opos2))
+Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos2))
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=1,nbas 
+         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
+         enddo
+
         ix(1) = 2
         ix(2) = 2
         ix(3) = 2
@@ -580,7 +848,12 @@ C --- Optionally re-shorten basis vectors ---
      .    ' lmfp  : write shortening vectors to file shorps ...')
         call iopos(.true.,1,'shorps',nbas,w(opos))
         call shorps(nbas,plat,ix,w(opos2),w(opos))
-        call spackv(11,'site pos',ssite,1,nbaspp,w(opos))
+Cgetarg         call spackv(11,'site pos',ssite,1,nbaspp,w(opos))
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=1,nbaspp 
+         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+         enddo
+
 C       Debugging printout
 C       call prmx('starting basis vectors',w(opos2),3,3,nbas)
 C       call prmx('shortened basis vectors',w(opos),3,3,nbas)
@@ -614,7 +887,13 @@ C ... check convergence of dmatu and update it and vorb if necessary
 
 C ... basis optimization: just extract etot(1) and return to opt.
       if (cmdopt('--optbas',8,0,strn)) then
-        call upack2('ham ehf ehk',sham,etot(1),etot(2))
+Cgetarg...info...           real(8) :: etot(2) , real(8) :: sham%ehf 1
+Cgetarg...info...           real(8) :: etot(2) , real(8) :: sham%ehk 1
+Cgetarg         call upack2('ham ehf ehk',sham,etot(1),etot(2))
+         
+         etot(1)=sham%ehf
+         etot(2)=sham%ehk
+
         goto 2
       endif
 
@@ -625,7 +904,9 @@ C --- Write smoothed charge density for contour plotting ---
       endif
 
 C --- Write restart file (skip if --quit=band) ---
-      if (igets('ctrl quit',sctrl) .ne. 4) then
+Cgetarg       if (igets('ctrl quit',sctrl) .ne. 4) then
+       if ( int(sctrl%quit) .ne. 4 ) then 
+
 C     Suppress saving rst file in the middle of a shear (irlxsh > 0)
       if (irs(2).gt.0 .and. (lrout.gt.0 .or. maxit .eq. 0) .and.
      .    irlxsh .eq. 0) then
@@ -658,22 +939,42 @@ C       call p_dyn_ef(s_dyn, ef0,def,esmear)
 
 C --- Add to save file; decide on next iteration ---
       if (maxit .gt. 0) then
-      call upack2('ham ehf ehk',sham,etot(1),etot(2))
+Cgetarg...info...           real(8) :: etot(2) , real(8) :: sham%ehf 1
+Cgetarg...info...           real(8) :: etot(2) , real(8) :: sham%ehk 1
+Cgetarg       call upack2('ham ehf ehk',sham,etot(1),etot(2))
+       
+       etot(1)=sham%ehf
+       etot(2)=sham%ehk
+
 C ... Subtract reference energy
-      seref = dgets('ham seref',sham)
+Cgetarg       seref = dgets('ham seref',sham)
+       seref = sham%seref 
+
       etot(1) = etot(1) - seref
       if (etot(2) .ne. 0) etot(2) = etot(2) - seref
-      amom    = dgets('ham eterms:15',sham)
+Cgetarg       amom    = dgets('ham eterms:15',sham)
+       amom = sham%eterms(15) 
+
 C     The desired tolerances in q,e
-      qtol = dgets('ctrl tol',sctrl)
-      etol = dgets('ctrl tol:3',sctrl)
+Cgetarg       qtol = dgets('ctrl tol',sctrl)
+       qtol = sctrl%tol(1) 
+
+Cgetarg       etol = dgets('ctrl tol:3',sctrl)
+       etol = sctrl%tol(3) 
+
       if (procid .eq. master) then
-        rhosig = dgets('ham eterms:19',sham)
+Cgetarg         rhosig = dgets('ham eterms:19',sham)
+         rhosig = sham%eterms(19) 
+
         i = 0
         if (rhosig .ne. -99 .and. rhosig .ne. 0) i = 10
-        call nwit(igets('ctrl nvario',sctrl),iter,maxit,
-     .    lhf.or.irs(1).eq.0.and.iter.eq.1,leks+i,etol,qtol,qdiff,
-     .    'cxhi',amom,etot,lsc)
+Cgetarg         call nwit(igets('ctrl nvario',sctrl),iter,maxit,
+Cgetarg      .    lhf.or.irs(1).eq.0.and.iter.eq.1,leks+i,etol,qtol,qdiff,
+Cgetarg      .    'cxhi',amom,etot,lsc)
+         call nwit ( int(sctrl%nvario) , iter , maxit , lhf.or.irs ( 1 
+     .   ) .eq.0.and.iter.eq.1 , leks+i , etol , qtol , qdiff , 'cxhi' 
+     .   , amom , etot , lsc ) 
+
       endif
       call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
       if (lsc .eq. 2 .and. .not. lhf .and. maxit .gt. 1) lsc = 3
@@ -682,8 +983,11 @@ C     The desired tolerances in q,e
         if (iter .ge. maxit) lsc = 1
         if (iter .lt. maxit) lsc = 3
       endif
-      if (igets('ctrl quit',sctrl) .eq. 4)
-     .  call rx0('lmf : exit (--quit=band)')
+Cgetarg       if (igets('ctrl quit',sctrl) .eq. 4)
+Cgetarg      .  call rx0('lmf : exit (--quit=band)')
+       if ( int(sctrl%quit) .eq. 4 ) call rx0 ( 'lmf : exit (--quit=band)' 
+     . ) 
+
       iter = iter+1
 C     Continue iterations toward self-consistency
       if (lsc .gt. 2) then
@@ -706,8 +1010,18 @@ C --- Molecular statics ---
         call cppos(1,nbas,ssite)
 C       Buglet: this eats up a little memory.  Never released.
         call defrr(opos,3*nbas)
-        call spackv(10,'site pos',ssite,1,nbas,w(opos))
-        call upack1('ctrl mdprm',sctrl,mdprm)
+Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos))
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=1,nbas 
+         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+         enddo
+
+Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
+Cgetarg         call upack1('ctrl mdprm',sctrl,mdprm)
+         
+         i_copy_size=size(sctrl%mdprm) 
+         call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
+
         if (lshr) then
           call grdepl(nvrelx,w(oindrx),0.01d0,etot,irlxsh,pletot,dist)
           if (irlxsh .ne. 0) then
@@ -728,8 +1042,18 @@ C       Buglet: this eats up a little memory.  Never released.
 
 C       Restore lattice symmetry to machine precision
         if (cmdopt('--fixpos',8,0,strn)) then
-          call upack('lat nsgrp oistab oag osymgr',slat,ng,oistab,oag,
-     .      og,0)
+Cgetarg...info...           integer :: ng , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
+Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg           call upack('lat nsgrp oistab oag osymgr',slat,ng,oistab,oag,
+Cgetarg      .      og,0)
+           
+           ng=slat%nsgrp
+           oistab=slat%oistab
+           oag=slat%oag
+           og=slat%osymgr
+
 C         call shoist(w(oistab),nbas,w(oag),w(og),ng)
           j = 8+1
           if (strn(9:13) .eq. ':tol=') then
@@ -754,7 +1078,12 @@ C       Write updated positions to bsmv file
           call fclose(ifi)
         endif
 C       repack updated positions in site structure
-        call spackv(11,'site pos',ssite,1,nbas,w(opos))
+Cgetarg         call spackv(11,'site pos',ssite,1,nbas,w(opos))
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=1,nbas 
+         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+         enddo
+
 
 C        if (icom .eq. 1) then
 C          print *, '!!'
@@ -763,7 +1092,9 @@ C        endif
 C   ... Exit when relaxation converged or maximum number of iterations
         if (icom .eq. 1) then
           if (procid .eq. master) then
-            k = igets('ctrl nvario',sctrl)
+Cgetarg             k = igets('ctrl nvario',sctrl)
+             k = int(sctrl%nvario) 
+
             flg = 'C67'
             call nwitsv(1+2,k,flg,nsp,amom,etot)
           endif
@@ -796,13 +1127,20 @@ C           call prmx('minimum-g positions',w(opos),3,3,nbas)
           endif
 
 C         Repack updated positions in site structure
-          call spackv(11,'site pos',ssite,1,nbas,w(opos))
+Cgetarg           call spackv(11,'site pos',ssite,1,nbas,w(opos))
+           i_copy_size=size(ssite(1)%pos)
+           do i_spackv=1,nbas 
+           call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+           enddo
+
 
         endif
 
 C   ... New density after atom shifts
 C       If explicitly told to read from atom files after atom movmment
-        if (igets('ctrl lrs,3',sctrl) .eq. 3) then
+Cgetarg         if (igets('ctrl lrs,3',sctrl) .eq. 3) then
+         if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then 
+
           irs(1) = 0
 
 C       Else, use self-consistent
@@ -824,7 +1162,12 @@ C   ... Write restart file (to include new positions)
 C   ... Write positions to file
         if (cmdopt('--wpos=',7,0,strn) .or.
      .      cmdopt('--wpos:mode1:',13,0,strn)) then
-          call upack1('lat gam',slat,gam)
+Cgetarg...info...           real(8) :: gam(4) , real(8) :: slat%gam 4
+Cgetarg           call upack1('lat gam',slat,gam)
+           
+           i_copy_size=size(slat%gam) 
+           call dcopy(i_copy_size,slat%gam,1,gam,1) 
+
           call defrr(owk, 3*nbas)
           call rdistn(w(opos),w(owk),nbas,gam(1),gam(2),gam(3),1/gam1)
           call iopos(.true.,0,strn(8:),nbas,w(owk))
@@ -868,8 +1211,18 @@ C ... Write positions to file
       if (cmdopt('--wpos=',7,0,strn) .or.
      .    cmdopt('--wpos:mode1:',13,0,strn)) then
         call defrr(opos,3*nbas)
-        call spackv(10,'site pos',ssite,1,nbas,w(opos))
-        call upack1('lat gam',slat,gam)
+Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos))
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=1,nbas 
+         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+         enddo
+
+Cgetarg...info...           real(8) :: gam(4) , real(8) :: slat%gam 4
+Cgetarg         call upack1('lat gam',slat,gam)
+         
+         i_copy_size=size(slat%gam) 
+         call dcopy(i_copy_size,slat%gam,1,gam,1) 
+
         call defrr(owk, 3*nbas)
         call rdistn(w(opos),w(owk),nbas,gam(1),gam(2),gam(3),1/gam1)
         if (cmdopt('--wpos:mode1:',13,0,strn)) then
@@ -904,22 +1257,47 @@ C     undo original transformation = P P_0^-1
       call dgemm('N','N',3,nbas,3,1d0,xv,3,w(opos),3,0d0,w(opos2),
      .  3)
 C     Simultaneously pack in lat->pos and site->pos
-      call upack('lat opos',slat,opos,0,0,0,0)
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg       call upack('lat opos',slat,opos,0,0,0,0)
+       
+       opos=slat%opos
+
       call dgemm('N','N',3,nbas,3,1d0,plat0,3,w(opos2),3,0d0,
      .  w(opos),3)
 C     call prmx('positions for plat0',w(opos),3,3,nbas)
-      call spackv(11,'site pos',ssite,1,nbas,w(opos))
+Cgetarg       call spackv(11,'site pos',ssite,1,nbas,w(opos))
+       i_copy_size=size(ssite(1)%pos)
+       do i_spackv=1,nbas 
+       call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+       enddo
+
       call cppos(1,nbas,ssite)
 C     New shear
-      call pack5('lat plat ldist dist',slat,plat0,3,dist,0,0)
+Cgetarg...info...           real(8) :: plat0(9) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: dist(9) , real(8) :: slat%dist 9
+Cgetarg       call pack5('lat plat ldist dist',slat,plat0,3,dist,0,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,plat0,1,slat%plat,1) 
+       slat%ldist=3 
+       i_copy_size=size(slat%dist) 
+       call dcopy(i_copy_size,dist,1,slat%dist,1) 
+
 C     A little memory leakage rel to 1st pass, but not so serious
       call rlse(oshr)
       call lattic(slat,sctrl,ssite,sarray)
       call defrr(oshr,1)
-      call upack('lat plat',slat,plat,0,0,0,0)
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg       call upack('lat plat',slat,plat,0,0,0,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
 C     Remake qp
-      ltmp = lgors('ctrl lmet,1',sctrl) .or.
-     .       lgors('ctrl ldos,4+2+1',sbz)
+Cgetarg       ltmp = lgors('ctrl lmet,1',sctrl) .or.
+Cgetarg      .       lgors('ctrl ldos,4+2+1',sbz)
+       ltmp = iand(1,int(sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(sctrl%ldos)) .ne.0 
+
       call mkqp(sctrl,sbz,slat,ltmp,.false.,1,-2)
 
 C ... Write restart file (to include new positions)
@@ -933,30 +1311,55 @@ C ... Write restart file (to include new positions)
       endif
 
 C     Decide on what density to use
-      if (igets('ctrl lrs,3',sctrl) .eq. 3) then
+Cgetarg       if (igets('ctrl lrs,3',sctrl) .eq. 3) then
+       if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then 
+
         irs(1) = 0
 C     Else, use file density
       else
-        irs(1) =     igets('ctrl lrs,7',sctrl)
+Cgetarg         irs(1) =     igets('ctrl lrs,7',sctrl)
+         irs ( 1 ) = iand(7,int(sctrl%lrs)) 
+
       endif
       goto 4
 
-      end
+Cgetarg       end
+       end subroutine lmfp 
+
 
       subroutine cppos(ib1,ib2,ssite)
+       
+       use m_struc_def  !Cgetarg
+
 C- Copy site positions to p0 for a range of sites
 C     implicit none
       integer ib1,ib2
-      double precision pos(3),ssite(1)
+Cgetarg       double precision pos(3),ssite(1)
+       real(8):: pos(3) 
+       type(s_site)::ssite(*)
+
       integer ib
 
       do  ib = ib1, ib2
-        call spackv(0,'site pos', ssite,ib,ib,pos)
-        call spackv(1,'site pos0',ssite,ib,ib,pos)
+Cgetarg         call spackv(0,'site pos', ssite,ib,ib,pos)
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=ib,ib 
+         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,1,pos)
+         enddo
+
+Cgetarg         call spackv(1,'site pos0',ssite,ib,ib,pos)
+         i_copy_size=size(ssite(1)%pos0)
+         do i_spackv=ib,ib 
+         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos0,i_copy_size,1,pos)
+         enddo
+
       enddo
-      end
+Cgetarg       end
+       end subroutine cppos 
+
 
       subroutine grdepl(nvrelx,indrlx,alpha,etot,irlxsh,pletot,dist)
+
 C-
 C     implicit none
       integer irlxsh,nvrelx,indrlx(nvrelx)
@@ -1006,6 +1409,8 @@ C     Make new shear
 
 C     goto 3
 
-      end
+Cgetarg       end
+       end subroutine grdepl 
+
 
 

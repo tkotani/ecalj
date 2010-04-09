@@ -1,4 +1,10 @@
+Cgetarg...info...           structure ['ftlxp', 'site', 'ssite']
+Cgetarg...info...           structure ['ftlxp', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['ftlxp', 'm_struc_def']
       subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
+       
+       use m_struc_def  !Cgetarg
+
 C- Pkl expansion around all sites of a function given as Fourier series.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -27,7 +33,11 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k0,nbas,ng,nlm0
-      double precision ssite(1),sspec(1),gv(ng,3),alat
+Cgetarg       double precision ssite(1),sspec(1),gv(ng,3),alat
+       real(8):: gv(ng,3) , alat 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       double complex cv(ng),fkl(0:k0,nlm0,nbas)
 C ... Local parameters
       integer ib,ilm,ipr,is,k,kmxv,l,lgunit,lmxl,ltop,m,nlm,ntop,og2,oh,
@@ -50,8 +60,12 @@ C ... Heap
 C ... Set up spherical harmonics for max l needed
       ltop = -1
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        lmxl = igetss('spec lmxl',is,sspec)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
+         lmxl = int(sspec(is)%lmxl) 
+
         ltop = max0(ltop,lmxl)
       enddo
       ntop = (ltop+1)**2
@@ -65,8 +79,23 @@ C ... Scale g2 by (2pi/a)**2
 
 C --- Start loop over atoms ---
       do  ib = 1, nbas
-        call upack('site spec pos',ssite,ib,is,tau,0,0)
-        call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pos) 
+         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: rsmv , real(8) :: sspec%rsmv 1
+Cgetarg...info...           integer :: kmxv , integer(8) :: sspec%kmxv 1
+Cgetarg         call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
+         
+         lmxl=sspec(is)%lmxl
+         rsmv=sspec(is)%rsmv
+         kmxv=sspec(is)%kmxv
+
         if (lmxl .eq. -1) goto 10
 
         nlm = (lmxl+1)**2
@@ -118,9 +147,12 @@ C   ... Printout
 
       call rlse(oyl)
 
-      end
+Cgetarg       end
+       end subroutine ftlxp 
+
 
       subroutine ftlxp2(rsmv,tau,kmxv,k0,nlm,ng,gv,g2,yl,h,cv,fkl)
+
 C     implicit none
 C ... Passed parameters
       integer k0,kmxv,ng,nlm
@@ -156,5 +188,7 @@ C   ... Multiply h to get next k-th power of (-g2)
         enddo
       enddo
 
-      end
+Cgetarg       end
+       end subroutine ftlxp2 
+
 

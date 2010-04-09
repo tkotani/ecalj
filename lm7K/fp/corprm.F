@@ -1,5 +1,10 @@
+Cgetarg...info...           structure ['corprm', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['corprm', 'm_struc_def']
       subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,
      .  rfoc,z)
+       
+       use m_struc_def  !Cgetarg
+
 C- Returns parameters for smooth core+nucleus representation
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -53,7 +58,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer is
-      double precision sspec(1),qcorg,qcorh,qsc,cofg,cofh,ceh,rfoc,z
+Cgetarg       double precision sspec(1),qcorg,qcorh,qsc,cofg,cofh,ceh,rfoc,z
+       real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z 
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer n0,lfoc,orhoca,lmxb,l
       parameter (n0=10)
@@ -65,12 +73,46 @@ C ... Local parameters
       y0 = 1d0/srfpi
 
 C ... Extract parameters including qc and qsc
-      call upack('spec lfoca rfoca qc z',sspec,is,lfoc,rfoc,qc,z)
-      call upack('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
-     .  orhoca)
-      call upack('spec lmxb p pz',sspec,is,lmxb,pnu,pz,0)
-      rmt = dgetss('spec rmt',is,sspec)
-      if (rfoc .le. 1d-5) rfoc = dgetss('spec rg',is,sspec)
+Cgetarg...info...           integer :: lfoc , integer(8) :: sspec%lfoca 1
+Cgetarg...info...           real(8) :: rfoc , real(8) :: sspec%rfoca 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg       call upack('spec lfoca rfoca qc z',sspec,is,lfoc,rfoc,qc,z)
+       
+       lfoc=sspec(is)%lfoca
+       rfoc=sspec(is)%rfoca
+       qc=sspec(is)%qc
+       z=sspec(is)%z
+
+Cgetarg...info...           real(8) :: ccof , real(8) :: sspec%ctail 1
+Cgetarg...info...           real(8) :: ceh , real(8) :: sspec%etail 1
+Cgetarg...info...           real(8) :: stc , real(8) :: sspec%stc 1
+Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
+Cgetarg       call upack('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
+Cgetarg      .  orhoca)
+       
+       ccof=sspec(is)%ctail
+       ceh=sspec(is)%etail
+       stc=sspec(is)%stc
+       orhoca=sspec(is)%orhoc
+
+Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
+Cgetarg...info...           real(8) :: pnu(2*n0) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pz(2*n0) , real(8) :: sspec%pz 20
+Cgetarg       call upack('spec lmxb p pz',sspec,is,lmxb,pnu,pz,0)
+       
+       lmxb=sspec(is)%lmxb
+       i_copy_size=size(sspec(is)%p) 
+       call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
+       i_copy_size=size(sspec(is)%pz) 
+       call dcopy(i_copy_size,sspec(is)%pz,1,pz,1) 
+
+Cgetarg       rmt = dgetss('spec rmt',is,sspec)
+       rmt = (sspec(is)%rmt) 
+
+Cgetarg       if (rfoc .le. 1d-5) rfoc = dgetss('spec rg',is,sspec)
+       if ( rfoc .le. 1d-5 ) rfoc = (sspec(is)%rg) 
+
       qsc = 0
       do  l = 0, lmxb
         if (int(pz(l+1)) .ne. 0) then
@@ -111,5 +153,7 @@ C ... Coeffients to the the gaussian and hankel terms
 c      write (6,352) is,qcorg,qcorh,cofg,cofh
 c  352 format(' spec',i3,'  qcorg,qcorh=',2f10.6,'  cofg,cofh=',2f12.4)
 
-      end
+Cgetarg       end
+       end subroutine corprm 
+
 

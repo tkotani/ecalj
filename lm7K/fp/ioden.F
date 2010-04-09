@@ -1,4 +1,11 @@
+Cgetarg...info...           structure ['ioden', 'lat', 'slat']
+Cgetarg...info...           structure ['ioden', 'site', 'ssite']
+Cgetarg...info...           structure ['ioden', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['ioden', 'm_struc_def']
       subroutine ioden(sopts,slat,ssite,sspec,orhat,smrho)
+       
+       use m_struc_def  !Cgetarg
+
 C- File I/O charge density on a uniform mesh in a plane or full 3d mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -99,7 +106,11 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       character*(*) sopts
-      double precision slat(1),ssite(1),sspec(1)
+Cgetarg       double precision slat(1),ssite(1),sspec(1)
+       type(s_lat)::slat
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       integer orhat
       double complex smrho(*)
 C ... Local parameters
@@ -121,12 +132,37 @@ C ... Unpack and setup
       nsp = nglob('nsp')
       nbas = nglob('nbas')
       stdo = lgunit(1)
-      call upack('lat plat nabc ng okv vol',slat,plat,ngabc,ng,okv,vol)
-      call upack2('lat alat opos',slat,alat,opos)
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
+Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat plat nabc ng okv vol',slat,plat,ngabc,ng,okv,vol)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       ng=slat%ng
+       okv=slat%okv
+       vol=slat%vol
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg       call upack2('lat alat opos',slat,alat,opos)
+       
+       alat=slat%alat
+       opos=slat%opos
+
       call defrr(oz,nbas)
       do ib = 1,nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec z',sspec,is,w(oz-2+ib*2),0,0,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg         call upack('spec z',sspec,is,w(oz-2+ib*2),0,0,0)
+         
+         w(oz-2+ib*2)=sspec(is)%z
+
       enddo   
       call fftz30(n1,n2,n3,k1,k2,k3)
       kkk = k1*k2*k3
@@ -201,10 +237,13 @@ C ... Restore smrho+, smrho-
       if (nsp .eq. 2) then
         call dsumdf(kkk*2,.5d0,smrho,0,1,smrho(1+kkk),0,1)
       endif
-      end
+Cgetarg       end
+       end subroutine ioden 
+
 
       subroutine ioden2(mode,sopts,nsp,plat,alat,nbas,pos,z,k1,k2,k3,
      .ngabc,smrho,wk,nwk,modrhg)
+
 C- Kernel called by ioden
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -435,5 +474,7 @@ C --- Write the file ---
    99 continue
       call rxs('ioden: failed to parse option ... ',sopts(j1:j2))
 
-      end
+Cgetarg       end
+       end subroutine ioden2 
+
 

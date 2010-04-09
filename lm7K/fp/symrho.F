@@ -1,4 +1,15 @@
+Cgetarg...info...           structure ['symrho', 'lat', 'slat']
+Cgetarg...info...           structure ['symrat', 'lat', 'slat']
+Cgetarg...info...           structure ['symrat', 'site', 'ssite']
+Cgetarg...info...           structure ['symrat', 'spec', 'sspec']
+Cgetarg...info...           structure ['symsmr', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['symrat', 'm_struc_def']
+Cgetarg...info...           use_to_add ['symrho', 'm_struc_def']
+Cgetarg...info...           use_to_add ['symsmr', 'm_struc_def']
       subroutine symrho(ssite,sspec,slat,lf,smrho,orhoat,qbyl,hbyl,f)
+       
+       use m_struc_def  !Cgetarg
+
 C- Symmetrize charge density and related quantities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -33,7 +44,12 @@ Cu   19 Jun 00 Packaged from nfp symrat.f and symsmr.f
 C ----------------------------------------------------------------------
 C     implicit none
       integer lf,orhoat(3,*)
-      double precision ssite(1),sspec(1),slat(1),f(*),qbyl(*),hbyl(*)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),f(*),qbyl(*),hbyl(*)
+       real(8):: f(*) , qbyl(*) , hbyl(*) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex smrho(*)
       integer nsp,nbas,ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -42,16 +58,26 @@ C     implicit none
       call info(30,1,0,' Symmetrize density..',0,0)
       nbas = nglob('nbas')
       nsp = nglob('nsp')
-      call upack1('lat nabc',slat,ngabc)
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg       call upack1('lat nabc',slat,ngabc)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
       call fftz30(n1,n2,n3,k1,k2,k3)
 
       call symrat(ssite,sspec,slat,nbas,nsp,lf,orhoat,qbyl,hbyl,f)
       if (iprint() .gt. 50) call prrhat(nbas,ssite,sspec,orhoat)
       call symsmr(slat,nsp,k1,k2,k3,smrho)
       call tcx('symrho')
-      end
+Cgetarg       end
+       end subroutine symrho 
+
 
       subroutine symrat(ssite,sspec,slat,nbas,nsp,lf,orhoat,qbyl,hbyl,f)
+       
+       use m_struc_def  !Cgetarg
+
 C- Symmetrize the atomic charge densities and the forces.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -87,8 +113,13 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nsp,orhoat(3,nbas),n0,lf
       parameter (n0=10)
-      double precision ssite(1),sspec(1),slat(1),
-     .  f(3,nbas),qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),
+Cgetarg      .  f(3,nbas),qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas)
+       real(8):: f(3,nbas) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
 C ... Local parameters
       integer stdo,ib0,ic,ipr,iprint,is,lgunit,lmxa,lmxl,nclass,
      .  ngrp,nlml,nlmx,nr,nrclas,oag,ocg,ocy,og,oidxcg,oipa,oipc,oips,
@@ -102,9 +133,37 @@ C ... Heap
       stdo = lgunit(1)
       ipr = iprint()
 
-      call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-      call upack('lat plat qlat oistab',slat,plat,qlat,oistab,0,0)
-      call upack('lat nsgrp osymgr oag',slat,ngrp,og,oag,0,0)
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+       
+       ocg=slat%ocg
+       ojcg=slat%ojcg
+       oidxcg=slat%oidxcg
+       ocy=slat%ocy
+
+Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(9) , real(8) :: slat%qlat 9
+Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
+Cgetarg       call upack('lat plat qlat oistab',slat,plat,qlat,oistab,0,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+       oistab=slat%oistab
+
+Cgetarg...info...           integer :: ngrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
+Cgetarg       call upack('lat nsgrp osymgr oag',slat,ngrp,og,oag,0,0)
+       
+       ngrp=slat%nsgrp
+       og=slat%osymgr
+       oag=slat%oag
+
 
       call defi (oips, nbas)
       call defi (oipc, nbas)
@@ -116,8 +175,18 @@ C     .  w(oips),w(opos0),nclass,w(oipc))
 C      if (ipr .ge. 40) write(stdo,300) nclass
 C  300 format(/' symrat: number of symmetry classes is',i3)
 
-      call spackv(10,'site class',ssite,1,nbas,w(oipc))
-      call spackv(10,'site pos',ssite,1,nbas,w(opos0))
+Cgetarg       call spackv(10,'site class',ssite,1,nbas,w(oipc))
+       i_copy_size=1; 
+       do i_spackv=1,nbas 
+       call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
+       enddo
+
+Cgetarg       call spackv(10,'site pos',ssite,1,nbas,w(opos0))
+       i_copy_size=size(ssite(1)%pos)
+       do i_spackv=1,nbas 
+       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos0))
+       enddo
+
       nclass = mxint(nbas,w(oipc))
 
 C --- Start loop over classes ---
@@ -128,8 +197,18 @@ C --- Start loop over classes ---
         call psymr0(-2,ic,nbas,w(oipc),w(opos0),w(opos),w(oipa),nrclas)
         if (nrclas .gt. 0) then
         ib0 = ival(w(oipa),1)
-        is = igetss('site spec',ib0,ssite)
-        call upack('spec lmxl lmxa nr',sspec,is,lmxl,lmxa,nr,0)
+Cgetarg         is = igetss('site spec',ib0,ssite)
+         is = int(ssite(ib0)%spec) 
+
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg         call upack('spec lmxl lmxa nr',sspec,is,lmxl,lmxa,nr,0)
+         
+         lmxl=sspec(is)%lmxl
+         lmxa=sspec(is)%lmxa
+         nr=sspec(is)%nr
+
         nlml = (lmxl+1)**2
         if (ipr .ge. 40) write(stdo,800) ic,nrclas,nlml
   800   format(/' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
@@ -163,9 +242,12 @@ C   ... Symmetrize the forces
 
       call tcx('symrat')
 
-      end
+Cgetarg       end
+       end subroutine symrat 
+
 
       subroutine psymrf(nrclas,ipa,nlmx,s,f)
+
 C- Symmetrize forces
 C     implicit none
 C ... Passed parameters
@@ -190,9 +272,12 @@ C ... Local parameters
         f(2,ib) = (s(4,2,ia)*x(1)+s(2,2,ia)*x(2)+s(3,2,ia)*x(3))*nrclas
         f(3,ib) = (s(4,3,ia)*x(1)+s(2,3,ia)*x(2)+s(3,3,ia)*x(3))*nrclas
       enddo
-      end
+Cgetarg       end
+       end subroutine psymrf 
+
 
       subroutine psymrq(nrclas,nsp,ipa,lmxa,qbyl,hbyl)
+
 C- Symmetrize l-decomposed site charges and eval sums
 C     implicit none
 C ... Passed parameters
@@ -238,9 +323,12 @@ C ... Local parameters
         enddo
       enddo
 
-      end
+Cgetarg       end
+       end subroutine psymrq 
+
 
       subroutine psymr1(nrclas,ipa,nr,nlml,nsp,nlmx,sym,rho,orhoat,icmp)
+
 C- Symmetrize density for one class of atoms
 C     implicit none
 C ... Passed parameters
@@ -274,14 +362,21 @@ C ... Copy to all sites in class
       if (iprint() .ge. 40) write(stdo,100) nn,nlml*nlml
   100 format(' psymr: did',i5,'  of',i5)
 
-      end
+Cgetarg       end
+       end subroutine psymr1 
+
 
       subroutine symsmr(slat,nsp,k1,k2,k3,smrho)
+       
+       use m_struc_def  !Cgetarg
+
 C- Symmetrize the smooth charge density
 C     implicit none
 C ... Passed parameters
       integer nsp,k1,k2,k3
-      double precision slat(1)
+Cgetarg       double precision slat(1)
+       type(s_lat)::slat
+
       double complex smrho(k1,k2,k3,nsp)
 C ... Local parameters
       integer n1,n2,n3,ng,ngrp,obgv,ocsym,ocv,ogv,oips0,okv,ngabc(3),
@@ -292,8 +387,27 @@ C ... Heap
       common /w/ w
 
       call tcn('symsmr')
-      call upack('lat nabc ng ogv okv',slat,ngabc,ng,ogv,okv,0)
-      call upack('lat nsgrp oips0 obgv',slat,ngrp,oips0,obgv,0,0)
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
+Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
+Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
+Cgetarg       call upack('lat nabc ng ogv okv',slat,ngabc,ng,ogv,okv,0)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       ng=slat%ng
+       ogv=slat%ogv
+       okv=slat%okv
+
+Cgetarg...info...           integer :: ngrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: oips0 , integer(8) :: slat%oips0 1
+Cgetarg...info...           integer :: obgv , integer(8) :: slat%obgv 1
+Cgetarg       call upack('lat nsgrp oips0 obgv',slat,ngrp,oips0,obgv,0,0)
+       
+       ngrp=slat%nsgrp
+       oips0=slat%oips0
+       obgv=slat%obgv
+
       if (ngrp .gt. 1) then
 C       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
         call defcc(ocv,     ng)
@@ -322,9 +436,12 @@ C   10   smrho(i1,i23,1) = dble(smrho(i1,i23,1))
 
       call tcx('symsmr')
 
-      end
+Cgetarg       end
+       end subroutine symsmr 
+
 
       subroutine rhopos(smrho,k1,k2,k3,n1,n2,n3)
+
 C- Make smrho real and positive
 C     implicit none
 C ... Passed parameters
@@ -353,9 +470,12 @@ C ... Local parameters
   333 format(' rhopos (warning): mesh density negative at',i6,
      .  ' points.  min=',f13.8)
 
-      end
+Cgetarg       end
+       end subroutine rhopos 
+
 
       subroutine rhoqm(smrho,k1,k2,k3,n1,n2,n3,nsp,vol,qsum)
+
 C- Return charge, magnetic moment of smooth density
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -406,5 +526,7 @@ C ... Local parameters
 C     write(*,333) qsum
 C 333 format(' rhoqm : istl charge, moment = ',2f13.7)
 
-      end
+Cgetarg       end
+       end subroutine rhoqm 
+
 

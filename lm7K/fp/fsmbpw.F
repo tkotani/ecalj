@@ -1,5 +1,10 @@
+Cgetarg...info...           structure ['fsmbpw', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['fsmbpw', 'm_struc_def']
       subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb,numq,
      .  nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
+       
+       use m_struc_def  !Cgetarg
+
 C- Force from smoothed hamiltonian (constant potential), PW contribution
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -61,7 +66,11 @@ C Event numbers:
       include "events.ins"
 #endif
       integer nbas,ndimh,napw,nlmax,nlmto,nevec,numq,iprmb(nlmto),lmxax
-      double precision ssite(1),sspec(1),ylv(napw,nlmax)
+Cgetarg       double precision ssite(1),sspec(1),ylv(napw,nlmax)
+       real(8):: ylv(napw,nlmax) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       double precision evl(ndimh),f(3,nbas,numq),ewgt(numq,nevec),vavg
       double complex evec(ndimh,ndimh)
       double precision qpgv(3,napw),qpg2v(napw),qpg2,alat,sqv
@@ -150,7 +159,14 @@ c      do  ib1 = 1, nbas
         ib1=iloop
 #endif
 
-        call upack('site spec pos',ssite,ib1,is1,p1,0,0)
+Cgetarg...info...           integer :: is1 , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: p1(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib1,is1,p1,0,0)
+         
+         is1=ssite(ib1)%spec
+         i_copy_size=size(ssite(ib1)%pos) 
+         call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1) 
+
         call uspecb(0,2,sspec,is1,is1,lh1,rsm1,e1,nkap1)
 C       Row info telling fsmbpw where to poke s0 made by hhibl
         call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
@@ -239,5 +255,7 @@ C             gradient PW * (H - E S)
       call tcx ('fsmbpw')
 
 
-      end
+Cgetarg       end
+       end subroutine fsmbpw 
+
 

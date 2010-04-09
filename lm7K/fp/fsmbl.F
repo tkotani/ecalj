@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['fsmbl', 'lat', 'slat']
+Cgetarg...info...           structure ['fsmbl', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['fsmbl', 'm_struc_def']
       subroutine fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,iprmb,
      .  numq,nevec,evl,evec,ewgt,f)
+       
+       use m_struc_def  !Cgetarg
+
 C- Force from smoothed hamiltonian (constant potential) and overlap
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -61,7 +67,12 @@ C Event numbers:
       include "events.ins"
 #endif
       integer nbas,ndimh,nlmto,nevec,numq,iprmb(nlmto)
-      double precision ssite(1),sspec(1),slat(1),q(3)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3)
+       real(8):: q(3) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double precision evl(ndimh),f(3,nbas,numq),ewgt(numq,nevec),vavg
       double complex evec(ndimh,ndimh)
 C ... Local parameters
@@ -114,7 +125,17 @@ C --- Setup ---
 #endif
 
       nbas  = nglob('nbas')
-      call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+       
+       ocg=slat%ocg
+       ojcg=slat%ojcg
+       oidxcg=slat%oidxcg
+       ocy=slat%ocy
+
 
 C --- Loop over first and second site indices ---
 #if MPI
@@ -143,14 +164,28 @@ c      do  iloop = 1, index(procid,0)
 #else
         ib1=iloop
 #endif
-        call upack('site spec pos',ssite,ib1,is1,p1,0,0)
+Cgetarg...info...           integer :: is1 , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: p1(3) , real(8) :: ssite%pos 3
+Cgetarg         call upack('site spec pos',ssite,ib1,is1,p1,0,0)
+         
+         is1=ssite(ib1)%spec
+         i_copy_size=size(ssite(ib1)%pos) 
+         call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1) 
+
         call uspecb(0,2,sspec,is1,is1,lh1,rsm1,e1,nkap1)
 C       Row info telling fsmbl where to poke s0 made by hhibl
         call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
         call gtbsl1(4+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
 
         do  ib2 = ib1+1, nbas
-          call upack('site spec pos',ssite,ib2,is2,p2,0,0)
+Cgetarg...info...           integer :: is2 , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: p2(3) , real(8) :: ssite%pos 3
+Cgetarg           call upack('site spec pos',ssite,ib2,is2,p2,0,0)
+           
+           is2=ssite(ib2)%spec
+           i_copy_size=size(ssite(ib2)%pos) 
+           call dcopy(i_copy_size,ssite(ib2)%pos,1,p2,1) 
+
           call uspecb(0,2,sspec,is2,is2,lh2,rsm2,e2,nkap2)
 C         Column info telling fsmbl where to poke s0 made by hhibl
           call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
@@ -264,5 +299,7 @@ C      enddo
 
       call tcx ('fsmbl')
 
-      end
+Cgetarg       end
+       end subroutine fsmbl 
+
 

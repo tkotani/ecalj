@@ -1,5 +1,13 @@
+Cgetarg...info...           structure ['mkrout', 'lat', 'slat']
+Cgetarg...info...           structure ['mkrout', 'ham', 'sham']
+Cgetarg...info...           structure ['mkrout', 'site', 'ssite']
+Cgetarg...info...           structure ['mkrout', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['mkrout', 'm_struc_def']
       subroutine mkrout(ssite,sspec,slat,sham,nbas,nsp,nlmto,lekkl,
      .  oqkkl,oeqkkl,orhoat,hab,sab,qbyl,hbyl,lrout)
+       
+       use m_struc_def  !Cgetarg
+
 C- Assembles local output densities out of the qkkl, and core states
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -55,9 +63,16 @@ C ... Passed parameters
       integer n0,nab,nbas,nsp,lekkl,nlmto,lrout,
      .  oqkkl(3,nbas),oeqkkl(3,nbas),orhoat(3,nbas)
       parameter (n0=10,nab=9)
-      double precision ssite(1),sspec(1),sham(1),slat(1),
-     .  qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas),
-     .  sab(nab,n0,nsp,nbas),hab(nab,n0,nsp,nbas)
+Cgetarg       double precision ssite(1),sspec(1),sham(1),slat(1),
+Cgetarg      .  qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas),
+Cgetarg      .  sab(nab,n0,nsp,nbas),hab(nab,n0,nsp,nbas)
+       real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(nab,n0,nsp,nbas) 
+     . , hab(nab,n0,nsp,nbas) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_ham)::sham
+       type(s_lat)::slat
+
 C ... Local parameters
       integer ib,ipr,iprint,is,k,kcor,kmax,lcor,lfoc,lgunit,lmxa,lmxh,
      .  lmxl,nlma,nlmh,nlml,nlml1,nr,ncore,ocg,odmatl,
@@ -92,8 +107,25 @@ C ... Setup
       nkaph = nglob('nkaph')
       sums1 = 0
       call tcn('mkrout')
-      call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-      call upack('ham oindxo eterms',sham,oiprmb,eterms,0,0,0)
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+       
+       ocg=slat%ocg
+       ojcg=slat%ojcg
+       oidxcg=slat%oidxcg
+       ocy=slat%ocy
+
+Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call upack('ham oindxo eterms',sham,oiprmb,eterms,0,0,0)
+       
+       oiprmb=sham%oindxo
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,sham%eterms,1,eterms,1) 
+
 
 C --- Start loop over atoms ---
       sumtc = 0d0
@@ -107,13 +139,41 @@ C --- Start loop over atoms ---
      .    'true mm   smooth mm    local mm')
       endif
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec rsma lmxa lmxl kmxt',sspec,is,rsma,lmxa,lmxl,
-     .    kmax)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg         call upack('spec rsma lmxa lmxl kmxt',sspec,is,rsma,lmxa,lmxl,
+Cgetarg      .    kmax)
+         
+         rsma=sspec(is)%rsma
+         lmxa=sspec(is)%lmxa
+         lmxl=sspec(is)%lmxl
+         kmax=sspec(is)%kmxt
+
         if (lmxa .eq. -1) goto 10
 
-        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-        call upack('spec lmxb stc orhoc',sspec,is,lmxh,stc0,orhoca,0)
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
+Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
+Cgetarg...info...           real(8) :: stc0 , real(8) :: sspec%stc 1
+Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
+Cgetarg         call upack('spec lmxb stc orhoc',sspec,is,lmxh,stc0,orhoca,0)
+         
+         lmxh=sspec(is)%lmxb
+         stc0=sspec(is)%stc
+         orhoca=sspec(is)%orhoc
+
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
 
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
@@ -121,8 +181,24 @@ C --- Start loop over atoms ---
         call orbl(ib,0,nlmto,w(oiprmb),norb,ltab,ktab,xx,offl,xx)
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
 
-        call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov01)
-        call upack2('site pz',ssite,ib,pnz)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
+Cgetarg...info...           integer :: ov01 , integer(8) :: ssite%ov1 1
+Cgetarg         call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov01)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pnu) 
+         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
+         ov0=ssite(ib)%ov0
+         ov01=ssite(ib)%ov1
+
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg         call upack2('site pz',ssite,ib,pnz)
+         
+         i_copy_size=size(ssite(ib)%pz) 
+         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+
         call gtpcor(sspec,is,kcor,lcor,qcor)
         nlml = (lmxl+1)**2
         nlma = (lmxa+1)**2
@@ -271,14 +347,22 @@ C         smec = smec+sum
       enddo
 
 C --- Put sumec,sumtc into etot struct ---
-      call pack1('ham eterms',sham,eterms)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call pack1('ham eterms',sham,eterms)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,eterms,1,sham%eterms,1) 
+
 
       call tcx('mkrout')
-      end
+Cgetarg       end
+       end subroutine mkrout 
+
 
       subroutine mkrou1(nsp,nlmh,nlma,nlml,kmax,cg,jcg,indxcg,
      .  nkaph,nkapi,norb,ltab,ktab,blks,qhh,qhp,qpp,vh,dh,vp,dp,
      .  chh,chp,cpp,dmatl)
+
 C- Contracted density matrix for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -395,10 +479,13 @@ C     Pkl Pkl product
      .  kmax+1,kmax+1,vp,dp,lmxa,
      .  cpp,dmatl)
 
-      end
+Cgetarg       end
+       end subroutine mkrou1 
+
 
       subroutine mkrou2(nsp,lmxa,nlml,pnz,dmatl,nr,ul,sl,gz,ruu,rus,rss,
      .  rho)
+
 C- Assemble true site density from product function coefficients
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -535,9 +622,12 @@ C     return
       enddo
 
       call tcx('mkrou2')
-      end
+Cgetarg       end
+       end subroutine mkrou2 
+
 
       subroutine mkrou3(mode,lmxa,nlml,nsp,pnz,dmatl,hab,sab,qsum,hsum)
+
 C- l-decomposed charges and eigenvalue sum
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -626,12 +716,15 @@ C         ... uz, sz, zu, zs, zz terms
 
 C     call tcx('mkrou3')
 
-      end
+Cgetarg       end
+       end subroutine mkrou3 
+
 
       subroutine mkrou4(nsp,nlml,cg,jcg,indxcg,
      .  nk1,norb1,ltab1,ktab1,blks1,lmx1,ndim1,
      .  nk2,norb2,ltab2,ktab2,blks2,lmx2,ndim2,
      .  qkk12,ckk)
+
 C- Assemble contracted density-matrix (in Y_lm form)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -723,10 +816,13 @@ C           k1,l1 = k and starting l index for this block
       enddo
 
 C     call tcx('mkrou4')
-      end
+Cgetarg       end
+       end subroutine mkrou4 
+
 
       subroutine mkcfus(nsp,lmxa,nlml,nf1,nf1s,val1,slo1,lmx1,
      .  nf2,nf2s,val2,slo2,lmx2,ckk,dmatl)
+
 C- Assemble contracted density matrix as coffs to products of (u,s,gz)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -876,10 +972,13 @@ C        enddo
 C      enddo
 C      pause
 
-      end
+Cgetarg       end
+       end subroutine mkcfus 
+
 
       subroutine mkrou5(nsp,nr,nlml,nf1,nf1s,f1,lmx1,nf2,nf2s,f2,lmx2,
      .  ckk,rho)
+
 C- Assemble smooth site density from contracted density matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -938,9 +1037,12 @@ C ... Local parameters
       enddo
 
       call tcx('mkrou5')
-      end
+Cgetarg       end
+       end subroutine mkrou5 
+
 
       subroutine mkrou6(rofi,rho,nr,nlml,nsp,rho0,decay,res)
+
 C- Fit tail of spin density; integrate charge beyond MT sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1009,5 +1111,7 @@ C     Integral a*exp(-b*r)*r*r = (2+2*b*r0+b**2*r0*2)/b**3*exp(-b*r0)
       decay = b
       rho0 = a
 
-      end
+Cgetarg       end
+       end subroutine mkrou6 
+
 

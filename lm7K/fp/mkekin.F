@@ -1,5 +1,13 @@
+Cgetarg...info...           structure ['mkekin', 'lat', 'slat']
+Cgetarg...info...           structure ['mkekin', 'ham', 'sham']
+Cgetarg...info...           structure ['mkekin', 'site', 'ssite']
+Cgetarg...info...           structure ['mkekin', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['mkekin', 'm_struc_def']
       subroutine mkekin(nbas,ndimh,ssite,sspec,slat,sham,osig,otau,oppi,
      .  lcplxp,oqkkl,k1,k2,k3,vconst,smpot,smrho,sumev,sumtv)
+       
+       use m_struc_def  !Cgetarg
+
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -139,8 +147,14 @@ C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,nbas,ndimh,lcplxp
       integer oqkkl(3,nbas),oppi(3,nbas),osig(3,1),otau(3,1)
-      double precision sumev,sumtv,vconst,ssite(1),sspec(1),slat(1),
-     .  sham(1)
+Cgetarg       double precision sumev,sumtv,vconst,ssite(1),sspec(1),slat(1),
+Cgetarg      .  sham(1)
+       real(8):: sumev , sumtv , vconst 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_ham)::sham
+
       double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
 C ... Local parameters
       integer ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3,
@@ -166,11 +180,25 @@ C ... Heap
       nspc = nglob('nspc')
       nkaph = nglob('nkaph')
       call getpr(ipr)
-      call upack('lat nabc vol',slat,ngabc,vol,0,0,0)
-      call upack('ham oindxo',sham,oiprmb,0,0,0,0)
-      lso =   isw(lgors('ham lncol,4',sham))
-     .    + 2*isw(lgors('ham lncol,32',sham))
-     .    + 3*isw(lgors('ham lncol,64',sham))
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat nabc vol',slat,ngabc,vol,0,0,0)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       vol=slat%vol
+
+Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
+Cgetarg       call upack('ham oindxo',sham,oiprmb,0,0,0,0)
+       
+       oiprmb=sham%oindxo
+
+Cgetarg       lso =   isw(lgors('ham lncol,4',sham))
+Cgetarg      .    + 2*isw(lgors('ham lncol,32',sham))
+Cgetarg      .    + 3*isw(lgors('ham lncol,64',sham))
+       lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
+     . ) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 ) 
+
 
 C     call zprm3('sm rho-out',0,smrho,k1,k2,k3*nsp)
 #if DEBUG
@@ -196,8 +224,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccc
 C --- Integral rhout*veff, part from augmentation ---
       sraugm = 0d0
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec lmxa kmxt lmxb',sspec,is,lmxa,kmax,lmxh,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
+Cgetarg         call upack('spec lmxa kmxt lmxb',sspec,is,lmxa,kmax,lmxh,0)
+         
+         lmxa=sspec(is)%lmxa
+         kmax=sspec(is)%kmxt
+         lmxh=sspec(is)%lmxb
+
         if (lmxa .eq. -1) goto 10
 
         call orbl(ib,0,ndimh,w(oiprmb),norb,ltab,ktab,xx,offl,xx)
@@ -235,12 +273,15 @@ C       Add site augmentation contribution to rhout * (ham - ke)
       if (ipr .ge. 30) write(stdo,340) srmesh,sraugm,srhov,sumev,sumtv
   340 format(/' srhov:',3f14.6,' sumev=',f12.6,'   sumtv=',f12.6)
 
-      end
+Cgetarg       end
+       end subroutine mkekin 
+
 
       subroutine pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh,
      .  nlmh,tauhh,sighh,ppihh,ppihhz,tauhp,sighp,ppihp,ppihpz,
      .  taupp,sigpp,ppipp,ppippz,lcplxp,lso,qhh,qhp,qpp,nsp,nspc,
      .  sumt,sumq,sumh)
+
 C- Local contribution to kinetic energy for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -458,7 +499,9 @@ C       call zprm('ppiz+so',2,ppihhz,io1,io1,nsp*nspc)
 
 C     call info2(0,0,0,' pvgtkn sumh= %,6;6d sumt= %,6;6d ',sumh,sumt)
 
-      end
+Cgetarg       end
+       end subroutine pvgtkn 
+
 
 C      subroutine pvgtk1(nkaph,nlmh,k1,k2,nlm11,nlm12,nlm21,nlm22,qhh,
 C     .  ppihhz,sumh)

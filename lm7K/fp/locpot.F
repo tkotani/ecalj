@@ -1,9 +1,16 @@
+Cgetarg...info...           structure ['locpot', 'site', 'ssite']
+Cgetarg...info...           structure ['locpot', 'spec', 'sspec']
+Cgetarg...info...           structure ['locpot', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['locpot', 'm_struc_def']
 #define F90 1
       subroutine locpot(nbas,nsp,lso,lcplxp,ssite,sspec,slat,orhoat,
      .  qmom,vval,gpot0,osig,otau,oppi,ppnl,hab,vab,sab,vvesat,
      .  cpnvsa,rhoexc,rhoex,rhoec,rhovxc,rvepsv,rvexv,rvecv,rvvxcv,
      .  rveps,rvvxc,valvef,xcore,focexc,focex,focec,focvxc,sqloc,sqlocc,
      .  saloc,qval,qsc,job,rhobg,nlibu,lmaxu,vorb,lldau)
+       
+       use m_struc_def  !Cgetarg
+
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -121,7 +128,12 @@ C ... Passed parameters
       integer nlibu,lmaxu,lldau(nbas),iblu
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       parameter (n0=10,nppn=12,nab=9)
-      double precision ssite(1),sspec(1),slat(1),qmom(1),vval(1)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),qmom(1),vval(1)
+       real(8):: qmom(1) , vval(1) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double precision cpnvsa,rhoexc(2),rhoex(2),rhoec(2),rhovxc(2),
      .  focexc(2),focex(2),focec(2),focvxc(2),qval,sqloc,sqlocc,saloc,
      .  valvef,vvesat,rvepsv,rvexv,rvecv,rvvxcv,xcore,rveps,rvvxc,
@@ -233,18 +245,75 @@ C$&            xcore,rvepsv,rvvxcv,valvef,rhovxc,rhoexc,cpnvsa,vvesat)
 C$&  MP_SCHEDTYPE=RUNTIME
       iblu = 0
       do  ib = 1, nbas
-        call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov01)
-        call upack2('site pz',ssite,ib,pnz)
-        call upack('spec z qc rg',sspec,is,z,qc,rg,0)
-        call spacks(0,'spec name',sspec,spid,is,is)
-        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-        call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
-     .    lmxb)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
+Cgetarg...info...           integer :: ov01 , integer(8) :: ssite%ov1 1
+Cgetarg         call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov01)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pnu) 
+         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
+         ov0=ssite(ib)%ov0
+         ov01=ssite(ib)%ov1
+
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg         call upack2('site pz',ssite,ib,pnz)
+         
+         i_copy_size=size(ssite(ib)%pz) 
+         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg         call upack('spec z qc rg',sspec,is,z,qc,rg,0)
+         
+         z=sspec(is)%z
+         qc=sspec(is)%qc
+         rg=sspec(is)%rg
+
+Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+         enddo
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
+Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
+Cgetarg         call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
+Cgetarg      .    lmxb)
+         
+         rsma=sspec(is)%rsma
+         lmxa=sspec(is)%lmxa
+         lmxl=sspec(is)%lmxl
+         lmxb=sspec(is)%lmxb
+
         zz(ib)=z
         if (lmxa .eq. -1) goto 10
 
-        call upack('spec idu',sspec,is,idu,0,0,0)
-        call upack('spec kmxt mxcst',sspec,is,kmax,i,0,0)
+Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
+Cgetarg         call upack('spec idu',sspec,is,idu,0,0,0)
+         
+         i_copy_size=size(sspec(is)%idu) 
+         call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg...info...           integer :: i , integer(8) :: sspec%mxcst 1
+Cgetarg         call upack('spec kmxt mxcst',sspec,is,kmax,i,0,0)
+         
+         kmax=sspec(is)%kmxt
+         i=sspec(is)%mxcst
+
 C       Float wave functions if:
 C         100's digit job > 0 set   OR:
 C         4's bit mxcst=0   AND   10's digit job=0  AND  1's digit job=1
@@ -254,7 +323,11 @@ cccccccccccccc
         print *,' i job kmax lfltwf=',i,job,kmax,lfltwf
 cccccccccccccc
         call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
-        call spacks(0,'spec coreh',sspec,chole,is,is)
+Cgetarg         call spacks(0,'spec coreh',sspec,chole,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
+         enddo
+
         call gtpcor(sspec,is,kcor,lcor,qcor)
         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv,qsc0)
         if (qsc0 .ne. qsca .or. qc .ne. qc0-qsc0) then
@@ -382,7 +455,15 @@ C     ... Use effective potentials with modified xc
 
           if (ipr .ge. 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
   467     format(' potential shift to crystal energy zero:',f12.6)
-          call upack('lat ocg ojcg oidxcg',slat,ocg,ojcg,oidxcg,0,0)
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg           call upack('lat ocg ojcg oidxcg',slat,ocg,ojcg,oidxcg,0,0)
+           
+           ocg=slat%ocg
+           ojcg=slat%ojcg
+           oidxcg=slat%oidxcg
+
           call augmat(z,rmt,rsma,lmxa,pnu,pnz,kmax,nlml,a,nr,nsp,lso,
      .      rofi,rwgt,w(ocg),w(ojcg),w(oidxcg),w(ov0),v1,v2,gpotb,
      .      gpot0(j1),nkaph,nkapi,lmxb,lh,eh,rsmh,ehl,rsml,rs3,vmtz,
@@ -405,13 +486,16 @@ C     Electric field gradient
 
       call tcx('locpot')
 
-      end
+Cgetarg       end
+       end subroutine locpot 
+
 
       subroutine locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc,
      .  nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,rhol1,rhol2,v1,v2,v1es,
      .  v2es,wk,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv,
      .  rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc,
      .  qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg)
+
 C- Makes the potential at one site, and associated energy terms.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -930,9 +1014,12 @@ C --- Charges, printout ---
 #endif
 
       call tcx('locpt2')
-      end
+Cgetarg       end
+       end subroutine locpt2 
+
 
       subroutine elfigr(nc,stdo,z,efg1)
+
 C- Computation of electric field gradient
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1074,5 +1161,7 @@ C     .         (tr(j,i),j=1,3),conv1*d(i),conv2*d(i)
       endif
       enddo
 
-      end
+Cgetarg       end
+       end subroutine elfigr 
+
 

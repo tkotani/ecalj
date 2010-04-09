@@ -1,4 +1,17 @@
+Cgetarg...info...           structure ['smshft', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['smshft', 'lat', 'slat']
+Cgetarg...info...           structure ['smshft', 'site', 'ssite']
+Cgetarg...info...           structure ['smshft', 'spec', 'sspec']
+Cgetarg...info...           structure ['smshft', 'ham', 'sham']
+Cgetarg...info...           structure ['pvsms1', 'lat', 'slat']
+Cgetarg...info...           structure ['pvsms1', 'site', 'ssite']
+Cgetarg...info...           structure ['pvsms1', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['smshft', 'm_struc_def']
+Cgetarg...info...           use_to_add ['pvsms1', 'm_struc_def']
       subroutine smshft(ssite,sspec,slat,sctrl,sham,orhoat,smrho)
+       
+       use m_struc_def  !Cgetarg
+
 C- Estimate the smooth density for a shift in atomic positions.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -42,7 +55,13 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer orhoat(3,1)
-      double precision ssite(1),sspec(1),slat(1),sctrl(1),sham(1)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),sctrl(1),sham(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_ctrl)::sctrl
+       type(s_ham)::sham
+
       double complex smrho(*)
 C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
@@ -58,7 +77,9 @@ C ... Heap
       common /w/ w
 
 C     stdo = lgunit(1)
-      job = igets('ctrl lfrce',sctrl)
+Cgetarg       job = igets('ctrl lfrce',sctrl)
+       job = int(sctrl%lfrce) 
+
       if (job .le. 0) return
 
       call tcn('smshft')
@@ -66,8 +87,31 @@ C     stdo = lgunit(1)
 C --- Setup and printout ---
       nsp  = nglob('nsp')
       nbas = nglob('nbas')
-      call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
-      call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
+Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
+Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
+       
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+       ng=slat%ng
+       ogv=slat%ogv
+       okv=slat%okv
+       vol=slat%vol
+
       call fftz30(n1,n2,n3,k1,k2,k3)
 C     call zprm3('input smrho',0,smrho,k1,k2,k3)
 
@@ -94,8 +138,22 @@ C --- Screened shift ---
 C       Compute elind if not given
         qval = 0d0
         do  12  ib = 1, nbas
-          is = igetss('site spec',ib,ssite)
-          call upack('spec z p pz lmxa',sspec,is,z,pnu,pnz,lmxa)
+Cgetarg           is = igetss('site spec',ib,ssite)
+           is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg           call upack('spec z p pz lmxa',sspec,is,z,pnu,pnz,lmxa)
+           
+           z=sspec(is)%z
+           i_copy_size=size(sspec(is)%p) 
+           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
+           i_copy_size=size(sspec(is)%pz) 
+           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
+           lmxa=sspec(is)%lmxa
+
           if (lmxa .eq. -1) goto 12
           call gtpcor(sspec,is,kcor,lcor,qcor)
           call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qv,qsc)
@@ -103,7 +161,9 @@ C       Compute elind if not given
    12   continue
         pi = 4d0*datan(1d0)
         tpiba = 2*pi/alat
-        elind = dgets('ham elind',sham)
+Cgetarg         elind = dgets('ham elind',sham)
+         elind = sham%elind 
+
         if (elind .lt. 0d0) elind = -(3*pi**2*qval/vol)**.66666d0*elind
         if (nsp.eq.2) call dsumdf(ng*2,1d0,w(ocgs),0,1,w(ocgs),ng*2,1)
 C        call lindxx(122,n1,n2,n3,k1,k2,k3,ng,w(okv),w(ocgs),w(ogv),
@@ -138,10 +198,15 @@ C --- Symmetrize the shifted density ---
       call rlse(ocgr)
       call tcx('smshft')
 
-      end
+Cgetarg       end
+       end subroutine smshft 
+
 
       subroutine pvsms1(ssite,sspec,slat,nbas,nsp,kmax,ng,
      .  gv,orhoat,cwk,cg,job)
+       
+       use m_struc_def  !Cgetarg
+
 C- Shift in smoothed density according to job.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -219,7 +284,12 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,ng,job,orhoat(3,1)
-      double precision ssite(1),sspec(1),slat(1),gv(ng,3)
+Cgetarg       double precision ssite(1),sspec(1),slat(1),gv(ng,3)
+       real(8):: gv(ng,3) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex cg(ng,nsp),cwk(ng)
 C Local variables
       integer ib,i,is,iv0,kmax,lmxl,igetss,lmxa,nr,nrmx,n0,
@@ -238,7 +308,13 @@ C ... Heap
 C ... Setup
       call tcn('pvsms1')
       call stdfac(20,df)
-      call upack('lat alat vol',slat,alat,vol,0,0,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat alat vol',slat,alat,vol,0,0,0)
+       
+       alat=slat%alat
+       vol=slat%vol
+
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
       tpiba = 2*pi/alat
@@ -257,13 +333,31 @@ C --- For each site, accumulate shift in density ---
      .  'new pos',14x,'shift')
 
       do  10  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call spacks(0,'spec name',sspec,spid,is,is)
-        lmxl = igetss('spec lmxl',is,sspec)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+         enddo
+
+Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
+         lmxl = int(sspec(is)%lmxl) 
+
         nlml = (lmxl+1)**2
         if (lmxl .eq. -1) goto 10
 
-        call upack('site spec pos pos0',ssite,ib,is,pnew,pold,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pnew(3) , real(8) :: ssite%pos 3
+Cgetarg...info...           real(8) :: pold(3) , real(8) :: ssite%pos0 3
+Cgetarg         call upack('site spec pos pos0',ssite,ib,is,pnew,pold,0)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pos) 
+         call dcopy(i_copy_size,ssite(ib)%pos,1,pnew,1) 
+         i_copy_size=size(ssite(ib)%pos0) 
+         call dcopy(i_copy_size,ssite(ib)%pos0,1,pold,1) 
+
         pp = alat*dsqrt((pnew(1)-pold(1))**2 + (pnew(2)-pold(2))**2
      .                + (pnew(3)-pold(3))**2)
         if (ipr .ge. 30) write(stdo,340) ib,spid,pold,pnew,pp/alat
@@ -273,10 +367,42 @@ C       Skip this site if shift is negligible
 
 C   --- Shift in mesh density, job 1 ---
         if (mod(job,10) .eq. 1) then
-          call upack('spec z p pz lmxa',sspec,is,z,pnu,pnz,lmxa)
-          call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-          call upack('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,
-     .      rsmfa)
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg           call upack('spec z p pz lmxa',sspec,is,z,pnu,pnz,lmxa)
+           
+           z=sspec(is)%z
+           i_copy_size=size(sspec(is)%p) 
+           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
+           i_copy_size=size(sspec(is)%pz) 
+           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
+           lmxa=sspec(is)%lmxa
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg           call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+           
+           a=sspec(is)%a
+           nr=sspec(is)%nr
+           rmt=sspec(is)%rmt
+
+Cgetarg...info...           integer :: nxi , integer(8) :: sspec%nxi 1
+Cgetarg...info...           real(8) :: exi(n0) , real(8) :: sspec%exi 10
+Cgetarg...info...           real(8) :: hfc(n0,2) , real(8) :: sspec%chfa 20
+Cgetarg...info...           real(8) :: rsmfa , real(8) :: sspec%rsmfa 1
+Cgetarg           call upack('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,
+Cgetarg      .      rsmfa)
+           
+           nxi=sspec(is)%nxi
+           i_copy_size=size(sspec(is)%exi) 
+           call dcopy(i_copy_size,sspec(is)%exi,1,exi,1) 
+           i_copy_size=size(sspec(is)%chfa) 
+           call dcopy(i_copy_size,sspec(is)%chfa,1,hfc,1) 
+           rsmfa=sspec(is)%rsmfa
+
           call gtpcor(sspec,is,kcor,lcor,qcor)
           if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
           call radwgt(rmt,a,nr,rwgt)
@@ -331,11 +457,21 @@ C   --- Shift in mesh density, job 12 ---
 
 C     ... Core + valence at old position
           call dpzero(cwk,ng*2)
-          call pack2('site pos',ssite,ib,pold)
+Cgetarg...info...           real(8) :: pold(3) , real(8) :: ssite%pos 3
+Cgetarg           call pack2('site pos',ssite,ib,pold)
+           
+           i_copy_size=size(ssite(ib)%pos) 
+           call dcopy(i_copy_size,pold,1,ssite(ib)%pos,1) 
+
           call rhgcmp(131,ib,ib,ssite,sspec,slat,orhoat,kmax,ng,cwk)
           call dscal(ng*2,-1d0,cwk,1)
 C     ... Core + valence at new position
-          call pack2('site pos',ssite,ib,pnew)
+Cgetarg...info...           real(8) :: pnew(3) , real(8) :: ssite%pos 3
+Cgetarg           call pack2('site pos',ssite,ib,pnew)
+           
+           i_copy_size=size(ssite(ib)%pos) 
+           call dcopy(i_copy_size,pnew,1,ssite(ib)%pos,1) 
+
           call rhgcmp(131,ib,ib,ssite,sspec,slat,orhoat,kmax,ng,cwk)
 
 C     ... Add to cg
@@ -351,5 +487,7 @@ C     ... Add to cg
    10 continue
 
       call tcx('pvsms1')
-      end
+Cgetarg       end
+       end subroutine pvsms1 
+
 

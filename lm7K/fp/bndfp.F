@@ -1,7 +1,15 @@
+Cgetarg...info...           structure ['bndfp', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['bndfp', 'ham', 'sham']
+Cgetarg...info...           structure ['bndfp', 'pot', 'spot']
+Cgetarg...info...           structure ['bndfp', 'lat', 'slat']
+Cgetarg...info...           structure ['bndfp', 'bz', 'sbz']
+Cgetarg...info...           structure ['bndfp', 'site', 'ssite']
+Cgetarg...info...           structure ['bndfp', 'spec', 'sspec']
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau,
      .  ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit,evl,frc,
      .  dmatu,vorb,llmfgw)
+
       use m_rdctrl, only: ncutovl
       use m_hamindex
       use m_struc_def
@@ -210,7 +218,10 @@ C Event numbers:
       integer nlibu,lmaxu,lldau(nbas)
       real(8):: dmxp(33),evl(ndham,2),frc(3,nbas)
 ctakao
-      double precision ssite(1),sspec(1) 
+Cgetarg       double precision ssite(1),sspec(1) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 c     .  spot(1),sbz(1),sham(1),slat(1),sctrl(1)
 
 c      double precision ssite(1),sspec(1)
@@ -281,6 +292,8 @@ C     for LDA+U
       integer oausu
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),
      .              dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
+
+      integer:: i_copy_size, i_spackv, i_spacks
 C ... Heap
       integer w(1)
       common /w/ w
@@ -368,17 +381,33 @@ C --- Setup ---
       nsp  = nglob('nsp')
       nspc = nglob('nspc')
 C     npqn = nglob('npqn')
-      lso =   isw(lgors('ctrl lncol,4',sctrl))
-     .    + 2*isw(lgors('ctrl lncol,32',sctrl))
-     .    + 3*isw(lgors('ctrl lncol,64',sctrl)) !why is this 3*isw? 4*isw? takao.
+Cgetarg       lso =   isw(lgors('ctrl lncol,4',sctrl))
+Cgetarg      .    + 2*isw(lgors('ctrl lncol,32',sctrl))
+Cgetarg      .    + 3*isw(lgors('ctrl lncol,64',sctrl)) !why is this 3*isw? 4*isw? takao.
+       lso = isw ( iand(4,int(sctrl%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sctrl%lncol)) .ne.0 
+     . ) + 3 * isw ( iand(64,int(sctrl%lncol)) .ne.0 ) 
+
       lcplxp = 0
-      lekkl = igets('ctrl pfloat',sctrl)
+Cgetarg       lekkl = igets('ctrl pfloat',sctrl)
+       lekkl = int(sctrl%pfloat) 
+
       if (lso .ne. 0) lcplxp = 1
       if (isum(nbas,lldau,1) .ne. 0) lcplxp = 1
       ndhamx = ndham*nspc
       nspx = nsp / nspc
-      call upack4('ham ldham pwmode pwemin pwemax',sham,ldham,pwmode,
-     .  pwemin,pwemax)
+Cgetarg...info...           integer :: ldham(8,2) , integer(8) :: sham%ldham 16
+Cgetarg...info...           integer :: pwmode , integer(8) :: sham%pwmode 1
+Cgetarg...info...           real(8) :: pwemin , real(8) :: sham%pwemin 1
+Cgetarg...info...           real(8) :: pwemax , real(8) :: sham%pwemax 1
+Cgetarg       call upack4('ham ldham pwmode pwemin pwemax',sham,ldham,pwmode,
+Cgetarg      .  pwemin,pwemax)
+       
+       i_copy_size=size(sham%ldham) 
+       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
+       pwmode=sham%pwmode
+       pwemin=sham%pwemin
+       pwemax=sham%pwemax
+
       onesp = 0
       nfbn(1) = 0
       nfbn(2) = 0
@@ -389,9 +418,15 @@ c ipr and stdl are processor dependent in mpi modes.
 c      print *,'zzzzzzzzzz =',ipl,stdl,lgunit(1),lgunit(2),lgunit(3)
 
 ctakao's test for replacement.
-      ldos = igets('ctrl ldos,1',sctrl)
-      lrsig= igets('ham lsig',sham)
-      lfrzw= isw(lgors('ctrl lbas,16',sctrl))
+Cgetarg       ldos = igets('ctrl ldos,1',sctrl)
+       ldos = iand(1,int(sctrl%ldos)) 
+
+Cgetarg       lrsig= igets('ham lsig',sham)
+       lrsig = int(sham%lsig) 
+
+Cgetarg       lfrzw= isw(lgors('ctrl lbas,16',sctrl))
+       lfrzw = isw ( iand(16,int(sctrl%lbas)) .ne.0 ) 
+
 c      print *,'xxx' ,lfrzw,sctrl%lbas
 c      print *,'ttt1: lrsig,ldos,lfrzw=',lrsig,ldos,lfrzw
       if(ldos - mod(sctrl%ldos/1, 2)/=0) stop 'ttt xxx111'
@@ -421,14 +456,19 @@ c      print *,'ttt fxstsigm=',fxst('sigm')
 c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxx2222'
         call info0(1,1,0,' bndfp (warning): '//
      .    'no sigm file found ... LDA calculation only')
-        call pack1('ham lsig',sham,0)
+Cgetarg         call pack1('ham lsig',sham,0)
+         
+         sham%lsig=0 
+
         lrsig = 0
       endif
       endif
 
       call mpibc1(lrsig,1,2,mlog,'rdsigm','lrsig')
       jobgw= -999
-      epsovl = dgets('ham oveps',sham)
+Cgetarg       epsovl = dgets('ham oveps',sham)
+       epsovl = sham%oveps 
+
       lpdiag = isw(cmdopt('--pdiag',7,0,strn))
 
 #if MPIK
@@ -442,8 +482,18 @@ c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxx2222'
       endif
       endif
 
-      call upack('pot oorhat osmrho osmpot osoptc',spot,oorhat,osmrho,
-     .  osmpot,osoptc,0)
+Cgetarg...info...           integer :: oorhat , integer(8) :: spot%oorhat 1
+Cgetarg...info...           integer :: osmrho , integer(8) :: spot%osmrho 1
+Cgetarg...info...           integer :: osmpot , integer(8) :: spot%osmpot 1
+Cgetarg...info...           integer :: osoptc , integer(8) :: spot%osoptc 1
+Cgetarg       call upack('pot oorhat osmrho osmpot osoptc',spot,oorhat,osmrho,
+Cgetarg      .  osmpot,osoptc,0)
+       
+       oorhat=spot%oorhat
+       osmrho=spot%osmrho
+       osmpot=spot%osmpot
+       osoptc=spot%osoptc
+
 C     icls = igets('optic cls',w(osoptc))
       pi = 4d0*datan(1d0)
       if (iprint() .ge. 20) call awrit2('%N --- BNDFP:  '//
@@ -473,18 +523,69 @@ C MPI Process configuration
 
       call dvset(eterms,1,20,-99d0)
       eterms(19) = 0d0
-      call pack1('ham eterms',sham,eterms)
-      call upack2('pot nlml nlma',spot,nvl,nchan)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call pack1('ham eterms',sham,eterms)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,eterms,1,sham%eterms,1) 
+
+Cgetarg...info...           integer :: nvl , integer(8) :: spot%nlml 1
+Cgetarg...info...           integer :: nchan , integer(8) :: spot%nlma 1
+Cgetarg       call upack2('pot nlml nlma',spot,nvl,nchan)
+       
+       nvl=spot%nlml
+       nchan=spot%nlma
+
       eks = 0
-      call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
-      vol = dgets('lat vol',slat)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg       call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
+Cgetarg       vol = dgets('lat vol',slat)
+       vol = slat%vol 
+
       call fftz30(n1,n2,n3,k1,k2,k3)
 
 C ... for BZ integration
-      call upack('bz nkabc nkp ntet oidtet lmet',sbz,nkabc,nkp,ntet,
-     .  oidtet,lmet)
-      call upack('bz n w nevmx efmax fsmom',sbz,mpsord,esmear,nevmx,
-     .  efmax,fsmom)
+Cgetarg...info...           integer :: nkabc(3) , integer(8) :: sbz%nkabc 3
+Cgetarg...info...           integer :: nkp , integer(8) :: sbz%nkp 1
+Cgetarg...info...           integer :: ntet , integer(8) :: sbz%ntet 1
+Cgetarg...info...           integer :: oidtet , integer(8) :: sbz%oidtet 1
+Cgetarg...info...           integer :: lmet , integer(8) :: sbz%lmet 1
+Cgetarg       call upack('bz nkabc nkp ntet oidtet lmet',sbz,nkabc,nkp,ntet,
+Cgetarg      .  oidtet,lmet)
+       
+       i_copy_size=size(sbz%nkabc) 
+       call i8icopy(i_copy_size,sbz%nkabc,1,nkabc,1) 
+       nkp=sbz%nkp
+       ntet=sbz%ntet
+       oidtet=sbz%oidtet
+       lmet=sbz%lmet
+
+Cgetarg...info...           integer :: mpsord , integer(8) :: sbz%n 1
+Cgetarg...info...           real(8) :: esmear , real(8) :: sbz%w 1
+Cgetarg...info...           integer :: nevmx , integer(8) :: sbz%nevmx 1
+Cgetarg...info...           real(8) :: efmax , real(8) :: sbz%efmax 1
+Cgetarg...info...           real(8) :: fsmom , real(8) :: sbz%fsmom 1
+Cgetarg       call upack('bz n w nevmx efmax fsmom',sbz,mpsord,esmear,nevmx,
+Cgetarg      .  efmax,fsmom)
+       
+       mpsord=sbz%n
+       esmear=sbz%w
+       nevmx=sbz%nevmx
+       efmax=sbz%efmax
+       fsmom=sbz%fsmom
+
 c      print *,' w=',esmear
 c      stop 'xxxxxxxxxxxxxxx'
       esmear = esmear + iabs(mpsord)
@@ -492,8 +593,25 @@ c      stop 'xxxxxxxxxxxxxxx'
       mpsord = int(dabs(esmear))
       if (esmear .lt. 0) mpsord = -mpsord
 
-      call upack('bz ndos dosw ef def',sbz,ndos,dosw,ef0,def,0)
-      call upack('bz oqp owtkp',sbz,oqp,owtkp,0,0,0)
+Cgetarg...info...           integer :: ndos , integer(8) :: sbz%ndos 1
+Cgetarg...info...           real(8) :: dosw(2) , real(8) :: sbz%dosw 2
+Cgetarg...info...           real(8) :: ef0 , real(8) :: sbz%ef 1
+Cgetarg...info...           real(8) :: def , real(8) :: sbz%def 1
+Cgetarg       call upack('bz ndos dosw ef def',sbz,ndos,dosw,ef0,def,0)
+       
+       ndos=sbz%ndos
+       i_copy_size=size(sbz%dosw) 
+       call dcopy(i_copy_size,sbz%dosw,1,dosw,1) 
+       ef0=sbz%ef
+       def=sbz%def
+
+Cgetarg...info...           integer :: oqp , integer(8) :: sbz%oqp 1
+Cgetarg...info...           integer :: owtkp , integer(8) :: sbz%owtkp 1
+Cgetarg       call upack('bz oqp owtkp',sbz,oqp,owtkp,0,0,0)
+       
+       oqp=sbz%oqp
+       owtkp=sbz%owtkp
+
       ltet = ntet .gt. 0
       lwndow = cmdopt('--window=',9,0,strn)
       if (lwndow) then
@@ -519,7 +637,9 @@ c      stop 'xxxxxxxxxxxxxxx'
       endif
 C     Always need DOS if just sampling
       if (lmet .ne. 0 .and. .not. ltet) ldos=1
-      qbg = dgets('ctrl zbak',sctrl)
+Cgetarg       qbg = dgets('ctrl zbak',sctrl)
+       qbg = sctrl%zbak(1) 
+
       alfa = 0
 
 C     Switch to plot bands at specified qp
@@ -671,7 +791,9 @@ C
 C         goto 50
 C       endif
 
-      elind = dgets('ham elind',sham)
+Cgetarg       elind = dgets('ham elind',sham)
+       elind = sham%elind 
+
       if (elind .lt. 0d0)
      .  elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
       dmxp(33) = elind
@@ -768,7 +890,13 @@ Cki  ifiese default value is not set.  set it to 0
 
       if(llmfgw) then
 C --- GW driver ---
-      call upack2('pot osgw nlma',spot,osgw,nchan)
+Cgetarg...info...           integer :: osgw , integer(8) :: spot%osgw 1
+Cgetarg...info...           integer :: nchan , integer(8) :: spot%nlma 1
+Cgetarg       call upack2('pot osgw nlma',spot,osgw,nchan)
+       
+       osgw=spot%osgw
+       nchan=spot%nlma
+
 C ... Modes 0..4
       call sugw(ssite,sspec,slat,sham,nbas,ndham,
      .  w(osmpot),vconst,lcplxp,osig,otau,oppi,w(oppnl),vrmt,
@@ -802,7 +930,9 @@ C --- Start loop over k points; also, re-entry for second band pass ---
       endif
 
 C --- Setup moments file : write header ---
-      nl = igets('ctrl nl',sctrl)
+Cgetarg       nl = igets('ctrl nl',sctrl)
+       nl = int(sctrl%nl) 
+
       nfilem = 0
       if (procid .eq. master) then
         nfilem = fopna('moms',-1,4)
@@ -815,7 +945,11 @@ C     if (cmdopt('--pdos',6,0,strn)) nfilem = fopna('moms',-1,4)
 C   ... If switch '--mull'; get sites, number of channels
         if (cmdopt('--mull',6,0,strn)) then
           mulopt = strn(7:)
-          call upack('lat nsgrp',slat,ng,0,0,0,0)
+Cgetarg...info...           integer :: ng , integer(8) :: slat%nsgrp 1
+Cgetarg           call upack('lat nsgrp',slat,ng,0,0,0,0)
+           
+           ng=slat%nsgrp
+
           efmax = 1d3
           nevmx = ndhamx
           nchmx = min(1024,nbas*nl**2)
@@ -828,7 +962,11 @@ C   ... If switch '--mull'; get sites, number of channels
 C   ... If switch '--pdos'; get sites, number of channels
         if (cmdopt('--pdos',6,0,strn)) then
           mulopt = strn(7:)
-          call upack('lat nsgrp',slat,ng,0,0,0,0)
+Cgetarg...info...           integer :: ng , integer(8) :: slat%nsgrp 1
+Cgetarg           call upack('lat nsgrp',slat,ng,0,0,0,0)
+           
+           ng=slat%nsgrp
+
           nchmx = min(1024,nbas*nl**2)
           call defi(ochan,nchmx)
           nll = 0
@@ -995,8 +1133,18 @@ c this must be used for the case of QSGW.
       if(sigmamode.and.iter==1) then
 c takao to get all qp. I think suqlst looks too complicated...
 c this block is just to get list of qp. suqlst should be cleaned up in future.
-        call upack('ctrl nbasp nl',sctrl,nbasp,nl,0,0,0)
-        call upack('ham oindxo',sham,oidxsh,0,0,0,0)
+Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg         call upack('ctrl nbasp nl',sctrl,nbasp,nl,0,0,0)
+         
+         nbasp=sctrl%nbasp
+         nl=sctrl%nl
+
+Cgetarg...info...           integer :: oidxsh , integer(8) :: sham%oindxo 1
+Cgetarg         call upack('ham oindxo',sham,oidxsh,0,0,0,0)
+         
+         oidxsh=sham%oindxo
+
         print *,'goto gen_hamindex nkp=',nkp
         call gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbasp,w(oidxsh),ldim,qplist,nkp,siginit)
         write(6,*)
@@ -1004,8 +1152,16 @@ c this block is just to get list of qp. suqlst should be cleaned up in future.
         write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
         do  iorb = 1, norbt
           ib = ibastab(iorb)
-          call upack('site spec',ssite,ib,is,0,0,0)
-          call spacks(0,'spec name',sspec,spid,is,is)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg           call upack('site spec',ssite,ib,is,0,0,0)
+           
+           is=ssite(ib)%spec
+
+Cgetarg           call spacks(0,'spec name',sspec,spid,is,is)
+           do i_spacks=is,is 
+           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+           enddo
+
           write(6,"(3i3,2x,2i5,3x,a)") 
      &    ib,ltab(iorb),ktab(iorb), 
      &    offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
@@ -1087,7 +1243,11 @@ c      call pairtakao(2,pos,nbas,plat,nknknk,npair, npairmx,range, nlat,qwgt)
 c      deallocate(range)
 c
         allocate(npair(nbas,nbas),pos(3,nbas))
-        call upack2('lat opos',slat,opos,0)
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg         call upack2('lat opos',slat,opos,0)
+         
+         opos=slat%opos
+
         call dcopy(nbas*3,w(opos),1,pos,1)
         npairmx=nk1*nk2*nk3*2
         do 
@@ -1239,7 +1399,13 @@ C   ... For this qp, G vectors for PW basis and hamiltonian dimension
          ndimhx = ndimh*nspc !this is iq-dependent.
 
 C   ... Make Hamiltonian and overlap matrices
-         call upack2('ham nqsig oqsig',sham,nqsig,oqsig)
+Cgetarg...info...           integer :: nqsig , integer(8) :: sham%nqsig 1
+Cgetarg...info...           integer :: oqsig , integer(8) :: sham%oqsig 1
+Cgetarg          call upack2('ham nqsig oqsig',sham,nqsig,oqsig)
+          
+          nqsig=sham%nqsig
+          oqsig=sham%oqsig
+
          if (oqsig .eq. 0) oqsig = 1
 
          ispc = min(isp,nspc) !nspc=2 for non-colinier case
@@ -1852,7 +2018,11 @@ C   --- Mulliken analysis and partial DOS ---
           call rxx(nev.ne.ndimhx,'Mulliken requires all eigenvectors')
           call rxx(nevmx.ne.ndhamx,'Mulliken requires nevmx=nhdamx')
           call defrr(odoswt,-nchan*nevmx*nspc)
-          call upack('ham oindxo',sham,oiprmb,0,0,0,0)
+Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
+Cgetarg           call upack('ham oindxo',sham,oiprmb,0,0,0,0)
+           
+           oiprmb=sham%oindxo
+
           call mullmf(nbas,ssite,sspec,w(oiprmb),w(ot),ndimh,nspc,
      .                iq,jsp,moddos,nsites,lsites,lmxch,nchan,w(ochan),
      .                lmdim,ndham,w(odoswt))
@@ -1894,7 +2064,9 @@ C   ... Make new density matrix dmatu for LDA+U
         if (nlibu .gt. 0 .and. nev .gt. 0) then
           if (lwtkb .eq. 0)
      .      call rx('metal weights required for LDA+U calculation')
-          nl = igets('ctrl nl',sctrl)
+Cgetarg           nl = igets('ctrl nl',sctrl)
+           nl = int(sctrl%nl) 
+
           nlmax = nl*nl
           call defrr(oausu,-2*nlmax*ndhamx*3*nsp*nbas)
           call makusq(0,ssite,sspec,slat,sham,nbas,nbas,0,nlmax,ndham,
@@ -2060,8 +2232,18 @@ C     Allreduce density-related quantities
 C     Allreduce qkkl
       nkaph = nglob('nkaph')
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg         call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
+         
+         lmxa=sspec(is)%lmxa
+         lmxh=sspec(is)%lmxb
+         kmax=sspec(is)%kmxt
+
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
         if (lmxa .gt. -1) then
@@ -2089,9 +2271,19 @@ C     Allreduce DOS, forces, dmatu, orbtm
      .  call mpibc2(w(oorbtm),nl*nsp*nbas,4,mlog,'bndfp','orbtm')
       endif
       if (lpdiag .eq. 2 .and. plbnd .eq. 0) then
-        call upack1('ham eterms',sham,eterms)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg         call upack1('ham eterms',sham,eterms)
+         
+         i_copy_size=size(sham%eterms) 
+         call dcopy(i_copy_size,sham%eterms,1,eterms,1) 
+
         call mpibc2(eterms(19),1,4,mlog,'bndfp','rhosig')
-        call pack1('ham eterms',sham,eterms)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg         call pack1('ham eterms',sham,eterms)
+         
+         i_copy_size=size(sham%eterms) 
+         call dcopy(i_copy_size,eterms,1,sham%eterms,1) 
+
       endif
 
       entime = MPI_WTIME()
@@ -2260,7 +2452,12 @@ c###### second loop over qp (parallel k-points mode)
 C     For now, SO by site, not by class
       if (lwtkb .eq. 1 .and. lso .ne. 0) then
         call defi(oips,nbas)
-        call spackv(10,'site spec',ssite,1,nbas,w(oips))
+Cgetarg         call spackv(10,'site spec',ssite,1,nbas,w(oips))
+         i_copy_size=1; 
+         do i_spackv=1,nbas 
+         call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+         enddo
+
         call iorbtm(sspec,w(oips),nl,nl,nbas,nsp,w(oorbtm))
         call rlse(oips)
       endif
@@ -2300,7 +2497,18 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
      .         ' use:   sev=',f12.6,'   ef=',f12.6)
         if (ipl.gt.0) write (stdl,733) ef00,eferm,ef0,sev00,sev1,sev
   733   format('nf EF:',3f9.5,'    EB:',3f12.5)
-        call pack5('bz ndos dosw ef def',sbz,ndos,dosw,ef0,def,0)
+Cgetarg...info...           integer :: ndos , integer(8) :: sbz%ndos 1
+Cgetarg...info...           real(8) :: dosw(2) , real(8) :: sbz%dosw 2
+Cgetarg...info...           real(8) :: ef0 , real(8) :: sbz%ef 1
+Cgetarg...info...           real(8) :: def , real(8) :: sbz%def 1
+Cgetarg         call pack5('bz ndos dosw ef def',sbz,ndos,dosw,ef0,def,0)
+         
+         sbz%ndos=ndos 
+         i_copy_size=size(sbz%dosw) 
+         call dcopy(i_copy_size,dosw,1,sbz%dosw,1) 
+         sbz%ef=ef0 
+         sbz%def=def 
+
         if (lrep .eq. 1) then
           ef0 = -1
           call awrit0('Input Fermi energy was too far off, '//
@@ -2338,7 +2546,13 @@ C         Store val charge & magnetic moment in sumqv(1..2)
           endif
         endif
         if (lmet .ne. 4) ef0 = eferm
-        if (lmet .ne. 4) call pack1('bz ef',sbz,ef0)
+Cgetarg...info...           real(8) :: ef0 , real(8) :: sbz%ef 1
+Cgetarg         if (lmet .ne. 4) call pack1('bz ef',sbz,ef0)
+         if ( lmet .ne. 4 ) then 
+         
+         sbz%ef=ef0 
+         endif 
+
         if (lmet .gt. 0) then
           if (procid .eq. master) then
             ifi = fopna('wkp',-1,4)
@@ -2406,8 +2620,14 @@ C ... Average forces so net force on system is zero (APW case)
 
 C --- Generate DOS on disk ---
       if (.not. lwndow) then
-      call upack('bz ndos',sbz,ndos0,0,0,0,0)
-      if (lgors('ctrl ldos,1',sctrl)) then
+Cgetarg...info...           integer :: ndos0 , integer(8) :: sbz%ndos 1
+Cgetarg       call upack('bz ndos',sbz,ndos0,0,0,0,0)
+       
+       ndos0=sbz%ndos
+
+Cgetarg       if (lgors('ctrl ldos,1',sctrl)) then
+       if ( iand(1,int(sctrl%ldos)) .ne.0 ) then 
+
         call defdr(odos,3*ndos)
         if (iprint() .ge. 30) call awrit1('%x%N ... Generating %?#n<0#'
      .    //'integrated#total# DOS',' ',80,lgunit(1),ndos0)
@@ -2439,7 +2659,11 @@ C --- Generate DOS on disk ---
 C --- Core-level spectroscopy ---
       if (icls .ne. 0) then
         if (procid .eq. master) then
-          call upack1('bz ef',sbz,eferm)
+Cgetarg...info...           real(8) :: eferm , real(8) :: sbz%ef 1
+Cgetarg           call upack1('bz ef',sbz,eferm)
+           
+           eferm=sbz%ef
+
           call vcdmel(sctrl,ssite,sspec,slat,nlmax,ndham,ndimh,nkp,nsp,
      .      nspc,eferm,w(oevl),w(oausc),nsites,isite,iclsl,iclsn)
           call rx0('done generating core level spectra')
@@ -2472,8 +2696,18 @@ C   ... Symmetrize output density and forces
 C   ... New boundary conditions pnu for phi and phidot
 C       call pshpr(iprint()-12)
         if (lpnu .gt. 0) then
-          call upack1('ham pmin',sham,xv)
-          call upack1('ham pmax',sham,xv(11))
+Cgetarg...info...           real(8) :: xv(20) , real(8) :: sham%pmin 10
+Cgetarg           call upack1('ham pmin',sham,xv)
+           
+           i_copy_size=size(sham%pmin) 
+           call dcopy(i_copy_size,sham%pmin,1,xv,1) 
+
+Cgetarg...info...           real(8) :: xv(20) , real(8) :: sham%pmax 10
+Cgetarg           call upack1('ham pmax',sham,xv(11))
+           
+           i_copy_size=size(sham%pmax) 
+           call dcopy(i_copy_size,sham%pmax,1,xv(11),1) 
+
           call pnunew(nbas,nsp,ssite,sspec,xv,xv(11),lfrzw,w(ohab),
      .      w(osab),w(oqbyl),w(ohbyl))
         endif
@@ -2573,7 +2807,13 @@ ccccccccccccccccccccccccc
       else
         eks = 0
       endif
-      call pack2('ham ehf ehk',sham,ehar,eks)
+Cgetarg...info...           real(8) :: ehar , real(8) :: sham%ehf 1
+Cgetarg...info...           real(8) :: eks , real(8) :: sham%ehk 1
+Cgetarg       call pack2('ham ehf ehk',sham,ehar,eks)
+       
+       sham%ehf=ehar 
+       sham%ehk=eks 
+
 
   999 continue
       call rlse(oqmom)
@@ -2583,12 +2823,15 @@ ctakaox june2009
 Cki
       if ( ifiese>0 ) close(ifiese)
       call xxxbfp ! Patch to avoid PGI compiler bug on AMD processor
-      end
+Cgetarg       end
+       end subroutine bndfp 
+
 
 
 
 #if MPIK
       subroutine xmpbnd(kpproc,ndham,nkp,nsp,eb)
+
 C- Collect eb from various processors (MPI)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -2648,8 +2891,13 @@ C      if (procid .eq. master) then
 C        print *, procid,eb(1,1),eb(1,nsp*nkp)
 C      endif
 C      call rx('done')
-      end
+Cgetarg       end
+       end subroutine xmpbnd 
+
 #endif
       subroutine xxxbfp
-      end
+
+Cgetarg       end
+       end subroutine xxxbfp 
+
 

@@ -1,6 +1,13 @@
+Cgetarg...info...           structure ['hambl', 'ham', 'sham']
+Cgetarg...info...           structure ['pvhmb1', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['hambl', 'm_struc_def']
+Cgetarg...info...           use_to_add ['pvhmb1', 'm_struc_def']
       subroutine hambl(mode,nbas,ssite,sspec,slat,sham,isp,q,k1,k2,k3,
      .  smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
      .  h,s,hso)
+       
+       use m_struc_def  !Cgetarg
+
 C- Make the LDA hamiltonian and overlap for one k-point.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -62,7 +69,13 @@ C ... Passed parameters
       integer mode,nbas,isp,k1,k2,k3,ndimh,lcplxp,napw,igvapw(3,napw)
       integer osig(3,nbas),otau(3,nbas),oppi(3,nbas)
       double precision alfa
-      double precision ssite(1),sspec(1),sham(1),slat(1),q(3),vconst
+Cgetarg       double precision ssite(1),sspec(1),sham(1),slat(1),q(3),vconst
+       real(8):: q(3) , vconst 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_ham)::sham
+       type(s_lat)::slat
+
       double complex smpot(k1,k2,k3),h(ndimh,ndimh),s(ndimh,ndimh)
       double complex hso(ndimh,ndimh)
 C ... Local parameters
@@ -81,7 +94,11 @@ C ... Heap
       call tcn('hambl')
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
-      call upack('ham oindxo',sham,oiprmb,0,0,0,0)
+Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
+Cgetarg       call upack('ham oindxo',sham,oiprmb,0,0,0,0)
+       
+       oiprmb=sham%oindxo
+
 
 C ... Initialization of quantities to be computed
       if (mode0 .eq. 0) call dpzero(h,ndimh*ndimh*2)
@@ -183,9 +200,14 @@ C     call pvhmb2(ndimh,h,s)
         if (mode1 .eq. 1) call zprm('hso',2,hso,ndimh,ndimh,ndimh)
       endif
       call tcx('hambl')
-      end
+Cgetarg       end
+       end subroutine hambl 
+
 
       subroutine pvhmb1(mode,slat,k1,k2,k3,smpot,vavg)
+       
+       use m_struc_def  !Cgetarg
+
 C- Add subtract a constant from smooth potential
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -206,7 +228,9 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,k1,k2,k3
-      double precision slat(1)
+Cgetarg       double precision slat(1)
+       type(s_lat)::slat
+
       double complex smpot(k1,k2,k3)
 C ... Local parameters
       double precision vavg
@@ -214,7 +238,12 @@ C ... Local parameters
       integer ngabc(3),i
 
       if (mode .eq. 0) then
-        call upack1('lat nabc',slat,ngabc)
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg         call upack1('lat nabc',slat,ngabc)
+         
+         i_copy_size=size(slat%nabc) 
+         call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
         call mshint(1d0,1,ngabc(1),ngabc(2),ngabc(3),
      .    k1,k2,k3,smpot,vavg,xx)
       elseif (mode .eq. 1) then
@@ -224,7 +253,9 @@ C ... Local parameters
       else
         call rx('pvhmb1: bad mode')
       endif
-      end
+Cgetarg       end
+       end subroutine pvhmb1 
+
 
 C      subroutine pvhmb2(ndimh,h,s)
 CC- test routine to doctor hamiltonian
