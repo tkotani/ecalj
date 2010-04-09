@@ -1,4 +1,13 @@
+Cgetarg...info...           structure ['sfill', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['sfill', 'array', 'sarray']
+Cgetarg...info...           structure ['sfill', 'lat', 'slat']
+Cgetarg...info...           structure ['sfill', 'site', 'ssite']
+Cgetarg...info...           structure ['sfill', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['sfill', 'm_struc_def']
       subroutine sfill(sfargs,slabl,sctrl,sarray,slat,sspec,ssite)
+       
+       use m_struc_def  !Cgetarg
+
 C- Adjust sphere sizes to fill to specified fraction of cell volume
 C ----------------------------------------------------------------
 Ci Inputs
@@ -49,7 +58,13 @@ Cu   23 Apr 02  Added automatic rescaling using sclwsr.  New arg list.
 C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
-      double precision sctrl(1),sarray(1),slat(1),sspec(1),ssite(1)
+Cgetarg       double precision sctrl(1),sarray(1),slat(1),sspec(1),ssite(1)
+       type(s_ctrl)::sctrl
+       type(s_array)::sarray
+       type(s_lat)::slat
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+
       character*(*) sfargs
       character*8 slabl(*)
 C Heap:
@@ -66,14 +81,56 @@ C Local:
      .  omax2(3),fovl,vol0,vols,scale,dval,volfac
       character*8 clabl
 
-      call upack('ctrl nbas nclass nspec modep',sctrl,nbas,nclass,nspec,
-     .  modep,0)
-      call upack('array npadl npadr nclasp',sarray,npadl,npadr,nclasp,0,
-     .  0)
-      call upack('array oipc oics oclabl ormax',sarray,oipc,oics,oclabl,
-     .  ormax,0)
-      call upack('lat avw alat plat vol opos',slat,avw,alat,plat,vol,
-     .  opos)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           integer :: modep(3) , integer(8) :: sctrl%modep 3
+Cgetarg       call upack('ctrl nbas nclass nspec modep',sctrl,nbas,nclass,nspec,
+Cgetarg      .  modep,0)
+       
+       nbas=sctrl%nbas
+       nclass=sctrl%nclass
+       nspec=sctrl%nspec
+       i_copy_size=size(sctrl%modep) 
+       call i8icopy(i_copy_size,sctrl%modep,1,modep,1) 
+
+Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
+Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg       call upack('array npadl npadr nclasp',sarray,npadl,npadr,nclasp,0,
+Cgetarg      .  0)
+       
+       npadl=sarray%npadl
+       npadr=sarray%npadr
+       nclasp=sarray%nclasp
+
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
+Cgetarg       call upack('array oipc oics oclabl ormax',sarray,oipc,oics,oclabl,
+Cgetarg      .  ormax,0)
+       
+       oipc=sarray%oipc
+       oics=sarray%oics
+       oclabl=sarray%oclabl
+       ormax=sarray%ormax
+
+Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg       call upack('lat avw alat plat vol opos',slat,avw,alat,plat,vol,
+Cgetarg      .  opos)
+       
+       avw=slat%avw
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       vol=slat%vol
+       opos=slat%opos
+
       call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
       nbasp = nbas + npadl + npadr
       call getpr(ipr)
@@ -85,23 +142,58 @@ C ... Do nothing if no specifications
 
 C ... Use sclwsr
 C  10 continue
-      call upack('ctrl sclwsr omax1 omax2 wsrmax',sctrl,volfac,omax1,
-     .  omax2,wsrmax,0)
+Cgetarg...info...           real(8) :: volfac , real(8) :: sctrl%sclwsr 1
+Cgetarg...info...           real(8) :: omax1(3) , real(8) :: sctrl%omax1 3
+Cgetarg...info...           real(8) :: omax2(3) , real(8) :: sctrl%omax2 3
+Cgetarg...info...           real(8) :: wsrmax , real(8) :: sctrl%wsrmax 1
+Cgetarg       call upack('ctrl sclwsr omax1 omax2 wsrmax',sctrl,volfac,omax1,
+Cgetarg      .  omax2,wsrmax,0)
+       
+       volfac=sctrl%sclwsr
+       i_copy_size=size(sctrl%omax1) 
+       call dcopy(i_copy_size,sctrl%omax1,1,omax1,1) 
+       i_copy_size=size(sctrl%omax2) 
+       call dcopy(i_copy_size,sctrl%omax2,1,omax2,1) 
+       wsrmax=sctrl%wsrmax
+
       opt = volfac/10
       opt = 10*opt
       volfac = volfac-opt
       if (volfac .eq. 0) return
       call defrr(opos,3*nbasp)
-      call spackv(10,'site pos',ssite,1,nbasp,w(opos))
+Cgetarg       call spackv(10,'site pos',ssite,1,nbasp,w(opos))
+       i_copy_size=size(ssite(1)%pos)
+       do i_spackv=1,nbasp 
+       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+       enddo
+
       call defrr(oips,nbasp)
-      call spackv(10,'site spec',ssite,1,nbasp,w(oips))
+Cgetarg       call spackv(10,'site spec',ssite,1,nbasp,w(oips))
+       i_copy_size=1; 
+       do i_spackv=1,nbasp 
+       call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+       enddo
+
       call defrr(oz,nspec)
-      call spackv(10,'spec z',sspec,1,nspec,w(oz))
+Cgetarg       call spackv(10,'spec z',sspec,1,nspec,w(oz))
+       i_copy_size=1; 
+       do i_spackv=1,nspec 
+       call spackv_array_copy_r8_r8('u',sspec(i_spackv)%z,i_copy_size,i_spackv+1-1,w(oz))
+       enddo
+
       call defrr(ormt,nspec)
-      call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
+Cgetarg       call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
+       i_copy_size=1; 
+       do i_spackv=1,nspec 
+       call spackv_array_copy_r8_r8('u',sspec(i_spackv)%rmt,i_copy_size,i_spackv+1-1,w(ormt))
+       enddo
+
       call defi(olock,-nspec)
       do  i = 1, nspec
-        call ivset(w(olock),i,i,bitand(igetss('spec mxcst',i,sspec),2))
+Cgetarg         call ivset(w(olock),i,i,bitand(igetss('spec mxcst',i,sspec),2))
+         call ivset ( w ( olock ) , i , i , bitand ( int(sspec(i)%mxcst) 
+     .   , 2 ) ) 
+
       enddo
       i = 3
       if (modep(3) .ne. 2) i = 2
@@ -115,12 +207,21 @@ C  10 continue
       call rlse(opos)
       if (i .eq. 2) call rx('sfill needs update for 2D')
 C     Poke back into spec->rmt
-      call spackv(11,'spec rmt',sspec,1,nspec,w(ormt))
+Cgetarg       call spackv(11,'spec rmt',sspec,1,nspec,w(ormt))
+       i_copy_size=1; 
+       do i_spackv=1,nspec 
+       call spackv_array_copy_r8_r8('p',sspec(i_spackv)%rmt,i_copy_size,i_spackv+1-1,w(ormt))
+       enddo
+
 C     nclspp = max(2*nclasp-nclass,nspec)
 C     Poke back into array->rmax
       call sp2cls('spec rmt',sspec,w(oics),1,1,nclasp,ormax2)
       call dcopy(nclasp,w(ormax2),1,w(ormax),1)
-      call pack1('array ormax',sarray,ormax)
+Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
+Cgetarg       call pack1('array ormax',sarray,ormax)
+       
+       sarray%ormax=ormax 
+
       call rlse(opos)
       return
 
@@ -174,7 +275,11 @@ C ... scale <- relative change in sphere sizes to make vols = vol
 C ... Poke back into sspec
       do  120  ic = 1, nclasp
         rmax = dval(w(ormax),ic)
-        call pack2('spec rmt',sspec,ic,rmax)
+Cgetarg...info...           real(8) :: rmax , real(8) :: sspec%rmt 1
+Cgetarg         call pack2('spec rmt',sspec,ic,rmax)
+         
+         sspec(ic)%rmt=rmax 
+
   120 continue
 
       if (ipr .ge. 10) then
@@ -201,8 +306,11 @@ C ... Debugging to make sure it worked
      .  w(oipc),modep,plat,fovl,vols)
 
       call poppr
-      end
+Cgetarg       end
+       end subroutine sfill 
+
       subroutine psfil2(nclass,nlist,list,s1,rmax1,s2,rmax2,rmax)
+
 C- Copy s1*rmax1 to rmax, except for elements in list copy rmax2*scale
 C     implicit none
       integer nclass,nlist,list(nlist)
@@ -213,5 +321,7 @@ C     implicit none
       do  10  i = 1, nlist
    10 rmax(list(i)) = rmax2(list(i))*s2
 
-      end
+Cgetarg       end
+       end subroutine psfil2 
+
 

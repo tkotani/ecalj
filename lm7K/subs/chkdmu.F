@@ -1,5 +1,12 @@
+Cgetarg...info...           structure ['chkdmu', 'site', 'ssite']
+Cgetarg...info...           structure ['chkdmu', 'spec', 'sspec']
+Cgetarg...info...           structure ['chkdmu', 'ham', 'sham']
+Cgetarg...info...           use_to_add ['chkdmu', 'm_struc_def']
       subroutine chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,sham,idvsh,
      .  dmatu,dmatuo,vorb,tolu,umix,lldau,ng,g,istab)
+       
+       use m_struc_def  !Cgetarg
+
 C- LDA+U total energy and mixing of lda+U density matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -47,7 +54,11 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nsp,nlibu,lmaxu,ng,idvsh
       integer lldau(nbas),istab(nbas,ng)
-      double precision ssite(1),sspec(1),sham(1)
+Cgetarg       double precision ssite(1),sspec(1),sham(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_ham)::sham
+
       double precision tolu,umix,g(9,ng)
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex dmatuo(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
@@ -118,8 +129,23 @@ C     This block requires dmatu to be in spherical harmonics
       iblu = 0
       do  ib = 1, nbas
       if (lldau(ib) .ne. 0) then
-        is = igetss('site spec',ib,ssite)
-        call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
+Cgetarg...info...           real(8) :: uh(4) , real(8) :: sspec%uh 4
+Cgetarg...info...           real(8) :: jh(4) , real(8) :: sspec%jh 4
+Cgetarg         call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
+         
+         lmxa=sspec(is)%lmxa
+         i_copy_size=size(sspec(is)%idu) 
+         call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+         i_copy_size=size(sspec(is)%uh) 
+         call dcopy(i_copy_size,sspec(is)%uh,1,uh,1) 
+         i_copy_size=size(sspec(is)%jh) 
+         call dcopy(i_copy_size,sspec(is)%jh,1,jh,1) 
+
         do  l = 0, min(lmxa,3)
           if (idu(l+1) .ne. 0) then
             iblu = iblu+1
@@ -133,9 +159,21 @@ C     This block requires dmatu to be in spherical harmonics
       enddo
 
 C --- LDA total energy terms ---
-      call upack1('ham eterms',sham,eterms)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call upack1('ham eterms',sham,eterms)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,sham%eterms,1,eterms,1) 
+
       eks = eks + eorb
-      call pack5('ham ehk eterms',sham,eks,eterms,0,0,0)
+Cgetarg...info...           real(8) :: eks , real(8) :: sham%ehk 1
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call pack5('ham ehk eterms',sham,eks,eterms,0,0,0)
+       
+       sham%ehk=eks 
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,eterms,1,sham%eterms,1) 
+
       call info5(20,0,0,'%9peks = %,6;6d  '//
      .  'e[U] = %,6;6d  Etot(LDA+U) = %,6;6d',eks-eorb,eorb,eks,0,0)
       if (mpipid(1) .eq. 0 .and. ipl.gt.0)
@@ -176,8 +214,23 @@ C       This block requires dmatu to be in spherical harmonics
         iblu = 0
         do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
-          is = igetss('site spec',ib,ssite)
-          call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
+Cgetarg           is = igetss('site spec',ib,ssite)
+           is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
+Cgetarg...info...           real(8) :: uh(4) , real(8) :: sspec%uh 4
+Cgetarg...info...           real(8) :: jh(4) , real(8) :: sspec%jh 4
+Cgetarg           call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
+           
+           lmxa=sspec(is)%lmxa
+           i_copy_size=size(sspec(is)%idu) 
+           call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+           i_copy_size=size(sspec(is)%uh) 
+           call dcopy(i_copy_size,sspec(is)%uh,1,uh,1) 
+           i_copy_size=size(sspec(is)%jh) 
+           call dcopy(i_copy_size,sspec(is)%jh,1,jh,1) 
+
           do  l = 0, min(lmxa,3)
             if (idu(l+1) .ne. 0) then
               iblu = iblu+1
@@ -231,5 +284,7 @@ C   ... Exit with dmatu, vorb in real harmonics, depending on idvsh
 
       endif
 
-      end
+Cgetarg       end
+       end subroutine chkdmu 
+
 

@@ -2,6 +2,7 @@
      . prgnam,vrsion,vn,vn2,
      . pass2,slabl_,osbz,osctrl,osham,ospot,oslat,osmix,osspec,ossite,
      . osstr,osarry,osmove,ostb,sstrn)
+
 C- Main input for LMTO programs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -236,5 +237,7 @@ C --- Read input parameters from contents of rcd ---
       call readctrl67(rcd,prgn,vrsion(1),vn(1))
       call rx0('done')
 
-      end
+Cgetarg       end
+       end subroutine rdctrlchk 
+
 

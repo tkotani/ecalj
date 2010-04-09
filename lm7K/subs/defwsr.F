@@ -1,4 +1,5 @@
       subroutine defwsr(wsr,z)
+
 C- Returns default value of radii for given nuclear charge
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -47,5 +48,7 @@ C Data statements:
       if (iprint() .ge. 120) write(lgunit(1),300) iz,wsr
 
   300 format(/' DEFWSR: default radius for z=',i2,': ',f8.2)
-      end
+Cgetarg       end
+       end subroutine defwsr 
+
 

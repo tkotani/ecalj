@@ -1,4 +1,9 @@
+Cgetarg...info...           structure ['clsset', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['clsset', 'm_struc_def']
       subroutine clsset(mode,slat,nbas,pos,ncl,clssl,cllst,clord,clp)
+       
+       use m_struc_def  !Cgetarg
+
 C- Groups all sites in a crystal into clusters
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -30,7 +35,10 @@ C     implicit none
       integer nclp
       parameter (nclp=9)
       integer mode,nbas,clssl(nbas),cllst(nbas),clord(nbas),clp(nclp,1)
-      double precision slat(1),pos(3,nbas)
+Cgetarg       double precision slat(1),pos(3,nbas)
+       real(8):: pos(3,nbas) 
+       type(s_lat)::slat
+
 C Local variables
       logical lrat,pvclst
       integer lgunit,m,k,i,ib,ipr,ipose(3),i1mach,ndig,ndigi,
@@ -45,14 +53,24 @@ C heap:
       common /w/ w
 
 C ... Setup
-      call upack1('lat plat',slat,plat)
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg       call upack1('lat plat',slat,plat)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
       lrat = mod(mode/10,10) .ne. 0
       call getpr(ipr)
 
 C --- Divide total cell into microcells ---
       if (mod(mode,10) .eq. 0) then
       elseif (mod(mode,10) .eq. 1) then
-        call upack1('lat plate',slat,plate)
+Cgetarg...info...           real(8) :: plate(3,3) , real(8) :: slat%plate 9
+Cgetarg         call upack1('lat plate',slat,plate)
+         
+         i_copy_size=size(slat%plate) 
+         call dcopy(i_copy_size,slat%plate,1,plate,1) 
+
 
 C   ... Determine supercell size
         call dinv33(plat,1,qlat,vol)
@@ -172,8 +190,11 @@ C ... Re-order clssl
       call icopy(nbas,w(ow),1,clssl,1)
 C     call awrit2(' clssl: %n:1i',' ',255,lgunit(1),nbas,clssl)
 
-      end
+Cgetarg       end
+       end subroutine clsset 
+
       logical function pvclst(nbas,pose,clssl,clord)
+
 C- Attempt to combine clusters
 C     implicit none
       integer nbas,clssl(nbas),clord(nbas)
@@ -223,8 +244,11 @@ C     ... resort the group
 
       call rx('bug in pvclst')
 
-      end
+Cgetarg       end
+       end function pvclst 
+
       subroutine clsctr(nbas,bas,clssl,clord,ncltab,cllst,ctr)
+
 C- Makes cluster list and center of gravity
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -304,5 +328,7 @@ c       print 332, icl, ncli, (ctr(ix,kb), ix=1,3)
         endif
    30 continue
 
-      end
+Cgetarg       end
+       end subroutine clsctr 
+
 

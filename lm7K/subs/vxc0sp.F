@@ -1,4 +1,6 @@
       subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
+
+
 C- Adds xc part to spherical potential, makes integrals rmu and rep
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -169,5 +171,7 @@ C --- Undo background rho for purposes of calculating vxc ---
      .  print 335, '  ', repl(1)+repl(2), rmul(1)+rmul(2),
      .  rep(1)+rep(2)-repl(1)-repl(2), rmu(1)+rmu(2)-rmul(1)-rmul(2)
 
-      end
+Cgetarg       end
+       end subroutine vxc0sp 
+
 

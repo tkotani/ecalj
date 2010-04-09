@@ -1,5 +1,10 @@
+Cgetarg...info...           structure ['makidx', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['makidx', 'm_struc_def']
       subroutine makidx(nl,nkaph,ib1,ib2,iprma,sspec,ips,offH,iprmb,
      .  ldham)
+       
+       use m_struc_def  !Cgetarg
+
 C- Makes hamiltonian offsets and permutation indices
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -134,7 +139,9 @@ Cu    4 May 98 Bug fix.  Now requires priorities to be numbered 1..3
 C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
-      double precision sspec(1)
+Cgetarg       double precision sspec(1)
+       type(s_spec)::sspec(*)
+
       integer nl,nkaph,ib1,ib2,nkap0,n0,n0H,ips(ib2),iprma(ib2)
       parameter (nkap0=3,n0=10,n0H=5)
       integer offh(n0H,nkap0,4),iprmb(*),ldham(4)
@@ -180,7 +187,16 @@ C --- For each site ib = ib1 ... ib2, make offH(ib) ---
           ibp1 = jb+1
         endif
         is = ips(ib)
-        call upack('spec idxdn lmxb lmxa',sspec,is,idxdn,lmxb,lmxa,0)
+Cgetarg...info...           integer :: idxdn(n0,nkap0) , integer(8) :: sspec%idxdn 30
+Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg         call upack('spec idxdn lmxb lmxa',sspec,is,idxdn,lmxb,lmxa,0)
+         
+         i_copy_size=size(sspec(is)%idxdn) 
+         call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1) 
+         lmxb=sspec(is)%lmxb
+         lmxa=sspec(is)%lmxa
+
 C       orbs > lmxb always high; orbs > lmxa always neglected
         do  ik = 1, nkaph
         do  l = lmxb+1, nl-1
@@ -189,7 +205,12 @@ C       orbs > lmxb always high; orbs > lmxa always neglected
      .      idxdn(l+1,ik) = 4
         enddo
         enddo
-        call pack2('spec idxdn',sspec,is,idxdn)
+Cgetarg...info...           integer :: idxdn(n0,nkap0) , integer(8) :: sspec%idxdn 30
+Cgetarg         call pack2('spec idxdn',sspec,is,idxdn)
+         
+         i_copy_size=size(sspec(is)%idxdn) 
+         call ii8copy(i_copy_size,idxdn,1,sspec(is)%idxdn,1) 
+
         call iinit(ndimi,n0H*nkap0)
         if (nl .gt. n0) call rx('makidx need more space for idxdn')
 
@@ -271,7 +292,12 @@ C       iposn = 0
           endif
           is = ips(ib)
           iposn = mxorb*(ib-1)
-          call upack2('spec idxdn',sspec,is,idxdn)
+Cgetarg...info...           integer :: idxdn(n0,nkap0) , integer(8) :: sspec%idxdn 30
+Cgetarg           call upack2('spec idxdn',sspec,is,idxdn)
+           
+           i_copy_size=size(sspec(is)%idxdn) 
+           call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1) 
+
           do  111 ik = 1, nkaph
           do  111  l = 0, nl-1
             lx = iabs(idxpr(idxdn(l+1,ik))) .eq. iprior .or.
@@ -342,8 +368,11 @@ C        print '(6i5)', ib, ik, m, i, iprmb(i)
 C  210 continue
 C      call rx('done')
 
-      end
+Cgetarg       end
+       end subroutine makidx 
+
       subroutine mkidx2(nl,maxp,idxdn,ltab,ndimi,outs)
+
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   nl    :(global maximum l) + 1
@@ -405,8 +434,11 @@ C     offH(iprior,1,ibp1) = offH(iprior,1,ibp1) + ndim
       i2 = i2-1
       goto 11
 
-      end
+Cgetarg       end
+       end subroutine mkidx2 
+
       integer function idxpr(idxdn)
+
 C- Given a value idxdn, assign priority to orbital (kernel called by makidx)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -457,5 +489,7 @@ C ... Local parameters
         call rxi('makidx: bad idxdn',idxdn)
       endif
 
-      end
+Cgetarg       end
+       end function idxpr 
+
 

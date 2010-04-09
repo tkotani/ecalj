@@ -1,5 +1,10 @@
+Cgetarg...info...           structure ['suemph', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['suemph', 'm_struc_def']
       subroutine suemph(sspec,hamrul,ntab,iax,rtab,nbas,nttab,ips,
      .  ntype,ltype,htype,esite,isite,epair,ipair)
+       
+       use m_struc_def  !Cgetarg
+
 C- Assemble the coefficients to an empirical hamiltonian
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -91,7 +96,10 @@ C Passed parameters
      .  isite(nbas),ipair(nttab),ltype(2),ntype(2)
       parameter (niax=10)
       integer iax(niax,1)
-      double precision rtab(3,1),esite(nbas),epair(nttab),sspec(1)
+Cgetarg       double precision rtab(3,1),esite(nbas),epair(nttab),sspec(1)
+       real(8):: rtab(3,1) , esite(nbas) , epair(nttab) 
+       type(s_spec)::sspec(*)
+
       character hamrul*(*),htype(2)*5
 C Local parameters
       integer mxexpr
@@ -176,7 +184,9 @@ C   --- On-site: assign this hamiltonian to sites matching rule ---
 C     ... The interaction is already defined for this site
           if (isite(ib1) .ne. 0) goto 10
           is1 = ips(ib1)
-          zs1 = dgetss('spec z',is1,sspec)
+Cgetarg           zs1 = dgetss('spec z',is1,sspec)
+           zs1 = (sspec(is1)%z) 
+
           call lodsyv('ib1',1,dble(ib1),ival)
           call lodsyv('is1',1,dble(is1),ival)
           call lodsyv('zs1',1,zs1,ival)
@@ -211,8 +221,12 @@ C     ... Load the variables table with pair-specific information
           if (d .lt. 1d-6) goto 20
           is1 = ips(ib1)
           is2 = ips(ib2)
-          zs1 = dgetss('spec z',is1,sspec)
-          zs2 = dgetss('spec z',is2,sspec)
+Cgetarg           zs1 = dgetss('spec z',is1,sspec)
+           zs1 = (sspec(is1)%z) 
+
+Cgetarg           zs2 = dgetss('spec z',is2,sspec)
+           zs2 = (sspec(is2)%z) 
+
           call lodsyv('ib1',1,dble(ib1),ival)
           call lodsyv('ib2',1,dble(ib2),ival)
           call lodsyv('is1',1,dble(is1),ival)
@@ -281,7 +295,11 @@ C --- Cleanup and printout ---
       print 331
   331 format(/' One-center hamiltonian:'/'  site           h1')
       do  114  ib1 = 1, nbas
-        call spacks(0,'spec name',sspec,alabl,ips(ib1),ips(ib1))
+Cgetarg         call spacks(0,'spec name',sspec,alabl,ips(ib1),ips(ib1))
+         do i_spacks=ips(ib1),ips(ib1) 
+         call spacks_copy('u',sspec(i_spacks)%name,ips(ib1),ips(ib1),alabl,i_spacks)
+         enddo
+
         call awrit3('%x%,4i('//alabl//'%a)%10p%;12,6D(%i)',
      .    outs,80,0,ib1,esite(ib1),isite(ib1))
         call locase(outs)
@@ -297,7 +315,11 @@ C --- Cleanup and printout ---
       if (ipr .ge. 45) print 333
   333 format('  pair   ib        jb          d          h2')
       do  124  ib1 = 1, nbas
-        call spacks(0,'spec name',sspec,alabl,ips(ib1),ips(ib1))
+Cgetarg         call spacks(0,'spec name',sspec,alabl,ips(ib1),ips(ib1))
+         do i_spacks=ips(ib1),ips(ib1) 
+         call spacks_copy('u',sspec(i_spacks)%name,ips(ib1),ips(ib1),alabl,i_spacks)
+         enddo
+
         if (ipr .ge. 40) then
           j = 0
           dshell = 0
@@ -326,7 +348,11 @@ C --- Cleanup and printout ---
         if (ipr .ge. 45) then
           do  128  i = ntab(ib1)+1, ntab(ib1+1)
           ib2 = iax(2,i)
-          call spacks(0,'spec name',sspec,alabl2,ips(ib2),ips(ib2))
+Cgetarg           call spacks(0,'spec name',sspec,alabl2,ips(ib2),ips(ib2))
+           do i_spacks=ips(ib2),ips(ib2) 
+           call spacks_copy('u',sspec(i_spacks)%name,ips(ib2),ips(ib2),alabl2,i_spacks)
+           enddo
+
           d   = dsqrt(rtab(1,i)**2 + rtab(2,i)**2 + rtab(3,i)**2)
           outs = ' '
           call awrit6('%,4i%,4i('//alabl//'%a)%14p%,5i('//alabl2//
@@ -342,5 +368,7 @@ C --- Cleanup and printout ---
 
       call rxx(lquit,'suemph: incomplete hamiltonian')
 
-      end
+Cgetarg       end
+       end subroutine suemph 
+
 

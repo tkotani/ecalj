@@ -1,7 +1,12 @@
+Cgetarg...info...           structure ['findes', 'ctrl', 'sctrl']
+Cgetarg...info...           use_to_add ['findes', 'm_struc_def']
 C     This series of subroutines was adapted from the Stuttgart package
 C     to facilitate finding empty spheres on a lattice.
       subroutine findes(sctrl,alat,dclabl,nbas,nclass,nl,
      .  nrclas,mxclas,nsymop,obas,oiclas,plat,symopm,symopv,lock,wsr,z)
+       
+       use m_struc_def  !Cgetarg
+
 C- Finds position and radius of possible empty spheres
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -57,8 +62,12 @@ C     implicit none
 C Passed variables:
       integer nbas,nclass,nl,nrclas(*),nsymop,mxclas,lock(nclass)
       integer obas,oiclas
-      double precision sctrl(1),alat,plat(3,3),
-     .  symopm(*),symopv(*),wsr(nclass),z(nclass)
+Cgetarg       double precision sctrl(1),alat,plat(3,3),
+Cgetarg      .  symopm(*),symopv(*),wsr(nclass),z(nclass)
+       real(8):: alat , plat(3,3) , symopm(*) , symopv(*) , wsr(nclass) 
+     . , z(nclass) 
+       type(s_ctrl)::sctrl
+
       double precision dclabl(nclass)
 C Local variables:
       integer ic,idamax,ierr,iprint,jmax(3),jmin(3),
@@ -85,11 +94,37 @@ C      call cpusrt('FES ',.false.)
 
 C --- Setup ---
       stdo = nglob('stdo')
-      call upack('ctrl nesabc rmines rmaxes',sctrl,nrxyz,rmines,rmaxes,
-     .  0,0)
-      call upack('ctrl modep',sctrl,modep,0,0,0,0)
-      call upack('ctrl sclwsr omax1 omax2 wsrmax',sctrl,facvol,omax1,
-     .  omax2,wsmax,0)
+Cgetarg...info...           integer :: nrxyz(3) , integer(8) :: sctrl%nesabc 3
+Cgetarg...info...           real(8) :: rmines , real(8) :: sctrl%rmines 1
+Cgetarg...info...           real(8) :: rmaxes , real(8) :: sctrl%rmaxes 1
+Cgetarg       call upack('ctrl nesabc rmines rmaxes',sctrl,nrxyz,rmines,rmaxes,
+Cgetarg      .  0,0)
+       
+       i_copy_size=size(sctrl%nesabc) 
+       call i8icopy(i_copy_size,sctrl%nesabc,1,nrxyz,1) 
+       rmines=sctrl%rmines
+       rmaxes=sctrl%rmaxes
+
+Cgetarg...info...           integer :: modep(3) , integer(8) :: sctrl%modep 3
+Cgetarg       call upack('ctrl modep',sctrl,modep,0,0,0,0)
+       
+       i_copy_size=size(sctrl%modep) 
+       call i8icopy(i_copy_size,sctrl%modep,1,modep,1) 
+
+Cgetarg...info...           real(8) :: facvol , real(8) :: sctrl%sclwsr 1
+Cgetarg...info...           real(8) :: omax1(3) , real(8) :: sctrl%omax1 3
+Cgetarg...info...           real(8) :: omax2(3) , real(8) :: sctrl%omax2 3
+Cgetarg...info...           real(8) :: wsmax , real(8) :: sctrl%wsrmax 1
+Cgetarg       call upack('ctrl sclwsr omax1 omax2 wsrmax',sctrl,facvol,omax1,
+Cgetarg      .  omax2,wsmax,0)
+       
+       facvol=sctrl%sclwsr
+       i_copy_size=size(sctrl%omax1) 
+       call dcopy(i_copy_size,sctrl%omax1,1,omax1,1) 
+       i_copy_size=size(sctrl%omax2) 
+       call dcopy(i_copy_size,sctrl%omax2,1,omax2,1) 
+       wsmax=sctrl%wsrmax
+
       if (facvol .eq. 0) facvol = 1
       call info2(10,1,0,' --- FINDES : find new empty spheres'//
      .    '%?#n#  Constrain rmax<=%d## --- ',isw(wsmax.ne.0),wsmax)
@@ -240,10 +275,13 @@ C ... Printout
   306 format(/72('='))
   303 format(/' FINDES:  new class: ',a8,', WSR=',f7.5,', class no',i4)
 
-      end
+Cgetarg       end
+       end subroutine findes 
+
 
       subroutine symes(alat,bas,bases,clabl,iclass,nbas,nrxyz,nsymop,
      .                 plat,qlat,symopm,symopv,wsr,wsres)
+
 C- Tries to move bases to a high-symmetry point
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -406,9 +444,12 @@ C ----- Now examine merged sphere, get deses,desat
 307   format(' SYMES : DB=',f7.5,', TOLWSR=',f7.5,', NNZ=',i2)
 308   format( ' SYMES : STEP ',i2,':',3f10.6,'  WSR=',f8.6)
 311   format(2x,i3,3f11.6,2f10.7)
-      end
+Cgetarg       end
+       end subroutine symes 
+
 
       subroutine getirr(j,nrxyz,qlat,r)
+
 C- gets coordinates j of irreducible mesh point
 C-----------------------------------------------------------------------
 Ci Inputs:
@@ -449,8 +490,11 @@ ct     .  write(lunit(2),400)r,x,idnint(x(1)),idnint(x(2)),idnint(x(3))
 400   format(/' GETIRR: the point:',3f8.4,' not a mesh point',
      .       /'         X=',3f8.2,
      .       /'         J=',3(i5,3x))
-      end
+Cgetarg       end
+       end subroutine getirr 
+
       subroutine mdesat(alat,bas,desat,ibas,iclass,nbas,plat,r,wsr)
+
 C- Finds the closest atom to a given mesh-point
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -516,9 +560,12 @@ C Intrinsic functions:
       enddo
 300   format(' MDESAT: IBAS=',i3,', RES=',f11.6,', DESAT=',f11.6)
 
-      end
+Cgetarg       end
+       end subroutine mdesat 
+
 
       subroutine distes(bases,d,dbas,isop,plat,qlat,symopm,symopv)
+
 C- Calculates the distance between symmetry-related sites
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -553,9 +600,12 @@ C Intrinsic functions:
       call reducv(plat,qlat,dbas,2)
       d=dsqrt(d3nrm2(dbas))
 
-      end
+Cgetarg       end
+       end subroutine distes 
+
 
       subroutine chkes(alat,bases,plat,qlat,wmax,wsres)
+
 C- Checks possible overlap of empty sphere and atoms outside
 C- the parallelipiped.
 C ----------------------------------------------------------------------
@@ -611,9 +661,12 @@ C Intrinsic functions:
      .        '|        possible overlap of empty sphere',
      .                ' with atom out of range',
      .        '|        use most compact unit cell.$')
-      end
+Cgetarg       end
+       end subroutine chkes 
+
 
       subroutine deflmx(lmx,wsr,z)
+
 C- Returns default value of lmx for given nuclear charge and wsr
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -658,9 +711,12 @@ C Intrinsic functions:
       endif
 
 400   format(' DEFLMX: bad Wigner Seitz radius WSR=',f10.6,'$')
-      end
+Cgetarg       end
+       end subroutine deflmx 
+
 
       subroutine renam(clabl,ic,nclass,z)
+
 C- Makes a new label for a class
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -718,9 +774,12 @@ C Intrinsic functions:
         enddo
         iat=iat+1
       enddo
-      end
+Cgetarg       end
+       end subroutine renam 
+
 
       subroutine zclabl(iopt,clabl,iz)
+
 C- Returns name of compound
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -783,9 +842,12 @@ ct        write(lunit(2),401)clabl
 400   format(/' ZCLABL: bad Z=',i5,' set to -1')
 401   format(/' ZCLABL: could not find atom ',a8,' in my list,',
      .       ' Z set to -1')
-      end
+Cgetarg       end
+       end subroutine zclabl 
+
 
       subroutine getfmt(chr,res,nelts,icast,nwmax,ndigmx,fmt)
+
 C- Supplies the format for writing a token
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -866,9 +928,12 @@ C Intrinsic functions:
       endif
 300   format('(',i2,a1,i2,')')
 301   format('(',i2,a1,i2,'.',i2,')')
-      end
+Cgetarg       end
+       end subroutine getfmt 
+
 
       subroutine tocast(l,i,r,d,l1,i1,r1,d1,m,n,icast)
+
 C ----------------------------------------------------------------------
 Ci Inputs:
 Ci   l     :array of logical
@@ -901,10 +966,13 @@ C Passed variables:
         d1(m)=d(n)
       endif
 
-      end
+Cgetarg       end
+       end subroutine tocast 
+
 
       subroutine addes2(bas,bases,clabl,iclass,nbas,nclass,nrclas,
      .             nsymop,plat,qlat,symopm,symopv)
+
 C-Adds the new empty sphere basis atom and its symmetry related atoms
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -985,9 +1053,12 @@ ct     .                      (bas(i,ibas),i=1,3),ibas=nbas+1,nbasnw)
 301   format(9x,'ATOM=',a8,' ICLASS=',i3,1x,'POS=',3f9.5)
 
 400   format(' ADDES : empty sphere sits on atom ',i3,', class',i3,'$')
-      end
+Cgetarg       end
+       end subroutine addes2 
+
 
       logical function latrel(qlat,pos1,pos2)
+
 C- Checks if two positions differ by a lattice vector
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1018,9 +1089,12 @@ C Intrinsic functions:
         if (vdiff.gt.tolpos) return
       enddo
       latrel=.true.
-      end
+Cgetarg       end
+       end function latrel 
+
 
       subroutine prpos(nbas,nclass,clabl,iclass,pos,wsr,z)
+
 C     implicit none
       integer nbas,iclass(*),i,ifi,ibas,fopn,nclass,icls
       double precision  pos(3,nbas)
@@ -1040,9 +1114,12 @@ C     implicit none
       
   301 format(9x,'ATOM=',a8, 1x,'POS=',3f12.7) 
   302 format(9x,'ATOM=',a8, 1x,'Z = ',f5.1,' R = ',f6.3) 
-      end 
+Cgetarg       end 
+       end subroutine prpos 
+
 
       subroutine bigges(alat,bases,iwtmp,nirr,lini,res,resmx,rirr)
+
 C- Finds biggest emtpy sphere in the irreducible part of the unit cell
 C ----------------------------------------------------------------------
 Ci Inputs :
@@ -1105,10 +1182,13 @@ ct        if (iprint().ge.40) write(lunit(1),303)resmx*alat
      .       /8x,51('-'))
  302  format(7x,i6,3f10.6,2x,f7.5,1x,i4)
  303  format(/' BIGGES:  RESMX=',f8.6)
-      end
+Cgetarg       end
+       end subroutine bigges 
+
 
       subroutine fillat(alat,bas,iclass,jmax,jmin,nb1,nbas,nirr,nrxyz,
      .                  lini,plat,qlat,res,rirr,rmaxes,rmines,wsr)
+
 C- Fills the unit cell with atoms; finds the interstitial region
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1271,10 +1351,13 @@ ct        write(stdo,303)ibas,ic,c,i,d12*alat,wprmx2*alat,ins
      .           'I1  I2  I3    D12 WPRMX2 INS',/,9x,63('-'))
 303   format(1x,i3,4x,i3,3x,3f7.4,3(2x,i2),2x,f6.3,1x,f5.3,2x,l1)
 
-      end
+Cgetarg       end
+       end subroutine fillat 
+
 
       subroutine mdeses(alat,deses,lini,nirr,nsymop,plat,qlat,rirr,
      .                  rmines,symopm,symopv)
+
 C- Initializes lini and deses, taking into account the symmetry.
 C-----------------------------------------------------------------------
 Ci Inputs:
@@ -1401,9 +1484,12 @@ c              write(lunit(1),304)iirr,(rirr(m,iirr),m=1,3),
      .       /10x,47('-'))
 303   format(7x,i5,2x,3f10.4,2x,'<',f9.6)
 304   format(7x,i5,2x,3f10.4,1x,f11.6)
-      end
+Cgetarg       end
+       end subroutine mdeses 
+
 
       subroutine gtpmin(plat,pmin)
+
 C- gets shortest nozero lattice vector
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1439,9 +1525,12 @@ C Intrinsic functions:
           enddo
         enddo
       enddo
-      end
+Cgetarg       end
+       end subroutine gtpmin 
+
 
       double precision function d3nrm2(r)
+
 C-  'norm'-square
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1456,9 +1545,12 @@ C Passed variables:
 
       d3nrm2=r(1)*r(1)+r(2)*r(2)+r(3)*r(3)
 
-      end
+Cgetarg       end
+       end function d3nrm2 
+
 
       subroutine ordbas(nbas,plat,bas,iclass)
+
 C- Orders basis in ascending order of iclass
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1501,10 +1593,13 @@ C       call shorbz(bas(1,ib),bas(1,ib),plat,qlat)
         call dcopy(3,wk(3,ibp),1,bas(1,ib),1)
       enddo
 
-      end
+Cgetarg       end
+       end subroutine ordbas 
+
 
       subroutine rsmesh(avstep,ierr,irr,iwtmp,jmax,jmin,n1,n2,n3,nirr,
      .                  nirrmx,nsymop,plat,qlat,rirr,symopm,symopv)
+
 C-Divides the unit cell into microcells and finds irreducible part
 C-----------------------------------------------------------------------
 Ci Inputs:
@@ -1740,9 +1835,12 @@ C     .       /' and the last 12 values should be integer values.'/)
   402 format(' RSMESH: bad NRXYZ:',
      .       ' different step length along lattice vectors:',
      .       '|',8x,'STEP1=',f7.4,',  STEP1=',f7.4,',  STEP1=',f7.4,'$')
-      end
+Cgetarg       end
+       end subroutine rsmesh 
+
 
       subroutine reducv(plat,qlat,vec,flag)
+
 C- Removes real space lattice vectors from a given real space vector
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1827,5 +1925,7 @@ C ----- Try shortening by adding basis vectors
           enddo
         enddo
       endif
-      end
+Cgetarg       end
+       end subroutine reducv 
+
 

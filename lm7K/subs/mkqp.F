@@ -1,4 +1,11 @@
+Cgetarg...info...           structure ['mkqp', 'bz', 'sbz']
+Cgetarg...info...           structure ['mkqp', 'lat', 'slat']
+Cgetarg...info...           structure ['mkqp', 'ctrl', 'sctrl']
+Cgetarg...info...           use_to_add ['mkqp', 'm_struc_def']
       subroutine mkqp(sctrl,sbz,slat,gettet,lnoirr,lreduc,lgstar)
+       
+       use m_struc_def  !Cgetarg
+
 C- Set up k-points and related quantities for BZ integration
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -39,7 +46,11 @@ C     implicit none
 C ... Passed parameters
       logical gettet
       integer lgstar,lreduc
-      double precision sctrl(1),sbz(1),slat(1)
+Cgetarg       double precision sctrl(1),sbz(1),slat(1)
+       type(s_ctrl)::sctrl
+       type(s_bz)::sbz
+       type(s_lat)::slat
+
 C ... Local parameters
       logical lgors,ltet,lsx,lnoirr,llshft(3),lipq
       integer fopna,mxkp,nfilqp,nkp,nkxyz(3),nsgrp,npgrp,lshft(3),lpgf,
@@ -58,24 +69,56 @@ C ... Setup
       ntet = 0
       oidtet = 1
       stdo = nglob('stdo')
-      call upack2('bz nkabc lshft',sbz,nkxyz,lshft)
-      call upack('lat plat nsgrp npgrp osymgr',slat,plat,nsgrp,npgrp,
-     .  osymgr,0)
-      lpgf = igets('ctrl lpgf',sctrl)
+Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
+Cgetarg...info...           integer :: lshft(3) , integer(8) :: sbz%lshft 3
+Cgetarg       call upack2('bz nkabc lshft',sbz,nkxyz,lshft)
+       
+       i_copy_size=size(sbz%nkabc) 
+       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
+       i_copy_size=size(sbz%lshft) 
+       call i8icopy(i_copy_size,sbz%lshft,1,lshft,1) 
+
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: npgrp , integer(8) :: slat%npgrp 1
+Cgetarg...info...           integer :: osymgr , integer(8) :: slat%osymgr 1
+Cgetarg       call upack('lat plat nsgrp npgrp osymgr',slat,plat,nsgrp,npgrp,
+Cgetarg      .  osymgr,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       nsgrp=slat%nsgrp
+       npgrp=slat%npgrp
+       osymgr=slat%osymgr
+
+Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
+       lpgf = int(sctrl%lpgf(1)) 
+
 C     lpbc = 0 for kmesh in 3 dimensions, 1 kmesh in 2 dimensions
       lpbc = 0
       if (lpgf .gt. 0) lpbc = 1
-      ltet  = gettet .and. lgors('ctrl lmet,2',sctrl)
-      call lsets('ctrl lmet',sctrl,ltet,2)
-      lsx  = lgors('ctrl lsx,1',sctrl) .or. lgors('ctrl lscr,1',sctrl)
+Cgetarg       ltet  = gettet .and. lgors('ctrl lmet,2',sctrl)
+       ltet = gettet .and. iand(2,int(sctrl%lmet)) .ne.0 
+
+Cgetarg       call lsets('ctrl lmet',sctrl,ltet,2)
+       
+       call lsets_bitop_i8(sctrl%lmet,1,ltet,2)
+
+Cgetarg       lsx  = lgors('ctrl lsx,1',sctrl) .or. lgors('ctrl lscr,1',sctrl)
+       lsx = iand(1,int(sctrl%lsx)) .ne.0 .or. iand(1,int(sctrl%lscr)) .ne.0 
+
       lipq = lreduc .eq. 1
       if (lreduc .eq. -1) npgrp = 1
 
 C ... q-points from BZMAP
-      if (lgors('bz lopt,2',sbz)) then
+Cgetarg       if (lgors('bz lopt,2',sbz)) then
+       if ( iand(2,int(sbz%lopt)) .ne.0 ) then 
+
         call rx('recompile mkqp with BZMAP option')
 C ... Read qp from disk
-      elseif (lgors('bz lio,1',sbz)) then
+Cgetarg       elseif (lgors('bz lio,1',sbz)) then
+       elseif ( iand(1,int(sbz%lio)) .ne.0 ) then 
+
         call info0(30,0,0,' MKQP:   reading data from file QPTS ...')
         nfilqp = fopna('QPTS',-1,1)
 
@@ -191,18 +234,47 @@ C     ... Unless ipq still needed, throw it away
 
 C --- Pack new info into structures ---
 C     call prmx('qp',w(oqp),3,3,nkp)
-      call pack5('bz nkp nkabc oqp owtkp ostar',sbz,
-     .  nkp,nkxyz,oqp,owtkp,ogstar)
-      call pack2('bz ntet oidtet',sbz,ntet,oidtet)
-      if (oipq .gt. 0) call pack1('bz oipq',sbz,oipq)
+Cgetarg...info...           integer :: nkp , integer(8) :: sbz%nkp 1
+Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
+Cgetarg...info...           integer :: oqp , integer(8) :: sbz%oqp 1
+Cgetarg...info...           integer :: owtkp , integer(8) :: sbz%owtkp 1
+Cgetarg...info...           integer :: ogstar , integer(8) :: sbz%ostar 1
+Cgetarg       call pack5('bz nkp nkabc oqp owtkp ostar',sbz,
+Cgetarg      .  nkp,nkxyz,oqp,owtkp,ogstar)
+       
+       sbz%nkp=nkp 
+       i_copy_size=size(sbz%nkabc) 
+       call ii8copy(i_copy_size,nkxyz,1,sbz%nkabc,1) 
+       sbz%oqp=oqp 
+       sbz%owtkp=owtkp 
+       sbz%ostar=ogstar 
+
+Cgetarg...info...           integer :: ntet , integer(8) :: sbz%ntet 1
+Cgetarg...info...           integer :: oidtet , integer(8) :: sbz%oidtet 1
+Cgetarg       call pack2('bz ntet oidtet',sbz,ntet,oidtet)
+       
+       sbz%ntet=ntet 
+       sbz%oidtet=oidtet 
+
+Cgetarg...info...           integer :: oipq , integer(8) :: sbz%oipq 1
+Cgetarg       if (oipq .gt. 0) call pack1('bz oipq',sbz,oipq)
+       if ( oipq .gt. 0 ) then 
+       
+       sbz%oipq=oipq 
+       endif 
+
 
 C --- Write q-points to disc ---
-      if (lgors('bz lio,2',sbz)) then
+Cgetarg       if (lgors('bz lio,2',sbz)) then
+       if ( iand(2,int(sbz%lio)) .ne.0 ) then 
+
         nfilqp = fopna('QPTS',-1,0)
         call getqp(2,-nfilqp,nkp,nkxyz,lshft,ntet,w(oqp),w(owtkp),
      .    w(oidtet))
         call fclose(nfilqp)
       endif
 
-      end
+Cgetarg       end
+       end subroutine mkqp 
+
 

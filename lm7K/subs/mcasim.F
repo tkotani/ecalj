@@ -1,4 +1,16 @@
+Cgetarg...info...           structure ['mcasim', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['mcasim', 'lat', 'slat']
+Cgetarg...info...           structure ['mcasim', 'array', 'sarray']
+Cgetarg...info...           structure ['mcasim', 'spec', 'sspec']
+Cgetarg...info...           structure ['mcasm2', 'move', 'smove']
+Cgetarg...info...           structure ['mcmet', 'move', 'smove']
+Cgetarg...info...           use_to_add ['mcmet', 'm_struc_def']
+Cgetarg...info...           use_to_add ['mcasim', 'm_struc_def']
+Cgetarg...info...           use_to_add ['mcasm2', 'm_struc_def']
       subroutine mcasim(sctrl,sarray,sspec,slat,smove,sstrn)
+       
+       use m_struc_def  !Cgetarg
+
 C- Monte-Carlo simulations for alloy configurations
 C ----------------------------------------------------------------------
 Ci   sctrl :struct containing parameters governing program flow
@@ -20,7 +32,13 @@ C     implicit none
 C ... Passed parameters
       integer mxcsiz
       character*(*) sstrn
-      double precision sctrl(1),sspec(1),slat(1),sarray(1),smove(1)
+Cgetarg       double precision sctrl(1),sspec(1),slat(1),sarray(1),smove(1)
+       type(s_ctrl)::sctrl
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_array)::sarray
+       type(s_move)::smove
+
 C Local
       logical cmdopt
       integer i,i1,i2,igets,iosiga,j,lpbc,lpgf,ltype(2),nbas,nbasp,
@@ -34,12 +52,44 @@ C ... Heap
 
       data htype /'h1:','h2:'/
 
-      call upack('ctrl nbas nbasp nspec',sctrl,nbas,nbasp,nspec,0,0)
-      call upack('lat alat plat avw',slat,alat,plat,avw,0,0)
-      call upack('array opgfsl oips opos',sarray,opgfsl,oips,opos,0,0)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg       call upack('ctrl nbas nbasp nspec',sctrl,nbas,nbasp,nspec,0,0)
+       
+       nbas=sctrl%nbas
+       nbasp=sctrl%nbasp
+       nspec=sctrl%nspec
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
+Cgetarg       call upack('lat alat plat avw',slat,alat,plat,avw,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       avw=slat%avw
+
+Cgetarg...info...           integer :: opgfsl , integer(8) :: sarray%opgfsl 1
+Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
+Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
+Cgetarg       call upack('array opgfsl oips opos',sarray,opgfsl,oips,opos,0,0)
+       
+       opgfsl=sarray%opgfsl
+       oips=sarray%oips
+       opos=sarray%opos
+
       call defrr(orham,nspec)
-      call spackv(10,'spec rham',sspec,1,nspec,w(orham))
-      lpgf = igets('ctrl lpgf',sctrl)
+Cgetarg       call spackv(10,'spec rham',sspec,1,nspec,w(orham))
+       i_copy_size=1; 
+       do i_spackv=1,nspec 
+       call spackv_array_copy_r8_r8('u',sspec(i_spackv)%rham,i_copy_size,i_spackv+1-1,w(orham))
+       enddo
+
+Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
+       lpgf = int(sctrl%lpgf(1)) 
+
       lpbc = 0
       if (lpgf .gt. 0) lpbc = 11
 
@@ -99,9 +149,14 @@ C       Both sigb and sigl have same convention for now
       i = iosiga(1,outs(9:),nbasp,w(oips),w(osigl),w(osigb),w(oiprm),
      .  w(opos))
 
-      end
+Cgetarg       end
+       end subroutine mcasim 
+
       subroutine mcasm2(smove,ntab,iax,nbas,nttab,ips,
      .  esite,epair,sigma,iprm,iprmi,sigb,sigl)
+       
+       use m_struc_def  !Cgetarg
+
 C- Monte-carlo simulations of an an alloy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -131,7 +186,9 @@ Cu Updates
 C ----------------------------------------------------------------------
 C     implicit none
 C Passed parameters
-      double precision smove(1)
+Cgetarg       double precision smove(1)
+       type(s_move)::smove
+
       integer nbas,ntab(1),niax,nttab,ips(1),sigma(1),iprm(1),iprmi(1)
       parameter (niax=10)
       integer iax(niax,1),sigb(nbas),sigl(nbas)
@@ -146,7 +203,17 @@ C ... heap:
       common /w/ w
 
 C --- Setup and initial printout ---
-      call upack('move kt ts tstot tsequ',smove,kt,ts,ttot,tequ,0)
+Cgetarg...info...           real(8) :: kt , real(8) :: smove%kt 1
+Cgetarg...info...           real(8) :: ts , real(8) :: smove%ts 1
+Cgetarg...info...           real(8) :: ttot , real(8) :: smove%tstot 1
+Cgetarg...info...           real(8) :: tequ , real(8) :: smove%tsequ 1
+Cgetarg       call upack('move kt ts tstot tsequ',smove,kt,ts,ttot,tequ,0)
+       
+       kt=smove%kt
+       ts=smove%ts
+       ttot=smove%tstot
+       tequ=smove%tsequ
+
 C ... Initial printout
       ntot = ttot/ts
       nequ = tequ/ts
@@ -174,14 +241,21 @@ C     Create inverse of iprm and initial sigma
       call mcmet(smove,ntab,iax,nbas,nttab,ips,esite,epair,sigma,
      .  iprm,iprmi,sigb,sigl)
 
-      end
+Cgetarg       end
+       end subroutine mcasm2 
+
 
       subroutine mcmet(smove,ntab,iax,nbas,nttab,ips,esite,epair,
      .  sigma,iprm,iprmi,sigb,sigl)
+       
+       use m_struc_def  !Cgetarg
+
 C- Metropolis algorithm
 C     implicit none
 C Passed parameters
-      double precision smove(1)
+Cgetarg       double precision smove(1)
+       type(s_move)::smove
+
       integer nbas,ntab(nbas+1),niax,nttab,ips(1),sigma(1),
      .  iprm(nbas),iprmi(nbas)
       parameter (niax=10)
@@ -201,7 +275,17 @@ C Local
 
 C     Inititializations
       call getpr(ipr)
-      call upack('move kt ts tstot tsequ',smove,kt,ts,ttot,tequ,0)
+Cgetarg...info...           real(8) :: kt , real(8) :: smove%kt 1
+Cgetarg...info...           real(8) :: ts , real(8) :: smove%ts 1
+Cgetarg...info...           real(8) :: ttot , real(8) :: smove%tstot 1
+Cgetarg...info...           real(8) :: tequ , real(8) :: smove%tsequ 1
+Cgetarg       call upack('move kt ts tstot tsequ',smove,kt,ts,ttot,tequ,0)
+       
+       kt=smove%kt
+       ts=smove%ts
+       ttot=smove%tstot
+       tequ=smove%tsequ
+
       ntot = ttot/ts
       nequ = tequ/ts
       call mcasan(1,nbas,iprm,iprmi,ntab,iax,ips,esite,epair,sigb,sigl,
@@ -320,8 +404,11 @@ C ... end of big loop
      .  eold)
 
       call tcx('mcmet')
-      end
+Cgetarg       end
+       end subroutine mcmet 
+
       subroutine mcasw(ib1,ib2,iprm,iprmi,sigb,sigl,sigma)
+
 C- swap two entries in permutation table
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -361,9 +448,12 @@ C     sigma(ib1) = sigb(ib1)*sigl(iprmi(ib1))
 C     sigma(ib2) = sigb(ib2)*sigl(iprmi(ib2))
       sigma(ib2) = sigb(ib2)*sigl(i1)
 
-      end
+Cgetarg       end
+       end subroutine mcasw 
+
 
       subroutine mcasms(mode,i1,i2,ips,sigma)
+
 C- Generate sigma
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -393,9 +483,12 @@ C Local
         endif
    10 continue
 
-      end
+Cgetarg       end
+       end subroutine mcasms 
+
       subroutine mcasme(ib1,ib2,ntab,iax,esite,epair,iprm,iprmi,
      .  sig1,sig2,e1c,e2c,edc)
+
 C- Hamiltonian total energy
 C     implicit none
 C Passed parameters
@@ -441,8 +534,11 @@ C   20 continue
 
       call tcx('mcasme')
 
-      end
+Cgetarg       end
+       end subroutine mcasme 
+
       integer function iosiga(lread,fnam,nbas,ips,sigl,sigb,iprm,pos)
+
 Cr Remarks
 Cr   Loaded into variables table for each of the ib=1..nbas lines read:
 Cr     is = ips(ib)
@@ -505,10 +601,13 @@ C --- Error exit ---
       print *, 'iosiga: file read failed or file mismatch'
       iosiga = -1
       call fclose(ifi)
-      end
+Cgetarg       end
+       end function iosiga 
+
 
       subroutine mcasho(ib1,ib2,iprm,iprmi,ntab,iax,esite,epair,sig1,
      .  sig2,etot)
+
 C- Printout
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -543,9 +642,12 @@ C Local
       call arrprt('  ib site  s1  s2','%,4i%,4i%,4i%,4i','Iiii',
      .  ib2-ib1+1,nskip,ncol,nskip,'  | ',i,iprmi,sig1,sig2,i,i,i,i)
 
-      end
+Cgetarg       end
+       end subroutine mcasho 
+
       subroutine mcasan(ib1,ib2,iprm,iprmi,ntab,iax,ips,esite,epair,
      .  sigb,sigl,sig1,etot)
+
 C- Sanity checking
 C     implicit none
 C Passed parameters
@@ -566,5 +668,7 @@ C     Check that sigma tables are sensible
         endif
    10 continue
 
-      end
+Cgetarg       end
+       end subroutine mcasan 
+
 

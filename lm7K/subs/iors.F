@@ -1,6 +1,16 @@
+Cgetarg...info...           structure ['iors', 'lat', 'slat']
+Cgetarg...info...           structure ['iors', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['iors', 'pot', 'spot']
+Cgetarg...info...           structure ['iors', 'bz', 'sbz']
+Cgetarg...info...           structure ['iors', 'site', 'ssite']
+Cgetarg...info...           structure ['iors', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['iors', 'm_struc_def']
 #define FP 1
       integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
      .  fid,nbas,nat,nspec,orhoat,qnu,nit,lbin,ifi)
+       
+       use m_struc_def  !Cgetarg
+
 C- I/O for charge density
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -120,7 +130,14 @@ C ... Passed parameters
       logical lbin
       integer mode,nbas,nat,nspec,nit,ifi,orhoat(3,nbas),n0
       parameter (n0=10)
-      double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
+Cgetarg       double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
+       type(s_ctrl)::sctrl
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_pot)::spot
+       type(s_bz)::sbz
+
       double precision qnu(3,n0,*)
       character fid*(*)
 C ... Local parameters
@@ -160,7 +177,17 @@ C ... MPI setup
       master = 0
       mlog = cmdopt('--mlog',6,0,ignore)
 
-      call upack('lat alat plat nabc',slat,alat,plat,ngabc,0,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg       call upack('lat alat plat nabc',slat,alat,plat,ngabc,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%nabc) 
+       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
       call dinv33(plat,1,qlat,fac)
       vol = dabs(fac)*alat**3
       ipr    = iprint()
@@ -172,9 +199,15 @@ C ... MPI setup
       endif
       nsp    = nglob('nsp')
       lrel   = nglob('lrel')
-      lrs(1) = isw(lgors('ctrl lrs,32',sctrl))
-      lrs(2) = isw(lgors('ctrl lrs,64',sctrl))
-      lrs(3) = isw(lgors('ctrl lrs,128',sctrl))
+Cgetarg       lrs(1) = isw(lgors('ctrl lrs,32',sctrl))
+       lrs ( 1 ) = isw ( iand(32,int(sctrl%lrs)) .ne.0 ) 
+
+Cgetarg       lrs(2) = isw(lgors('ctrl lrs,64',sctrl))
+       lrs ( 2 ) = isw ( iand(64,int(sctrl%lrs)) .ne.0 ) 
+
+Cgetarg       lrs(3) = isw(lgors('ctrl lrs,128',sctrl))
+       lrs ( 3 ) = isw ( iand(128,int(sctrl%lrs)) .ne.0 ) 
+
       if (mode .eq. -2) then
         lrs(1) = 0
         lrs(3) = 0
@@ -186,7 +219,11 @@ C     ndyn = igets('move size',smove)
       line = 'header'
       if (mode .eq. 1) then
         call fftz30(n1,n2,n3,k1,k2,k3)
-        call upack1('pot osmrho',spot,osmrho)
+Cgetarg...info...           integer :: osmrho , integer(8) :: spot%osmrho 1
+Cgetarg         call upack1('pot osmrho',spot,osmrho)
+         
+         osmrho=spot%osmrho
+
       endif
       ffmt = '(5f15.10)'
       ifmt = '(20i5)'
@@ -294,7 +331,14 @@ C       Abort with error message if file is missing (lfail = .true.)
           read(jfi,*) plat0
         endif
         if (mode .eq. -2) then
-          call pack2('lat alat plat',slat,alat0,plat0)
+Cgetarg...info...           real(8) :: alat0 , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat0(9) , real(8) :: slat%plat 9
+Cgetarg           call pack2('lat alat plat',slat,alat0,plat0)
+           
+           slat%alat=alat0 
+           i_copy_size=size(slat%plat) 
+           call dcopy(i_copy_size,plat0,1,slat%plat,1) 
+
           alat = alat0
           vol = vol0
           call dcopy(9,plat0,1,plat,1)
@@ -364,7 +408,12 @@ C   ... FP mesh density
           n1 = n11
           n2 = n21
           n3 = n31
-          call pack1('lat nabc',slat,ngabc)
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg           call pack1('lat nabc',slat,ngabc)
+           
+           i_copy_size=size(slat%nabc) 
+           call ii8copy(i_copy_size,ngabc,1,slat%nabc,1) 
+
           call fftz30(n1,n2,n3,k1,k2,k3)
           call defcc (osmrho,-k1*k2*k3*nsp)
           call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
@@ -432,7 +481,15 @@ C       For compatibility with nfp, read record into wk
           call awrit0('%a ef window,',ignore,len(ignore),0)
         else
           call awrit0('%a ef window,',use,len(use),0)
-          call pack5('bz ef def w',sbz,wk(1),wk(2),wk(3),0,0)
+Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%ef 1
+Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%def 1
+Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%w 1
+Cgetarg           call pack5('bz ef def w',sbz,wk(1),wk(2),wk(3),0,0)
+           
+           sbz%ef=wk(1) 
+           sbz%def=wk(2) 
+           sbz%w=wk(3) 
+
         endif
 
 C   --- Read atomic positions,forces,velocities ---
@@ -462,8 +519,22 @@ C         Must be enough sites to read from rst file
             endif
           endif
           if (mode .eq. -2) then
-            call pack5('site pos pos0 force vel',ssite,ib,pos,pos,force,
-     .      vel)
+Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos 3
+Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos0 3
+Cgetarg...info...           real(8) :: force(3) , real(8) :: ssite%force 3
+Cgetarg...info...           real(8) :: vel(3) , real(8) :: ssite%vel 3
+Cgetarg             call pack5('site pos pos0 force vel',ssite,ib,pos,pos,force,
+Cgetarg      .      vel)
+             
+             i_copy_size=size(ssite(ib)%pos) 
+             call dcopy(i_copy_size,pos,1,ssite(ib)%pos,1) 
+             i_copy_size=size(ssite(ib)%pos0) 
+             call dcopy(i_copy_size,pos,1,ssite(ib)%pos0,1) 
+             i_copy_size=size(ssite(ib)%force) 
+             call dcopy(i_copy_size,force,1,ssite(ib)%force,1) 
+             i_copy_size=size(ssite(ib)%vel) 
+             call dcopy(i_copy_size,vel,1,ssite(ib)%vel,1) 
+
           endif
 
           call mpibc1(pos,3,4,mlog,'iors','pos')
@@ -478,11 +549,30 @@ C         rst file positions in pos0
           endif
           call dcopy(3,pos,1,pos0,1)
           if (lrs(1) .ne. 0) then
-            call upack2('site pos',ssite,ib,pos)
+Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos 3
+Cgetarg             call upack2('site pos',ssite,ib,pos)
+             
+             i_copy_size=size(ssite(ib)%pos) 
+             call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1) 
+
             call dpzero(vel,3)
           endif
-          call pack5('site pos pos0 force vel',ssite,ib,pos,pos0,force,
-     .      vel)
+Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos 3
+Cgetarg...info...           real(8) :: pos0(3) , real(8) :: ssite%pos0 3
+Cgetarg...info...           real(8) :: force(3) , real(8) :: ssite%force 3
+Cgetarg...info...           real(8) :: vel(3) , real(8) :: ssite%vel 3
+Cgetarg           call pack5('site pos pos0 force vel',ssite,ib,pos,pos0,force,
+Cgetarg      .      vel)
+           
+           i_copy_size=size(ssite(ib)%pos) 
+           call dcopy(i_copy_size,pos,1,ssite(ib)%pos,1) 
+           i_copy_size=size(ssite(ib)%pos0) 
+           call dcopy(i_copy_size,pos0,1,ssite(ib)%pos0,1) 
+           i_copy_size=size(ssite(ib)%force) 
+           call dcopy(i_copy_size,force,1,ssite(ib)%force,1) 
+           i_copy_size=size(ssite(ib)%vel) 
+           call dcopy(i_copy_size,vel,1,ssite(ib)%vel,1) 
+
    10   continue
         enddo
 
@@ -501,7 +591,13 @@ C   --- Read information for local densities ---
         endif
         ibaug = 0
         do  ib = 1, nbas
-          call upack('site class spec',ssite,ib,ic,is,0,0)
+Cgetarg...info...           integer :: ic , integer(8) :: ssite%class 1
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg           call upack('site class spec',ssite,ib,ic,is,0,0)
+           
+           ic=ssite(ib)%class
+           is=ssite(ib)%spec
+
 C         mode = -2: get species is, lmxa, spid
           if (mode .eq. -2 .and. lbin) then
 C           Possibly a floating orbital.  
@@ -512,22 +608,53 @@ C           If 1st entry > nspec => probably nr, not is.  Assume floating
               call info2(10,0,0,
      .          '%9f(warning) species mismatch (%i) for ib=%i ... '//
      .          'ignore and assign to species 0',is,ib)
-              call pack2('site spec',ssite,ib,0)
+Cgetarg               call pack2('site spec',ssite,ib,0)
+               
+               ssite(ib)%spec=0 
+
               goto 20
             endif
             read(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc
             backspace jfi
-            call spacks(1,'spec name',sspec,spid,is,is)
-            call pack2('site spec',ssite,ib,is)
-            call spacks(1,'site clabel',ssite,spid,ib,ib)
-            call pack2('spec lmxa',sspec,is,lmxa)
+Cgetarg             call spacks(1,'spec name',sspec,spid,is,is)
+             do i_spacks=is,is 
+             call spacks_copy('p',sspec(i_spacks)%name,is,is,spid,i_spacks)
+             enddo
+
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg             call pack2('site spec',ssite,ib,is)
+             
+             ssite(ib)%spec=is 
+
+Cgetarg             call spacks(1,'site clabel',ssite,spid,ib,ib)
+             do i_spacks=ib,ib 
+             call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,spid,i_spacks)
+             enddo
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg             call pack2('spec lmxa',sspec,is,lmxa)
+             
+             sspec(is)%lmxa=lmxa 
+
           elseif (mode .eq. -2) then
             read(jfi,'(19x,a8)') spid
             read(jfi,*)
             read(jfi,*) is,lmxa,lmxl,nr
-            call spacks(1,'spec name',sspec,spid,is,is)
-            call pack2('site spec',ssite,ib,is)
-            call pack2('spec lmxa',sspec,is,lmxa)
+Cgetarg             call spacks(1,'spec name',sspec,spid,is,is)
+             do i_spacks=is,is 
+             call spacks_copy('p',sspec(i_spacks)%name,is,is,spid,i_spacks)
+             enddo
+
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg             call pack2('site spec',ssite,ib,is)
+             
+             ssite(ib)%spec=is 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg             call pack2('spec lmxa',sspec,is,lmxa)
+             
+             sspec(is)%lmxa=lmxa 
+
             backspace jfi
             backspace jfi
             backspace jfi
@@ -535,9 +662,31 @@ C           If 1st entry > nspec => probably nr, not is.  Assume floating
 C         is = -1 -> spec struc does not have these parameters
 C         lskip = .false.
           if (is .ne. -1) then
-            call spacks(0,'spec name',sspec,spid,is,is)
-            call upack('spec a nr rmt z',sspec,is,a,nr,rmt,z)
-            call upack('spec lmxa lmxl kmxt',sspec,is,lmxa,lmxl,kmax,0)
+Cgetarg             call spacks(0,'spec name',sspec,spid,is,is)
+             do i_spacks=is,is 
+             call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+             enddo
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg             call upack('spec a nr rmt z',sspec,is,a,nr,rmt,z)
+             
+             a=sspec(is)%a
+             nr=sspec(is)%nr
+             rmt=sspec(is)%rmt
+             z=sspec(is)%z
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg             call upack('spec lmxa lmxl kmxt',sspec,is,lmxa,lmxl,kmax,0)
+             
+             lmxa=sspec(is)%lmxa
+             lmxl=sspec(is)%lmxl
+             kmax=sspec(is)%kmxt
+
 C           lmxa = -1 -> site has no augmentation 
             if (lmxa .eq. -1) then
 C             if (ib .gt. nat0) goto 20
@@ -579,13 +728,53 @@ c     ... read(but don't use) extra info since record is present
 C         is = -1 -> pack spec struc with file parameters
           if (is .eq. -1 .or. mode .eq. -2) then
             is = is0
-            call spacks(1,'spec name',sspec,spid0,is,is)
+Cgetarg             call spacks(1,'spec name',sspec,spid0,is,is)
+             do i_spacks=is,is 
+             call spacks_copy('p',sspec(i_spacks)%name,is,is,spid0,i_spacks)
+             enddo
+
             spid = spid0
-            call pack5('spec a nr rmt z',sspec,is,a0,nr0,rmt0,z0)
-            call pack5('spec lmxa lmxl kmxt',sspec,is,lmxa0,lmxl0,kmax0,
-     .        0)
-            call upack('spec a nr rmt z',sspec,is,a,nr,rmt,z)
-            call upack('spec lmxa lmxl kmxt',sspec,is,lmxa,lmxl,kmax,0)
+Cgetarg...info...           real(8) :: a0 , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr0 , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt0 , real(8) :: sspec%rmt 1
+Cgetarg...info...           real(8) :: z0 , real(8) :: sspec%z 1
+Cgetarg             call pack5('spec a nr rmt z',sspec,is,a0,nr0,rmt0,z0)
+             
+             sspec(is)%a=a0 
+             sspec(is)%nr=nr0 
+             sspec(is)%rmt=rmt0 
+             sspec(is)%z=z0 
+
+Cgetarg...info...           integer :: lmxa0 , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl0 , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: kmax0 , integer(8) :: sspec%kmxt 1
+Cgetarg             call pack5('spec lmxa lmxl kmxt',sspec,is,lmxa0,lmxl0,kmax0,
+Cgetarg      .        0)
+             
+             sspec(is)%lmxa=lmxa0 
+             sspec(is)%lmxl=lmxl0 
+             sspec(is)%kmxt=kmax0 
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg             call upack('spec a nr rmt z',sspec,is,a,nr,rmt,z)
+             
+             a=sspec(is)%a
+             nr=sspec(is)%nr
+             rmt=sspec(is)%rmt
+             z=sspec(is)%z
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg             call upack('spec lmxa lmxl kmxt',sspec,is,lmxa,lmxl,kmax,0)
+             
+             lmxa=sspec(is)%lmxa
+             lmxl=sspec(is)%lmxl
+             kmax=sspec(is)%kmxt
+
           endif
 
 C     ... Read augmentation data
@@ -593,7 +782,15 @@ C     ... Read augmentation data
           call dpzero(pnz,2*n0)
           call dpzero(ql,2*n0)
 C         if (lmxa0 .lt. lmxa) call defpq(z,lmxa,nsp,pnu,ql)
-          call upack('spec p pz',sspec,is,pnu,pnz,0,0)
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
+Cgetarg           call upack('spec p pz',sspec,is,pnu,pnz,0,0)
+           
+           i_copy_size=size(sspec(is)%p) 
+           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
+           i_copy_size=size(sspec(is)%pz) 
+           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
+
           call iinit(idmod,n0)
           call iinit(idmoz,n0)
           if (procid .eq. master) then
@@ -636,12 +833,46 @@ C         read(but don't use) site idmod for compatibility with nfp
 
 C     ... Store pnu and pz in site and spec data
 C         if (ib .le. nat) then
-          call upack('spec p pz',sspec,is,pnus,pnzs,0,0)
+Cgetarg...info...           real(8) :: pnus(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pnzs(n0,2) , real(8) :: sspec%pz 20
+Cgetarg           call upack('spec p pz',sspec,is,pnus,pnzs,0,0)
+           
+           i_copy_size=size(sspec(is)%p) 
+           call dcopy(i_copy_size,sspec(is)%p,1,pnus,1) 
+           i_copy_size=size(sspec(is)%pz) 
+           call dcopy(i_copy_size,sspec(is)%pz,1,pnzs,1) 
+
           if  (lrs(3) .eq. 0 .or. mode .eq. -2) then
-            call pack5('site pnu pz',ssite,ib,pnu,pnz,0,0)
-            call pack5('spec p pz',sspec,is,pnu,pnz,0,0)
-            if (mode .eq. -2)
-     .      call upack('spec p pz',sspec,is,pnus,pnzs,0,0)
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg             call pack5('site pnu pz',ssite,ib,pnu,pnz,0,0)
+             
+             i_copy_size=size(ssite(ib)%pnu) 
+             call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1) 
+             i_copy_size=size(ssite(ib)%pz) 
+             call dcopy(i_copy_size,pnz,1,ssite(ib)%pz,1) 
+
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
+Cgetarg             call pack5('spec p pz',sspec,is,pnu,pnz,0,0)
+             
+             i_copy_size=size(sspec(is)%p) 
+             call dcopy(i_copy_size,pnu,1,sspec(is)%p,1) 
+             i_copy_size=size(sspec(is)%pz) 
+             call dcopy(i_copy_size,pnz,1,sspec(is)%pz,1) 
+
+Cgetarg...info...           real(8) :: pnus(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pnzs(n0,2) , real(8) :: sspec%pz 20
+Cgetarg             if (mode .eq. -2)
+Cgetarg      .      call upack('spec p pz',sspec,is,pnus,pnzs,0,0)
+             if ( mode .eq. -2 ) then 
+             
+             i_copy_size=size(sspec(is)%p) 
+             call dcopy(i_copy_size,sspec(is)%p,1,pnus,1) 
+             i_copy_size=size(sspec(is)%pz) 
+             call dcopy(i_copy_size,sspec(is)%pz,1,pnzs,1) 
+             endif 
+
 C         endif
 
 C     ... Verify lowest valence pnu compatible with file
@@ -772,25 +1003,73 @@ C           call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
             if (vs1 .lt. -1.041d0) then
               read(jfi,43) vrmax(1)
    43         format(12x,f11.7)
-              call upack('pot oves',spot,oves,0,0,0,0)
+Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
+Cgetarg               call upack('pot oves',spot,oves,0,0,0,0)
+               
+               oves=spot%oves
+
               call dvset(w(oves),ic,ic,vrmax)
-              call pack5('pot oves',spot,oves,0,0,0,0)
+Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
+Cgetarg               call pack5('pot oves',spot,oves,0,0,0,0)
+               
+               spot%oves=oves 
+
             endif
-            if (lrs(3).eq.0) call pack5('site pnu',ssite,ib,pnu,0,0,0)
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg             if (lrs(3).eq.0) call pack5('site pnu',ssite,ib,pnu,0,0,0)
+             if ( lrs ( 3 ) .eq.0 ) then 
+             
+             i_copy_size=size(ssite(ib)%pnu) 
+             call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1) 
+             endif 
+
             endif
           endif
 C     ... store data in strucs
-          call pack5('spec a nr rmt z',sspec,is,a,nr,rmt,z)
-          call pack5('spec lmxa lmxl kmxt qc',sspec,is,lmxa,lmxl,kmax,
-     .      qc)
-          call pack5('site ov0 ov1',ssite,ib,ov0,ov1,0,0)
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg           call pack5('spec a nr rmt z',sspec,is,a,nr,rmt,z)
+           
+           sspec(is)%a=a 
+           sspec(is)%nr=nr 
+           sspec(is)%rmt=rmt 
+           sspec(is)%z=z 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg           call pack5('spec lmxa lmxl kmxt qc',sspec,is,lmxa,lmxl,kmax,
+Cgetarg      .      qc)
+           
+           sspec(is)%lmxa=lmxa 
+           sspec(is)%lmxl=lmxl 
+           sspec(is)%kmxt=kmax 
+           sspec(is)%qc=qc 
+
+Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
+Cgetarg...info...           integer :: ov1 , integer(8) :: ssite%ov1 1
+Cgetarg           call pack5('site ov0 ov1',ssite,ib,ov0,ov1,0,0)
+           
+           ssite(ib)%ov0=ov0 
+           ssite(ib)%ov1=ov1 
+
    20     continue
         enddo
         if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
 
 #if FP
-        if (lshear .and. lgors('ctrl lrs,256',sctrl)) then
-          call upack('lat dist',slat,wk,0,0,0,0)
+Cgetarg         if (lshear .and. lgors('ctrl lrs,256',sctrl)) then
+         if ( lshear .and. iand(256,int(sctrl%lrs)) .ne.0 ) then 
+
+Cgetarg...info...           real(8) :: wk(100) , real(8) :: slat%dist 9
+Cgetarg           call upack('lat dist',slat,wk,0,0,0,0)
+           
+           i_copy_size=size(slat%dist) 
+           call dcopy(i_copy_size,slat%dist,1,wk,1) 
+
 C         call prmx('wk',wk,3,3,3)
           call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
 C         call prmx('wk',wk,3,3,3)
@@ -804,7 +1083,15 @@ C   --- Read data on free-atom core states and fit to fa density ---
         if (.not. lbin) read(jfi,*,err=999,end=999)
         endif
         do  30  is = 1, nspec
-          call upack('spec a nr lmxa',sspec,is,a,nr,lmxa,0)
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg           call upack('spec a nr lmxa',sspec,is,a,nr,lmxa,0)
+           
+           a=sspec(is)%a
+           nr=sspec(is)%nr
+           lmxa=sspec(is)%lmxa
+
           if (lmxa .eq. -1) goto 30
           if (procid .eq. master) then
           if (lbin) then
@@ -818,7 +1105,13 @@ C   --- Read data on free-atom core states and fit to fa density ---
             read(jfi,*,err=999,end=999)
             read(jfi,*,err=999,end=999) stc,rfoc0
           endif
-          call pack3('spec lfoca rfoca',sspec,is,lfoc0,rfoc0)
+Cgetarg...info...           integer :: lfoc0 , integer(8) :: sspec%lfoca 1
+Cgetarg...info...           real(8) :: rfoc0 , real(8) :: sspec%rfoca 1
+Cgetarg           call pack3('spec lfoca rfoca',sspec,is,lfoc0,rfoc0)
+           
+           sspec(is)%lfoca=lfoc0 
+           sspec(is)%rfoca=rfoc0 
+
           lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
           call fsanrg(a0,a,a,0d-9,msg,'spec a',.true.)
           endif
@@ -849,9 +1142,24 @@ C           spin-split core density
             call mpibc1(w(orhoca),nr*nsp,4,mlog,'iors','rhoca')
           else
             call rlse(orhoca)
-            call spacks(1,'spec coreh',sspec,' ',is,is)
-            call spacks(1,'spec pb1',sspec,' ',is,is)
-            call spacks(1,'spec pb2',sspec,' ',is,is)
+Cgetarg...info...          check_variable ' ' not found
+Cgetarg             call spacks(1,'spec coreh',sspec,' ',is,is)
+             do i_spacks=is,is 
+             call spacks_copy('p',sspec(i_spacks)%coreh,is,is,' ',i_spacks)
+             enddo
+
+Cgetarg...info...          check_variable ' ' not found
+Cgetarg             call spacks(1,'spec pb1',sspec,' ',is,is)
+             do i_spacks=is,is 
+             call spacks_copy('p',sspec(i_spacks)%pb1,is,is,' ',i_spacks)
+             enddo
+
+Cgetarg...info...          check_variable ' ' not found
+Cgetarg             call spacks(1,'spec pb2',sspec,' ',is,is)
+             do i_spacks=is,is 
+             call spacks_copy('p',sspec(i_spacks)%pb2,is,is,' ',i_spacks)
+             enddo
+
           endif
           call dpzero(exi,n0)
           call dpzero(hfc,n0*2)
@@ -888,18 +1196,60 @@ C     ... For now, mode 0 (ASA) stores no core data
           endif
 C         call p_spec_hfc(sspec,is,rsmfa,nxi,exi,hfc)
 C         Pack species data
-          call pack5('spec ctail etail stc orhoc',sspec,is,cof,eh,stc,
-     .      orhoca)
-          call pack5('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,
-     .      rsmfa)
+Cgetarg...info...           real(8) :: cof , real(8) :: sspec%ctail 1
+Cgetarg...info...           real(8) :: eh , real(8) :: sspec%etail 1
+Cgetarg...info...           real(8) :: stc , real(8) :: sspec%stc 1
+Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
+Cgetarg           call pack5('spec ctail etail stc orhoc',sspec,is,cof,eh,stc,
+Cgetarg      .      orhoca)
+           
+           sspec(is)%ctail=cof 
+           sspec(is)%etail=eh 
+           sspec(is)%stc=stc 
+           sspec(is)%orhoc=orhoca 
+
+Cgetarg...info...           integer :: nxi , integer(8) :: sspec%nxi 1
+Cgetarg...info...           real(8) :: exi(n0) , real(8) :: sspec%exi 10
+Cgetarg...info...           real(8) :: hfc(n0,2) , real(8) :: sspec%chfa 20
+Cgetarg...info...           real(8) :: rsmfa , real(8) :: sspec%rsmfa 1
+Cgetarg           call pack5('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,
+Cgetarg      .      rsmfa)
+           
+           sspec(is)%nxi=nxi 
+           i_copy_size=size(sspec(is)%exi) 
+           call dcopy(i_copy_size,exi,1,sspec(is)%exi,1) 
+           i_copy_size=size(sspec(is)%chfa) 
+           call dcopy(i_copy_size,hfc,1,sspec(is)%chfa,1) 
+           sspec(is)%rsmfa=rsmfa 
+
    30   continue
 
 c   ... Copy or rescale cores, in case foca was switched on or off
         if (mode .eq. 1) then
         do  ib = 1, nbas
-          is = igetss('site spec',ib,ssite)
-          call upack('spec a nr rmt lmxa',sspec,is,a,nr,rmt,lmxa)
-          call upack('spec lfoca qc orhoc',sspec,is,lfoc,qc,orhoca,0)
+Cgetarg           is = igetss('site spec',ib,ssite)
+           is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg           call upack('spec a nr rmt lmxa',sspec,is,a,nr,rmt,lmxa)
+           
+           a=sspec(is)%a
+           nr=sspec(is)%nr
+           rmt=sspec(is)%rmt
+           lmxa=sspec(is)%lmxa
+
+Cgetarg...info...           integer :: lfoc , integer(8) :: sspec%lfoca 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
+Cgetarg           call upack('spec lfoca qc orhoc',sspec,is,lfoc,qc,orhoca,0)
+           
+           lfoc=sspec(is)%lfoca
+           qc=sspec(is)%qc
+           orhoca=sspec(is)%orhoc
+
           if (lmxa .eq. -1) goto 40
           if (lfoc .gt. 0) then
             call dpcopy(w(orhoca),w(orhoat(3,ib)),1,nr*nsp,1d0)
@@ -923,12 +1273,12 @@ C   ... MPI broadcast all structures
 C        if (procid .eq. master) then
 C          sttime = MPI_WTIME()
 C        endif
-        call mpibc1(ssite,nint(ssite(1))*nbas,4,mlog,'iors','ssite')
-        call mpibc1(sspec,nint(sspec(1))*nspec,4,mlog,'iors','sspec')
-        call mpibc1(sctrl,nint(sctrl(1)),4,mlog,'iors','sctrl')
-        call mpibc1(slat,nint(slat(1)),4,mlog,'iors','slat')
-        call mpibc1(spot,nint(spot(1)),4,mlog,'iors','spot')
-        call mpibc1(sbz,nint(sbz(1)),4,mlog,'iors','sbz')
+        call mpibc1(ssite,nint(ssite(1)%size)*nbas,4,mlog,'iors','ssite')
+        call mpibc1(sspec,nint(sspec(1)%size)*nspec,4,mlog,'iors','sspec')
+        call mpibc1(sctrl,nint(sctrl%size),4,mlog,'iors','sctrl')
+        call mpibc1(slat,nint(slat%size),4,mlog,'iors','slat')
+        call mpibc1(spot,nint(spot%size),4,mlog,'iors','spot')
+        call mpibc1(sbz,nint(sbz%size),4,mlog,'iors','sbz')
         if (mode .eq. 1) then
         elseif (mode .eq. 0) then
           call mpibc1(qnu,3*n0*nsp*nbas,4,mlog,'iors','qnu')
@@ -1019,7 +1369,15 @@ C   --- Write smooth charge density ---
 
 C   --- Write information related to dynamics ---
         call dpzero(wk,100)
-        call upack('bz ef def w',sbz,wk(1),wk(2),wk(3),0,0)
+Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%ef 1
+Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%def 1
+Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%w 1
+Cgetarg         call upack('bz ef def w',sbz,wk(1),wk(2),wk(3),0,0)
+         
+         wk(1)=sbz%ef
+         wk(2)=sbz%def
+         wk(3)=sbz%w
+
         if (lbin) then
           call dpdump(wk,100,-jfi)
         else
@@ -1027,7 +1385,18 @@ C   --- Write information related to dynamics ---
           call dfdump(wk,100,-jfi)
         endif
         do  110  ib = 1, nbas
-          call upack('site pos force vel',ssite,ib,pos,force,vel,0)
+Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos 3
+Cgetarg...info...           real(8) :: force(3) , real(8) :: ssite%force 3
+Cgetarg...info...           real(8) :: vel(3) , real(8) :: ssite%vel 3
+Cgetarg           call upack('site pos force vel',ssite,ib,pos,force,vel,0)
+           
+           i_copy_size=size(ssite(ib)%pos) 
+           call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1) 
+           i_copy_size=size(ssite(ib)%force) 
+           call dcopy(i_copy_size,ssite(ib)%force,1,force,1) 
+           i_copy_size=size(ssite(ib)%vel) 
+           call dcopy(i_copy_size,ssite(ib)%vel,1,vel,1) 
+
           if (lbin) then
             write(jfi) ib,pos,force,vel
           else
@@ -1044,14 +1413,71 @@ C   --- Write information for local densities ---
         if (.not. lbin) write(jfi,721) 'site densities'
         do  120  ib = 1, nbas
 
-          call upack('site class spec',ssite,ib,ic,is,0,0)
-          call spacks(0,'spec name',sspec,spid,is,is)
-          call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-          call upack('spec z qc idmod',sspec,is,z,qc,idmod,0)
-          call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
-     .      lmxb)
-          call upack('spec kmxv rsmv kmxt',sspec,is,kmxv,rsmv,kmax,0)
-          call upack('site pnu pz ov0 ov1',ssite,ib,pnu,pnz,ov0,ov1)
+Cgetarg...info...           integer :: ic , integer(8) :: ssite%class 1
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg           call upack('site class spec',ssite,ib,ic,is,0,0)
+           
+           ic=ssite(ib)%class
+           is=ssite(ib)%spec
+
+Cgetarg           call spacks(0,'spec name',sspec,spid,is,is)
+           do i_spacks=is,is 
+           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+           enddo
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg           call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+           
+           a=sspec(is)%a
+           nr=sspec(is)%nr
+           rmt=sspec(is)%rmt
+
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
+Cgetarg           call upack('spec z qc idmod',sspec,is,z,qc,idmod,0)
+           
+           z=sspec(is)%z
+           qc=sspec(is)%qc
+           i_copy_size=size(sspec(is)%idmod) 
+           call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
+
+Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
+Cgetarg           call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
+Cgetarg      .      lmxb)
+           
+           rsma=sspec(is)%rsma
+           lmxa=sspec(is)%lmxa
+           lmxl=sspec(is)%lmxl
+           lmxb=sspec(is)%lmxb
+
+Cgetarg...info...           integer :: kmxv , integer(8) :: sspec%kmxv 1
+Cgetarg...info...           real(8) :: rsmv , real(8) :: sspec%rsmv 1
+Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
+Cgetarg           call upack('spec kmxv rsmv kmxt',sspec,is,kmxv,rsmv,kmax,0)
+           
+           kmxv=sspec(is)%kmxv
+           rsmv=sspec(is)%rsmv
+           kmax=sspec(is)%kmxt
+
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
+Cgetarg...info...           integer :: ov1 , integer(8) :: ssite%ov1 1
+Cgetarg           call upack('site pnu pz ov0 ov1',ssite,ib,pnu,pnz,ov0,ov1)
+           
+           i_copy_size=size(ssite(ib)%pnu) 
+           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
+           i_copy_size=size(ssite(ib)%pz) 
+           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+           ov0=ssite(ib)%ov0
+           ov1=ssite(ib)%ov1
+
           if (lmxa .eq. -1) goto 120
 
           if (lbin) then
@@ -1120,7 +1546,11 @@ C             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
               vrmax(2) = 0
               call aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
      .          idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
-              call upack('pot oves',spot,oves,0,0,0,0)
+Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
+Cgetarg               call upack('pot oves',spot,oves,0,0,0,0)
+               
+               oves=spot%oves
+
               vrmax(1) = dval(w(oves),ic)
               write(jfi,143) vrmax(1)
   143         format('  Ves(rmax)=',f11.7)
@@ -1143,18 +1573,60 @@ C   --- Write data on free-atom core states and fit to fa density ---
         if (.not. lbin) write(jfi,721) 'species data'
 
         do  130  is = 1, nspec
-          call upack('spec a nr qc lmxa',sspec,is,a,nr,qc,lmxa)
-          call upack('spec lfoca rfoca',sspec,is,lfoc,rfoc,0,0)
-          call upack('spec ctail etail stc orhoc',sspec,is,cof,eh,stc,
-     .      orhoca)
-          call upack('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,
-     .      rsmfa)
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg           call upack('spec a nr qc lmxa',sspec,is,a,nr,qc,lmxa)
+           
+           a=sspec(is)%a
+           nr=sspec(is)%nr
+           qc=sspec(is)%qc
+           lmxa=sspec(is)%lmxa
+
+Cgetarg...info...           integer :: lfoc , integer(8) :: sspec%lfoca 1
+Cgetarg...info...           real(8) :: rfoc , real(8) :: sspec%rfoca 1
+Cgetarg           call upack('spec lfoca rfoca',sspec,is,lfoc,rfoc,0,0)
+           
+           lfoc=sspec(is)%lfoca
+           rfoc=sspec(is)%rfoca
+
+Cgetarg...info...           real(8) :: cof , real(8) :: sspec%ctail 1
+Cgetarg...info...           real(8) :: eh , real(8) :: sspec%etail 1
+Cgetarg...info...           real(8) :: stc , real(8) :: sspec%stc 1
+Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
+Cgetarg           call upack('spec ctail etail stc orhoc',sspec,is,cof,eh,stc,
+Cgetarg      .      orhoca)
+           
+           cof=sspec(is)%ctail
+           eh=sspec(is)%etail
+           stc=sspec(is)%stc
+           orhoca=sspec(is)%orhoc
+
+Cgetarg...info...           integer :: nxi , integer(8) :: sspec%nxi 1
+Cgetarg...info...           real(8) :: exi(n0) , real(8) :: sspec%exi 10
+Cgetarg...info...           real(8) :: hfc(n0,2) , real(8) :: sspec%chfa 20
+Cgetarg...info...           real(8) :: rsmfa , real(8) :: sspec%rsmfa 1
+Cgetarg           call upack('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,
+Cgetarg      .      rsmfa)
+           
+           nxi=sspec(is)%nxi
+           i_copy_size=size(sspec(is)%exi) 
+           call dcopy(i_copy_size,sspec(is)%exi,1,exi,1) 
+           i_copy_size=size(sspec(is)%chfa) 
+           call dcopy(i_copy_size,sspec(is)%chfa,1,hfc,1) 
+           rsmfa=sspec(is)%rsmfa
+
           if (lmxa .eq. -1) goto 130
 
           if (lbin) then
             write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
           else
-            call spacks(0,'spec name',sspec,spid0,is,is)
+Cgetarg             call spacks(0,'spec name',sspec,spid0,is,is)
+             do i_spacks=is,is 
+             call spacks_copy('u',sspec(i_spacks)%name,is,is,spid0,i_spacks)
+             enddo
+
             write(jfi,'('' spec'',i5,2x,'' label '',a)') is, spid0
             write(jfi,'(''  nr   lfoc'')')
             write(jfi,ifmt) nr,lfoc
@@ -1197,5 +1669,7 @@ C ... Error handling
       if (ipr .gt. 0)
      .  write(stdo,'('' iors  : read failed in: '',a)') line
 
-      end
+Cgetarg       end
+       end function iors 
+
 

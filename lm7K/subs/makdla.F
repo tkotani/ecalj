@@ -1,4 +1,5 @@
       subroutine makdla(kbak,l,hcr,slo,val,rmax,phia,dla)
+
 C- Gets logarithmic derivative of wave function at hard core radius
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -49,5 +50,7 @@ C     wj,wn are the amounts of Bessel and Hankel making up phi0
       phia   = 2d0*(wn*fi(l)*sigma**l - wj*gi(l)*sigma**(-l-1))
       rdphia = 2d0*(wn*rdfi*sigma**l  - wj*rdgi*sigma**(-l-1))
       dla    = rdphia/phia
-      end
+Cgetarg       end
+       end subroutine makdla 
+
 

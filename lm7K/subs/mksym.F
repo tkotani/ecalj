@@ -1,4 +1,14 @@
+Cgetarg...info...           structure ['mksym', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['mksym', 'lat', 'slat']
+Cgetarg...info...           structure ['mksym', 'array', 'sarray']
+Cgetarg...info...           structure ['mksym', 'site', 'ssite']
+Cgetarg...info...           structure ['pvsym2', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['mksym', 'm_struc_def']
+Cgetarg...info...           use_to_add ['pvsym2', 'm_struc_def']
       subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite,sarray)
+       
+       use m_struc_def  !Cgetarg
+
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -67,7 +77,12 @@ C ----------------------------------------------------------------------
 C     implicit none
       character*8 slabl(1),ssymgr*(*)
       integer mode,nsgrp,npgrp
-      double precision sctrl(1),slat(1),ssite(1),sarray(1)
+Cgetarg       double precision sctrl(1),slat(1),ssite(1),sarray(1)
+       type(s_ctrl)::sctrl
+       type(s_lat)::slat
+       type(s_site)::ssite(*)
+       type(s_array)::sarray
+
 C ... Heap
       integer w(1)
       common /w/ w
@@ -83,8 +98,26 @@ C Local variables
       double precision gen(9,ngnmx),plat(3,3),dist(3,3),qlat(3,3),xx,
      .  fptol
 
-      call upack('ctrl nbas nspec nsite',sctrl,nbas,nspec,nsite,0,0)
-      call upack('lat plat ldist dist',slat,plat,ldist,dist,0,0)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           integer :: nsite , integer(8) :: sctrl%nsite 1
+Cgetarg       call upack('ctrl nbas nspec nsite',sctrl,nbas,nspec,nsite,0,0)
+       
+       nbas=sctrl%nbas
+       nspec=sctrl%nspec
+       nsite=sctrl%nsite
+
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: ldist , integer(8) :: slat%ldist 1
+Cgetarg...info...           real(8) :: dist(3,3) , real(8) :: slat%dist 9
+Cgetarg       call upack('lat plat ldist dist',slat,plat,ldist,dist,0,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       ldist=slat%ldist
+       i_copy_size=size(slat%dist) 
+       call dcopy(i_copy_size,slat%dist,1,dist,1) 
+
       ngmx = 48
       stdo = nglob('stdo')
       if (iprint() .ge. 30) write(stdo,'(1x)')
@@ -98,7 +131,13 @@ C ... For memory allocation of class data, assume initially nclass=nbas
       call defi(oipc,  nsite)
       call defi(oics,  nsite)
       call defi(onrspc,nbas)
-      call upack('array opos oips',sarray,opos,oips,0,0,0)
+Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
+Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
+Cgetarg       call upack('array opos oips',sarray,opos,oips,0,0,0)
+       
+       opos=sarray%opos
+       oips=sarray%oips
+
 C     call defi(oips,nbas)
 C     call defrr(opos,3*nbas)
 C     call spackv(10,'site spec',ssite,1,nbas,w(oips))
@@ -164,8 +203,18 @@ C     call defi (oistb2,(ngmx+1)*nbas)
         goto 5
       endif
       if (fptol .ne. 0) then
-        call spackv(11,'site pos',ssite,1,nbas,w(opos2))
-        call spackv(10,'site pos',ssite,1,nbas,w(opos))
+Cgetarg         call spackv(11,'site pos',ssite,1,nbas,w(opos2))
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=1,nbas 
+         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
+         enddo
+
+Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos))
+         i_copy_size=size(ssite(1)%pos)
+         do i_spackv=1,nbas 
+         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+         enddo
+
       endif
       call rlse(oips2)
 
@@ -203,12 +252,20 @@ C --- Split species into classes ---
       call splcls(mod(mode/10,10).eq.4,w(opos),nbas,nsgrp,w(oistab),
      .  nspec,slabl,nclass,w(oipc),w(oics),w(onrc))
 
-      call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
+Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
+Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
+Cgetarg       call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
+       
+       npadl=sarray%npadl
+       npadr=sarray%npadr
+
       nclasp = nclass
       nclspp = nclass
       nbasp  = nbas + npadl + npadr
 C ... (pgf) Extra classes for padding layers
-      lpgf = igets('ctrl lpgf',sctrl)
+Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
+       lpgf = int(sctrl%lpgf(1)) 
+
       if (lpgf .gt. 0 .and. lpgf .lt. 10) then
 C   ... Remake ipc,ics for padding and double-padding layers
         call pgfpp(nbas,npadl,npadr,1,1,.true.,.false.,w(oipc),w(oipc))
@@ -264,7 +321,12 @@ C   ... For each i*grpop fix translation ag to be that of grpop
         endif
 
 C ... poke ipc into ssite
-      call spackv(11,'site class',ssite,1,nbasp,w(oipc))
+Cgetarg       call spackv(11,'site class',ssite,1,nbasp,w(oipc))
+       i_copy_size=1; 
+       do i_spackv=1,nbasp 
+       call spackv_array_copy_i8_i('p',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
+       enddo
+
 
 C --- Create nrc and class labels ---
       if (mod(mode/10,10) .eq. 2 .or. mod(mode/10,10) .eq. 4) then
@@ -291,17 +353,54 @@ C       call awrit2('%n:1i',' ',100,6,nsite,w(oipcp))
 C       pause
 
 C --- Cleanup: poke class and symmetry info into structures ---
-      call pack1('ctrl nclass',sctrl,nclass)
-      call pack5('array onrcp oipcp',sarray,onrcp,oipcp,0,0,0)
-      call pack5('array oics oipc oclabl nclasp onrc',sarray,oics,oipc,
-     .  oclabl,nclasp,onrc)
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg       call pack1('ctrl nclass',sctrl,nclass)
+       
+       sctrl%nclass=nclass 
+
+Cgetarg...info...           integer :: onrcp , integer(8) :: sarray%onrcp 1
+Cgetarg...info...           integer :: oipcp , integer(8) :: sarray%oipcp 1
+Cgetarg       call pack5('array onrcp oipcp',sarray,onrcp,oipcp,0,0,0)
+       
+       sarray%onrcp=onrcp 
+       sarray%oipcp=oipcp 
+
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: onrc , integer(8) :: sarray%onrc 1
+Cgetarg       call pack5('array oics oipc oclabl nclasp onrc',sarray,oics,oipc,
+Cgetarg      .  oclabl,nclasp,onrc)
+       
+       sarray%oics=oics 
+       sarray%oipc=oipc 
+       sarray%oclabl=oclabl 
+       sarray%nclasp=nclasp 
+       sarray%onrc=onrc 
+
 c     call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
   100 continue
-      call pack5('lat npgrp nsgrp oistab oag osymgr',slat,npgrp,nsgrp,
-     .  oistab,oag,osymgr)
+Cgetarg...info...           integer :: npgrp , integer(8) :: slat%npgrp 1
+Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
+Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
+Cgetarg...info...           integer :: osymgr , integer(8) :: slat%osymgr 1
+Cgetarg       call pack5('lat npgrp nsgrp oistab oag osymgr',slat,npgrp,nsgrp,
+Cgetarg      .  oistab,oag,osymgr)
+       
+       slat%npgrp=npgrp 
+       slat%nsgrp=nsgrp 
+       slat%oistab=oistab 
+       slat%oag=oag 
+       slat%osymgr=osymgr 
 
-      end
+
+Cgetarg       end
+       end subroutine mksym 
+
       subroutine pvsym1(nbas,npad,nclass,ipc,ics)
+
 C- Fix classes for padding layers
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -346,9 +445,14 @@ C      call awrit2('%n:1i',' ',100,6,nbas+npad,ipc)
 C      call awrit2('%n:1i',' ',100,6,nclass,ics)
 C      pause
 
-      end
+Cgetarg       end
+       end subroutine pvsym1 
+
       subroutine pvsym2(mode,nbas,nclass,ics,ipc,nspec,slabl,ssite,
      .  dclabl,nrc)
+       
+       use m_struc_def  !Cgetarg
+
 C- Create class labels from species labels (double precision format)
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -369,7 +473,10 @@ Cu   18 Dec 01 Packs class label into ssite->clabel
 C ----------------------------------------------------------------------
 C     implicit none
       integer mode,nbas,nclass,nspec,ics(1),ipc(nbas),nrc(1)
-      double precision dclabl(nclass),ssite(1)
+Cgetarg       double precision dclabl(nclass),ssite(1)
+       real(8):: dclabl(nclass) 
+       type(s_site)::ssite(*)
+
       character*8 slabl(nspec)
       integer ic,iclbsj,idx,is,ib
       character*8 clabl
@@ -390,7 +497,11 @@ C --- Make class labels from species labels ---
       do  20  ib = 1, nbas
         ic = ipc(ib)
         call r8tos8(dclabl(ic),clabl)
-        call spacks(1,'site clabel',ssite,clabl,ib,ib)
+Cgetarg         call spacks(1,'site clabel',ssite,clabl,ib,ib)
+         do i_spacks=ib,ib 
+         call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
+         enddo
+
    20 continue
 
 C      do  ib = 1, nbas
@@ -417,9 +528,12 @@ C  333   format(i4,1x,a)
 C   50 continue
 C      pause
 
-      end
+Cgetarg       end
+       end subroutine pvsym2 
+
 
       integer function aginv(g,npg,nsg,nbas,ag,istab)
+
 C- Finds translation part for extra inversion-generated group ops
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -478,5 +592,7 @@ C           call awrit2(' aginv mapping %,2i ->%,2i',' ',80,6,ig,jg)
    10   continue
       enddo
       aginv = 0
-      end
+Cgetarg       end
+       end function aginv 
+
 

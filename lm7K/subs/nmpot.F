@@ -1,5 +1,14 @@
+Cgetarg...info...           structure ['nmpot', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['nmpot', 'ham', 'sham']
+Cgetarg...info...           structure ['nmpot', 'site', 'ssite']
+Cgetarg...info...           structure ['nmpot', 'pot', 'spot']
+Cgetarg...info...           structure ['nmpot', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['nmpot', 'm_struc_def']
       subroutine nmpot(job,sctrl,sspec,ssite,sham,spot,lidim,lihdim,
      .  iprmb,dclabl,ppn)
+       
+       use m_struc_def  !Cgetarg
+
 C- Generates NMTO potential parameters
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -53,7 +62,13 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed parameters:
       integer job,lidim,lihdim,iprmb(1)
-      double precision sctrl(1),sspec(1),ssite(1),sham(1),spot(1)
+Cgetarg       double precision sctrl(1),sspec(1),ssite(1),sham(1),spot(1)
+       type(s_ctrl)::sctrl
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+       type(s_ham)::sham
+       type(s_pot)::spot
+
       integer nppn
       parameter (nppn=12)
       double precision ppn(nppn,lihdim,*),dclabl(*)
@@ -76,22 +91,50 @@ C --- Unpack variables and other setup ---
       job0 = mod(job,10)
       job1 = mod(job/10,10)
       job2 = mod(job/100,10)
-      call upack('ctrl nbasp nclass nspec nspin',sctrl,nbasp,nclass,
-     .  nspec,nsp,0)
+Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg       call upack('ctrl nbasp nclass nspec nspin',sctrl,nbasp,nclass,
+Cgetarg      .  nspec,nsp,0)
+       
+       nbasp=sctrl%nbasp
+       nclass=sctrl%nclass
+       nspec=sctrl%nspec
+       nsp=sctrl%nspin
+
 
 C     Unpack other job-specific parameters
       if (job0 .eq. 0) then
-        call upack('ham nmto kmto',sham,nmto,kmto,0,0,0)
+Cgetarg...info...           integer :: nmto , integer(8) :: sham%nmto 1
+Cgetarg...info...           real(8) :: kmto(10) , real(8) :: sham%kmto 6
+Cgetarg         call upack('ham nmto kmto',sham,nmto,kmto,0,0,0)
+         
+         nmto=sham%nmto
+         i_copy_size=size(sham%kmto) 
+         call dcopy(i_copy_size,sham%kmto,1,kmto,1) 
+
         jobx = 2
       elseif (job0 .eq. 1) then
         call rxi('nmpot: ill defined job',job)
-        call upack2('site pnu',ssite,ib,pnu)
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg         call upack2('site pnu',ssite,ib,pnu)
+         
+         i_copy_size=size(ssite(ib)%pnu) 
+         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
+
         jobx = 0
         nmto = 1
       else
         call rxi('nmpot: ill defined job',job)
       endif
-      call upack('pot vmtz oves',spot,vmtz,oves,0,0,0)
+Cgetarg...info...           real(8) :: vmtz , real(8) :: spot%vmtz 1
+Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
+Cgetarg       call upack('pot vmtz oves',spot,vmtz,oves,0,0,0)
+       
+       vmtz=spot%vmtz
+       oves=spot%oves
+
       ves = 0
 
       nkaph = nglob('nkaph')
@@ -121,13 +164,34 @@ C     Unpack other job-specific parameters
 C --- For each class, get potential parameters ---
       lmr = 0
       do  ib = 1, nbasp
-        is = igetss('site spec',ib,ssite)
-        ic = igetss('site class',ib,ssite)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg         ic = igetss('site class',ib,ssite)
+         ic = int(ssite(ib)%class) 
+
 
 C   ... Make pp's for new class ic
         if (w(oibc+ic-1) .eq. 0) then
-          call upack('spec a nr z rmt',sspec,is,a,nr,z,rmt)
-          call upack('spec lmxa hcr',sspec,is,lmx,hcr,0,0)
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg           call upack('spec a nr z rmt',sspec,is,a,nr,z,rmt)
+           
+           a=sspec(is)%a
+           nr=sspec(is)%nr
+           z=sspec(is)%z
+           rmt=sspec(is)%rmt
+
+Cgetarg...info...           integer :: lmx , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           real(8) :: hcr(n0) , real(8) :: sspec%hcr 10
+Cgetarg           call upack('spec lmxa hcr',sspec,is,lmx,hcr,0,0)
+           
+           lmx=sspec(is)%lmxa
+           i_copy_size=size(sspec(is)%hcr) 
+           call dcopy(i_copy_size,sspec(is)%hcr,1,hcr,1) 
+
           if (job2 .eq. 1) then
             call dvset(hcr,1,n0,rmt)
           endif
@@ -145,7 +209,11 @@ C         Get potential for parameters, depending on 1s digit job
             call fclose(ifi)
             if (.not. sw) call rxi('nmpot: no potential for class',ic)
           elseif (mod(job1,4) .eq. 1) then
-            call upack2('site ov0',ssite,ib,ov0)
+Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
+Cgetarg             call upack2('site ov0',ssite,ib,ov0)
+             
+             ov0=ssite(ib)%ov0
+
           else
             call rxi('nmpot: not implemented for job',job)
           endif
@@ -212,9 +280,12 @@ C   ... Copy from prior site jb with equivalent class
       if (iprint() .ge. 90)
      .  call prm('ppn',0,ppn,nppn*lihdim,nppn*lihdim,nmto*nsp)
 
-      end
+Cgetarg       end
+       end subroutine nmpot 
+
       subroutine nmpot2(job,a,avw,b,ib,ic,is,clabl,kmto,pnu,lmx,ne,nl,
      .  nr,nsp,rofi,hcr,v,vmtz,ves,z,ppnl)
+
 C- Generates potential parameters for pot. functions and downfolding
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -350,7 +421,9 @@ C     Undo constant potential shift
       enddo
       enddo
 
-      end
+Cgetarg       end
+       end subroutine nmpot2 
+
 C      subroutine nmpot3(job,a,avw,b,ib,ic,is,clabl,kmto,pnu,lmx,ne,nl,
 C     .  nr,nsp,rofi,hcr,v,vmtz,ves,z,ppnl)
 CC- Potential parameters for pot. functions and downfolding, complex e

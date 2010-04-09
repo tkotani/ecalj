@@ -1,4 +1,7 @@
+Cgetarg...info...           structure ['ioposs', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['ioposs', 'm_struc_def']
       subroutine iopos(lio,mode,filnam,nbas,bas)
+
 C- File i/o of site positions
 C ----------------------------------------------------------------
 Ci Inputs
@@ -183,13 +186,20 @@ C     ... Show input
       endif
 #endif
 
-      end
+Cgetarg       end
+       end subroutine iopos 
+
       subroutine ioposs(lio,mode,filnam,nbas,ssite)
+       
+       use m_struc_def  !Cgetarg
+
 C- File i/o of site positions from site structure
 C     implicit none
       logical lio
       integer mode,nbas
-      double precision ssite(1)
+Cgetarg       double precision ssite(1)
+       type(s_site)::ssite(*)
+
       character*(*) filnam
       integer opos
 C heap:
@@ -198,11 +208,23 @@ C heap:
 
 C ... Unpack site positions
       call defrr(opos,3*nbas)
-      call spackv(10,'site pos',ssite,1,nbas,w(opos))
+Cgetarg       call spackv(10,'site pos',ssite,1,nbas,w(opos))
+       i_copy_size=size(ssite(1)%pos)
+       do i_spackv=1,nbas 
+       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+       enddo
+
 C ... File I/O
       call iopos(lio,mode,filnam,nbas,w(opos))
 C ... Repack site positions
-      call spackv(11,'site pos',ssite,1,nbas,w(opos))
+Cgetarg       call spackv(11,'site pos',ssite,1,nbas,w(opos))
+       i_copy_size=size(ssite(1)%pos)
+       do i_spackv=1,nbas 
+       call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+       enddo
+
       call rlse(opos)
-      end
+Cgetarg       end
+       end subroutine ioposs 
+
 

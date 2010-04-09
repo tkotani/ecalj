@@ -1,4 +1,12 @@
+Cgetarg...info...           structure ['mmag', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['mmag', 'lat', 'slat']
+Cgetarg...info...           structure ['mmag', 'array', 'sarray']
+Cgetarg...info...           structure ['mmag', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['mmag', 'm_struc_def']
       subroutine mmag(sctrl,sarray,sspec,slat,smove,sstrn)
+       
+       use m_struc_def  !Cgetarg
+
 C- Micromagnetics simulations
 C ----------------------------------------------------------------------
 Ci   sctrl :struct containing parameters governing program flow
@@ -17,7 +25,13 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mxcsiz
-      double precision sctrl(1),sspec(1),slat(1),sarray(1),smove(1)
+Cgetarg       double precision sctrl(1),sspec(1),slat(1),sarray(1),smove(1)
+       type(s_ctrl)::sctrl
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_array)::sarray
+       type(s_move)::smove
+
       character*(*) sstrn
 C Local
       character htype(2)*5
@@ -30,12 +44,44 @@ C ... Heap
       common /w/ w
       data htype /'h1:','h2:'/
 
-      call upack('ctrl nbas nbasp nspec',sctrl,nbas,nbasp,nspec,0,0)
-      call upack('lat alat plat avw',slat,alat,plat,avw,0,0)
-      call upack('array opgfsl oips opos',sarray,opgfsl,oips,opos,0,0)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg       call upack('ctrl nbas nbasp nspec',sctrl,nbas,nbasp,nspec,0,0)
+       
+       nbas=sctrl%nbas
+       nbasp=sctrl%nbasp
+       nspec=sctrl%nspec
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
+Cgetarg       call upack('lat alat plat avw',slat,alat,plat,avw,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       avw=slat%avw
+
+Cgetarg...info...           integer :: opgfsl , integer(8) :: sarray%opgfsl 1
+Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
+Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
+Cgetarg       call upack('array opgfsl oips opos',sarray,opgfsl,oips,opos,0,0)
+       
+       opgfsl=sarray%opgfsl
+       oips=sarray%oips
+       opos=sarray%opos
+
       call defrr(orham,nspec)
-      call spackv(10,'spec rham',sspec,1,nspec,w(orham))
-      lpgf = igets('ctrl lpgf',sctrl)
+Cgetarg       call spackv(10,'spec rham',sspec,1,nspec,w(orham))
+       i_copy_size=1; 
+       do i_spackv=1,nspec 
+       call spackv_array_copy_r8_r8('u',sspec(i_spackv)%rham,i_copy_size,i_spackv+1-1,w(orham))
+       enddo
+
+Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
+       lpgf = int(sctrl%lpgf(1)) 
+
       lpbc = 0
       if (lpgf .gt. 0) lpbc = 11
 
@@ -95,5 +141,7 @@ C     .   etot,amag,w(ofrc))
 C        goto 62
 C      endif
 
-      end
+Cgetarg       end
+       end subroutine mmag 
+
 

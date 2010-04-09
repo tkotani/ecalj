@@ -1,8 +1,17 @@
+Cgetarg...info...           structure ['asaddq', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['asaddq', 'ham', 'sham']
+Cgetarg...info...           structure ['asaddq', 'array', 'sarray']
+Cgetarg...info...           structure ['asaddq', 'pot', 'spot']
+Cgetarg...info...           structure ['asaddq', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['asaddq', 'm_struc_def']
       subroutine asaddq(sctrl,slat,sham,spot,sarray,ikp,nkp,
      .  isp,nev,nbmax,eband,zll,
      .  nlibu,lmaxu,idu,vorb,
      .  nfilem,lwtkb,wtkb,wtkp,zval,metal,ldnpp,
      .  nqpp,ldos,lrhos,nsite,lsite,ldmat,qnu,qpp,dnpp,rhos,orbtm)
+       
+       use m_struc_def  !Cgetarg
+
 C- Accumulate contributions from this qp byproducts of ASA eigenvectors
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -101,7 +110,13 @@ C ... Passed parameters
       logical metal,lrhos,ldnpp
       integer isp,nev,ikp,nkp,nfilem,nbmax,nqpp,ldmat,ldos,lwtkb,
      .  nsite,lsite(*)
-      double precision sctrl(1),sham(1),spot(1),slat(1),sarray(1)
+Cgetarg       double precision sctrl(1),sham(1),spot(1),slat(1),sarray(1)
+       type(s_ctrl)::sctrl
+       type(s_ham)::sham
+       type(s_pot)::spot
+       type(s_lat)::slat
+       type(s_array)::sarray
+
       double precision eband(nbmax,*),zll(*),wtkb(nbmax),dnpp(*),
      .  wtkp(nkp),zval,qnu(1),rhos(2,*),orbtm(*)
       double complex qpp(nqpp,4,*)
@@ -127,14 +142,64 @@ C     No eigenvectors; nothing to accumulate
 C --- Setup ---
       call tcn('asaddq')
       call defi(o,1)
-      call upack('ctrl lncol lham loptc',sctrl,lncol,lham,loptic,0,0)
-      lkkrm = .not. lgors('ctrl lasa,256',sctrl)
-      call upack('ctrl nbas nclass nl nspec nspin',sctrl,nbas,nclass,nl,
-     .  nspec,nsp)
-      call upack('ham ldham oindxo',sham,ldham,oidxsh,0,0,0)
-      call upack('ham oeula neula qss',sham,oeula,neul,qss,0,0)
-      call upack('array oipc onrc',sarray,oipc,onrc,0,0,0)
-      call upack('pot opp nrhos',spot,opp,nrhos,0,0,0)
+Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
+Cgetarg...info...           integer :: lham , integer(8) :: sctrl%lham 1
+Cgetarg...info...           integer :: loptic , integer(8) :: sctrl%loptc 1
+Cgetarg       call upack('ctrl lncol lham loptc',sctrl,lncol,lham,loptic,0,0)
+       
+       lncol=sctrl%lncol
+       lham=sctrl%lham
+       loptic=sctrl%loptc
+
+Cgetarg       lkkrm = .not. lgors('ctrl lasa,256',sctrl)
+       lkkrm = .not. iand(256,int(sctrl%lasa)) .ne.0 
+
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg       call upack('ctrl nbas nclass nl nspec nspin',sctrl,nbas,nclass,nl,
+Cgetarg      .  nspec,nsp)
+       
+       nbas=sctrl%nbas
+       nclass=sctrl%nclass
+       nl=sctrl%nl
+       nspec=sctrl%nspec
+       nsp=sctrl%nspin
+
+Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ldham 16
+Cgetarg...info...           integer :: oidxsh , integer(8) :: sham%oindxo 1
+Cgetarg       call upack('ham ldham oindxo',sham,ldham,oidxsh,0,0,0)
+       
+       i_copy_size=size(sham%ldham) 
+       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
+       oidxsh=sham%oindxo
+
+Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
+Cgetarg...info...           integer :: neul , integer(8) :: sham%neula 1
+Cgetarg...info...           real(8) :: qss(4) , real(8) :: sham%qss 4
+Cgetarg       call upack('ham oeula neula qss',sham,oeula,neul,qss,0,0)
+       
+       oeula=sham%oeula
+       neul=sham%neula
+       i_copy_size=size(sham%qss) 
+       call dcopy(i_copy_size,sham%qss,1,qss,1) 
+
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg...info...           integer :: onrc , integer(8) :: sarray%onrc 1
+Cgetarg       call upack('array oipc onrc',sarray,oipc,onrc,0,0,0)
+       
+       oipc=sarray%oipc
+       onrc=sarray%onrc
+
+Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
+Cgetarg...info...           integer :: nrhos , integer(8) :: spot%nrhos 1
+Cgetarg       call upack('pot opp nrhos',spot,opp,nrhos,0,0,0)
+       
+       opp=spot%opp
+       nrhos=spot%nrhos
+
 C     Some dimensioning parameters
       idim = lidim - ldim
       li = ldim * idim * nspc**2
@@ -149,7 +214,11 @@ C     lorth = bitand(lham,3) .ne. 0 .or. bittst(lham,32)
       if (lwtkb .eq. 0 .and. metal) nmom = nspc+2
       call iomomn(metal,ldos,lrhos,nev,nspc,nmom,lwtkb,nfstg)
       nschan = mod(nfstg/10,10)
-      call upack('lat nsgrp',slat,ng,0,0,0,0)
+Cgetarg...info...           integer :: ng , integer(8) :: slat%nsgrp 1
+Cgetarg       call upack('lat nsgrp',slat,ng,0,0,0,0)
+       
+       ng=slat%nsgrp
+
       if (nsite .gt. 0) then
         nchan = nlo*nbas
         nchan2 = nrhos*nbas
@@ -245,10 +314,13 @@ C --- Accumulate density matrix  ---
 
       call rlse(o)
       call tcx('asaddq')
-      end
+Cgetarg       end
+       end subroutine asaddq 
+
 
       subroutine asadq4(nl,nlo,isp,nsp,nbas,nev,nschan,nsite,ipc,nrclas,
      .  lsite,doswt,qnub,doswts,qnu)
+
 C- Copies dos weights ordered by classes to one ordered by a list of sites
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -302,10 +374,13 @@ C ... Accumulate qnu by class
         call daxpy(3*nl,fac,qnub(1,1,isp,ib),1,qnu(1,1,isp,ic),1)
       enddo
 
-      end
+Cgetarg       end
+       end subroutine asadq4 
+
 
       subroutine asadq1(nbas,nl,indxsh,ldim,idim,lihdim,lncol,eula,
      .  neul,qss,isp,nev,pph,zll,zil,c)
+
 C- Kernel called by asaddq to make zil and c = h * zll
 C     implicit none
       integer nbas,nl,indxsh,ldim,idim,lihdim,lncol,nev,neul
@@ -425,8 +500,11 @@ C       Fast branch.  Not implemented for SS.
       call rlse(osll)
       call tcx('h*z')
 
-      end
+Cgetarg       end
+       end subroutine asadq1 
+
       subroutine asadq2(ldim,lihdim,ipp,icplx,fac,pph,ppv)
+
 C- Adds fac * (ldim part of pph) into vector ppv
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -445,10 +523,13 @@ C     implicit none
 
       call daxpy(ldim,fac,pph(ipp,1,1),5,ppv,icplx)
       call daxpy(ldim,fac,pph(ipp,1,2),5,ppv(1,1,2),icplx)
-      end
+Cgetarg       end
+       end subroutine asadq2 
+
 
       subroutine asadq3(mode,ldim,idim,lihdim,nev,nevw,nbas,nl,indxsh,
      .  eula,neul,qss,pph,sil,silss,zll,zwk,d2,zil)
+
 C- Generate decorated strux * zll for noncollinear eigenvectors zll
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -602,7 +683,9 @@ C ... ll case: add (C-enu) zll to
 
       enddo
 C     call yprm('zil',2,zil,ozi,idimx,idimx,nev)
-      end
+Cgetarg       end
+       end subroutine asadq3 
+
 
 C      subroutine asadq4(ssite,sspec,slat,nbas,nclass,nsp,nl,nev,nspc,
 C     .  qnub,doswtb,qnu,doswt,dosw2)

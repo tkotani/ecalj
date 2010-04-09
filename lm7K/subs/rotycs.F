@@ -1,4 +1,10 @@
+Cgetarg...info...           structure ['rotycs', 'site', 'ssite']
+Cgetarg...info...           structure ['rotycs', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['rotycs', 'm_struc_def']
       subroutine rotycs(mode,a,nbas,nsp,lmaxu,sspec,ssite,lldau)
+       
+       use m_struc_def  !Cgetarg
+
 C- Rotate matrix a from real to spherical harmonics
 C for LDA+U objects densmat and vorb
 C-------------------------------------
@@ -28,7 +34,10 @@ C     implicit none
 C passed variables
       integer nbas,lldau(nbas),mode,lmaxu,nsp
       double complex a(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
-      double precision sspec(1),ssite(1)
+Cgetarg       double precision sspec(1),ssite(1)
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+
 C local variables
       integer ib,m,l,idu(4),lmxa,is,igetss,i,j,k,ll,isp,iblu
       double complex rot(2,2)
@@ -39,8 +48,17 @@ C local variables
       iblu = 0
       do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
-          is = igetss('site spec',ib,ssite)
-          call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
+Cgetarg           is = igetss('site spec',ib,ssite)
+           is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
+Cgetarg           call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
+           
+           lmxa=sspec(is)%lmxa
+           i_copy_size=size(sspec(is)%idu) 
+           call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+
           do  l = 0, min(lmxa,3)
             if (idu(l+1) .ne. 0) then
               iblu = iblu+1
@@ -92,5 +110,7 @@ C place c in appropriate place
           enddo
         endif
       enddo
-      end
+Cgetarg       end
+       end subroutine rotycs 
+
 

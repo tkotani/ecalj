@@ -1,4 +1,9 @@
+Cgetarg...info...           structure ['asetot', 'ham', 'sham']
+Cgetarg...info...           use_to_add ['asetot', 'm_struc_def']
       subroutine asetot(mode,sham,sev,etot)
+       
+       use m_struc_def  !Cgetarg
+
 C- Make ASA Harris energy or Kohn-Sham energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -38,7 +43,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode
-      double precision sham(1),sev,etot
+Cgetarg       double precision sham(1),sev,etot
+       real(8):: sev , etot 
+       type(s_ham)::sham
+
 C ... Local parameters
       integer stdo,ipr,lgunit,i,j
       double precision eterms(20),sumec,rhov,ekin,utot,rhoexc,eref,
@@ -50,7 +58,14 @@ C ... Local parameters
       call getpr(ipr)
 C     ipr = 51
 
-      call upack('ham eterms seref',sham,eterms,eref,0,0,0)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg...info...           real(8) :: eref , real(8) :: sham%seref 1
+Cgetarg       call upack('ham eterms seref',sham,eterms,eref,0,0,0)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,sham%eterms,1,eterms,1) 
+       eref=sham%seref
+
 
       eterms(16) = sev
 
@@ -76,7 +91,12 @@ C     sumtc = eterms(9)
         nam2 = 'ehks='
       endif
 
-      call pack1('ham eterms',sham,eterms)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call pack1('ham eterms',sham,eterms)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,eterms,1,sham%eterms,1) 
+
 
 C --- Printout ---
       if (ipr .gt. 40) then
@@ -88,5 +108,7 @@ C --- Printout ---
      .        /' rhoep= ',f15.6,'   utot=',f17.6,3x,a5,     f16.6)
       endif
 
-      end
+Cgetarg       end
+       end subroutine asetot 
+
 

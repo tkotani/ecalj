@@ -1,4 +1,5 @@
       subroutine makptf(avw,kbak,l,hcr,slo,val,rmax,ptf,beta)
+
 C- Makes potential function and downfolding beta
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -49,5 +50,7 @@ C ... wj = (D{phi}-D{J}), wn = (D{phi}-D{K})
       else
         beta = fi(l)/gi(l)
       endif
-      end
+Cgetarg       end
+       end subroutine makptf 
+
 

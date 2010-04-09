@@ -1,4 +1,5 @@
       subroutine hklml(p,rsm,e,kmax,nlm,k0,hkl)
+
 C- k,L-dependent smooth Hankel functions.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -46,7 +47,9 @@ C --- H_kL by recursion ---
         gklsav = gklnew
     2 continue
 
-      end
+Cgetarg       end
+       end subroutine hklml 
+
 C
 C      subroutine hhiml(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,
 C     .  ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)

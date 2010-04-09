@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['praldm', 'site', 'ssite']
+Cgetarg...info...           structure ['praldm', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['praldm', 'm_struc_def']
       subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,sspec,
      .  ssite,strn,dmatu)
+       
+       use m_struc_def  !Cgetarg
+
 C- Writes out a site density-matrix-like object for all sites
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -35,7 +41,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm
-      double precision sspec(1),ssite(1)
+Cgetarg       double precision sspec(1),ssite(1)
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       character strn*(*)
 C ... Local parameters
@@ -44,8 +53,17 @@ C ... Local parameters
       iblu = 0
       do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
-          is = igetss('site spec',ib,ssite)
-          call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
+Cgetarg           is = igetss('site spec',ib,ssite)
+           is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
+Cgetarg           call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
+           
+           lmxa=sspec(is)%lmxa
+           i_copy_size=size(sspec(is)%idu) 
+           call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+
           do  l = 0, min(lmxa,3)
             if (idu(l+1) .ne. 0) then
              iblu = iblu+1
@@ -55,9 +73,12 @@ C ... Local parameters
           enddo
         endif
       enddo
-      end
+Cgetarg       end
+       end subroutine praldm 
+
       subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats,
      .  nsp,nspc)
+
 C- Writes out a site density-matrix-like object for a single l
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -148,5 +169,7 @@ C       Header: printout l, ib (if ib>0), spin (if nsp=2, ipr2>=ipr)
 
       endif
 
-      end
+Cgetarg       end
+       end subroutine prdmts 
+
 

@@ -1,5 +1,16 @@
+Cgetarg...info...           structure ['lmasa', 'mix', 'smix']
+Cgetarg...info...           structure ['lmasa', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['lmasa', 'ham', 'sham']
+Cgetarg...info...           structure ['lmasa', 'pot', 'spot']
+Cgetarg...info...           structure ['lmasa', 'array', 'sarray']
+Cgetarg...info...           structure ['lmasa', 'lat', 'slat']
+Cgetarg...info...           structure ['lmasa', 'bz', 'sbz']
+Cgetarg...info...           use_to_add ['lmasa', 'm_struc_def']
       subroutine lmasa(prgnam,sbz,sctrl,sham,spot,slat,smix,
      .  sspec,ssite,sstr,sarray,sstrn)
+       
+       use m_struc_def  !Cgetarg
+
 C- ASA self-consistency loop
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -171,8 +182,19 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters:
       character*(*) sstrn, prgnam*8
-      double precision sarray(1),sbz(1),sctrl(1),slat(1),smix(1),
-     .  sspec(1),ssite(1),sham(1),spot(1),sstr(1)
+Cgetarg       double precision sarray(1),sbz(1),sctrl(1),slat(1),smix(1),
+Cgetarg      .  sspec(1),ssite(1),sham(1),spot(1),sstr(1)
+       type(s_array)::sarray
+       type(s_bz)::sbz
+       type(s_ctrl)::sctrl
+       type(s_lat)::slat
+       type(s_mix)::smix
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+       type(s_ham)::sham
+       type(s_pot)::spot
+       type(s_str)::sstr
+
 C ... Heap
       integer w(1)
       common /w/ w
@@ -244,35 +266,172 @@ C ... Default values for mixing
       call dpzero(ehterm,6)
       call dpzero(dmxprm,34)
       call dpzero(vconst,3)
-      call upack('mix b bv w wc',smix,dmxprm(2),dmxprm(9),dmxprm(4),
-     .  dmxprm(3),0)
-      dmxprm(6) = igets('mix nsave',smix)
-      dmxprm(7) = igets('mix mmix',smix)
-      call upack('ctrl nbas nclass nl nspec nspin',sctrl,nbas,nclass,nl,
-     .  nspec,nsp)
-      call upack('ctrl loptc lasa lsx lncol lham',sctrl,loptc,lasa,lsx,
-     .  lncol,lham)
-      lpgf = igets('ctrl lpgf',sctrl)
-      call upack('ham oeula neula',sham,oeula,neul,0,0,0)
-      call upack('pot opp osop ogrrme',spot,opp,osop,ogrrme,0,0)
-      call upack('ctrl sdmod sdprm maxit zbak',sctrl,sdmod,sdprm,
-     .  maxit,zbak,0)
-      lcgf = igets('ctrl lcgf',sctrl)
-      iscr = mod(igets('ctrl lscr',sctrl),10)
-      lrsig = igets('ham lsig',sham)
-      call upack('array ohave oics oclabl onrcp oipc',sarray,oinitc,
-     .  oics,oclabl,onrcp,oipc)
-      call upack('array npadl npadr nclasp ormax ogroup',sarray,npadl,
-     .  npadr,nclasp,ormax,ogroup)
-      call upack('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
-      call upack('pot orhrmx oves ovrmax opmpol oqpp',spot,orhrmx,oves,
-     .  ovrmax,opmpol,oqpp)
-      call upack('pot ovintr orhos oaamom nrhos',spot,
-     .  ovintr,orhos,oaamom,nrhos,0)
+Cgetarg...info...           real(8) :: dmxprm(34) , real(8) :: smix%b 1
+Cgetarg...info...           real(8) :: dmxprm(34) , real(8) :: smix%bv 1
+Cgetarg...info...           real(8) :: dmxprm(34) , real(8) :: smix%w 3
+Cgetarg...info...           real(8) :: dmxprm(34) , real(8) :: smix%wc 1
+Cgetarg       call upack('mix b bv w wc',smix,dmxprm(2),dmxprm(9),dmxprm(4),
+Cgetarg      .  dmxprm(3),0)
+       
+       dmxprm(2)=smix%b
+       dmxprm(9)=smix%bv
+       i_copy_size=size(smix%w) 
+       call dcopy(i_copy_size,smix%w,1,dmxprm(4),1) 
+       dmxprm(3)=smix%wc
+
+Cgetarg       dmxprm(6) = igets('mix nsave',smix)
+       dmxprm ( 6 ) = int(smix%nsave) 
+
+Cgetarg       dmxprm(7) = igets('mix mmix',smix)
+       dmxprm ( 7 ) = int(smix%mmix) 
+
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg       call upack('ctrl nbas nclass nl nspec nspin',sctrl,nbas,nclass,nl,
+Cgetarg      .  nspec,nsp)
+       
+       nbas=sctrl%nbas
+       nclass=sctrl%nclass
+       nl=sctrl%nl
+       nspec=sctrl%nspec
+       nsp=sctrl%nspin
+
+Cgetarg...info...           integer :: loptc , integer(8) :: sctrl%loptc 1
+Cgetarg...info...           integer :: lasa , integer(8) :: sctrl%lasa 1
+Cgetarg...info...           integer :: lsx , integer(8) :: sctrl%lsx 1
+Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
+Cgetarg...info...           integer :: lham , integer(8) :: sctrl%lham 1
+Cgetarg       call upack('ctrl loptc lasa lsx lncol lham',sctrl,loptc,lasa,lsx,
+Cgetarg      .  lncol,lham)
+       
+       loptc=sctrl%loptc
+       lasa=sctrl%lasa
+       lsx=sctrl%lsx
+       lncol=sctrl%lncol
+       lham=sctrl%lham
+
+Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
+       lpgf = int(sctrl%lpgf(1)) 
+
+Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
+Cgetarg...info...           integer :: neul , integer(8) :: sham%neula 1
+Cgetarg       call upack('ham oeula neula',sham,oeula,neul,0,0,0)
+       
+       oeula=sham%oeula
+       neul=sham%neula
+
+Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
+Cgetarg...info...           integer :: osop , integer(8) :: spot%osop 1
+Cgetarg...info...           integer :: ogrrme , integer(8) :: spot%ogrrme 1
+Cgetarg       call upack('pot opp osop ogrrme',spot,opp,osop,ogrrme,0,0)
+       
+       opp=spot%opp
+       osop=spot%osop
+       ogrrme=spot%ogrrme
+
+Cgetarg...info...           integer :: sdmod , integer(8) :: sctrl%sdmod 1
+Cgetarg...info...           real(8) :: sdprm(6) , real(8) :: sctrl%sdprm 5
+Cgetarg...info...           integer :: maxit , integer(8) :: sctrl%maxit 1
+Cgetarg...info...           real(8) :: zbak(2) , real(8) :: sctrl%zbak 2
+Cgetarg       call upack('ctrl sdmod sdprm maxit zbak',sctrl,sdmod,sdprm,
+Cgetarg      .  maxit,zbak,0)
+       
+       sdmod=sctrl%sdmod
+       i_copy_size=size(sctrl%sdprm) 
+       call dcopy(i_copy_size,sctrl%sdprm,1,sdprm,1) 
+       maxit=sctrl%maxit
+       i_copy_size=size(sctrl%zbak) 
+       call dcopy(i_copy_size,sctrl%zbak,1,zbak,1) 
+
+Cgetarg       lcgf = igets('ctrl lcgf',sctrl)
+       lcgf = int(sctrl%lcgf) 
+
+Cgetarg       iscr = mod(igets('ctrl lscr',sctrl),10)
+       iscr = mod ( int(sctrl%lscr) , 10 ) 
+
+Cgetarg       lrsig = igets('ham lsig',sham)
+       lrsig = int(sham%lsig) 
+
+Cgetarg...info...           integer :: oinitc , integer(8) :: sarray%ohave 1
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg...info...           integer :: onrcp , integer(8) :: sarray%onrcp 1
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg       call upack('array ohave oics oclabl onrcp oipc',sarray,oinitc,
+Cgetarg      .  oics,oclabl,onrcp,oipc)
+       
+       oinitc=sarray%ohave
+       oics=sarray%oics
+       oclabl=sarray%oclabl
+       onrcp=sarray%onrcp
+       oipc=sarray%oipc
+
+Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
+Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
+Cgetarg...info...           integer :: ogroup , integer(8) :: sarray%ogroup 1
+Cgetarg       call upack('array npadl npadr nclasp ormax ogroup',sarray,npadl,
+Cgetarg      .  npadr,nclasp,ormax,ogroup)
+       
+       npadl=sarray%npadl
+       npadr=sarray%npadr
+       nclasp=sarray%nclasp
+       ormax=sarray%ormax
+       ogroup=sarray%ogroup
+
+Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
+Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
+Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
+Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
+Cgetarg       call upack('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
+       
+       opnu=spot%opnu
+       oqnu=spot%oqnu
+       oqc=spot%oqc
+       oqt=spot%oqt
+
+Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
+Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
+Cgetarg...info...           integer :: ovrmax , integer(8) :: spot%ovrmax 1
+Cgetarg...info...           integer :: opmpol , integer(8) :: spot%opmpol 1
+Cgetarg...info...           integer :: oqpp , integer(8) :: spot%oqpp 1
+Cgetarg       call upack('pot orhrmx oves ovrmax opmpol oqpp',spot,orhrmx,oves,
+Cgetarg      .  ovrmax,opmpol,oqpp)
+       
+       orhrmx=spot%orhrmx
+       oves=spot%oves
+       ovrmax=spot%ovrmax
+       opmpol=spot%opmpol
+       oqpp=spot%oqpp
+
+Cgetarg...info...           integer :: ovintr , integer(8) :: spot%ovintr 1
+Cgetarg...info...           integer :: orhos , integer(8) :: spot%orhos 1
+Cgetarg...info...           integer :: oaamom , integer(8) :: spot%oaamom 1
+Cgetarg...info...           integer :: nrhos , integer(8) :: spot%nrhos 1
+Cgetarg       call upack('pot ovintr orhos oaamom nrhos',spot,
+Cgetarg      .  ovintr,orhos,oaamom,nrhos,0)
+       
+       ovintr=spot%ovintr
+       orhos=spot%orhos
+       oaamom=spot%oaamom
+       nrhos=spot%nrhos
+
       call sp2cls('spec idmod',sspec,w(oics),nl,1,nclasp,oidmod)
-      call upack1('lat avw',slat,avw)
-      lnsph = isw(lgors('ctrl lasa,32',sctrl))
-      lfree = lgors('ctrl lasa,8',sctrl)
+Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
+Cgetarg       call upack1('lat avw',slat,avw)
+       
+       avw=slat%avw
+
+Cgetarg       lnsph = isw(lgors('ctrl lasa,32',sctrl))
+       lnsph = isw ( iand(32,int(sctrl%lasa)) .ne.0 ) 
+
+Cgetarg       lfree = lgors('ctrl lasa,8',sctrl)
+       lfree = iand(8,int(sctrl%lasa)) .ne.0 
+
       call supot(1,sctrl,slat,spot)
       vne = 0
       vrl = 0
@@ -282,7 +441,9 @@ C ... Default values for mixing
 
 C ... Input from restart file
       if (cmdopt('--rs=',5,0,outs)) then
-      irs(1) = igets('ctrl lrs,7',sctrl)
+Cgetarg       irs(1) = igets('ctrl lrs,7',sctrl)
+       irs ( 1 ) = iand(7,int(sctrl%lrs)) 
+
       if (irs(1) .gt. 0) then
         if (procid .eq. master) ifi = fopna('rsta',-1,0)
         call mpibc1(ifi,1,2,.false.,'lmasa','ifi')
@@ -303,7 +464,13 @@ C     for now
         i = 6
         i = a2vec(outs,len(outs),i,2,', ',2,2,2,iv,iv(3))
       endif
-      call pack2('array nofgl nofgr',sarray,iv(3),iv(4))
+Cgetarg...info...           integer :: iv(10) , integer(8) :: sarray%nofgl 1
+Cgetarg...info...           integer :: iv(10) , integer(8) :: sarray%nofgr 1
+Cgetarg       call pack2('array nofgl nofgr',sarray,iv(3),iv(4))
+       
+       sarray%nofgl=iv(3) 
+       sarray%nofgr=iv(4) 
+
 
       if (lpgf .eq. 2) iscr = 0
 #endif
@@ -313,14 +480,25 @@ C     for now
       nlspcp = nl*nsp*max(nclspp,nspec)
       nqpp   = (nl**2*(nl**2+1))/2
       lmfrce = bittst(lncol,16) .and. bittst(lncol,1)
-      if (cmdopt('-noves',6,0,outs)) call lsets('ctrl lves',sctrl,T,1)
-      lves   = 2*igets('ctrl lves,1',sctrl)
+Cgetarg       if (cmdopt('-noves',6,0,outs)) call lsets('ctrl lves',sctrl,T,1)
+       if ( cmdopt ( '-noves' , 6 , 0 , outs ) ) then 
+       
+       call lsets_bitop_i8(sctrl%lves,1,T,1)
+       endif 
+
+Cgetarg       lves   = 2*igets('ctrl lves,1',sctrl)
+       lves = 2 * iand(1,int(sctrl%lves)) 
+
       emad = 0
       trumad = 0
       seref = 0
       latok = 0
       call defrr(ovdif,-nclspp)
-      call pack1('pot ovdif',spot,ovdif)
+Cgetarg...info...           integer :: ovdif , integer(8) :: spot%ovdif 1
+Cgetarg       call pack1('pot ovdif',spot,ovdif)
+       
+       spot%ovdif=ovdif 
+
 C ... class-based arrays
       call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
       call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx)
@@ -330,7 +508,9 @@ C     call redfi(ogrp2,nclasp)
 C ... Other initialization
       call subasi(sctrl,sspec,sham)
       nband = nbas*nglob('mxorb')
-      call defdr(oeband,nband*nsp*igets('bz nkp',sbz))
+Cgetarg       call defdr(oeband,nband*nsp*igets('bz nkp',sbz))
+       call defdr ( oeband , nband * nsp * int(sbz%nkp) ) 
+
 
 C ... Setup for charge mixing
       call parms0(dmxprm(30),dmxprm(31),dmxprm(32),1)
@@ -348,7 +528,12 @@ C ... Setup for charge mixing
 
 C ... Green's function specific setup
 #if GF
-      call upack1('bz semsh',sbz,semsh)
+Cgetarg...info...           real(8) :: semsh(10) , real(8) :: sbz%semsh 10
+Cgetarg       call upack1('bz semsh',sbz,semsh)
+       
+       i_copy_size=size(sbz%semsh) 
+       call dcopy(i_copy_size,sbz%semsh,1,semsh,1) 
+
       nzp = nint(semsh(1))
 C ... setup for non-equilibrium mode
       call setne(sbz,sctrl,nzne,vne,lnoneq)
@@ -363,16 +548,35 @@ C ... setup for non-equilibrium mode
      .    'delef= %,6d%N',' ',80,stdo,efermi,efermi(1)-semsh(4))
         i = mod(nint(semsh(2)),100)
         if (i .ne. 2) semsh(4) = efermi(1)
-        call pack1('bz semsh',sbz,semsh)
+Cgetarg...info...           real(8) :: semsh(10) , real(8) :: sbz%semsh 10
+Cgetarg         call pack1('bz semsh',sbz,semsh)
+         
+         i_copy_size=size(sbz%semsh) 
+         call dcopy(i_copy_size,semsh,1,sbz%semsh,1) 
+
       endif
       efermi(1) = semsh(4)
 
       call defdc(ozp,nzp+nzne)
       call defdc(owz,nzp+nzne)
       call emesh(semsh,w(ozp),w(owz))
-      call upack('array opgfsl opgplp',sarray,opgfsl,opgplp,0,0,0)
-      call upack1('ctrl npl',sctrl,npl)
-      call upack1('pot ovshf',spot,ovshft)
+Cgetarg...info...           integer :: opgfsl , integer(8) :: sarray%opgfsl 1
+Cgetarg...info...           integer :: opgplp , integer(8) :: sarray%opgplp 1
+Cgetarg       call upack('array opgfsl opgplp',sarray,opgfsl,opgplp,0,0,0)
+       
+       opgfsl=sarray%opgfsl
+       opgplp=sarray%opgplp
+
+Cgetarg...info...           integer :: npl , integer(8) :: sctrl%npl 1
+Cgetarg       call upack1('ctrl npl',sctrl,npl)
+       
+       npl=sctrl%npl
+
+Cgetarg...info...           integer :: ovshft , integer(8) :: spot%ovshf 1
+Cgetarg       call upack1('pot ovshf',spot,ovshft)
+       
+       ovshft=spot%ovshf
+
 
       i = 1+4
 #if PGF
@@ -381,7 +585,12 @@ C ... setup for non-equilibrium mode
       ifi = fopn('VSHFT')
       call iovshf(nbas,i,'read file vshft: ef=%d  vconst=%d',
      .  efermi,xv,vconst,w(ovshft),ifi)
-      call pack1('pot vconst',spot,vconst)
+Cgetarg...info...           real(8) :: vconst(3) , real(8) :: spot%vconst 3
+Cgetarg       call pack1('pot vconst',spot,vconst)
+       
+       i_copy_size=size(spot%vconst) 
+       call dcopy(i_copy_size,vconst,1,spot%vconst,1) 
+
       call fclr('VSHFT',-1)
       call defdr(ovshfs, 8+nbasp)
 #if PGF
@@ -422,19 +631,39 @@ C --- Sphere program.  Make potential parameters ---
       if (bitand(lasa,3) .eq. 3)
      .  call rx('lmasa: not ready for BEGMOM=3')
 C     Temporarily set lscr when making vintra only selected iterations
-      iscsav = igets('ctrl lscr',sctrl)
+Cgetarg       iscsav = igets('ctrl lscr',sctrl)
+       iscsav = int(sctrl%lscr) 
+
       if (mod(iscsav,100) .ge. 20) then
-        if (mod(nit,mod(iscsav,100)/10) .ne. 0)
-     .    call pack1('ctrl lscr',sctrl,0)
+Cgetarg         if (mod(nit,mod(iscsav,100)/10) .ne. 0)
+Cgetarg      .    call pack1('ctrl lscr',sctrl,0)
+         if ( mod ( nit , mod ( iscsav , 100 ) /10 ) .ne. 0 ) then 
+         
+         sctrl%lscr=0 
+         endif 
+
       endif
       call asvsph(sctrl,slat,sarray,sspec,sham,spot,vrl,imake,
      .  ehterm,latok)
 
-      call upack1('ham eterms',sham,etrmss)
-      amgm = dgets('ham eterms:15',sham)
-      sevat = dgets('ham eterms:16',sham)
+Cgetarg...info...           real(8) :: etrmss(20) , real(8) :: sham%eterms 20
+Cgetarg       call upack1('ham eterms',sham,etrmss)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,sham%eterms,1,etrmss,1) 
+
+Cgetarg       amgm = dgets('ham eterms:15',sham)
+       amgm = sham%eterms(15) 
+
+Cgetarg       sevat = dgets('ham eterms:16',sham)
+       sevat = sham%eterms(16) 
+
 C     Reset lscr
-      call pack1('ctrl lscr',sctrl,iscsav)
+Cgetarg...info...           integer :: iscsav , integer(8) :: sctrl%lscr 1
+Cgetarg       call pack1('ctrl lscr',sctrl,iscsav)
+       
+       sctrl%lscr=iscsav 
+
 
 C ... Update second-padded pnu,qnu, in case they changed
 #if PGF
@@ -458,7 +687,9 @@ C --- Re-entry point for non-self-consistent calculations ---
 
 C ... Output to restart file (eventually only for nit>0)
       if (cmdopt('--rs=',5,0,outs)) then
-        irs(2) = igets('ctrl lrs,8+16',sctrl)/8
+Cgetarg         irs(2) = igets('ctrl lrs,8+16',sctrl)/8
+         irs ( 2 ) = iand(8+16,int(sctrl%lrs)) /8 
+
         if (irs(2) .gt. 0) then
           if (procid .eq. master) ifi = fopna('rsta',-1,0)
           call mpibc1(ifi,1,2,.false.,'lmasa','ifi')
@@ -473,19 +704,34 @@ C --- Print out summary of this iteration, check for convergence ---
       if (nit .gt. 0) then
         xv(3) = ehf
         xv(4) = ehk
-        qtol = dgets('ctrl tol',sctrl)
-        etol = dgets('ctrl tol:3',sctrl)
+Cgetarg         qtol = dgets('ctrl tol',sctrl)
+         qtol = sctrl%tol(1) 
+
+Cgetarg         etol = dgets('ctrl tol:3',sctrl)
+         etol = sctrl%tol(3) 
+
         xv(1) = rmsdel
 C       Independent mixing of Euler angles: combine rms dq, deuler
         if (getdig(sdmod,1,10).eq.1) xv(1)=sqrt(rmsdel**2+dmxprm(32)**2)
         if (procid .eq. master) then
-          call nwit(igets('ctrl nvario',sctrl),nit,maxit,.false.,1,etol,
-     .      qtol,xv,'cxhi',amgm,xv(3),lsc)
+Cgetarg           call nwit(igets('ctrl nvario',sctrl),nit,maxit,.false.,1,etol,
+Cgetarg      .      qtol,xv,'cxhi',amgm,xv(3),lsc)
+           call nwit ( int(sctrl%nvario) , nit , maxit , .false. , 1 , etol 
+     .     , qtol , xv , 'cxhi' , amgm , xv ( 3 ) , lsc ) 
+
         endif
         call mpibc1(lsc,1,2,.false.,'lmasa','lsc')
       elseif (iprint() .ge. 10 .and. makepp) then
 C       Extract calculated energy parameters
-        call upack('ham ehk thrpv seref',sham,ehk0,thrpv,seref,0,0)
+Cgetarg...info...           real(8) :: ehk0 , real(8) :: sham%ehk 1
+Cgetarg...info...           real(8) :: thrpv , real(8) :: sham%thrpv 1
+Cgetarg...info...           real(8) :: seref , real(8) :: sham%seref 1
+Cgetarg         call upack('ham ehk thrpv seref',sham,ehk0,thrpv,seref,0,0)
+         
+         ehk0=sham%ehk
+         thrpv=sham%thrpv
+         seref=sham%seref
+
         do  55  i = 1, 2
           call awrit6('%x '//prgnam//'%a: it %i of %i  '//
      .      'ehk0=%1,6d  pv=%1;4d  mmom=%1;4d'//'  seref=%1;6d',outs,
@@ -504,8 +750,11 @@ C ... Invoke shell command if supplied
       endif
 
 C ... When quit is specified or insufficient information to continue
-      if (igets('ctrl quit',sctrl).eq.2 .or. getdig(latok,0,10) .eq. 0
-     .    .or. bittst(lasa,8)) then
+Cgetarg       if (igets('ctrl quit',sctrl).eq.2 .or. getdig(latok,0,10) .eq. 0
+Cgetarg      .    .or. bittst(lasa,8)) then
+       if ( int(sctrl%quit) .eq.2 .or. getdig ( latok , 0 , 10 ) .eq. 
+     . 0 .or. bittst ( lasa , 8 ) ) then 
+
         call info0(0,0,0,' '//prgnam//
      .    '%a:  Q=ATOM encountered or missing input')
         goto 99
@@ -543,23 +792,35 @@ C ... Keep a copy of input P,Q and related parameters
       call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
 
 C ... Quit if --quit=ham given
-      if (igets('ctrl quit',sctrl) .eq. 8) then
+Cgetarg       if (igets('ctrl quit',sctrl) .eq. 8) then
+       if ( int(sctrl%quit) .eq. 8 ) then 
+
         call rx0('quit = ham')
       endif
 
 C ... Read and store self-energy addition to LDA potential
-      call upack1('ham ldham',sham,ldham)
+Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ldham 16
+Cgetarg       call upack1('ham ldham',sham,ldham)
+       
+       i_copy_size=size(sham%ldham) 
+       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
+
       lrsigl = lrsig
       if (lrsigl .ne. 0 .and. fxst('sigm') .ne. 1) then
         call info0(1,1,0,' lmasa (warning): '//
      .    'no sigm file found ... LDA calculation only')
-        call pack1('ham lsig',sham,0)
+Cgetarg         call pack1('ham lsig',sham,0)
+         
+         sham%lsig=0 
+
         lrsigl = 0
       endif
       sxad = F
       if (mod(lrsigl,10) .ne. 0) then
 C       Real-space range
-        rsrnge = dgets('ham rsrnge',sham)
+Cgetarg         rsrnge = dgets('ham rsrnge',sham)
+         rsrnge = sham%rsrnge 
+
         ifi = fopna('sigm',-1,4)
         call rdsigm(1000+lrsigl,nbas,nsp,ldham(1),slat,sham,
      .    sbz,ifi,rsrnge,lwsig)
@@ -575,7 +836,13 @@ C ... LDA+U initialization
       
 C     Check for LDA+U ... return nlibu > 0 if any U blocks.
       call suldau(nbasp,sspec,ssite,nlibu,lmaxu,w(olldau))
-      call pack5('ham nlibu lmaxu',sham,nlibu,lmaxu,0,0,0)
+Cgetarg...info...           integer :: nlibu , integer(8) :: sham%nlibu 1
+Cgetarg...info...           integer :: lmaxu , integer(8) :: sham%lmaxu 1
+Cgetarg       call pack5('ham nlibu lmaxu',sham,nlibu,lmaxu,0,0,0)
+       
+       sham%nlibu=nlibu 
+       sham%lmaxu=lmaxu 
+
         
 C ... Read LDA+U Hamiltonian
       if (nlibu .gt. 0) then
@@ -585,13 +852,27 @@ C ... Read LDA+U Hamiltonian
         call defcc(odmatu,-i)
         call defcc(odmato,-i)
 C       need group info to symmetrize site density matrix
-        call upack('lat nsgrp oistab osymgr',slat,ng,oistab,og,0,0)
+Cgetarg...info...           integer :: ng , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg         call upack('lat nsgrp oistab osymgr',slat,ng,oistab,og,0,0)
+         
+         ng=slat%nsgrp
+         oistab=slat%oistab
+         og=slat%osymgr
+
 C       layer GF code doesn't have istab for padding layers.
         ngi = ng
         if (lpgf .ne. 0) then
           ngi = 0
         endif
-        call upack('mix umix tolu',smix,umix,tolu,0,0,0)
+Cgetarg...info...           real(8) :: umix , real(8) :: smix%umix 1
+Cgetarg...info...           real(8) :: tolu , real(8) :: smix%tolu 1
+Cgetarg         call upack('mix umix tolu',smix,umix,tolu,0,0,0)
+         
+         umix=smix%umix
+         tolu=smix%tolu
+
 C       initialize density matrix for LDA+U
 
         i = 0
@@ -644,10 +925,17 @@ C       Update vshft file
       elseif (lcgf .ne. 0) then
 
 C       Temporarily set lscr when making psta only selected iterations
-        iscsav = igets('ctrl lscr',sctrl)
+Cgetarg         iscsav = igets('ctrl lscr',sctrl)
+         iscsav = int(sctrl%lscr) 
+
         if (mod(iscsav,1000) .ge. 200) then
-          if (mod(nit,mod(iscsav,1000)/100) .ne. 0)
-     .      call pack1('ctrl lscr',sctrl,0)
+Cgetarg           if (mod(nit,mod(iscsav,1000)/100) .ne. 0)
+Cgetarg      .      call pack1('ctrl lscr',sctrl,0)
+           if ( mod ( nit , mod ( iscsav , 1000 ) /100 ) .ne. 0 ) then 
+           
+           sctrl%lscr=0 
+           endif 
+
         endif
         call dpcopy(vconst,vcnsts,1,3,1d0)
         call gfasa(sctrl,slat,sarray,sspec,ssite,sbz,sham,spot,sstrn,
@@ -655,7 +943,11 @@ C       Temporarily set lscr when making psta only selected iterations
      .    vconst,w(ovshft),w(ozp),w(owz),w(opgplp),efermi,moddos,sumev,
      .    ehterm,w(oqnu),w(orhos),amag,w(oaamom),sxad)
 C       Reset lscr
-        call pack1('ctrl lscr',sctrl,iscsav)
+Cgetarg...info...           integer :: iscsav , integer(8) :: sctrl%lscr 1
+Cgetarg         call pack1('ctrl lscr',sctrl,iscsav)
+         
+         sctrl%lscr=iscsav 
+
 
         if (mod(mod(moddos,10),2) .ne. 1) goto 99
         nevmx = 1
@@ -695,8 +987,14 @@ C        endif
 #else
 C --- Energy bands by direct diagonalization ---
 C     Suppress ccor if generating evecs for response function
-      if (mod(lsx,2) .eq. 1 .or. mod(iscr,2) .eq. 1)
-     .  call pack1('ctrl lasa',sctrl,lasa-bitand(lasa,4))
+Cgetarg...info...           NG:: lasa-bitand(lasa,4) , integer(8) :: sctrl%lasa 1
+Cgetarg       if (mod(lsx,2) .eq. 1 .or. mod(iscr,2) .eq. 1)
+Cgetarg      .  call pack1('ctrl lasa',sctrl,lasa-bitand(lasa,4))
+       if ( mod ( lsx , 2 ) .eq. 1 .or. mod ( iscr , 2 ) .eq. 1 ) then 
+       
+       sctrl%lasa=lasa-bitand(lasa,4) 
+       endif 
+
       call bndasa(sctrl,slat,sspec,ssite,sarray,sbz,sham,spot,sstrn,
      .  w(ovorb),w(odmatu),
      .  efermi,w(oeband),nband,nevmx,w(oqnu),sumev,w(orhos),amag,
@@ -710,7 +1008,11 @@ C ... Check convergence of dmatu and update it and vorb if necessary
      .    w(odmato),w(ovorb),tolu,umix,w(olldau),ng,w(og),w(oistab))
       endif
 
-      call pack1('ctrl lasa',sctrl,lasa)
+Cgetarg...info...           integer :: lasa , integer(8) :: sctrl%lasa 1
+Cgetarg       call pack1('ctrl lasa',sctrl,lasa)
+       
+       sctrl%lasa=lasa 
+
 
 C --- Rucker's screened exchange ---
 #if SX
@@ -737,7 +1039,9 @@ c###### (SX branch)
       endif
 
 #if STONER
-      if (lgors('ctrl lstonr',sctrl)) then
+Cgetarg       if (lgors('ctrl lstonr',sctrl)) then
+       if ( iand(0,int(sctrl%lstonr(1))) .ne.0 ) then 
+
         call defdr(onbar,mnpts)
         call defdr(oewk,mnpts)
         call defdr(omwk,mnpts)
@@ -805,8 +1109,12 @@ C ... HK energy
       endif
 
 C --- Early program exit ---
-      if (igets('ctrl quit',sctrl) .eq. 4 .or. nevmx .le. 0) then
-        i = igets('ctrl nvario',sctrl)
+Cgetarg       if (igets('ctrl quit',sctrl) .eq. 4 .or. nevmx .le. 0) then
+       if ( int(sctrl%quit) .eq. 4 .or. nevmx .le. 0 ) then 
+
+Cgetarg         i = igets('ctrl nvario',sctrl)
+         i = int(sctrl%nvario) 
+
         if (procid .eq. master) then
           call nwitsv(1+2,i,'h67',nsp,amgm,etot)
         endif
@@ -866,13 +1174,23 @@ C --- Estimate self-consistent moments from dielectric response ---
      .  w(oqold),w(oqnu))
 
 C ... Update changes in vconst
-      call pack1('pot vconst',spot,vconst)
+Cgetarg...info...           real(8) :: vconst(3) , real(8) :: spot%vconst 3
+Cgetarg       call pack1('pot vconst',spot,vconst)
+       
+       i_copy_size=size(spot%vconst) 
+       call dcopy(i_copy_size,vconst,1,spot%vconst,1) 
+
 
 C --- Shift moments to the center of gravity of band ---
       makepp = getdig(sdmod,3,10) .eq. 0
       if (makepp) then
         call mixpqc(nclasp,w(onrcp),nl,nsp,w(ogrp2),w(opnu),w(oqnu))
-        call upack1('ham pmin',sham,pmin)
+Cgetarg...info...           real(8) :: pmin(10) , real(8) :: sham%pmin 10
+Cgetarg         call upack1('ham pmin',sham,pmin)
+         
+         i_copy_size=size(sham%pmin) 
+         call dcopy(i_copy_size,sham%pmin,1,pmin,1) 
+
         call shftpq(nclasp,w(onrcp),nsp,nl,w(olmx),w(ormax),avw,w(opp),
      .    w(oqnu),w(oidmod),.false.,pmin,w(opnu),w(oqnu),xv)
       endif
@@ -903,7 +1221,9 @@ C --- Mix moments and/or Euler angles ---
 C   ... Get mixing string; set up mixing constraint for pqmix
         call upacks('strn mix',i1,i2)
 C   ... Save qnu for independent potential mixing
-        i = igets('mix lxpot',smix)
+Cgetarg         i = igets('mix lxpot',smix)
+         i = int(smix%lxpot) 
+
         opnus = opnu
         oqnus = oqnu
         if (i .eq. 2) then
@@ -942,7 +1262,9 @@ C         if (mod(iscr/2,2) .eq. 0) then
           call poppr
 C         endif
           call vmix2(nclasp,w(oclabl),betv,w(ovold),w(oves))
-          if (igets('mix lxpot',smix) .eq. 2) call rlse(opnus)
+Cgetarg           if (igets('mix lxpot',smix) .eq. 2) call rlse(opnus)
+           if ( int(smix%lxpot) .eq. 2 ) call rlse ( opnus ) 
+
         endif
         if (procid .eq. master) then
           call shoctl(sctrl,sspec,spot,sarray,1,fopn('LOG'))
@@ -955,7 +1277,12 @@ C       call shoctl(sctrl,sspec,spot,sarray,0,stdo)
         call dcopy(nlspcp,w(opold),1,w(opnu),1)
         call dcopy(3*nlspcp,w(oqold),1,w(oqnu),1)
 C       call shoctl(sctrl,sspec,spot,sarray,0,stdo)
-        call pack1('ham eterms',sham,etrmss)
+Cgetarg...info...           real(8) :: etrmss(20) , real(8) :: sham%eterms 20
+Cgetarg         call pack1('ham eterms',sham,etrmss)
+         
+         i_copy_size=size(sham%eterms) 
+         call dcopy(i_copy_size,etrmss,1,sham%eterms,1) 
+
       endif
 
 C ... Save mixed qpp array
@@ -1013,7 +1340,9 @@ C ... Skip over self-consistency when Euler angles are l-dependent
    99 continue
 C     call tcx('lmasa')
 
-      end
+Cgetarg       end
+       end subroutine lmasa 
+
 
 C      subroutine snot(spot)
 C      implicit none

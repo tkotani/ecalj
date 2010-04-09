@@ -111,6 +111,7 @@ c      FPIROS = FPI*RHOSP
 #if PERD91
       subroutine nlocxc(rho1,rho2,drho,dabgrh,ddrho,drho1,drho2,
      .  dabgrh1,dabgrh2,ddrho1,ddrho2,nsp,vxc,exc)
+
 C- Perdew-Wang gradient correction, version CGA91
 C---------------------------------------------------------------
 Ci Inputs:
@@ -354,6 +355,7 @@ c  CALLED BY SUBROUTINE CORLSD
       RETURN
       END
       subroutine perdew(s,ff,f1,f2)
+
       implicit none
       double precision s,ff,f1,f2,ag1,ag2,g1,g1p,g1pp,g2,g2p,g2pp,div
       double precision c1,f21,f22,beta,eta,gamma,alpha,delta
@@ -377,8 +379,11 @@ c  CALLED BY SUBROUTINE CORLSD
      .     8d0*g2)))*s+(g1*g2pp-g1pp*g2-9d0*eta*g1))*s+
      .     (3d0*g1*g2p-g1p*g2+g2pp-8d0*eta))*s+g1*g2+3d0*g2p
       f2 = (f21*c1+f22/div)/div
-      end
+Cgetarg       end
+       end subroutine perdew 
+
       subroutine xperdew(rho,drho,ddrho,dabgrh,ex,vx1)
+
       implicit none
       double precision rho,drho,ddrho,dabgrh,ex,vx1,s,t,u,ff,f1,f2,rs
       double precision pi,ax,akf,fothr,oneth
@@ -394,10 +399,13 @@ c  CALLED BY SUBROUTINE CORLSD
       call perdew(s,ff,f1,f2)
       ex = ax*(rho)**fothr*(ff-1)
       vx1 = ax*rho**(oneth)*(fothr*(ff-1) - t/s*f1 - (u-fothr*s**3)*f2)
-      end
+Cgetarg       end
+       end subroutine xperdew 
+
 #else
       subroutine nlocxc(rhop,rhom,grho,abgrh,ggrho,grhop,grhom,
      .  abgrhp,abgrhm,ggrhop,ggrhom,nsp,vxc,exc)
+
 C- Langreth-Mehl-Hu correction to the exc and vxc
 C ---------------------------------------------------------------
 Ci Inputs:
@@ -471,9 +479,12 @@ c    .    *cutoff
      .      (1d0-bigf)*rhop*grho-2d0**twoth*(2d0-bigf)*
      .      rho*grhop)))*cutof2
       endif
-      end
+Cgetarg       end
+       end subroutine nlocxc 
+
 #endif
       subroutine radgra(a,b,nr,r,v,gradv)
+
 C- radial gradient
 C ------------------------------------------------------------------
 Ci Inputs:
@@ -516,5 +527,7 @@ C     gradv(nr)=(v(nr-2)/2d0-2d0*v(nr-1)+1.5d0*v(nr))/a
       do  2  i = 1, nr
         gradv(i) = gradv(i)/(r(i)+b)
     2 continue
-      end
+Cgetarg       end
+       end subroutine radgra 
+
 

@@ -1,4 +1,11 @@
+Cgetarg...info...           structure ['freeat', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['freeat', 'spec', 'sspec']
+Cgetarg...info...           structure ['freeat', 'ham', 'sham']
+Cgetarg...info...           use_to_add ['freeat', 'm_struc_def']
        subroutine freeat(sctrl,sspec,sham,spot)
+        
+        use m_struc_def  !Cgetarg
+
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -32,7 +39,12 @@ Cu   10 Jun 00 spin polarized
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      double precision sctrl(1),sham(1),spot(1),sspec(1)
+Cgetarg       double precision sctrl(1),sham(1),spot(1),sspec(1)
+       type(s_ctrl)::sctrl
+       type(s_ham)::sham
+       type(s_pot)::spot
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer fopna,ifi,iprint,is,lgunit,nglob,nr,nrmt,nrmx,nsp,nspec,
      .  n0,nkap0,nxi,nxi0,stdo,nrmix(2),lxcfun,igets,lmxa,kcor,lcor
@@ -65,21 +77,86 @@ ctakao
       do  is = 1, nspec
 
 C       Unpack sctrl data
-        call upack('ctrl smalit',sctrl,nrmix,0,0,0,0)
-        lxcfun = igets('ctrl lxcf',sctrl)
+Cgetarg...info...           integer :: nrmix(2) , integer(8) :: sctrl%smalit 2
+Cgetarg         call upack('ctrl smalit',sctrl,nrmix,0,0,0,0)
+         
+         i_copy_size=size(sctrl%smalit) 
+         call i8icopy(i_copy_size,sctrl%smalit,1,nrmix,1) 
+
+Cgetarg         lxcfun = igets('ctrl lxcf',sctrl)
+         lxcfun = int(sctrl%lxcf) 
+
 
 C       Unpack species data
-        call spacks(0,'spec name',sspec,spid,is,is)
-        call upack('spec rsmfa rfoca coreq',sspec,is,rsmfa,rfoca,qcor,0)
-        call spacks(0,'spec coreh',sspec,chole,is,is)
+Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+         enddo
+
+Cgetarg...info...           real(8) :: rsmfa , real(8) :: sspec%rsmfa 1
+Cgetarg...info...           real(8) :: rfoca , real(8) :: sspec%rfoca 1
+Cgetarg...info...           real(8) :: qcor(2) , real(8) :: sspec%coreq 2
+Cgetarg         call upack('spec rsmfa rfoca coreq',sspec,is,rsmfa,rfoca,qcor,0)
+         
+         rsmfa=sspec(is)%rsmfa
+         rfoca=sspec(is)%rfoca
+         i_copy_size=size(sspec(is)%coreq) 
+         call dcopy(i_copy_size,sspec(is)%coreq,1,qcor,1) 
+
+Cgetarg         call spacks(0,'spec coreh',sspec,chole,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
+         enddo
+
         call gtpcor(sspec,is,kcor,lcor,qcor)
-        call upack('spec z rmt a nr',sspec,is,z,rmt,a,nrmt)
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nrmt , integer(8) :: sspec%nr 1
+Cgetarg         call upack('spec z rmt a nr',sspec,is,z,rmt,a,nrmt)
+         
+         z=sspec(is)%z
+         rmt=sspec(is)%rmt
+         a=sspec(is)%a
+         nrmt=sspec(is)%nr
+
         if (z .eq. 0 .and. rmt .eq. 0) goto 10
         call dpzero(qat,n0*2)
-        call upack('spec p q idmod lmxa',sspec,is,pnu,qat,idmod,lmxa)
-        call upack2('spec pz',sspec,is,pz)
-        eref = dgetss('spec eref',is,sspec)
-        call upack('spec rs3 eh3 vmtz rcfa',sspec,is,rs3,eh3,vmtz,rcfa)
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: qat(n0,2) , real(8) :: sspec%q 20
+Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg         call upack('spec p q idmod lmxa',sspec,is,pnu,qat,idmod,lmxa)
+         
+         i_copy_size=size(sspec(is)%p) 
+         call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
+         i_copy_size=size(sspec(is)%q) 
+         call dcopy(i_copy_size,sspec(is)%q,1,qat,1) 
+         i_copy_size=size(sspec(is)%idmod) 
+         call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
+         lmxa=sspec(is)%lmxa
+
+Cgetarg...info...           real(8) :: pz(n0,2) , real(8) :: sspec%pz 20
+Cgetarg         call upack2('spec pz',sspec,is,pz)
+         
+         i_copy_size=size(sspec(is)%pz) 
+         call dcopy(i_copy_size,sspec(is)%pz,1,pz,1) 
+
+Cgetarg         eref = dgetss('spec eref',is,sspec)
+         eref = (sspec(is)%eref) 
+
+Cgetarg...info...           real(8) :: rs3 , real(8) :: sspec%rs3 1
+Cgetarg...info...           real(8) :: eh3 , real(8) :: sspec%eh3 1
+Cgetarg...info...           real(8) :: vmtz , real(8) :: sspec%vmtz 1
+Cgetarg...info...           real(8) :: rcfa(2) , real(8) :: sspec%rcfa 2
+Cgetarg         call upack('spec rs3 eh3 vmtz rcfa',sspec,is,rs3,eh3,vmtz,rcfa)
+         
+         rs3=sspec(is)%rs3
+         eh3=sspec(is)%eh3
+         vmtz=sspec(is)%vmtz
+         i_copy_size=size(sspec(is)%rcfa) 
+         call dcopy(i_copy_size,sspec(is)%rcfa,1,rcfa,1) 
+
 
         call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .    nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
@@ -87,15 +164,35 @@ C       Unpack species data
      .    ceh,sumec,sumtc,v,etot)
 
 C       Repack mesh parms, in case a mesh was selected by freats
-        call pack5('spec z rmt a nr',sspec,is,z,rmt,a,nrmt)
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nrmt , integer(8) :: sspec%nr 1
+Cgetarg         call pack5('spec z rmt a nr',sspec,is,z,rmt,a,nrmt)
+         
+         sspec(is)%z=z 
+         sspec(is)%rmt=rmt 
+         sspec(is)%a=a 
+         sspec(is)%nr=nrmt 
+
 
 C   ... Pack the basis into sspec
         call dpzero(orbp,n0*2*nkap0)
 C       call upack2('spec orbp lmxb',sspec,is,orbp)
         call dcopy(n0,rtab,1,orbp(1,1,1),1)
         call dcopy(n0,etab,1,orbp(1,2,1),1)
-        call pack5('spec norp ntorb',sspec,is,2,n0,0,0)
-        call pack5('spec orbp',sspec,is,orbp,0,0,0)
+Cgetarg...info...           integer :: n0 , integer(8) :: sspec%ntorb 1
+Cgetarg         call pack5('spec norp ntorb',sspec,is,2,n0,0,0)
+         
+         sspec(is)%norp=2 
+         sspec(is)%ntorb=n0 
+
+Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%orbp 60
+Cgetarg         call pack5('spec orbp',sspec,is,orbp,0,0,0)
+         
+         i_copy_size=size(sspec(is)%orbp) 
+         call dcopy(i_copy_size,orbp,1,sspec(is)%orbp,1) 
+
 
 C   --- File write ---
         if (iprint() .gt. 40) write(stdo,230) spid
@@ -124,17 +221,22 @@ c takao
       call fclose(ifi)
 cccccccccccccc
       if (iprint() .gt. 30)  then
-        seref = dgets('ham seref',sham)
+Cgetarg         seref = dgets('ham seref',sham)
+         seref = sham%seref 
+
         call awrit1('%x%N Sum of reference energies: %1;6d',' ',80,stdo,
      .    seref)
       endif
 
-      end
+Cgetarg       end
+       end subroutine freeat 
+
 
       subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .  nrmix,lwf,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
      .  sec,stc,v,etot)
+
 C- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -475,10 +577,13 @@ C       call prrmsh('rho-fa',rofi,rho,nr,nr,1)
 C --- Fit analytical expression to tail of core density ---
       call fctail(nr,nrmt,a,b,rfoca,rofi,rhoc,ccof,ceh)
 
-      end
+Cgetarg       end
+       end subroutine freats 
+
 
       subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
      .  rofi,g,psi)
+
 C- Prints out core and valence energy levels of free-atom
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -603,9 +708,12 @@ C --- Write file with valence wavefunctions
         call fclr(str,ifi)
       endif
 
-      end
+Cgetarg       end
+       end subroutine pratfs 
+
 
       subroutine ppratf(e,z,nr,nre,rofi,a,b,v,g,pzero,pmax,ctp)
+
 C- Find outermost node and maximum of wavefct
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -667,10 +775,13 @@ C ... Find the outermost maximum
         x = -0.5d0*(rho3-rho1)/(rho1+rho3-2*rho2)
         pmax = b*(dexp(a*(ir+x))-1d0)
       endif
-      end
+Cgetarg       end
+       end subroutine ppratf 
+
 
       subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi,
      .  spid,itab,rtab,etab)
+
 C- Optimise a minimal smooth-Hankel basis for the free atom.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -892,10 +1003,13 @@ C     lplawv=nglob('lplawv')
 
       call rlse (oh)
 
-      end
+Cgetarg       end
+       end subroutine optfab 
+
 
       subroutine ftfalo(icst,z,a,nr,rmax,nrmt,rmt,lmxa,pnu,pz,rs3,eh3,
      .  vmtz,nsp,v,rofi,spid)
+
 C- Fit value and slope of local orbitals to smoothed Hankel
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1103,10 +1217,13 @@ C     lplawv=nglob('lplawv')
 
       call rlse (oh)
 
-      end
+Cgetarg       end
+       end subroutine ftfalo 
+
 
       subroutine popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,h,v,a,b,enu,p,
      .  phi,dphi,phip,dphip,eval,qrmt)
+
 C- Calculate expectation value for smooth Hankel
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1213,10 +1330,13 @@ C     O = alpha^2 <phi | phi> + beta^2 <phidot | phidot>
       eval = hum/sum
 
       qrmt = sum2/sum
-      end
+Cgetarg       end
+       end subroutine popta1 
+
 
       subroutine popta2(l,x0,y0,dx,e1,e2,e3,xmin,xmax,xshx,xnew,stiff,
      .  jpr)
+
 C- Find minimum from three values
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1275,8 +1395,11 @@ C ... Local parameters
       if (jpr.gt.0) write (stdo,810)l,x0,y0,ee1,ee2,ee3,aa,een,xnew
   810 format(i3,f8.3,f8.3,f10.3,2f9.3,f9.1,f10.3,f8.3,a)
 
-      end
+Cgetarg       end
+       end subroutine popta2 
+
       subroutine popta3(mode,l,z,nn,rmt,nr,nrmt,rofi,v,a,b,evl,pnu,g)
+
 C- Get exact fa wavefunction, eigval, pnu at Rmt.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1358,9 +1481,12 @@ C ... Don't set too low..
         pnu = p0l
       endif
 
-      end
+Cgetarg       end
+       end subroutine popta3 
+
       subroutine popta4(l,z,rmt,nrmt,rofi,v,g,gp,a,b,pnu,enu,p,phi,dphi,
      .  phip,dphip)
+
 C- Potential parameters at MT sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1421,10 +1547,13 @@ C     dphip = (slo(2)-phip)/rmt
 c|    write(stdo,200) l,enu,p,phi,dphi,phip,dphip
 c|200 format(' PP',i2,'  e',f10.5,'  p',f10.5,'  bc',4f10.5)
 
-      end
+Cgetarg       end
+       end subroutine popta4 
+
 
       subroutine popta5(lmax,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,
      .  rofi,psi,v,g,a,b,spid)
+
 C- Write wave functions to plot file
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1532,9 +1661,12 @@ C ... Write the plot file
    30 continue
       call fclose(ifi)
 
-      end
+Cgetarg       end
+       end subroutine popta5 
+
 
       subroutine fctail(nr,nrmt,a,b,rsm,rofi,rhoc,c,eh)
+
 C- Fit one Hankel to tail of core density.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1648,5 +1780,7 @@ c|      enddo
 c|      write(stdo,965) q
 c|  965 format(' integral over smoothed core:',f10.5)
 
-      end
+Cgetarg       end
+       end subroutine fctail 
+
 

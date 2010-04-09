@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['sudmtu', 'site', 'ssite']
+Cgetarg...info...           structure ['sudmtu', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['sudmtu', 'm_struc_def']
       subroutine sudmtu(nbas,nsp,nlibu,lmaxu,ssite,sspec,idvsh,lldau,
      .  ng,g,istab,dmatu,vorb)
+       
+       use m_struc_def  !Cgetarg
+
 C- Initialize site density matrix and vorb  for LDA+U
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -43,7 +49,11 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nsp,nlibu,lmaxu,ng,idvsh
       integer lldau(nbas),istab(nbas,ng)
-      double precision ssite(1),sspec(1),g(9,ng)
+Cgetarg       double precision ssite(1),sspec(1),g(9,ng)
+       real(8):: g(9,ng) 
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
 C ... Local parameters
@@ -90,8 +100,17 @@ C --- Read in dmatu if file  dmats.ext  exists ---
         iblu = 0
         do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
-          is = igetss('site spec',ib,ssite)
-          call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
+Cgetarg           is = igetss('site spec',ib,ssite)
+           is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
+Cgetarg           call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
+           
+           lmxa=sspec(is)%lmxa
+           i_copy_size=size(sspec(is)%idu) 
+           call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+
           do l = 0, min(lmxa,3)
           if (idu(l+1) .ne. 0) then
             iblu = iblu+1
@@ -130,8 +149,17 @@ C --- Otherwise read in occnumbers and construct diagonal dmatu ---
         iblu = 0
         do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
-          is = igetss('site spec',ib,ssite)
-          call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
+Cgetarg           is = igetss('site spec',ib,ssite)
+           is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
+Cgetarg           call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
+           
+           lmxa=sspec(is)%lmxa
+           i_copy_size=size(sspec(is)%idu) 
+           call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+
           do l = 0,min(lmxa,3)
           if (idu(l+1) .ne. 0) then
             iblu = iblu+1
@@ -229,9 +257,28 @@ C ... Make Vorb (ldau requires spherical harmonics)
       iblu = 0
       do  20  ib = 1, nbas
         if (lldau(ib) .eq. 0) goto 20
-        is = igetss('site spec',ib,ssite)
-        call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
-        call spacks(0,'spec name',sspec,spid,is,is)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
+Cgetarg...info...           real(8) :: uh(4) , real(8) :: sspec%uh 4
+Cgetarg...info...           real(8) :: jh(4) , real(8) :: sspec%jh 4
+Cgetarg         call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
+         
+         lmxa=sspec(is)%lmxa
+         i_copy_size=size(sspec(is)%idu) 
+         call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+         i_copy_size=size(sspec(is)%uh) 
+         call dcopy(i_copy_size,sspec(is)%uh,1,uh,1) 
+         i_copy_size=size(sspec(is)%jh) 
+         call dcopy(i_copy_size,sspec(is)%jh,1,jh,1) 
+
+Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+         enddo
+
         i = min(lmxa,3)
         call info8(30,1,0,' Species '//spid//
      .    '%a: mode=%n:1i    U=%n:1d    J=%n:1d',
@@ -304,5 +351,7 @@ C --- Error exit ---
       call awrit2('bad occnum file, site %i, l=%i',str,len(str),0,ib,l)
       call rx(str)
 
-      end
+Cgetarg       end
+       end subroutine sudmtu 
+
 

@@ -1,5 +1,14 @@
+Cgetarg...info...           structure ['asavqm', 'array', 'sarray']
+Cgetarg...info...           structure ['asavqm', 'pot', 'spot']
+Cgetarg...info...           structure ['asavqm', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['asavqm', 'lat', 'slat']
+Cgetarg...info...           structure ['asavqm', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['asavqm', 'm_struc_def']
       subroutine asavqm(mode,sctrl,spot,slat,sarray,sspec,nlmf,vh,qmp,
      .  vval)
+       
+       use m_struc_def  !Cgetarg
+
 C- Electrostatic Multipole moments from wave function products
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -18,8 +27,15 @@ Cr Remarks
 C ----------------------------------------------------------------------
 C     implicit none
       integer mode,nlmf
-      double precision sctrl(1),spot(1),slat(1),sarray(1),sspec(1),
-     .  vval(nlmf,*),qmp(nlmf,*),vh(*)
+Cgetarg       double precision sctrl(1),spot(1),slat(1),sarray(1),sspec(1),
+Cgetarg      .  vval(nlmf,*),qmp(nlmf,*),vh(*)
+       real(8):: vval(nlmf,*) , qmp(nlmf,*) , vh(*) 
+       type(s_ctrl)::sctrl
+       type(s_pot)::spot
+       type(s_lat)::slat
+       type(s_array)::sarray
+       type(s_spec)::sspec(*)
+
 C heap:
       integer w(1)
       common /w/ w
@@ -37,18 +53,78 @@ C Local variables
       character*4 cib
 
 C ... Setup
-      call upack('array opos oipc oips oics',sarray,opos,oipc,oips,oics,
-     .  0)
-      call upack('array nclasp onrc ormax',sarray,nclasp,onrc,ormax,0,0)
-      call upack1('pot oqc',spot,oqc)
+Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg       call upack('array opos oipc oips oics',sarray,opos,oipc,oips,oics,
+Cgetarg      .  0)
+       
+       opos=sarray%opos
+       oipc=sarray%oipc
+       oips=sarray%oips
+       oics=sarray%oics
+
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: onrc , integer(8) :: sarray%onrc 1
+Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
+Cgetarg       call upack('array nclasp onrc ormax',sarray,nclasp,onrc,ormax,0,0)
+       
+       nclasp=sarray%nclasp
+       onrc=sarray%onrc
+       ormax=sarray%ormax
+
+Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
+Cgetarg       call upack1('pot oqc',spot,oqc)
+       
+       oqc=spot%oqc
+
 C     call upack1('array omad',sarray,omad)
 
-      call upack('ctrl nbas nl',sctrl,nbas,nl,0,0,0)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg       call upack('ctrl nbas nl',sctrl,nbas,nl,0,0,0)
+       
+       nbas=sctrl%nbas
+       nl=sctrl%nl
 
-      call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
-      call upack('lat ocg ojcg oidxcg',slat,ocg,ojcg,oidxcg,0,0)
-      call upack('lat awald nkd nkq odlv oqlv',slat,awald,nkd,nkq,odlv,
-     .  oqlv)
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(9) , real(8) :: slat%qlat 9
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+       vol=slat%vol
+
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg       call upack('lat ocg ojcg oidxcg',slat,ocg,ojcg,oidxcg,0,0)
+       
+       ocg=slat%ocg
+       ojcg=slat%ojcg
+       oidxcg=slat%oidxcg
+
+Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
+Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
+Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
+Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
+Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
+Cgetarg       call upack('lat awald nkd nkq odlv oqlv',slat,awald,nkd,nkq,odlv,
+Cgetarg      .  oqlv)
+       
+       awald=slat%awald
+       nkd=slat%nkd
+       nkq=slat%nkq
+       odlv=slat%odlv
+       oqlv=slat%oqlv
+
       ipr = iprint()
       if (mode .ne. 0) call rxi('asavqm: not ready for mode',mode)
 C     y0 = 1/sqrt(4*pi)
@@ -74,7 +150,11 @@ C ... Expand about ib from jb
       write(cib,'(i4)') ib
       is = w(oips+ib-1)
       ic = w(oipc+ib-1)
-      call upack('spec lmxl',sspec,is,lmxl,rmax,0,0)
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg       call upack('spec lmxl',sspec,is,lmxl,rmax,0,0)
+       
+       lmxl=sspec(is)%lmxl
+
       rmax = dval(w(ormax),ic)
       lmxl = w(olmxl+ic-1)
       nlml = (lmxl+1)**2
@@ -122,9 +202,12 @@ C ... Make vh and Printout
       call pvvqm2(1,nbas,w(oipc),w(olmxl),w(oz),w(ormax),w(oqc),nlmf,
      .  qmp,w(opot0),vval,vh)
       call rlse(olmxa)
-      end
+Cgetarg       end
+       end subroutine asavqm 
+
 
       subroutine sumtl1(nlml,nlmb,s,nr,nr1,poti,xi,h,rofi,vl)
+
 C- Add bessel tails for potential
 C     implicit none
       integer nlmb,nlml,nr,nr1
@@ -150,9 +233,12 @@ C Local
         do  2  i = 1, nr1
     2   h(i) = h(i)*rofi(i)
    16 continue
-      end
+Cgetarg       end
+       end subroutine sumtl1 
+
 
       subroutine pvvqm1(nbas,ipc,lmxf,z,qc,nlmf,qmp,pot0)
+
 C- Make coffs pot0 from qmom
 C     implicit none
       integer nbas,nlmf,ipc(*),lmxf(*)
@@ -197,10 +283,13 @@ C  649 format(/'  ib','  ilm',7x,'Qmp',6x,'Z-Qc',7x,'Pot0')
 C  650 format(a4,i4,2x,f12.6,f8.3,f12.6)
 C  651 format(a4,i4,2x,f12.6,8x,f12.6)
 
-      end
+Cgetarg       end
+       end subroutine pvvqm1 
+
 
       subroutine pvvqm2(ib1,ib2,ipc,lmxl,z,rmax,qc,nlmf,qmp,pot0,vval,
      .  vh)
+
 C- Printout
 C     implicit none
       integer ib1,ib2,nlmf,ipc(*),lmxl(*)
@@ -245,5 +334,7 @@ C     implicit none
   650 format(a8,i4,2x,f12.6,f8.3,4f12.6)
   651 format(a8,i4,2x,f12.6,8x,2f12.6)
 
-      end
+Cgetarg       end
+       end subroutine pvvqm2 
+
 

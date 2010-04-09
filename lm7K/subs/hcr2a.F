@@ -1,4 +1,9 @@
+Cgetarg...info...           structure ['hcr2a', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['hcr2a', 'm_struc_def']
       subroutine hcr2a(sspec)
+       
+       use m_struc_def  !Cgetarg
+
 C- Set hcr according to alpha, E=0
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -21,7 +26,9 @@ Cu   08 Aug 06  Redesigned
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      double precision sspec(1)
+Cgetarg       double precision sspec(1)
+       type(s_spec)::sspec(*)
+
 C Local
       logical lalp
       integer lmxx,nspec,nglob,is,lmxa,igetss,l,stdo,nl,ipr
@@ -46,16 +53,33 @@ C Local
       endif
       do  10  is = 1, nspec
 
-        lmxa = igetss('spec lmxa',is,sspec)
+Cgetarg         lmxa = igetss('spec lmxa',is,sspec)
+         lmxa = int(sspec(is)%lmxa) 
+
         if (lmxa .ge. lmxx) call rx('hcr2a: increase lmxx')
         if (lalp) then
-          call upack2('spec alpha',sspec,is,alpha)
+Cgetarg...info...           real(8) :: alpha(lmxx) , real(8) :: sspec%alpha 10
+Cgetarg           call upack2('spec alpha',sspec,is,alpha)
+           
+           i_copy_size=size(sspec(is)%alpha) 
+           call dcopy(i_copy_size,sspec(is)%alpha,1,alpha,1) 
+
           call bessl2(0d0,-1,lmxa+1,fi(-1),gi(-1))
           do  12  l = 0, lmxa
    12     hcr(l+1) = avw*(alpha(l+1)/fi(l)*gi(l))**(1d0/dble(2*l+1))
-          call pack2('spec hcr',sspec,is,hcr)
+Cgetarg...info...           real(8) :: hcr(lmxx) , real(8) :: sspec%hcr 10
+Cgetarg           call pack2('spec hcr',sspec,is,hcr)
+           
+           i_copy_size=size(sspec(is)%hcr) 
+           call dcopy(i_copy_size,hcr,1,sspec(is)%hcr,1) 
+
         endif
-        call upack2('spec hcr',sspec,is,hcr)
+Cgetarg...info...           real(8) :: hcr(lmxx) , real(8) :: sspec%hcr 10
+Cgetarg         call upack2('spec hcr',sspec,is,hcr)
+         
+         i_copy_size=size(sspec(is)%hcr) 
+         call dcopy(i_copy_size,sspec(is)%hcr,1,hcr,1) 
+
 
 C      This will make alphas for any energy at this hcr(l) (not used)
         do  22  l = 0, lmxa
@@ -76,5 +100,7 @@ c       call dscal(lmxa+1,1/avw,hcr,1)
         call info2(50,0,0,'%47p%n;10,6D',lmxa+1,adot)
 
    10 continue
-      end
+Cgetarg       end
+       end subroutine hcr2a 
+
 

@@ -1,5 +1,10 @@
+Cgetarg...info...           structure ['pp2enu', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['pp2enu', 'm_struc_def']
       subroutine pp2enu(sspec,nclass,ics,nrclas,nsp,nl,rmax,avw,amom,
      .  pnu,qnu,sumevm,initc,dclabl,enu,pp)
+       
+       use m_struc_def  !Cgetarg
+
 C- Interactively shift pot pars to specified enu
 C ----------------------------------------------------------------
 Ci Inputs
@@ -29,7 +34,9 @@ Cu Updates
 Cu   05 Oct 01 Adapted to work with lm v6.11
 C ----------------------------------------------------------------
 C     implicit none
-      double precision sspec(1)
+Cgetarg       double precision sspec(1)
+       type(s_spec)::sspec(*)
+
       integer nclass,nsp,nl,nrclas(nclass),initc(nclass)
       integer ics(nclass)
       integer n0
@@ -55,7 +62,12 @@ C     implicit none
       sumevm = 0d0
       do  10  ic = 1, nclass
       is = ics(ic)
-      call upack('spec idmod',sspec,is,idmod,0,0,0)
+Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
+Cgetarg       call upack('spec idmod',sspec,is,idmod,0,0,0)
+       
+       i_copy_size=size(sspec(is)%idmod) 
+       call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
+
 
       strn = ' '
       call r8tos8(dclabl(ic),strn)
@@ -92,12 +104,19 @@ C     implicit none
         endif
         sumevm = sumevm + (qnu(2,l,isp,ic) +
      .                     qnu(1,l,isp,ic)*pp(1,l,isp,ic))*nrclas(ic)
-        call pack5('spec idmod',sspec,is,idmod,0,0,0)
+Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
+Cgetarg         call pack5('spec idmod',sspec,is,idmod,0,0,0)
+         
+         i_copy_size=size(sspec(is)%idmod) 
+         call ii8copy(i_copy_size,idmod,1,sspec(is)%idmod,1) 
+
    20 continue
       else
         call awrit1('%,3i '//strn(1:lc)//'  is missing ppars',' ',80,
      .    lgunit(1),ic)
       endif
    10 continue
-      end
+Cgetarg       end
+       end subroutine pp2enu 
+
 

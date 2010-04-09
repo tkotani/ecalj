@@ -1,5 +1,12 @@
+Cgetarg...info...           structure ['relax', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['relax', 'site', 'ssite']
+Cgetarg...info...           structure ['relax', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['relax', 'm_struc_def']
       subroutine relax(prgnam,sctrl,ssite,sspec,it,indrlx,natrlx,nvar,f,
      .                 p,w,nelts,delta,bas,icom)
+       
+       use m_struc_def  !Cgetarg
+
 C- Relax atomic positions and volume using variable metric algorithm
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -48,8 +55,14 @@ C Passed Parameters
       character prgnam*8
       integer it,nit,natrlx,nvar,nelts,icom,procid,master,mpipid
       integer indrlx(2,natrlx)
-      double precision sctrl(1),ssite(1),sspec(1),f(3,*),
-     .  w(nvar,nvar),p(nvar,6),delta(nelts,*),bas(3,*)
+Cgetarg       double precision sctrl(1),ssite(1),sspec(1),f(3,*),
+Cgetarg      .  w(nvar,nvar),p(nvar,6),delta(nelts,*),bas(3,*)
+       real(8):: f(3,*) , w(nvar,nvar) , p(nvar,6) , delta(nelts,*) 
+     . , bas(3,*) 
+       type(s_ctrl)::sctrl
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C Local Variables
       integer i,j,ipr,ifi,fopna,ix,lgunit,nbas,ltb,ifrlx(3),
      .  ir,iprint,isw,rdm,lrlx,is,idamax,stdo,stdl,nd,ns,nkill
@@ -70,8 +83,19 @@ C Local Variables
       call tcn('relax')
 
 C --- Setup ---
-      call upack('ctrl nbas nitmv mdprm ltb',sctrl,nbas,nit,mdprm,
-     .  ltb,0)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nit , integer(8) :: sctrl%nitmv 1
+Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
+Cgetarg...info...           integer :: ltb , integer(8) :: sctrl%ltb 1
+Cgetarg       call upack('ctrl nbas nitmv mdprm ltb',sctrl,nbas,nit,mdprm,
+Cgetarg      .  ltb,0)
+       
+       nbas=sctrl%nbas
+       nit=sctrl%nitmv
+       i_copy_size=size(sctrl%mdprm) 
+       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
+       ltb=sctrl%ltb
+
       nkill  = nint(mdprm(6))
       lrlx   = nint(mdprm(1))
       lshr   = lrlx .gt. 100
@@ -267,9 +291,22 @@ C          elseif (prgnam(1:3) .eq. 'LMF') then
 C            call upack('site spec',ssite,j,is,0,0,0)
 C            call spacks(0,'spec name',sspec,clablj,is,is)
 C          endif
-          call upack('site spec',ssite,j,is,0,0,0)
-          call spacks(0,'spec name',sspec,clablj,is,is)
-          call upack2('site relax',ssite,j,ifrlx)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg           call upack('site spec',ssite,j,is,0,0,0)
+           
+           is=ssite(j)%spec
+
+Cgetarg           call spacks(0,'spec name',sspec,clablj,is,is)
+           do i_spacks=is,is 
+           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
+           enddo
+
+Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
+Cgetarg           call upack2('site relax',ssite,j,ifrlx)
+           
+           i_copy_size=size(ssite(j)%relax) 
+           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
+
           write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix).eq.1,ix=1,3)
    70   continue
       endif
@@ -278,7 +315,12 @@ C ... Write new atom positions to LOG file, for use in CTRL file
       if (ipr .ge. 20 .and. .not. lshr) then
         dumstr = 'SITE'
         do  80  j = 1, nbas
-          call upack2('site relax',ssite,j,ifrlx)
+Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
+Cgetarg           call upack2('site relax',ssite,j,ifrlx)
+           
+           i_copy_size=size(ssite(j)%relax) 
+           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
+
           if (j .eq. 2) dumstr = ' '
 C        if (prgnam(1:2) .eq. 'TB') then
 C          call r8tos8(dclabl(ipc(j)),clablj)
@@ -286,9 +328,22 @@ C        elseif (prgnam(1:3) .eq. 'LMF') then
 C          call upack('site spec',ssite,j,is,0,0,0)
 C          call spacks(0,'spec name',sspec,clablj,is,is)
 C        endif
-          call upack('site spec',ssite,j,is,0,0,0)
-          call spacks(0,'spec name',sspec,clablj,is,is)
-          call upack2('site relax',ssite,j,ifrlx)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg           call upack('site spec',ssite,j,is,0,0,0)
+           
+           is=ssite(j)%spec
+
+Cgetarg           call spacks(0,'spec name',sspec,clablj,is,is)
+           do i_spacks=is,is 
+           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
+           enddo
+
+Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
+Cgetarg           call upack2('site relax',ssite,j,ifrlx)
+           
+           i_copy_size=size(ssite(j)%relax) 
+           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
+
           call awrit2(dumstr//'ATOM='//clablj//
      .      ' POS=%3;12,7D  RELAX=%3,2i',' ',80,lgunit(2),
      .      bas(1,j),ifrlx)
@@ -308,8 +363,11 @@ C        endif
 
       call tcx('relax')
 
-      end
+Cgetarg       end
+       end subroutine relax 
+
       subroutine prelx1(mode,nm,lshr,natrlx,nvar,indrlx,p,bas)
+
 C- Copy vector of variables to be minimized from/to bas
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -357,8 +415,11 @@ C --- Update atom positions, or vice-versa ---
         endif
         
       endif
-      end
+Cgetarg       end
+       end subroutine prelx1 
+
       subroutine grdep2(i1,i2,indrlx,dstprm,dist)
+
 C- Build up actual distortion from distortion parms
 Cr Distortion is added into dist
 C     implicit none
@@ -387,5 +448,7 @@ C       4, 5, 6
         endif
       enddo
 
-      end
+Cgetarg       end
+       end subroutine grdep2 
+
 

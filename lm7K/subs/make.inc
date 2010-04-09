@@ -466,6 +466,7 @@ subs_list:=\
 	writebasis.o \
         m_struc_def.o \
         m_struc_func.o \
+	spackv_array_copy.o \
         struc_sub.o \
         struc_main.o\
         struc_strn.o \

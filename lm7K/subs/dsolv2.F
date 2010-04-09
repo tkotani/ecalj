@@ -1,4 +1,5 @@
       subroutine dsolv2(a11,a12,a21,a22,n,kpvt,wk,v,nvec)
+
 C- Solves simultaneous eqns from routine decmp2
 C ----------------------------------------------------------------
 Ci Inputs
@@ -62,5 +63,7 @@ C     call dpmpy(a11,wk,n,1,wk(1,1+nvec),n,1,n,nvec,n)
       call dmadd(v,n+n,1,1d0,wk(1,1+nvec),n,1,1d0,v,n+n,1,n,nvec)
 
       call tcx('dsolv2')
-      end
+Cgetarg       end
+       end subroutine dsolv2 
+
 

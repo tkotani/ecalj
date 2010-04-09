@@ -1,4 +1,10 @@
+Cgetarg...info...           structure ['getidu', 'site', 'ssite']
+Cgetarg...info...           structure ['getidu', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['getidu', 'm_struc_def']
       subroutine getidu(nbas,sspec,ssite,idu)
+       
+       use m_struc_def  !Cgetarg
+
 C- Get idu for all sites
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -17,17 +23,29 @@ C------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,idu(4,nbas)
-      double precision sspec(1), ssite(1)
+Cgetarg       double precision sspec(1), ssite(1)
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+
 C ... Local parameters
       integer igetss,is,ib
 
       call iinit(idu,4*nbas)
       do  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call upack('spec idu',sspec,is,idu(1,ib),0,0,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: idu(4,nbas) , integer(8) :: sspec%idu 4
+Cgetarg         call upack('spec idu',sspec,is,idu(1,ib),0,0,0)
+         
+         i_copy_size=size(sspec(is)%idu) 
+         call i8icopy(i_copy_size,sspec(is)%idu,1,idu(1,ib),1) 
+
       enddo
 
-      end
+Cgetarg       end
+       end subroutine getidu 
+
 
 
 

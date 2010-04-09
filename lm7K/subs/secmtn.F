@@ -1,6 +1,14 @@
+Cgetarg...info...           structure ['secmtn', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['secmtn', 'ham', 'sham']
+Cgetarg...info...           structure ['secmtn', 'pot', 'spot']
+Cgetarg...info...           structure ['secmtn', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['secmtn', 'm_struc_def']
       subroutine secmtn(sctrl,sspec,slat,sham,spot,nl,nsp,nbas,ips,
      .  indxsh,qss,eula,neul,ikp,nkp,ldim,lidim,lihdim,qp,ppn,sop,isp,
      .  nevmx,efmax,nev,z,eb)
+       
+       use m_struc_def  !Cgetarg
+
 C- Hamiltonian and Overlap, NMTO
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -33,10 +41,19 @@ C ... Passed parameters
      .  ips(nbas),ikp,nkp,indxsh(1)
       integer nppn
       parameter (nppn=12)
-      double precision sctrl(1),sspec(1),eb(ldim*2),ppn(nppn,lihdim,*),
-     .  qp(3),z(ldim,ldim*2),eula(nbas,neul,3),efmax,qss(4),
-     .  sop(0:nl-1,nsp,nsp,9,*)
-      double precision slat(1),sham(1),spot(1)
+Cgetarg       double precision sctrl(1),sspec(1),eb(ldim*2),ppn(nppn,lihdim,*),
+Cgetarg      .  qp(3),z(ldim,ldim*2),eula(nbas,neul,3),efmax,qss(4),
+Cgetarg      .  sop(0:nl-1,nsp,nsp,9,*)
+       real(8):: eb(ldim*2) , ppn(nppn,lihdim,*) , qp(3) , z(ldim,ldim*2) 
+     . , eula(nbas,neul,3) , efmax , qss(4) , sop(0:nl-1,nsp,nsp,9,*) 
+       type(s_ctrl)::sctrl
+       type(s_spec)::sspec(*)
+
+Cgetarg       double precision slat(1),sham(1),spot(1)
+       type(s_lat)::slat
+       type(s_ham)::sham
+       type(s_pot)::spot
+
 C ... Local parameters
       logical lewald,lgors,lnc,lx,ltmp,iostr
       integer hdim,i,ii,ipr,j,l2,ldimx,lgunit,linv,lncol,nglob,nspec,
@@ -51,14 +68,29 @@ C ... Heap
       integer w(1)
       common /w/ w
 
-      call upack('ctrl lncol',sctrl,lncol,0,0,0,0)
-      call upack('ham nmto kmto',sham,nmto,kmto,0,0,0)
+Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
+Cgetarg       call upack('ctrl lncol',sctrl,lncol,0,0,0,0)
+       
+       lncol=sctrl%lncol
+
+Cgetarg...info...           integer :: nmto , integer(8) :: sham%nmto 1
+Cgetarg...info...           real(8) :: kmto(n0) , real(8) :: sham%kmto 6
+Cgetarg       call upack('ham nmto kmto',sham,nmto,kmto,0,0,0)
+       
+       nmto=sham%nmto
+       i_copy_size=size(sham%kmto) 
+       call dcopy(i_copy_size,sham%kmto,1,kmto,1) 
+
 
       call getpr(ipr)
-      lewald = lgors('ctrl lgen3,2',sctrl)
+Cgetarg       lewald = lgors('ctrl lgen3,2',sctrl)
+       lewald = iand(2,int(sctrl%lgen3)) .ne.0 
+
       nspec = nglob('nspec')
       avw = dglob('avw',0d0,0)
-      vmtz = dgets('pot vmtz',spot)
+Cgetarg       vmtz = dgets('pot vmtz',spot)
+       vmtz = spot%vmtz 
+
       lnc = lncol .ne. 0
       nl2 = nl**2
       hdim = lihdim - lidim
@@ -68,7 +100,14 @@ C     ld2 = ldim**2
       if (lnc) ldimx = 2*ldim
       l2 = ldimx**2
       lbloch = 10
-      call upack('lat plat opos',slat,plat,obas,0,0,0)
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: obas , integer(8) :: slat%opos 1
+Cgetarg       call upack('lat plat opos',slat,plat,obas,0,0,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       obas=slat%opos
+
       ckbas = cksumf(w(obas),3*nbas)
 
 C     Space for nmto strux
@@ -149,7 +188,10 @@ C --- Diagonalize ---
 #endif
 C     Diagonalize by inverse iteration, or not
       linv = 0
-      if (nevmx .gt. 0 .and. lgors('ctrl lqp,2',sctrl)) linv = 1
+Cgetarg       if (nevmx .gt. 0 .and. lgors('ctrl lqp,2',sctrl)) linv = 1
+       if ( nevmx .gt. 0 .and. iand(2,int(sctrl%lqp)) .ne.0 ) linv = 
+     . 1 
+
       call defdr(owk,ldimx*11)
       call zhev(ldimx,w(ohk),w(ook),.true.,lx,nevmx,efmax,nev,w(owk),
      .  linv,0,eb,z)
@@ -182,9 +224,12 @@ C --- Printout ---
       endif
 
       call rlse(osll)
-      end
+Cgetarg       end
+       end subroutine secmtn 
+
 
       subroutine sstr2k(ldim,lidim,lihdim,nmto,isp,ppn,sll,sdll)
+
 C- Overwrite screened structure constants with Kink matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -331,5 +376,7 @@ C --- Kink matrix of ll block ---
       enddo
 
 
-      end
+Cgetarg       end
+       end subroutine sstr2k 
+
 

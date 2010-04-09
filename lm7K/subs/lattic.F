@@ -1,4 +1,12 @@
+Cgetarg...info...           structure ['lattic', 'lat', 'slat']
+Cgetarg...info...           structure ['lattic', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['lattic', 'array', 'sarray']
+Cgetarg...info...           structure ['lattic', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['lattic', 'm_struc_def']
       subroutine lattic(slat,sctrl,ssite,sarray)
+       
+       use m_struc_def  !Cgetarg
+
 C- Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -30,7 +38,12 @@ Cu  19 Apr 00 Fixed rotations; new argument list
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      double precision slat(1),sctrl(1),ssite(1),sarray(1)
+Cgetarg       double precision slat(1),sctrl(1),ssite(1),sarray(1)
+       type(s_lat)::slat
+       type(s_ctrl)::sctrl
+       type(s_site)::ssite(*)
+       type(s_array)::sarray
+
 C ... Local parameters
       integer ldist,lmxst,nkd,nkdmx,nkq,nkqmx,nbas,odlv,oqlv,opos
       integer nbaspp,npadl,npadr
@@ -46,15 +59,57 @@ C ... External calls
      .         redfrr,spackv,upack,upack1,upack2
 
 C     call info(30,1,0,' Real and recip space lattices:',0,0)
-      call upack('lat alat as tol rpad',slat,alat,awald0,tol,rpad,0)
-      call upack('lat nkdmx nkqmx gam alat plat',slat,nkdmx,nkqmx,gam,
-     .  alat,plat0)
-      call upack1('ctrl nbas',sctrl,nbas)
-      call upack2('array npadl npadr',sarray,npadl,npadr)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: awald0 , real(8) :: slat%as 1
+Cgetarg...info...           real(8) :: tol , real(8) :: slat%tol 1
+Cgetarg...info...           real(8) :: rpad , real(8) :: slat%rpad 1
+Cgetarg       call upack('lat alat as tol rpad',slat,alat,awald0,tol,rpad,0)
+       
+       alat=slat%alat
+       awald0=slat%as
+       tol=slat%tol
+       rpad=slat%rpad
+
+Cgetarg...info...           integer :: nkdmx , integer(8) :: slat%nkdmx 1
+Cgetarg...info...           integer :: nkqmx , integer(8) :: slat%nkqmx 1
+Cgetarg...info...           real(8) :: gam(4) , real(8) :: slat%gam 4
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat0(3,3) , real(8) :: slat%plat 9
+Cgetarg       call upack('lat nkdmx nkqmx gam alat plat',slat,nkdmx,nkqmx,gam,
+Cgetarg      .  alat,plat0)
+       
+       nkdmx=slat%nkdmx
+       nkqmx=slat%nkqmx
+       i_copy_size=size(slat%gam) 
+       call dcopy(i_copy_size,slat%gam,1,gam,1) 
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat0,1) 
+
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg       call upack1('ctrl nbas',sctrl,nbas)
+       
+       nbas=sctrl%nbas
+
+Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
+Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
+Cgetarg       call upack2('array npadl npadr',sarray,npadl,npadr)
+       
+       npadl=sarray%npadl
+       npadr=sarray%npadr
+
       nbaspp = nbas + 2*(npadl+npadr)
       if (nbaspp .gt. nbas) then
         call dcopy(9,plat0,1,plat,1)
-        call upack2('lat platl platr',slat,platl,platr)
+Cgetarg...info...           real(8) :: platl(3,3) , real(8) :: slat%platl 9
+Cgetarg...info...           real(8) :: platr(3,3) , real(8) :: slat%platr 9
+Cgetarg         call upack2('lat platl platr',slat,platl,platr)
+         
+         i_copy_size=size(slat%platl) 
+         call dcopy(i_copy_size,slat%platl,1,platl,1) 
+         i_copy_size=size(slat%platr) 
+         call dcopy(i_copy_size,slat%platr,1,platr,1) 
+
         call dcopy(6,plat0,1,platl,1)
         call dcopy(6,plat0,1,platr,1)
         call daxpy(3,2d0,platl(1,3),1,plat0(1,3),1)
@@ -75,7 +130,16 @@ C     call info(30,1,0,' Real and recip space lattices:',0,0)
       endif
 
 C ... Apply specified linear transformation of lattice and basis vectors
-      call upack('lat ldist dist opos',slat,ldist,dist,opos,0,0)
+Cgetarg...info...           integer :: ldist , integer(8) :: slat%ldist 1
+Cgetarg...info...           real(8) :: dist(3,3) , real(8) :: slat%dist 9
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg       call upack('lat ldist dist opos',slat,ldist,dist,opos,0,0)
+       
+       ldist=slat%ldist
+       i_copy_size=size(slat%dist) 
+       call dcopy(i_copy_size,slat%dist,1,dist,1) 
+       opos=slat%opos
+
 C     call prmx('pos from lat',w(opos),3,3,nbaspp)
 
       if (abs(gt-1) .gt. 1d-10) then
@@ -107,17 +171,62 @@ C     call prmx('pos from lat',w(opos),3,3,nbaspp)
 
       endif
 
-      call pack1('lat vol',slat,vol)
-      call pack5('lat plat0 plat qlat platl platr',slat,plat0,plat,qlat,
-     .  platl,platr)
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call pack1('lat vol',slat,vol)
+       
+       slat%vol=vol 
+
+Cgetarg...info...           real(8) :: plat0(3,3) , real(8) :: slat%plat0 9
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg...info...           real(8) :: platl(3,3) , real(8) :: slat%platl 9
+Cgetarg...info...           real(8) :: platr(3,3) , real(8) :: slat%platr 9
+Cgetarg       call pack5('lat plat0 plat qlat platl platr',slat,plat0,plat,qlat,
+Cgetarg      .  platl,platr)
+       
+       i_copy_size=size(slat%plat0) 
+       call dcopy(i_copy_size,plat0,1,slat%plat0,1) 
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,plat,1,slat%plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,qlat,1,slat%qlat,1) 
+       i_copy_size=size(slat%platl) 
+       call dcopy(i_copy_size,platl,1,slat%platl,1) 
+       i_copy_size=size(slat%platr) 
+       call dcopy(i_copy_size,platr,1,slat%platr,1) 
+
       call redfrr(oqlv,3*nkq)
       call defps2(odlv,oqlv)
       call redfrr(odlv,3*nkd)
-      call pack5('lat awald nkd nkq odlv oqlv',slat,awald,nkd,nkq,odlv,
-     .  oqlv)
-      call pack5('lat dist',slat,dist,0,0,0,0)
-      call spackv(11,'site pos',ssite,1,nbaspp,w(opos))
+Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
+Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
+Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
+Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
+Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
+Cgetarg       call pack5('lat awald nkd nkq odlv oqlv',slat,awald,nkd,nkq,odlv,
+Cgetarg      .  oqlv)
+       
+       slat%awald=awald 
+       slat%nkd=nkd 
+       slat%nkq=nkq 
+       slat%odlv=odlv 
+       slat%oqlv=oqlv 
+
+Cgetarg...info...           real(8) :: dist(3,3) , real(8) :: slat%dist 9
+Cgetarg       call pack5('lat dist',slat,dist,0,0,0,0)
+       
+       i_copy_size=size(slat%dist) 
+       call dcopy(i_copy_size,dist,1,slat%dist,1) 
+
+Cgetarg       call spackv(11,'site pos',ssite,1,nbaspp,w(opos))
+       i_copy_size=size(ssite(1)%pos)
+       do i_spackv=1,nbaspp 
+       call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+       enddo
+
 C     call prmx('repack pos',w(opos),3,3,nbaspp)
 
-      end
+Cgetarg       end
+       end subroutine lattic 
+
 

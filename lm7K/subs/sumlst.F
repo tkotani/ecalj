@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['sumlst', 'site', 'ssite']
+Cgetarg...info...           structure ['sumlst', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['sumlst', 'm_struc_def']
       subroutine sumlst(lopt,nchmx,nbas,ng,ssite,sspec,sopts,mode,
      .                  nsites,lsites,lmxch,nchan,lchan,nll)
+       
+       use m_struc_def  !Cgetarg
+
 C- Set up list of sites and mode for Mulliken or partial DOS projection
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -69,7 +75,10 @@ C Passed Parameters
       character*(*) sopts
       integer lopt,nchmx,nbas,ng,nsites,mode,lsites(*),nchan,lmxch,
      .  lchan(*),nll
-      double precision ssite(1),sspec(1)
+Cgetarg       double precision ssite(1),sspec(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C Local Variables
       integer mxmode
       parameter (mxmode = 6)
@@ -152,9 +161,17 @@ C --- Generate lsites,lmxch ---
           ib = lsites(isite)
         endif
         call isanrg(ib,1,nbas,' sumlst:','site',.true.)
-        call upack('site spec',ssite,ib,is,0,0,0)
-        if (lopt0 .eq. 1) lmax = igetss('spec lmxb',is,sspec)
-        if (lopt0 .eq. 0) lmax = igetss('spec lmxa',is,sspec)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
+         
+         is=ssite(ib)%spec
+
+Cgetarg         if (lopt0 .eq. 1) lmax = igetss('spec lmxb',is,sspec)
+         if ( lopt0 .eq. 1 ) lmax = int(sspec(is)%lmxb) 
+
+Cgetarg         if (lopt0 .eq. 0) lmax = igetss('spec lmxa',is,sspec)
+         if ( lopt0 .eq. 0 ) lmax = int(sspec(is)%lmxa) 
+
         if (nll .gt. 0) lmax = min(nll-1,lmax)
         lmxch = max(lmxch,lmax)
       enddo
@@ -164,9 +181,17 @@ C --- Generate nchan,lchan ---
       i = 0
       do  isite = 1, nsites
         ib = lsites(isite)
-        call upack('site spec',ssite,ib,is,0,0,0)
-        if (lopt0 .eq. 1) lmax = igetss('spec lmxb',is,sspec)
-        if (lopt0 .eq. 0) lmax = igetss('spec lmxa',is,sspec)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
+         
+         is=ssite(ib)%spec
+
+Cgetarg         if (lopt0 .eq. 1) lmax = igetss('spec lmxb',is,sspec)
+         if ( lopt0 .eq. 1 ) lmax = int(sspec(is)%lmxb) 
+
+Cgetarg         if (lopt0 .eq. 0) lmax = igetss('spec lmxa',is,sspec)
+         if ( lopt0 .eq. 0 ) lmax = int(sspec(is)%lmxa) 
+
         if (nll .gt. 0) lmax = min(nll-1,lmax)
         if (ipr .gt. iprmin) write(stdo,2) ib, lmax
     2   format (9x,i4,5x,i1)
@@ -204,5 +229,7 @@ C --- Printout --
   999 continue
       call rxs('sumlst: failed to parse options in ',sopts(j1:))
 
-      end
+Cgetarg       end
+       end subroutine sumlst 
+
 

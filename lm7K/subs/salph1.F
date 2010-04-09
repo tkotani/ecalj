@@ -1,6 +1,7 @@
       subroutine salph1(nbas,nenv,lqinv,ldot,loka,siinv,ndimW,lmaxW,npr,
      .  plat,bas,alphv,adotv,iax,cy,cg,indxcg,jcg,el,s0a,s0d,
      .  balph,bdot)
+
 C- Calculate one-center expansion coefficients for one cluster and energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -368,9 +369,12 @@ C --- Andersen 2nd gen conventions are -B ---
       endif
 
       call tcx('salph1')
-      end
+Cgetarg       end
+       end subroutine salph1 
+
       subroutine pvsal0(ndimW,ncut,npr,iax,lmaxw,
      .  offs,offd,ipm,nblk,ndimS)
+
 C- Set up subblock lists and permutation arrays to permute strux.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -474,8 +478,11 @@ C      call awrit3('ipm  %i: %n:1i',' ',250,6,nblk,nblk,ipm)
       if (iprint() .ge. 50) call awrit3(' pvsal0: ncut = %i  ndimW = %i'
      .  //'  ndimS = %i',' ',80,lgunit(1),ncut,ndimW,ndimS)
 
-      end
+Cgetarg       end
+       end subroutine pvsal0 
+
       subroutine pvsal1(ndimW,ndimS,nenv,s0,niter,balph,dsalp,b,nb,dsmx)
+
 C- Gauss-Seidel iteration towards iterative inversion
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -545,5 +552,7 @@ C      endif
 
    10 continue
 C     call prmx('balph after niter',balph,ndimW,ndimW,nenv)
-      end
+Cgetarg       end
+       end subroutine pvsal1 
+
 

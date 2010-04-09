@@ -1,5 +1,6 @@
       subroutine rdeq(enum1,enum2,ksop,z,v,rofi,nr,nsp,a,b,l,lmx,
      .                imu,scalede,gmt,fmt,gmtde,fmtde,gsmt,pprel)
+
 C-Solves radial dirac equations, in the presence of an effective magnetic field
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -898,12 +899,15 @@ C         write(180,*) smalpa(i,k)
         enddo
       enddo
 
-      end
+Cgetarg       end
+       end subroutine rdeq 
+
 
       subroutine fdpp(enu1,enu2,ksop,shft,gmt,fmt,gmtde,fmtde,z,rmax,
      .  avw,l,lmx,imu,sr1,sr2,srav1,srav2,srdot1,srdot2,sravdot1,
      .  sravdot2,gsr1,gsr2,gsrav1,gsrav2,gsrdot1,gsrdot2,gsravdot1,
      .  gsravdot2,pprel,gsmt)
+
 C------------------------------------------------------------------------------
 C      Makes potential parameters
 C      Inputs:
@@ -1419,9 +1423,12 @@ C-------End of the failed way--------------------------------------
 
  210   return
 
-       end
+Cgetarg        end
+        end subroutine fdpp 
+
 
        subroutine mul22(a,b,c)
+
 C      Multiplies 2x2 matrices a*b
 C      a is from the left be carefull for non commuting matrices
 C     implicit none
@@ -1433,10 +1440,13 @@ C     implicit none
        c(2,2) = a(2,1)*b(1,2) + a(2,2)*b(2,2)
 
        return
-       end
+Cgetarg        end
+        end subroutine mul22 
+
 
 
       subroutine product2(psi,ksi,a,b,rofi,nr,e,vm,z,xk,product)
+
 C     Finds the product of two 4-vectors <psi|ksi> using the
 C     Trapezium rule
 C     Input parameters
@@ -1468,7 +1478,9 @@ C     .                - vm(m))/cc)*rofi(m))**2)
      .            psi(2,m)*ksi(2,m) + psi(4,m)*ksi(4,m)))
 
          enddo
-      end
+Cgetarg       end
+       end subroutine product2 
+
 
 C      subroutine product4(psi,ksi,a,b,rofi,nr,e,vm,z,xk,product)
 CC     Finds the product of two 4-vectors <psi|ksi> using the
@@ -1536,6 +1548,7 @@ C      return
 C      end
 
       subroutine clebsh(l,imu,a,a1)
+
 C     implicit none
       double precision a(2,2),a1(2,2),cl(2,2),mu,u
 C     double precision cl1(2,2)
@@ -1582,7 +1595,9 @@ C            enddo
 
            return
 
-          end
+Cgetarg           end
+           end subroutine clebsh 
+
 
 
 

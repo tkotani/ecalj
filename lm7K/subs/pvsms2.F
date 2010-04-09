@@ -1,4 +1,10 @@
+Cgetarg...info...           structure ['pvsms2', 'site', 'ssite']
+Cgetarg...info...           structure ['pvsms2', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['pvsms2', 'm_struc_def']
       subroutine pvsms2(ssite,sspec,rotm,nbas,nsp,orhoat)
+       
+       use m_struc_def  !Cgetarg
+
 C- Rotate local densities by specified rotation
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -34,7 +40,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,orhoat(3,1)
-      double precision ssite(1),sspec(1)
+Cgetarg       double precision ssite(1),sspec(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
       double precision rotm(3,3)
 C Local variables
       integer ib,i,j,is,lmxl,igetss,nr,nlml,ipr,stdo,nlx,nl2,nglob
@@ -62,9 +71,21 @@ C --- For each site and l, rotate the m-components ---
       endif
 
       do  10  ib = 1, nbas
-        is = igetss('site spec',ib,ssite)
-        call spacks(0,'spec name',sspec,spid,is,is)
-        call upack('spec nr lmxl',sspec,is,nr,lmxl,0,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+         enddo
+
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg         call upack('spec nr lmxl',sspec,is,nr,lmxl,0,0)
+         
+         nr=sspec(is)%nr
+         lmxl=sspec(is)%lmxl
+
         if (lmxl .eq. -1) goto 10
         nlml = (lmxl+1)**2
         if (nlml .gt. nl2) call rx('increase nl2 in pvsms2')
@@ -74,9 +95,12 @@ C --- For each site and l, rotate the m-components ---
 
    10 continue
 
-      end
+Cgetarg       end
+       end subroutine pvsms2 
+
 
       subroutine pvsms3(nrx,nr,nlml,nsp,rYL,nl2,rho)
+
 C- Rotation of an l-dependent density
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -130,5 +154,7 @@ C        enddo
 
 C     call prmx('ending rho',rho,nrx,nr,nlml*nsp)
 
-      end
+Cgetarg       end
+       end subroutine pvsms3 
+
 

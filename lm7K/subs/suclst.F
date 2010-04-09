@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['suclst', 'site', 'ssite']
+Cgetarg...info...           structure ['suclst', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['suclst', 'm_struc_def']
       subroutine suclst(nsitmx,nbas,nsp,ssite,sspec,clsopt,isite,iclsl,
      .                  iclsn,nsites)
+       
+       use m_struc_def  !Cgetarg
+
 C- Set up list of sites for core level spectra
 C ----------------------------------------------------------------------
 Ci Inputs: nsitmx (dimension of isite,iclsl,iclsn: set in bndfp)
@@ -34,7 +40,10 @@ C Passed Parameters
       integer nsitmx
       integer isite(nsitmx),iclsl(nsitmx),iclsn(nsitmx),nsites,nbas,nsp
       character*(*) clsopt
-      double precision ssite(1),sspec(1)
+Cgetarg       double precision ssite(1),sspec(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C Local Variables
       integer i,j,j1,j2,iprmin,nblst,ib,is,l,n,ifi,p,q
       integer iprint,lgunit,igetss,fopna
@@ -136,8 +145,14 @@ C --- print table of sites, l and n
         do  i = 1, nsites
           ib = isite(i)
           if (ib .gt. nbas) call rx('suclst: ib > nbas')
-          is = igetss('site spec',ib,ssite)
-          call spacks(0,'spec name',sspec,clabl,is,is)
+Cgetarg           is = igetss('site spec',ib,ssite)
+           is = int(ssite(ib)%spec) 
+
+Cgetarg           call spacks(0,'spec name',sspec,clabl,is,is)
+           do i_spacks=is,is 
+           call spacks_copy('u',sspec(i_spacks)%name,is,is,clabl,i_spacks)
+           enddo
+
           if (nsp .eq. 1) then
             call awrit6('%:3,3i     '//clabl//'%,2i%:1,2i%3f%i,%i,%i',
      .           ' ',128,lgunit(1),isite(i),iclsl(i),iclsn(i),j,j+1,j+2)
@@ -160,6 +175,8 @@ C --- bad list ERROR
 C --- bad triple ERROR
       call fexit(-1,119,
      .       'suclst: bad triple, expecting --cls'//dc//'site,l,n',0)
-      end
+Cgetarg       end
+       end subroutine suclst 
+
 
 

@@ -1,4 +1,5 @@
       subroutine decmp2(a11,a12,a21,a22,n,kpvt,wk)
+
 C- Decomposes symmetric matrix in the special case a12, a21 are diagonal
 C ----------------------------------------------------------------
 Ci Inputs
@@ -84,6 +85,8 @@ C ... Lapack version
       if (ndef .ne. 0) call rx('decmp2: matrix a22 singular')
 
       call tcx('decmp2')
-      end
+Cgetarg       end
+       end subroutine decmp2 
+
 
 

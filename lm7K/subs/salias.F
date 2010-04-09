@@ -1,4 +1,5 @@
       subroutine salias(sname,trunam,alias,switch,range,mask)
+
 C- Unpack modifiers to structure returning true names alias, mask, range
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -98,5 +99,7 @@ C      print *, 'alias ',alias
 C      print *, 'switch ',switch
 C      stop
 
-      end
+Cgetarg       end
+       end subroutine salias 
+
 

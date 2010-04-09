@@ -51,7 +51,7 @@ C     ----------------------------------------------------------------
       character(8):: name(i1:i2) ! use only name(istr)
       character(11):: thisfunc='spacks_copy'
 
-      write(*,*)'spacks_copy>',c,struc,i1,i2,name,istr
+c      write(*,*)'spacks_copy>',c,struc,i1,i2,name,istr
 
       if (c=='p') then
          call s8tor8(name(istr),struc)
@@ -98,7 +98,7 @@ C     ----------------------------------------------------------------
       use m_struc_def
       use m_struc_func
       implicit none
-      integer(8):: v_iv(:)
+      integer(8):: v_iv(n)
       logical,intent(in):: lval
       integer,intent(in):: mask
       integer,intent(in):: n
@@ -111,9 +111,9 @@ C     ----------------------------------------------------------------
       do i=1,n
 
          if (lval) then
-            newval = bitor(v_iv(i),lmask)
+            newval = ior(int(v_iv(i)),lmask)
          else
-            newval = v_iv(i) - bitand(v_iv(i),lmask)
+            newval = v_iv(i) - iand(int(v_iv(i)),lmask)
          endif
 
          v_iv(i) = newval

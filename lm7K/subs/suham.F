@@ -1,3 +1,16 @@
+Cgetarg...info...           structure ['gen_hamindex', 'lat', 'slat']
+Cgetarg...info...           structure ['gen_hamindex', 'site', 'ssite']
+Cgetarg...info...           structure ['gen_hamindex', 'spec', 'sspec']
+Cgetarg...info...           structure ['gen_hamindex', 'ham', 'sham']
+Cgetarg...info...           structure ['suham', 'array', 'sarray']
+Cgetarg...info...           structure ['suham', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['suham', 'ham', 'sham']
+Cgetarg...info...           structure ['suham', 'pot', 'spot']
+Cgetarg...info...           structure ['suham', 'lat', 'slat']
+Cgetarg...info...           structure ['suham', 'site', 'ssite']
+Cgetarg...info...           structure ['suham', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['suham', 'm_struc_def']
+Cgetarg...info...           use_to_add ['gen_hamindex', 'm_struc_def']
       module m_hamindex
 c index for Hamiltonian
       implicit none
@@ -9,6 +22,7 @@ c index for Hamiltonian
       contains
 
       integer function getikt(qin)
+
       integer::i,debugmode
       real(8):: qin(3)
       if(debugmode()>0) print *,'nkt=',nkt
@@ -27,6 +41,9 @@ c index for Hamiltonian
 
 
       subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas,iprmb,ldim,qplist,nkp,siginit) !from showbs
+       
+       use m_struc_def  !Cgetarg
+
       use m_hamindex
 C- Set up m_hamiltonian. Index for Hamiltonian.  Generated index are stored into m_hamindex
 C ----------------------------------------------------------------------
@@ -47,7 +64,13 @@ Ch takao june2009
 C ----------------------------------------------------------------------
       implicit none
 C Passed parameters
-      double precision sspec(1),ssite(1),slat(1),sbz(1),sham(1)
+Cgetarg       double precision sspec(1),ssite(1),slat(1),sbz(1),sham(1)
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+       type(s_lat)::slat
+       type(s_bz)::sbz
+       type(s_ham)::sham
+
 c      integer nkaph,iprma(*)
       integer iprmb(*),nl
 C Local parameters
@@ -72,9 +95,31 @@ c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
       integer:: nqnum, ngpmx, nqbz,ifiqg,iq,fopnx,nnn(3),ixx,imx,ndummy
       real(8):: qplist(3,nkp)
       logical:: siginit
+
+      integer:: i_copy_size,i_spacks,i_spackv
 C
-      call upack('lat oag osymgr nsgrp',slat,oag,og,ngrp,0,0)
-      call upack('lat plat opos qlat alat',slat,plat,opos,qlat,alat,0)
+Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg...info...           NG:: ngrp , integer(8) :: slat%nsgrp 1
+Cgetarg       call upack('lat oag osymgr nsgrp',slat,oag,og,ngrp,0,0)
+       
+       oag=slat%oag
+       og=slat%osymgr
+       ngrp=slat%nsgrp
+
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg       call upack('lat plat opos qlat alat',slat,plat,opos,qlat,alat,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       opos=slat%opos
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+       alat=slat%alat
+
       if(.not.siginit) goto 1011
 
       allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas),ispec(nbas))
@@ -87,7 +132,11 @@ C ... obtain norbt, lxx,kxx
       lxx=-1
       ndimham = 0 !dimension of mto part of hamiltonian
       do  ib = 1, nbas
-        call upack('site spec',ssite,ib,is,0,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
+         
+         is=ssite(ib)%spec
+
         call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
         do iorb = 1, norb
           norbt = norbt+1
@@ -102,8 +151,16 @@ c ... make index table
       norbt=0
       ndimham = 0 !dimension of mto part of hamiltonian
       do  ib = 1, nbas
-        call upack('site spec',ssite,ib,is,0,0,0)
-        call spacks(0,'spec name',sspec,spid,is,is)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
+         
+         is=ssite(ib)%spec
+
+Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+         enddo
+
         call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
         do  iorb = 1, norb
           norbt=norbt+1
@@ -134,7 +191,11 @@ C ... symmetry operation
 
       allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
       do ib=1,nbas
-        call upack('site class',ssite,ib,iclasst(ib),0,0,0)
+Cgetarg...info...           NG:: iclasst(ib) , integer(8) :: ssite%class 1
+Cgetarg         call upack('site class',ssite,ib,iclasst(ib),0,0,0)
+         
+         iclasst(ib)=ssite(ib)%class
+
       enddo
 c ... get space group information
       call mptauof(symops,ngrp,plat,nbas,w(opos),iclasst
@@ -169,7 +230,15 @@ c        call shorbz( qxx, qq(:,iq), qlat, plat)
         write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
       enddo  
 c
-      call upack3('ham pwmode pwemin pwemax',sham,pwmode,pwemin,pwemax)
+Cgetarg...info...           integer :: pwmode , integer(8) :: sham%pwmode 1
+Cgetarg...info...           real(8) :: pwemin , real(8) :: sham%pwemin 1
+Cgetarg...info...           real(8) :: pwemax , real(8) :: sham%pwemax 1
+Cgetarg       call upack3('ham pwmode pwemin pwemax',sham,pwmode,pwemin,pwemax)
+       
+       pwmode=sham%pwmode
+       pwemin=sham%pwemin
+       pwemax=sham%pwemax
+
       if(pwmode==0) then
          allocate(napwk(nkt))
          napwk=0
@@ -241,10 +310,15 @@ C ... Reverse table of igv2 --->igv2rev
       enddo
       print *,' --- nkt,napwmx = ',nkt,napwmx
 
-      end
+Cgetarg       end
+       end subroutine gen_hamindex 
+
 
 
       subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
+       
+       use m_struc_def  !Cgetarg
+
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -308,8 +382,17 @@ Cu   14 Feb 03 Makes and packs magnetic field B.sigma
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      double precision sctrl(1),slat(1),sspec(1),ssite(1),sarray(1),
-     .  sham(1),spot(1),sbz(1)
+Cgetarg       double precision sctrl(1),slat(1),sspec(1),ssite(1),sarray(1),
+Cgetarg      .  sham(1),spot(1),sbz(1)
+       type(s_ctrl)::sctrl
+       type(s_lat)::slat
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+       type(s_array)::sarray
+       type(s_ham)::sham
+       type(s_pot)::spot
+       type(s_bz)::sbz
+
       character*(*) sstrn
 C ... Local parameters
       integer nkap0,n0H
@@ -342,15 +425,57 @@ C ... Heap
 c      integer :: sigswitch
 
 C --- Setup ---
-      call upack('array oips oipc',sarray,oips,oipc,0,0,0)
-      call upack('ctrl nbasp nspec nl',sctrl,nbasp,nspec,nl,0,0)
-      call upack('ctrl lham lcgf lgen3 lfp',sctrl,lham,lcgf,lgen3,
-     .  lfp,0)
-      call upack('ctrl lncol nspin',sctrl,lncol,nsp,0,0,0)
-      lpgf  = igets('ctrl lpgf',sctrl)
+Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg       call upack('array oips oipc',sarray,oips,oipc,0,0,0)
+       
+       oips=sarray%oips
+       oipc=sarray%oipc
+
+Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg       call upack('ctrl nbasp nspec nl',sctrl,nbasp,nspec,nl,0,0)
+       
+       nbasp=sctrl%nbasp
+       nspec=sctrl%nspec
+       nl=sctrl%nl
+
+Cgetarg...info...           integer :: lham , integer(8) :: sctrl%lham 1
+Cgetarg...info...           integer :: lcgf , integer(8) :: sctrl%lcgf 1
+Cgetarg...info...           integer :: lgen3 , integer(8) :: sctrl%lgen3 1
+Cgetarg...info...           integer :: lfp , integer(8) :: sctrl%lfp 1
+Cgetarg       call upack('ctrl lham lcgf lgen3 lfp',sctrl,lham,lcgf,lgen3,
+Cgetarg      .  lfp,0)
+       
+       lham=sctrl%lham
+       lcgf=sctrl%lcgf
+       lgen3=sctrl%lgen3
+       lfp=sctrl%lfp
+
+Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg       call upack('ctrl lncol nspin',sctrl,lncol,nsp,0,0,0)
+       
+       lncol=sctrl%lncol
+       nsp=sctrl%nspin
+
+Cgetarg       lpgf  = igets('ctrl lpgf',sctrl)
+       lpgf = int(sctrl%lpgf(1)) 
+
       nkaph = nglob('nkaph')
-      call upack('ham pwmode pwemin pwemax npwpad',sham,pwmode,pwemin,
-     .  pwemax,npwpad,0)
+Cgetarg...info...           integer :: pwmode , integer(8) :: sham%pwmode 1
+Cgetarg...info...           real(8) :: pwemin , real(8) :: sham%pwemin 1
+Cgetarg...info...           real(8) :: pwemax , real(8) :: sham%pwemax 1
+Cgetarg...info...           integer :: npwpad , integer(8) :: sham%npwpad 1
+Cgetarg       call upack('ham pwmode pwemin pwemax npwpad',sham,pwmode,pwemin,
+Cgetarg      .  pwemax,npwpad,0)
+       
+       pwmode=sham%pwmode
+       pwemin=sham%pwemin
+       pwemax=sham%pwemax
+       npwpad=sham%npwpad
+
 
       nspc  = 1
       nspx  = nsp
@@ -368,7 +493,13 @@ C --- Automatic downfolding (2nd generation only?) ---
         adnf = bittst(lham,4)
 C       Suppress if in gamma repsn (not needed for GF mode)
 C       if (lgors('ctrl lham,128',sctrl)) adnf = 0
-        call upack2('pot opp vmtz',spot,opp,vmtz)
+Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
+Cgetarg...info...           real(8) :: vmtz , real(8) :: spot%vmtz 1
+Cgetarg         call upack2('pot opp vmtz',spot,opp,vmtz)
+         
+         opp=spot%opp
+         vmtz=spot%vmtz
+
         call atfold(0,adnf,nl,nsp,vmtz,w(opp),sspec)
       endif
 
@@ -381,7 +512,11 @@ C --- Hamiltonian offsets, orbital permutation table ---
      .    ldham)
       endif
 C     Default value for hamiltonian dimension
-      call pack1('ham ndham',sham,ldham)
+Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ndham 1
+Cgetarg       call pack1('ham ndham',sham,ldham)
+       
+       sham%ndham=ldham(1)
+
 C     print *, '!!'; call pack1('ham ndham',sham,ldham+3)
 
 C ... Make rest of ldham
@@ -390,19 +525,56 @@ C ... Make rest of ldham
       ldham(6) = ldham(2) * nspc
       ldham(7) = ldham(3) * nspc
       ldham(8) = nspx
-      call pack5('ham ndofH ooffH oindxo ldham',sham,nbasp+1,offH,
-     .  oidxsh,ldham,0)
+Cgetarg...info...           NG:: nbasp+1 , integer(8) :: sham%ndofH 1
+Cgetarg...info...           integer :: offH , integer(8) :: sham%ooffH 1
+Cgetarg...info...           integer :: oidxsh , integer(8) :: sham%oindxo 1
+Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ldham 16
+Cgetarg       call pack5('ham ndofH ooffH oindxo ldham',sham,nbasp+1,offH,
+Cgetarg      .  oidxsh,ldham,0)
+       
+       sham%ndofH=nbasp+1 
+       sham%ooffH=offH 
+       sham%oindxo=oidxsh 
+       i_copy_size=size(sham%ldham) 
+       call ii8copy(i_copy_size,ldham,1,sham%ldham,1) 
+
 
 C ------- Potential- and implementation- specific setup -------
 C --- FP setup ---
-      call upack3('lat alat plat qlat',slat,alat,plat,qlat)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg       call upack3('lat alat plat qlat',slat,alat,plat,qlat)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
       if (lfp .ne. 0) then
         nvi = 0
         nvl = 0
         lmxax = -1
         do  20  ib = 1, nbasp
-          call upack2('site spec',ssite,ib,is)
-          call upack('spec lmxa lmxl p pz',sspec,is,lmxa,lmxl,pnu,pz)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg           call upack2('site spec',ssite,ib,is)
+           
+           is=ssite(ib)%spec
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: pz(n0,2) , real(8) :: sspec%pz 20
+Cgetarg           call upack('spec lmxa lmxl p pz',sspec,is,lmxa,lmxl,pnu,pz)
+           
+           lmxa=sspec(is)%lmxa
+           lmxl=sspec(is)%lmxl
+           i_copy_size=size(sspec(is)%p) 
+           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
+           i_copy_size=size(sspec(is)%pz) 
+           call dcopy(i_copy_size,sspec(is)%pz,1,pz,1) 
+
 cccccccccccccc
 c        print *,'suham 111 pnu=',i,pnu(1:10,1:2)
 cccccccccccccc
@@ -411,21 +583,55 @@ C         Augmentation dimensioning parameters
           nvi = nvi + (lmxa+1)**2
           nvl = nvl + (lmxl+1)**2
 C         Poke spec starting pnu to site
-          call pack5('site pnu pz',ssite,ib,pnu,pz,0,0)
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           real(8) :: pz(n0,2) , real(8) :: ssite%pz 20
+Cgetarg           call pack5('site pnu pz',ssite,ib,pnu,pz,0,0)
+           
+           i_copy_size=size(ssite(ib)%pnu) 
+           call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1) 
+           i_copy_size=size(ssite(ib)%pz) 
+           call dcopy(i_copy_size,pz,1,ssite(ib)%pz,1) 
+
 C         Find largest lmxa
           lmxax = max(lmxax,lmxa)
    20   continue
-        call pack1('ham lmxax',sham,lmxax)
-        call pack2('pot nlma nlml',spot,nvi,nvl)
+Cgetarg...info...           integer :: lmxax , integer(8) :: sham%lmxax 1
+Cgetarg         call pack1('ham lmxax',sham,lmxax)
+         
+         sham%lmxax=lmxax 
+
+Cgetarg...info...           integer :: nvi , integer(8) :: spot%nlma 1
+Cgetarg...info...           integer :: nvl , integer(8) :: spot%nlml 1
+Cgetarg         call pack2('pot nlma nlml',spot,nvi,nvl)
+         
+         spot%nlma=nvi 
+         spot%nlml=nvl 
+
         call info5(30,0,0,' suham :  %i augmentation'//
      .    ' channels, %i local potential channels  Maximum lmxa=%i',
      .    nvi,nvl,lmxax,0,0)
-        call upack('lat ng ogv alat tolft',slat,ng,ogv,alat,tolgv,0)
+Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
+Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: tolgv , real(8) :: slat%tolft 1
+Cgetarg         call upack('lat ng ogv alat tolft',slat,ng,ogv,alat,tolgv,0)
+         
+         ng=slat%ng
+         ogv=slat%ogv
+         alat=slat%alat
+         tolgv=slat%tolft
+
         call sugcut(1,nspec,sspec,alat,ng,w(ogv),tolgv)
 
 C   ... PW setup : estimate upper bound to number of G vectors
 C       to set up upper bound to hamiltonian dimension
-        call upack2('ham pwmode pwemax',sham,pwmode,pwemax)
+Cgetarg...info...           integer :: pwmode , integer(8) :: sham%pwmode 1
+Cgetarg...info...           real(8) :: pwemax , real(8) :: sham%pwemax 1
+Cgetarg         call upack2('ham pwmode pwemax',sham,pwmode,pwemax)
+         
+         pwmode=sham%pwmode
+         pwemax=sham%pwemax
+
         if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
 
           Gmin = dsqrt(pwemin)
@@ -472,7 +678,15 @@ c             call shorbz(q,q,qlat,plat)
           endif
           ndham = npwmax + npwpad
           if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
-          call pack3('ham npwmin npwpad ndham',sham,npwmin,npwpad,ndham)
+Cgetarg...info...           integer :: npwmin , integer(8) :: sham%npwmin 1
+Cgetarg...info...           integer :: npwpad , integer(8) :: sham%npwpad 1
+Cgetarg...info...           integer :: ndham , integer(8) :: sham%ndham 1
+Cgetarg           call pack3('ham npwmin npwpad ndham',sham,npwmin,npwpad,ndham)
+           
+           sham%npwmin=npwmin 
+           sham%npwpad=npwpad 
+           sham%ndham=ndham 
+
           if (mod(pwmode/10,10) .eq. 1) then
             call info2(20,1,0,' suham:  q-dependent PW basis with'//
      .        '  Emin = %d < E < %d.',pwemin,pwemax)
@@ -561,7 +775,11 @@ C ... Green's function-specific initialization
           if (ltmp) hord = 3
           i = partok(gfopts,'p1',  ' ;',ltmp,' ',0,0,0,0)
           if (ltmp) hord = 1
-          call pack1('ham hord',sham,hord)
+Cgetarg...info...           integer :: hord , integer(8) :: sham%hord 1
+Cgetarg           call pack1('ham hord',sham,hord)
+           
+           sham%hord=hord 
+
           if (iprint() .ge. 30) call awrit1(' SUHAM : 2nd generation'//
      .      ' ASA; potential functions P%?#n<4#%-1j%i#(z)#',' ',
      .      80,stdo,hord)
@@ -575,14 +793,24 @@ C     Make pti here since pp in gamma rep
         call defdr(opti,-ndim*nsp)
         call makipt(nl,nbasp,nsp,w(oipc),lihdim,w(oidxsh),w(opp),ndim,
      .    w(opti))
-        call pack1('pot opti',spot,opti)
+Cgetarg...info...           integer :: opti , integer(8) :: spot%opti 1
+Cgetarg         call pack1('pot opti',spot,opti)
+         
+         spot%opti=opti 
+
 
       endif
 
 C ... Transform pp's to alpha representation
       if (lfp .eq. 0 .and. lgen3 .eq. 0) then
 C       Get screening alpha's
-        call upack('array nclasp opos',sarray,nclasp,obas,0,0,0)
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: obas , integer(8) :: sarray%opos 1
+Cgetarg         call upack('array nclasp opos',sarray,nclasp,obas,0,0,0)
+         
+         nclasp=sarray%nclasp
+         obas=sarray%opos
+
         nlspcp = nl * nsp * nclasp
         ckbas = cksumf(w(obas),3*nbasp)
         ltmp = iostr(8,'STR',nl,nbasp,1,kap2,0,ckbas,-1,nttab,oalph,
@@ -596,8 +824,19 @@ C       Do the transformation
       endif
 
 C ... Printout Euler angles
-      call upack('ham lncol oeula neula qss',sham,lncol,oeula,neul,qss,
-     .  0)
+Cgetarg...info...           integer :: lncol , integer(8) :: sham%lncol 1
+Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
+Cgetarg...info...           integer :: neul , integer(8) :: sham%neula 1
+Cgetarg...info...           real(8) :: qss(4) , real(8) :: sham%qss 4
+Cgetarg       call upack('ham lncol oeula neula qss',sham,lncol,oeula,neul,qss,
+Cgetarg      .  0)
+       
+       lncol=sham%lncol
+       oeula=sham%oeula
+       neul=sham%neula
+       i_copy_size=size(sham%qss) 
+       call dcopy(i_copy_size,sham%qss,1,qss,1) 
+
       if (iprint() .ge. 30 .and. lncol .ne. 0) then
         call awrit4('%x          %?#n#Qss%3:1;6d angle %;6d.  #%2j#'//
      .    '%?#n#Euler angles:#noncollinear hamiltonian',outs,80,
@@ -610,14 +849,28 @@ C ... Printout Euler angles
 C ... Make B.sigma for magnetic field
       obs = 1
       if (lfp.eq.0 .and. lgen3.eq.0 .and. bittst(lncol,8)) then
-        call upack('ham oeula omagf nbf',sham,oeula,omagf,nbf,0,0)
+Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
+Cgetarg...info...           integer :: omagf , integer(8) :: sham%omagf 1
+Cgetarg...info...           integer :: nbf , integer(8) :: sham%nbf 1
+Cgetarg         call upack('ham oeula omagf nbf',sham,oeula,omagf,nbf,0,0)
+         
+         oeula=sham%oeula
+         omagf=sham%omagf
+         nbf=sham%nbf
+
         call defcc(obs,-4*lihdim)
         call mkbfld(nl,nbasp,lihdim,w(oidxsh),w(omagf),nbf,w(oeula),
      .    neul,w(obs))
       endif
-      call pack1('ham obdots',sham,obs)
+Cgetarg...info...           integer :: obs , integer(8) :: sham%obdots 1
+Cgetarg       call pack1('ham obdots',sham,obs)
+       
+       sham%obdots=obs 
 
-      end
+
+Cgetarg       end
+       end subroutine suham 
+
 
 
 
@@ -625,6 +878,7 @@ C ... Make B.sigma for magnetic field
 
       subroutine mptauof(symops,ng,plat,nbas,bas,
      &             iclass,miat,tiat,invg,delta)
+
 C- Mapping of each atom by points group operations------------------c
 C Modded by okuda 1994 March.
 C Simplified by kotani 1994 7/31.
@@ -768,9 +1022,12 @@ c          write(6,4658)tr1,tr2,tr3
         endif
 c---------------------------------------------------
    10 continue
-      end
+Cgetarg       end
+       end subroutine mptauof 
+
 
       subroutine rotdlmm(symops,ng,nl ,dlmm)
+
 c- Generate rotation matrix D^l_{m,m'} for L-representaiton, corresponding
 c  to points group operations.
 Ci symops(9,ng),ng; point ops.
@@ -966,11 +1223,16 @@ c    &    , ( dimag(dlmmc (m2, m1,l,is) ), m1=-l,l),( dlmm(m2, m1,l,is), m1=-l,l
 cccccccccccccccccccccc
    23 continue
       if(debugmode()>1) print *,' end of rotdlmm'
-      end
+Cgetarg       end
+       end subroutine rotdlmm 
+
 c--------------------------------------------
       double precision function igann(i)
+
       igann  = 1d0
       do ix =1,i
         igann=igann*dble(ix)
       enddo
-      end
+Cgetarg       end
+       end function igann 
+

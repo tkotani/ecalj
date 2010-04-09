@@ -1,5 +1,12 @@
+Cgetarg...info...           structure ['scrmom', 'ham', 'sham']
+Cgetarg...info...           structure ['scrmom', 'bz', 'sbz']
+Cgetarg...info...           structure ['scrmom', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['scrmom', 'm_struc_def']
       subroutine scrmom(sham,sbz,slat,mode,nbas,nsp,nl,nclass,nrclas
      .  ,ipc,wsr,nRLc,pstat,vmad,ldv,vintra,vin,vqin,vout,qin,qout)
+       
+       use m_struc_def  !Cgetarg
+
 C- Estimate the self-consistent moments from the dielectric response
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -58,10 +65,17 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nbas,nclass,nrclas(1),ipc(nbas),nl,nsp,nRLc,ldv
-      double precision sham(1),sbz(1),slat(1),wsr(1),
-     .  pstat(nRLc,nsp,nRLc,nsp),
-     .  vmad(ldv,1),vintra(nl,nl,nsp,nsp,1),vin(nclass),vqin(nclass),
-     .  vout(nclass),qin(3,nl,nsp,*),qout(3,nl,nsp,*)
+Cgetarg       double precision sham(1),sbz(1),slat(1),wsr(1),
+Cgetarg      .  pstat(nRLc,nsp,nRLc,nsp),
+Cgetarg      .  vmad(ldv,1),vintra(nl,nl,nsp,nsp,1),vin(nclass),vqin(nclass),
+Cgetarg      .  vout(nclass),qin(3,nl,nsp,*),qout(3,nl,nsp,*)
+       real(8):: wsr(1) , pstat(nRLc,nsp,nRLc,nsp) , vmad(ldv,1) , vintra(nl,nl,nsp,nsp,1) 
+     . , vin(nclass) , vqin(nclass) , vout(nclass) , qin(3,nl,nsp,*) 
+     . , qout(3,nl,nsp,*) 
+       type(s_ham)::sham
+       type(s_bz)::sbz
+       type(s_lat)::slat
+
 C ... Local parameters
       double precision elind,qval,vol,pi,dgets,xx
       integer ierr,oidxsh,odq,oqwk,job0,job1,lhdim,ldham(16),nRLc2,isw,
@@ -96,7 +110,14 @@ C     Check that P0 is hermitian
     3 continue
       endif
 
-      call upack('ham oindxo ldham',sham,oidxsh,ldham,0,0,0)
+Cgetarg...info...           integer :: oidxsh , integer(8) :: sham%oindxo 1
+Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ldham 16
+Cgetarg       call upack('ham oindxo ldham',sham,oidxsh,ldham,0,0,0)
+       
+       oidxsh=sham%oindxo
+       i_copy_size=size(sham%ldham) 
+       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
+
 
 C --- Make vbare, q=0, monopoles ---
       call defrr(ovmadb,nbas**2)
@@ -195,10 +216,18 @@ C --- Expand vbare as l-dependent matrix, add vintra ---
 
 C --- Model for epsilon^-1 ---
       if (job1 .eq. 1) then
-         call upack('ham elind',sham,elind,0,0,0,0)
+Cgetarg...info...           real(8) :: elind , real(8) :: sham%elind 1
+Cgetarg          call upack('ham elind',sham,elind,0,0,0,0)
+          
+          elind=sham%elind
+
          xx = elind
-         qval = dgets('bz zval', sbz)
-         vol  = dgets('lat vol', slat)
+Cgetarg          qval = dgets('bz zval', sbz)
+          qval = sbz%zval 
+
+Cgetarg          vol  = dgets('lat vol', slat)
+          vol = slat%vol 
+
          if (elind .eq. 0) elind = -1
          if (elind .lt. 0d0) elind=-elind*(3*pi**2*qval/vol)**.66666d0
          call info5(20,0,0,' SCRMOM: screen output rho using model '//
@@ -300,10 +329,13 @@ C     call poppr
 C --- Make the inversion of vbare, then make the inversion of (vbare+vintra)
 
 
-      end
+Cgetarg       end
+       end subroutine scrmom 
+
 
       subroutine pscrm1(nbas,nl,nsp,nRLc,nclass,nrclas,ipc,
      .  lhdim,indxsh,eps,dqv,dq,dqscr,qin,qout)
+
 C- Linear response estimate for self-consistent moments
 Ci dq should be dim 3*nl*nsp*nbas to accomodate both functions here
 C     implicit none
@@ -409,9 +441,12 @@ C --- Printout ---
    30 continue
   440 format(i4,i3,4f12.6)
 
-      end
+Cgetarg       end
+       end subroutine pscrm1 
+
 
       subroutine pscrm2(nbas,nclass,nrclas,ipc,epsa,vin,vout,dv,dvscr)
+
 C- Linear response estimate for self-consistent v
 C     implicit none
       integer nbas,nclass,ipc(nbas),nrclas(nbas)
@@ -455,8 +490,11 @@ C ... Save old vout in dv for printout
   440   format(i4,3f12.6)
    30 continue
 
-      end
+Cgetarg       end
+       end subroutine pscrm2 
+
       subroutine pscrm3(nbas,ipc,wsr,vmad,ldv,vmadb)
+
 C- Kernel called by scrmom to make unscreened Madelung matrix.
 C     implicit none
       integer nbas,ipc(1),ldv
@@ -474,9 +512,12 @@ C ... Add site-diagonal 2/r
 
 C     call prmx('vmadb',vmadb,nbas,nbas,nbas)
 
-      end
+Cgetarg       end
+       end subroutine pscrm3 
+
 
       subroutine pscrm4(nbas,nl,nsp,ipc,nRLc,ldim,indxsh,vintra,vbare)
+
 C- Add vintra to vbare
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -532,10 +573,13 @@ C       uses norb,ltab
 C     print *, 'ok in prscm4'
 C     call prmx('vbare incl vintra',vbare,nRLc*nsp,nRLc*nsp,nRLc*nsp)
 
-      end
+Cgetarg       end
+       end subroutine pscrm4 
+
 
       subroutine pscrm5(nbas,nsp,nRLc,lhdim,indxsh,ipc,pstat,pstaa,vin,
      .  vqin,dv,dqv)
+
 C- Linear response estimate for unscreened dq(Vin - V[nin])
 C     implicit none
       integer nbas,nsp,lhdim,nRLc,ipc(nbas),indxsh(1)
@@ -587,8 +631,11 @@ C     Ensure charge neutrality --- should do by renorm of pstaa
 
 C     call prmx('dq(v[qin]-vin)',dqv,nRLc,nRLc,nsp)
 
-      end
+Cgetarg       end
+       end subroutine pscrm5 
+
       subroutine pscrm6(nRLc,nsp,pstat,vbare,eps)
+
 C- Make epsilon^-1 = (1 - pstat vbare)^-1
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -625,9 +672,12 @@ C     call prm('pstat',ierr,pstat,nRLc2,nRLc2,nRLc2)
 C     call prm('vbare',ierr,vbare,nRLc2,nRLc2,nRLc2)
 C     call prm('epsilon^-1',ierr,eps,nRLc2,nRLc2,nRLc2)
 
-      end
+Cgetarg       end
+       end subroutine pscrm6 
+
 
       subroutine pscrm7(nRLc,nsp,elind,vbare,invbar,eps)
+
 C- Make epsilon^-1 using a model aproach without using pstat
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -722,7 +772,9 @@ C ... debugging
 C     call prm('pstat',ierr,pstat,nRLc2,nRLc2,nRLc2)
 C     call prm('vbare',ierr,vbare,nRLc2,nRLc2,nRLc2)
 C     call prm('epsilon^-1',ierr,eps,nRLc2,nRLc2,nRLc2)
-      end
+Cgetarg       end
+       end subroutine pscrm7 
+
 
 C      subroutine mcomp(n, A, B, ires)
 C      integer n,i

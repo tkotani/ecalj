@@ -1,5 +1,10 @@
+Cgetarg...info...           structure ['iosits', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['iosits', 'm_struc_def']
       integer function iosits(lio,vn,errh,filnam,ifi,slabl,alat,plat,
      .  nbas,nspec,sspec,ssite)
+       
+       use m_struc_def  !Cgetarg
+
 C- File I/O of site data into ssepc and ssite strux
 C ----------------------------------------------------------------
 Ci Inputs
@@ -128,7 +133,11 @@ C ... Passed parameters
       integer lio,errh,nbas,nspec,ifi
       character*8 slabl(1)
       character*(*) filnam
-      double precision sspec(1),alat,plat(3,3),vn,ssite(1)
+Cgetarg       double precision sspec(1),alat,plat(3,3),vn,ssite(1)
+       real(8):: alat , plat(3,3) , vn 
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+
 C ... Local parameters
 #if MPI | MPIK
       include "mpif.h"
@@ -194,9 +203,31 @@ C   ... Write header
   344   format('#',t26,'pos',t61,'vel',t85,'eula',t103,'vshft',t111,
      .    'PL rlx')
         do  10  ib = 1, nbas
-          call upack('site spec pos vel eula',ssite,ib,is,posl,vell,
-     .      eulal)
-          call upack('site pl relax vshft',ssite,ib,ipll,irlx,vshftl,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: posl(3) , real(8) :: ssite%pos 3
+Cgetarg...info...           real(8) :: vell(3) , real(8) :: ssite%vel 3
+Cgetarg...info...           real(8) :: eulal(3) , real(8) :: ssite%eula 3
+Cgetarg           call upack('site spec pos vel eula',ssite,ib,is,posl,vell,
+Cgetarg      .      eulal)
+           
+           is=ssite(ib)%spec
+           i_copy_size=size(ssite(ib)%pos) 
+           call dcopy(i_copy_size,ssite(ib)%pos,1,posl,1) 
+           i_copy_size=size(ssite(ib)%vel) 
+           call dcopy(i_copy_size,ssite(ib)%vel,1,vell,1) 
+           i_copy_size=size(ssite(ib)%eula) 
+           call dcopy(i_copy_size,ssite(ib)%eula,1,eulal,1) 
+
+Cgetarg...info...           integer :: ipll , integer(8) :: ssite%pl 1
+Cgetarg...info...           integer :: irlx(3) , integer(8) :: ssite%relax 3
+Cgetarg...info...           real(8) :: vshftl , real(8) :: ssite%vshft 1
+Cgetarg           call upack('site pl relax vshft',ssite,ib,ipll,irlx,vshftl,0)
+           
+           ipll=ssite(ib)%pl
+           i_copy_size=size(ssite(ib)%relax) 
+           call i8icopy(i_copy_size,ssite(ib)%relax,1,irlx,1) 
+           vshftl=ssite(ib)%vshft
+
           if (lxpos) then
             call dcopy(3,posl,1,plx,1)
 C           Forward: pos+ = plat posp+
@@ -214,7 +245,14 @@ C     .      a,len(a),-ifi,posl,vell,eulal,vshftl,ipll,irlx)
 C         Write tbe data
           if (bittst(lio345,64)) then
             call dpzero(delta,6)
-            call upack('site ndelta delta',ssite,ib,ndel,delta,0,0)
+Cgetarg...info...           integer :: ndel , integer(8) :: ssite%ndelta 1
+Cgetarg...info...           real(8) :: delta(6) , real(8) :: ssite%delta 6
+Cgetarg             call upack('site ndelta delta',ssite,ib,ndel,delta,0,0)
+             
+             ndel=ssite(ib)%ndelta
+             i_copy_size=size(ssite(ib)%delta) 
+             call dcopy(i_copy_size,ssite(ib)%delta,1,delta,1) 
+
             call awrit1(' tbe:%9p%6:1;9F',' ',80,ifi,delta)
           endif
    10   continue
@@ -317,9 +355,31 @@ C         Columns 4-6 are site position
           call ivset(irlx,1,3,1)
           ipll = 0
           vshftl = 0
-          call pack5('site spec pos vel eula',ssite,ib,is,posl,vell,
-     .      eulal)
-          call pack5('site pl relax vshft',ssite,ib,ipll,irlx,vshftl,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: posl(3) , real(8) :: ssite%pos 3
+Cgetarg...info...           real(8) :: vell(3) , real(8) :: ssite%vel 3
+Cgetarg...info...           real(8) :: eulal(3) , real(8) :: ssite%eula 3
+Cgetarg           call pack5('site spec pos vel eula',ssite,ib,is,posl,vell,
+Cgetarg      .      eulal)
+           
+           ssite(ib)%spec=is 
+           i_copy_size=size(ssite(ib)%pos) 
+           call dcopy(i_copy_size,posl,1,ssite(ib)%pos,1) 
+           i_copy_size=size(ssite(ib)%vel) 
+           call dcopy(i_copy_size,vell,1,ssite(ib)%vel,1) 
+           i_copy_size=size(ssite(ib)%eula) 
+           call dcopy(i_copy_size,eulal,1,ssite(ib)%eula,1) 
+
+Cgetarg...info...           integer :: ipll , integer(8) :: ssite%pl 1
+Cgetarg...info...           integer :: irlx(3) , integer(8) :: ssite%relax 3
+Cgetarg...info...           real(8) :: vshftl , real(8) :: ssite%vshft 1
+Cgetarg           call pack5('site pl relax vshft',ssite,ib,ipll,irlx,vshftl,0)
+           
+           ssite(ib)%pl=ipll 
+           i_copy_size=size(ssite(ib)%relax) 
+           call ii8copy(i_copy_size,irlx,1,ssite(ib)%relax,1) 
+           ssite(ib)%vshft=vshftl 
+
 
         enddo
         endif
@@ -480,15 +540,39 @@ C          vel,eula,vshft,ipl,irlx are available on disk
            endif
 
            ib = ib+1
-           call pack5('site spec pos',ssite,ib,is,posl,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: posl(3) , real(8) :: ssite%pos 3
+Cgetarg            call pack5('site spec pos',ssite,ib,is,posl,0,0)
+            
+            ssite(ib)%spec=is 
+            i_copy_size=size(ssite(ib)%pos) 
+            call dcopy(i_copy_size,posl,1,ssite(ib)%pos,1) 
+
 
 C          Copy vel,eula,vshft,ipl,irlx if sought
            if (lio345 .ge. 32) then
              do  46  i = 1, 3
    46        irlx(i) = getdig(iirlx,3-i,10)
-             call pack5('site vel eula',ssite,ib,vell,eulal,0,0)
-             call pack5('site pl relax vshft',
-     .         ssite,ib,ipll,irlx,vshftl,0)
+Cgetarg...info...           real(8) :: vell(3) , real(8) :: ssite%vel 3
+Cgetarg...info...           real(8) :: eulal(3) , real(8) :: ssite%eula 3
+Cgetarg              call pack5('site vel eula',ssite,ib,vell,eulal,0,0)
+              
+              i_copy_size=size(ssite(ib)%vel) 
+              call dcopy(i_copy_size,vell,1,ssite(ib)%vel,1) 
+              i_copy_size=size(ssite(ib)%eula) 
+              call dcopy(i_copy_size,eulal,1,ssite(ib)%eula,1) 
+
+Cgetarg...info...           integer :: ipll , integer(8) :: ssite%pl 1
+Cgetarg...info...           integer :: irlx(3) , integer(8) :: ssite%relax 3
+Cgetarg...info...           real(8) :: vshftl , real(8) :: ssite%vshft 1
+Cgetarg              call pack5('site pl relax vshft',
+Cgetarg      .         ssite,ib,ipll,irlx,vshftl,0)
+              
+              ssite(ib)%pl=ipll 
+              i_copy_size=size(ssite(ib)%relax) 
+              call ii8copy(i_copy_size,irlx,1,ssite(ib)%relax,1) 
+              ssite(ib)%vshft=vshftl 
+
           endif
 
           if (lio345 .ge. 64) then
@@ -544,5 +628,7 @@ C     Copy llio345
   369 format(1x,'IOSITS ',a,' failed to read ',a,' from file ',a)
       if (errh .eq. 0) call rxs('IOSITS: file mismatch, file ',filnam)
 
-      end
+Cgetarg       end
+       end function iosits 
+
 

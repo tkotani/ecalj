@@ -1,5 +1,6 @@
       subroutine norm2g(a,b,kap2,g,l,liophi,nr,hcr,slo,val,rmax,rofi,
      .  phi0,phio)
+
 C- Normalizes wave function so that phi^0(a)=1
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -78,5 +79,7 @@ C --- Generate phi0 on a radial mesh between hcr and rmax ---
 
   300 format(' NORM2G: kap2, val slo dphi g1 g2',6f10.5)
   301 format(' NORM2G: phi, phio',2f10.5)
-      end
+Cgetarg       end
+       end subroutine norm2g 
+
 

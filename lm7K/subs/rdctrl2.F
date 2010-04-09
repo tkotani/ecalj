@@ -1,9 +1,24 @@
+Cgetarg...info...           structure ['rdctrl2', 'bz', 'v_sbz']
+Cgetarg...info...           structure ['rdctrl2', 'ctrl', 'v_sctrl']
+Cgetarg...info...           structure ['rdctrl2', 'lat', 'v_slat']
+Cgetarg...info...           structure ['rdctrl2', 'ham', 'v_sham']
+Cgetarg...info...           structure ['rdctrl2', 'pot', 'v_spot']
+Cgetarg...info...           structure ['rdctrl2', 'array', 'v_sarry']
+Cgetarg...info...           structure ['rdctrl2', 'move', 'v_smove']
+Cgetarg...info...           structure ['rdctrl2', 'optic', 'w(osoptc)']
+Cgetarg...info...           structure ['rdctrl2', 'gw', 'w(osgw)']
+Cgetarg...info...           structure ['rdctrl2', 'str', 'v_sstr']
+Cgetarg...info...           structure ['rdctrl2', 'tb', 'v_stb']
+Cgetarg...info...           structure ['rdctrl2', 'spec', 'v_sspec']
+Cgetarg...info...           structure ['rdctrl2', 'site', 'v_ssite']
+Cgetarg...info...           structure ['rdctrl2', 'mix', 'v_smix']
       module m_rdctrl2_func
       contains
       subroutine rdctrl2(recrd,recln,nrecs,
      . prgnam,vrsion,vn,vn2,
      . pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
      . v_sstr,v_sarry,v_smove,v_stb,sstrn)
+
       use m_rdctrl
       use m_gtv
       use m_struc_def
@@ -297,15 +312,65 @@ Cki      call ubz(v_sbz,-1,-000,0,0,0)
 Cki      call redfrr(v_sbz,nint(dval(v_sbz,1)))
         v_sbz%size=ubz_size()
 
-      call pack5('bz def dosw ef efmax fsmom',v_sbz,
-     .  bz_def,bz_dosw,bz_ef,bz_efmax,bz_fsmom)
+Cgetarg...info...           NG:: bz_def , real(8) :: v_sbz%def 1
+Cgetarg...info...           NG:: bz_dosw , real(8) :: v_sbz%dosw 2
+Cgetarg...info...           NG:: bz_ef , real(8) :: v_sbz%ef 1
+Cgetarg...info...           NG:: bz_efmax , real(8) :: v_sbz%efmax 1
+Cgetarg...info...           NG:: bz_fsmom , real(8) :: v_sbz%fsmom 1
+Cgetarg       call pack5('bz def dosw ef efmax fsmom',v_sbz,
+Cgetarg      .  bz_def,bz_dosw,bz_ef,bz_efmax,bz_fsmom)
+       
+       v_sbz%def=bz_def 
+       i_copy_size=size(v_sbz%dosw) 
+       call dcopy(i_copy_size,bz_dosw,1,v_sbz%dosw,1) 
+       v_sbz%ef=bz_ef 
+       v_sbz%efmax=bz_efmax 
+       v_sbz%fsmom=bz_fsmom 
+
       i = 1*isw(bz_lio1)+2*isw(bz_lio2)+8*isw(bz_lio8)
-      call pack5('bz lcond lio lmet lmull lopt',v_sbz,
-     .  bz_lcond,i,bz_lmet,bz_lmull,0)
-      call pack5('bz lshft n ndos nevmx nkabc',v_sbz,
-     .  bz_lshft,bz_n,bz_ndos,bz_nevmx,bz_nabc)
-      call pack5('bz range semsh w zval',v_sbz,
-     .  bz_range,bz_semsh,bz_w,bz_zval,0)
+Cgetarg...info...           NG:: bz_lcond , real(8) :: v_sbz%lcond 4
+Cgetarg...info...           integer :: i , integer(8) :: v_sbz%lio 1
+Cgetarg...info...           NG:: bz_lmet , integer(8) :: v_sbz%lmet 1
+Cgetarg...info...           NG:: bz_lmull , integer(8) :: v_sbz%lmull 1
+Cgetarg       call pack5('bz lcond lio lmet lmull lopt',v_sbz,
+Cgetarg      .  bz_lcond,i,bz_lmet,bz_lmull,0)
+       
+       i_copy_size=size(v_sbz%lcond) 
+       call dcopy(i_copy_size,bz_lcond,1,v_sbz%lcond,1) 
+       v_sbz%lio=i 
+       v_sbz%lmet=bz_lmet 
+       v_sbz%lmull=bz_lmull 
+       v_sbz%lopt=0 
+
+Cgetarg...info...           NG:: bz_lshft , integer(8) :: v_sbz%lshft 3
+Cgetarg...info...           NG:: bz_n , integer(8) :: v_sbz%n 1
+Cgetarg...info...           NG:: bz_ndos , integer(8) :: v_sbz%ndos 1
+Cgetarg...info...           NG:: bz_nevmx , integer(8) :: v_sbz%nevmx 1
+Cgetarg...info...           NG:: bz_nabc , integer(8) :: v_sbz%nkabc 3
+Cgetarg       call pack5('bz lshft n ndos nevmx nkabc',v_sbz,
+Cgetarg      .  bz_lshft,bz_n,bz_ndos,bz_nevmx,bz_nabc)
+       
+       i_copy_size=size(v_sbz%lshft) 
+       call ii8copy(i_copy_size,bz_lshft,1,v_sbz%lshft,1) 
+       v_sbz%n=bz_n 
+       v_sbz%ndos=bz_ndos 
+       v_sbz%nevmx=bz_nevmx 
+       i_copy_size=size(v_sbz%nkabc) 
+       call ii8copy(i_copy_size,bz_nabc,1,v_sbz%nkabc,1) 
+
+Cgetarg...info...           NG:: bz_range , real(8) :: v_sbz%range 1
+Cgetarg...info...           NG:: bz_semsh , real(8) :: v_sbz%semsh 10
+Cgetarg...info...           NG:: bz_w , real(8) :: v_sbz%w 1
+Cgetarg...info...           NG:: bz_zval , real(8) :: v_sbz%zval 1
+Cgetarg       call pack5('bz range semsh w zval',v_sbz,
+Cgetarg      .  bz_range,bz_semsh,bz_w,bz_zval,0)
+       
+       v_sbz%range=bz_range 
+       i_copy_size=size(v_sbz%semsh) 
+       call dcopy(i_copy_size,bz_semsh,1,v_sbz%semsh,1) 
+       v_sbz%w=bz_w 
+       v_sbz%zval=bz_zval 
+
 
 C --- Allocate and copy input to sctrl ---
 Cki      call defdr(v_sctrl,1000)
@@ -334,12 +399,37 @@ C         16 unused
 C         32 unused
 C         64 (molecules) XC potential by FFT
       k = 1*isw(lcd1)+2*isw(lcd2)+4*isw(lcd4)+8*isw(lcd8)+64*isw(lcd64)
-      call pack5('ctrl defm elin lasa lbas lcd',v_sctrl,
-     .  lat_defm,asa_elin,lasa,j,k)
+Cgetarg...info...           NG:: lat_defm , real(8) :: v_sctrl%defm 6
+Cgetarg...info...           NG:: asa_elin , real(8) :: v_sctrl%elin 1
+Cgetarg...info...           integer :: lasa , integer(8) :: v_sctrl%lasa 1
+Cgetarg...info...           integer :: j , integer(8) :: v_sctrl%lbas 1
+Cgetarg...info...           integer :: k , integer(8) :: v_sctrl%lcd 1
+Cgetarg       call pack5('ctrl defm elin lasa lbas lcd',v_sctrl,
+Cgetarg      .  lat_defm,asa_elin,lasa,j,k)
+       
+       i_copy_size=size(v_sctrl%defm) 
+       call dcopy(i_copy_size,lat_defm,1,v_sctrl%defm,1) 
+       v_sctrl%elin=asa_elin 
+       v_sctrl%lasa=lasa 
+       v_sctrl%lbas=j 
+       v_sctrl%lcd=k 
+
       k = isw(nmto.gt.1)
       if (nmto.gt.1) k = k+2*isw(ham_ewald)
-      call pack5('ctrl lcgf ldos lfp lfrce lgen3',v_sctrl,
-     . ctrl_lcgf,ctrl_ldos,lfp,ctrl_lfrce,k)
+Cgetarg...info...           NG:: ctrl_lcgf , integer(8) :: v_sctrl%lcgf 1
+Cgetarg...info...           NG:: ctrl_ldos , integer(8) :: v_sctrl%ldos 1
+Cgetarg...info...           NG:: lfp , integer(8) :: v_sctrl%lfp 1
+Cgetarg...info...           NG:: ctrl_lfrce , integer(8) :: v_sctrl%lfrce 1
+Cgetarg...info...           integer :: k , integer(8) :: v_sctrl%lgen3 1
+Cgetarg       call pack5('ctrl lcgf ldos lfp lfrce lgen3',v_sctrl,
+Cgetarg      . ctrl_lcgf,ctrl_ldos,lfp,ctrl_lfrce,k)
+       
+       v_sctrl%lcgf=ctrl_lcgf 
+       v_sctrl%ldos=ctrl_ldos 
+       v_sctrl%lfp=lfp 
+       v_sctrl%lfrce=ctrl_lfrce 
+       v_sctrl%lgen3=k 
+
 C     lham  1 (ASA) 2-center
 C           1 (molecules) two-panel
 C           2 (ASA) 2-c + pert. corr
@@ -371,8 +461,20 @@ C     If spin-orbit or SS, also turn on noncollinear
       lncol = 1*isw(lncol1)+2*isw(lncol2)+4*isw(lncol4)+8*isw(lncol8)+
      .  16*isw(lncol16)+32*isw(lncol32)+64*isw(lncol64)
       lordn = 0
-      call pack5('ctrl lham lmet lncol loptc lordn',v_sctrl,
-     .  lham,lmet,lncol,ctrl_loptc,lordn)
+Cgetarg...info...           integer :: lham , integer(8) :: v_sctrl%lham 1
+Cgetarg...info...           integer :: lmet , integer(8) :: v_sctrl%lmet 1
+Cgetarg...info...           integer :: lncol , integer(8) :: v_sctrl%lncol 1
+Cgetarg...info...           NG:: ctrl_loptc , integer(8) :: v_sctrl%loptc 1
+Cgetarg...info...           integer :: lordn , integer(8) :: v_sctrl%lordn 1
+Cgetarg       call pack5('ctrl lham lmet lncol loptc lordn',v_sctrl,
+Cgetarg      .  lham,lmet,lncol,ctrl_loptc,lordn)
+       
+       v_sctrl%lham=lham 
+       v_sctrl%lmet=lmet 
+       v_sctrl%lncol=lncol 
+       v_sctrl%loptc=ctrl_loptc 
+       v_sctrl%lordn=lordn 
+
 C     lrs  switches concerning restart mode.
 C         1 Read from restart file
 C         2 Read from restart file, ascii mode
@@ -414,8 +516,21 @@ C            Add 1 to combine mode 1 with another mode
 C            Add 10*k to compute intra-site contribution to
 C            vbare each kth iteration
 C            Add 100*k to compute response function only each kth iteration
-       call pack5('ctrl lpgf lqp lrel lrs lscr',v_sctrl,
-     .  ctrl_lpgf,lqp,lrel,lrs,lscr)
+Cgetarg...info...           NG:: ctrl_lpgf , integer(8) :: v_sctrl%lpgf 2
+Cgetarg...info...           integer :: lqp , integer(8) :: v_sctrl%lqp 1
+Cgetarg...info...           NG:: lrel , integer(8) :: v_sctrl%lrel 1
+Cgetarg...info...           integer :: lrs , integer(8) :: v_sctrl%lrs 1
+Cgetarg...info...           NG:: lscr , integer(8) :: v_sctrl%lscr 1
+Cgetarg        call pack5('ctrl lpgf lqp lrel lrs lscr',v_sctrl,
+Cgetarg      .  ctrl_lpgf,lqp,lrel,lrs,lscr)
+        
+        i_copy_size=size(v_sctrl%lpgf) 
+        call ii8copy(i_copy_size,ctrl_lpgf,1,v_sctrl%lpgf,1) 
+        v_sctrl%lqp=lqp 
+        v_sctrl%lrel=lrel 
+        v_sctrl%lrs=lrs 
+        v_sctrl%lscr=lscr 
+
        
 C      lstr  no longer used.
 C      ltb switches for empirical tight-binding
@@ -432,8 +547,20 @@ C      2^15 L>0 estat   2^16 disc read incr 2^17 gamma-pt
      .   +2**15*isw(ltb215)+2**16*isw(ltb216)+2**17*isw(ltb217)
      .   +2**18*isw(ltb218)
 C      lves    1 take ves as input
-       call pack5('ctrl lstonr lstr lsx ltb lves',v_sctrl,
-     .   lstonr,0,lsx,i,lves)
+Cgetarg...info...           NG:: lstonr , integer(8) :: v_sctrl%lstonr 3
+Cgetarg...info...           NG:: lsx , integer(8) :: v_sctrl%lsx 1
+Cgetarg...info...           integer :: i , integer(8) :: v_sctrl%ltb 1
+Cgetarg...info...           NG:: lves , integer(8) :: v_sctrl%lves 1
+Cgetarg        call pack5('ctrl lstonr lstr lsx ltb lves',v_sctrl,
+Cgetarg      .   lstonr,0,lsx,i,lves)
+        
+        i_copy_size=size(v_sctrl%lstonr) 
+        call ii8copy(i_copy_size,lstonr,1,v_sctrl%lstonr,1) 
+        v_sctrl%lstr=0 
+        v_sctrl%lsx=lsx 
+        v_sctrl%ltb=i 
+        v_sctrl%lves=lves 
+
 C      lxcf   parameter defining XC functional
 C      1s digit:
 C      1 for Ceperly-Alder
@@ -451,8 +578,22 @@ C      Set modep
        ix(1:3) = 2
        if (prgnam == 'LMPG') ix(3) = 0
        if (prgnam == 'LMMC') ix(1:3) = 0
-       call pack5('ctrl lxcf maxit mdprm modep nbas',v_sctrl,
-     .   i,iter_maxit,mdprm,ix(1:3),nbas)
+Cgetarg...info...           integer :: i , integer(8) :: v_sctrl%lxcf 1
+Cgetarg...info...           NG:: iter_maxit , integer(8) :: v_sctrl%maxit 1
+Cgetarg...info...           NG:: mdprm , real(8) :: v_sctrl%mdprm 6
+Cgetarg...info...           integer :: ix(n0*nkap0) , integer(8) :: v_sctrl%modep 3
+Cgetarg...info...           NG:: nbas , integer(8) :: v_sctrl%nbas 1
+Cgetarg        call pack5('ctrl lxcf maxit mdprm modep nbas',v_sctrl,
+Cgetarg      .   i,iter_maxit,mdprm,ix(1:3),nbas)
+        
+        v_sctrl%lxcf=i 
+        v_sctrl%maxit=iter_maxit 
+        i_copy_size=size(v_sctrl%mdprm) 
+        call dcopy(i_copy_size,mdprm,1,v_sctrl%mdprm,1) 
+        i_copy_size=size(v_sctrl%modep) 
+        call ii8copy(i_copy_size,ix(1:3),1,v_sctrl%modep,1) 
+        v_sctrl%nbas=nbas 
+
 C      Reset nl
        if (nl .ne. max(lmxbx,lmxax)+1 .and. io_help == 0) then
          call info2(20,1,0,' rdctrl: reset global max nl from %i to %i',
@@ -460,18 +601,77 @@ C      Reset nl
          nl = max(lmxbx,lmxax)+1
        endif
 C      call pack5('ctrl nbasp nclass nesabc nitmv nl',v_sctrl,
-       call pack5('ctrl nbasp nesabc nitmv nl',v_sctrl,
-     .   nbasp,nesabc,nitmv,nl,0)
+Cgetarg...info...           NG:: nbasp , integer(8) :: v_sctrl%nbasp 1
+Cgetarg...info...           NG:: nesabc , integer(8) :: v_sctrl%nesabc 3
+Cgetarg...info...           NG:: nitmv , integer(8) :: v_sctrl%nitmv 1
+Cgetarg...info...           NG:: nl , integer(8) :: v_sctrl%nl 1
+Cgetarg        call pack5('ctrl nbasp nesabc nitmv nl',v_sctrl,
+Cgetarg      .   nbasp,nesabc,nitmv,nl,0)
+        
+        v_sctrl%nbasp=nbasp 
+        i_copy_size=size(v_sctrl%nesabc) 
+        call ii8copy(i_copy_size,nesabc,1,v_sctrl%nesabc,1) 
+        v_sctrl%nitmv=nitmv 
+        v_sctrl%nl=nl 
+
 C      call pack5('ctrl nlibu nmap npl nsite nspec',v_sctrl,
-       call pack5('ctrl nsite nspec',v_sctrl,
-     .   nsite,nspec,0,0,0)
+Cgetarg...info...           NG:: nsite , integer(8) :: v_sctrl%nsite 1
+Cgetarg...info...           NG:: nspec , integer(8) :: v_sctrl%nspec 1
+Cgetarg        call pack5('ctrl nsite nspec',v_sctrl,
+Cgetarg      .   nsite,nspec,0,0,0)
+        
+        v_sctrl%nsite=nsite 
+        v_sctrl%nspec=nspec 
+
 C      call shosyv(0,0,0,6)
-       call pack5('ctrl nspin nvario omax1 omax2 quit',v_sctrl,
-     .   nsp,nvario,omax1,omax2,quit)
-       call pack5('ctrl rmaxes rmines sclwsr sdmod sdprm',v_sctrl,
-     .   rmaxes,rmines,sclwsr,sdmod,sdprm)
-       call pack5('ctrl smalit tol wsrmax zbak pfloat',v_sctrl,
-     .   smalit,ctrl_tol,wsrmax,zbak,lpfloat)
+Cgetarg...info...           NG:: nsp , integer(8) :: v_sctrl%nspin 1
+Cgetarg...info...           NG:: nvario , integer(8) :: v_sctrl%nvario 1
+Cgetarg...info...           NG:: omax1 , real(8) :: v_sctrl%omax1 3
+Cgetarg...info...           NG:: omax2 , real(8) :: v_sctrl%omax2 3
+Cgetarg...info...           NG:: quit , integer(8) :: v_sctrl%quit 1
+Cgetarg        call pack5('ctrl nspin nvario omax1 omax2 quit',v_sctrl,
+Cgetarg      .   nsp,nvario,omax1,omax2,quit)
+        
+        v_sctrl%nspin=nsp 
+        v_sctrl%nvario=nvario 
+        i_copy_size=size(v_sctrl%omax1) 
+        call dcopy(i_copy_size,omax1,1,v_sctrl%omax1,1) 
+        i_copy_size=size(v_sctrl%omax2) 
+        call dcopy(i_copy_size,omax2,1,v_sctrl%omax2,1) 
+        v_sctrl%quit=quit 
+
+Cgetarg...info...           NG:: rmaxes , real(8) :: v_sctrl%rmaxes 1
+Cgetarg...info...           NG:: rmines , real(8) :: v_sctrl%rmines 1
+Cgetarg...info...           NG:: sclwsr , real(8) :: v_sctrl%sclwsr 1
+Cgetarg...info...           NG:: sdmod , integer(8) :: v_sctrl%sdmod 1
+Cgetarg...info...           NG:: sdprm , real(8) :: v_sctrl%sdprm 5
+Cgetarg        call pack5('ctrl rmaxes rmines sclwsr sdmod sdprm',v_sctrl,
+Cgetarg      .   rmaxes,rmines,sclwsr,sdmod,sdprm)
+        
+        v_sctrl%rmaxes=rmaxes 
+        v_sctrl%rmines=rmines 
+        v_sctrl%sclwsr=sclwsr 
+        v_sctrl%sdmod=sdmod 
+        i_copy_size=size(v_sctrl%sdprm) 
+        call dcopy(i_copy_size,sdprm,1,v_sctrl%sdprm,1) 
+
+Cgetarg...info...           NG:: smalit , integer(8) :: v_sctrl%smalit 2
+Cgetarg...info...           NG:: ctrl_tol , real(8) :: v_sctrl%tol 3
+Cgetarg...info...           NG:: wsrmax , real(8) :: v_sctrl%wsrmax 1
+Cgetarg...info...           NG:: zbak , real(8) :: v_sctrl%zbak 2
+Cgetarg...info...           NG:: lpfloat , integer(8) :: v_sctrl%pfloat 1
+Cgetarg        call pack5('ctrl smalit tol wsrmax zbak pfloat',v_sctrl,
+Cgetarg      .   smalit,ctrl_tol,wsrmax,zbak,lpfloat)
+        
+        i_copy_size=size(v_sctrl%smalit) 
+        call ii8copy(i_copy_size,smalit,1,v_sctrl%smalit,1) 
+        i_copy_size=size(v_sctrl%tol) 
+        call dcopy(i_copy_size,ctrl_tol,1,v_sctrl%tol,1) 
+        v_sctrl%wsrmax=wsrmax 
+        i_copy_size=size(v_sctrl%zbak) 
+        call dcopy(i_copy_size,zbak,1,v_sctrl%zbak,1) 
+        v_sctrl%pfloat=lpfloat 
+
 
 C --- Allocate and copy input to slat ---
 CKi      call defdr(v_slat,1000)
@@ -480,20 +680,83 @@ CKi      call redfrr(v_slat,nint(dval(v_slat,1)))
          v_slat%size=ulat_size()
 
       if (dalat == NULLR) dalat=0
-      call pack5('lat alat as avw nkdmx nkqmx',v_slat,
-     .  alat+dalat,lat_as,avw,lat_nkdmx,lat_nkdmx)
-      call pack5('lat gam gmax nabc',v_slat,
-     .  lat_gam,lat_gmax,ftmesh,0,0)
-      call pack5('lat gam ldist dist',v_slat,
-     .  lat_gam,lat_ldist,lat_dist,0,0)
-      call pack5('lat plat plat2',v_slat,plat,slat_plat2,0,0,0)
-      call pack5('lat rpad slat tol tolft vol',v_slat,
-     .  lat_rpad,lat_slat,lat_tol,tolft,vol)
+Cgetarg...info...           NG:: alat+dalat , real(8) :: v_slat%alat 1
+Cgetarg...info...           NG:: lat_as , real(8) :: v_slat%as 1
+Cgetarg...info...           NG:: avw , real(8) :: v_slat%avw 1
+Cgetarg...info...           NG:: lat_nkdmx , integer(8) :: v_slat%nkdmx 1
+Cgetarg...info...           NG:: lat_nkdmx , integer(8) :: v_slat%nkqmx 1
+Cgetarg       call pack5('lat alat as avw nkdmx nkqmx',v_slat,
+Cgetarg      .  alat+dalat,lat_as,avw,lat_nkdmx,lat_nkdmx)
+       
+       v_slat%alat=alat+dalat 
+       v_slat%as=lat_as 
+       v_slat%avw=avw 
+       v_slat%nkdmx=lat_nkdmx 
+       v_slat%nkqmx=lat_nkdmx 
+
+Cgetarg...info...           NG:: lat_gam , real(8) :: v_slat%gam 4
+Cgetarg...info...           NG:: lat_gmax , real(8) :: v_slat%gmax 1
+Cgetarg...info...           NG:: ftmesh , integer(8) :: v_slat%nabc 3
+Cgetarg       call pack5('lat gam gmax nabc',v_slat,
+Cgetarg      .  lat_gam,lat_gmax,ftmesh,0,0)
+       
+       i_copy_size=size(v_slat%gam) 
+       call dcopy(i_copy_size,lat_gam,1,v_slat%gam,1) 
+       v_slat%gmax=lat_gmax 
+       i_copy_size=size(v_slat%nabc) 
+       call ii8copy(i_copy_size,ftmesh,1,v_slat%nabc,1) 
+
+Cgetarg...info...           NG:: lat_gam , real(8) :: v_slat%gam 4
+Cgetarg...info...           NG:: lat_ldist , integer(8) :: v_slat%ldist 1
+Cgetarg...info...           NG:: lat_dist , real(8) :: v_slat%dist 9
+Cgetarg       call pack5('lat gam ldist dist',v_slat,
+Cgetarg      .  lat_gam,lat_ldist,lat_dist,0,0)
+       
+       i_copy_size=size(v_slat%gam) 
+       call dcopy(i_copy_size,lat_gam,1,v_slat%gam,1) 
+       v_slat%ldist=lat_ldist 
+       i_copy_size=size(v_slat%dist) 
+       call dcopy(i_copy_size,lat_dist,1,v_slat%dist,1) 
+
+Cgetarg...info...           NG:: plat , real(8) :: v_slat%plat 9
+Cgetarg...info...           NG:: slat_plat2 , real(8) :: v_slat%plat2 9
+Cgetarg       call pack5('lat plat plat2',v_slat,plat,slat_plat2,0,0,0)
+       
+       i_copy_size=size(v_slat%plat) 
+       call dcopy(i_copy_size,plat,1,v_slat%plat,1) 
+       i_copy_size=size(v_slat%plat2) 
+       call dcopy(i_copy_size,slat_plat2,1,v_slat%plat2,1) 
+
+Cgetarg...info...           NG:: lat_rpad , real(8) :: v_slat%rpad 1
+Cgetarg...info...           NG:: lat_slat , real(8) :: v_slat%slat 9
+Cgetarg...info...           NG:: lat_tol , real(8) :: v_slat%tol 1
+Cgetarg...info...           NG:: tolft , real(8) :: v_slat%tolft 1
+Cgetarg...info...           NG:: vol , real(8) :: v_slat%vol 1
+Cgetarg       call pack5('lat rpad slat tol tolft vol',v_slat,
+Cgetarg      .  lat_rpad,lat_slat,lat_tol,tolft,vol)
+       
+       v_slat%rpad=lat_rpad 
+       i_copy_size=size(v_slat%slat) 
+       call dcopy(i_copy_size,lat_slat,1,v_slat%slat,1) 
+       v_slat%tol=lat_tol 
+       v_slat%tolft=tolft 
+       v_slat%vol=vol 
+
       call dcopy(6,plat,1,xx,1)
       call dcopy(3,platl,1,xx(7),1)
-      call pack5('lat platl',v_slat,xx,0,0,0,0)
+Cgetarg...info...           real(8) :: xx(n0*2) , real(8) :: v_slat%platl 9
+Cgetarg       call pack5('lat platl',v_slat,xx,0,0,0,0)
+       
+       i_copy_size=size(v_slat%platl) 
+       call dcopy(i_copy_size,xx,1,v_slat%platl,1) 
+
       call dcopy(3,platr,1,xx(7),1)
-      call pack5('lat platr',v_slat,xx,0,0,0,0)
+Cgetarg...info...           real(8) :: xx(n0*2) , real(8) :: v_slat%platr 9
+Cgetarg       call pack5('lat platr',v_slat,xx,0,0,0,0)
+       
+       i_copy_size=size(v_slat%platr) 
+       call dcopy(i_copy_size,xx,1,v_slat%platr,1) 
+
 
 C --- Allocate and copy input to sham ---
 CKi      call defdr(v_sham,1000)
@@ -501,24 +764,87 @@ CKi      call uham(v_sham,-1,-000,0,0,0)
 CKi      call redfrr(v_sham,nint(dval(v_sham,1)))
       v_sham%size=uham_size()
 
-      call pack5('ham alfsi dabc elind nmto kmto',v_sham,
-     .  alfsi,dabc,elind,nmto,kmto)
+Cgetarg...info...           NG:: alfsi , real(8) :: v_sham%alfsi 1
+Cgetarg...info...           NG:: dabc , real(8) :: v_sham%dabc 3
+Cgetarg...info...           NG:: elind , real(8) :: v_sham%elind 1
+Cgetarg...info...           NG:: nmto , integer(8) :: v_sham%nmto 1
+Cgetarg...info...           NG:: kmto , real(8) :: v_sham%kmto 6
+Cgetarg       call pack5('ham alfsi dabc elind nmto kmto',v_sham,
+Cgetarg      .  alfsi,dabc,elind,nmto,kmto)
+       
+       v_sham%alfsi=alfsi 
+       i_copy_size=size(v_sham%dabc) 
+       call dcopy(i_copy_size,dabc,1,v_sham%dabc,1) 
+       v_sham%elind=elind 
+       v_sham%nmto=nmto 
+       i_copy_size=size(v_sham%kmto) 
+       call dcopy(i_copy_size,kmto,1,v_sham%kmto,1) 
+
 C     Replicate ctrl->lncol in ham->lncol, ditto for lham,lgen3
-      call pack1('ham lncol',v_sham,igets('ctrl lncol',v_sctrl))
-      call pack1('ham lham',v_sham,igets('ctrl lham',v_sctrl))
-      call pack1('ham lgen3',v_sham,igets('ctrl lgen3',v_sctrl))
+Cgetarg       call pack1('ham lncol',v_sham,igets('ctrl lncol',v_sctrl))
+       
+       v_sham%lncol=(int(v_sctrl%lncol)) 
+
+Cgetarg       call pack1('ham lham',v_sham,igets('ctrl lham',v_sctrl))
+       
+       v_sham%lham=(int(v_sctrl%lham)) 
+
+Cgetarg       call pack1('ham lgen3',v_sham,igets('ctrl lgen3',v_sctrl))
+       
+       v_sham%lgen3=(int(v_sctrl%lgen3)) 
+
 C     Mop up integer parts of sigp
       sigp(1) = sigp_mode
       sigp(2) = sigp_nmin
       sigp(4) = sigp_nmax
-      call pack5('ham nkaph pmax pmin lsig sigp',v_sham,
-     .  nkaph,pmax,pmin,lrsig,sigp)
-      call pack5('ham qss rsrnge rsstol udiag',v_sham,
-     .  ham_qss,rsrnge,rsstol,ham_udiag,0)
+Cgetarg...info...           NG:: nkaph , integer(8) :: v_sham%nkaph 1
+Cgetarg...info...           NG:: pmax , real(8) :: v_sham%pmax 10
+Cgetarg...info...           NG:: pmin , real(8) :: v_sham%pmin 10
+Cgetarg...info...           NG:: lrsig , integer(8) :: v_sham%lsig 1
+Cgetarg...info...           NG:: sigp , real(8) :: v_sham%sigp 10
+Cgetarg       call pack5('ham nkaph pmax pmin lsig sigp',v_sham,
+Cgetarg      .  nkaph,pmax,pmin,lrsig,sigp)
+       
+       v_sham%nkaph=nkaph 
+       i_copy_size=size(v_sham%pmax) 
+       call dcopy(i_copy_size,pmax,1,v_sham%pmax,1) 
+       i_copy_size=size(v_sham%pmin) 
+       call dcopy(i_copy_size,pmin,1,v_sham%pmin,1) 
+       v_sham%lsig=lrsig 
+       i_copy_size=size(v_sham%sigp) 
+       call dcopy(i_copy_size,sigp,1,v_sham%sigp,1) 
+
+Cgetarg...info...           NG:: ham_qss , real(8) :: v_sham%qss 4
+Cgetarg...info...           NG:: rsrnge , real(8) :: v_sham%rsrnge 1
+Cgetarg...info...           NG:: rsstol , real(8) :: v_sham%rsstol 1
+Cgetarg...info...           NG:: ham_udiag , integer(8) :: v_sham%udiag 1
+Cgetarg       call pack5('ham qss rsrnge rsstol udiag',v_sham,
+Cgetarg      .  ham_qss,rsrnge,rsstol,ham_udiag,0)
+       
+       i_copy_size=size(v_sham%qss) 
+       call dcopy(i_copy_size,ham_qss,1,v_sham%qss,1) 
+       v_sham%rsrnge=rsrnge 
+       v_sham%rsstol=rsstol 
+       v_sham%udiag=ham_udiag 
+
 C     Parameters for APW
-      call pack5('ham pwmode npwpad pwemin pwemax',v_sham,pwmode,
-     .  npwpad,pwemin,pwemax,0)
-      call pack1('ham oveps',v_sham,oveps)
+Cgetarg...info...           NG:: pwmode , integer(8) :: v_sham%pwmode 1
+Cgetarg...info...           NG:: npwpad , integer(8) :: v_sham%npwpad 1
+Cgetarg...info...           NG:: pwemin , real(8) :: v_sham%pwemin 1
+Cgetarg...info...           NG:: pwemax , real(8) :: v_sham%pwemax 1
+Cgetarg       call pack5('ham pwmode npwpad pwemin pwemax',v_sham,pwmode,
+Cgetarg      .  npwpad,pwemin,pwemax,0)
+       
+       v_sham%pwmode=pwmode 
+       v_sham%npwpad=npwpad 
+       v_sham%pwemin=pwemin 
+       v_sham%pwemax=pwemax 
+
+Cgetarg...info...           NG:: oveps , real(8) :: v_sham%oveps 1
+Cgetarg       call pack1('ham oveps',v_sham,oveps)
+       
+       v_sham%oveps=oveps 
+
 
 C ... Allocate and initialize sarray
 CKi      call defrr(v_sarry,1000)
@@ -532,7 +858,11 @@ CKi      call upot(v_spot,-1,-000,0,0,0)
 CKi      call redfrr(v_spot,nint(dval(v_spot,1)))
       v_spot%size=upot_size()
 
-      call pack5('pot vmtz0',v_spot,vmtz,0,0,0,0)
+Cgetarg...info...           NG:: vmtz , real(8) :: v_spot%vmtz0 1
+Cgetarg       call pack5('pot vmtz0',v_spot,vmtz,0,0,0,0)
+       
+       v_spot%vmtz0=vmtz 
+
 
 C --- Allocate and copy input to smix ---
 CKi      call defrr(v_smix,1000)
@@ -547,11 +877,17 @@ c      nnn = size(smix)
 
 C ... Allocate and initialize sordn
 Cki delete sordn
-#if 0
+#if 1
+       v_sarry%osordn=osordn 
+#else
       call defrr(osordn,1000)
       call uordn(w(osordn),-1,0,0,0,0)
       call redfrr(osordn,nint(dval(w(osordn),1)))
-      call pack1('array osordn',v_sarry,osordn)
+Cgetarg...info...           integer :: osordn , integer(8) :: v_sarry%osordn 1
+Cgetarg       call pack1('array osordn',v_sarry,osordn)
+       
+       v_sarry%osordn=osordn 
+
 #endif
 
 C --- Allocate and copy input to smove ---
@@ -570,28 +906,88 @@ Cki      call redfrr(v_smove,nint(dval(v_smove,1)))
 C        print 331, prmint(1:17)
 C  331   format(17f8.4)
       endif
-      call pack5('move gyro nmodt modt ct prmint',v_smove,
-     .  2d0,gd_nmodt,gd_modt,gd_ct,prmint)
-      call pack5('move kt ts tsequ tstot',v_smove,
-     .  move_kt,move_ts,move_tsequ,move_tstot,0)
+Cgetarg...info...           NG:: gd_nmodt , integer(8) :: v_smove%nmodt 1
+Cgetarg...info...           NG:: gd_modt , integer(8) :: v_smove%modt 3
+Cgetarg...info...           NG:: gd_ct , real(8) :: v_smove%ct 3
+Cgetarg...info...           NG:: prmint , real(8) :: v_smove%prmint 20
+Cgetarg       call pack5('move gyro nmodt modt ct prmint',v_smove,
+Cgetarg      .  2d0,gd_nmodt,gd_modt,gd_ct,prmint)
+       
+       v_smove%gyro=2d0 
+       v_smove%nmodt=gd_nmodt 
+       i_copy_size=size(v_smove%modt) 
+       call ii8copy(i_copy_size,gd_modt,1,v_smove%modt,1) 
+       i_copy_size=size(v_smove%ct) 
+       call dcopy(i_copy_size,gd_ct,1,v_smove%ct,1) 
+       i_copy_size=size(v_smove%prmint) 
+       call dcopy(i_copy_size,prmint,1,v_smove%prmint,1) 
+
+Cgetarg...info...           NG:: move_kt , real(8) :: v_smove%kt 1
+Cgetarg...info...           NG:: move_ts , real(8) :: v_smove%ts 1
+Cgetarg...info...           NG:: move_tsequ , real(8) :: v_smove%tsequ 1
+Cgetarg...info...           NG:: move_tstot , real(8) :: v_smove%tstot 1
+Cgetarg       call pack5('move kt ts tsequ tstot',v_smove,
+Cgetarg      .  move_kt,move_ts,move_tsequ,move_tstot,0)
+       
+       v_smove%kt=move_kt 
+       v_smove%ts=move_ts 
+       v_smove%tsequ=move_tsequ 
+       v_smove%tstot=move_tstot 
+
 
 C --- Allocate and copy input to soptic ---
 Cki  delete soptc
-#if 0
+#if 1
+       osoptc=0
+       v_spot%osoptc=osoptc 
+#else
       call defrr(osoptc,1000)
       call uoptic(w(osoptc),-1,0,0,0,0)
       call redfrr(osoptc,nint(dval(w(osoptc),1)))
-      call pack1('pot osoptc',v_spot,osoptc)
-      call pack5('optic ne window ocrng unrng esciss',w(osoptc),
-     .  optic_ne,optic_window,optic_ocrng,optic_unrng,optic_esciss)
-      call pack2('optic mode nchi2',w(osoptc),isw(optic_mode1),
-     .  optic_nchi2)
-      call pack1('optic axes',w(osoptc),optic_axes) ! nchi2 must be
+Cgetarg...info...           integer :: osoptc , integer(8) :: v_spot%osoptc 1
+Cgetarg       call pack1('pot osoptc',v_spot,osoptc)
+       
+       v_spot%osoptc=osoptc 
+
+Cgetarg...info...           NG:: optic_ne , integer(8) :: w(osoptc)%ne 1
+Cgetarg...info...           NG:: optic_window , real(8) :: w(osoptc)%window 2
+Cgetarg...info...           NG:: optic_ocrng , integer(8) :: w(osoptc)%ocrng 2
+Cgetarg...info...           NG:: optic_unrng , integer(8) :: w(osoptc)%unrng 2
+Cgetarg...info...           NG:: optic_esciss , real(8) :: w(osoptc)%esciss 1
+Cgetarg       call pack5('optic ne window ocrng unrng esciss',w(osoptc),
+Cgetarg      .  optic_ne,optic_window,optic_ocrng,optic_unrng,optic_esciss)
+       
+       w(osoptc)%ne=optic_ne 
+       i_copy_size=size(w(osoptc)%window) 
+       call dcopy(i_copy_size,optic_window,1,w(osoptc)%window,1) 
+       i_copy_size=size(w(osoptc)%ocrng) 
+       call ii8copy(i_copy_size,optic_ocrng,1,w(osoptc)%ocrng,1) 
+       i_copy_size=size(w(osoptc)%unrng) 
+       call ii8copy(i_copy_size,optic_unrng,1,w(osoptc)%unrng,1) 
+       w(osoptc)%esciss=optic_esciss 
+
+Cgetarg...info...           integer :: isw , integer(8) :: w(osoptc)%mode 1
+Cgetarg...info...           NG:: optic_nchi2 , integer(8) :: w(osoptc)%nchi2 1
+Cgetarg       call pack2('optic mode nchi2',w(osoptc),isw(optic_mode1),
+Cgetarg      .  optic_nchi2)
+       
+       w(osoptc)%mode=isw(optic_mode1) 
+       w(osoptc)%nchi2=optic_nchi2 
+
+Cgetarg...info...           NG:: optic_axes , integer(8) :: w(osoptc)%axes 18
+Cgetarg       call pack1('optic axes',w(osoptc),optic_axes) ! nchi2 must be
+       
+       i_copy_size=size(w(osoptc)%axes) 
+       call ii8copy(i_copy_size,optic_axes,1,w(osoptc)%axes,1) 
+
 #endif
                                                     ! packed beforehand
 C --- Allocate and copy input to sgw ---
 Cki delete sgw
-#if 0
+#if 1
+       osgw=0
+       v_spot%osgw=osgw 
+#else
       call defrr(osgw,1000)
       call ugw(w(osgw),-1,0,0,0,0)
       call redfrr(osgw,nint(dval(w(osgw),1)))
@@ -606,15 +1002,62 @@ C     call pack5('gw nime delre deltax deltaw pbtol',w(osgw),6,xx,
 C    .  -1d-4,.02d0,1d-3)
 C     call spacks(1,'gw pb1',w(osgw),'111',0,0)
 C     call spacks(1,'gw pb2',w(osgw),'1111',0,0)
-      call pack5('gw gcutb gcutx qoffp nband gsmear',w(osgw),
-     .  gw_gcutb,gw_gcutx,gw_qoffp,gw_nband,gw_gsmear)
-      call pack5('gw lgw nkabc delre ecuts',w(osgw),
-     .  1,gw_nabc,gw_delre,gw_ecuts,0)
-      call pack5('gw nime deltax deltaw pbtol',w(osgw),
-     .  gw_nime,gw_deltax,gw_deltaw,gw_pbtol,0)
-      call spacks(1,'gw pb1',w(osgw),'111',0,0)
-      call spacks(1,'gw pb2',w(osgw),'1111',0,0)
-      call pack1('pot osgw',v_spot,osgw)
+Cgetarg...info...           NG:: gw_gcutb , real(8) :: w(osgw)%gcutb 1
+Cgetarg...info...           NG:: gw_gcutx , real(8) :: w(osgw)%gcutx 1
+Cgetarg...info...           NG:: gw_qoffp , real(8) :: w(osgw)%qoffp 1
+Cgetarg...info...           NG:: gw_nband , integer(8) :: w(osgw)%nband 1
+Cgetarg...info...           NG:: gw_gsmear , real(8) :: w(osgw)%gsmear 1
+Cgetarg       call pack5('gw gcutb gcutx qoffp nband gsmear',w(osgw),
+Cgetarg      .  gw_gcutb,gw_gcutx,gw_qoffp,gw_nband,gw_gsmear)
+       
+       w(osgw)%gcutb=gw_gcutb 
+       w(osgw)%gcutx=gw_gcutx 
+       w(osgw)%qoffp=gw_qoffp 
+       w(osgw)%nband=gw_nband 
+       w(osgw)%gsmear=gw_gsmear 
+
+Cgetarg...info...           NG:: gw_nabc , integer(8) :: w(osgw)%nkabc 3
+Cgetarg...info...           NG:: gw_delre , real(8) :: w(osgw)%delre 2
+Cgetarg...info...           NG:: gw_ecuts , real(8) :: w(osgw)%ecuts 1
+Cgetarg       call pack5('gw lgw nkabc delre ecuts',w(osgw),
+Cgetarg      .  1,gw_nabc,gw_delre,gw_ecuts,0)
+       
+       w(osgw)%lgw=1 
+       i_copy_size=size(w(osgw)%nkabc) 
+       call ii8copy(i_copy_size,gw_nabc,1,w(osgw)%nkabc,1) 
+       i_copy_size=size(w(osgw)%delre) 
+       call dcopy(i_copy_size,gw_delre,1,w(osgw)%delre,1) 
+       w(osgw)%ecuts=gw_ecuts 
+
+Cgetarg...info...           NG:: gw_nime , integer(8) :: w(osgw)%nime 1
+Cgetarg...info...           NG:: gw_deltax , real(8) :: w(osgw)%deltax 1
+Cgetarg...info...           NG:: gw_deltaw , real(8) :: w(osgw)%deltaw 1
+Cgetarg...info...           NG:: gw_pbtol , real(8) :: w(osgw)%pbtol 1
+Cgetarg       call pack5('gw nime deltax deltaw pbtol',w(osgw),
+Cgetarg      .  gw_nime,gw_deltax,gw_deltaw,gw_pbtol,0)
+       
+       w(osgw)%nime=gw_nime 
+       w(osgw)%deltax=gw_deltax 
+       w(osgw)%deltaw=gw_deltaw 
+       w(osgw)%pbtol=gw_pbtol 
+
+Cgetarg...info...          check_variable '111' not found
+Cgetarg       call spacks(1,'gw pb1',w(osgw),'111',0,0)
+       do i_spacks=0,0 
+       call spacks_copy('p',w(osgw)(i_spacks)%pb1,0,0,'111',i_spacks)
+       enddo
+
+Cgetarg...info...          check_variable '1111' not found
+Cgetarg       call spacks(1,'gw pb2',w(osgw),'1111',0,0)
+       do i_spacks=0,0 
+       call spacks_copy('p',w(osgw)(i_spacks)%pb2,0,0,'1111',i_spacks)
+       enddo
+
+Cgetarg...info...           integer :: osgw , integer(8) :: v_spot%osgw 1
+Cgetarg       call pack1('pot osgw',v_spot,osgw)
+       
+       v_spot%osgw=osgw 
+
 #endif
 C --- Allocate and copy input to sstr ---
 CKi      call defrr(v_sstr,1000)
@@ -642,15 +1085,67 @@ C     Pack iinv parameters
       xx(1) = iinv_nit 
       xx(2) = iinv_ncut
       xx(3) = iinv_tol
-      call pack5('str adec amode drwats iinv',v_sstr,
-     .  tcf_adec,str_mode,str_drwats,xx,0)
-      call pack5('str lequiv loka lmaxw lshow mxnbr',v_sstr,
-     .  isw(str_lequiv1),i,str_lmaxw,isw(str_lshow1),str_mxnbr)
-      call pack5('str nalf nbisi ncupl ndust wztcf',v_sstr,
-     .  tcf_nalf,tcf_nbisi,tcf_ncupl,tcf_ndust,tcf_wztcf)
-      call pack5('str nkaps rmax rfit kaps',v_sstr,
-     .  str_nkaps,str_rmax,0.8d0,str_kaps,0)
-      call pack5('str rmaxg ivl',v_sstr,str_rmaxg,str_ivl,0,0,0)
+Cgetarg...info...           NG:: tcf_adec , real(8) :: v_sstr%adec 1
+Cgetarg...info...           NG:: str_mode , integer(8) :: v_sstr%amode 1
+Cgetarg...info...           NG:: str_drwats , real(8) :: v_sstr%drwats 1
+Cgetarg...info...           real(8) :: xx(n0*2) , real(8) :: v_sstr%iinv 5
+Cgetarg       call pack5('str adec amode drwats iinv',v_sstr,
+Cgetarg      .  tcf_adec,str_mode,str_drwats,xx,0)
+       
+       v_sstr%adec=tcf_adec 
+       v_sstr%amode=str_mode 
+       v_sstr%drwats=str_drwats 
+       i_copy_size=size(v_sstr%iinv) 
+       call dcopy(i_copy_size,xx,1,v_sstr%iinv,1) 
+
+Cgetarg...info...           integer :: isw , integer(8) :: v_sstr%lequiv 1
+Cgetarg...info...           integer :: i , integer(8) :: v_sstr%loka 1
+Cgetarg...info...           NG:: str_lmaxw , integer(8) :: v_sstr%lmaxw 1
+Cgetarg...info...           integer :: isw , integer(8) :: v_sstr%lshow 1
+Cgetarg...info...           NG:: str_mxnbr , integer(8) :: v_sstr%mxnbr 1
+Cgetarg       call pack5('str lequiv loka lmaxw lshow mxnbr',v_sstr,
+Cgetarg      .  isw(str_lequiv1),i,str_lmaxw,isw(str_lshow1),str_mxnbr)
+       
+       v_sstr%lequiv=isw(str_lequiv1) 
+       v_sstr%loka=i 
+       v_sstr%lmaxw=str_lmaxw 
+       v_sstr%lshow=isw(str_lshow1) 
+       v_sstr%mxnbr=str_mxnbr 
+
+Cgetarg...info...           NG:: tcf_nalf , integer(8) :: v_sstr%nalf 1
+Cgetarg...info...           NG:: tcf_nbisi , integer(8) :: v_sstr%nbisi 3
+Cgetarg...info...           NG:: tcf_ncupl , integer(8) :: v_sstr%ncupl 1
+Cgetarg...info...           NG:: tcf_ndust , integer(8) :: v_sstr%ndust 1
+Cgetarg...info...           NG:: tcf_wztcf , real(8) :: v_sstr%wztcf 1
+Cgetarg       call pack5('str nalf nbisi ncupl ndust wztcf',v_sstr,
+Cgetarg      .  tcf_nalf,tcf_nbisi,tcf_ncupl,tcf_ndust,tcf_wztcf)
+       
+       v_sstr%nalf=tcf_nalf 
+       i_copy_size=size(v_sstr%nbisi) 
+       call ii8copy(i_copy_size,tcf_nbisi,1,v_sstr%nbisi,1) 
+       v_sstr%ncupl=tcf_ncupl 
+       v_sstr%ndust=tcf_ndust 
+       v_sstr%wztcf=tcf_wztcf 
+
+Cgetarg...info...           NG:: str_nkaps , integer(8) :: v_sstr%nkaps 1
+Cgetarg...info...           NG:: str_rmax , real(8) :: v_sstr%rmax 1
+Cgetarg...info...           NG:: str_kaps , real(8) :: v_sstr%kaps 6
+Cgetarg       call pack5('str nkaps rmax rfit kaps',v_sstr,
+Cgetarg      .  str_nkaps,str_rmax,0.8d0,str_kaps,0)
+       
+       v_sstr%nkaps=str_nkaps 
+       v_sstr%rmax=str_rmax 
+       v_sstr%rfit=0.8d0 
+       i_copy_size=size(v_sstr%kaps) 
+       call dcopy(i_copy_size,str_kaps,1,v_sstr%kaps,1) 
+
+Cgetarg...info...           NG:: str_rmaxg , real(8) :: v_sstr%rmaxg 1
+Cgetarg...info...           NG:: str_ivl , integer(8) :: v_sstr%ivl 1
+Cgetarg       call pack5('str rmaxg ivl',v_sstr,str_rmaxg,str_ivl,0,0,0)
+       
+       v_sstr%rmaxg=str_rmaxg 
+       v_sstr%ivl=str_ivl 
+
 
 C --- Allocate and copy input to stb ---
 Cki      call defrr(v_stb,1000)
@@ -661,10 +1156,29 @@ Cki      call redfrr(v_stb,nint(dval(v_stb,1)))
 C     old defaults
 C      call pack1('tb alam',v_stb,.001d0)
 C      call pack1('tb alsc',v_stb,10d0)
-      call pack5('tb alam alsc',v_stb,
-     .  tb_alam,tb_alsc,0,0,0)
-      call pack5('tb ebfit fmode nbfit rmfit',v_stb,
-     .  tb_ebfit,tb_fmode,tb_nbfit,tb_rmfit,0)
+Cgetarg...info...           NG:: tb_alam , real(8) :: v_stb%alam 1
+Cgetarg...info...           NG:: tb_alsc , real(8) :: v_stb%alsc 1
+Cgetarg       call pack5('tb alam alsc',v_stb,
+Cgetarg      .  tb_alam,tb_alsc,0,0,0)
+       
+       v_stb%alam=tb_alam 
+       v_stb%alsc=tb_alsc 
+
+Cgetarg...info...           NG:: tb_ebfit , real(8) :: v_stb%ebfit 2
+Cgetarg...info...           NG:: tb_fmode , integer(8) :: v_stb%fmode 1
+Cgetarg...info...           NG:: tb_nbfit , integer(8) :: v_stb%nbfit 2
+Cgetarg...info...           NG:: tb_rmfit , real(8) :: v_stb%rmfit 2
+Cgetarg       call pack5('tb ebfit fmode nbfit rmfit',v_stb,
+Cgetarg      .  tb_ebfit,tb_fmode,tb_nbfit,tb_rmfit,0)
+       
+       i_copy_size=size(v_stb%ebfit) 
+       call dcopy(i_copy_size,tb_ebfit,1,v_stb%ebfit,1) 
+       v_stb%fmode=tb_fmode 
+       i_copy_size=size(v_stb%nbfit) 
+       call ii8copy(i_copy_size,tb_nbfit,1,v_stb%nbfit,1) 
+       i_copy_size=size(v_stb%rmfit) 
+       call dcopy(i_copy_size,tb_rmfit,1,v_stb%rmfit,1) 
+
 
 
 C --- Allocate and copy input to sspec ---
@@ -698,34 +1212,151 @@ C        call spacks(1,'spec pb1',v_sspec,'        ',j,j)
 C        call spacks(1,'spec pb2',v_sspec,'        ',j,j)
 C        call spacks(1,'spec coreh',v_sspec,'        ',j,j)
 C      enddo
-      call spackv(1,'spec eh3',v_sspec,1,nspec,-0.5d0)
-      call spackv(1,'spec etf',v_sspec,1,nspec,-1d0)
-      call spackv(1,'spec lmxf',v_sspec,1,nspec,2*nl-2)
-      call spackv(1,'spec norp',v_sspec,1,nspec,2)
-      call spackv(1,'spec vmtz',v_sspec,1,nspec,-0.5d0)
+Cgetarg       call spackv(1,'spec eh3',v_sspec,1,nspec,-0.5d0)
+       i_copy_size=1; 
+       do i_spackv=1,nspec 
+       call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
+       enddo
+
+Cgetarg       call spackv(1,'spec etf',v_sspec,1,nspec,-1d0)
+       i_copy_size=1; 
+       do i_spackv=1,nspec 
+       call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
+       enddo
+
+Cgetarg       call spackv(1,'spec lmxf',v_sspec,1,nspec,2*nl-2)
+       i_copy_size=1; 
+       do i_spackv=1,nspec 
+       call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
+       enddo
+
+Cgetarg       call spackv(1,'spec norp',v_sspec,1,nspec,2)
+       i_copy_size=1; 
+       do i_spackv=1,nspec 
+       call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
+       enddo
+
+Cgetarg       call spackv(1,'spec vmtz',v_sspec,1,nspec,-0.5d0)
+       i_copy_size=1; 
+       do i_spackv=1,nspec 
+       call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
+       enddo
+
 
       do  j = 1, nspec
         slabl_(j) = slabl(j)
-        call spacks(1,'spec pb1',v_sspec,pb1(j),j,j)
-        call spacks(1,'spec pb2',v_sspec,pb2(j),j,j)
-        call spacks(1,'spec coreh',v_sspec,coreh(j),j,j)
-        call spacks(1,'spec name',v_sspec,slabl(j),j,j)
-        call pack5('spec a nr alpha coreq ',v_sspec,j,
-     .    spec_a(j),nr(j),alpha(1,j),coreq(1,j))
-        call pack5('spec lxi nxi exi',v_sspec,j,
-     .    lxi(j),nxi(j),exi(1,j),0)
-        call pack5('spec group grp2 hcr idmod',v_sspec,j,
-     .    grp(j),grp2(j),hcr(1,j),idmod(1,j))
-        call pack5('spec ehvl',v_sspec,j,ehvl(1,j),0,0,0)
+Cgetarg...info...          check_variable pb1(j) not found
+Cgetarg         call spacks(1,'spec pb1',v_sspec,pb1(j),j,j)
+         do i_spacks=j,j 
+         call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
+         enddo
+
+Cgetarg...info...          check_variable pb2(j) not found
+Cgetarg         call spacks(1,'spec pb2',v_sspec,pb2(j),j,j)
+         do i_spacks=j,j 
+         call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
+         enddo
+
+Cgetarg...info...          check_variable coreh(j) not found
+Cgetarg         call spacks(1,'spec coreh',v_sspec,coreh(j),j,j)
+         do i_spacks=j,j 
+         call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
+         enddo
+
+Cgetarg...info...          check_variable slabl(j) not found
+Cgetarg         call spacks(1,'spec name',v_sspec,slabl(j),j,j)
+         do i_spacks=j,j 
+         call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
+         enddo
+
+Cgetarg...info...           NG:: spec_a(j) , real(8) :: v_sspec%a 1
+Cgetarg...info...           NG:: nr(j) , integer(8) :: v_sspec%nr 1
+Cgetarg...info...           NG:: alpha(1,j) , real(8) :: v_sspec%alpha 10
+Cgetarg...info...           NG:: coreq(1,j) , real(8) :: v_sspec%coreq 2
+Cgetarg         call pack5('spec a nr alpha coreq ',v_sspec,j,
+Cgetarg      .    spec_a(j),nr(j),alpha(1,j),coreq(1,j))
+         
+         v_sspec(j)%a=spec_a(j) 
+         v_sspec(j)%nr=nr(j) 
+         i_copy_size=size(v_sspec(j)%alpha) 
+         call dcopy(i_copy_size,alpha(1,j),1,v_sspec(j)%alpha,1) 
+         i_copy_size=size(v_sspec(j)%coreq) 
+         call dcopy(i_copy_size,coreq(1,j),1,v_sspec(j)%coreq,1) 
+
+Cgetarg...info...           NG:: lxi(j) , integer(8) :: v_sspec%lxi 1
+Cgetarg...info...           NG:: nxi(j) , integer(8) :: v_sspec%nxi 1
+Cgetarg...info...           NG:: exi(1,j) , real(8) :: v_sspec%exi 10
+Cgetarg         call pack5('spec lxi nxi exi',v_sspec,j,
+Cgetarg      .    lxi(j),nxi(j),exi(1,j),0)
+         
+         v_sspec(j)%lxi=lxi(j) 
+         v_sspec(j)%nxi=nxi(j) 
+         i_copy_size=size(v_sspec(j)%exi) 
+         call dcopy(i_copy_size,exi(1,j),1,v_sspec(j)%exi,1) 
+
+Cgetarg...info...           NG:: grp(j) , integer(8) :: v_sspec%group 1
+Cgetarg...info...           NG:: grp2(j) , integer(8) :: v_sspec%grp2 1
+Cgetarg...info...           NG:: hcr(1,j) , real(8) :: v_sspec%hcr 10
+Cgetarg...info...           NG:: idmod(1,j) , integer(8) :: v_sspec%idmod 10
+Cgetarg         call pack5('spec group grp2 hcr idmod',v_sspec,j,
+Cgetarg      .    grp(j),grp2(j),hcr(1,j),idmod(1,j))
+         
+         v_sspec(j)%group=grp(j) 
+         v_sspec(j)%grp2=grp2(j) 
+         i_copy_size=size(v_sspec(j)%hcr) 
+         call dcopy(i_copy_size,hcr(1,j),1,v_sspec(j)%hcr,1) 
+         i_copy_size=size(v_sspec(j)%idmod) 
+         call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1) 
+
+Cgetarg...info...           NG:: ehvl(1,j) , real(8) :: v_sspec%ehvl 10
+Cgetarg         call pack5('spec ehvl',v_sspec,j,ehvl(1,j),0,0,0)
+         
+         i_copy_size=size(v_sspec(j)%ehvl) 
+         call dcopy(i_copy_size,ehvl(1,j),1,v_sspec(j)%ehvl,1) 
+
 C       Set idxdn
         call ivset(ix,1,n0*nkap0,1)
         call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
-        call pack5('spec idxdn idu jh uh',v_sspec,j,
-     .    ix,idu(1,j),jh(1,j),uh(1,j))
-        call pack5('spec kmxt kmxv lfoca rsmv',v_sspec,j,
-     .    kmxt(j),kmxv(j),lfoca(j),rsmv(j))
-        call pack5('spec lmxa lmxb lmxl lmxpb',v_sspec,j,
-     .    lmxa(j),lmxb(j),lmxl(j),lmxpb(j))
+Cgetarg...info...           integer :: ix(n0*nkap0) , integer(8) :: v_sspec%idxdn 30
+Cgetarg...info...           NG:: idu(1,j) , integer(8) :: v_sspec%idu 4
+Cgetarg...info...           NG:: jh(1,j) , real(8) :: v_sspec%jh 4
+Cgetarg...info...           NG:: uh(1,j) , real(8) :: v_sspec%uh 4
+Cgetarg         call pack5('spec idxdn idu jh uh',v_sspec,j,
+Cgetarg      .    ix,idu(1,j),jh(1,j),uh(1,j))
+         
+         i_copy_size=size(v_sspec(j)%idxdn) 
+         call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1) 
+         i_copy_size=size(v_sspec(j)%idu) 
+         call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1) 
+         i_copy_size=size(v_sspec(j)%jh) 
+         call dcopy(i_copy_size,jh(1,j),1,v_sspec(j)%jh,1) 
+         i_copy_size=size(v_sspec(j)%uh) 
+         call dcopy(i_copy_size,uh(1,j),1,v_sspec(j)%uh,1) 
+
+Cgetarg...info...           NG:: kmxt(j) , integer(8) :: v_sspec%kmxt 1
+Cgetarg...info...           NG:: kmxv(j) , integer(8) :: v_sspec%kmxv 1
+Cgetarg...info...           NG:: lfoca(j) , integer(8) :: v_sspec%lfoca 1
+Cgetarg...info...           NG:: rsmv(j) , real(8) :: v_sspec%rsmv 1
+Cgetarg         call pack5('spec kmxt kmxv lfoca rsmv',v_sspec,j,
+Cgetarg      .    kmxt(j),kmxv(j),lfoca(j),rsmv(j))
+         
+         v_sspec(j)%kmxt=kmxt(j) 
+         v_sspec(j)%kmxv=kmxv(j) 
+         v_sspec(j)%lfoca=lfoca(j) 
+         v_sspec(j)%rsmv=rsmv(j) 
+
+Cgetarg...info...           NG:: lmxa(j) , integer(8) :: v_sspec%lmxa 1
+Cgetarg...info...           NG:: lmxb(j) , integer(8) :: v_sspec%lmxb 1
+Cgetarg...info...           NG:: lmxl(j) , integer(8) :: v_sspec%lmxl 1
+Cgetarg...info...           NG:: lmxpb(j) , integer(8) :: v_sspec%lmxpb 1
+Cgetarg         call pack5('spec lmxa lmxb lmxl lmxpb',v_sspec,j,
+Cgetarg      .    lmxa(j),lmxb(j),lmxl(j),lmxpb(j))
+         
+         v_sspec(j)%lmxa=lmxa(j) 
+         v_sspec(j)%lmxb=lmxb(j) 
+         v_sspec(j)%lmxl=lmxl(j) 
+         v_sspec(j)%lmxpb=lmxpb(j) 
+
 C       pack mxcst(j)        
         i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
 ccccccccccccccccccccccc
@@ -738,32 +1369,120 @@ C       pack orbp(j)
         call dcopy(n0,eh(1,j),1,orbp(1,2,1),1)
         call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
         call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
-        call pack5('spec mass mxcst orbp',v_sspec,j,mass(j),i,orbp,0)
+Cgetarg...info...           NG:: mass(j) , real(8) :: v_sspec%mass 1
+Cgetarg...info...           integer :: i , integer(8) :: v_sspec%mxcst 1
+Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: v_sspec%orbp 60
+Cgetarg         call pack5('spec mass mxcst orbp',v_sspec,j,mass(j),i,orbp,0)
+         
+         v_sspec(j)%mass=mass(j) 
+         v_sspec(j)%mxcst=i 
+         i_copy_size=size(v_sspec(j)%orbp) 
+         call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1) 
+
 C       Pack P,Q,PZ for both spins        
         call dpzero(orbp,n0*6)
         call dcopy(n0*nsp,pnu(1,1,j),1,orbp(1,1,1),1)
         call dcopy(n0*nsp,pz(1,1,j),1,orbp(1,1,2),1)
         call dcopy(n0*nsp,qnu(1,1,j),1,orbp(1,1,3),1)
-        call pack5('spec p pz q z',v_sspec,j,orbp,
-     .    orbp(1,1,2),orbp(1,1,3),z(j))
-        call pack5('spec colxbs radxbs',v_sspec,j,
-     .    colxbs(1,j),radxbs(j),0,0)
+Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: v_sspec%p 20
+Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: v_sspec%pz 20
+Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: v_sspec%q 20
+Cgetarg...info...           NG:: z(j) , real(8) :: v_sspec%z 1
+Cgetarg         call pack5('spec p pz q z',v_sspec,j,orbp,
+Cgetarg      .    orbp(1,1,2),orbp(1,1,3),z(j))
+         
+         i_copy_size=size(v_sspec(j)%p) 
+         call dcopy(i_copy_size,orbp,1,v_sspec(j)%p,1) 
+         i_copy_size=size(v_sspec(j)%pz) 
+         call dcopy(i_copy_size,orbp(1,1,2),1,v_sspec(j)%pz,1) 
+         i_copy_size=size(v_sspec(j)%q) 
+         call dcopy(i_copy_size,orbp(1,1,3),1,v_sspec(j)%q,1) 
+         v_sspec(j)%z=z(j) 
+
+Cgetarg...info...           NG:: colxbs(1,j) , real(8) :: v_sspec%colxbs 3
+Cgetarg...info...           NG:: radxbs(j) , real(8) :: v_sspec%radxbs 1
+Cgetarg         call pack5('spec colxbs radxbs',v_sspec,j,
+Cgetarg      .    colxbs(1,j),radxbs(j),0,0)
+         
+         i_copy_size=size(v_sspec(j)%colxbs) 
+         call dcopy(i_copy_size,colxbs(1,j),1,v_sspec(j)%colxbs,1) 
+         v_sspec(j)%radxbs=radxbs(j) 
+
 c        call pack5('spec rcfa rcut rfoca rg rham',v_sspec,j,
-        call pack5('spec rcfa rcut rfoca rg',v_sspec,j,
-     .    rcfa(1,j),rcut(j),rfoca(j),rg(j))
-        call pack5('spec rmt rs3 rsma rsmfa',v_sspec,j,
-     .    rmt(j),rs3(j),rsma(j),rsmfa(j))
+Cgetarg...info...           NG:: rcfa(1,j) , real(8) :: v_sspec%rcfa 2
+Cgetarg...info...           NG:: rcut(j) , real(8) :: v_sspec%rcut 1
+Cgetarg...info...           NG:: rfoca(j) , real(8) :: v_sspec%rfoca 1
+Cgetarg...info...           NG:: rg(j) , real(8) :: v_sspec%rg 1
+Cgetarg         call pack5('spec rcfa rcut rfoca rg',v_sspec,j,
+Cgetarg      .    rcfa(1,j),rcut(j),rfoca(j),rg(j))
+         
+         i_copy_size=size(v_sspec(j)%rcfa) 
+         call dcopy(i_copy_size,rcfa(1,j),1,v_sspec(j)%rcfa,1) 
+         v_sspec(j)%rcut=rcut(j) 
+         v_sspec(j)%rfoca=rfoca(j) 
+         v_sspec(j)%rg=rg(j) 
+
+Cgetarg...info...           NG:: rmt(j) , real(8) :: v_sspec%rmt 1
+Cgetarg...info...           NG:: rs3(j) , real(8) :: v_sspec%rs3 1
+Cgetarg...info...           NG:: rsma(j) , real(8) :: v_sspec%rsma 1
+Cgetarg...info...           NG:: rsmfa(j) , real(8) :: v_sspec%rsmfa 1
+Cgetarg         call pack5('spec rmt rs3 rsma rsmfa',v_sspec,j,
+Cgetarg      .    rmt(j),rs3(j),rsma(j),rsmfa(j))
+         
+         v_sspec(j)%rmt=rmt(j) 
+         v_sspec(j)%rs3=rs3(j) 
+         v_sspec(j)%rsma=rsma(j) 
+         v_sspec(j)%rsmfa=rsmfa(j) 
+
         if (ltbe) then
-          call pack5('spec iq1 ivso stni vso',v_sspec,j,
-     .      iq1(1,j),ivso(1,j),stni(j),tbvso(1,j))
-          call pack5('spec qpol',v_sspec,j,qpol(1,j),0,0,0)
+Cgetarg...info...           NG:: iq1(1,j) , integer(8) :: v_sspec%iq1 4
+Cgetarg...info...           NG:: ivso(1,j) , integer(8) :: v_sspec%ivso 4
+Cgetarg...info...           NG:: stni(j) , real(8) :: v_sspec%stni 1
+Cgetarg...info...           NG:: tbvso(1,j) , real(8) :: v_sspec%vso 4
+Cgetarg           call pack5('spec iq1 ivso stni vso',v_sspec,j,
+Cgetarg      .      iq1(1,j),ivso(1,j),stni(j),tbvso(1,j))
+           
+           i_copy_size=size(v_sspec(j)%iq1) 
+           call ii8copy(i_copy_size,iq1(1,j),1,v_sspec(j)%iq1,1) 
+           i_copy_size=size(v_sspec(j)%ivso) 
+           call ii8copy(i_copy_size,ivso(1,j),1,v_sspec(j)%ivso,1) 
+           v_sspec(j)%stni=stni(j) 
+           i_copy_size=size(v_sspec(j)%vso) 
+           call dcopy(i_copy_size,tbvso(1,j),1,v_sspec(j)%vso,1) 
+
+Cgetarg...info...           NG:: qpol(1,j) , real(8) :: v_sspec%qpol 10
+Cgetarg           call pack5('spec qpol',v_sspec,j,qpol(1,j),0,0,0)
+           
+           i_copy_size=size(v_sspec(j)%qpol) 
+           call dcopy(i_copy_size,qpol(1,j),1,v_sspec(j)%qpol,1) 
+
           if (ltb217 .or. ltb218) then
-           call pack1('bz nkabc',v_sbz,dvec1)
-           call pack1('bz lshft',v_sbz,dvec2)
+Cgetarg...info...           integer :: dvec1(3) , integer(8) :: v_sbz%nkabc 3
+Cgetarg            call pack1('bz nkabc',v_sbz,dvec1)
+            
+            i_copy_size=size(v_sbz%nkabc) 
+            call ii8copy(i_copy_size,dvec1,1,v_sbz%nkabc,1) 
+
+Cgetarg...info...           integer :: dvec2(3) , integer(8) :: v_sbz%lshft 3
+Cgetarg            call pack1('bz lshft',v_sbz,dvec2)
+            
+            i_copy_size=size(v_sbz%lshft) 
+            call ii8copy(i_copy_size,dvec2,1,v_sbz%lshft,1) 
+
           endif
         endif
-        call pack5('spec dv eref rham rint',v_sspec,j,
-     .    dv(j),eref(j),rham(j),rint(j))
+Cgetarg...info...           NG:: dv(j) , real(8) :: v_sspec%dv 1
+Cgetarg...info...           NG:: eref(j) , real(8) :: v_sspec%eref 1
+Cgetarg...info...           NG:: rham(j) , real(8) :: v_sspec%rham 1
+Cgetarg...info...           NG:: rint(j) , real(8) :: v_sspec%rint 1
+Cgetarg         call pack5('spec dv eref rham rint',v_sspec,j,
+Cgetarg      .    dv(j),eref(j),rham(j),rint(j))
+         
+         v_sspec(j)%dv=dv(j) 
+         v_sspec(j)%eref=eref(j) 
+         v_sspec(j)%rham=rham(j) 
+         v_sspec(j)%rint=rint(j) 
+
       enddo
 C     call shstru('spec',v_sspec,1,nspec);stop
 cccccccccccccc
@@ -787,16 +1506,63 @@ C     call spackv(1,'site relax',v_ssite,1,nsite,ix)
       do  j = 1, nsite
 C       Pack spec into class in case spec info is sufficient
 C       and spid into class label
-        call pack5('site spec class dpole mpole',v_ssite,j,
-     .    ips(j),ips(j),dpole(1,j),mpole(j))
-        call spacks(1,'site clabel',v_ssite,slabl(ips(j)),j,j)
-        call pack5('site pl plv pos vel',v_ssite,j,
-     .    ipl(j),plv(j),pos(1,j),vel(1,j))
-        call pack5('site vshft relax eula',v_ssite,j,
-     .    vshft(j),irlx(1,j),eula(1,j),0)
+Cgetarg...info...           NG:: ips(j) , integer(8) :: v_ssite%spec 1
+Cgetarg...info...           NG:: ips(j) , integer(8) :: v_ssite%class 1
+Cgetarg...info...           NG:: dpole(1,j) , real(8) :: v_ssite%dpole 3
+Cgetarg...info...           NG:: mpole(j) , real(8) :: v_ssite%mpole 1
+Cgetarg         call pack5('site spec class dpole mpole',v_ssite,j,
+Cgetarg      .    ips(j),ips(j),dpole(1,j),mpole(j))
+         
+         v_ssite(j)%spec=ips(j) 
+         v_ssite(j)%class=ips(j) 
+         i_copy_size=size(v_ssite(j)%dpole) 
+         call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1) 
+         v_ssite(j)%mpole=mpole(j) 
+
+Cgetarg...info...          check_variable slabl(ips(j)) not found
+Cgetarg         call spacks(1,'site clabel',v_ssite,slabl(ips(j)),j,j)
+         do i_spacks=j,j 
+         call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
+         enddo
+
+Cgetarg...info...           NG:: ipl(j) , integer(8) :: v_ssite%pl 1
+Cgetarg...info...           NG:: plv(j) , integer(8) :: v_ssite%plv 1
+Cgetarg...info...           NG:: pos(1,j) , real(8) :: v_ssite%pos 3
+Cgetarg...info...           NG:: vel(1,j) , real(8) :: v_ssite%vel 3
+Cgetarg         call pack5('site pl plv pos vel',v_ssite,j,
+Cgetarg      .    ipl(j),plv(j),pos(1,j),vel(1,j))
+         
+         v_ssite(j)%pl=ipl(j) 
+         v_ssite(j)%plv=plv(j) 
+         i_copy_size=size(v_ssite(j)%pos) 
+         call dcopy(i_copy_size,pos(1,j),1,v_ssite(j)%pos,1) 
+         i_copy_size=size(v_ssite(j)%vel) 
+         call dcopy(i_copy_size,vel(1,j),1,v_ssite(j)%vel,1) 
+
+Cgetarg...info...           NG:: vshft(j) , real(8) :: v_ssite%vshft 1
+Cgetarg...info...           NG:: irlx(1,j) , integer(8) :: v_ssite%relax 3
+Cgetarg...info...           NG:: eula(1,j) , real(8) :: v_ssite%eula 3
+Cgetarg         call pack5('site vshft relax eula',v_ssite,j,
+Cgetarg      .    vshft(j),irlx(1,j),eula(1,j),0)
+         
+         v_ssite(j)%vshft=vshft(j) 
+         i_copy_size=size(v_ssite(j)%relax) 
+         call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1) 
+         i_copy_size=size(v_ssite(j)%eula) 
+         call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1) 
+
         if (ltbe) then
-          call pack2('site ndelta',v_ssite,j,ndelta(j))
-          call pack2('site delta',v_ssite,j,delta(1,j))
+Cgetarg...info...           NG:: ndelta(j) , integer(8) :: v_ssite%ndelta 1
+Cgetarg           call pack2('site ndelta',v_ssite,j,ndelta(j))
+           
+           v_ssite(j)%ndelta=ndelta(j) 
+
+Cgetarg...info...           NG:: delta(1,j) , real(8) :: v_ssite%delta 6
+Cgetarg           call pack2('site delta',v_ssite,j,delta(1,j))
+           
+           i_copy_size=size(v_ssite(j)%delta) 
+           call dcopy(i_copy_size,delta(1,j),1,v_ssite(j)%delta,1) 
+
         endif
       enddo
 
@@ -869,10 +1635,18 @@ C     Switches that turn off automatic finder, incl. inversion
 C ... End of copy
 
 C --- Miscellaneous cleanup and initialization ---
-      if (lgors('ctrl lgen3',v_sctrl)) then
-        nkap = dgets('str skmsh:1.1',v_sstr)
-        xx(1) = dgets('str skmsh:2.2',v_sstr)
-        xx(2) = dgets('str skmsh:3.3',v_sstr)
+Cgetarg       if (lgors('ctrl lgen3',v_sctrl)) then
+       if ( iand(0,int(v_sctrl%lgen3)) .ne.0 ) then 
+
+Cgetarg         nkap = dgets('str skmsh:1.1',v_sstr)
+         nkap = v_sstr%skmsh(1) 
+
+Cgetarg         xx(1) = dgets('str skmsh:2.2',v_sstr)
+         xx ( 1 ) = v_sstr%skmsh(2) 
+
+Cgetarg         xx(2) = dgets('str skmsh:3.3',v_sstr)
+         xx ( 2 ) = v_sstr%skmsh(3) 
+
         call gausq(nkap,xx(1),xx(2),ekap,xx(3),0,0)
       endif
 
@@ -904,23 +1678,45 @@ C       If so, increment nkaph by 1; keep old nkaph in k1 for later
           xx(1) = dglob('nkaph',dble(k1+1),1)
           k = nglob('nkaph')
           call uspecb(0,-1,v_sspec,1,nspec,xx,xx,xx,xx)
-          nlmax = igets('ctrl nl',v_sctrl)**2
+Cgetarg           nlmax = igets('ctrl nl',v_sctrl)**2
+           nlmax = int(v_sctrl%nl) * * 2 
+
           xx(1) = dglob('mxorb',dble(k)*nlmax,1)
         endif
       endif
 
 C     Add dalat to alat
-      call pack1('lat alat',v_slat,dgets('lat alat',v_slat)+dalat)
+Cgetarg       call pack1('lat alat',v_slat,dgets('lat alat',v_slat)+dalat)
+       
+       v_slat%alat=(v_slat%alat)+dalat 
+
 C     Replicate ctrl->lncol in ham->lncol
-      call pack1('ham lncol',v_sham,lncol)
+Cgetarg...info...           integer :: lncol , integer(8) :: v_sham%lncol 1
+Cgetarg       call pack1('ham lncol',v_sham,lncol)
+       
+       v_sham%lncol=lncol 
+
       lsx1 = mod(lsx,2)
-      if (lasa32) call pack1('mix nsave',v_smix,3)
+Cgetarg       if (lasa32) call pack1('mix nsave',v_smix,3)
+       if ( lasa32 ) then 
+       
+       v_smix%nsave=3 
+       endif 
+
 C ... Use true spherical harmonics
-      if (bittst(lncol,4) .or. ctrl_loptc .ne. 0 .or. lrel .eq. 2)
-     .  call lsets('ctrl lham',v_sctrl,.true.,256)
+Cgetarg       if (bittst(lncol,4) .or. ctrl_loptc .ne. 0 .or. lrel .eq. 2)
+Cgetarg      .  call lsets('ctrl lham',v_sctrl,.true.,256)
+       if ( bittst ( lncol , 4 ) .or. ctrl_loptc .ne. 0 .or. lrel .eq. 
+     . 2 ) then 
+       
+       call lsets_bitop_i8(v_sctrl%lham,1,.true.,256)
+       endif 
+
 
 C ... Dirac equation requires spin polarization
-      if (nsp.eq.1 .and. igets('ctrl lrel',v_sctrl).eq.2) then
+Cgetarg       if (nsp.eq.1 .and. igets('ctrl lrel',v_sctrl).eq.2) then
+       if ( nsp.eq.1 .and. int(v_sctrl%lrel) .eq.2 ) then 
+
         call rx('rdccat: Dirac equation requires NSPIN=2')
       endif
 
@@ -928,22 +1724,35 @@ C ... Suppress inversion when noncollinear magnetism, SX, NLO
       if (lncol+lsx1 .ne. 0 .or. ctrl_loptc .ge. 10 .or.
      .   (mod(lscr,10) .eq. 1 .and. prgnam .eq. 'LM'))
      .  lqp = lqp-bitand(lqp,1)+1
-      call pack5('ctrl lqp',v_sctrl,lqp,0,0,0,0) !repack lqp
+Cgetarg...info...           integer :: lqp , integer(8) :: v_sctrl%lqp 1
+Cgetarg       call pack5('ctrl lqp',v_sctrl,lqp,0,0,0,0) !repack lqp
+       
+       v_sctrl%lqp=lqp 
+
 
 C ... Special pgf initialization
       if (ctrl_lpgf(1) .ne. 0) then
-        call lsets('ctrl lmet',v_sctrl,.false.,2)
+Cgetarg         call lsets('ctrl lmet',v_sctrl,.false.,2)
+         
+         call lsets_bitop_i8(v_sctrl%lmet,1,.false.,2)
+
         call redfrr(v_ssite,3*nsite*nint(dval(v_ssite,1)))
       endif
 
 C ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
-      j = igets('ctrl lham,4',v_sctrl)/4
+Cgetarg       j = igets('ctrl lham,4',v_sctrl)/4
+       j = iand(4,int(v_sctrl%lham)) /4 
+
       j = 2*(1-j)
 C     No screening => no downfolding; also lmxb<l<=lmxa => 'high'
 C     Probably ought to have lmxb<l<=lmxa => 'high' always
-      if (lgors('ctrl lbas,1',v_sctrl)) j = 3
+Cgetarg       if (lgors('ctrl lbas,1',v_sctrl)) j = 3
+       if ( iand(1,int(v_sctrl%lbas)) .ne.0 ) j = 3 
+
 C     nfp-style basis:
-      if (lgors('ctrl lbas,2',v_sctrl)) j = j+10
+Cgetarg       if (lgors('ctrl lbas,2',v_sctrl)) j = j+10
+       if ( iand(2,int(v_sctrl%lbas)) .ne.0 ) j = j+10 
+
       call suidx(nglob('nkaph'),j,nspec,v_sspec)
 
 C ... Set some global variables
@@ -952,9 +1761,13 @@ C ... Set some global variables
       xx(1) = dglob('nbasp',dble(nbasp),1)
       xx(1) = dglob('nsp',dble(nsp),1)
       xx(1) = dglob('nl',dble(nl),1)
-      xx(1) = dglob('avw',dgets('lat avw',v_slat),1)
+Cgetarg       xx(1) = dglob('avw',dgets('lat avw',v_slat),1)
+       xx ( 1 ) = dglob ( 'avw' , v_slat%avw , 1 ) 
+
       xx(1) = dglob('lrel',dble(lrel),1)
-      lxcf  = igets('ctrl lxcf',v_sctrl)
+Cgetarg       lxcf  = igets('ctrl lxcf',v_sctrl)
+       lxcf = int(v_sctrl%lxcf) 
+
       xx(1) = dglob('lxcf',dble(lxcf),1)
       xx(1) = dglob('stdo',dble(stdo),1)
       xx(1) = dglob('stdl',dble(stdl),1)
@@ -966,8 +1779,16 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid .eq. master) then
       nat = nbas
       do  i = 1, nbas
-        call upack('site spec',v_ssite,i,j,0,0,0)
-        call upack('spec lmxa',v_sspec,j,l,0,0,0)
+Cgetarg...info...           integer :: j , integer(8) :: v_ssite%spec 1
+Cgetarg         call upack('site spec',v_ssite,i,j,0,0,0)
+         
+         j=v_ssite(i)%spec
+
+Cgetarg...info...           integer :: l , integer(8) :: v_sspec%lmxa 1
+Cgetarg         call upack('spec lmxa',v_sspec,j,l,0,0,0)
+         
+         l=v_sspec(j)%lmxa
+
         if (l .eq. -1) nat = nat-1
       enddo
       endif
@@ -978,15 +1799,32 @@ C ... Set modep
       ix(1) = 2
       ix(2) = 2
       ix(3) = 2
-      if (lgors('ctrl lpgf,-1',v_sctrl)) ix(3) = 0
-      call pack1('ctrl modep',v_sctrl,ix)
-      call pack1('ham lxcf',v_sham,lxcf)
+Cgetarg       if (lgors('ctrl lpgf,-1',v_sctrl)) ix(3) = 0
+       if ( iand(-1,int(v_sctrl%lpgf(1))) .ne.0 ) ix ( 3 ) = 0 
+
+Cgetarg...info...           integer :: ix(n0*nkap0) , integer(8) :: v_sctrl%modep 3
+Cgetarg       call pack1('ctrl modep',v_sctrl,ix)
+       
+       i_copy_size=size(v_sctrl%modep) 
+       call ii8copy(i_copy_size,ix,1,v_sctrl%modep,1) 
+
+Cgetarg...info...           integer :: lxcf , integer(8) :: v_sham%lxcf 1
+Cgetarg       call pack1('ham lxcf',v_sham,lxcf)
+       
+       v_sham%lxcf=lxcf 
+
 
 C ... Count LDA+U blocks (printout only)
       call defi(owk,-nbas)
       call pshpr(0)
       call suldau(nbas,v_sspec,v_ssite,nlibu,k,w(owk))
-      call pack5('ham nlibu lmaxu',v_sham,nlibu,k,0,0,0)
+Cgetarg...info...           integer :: nlibu , integer(8) :: v_sham%nlibu 1
+Cgetarg...info...           integer :: k , integer(8) :: v_sham%lmaxu 1
+Cgetarg       call pack5('ham nlibu lmaxu',v_sham,nlibu,k,0,0,0)
+       
+       v_sham%nlibu=nlibu 
+       v_sham%lmaxu=k 
+
       call poppr
       call rlse(owk)
 
@@ -1007,17 +1845,25 @@ C --- Printout ---
 
         strn = '  '//prgnam
         if (prgnam .eq. 'LMMC') then
-          call awrit4(
-     .    '%N %a:%12palat = %;5d  '//
-     .    'nbas = %i%?#n#%-1j(+%i)##'//
-     .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',v_slat),
-     .      nbas,nsite-nbas,nspec)
+Cgetarg           call awrit4(
+Cgetarg      .    '%N %a:%12palat = %;5d  '//
+Cgetarg      .    'nbas = %i%?#n#%-1j(+%i)##'//
+Cgetarg      .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',v_slat),
+Cgetarg      .      nbas,nsite-nbas,nspec)
+           call awrit4 ( '%N %a:%12palat = %;5d  ' // 'nbas = %i%?#n#%-1j(+%i)##' 
+     .     // '  nspec = %i' , strn , scrwid , 0 , v_slat%alat , nbas , 
+     .     nsite-nbas , nspec ) 
+
         else
-          call awrit6(
-     .    '%N %a:%12palat = %;5d  '//
-     .    'nbas = %i%?#n#%-1j(+%i)##%?#n#+%i#%j#'//
-     .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',v_slat),
-     .    nat,nbas-nat,nbas-nsite,nsite,nspec)
+Cgetarg           call awrit6(
+Cgetarg      .    '%N %a:%12palat = %;5d  '//
+Cgetarg      .    'nbas = %i%?#n#%-1j(+%i)##%?#n#+%i#%j#'//
+Cgetarg      .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',v_slat),
+Cgetarg      .    nat,nbas-nat,nbas-nsite,nsite,nspec)
+           call awrit6 ( '%N %a:%12palat = %;5d  ' // 'nbas = %i%?#n#%-1j(+%i)##%?#n#+%i#%j#' 
+     .     // '  nspec = %i' , strn , scrwid , 0 , v_slat%alat , nat , nbas-nat 
+     .     , nbas-nsite , nsite , nspec ) 
+
         endif
         if (vn(2) .eq. 0) then
           call awrit6('%a  vn %,2d  verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
@@ -1030,9 +1876,17 @@ C --- Printout ---
      .    iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
         endif
 
-        call upack('ctrl lxcf',v_sctrl,lxcf,0,0,0,0)
-        i = igets('ctrl lham,256',v_sctrl)
-        lfrzw = isw(lgors('ctrl lbas,16',v_sctrl))
+Cgetarg...info...           integer :: lxcf , integer(8) :: v_sctrl%lxcf 1
+Cgetarg         call upack('ctrl lxcf',v_sctrl,lxcf,0,0,0,0)
+         
+         lxcf=v_sctrl%lxcf
+
+Cgetarg         i = igets('ctrl lham,256',v_sctrl)
+         i = iand(256,int(v_sctrl%lham)) 
+
+Cgetarg         lfrzw = isw(lgors('ctrl lbas,16',v_sctrl))
+         lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 ) 
+
 
         call awrit8(' special:%10p'//
      .    '%?;n; forces,;;'//
@@ -1084,7 +1938,9 @@ C --- Printout ---
      .    (10,0,0,'%10f(warning) mixing incompatible functionals')
 
         if (bitand(lncol,1+2+4+8+32+64) .ne. 0) then
-          i = igets('ctrl sdmod',v_sctrl)
+Cgetarg           i = igets('ctrl sdmod',v_sctrl)
+           i = int(v_sctrl%sdmod) 
+
           if (.not. bittst(lncol,16)) i = -1
           call awrit8(' noncoll: '//
      .    '%?;n; Non-coll,;;'//
@@ -1101,30 +1957,55 @@ C --- Printout ---
         endif
 
         if (asa) then
-          call upack('ctrl lham lcd',v_sctrl,lham,lcd,0,0,0)
-          call awrit8('%x asa:%10p'//
-     .      '%?;n; no-ccor,;;'//
-     .      '%?;n; gam-rep,;;'//
-     .      '%?;n; two-c-H,;;'//
-     .      '%?;n;%b + pert-ev,;;'//
-     .      '%?;n; map,;;'//
-     .      '%?;n; indep-vmix,;;'//
-     .      '%?;n; mt-corr,;;'//
-     .      '%?;n; frozen core,;;'//
-     .      '%a%b ',strn,scrwid,0,
-     .      bitand(lasa,4).eq.0,
-     .      bitand(lham,128),
-     .      bitand(lham,3),bitand(lham,2),
-     .      bitand(lasa,16),igets('mix lxpot,3',v_smix),
-     .      bitand(lasa,64),bitand(lcd,1))
+Cgetarg...info...           integer :: lham , integer(8) :: v_sctrl%lham 1
+Cgetarg...info...           integer :: lcd , integer(8) :: v_sctrl%lcd 1
+Cgetarg           call upack('ctrl lham lcd',v_sctrl,lham,lcd,0,0,0)
+           
+           lham=v_sctrl%lham
+           lcd=v_sctrl%lcd
+
+Cgetarg           call awrit8('%x asa:%10p'//
+Cgetarg      .      '%?;n; no-ccor,;;'//
+Cgetarg      .      '%?;n; gam-rep,;;'//
+Cgetarg      .      '%?;n; two-c-H,;;'//
+Cgetarg      .      '%?;n;%b + pert-ev,;;'//
+Cgetarg      .      '%?;n; map,;;'//
+Cgetarg      .      '%?;n; indep-vmix,;;'//
+Cgetarg      .      '%?;n; mt-corr,;;'//
+Cgetarg      .      '%?;n; frozen core,;;'//
+Cgetarg      .      '%a%b ',strn,scrwid,0,
+Cgetarg      .      bitand(lasa,4).eq.0,
+Cgetarg      .      bitand(lham,128),
+Cgetarg      .      bitand(lham,3),bitand(lham,2),
+Cgetarg      .      bitand(lasa,16),igets('mix lxpot,3',v_smix),
+Cgetarg      .      bitand(lasa,64),bitand(lcd,1))
+           call awrit8 ( '%x asa:%10p' // '%?;n; no-ccor,;;' // '%?;n; gam-rep,;;' 
+     .     // '%?;n; two-c-H,;;' // '%?;n;%b + pert-ev,;;' // '%?;n; map,;;' 
+     .     // '%?;n; indep-vmix,;;' // '%?;n; mt-corr,;;' // '%?;n; frozen core,;;' 
+     .     // '%a%b ' , strn , scrwid , 0 , bitand ( lasa , 4 ) .eq.0 , 
+     .     bitand ( lham , 128 ) , bitand ( lham , 3 ) , bitand ( lham , 
+     .     2 ) , bitand ( lasa , 16 ) , iand(3,int(v_smix%lxpot)) , bitand 
+     .     ( lasa , 64 ) , bitand ( lcd , 1 ) ) 
+
           if (strn .ne. ' asa') call awrit0(strn,' ',-80,lgunit(k))
         endif
 
         if (prgnam(1:2) .eq. 'TB') then
-          call upack2('ctrl mdprm ltb',v_sctrl,xx,ltb)
+Cgetarg...info...           real(8) :: xx(n0*2) , real(8) :: v_sctrl%mdprm 6
+Cgetarg...info...           integer :: ltb , integer(8) :: v_sctrl%ltb 1
+Cgetarg           call upack2('ctrl mdprm ltb',v_sctrl,xx,ltb)
+           
+           i_copy_size=size(v_sctrl%mdprm) 
+           call dcopy(i_copy_size,v_sctrl%mdprm,1,xx,1) 
+           ltb=v_sctrl%ltb
+
           ix(1) = nint(xx(1))
           ix(2) = nint(xx(2))
-          call upack1('str rmax',v_sstr,xx)
+Cgetarg...info...           real(8) :: xx(n0*2) , real(8) :: v_sstr%rmax 1
+Cgetarg           call upack1('str rmax',v_sstr,xx)
+           
+           xx=v_sstr%rmax
+
           call awrit1('%x TB: %11prmaxh = %d,',strn,scrwid,0,xx)
           call awrit6('%a'//
      .      '%?;n; s-c multipoles,;;'//
@@ -1158,9 +2039,12 @@ C --- Printout ---
         endif
 
         if (prgnam(1:3) .eq. 'LMF') then
-          call awrit1(' special:%10p'//
-     .      '%?;n==1; core-level-optics,;;'//
-     .      '%b %b',strn,scrwid,0,igets('optic cls',w(osoptc)))
+Cgetarg           call awrit1(' special:%10p'//
+Cgetarg      .      '%?;n==1; core-level-optics,;;'//
+Cgetarg      .      '%b %b',strn,scrwid,0,igets('optic cls',w(osoptc)))
+           call awrit1 ( ' special:%10p' // '%?;n==1; core-level-optics,;;' 
+     .     // '%b %b' , strn , scrwid , 0 , 0 )
+
           if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
         endif
 
@@ -1170,40 +2054,60 @@ c       ltmp = prgnam.eq.'LM'   .or. prgnam.eq.'LMMC'  .or.
      .         prgnam.eq.'LMGF' .or. prgnam.eq.'LMPG' .or. 
      .         prgnam.eq.'LMDOS'.or. prgnam.eq.'TBE'
 
-        if (ltmp) call awrit7(' bz:%10p'//
-     .    '%?;n; metal,; nonmetal,;'//
-     .    '%-1j%?;n>1;%b(%-1j%i),;;'//
-     .    '%?;n; tetra,;;'//
-     .    '%?;n; get-qp,;;'//
-     .    '%?;n; invit,;;'//
-     .    '%?;n; dens-mat,;;'//
-     .    '%?;(n>0); %-1jmull=%i,;;'//
-     .    '%?;n; fixed-spin-mom,;;%b ',
-     .    strn,scrwid,lgunit(k),
-     .    igets('bz lmet',v_sbz),
-     .    bitand(lmet,2),igets('bz lio,1',v_sbz),
-     .    igets('ctrl lqp,2',v_sctrl),
-     .    igets('bz lio,8',v_sbz),
-     .    igets('bz lmull',v_sbz),
-     .    isw(dgets('bz fsmom',v_sbz).ne.0))
+Cgetarg         if (ltmp) call awrit7(' bz:%10p'//
+Cgetarg      .    '%?;n; metal,; nonmetal,;'//
+Cgetarg      .    '%-1j%?;n>1;%b(%-1j%i),;;'//
+Cgetarg      .    '%?;n; tetra,;;'//
+Cgetarg      .    '%?;n; get-qp,;;'//
+Cgetarg      .    '%?;n; invit,;;'//
+Cgetarg      .    '%?;n; dens-mat,;;'//
+Cgetarg      .    '%?;(n>0); %-1jmull=%i,;;'//
+Cgetarg      .    '%?;n; fixed-spin-mom,;;%b ',
+Cgetarg      .    strn,scrwid,lgunit(k),
+Cgetarg      .    igets('bz lmet',v_sbz),
+Cgetarg      .    bitand(lmet,2),igets('bz lio,1',v_sbz),
+Cgetarg      .    igets('ctrl lqp,2',v_sctrl),
+Cgetarg      .    igets('bz lio,8',v_sbz),
+Cgetarg      .    igets('bz lmull',v_sbz),
+Cgetarg      .    isw(dgets('bz fsmom',v_sbz).ne.0))
+         if ( ltmp ) call awrit7 ( ' bz:%10p' // '%?;n; metal,; nonmetal,;' 
+     .   // '%-1j%?;n>1;%b(%-1j%i),;;' // '%?;n; tetra,;;' // '%?;n; get-qp,;;' 
+     .   // '%?;n; invit,;;' // '%?;n; dens-mat,;;' // '%?;(n>0); %-1jmull=%i,;;' 
+     .   // '%?;n; fixed-spin-mom,;;%b ' , strn , scrwid , lgunit ( k 
+     .   ) , int(v_sbz%lmet) , bitand ( lmet , 2 ) , iand(1,int(v_sbz%lio)) 
+     .   , iand(2,int(v_sctrl%lqp)) , iand(8,int(v_sbz%lio)) , int(v_sbz%lmull) 
+     .   , isw ( v_sbz%fsmom .ne.0 ) ) 
+
 
    90   continue
       endif
 
 C --- Sanity checks and other initialization ---
-      if (lgors('ctrl ldos,8',v_sctrl) .and.
-     .    lgors('ctrl ldos,4+2',v_sctrl))
-     .  call rx('inconsistent DOS options')
-      call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and. nsp .eq. 2,
-     .  'Stoner model not compatible with nsp=2')
-      call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and.
-     . lgors('ctrl lham,4',v_sctrl),'Stoner not compatible with ADNF')
+Cgetarg       if (lgors('ctrl ldos,8',v_sctrl) .and.
+Cgetarg      .    lgors('ctrl ldos,4+2',v_sctrl))
+Cgetarg      .  call rx('inconsistent DOS options')
+       if ( iand(8,int(v_sctrl%ldos)) .ne.0 .and. iand(4+2,int(v_sctrl%ldos)) .ne.0 
+     . ) call rx ( 'inconsistent DOS options' ) 
+
+Cgetarg       call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and. nsp .eq. 2,
+Cgetarg      .  'Stoner model not compatible with nsp=2')
+       call rxx ( iand(-1,int(v_sctrl%lstonr(1))) .ne.0 .and. nsp .eq. 
+     . 2 , 'Stoner model not compatible with nsp=2' ) 
+
+Cgetarg       call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and.
+Cgetarg      . lgors('ctrl lham,4',v_sctrl),'Stoner not compatible with ADNF')
+       call rxx ( iand(-1,int(v_sctrl%lstonr(1))) .ne.0 .and. iand(4,int(v_sctrl%lham)) .ne.0 
+     . , 'Stoner not compatible with ADNF' ) 
+
 
 C --- Check and order principal layers, and sites by PL ---
       call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,
      .  v_sspec,v_ssite)
 
-      call pack1('ham lham',v_sham,igets('ctrl lham',v_sctrl))
+Cgetarg       call pack1('ham lham',v_sham,igets('ctrl lham',v_sctrl))
+       
+       v_sham%lham=(int(v_sctrl%lham)) 
+
 
       if (procid .eq. master) then
       if (iprint() .ge. 20) then
@@ -1247,8 +2151,8 @@ c        if (smix(2) /= NULLI)
         if (vmix%b /= NULLI)
      .  call shstru('mix',v_smix,0,0)
         call shstru('move',v_smove,0,0)
-        call shstru('optic',w(osoptc),0,0)
-        call shstru('gw',w(osgw),0,0)
+Cki        call shstru('optic',w(osoptc),0,0)
+Cki        call shstru('gw',w(osgw),0,0)
         call shstru('str',v_sstr,0,0)
         call shstru('tb',v_stb,0,0)
         call shstru('spec',v_sspec,1,nspec)

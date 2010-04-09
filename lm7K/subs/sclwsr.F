@@ -1,5 +1,6 @@
       subroutine sclwsr(opt,nbas,nbasp,nspec,alat,plat,basp,ips,modep,
      .  slabl,z,lock,volfac,wsmax,omax1,omax2,wsr)
+
 C- Scales sphere radii to specified volume, satisfying constraints.
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -227,10 +228,13 @@ c        endif
       endif
 
       call rlse(ontab)
-      end
+Cgetarg       end
+       end subroutine sclwsr 
+
 
       subroutine sclws2(nbas,nspec,alat,plat,bas,slabl,iax,ips,ntab,z,
      .  nrspec,omax1,omax2,gamma,wsmax,lock,volfac,dovl1,dovl2,wsr)
+
 C- Enlarges the spheres to reach a specified volume under constraints
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -607,5 +611,7 @@ C     .          write(stdo,'('' SCLWS2: warning dovl>omax'')')
       call rx('sclws2: this cannot happen')
 
   300 format(6x,a,3f13.7)
-      end
+Cgetarg       end
+       end subroutine sclws2 
+
 

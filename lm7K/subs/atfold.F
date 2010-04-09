@@ -1,4 +1,9 @@
+Cgetarg...info...           structure ['atfold', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['atfold', 'm_struc_def']
       subroutine atfold(isw,adnf,nl,nsp,vmtz,pp,sspec)
+       
+       use m_struc_def  !Cgetarg
+
 C- Automatic down-folding, 2nd generation LMTO
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -40,7 +45,10 @@ C     implicit none
 C Passed parameters
       logical adnf
       integer isw,nl,nsp
-      double precision pp(6,0:nl-1,nsp,1),avw,vmtz,sspec(1)
+Cgetarg       double precision pp(6,0:nl-1,nsp,1),avw,vmtz,sspec(1)
+       real(8):: pp(6,0:nl-1,nsp,1) , avw , vmtz 
+       type(s_spec)::sspec(*)
+
 C Local parameters
       integer n0,nkap0
       parameter(nkap0=3,n0=10)
@@ -55,7 +63,16 @@ C Local parameters
 C     choose arbitrarily :  spins, classes not distinguished
       isp = 1
       do  1  is = 1, nspec
-      call upack('spec idxdn rmt lmxb',sspec,is,idxdn,rmax,lmxb,0)
+Cgetarg...info...           integer :: idxdn(0:n0*nkap0) , integer(8) :: sspec%idxdn 30
+Cgetarg...info...           real(8) :: rmax , real(8) :: sspec%rmt 1
+Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
+Cgetarg       call upack('spec idxdn rmt lmxb',sspec,is,idxdn,rmax,lmxb,0)
+       
+       i_copy_size=size(sspec(is)%idxdn) 
+       call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1) 
+       rmax=sspec(is)%rmt
+       lmxb=sspec(is)%lmxb
+
 C     Assume representative ic = is
       ic = is
 C ... Any idxdn for l>lmxb is automatically '4'
@@ -141,11 +158,18 @@ C --- lower set ---
         endif
         if ( idxdn(l) .eq. 0 ) idxdn(l) = 1
     2 continue
-      call pack2('spec idxdn',sspec,is,idxdn)
+Cgetarg...info...           integer :: idxdn(0:n0*nkap0) , integer(8) :: sspec%idxdn 30
+Cgetarg       call pack2('spec idxdn',sspec,is,idxdn)
+       
+       i_copy_size=size(sspec(is)%idxdn) 
+       call ii8copy(i_copy_size,idxdn,1,sspec(is)%idxdn,1) 
+
     1 continue
    10 format(1x,'Atfold:  species',i4,',  l = ',i1,' to higher set')
    20 format(1x,'Atfold:  species',i4,',  l = ',i1,
      .                                           ' to intermediate set')
    30 format(1x,'Atfold:  species',i4,',  l = ',i1,' to lower set')
-      end
+Cgetarg       end
+       end subroutine atfold 
+
 

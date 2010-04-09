@@ -1,4 +1,12 @@
+Cgetarg...info...           structure ['asastr', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['asastr', 'array', 'sarray']
+Cgetarg...info...           structure ['asastr', 'lat', 'slat']
+Cgetarg...info...           structure ['asastr', 'str', 'sstr']
+Cgetarg...info...           use_to_add ['asastr', 'm_struc_def']
       subroutine asastr(prgnam,sctrl,slat,sspec,sstr,sarray,sham)
+       
+       use m_struc_def  !Cgetarg
+
 C- Screened, real-space structure constants
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -51,8 +59,15 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       character*(*) prgnam*8
-      double precision sarray(1),sctrl(1),slat(1),sspec(1),sstr(1),
-     .  sham(1)
+Cgetarg       double precision sarray(1),sctrl(1),slat(1),sspec(1),sstr(1),
+Cgetarg      .  sham(1)
+       type(s_array)::sarray
+       type(s_ctrl)::sctrl
+       type(s_lat)::slat
+       type(s_spec)::sspec(*)
+       type(s_str)::sstr
+       type(s_ham)::sham
+
 C ... Local parameters
       character*120 outs
       logical cmdopt,lgors,strdif,ltmp,lsdot
@@ -74,29 +89,110 @@ C ... Heap
 
 C --- Unpack global variables ---
       stdo = nglob('stdo')
-      call upack('ctrl nbas nspec nl nspin',sctrl,nbas,nspec,nl,nsp,0)
-      lpgf  = igets('ctrl lpgf',sctrl)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg       call upack('ctrl nbas nspec nl nspin',sctrl,nbas,nspec,nl,nsp,0)
+       
+       nbas=sctrl%nbas
+       nspec=sctrl%nspec
+       nl=sctrl%nl
+       nsp=sctrl%nspin
+
+Cgetarg       lpgf  = igets('ctrl lpgf',sctrl)
+       lpgf = int(sctrl%lpgf(1)) 
+
 C     lgen3 = igets('ctrl lgen3',sctrl)
 C     lpbc  = 0 for pbc in 3 dimensions, 11 pgf padded geometry
       lpbc  = 0
       if (lpgf .gt. 0) lpbc = 11
-      call upack('array ohave oics oipc oclabl oips',sarray,
-     .  oinitc,oics,oipc,oclabl,oips)
-      call upack('array opos nclasp npadl npadr',sarray,opos,
-     .  nclasp,npadl,npadr,0)
-      call upack('array opgfsl',sarray,opgfsl,0,0,0,0)
+Cgetarg...info...           integer :: oinitc , integer(8) :: sarray%ohave 1
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
+Cgetarg       call upack('array ohave oics oipc oclabl oips',sarray,
+Cgetarg      .  oinitc,oics,oipc,oclabl,oips)
+       
+       oinitc=sarray%ohave
+       oics=sarray%oics
+       oipc=sarray%oipc
+       oclabl=sarray%oclabl
+       oips=sarray%oips
+
+Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
+Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
+Cgetarg       call upack('array opos nclasp npadl npadr',sarray,opos,
+Cgetarg      .  nclasp,npadl,npadr,0)
+       
+       opos=sarray%opos
+       nclasp=sarray%nclasp
+       npadl=sarray%npadl
+       npadr=sarray%npadr
+
+Cgetarg...info...           integer :: opgfsl , integer(8) :: sarray%opgfsl 1
+Cgetarg       call upack('array opgfsl',sarray,opgfsl,0,0,0,0)
+       
+       opgfsl=sarray%opgfsl
+
       nbasp = nbas + npadl + npadr
       nbaspp = 2*nbasp - nbas
       mordrn = 0
       ncplx = 1
 C ... Clebsch-Gordan and related coefficents
-      call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+       
+       ocg=slat%ocg
+       ojcg=slat%ojcg
+       oidxcg=slat%oidxcg
+       ocy=slat%ocy
+
 C ... Global strux data
-      call upack('str nkaps kaps rmax rfit amode',sstr,nkaps,kap2,rmaxs,
-     .  rfit,amode)
-      call upack('str lmaxw drwats iinv loka',sstr,lmaxw,drwats,siinv,
-     .  loka,0)
-      call upack('lat alat plat avw',slat,alat,plat,avw,0,0)
+Cgetarg...info...           integer :: nkaps , integer(8) :: sstr%nkaps 1
+Cgetarg...info...           real(8) :: kap2(n0) , real(8) :: sstr%kaps 6
+Cgetarg...info...           real(8) :: rmaxs , real(8) :: sstr%rmax 1
+Cgetarg...info...           real(8) :: rfit , real(8) :: sstr%rfit 1
+Cgetarg...info...           integer :: amode , integer(8) :: sstr%amode 1
+Cgetarg       call upack('str nkaps kaps rmax rfit amode',sstr,nkaps,kap2,rmaxs,
+Cgetarg      .  rfit,amode)
+       
+       nkaps=sstr%nkaps
+       i_copy_size=size(sstr%kaps) 
+       call dcopy(i_copy_size,sstr%kaps,1,kap2,1) 
+       rmaxs=sstr%rmax
+       rfit=sstr%rfit
+       amode=sstr%amode
+
+Cgetarg...info...           integer :: lmaxw , integer(8) :: sstr%lmaxw 1
+Cgetarg...info...           real(8) :: drwats , real(8) :: sstr%drwats 1
+Cgetarg...info...           real(8) :: siinv(5) , real(8) :: sstr%iinv 5
+Cgetarg...info...           integer :: loka , integer(8) :: sstr%loka 1
+Cgetarg       call upack('str lmaxw drwats iinv loka',sstr,lmaxw,drwats,siinv,
+Cgetarg      .  loka,0)
+       
+       lmaxw=sstr%lmaxw
+       drwats=sstr%drwats
+       i_copy_size=size(sstr%iinv) 
+       call dcopy(i_copy_size,sstr%iinv,1,siinv,1) 
+       loka=sstr%loka
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
+Cgetarg       call upack('lat alat plat avw',slat,alat,plat,avw,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       avw=slat%avw
+
 
 C --- Parameters determining kind and number of strux ---
       call isanrg(mod(amode,10),0,3,'ASASTR:','strux mode',.true.)
@@ -113,7 +209,13 @@ C     3rd generation uses Tank's tral conventions
         nkapn = 1
         nmto = 0
         if (mod(amode,10) .eq. 3) then
-          call upack('str ivl rmaxg',sstr,ivl,rmxg0,0,0,0)
+Cgetarg...info...           integer :: ivl , integer(8) :: sstr%ivl 1
+Cgetarg...info...           real(8) :: rmxg0 , real(8) :: sstr%rmaxg 1
+Cgetarg           call upack('str ivl rmaxg',sstr,ivl,rmxg0,0,0,0)
+           
+           ivl=sstr%ivl
+           rmxg0=sstr%rmaxg
+
           call isanrg(ivl,0,2,'ASASTR:','vl mode',.true.)
           call fsanrg(rmxg0,0d0,1d0,0d0,'ASASTR:','rmaxg/rmax',.true.)
 c            print *,' asastr: ivl, rmxg0 =',ivl, rmxg0  
@@ -203,7 +305,9 @@ C --- Get neighbor table iax for each atom in the cluster ---
         call rx('ASASTR: not implemented for lpbc>1')
       endif
 C ... Make nttab,ontab,oiax
-      mxcsiz = igets('str mxnbr',sstr)
+Cgetarg       mxcsiz = igets('str mxnbr',sstr)
+       mxcsiz = int(sstr%mxnbr) 
+
       call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
      .  -1,i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
 C      call pairs(nbas,nbasp,1d0,plat,rmaxs*avw/alat/2,w(opos),
@@ -309,7 +413,9 @@ C       call awrit2('%n:1d',' ',80,stdo,nbaspp,w(orwats))
 
 C ... Count the number of inequivalent strx
       nitab = nttab
-      if (lgors('str lequiv,1',sstr)) then
+Cgetarg       if (lgors('str lequiv,1',sstr)) then
+       if ( iand(1,int(sstr%lequiv)) .ne.0 ) then 
+
         nitab = 0
         do  i = 1, nbas
           if (nmto .eq. 0) then
@@ -393,7 +499,9 @@ C ... for now
       call rlse(olmx)
 
 C --- Printout ---
-      if (lgors('str lshow,1',sstr)) then
+Cgetarg       if (lgors('str lshow,1',sstr)) then
+       if ( iand(1,int(sstr%lshow)) .ne.0 ) then 
+
         call query('V>=30 to display structure constants',-1,0)
         lio = lio - 1 + 8
         i = nkaps
@@ -427,7 +535,9 @@ C --- Plot screened orbital structure constants ---
       endif
 
       call rx0(prgnam)
-      end
+Cgetarg       end
+       end subroutine asastr 
+
 
 c...deb
 C       subroutine xxn(s,nds)

@@ -1,5 +1,12 @@
+Cgetarg...info...           structure ['asars', 'site', 'ssite']
+Cgetarg...info...           structure ['asars1', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['asars', 'm_struc_def']
+Cgetarg...info...           use_to_add ['asars1', 'm_struc_def']
       subroutine asars(mode,sctrl,ssite,sspec,slat,spot,sbz,
      .  pnu,qnu,lbin,ifi)
+       
+       use m_struc_def  !Cgetarg
+
 C- ASA file I/O to restart file
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -54,8 +61,15 @@ C     implicit none
 C ... Passed parameters
       logical lbin
       integer mode,ifi
-      double precision sctrl(1),ssite(1),sspec(1),slat(1),
-     .  spot(1),sbz(1)
+Cgetarg       double precision sctrl(1),ssite(1),sspec(1),slat(1),
+Cgetarg      .  spot(1),sbz(1)
+       type(s_ctrl)::sctrl
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_pot)::spot
+       type(s_bz)::sbz
+
       double precision pnu(*),qnu(*)
 C ... Local parameters
       character*32 jobid
@@ -76,7 +90,12 @@ C ... Heap
 C ... Get class list
       call defi(oipc,nbas)
       call defi(oipa,nbas)
-      call spackv(10,'site class',ssite,1,nbas,w(oipc))
+Cgetarg       call spackv(10,'site class',ssite,1,nbas,w(oipc))
+       i_copy_size=1; 
+       do i_spackv=1,nbas 
+       call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
+       enddo
+
 
 C ... Memory for qnu, site resolved
       call defrr(oqnu,-3*n0*nsp*nbas)
@@ -100,8 +119,13 @@ C ... Poke site struc and oqnu into P,Q
      .  w(oqnu),w(oipc),w(oipa),pnu,qnu)
 
       call rlse(oipc)
-      end
+Cgetarg       end
+       end subroutine asars 
+
       subroutine asars1(mode,ssite,nbas,nsp,nl,ov,pnu,qnu,ipc,ipa,pl,ql)
+       
+       use m_struc_def  !Cgetarg
+
 C- Kernel that copies ASA parameters into form readable by iors
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -146,7 +170,10 @@ C     implicit none
 C ... Passed parameters
       integer nbas,mode,nl,nsp,ov(nbas),ipc(nbas),ipa(7),n0
       parameter (n0=10)
-      double precision ssite(1),pl(nl,nsp,*),ql(3,nl,nsp,*)
+Cgetarg       double precision ssite(1),pl(nl,nsp,*),ql(3,nl,nsp,*)
+       real(8):: pl(nl,nsp,*) , ql(3,nl,nsp,*) 
+       type(s_site)::ssite(*)
+
       double precision pnu(n0,nsp,*),qnu(3,n0,nsp,*)
 C ... Local parameters
       integer ib,ic,nrclas,mode0,mode1
@@ -166,7 +193,12 @@ C --- Create symmetrized pnu ---
 C   ... Extract site->pnu into pnu array
         if (mode1 .eq. 1) then
           do  ib = 1, nbas
-            call upack2('site pnu',ssite,ib,ploc)
+Cgetarg...info...           real(8) :: ploc(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg             call upack2('site pnu',ssite,ib,ploc)
+             
+             i_copy_size=size(ssite(ib)%pnu) 
+             call dcopy(i_copy_size,ssite(ib)%pnu,1,ploc,1) 
+
             call dcopy(n0*nsp,ploc,1,pnu(1,1,ib),1)
           enddo
         endif
@@ -187,7 +219,12 @@ C   ... Copy pnu to site->pnu
           call dpzero(ploc,n0*2)
           do  ib = 1, nbas
             call dcopy(n0*nsp,pnu(1,1,ib),1,ploc,1)
-            call pack2('site pnu',ssite,ib,ploc)
+Cgetarg...info...           real(8) :: ploc(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg             call pack2('site pnu',ssite,ib,ploc)
+             
+             i_copy_size=size(ssite(ib)%pnu) 
+             call dcopy(i_copy_size,ploc,1,ssite(ib)%pnu,1) 
+
           enddo
         endif
       endif
@@ -201,7 +238,14 @@ C   ... Pack pl into site->pnu and/or array pnu; and ql to qnu
           call dpzero(ploc,n0*2)
           call dcopy(nl,pl(1,1,ic),1,ploc,1)
           call dcopy(nl,pl(1,nsp,ic),1,ploc(1,nsp),1)
-          if (mod(mode1,2) .eq. 1) call pack2('site pnu',ssite,ib,ploc)
+Cgetarg...info...           real(8) :: ploc(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg           if (mod(mode1,2) .eq. 1) call pack2('site pnu',ssite,ib,ploc)
+           if ( mod ( mode1 , 2 ) .eq. 1 ) then 
+           
+           i_copy_size=size(ssite(ib)%pnu) 
+           call dcopy(i_copy_size,ploc,1,ssite(ib)%pnu,1) 
+           endif 
+
           if (mode1 .ge. 2) then
             call dpzero(pnu(1,1,ib),n0*nsp)
             call dcopy(1*nl,pl(1,1,ic),  1,pnu(1,1,ib),  1)
@@ -235,5 +279,7 @@ C  999 continue
 C      call rx('iorsa, class'//clabl//': missing',line)
 
 
-      end
+Cgetarg       end
+       end subroutine asars1 
+
 

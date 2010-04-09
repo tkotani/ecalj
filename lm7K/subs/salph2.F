@@ -1,6 +1,7 @@
       subroutine salph2(nbas,nenv,lqinv,ldot,loka,siinv,ndimW,lmaxW,
      .  nenvx,npr,plat,bas,alphv,adotv,iax,cy,cg,indxcg,jcg,el,
      .  s0a,s0b,s01,s2,wk,kpvt,salphx,sdotx)
+
 C- Calculate one-center expansion coefficients for one cluster, 2 energies
 C ----------------------------------------------------------------
 Ci Inputs
@@ -188,7 +189,9 @@ C --- Restore alpha before exit ---
 C     call invalp(nenv*nbas,2,alpha)
 
       call tcx('salph2')
-      end
+Cgetarg       end
+       end subroutine salph2 
+
 
 C      subroutine xxalp2(ndimW,alphv)
 CC- print 2-kap alpha in matrix form

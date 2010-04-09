@@ -1,4 +1,5 @@
       double precision function drr2(plat,tau1,tau2,i,j,k,dr)
+
 C- Calculates the vector connecting two sites in a solid
 C ----------------------------------------------------------------
 Ci Inputs
@@ -28,5 +29,7 @@ C Local parameters
      .           plat(ix,1)*i + plat(ix,2)*j + plat(ix,3)*k
         drr2 = drr2 + dr(ix)**2
    10 continue
-      end
+Cgetarg       end
+       end function drr2 
+
 

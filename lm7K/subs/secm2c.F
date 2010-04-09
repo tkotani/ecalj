@@ -1,7 +1,12 @@
+Cgetarg...info...           structure ['secm2c', 'ctrl', 'sctrl']
+Cgetarg...info...           use_to_add ['secm2c', 'm_struc_def']
 #define BLAS3 1
       subroutine secm2c(sctrl,ckbas,plat,nl,nsp,nbas,nclass,ipc,indxsh,
      .  qss,eula,neul,ikp,nkp,ldim,lidim,lihdim,ndim,qp,pp,sop,vmtz,wsr,
      .  avw,isp,pti,pph,nfilet,nevmx,efmax,nev,addsx,z,eb)
+       
+       use m_struc_def  !Cgetarg
+
 C- Set up and diagonalize ASA Hamiltonian, 2-center approximation.
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -21,9 +26,14 @@ C ----------------------------------------------------------------
 C     implicit none
       integer nl,nsp,nbas,nclass,neul,isp,nfilet,ldim,lidim,lihdim,ndim,
      .  nevmx,nev,ipc(nbas),indxsh(ndim),ikp,nkp,addsx
-      double precision ckbas,plat(3,3),eb(ldim*2),pp(6,nl,nsp,0:*),vmtz,
-     .  avw,qp(3),z(ldim,ldim*2),pti(ndim,nsp),eula(nbas,neul,3),wsr(*),
-     .  pph(5,lihdim,nsp),efmax,qss(4),sop(0:nl-1,nsp,nsp,9,*),sctrl(1)
+Cgetarg       double precision ckbas,plat(3,3),eb(ldim*2),pp(6,nl,nsp,0:*),vmtz,
+Cgetarg      .  avw,qp(3),z(ldim,ldim*2),pti(ndim,nsp),eula(nbas,neul,3),wsr(*),
+Cgetarg      .  pph(5,lihdim,nsp),efmax,qss(4),sop(0:nl-1,nsp,nsp,9,*),sctrl(1)
+       real(8):: ckbas , plat(3,3) , eb(ldim*2) , pp(6,nl,nsp,0:*) , 
+     . vmtz , avw , qp(3) , z(ldim,ldim*2) , pti(ndim,nsp) , eula(nbas,neul,3) 
+     . , wsr(*) , pph(5,lihdim,nsp) , efmax , qss(4) , sop(0:nl-1,nsp,nsp,9,*) 
+       type(s_ctrl)::sctrl
+
 C heap:
       integer w(1)
       common /w/ w
@@ -39,7 +49,15 @@ c     integer oxsi,ode,onewa,osz
       bittst(n,bit) = (mod(n,bit+bit) - mod(n,bit) .eq. bit)
 
 C --- Setup ---
-      call upack('ctrl lham lncol elin',sctrl,lham,lncol,elin,0,0)
+Cgetarg...info...           integer :: lham , integer(8) :: sctrl%lham 1
+Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
+Cgetarg...info...           real(8) :: elin , real(8) :: sctrl%elin 1
+Cgetarg       call upack('ctrl lham lncol elin',sctrl,lham,lncol,elin,0,0)
+       
+       lham=sctrl%lham
+       lncol=sctrl%lncol
+       elin=sctrl%elin
+
       call getpr(ipr)
       nl2 = nl**2
       idim = lidim - ldim
@@ -58,7 +76,9 @@ C     Possibly rotate to spherical harmonics when making Bloch sum
 
 C     Combined correction required if downfolding
       ndnfld = idim .eq. 0
-      ccor = .not. ndnfld .or. lgors('ctrl lasa,4',sctrl)
+Cgetarg       ccor = .not. ndnfld .or. lgors('ctrl lasa,4',sctrl)
+       ccor = .not. ndnfld .or. iand(4,int(sctrl%lasa)) .ne.0 
+
 C     if (.not. ccor  .and.  ipr  .ge. 30  .and.  ikp .eq. 1)
 C    . print *, 'SECM2C : Combined Correction switched off'
 C     if (.not. ndnfld .and. bittst(lham,128))
@@ -66,7 +86,10 @@ C    .  call rx('secmat: no downfolding in gamma rep')
 
 C     Diagonalize by inverse iteration, or not
       linv = 0
-      if (nevmx .gt. 0 .and. lgors('ctrl lqp,2',sctrl)) linv = 1
+Cgetarg       if (nevmx .gt. 0 .and. lgors('ctrl lqp,2',sctrl)) linv = 1
+       if ( nevmx .gt. 0 .and. iand(2,int(sctrl%lqp)) .ne.0 ) linv = 
+     . 1 
+
 
 C ... Sanity checks
       if (.not. ndnfld .and. bittst(lham,128))
@@ -334,7 +357,9 @@ CC       call rlse(ode)
 C      endif
       call rlse(owk)
       if (ipr .ge. 110) call query('V<110 to skip matrix printing',-1,0)
-      end
+Cgetarg       end
+       end subroutine secm2c 
+
 C      subroutine ev2cgf(isp,ni,nj,ldim,nbmx,eval,evc,ze,Gij)
 CC- Make GF from eigenvectors
 C      implicit none

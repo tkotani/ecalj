@@ -1,5 +1,6 @@
       subroutine salphg(ivl,nclus,nl,lsga,kmx,rsma,
      .  plat,alat,pos,ips,rsm,rhc,ehvl,cy,cg,indxcg,jcg,iax,sga,sgi)
+
 C- Value-Laplacian transformation of a double set of functions:
 C  Gaussians G_0L and either G_1L, Hsm_L, or Hsm-dot_L for one cluster 
 C ----------------------------------------------------------------
@@ -269,9 +270,12 @@ c Save sga in w(osg2) and unit matrix in w(ounit) for future checks
       endif
 
       call tcx('salphg')
-      end
+Cgetarg       end
+       end subroutine salphg 
+
 
       double precision function distm(nla,a,nlb,b,nlc,c,n,m,k)
+
 C- Find to what precision A(nxm)*B(mxk)=C(nxk) is satisfied elementwise
 C ----------------------------------------------------------------
 Ci Inputs
@@ -306,5 +310,7 @@ C Local parameters
         enddo
       enddo
 
-      end 
+Cgetarg       end 
+       end function distm 
+
 

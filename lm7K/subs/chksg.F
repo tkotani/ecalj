@@ -1,4 +1,13 @@
+Cgetarg...info...           structure ['chksg', 'lat', 'slat']
+Cgetarg...info...           structure ['chksg', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['chksg', 'array', 'sarray']
+Cgetarg...info...           structure ['chksg', 'str', 'sstr']
+Cgetarg...info...           structure ['chksg', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['chksg', 'm_struc_def']
       subroutine chksg(sctrl,slat,sspec,sstr,sarray)
+       
+       use m_struc_def  !Cgetarg
+
 C- Plots or checks the value-Laplacian envelope functions
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -36,7 +45,13 @@ Cu   23 Jul 08 (S. Lozovoi) Adapted from chkstr.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      double precision sctrl(1),slat(1),sspec(1),sstr(1),sarray(1)
+Cgetarg       double precision sctrl(1),slat(1),sspec(1),sstr(1),sarray(1)
+       type(s_ctrl)::sctrl
+       type(s_lat)::slat
+       type(s_spec)::sspec(*)
+       type(s_str)::sstr
+       type(s_array)::sarray
+
 C ... Local parameters
       double precision plat(3,3),alat,ckbas,cksumf,tstmax
       integer npmax,nlmy,nvmax,nkap
@@ -71,13 +86,52 @@ C ... Heap
 
       stdo = nglob('stdo')
 C ... Clebsch-Gordan and related coefficents
-      call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+       
+       ocg=slat%ocg
+       ojcg=slat%ojcg
+       oidxcg=slat%oidxcg
+       ocy=slat%ocy
 
-      call upack('ctrl nbas nspec nl',sctrl,nbas,nspec,nl,0,0)
-      call upack('lat alat plat',slat,alat,plat,0,0,0)
-      call upack('array opos oips',sarray,obas,oips,0,0,0)
-      call upack1('lat ocy',slat,ocy)
-      call upack1('str ivl',sstr,ivl)
+
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg       call upack('ctrl nbas nspec nl',sctrl,nbas,nspec,nl,0,0)
+       
+       nbas=sctrl%nbas
+       nspec=sctrl%nspec
+       nl=sctrl%nl
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg       call upack('lat alat plat',slat,alat,plat,0,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
+Cgetarg...info...           integer :: obas , integer(8) :: sarray%opos 1
+Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
+Cgetarg       call upack('array opos oips',sarray,obas,oips,0,0,0)
+       
+       obas=sarray%opos
+       oips=sarray%oips
+
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call upack1('lat ocy',slat,ocy)
+       
+       ocy=slat%ocy
+
+Cgetarg...info...           integer :: ivl , integer(8) :: sstr%ivl 1
+Cgetarg       call upack1('str ivl',sstr,ivl)
+       
+       ivl=sstr%ivl
+
       call isanrg(ivl,0,2,'ASASTR:','ivl mode (IVFUN)',.true.)
 
       call sp2cls('spec lmxb',sspec,0,1,1,nspec,olmx)
@@ -198,7 +252,12 @@ c     ikap = 2
       endif
       lb = ll(nlmb)
       is = ival(w(oips),iat)
-      call upack('spec hcr',sspec,is,hcr,0,0,0)
+Cgetarg...info...           real(8) :: hcr(10) , real(8) :: sspec%hcr 10
+Cgetarg       call upack('spec hcr',sspec,is,hcr,0,0,0)
+       
+       i_copy_size=size(sspec(is)%hcr) 
+       call dcopy(i_copy_size,sspec(is)%hcr,1,hcr,1) 
+
       call info5(10,1,0,' Atom %i has hcr=%n:1;4,4d',iat,lb+1,hcr,0,0)
       call info5(0,0,1,
      .  ' plotting plane from (x,y) = %da.u. = %d*alat%N%16f'//
@@ -274,7 +333,12 @@ c lb, nlmb - expansion sphere (defines max L to check)
 
       call info5(10,0,0,' Neighbor ixi=%i corresponds to atom %i',
      .  ixi,iatp,0,0,0)
-      call upack('spec hcr',sspec,is,hcr,0,0,0)
+Cgetarg...info...           real(8) :: hcr(10) , real(8) :: sspec%hcr 10
+Cgetarg       call upack('spec hcr',sspec,is,hcr,0,0,0)
+       
+       i_copy_size=size(sspec(is)%hcr) 
+       call dcopy(i_copy_size,sspec(is)%hcr,1,hcr,1) 
+
       call info5(10,0,0,' Atom %i has nlmb=%i hcr=%n:1;4,4d',
      .  iatp,nlmb,lb+1,hcr,0)
 
@@ -400,7 +464,12 @@ C --- Plot value-Laplacian functions along a vector ---
       nlmb = ival(w(oiax),niax*offR+9)
       lb = ll(nlmb)
       is = ival(w(oips),iat)
-      call upack('spec hcr',sspec,is,hcr,0,0,0)
+Cgetarg...info...           real(8) :: hcr(10) , real(8) :: sspec%hcr 10
+Cgetarg       call upack('spec hcr',sspec,is,hcr,0,0,0)
+       
+       i_copy_size=size(sspec(is)%hcr) 
+       call dcopy(i_copy_size,sspec(is)%hcr,1,hcr,1) 
+
       call info5(10,1,0,' Atom %i has hcr=%n:1;4,4d',iat,lb+1,hcr,0,0)
 
       call acoord(iat,1,alat,plat,w(obas),w(oiax),w(ontab),pix)
@@ -440,5 +509,7 @@ c write line data to file fort.77 for gnuplot for both kappa
      .    (reslin(i,ilb),ilb=1, 3+2*min(nlmb,9))
       enddo
 
-      end
+Cgetarg       end
+       end subroutine chksg 
+
 

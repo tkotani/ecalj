@@ -1,4 +1,10 @@
+Cgetarg...info...           structure ['rlxstp', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['rlxstp', 'site', 'ssite']
+Cgetarg...info...           use_to_add ['rlxstp', 'm_struc_def']
       subroutine rlxstp(sctrl,ssite,natrlx,nvar,indrlx,xyzfrz,pdim)
+       
+       use m_struc_def  !Cgetarg
+
 C- Set up variables for relaxation
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -26,7 +32,10 @@ C     implicit none
 C Passed Parameters
       logical xyzfrz(3)
       integer indrlx(2,1),nvar,natrlx,nitrlx,pdim
-      double precision sctrl(1),ssite(1)
+Cgetarg       double precision sctrl(1),ssite(1)
+       type(s_ctrl)::sctrl
+       type(s_site)::ssite(*)
+
 C Local variables
       double precision mdprm(6),defm(6)
 C     double precision autime,autmp
@@ -37,10 +46,26 @@ C     data comp /'x','y','z'/
 C     data autime/0.048377d0/
 C     data autmp/0.6333328d-5/
 
-      call upack('ctrl nbas nitmv mdprm defm ltb',sctrl,nbas,nitrlx,
-     .  mdprm,defm,ltb)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nitrlx , integer(8) :: sctrl%nitmv 1
+Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
+Cgetarg...info...           real(8) :: defm(6) , real(8) :: sctrl%defm 6
+Cgetarg...info...           integer :: ltb , integer(8) :: sctrl%ltb 1
+Cgetarg       call upack('ctrl nbas nitmv mdprm defm ltb',sctrl,nbas,nitrlx,
+Cgetarg      .  mdprm,defm,ltb)
+       
+       nbas=sctrl%nbas
+       nitrlx=sctrl%nitmv
+       i_copy_size=size(sctrl%mdprm) 
+       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
+       i_copy_size=size(sctrl%defm) 
+       call dcopy(i_copy_size,sctrl%defm,1,defm,1) 
+       ltb=sctrl%ltb
+
       nvar = 0
-      force = bittst(ltb,16) .or. igets('ctrl lfrce',sctrl) .gt. 0
+Cgetarg       force = bittst(ltb,16) .or. igets('ctrl lfrce',sctrl) .gt. 0
+       force = bittst ( ltb , 16 ) .or. int(sctrl%lfrce) .gt. 0 
+
       if (.not. force .or. nint(mdprm(1)) .eq. 0) return
       md = nint(mdprm(1)) .le. 3
       lrlx = mod(nint(mdprm(1)),100)
@@ -61,7 +86,12 @@ C --- Set relaxation variables ---
         enddo
       elseif (force) then
         do  i = 1, nbas
-          call upack2('site relax',ssite,i,ifrlx)
+Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
+Cgetarg           call upack2('site relax',ssite,i,ifrlx)
+           
+           i_copy_size=size(ssite(i)%relax) 
+           call i8icopy(i_copy_size,ssite(i)%relax,1,ifrlx,1) 
+
           do  k = 1, 3
             if (ifrlx(k) .eq. 1) then
               j = j + 1
@@ -100,5 +130,7 @@ C --- Printout ---
      .              ' ',120,i1mach(2),mdprm(3),mdprm(4),mdprm(5),pdim)
       endif
 
-      end
+Cgetarg       end
+       end subroutine rlxstp 
+
 

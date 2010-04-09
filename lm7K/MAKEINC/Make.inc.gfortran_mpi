@@ -140,46 +140,46 @@ $(subs_obj_path)/spcgrp.o: subs/spcgrp.F
 	$(FC) $(FFLAGS_LESS) -c $< -o $@
 
 ### these modules requies no optimization ---> safer.
-$(subs_obj_path)/m_toksw.o $(moddir)/m_toksw.mod $(moddir)/m_gtv.mod:	subs/m_toksw.F
+$(subs_obj_path)/m_toksw.o $(moddir)/m_toksw.mod $(moddir)/m_gtv.mod  : subs/m_toksw.F 
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_toksw.o
 
-$(subs_obj_path)/m_rdctrl.o $(moddir)/m_rdctrl.mod:	subs/m_rdctrl.F $(moddir)/m_struc_def.mod $(moddir)/m_toksw.mod $(moddir)/m_gtv.mod
+$(subs_obj_path)/m_rdctrl.o $(moddir)/m_rdctrl.mod  : subs/m_rdctrl.F $(moddir)/m_gtv.mod $(moddir)/m_struc_def.mod $(moddir)/m_toksw.mod 
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrl.o 
 
-$(subs_obj_path)/m_rdctrlchk.o $(moddir)/m_rdctrlchk.mod:	subs/m_rdctrlchk.F $(moddir)/m_toksw.mod $(moddir)/m_gtv.mod
+$(subs_obj_path)/m_rdctrlchk.o $(moddir)/m_rdctrlchk.mod  : subs/m_rdctrlchk.F $(moddir)/m_gtv.mod $(moddir)/m_toksw.mod 
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_rdctrlchk.o
 
-$(subs_obj_path)/m_struc_def.o $(moddir)/m_struc_def.mod:	subs/m_struc_def.F 
+$(subs_obj_path)/m_struc_def.o $(moddir)/m_struc_def.mod  : subs/m_struc_def.F 
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_struc_def.o
 
-$(subs_obj_path)/m_struc_func.o $(moddir)/m_struc_func.mod:	subs/m_struc_func.F
+$(subs_obj_path)/m_struc_func.o $(moddir)/m_struc_func.mod  : subs/m_struc_func.F 
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_struc_func.o
 
 #################################
-$(fp_obj_path)/bndfp.o  : $(moddir)/m_rdctrl.mod $(moddir)/m_hamindex.mod $(moddir)/m_struc_def.mod fp/bndfp.F
+$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c fp/bndfp.F -o $@	
-$(subs_obj_path)/hamfb3.o  : $(moddir)/m_hamindex.mod subs/hamfb3.F
+$(subs_obj_path)/hamfb3.o  : subs/hamfb3.F $(moddir)/m_hamindex.mod 
 	$(FC) $(FFLAGS) -c  subs/hamfb3.F -o $@
-$(subs_obj_path)/rdctrl2.o  : $(moddir)/m_rdctrl.mod $(moddir)/m_gtv.mod subs/rdctrl2.F
+$(subs_obj_path)/rdctrl2.o $(moddir)/m_rdctrl2_func.mod  : subs/rdctrl2.F $(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod $(moddir)/m_susite_func.mod 
 	$(FC) $(FFLAGS) -c  subs/rdctrl2.F -o $@
-$(subs_obj_path)/rdctrlchk.o  : $(moddir)/m_rdctrlchk.mod $(moddir)/m_gtv.mod subs/rdctrlchk.F
+$(subs_obj_path)/rdctrlchk.o  : subs/rdctrlchk.F $(moddir)/m_gtv.mod $(moddir)/m_rdctrlchk.mod 
 	$(FC) $(FFLAGS) -c  -o $@  subs/rdctrlchk.F
-$(subs_obj_path)/rdsigm2.o  : $(moddir)/m_hamindex.mod subs/rdsigm2.F
+$(subs_obj_path)/rdsigm2.o  : subs/rdsigm2.F $(moddir)/m_hamindex.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $@  subs/rdsigm2.F
-$(subs_obj_path)/rotwv.o  : $(moddir)/m_hamindex.mod subs/rotwv.F
+$(subs_obj_path)/rotwv.o  : subs/rotwv.F $(moddir)/m_hamindex.mod 
 	$(FC) $(FFLAGS) -c  -o $@  subs/rotwv.F
-$(subs_obj_path)/struc_main.o  : $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod subs/struc_main.F
+$(subs_obj_path)/struc_main.o  : subs/struc_main.F $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod 
 	$(FC) $(FFLAGS) -c  -o $@ subs/struc_main.F
-$(subs_obj_path)/struc_sub.o  : $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod subs/struc_sub.F
+$(subs_obj_path)/struc_sub.o  : subs/struc_sub.F $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod 
 	$(FC) $(FFLAGS) -c  -o $@ subs/struc_sub.F
-$(subs_obj_path)/suham.o  $(moddir)/m_hamindex.mod : subs/suham.F
+$(subs_obj_path)/suham.o $(moddir)/m_hamindex.mod  : subs/suham.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/suham.o  subs/suham.F
 $(subs_obj_path)/readmtopara.o $(moddir)/m_gtv2.mod : subs/readmtopara.F
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/readmtopara.o   subs/readmtopara.F
 
-$(subs_obj_path)/rdsigm.o $(moddir)/m_psigd.mod : subs/rdsigm.F
+$(subs_obj_path)/rdsigm.o $(moddir)/m_psigd.mod  : subs/rdsigm.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdsigm.o subs/rdsigm.F
-$(fp_obj_path)/hambls.o: $(moddir)/m_psigd.mod fp/hambls.F
+$(fp_obj_path)/hambls.o  : fp/hambls.F $(moddir)/m_psigd.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hambls.o fp/hambls.F
 
 
@@ -242,6 +242,262 @@ fp/$(FP): $(fp_obj)
 
 slatsm/$(SLATSM): $(sla_obj)
 	$(AR) $(ARFLAGS) $@ $(sla_obj)
+
+
+
+
+$(subs_obj_path)/aiocls.o  : subs/aiocls.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/aiocls.o subs/aiocls.F
+$(subs_obj_path)/aioxtn.o  : subs/aioxtn.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/aioxtn.o subs/aioxtn.F
+$(subs_obj_path)/asaddq.o  : subs/asaddq.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asaddq.o subs/asaddq.F
+$(subs_obj_path)/asalsq.o  : subs/asalsq.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asalsq.o subs/asalsq.F
+$(subs_obj_path)/asamad.o  : subs/asamad.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asamad.o subs/asamad.F
+$(subs_obj_path)/asaqmp.o  : subs/asaqmp.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asaqmp.o subs/asaqmp.F
+$(subs_obj_path)/asars.o  : subs/asars.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asars.o subs/asars.F
+$(subs_obj_path)/asastr.o  : subs/asastr.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asastr.o subs/asastr.F
+$(subs_obj_path)/asavqm.o  : subs/asavqm.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asavqm.o subs/asavqm.F
+$(subs_obj_path)/asetot.o  : subs/asetot.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asetot.o subs/asetot.F
+$(subs_obj_path)/asvsph.o  : subs/asvsph.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asvsph.o subs/asvsph.F
+$(subs_obj_path)/asvsph2.o  : subs/asvsph2.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asvsph2.o subs/asvsph2.F
+$(subs_obj_path)/atfold.o  : subs/atfold.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/atfold.o subs/atfold.F
+$(subs_obj_path)/atomsr.o  : subs/atomsr.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/atomsr.o subs/atomsr.F
+$(subs_obj_path)/bndasa.o  : subs/bndasa.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/bndasa.o subs/bndasa.F
+$(subs_obj_path)/chkdmu.o  : subs/chkdmu.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/chkdmu.o subs/chkdmu.F
+$(subs_obj_path)/chksg.o  : subs/chksg.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/chksg.o subs/chksg.F
+$(subs_obj_path)/chkstr.o  : subs/chkstr.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/chkstr.o subs/chkstr.F
+$(subs_obj_path)/clsset.o  : subs/clsset.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/clsset.o subs/clsset.F
+$(subs_obj_path)/defspc.o  : subs/defspc.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/defspc.o subs/defspc.F
+$(subs_obj_path)/findes.o  : subs/findes.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/findes.o subs/findes.F
+$(subs_obj_path)/freeat.o  : subs/freeat.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/freeat.o subs/freeat.F
+$(subs_obj_path)/freeat.bk.o  : subs/freeat.bk.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/freeat.bk.o subs/freeat.bk.F
+$(subs_obj_path)/getidu.o  : subs/getidu.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getidu.o subs/getidu.F
+$(subs_obj_path)/getzv.o  : subs/getzv.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/getzv.o subs/getzv.F
+$(subs_obj_path)/gtpcor.o  : subs/gtpcor.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/gtpcor.o subs/gtpcor.F
+
+$(subs_obj_path)/hcr2a.o  : subs/hcr2a.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/hcr2a.o subs/hcr2a.F
+$(subs_obj_path)/ioeula.o  : subs/ioeula.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ioeula.o subs/ioeula.F
+$(subs_obj_path)/ioorbp.o  : subs/ioorbp.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ioorbp.o subs/ioorbp.F
+$(subs_obj_path)/iopos.o  : subs/iopos.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/iopos.o subs/iopos.F
+$(subs_obj_path)/ioqpp.o  : subs/ioqpp.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ioqpp.o subs/ioqpp.F
+$(subs_obj_path)/iorbtm.o  : subs/iorbtm.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/iorbtm.o subs/iorbtm.F
+$(subs_obj_path)/iors.o  : subs/iors.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/iors.o subs/iors.F
+$(subs_obj_path)/iosits.o  : subs/iosits.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/iosits.o subs/iosits.F
+$(subs_obj_path)/lattic.o  : subs/lattic.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/lattic.o subs/lattic.F
+$(subs_obj_path)/lmasa.o  : subs/lmasa.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/lmasa.o subs/lmasa.F
+
+
+
+
+
+$(subs_obj_path)/maadot.o  : subs/maadot.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/maadot.o subs/maadot.F
+$(subs_obj_path)/makidx.o  : subs/makidx.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/makidx.o subs/makidx.F
+$(subs_obj_path)/mcasim.o  : subs/mcasim.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/mcasim.o subs/mcasim.F
+$(subs_obj_path)/mchan.o  : subs/mchan.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/mchan.o subs/mchan.F
+$(subs_obj_path)/mkqp.o  : subs/mkqp.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/mkqp.o subs/mkqp.F
+$(subs_obj_path)/mksym.o  : subs/mksym.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/mksym.o subs/mksym.F
+$(subs_obj_path)/mmag.o  : subs/mmag.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/mmag.o subs/mmag.F
+$(subs_obj_path)/nmpot.o  : subs/nmpot.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/nmpot.o subs/nmpot.F
+$(subs_obj_path)/pgfset.o  : subs/pgfset.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/pgfset.o subs/pgfset.F
+$(subs_obj_path)/plana.o  : subs/plana.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/plana.o subs/plana.F
+$(subs_obj_path)/pp2enu.o  : subs/pp2enu.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/pp2enu.o subs/pp2enu.F
+$(subs_obj_path)/prdmts.o  : subs/prdmts.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/prdmts.o subs/prdmts.F
+$(subs_obj_path)/pvsms2.o  : subs/pvsms2.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/pvsms2.o subs/pvsms2.F
+
+
+
+
+$(subs_obj_path)/relax.o  : subs/relax.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/relax.o subs/relax.F
+$(subs_obj_path)/rlxstp.o  : subs/rlxstp.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rlxstp.o subs/rlxstp.F
+
+$(subs_obj_path)/rotycs.o  : subs/rotycs.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rotycs.o subs/rotycs.F
+$(subs_obj_path)/sblham.o  : subs/sblham.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/sblham.o subs/sblham.F
+$(subs_obj_path)/scrmom.o  : subs/scrmom.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/scrmom.o subs/scrmom.F
+$(subs_obj_path)/secm2c.o  : subs/secm2c.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/secm2c.o subs/secm2c.F
+$(subs_obj_path)/secmat.o  : subs/secmat.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/secmat.o subs/secmat.F
+$(subs_obj_path)/secmtn.o  : subs/secmtn.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/secmtn.o subs/secmtn.F
+$(subs_obj_path)/setcg.o  : subs/setcg.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/setcg.o subs/setcg.F
+$(subs_obj_path)/sfill.o  : subs/sfill.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/sfill.o subs/sfill.F
+$(subs_obj_path)/shopol.o  : subs/shopol.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/shopol.o subs/shopol.F
+$(subs_obj_path)/spackv_array_copy.o  : subs/spackv_array_copy.F $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/spackv_array_copy.o subs/spackv_array_copy.F
+$(subs_obj_path)/sstrxq.o  : subs/sstrxq.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/sstrxq.o subs/sstrxq.F
+
+
+$(subs_obj_path)/suclst.o  : subs/suclst.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/suclst.o subs/suclst.F
+$(subs_obj_path)/sudmtu.o  : subs/sudmtu.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/sudmtu.o subs/sudmtu.F
+$(subs_obj_path)/suemph.o  : subs/suemph.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/suemph.o subs/suemph.F
+$(subs_obj_path)/sugcut.o  : subs/sugcut.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/sugcut.o subs/sugcut.F
+
+$(subs_obj_path)/suham2.o  : subs/suham2.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/suham2.o subs/suham2.F
+$(subs_obj_path)/suidx.o  : subs/suidx.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/suidx.o subs/suidx.F
+$(subs_obj_path)/suldau.o  : subs/suldau.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/suldau.o subs/suldau.F
+$(subs_obj_path)/sumlst.o  : subs/sumlst.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/sumlst.o subs/sumlst.F
+$(subs_obj_path)/susite.o $(moddir)/m_susite_func.mod  : subs/susite.F $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/susite.o subs/susite.F
+$(subs_obj_path)/symdmu.o  : subs/symdmu.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/symdmu.o subs/symdmu.F
+$(subs_obj_path)/uspecb.o  : subs/uspecb.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/uspecb.o subs/uspecb.F
+$(subs_obj_path)/writebasis.o  : subs/writebasis.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/writebasis.o subs/writebasis.F
+
+
+
+
+$(subs_obj_path)/asados.o  : subs/asados.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/asados.o subs/asados.F
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$(subs_obj_path)/clsprm.o  : subs/clsprm.F $(moddir)/m_struc_def.mod 
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/clsprm.o subs/clsprm.F
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

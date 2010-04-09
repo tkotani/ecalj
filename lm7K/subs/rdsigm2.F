@@ -1,5 +1,15 @@
+Cgetarg...info...           structure ['seneinterp', 'ham', 'sham']
+Cgetarg...info...           structure ['seneinterp', 'lat', 'slat']
+Cgetarg...info...           structure ['seneinterp', 'bz', 'sbz']
+Cgetarg...info...           structure ['rdsigm2', 'lat', 'slat']
+Cgetarg...info...           structure ['rdsigm2', 'ham', 'sham']
+Cgetarg...info...           use_to_add ['rdsigm2', 'm_struc_def']
+Cgetarg...info...           use_to_add ['seneinterp', 'm_struc_def']
       subroutine seneinterp(nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
      &  nk1,nk2,nk3,sfz) !,qin,isp,sene)
+       
+       use m_struc_def  !Cgetarg
+
 C- takao. obtain sene at given q (qin).
 C
 Ci sfz
@@ -9,7 +19,11 @@ C ------------------------------------------------------------
 C ... Passed parameters
       integer mode,nbas,ifis,ndimh,lwsig
 C     integer osig(nbas),otau(nbas),oppi(nbas)
-      double precision slat(1),sham(1),sbz(1)
+Cgetarg       double precision slat(1),sham(1),sbz(1)
+       type(s_lat)::slat
+       type(s_ham)::sham
+       type(s_bz)::sbz
+
 C     double precision ssite(1),sspec(1)
       double precision rsrnge
 C ... Local parameters
@@ -64,6 +78,7 @@ C ... Heap
       integer(4):: ndhamx,debugmode
       complex(8):: sene(ndimh,ndimh)
 
+      integer:: i_copy_size
 ccccccccccccccccccccccccccccccc
 c      integer:: oss
 ccccccccccccccccccccccccccccccc
@@ -138,8 +153,22 @@ C ... Command-line switches for input sigma and defaults
 
       call info(10,1,0,' RDSIGM: read file sigm and create '//
      .  '%?#n#REAL#COMPLEX# sigma(R) by FT ...',hreal,0)
-      call upack('ham ldham ooffH oindxo sigp rsstol',sham,ldham,ooffH,
-     .  oiprmb,sigp,rsstol)
+Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ldham 16
+Cgetarg...info...           integer :: ooffH , integer(8) :: sham%ooffH 1
+Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
+Cgetarg...info...           real(8) :: sigp(10) , real(8) :: sham%sigp 10
+Cgetarg...info...           real(8) :: rsstol , real(8) :: sham%rsstol 1
+Cgetarg       call upack('ham ldham ooffH oindxo sigp rsstol',sham,ldham,ooffH,
+Cgetarg      .  oiprmb,sigp,rsstol)
+       
+       i_copy_size=size(sham%ldham) 
+       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
+       ooffH=sham%ooffH
+       oiprmb=sham%oindxo
+       i_copy_size=size(sham%sigp) 
+       call dcopy(i_copy_size,sham%sigp,1,sigp,1) 
+       rsstol=sham%rsstol
+
       modsgp = nint(sigp(1))
       nmin   = nint(sigp(2))
       nmax   = nint(sigp(4))
@@ -230,9 +259,26 @@ C     and set file sigma file pointer past header
 C     Sanity checks
       if (lsplts) call info0(30,0,0,
      .  '%9f(warning) sigm file not spin pol .. splitting spins')
-      call upack('lat plat opos',slat,plat,opos,0,0,0)
-      call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
-     .  oag,0)
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg       call upack('lat plat opos',slat,plat,opos,0,0,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       opos=slat%opos
+
+Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
+Cgetarg       call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
+Cgetarg      .  oag,0)
+       
+       nsgrp=slat%nsgrp
+       oistab=slat%oistab
+       og=slat%osymgr
+       oag=slat%oag
+
 C     Get leading dimension of hrs
       call offsHp(w(oiprmb),1,nbas,2,0,ndimh,0,ndhrs)
 C     Setup for FFT
@@ -282,7 +328,13 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
      .  ' q-points in full BZ where sigma calculable ...',0,0)
       call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
      .  w(oqsig),w(owgt),nqsig,mxkp,0,0)
-      call pack2('ham nqsig oqsig',sham,nqsig,oqsig)
+Cgetarg...info...           integer :: nqsig , integer(8) :: sham%nqsig 1
+Cgetarg...info...           integer :: oqsig , integer(8) :: sham%oqsig 1
+Cgetarg       call pack2('ham nqsig oqsig',sham,nqsig,oqsig)
+       
+       sham%nqsig=nqsig 
+       sham%oqsig=oqsig 
+
       call dpzero(w(owgt),mxkp)
       call info2(20,0,0,
      .  ' Irr. qp for which sigma is calculated ...',0,0)
@@ -438,7 +490,12 @@ c ... rotate sigm. w(osigm) at qp ---> w(ofbz) at stars of qp.
 C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
         write(6,"(a,13f13.5)")'goto hamfbk3  input qp=', qp
 c        napw_in=0 ! for test 
-        call upack('lat qlat',slat,qlat,0,0,0,0)
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg         call upack('lat qlat',slat,qlat,0,0,0,0)
+         
+         i_copy_size=size(slat%qlat) 
+         call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
 
         call hamfb3k(qp,iq1,nk1,nk2,nk3,k1,k2,k3,w(oipq),
      &   napw_in,ndimh,ndimh,ndimh,qb,plat,qlat,ifac,w(ogstar),w(osigm),
@@ -509,8 +566,18 @@ C     exit of MPI master loop
       endif
       call rlse(ogstar)
 
-      call pack5('ham ndhrs ontabs oiaxs ohrs',sham,ndhrs,ontabs,oiaxs,
-     .  ohrs,0)
+Cgetarg...info...           integer :: ndhrs , integer(8) :: sham%ndhrs 1
+Cgetarg...info...           integer :: ontabs , integer(8) :: sham%ontabs 1
+Cgetarg...info...           integer :: oiaxs , integer(8) :: sham%oiaxs 1
+Cgetarg...info...           integer :: ohrs , integer(8) :: sham%ohrs 1
+Cgetarg       call pack5('ham ndhrs ontabs oiaxs ohrs',sham,ndhrs,ontabs,oiaxs,
+Cgetarg      .  ohrs,0)
+       
+       sham%ndhrs=ndhrs 
+       sham%ontabs=ontabs 
+       sham%oiaxs=oiaxs 
+       sham%ohrs=ohrs 
+
 
 C ... Check that FT replicates sigma(k) at file qp to tolerance rsstol
 C     rsstol = 1d-6
@@ -624,7 +691,19 @@ C       ltmp = true in cases where file symops artificially reduced
 C        ltmp = mod(lssym,2) .eq. 1 .and. lwsig .ne. 3
 C        if (lnwmsh .or. ltmp) then
         if (lnwmsh) then
-          call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
+Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
+Cgetarg...info...           integer :: lshft(3) , integer(8) :: sbz%lshft 3
+Cgetarg...info...           integer :: nqp , integer(8) :: sbz%nkp 1
+Cgetarg...info...           integer :: oqp , integer(8) :: sbz%oqp 1
+Cgetarg           call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
+           
+           i_copy_size=size(sbz%nkabc) 
+           call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
+           i_copy_size=size(sbz%lshft) 
+           call i8icopy(i_copy_size,sbz%lshft,1,lshft,1) 
+           nqp=sbz%nkp
+           oqp=sbz%oqp
+
 
           mxkp = nk1*nk2*nk3
           call defdr(oqp,3*mxkp)
@@ -713,7 +792,19 @@ C ... Transformations done by caller: write qp list to disk
       call info0(30,0,0,' ')
 
       if (lnwmsh) then
-        call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
+Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
+Cgetarg...info...           integer :: lshft(3) , integer(8) :: sbz%lshft 3
+Cgetarg...info...           integer :: nqp , integer(8) :: sbz%nkp 1
+Cgetarg...info...           integer :: oqp , integer(8) :: sbz%oqp 1
+Cgetarg         call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
+         
+         i_copy_size=size(sbz%nkabc) 
+         call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
+         i_copy_size=size(sbz%lshft) 
+         call i8icopy(i_copy_size,sbz%lshft,1,lshft,1) 
+         nqp=sbz%nkp
+         oqp=sbz%oqp
+
         call info2(20,0,0,
      .    ' Transform sigma on new k-mesh:  '//
      .    'nk=%3:1i  shft=%3:1l',nkxyz,lshft)
@@ -725,7 +816,12 @@ C ... Transformations done by caller: write qp list to disk
         call defdr(oqp,3*mxkp)
         call defi(oipq,mxkp)
         call defdr(owgt,-mxkp)
-        call upack('lat plat',slat,plat,0,0,0,0)
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg         call upack('lat plat',slat,plat,0,0,0,0)
+         
+         i_copy_size=size(slat%plat) 
+         call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
 C   ... Make is,ifac,qb,qlat
         do   i = 1, 3
           llshft(i) = lshft(i) .ne. 0
@@ -760,13 +856,18 @@ C       call prmx('qp',w(oqp),3,3,nqp)
 
       call tcx('seneinterp')
 
-      end
+Cgetarg       end
+       end subroutine seneinterp 
+
 
 
 
 
       subroutine rdsigm2(nbas,nsp,ndimh,slat,sham,sbz,ifis, 
      &  nk1,nk2,nk3,ldim,qsmesh,sfz)
+       
+       use m_struc_def  !Cgetarg
+
       use m_hamindex
 C- takao. Expand self-energy (read by ifis) to all the q point on mesh. In developing.
 Ci ifis:  file hundle for self-energy file sigm. only at irreducible q point.
@@ -944,7 +1045,11 @@ C ------------------------------------------------------------
 C ... Passed parameters
       integer mode,nbas,ifis,ndimh,lwsig
 C     integer osig(nbas),otau(nbas),oppi(nbas)
-      double precision slat(1),sham(1),sbz(1)
+Cgetarg       double precision slat(1),sham(1),sbz(1)
+       type(s_lat)::slat
+       type(s_ham)::sham
+       type(s_bz)::sbz
+
 C     double precision ssite(1),sspec(1)
       double precision rsrnge
 C ... Local parameters
@@ -993,6 +1098,7 @@ C ... Heap
       real(8):: eseavr,qsmesh(3,nk1,nk2,nk3)
       integer:: i1,i2,i3,ikt,ldim,napw_in,debugmode
       complex(8)::sfz(nk1,nk2,nk3,ndimh,ndimh,nsp)
+      integer:: i_copy_size
 ccccccccccccccccccccccccccccccc
 c      integer:: oss
 ccccccccccccccccccccccccccccccc
@@ -1174,9 +1280,26 @@ c        if (lfbzin) nqp = nk1*nk2*nk3
      .    ' ( %i %i %i )  shift=%3:1l',nqp,nk1,nk2,nk3,lshft)
 
 C     Sanity checks
-      call upack('lat plat opos',slat,plat,opos,0,0,0)
-      call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
-     .  oag,0)
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg       call upack('lat plat opos',slat,plat,opos,0,0,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       opos=slat%opos
+
+Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
+Cgetarg       call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
+Cgetarg      .  oag,0)
+       
+       nsgrp=slat%nsgrp
+       oistab=slat%oistab
+       og=slat%osymgr
+       oag=slat%oag
+
 C     Get leading dimension of hrs
 c      call offsHp(w(oiprmb),1,nbas,2,0,ndimh,0,ndhrs)
 C     Setup for FFT
@@ -1243,7 +1366,13 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
      .  ' q-points in full BZ where sigma calculable ...',0,0)
       call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
      .  w(oqsig),w(owgt),nqsig,mxkp,0,0)
-      call pack2('ham nqsig oqsig',sham,nqsig,oqsig)
+Cgetarg...info...           integer :: nqsig , integer(8) :: sham%nqsig 1
+Cgetarg...info...           integer :: oqsig , integer(8) :: sham%oqsig 1
+Cgetarg       call pack2('ham nqsig oqsig',sham,nqsig,oqsig)
+       
+       sham%nqsig=nqsig 
+       sham%oqsig=oqsig 
+
       call dpzero(w(owgt),mxkp)
       call info2(20,0,0,
      .  ' Irr. qp for which sigma is calculated ...',0,0)
@@ -1379,7 +1508,12 @@ C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
         write(6,"(a,13f13.5)")' Goto hamfb3k  input qp=', qp
         ikt = getikt(qp)
         napw_in= napwk(ikt)
-        call upack('lat qlat',slat,qlat,0,0,0,0)
+Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
+Cgetarg         call upack('lat qlat',slat,qlat,0,0,0,0)
+         
+         i_copy_size=size(slat%qlat) 
+         call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
         call hamfb3k(qp,iq1,nk1,nk2,nk3,k1,k2,k3,w(oipq),
      &   napw_in,ndimh,ndimh,ndimh,qb,plat,qlat,ldim,ifac,w(ogstar),w(osigm),
      &   sfz(1,1,1,1,1,isp))
@@ -1389,7 +1523,9 @@ C ... End loop over spins
       enddo
       endif ! exit of MPI master loop
       call tcx('rdsigm2')
-      end
+Cgetarg       end
+       end subroutine rdsigm2 
+
 
 
 

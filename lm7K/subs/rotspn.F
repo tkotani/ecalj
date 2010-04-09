@@ -1,5 +1,6 @@
       subroutine rotspn(mode,nbas,nl,indxsh,eula,neul,theta,d1,d2,ldd,
      .  ldima,ldimb,lds,lds2,s,sr)
+
 C- Returns a structure matrix or set of vectors rotated by spinor
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -105,5 +106,7 @@ C heap:
 
       call rx('rotspn not implemented')
 
-      end
+Cgetarg       end
+       end subroutine rotspn 
+
 

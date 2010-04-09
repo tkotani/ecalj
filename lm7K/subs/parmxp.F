@@ -1,5 +1,6 @@
       logical function parmxp(iter,strn,lstrn,broy,nmix,wgt,beta,
      .  elind,mixnam,wc,nkill,betv,rmserr)
+
 C- Parse strng to get mixing parameters for current iteration
 C --------------------------------------------------
 Ci Inputs
@@ -351,8 +352,11 @@ C --- Error exit ---
 C --- Normal exit ---
  9999 continue
       call bin2a0(ia0)
-      end
+Cgetarg       end
+       end function parmxp 
+
       subroutine parmx0(i1,i2,errxx)
+
 C- sets lstblk,lstitj and errmin
 C     implicit none
       integer i1,i2,lstblk,lstitj,mode
@@ -377,13 +381,17 @@ C     print *, 'errmin=',errmin
         lstitj = i2
         errmin = errxx
       endif
-      end
+Cgetarg       end
+       end subroutine parmx0 
+
       block data dparmx
       integer lstblk,lstitj
       double precision errmin
       common /parmx1/ lstblk,lstitj,errmin
       data lstblk /0/ lstitj /0/ errmin /0d0/
-      end
+Cgetarg       end
+       end block data dparmx
+
 c ... testing parmxp
 C      subroutine fmain
 C      implicit none

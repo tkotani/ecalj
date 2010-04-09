@@ -1,4 +1,9 @@
+Cgetarg...info...           structure ['shopol', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['shopol', 'm_struc_def']
       subroutine shopol(nl,nclass,nsp,sspec,ics,pp)
+       
+       use m_struc_def  !Cgetarg
+
 C- Find poles for third order potential functions
 C-----------------------------------------------------------------------
 Ci Inputs
@@ -8,7 +13,9 @@ Cr Remarks
 C-----------------------------------------------------------------------
 C     implicit none
 C Passed parameters
-      double precision sspec(1)
+Cgetarg       double precision sspec(1)
+       type(s_spec)::sspec(*)
+
       integer nl,nsp,nclass,ics(nclass)
       double precision pp(6,nl,nsp,*)
 C Local parameters
@@ -29,7 +36,11 @@ C Local parameters
       do  4  isp = 1, nsp
         do  3  ic = 1, nclass
           is = ics(ic)
-          call upack('spec lmxa',sspec,is,lmxa,0,0,0)
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg           call upack('spec lmxa',sspec,is,lmxa,0,0,0)
+           
+           lmxa=sspec(is)%lmxa
+
           do  2  l = 0, nl-1
               if (l .gt. lmxa) goto 2
               enu = pp(1,l+1,isp,ic)
@@ -72,5 +83,7 @@ C             guess = (-1.045d0, .002d0)
   334       format(3i4,10(1x,2f10.5,1x))
     3   continue
     4 continue
-      end
+Cgetarg       end
+       end subroutine shopol 
+
 

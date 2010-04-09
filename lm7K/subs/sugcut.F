@@ -1,4 +1,9 @@
+Cgetarg...info...           structure ['sugcut', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['sugcut', 'm_struc_def']
       subroutine sugcut(mode,nspec,sspec,alat,ng,gv,tol)
+       
+       use m_struc_def  !Cgetarg
+
 C- Find max recip for each spec and orbital block, store in struct.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -27,7 +32,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nspec,ng
-      double precision sspec(1),alat,gv(ng,3),tol
+Cgetarg       double precision sspec(1),alat,gv(ng,3),tol
+       real(8):: alat , gv(ng,3) , tol 
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer nkap0,n0
       parameter (nkap0=3,n0=10)
@@ -57,7 +65,11 @@ C ... Local parameters
 
       gg = -1
       do  is = 1, nspec
-        call spacks(0,'spec name',sspec,spid,is,is)
+Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+         enddo
+
         nkap1 = 1
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         if (mode .gt. 1) then
@@ -67,7 +79,14 @@ C ... Local parameters
           nkap2 = nkapi
         endif
         call iinit(ncut,n0*nkap0)
-        if (mode .eq. 2) call upack('spec ngcut',sspec,is,ncut,0,0,0)
+Cgetarg...info...           integer :: ncut(n0,nkap0) , integer(8) :: sspec%ngcut 30
+Cgetarg         if (mode .eq. 2) call upack('spec ngcut',sspec,is,ncut,0,0,0)
+         if ( mode .eq. 2 ) then 
+         
+         i_copy_size=size(sspec(is)%ngcut) 
+         call i8icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1) 
+         endif 
+
         gg0 = gg
         do  ik = nkap1, nkap2
         lcut = -1
@@ -113,7 +132,14 @@ C     ... Find first longer vector, icut is one less
           endif
         enddo
         enddo
-        call pack2('spec ngcut',sspec,is,ncut)
+Cgetarg...info...           integer :: ncut(n0,nkap0) , integer(8) :: sspec%ngcut 30
+Cgetarg         call pack2('spec ngcut',sspec,is,ncut)
+         
+         i_copy_size=size(sspec(is)%ngcut) 
+         call ii8copy(i_copy_size,ncut,1,sspec(is)%ngcut,1) 
+
       enddo
-      end
+Cgetarg       end
+       end subroutine sugcut 
+
 

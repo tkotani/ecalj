@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['sblham', 'ham', 'sham']
+Cgetarg...info...           structure ['sblham', 'pot', 'spot']
+Cgetarg...info...           use_to_add ['sblham', 'm_struc_def']
       subroutine sblham(sctrl,sham,spot,fnam,ib1,ib2,nbasx,lbloch,plat,
      .  ldim,idim,ldl,ldi,ldl2,klu,zp,qp,sll,sil,sii)
+       
+       use m_struc_def  !Cgetarg
+
 C- Generate subblock of Bloch summed hamiltonian from file of strux
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -60,7 +66,11 @@ Cu   10 Jan 02 slbham reads pf from pot->opalp instead of pot->opf
 C ----------------------------------------------------------------------
 C     implicit none
       character*(*) fnam
-      double precision sctrl(1),sham(1),spot(1)
+Cgetarg       double precision sctrl(1),sham(1),spot(1)
+       type(s_ctrl)::sctrl
+       type(s_ham)::sham
+       type(s_pot)::spot
+
       double precision plat(3,3),qp(3),zp(2)
       integer ib1,ib2,nbasx,klu,lbloch,ldi,ldl,ldl2
 C     real + imaginary storage mode
@@ -91,7 +101,13 @@ C --- Bloch sum strux ---
       is1 = w(ontab+ib1-1)+1
       is2 = w(ontab+ib2)
 C ... Restrict pairs outside of block
-      call upack('ham oindxo lham',sham,oidxsh,lham,0,0,0)
+Cgetarg...info...           integer :: oidxsh , integer(8) :: sham%oindxo 1
+Cgetarg...info...           integer :: lham , integer(8) :: sham%lham 1
+Cgetarg       call upack('ham oindxo lham',sham,oidxsh,lham,0,0,0)
+       
+       oidxsh=sham%oindxo
+       lham=sham%lham
+
       call defi(oiwk,nbasx)
       call defi(oiprm,nbasx)
       call icopy(nbasx*nl*nl,w(oidxsh),1,w(oiprm),1)
@@ -109,7 +125,11 @@ C     (not implemented)
      .  nl**2,1,1,ldim,ldim,idim,ldl,ldi,ldl2,klu,sll,sil,sii)
 
 C --- ASA : Add -P to sll with (S-P) ---
-      call upack1('pot opalp',spot,opf)
+Cgetarg...info...           integer :: opf , integer(8) :: spot%opalp 1
+Cgetarg       call upack1('pot opalp',spot,opf)
+       
+       opf=spot%opalp
+
 
       call sblhm1(lbloch,nl*nl,ib1,ib2,w(oiprm),w(opf),0,ldim,idim,ldl,
      .  ldi,ldl2,klu,sll,sil,sii)
@@ -117,10 +137,13 @@ C --- ASA : Add -P to sll with (S-P) ---
       call rlse(oalph)
 
       call tcx('sblham')
-      end
+Cgetarg       end
+       end subroutine sblham 
+
 
       subroutine sblhm1(lbloch,nl2,ib1,ib2,iprm,pfun,offp,ldim,idim,ldl,
      .  ldi,ldl2,klu,sll,sil,sii)
+
 C- Add or subtract diagonal P from hamiltonian subblock
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -222,5 +245,7 @@ C   --- Intermediate-intermediate block ---
      .    ldim,lidim,pwk,pwk,nlmx,fac,0d0,sii)
 
    10 continue
-      end
+Cgetarg       end
+       end subroutine sblhm1 
+
 

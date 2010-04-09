@@ -1,4 +1,9 @@
+Cgetarg...info...           structure ['maadot', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['maadot', 'm_struc_def']
       subroutine maadot(sspec,nl,nbas,mode,ips,avw,alpha,adot,tral,trad)
+       
+       use m_struc_def  !Cgetarg
+
 C- Makes vector of alpha, adot and tral matrix 2nd gen kappa=0 strux
 C ----------------------------------------------------------------
 Ci   nl    :(global maximum l) + 1
@@ -28,8 +33,12 @@ C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
       integer nl,nbas,mode,ips(nbas)
-      double precision sspec(1),avw,alpha(nl*nl,nbas),adot(nl*nl,nbas),
-     .  tral(4,nl**2,nbas),trad(4,nl**2,nbas)
+Cgetarg       double precision sspec(1),avw,alpha(nl*nl,nbas),adot(nl*nl,nbas),
+Cgetarg      .  tral(4,nl**2,nbas),trad(4,nl**2,nbas)
+       real(8):: avw , alpha(nl*nl,nbas) , adot(nl*nl,nbas) , tral(4,nl**2,nbas) 
+     . , trad(4,nl**2,nbas) 
+       type(s_spec)::sspec(*)
+
 C Local parameters
       integer l,m,lm,i,l2,i1mach,iprint,moda,modad,getdig,n0,is,lmxb
       parameter(n0=10)
@@ -41,7 +50,16 @@ C Local parameters
 C --- For each atom in the basis, do ---
       do  10  i = 1, nbas
         is = ips(i)
-        call upack('spec lmxb rmt alpha',sspec,is,lmxb,rw,alp0,0)
+Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
+Cgetarg...info...           real(8) :: rw , real(8) :: sspec%rmt 1
+Cgetarg...info...           real(8) :: alp0(n0) , real(8) :: sspec%alpha 10
+Cgetarg         call upack('spec lmxb rmt alpha',sspec,is,lmxb,rw,alp0,0)
+         
+         lmxb=sspec(is)%lmxb
+         rw=sspec(is)%rmt
+         i_copy_size=size(sspec(is)%alpha) 
+         call dcopy(i_copy_size,sspec(is)%alpha,1,alp0,1) 
+
         rw = rw/avw
         lm = 0
         do  15  l = 0, nl-1
@@ -100,5 +118,7 @@ C   --- Output ---
 
    10 continue
 
-      end
+Cgetarg       end
+       end subroutine maadot 
+
 

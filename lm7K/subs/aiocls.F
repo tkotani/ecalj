@@ -1,6 +1,15 @@
+Cgetarg...info...           structure ['aiocls', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['aiocls', 'pot', 'spot']
+Cgetarg...info...           structure ['aiocls', 'array', 'sarray']
+Cgetarg...info...           structure ['aiocls', 'spec', 'sspec']
+Cgetarg...info...           structure ['aiocls', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['aiocls', 'm_struc_def']
 #define ONE_ATOM_UNIT 1
       subroutine aiocls(lio,mode,sarray,sctrl,sham,spot,sspec,slat,ic1,
      .  ic2)
+       
+       use m_struc_def  !Cgetarg
+
 C- File I/O atomic data for classes ic1..ic2
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -53,8 +62,15 @@ C     implicit none
 C Passed parameters
       logical lio
       integer mode,ic1,ic2
-      double precision sarray(1),sctrl(1),sspec(1),slat(1),sham(1),
-     .  spot(1)
+Cgetarg       double precision sarray(1),sctrl(1),sspec(1),slat(1),sham(1),
+Cgetarg      .  spot(1)
+       type(s_array)::sarray
+       type(s_ctrl)::sctrl
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+       type(s_ham)::sham
+       type(s_pot)::spot
+
 C heap
       integer w(1)
       common /w/ w
@@ -76,14 +92,60 @@ C Local variables
      .  sumec,sumtc,sumev,thrpv,ekin,utot,rhoeps,etot,a,rmax,dval,
      .  zbak(2),dgets,pdf(n0,2),qdf(n0,2),pnuloc(100),qnuloc(100)
 
-      call upack('ctrl nl nspin nclass',sctrl,nl,nsp,nclass,0,0)
-      call upack('pot opp opprel osop ogrrme',spot,opp,opprel,osop,
-     .  ogrrme,0)
-      call upack('pot opnu oqnu orhrmx ovrmax',spot,opnu,oqnu,orhrmx,
-     .  ovrmax,0)
-      call upack('pot ovintr opmpol oves',spot,ova,omp,oves,0,0)
-      call upack('array nclasp oclabl ohave oics',sarray,nclasp,oclabl,
-     .  ohave,oics,0)
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg       call upack('ctrl nl nspin nclass',sctrl,nl,nsp,nclass,0,0)
+       
+       nl=sctrl%nl
+       nsp=sctrl%nspin
+       nclass=sctrl%nclass
+
+Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
+Cgetarg...info...           integer :: opprel , integer(8) :: spot%opprel 1
+Cgetarg...info...           integer :: osop , integer(8) :: spot%osop 1
+Cgetarg...info...           integer :: ogrrme , integer(8) :: spot%ogrrme 1
+Cgetarg       call upack('pot opp opprel osop ogrrme',spot,opp,opprel,osop,
+Cgetarg      .  ogrrme,0)
+       
+       opp=spot%opp
+       opprel=spot%opprel
+       osop=spot%osop
+       ogrrme=spot%ogrrme
+
+Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
+Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
+Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
+Cgetarg...info...           integer :: ovrmax , integer(8) :: spot%ovrmax 1
+Cgetarg       call upack('pot opnu oqnu orhrmx ovrmax',spot,opnu,oqnu,orhrmx,
+Cgetarg      .  ovrmax,0)
+       
+       opnu=spot%opnu
+       oqnu=spot%oqnu
+       orhrmx=spot%orhrmx
+       ovrmax=spot%ovrmax
+
+Cgetarg...info...           integer :: ova , integer(8) :: spot%ovintr 1
+Cgetarg...info...           integer :: omp , integer(8) :: spot%opmpol 1
+Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
+Cgetarg       call upack('pot ovintr opmpol oves',spot,ova,omp,oves,0,0)
+       
+       ova=spot%ovintr
+       omp=spot%opmpol
+       oves=spot%oves
+
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg...info...           integer :: ohave , integer(8) :: sarray%ohave 1
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg       call upack('array nclasp oclabl ohave oics',sarray,nclasp,oclabl,
+Cgetarg      .  ohave,oics,0)
+       
+       nclasp=sarray%nclasp
+       oclabl=sarray%oclabl
+       ohave=sarray%ohave
+       oics=sarray%oics
+
       lrel = nglob('lrel')
 
       mode0 = mod(mode,10)
@@ -109,7 +171,20 @@ c     call awrit2('%n:1i',' ',100,6,nclasp,w(oics))
         is = w(oics+ic-1)
         icmap = iclbsj(is,w(oics),-nclasp,1)
         if (icmap .eq. ic .or. mode00 .eq. 0) icmap = 0
-        call upack('spec lmxa idmod p q',sspec,is,lmx,idmod,pdf,qdf)
+Cgetarg...info...           integer :: lmx , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
+Cgetarg...info...           real(8) :: pdf(n0,2) , real(8) :: sspec%p 20
+Cgetarg...info...           real(8) :: qdf(n0,2) , real(8) :: sspec%q 20
+Cgetarg         call upack('spec lmxa idmod p q',sspec,is,lmx,idmod,pdf,qdf)
+         
+         lmx=sspec(is)%lmxa
+         i_copy_size=size(sspec(is)%idmod) 
+         call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
+         i_copy_size=size(sspec(is)%p) 
+         call dcopy(i_copy_size,sspec(is)%p,1,pdf,1) 
+         i_copy_size=size(sspec(is)%q) 
+         call dcopy(i_copy_size,sspec(is)%q,1,qdf,1) 
+
 
         call dpzero(pnuloc,100)
         call dpzero(qnuloc,100)
@@ -366,9 +441,25 @@ C     if (lgors('ctrl lasa,32',sctrl)) then
       call mpibc1(w(oves),nclspp,4,.false.,'aiocls','ves')
 
 C --- Assemble background rho (rmt) ---
-      if (mod(mode/10,10) .ne. 0 .and. lgors('ctrl lasa,64',sctrl)) then
-        call upack('ctrl zbak nbas nclass',sctrl,zbak,nbas,nclass,0,0)
-        call upack1('array onrc',sarray,onrc)
+Cgetarg       if (mod(mode/10,10) .ne. 0 .and. lgors('ctrl lasa,64',sctrl)) then
+       if ( mod ( mode/10 , 10 ) .ne. 0 .and. iand(64,int(sctrl%lasa)) .ne.0 
+     . ) then 
+
+Cgetarg...info...           real(8) :: zbak(2) , real(8) :: sctrl%zbak 2
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg         call upack('ctrl zbak nbas nclass',sctrl,zbak,nbas,nclass,0,0)
+         
+         i_copy_size=size(sctrl%zbak) 
+         call dcopy(i_copy_size,sctrl%zbak,1,zbak,1) 
+         nbas=sctrl%nbas
+         nclass=sctrl%nclass
+
+Cgetarg...info...           integer :: onrc , integer(8) :: sarray%onrc 1
+Cgetarg         call upack1('array onrc',sarray,onrc)
+         
+         onrc=sarray%onrc
+
 C        call awrit2('%n:1d',' ',100,6,nclass,w(orhrmx))
 C        call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
         if (zbak(2) .eq. 0) then
@@ -380,13 +471,23 @@ C        call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
      .        ' (AIOCLS, mtcor): rho(rmax) for class ',clabl,' is 0'
             zbak(2) = zbak(2) + (w(onrc+ic-1)*z)/nbas
    15     continue
-          zbak(2) = zbak(2) * dgets('lat vol',slat)
+Cgetarg           zbak(2) = zbak(2) * dgets('lat vol',slat)
+           zbak ( 2 ) = zbak ( 2 ) * slat%vol 
+
         endif
-        call pack1('ctrl zbak',sctrl,zbak)
+Cgetarg...info...           real(8) :: zbak(2) , real(8) :: sctrl%zbak 2
+Cgetarg         call pack1('ctrl zbak',sctrl,zbak)
+         
+         i_copy_size=size(sctrl%zbak) 
+         call dcopy(i_copy_size,zbak,1,sctrl%zbak,1) 
+
       endif
 
-      end
+Cgetarg       end
+       end subroutine aiocls 
+
       subroutine pvaioc(initc,mask,ic0,icmap,lhave,ic)
+
 C- Find whether data avaiable either in class or mapped class
 C     implicit none
       logical lhave
@@ -398,8 +499,11 @@ C     implicit none
         lhave = mod(initc(icmap)/mask,2) .eq. 1
         ic = icmap
       endif
-      end
+Cgetarg       end
+       end subroutine pvaioc 
+
       subroutine paioc2(nsp,nl,n0,pat,qat,pnu,qnu)
+
 C- Widget to copy pat,qat to pnu,qnu
 C     implicit none
       integer n0,nl,nsp
@@ -419,5 +523,7 @@ C       pnu(il,i) = int(pat(il,i)) + .5d0
         qnu(3,il,i) = 0d0
       enddo
       enddo
-      end
+Cgetarg       end
+       end subroutine paioc2 
+
 

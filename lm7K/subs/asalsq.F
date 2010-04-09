@@ -1,5 +1,13 @@
+Cgetarg...info...           structure ['asalsq', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['asalsq', 'array', 'sarray']
+Cgetarg...info...           structure ['asalsq', 'pot', 'spot']
+Cgetarg...info...           structure ['asalsq', 'ham', 'sham']
+Cgetarg...info...           use_to_add ['asalsq', 'm_struc_def']
       subroutine asalsq(iscr,sctrl,slat,sspec,sarray,sham,sbz,spot,vrl,
      .  qin,qnu)
+       
+       use m_struc_def  !Cgetarg
+
 C- Linear response, estimate of self-consistent density, ASA
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -55,8 +63,17 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer iscr
-      double precision sctrl(1),sarray(1),spot(1),sham(1),slat(1),
-     . sbz(1),sspec(1),qin(1),qnu(1),vrl
+Cgetarg       double precision sctrl(1),sarray(1),spot(1),sham(1),slat(1),
+Cgetarg      . sbz(1),sspec(1),qin(1),qnu(1),vrl
+       real(8):: qin(1) , qnu(1) , vrl 
+       type(s_ctrl)::sctrl
+       type(s_array)::sarray
+       type(s_pot)::spot
+       type(s_ham)::sham
+       type(s_lat)::slat
+       type(s_bz)::sbz
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer fopn,i,ifi,iscr1,ldham(16),lihdim,nRLc,nbas,nbasp,nbaspp,
      .  nclasp,nclass,nclspp,nl,nnrl,nsp,nspc
@@ -73,13 +90,50 @@ C ... Heap
       if (iscr1 .eq. 0) return
 
 C ... Unpack local variables
-      call upack('ctrl nbasp nbas nclass nl nspin',sctrl,nbasp,nbas,
-     .  nclass,nl,nsp)
-      call upack('array nclasp onrcp oipc ormax',sarray,nclasp,onrcp,
-     .  oipc,ormax,0)
-      call upack('pot opnu oves ovintr',spot,opnu,oves,ovintr,0,0)
+Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg       call upack('ctrl nbasp nbas nclass nl nspin',sctrl,nbasp,nbas,
+Cgetarg      .  nclass,nl,nsp)
+       
+       nbasp=sctrl%nbasp
+       nbas=sctrl%nbas
+       nclass=sctrl%nclass
+       nl=sctrl%nl
+       nsp=sctrl%nspin
+
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: onrcp , integer(8) :: sarray%onrcp 1
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
+Cgetarg       call upack('array nclasp onrcp oipc ormax',sarray,nclasp,onrcp,
+Cgetarg      .  oipc,ormax,0)
+       
+       nclasp=sarray%nclasp
+       onrcp=sarray%onrcp
+       oipc=sarray%oipc
+       ormax=sarray%ormax
+
+Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
+Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
+Cgetarg...info...           integer :: ovintr , integer(8) :: spot%ovintr 1
+Cgetarg       call upack('pot opnu oves ovintr',spot,opnu,oves,ovintr,0,0)
+       
+       opnu=spot%opnu
+       oves=spot%oves
+       ovintr=spot%ovintr
+
       nclspp = 2*nclasp-nclass
-      call upack('ham ldham oindxo',sham,ldham,oidxsh,0,0,0)
+Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ldham 16
+Cgetarg...info...           integer :: oidxsh , integer(8) :: sham%oindxo 1
+Cgetarg       call upack('ham ldham oindxo',sham,ldham,oidxsh,0,0,0)
+       
+       i_copy_size=size(sham%ldham) 
+       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
+       oidxsh=sham%oindxo
+
       nRLc = nnrl(1,1,nbasp,w(oidxsh),lihdim)
       
 C ... MPI: only master does screened mixing
@@ -118,7 +172,11 @@ C ... screened ves and emom
       i = 4
       if (iscr1 .eq. 2) i = 12
       if (iscr1 .eq. 3) i = 1
-      call upack1('pot omad',spot,omad)
+Cgetarg...info...           integer :: omad , integer(8) :: spot%omad 1
+Cgetarg       call upack1('pot omad',spot,omad)
+       
+       omad=spot%omad
+
       nbaspp = 2*nbasp-nbas
       call scrmom(sham,sbz,slat,i,nbasp,nsp,nl,nclasp,w(onrcp),w(oipc),
      .  w(ormax),nRLc,w(opsta),w(omad),nbaspp,w(ovintr),w(ovold),
@@ -128,5 +186,7 @@ C ... screened ves and emom
       endif
       call mpibc1(qnu,3*nl*nsp*nclasp,4,.false.,'asalsq','qnu')
 
-      end
+Cgetarg       end
+       end subroutine asalsq 
+
 

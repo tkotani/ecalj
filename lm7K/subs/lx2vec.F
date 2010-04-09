@@ -1,4 +1,5 @@
       subroutine lx2vec(lmx,nl0,nl,lx)
+
 C- Unpacks a compressed lmx: digit 9 unpacked as -1; 8 as 0
 C  If nl0 nonzero, lmx assumed to have nl0 digits;
 C  thus lx2vec(956,4,nl,lx) returns nl=4, lx=(0 -1 5 6).
@@ -27,5 +28,7 @@ C     implicit none
         endif
         lx(k) = j
    10 continue
-      end
+Cgetarg       end
+       end subroutine lx2vec 
+
 

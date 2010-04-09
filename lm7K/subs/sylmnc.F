@@ -1,4 +1,5 @@
       subroutine sylmnc(c,lmx)
+
 C- Normalization constants for the spherical harmonics
 C ----------------------------------------------------------------
 Ci Inputs
@@ -37,5 +38,7 @@ C Local parameters
         c(i1) = dsqrt(tlp1/(fn2*tpi))
         c(i2) = c(i1)
     2 continue
-      end
+Cgetarg       end
+       end subroutine sylmnc 
+
 

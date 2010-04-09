@@ -1,5 +1,11 @@
+Cgetarg...info...           structure ['sstrxq', 'lat', 'slat']
+Cgetarg...info...           structure ['sstrxq', 'ham', 'sham']
+Cgetarg...info...           use_to_add ['sstrxq', 'm_struc_def']
       subroutine sstrxq(job,slat,sham,q,ne,ei,tral,trad,sll,sdll,shl,
      .  sdhl)
+       
+       use m_struc_def  !Cgetarg
+
 C- Screened strux S and optionally Sdot, by Ewald summation
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -27,8 +33,13 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed variables:
       integer job,ne
-      double precision slat(1),sham(1),q(3),ei(ne),tral(*),trad(*),
-     .  sll(*),sdll(*),shl(*),sdhl(*)
+Cgetarg       double precision slat(1),sham(1),q(3),ei(ne),tral(*),trad(*),
+Cgetarg      .  sll(*),sdll(*),shl(*),sdhl(*)
+       real(8):: q(3) , ei(ne) , tral(*) , trad(*) , sll(*) , sdll(*) 
+     . , shl(*) , sdhl(*) 
+       type(s_lat)::slat
+       type(s_ham)::sham
+
 C Local variables:
       integer hdim,i,ldham(16),ldim,lidim,lihdim,nbas,nderiv,nglob,nkd,
      .  nkq,nl,obas,ocg,ocy,odlv,offt,ofhl,ofll,oidxcg,oiprmb,ojcg,oqlv
@@ -39,11 +50,55 @@ C ... Heap
       common /w/ w
 
       call tcn('sstrxq')
-      call upack('lat alat plat opos',slat,alat,plat,obas,0,0)
-      call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-      call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
-      call upack('lat awald vol avw',slat,awald,vol,avw,0,0)
-      call upack('ham oindxo ldham',sham,oiprmb,ldham,0,0,0)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: obas , integer(8) :: slat%opos 1
+Cgetarg       call upack('lat alat plat opos',slat,alat,plat,obas,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       obas=slat%opos
+
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+       
+       ocg=slat%ocg
+       ojcg=slat%ojcg
+       oidxcg=slat%oidxcg
+       ocy=slat%ocy
+
+Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
+Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
+Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
+Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
+Cgetarg       call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
+       
+       nkd=slat%nkd
+       nkq=slat%nkq
+       odlv=slat%odlv
+       oqlv=slat%oqlv
+
+Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
+Cgetarg       call upack('lat awald vol avw',slat,awald,vol,avw,0,0)
+       
+       awald=slat%awald
+       vol=slat%vol
+       avw=slat%avw
+
+Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
+Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ldham 16
+Cgetarg       call upack('ham oindxo ldham',sham,oiprmb,ldham,0,0,0)
+       
+       oiprmb=sham%oindxo
+       i_copy_size=size(sham%ldham) 
+       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
+
       nl = nglob('nl')
       nbas = nglob('nbas')
       hdim = lihdim - lidim
@@ -64,11 +119,14 @@ C --- For each energy, make S, Sdot ---
       enddo
 
       call tcx('sstrxq')
-      end
+Cgetarg       end
+       end subroutine sstrxq 
+
 
       subroutine sstrq1(alat,avw,bas,q,hdim,iprmb,kap2,nbas,nderiv,
      .  lidim,awald,vol,nkd,nkq,dlv,qlv,cg,jcg,indxcg,nl,tral,trad,sll,
      .  sdll,shl,sdhl)
+
 C- Screened strux S and Sdot, by Ewald summation, for one kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -201,10 +259,13 @@ C --- Convert B to S^a ---
         if (nderiv .eq. 1) call zprm('Sd^a',2,sdll,lidim,lidim,lidim)
       endif
 
-      end
+Cgetarg       end
+       end subroutine sstrq1 
+
 
       subroutine sstrq2(nbas,nder,lidim,nl,tral,trad,indxsh,lrfac,sll,
      .  slld)
+
 C- Scales and adds diagonal to Ewald-summed -S0 to make C matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -311,10 +372,13 @@ C --- Add diagonal ---
       enddo
       enddo
 
-      end
+Cgetarg       end
+       end subroutine sstrq2 
+
 
       subroutine sstrq3(nbas,nder,lidim,nl,tral,trad,indxsh,fac,sll,
      .  sdll)
+
 C- Scales and adds diagonal to C matrix to make S^a
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -398,6 +462,8 @@ C --- Add diagonal ---
       call daxpy(lidim,1d0,fac(1,2),1,sll,2*(1+lidim))
       call daxpy(lidim,1d0,fac(1,3),1,sdll,2*(1+lidim))
 
-      end
+Cgetarg       end
+       end subroutine sstrq3 
+
 
 

@@ -1,5 +1,12 @@
+Cgetarg...info...           structure ['plana', 'site', 'ssite']
+Cgetarg...info...           structure ['plana', 'spec', 'sspec']
+Cgetarg...info...           structure ['plana', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['plana', 'm_struc_def']
       subroutine plana(wksize,npadl,npadr,nbaspp,slabl,slat,sspec,ssite,
      .  ves,pnu,qnu)
+       
+       use m_struc_def  !Cgetarg
+
 C- Plane analysis for lmto programs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -35,7 +42,12 @@ C     implicit none
 C Passed parameters
       integer wksize,npadl,npadr,nbaspp
       character*8 slabl(*)
-      double precision slat(1),sspec(1),ssite(1),ves(1),pnu(1),qnu(1)
+Cgetarg       double precision slat(1),sspec(1),ssite(1),ves(1),pnu(1),qnu(1)
+       real(8):: ves(1) , pnu(1) , qnu(1) 
+       type(s_lat)::slat
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+
 c     double precision pnu(nl,nsp,1),qnu(3,nl,nsp,1),pp(1),bas(3,1)
 C Heap:
       integer w(1)
@@ -67,12 +79,32 @@ C Local parameters
 
 C     Make ipc, ips, clabl
       do  ib = 1, nbaspp
-        call upack('site class spec',ssite,ib,ic,is,0,0)
+Cgetarg...info...           integer :: ic , integer(8) :: ssite%class 1
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site class spec',ssite,ib,ic,is,0,0)
+         
+         ic=ssite(ib)%class
+         is=ssite(ib)%spec
+
         ipc(ib) = ic
         ips(ib) = is
-        call spacks(0,'site clabel',ssite,clabl(ic),ib,ib)
-        call upack('spec z qc lmxa rmt',sspec,is,z(ic),qc(ic),lmx(ic),
-     .    wsr(ic))
+Cgetarg         call spacks(0,'site clabel',ssite,clabl(ic),ib,ib)
+         do i_spacks=ib,ib 
+         call spacks_copy('u',ssite(i_spacks)%clabel,ib,ib,clabl(ic),i_spacks)
+         enddo
+
+Cgetarg...info...           real(8) :: z(nbaspp) , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: qc(nbaspp) , real(8) :: sspec%qc 1
+Cgetarg...info...           integer :: lmx(nbaspp) , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           real(8) :: wsr(nbaspp) , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec z qc lmxa rmt',sspec,is,z(ic),qc(ic),lmx(ic),
+Cgetarg      .    wsr(ic))
+         
+         z(ic)=sspec(is)%z
+         qc(ic)=sspec(is)%qc
+         lmx(ic)=sspec(is)%lmxa
+         wsr(ic)=sspec(is)%rmt
+
       enddo
       nbas = nglob('nbas')
       nspec = nglob('nspec')
@@ -80,12 +112,31 @@ C     Make ipc, ips, clabl
       nclasp = mxint(nbasp,ipc)
       nclspp = mxint(nbaspp,ipc)
 C     Unpack basis
-      call spackv(10,'site pos',ssite,1,nbaspp,bas)
+Cgetarg       call spackv(10,'site pos',ssite,1,nbaspp,bas)
+       i_copy_size=size(ssite(1)%pos)
+       do i_spackv=1,nbaspp 
+       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
+       enddo
+
 
       nl = nglob('nl')
       nsp = nglob('nsp')
-      call upack('lat alat plat plat2 avw vol',slat,alat,plat,planvc,
-     .  avw,vol)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: planvc(3,3) , real(8) :: slat%plat2 9
+Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg       call upack('lat alat plat plat2 avw vol',slat,alat,plat,planvc,
+Cgetarg      .  avw,vol)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%plat2) 
+       call dcopy(i_copy_size,slat%plat2,1,planvc,1) 
+       avw=slat%avw
+       vol=slat%vol
+
       if (ddot(3,planvc(1,3),1,planvc(1,3),1) .eq. 0) then
         call dcopy(9,plat,1,planvc,1)
       endif
@@ -484,7 +535,15 @@ C     tmp will be the plat written to site file (normally plat)
 
 C     Some padding sites .. possibly alter k, tmp
       if (nbasp .gt. nbas) then
-        call upack2('lat platl platr',slat,platl,platr)
+Cgetarg...info...           real(8) :: platl(3,3) , real(8) :: slat%platl 9
+Cgetarg...info...           real(8) :: platr(3,3) , real(8) :: slat%platr 9
+Cgetarg         call upack2('lat platl platr',slat,platl,platr)
+         
+         i_copy_size=size(slat%platl) 
+         call dcopy(i_copy_size,slat%platl,1,platl,1) 
+         i_copy_size=size(slat%platr) 
+         call dcopy(i_copy_size,slat%platr,1,platr,1) 
+
         if (carg(1) .eq. '-ppad') then
           k = nbaspp
           carg(1) = carg(2)
@@ -505,12 +564,15 @@ C     Some padding sites .. possibly alter k, tmp
       call fclose(ifi)
       goto 1001
 
-      end
+Cgetarg       end
+       end subroutine plana 
+
       subroutine ioplan(nbas,nl,nsp,nclspp,plat,
      .  clabl,z,wsr,
      .  pnu,qnu,
      .  idxdn,
      .  ipc,bas,iplane,ipl,ifi)
+
 C- I/o of site and class data for a plane of atoms
 Ci   ipl write plane i to file (write only)
 Co   ipl number of atoms in plane read (read only)
@@ -588,10 +650,13 @@ C Count number of atoms to write
         endif
    10 continue
 
-      end
+Cgetarg       end
+       end subroutine ioplan 
+
       subroutine xxpl(nbas,alat,ipc,nplane,plane,iplane,ves,iarg,
      .  qt,dq,cellen,carea,qplan,dqplan,qzpl,vharpl,natpln,rmax,vmadpl,
      .  darg,potqz)
+
 C     implicit none
       integer nbas,ipc(1),nplane,iplane(1),natpln(1),iarg(2)
       double precision plane(1),qt(1),dq(1),qplan(1),qzpl(1),ves(1),
@@ -749,9 +814,12 @@ C     the bulk Fermi level (or VBM) (3 ways) ---
      .  '    Fermi level(Hartree potential) =  ',f12.8,
      .  ' = ',f12.8,' eV',/)
 
-      end
+Cgetarg       end
+       end subroutine xxpl 
+
       subroutine lmplio(recln0,unit,offset,iosw,ido,
      .  plat,planvc,iout,iarg,darg,carg)
+
 C- Control for plane subroutines
 
 C     implicit none
@@ -1021,8 +1089,11 @@ C     There seems to be a bug in partok.  Do this way
       goto 1000
 
  1000 continue
-      end
+Cgetarg       end
+       end subroutine lmplio 
+
       subroutine getxyz(ccat,nch,h,i)
+
 C- Get distance along a line given projection along component
 C     implicit none
       integer i,nch
@@ -1068,9 +1139,12 @@ C local variables
      .  i0 = partok(recrd(catbeg),ccat,' ',h,' ',-1,4,0,1)
    85 continue
 
-      end
+Cgetarg       end
+       end subroutine getxyz 
+
       subroutine gtplan(npadl,npadr,nbasp,bas,r,ipc,clabl,nplane,planes,
      .  iplane,natpln)
+
 C- Enumerate all planes in basis, make table of planes and pointers to table
 C ----------------------------------------------------------------
 Ci Inputs
@@ -1144,8 +1218,11 @@ C --- Printout ---
         hold = planes(iplane(i))
    50 continue
 
-      end
+Cgetarg       end
+       end subroutine gtplan 
+
       subroutine fixcl(nbas,nclspp,ipc,clabl,iwk)
+
 C     implicit none
       integer nbas,nclspp,ipc(16),iwk(16)
       character*8 clabl(8)
@@ -1215,8 +1292,11 @@ C For debugging, check ipc
      .    call fexit(-1,119, 'fixcl: bad ipc',0)
 
 c      PRINT *, IPC
-      end
+Cgetarg       end
+       end subroutine fixcl 
+
       subroutine pplan1(mode,ib,nbas,npadl,npadr,ibp)
+
 C- Return a permuted site index that orders sites L,1:nbas,R
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1259,7 +1339,9 @@ C     implicit none
           ibp = ib
         endif
       endif
-      end
+Cgetarg       end
+       end subroutine pplan1 
+
 
       
 

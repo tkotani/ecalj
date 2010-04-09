@@ -1,4 +1,10 @@
+Cgetarg...info...           structure ['suldau', 'site', 'ssite']
+Cgetarg...info...           structure ['suldau', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['suldau', 'm_struc_def']
       subroutine suldau(nbas,sspec,ssite,nlibu,lmaxu,lldau)
+       
+       use m_struc_def  !Cgetarg
+
 C- Finds lda+U sites and counts number of blocks
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -21,7 +27,10 @@ C------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nlibu,lmaxu,lldau(nbas),igetss,is,ib,l,lmxa,idu(4)
-      double precision sspec(1), ssite(1)
+Cgetarg       double precision sspec(1), ssite(1)
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+
 C ... Local parameters
 C     integer stdo,nglob
 C     stdo = nglob('stdo')
@@ -30,8 +39,17 @@ C     stdo = nglob('stdo')
       lmaxu = 0
       do  ib = 1, nbas
         lldau(ib) = 0
-        is = igetss('site spec',ib,ssite)
-        call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
+Cgetarg         is = igetss('site spec',ib,ssite)
+         is = int(ssite(ib)%spec) 
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
+Cgetarg         call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
+         
+         lmxa=sspec(is)%lmxa
+         i_copy_size=size(sspec(is)%idu) 
+         call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+
         do  l = 0, min(lmxa,3)
           if (idu(l+1) .ne. 0) then
             if (lldau(ib) .eq. 0) lldau(ib) = nlibu+1
@@ -46,5 +64,7 @@ C     stdo = nglob('stdo')
      .    ' suldau:  %i U block(s)  lmaxu = %i',nlibu,lmaxu)
       endif
 
-      end
+Cgetarg       end
+       end subroutine suldau 
+
 

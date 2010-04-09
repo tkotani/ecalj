@@ -1,4 +1,14 @@
+Cgetarg...info...           structure ['asados', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['asados', 'array', 'sarray']
+Cgetarg...info...           structure ['asados', 'lat', 'slat']
+Cgetarg...info...           structure ['asados', 'bz', 'sbz']
+Cgetarg...info...           structure ['asados', 'site', 'ssite']
+Cgetarg...info...           structure ['asados', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['asados', 'm_struc_def']
       subroutine asados(prgnam,sbz,sctrl,sham,slat,sspec,ssite,sarray)
+       
+       use m_struc_def  !Cgetarg
+
 C- Partial density-of-states generator
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -81,8 +91,16 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       character*(*) prgnam*8
-      double precision sarray(1),sbz(1),sctrl(1),slat(1),sspec(1),
-     .  ssite(1),sham(1)
+Cgetarg       double precision sarray(1),sbz(1),sctrl(1),slat(1),sspec(1),
+Cgetarg      .  ssite(1),sham(1)
+       type(s_array)::sarray
+       type(s_bz)::sbz
+       type(s_ctrl)::sctrl
+       type(s_lat)::slat
+       type(s_spec)::sspec(*)
+       type(s_site)::ssite(*)
+       type(s_ham)::sham
+
 C ... Local variables
       character*120 outs,sopts,dc*1,wtfn
       logical bittst,T,F,ltet,bzmap,lgors,lmet,cmdopt,tbdos,TBU,totdos,
@@ -112,15 +130,70 @@ C ... Heap
 
 C --- Setup ---
       stdo = nglob('stdo')
-      call upack('ctrl nbas nclass nl nspec',sctrl,nbas,nclass,nl,
-     .  nspec,0)
-      call upack('ctrl lncol lham ldos',sctrl,lncol,lham,ldos,0,0)
-      call upack('array nclasp oics oipc ormax',sarray,nclasp,oics,oipc,
-     .  ormax,0)
-      call upack1('array oclabl',sarray,oclabl)
-      call upack('lat avw alat plat',slat,avw,alat,plat,0,0)
-      call upack('bz n w efmax lcond dosw',sbz,norder,width,efmax,
-     .  cvec,drange)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg       call upack('ctrl nbas nclass nl nspec',sctrl,nbas,nclass,nl,
+Cgetarg      .  nspec,0)
+       
+       nbas=sctrl%nbas
+       nclass=sctrl%nclass
+       nl=sctrl%nl
+       nspec=sctrl%nspec
+
+Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
+Cgetarg...info...           integer :: lham , integer(8) :: sctrl%lham 1
+Cgetarg...info...           integer :: ldos , integer(8) :: sctrl%ldos 1
+Cgetarg       call upack('ctrl lncol lham ldos',sctrl,lncol,lham,ldos,0,0)
+       
+       lncol=sctrl%lncol
+       lham=sctrl%lham
+       ldos=sctrl%ldos
+
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
+Cgetarg       call upack('array nclasp oics oipc ormax',sarray,nclasp,oics,oipc,
+Cgetarg      .  ormax,0)
+       
+       nclasp=sarray%nclasp
+       oics=sarray%oics
+       oipc=sarray%oipc
+       ormax=sarray%ormax
+
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg       call upack1('array oclabl',sarray,oclabl)
+       
+       oclabl=sarray%oclabl
+
+Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg       call upack('lat avw alat plat',slat,avw,alat,plat,0,0)
+       
+       avw=slat%avw
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
+Cgetarg...info...           integer :: norder , integer(8) :: sbz%n 1
+Cgetarg...info...           real(8) :: width , real(8) :: sbz%w 1
+Cgetarg...info...           real(8) :: efmax , real(8) :: sbz%efmax 1
+Cgetarg...info...           real(8) :: cvec(0:6) , real(8) :: sbz%lcond 4
+Cgetarg...info...           real(8) :: drange(2) , real(8) :: sbz%dosw 2
+Cgetarg       call upack('bz n w efmax lcond dosw',sbz,norder,width,efmax,
+Cgetarg      .  cvec,drange)
+       
+       norder=sbz%n
+       width=sbz%w
+       efmax=sbz%efmax
+       i_copy_size=size(sbz%lcond) 
+       call dcopy(i_copy_size,sbz%lcond,1,cvec,1) 
+       i_copy_size=size(sbz%dosw) 
+       call dcopy(i_copy_size,sbz%dosw,1,drange,1) 
+
       norder = isign(1,norder) * mod(iabs(norder),100)
 C     For now... until input in rdccat is patched
       call dcopy(3,cvec(1),1,cvec(4),1)
@@ -129,8 +202,12 @@ C ... Class-dependent arrays
       call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx)
 C     call sp2cls('spec idxdn',sspec,w(oics),nl,1,nclass,oidxdn)
 C ... Other initialization
-      lmet = lgors('ctrl lmet,1',sctrl)
-      ltet = lgors('ctrl lmet,2',sctrl)
+Cgetarg       lmet = lgors('ctrl lmet,1',sctrl)
+       lmet = iand(1,int(sctrl%lmet)) .ne.0 
+
+Cgetarg       ltet = lgors('ctrl lmet,2',sctrl)
+       ltet = iand(2,int(sctrl%lmet)) .ne.0 
+
       icond = nint(cvec(0))
       bzmap = bittst(ldos,8)
       call subasi(sctrl,sspec,sham)
@@ -293,12 +370,27 @@ C     lcond=T when contet branch is needed
 
 C     List of irreducible qp, tetrahedra, ipq
       call mkqp(sctrl,sbz,slat,ltet,lcond,1,0)
-      call upack('bz nkabc nkp ntet oidtet owtkp',sbz,nkxyz,nkp,ntet,
-     .  oidtet,owtkp)
+Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
+Cgetarg...info...           integer :: nkp , integer(8) :: sbz%nkp 1
+Cgetarg...info...           integer :: ntet , integer(8) :: sbz%ntet 1
+Cgetarg...info...           integer :: oidtet , integer(8) :: sbz%oidtet 1
+Cgetarg...info...           integer :: owtkp , integer(8) :: sbz%owtkp 1
+Cgetarg       call upack('bz nkabc nkp ntet oidtet owtkp',sbz,nkxyz,nkp,ntet,
+Cgetarg      .  oidtet,owtkp)
+       
+       i_copy_size=size(sbz%nkabc) 
+       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
+       nkp=sbz%nkp
+       ntet=sbz%ntet
+       oidtet=sbz%oidtet
+       owtkp=sbz%owtkp
+
 
 C ... bzmap setup
       if (bzmap) then
-        nsp = igets('ctrl nsp',sctrl)
+Cgetarg         nsp = igets('ctrl nspin',sctrl)
+         nsp = int(sctrl%nspin) 
+
 C   ... Read in BZ plane(s) from file BZPL
         nfilqp = fopno('BZPL')
         rewind nfilqp
@@ -514,13 +606,38 @@ C        nspx = 1
 C        call snot(w(oqp),nkp,w(oeband),plat)
 C   ... Remake qp with reduced symmetry; assume no grp ops for now
         npgrp = 1
-        call pack1('lat npgrp',slat,npgrp)
+Cgetarg...info...           integer :: npgrp , integer(8) :: slat%npgrp 1
+Cgetarg         call pack1('lat npgrp',slat,npgrp)
+         
+         slat%npgrp=npgrp 
+
         call awrit2('          remake qp with %i symop%?#n>1#s##',
      .    ' ',80,stdo,npgrp,npgrp)
         call mkqp(sctrl,sbz,slat,ltet,F,0,2)
-        call upack('bz nkp nkabc oqp owtkp ostar',sbz,
-     .    nkp,nkxyz,oqp,owtkp,ogstar)
-        call upack('bz ntet oidtet oipq',sbz,ntet,oidtet,oipq,0,0)
+Cgetarg...info...           integer :: nkp , integer(8) :: sbz%nkp 1
+Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
+Cgetarg...info...           integer :: oqp , integer(8) :: sbz%oqp 1
+Cgetarg...info...           integer :: owtkp , integer(8) :: sbz%owtkp 1
+Cgetarg...info...           integer :: ogstar , integer(8) :: sbz%ostar 1
+Cgetarg         call upack('bz nkp nkabc oqp owtkp ostar',sbz,
+Cgetarg      .    nkp,nkxyz,oqp,owtkp,ogstar)
+         
+         nkp=sbz%nkp
+         i_copy_size=size(sbz%nkabc) 
+         call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
+         oqp=sbz%oqp
+         owtkp=sbz%owtkp
+         ogstar=sbz%ostar
+
+Cgetarg...info...           integer :: ntet , integer(8) :: sbz%ntet 1
+Cgetarg...info...           integer :: oidtet , integer(8) :: sbz%oidtet 1
+Cgetarg...info...           integer :: oipq , integer(8) :: sbz%oipq 1
+Cgetarg         call upack('bz ntet oidtet oipq',sbz,ntet,oidtet,oipq,0,0)
+         
+         ntet=sbz%ntet
+         oidtet=sbz%oidtet
+         oipq=sbz%oipq
+
         call defdr(odos,npts*nsp*nchan)
         if (nblst .eq. 0) nblst = nevmx
         call contet(icond,nbandx,nsp,nspx,nblst,nchan,nkxyz(1),nkxyz(2),
@@ -587,10 +704,18 @@ C       Make a new nlo if channels are site-dependent
         if (lfp) then
 C         Global upper bound to lmax
           nl = nll
-          call upack('site spec',ssite,ib,is,0,0,0)
-          lmax = igetss('spec lmxa',is,sspec)
-          if (cmdopt('--mull',6,0,strn))
-     .    lmax = igetss('spec lmxb',is,sspec)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg           call upack('site spec',ssite,ib,is,0,0,0)
+           
+           is=ssite(ib)%spec
+
+Cgetarg           lmax = igetss('spec lmxa',is,sspec)
+           lmax = int(sspec(is)%lmxa) 
+
+Cgetarg           if (cmdopt('--mull',6,0,strn))
+Cgetarg      .    lmax = igetss('spec lmxb',is,sspec)
+           if ( cmdopt ( '--mull' , 6 , 0 , strn ) ) lmax = int(sspec(is)%lmxb) 
+
           nll = min(lmax+1,nl)
           nlo = nll
           if (ldos .eq. 0) nlo = 1
@@ -598,7 +723,11 @@ C         Global upper bound to lmax
           if (ldos .eq. 4) nlo = nll*nll
         endif
 
-        call spacks(0,'site clabel',ssite,clabl,ib,ib)
+Cgetarg         call spacks(0,'site clabel',ssite,clabl,ib,ib)
+         do i_spacks=ib,ib 
+         call spacks_copy('u',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
+         enddo
+
         outs = ' '
         write(outs,333) i, ic, clabl
   333   format(2i5,3x,a8)
@@ -632,7 +761,9 @@ C          call awrit0('%a%b ',outs(50:),80,0)
 
   999 continue
       call rxs('asados: failed to parse dos options:',sopts)
-      end
+Cgetarg       end
+       end subroutine asados 
+
 C      subroutine snot(qp,nkp,eband,plat)
 C      implicit none
 C      integer nkp

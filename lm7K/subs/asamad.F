@@ -1,6 +1,14 @@
+Cgetarg...info...           structure ['asamad', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['asamad', 'array', 'sarray']
+Cgetarg...info...           structure ['asamad', 'pot', 'spot']
+Cgetarg...info...           structure ['asamad', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['asamad', 'm_struc_def']
 #define NSPH 1
       subroutine asamad(sctrl,spot,sarray,slat,sspec,lq,p,q,
      .  vrl,ves,emad,trumad,vmtz)
+       
+       use m_struc_def  !Cgetarg
+
 C- Calculate ASA Madelung potential, Madelung energy, vmtz
 C ----------------------------------------------------------------
 Ci Inputs
@@ -116,8 +124,15 @@ C ----------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer lq
-      double precision sctrl(1),spot(1),sarray(1),slat(1),
-     .  sspec(1),ves(20),emad,trumad,vmtz(2),p(1),q(1),vrl
+Cgetarg       double precision sctrl(1),spot(1),sarray(1),slat(1),
+Cgetarg      .  sspec(1),ves(20),emad,trumad,vmtz(2),p(1),q(1),vrl
+       real(8):: ves(20) , emad , trumad , vmtz(2) , p(1) , q(1) , vrl 
+       type(s_ctrl)::sctrl
+       type(s_pot)::spot
+       type(s_array)::sarray
+       type(s_lat)::slat
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       logical lves,lgors,metL,metR,bittst
       integer nbas,nl,nsp,nspec,nclasp,nclspp,npadl,npadr,nkdmx,nkqmx,
@@ -140,21 +155,84 @@ C      call pshpr(30)
 C      print *, '!! asamad',lq
 
 C ... Setup
-      call upack('ctrl nbas nl nspec nspin',sctrl,nbas,nl,nspec,nsp,0)
-      lpgf = igets('ctrl lpgf',sctrl)
-      call upack('ctrl lmet nclass zbak',sctrl,lmet,nclass,rhrmx,0,0)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg       call upack('ctrl nbas nl nspec nspin',sctrl,nbas,nl,nspec,nsp,0)
+       
+       nbas=sctrl%nbas
+       nl=sctrl%nl
+       nspec=sctrl%nspec
+       nsp=sctrl%nspin
+
+Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
+       lpgf = int(sctrl%lpgf(1)) 
+
+Cgetarg...info...           integer :: lmet , integer(8) :: sctrl%lmet 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg...info...           real(8) :: rhrmx(2) , real(8) :: sctrl%zbak 2
+Cgetarg       call upack('ctrl lmet nclass zbak',sctrl,lmet,nclass,rhrmx,0,0)
+       
+       lmet=sctrl%lmet
+       nclass=sctrl%nclass
+       i_copy_size=size(sctrl%zbak) 
+       call dcopy(i_copy_size,sctrl%zbak,1,rhrmx,1) 
+
       call dscal(2,1/dgets('lat vol',slat),rhrmx,1)
-      call upack('array oics oclabl nclasp onrcp oipcp',sarray,oics,
-     .  oclabl,nclasp,onrcp,oipcp)
-      call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
-      call upack('pot vconst omad ovrmax ovshf',spot,vconst,omad,ovrmax,
-     .  ovshft,0)
-      call upack('lat alat plat opos',slat,alat,plat0,opos,0,0)
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: onrcp , integer(8) :: sarray%onrcp 1
+Cgetarg...info...           integer :: oipcp , integer(8) :: sarray%oipcp 1
+Cgetarg       call upack('array oics oclabl nclasp onrcp oipcp',sarray,oics,
+Cgetarg      .  oclabl,nclasp,onrcp,oipcp)
+       
+       oics=sarray%oics
+       oclabl=sarray%oclabl
+       nclasp=sarray%nclasp
+       onrcp=sarray%onrcp
+       oipcp=sarray%oipcp
+
+Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
+Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
+Cgetarg       call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
+       
+       npadl=sarray%npadl
+       npadr=sarray%npadr
+
+Cgetarg...info...           real(8) :: vconst(3) , real(8) :: spot%vconst 3
+Cgetarg...info...           integer :: omad , integer(8) :: spot%omad 1
+Cgetarg...info...           integer :: ovrmax , integer(8) :: spot%ovrmax 1
+Cgetarg...info...           integer :: ovshft , integer(8) :: spot%ovshf 1
+Cgetarg       call upack('pot vconst omad ovrmax ovshf',spot,vconst,omad,ovrmax,
+Cgetarg      .  ovshft,0)
+       
+       i_copy_size=size(spot%vconst) 
+       call dcopy(i_copy_size,spot%vconst,1,vconst,1) 
+       omad=spot%omad
+       ovrmax=spot%ovrmax
+       ovshft=spot%ovshf
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat0(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
+Cgetarg       call upack('lat alat plat opos',slat,alat,plat0,opos,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat0,1) 
+       opos=slat%opos
+
       stdo = nglob('stdo')
 
       nclspp = 2*nclasp-nclass
       nbaspp = 2*(npadl+npadr) + nbas
-      call upack1('array ormax',sarray,ormax)
+Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
+Cgetarg       call upack1('array ormax',sarray,ormax)
+       
+       ormax=sarray%ormax
+
       call defdr(oqt,nclspp)
       if (mod(lq,100) .eq. 0) then
         call defdr(odq,nclspp)
@@ -188,9 +266,13 @@ C      call dvset(w(oqt),nclass+1,nclass+1,.2d0)
 
 #if NSPH
 C --- Make potential from multipole moments ---
-      lnsph = isw(lgors('ctrl lasa,32',sctrl))
+Cgetarg       lnsph = isw(lgors('ctrl lasa,32',sctrl))
+       lnsph = isw ( iand(32,int(sctrl%lasa)) .ne.0 ) 
+
       if (lnsph .ne. 0 .and. .not. lves) then
-      oqpp = igets('pot oqpp',spot)
+Cgetarg       oqpp = igets('pot oqpp',spot)
+       oqpp = int(spot%oqpp) 
+
       if (dval(w(oqpp),1) .ge. 0d0) then
         nlmf = (2*nl-1)**2
         call defrr(ovval, -nlmf*nbas)
@@ -215,7 +297,9 @@ C --- Electrostatic potential for charges as given ---
       if (lpgf .ne. 2) then
         if (lpgf .ne. 0) call info(20,1,0,
      .  ' Electrostatics for embedded L-C-R system:',0,0)
-        vmtz(1) = dgets('pot vmtz0',spot)
+Cgetarg         vmtz(1) = dgets('pot vmtz0',spot)
+         vmtz ( 1 ) = spot%vmtz0 
+
 
 C       call snot('rmax',nbaspp,w(ormax),w(oipcp))
 C       Kirill's fix (March 2006) superseded by update in lmasa-gf
@@ -234,9 +318,31 @@ C   ... Nothing further if potentials are input
 
 C --- Layer GF: es pot for end layers and pot shift for ch. neutrality
       if (lpgf .ne. 0 .and. mod(lq/100,100) .gt. 0) then
-        call upack('lat as tol vol',slat,awald0,tol,vol,0,0)      
-        call upack('lat nkdmx nkqmx',slat,nkdmx,nkqmx,0,0,0)      
-        call upack2('lat platl platr',slat,platl,platr)
+Cgetarg...info...           real(8) :: awald0 , real(8) :: slat%as 1
+Cgetarg...info...           real(8) :: tol , real(8) :: slat%tol 1
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg         call upack('lat as tol vol',slat,awald0,tol,vol,0,0)      
+         
+         awald0=slat%as
+         tol=slat%tol
+         vol=slat%vol
+
+Cgetarg...info...           integer :: nkdmx , integer(8) :: slat%nkdmx 1
+Cgetarg...info...           integer :: nkqmx , integer(8) :: slat%nkqmx 1
+Cgetarg         call upack('lat nkdmx nkqmx',slat,nkdmx,nkqmx,0,0,0)      
+         
+         nkdmx=slat%nkdmx
+         nkqmx=slat%nkqmx
+
+Cgetarg...info...           real(8) :: platl(3,3) , real(8) :: slat%platl 9
+Cgetarg...info...           real(8) :: platr(3,3) , real(8) :: slat%platr 9
+Cgetarg         call upack2('lat platl platr',slat,platl,platr)
+         
+         i_copy_size=size(slat%platl) 
+         call dcopy(i_copy_size,slat%platl,1,platl,1) 
+         i_copy_size=size(slat%platr) 
+         call dcopy(i_copy_size,slat%platr,1,platr,1) 
+
 C       nbasp = nbas + npadl + npadr
 C   ... Save original ves(Mad) for printout
         call defrr(oves, nclasp)
@@ -317,7 +423,12 @@ C       Sanity check: did <ves(L)> change after calc ves(R)?
      .      'calculated (possible misuse of equivalent classes)',
      .      vavn(1)-dum(1),0)
           vconst(2) = vconst(2)+vavn(1)-dum(1)
-          call pack1('pot vconst',spot,vconst)
+Cgetarg...info...           real(8) :: vconst(3) , real(8) :: spot%vconst 3
+Cgetarg           call pack1('pot vconst',spot,vconst)
+           
+           i_copy_size=size(spot%vconst) 
+           call dcopy(i_copy_size,vconst,1,spot%vconst,1) 
+
         endif
 
 C   ... RMS deviation in the two ways to compute ves[padded]
@@ -363,7 +474,12 @@ C   ... RMS deviation in the two ways to compute ves[padded]
 
           if (iprint() .ge. 40) call query('vconst=',4,vconst)
 
-          call pack1('pot vconst',spot,vconst)
+Cgetarg...info...           real(8) :: vconst(3) , real(8) :: spot%vconst 3
+Cgetarg           call pack1('pot vconst',spot,vconst)
+           
+           i_copy_size=size(spot%vconst) 
+           call dcopy(i_copy_size,vconst,1,spot%vconst,1) 
+
         else
           call info2(20,1,0,' shifts added to bulk ES potential: '//
      .      ' vconst(L)=%,6;6d   vconst(R)=%,6;6d',vconst(2),vconst(3))
@@ -470,10 +586,13 @@ C        endif
 C      if (iprint() .ge. 20) pause
 C      call poppr
 
-      end
+Cgetarg       end
+       end subroutine asamad 
+
 
       subroutine madpot(nbas,ic1,ic2,nrc,ipc,dclabl,qt,vconst,rhrmx,
      .  rmax,dmad,bas,plat,vrl,noves,vrmax,ves,emad,trumad,vmtz)
+
 C- Calculate Madelung potential, Madelung energy, vmtz
 C ----------------------------------------------------------------
 Ci Inputs
@@ -733,8 +852,11 @@ C  122   write(lgunit(i),540) sumdq, vmtz
 C  540   format(' SUM Q=',f10.6,'  VMTZ=',f9.6,'   VMTZ(UP-DN)=',f9.6)
       endif
 
-      end
+Cgetarg       end
+       end subroutine madpot 
+
       subroutine pvmadp(ic1,ic2,nrc,lvrmx,vrmax,rmax,ves,vmtz,rmsv)
+
 C- Make vmtz
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -781,9 +903,12 @@ C ... Local parameters
       rmsv(1) = rmsv(1)/swgt
       rmsv(2) = rmsv(2)/swgt
 
-      end
+Cgetarg       end
+       end subroutine pvmadp 
+
 
       subroutine dplmom(nbas,bas,alat,plat,ipc,qt)
+
 C- Prints out contribution to dipole moment n plat(3) from excess charge
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -831,7 +956,9 @@ C ... Local parameters
       write(stdo,333) delv
   333 format(' Dipole in plat(3) from charge distribution =',
      .  f10.6)
-      end
+Cgetarg       end
+       end subroutine dplmom 
+
 
 C      subroutine uefld(nbas,bas,alat,plat,dmad)
 CC- Add contribution of uniform electric field E=4*pi/vol*sum_i Q_i*z_i

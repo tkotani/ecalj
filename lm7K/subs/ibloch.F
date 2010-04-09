@@ -1,5 +1,6 @@
       subroutine ibloch(lbloch,qp,wtqp,plat,mxorb,iprmb,is1,is2,iax,
      .  s,sc,sz,nds,isp,nsp,ldima,ldimb,ldl,ldl2,sll)
+
 C- Accumulate unsymmetrized inverse Bloch transform from one q
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -216,10 +217,13 @@ C  333 format(a,i4,3f8.4,a,2f11.6)
 C      call pvtro9(scplx,1,1,nds,s(1,1,isp,isite),sz(1,1,1,isp,isite))
 
       call tcx('ibloch')
-      end
+Cgetarg       end
+       end subroutine ibloch 
+
 
       subroutine iblch1(lbloch,mxorb,offa,offb,lds,ld2,iprmb,
      .  hdpa,hdna,hdpb,hdnb,s,sc,sz,nds,wc,ws,sk)
+
 C- Contribution of one pair to Bloch sum of strux
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -498,5 +502,7 @@ C   ... Loop over augmentation orbitals, case real-space s is real
 
       endif
 
-      end
+Cgetarg       end
+       end subroutine iblch1 
+
 

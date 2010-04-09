@@ -1,5 +1,6 @@
       subroutine amagnc(nbas,nl,ipc,rhos,nrhos,qnu,eula,neul,mode,
      .  amag,aamom)
+
 C- Printout magnetic moments in unit cell
 C     implicit none
 C Passed variables
@@ -10,9 +11,12 @@ C Local variables
 
       call rx('amagnc require noncollinear package')
 
-      end
+Cgetarg       end
+       end subroutine amagnc 
+
       subroutine amagn2(mode,nl,nlo,nclass,nbas,ipc,eula,neul,bxc,qnu,
      .  nrhos,rhos)
+
 
 C     implicit none
 C ... Passed parameters
@@ -21,5 +25,7 @@ C ... Passed parameters
       double precision qnu(3,nl,2,1),bxc(3,*)
 
       call rx('amagnc require noncollinear package')
-      end
+Cgetarg       end
+       end subroutine amagn2 
+
 

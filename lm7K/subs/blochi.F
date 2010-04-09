@@ -1,6 +1,7 @@
       subroutine blochi(lbloch,qp,nl,plat,iprmb,is1,is2,iax,nkaps,ndoti,
      .  kaps,nkapk,kapk,s,sd,nds,nitab,ldmpa,ldima,ldmpb,ldimb,ldl,ldl2,
      .  klu,sk)
+
 C- Energy-interpolate and bloch transform real-space structure matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -238,5 +239,7 @@ C    --- Rotate s to spherical harmonics ---
       endif
 
       call tcx('blochi')
-      end
+Cgetarg       end
+       end subroutine blochi 
+
 

@@ -1,10 +1,18 @@
+Cgetarg...info...           structure ['writebasis', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['writebasis', 'm_struc_def']
       subroutine writebasis(nspec,sspec,ifi)
+
+       
+       use m_struc_def  !Cgetarg
+
 c takao wrote this based on Mark's ioorbp below. 
 c This is to write a basis set file mtopara.* at the end of lmfa.
 c Default setting of basis set is embedded in this.
       implicit none
       integer mode,nkapi,nspec,ifi,nkmax
-      double precision sspec(1)
+Cgetarg       double precision sspec(1)
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       logical scat,rdstrn
       character spid*8,sout*256,szz*256,sss*256
@@ -14,10 +22,24 @@ C ... Local parameters
      .  it(n0),idxdn(n0,nkap0)
       double precision rtab(n0,nkap0),etab(n0,nkap0),orbp(n0,2,nkap0),
      .  dasum, zz
+      integer:: i_spacks,i_copy_size
         jfi = ifi
           do  110  is = 1, nspec
-          call spacks(0,'spec name',sspec,spid,is,is)
-          call upack('spec orbp lmxb z',sspec,is, orbp,lmxb,zz,0)
+Cgetarg           call spacks(0,'spec name',sspec,spid,is,is)
+           do i_spacks=is,is 
+           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+           enddo
+
+Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%orbp 60
+Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
+Cgetarg...info...           real(8) :: zz , real(8) :: sspec%z 1
+Cgetarg           call upack('spec orbp lmxb z',sspec,is, orbp,lmxb,zz,0)
+           
+           i_copy_size=size(sspec(is)%orbp) 
+           call dcopy(i_copy_size,sspec(is)%orbp,1,orbp,1) 
+           lmxb=sspec(is)%lmxb
+           zz=sspec(is)%z
+
           etab=0d0
           rtab=0d0
           sout = spid
@@ -85,4 +107,6 @@ c f channel
             endif
             write(jfi,"(a)") trim(szz)
   110     continue
-      end
+Cgetarg       end
+       end subroutine writebasis 
+

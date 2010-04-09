@@ -1,7 +1,19 @@
+Cgetarg...info...           structure ['secmat', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['secmat', 'array', 'sarray']
+Cgetarg...info...           structure ['secmat', 'ham', 'sham']
+Cgetarg...info...           structure ['secmat', 'lat', 'slat']
+Cgetarg...info...           structure ['secmat', 'pot', 'spot']
+Cgetarg...info...           structure ['secmt2', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['secmt2', 'pot', 'spot']
+Cgetarg...info...           use_to_add ['secmt2', 'm_struc_def']
+Cgetarg...info...           use_to_add ['secmat', 'm_struc_def']
 #define BLAS3 1
       subroutine secmat(sctrl,sspec,sham,spot,sarray,slat,ikp,nkp,
      .  qp,wtkp,isp,lrsig,nevmx,efmax,nlibu,lmaxu,idu,ludiag,vorb,
      .  nev,z,eb,strx,rhrs,rors)
+       
+       use m_struc_def  !Cgetarg
+
 C- Set up Hamiltonian and Overlap and diagonalize secular matrix.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -65,8 +77,15 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer isp,nevmx,nev,ikp,nkp,lrsig
-      double precision sctrl(1),sspec(1),sham(1),spot(1),sarray(1),
-     .  slat(1)
+Cgetarg       double precision sctrl(1),sspec(1),sham(1),spot(1),sarray(1),
+Cgetarg      .  slat(1)
+       type(s_ctrl)::sctrl
+       type(s_spec)::sspec(*)
+       type(s_ham)::sham
+       type(s_pot)::spot
+       type(s_array)::sarray
+       type(s_lat)::slat
+
       double precision eb(*),qp(3),wtkp(nkp),z(*),efmax
 C     For LDA+U
       integer nlibu,lmaxu,idu(4,*),ludiag
@@ -93,19 +112,72 @@ C heap:
       call tcn('secmat')
 
 C --- Setup ---
-      call upack('ctrl nbas nl nspin nclass lgen3',sctrl,nbas,nl,nsp,
-     .  nclass,lgen3)
-      call upack('array oips oipc ormax oclabl',sarray,oips,oipc,ormax,
-     .  oclabl,0)
-      call upack('ham oeula neula qss obdots',sham,oeula,neul,qss,obs,0)
-      call upack('ham oindxo ldham',sham,oidxsh,ldham,0,0,0)
-      call upack('lat plat opos',slat,plat,obas,0,0,0)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg...info...           integer :: lgen3 , integer(8) :: sctrl%lgen3 1
+Cgetarg       call upack('ctrl nbas nl nspin nclass lgen3',sctrl,nbas,nl,nsp,
+Cgetarg      .  nclass,lgen3)
+       
+       nbas=sctrl%nbas
+       nl=sctrl%nl
+       nsp=sctrl%nspin
+       nclass=sctrl%nclass
+       lgen3=sctrl%lgen3
+
+Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg       call upack('array oips oipc ormax oclabl',sarray,oips,oipc,ormax,
+Cgetarg      .  oclabl,0)
+       
+       oips=sarray%oips
+       oipc=sarray%oipc
+       ormax=sarray%ormax
+       oclabl=sarray%oclabl
+
+Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
+Cgetarg...info...           integer :: neul , integer(8) :: sham%neula 1
+Cgetarg...info...           real(8) :: qss(4) , real(8) :: sham%qss 4
+Cgetarg...info...           integer :: obs , integer(8) :: sham%obdots 1
+Cgetarg       call upack('ham oeula neula qss obdots',sham,oeula,neul,qss,obs,0)
+       
+       oeula=sham%oeula
+       neul=sham%neula
+       i_copy_size=size(sham%qss) 
+       call dcopy(i_copy_size,sham%qss,1,qss,1) 
+       obs=sham%obdots
+
+Cgetarg...info...           integer :: oidxsh , integer(8) :: sham%oindxo 1
+Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ldham 16
+Cgetarg       call upack('ham oindxo ldham',sham,oidxsh,ldham,0,0,0)
+       
+       oidxsh=sham%oindxo
+       i_copy_size=size(sham%ldham) 
+       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
+
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg...info...           integer :: obas , integer(8) :: slat%opos 1
+Cgetarg       call upack('lat plat opos',slat,plat,obas,0,0,0)
+       
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       obas=slat%opos
+
       ckbas = cksumf(w(obas),3*nbas)
       avw = dglob('avw',0d0,0)
       ndim = nbas * nglob('mxorb')
 
       if (lgen3 .ne. 0) then
-        call upack('pot oppn osop',spot,oppn,osop,0,0,0)
+Cgetarg...info...           integer :: oppn , integer(8) :: spot%oppn 1
+Cgetarg...info...           integer :: osop , integer(8) :: spot%osop 1
+Cgetarg         call upack('pot oppn osop',spot,oppn,osop,0,0,0)
+         
+         oppn=spot%oppn
+         osop=spot%osop
+
         call secmtn(sctrl,sspec,slat,sham,spot,nl,nsp,nbas,w(oips),
      .    w(oidxsh),qss,w(oeula),neul,ikp,nkp,ldim,lidim,lihdim,qp,
      .    w(oppn),w(osop),isp,nevmx,efmax,nev,z,eb)
@@ -113,13 +185,33 @@ C --- Setup ---
 C       nfilet = fopn('TMP')
         nfilet = fopnT('TMP',-1,4,0)
         rewind nfilet
-        call upack('pot opp osop opti vmtz',spot,opp,osop,opti,vmtz,0)
+Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
+Cgetarg...info...           integer :: osop , integer(8) :: spot%osop 1
+Cgetarg...info...           integer :: opti , integer(8) :: spot%opti 1
+Cgetarg...info...           real(8) :: vmtz , real(8) :: spot%vmtz 1
+Cgetarg         call upack('pot opp osop opti vmtz',spot,opp,osop,opti,vmtz,0)
+         
+         opp=spot%opp
+         osop=spot%osop
+         opti=spot%opti
+         vmtz=spot%vmtz
+
         call defdr(opph,5*lihdim*nsp)
         call makpph(nl,nsp,nbas,lihdim,w(oipc),w(oidxsh),w(opp),w(opph))
         call u2pph(0,nbas,lmaxu,nsp,nlibu,idu,vorb,w(oidxsh),
      .    ldim,lihdim,1d0,w(opph))
-        call upack('ham ndhrs ontabs oiaxs ohrs',sham,ndhrs,ontabs,
-     .    oiaxs,ohrs,0)
+Cgetarg...info...           integer :: ndhrs , integer(8) :: sham%ndhrs 1
+Cgetarg...info...           integer :: ontabs , integer(8) :: sham%ontabs 1
+Cgetarg...info...           integer :: oiaxs , integer(8) :: sham%oiaxs 1
+Cgetarg...info...           integer :: ohrs , integer(8) :: sham%ohrs 1
+Cgetarg         call upack('ham ndhrs ontabs oiaxs ohrs',sham,ndhrs,ontabs,
+Cgetarg      .    oiaxs,ohrs,0)
+         
+         ndhrs=sham%ndhrs
+         ontabs=sham%ontabs
+         oiaxs=sham%oiaxs
+         ohrs=sham%ohrs
+
 C       Fast version works, but comment out for generality; use secmt2
 C        if (lgors('ctrl lham,3',sctrl)) then
 C          if (lrsig .ne. 0) call rx('update lrsig for call to 2C')
@@ -139,12 +231,17 @@ C        endif
         call rlse(opph)
       endif
       call tcx('secmat')
-      end
+Cgetarg       end
+       end subroutine secmat 
+
       subroutine secmt2(sctrl,spot,ckbas,plat,nl,nsp,nbas,nclass,ipc,
      .  nlibu,lmaxu,idu,ludiag,vorb,dclabl,indxsh,qss,
      .  eula,neul,bdots,ikp,wtkp,nkp,ldim,lidim,lihdim,ndim,qp,pp,
      .  sop,vmtz,wsr,avw,isp,pti,pph,nfilet,nevmx,efmax,nev,lrsig,ndsig,
      .  ntabs,iaxs,sigrs,z,eb,strx,rhrs,rors)
+       
+       use m_struc_def  !Cgetarg
+
 C- Hamiltonian and Overlap, 2nd generation lmto
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -227,10 +324,17 @@ C     implicit none
 C ... Passed parameters
       integer nl,nsp,nbas,nclass,neul,isp,nfilet,ldim,lidim,lihdim,ndim,
      .  nevmx,nev,ipc(nbas),indxsh(ndim),ikp,nkp,lrsig,ludiag
-      double precision ckbas,plat(3,3),eb(ldim*2),pp(6,nl,nsp,*),vmtz,
-     .  avw,qp(3),z(ldim,ldim*2),pti(ndim,nsp),eula(nbas,neul,3),wsr(*),
-     .  pph(5,lihdim,nsp),efmax,qss(4),sop(0:nl-1,nsp,nsp,9,*),sctrl(1),
-     .  spot(1),dclabl(1),wtkp(nkp)
+Cgetarg       double precision ckbas,plat(3,3),eb(ldim*2),pp(6,nl,nsp,*),vmtz,
+Cgetarg      .  avw,qp(3),z(ldim,ldim*2),pti(ndim,nsp),eula(nbas,neul,3),wsr(*),
+Cgetarg      .  pph(5,lihdim,nsp),efmax,qss(4),sop(0:nl-1,nsp,nsp,9,*),sctrl(1),
+Cgetarg      .  spot(1),dclabl(1),wtkp(nkp)
+       real(8):: ckbas , plat(3,3) , eb(ldim*2) , pp(6,nl,nsp,*) , vmtz 
+     . , avw , qp(3) , z(ldim,ldim*2) , pti(ndim,nsp) , eula(nbas,neul,3) 
+     . , wsr(*) , pph(5,lihdim,nsp) , efmax , qss(4) , sop(0:nl-1,nsp,nsp,9,*) 
+     . , dclabl(1) , wtkp(nkp) 
+       type(s_ctrl)::sctrl
+       type(s_pot)::spot
+
 C     For LDA+U
       integer nlibu,lmaxu,idu(4,nbas)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
@@ -277,7 +381,15 @@ C     qp(3) = .3d0
 C --- Setup ---
       invb = cmdopt('--invbl',7,0,outs)
 
-      call upack('ctrl lham lncol loptc',sctrl,lham,lncol,loptic,0,0)
+Cgetarg...info...           integer :: lham , integer(8) :: sctrl%lham 1
+Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
+Cgetarg...info...           integer :: loptic , integer(8) :: sctrl%loptc 1
+Cgetarg       call upack('ctrl lham lncol loptc',sctrl,lham,lncol,loptic,0,0)
+       
+       lham=sctrl%lham
+       lncol=sctrl%lncol
+       loptic=sctrl%loptc
+
       nl2 = nl**2
       idim = lidim - ldim
 C     hdim = lihdim - lidim
@@ -301,13 +413,18 @@ C     Possibly rotate to spherical harmonics when making Bloch sum
 
 C     Combined correction required if downfolding
       ndnfld = idim .eq. 0
-      ccor = .not. ndnfld .or. lgors('ctrl lasa,4',sctrl)
+Cgetarg       ccor = .not. ndnfld .or. lgors('ctrl lasa,4',sctrl)
+       ccor = .not. ndnfld .or. iand(4,int(sctrl%lasa)) .ne.0 
+
       if (.not. ccor  .and.  iprint()  .ge. 30  .and.  ikp .eq. 1)
      . print *, 'SECMAT : Combined Correction switched off'
 
 C     Diagonalize by inverse iteration, or not
       linv = 0
-      if (nevmx .gt. 0 .and. lgors('ctrl lqp,2',sctrl)) linv = 1
+Cgetarg       if (nevmx .gt. 0 .and. lgors('ctrl lqp,2',sctrl)) linv = 1
+       if ( nevmx .gt. 0 .and. iand(2,int(sctrl%lqp)) .ne.0 ) linv = 
+     . 1 
+
 
 C ... Sanity checks
       if (.not. ndnfld .and. bittst(lham,128))
@@ -389,7 +506,9 @@ C   ... Put pp in gamma; make vector of gamma's
         i = -3
         if (isp .eq. 2) i = -4
         if (lnc) i = -5
-        if (lgors('ctrl lasa,512',sctrl)) i = -5
+Cgetarg         if (lgors('ctrl lasa,512',sctrl)) i = -5
+         if ( iand(512,int(sctrl%lasa)) .ne.0 ) i = -5 
+
         call pptrns(i,nl,ipc,nclass,nsp,w(ogma),nbas,pp,w(oo))
 C       call prmx('gamma',w(ogma),ndim,ndim,1)
 C       call prmx('alpha',w(oalph),ndim,ndim,1)
@@ -639,12 +758,20 @@ C --- Noncollinear and/or S-O three-center hamiltonian ---
         endif
 
 #if NC
-        lrel = igets('ctrl lrel',sctrl)
+Cgetarg         lrel = igets('ctrl lrel',sctrl)
+         lrel = int(sctrl%lrel) 
+
         if (lrel .eq. 2) then 
           if ( .not. bittst(lham,128)) 
      .      call rx('for fully relativistic set gamma=T') 
-          call upack('pot opprel',spot,opprel,0,0,0,0)
-          if (lgors('ctrl lham,3',sctrl)) then
+Cgetarg...info...           integer :: opprel , integer(8) :: spot%opprel 1
+Cgetarg           call upack('pot opprel',spot,opprel,0,0,0,0)
+           
+           opprel=spot%opprel
+
+Cgetarg           if (lgors('ctrl lham,3',sctrl)) then
+           if ( iand(3,int(sctrl%lham)) .ne.0 ) then 
+
             call hmfr2c(nbas,nl,indxsh,qss,eula,neul,ldim,lihdim,
      .        ipc,nsp,w(opprel),w(osll),w(oh),z)
           else
@@ -827,8 +954,11 @@ C --- Printout ---
   999 continue 
       call rlse(occd)
 
-      end
+Cgetarg       end
+       end subroutine secmt2 
+
       subroutine pvsec1(ldim,sigm,h)
+
 C     implicit none
       integer ldim,i,j
       double precision sigm(ldim,ldim,2),h(ldim,2,ldim,2,2)
@@ -841,13 +971,18 @@ C     implicit none
         h(i,2,j,2,2) = h(i,2,j,2,2) - sigm(i,j,2)
    10 continue
 
-      end
+Cgetarg       end
+       end subroutine pvsec1 
+
       subroutine pvsec2(ld,s)
+
 C     implicit none
       integer ld
       double precision s(ld,2)
 
       if (ld .eq. 0) return
       call dswap(ld,s,1,s(1,2),1)
-      end
+Cgetarg       end
+       end subroutine pvsec2 
+
 

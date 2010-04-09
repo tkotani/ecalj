@@ -1,5 +1,6 @@
       subroutine shoshl(sopts,nbas,bas,plat,mxnbr0,z,slabl,dclabl,ips,
      .  ipc,ves,eula,nclass)
+
 C- Print nearest-neighbor shells
 C ----------------------------------------------------------------
 Ci Inputs
@@ -177,9 +178,12 @@ c     call pshprt(50)
       return
 
   999 call rxs('shoshl: failed to parse ',sopts)
-      end
+Cgetarg       end
+       end subroutine shoshl 
+
       subroutine xxsho(npr,nbas,plat,bas,iax,ipc,dclabl,nlstc,lstc,lves,
      .  ves,leul,eula,z)
+
 C- Kernel called by shoshl
 C  nlstc,lstc:  a list of classes to include as pairs (nlstc>0)
 C     implicit none
@@ -302,8 +306,11 @@ C     ... Setup for printout
           dshell = d
         endif
    10 continue
-      end
+Cgetarg       end
+       end subroutine xxsho 
+
        subroutine shoang(sopts,nbas,bas,plat,mxnbr0,slabl,ips)
+
 C- Print bond angles
 C ----------------------------------------------------------------
 Ci Inputs
@@ -427,9 +434,12 @@ C   ... Print bond angles
       return
 
   999 call rxs('shoang: failed to parse ',sopts)
-      end
+Cgetarg       end
+       end subroutine shoang 
+
 
       subroutine pvang1(npr,nbas,plat,bas,iax,ips,num,nshell,nmxshl)
+
 C- Help routine for shoang
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -472,10 +482,13 @@ C       distance changed by more than tol ... new shell
         nmxshl = max0(nmxshl,num(nshell,is))
    10 continue
 
-      end
+Cgetarg       end
+       end subroutine pvang1 
+
 
       subroutine pvang2(npr,nbas,nspec,nshell,nmxshl,plat,bas,iax,
      .  ips,slabl,nbonds,blist,num,ang,d)
+
 C- Kernel called by shoang
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -585,9 +598,12 @@ C --- Printout ---
 
   401 format(2(1x,i3,1x,f9.6),1x,2(1x,a8),20(4(1x,f7.2):/47x))
 
-      end
+Cgetarg       end
+       end subroutine pvang2 
+
       subroutine psho1(ltab,lnn,iax,nbas,nttab,nlst1,lst1,nlst2,lst2,
      .  rtab,plat,pos,pos2,mark,ipc,dclabl,ifi)
+
 C- Kernel called by supcel to displace pairs radially
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -746,6 +762,8 @@ C         if (.not. latvec(1,tol,qlat,dpos)) then
    10   continue
       enddo
 
-      end
+Cgetarg       end
+       end subroutine psho1 
+
 
 

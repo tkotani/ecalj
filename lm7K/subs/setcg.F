@@ -1,8 +1,15 @@
+Cgetarg...info...           structure ['setcg', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['setcg', 'm_struc_def']
       subroutine setcg(slat,lmxcg,lmxcy)
+       
+       use m_struc_def  !Cgetarg
+
 C- Allocate space for, and make Clebsch-Gordan coeffs
 C     implicit none
       integer lmxcg,lmxcy
-      double precision slat(1)
+Cgetarg       double precision slat(1)
+       type(s_lat)::slat
+
       integer lnjcg,lnxcg,nlm,ocy,ocg,ojcg,oidxcg
       integer w(1)
       common /w/ w
@@ -31,7 +38,19 @@ C ... Allocate and occupy the arrays
       call sylmnc(w(ocy),lmxcy)
       call scg(lmxcg,w(ocg),w(oidxcg),w(ojcg))
       
-      call pack5('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call pack5('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
+       
+       slat%ocg=ocg 
+       slat%ojcg=ojcg 
+       slat%oidxcg=oidxcg 
+       slat%ocy=ocy 
 
-      end
+
+Cgetarg       end
+       end subroutine setcg 
+
 

@@ -1,8 +1,14 @@
+Cgetarg...info...           structure ['atscpp', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['atscpp', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['atscpp', 'm_struc_def']
 #define ONE_ATOM_UNIT 1
       subroutine atscpp(sctrl,sspec,is,ic,dclabl,rmax,imake,nl,nsp,
      .  initc,rhozbk,avw,pnu,qnu,ves,dv,eula,neul,bxc,ekap,pp,pprel,
      .  etot,sumev,qtot,amgm,amom,rhrmx,vrmax,thrpv,sop,gradrm,pmpol,
      .  vintra,clabl,eterms)
+       
+       use m_struc_def  !Cgetarg
+
 C- Make one atom self-consistent and generate new potential parameters
 C ----------------------------------------------------------------
 Ci Inputs
@@ -145,7 +151,11 @@ C Passed parameters
       integer nrmx
       parameter (nrmx=1501)
       integer is,ic,nl,nsp,nr,imake,initc,neul
-      double precision dclabl(ic),sspec(1),sctrl(1),rmax(ic)
+Cgetarg       double precision dclabl(ic),sspec(1),sctrl(1),rmax(ic)
+       real(8):: dclabl(ic) , rmax(ic) 
+       type(s_spec)::sspec(*)
+       type(s_ctrl)::sctrl
+
       double precision pnu(ic),qnu(ic),pp(6,nl,nsp,ic),bxc(3,ic),
      .  pprel(4,nl,2*nl,2,2,ic),thrpv,rhozbk,avw
       double precision etot,qtot(ic),amgm,amom,eterms(20),
@@ -187,23 +197,62 @@ C           F, only calculate charges qc, qtot and amgm
       lrel   = nglob('lrel')
       lscf   = imake.eq.1 .or. imake.eq.3
       lneedv = imake.eq.2 .or. imake.eq.4
-      lfree  = lgors('ctrl lasa,8',sctrl)
-      lgdd   = .not. lgors('ctrl lasa,128',sctrl)
-      lmpol  = lgors('ctrl lasa,32',sctrl)
-      lfrz   = lgors('ctrl lcd,1',sctrl)
-      lso    = lgors('ctrl lncol,4',sctrl)
-      lbf    = lgors('ctrl lncol,8',sctrl)
-      lrell  = lgors('ctrl lrel,-1',sctrl)
-      lintra = mod(igets('ctrl lscr',sctrl),100) .ge. 10 .or.
-     .         mod(igets('ctrl lsx',sctrl)/10,2) .ne. 0
-      loptc  = igets('ctrl loptc',sctrl) .gt. 0
+Cgetarg       lfree  = lgors('ctrl lasa,8',sctrl)
+       lfree = iand(8,int(sctrl%lasa)) .ne.0 
+
+Cgetarg       lgdd   = .not. lgors('ctrl lasa,128',sctrl)
+       lgdd = .not. iand(128,int(sctrl%lasa)) .ne.0 
+
+Cgetarg       lmpol  = lgors('ctrl lasa,32',sctrl)
+       lmpol = iand(32,int(sctrl%lasa)) .ne.0 
+
+Cgetarg       lfrz   = lgors('ctrl lcd,1',sctrl)
+       lfrz = iand(1,int(sctrl%lcd)) .ne.0 
+
+Cgetarg       lso    = lgors('ctrl lncol,4',sctrl)
+       lso = iand(4,int(sctrl%lncol)) .ne.0 
+
+Cgetarg       lbf    = lgors('ctrl lncol,8',sctrl)
+       lbf = iand(8,int(sctrl%lncol)) .ne.0 
+
+Cgetarg       lrell  = lgors('ctrl lrel,-1',sctrl)
+       lrell = iand(-1,int(sctrl%lrel)) .ne.0 
+
+Cgetarg       lintra = mod(igets('ctrl lscr',sctrl),100) .ge. 10 .or.
+Cgetarg      .         mod(igets('ctrl lsx',sctrl)/10,2) .ne. 0
+       lintra = mod ( int(sctrl%lscr) , 100 ) .ge. 10 .or. mod ( int(sctrl%lsx) 
+     . /10 , 2 ) .ne. 0 
+
+Cgetarg       loptc  = igets('ctrl loptc',sctrl) .gt. 0
+       loptc = int(sctrl%loptc) .gt. 0 
+
       call dpzero(bhat,3)
-      call upack('ctrl smalit',sctrl,nrmix,0,0,0,0)
-      call upack('spec idmod lmxa z',sspec,is,idmod,lmx,z,0)
+Cgetarg...info...           integer :: nrmix(2) , integer(8) :: sctrl%smalit 2
+Cgetarg       call upack('ctrl smalit',sctrl,nrmix,0,0,0,0)
+       
+       i_copy_size=size(sctrl%smalit) 
+       call i8icopy(i_copy_size,sctrl%smalit,1,nrmix,1) 
+
+Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
+Cgetarg...info...           integer :: lmx , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg       call upack('spec idmod lmxa z',sspec,is,idmod,lmx,z,0)
+       
+       i_copy_size=size(sspec(is)%idmod) 
+       call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
+       lmx=sspec(is)%lmxa
+       z=sspec(is)%z
+
 C     This is now handled by LDA+U
 C     call upack('spec idu uh jh',sspec,is,idu,uh,jh,0)
       call iinit(idu,4)
-      call upack('spec a nr',sspec,is,a,nr,0,0)
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg       call upack('spec a nr',sspec,is,a,nr,0,0)
+       
+       a=sspec(is)%a
+       nr=sspec(is)%nr
+
       etot = 0
       amgm = 0
       sumev = 0
@@ -438,7 +487,9 @@ C   ... Shift enu and c by crystal electrostatic potential
         call daxpy(nl*nsp,1d0,ves(ic),0,pp(1,1,1,ic),6)
         call daxpy(nl*nsp,1d0,ves(ic),0,pp(2,1,1,ic),6)
 C   ... Second-order hamiltonian: set p^gamma = pph(4) = 0
-        if (lgors('ctrl lham,3',sctrl)) then
+Cgetarg         if (lgors('ctrl lham,3',sctrl)) then
+         if ( iand(3,int(sctrl%lham)) .ne.0 ) then 
+
           do  18  i = 0, nl*nsp-1
    18     pp(4,i+1,1,ic) = 0
         endif
@@ -517,11 +568,14 @@ C --- Cleanup ---
       call rlse(ov)
       call tcx('atscpp')
 
-      end
+Cgetarg       end
+       end subroutine atscpp 
+
       subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a,
      .  nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec,
      .  sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax,
      .  job,niter,lfrz)
+
 C- Makes an atomic sphere self-consistent and get atomic charges
 C ----------------------------------------------------------------
 Ci Inputs
@@ -855,8 +909,11 @@ C --- write out rho if requested ---
         call rlse(orho)
       endif
 
-      end
+Cgetarg       end
+       end subroutine atomsc 
+
       subroutine addzbk(rofi,nr,nsp,rho,rhozbk,scale)
+
 C     implicit none
       integer nr,nsp
       double precision rofi(1),rho(nr,1),rhozbk,scale
@@ -868,8 +925,11 @@ C     implicit none
       do  10  isp = 1, nsp
       do  10  ir = 2, nr
    10 rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
-      end
+Cgetarg       end
+       end subroutine addzbk 
+
       subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
+
 C- Hartree potential for spherical rho.
 C  ---------------------------------------------------------------------
 Ci Inputs:
@@ -992,7 +1052,9 @@ C --- Copy to second spin channel if spin polarized ---
       do  84  ir = 1, nr
         v(ir,2) = v(ir,1)
    84 continue
-      end
+Cgetarg       end
+       end subroutine poiss0 
+
 
 C      subroutine fctp0(l,rofi,v,z,nr,nctp0,xrim,xmin,nsave)
 CC- Initialize things for FCTP, which finds classical turning point
@@ -1104,6 +1166,7 @@ C      nsave = nctp
 C      end
 
       subroutine fctp0(l,nr,rofi,v,z,nctp0)
+
 C- Initialize things for FCTP, which finds classical turning point
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1143,8 +1206,11 @@ C Statement functions:
       nctp0 = ir-1
       if (veff(nctp0).ge.veff(nr)-3.d0) nctp0 = nr
 
-      end
+Cgetarg       end
+       end subroutine fctp0 
+
       subroutine fctp(a,b,e,l,nctp0,nr,rofi,v,z,nctp)
+
 C- Finds classical turning point
 C  ---------------------------------------------------------------------
 Ci Inputs:
@@ -1230,10 +1296,13 @@ C         Exit point
    10   continue
         if (nctp .eq. nctp0+1) nctp = 2
       endif
-      end
+Cgetarg       end
+       end subroutine fctp 
+
 
       subroutine newrho(z,lrel,lgdd,nl,nlr,lmax,a,b,nr,rofi,v,rho,rhoc,
      .  kcor,lcor,qcor,pnu,qnu,sumec,sumtc,sumev,ec,ev,tol,nsp,lfrz,ipr)
+
 C- Makes spherical charge density for a spherical potential.
 C  ---------------------------------------------------
 Ci Inputs:
@@ -1416,9 +1485,12 @@ C  ...  Case add -p q2 phi phi into rho
    22     continue
         endif
   20  continue
-      end
+Cgetarg       end
+       end subroutine newrho 
+
       subroutine rhocor(isw,z,lmax,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor,
      .                  qcor,tol,ec,sumec,sumtc,rho,gcore,ipr)
+
 C- Generates the (spherical) charge density from the core states
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1532,10 +1604,13 @@ C     --- Add to rho, make integral v*rho ---
   230   format(' sum q=',f5.2,'  sum ec=',f12.5,'  sum tc=',f12.5,
      .    '  rho(rmax)',f8.5)
    80 continue
-      end
+Cgetarg       end
+       end subroutine rhocor 
+
 
       subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho,
      .  rhormx)
+
 C- Make density and integrate potential*density for one core state
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1605,11 +1680,14 @@ C ... Integrate rho*v from nrmx+1 .. nre
    12 continue
       vrho = vrho*a/3
 
-      end
+Cgetarg       end
+       end subroutine xyrhsr 
+
 
       subroutine potpar(nl,nsp,lmx,z,rmax,avw,ekap,lso,loptc,lmpol,a,nr,
      .  rofi,v,pnu,idmod,ves,exc,qnu,idu,uh,jh,thrpv,thrpvl,g,gp,pp,
      .  pprel,sop,pmpol,gradrm)
+
 C- Generates potential parameters for given potential
 C  ---------------------------------------------------
 Ci Inputs:
@@ -2049,7 +2127,9 @@ C   ... Orthonormalize phi,phidot
       endif
 
       if (lso .or. lmpol) call rlse(ophi)
-      end
+Cgetarg       end
+       end subroutine potpar 
+
 C      subroutine phidot(z,l,v,e,a,b,rofi,nr,g,val,slo,tol,nn,
 C     .  gp,phi,dphi,phip,dphip,p)
 CC- Generate Phidot,Phidotdot for a prescribed energy
@@ -2136,6 +2216,7 @@ C      if (iprint() .ge. 111) print 749, phi,dphi,phip,dphip
 C  749 format(' PHIDOT:  phi,phip,phip,dphip=',4f12.6)
 C      end
       subroutine gintsr(g1,g2,a,b,nr,z,e,l,v,rofi,sum)
+
 C- Integrate inner product of two wave equations
 C ----------------------------------------------------------------
 Ci   g1,g2 :First and second radial wave functions
@@ -2175,8 +2256,11 @@ C     Speed of light, or infinity in nonrelativistic case
    11 sum = sum + fi(ir,rofi(ir))
       sum = (2*sum + fi(nr,rofi(nr)))*a/3
 
-      end
+Cgetarg       end
+       end subroutine gintsr 
+
       subroutine gintsl(g1,g2,a,b,nr,rofi,sum)
+
 C- Integrate inner product of two wave equations, large component only
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -2213,9 +2297,12 @@ C ... Local parameters
       r = rofi(nr)
       sum = sum+(r+b)*(g1(nr)*g2(nr))
       sum = sum*a/3
-      end
+Cgetarg       end
+       end subroutine gintsl 
+
       subroutine asprjq(mode,clabl,nl,nsp,eula,neul,pnu,qnu,
      .  pnuloc,qnuloc,bhat,amom)
+
 C- Find average magnetization axis and project ASA moments onto it
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -2441,5 +2528,7 @@ C         aloc(i) = qnu(i,l+1,1) - qnu(i,l+1,2)
         enddo
       endif
 
-      end
+Cgetarg       end
+       end subroutine asprjq 
+
 

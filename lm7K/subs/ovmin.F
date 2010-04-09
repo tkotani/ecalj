@@ -1,5 +1,6 @@
       subroutine ovmin(sovmin,nbas,nbasp,alat,plat,rmax,rmt,dclabl,
      .  ips,mode,z,ontab,oiax,pos,iprtbl)
+
 C- Check volume and sphere overlaps, optionally minimizing them
 C ----------------------------------------------------------------
 Ci Inputs
@@ -192,8 +193,11 @@ C --- Print out updated positions and overlaps ---
      .    i1mach(2),fovl/novl,(fovl/novl)**(1/6d0)*100,fovmx*100)
       endif
 
-      end
+Cgetarg       end
+       end subroutine ovmin 
+
       double precision function ovcall(n,x,p,ir)
+
 C- Generic function call for projection grad fovl in a spec'd direction
 Ci x,p,ir see gradzr
 C     implicit none
@@ -292,5 +296,7 @@ C ... restore pos
       call rlse(oposb)
       call poppr
 
-      end
+Cgetarg       end
+       end function ovcall 
+
 

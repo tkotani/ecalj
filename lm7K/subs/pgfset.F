@@ -1,5 +1,10 @@
+Cgetarg...info...           structure ['pgfset', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['pgfset', 'm_struc_def']
       subroutine pgfset(sspec,nbas,bas,plat,lorder,lrat,ips,vshft,
      .  pgfsl,pgfvl,pgord,pgfn,npl,npadl,npadr,pgplp)
+       
+       use m_struc_def  !Cgetarg
+
 C- Make arrays related to principal layers
 C ----------------------------------------------------------------
 Ci Inputs
@@ -55,7 +60,10 @@ C     implicit none
       logical lorder,lrat
       integer nbas,npl,npadl,npadr,pgfsl(nbas),pgfvl(nbas),
      .  pgord(nbas,2),pgplp(6,0:1),ips(nbas)
-      double precision vshft(-7:nbas),sspec(1)
+Cgetarg       double precision vshft(-7:nbas),sspec(1)
+       real(8):: vshft(-7:nbas) 
+       type(s_spec)::sspec(*)
+
 C local variables
       logical flag
       integer i,j,ib,il,jl,jb,ipr,iv,nv,ib1,isw,isum,ibs,
@@ -221,7 +229,11 @@ C       fmt = '(1x,a,20I4)'
           do  33  jb = 1, nbas
             ib = pgord(jb,1)
             outs = ' '
-            call spacks(0,'spec name',sspec,spid,ips(ib),ips(ib))
+Cgetarg             call spacks(0,'spec name',sspec,spid,ips(ib),ips(ib))
+             do i_spacks=ips(ib),ips(ib) 
+             call spacks_copy('u',sspec(i_spacks)%name,ips(ib),ips(ib),spid,i_spacks)
+             enddo
+
             write(outs,335) jb, ib, spid, pgfsl(ib)-1,
      .        pgfvl(ib), (bas(ib1,ib), ib1=1,3),
      .        ddot(3,pgfn,1,bas(1,ib),1)
@@ -281,5 +293,7 @@ C           pgplp(2,nv) = pgfvl(ib)
 
 C     call prmx('end of pgfset, pos',bas,3,3,nbas)
 
-      end
+Cgetarg       end
+       end subroutine pgfset 
+
 

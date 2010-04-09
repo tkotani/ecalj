@@ -1,4 +1,5 @@
       subroutine ehcor(nclass,nrc,dclabl,vdiff,nl,nsp,qold,qnu,de)
+
 C- Term (V(nin)-V)(nout-nin)/2 for shifts in sphere potential
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -40,5 +41,7 @@ C Local Variables
         de = de + xx*nrc(ic)
    10 continue
 
-      end
+Cgetarg       end
+       end subroutine ehcor 
+
 

@@ -1,4 +1,12 @@
+Cgetarg...info...           structure ['asaqmp', 'array', 'sarray']
+Cgetarg...info...           structure ['asaqmp', 'pot', 'spot']
+Cgetarg...info...           structure ['asaqmp', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['asaqmp', 'lat', 'slat']
+Cgetarg...info...           use_to_add ['asaqmp', 'm_struc_def']
       subroutine asaqmp(iopt,sctrl,spot,slat,sarray,lmxa,lmxf,nlmf,qmp)
+       
+       use m_struc_def  !Cgetarg
+
 C- Multipole moments from 2nd gen ASA wave function products
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -41,7 +49,13 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer iopt,nlmf,lmxa(1),lmxf(1)
-      double precision sctrl(1),spot(1),slat(1),sarray(1),qmp(*)
+Cgetarg       double precision sctrl(1),spot(1),slat(1),sarray(1),qmp(*)
+       real(8):: qmp(*) 
+       type(s_ctrl)::sctrl
+       type(s_pot)::spot
+       type(s_lat)::slat
+       type(s_array)::sarray
+
 C ... Local parameters
       double precision alat,plat(9),qlat(9)
       integer ngrp,nrclas,nclasp,ic,nlml,nl,nn,ipr,iprint,
@@ -55,15 +69,73 @@ C ... Heap
       common /w/ w
 
 C ... Setup
-      call upack('array nclasp oclabl oipc opos oics',sarray,nclasp,
-     .  oclabl,oipc,opos,oics)
-      call upack2('pot opmpol oqpp',spot,opmpol,oqpp)
-      call upack('ctrl nbas nl nspin',sctrl,nbas,nl,nsp,0,0)
-      call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
-      call upack('lat nsgrp oistab oag osymgr',slat,ngrp,oistab,oag,
-     .  og,0)
-      call upack('lat ocg ojcg oidxcg',slat,ocg,ojcg,oidxcg,0,0)
-      call upack1('lat ocy',slat,ocy)
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg       call upack('array nclasp oclabl oipc opos oics',sarray,nclasp,
+Cgetarg      .  oclabl,oipc,opos,oics)
+       
+       nclasp=sarray%nclasp
+       oclabl=sarray%oclabl
+       oipc=sarray%oipc
+       opos=sarray%opos
+       oics=sarray%oics
+
+Cgetarg...info...           integer :: opmpol , integer(8) :: spot%opmpol 1
+Cgetarg...info...           integer :: oqpp , integer(8) :: spot%oqpp 1
+Cgetarg       call upack2('pot opmpol oqpp',spot,opmpol,oqpp)
+       
+       opmpol=spot%opmpol
+       oqpp=spot%oqpp
+
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg       call upack('ctrl nbas nl nspin',sctrl,nbas,nl,nsp,0,0)
+       
+       nbas=sctrl%nbas
+       nl=sctrl%nl
+       nsp=sctrl%nspin
+
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
+Cgetarg...info...           real(8) :: qlat(9) , real(8) :: slat%qlat 9
+Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+       i_copy_size=size(slat%qlat) 
+       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
+Cgetarg...info...           integer :: ngrp , integer(8) :: slat%nsgrp 1
+Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
+Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
+Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
+Cgetarg       call upack('lat nsgrp oistab oag osymgr',slat,ngrp,oistab,oag,
+Cgetarg      .  og,0)
+       
+       ngrp=slat%nsgrp
+       oistab=slat%oistab
+       oag=slat%oag
+       og=slat%osymgr
+
+Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
+Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
+Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
+Cgetarg       call upack('lat ocg ojcg oidxcg',slat,ocg,ojcg,oidxcg,0,0)
+       
+       ocg=slat%ocg
+       ojcg=slat%ojcg
+       oidxcg=slat%oidxcg
+
+Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
+Cgetarg       call upack1('lat ocy',slat,ocy)
+       
+       ocy=slat%ocy
+
       ipr = iprint()
       if (iopt .ne. 0) call rx('asaqmp: bad  iopt')
 
@@ -114,9 +186,12 @@ C   ... Symmetrize qmp for members of this class
 
       if (ipr .ge. 50) call psymqp(nlmf,nlmf,1,nbas,qmp)
 
-      end
+Cgetarg       end
+       end subroutine asaqmp 
+
 
       subroutine psymqp(nlmf,nlml,ib1,ib2,qmp)
+
 C- Printout
 C     implicit none
       integer nlmf,nlml,ib1,ib2
@@ -137,11 +212,14 @@ C     implicit none
   222 format(4x,i6,f12.6)
   221 format('  ib   ilm      qmom',8x,'Qval')
 
-      end
+Cgetarg       end
+       end subroutine psymqp 
+
 
 
       subroutine qpp2mp(nqpp,nl,nsp,nbas,nlmf,ipc,lmxa,
      .  jcg,indxcg,cg,qpp,pmpol,qmp)
+
 C- Make multipole moments from the qpp and pmpol
 C     implicit none
       integer nqpp,nbas,nsp,nl,nlmf,lmxa(1),ipc(nbas),
@@ -227,5 +305,7 @@ C              endif
 
    10 continue
 
-      end
+Cgetarg       end
+       end subroutine qpp2mp 
+
 

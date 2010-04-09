@@ -1,4 +1,5 @@
       subroutine rgrme(nsp,lmxs,lmx,nr,ri,wi,phi,dphi,gradrm)
+
 C- Matrix elements of a gradients of a radial wave function.
 C ----------------------------------------------------------------
 Ci Inputs
@@ -77,9 +78,12 @@ C      write(99,1004) bamt
 C      write(99,1004) bbmt
 C 1004 format(1p5d17.9)
 
-      end
+Cgetarg       end
+       end subroutine rgrme 
+
 
       subroutine prgrme(g1,g2,ri,wi,wir,wbr,nr,lc,r1,r2,rq1,rq2)
+
 C- Make radial integrals of gradients
 C ----------------------------------------------------------------
 Ci Inputs
@@ -109,5 +113,7 @@ C     call prrmsh('dg2',ri,dg,nr,nr,1)
       rq1 = sum1 - sum2*(lc+1)
       rq2 = sum1 + sum2*lc
 
-      end
+Cgetarg       end
+       end subroutine prgrme 
+
 

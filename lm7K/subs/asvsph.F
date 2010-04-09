@@ -1,5 +1,15 @@
+Cgetarg...info...           structure ['asvsph', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['asvsph', 'array', 'sarray']
+Cgetarg...info...           structure ['asvsph', 'pot', 'spot']
+Cgetarg...info...           structure ['asvsph', 'ham', 'sham']
+Cgetarg...info...           structure ['asvsph', 'lat', 'slat']
+Cgetarg...info...           structure ['asvsph', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['asvsph', 'm_struc_def']
       subroutine asvsph(sctrl,slat,sarray,sspec,sham,spot,vrl,imake,
      .  ehterm,lhave)
+       
+       use m_struc_def  !Cgetarg
+
 C- Make ASA sphere potential, potential parameters
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -102,8 +112,16 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer lhave
-      double precision sctrl(1),slat(1),sarray(1),sspec(1),sham(1),
-     .  spot(1),ehterm(5),vrl
+Cgetarg       double precision sctrl(1),slat(1),sarray(1),sspec(1),sham(1),
+Cgetarg      .  spot(1),ehterm(5),vrl
+       real(8):: ehterm(5) , vrl 
+       type(s_ctrl)::sctrl
+       type(s_lat)::slat
+       type(s_array)::sarray
+       type(s_spec)::sspec(*)
+       type(s_ham)::sham
+       type(s_pot)::spot
+
 C ... Local parameters
       logical bittst,lgors,lehk,havedc
       integer oclabl,ogrrme,oics,oinitc,oeula,oipc,onrcp,opmpol,opnu,
@@ -129,23 +147,123 @@ C ... Heap
 C     This ordering must match sham->eterms; see uham
       double precision eterms(20),eterma(20)
 
-      call upack('ctrl nbas nbasp nclass nspec zbak',sctrl,
-     .  nbas,nbasp,nclass,nspec,zbak)
-      call upack('ctrl nl nspin lncol loptc',sctrl,nl,nsp,lncol,loptc,0)
-      call upack('array nclasp ormax',sarray,nclasp,ormax,0,0,0)
-      call upack('array ohave oics oclabl onrcp oipc',sarray,oinitc,
-     .  oics,oclabl,onrcp,oipc)
-      call upack('pot orhrmx oves ovdif ovrmax ovintr',spot,orhrmx,
-     .  oves,ovdif,ovrmax,ovintr)
-      call upack('pot opnu oqnu oqt opprel',spot,opnu,oqnu,oqt,opprel,0)
-      call upack('pot opp osop obxc ogrrme opmpol',spot,
-     .  opp,osop,obxc,ogrrme,opmpol)
-      call upack('ham nmto kmto',sham,nmto,kmto,0,0,0)
-      call upack('ham oeula neula',sham,oeula,neul,0,0,0)
-      call upack('lat vol avw',slat,vol,avw,0,0,0)
-      lpgf = igets('ctrl lpgf',sctrl)
-      lnsph = isw(lgors('ctrl lasa,32',sctrl))
-      lves = 2*igets('ctrl lves,1',sctrl)
+Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
+Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
+Cgetarg...info...           real(8) :: zbak(2) , real(8) :: sctrl%zbak 2
+Cgetarg       call upack('ctrl nbas nbasp nclass nspec zbak',sctrl,
+Cgetarg      .  nbas,nbasp,nclass,nspec,zbak)
+       
+       nbas=sctrl%nbas
+       nbasp=sctrl%nbasp
+       nclass=sctrl%nclass
+       nspec=sctrl%nspec
+       i_copy_size=size(sctrl%zbak) 
+       call dcopy(i_copy_size,sctrl%zbak,1,zbak,1) 
+
+Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
+Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
+Cgetarg...info...           integer :: loptc , integer(8) :: sctrl%loptc 1
+Cgetarg       call upack('ctrl nl nspin lncol loptc',sctrl,nl,nsp,lncol,loptc,0)
+       
+       nl=sctrl%nl
+       nsp=sctrl%nspin
+       lncol=sctrl%lncol
+       loptc=sctrl%loptc
+
+Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
+Cgetarg       call upack('array nclasp ormax',sarray,nclasp,ormax,0,0,0)
+       
+       nclasp=sarray%nclasp
+       ormax=sarray%ormax
+
+Cgetarg...info...           integer :: oinitc , integer(8) :: sarray%ohave 1
+Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
+Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
+Cgetarg...info...           integer :: onrcp , integer(8) :: sarray%onrcp 1
+Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
+Cgetarg       call upack('array ohave oics oclabl onrcp oipc',sarray,oinitc,
+Cgetarg      .  oics,oclabl,onrcp,oipc)
+       
+       oinitc=sarray%ohave
+       oics=sarray%oics
+       oclabl=sarray%oclabl
+       onrcp=sarray%onrcp
+       oipc=sarray%oipc
+
+Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
+Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
+Cgetarg...info...           integer :: ovdif , integer(8) :: spot%ovdif 1
+Cgetarg...info...           integer :: ovrmax , integer(8) :: spot%ovrmax 1
+Cgetarg...info...           integer :: ovintr , integer(8) :: spot%ovintr 1
+Cgetarg       call upack('pot orhrmx oves ovdif ovrmax ovintr',spot,orhrmx,
+Cgetarg      .  oves,ovdif,ovrmax,ovintr)
+       
+       orhrmx=spot%orhrmx
+       oves=spot%oves
+       ovdif=spot%ovdif
+       ovrmax=spot%ovrmax
+       ovintr=spot%ovintr
+
+Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
+Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
+Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
+Cgetarg...info...           integer :: opprel , integer(8) :: spot%opprel 1
+Cgetarg       call upack('pot opnu oqnu oqt opprel',spot,opnu,oqnu,oqt,opprel,0)
+       
+       opnu=spot%opnu
+       oqnu=spot%oqnu
+       oqt=spot%oqt
+       opprel=spot%opprel
+
+Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
+Cgetarg...info...           integer :: osop , integer(8) :: spot%osop 1
+Cgetarg...info...           integer :: obxc , integer(8) :: spot%obxc 1
+Cgetarg...info...           integer :: ogrrme , integer(8) :: spot%ogrrme 1
+Cgetarg...info...           integer :: opmpol , integer(8) :: spot%opmpol 1
+Cgetarg       call upack('pot opp osop obxc ogrrme opmpol',spot,
+Cgetarg      .  opp,osop,obxc,ogrrme,opmpol)
+       
+       opp=spot%opp
+       osop=spot%osop
+       obxc=spot%obxc
+       ogrrme=spot%ogrrme
+       opmpol=spot%opmpol
+
+Cgetarg...info...           integer :: nmto , integer(8) :: sham%nmto 1
+Cgetarg...info...           real(8) :: kmto(20) , real(8) :: sham%kmto 6
+Cgetarg       call upack('ham nmto kmto',sham,nmto,kmto,0,0,0)
+       
+       nmto=sham%nmto
+       i_copy_size=size(sham%kmto) 
+       call dcopy(i_copy_size,sham%kmto,1,kmto,1) 
+
+Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
+Cgetarg...info...           integer :: neul , integer(8) :: sham%neula 1
+Cgetarg       call upack('ham oeula neula',sham,oeula,neul,0,0,0)
+       
+       oeula=sham%oeula
+       neul=sham%neula
+
+Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
+Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
+Cgetarg       call upack('lat vol avw',slat,vol,avw,0,0,0)
+       
+       vol=slat%vol
+       avw=slat%avw
+
+Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
+       lpgf = int(sctrl%lpgf(1)) 
+
+Cgetarg       lnsph = isw(lgors('ctrl lasa,32',sctrl))
+       lnsph = isw ( iand(32,int(sctrl%lasa)) .ne.0 ) 
+
+Cgetarg       lves = 2*igets('ctrl lves,1',sctrl)
+       lves = 2 * iand(1,int(sctrl%lves)) 
+
       if (lpgf .ne. 0) then
         lves = lves+100
       endif
@@ -157,7 +275,12 @@ C     This ordering must match sham->eterms; see uham
       nclspp = 2*nclasp-nclass
       call dpzero(ehterm,4)
       call dpzero(amag,3)
-      call upack1('ham eterms',sham,eterms)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call upack1('ham eterms',sham,eterms)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,sham%eterms,1,eterms,1) 
+
 C     asvsph only modifies eterms(3:11)
       call dvset(eterms,3,11,0d0)
       call dvset(eterms,15,16,0d0)
@@ -207,12 +330,16 @@ C       If estat energy changed, double-counting terms are available
           call dvset(eterms,3,11,0d0)
         endif
 C       call poppr
-        seref = seref + dgetss('spec eref',is,sspec)*nrclas
+Cgetarg         seref = seref + dgetss('spec eref',is,sspec)*nrclas
+         seref = seref + (sspec(is)%eref) * nrclas 
+
         if (imake .eq. 4) goto 40
 
 C   ... Check that potential and other pars available if to continue
         k = w(oinitc+ic-1)
-        if (.not. lgors('ctrl lgen3',sctrl)) then
+Cgetarg         if (.not. lgors('ctrl lgen3',sctrl)) then
+         if ( .not. iand(0,int(sctrl%lgen3)) .ne.0 ) then 
+
         if (mod(k/2,2) .ne. 1
      .    .or.(bittst(lncol,4).or.bittst(lncol,8)).and.(mod(k/4,2)).ne.1
      .    .or. loptc.gt.0 .and. (mod(k/32,2)) .ne. 1
@@ -228,7 +355,9 @@ C   ... Only accumulate into ehkk if ehkat is set
 C       qat = dval(w(oqt),ic)
 C       zat = dgetss('spec z',is,sspec)
         if (havedc .and. lehk) then
-          ehkat = ehkat - dgetss('spec eref',is,sspec)
+Cgetarg           ehkat = ehkat - dgetss('spec eref',is,sspec)
+           ehkat = ehkat - (sspec(is)%eref) 
+
           ehkk = ehkk + ehkat*nrclas
         else
           lehk = .false.
@@ -268,7 +397,12 @@ C ... Total magnetization, noncollinear case
         eterms(15) = amgm
       endif
 C ... Repack double-counting terms
-      call pack1('ham eterms',sham,eterms)
+Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
+Cgetarg       call pack1('ham eterms',sham,eterms)
+       
+       i_copy_size=size(sham%eterms) 
+       call dcopy(i_copy_size,eterms,1,sham%eterms,1) 
+
 
 C --- Make NMTO potential parameters ---
 C      if (lgors('ctrl lgen3',sctrl)) then
@@ -288,9 +422,23 @@ C (5) d.c. terms from applied fields.
       endif
 
       thrpv = thrpv + trumad
-      call pack1('pot vmtz',spot,vmtz)
-      call pack5('ham ehk thrpv seref amgm',sham,ehkk,thrpv,seref,amgm,
-     .  0)
+Cgetarg...info...           real(8) :: vmtz(2) , real(8) :: spot%vmtz 1
+Cgetarg       call pack1('pot vmtz',spot,vmtz)
+       
+       spot%vmtz=vmtz(1)
+
+Cgetarg...info...           real(8) :: ehkk , real(8) :: sham%ehk 1
+Cgetarg...info...           real(8) :: thrpv , real(8) :: sham%thrpv 1
+Cgetarg...info...           real(8) :: seref , real(8) :: sham%seref 1
+Cgetarg...info...           real(8) :: amgm , real(8) :: sham%amgm 1
+Cgetarg       call pack5('ham ehk thrpv seref amgm',sham,ehkk,thrpv,seref,amgm,
+Cgetarg      .  0)
+       
+       sham%ehk=ehkk 
+       sham%thrpv=thrpv 
+       sham%seref=seref 
+       sham%amgm=amgm 
+
       if (lehk) lhave = lhave+10
 
       endif
@@ -299,7 +447,7 @@ C --- MPI broadcast everything passed out of asvsph ---
 C     sarray and contents of sarray pointers
       call mpibc1(w(oinitc),nclasp,2,.false.,'asvsph','initc')
 C     sham
-      call mpibc1(sham,nint(sham(1))*nbas,4,.false.,'asvsph','sham')
+      call mpibc1(sham,nint(sham%size)*nbas,4,.false.,'asvsph','sham')
 C     spot and and contents of spot pointers
       call mpibc1(w(orhrmx),nclasp,4,.false.,'asvsph','rhrmx')
       call mpibc1(w(oves),nclspp,4,.false.,'asvsph','ves')
@@ -332,10 +480,12 @@ C     if (lgors('ctrl lasa,32',sctrl)) then
        i = (2*nl-1)*nl**2*3*nsp*nclasp
        call mpibc1(w(opmpol),i,4,.false.,'asvsph','pmpol')
       endif
-      call mpibc1(spot,nint(spot(1)),4,.false.,'asvsph','spot')
+      call mpibc1(spot,nint(spot%size),4,.false.,'asvsph','spot')
 C     Remaining arguments passed to asvsph
       call mpibc1(ehterm,5,4,.false.,'asvsph','ehterm')
       call mpibc1(lhave,1,2,.false.,'asvsph','lhave')
 
-      end
+Cgetarg       end
+       end subroutine asvsph 
+
 
