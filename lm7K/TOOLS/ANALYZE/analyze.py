@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 # This routine checks module-dependency in fortran90 and compile them in right order.
 #
 import os
@@ -71,11 +71,12 @@ re_function =  re.compile( \
 	'((^\ *(complex|real|double|character|integer|logical)[^!]* *function))', re.IGNORECASE)
 re_function2 =  re.compile( \
 	'((^\ *function))', re.IGNORECASE)
-re_end       = re.compile( '((^\ *end( |\Z)))', re.IGNORECASE)
+re_end       = re.compile( '((^\ *end( |\Z)+(?!(if|select))))', re.IGNORECASE)
 re_end_mod   = re.compile( '((^\ *end *module))', re.IGNORECASE)
 re_contains  = re.compile( '((^\ *contains))', re.IGNORECASE)
 re_subroutine= re.compile( '^\ *subroutine', re.IGNORECASE)
 re_blockdata = re.compile( '^\ *blockdata', re.IGNORECASE)
+re_type      = re.compile( '^\ *type +(?!\()', re.IGNORECASE)
 re_call      = re.compile( '^\ *call', re.IGNORECASE)
 re_use       = re.compile( '^\ *use', re.IGNORECASE)
 re_program   = re.compile( '^\ *program', re.IGNORECASE)
@@ -88,6 +89,7 @@ rmod         = re.compile( 'module', re.IGNORECASE)
 rprog        = re.compile( 'program', re.IGNORECASE)
 rent         = re.compile( 'entry', re.IGNORECASE)
 rblock       = re.compile( 'blockdata', re.IGNORECASE)
+rtype        = re.compile( 'type', re.IGNORECASE)
 
 nargv = len(sys.argv) -1
 if(nargv==0) :
@@ -140,7 +142,7 @@ for ffilein in ffiles:
 	print ffilein ," ------------------------"
 	flines = string.split(open(ffilein,'rt').read(),'\n')
 	flines = skipc(flines,ffilein) #flines are list
-
+	
 ### find subroutines and range
 #for ff in fall: #ff contains line data for each file
 	level=0
@@ -227,10 +229,16 @@ for ffilein in ffiles:
 			subname= rsp( re.split("(,|^Z| )", subname)[0] )
 			fff= [subname,fdat[0],fdat[1],fdat[3]]
 			calllist.append(fff)
+			print fff
 		elif(re_blockdata.search(fline) ):
 			level=level+1
 			subname= rsp( re.split("(\  |\n)", rblock.split(fline,maxsplit=1)[1])[0] )
-			fff= [subname,fdat[0],fdat[1],fdat[3]]
+			fff= ['block: '+subname,fdat[0],fdat[1],fdat[3]]
+			sstack.append(fff)
+		elif(re_type.search(fline) ):
+			level=level+1
+			subname= rsp( re.split("(\  |\n)", rtype.split(fline,maxsplit=1)[1])[0] )
+			fff= ['type: '+subname,fdat[0],fdat[1],fdat[3]]
 			sstack.append(fff)
 		else:
 			continue
@@ -252,7 +260,7 @@ skeys.sort()
 
 ### find functions #######################
 fun=[]
-rfun='('
+rfun='fjpadpqe341padfeh=>this is for rfun is empty case'
 init=1
 for k in sdef.keys():
 	if(k[0:5]=='fun: '):
@@ -264,10 +272,36 @@ for k in sdef.keys():
 			aa='|'
 		rrr  = re.sub( '\+','',k[5:] )
 		rfun = rfun + aa + rrr
-rfun = '(?<=\W)'+ rfun +')(?=\W)'
-print 'rfun=',rfun
+	if(k[0:5]=='mod: '):
+		fun = fun + [k[5:]]
+		if(init==1):
+			aa=''
+			init=0
+		else:
+			aa='|'
+		rrr  = re.sub( '\+','',k[5:] )
+		rfun = rfun + aa + rrr
+	if(k[0:6]=='type: '):
+		fun = fun + [k[6:]]
+		if(init==1):
+			aa=''
+			init=0
+		else:
+			aa='|'
+		rrr  = re.sub( '\+','',k[6:] )
+		rfun = rfun + aa + rrr
+	if(k[0:7]=='block: '):
+		fun = fun + [k[7:]]
+		if(init==1):
+			aa=''
+			init=0
+		else:
+			aa='|'
+		rrr  = re.sub( '\+','',k[7:] )
+		rfun = rfun + aa + rrr
+rfun = '(?<=\W)('+ rfun +')(?=\W)'
 rfff = re.compile(rfun)
-#print ' fun=',fun
+print ' rfun=',rfun
 #sys.exit()
 
 
@@ -275,6 +309,9 @@ rfff = re.compile(rfun)
 for i in skeys:
 	filen= sdef[i][0] 
 	slines=sdef[i][5]
+
+# 	print 'fff ',filen, slines
+
 #	init = sdef[i][1]
 #	end  = sdef[i][2]
 #	print 'def@  ', i,filen,init,end 
@@ -302,6 +339,7 @@ for i in skeys:
 #	for ic in sdef[i][4]:
 #		print 'cal@  ', i,' ',ic[0],ic[1],ic[2]
 
+#sys.exit()
 
 ### Write definition and call. ####
 print '#############################################'

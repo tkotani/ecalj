@@ -58,6 +58,7 @@ C ... External calls
       external daxpy,dcopy,defps2,defrr,lattc,lattdf,pack1,pack5,rdistn,
      .         redfrr,spackv,upack,upack1,upack2
 
+      print *,'lattic:'
 C     call info(30,1,0,' Real and recip space lattices:',0,0)
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: awald0 , real(8) :: slat%as 1
@@ -80,7 +81,7 @@ Cgetarg      .  alat,plat0)
        
        nkdmx=slat%nkdmx
        nkqmx=slat%nkqmx
-       i_copy_size=size(slat%gam) 
+       i_copy_size=size(slat%gam)
        call dcopy(i_copy_size,slat%gam,1,gam,1) 
        alat=slat%alat
        i_copy_size=size(slat%plat) 
@@ -128,7 +129,7 @@ Cgetarg         call upack2('lat platl platr',slat,platl,platr)
      .    plat(1,3),platl(1,3),xx1,platr(1,3),xx2,plat0(1,3),0,0)
 
       endif
-
+c      print *,'xxxxxxx1'
 C ... Apply specified linear transformation of lattice and basis vectors
 Cgetarg...info...           integer :: ldist , integer(8) :: slat%ldist 1
 Cgetarg...info...           real(8) :: dist(3,3) , real(8) :: slat%dist 9
@@ -140,6 +141,7 @@ Cgetarg       call upack('lat ldist dist opos',slat,ldist,dist,opos,0,0)
        call dcopy(i_copy_size,slat%dist,1,dist,1) 
        opos=slat%opos
 
+c      print *,'xxxxxxx2'
 C     call prmx('pos from lat',w(opos),3,3,nbaspp)
 
       if (abs(gt-1) .gt. 1d-10) then
@@ -170,6 +172,7 @@ C     call prmx('pos from lat',w(opos),3,3,nbaspp)
      .    'angle betw/ PlatR and Plat(3) > 90 degrees ... fix PlatR')
 
       endif
+c      print *,'xxxxxxx3'
 
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call pack1('lat vol',slat,vol)

@@ -1,4 +1,4 @@
-HEADER  rocksalt GdN
+HEADER  rocksalt GdN !!!takao modified nk=4 --> nk=2 Apr2010. nk=2 is  two small.
 TESTLMF lmfa gdn
         lmf  gdn
         mv rst.gdn rst-save.gdn
@@ -12,14 +12,14 @@ TESTLMF lmfa gdn
         lmf  gdn -vcoref=t
 TESTCLS cp rst-save.gdn rst.gdn
         cp dmats-save.gdn dmats.gdn
-        lmf gdn --mull:mode=1 -vnk=6 -vnit=1 -vso=t
+        lmf gdn --mull:mode=1 -vnk=2 -vnit=1 -vso=t
         mv dos.gdn tdos.gdn
-        lmdos --nosym -vso=t --mull:mode=1 --dos:fpdos:npts=1001:window=-1,1 -vnk=6 gdn
+        lmdos --nosym -vso=t --mull:mode=1 --dos:fpdos:npts=1001:window=-1,1 -vnk=2 gdn
         mv dos.gdn dos-mull.gdn
 PLOTMUL echo 150 10 -9 10 | pldos -ef=0 -escl=13.6 -fplot '-lst=8' -ref:fn=tdos.gdn:chan=1:scale dos-mull.gdn
 CLEAN   rm -f \{ctrl,atm,dmats,moms,occnum,dmats-save,rst-save}.gdn
         rm -f \{mixm,rst,save,log,hssn,wkp,dos,tdos,pdos,dos-mull}.gdn
-% const asa=f nsp=2 nk=4 ldau=t so=f
+% const asa=f nsp=2 nk=2 ldau=t so=f
 VERS    LMASA-6 LMF-6 LM:7 FP:7
 IO      SHOW=f HELP=f VERBOS=40 WKP=F IACTIV=F
 OPTIONS NSPIN={nsp}  REL=t CCOR=T LMH=F ADNF=f HF=f SO={so} PFLOAT=0
@@ -51,7 +51,7 @@ SPEC
 %endif
        ATOM=N  Z=7 R=1.93 LMX=2 LMXA=2 RSMH= {r2} {r2} {r2} EH= -1 -0.1 -0.1 A=0.03
        EREF=-108.361329 IDMOD= 0 0 0
-% const nit=15
+% const nit=2
 ITER   MIX=A,b=0.2,w=0.8,0.2 CONV=1E-5 CONVC=1E-5 NIT={nit}
        NITU=5 TOLU=1d-6 UMIX=.9
 MIX    MODE=A,b=0.2,w=0.8,0.2 CONV=1E-5 CONVC=1E-5

@@ -271,11 +271,13 @@ Cgetarg         call pack1('ctrl maxit',sctrl,1)
          sctrl%maxit=1 
 
 C       Suppress mixing of output density
-        call lstra('strn mix',i,j,k)
-        call ustrn(i,-j,1,k,i,4)
-        sstrn(k:k+3) = 'none'
-C       call upacks('strn mix',i,j)
-C       print *, sstrn(i:j)
+c        call lstra('strn mix',i,j,k)
+c        call ustrn(i,-j,1,k,i,4)
+c        sstrn(k:k+3) = 'none'
+c       call packs('strn mix',sstrn,'none')
+c       call upacks('strn mix',i,j)
+c       print *, sstrn(i:j)
+c       stop 'xxxxxxxxxxxxxxxxxx'
       endif
 
 C -------------------------- Unpack & initialization -------------------

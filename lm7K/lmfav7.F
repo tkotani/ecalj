@@ -20,7 +20,7 @@ C     Next two lines guarantee w is aligned along a d.p. boundary
 
 C ... Controls for IO
       integer lstrn
-      parameter (lstrn=2000)
+      parameter (lstrn=20000)
 
       character prgnam*8, vrsion(2)*6, ext*100
 C ... Structure for strings
@@ -225,8 +225,7 @@ C --- Read recrd ---
      *  slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      *  v_sarry,v_smove,v_stb,sstrn)
 
-
-
+c
 
 
 C ... Input to scale MT radii (define RESIZE)

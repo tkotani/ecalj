@@ -303,7 +303,7 @@ C ------------------- Copy to structures ----------------------
 C     (query-replace-regexp "\\([a-z_]+\\)\\([0-9]+\\)" "\\2*isw(\\1\\2)" nil)
 
 C ... Initialize sstrn
-      call ustrn(w,0,len(sstrn),0,0,0)
+c      call ustrn(w,0,len(sstrn),0,0,0) !takao this does nothing.
       sstrn = ' '
 
 C --- Allocate and copy input to sbz ---
@@ -712,8 +712,10 @@ Cgetarg...info...           NG:: lat_dist , real(8) :: v_slat%dist 9
 Cgetarg       call pack5('lat gam ldist dist',v_slat,
 Cgetarg      .  lat_gam,lat_ldist,lat_dist,0,0)
        
-       i_copy_size=size(v_slat%gam) 
-       call dcopy(i_copy_size,lat_gam,1,v_slat%gam,1) 
+c takao I think gam is alreay setted above.
+c       i_copy_size=size(v_slat%gam) 
+c       call dcopy(i_copy_size,lat_gam,1,v_slat%gam,1) 
+
        v_slat%ldist=lat_ldist 
        i_copy_size=size(v_slat%dist) 
        call dcopy(i_copy_size,lat_dist,1,v_slat%dist,1) 
@@ -1569,39 +1571,48 @@ Cgetarg           call pack2('site delta',v_ssite,j,delta(1,j))
 C ... Copy string outputs to sstrn : amix, gfopt, jobid, mix, mmham, sxopt, symg
       j = len_trim(iter_amix)          ! Euler angle mixing amix
       if (j .gt. 0) then
-        call lstra('strn amix',i,o,k)  ! o = index amix has (see ustrn),
-        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
-        sstrn(i:i+j-1) = iter_amix
+c        call lstra('strn amix',i,o,k)  ! o = index amix has (see ustrn),
+c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
+c        sstrn(i:i+j-1) = iter_amix
+         call packs('strn amix',sstrn,iter_amix)
+         call upacks('strn amix',inix,iendx)
+c         print *,'vvvvv ',sstrn(inix:iendx)
+c         stop 'xxxxxxxxxxxxxxx'
       endif
       j = len_trim(iter_mix)           ! density mixing mix
       if (j .gt. 0) then
-        call lstra('strn mix',i,o,k)   ! o = index mix has (see ustrn),
-        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
-        sstrn(i:i+j-1) = iter_mix
+c        call lstra('strn mix',i,o,k)   ! o = index mix has (see ustrn),
+c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
+c        sstrn(i:i+j-1) = iter_mix
+         call packs('strn mix',sstrn,iter_mix)
       endif
       j = len_trim(mmham)              ! micromagnetics hamiltonian
       if (j .gt. 0) then
-        call lstra('strn mmham',i,o,k) ! o = index mmham has (see ustrn),
-        call ustrn(w,-o,1,i,k,j)       ! string should be copied to sstrn(i:j)
-        sstrn(i:i+j-1) = mmham
+c        call lstra('strn mmham',i,o,k) ! o = index mmham has (see ustrn),
+c        call ustrn(w,-o,1,i,k,j)       ! string should be copied to sstrn(i:j)
+c        sstrn(i:i+j-1) = mmham
+         call packs('strn mmham',sstrn,mmham)
       endif
       j = len_trim(header)             ! jobid
       if (j .gt. 0) then
-        call lstra('strn jobid',i,o,k) ! o = index jobid has (see ustrn),
-        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
-        sstrn(i:i+j-1) = header
+c        call lstra('strn jobid',i,o,k) ! o = index jobid has (see ustrn),
+c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
+c        sstrn(i:i+j-1) = header
+         call packs('strn jobid',sstrn,header)
       endif
       j = len_trim(gfopt)              ! Green's function gfopt
       if (j .gt. 0) then
-        call lstra('strn gfopt',i,o,k) ! o = index mix has (see ustrn),
-        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
-        sstrn(i:i+j-1) = gfopt
+c        call lstra('strn gfopt',i,o,k) ! o = index mix has (see ustrn),
+c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
+c        sstrn(i:i+j-1) = gfopt
+        call packs('strn gfopt',sstrn,gfopt)
       endif
       j = len_trim(sxopt)              ! Screened exchange sxopt
       if (j .gt. 0) then
-        call lstra('strn sxopt',i,o,k) ! o = index mix has (see ustrn),
-        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
-        sstrn(i:i+j-1) = sxopt
+c        call lstra('strn sxopt',i,o,k) ! o = index mix has (see ustrn),
+c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
+c        sstrn(i:i+j-1) = sxopt
+         call packs('strn sxopt',sstrn,sxopt)
       endif
 
 C ... Suppress symmetry operations for special circumstances
@@ -1628,9 +1639,10 @@ C     Switches that turn off automatic finder, incl. inversion
       endif
       j = len_trim(symg)               ! Symmetry group symg
       if (j .gt. 0) then
-        call lstra('strn symg',i,o,k)  ! o = index symg has (see ustrn),
-        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
-        sstrn(i:i+j-1) = symg
+c        call lstra('strn symg',i,o,k)  ! o = index symg has (see ustrn),
+c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
+c        sstrn(i:i+j-1) = symg
+         call packs('strn symg',sstrn,symg)
       endif
 C ... End of copy
 
@@ -2158,8 +2170,9 @@ Cki        call shstru('gw',w(osgw),0,0)
         call shstru('spec',v_sspec,1,nspec)
         call shstru('site',v_ssite,1,nsite)
         call rx0('done show')
+
       endif
-C     call rx0('done')
+c      call rx0('done')
       end subroutine rdctrl2
 
 C      subroutine string_replace(rcd,aaa,bbb)

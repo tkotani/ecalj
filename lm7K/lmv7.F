@@ -78,7 +78,7 @@ C     Next two lines guarantee w is aligned along a d.p. boundary
 
 C ... Controls for IO
       integer lstrn
-      parameter (lstrn=2000)
+      parameter (lstrn=20000)
 
       character prgnam*8, vrsion(2)*6, ext*100
 C ... Structure for strings
