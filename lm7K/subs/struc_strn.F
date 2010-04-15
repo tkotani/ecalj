@@ -1,33 +1,9 @@
-      module sstrn_sname
-      integer,parameter:: nsname=8,nx=2000
-      integer:: init(nx),iend(nx)
-      character*20 ::sname(10)
-      integer,save :: initialized=0
-      contains
-      subroutine initialize()
-      integer::ix
-      iend=-1
-      sname='xxxxxxxxxxxxxxxxxxxx'
-      sname(1)='strn mix'   
-      sname(2)='strn symg'  
-      sname(3)='strn jobid'
-      sname(4)='strn map'
-      sname(5)='strn amix'
-      sname(6)='strn mmham' 
-      sname(7)='strn sxopt' 
-      sname(8)='strn gfopt'
-      do ix=1,nsname
-        init(ix)=nx*(ix-1)+1
-      enddo
-      end subroutine
-      end module
-
       subroutine packs(snamein,sstrn,packingw)
 C pack paking word(packingw) into sstrn. Use upacks to unpack.
 Ci snamein: sname defined in sstrn_sname.
 Ci sstrn: long string. sstrings.
 Ci packingw 
-      use sstrn_sname
+      use m_sstrnsname
       character*(*):: snamein,sstrn,packingw
       integer:: i,lll
       if(initialized==0) then
@@ -52,7 +28,7 @@ Ci packingw
       
       subroutine upacks(snamein,init_,iend_)
 c return init and iend for sstring(init:iend) for given snamein
-      use sstrn_sname
+      use m_sstrnsname
       integer::init_,iend_
       character*(*):: snamein
       if(initialized==0) then
@@ -69,14 +45,6 @@ c return init and iend for sstring(init:iend) for given snamein
       call rxs('upacks: no sname is found for snamein. '//
      &          'bug or need to modify codes',snamein)
       end
-
-
-
-
-
-
-
-
 
 C$$$      subroutine lstra(sname,indxs,offe,noffe)
 C$$$C- Returns a list of indices corresponding to names in struc

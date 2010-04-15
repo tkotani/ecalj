@@ -14,15 +14,13 @@
 ######################################################################################################
 
 # It will reads MAKEINC/Make.inc.$(PLATFORM).
-#PLATFORM=gfortran
+PLATFORM=gfortran
 #PLATFORM=gfortran.fpp
 #PLATFORM=gfortran_mpi
 #PLATFORM=gfortran_mpik
-#
-PLATFORM=ifort
+#PLATFORM=ifort
 #PLATFORM=ifort_mpi
 #PLATFORM=ifort_mpik
-
 
 ###########################################################################
 # Don't edit lines below 
@@ -33,6 +31,7 @@ obj_path=obj.$(PLATFORM)
 include slatsm/make.inc
 include subs/make.inc
 include fp/make.inc
+
 
 #################################
 .PHONY: slatsm-lib fp-lib subs-lib  slatsm-dir fp-dir subs-dir mod-dir libs progs clean cleanobj veryclean distclean check checkgw install 
@@ -49,7 +48,7 @@ ALL: libs
 #	(cd fp; make -f Makefile FP=$(FP))
 #	(cd FPLOTdir; make;cp $(fplotprogs) ../)
 #	make -f Makefile $(programs)
-
+#
 #	(cd nc; make -f Makefile )
 #	(cd tb; make -f Makefile )
 
@@ -69,6 +68,11 @@ libs: mod-dir slatsm-dir subs-dir fp-dir
 ########################################
 # general rules
 ########################################
+.SUFFIXES: .o .F .mod
+
+%.mod: %.F
+	$(FC) $(FFLAGS) -c $< -o $*.o
+
 %.o:%.F
 	$(FC) $(FFLAGS) -c $<
 
@@ -96,8 +100,7 @@ fp-dir:
 $(fp_obj_path)/%.o: fp/%.F
 	$(FC) $(FFLAGS) -c $< -o $@ 
 
-
-################################################
+###############################################
 # module dependency (fixed). What *.F contains what modules.
 ################################################
 # $(subs_obj_path)/m_rdctrl.o:    $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_toksw.o $(subs_obj_path)/m_struc_def.o $(subs_obj_path)/m_struc_func.o 
@@ -115,7 +118,10 @@ $(fp_obj_path)/%.o: fp/%.F
 # I must load Make.inc here
 ########################################
 
+include Make.mod.dependency
 include MAKEINC/Make.inc.$(PLATFORM)
+#include MAKEINC/Make.inc.$(PLATFORM).patch #this is for less optimization to avoid compilar bugs.
+
 mod-dir:
 	[ -d MODDIR ] || mkdir  MODDIR 
 	[ -d $(moddir) ] || mkdir  $(moddir) 
@@ -138,8 +144,6 @@ lmdos.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMDOS -c lmv7.F -o $@
 lmfgw.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMF -DLMFGWD -c lmv7.F -o $@
-lm67.o: lm67.F
-	$(FC) $(FFLAGS) -DLM67 -c lm67.F -o $@
 lmscell.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMSCELL -c lmv7.F -o $@
 #tbe.o: lmv7.F
@@ -174,9 +178,6 @@ lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA)
 lmfgw:	lmfgw.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
 	$(LK) $(LKFLAGS1) $@.o  $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
-lm67:	lm67.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o  $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
-
 lmf2gw:	lmf2gw.o
 	$(FC) $(LKFLAGS1) $@.o $(LKFLAGS2) -o $@
 
@@ -185,6 +186,9 @@ lmf2gw:	lmf2gw.o
 
 rdcmd:	rdcmd.o $(LIBSUBS) $(LIBSLA)
 	$(LK) $(LKFLAGS1) $@.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+
+lm67:	
+	$(FC) $(FFLAGS_LESS3) lm67.F  $(LIBLOC) -o lm67
 
 
 ####### for MPI

@@ -475,4 +475,7 @@ subs_list:=\
         rotwv.o \
         dpdbyl.o \
 	dpdftr.o \
-	pvsms2.o
+	pvsms2.o \
+	m_psigd.o \
+	m_hamindex.o \
+	m_sstrnsname.o

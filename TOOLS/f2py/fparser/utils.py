@@ -180,18 +180,19 @@ def str2stmt(string, isfree=True, isstrict=False):
         block = block.content[0]
     return block
 
-def get_char_bit():
-    import numpy
-    one = numpy.ubyte(1)
-    two = numpy.ubyte(2)
-    n = numpy.ubyte(2)
-    i = 1
-    while n>=two:
-        n <<= one
-        i += 1
-    return i
-
-CHAR_BIT = get_char_bit()
+#def get_char_bit():
+#    import numpy
+#    one = numpy.ubyte(1)
+#    two = numpy.ubyte(2)
+#    n = numpy.ubyte(2)
+#    i = 1
+#    while n>=two:
+#        n <<= one
+#        i += 1
+#    return i
+#
+#CHAR_BIT = get_char_bit()
+CHAR_BIT=8
 
 def show_item_on_failure(func, _exception_depth=[0]):
     """
@@ -248,4 +249,3 @@ class classes(type):
         cls = type.__new__(metacls, name, bases, dict)
         _classes_cache[name] = cls
         return cls
-
