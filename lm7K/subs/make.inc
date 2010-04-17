@@ -1,4 +1,8 @@
 subs_list:=\
+	m_psigd.o \
+	m_hamindex.o \
+	m_sstrnsname.o \
+	m_struc_def.o \
 	acoord.o \
 	addbas.o \
 	addrwf.o \
@@ -471,9 +475,4 @@ subs_list:=\
         dpdbyl.o \
 	dpdftr.o \
 	pvsms2.o \
-	m_psigd.o \
-	m_hamindex.o \
-	m_sstrnsname.o \
-	m_struc_def.o \
-	type_size.o \
-        struc_all.o
+        sp2cls.o
