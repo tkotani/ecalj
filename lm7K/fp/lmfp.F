@@ -124,7 +124,7 @@ C ... Local variables
      .  nbaspp,ndham,nevmx,nglob,nit1,nl,npadl,npadr,nsp,nspec,numq,
      .  stdo,pdim,lsc
       integer oevl,ofrc,oftot,oorhat,opos,opos2,osmpot,osmrho,owk,op,o
-      double precision plat(3,3),qlat(3,3),qbg,dgets,xv(10),fptol,umix
+      double precision plat(3,3),qlat(3,3),qbg,xv(10),fptol,umix
       character strn*120, fileid*68, alabl*8, flg*3
 C For mixing.  Default parameters dmxp:
 C 1(I) mixing scheme; 2 beta; 3 wc; 4,5 wgt; 6(I)nsave 7(I) mmix;
@@ -241,8 +241,9 @@ Cgetarg         call pack2('ctrl lfrce mdprm',sctrl,0,mdprm)
          sctrl%lfrce=0 
          i_copy_size=size(sctrl%mdprm) 
          call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1) 
-
-        call lmfopb(strn(9:),slat,sspec,etot(1)-dgets('ham seref',sham))
+ctakao
+c        call lmfopb(strn(9:),slat,sspec,etot(1)-dgets('ham seref',sham))
+        call lmfopb(strn(9:),slat,sspec,etot(1)-sham%seref)
 C       call wkdbg2
 
 C -------------------------- Total energy mode -------------------

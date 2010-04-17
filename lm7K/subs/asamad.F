@@ -140,7 +140,7 @@ C ... Local parameters
      .  nclass,lmet,lnsph,isw,igets,nlmf,ival,stdo
       integer oics,oclabl,onrcp,oipcp,omad,ovrmax,ormax,odq,olmx,oz,oqc,
      .  oqt,odlv,oqlv,opos,opos2,omad2,ovshft,oves,oqpp,ovval,oqmp,ovh
-      double precision rhrmx(2),dgets,platl(3,3),platr(3,3),alat,awald0,
+      double precision rhrmx(2),platl(3,3),platr(3,3),alat,awald0,
      .  tol,vol,plat(9),qlat(9),awald,xx,vavo(5),vavn(5),dval,dum(3),
      .  vglob,vconst(3),rmsv(3)
 C ... Parameters for non-equilibrium mode (S.F.)
@@ -179,7 +179,10 @@ Cgetarg       call upack('ctrl lmet nclass zbak',sctrl,lmet,nclass,rhrmx,0,0)
        i_copy_size=size(sctrl%zbak) 
        call dcopy(i_copy_size,sctrl%zbak,1,rhrmx,1) 
 
-      call dscal(2,1/dgets('lat vol',slat),rhrmx,1)
+ctakao
+c      call dscal(2,1/dgets('lat vol',slat),rhrmx,1)
+      call dscal(2,1d0/slat%vol,rhrmx,1)
+
 Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
 Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
 Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1

@@ -44,7 +44,6 @@ subs_list:=\
 	besslr.o \
 	bloch.o \
 	blochi.o \
-	bndasa.o \
 	bsortl.o \
 	bsrhos.o \
 	bzints.o \
@@ -464,11 +463,7 @@ subs_list:=\
 	rdctrlchk.o \
 	m_toksw.o \
 	writebasis.o \
-        m_struc_def.o \
-        m_struc_func.o \
 	spackv_array_copy.o \
-        struc_sub.o \
-        struc_main.o\
         struc_strn.o \
         switch.o \
         rdsigm2.o\
@@ -478,4 +473,7 @@ subs_list:=\
 	pvsms2.o \
 	m_psigd.o \
 	m_hamindex.o \
-	m_sstrnsname.o
+	m_sstrnsname.o \
+	m_struc_def.o \
+	type_size.o \
+        struc_all.o

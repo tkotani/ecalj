@@ -260,13 +260,15 @@ Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
 
 
 ctakao will add |1)
+      print *,'goto mksym'
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
-
+      print *,'end of mksym x'
 
 C --- Allocate permanent class arrays, maps and other initialization ---
       if (lc .ge. 20)
      *  call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
      *  v_slat,v_sbz,v_sstr,sstrn)
+      print *,'end of clsprm'
 
 C --- Read available class parameters from file ---
 
@@ -286,7 +288,9 @@ C --- Optionally resize spheres ---
 
 
 C ... Set default values for species data
+      print *,'goto defspc'
       call defspc(v_sspec)
+      print *,'end of defspc'
 
 C ... Patch for now ... maybe replace
 
@@ -298,6 +302,7 @@ Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
       endif
+      print *,'goto freeat'
       call freeat(v_sctrl,v_sspec,v_sham,v_spot)
       call rx0(prgnam)
 Cgetarg       end

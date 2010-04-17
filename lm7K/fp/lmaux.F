@@ -93,6 +93,8 @@ Cgetarg      .  sspec(1),ssite(1),sstr(1),sbz(1)
        type(s_str)::sstr
        type(s_bz)::sbz
 
+       type(s_site),allocatable::ssite2(:)
+
 C ... Local parameters
       character*120 outs,fnam*8
       integer NULLI
@@ -107,7 +109,7 @@ C ... Local parameters
      .  opp,oqc,oqnu,oqt,orhrmx,ormax,oves,ovrmax,owk,owk2,oclabl,
      .  opos,opos2,oqlv,odlv,orham,oamsh,onrmsh,oalpha,oaamom,
      .  onpr,ormt,olock,olockc,os,oz,ozz,ormx,oip,oips,oips2,opgfsl,
-     .  ontab,oiax,og,ossite,oag,ozc,mxclas,ormtc
+     .  ontab,oiax,og,oag,ozc,mxclas,ormtc
       double precision xv(10),xx,alat,plat(3,3),plat2(9),facrmx,facrng,
      .  dval,avw,ekap(2),enu,rmaxs,qss(4),ckbas,cksumf,ehterm(4),
      .  qlat(9),emad,trumad,vmtz(2),omax1(3),omax2(3),wsrmax
@@ -610,10 +612,16 @@ C --- Display poles of potential functions ---
 C --- Import data in other formats ---
       if (getdig(mode,6,2) .ne. 0) then
 
-        j = nint(ssite(1)%size) * nbasp
-        call defrr(ossite,-100*j)
-        call dcopy(j,ssite,1,w(ossite),1)
-        call aioxtn(sctrl,sspec,w(ossite),sarray,slat,slabl,w(opnu),
+ctakao
+        allocate( ssite2(nbasp))
+        do i=1,nbasp
+        call usite_init(ssite2(i))
+        enddo
+        ssite2(1:nbasp) = ssite(1:nbasp)
+c        j = nint(ssite(1)%size) * nbasp
+c        call defrr(ossite,-100*j)
+c        call dcopy(j,ssite,1,ssite2,1)
+        call aioxtn(sctrl,sspec,ssite2,sarray,slat,slabl,w(opnu),
      .    w(oqnu))
 
 C       Output to restart file
@@ -623,11 +631,12 @@ Cgetarg           irs(2) = igets('ctrl lrs,8+16',sctrl)/8
 
           if (irs(2) .gt. 0) then
             ifi = fopna('rsta',-1,0)
-            call asars(0,sctrl,w(ossite),sspec,slat,spot,sbz,
+            call asars(0,sctrl,ssite2,sspec,slat,spot,sbz,
      .        w(opnu),w(oqnu),.false.,-ifi)
             call fclr('rsta',ifi)
           endif
         endif
+        deallocate(ssite2)
       endif
 
 C --- Empty sphere finder ---

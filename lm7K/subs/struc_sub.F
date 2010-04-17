@@ -50,7 +50,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_array):: v_array
         character(*),intent(in):: name
@@ -516,7 +516,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_bz):: v_bz
         character(*),intent(in):: name
@@ -954,7 +954,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_ctrl):: v_ctrl
         character(*),intent(in):: name
@@ -1756,7 +1756,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_gw):: v_gw
         character(*),intent(in):: name
@@ -2040,7 +2040,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_ham):: v_ham
         character(*),intent(in):: name
@@ -2842,7 +2842,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_lat):: v_lat
         character(*),intent(in):: name
@@ -3462,7 +3462,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_mix):: v_mix
         character(*),intent(in):: name
@@ -3802,7 +3802,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_move):: v_move
         character(*),intent(in):: name
@@ -3974,7 +3974,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_optic):: v_optic
         character(*),intent(in):: name
@@ -4174,7 +4174,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_ordn):: v_ordn
         character(*),intent(in):: name
@@ -4346,7 +4346,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_pot):: v_pot
         character(*),intent(in):: name
@@ -5176,7 +5176,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_site):: v_site
         character(*),intent(in):: name
@@ -5572,7 +5572,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_spec):: v_spec
         character(*),intent(in):: name
@@ -6626,7 +6626,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_str):: v_str
         character(*),intent(in):: name
@@ -7064,7 +7064,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_tb):: v_tb
         character(*),intent(in):: name
@@ -7173,10 +7173,10 @@ C arr='a': use val and pack/unpack
        
         subroutine uarray_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_array):: struc
-Cki        integer:: uarray_size
+        integer:: uarray_size
         struc%size=uarray_size()
         struc%ncl=0
         struc%nclasp=0
@@ -7234,10 +7234,10 @@ Cki        integer:: uarray_size
        
         subroutine ubz_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_bz):: struc
-Cki        integer:: ubz_size
+        integer:: ubz_size
         struc%size=ubz_size()
         struc%def=0.0d0
         struc%dosw(:)=0.0d0
@@ -7293,10 +7293,10 @@ Cki        integer:: ubz_size
        
         subroutine uctrl_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_ctrl):: struc
-Cki        integer:: uctrl_size
+        integer:: uctrl_size
         struc%size=uctrl_size()
         struc%defm(:)=0.0d0
         struc%elin=0.0d0
@@ -7378,10 +7378,10 @@ Cki        integer:: uctrl_size
        
         subroutine ugw_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_gw):: struc
-Cki        integer:: ugw_size
+        integer:: ugw_size
         struc%size=ugw_size()
         struc%delre(:)=0.0d0
         struc%deltaw=0.0d0
@@ -7426,10 +7426,10 @@ Cki        integer:: ugw_size
        
         subroutine uham_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_ham):: struc
-Cki        integer:: uham_size
+        integer:: uham_size
         struc%size=uham_size()
         struc%alfsi=0.0d0
         struc%amgm=0.0d0
@@ -7511,10 +7511,10 @@ Cki        integer:: uham_size
        
         subroutine ulat_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_lat):: struc
-Cki        integer:: ulat_size
+        integer:: ulat_size
         struc%size=ulat_size()
         struc%alat=0.0d0
         struc%as=0.0d0
@@ -7583,10 +7583,10 @@ Cki        integer:: ulat_size
        
         subroutine umix_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_mix):: struc
-Cki        integer:: umix_size
+        integer:: umix_size
         struc%size=umix_size()
         struc%b=0.0d0
         struc%bl=0.0d0
@@ -7635,10 +7635,10 @@ Cki        integer:: umix_size
        
         subroutine umove_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_move):: struc
-Cki        integer:: umove_size
+        integer:: umove_size
         struc%size=umove_size()
         struc%ct(:)=0.0d0
         struc%gyro=0.0d0
@@ -7675,10 +7675,10 @@ Cki        integer:: umove_size
        
         subroutine uoptic_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_optic):: struc
-Cki        integer:: uoptic_size
+        integer:: uoptic_size
         struc%size=uoptic_size()
         struc%axes(:)=0
         struc%cll=0
@@ -7717,10 +7717,10 @@ Cki        integer:: uoptic_size
        
         subroutine uordn_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_ordn):: struc
-Cki        integer:: uordn_size
+        integer:: uordn_size
         struc%size=uordn_size()
         struc%efre=0.0d0
         struc%mode=0
@@ -7757,10 +7757,10 @@ Cki        integer:: uordn_size
        
         subroutine upot_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_pot):: struc
-Cki        integer:: upot_size
+        integer:: upot_size
         struc%size=upot_size()
         struc%bfield(:)=0.0d0
         struc%nlma=0
@@ -7844,10 +7844,10 @@ Cki        integer:: upot_size
        
         subroutine usite_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_site):: struc
-Cki        integer:: usite_size
+        integer:: usite_size
         struc%size=usite_size()
         struc%bfield(:)=0.0d0
         struc%clabel=0.0d0
@@ -7900,10 +7900,10 @@ Cki        integer:: usite_size
        
         subroutine uspec_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_spec):: struc
-Cki        integer:: uspec_size
+        integer:: uspec_size
         struc%size=uspec_size()
         struc%z=0.0d0
         struc%mass=0.0d0
@@ -8003,10 +8003,10 @@ Cki        integer:: uspec_size
        
         subroutine ustr_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_str):: struc
-Cki        integer:: ustr_size
+        integer:: ustr_size
         struc%size=ustr_size()
         struc%adec=0.0d0
         struc%amode=0
@@ -8062,10 +8062,10 @@ Cki        integer:: ustr_size
        
         subroutine utb_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_tb):: struc
-Cki        integer:: utb_size
+        integer:: utb_size
         struc%size=utb_size()
         struc%alam=0.0d0
         struc%alsc=0.0d0

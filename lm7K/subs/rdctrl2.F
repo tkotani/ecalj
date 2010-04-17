@@ -21,7 +21,6 @@ Cgetarg...info...           structure ['rdctrl2', 'mix', 'v_smix']
 
       use m_rdctrl
       use m_gtv
-      use m_struc_def
       use m_struc_func
       use m_susite_func, only: susite
 C- Main input for LMTO programs
@@ -2153,22 +2152,22 @@ C --- Debugging printout ---
         call upacks('strn sxopt',i,j)
         print *, 'sxopt:', sstrn(i:j)
 
-        call shstru('ctrl',v_sctrl,0,0)
-        call shstru('bz',v_sbz,0,0)
-        call shstru('lat',v_slat,0,0)
-        call shstru('array',v_sarry,0,0)
-C       call shstru('pot',v_spot,0,0)
-        call shstru('ham',v_sham,0,0)
-c        if (smix(2) /= NULLI)
-        if (vmix%b /= NULLI)
-     .  call shstru('mix',v_smix,0,0)
-        call shstru('move',v_smove,0,0)
-Cki        call shstru('optic',w(osoptc),0,0)
-Cki        call shstru('gw',w(osgw),0,0)
-        call shstru('str',v_sstr,0,0)
-        call shstru('tb',v_stb,0,0)
-        call shstru('spec',v_sspec,1,nspec)
-        call shstru('site',v_ssite,1,nsite)
+C$$$        call shstru('ctrl',v_sctrl,0,0)
+C$$$        call shstru('bz',v_sbz,0,0)
+C$$$        call shstru('lat',v_slat,0,0)
+C$$$        call shstru('array',v_sarry,0,0)
+C$$$C       call shstru('pot',v_spot,0,0)
+C$$$        call shstru('ham',v_sham,0,0)
+C$$$c        if (smix(2) /= NULLI)
+C$$$        if (vmix%b /= NULLI)
+C$$$     .  call shstru('mix',v_smix,0,0)
+C$$$        call shstru('move',v_smove,0,0)
+C$$$Cki        call shstru('optic',w(osoptc),0,0)
+C$$$Cki        call shstru('gw',w(osgw),0,0)
+C$$$        call shstru('str',v_sstr,0,0)
+C$$$        call shstru('tb',v_stb,0,0)
+C$$$        call shstru('spec',v_sspec,1,nspec)
+C$$$        call shstru('site',v_ssite,1,nsite)
         call rx0('done show')
 
       endif

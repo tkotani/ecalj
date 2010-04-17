@@ -16,6 +16,7 @@ moddep = open("Make.mod.dependency",'wt')
 argset= sys.argv[1:]
 
 #print argset
+#sys.exit()
 #print classes.typedecl_statements.Type
 #print classes.block_statements.Type
 #
@@ -27,6 +28,7 @@ argset= sys.argv[1:]
 rr=re.compile("\'.*?\'|\".*?\"")
 functions=[] # save defined functions in array.
 subs=[]
+mods=[]
 ranktag=["Program", "Subroutine", "Function", "Module","Type","Interface"]
 
 moddic={}
@@ -80,6 +82,7 @@ for ffile in argset:
                 subs.append(ins.name)
             print aaa+ins.name+loc1+loc
         if(isinstance(ins, classes.Module)):        
+            mods.append(ins.name)
             print "@def Modu:"+ins.name+loc1+loc
             ffileo = re.sub('subs/','$(subs_obj_path)/',ffile)
             ffileo = re.sub('fp/'  ,'$(fp_obj_path)/',ffileo)
@@ -92,25 +95,39 @@ for ffile in argset:
         inso=ins
 
 ############################
-print 'moddic=',moddic
+print >>sys.stderr, 'moddic=',moddic 
 
-
-targetf = "("+'\Z|'.join(functions)+"\Z)"
+targetf = "(\W"+'\s*\(|\W'.join(functions)+"\s*\()"
 if('|'.join(functions)==''): targetf='xx xx xx xx xx' #this is when targetf is empty. you know better procedure?
 pf=re.compile(targetf,re.I)
 
-targets = "("+'\Z|'.join(subs)+"\Z)"
+targets = "(\W"+'\s*\(|\W'.join(subs)+"\s*\()"
 if('|'.join(subs)==''): targets='xx xx xx xx xx'
 ps=re.compile(targets,re.I)
 
-targetsf = "("+'\Z|'.join(subs)+'\Z|'.join(functions)+"\Z)"
+targetsf = "(\W"+'\s*\(|\W'.join(subs)+'\s*\(|\W'.join(functions)+"\s*\()"
 if('|'.join(subs)+'|'.join(functions)==''): targetsf='xx xx xx xx xx'
 psf=re.compile(targetsf,re.I)
 
-targets0 = "(\W"+'\W|\W'.join(subs)+"\W)"
+targetsfm = "(\W"+'\s*\(|\W'.join(mods)+"\s*\()"
+psf=re.compile(targetsfm,re.I)
+
+
+targets0 = "(\W"+'\s*\(|\W'.join(subs)+"\s*\()"
 if('|'.join(subs)==''): targets0='xx xx xx xx xx'
 ps0=re.compile(targets0,re.I)
-#print targets0
+
+print >> sys.stderr, 'pf=',targetf
+
+
+##############
+#>  f_calltree.py subs/m_struc_*.F subs/struc_main.F subs/struc_sub.F
+#ttt="(\Wstruc_eval_io_r8\s*\(|\Wstruc_eval_io_r8v\s*\(|\Wstruc_eval_io_i8\s*\(|\Wstruc_eval_io_i8v\s*\(|\Wstruc_strtok\s*\(|\Wstruc_eval_io_r8_realbody\s*\(|\Wstruc_eval_io_i8_realbody\s*\(|\Wstruc_checkclass\s*\(|\Wstruc_spackv_iv\s*\(|\Wstruc_spackv_r8v\s*\(|\Wspackv\s*\(|\Wspacks\s*\(|\Wsp2cls\s*\(|\Wshstru\s*\(|\Wstruc_packupack_val1\s*\(|\Wstruc_uarray_io\s*\(|\Wstruc_ubz_io\s*\(|\Wstruc_uctrl_io\s*\(|\Wstruc_ugw_io\s*\(|\Wstruc_uham_io\s*\(|\Wstruc_ulat_io\s*\(|\Wstruc_umix_io\s*\(|\Wstruc_umove_io\s*\(|\Wstruc_uoptic_io\s*\(|\Wstruc_uordn_io\s*\(|\Wstruc_upot_io\s*\(|\Wstruc_usite_io\s*\(|\Wstruc_uspec_io\s*\(|\Wstruc_ustr_io\s*\(|\Wstruc_utb_io\s*\(|\Wuarray_init\s*\(|\Wuarray_show\s*\(|\Wuarray\s*\(|\Wubz_init\s*\(|\Wubz_show\s*\(|\Wubz\s*\(|\Wuctrl_init\s*\(|\Wuctrl_show\s*\(|\Wuctrl\s*\(|\Wugw_init\s*\(|\Wugw_show\s*\(|\Wugw\s*\(|\Wuham_init\s*\(|\Wuham_show\s*\(|\Wuham\s*\(|\Wulat_init\s*\(|\Wulat_show\s*\(|\Wulat\s*\(|\Wumix_init\s*\(|\Wumix_show\s*\(|\Wumix\s*\(|\Wumove_init\s*\(|\Wumove_show\s*\(|\Wumove\s*\(|\Wuoptic_init\s*\(|\Wuoptic_show\s*\(|\Wuoptic\s*\(|\Wuordn_init\s*\(|\Wuordn_show\s*\(|\Wuordn\s*\(|\Wupot_init\s*\(|\Wupot_show\s*\(|\Wupot\s*\(|\Wusite_init\s*\(|\Wusite_show\s*\(|\Wusite\s*\(|\Wuspec_init\s*\(|\Wuspec_show\s*\(|\Wuspec\s*\(|\Wustr_init\s*\(|\Wustr_show\s*\(|\Wustr\s*\(|\Wutb_init\s*\(|\Wutb_show\s*\(|\Wutbuarray_size\s*\(|\Wubz_size\s*\(|\Wuctrl_size\s*\(|\Wugw_size\s*\(|\Wuham_size\s*\(|\Wulat_size\s*\(|\Wumix_size\s*\(|\Wumove_size\s*\(|\Wuoptic_size\s*\(|\Wuordn_size\s*\(|\Wupot_size\s*\(|\Wusite_size\s*\(|\Wuspec_size\s*\(|\Wustr_size\s*\(|\Wutb_size\s*\()"
+#ps=re.compile(ttt,re.I)
+#psf=ps
+#pf=ps
+#ps0=ps
+#print targetsf
 #sys.exit()
 
 
@@ -148,7 +165,6 @@ for ffile in argset:
         if(isinstance(ins, classes.Use)):       
             print "@use Modu:"+ins.name+loc1+loc
             modd.append(moddic[ins.name])
-            #modd.append(' $(moddir)/'+ins.name+'.mod')
             
         deptho=depth
         inso=ins
@@ -162,6 +178,7 @@ for ffile in argset:
     ffileo = re.sub('.F','.o',ffileo)
     if(moddx != '') :
         moddep.write( ffileo+' : '+ffile+' '+moddx+'\n')
+
 
 #    print '---- '+ffile+'  end   -----'
 #    print 
@@ -211,11 +228,13 @@ for ffile in argset:
 
         a=pf.search(line)
         if(a):
-            #print 'aaa',a.group().lower(),'bbb'
+#            print 'aaa',a.group().lower(),'bbb'
             frame3= [x.name for x in sstack[1:] if x.__class__.__name__ in ranktag]
-            #print frame3
+#            print frame3
             mother= frame3[-1].lower()
-            child=a.group().lower()
+            b=re.match('(\w|_)*', a.group().lower()[1:])
+            child=b.group().lower()
+          
             if(mother != child):  #mother = child means a case where a function name is in the function.
                 #lll=(mother+"->"+child+";").lower()
                 #if(pn.search(lll)): continue

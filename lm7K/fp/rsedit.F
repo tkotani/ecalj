@@ -1,5 +1,34 @@
+Cgetarg...info...           structure ['rsedit', 'ctrl', 'sctrl']
+Cgetarg...info...           structure ['rsedit', 'pot', 'spot']
+Cgetarg...info...           structure ['rsedit', 'lat', 'w(oslat2)']
+Cgetarg...info...           structure ['rsedit', 'pot', 'w(ospot2)']
+Cgetarg...info...           structure ['rsedit', 'site', 'w(osite2)']
+Cgetarg...info...           structure ['rsedit', 'lat', 'slat']
+Cgetarg...info...           structure ['prsed1', 'site', 'site1']
+Cgetarg...info...           structure ['prsed1', 'site', 'site2']
+Cgetarg...info...           structure ['prsed1', 'spec', 'spec1']
+Cgetarg...info...           structure ['prsed1', 'spec', 'spec2']
+Cgetarg...info...           structure ['prsed2', 'lat', 'slat']
+Cgetarg...info...           structure ['prsed2', 'site', 'ssite']
+Cgetarg...info...           structure ['prsed2', 'spec', 'sspec']
+Cgetarg...info...           structure ['prsed3', 'site', 'ssite']
+Cgetarg...info...           structure ['prsed3', 'spec', 'sspec']
+Cgetarg...info...           structure ['prsed4', 'site', 'ssite']
+Cgetarg...info...           structure ['prsed4', 'spec', 'sspec']
+Cgetarg...info...           use_to_add ['prsed1', 'm_struc_def']
+Cgetarg...info...           use_to_add ['prsed2', 'm_struc_def']
+Cgetarg...info...           use_to_add ['prsed3', 'm_struc_def']
+Cgetarg...info...           use_to_add ['prsed4', 'm_struc_def']
+Cgetarg...info...           use_to_add ['rsedit', 'm_struc_def']
+
+c---> takao modified this by hand after Kino's del_pack.
+c   python getarg.py < file.F > x
+c   mv x file.F 
+
       subroutine rsedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
      .  nbas,nat,nspec)
+       
+       use m_struc_def  !Cgetarg
 C- Restart file editor
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -60,12 +89,19 @@ Cu Updates
 Cu   19 Dec 08 New exch option
 Cu   01 Jul 08 First created
 C  ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       character sopts*(*)
       integer mode,nbas,nat,nspec,ifi,n0
       parameter (n0=10)
-      double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
+Cgetarg       double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
+       type(s_ctrl)::sctrl
+       type(s_site)::ssite(*),ssite1(nbas), ssite2(nbas)
+       type(s_spec)::sspec(*),sspec1(nspec),sspec2(nspec)
+       type(s_lat)::slat,slat2
+       type(s_pot)::spot,spot2
+       type(s_bz)::sbz
+
 C ... Local parameters
       integer nglob,fopna,fopng,iors,igets,a2vec
       integer i,j,k,l,im,m,n,j1,j2,js1,js2,nit(2),nspeck(2),isync,nw,
@@ -74,12 +110,15 @@ C ... Local parameters
       integer nsp,ngabc(3),n1,n2,n3,k1,k2,k3,lrssav,nvl,nchan
       integer ngabc2(3)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      integer ospec1,ospec2,osite1,osite2,oslat2,ospot2,
-     .  oorh2,osmrh2,osmpt2,osmrho,osmpot,oorhat,oqmom
+c      integer ospec1,ospec2,osite1,osite2,oslat2,ospot2,
+c     .  oorh2,osmrh2,osmpt2,osmrho,osmpot,oorhat,oqmom
+      integer oorh2,osmrh2,osmpt2,osmrho,osmpot,oorhat,oqmom
       integer nlst(2),ix(10),nbask(2),natk(2),isw
       integer ,allocatable:: ilst(:,:)
       double precision qbg,dgets,fac(2)
       character dc*1, fn*120, fileid*68, outs*150, strn*120
+
+      integer :: i_copy_size
 C ... Heap
       integer w(1)
       common /w/ w
@@ -100,29 +139,51 @@ C     # spec and # sites in spec 2nd atom density
 C     true if rs data available, but not saved
       lnsave = .false.
       nsp  = nglob('nsp')
-      qbg    = dgets('ctrl zbak',sctrl)
-      call upack2('pot nlml nlma',spot,nvl,nchan)
+Cgetarg       qbg    = dgets('ctrl zbak',sctrl)
+       qbg = sctrl%zbak(1) 
+
+Cgetarg...info...           integer :: nvl , integer(8) :: spot%nlml 1
+Cgetarg...info...           integer :: nchan , integer(8) :: spot%nlma 1
+Cgetarg       call upack2('pot nlml nlma',spot,nvl,nchan)
+       
+       nvl=spot%nlml
+       nchan=spot%nlma
+
 
 C     Allocate local species structures; copy original to them
-      call defrr(ospec1,nspec*nint(sspec(1)))
-      call defrr(ospec2,nspec*nint(sspec(1)))
-      call dcopy(nspec*nint(sspec(1)),sspec,1,w(ospec1),1)
-      call dcopy(nspec*nint(sspec(1)),sspec,1,w(ospec2),1)
+c      call defrr(ospec1,nspec*nint(sspec(1)))
+c      call defrr(ospec2,nspec*nint(sspec(1)))
+c      call dcopy(nspec*nint(sspec(1)),sspec,1,spec1),1)
+c      call dcopy(nspec*nint(sspec(1)),sspec,1,spec2),1)
+      sspec1=sspec(1:nspec)
+      sspec2=sspec(1:nspec)
 C     Allocate local site structures; copy original to them
-      call defrr(osite1,nbas*nint(ssite(1)))
-      call defrr(osite2,nbas*nint(ssite(1)))
-      call dcopy(nbas*nint(ssite(1)),ssite,1,w(osite1),1)
-      call dcopy(nbas*nint(ssite(1)),ssite,1,w(osite2),1)
+c      call defrr(osite1,nbas*nint(ssite(1)))
+c      call defrr(osite2,nbas*nint(ssite(1)))
+c      call dcopy(nbas*nint(ssite(1)),ssite,1,w(osite1),1)
+c      call dcopy(nbas*nint(ssite(1)),ssite,1,w(osite2),1)
+      ssite1=ssite(1:nbas)
+      ssite2=ssite(1:nbas)
 C     Allocate second lat structure; copy original to it
-      call defrr(oslat2,nint(slat(1)))
-      call dcopy(nint(slat(1)),slat,1,w(oslat2),1)
+c      call defrr(oslat2,nint(slat(1)))
+c      call dcopy(nint(slat(1)),slat,1,w(oslat2),1)
+      slat2=slat
 C     Allocate second pot structure; copy original to it
-      call defrr(ospot2,nint(spot(1)))
-      call dcopy(nint(spot(1)),spot,1,w(ospot2),1)
+c      call defrr(ospot2,nint(spot(1)))
+c      call dcopy(nint(spot(1)),spot,1,w(ospot2),1)
+      spot2=spot
 
 C     Get pointers for density
-      call upack('pot osmrho osmpot oorhat',spot,osmrho,osmpot,oorhat,
-     .  0,0)
+Cgetarg...info...           integer :: osmrho , integer(8) :: spot%osmrho 1
+Cgetarg...info...           integer :: osmpot , integer(8) :: spot%osmpot 1
+Cgetarg...info...           integer :: oorhat , integer(8) :: spot%oorhat 1
+Cgetarg       call upack('pot osmrho osmpot oorhat',spot,osmrho,osmpot,oorhat,
+Cgetarg      .  0,0)
+       
+       osmrho=spot%osmrho
+       osmpot=spot%osmpot
+       oorhat=spot%oorhat
+
 C     call upack('pot osmrho oorhat',spot,oorh2,osmrh2,0,0,0)
 C     Allocate space for second density
 C      call upack('lat nabc',slat,ngabc,0,0,0,0)
@@ -193,13 +254,22 @@ C ... Read 2nd density from restart file
      .        outs(1:5).eq.'read ' .or. outs(1:7).eq.'readfa ') then
         if (outs(1:7) .eq. 'readfa ') then
 C         Make space for smooth density
-          call upack1('lat nabc',w(oslat2),ngabc2)
+Cgetarg...info...           integer :: ngabc2(3) , integer(8) :: w(oslat2)%nabc 3
+Cgetarg           call upack1('lat nabc',w(oslat2),ngabc2)
+           
+           i_copy_size=size(slat2%nabc) 
+           call i8icopy(i_copy_size,slat2%nabc,1,ngabc2,1) 
+
           call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
           call defcc(osmrh2, -k1*k2*k3*nsp)
-          call pack1('pot osmrho',w(ospot2),osmrh2)
+Cgetarg...info...           integer :: osmrh2 , integer(8) :: w(ospot2)%osmrho 1
+Cgetarg           call pack1('pot osmrho',w(ospot2),osmrh2)
+           
+           spot2%osmrho=osmrh2 
+
           call defi(oorh2,3*nbask(2))
-          call rdovfa(nbask(2),nspeck(2),w(osite2),w(ospec2),w(oslat2),
-     .      w(ospot2),qbg,w(oorh2))
+          call rdovfa(nbask(2),nspeck(2),ssite2,sspec2,slat2,
+     .      spot2,qbg,w(oorh2))
         else
         call word(outs,2,j1,j2)
         if (outs(1:6).eq.'reada ') then
@@ -221,30 +291,45 @@ C         Make space for smooth density
           endif
           lbin = .true.
         endif
-        lrssav = igets('ctrl lrs',sctrl)
-        call pack1('ctrl lrs',sctrl,32*0+64+128*0)
+Cgetarg         lrssav = igets('ctrl lrs',sctrl)
+         lrssav = int(sctrl%lrs) 
+
+Cgetarg         call pack1('ctrl lrs',sctrl,32*0+64+128*0)
+         
+         sctrl%lrs=32*0+64+128*0 
+
 C       Get the number of atoms and species
-        k = iors(-1,sctrl,w,w,w(oslat2),w(ospot2),sbz,
+        k = iors(-1,sctrl,w,w,slat2,spot2,sbz,
      .    fileid,nbask(2),natk(2),nspeck(2),w(oorh2),w,nit(2),lbin,ifi)
         call info5(10,0,0,' rsedit: '//
      .    'read 2nd density from file "'//trim(fn)//'" ...  '//
      .    'nbas = %i  nat = %i  nspec = %i',nbask(2),natk(1),nspeck(2),
      .    0,0)
 C       Allocate species and site structures, fill with available info
-        call defrr(ospec2,nspeck(2)*nint(sspec(1)))
-        call defrr(osite2,nbask(2)*nint(ssite(1)))
-        call uspec(w(ospec2),-1,0,1,0,0,0)
-        call usite(w(osite2),-1,0,1,0,0,0)
+c        call defrr(ospec2,nspeck(2)*nint(sspec(1)))
+c        call defrr(osite2,nbask(2)*nint(ssite(1)))
+c        call uspec(w(ospec2),-1,0,1,0,0,0)
+c        call usite(w(osite2),-1,0,1,0,0,0)
+        do i=1,nspec
+        call uspec_init(sspec2(i))
+        enddo
+        do i=1,nbas
+        call usite_init(ssite2(i))
+        enddo
 C       call shstru('spec',w(ospec2),1,nspeck(2))
 C       call shstru('site',w(osite2),1,nbask(2))
         call defi(oorh2,3*nbask(2))
         call pshpr(1)
-        k = iors(-2,sctrl,w(osite2),w(ospec2),w(oslat2),w(ospot2),sbz,
+        k = iors(-2,sctrl,ssite2,sspec2,slat2,spot2,sbz,
      .    fileid,nbask(2),natk(2),nspeck(2),w(oorh2),w,nit(2),lbin,ifi)
 C       Check for unassigned species => reduce basis        
         k = 0
         do  i = 1, nbask(2)
-          call upack('site spec',w(osite2),i,j,0,0,0)
+Cgetarg...info...           integer :: j , integer(8) :: w(osite2)%spec 1
+Cgetarg           call upack('site spec',w(osite2),i,j,0,0,0)
+           
+           j=ssite2(i)%spec
+
           if (j .eq. 0) exit
           k = i
         enddo
@@ -255,26 +340,41 @@ C       Check for unassigned species => reduce basis
         nbask(2) = k
         call poppr
 C       Make space for smooth density
-        call upack1('lat nabc',w(oslat2),ngabc2)
+Cgetarg...info...           integer :: ngabc2(3) , integer(8) :: w(oslat2)%nabc 3
+Cgetarg         call upack1('lat nabc',w(oslat2),ngabc2)
+         
+         i_copy_size=size(slat2%nabc) 
+         call i8icopy(i_copy_size,slat2%nabc,1,ngabc2,1) 
+
         call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
         call defcc(osmrh2, -k1*k2*k3*nsp)
         call defcc(osmpt2, -k1*k2*k3*nsp)
-        call pack2('pot osmrho osmpot',w(ospot2),osmrh2,osmpt2)
+Cgetarg...info...           integer :: osmrh2 , integer(8) :: w(ospot2)%osmrho 1
+Cgetarg...info...           integer :: osmpt2 , integer(8) :: w(ospot2)%osmpot 1
+Cgetarg         call pack2('pot osmrho osmpot',w(ospot2),osmrh2,osmpt2)
+         
+         spot2%osmrho=osmrh2 
+         spot2%osmpot=osmpt2 
+
 C       Pack volume
 C       call shstru('spec',w(ospec2),1,nspeck(2))
 C       call shstru('site',w(osite2),1,nbask(2))
-        k = iors(1,sctrl,w(osite2),w(ospec2),w(oslat2),w(ospot2),sbz,
+        k = iors(1,sctrl,ssite2,sspec2,slat2,spot2,sbz,
      .    fileid,nbask(2),natk(2),nspeck(2),w(oorh2),w,nit(2),lbin,ifi)
         call fclose(ifi)
         endif
 
         have2s = .true.
-        call pack1('ctrl lrs',sctrl,lrssav)
+Cgetarg...info...           integer :: lrssav , integer(8) :: sctrl%lrs 1
+Cgetarg         call pack1('ctrl lrs',sctrl,lrssav)
+         
+         sctrl%lrs=lrssav 
+
 
         call info0(1,1,0,' Second Density:')
         call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-        call prsed2(nbask(2),nsp,w(osite2),w(ospec2),w(oorh2),
-     .    w(oslat2),w(osmrh2),k1,k2,k3)
+        call prsed2(nbask(2),nsp,ssite2,sspec2,w(oorh2),
+     .    slat2,w(osmrh2),k1,k2,k3)
 
         goto 10
 
@@ -282,7 +382,7 @@ C ... Read restart file
       elseif (outs(1:4).eq.'rsb ' .or. outs(1:4).eq.'rsa ' .or.
      .        outs(1:3).eq.'rs' .or. outs(1:5).eq.'rsfa ') then
         if (outs(1:5) .eq. 'rsfa ') then
-          call rdovfa(nbask(1),nspeck(1),w(osite1),w(ospec1),slat,spot,
+          call rdovfa(nbask(1),nspeck(1),ssite1,sspec1,slat,spot,
      .      qbg,w(oorhat))
           fileid = 'rsedit overlap fa densities'
         else
@@ -306,7 +406,7 @@ C ... Read restart file
         endif
         call info0(10,0,-1,
      .    ' rsedit: read restart file "'//trim(fn)//'"')
-        k = iors(1,sctrl,w(osite1),w(ospec1),slat,spot,sbz,fileid,
+        k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
      .    nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,ifi)
 C       call shstru('spec',w(ospec2),1,nspeck(2))
 C       call shstru('site',w(osite2),1,nbask(2))
@@ -317,16 +417,21 @@ C       call shstru('site',w(osite2),1,nbask(2))
         call info2(1,1,0,' Density from '//
      .    '%?#n==0#rs file:#overlapping free atoms:#',
      .    isw(outs(1:5).eq.'rsfa '),0)
-        call upack1('lat nabc',slat,ngabc)
+Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
+Cgetarg         call upack1('lat nabc',slat,ngabc)
+         
+         i_copy_size=size(slat%nabc) 
+         call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
         call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
-        call prsed2(nbask(1),nsp,w(osite1),w(ospec1),w(oorhat),
+        call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
      .    slat,w(osmrho),k1,k2,k3)
 
 C ... write atomic densities to file
       elseif (outs(1:7) .eq. 'wrhoat ') then
 
         if (havers) then
-          call prsed3(nbask(1),nsp,w(osite1),w(ospec1),w(oorhat))
+          call prsed3(nbask(1),nsp,ssite1,sspec1,w(oorhat))
         else
           call info0(0,0,0,' no rst file read ... nothing writtten')
         endif
@@ -338,7 +443,7 @@ C ... show
      .      '%i sites, %i species',nbask(1),nspeck(1))
 C          call upack1('lat nabc',slat,ngabc)
           call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
-          call prsed2(nbask(1),nsp,w(osite1),w(ospec1),w(oorhat),
+          call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
      .      slat,w(osmrho),k1,k2,k3)
         endif
 
@@ -347,8 +452,8 @@ C          call upack1('lat nabc',slat,ngabc)
      .      '%i sites, %i species',nbask(2),nspeck(2))
 
           call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-          call prsed2(nbask(2),nsp,w(osite2),w(ospec2),w(oorh2),
-     .      w(oslat2),w(osmrh2),k1,k2,k3)
+          call prsed2(nbask(2),nsp,ssite2,sspec2,w(oorh2),
+     .      slat2,w(osmrh2),k1,k2,k3)
         endif
 
 C ... Spin averaging of densities, or  Exchange l=0 parts of 
@@ -409,8 +514,8 @@ C       Carry out operation on 1st or second density
           ix(1) = nbask(1); ix(2) = nbask(1)
           if (havers) then
             call prsed1(im*10+isync,1,nlst,ix,nsp,
-     .        w(osite1),w(ospec1),w(oorhat),
-     .        w(osite1),w(ospec1),w(oorhat),
+     .        ssite1,sspec1,w(oorhat),
+     .        ssite1,sspec1,w(oorhat),
      .        w(osmrho),ngabc(1),ngabc(2),ngabc(3),
      .        w(osmrho),ngabc(1),ngabc(2),ngabc(3),
      .        fac,lfail)
@@ -426,8 +531,8 @@ C       Carry out operation on 1st or second density
           ix(1) = nbask(2); ix(2) = nbask(2)
           if (have2s) then
             call prsed1(im*10+isync,1,nlst,ix,nsp,
-     .        w(osite2),w(ospec2),w(oorh2),
-     .        w(osite2),w(ospec2),w(oorh2),
+     .        ssite2,sspec2,w(oorh2),
+     .        ssite2,sspec2,w(oorh2),
      .        w(osmrh2),ngabc2(1),ngabc2(2),ngabc2(3),
      .        w(osmrh2),ngabc2(1),ngabc2(2),ngabc2(3),
      .        fac,lfail)
@@ -473,7 +578,7 @@ C       Carry out operation on 1st or second density
         call word(outs,3,j1,j2)
         if (outs(j1:j2) .eq. '1') then
           if (havers) then
-            call prsed4(k,nbask(1),nspeck(1),nsp,w(osite1),w(ospec1),
+            call prsed4(k,nbask(1),nspeck(1),nsp,ssite1,sspec1,
      .        w(oorhat),slat,w(osmrho),k1,k2,k3)
           else
             call info0(0,0,0,' no rst data ... cannot do: '//trim(outs))
@@ -481,8 +586,8 @@ C       Carry out operation on 1st or second density
           endif
         elseif (outs(j1:j2) .eq. '2') then
           if (have2s) then
-            call prsed4(k,nbask(2),nspeck(2),nsp,w(osite2),
-     .        w(ospec2),w(oorh2),w(oslat2),w(osmrh2),k1,k2,k3)
+            call prsed4(k,nbask(2),nspeck(2),nsp,ssite2,
+     .        sspec2,w(oorh2),slat2,w(osmrh2),k1,k2,k3)
           else
             call info0(0,0,0,' no 2nd density... cannot do: '//
      .        trim(outs))
@@ -595,8 +700,8 @@ C             Check that elements in list are within range
 
 C        call upack1('lat nabc',slat,ngabc)
 C        call upack1('lat nabc',w(oslat2),ngabc2)
-        call prsed1(im*10+isync,nlst,ilst,nbask,nsp,w(osite1),w(ospec1),
-     .    w(oorhat),w(osite2),w(ospec2),w(oorh2),
+        call prsed1(im*10+isync,nlst,ilst,nbask,nsp,ssite1,sspec1,
+     .    w(oorhat),ssite2,sspec2,w(oorh2),
      .    w(osmrho),ngabc(1),ngabc(2),ngabc(3),
      .    w(osmrh2),ngabc2(1),ngabc2(2),ngabc2(3),
      .    fac,lfail)
@@ -608,7 +713,7 @@ C        call upack1('lat nabc',w(oslat2),ngabc2)
 C         call upack1('lat nabc',slat,ngabc)
           call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
           call info0(1,1,0,' New density from rs file:')
-          call prsed2(nbask(1),nsp,w(osite1),w(ospec1),w(oorhat),
+          call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
      .      slat,w(osmrho),k1,k2,k3)
         endif
 
@@ -630,7 +735,7 @@ C ... Save
         endif
         call info0(10,0,-1,
      .    ' rsedit: write restart file "'//trim(fn)//'"')
-        k = iors(1,sctrl,w(osite1),w(ospec1),slat,spot,sbz,fileid,
+        k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
      .    nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,-ifi)
 
         lnsave = .false.
@@ -747,13 +852,18 @@ C ... help
      .  ' ... nothing done')
       goto 10
 
-      end
+Cgetarg       end
+       end subroutine rsedit 
+
 
       subroutine prsed1(mode,nlst,ilst,nbask,nsp,site1,spec1,orh1,
      .  site2,spec2,orh2,
      .  smrho,k11,k21,k31,
      .  smrh2,k12,k22,k32,
      .  fac,lfail)
+       
+       use m_struc_def  !Cgetarg
+
 C- Add fac*2nd density to density
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -793,7 +903,13 @@ C ... Passed parameters
       integer mode,nlst,ilst(nlst,2),nbask(2),nsp,
      .  k11,k21,k31,k12,k22,k32
       integer orh1(3,*),orh2(3,*)
-      double precision site1(1),spec1(1),site2(1),spec2(1),fac(2)
+Cgetarg       double precision site1(1),spec1(1),site2(1),spec2(1),fac(2)
+       real(8):: fac(2) 
+       type(s_site)::site1(*)
+       type(s_spec)::spec1(*)
+       type(s_site)::site2(*)
+       type(s_spec)::spec2(*)
+
       double complex smrho(k11,k21,k31,nsp),smrh2(k12,k22,k32,nsp)
       logical lfail
 C ... Local parameters
@@ -881,17 +997,75 @@ C ... Heap
         if (jb .gt. nbask(2))
      .    call rxi('illegal index for 2nd density:',jb)
 
-        call upack('site spec pnu ov0 ov1',site1,ib,is,pnu,ov01,ov11)
-        call upack('site spec pnu ov0 ov1',site2,jb,js,pnu2,ov02,ov12)
-        call upack('spec lmxa lmxl',spec1,is,lmxa,lmxl,0,0)
-        call upack('spec lmxa lmxl',spec2,js,lmxa2,lmxl2,0,0)
-        call spacks(0,'spec name',spec1,spid1,is,is)
-        call spacks(0,'spec name',spec2,spid2,js,js)
+Cgetarg...info...           integer :: is , integer(8) :: site1%spec 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: site1%pnu 20
+Cgetarg...info...           integer :: ov01 , integer(8) :: site1%ov0 1
+Cgetarg...info...           integer :: ov11 , integer(8) :: site1%ov1 1
+Cgetarg         call upack('site spec pnu ov0 ov1',site1,ib,is,pnu,ov01,ov11)
+         
+         is=site1(ib)%spec
+         i_copy_size=size(site1(ib)%pnu) 
+         call dcopy(i_copy_size,site1(ib)%pnu,1,pnu,1) 
+         ov01=site1(ib)%ov0
+         ov11=site1(ib)%ov1
+
+Cgetarg...info...           integer :: js , integer(8) :: site2%spec 1
+Cgetarg...info...           real(8) :: pnu2(n0,2) , real(8) :: site2%pnu 20
+Cgetarg...info...           integer :: ov02 , integer(8) :: site2%ov0 1
+Cgetarg...info...           integer :: ov12 , integer(8) :: site2%ov1 1
+Cgetarg         call upack('site spec pnu ov0 ov1',site2,jb,js,pnu2,ov02,ov12)
+         
+         js=site2(jb)%spec
+         i_copy_size=size(site2(jb)%pnu) 
+         call dcopy(i_copy_size,site2(jb)%pnu,1,pnu2,1) 
+         ov02=site2(jb)%ov0
+         ov12=site2(jb)%ov1
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: spec1%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: spec1%lmxl 1
+Cgetarg         call upack('spec lmxa lmxl',spec1,is,lmxa,lmxl,0,0)
+         
+         lmxa=spec1(is)%lmxa
+         lmxl=spec1(is)%lmxl
+
+Cgetarg...info...           integer :: lmxa2 , integer(8) :: spec2%lmxa 1
+Cgetarg...info...           integer :: lmxl2 , integer(8) :: spec2%lmxl 1
+Cgetarg         call upack('spec lmxa lmxl',spec2,js,lmxa2,lmxl2,0,0)
+         
+         lmxa2=spec2(js)%lmxa
+         lmxl2=spec2(js)%lmxl
+
+Cgetarg         call spacks(0,'spec name',spec1,spid1,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',spec1(i_spacks)%name,is,is,spid1,i_spacks)
+         enddo
+
+Cgetarg         call spacks(0,'spec name',spec2,spid2,js,js)
+         do i_spacks=js,js 
+         call spacks_copy('u',spec2(i_spacks)%name,js,js,spid2,i_spacks)
+         enddo
+
 
         if (lmxa .eq. -1) goto 10
 
-        call upack('spec a nr rmt',spec1,is,a1,nr1,rmt1,0)
-        call upack('spec a nr rmt',spec2,js,a2,nr2,rmt2,0)
+Cgetarg...info...           real(8) :: a1 , real(8) :: spec1%a 1
+Cgetarg...info...           integer :: nr1 , integer(8) :: spec1%nr 1
+Cgetarg...info...           real(8) :: rmt1 , real(8) :: spec1%rmt 1
+Cgetarg         call upack('spec a nr rmt',spec1,is,a1,nr1,rmt1,0)
+         
+         a1=spec1(is)%a
+         nr1=spec1(is)%nr
+         rmt1=spec1(is)%rmt
+
+Cgetarg...info...           real(8) :: a2 , real(8) :: spec2%a 1
+Cgetarg...info...           integer :: nr2 , integer(8) :: spec2%nr 1
+Cgetarg...info...           real(8) :: rmt2 , real(8) :: spec2%rmt 1
+Cgetarg         call upack('spec a nr rmt',spec2,js,a2,nr2,rmt2,0)
+         
+         a2=spec2(js)%a
+         nr2=spec2(js)%nr
+         rmt2=spec2(js)%rmt
+
 
 C       Radial meshes must match
         if (abs(a1-a2).gt.1d-6 .or. nr1.ne.nr2 .or.
@@ -945,7 +1119,12 @@ C       Pnu modified if 1's bit im set
         if (mod(im,2) .ge. 1) then
           if (isync .lt. 2) then
             call lcrho(n0,nsp,1,1,fac(1),fac(2),pnu,pnu2)
-            call pack2('site pnu',site1,ib,pnu)
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: site1%pnu 20
+Cgetarg             call pack2('site pnu',site1,ib,pnu)
+             
+             i_copy_size=size(site1(ib)%pnu) 
+             call dcopy(i_copy_size,pnu,1,site1(ib)%pnu,1) 
+
           else
             call rx('not ready for this swap')
           endif
@@ -953,8 +1132,16 @@ C       Pnu modified if 1's bit im set
 
 C       Species core density modified if im ge 4
         if (im .ge. 4 .and. flgspc(is) .eq. 0) then
-          call upack2('spec orhoc',spec1,is,orhoc1)
-          call upack2('spec orhoc',spec2,js,orhoc2)
+Cgetarg...info...           integer :: orhoc1 , integer(8) :: spec1%orhoc 1
+Cgetarg           call upack2('spec orhoc',spec1,is,orhoc1)
+           
+           orhoc1=spec1(is)%orhoc
+
+Cgetarg...info...           integer :: orhoc2 , integer(8) :: spec2%orhoc 1
+Cgetarg           call upack2('spec orhoc',spec2,js,orhoc2)
+           
+           orhoc2=spec2(js)%orhoc
+
           if (isync .lt. 2) then
             call lcrho(nr1,nsp,1,1,fac(1),fac(2),w(orhoc1),w(orhoc2))
           else
@@ -976,9 +1163,14 @@ C        call info0(0,0,0,' ... Linear combination successful')
 
       lfail = lfail .or. lfails
 
-      end
+Cgetarg       end
+       end subroutine prsed1 
+
 
       subroutine prsed2(nbas,nsp,ssite,sspec,orhoat,slat,smrho,k1,k2,k3)
+       
+       use m_struc_def  !Cgetarg
+
 C- Print out density information
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -998,7 +1190,11 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nsp,k1,k2,k3
       integer orhoat(3,nbas)
-      double precision ssite(1),sspec(1),slat(1)
+Cgetarg       double precision ssite(1),sspec(1),slat(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex smrho(k1,k2,k3,nsp)
 C ... Local parameters
       integer nrmx,nlmx
@@ -1021,7 +1217,14 @@ C ... Heap
       n1 = k1
       n2 = k2
       n3 = k3
-      call upack2('lat alat plat',slat,alat,plat)
+Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
+Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
+Cgetarg       call upack2('lat alat plat',slat,alat,plat)
+       
+       alat=slat%alat
+       i_copy_size=size(slat%plat) 
+       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
       call dinv33(plat,1,qlat,vol)
       vol = dabs(vol)*(alat**3)
       if (nsp .eq. 2) then
@@ -1053,14 +1256,48 @@ C      if (nsp .eq. 2) write(stdo,201)
 
       do  ib = 1, nbas
 
-        call upack('site spec',ssite,ib,is,0,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
+         
+         is=ssite(ib)%spec
+
 C        call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov01)
 C        call upack2('site pz',ssite,ib,pnz)
-        call upack('spec z qc rg',sspec,is,z,qc,rg,0)
-        call spacks(0,'spec name',sspec,spid,is,is)
-        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-        call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
-     .    lmxb)
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg         call upack('spec z qc rg',sspec,is,z,qc,rg,0)
+         
+         z=sspec(is)%z
+         qc=sspec(is)%qc
+         rg=sspec(is)%rg
+
+Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+         enddo
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
+Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
+Cgetarg         call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
+Cgetarg      .    lmxb)
+         
+         rsma=sspec(is)%rsma
+         lmxa=sspec(is)%lmxa
+         lmxl=sspec(is)%lmxl
+         lmxb=sspec(is)%lmxb
+
         if (lmxa .eq. -1) goto 10
         nlml = (lmxl+1)**2
 
@@ -1087,15 +1324,23 @@ C        call upack2('site pz',ssite,ib,pnz)
       enddo
 
 
-      end
+Cgetarg       end
+       end subroutine prsed2 
+
 
       subroutine prsed3(nbas,nsp,ssite,sspec,orhoat)
+       
+       use m_struc_def  !Cgetarg
+
 C- Read/write atomic densities
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp
       integer orhoat(3,nbas)
-      double precision ssite(1),sspec(1)
+Cgetarg       double precision ssite(1),sspec(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+
 C ... Local parameters
       integer nrmx,nlmx
       parameter (nrmx=1501, nlmx=64)
@@ -1109,10 +1354,28 @@ C ... Heap
 
       do  ib = 1, nbas
 
-        call upack('site spec',ssite,ib,is,0,0,0)
-        call upack('spec lmxa lmxl',sspec,is,lmxa,lmxl,0,0)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
+         
+         is=ssite(ib)%spec
+
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg         call upack('spec lmxa lmxl',sspec,is,lmxa,lmxl,0,0)
+         
+         lmxa=sspec(is)%lmxa
+         lmxl=sspec(is)%lmxl
+
         if (lmxa .eq. -1) goto 10
-        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
         nlml = (lmxl+1)**2
         call radmsh(rmt,a,nr,rofi)
 
@@ -1121,10 +1384,15 @@ C ... Heap
 
    10   continue
       enddo
-      end
+Cgetarg       end
+       end subroutine prsed3 
+
 
       subroutine prsed4(mode,nbas,nspec,nsp,ssite,sspec,orhoat,
      .  slat,smrho,k1,k2,k3)
+       
+       use m_struc_def  !Cgetarg
+
 C- Remove spin or charge part of atomic densities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1151,7 +1419,11 @@ C     implicit none
 C ... Passed parameters
       integer mode,nbas,nspec,nsp,k1,k2,k3
       integer orhoat(3,nbas)
-      double precision ssite(1),sspec(1),slat(1)
+Cgetarg       double precision ssite(1),sspec(1),slat(1)
+       type(s_site)::ssite(*)
+       type(s_spec)::sspec(*)
+       type(s_lat)::slat
+
       double complex smrho(k1,k2,k3,nsp)
 C ... Local parameters
       integer nrmx,nlmx,n0
@@ -1192,14 +1464,59 @@ C     .  5x,'mtrue',5x,'q2        m2')
 
       do  ib = 1, nbas
 
-        call upack('site spec',ssite,ib,is,0,0,0)
-        call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov1)
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
+         
+         is=ssite(ib)%spec
+
+Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
+Cgetarg...info...           integer :: ov1 , integer(8) :: ssite%ov1 1
+Cgetarg         call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov1)
+         
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pnu) 
+         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
+         ov0=ssite(ib)%ov0
+         ov1=ssite(ib)%ov1
+
 C        call upack2('site pz',ssite,ib,pnz)
-        call upack('spec z qc rg',sspec,is,z,qc,rg,0)
-        call spacks(0,'spec name',sspec,spid,is,is)
-        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-        call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
-     .    lmxb)
+Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
+Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
+Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
+Cgetarg         call upack('spec z qc rg',sspec,is,z,qc,rg,0)
+         
+         z=sspec(is)%z
+         qc=sspec(is)%qc
+         rg=sspec(is)%rg
+
+Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
+         do i_spacks=is,is 
+         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+         enddo
+
+Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
+Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
+         
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         rmt=sspec(is)%rmt
+
+Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
+Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
+Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
+Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
+Cgetarg         call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
+Cgetarg      .    lmxb)
+         
+         rsma=sspec(is)%rsma
+         lmxa=sspec(is)%lmxa
+         lmxl=sspec(is)%lmxl
+         lmxb=sspec(is)%lmxb
+
         if (lmxa .eq. -1) goto 10
         nlml = (lmxl+1)**2
 
@@ -1241,7 +1558,12 @@ C         call prmx('pnu',pnu,n0,n0,2)
           call splrho(30,nsp,n0,1,pnu,w,w)
           call prsed5(mode0,pnu,n0,1,nsp)
           call splrho(31,nsp,n0,1,pnu,w,w)
-          call pack2('site pnu',ssite,ib,pnu)
+Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
+Cgetarg           call pack2('site pnu',ssite,ib,pnu)
+           
+           i_copy_size=size(ssite(ib)%pnu) 
+           call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1) 
+
 C         call prmx('pnu',pnu,n0,n0,2)
         endif
 
@@ -1252,7 +1574,13 @@ C     Species core density modified if im ge 4
       if (im .ge. 4) then
         do  is = 1, nspec
 
-          call upack3('spec orhoc nr',sspec,is,orhoca,nr)
+Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
+Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
+Cgetarg           call upack3('spec orhoc nr',sspec,is,orhoca,nr)
+           
+           orhoca=sspec(is)%orhoc
+           nr=sspec(is)%nr
+
           call splrho(30,nsp,nr,1,w(orhoca),w,w)
           call prsed5(mode0,w(orhoca),nr,1,nsp)
           call splrho(31,nsp,nr,1,w(orhoca),w,w)
@@ -1262,8 +1590,11 @@ C     Species core density modified if im ge 4
 
       call info0(1,1,0,' New density:')
       call prsed2(nbas,nsp,ssite,sspec,orhoat,slat,smrho,k1,k2,k3)
-      end
+Cgetarg       end
+       end subroutine prsed4 
+
       subroutine prsed5(mode,rho,nr,nlml,nsp)
+
 C- Zero out spin part (mode=0) or charge part (mode=1) of rho
 C     implicit none
       integer mode,nr,nlml,nsp
@@ -1280,5 +1611,7 @@ C     implicit none
       if (mode .eq. 0) then
         call dswap(nr*nlml,rho(1,1,1),1,rho(1,1,2),1)
       endif
-      end
+Cgetarg       end
+       end subroutine prsed5 
+
 
