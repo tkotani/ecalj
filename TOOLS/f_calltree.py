@@ -107,6 +107,8 @@ for ffile in argset:
             ffileo = re.sub('slatsm/','$(slatsm_obj_path)/',ffileo)
             ffileo = re.sub('.F','.o',ffileo)
             moddep.write("# $(moddir)/"+ins.name+".mod :"+ffile+"\n")
+## For test, you may need to comment out a following line because it can cause key error 
+## if all used modules are not contained in input files.
             moddic[ins.name]=ffileo
         if(isinstance(ins, block_statements.Type)): print "@def Type:"+ins.name+loc1+loc
         deptho=depth
@@ -128,7 +130,7 @@ if('|'.join(subs)+'|'.join(functions)==''): targetsf='xx xx xx xx xx'
 psf=re.compile(targetsf,re.I)
 
 targetsfm = "(\W"+'\s*\(|\W'.join(mods)+"\s*\()"
-psf=re.compile(targetsfm,re.I)
+psm=re.compile(targetsfm,re.I)
 
 
 targets0 = "(\W"+'\s*\(|\W'.join(subs)+"\s*\()"
@@ -137,7 +139,12 @@ ps0=re.compile(targets0,re.I)
 
 print >> sys.stderr, 'pf=',targetf
 
-
+sets=set(subs)
+setf=set(functions)
+setsf= sets.union(setf)
+print >> sys.stderr,'set sub number=',len(sets)
+print >> sys.stderr,'set fun number=',len(setf)
+print >> sys.stderr,'set sub+function number=',len(setsf),'\n',setsf
 ##############
 #>  f_calltree.py subs/m_struc_*.F subs/struc_main.F subs/struc_sub.F
 #ttt="(\Wstruc_eval_io_r8\s*\(|\Wstruc_eval_io_r8v\s*\(|\Wstruc_eval_io_i8\s*\(|\Wstruc_eval_io_i8v\s*\(|\Wstruc_strtok\s*\(|\Wstruc_eval_io_r8_realbody\s*\(|\Wstruc_eval_io_i8_realbody\s*\(|\Wstruc_checkclass\s*\(|\Wstruc_spackv_iv\s*\(|\Wstruc_spackv_r8v\s*\(|\Wspackv\s*\(|\Wspacks\s*\(|\Wsp2cls\s*\(|\Wshstru\s*\(|\Wstruc_packupack_val1\s*\(|\Wstruc_uarray_io\s*\(|\Wstruc_ubz_io\s*\(|\Wstruc_uctrl_io\s*\(|\Wstruc_ugw_io\s*\(|\Wstruc_uham_io\s*\(|\Wstruc_ulat_io\s*\(|\Wstruc_umix_io\s*\(|\Wstruc_umove_io\s*\(|\Wstruc_uoptic_io\s*\(|\Wstruc_uordn_io\s*\(|\Wstruc_upot_io\s*\(|\Wstruc_usite_io\s*\(|\Wstruc_uspec_io\s*\(|\Wstruc_ustr_io\s*\(|\Wstruc_utb_io\s*\(|\Wuarray_init\s*\(|\Wuarray_show\s*\(|\Wuarray\s*\(|\Wubz_init\s*\(|\Wubz_show\s*\(|\Wubz\s*\(|\Wuctrl_init\s*\(|\Wuctrl_show\s*\(|\Wuctrl\s*\(|\Wugw_init\s*\(|\Wugw_show\s*\(|\Wugw\s*\(|\Wuham_init\s*\(|\Wuham_show\s*\(|\Wuham\s*\(|\Wulat_init\s*\(|\Wulat_show\s*\(|\Wulat\s*\(|\Wumix_init\s*\(|\Wumix_show\s*\(|\Wumix\s*\(|\Wumove_init\s*\(|\Wumove_show\s*\(|\Wumove\s*\(|\Wuoptic_init\s*\(|\Wuoptic_show\s*\(|\Wuoptic\s*\(|\Wuordn_init\s*\(|\Wuordn_show\s*\(|\Wuordn\s*\(|\Wupot_init\s*\(|\Wupot_show\s*\(|\Wupot\s*\(|\Wusite_init\s*\(|\Wusite_show\s*\(|\Wusite\s*\(|\Wuspec_init\s*\(|\Wuspec_show\s*\(|\Wuspec\s*\(|\Wustr_init\s*\(|\Wustr_show\s*\(|\Wustr\s*\(|\Wutb_init\s*\(|\Wutb_show\s*\(|\Wutbuarray_size\s*\(|\Wubz_size\s*\(|\Wuctrl_size\s*\(|\Wugw_size\s*\(|\Wuham_size\s*\(|\Wulat_size\s*\(|\Wumix_size\s*\(|\Wumove_size\s*\(|\Wuoptic_size\s*\(|\Wuordn_size\s*\(|\Wupot_size\s*\(|\Wusite_size\s*\(|\Wuspec_size\s*\(|\Wustr_size\s*\(|\Wutb_size\s*\()"
@@ -184,6 +191,7 @@ for ffile in argset:
                 mother= frame3[-1]
                 child = ins.designator
                 dotdata.write( (mother+"->"+child+";\n").lower() )
+                setsf.discard(child)
         if(isinstance(ins, classes.Use)):
             print "@use Modu:"+ins.name+loc1+loc
             if(moddic[ins.name] != ffileo):
@@ -253,7 +261,7 @@ for ffile in argset:
             mother= frame3[-1].lower()
             b=re.match('(\w|_)*', a.group().lower()[1:])
             child=b.group().lower()
-          
+            setsf.discard(child)
             if(mother != child):  #mother = child means a case where a function name is in the function.
                 #lll=(mother+"->"+child+";").lower()
                 #if(pn.search(lll)): continue
@@ -269,3 +277,5 @@ for ffile in argset:
 #         inso=ins
 #    print '---- '+ffile+' end   -----'
 #    print 
+print >>sys.stderr, '--- sub and functions which are not called ------'
+print >>sys.stderr, setsf

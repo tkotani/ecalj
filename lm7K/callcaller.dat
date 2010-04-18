@@ -638,7 +638,6 @@
 @def Subr:amagn2 in   subs/amagnc.F:L17
 @def Subr:angtab in   subs/angtab.F:L1
 @def Subr:asadc in   subs/asadc.F:L1
-@def Subr:asadmu in   subs/asadmu.F:L1
 @def Subr:asados in   subs/asados.F:L8
 @dcl Type:s_array in Subroutine:asados  subs/asados.F:L96
 @dcl Type:s_bz in Subroutine:asados  subs/asados.F:L97
@@ -656,7 +655,6 @@
 @def Subr:madpot in   subs/asamad.F:L596
 @def Subr:pvmadp in   subs/asamad.F:L861
 @def Subr:dplmom in   subs/asamad.F:L913
-@def Subr:asaopm in   subs/asaopm.F:L1
 @def Subr:asaqmp in   subs/asaqmp.F:L6
 @dcl Type:s_ctrl in Subroutine:asaqmp  subs/asaqmp.F:L54
 @dcl Type:s_pot in Subroutine:asaqmp  subs/asaqmp.F:L55
@@ -673,13 +671,6 @@
 @dcl Type:s_bz in Subroutine:asars  subs/asars.F:L71
 @def Subr:asars1 in   subs/asars.F:L125
 @dcl Type:s_site in Subroutine:asars1  subs/asars.F:L175
-@def Subr:asastr in   subs/asastr.F:L6
-@dcl Type:s_array in Subroutine:asastr  subs/asastr.F:L64
-@dcl Type:s_ctrl in Subroutine:asastr  subs/asastr.F:L65
-@dcl Type:s_lat in Subroutine:asastr  subs/asastr.F:L66
-@dcl Type:s_spec in Subroutine:asastr  subs/asastr.F:L67
-@dcl Type:s_str in Subroutine:asastr  subs/asastr.F:L68
-@dcl Type:s_ham in Subroutine:asastr  subs/asastr.F:L69
 @def Subr:asavqm in   subs/asavqm.F:L7
 @dcl Type:s_ctrl in Subroutine:asavqm  subs/asavqm.F:L33
 @dcl Type:s_pot in Subroutine:asavqm  subs/asavqm.F:L34
@@ -689,8 +680,6 @@
 @def Subr:sumtl1 in   subs/asavqm.F:L209
 @def Subr:pvvqm1 in   subs/asavqm.F:L240
 @def Subr:pvvqm2 in   subs/asavqm.F:L290
-@def Subr:asetot in   subs/asetot.F:L3
-@dcl Type:s_ham in Subroutine:asetot  subs/asetot.F:L48
 @def Subr:asldau in   subs/asldau.F:L1
 @def Subr:asaddu in   subs/asldau.F:L76
 @def Subr:u2pph in   subs/asldau.F:L191
@@ -724,7 +713,6 @@
 @def Subr:atwf in   subs/atwf.F:L1
 @def Func:avwsr in   subs/avwsr.F:L1
 @def Subr:baslst in   subs/baslst.F:L1
-@def Subr:bdotsr in   subs/bdotsr.F:L1
 @def Subr:besslr in   subs/besslr.F:L1
 @def Subr:bessl2 in   subs/besslr.F:L281
 @def Subr:besslm in   subs/besslr.F:L292
@@ -748,7 +736,6 @@
 @def Subr:bzwtsm in   subs/bzwtsf.F:L169
 @def Subr:cb2sph in   subs/cb2sph.F:L1
 @def Subr:ccutup in   subs/ccutup.F:L1
-@def Subr:cffor in   subs/cffor.F:L1
 @def Subr:chgmsh in   subs/chgmsh.F:L1
 @def Subr:pchmsh in   subs/chgmsh.F:L104
 @def Subr:pchms2 in   subs/chgmsh.F:L143
@@ -813,7 +800,6 @@
 @def Subr:setuk in   subs/easypbe.F:L602
 @def Enty_Subr:getuk in Subroutine:setuk  subs/easypbe.F:L608
 @def Func:efrng2 in   subs/efrng2.F:L1
-@def Subr:ehcor in   subs/ehcor.F:L1
 @def Subr:enutod in   subs/enutod.F:L1
 @def Subr:evxc in   subs/evxc.F:L2
 @def Subr:evxc in   subs/evxc.F:L59
@@ -894,18 +880,13 @@
 @def Subr:gtcsym in   subs/gengrp.F:L684
 @def Subr:gensym in   subs/gensym.F:L1
 @def Subr:getbzp in   subs/getbzp.F:L1
-@def Subr:getcls in   subs/getcls.F:L1
 @def Func:getef in   subs/getef.F:L1
 @def Subr:getidu in   subs/getidu.F:L4
 @dcl Type:s_spec in Subroutine:getidu  subs/getidu.F:L27
 @dcl Type:s_site in Subroutine:getidu  subs/getidu.F:L28
-@def Subr:getmom in   subs/getmom.F:L1
 @def Subr:getq in   subs/getq.F:L1
 @def Subr:getqvc in   subs/getq.F:L48
 @def Subr:getqp in   subs/getqp.F:L1
-@def Subr:getzv in   subs/getzv.F:L4
-@dcl Type:s_bz in Subroutine:getzv  subs/getzv.F:L13
-@dcl Type:s_ctrl in Subroutine:getzv  subs/getzv.F:L14
 @def Subr:ggiml in   subs/ggiml.F:L1
 @def Subr:gh1c in   subs/gh1c.F:L1
 @def Subr:ghdiml in   subs/ghdiml.F:L1
@@ -919,7 +900,6 @@
 @def Func:grpeql in   subs/grpgen.F:L122
 @def Subr:grpprd in   subs/grpgen.F:L135
 @def Subr:grpop in   subs/grpop.F:L1
-@def Subr:gskham in   subs/gskham.F:L1
 @def Subr:gtbsl1 in   subs/gtbsl1.F:L1
 @def Subr:gtbvec in   subs/gtbvec.F:L1
 @def Subr:gtpcor in   subs/gtpcor.F:L3
@@ -961,7 +941,6 @@
 @def Subr:hft2r1 in   subs/hft2rs.F:L304
 @def Subr:hft2r2 in   subs/hft2rs.F:L436
 @def Subr:hft2r3 in   subs/hft2rs.F:L653
-@def Subr:hklml in   subs/hklml.F:L1
 @def Subr:hml2nc in   subs/hml2nc.F:L1
 @def Subr:hmladb in   subs/hmladb.F:L2
 @def Subr:hmlt2c in   subs/hmlt2c.F:L1
@@ -1022,7 +1001,6 @@
 @dcl Type:s_lat in Function:iors  subs/iors.F:L137
 @dcl Type:s_pot in Function:iors  subs/iors.F:L138
 @dcl Type:s_bz in Function:iors  subs/iors.F:L139
-@def Func:iorsj in   subs/iorsj.F:L2
 @def Subr:iosave in   subs/iosave.F:L1
 @def Func:iosg in   subs/iosg.F:L1
 @def Func:iosg1 in   subs/iosg.F:L170
@@ -1038,7 +1016,6 @@
 @def Func:iostr4 in   subs/iostr.F:L393
 @def Subr:iostrt in   subs/iostrt.F:L1
 @def Subr:iosv in   subs/iosv.F:L1
-@def Subr:iovshf in   subs/iovshf.F:L1
 @def Subr:ioxbs in   subs/ioxbs.F:L1
 @def Subr:pioxbs in   subs/ioxbs.F:L234
 @def Subr:kink2g in   subs/kink2g.F:L1
@@ -1054,7 +1031,6 @@
 @dcl Type:s_array in Subroutine:lattic  subs/lattic.F:L45
 @def Func:latvec in   subs/latvec.F:L1
 @def Subr:ldau in   subs/ldau.F:L1
-@def Subr:lfrog in   subs/lfrog.F:L1
 @def Subr:lgen in   subs/lgen.F:L1
 @def Func:ll in   subs/ll.F:L1
 @def Subr:lscoul in   subs/lscoul.F:L1
@@ -1297,16 +1273,10 @@
 @dcl Type:s_spec in Subroutine:mchan  subs/mchan.F:L36
 @def Subr:mdinit in   subs/mdinit.F:L1
 @def Subr:mdout in   subs/mdout.F:L1
-@def Subr:meptr in   subs/meptr.F:L1
-@def Subr:mixpq in   subs/mixpq.F:L1
-@def Subr:mixpqb in   subs/mixpqb.F:L1
-@def Subr:mixpqc in   subs/mixpqc.F:L1
-@def Subr:mixpqx in   subs/mixpqc.F:L77
 @def Subr:mkalpv in   subs/mkalpv.F:L1
 @def Subr:mkbdot in   subs/mkbdot.F:L1
 @def Subr:mkbfld in   subs/mkbfld.F:L1
 @def Subr:mkcond in   subs/mkcond.F:L1
-@def Subr:mkiaxd in   subs/mkiaxd.F:L1
 @def Subr:mkjdos in   subs/mkjdos.F:L1
 @def Subr:mkplat in   subs/mkplat.F:L1
 @def Subr:bravsy in   subs/mkplat.F:L67
@@ -1346,7 +1316,6 @@
 @dcl Type:s_lat in Subroutine:mmag  subs/mmag.F:L31
 @dcl Type:s_array in Subroutine:mmag  subs/mmag.F:L32
 @dcl Type:s_move in Subroutine:mmag  subs/mmag.F:L33
-@def Subr:moment in   subs/moment.F:L1
 @def Subr:mpint in   subs/mpint.F:L1
 @def Subr:xxint0 in   subs/mpint.F:L60
 @def Subr:mshsiz in   subs/mshsiz.F:L1
@@ -1375,10 +1344,6 @@
 @def Subr:npr2tb in   subs/npr2tb.F:L1
 @def Subr:nwit in   subs/nwit.F:L1
 @def Subr:nwitsv in   subs/nwit.F:L125
-@def Subr:ogvlst in   subs/ogvlst.F:L1
-@def Subr:pvogls in   subs/ogvlst.F:L146
-@def Subr:optint in   subs/optint.F:L1
-@def Subr:optin2 in   subs/optint.F:L80
 @def Subr:oraddp in   subs/oraddp.F:L1
 @def Subr:orbl in   subs/orbl.F:L1
 @def Subr:iprmsb in   subs/orbl.F:L83
@@ -1401,7 +1366,6 @@
 @def Subr:ppair4 in   subs/pairc.F:L786
 @def Subr:ppair5 in   subs/pairc.F:L851
 @def Subr:pair3c in   subs/pairc.F:L887
-@def Subr:pairg in   subs/pairg.F:L1
 @def Subr:pairp6 in   subs/pairp6.F:L1
 @def Func:parmxp in   subs/parmxp.F:L1
 @def Subr:parmx0 in   subs/parmxp.F:L358
@@ -1433,14 +1397,11 @@
 @def Subr:gtplan in   subs/plana.F:L1145
 @def Subr:fixcl in   subs/plana.F:L1224
 @def Subr:pplan1 in   subs/plana.F:L1298
-@def Subr:plm2pa in   subs/plm2pa.F:L1
 @def Subr:pp2enu in   subs/pp2enu.F:L3
 @dcl Type:s_spec in Subroutine:pp2enu  subs/pp2enu.F:L38
 @def Subr:pp2hvs in   subs/pp2hvs.F:L1
 @def Subr:pptrns in   subs/pptrns.F:L1
 @def Func:oalpha in   subs/pptrns.F:L115
-@def Subr:pqedit in   subs/pqedit.F:L1
-@def Subr:pqed2 in   subs/pqedit.F:L143
 @def Subr:pqmix in   subs/pqmix.F:L1
 @def Subr:pqsclf in   subs/pqmix.F:L267
 @def Subr:pqsclb in   subs/pqmix.F:L352
@@ -1623,19 +1584,6 @@
 @def Subr:scglp1 in   subs/scglp1.F:L1
 @def Subr:sclwsr in   subs/sclwsr.F:L1
 @def Subr:sclws2 in   subs/sclwsr.F:L235
-@def Subr:scrmom in   subs/scrmom.F:L5
-@dcl Type:s_ham in Subroutine:scrmom  subs/scrmom.F:L75
-@dcl Type:s_bz in Subroutine:scrmom  subs/scrmom.F:L76
-@dcl Type:s_lat in Subroutine:scrmom  subs/scrmom.F:L77
-@def Subr:pscrm1 in   subs/scrmom.F:L336
-@def Subr:pscrm2 in   subs/scrmom.F:L448
-@def Subr:pscrm3 in   subs/scrmom.F:L496
-@def Subr:pscrm4 in   subs/scrmom.F:L519
-@def Subr:pscrm5 in   subs/scrmom.F:L580
-@def Subr:pscrm6 in   subs/scrmom.F:L637
-@def Subr:pscrm7 in   subs/scrmom.F:L679
-@def Subr:secm2c in   subs/secm2c.F:L4
-@dcl Type:s_ctrl in Subroutine:secm2c  subs/secm2c.F:L35
 @def Subr:secmat in   subs/secmat.F:L11
 @dcl Type:s_ctrl in Subroutine:secmat  subs/secmat.F:L82
 @dcl Type:s_spec in Subroutine:secmat  subs/secmat.F:L83
@@ -1683,7 +1631,6 @@
 @def Subr:fmain in   subs/shorps.F:L119
 @def Subr:fmain in   subs/shorps.F:L202
 @def Subr:shortn in   subs/shortn.F:L1
-@def Subr:shosg in   subs/shosg.F:L1
 @def Subr:shoshl in   subs/shoshl.F:L1
 @def Subr:xxsho in   subs/shoshl.F:L184
 @def Subr:shoang in   subs/shoshl.F:L312
@@ -1790,7 +1737,6 @@
 @def Subr:i8icopy in   subs/spackv_array_copy.F:L76
 @def Subr:lsets_bitop_i8 in   subs/spackv_array_copy.F:L87
 @def Prog:main in   subs/spackv_array_copy.F:L126
-@def Subr:spbndw in   subs/spbndw.F:L1
 @def Subr:spcgrp in   subs/spcgrp.F:L1
 @def Subr:sgroup in   subs/spcgrp.F:L71
 @def Func:spgeql in   subs/spcgrp.F:L217
@@ -1913,7 +1859,6 @@
 @def Subr:symia0 in   subs/symiax.F:L99
 @def Subr:symia1 in   subs/symiax.F:L304
 @def Subr:symlat in   subs/symlat.F:L1
-@def Subr:sympad in   subs/sympad.F:L1
 @def Subr:symprj in   subs/symprj.F:L1
 @def Subr:psymr0 in   subs/symq.F:L1
 @def Subr:psymq0 in   subs/symq.F:L59
@@ -1938,14 +1883,6 @@
 @def Subr:t3j_all in   subs/veecomp.F:L73
 @def Subr:fctor1 in   subs/veecomp.F:L144
 @def Subr:tri_rule in   subs/veecomp.F:L158
-@def Subr:verlet in   subs/verlet.F:L1
-@def Subr:tekin in   subs/verlet.F:L167
-@def Subr:vvlc2 in   subs/verlet.F:L194
-@def Subr:vvlcp2 in   subs/verlet.F:L242
-@def Subr:mdinfo in   subs/verlet.F:L304
-@def Subr:mdwrit in   subs/verlet.F:L442
-@def Subr:ioxyz in   subs/verlet.F:L597
-@def Subr:initv in   subs/verlet.F:L647
 @def Subr:vldau in   subs/vldau.F:L1
 @def Subr:vmix in   subs/vmix.F:L1
 @def Subr:vmix2 in   subs/vmix2.F:L1
@@ -1964,8 +1901,6 @@
 @def Subr:writebasis in   subs/writebasis.F:L3
 @dcl Type:s_spec in Subroutine:writebasis  subs/writebasis.F:L14
 @def Subr:xlgen in   subs/xlgen.F:L1
-@def Subr:xxxbnd in   subs/xxxbnd.F:L1
-@def Func:sclp in   subs/xxxbnd.F:L23
 @def Subr:xxxdif in   subs/xxxdif.F:L1
 @def Subr:ylmrtg in   subs/ylmrtg.F:L1
 @def Subr:yyhmul in   subs/yyhmul.F:L2
@@ -1997,7 +1932,6 @@
 @cal Subr:fpchk in Subroutine:fmain  lmv7.F:L681
 @cal Subr:lmaux in Subroutine:fmain  lmv7.F:L687
 @cal Subr:lmfp in Subroutine:fmain  lmv7.F:L697
-@cal Subr:asastr in Subroutine:fmain  lmv7.F:L726
 @cal Subr:asados in Subroutine:fmain  lmv7.F:L757
 @cal Subr:lmaux in Subroutine:fmain  lmv7.F:L771
 @cal Subr:mmag in Subroutine:fmain  lmv7.F:L779
@@ -3336,33 +3270,6 @@
 @cal Subr:psymr0 in Subroutine:asars1  subs/asars.F:L210
 @cal Subr:psymq0 in Subroutine:asars1  subs/asars.F:L212
 @cal Subr:psymq0 in Subroutine:asars1  subs/asars.F:L213
-@use Modu:m_struc_def in Subroutine:asastr  subs/asastr.F:L8
-@cal Subr:hcr2a in Subroutine:asastr  subs/asastr.F:L232
-@cal Subr:mktrli in Subroutine:asastr  subs/asastr.F:L253
-@cal Subr:pairs in Subroutine:asastr  subs/asastr.F:L311
-@cal Subr:pairp6 in Subroutine:asastr  subs/asastr.F:L316
-@cal Subr:sp2cls in Subroutine:asastr  subs/asastr.F:L327
-@cal Subr:mkiaxd in Subroutine:asastr  subs/asastr.F:L328
-@cal Subr:sp2cls in Subroutine:asastr  subs/asastr.F:L366
-@cal Subr:sp2cls in Subroutine:asastr  subs/asastr.F:L367
-@cal Subr:sp2cls in Subroutine:asastr  subs/asastr.F:L370
-@cal Subr:sp2cls in Subroutine:asastr  subs/asastr.F:L371
-@cal Subr:sp2cls in Subroutine:asastr  subs/asastr.F:L372
-@cal Subr:sp2cls in Subroutine:asastr  subs/asastr.F:L373
-@cal Subr:maadot in Subroutine:asastr  subs/asastr.F:L381
-@cal Subr:makalp in Subroutine:asastr  subs/asastr.F:L385
-@cal Subr:pairg in Subroutine:asastr  subs/asastr.F:L394
-@cal Subr:mktra2 in Subroutine:asastr  subs/asastr.F:L403
-@cal Subr:mkrwat in Subroutine:asastr  subs/asastr.F:L409
-@cal Subr:strrs in Subroutine:asastr  subs/asastr.F:L448
-@cal Subr:strg in Subroutine:asastr  subs/asastr.F:L458
-@cal Subr:strscr in Subroutine:asastr  subs/asastr.F:L464
-@cal Subr:ppair5 in Subroutine:asastr  subs/asastr.F:L470
-@cal Subr:shostr in Subroutine:asastr  subs/asastr.F:L512
-@cal Subr:shostr in Subroutine:asastr  subs/asastr.F:L518
-@cal Subr:shosg in Subroutine:asastr  subs/asastr.F:L525
-@cal Subr:chkstr in Subroutine:asastr  subs/asastr.F:L532
-@cal Subr:chksg in Subroutine:asastr  subs/asastr.F:L534
 @use Modu:m_struc_def in Subroutine:asavqm  subs/asavqm.F:L10
 @cal Subr:sp2cls in Subroutine:asavqm  subs/asavqm.F:L132
 @cal Subr:sp2cls in Subroutine:asavqm  subs/asavqm.F:L133
@@ -3377,7 +3284,6 @@
 @cal Subr:ropbes in Subroutine:asavqm  subs/asavqm.F:L193
 @cal Subr:sumtl1 in Subroutine:asavqm  subs/asavqm.F:L196
 @cal Subr:pvvqm2 in Subroutine:asavqm  subs/asavqm.F:L202
-@use Modu:m_struc_def in Subroutine:asetot  subs/asetot.F:L5
 @cal Subr:asaddu in Subroutine:asldau  subs/asldau.F:L55
 @cal Subr:asaddu in Subroutine:u2pph  subs/asldau.F:L223
 @cal Subr:asaddu in Subroutine:u2pph  subs/asldau.F:L225
@@ -3796,7 +3702,6 @@
 @cal Subr:gtpcor in Subroutine:getq  subs/getq.F:L41
 @cal Subr:getqvc in Subroutine:getq  subs/getq.F:L43
 @cal Subr:config in Subroutine:getqvc  subs/getq.F:L86
-@use Modu:m_struc_def in Subroutine:getzv  subs/getzv.F:L6
 @cal Subr:sylm in Subroutine:ggiml  subs/ggiml.F:L66
 @cal Subr:radgkl in Subroutine:ggiml  subs/ggiml.F:L89
 @cal Subr:gxpml in Subroutine:gh1c  subs/gh1c.F:L136
@@ -3893,8 +3798,6 @@
 @cal Subr:gvlist in Subroutine:hft2r1  subs/hft2rs.F:L409
 @cal Subr:hft2r2 in Subroutine:hft2r1  subs/hft2rs.F:L415
 @cal Subr:hft2r2 in Subroutine:hft2r1  subs/hft2rs.F:L419
-@cal Subr:hsmml in Subroutine:hklml  subs/hklml.F:L37
-@cal Subr:gklml in Subroutine:hklml  subs/hklml.F:L38
 @cal Subr:makdsd in Subroutine:hmlt2c  subs/hmlt2c.F:L31
 @cal Subr:makdsd in Subroutine:hmlt2c  subs/hmlt2c.F:L33
 @cal Subr:makdsd in Subroutine:hmltns  subs/hmltns.F:L84
@@ -5869,8 +5772,6 @@
 @use Modu:m_struc_def in Subroutine:mchan  subs/mchan.F:L7
 @cal Subr:spacks_copy in Subroutine:mchan  subs/mchan.F:L60
 @cal Subr:awrit6 in Subroutine:mdout  subs/mdout.F:L57
-@cal Subr:mixpqx in Subroutine:mixpqc  subs/mixpqc.F:L52
-@cal Subr:mixpqx in Subroutine:mixpqc  subs/mixpqc.F:L73
 @cal Subr:delstp in Subroutine:mkjdos  subs/mkjdos.F:L67
 @cal Subr:delstp in Subroutine:mkjdos  subs/mkjdos.F:L80
 @cal Subr:delstp in Subroutine:mkjdos  subs/mkjdos.F:L115
@@ -5984,8 +5885,6 @@
 @cal Subr:delstp in Subroutine:nosbzm  subs/nosbzm.F:L75
 @cal Subr:nwitsv in Subroutine:nwit  subs/nwit.F:L105
 @cal Subr:iosave in Subroutine:nwitsv  subs/nwit.F:L180
-@cal Subr:shorbz in Subroutine:ogvlst  subs/ogvlst.F:L112
-@cal Subr:pvogls in Subroutine:ogvlst  subs/ogvlst.F:L142
 @cal Subr:orbl in Subroutine:iprmsb  subs/orbl.F:L149
 @cal Subr:orbl in Subroutine:iprmsb  subs/orbl.F:L157
 @cal Subr:orbl in Subroutine:iprmsb  subs/orbl.F:L165
@@ -6071,14 +5970,10 @@
 @cal Subr:getxyz in Subroutine:lmplio  subs/plana.F:L993
 @cal Subr:pplan1 in Subroutine:gtplan  subs/plana.F:L1178
 @cal Subr:pplan1 in Subroutine:gtplan  subs/plana.F:L1203
-@cal Subr:orbl in Subroutine:plm2pa  subs/plm2pa.F:L61
-@cal Subr:orbl in Subroutine:plm2pa  subs/plm2pa.F:L77
 @use Modu:m_struc_def in Subroutine:pp2enu  subs/pp2enu.F:L6
 @cal Subr:i8icopy in Subroutine:pp2enu  subs/pp2enu.F:L69
 @cal Subr:enutod in Subroutine:pp2enu  subs/pp2enu.F:L100
 @cal Subr:ii8copy in Subroutine:pp2enu  subs/pp2enu.F:L111
-@cal Subr:pqed2 in Subroutine:pqedit  subs/pqedit.F:L101
-@cal Subr:pqmxup in Subroutine:pqedit  subs/pqedit.F:L135
 @cal Subr:pqmxio in Subroutine:pqmix  subs/pqmix.F:L110
 @cal Subr:parmx0 in Subroutine:pqmix  subs/pqmix.F:L140
 @cal Subr:pqmxio in Subroutine:pqmix  subs/pqmix.F:L168
@@ -6446,52 +6341,6 @@
 @cal Subr:pairc in Subroutine:sclwsr  subs/sclwsr.F:L128
 @cal Subr:sclws2 in Subroutine:sclwsr  subs/sclwsr.F:L151
 @cal Subr:sclws2 in Subroutine:sclwsr  subs/sclwsr.F:L179
-@use Modu:m_struc_def in Subroutine:scrmom  subs/scrmom.F:L8
-@cal Subr:i8icopy in Subroutine:scrmom  subs/scrmom.F:L119
-@cal Subr:pscrm3 in Subroutine:scrmom  subs/scrmom.F:L124
-@cal Subr:plm2pa in Subroutine:scrmom  subs/scrmom.F:L141
-@cal Subr:prjrsp in Subroutine:scrmom  subs/scrmom.F:L145
-@cal Subr:pscrm2 in Subroutine:scrmom  subs/scrmom.F:L195
-@cal Subr:pscrm5 in Subroutine:scrmom  subs/scrmom.F:L206
-@cal Subr:pa2plm in Subroutine:scrmom  subs/scrmom.F:L214
-@cal Subr:pscrm4 in Subroutine:scrmom  subs/scrmom.F:L215
-@cal Subr:pa2plm in Subroutine:scrmom  subs/scrmom.F:L256
-@cal Subr:pa2plm in Subroutine:scrmom  subs/scrmom.F:L258
-@cal Subr:pscrm4 in Subroutine:scrmom  subs/scrmom.F:L263
-@cal Subr:pscrm7 in Subroutine:scrmom  subs/scrmom.F:L303
-@cal Subr:prjrsp in Subroutine:scrmom  subs/scrmom.F:L314
-@cal Subr:pscrm6 in Subroutine:scrmom  subs/scrmom.F:L315
-@cal Subr:pscrm1 in Subroutine:scrmom  subs/scrmom.F:L323
-@cal Subr:orbl in Subroutine:pscrm4  subs/scrmom.F:L553
-@cal Subr:plm2pa in Subroutine:pscrm5  subs/scrmom.F:L611
-@cal Subr:prjrsp in Subroutine:pscrm7  subs/scrmom.F:L757
-@use Modu:m_struc_def in Subroutine:secm2c  subs/secm2c.F:L8
-@cal Subr:bloch in Subroutine:secm2c  subs/secm2c.F:L130
-@cal Subr:yprm in Subroutine:secm2c  subs/secm2c.F:L132
-@cal Subr:pvsec2 in Subroutine:secm2c  subs/secm2c.F:L134
-@cal Subr:bloch in Subroutine:secm2c  subs/secm2c.F:L140
-@cal Subr:yprm in Subroutine:secm2c  subs/secm2c.F:L142
-@cal Subr:bloch in Subroutine:secm2c  subs/secm2c.F:L145
-@cal Subr:bloch in Subroutine:secm2c  subs/secm2c.F:L163
-@cal Subr:yprm in Subroutine:secm2c  subs/secm2c.F:L168
-@cal Subr:bloch in Subroutine:secm2c  subs/secm2c.F:L171
-@cal Subr:pptrns in Subroutine:secm2c  subs/secm2c.F:L185
-@cal Subr:makpph in Subroutine:secm2c  subs/secm2c.F:L187
-@cal Subr:pvsec2 in Subroutine:secm2c  subs/secm2c.F:L205
-@cal Subr:mksbet in Subroutine:secm2c  subs/secm2c.F:L206
-@cal Subr:yprm in Subroutine:secm2c  subs/secm2c.F:L209
-@cal Subr:yprm in Subroutine:secm2c  subs/secm2c.F:L211
-@cal Subr:pvsec2 in Subroutine:secm2c  subs/secm2c.F:L214
-@cal Subr:mksbet in Subroutine:secm2c  subs/secm2c.F:L216
-@cal Subr:yprm in Subroutine:secm2c  subs/secm2c.F:L218
-@cal Subr:yprm in Subroutine:secm2c  subs/secm2c.F:L220
-@cal Subr:pptrns in Subroutine:secm2c  subs/secm2c.F:L226
-@cal Subr:makdia in Subroutine:secm2c  subs/secm2c.F:L241
-@cal Subr:hml2nc in Subroutine:secm2c  subs/secm2c.F:L254
-@cal Subr:hmlt2c in Subroutine:secm2c  subs/secm2c.F:L261
-@cal Subr:makdsd in Subroutine:secm2c  subs/secm2c.F:L265
-@cal Subr:yprm in Subroutine:secm2c  subs/secm2c.F:L270
-@cal Subr:yprm in Subroutine:secm2c  subs/secm2c.F:L320
 @use Modu:m_struc_def in Subroutine:secmat  subs/secmat.F:L15
 @cal Subr:i8icopy in Subroutine:secmat  subs/secmat.F:L159
 @cal Subr:secmtn in Subroutine:secmat  subs/secmat.F:L181
@@ -7508,21 +7357,6 @@
 @cal Subr:fctor1 in Subroutine:t3j_all  subs/veecomp.F:L127
 @cal Subr:fctor1 in Subroutine:t3j_all  subs/veecomp.F:L128
 @cal Subr:fctor1 in Subroutine:t3j_all  subs/veecomp.F:L129
-@cal Subr:tekin in Subroutine:verlet  subs/verlet.F:L85
-@cal Subr:vvlc2 in Subroutine:verlet  subs/verlet.F:L89
-@cal Subr:tekin in Subroutine:verlet  subs/verlet.F:L90
-@cal Subr:vvlcp2 in Subroutine:verlet  subs/verlet.F:L96
-@cal Subr:tekin in Subroutine:verlet  subs/verlet.F:L98
-@cal Subr:zercmv in Subroutine:verlet  subs/verlet.F:L102
-@cal Subr:mdinfo in Subroutine:verlet  subs/verlet.F:L105
-@cal Subr:mdwrit in Subroutine:verlet  subs/verlet.F:L110
-@cal Subr:vvlc2 in Subroutine:verlet  subs/verlet.F:L118
-@cal Subr:vvlcp2 in Subroutine:verlet  subs/verlet.F:L124
-@cal Subr:awrit6 in Subroutine:mdinfo  subs/verlet.F:L415
-@cal Subr:ioxyz in Subroutine:mdwrit  subs/verlet.F:L581
-@cal Subr:tekin in Subroutine:initv  subs/verlet.F:L711
-@cal Subr:tekin in Subroutine:initv  subs/verlet.F:L726
-@cal Subr:zercmv in Subroutine:initv  subs/verlet.F:L729
 @cal Subr:veecomp in Subroutine:vldau  subs/vldau.F:L82
 @cal Subr:vecpkl in Subroutine:vsl  subs/vsl.F:L100
 @cal Subr:getq in Subroutine:vtoq  subs/vtoq.F:L59
@@ -7786,14 +7620,6 @@
 @cal Func:ll in Subroutine:qpp2mp  subs/asaqmp.F:L278
 @cal Func:ll in Subroutine:qpp2mp  subs/asaqmp.F:L291
 @cal Func:iors in Subroutine:asars  subs/asars.F:L114
-@cal Func:strdif in Subroutine:asastr  subs/asastr.F:L240
-@cal Func:streqv in Subroutine:asastr  subs/asastr.F:L432
-@cal Func:iostr in Subroutine:asastr  subs/asastr.F:L482
-@cal Func:iostr in Subroutine:asastr  subs/asastr.F:L486
-@cal Func:iosg in Subroutine:asastr  subs/asastr.F:L493
-@cal Func:iostr in Subroutine:asastr  subs/asastr.F:L510
-@cal Func:iostr in Subroutine:asastr  subs/asastr.F:L516
-@cal Func:iosg in Subroutine:asastr  subs/asastr.F:L522
 @cal Func:ll in Subroutine:asavqm  subs/asavqm.F:L163
 @cal Func:ll in Subroutine:sumtl1  subs/asavqm.F:L220
 @cal Func:ll in Subroutine:pvvqm1  subs/asavqm.F:L262
@@ -7885,7 +7711,6 @@
 @cal Func:ll in Subroutine:hdxpml  subs/hdxpml.F:L83
 @cal Func:ll in Subroutine:hdxpml  subs/hdxpml.F:L89
 @cal Func:ll in Subroutine:hdxpml  subs/hdxpml.F:L136
-@cal Func:ll in Subroutine:hklml  subs/hklml.F:L35
 @cal Func:ll in Subroutine:hstrux  subs/hstrux.F:L38
 @cal Func:ll in Subroutine:hstrud  subs/hstrux.F:L119
 @cal Func:ll in Subroutine:hxpml  subs/hxpml.F:L65
@@ -8350,7 +8175,6 @@
 @cal Func:grpeql in Function:aginv  subs/mksym.F:L580
 @cal Func:iclbsj in Subroutine:mktra2  subs/mktra2.F:L343
 @cal Func:iclbsj in Subroutine:mktral  subs/mktral.F:L240
-@cal Func:ll in Subroutine:moment  subs/moment.F:L78
 @cal Func:fullmesh in Subroutine:mshsiz  subs/mshsiz.F:L91
 @cal Func:fullmesh in Subroutine:mshsiz  subs/mshsiz.F:L125
 @cal Func:fullmesh in Subroutine:mshsiz  subs/mshsiz.F:L138
@@ -8380,14 +8204,12 @@
 @cal Func:ovcall in Subroutine:ovmin  subs/ovmin.F:L174
 @cal Func:avwsr in Subroutine:pairs  subs/pairc.F:L346
 @cal Func:drr2 in Subroutine:ppair1  subs/pairc.F:L653
-@cal Func:drr2 in Subroutine:pairg  subs/pairg.F:L95
 @cal Func:iclbas in Subroutine:plana  subs/plana.F:L351
 @cal Func:iosits in Subroutine:plana  subs/plana.F:L563
 @cal Func:iclbas in Subroutine:pptrns  subs/pptrns.F:L53
 @cal Func:oalpha in Subroutine:pptrns  subs/pptrns.F:L92
 @cal Func:oalpha in Subroutine:pptrns  subs/pptrns.F:L97
 @cal Func:iclbas in Subroutine:pptrns  subs/pptrns.F:L110
-@cal Func:parmxp in Subroutine:pqedit  subs/pqedit.F:L46
 @cal Func:parmxp in Subroutine:pqmix  subs/pqmix.F:L130
 @cal Func:parmxp in Subroutine:pqmix  subs/pqmix.F:L141
 @cal Func:dcmp in Subroutine:fmain  subs/prjpos.F:L261
@@ -8464,8 +8286,6 @@
 @cal Func:volsph in Subroutine:sclws2  subs/sclwsr.F:L561
 @cal Func:iclbsj in Subroutine:sclws2  subs/sclwsr.F:L579
 @cal Func:drr2 in Subroutine:sclws2  subs/sclwsr.F:L590
-@cal Func:iostr in Subroutine:secm2c  subs/secm2c.F:L123
-@cal Func:iostr in Subroutine:secm2c  subs/secm2c.F:L156
 @cal Func:iostr in Subroutine:secmt2  subs/secmat.F:L459
 @cal Func:iostr in Subroutine:secmt2  subs/secmat.F:L622
 @cal Func:iostr in Subroutine:secmtn  subs/secmtn.F:L146
@@ -8524,10 +8344,6 @@
 @cal Func:debugmode in Subroutine:rotdlmm  subs/suham.F:L1115
 @cal Func:debugmode in Subroutine:rotdlmm  subs/suham.F:L1143
 @cal Func:debugmode in Subroutine:rotdlmm  subs/suham.F:L1196
-@cal Func:sclp in Subroutine:suqlst  subs/suqlst.F:L398
-@cal Func:sclp in Subroutine:suqlst  subs/suqlst.F:L399
-@cal Func:sclp in Subroutine:suqlst  subs/suqlst.F:L403
-@cal Func:sclp in Subroutine:suqlst  subs/suqlst.F:L412
 @cal Func:usite_size in Module:m_susite_func@Subroutine:susite  subs/susite.F:L289
 @cal Func:iclbsj in Subroutine:symcry  subs/symcry.F:L55
 @cal Func:iclbsj in Subroutine:symcry  subs/symcry.F:L64

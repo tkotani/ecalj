@@ -24,14 +24,11 @@ subs_list:=\
 	amagnc.o \
 	angtab.o \
 	asadc.o \
-	asadmu.o \
-	asados.o \
-	asamad.o \
-	asaopm.o \
 	asaqmp.o \
-	asars.o \
 	asavqm.o \
-	asetot.o \
+	asars.o \
+	asamad.o \
+	asados.o \
 	asldau.o \
 	asvsph.o \
 	asymop.o \
@@ -41,7 +38,6 @@ subs_list:=\
 	atwf.o \
 	avwsr.o \
 	baslst.o \
-	bdotsr.o \
 	besslr.o \
 	bloch.o \
 	blochi.o \
@@ -55,7 +51,6 @@ subs_list:=\
 	bzwtsf.o \
 	cb2sph.o \
 	ccutup.o \
-	cffor.o \
 	chgmsh.o \
 	chkdmu.o \
 	chksg.o \
@@ -85,7 +80,6 @@ subs_list:=\
 	dvdos.o \
 	easypbe.o \
 	efrng2.o \
-	ehcor.o \
 	enutod.o \
 	evxc.o \
 	evxcp.o \
@@ -102,13 +96,10 @@ subs_list:=\
 	gengrp.o \
 	gensym.o \
 	getbzp.o \
-	getcls.o \
 	getef.o \
 	getidu.o \
-	getmom.o \
 	getq.o \
 	getqp.o \
-	getzv.o \
 	ggiml.o \
 	gh1c.o \
 	ghdiml.o \
@@ -119,7 +110,6 @@ subs_list:=\
 	grpfnd.o \
 	grpgen.o \
 	grpop.o \
-	gskham.o \
 	gtbsl1.o \
 	gtbvec.o \
 	gtpcor.o \
@@ -144,7 +134,6 @@ subs_list:=\
 	hcr2a.o \
 	hdxpml.o \
 	hft2rs.o \
-	hklml.o \
 	hml2nc.o \
 	hmladb.o \
 	hmlt2c.o \
@@ -178,7 +167,6 @@ subs_list:=\
 	iorbtm.o \
 	iores.o \
 	iors.o \
-	iorsj.o \
 	iosave.o \
 	iosg.o \
 	iosig.o \
@@ -187,7 +175,6 @@ subs_list:=\
 	iostr.o \
 	iostrt.o \
 	iosv.o \
-	iovshf.o \
 	ioxbs.o \
 	kink2g.o \
 	latlim.o \
@@ -196,7 +183,6 @@ subs_list:=\
 	lattic.o \
 	latvec.o \
 	ldau.o \
-	lfrog.o \
 	lgen.o \
 	ll.o \
 	lscoul.o \
@@ -226,15 +212,10 @@ subs_list:=\
 	mchan.o \
 	mdinit.o \
 	mdout.o \
-	meptr.o \
-	mixpqb.o \
-	mixpqc.o \
-	mixpq.o \
 	mkalpv.o \
 	mkbdot.o \
 	mkbfld.o \
 	mkcond.o \
-	mkiaxd.o \
 	mkjdos.o \
 	mkplat.o \
 	mkppar.o \
@@ -248,7 +229,6 @@ subs_list:=\
 	mktra2.o \
 	mktral.o \
 	mmag.o \
-	moment.o \
 	mpint.o \
 	mshsiz.o \
 	mstrx2.o \
@@ -266,15 +246,11 @@ subs_list:=\
 	nosbzm.o \
 	npr2tb.o \
 	nwit.o \
-	ogvlst.o \
-	optint.o \
 	oraddp.o \
 	orbl.o \
 	ovlchk.o \
 	ovmin.o \
-	pa2plm.o \
 	pairc.o \
-	pairg.o \
 	pairp6.o \
 	parmxp.o \
 	pgbasp.o \
@@ -284,11 +260,9 @@ subs_list:=\
 	phvsfp.o \
 	pkli.o \
 	plana.o \
-	plm2pa.o \
 	pp2enu.o \
 	pp2hvs.o \
 	pptrns.o \
-	pqedit.o \
 	pqmix.o \
 	prdmts.o \
 	prjpos.o \
@@ -347,10 +321,6 @@ subs_list:=\
 	scg.o \
 	scglp1.o \
 	sclwsr.o \
-	scrmom.o \
-	secm2c.o \
-	secmat.o \
-	secmtn.o \
 	setcg.o \
 	sfill.o \
 	shear.o \
@@ -364,7 +334,6 @@ subs_list:=\
 	shorbz.o \
 	shorps.o \
 	shortn.o \
-	shosg.o \
 	shoshl.o \
 	shostr.o \
 	siteid.o \
@@ -374,7 +343,6 @@ subs_list:=\
 	soldhj.o \
 	solgsg.o \
 	soprm.o \
-	spbndw.o \
 	spcgrp.o \
 	spinav.o \
 	splcls.o \
@@ -416,7 +384,6 @@ subs_list:=\
 	symfor.o \
 	symiax.o \
 	symlat.o \
-	sympad.o \
 	symprj.o \
 	symq.o \
 	symstr.o \
@@ -432,7 +399,6 @@ subs_list:=\
 	v0intr.o \
 	vecpkl.o \
 	veecomp.o \
-	verlet.o \
 	vldau.o \
 	vmix2.o \
 	vmix.o \
