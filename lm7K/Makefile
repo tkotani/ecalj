@@ -221,7 +221,7 @@ lmfgw-MPIK:     lmfgw-MPIK.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
 progs: $(programs)
 
 clean:
-	rm -f $(programs) $(fplotprogs) */*.a *.o
+	rm -f $(programs) $(fplotprogs) */*.a *.o 
 	(cd FPLOTdir; rm *.o;$(MAKE) PLATFORM=$(PLATFORM) clean)
 
 cleanbin:
@@ -229,7 +229,7 @@ cleanbin:
 	(cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) clean)
 
 
-cleanobj:
+cleanall:
 	rm -f $(programs) $(fplotprogs) $(LIBSUBS) $(LIBFP) $(LIBSLA) */obj.*/*.o  *.o  */*.a 
 	(cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) cleanobj)
 	rm -rf MODDIR

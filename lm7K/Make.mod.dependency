@@ -55,7 +55,6 @@ $(fp_obj_path)/mkorbm.o : fp/mkorbm.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/mkpdos.o : fp/mkpdos.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/mkpot.o : fp/mkpot.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/mkrout.o : fp/mkrout.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/msh21c.o : fp/msh21c.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/mshn3p.o : fp/mshn3p.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/mshvmt.o : fp/mshvmt.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/mullmf.o : fp/mullmf.F $(subs_obj_path)/m_struc_def.o
@@ -79,7 +78,6 @@ $(fp_obj_path)/smshft.o : fp/smshft.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/smves.o : fp/smves.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/smvxcm.o : fp/smvxcm.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/sugw.o : fp/sugw.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/sugwin.o : fp/sugwin.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/supot.o : fp/supot.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/surho.o : fp/surho.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/symrho.o : fp/symrho.F $(subs_obj_path)/m_struc_def.o

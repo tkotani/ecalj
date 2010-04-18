@@ -12,7 +12,6 @@ fp_list=\
 	dfqkkl.o \
 	dfratm.o \
 	dfrce.o \
-	diagcv.o \
 	efldos.o \
 	elocp.o \
 	fklbl.o \
@@ -70,7 +69,6 @@ fp_list=\
 	mkpot.o \
 	mkrout.o \
 	momusl.o \
-	msh21c.o \
 	mshdot.o \
 	mshint.o \
 	mshn3p.o \
@@ -98,7 +96,6 @@ fp_list=\
 	sgvsym.o \
 	smcorm.o \
 	smhsbl.o \
-	smrpos.o \
 	smves.o \
 	smvxcm.o \
 	sopert.o \
