@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Program unit analyzer.
 import sys,os
 thisdir= os.path.dirname(os.path.abspath(__file__))
 sys.path.append(thisdir+'/f2py/fparser')
@@ -10,9 +11,26 @@ from base_classes import classes
 import block_statements
 
 dotdata = open("callcaller.dotdata",'wt')
-moddep = open("Make.mod.dependency",'wt')
+moddep  = open("Make.mod.dependency",'wt')
 
-#nargv = len(sys.argv) -1
+nargv = len(sys.argv) -1
+if(nargv==0 or sys.argv[1]=='--help'):
+    print ' === A Fortran code analyzer based on f2py/fparser r41 http://code.google.com/p/f2py/ ==='
+    print ' usage: f_calltree.py  file1.F file2.F ... '
+    print '        files can be specified by wild cards as "subs/*.F fp/*.F"'
+    print '  Standard out put   : text data base. Easy to understand. Use grep to read it'
+    print '  Make.mod.dependency: module dependency, which can be inlucded in Makefile'
+    print '  callcaller.dotdata : in graphviz format. '
+    print '                       sort callcaller.dotdata|uniq >dot.dat'
+    print '                       Then add "digraph G{" at top of dot.dat, and "}" at end of dot.dat.'  
+    print '                       dot -Tps dot.dat -o dot.ps'
+    print ' NOTE: T.Kotani slightly modified f2py/fparser r41 so that it works standalone. No numpy.'
+    print '       This works with python 2.6 or so.'
+    print '       T.Kotani highly acknowledge to Dr.pearu.peterson, who mainly develop the fparser.'
+    print ' --> An unique feature of this f_calltree.py is "Easy custmization". Look into this code.'
+    print ' --> This code is a litle specialized for ecal package, but it should be not so difficult to fit it to your codes.'
+    sys.exit()
+
 argset= sys.argv[1:]
 
 #print argset
@@ -143,6 +161,10 @@ for ffile in argset:
     sstack=[]
     deptho=-1
     inso=None
+    ffileo = re.sub('subs/','$(subs_obj_path)/',ffile)
+    ffileo = re.sub('fp/'  ,'$(fp_obj_path)/',ffileo)
+    ffileo = re.sub('slatsm/','$(slatsm_obj_path)/',ffileo)
+    ffileo = re.sub('.F','.o',ffileo)
     for c in walk(parser.block):
         ins=c[0]
         depth=c[1]
@@ -162,20 +184,17 @@ for ffile in argset:
                 mother= frame3[-1]
                 child = ins.designator
                 dotdata.write( (mother+"->"+child+";\n").lower() )
-        if(isinstance(ins, classes.Use)):       
+        if(isinstance(ins, classes.Use)):
             print "@use Modu:"+ins.name+loc1+loc
-            modd.append(moddic[ins.name])
-            
+            if(moddic[ins.name] != ffileo):
+                #print 'qqqqq', moddic[ins.name],ffileo
+                modd.append(moddic[ins.name])
         deptho=depth
         inso=ins
     #print modd
     moddx   = ' '.join(list(set(modd)))
     #print moddx
     #print 'xxxxxxx',ffile
-    ffileo = re.sub('subs/','$(subs_obj_path)/',ffile)
-    ffileo = re.sub('fp/'  ,'$(fp_obj_path)/',ffileo)
-    ffileo = re.sub('slatsm/','$(slatsm_obj_path)/',ffileo)
-    ffileo = re.sub('.F','.o',ffileo)
     if(moddx != '') :
         moddep.write( ffileo+' : '+ffile+' '+moddx+'\n')
 

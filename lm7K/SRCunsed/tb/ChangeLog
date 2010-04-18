@@ -1,0 +1,18 @@
+2009-01-14  Tony Paxton <Tony.Paxton@QUB.ac.uk>
+
+	* Start on 'inverse Bloch' transform
+
+	* New mixing
+
+	* Input parameters have different conventions for GSP style repulsion
+
+2008-06-04  Tony Paxton <Tony.Paxton@QUB.ac.uk>
+
+	* New molecules mode
+	
+	* Changes in the molecular dynamics
+
+2007-07-21  Mark van Schilfgaarde  <markv@waldo.eas.asu.edu>
+
+	* Merged Klepeis's additions to TB package, esp bands fitting 
+

@@ -265,10 +265,10 @@ ctakao will add |1)
       print *,'end of mksym x'
 
 C --- Allocate permanent class arrays, maps and other initialization ---
-      if (lc .ge. 20)
-     *  call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
-     *  v_slat,v_sbz,v_sstr,sstrn)
-      print *,'end of clsprm'
+c      if (lc .ge. 20)
+c     *  call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
+c     *  v_slat,v_sbz,v_sstr,sstrn)
+c      print *,'end of clsprm'
 
 C --- Read available class parameters from file ---
 

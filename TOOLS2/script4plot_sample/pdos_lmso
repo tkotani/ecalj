@@ -1,0 +1,36 @@
+#!/bin/csh
+echo 501,-.5,.5|lmdos --pdos:mode=2 lsmo56
+
+
+echo 20,5,-.5,.5|pldos dos.lsmo56 -lst='9;11;13;15;17;101:149:2'
+mv ps.dos.lsm pdos.lsm.spin1.ps
+echo 20,5,-.5,.5|pldos dos.lsmo56 -lst='10;12;14;16;18;102:150:2'
+mv ps.dos.lsm pdos.lsm.spin2.ps
+exit
+
+                    
+
+echo /|lmdos --pdos:mode=2 $ddd  > llmdos_pdos
+#pldos dos.$ddd '-lst=1:4;5:9;102:104'  >l_pldos
+#pldos dos.cu2o -lst='1:4;5:9;102:104;1:50,101:125'
+--------------------------------------
+
+#plbnds -fplot -ef=0 -scl=13.605 -spin2 eras
+#fplot -f plot.plbnds.$ddd
+
+set ddd =  $argv[1]
+echo $ddd
+
+lmf --wsig:fbz $ddd     > llmf_dos
+mv sigm.$ddd sigm.$ddd.org
+cp sigm2.$ddd sigm.$ddd
+# This cause a problem ---SYMGRP is after HEADER...
+cat <<EOF >ctrl.tmp
+SYMGRP i*i
+SYMGRP
+EOF
+cat ctrl.$ddd >>ctrl.tmp
+mv ctrl.$ddd ctrl.$ddd.bk
+mv ctrl.tmp ctrl.$ddd
+lmf --pdos:mode=2 --quit=band $ddd   >llmf_pdos
+echo 501,-.5,.5|lmdos --pdos:mode=2 lsmo56

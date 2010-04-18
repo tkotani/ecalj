@@ -37,7 +37,7 @@ Cu   22 Dec 01 Adjustments to accomodate changes in phidx
 Cu   22 Mar 01 Added printout of reference energy
 Cu   10 Jun 00 spin polarized
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
 Cgetarg       double precision sctrl(1),sham(1),spot(1),sspec(1)
        type(s_ctrl)::sctrl
@@ -59,8 +59,9 @@ C ... Local parameters
       double precision rs3,eh3,vmtz
       integer idmod(n0)
 ctakao
-      logical ixx
+      logical ixx,ioorbp
       real(8):: pzsum
+      integer:: i_copy_size,i_spacks
 
       ifi = fopna('atm',-1,0)
       rewind ifi

@@ -1,0 +1,115 @@
+TESTTB   tbe tbso 
+         tbe tbso -vmstat=0 --band 
+#        lmdos tbso --dos:tbdos:npts=501:window=-5.5,0 >>& out.tbso
+HEADER  One sheet of "graphite."
+        Tests spin-orbit, overlap, and crystal field.
+VERS    LMASA-6 TB-9 LM:7 TB:9
+IO      SHOW=F HELP=F VERBOS=40 WKP=F IACTIV=F TIM=F
+MAP     F  *: \h\t:g
+MASTER  JOB  1 a=5.10 coa=2.0 del=0.0025 mul=20
+CONST   a=5.10 coa=2.0 del=0.0025 mul=20
+        a0=5.10 d0=3^0.5*a0/3
+        wsr=a*(3*3^0.5*coa/16/pi)^(1/3)
+        rx=0.5 ry=3^0.5/6 vol=(3^0.5/2)*coa*a^3/2
+        ryd=13.605826 bohr=0.52917715 fac=2
+        es1=-19.37/ryd ep1=-11.07/ryd ed1=-10.07/ryd
+        es2=-16.15/ryd ep2=-11.92/ryd ed2=-10.78/ryd
+        vsss=-1.32*fac vsps=1.42*fac vpps=2.22*fac vppp=-0.63*fac
+        vsds=-1.07*fac vpds=1.89*fac vpdp=0.98*fac vdds=-2.75*fac
+        vddp=-1.69*fac vddd=1.21*fac
+        wsss=-1.15*fac wsps=1.03*fac wpps=2.83*fac wppp=-0.42*fac
+        wsds=-1.23*fac wpds=1.18*fac wpdp=0.78*fac wdds=-2.29*fac
+        wddp=-1.45*fac wddd=1.87*fac
+        xsss=-1.54*fac xsps=1.98*fac xpps=2.45*fac xppp=-0.78*fac
+        xsds=-1.76*fac xpds=1.45*fac xpdp=0.87*fac xdds=-2.67*fac
+        xddp=-1.92*fac xddd=1.67*fac
+        isss=-1.10*fac isps=1.31*fac ipps=1.98*fac ippp=-0.65*fac
+        isds=-1.26*fac ipds=1.19*fac ipdp=1.07*fac idds=-2.29*fac
+        iddp=-1.36*fac iddd=1.60*fac
+        jsss=-1.05*fac jsps=1.71*fac jpps=2.18*fac jppp=-0.76*fac
+        jsds=-1.45*fac jpds=1.23*fac jpdp=1.02*fac jdds=-2.12*fac
+        jddp=-1.65*fac jddd=1.48*fac
+        ksss=-1.29*fac ksps=1.76*fac kpps=1.89*fac kppp=-0.97*fac
+        ksds=-1.49*fac kpds=1.96*fac kpdp=1.15*fac kdds=-2.25*fac
+        kddp=-1.38*fac kddd=1.28*fac
+        osss=0.19*fac osps=0.11*fac opps=0.23*fac oppp=0.08*fac
+        osds=0.14*fac opds=0.17*fac opdp=0.13*fac odds=0.21*fac
+        oddp=0.15*fac oddd=0.05*fac
+        qsss=0.23*fac qsps=0.15*fac qpps=0.19*fac qppp=0.11*fac
+        qsds=0.12*fac qpds=0.12*fac qpdp=0.11*fac qdds=0.17*fac
+        qddp=0.15*fac qddd=0.11*fac
+        rsss=0.14*fac rsps=0.11*fac rpps=0.13*fac rppp=0.15*fac
+        rsds=0.09*fac rpds=0.09*fac rpdp=0.19*fac rdds=0.12*fac
+        rddp=0.13*fac rddd=0.08*fac
+        asss=0.12*fac asps=0.15*fac apps=0.19*fac appp=0.06*fac
+        asds=0.16*fac apds=0.12*fac apdp=0.16*fac adds=0.17*fac
+        addp=0.11*fac addd=0.08*fac
+        bsss=0.20*fac bsps=0.11*fac bpps=0.12*fac bppp=0.13*fac
+        bsds=0.19*fac bpds=0.14*fac bpdp=0.15*fac bdds=0.11*fac
+        bddp=0.13*fac bddd=0.09*fac
+        csss=0.16*fac csps=0.15*fac cpps=0.17*fac cppp=0.19*fac
+        csds=0.12*fac cpds=0.07*fac cpdp=0.16*fac cdds=0.09*fac
+        cddp=0.19*fac cddd=0.11*fac
+        a11=0 b11=0 c11=0
+        a22=0 b22=0 c22=0
+        a12=0 b12=0 c12=0
+HAM     NSPIN=2 REL=T NONCOL=F SO=T QASA=0 SS=0 0 0 0
+OPTIONS NSPIN=2 REL=T CCOR=T LMH=F ADNF=F FRZ=F INVIT=T
+        NONCOL=F F SDMOD=0 SDPRM=1 0 0 0 0 SS=0 0 0 0
+        VDB=F EMCLUS=F STONER=F SO=T TWOC=F F ELIN=0.0
+        BULKL=F BULKR=F NEWREP=F NOHYB=F
+        NRMIX=80 2 MTCOR=0.0 ZBAK=0.0 Q=
+TB      OVLP=T CRYSF=T OVCF=T ADDES=T RMAXH=1.1 RMAXR=1.1 CGTOL=1D-6
+        FORCES=T VOL=T FIJ=F CGMIN=F TOL=1D-8 STEP=0.001 RDHESS=F
+        MD=F START=T TS/FS=0.5 T/K=300 NITEQU=0 SYRUP=0.0 EAM=F
+        EVDISC=T DONLY=F 3PV=T TRH=T RHO=T PAIR=F U=F NOMAD=F UAVG=F
+% const mstat=5
+DYN     MSTAT: {mstat},t,f,1d-8,.001,0 NIT=2
+# for Version 7:
+        MSTAT[ MODE={mstat} HESS=t XTOL=0 GTOL=1d-8 STEP=.001 NKILL=0] NIT=2
+TBFIT   FMODE=0 NBFIT=0 4 EBFIT=-1.0 1.0 RFIT=0.4 0.6 LAM=0.001 SCL=10
+MMAG    HAM ENDH KT=0 TS=0 TTOT=0 TEQU=0 START=T
+        BSTOL=0 TSO=0 MX=0 MI=0 NSEQ=0
+ITER    MIX=A2,b=0.4 XIPMX=F BETV=1.0 NIT=20 CONVC=1D-7 CONV=0
+MIX     MODE=A2,b=0.4 XIPMX=F BETV=1.0
+EWALD   NKDMX=1000 AS=2.0 TOL=1D-16
+BZ      NKABC=4 4 2 BZJOB=T NOINV=T GETQP=F PUTQP=F
+        TETRA=F METAL=T N=0 W=0.005 RANGE=8 NPTS=4001
+        MULL=mul SAVDOS=2 DOS=-5.5 0.0 BZMP=F
+        ZVAL=0.0 EFMAX=10 NEVMX=0 COND=F V=0 0 0 MNPTS=1001 IO=F
+SYMGRP  R2Z I
+STRUC   NBAS=2 NSPEC=1 NL=3 NLFIT=3 TET=1.0
+        ALAT=a PLAT=rx 3*ry 0   -rx 3*ry 0   0 0 coa
+.        ROT= DEFGRD= STRAIN=
+PGF     F PLATL=0 0 -1 PLATR=0 0 1
+SCELL   PLAT=rx 3*ry 0   -rx 3*ry 0   0 0 coa
+PLANE   X=1 0 0 Y=0 1 0 NORMAL=0 0 1
+STR     RMAX=4.4 MXNBR=0 MODE=0 SHOW=F
+FIT     RSPACE=T
+CLASS   ATOM=C  Z=6 AMASS=12.0 R/W=1 RHAM=1.1 RFREE=30 A=0.0 NR=0
+                LMX=2 IDXDN=3 1 1 IDMOD=0 0 0 LMXF=2
+                EREF=0.0 VSO=0.1 0.3 FRZSO=F F FRZQ1=F F F
+                I=0 MMAX=0 BULKL=F BULKR=F DV=0.0 GROUP=1 GRP2=0
+SITE    ATOM=C  POS=1*rx+del   1*ry+del   0.0  RELAX=T T F
+                DELTA=0.17 -0.13 0.05 -0.08 -0.15 0.09  PL=0 PLV=0
+        ATOM=C  POS=1*rx-del  -1*ry-del   0.0  RELAX=F T F
+                DELTA=0.12 0.14 -0.07 0.06 -0.10 -0.19  PL=0 PLV=0
+ME      3 DECAY0=2
+        1  1  | vsss vsps vpps vppp vsds vpds vpdp vdds vddp vddd
+                wsss wsps wpps wppp wsds wpds wpdp wdds wddp wddd
+                xsss xsps xpps xppp xsds xpds xpdp xdds xddp xddd
+              @ osss osps opps oppp osds opds opdp odds oddp oddd
+                qsss qsps qpps qppp qsds qpds qpdp qdds qddp qddd
+                rsss rsps rpps rppp rsds rpds rpdp rdds rddp rddd
+              & isss isps ipps ippp isds ipds ipdp idds iddp iddd
+                jsss jsps jpps jppp jsds jpds jpdp jdds jddp jddd
+                ksss ksps kpps kppp ksds kpds kpdp kdds kddp kddd
+              % asss asps apps appp asds apds apdp adds addp addd
+                bsss bsps bpps bppp bsds bpds bpdp bdds bddp bddd
+                csss csps cpps cppp csds cpds cpdp cdds cddp cddd
+              ! -23.50/ryd 1 d0 53.35/ryd 2 d0   0 0 0
+START   NIT=20 CNVG=1D-7 FREE=F BEGMOM=T RDVES=F CNTROL=T
+        ATOM=C  P=2.5 2.5 3.5   2.5 2.5 3.5
+                Q=1 es1 0.0  1 ep1 0.0  4 ed1 0.0
+                  1 es2 0.0  2 ep2 0.0  1 ed2 0.0
+                V=0 DV=0

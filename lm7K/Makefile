@@ -68,10 +68,7 @@ libs: mod-dir slatsm-dir subs-dir fp-dir
 ########################################
 # general rules
 ########################################
-.SUFFIXES: .o .F .mod
-
-%.mod: %.F
-	$(FC) $(FFLAGS) -c $< -o $*.o
+.SUFFIXES: .o .F
 
 %.o:%.F
 	$(FC) $(FFLAGS) -c $<

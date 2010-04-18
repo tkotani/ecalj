@@ -62,7 +62,8 @@ C ... OPTIONS
       logical ::
      .  lcd1,lcd2,lcd4=F,lcd8=F,lcd64,lasa4=T,lasa8=F,lasa32=F,lasa64=F,
      .  lasa512,lham1,lham4=F,lham8,lham16,lham32=F,lham64,lham128,
-     .  lham256,lves
+     .  lham256 !,lves takao2010apr lves is integer
+      integer ::lves
 C     Initialize, since read is only executed when NSPIN=2
       logical:: lncol1=F,lncol2=F,lncol4=F,lncol8=F,lncol16=F,
      .  lncol32=F,lncol64=F
@@ -2282,7 +2283,7 @@ c    .    ' for self-consistency')
      .  '%N%3fXIPMX=2: mix vin and v(qout)')
       if (nout .gt. 0) then
         call isanrg(i0,0,3,'rdctrl','XIPMX',T)
-        if (i0 .gt. 0) lves = .true.
+        if (i0 .gt. 0) lves = 1 !it was lves= .true., but this is a bug . sctrl/lves is integer(8).
       endif
       vmix%lxpot = i0
 

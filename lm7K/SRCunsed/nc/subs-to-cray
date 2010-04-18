@@ -1,0 +1,10 @@
+echo --- subs-to-cray: convert files with complex arithmetic: ---
+rm -f cnam
+egrep  -i -l '^[^cC][ ]*(double  *complex|complex)' *.f >cnam
+echo `cat cnam`
+foreach i (`cat cnam`)
+  echo emacs -batch -l ../../startup/fortran.el -l ../../startup/ftnemacs.el $i -f f77-to-cray -f save-buffer -kill ...
+  emacs -batch -l ../../startup/fortran.el -l ../../startup/ftnemacs.el $i -f f77-to-cray -f save-buffer -kill
+  rm -f $i~
+end
+rm -f cnam

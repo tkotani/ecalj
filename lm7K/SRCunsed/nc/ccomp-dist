@@ -1,0 +1,5 @@
+-uNC -uSX -dNC lmasa.f lmasa.f~
+-uNC -uSX -dNC lmasa.f lmasa.f~
+-uF90 hmladb.f hmladb.f~
+
+

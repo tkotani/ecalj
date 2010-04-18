@@ -1,0 +1,108 @@
+#!/bin/csh -f
+
+alias call 'set retcall = \!\!:2 ; set callarg = \!\!:3 ; goto \!\!:1'
+set space = '        '
+
+echo "----------  testing 2ss (metal=1,2) -----------"
+set testfile = $0; set testout = out.2ss
+rm -f *.2ss ; cp $testfile:h/ctrl.2ss .
+rm -f $testout
+lmstr 2ss >/dev/null
+lm -vnit=0 2ss <<EOF >> $testout
+1
+i
+EOF
+call showout chk1 SV
+chk1:
+
+echo " "
+echo " " >> $testout
+echo "... with metal=2 to test moments i/o"
+echo "... with metal=2 to test moments i/o" >> $testout
+rm mixm.2ss
+lm -vnit=0 2ss <<EOF >> $testout
+1
+i
+EOF
+call showout chk2 SV
+chk2:
+
+echo " "
+echo " " >> $testout
+echo "... with metal=1"
+echo "... with metal=1" >> $testout
+rm mixm.2ss
+lm -vnit=0 -vmetal=1 2ss <<EOF >> $testout
+1
+i
+EOF
+call showout chk3 SV
+chk3:
+
+echo " "
+echo " " >> $testout
+echo "... with metal=2 to test moments i/o"
+echo "... with metal=2 to test moments i/o" >> $testout
+rm mixm.2ss
+lm -vnit=0 2ss <<EOF >> $testout
+1
+i
+EOF
+call showout chk4 SV
+chk4:
+
+echo " "
+echo " " >> $testout
+echo "... with tetra=0 (but using tetrahedron weights from prior pass)"
+echo "... with tetra=0 (but using tetrahedron weights from prior pass)" >> $testout
+rm mixm.2ss
+lm -vnit=0 -vtetra=0 2ss <<EOF >> $testout
+1
+i
+EOF
+call showout chk5 SV
+chk5:
+
+echo " "
+echo " " >> $testout
+echo "... repeat, this time sampling weights available"
+echo "... repeat, this time sampling weights available" >> $testout
+rm mixm.2ss
+lm -vnit=0 -vtetra=0 2ss <<EOF >> $testout
+1
+i
+EOF
+call showout chk6 SV
+chk6:
+
+echo " "
+echo " " >> $testout
+echo "... with metal=1, tetra=0"
+echo "... with metal=1, tetra=0" >> $testout
+rm mixm.2ss
+lm -vnit=0 -vtetra=0 -vmetal=1 2ss <<EOF >> $testout
+1
+i
+EOF
+call showout chk7 SV
+chk7:
+
+echo " "
+echo " " >> $testout
+echo "... test two-center hamiltonian"
+echo "... test two-center hamiltonian" >> $testout
+rm mixm.2ss eula.2ss
+lmstr -v"p1=0 p2=1/2 nc=t qss=1/2 thss=0 twoc=t nk=12 metal=1 nit=0" 2ss >/dev/null
+lm -v"p1=0 p2=1/2 nc=t qss=1/2 thss=0 twoc=t nk=12 metal=1 nit=0" 2ss <<EOF  >> $testout
+1
+i
+EOF
+call showout chk8 SV
+chk8:
+
+# ---------------- showout --------------
+exit
+showout:
+  set quitjob=$retcall
+  grep $callarg $testout
+  goto $quitjob

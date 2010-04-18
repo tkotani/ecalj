@@ -53,91 +53,9 @@ cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      subroutine sp2cls(sname,sspec,ics,nelt,is1,is2,oarr)
-C     - Allocate and extract one element of a structure for a range of species
-C     ----------------------------------------------------------------------
-C     i Inputs
-C     i   sname :a species-based structure and the element to extract, e.g.
-C     i         :'spec idmod'
-C     i   sspec :array holding structure sname
-C     i   ics   :species table: class ic belongs to species ics(ic)
-C     i   nelt  :number of row entries this element has in structure
-C     i   is1   :extract elements starting at species is1
-C     i   is2   :extract elements ending at species is2
-C     o Outputs
-C     o   oarr  :Array oarr is allocated and loaded,
-C     o         :corresponding to arr(1:nelt,is1:is2)
-
-      use m_struc_def
-      use m_struc_func_x
-      implicit none
-      character(*),intent(in):: sname
-      real(8):: sspec(*)
-      integer,intent(in):: ics(*)
-      integer,intent(in):: nelt, is1,is2
-      integer,intent(out):: oarr
-      
-      integer:: is
-      integer w(1)
-      common /w/ w
-
-      integer:: i,ioarr,factor
-
-      type (s_ri):: v_ri 
-
-      integer,parameter:: mlist=20
-      integer:: nlist,ilist(mlist,2)
-
-      integer:: ia1,ia2
-      integer:: ib1,ib2
-
-      integer:: v_i,cast
-      real(8):: v_r
-
-      integer mask(5),range(2,5)
-      character(80) trunam,alias,switch
-
-      character(6):: thisname='sp2cls'
-
-      call salias(sname,trunam,alias,switch,range,mask)
-
-      
-c     must query type
-      call struc_strtok(trunam, mlist,nlist,ilist)
-      i=1
-      ia1=ilist(i,1)
-      ia2=ilist(i,2)
-      i=2
-      ib1=ilist(i,1)
-      ib2=ilist(i,2)
-      call struc_packupack_val1(trunam(ia1:ia2), trunam(ib1:ib2),sspec,'1','r', range(1,1),range(2,1),v_ri,v_ri)
-
-      cast= v_ri%t
-
-      select case ( cast ) 
-      case (2)
-         factor=1
-         call defi(oarr,(is2-is1+1)*nelt)
-      case (4)
-         factor=kind(v_r)/kind(v_i)
-         call defrr(oarr,(is2-is1+1)*nelt)
-      case default
-         write(*,*) thisname,': error, unknown type=',v_ri%t
-         stop
-      end select
-
-      do i=is1,is2
-         if (ics(i).eq.0) then; is=i;
-         else; is=ics(i); endif
-         ioarr=oarr+ (i-is1+1)*nelt*factor
-         call spackv(10,sname,sspec,is1,is2,w(ioarr))
-      enddo
-
-      end subroutine sp2cls
-
-
-
-      module m_struc_func_x
+c Followings are only in order to define sp2cls (defined bottom in this file).
+c
+      module m_struc_func_sp2cls
 
       interface struc_eval_io
       module procedure struc_eval_io_r8, struc_eval_io_i8
@@ -405,7 +323,7 @@ c     accept 0-9,A-Z,a-z,' '
 
             end subroutine struc_strtok
       
-      end module m_struc_func_x
+      end module m_struc_func_sp2cls
 
 
 
@@ -512,7 +430,7 @@ c---------------------------------------------------
 
       subroutine pack5upack5_realbody(sname,struc,x1,x2,x3,x4,x5,rw)
       use m_struc_def
-      use m_struc_func_x
+      use m_struc_func_sp2cls
       implicit none
       character(*),intent(in):: sname
 c     integer(8):: struc(:)
@@ -634,7 +552,7 @@ c      integer(8):: struc(*)
 
       subroutine  struc_spackv_iv(lpack,sname,struc,is1,is2,n,x1)
       use m_struc_def
-      use m_struc_func_x
+      use m_struc_func_sp2cls
       implicit none
       integer,intent(in):: lpack 
       character(*):: sname
@@ -701,7 +619,7 @@ c      integer(8):: struc(*)
 
       subroutine  struc_spackv_r8v(lpack,sname,struc,is1,is2,n,x1)
       use m_struc_def
-      use m_struc_func_x
+      use m_struc_func_sp2cls
       implicit none
       integer,intent(in):: lpack 
       character(*):: sname
@@ -899,7 +817,7 @@ C$$$      end subroutine upack
 C$$$      real(8) function dgets(sname,struc)
 C$$$C     - Returns one double precision entry in a structure, referred by name
 C$$$      use m_struc_def
-C$$$      use m_struc_func_x
+C$$$      use m_struc_func_sp2cls
 C$$$      implicit none
 C$$$      character(*),intent(in):: sname
 C$$$      real(8),intent(in):: struc
@@ -936,7 +854,7 @@ C$$$      end function dgets
 C$$$      real(8) function dgetss(sname,is,struc)
 C$$$C     - Returns one double precision entry in a structure, referred by name
 C$$$      use m_struc_def
-C$$$      use m_struc_func_x
+C$$$      use m_struc_func_sp2cls
 C$$$      implicit none
 C$$$      character(*),intent(in):: sname
 C$$$      real(8),intent(in):: struc(*)
@@ -991,7 +909,7 @@ C$$$      end function dgetss
 C$$$      integer function igets(sname,struc)
 C$$$C     - Returns one integer entry in a structure, referred by name
 C$$$      use m_struc_def
-C$$$      use m_struc_func_x
+C$$$      use m_struc_func_sp2cls
 C$$$      implicit none
 C$$$      character(*),intent(in):: sname
 C$$$      real(8),intent(in):: struc
@@ -1033,7 +951,7 @@ C$$$      end function igets
 C$$$      integer function igetss(sname,is,struc)
 C$$$C     - Returns one integer entry in one species of a structure, referred by name
 C$$$      use m_struc_def
-C$$$      use m_struc_func_x
+C$$$      use m_struc_func_sp2cls
 C$$$      implicit none
 C$$$      character(*),intent(in):: sname
 C$$$      real(8),intent(in):: struc(*)
@@ -1098,7 +1016,7 @@ C$$$C     o  struc element corresponding to label 'name' is modified.
 C$$$C     o        The mask bit of that entry is set to lval.
 C$$$C     ----------------------------------------------------------------
 C$$$      use m_struc_def 
-C$$$      use m_struc_func_x
+C$$$      use m_struc_func_sp2cls
 C$$$      implicit none
 C$$$      character(*),intent(in):: sname
 C$$$      real(8),intent(in):: struc
@@ -1237,7 +1155,7 @@ C     i    x1    packed into is1..is2.
 C     r Remarks
 C     r   Structure types must be consistent with those in lstra, above
       use m_struc_def
-      use m_struc_func_x
+      use m_struc_func_sp2cls
       implicit none
       integer,intent(in):: lpack0
       character(*),intent(in):: sname
@@ -1429,7 +1347,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_array):: v_array
         character(*),intent(in):: name
@@ -1895,7 +1813,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_bz):: v_bz
         character(*),intent(in):: name
@@ -2333,7 +2251,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_ctrl):: v_ctrl
         character(*),intent(in):: name
@@ -3135,7 +3053,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_gw):: v_gw
         character(*),intent(in):: name
@@ -3419,7 +3337,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_ham):: v_ham
         character(*),intent(in):: name
@@ -4221,7 +4139,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_lat):: v_lat
         character(*),intent(in):: name
@@ -4841,7 +4759,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_mix):: v_mix
         character(*),intent(in):: name
@@ -5181,7 +5099,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_move):: v_move
         character(*),intent(in):: name
@@ -5353,7 +5271,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_optic):: v_optic
         character(*),intent(in):: name
@@ -5553,7 +5471,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_ordn):: v_ordn
         character(*),intent(in):: name
@@ -5725,7 +5643,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_pot):: v_pot
         character(*),intent(in):: name
@@ -6555,7 +6473,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_site):: v_site
         character(*),intent(in):: name
@@ -6951,7 +6869,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_spec):: v_spec
         character(*),intent(in):: name
@@ -8005,7 +7923,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_str):: v_str
         character(*),intent(in):: name
@@ -8443,7 +8361,7 @@ C arr='1': use v_ri and only 1 component if it is vector, used for dgets*, igets
 C arr='s': use v_ri and return type and size of varname
 C arr='a': use val and pack/unpack
         use m_struc_def
-        use m_struc_func_x
+        use m_struc_func_sp2cls
         implicit none
         type(s_tb):: v_tb
         character(*),intent(in):: name
@@ -8550,3 +8468,84 @@ C arr='a': use val and pack/unpack
         end select
         end subroutine struc_utb_io
        
+      subroutine sp2cls(sname,sspec,ics,nelt,is1,is2,oarr)
+C     - Allocate and extract one element of a structure for a range of species
+C     ----------------------------------------------------------------------
+C     i Inputs
+C     i   sname :a species-based structure and the element to extract, e.g.
+C     i         :'spec idmod'
+C     i   sspec :array holding structure sname
+C     i   ics   :species table: class ic belongs to species ics(ic)
+C     i   nelt  :number of row entries this element has in structure
+C     i   is1   :extract elements starting at species is1
+C     i   is2   :extract elements ending at species is2
+C     o Outputs
+C     o   oarr  :Array oarr is allocated and loaded,
+C     o         :corresponding to arr(1:nelt,is1:is2)
+
+      use m_struc_def
+      use m_struc_func_sp2cls
+      implicit none
+      character(*),intent(in):: sname
+      real(8):: sspec(*)
+      integer,intent(in):: ics(*)
+      integer,intent(in):: nelt, is1,is2
+      integer,intent(out):: oarr
+      
+      integer:: is
+      integer w(1)
+      common /w/ w
+
+      integer:: i,ioarr,factor
+
+      type (s_ri):: v_ri 
+
+      integer,parameter:: mlist=20
+      integer:: nlist,ilist(mlist,2)
+
+      integer:: ia1,ia2
+      integer:: ib1,ib2
+
+      integer:: v_i,cast
+      real(8):: v_r
+
+      integer mask(5),range(2,5)
+      character(80) trunam,alias,switch
+
+      character(6):: thisname='sp2cls'
+
+      call salias(sname,trunam,alias,switch,range,mask)
+
+      
+c     must query type
+      call struc_strtok(trunam, mlist,nlist,ilist)
+      i=1
+      ia1=ilist(i,1)
+      ia2=ilist(i,2)
+      i=2
+      ib1=ilist(i,1)
+      ib2=ilist(i,2)
+      call struc_packupack_val1(trunam(ia1:ia2), trunam(ib1:ib2),sspec,'1','r', range(1,1),range(2,1),v_ri,v_ri)
+
+      cast= v_ri%t
+
+      select case ( cast ) 
+      case (2)
+         factor=1
+         call defi(oarr,(is2-is1+1)*nelt)
+      case (4)
+         factor=kind(v_r)/kind(v_i)
+         call defrr(oarr,(is2-is1+1)*nelt)
+      case default
+         write(*,*) thisname,': error, unknown type=',v_ri%t
+         stop
+      end select
+
+      do i=is1,is2
+         if (ics(i).eq.0) then; is=i;
+         else; is=ics(i); endif
+         ioarr=oarr+ (i-is1+1)*nelt*factor
+         call spackv(10,sname,sspec,is1,is2,w(ioarr))
+      enddo
+
+      end subroutine sp2cls

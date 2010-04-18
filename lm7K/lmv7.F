@@ -575,18 +575,16 @@ C --- Generate symmetry operations; split species into classes  ---
       if (j .ge. i) strn = sstrn(i:j+1)
       if (cmdopt('--nosym',7,0,outs)) strn = ' '
       lc = 20
-#if TBE
-Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: v_sctrl%mdprm 6
-Cgetarg       call upack('ctrl mdprm',v_sctrl,mdprm,0,0,0,0)
-       
-       i_copy_size=size(v_sctrl%mdprm) 
-       call dcopy(i_copy_size,v_sctrl%mdprm,1,mdprm,1) 
-
-      if (nint(mdprm(1)) .eq. 1 .or. nint(mdprm(1)) .eq. 2) then
-        strn = ' '
-      endif
-      lc = 40
-#endif
+C$$$#if TBE
+C$$$Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: v_sctrl%mdprm 6
+C$$$Cgetarg       call upack('ctrl mdprm',v_sctrl,mdprm,0,0,0,0)
+C$$$       i_copy_size=size(v_sctrl%mdprm) 
+C$$$       call dcopy(i_copy_size,v_sctrl%mdprm,1,mdprm,1) 
+C$$$      if (nint(mdprm(1)) .eq. 1 .or. nint(mdprm(1)) .eq. 2) then
+C$$$        strn = ' '
+C$$$      endif
+C$$$      lc = 40
+C$$$#endif
 #if MMAG
       lc = 0
 #endif
@@ -609,9 +607,9 @@ ctakao will add |LMFA)
 #endif
 
 C --- Allocate permanent class arrays, maps and other initialization ---
-      if (lc .ge. 20)
-     .  call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
-     .  v_slat,v_sbz,v_sstr,sstrn)
+c      if (lc .ge. 20)
+c     .  call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
+c     .  v_slat,v_sbz,v_sstr,sstrn)
 
 C --- Read available class parameters from file ---
 #if LMCTL | LMCHK
@@ -632,9 +630,9 @@ c$$$     .  v_sarry,v_smove,v_stb,sstrn)
 #ifndef TBE
       call aiocls(.false.,17,v_sarry,v_sctrl,v_sham,v_spot,
      .  v_sspec,v_slat,1,0)
-      if (lc .ge. 20)
-     .  call clsprp(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
-     .  v_slat,v_sbz,v_sstr,sstrn)
+c      if (lc .ge. 20)
+c     .  call clsprp(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
+c     .  v_slat,v_sbz,v_sstr,sstrn)
 #endif
 #endif
 C     Discard contents of input file

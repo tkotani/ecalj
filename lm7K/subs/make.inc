@@ -3,6 +3,7 @@ subs_list:=\
 	m_hamindex.o \
 	m_sstrnsname.o \
 	m_struc_def.o \
+	m_gtv.o \
 	acoord.o \
 	addbas.o \
 	addrwf.o \
@@ -23,19 +24,15 @@ subs_list:=\
 	amagnc.o \
 	angtab.o \
 	asadc.o \
-	asaddq.o \
 	asadmu.o \
 	asados.o \
-	asalsq.o \
 	asamad.o \
 	asaopm.o \
 	asaqmp.o \
 	asars.o \
-	asastr.o \
 	asavqm.o \
 	asetot.o \
 	asldau.o \
-	asvsph2.o \
 	asvsph.o \
 	asymop.o \
 	atfold.o \
@@ -65,7 +62,6 @@ subs_list:=\
 	chkstr.o \
 	clabel.o \
 	clist.o \
-	clsprm.o \
 	clsset.o \
 	cmplat.o \
 	config.o \
@@ -156,9 +152,6 @@ subs_list:=\
 	hmltns.o \
 	hmltso.o \
 	hnsmft.o \
-	hoffc.o \
-	hoffs.o \
-	hpairm.o \
 	hsmml.o \
 	hsmq.o \
 	hstrux.o \
@@ -206,7 +199,6 @@ subs_list:=\
 	lfrog.o \
 	lgen.o \
 	ll.o \
-	lmasa.o \
 	lscoul.o \
 	lx2vec.o \
 	maadot.o \
@@ -230,7 +222,6 @@ subs_list:=\
 	makrot.o \
 	makrwf.o \
 	maks0.o \
-	makwts.o \
 	mcasim.o \
 	mchan.o \
 	mdinit.o \
