@@ -1,0 +1,116 @@
+This documentation is not yet written.
+
+--- Input for noncollinear magnetism: ---
+
+1. Category OPTIONS
+   Set NONCOL=T (second switch) and/or 
+   SS=4 numbers (dir. vector of three numbers + cell rotation angle)
+   Turning on the second switch in NONCOL activates the magnetic forces.
+
+2. Category SITE
+   Assign the Euler angles to each site.  This is done by rotating
+   them away from the z axis with a sequence of rotations; use
+   ROT=rot1[,rot2...] each rot1, rot2, etc has the form (x,y,z)angle.
+   See file slatsm/a2rotm.f for full syntax and some examples.
+
+3. Alternatively you can put the Euler angles directly into file 'eula.ext'
+
+--- Input for magnetic forces and spin statics.---
+
+1. In category OPTIONS, set second switch in NONCOL= to true.
+Subroutine magtrq takes as input the Euler angles, the magnetic
+forces, and updates the Euler angles according to mode, and the
+parameters SDPRM.  These parameters (including the mode) are passed
+through array sdprm.
+
+2. In category OPTIONS, set SDMOD=#
+# is a compound switch:
+   1s digit  is for the mode proper; see below
+  10s digit  makes the Euler angles l-dependent.
+ 100s digit  reserved
+1000s digit  causes lm to prevent updating of atomic P and Q,
+             and the potential parameters.
+
+Use sdmod=0 or 1 for total energy minimization (magnetic statics).
+These both updates the MM by (mag. force)*sdprm(2).
+sdmod=0 and sdmod=1 differ in how the Euler angles are mixed
+with previous iterations to accelerate convergence:
+
+sdmod=0 appends the Euler angles to the vector of P's and Q's
+including in the mixing for the normal charge density self-consistency
+cycle.  The mixing rules follow the normal mixing rule 
+input as MODE=(mixing rules), category MIX (see asa-tb.doc), with one
+necessary addition.  You must add wa=# to the MODE switches; this
+tells the mixing routine how much weight to assign to the Euler
+angles.  Neglecting this switch assigns 0 weight, and the Euler
+angles will not change at all.
+
+sdmod=1 mixes the Euler angles completely independently of the P's and
+Q's.  You assign a different set of mixing rules with AMODE=(mixing
+rules).  In this case the independent mixing of P's and Q's and the
+Euler angles can interfere with each other if one or the other changes
+the potential drastically.  This sometimes takes some thought to
+obtain sensible convergence
+
+--- Input for magnetic forces and spin dynamics---
+
+1. In category OPTIONS, set second switch in NONCOL= to true.
+
+2. In category OPTIONS, set 1s digit for SDMOD to 2 for Nose dynamics
+and 3 for Bulgac and Kusnezov dynamics.
+
+Nose dynamics is prosecuted directly in magtrq.  It mimics molecular
+dynamics by adding a friction term to keep the total energy fixed
+at a preset value.  This approach is not physically justifiable,
+but is useful to rapidly initialize the Euler angles to reasonable
+positions for a fixed temperature.  For this dynamics, set parameters
+SDPRM=(vector of numbers) as follows
+(1) fscal  scales forces by this constant (usually 1)
+(2) tau    time step, a.u.
+(3) Energy the target energy (ground state energy + temperature, Ry)
+(4) thetmx maximum allowed change in angle in any time step
+(5) etol   set tau=0 if etot-ehf>etol
+
+Bulgac dynamics is more complicated.  Now there are one or more
+global demons xi, which are added to the Landau equation.  The
+direction vectors e are integrated as: (here . means cross product)
+
+  edot = g/M (e.f) - h(xi) (e.a.e)
+
+  xidot = c (a.f - (e.f)(e.a)) - kT (1 or 0  - 3(e.a))
+
+In this case, routine mm_dyn integrates the equations of motion, using
+a Stoer-Bulirsch algorithm; magtrq only returns the magnetic forces,
+in cartesian coordinates.  Use category MMAG for the parameters for
+integration of the differential equations.   In category MMAG the
+following are needed as inputs to the equations themselves:
+
+  KT=temperature, in Ry units
+
+  NTHERM=n  (number of global demons xi)
+
+  MODET=(vector of n integers)  Each number is a mode for
+        its particular global demon.
+        1s digit of mode is 1-4, and tells which a to use;
+           see mmdife in file mm_dyn.f
+       10s digit is 1 for h(xi) = xi, 3 for h(xi)=xi**3
+
+  CT=(vector of n numbers) coefficients c to xidot; see above.
+
+The following are specific to the B-S integration algorithm
+
+  TS=initial time step, in Ry units.  This gets updated by
+     the BS algorithm.
+
+  TTOT=maximum time (duration of the integration).
+
+  BSTOL=tolerance in integration over a single BS step.
+        Use something like .01
+
+
+   MX=integer: maximum order of rational extrapolation polynomial
+
+   MI=#: maximum number of midpoint rules to try, eg 5
+
+   NSEQ=(sequence of # integers) number of divisions for each midpoint
+        rule, eg 2 3 5 8 11

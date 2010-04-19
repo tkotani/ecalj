@@ -1,0 +1,358 @@
+------------------------- bcc fe case: -----------
+----------- no downfolding collinear -----
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 16 0 0 0
+
+ --- BNDASA : Start band pass ---
+ SECMAT:  kpt 1 of 14, k=  0.16667  0.16667  0.16667
+ -0.5468 -0.1009 -0.1009  0.0139  0.0395  0.0395  1.6480  1.6480  1.7234
+ SECMAT:  kpt 1 of 14, k=  0.16667  0.16667  0.16667
+ -0.5849 -0.2530 -0.2530 -0.1512 -0.1296 -0.1296  1.5732  1.5732  1.6500
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.055462;   8.000000 electrons
+         Sum occ. bands:   -1.771155, incl. Bloechl correction: -0.003660
+
+ LM: ehf=-0.4796328  sumev=-1.7711549  delsev=0.0109464
+
+----------- downfolding f orbitals collinear -----
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 9 7 0 0
+
+ --- BNDASA : Start band pass ---
+ SECMAT:  kpt 1 of 14, k=  0.16667  0.16667  0.16667
+ -0.5466 -0.1006 -0.1006  0.0153  0.0396  0.0396  1.7322  1.8937  1.8937
+ SECMAT:  kpt 1 of 14, k=  0.16667  0.16667  0.16667
+ -0.5846 -0.2528 -0.2528 -0.1507 -0.1295 -0.1295  1.6559  1.8110  1.8110
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.054823;   8.000000 electrons
+         Sum occ. bands:   -1.767075, incl. Bloechl correction: -0.003639
+
+ LM: ehf=-0.4755529  sumev=-1.7670750  delsev=0.0150263
+
+----------- downfolding p+f orbitals collinear -----
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 6 10 0 0
+
+ --- BNDASA : Start band pass ---
+ SECMAT:  kpt 1 of 14, k=  0.16667  0.16667  0.16667
+ -0.5405 -0.1006 -0.1006  0.0153  0.0398  0.0398
+ SECMAT:  kpt 1 of 14, k=  0.16667  0.16667  0.16667
+ -0.5811 -0.2528 -0.2528 -0.1507 -0.1294 -0.1294
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.050621;   8.000000 electrons
+         Sum occ. bands:   -1.757086, incl. Bloechl correction: -0.004436
+
+ LM: ehf=-0.4655634  sumev=-1.7570856  delsev=0.0250158
+
+----------- downfolding no  orbitals noncollinear -----
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 16 0 0 0
+ Euler angles:
+   ib     alpha       beta       gamma
+    1    0.000000    0.000000    0.000000
+
+ --- BNDASA : Start band pass.  Euler angles:
+ SECMAT:  kpt 1 of 14, k=  0.16667  0.16667  0.16667
+ -0.5849 -0.5468 -0.2530 -0.2530 -0.1512 -0.1296 -0.1296 -0.1009 -0.1009
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.055462;   8.000000 electrons
+         Sum occ. bands:   -1.771155, incl. Bloechl correction: -0.003660
+
+
+
+ LM: ehf=-0.4796328  sumev=-1.7711549  delsev=0.0109464
+
+----------- downfolding f   orbitals noncollinear -----
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 9 7 0 0
+ Euler angles:
+   ib     alpha       beta       gamma
+    1    0.000000    0.000000    0.000000
+
+ --- BNDASA : Start band pass.  Euler angles:
+ SECMAT:  kpt 1 of 14, k=  0.16667  0.16667  0.16667
+ -0.5846 -0.5466 -0.2527 -0.2527 -0.1506 -0.1295 -0.1295 -0.1007 -0.1007
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.054912;   8.000000 electrons
+         Sum occ. bands:   -1.766898, incl. Bloechl correction: -0.003640
+
+ LM: ehf=-0.4753759  sumev=-1.7668981  delsev=0.0152033
+
+----------- downfolding p+f orbitals noncollinear -----
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 6 10 0 0
+ Euler angles:
+   ib     alpha       beta       gamma
+    1    0.000000    0.000000    0.000000
+
+ --- BNDASA : Start band pass.  Euler angles:
+ SECMAT:  kpt 1 of 14, k=  0.16667  0.16667  0.16667
+ -0.5771 -0.5451 -0.2525 -0.2525 -0.1501 -0.1294 -0.1294 -0.1009 -0.1009
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.050609;   8.000000 electrons
+         Sum occ. bands:   -1.757164, incl. Bloechl correction: -0.004618
+
+ LM: ehf=-0.4656420  sumev=-1.7571642  delsev=0.0249372
+
+------------ summary ---------
+  collinear energies     noncollinear
+ehf(16) = -0.4796328     -0.4796328 (identical, as it should be)
+ehf(9)  = -0.4755529     -0.4753759
+ehf(6)  = -0.4655634     -0.4656420
+
+... repeat, making p+f pp's same in iwaves channel (all identical)
+ehf(16) = -0.4673278     -0.4673278
+ehf(9)  = -0.4630897     -0.4630897
+ehf(6)  = -0.4526233     -0.4526233
+
+------------------------- fcc fe case: -----------
+--------- no downfolding, collinear
+
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 36 0 0 0
+ --- BNDASA : Start band pass ---
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6550 -0.3416 -0.3416 -0.3416 -0.2630 -0.2630 -0.2630 -0.1005 -0.0935
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6868 -0.4137 -0.4137 -0.4137 -0.3496 -0.3496 -0.3496 -0.2018 -0.1955
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.047838;  32.000000 electrons
+         Sum occ. bands:   -6.794223, incl. Bloechl correction: -0.003717
+
+
+ LM: ehf=-1.8007449  sumev=-6.7942228  delsev=0.0201163
+ Exit 0 LM      : quit after bands
+ CPU time:    1.849s     Tue Jan 18 15:51:37 2000   on waldo
+ wkinfo:  used   144 K  workspace of 40000 K   in   2 K calls
+
+--------- with downfolding, collinear
+
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 24 12 0 0
+
+ --- BNDASA : Start band pass ---
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6544 -0.3414 -0.3414 -0.3414 -0.2629 -0.2629 -0.2629 -0.1005 -0.0935
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6859 -0.4130 -0.4130 -0.4130 -0.3494 -0.3494 -0.3494 -0.2018 -0.1955
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.046878;  32.000000 electrons
+         Sum occ. bands:   -6.750908, incl. Bloechl correction: -0.004675
+
+ LM: ehf=-1.7574303  sumev=-6.7509082  delsev=0.0634309
+ Exit 0 LM      : quit after bands
+ CPU time:    1.760s     Tue Jan 18 15:52:13 2000   on waldo
+ wkinfo:  used   144 K  workspace of 40000 K   in   2 K calls
+
+=> collinear fm iwaves correction = -0.0433146
+
+--------- no downfolding, nc, ea=0
+
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 36 0 0 0
+ Euler angles:
+   ib     alpha       beta       gamma
+    1    0.000000    0.000000    0.000000
+    2    0.000000    0.000000    0.000000
+    3    0.000000    0.000000    0.000000
+    4    0.000000    0.000000    0.000000
+
+ --- BNDASA : Start band pass.  Euler angles:
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6868 -0.6550 -0.4137 -0.4137 -0.4137 -0.3496 -0.3496 -0.3496 -0.3416
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.047838;  32.000000 electrons
+         Sum occ. bands:   -6.794223, incl. Bloechl correction: -0.003717
+
+ LM: ehf=-1.8007449  sumev=-6.7942228  delsev=0.0201163
+=> compares identically to collinear case: ehf=-1.8007449 (ok)
+
+--------- with downfolding, nc, ea=0
+
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 24 12 0 0
+ Euler angles:
+   ib     alpha       beta       gamma
+    1    0.000000    0.000000    0.000000
+    2    0.000000    0.000000    0.000000
+    3    0.000000    0.000000    0.000000
+    4    0.000000    0.000000    0.000000
+
+ --- BNDASA : Start band pass.  Euler angles:
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6858 -0.6546 -0.4130 -0.4130 -0.4130 -0.3493 -0.3493 -0.3493 -0.3416
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.046980;  32.000000 electrons
+         Sum occ. bands:   -6.758080, incl. Bloechl correction: -0.004773
+
+ LM: ehf=-1.7646023  sumev=-6.7580802  delsev=0.0562589
+ Exit 0 LM      : quit after bands
+
+=> noncollinear iwaves correction ea=0 (fm) -0.0361426
+  compare to collinear case: 0.0433146
+
+----------- no downfolding nc
+
+ Euler angles:
+   ib     alpha       beta       gamma
+    1    2.295133    1.779328    0.400000
+    2   -0.320396    0.999388    0.000000
+    3   -0.431088    2.454579    0.000000
+    4   -2.383792    3.017015    0.000000
+
+ --- BNDASA : Start band pass.  Euler angles:
+
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6774 -0.6649 -0.4050 -0.3982 -0.3898 -0.3743 -0.3639 -0.3547 -0.3304
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.027045;  32.000000 electrons
+         Sum occ. bands:   -6.808949, incl. Bloechl correction: -0.001841
+
+ AMAGNC: magnetic components from Euler angles and moments :
+   ib   l      Mx          My          Mz          Total     <|mom|>
+    1   *    1.067925   -1.207010    0.341032    1.647313
+    2   *   -1.349889    0.447933   -0.914457    1.690880
+    3   *   -0.828218    0.380930    1.111289    1.437364
+    4   *    0.129726    0.122757    1.426225    1.437364
+ amagnc(m)  -0.245114   -0.063848    0.491022    0.552503    1.553230
+
+
+ LM: ehf=-1.8154709  sumev=-6.8089488  delsev=0.0053903
+
+-------- with downfolding, nc
+
+ Euler angles:
+   ib     alpha       beta       gamma
+    1    2.295133    1.779328    0.400000
+    2   -0.320396    0.999388    0.000000
+    3   -0.431088    2.454579    0.000000
+    4   -2.383792    3.017015    0.000000
+
+ --- BNDASA : Start band pass.  Euler angles:
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6765 -0.6643 -0.4045 -0.3978 -0.3894 -0.3740 -0.3637 -0.3546 -0.3303
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.026204;  32.000000 electrons
+         Sum occ. bands:   -6.763464, incl. Bloechl correction: -0.002477
+
+
+
+ LM: ehf=-1.7699863  sumev=-6.7634642  delsev=0.0508749
+
+=> noncollinear iwaves correction -0.0454846
+
+----------- collinear a2 afm, no downfolding
+ --- BNDASA : Start band pass ---
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6631 -0.3722 -0.3722 -0.3439 -0.2930 -0.2930 -0.2920 -0.1296 -0.1225
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6790 -0.4116 -0.3918 -0.3918 -0.3342 -0.3333 -0.3333 -0.1818 -0.1752
+
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.031519;  32.000000 electrons
+         Sum occ. bands:   -6.811286, incl. Bloechl correction: -0.001838
+
+
+
+ LM: ehf=-1.8178077  sumev=-6.8112856  delsev=0.0030535
+ Exit 0 LM      : quit after bands
+
+
+----------- collinear a2 afm, downfolding
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 24 12 0 0
+
+ --- BNDASA : Start band pass ---
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6625 -0.3719 -0.3719 -0.3437 -0.2929 -0.2929 -0.2919 -0.1296 -0.1225
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6782 -0.4110 -0.3914 -0.3914 -0.3340 -0.3331 -0.3331 -0.1818 -0.1752
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.029760;  32.000000 electrons
+         Sum occ. bands:   -6.765833, incl. Bloechl correction: -0.002740
+
+
+
+ LM: ehf=-1.7723550  sumev=-6.7658330  delsev=0.0485062
+=> collinear afm iwaves correction -0.0454527
+
+----------- noncollinear a2 afm, no downfolding
+
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 36 0 0 0
+ Euler angles:
+   ib     alpha       beta       gamma
+    1    0.000000    0.000000    0.000000
+    2    0.000000    3.141593    0.000000
+    3    0.000000    0.000000    0.000000
+    4    0.000000    0.000000    0.000000
+
+ --- BNDASA : Start band pass.  Euler angles:
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6790 -0.6631 -0.4116 -0.3918 -0.3918 -0.3722 -0.3722 -0.3439 -0.3342
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.031519;  32.000000 electrons
+         Sum occ. bands:   -6.811286, incl. Bloechl correction: -0.001838
+
+ LM: ehf=-1.8178077  sumev=-6.8112856  delsev=0.0030535
+ Exit 0 LM      : quit after bands
+ CPU time:    4.153s     Tue Jan 18 16:05:19 2000   on waldo
+ wkinfo:  used   165 K  workspace of 40000 K   in   1 K calls
+=> note identical to collinear case
+
+----------- noncollinear a2 afm, downfolding
+ Makidx:  dimensions Lower, Intermediate, Higher, Neglected: 24 12 0 0
+ Euler angles:
+   ib     alpha       beta       gamma
+    1    0.000000    0.000000    0.000000
+    2    0.000000    3.141593    0.000000
+    3    0.000000    0.000000    0.000000
+    4    0.000000    0.000000    0.000000
+
+ --- BNDASA : Start band pass.  Euler angles:
+ SECMAT:  kpt 1 of 40, k=  0.06250  0.06250  0.06250
+ -0.6782 -0.6626 -0.4110 -0.3914 -0.3914 -0.3719 -0.3719 -0.3439 -0.3340
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:     -0.029810;  32.000000 electrons
+         Sum occ. bands:   -6.767588, incl. Bloechl correction: -0.002715
+
+
+
+ LM: ehf=-1.7741097  sumev=-6.7675876  delsev=0.0467515
+ Exit 0 LM      : quit after bands
+ CPU time:    2.866s     Tue Jan 18 16:06:22 2000   on waldo
+ wkinfo:  used   152 K  workspace of 40000 K   in   1 K calls
+
+=> noncollinear afm iwaves correction -0.043698
+
+------------ summary ---------
+  collinear energies     noncol(eula=0)    noncol
+ehf(36) = -1.8007449     -1.8007449       -1.8208907
+ehf(24) = -1.7574303     -1.7646023       -1.7734442
+
+... repeat, making p pp's same in iwaves channel (all identical)
+ehf(36) = -1.7557608     -1.7557608       -1.7699093
+ehf(24) = -1.7178690     -1.7178690       -1.7249091
+
+------------ summary, nl=4 ---------
+  collinear energies     noncol(eula=0)    noncol
+ehf(64) = -1.8801683     -1.8801683       -1.9030956
+ehf(36) = -1.6895495     -1.6889713       -1.7152851
+ehf(24) = -1.6439115     -1.6521791       -1.6703710
+
+conclusion:  can't find any errors , but p downfolding seems a little sensitive
+
+------------ test of SS -------------
+... Some 4ss results 
+h nit=1 qss=0  sdyn=0 nk=48 nk2=24 a=6.77942 mmom=0 ehf=-1.7179558 ehf2=-0.858978  +-+-
+h nit=1 qss=0  sdyn=0 nk=48 nk2=24 a=6.77942 mmom=0 ehf=-1.7336171 ehf2=-0.866809  ++--
+h nit=1 qss=0  sdyn=0 nk=48 nk2=24 a=6.77942 mmom=0 ehf=-1.7281671 ehf2=-0.864084 + -> - ->
+... Some 2ss results 
+h nit=1 qss=0  sdyn=0 nk=48 a=6.77942 mmom=0 ehf=-.858971 2ss +-+-
+h nit=1 qss=.5 sdyn=0 nk=48 a=6.77942 mmom=0 ehf=-.866809 2ss ++--
+h nit=1 qss=.5 sdyn=0 nk=48 a=6.77942 mmom=0 ehf=-.866809 2ss +--+
+h nit=1 qss=.5 sdyn=0 nk=48 a=6.77942 mmom=0 ehf=-.864084 2ss  + -> - -> (make with beta1=0 beta2=pi/2 qss=.5 theta=pi/2)

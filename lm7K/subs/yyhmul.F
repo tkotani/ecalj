@@ -22,13 +22,10 @@ C Passed parameters
 C Local parameters
       integer i,j,k,nid
       double precision xikr,xiki
-#if BLAS3
       integer nrow,owk,irow,icol,mrow,ncol
       parameter (nrow=48)
       integer w(100)
       common /w/ w
-#endif
-
 C ... nid is skip length of d; set as a parameter to 1 now.
       nid = 1
 
@@ -40,49 +37,6 @@ C      call dfdump(d, nid*idim,-55)
 C      call dfdump(hk,ndim*ldim*2,-55)
 C      close(55)
 
-#ifndef BLAS3
-      do  10  k = 1, idim
-        do  10  j = 1, ldim
-
-        xikr =  d(1,k)*sk(k,j)
-        xiki =  d(1,k)*sk(ns+k,j)
-#if BLAS
-        call yaxcpy(j,xikr,xiki,sk(k,1),sk(ns+k,1),jdim,
-     .    hk(1,j),hk(nh+1,j),1,.true.)
-#else
-        if (xikr .eq. 0) then
-          if (xiki .ne. 0) then
-C         --- Case xikr=0, xiki!=0 ---
-            do  12  i = 1, j
-              hk(i,j)    = hk(i,j)    + sk(ns+k,i)*xiki
-              hk(nh+i,j) = hk(nh+i,j) + sk(k,i)*xiki
-   12       continue
-          endif
-        else
-          if (xiki .eq. 0) then
-C         --- Case xikr!=0, xiki=0 ---
-            do  14  i = 1, j
-              hk(i,j)    = hk(i,j)    + sk(k,i)*xikr
-              hk(nh+i,j) = hk(nh+i,j) - sk(ns+k,i)*xikr
-   14       continue
-          else
-C         --- Case xikr!=0, xiki!=0 ---
-            do  16  i = 1, j
-              hk(i,j)    = hk(i,j)    + sk(k,i)*xikr + sk(ns+k,i)*xiki
-              hk(nh+i,j) = hk(nh+i,j) - sk(ns+k,i)*xikr + sk(k,i)*xiki
-   16       continue
-          endif
-        endif
-#endif
-   10 continue
-
-      do  20  j = 1, ldim
-        do  20  i = j+1, ldim
-          hk(i,j)    = hk(j,i)
-          hk(nh+i,j) = -hk(nh+j,i)
-   20 continue
-
-#else  BLAS3
       call defdr(owk,nrow*idim*2)
       do  10  irow = 1, ldim, nrow
         mrow = min(ldim-irow+1,nrow)
@@ -97,11 +51,8 @@ C         --- Case xikr!=0, xiki!=0 ---
           hk(nh+irow,icol) = -hk(nh+icol,irow)
    12 continue
       call rlse(owk)
-#endif
-
       end
 
-#if BLAS3
       subroutine xyhmul(mrow,jdim,idim,nid,ns,d,sk,w)
 C Kernel called by yhmul
 C     implicit none
@@ -121,9 +72,8 @@ C     implicit none
           w(i,j,2) = w(i,j,2)*d(1,j)
    30   continue
    20 continue
-
       end
-#endif
+
 C ...  test yyhmul
 C      subroutine fmain
 C      implicit none

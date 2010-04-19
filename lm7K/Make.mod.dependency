@@ -97,21 +97,16 @@ $(subs_obj_path)/asvsph.o : subs/asvsph.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/atfold.o : subs/atfold.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/atomsr.o : subs/atomsr.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/chkdmu.o : subs/chkdmu.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/chksg.o : subs/chksg.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/chkstr.o : subs/chkstr.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/clsset.o : subs/clsset.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/defspc.o : subs/defspc.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/findes.o : subs/findes.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/freeat.o : subs/freeat.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/freeat.bk.o : subs/freeat.bk.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/getidu.o : subs/getidu.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/gtpcor.o : subs/gtpcor.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/hamfb3.o : subs/hamfb3.F $(subs_obj_path)/m_hamindex.o
-$(subs_obj_path)/hcr2a.o : subs/hcr2a.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/ioeula.o : subs/ioeula.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/ioorbp.o : subs/ioorbp.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/iopos.o : subs/iopos.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/ioqpp.o : subs/ioqpp.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/iorbtm.o : subs/iorbtm.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/iors.o : subs/iors.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/iosits.o : subs/iosits.F $(subs_obj_path)/m_struc_def.o
@@ -119,7 +114,6 @@ $(subs_obj_path)/lattic.o : subs/lattic.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/m_rdctrl.o : subs/m_rdctrl.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_toksw.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/m_rdctrlchk.o : subs/m_rdctrlchk.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_toksw.o
 $(subs_obj_path)/m_struc_def.o : subs/m_struc_def.F $(subs_obj_path)/m_struc_func.o
-$(subs_obj_path)/maadot.o : subs/maadot.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/makidx.o : subs/makidx.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/mcasim.o : subs/mcasim.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/mchan.o : subs/mchan.F $(subs_obj_path)/m_struc_def.o
@@ -133,7 +127,6 @@ $(subs_obj_path)/pp2enu.o : subs/pp2enu.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/prdmts.o : subs/prdmts.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/pvsms2.o : subs/pvsms2.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rdctrl2.o : subs/rdctrl2.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/susite.o $(subs_obj_path)/m_struc_func.o $(subs_obj_path)/m_rdctrl.o
-$(subs_obj_path)/rdctrlchk.o : subs/rdctrlchk.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_rdctrlchk.o
 $(subs_obj_path)/rdsigm.o : subs/rdsigm.F $(subs_obj_path)/m_psigd.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rdsigm2.o : subs/rdsigm2.F $(subs_obj_path)/m_hamindex.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/relax.o : subs/relax.F $(subs_obj_path)/m_struc_def.o

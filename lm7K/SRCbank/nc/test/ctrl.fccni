@@ -1,0 +1,85 @@
+% const nbas=343 a=5.4 tk=600 ttot=100000 file=f cpa=f 
+# --- micromagnetics simulation of fcc Ni ---
+% vec plat[9]
+# ... 8-atom cluster ...
+% ifdef nbas==8
+% var imax=1
+% vec plat(1:9) 0*2 .5*2 .5*2 .5*2 0*2 .5*2 .5*2 .5*2 0*2
+% endif
+# ... 27-atom cluster ...
+% ifdef nbas==27
+% var imax=2
+% vec plat(1:9) 0*3 .5*3 .5*3 .5*3 0*3 .5*3 .5*3 .5*3 0*3
+% endif
+# ... 64-atom cluster ...
+% ifdef nbas==64
+% var imax=3
+% vec plat(1:9) 0*4 .5*4 .5*4 .5*4 0*4 .5*4 .5*4 .5*4 0*4
+% endif
+% ifdef nbas==125
+% var imax=4
+% vec plat(1:9) 0*5 .5*5 .5*5 .5*5 0*5 .5*5 .5*5 .5*5 0*5
+% endif
+% ifdef nbas==216
+% var imax=5
+% vec plat(1:9) 0*6 .5*6 .5*6 .5*6 0*6 .5*6 .5*6 .5*6 0*6
+% endif
+% ifdef nbas==343
+% var imax=6
+% vec plat(1:9) 0*7 .5*7 .5*7 .5*7 0*7 .5*7 .5*7 .5*7 0*7
+% endif
+% ifdef nbas==512
+% var imax=7
+% vec plat(1:9) 0*8 .5*8 .5*8 .5*8 0*8 .5*8 .5*8 .5*8 0*8
+% endif
+% ifdef nbas==9^3
+% var imax=9-1
+% vec plat(1:9) 0*9 .5*9 .5*9 .5*9 0*9 .5*9 .5*9 .5*9 0*9
+% endif
+% ifdef nbas==12^3
+% var imax=12-1
+% vec plat(1:9) 0 12/2 12/2 12/2 0 12/2 12/2 12/2 0
+% endif
+% save nbas
+% const ct=2 ct2=.1 ct3=1 ntherm=3 mode1=31 bstol=4d-2
+% const mode2=mode1+1 mode3=mode2+1 ct1=ct ct2=ct ct3=ct
+TESTMM  lmmag -vnbas=64 -vtk=200 -vttot=1000 -vntherm=2 fccni
+% ifdef FILE
+DYN     HAM FILE=rsj
+        ENDH
+% elseifd cpa
+% stop 1 no cpa available
+% else
+DYN     HAM h2: {-0.200e-3*2} d<{0.71*a}
+            h2: {-0.002e-3*2} d<{1.01*a}
+            h2: {-0.026e-3*2} d<{1.23*a}
+            h2: {-0.010e-3*2} d<{1.42*a}
+            h2: {-0.003e-3*2} d<{1.60*a}
+        ENDH
+% endif
+        KT={tk}*(.0259/13.6/300)
+#       TS=30 TTOT={ttot} BSTOL=1d-2 MX=3 MI=4 NSEQ=2 3 4 6 10
+        TS=30 TTOT={ttot} BSTOL={bstol} MX=4 MI=5 NSEQ=2 3 4 6 10
+        NTHERM={ntherm} MODET={mode1} {mode2} {mode3} CT={ct1} {ct2} {ct3}
+VERS    MM-1 LMASA-5
+IO      IACTIV=f VERBOS=35 30 20
+OPTIONS
+% ifdef file
+STRUC   FILE=site NSPEC=1
+SITE    FILE=site
+SPEC    ATOM=A Z=28 R/W=1 RHAM=1.7/2*{a}
+% else
+STRUC   NBAS={nbas} NCLASS=1 ALAT={a} NL=1
+        PLAT={plat}
+CLASS
+    ATOM=Fe Z=26 R/W=1 RHAM=1.7/2*{a}
+SITE
+%   repeat i1 = 0:imax
+%   repeat i2 = 0:imax
+%   repeat i3 = 0:imax
+  ATOM=Fe POS= .5*{i2+i3} .5*{i1+i3} .5*{i1+i2}
+%   end
+%   end
+%   end
+% endif
+SYMGRP 

@@ -565,13 +565,10 @@
 @def Subr:vxtrap in   fp/vxtrap.F:L1
 @def Subr:rwftai in   fp/vxtrap.F:L189
 @def Subr:wrhomt in   fp/wrhomt.F:L1
-@def Subr:acoord in   subs/acoord.F:L1
 @def Subr:addbas in   subs/addbas.F:L1
 @def Subr:addrwf in   subs/addrwf.F:L1
 @def Subr:wf2lo in   subs/addrwf.F:L86
 @def Subr:ortrwf in   subs/addrwf.F:L180
-@def Subr:addtog in   subs/addtog.F:L1
-@def Subr:addtos in   subs/addtos.F:L1
 @def Subr:aiocls in   subs/aiocls.F:L8
 @dcl Type:s_array in Subroutine:aiocls  subs/aiocls.F:L67
 @dcl Type:s_ctrl in Subroutine:aiocls  subs/aiocls.F:L68
@@ -620,7 +617,6 @@
 @def Func:io5spt in   subs/aioxtn.F:L2145
 @def Subr:aioxt2 in   subs/aioxtn.F:L2226
 @def Subr:aioxt3 in   subs/aioxtn.F:L2241
-@def Subr:alwats in   subs/alwats.F:L1
 @def Subr:amagnc in   subs/amagnc.F:L1
 @def Subr:amagn2 in   subs/amagnc.F:L17
 @def Subr:angtab in   subs/angtab.F:L1
@@ -707,10 +703,7 @@
 @def Subr:bloch in   subs/bloch.F:L1
 @def Subr:pblch1 in   subs/bloch.F:L343
 @def Subr:blochi in   subs/blochi.F:L1
-@def Subr:bsortl in   subs/bsortl.F:L1
-@def Subr:bsrhos in   subs/bsrhos.F:L1
 @def Subr:bzints in   subs/bzints.F:L1
-@def Subr:bzjnos in   subs/bzjnos.F:L1
 @def Subr:bzmesh in   subs/bzmesh.F:L1
 @def Subr:bzmsh0 in   subs/bzmesh.F:L348
 @def Func:mxxyz in   subs/bzmesh.F:L419
@@ -721,7 +714,6 @@
 @def Func:iget in   subs/bzwts.F:L487
 @def Subr:bzwtsf in   subs/bzwtsf.F:L1
 @def Subr:bzwtsm in   subs/bzwtsf.F:L169
-@def Subr:cb2sph in   subs/cb2sph.F:L1
 @def Subr:ccutup in   subs/ccutup.F:L1
 @def Subr:chgmsh in   subs/chgmsh.F:L1
 @def Subr:pchmsh in   subs/chgmsh.F:L104
@@ -730,18 +722,6 @@
 @dcl Type:s_site in Subroutine:chkdmu  subs/chkdmu.F:L58
 @dcl Type:s_spec in Subroutine:chkdmu  subs/chkdmu.F:L59
 @dcl Type:s_ham in Subroutine:chkdmu  subs/chkdmu.F:L60
-@def Subr:chksg in   subs/chksg.F:L7
-@dcl Type:s_ctrl in Subroutine:chksg  subs/chksg.F:L49
-@dcl Type:s_lat in Subroutine:chksg  subs/chksg.F:L50
-@dcl Type:s_spec in Subroutine:chksg  subs/chksg.F:L51
-@dcl Type:s_str in Subroutine:chksg  subs/chksg.F:L52
-@dcl Type:s_array in Subroutine:chksg  subs/chksg.F:L53
-@def Subr:chkstr in   subs/chkstr.F:L6
-@dcl Type:s_ctrl in Subroutine:chkstr  subs/chkstr.F:L50
-@dcl Type:s_lat in Subroutine:chkstr  subs/chkstr.F:L51
-@dcl Type:s_spec in Subroutine:chkstr  subs/chkstr.F:L52
-@dcl Type:s_str in Subroutine:chkstr  subs/chkstr.F:L53
-@dcl Type:s_array in Subroutine:chkstr  subs/chkstr.F:L54
 @def Subr:clabel in   subs/clabel.F:L1
 @def Subr:clist in   subs/clist.F:L1
 @def Subr:clsset in   subs/clsset.F:L3
@@ -752,7 +732,6 @@
 @def Subr:config in   subs/config.F:L1
 @def Subr:contet in   subs/contet.F:L1
 @def Subr:cshear in   subs/cshear.F:L1
-@def Subr:decmp2 in   subs/decmp2.F:L1
 @def Subr:defpq in   subs/defpq.F:L1
 @def Subr:atmoms in   subs/defpq.F:L233
 @def Subr:defspc in   subs/defspc.F:L3
@@ -762,14 +741,12 @@
 @def Subr:delstp in   subs/delstp.F:L1
 @def Subr:dfphi in   subs/dfphi.F:L1
 @def Subr:dlmn in   subs/dlmn.F:L1
-@def Subr:dmatio in   subs/dmatio.F:L1
 @def Subr:dosio in   subs/dosio.F:L1
 @def Subr:dosspl in   subs/dosspl.F:L1
 @def Subr:dostet in   subs/dostet.F:L1
 @def Subr:dpdbyl in   subs/dpdbyl.F:L1
 @def Subr:dpdftr in   subs/dpdftr.F:L1
 @def Func:drr2 in   subs/drr2.F:L1
-@def Subr:dsolv2 in   subs/dsolv2.F:L1
 @def Subr:dstrbp in   subs/dstrbp.F:L1
 @def Subr:single in   subs/dstrbp.F:L75
 @def Subr:optimise in   subs/dstrbp.F:L124
@@ -868,18 +845,12 @@
 @def Subr:gensym in   subs/gensym.F:L1
 @def Subr:getbzp in   subs/getbzp.F:L1
 @def Func:getef in   subs/getef.F:L1
-@def Subr:getidu in   subs/getidu.F:L4
-@dcl Type:s_spec in Subroutine:getidu  subs/getidu.F:L27
-@dcl Type:s_site in Subroutine:getidu  subs/getidu.F:L28
 @def Subr:getq in   subs/getq.F:L1
 @def Subr:getqvc in   subs/getq.F:L48
 @def Subr:getqp in   subs/getqp.F:L1
 @def Subr:ggiml in   subs/ggiml.F:L1
 @def Subr:gh1c in   subs/gh1c.F:L1
 @def Subr:ghdiml in   subs/ghdiml.F:L1
-@def Subr:ghiml in   subs/ghiml.F:L1
-@def Subr:gklml in   subs/gklml.F:L2
-@def Subr:gprdsr in   subs/gprdsr.F:L1
 @def Subr:groupg in   subs/groupg.F:L1
 @def Subr:grpfnd in   subs/grpfnd.F:L1
 @def Subr:grpgen in   subs/grpgen.F:L1
@@ -905,11 +876,9 @@
 @def Subr:gxpml in   subs/gxpml.F:L1
 @def Subr:hamfb3k in   subs/hamfb3.F:L1
 @def Subr:hamfb3 in   subs/hamfb3.F:L84
-@def Subr:hanb2s in   subs/hanb2s.F:L1
 @def Subr:hanr in   subs/hanr.F:L1
 @def Subr:hansmd in   subs/hansmd.F:L1
 @def Subr:hansmr in   subs/hansmr.F:L1
-@def Subr:hansmz in   subs/hansmz.F:L1
 @def Subr:hansr in   subs/hansr.F:L1
 @def Subr:hansr1 in   subs/hansr.F:L214
 @def Subr:hansr2 in   subs/hansr.F:L338
@@ -918,39 +887,29 @@
 @def Subr:hansrz in   subs/hansrz.F:L1
 @def Subr:hansz1 in   subs/hansrz.F:L310
 @def Subr:hansz2 in   subs/hansrz.F:L436
-@def Subr:hansz in   subs/hansz.F:L1
 @def Subr:hanszd in   subs/hanszd.F:L1
-@def Subr:hblstr in   subs/hblstr.F:L1
-@def Subr:hcr2a in   subs/hcr2a.F:L3
-@dcl Type:s_spec in Subroutine:hcr2a  subs/hcr2a.F:L30
 @def Subr:hdxpml in   subs/hdxpml.F:L1
 @def Subr:hft2rs in   subs/hft2rs.F:L1
 @def Subr:hft2r1 in   subs/hft2rs.F:L304
 @def Subr:hft2r2 in   subs/hft2rs.F:L436
 @def Subr:hft2r3 in   subs/hft2rs.F:L653
-@def Subr:hml2nc in   subs/hml2nc.F:L1
 @def Subr:hmladb in   subs/hmladb.F:L2
-@def Subr:hmlt2c in   subs/hmlt2c.F:L1
 @def Subr:hmltnc in   subs/hmltnc.F:L1
 @def Subr:hmltns in   subs/hmltns.F:L1
-@def Subr:hmltso in   subs/hmltso.F:L1
 @def Subr:hnsmft in   subs/hnsmft.F:L1
 @def Subr:sint in   subs/hnsmft.F:L153
 @def Subr:fint in   subs/hnsmft.F:L169
-@def Subr:hsmml in   subs/hsmml.F:L1
 @def Subr:hsmq in   subs/hsmq.F:L1
 @def Subr:hsmqe0 in   subs/hsmq.F:L313
 @def Subr:pvhsmq in   subs/hsmq.F:L577
 @def Subr:hstrux in   subs/hstrux.F:L1
 @def Subr:hstrud in   subs/hstrux.F:L79
-@def Subr:hxpml in   subs/hxpml.F:L1
 @def Subr:i3cntr in   subs/i3cntr.F:L1
 @def Subr:iax2fd in   subs/iax2fd.F:L1
 @def Subr:ibloch in   subs/ibloch.F:L1
 @def Subr:iblch1 in   subs/ibloch.F:L224
 @def Func:iclbas in   subs/iclbas.F:L1
 @def Func:iclbsj in   subs/iclbas.F:L23
-@def Subr:intdrv in   subs/intdrv.F:L1
 @def Subr:intnos in   subs/intnos.F:L1
 @def Subr:invalp in   subs/invalp.F:L1
 @def Subr:invbl in   subs/invbl.F:L1
@@ -974,12 +933,8 @@
 @def Subr:iopos in   subs/iopos.F:L3
 @def Subr:ioposs in   subs/iopos.F:L192
 @dcl Type:s_site in Subroutine:ioposs  subs/iopos.F:L201
-@def Subr:ioqpp in   subs/ioqpp.F:L4
-@dcl Type:s_ctrl in Subroutine:ioqpp  subs/ioqpp.F:L20
-@dcl Type:s_pot in Subroutine:ioqpp  subs/ioqpp.F:L21
 @def Subr:iorbtm in   subs/iorbtm.F:L3
 @dcl Type:s_spec in Subroutine:iorbtm  subs/iorbtm.F:L28
-@def Subr:iores in   subs/iores.F:L1
 @def Func:iors in   subs/iors.F:L9
 @dcl Type:s_ctrl in Function:iors  subs/iors.F:L134
 @dcl Type:s_site in Function:iors  subs/iors.F:L135
@@ -991,7 +946,6 @@
 @def Func:iosg in   subs/iosg.F:L1
 @def Func:iosg1 in   subs/iosg.F:L170
 @def Func:iosg2 in   subs/iosg.F:L243
-@def Func:iosig in   subs/iosig.F:L1
 @def Func:iosite in   subs/iosite.F:L1
 @def Func:iosits in   subs/iosits.F:L3
 @dcl Type:s_spec in Function:iosits  subs/iosits.F:L138
@@ -1000,8 +954,6 @@
 @def Func:iostr1 in   subs/iostr.F:L255
 @def Func:iostr2 in   subs/iostr.F:L358
 @def Func:iostr4 in   subs/iostr.F:L393
-@def Subr:iostrt in   subs/iostrt.F:L1
-@def Subr:iosv in   subs/iosv.F:L1
 @def Subr:ioxbs in   subs/ioxbs.F:L1
 @def Subr:pioxbs in   subs/ioxbs.F:L234
 @def Subr:kink2g in   subs/kink2g.F:L1
@@ -1017,10 +969,7 @@
 @dcl Type:s_array in Subroutine:lattic  subs/lattic.F:L45
 @def Func:latvec in   subs/latvec.F:L1
 @def Subr:ldau in   subs/ldau.F:L1
-@def Subr:lgen in   subs/lgen.F:L1
 @def Func:ll in   subs/ll.F:L1
-@def Subr:lscoul in   subs/lscoul.F:L1
-@def Subr:fp2yl in   subs/lscoul.F:L135
 @def Subr:lx2vec in   subs/lx2vec.F:L1
 @def Modu:m_gtv in   subs/m_gtv.F:L2
 @def ifc :gtv in Module:m_gtv  subs/m_gtv.F:L53
@@ -1213,13 +1162,8 @@
 @def Subr:tkadd in Module:m_toksw  subs/m_toksw.F:L89
 @def Func:tksw in Module:m_toksw  subs/m_toksw.F:L133
 @def Subr:find_region in   subs/m_toksw.F:L206
-@def Subr:maadot in   subs/maadot.F:L3
-@dcl Type:s_spec in Subroutine:maadot  subs/maadot.F:L40
 @def Subr:madmat in   subs/madmat.F:L1
-@def Subr:magtrq in   subs/magtrq.F:L1
-@def Subr:makalp in   subs/makalp.F:L1
 @def Subr:makbet in   subs/makbet.F:L1
-@def Subr:makbzm in   subs/makbzm.F:L1
 @def Subr:makdia in   subs/makdia.F:L1
 @def Subr:makdla in   subs/makdla.F:L1
 @def Subr:makdos in   subs/makdos.F:L1
@@ -1233,7 +1177,6 @@
 @def Subr:maknrs in   subs/maknrs.F:L1
 @def Subr:makpph in   subs/makpph.F:L1
 @def Subr:makptf in   subs/makptf.F:L1
-@def Subr:makrcz in   subs/makrcz.F:L1
 @def Subr:makrm0 in   subs/makrm0.F:L1
 @def Subr:makrot in   subs/makrot.F:L1
 @def Subr:makrwf in   subs/makrwf.F:L1
@@ -1257,13 +1200,9 @@
 @def Subr:mchan in   subs/mchan.F:L4
 @dcl Type:s_site in Subroutine:mchan  subs/mchan.F:L35
 @dcl Type:s_spec in Subroutine:mchan  subs/mchan.F:L36
-@def Subr:mdinit in   subs/mdinit.F:L1
-@def Subr:mdout in   subs/mdout.F:L1
-@def Subr:mkalpv in   subs/mkalpv.F:L1
 @def Subr:mkbdot in   subs/mkbdot.F:L1
 @def Subr:mkbfld in   subs/mkbfld.F:L1
 @def Subr:mkcond in   subs/mkcond.F:L1
-@def Subr:mkjdos in   subs/mkjdos.F:L1
 @def Subr:mkplat in   subs/mkplat.F:L1
 @def Subr:bravsy in   subs/mkplat.F:L67
 @def Subr:cvplat in   subs/mkplat.F:L161
@@ -1279,7 +1218,6 @@
 @dcl Type:s_bz in Subroutine:mkqp  subs/mkqp.F:L51
 @dcl Type:s_lat in Subroutine:mkqp  subs/mkqp.F:L52
 @def Subr:mkrtab in   subs/mkrtab.F:L1
-@def Subr:mkrwat in   subs/mkrwat.F:L1
 @def Subr:mksbet in   subs/mksbet.F:L1
 @def Subr:mksod in   subs/mksod.F:L1
 @def Subr:mksoph in   subs/mksoph.F:L1
@@ -1293,9 +1231,6 @@
 @dcl Type:s_site in Subroutine:pvsym2  subs/mksym.F:L478
 @def Func:aginv in   subs/mksym.F:L535
 @def Subr:mktra2 in   subs/mktra2.F:L1
-@def Subr:mktral in   subs/mktral.F:L1
-@def Enty_Subr:mktrli in Subroutine:mktral  subs/mktral.F:L266
-@def Subr:mktrli in   subs/mktral.F:L270
 @def Subr:mmag in   subs/mmag.F:L6
 @dcl Type:s_ctrl in Subroutine:mmag  subs/mmag.F:L29
 @dcl Type:s_spec in Subroutine:mmag  subs/mmag.F:L30
@@ -1313,7 +1248,6 @@
 @def Subr:mxmymz in   subs/mxmymz.F:L1
 @def Subr:newalp in   subs/newalp.F:L1
 @def Subr:nghbor in   subs/nghbor.F:L1
-@def Func:nm in   subs/nm.F:L1
 @def Subr:nmefac in   subs/nmefac.F:L1
 @def Subr:nmham in   subs/nmham.F:L1
 @def Subr:naleph in   subs/nmham.F:L186
@@ -1327,7 +1261,6 @@
 @def Func:nnrl in   subs/nnrl.F:L1
 @def Subr:norm2g in   subs/norm2g.F:L1
 @def Subr:nosbzm in   subs/nosbzm.F:L1
-@def Subr:npr2tb in   subs/npr2tb.F:L1
 @def Subr:nwit in   subs/nwit.F:L1
 @def Subr:nwitsv in   subs/nwit.F:L125
 @def Subr:oraddp in   subs/oraddp.F:L1
@@ -1338,7 +1271,6 @@
 @def Subr:ovlchk in   subs/ovlchk.F:L1
 @def Subr:ovmin in   subs/ovmin.F:L1
 @def Func:ovcall in   subs/ovmin.F:L199
-@def Subr:pa2plm in   subs/pa2plm.F:L1
 @def Subr:gennlat in   subs/pairc.F:L1
 @def Subr:pairtakao in   subs/pairc.F:L103
 @def Subr:getgv2 in   subs/pairc.F:L199
@@ -1352,7 +1284,6 @@
 @def Subr:ppair4 in   subs/pairc.F:L786
 @def Subr:ppair5 in   subs/pairc.F:L851
 @def Subr:pair3c in   subs/pairc.F:L887
-@def Subr:pairp6 in   subs/pairp6.F:L1
 @def Func:parmxp in   subs/parmxp.F:L1
 @def Subr:parmx0 in   subs/parmxp.F:L358
 @def Enty_Subr:parms0 in Subroutine:parmx0  subs/parmxp.F:L374
@@ -1385,7 +1316,6 @@
 @def Subr:pplan1 in   subs/plana.F:L1298
 @def Subr:pp2enu in   subs/pp2enu.F:L3
 @dcl Type:s_spec in Subroutine:pp2enu  subs/pp2enu.F:L38
-@def Subr:pp2hvs in   subs/pp2hvs.F:L1
 @def Subr:pptrns in   subs/pptrns.F:L1
 @def Func:oalpha in   subs/pptrns.F:L115
 @def Subr:pqmix in   subs/pqmix.F:L1
@@ -1403,8 +1333,6 @@
 @def Subr:prdmts in   subs/prdmts.F:L79
 @def Subr:prjpos in   subs/prjpos.F:L1
 @def Subr:fmain in   subs/prjpos.F:L172
-@def Subr:prjrsp in   subs/prjrsp.F:L2
-@def Subr:prmsk2 in   subs/prmsk2.F:L1
 @def Subr:prm in   subs/prmx.F:L1
 @def Subr:prmx in   subs/prmx.F:L22
 @def Enty_Subr:prmx0 in Subroutine:prmx  subs/prmx.F:L62
@@ -1418,10 +1346,8 @@
 @def Subr:projql in   subs/projql.F:L1
 @def Subr:prrmsh in   subs/prrmsh.F:L1
 @def Subr:prtbas in   subs/prtbas.F:L1
-@def Subr:prterr in   subs/prterr.F:L1
 @def Subr:psymop in   subs/psymop.F:L1
 @def Subr:parsop in   subs/psymop.F:L70
-@def Subr:pvpqm1 in   subs/pvpqm1.F:L1
 @def Subr:pvsms2 in   subs/pvsms2.F:L4
 @dcl Type:s_site in Subroutine:pvsms2  subs/pvsms2.F:L44
 @dcl Type:s_spec in Subroutine:pvsms2  subs/pvsms2.F:L45
@@ -1431,7 +1357,6 @@
 @def Subr:rdistn in   subs/qdist.F:L29
 @def Subr:qdistn in   subs/qdist.F:L37
 @def Subr:radgkl in   subs/radgkl.F:L1
-@def Subr:radkj in   subs/radkj.F:L1
 @def Subr:radmsh in   subs/radmsh.F:L1
 @def Subr:radwgt in   subs/radmsh.F:L15
 @def Subr:radmwt in   subs/radmsh.F:L34
@@ -1452,7 +1377,6 @@
 @dcl Type:s_tb in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L177
 @dcl Type:s_spec in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L178
 @dcl Type:s_site in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L179
-@def Subr:rdctrlchk in   subs/rdctrlchk.F:L1
 @def Subr:rdeq in   subs/rdeq.F:L1
 @def Subr:fdpp in   subs/rdeq.F:L906
 @def Subr:mul22 in   subs/rdeq.F:L1430
@@ -1521,11 +1445,9 @@
 @def Subr:pvrots in   subs/roth.F:L1080
 @def Subr:rothrm in   subs/rothrm.F:L1
 @def Subr:rothph in   subs/rothrm.F:L117
-@def Subr:rotmad in   subs/rotmad.F:L1
 @def Subr:rotpnt in   subs/rotpnt.F:L1
 @def Subr:rotspn in   subs/rotspn.F:L1
 @def Subr:rotspu in   subs/rotspu.F:L1
-@def Subr:rotwf in   subs/rotwf.F:L1
 @def Subr:interparam in   subs/rotwv.F:L1
 @def Subr:prodx2d in   subs/rotwv.F:L54
 @def Subr:qparam in   subs/rotwv.F:L80
@@ -1544,8 +1466,6 @@
 @def Subr:setcc in   subs/rseq.F:L488
 @def Subr:rsmsym in   subs/rsmsym.F:L1
 @def Subr:rsort in   subs/rsort.F:L1
-@def Subr:rsqnri in   subs/rsqnri.F:L1
-@def Subr:rsqnrs in   subs/rsqnri.F:L151
 @def Subr:rstr0 in   subs/rstr0.F:L1
 @def Subr:pvstr0 in   subs/rstr0.F:L100
 @def Subr:s2oka in   subs/s2oka.F:L1
@@ -1555,7 +1475,6 @@
 @def Subr:salph1 in   subs/salph1.F:L1
 @def Subr:pvsal0 in   subs/salph1.F:L375
 @def Subr:pvsal1 in   subs/salph1.F:L484
-@def Subr:salph2 in   subs/salph2.F:L1
 @def Subr:salphg in   subs/salphg.F:L1
 @def Func:distm in   subs/salphg.F:L277
 @def Subr:savvxc in   subs/savvxc.F:L1
@@ -1565,7 +1484,6 @@
 @dcl Type:s_pot in Subroutine:sblham  subs/sblham.F:L72
 @def Subr:sblhm1 in   subs/sblham.F:L144
 @def Subr:scalpv in   subs/scalpv.F:L1
-@def Subr:scalsr in   subs/scalsr.F:L1
 @def Subr:scg in   subs/scg.F:L1
 @def Subr:scglp1 in   subs/scglp1.F:L1
 @def Subr:sclwsr in   subs/sclwsr.F:L1
@@ -1604,8 +1522,6 @@
 @def Subr:xxxadd in   subs/shear.F:L109
 @def Subr:shffle in   subs/shffle.F:L1
 @def Subr:shftpp in   subs/shftpp.F:L1
-@def Subr:shftpq in   subs/shftpq.F:L1
-@def Subr:shoblk in   subs/shoblk.F:L1
 @def Subr:shoist in   subs/shoist.F:L1
 @def Subr:shopol in   subs/shopol.F:L3
 @dcl Type:s_spec in Subroutine:shopol  subs/shopol.F:L17
@@ -1623,14 +1539,10 @@
 @def Subr:pvang1 in   subs/shoshl.F:L441
 @def Subr:pvang2 in   subs/shoshl.F:L489
 @def Subr:psho1 in   subs/shoshl.F:L604
-@def Subr:shostr in   subs/shostr.F:L1
 @def Subr:siteid in   subs/siteid.F:L1
 @def Subr:nsitsh in   subs/siteid.F:L118
-@def Subr:skhso in   subs/skhso.F:L1
 @def Subr:slinz in   subs/slinz.F:L1
 @def Subr:slist in   subs/slist.F:L1
-@def Subr:soldhj in   subs/soldhj.F:L1
-@def Subr:solgsg in   subs/solgsg.F:L1
 @def Subr:soprm in   subs/soprm.F:L1
 @def Subr:sp2cls_notused in   subs/sp2cls.F:L1
 @dcl Type:s_ri in Subroutine:sp2cls_notused  subs/sp2cls.F:L31
@@ -1729,7 +1641,6 @@
 @def Subr:spgprd in   subs/spcgrp.F:L257
 @def Subr:spgcop in   subs/spcgrp.F:L279
 @def Subr:gpfndx in   subs/spcgrp.F:L289
-@def Subr:spinav in   subs/spinav.F:L1
 @def Subr:splcls in   subs/splcls.F:L1
 @def Subr:splwts in   subs/splwts.F:L1
 @def Subr:sstrxq in   subs/sstrxq.F:L4
@@ -1742,15 +1653,8 @@
 @def Subr:getde in   subs/stoner.F:L95
 @def Subr:intnb in   subs/stoner.F:L169
 @def Subr:getkin in   subs/stoner.F:L184
-@def Subr:strck in   subs/strck.F:L1
 @def Func:strdif in   subs/strdif.F:L1
 @def Func:dcmp in   subs/strdif.F:L180
-@def Func:streqv in   subs/streqv.F:L1
-@def Subr:strg in   subs/strg.F:L1
-@def Subr:strg1c in   subs/strg1c.F:L1
-@def Subr:strgck in   subs/strgck.F:L1
-@def Subr:strrs in   subs/strrs.F:L1
-@def Subr:strscr in   subs/strscr.F:L1
 @def Subr:packs in   subs/struc_strn.F:L1
 @def Subr:upacks in   subs/struc_strn.F:L29
 @def Subr:strx00 in   subs/strx00.F:L1
@@ -1826,7 +1730,6 @@
 @def Subr:pvsub1 in Module:m_susite_func  subs/susite.F:L541
 @def Subr:pvsub2 in Module:m_susite_func  subs/susite.F:L557
 @dcl Type:s_site in Module:m_susite_func@Subroutine:pvsub2  subs/susite.F:L589
-@def Subr:swapdv in   subs/swapdv.F:L1
 @def Func:newsigmasw in   subs/switch.F:L11
 @def Func:pmtsig in   subs/switch.F:L19
 @def Func:debugmode in   subs/switch.F:L26
@@ -1852,11 +1755,9 @@
 @def Subr:pxsmr1 in   subs/symq.F:L165
 @def Subr:pysmr1 in   subs/symq.F:L192
 @def Subr:symstr in   subs/symstr.F:L1
-@def Subr:symtab in   subs/symtab.F:L1
 @def Subr:symtbl in   subs/symtbl.F:L1
 @def Subr:istbpm in   subs/symtbl.F:L84
 @def Subr:tailsm in   subs/tailsm.F:L1
-@def Subr:tbaddh in   subs/tbaddh.F:L1
 @def Subr:tetirr in   subs/tetirr.F:L1
 @def Subr:trs in   subs/trs.F:L1
 @def Subr:trsdot in   subs/trsdot.F:L1
@@ -1870,11 +1771,8 @@
 @def Subr:fctor1 in   subs/veecomp.F:L144
 @def Subr:tri_rule in   subs/veecomp.F:L158
 @def Subr:vldau in   subs/vldau.F:L1
-@def Subr:vmix in   subs/vmix.F:L1
-@def Subr:vmix2 in   subs/vmix2.F:L1
 @def Func:volsph in   subs/volsph.F:L1
 @def Subr:vsl in   subs/vsl.F:L1
-@def Subr:vtoq in   subs/vtoq.F:L1
 @def Subr:vxc0sp in   subs/vxc0sp.F:L1
 @def Subr:vxcgga in   subs/vxcgga.F:L1
 @def Subr:vxcgr2 in   subs/vxcgr2.F:L1
@@ -1889,8 +1787,7 @@
 @def Subr:xxxdif in   subs/xxxdif.F:L1
 @def Subr:ylmrtg in   subs/ylmrtg.F:L1
 @def Subr:yyhmul in   subs/yyhmul.F:L2
-@def Subr:xyhmul in   subs/yyhmul.F:L105
-@def Subr:zercmv in   subs/zercmv.F:L1
+@def Subr:xyhmul in   subs/yyhmul.F:L56
 @def Subr:zslabl in   subs/zslabl.F:L1
 @cal Subr:fmain in Program:main  lmv7.F:L17
 @use Modu:m_struc_def in Subroutine:fmain  lmv7.F:L40
@@ -3166,7 +3063,6 @@
 @cal Subr:madmat in Subroutine:aioxtn  subs/aioxtn.F:L768
 @cal Subr:madpot in Subroutine:aioxtn  subs/aioxtn.F:L771
 @use Modu:m_struc_def in Subroutine:aioxt1  subs/aioxtn.F:L791
-@cal Subr:bessl2 in Subroutine:alwats  subs/alwats.F:L50
 @cal Subr:shortn in Subroutine:angtab  subs/angtab.F:L90
 @cal Subr:shortn in Subroutine:angtab  subs/angtab.F:L116
 @cal Subr:poiss0 in Subroutine:asadc  subs/asadc.F:L102
@@ -3345,7 +3241,6 @@
 @cal Subr:yprm in Subroutine:blochi  subs/blochi.F:L237
 @cal Subr:slinz in Subroutine:bzints  subs/bzints.F:L72
 @cal Subr:fswgts in Subroutine:bzints  subs/bzints.F:L76
-@cal Subr:slinz in Subroutine:bzjnos  subs/bzjnos.F:L118
 @cal Subr:bzmsh0 in Subroutine:bzmesh  subs/bzmesh.F:L146
 @cal Subr:grpop in Subroutine:bzmesh  subs/bzmesh.F:L207
 @cal Subr:asymop in Subroutine:bzmesh  subs/bzmesh.F:L275
@@ -3409,39 +3304,6 @@
 @cal Subr:rotycs in Subroutine:chkdmu  subs/chkdmu.F:L278
 @cal Subr:praldm in Subroutine:chkdmu  subs/chkdmu.F:L279
 @cal Subr:praldm in Subroutine:chkdmu  subs/chkdmu.F:L281
-@use Modu:m_struc_def in Subroutine:chksg  subs/chksg.F:L9
-@cal Subr:sp2cls in Subroutine:chksg  subs/chksg.F:L137
-@cal Subr:sp2cls in Subroutine:chksg  subs/chksg.F:L138
-@cal Subr:sp2cls in Subroutine:chksg  subs/chksg.F:L139
-@cal Subr:sp2cls in Subroutine:chksg  subs/chksg.F:L140
-@cal Subr:sp2cls in Subroutine:chksg  subs/chksg.F:L141
-@cal Subr:sp2cls in Subroutine:chksg  subs/chksg.F:L142
-@cal Subr:acoord in Subroutine:chksg  subs/chksg.F:L268
-@cal Subr:strgck in Subroutine:chksg  subs/chksg.F:L274
-@cal Subr:ropyln in Subroutine:chksg  subs/chksg.F:L360
-@cal Subr:acoord in Subroutine:chksg  subs/chksg.F:L369
-@cal Subr:strgck in Subroutine:chksg  subs/chksg.F:L376
-@cal Subr:strg1c in Subroutine:chksg  subs/chksg.F:L397
-@cal Subr:prterr in Subroutine:chksg  subs/chksg.F:L428
-@cal Subr:prterr in Subroutine:chksg  subs/chksg.F:L432
-@cal Subr:acoord in Subroutine:chksg  subs/chksg.F:L475
-@cal Subr:strgck in Subroutine:chksg  subs/chksg.F:L482
-@use Modu:m_struc_def in Subroutine:chkstr  subs/chkstr.F:L8
-@cal Subr:sp2cls in Subroutine:chkstr  subs/chkstr.F:L162
-@cal Subr:sp2cls in Subroutine:chkstr  subs/chkstr.F:L163
-@cal Subr:makalp in Subroutine:chkstr  subs/chkstr.F:L165
-@cal Subr:hanb2s in Subroutine:chkstr  subs/chkstr.F:L178
-@cal Subr:hanb2s in Subroutine:chkstr  subs/chkstr.F:L182
-@cal Subr:mkrtab in Subroutine:chkstr  subs/chkstr.F:L240
-@cal Subr:strck in Subroutine:chkstr  subs/chkstr.F:L303
-@cal Subr:ropyln in Subroutine:chkstr  subs/chkstr.F:L399
-@cal Subr:strck in Subroutine:chkstr  subs/chkstr.F:L411
-@cal Subr:strck in Subroutine:chkstr  subs/chkstr.F:L437
-@cal Subr:strck in Subroutine:chkstr  subs/chkstr.F:L444
-@cal Subr:besslr in Subroutine:chkstr  subs/chkstr.F:L463
-@cal Subr:prterr in Subroutine:chkstr  subs/chkstr.F:L485
-@cal Subr:prterr in Subroutine:chkstr  subs/chkstr.F:L489
-@cal Subr:strck in Subroutine:chkstr  subs/chkstr.F:L547
 @cal Subr:ffnam in Subroutine:clist  subs/clist.F:L90
 @use Modu:m_struc_def in Subroutine:clsset  subs/clsset.F:L5
 @cal Subr:shorps in Subroutine:clsset  subs/clsset.F:L94
@@ -3654,8 +3516,6 @@
 @cal Subr:fixpos in Subroutine:gensym  subs/gensym.F:L206
 @cal Subr:iomomq in Function:getef  subs/getef.F:L41
 @cal Subr:iomomq in Function:getef  subs/getef.F:L43
-@use Modu:m_struc_def in Subroutine:getidu  subs/getidu.F:L6
-@cal Subr:i8icopy in Subroutine:getidu  subs/getidu.F:L42
 @cal Subr:gtpcor in Subroutine:getq  subs/getq.F:L41
 @cal Subr:getqvc in Subroutine:getq  subs/getq.F:L43
 @cal Subr:config in Subroutine:getqvc  subs/getq.F:L86
@@ -3674,13 +3534,6 @@
 @cal Subr:radgkl in Subroutine:ghdiml  subs/ghdiml.F:L170
 @cal Subr:hansrz in Subroutine:ghdiml  subs/ghdiml.F:L195
 @cal Subr:radgkl in Subroutine:ghdiml  subs/ghdiml.F:L198
-@cal Subr:sylm in Subroutine:ghiml  subs/ghiml.F:L85
-@cal Subr:hansmz in Subroutine:ghiml  subs/ghiml.F:L119
-@cal Subr:radgkl in Subroutine:ghiml  subs/ghiml.F:L122
-@cal Subr:hansmz in Subroutine:ghiml  subs/ghiml.F:L141
-@cal Subr:radgkl in Subroutine:ghiml  subs/ghiml.F:L143
-@cal Subr:ropyln in Subroutine:gklml  subs/gklml.F:L40
-@cal Subr:radgkl in Subroutine:gklml  subs/gklml.F:L42
 @cal Subr:sgroup in Subroutine:groupg  subs/groupg.F:L49
 @cal Subr:sgroup in Subroutine:groupg  subs/groupg.F:L61
 @cal Subr:sgroup in Subroutine:groupg  subs/groupg.F:L84
@@ -3712,12 +3565,8 @@
 @cal Subr:ggiml in Subroutine:gxpml  subs/gxpml.F:L74
 @use Modu:m_hamindex in Subroutine:hamfb3k  subs/hamfb3.F:L5
 @cal Subr:rotsig in Subroutine:hamfb3k  subs/hamfb3.F:L57
-@cal Subr:invalp in Subroutine:hanb2s  subs/hanb2s.F:L71
-@cal Subr:invalp in Subroutine:hanb2s  subs/hanb2s.F:L152
 @cal Subr:hansr in Subroutine:hansmd  subs/hansmd.F:L62
 @cal Subr:bessl in Subroutine:hansmr  subs/hansmr.F:L42
-@cal Subr:besslr in Subroutine:hansmz  subs/hansmz.F:L168
-@cal Subr:besslr in Subroutine:hansmz  subs/hansmz.F:L186
 @cal Subr:hanr in Subroutine:hansr  subs/hansr.F:L63
 @cal Subr:hansr1 in Subroutine:hansr  subs/hansr.F:L173
 @cal Subr:hansr2 in Subroutine:hansr  subs/hansr.F:L176
@@ -3738,12 +3587,7 @@
 @cal Subr:besslr in Subroutine:hansrz  subs/hansrz.F:L224
 @cal Subr:hanr in Subroutine:hansrz  subs/hansrz.F:L239
 @cal Subr:besslr in Subroutine:hansrz  subs/hansrz.F:L247
-@cal Subr:ropyln in Subroutine:hansz  subs/hansz.F:L50
-@cal Subr:hansrz in Subroutine:hansz  subs/hansz.F:L62
 @cal Subr:hansrz in Subroutine:hanszd  subs/hanszd.F:L73
-@use Modu:m_struc_def in Subroutine:hcr2a  subs/hcr2a.F:L5
-@cal Subr:bessl2 in Subroutine:hcr2a  subs/hcr2a.F:L67
-@cal Subr:bessl2 in Subroutine:hcr2a  subs/hcr2a.F:L86
 @cal Subr:ghdiml in Subroutine:hdxpml  subs/hdxpml.F:L102
 @cal Subr:pairs in Subroutine:hft2rs  subs/hft2rs.F:L191
 @cal Subr:hft2r1 in Subroutine:hft2rs  subs/hft2rs.F:L201
@@ -3755,8 +3599,6 @@
 @cal Subr:gvlist in Subroutine:hft2r1  subs/hft2rs.F:L409
 @cal Subr:hft2r2 in Subroutine:hft2r1  subs/hft2rs.F:L415
 @cal Subr:hft2r2 in Subroutine:hft2r1  subs/hft2rs.F:L419
-@cal Subr:makdsd in Subroutine:hmlt2c  subs/hmlt2c.F:L31
-@cal Subr:makdsd in Subroutine:hmlt2c  subs/hmlt2c.F:L33
 @cal Subr:makdsd in Subroutine:hmltns  subs/hmltns.F:L84
 @cal Subr:makdsd in Subroutine:hmltns  subs/hmltns.F:L102
 @cal Subr:makdsd in Subroutine:hmltns  subs/hmltns.F:L106
@@ -3764,8 +3606,6 @@
 @cal Subr:yyhmul in Subroutine:hmltns  subs/hmltns.F:L147
 @cal Subr:fint in Subroutine:hnsmft  subs/hnsmft.F:L72
 @cal Subr:sint in Subroutine:hnsmft  subs/hnsmft.F:L76
-@cal Subr:ropyln in Subroutine:hsmml  subs/hsmml.F:L48
-@cal Subr:hansmd in Subroutine:hsmml  subs/hsmml.F:L51
 @cal Subr:shortn in Subroutine:hsmq  subs/hsmq.F:L77
 @cal Subr:ropyln in Subroutine:hsmq  subs/hsmq.F:L123
 @cal Subr:pvhsmq in Subroutine:hsmq  subs/hsmq.F:L132
@@ -3778,7 +3618,6 @@
 @cal Subr:ropyln in Subroutine:hsmqe0  subs/hsmq.F:L445
 @cal Subr:hansr5 in Subroutine:hsmqe0  subs/hsmq.F:L479
 @cal Subr:hansr5 in Subroutine:hsmqe0  subs/hsmq.F:L490
-@cal Subr:ghiml in Subroutine:hxpml  subs/hxpml.F:L84
 @cal Subr:yyhmul in Subroutine:i3cntr  subs/i3cntr.F:L56
 @cal Subr:yprm in Subroutine:i3cntr  subs/i3cntr.F:L57
 @cal Subr:iblch1 in Subroutine:ibloch  subs/ibloch.F:L201
@@ -3802,7 +3641,6 @@
 @cal Subr:spackv_array_copy_r8_r8 in Subroutine:ioposs  subs/iopos.F:L214
 @cal Subr:iopos in Subroutine:ioposs  subs/iopos.F:L218
 @cal Subr:spackv_array_copy_r8_r8 in Subroutine:ioposs  subs/iopos.F:L223
-@use Modu:m_struc_def in Subroutine:ioqpp  subs/ioqpp.F:L6
 @use Modu:m_struc_def in Subroutine:iorbtm  subs/iorbtm.F:L5
 @cal Subr:spacks_copy in Subroutine:iorbtm  subs/iorbtm.F:L49
 @use Modu:m_struc_def in Function:iors  subs/iors.F:L12
@@ -3866,9 +3704,6 @@
 @cal Subr:vldau in Subroutine:ldau  subs/ldau.F:L89
 @cal Subr:vldau in Subroutine:ldau  subs/ldau.F:L90
 @cal Subr:vldau in Subroutine:ldau  subs/ldau.F:L103
-@cal Subr:latlim in Subroutine:lgen  subs/lgen.F:L24
-@cal Subr:bsortl in Subroutine:lgen  subs/lgen.F:L64
-@cal Subr:bessl in Subroutine:lscoul  subs/lscoul.F:L56
 @cal Subr:find_region in Module:m_gtv@Subroutine:getinput_entrance  subs/m_gtv.F:L830
 @cal Subr:find_region in Module:m_gtv@Subroutine:getinput_entrance  subs/m_gtv.F:L833
 @cal Subr:find_region in Module:m_gtv@Subroutine:getinput_entrance  subs/m_gtv.F:L837
@@ -5661,14 +5496,10 @@
 @cal Subr:struc_eval_io_r8_realbody in Module:m_struc_func@Subroutine:struc_eval_io_r8v  subs/m_struc_func.F:L193
 @cal Subr:struc_eval_io_i8_realbody in Module:m_struc_func@Subroutine:struc_eval_io_i8  subs/m_struc_func.F:L202
 @cal Subr:struc_eval_io_i8_realbody in Module:m_struc_func@Subroutine:struc_eval_io_i8v  subs/m_struc_func.F:L211
-@use Modu:m_struc_def in Subroutine:maadot  subs/maadot.F:L5
 @cal Subr:shortn in Subroutine:madmat  subs/madmat.F:L33
 @cal Subr:strx00 in Subroutine:madmat  subs/madmat.F:L34
-@cal Subr:radkj in Subroutine:makalp  subs/makalp.F:L74
 @cal Subr:shffle in Subroutine:makbet  subs/makbet.F:L23
 @cal Subr:shffle in Subroutine:makbet  subs/makbet.F:L25
-@cal Subr:delstp in Subroutine:makbzm  subs/makbzm.F:L62
-@cal Subr:delstp in Subroutine:makbzm  subs/makbzm.F:L65
 @cal Subr:bessl2 in Subroutine:makdla  subs/makdla.F:L33
 @cal Subr:bessl2 in Subroutine:makdla  subs/makdla.F:L46
 @cal Subr:delstp in Subroutine:makdos  subs/makdos.F:L35
@@ -5684,7 +5515,6 @@
 @cal Subr:delstp in Subroutine:maknos  subs/maknos.F:L67
 @cal Subr:bessl2 in Subroutine:makptf  subs/makptf.F:L40
 @cal Subr:bessl2 in Subroutine:makptf  subs/makptf.F:L48
-@cal Subr:makdsd in Subroutine:makrcz  subs/makrcz.F:L48
 @cal Subr:defwsr in Subroutine:makrm0  subs/makrm0.F:L149
 @cal Subr:defpq in Subroutine:makrm0  subs/makrm0.F:L157
 @cal Subr:freats in Subroutine:makrm0  subs/makrm0.F:L161
@@ -5728,10 +5558,6 @@
 @cal Subr:mcasme in Subroutine:mcasho  subs/mcasim.F:L637
 @use Modu:m_struc_def in Subroutine:mchan  subs/mchan.F:L7
 @cal Subr:spacks_copy in Subroutine:mchan  subs/mchan.F:L60
-@cal Subr:awrit6 in Subroutine:mdout  subs/mdout.F:L57
-@cal Subr:delstp in Subroutine:mkjdos  subs/mkjdos.F:L67
-@cal Subr:delstp in Subroutine:mkjdos  subs/mkjdos.F:L80
-@cal Subr:delstp in Subroutine:mkjdos  subs/mkjdos.F:L115
 @cal Subr:cpplat in Subroutine:mkplat  subs/mkplat.F:L48
 @cal Subr:bravsy in Subroutine:mkplat  subs/mkplat.F:L51
 @cal Subr:cvplat in Subroutine:mkplat  subs/mkplat.F:L54
@@ -5789,7 +5615,6 @@
 @cal Subr:clabel in Subroutine:pvsym2  subs/mksym.F:L490
 @cal Subr:spacks_copy in Subroutine:pvsym2  subs/mksym.F:L502
 @cal Subr:besslr in Subroutine:mktra2  subs/mktra2.F:L164
-@cal Subr:bessl2 in Subroutine:mktral  subs/mktral.F:L99
 @use Modu:m_struc_def in Subroutine:mmag  subs/mmag.F:L8
 @cal Subr:spackv_array_copy_r8_r8 in Subroutine:mmag  subs/mmag.F:L79
 @cal Subr:pairs in Subroutine:mmag  subs/mmag.F:L99
@@ -5861,8 +5686,6 @@
 @cal Subr:fovlp in Function:ovcall  subs/ovmin.F:L255
 @cal Subr:fovlp in Function:ovcall  subs/ovmin.F:L262
 @cal Subr:fovlp in Function:ovcall  subs/ovmin.F:L267
-@cal Subr:orbl in Subroutine:pa2plm  subs/pa2plm.F:L48
-@cal Subr:orbl in Subroutine:pa2plm  subs/pa2plm.F:L59
 @cal Subr:shortn3_initialize in Subroutine:gennlat  subs/pairc.F:L28
 @cal Subr:shortn3 in Subroutine:gennlat  subs/pairc.F:L60
 @cal Subr:getgv2 in Subroutine:pairtakao  subs/pairc.F:L134
@@ -5970,7 +5793,6 @@
 @cal Subr:parsop in Subroutine:psymop  subs/psymop.F:L41
 @cal Subr:grpprd in Subroutine:psymop  subs/psymop.F:L42
 @cal Subr:grpop in Subroutine:psymop  subs/psymop.F:L64
-@cal Subr:sp2cls in Subroutine:pvpqm1  subs/pvpqm1.F:L94
 @use Modu:m_struc_def in Subroutine:pvsms2  subs/pvsms2.F:L6
 @cal Subr:ylmrtg in Subroutine:pvsms2  subs/pvsms2.F:L63
 @cal Subr:spacks_copy in Subroutine:pvsms2  subs/pvsms2.F:L79
@@ -5978,8 +5800,6 @@
 @cal Subr:pvsms3 in Subroutine:pvsms2  subs/pvsms2.F:L94
 @cal Subr:rdist in Subroutine:rdistn  subs/qdist.F:L35
 @cal Subr:qdist in Subroutine:qdistn  subs/qdist.F:L43
-@cal Subr:besslr in Subroutine:radkj  subs/radkj.F:L35
-@cal Subr:besslr in Subroutine:radkj  subs/radkj.F:L52
 @cal Subr:radmsh in Subroutine:radext  subs/radmsh.F:L149
 @cal Subr:radwgt in Subroutine:radext  subs/radmsh.F:L150
 @use Modu:m_rdctrl in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L22
@@ -6052,11 +5872,6 @@
 @cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2148
 @cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2150
 @cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2152
-@use Modu:m_rdctrlchk in Subroutine:rdctrlchk  subs/rdctrlchk.F:L138
-@use Modu:m_gtv in Subroutine:rdctrlchk  subs/rdctrlchk.F:L139
-@cal Subr:gtv_setst in Subroutine:rdctrlchk  subs/rdctrlchk.F:L192
-@cal Subr:gtv_setrcd in Subroutine:rdctrlchk  subs/rdctrlchk.F:L193
-@cal Subr:readctrl67 in Subroutine:rdctrlchk  subs/rdctrlchk.F:L237
 @cal Subr:product2 in Subroutine:rdeq  subs/rdeq.F:L456
 @cal Subr:product2 in Subroutine:rdeq  subs/rdeq.F:L498
 @cal Subr:product2 in Subroutine:rdeq  subs/rdeq.F:L628
@@ -6241,13 +6056,6 @@
 @cal Subr:orbl in Subroutine:rothph  subs/rothrm.F:L177
 @cal Subr:orbl in Subroutine:rothph  subs/rothrm.F:L179
 @cal Subr:orbl in Subroutine:rothph  subs/rothrm.F:L186
-@cal Subr:vtoq in Subroutine:rotmad  subs/rotmad.F:L61
-@cal Subr:ylmrtg in Subroutine:rotwf  subs/rotwf.F:L94
-@cal Subr:ylmrtg in Subroutine:rotwf  subs/rotwf.F:L96
-@cal Subr:s2sph in Subroutine:rotwf  subs/rotwf.F:L97
-@cal Subr:prothl in Subroutine:rotwf  subs/rotwf.F:L101
-@cal Subr:ylmrtg in Subroutine:rotwf  subs/rotwf.F:L120
-@cal Subr:prothl in Subroutine:rotwf  subs/rotwf.F:L182
 @cal Subr:prodx2d in Subroutine:interparam  subs/rotwv.F:L31
 @cal Subr:prodx2d in Subroutine:interparam  subs/rotwv.F:L36
 @cal Subr:prodx2d in Subroutine:interparam  subs/rotwv.F:L40
@@ -6281,10 +6089,6 @@
 @cal Subr:pvsal0 in Subroutine:salph1  subs/salph1.F:L124
 @cal Subr:pvsal1 in Subroutine:salph1  subs/salph1.F:L220
 @cal Subr:pvsal1 in Subroutine:salph1  subs/salph1.F:L279
-@cal Subr:maks0 in Subroutine:salph2  subs/salph2.F:L122
-@cal Subr:maks0 in Subroutine:salph2  subs/salph2.F:L125
-@cal Subr:decmp2 in Subroutine:salph2  subs/salph2.F:L134
-@cal Subr:dsolv2 in Subroutine:salph2  subs/salph2.F:L145
 @cal Subr:gh1c in Subroutine:salphg  subs/salphg.F:L207
 @use Modu:m_struc_def in Subroutine:sblham  subs/sblham.F:L7
 @cal Subr:oraddp in Subroutine:sblham  subs/sblham.F:L115
@@ -6429,7 +6233,6 @@
 @cal Subr:xxxse in Subroutine:shear  subs/shear.F:L55
 @cal Subr:xxxadd in Subroutine:shear  subs/shear.F:L59
 @cal Subr:xxxadd in Subroutine:shear  subs/shear.F:L63
-@cal Subr:enutod in Subroutine:shftpq  subs/shftpq.F:L73
 @use Modu:m_struc_def in Subroutine:shopol  subs/shopol.F:L5
 @cal Subr:ellipsoidxmax in Subroutine:shortn3  subs/shorbz.F:L72
 @cal Subr:prmx in Subroutine:fmain  subs/shorps.F:L186
@@ -6458,11 +6261,6 @@
 @cal Subr:dlmn in Subroutine:pvang2  subs/shoshl.F:L552
 @cal Subr:shorbz in Subroutine:psho1  subs/shoshl.F:L727
 @cal Subr:shorbz in Subroutine:psho1  subs/shoshl.F:L746
-@cal Subr:sylm in Subroutine:soldhj  subs/soldhj.F:L29
-@cal Subr:besslr in Subroutine:soldhj  subs/soldhj.F:L30
-@cal Subr:sylm in Subroutine:solgsg  subs/solgsg.F:L49
-@cal Subr:radgkl in Subroutine:solgsg  subs/solgsg.F:L80
-@cal Subr:scglp1 in Subroutine:solgsg  subs/solgsg.F:L95
 @use Modu:m_struc_def in Subroutine:sp2cls_notused  subs/sp2cls.F:L16
 @use Modu:m_struc_func in Subroutine:sp2cls_notused  subs/sp2cls.F:L17
 @cal Subr:struc_eval_io_r8_realbody in Module:m_struc_func_sp2cls@Subroutine:struc_eval_io_r8  subs/sp2cls.F:L240
@@ -7084,35 +6882,6 @@
 @cal Subr:zprm in Subroutine:sstrq1  subs/sstrxq.F:L259
 @cal Subr:getde in Subroutine:stoner  subs/stoner.F:L53
 @cal Subr:intnb in Subroutine:stoner  subs/stoner.F:L63
-@cal Subr:soldhj in Subroutine:strck  subs/strck.F:L109
-@cal Subr:soldhj in Subroutine:strck  subs/strck.F:L162
-@cal Subr:salphg in Subroutine:strg  subs/strg.F:L111
-@cal Subr:addtog in Subroutine:strg  subs/strg.F:L115
-@cal Subr:acoord in Subroutine:strg1c  subs/strg1c.F:L118
-@cal Subr:gh1c in Subroutine:strg1c  subs/strg1c.F:L152
-@cal Subr:acoord in Subroutine:strgck  subs/strgck.F:L114
-@cal Subr:solgsg in Subroutine:strgck  subs/strgck.F:L147
-@cal Subr:sylm in Subroutine:strgck  subs/strgck.F:L157
-@cal Subr:hanszd in Subroutine:strgck  subs/strgck.F:L168
-@cal Subr:mkalpv in Subroutine:strrs  subs/strrs.F:L250
-@cal Subr:mkalpv in Subroutine:strrs  subs/strrs.F:L252
-@cal Subr:alwats in Subroutine:strrs  subs/strrs.F:L254
-@cal Subr:mkalpv in Subroutine:strrs  subs/strrs.F:L257
-@cal Subr:salph1 in Subroutine:strrs  subs/strrs.F:L265
-@cal Subr:salph2 in Subroutine:strrs  subs/strrs.F:L276
-@cal Subr:addtos in Subroutine:strrs  subs/strrs.F:L285
-@cal Subr:addtos in Subroutine:strrs  subs/strrs.F:L288
-@cal Subr:symstr in Subroutine:strrs  subs/strrs.F:L315
-@cal Subr:symstr in Subroutine:strrs  subs/strrs.F:L319
-@cal Subr:mkalpv in Subroutine:strscr  subs/strscr.F:L229
-@cal Subr:mkalpv in Subroutine:strscr  subs/strscr.F:L231
-@cal Subr:alwats in Subroutine:strscr  subs/strscr.F:L233
-@cal Subr:salph1 in Subroutine:strscr  subs/strscr.F:L242
-@cal Subr:scalsr in Subroutine:strscr  subs/strscr.F:L247
-@cal Subr:addtos in Subroutine:strscr  subs/strscr.F:L254
-@cal Subr:addtos in Subroutine:strscr  subs/strscr.F:L258
-@cal Subr:symstr in Subroutine:strscr  subs/strscr.F:L282
-@cal Subr:symstr in Subroutine:strscr  subs/strscr.F:L283
 @use Modu:m_sstrnsname in Subroutine:packs  subs/struc_strn.F:L6
 @cal Subr:initialize in Subroutine:packs  subs/struc_strn.F:L10
 @use Modu:m_sstrnsname in Subroutine:upacks  subs/struc_strn.F:L34
@@ -7274,7 +7043,6 @@
 @cal Subr:symprj in Subroutine:symqmp  subs/symq.F:L143
 @cal Subr:pxsmr1 in Subroutine:symqmp  subs/symq.F:L148
 @cal Subr:pysmr1 in Subroutine:symqmp  subs/symq.F:L155
-@cal Subr:grpfnd in Subroutine:symtab  subs/symtab.F:L31
 @cal Subr:grpfnd in Subroutine:symtbl  subs/symtbl.F:L45
 @cal Subr:hansr in Subroutine:tailsm  subs/tailsm.F:L63
 @cal Subr:hansmr in Subroutine:tailsm  subs/tailsm.F:L83
@@ -7316,9 +7084,6 @@
 @cal Subr:fctor1 in Subroutine:t3j_all  subs/veecomp.F:L129
 @cal Subr:veecomp in Subroutine:vldau  subs/vldau.F:L82
 @cal Subr:vecpkl in Subroutine:vsl  subs/vsl.F:L100
-@cal Subr:getq in Subroutine:vtoq  subs/vtoq.F:L59
-@cal Subr:madpot in Subroutine:vtoq  subs/vtoq.F:L63
-@cal Subr:getq in Subroutine:vtoq  subs/vtoq.F:L143
 @cal Subr:evxcp in Subroutine:vxc0sp  subs/vxc0sp.F:L77
 @cal Subr:evxcv in Subroutine:vxc0sp  subs/vxc0sp.F:L87
 @cal Subr:evxcv in Subroutine:vxc0sp  subs/vxc0sp.F:L92
@@ -7341,7 +7106,7 @@
 @cal Subr:latlim in Subroutine:xlgen  subs/xlgen.F:L47
 @cal Subr:ropyln in Subroutine:ylmrtg  subs/ylmrtg.F:L64
 @cal Subr:ropyln in Subroutine:ylmrtg  subs/ylmrtg.F:L105
-@cal Subr:xyhmul in Subroutine:yyhmul  subs/yyhmul.F:L90
+@cal Subr:xyhmul in Subroutine:yyhmul  subs/yyhmul.F:L44
 @cal Func:ll in Subroutine:augmat  fp/augmat.F:L342
 @cal Func:iomoms in Subroutine:bndfp  fp/bndfp.F:L988
 @cal Func:getef in Subroutine:bndfp  fp/bndfp.F:L997
@@ -7519,7 +7284,6 @@
 @cal Func:ll in Subroutine:vxcnsp  fp/vxcnsp.F:L81
 @cal Func:ll in Subroutine:vxcns5  fp/vxcnsp.F:L607
 @cal Func:ll in Subroutine:vxcns5  fp/vxcnsp.F:L612
-@cal Func:drr2 in Subroutine:acoord  subs/acoord.F:L44
 @cal Func:latvec in Subroutine:addbas  subs/addbas.F:L54
 @cal Func:latvec in Subroutine:addbas  subs/addbas.F:L94
 @cal Func:iclbsj in Subroutine:aiocls  subs/aiocls.F:L172
@@ -7604,21 +7368,6 @@
 @cal Func:efrng2 in Subroutine:bzwts  subs/bzwts.F:L111
 @cal Func:efrng2 in Subroutine:bzwts  subs/bzwts.F:L116
 @cal Func:iget in Subroutine:ebcpl  subs/bzwts.F:L448
-@cal Func:ll in Subroutine:cb2sph  subs/cb2sph.F:L51
-@cal Func:ll in Subroutine:cb2sph  subs/cb2sph.F:L72
-@cal Func:ll in Subroutine:cb2sph  subs/cb2sph.F:L73
-@cal Func:iosg1 in Subroutine:chksg  subs/chksg.F:L150
-@cal Func:iosg in Subroutine:chksg  subs/chksg.F:L156
-@cal Func:ll in Subroutine:chksg  subs/chksg.F:L253
-@cal Func:ll in Subroutine:chksg  subs/chksg.F:L330
-@cal Func:ll in Subroutine:chksg  subs/chksg.F:L465
-@cal Func:iostr1 in Subroutine:chkstr  subs/chkstr.F:L123
-@cal Func:iostr in Subroutine:chkstr  subs/chkstr.F:L149
-@cal Func:ll in Subroutine:chkstr  subs/chkstr.F:L282
-@cal Func:ll in Subroutine:chkstr  subs/chkstr.F:L359
-@cal Func:ll in Subroutine:chkstr  subs/chkstr.F:L369
-@cal Func:ll in Subroutine:chkstr  subs/chkstr.F:L470
-@cal Func:ll in Subroutine:chkstr  subs/chkstr.F:L532
 @cal Func:latvec in Function:cmplat  subs/cmplat.F:L109
 @cal Func:mxxyz in Subroutine:contet  subs/contet.F:L78
 @cal Func:iomoms in Subroutine:dosspl  subs/dosspl.F:L40
@@ -7647,10 +7396,6 @@
 @cal Func:ll in Subroutine:ghdiml  subs/ghdiml.F:L109
 @cal Func:ll in Subroutine:ghdiml  subs/ghdiml.F:L110
 @cal Func:ll in Subroutine:ghdiml  subs/ghdiml.F:L222
-@cal Func:ll in Subroutine:ghiml  subs/ghiml.F:L76
-@cal Func:ll in Subroutine:ghiml  subs/ghiml.F:L77
-@cal Func:ll in Subroutine:ghiml  subs/ghiml.F:L167
-@cal Func:ll in Subroutine:gklml  subs/gklml.F:L39
 @cal Func:latvec in Subroutine:grpfnd  subs/grpfnd.F:L43
 @cal Func:grpeql in Subroutine:grpgen  subs/grpgen.F:L33
 @cal Func:grpeql in Subroutine:grpgen  subs/grpgen.F:L36
@@ -7661,18 +7406,11 @@
 @cal Func:ll in Subroutine:gxpml  subs/gxpml.F:L61
 @cal Func:roth in Subroutine:hamfb3  subs/hamfb3.F:L215
 @cal Func:roth in Subroutine:hamfb3  subs/hamfb3.F:L226
-@cal Func:ll in Subroutine:hblstr  subs/hblstr.F:L14
-@cal Func:ll in Subroutine:hblstr  subs/hblstr.F:L23
-@cal Func:ll in Subroutine:hblstr  subs/hblstr.F:L25
-@cal Func:ll in Subroutine:hblstr  subs/hblstr.F:L33
 @cal Func:ll in Subroutine:hdxpml  subs/hdxpml.F:L83
 @cal Func:ll in Subroutine:hdxpml  subs/hdxpml.F:L89
 @cal Func:ll in Subroutine:hdxpml  subs/hdxpml.F:L136
 @cal Func:ll in Subroutine:hstrux  subs/hstrux.F:L38
 @cal Func:ll in Subroutine:hstrud  subs/hstrux.F:L119
-@cal Func:ll in Subroutine:hxpml  subs/hxpml.F:L65
-@cal Func:ll in Subroutine:hxpml  subs/hxpml.F:L71
-@cal Func:ll in Subroutine:hxpml  subs/hxpml.F:L109
 @cal Func:ll in Subroutine:wrirsh  subs/invbl.F:L150
 @cal Func:ll in Subroutine:wrirsh  subs/invbl.F:L151
 @cal Func:ll in Subroutine:wrirsh  subs/invbl.F:L152
@@ -7701,8 +7439,6 @@
 @cal Func:iostr1 in Function:iostr  subs/iostr.F:L137
 @cal Func:iostr2 in Function:iostr  subs/iostr.F:L207
 @cal Func:iostr4 in Function:iostr  subs/iostr.F:L227
-@cal Func:ll in Subroutine:lscoul  subs/lscoul.F:L43
-@cal Func:ll in Subroutine:lscoul  subs/lscoul.F:L68
 @cal Func:debugmode in Module:m_hamindex@Function:getikt  subs/m_hamindex.F:L15
 @cal Func:debugmode in Module:m_hamindex@Function:getikt  subs/m_hamindex.F:L17
 @cal Func:tksw in Module:m_rdctrl@Subroutine:readctrl  subs/m_rdctrl.F:L356
@@ -8126,12 +7862,10 @@
 @cal Func:aiopot in Subroutine:mkppar  subs/mkppar.F:L34
 @cal Func:aiopar in Subroutine:mkppar  subs/mkppar.F:L45
 @cal Func:aiopar in Subroutine:mkppar  subs/mkppar.F:L60
-@cal Func:drr2 in Subroutine:mkrwat  subs/mkrwat.F:L46
 @cal Func:aginv in Subroutine:mksym  subs/mksym.F:L319
 @cal Func:iclbsj in Subroutine:pvsym2  subs/mksym.F:L488
 @cal Func:grpeql in Function:aginv  subs/mksym.F:L580
 @cal Func:iclbsj in Subroutine:mktra2  subs/mktra2.F:L343
-@cal Func:iclbsj in Subroutine:mktral  subs/mktral.F:L240
 @cal Func:fullmesh in Subroutine:mshsiz  subs/mshsiz.F:L91
 @cal Func:fullmesh in Subroutine:mshsiz  subs/mshsiz.F:L125
 @cal Func:fullmesh in Subroutine:mshsiz  subs/mshsiz.F:L138
@@ -8254,17 +7988,12 @@
 @cal Func:drr2 in Subroutine:xxsho  subs/shoshl.F:L225
 @cal Func:iclbsj in Subroutine:xxsho  subs/shoshl.F:L278
 @cal Func:avwsr in Subroutine:shoang  subs/shoshl.F:L403
-@cal Func:ll in Subroutine:shostr  subs/shostr.F:L150
-@cal Func:ll in Subroutine:shostr  subs/shostr.F:L154
-@cal Func:ll in Subroutine:solgsg  subs/solgsg.F:L85
 @cal Func:spgeql in Subroutine:sgroup  subs/spcgrp.F:L131
 @cal Func:spgeql in Subroutine:sgroup  subs/spcgrp.F:L144
 @cal Func:spgeql in Subroutine:sgroup  subs/spcgrp.F:L158
 @cal Func:spgeql in Subroutine:sgroup  subs/spcgrp.F:L179
 @cal Func:iclbsj in Subroutine:splcls  subs/splcls.F:L47
 @cal Func:iclbsj in Subroutine:splcls  subs/splcls.F:L106
-@cal Func:ll in Subroutine:strck  subs/strck.F:L101
-@cal Func:ll in Subroutine:strck  subs/strck.F:L159
 @cal Func:iostr1 in Function:strdif  subs/strdif.F:L45
 @cal Func:iostr1 in Function:strdif  subs/strdif.F:L53
 @cal Func:dcmp in Function:strdif  subs/strdif.F:L75
@@ -8272,11 +8001,6 @@
 @cal Func:iostr in Function:strdif  subs/strdif.F:L118
 @cal Func:dcmp in Function:strdif  subs/strdif.F:L141
 @cal Func:dcmp in Function:strdif  subs/strdif.F:L145
-@cal Func:ll in Subroutine:strg1c  subs/strg1c.F:L125
-@cal Func:ll in Subroutine:strg1c  subs/strg1c.F:L141
-@cal Func:ll in Subroutine:strgck  subs/strgck.F:L116
-@cal Func:ll in Subroutine:strgck  subs/strgck.F:L199
-@cal Func:streqv in Subroutine:strscr  subs/strscr.F:L201
 @cal Func:ll in Subroutine:strxq  subs/strxq.F:L64
 @cal Func:ll in Subroutine:strxq  subs/strxq.F:L100
 @cal Func:ll in Subroutine:strxq  subs/strxq.F:L102
@@ -8313,1053 +8037,4 @@
 @cal Func:ddet33 in Subroutine:symdmu  subs/symdmu.F:L83
 @cal Func:latvec in Subroutine:symlat  subs/symlat.F:L69
 @cal Func:ll in Subroutine:symprj  subs/symprj.F:L31
-@cal Func:iclbas in Subroutine:vtoq  subs/vtoq.F:L90
 @cal Func:ll in Subroutine:ylmrtg  subs/ylmrtg.F:L49
-['subs/hansr4.F']
-['subs/hansr5.F']
-['subs/suham.F']
-['subs/rotwv.F']
-['fp/gaugm.F']
-['subs/hansr.F']
-['subs/hansr.F']
-['subs/scg.F']
-['subs/setcg.F']
-['subs/mkplat.F']
-['subs/rseq.F']
-['subs/tailsm.F']
-['subs/gvlst2.F']
-['fp/vxcnsp.F']
-['subs/invbl.F']
-['subs/atomsr.F']
-['subs/clsset.F']
-['fp/vxcnsp.F']
-['subs/getq.F']
-['subs/iclbas.F']
-['subs/zslabl.F']
-['subs/rseq.F']
-['subs/atomsr.F']
-['fp/gvsym.F']
-['fp/suq0x.F']
-['subs/avwsr.F']
-['subs/qdist.F']
-['subs/norm2g.F']
-['subs/m_struc_def.F']
-['fp/lmfopb.F']
-['subs/salphg.F']
-['subs/orbl.F']
-['subs/pairc.F']
-['subs/hdxpml.F']
-['subs/pqmix.F']
-['subs/hansrz.F']
-['fp/hsmbl.F']
-['subs/rdsigm2.F']
-['subs/sclwsr.F']
-['subs/gvlst2.F']
-['subs/cshear.F']
-['subs/rgrme.F']
-['subs/bloch.F']
-['subs/aiomp.F']
-['subs/ovmin.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/symtbl.F']
-['subs/scalsr.F']
-['subs/rnatm.F']
-['subs/mpint.F']
-['subs/aioxtn.F']
-['subs/ropbes_alternative.F']
-['subs/oraddp.F']
-['subs/gtbvec.F']
-['fp/lmfopb.F']
-['fp/hhibl.F']
-['subs/addtog.F']
-['fp/gwcphi.F']
-['subs/relax.F']
-['subs/intnos.F']
-['subs/bzwts.F']
-['subs/gvlst2.F']
-['subs/aioxtn.F']
-['subs/m_rdctrlchk.F']
-['subs/trs.F']
-['fp/bndfp.F']
-['subs/ioorbp.F']
-['subs/spcgrp.F']
-['fp/bstrux.F']
-['subs/ropbes.old.F']
-['fp/rlocbl.F']
-['fp/rlocbl.F']
-['subs/suqlst.F']
-['subs/aioxtn.F']
-['subs/shear.F']
-['subs/savvxc.F']
-['subs/nghbor.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/suqlst.F']
-['fp/ftlxp.F']
-['subs/asamad.F']
-['subs/mkplat.F']
-['subs/suqlst.F']
-['subs/acoord.F']
-['fp/vxtrap.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['subs/makrm0.F']
-['subs/gvmtch.F']
-['fp/rhgcmp.F']
-['fp/rhgcmp.F']
-['fp/lmfp.F']
-['subs/hansmz.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F']
-['subs/rdsigm.F']
-['subs/findes.F']
-['subs/gvctof.F']
-['subs/asavqm.F']
-['subs/rdeq.F']
-['subs/cmplat.F']
-['subs/suham.F']
-['subs/atomsr.F']
-['subs/m_struc_def.F']
-['subs/nmham.F']
-['fp/hxpbl.F']
-['subs/mkcond.F']
-['subs/iostr.F']
-['fp/hsibl.F']
-['subs/bzwtsf.F']
-['subs/hnsmft.F']
-['subs/bzwtsf.F']
-['subs/shorbz.F']
-['subs/ropbes.F']
-['subs/roplat.F']
-['subs/pairc.F']
-['subs/mkplat.F']
-['subs/asadc.F']
-['subs/iclbas.F']
-['subs/easypbe.F']
-['subs/writebasis.F']
-['fp/sugw.F']
-['subs/m_struc_def.F']
-['subs/pairc.F']
-['subs/findes.F']
-['subs/hansr.F']
-['subs/m_gtv.F']
-['fp/rhgcmp.F']
-['subs/asars.F']
-['subs/aioxtn.F']
-['subs/addbas.F']
-['fp/prrhat.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['subs/struc_strn.F']
-['subs/solgsg.F']
-['subs/mcasim.F']
-['fp/mkekin.F']
-['subs/yyhmul.F']
-['fp/fpchk.F']
-['subs/defpq.F']
-['subs/ropbes.F', 'subs/ropbes.old.F', 'subs/ropbes_alternative.F']
-['subs/rlxstp.F']
-['subs/easypbe.F']
-['fp/hklos.F']
-['fp/symrho.F']
-['subs/ropbes.F']
-['fp/pwmat.F']
-['subs/prmx.F']
-['fp/ncutcorrect.F']
-['fp/mixrho.F']
-['subs/sp2cls.F']
-['fp/paug1.F']
-['subs/shorbz.F']
-['fp/ghibl.F']
-['fp/mshdot.F']
-['fp/flocbl.F']
-['fp/mixrho.F']
-['fp/splrho.F']
-['lmv7.F', 'lmfav7.F']
-['subs/bzmio.F']
-['fp/jxpos.F']
-['subs/prrmsh.F']
-['subs/rotspu.F']
-['subs/m_struc_def.F']
-['subs/ovlchk.F']
-['subs/atwf.F']
-['subs/shoist.F']
-['subs/spackv_array_copy.F']
-['subs/clabel.F']
-['subs/aiocls.F']
-['subs/dvdos.F']
-['subs/relax.F']
-['fp/paug1.F']
-['fp/paug1.F']
-['fp/paug1.F']
-['fp/paug1.F']
-['subs/ylmrtg.F']
-['subs/amagnc.F']
-['subs/switch.F']
-['subs/rothrm.F']
-['subs/rotwv.F']
-['fp/totfrc.F']
-['subs/nwit.F']
-['subs/switch.F']
-['fp/gtbsl2.F']
-['subs/defpq.F']
-['fp/mkewgt.F']
-['fp/smhsbl.F']
-['fp/supot.F']
-['subs/m_rdctrlchk.F']
-['subs/shoshl.F']
-['subs/mpint.F']
-['subs/symq.F']
-['subs/easypbe.F']
-['subs/v0intr.F']
-['subs/findes.F']
-['fp/flocbl.F']
-['subs/aioxtn.F']
-['subs/mtchae.F']
-['subs/lx2vec.F']
-['subs/m_struc_def.F']
-['subs/grpgen.F']
-['subs/m_struc_def.F']
-['subs/findes.F']
-['fp/vxcnsp.F']
-['subs/relax.F']
-['subs/rdsigm2.F']
-['subs/shoshl.F']
-['subs/asldau.F']
-['subs/aiocls.F']
-['subs/evxc.F']
-['subs/qdist.F']
-['subs/addrwf.F']
-['subs/m_gtv.F']
-['subs/m_struc_def.F']
-['subs/sp2cls.F']
-['fp/lmfp.F']
-['subs/rotwv.F']
-['subs/susite.F']
-['subs/shorbz.F']
-['subs/pairc.F']
-['subs/chgmsh.F']
-['subs/mksym.F']
-['subs/findes.F']
-['fp/surho.F']
-['subs/suidx.F']
-['subs/sp2cls.F']
-['fp/mkekin.F']
-['subs/config.F']
-['subs/aiopot.F']
-['fp/praugm.F']
-['subs/dosio.F']
-['subs/prmx.F']
-['fp/rsibl.F']
-['subs/trysop.F']
-['fp/augmbl.F']
-['subs/lattc.F']
-['subs/findes.F']
-['subs/findes.F']
-['subs/rotwv.F']
-['fp/splrho.F']
-['subs/ioxbs.F']
-['fp/fradhd.F']
-['subs/plana.F']
-['subs/iax2fd.F']
-['subs/rdsigm.F']
-['subs/aioxtn.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['fp/rsedit.F']
-['subs/bloch.F']
-['subs/bzmesh.F']
-['subs/dstrbp.F']
-['subs/switch.F']
-['subs/chgmsh.F']
-['subs/pp2enu.F']
-['subs/m_struc_func.F', 'subs/sp2cls.F']
-['fp/rsibl.F']
-['fp/dfratm.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/mkplat.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/delstd.F']
-['subs/getqp.F']
-['fp/mkrout.F']
-['subs/hamfb3.F']
-['subs/sp2cls.F']
-['subs/symstr.F']
-['fp/ghios.F']
-['subs/secmtn.F']
-['subs/vxcgr2.F']
-['subs/secmat.F']
-['subs/sp2cls.F']
-['subs/mkbfld.F']
-['subs/angtab.F']
-['subs/delstp.F']
-['subs/gh1c.F']
-['subs/bzmesh.F']
-['subs/roth.F']
-['subs/m_struc_def.F']
-['subs/rsmsym.F']
-['fp/bstrux.F']
-['subs/rseq.F']
-['lmv7.F', 'lmfav7.F']
-['fp/tbhsi.F']
-['subs/soprm.F']
-['subs/m_gtv.F']
-['subs/hanszd.F']
-['subs/ll.F']
-['subs/iobsmv.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/easypbe.F', 'subs/evxc.F']
-['subs/vxcgga.F']
-['subs/m_toksw.F']
-['subs/makrwf.F']
-['fp/pnunew.F']
-['fp/fpchk.F']
-['fp/poinsp.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['fp/addbkg.F']
-['subs/mksym.F']
-['subs/shear.F']
-['subs/rmesh.F']
-['fp/mkrout.F']
-['fp/mkrout.F']
-['fp/mkrout.F']
-['fp/mkrout.F']
-['fp/mkrout.F']
-['fp/mkrout.F']
-['subs/xlgen.F']
-['subs/prmx.F']
-['subs/gvlist.F']
-['fp/augmbl.F']
-['subs/secmat.F']
-['subs/hnsmft.F']
-['subs/shorps.F']
-['fp/hklgbl.F']
-['subs/asavqm.F']
-['subs/m_toksw.F']
-['subs/pairc.F']
-['fp/splrho.F']
-['subs/findes.F']
-['fp/rhomom.F']
-['subs/asaqmp.F']
-['subs/hsmq.F']
-['subs/spcgrp.F']
-['fp/lmfp.F']
-['fp/stonerrsa.F']
-['subs/ioeula.F']
-['subs/findes.F']
-['subs/suham.F']
-['subs/susite.F']
-['subs/findes.F']
-['subs/hansrz.F']
-['subs/hansrz.F']
-['fp/suphas.F']
-['subs/iofa.F']
-['subs/makidx.F']
-['subs/hstrux.F']
-['subs/hanb2s.F']
-['fp/rhomom.F']
-['subs/projql.F']
-['subs/m_psigd.F']
-['subs/gensym.F']
-['subs/ovmin.F']
-['subs/hstrux.F']
-['subs/chkdmu.F']
-['fp/lgstar.F']
-['subs/roplat.F']
-['subs/rstr0.F']
-['fp/bstrux.F']
-['fp/bstrux.F']
-['subs/findes.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/hnsmft.F']
-['fp/hsibl.F']
-['subs/invbl.F']
-['subs/makpph.F']
-['fp/lmaux.F']
-['fp/makusp.F']
-['subs/sugcut.F']
-['subs/pqmix.F']
-['subs/pqmix.F']
-['subs/lattic.F']
-['subs/aiocls.F']
-['subs/vxc0sp.F']
-['subs/fswgts.F']
-['fp/bndconn_v2.F']
-['subs/fovlp.F']
-['subs/aioxtn.F']
-['subs/addrwf.F']
-['subs/m_struc_def.F']
-['subs/rotspn.F']
-['subs/ibloch.F']
-['subs/spackv_array_copy.F']
-['subs/remhyb.F']
-['subs/aioxtn.F']
-['subs/asldau.F']
-['fp/mixrho.F']
-['subs/vtoq.F']
-['subs/mcasim.F']
-['subs/susite.F']
-['subs/gengrp.F']
-['fp/makusq.F']
-['fp/hambl.F']
-['fp/polinta.F']
-['fp/makusq.F']
-['fp/bstrux.F']
-['fp/mixrho.F']
-['fp/mixrho.F']
-['fp/mixrho.F']
-['subs/shorbz.F']
-['subs/pairc.F']
-['subs/iomomx.F']
-['fp/vxcnsp.F']
-['fp/vxcnsp.F']
-['fp/makusq.F']
-['fp/makusp.F']
-['fp/lindsc.F']
-['subs/easypbe.F']
-['subs/addtos.F']
-['fp/hsmbl.F']
-['subs/radpkl.F']
-['fp/suq0x.F']
-['fp/fradpk.F']
-['fp/rhogkl.F']
-['subs/m_struc_func.F', 'subs/sp2cls.F']
-['subs/besslr.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['subs/suham.F']
-['subs/phidx.F']
-['subs/mchan.F']
-['fp/hgugbl.F']
-['subs/strgck.F']
-['subs/sstrxq.F']
-['fp/symrho.F']
-['subs/m_hamindex.F']
-['fp/mkrout.F']
-['subs/easypbe.F']
-['fp/symrho.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['subs/prmx.F']
-['subs/fixpos.F']
-['fp/mkpdos.F']
-['subs/atomsr.F']
-['subs/dlmn.F']
-['subs/atomsr.F']
-['subs/symq.F']
-['subs/strx00.F']
-['subs/radgkl.F']
-['subs/m_struc_def.F']
-['subs/radmsh.F']
-['subs/phvsfp.F']
-['subs/hansmd.F']
-['subs/evxc.F']
-['subs/m_struc_def.F']
-['subs/iosg.F']
-['subs/m_toksw.F']
-['subs/aioxtn.F']
-['subs/drr2.F']
-['subs/symiax.F']
-['fp/chimedit.F']
-['fp/symrho.F']
-['subs/symq.F']
-['subs/shortn.F']
-['subs/strxsu.F']
-['subs/hansmr.F']
-['fp/loctsh.F']
-['subs/atomsr.F']
-['subs/m_sstrnsname.F']
-['subs/dstrbp.F']
-['subs/vldau.F']
-['subs/aiopar.F']
-['fp/hsibl.F']
-['fp/gklft.F']
-['subs/gvlist.F']
-['subs/iomagf.F']
-['subs/sp2cls.F']
-['subs/newalp.F']
-['fp/atqval.F']
-['subs/pptrns.F']
-['fp/suphas.F']
-['subs/asavqm.F']
-['subs/parmxp.F']
-['subs/mkbdot.F']
-['subs/mcasim.F']
-['subs/sblham.F']
-['subs/prmx.F']
-['subs/ropyln1.F']
-['subs/mcasim.F']
-['subs/symiax.F']
-['fp/pzhev.F']
-['subs/ropyln.F']
-['subs/hmltns.F']
-['subs/rotwv.F']
-['fp/pwmat.F']
-['subs/bzwts.F']
-['subs/besslr.F']
-['subs/mkplat.F']
-['subs/sp2cls.F']
-['subs/nosbzm.F']
-['subs/sp2cls.F']
-['subs/m_struc_def.F']
-['subs/nwit.F']
-['subs/sp2cls.F']
-['subs/strg1c.F']
-['subs/atomsr.F']
-['subs/iors.F']
-['subs/findes.F']
-['subs/rstr0.F']
-['subs/orbl.F']
-['subs/uspecb.F']
-['subs/parmxp.F']
-['subs/parmxp.F']
-['subs/plana.F']
-['subs/dstrbp.F']
-['subs/dpdftr.F']
-['subs/asamad.F']
-['subs/mcasim.F']
-['fp/rsedit.F']
-['fp/rsedit.F']
-['fp/rsedit.F']
-['fp/rsedit.F']
-['fp/rsedit.F']
-['subs/rdsigm.F']
-['subs/switch.F']
-['subs/gvlist.F']
-['subs/plana.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['subs/sp2cls.F']
-['subs/makdsd.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/m_toksw.F']
-['subs/findes.F']
-['fp/mshvmt.F']
-['fp/mkpot.F']
-['fp/potpus.F']
-['subs/makipt.F']
-['subs/m_struc_def.F']
-['subs/grpfnd.F']
-['subs/pgfset.F']
-['subs/hmltnc.F']
-['subs/atfold.F']
-['subs/makidx.F']
-['subs/sp2cls.F']
-['subs/m_rdctrl.F']
-['fp/hklft.F']
-['subs/getef.F']
-['subs/m_struc_def.F']
-['subs/symprj.F']
-['subs/asamad.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['subs/sylm.F']
-['fp/getcor.F']
-['subs/makdos.F']
-['subs/findes.F']
-['fp/locpot.F']
-['subs/sumsro.F']
-['fp/hsmbl.F']
-['subs/radmsh.F']
-['fp/mkorbm.F']
-['subs/aioxtn.F']
-['fp/gaugm.F']
-['subs/shoshl.F']
-['subs/salph1.F']
-['subs/mkplat.F']
-['fp/hhugbl.F']
-['subs/easypbe.F']
-['subs/ropbes.F']
-['subs/m_rdctrl.F']
-['subs/suldau.F']
-['subs/sp2cls.F']
-['subs/ldau.F']
-['subs/strdif.F']
-['subs/aioxtn.F']
-['subs/madmat.F']
-['subs/stoner.F']
-['subs/pqmix.F']
-['fp/sgvsym.F']
-['subs/mksym.F']
-['subs/mksym.F']
-['subs/maknos.F']
-['subs/fixef0.F']
-['subs/sp2cls.F']
-['subs/roth.F']
-['subs/atomsr.F']
-['subs/nmpot.F']
-['subs/roth.F']
-['fp/ioden.F']
-['subs/gxpml.F']
-['subs/suidx.F']
-['subs/m_rdctrl.F']
-['fp/dfaugm.F']
-['subs/m_struc_def.F']
-['subs/pkli.F']
-['subs/sfill.F']
-['subs/spackv_array_copy.F']
-['subs/roth.F']
-['subs/roth.F']
-['subs/roth.F']
-['fp/dfqkkl.F']
-['subs/mksbet.F']
-['subs/sp2cls.F']
-['fp/ovlocr.F']
-['subs/ioeula.F']
-['subs/rdsigm.F']
-['subs/volsph.F']
-['subs/dpdbyl.F']
-['subs/rdctrl2.F']
-['subs/m_struc_def.F']
-['subs/findes.F']
-['fp/efldos.F']
-['fp/hsibl.F']
-['fp/hsibl.F']
-['fp/hsibl.F']
-['fp/hsibl.F']
-['fp/hsibl.F']
-['fp/fsmbpw.F']
-['subs/mtchae.F']
-['subs/makrot.F']
-['subs/f102.F']
-['fp/rsibl.F']
-['subs/m_struc_func.F', 'subs/sp2cls.F']
-['fp/elocp.F']
-['subs/s2oka.F']
-['subs/grpgen.F']
-['fp/suq0x.F']
-['fp/augmbl.F']
-['subs/prjpos.F']
-['fp/wrhomt.F']
-['subs/mcasim.F']
-['subs/pgbasp.F']
-['subs/pkli.F']
-['fp/ggugbl.F']
-['subs/mcasim.F']
-['subs/iopos.F']
-['subs/strck.F']
-['subs/asavqm.F']
-['subs/rotwv.F']
-['fp/mullmf.F']
-['fp/smcorm.F']
-['subs/ibloch.F']
-['subs/rdctrl2.F']
-['subs/mkqp.F']
-['fp/momusl.F']
-['subs/invalp.F']
-['subs/mkplat.F']
-['subs/clist.F']
-['subs/m_toksw.F']
-['subs/spackv_array_copy.F']
-['subs/subzi.F']
-['subs/plana.F']
-['subs/fermi.F']
-['subs/hft2rs.F']
-['subs/m_rdctrlchk.F']
-['subs/dfphi.F']
-['fp/rsibl.F']
-['subs/iostr.F']
-['fp/rsibl.F']
-['fp/rsibl.F']
-['subs/atomsr.F']
-['fp/rsibl.F']
-['fp/gaugm.F']
-['fp/prtev.F']
-['subs/pairc.F']
-['subs/findes.F']
-['fp/gklq.F']
-['subs/m_gtv.F']
-['subs/yyhmul.F']
-['subs/mkalpv.F']
-['subs/dstrbp.F']
-['subs/mxmymz.F']
-['subs/strxsu.F']
-['subs/veecomp.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['subs/bzmesh.F']
-['fp/vxtrap.F']
-['subs/makidx.F']
-['fp/setofl.F']
-['fp/corprm.F']
-['subs/splcls.F']
-['fp/symrho.F']
-['subs/xxxbnd.F']
-['subs/strxsu.F']
-['subs/rotwv.F']
-['subs/pqmix.F']
-['subs/veecomp.F']
-['subs/ggiml.F']
-['subs/hft2rs.F']
-['subs/hft2rs.F']
-['subs/rnatm.F']
-['fp/hxpgbl.F']
-['subs/symiax.F']
-['subs/strxq.F']
-['subs/aiogen.F']
-['subs/prdmts.F']
-['subs/asvsph.F']
-['subs/i3cntr.F']
-['subs/asymop.F']
-['subs/aiosop.F']
-['subs/grpgen.F']
-['subs/orbl.F']
-['fp/mshn3p.F']
-['fp/smshft.F']
-['fp/genqbz.F']
-['subs/findes.F']
-['subs/pvsms2.F']
-['subs/sp2cls.F']
-['subs/bzwts.F']
-['subs/mksoph.F']
-['subs/latlim.F']
-['subs/baslst.F']
-['subs/nnrl.F']
-['subs/m_struc_def.F']
-['fp/vlm2us.F']
-['subs/aiocor.F']
-['subs/trsdot.F']
-['subs/aioxtn.F']
-['subs/iomoms.F']
-['subs/ropcsm.F']
-['fp/hsibl.F']
-['subs/sp2cls.F']
-['fp/sugw.F']
-['subs/m_sstrnsname.F']
-['subs/salph2.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/rdeq.F']
-['subs/sfill.F']
-['subs/iomomx.F']
-['fp/mshn3p.F']
-['subs/m_struc_def.F']
-['fp/mshn3p.F']
-['subs/iomomq.F']
-['subs/atomsr.F']
-['subs/iomoms.F']
-['fp/gfigbl.F']
-['subs/prtbas.F']
-['subs/enutod.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['fp/smshft.F']
-['subs/soldhj.F']
-['subs/m_struc_def.F']
-['fp/ioden.F']
-['subs/subasi.F']
-['fp/bndconn_v2.F']
-['fp/pkl2ro.F']
-['subs/gtpcor.F']
-['subs/symq.F']
-['subs/dsolv2.F']
-['subs/aioxtn.F']
-['subs/shoshl.F']
-['fp/bndfp.F']
-['subs/symq.F']
-['subs/m_struc_def.F']
-['subs/lattc.F']
-['fp/potpus.F']
-['subs/rgrme.F']
-['subs/asaqmp.F']
-['subs/m_struc_def.F']
-['subs/symtbl.F']
-['subs/pairc.F']
-['subs/pairc.F']
-['subs/m_rdctrlchk.F']
-['subs/splwts.F']
-['subs/aioxtn.F']
-['subs/pairc.F']
-['subs/pairc.F']
-['subs/makdla.F']
-['subs/contet.F']
-['subs/radmsh.F']
-['subs/shear.F']
-['subs/evxcp.F']
-['subs/m_struc_def.F']
-['subs/atsev.F']
-['subs/clsset.F']
-['subs/secmat.F']
-['subs/rseq.F']
-['subs/dosspl.F']
-['subs/evxc.F']
-['subs/suham2.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/iosg.F']
-['subs/rotwv.F']
-['fp/sugw.F']
-['subs/getq.F']
-['fp/stonerrsa.F']
-['subs/ropyln.F']
-['subs/m_hamindex.F']
-['fp/vesgcm.F']
-['subs/makalp.F']
-['subs/iosite.F']
-['subs/asaqmp.F']
-['fp/sugw.F']
-['fp/vesft.F']
-['subs/mkplat.F']
-['subs/sumlst.F']
-['subs/defspc.F']
-['fp/sopert.F']
-['fp/rsibl.F']
-['subs/sp2cls.F']
-['subs/hft2rs.F']
-['subs/symdmu.F']
-['subs/hanr.F']
-['subs/rdeq.F']
-['subs/m_struc_def.F']
-['fp/mshint.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['fp/prrhat.F']
-['fp/gklbl.F']
-['subs/rsort.F']
-['subs/easypbe.F']
-['subs/ropyln1.F']
-['subs/prdmts.F']
-['subs/gengrp.F']
-['subs/rdeq.F']
-['subs/suqlst.F']
-['subs/efrng2.F']
-['subs/salph1.F']
-['subs/alwats.F']
-['fp/gklbl.F']
-['subs/iobsmv.F']
-['subs/shffle.F']
-['subs/m_struc_def.F']
-['fp/addrbl.F']
-['subs/freeat.F', 'subs/freeat.bk.F']
-['subs/findes.F']
-['subs/addrwf.F']
-['subs/tetirr.F']
-['subs/shear.F']
-['subs/bzints.F']
-['subs/mkrtab.F']
-['subs/plana.F']
-['subs/atomsr.F']
-['fp/dfrce.F']
-['subs/gvmtch.F']
-['subs/pvsms2.F']
-['subs/psymop.F']
-['fp/smvxcm.F']
-['subs/maknrs.F']
-['subs/mkppar.F']
-['subs/m_struc_def.F']
-['fp/smvxcm.F']
-['fp/smvxcm.F']
-['subs/sstrxq.F']
-['fp/gklbl.F']
-['subs/easypbe.F']
-['subs/sstrxq.F']
-['fp/fklbl.F']
-['subs/defwsr.F']
-['subs/iosits.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['subs/orbl.F']
-['subs/xxxdif.F']
-['subs/spcgrp.F']
-['subs/bsortl.F']
-['subs/m_struc_def.F']
-['subs/mmag.F']
-['subs/findes.F']
-['subs/lattdf.F']
-['subs/mtchae.F']
-['subs/veecomp.F']
-['fp/stonerpb.F']
-['fp/pzhev.F']
-['fp/hxpos.F']
-['subs/asamad.F']
-['subs/iosave.F']
-['subs/lattc.F']
-['fp/dfrce.F']
-['fp/dfrce.F']
-['fp/dfrce.F']
-['fp/dfrce.F']
-['fp/ovlpfa.F']
-['subs/switch.F']
-['subs/groupg.F']
-['subs/shftpp.F']
-['lmv7.F', 'subs/prjpos.F', 'subs/ropyln.F', 'subs/shorps.F', 'subs/shorps.F']
-['subs/rothrm.F']
-['subs/streqv.F']
-['subs/roth.F']
-['fp/suylg.F']
-['fp/hambls.F']
-['fp/augmbl.F']
-['fp/smvxcm.F']
-['subs/suctrl.F']
-['subs/spackv_array_copy.F']
-['subs/qdist.F']
-['subs/ioxbs.F']
-['subs/sp2cls.F']
-['subs/shopol.F']
-['subs/m_rdctrl.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['subs/rotpnt.F']
-['fp/mkdmtu.F']
-['subs/asados.F']
-['fp/vcdmel.F']
-['fp/vcdmel.F']
-['subs/latvec.F']
-['subs/sstrxq.F']
-['fp/hhigbl.F']
-['subs/vxnloc.F']
-['subs/veecomp.F']
-['subs/vsl.F']
-['subs/suemph.F']
-['subs/mktra2.F']
-['subs/rdeq.F']
-['subs/getbzp.F']
-['subs/scalpv.F']
-['fp/ovlocr.F']
-['fp/rlocbl.F']
-['subs/iorbtm.F']
-['fp/rhogkl.F']
-['subs/ccutup.F']
-['subs/mkplat.F']
-['subs/dostet.F']
-['subs/grpop.F']
-['subs/aioxtn.F']
-['subs/mksod.F']
-['subs/sp2cls.F']
-['subs/salphg.F']
-['subs/aioxtn.F']
-['subs/m_toksw.F']
-['fp/hklbl.F']
-['fp/ghigbl.F']
-['subs/asldau.F']
-['subs/salias.F']
-['fp/augmat.F']
-['subs/rotwv.F']
-['subs/nmefac.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['fp/mshvmt.F']
-['subs/aiova.F']
-['fp/gaugm.F']
-['fp/gaugm.F']
-['fp/gaugm.F']
-['subs/switch.F']
-['subs/evxcv.F']
-['subs/m_rdctrl.F']
-['subs/rotycs.F']
-['subs/iostr.F']
-['subs/secmtn.F']
-['subs/sp2cls.F']
-['subs/sclwsr.F']
-['subs/iostr.F']
-['subs/findes.F']
-['subs/plana.F']
-['subs/bzwts.F']
-['subs/makptf.F']
-['subs/gvlist.F']
-['subs/psymop.F']
-['subs/gvlist.F']
-['fp/hhigbl.F']
-['fp/rlocbl.F']
-['subs/m_struc_def.F', 'subs/m_struc_func.F', 'subs/sp2cls.F']
-['fp/pzhev.F']
-['subs/siteid.F']
-['subs/asars.F']
-['subs/hsmq.F']
-['subs/vecpkl.F']
-['subs/chgmsh.F']
-['fp/addbkg.F']
-['subs/aioxtn.F']
-['fp/augmbl.F']
-['subs/mstrx2.F']
-['subs/mstrx3.F']
-['subs/sudmtu.F']
-['subs/slist.F']
-['subs/aioxtn.F']
-['fp/fsmbl.F']
-['subs/shoshl.F']
-['subs/susite.F']
-['subs/aiomom.F']
-['subs/sp2cls.F']
-['subs/aiorme.F']
-['subs/maks0.F']
-['subs/pgfp.F']
-['subs/vxcgr2.F']
-['fp/mixrho.F']
-['subs/blochi.F']
-['fp/symrho.F']
-['fp/rhomom.F']
-['subs/hamfb3.F']
-['subs/shoshl.F']
-['subs/spackv_array_copy.F']
-['subs/hsmq.F']
-['subs/evxc.F']
-['fp/mkehkf.F']
-['subs/s2sph.F']
-['subs/radmsh.F']
-['fp/sugw.F']
-['subs/scglp1.F']
-['fp/lmaux.F']
-['subs/plana.F']
-['subs/prterr.F']
-['subs/suclst.F']
-['subs/m_struc_def.F']
-['subs/m_struc_def.F']
-['subs/makdia.F']
-['fp/smves.F']
-['fp/hambls.F']
-['fp/addrbl.F']
-['subs/ghiml.F']
-['fp/vcdmel.F']
-['subs/roplat.F']
-['subs/makbet.F']
-['subs/subzi.F']
-['subs/saiwav.F']
-['fp/sugw.F']
-['subs/kink2g.F']
-['subs/rotevs.F']
-['subs/besslr.F']
-['subs/mcasim.F']
-['fp/symrho.F']
-['fp/augmbl.F']
-['subs/radmsh.F']
-['subs/findes.F']
-['subs/spcgrp.F']
-['subs/stoner.F']
-['subs/dstrbp.F']
-['subs/atomsr.F']
-['subs/ghdiml.F']
-['fp/locpot.F']
-['subs/radkj.F']
-['subs/pqmix.F']
-['subs/pqmix.F']
-['subs/evxcv.F']
-['subs/pqmix.F']
-['subs/hmladb.F']
-['fp/hhibl.F']
-['subs/findes.F']
-['subs/easypbe.F', 'subs/evxc.F']
-['subs/m_struc_def.F']
-['subs/plana.F']
-['subs/salph1.F']
-['subs/struc_strn.F']
-['subs/grpgen.F']
-['subs/symfor.F']
-['subs/symlat.F']
-['fp/ftlxp.F']
-['fp/rdovfa.F']
-['fp/locpot.F']
-['subs/decmp2.F']
-['fp/pwmat.F']
-['subs/sylmnc.F']
-['subs/f100.F']
-['subs/pgfp.F']
-['subs/roplat.F']
-['subs/sp2cls.F']
-['subs/ropbes.F']
-['subs/m_struc_def.F']
-['subs/suham.F']
-['subs/mshsiz.F']
-['subs/asymop.F']
-['subs/m_psigd.F']
-['fp/ovlocr.F']
-['subs/slinz.F']
-['fp/rhogkl.F']
-['fp/hambls.F']
-['fp/ugcomp.F']
-['subs/m_struc_def.F']
-['subs/switch.F']
-['subs/gtbsl1.F']
-['fp/addbkg.F']
-['subs/pptrns.F']
-['subs/m_gtv.F']
-['subs/qdist.F']
-['subs/symcry.F']
-['subs/atomsr.F']
-['subs/iosg.F']
-['subs/m_struc_def.F']

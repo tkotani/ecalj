@@ -325,7 +325,7 @@ for i in usedsf:
     if i in fsdict:
         fff = fsdict[i]
         fff = re.split(' ',fff)
-        print fff
+        print >>sys.stderr,fff
         using=using+ fff
 print >>sys.stderr, set(using)
 

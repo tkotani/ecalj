@@ -613,7 +613,7 @@ C --- Parse exponent ---
       a2d = .true.
 
       print *, 'a2d: converted ',(strn(i),i=j0,j-1), ' to ',res
-#endif FORMATTED_READ | UNFORMATTED_READ
+#endif
       end
 
       logical function gettok(str,j,term,jmax)

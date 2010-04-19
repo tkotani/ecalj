@@ -1,0 +1,87 @@
+#!/bin/csh -f
+
+# This shell script returns a list of routines that must be compiled with
+# switches weaker than the standard FFLAGS
+# It uses some or all of the following variables to specify the architecture:
+#   machine-configuration is the standard GNU format in 'config.sub':
+#       CPU_TYPE-MANUFACTURER-KERNEL-OPERATING_SYSTEM
+#   machine-mnemonic is the machine mnemonic identified by 'Makemakefile'
+
+if ($#argv != 2) then
+  echo usage:  SPECIAL-FLAGS   machine-configuration  machine-mnemonic
+  exit -1
+endif
+
+set host = $1
+set mnemonic = $2
+
+# Separate what the user gave into CPU-COMPANY and OS or KERNEL-OS (if any).
+# This is taken from config.sub
+set maybe_os = `echo $host | sed 's/^\(.*\)-\([^-]*-[^-]*\)$/\2/'`
+switch ($maybe_os)
+  case "linux-gnu*":
+    set os = $maybe_os
+    set basic_machine = `echo $host | sed 's/^\(.*\)-\([^-]*-[^-]*\)$/\1/'`
+    breaksw
+  default:
+    set basic_machine = `echo $host | sed 's/-[^-]*$//'`
+    if ( $basic_machine != $maybe_os) then
+      set os = `echo $host | sed 's/.*-//'`
+    else
+      set os
+    endif
+endsw
+
+# echo this is Special-Flags $basic_machine $os machine-configuration: $1 mnemonic: $2
+
+# --- Special compilation, FFLAGS_NO ---
+unset lst
+# if ($basic_machine =~ *convex*) set lst = makalp
+# if ($basic_machine =~ *cray*) set lst = makidx
+if ($mnemonic == LINUXI) set lst = (hmfr2c hmfr3c)
+if ($?lst > 0) then
+  echo '$(FC) $(FFLAGS_NONE) ::' $lst
+endif
+
+# --- Special compilation, FFLAGS_LESS3 ---
+unset lst
+# if ($basic_machine =~ alphaev6* && $os =~ osf*) set lst = ropyln
+# if ($basic_machine =~ alpha-* && $os =~ osf*) set lst = atomsr
+if ($?lst > 0) then
+  echo '$(FC) $(FFLAGS_LESS3) ::' $lst
+endif
+
+# --- Special compilation, FFLAGS_LESS2 ---
+unset lst
+  if ($os =~ aix*) set lst = (secmat)
+# if ($os =~ hpux*) set lst = (radmsh)
+# if ($os =~ hpux*) set lst = (radmsh)
+# if ($basic_machine =~ mips-sgi) set lst = (npr2tb)
+if ($?lst > 0) then
+  echo '$(FC) $(FFLAGS_LESS2) ::' $lst
+endif
+
+# --- Special compilation, FFLAGS_LESS ---
+unset lst
+# if ($os =~ aix*) set lst = (secmat)
+  if ($os =~ hpux*) set lst = (mksod ham2nc)
+# if ($basic_machine =~ sparc*) set lst = (spcgrp)
+#  if ($basic_machine =~ mips-sgi*) set lst = (mm_ham)
+# if ($basic_machine =~ mips-sgi*) then
+#   set lst = (iostr makidx prtbas shoshl)
+#   set compiler_version = `f77 -64 -version | & awk '{print substr($4,1,3)}'`
+#   if ("$compiler_version" == 6.1) set lst = (rdccat ropyln)
+#   if ("$compiler_version" == 6.2) set lst = (rdccat)
+# endif
+if ($?lst > 0) then
+  echo '$(FC) $(FFLAGS_LESS) ::' $lst
+endif
+
+# --- Other special compilations  ---
+# unset lst
+# if ($basic_machine =~ *cray*) then
+#   if (`uname -m | awk '{print $2}'` == J90) set lst = rdccat
+#   if ($?lst > 0) then
+#      echo '$(FC) -dp -eRv -Oscalar1,vector1,task0' :: $lst
+#   endif
+# endif
