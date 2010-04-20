@@ -1,6 +1,0 @@
-#!/bin/csh
-foreach i (`ls *.f`)
-echo $i ${i:r}.f
-cp $i $i.org
-../ccomp2cpp $i.org > ${i:r}.f
-end

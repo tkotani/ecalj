@@ -1,7 +1,0 @@
-#!/bin/csh
-rm x
-foreach xxx (`find . -name "*.F"`)
-echo vvv $xxx 
-./redo $xxx > $xxx.beforeFindent
-./findent $xxx.beforeFindent > $xxx
-end
