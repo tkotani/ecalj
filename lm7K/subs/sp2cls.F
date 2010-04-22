@@ -1,4 +1,4 @@
-      subroutine sp2cls_notused(sname,sspec,ics,nelt,is1,is2,oarr)
+      subroutine sp2cls_notusednow(sname,sspec,ics,nelt,is1,is2,oarr)
 C     - Allocate and extract one element of a structure for a range of species
 C     ----------------------------------------------------------------------
 C     i Inputs
@@ -2296,20 +2296,20 @@ C arr='a': use val and pack/unpack
              n= 1
             call struc_eval_io( v_ctrl%elin,rw,n,range1,range2,val)
           endif
-        case ('lasa')
-          if (arr.eq.'1') then
-            if ( range2.eq.-1 ) range2 = range1
-            call struc_eval_io_i8_realbody( v_ctrl%lasa,rw,1,range1,range2,v_ri%i)
-            v_ri%t=2
-            v_ri%r= v_ri%i
-           else if (arr.eq.'s') then
-             v_ri%t= 2
-             v_ri%i= 1
-             v_ri%r= v_ri%i
-          else
-             n= 1
-            call struc_eval_io( v_ctrl%lasa,rw,n,range1,range2,val)
-          endif
+C$$$        case ('lasa')
+C$$$          if (arr.eq.'1') then
+C$$$            if ( range2.eq.-1 ) range2 = range1
+C$$$            call struc_eval_io_i8_realbody( v_ctrl%lasa,rw,1,range1,range2,v_ri%i)
+C$$$            v_ri%t=2
+C$$$            v_ri%r= v_ri%i
+C$$$           else if (arr.eq.'s') then
+C$$$             v_ri%t= 2
+C$$$             v_ri%i= 1
+C$$$             v_ri%r= v_ri%i
+C$$$          else
+C$$$             n= 1
+C$$$            call struc_eval_io( v_ctrl%lasa,rw,n,range1,range2,val)
+C$$$          endif
         case ('lbas')
           if (arr.eq.'1') then
             if ( range2.eq.-1 ) range2 = range1
@@ -2549,19 +2549,20 @@ C arr='a': use val and pack/unpack
             call struc_eval_io( v_ctrl%lscr,rw,n,range1,range2,val)
           endif
         case ('lstonr')
-          if (arr.eq.'1') then
-            if ( range2.eq.-1 ) range2 = range1
-            call struc_eval_io_i8_realbody( v_ctrl%lstonr,rw,1,range1,range2,v_ri%i)
-            v_ri%t=2
-            v_ri%r= v_ri%i
-           else if (arr.eq.'s') then
-             v_ri%t= 2
-             v_ri%i= size(v_ctrl%lstonr)
-             v_ri%r= v_ri%i
-          else
-             n= size(v_ctrl%lstonr)
-            call struc_eval_io( v_ctrl%lstonr,rw,n,range1,range2,val)
-          endif
+           stop 'error. tkotani removed ctrl%lstoner'
+c          if (arr.eq.'1') then
+c            if ( range2.eq.-1 ) range2 = range1
+c            call struc_eval_io_i8_realbody( v_ctrl%lstonr,rw,1,range1,range2,v_ri%i)
+c            v_ri%t=2
+c            v_ri%r= v_ri%i
+c           else if (arr.eq.'s') then
+c             v_ri%t= 2
+c             v_ri%i= size(v_ctrl%lstonr)
+c             v_ri%r= v_ri%i
+c          else
+c             n= size(v_ctrl%lstonr)
+c            call struc_eval_io( v_ctrl%lstonr,rw,n,range1,range2,val)
+c          endif
         case ('lstr')
           if (arr.eq.'1') then
             if ( range2.eq.-1 ) range2 = range1
@@ -3494,20 +3495,20 @@ C arr='a': use val and pack/unpack
              n= size(v_ham%kmto)
             call struc_eval_io( v_ham%kmto,rw,n,range1,range2,val)
           endif
-        case ('lasa')
-          if (arr.eq.'1') then
-            if ( range2.eq.-1 ) range2 = range1
-            call struc_eval_io_i8_realbody( v_ham%lasa,rw,1,range1,range2,v_ri%i)
-            v_ri%t=2
-            v_ri%r= v_ri%i
-           else if (arr.eq.'s') then
-             v_ri%t= 2
-             v_ri%i= 1
-             v_ri%r= v_ri%i
-          else
-             n= 1
-            call struc_eval_io( v_ham%lasa,rw,n,range1,range2,val)
-          endif
+C$$$        case ('lasa')
+C$$$          if (arr.eq.'1') then
+C$$$            if ( range2.eq.-1 ) range2 = range1
+C$$$            call struc_eval_io_i8_realbody( v_ham%lasa,rw,1,range1,range2,v_ri%i)
+C$$$            v_ri%t=2
+C$$$            v_ri%r= v_ri%i
+C$$$           else if (arr.eq.'s') then
+C$$$             v_ri%t= 2
+C$$$             v_ri%i= 1
+C$$$             v_ri%r= v_ri%i
+C$$$          else
+C$$$             n= 1
+C$$$            call struc_eval_io( v_ham%lasa,rw,n,range1,range2,val)
+C$$$          endif
         case ('ldham')
           if (arr.eq.'1') then
             if ( range2.eq.-1 ) range2 = range1

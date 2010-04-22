@@ -197,14 +197,19 @@ C           F, only calculate charges qc, qtot and amgm
       lrel   = nglob('lrel')
       lscf   = imake.eq.1 .or. imake.eq.3
       lneedv = imake.eq.2 .or. imake.eq.4
-Cgetarg       lfree  = lgors('ctrl lasa,8',sctrl)
-       lfree = iand(8,int(sctrl%lasa)) .ne.0 
 
-Cgetarg       lgdd   = .not. lgors('ctrl lasa,128',sctrl)
-       lgdd = .not. iand(128,int(sctrl%lasa)) .ne.0 
+C$$$Cgetarg       lfree  = lgors('ctrl lasa,8',sctrl)
+C$$$       lfree = iand(8,int(sctrl%lasa)) .ne.0 
+C$$$Cgetarg       lgdd   = .not. lgors('ctrl lasa,128',sctrl)
+C$$$       lgdd = .not. iand(128,int(sctrl%lasa)) .ne.0 
+C$$$Cgetarg       lmpol  = lgors('ctrl lasa,32',sctrl)
+C$$$       lmpol = iand(32,int(sctrl%lasa)) .ne.0 
+ctakao removed asa
+       lfree = .false.
+       lgdd  = .true.
+       lmpol = .false.
 
-Cgetarg       lmpol  = lgors('ctrl lasa,32',sctrl)
-       lmpol = iand(32,int(sctrl%lasa)) .ne.0 
+
 
 Cgetarg       lfrz   = lgors('ctrl lcd,1',sctrl)
        lfrz = iand(1,int(sctrl%lcd)) .ne.0 

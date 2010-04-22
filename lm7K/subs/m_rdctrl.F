@@ -19,7 +19,7 @@ C ... HEADER, SYMGRP
 C ... HAM
       logical :: frzwf,ham_ewald
       integer:: ctrl_lfrce,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0,
-     .  nsp=1,ham_qasa,lrel=1,lso=0,ham_udiag=0
+     .  nsp=1,lrel=1,lso=0,ham_udiag=0 !,ham_qasa
       logical:: ltbe  ! set to T if TBE program (used for defaults)
       integer lfp  ! set to T if FP program (used for defaults)
       real(8):: lat_gmax,tolft,elind,dqval,kmto(10),rsrnge,vmtz
@@ -60,17 +60,19 @@ C     .  (sigp_nmax,sigp(4))
 
 C ... OPTIONS
       logical ::
-     .  lcd1,lcd2,lcd4=F,lcd8=F,lcd64,lasa4=T,lasa8=F,lasa32=F,lasa64=F,
-     .  lasa512,lham1,lham4=F,lham8,lham16,lham32=F,lham64,lham128,
+     .  lcd1,lcd2,lcd4=F,lcd8=F,lcd64, lasa32=F!lasa32 is dummy not used but wor awrit8 in rdctrl2
+C$$$    &  ,lasa4=T,lasa8=F,,lasa64=F,
+C$$$     .  lasa512
+     &  ,lham1,lham4=F,lham8,lham16,lham32=F,lham64,lham128,
      .  lham256 !,lves takao2010apr lves is integer
       integer ::lves
 C     Initialize, since read is only executed when NSPIN=2
       logical:: lncol1=F,lncol2=F,lncol4=F,lncol8=F,lncol16=F,
      .  lncol32=F,lncol64=F
       character(256):: sxopt=' '
-      integer:: lasa3=1,lsx,lscr,smalit(2),nesabc(3),
+      integer:: lsx,lscr,smalit(2),nesabc(3), !lasa3=1,
      .  lstonr(3)=0,quit,nl,lham3,lpfloat
-      real(8):: asa_elin,rmines,rmaxes,ham_qss(4)
+      real(8):: rmines,rmaxes,ham_qss(4) !asa_elin,
 
 C ... STRUC
 C     Initializing nbas and alat flags no nbas or alat has been input
@@ -667,49 +669,49 @@ C     .  'third for graphical output')
      .  '%N%5fAdd 100*k to compute response function'//
      .  ' on every kth iteration')
 
-C     ASA-specific
-      sw = tksw(prgn,'OPTIONS_ASA')
-      if (io_show+io_help/=0 .and. sw/=2)
-     .  call info0(1,1,0,' * The following are ASA-specific')
-      if (sw .ne. 2) then
-C     This call does nothing except for printout
-      nm='OPTIONS_ASA'; call gtv(trim(nm),sw,nono,Texist=ltmp,
-     .  note= 'Contains the following ASA-specific tokens:')
+C$$$C     ASA-specific
+C$$$      sw = tksw(prgn,'OPTIONS_ASA')
+C$$$      if (io_show+io_help/=0 .and. sw/=2)
+C$$$     .  call info0(1,1,0,' * The following are ASA-specific')
+C$$$      if (sw .ne. 2) then
+C$$$C     This call does nothing except for printout
+C$$$      nm='OPTIONS_ASA'; call gtv(trim(nm),sw,nono,Texist=ltmp,
+C$$$     .  note= 'Contains the following ASA-specific tokens:')
       nm='OPTIONS_ASA_ADNF'; call gtv(trim(nm),tksw(prgn,nm),lham4,
      .  def_lg=F,note= 'Turn on automatic downfolding')
-      nm='OPTIONS_ASA_NSPH'; call gtv(trim(nm),tksw(prgn,nm),lasa32,
-     .  note='generate multipole moments in output density')
+C$$$      nm='OPTIONS_ASA_NSPH'; call gtv(trim(nm),tksw(prgn,nm),lasa32,
+C$$$     .  note='generate multipole moments in output density')
       nm='OPTIONS_ASA_TWOC'; call gtv(trim(nm),tksw(prgn,nm),lham3,
      .  def_i4=0,note='Two-center ASA hamiltonian.'//
      .  '  Use TWOC=3 for 2C+pert corr')
-      j = 0
-      nm='OPTIONS_ASA_GAMMA'; call gtv(trim(nm),tksw(prgn,nm),j,
-     .  def_i4=0,note=
-     .  'gamma representation'//
-     .  '%N%3f1: gamma'//
-     . '%N%02f>1: (gamma(1)+gamma(nsp))/2'//
-     .  '%N%3f : Some noncollinear algorithms automatically'//
-     .  '%N%3f : average spins this latter representation')
-      if (io_help==0) call isanrg(j,0,2,' rdccat:','GAMMA',.true.)
+C$$$      j = 0
+C$$$      nm='OPTIONS_ASA_GAMMA'; call gtv(trim(nm),tksw(prgn,nm),j,
+C$$$     .  def_i4=0,note=
+C$$$     .  'gamma representation'//
+C$$$     .  '%N%3f1: gamma'//
+C$$$     . '%N%02f>1: (gamma(1)+gamma(nsp))/2'//
+C$$$     .  '%N%3f : Some noncollinear algorithms automatically'//
+C$$$     .  '%N%3f : average spins this latter representation')
+C$$$      if (io_help==0) call isanrg(j,0,2,' rdccat:','GAMMA',.true.)
       lham128 = j .gt. 0
-      lasa512 = j .gt. 1
-      nm='OPTIONS_ASA_CCOR'; call gtv(trim(nm),tksw(prgn,nm),lasa4,
-     .  def_lg=T,note= 'Turn on combined correction')
-      nm='OPTIONS_ASA_ELIN'; call gtv(trim(nm),tksw(prgn,nm),asa_elin,
-     .  def_r8=0d0,note=
-     .  'Energy to linearize for CCOR (2nd gen ASA 2C hamiltonian)')
+C$$$      lasa512 = j .gt. 1
+C$$$      nm='OPTIONS_ASA_CCOR'; call gtv(trim(nm),tksw(prgn,nm),lasa4,
+C$$$     .  def_lg=T,note= 'Turn on combined correction')
+C$$$      nm='OPTIONS_ASA_ELIN'; call gtv(trim(nm),tksw(prgn,nm),asa_elin,
+C$$$     .  def_r8=0d0,note=
+C$$$     .  'Energy to linearize for CCOR (2nd gen ASA 2C hamiltonian)')
       nm='OPTIONS_ASA_NEWREP'; call gtv(trim(nm),tksw(prgn,nm),lham8,
      .  def_lg=F,note=
      .  'Interactively transform representation, (2nd gen ASA)')
       nm='OPTIONS_ASA_NOHYB'; call gtv(trim(nm),tksw(prgn,nm),lham16,
      .  def_lg=F,note='Turns off hybridisation ')
-      nm='OPTIONS_ASA_MTCOR'; call gtv(trim(nm),tksw(prgn,nm),lasa64,
-     .  def_lg=F,note='Turns on Ewald MT correction')
-      nm='OPTIONS_ASA_QMT'; call gtv(trim(nm),tksw(prgn,nm),
-     .  zbak(2),def_r8=0d0,note=
-     .  'Override standard background charge for'//
-     .  ' Ewald MT correction%N%3fInput only meaningful if MTCOR=T')
-      endif
+C$$$      nm='OPTIONS_ASA_MTCOR'; call gtv(trim(nm),tksw(prgn,nm),lasa64,
+C$$$     .  def_lg=F,note='Turns on Ewald MT correction')
+C$$$      nm='OPTIONS_ASA_QMT'; call gtv(trim(nm),tksw(prgn,nm),
+C$$$     .  zbak(2),def_r8=0d0,note=
+C$$$     .  'Override standard background charge for'//
+C$$$     .  ' Ewald MT correction%N%3fInput only meaningful if MTCOR=T')
+C$$$      endif
 
    69 continue                  ! end of OPTIONS
 
@@ -886,13 +888,13 @@ c     .                 'and <phidot**2>'//
 c     .  '%N%3f3 => 1+2 (Stuttgart conventions)',-1,2,0,TF(11))
 c      call pack1('ctrl lasa',sctrl,j+128*mod(i,4))
 
-      nm='HAM_QASA'; call gtv(trim(nm),tksw(prgn,nm),ham_qasa,
-     .  def_i4=3,note='0 => Methfessel conventions for 2nd gen'//
-     .  ' ASA moments Q0..2'//
-     .  '%N%3f1 => Q2 = coff to phidot**2 - p phi**2 in sphere'//
-     .  '%N%3f2 => Q1,Q2 accumulated as coffs to <phi*phidot> '//
-     .                 'and <phidot**2>'//
-     .  '%N%3f3 => 1+2 (Stuttgart conventions)')
+C$$$      nm='HAM_QASA'; call gtv(trim(nm),tksw(prgn,nm),ham_qasa,
+C$$$     .  def_i4=3,note='0 => Methfessel conventions for 2nd gen'//
+C$$$     .  ' ASA moments Q0..2'//
+C$$$     .  '%N%3f1 => Q2 = coff to phidot**2 - p phi**2 in sphere'//
+C$$$     .  '%N%3f2 => Q1,Q2 accumulated as coffs to <phi*phidot> '//
+C$$$     .                 'and <phidot**2>'//
+C$$$     .  '%N%3f3 => 1+2 (Stuttgart conventions)')
       nm='HAM_PMIN'; call gtv(trim(nm),tksw(prgn,nm),pmin,
      .  def_r8v=zerov,nout=nout,note=
      .  'Global minimum in fractional part of P-functions.'//
@@ -991,24 +993,24 @@ C --- Symmetry group ---
       nm='SYMGRP'; call gtv(trim(nm),tksw(prgn,nm),symg,
      .  note='Generators for symmetry group')
 
-C --- Crystal Green's function ---
-      if (tksw(prgn,'GF') == 2) goto 269
-      if (io_show+io_help/=0) call info0(1,1,
-     .  0,' --- Parameters for GF ---')
-      nm='GF_MODE'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lcgf,
-     .  def_i4=0,note=' 0: do nothing'//
-     . '%N%3f 1: self-consistent cycle'//
-     .'%N%3f10: Transverse exchange interactions J(q), MST'//
-     .'%N%3f11: Read J(q) from disk and print derivative properties'//
-C    .'%N%3f12: generate G(R,R'')'//
-     .'%N%3f14: Longitudinal exchange interactions J(q), MST'//
-     .'%N%3f20: Transverse chi+- from ASA GF'//
-     .'%N%3f21: Read chi from disk and print derivative properties'//
-     .'%N%3f24: Transverse chi++,chi-- from ASA GF')
+C$$$C --- Crystal Green's function ---
+C$$$      if (tksw(prgn,'GF') == 2) goto 269
+C$$$      if (io_show+io_help/=0) call info0(1,1,
+C$$$     .  0,' --- Parameters for GF ---')
+C$$$      nm='GF_MODE'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lcgf,
+C$$$     .  def_i4=0,note=' 0: do nothing'//
+C$$$     . '%N%3f 1: self-consistent cycle'//
+C$$$     .'%N%3f10: Transverse exchange interactions J(q), MST'//
+C$$$     .'%N%3f11: Read J(q) from disk and print derivative properties'//
+C$$$C    .'%N%3f12: generate G(R,R'')'//
+C$$$     .'%N%3f14: Longitudinal exchange interactions J(q), MST'//
+C$$$     .'%N%3f20: Transverse chi+- from ASA GF'//
+C$$$     .'%N%3f21: Read chi from disk and print derivative properties'//
+C$$$     .'%N%3f24: Transverse chi++,chi-- from ASA GF')
 
-      nm='GF_GFOPTS'; call gtv(trim(nm),tksw(prgn,nm),gfopt,nmin=10,
-     .  note='Switches governing execution of GF')
-  269 continue
+C$$$      nm='GF_GFOPTS'; call gtv(trim(nm),tksw(prgn,nm),gfopt,nmin=10,
+C$$$     .  note='Switches governing execution of GF')
+C$$$  269 continue
 
 C --- Planar Green's function ---
       if (tksw(prgn,'PGF') == 2) goto 219
@@ -2705,19 +2707,19 @@ C ... Heap
 
 C --- Start ---
       if (tksw(prgn,'START') == 2) goto 159
-      if (io_show+io_help/=0) call
-     .  info0(1,1,0,' --- Read potential data (ASA) ---')
+C$$$      if (io_show+io_help/=0) call
+C$$$     .  info0(1,1,0,' --- Read potential data (ASA) ---')
 
-      nm='START_BEGMOM'; call gtv(trim(nm),tksw(prgn,nm),lasa3,
-     .  def_i4=1,note=
-     .  '0 Start from potential parameters (on file)'//
-     .  '%N%3f1 Create potential and pot pars from P,Q'//
-     .  '%N%3f2 Create pot pars from file potential'//
-     .  '%N%3f3 Create potential from restart file')
+C$$$      nm='START_BEGMOM'; call gtv(trim(nm),tksw(prgn,nm),lasa3,
+C$$$     .  def_i4=1,note=
+C$$$     .  '0 Start from potential parameters (on file)'//
+C$$$     .  '%N%3f1 Create potential and pot pars from P,Q'//
+C$$$     .  '%N%3f2 Create pot pars from file potential'//
+C$$$     .  '%N%3f3 Create potential from restart file')
 
-      nm='START_FREE'; call gtv(trim(nm),tksw(prgn,nm),lasa8,
-     .  def_lg=F,note=
-     .  '(Free atom mode): make self-consistent density for free atoms')
+C$$$      nm='START_FREE'; call gtv(trim(nm),tksw(prgn,nm),lasa8,
+C$$$     .  def_lg=F,note=
+C$$$     .  '(Free atom mode): make self-consistent density for free atoms')
 
       nm='START_CNTROL'; call gtv(trim(nm),tksw(prgn,nm),ltmp,def_lg=F,
      .  note='if F, the remainder of this category is ignored')

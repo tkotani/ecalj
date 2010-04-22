@@ -442,8 +442,11 @@ C     if (lgors('ctrl lasa,32',sctrl)) then
 
 C --- Assemble background rho (rmt) ---
 Cgetarg       if (mod(mode/10,10) .ne. 0 .and. lgors('ctrl lasa,64',sctrl)) then
-       if ( mod ( mode/10 , 10 ) .ne. 0 .and. iand(64,int(sctrl%lasa)) .ne.0 
-     . ) then 
+ctakao assumes lasa64=F (no asa mode) Thus this is always false.
+c       if ( mod ( mode/10 , 10 ) .ne. 0 .and. iand(64,int(sctrl%lasa)) .ne.0 
+c     . ) then 
+       if (.false.) then
+
 
 Cgetarg...info...           real(8) :: zbak(2) , real(8) :: sctrl%zbak 2
 Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1

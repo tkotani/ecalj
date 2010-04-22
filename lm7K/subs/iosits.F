@@ -596,7 +596,9 @@ C   ... Exit point for read
       call mpibc1(alat,1,4,mlog,'iosits','alat')
       call mpibc1(plat,9,4,mlog,'iosits','plat')
       if (lio345 .ge. 8)  then
-        i = nint(ssite(1)) * nbas
+ctakao apr2010
+c        i = nint(ssite(1)) * nbas
+         i = usite_size() *nbas
         call mpibc1(ssite,i,4,mlog,'iosits','ssite')
       endif
 #endif

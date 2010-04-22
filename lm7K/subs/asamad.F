@@ -270,7 +270,10 @@ C      call dvset(w(oqt),nclass+1,nclass+1,.2d0)
 #if NSPH
 C --- Make potential from multipole moments ---
 Cgetarg       lnsph = isw(lgors('ctrl lasa,32',sctrl))
-       lnsph = isw ( iand(32,int(sctrl%lasa)) .ne.0 ) 
+
+c       lnsph = isw ( iand(32,int(sctrl%lasa)) .ne.0 ) 
+ctakao lasa32=false
+       lnsph = isw ( .false. )
 
       if (lnsph .ne. 0 .and. .not. lves) then
 Cgetarg       oqpp = igets('pot oqpp',spot)

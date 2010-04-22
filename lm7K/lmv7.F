@@ -20,27 +20,12 @@ cend-----
 #endif
       end program main
 
-C -------------- Main program for LM and related programs ----------
-C This file contains the main program for most of the collection
-C of main programs in the ASA package and its extensions.
-C
-C The various main programs are created from this one using the ccomp
-C utility.
-C
-C It is documented in doc/lmto.html.
-C Updates
-C   13 May 04 New main lmmc.f
-C ----------------------------------------------------
-C ... Operating system permitting, The true main is in slatsm.a (fmain.c)
-#define unix 1
-#if unix
-      subroutine fmain
 
-#endif
+      subroutine fmain()
+C- Main program for lmf and so on.
       use m_struc_def
       use m_rdctrl2_func, only: rdctrl2
       implicit none
-
       integer procid, master, mpipid, nproc
 #if MPI | MPIK
       include "mpif.h"
@@ -113,91 +98,93 @@ C ... miscellaneous local variables
       double precision vn(2),vn2(2),dglob
       logical T,F,swtmp,cmdopt,ltet
       parameter (T=.true., F=.false., NULLI=-99999)
-#if LMCTL
-      integer fopnn
-#endif
+C$$$#if LMCTL
+C$$$      integer fopnn
+C$$$#endif
 #if MPI | MPIK
       integer fext
 #endif
-#if TBE
-      integer ltbe
-      double precision mdprm(6)
-#endif
+C$$$#if TBE
+C$$$      integer ltbe
+C$$$      double precision mdprm(6)
+C$$$#endif
 
 C ... Program-dependent name and help
-#if LMPG
-#elif LM
-#elif LMFA
+c#if LMPG
+c#elif LM
+c#elif LMFA
+#if LMFA
       data prgnam /'LMFA'/
 #elif LMFGWD
       data prgnam /'LMFGWD'/
 #elif LMF
       data prgnam /'LMF'/
-#elif LMAQU
-      data prgnam /'LMAQU'/
+c#elif LMAQU
+c      data prgnam /'LMAQU'/
 #elif  LMDOS
       data prgnam /'LMDOS'/
-#elif  LMCTL
-      data prgnam /'LMCTL'/
-#elif  LMIMP
-      data prgnam /'LMIMP'/
-#elif  LMCOR
-      data prgnam /'LMCOR'/
-#elif  LMFIT
-      data prgnam /'LMFIT'/
-#elif  LMPLAN
-      integer nbas,nbasp,nbaspp,nl,opnu,oqnu,oqc,oqt,oves
-      double precision emad,trumad,vmtz(2)
-      data prgnam /'LMPLAN'/
-#elif  LMAVGM
-      data prgnam /'LMAVGM'/
-#elif  LMMIX
-      data prgnam /'LMMIX'/
-#elif  LMSHF
-      data prgnam /'LMSHF'/
-      data auxmod /8/
-#elif  TBPG
-      data prgnam /'TBPG'/
-#elif  TBE
-      data prgnam /'TBE'/
-#elif  TBBND
-      data prgnam /'TBBND'/
-#elif  TBFIT
-      data prgnam /'TBFIT'/
-#elif  TBDOS
-      data prgnam /'TBDOS'/
-#elif  MMAG
-      data prgnam /'MMAG'/
+c#elif  LMCTL
+c      data prgnam /'LMCTL'/
+c#elif  LMIMP
+c      data prgnam /'LMIMP'/
+c#elif  LMCOR
+c      data prgnam /'LMCOR'/
+c#elif  LMFIT
+c      data prgnam /'LMFIT'/
+c#elif  LMPLAN
+c      integer nbas,nbasp,nbaspp,nl,opnu,oqnu,oqc,oqt,oves
+c      double precision emad,trumad,vmtz(2)
+c      data prgnam /'LMPLAN'/
+c#elif  LMAVGM
+c      data prgnam /'LMAVGM'/
+c#elif  LMMIX
+c      data prgnam /'LMMIX'/
+c#elif  LMSHF
+c      data prgnam /'LMSHF'/
+c      data auxmod /8/
+c#elif  TBPG
+c      data prgnam /'TBPG'/
+c#elif  TBE
+c      data prgnam /'TBE'/
+c#elif  TBBND
+c      data prgnam /'TBBND'/
+c#elif  TBFIT
+c      data prgnam /'TBFIT'/
+c#elif  TBDOS
+c      data prgnam /'TBDOS'/
+c#elif  MMAG
+c      data prgnam /'MMAG'/
 #endif
 
 C ... Program-dependent cagetories
-#if LMPG
-      data prgnam /'LMPG'/
-#elif LMGPOL
-      data prgnam /'LMGPOL'/
-      data auxmod /32/
-#elif BLM
-      data prgnam /'BLM'/
-#elif LM
-      data prgnam /'LM'/
-#elif LMMC
-      data prgnam /'LMMC'/
-#elif LMAQU | LMMIX
-      call rx('missing setup for lmaqu, lmmix')  ! Why???TK
-#elif LMGF
-      data prgnam /'LMGF'/
-#elif LMSTR
-      data prgnam /'LMSTR'/
-#elif LMCHK
+c#if LMPG
+c      data prgnam /'LMPG'/
+c#elif LMGPOL
+c      data prgnam /'LMGPOL'/
+c      data auxmod /32/
+c#elif BLM
+c      data prgnam /'BLM'/
+c#elif LM
+c      data prgnam /'LM'/
+c#elif LMMC
+c      data prgnam /'LMMC'/
+c#elif LMAQU | LMMIX
+c      call rx('missing setup for lmaqu, lmmix')  ! Why???TK
+c#elif LMGF
+c      data prgnam /'LMGF'/
+c#elif LMSTR
+c      data prgnam /'LMSTR'/
+c#elif LMCHK
+#if LMCHK
       data prgnam /'LMCHK'/ auxmod /1/
-#elif LMSCELL
-      logical rdstrn
-      integer nkd,odlv,nbx,ix(9)
-      double precision plat(3,3),plx(3,3),ddot,dmach
-      data prgnam /'LMSCELL'/
-#elif LMXBS
-      data prgnam /'LMXBS'/
-      data auxmod /4/
+c#elif LMSCELL
+c      logical rdstrn
+c      integer nkd,odlv,nbx,ix(9)
+c      double precision plat(3,3),plx(3,3),ddot,dmach
+c      data prgnam /'LMSCELL'/
+c#elif LMXBS
+c      data prgnam /'LMXBS'/
+c      data auxmod /4/
 #endif
 
       integer:: nfilin,mxrecs,recln0,nrecs,fopna
@@ -217,12 +204,6 @@ CKi      character*1,allocatable:: recrd(:)
 
       real(8):: bz_w !test
 
-C -------------- First executable statement ---------------
-C     Link in routines that cause potential library conflicts
-      call nada
-
-c toksw was here. MOved to rdccat
-
 C --- Version ---
       vrsion(1) = 'LM'
       vrsion(2) = ' '
@@ -230,26 +211,26 @@ C --- Version ---
       vn2(1) = 0
       vn(2) = 0.00d0
       vn2(2) = 0
-#if LM | LMPG | LMGF | LMAVGM | LMIMP | LMCTL | LMSTR
-      vrsion(2) = 'ASA'
-      vn(2) = 7.00d0
-      vn2(2) = 0
-#elif LMFA | LMF | LMFGWD
+c#if LM | LMPG | LMGF | LMAVGM | LMIMP | LMCTL | LMSTR
+c      vrsion(2) = 'ASA'
+c      vn(2) = 7.00d0
+c      vn2(2) = 0
+#if LMFA | LMF | LMFGWD
       vrsion(2) = 'FP'
       vn(2) = 7.00d0
       vn2(2) = 0
-#elif LMMC
-      vrsion(2) = 'MOL'
-      vn(2) = 3.00d0
-      vn2(2) = 0
-#elif TBE
-      vrsion(2) = 'TB'
-      vn(2) = 9.00d0
-      vn2(2) = 0
-#elif MMAG
-      vrsion(2) = 'MM'
-      vn(2) = 2.00d0
-      vn2(2) = 0
+c#elif LMMC
+c      vrsion(2) = 'MOL'
+c      vn(2) = 3.00d0
+c      vn2(2) = 0
+c#elif TBE
+c      vrsion(2) = 'TB'
+c      vn(2) = 9.00d0
+c      vn2(2) = 0
+c#elif MMAG
+c      vrsion(2) = 'MM'
+c      vn(2) = 2.00d0
+c      vn2(2) = 0
 #endif
       vn(1) = vn(1) + vn2(1)/1d5
       vn(2) = vn(2) + vn2(2)/1d5
@@ -427,16 +408,17 @@ C     sttmpd is located at the bottom of this file.
 C ... File logical units
       i = fadd('TMP',-1,4)
       i = fadd('BAND',-1,4)
-#if TBE
-      i = fadd('STRT',-1,4)
-      i = fadd('QMOM',-1,4)
-#endif
-#if LM | LMDOS | LMGF
+c#if TBE
+c      i = fadd('STRT',-1,4)
+c      i = fadd('QMOM',-1,4)
+c#endif
+c#if LM | LMDOS | LMGF
+#if LMDOS
       i = fadd('MOMS',-1,4)
       i = fadd('CLS',-1,4)
 #endif
 
-C --- Set the top-level verbosity if spec'd from cmd line ---
+C --- Set the top-level verbosity if specified from cmd line ---
       if (cmdopt('--pr',4,0,outs)) then
         i = 4
         i = a2vec(outs,len(outs),i,2,', ',2,2,1,j,k)
@@ -486,9 +468,19 @@ C      write(stdo,*)' --- end of rdfile --- '
 C      call rx('done')
 
 C --- Read recrd ---
+c tkotani found nmap is not zero cleared.
+cccccccccccccccccc
+c      print *,' uuuu000 111 nmap=',int(v_sctrl%nmap) 
+c      v_sctrl%nmap=9999
+cccccccccccccccccc
+
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
      .  slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      .  v_sarry,v_smove,v_stb,sstrn)
+
+cccccccccccccccccc
+c      print *,' uuuu000 222 nmap=',int(v_sctrl%nmap) 
+cccccccccccccccccc
 
 #if MPI | MPIK
 #if MPE
@@ -501,73 +493,77 @@ C --- Read recrd ---
 #endif
 #endif
 
-#if LMSCELL
-      call setcg(v_slat,8,12)
-Cgetarg...info...           real(8) :: dmach , real(8) :: v_slat%tol 1
-Cgetarg       call pack5('lat as tol nkdmx nkqmx',v_slat,1d0,dmach(2),150000,
-Cgetarg      .  150000,0)
+C$$$#if LMSCELL
+C$$$      call setcg(v_slat,8,12)
+C$$$Cgetarg...info...           real(8) :: dmach , real(8) :: v_slat%tol 1
+C$$$Cgetarg       call pack5('lat as tol nkdmx nkqmx',v_slat,1d0,dmach(2),150000,
+C$$$Cgetarg      .  150000,0)
        
-       v_slat%as=1d0 
-       v_slat%tol=dmach(2) 
-       v_slat%nkdmx=150000 
-       v_slat%nkqmx=150000 
+C$$$       v_slat%as=1d0 
+C$$$       v_slat%tol=dmach(2) 
+C$$$       v_slat%nkdmx=150000 
+C$$$       v_slat%nkqmx=150000 
 
-      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
-Cgetarg...info...           integer :: nkd , integer(8) :: v_slat%nkd 1
-Cgetarg...info...           integer :: odlv , integer(8) :: v_slat%odlv 1
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: v_slat%plat 9
-Cgetarg...info...           real(8) :: plx(3,3) , real(8) :: v_slat%slat 9
-Cgetarg       call upack('lat nkd odlv plat slat',v_slat,nkd,odlv,plat,plx,0)
+C$$$      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
+C$$$Cgetarg...info...           integer :: nkd , integer(8) :: v_slat%nkd 1
+C$$$Cgetarg...info...           integer :: odlv , integer(8) :: v_slat%odlv 1
+C$$$Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: v_slat%plat 9
+C$$$Cgetarg...info...           real(8) :: plx(3,3) , real(8) :: v_slat%slat 9
+C$$$Cgetarg       call upack('lat nkd odlv plat slat',v_slat,nkd,odlv,plat,plx,0)
        
-       nkd=v_slat%nkd
-       odlv=v_slat%odlv
-       i_copy_size=size(v_slat%plat) 
-       call dcopy(i_copy_size,v_slat%plat,1,plat,1) 
-       i_copy_size=size(v_slat%slat) 
-       call dcopy(i_copy_size,v_slat%slat,1,plx,1) 
+C$$$       nkd=v_slat%nkd
+C$$$       odlv=v_slat%odlv
+C$$$       i_copy_size=size(v_slat%plat) 
+C$$$       call dcopy(i_copy_size,v_slat%plat,1,plat,1) 
+C$$$       i_copy_size=size(v_slat%slat) 
+C$$$       call dcopy(i_copy_size,v_slat%slat,1,plx,1) 
 
 
-C ... Set default values for species data
-      call defspc(v_sspec)
+C$$$C ... Set default values for species data
+C$$$      call defspc(v_sspec)
 
-      if (plx(1,1) .eq. NULLR .or. ddot(9,plx,1,plx,1) .eq. 0) then
-   88   continue
-        write(stdo,'(/a)') ' Enter lattice vectors of supercell:'
-        strn = ' '
-        i = i1mach(1)
-        swtmp = rdstrn(i,strn,len(strn),F)
-        call word(strn,1,i,j)
-        if (i .gt. j .or. strn(i:i) .eq. '/') then
-          call dpzero(plx,9)
-        else
-          i = 0
-          if (a2vec(strn,len(strn),i,4,', ',2,-3,9,ix,plx) .ne. 9) then
-            print *, 'failed to read 9 values from string ... redo'
-            goto 88
-          endif
-        endif
-        if (ddot(9,plx,1,plx,1) .eq. 0) call dcopy(9,plat,1,plx,1)
-      endif
+C$$$      if (plx(1,1) .eq. NULLR .or. ddot(9,plx,1,plx,1) .eq. 0) then
+C$$$   88   continue
+C$$$        write(stdo,'(/a)') ' Enter lattice vectors of supercell:'
+C$$$        strn = ' '
+C$$$        i = i1mach(1)
+C$$$        swtmp = rdstrn(i,strn,len(strn),F)
+C$$$        call word(strn,1,i,j)
+C$$$        if (i .gt. j .or. strn(i:i) .eq. '/') then
+C$$$          call dpzero(plx,9)
+C$$$        else
+C$$$          i = 0
+C$$$          if (a2vec(strn,len(strn),i,4,', ',2,-3,9,ix,plx) .ne. 9) then
+C$$$            print *, 'failed to read 9 values from string ... redo'
+C$$$            goto 88
+C$$$          endif
+C$$$        endif
+C$$$        if (ddot(9,plx,1,plx,1) .eq. 0) call dcopy(9,plat,1,plx,1)
+C$$$      endif
 
-      call supcel(0,v_sctrl,v_slat,v_ssite,slabl,v_sspec,plx,
-     .  nkd,w(odlv),nbx)
-      goto 1000
-#endif
+C$$$      call supcel(0,v_sctrl,v_slat,v_ssite,slabl,v_sspec,plx,
+C$$$     .  nkd,w(odlv),nbx)
+C$$$      goto 1000
+C$$$#endif
 
 C ... Input to scale MT radii (define RESIZE)
-#if LM | LMCHK | LMPOL | LMPLAN | LMXBS | LMCOR | LMSTR | LMDOS
-#define RESIZE 1
-#endif
-#if LMGF | LMPG | LMF | LMFGWD | LMFA | LMMC
-#define RESIZE 1
-#endif
+c resize for all LMDOS,LMF,LMFGWD,LMFA, LMCHK
+c#if LM | LMCHK | LMPOL | LMPLAN | LMXBS | LMCOR | LMSTR | LMDOS
+c#if LMCHK | LMDOS
+c#define RESIZE 1
+c#endif
+
+c#if LMGF | LMPG | LMF | LMFGWD | LMFA | LMMC
+c#if LMF | LMFGWD | LMFA
+c#define RESIZE 1
+c#endif
 
 C --- Lattice setup ---
-#if ! (LMCTL | LMMC)
-ctakao will add |LMFA)
+c#if ! (LMCTL | LMMC)
       call setcg(v_slat,8,12)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
-#endif
+c#endif
+
 
 C --- Generate symmetry operations; split species into classes  ---
       strn = 'find'
@@ -585,61 +581,72 @@ C$$$        strn = ' '
 C$$$      endif
 C$$$      lc = 40
 C$$$#endif
-#if MMAG
-      lc = 0
-#endif
-#if LMFA
-C      lc = 0
-#endif
+c#if MMAG
+c      lc = 0
+c#endif
+
+c#if LMFA
+cC      lc = 0
+c#endif
+
 #if LMF
       lc = 10
 #endif
+
 #ifndef LMFGWD
 Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
        if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2 
+#endif
 
-#endif
-#if ! LMMC
-ctakao will add |LMFA)
+c#if ! LMMC
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
-#else
-      lc = 0
-#endif
+c#else
+c      lc = 0
+c#endif
+      print *,' lmv7:lc=',lc
+cccccccccccccccccc
+c      print *,' uuuu 111 nmap=',int(v_sctrl%nmap) 
+cccccccccccccccccc
+
+c nmap is not zero cleared ---> takao think it is zero for all cases here.
+
 
 C --- Allocate permanent class arrays, maps and other initialization ---
-c      if (lc .ge. 20)
-c     .  call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
-c     .  v_slat,v_sbz,v_sstr,sstrn)
+      if (lc .ge. 20)
+     .  call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
+     .  v_slat,v_sbz,v_sstr,sstrn)
 
 C --- Read available class parameters from file ---
-#if LMCTL | LMCHK
+c#if LMCTL | LMCHK
+#if LMCHK
       call aiocls(.false.,0,v_sarry,v_sctrl,v_sham,v_spot,
      .  v_sspec,v_slat,1,0)
-#elif LM | TBE | LMGF | LMSHF | LMPLAN
-#ifndef TBE
-      call aiocls(.false.,12,v_sarry,v_sctrl,v_sham,v_spot,
-     .  v_sspec,v_slat,1,0)
-#endif
-c$$$      call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,T,
-c$$$     .  slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-c$$$     .  v_sarry,v_smove,v_stb,sstrn)
+c#elif LM | TBE | LMGF | LMSHF | LMPLAN
+c
+cc#ifndef TBE
+c      call aiocls(.false.,12,v_sarry,v_sctrl,v_sham,v_spot,
+c     .  v_sspec,v_slat,1,0)
+cc#endif
+cc$$$      call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,T,
+cc$$$     .  slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
+cc$$$     .  v_sarry,v_smove,v_stb,sstrn)
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
-
-#ifndef TBE
+c#ifndef TBE
       call aiocls(.false.,17,v_sarry,v_sctrl,v_sham,v_spot,
      .  v_sspec,v_slat,1,0)
-c      if (lc .ge. 20)
-c     .  call clsprp(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
-c     .  v_slat,v_sbz,v_sstr,sstrn)
-#endif
+      if (lc .ge. 20)
+     .  call clsprp(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
+     .  v_slat,v_sbz,v_sstr,sstrn)
+c#endif
 #endif
 C     Discard contents of input file
 Cki      deallocate(recrd)
 
+
 C --- Optionally resize spheres ---
-#if RESIZE
+c#if RESIZE
       if (cmdopt('--sfill',7,0,strn)) then
         print *, '*** --sfill DEPRECATED .. see lmto.html'
         call sfill(strn(8:),slabl,v_sctrl,v_sarry,v_slat,
@@ -648,18 +655,20 @@ C --- Optionally resize spheres ---
         call sfill('auto',slabl,v_sctrl,v_sarry,v_slat,v_sspec,
      .    v_ssite)
       endif
-#endif
+c#endif
 
 C ... Set default values for species data
       call defspc(v_sspec)
 
+
+
 C ... Patch for now ... maybe replace
-#if LM | TBE | LMGF | LMF
+c#if LM | TBE | LMGF | LMF
+#if LMF
 #ifndef LMFGWD
 Cgetarg       ltet = lgors('ctrl lmet,1',v_sctrl) .or.
 Cgetarg      .       lgors('ctrl ldos,4+2+1',v_sbz)
        ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0 
-
       call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
 #endif
 #endif
@@ -672,6 +681,7 @@ Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
         call rx0(prgnam)
       endif
 
+
 #if LMFA
       call freeat(v_sctrl,v_sspec,v_sham,v_spot)
 #endif
@@ -682,108 +692,110 @@ Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
         call cexit(0,1)
       endif
 #endif
-#if LMCHK | LMXBS | LMGPOL | LMSHF
+
+c#if LMCHK | LMXBS | LMGPOL | LMSHF
+#if LMCHK
       if (cmdopt('--findes',8,0,strn)) auxmod = 128
       call lmaux(prgnam,v_sctrl,v_sham,v_spot,v_slat,v_sspec,
      .  v_ssite,v_sstr,v_sarry,v_sbz,slabl,sstrn,auxmod,wksize)
 #endif
 
-#if LM
-      call lmasa(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
-     .  v_smix,v_sspec,v_ssite,v_sstr,v_sarry,sstrn)
-#endif
+c#if LM
+c      call lmasa(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
+c     .  v_smix,v_sspec,v_ssite,v_sstr,v_sarry,sstrn)
+c#endif
 
 #if LMF
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
      .  v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
 #endif
 
-#if LMMC
-      if (cmdopt('--fit',5,0,strn)) then
-        call lmcfit('MCFIT',v_sctrl,v_sham,v_spot,v_slat,
-     .    v_sbz,v_smix,v_sspec,v_ssite,v_sstr,v_smove,
-     .    v_sarry,sstrn)
-      elseif (cmdopt('--atom',6,0,strn)) then
-        call lmca('MCA',v_sctrl,v_sham,v_spot,v_slat,v_sbz,
-     .    v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,
-     .    sstrn)
-      elseif (cmdopt('--xbs',5,0,strn)) then
-        call lmxbs('MCXBS',v_sctrl,v_sham,v_spot,v_slat,v_sbz,
-     .    v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,
-     .    sstrn)
-      elseif (cmdopt('--rho',5,0,strn)) then
-        call lmrho('MCXBS',v_sctrl,v_sham,v_spot,v_slat,v_sbz,
-     .    v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,
-     .    sstrn)
-      else
-        call lmce('MCE',v_sctrl,v_sham,v_spot,v_slat,v_sbz,
-     .    v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,
-     .    sstrn)
-      endif
-#endif
+C$$$#if LMMC
+C$$$      if (cmdopt('--fit',5,0,strn)) then
+C$$$        call lmcfit('MCFIT',v_sctrl,v_sham,v_spot,v_slat,
+C$$$     .    v_sbz,v_smix,v_sspec,v_ssite,v_sstr,v_smove,
+C$$$     .    v_sarry,sstrn)
+C$$$      elseif (cmdopt('--atom',6,0,strn)) then
+C$$$        call lmca('MCA',v_sctrl,v_sham,v_spot,v_slat,v_sbz,
+C$$$     .    v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,
+C$$$     .    sstrn)
+C$$$      elseif (cmdopt('--xbs',5,0,strn)) then
+C$$$        call lmxbs('MCXBS',v_sctrl,v_sham,v_spot,v_slat,v_sbz,
+C$$$     .    v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,
+C$$$     .    sstrn)
+C$$$      elseif (cmdopt('--rho',5,0,strn)) then
+C$$$        call lmrho('MCXBS',v_sctrl,v_sham,v_spot,v_slat,v_sbz,
+C$$$     .    v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,
+C$$$     .    sstrn)
+C$$$      else
+C$$$        call lmce('MCE',v_sctrl,v_sham,v_spot,v_slat,v_sbz,
+C$$$     .    v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,
+C$$$     .    sstrn)
+C$$$      endif
+C$$$#endif
 
-#if LMSTR
-      call asastr(prgnam,v_sctrl,v_slat,v_sspec,v_sstr,
-     .  v_sarry,v_sham)
-#endif
+C$$$#if LMSTR
+C$$$      call asastr(prgnam,v_sctrl,v_slat,v_sspec,v_sstr,
+C$$$     .  v_sarry,v_sham)
+C$$$#endif
 
-#if LMCTL
-      i = fopnn('LOG')
-      j = 0
-      if (cmdopt('-mad',4,0,strn)) j = 1
-      if (cmdopt('-spin1',6,0,strn)) j = j+10
-      if (cmdopt('-spinf',6,0,strn)) j = j+20
-      if (cmdopt('-enu',4,0,strn)) j = j+100
-      call shoctl(v_sctrl,v_sspec,v_spot,v_sarry,j,i)
-      call fexit(0,0,' ',0)
-#endif
+C$$$#if LMCTL
+C$$$      i = fopnn('LOG')
+C$$$      j = 0
+C$$$      if (cmdopt('-mad',4,0,strn)) j = 1
+C$$$      if (cmdopt('-spin1',6,0,strn)) j = j+10
+C$$$      if (cmdopt('-spinf',6,0,strn)) j = j+20
+C$$$      if (cmdopt('-enu',4,0,strn)) j = j+100
+C$$$      call shoctl(v_sctrl,v_sspec,v_spot,v_sarry,j,i)
+C$$$      call fexit(0,0,' ',0)
+C$$$#endif
 
-#if LMGF
-Cgetarg       i = igets('ctrl lcgf',v_sctrl)
-       i = int(v_sctrl%lcgf) 
+C$$$#if LMGF
+C$$$Cgetarg       i = igets('ctrl lcgf',v_sctrl)
+C$$$       i = int(v_sctrl%lcgf) 
 
-C ... Special branch for exchange coupling
-      if (i .ge. 10 .and. i .lt. 30) then
-      call exasa(v_sbz,v_sctrl,v_sham,v_spot,v_slat,
-     .  v_sspec,v_ssite,v_sarry,sstrn,slabl)
-      else
-C ... This lmasa must have gfasa uncommented
-      call lmasa(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
-     .  v_smix,v_sspec,v_ssite,v_sstr,v_sarry,sstrn)
-      endif
-#endif
+C$$$C ... Special branch for exchange coupling
+C$$$      if (i .ge. 10 .and. i .lt. 30) then
+C$$$      call exasa(v_sbz,v_sctrl,v_sham,v_spot,v_slat,
+C$$$     .  v_sspec,v_ssite,v_sarry,sstrn,slabl)
+C$$$      else
+C$$$C ... This lmasa must have gfasa uncommented
+C$$$      call lmasa(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
+C$$$     .  v_smix,v_sspec,v_ssite,v_sstr,v_sarry,sstrn)
+C$$$      endif
+C$$$#endif
 
 #if LMDOS
       call asados(prgnam,v_sbz,v_sctrl,v_sham,v_slat,
      .  v_sspec,v_ssite,v_sarry)
 #endif
 
-#if TBE
-      ltbe = 1
-      if (cmdopt('--band',6,0,outs)) ltbe = 2
-      if (cmdopt('--fit',5,0,outs)) ltbe = 4
-      call tbzint(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
-     .  v_smix,v_sspec,v_ssite,v_sstr,v_sarry,v_stb,sstrn,
-     .  ltbe)
-#endif
+C$$$#if TBE
+C$$$      ltbe = 1
+C$$$      if (cmdopt('--band',6,0,outs)) ltbe = 2
+C$$$      if (cmdopt('--fit',5,0,outs)) ltbe = 4
+C$$$      call tbzint(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
+C$$$     .  v_smix,v_sspec,v_ssite,v_sstr,v_sarry,v_stb,sstrn,
+C$$$     .  ltbe)
+C$$$#endif
 
-#if LMIMP
-      call lmaux(prgnam,v_sctrl,v_sham,v_spot,v_slat,v_sspec,
-     .  v_ssite,v_sstr,v_sarry,v_sbz,slabl,sstrn,2**6,wksize)
-#endif
+C$$$#if LMIMP
+C$$$      call lmaux(prgnam,v_sctrl,v_sham,v_spot,v_slat,v_sspec,
+C$$$     .  v_ssite,v_sstr,v_sarry,v_sbz,slabl,sstrn,2**6,wksize)
+C$$$#endif
 
-#if MMAG
-C     Uncomment these lines for Monte-Carlo atomistic simulations
-C      call mcasim(v_sctrl,v_sarry,v_sspec,v_slat,v_smove,
-C     .  sstrn)
-      call mmag(v_sctrl,v_sham,v_sarry,v_sspec,v_slat,
-     .  v_smove,sstrn)
-#endif
+C$$$#if MMAG
+C$$$C     Uncomment these lines for Monte-Carlo atomistic simulations
+C$$$C      call mcasim(v_sctrl,v_sarry,v_sspec,v_slat,v_smove,
+C$$$C     .  sstrn)
+C$$$      call mmag(v_sctrl,v_sham,v_sarry,v_sspec,v_slat,
+C$$$     .  v_smove,sstrn)
+C$$$#endif
 
-#if LMPLAN
-      call lmaux(prgnam,v_sctrl,v_sham,v_spot,v_slat,v_sspec,
-     .  v_ssite,v_sstr,v_sarry,v_sbz,slabl,sstrn,2**1,wksize)
-#endif
+C$$$#if LMPLAN
+C$$$      call lmaux(prgnam,v_sctrl,v_sham,v_spot,v_slat,v_sspec,
+C$$$     .  v_ssite,v_sstr,v_sarry,v_sbz,slabl,sstrn,2**1,wksize)
+C$$$#endif
 #endif
 
 C -------------- End of program -------------
@@ -809,8 +821,8 @@ C -------------- End of program -------------
 Cgetarg       end
        end subroutine fmain 
 
-      subroutine lmhelp(prgnam,vn,vn2,wksize)
 
+      subroutine lmhelp(prgnam,vn,vn2,wksize)
 C- Help printout
 C ----------------------------------------------------------------------
 Ci Inputs

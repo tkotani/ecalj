@@ -1,0 +1,21 @@
+class Keyword:
+    list = []
+    def __init__(self):
+        self.list.append("end")
+        self.list.append("if")
+        self.list.append("then")
+	self.list.append("else")
+	self.list.append("elseif")
+	self.list.append("endif")
+        self.list.append("continue")
+        self.list.append("do")
+        self.list.append("enddo")
+	self.list.append("defrr")
+	self.list.append("defdr")
+	self.list.append("defi")
+	self.list.append("defcc")
+	self.list.append("rlse")
+	self.list.append("return")
+	self.list.append("go")
+	self.list.append("goto")
+	self.list.append("select")

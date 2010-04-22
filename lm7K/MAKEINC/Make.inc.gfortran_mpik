@@ -142,7 +142,7 @@ $(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl
 	$(FC) $(FFLAGS) -c fp/bndfp.F -o $@	
 $(subs_obj_path)/hamfb3.o  : subs/hamfb3.F $(moddir)/m_hamindex.mod 
 	$(FC) $(FFLAGS) -c  subs/hamfb3.F -o $@
-$(subs_obj_path)/rdctrl2.o $(moddir)/m_rdctrl2_func.mod  : subs/rdctrl2.F $(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod $(moddir)/m_susite_func.mod 
+$(subs_obj_path)/rdctrl2.o : subs/rdctrl2.F $(moddir)/m_gtv.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod $(moddir)/m_susite_func.mod 
 	$(FC) $(FFLAGS) -c  subs/rdctrl2.F -o $@
 $(subs_obj_path)/rdctrlchk.o  : subs/rdctrlchk.F $(moddir)/m_gtv.mod $(moddir)/m_rdctrlchk.mod 
 	$(FC) $(FFLAGS) -c  -o $@  subs/rdctrlchk.F
@@ -154,12 +154,12 @@ $(subs_obj_path)/struc_main.o  : subs/struc_main.F $(moddir)/m_struc_def.mod $(m
 	$(FC) $(FFLAGS) -c  -o $@ subs/struc_main.F
 $(subs_obj_path)/struc_sub.o  : subs/struc_sub.F $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod 
 	$(FC) $(FFLAGS) -c  -o $@ subs/struc_sub.F
-$(subs_obj_path)/suham.o $(moddir)/m_hamindex.mod  : subs/suham.F $(moddir)/m_struc_def.mod 
+$(subs_obj_path)/suham.o  : subs/suham.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/suham.o  subs/suham.F
-$(subs_obj_path)/readmtopara.o $(moddir)/m_gtv2.mod : subs/readmtopara.F
+$(subs_obj_path)/readmtopara.o : subs/readmtopara.F
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/readmtopara.o   subs/readmtopara.F
 
-$(subs_obj_path)/rdsigm.o $(moddir)/m_psigd.mod  : subs/rdsigm.F $(moddir)/m_struc_def.mod 
+$(subs_obj_path)/rdsigm.o  : subs/rdsigm.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdsigm.o subs/rdsigm.F
 $(fp_obj_path)/hambls.o  : fp/hambls.F $(moddir)/m_psigd.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hambls.o fp/hambls.F

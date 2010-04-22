@@ -800,6 +800,11 @@ Cgetarg       elind = dgets('ham elind',sham)
 
 C --- Setup for BZ integration ---
       if (plbnd .eq. 0) then
+
+cccccccccccccccccccccc
+c         print *,'nsp,nspc,nkp,nkp=',nsp,nspc,nkp,nkp
+cccccccccccccccccccccc
+
         call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
      .    nevmx,lwtkb,eferm,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
      .    dabs(esmear-mpsord))

@@ -181,7 +181,6 @@ subs_list:=\
 	mksoph.o \
 	mksym.o \
 	mktra2.o \
-	mmag.o \
 	mpint.o \
 	mshsiz.o \
 	mstrx2.o \
@@ -345,4 +344,5 @@ subs_list:=\
         dpdbyl.o \
 	dpdftr.o \
 	pvsms2.o \
+	clsprm.o \
         sp2cls.o

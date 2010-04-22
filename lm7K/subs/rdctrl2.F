@@ -309,6 +309,9 @@ C --- Allocate and copy input to sbz ---
 Cki      call defdr(v_sbz,1000)
 Cki      call ubz(v_sbz,-1,-000,0,0,0)
 Cki      call redfrr(v_sbz,nint(dval(v_sbz,1)))
+
+ctakao Kino's Cki error 
+        call ubz_init(v_sbz)
         v_sbz%size=ubz_size()
 
 Cgetarg...info...           NG:: bz_def , real(8) :: v_sbz%def 1
@@ -383,9 +386,9 @@ C          16 map  32 nonspherical mpol moms 64 MT corr
 C         128 interpretation of sphere Q2; see newrho.f
 C         256 how ASA Q1,Q2 are accumulated; see makwts.f
 C         512 (spin pol) alpha repsn = (gamma(1) + gamma(nsp))/2
-      lasa=4*isw(lasa4)+32*isw(lasa32)+64*isw(lasa64)+128*ham_qasa
-     .    +512*isw(lasa512)
-      if (.not. asa) lasa=0
+C$$$      lasa=4*isw(lasa4)+32*isw(lasa32)+64*isw(lasa64)+128*ham_qasa
+C$$$     .    +512*isw(lasa512)
+C$$$      if (.not. asa) lasa=0
 C     lbas: 1 Hamiltonian has no screening transformation
 C           2 Hamiltonian is nfp style
 C          16 freeze phi,phidot for all species
@@ -408,8 +411,8 @@ Cgetarg      .  lat_defm,asa_elin,lasa,j,k)
        
        i_copy_size=size(v_sctrl%defm) 
        call dcopy(i_copy_size,lat_defm,1,v_sctrl%defm,1) 
-       v_sctrl%elin=asa_elin 
-       v_sctrl%lasa=lasa 
+C$$$       v_sctrl%elin=asa_elin 
+C$$$       v_sctrl%lasa=lasa 
        v_sctrl%lbas=j 
        v_sctrl%lcd=k 
 
@@ -553,8 +556,8 @@ Cgetarg...info...           NG:: lves , integer(8) :: v_sctrl%lves 1
 Cgetarg        call pack5('ctrl lstonr lstr lsx ltb lves',v_sctrl,
 Cgetarg      .   lstonr,0,lsx,i,lves)
         
-        i_copy_size=size(v_sctrl%lstonr) 
-        call ii8copy(i_copy_size,lstonr,1,v_sctrl%lstonr,1) 
+C$$$        i_copy_size=size(v_sctrl%lstonr) 
+C$$$        call ii8copy(i_copy_size,lstonr,1,v_sctrl%lstonr,1) 
         v_sctrl%lstr=0 
         v_sctrl%lsx=lsx 
         v_sctrl%ltb=i 
@@ -1709,10 +1712,10 @@ Cgetarg       call pack1('ham lncol',v_sham,lncol)
 
       lsx1 = mod(lsx,2)
 Cgetarg       if (lasa32) call pack1('mix nsave',v_smix,3)
-       if ( lasa32 ) then 
+C$$$       if ( lasa32 ) then 
        
-       v_smix%nsave=3 
-       endif 
+C$$$       v_smix%nsave=3 
+C$$$       endif 
 
 C ... Use true spherical harmonics
 Cgetarg       if (bittst(lncol,4) .or. ctrl_loptc .ne. 0 .or. lrel .eq. 2)
@@ -2100,15 +2103,15 @@ Cgetarg      .  call rx('inconsistent DOS options')
        if ( iand(8,int(v_sctrl%ldos)) .ne.0 .and. iand(4+2,int(v_sctrl%ldos)) .ne.0 
      . ) call rx ( 'inconsistent DOS options' ) 
 
-Cgetarg       call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and. nsp .eq. 2,
-Cgetarg      .  'Stoner model not compatible with nsp=2')
-       call rxx ( iand(-1,int(v_sctrl%lstonr(1))) .ne.0 .and. nsp .eq. 
-     . 2 , 'Stoner model not compatible with nsp=2' ) 
+C$$$Cgetarg       call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and. nsp .eq. 2,
+C$$$Cgetarg      .  'Stoner model not compatible with nsp=2')
+C$$$       call rxx ( iand(-1,int(v_sctrl%lstonr(1))) .ne.0 .and. nsp .eq. 
+C$$$     . 2 , 'Stoner model not compatible with nsp=2' ) 
 
-Cgetarg       call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and.
-Cgetarg      . lgors('ctrl lham,4',v_sctrl),'Stoner not compatible with ADNF')
-       call rxx ( iand(-1,int(v_sctrl%lstonr(1))) .ne.0 .and. iand(4,int(v_sctrl%lham)) .ne.0 
-     . , 'Stoner not compatible with ADNF' ) 
+C$$$Cgetarg       call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and.
+C$$$Cgetarg      . lgors('ctrl lham,4',v_sctrl),'Stoner not compatible with ADNF')
+C$$$       call rxx ( iand(-1,int(v_sctrl%lstonr(1))) .ne.0 .and. iand(4,int(v_sctrl%lham)) .ne.0 
+C$$$     . , 'Stoner not compatible with ADNF' ) 
 
 
 C --- Check and order principal layers, and sites by PL ---

@@ -141,8 +141,8 @@ lmdos.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMDOS -c lmv7.F -o $@
 lmfgw.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMF -DLMFGWD -c lmv7.F -o $@
-lmscell.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMSCELL -c lmv7.F -o $@
+#lmscell.o: lmv7.F
+#	$(FC) $(FFLAGS) -DLMSCELL -c lmv7.F -o $@
 #tbe.o: lmv7.F
 #	$(FC) $(FFLAGS) -DTBE -c lmv7.F -o $@
 lmf2gw.o: lmf2gw.F

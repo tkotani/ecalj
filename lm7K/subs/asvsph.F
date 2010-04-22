@@ -259,7 +259,9 @@ Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
        lpgf = int(sctrl%lpgf(1)) 
 
 Cgetarg       lnsph = isw(lgors('ctrl lasa,32',sctrl))
-       lnsph = isw ( iand(32,int(sctrl%lasa)) .ne.0 ) 
+ctakao
+c       lnsph = isw ( iand(32,int(sctrl%lasa)) .ne.0 ) 
+       lnsph = isw (.false.)
 
 Cgetarg       lves = 2*igets('ctrl lves,1',sctrl)
        lves = 2 * iand(1,int(sctrl%lves)) 

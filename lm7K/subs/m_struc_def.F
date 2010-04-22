@@ -456,7 +456,7 @@ C 56  88  4       zbak  2
         real(8):: size
         real(8) :: defm(6) 
         real(8) :: elin 
-        integer(8) :: lasa 
+c        integer(8) :: lasa 
         integer(8) :: lbas 
         integer(8) :: lcd 
         integer(8) :: lcgf 
@@ -474,7 +474,7 @@ C 56  88  4       zbak  2
         integer(8) :: lrel 
         integer(8) :: lrs 
         integer(8) :: lscr 
-        integer(8) :: lstonr(3) 
+c        integer(8) :: lstonr(3) 
         integer(8) :: lstr 
         integer(8) :: lsx 
         integer(8) :: ltb 
@@ -808,7 +808,7 @@ C 56 130  2      udiag  1
         real(8) :: eterms(20) 
         integer(8) :: hord 
         real(8) :: kmto(6) 
-        integer(8) :: lasa 
+c        integer(8) :: lasa 
         integer(8) :: ldham(16) 
         integer(8) :: lgen3 
         integer(8) :: lham 
@@ -2209,7 +2209,7 @@ c------------------------------------------------------------------
         struc%size=uctrl_size()
         struc%defm(:)=0.0d0
         struc%elin=0.0d0
-        struc%lasa=0
+c        struc%lasa=0
         struc%lbas=0
         struc%lcd=0
         struc%lcgf=0
@@ -2227,7 +2227,7 @@ c------------------------------------------------------------------
         struc%lrel=0
         struc%lrs=0
         struc%lscr=0
-        struc%lstonr(:)=0
+c        struc%lstonr(:)=0
         struc%lstr=0
         struc%lsx=0
         struc%ltb=0
@@ -2350,7 +2350,7 @@ c------------------------------------------------------------------
         struc%eterms(:)=0.0d0
         struc%hord=0
         struc%kmto(:)=0.0d0
-        struc%lasa=0
+c        struc%lasa=0
         struc%ldham(:)=0
         struc%lgen3=0
         struc%lham=0

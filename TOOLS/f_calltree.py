@@ -212,7 +212,7 @@ for ffile in argset:
         #print line
         if(ps0.search(line)) :
             if(isinstance(ins, classes.Call)):      
-                print "@cal Subr:"+ins.designator+loc1+loc #ins.item.line
+                print "@cal Subr:"+ins.designator+loc1+loc+ ' ---> '+ins.item.line
                 frame3= [x.name for x in sstack[1:] if x.__class__.__name__ in ranktag]
                 mother= frame3[-1]
                 child = ins.designator
@@ -298,7 +298,7 @@ for ffile in argset:
             if(mother != child):  #mother = child means a case where a function name is in the function.
                 #lll=(mother+"->"+child+";").lower()
                 #if(pn.search(lll)): continue
-                print "@cal Func:"+child+loc1+loc #,type(ins)
+                print "@cal Func:"+child+loc1+loc +' ---> '+ins.item.line  #,type(ins)
                 dotdata.write( (mother+"->"+child+";\n").lower() )
         deptho=depth
         inso=ins
