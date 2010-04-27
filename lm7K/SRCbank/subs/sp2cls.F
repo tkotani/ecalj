@@ -8508,7 +8508,7 @@ C     o         :corresponding to arr(1:nelt,is1:is2)
       integer:: ib1,ib2
 
       integer:: v_i,cast
-      real(8):: v_r
+      real(8):: v_r,          dval, aaa(10)
 
       integer mask(5),range(2,5)
       character(80) trunam,alias,switch
@@ -8536,7 +8536,10 @@ c     must query type
          call defi(oarr,(is2-is1+1)*nelt)
       case (4)
          factor=kind(v_r)/kind(v_i)
-         call defrr(oarr,(is2-is1+1)*nelt)
+c takao
+c       call defrr(oarr,(is2-is1+1)*nelt)
+        call defdr(oarr,(is2-is1+1)*nelt)
+
       case default
          write(*,*) thisname,': error, unknown type=',v_ri%t
          stop
@@ -8545,8 +8548,12 @@ c     must query type
       do i=is1,is2
          if (ics(i).eq.0) then; is=i;
          else; is=ics(i); endif
-         ioarr=oarr+ (i-is1+1)*nelt*factor
-         call spackv(10,sname,sspec,is1,is2,w(ioarr))
+c         ioarr=oarr+ (i-is1+1)*nelt*factor
+         ioarr=oarr+ (i-is1)*nelt*factor
+         call spackv(10,sname,sspec,i,i,w(ioarr))
+cccccccccccccccccccccccccccccccccccccc
+c         print *,'qqqqqqqq: ',i,ioarr, dval(w(ioarr),1)
+cccccccccccccccccccccccccccccccccccccc
       enddo
 
       end subroutine sp2cls

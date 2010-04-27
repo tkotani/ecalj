@@ -5,9 +5,10 @@ Cgetarg...info...           use_to_add ['smhsbl', 'm_struc_def']
 #define F90 1
       subroutine smhsbl(mode,ssite,sspec,slat,vavg,q,ndimh,iprmb,
      . napw,igapw,h,s)
-       
        use m_struc_def  !Cgetarg
-
+#if MPE 
+      use m_events !Event numbers: include "events.ins"
+#endif
 C- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -195,10 +196,10 @@ C ... for PW part
       integer, dimension(:,:), allocatable :: index
       integer obuff
 #endif
-#if MPE
-C Event numbers:
-      include "events.ins"
-#endif
+c#if MPE
+cC Event numbers:
+c      include "events.ins"
+c#endif
 C ... Heap
       integer w(1)
       common /w/ w

@@ -76,7 +76,7 @@ Cu   01 Mar 02 Updated Import data mode
 Cu   05 Oct 01 Adapted mode 2**3 to work with lm v6.11
 Cu   24 Nov 97 changed ovmin to run quickly
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer mode,wksize
       character*(*) sstrn, prgnam*8
@@ -105,11 +105,11 @@ C ... Local parameters
      .  nbaspp,nkd,nkq,nspec,npadl,npadr,neul,nc,mxcsiz,nttab,igets,
      .  iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,
      .  ngmx,nsgrp
-      integer oeold,oeula,oics,oidmod,oinitc,oipc,olmx,onrc,opnu,opold,
+      integer oeold,oeula,oinitc,oipc,olmx,onrc,opnu,opold,
      .  opp,oqc,oqnu,oqt,orhrmx,ormax,oves,ovrmax,owk,owk2,oclabl,
      .  opos,opos2,oqlv,odlv,orham,oamsh,onrmsh,oalpha,oaamom,
      .  onpr,ormt,olock,olockc,os,oz,ozz,ormx,oip,oips,oips2,opgfsl,
-     .  ontab,oiax,og,oag,ozc,mxclas,ormtc
+     .  ontab,oiax,og,oag,ozc,mxclas,ormtc,oics
       double precision xv(10),xx,alat,plat(3,3),plat2(9),facrmx,facrng,
      .  dval,avw,ekap(2),enu,rmaxs,qss(4),ckbas,cksumf,ehterm(4),
      .  qlat(9),emad,trumad,vmtz(2),omax1(3),omax2(3),wsrmax
@@ -119,6 +119,15 @@ C ... Local parameters
 C ... Heap
       integer w(1)
       common /w/ w
+
+ctakao
+      integer:: ifx
+      integer,allocatable:: ics(:)
+      integer,allocatable:: lmxa(:)
+c      real(8),allocatable::idmod(:,:), z(:),amsh(:),rmax(:), nrmsh(:)
+      real(8),allocatable:: z(:),rmax(:)
+
+      print *,' lmaux:' 
 
 Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
 Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
@@ -159,6 +168,7 @@ Cgetarg      .  oclabl,onrc,0)
        oics=sarray%oics
        oclabl=sarray%oclabl
        onrc=sarray%onrc
+ccc
 
 Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
 Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
@@ -249,10 +259,16 @@ Cgetarg       call upack2('str mxnbr rmax',sstr,mxnbr,rmaxs)
        mxnbr=sstr%mxnbr
        rmaxs=sstr%rmax
 
-      call sp2cls('spec idmod',sspec,w(oics),nl,1,nclasp,oidmod)
-      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx)
-      call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
-      call sp2cls('spec rham',sspec,w(oics),1,1,nclasp,orham)
+ctakao
+c      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx) --->lmxa
+c      call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
+      allocate(ics(1:nclasp),lmxa(nclasp),z(nclasp))
+      call icopy(nclasp,w(oics),1,ics,1)
+      lmxa(1:nclasp) = sspec(ics(1:nclasp))%lmxa
+      z   (1:nclasp) = sspec(ics(1:nclasp))%z
+      print *,' lmxa=',lmxa
+      print *,' z   =',z
+
       nbasp = nbas + npadl + npadr
       nbaspp = 2*nbasp - nbas
 
@@ -331,6 +347,7 @@ C --- Print out a few superlattice vectors ---
 
 C --- Find sphere overlaps ---
       j = 9
+      ifx=0
       if (cmdopt('--getwsr',j-1,0,outs)) then
         call info(10,1,0,' ... Make sphere radii',0,0)
 C        xx = dglob('lrel',1d0,1)
@@ -388,19 +405,36 @@ Cgetarg         call spackv(11,'spec rmt',sspec,1,nspec,w(ormt))
          enddo
 
         nclspp = max(2*nclasp-nclass,nspec)
-        call sp2cls('spec rmt',sspec,w(oics),1,1,nclspp,ormax)
+c takao
+c        call sp2cls('spec rmt',sspec,ics,1,1,nclspp,ormax)
+        allocate(rmax(nclspp))
+        print *,' zzzz nclspp=',nclspp
+        do i=1,nclspp
+          rmax(i) =sspec(ics(i))%rmt
+        enddo
+        call defdr(ormax,nclspp)
+        call dcopy(nclspp,rmax,1,w(ormax),1)
+
 Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
 Cgetarg         call pack1('array ormax',sarray,ormax)
-         
          sarray%ormax=ormax 
-
+         ifx=1
       endif
+
+c-------
+      if(ifx==0) then
+        allocate(rmax(nclasp))
+        call dcopy(nclasp,w(ormax),1,rmax,1)
+      endif
+      
+c
+
 
 C --- Show neighbors by shell ---
       outs = ' '
       j = 8
       if (cmdopt('--shell',j-1,0,outs)) then
-        call shoshl(outs(j:),nbas,w(opos),plat,mxnbr,w(oz),slabl,
+        call shoshl(outs(j:),nbas,w(opos),plat,mxnbr,z,slabl,
      .    w(oclabl),w(oips),w(oipc),w(oves),w(oeula),nclass)
       endif
 
@@ -466,8 +500,8 @@ C --- Print overlaps, optionally minimize wrt spec'd sites ---
       if (swtmp) i = 7
       j = 1
       if (iprint() .lt. 30) j = 0
-      call ovmin(outs(i:),nbas,nbasp,alat,plat,w(ormax),w(ormax),
-     .  w(oclabl),w(oipc),modep,w(oz),ontab,oiax,w(opos),j)
+      call ovmin(outs(i:),nbas,nbasp,alat,plat,rmax,rmax,
+     .  w(oclabl),w(oipc),modep,z,ontab,oiax,w(opos),j)
 C ... Write positions to file
       if (cmdopt('--wpos=',7,0,outs))
      .  call iopos(T,0,outs(8:),nbasp,w(opos))
@@ -477,7 +511,7 @@ C ... Inner products between Euler angles
         call amagnc(nbas,nl,w(oipc),w(1),1,w(oqnu),w(oeula),neul,1,xv,
      .    w(oaamom))
         print '(1x)'
-        call angtab(nbas,w(opos),alat,w(ormax),qss,w(oqlv),
+        call angtab(nbas,w(opos),alat,rmax,qss,w(oqlv),
      .    w(odlv),nkd,w(oipc),neul,w(oeula))
       endif
 
@@ -515,129 +549,136 @@ Cgetarg         call upack('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
       endif
 
 C --- Generate input file to xbs program ---
-      if (getdig(mode,2,2) .ne. 0) then
-      ifi = fopn('XBS')
-      facrmx = .5d0
-      ip = 4
-      if (cmdopt('-bs=',ip,0,outs)) then
-        call skipbl(outs,len(outs),ip)
-        i = parg(' ',4,outs,ip,len(outs),' ',1,1,j,facrmx)
-      endif
-      facrng = 1d0
-      ip = 4
-      if (cmdopt('-ss=',ip,0,outs)) then
-        call skipbl(outs,len(outs),ip)
-        i = parg(' ',4,outs,ip,len(outs),' ',1,1,j,facrng)
-      endif
-C ... Copy wsr*facrmx into rmax, wsr*facrng into rham (if nonzero)
-      call defdr(ormx, nclass)
-      call dpcopy(w(ormax),w(ormx),1,nclass,facrmx)
-C ... Copy wsr*facrng into rham, if zero
-      do  30  i = 1, nclass
-      xx = dval(w(orham),i)
-   30 if (xx .eq. 0d0 .or. xx .eq. NULLI)
-     .  call dvset(w(orham),i,i,facrng*dval(w(ormax),i))
-      if (iprint() .ge. 20) then
-        call awrit2('%N ball size = %d * sphere size;  '//
-     .    'def stick length = %d * sum sphere sizes',
-     .    ' ',80,stdo,facrmx,facrng)
-      endif
-      if (cmdopt('-spec',5,0,outs) .or. cmdopt('--spec',6,0,outs)) then
-        nc = nspec
-        oip = oips
-      else
-        nc = nclass
-        oip = oipc
-      endif
-      call ioxbs(ifi,nbas,nc,alat,plat,w(orham),w(ormx),w(oclabl),
-     .  w(oip),w(oz),w(opos))
-      call fclose(ifi)
-      endif
+C$$$      if (getdig(mode,2,2) .ne. 0) then
+C$$$      ifi = fopn('XBS')
+C$$$      facrmx = .5d0
+C$$$      ip = 4
+C$$$      if (cmdopt('-bs=',ip,0,outs)) then
+C$$$        call skipbl(outs,len(outs),ip)
+C$$$        i = parg(' ',4,outs,ip,len(outs),' ',1,1,j,facrmx)
+C$$$      endif
+C$$$      facrng = 1d0
+C$$$      ip = 4
+C$$$      if (cmdopt('-ss=',ip,0,outs)) then
+C$$$        call skipbl(outs,len(outs),ip)
+C$$$        i = parg(' ',4,outs,ip,len(outs),' ',1,1,j,facrng)
+C$$$      endif
+C$$$C ... Copy wsr*facrmx into rmax, wsr*facrng into rham (if nonzero)
+C$$$      call defdr(ormx, nclass)
+C$$$      call dpcopy(w(ormax),w(ormx),1,nclass,facrmx)
+C$$$C ... Copy wsr*facrng into rham, if zero
+C$$$      do  30  i = 1, nclass
+C$$$      xx = dval(rham,i)
+C$$$   30 if (xx .eq. 0d0 .or. xx .eq. NULLI)
+C$$$     .  call dvset(rham,i,i,facrng*dval(w(ormax),i))
+C$$$      if (iprint() .ge. 20) then
+C$$$        call awrit2('%N ball size = %d * sphere size;  '//
+C$$$     .    'def stick length = %d * sum sphere sizes',
+C$$$     .    ' ',80,stdo,facrmx,facrng)
+C$$$      endif
+C$$$      if (cmdopt('-spec',5,0,outs) .or. cmdopt('--spec',6,0,outs)) then
+C$$$        nc = nspec
+C$$$        oip = oips
+C$$$      else
+C$$$        nc = nclass
+C$$$        oip = oipc
+C$$$      endif
+C$$$      call ioxbs(ifi,nbas,nc,alat,plat,rham,w(ormx),w(oclabl),
+C$$$     .  w(oip),z,w(opos))
+C$$$      call fclose(ifi)
+C$$$      endif
 
-C --- Shift pp's (and optionally) moments by enu ---
-C     pp's are remade using the potential if available.
-C     use -enu=val to shift all enu's to val.
-C     Use -mom if to save shifted moments.  Potential NOT remade.
-      if (getdig(mode,3,2) .ne. 0) then
-      ip = 5
-      if (cmdopt('-enu=',ip,0,outs)) then
-        call skipbl(outs,len(outs),ip)
-        i = parg(' ',4,outs,ip,len(outs),' ',1,1,j,enu)
-        if (i .eq. -1) call rxs('LMSHF: failed to parse ',outs)
-      else
-        call rx('LMSHF: missing argument -enu=val')
-      endif
-      call supot(1,sctrl,slat,spot)
-      call defdr(oeold,3*nl*nsp*nclass)
-      call defdr(opold,  nl*nsp*nclass)
-      call dcopy(3*nl*nsp*nclass,w(oqnu),1,w(oeold),1)
-      call dcopy(  nl*nsp*nclass,w(opnu),1,w(opold),1)
-      call pp2enu(sspec,nclass,w(oics),w(onrc),nsp,nl,w(ormax),avw,
-     .  w(oqnu),w(opnu),w(oqnu),xv,w(oinitc),w(oclabl),enu,w(opp))
-      if (.not. cmdopt('-mom',4,0,outs)) then
-        oqnu = oeold
-        opnu  = opold
-      endif
-      call asvsph(sctrl,slat,sarray,sspec,sham,spot,0d0,2,ehterm,i)
-      call rx0('done')
+C$$$C --- Shift pp's (and optionally) moments by enu ---
+C$$$C     pp's are remade using the potential if available.
+C$$$C     use -enu=val to shift all enu's to val.
+C$$$C     Use -mom if to save shifted moments.  Potential NOT remade.
+C$$$      if (getdig(mode,3,2) .ne. 0) then
+C$$$      ip = 5
+C$$$      if (cmdopt('-enu=',ip,0,outs)) then
+C$$$        call skipbl(outs,len(outs),ip)
+C$$$        i = parg(' ',4,outs,ip,len(outs),' ',1,1,j,enu)
+C$$$        if (i .eq. -1) call rxs('LMSHF: failed to parse ',outs)
+C$$$      else
+C$$$        call rx('LMSHF: missing argument -enu=val')
+C$$$      endif
+C$$$      call supot(1,sctrl,slat,spot)
+C$$$      call defdr(oeold,3*nl*nsp*nclass)
+C$$$      call defdr(opold,  nl*nsp*nclass)
+C$$$      call dcopy(3*nl*nsp*nclass,w(oqnu),1,w(oeold),1)
+C$$$      call dcopy(  nl*nsp*nclass,w(opnu),1,w(opold),1)
+C$$$      call pp2enu(sspec,nclass,ics,w(onrc),nsp,nl,w(ormax),avw,
+C$$$     .  w(oqnu),w(opnu),w(oqnu),xv,w(oinitc),w(oclabl),enu,w(opp))
+C$$$      if (.not. cmdopt('-mom',4,0,outs)) then
+C$$$        oqnu = oeold
+C$$$        opnu  = opold
+C$$$      endif
+C$$$      call asvsph(sctrl,slat,sarray,sspec,sham,spot,0d0,2,ehterm,i)
+C$$$      call rx0('done')
+C$$$ctakao
+C$$$c      call sp2cls('spec a',sspec,ics,1,1,nclass,oamsh)
+C$$$c      call sp2cls('spec nr',sspec,ics,1,1,nclass,onrmsh)
+C$$$      allocate(amsh(nclass),nrmsh(nclass))
+C$$$      do i=1,nclass
+C$$$        amsh(i) =sspec(ics(i))%a 
+C$$$        nrmsh(i)=sspec(ics(i))%nr
+C$$$        print *,' amsh nrmsh=',amsh(i),nrmsh(i)
+C$$$      enddo
 
-      call sp2cls('spec a',sspec,w(oics),1,1,nclass,oamsh)
-      call sp2cls('spec nr',sspec,w(oics),1,1,nclass,onrmsh)
-      call prmx('a',w(oamsh),nclass,nclass,1)
-      call mkppar(w(oclabl),nl,nsp,nclass,w(olmx),w(oz),w(ormax),avw,
-     .  w(oamsh),w(onrmsh),w(opnu),w(oidmod),w(oves),w(oqnu),w(opp))
-      call rx('implement call to write out new parms')
-C      call aiomms(nclass,nl,w(olmx),nsp,w(oclabl),w(opnu),w(oqnu),
-C     .  w(oidmod),w(opp),w(orhrmx),w(ovrmax),w(oves),.true.)
-      endif
+C$$$      call prmx('a',amsh,nclass,nclass,1)
+C$$$      call mkppar(w(oclabl),nl,nsp,nclass,lmxa,z,w(ormax),avw,
+C$$$     .  amsh,nrmsh,w(opnu),idmod,w(oves),w(oqnu),w(opp))
+C$$$      call rx('implement call to write out new parms')
+C$$$C      call aiomms(nclass,nl,lmxa,nsp,w(oclabl),w(opnu),w(oqnu),
+C$$$C     .  idmoc,w(opp),w(orhrmx),w(ovrmax),w(oves),.true.)
+C$$$      endif
 
 C --- Interpolate core to another mesh ---
       if (getdig(mode,4,2) .ne. 0) then
         call rx('patch clabl for call to coritp')
-C       call coritp(nclass,nsp,w(oclabl),w(onrmsh),w(oamsh),w(ormax))
+C       call coritp(nclass,nsp,w(oclabl),nrmsh,amsh,w(ormax))
       endif
 
-C --- Display poles of potential functions ---
-      if (getdig(mode,5,2) .ne. 0) then
-      ckbas = cksumf(w(opos),3*nbas)
-      call iostr(8,'STR',nl,nbasp,1,ekap,0,ckbas,-1,i,oalpha,
-     .  oiax,onpr,os)
-      call defdr(owk,nlspc)
-      call pptrns(0,nl,w(oipc),nclass,nsp,w(oalpha),1,w(opp),w(owk))
-      call rlse(owk)
-      call defdr(owk2,3*2*nl**2*nbasp*nsp)
-      call shopol(nl,nclass,nsp,sspec,w(oics),w(opp))
-      endif
+C$$$C --- Display poles of potential functions ---
+C$$$      if (getdig(mode,5,2) .ne. 0) then
+C$$$      ckbas = cksumf(w(opos),3*nbas)
+C$$$      call iostr(8,'STR',nl,nbasp,1,ekap,0,ckbas,-1,i,oalpha,
+C$$$     .  oiax,onpr,os)
+C$$$      call defdr(owk,nlspc)
+C$$$      call pptrns(0,nl,w(oipc),nclass,nsp,w(oalpha),1,w(opp),w(owk))
+C$$$      call rlse(owk)
+C$$$      call defdr(owk2,3*2*nl**2*nbasp*nsp)
+C$$$      call shopol(nl,nclass,nsp,sspec,ics,w(opp))
+C$$$      endif
 
-C --- Import data in other formats ---
-      if (getdig(mode,6,2) .ne. 0) then
+C$$$C --- Import data in other formats ---
+C$$$      if (getdig(mode,6,2) .ne. 0) then
 
-ctakao
-        allocate( ssite2(nbasp))
-        do i=1,nbasp
-        call usite_init(ssite2(i))
-        enddo
-        ssite2(1:nbasp) = ssite(1:nbasp)
-c        j = nint(ssite(1)%size) * nbasp
-c        call defrr(ossite,-100*j)
-c        call dcopy(j,ssite,1,ssite2,1)
-        call aioxtn(sctrl,sspec,ssite2,sarray,slat,slabl,w(opnu),
-     .    w(oqnu))
+C$$$ctakao
+C$$$        allocate( ssite2(nbasp))
+C$$$        do i=1,nbasp
+C$$$        call usite_init(ssite2(i))
+C$$$        enddo
+C$$$        ssite2(1:nbasp) = ssite(1:nbasp)
+C$$$c        j = nint(ssite(1)%size) * nbasp
+C$$$c        call defrr(ossite,-100*j)
+C$$$c        call dcopy(j,ssite,1,ssite2,1)
+C$$$        call aioxtn(sctrl,sspec,ssite2,sarray,slat,slabl,w(opnu),
+C$$$     .    w(oqnu))
 
-C       Output to restart file
-        if (cmdopt('--rs=',5,0,outs)) then
-Cgetarg           irs(2) = igets('ctrl lrs,8+16',sctrl)/8
-           irs ( 2 ) = iand(8+16,int(sctrl%lrs)) /8 
+C$$$C       Output to restart file
+C$$$        if (cmdopt('--rs=',5,0,outs)) then
+C$$$Cgetarg           irs(2) = igets('ctrl lrs,8+16',sctrl)/8
+C$$$           irs ( 2 ) = iand(8+16,int(sctrl%lrs)) /8 
 
-          if (irs(2) .gt. 0) then
-            ifi = fopna('rsta',-1,0)
-            call asars(0,sctrl,ssite2,sspec,slat,spot,sbz,
-     .        w(opnu),w(oqnu),.false.,-ifi)
-            call fclr('rsta',ifi)
-          endif
-        endif
-        deallocate(ssite2)
-      endif
+C$$$          if (irs(2) .gt. 0) then
+C$$$            ifi = fopna('rsta',-1,0)
+C$$$            call asars(0,sctrl,ssite2,sspec,slat,spot,sbz,
+C$$$     .        w(opnu),w(oqnu),.false.,-ifi)
+C$$$            call fclr('rsta',ifi)
+C$$$          endif
+C$$$        endif
+C$$$        deallocate(ssite2)
+C$$$      endif
 
 C --- Empty sphere finder ---
       if (getdig(mode,7,2) .ne. 0) then
@@ -651,10 +692,10 @@ Cgetarg         call upack('lat nsgrp osymgr oag',slat,nsgrp,og,oag,0,0)
          oag=slat%oag
 
         call defrr(oz,nspec)
-Cgetarg         call spackv(10,'spec z',sspec,1,nspec,w(oz))
+Cgetarg         call spackv(10,'spec z',sspec,1,nspec,z)
          i_copy_size=1; 
          do i_spackv=1,nspec 
-         call spackv_array_copy_r8_r8('u',sspec(i_spackv)%z,i_copy_size,i_spackv+1-1,w(oz))
+         call spackv_array_copy_r8_r8('u',sspec(i_spackv)%z,i_copy_size,i_spackv+1-1,z)
          enddo
 
         call defrr(ormt,nspec)
@@ -663,7 +704,6 @@ Cgetarg         call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
          do i_spackv=1,nspec 
          call spackv_array_copy_r8_r8('u',sspec(i_spackv)%rmt,i_copy_size,i_spackv+1-1,w(ormt))
          enddo
-
 
         call defi(olock,-nspec)
         do  i = 1, nspec
@@ -680,13 +720,14 @@ Cgetarg         call ivset(w(olock),i,i,bitand(igetss('spec mxcst',i,sspec),2))
         call icopy(nclass,w(owk),1,w(onrc),1)
 
         if (nclass .ge. mxclas) call rx('lmaux: increase mxclas')
-        call spec2c(nspec,nclass,w(oics),w(ormt),w(ormtc),w(oz),w(ozc),
+        call spec2c(nspec,nclass,ics,w(ormt),w(ormtc),z,w(ozc),
      .    w(olock),w(olockc))
         call findes(sctrl,alat,w(oclabl),nbas,nclass,nl,w(onrc),mxclas,
      .    nsgrp,opos,oipc,plat,w(og),w(oag),w(olockc),w(ormtc),w(ozc))
 
       endif
-
+ctakao
+      deallocate(ics,lmxa,z)
 Cgetarg       end
        end subroutine lmaux 
 

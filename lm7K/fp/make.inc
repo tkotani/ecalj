@@ -23,7 +23,6 @@ fp_list=\
 	fsmbpw.o \
 	ftlxp.o \
 	gaugm.o \
-	getcor.o \
 	gfigbl.o \
 	ggugbl.o \
 	ghibl.o \
@@ -122,9 +121,8 @@ fp_list=\
 	lmaux.o \
 	bndconn_v2.o \
 	bndfp.o \
-	genqbz.o \
 	gwcphi.o \
 	pwmat.o \
 	sugw.o \
-	suq0x.o  \
-	smshft.o
+	smshft.o \
+	m_events.o

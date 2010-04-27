@@ -2,13 +2,15 @@ Cgetarg...info...           structure ['augmbl', 'lat', 'slat']
 Cgetarg...info...           structure ['augmbl', 'site', 'ssite']
 Cgetarg...info...           structure ['augmbl', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['augmbl', 'm_struc_def']
-#define F90 1
+c#define F90 1
       subroutine augmbl(mode,ssite,sspec,slat,isp,lcplxp,q,
      .                  osig,otau,oppi,iprmb,ndimh,
      .                  napw,igapw,h,hso,s)
        
-       use m_struc_def  !Cgetarg
-
+      use m_struc_def  !Cgetarg
+#if MPE 
+      use m_events !Event numbers: include "events.ins"
+#endif
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -105,6 +107,7 @@ C ... Passed parameters
       integer i,lgunit
       character*120 strn
 #endif
+
       integer mode,lcplxp,isp,ndimh,napw,igapw(3,napw),iprmb(ndimh),
      .  osig(3,1),otau(3,1),oppi(3,1)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3)
@@ -117,32 +120,28 @@ Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3)
 C ... Local parameters
       integer nlmbx,nlmax,ktop0,lofb,mode0
       parameter (ktop0=20, nlmbx=49, nlmax=49, lofb=(ktop0+1)*nlmax)
-#if F90
+c#if F90
       complex(8),allocatable:: b(:)
-#else
-      double complex b(lofb*ndimh),b0(lofb*nlmbx),bos(lofb)
-#endif
+c#else
+c      double complex b(lofb*ndimh),b0(lofb*nlmbx),bos(lofb)
+c#endif
       double complex g(lofb)
       integer ia,isa,kmax,lmxa,lmxha,nbas,nglob,nlma,
      .  nlmha,nkaph,ocg,ocy,oidxcg,ojcg,mode1,nlmto
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
-#ifndef F90
-      integer ib,is,ik,nlmh
-      double precision p(3)
-C ... For the basis
-      integer nkap0,n0,nkapi
-      parameter (nkap0=3,n0=10)
-      integer lh(nkap0)
-      double precision eh(n0,nkap0),rsmh(n0,nkap0)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
-#endif
+c#ifndef F90
+c      integer ib,is,ik,nlmh
+c      double precision p(3)
+cC ... For the basis
+c      integer nkap0,n0,nkapi
+c      parameter (nkap0=3,n0=10)
+c      integer lh(nkap0)
+c      double precision eh(n0,nkap0),rsmh(n0,nkap0)
+c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
+c#endif
 #if MPI
       integer, dimension(:), allocatable :: bproc
       integer oh,ohbuf,os,osbuf,ohso
-#endif
-#if MPE
-C Event numbers:
-      include "events.ins"
 #endif
       integer:: initbas, endbas
 
@@ -194,9 +193,9 @@ Cgetarg       call upack('lat alat qlat vol',slat,alat,qlat,vol,0,0)
 
 C     tpiba = 2d0*4d0*datan(1d0)/alat
 
-#if F90
+c#if F90
       allocate (b(lofb*ndimh))
-#endif
+c#endif
 
 C --- Loop over augmentation sites --- ---
 #if MPI
@@ -254,52 +253,52 @@ Cgetarg      .    rsma)
 
 C   --- Make strux to expand all orbitals at site ia ---
         call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
-#if F90
+c#if F90
 C Check ...
 C        allocate (b(0:kmax,nlma,ndimh))
         call bstrux(0,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
      .    iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,
      .    napw,igapw,b,xx)
-#else
-C       Zero out strux to eliminate contributions from local orbitals
-        call dpzero(b,(kmax+1)*nlma*ndimh*2)
-        do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
-Cgetarg           call upack('site spec pos',ssite,ib,is,p,0,0)
+C$$$#else
+C$$$C       Zero out strux to eliminate contributions from local orbitals
+C$$$        call dpzero(b,(kmax+1)*nlma*ndimh*2)
+C$$$        do  ib = 1, nbas
+C$$$Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
+C$$$Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
+C$$$Cgetarg           call upack('site spec pos',ssite,ib,is,p,0,0)
            
-           is=ssite(ib)%spec
-           i_copy_size=size(ssite(ib)%pos) 
-           call dcopy(i_copy_size,ssite(ib)%pos,1,p,1) 
+C$$$           is=ssite(ib)%spec
+C$$$           i_copy_size=size(ssite(ib)%pos) 
+C$$$           call dcopy(i_copy_size,ssite(ib)%pos,1,p,1) 
 
-C         This line augments no local orbitals
-C         ik = 1
-C         This line augments onsite extended local orbitals only
-C         if (ia .eq. ib) ik = 2
-C         This line augments extended local orbitals all sites
-          ik = 2
-          call uspecb(0,ik,sspec,is,is,lh,rsmh,eh,nkapi)
-C         Position in h; l,k indices for orbitals connected w/ ib
-          call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
-C         Loop over blocks of envelope functions
-          do  ik = 1, nkapi
-            nlmh = (lh(ik)+1)**2
-            if (nlmh .gt. nlmbx) call rxi('augmbl: need nlmbx',nlmh)
-            if (nlmh .gt. nlma .and. ia.eq.ib)
-     .        call rx('augmbl: nlmh.gt.nlma')
-            call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,nlma,
-     .        kmax,nlma,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b0)
-C       ... Subtract strux of on-site heads if ib=ia
-#ifndef ALL3C
-            if (ib .eq. ia) then
-              call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)
-              call paugq2(kmax,nlmh,nlma,bos,b0)
-            endif
-#endif
-            call paugq1(kmax,nlma,kmax,ik,norb,ltab,ktab,rsmh,offl,b0,b)
-          enddo
-        enddo
-#endif
+C$$$C         This line augments no local orbitals
+C$$$C         ik = 1
+C$$$C         This line augments onsite extended local orbitals only
+C$$$C         if (ia .eq. ib) ik = 2
+C$$$C         This line augments extended local orbitals all sites
+C$$$          ik = 2
+C$$$          call uspecb(0,ik,sspec,is,is,lh,rsmh,eh,nkapi)
+C$$$C         Position in h; l,k indices for orbitals connected w/ ib
+C$$$          call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+C$$$C         Loop over blocks of envelope functions
+C$$$          do  ik = 1, nkapi
+C$$$            nlmh = (lh(ik)+1)**2
+C$$$            if (nlmh .gt. nlmbx) call rxi('augmbl: need nlmbx',nlmh)
+C$$$            if (nlmh .gt. nlma .and. ia.eq.ib)
+C$$$     .        call rx('augmbl: nlmh.gt.nlma')
+C$$$            call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,nlma,
+C$$$     .        kmax,nlma,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b0)
+C$$$C       ... Subtract strux of on-site heads if ib=ia
+C$$$#ifndef ALL3C
+C$$$            if (ib .eq. ia) then
+C$$$              call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)
+C$$$              call paugq2(kmax,nlmh,nlma,bos,b0)
+C$$$            endif
+C$$$#endif
+C$$$            call paugq1(kmax,nlma,kmax,ik,norb,ltab,ktab,rsmh,offl,b0,b)
+C$$$          enddo
+C$$$        enddo
+C$$$#endif
 
 C   --- Add 1-center and 2-center terms ---
 #if MPI
@@ -410,9 +409,9 @@ C      call z2herm('U',ndimh,ndimh,s)
 C      call zprm('h-aug',2,h,ndimh,ndimh,ndimh)
 C      call zprm('s-aug',2,s,ndimh,ndimh,ndimh)
 
-#if F90
+c#if F90
       deallocate (b)
-#endif
+c#endif
 
       call tcx ('augmbl')
 
@@ -610,16 +609,16 @@ C ... Local parameters
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
       double precision xx
       double complex cadd,cadd1
-#if F90
+c#if F90
       complex(8),allocatable:: tso(:,:,:,:)
-#else
-      double complex tso(ndimh,ndimh,2,2)
-#endif
+c#else
+c      double complex tso(ndimh,ndimh,2,2)
+c#endif
 
       if (mode1 .eq. 1) then
-#if F90
+c#if F90
         allocate (tso(ndimh,ndimh,2,2))
-#endif
+c#endif
         call dpzero(tso,ndimh*ndimh*4*2)
       endif
 
@@ -707,9 +706,9 @@ C     ... One-center terms
 
       if (mode1 .eq. 1) then
         call dpadd(hso(1,1),tso(1,1,1,2),1,2*ndimh*ndimh,1d0)
-#if F90
+c#if F90
         deallocate (tso)
-#endif
+c#endif
       endif
 
 Cgetarg       end

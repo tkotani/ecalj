@@ -1438,43 +1438,43 @@ Cgetarg      .    rmt(j),rs3(j),rsma(j),rsmfa(j))
          v_sspec(j)%rsma=rsma(j) 
          v_sspec(j)%rsmfa=rsmfa(j) 
 
-        if (ltbe) then
-Cgetarg...info...           NG:: iq1(1,j) , integer(8) :: v_sspec%iq1 4
-Cgetarg...info...           NG:: ivso(1,j) , integer(8) :: v_sspec%ivso 4
-Cgetarg...info...           NG:: stni(j) , real(8) :: v_sspec%stni 1
-Cgetarg...info...           NG:: tbvso(1,j) , real(8) :: v_sspec%vso 4
-Cgetarg           call pack5('spec iq1 ivso stni vso',v_sspec,j,
-Cgetarg      .      iq1(1,j),ivso(1,j),stni(j),tbvso(1,j))
+C$$$        if (ltbe) then
+C$$$Cgetarg...info...           NG:: iq1(1,j) , integer(8) :: v_sspec%iq1 4
+C$$$Cgetarg...info...           NG:: ivso(1,j) , integer(8) :: v_sspec%ivso 4
+C$$$Cgetarg...info...           NG:: stni(j) , real(8) :: v_sspec%stni 1
+C$$$Cgetarg...info...           NG:: tbvso(1,j) , real(8) :: v_sspec%vso 4
+C$$$Cgetarg           call pack5('spec iq1 ivso stni vso',v_sspec,j,
+C$$$Cgetarg      .      iq1(1,j),ivso(1,j),stni(j),tbvso(1,j))
            
-           i_copy_size=size(v_sspec(j)%iq1) 
-           call ii8copy(i_copy_size,iq1(1,j),1,v_sspec(j)%iq1,1) 
-           i_copy_size=size(v_sspec(j)%ivso) 
-           call ii8copy(i_copy_size,ivso(1,j),1,v_sspec(j)%ivso,1) 
-           v_sspec(j)%stni=stni(j) 
-           i_copy_size=size(v_sspec(j)%vso) 
-           call dcopy(i_copy_size,tbvso(1,j),1,v_sspec(j)%vso,1) 
+C$$$           i_copy_size=size(v_sspec(j)%iq1) 
+C$$$           call ii8copy(i_copy_size,iq1(1,j),1,v_sspec(j)%iq1,1) 
+C$$$           i_copy_size=size(v_sspec(j)%ivso) 
+C$$$           call ii8copy(i_copy_size,ivso(1,j),1,v_sspec(j)%ivso,1) 
+C$$$           v_sspec(j)%stni=stni(j) 
+C$$$           i_copy_size=size(v_sspec(j)%vso) 
+C$$$           call dcopy(i_copy_size,tbvso(1,j),1,v_sspec(j)%vso,1) 
 
-Cgetarg...info...           NG:: qpol(1,j) , real(8) :: v_sspec%qpol 10
-Cgetarg           call pack5('spec qpol',v_sspec,j,qpol(1,j),0,0,0)
+C$$$Cgetarg...info...           NG:: qpol(1,j) , real(8) :: v_sspec%qpol 10
+C$$$Cgetarg           call pack5('spec qpol',v_sspec,j,qpol(1,j),0,0,0)
            
-           i_copy_size=size(v_sspec(j)%qpol) 
-           call dcopy(i_copy_size,qpol(1,j),1,v_sspec(j)%qpol,1) 
+C$$$           i_copy_size=size(v_sspec(j)%qpol) 
+C$$$           call dcopy(i_copy_size,qpol(1,j),1,v_sspec(j)%qpol,1) 
 
-          if (ltb217 .or. ltb218) then
-Cgetarg...info...           integer :: dvec1(3) , integer(8) :: v_sbz%nkabc 3
-Cgetarg            call pack1('bz nkabc',v_sbz,dvec1)
+C$$$          if (ltb217 .or. ltb218) then
+C$$$Cgetarg...info...           integer :: dvec1(3) , integer(8) :: v_sbz%nkabc 3
+C$$$Cgetarg            call pack1('bz nkabc',v_sbz,dvec1)
             
-            i_copy_size=size(v_sbz%nkabc) 
-            call ii8copy(i_copy_size,dvec1,1,v_sbz%nkabc,1) 
+C$$$            i_copy_size=size(v_sbz%nkabc) 
+C$$$            call ii8copy(i_copy_size,dvec1,1,v_sbz%nkabc,1) 
 
-Cgetarg...info...           integer :: dvec2(3) , integer(8) :: v_sbz%lshft 3
-Cgetarg            call pack1('bz lshft',v_sbz,dvec2)
+C$$$Cgetarg...info...           integer :: dvec2(3) , integer(8) :: v_sbz%lshft 3
+C$$$Cgetarg            call pack1('bz lshft',v_sbz,dvec2)
             
-            i_copy_size=size(v_sbz%lshft) 
-            call ii8copy(i_copy_size,dvec2,1,v_sbz%lshft,1) 
+C$$$            i_copy_size=size(v_sbz%lshft) 
+C$$$            call ii8copy(i_copy_size,dvec2,1,v_sbz%lshft,1) 
 
-          endif
-        endif
+C$$$          endif
+C$$$        endif
 Cgetarg...info...           NG:: dv(j) , real(8) :: v_sspec%dv 1
 Cgetarg...info...           NG:: eref(j) , real(8) :: v_sspec%eref 1
 Cgetarg...info...           NG:: rham(j) , real(8) :: v_sspec%rham 1
@@ -1555,19 +1555,19 @@ Cgetarg      .    vshft(j),irlx(1,j),eula(1,j),0)
          i_copy_size=size(v_ssite(j)%eula) 
          call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1) 
 
-        if (ltbe) then
-Cgetarg...info...           NG:: ndelta(j) , integer(8) :: v_ssite%ndelta 1
-Cgetarg           call pack2('site ndelta',v_ssite,j,ndelta(j))
+C$$$        if (ltbe) then
+C$$$Cgetarg...info...           NG:: ndelta(j) , integer(8) :: v_ssite%ndelta 1
+C$$$Cgetarg           call pack2('site ndelta',v_ssite,j,ndelta(j))
            
-           v_ssite(j)%ndelta=ndelta(j) 
+C$$$           v_ssite(j)%ndelta=ndelta(j) 
 
-Cgetarg...info...           NG:: delta(1,j) , real(8) :: v_ssite%delta 6
-Cgetarg           call pack2('site delta',v_ssite,j,delta(1,j))
+C$$$Cgetarg...info...           NG:: delta(1,j) , real(8) :: v_ssite%delta 6
+C$$$Cgetarg           call pack2('site delta',v_ssite,j,delta(1,j))
            
-           i_copy_size=size(v_ssite(j)%delta) 
-           call dcopy(i_copy_size,delta(1,j),1,v_ssite(j)%delta,1) 
+C$$$           i_copy_size=size(v_ssite(j)%delta) 
+C$$$           call dcopy(i_copy_size,delta(1,j),1,v_ssite(j)%delta,1) 
 
-        endif
+C$$$        endif
       enddo
 
 C ... Copy string outputs to sstrn : amix, gfopt, jobid, mix, mmham, sxopt, symg
@@ -1849,7 +1849,7 @@ C     Free arrays used to read input
      .  rmt,alpha,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
      .  lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv)
       deallocate(pos,vel,eula,vshft,ips,ipl,plv,irlx,mpole,dpole)
-      if (ltbe) deallocate(delta,ndelta)
+c      if (ltbe) deallocate(delta,ndelta)
 
 C      call rx0('done copying input to structures')
 

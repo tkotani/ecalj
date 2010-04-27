@@ -6,9 +6,10 @@ Cgetarg...info...           use_to_add ['rlocbl', 'm_struc_def']
       subroutine rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,
      .  nspc,napw,igvapw,iprmb,numq,nevec,evec,ewgt,evl,osig,otau,oppi,
      .  lcplxp,lekkl,oqkkl,oeqkkl,f)
-       
        use m_struc_def  !Cgetarg
-
+#if MPE 
+      use m_events !Event numbers: include "events.ins"
+#endif
 C- Accumulates the local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -113,10 +114,10 @@ C ... Passed parameters
       character*120 strn
       logical mlog,cmdopt
 #endif
-#if MPE
-C Event numbers:
-      include "events.ins"
-#endif
+c#if MPE
+cC Event numbers:
+c      include "events.ins"
+c#endif
       integer lfrce,nbas,isp,ndimh,nspc,numq,nevec,lcplxp,lekkl,
      .  iprmb(1),ndham,napw,igvapw(3,napw)
       integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)

@@ -4,7 +4,9 @@ Cgetarg...info...           use_to_add ['fsmbpw', 'm_struc_def']
      .  nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
        
        use m_struc_def  !Cgetarg
-
+#if MPE 
+      use m_events !Event numbers: include "events.ins"
+#endif
 C- Force from smoothed hamiltonian (constant potential), PW contribution
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -61,10 +63,10 @@ C ... Passed parameters
       logical mlog,cmdopt
       character*120 strn
 #endif
-#if MPE
-C Event numbers:
-      include "events.ins"
-#endif
+c#if MPE
+cC Event numbers:
+c      include "events.ins"
+c#endif
       integer nbas,ndimh,napw,nlmax,nlmto,nevec,numq,iprmb(nlmto),lmxax
 Cgetarg       double precision ssite(1),sspec(1),ylv(napw,nlmax)
        real(8):: ylv(napw,nlmax) 

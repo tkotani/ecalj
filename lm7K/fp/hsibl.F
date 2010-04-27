@@ -5,9 +5,10 @@ Cgetarg...info...           use_to_add ['hsibl', 'm_struc_def']
 #define SGI 1
       subroutine hsibl(ssite,sspec,slat,k1,k2,k3,vsm,isp,q,ndimh,iprmb,
      .  napw,igapw,h)
-       
        use m_struc_def  !Cgetarg
-
+#if MPE 
+      use m_events !Event numbers: include "events.ins"
+#endif
 C- Interstitial ME of smooth Bloch Hankels, smooth potential.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -78,10 +79,10 @@ C ----------------------------------------------------------------------
       integer lgunit
       character*120 strn
 #endif
-#if MPE
-C Event numbers:
-      include "events.ins"
-#endif 
+c#if MPE
+cC Event numbers:
+c      include "events.ins"
+c#endif 
 
 C ... Passed parameters
       integer k1,k2,k3,isp,ndimh,iprmb(1),napw,igapw(3,napw)

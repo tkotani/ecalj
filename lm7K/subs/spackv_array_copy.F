@@ -122,23 +122,21 @@ C     ----------------------------------------------------------------
 
       end subroutine lsets_bitop_i8
 
-#if 0
-      program main
-      implicit none
-      integer,parameter:: n=10
-      integer(8):: v(n)
-      integer:: s(n)
-      integer:: i
-      do i=1,n
-         v(i)=i+10
-         s(i)=i
-      enddo
-      do i=1,n
-      call spackv_array_copy_i8_i('p',v(i),1,1,-i)
-      enddo
-      write(*,*) v
-      write(*,*) s
-      end 
-
-
-#endif
+C$$$#if 0
+C$$$      program main
+C$$$      implicit none
+C$$$      integer,parameter:: n=10
+C$$$      integer(8):: v(n)
+C$$$      integer:: s(n)
+C$$$      integer:: i
+C$$$      do i=1,n
+C$$$         v(i)=i+10
+C$$$         s(i)=i
+C$$$      enddo
+C$$$      do i=1,n
+C$$$      call spackv_array_copy_i8_i('p',v(i),1,1,-i)
+C$$$      enddo
+C$$$      write(*,*) v
+C$$$      write(*,*) s
+C$$$      end 
+C$$$#endif

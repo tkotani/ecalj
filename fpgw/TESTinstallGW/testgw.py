@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # python 2.4.3
 # This routine checks module-dependency in fortran90 and compile them in right order.
 #

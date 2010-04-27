@@ -248,12 +248,6 @@ C --- Generate symmetry operations; split species into classes  ---
       if (cmdopt('--nosym',7,0,outs)) strn = ' '
       lc = 20
 
-
-
-C      lc = 0
-
-
-
 Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
        if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2 
 
@@ -277,14 +271,14 @@ Cki      deallocate(recrd)
 
 C --- Optionally resize spheres ---
 
-      if (cmdopt('--sfill',7,0,strn)) then
-        print *, '*** --sfill DEPRECATED .. see lmto.html'
-        call sfill(strn(8:),slabl,v_sctrl,v_sarry,v_slat,
-     *    v_sspec,v_ssite)
-      else
-        call sfill('auto',slabl,v_sctrl,v_sarry,v_slat,v_sspec,
-     *    v_ssite)
-      endif
+C$$$      if (cmdopt('--sfill',7,0,strn)) then
+C$$$        print *, '*** --sfill DEPRECATED .. see lmto.html'
+C$$$        call sfill(strn(8:),slabl,v_sctrl,v_sarry,v_slat,
+C$$$     *    v_sspec,v_ssite)
+C$$$      else
+C$$$        call sfill('auto',slabl,v_sctrl,v_sarry,v_slat,v_sspec,
+C$$$     *    v_ssite)
+C$$$      endif
 
 
 C ... Set default values for species data

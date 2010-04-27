@@ -42,7 +42,7 @@ fplotprogs := fplot plbnds pldos
 
 ALL: libs
 	$(MAKE) -f Makefile progs
-	-[ -f slatsm/slatsm.a ] && (cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) ; mv -f $(fplotprogs) ../)
+	-[ -f slatsm/slatsm.a ] && (cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) ; cp -f $(fplotprogs) ../)
 #	(cd slatsm; make -f Makefile SLATSM=$(SLATSM))
 #	(cd subs; make -f Makefile SUBS=$(SUBS))
 #	(cd fp; make -f Makefile FP=$(FP))
@@ -126,8 +126,8 @@ mod-dir:
 ########################################
 # Generate main routines
 ########################################
-lmchk.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMCHK -DFP -c lmv7.F -o $@
+lmchk.o: lmv7util.F
+	$(FC) $(FFLAGS) -DLMCHK -DFP -c lmv7util.F -o $@
 #lm.o: lmv7.F
 #	$(FC) $(FFLAGS) -DLM -DNC -c lmv7.F -o $@
 # non colinear version
@@ -137,8 +137,8 @@ lmfa.o: lmfav7.F
 	$(FC) $(FFLAGS) -DLMFA -c lmfav7.F -o $@
 lmf.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMF  -c lmv7.F -o $@
-lmdos.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMDOS -c lmv7.F -o $@
+lmdos.o: lmv7util.F
+	$(FC) $(FFLAGS) -DLMDOS -c lmv7util.F -o $@
 lmfgw.o: lmv7.F
 	$(FC) $(FFLAGS) -DLMF -DLMFGWD -c lmv7.F -o $@
 #lmscell.o: lmv7.F
@@ -196,7 +196,7 @@ lmf-MPI:        lmf-MPI.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
 	$(LK) $(LKFLAGS1) $@.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmfgw-MPI.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMFGWD -c lmv7.F -o $@
+	$(FC) $(FFLAGS) -DLMF -DLMFGWD -c lmv7.F -o $@
 
 lmfgw-MPI:      lmfgw-MPI.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
 	$(LK) $(LKFLAGS1) $@.o  $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
@@ -209,7 +209,7 @@ lmf-MPIK:       lmf-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBSLA)
 	$(LK) $(LKFLAGS1) $@.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmfgw-MPIK.o: lmv7.F
-	$(FC) $(FFLAGS) -DLMFGWD -c lmv7.F -o $@
+	$(FC) $(FFLAGS) -DLMF -DLMFGWD -c lmv7.F -o $@
 
 lmfgw-MPIK:     lmfgw-MPIK.o $(LIBSUBS) $(LIBFP)  $(LIBSLA)
 	$(LK) $(LKFLAGS1) $@.o  $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
@@ -249,7 +249,7 @@ distclean:
 	testing/test.lm --quiet --clean
 	fp/test/test.fp --all --quiet --clean
 	rm -f v7input/subs.a subs/subs.a fp/subs.a 
-	rm -f v7input/{m_gtv,m_rdctrl,m_rdctrlchk,m_toksw}.mod
+	rm -f v7input/{m_gtv,m_rdctrl,m_toksw}.mod
 
 check:
 	(cd fp/test;./test.fp --all --quiet) 

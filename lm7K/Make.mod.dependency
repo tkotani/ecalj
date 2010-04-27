@@ -1,34 +1,34 @@
+# $(moddir)/m_events.mod :fp/m_events.F
 # $(moddir)/m_gtv.mod :subs/m_gtv.F
 # $(moddir)/m_hamindex.mod :subs/m_hamindex.F
 # $(moddir)/m_psigd.mod :subs/m_psigd.F
 # $(moddir)/m_rdctrl.mod :subs/m_rdctrl.F
-# $(moddir)/m_rdctrlchk.mod :subs/m_rdctrlchk.F
 # $(moddir)/m_sstrnsname.mod :subs/m_sstrnsname.F
 # $(moddir)/m_struc_def.mod :subs/m_struc_def.F
 # $(moddir)/m_struc_func.mod :subs/m_struc_def.F
 # $(moddir)/m_struc_func.mod :subs/m_struc_func.F
 # $(moddir)/m_toksw.mod :subs/m_toksw.F
 # $(moddir)/m_rdctrl2_func.mod :subs/rdctrl2.F
-# $(moddir)/m_struc_func_sp2cls.mod :subs/sp2cls.F
 # $(moddir)/m_susite_func.mod :subs/susite.F
-lmv7.o : lmv7.F $(subs_obj_path)/rdctrl2.o $(subs_obj_path)/m_struc_def.o
+lmv7.o : lmv7.F $(fp_obj_path)/m_events.o $(subs_obj_path)/rdctrl2.o $(subs_obj_path)/m_struc_def.o
 lmfav7.o : lmfav7.F $(subs_obj_path)/rdctrl2.o $(subs_obj_path)/m_struc_def.o
+lmv7util.o : lmv7util.F $(subs_obj_path)/rdctrl2.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/addbkg.o : fp/addbkg.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/addrbl.o : fp/addrbl.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/augmbl.o : fp/augmbl.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/bndfp.o : fp/bndfp.F $(subs_obj_path)/m_hamindex.o $(subs_obj_path)/m_rdctrl.o $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/augmbl.o : fp/augmbl.F $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/bndfp.o : fp/bndfp.F $(subs_obj_path)/m_hamindex.o $(subs_obj_path)/m_rdctrl.o $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/bstrux.o : fp/bstrux.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/chimedit.o : fp/chimedit.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/corprm.o : fp/corprm.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/dfaugm.o : fp/dfaugm.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/dfqkkl.o : fp/dfqkkl.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/dfratm.o : fp/dfratm.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/dfrce.o : fp/dfrce.F $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/dfrce.o : fp/dfrce.F $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/elocp.o : fp/elocp.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/fklbl.o : fp/fklbl.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/fpchk.o : fp/fpchk.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/fsmbl.o : fp/fsmbl.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/fsmbpw.o : fp/fsmbpw.F $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/fsmbl.o : fp/fsmbl.F $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/fsmbpw.o : fp/fsmbpw.F $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/ftlxp.o : fp/ftlxp.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/ggugbl.o : fp/ggugbl.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/gklbl.o : fp/gklbl.F $(subs_obj_path)/m_struc_def.o
@@ -39,7 +39,7 @@ $(fp_obj_path)/hgugbl.o : fp/hgugbl.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/hhigbl.o : fp/hhigbl.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/hhugbl.o : fp/hhugbl.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/hklbl.o : fp/hklbl.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/hsibl.o : fp/hsibl.F $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/hsibl.o : fp/hsibl.F $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/hsmbl.o : fp/hsmbl.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/ioden.o : fp/ioden.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/lmaux.o : fp/lmaux.F $(subs_obj_path)/m_struc_def.o
@@ -68,12 +68,12 @@ $(fp_obj_path)/rdovfa.o : fp/rdovfa.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/rhgcmp.o : fp/rhgcmp.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/rhogkl.o : fp/rhogkl.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/rhomom.o : fp/rhomom.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/rlocbl.o : fp/rlocbl.F $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/rlocbl.o : fp/rlocbl.F $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/rsedit.o : fp/rsedit.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/rsibl.o : fp/rsibl.F $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/rsibl.o : fp/rsibl.F $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/setofl.o : fp/setofl.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/smcorm.o : fp/smcorm.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/smhsbl.o : fp/smhsbl.F $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/smhsbl.o : fp/smhsbl.F $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/smshft.o : fp/smshft.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/smves.o : fp/smves.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/smvxcm.o : fp/smvxcm.F $(subs_obj_path)/m_struc_def.o
@@ -82,22 +82,17 @@ $(fp_obj_path)/supot.o : fp/supot.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/surho.o : fp/surho.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/symrho.o : fp/symrho.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/totfrc.o : fp/totfrc.F $(subs_obj_path)/m_struc_def.o
-$(fp_obj_path)/ugcomp.o : fp/ugcomp.F $(subs_obj_path)/m_struc_def.o
+$(fp_obj_path)/ugcomp.o : fp/ugcomp.F $(fp_obj_path)/m_events.o $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/vcdmel.o : fp/vcdmel.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/vesft.o : fp/vesft.F $(subs_obj_path)/m_struc_def.o
 $(fp_obj_path)/vesgcm.o : fp/vesgcm.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/aiocls.o : subs/aiocls.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/aioxtn.o : subs/aioxtn.F $(subs_obj_path)/m_struc_func.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/asados.o : subs/asados.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/asamad.o : subs/asamad.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/asaqmp.o : subs/asaqmp.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/asars.o : subs/asars.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/asavqm.o : subs/asavqm.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/asvsph.o : subs/asvsph.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/atfold.o : subs/atfold.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/atomsr.o : subs/atomsr.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/chkdmu.o : subs/chkdmu.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/clsprm.o : subs/clsprm.F $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/clsprm.xxx.o : subs/clsprm.xxx.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/clsset.o : subs/clsset.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/defspc.o : subs/defspc.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/findes.o : subs/findes.F $(subs_obj_path)/m_struc_def.o
@@ -113,7 +108,6 @@ $(subs_obj_path)/iors.o : subs/iors.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/iosits.o : subs/iosits.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/lattic.o : subs/lattic.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/m_rdctrl.o : subs/m_rdctrl.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_toksw.o $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/m_rdctrlchk.o : subs/m_rdctrlchk.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/m_toksw.o
 $(subs_obj_path)/m_struc_def.o : subs/m_struc_def.F $(subs_obj_path)/m_struc_func.o
 $(subs_obj_path)/makidx.o : subs/makidx.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/mcasim.o : subs/mcasim.F $(subs_obj_path)/m_struc_def.o
@@ -123,7 +117,6 @@ $(subs_obj_path)/mksym.o : subs/mksym.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/nmpot.o : subs/nmpot.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/pgfset.o : subs/pgfset.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/plana.o : subs/plana.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/pp2enu.o : subs/pp2enu.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/prdmts.o : subs/prdmts.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/pvsms2.o : subs/pvsms2.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rdctrl2.o : subs/rdctrl2.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/susite.o $(subs_obj_path)/m_struc_func.o $(subs_obj_path)/m_rdctrl.o
@@ -133,15 +126,8 @@ $(subs_obj_path)/relax.o : subs/relax.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rlxstp.o : subs/rlxstp.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rotwv.o : subs/rotwv.F $(subs_obj_path)/m_hamindex.o
 $(subs_obj_path)/rotycs.o : subs/rotycs.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/sblham.o : subs/sblham.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/secmat.o : subs/secmat.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/secmtn.o : subs/secmtn.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/setcg.o : subs/setcg.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/sfill.o : subs/sfill.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/shopol.o : subs/shopol.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/sp2cls.o : subs/sp2cls.F $(subs_obj_path)/m_struc_func.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/spackv_array_copy.o : subs/spackv_array_copy.F $(subs_obj_path)/m_struc_func.o $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/sstrxq.o : subs/sstrxq.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/struc_strn.o : subs/struc_strn.F $(subs_obj_path)/m_sstrnsname.o
 $(subs_obj_path)/suclst.o : subs/suclst.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/sudmtu.o : subs/sudmtu.F $(subs_obj_path)/m_struc_def.o

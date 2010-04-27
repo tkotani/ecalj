@@ -13,7 +13,7 @@ Ci   istab:    site ib is transformed into istab(ib,ig) by grp op ig
 Co  Outputs:
 Co   slabl:    class labels
 Co   ipc:      on output, site j belongs to class ipc(j)
-Ci   ics:      class i belongs to species ics(i)
+Co   ics:      class i belongs to species ics(i)
 Co   nclass:   number of classes
 Co   nrclas:   number of classes per each species
 Cu Updates
@@ -32,7 +32,12 @@ C Local parameters:
       character*80 outs,clabl*8
 
       stdo = lgunit(1)
+ccccccccccccccccccccccccccc
+ctakao
       call getpr(ipr)
+      ipr=40
+c     print * ,'nosplt=',nosplt
+ccccccccccccccccccccccccccc
       call icopy(nspec,1,0,nrclas,1)
       nclass = nspec
       do  5  i = 1, nspec
@@ -93,6 +98,13 @@ C      ... If the classes haven't been split yet, do so
         goto 10
       endif
       endif
+
+ccccccccccccccccccccccccc
+ctakao
+c      print *,' ipr=',ipr,nclass,nspec
+c      print *,' ics=',ics(1:nspec)
+ccccccccccccccccccccccccccc
+
 
 C --- Printout ---
       if (nclass .eq. nspec .or. ipr .lt. 20) return

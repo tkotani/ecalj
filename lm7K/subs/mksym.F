@@ -251,7 +251,9 @@ C --- Split species into classes ---
 
       call splcls(mod(mode/10,10).eq.4,w(opos),nbas,nsgrp,w(oistab),
      .  nspec,slabl,nclass,w(oipc),w(oics),w(onrc))
-
+ccccccccccc
+      print *,'zzz nclass=',nclass
+cccccccccc
 Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
 Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
 Cgetarg       call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
@@ -262,32 +264,32 @@ Cgetarg       call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
       nclasp = nclass
       nclspp = nclass
       nbasp  = nbas + npadl + npadr
+
 C ... (pgf) Extra classes for padding layers
 Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
-       lpgf = int(sctrl%lpgf(1)) 
-
-      if (lpgf .gt. 0 .and. lpgf .lt. 10) then
-C   ... Remake ipc,ics for padding and double-padding layers
-        call pgfpp(nbas,npadl,npadr,1,1,.true.,.false.,w(oipc),w(oipc))
-        call redfi(oics,nsite)
-        call defi(oiwk,nsite)
-        call pvsym1(nbas,npadl+npadr,nclasp,w(oipc),w(oics))
-        nclspp = nclasp
-        call pvsym1(nbasp,npadl+npadr,nclspp,w(oipc),w(oics))
-        if (iprint() .ge. 30) then
-          call awrit2('         %i classes for embedding region + %i '//
-     .      'for padding layers',' ',80,stdo,nclass,nclasp-nclass)
-        endif
-        call redfi(oics,   nclspp)
-C   ... Separate ipc, ipcd (dble padded ic eqiv =sngl pad vs not equiv)
-        call defi (oipcp,  nsite)
-        call icopy(nsite,w(oipc),1,w(oipcp),1)
-        call icopy(npadl+npadr,w(oipc+nbas),1,w(oipc+nbasp),1)
-      else
+C$$$       lpgf = int(sctrl%lpgf(1)) 
+C$$$      if (lpgf .gt. 0 .and. lpgf .lt. 10) then
+C$$$C   ... Remake ipc,ics for padding and double-padding layers
+C$$$        call pgfpp(nbas,npadl,npadr,1,1,.true.,.false.,w(oipc),w(oipc))
+C$$$        call redfi(oics,nsite)
+C$$$        call defi(oiwk,nsite)
+C$$$        call pvsym1(nbas,npadl+npadr,nclasp,w(oipc),w(oics))
+C$$$        nclspp = nclasp
+C$$$        call pvsym1(nbasp,npadl+npadr,nclspp,w(oipc),w(oics))
+C$$$        if (iprint() .ge. 30) then
+C$$$          call awrit2('         %i classes for embedding region + %i '//
+C$$$     .      'for padding layers',' ',80,stdo,nclass,nclasp-nclass)
+C$$$        endif
+C$$$        call redfi(oics,   nclspp)
+C$$$C   ... Separate ipc, ipcd (dble padded ic eqiv =sngl pad vs not equiv)
+C$$$        call defi (oipcp,  nsite)
+C$$$        call icopy(nsite,w(oipc),1,w(oipcp),1)
+C$$$        call icopy(npadl+npadr,w(oipc+nbas),1,w(oipc+nbasp),1)
+C$$$      else
 C   ... Reallocate arrays as permanent arrays
         call redfi(oics,   nclspp)
         oipcp = oipc
-      endif
+C$$$      endif
 
 C ... Remake istab
       if (mod(mode,10) .eq. 2) then
@@ -327,22 +329,21 @@ Cgetarg       call spackv(11,'site class',ssite,1,nbasp,w(oipc))
        call spackv_array_copy_i8_i('p',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
        enddo
 
-
 C --- Create nrc and class labels ---
       if (mod(mode/10,10) .eq. 2 .or. mod(mode/10,10) .eq. 4) then
         call defrr(oclabl, nclspp)
         call defi (onrcp,  nclspp)
         call pvsym2(3,2*nbasp-nbas,nclspp,w(oics),w(oipcp),nspec,slabl,
      .    ssite,w(oclabl),w(onrcp))
-        if (nclasp .eq. nclass) then
+C$$$     if (nclasp .eq. nclass) then !we only treat nclasp=nclass case. takao Apr2010
           onrc = onrcp
-        else
-          call defi (onrc,   nclasp)
-          call icopy(nclasp,w(onrcp),1,w(onrc),1)
-          call iaxpy(nclasp-nclass,1,w(onrcp+nclasp),1,w(onrc+nclass),1)
-C          call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
-C          call awrit2('%n:1i',' ',100,6,nclspp,w(onrcp))
-        endif
+C$$$     else
+C$$$          call defi (onrc,   nclasp)
+C$$$          call icopy(nclasp,w(onrcp),1,w(onrc),1)
+C$$$          call iaxpy(nclasp-nclass,1,w(onrcp+nclasp),1,w(onrc+nclass),1)
+C$$$C          call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
+C$$$C          call awrit2('%n:1i',' ',100,6,nclspp,w(onrcp))
+C$$$     endif
       else
         oclabl = 0
         onrcp = 0

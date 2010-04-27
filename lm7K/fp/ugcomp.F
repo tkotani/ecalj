@@ -3,9 +3,10 @@ Cgetarg...info...           structure ['ugcomp', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['ugcomp', 'm_struc_def']
 #define F90 1
       subroutine ugcomp(nbas,ssite,sspec,slat,qmom,gpot0,hpot0,ugg,f)
-       
        use m_struc_def  !Cgetarg
-
+#if MPE 
+      use m_events !Event numbers: include "events.ins"
+#endif
 C- Part of the smooth estatic energy from compensating G's alone.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -55,10 +56,10 @@ C ... Passed parameters
       logical mlog,cmdopt
       character*120 strn
 #endif
-#if MPE
-C Event numbers:
-      include "events.ins"
-#endif 
+c#if MPE
+cC Event numbers:
+c      include "events.ins"
+c#endif 
       integer nbas
 Cgetarg       double precision ssite(1),sspec(1),qmom(1),
 Cgetarg      .  gpot0(1),slat(1),f(3,nbas),hpot0(nbas),ugg

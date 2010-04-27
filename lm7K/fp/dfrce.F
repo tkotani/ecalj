@@ -13,8 +13,10 @@ Cgetarg...info...           use_to_add ['dfrce', 'm_struc_def']
 Cgetarg...info...           use_to_add ['pvdf4', 'm_struc_def']
       subroutine dfrce(ssite,sspec,slat,sctrl,k1,k2,k3,nvl,
      .  orhoat,orhat1,elind,qmom,smrho,smrout,dfh)
-       
        use m_struc_def  !Cgetarg
+#if MPE 
+      use m_events !Event numbers: include "events.ins"
+#endif
 
 C-Correction to force theorem, Harris functional
 C ----------------------------------------------------------------------
@@ -81,10 +83,6 @@ C ... Passed parameters
       double precision starttime, endtime
       logical mlog,cmdopt
 #endif
-#if MPE
-C Event numbers:
-      include "events.ins"
-#endif 
       integer nvl,k1,k2,k3,orhoat(3,1),orhat1(3,1)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),sctrl(1),dfh(3,1),
 Cgetarg      .  qmom(1)

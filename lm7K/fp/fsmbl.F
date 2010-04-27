@@ -5,7 +5,9 @@ Cgetarg...info...           use_to_add ['fsmbl', 'm_struc_def']
      .  numq,nevec,evl,evec,ewgt,f)
        
        use m_struc_def  !Cgetarg
-
+#if MPE 
+      use m_events !Event numbers: include "events.ins"
+#endif
 C- Force from smoothed hamiltonian (constant potential) and overlap
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -62,10 +64,10 @@ C ... Passed parameters
       logical mlog,cmdopt
       character*120 strn
 #endif
-#if MPE
-C Event numbers:
-      include "events.ins"
-#endif
+c#if MPE
+cC Event numbers:
+c      include "events.ins"
+c#endif
       integer nbas,ndimh,nlmto,nevec,numq,iprmb(nlmto)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3)
        real(8):: q(3) 

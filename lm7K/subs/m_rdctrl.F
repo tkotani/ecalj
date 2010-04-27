@@ -20,7 +20,7 @@ C ... HAM
       logical :: frzwf,ham_ewald
       integer:: ctrl_lfrce,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0,
      .  nsp=1,lrel=1,lso=0,ham_udiag=0 !,ham_qasa
-      logical:: ltbe  ! set to T if TBE program (used for defaults)
+c      logical:: ltbe  ! set to T if TBE program (used for defaults)
       integer lfp  ! set to T if FP program (used for defaults)
       real(8):: lat_gmax,tolft,elind,dqval,kmto(10),rsrnge,vmtz
       real(8):: alfsi=nullr,dabc(3)=nullr,rsstol
@@ -320,7 +320,7 @@ C ... For MPI
 C     mlog = cmdopt('--mlog',6,0,a)
 
 C     Used to set tbe-dependent or f-dependent defaults
-      ltbe = prgn .eq. 'TBE'
+c      ltbe = prgn .eq. 'TBE'
       lfp = 0
       if (prgn=='LMF' .or. prgn=='LMFGWD' .or. prgn=='LMMC') lfp = 1
 
@@ -1012,38 +1012,38 @@ C$$$      nm='GF_GFOPTS'; call gtv(trim(nm),tksw(prgn,nm),gfopt,nmin=10,
 C$$$     .  note='Switches governing execution of GF')
 C$$$  269 continue
 
-C --- Planar Green's function ---
-      if (tksw(prgn,'PGF') == 2) goto 219
-      if (io_show+io_help/=0) call info0(1,1,
-     .  0,' --- Parameters for PGF ---')
-C     nm='PGF'; call gtv(trim(nm),tksw(prgn,nm),Texist=ltmp,note=
-C    .  'Parameters for planar Green''s function')
-      ctrl_lpgf(1) = 0
-      nm='PGF_MODE'; call gtv(trim(nm),tksw(prgn,nm),
-     .  ctrl_lpgf(1),note='0: do nothing'//
-     .'%N%3f1: diagonal layer GF'//
-     .'%N%3f2: left- and right-bulk bulk GF'//
-     .'%N%3f3: find k(E) for left bulk'//
-     .'%N%3f4: find k(E) for right bulk'//
-     .'%N%3f5: Calculate current')
-      if (io_help == 0) then
-        if (ctrl_lpgf(1) == NULLI) ctrl_lpgf(1) = 0
-        if (ctrl_lpgf(1)==0) goto 219
-      else
-      if (io_show+io_help/=0) call info0(1,0,0,
-     .    ' ... The following are read if MODE>0')
-      endif
-      nm='PGF_SPARSE'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lpgf(2),
-     .  def_i4=0,note='0: Calculate GF layer by layer'//
-     .  '%N%3f1: Calculate GF with LU decomposition')
-      nm='PGF_PLATL'; call gtv(trim(nm),tksw(prgn,nm),
-     .  platl, nmin=3,note='third lattice vector of left bulk')
-      nm='PGF_PLATR'; call gtv(trim(nm),tksw(prgn,nm),
-     .  platr, nmin=3,note='third lattice vector of right bulk')
-      gfopt = ' '
-      nm='PGF_GFOPTS'; call gtv(trim(nm),tksw(prgn,nm),gfopt,nmin=10,
-     .  note='Switches governing execution of PGF')
-  219 continue
+C$$$C --- Planar Green's function ---
+C$$$      if (tksw(prgn,'PGF') == 2) goto 219
+C$$$      if (io_show+io_help/=0) call info0(1,1,
+C$$$     .  0,' --- Parameters for PGF ---')
+C$$$C     nm='PGF'; call gtv(trim(nm),tksw(prgn,nm),Texist=ltmp,note=
+C$$$C    .  'Parameters for planar Green''s function')
+C$$$      ctrl_lpgf(1) = 0
+C$$$      nm='PGF_MODE'; call gtv(trim(nm),tksw(prgn,nm),
+C$$$     .  ctrl_lpgf(1),note='0: do nothing'//
+C$$$     .'%N%3f1: diagonal layer GF'//
+C$$$     .'%N%3f2: left- and right-bulk bulk GF'//
+C$$$     .'%N%3f3: find k(E) for left bulk'//
+C$$$     .'%N%3f4: find k(E) for right bulk'//
+C$$$     .'%N%3f5: Calculate current')
+C$$$      if (io_help == 0) then
+C$$$        if (ctrl_lpgf(1) == NULLI) ctrl_lpgf(1) = 0
+C$$$        if (ctrl_lpgf(1)==0) goto 219
+C$$$      else
+C$$$      if (io_show+io_help/=0) call info0(1,0,0,
+C$$$     .    ' ... The following are read if MODE>0')
+C$$$      endif
+C$$$      nm='PGF_SPARSE'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lpgf(2),
+C$$$     .  def_i4=0,note='0: Calculate GF layer by layer'//
+C$$$     .  '%N%3f1: Calculate GF with LU decomposition')
+C$$$      nm='PGF_PLATL'; call gtv(trim(nm),tksw(prgn,nm),
+C$$$     .  platl, nmin=3,note='third lattice vector of left bulk')
+C$$$      nm='PGF_PLATR'; call gtv(trim(nm),tksw(prgn,nm),
+C$$$     .  platr, nmin=3,note='third lattice vector of right bulk')
+C$$$      gfopt = ' '
+C$$$      nm='PGF_GFOPTS'; call gtv(trim(nm),tksw(prgn,nm),gfopt,nmin=10,
+C$$$     .  note='Switches governing execution of PGF')
+C$$$  219 continue
 
 C --- Species (old CLASS) ---
       if (io_help == 1) nspec = 1
@@ -1192,7 +1192,7 @@ c takao for lmchk even when R is not given. See default of LMCHK
            endif
           endif
         endif
-        if (ltbe) rmt(j) = 1d0
+c        if (ltbe) rmt(j) = 1d0
 
 cccccccccccccccccccccctakao
       if(debug) print *,'nspec bbb mxcst j-loop j nspec',j,nspec
@@ -1767,8 +1767,10 @@ C --- Site ---
       if (io_show+io_help/=0 .and. tksw(prgn,'SITE')/=2) call info0(1,1,
      .  0,' --- Parameters for site data ---')
 
+c      print *, 'goto Site in m_rdctrl'
+
 C     SITE call is only helpful for printout
-C      nm='SITE'; sw = tksw(prgn,nm); if (sw == 2) goto 89
+C      nm='SITE'; sw = tksw    (prgn,nm); if (sw == 2) goto 89
 C      if (io_help /= 0 .or. io_show>0) write(stdo,'(1x)')
 C      call gtv(trim(nm),sw,Texist=ltmp,note='Site-specific parameters')
 
@@ -1779,7 +1781,7 @@ C      call gtv(trim(nm),sw,Texist=ltmp,note='Site-specific parameters')
       allocate(pos(3,nsite),vel(3,nsite),eula(3,nsite),vshft(nsite),
      .  ips(nsite),ipl(nsite),plv(nsite),irlx(3,nsite),
      .  mpole(nsite),dpole(3,nsite))
-      if (ltbe) allocate(delta(n0,nsite),ndelta(nsite))
+c      if (ltbe) allocate(delta(n0,nsite),ndelta(nsite))
 
 C     Default values
       vel  = 0d0
@@ -1812,7 +1814,7 @@ C         File contains vel,eula,PL,rlx,vshft
           if (mod(j/32,2) .eq. 1) then
             ii = ii + 32000
           endif
-          if (ltbe) ii = ii + 64000
+c          if (ltbe) ii = ii + 64000
           j = iosite(ii,3d0,0,trim(outs),i,slabl,alat,plat,nbas,
      .      nspec,pos,vel,eula,vshft,ips,ipl,irlx)
         endif
@@ -1851,6 +1853,7 @@ C ... Site data, one pass for each atom
      .    cindx=jj,note='Species label')
         if (io_help .ne. 1) then
           do  i = 1, nspec
+             print *, alabl,' xxx ', slabl(i)
             if (trim(alabl) == trim(slabl(i)) ) then
               ips(j) = i
               goto 881
@@ -1918,24 +1921,24 @@ C   ... Site positions
      .    def_i4=0,cindx=jj,
      .    note='Assign PL potential index to this site')
 
-        nm='SITE_ATOM_DELTA'; sw = tksw(prgn,nm)
-        if (sw /= 2 .and. ltbe) then
-          if (io_help .eq. 1) then
-            nlbji = NULLI
-            nlbj = 1
-          elseif (lmxb(i) == NULLI) then
-            nlbji = NULLI
-            nlbj = 0
-          else
-            i = ips(j)
-            nlbj = 1+lmxb(i)
-            nlbji = nlbj
-          endif
-          ndelta(j)=nlbj*nsp
-          call gtv(trim(nm),sw,delta(1:nlbj*nsp,j),nmin=nlbji*nsp,
-     .      cindx=jj,def_r8v=zerov,
-     .      note='Vector of on-site energy shifts')
-        endif
+C$$$        nm='SITE_ATOM_DELTA'; sw = tksw(prgn,nm)
+C$$$        if (sw /= 2 .and. ltbe) then
+C$$$          if (io_help .eq. 1) then
+C$$$            nlbji = NULLI
+C$$$            nlbj = 1
+C$$$          elseif (lmxb(i) == NULLI) then
+C$$$            nlbji = NULLI
+C$$$            nlbj = 0
+C$$$          else
+C$$$            i = ips(j)
+C$$$            nlbj = 1+lmxb(i)
+C$$$            nlbji = nlbj
+C$$$          endif
+C$$$          ndelta(j)=nlbj*nsp
+C$$$          call gtv(trim(nm),sw,delta(1:nlbj*nsp,j),nmin=nlbji*nsp,
+C$$$     .      cindx=jj,def_r8v=zerov,
+C$$$     .      note='Vector of on-site energy shifts')
+C$$$        endif
 
 C        nm='SITE_ATOM_SID'; call gtv(trim(nm),tksw(prgn,nm),sid(j),
 C     .    def_i4=0,cindx=jj,note=
@@ -2041,22 +2044,22 @@ C     Energies for NMTO structure constants
      .  '%N%10f1 G0 + Hsm'//
      .  '%N%10f2 G0 + Hsm-dot')
 
-C --- Two-center fit ---
-      if (io_help .eq. 1 .and. tksw(prgn,'TCF')/=2) call info(1,1,0,
-     .  ' * The following tokens are used for the 2-center fit',0,0)
-      nm='TCF_NBISI'; call gtv(trim(nm),tksw(prgn,nm),tcf_nbisi,
-     .  note='Mesh parameters for TCF ')
-      nm='TCF_NALF'; call gtv(trim(nm),tksw(prgn,nm),tcf_nalf,
-     .  note=
-     .  'Polynomial order for d-dependence of TCF fit coffs ')
-      nm='TCF_NCUPL'; call gtv(trim(nm),tksw(prgn,nm),tcf_ncupl,
-     .  def_i4=8,note='Reduced polynomial order in TCF ')
-      nm='TCF_NDUST'; call gtv(trim(nm),tksw(prgn,nm),tcf_ndust,
-     .  def_i4=2,note='No. iterations to improve on TCF ')
-      nm='TCF_ADEC'; call gtv(trim(nm),tksw(prgn,nm),tcf_adec,
-     .  def_r8=1d0,note='Log spacing in distance for TCF ')
-      nm='TCF_WZTCF'; call gtv(trim(nm),tksw(prgn,nm),tcf_wztcf,
-     .  def_r8=0d0,note='Weighting of z-points in TCF ')
+C$$$C --- Two-center fit ---
+C$$$      if (io_help .eq. 1 .and. tksw(prgn,'TCF')/=2) call info(1,1,0,
+C$$$     .  ' * The following tokens are used for the 2-center fit',0,0)
+C$$$      nm='TCF_NBISI'; call gtv(trim(nm),tksw(prgn,nm),tcf_nbisi,
+C$$$     .  note='Mesh parameters for TCF ')
+C$$$      nm='TCF_NALF'; call gtv(trim(nm),tksw(prgn,nm),tcf_nalf,
+C$$$     .  note=
+C$$$     .  'Polynomial order for d-dependence of TCF fit coffs ')
+C$$$      nm='TCF_NCUPL'; call gtv(trim(nm),tksw(prgn,nm),tcf_ncupl,
+C$$$     .  def_i4=8,note='Reduced polynomial order in TCF ')
+C$$$      nm='TCF_NDUST'; call gtv(trim(nm),tksw(prgn,nm),tcf_ndust,
+C$$$     .  def_i4=2,note='No. iterations to improve on TCF ')
+C$$$      nm='TCF_ADEC'; call gtv(trim(nm),tksw(prgn,nm),tcf_adec,
+C$$$     .  def_r8=1d0,note='Log spacing in distance for TCF ')
+C$$$      nm='TCF_WZTCF'; call gtv(trim(nm),tksw(prgn,nm),tcf_wztcf,
+C$$$     .  def_r8=0d0,note='Weighting of z-points in TCF ')
 
 C --- Brillouin Zone ---
       if (io_show+io_help/=0 .and. tksw(prgn,'BZ')/=2) call info0(1,1,
@@ -2117,7 +2120,7 @@ C --- Brillouin Zone ---
      .  note='No. DOS points (sampling integration, and lmdos)')
 
       xx = 2d0
-      if (ltbe) xx = 5d0
+c      if (ltbe) xx = 5d0
       nm='BZ_EFMAX'; call gtv(trim(nm),tksw(prgn,nm),bz_efmax,
      .  def_r8=xx,note='Find evecs up to efmax')
       nm='BZ_NEVMX'; call gtv(trim(nm),tksw(prgn,nm),bz_nevmx,
@@ -2136,7 +2139,7 @@ C --- Brillouin Zone ---
       nm='BZ_INVIT'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lqp2,
      .  def_lg=T,note='Use inverse iteration for diagonalization')
       i0 = 0
-      if (ltbe) i0 = -1
+c      if (ltbe) i0 = -1
       nm='BZ_MULL'; call gtv(trim(nm),tksw(prgn,nm),bz_lmull,
      .  def_i4=i0,note='Mulliken population analysis ')
       nm='BZ_EMESH'; call gtv(trim(nm),tksw(prgn,nm),bz_semsh,nmin=10,
@@ -2299,124 +2302,124 @@ c    .    ' for self-consistency')
 
       endif                     ! iterations category
 
-C --- TB ---
-      if (tksw(prgn,'TB') /= 2) then
-      if (io_show+io_help/=0)
-     .  call info0(1,1,0,' --- Tight binding parameters ---')
-      nm='TB_OVLP'; call gtv(trim(nm),tksw(prgn,nm),ltb1,
-     .  def_lg=F,note='Non orthogonal tight-binding ')
-      nm='TB_CRYSF'; call gtv(trim(nm),tksw(prgn,nm),ltb2,
-     .  def_lg=F,note='Crystal field terms in hamiltonian ')
-      nm='TB_OVCF'; call gtv(trim(nm),tksw(prgn,nm),ltb4,
-     .  def_lg=F,note='Crystal field terms in overlap ')
-      nm='TB_ADDES'; call gtv(trim(nm),tksw(prgn,nm),ltb8,
-     .  def_lg=F,note='Add ebarLL'' * sLL'' to hLL''')
-      nm='TB_RMAXH'; call gtv(trim(nm),tksw(prgn,nm),str_rmax,
-     .  def_r8=0d0,note='Hamiltonian cut-off length in units of a')
-      nm='TB_FORCES'; call gtv(trim(nm),tksw(prgn,nm),ltb16,
-     .  def_lg=T,note='Calculate forces ')
-      nm='TB_FIJ'; call gtv(trim(nm),tksw(prgn,nm),ltb32,
-     .  def_lg=F,note='To get forces by atom pair, e.g., for stresses ')
-      nm='TB_3PV'; call gtv(trim(nm),tksw(prgn,nm),ltb128,
-     .  def_lg=F,note='Calculate pressure')
-      nm='TB_EVDISC'; call gtv(trim(nm),tksw(prgn,nm),ltb256,
-     .  def_lg=T,note='Can be F '//
-     .  'for insulators or to save space for metals ')
-      nm='TB_PAIR'; call gtv(trim(nm),tksw(prgn,nm),ltb512,
-     .  def_lg=F,note='Pair potential only')
-      nm='TB_TRH'; call gtv(trim(nm),tksw(prgn,nm),ltb1024,
-     .  def_lg=F,note='Calculate local projection of band energies')
-      nm='TB_RHO'; call gtv(trim(nm),tksw(prgn,nm),ltb2048,
-     .  def_lg=F,note='Calculate local projection of charges')
-      nm='TB_U1'; call gtv(trim(nm),tksw(prgn,nm),ltb4096,
-     .  def_lg=F,note='For electrostatics with L>=0 (first model)')
-      nm='TB_UL'; call gtv(trim(nm),tksw(prgn,nm),ltb215,
-     .  def_lg=F,note='For electrostatics with L>=0')
-      nm='TB_TBU'; call gtv(trim(nm),tksw(prgn,nm),ltb213,
-     .  def_lg=F,note='Tight-binding+U')
-      nm='TB_GAMMA'; call gtv(trim(nm),tksw(prgn,nm),ltb217,
-     .  def_lg=F,note='Do gamma-point only')
-      nm='TB_MOL'; call gtv(trim(nm),tksw(prgn,nm),ltb218,
-     .  def_lg=F,note='molecule: no PBCs')
-      if (io_help .eq. 1) call info0(1,1,0,
-     .  ' * if U1=T, UL=T or TBU=T, the next two tokens are used:')
-      nm='TB_NOUAVG'; call gtv(trim(nm),tksw(prgn,nm),ltb214,
-     .  def_lg=F,note='Use individual U_l from Q=; don''t average them')
-      nm='TB_IODEL'; call gtv(trim(nm),tksw(prgn,nm),ltb216,
-     .  def_lg=F,note='Attempt to read increments from disk')
+C$$$C --- TB ---
+C$$$      if (tksw(prgn,'TB') /= 2) then
+C$$$      if (io_show+io_help/=0)
+C$$$     .  call info0(1,1,0,' --- Tight binding parameters ---')
+C$$$      nm='TB_OVLP'; call gtv(trim(nm),tksw(prgn,nm),ltb1,
+C$$$     .  def_lg=F,note='Non orthogonal tight-binding ')
+C$$$      nm='TB_CRYSF'; call gtv(trim(nm),tksw(prgn,nm),ltb2,
+C$$$     .  def_lg=F,note='Crystal field terms in hamiltonian ')
+C$$$      nm='TB_OVCF'; call gtv(trim(nm),tksw(prgn,nm),ltb4,
+C$$$     .  def_lg=F,note='Crystal field terms in overlap ')
+C$$$      nm='TB_ADDES'; call gtv(trim(nm),tksw(prgn,nm),ltb8,
+C$$$     .  def_lg=F,note='Add ebarLL'' * sLL'' to hLL''')
+C$$$      nm='TB_RMAXH'; call gtv(trim(nm),tksw(prgn,nm),str_rmax,
+C$$$     .  def_r8=0d0,note='Hamiltonian cut-off length in units of a')
+C$$$      nm='TB_FORCES'; call gtv(trim(nm),tksw(prgn,nm),ltb16,
+C$$$     .  def_lg=T,note='Calculate forces ')
+C$$$      nm='TB_FIJ'; call gtv(trim(nm),tksw(prgn,nm),ltb32,
+C$$$     .  def_lg=F,note='To get forces by atom pair, e.g., for stresses ')
+C$$$      nm='TB_3PV'; call gtv(trim(nm),tksw(prgn,nm),ltb128,
+C$$$     .  def_lg=F,note='Calculate pressure')
+C$$$      nm='TB_EVDISC'; call gtv(trim(nm),tksw(prgn,nm),ltb256,
+C$$$     .  def_lg=T,note='Can be F '//
+C$$$     .  'for insulators or to save space for metals ')
+C$$$      nm='TB_PAIR'; call gtv(trim(nm),tksw(prgn,nm),ltb512,
+C$$$     .  def_lg=F,note='Pair potential only')
+C$$$      nm='TB_TRH'; call gtv(trim(nm),tksw(prgn,nm),ltb1024,
+C$$$     .  def_lg=F,note='Calculate local projection of band energies')
+C$$$      nm='TB_RHO'; call gtv(trim(nm),tksw(prgn,nm),ltb2048,
+C$$$     .  def_lg=F,note='Calculate local projection of charges')
+C$$$      nm='TB_U1'; call gtv(trim(nm),tksw(prgn,nm),ltb4096,
+C$$$     .  def_lg=F,note='For electrostatics with L>=0 (first model)')
+C$$$      nm='TB_UL'; call gtv(trim(nm),tksw(prgn,nm),ltb215,
+C$$$     .  def_lg=F,note='For electrostatics with L>=0')
+C$$$      nm='TB_TBU'; call gtv(trim(nm),tksw(prgn,nm),ltb213,
+C$$$     .  def_lg=F,note='Tight-binding+U')
+C$$$      nm='TB_GAMMA'; call gtv(trim(nm),tksw(prgn,nm),ltb217,
+C$$$     .  def_lg=F,note='Do gamma-point only')
+C$$$      nm='TB_MOL'; call gtv(trim(nm),tksw(prgn,nm),ltb218,
+C$$$     .  def_lg=F,note='molecule: no PBCs')
+C$$$      if (io_help .eq. 1) call info0(1,1,0,
+C$$$     .  ' * if U1=T, UL=T or TBU=T, the next two tokens are used:')
+C$$$      nm='TB_NOUAVG'; call gtv(trim(nm),tksw(prgn,nm),ltb214,
+C$$$     .  def_lg=F,note='Use individual U_l from Q=; don''t average them')
+C$$$      nm='TB_IODEL'; call gtv(trim(nm),tksw(prgn,nm),ltb216,
+C$$$     .  def_lg=F,note='Attempt to read increments from disk')
 
-      sw = tksw(prgn,'TB_FIT')
-      if (sw /= 2) then
-        if (io_help .eq. 1) call info0(1,1,0,
-     .  ' * The FIT tokens are used for tight-binding fitting')
-      nm='TB_FIT_MODE'; call gtv(trim(nm),tksw(prgn,nm),tb_fmode,
-     .  note='Fit mode: 0 fit params, 1 fit in range of RFIT')
-      if (tb_fmode>=0) call isanrg(tb_fmode,0,1,'rdctrl','FIT_MODE',T)
-      if (tb_fmode>=0 .or. io_help .eq. 1) then
-      nm='TB_FIT_NBFIT'; call gtv(trim(nm),tksw(prgn,nm),tb_nbfit,
-     .    nmin=2,note='Min and max band number to fit')
-      nm='TB_FIT_EBFIT'; call gtv(trim(nm),tksw(prgn,nm),tb_ebfit,
-     .  nmin=2,note='Energy range to fit eigenvalues')
-      if (io_help .eq. 1 .or. tb_fmode .eq. 1) then
-      nm='TB_FIT_RFIT'; call gtv(trim(nm),tksw(prgn,nm),tb_rmfit,
-     .  nmin=2,note=
-     .    '(MODE=1) range for fitting Slater-Koster parameters')
-      endif
-      nm='TB_FIT_LAM'; call gtv(trim(nm),tksw(prgn,nm),tb_alam,
-     .  def_r8=0.001d0,note=
-     .  'Initial value of Levenberg-Marquardt lambda variable')
-      nm='TB_FIT_SCL'; call gtv(trim(nm),tksw(prgn,nm),tb_alsc,
-     .  def_r8=10d0,note=
-     .  'Scale factor for Levenberg-Marquardt lambda variable')
-      endif
-      endif
+C$$$      sw = tksw(prgn,'TB_FIT')
+C$$$      if (sw /= 2) then
+C$$$        if (io_help .eq. 1) call info0(1,1,0,
+C$$$     .  ' * The FIT tokens are used for tight-binding fitting')
+C$$$      nm='TB_FIT_MODE'; call gtv(trim(nm),tksw(prgn,nm),tb_fmode,
+C$$$     .  note='Fit mode: 0 fit params, 1 fit in range of RFIT')
+C$$$      if (tb_fmode>=0) call isanrg(tb_fmode,0,1,'rdctrl','FIT_MODE',T)
+C$$$      if (tb_fmode>=0 .or. io_help .eq. 1) then
+C$$$      nm='TB_FIT_NBFIT'; call gtv(trim(nm),tksw(prgn,nm),tb_nbfit,
+C$$$     .    nmin=2,note='Min and max band number to fit')
+C$$$      nm='TB_FIT_EBFIT'; call gtv(trim(nm),tksw(prgn,nm),tb_ebfit,
+C$$$     .  nmin=2,note='Energy range to fit eigenvalues')
+C$$$      if (io_help .eq. 1 .or. tb_fmode .eq. 1) then
+C$$$      nm='TB_FIT_RFIT'; call gtv(trim(nm),tksw(prgn,nm),tb_rmfit,
+C$$$     .  nmin=2,note=
+C$$$     .    '(MODE=1) range for fitting Slater-Koster parameters')
+C$$$      endif
+C$$$      nm='TB_FIT_LAM'; call gtv(trim(nm),tksw(prgn,nm),tb_alam,
+C$$$     .  def_r8=0.001d0,note=
+C$$$     .  'Initial value of Levenberg-Marquardt lambda variable')
+C$$$      nm='TB_FIT_SCL'; call gtv(trim(nm),tksw(prgn,nm),tb_alsc,
+C$$$     .  def_r8=10d0,note=
+C$$$     .  'Scale factor for Levenberg-Marquardt lambda variable')
+C$$$      endif
+C$$$      endif
 
-      endif                     !TB parameters
+C$$$      endif                     !TB parameters
 
 C --- Map (do not maintain for now) ---
 
-C --- Optics ---
-      if (tksw(prgn,'OPTICS') == 2) goto 279
-      if (io_show+io_help/=0)
-     .  call info0(1,1,0,' --- Parameters for optics ---')
+C$$$C --- Optics ---
+C$$$      if (tksw(prgn,'OPTICS') == 2) goto 279
+C$$$      if (io_show+io_help/=0)
+C$$$     .  call info0(1,1,0,' --- Parameters for optics ---')
 
-      nm='OPTICS_MODE'; call gtv(trim(nm),tksw(prgn,nm),ctrl_loptc,
-     .  def_i4=0,note=
-     .  '0: do nothing;'//
-     .   '%N%2f-1: generate joint DOS'//
-     .   '%N%3f1: generate linear eps_2'//
-     .   '%N%3f2: generate linear eps_2 with on-the-fly sampling'//
-     .   '%N%3f2: Add 10 for SHG')
-      if (ctrl_loptc == 0) goto 279 ! doesn't skip help mode: value is NULLI
-      nm='OPTICS_NPTS'; call gtv(trim(nm),tksw(prgn,nm),optic_ne,
-     .  def_i4=501,note='Number of energy points')
-      nm='OPTICS_WINDOW'; call gtv(trim(nm),tksw(prgn,nm),optic_window,
-     . def_r8v=(/0d0,1d0/),note='Energy window over which to calc. eps')
-      nm='OPTICS_FILBND'; call gtv(trim(nm),tksw(prgn,nm),optic_ocrng,
-     .  def_i4v=izerv,note='Occ. energy bands from which to calc. eps')
-      nm='OPTICS_EMPBND'; call gtv(trim(nm),tksw(prgn,nm),optic_unrng,
-     .  def_i4v=izerv,note='Unocc energy bands from which to calc. eps')
-      nm='OPTICS_PART'; call gtv(trim(nm),tksw(prgn,nm),optic_mode1,
-     .  def_lg=F,note='Band-to-band decomposition of epsilon')
+C$$$      nm='OPTICS_MODE'; call gtv(trim(nm),tksw(prgn,nm),ctrl_loptc,
+C$$$     .  def_i4=0,note=
+C$$$     .  '0: do nothing;'//
+C$$$     .   '%N%2f-1: generate joint DOS'//
+C$$$     .   '%N%3f1: generate linear eps_2'//
+C$$$     .   '%N%3f2: generate linear eps_2 with on-the-fly sampling'//
+C$$$     .   '%N%3f2: Add 10 for SHG')
+C$$$      if (ctrl_loptc == 0) goto 279 ! doesn't skip help mode: value is NULLI
+C$$$      nm='OPTICS_NPTS'; call gtv(trim(nm),tksw(prgn,nm),optic_ne,
+C$$$     .  def_i4=501,note='Number of energy points')
+C$$$      nm='OPTICS_WINDOW'; call gtv(trim(nm),tksw(prgn,nm),optic_window,
+C$$$     . def_r8v=(/0d0,1d0/),note='Energy window over which to calc. eps')
+C$$$      nm='OPTICS_FILBND'; call gtv(trim(nm),tksw(prgn,nm),optic_ocrng,
+C$$$     .  def_i4v=izerv,note='Occ. energy bands from which to calc. eps')
+C$$$      nm='OPTICS_EMPBND'; call gtv(trim(nm),tksw(prgn,nm),optic_unrng,
+C$$$     .  def_i4v=izerv,note='Unocc energy bands from which to calc. eps')
+C$$$      nm='OPTICS_PART'; call gtv(trim(nm),tksw(prgn,nm),optic_mode1,
+C$$$     .  def_lg=F,note='Band-to-band decomposition of epsilon')
 
-      optic_axes = NULLI
-      nm='OPTICS_CHI2'; call gtv(trim(nm),tksw(prgn,nm),nono,
-     .  Texist=ltmp,note='Parameters second harmonic generation.'//
-     .    '  If present then:')
-      if (ltmp) then   ! Only read if OPTICS_CHI2 present or help
-        nm='OPTICS_CHI2_NCHI2'; call gtv(trim(nm),tksw(prgn,nm),
-     .    optic_nchi2,def_i4=0,note=
-     .    'number of direction vectors for which to calc. chi2')
-        nm = 'OPTICS_CHI2_AXES'
-        nn = 3*optic_nchi2
-        if (io_help == 1 .and. sw /= 2) nn = NULLI
-        call gtv(trim(nm),tksw(prgn,nm),optic_axes(1:nn),nmin=nn,
-     .    note='a,b,c direction vectors for each of the nchi2 sets')
-      endif
-      nm='OPTICS_ESCISS'; call gtv(trim(nm),tksw(prgn,nm),optic_esciss,
-     .  def_r8=0d0,note=
-     .  'Scissors operator (energy added to unoccupied bands)')
-  279 continue                  ! end of optics
+C$$$      optic_axes = NULLI
+C$$$      nm='OPTICS_CHI2'; call gtv(trim(nm),tksw(prgn,nm),nono,
+C$$$     .  Texist=ltmp,note='Parameters second harmonic generation.'//
+C$$$     .    '  If present then:')
+C$$$      if (ltmp) then   ! Only read if OPTICS_CHI2 present or help
+C$$$        nm='OPTICS_CHI2_NCHI2'; call gtv(trim(nm),tksw(prgn,nm),
+C$$$     .    optic_nchi2,def_i4=0,note=
+C$$$     .    'number of direction vectors for which to calc. chi2')
+C$$$        nm = 'OPTICS_CHI2_AXES'
+C$$$        nn = 3*optic_nchi2
+C$$$        if (io_help == 1 .and. sw /= 2) nn = NULLI
+C$$$        call gtv(trim(nm),tksw(prgn,nm),optic_axes(1:nn),nmin=nn,
+C$$$     .    note='a,b,c direction vectors for each of the nchi2 sets')
+C$$$      endif
+C$$$      nm='OPTICS_ESCISS'; call gtv(trim(nm),tksw(prgn,nm),optic_esciss,
+C$$$     .  def_r8=0d0,note=
+C$$$     .  'Scissors operator (energy added to unoccupied bands)')
+C$$$  279 continue                  ! end of optics
 
 C --- Dynamics ---
       if (io_show+io_help/=0 .and. tksw(prgn,'DYN')/=2) call info0(1,1,
@@ -2600,57 +2603,57 @@ C      sdyn_NoseEtot0= sdyn(5)
 C      sdyn_maxtheta= sdyn(6)
 C      sdyn_etol= sdyn(7)
 
-C --- GW ---
-      if (io_show+io_help/=0 .and. tksw(prgn,'GW')/=2) call info0(1,1,
-     .  0,' --- Parameters for GW input (job=-1) ---')
-      nm='GW_MKSIG'; call gtv(trim(nm),tksw(prgn,nm),gw_mksig,
-     .  def_i4=0,note=
-     .  'Make full sigma(k) for self-consistent calculations:'//
-     .  '%N%3f0 do not create self-energy matrix sigma'//
-     .  '%N%3f1 Make sigma_nn''(E_f)'//
-     .  '%N%3f2 Make sigma_nn''(E_n/2+E_n''/2)'//
-     .  '%N%3f3 Make sigma_nn''(E_n)/2 + sigma_nn''(E_n'')/2')
+C$$$C --- GW ---
+C$$$      if (io_show+io_help/=0 .and. tksw(prgn,'GW')/=2) call info0(1,1,
+C$$$     .  0,' --- Parameters for GW input (job=-1) ---')
+C$$$      nm='GW_MKSIG'; call gtv(trim(nm),tksw(prgn,nm),gw_mksig,
+C$$$     .  def_i4=0,note=
+C$$$     .  'Make full sigma(k) for self-consistent calculations:'//
+C$$$     .  '%N%3f0 do not create self-energy matrix sigma'//
+C$$$     .  '%N%3f1 Make sigma_nn''(E_f)'//
+C$$$     .  '%N%3f2 Make sigma_nn''(E_n/2+E_n''/2)'//
+C$$$     .  '%N%3f3 Make sigma_nn''(E_n)/2 + sigma_nn''(E_n'')/2')
 
-      nm='GW_NKABC'; call gtv(trim(nm),tksw(prgn,nm),gw_nabc,nout=nout,
-     .  note='No. qp along each of 3 lattice vectors.'//
-     .  '%N%3fSupply one number for all vectors or a separate '//
-     .  'number for each vector.')
-      call fill3in(nout,gw_nabc)
-      if (gw_nabc(1) == NULLI .or. gw_nabc(1) == 0) gw_nabc = bz_nabc
+C$$$      nm='GW_NKABC'; call gtv(trim(nm),tksw(prgn,nm),gw_nabc,nout=nout,
+C$$$     .  note='No. qp along each of 3 lattice vectors.'//
+C$$$     .  '%N%3fSupply one number for all vectors or a separate '//
+C$$$     .  'number for each vector.')
+C$$$      call fill3in(nout,gw_nabc)
+C$$$      if (gw_nabc(1) == NULLI .or. gw_nabc(1) == 0) gw_nabc = bz_nabc
 
-      nm='GW_GCUTB'; call gtv(trim(nm),tksw(prgn,nm),gw_gcutb,
-     .  def_r8=2.7d0,note='G-vector cutoff for basis functions')
-      nm='GW_GCUTX'; call gtv(trim(nm),tksw(prgn,nm),gw_gcutx,
-     .  def_r8=2.2d0,note='G-vector cutoff for response function')
-      nm='GW_ECUTS'; call gtv(trim(nm),tksw(prgn,nm),gw_ecuts,
-     .  def_r8=2.5d0,note=
-     .  '(self-consistency) max energy for which to calc. sigma')
-      nm='GW_NBAND'; call gtv(trim(nm),tksw(prgn,nm),gw_nband,
-     .  def_i4=-NULLI,note=
-     .  'No. bands to include in calc. response function')
-      nm='GW_NIME'; call gtv(trim(nm),tksw(prgn,nm),gw_nime,
-     .  def_i4=6,note='Number of imaginary energy points')
-      nm='GW_DELRE'; call gtv(trim(nm),tksw(prgn,nm),gw_delre,
-     .  def_r8v=(/.01d0,.04d0/),note=
-     .  'Energy mesh spacing on real axis.'//
-     .  '%N%3fSecond term is coff for nonlinear part')
-      nm='GW_DELTA'; call gtv(trim(nm),tksw(prgn,nm),gw_deltax,
-     .  def_r8=-1d-4,note=
-     .  'Imaginary energy added to denominator in generation of Pi.'//
-     .  '%N%3fNot used in Faleev''s fast integration.'//
-     .  '%N%3fDelta should be negative.')
-      nm='GW_DELTAW'; call gtv(trim(nm),tksw(prgn,nm),gw_deltaw,
-     .  def_r8=0.02d0,note=
-     .  'Width for finite difference in diff. of sigma for Z factor')
-      nm='GW_GSMEAR'; call gtv(trim(nm),tksw(prgn,nm),gw_gsmear,
-     .  def_r8=3d-3,note=
-     .  'Broadening in pole of GF for computation of sigma')
-      nm='GW_PBTOL'; call gtv(trim(nm),tksw(prgn,nm),gw_pbtol,
-     .  def_r8=1d-3,note=
-     .  'retain prod-basis with overlap eigenvalues>PBTOL')
-      nm='GW_QOFFP'; call gtv(trim(nm),tksw(prgn,nm),gw_qoffp,
-     .  def_r8=1d0,note=
-     .  'k-point offset parameter for special BZ integration for xi')
+C$$$      nm='GW_GCUTB'; call gtv(trim(nm),tksw(prgn,nm),gw_gcutb,
+C$$$     .  def_r8=2.7d0,note='G-vector cutoff for basis functions')
+C$$$      nm='GW_GCUTX'; call gtv(trim(nm),tksw(prgn,nm),gw_gcutx,
+C$$$     .  def_r8=2.2d0,note='G-vector cutoff for response function')
+C$$$      nm='GW_ECUTS'; call gtv(trim(nm),tksw(prgn,nm),gw_ecuts,
+C$$$     .  def_r8=2.5d0,note=
+C$$$     .  '(self-consistency) max energy for which to calc. sigma')
+C$$$      nm='GW_NBAND'; call gtv(trim(nm),tksw(prgn,nm),gw_nband,
+C$$$     .  def_i4=-NULLI,note=
+C$$$     .  'No. bands to include in calc. response function')
+C$$$      nm='GW_NIME'; call gtv(trim(nm),tksw(prgn,nm),gw_nime,
+C$$$     .  def_i4=6,note='Number of imaginary energy points')
+C$$$      nm='GW_DELRE'; call gtv(trim(nm),tksw(prgn,nm),gw_delre,
+C$$$     .  def_r8v=(/.01d0,.04d0/),note=
+C$$$     .  'Energy mesh spacing on real axis.'//
+C$$$     .  '%N%3fSecond term is coff for nonlinear part')
+C$$$      nm='GW_DELTA'; call gtv(trim(nm),tksw(prgn,nm),gw_deltax,
+C$$$     .  def_r8=-1d-4,note=
+C$$$     .  'Imaginary energy added to denominator in generation of Pi.'//
+C$$$     .  '%N%3fNot used in Faleev''s fast integration.'//
+C$$$     .  '%N%3fDelta should be negative.')
+C$$$      nm='GW_DELTAW'; call gtv(trim(nm),tksw(prgn,nm),gw_deltaw,
+C$$$     .  def_r8=0.02d0,note=
+C$$$     .  'Width for finite difference in diff. of sigma for Z factor')
+C$$$      nm='GW_GSMEAR'; call gtv(trim(nm),tksw(prgn,nm),gw_gsmear,
+C$$$     .  def_r8=3d-3,note=
+C$$$     .  'Broadening in pole of GF for computation of sigma')
+C$$$      nm='GW_PBTOL'; call gtv(trim(nm),tksw(prgn,nm),gw_pbtol,
+C$$$     .  def_r8=1d-3,note=
+C$$$     .  'retain prod-basis with overlap eigenvalues>PBTOL')
+C$$$      nm='GW_QOFFP'; call gtv(trim(nm),tksw(prgn,nm),gw_qoffp,
+C$$$     .  def_r8=1d0,note=
+C$$$     .  'k-point offset parameter for special BZ integration for xi')
 
 C --- Plane ---
       if (io_show+io_help/=0 .and. tksw(prgn,'PLANE')/=2)
@@ -2879,6 +2882,7 @@ C ... Printout
 
       end module
 
+
       subroutine fill3in(nin,res)
 C- fills res(2) or res(2:3) if res(1) or res(1:2) are given
 C     implicit none
@@ -2890,12 +2894,12 @@ C     implicit none
       endif
       end
 
+
       subroutine toksw_init(debug)
 C- Declares program-specific tokens 
       use m_toksw
 C     implicit none
-      character*(200):: io_sw, struc_sw, asa_start
-      character*(220):: asa_sw
+      character*(200):: io_sw, struc_sw
       character*(50) sscale
       character*(200):: dyn_mstat, dyn_md
       logical:: debug
@@ -2911,164 +2915,12 @@ C - Store data into arrays above -----
      .  'STRUC_PLAT STRUC_ALAT STRUC_DALAT~ STRUC_NL~ STRUC_SHEAR~ '//
      .  'STRUC_ROT~ STRUC_DEFGRD~ STRUC_STRAIN~ STRUC_ALPHA~ '//
      .  'STRUC_LOADV~ '
-      asa_sw = ' OPTIONS~ OPTIONS_ASA OPTIONS_ASA_ADNF~ '
-     .  //'OPTIONS_ASA_NSPH~ OPTIONS_ASA_TWOC~ OPTIONS_ASA_CCOR~ '
-     .  //'OPTIONS_ASA_GAMMA~ OPTIONS_ASA_ELIN~ OPTIONS_ASA_NEWREP~ '
-     .  //'OPTIONS_ASA_NOHYB~ OPTIONS_ASA_MTCOR~ OPTIONS_ASA_QMT~'
       sscale = ' SPEC_SCLWSR~ SPEC_WSRMAX~ SPEC_OMAX1~ SPEC_OMAX2~'
-      asa_start = ' START~ START_BEGMOM~ START_CNTROL~ START_RDVES~ '//
-     .  'START_ATOM~ START_ATOM_P~ START_ATOM_Q~ START_ATOM_ENU~ '//
-     .  'START_ATOM_V~ START_ATOM_DV~'
       dyn_mstat = ' DYN_MSTAT~ DYN_MSTAT_MODE DYN_MSTAT_HESS~ '//
      .  'DYN_MSTAT_XTOL~ DYN_MSTAT_GTOL~ DYN_MSTAT_STEP~ '//
      .  'DYN_MSTAT_NKILL~ DYN_MSTAT_PDEF~ '
       dyn_md = ' DYN_MD~ DYN_MD_MODE DYN_MD_TSTEP~ DYN_MD_TEMP~ '//
      .  'DYN_MD_TAUP~ DYN_MD_TIME DYN_MD_TAUB~ '
-C --- LM switches ---
-      call nswadd()
-      call tkadd(" LM::" )
-      call tkadd(" VERS_LM")
-      call tkadd(" VERS_ASA")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" OPTIONS_FRZ~")
-      call tkadd(" OPTIONS_HF~")
-      call tkadd(" OPTIONS_SAVVEC~")
-      call tkadd(" OPTIONS_SCR~")
-      call tkadd(" OPTIONS_SHARM~")
-C     call tkadd(" OPTIONS_STONER~")
-      call tkadd(trim(asa_sw))
-      call tkadd(" SPEC")
-      call tkadd(sscale)
-C      call tkadd(" SPEC_SCLWSR~")
-C      call tkadd(" SPEC_WSRMAX~")
-C      call tkadd(" SPEC_OMAX1~")
-C      call tkadd(" SPEC_OMAX2~")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_A~")
-      call tkadd(" SPEC_ATOM_ALPHA~")
-      call tkadd(" SPEC_ATOM_C-HOLE~")
-      call tkadd(" SPEC_ATOM_C-HQ~")
-      call tkadd(" SPEC_ATOM_CSTRMX~")
-      call tkadd(" SPEC_ATOM_DV~")
-      call tkadd(" SPEC_ATOM_EREF~")
-      call tkadd(" SPEC_ATOM_GROUP~")
-      call tkadd(" SPEC_ATOM_GRP2~")
-      call tkadd(" SPEC_ATOM_HCR~")
-      call tkadd(" SPEC_ATOM_HCR/R~")
-      call tkadd(" SPEC_ATOM_IDMOD~")
-      call tkadd(" SPEC_ATOM_IDU~ SPEC_ATOM_UH~ SPEC_ATOM_JH~")
-      call tkadd(" HAM_UDIAG~")
-      call tkadd(" SPEC_ATOM_IDXDN~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_MIX~")
-      call tkadd(" SPEC_ATOM_MMOM~")
-      call tkadd(" SPEC_ATOM_NR~")
-      call tkadd(" SPEC_ATOM_P~")
-      call tkadd(" SPEC_ATOM_Q~")
-      call tkadd(" SPEC_ATOM_R")
-      call tkadd(" SPEC_ATOM_R/A")
-      call tkadd(" SPEC_ATOM_R/W")
-      call tkadd(" SPEC_ATOM_Z")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DPOS~")
-      call tkadd(" SITE_ATOM_PL~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SITE_ATOM_RELAX~")
-      call tkadd(" SITE_ATOM_ROT~")
-      call tkadd(" SYMGRP~")
-      call tkadd(" BZ")
-      call tkadd(" BZ_BZJOB~")
-      call tkadd(" BZ_DELEF~")
-      call tkadd(" BZ_DMAT~")
-      call tkadd(" BZ_DOS~")
-      call tkadd(" BZ_EF0~")
-      call tkadd(" BZ_EFMAX~")
-      call tkadd(" BZ_FSMOM~")
-      call tkadd(" BZ_GETQP~")
-      call tkadd(" BZ_INVIT~")
-      call tkadd(" BZ_METAL~")
-      call tkadd(" BZ_MULL~")
-      call tkadd(" BZ_N~")
-      call tkadd(" BZ_NEVMX~")
-      call tkadd(" BZ_NKABC")
-      call tkadd(" BZ_NOINV~")
-      call tkadd(" BZ_NPTS~")
-      call tkadd(" BZ_N.W~")
-      call tkadd(" BZ_PUTQP~")
-      call tkadd(" BZ_SAVDOS~")
-      call tkadd(" BZ_TETRA~")
-      call tkadd(" BZ_W~")
-      call tkadd(" BZ_ZBAK~")
-      call tkadd(" BZ_ZVAL~")
-      call tkadd(" EWALD~")
-      call tkadd(" EWALD_AS~")
-      call tkadd(" EWALD_NKDMX~")
-      call tkadd(" EWALD_RPAD~")
-      call tkadd(" EWALD_TOL~")
-      call tkadd(" ITER~")
-      call tkadd(" ITER_AMIX~")
-      call tkadd(" ITER_CONV~")
-      call tkadd(" ITER_CONVC~")
-      call tkadd(" ITER_MIX~")
-      call tkadd(" ITER_XIPMX~")
-      call tkadd(" ITER_NIT~")
-      call tkadd(" ITER_NRMIX~")
-      call tkadd(" ITER_NITU~ ITER_TOLU~ ITER_UMIX~")
-      call tkadd(asa_start)
-C     call tkadd(" START~")
-C     call tkadd(" START_BEGMOM~")
-C     call tkadd(" START_CNTROL~")
-C     call tkadd(" START_RDVES~")
-C     call tkadd(" START_CNVG~")
-C     call tkadd(" START_P~")
-C     call tkadd(" START_Q~")
-C     call tkadd(" START_DV~")
-      call tkadd(" START_FREE~")
-      call tkadd(" HAM~")
-      call tkadd(" HAM_NSPIN~")
-      call tkadd(" HAM_BFIELD~")
-      call tkadd(" HAM_ELIND~")
-      call tkadd(" HAM_EWALD~")
-      call tkadd(" HAM_FORCES~")
-      call tkadd(" HAM_FTMESH~")
-      call tkadd(" HAM_GGA~")
-C     call tkadd(" HAM_GMAX")
-      call tkadd(" HAM_KMTO~")
-      call tkadd(" HAM_NMTO~")
-      call tkadd(" HAM_SPINTRQ~")
-      call tkadd(" HAM_PMAX~")
-      call tkadd(" HAM_PMIN~")
-      call tkadd(" HAM_REL~ HAM_SO~ HAM_NONCOL~ HAM_SS~")
-      call tkadd(" HAM_QASA~")
-      call tkadd(" HAM_RDSIG~")
-      call tkadd(" HAM_RSRNGE~")
-      call tkadd(" HAM_RSSTOL~")
-      call tkadd(" HAM_TOL~")
-      call tkadd(" HAM_VMTZ~")
-      call tkadd(" HAM_XCFUN~")
-      call tkadd(" HAM_SX~ HAM_SXOPTS~")
-      call tkadd(" MAP~")
-      call tkadd(" OPTICS~")
-      call tkadd(" OPTICS_CHI2~ OPTICS_CHI2_NCHI2 OPTICS_CHI2_AXES")
-      call tkadd(" OPTICS_EMPBND~")
-      call tkadd(" OPTICS_ESCISS~")
-      call tkadd(" OPTICS_FILBND~")
-      call tkadd(" OPTICS_MODE~")
-      call tkadd(" OPTICS_NPTS")
-      call tkadd(" OPTICS_PART~")
-      call tkadd(" OPTICS_WINDOW")
-      call tkadd(" DYN~")
-      call tkadd(" DYN_SSTAT~")
-      call tkadd(" DYN_SSTAT_MODE~")
-      call tkadd(" DYN_SSTAT_SCALE~")
-      call tkadd(" DYN_SSTAT_TAU")
-      call tkadd(" DYN_SSTAT_MAXT~")
-      call tkadd(" DYN_SSTAT_ETOL~")
 C --- LMFA switches ---
       call nswadd()
       call tkadd(" LMFA::" )
@@ -3359,15 +3211,11 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" SPEC_ATOM_R/W")
       call tkadd(" SPEC_ATOM_UH~")
       call tkadd(" SPEC_ATOM_Z")
-
-
 c This call tkadd(" SPEC_ATOM_MIX~") was missing,
 c then the initialization of default values for mxcst are not supplied
 c   --->this results in a strange behevior!!  
 c takao Sep11-tukuba 2009
       call tkadd(" SPEC_ATOM_MIX~")
-
-
 C ... for LMFRS
       call tkadd(" SPEC_ATOM_HCR~")
       call tkadd(" SPEC_ATOM_HCR/R~")
@@ -3452,228 +3300,7 @@ ctakao
       call tkadd(dyn_mstat)
       call tkadd(dyn_md)
       call tkadd(" DYN_NIT~")
-C --- LMMC switches ---
-      call nswadd()
-      call tkadd(" LMMC::" )
-      call tkadd(" VERS_LM")
-      call tkadd(" VERS_MOL")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" STRUC_NBASP~")
-      call tkadd(" OPTIONS")
-      call tkadd(" OPTIONS_XCQS")
-      call tkadd(" SPEC")
-      call tkadd(sscale)
-C     call tkadd(" SPEC_SCLWSR~")
-C     call tkadd(" SPEC_WSRMAX~")
-C     call tkadd(" SPEC_OMAX1~")
-C     call tkadd(" SPEC_OMAX2~")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_A~")
-      call tkadd(" SPEC_ATOM_AMASS~")
-      call tkadd(" SPEC_ATOM_COLOUR~")
-      call tkadd(" SPEC_ATOM_EREF~")
-      call tkadd(" SPEC_ATOM_EXI")
-      call tkadd(" SPEC_ATOM_IDMOD~")
-      call tkadd(" SPEC_ATOM_IDU~")
-      call tkadd(" SPEC_ATOM_ISOTOPE")
-      call tkadd(" SPEC_ATOM_JH~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_LMXA~")
-      call tkadd(" SPEC_ATOM_LMXB")
-      call tkadd(" SPEC_ATOM_LMXL~")
-      call tkadd(" SPEC_ATOM_LXI")
-      call tkadd(" SPEC_ATOM_MMOM~")
-      call tkadd(" SPEC_ATOM_NR~")
-      call tkadd(" SPEC_ATOM_P~")
-      call tkadd(" SPEC_ATOM_Q~")
-      call tkadd(" SPEC_ATOM_R")
-      call tkadd(" SPEC_ATOM_R/A")
-      call tkadd(" SPEC_ATOM_RADIUS~")
-      call tkadd(" SPEC_ATOM_RCUT")
-      call tkadd(" SPEC_ATOM_RHAM")
-      call tkadd(" SPEC_ATOM_RINT")
-      call tkadd(" SPEC_ATOM_RSMG")
-      call tkadd(" SPEC_ATOM_R/W")
-      call tkadd(" SPEC_ATOM_UH~")
-      call tkadd(" SPEC_ATOM_Z")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_RELAX~")
-      call tkadd(" SITE_ATOM_V0~")
-      call tkadd(" SITE_PM~ SITE_PM_POS SITE_PM_Q SITE_PM_P~")
-      call tkadd(" BZ_W~")
-      call tkadd(" TCF")
-      call tkadd(" TCF_ADEC")
-      call tkadd(" TCF_NALF")
-      call tkadd(" TCF_NBISI")
-      call tkadd(" TCF_NCUPL~")
-      call tkadd(" TCF_NDUST~")
-      call tkadd(" TCF_WZTCF~")
-      call tkadd(" ITER")
-      call tkadd(" ITER_CONV~")
-      call tkadd(" ITER_CONVC~")
-      call tkadd(" ITER_MIX~")
-c     call tkadd(" ITER_QTOLI~")
-c     call tkadd(" ITER_QTOLSP~")
-      call tkadd(" ITER_NIT")
-      call tkadd(" ITER_NRMIX~")
-C     call tkadd(" START")
-      call tkadd(" HAM")
-      call tkadd(" HAM_NSPIN~")
-      call tkadd(" HAM_ALFSI")
-      call tkadd(" HAM_DABC~")
-      call tkadd(" HAM_DQVAL~")
-      call tkadd(" HAM_EBAS")
-      call tkadd(" HAM_FORCES~")
-      call tkadd(" HAM_FRZWF~")
-      call tkadd(" HAM_FTMESH")
-      call tkadd(" HAM_GGA~")
-      call tkadd(" HAM_GMAX")
-      call tkadd(" HAM_XCFUN~")
-      call tkadd(" DYN~")
-      call tkadd(dyn_mstat)
-      call tkadd(dyn_md)
-      call tkadd(" DYN_NIT~")
-C     call tkadd(" DYN_PDEF~")
-C --- LMGF switches ---
-      call nswadd()
-      call tkadd(" LMGF::" )
-      call tkadd(" VERS_LM")
-      call tkadd(" VERS_ASA")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" OPTIONS~")
-      call tkadd(" OPTIONS_FRZ~")
-      call tkadd(" OPTIONS_HF~")
-      call tkadd(" OPTIONS_SAVVEC~")
-      call tkadd(" OPTIONS_SCR~")
-      call tkadd(" OPTIONS_SHARM~")
-C     call tkadd(" OPTIONS_STONER~")
-      call tkadd(trim(asa_sw))
-      call tkadd(" SPEC")
-      call tkadd(sscale)
-C     call tkadd(" SPEC_SCLWSR~")
-C     call tkadd(" SPEC_WSRMAX~")
-C     call tkadd(" SPEC_OMAX1~")
-C     call tkadd(" SPEC_OMAX2~")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_A~")
-      call tkadd(" SPEC_ATOM_ALPHA~")
-      call tkadd(" SPEC_ATOM_C-HOLE~")
-      call tkadd(" SPEC_ATOM_C-HQ~")
-      call tkadd(" SPEC_ATOM_CSTRMX~")
-      call tkadd(" SPEC_ATOM_DV~")
-      call tkadd(" SPEC_ATOM_EREF~")
-      call tkadd(" SPEC_ATOM_GROUP~")
-      call tkadd(" SPEC_ATOM_GRP2~")
-      call tkadd(" SPEC_ATOM_HCR~")
-      call tkadd(" SPEC_ATOM_HCR/R~")
-      call tkadd(" SPEC_ATOM_IDMOD~")
-      call tkadd(" SPEC_ATOM_IDXDN~")
-      call tkadd(" SPEC_ATOM_IDU~ SPEC_ATOM_UH~ SPEC_ATOM_JH~")
-      call tkadd(" HAM_UDIAG~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_MIX~")
-      call tkadd(" SPEC_ATOM_MMOM~")
-      call tkadd(" SPEC_ATOM_NR~")
-      call tkadd(" SPEC_ATOM_P~")
-      call tkadd(" SPEC_ATOM_Q~")
-      call tkadd(" SPEC_ATOM_R")
-      call tkadd(" SPEC_ATOM_R/A")
-      call tkadd(" SPEC_ATOM_R/W")
-      call tkadd(" SPEC_ATOM_Z")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DPOS~")
-C     call tkadd(" SITE_ATOM_PL~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SITE_ATOM_RELAX~")
-C     call tkadd(" SITE_ATOM_ROT~")
-      call tkadd(" SITE_ATOM_SID~")
-      call tkadd(" SITE_ATOM_VSHFT~")
-      call tkadd(" SYMGRP~")
-      call tkadd(" BZ")
-      call tkadd(" BZ_BZJOB~")
-      call tkadd(" BZ_DELEF~")
-      call tkadd(" BZ_DMAT~")
-      call tkadd(" BZ_DOS~")
-      call tkadd(" BZ_EF0~")
-      call tkadd(" BZ_EFMAX~")
-      call tkadd(" BZ_EMESH~")
-      call tkadd(" BZ_FSMOM~")
-      call tkadd(" BZ_GETQP~")
-      call tkadd(" BZ_INVIT~")
-      call tkadd(" BZ_METAL~")
-      call tkadd(" BZ_MULL~")
-      call tkadd(" BZ_N~")
-      call tkadd(" BZ_NEVMX~")
-      call tkadd(" BZ_NKABC")
-      call tkadd(" BZ_NOINV~")
-      call tkadd(" BZ_NPTS~")
-      call tkadd(" BZ_N.W~")
-      call tkadd(" BZ_PUTQP~")
-      call tkadd(" BZ_SAVDOS~")
-      call tkadd(" BZ_TETRA~")
-      call tkadd(" BZ_W~")
-      call tkadd(" BZ_ZBAK~")
-      call tkadd(" BZ_ZVAL~")
-      call tkadd(" EWALD~")
-      call tkadd(" EWALD_AS~")
-      call tkadd(" EWALD_NKDMX~")
-      call tkadd(" EWALD_RPAD~")
-      call tkadd(" EWALD_TOL~")
-      call tkadd(" ITER~")
-      call tkadd(" ITER_AMIX~")
-      call tkadd(" ITER_CONV~")
-      call tkadd(" ITER_CONVC~")
-      call tkadd(" ITER_MIX~")
-      call tkadd(" ITER_XIPMX~")
-      call tkadd(" ITER_NIT~")
-      call tkadd(" ITER_NRMIX~")
-      call tkadd(" ITER_NITU~ ITER_TOLU~ ITER_UMIX~")
-      call tkadd(asa_start)
-C     call tkadd(" START~")
-C     call tkadd(" START_BEGMOM~")
-C     call tkadd(" START_CNVG~")
-C     call tkadd(" START_P~")
-C     call tkadd(" START_Q~")
-C     call tkadd(" START_DV~")
-      call tkadd(" HAM~")
-      call tkadd(" HAM_NSPIN~")
-      call tkadd(" HAM_BFIELD~")
-      call tkadd(" HAM_ELIND~")
-      call tkadd(" HAM_EWALD~")
-      call tkadd(" HAM_FORCES~")
-      call tkadd(" HAM_FTMESH~")
-      call tkadd(" HAM_GGA~")
-C     call tkadd(" HAM_GMAX")
-      call tkadd(" HAM_NMTO~ HAM_KMTO~")
-      call tkadd(" HAM_SPINTRQ~")
-      call tkadd(" HAM_PMIN~ HAM_PMAX~")
-      call tkadd(" HAM_REL~ HAM_SO~ HAM_NONCOL~ HAM_SS~")
-      call tkadd(" HAM_QASA~")
-      call tkadd(" HAM_RDSIG~")
-      call tkadd(" HAM_RSRNGE~")
-      call tkadd(" HAM_RSSTOL~")
-      call tkadd(" HAM_TOL~")
-      call tkadd(" HAM_VMTZ~")
-      call tkadd(" HAM_XCFUN~")
-      call tkadd(" HAM_SX~ HAM_SXOPTS~")
-      call tkadd(" GF~")
-      call tkadd(" GF_GFOPTS~")
-      call tkadd(" GF_MODE")
-      call tkadd(" DYN_SSTAT~")
-      call tkadd(" DYN_SSTAT_MODE~")
-      call tkadd(" DYN_SSTAT_SCALE~")
-      call tkadd(" DYN_SSTAT_TAU")
-      call tkadd(" DYN_SSTAT_MAXT~")
-      call tkadd(" DYN_SSTAT_ETOL~")
+
 C --- LMDOS switches ---
       call nswadd()
       call tkadd(" LMDOS::" )
@@ -3829,771 +3456,7 @@ C      call tkadd(" STR_MODE~")
       call tkadd(" PGF_PLATL")
       call tkadd(" PGF_PLATR")
       call tkadd(" PGF_SPARSE~")
-C --- LMSCELL switches ---
-      call nswadd()
-      call tkadd(" LMSCELL::" )
-      call tkadd(" VERS_LM")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" STRUC_SLAT~")
-      call tkadd(" OPTIONS~")
-C     call tkadd(" OPTIONS_NESABC~")
-      call tkadd(" SPEC")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_A~")
-      call tkadd(" SPEC_ATOM_DV~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_MMOM~")
-      call tkadd(" SPEC_ATOM_NR~")
-      call tkadd(" SPEC_ATOM_P~")
-      call tkadd(" SPEC_ATOM_Q~")
-      call tkadd(" SPEC_ATOM_R")
-      call tkadd(" SPEC_ATOM_R/A")
-      call tkadd(" SPEC_ATOM_R/W")
-      call tkadd(" SPEC_ATOM_Z")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DPOS~")
-      call tkadd(" SITE_ATOM_PL~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SITE_ATOM_RELAX~")
-      call tkadd(" SITE_ATOM_ROT~")
-      call tkadd(" HAM_NSPIN~")
-      call tkadd(" HAM_NONCOL~")
-C --- LMSTR switches ---
-      call nswadd()
-      call tkadd(" LMSTR::" )
-      call tkadd(" VERS_LM")
-      call tkadd(" VERS_ASA")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" OPTIONS~")
-      call tkadd(" OPTIONS_HF~")
-C     call tkadd(" OPTIONS_NESABC~")
-C     call tkadd(" OPTIONS_RMAXES~")
-C     call tkadd(" OPTIONS_SCR~")
-      call tkadd(" SPEC")
-      call tkadd(sscale)
-C     call tkadd(" SPEC_SCLWSR~")
-C     call tkadd(" SPEC_WSRMAX~")
-C     call tkadd(" SPEC_OMAX1~")
-C     call tkadd(" SPEC_OMAX2~")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_ALPHA~")
-      call tkadd(" SPEC_ATOM_CSTRMX~")
-      call tkadd(" SPEC_ATOM_DV~")
-      call tkadd(" SPEC_ATOM_HCR~")
-      call tkadd(" SPEC_ATOM_HCR/R~")
-      call tkadd(" SPEC_ATOM_IDU~")
-      call tkadd(" SPEC_ATOM_IDXDN~")
-      call tkadd(" SPEC_ATOM_JH~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_R")
-      call tkadd(" SPEC_ATOM_R/A")
-      call tkadd(" SPEC_ATOM_R/W")
-      call tkadd(" SPEC_ATOM_UH~")
-      call tkadd(" SPEC_ATOM_Z~")
-      call tkadd(" SPEC_ATOM_KMXA~")
-      call tkadd(" SPEC_ATOM_RSMA~")
-      call tkadd(" SPEC_ATOM_RSMH~")
-      call tkadd(" SPEC_ATOM_EHVL~")
-      call tkadd(" SITE_ATOM_PL~")
-      call tkadd(" SITE_ATOM_PLV~")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DPOS~")
-      call tkadd(" SITE_ATOM_PL~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SYMGRP~")
-      call tkadd(" STR~")
-      call tkadd(" STR_DELRW~")
-      call tkadd(" STR_EQUIV~")
-      call tkadd(" STR_EW2~")
-      call tkadd(" STR_IINV~")
-      call tkadd(" STR_IINV_NCUT~")
-      call tkadd(" STR_IINV_NIT~")
-      call tkadd(" STR_IINV_TOL~")
-      call tkadd(" STR_LMAXW~")
-      call tkadd(" STR_ENV_MODE~")
-      call tkadd(" STR_ENV_NEL~")
-      call tkadd(" STR_ENV_EL~")
-      call tkadd(" STR_MXNBR~")
-      call tkadd(" STR_RMAX~ STR_RMAXS~")
-      call tkadd(" STR_RVL/R~ STR_VLFUN~")
-      call tkadd(" STR_SHOW~")
-      call tkadd(" EWALD~")
-      call tkadd(" EWALD_AS~")
-      call tkadd(" EWALD_NKDMX~")
-      call tkadd(" EWALD_RPAD~")
-      call tkadd(" EWALD_TOL~")
-      call tkadd(" HAM~")
-      call tkadd(" HAM_NSPIN~")
-      call tkadd(" HAM_ELIND~")
-      call tkadd(" HAM_EWALD~")
-      call tkadd(" HAM_FORCES~")
-      call tkadd(" HAM_FTMESH~")
-      call tkadd(" HAM_GGA~")
-C     call tkadd(" HAM_GMAX")
-      call tkadd(" HAM_KMTO~")
-      call tkadd(" HAM_NMTO~")
-      call tkadd(" HAM_PMAX~")
-      call tkadd(" HAM_PMIN~")
-      call tkadd(" HAM_TOL~")
-      call tkadd(" HAM_VMTZ~")
-      call tkadd(" HAM_XCFUN~")
-      call tkadd(" HAM_SX~ HAM_SXOPTS~")
-      call tkadd(" PGF~")
-      call tkadd(" PGF_GFOPTS~")
-      call tkadd(" PGF_MODE~")
-      call tkadd(" PGF_PLATL")
-      call tkadd(" PGF_PLATR")
-      call tkadd(" PGF_SPARSE~")
-C --- LMXBS, switches ---
-      call nswadd()
-      call tkadd(" LMXBS::" )
-      call tkadd(" VERS_LM")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" SPEC")
-      call tkadd(sscale)
-C     call tkadd(" SPEC_SCLWSR~")
-C     call tkadd(" SPEC_WSRMAX~")
-C     call tkadd(" SPEC_OMAX1~")
-C     call tkadd(" SPEC_OMAX2~")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_CSTRMX~")
-      call tkadd(" SPEC_ATOM_IDU~")
-      call tkadd(" SPEC_ATOM_JH~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_R")
-      call tkadd(" SPEC_ATOM_R/A")
-      call tkadd(" SPEC_ATOM_RHAM~")
-      call tkadd(" SPEC_ATOM_R/W")
-      call tkadd(" SPEC_ATOM_UH~")
-      call tkadd(" SPEC_ATOM_Z~")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DPOS~")
-      call tkadd(" SITE_ATOM_PL~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SYMGRP~")
-      call tkadd(" STR~")
-      call tkadd(" STR_RMAX~")
-      call tkadd(" STR_RMAXS~")
-      call tkadd(" EWALD~")
-      call tkadd(" EWALD_AS~")
-      call tkadd(" EWALD_NKDMX~")
-      call tkadd(" EWALD_RPAD~")
-      call tkadd(" EWALD_TOL~")
-      call tkadd(" PGF~")
-      call tkadd(" PGF_GFOPTS~")
-      call tkadd(" PGF_MODE~")
-      call tkadd(" PGF_PLATL")
-      call tkadd(" PGF_PLATR")
-      call tkadd(" PGF_SPARSE~")
-C --- LMCTL switches ---
-      call nswadd()
-      call tkadd(" LMCTL::" )
-      call tkadd(" VERS_LM")
-      call tkadd(" VERS_ASA")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" OPTIONS~")
-C     call tkadd(" OPTIONS_NESABC~")
-      call tkadd(" SPEC")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_A~")
-      call tkadd(" SPEC_ATOM_DV~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_MMOM~")
-      call tkadd(" SPEC_ATOM_NR~")
-      call tkadd(" SPEC_ATOM_P~")
-      call tkadd(" SPEC_ATOM_Q~")
-      call tkadd(" SPEC_ATOM_R")
-      call tkadd(" SPEC_ATOM_R/A")
-      call tkadd(" SPEC_ATOM_R/W")
-      call tkadd(" SPEC_ATOM_Z")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DPOS~")
-      call tkadd(" SITE_ATOM_PL~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SITE_ATOM_ROT~")
-      call tkadd(" SYMGRP~")
-      call tkadd(" HAM_NSPIN~")
-      call tkadd(" HAM_NONCOL~ HAM_SS~")
-      call tkadd(" PGF~")
-      call tkadd(" PGF_GFOPTS~")
-      call tkadd(" PGF_MODE~")
-      call tkadd(" PGF_PLATL")
-      call tkadd(" PGF_PLATR")
-      call tkadd(" PGF_SPARSE~")
-C --- LMPG switches ---
-      call nswadd()
-      call tkadd(" LMPG::" )
-      call tkadd(" VERS_LM")
-      call tkadd(" VERS_ASA")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" PGF")
-      call tkadd(" PGF_MODE")
-      call tkadd(" PGF_GFOPTS~")
-      call tkadd(" PGF_PLATL")
-      call tkadd(" PGF_PLATR")
-      call tkadd(" PGF_SPARSE~")
-      call tkadd(" OPTIONS~")
-      call tkadd(" OPTIONS_FRZ~")
-      call tkadd(" OPTIONS_HF~")
-C     call tkadd(" OPTIONS_Q=ATOM")
-C     call tkadd(" OPTIONS_Q=BAND~")
-C     call tkadd(" OPTIONS_Q=SHOW")
-C     call tkadd(" OPTIONS_SAVVEC~")
-      call tkadd(" OPTIONS_SCR~")
-      call tkadd(" OPTIONS_SHARM~")
-C     call tkadd(" OPTIONS_STONER~")
-      call tkadd(trim(asa_sw))
-      call tkadd(" SPEC")
-C     ? Make sense?
-      call tkadd(sscale)
-C     call tkadd(" SPEC_SCLWSR~")
-C     call tkadd(" SPEC_WSRMAX~")
-C     call tkadd(" SPEC_OMAX1~")
-C     call tkadd(" SPEC_OMAX2~")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_A~")
-      call tkadd(" SPEC_ATOM_ALPHA~")
-      call tkadd(" SPEC_ATOM_C-HOLE~")
-      call tkadd(" SPEC_ATOM_C-HQ~")
-      call tkadd(" SPEC_ATOM_CSTRMX~")
-      call tkadd(" SPEC_ATOM_DV~")
-      call tkadd(" SPEC_ATOM_EREF~")
-      call tkadd(" SPEC_ATOM_GROUP~")
-      call tkadd(" SPEC_ATOM_GRP2~")
-      call tkadd(" SPEC_ATOM_HCR~")
-      call tkadd(" SPEC_ATOM_HCR/R~")
-      call tkadd(" SPEC_ATOM_IDMOD~")
-      call tkadd(" SPEC_ATOM_IDU~ SPEC_ATOM_UH~ SPEC_ATOM_JH~")
-      call tkadd(" HAM_UDIAG~")
-      call tkadd(" SPEC_ATOM_IDXDN~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_MIX~")
-      call tkadd(" SPEC_ATOM_MMOM~")
-      call tkadd(" SPEC_ATOM_NR~")
-      call tkadd(" SPEC_ATOM_P~")
-      call tkadd(" SPEC_ATOM_Q~")
-      call tkadd(" SPEC_ATOM_R")
-      call tkadd(" SPEC_ATOM_R/A")
-      call tkadd(" SPEC_ATOM_R/W")
-      call tkadd(" SPEC_ATOM_Z")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DPOS~")
-      call tkadd(" SITE_ATOM_PL~")
-      call tkadd(" SITE_ATOM_PLV~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SITE_ATOM_RELAX~")
-      call tkadd(" SITE_ATOM_ROT~")
-      call tkadd(" SITE_ATOM_VSHFT~")
-      call tkadd(" SYMGRP~")
-      call tkadd(" BZ")
-      call tkadd(" BZ_BZJOB~")
-      call tkadd(" BZ_DELEF~")
-      call tkadd(" BZ_DMAT~")
-      call tkadd(" BZ_DOS~")
-      call tkadd(" BZ_EF0~")
-      call tkadd(" BZ_EFMAX~")
-      call tkadd(" BZ_EMESH~")
-      call tkadd(" BZ_FSMOM~")
-      call tkadd(" BZ_GETQP~")
-      call tkadd(" BZ_INVIT~")
-      call tkadd(" BZ_METAL~")
-      call tkadd(" BZ_MULL~")
-      call tkadd(" BZ_N~")
-      call tkadd(" BZ_NEVMX~")
-      call tkadd(" BZ_NKABC")
-      call tkadd(" BZ_NOINV~")
-      call tkadd(" BZ_NPTS~")
-      call tkadd(" BZ_N.W~")
-      call tkadd(" BZ_PUTQP~")
-      call tkadd(" BZ_SAVDOS~")
-      call tkadd(" BZ_TETRA~")
-      call tkadd(" BZ_W~")
-      call tkadd(" BZ_ZBAK~")
-      call tkadd(" BZ_ZVAL~")
-      call tkadd(" EWALD~")
-      call tkadd(" EWALD_AS~")
-      call tkadd(" EWALD_NKDMX~")
-      call tkadd(" EWALD_RPAD~")
-      call tkadd(" EWALD_TOL~")
-      call tkadd(" ITER~")
-      call tkadd(" ITER_AMIX~")
-      call tkadd(" ITER_CONV~")
-      call tkadd(" ITER_CONVC~")
-      call tkadd(" ITER_MIX~")
-      call tkadd(" ITER_XIPMX~")
-      call tkadd(" ITER_NIT~")
-      call tkadd(" ITER_NRMIX~")
-      call tkadd(" ITER_NITU~ ITER_TOLU~ ITER_UMIX~")
-      call tkadd(asa_start)
-C     call tkadd(" START~")
-C     call tkadd(" START_BEGMOM~")
-C     call tkadd(" START_CNVG~")
-C     call tkadd(" START_P~")
-C     call tkadd(" START_Q~")
-C     call tkadd(" START_DV~")
-      call tkadd(" HAM~")
-      call tkadd(" HAM_NSPIN~")
-      call tkadd(" HAM_BFIELD~")
-      call tkadd(" HAM_ELIND~")
-      call tkadd(" HAM_EWALD~")
-      call tkadd(" HAM_FORCES~")
-      call tkadd(" HAM_FTMESH~")
-      call tkadd(" HAM_GGA~")
-C     call tkadd(" HAM_GMAX")
-      call tkadd(" HAM_KMTO~")
-      call tkadd(" HAM_NMTO~")
-      call tkadd(" HAM_SPINTRQ~")
-      call tkadd(" HAM_PMAX~")
-      call tkadd(" HAM_PMIN~")
-      call tkadd(" HAM_REL~ HAM_SO~ HAM_NONCOL~ HAM_SS~")
-      call tkadd(" HAM_QASA~")
-      call tkadd(" HAM_TOL~")
-      call tkadd(" HAM_VMTZ~")
-      call tkadd(" HAM_XCFUN~")
-      call tkadd(" MAP~")
-      call tkadd(" DYN_SSTAT~")
-      call tkadd(" DYN_SSTAT_MODE~")
-      call tkadd(" DYN_SSTAT_SCALE~")
-      call tkadd(" DYN_SSTAT_TAU")
-      call tkadd(" DYN_SSTAT_MAXT~")
-      call tkadd(" DYN_SSTAT_ETOL~")
-C --- LMPLAN switches ---
-      call nswadd()
-      call tkadd(" LMPLAN::" )
-      call tkadd(" VERS_LM")
-C     call tkadd(" VERS_ASA")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" OPTIONS~")
-C     call tkadd(" OPTIONS_NESABC~")
-      call tkadd(" SPEC")
-      call tkadd(sscale)
-C     call tkadd(" SPEC_SCLWSR~")
-C     call tkadd(" SPEC_WSRMAX~")
-C     call tkadd(" SPEC_OMAX1~")
-C     call tkadd(" SPEC_OMAX2~")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_A~")
-      call tkadd(" SPEC_ATOM_CSTRMX~")
-      call tkadd(" SPEC_ATOM_DV~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_MMOM~")
-      call tkadd(" SPEC_ATOM_NR~")
-      call tkadd(" SPEC_ATOM_P~")
-      call tkadd(" SPEC_ATOM_Q~")
-      call tkadd(" SPEC_ATOM_R")
-      call tkadd(" SPEC_ATOM_R/A")
-      call tkadd(" SPEC_ATOM_R/W")
-      call tkadd(" SPEC_ATOM_Z")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DPOS~")
-      call tkadd(" SITE_ATOM_PL~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SITE_ATOM_ROT~")
-      call tkadd(" SYMGRP~")
-C      call tkadd(" STR~")
-C      call tkadd(" STR_DELRW~")
-C      call tkadd(" STR_EQUIV~")
-C      call tkadd(" STR_IINV~")
-C      call tkadd(" STR_LMAXW~")
-C      call tkadd(" STR_MODE~")
-C      call tkadd(" STR_MXNBR~")
-C      call tkadd(" STR_RMAX~")
-C      call tkadd(" STR_RMAXS~")
-C      call tkadd(" STR_SHOW~")
-      call tkadd(" BZ")
-      call tkadd(" BZ_BZJOB~")
-      call tkadd(" BZ_COND~")
-      call tkadd(" BZ_DELEF~")
-      call tkadd(" BZ_DMAT~")
-      call tkadd(" BZ_DOS~")
-      call tkadd(" BZ_EF0~")
-      call tkadd(" BZ_EFMAX~")
-      call tkadd(" BZ_FSMOM~")
-      call tkadd(" BZ_GETQP~")
-      call tkadd(" BZ_INVIT~")
-      call tkadd(" BZ_METAL~")
-      call tkadd(" BZ_MULL~")
-      call tkadd(" BZ_N~")
-      call tkadd(" BZ_NEVMX~")
-      call tkadd(" BZ_NKABC")
-      call tkadd(" BZ_NOINV~")
-      call tkadd(" BZ_NPTS~")
-      call tkadd(" BZ_N.W~")
-      call tkadd(" BZ_PUTQP~")
-      call tkadd(" BZ_SAVDOS~")
-      call tkadd(" BZ_TETRA~")
-      call tkadd(" BZ_W~")
-      call tkadd(" BZ_ZBAK~")
-      call tkadd(" BZ_ZVAL~")
-      call tkadd(" EWALD~")
-      call tkadd(" EWALD_AS~")
-      call tkadd(" EWALD_NKDMX~")
-      call tkadd(" EWALD_RPAD~")
-      call tkadd(" EWALD_TOL~")
-C      call tkadd(" ITER~")
-C      call tkadd(" ITER_AMIX~")
-C      call tkadd(" ITER_CONV~")
-C      call tkadd(" ITER_CONVC~")
-C      call tkadd(" ITER_MIX~")
-C      call tkadd(" ITER_XIPMX~")
-      call tkadd(asa_start)
-C     call tkadd(" START~")
-C     call tkadd(" START_BEGMOM~")
-C     call tkadd(" START_P~")
-C     call tkadd(" START_Q~")
-C     call tkadd(" START_DV~")
-      call tkadd(" HAM_NSPIN~")
-      call tkadd(" HAM_NONCOL~ HAM_SS~")
-      call tkadd(" PLANE~")
-      call tkadd(" PLANE_NORMAL~")
-      call tkadd(" PLANE_X~")
-      call tkadd(" PLANE_Y~")
-      call tkadd(" PGF~")
-      call tkadd(" PGF_GFOPTS~")
-      call tkadd(" PGF_MODE~")
-      call tkadd(" PGF_PLATL")
-      call tkadd(" PGF_PLATR")
-      call tkadd(" PGF_SPARSE~")
-C --- LMIMP switches ---
-      call nswadd()
-      call tkadd(" LMIMP::" )
-      call tkadd(" VERS_LM")
-      call tkadd(" VERS_ASA")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" OPTIONS~")
-      call tkadd(" OPTIONS_FRZ~")
-      call tkadd(" OPTIONS_HF~")
-      call tkadd(" OPTIONS_SHARM~")
-C     call tkadd(" OPTIONS_STONER~")
-      call tkadd(" SPEC")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_A~")
-      call tkadd(" SPEC_ATOM_ALPHA~")
-      call tkadd(" SPEC_ATOM_DV~")
-      call tkadd(" SPEC_ATOM_IDU~")
-      call tkadd(" SPEC_ATOM_JH~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_NR~")
-      call tkadd(" SPEC_ATOM_R")
-      call tkadd(" SPEC_ATOM_R/A")
-      call tkadd(" SPEC_ATOM_R/W")
-      call tkadd(" SPEC_ATOM_UH~")
-      call tkadd(" SPEC_ATOM_Z")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DPOS~")
-      call tkadd(" SITE_ATOM_PL~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SYMGRP~")
-      call tkadd(" EWALD~")
-      call tkadd(" EWALD_AS~")
-      call tkadd(" EWALD_NKDMX~")
-      call tkadd(" EWALD_RPAD~")
-      call tkadd(" EWALD_TOL~")
-      call tkadd(" PGF~")
-      call tkadd(" PGF_GFOPTS~")
-      call tkadd(" PGF_MODE~")
-      call tkadd(" PGF_PLATL")
-      call tkadd(" PGF_PLATR")
-      call tkadd(" PGF_SPARSE~")
-      call tkadd(" HAM_NSPIN~")
-C --- LMAVGM switches ---
-      call nswadd()
-      call tkadd(" LMAVGM::" )
-      call tkadd(" VERS_LM")
-      call tkadd(" VERS_ASA")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" OPTIONS~")
-C     call tkadd(" OPTIONS_NESABC~")
-      call tkadd(" SPEC")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_A~")
-      call tkadd(" SPEC_ATOM_DV~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_MMOM~")
-      call tkadd(" SPEC_ATOM_NR~")
-      call tkadd(" SPEC_ATOM_P~")
-      call tkadd(" SPEC_ATOM_Q~")
-      call tkadd(" SPEC_ATOM_R")
-      call tkadd(" SPEC_ATOM_R/A")
-      call tkadd(" SPEC_ATOM_R/W")
-      call tkadd(" SPEC_ATOM_Z")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DPOS~")
-      call tkadd(" SITE_ATOM_PL~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SITE_ATOM_ROT~")
-      call tkadd(" SYMGRP~")
-C      call tkadd(" STR~")
-C      call tkadd(" STR_DELRW~")
-C      call tkadd(" STR_EQUIV~")
-C      call tkadd(" STR_IINV~")
-C      call tkadd(" STR_LMAXW~")
-C      call tkadd(" STR_MODE~")
-C      call tkadd(" STR_MXNBR~")
-C      call tkadd(" STR_RMAX~")
-C      call tkadd(" STR_RMAXS~")
-C      call tkadd(" STR_SHOW~")
-      call tkadd(" BZ")
-      call tkadd(" BZ_BZJOB~")
-C     call tkadd(" BZ_COND~")
-      call tkadd(" BZ_DELEF~")
-      call tkadd(" BZ_DMAT~")
-      call tkadd(" BZ_DOS~")
-      call tkadd(" BZ_EF0~")
-      call tkadd(" BZ_EFMAX~")
-      call tkadd(" BZ_FSMOM~")
-      call tkadd(" BZ_GETQP~")
-      call tkadd(" BZ_INVIT~")
-      call tkadd(" BZ_METAL~")
-      call tkadd(" BZ_MULL~")
-      call tkadd(" BZ_N~")
-      call tkadd(" BZ_NEVMX~")
-      call tkadd(" BZ_NKABC")
-      call tkadd(" BZ_NOINV~")
-      call tkadd(" BZ_NPTS~")
-      call tkadd(" BZ_N.W~")
-      call tkadd(" BZ_PUTQP~")
-      call tkadd(" BZ_SAVDOS~")
-      call tkadd(" BZ_TETRA~")
-      call tkadd(" BZ_W~")
-      call tkadd(" BZ_ZBAK~")
-      call tkadd(" BZ_ZVAL~")
-      call tkadd(" EWALD~")
-      call tkadd(" EWALD_AS~")
-      call tkadd(" EWALD_NKDMX~")
-      call tkadd(" EWALD_RPAD~")
-      call tkadd(" EWALD_TOL~")
-      call tkadd(" HAM_NSPIN~")
-C     call tkadd(" ITER~")
-C     call tkadd(" ITER_AMIX~")
-C     call tkadd(" ITER_CONV~")
-C     call tkadd(" ITER_CONVC~")
-C     call tkadd(" ITER_MIX~")
-C     call tkadd(" ITER_XIPMX~")
-C     call tkadd(" START~")
-C     call tkadd(" START_BEGMOM~")
-C --- TBE switches ---
-      call nswadd()
-      call tkadd(" TBE::" )
-      call tkadd(" VERS_LM")
-      call tkadd(" VERS_TB")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" OPTIONS~")
-      call tkadd(" OPTIONS_SHARM~")
-C     call tkadd(" OPTIONS_STONER~")
-      call tkadd(" SPEC")
-      call tkadd(sscale)
-C     call tkadd(" SPEC_SCLWSR~")
-C     call tkadd(" SPEC_WSRMAX~")
-C     call tkadd(" SPEC_OMAX1~")
-C     call tkadd(" SPEC_OMAX2~")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_AMASS~")
-      call tkadd(" SPEC_ATOM_EREF~")
-      call tkadd(" SPEC_ATOM_I~")
-      call tkadd(" SPEC_ATOM_IDU~")
-      call tkadd(" SPEC_ATOM_FRZQ1~")
-      call tkadd(" SPEC_ATOM_FRZVSO~")
-      call tkadd(" SPEC_ATOM_IDXDN~")
-      call tkadd(" SPEC_ATOM_ISOTOPE")
-      call tkadd(" SPEC_ATOM_JH~")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_LMXA~")
-      call tkadd(" SPEC_ATOM_QPOL~")
-      call tkadd(" SPEC_ATOM_RHAM~")
-      call tkadd(" SPEC_ATOM_UH~")
-      call tkadd(" SPEC_ATOM_VSO~")
-      call tkadd(" SPEC_ATOM_Z~")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DELTA~")
-      call tkadd(" SITE_ATOM_DPOS~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SITE_ATOM_RELAX~")
-      call tkadd(" SYMGRP~")
-      call tkadd(" STR~")
-      call tkadd(" STR_MXNBR~")
-      call tkadd(" STR_SHOW~")
-      call tkadd(" BZ")
-      call tkadd(" BZ_BZJOB~")
-      call tkadd(" BZ_COND~")
-      call tkadd(" BZ_DELEF~")
-      call tkadd(" BZ_DMAT~")
-      call tkadd(" BZ_DOS~")
-      call tkadd(" BZ_EF0~")
-      call tkadd(" BZ_EFMAX~")
-      call tkadd(" BZ_FSMOM~")
-      call tkadd(" BZ_GETQP~")
-      call tkadd(" BZ_INVIT~")
-      call tkadd(" BZ_METAL~")
-      call tkadd(" BZ_MULL~")
-      call tkadd(" BZ_N~")
-      call tkadd(" BZ_NEVMX~")
-      call tkadd(" BZ_NKABC")
-      call tkadd(" BZ_NOINV~")
-      call tkadd(" BZ_NPTS~")
-      call tkadd(" BZ_N.W~")
-      call tkadd(" BZ_PUTQP~")
-      call tkadd(" BZ_SAVDOS~")
-      call tkadd(" BZ_TETRA~")
-      call tkadd(" BZ_W~")
-      call tkadd(" BZ_ZBAK~")
-      call tkadd(" BZ_ZVAL~")
-      call tkadd(" EWALD~")
-      call tkadd(" EWALD_AS~")
-      call tkadd(" EWALD_NKDMX~")
-      call tkadd(" EWALD_RPAD~")
-      call tkadd(" EWALD_TOL~")
-      call tkadd(" ITER~")
-C     call tkadd(" ITER_AMIX~")
-      call tkadd(" ITER_CONV~")
-      call tkadd(" ITER_CONVC~")
-      call tkadd(" ITER_MIX~")
-      call tkadd(" ITER_XIPMX~")
-      call tkadd(" ITER_NIT~")
-C     call tkadd(asa_start)
-      call tkadd(" START START_CNTROL~")
-      call tkadd(" START_ATOM~ START_ATOM_P~ START_ATOM_Q~")
-      call tkadd(" HAM_NSPIN~ HAM_SO~")
-      call tkadd(" TB")
-      call tkadd(" TB_3PV~")
-      call tkadd(" TB_ADDES~")
-      call tkadd(" TB_CRYSF~")
-      call tkadd(" TB_EVDISC~")
-      call tkadd(" TB_FIJ~")
-      call tkadd(" TB_FORCES~")
-      call tkadd(" TB_GAMMA~")
-      call tkadd(" TB_IODEL~")
-      call tkadd(" TB_MOL~")
-      call tkadd(" TB_NOUAVG~")
-      call tkadd(" TB_OVCF~ TB_OVLP~")
-      call tkadd(" TB_PAIR~")
-      call tkadd(" TB_RHO~")
-      call tkadd(" TB_RMAXH~")
-      call tkadd(" TB_TBU~")
-      call tkadd(" TB_TRH~")
-      call tkadd(" TB_U1~")
-      call tkadd(" TB_UL~")
-      call tkadd(" TB_FIT~")
-      call tkadd(" TB_FIT_MODE~")
-      call tkadd(" TB_FIT_NBFIT TB_FIT_EBFIT TB_FIT_RFIT")
-      call tkadd(" TB_FIT_LAM~ TB_FIT_SCL~")
-      call tkadd(" DYN~")
-C     call tkadd(" DYN_BSTOL~")
-C     call tkadd(" DYN_CT~")
-C      call tkadd(" DYN_HAM~")
-      call tkadd(" DYN_KT~")
-C     call tkadd(" DYN_MI~")
-      call tkadd(" DYN_MODET~")
-      call tkadd(dyn_mstat)
-      call tkadd(dyn_md)
-C     call tkadd(" DYN_MX~")
-C     call tkadd(" DYN_NEW~")
-      call tkadd(" DYN_NIT~")
-C     call tkadd(" DYN_NSEQ~")
-C     call tkadd(" DYN_NTHERM~")
-C     call tkadd(" DYN_PDEF~")
-      call tkadd(" DYN_TEQU~")
-      call tkadd(" DYN_TS~")
-C     call tkadd(" DYN_TS0~")
-      call tkadd(" DYN_TTOT~")
-C --- LMMAG switches ---
-      call nswadd()
-      call tkadd(" LMMAG::" )
-      call tkadd(" VERS_LM")
-      call tkadd(" VERS_MM")
-      call tkadd(trim(io_sw))
-      call tkadd(trim(struc_sw))
-      call tkadd(" OPTIONS~")
-C      call tkadd(" OPTIONS_FRZ~")
-C      call tkadd(" OPTIONS_HF~")
-C      call tkadd(" OPTIONS_SHARM~")
-C     call tkadd(" OPTIONS_STONER~")
-      call tkadd(" SPEC")
-      call tkadd(" SPEC_ATOM")
-      call tkadd(" SPEC_ATOM_LMX~")
-      call tkadd(" SPEC_ATOM_RHAM")
-      call tkadd(" SPEC_ATOM_Z~")
-      call tkadd(" SITE")
-      call tkadd(" SITE_FILE~")
-      call tkadd(" SITE_MODE~")
-      call tkadd(" SITE_ATOM")
-      call tkadd(" SITE_ATOM_DPOS~")
-      call tkadd(" SITE_ATOM_POS")
-      call tkadd(" SITE_ATOM_XPOS")
-      call tkadd(" SITE_ATOM_RELAX~")
-      call tkadd(" SITE_ATOM_ROT~")
-      call tkadd(" HAM~")
-C     call tkadd(" HAM_NSPIN~")
-      call tkadd(" HAM_SO~ HAM_SS~")
-      call tkadd(" HAM_BFIELD~")
-      call tkadd(" DYN")
-      call tkadd(" DYN_BSINT~")
-      call tkadd(" DYN_BSINT_MX~")
-      call tkadd(" DYN_BSINT_MI~")
-      call tkadd(" DYN_BSINT_NEW~")
-      call tkadd(" DYN_BSINT_NSEQ~")
-      call tkadd(" DYN_BSINT_TOL")
-      call tkadd(" DYN_BSINT_TS0~")
-      call tkadd(" DYN_GD~ DYN_GD_CT~ DYN_GD_MODET~ DYN_GD_NTHERM~")
-      call tkadd(" DYN_SDYN DYN_SDYN_KT DYN_SDYN_TS DYN_SDYN_TTOT")
-      call tkadd(" DYN_SDYN_TEQU~")
-      call tkadd(" DYN_MMHAM")
-C     call tkadd(" DYN_KT")
-      call tkadd(" DYN_MD~")
-C     call tkadd(" DYN_MSTAT~")
-C     call tkadd(" DYN_PDEF~")
-C      call tkadd(" DYN_TEQU~")
-C      call tkadd(" DYN_TS")
-C      call tkadd(" DYN_TTOT")
 
-
-C      nsw=nsw
-C      print *,' max len nsw=',lenc
       end subroutine toksw_init
 C      subroutine snit
 C      return

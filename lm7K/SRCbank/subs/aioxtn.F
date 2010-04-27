@@ -159,445 +159,447 @@ c     if charges at all sites are found, lqtot=.true.
       call defrr(oves,-nclass)
 
       lrs = cmdopt('-rs',3,0,outs)
-
+      if(lrs) then
+         call rx('no -rs option now')
+      endif
 c   ... import from rst files
-        if (lrs) then
+C$$$ if (lrs) then
 
-Cgetarg           irs = igets('ctrl lrs',sctrl)
-           irs = int(sctrl%lrs) 
-
-
-          call defi(oips,nbasp)
-Cgetarg           call spackv(10,'site spec',ssite,1,nbasp,w(oips))
-           i_copy_size=1; 
-           do i_spackv=1,nbasp 
-           call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
-           enddo
-
-          call sp2cls('spec z',sspec,w(oips),1,1,nbasp,oz)
-          call sp2cls('spec lmxa',sspec,w(oips),1,1,nbasp,olmx)
-
-CKi          call defdr(v_spot,1000)
-CKi          call upot(v_spot,-1,-000,0,0,0)
-CKi          call redfrr(v_spot,nint(dval(v_spot,1)))
-          v_spot%size=upot_size()
-
-CKi          call defdr(v_sbz,1000)
-CKi          call ubz(v_sbz,-1,-000,0,0,0)
-CKi          call redfrr(v_sbz,nint(dval(v_sbz,1)))
-          v_sbz%size=ubz_size()
-
-CKi          call defdr(v_slat,1000)
-CKi          call ulat(v_slat,-1,0,0,0,0)
-CKi          call redfrr(v_slat,nint(dval(v_slat,1)))
-           v_slat%size=ulat_size()
-
-          call defrr(opnus,-n0*nsp*nbasp)
-          call defrr(oqnus,-3*n0*nsp*nbasp)
-          call defi(oipa,nbasp)
-          call asars1(30,ssite,nbasp,nsp,nl,ov,w(opnus),w(oqnus),
-     .      w(oipc),w(oipa),pnuc,qnuc)
-          call rlse(oipa)
+C$$$Cgetarg           irs = igets('ctrl lrs',sctrl)
+C$$$           irs = int(sctrl%lrs) 
 
 
-   99     print 301
-  301     format(//
-     .      ' Welcome to the restart file editor.')
-  100     continue
-          print '('' Option (enter ? for menu) : '',$)'
-          outs = ' '
-          read(*,'(a80)') outs
-          call locase(outs)
-          if (.false.) then
-          elseif (outs .eq. ' ') then
-            print '('' Enter ''''q'''' to exit, ''''a'''' to abort'')'
-            goto 100
-          elseif (outs(1:1) .eq. 'a') then
-            call rx0('exiting aioxtn without rewriting rst file')
-          elseif (outs(1:1) .eq. 'q') then
-            goto 199
-          elseif (outs(1:1) .eq. 'i') then
-            goto 101
-          elseif (outs(1:3) .eq. 'dup') then
-            call words(outs,nw)
-            if (nw .eq. 1) then
-              print 315
-  315         format(/' Enter the lower and upper range of sites ',
-     .          'to duplicate: ',$)
-              read(*,*) i,j
-            elseif (nw .eq. 2 .or. nw .eq. 3) then
-              ip = 3
-              k = a2vec(outs,len(outs),ip,2,', ',2,-3,-2,lsts,lstd)
-              if (k .lt. 0) then
-                print 306, outs(1:ip+1)
-                goto 100
-              elseif (k .eq. 1) then
-                i = lstd(1)
-                j = i
-              elseif (k .eq. 2) then
-                i = lstd(1)
-                j = lstd(2)
-              endif
-            endif
-            if (j .lt. i) then
-              print *, 'upper range < lower range ... skipping'
-              goto 100
-            endif
+C$$$          call defi(oips,nbasp)
+C$$$Cgetarg           call spackv(10,'site spec',ssite,1,nbasp,w(oips))
+C$$$           i_copy_size=1; 
+C$$$           do i_spackv=1,nbasp 
+C$$$           call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+C$$$           enddo
 
-            nbasn = nbasp + j-i+1
-C           duplicate ssite
-            k = nint(ssite(1)%size)
-Cki            call defrr(v_ssite,k*nbasn)
-              allocate(v_ssite(nbasn) )
-            call dcopy(k*nbasp,ssite,1,v_ssite,1)
-            call dmscop(ssite,k,v_ssite,k,1,k,i,nbasp,1,j+1,1d0)
-            call aioxt3(k,v_ssite,nbasp,ssite,nbasn)
-C           duplicate pnu
-            k = n0*nsp
-            owk = opnus
-            call defrr(opnus,k*nbasn)
-            call dcopy(k*nbasp,w(owk),1,w(opnus),1)
-            call dmscop(w(opnus),k,w(owk),k,1,k,i,nbasp,1,j+1,1d0)
-            call aioxt3(k,w(owk),nbasp,w(opnus),nbasn)
-C           duplicate qnu
-            k = 3*n0*nsp
-            owk = oqnus
-            call defrr(oqnus,k*nbasn)
-            call dcopy(k*nbasp,w(owk),1,w(oqnus),1)
-            call dmscop(w(oqnus),k,w(owk),k,1,k,i,nbasp,1,j+1,1d0)
-            call aioxt3(k,w(owk),nbasp,w(oqnus),nbasn)
-C           Update nbas,nbasp
-            nbas  = nbas  + j-i+1
-            nbasp = nbasn
-            i = dglob('nbasp',dble(nbasp),1)
-            i = dglob('nbas',dble(nbas),1)
-Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
-Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
-Cgetarg             call pack5('ctrl nbas nbasp',sctrl,nbas,nbasp,0,0,0)
+C$$$          call sp2cls('spec z',sspec,w(oips),1,1,nbasp,oz)
+C$$$          call sp2cls('spec lmxa',sspec,w(oips),1,1,nbasp,olmx)
+
+C$$$CKi          call defdr(v_spot,1000)
+C$$$CKi          call upot(v_spot,-1,-000,0,0,0)
+C$$$CKi          call redfrr(v_spot,nint(dval(v_spot,1)))
+C$$$          v_spot%size=upot_size()
+
+C$$$CKi          call defdr(v_sbz,1000)
+C$$$CKi          call ubz(v_sbz,-1,-000,0,0,0)
+C$$$CKi          call redfrr(v_sbz,nint(dval(v_sbz,1)))
+C$$$          v_sbz%size=ubz_size()
+
+C$$$CKi          call defdr(v_slat,1000)
+C$$$CKi          call ulat(v_slat,-1,0,0,0,0)
+C$$$CKi          call redfrr(v_slat,nint(dval(v_slat,1)))
+C$$$           v_slat%size=ulat_size()
+
+C$$$          call defrr(opnus,-n0*nsp*nbasp)
+C$$$          call defrr(oqnus,-3*n0*nsp*nbasp)
+C$$$          call defi(oipa,nbasp)
+C$$$          call asars1(30,ssite,nbasp,nsp,nl,ov,w(opnus),w(oqnus),
+C$$$     .      w(oipc),w(oipa),pnuc,qnuc)
+C$$$          call rlse(oipa)
+
+
+C$$$   99     print 301
+C$$$  301     format(//
+C$$$     .      ' Welcome to the restart file editor.')
+C$$$  100     continue
+C$$$          print '('' Option (enter ? for menu) : '',$)'
+C$$$          outs = ' '
+C$$$          read(*,'(a80)') outs
+C$$$          call locase(outs)
+C$$$          if (.false.) then
+C$$$          elseif (outs .eq. ' ') then
+C$$$            print '('' Enter ''''q'''' to exit, ''''a'''' to abort'')'
+C$$$            goto 100
+C$$$          elseif (outs(1:1) .eq. 'a') then
+C$$$            call rx0('exiting aioxtn without rewriting rst file')
+C$$$          elseif (outs(1:1) .eq. 'q') then
+C$$$            goto 199
+C$$$          elseif (outs(1:1) .eq. 'i') then
+C$$$            goto 101
+C$$$          elseif (outs(1:3) .eq. 'dup') then
+C$$$            call words(outs,nw)
+C$$$            if (nw .eq. 1) then
+C$$$              print 315
+C$$$  315         format(/' Enter the lower and upper range of sites ',
+C$$$     .          'to duplicate: ',$)
+C$$$              read(*,*) i,j
+C$$$            elseif (nw .eq. 2 .or. nw .eq. 3) then
+C$$$              ip = 3
+C$$$              k = a2vec(outs,len(outs),ip,2,', ',2,-3,-2,lsts,lstd)
+C$$$              if (k .lt. 0) then
+C$$$                print 306, outs(1:ip+1)
+C$$$                goto 100
+C$$$              elseif (k .eq. 1) then
+C$$$                i = lstd(1)
+C$$$                j = i
+C$$$              elseif (k .eq. 2) then
+C$$$                i = lstd(1)
+C$$$                j = lstd(2)
+C$$$              endif
+C$$$            endif
+C$$$            if (j .lt. i) then
+C$$$              print *, 'upper range < lower range ... skipping'
+C$$$              goto 100
+C$$$            endif
+
+C$$$            nbasn = nbasp + j-i+1
+C$$$C           duplicate ssite
+C$$$            k = nint(ssite(1)%size)
+C$$$Cki            call defrr(v_ssite,k*nbasn)
+C$$$              allocate(v_ssite(nbasn) )
+C$$$            call dcopy(k*nbasp,ssite,1,v_ssite,1)
+C$$$            call dmscop(ssite,k,v_ssite,k,1,k,i,nbasp,1,j+1,1d0)
+C$$$            call aioxt3(k,v_ssite,nbasp,ssite,nbasn)
+C$$$C           duplicate pnu
+C$$$            k = n0*nsp
+C$$$            owk = opnus
+C$$$            call defrr(opnus,k*nbasn)
+C$$$            call dcopy(k*nbasp,w(owk),1,w(opnus),1)
+C$$$            call dmscop(w(opnus),k,w(owk),k,1,k,i,nbasp,1,j+1,1d0)
+C$$$            call aioxt3(k,w(owk),nbasp,w(opnus),nbasn)
+C$$$C           duplicate qnu
+C$$$            k = 3*n0*nsp
+C$$$            owk = oqnus
+C$$$            call defrr(oqnus,k*nbasn)
+C$$$            call dcopy(k*nbasp,w(owk),1,w(oqnus),1)
+C$$$            call dmscop(w(oqnus),k,w(owk),k,1,k,i,nbasp,1,j+1,1d0)
+C$$$            call aioxt3(k,w(owk),nbasp,w(oqnus),nbasn)
+C$$$C           Update nbas,nbasp
+C$$$            nbas  = nbas  + j-i+1
+C$$$            nbasp = nbasn
+C$$$            i = dglob('nbasp',dble(nbasp),1)
+C$$$            i = dglob('nbas',dble(nbas),1)
+C$$$Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+C$$$Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+C$$$Cgetarg             call pack5('ctrl nbas nbasp',sctrl,nbas,nbasp,0,0,0)
              
-             sctrl%nbas=nbas 
-             sctrl%nbasp=nbasp 
+C$$$             sctrl%nbas=nbas 
+C$$$             sctrl%nbasp=nbasp 
 
-C           Update ipc,ips,z,lmxa
-            call defi(oipc,nbasp)
-Cgetarg             call spackv(10,'site class',ssite,1,nbasp,w(oipc))
-             i_copy_size=1; 
-             do i_spackv=1,nbasp 
-             call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
-             enddo
+C$$$C           Update ipc,ips,z,lmxa
+C$$$            call defi(oipc,nbasp)
+C$$$Cgetarg             call spackv(10,'site class',ssite,1,nbasp,w(oipc))
+C$$$             i_copy_size=1; 
+C$$$             do i_spackv=1,nbasp 
+C$$$             call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
+C$$$             enddo
 
-            call defi(oips,nbasp)
-Cgetarg             call spackv(10,'site spec',ssite,1,nbasp,w(oips))
-             i_copy_size=1; 
-             do i_spackv=1,nbasp 
-             call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
-             enddo
+C$$$            call defi(oips,nbasp)
+C$$$Cgetarg             call spackv(10,'site spec',ssite,1,nbasp,w(oips))
+C$$$             i_copy_size=1; 
+C$$$             do i_spackv=1,nbasp 
+C$$$             call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+C$$$             enddo
 
-            call sp2cls('spec z',sspec,w(oips),1,1,nbasp,oz)
-            call sp2cls('spec lmxa',sspec,w(oips),1,1,nbasp,olmx)
+C$$$            call sp2cls('spec z',sspec,w(oips),1,1,nbasp,oz)
+C$$$            call sp2cls('spec lmxa',sspec,w(oips),1,1,nbasp,olmx)
 
-            print '('' basis enlarged to'',i5,'' atoms'')', nbasp
-            goto 100
+C$$$            print '('' basis enlarged to'',i5,'' atoms'')', nbasp
+C$$$            goto 100
 
-          elseif (outs(1:5) .eq. 'shift') then
-            call words(outs,nw)
-            if (nw .eq. 1) then
-              print 311
-  311         format(/' Enter the lower and upper range of sites ',
-     .          'to shift: ',$)
-              read(*,*) i,j
-            elseif (nw .eq. 2 .or. nw .eq. 3) then
-              ip = 5
-              k = a2vec(outs,len(outs),ip,2,', ',2,-3,-2,lsts,lstd)
-              if (k .lt. 0) then
-                print 306, outs(1:ip+1)
-                goto 100
-              elseif (k .eq. 1) then
-                i = lstd(1)
-                j = i
-              elseif (k .eq. 2) then
-                i = lstd(1)
-                j = lstd(2)
-              endif
-            endif
-            if (j .lt. i) then
-              print *, 'upper range < lower range ... skipping'
-              goto 100
-            endif
-            print 314
-  314       format(/' Enter dx dy dz: ',$)
-            read(*,*) tau
-            call defrr(opos,3*nbasp)
-Cgetarg             call spackv(10,'site pos',ssite,1,nbasp,w(opos))
-             i_copy_size=size(ssite(1)%pos)
-             do i_spackv=1,nbasp 
-             call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-             enddo
+C$$$          elseif (outs(1:5) .eq. 'shift') then
+C$$$            call words(outs,nw)
+C$$$            if (nw .eq. 1) then
+C$$$              print 311
+C$$$  311         format(/' Enter the lower and upper range of sites ',
+C$$$     .          'to shift: ',$)
+C$$$              read(*,*) i,j
+C$$$            elseif (nw .eq. 2 .or. nw .eq. 3) then
+C$$$              ip = 5
+C$$$              k = a2vec(outs,len(outs),ip,2,', ',2,-3,-2,lsts,lstd)
+C$$$              if (k .lt. 0) then
+C$$$                print 306, outs(1:ip+1)
+C$$$                goto 100
+C$$$              elseif (k .eq. 1) then
+C$$$                i = lstd(1)
+C$$$                j = i
+C$$$              elseif (k .eq. 2) then
+C$$$                i = lstd(1)
+C$$$                j = lstd(2)
+C$$$              endif
+C$$$            endif
+C$$$            if (j .lt. i) then
+C$$$              print *, 'upper range < lower range ... skipping'
+C$$$              goto 100
+C$$$            endif
+C$$$            print 314
+C$$$  314       format(/' Enter dx dy dz: ',$)
+C$$$            read(*,*) tau
+C$$$            call defrr(opos,3*nbasp)
+C$$$Cgetarg             call spackv(10,'site pos',ssite,1,nbasp,w(opos))
+C$$$             i_copy_size=size(ssite(1)%pos)
+C$$$             do i_spackv=1,nbasp 
+C$$$             call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+C$$$             enddo
 
-            call aioxt2(i,j,tau,w(opos))
-Cgetarg             call spackv(11,'site pos',ssite,1,nbasp,w(opos))
-             i_copy_size=size(ssite(1)%pos)
-             do i_spackv=1,nbasp 
-             call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-             enddo
+C$$$            call aioxt2(i,j,tau,w(opos))
+C$$$Cgetarg             call spackv(11,'site pos',ssite,1,nbasp,w(opos))
+C$$$             i_copy_size=size(ssite(1)%pos)
+C$$$             do i_spackv=1,nbasp 
+C$$$             call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+C$$$             enddo
 
-            call rlse(opos)
-            goto 100
+C$$$            call rlse(opos)
+C$$$            goto 100
 
-          elseif (outs(1:1) .eq. 's') then
+C$$$          elseif (outs(1:1) .eq. 's') then
 
 
-            call defrr(oqcs,nbasp)
-            call defrr(oqts,nbasp)
-            call defrr(oamoms,nbasp)
-            call getq(nsp,n0,w(olmx),nbasp,w(oz),w(opnus),w(oqnus),
-     .        w(oics),sspec,w(oqcs),w(oqts),w(oamoms))
+C$$$            call defrr(oqcs,nbasp)
+C$$$            call defrr(oqts,nbasp)
+C$$$            call defrr(oamoms,nbasp)
+C$$$            call getq(nsp,n0,w(olmx),nbasp,w(oz),w(opnus),w(oqnus),
+C$$$     .        w(oics),sspec,w(oqcs),w(oqts),w(oamoms))
 
-            call defrr(opos,3*nbasp)
-Cgetarg             call spackv(10,'site pos',ssite,1,nbasp,w(opos))
-             i_copy_size=size(ssite(1)%pos)
-             do i_spackv=1,nbasp 
-             call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-             enddo
+C$$$            call defrr(opos,3*nbasp)
+C$$$Cgetarg             call spackv(10,'site pos',ssite,1,nbasp,w(opos))
+C$$$             i_copy_size=size(ssite(1)%pos)
+C$$$             do i_spackv=1,nbasp 
+C$$$             call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+C$$$             enddo
 
-            call defrr(opos1,nbasp)
-            call defrr(opos2,nbasp)
-            call defrr(opos3,nbasp)
-            call dmscop(w(opos1),1,w(opos),3,1,1,1,nbasp,1,1,1d0)
-            call dmscop(w(opos2),1,w(opos),3,2,2,1,nbasp,1,1,1d0)
-            call dmscop(w(opos3),1,w(opos),3,3,3,1,nbasp,1,1,1d0)
+C$$$            call defrr(opos1,nbasp)
+C$$$            call defrr(opos2,nbasp)
+C$$$            call defrr(opos3,nbasp)
+C$$$            call dmscop(w(opos1),1,w(opos),3,1,1,1,nbasp,1,1,1d0)
+C$$$            call dmscop(w(opos2),1,w(opos),3,2,2,1,nbasp,1,1,1d0)
+C$$$            call dmscop(w(opos3),1,w(opos),3,3,3,1,nbasp,1,1,1d0)
 
-            outs = ' Site   Z      x         y         z'//
-     .        '         dq     amom'
-            print *
-C            call arrprt(outs,'%,4i%:-3,4;1d%:-3,4;4d%:-2,4;4d',
-            call arrprt(outs,
-     .        '%,4i%;6,1D%;10,5D%;10,5D%;10,5D%:-3,4;4d%:-2,4;4d',
-     .        'Idddddd',nbasp,0,2,0,'  | ',w,
-     .        w(oz),w(opos1),w(opos2),w(opos3),w(oqts),w(oamoms),w)
-            wk(1) = dsum(nbasp,w(oqts),1)
-            wk(2) = dsum(nbasp,w(oamoms),1)
-            call awrit2(' sum-of-sphere charges=%:,6;6d'//
-     .        '  sum-of-sphere moments=%:,6;6d',' ',80,
-     .        stdo,wk,wk(2))
-            call rlse(oqcs)
-            print *, ' '
-            goto 100
+C$$$            outs = ' Site   Z      x         y         z'//
+C$$$     .        '         dq     amom'
+C$$$            print *
+C$$$C            call arrprt(outs,'%,4i%:-3,4;1d%:-3,4;4d%:-2,4;4d',
+C$$$            call arrprt(outs,
+C$$$     .        '%,4i%;6,1D%;10,5D%;10,5D%;10,5D%:-3,4;4d%:-2,4;4d',
+C$$$     .        'Idddddd',nbasp,0,2,0,'  | ',w,
+C$$$     .        w(oz),w(opos1),w(opos2),w(opos3),w(oqts),w(oamoms),w)
+C$$$            wk(1) = dsum(nbasp,w(oqts),1)
+C$$$            wk(2) = dsum(nbasp,w(oamoms),1)
+C$$$            call awrit2(' sum-of-sphere charges=%:,6;6d'//
+C$$$     .        '  sum-of-sphere moments=%:,6;6d',' ',80,
+C$$$     .        stdo,wk,wk(2))
+C$$$            call rlse(oqcs)
+C$$$            print *, ' '
+C$$$            goto 100
 
-          elseif (outs .eq. 'wsite') then
-            lio = 1000*(2+4+8+16+32) + 1
-            if (iosits(lio,3d0,0,'site',ifi,slabl,alat,plat,nbasp,nspec,
-     .        sspec,ssite).lt. 0) call rx('failed to write ssite')
-            goto 100
+C$$$          elseif (outs .eq. 'wsite') then
+C$$$            lio = 1000*(2+4+8+16+32) + 1
+C$$$            if (iosits(lio,3d0,0,'site',ifi,slabl,alat,plat,nbasp,nspec,
+C$$$     .        sspec,ssite).lt. 0) call rx('failed to write ssite')
+C$$$            goto 100
 
-          elseif (outs .eq. '?') then
-            print 310
-  310       format(/' Select one of these options:'/
-     .        t4,'i',t10,'to import a portion of a restart file'/
-     .        t4,'dup',t10,
-     .                   'to duplicate some site data, enlarging basis'/
-     .        t4,'s',t10,'to show some site data'/
-     .        t4,'shift',t10,'to shift some site positions'/
-     .        t4,'wsite',t10,'to write site file'/
-     .        t4,'q',t10,'to quit the editor'/
-     .        )
-            goto 100
+C$$$          elseif (outs .eq. '?') then
+C$$$            print 310
+C$$$  310       format(/' Select one of these options:'/
+C$$$     .        t4,'i',t10,'to import a portion of a restart file'/
+C$$$     .        t4,'dup',t10,
+C$$$     .                   'to duplicate some site data, enlarging basis'/
+C$$$     .        t4,'s',t10,'to show some site data'/
+C$$$     .        t4,'shift',t10,'to shift some site positions'/
+C$$$     .        t4,'wsite',t10,'to write site file'/
+C$$$     .        t4,'q',t10,'to quit the editor'/
+C$$$     .        )
+C$$$            goto 100
 
-          else
-            print '(1x,''unrecognized option: '',a10)', outs
-            goto 100
+C$$$          else
+C$$$            print '(1x,''unrecognized option: '',a10)', outs
+C$$$            goto 100
 
-          endif
+C$$$          endif
 
-C     ... Import some pnu,qnu from a rst file
-  101     continue
-          fnam = ' '
-          print 302
-  302     format(/' Enter the full name of a restart file ',
-     .            '(enter nothing to exit): ',$)
-          read(*,'(a80)') fnam
-          if (fnam .eq. ' ') goto 100
-          ifi = fopnx(fnam,72,-1,-1)
-          if (ifi .ne. 1) then
-            print *, 'sorry, file doesn''t seem to exist.  try again.'
-            goto 101
-          endif
-C         call pshpr(110)
-          ifi = fopnx(fnam,72,0,-1)
-C         call poppr
+C$$$C     ... Import some pnu,qnu from a rst file
+C$$$  101     continue
+C$$$          fnam = ' '
+C$$$          print 302
+C$$$  302     format(/' Enter the full name of a restart file ',
+C$$$     .            '(enter nothing to exit): ',$)
+C$$$          read(*,'(a80)') fnam
+C$$$          if (fnam .eq. ' ') goto 100
+C$$$          ifi = fopnx(fnam,72,-1,-1)
+C$$$          if (ifi .ne. 1) then
+C$$$            print *, 'sorry, file doesn''t seem to exist.  try again.'
+C$$$            goto 101
+C$$$          endif
+C$$$C         call pshpr(110)
+C$$$          ifi = fopnx(fnam,72,0,-1)
+C$$$C         call poppr
 
-          i = iors(-1,sctrl,w,w,v_slat,w,v_sbz,
-     .      jobid,nbasi,nati,nspeci,w,w,nit,.false.,ifi)
+C$$$          i = iors(-1,sctrl,w,w,v_slat,w,v_sbz,
+C$$$     .      jobid,nbasi,nati,nspeci,w,w,nit,.false.,ifi)
 
-          call word(fnam,1,j1,j2)
-          print 303, fnam(j1:j2), nbasi, nspeci
-  303     format(' file ',a,' contains nbas =',i4,' and nspec =',i4)
+C$$$          call word(fnam,1,j1,j2)
+C$$$          print 303, fnam(j1:j2), nbasi, nspeci
+C$$$  303     format(' file ',a,' contains nbas =',i4,' and nspec =',i4)
 
-C         setup for file read ... much of the data will be discarded
-Cgetarg           call pack1('ctrl lrs',sctrl,0)
+C$$$C         setup for file read ... much of the data will be discarded
+C$$$Cgetarg           call pack1('ctrl lrs',sctrl,0)
            
-           sctrl%lrs=0 
+C$$$           sctrl%lrs=0 
 
 
-Cki          call defrr(v_ssite,1000)
-Cki          call usite(v_ssite,-1,0,1,0,0,0)
-Cki          call redfrr(v_ssite,nbasi*nint(dval(v_ssite,1)))
-Cki          call usite(v_ssite,-1,0,nbasi,0,0,0)
-          allocate(v_ssite(nbasi))
-          do i_spackv=1,nbasi; v_ssite(i_spackv)%size=usite_size(); enddo
+C$$$Cki          call defrr(v_ssite,1000)
+C$$$Cki          call usite(v_ssite,-1,0,1,0,0,0)
+C$$$Cki          call redfrr(v_ssite,nbasi*nint(dval(v_ssite,1)))
+C$$$Cki          call usite(v_ssite,-1,0,nbasi,0,0,0)
+C$$$          allocate(v_ssite(nbasi))
+C$$$          do i_spackv=1,nbasi; v_ssite(i_spackv)%size=usite_size(); enddo
 
-Cgetarg           call spackv(1,'site spec',v_ssite,1,nbasi,-1)
-           i_copy_size=1; 
-           do i_spackv=1,nbasi 
-           call spackv_array_copy_i8_i('p',v_ssite(i_spackv)%spec,i_copy_size,1,-1)
-           enddo
+C$$$Cgetarg           call spackv(1,'site spec',v_ssite,1,nbasi,-1)
+C$$$           i_copy_size=1; 
+C$$$           do i_spackv=1,nbasi 
+C$$$           call spackv_array_copy_i8_i('p',v_ssite(i_spackv)%spec,i_copy_size,1,-1)
+C$$$           enddo
 
 
-Cki          call defrr(v_sspec,1000)
-Cki          call uspec(v_sspec,-1,0,1,0,0,0)
-Cki          call redfrr(v_sspec,nspeci*nint(dval(v_sspec,1)))
-Cki          call uspec(v_sspec,-1,-000,nspeci,0,0,0)
-          allocate(v_sspec(nspeci))
-          do i_spacks=1,nspeci; v_sspec(i)%size=uspec_size(); enddo 
+C$$$Cki          call defrr(v_sspec,1000)
+C$$$Cki          call uspec(v_sspec,-1,0,1,0,0,0)
+C$$$Cki          call redfrr(v_sspec,nspeci*nint(dval(v_sspec,1)))
+C$$$Cki          call uspec(v_sspec,-1,-000,nspeci,0,0,0)
+C$$$          allocate(v_sspec(nspeci))
+C$$$          do i_spacks=1,nspeci; v_sspec(i)%size=uspec_size(); enddo 
 
-          do  i = 1, nspeci
-Cgetarg...info...          check_variable 'zz' not found
-Cgetarg             call spacks(1,'spec name',v_sspec,'zz',i,i)
-             do i_spacks=i,i 
-             call spacks_copy('p',v_sspec(i_spacks)%name,i,i,'zz',i_spacks)
-             enddo
+C$$$          do  i = 1, nspeci
+C$$$Cgetarg...info...          check_variable 'zz' not found
+C$$$Cgetarg             call spacks(1,'spec name',v_sspec,'zz',i,i)
+C$$$             do i_spacks=i,i 
+C$$$             call spacks_copy('p',v_sspec(i_spacks)%name,i,i,'zz',i_spacks)
+C$$$             enddo
 
-          enddo
-C         call defrr(opnui,-1*n0*nsp*nbasi)
-          call defrr(oqnui,-3*n0*nsp*nbasi)
+C$$$          enddo
+C$$$C         call defrr(opnui,-1*n0*nsp*nbasi)
+C$$$          call defrr(oqnui,-3*n0*nsp*nbasi)
 
-          i = iors(0,sctrl,v_ssite,v_sspec,v_slat,v_spot,
-     .      v_sbz,jobid,nbasi,nati,nspeci,w,w(oqnui),nit,.false.,ifi)
+C$$$          i = iors(0,sctrl,v_ssite,v_sspec,v_slat,v_spot,
+C$$$     .      v_sbz,jobid,nbasi,nati,nspeci,w,w(oqnui),nit,.false.,ifi)
 
-Cgetarg...info...           integer :: irs , integer(8) :: sctrl%lrs 1
-Cgetarg           call pack1('ctrl lrs',sctrl,irs)
+C$$$Cgetarg...info...           integer :: irs , integer(8) :: sctrl%lrs 1
+C$$$Cgetarg           call pack1('ctrl lrs',sctrl,irs)
            
-           sctrl%lrs=irs 
+C$$$           sctrl%lrs=irs 
 
-          call fclose(ifi)
-
-
-  110     print 304, fnam(j1:j2)
-  304     format(/' Enter list of sites from input file ',a,
-     .      ' (? for help) : ',$)
-          read(*,'(a80)') outs
-
-          if (outs .eq. ' ') then
-            goto 101
-
-          elseif (outs .eq. '?') then
-          print 305
-  305     format(/
-     .      ' If you enter a single number, you can poke data from'/
-     .      ' this site into a group of sites.'/
-     .      ' If you enter a list, the list of destination sites'/
-     .      ' you enter following this will have to be the same length'/
-     .      ' as the list you enter now.'/
-     .      ' See documentation for site-list syntax.')
-
-          goto 110
-          endif
-
-          call mkils0(outs,nlsts,ip)
-          if (nlsts .lt. 0) then
-            print 306, outs(1:ip+1)
-  306       format(' Failed to parse string ',a,' ... try again.')
-            goto 101
-          endif
-          call mkilst(outs,nlsts,lsts)
-          print 307, outs(1:ip+1), nlsts
-  307     format(' List ',a,' contains',i4,' sites.')
+C$$$          call fclose(ifi)
 
 
-  120     print 308
-  308     format(/' Enter list of destination sites : ',$)
-          read(*,'(a80)') outs
+C$$$  110     print 304, fnam(j1:j2)
+C$$$  304     format(/' Enter list of sites from input file ',a,
+C$$$     .      ' (? for help) : ',$)
+C$$$          read(*,'(a80)') outs
 
-          if (.false.) then
-          elseif (outs .eq. ' ' .or.  outs .eq. '?') then
-            print 312
-  312       format(/' Enter ''q'' to quit'/
-     .        ' Enter ''?'' to see this message'/
-     .        ' Otherwise, enter a site-list ',
-     .        ' (see documentation for syntax)')
-            if (nlsts .eq. 1)  print 313
-  313       format(2x,' Because you imported only one site from the',
-     .        ' input file,'/
-     .        2x,' you can enter an implicit list with z=#')
-            goto 120
-          elseif (outs .eq. 'q') then
-            goto 99
-          elseif (outs(1:2) .eq. 'z=') then
-            if (nlsts .ne. 1) then
-              print *, 'Sorry, z= option allowed only when you import',
-     .          ' from one site'
-              goto 120
-            endif
-            i = 2
-            if (.not. a2bin(outs,wk,4,0,' ',i,len(outs)-1)) then
-              print *, 'Sorry, couldn''t parse string ... try again'
-              goto 120
-            endif
-            nlstd = 0
-            do  i = 1, nbasp
-              if (dval(w(oz),i) .eq. wk(1)) then
-                nlstd = nlstd + 1
-                lstd(nlstd) = i
-              endif
-            enddo
-            call word(outs,1,j1,j2)
-            print 307, outs(j1:j2), nlstd
-            if (nlstd .eq. 0) then
-              print *, 'Sorry, no sites with this z ... try again'
-              goto 120
-            endif
+C$$$          if (outs .eq. ' ') then
+C$$$            goto 101
 
-          else
+C$$$          elseif (outs .eq. '?') then
+C$$$          print 305
+C$$$  305     format(/
+C$$$     .      ' If you enter a single number, you can poke data from'/
+C$$$     .      ' this site into a group of sites.'/
+C$$$     .      ' If you enter a list, the list of destination sites'/
+C$$$     .      ' you enter following this will have to be the same length'/
+C$$$     .      ' as the list you enter now.'/
+C$$$     .      ' See documentation for site-list syntax.')
 
-            call mkils0(outs,nlstd,ip)
-            if (nlstd .lt. 0) then
-              print 306, outs(1:ip+1)
-              goto 101
-            endif
-            call mkilst(outs,nlstd,lstd)
-            print 307, outs(1:ip+1), nlstd
-          endif
+C$$$          goto 110
+C$$$          endif
 
-          if (nlsts .gt. 1 .and. nlsts .ne. nlstd) then
-            print 309
-  309       format(' Size of lists do not match ... try again.')
-            goto 101
-          endif
+C$$$          call mkils0(outs,nlsts,ip)
+C$$$          if (nlsts .lt. 0) then
+C$$$            print 306, outs(1:ip+1)
+C$$$  306       format(' Failed to parse string ',a,' ... try again.')
+C$$$            goto 101
+C$$$          endif
+C$$$          call mkilst(outs,nlsts,lsts)
+C$$$          print 307, outs(1:ip+1), nlsts
+C$$$  307     format(' List ',a,' contains',i4,' sites.')
 
 
-C         Poke imported site->pnu and qnui to pnus and qnus
-          mode = 1
-          if (nlsts .eq. 1) mode = 0
-          call aioxt1(mode,nlstd,lsts,lstd,nsp,nbasi,v_ssite,
-     .      w(oqnui),nbasp,w(opnus),w(oqnus))
+C$$$  120     print 308
+C$$$  308     format(/' Enter list of destination sites : ',$)
+C$$$          read(*,'(a80)') outs
 
-          goto 101
+C$$$          if (.false.) then
+C$$$          elseif (outs .eq. ' ' .or.  outs .eq. '?') then
+C$$$            print 312
+C$$$  312       format(/' Enter ''q'' to quit'/
+C$$$     .        ' Enter ''?'' to see this message'/
+C$$$     .        ' Otherwise, enter a site-list ',
+C$$$     .        ' (see documentation for syntax)')
+C$$$            if (nlsts .eq. 1)  print 313
+C$$$  313       format(2x,' Because you imported only one site from the',
+C$$$     .        ' input file,'/
+C$$$     .        2x,' you can enter an implicit list with z=#')
+C$$$            goto 120
+C$$$          elseif (outs .eq. 'q') then
+C$$$            goto 99
+C$$$          elseif (outs(1:2) .eq. 'z=') then
+C$$$            if (nlsts .ne. 1) then
+C$$$              print *, 'Sorry, z= option allowed only when you import',
+C$$$     .          ' from one site'
+C$$$              goto 120
+C$$$            endif
+C$$$            i = 2
+C$$$            if (.not. a2bin(outs,wk,4,0,' ',i,len(outs)-1)) then
+C$$$              print *, 'Sorry, couldn''t parse string ... try again'
+C$$$              goto 120
+C$$$            endif
+C$$$            nlstd = 0
+C$$$            do  i = 1, nbasp
+C$$$              if (dval(w(oz),i) .eq. wk(1)) then
+C$$$                nlstd = nlstd + 1
+C$$$                lstd(nlstd) = i
+C$$$              endif
+C$$$            enddo
+C$$$            call word(outs,1,j1,j2)
+C$$$            print 307, outs(j1:j2), nlstd
+C$$$            if (nlstd .eq. 0) then
+C$$$              print *, 'Sorry, no sites with this z ... try again'
+C$$$              goto 120
+C$$$            endif
+
+C$$$          else
+
+C$$$            call mkils0(outs,nlstd,ip)
+C$$$            if (nlstd .lt. 0) then
+C$$$              print 306, outs(1:ip+1)
+C$$$              goto 101
+C$$$            endif
+C$$$            call mkilst(outs,nlstd,lstd)
+C$$$            print 307, outs(1:ip+1), nlstd
+C$$$          endif
+
+C$$$          if (nlsts .gt. 1 .and. nlsts .ne. nlstd) then
+C$$$            print 309
+C$$$  309       format(' Size of lists do not match ... try again.')
+C$$$            goto 101
+C$$$          endif
 
 
-C     ... Cleanup and exit rst editor
-  199     continue
-          call defi(oipa,nbasp)
-          call asars1(31,ssite,nbasp,nsp,nl,ov,w(opnus),w(oqnus),
-     .      w(oipc),w(oipa),pnuc,qnuc)
-          call rlse(oipc)
+C$$$C         Poke imported site->pnu and qnui to pnus and qnus
+C$$$          mode = 1
+C$$$          if (nlsts .eq. 1) mode = 0
+C$$$          call aioxt1(mode,nlstd,lsts,lstd,nsp,nbasi,v_ssite,
+C$$$     .      w(oqnui),nbasp,w(opnus),w(oqnus))
 
-Cki
-          if (allocated(v_ssite)) deallocate(v_ssite)
-          if (allocated(v_sspec)) deallocate(v_sspec)
+C$$$          goto 101
 
-          return
 
-        endif
+C$$$C     ... Cleanup and exit rst editor
+C$$$  199     continue
+C$$$          call defi(oipa,nbasp)
+C$$$          call asars1(31,ssite,nbasp,nsp,nl,ov,w(opnus),w(oqnus),
+C$$$     .      w(oipc),w(oipa),pnuc,qnuc)
+C$$$          call rlse(oipc)
+
+C$$$Cki
+C$$$          if (allocated(v_ssite)) deallocate(v_ssite)
+C$$$          if (allocated(v_sspec)) deallocate(v_sspec)
+
+C$$$          return
+
+C$$$        endif
 
 c     call pshpr(110)
     5 continue

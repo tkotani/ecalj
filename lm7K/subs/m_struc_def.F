@@ -456,7 +456,7 @@ C 56  88  4       zbak  2
         real(8):: size
         real(8) :: defm(6) 
         real(8) :: elin 
-c        integer(8) :: lasa 
+        integer(8) :: lasa 
         integer(8) :: lbas 
         integer(8) :: lcd 
         integer(8) :: lcgf 
@@ -474,7 +474,7 @@ c        integer(8) :: lasa
         integer(8) :: lrel 
         integer(8) :: lrs 
         integer(8) :: lscr 
-c        integer(8) :: lstonr(3) 
+        integer(8) :: lstonr(3) 
         integer(8) :: lstr 
         integer(8) :: lsx 
         integer(8) :: ltb 
@@ -808,7 +808,7 @@ C 56 130  2      udiag  1
         real(8) :: eterms(20) 
         integer(8) :: hord 
         real(8) :: kmto(6) 
-c        integer(8) :: lasa 
+        integer(8) :: lasa 
         integer(8) :: ldham(16) 
         integer(8) :: lgen3 
         integer(8) :: lham 
@@ -1888,16 +1888,6 @@ C  7  11 -1       size  1
         end module m_struc_def
 
 
-
-
-
-
-
-
-
-
-
-
       
 c------------------------------------------------------------------
       module m_struc_func
@@ -2079,6 +2069,7 @@ c------------------------------------------------------------------
 
 
 
+
 c------------------------------------------------------------------
         subroutine uarray_init(struc)
         use m_struc_def
@@ -2127,19 +2118,19 @@ c------------------------------------------------------------------
         write(*,*) struc
         end subroutine uarray_show
        
-        subroutine uarray(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_array):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call uarray_init(struc)
-        else
-          write(*,*) 'uarray offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine uarray
+C$$$        subroutine uarray(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_array):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call uarray_init(struc)
+C$$$        else
+C$$$          write(*,*) 'uarray offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine uarray
        
         subroutine ubz_init(struc)
         use m_struc_def
@@ -2186,19 +2177,19 @@ c------------------------------------------------------------------
         write(*,*) struc
         end subroutine ubz_show
        
-        subroutine ubz(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_bz):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call ubz_init(struc)
-        else
-          write(*,*) 'ubz offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine ubz
+C$$$        subroutine ubz(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_bz):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call ubz_init(struc)
+C$$$        else
+C$$$          write(*,*) 'ubz offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine ubz
        
         subroutine uctrl_init(struc)
         use m_struc_def
@@ -2209,7 +2200,7 @@ c------------------------------------------------------------------
         struc%size=uctrl_size()
         struc%defm(:)=0.0d0
         struc%elin=0.0d0
-c        struc%lasa=0
+        struc%lasa=0
         struc%lbas=0
         struc%lcd=0
         struc%lcgf=0
@@ -2227,7 +2218,7 @@ c        struc%lasa=0
         struc%lrel=0
         struc%lrs=0
         struc%lscr=0
-c        struc%lstonr(:)=0
+        struc%lstonr(:)=0
         struc%lstr=0
         struc%lsx=0
         struc%ltb=0
@@ -2271,67 +2262,67 @@ c        struc%lstonr(:)=0
         write(*,*) struc
         end subroutine uctrl_show
        
-        subroutine uctrl(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_ctrl):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call uctrl_init(struc)
-        else
-          write(*,*) 'uctrl offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine uctrl
+C$$$        subroutine uctrl(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_ctrl):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call uctrl_init(struc)
+C$$$        else
+C$$$          write(*,*) 'uctrl offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine uctrl
        
-        subroutine ugw_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_gw):: struc
-        integer:: ugw_size
-        struc%size=ugw_size()
-        struc%delre(:)=0.0d0
-        struc%deltaw=0.0d0
-        struc%deltax=0.0d0
-        struc%ecuts=0.0d0
-        struc%gcutb=0.0d0
-        struc%gcutx=0.0d0
-        struc%gsmear=0.0d0
-        struc%lgw=0
-        struc%lmxpb=0
-        struc%mksig=0
-        struc%nband=0
-        struc%nime=0
-        struc%nkabc(:)=0
-        struc%pb1=0.0d0
-        struc%pb2=0.0d0
-        struc%pbtol=0.0d0
-        struc%qoffp=0.0d0
-        struc%rdsig=0
-        end subroutine ugw_init
+C$$$        subroutine ugw_init(struc)
+C$$$        use m_struc_def
+C$$$         use m_struc_func
+C$$$        implicit none
+C$$$        type(s_gw):: struc
+C$$$        integer:: ugw_size
+C$$$        struc%size=ugw_size()
+C$$$        struc%delre(:)=0.0d0
+C$$$        struc%deltaw=0.0d0
+C$$$        struc%deltax=0.0d0
+C$$$        struc%ecuts=0.0d0
+C$$$        struc%gcutb=0.0d0
+C$$$        struc%gcutx=0.0d0
+C$$$        struc%gsmear=0.0d0
+C$$$        struc%lgw=0
+C$$$        struc%lmxpb=0
+C$$$        struc%mksig=0
+C$$$        struc%nband=0
+C$$$        struc%nime=0
+C$$$        struc%nkabc(:)=0
+C$$$        struc%pb1=0.0d0
+C$$$        struc%pb2=0.0d0
+C$$$        struc%pbtol=0.0d0
+C$$$        struc%qoffp=0.0d0
+C$$$        struc%rdsig=0
+C$$$        end subroutine ugw_init
        
-        subroutine ugw_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_gw):: struc
-        write(*,*) struc
-        end subroutine ugw_show
+C$$$        subroutine ugw_show(struc)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_gw):: struc
+C$$$        write(*,*) struc
+C$$$        end subroutine ugw_show
        
-        subroutine ugw(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_gw):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call ugw_init(struc)
-        else
-          write(*,*) 'ugw offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine ugw
+C$$$        subroutine ugw(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_gw):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call ugw_init(struc)
+C$$$        else
+C$$$          write(*,*) 'ugw offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine ugw
        
         subroutine uham_init(struc)
         use m_struc_def
@@ -2350,7 +2341,7 @@ c        struc%lstonr(:)=0
         struc%eterms(:)=0.0d0
         struc%hord=0
         struc%kmto(:)=0.0d0
-c        struc%lasa=0
+        struc%lasa=0
         struc%ldham(:)=0
         struc%lgen3=0
         struc%lham=0
@@ -2404,19 +2395,19 @@ c        struc%lasa=0
         write(*,*) struc
         end subroutine uham_show
        
-        subroutine uham(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_ham):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call uham_init(struc)
-        else
-          write(*,*) 'uham offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine uham
+C$$$        subroutine uham(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_ham):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call uham_init(struc)
+C$$$        else
+C$$$          write(*,*) 'uham offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine uham
        
         subroutine ulat_init(struc)
         use m_struc_def
@@ -2476,19 +2467,19 @@ c        struc%lasa=0
         write(*,*) struc
         end subroutine ulat_show
        
-        subroutine ulat(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_lat):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call ulat_init(struc)
-        else
-          write(*,*) 'ulat offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine ulat
+C$$$        subroutine ulat(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_lat):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call ulat_init(struc)
+C$$$        else
+C$$$          write(*,*) 'ulat offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine ulat
        
         subroutine umix_init(struc)
         use m_struc_def
@@ -2528,19 +2519,19 @@ c        struc%lasa=0
         write(*,*) struc
         end subroutine umix_show
        
-        subroutine umix(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_mix):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call umix_init(struc)
-        else
-          write(*,*) 'umix offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine umix
+C$$$        subroutine umix(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_mix):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call umix_init(struc)
+C$$$        else
+C$$$          write(*,*) 'umix offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine umix
        
         subroutine umove_init(struc)
         use m_struc_def
@@ -2568,19 +2559,19 @@ c        struc%lasa=0
         write(*,*) struc
         end subroutine umove_show
        
-        subroutine umove(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_move):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call umove_init(struc)
-        else
-          write(*,*) 'umove offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine umove
+C$$$        subroutine umove(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_move):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call umove_init(struc)
+C$$$        else
+C$$$          write(*,*) 'umove offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine umove
        
         subroutine uoptic_init(struc)
         use m_struc_def
@@ -2610,19 +2601,19 @@ c        struc%lasa=0
         write(*,*) struc
         end subroutine uoptic_show
        
-        subroutine uoptic(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_optic):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call uoptic_init(struc)
-        else
-          write(*,*) 'uoptic offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine uoptic
+C$$$        subroutine uoptic(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_optic):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call uoptic_init(struc)
+C$$$        else
+C$$$          write(*,*) 'uoptic offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine uoptic
        
         subroutine uordn_init(struc)
         use m_struc_def
@@ -2650,19 +2641,19 @@ c        struc%lasa=0
         write(*,*) struc
         end subroutine uordn_show
        
-        subroutine uordn(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_ordn):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call uordn_init(struc)
-        else
-          write(*,*) 'uordn offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine uordn
+C$$$        subroutine uordn(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_ordn):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call uordn_init(struc)
+C$$$        else
+C$$$          write(*,*) 'uordn offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine uordn
        
         subroutine upot_init(struc)
         use m_struc_def
@@ -2737,19 +2728,19 @@ c        struc%lasa=0
         write(*,*) struc
         end subroutine upot_show
        
-        subroutine upot(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_pot):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call upot_init(struc)
-        else
-          write(*,*) 'upot offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine upot
+C$$$        subroutine upot(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_pot):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call upot_init(struc)
+C$$$        else
+C$$$          write(*,*) 'upot offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine upot
        
         subroutine usite_init(struc)
         use m_struc_def
@@ -2793,19 +2784,19 @@ c        struc%lasa=0
         write(*,*) struc
         end subroutine usite_show
        
-        subroutine usite(struc,offe,nli,is,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_site):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call usite_init(struc)
-        else
-          write(*,*) 'usite offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine usite
+C$$$        subroutine usite(struc,offe,nli,is,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_site):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call usite_init(struc)
+C$$$        else
+C$$$          write(*,*) 'usite offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine usite
        
         subroutine uspec_init(struc)
         use m_struc_def
@@ -2896,19 +2887,19 @@ c        struc%lasa=0
         write(*,*) struc
         end subroutine uspec_show
        
-        subroutine uspec(struc,offe,nli,is,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_spec):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call uspec_init(struc)
-        else
-          write(*,*) 'uspec offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine uspec
+C$$$        subroutine uspec(struc,offe,nli,is,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_spec):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call uspec_init(struc)
+C$$$        else
+C$$$          write(*,*) 'uspec offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine uspec
        
         subroutine ustr_init(struc)
         use m_struc_def
@@ -2955,19 +2946,19 @@ c        struc%lasa=0
         write(*,*) struc
         end subroutine ustr_show
        
-        subroutine ustr(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_str):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call ustr_init(struc)
-        else
-          write(*,*) 'ustr offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine ustr
+C$$$        subroutine ustr(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_str):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call ustr_init(struc)
+C$$$        else
+C$$$          write(*,*) 'ustr offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine ustr
        
         subroutine utb_init(struc)
         use m_struc_def
@@ -2991,16 +2982,16 @@ c        struc%lasa=0
         write(*,*) struc
         end subroutine utb_show
        
-        subroutine utb(struc,offe,nli,off,cast,nelt)
-        use m_struc_def
-        implicit none
-        type(s_tb):: struc
-        integer:: offe(1),nli,is,off,cast,nelt
-        integer::val
-        if (offe(1).eq.-1) then
-          call utb_init(struc)
-        else
-          write(*,*) 'utb offe=',offe(1),' not suppoted'
-          stop
-        endif
-        end subroutine utb
+C$$$        subroutine utb(struc,offe,nli,off,cast,nelt)
+C$$$        use m_struc_def
+C$$$        implicit none
+C$$$        type(s_tb):: struc
+C$$$        integer:: offe(1),nli,is,off,cast,nelt
+C$$$        integer::val
+C$$$        if (offe(1).eq.-1) then
+C$$$          call utb_init(struc)
+C$$$        else
+C$$$          write(*,*) 'utb offe=',offe(1),' not suppoted'
+C$$$          stop
+C$$$        endif
+C$$$        end subroutine utb

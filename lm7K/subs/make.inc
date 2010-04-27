@@ -6,7 +6,6 @@ subs_list:=\
 	m_gtv.o \
 	addbas.o \
 	addrwf.o \
-	aiocls.o \
 	aiocor.o \
 	aiogen.o \
 	aiomom.o \
@@ -16,27 +15,19 @@ subs_list:=\
 	aiorme.o \
 	aiosop.o \
 	aiova.o \
-	aioxtn.o \
 	amagnc.o \
 	angtab.o \
-	asadc.o \
-	asaqmp.o \
-	asavqm.o \
 	asars.o \
 	asamad.o \
 	asados.o \
-	asldau.o \
-	asvsph.o \
 	asymop.o \
 	atfold.o \
 	atomsr.o \
-	atsev.o \
 	atwf.o \
 	avwsr.o \
 	baslst.o \
 	besslr.o \
 	bloch.o \
-	blochi.o \
 	bzints.o \
 	bzmesh.o \
 	bzmio.o \
@@ -67,7 +58,6 @@ subs_list:=\
 	dvdos.o \
 	easypbe.o \
 	efrng2.o \
-	enutod.o \
 	evxc.o \
 	evxcp.o \
 	evxcv.o \
@@ -86,9 +76,6 @@ subs_list:=\
 	getef.o \
 	getq.o \
 	getqp.o \
-	ggiml.o \
-	gh1c.o \
-	ghdiml.o \
 	groupg.o \
 	grpfnd.o \
 	grpgen.o \
@@ -100,7 +87,6 @@ subs_list:=\
 	gvlist.o \
 	gvlst2.o \
 	gvmtch.o \
-	gxpml.o \
 	hamfb3.o \
 	hanr.o \
 	hansmd.o \
@@ -109,21 +95,12 @@ subs_list:=\
 	hansr5.o \
 	hansr.o \
 	hansrz.o \
-	hanszd.o \
-	hdxpml.o \
 	hft2rs.o \
-	hmladb.o \
-	hmltnc.o \
-	hmltns.o \
 	hnsmft.o \
 	hsmq.o \
-	hstrux.o \
-	i3cntr.o \
 	iax2fd.o \
-	ibloch.o \
 	iclbas.o \
 	intnos.o \
-	invalp.o \
 	invbl.o \
 	iobsmv.o \
 	ioeula.o \
@@ -137,66 +114,44 @@ subs_list:=\
 	iorbtm.o \
 	iors.o \
 	iosave.o \
-	iosg.o \
 	iosite.o \
 	iosits.o \
 	iostr.o \
-	ioxbs.o \
-	kink2g.o \
 	latlim.o \
 	lattc.o \
 	lattdf.o \
 	lattic.o \
 	latvec.o \
 	ldau.o \
-	ll.o \
 	lx2vec.o \
 	madmat.o \
-	makbet.o \
-	makdia.o \
 	makdla.o \
 	makdos.o \
-	makdsd.o \
 	makidx.o \
 	makipt.o \
 	maknos.o \
 	maknrs.o \
-	makpph.o \
 	makptf.o \
 	makrm0.o \
 	makrot.o \
 	makrwf.o \
-	maks0.o \
 	mcasim.o \
 	mchan.o \
-	mkbdot.o \
 	mkbfld.o \
 	mkcond.o \
 	mkplat.o \
-	mkppar.o \
 	mkqp.o \
 	mkrtab.o \
-	mksbet.o \
-	mksod.o \
-	mksoph.o \
 	mksym.o \
-	mktra2.o \
-	mpint.o \
 	mshsiz.o \
-	mstrx2.o \
-	mstrx3.o \
 	mtchae.o \
 	mxmymz.o \
-	newalp.o \
 	nghbor.o \
-	nmefac.o \
-	nmham.o \
 	nmpot.o \
 	nnrl.o \
 	norm2g.o \
 	nosbzm.o \
 	nwit.o \
-	oraddp.o \
 	orbl.o \
 	ovlchk.o \
 	ovmin.o \
@@ -209,9 +164,7 @@ subs_list:=\
 	phvsfp.o \
 	pkli.o \
 	plana.o \
-	pp2enu.o \
 	pptrns.o \
-	pqmix.o \
 	prdmts.o \
 	prjpos.o \
 	prmx.o \
@@ -224,10 +177,7 @@ subs_list:=\
 	radmsh.o \
 	radpkl.o \
 	rdeq.o \
-	rdsigm.o \
 	relax.o \
-	remhyb.o \
-	rgrme.o \
 	rlxstp.o \
 	rmesh.o \
 	rnatm.o \
@@ -240,32 +190,20 @@ subs_list:=\
 	roth.o \
 	rothrm.o \
 	rotpnt.o \
-	rotspn.o \
 	rotspu.o \
 	rotycs.o \
 	rseq.o \
 	rsmsym.o \
 	rsort.o \
 	rstr0.o \
-	s2oka.o \
 	s2sph.o \
-	saiwav.o \
-	salias.o \
-	salph1.o \
-	salphg.o \
-	savvxc.o \
-	sblham.o \
-	scalpv.o \
 	scg.o \
 	scglp1.o \
 	sclwsr.o \
 	setcg.o \
-	sfill.o \
 	shear.o \
-	shffle.o \
 	shftpp.o \
 	shoist.o \
-	shopol.o \
 	shorbz.o \
 	shorps.o \
 	shortn.o \
@@ -277,16 +215,11 @@ subs_list:=\
 	spcgrp.o \
 	splcls.o \
 	splwts.o \
-	sstrxq.o \
 	stoner.o \
-	strdif.o \
 	strx00.o \
-	strxq.o \
-	strxsu.o \
 	subasi.o \
 	subzi.o \
 	suclst.o \
-	suctrl.o \
 	sudmtu.o \
 	suemph.o \
 	sugcut.o \
@@ -311,16 +244,12 @@ subs_list:=\
 	symtbl.o \
 	tailsm.o \
 	tetirr.o \
-	trsdot.o \
-	trs.o \
 	trysop.o \
 	uspecb.o \
-	v0intr.o \
 	vecpkl.o \
 	veecomp.o \
 	vldau.o \
 	volsph.o \
-	vsl.o \
 	vxc0sp.o \
 	vxcgga.o \
 	vxcgr2.o \
@@ -329,20 +258,18 @@ subs_list:=\
 	xxxbnd.o \
 	xxxdif.o \
 	ylmrtg.o \
-	yyhmul.o \
-	zslabl.o \
 	rdctrl2.o\
 	m_rdctrl.o \
-	m_rdctrlchk.o \
 	m_toksw.o \
 	writebasis.o \
 	spackv_array_copy.o \
         struc_strn.o \
         switch.o \
+        rdsigm.o\
         rdsigm2.o\
         rotwv.o \
         dpdbyl.o \
 	dpdftr.o \
 	pvsms2.o \
-	clsprm.o \
-        sp2cls.o
+	getcor.o \
+	pqmix.o

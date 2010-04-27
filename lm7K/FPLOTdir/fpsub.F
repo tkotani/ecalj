@@ -298,10 +298,11 @@ C           call shosyv(0,0,0,i1mach(2))
             jp = jp+1
             if (ipr .ge. 60) print 345, ip, xp(ip), yp(ip), ep(ip)
   345       format(' mapdat:  ip=',i4,'  xp,yp=',4f15.6)
-            if (ipr .ge. 100) then
-              call shosyv(0,0,0,i1mach(2))
-              pause
-            endif
+ctakao
+c            if (ipr .ge. 100) then
+c              call shosyv(0,0,0,i1mach(2))
+c              pause
+c            endif
             xp(jp) = xp(ip)
             yp(jp) = yp(ip)
             ep(jp) = ep(ip)
@@ -381,7 +382,11 @@ C --- Map into smoothed data by polynomial interpolation ---
             yp(ip) = dlog(yp(ip))
           enddo
         endif
-        do  60  x = xxpl(1), xxpl(2), xxpl(3)
+ctakao
+c       do  60  x = xxpl(1), xxpl(2), xxpl(3)
+        x = xxpl(1)- xxpl(3)
+        do while ( x<xxpl(2) )
+          x = x + xxpl(3)
           np0 = np0+1
           if (logx) then
             xx = dlog(x)
@@ -408,7 +413,8 @@ C           print *, np0,j1,min(nitrp,np-j1+1),x,wk(np0),dy
 C           print *,  jx,x,wk(np0),dy
           endif
           if (logy) wk(np0) = exp(wk(np0))
-   60   continue
+c   60   continue
+        enddo
         if (logx) then
           do  ip = 1, np
             xp(ip) = exp(xp(ip))
@@ -427,12 +433,17 @@ C           print *,  jx,x,wk(np0),dy
           if (ipr .ge. 50) print '(a)', ' points:'
         endif
         np0 = 0
-        do  64  x = xxpl(1), xxpl(2), xxpl(3)
+ctakao
+c        do  64  x = xxpl(1), xxpl(2), xxpl(3)
+        x = xxpl(1)- xxpl(3)
+        do while ( x<xxpl(2) )
+          x = x + xxpl(3)
           np0 = np0+1
           xp(np0) = x
           yp(np0) = wk(np0)
           if (ipr .ge. 50) print '(2f12.6)', xp(np0), yp(np0)
-   64   continue
+c   64   continue
+        enddo
         np = np0
       else
         if (ipr .ge. 40) call awrit1('%a%?;n>=50;:;;',
@@ -443,8 +454,8 @@ C           print *,  jx,x,wk(np0),dy
   347     format(2f12.6)
         endif
       endif
-
       end
+
       subroutine ixpand(it,ixv,np,itp)
 C- Expands a list of integer points into a table
       implicit none
@@ -614,10 +625,11 @@ C           call shosyv(0,0,0,i1mach(2))
             jp = jp+1
             if (ipr .ge. 60) print 345, ip, xp(ip), yp(ip)
   345       format(' mapdat:  ip=',i4,'  xp,yp=',2f15.6)
-            if (ipr .ge. 100) then
-              call shosyv(0,0,0,i1mach(2))
-              pause
-            endif
+ctakao
+c            if (ipr .ge. 100) then
+c              call shosyv(0,0,0,i1mach(2))
+c              pause
+c            endif
             xp(jp) = xp(ip)
             yp(jp) = yp(ip)
             zp(jp) = zp(ip)
@@ -995,11 +1007,16 @@ C ... Draw tip-forward_arc-tip, if flag set
 C ... Draw lines from tip to skirt
       if (syma(6) .ne. 0) then
         xx = dsign(syma(6)*tpix,ephi(2)-ephi(1))
-        do  24  dphi = ephi(1), ephi(2), xx
+ctakao
+c        do  24  dphi = ephi(1), ephi(2), xx
+        dphi = ephi(1) - xx
+        do while ( dphi< ephi(2) )
+          dphi = dphi + xx
           call mve3d(xp,yp,zp,rotm,shft)
           call arcdrw(d,dphi,0d0,tpix*syma(7),rloc,-1,
      .      xp,yp,zp,rotm,shft)
-   24   continue
+c   24   continue
+        enddo
       endif
       goto 5
 
@@ -1105,7 +1122,12 @@ C --- Determine extrema in projected rotation numerically ---
       j = 0
       ephi(1) = 0
       ephi(2) = 0
-      do  10  ph = 0, 2*pi+1d-10, dph
+ctakao
+c      do  10  ph = 0, 2*pi+1d-10, dph
+      ph = 0d0 - dph
+      do while ( ph< 2*pi+1d-10 )
+          ph = ph + dph
+
         do  12  i = -1, 1
           phi = ph + i*dph
           if (ph .eq. 0 .or. i .eq. 1) then
@@ -1131,7 +1153,7 @@ C --- Determine extrema in projected rotation numerically ---
         if (a*b .le. 0) then
 C         print *, a,b
           phibar = ph - dph/2*(a+b)/(a-b)
-          if (j .ge. 1 .and. dabs(phibar-2*pi-ephi(1)) .lt. 1d-4)goto 10
+          if (j .ge. 1 .and. dabs(phibar-2*pi-ephi(1)) .lt. 1d-4) cycle !goto 10
           if (j .ge. 2) call fexit2(-1,1,' Exit -1 EPHI: '//
      .      'too many ephi:%2:1;6d %1;6d',ephi,ph-dph/2*(a+b)/(a-b))
           j = j+1
@@ -1139,7 +1161,8 @@ C         print *, a,b
 C         print *, ph - dph/2*(a+b)/(a-b),
 C    .      xpr(-1)/zpr(-1), xpr(0)/zpr(0), xpr(1)/zpr(1)
         endif
-   10 continue
+c   10 continue
+      enddo
       if (j .eq. 1) call rx('ephi3d: odd number of extrema')
       if (dabs(ephi(1)-ephi(2)) .lt. .01d0) then
         j = 0

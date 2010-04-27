@@ -91,17 +91,17 @@ for ffile in argset:
         loc1 =  ' in '+frame2+' '
         loc  =  ' '+ffile+(":L%d" % ins.item.span[0])
 #        if(isinstance(ins, classes.Call)):      print "@cal Subr:"+ins.designator+loc1+loc #ins.item.line
-        if(isinstance(ins, classes.Type)):      print "@dcl Type:"+ins.name+loc1+loc
+        if(isinstance(ins, classes.Type)):      print "@dcl Type:"+ins.name+loc1+loc + ' ---> '+ins.item.line
 #        if(isinstance(ins, classes.Use)):       print "@use Modu:"+ins.name
          #label=ins.item.label
-        if(isinstance(ins, classes.Program)):   print "@def Prog:"+ins.name+loc1+loc #ins.item.name
-        if(isinstance(ins, classes.Interface)) :print "@def ifc :"+ins.name+loc1+loc #,ins.a #,ins.a.variable_names
+        if(isinstance(ins, classes.Program)):   print "@def Prog:"+ins.name+loc1+loc + ' ---> '+ins.item.line
+        if(isinstance(ins, classes.Interface)) :print "@def ifc :"+ins.name+loc1+loc + ' ---> '+ins.item.line #,ins.a #,ins.a.variable_names
         if(isinstance(ins, classes.Subroutine)):
-            print "@def Subr:"+ins.name+loc1+loc #,ins.a #,ins.a.variable_names
+            print "@def Subr:"+ins.name+loc1+loc + ' ---> '+ins.item.line #,ins.a #,ins.a.variable_names
             subs.append(ins.name)
             addfsdist(fsdict,ins.name,ffile)
         if(isinstance(ins, classes.Function)):  
-            print "@def Func:"+ins.name+loc1+loc #,type(ins) #,ins.a
+            print "@def Func:"+ins.name+loc1+loc + ' ---> '+ins.item.line #,type(ins) #,ins.a
             functions.append(ins.name)
             addfsdist(fsdict,ins.name,ffile)
 # now all entry is classified to function (not correct but safer treatment)
@@ -115,10 +115,10 @@ for ffile in argset:
                 aaa="@def Enty_Subr:"
                 subs.append(ins.name)
                 addfsdist(fsdict,ins.name,ffile)
-            print aaa+ins.name+loc1+loc
+            print aaa+ins.name+loc1+loc + ' ---> '+ins.item.line
         if(isinstance(ins, classes.Module)):        
             mods.append(ins.name)
-            print "@def Modu:"+ins.name+loc1+loc
+            print "@def Modu:"+ins.name+loc1+loc + ' ---> '+ins.item.line
             addfsdist(fsdict,ins.name,ffile)
             ffileo = re.sub('subs/','$(subs_obj_path)/',ffile)
             ffileo = re.sub('fp/'  ,'$(fp_obj_path)/',ffileo)
@@ -126,7 +126,7 @@ for ffile in argset:
             ffileo = re.sub('.F','.o',ffileo)
             moddep.write("# $(moddir)/"+ins.name+".mod :"+ffile+"\n")
             moddict[ins.name]=ffileo
-        if(isinstance(ins, block_statements.Type)): print "@def Type:"+ins.name+loc1+loc
+        if(isinstance(ins, block_statements.Type)): print "@def Type:"+ins.name+loc1+loc + ' ---> '+ins.item.line
         deptho=depth
         inso=ins
 
@@ -221,7 +221,7 @@ for ffile in argset:
                 #srcfiles.discard(ffile)
                 usedsf.add(child)
         if(isinstance(ins, classes.Use)):
-            print "@use Modu:"+ins.name+loc1+loc
+            print "@use Modu:"+ins.name+loc1+loc + ' ---> '+ins.item.line
             usedsf.add(ins.name)
 ## For test, you may need to comment out a following line because it can cause key error 
 ## if all used modules are not contained in input files.

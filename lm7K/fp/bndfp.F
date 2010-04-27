@@ -13,6 +13,9 @@ Cgetarg...info...           structure ['bndfp', 'spec', 'sspec']
       use m_rdctrl, only: ncutovl
       use m_hamindex
       use m_struc_def
+#if MPI | MPIK
+      use m_events !Event numbers: include "events.ins"
+#endif
 C- One band pass, full-potential hamiltonian
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -204,10 +207,10 @@ ckino 05Feb09
       integer:: pidorigin, ndimhx_iq, nev_iq
       integer:: work_mpi(10)  ! use only 1 and 2 now
 #endif
-#if MPE
-C Event numbers:
-      include "events.ins"
-#endif
+c#if MPE
+cC Event numbers:
+c      include "events.ins"
+c#endif
 #endif
       logical mlog
       integer procid,master
@@ -356,6 +359,8 @@ ctakao
       real(8),allocatable:: qplist(:,:)
       real(8):: qpo(3),qpx(3)
 
+      integer:: iqini,iqend
+
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
 
@@ -429,10 +434,11 @@ Cgetarg       lfrzw= isw(lgors('ctrl lbas,16',sctrl))
 
 c      print *,'xxx' ,lfrzw,sctrl%lbas
 c      print *,'ttt1: lrsig,ldos,lfrzw=',lrsig,ldos,lfrzw
+      print *,'ttt: lrsig,ldos,lfrzw=',lrsig,ldos,lfrzw
+      print *,'ttt: sham%lsig       =',sham%lsig
       if(ldos - mod(sctrl%ldos/1, 2)/=0) stop 'ttt xxx111'
       if(lfrzw- mod(sctrl%lbas/16,2)/=0) stop 'ttt xxx222'
       if(lrsig- sham%lsig/=0) stop 'ttt xxx333'
-      if(debug) print *,'ttt: lrsig,ldos,lfrzw=',lrsig,ldos,lfrzw
 c$$$ctakao test
       nspec= sctrl%nspec
 ctakao
@@ -453,7 +459,6 @@ c      print *,'ttt fxstsigm=',fxst('sigm')
 
       if (procid .eq. master) then
       if (lrsig .ne. 0 .and. fxst('sigm') .ne. 1) then
-c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxx2222'
         call info0(1,1,0,' bndfp (warning): '//
      .    'no sigm file found ... LDA calculation only')
 Cgetarg         call pack1('ham lsig',sham,0)
@@ -587,7 +592,6 @@ Cgetarg      .  efmax,fsmom)
        fsmom=sbz%fsmom
 
 c      print *,' w=',esmear
-c      stop 'xxxxxxxxxxxxxxx'
       esmear = esmear + iabs(mpsord)
       if (mpsord .lt. 0) esmear = -esmear
       mpsord = int(dabs(esmear))
@@ -1278,7 +1282,6 @@ C... This is needed only for hambls.F case (store ohrs)
 
 
 
-
 C --- do loop for iq and isp ---------------
 c      print *,' --- goto do loop 2010 ---'
 ctakao
@@ -1292,12 +1295,32 @@ C     w(oevl), w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
 #if MPE & MPIK
       ierr = MPE_LOG_EVENT(EVENT_START_KLOOP,procid,"k-loop")
 #endif
+
 #if MPIK
       call info0(30,1,0, ' ... Start MPI k-loop')
       sttime = MPI_WTIME()
       allocate (kpproc(0:numprocs), stat=ierr)
       call dstrbp(nkp,numprocs,1,kpproc(0))
-      do 2010 iq = kpproc(procid), kpproc(procid+1)-1
+      iqini = kpproc(procid)
+      iqend = kpproc(procid+1)-1
+c      do 2010 iq = kpproc(procid), kpproc(procid+1)-1
+c        if (iq .eq. kpproc(procid)) then
+c          if (mlog) then
+c            call gettime(datim)
+c            call awrit4(' bndfp '//datim//' Process %i of %i on '
+c     .        //shortname(procid)(1:namelen(procid))//
+c     .        ' starting k-points %i to %i',' ',256,lgunit(3),
+c     .        procid,numprocs,kpproc(procid),kpproc(procid+1)-1)
+c          endif
+c        endif
+#else
+c      nsmidb = ndham
+       iqini=1
+       iqend=nkp
+#endif
+
+      do 2010 iq = iqini, iqend
+#if MPIK
         if (iq .eq. kpproc(procid)) then
           if (mlog) then
             call gettime(datim)
@@ -1307,9 +1330,6 @@ C     w(oevl), w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
      .        procid,numprocs,kpproc(procid),kpproc(procid+1)-1)
           endif
         endif
-#else
-c      nsmidb = ndham
-      do 2010 iq = 1, nkp
 #endif
         isqp = nsp*(iq-1)
 C       Get qp either from qp list or read from suqlst
@@ -1329,9 +1349,6 @@ c        endif
         call dpscop(w(oqp),qp,3,3*iq-2,1,1d0) !this should be modified as in non-MPIK mode.
 #endif
 
-
-c      print *,'   do loop 2010 iq=',iq
-
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
 c      print *,' --- goto qparam--- '
@@ -1340,7 +1357,6 @@ c      ! eight corners -->  qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc
 c      call interparam(qpara, wgc)
 c      cycle
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
 
 
 C   ... Loop over majority, minority spins
@@ -1718,6 +1734,11 @@ c        nsmidb = min(nsmidb,ismidb) !????
           if(sigmamode) deallocate(sene)
           print *,' end of hambls mode=',i
          endif  
+
+ccccccccccccccccccccccccccccccccccc
+c        print *,'xxxxxxxxxxxxxxx AAAAAAAAAAQQQQQQQQQ'
+c        goto 2011 
+cccccccccccccccccccccccccccccccccccc
 
 
 C       call zprm('evec, LDA',2,w(os),ndimh,ndimh,ndimh)
@@ -2151,6 +2172,14 @@ C end loop over iq (main loop in parallel mode)
 c      enddo
       deallocate(hamm,ovlm)!,hamsom)
  2010 continue
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c 2011 continue
+c      call mpi_finalize(ierr)
+c      stop 'xxxxxxxxxxxxxx BBBBB'
+ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 
 c takao
 cccccccccccccccccccccccccc

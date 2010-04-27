@@ -6,9 +6,10 @@ Cgetarg...info...           use_to_add ['rsibl1', 'm_struc_def']
 #define F90 1
       subroutine rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,
      .  napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
-       
        use m_struc_def  !Cgetarg
-
+#if MPE 
+      use m_events !Event numbers: include "events.ins"
+#endif
 C- Add smooth part of output density into smrho and forces.
 C ----------------------------------------------------------------------
 Ci Inputs

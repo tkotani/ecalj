@@ -106,7 +106,7 @@ C ... Local variables
       logical bittst,T,F,ltet,bzmap,lgors,lmet,cmdopt,tbdos,TBU,totdos,
      .  lcond,lrange,lidos,lfp
       integer odos,odoswt,oeband,oew,ogstar,oics,oidtet,oipc,
-     .  olmx,onq,onw,oqp,ormax,ovx,ovy,owtkp,owk,ox,oy,oz,oipq,
+     .  onq,onw,oqp,ormax,ovx,ovy,owtkp,owk,ox,oy,oz,oipq,
      .  oclabl,ochan
       integer awrite,fopnn,fopno,i,iblst(1000),ichds,icond,il,imax,
      .  iprint,igets,isw,iv(10),j,j1,j2,l,nband,nbandx,ldos,lham,
@@ -127,6 +127,9 @@ C ... Heap
       integer w(1)
       common /w/ w
       data modstr /'dos','sigma(ballistic)','sigma(v*v)','*','*'/
+ctakao
+      integer,allocatable:: ics(:)
+      real(8),allocatable:: z(:)
 
 C --- Setup ---
       stdo = nglob('stdo')
@@ -198,8 +201,15 @@ Cgetarg      .  cvec,drange)
 C     For now... until input in rdccat is patched
       call dcopy(3,cvec(1),1,cvec(4),1)
 C ... Class-dependent arrays
-      call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
-      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx)
+
+c     call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
+      allocate(ics(nclasp),z(nclasp))
+      call icopy(nclasp,w(oics),1,ics,1)
+      do i=1,nclasp
+        z(i)=sspec(ics(i))%z
+      enddo
+
+c      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx)
 C     call sp2cls('spec idxdn',sspec,w(oics),nl,1,nclass,oidxdn)
 C ... Other initialization
 Cgetarg       lmet = lgors('ctrl lmet,1',sctrl)
@@ -353,7 +363,7 @@ C         DOS for a prescribed list of classes only
             else
               j1 = m+2
             endif
-            call clist(lstyle,sopts(j1:j2),w(oclabl),w(oz),nclass,nlstc,
+            call clist(lstyle,sopts(j1:j2),w(oclabl),z,nclass,nlstc,
      .        lsite)
           else
             goto 999
@@ -424,7 +434,7 @@ C   ... Get BZ plane(s) and BZ sampling parameters
         call defdr(oew,-2*npln*nwmx)
         call defdr(oqp, 3*nkp)
         call getbzp(nfilqp,npln,nwmx,nkp,w(onw),w(oew),w(onq),w(ovx),
-     .    w(ovy),w(ox),w(oy),w(oz),w(oqp))
+     .    w(ovy),w(ox),w(oy),z,w(oqp))
         wtbzm = 2d0 / nsp
 C        if (preskp) then
 C          call defdr(owtkp,nkp)
@@ -584,7 +594,7 @@ C --- Make BZ maps (integrated DOS vs k) ---
      .    width,nkp,wtbzm,w(oeband),w(odoswt),npln,nwmx,nqmx,w(onw),
      .    w(oew),w(onq),w(odos))
         call bzmio(w(odos),nchan*nsp,npln,nwmx,nqmx,w(onw),w(oew),
-     .    w(onq),w(ovx),w(ovy),w(ox),w(oy),w(oz),nkp,nspd,lmet,
+     .    w(onq),w(ovx),w(ovy),w(ox),w(oy),z,nkp,nspd,lmet,
      .    norder,width,wtbzm,efermi,-fopnn('BZMP'))
 C --- Ballistic conductivity ---
       elseif (lcond) then

@@ -276,6 +276,7 @@ sla_list=\
 	zqinvb.o \
 	zsum.o \
 	ztoy.o \
-	ztoyy.o
+	ztoyy.o \
+	ll.o
 
 
