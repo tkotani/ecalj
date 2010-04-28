@@ -77,162 +77,157 @@ WARNING while processing 'lmv7.F' (mode='fix')..
    95:      data prgnam /'LMDOS'/
    96:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  113:      real(8):: bz_w,dval!test
   114:
-  115:#if MPI|MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  115:
+  116:#if MPI|MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  114:
-  115:#if MPI|MPIK
-  116:      include 'mpif.h' <== 'mpif.h' not found in ':.'. The INCLUDE line will be turned to a comment.
-  117:      integer ierr, nsize, id
+  125:      write(*,*) 'mpi: size and id=',nsize,id
+  126:cend-----
+  127:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  123:      write(*,*) 'mpi: size and id=',nsize,id
-  124:cend-----
-  125:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  134:      vn(2) = 0.00d0
+  135:      vn2(2) = 0
+  136:#if LMF | LMFGWD <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  132:      vn(2) = 0.00d0
-  133:      vn2(2) = 0
-  134:#if LMF | LMFGWD <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  138:      vn(2) = 7.00d0
+  139:      vn2(2) = 0
+  140:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  136:      vn(2) = 7.00d0
-  137:      vn2(2) = 0
-  138:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  157:
+  158:C --- Dynamic memory allocation and other initialization ---
+  159:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  155:
-  156:C --- Dynamic memory allocation and other initialization ---
-  157:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  162:      namelen(procid) = i-1
+  163:      mlog = cmdopt('--mlog',6,0,strn)
+  164:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  160:      namelen(procid) = i-1
-  161:      mlog = cmdopt('--mlog',6,0,strn)
-  162:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  194:      EVENT_START_BARRIER= MPE_LOG_GET_EVENT_NUMBER()
+  195:      EVENT_END_BARRIER  = MPE_LOG_GET_EVENT_NUMBER()
+  196:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  192:      EVENT_START_BARRIER= MPE_LOG_GET_EVENT_NUMBER()
-  193:      EVENT_END_BARRIER  = MPE_LOG_GET_EVENT_NUMBER()
-  194:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  207:      call MPI_BCAST(ext,20,MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
+  208:      if (procid .eq. master) then
+  209:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  205:      call MPI_BCAST(ext,20,MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
-  206:      if (procid .eq. master) then
-  207:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  238:        ierr = MPE_DESCRIBE_STATE(EVENT_START_BARRIER,EVENT_END_BARRIER,
+  239:     .                            "barrier","yellow")
+  240:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  236:        ierr = MPE_DESCRIBE_STATE(EVENT_START_BARRIER,EVENT_END_BARRIER,
-  237:     .                            "barrier","yellow")
-  238:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  262:      endif
+  263:      call MPI_BARRIER( MPI_COMM_WORLD, ierr )
+  264:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  260:      endif
-  261:      call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-  262:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  279:      if (ext(j:j) .eq. '.') j=j-1
+  280:      if (j .ge. i) call ptenv('EXT='//ext(i:j))
+  281:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  277:      if (ext(j:j) .eq. '.') j=j-1
-  278:      if (j .ge. i) call ptenv('EXT='//ext(i:j))
-  279:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  284:C ... Abort with error message if ctrl file is missing (swtmp = .true.)
+  285:      swtmp = .false.
+  286:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  282:C ... Abort with error message if ctrl file is missing (swtmp = .true.)
-  283:      swtmp = .false.
-  284:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  286:#if MPI | MPIK
+  287:      if (procid .eq. master) then
+  288:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  284:#if MPI | MPIK
-  285:      if (procid .eq. master) then
-  286:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'lmv7.F' (mode='fix')..
-  294:        endif
-  295:      endif
-  296:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'lmv7.F' (mode='fix')..
-  296:#if MPI | MPIK
+  296:        endif
   297:      endif
-  298:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  298:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  344:      endif
-  345:      endif
-  346:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  298:#if MPI | MPIK
+  299:      endif
+  300:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  348:      call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,
-  349:     .  master,MPI_COMM_WORLD,ierr)
-  350:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  346:      endif
+  347:      endif
+  348:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  370:     .  v_sarry,v_smove,v_stb,sstrn)
-  371:
-  372:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  350:      call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,
+  351:     .  master,MPI_COMM_WORLD,ierr)
+  352:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  371:
-  372:#if MPI | MPIK
-  373:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  372:     .  v_sarry,v_smove,v_stb,sstrn)
+  373:
+  374:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  374:      ierr = MPE_LOG_EVENT(EVENT_END_RDCTRL,procid,"rdctrl")
-  375:      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-  376:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  373:
+  374:#if MPI | MPIK
+  375:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  376:#endif
-  377:      call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-  378:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  376:      ierr = MPE_LOG_EVENT(EVENT_END_RDCTRL,procid,"rdctrl")
+  377:      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
+  378:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  378:#if MPE
-  379:      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-  380:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  378:#endif
+  379:      call MPI_BARRIER( MPI_COMM_WORLD, ierr )
+  380:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  379:      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-  380:#endif
-  381:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  380:#if MPE
+  381:      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
+  382:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  394:      lc = 10
-  395:
-  396:#ifndef LMFGWD <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  381:      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
+  382:#endif
+  383:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  399:c this is equivalent to
-  400:       if ( v_sctrl%lqp==0 ) lc = lc+2
-  401:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  396:      lc = 10
+  397:
+  398:#ifndef LMFGWD <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  410:
-  411:C ... Patch for now ... maybe replace
-  412:#if LMF <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  401:c this is equivalent to
+  402:       if ( v_sctrl%lqp==0 ) lc = lc+2
+  403:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  411:C ... Patch for now ... maybe replace
-  412:#if LMF
-  413:#ifndef LMFGWD <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  412:
+  413:C ... Patch for now ... maybe replace
+  414:#if LMF <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  416:      ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
-  417:      call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
-  418:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  413:C ... Patch for now ... maybe replace
+  414:#if LMF
+  415:#ifndef LMFGWD <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  417:      call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
-  418:#endif
-  419:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  418:      ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
+  419:      call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
+  420:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  427:      endif
-  428:
-  429:#if LMF <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  419:      call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
+  420:#endif
+  421:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  430:      call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
-  431:     .  v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
-  432:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  429:      endif
+  430:
+  431:#if LMF <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  435:C -------------- End of program -------------
-  436: 1000 continue
-  437:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  432:      call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
+  433:     .  v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
+  434:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  436: 1000 continue
-  437:#if MPI | MPIK
-  438:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  437:C -------------- End of program -------------
+  438: 1000 continue
+  439:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  442:      call skp2bl(ext,20,i)
-  443:      ierr = MPE_FINISH_LOG(ext(2:i))
-  444:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  438: 1000 continue
+  439:#if MPI | MPIK
+  440:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  449:        call fexit(0,0,' ',0)
-  450:      endif
-  451:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  444:      call skp2bl(ext,20,i)
+  445:      ierr = MPE_FINISH_LOG(ext(2:i))
+  446:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  451:#else
-  452:      call rx0(prgnam)
-  453:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  451:        call fexit(0,0,' ',0)
+  452:      endif
+  453:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  453:#endif
-  454:
-  455:#if MPI|MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  453:#else
+  454:      call rx0(prgnam)
+  455:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmv7.F' (mode='fix')..
-  455:#if MPI|MPIK
-  456:      call mpi_finalize(ierr)
-  457:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  455:#endif
+  456:
+  457:#if MPI|MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'lmv7.F' (mode='fix')..
+  457:#if MPI|MPIK
+  458:      call mpi_finalize(ierr)
+  459:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'lmfav7.F' (mode='fix')..
    82:      real(8),parameter::    NULLR =-99999
    83:cMay1 patch for MPI from y.Yoshimoto

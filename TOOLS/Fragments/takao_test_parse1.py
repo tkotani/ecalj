@@ -74,6 +74,7 @@ for ffile in argset:
                  print 'bbb ',iy,'  ',j.__class__.__name__,
                  #print ' blockname=',j.name,
                  print ' item=',j.item.strline,' map=', j.item.strlinemap,' span=',j.item.span
+                 print ' item=',j.item.strline % j.item.strlinemap
                  #print ' a =',dir(j.a)
                  #print ' content=',j.content,
                  #print ' blocktype=',j.blocktype

@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 22
+/svn/!svn/ver/41/trunk
+END
+mk_apidocs.sh
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/22/trunk/mk_apidocs.sh
+END
+LICENSE
+K 25
+svn:wc:ra_dav:version-url
+V 29
+/svn/!svn/ver/2/trunk/LICENSE
+END
+setup.py
+K 25
+svn:wc:ra_dav:version-url
+V 31
+/svn/!svn/ver/16/trunk/setup.py
+END
+MANIFEST.in
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/svn/!svn/ver/2/trunk/MANIFEST.in
+END
