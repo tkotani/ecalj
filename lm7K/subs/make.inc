@@ -130,7 +130,6 @@ subs_list:=\
 	makipt.o \
 	maknos.o \
 	maknrs.o \
-	makptf.o \
 	makrm0.o \
 	makrot.o \
 	makrwf.o \
@@ -146,9 +145,7 @@ subs_list:=\
 	mtchae.o \
 	mxmymz.o \
 	nghbor.o \
-	nmpot.o \
 	nnrl.o \
-	norm2g.o \
 	nosbzm.o \
 	nwit.o \
 	orbl.o \

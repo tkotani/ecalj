@@ -110,7 +110,6 @@ $(subs_obj_path)/mcasim.o : subs/mcasim.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/mchan.o : subs/mchan.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/mkqp.o : subs/mkqp.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/mksym.o : subs/mksym.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/nmpot.o : subs/nmpot.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/prdmts.o : subs/prdmts.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/pvsms2.o : subs/pvsms2.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rdctrl2.o : subs/rdctrl2.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/susite.o $(subs_obj_path)/m_rdctrl.o $(subs_obj_path)/m_struc_def.o
