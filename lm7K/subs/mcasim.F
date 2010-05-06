@@ -52,6 +52,8 @@ C ... Heap
 
       data htype /'h1:','h2:'/
 
+
+      integer:: w_dummy=1
 Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
 Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
 Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
@@ -76,7 +78,7 @@ Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
 Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
 Cgetarg       call upack('array opgfsl oips opos',sarray,opgfsl,oips,opos,0,0)
        
-       opgfsl=sarray%opgfsl
+c       opgfsl=sarray%opgfsl
        oips=sarray%oips
        opos=sarray%opos
 
@@ -104,8 +106,10 @@ C --- Make iax and rtab ---
         call rx('MMHAM: not implemented for lpbc>1')
       endif
       mxcsiz = 0
+c      call pairs(nbas,nbasp,alat,plat,w(orham),w(opos),
+c     .  w(oips),i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
       call pairs(nbas,nbasp,alat,plat,w(orham),w(opos),
-     .  w(oips),i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
+     .  w(oips),i,j,w_dummy,nttab,ontab,oiax,mxcsiz)
       call defrr(ortab,3*nttab)
       call mkrtab(000,alat,plat,w(opos),w(oiax),nttab,w(opos),w(ortab))
 

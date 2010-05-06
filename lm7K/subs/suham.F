@@ -368,7 +368,7 @@ Cgetarg      .  sham(1),spot(1),sbz(1)
 C ... Local parameters
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5)
-      integer hord,i,i1,i2,iprint,ldham(16),ldim,lgen3,
+      integer hord,i,i1,i2,iprint,ldham(16),ldim, !lgen3,
      .  lgunit,lham,lidim,lihdim,lncol,nbasp,nclasp,ndim,neul,nl,
      .  nlspcp,nsp,nspc,nspec,nspx,nttab,partok,igets,lfp,nvi,nvl,
      .  ib,is,lmxa,lmxl,stdo,nglob,nkaph,isw,nbf,lmxax,pwmode,
@@ -421,7 +421,7 @@ Cgetarg      .  lfp,0)
        
        lham=sctrl%lham
 c       lcgf=sctrl%lcgf
-       lgen3=sctrl%lgen3
+c       lgen3=sctrl%lgen3
        lfp=sctrl%lfp
 
 Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
@@ -460,7 +460,8 @@ Cgetarg      .  pwemax,npwpad,0)
       stdo = lgunit(1)
 
 C --- Automatic downfolding (2nd generation only?) ---
-      if (lgen3 .eq. 0 .and. lfp .eq. 0) then
+c      if (lgen3 .eq. 0 .and. lfp .eq. 0) then
+      if (lfp .eq. 0) then
         adnf = bittst(lham,4)
 C       Suppress if in gamma repsn (not needed for GF mode)
 C       if (lgors('ctrl lham,128',sctrl)) adnf = 0
@@ -706,8 +707,8 @@ c      endif
 
 
 C --- Third-generation NMTO ---
-      if (lgen3 .ne. 0) then
-         stop 'xxxxxxxxxxx third generation nmto path. not meaningful'
+c      if (lgen3 .ne. 0) then
+c         stop 'xxxxxxxxxxx third generation nmto path. not meaningful'
 C        call upack('ham nmto kmto',sham,nmto,kmto,0,0,0)
 C        call isanrg(nmto,2,5,'suham','nmto',.true.)
 C        call defdr(otral,-4*nl**2*nbasp*nmto)
@@ -728,7 +729,7 @@ C
 C        call dscal(nmto,1/avw**2,kmto,1)
 C        call dscal(nl*nspec,avw,w(ohcr),1)
 C        call rlse(olmx)
-      endif
+c      endif
 
 C --- Second-generation LMTO, ASA ---
 C ... Green's function-specific initialization
@@ -758,7 +759,8 @@ C$$$      endif
 C ... 2nd gen LMTO-specific initialization
 C     Make pti here since pp in gamma rep
 c      if (lcgf .eq. 0 .and. lfp .eq. 0 .and. lgen3 .eq. 0) then
-      if (lfp .eq. 0 .and. lgen3 .eq. 0) then
+c      if (lfp .eq. 0 .and. lgen3 .eq. 0) then
+      if (lfp .eq. 0) then
 
         call defdr(opti,-ndim*nsp)
         call makipt(nl,nbasp,nsp,w(oipc),lihdim,w(oidxsh),w(opp),ndim,
@@ -772,7 +774,8 @@ Cgetarg         call pack1('pot opti',spot,opti)
       endif
 
 C ... Transform pp's to alpha representation
-      if (lfp .eq. 0 .and. lgen3 .eq. 0) then
+c      if (lfp .eq. 0 .and. lgen3 .eq. 0) then
+      if (lfp .eq. 0) then
 C       Get screening alpha's
 Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
 Cgetarg...info...           integer :: obas , integer(8) :: sarray%opos 1
@@ -818,7 +821,8 @@ Cgetarg      .  0)
 
 C ... Make B.sigma for magnetic field
       obs = 1
-      if (lfp.eq.0 .and. lgen3.eq.0 .and. bittst(lncol,8)) then
+c      if (lfp.eq.0 .and. lgen3.eq.0 .and. bittst(lncol,8)) then
+      if (lfp.eq.0 .and. bittst(lncol,8)) then
 Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
 Cgetarg...info...           integer :: omagf , integer(8) :: sham%omagf 1
 Cgetarg...info...           integer :: nbf , integer(8) :: sham%nbf 1

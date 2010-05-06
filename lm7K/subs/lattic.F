@@ -49,7 +49,7 @@ C ... Local parameters
       integer nbaspp,npadl,npadr
       double precision alat,awald,awald0,gam(4),gx,gy,gz,gt,tol,vol,
      .  xx1,xx2,dotprd,pi,rpad,
-     .  platl(3,3),platr(3,3),plat0(3,3),plat(3,3),qlat(3,3),dist(3,3)
+     .  plat0(3,3),plat(3,3),qlat(3,3),dist(3,3) !platl(3,3),platr(3,3)
       equivalence (gam(1), gx), (gam(2), gy), (gam(3), gz), (gam(4), gt)
 C ... Heap
       integer w(1)
@@ -96,39 +96,43 @@ Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
 Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
 Cgetarg       call upack2('array npadl npadr',sarray,npadl,npadr)
        
-       npadl=sarray%npadl
-       npadr=sarray%npadr
+c       npadl=sarray%npadl
+c       npadr=sarray%npadr
 
-      nbaspp = nbas + 2*(npadl+npadr)
-      if (nbaspp .gt. nbas) then
-        call dcopy(9,plat0,1,plat,1)
-Cgetarg...info...           real(8) :: platl(3,3) , real(8) :: slat%platl 9
-Cgetarg...info...           real(8) :: platr(3,3) , real(8) :: slat%platr 9
-Cgetarg         call upack2('lat platl platr',slat,platl,platr)
+       nbaspp = nbas  !+ 2*(npadl+npadr)
+ctakao assumes npadl=npapr=0, thus nbaspp=nbas
+
+C$$$      if (nbaspp .gt. nbas) then
+C$$$        call dcopy(9,plat0,1,plat,1)
+C$$$Cgetarg...info...           real(8) :: platl(3,3) , real(8) :: slat%platl 9
+C$$$Cgetarg...info...           real(8) :: platr(3,3) , real(8) :: slat%platr 9
+C$$$Cgetarg         call upack2('lat platl platr',slat,platl,platr)
          
-         i_copy_size=size(slat%platl) 
-         call dcopy(i_copy_size,slat%platl,1,platl,1) 
-         i_copy_size=size(slat%platr) 
-         call dcopy(i_copy_size,slat%platr,1,platr,1) 
+C$$$         i_copy_size=size(slat%platl) 
+C$$$         call dcopy(i_copy_size,slat%platl,1,platl,1) 
+C$$$         i_copy_size=size(slat%platr) 
+C$$$         call dcopy(i_copy_size,slat%platr,1,platr,1) 
 
-        call dcopy(6,plat0,1,platl,1)
-        call dcopy(6,plat0,1,platr,1)
-        call daxpy(3,2d0,platl(1,3),1,plat0(1,3),1)
-        call daxpy(3,2d0,platr(1,3),1,plat0(1,3),1)
+C$$$        call dcopy(6,plat0,1,platl,1)
+C$$$        call dcopy(6,plat0,1,platr,1)
+C$$$        call daxpy(3,2d0,platl(1,3),1,plat0(1,3),1)
+C$$$        call daxpy(3,2d0,platr(1,3),1,plat0(1,3),1)
 
-        pi = 4*datan(1d0)
-        xx1 = 180/pi*dotprd(3,platl(1,3),1,plat(1,3),1)
-        xx2 = 180/pi*dotprd(3,platr(1,3),1,plat(1,3),1)
+C$$$        pi = 4*datan(1d0)
+C$$$        xx1 = 180/pi*dotprd(3,platl(1,3),1,plat(1,3),1)
+C$$$        xx2 = 180/pi*dotprd(3,platr(1,3),1,plat(1,3),1)
 
-        call info8(30,1,0,
-     .    ' LATTIC:  Padding Plat(3) with end principal layers: '//
-     .    '%N%3;11,6D Plat(3) as input'//
-     .    '%N%3;11,6D PlatL:  angle (deg) with Plat(3) = %d'//
-     .    '%N%3;11,6D PlatR:  angle (deg) with Plat(3) = %d'//
-     .    '%N%3;11,6D Plat(3) including padding',
-     .    plat(1,3),platl(1,3),xx1,platr(1,3),xx2,plat0(1,3),0,0)
+C$$$        call info8(30,1,0,
+C$$$     .    ' LATTIC:  Padding Plat(3) with end principal layers: '//
+C$$$     .    '%N%3;11,6D Plat(3) as input'//
+C$$$     .    '%N%3;11,6D PlatL:  angle (deg) with Plat(3) = %d'//
+C$$$     .    '%N%3;11,6D PlatR:  angle (deg) with Plat(3) = %d'//
+C$$$     .    '%N%3;11,6D Plat(3) including padding',
+C$$$     .    plat(1,3),platl(1,3),xx1,platr(1,3),xx2,plat0(1,3),0,0)
 
-      endif
+C$$$      endif
+
+
 c      print *,'xxxxxxx1'
 C ... Apply specified linear transformation of lattice and basis vectors
 Cgetarg...info...           integer :: ldist , integer(8) :: slat%ldist 1
@@ -148,10 +152,10 @@ C     call prmx('pos from lat',w(opos),3,3,nbaspp)
         call rdistn(w(opos),w(opos),nbaspp,gx,gy,gz,gt)
       elseif (ldist .ne. 0) then
         call lattdf(ldist,dist,plat0,nbaspp,w(opos),0,0d0)
-        if (nbaspp .gt. nbas) then
-          call lattdf(ldist,dist,platl,0,w,0,0d0)
-          call lattdf(ldist,dist,platr,0,w,0,0d0)
-        endif
+c        if (nbaspp .gt. nbas) then
+c          call lattdf(ldist,dist,platl,0,w,0,0d0)
+c          call lattdf(ldist,dist,platr,0,w,0,0d0)
+c        endif
       else
         call dpzero(dist,9)
         dist(1,1) = 1
@@ -165,13 +169,13 @@ C     call prmx('pos from lat',w(opos),3,3,nbaspp)
       call lattc(awald0,tol,rpad,alat,alat,plat0,gx,gy,gz,gt,plat,qlat,
      .   lmxst,vol,awald,w(odlv),nkd,w(oqlv),nkq,nkdmx,nkqmx)
 
-      if (nbaspp .gt. nbas) then
-        if (cos(pi*xx1/180) .lt. 0) call rx('lattic:  '//
-     .    'angle betw/ PlatL and Plat(3) > 90 degrees ... fix PlatL')
-        if (cos(pi*xx2/180) .lt. 0) call rx('lattic:  '//
-     .    'angle betw/ PlatR and Plat(3) > 90 degrees ... fix PlatR')
-
-      endif
+c      if (nbaspp .gt. nbas) then
+c        if (cos(pi*xx1/180) .lt. 0) call rx('lattic:  '//
+c     .    'angle betw/ PlatL and Plat(3) > 90 degrees ... fix PlatL')
+c        if (cos(pi*xx2/180) .lt. 0) call rx('lattic:  '//
+c     .    'angle betw/ PlatR and Plat(3) > 90 degrees ... fix PlatR')
+c
+c      endif
 c      print *,'xxxxxxx3'
 
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
@@ -193,10 +197,10 @@ Cgetarg      .  platl,platr)
        call dcopy(i_copy_size,plat,1,slat%plat,1) 
        i_copy_size=size(slat%qlat) 
        call dcopy(i_copy_size,qlat,1,slat%qlat,1) 
-       i_copy_size=size(slat%platl) 
-       call dcopy(i_copy_size,platl,1,slat%platl,1) 
-       i_copy_size=size(slat%platr) 
-       call dcopy(i_copy_size,platr,1,slat%platr,1) 
+c       i_copy_size=size(slat%platl) 
+c       call dcopy(i_copy_size,platl,1,slat%platl,1) 
+c       i_copy_size=size(slat%platr) 
+c       call dcopy(i_copy_size,platr,1,slat%platr,1) 
 
       call redfrr(oqlv,3*nkq)
       call defps2(odlv,oqlv)

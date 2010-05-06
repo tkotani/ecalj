@@ -90,7 +90,7 @@ C Local variables
       logical T,F,cmdopt,a2bin,ltmp
       integer idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
      .  nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
-     .  npadl,npadr,ldist,nggen,ngmx,stdo,nglob,incli
+     .  ldist,nggen,ngmx,stdo,nglob,incli !npadl,npadr,
       integer oclabl,oics,oips,oistab,onrc,onrcp,
      .  onrspc,opos,oipc,oipcp,oiwk,oag,osymgr,opos2,oips2,aginv
       parameter (T=.true., F=.false., ngnmx=10)
@@ -258,12 +258,12 @@ Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
 Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
 Cgetarg       call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
        
-       npadl=sarray%npadl
-       npadr=sarray%npadr
+c       npadl=sarray%npadl
+c       npadr=sarray%npadr
 
       nclasp = nclass
       nclspp = nclass
-      nbasp  = nbas + npadl + npadr
+      nbasp  = nbas !+ npadl + npadr
 
 C ... (pgf) Extra classes for padding layers
 Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
@@ -400,54 +400,54 @@ Cgetarg      .  oistab,oag,osymgr)
 Cgetarg       end
        end subroutine mksym 
 
-      subroutine pvsym1(nbas,npad,nclass,ipc,ics)
+C$$$      subroutine pvsym1(nbas,npad,nclass,ipc,ics)
 
-C- Fix classes for padding layers
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   nbas   number of basis atoms without padding layers
-Ci   nclass number of classes without padding layers
-Ci Outputs
-Co   nclass updated
-Co   ipc(nbas..nbas+npad) updated
-Co   ics updated
-C ----------------------------------------------------------------------
-C     implicit none
-      integer nbas,nclass,ipc(nbas),ics(nclass)
-      integer i,npad,nc,is,ic,j
-      if (npad .eq. 0) return
+C$$$C- Fix classes for padding layers
+C$$$C ----------------------------------------------------------------------
+C$$$Ci Inputs
+C$$$Ci   nbas   number of basis atoms without padding layers
+C$$$Ci   nclass number of classes without padding layers
+C$$$Ci Outputs
+C$$$Co   nclass updated
+C$$$Co   ipc(nbas..nbas+npad) updated
+C$$$Co   ics updated
+C$$$C ----------------------------------------------------------------------
+C$$$C     implicit none
+C$$$      integer nbas,nclass,ipc(nbas),ics(nclass)
+C$$$      integer i,npad,nc,is,ic,j
+C$$$      if (npad .eq. 0) return
 
-C ... ipc->-ipc to flag which classes have been renumbered
-      do  5  i = nbas+1, nbas+npad
-    5 ipc(i) = -ipc(i)
+C$$$C ... ipc->-ipc to flag which classes have been renumbered
+C$$$      do  5  i = nbas+1, nbas+npad
+C$$$    5 ipc(i) = -ipc(i)
 
-C ... For each site in padding layer, assign class
-      nc = nclass
-C ... Look for next occurrence of class not assigned
-      do  10  i = nbas+1, nbas+npad
+C$$$C ... For each site in padding layer, assign class
+C$$$      nc = nclass
+C$$$C ... Look for next occurrence of class not assigned
+C$$$      do  10  i = nbas+1, nbas+npad
 
-        if (ipc(i) .gt. 0) goto 10
-C   ... Class ipc(i) need to be assigned:  do for each site in class
-C       ic is (-)original class, is is species of original class
-        ic = ipc(i)
-        is = ics(-ic)
+C$$$        if (ipc(i) .gt. 0) goto 10
+C$$$C   ... Class ipc(i) need to be assigned:  do for each site in class
+C$$$C       ic is (-)original class, is is species of original class
+C$$$        ic = ipc(i)
+C$$$        is = ics(-ic)
 
-        nc = nc+1
-        do  12  j = i, nbas+npad
-   12   if (ipc(j) .eq. ic) ipc(j) = nc
+C$$$        nc = nc+1
+C$$$        do  12  j = i, nbas+npad
+C$$$   12   if (ipc(j) .eq. ic) ipc(j) = nc
 
-C   ... Species index is same as that of original class
-        ics(nc) = is
+C$$$C   ... Species index is same as that of original class
+C$$$        ics(nc) = is
 
-   10 continue
+C$$$   10 continue
 
-      nclass = nc
-C      call awrit2('%n:1i',' ',100,6,nbas+npad,ipc)
-C      call awrit2('%n:1i',' ',100,6,nclass,ics)
-C      pause
+C$$$      nclass = nc
+C$$$C      call awrit2('%n:1i',' ',100,6,nbas+npad,ipc)
+C$$$C      call awrit2('%n:1i',' ',100,6,nclass,ics)
+C$$$C      pause
 
-Cgetarg       end
-       end subroutine pvsym1 
+C$$$Cgetarg       end
+C$$$       end subroutine pvsym1 
 
       subroutine pvsym2(mode,nbas,nclass,ics,ipc,nspec,slabl,ssite,
      .  dclabl,nrc)

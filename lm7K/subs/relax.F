@@ -50,7 +50,7 @@ Cu   21 Mar 06 mdprm(1)>100 signifies shear relaxation
 Cu   08 Mar 06 Some improvements to gradzr; repackaged MPI
 Cu   15 Feb 02 (ATP) Added MPI parallelization
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed Parameters
       character prgnam*8
       integer it,nit,natrlx,nvar,nelts,icom,procid,master,mpipid
@@ -67,7 +67,7 @@ C Local Variables
       integer i,j,ipr,ifi,fopna,ix,lgunit,nbas,ltb,ifrlx(3),
      .  ir,iprint,isw,rdm,lrlx,is,idamax,stdo,stdl,nd,ns,nkill
       parameter (nd=4,ns=6)
-      logical rdhess,U,bittst,lpp,cmdopt,a2bin,lshr
+      logical rdhess,bittst,lpp,cmdopt,a2bin,lshr !U,
       double precision mdprm(6),step,xtol,gtol,xtoll,grfac,wkg(28),ddot,
      .  xv(10)
       equivalence (step,mdprm(5)), (xtol,mdprm(3)), (gtol,mdprm(4))
@@ -92,16 +92,17 @@ Cgetarg      .  ltb,0)
        
        nbas=sctrl%nbas
        nit=sctrl%nitmv
-       i_copy_size=size(sctrl%mdprm) 
-       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
-       ltb=sctrl%ltb
+c       i_copy_size=size(sctrl%mdprm) 
+c       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
+       call dcopy(size(sctrl%mdprm),sctrl%mdprm,1,mdprm,1) 
+c       ltb=sctrl%ltb
 
       nkill  = nint(mdprm(6))
       lrlx   = nint(mdprm(1))
       lshr   = lrlx .gt. 100
       lrlx   = mod(lrlx,100)
       rdhess = nint(mdprm(2)) .eq. 1
-      U      = bittst(ltb,2**12) .or. bittst(ltb,2**15)
+c      U      = bittst(ltb,2**12) .or. bittst(ltb,2**15)
       call getpr(ipr)
 
 C --- Make vector of positions and gradients ---
@@ -297,15 +298,17 @@ Cgetarg           call upack('site spec',ssite,j,is,0,0,0)
            is=ssite(j)%spec
 
 Cgetarg           call spacks(0,'spec name',sspec,clablj,is,is)
-           do i_spacks=is,is 
-           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
-           enddo
+c           do i_spacks=is,is 
+c           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
+c           enddo
+           call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
 
 Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
 Cgetarg           call upack2('site relax',ssite,j,ifrlx)
            
-           i_copy_size=size(ssite(j)%relax) 
-           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
+c           i_copy_size=size(ssite(j)%relax) 
+c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
+           call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1) 
 
           write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix).eq.1,ix=1,3)
    70   continue
@@ -318,8 +321,9 @@ C ... Write new atom positions to LOG file, for use in CTRL file
 Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
 Cgetarg           call upack2('site relax',ssite,j,ifrlx)
            
-           i_copy_size=size(ssite(j)%relax) 
-           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
+c           i_copy_size=size(ssite(j)%relax) 
+c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
+          call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1) 
 
           if (j .eq. 2) dumstr = ' '
 C        if (prgnam(1:2) .eq. 'TB') then
@@ -334,22 +338,24 @@ Cgetarg           call upack('site spec',ssite,j,is,0,0,0)
            is=ssite(j)%spec
 
 Cgetarg           call spacks(0,'spec name',sspec,clablj,is,is)
-           do i_spacks=is,is 
-           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
-           enddo
+c           do i_spacks=is,is 
+c           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
+c           enddo
+           call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
 
 Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
 Cgetarg           call upack2('site relax',ssite,j,ifrlx)
            
-           i_copy_size=size(ssite(j)%relax) 
-           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
+c           i_copy_size=size(ssite(j)%relax) 
+c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
+           call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1) 
 
           call awrit2(dumstr//'ATOM='//clablj//
      .      ' POS=%3;12,7D  RELAX=%3,2i',' ',80,lgunit(2),
      .      bas(1,j),ifrlx)
-          if (prgnam(1:2) .eq. 'TB') then
-            if (U) write(ifi,160) (delta(i,j),i=1,nelts)
-          endif
+c          if (prgnam(1:2) .eq. 'TB') then
+c            if (U) write(ifi,160) (delta(i,j),i=1,nelts)
+c          endif
    80   continue
       endif
 

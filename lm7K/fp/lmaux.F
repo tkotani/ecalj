@@ -102,7 +102,7 @@ C ... Local parameters
       parameter (T=.true., F=.false., NULLI=-99999)
       integer fopn,getdig,i,ip,j,k,m,ifi,iprint,lpbc,lgunit,lncol,
      .  nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),mxnbr,parg,nbasp,
-     .  nbaspp,nkd,nkq,nspec,npadl,npadr,neul,nc,mxcsiz,nttab,igets,
+     .  nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, !npadl,npadr,
      .  iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,
      .  ngmx,nsgrp
       integer oeold,oeula,oinitc,oipc,olmx,onrc,opnu,opold,
@@ -110,7 +110,7 @@ C ... Local parameters
      .  opos,opos2,oqlv,odlv,orham,oamsh,onrmsh,oalpha,oaamom,
      .  onpr,ormt,olock,olockc,os,oz,ozz,ormx,oip,oips,oips2,opgfsl,
      .  ontab,oiax,og,oag,ozc,mxclas,ormtc,oics
-      double precision xv(10),xx,alat,plat(3,3),plat2(9),facrmx,facrng,
+      double precision xv(10),xx,alat,plat(3,3),facrmx,facrng, !,plat2(9)
      .  dval,avw,ekap(2),enu,rmaxs,qss(4),ckbas,cksumf,ehterm(4),
      .  qlat(9),emad,trumad,vmtz(2),omax1(3),omax2(3),wsrmax
       parameter (ngmx=48,mxclas=1000)
@@ -121,7 +121,7 @@ C ... Heap
       common /w/ w
 
 ctakao
-      integer:: ifx
+      integer:: ifx,w_dummy=1
       integer,allocatable:: ics(:)
       integer,allocatable:: lmxa(:)
 c      real(8),allocatable::idmod(:,:), z(:),amsh(:),rmax(:), nrmsh(:)
@@ -178,10 +178,10 @@ Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
 Cgetarg       call upack('array npadl npadr nclasp opgfsl ormax',sarray,npadl,
 Cgetarg      .  npadr,nclasp,opgfsl,ormax)
        
-       npadl=sarray%npadl
-       npadr=sarray%npadr
+c       npadl=sarray%npadl
+c       npadr=sarray%npadr
        nclasp=sarray%nclasp
-       opgfsl=sarray%opgfsl
+c       opgfsl=sarray%opgfsl
        ormax=sarray%ormax
 
 Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
@@ -238,8 +238,8 @@ Cgetarg       call upack('lat avw alat plat plat2',slat,avw,alat,plat,plat2,0)
        alat=slat%alat
        i_copy_size=size(slat%plat) 
        call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%plat2) 
-       call dcopy(i_copy_size,slat%plat2,1,plat2,1) 
+c       i_copy_size=size(slat%plat2) 
+c       call dcopy(i_copy_size,slat%plat2,1,plat2,1) 
 
 Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
 Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
@@ -269,7 +269,7 @@ c      call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
       print *,' lmxa=',lmxa
       print *,' z   =',z
 
-      nbasp = nbas + npadl + npadr
+      nbasp = nbas !+ npadl + npadr
       nbaspp = 2*nbasp - nbas
 
       stdo = lgunit(1)
@@ -315,11 +315,13 @@ C ... Get neighbor table iax for each atom in the cluster
         call rx('ASASTR: not implemented for lpbc>1')
       endif
 Cgetarg       mxcsiz = igets('str mxnbr',sstr)
-       mxcsiz = int(sstr%mxnbr) 
+      mxcsiz = int(sstr%mxnbr) 
 
       call pshpr(iprint()-20)
+c      call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
+c     .  -1,i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
       call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
-     .  -1,i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
+     .  -1,i,j,w_dummy,nttab,ontab,oiax,mxcsiz)
       call poppr
 
 C --- Print out a few superlattice vectors ---

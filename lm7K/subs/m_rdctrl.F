@@ -122,37 +122,38 @@ C ... BZ
       logical:: bz_lio1,bz_lio2,bz_lio8,ctrl_lmet2,
      .  ctrl_lmet4=.true.,ctrl_lmet8=.true.,ctrl_lqp1,ctrl_lqp2
 
-C ... TB
-      integer:: tb_fmode=NULLI,tb_nbfit(2)=0
-      real(8):: tb_ebfit(2)=0d0,tb_rmfit(2)=0d0,tb_alam=NULLR,
-     .  tb_alsc=NULLR
-      logical:: ltb1,ltb2,ltb4,ltb8,ltb16,
-     .  ltb32,ltb64,ltb128,ltb256,ltb512,
-     .  ltb1024,ltb2048,ltb4096,ltb213,ltb214,
-     .  ltb215,ltb216,ltb217,ltb218
+C$$$C ... TB
+C$$$      integer:: tb_fmode=NULLI,tb_nbfit(2)=0
+C$$$      real(8):: tb_ebfit(2)=0d0,tb_rmfit(2)=0d0,tb_alam=NULLR,
+C$$$     .  tb_alsc=NULLR
+C$$$      logical:: ltb1,ltb2,ltb4,ltb8,ltb16,
+C$$$     .  ltb32,ltb64,ltb128,ltb256,ltb512,
+C$$$     .  ltb1024,ltb2048,ltb4096,ltb213,ltb214,
+C$$$     .  ltb215,ltb216,ltb217,ltb218
 
 C ... Ewald
       real(8):: lat_as,lat_tol,lat_rpad
       integer:: lat_nkdmx
 
 C ... STR
-      real(8):: str_rmax=nullr,str_rmaxg=nullr,
-     .  str_kaps(6)=NULLR,str_drwats=NULLR,iinv_tol
-      integer:: str_mode=nulli,str_nkaps=1,str_mxnbr,str_lmaxw=NULLI
-      integer:: iinv_nit,iinv_ncut,tcf_nalf,str_ivl=0
-      logical:: str_lshow1,str_lequiv1
+      real(8):: str_rmax=nullr !, str_rmaxg=nullr,
+c     .  str_drwats=NULLR !,iinv_tol                     !str_kaps(6)=NULLR, 
+      integer:: str_mxnbr !,str_lmaxw=NULLI !str_mode=nulli,str_nkaps=1,
+c      integer:: iinv_nit,iinv_ncut,
+c      integer:: str_ivl=0  !tcf_nalf,
+c      logical:: str_lshow1 !,str_lequiv1
 
 C ... TCF
-      integer tcf_nbisi(3),tcf_ncupl,tcf_ndust
-      real(8):: tcf_adec,tcf_wztcf
+c      integer tcf_nbisi(3),tcf_ncupl,tcf_ndust
+c      real(8):: tcf_wztcf !tcf_adec,
 
 C ... CGF
 c      integer:: ctrl_lcgf
 
 C ... PGF
 c      integer:: ctrl_lpgf(2)=0
-      character(256):: gfopt=' '
-      real(8):: platl(3)=0d0,platr(3)=0d0
+c      character(256):: gfopt=' '
+c      real(8):: platl(3)=0d0,platr(3)=0d0
 
 C ... DYN
 C   structure of mdprm:
@@ -203,15 +204,15 @@ C  arg  18:        offset to bs workspace
       character(1024):: mmham=' '
       real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for MD
 
-C ... GW
-      integer:: gw_mksig=0,gw_nabc(3)=NULLI,gw_nband=-NULLI,
-     .  gw_nime=6
-      real(8):: gw_gcutb=NULLR,gw_gcutx=NULLR,gw_ecuts=NULLR,
-     .  gw_delre(2)=NULLR,gw_deltax=NULLR,gw_deltaw=NULLR,
-     .  gw_gsmear=NULLR,gw_pbtol=NULLR,gw_qoffp=NULLR
+cC ... GW
+c      integer:: gw_mksig=0,gw_nabc(3)=NULLI,gw_nband=-NULLI,
+c     .  gw_nime=6
+c      real(8):: gw_gcutb=NULLR,gw_gcutx=NULLR,gw_ecuts=NULLR,
+c     .  gw_delre(2)=NULLR,gw_deltax=NULLR,gw_deltaw=NULLR,
+c     .  gw_gsmear=NULLR,gw_pbtol=NULLR,gw_qoffp=NULLR
 
 C ... PLANE
-      real(8):: slat_plat2(9)
+c      real(8):: slat_plat2(9)
 
 C ... ORDERN
 C      integer lordn
@@ -219,10 +220,10 @@ C      real(8):: plate(9)    !slat, 'lat plate'
 C      real(8):: efre,ordn_rmaxg
 
 C ... OPTICS
-      integer:: optic_ne,optic_ocrng(2),optic_unrng(2),ctrl_loptc,
-     .  optic_nchi2=0,optic_axes(18)
-      real(8):: optic_window(2),optic_esciss
-      logical :: optic_mode1
+c      integer:: optic_ne,optic_ocrng(2),optic_unrng(2),ctrl_loptc,
+c     .  optic_nchi2=0,optic_axes(18)
+c      real(8):: optic_window(2),optic_esciss
+c      logical :: optic_mode1
 
 C ... PW takao
       integer:: pwmode,npwpad,ncutovl !ncutovl is by takao. not in lm-7.0beta.
@@ -304,7 +305,7 @@ C ... Local variables
       integer :: stdo,stdl,stde
 
       real(8):: nullrv(256)
-      integer:: nulliv(256),jj(2),nkapsi
+      integer:: nulliv(256),jj(2) !,nkapsi
       logical:: ltmp
 
       data tbalph/.214286D0,.000001D0,.000001D0,.000001D0,.001D-3,
@@ -814,8 +815,8 @@ C     .  def_lg=F, note='Calculate spin torques (requires NONCOL=t)')
      .  '%N%3f0 for LSDA%N%3f1 for Langreth-Mehl%N%3f2 for PW91'//
      .  '%N%3f3 for PBE%N%3f4 for PBE with Becke exchange')
       if (nout/=0) ham_lxcf= ham_lxcf
-      nm='HAM_EBAS'; call gtv(trim(nm),tksw(prgn,nm),
-     .  kmto,nout=nmto,note='LMTO envelope kinetic energies')
+c      nm='HAM_EBAS'; call gtv(trim(nm),tksw(prgn,nm),
+c     .  kmto,nout=nmto,note='LMTO envelope kinetic energies')
 C      if (nmto>0) then
 c        call packk('ham kmto', sham, kmto, n=nmto)
 c        call packk('ham nmto', sham, nmto)
@@ -862,17 +863,17 @@ c      call packk('ham rsrnge',sham,rsrnge)
 c      call packk('ham rsstol',sham,rsstol)
 
 c      call packk('ham sigp',sham,sigp,n=8)
-      nm='HAM_NMTO'; sw = tksw(prgn,nm); call gtv(trim(nm),sw,
-     .  nmto,def_i4=0,Texist=ltmp, note=
-     .  'Order of polynomial approximation for NMTO hamiltonian')
-      if (nmto>0) call isanrg(nmto,2,5,'rdctrl','nmto',.true.)
-      if (nmto .gt. 0 .or. (io_help .ne. 0 .and. ltmp)) then
-!       Warning: kmto also used by lmmc; meaning is somewhat different
-        nm='HAM_KMTO'; call gtv(trim(nm),tksw(prgn,nm),
-     .    kmto(1:max(1,nmto)),nmin=nmto,
-     .    note='Corresponding NMTO kinetic energies'//
-     .    '%N%3fRead NMTO values, or skip if NMTO=0' )
-      endif
+c      nm='HAM_NMTO'; sw = tksw(prgn,nm); call gtv(trim(nm),sw,
+c     .  nmto,def_i4=0,Texist=ltmp, note=
+c     .  'Order of polynomial approximation for NMTO hamiltonian')
+c      if (nmto>0) call isanrg(nmto,2,5,'rdctrl','nmto',.true.)
+c      if (nmto .gt. 0 .or. (io_help .ne. 0 .and. ltmp)) then
+c!       Warning: kmto also used by lmmc; meaning is somewhat different
+c        nm='HAM_KMTO'; call gtv(trim(nm),tksw(prgn,nm),
+c     .    kmto(1:max(1,nmto)),nmin=nmto,
+c     .    note='Corresponding NMTO kinetic energies'//
+c     .    '%N%3fRead NMTO values, or skip if NMTO=0' )
+c      endif
       nm='HAM_EWALD'; call gtv(trim(nm),tksw(prgn,nm),ham_ewald,
      .  def_lg=.false.,note='Make strux by Ewald summation')
       nm='HAM_VMTZ'; call gtv(trim(nm),tksw(prgn,nm),vmtz,def_r8=0d0,
@@ -1985,64 +1986,64 @@ C --- Structure constants ---
       endif
 
 C     Energies for NMTO structure constants
-      nm='STR_ENV_MODE'; call gtv(trim(nm),tksw(prgn,nm),str_mode,
-     .  def_i4=0,note='Type of envelope functions:'//
-     .  '%N%3f0 2nd generation'//
-     .  '%N%3f1 SSSW (3rd generation)'//
-     .  '%N%3f2 NMTO'//
-     .  '%N%3f3 SSSW and val-lap basis')
+c      nm='STR_ENV_MODE'; call gtv(trim(nm),tksw(prgn,nm),str_mode,
+c     .  def_i4=0,note='Type of envelope functions:'//
+c     .  '%N%3f0 2nd generation'//
+c     .  '%N%3f1 SSSW (3rd generation)'//
+c     .  '%N%3f2 NMTO'//
+c     .  '%N%3f3 SSSW and val-lap basis')
 
-      nkapsi = 1
-      if (str_mode == 2) nkapsi=2
-      if (io_help .eq. 1) nkapsi = NULLI
-      if (str_mode .eq. 0) then
-        str_nkaps = 1
-      else
-        nm='STR_ENV_NEL'; call gtv(trim(nm),tksw(prgn,nm),str_nkaps,
-     .    def_i4=nkapsi,note='Number of SSSW or NMTO energies')
-        if (str_mode .eq. 2)
-     .    call isanrg(str_nkaps,2,5,'rdctrl','NEL',.true.)
-        nkapsi = str_nkaps
-        if (io_help .eq. 1) then
-          str_nkaps = 1
-          nkapsi = NULLI
-        endif
-        nm='STR_ENV_EL';call gtv(trim(nm),tksw(prgn,nm),
-     .    str_kaps(1:str_nkaps),nmin=nkapsi,def_r8v=(/0d0,-1d0,2.3d0/),
-     .    note='SSSW or NMTO energies, atomic units')
-      endif
+c      nkapsi = 1
+c      if (str_mode == 2) nkapsi=2
+c      if (io_help .eq. 1) nkapsi = NULLI
+c      if (str_mode .eq. 0) then
+c        str_nkaps = 1
+c      else
+c        nm='STR_ENV_NEL'; call gtv(trim(nm),tksw(prgn,nm),str_nkaps,
+c     .    def_i4=nkapsi,note='Number of SSSW or NMTO energies')
+c        if (str_mode .eq. 2)
+c     .    call isanrg(str_nkaps,2,5,'rdctrl','NEL',.true.)
+c        nkapsi = str_nkaps
+c        if (io_help .eq. 1) then
+c          str_nkaps = 1
+c          nkapsi = NULLI
+c        endif
+c        nm='STR_ENV_EL';call gtv(trim(nm),tksw(prgn,nm),
+c     .    str_kaps(1:str_nkaps),nmin=nkapsi,def_r8v=(/0d0,-1d0,2.3d0/),
+c     .    note='SSSW or NMTO energies, atomic units')
+c      endif
 
       nm='STR_MXNBR'; call gtv(trim(nm),tksw(prgn,nm),str_mxnbr,
      .  def_i4=0,note='Max number of nbrs (for dimensioning arrays)')
-      nm='STR_SHOW'; call gtv(trim(nm),tksw(prgn,nm),str_lshow1,
-     .  def_lg=F,note='Show strux after generating them')
-      nm='STR_EQUIV'; call gtv(trim(nm),tksw(prgn,nm),str_lequiv1,
-     .  def_lg=F,note='Look for equivalent strux')
+c      nm='STR_SHOW'; call gtv(trim(nm),tksw(prgn,nm),str_lshow1,
+c     .  def_lg=F,note='Show strux after generating them')
+c      nm='STR_EQUIV'; call gtv(trim(nm),tksw(prgn,nm),str_lequiv1,
+c     .  def_lg=F,note='Look for equivalent strux')
 
-      nm='STR_LMAXW'; call gtv(trim(nm),tksw(prgn,nm),str_lmaxw,
-     .  def_i4=-1,note=
-     .  'l-cutoff for Watson sphere, used to help localize strux')
-      nm='STR_DELRW'; call gtv(trim(nm),tksw(prgn,nm),str_drwats,
-     .  def_r8=0.1d0,note='Padding beyond cluster for Watson sphere')
+c      nm='STR_LMAXW'; call gtv(trim(nm),tksw(prgn,nm),str_lmaxw,
+c     .  def_i4=-1,note=
+c     .  'l-cutoff for Watson sphere, used to help localize strux')
+c      nm='STR_DELRW'; call gtv(trim(nm),tksw(prgn,nm),str_drwats,
+c     .  def_r8=0.1d0,note='Padding beyond cluster for Watson sphere')
 
-      if (io_help /= 0 .and. tksw(prgn,'STR_IINV_NIT')/=2)
-     .  call info0(1,1,0,' * IINV parameters '//
-     .  'govern iterative solutions to screened strux')
-      nm='STR_IINV_NIT'; call gtv(trim(nm),tksw(prgn,nm),iinv_nit,
-     .  def_i4=0,note='Number of iterations')
-      nm='STR_IINV_NCUT'; call gtv(trim(nm),tksw(prgn,nm),iinv_ncut,
-     .  def_i4=0,note='Number of sites for inner block')
-      nm='STR_IINV_TOL'; call gtv(trim(nm),tksw(prgn,nm),iinv_tol,
-     .  def_r8=0d0,note='Tolerance in errors')
+c      if (io_help /= 0 .and. tksw(prgn,'STR_IINV_NIT')/=2)
+c     .  call info0(1,1,0,' * IINV parameters '//
+c     .  'govern iterative solutions to screened strux')
+c      nm='STR_IINV_NIT'; call gtv(trim(nm),tksw(prgn,nm),iinv_nit,
+c     .  def_i4=0,note='Number of iterations')
+c      nm='STR_IINV_NCUT'; call gtv(trim(nm),tksw(prgn,nm),iinv_ncut,
+c     .  def_i4=0,note='Number of sites for inner block')
+c      nm='STR_IINV_TOL'; call gtv(trim(nm),tksw(prgn,nm),iinv_tol,
+c     .  def_r8=0d0,note='Tolerance in errors')
 
-      nm='STR_RVL/R'; call gtv(trim(nm),tksw(prgn,nm),str_rmaxg,
-     .  def_r8=0.7d0,note='Radial cutoff for val-lap, in units of RMAX')
+c      nm='STR_RVL/R'; call gtv(trim(nm),tksw(prgn,nm),str_rmaxg,
+c     .  def_r8=0.7d0,note='Radial cutoff for val-lap, in units of RMAX')
 
-      nm='STR_VLFUN'; call gtv(trim(nm),tksw(prgn,nm),str_ivl,
-     .  def_i4=0,note='Functions for val-lap basis'//
-     .  '%N%10f0 G0 + G1'//
-     .  '%N%10f1 G0 + Hsm'//
-     .  '%N%10f2 G0 + Hsm-dot')
+c      nm='STR_VLFUN'; call gtv(trim(nm),tksw(prgn,nm),str_ivl,
+c     .  def_i4=0,note='Functions for val-lap basis'//
+c     .  '%N%10f0 G0 + G1'//
+c     .  '%N%10f1 G0 + Hsm'//
+c     .  '%N%10f2 G0 + Hsm-dot')
 
 C$$$C --- Two-center fit ---
 C$$$      if (io_help .eq. 1 .and. tksw(prgn,'TCF')/=2) call info(1,1,0,
@@ -2655,15 +2656,15 @@ C$$$      nm='GW_QOFFP'; call gtv(trim(nm),tksw(prgn,nm),gw_qoffp,
 C$$$     .  def_r8=1d0,note=
 C$$$     .  'k-point offset parameter for special BZ integration for xi')
 
-C --- Plane ---
-      if (io_show+io_help/=0 .and. tksw(prgn,'PLANE')/=2)
-     .  call info0(1,1,0,' --- Parameters defining a plane ---')
-      nm='PLANE_NORMAL'; call gtv(trim(nm),tksw(prgn,nm),
-     .  slat_plat2(7:9),def_r8v=zerov,note='Plane normal')
-      nm='PLANE_X'; call gtv(trim(nm),tksw(prgn,nm),
-     .  slat_plat2(1:3),def_r8v=zerov,note='Plane X-axis')
-      nm='PLANE_NORMAL'; call gtv(trim(nm),tksw(prgn,nm),
-     .  slat_plat2(4:6),def_r8v=zerov,note='Plane Y-axis')
+cC --- Plane ---
+c      if (io_show+io_help/=0 .and. tksw(prgn,'PLANE')/=2)
+c     .  call info0(1,1,0,' --- Parameters defining a plane ---')
+c      nm='PLANE_NORMAL'; call gtv(trim(nm),tksw(prgn,nm),
+c     .  slat_plat2(7:9),def_r8v=zerov,note='Plane normal')
+c      nm='PLANE_X'; call gtv(trim(nm),tksw(prgn,nm),
+c     .  slat_plat2(1:3),def_r8v=zerov,note='Plane X-axis')
+c      nm='PLANE_NORMAL'; call gtv(trim(nm),tksw(prgn,nm),
+c     .  slat_plat2(4:6),def_r8v=zerov,note='Plane Y-axis')
 
       end subroutine readctrl
 
@@ -3220,11 +3221,11 @@ C ... for LMFRS
       call tkadd(" SPEC_ATOM_HCR~")
       call tkadd(" SPEC_ATOM_HCR/R~")
       call tkadd(" STR~")
-      call tkadd(" STR_ENV_MODE~")
-      call tkadd(" STR_ENV_NEL~")
-      call tkadd(" STR_ENV_EL")
+c      call tkadd(" STR_ENV_MODE~")
+c      call tkadd(" STR_ENV_NEL~")
+c      call tkadd(" STR_ENV_EL")
       call tkadd(" STR_RMAX~ STR_RMAXS~")
-      call tkadd(" STR_RVL/R~ STR_VLFUN~")
+c      call tkadd(" STR_RVL/R~ STR_VLFUN~")
 
       call tkadd(" SITE")
       call tkadd(" SITE_FILE~")
@@ -3434,14 +3435,14 @@ c      call tkadd(" SPEC_ATOM_R/W")
       call tkadd(" SYMGRP~")
       call tkadd(" STR~")
 C     call tkadd(" STR_DELRW~")
-      call tkadd(" STR_EQUIV~")
+c      call tkadd(" STR_EQUIV~")
 C     call tkadd(" STR_IINV~")
 C      call tkadd(" STR_LMAXW~")
 C      call tkadd(" STR_MODE~")
       call tkadd(" STR_MXNBR~")
       call tkadd(" STR_RMAX~")
       call tkadd(" STR_RMAXS~")
-      call tkadd(" STR_SHOW~")
+c      call tkadd(" STR_SHOW~")
       call tkadd(" EWALD~")
       call tkadd(" EWALD_AS~")
       call tkadd(" EWALD_NKDMX~")
@@ -3450,12 +3451,12 @@ C      call tkadd(" STR_MODE~")
       call tkadd(" HAM_NSPIN~")
       call tkadd(" HAM_NONCOL~ HAM_SS~")
       call tkadd(" HAM_XCFUN~")
-      call tkadd(" PGF~")
-      call tkadd(" PGF_GFOPTS~")
-      call tkadd(" PGF_MODE~")
-      call tkadd(" PGF_PLATL")
-      call tkadd(" PGF_PLATR")
-      call tkadd(" PGF_SPARSE~")
+c      call tkadd(" PGF~")
+c      call tkadd(" PGF_GFOPTS~")
+c      call tkadd(" PGF_MODE~")
+c      call tkadd(" PGF_PLATL")
+c      call tkadd(" PGF_PLATR")
+c      call tkadd(" PGF_SPARSE~")
 
       end subroutine toksw_init
 C      subroutine snit

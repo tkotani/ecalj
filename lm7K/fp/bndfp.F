@@ -497,7 +497,7 @@ Cgetarg      .  osmpot,osoptc,0)
        oorhat=spot%oorhat
        osmrho=spot%osmrho
        osmpot=spot%osmpot
-       osoptc=spot%osoptc
+c       osoptc=spot%osoptc
 
 C     icls = igets('optic cls',w(osoptc))
       pi = 4d0*datan(1d0)
@@ -903,7 +903,7 @@ Cgetarg...info...           integer :: osgw , integer(8) :: spot%osgw 1
 Cgetarg...info...           integer :: nchan , integer(8) :: spot%nlma 1
 Cgetarg       call upack2('pot osgw nlma',spot,osgw,nchan)
        
-       osgw=spot%osgw
+c       osgw=spot%osgw
        nchan=spot%nlma
 
 C ... Modes 0..4

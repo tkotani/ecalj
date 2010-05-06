@@ -225,8 +225,8 @@ Cgetarg      .      nrhos,orhos,obxc,osop,0)
         ogrrme = 0
 Cgetarg         if (igets('ctrl loptc',sctrl) .gt. 0)
 Cgetarg      .    call defrr(ogrrme,-16*nl*nsp*nclasp)
-         if ( int(sctrl%loptc) .gt. 0 ) call defrr ( ogrrme , -16 * nl 
-     .   * nsp * nclasp ) 
+c         if ( int(sctrl%loptc) .gt. 0 ) call defrr ( ogrrme , -16 * nl 
+c     .   * nsp * nclasp ) 
 
 Cgetarg...info...           integer :: ogrrme , integer(8) :: spot%ogrrme 1
 Cgetarg         call pack1('pot ogrrme',spot,ogrrme)

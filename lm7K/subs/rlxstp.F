@@ -28,7 +28,7 @@ Cr   hence nvar=natrlx.
 Cu Updates
 Cu   21 Mar 06 mdprm(1)>100 signifies shear relaxation
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed Parameters
       logical xyzfrz(3)
       integer indrlx(2,1),nvar,natrlx,nitrlx,pdim
@@ -39,7 +39,7 @@ Cgetarg       double precision sctrl(1),ssite(1)
 C Local variables
       double precision mdprm(6),defm(6)
 C     double precision autime,autmp
-      integer nbas,i,j,k,iprint,i1mach,ltb,ifrlx(3),igets,lrlx
+      integer nbas,i,j,k,iprint,i1mach,ifrlx(3),igets,lrlx !,ltb
       logical force,md,bittst
 C     character*1 comp(3)
 C     data comp /'x','y','z'/
@@ -56,15 +56,18 @@ Cgetarg      .  mdprm,defm,ltb)
        
        nbas=sctrl%nbas
        nitrlx=sctrl%nitmv
-       i_copy_size=size(sctrl%mdprm) 
-       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
-       i_copy_size=size(sctrl%defm) 
-       call dcopy(i_copy_size,sctrl%defm,1,defm,1) 
-       ltb=sctrl%ltb
+c       i_copy_size=size(sctrl%mdprm) 
+c       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
+c       i_copy_size=size(sctrl%defm) 
+c       call dcopy(i_copy_size,sctrl%defm,1,defm,1) 
+       call dcopy(size(sctrl%mdprm),sctrl%mdprm,1,mdprm,1) 
+       call dcopy(size(sctrl%defm),sctrl%defm,1,defm,1) 
+c       ltb=sctrl%ltb
 
       nvar = 0
 Cgetarg       force = bittst(ltb,16) .or. igets('ctrl lfrce',sctrl) .gt. 0
-       force = bittst ( ltb , 16 ) .or. int(sctrl%lfrce) .gt. 0 
+c       force = bittst ( ltb , 16 ) .or. int(sctrl%lfrce) .gt. 0 
+      force = int(sctrl%lfrce) .gt. 0 
 
       if (.not. force .or. nint(mdprm(1)) .eq. 0) return
       md = nint(mdprm(1)) .le. 3
@@ -88,9 +91,9 @@ C --- Set relaxation variables ---
         do  i = 1, nbas
 Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
 Cgetarg           call upack2('site relax',ssite,i,ifrlx)
-           
-           i_copy_size=size(ssite(i)%relax) 
-           call i8icopy(i_copy_size,ssite(i)%relax,1,ifrlx,1) 
+c           i_copy_size=size(ssite(i)%relax) 
+c           call i8icopy(i_copy_size,ssite(i)%relax,1,ifrlx,1) 
+          call i8icopy(size(ssite(i)%relax),ssite(i)%relax,1,ifrlx,1) 
 
           do  k = 1, 3
             if (ifrlx(k) .eq. 1) then

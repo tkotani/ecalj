@@ -94,7 +94,7 @@ Cki     .  sspec(1)
 C ... Local parameters
       integer procid,master,mpipid
       logical lgors,pass1,lorder,mlog
-      integer igets,nsite,nbas,nl,nbasp,npadl,npadr,ncl,npl,i,ib,
+      integer igets,nsite,nbas,nl,nbasp,ncl,npl,i,ib, !npadl,npadr,
      .  ix(3),neul,nbf,opgplp,opgord,opos,oips,ovshft,opgfsl,
      .  opgfvl,owk,oeula,omagf,oaamom,oclssl,ocllst,oclord,oclp,nclp,
      .  igetss,iprint
@@ -166,10 +166,10 @@ Cgetarg       call upack('lat plat platl platr',slat,plat,platl,platr,0,0)
        
        i_copy_size=size(slat%plat) 
        call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%platl) 
-       call dcopy(i_copy_size,slat%platl,1,platl,1) 
-       i_copy_size=size(slat%platr) 
-       call dcopy(i_copy_size,slat%platr,1,platr,1) 
+c       i_copy_size=size(slat%platl) 
+c       call dcopy(i_copy_size,slat%platl,1,platl,1) 
+c       i_copy_size=size(slat%platr) 
+c       call dcopy(i_copy_size,slat%platr,1,platr,1) 
 
       call defrr(opos,3*nsite)
 Cgetarg       call spackv(10,'site pos',v_ssite,1,nsite,w(opos))
@@ -415,18 +415,18 @@ C$$$         sctrl%nbasp=nbasp
 
 C$$$      else
 C   ... No partitioning of hamiltonian: make global pgplp
-        npadl = 0
-        npadr = 0
-        call defi(opgplp, -12)
-        w(opgplp+0) = -1
-        w(opgplp+6) =  nbas
-        call defdr(ovshft, -8-2*nbas)
+c        npadl = 0
+c        npadr = 0
+c        call defi(opgplp, -12)
+c        w(opgplp+0) = -1
+c        w(opgplp+6) =  nbas
+c        call defdr(ovshft, -8-2*nbas)
 Cgetarg...info...           integer :: opgplp , integer(8) :: sarray%opgplp 1
 Cgetarg         call pack5('array opgfsl opgfvl opgplp',sarray,1,1,opgplp,0,0)
          
-         sarray%opgfsl=1 
-         sarray%opgfvl=1 
-         sarray%opgplp=opgplp 
+c         sarray%opgfsl=1 
+c         sarray%opgfvl=1 
+c         sarray%opgplp=opgplp 
 
 Cgetarg         call pack1('ctrl npl',sctrl,1)
          
@@ -435,13 +435,13 @@ Cgetarg         call pack1('ctrl npl',sctrl,1)
 Cgetarg...info...           integer :: ovshft , integer(8) :: spot%ovshf 1
 Cgetarg         call pack1('pot ovshf',spot,ovshft)
          
-         spot%ovshf=ovshft 
+c         spot%ovshf=ovshft 
 
 C$$$      endif
 
 C --- Euler angles and external magnetic fields ---
 Cgetarg       if (lgors('ctrl lncol,11',sctrl)) then
-       if ( iand(11,int(sctrl%lncol)) .ne.0 ) then 
+      if ( iand(11,int(sctrl%lncol)) .ne.0 ) then 
 
         call defdr(oeula, -nbasp*nl**2*3+3)
         call dpzero(xsi,5)
@@ -474,7 +474,7 @@ Cgetarg         call pack2('ham neula oeula',sham,neul,oeula)
         nbf = 1
         omagf = 1
 Cgetarg         if (lgors('ctrl lncol,8',sctrl)) then
-         if ( iand(8,int(sctrl%lncol)) .ne.0 ) then 
+        if ( iand(8,int(sctrl%lncol)) .ne.0 ) then 
 
           call defdr(omagf, -nbasp*nl**2*3)
           if (procid .eq. master) then
@@ -528,29 +528,29 @@ Cgetarg      .  npadr,0)
        
        sarray%opos=opos 
        sarray%oips=oips 
-       sarray%npadl=npadl 
-       sarray%npadr=npadr 
+c       sarray%npadl=npadl 
+c       sarray%npadr=npadr 
 
 C     call pack5('ctrl nsite nbasp',sctrl,nsite,nbasp,0,0,0)
 C     call shstru('site',v_ssite,1,nsite)
 
       end subroutine susite
-      subroutine pvsub1(pgfsl,nbas,npadl,npadr)
+C$$$      subroutine pvsub1(pgfsl,nbas,npadl,npadr)
 
-C- Sets PL indices for padding layers
-C     implicit none
-      integer nbas,npadl,npadr,pgfsl(nbas)
-      integer nbasp,i
+C$$$C- Sets PL indices for padding layers
+C$$$C     implicit none
+C$$$      integer nbas,npadl,npadr,pgfsl(nbas)
+C$$$      integer nbasp,i
 
-      nbasp = nbas + (npadl + npadr)
-      do  10  i = 1, npadl
-      pgfsl(nbas+i) = pgfsl(nbas+i) - 1
-   10 pgfsl(nbasp+i) = pgfsl(nbasp+i) - 2
-      do  20  i = 1, npadr
-      pgfsl(nbas+npadl+i) = pgfsl(nbas+npadl+i) + 1
-   20 pgfsl(nbasp+npadl+i) = pgfsl(nbasp+npadl+i) + 2
+C$$$      nbasp = nbas + (npadl + npadr)
+C$$$      do  10  i = 1, npadl
+C$$$      pgfsl(nbas+i) = pgfsl(nbas+i) - 1
+C$$$   10 pgfsl(nbasp+i) = pgfsl(nbasp+i) - 2
+C$$$      do  20  i = 1, npadr
+C$$$      pgfsl(nbas+npadl+i) = pgfsl(nbas+npadl+i) + 1
+C$$$   20 pgfsl(nbasp+npadl+i) = pgfsl(nbasp+npadl+i) + 2
 
-      end subroutine pvsub1
+C$$$      end subroutine pvsub1
       subroutine pvsub2(mode,ssite,nbas,nbasp,nl,eula,neul,xsi)
 
 C- Unpacks Euler angles or magnetic fields; reads from disk

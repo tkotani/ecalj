@@ -121,7 +121,7 @@ C ... Local variables
       logical lgors,cmdopt,bittst
       integer fopna,fopng,i,ifi,igets,iors,ipr,irs(5),iscr,isw,ix(5),j,
      .  k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,lsx,nbas,nat,
-     .  nbaspp,ndham,nevmx,nglob,nit1,nl,npadl,npadr,nsp,nspec,numq,
+     .  nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,
      .  stdo,pdim,lsc
       integer oevl,ofrc,oftot,oorhat,opos,opos2,osmpot,osmrho,owk,op,o
       double precision plat(3,3),qlat(3,3),qbg,xv(10),fptol,umix
@@ -297,8 +297,8 @@ Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
 Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
 Cgetarg       call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
        
-       npadl=sarray%npadl
-       npadr=sarray%npadr
+c       npadl=sarray%npadl
+c       npadr=sarray%npadr
 
 Cgetarg...info...           integer :: lpgf , integer(8) :: sctrl%lpgf 2
 Cgetarg...info...           integer :: lcgf , integer(8) :: sctrl%lcgf 1
@@ -476,7 +476,7 @@ Cgetarg       call upack('ctrl nitmv mdprm ltb',sctrl,nitrlx,mdprm,ltb,0,0)
        nitrlx=sctrl%nitmv
        i_copy_size=size(sctrl%mdprm) 
        call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
-       ltb=sctrl%ltb
+c       ltb=sctrl%ltb
 
       lshr = nint(mdprm(1)) .gt. 100
       if (nint(mdprm(1)) .eq. 0) nitrlx = 0
@@ -493,7 +493,7 @@ Cgetarg         call pack1('ctrl mdprm',sctrl,mdprm)
 Cgetarg...info...           integer :: bitor , integer(8) :: sctrl%ltb 1
 Cgetarg         call pack1('ctrl ltb',sctrl,bitor(ltb,16))
          
-         sctrl%ltb=bitor(ltb,16) 
+c         sctrl%ltb=bitor(ltb,16) 
 
         call defi(oindrx,6*nbas)
 C       Next lines in case lattice relaxation
