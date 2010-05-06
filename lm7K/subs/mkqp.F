@@ -53,7 +53,7 @@ Cgetarg       double precision sctrl(1),sbz(1),slat(1)
 
 C ... Local parameters
       logical lgors,ltet,lsx,lnoirr,llshft(3),lipq
-      integer fopna,mxkp,nfilqp,nkp,nkxyz(3),nsgrp,npgrp,lshft(3),lpgf,
+      integer fopna,mxkp,nfilqp,nkp,nkxyz(3),nsgrp,npgrp,lshft(3),
      .  lpbc,ntet,i,oidtet,oqp,owtkp,ogstar,oipq,owk,osymgr,
      .  iprint,igets,stdo,nglob
       double precision plat(3,3),qlat(3,3),vol
@@ -92,11 +92,11 @@ Cgetarg      .  osymgr,0)
        osymgr=slat%osymgr
 
 Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
-       lpgf = int(sctrl%lpgf(1)) 
+c       lpgf = int(sctrl%lpgf(1)) 
 
 C     lpbc = 0 for kmesh in 3 dimensions, 1 kmesh in 2 dimensions
       lpbc = 0
-      if (lpgf .gt. 0) lpbc = 1
+c      if (lpgf .gt. 0) lpbc = 1
 Cgetarg       ltet  = gettet .and. lgors('ctrl lmet,2',sctrl)
        ltet = gettet .and. iand(2,int(sctrl%lmet)) .ne.0 
 

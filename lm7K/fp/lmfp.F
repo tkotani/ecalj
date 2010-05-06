@@ -120,7 +120,7 @@ C ... Local variables
       logical mlog
       logical lgors,cmdopt,bittst
       integer fopna,fopng,i,ifi,igets,iors,ipr,irs(5),iscr,isw,ix(5),j,
-     .  k,lcgf,leks,lfrce,lgunit,lpgf,lpnu,lrel,lrout,lsx,nbas,nat,
+     .  k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,lsx,nbas,nat,
      .  nbaspp,ndham,nevmx,nglob,nit1,nl,npadl,npadr,nsp,nspec,numq,
      .  stdo,pdim,lsc
       integer oevl,ofrc,oftot,oorhat,opos,opos2,osmpot,osmrho,owk,op,o
@@ -221,33 +221,32 @@ c             ---------- may be stop is unnecessary.
       endif
 #endif
 
+ctakao: optbas mode is removed
 C -------------------------- Basis optimization -------------------
-      call defdr(o,1)
-    2 continue
-      call rlse(o)
-      call defdr(o,1)
-      if (cmdopt('--optbas',8,0,strn)) then
-C       call wkdbg2
-C       No self-consistency
-Cgetarg         call pack1('bz nevmx',sbz,-1)
-         
-         sbz%nevmx=-1 
-
-C       No forces or dynamics
-        call dpzero(mdprm,6)
-Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
-Cgetarg         call pack2('ctrl lfrce mdprm',sctrl,0,mdprm)
-         
-         sctrl%lfrce=0 
-         i_copy_size=size(sctrl%mdprm) 
-         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1) 
-ctakao
-c        call lmfopb(strn(9:),slat,sspec,etot(1)-dgets('ham seref',sham))
-        call lmfopb(strn(9:),slat,sspec,etot(1)-sham%seref)
-C       call wkdbg2
+C$$$      call defdr(o,1)
+C$$$    2 continue
+C$$$      call rlse(o)
+C$$$      call defdr(o,1)
+C$$$      if (cmdopt('--optbas',8,0,strn)) then
+C$$$C       call wkdbg2
+C$$$C       No self-consistency
+C$$$Cgetarg         call pack1('bz nevmx',sbz,-1)
+C$$$         sbz%nevmx=-1 
+C$$$C       No forces or dynamics
+C$$$        call dpzero(mdprm,6)
+C$$$Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
+C$$$Cgetarg         call pack2('ctrl lfrce mdprm',sctrl,0,mdprm)
+C$$$         sctrl%lfrce=0 
+C$$$         i_copy_size=size(sctrl%mdprm) 
+C$$$         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1) 
+C$$$ctakao
+C$$$c        call lmfopb(strn(9:),slat,sspec,etot(1)-dgets('ham seref',sham))
+C$$$        call lmfopb(strn(9:),slat,sspec,etot(1)-sham%seref)
+C$$$C       call wkdbg2
 
 C -------------------------- Total energy mode -------------------
-      elseif (cmdopt('--etot',6,0,strn)) then
+c      elseif (cmdopt('--etot',6,0,strn)) then
+      if (cmdopt('--etot',6,0,strn)) then
 C       No forces or dynamics
         call dpzero(mdprm,6)
 Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
@@ -307,9 +306,9 @@ Cgetarg...info...           integer :: iscr , integer(8) :: sctrl%lscr 1
 Cgetarg...info...           integer :: lsx , integer(8) :: sctrl%lsx 1
 Cgetarg       call upack('ctrl lpgf lcgf lscr lsx',sctrl,lpgf,lcgf,iscr,lsx,0)
        
-       i_copy_size=size(sctrl%lpgf) 
-       call i8icopy(i_copy_size,sctrl%lpgf,1,lpgf,1) 
-       lcgf=sctrl%lcgf
+c       i_copy_size=size(sctrl%lpgf) 
+c       call i8icopy(i_copy_size,sctrl%lpgf,1,lpgf,1) 
+c       lcgf=sctrl%lcgf
        iscr=sctrl%lscr
        lsx=sctrl%lsx
 
@@ -360,8 +359,8 @@ C ... This shouldn't be ... for backwards compatibility
 C     if (lhf) irs(1) = 0
 
 C     Sanity checks: most ASA "extras" are not implemented here
-      call isanrg(lcgf, 0,0,'lmfp:','lcgf', .true.)
-      call isanrg(lpgf, 0,0,'lmfp:','lpgf', .true.)
+c      call isanrg(lcgf, 0,0,'lmfp:','lcgf', .true.)
+c      call isanrg(lpgf, 0,0,'lmfp:','lpgf', .true.)
       call isanrg(iscr, 0,0,'lmfp:','lscr', .true.)
       call isanrg(lsx,  0,0,'lmfp:','lsx',  .true.)
 C     call isanrg(lncol,0,0,'lmfp:','lncol',.true.)
@@ -888,17 +887,16 @@ C ... check convergence of dmatu and update it and vorb if necessary
      .    w(odmato),w(ovorb),tolu,umix,w(olldau),ng,w(og),w(oistab))
       endif
 
+ctakao optbas mode is removed
 C ... basis optimization: just extract etot(1) and return to opt.
-      if (cmdopt('--optbas',8,0,strn)) then
-Cgetarg...info...           real(8) :: etot(2) , real(8) :: sham%ehf 1
-Cgetarg...info...           real(8) :: etot(2) , real(8) :: sham%ehk 1
-Cgetarg         call upack2('ham ehf ehk',sham,etot(1),etot(2))
-         
-         etot(1)=sham%ehf
-         etot(2)=sham%ehk
-
-        goto 2
-      endif
+C$$$      if (cmdopt('--optbas',8,0,strn)) then
+C$$$Cgetarg...info...           real(8) :: etot(2) , real(8) :: sham%ehf 1
+C$$$Cgetarg...info...           real(8) :: etot(2) , real(8) :: sham%ehk 1
+C$$$Cgetarg         call upack2('ham ehf ehk',sham,etot(1),etot(2))
+C$$$         etot(1)=sham%ehf
+C$$$         etot(2)=sham%ehk
+C$$$        goto 2
+C$$$      endif
 
 C --- Write smoothed charge density for contour plotting ---
       if (procid .eq. master) then

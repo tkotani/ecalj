@@ -52,7 +52,6 @@ fp_list=\
 	jxpos.o \
 	lgstar.o \
 	lindsc.o \
-	lmfopb.o \
 	lmfp.o \
 	locpot.o \
 	loctsh.o \

@@ -18,7 +18,6 @@ subs_list:=\
 	amagnc.o \
 	angtab.o \
 	asars.o \
-	asamad.o \
 	asados.o \
 	asymop.o \
 	atfold.o \
@@ -157,20 +156,15 @@ subs_list:=\
 	ovmin.o \
 	pairc.o \
 	parmxp.o \
-	pgbasp.o \
-	pgfp.o \
-	pgfset.o \
 	phidx.o \
 	phvsfp.o \
 	pkli.o \
-	plana.o \
 	pptrns.o \
 	prdmts.o \
 	prjpos.o \
 	prmx.o \
 	projql.o \
 	prrmsh.o \
-	prtbas.o \
 	psymop.o \
 	qdist.o \
 	radgkl.o \

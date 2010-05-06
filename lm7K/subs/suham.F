@@ -368,8 +368,8 @@ Cgetarg      .  sham(1),spot(1),sbz(1)
 C ... Local parameters
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5)
-      integer hord,i,i1,i2,iprint,lcgf,ldham(16),ldim,lgen3,
-     .  lgunit,lham,lidim,lihdim,lncol,lpgf,nbasp,nclasp,ndim,neul,nl,
+      integer hord,i,i1,i2,iprint,ldham(16),ldim,lgen3,
+     .  lgunit,lham,lidim,lihdim,lncol,nbasp,nclasp,ndim,neul,nl,
      .  nlspcp,nsp,nspc,nspec,nspx,nttab,partok,igets,lfp,nvi,nvl,
      .  ib,is,lmxa,lmxl,stdo,nglob,nkaph,isw,nbf,lmxax,pwmode,
      .  j1,j2,j3,m,npw,npwmin,npwmax,ndham
@@ -420,7 +420,7 @@ Cgetarg       call upack('ctrl lham lcgf lgen3 lfp',sctrl,lham,lcgf,lgen3,
 Cgetarg      .  lfp,0)
        
        lham=sctrl%lham
-       lcgf=sctrl%lcgf
+c       lcgf=sctrl%lcgf
        lgen3=sctrl%lgen3
        lfp=sctrl%lfp
 
@@ -432,7 +432,7 @@ Cgetarg       call upack('ctrl lncol nspin',sctrl,lncol,nsp,0,0,0)
        nsp=sctrl%nspin
 
 Cgetarg       lpgf  = igets('ctrl lpgf',sctrl)
-       lpgf = int(sctrl%lpgf(1)) 
+c       lpgf = int(sctrl%lpgf(1)) 
 
       nkaph = nglob('nkaph')
 Cgetarg...info...           integer :: pwmode , integer(8) :: sham%pwmode 1
@@ -732,34 +732,33 @@ C        call rlse(olmx)
 
 C --- Second-generation LMTO, ASA ---
 C ... Green's function-specific initialization
-      if (lcgf .ne. 0 .or. lpgf .ne. 0) then
-        call upacks('strn gfopt',i1,i2)
-        gfopts = ' '
-        if (i2 .ge. i1) then
-          gfopts = sstrn(i1:i2)
-          call partk0(0,len(gfopts),1,-1,0,len(gfopts),-1,31,.false.)
-          hord = 2
-          ltmp = .false.
-          i = partok(gfopts,'pz',  ' ;',ltmp,' ',0,0,0,0)
-          if (ltmp) hord = 4
-          i = partok(gfopts,'p3',  ' ;',ltmp,' ',0,0,0,0)
-          if (ltmp) hord = 3
-          i = partok(gfopts,'p1',  ' ;',ltmp,' ',0,0,0,0)
-          if (ltmp) hord = 1
-Cgetarg...info...           integer :: hord , integer(8) :: sham%hord 1
-Cgetarg           call pack1('ham hord',sham,hord)
-           
-           sham%hord=hord 
-
-          if (iprint() .ge. 30) call awrit1(' SUHAM : 2nd generation'//
-     .      ' ASA; potential functions P%?#n<4#%-1j%i#(z)#',' ',
-     .      80,stdo,hord)
-        endif
-      endif
+C$$$      if (lcgf .ne. 0 .or. lpgf .ne. 0) then
+C$$$        call upacks('strn gfopt',i1,i2)
+C$$$        gfopts = ' '
+C$$$        if (i2 .ge. i1) then
+C$$$          gfopts = sstrn(i1:i2)
+C$$$          call partk0(0,len(gfopts),1,-1,0,len(gfopts),-1,31,.false.)
+C$$$          hord = 2
+C$$$          ltmp = .false.
+C$$$          i = partok(gfopts,'pz',  ' ;',ltmp,' ',0,0,0,0)
+C$$$          if (ltmp) hord = 4
+C$$$          i = partok(gfopts,'p3',  ' ;',ltmp,' ',0,0,0,0)
+C$$$          if (ltmp) hord = 3
+C$$$          i = partok(gfopts,'p1',  ' ;',ltmp,' ',0,0,0,0)
+C$$$          if (ltmp) hord = 1
+C$$$Cgetarg...info...           integer :: hord , integer(8) :: sham%hord 1
+C$$$Cgetarg           call pack1('ham hord',sham,hord)
+C$$$           sham%hord=hord 
+C$$$          if (iprint() .ge. 30) call awrit1(' SUHAM : 2nd generation'//
+C$$$     .      ' ASA; potential functions P%?#n<4#%-1j%i#(z)#',' ',
+C$$$     .      80,stdo,hord)
+C$$$        endif
+C$$$      endif
 
 C ... 2nd gen LMTO-specific initialization
 C     Make pti here since pp in gamma rep
-      if (lcgf .eq. 0 .and. lfp .eq. 0 .and. lgen3 .eq. 0) then
+c      if (lcgf .eq. 0 .and. lfp .eq. 0 .and. lgen3 .eq. 0) then
+      if (lfp .eq. 0 .and. lgen3 .eq. 0) then
 
         call defdr(opti,-ndim*nsp)
         call makipt(nl,nbasp,nsp,w(oipc),lihdim,w(oidxsh),w(opp),ndim,

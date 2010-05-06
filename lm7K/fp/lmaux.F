@@ -100,7 +100,7 @@ C ... Local parameters
       integer NULLI
       logical cmdopt,T,F,swtmp
       parameter (T=.true., F=.false., NULLI=-99999)
-      integer fopn,getdig,i,ip,j,k,m,ifi,iprint,lpgf,lpbc,lgunit,lncol,
+      integer fopn,getdig,i,ip,j,k,m,ifi,iprint,lpbc,lgunit,lncol,
      .  nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),mxnbr,parg,nbasp,
      .  nbaspp,nkd,nkq,nspec,npadl,npadr,neul,nc,mxcsiz,nttab,igets,
      .  iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,
@@ -152,11 +152,11 @@ Cgetarg       call upack('ctrl lncol modep',sctrl,lncol,modep,0,0,0)
        call i8icopy(i_copy_size,sctrl%modep,1,modep,1) 
 
 Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
-       lpgf = int(sctrl%lpgf(1)) 
+c       lpgf = int(sctrl%lpgf(1)) 
 
 C     lpbc = 0 for pbc in 3 dimensions, 11 pgf padded geometry
       lpbc = 0
-      if (lpgf .gt. 0 .and. lpgf .lt. 10) lpbc = 11
+c      if (lpgf .gt. 0 .and. lpgf .lt. 10) lpbc = 11
 Cgetarg...info...           integer :: oinitc , integer(8) :: sarray%ohave 1
 Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
 Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
@@ -517,36 +517,36 @@ C ... Inner products between Euler angles
 
       endif
 
-C --- Plane analysis branch ---
-      if (getdig(mode,1,2) .ne. 0) then
-Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
-Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
-Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
-Cgetarg         call upack('ctrl nbas nbasp nl',sctrl,nbas,nbasp,nl,0,0)
+C$$$C --- Plane analysis branch ---
+C$$$      if (getdig(mode,1,2) .ne. 0) then
+C$$$Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
+C$$$Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+C$$$Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
+C$$$Cgetarg         call upack('ctrl nbas nbasp nl',sctrl,nbas,nbasp,nl,0,0)
          
-         nbas=sctrl%nbas
-         nbasp=sctrl%nbasp
-         nl=sctrl%nl
+C$$$         nbas=sctrl%nbas
+C$$$         nbasp=sctrl%nbasp
+C$$$         nl=sctrl%nl
 
-Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
-Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
-Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
-Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
-Cgetarg         call upack('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
+C$$$Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
+C$$$Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
+C$$$Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
+C$$$Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
+C$$$Cgetarg         call upack('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
          
-         opnu=spot%opnu
-         oqnu=spot%oqnu
-         oqc=spot%oqc
-         oqt=spot%oqt
+C$$$         opnu=spot%opnu
+C$$$         oqnu=spot%oqnu
+C$$$         oqc=spot%oqc
+C$$$         oqt=spot%oqt
 
-        call defrr(oves,nbaspp)
-        call supot(1,sctrl,slat,spot)
-        call asamad(sctrl,spot,sarray,slat,sspec,0,
-     .    w(opnu),w(oqnu),0d0,w(oves),emad,trumad,vmtz)
-        call plana(wksize,npadl,npadr,nbaspp,slabl,slat,sspec,ssite,
-     .    w(oves),w(opnu),w(oqnu))
-        return
-      endif
+C$$$        call defrr(oves,nbaspp)
+C$$$        call supot(1,sctrl,slat,spot)
+C$$$        call asamad(sctrl,spot,sarray,slat,sspec,0,
+C$$$     .    w(opnu),w(oqnu),0d0,w(oves),emad,trumad,vmtz)
+C$$$        call plana(wksize,npadl,npadr,nbaspp,slabl,slat,sspec,ssite,
+C$$$     .    w(oves),w(opnu),w(oqnu))
+C$$$        return
+C$$$      endif
 
 C --- Generate input file to xbs program ---
 C$$$      if (getdig(mode,2,2) .ne. 0) then

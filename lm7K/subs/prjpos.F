@@ -168,143 +168,143 @@ C ... Case 10s digit mode is >=4
       endif
       end
 
-#if TEST
-      subroutine fmain
-      implicit none
-      integer ix(3),i,j,m
-      double precision pos(3,48),pos2(3,48),posp2(3,48),plat(3,3)
-      double precision posp(3,48),plat2(3,3),pinv(3,3),p2inv(3,3),
-     .  det,errmx
-      real ran1
-      logical ltmp,dcmp
+C$$$#if TEST
+C$$$      subroutine fmain
+C$$$      implicit none
+C$$$      integer ix(3),i,j,m
+C$$$      double precision pos(3,48),pos2(3,48),posp2(3,48),plat(3,3)
+C$$$      double precision posp(3,48),plat2(3,3),pinv(3,3),p2inv(3,3),
+C$$$     .  det,errmx
+C$$$      real ran1
+C$$$      logical ltmp,dcmp
 
-      data plat /
-     .  0.5d0,          .5d0, 0d0,
-     .  0.0d0,          0.d0, 1d0,
-     .  2.570990255d0, -2.570990255d0, 0d0/
-      data plat2 / 1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/
+C$$$      data plat /
+C$$$     .  0.5d0,          .5d0, 0d0,
+C$$$     .  0.0d0,          0.d0, 1d0,
+C$$$     .  2.570990255d0, -2.570990255d0, 0d0/
+C$$$      data plat2 / 1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/
 
-      data pos /
-     .  -0.697107d0,  1.197107d0,  0.250000d0,
-     .  -0.697107d0,  1.197107d0,  0.750000d0,
-     .  -0.770330d0,  0.770330d0,  0.000000d0,
-     .  -0.770330d0,  0.770330d0,  0.500000d0,
-     .  -0.343553d0,  0.843553d0,  0.250000d0,
-     .  -0.343553d0,  0.843553d0,  0.750000d0,
-     .  -0.416777d0,  0.416777d0,  0.000000d0,
-     .  -0.416777d0,  0.416777d0,  0.500000d0,
-     .   0.010000d0,  0.490000d0,  0.250000d0,
-     .   0.010000d0,  0.490000d0,  0.750000d0,
-     .   0.250000d0,  0.250000d0,  0.500000d0,
-     .   0.500000d0,  0.500000d0,  0.750000d0,
-     .   0.750000d0,  0.750000d0,  1.000000d0,
-     .   1.000000d0,  1.000000d0,  1.250000d0,
-     .   0.250000d0, -0.250000d0,  0.000000d0,
-     .   0.500000d0,  0.000000d0,  0.250000d0,
-     .   0.750000d0,  0.250000d0,  0.500000d0,
-     .   1.000000d0,  0.500000d0,  0.750000d0,
-     .   0.750000d0, -0.250000d0,  0.500000d0,
-     .   1.000000d0,  0.000000d0,  0.750000d0,
-     .   1.250000d0,  0.250000d0,  1.000000d0,
-     .   1.500000d0,  0.500000d0,  1.250000d0,
-     .   0.740000d0, -0.740000d0,  0.000000d0,
-     .   0.740000d0, -0.740000d0,  0.500000d0,
-     .   1.166777d0, -0.666777d0,  0.250000d0,
-     .   1.166777d0, -0.666777d0,  0.750000d0,
-     .   1.093553d0, -1.093553d0,  0.000000d0,
-     .   1.093553d0, -1.093553d0,  0.500000d0,
-     .   1.520330d0, -1.020330d0,  0.250000d0,
-     .   1.520330d0, -1.020330d0,  0.750000d0,
-     .   1.447107d0, -1.447107d0,  0.000000d0,
-     .   1.447107d0, -1.447107d0,  0.500000d0,
-     .  -1.050660d0,  1.550660d0,  0.250000d0,
-     .  -1.050660d0,  1.550660d0,  0.750000d0,
-     .  -1.123883d0,  1.123883d0,  0.000000d0,
-     .  -1.123883d0,  1.123883d0,  0.500000d0,
-     .   1.873883d0, -1.373883d0,  0.250000d0,
-     .   1.873883d0, -1.373883d0,  0.750000d0,
-     .   1.800660d0, -1.800660d0,  0.000000d0,
-     .   1.800660d0, -1.800660d0,  0.500000d0,
-     .  -1.404214d0,  1.904214d0,  0.250000d0,
-     .  -1.404214d0,  1.904214d0,  0.750000d0,
-     .  -1.477437d0,  1.477437d0,  0.000000d0,
-     .  -1.477437d0,  1.477437d0,  0.500000d0,
-     .   2.227437d0, -1.727437d0,  0.250000d0,
-     .   2.227437d0, -1.727437d0,  0.750000d0,
-     .   2.154214d0, -2.154214d0,  0.000000d0,
-     .   2.154214d0, -2.154214d0,  0.500000d0/
+C$$$      data pos /
+C$$$     .  -0.697107d0,  1.197107d0,  0.250000d0,
+C$$$     .  -0.697107d0,  1.197107d0,  0.750000d0,
+C$$$     .  -0.770330d0,  0.770330d0,  0.000000d0,
+C$$$     .  -0.770330d0,  0.770330d0,  0.500000d0,
+C$$$     .  -0.343553d0,  0.843553d0,  0.250000d0,
+C$$$     .  -0.343553d0,  0.843553d0,  0.750000d0,
+C$$$     .  -0.416777d0,  0.416777d0,  0.000000d0,
+C$$$     .  -0.416777d0,  0.416777d0,  0.500000d0,
+C$$$     .   0.010000d0,  0.490000d0,  0.250000d0,
+C$$$     .   0.010000d0,  0.490000d0,  0.750000d0,
+C$$$     .   0.250000d0,  0.250000d0,  0.500000d0,
+C$$$     .   0.500000d0,  0.500000d0,  0.750000d0,
+C$$$     .   0.750000d0,  0.750000d0,  1.000000d0,
+C$$$     .   1.000000d0,  1.000000d0,  1.250000d0,
+C$$$     .   0.250000d0, -0.250000d0,  0.000000d0,
+C$$$     .   0.500000d0,  0.000000d0,  0.250000d0,
+C$$$     .   0.750000d0,  0.250000d0,  0.500000d0,
+C$$$     .   1.000000d0,  0.500000d0,  0.750000d0,
+C$$$     .   0.750000d0, -0.250000d0,  0.500000d0,
+C$$$     .   1.000000d0,  0.000000d0,  0.750000d0,
+C$$$     .   1.250000d0,  0.250000d0,  1.000000d0,
+C$$$     .   1.500000d0,  0.500000d0,  1.250000d0,
+C$$$     .   0.740000d0, -0.740000d0,  0.000000d0,
+C$$$     .   0.740000d0, -0.740000d0,  0.500000d0,
+C$$$     .   1.166777d0, -0.666777d0,  0.250000d0,
+C$$$     .   1.166777d0, -0.666777d0,  0.750000d0,
+C$$$     .   1.093553d0, -1.093553d0,  0.000000d0,
+C$$$     .   1.093553d0, -1.093553d0,  0.500000d0,
+C$$$     .   1.520330d0, -1.020330d0,  0.250000d0,
+C$$$     .   1.520330d0, -1.020330d0,  0.750000d0,
+C$$$     .   1.447107d0, -1.447107d0,  0.000000d0,
+C$$$     .   1.447107d0, -1.447107d0,  0.500000d0,
+C$$$     .  -1.050660d0,  1.550660d0,  0.250000d0,
+C$$$     .  -1.050660d0,  1.550660d0,  0.750000d0,
+C$$$     .  -1.123883d0,  1.123883d0,  0.000000d0,
+C$$$     .  -1.123883d0,  1.123883d0,  0.500000d0,
+C$$$     .   1.873883d0, -1.373883d0,  0.250000d0,
+C$$$     .   1.873883d0, -1.373883d0,  0.750000d0,
+C$$$     .   1.800660d0, -1.800660d0,  0.000000d0,
+C$$$     .   1.800660d0, -1.800660d0,  0.500000d0,
+C$$$     .  -1.404214d0,  1.904214d0,  0.250000d0,
+C$$$     .  -1.404214d0,  1.904214d0,  0.750000d0,
+C$$$     .  -1.477437d0,  1.477437d0,  0.000000d0,
+C$$$     .  -1.477437d0,  1.477437d0,  0.500000d0,
+C$$$     .   2.227437d0, -1.727437d0,  0.250000d0,
+C$$$     .   2.227437d0, -1.727437d0,  0.750000d0,
+C$$$     .   2.154214d0, -2.154214d0,  0.000000d0,
+C$$$     .   2.154214d0, -2.154214d0,  0.500000d0/
 
-      ix(1) = 2
-      ix(2) = 2
-      ix(3) = 2
+C$$$      ix(1) = 2
+C$$$      ix(2) = 2
+C$$$      ix(3) = 2
 
-      call ran1in(12)
-      do  10  i = 1, 3
-      do  10  j = 1, 3
-      plat(i,j) = 2*ran1()-1
-      plat2(i,j) = 2*ran1()-1
-   10 continue
+C$$$      call ran1in(12)
+C$$$      do  10  i = 1, 3
+C$$$      do  10  j = 1, 3
+C$$$      plat(i,j) = 2*ran1()-1
+C$$$      plat2(i,j) = 2*ran1()-1
+C$$$   10 continue
 
-      call prmx('plat',plat,3,3,3)
-      call dinv33(plat,0,pinv,det)
-      call prmx('plat2',plat2,3,3,3)
-      call dinv33(plat2,0,p2inv,det)
+C$$$      call prmx('plat',plat,3,3,3)
+C$$$      call dinv33(plat,0,pinv,det)
+C$$$      call prmx('plat2',plat2,3,3,3)
+C$$$      call dinv33(plat2,0,p2inv,det)
 
-      call dgemm('N','N',3,48,3,1d0,pinv,3,pos,3,0d0,posp,3)
-      call dgemm('N','N',3,48,3,1d0,p2inv,3,pos,3,0d0,posp2,3)
-      call prmx('starting pos, cartesian coord',pos,3,3,48)
-      call prmx('starting pos, units of plat',posp,3,3,48)
-      call prmx('starting pos, units of plat2',posp2,3,3,48)
+C$$$      call dgemm('N','N',3,48,3,1d0,pinv,3,pos,3,0d0,posp,3)
+C$$$      call dgemm('N','N',3,48,3,1d0,p2inv,3,pos,3,0d0,posp2,3)
+C$$$      call prmx('starting pos, cartesian coord',pos,3,3,48)
+C$$$      call prmx('starting pos, units of plat',posp,3,3,48)
+C$$$      call prmx('starting pos, units of plat2',posp2,3,3,48)
 
-      print *, 'test 1s digit = 0: test pos -> pos'
-      call prjpos(0,ix,plat,plat2,48,pos,pos2)
-      if (.not. dcmp(pos2,pos,3*38,1d-6,m,errmx)) then
-        call prmx('test failed: write pos2',pos2,3,3,48)
-      else
-        print *, 'test passed'
-      endif
+C$$$      print *, 'test 1s digit = 0: test pos -> pos'
+C$$$      call prjpos(0,ix,plat,plat2,48,pos,pos2)
+C$$$      if (.not. dcmp(pos2,pos,3*38,1d-6,m,errmx)) then
+C$$$        call prmx('test failed: write pos2',pos2,3,3,48)
+C$$$      else
+C$$$        print *, 'test passed'
+C$$$      endif
 
-      print *, 'test 1s digit = 1: test pos(plat1) -> pos'
-      call prjpos(1,ix,plat,plat2,48,posp,pos2)
-      if (.not. dcmp(pos2,pos,3*38,1d-6,m,errmx)) then
-        call prmx('test failed: write pos2',pos2,3,3,48)
-      else
-        print *, 'test passed'
-      endif
+C$$$      print *, 'test 1s digit = 1: test pos(plat1) -> pos'
+C$$$      call prjpos(1,ix,plat,plat2,48,posp,pos2)
+C$$$      if (.not. dcmp(pos2,pos,3*38,1d-6,m,errmx)) then
+C$$$        call prmx('test failed: write pos2',pos2,3,3,48)
+C$$$      else
+C$$$        print *, 'test passed'
+C$$$      endif
 
-      print *, 'test 1s digit = 2: test pos -> pos(plat2)'
-      call prjpos(2,ix,plat,plat2,48,pos,pos2)
-      if (.not. dcmp(pos2,posp2,3*38,1d-6,m,errmx)) then
-        call prmx('test failed: write pos2',pos2,3,3,48)
-      else
-        print *, 'test passed'
-      endif
+C$$$      print *, 'test 1s digit = 2: test pos -> pos(plat2)'
+C$$$      call prjpos(2,ix,plat,plat2,48,pos,pos2)
+C$$$      if (.not. dcmp(pos2,posp2,3*38,1d-6,m,errmx)) then
+C$$$        call prmx('test failed: write pos2',pos2,3,3,48)
+C$$$      else
+C$$$        print *, 'test passed'
+C$$$      endif
 
-      print *, 'test 1s digit = 3: test pos(plat1) -> pos(plat2)'
-      call prjpos(3,ix,plat,plat2,48,posp,pos2)
-      if (.not. dcmp(pos2,posp2,3*38,1d-6,m,errmx)) then
-        call prmx('test failed: write pos2',pos2,3,3,48)
-      else
-        print *, 'test passed'
-      endif
+C$$$      print *, 'test 1s digit = 3: test pos(plat1) -> pos(plat2)'
+C$$$      call prjpos(3,ix,plat,plat2,48,posp,pos2)
+C$$$      if (.not. dcmp(pos2,posp2,3*38,1d-6,m,errmx)) then
+C$$$        call prmx('test failed: write pos2',pos2,3,3,48)
+C$$$      else
+C$$$        print *, 'test passed'
+C$$$      endif
 
-      print *, 'test 10s digit = 1: test pos(plat1) -> pos(plat2)'
-      call prjpos(13,ix,plat,plat2,48,posp,pos2)
-      call prmx('calc pos mode 13, units of plat2',pos2,3,3,48)
-C ... compare with: mc out.dat posplat2 -- -t
-      print *, 'test 10s digit = 2: test pos(plat1) -> pos(plat2)'
-      call prjpos(23,ix,plat,plat2,48,posp,pos2)
-      call prmx('calc pos mode 23, units of plat2',pos2,3,3,48)
-C ... compare with: mc plat -i plat2 out.dat -x pos -- -x -t
-      print *, 'test 10s digit = 6: test pos(plat1) -> pos(plat2)'
-      call prjpos(63,ix,plat,plat2,48,posp,pos2)
-      call prmx('calc pos mode 63, units of plat2',pos2,3,3,48)
-C ... check: for above, rename out.dat as out and then:
-C     compare with: mc out.dat out -- -t
+C$$$      print *, 'test 10s digit = 1: test pos(plat1) -> pos(plat2)'
+C$$$      call prjpos(13,ix,plat,plat2,48,posp,pos2)
+C$$$      call prmx('calc pos mode 13, units of plat2',pos2,3,3,48)
+C$$$C ... compare with: mc out.dat posplat2 -- -t
+C$$$      print *, 'test 10s digit = 2: test pos(plat1) -> pos(plat2)'
+C$$$      call prjpos(23,ix,plat,plat2,48,posp,pos2)
+C$$$      call prmx('calc pos mode 23, units of plat2',pos2,3,3,48)
+C$$$C ... compare with: mc plat -i plat2 out.dat -x pos -- -x -t
+C$$$      print *, 'test 10s digit = 6: test pos(plat1) -> pos(plat2)'
+C$$$      call prjpos(63,ix,plat,plat2,48,posp,pos2)
+C$$$      call prmx('calc pos mode 63, units of plat2',pos2,3,3,48)
+C$$$C ... check: for above, rename out.dat as out and then:
+C$$$C     compare with: mc out.dat out -- -t
 
-      call prjpos(0,ix,plat,plat2,48,pos,pos2)
-      call prmx('calc pos mode 0, units of plat2',pos2,3,3,48)
+C$$$      call prjpos(0,ix,plat,plat2,48,pos,pos2)
+C$$$      call prmx('calc pos mode 0, units of plat2',pos2,3,3,48)
 
-      end
-#endif
+C$$$      end
+C$$$#endif
 

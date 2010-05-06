@@ -155,7 +155,7 @@ Cu   15 Feb 02 (ATP) Added MPI parallelization
 Cu   24 Aug 01 Extended to handle local orbitals.
 Cu   28 Apr 98 code for new category 'OPTICS'
 C ----------------------------------------------------------------------
-C     implicit none
+c      implicit none
 C     include "mpif.h"
 C ... Passed parameters
       integer:: recln,nrecs
@@ -190,7 +190,7 @@ C ... Local parameters
       double precision dval,dglob,xx(n0*2),dgets,ekap(6)
       integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
      .  iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lasa,lbas,lcd,lqp,
-     .  lfrzw,lgunit,lham,lmet,lncol,lordn,
+     .  lfrzw,lgunit,lham,lmet,lncol,
      .  lrs,lstsym,lsx1,ltb,lxcf,nat,nlibu,nclasp,
      .  nglob,nkap,nspc,nlmax,scrwid,stdo,stdl,stde,k1,k2,mpipid
         character*(8),allocatable::clabl(:)
@@ -211,6 +211,8 @@ c takao
       real(8):: pnux(20)
       integer:: nnn
 CKi      integer:: umix_size
+c
+      integer:: i_copy_size,i_spacks,iendx,inix
 
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -426,7 +428,7 @@ Cgetarg...info...           integer :: k , integer(8) :: v_sctrl%lgen3 1
 Cgetarg       call pack5('ctrl lcgf ldos lfp lfrce lgen3',v_sctrl,
 Cgetarg      . ctrl_lcgf,ctrl_ldos,lfp,ctrl_lfrce,k)
        
-       v_sctrl%lcgf=ctrl_lcgf 
+c       v_sctrl%lcgf=ctrl_lcgf 
        v_sctrl%ldos=ctrl_ldos 
        v_sctrl%lfp=lfp 
        v_sctrl%lfrce=ctrl_lfrce 
@@ -462,7 +464,7 @@ C     If spin-orbit or SS, also turn on noncollinear
       if (k .ne. 0) lncol1=T
       lncol = 1*isw(lncol1)+2*isw(lncol2)+4*isw(lncol4)+8*isw(lncol8)+
      .  16*isw(lncol16)+32*isw(lncol32)+64*isw(lncol64)
-      lordn = 0
+c      lordn = 0
 Cgetarg...info...           integer :: lham , integer(8) :: v_sctrl%lham 1
 Cgetarg...info...           integer :: lmet , integer(8) :: v_sctrl%lmet 1
 Cgetarg...info...           integer :: lncol , integer(8) :: v_sctrl%lncol 1
@@ -475,7 +477,7 @@ Cgetarg      .  lham,lmet,lncol,ctrl_loptc,lordn)
        v_sctrl%lmet=lmet 
        v_sctrl%lncol=lncol 
        v_sctrl%loptc=ctrl_loptc 
-       v_sctrl%lordn=lordn 
+c       v_sctrl%lordn=lordn 
 
 C     lrs  switches concerning restart mode.
 C         1 Read from restart file
@@ -526,8 +528,8 @@ Cgetarg...info...           NG:: lscr , integer(8) :: v_sctrl%lscr 1
 Cgetarg        call pack5('ctrl lpgf lqp lrel lrs lscr',v_sctrl,
 Cgetarg      .  ctrl_lpgf,lqp,lrel,lrs,lscr)
         
-        i_copy_size=size(v_sctrl%lpgf) 
-        call ii8copy(i_copy_size,ctrl_lpgf,1,v_sctrl%lpgf,1) 
+c        i_copy_size=size(v_sctrl%lpgf) 
+c        call ii8copy(i_copy_size,ctrl_lpgf,1,v_sctrl%lpgf,1) 
         v_sctrl%lqp=lqp 
         v_sctrl%lrel=lrel 
         v_sctrl%lrs=lrs 
@@ -1745,13 +1747,13 @@ Cgetarg       call pack5('ctrl lqp',v_sctrl,lqp,0,0,0,0) !repack lqp
 
 
 C ... Special pgf initialization
-      if (ctrl_lpgf(1) .ne. 0) then
-Cgetarg         call lsets('ctrl lmet',v_sctrl,.false.,2)
+C$$$      if (ctrl_lpgf(1) .ne. 0) then
+C$$$Cgetarg         call lsets('ctrl lmet',v_sctrl,.false.,2)
          
-         call lsets_bitop_i8(v_sctrl%lmet,1,.false.,2)
+C$$$         call lsets_bitop_i8(v_sctrl%lmet,1,.false.,2)
 
-        call redfrr(v_ssite,3*nsite*nint(dval(v_ssite,1)))
-      endif
+C$$$        call redfrr(v_ssite,3*nsite*nint(dval(v_ssite,1)))
+C$$$      endif
 
 C ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
 Cgetarg       j = igets('ctrl lham,4',v_sctrl)/4
@@ -1814,7 +1816,7 @@ C ... Set modep
       ix(2) = 2
       ix(3) = 2
 Cgetarg       if (lgors('ctrl lpgf,-1',v_sctrl)) ix(3) = 0
-       if ( iand(-1,int(v_sctrl%lpgf(1))) .ne.0 ) ix ( 3 ) = 0 
+C$$$       if ( iand(-1,int(v_sctrl%lpgf(1))) .ne.0 ) ix ( 3 ) = 0 
 
 Cgetarg...info...           integer :: ix(n0*nkap0) , integer(8) :: v_sctrl%modep 3
 Cgetarg       call pack1('ctrl modep',v_sctrl,ix)
@@ -1915,7 +1917,8 @@ Cgetarg         lfrzw = isw(lgors('ctrl lbas,16',v_sctrl))
      .    '%?;n; APW basis,;;'//
      .    '%?;n; oveps,;;'//
      .    '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,i,ctrl_loptc,
-     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
+c     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
+     .    mod(lscr,10),0,pwmode,isw(oveps.ne.0))
         if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
 
         ltmp = prgnam.eq.'LM'  .or. prgnam.eq.'LMMC'  .or.

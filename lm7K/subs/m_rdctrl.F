@@ -1,6 +1,6 @@
       module m_rdctrl
       use m_struc_def
-C     implicit none
+      implicit none
 
 C ... Fixed parameters
       integer,parameter:: NULLI =-99999
@@ -147,10 +147,10 @@ C ... TCF
       real(8):: tcf_adec,tcf_wztcf
 
 C ... CGF
-      integer:: ctrl_lcgf
+c      integer:: ctrl_lcgf
 
 C ... PGF
-      integer:: ctrl_lpgf(2)=0
+c      integer:: ctrl_lpgf(2)=0
       character(256):: gfopt=' '
       real(8):: platl(3)=0d0,platr(3)=0d0
 

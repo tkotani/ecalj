@@ -74,7 +74,7 @@ Cu   23 Jan 02 susite packs seref into sham.  Altered argument list.
 Cu   18 Dec 01 susite packs species labels into ssite
 Cu   13 Oct 98 convention for pgplp extended to non-layer case
 C ----------------------------------------------------------------------
-C     implicit none
+c      implicit none
 C ... Passed parameters
 Cki      integer v_ssite
 Cki      double precision sctrl(1),sham(1),spot(1),sarray(1),slat(1),
@@ -94,8 +94,8 @@ Cki     .  sspec(1)
 C ... Local parameters
       integer procid,master,mpipid
       logical lgors,pass1,lorder,mlog
-      integer lpgf,igets,nsite,nbas,nl,nbasp,npadl,npadr,ncl,npl,i,ib,
-     .  ix(3),ssize,neul,nbf,opgplp,opgord,opos,oips,ovshft,opgfsl,
+      integer igets,nsite,nbas,nl,nbasp,npadl,npadr,ncl,npl,i,ib,
+     .  ix(3),neul,nbf,opgplp,opgord,opos,oips,ovshft,opgfsl,
      .  opgfvl,owk,oeula,omagf,oaamom,oclssl,ocllst,oclord,oclp,nclp,
      .  igetss,iprint
       parameter (nclp=9)
@@ -120,7 +120,7 @@ Cgetarg       call upack('ctrl nsite nbas nl',sctrl,nsite,nbas,nl,0,0)
 
 C     call rxx(nsite.ne.nbas,'susite not set up for nsite.ne.nbas')
 Cki      ssize = nint(dval(v_ssite,1))
-      ssize=v_ssite(1)%size
+c      ssize=v_ssite(1)%size
       pass1 = .false.
       nbasp = nbas
       npl   = nbas
@@ -186,237 +186,234 @@ Cgetarg       call spackv(10,'site spec',v_ssite,1,nsite,w(oips))
        enddo
 
 
-C --- Order-N: group all sites in a crystal into clusters ---
-Cgetarg       if (lgors('ctrl lordn,-1',sctrl)) then
-       if ( iand(-1,int(sctrl%lordn)) .ne.0 ) then 
+C$$$C --- Order-N: group all sites in a crystal into clusters ---
+C$$$Cgetarg       if (lgors('ctrl lordn,-1',sctrl)) then
+C$$$       if ( iand(-1,int(sctrl%lordn)) .ne.0 ) then 
 
-        call defi(oclssl, nsite)
-        call defi(ocllst, nsite+1)
-        call defi(oclp,  -(nsite+1)*nclp)
-        call defi(oclord, nsite)
-        call clsset(11,slat,nsite,w(opos),ncl,w(oclssl),w(ocllst),
-     .    w(oclord),w(oclp))
+C$$$        call defi(oclssl, nsite)
+C$$$        call defi(ocllst, nsite+1)
+C$$$        call defi(oclp,  -(nsite+1)*nclp)
+C$$$        call defi(oclord, nsite)
+C$$$        call clsset(11,slat,nsite,w(opos),ncl,w(oclssl),w(ocllst),
+C$$$     .    w(oclord),w(oclp))
 
-C   ... Reorder the site structure according to clord
-        call defdr(owk, ssize*nsite)
-        call dvprm(ssize,nsite,v_ssite,w(owk),w(oclord),.true.)
-        call rlse(owk)
-        call dvset(v_ssite,1,1,dble(ssize))
-C   ... Unpack arrays, now permuted; shorten pos
-        ix(1) = 1
-        ix(2) = 1
-        ix(3) = 1
-Cgetarg         call spackv(10,'site pos',v_ssite,1,nsite,w(opos))
-         i_copy_size=size(v_ssite(1)%pos)
-         do i_spackv=1,nsite 
-         call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
+C$$$C   ... Reorder the site structure according to clord
+C$$$        call defdr(owk, ssize*nsite)
+C$$$        call dvprm(ssize,nsite,v_ssite,w(owk),w(oclord),.true.)
+C$$$        call rlse(owk)
+C$$$        call dvset(v_ssite,1,1,dble(ssize))
+C$$$C   ... Unpack arrays, now permuted; shorten pos
+C$$$        ix(1) = 1
+C$$$        ix(2) = 1
+C$$$        ix(3) = 1
+C$$$Cgetarg         call spackv(10,'site pos',v_ssite,1,nsite,w(opos))
+C$$$         i_copy_size=size(v_ssite(1)%pos)
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+C$$$         enddo
 
-        call shorps(nbas,plat,ix,w(opos),w(opos))
-Cgetarg         call spackv(11,'site pos',v_ssite,1,nsite,w(opos))
-         i_copy_size=size(v_ssite(1)%pos)
-         do i_spackv=1,nsite 
-         call spackv_array_copy_r8_r8('p',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
+C$$$        call shorps(nbas,plat,ix,w(opos),w(opos))
+C$$$Cgetarg         call spackv(11,'site pos',v_ssite,1,nsite,w(opos))
+C$$$         i_copy_size=size(v_ssite(1)%pos)
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_r8_r8('p',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+C$$$         enddo
 
-Cgetarg         call spackv(10,'site spec',v_ssite,1,nsite,w(oips))
-         i_copy_size=1; 
-         do i_spackv=1,nsite 
-         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
-         enddo
+C$$$Cgetarg         call spackv(10,'site spec',v_ssite,1,nsite,w(oips))
+C$$$         i_copy_size=1; 
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+C$$$         enddo
 
-C       call shstru('site',v_ssite,1,nsite)
-        call redfi(oclp,   nclp*(ncl+1))
-Cgetarg...info...           integer :: ncl , integer(8) :: sarray%ncl 1
-Cgetarg...info...           integer :: ocllst , integer(8) :: sarray%ocllst 1
-Cgetarg...info...           integer :: oclp , integer(8) :: sarray%oclp 1
-Cgetarg...info...           integer :: oclssl , integer(8) :: sarray%oclssl 1
-Cgetarg         call pack5('array ncl ocllst oclp oclssl',sarray,ncl,ocllst,
-Cgetarg      .    oclp,oclssl,0)
+C$$$C       call shstru('site',v_ssite,1,nsite)
+C$$$        call redfi(oclp,   nclp*(ncl+1))
+C$$$Cgetarg...info...           integer :: ncl , integer(8) :: sarray%ncl 1
+C$$$Cgetarg...info...           integer :: ocllst , integer(8) :: sarray%ocllst 1
+C$$$Cgetarg...info...           integer :: oclp , integer(8) :: sarray%oclp 1
+C$$$Cgetarg...info...           integer :: oclssl , integer(8) :: sarray%oclssl 1
+C$$$Cgetarg         call pack5('array ncl ocllst oclp oclssl',sarray,ncl,ocllst,
+C$$$Cgetarg      .    oclp,oclssl,0)
          
-         sarray%ncl=ncl 
-         sarray%ocllst=ocllst 
-         sarray%oclp=oclp 
-         sarray%oclssl=oclssl 
+C$$$         sarray%ncl=ncl 
+C$$$         sarray%ocllst=ocllst 
+C$$$         sarray%oclp=oclp 
+C$$$         sarray%oclssl=oclssl 
 
-      endif
+C$$$      endif
 
 C --- Check and order principal layers, and sites by PL ---
 Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
-       lpgf = int(sctrl%lpgf(1)) 
+c       lpgf = int(sctrl%lpgf(1)) 
 
-      if (lpgf .ne. 0) then
-        call defi(opgfsl,-nsite)
-Cgetarg         call spackv(10,'site pl',v_ssite,1,nsite,w(opgfsl))
-         i_copy_size=1; 
-         do i_spackv=1,nsite 
-         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%pl,i_copy_size,i_spackv+1-1,w(opgfsl))
-         enddo
+C$$$      if (lpgf .ne. 0) then
+C$$$        call defi(opgfsl,-nsite)
+C$$$Cgetarg         call spackv(10,'site pl',v_ssite,1,nsite,w(opgfsl))
+C$$$         i_copy_size=1; 
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%pl,i_copy_size,i_spackv+1-1,w(opgfsl))
+C$$$         enddo
+C$$$        call defi(opgfvl,-nsite)
+C$$$Cgetarg         call spackv(10,'site plv',v_ssite,1,nsite,w(opgfvl))
+C$$$         i_copy_size=1; 
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%plv,i_copy_size,i_spackv+1-1,w(opgfvl))
+C$$$         enddo
+C$$$        call defdr(ovshft, -8-2*nbasp)
+C$$$        call defi(opgplp,  6*(npl+2))
+C$$$C        print *, 'debuging susite'
+C$$$C        call ivset(w(opgplp),1,6*(npl+2),-99)
+C$$$C   ... no accumulated sites in -1 PL
+C$$$        w(opgplp) = 0
+C$$$        call defi(opgord,  2*nbas)
+C$$$        if (pass1) call pshpr(min(iprint(),1))
+C$$$C       if (pass1) call pshpr(0)
+C$$$C       call prmx('pos before pgfset',w(opos),3,3,nbas)
+C$$$        lorder = .not. pass1
+C$$$        call pgfset(sspec,nbas,w(opos),plat,lorder,.true.,w(oips),
+C$$$     .    w(ovshft),w(opgfsl),w(opgfvl),w(opgord),pgfn,npl,npadl,npadr,
+C$$$     .    w(opgplp))
+C$$$        nbasp = nbas + (npadl + npadr)
+C$$$        ix(1) = dglob('nbasp',dble(nbasp),1)
+C$$$        ix(2) = dglob('npl',dble(npl),1)
+C$$$        nsite = nbas + 2*(npadl + npadr)
+C$$$        if (pass1) then
+C$$$          call poppr
+C$$$Cki          call redfrr(v_ssite,nsite*ssize)
+C$$$           allocate(v_ssite2(nsite))
+C$$$           nsite_old=size(v_ssite)
+C$$$           v_ssite2(1:nsite_old)=v_ssite(1:nsite_old)
+C$$$           deallocate(v_ssite)
+C$$$           allocate(v_ssite(nsite))
+C$$$           do i=1,nsite; v_ssite(i)%size=usite_size(); enddo 
+C$$$           v_ssite(1:nsite_old)=v_ssite2(1:nsite_old)
+C$$$           deallocate(v_ssite2)
+C$$$C         Zero out enlarged last part of it
+C$$$          call defrr(owk,-nsite*ssize)
+C$$$          call dcopy(nbas*ssize,v_ssite,1,w(owk),1)
+C$$$          call dcopy(nsite*ssize,w(owk),1,v_ssite,1)
+C$$$          call rlse(owk)
+C$$$          goto 10
+C$$$        endif
+C$$$        call defdr(owk, ssize*nbas)
+C$$$C   ... Reset pos,pfgsl, since they may be shifted by pgfset
+C$$$Cgetarg         call spackv(11,'site pos',v_ssite,1,nsite,w(opos))
+C$$$         i_copy_size=size(v_ssite(1)%pos)
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_r8_r8('p',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+C$$$         enddo
 
-        call defi(opgfvl,-nsite)
-Cgetarg         call spackv(10,'site plv',v_ssite,1,nsite,w(opgfvl))
-         i_copy_size=1; 
-         do i_spackv=1,nsite 
-         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%plv,i_copy_size,i_spackv+1-1,w(opgfvl))
-         enddo
+C$$$Cgetarg         call spackv(11,'site pl',v_ssite,1,nsite,w(opgfsl))
+C$$$         i_copy_size=1; 
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_i8_i('p',v_ssite(i_spackv)%pl,i_copy_size,i_spackv+1-1,w(opgfsl))
+C$$$         enddo
 
-        call defdr(ovshft, -8-2*nbasp)
-        call defi(opgplp,  6*(npl+2))
-C        print *, 'debuging susite'
-C        call ivset(w(opgplp),1,6*(npl+2),-99)
-C   ... no accumulated sites in -1 PL
-        w(opgplp) = 0
-        call defi(opgord,  2*nbas)
-        if (pass1) call pshpr(min(iprint(),1))
-C       if (pass1) call pshpr(0)
-C       call prmx('pos before pgfset',w(opos),3,3,nbas)
-        lorder = .not. pass1
-        call pgfset(sspec,nbas,w(opos),plat,lorder,.true.,w(oips),
-     .    w(ovshft),w(opgfsl),w(opgfvl),w(opgord),pgfn,npl,npadl,npadr,
-     .    w(opgplp))
-        nbasp = nbas + (npadl + npadr)
-        ix(1) = dglob('nbasp',dble(nbasp),1)
-        ix(2) = dglob('npl',dble(npl),1)
-        nsite = nbas + 2*(npadl + npadr)
-        if (pass1) then
-          call poppr
-Cki          call redfrr(v_ssite,nsite*ssize)
-           allocate(v_ssite2(nsite))
-           nsite_old=size(v_ssite)
-           v_ssite2(1:nsite_old)=v_ssite(1:nsite_old)
-           deallocate(v_ssite)
-           allocate(v_ssite(nsite))
-           do i=1,nsite; v_ssite(i)%size=usite_size(); enddo 
-           v_ssite(1:nsite_old)=v_ssite2(1:nsite_old)
-           deallocate(v_ssite2)
+C$$$C   ... Reorder the site structure according to pgord
+C$$$        do  12  i = 1, nbas
+C$$$   12   w(opgord+i-1) = w(opgord+i-1)-1
+C$$$C       call awrit2('%n:1i',' ',100,6,nbas,w(opgord))
+C$$$C       call prmx('ssite before perm',v_ssite,ssize,ssize,nbas)
+C$$$        call dvperm(ssize,nbas,v_ssite,w(owk),w(opgord),.true.)
+C$$$        call dvset(v_ssite,1,1,dble(ssize))
+C$$$C       call prmx('ssite after perm',v_ssite,ssize,ssize,nbas)
+C$$$C   ... Doubly pad ssite
+C$$$        call pgfpp(nbas,npadl,npadr,ssize,1,.false.,.false.,
+C$$$     .    v_ssite,v_ssite)
+C$$$C   ... Unpack arrays, now permuted and padded
+C$$$Cgetarg         call spackv(10,'site pl',v_ssite,1,nsite,w(opgfsl))
+C$$$         i_copy_size=1; 
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%pl,i_copy_size,i_spackv+1-1,w(opgfsl))
+C$$$         enddo
 
-C         Zero out enlarged last part of it
-          call defrr(owk,-nsite*ssize)
-          call dcopy(nbas*ssize,v_ssite,1,w(owk),1)
-          call dcopy(nsite*ssize,w(owk),1,v_ssite,1)
-          call rlse(owk)
-          goto 10
-        endif
-        call defdr(owk, ssize*nbas)
-C   ... Reset pos,pfgsl, since they may be shifted by pgfset
-Cgetarg         call spackv(11,'site pos',v_ssite,1,nsite,w(opos))
-         i_copy_size=size(v_ssite(1)%pos)
-         do i_spackv=1,nsite 
-         call spackv_array_copy_r8_r8('p',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
+C$$$Cgetarg         call spackv(10,'site plv',v_ssite,1,nsite,w(opgfvl))
+C$$$         i_copy_size=1; 
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%plv,i_copy_size,i_spackv+1-1,w(opgfvl))
+C$$$         enddo
 
-Cgetarg         call spackv(11,'site pl',v_ssite,1,nsite,w(opgfsl))
-         i_copy_size=1; 
-         do i_spackv=1,nsite 
-         call spackv_array_copy_i8_i('p',v_ssite(i_spackv)%pl,i_copy_size,i_spackv+1-1,w(opgfsl))
-         enddo
+C$$$Cgetarg         call spackv(10,'site pos',v_ssite,1,nsite,w(opos))
+C$$$         i_copy_size=size(v_ssite(1)%pos)
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+C$$$         enddo
 
-C   ... Reorder the site structure according to pgord
-        do  12  i = 1, nbas
-   12   w(opgord+i-1) = w(opgord+i-1)-1
-C       call awrit2('%n:1i',' ',100,6,nbas,w(opgord))
-C       call prmx('ssite before perm',v_ssite,ssize,ssize,nbas)
-        call dvperm(ssize,nbas,v_ssite,w(owk),w(opgord),.true.)
-        call dvset(v_ssite,1,1,dble(ssize))
-C       call prmx('ssite after perm',v_ssite,ssize,ssize,nbas)
-C   ... Doubly pad ssite
-        call pgfpp(nbas,npadl,npadr,ssize,1,.false.,.false.,
-     .    v_ssite,v_ssite)
-C   ... Unpack arrays, now permuted and padded
-Cgetarg         call spackv(10,'site pl',v_ssite,1,nsite,w(opgfsl))
-         i_copy_size=1; 
-         do i_spackv=1,nsite 
-         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%pl,i_copy_size,i_spackv+1-1,w(opgfsl))
-         enddo
-
-Cgetarg         call spackv(10,'site plv',v_ssite,1,nsite,w(opgfvl))
-         i_copy_size=1; 
-         do i_spackv=1,nsite 
-         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%plv,i_copy_size,i_spackv+1-1,w(opgfvl))
-         enddo
-
-Cgetarg         call spackv(10,'site pos',v_ssite,1,nsite,w(opos))
-         i_copy_size=size(v_ssite(1)%pos)
-         do i_spackv=1,nsite 
-         call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
-
-Cgetarg         call spackv(10,'site spec',v_ssite,1,nsite,w(oips))
-         i_copy_size=1; 
-         do i_spackv=1,nsite 
-         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
-         enddo
+C$$$Cgetarg         call spackv(10,'site spec',v_ssite,1,nsite,w(oips))
+C$$$         i_copy_size=1; 
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+C$$$         enddo
 
 
-C   ... Shift doubly padded bas; repack
-        if (nbasp .gt. nbas) then
-        call pgbasp(nbas,npadl,npadr,w(opos),plat,platl,platr,w(owk))
-        call dscal(9,2d0,platl,1)
-        call pgbasp(nbasp,npadl,npadr,w(owk),plat,platl,platr,w(opos))
-        call dscal(9,.5d0,platl,1)
-Cgetarg         call spackv(11,'site pos',v_ssite,1,nsite,w(opos))
-         i_copy_size=size(v_ssite(1)%pos)
-         do i_spackv=1,nsite 
-         call spackv_array_copy_r8_r8('p',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
+C$$$C   ... Shift doubly padded bas; repack
+C$$$        if (nbasp .gt. nbas) then
+C$$$        call pgbasp(nbas,npadl,npadr,w(opos),plat,platl,platr,w(owk))
+C$$$        call dscal(9,2d0,platl,1)
+C$$$        call pgbasp(nbasp,npadl,npadr,w(owk),plat,platl,platr,w(opos))
+C$$$        call dscal(9,.5d0,platl,1)
+C$$$Cgetarg         call spackv(11,'site pos',v_ssite,1,nsite,w(opos))
+C$$$         i_copy_size=size(v_ssite(1)%pos)
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_r8_r8('p',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+C$$$         enddo
 
-C       call prmx('pos, double pad',w(opos),3,3,nsite)
-C       call prmx('ssite, double pad',v_ssite,ssize,ssize,nsite)
-C   ... Shift pgfsl in padding layers, and repack
-        call pvsub1(w(opgfsl),nbas,npadl,npadr)
-Cgetarg         call spackv(11,'site pl',v_ssite,1,nsite,w(opgfsl))
-         i_copy_size=1; 
-         do i_spackv=1,nsite 
-         call spackv_array_copy_i8_i('p',v_ssite(i_spackv)%pl,i_copy_size,i_spackv+1-1,w(opgfsl))
-         enddo
+C$$$C       call prmx('pos, double pad',w(opos),3,3,nsite)
+C$$$C       call prmx('ssite, double pad',v_ssite,ssize,ssize,nsite)
+C$$$C   ... Shift pgfsl in padding layers, and repack
+C$$$        call pvsub1(w(opgfsl),nbas,npadl,npadr)
+C$$$Cgetarg         call spackv(11,'site pl',v_ssite,1,nsite,w(opgfsl))
+C$$$         i_copy_size=1; 
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_i8_i('p',v_ssite(i_spackv)%pl,i_copy_size,i_spackv+1-1,w(opgfsl))
+C$$$         enddo
 
-C        call awrit2('%n:1i',' ',100,6,nsite,w(opgfsl))
-C        call awrit2('%n:1i',' ',100,6,nbas,w(opgfvl))
-C   ... Pick up padded ips,pgfsl,pgfvl
-Cgetarg         call spackv(10,'site spec',v_ssite,1,nsite,w(oips))
-         i_copy_size=1; 
-         do i_spackv=1,nsite 
-         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
-         enddo
+C$$$C        call awrit2('%n:1i',' ',100,6,nsite,w(opgfsl))
+C$$$C        call awrit2('%n:1i',' ',100,6,nbas,w(opgfvl))
+C$$$C   ... Pick up padded ips,pgfsl,pgfvl
+C$$$Cgetarg         call spackv(10,'site spec',v_ssite,1,nsite,w(oips))
+C$$$         i_copy_size=1; 
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+C$$$         enddo
 
-Cgetarg         call spackv(10,'site plv',v_ssite,1,nsite,w(opgfvl))
-         i_copy_size=1; 
-         do i_spackv=1,nsite 
-         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%plv,i_copy_size,i_spackv+1-1,w(opgfvl))
-         enddo
+C$$$Cgetarg         call spackv(10,'site plv',v_ssite,1,nsite,w(opgfvl))
+C$$$         i_copy_size=1; 
+C$$$         do i_spackv=1,nsite 
+C$$$         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%plv,i_copy_size,i_spackv+1-1,w(opgfvl))
+C$$$         enddo
 
-        call redfi(opgplp,   6*(npl+2))
-Cgetarg...info...           integer :: opgfsl , integer(8) :: sarray%opgfsl 1
-Cgetarg...info...           integer :: opgfvl , integer(8) :: sarray%opgfvl 1
-Cgetarg...info...           integer :: opgplp , integer(8) :: sarray%opgplp 1
-Cgetarg         call pack5('array opgfsl opgfvl opgplp',sarray,opgfsl,opgfvl,
-Cgetarg      .    opgplp,0,0)
+C$$$        call redfi(opgplp,   6*(npl+2))
+C$$$Cgetarg...info...           integer :: opgfsl , integer(8) :: sarray%opgfsl 1
+C$$$Cgetarg...info...           integer :: opgfvl , integer(8) :: sarray%opgfvl 1
+C$$$Cgetarg...info...           integer :: opgplp , integer(8) :: sarray%opgplp 1
+C$$$Cgetarg         call pack5('array opgfsl opgfvl opgplp',sarray,opgfsl,opgfvl,
+C$$$Cgetarg      .    opgplp,0,0)
          
-         sarray%opgfsl=opgfsl 
-         sarray%opgfvl=opgfvl 
-         sarray%opgplp=opgplp 
+C$$$         sarray%opgfsl=opgfsl 
+C$$$         sarray%opgfvl=opgfvl 
+C$$$         sarray%opgplp=opgplp 
 
-Cgetarg...info...           integer :: npl , integer(8) :: sctrl%npl 1
-Cgetarg         call pack1('ctrl npl',sctrl,npl)
+C$$$Cgetarg...info...           integer :: npl , integer(8) :: sctrl%npl 1
+C$$$Cgetarg         call pack1('ctrl npl',sctrl,npl)
          
-         sctrl%npl=npl 
+C$$$         sctrl%npl=npl 
 
-Cgetarg...info...           integer :: ovshft , integer(8) :: spot%ovshf 1
-Cgetarg         call pack1('pot ovshf',spot,ovshft)
+C$$$Cgetarg...info...           integer :: ovshft , integer(8) :: spot%ovshf 1
+C$$$Cgetarg         call pack1('pot ovshf',spot,ovshft)
          
-         spot%ovshf=ovshft 
+C$$$         spot%ovshf=ovshft 
 
-C       call shstru('site',v_ssite,1,nsite)
-        endif
-        call rlse(opgord)
-Cgetarg...info...           integer :: nsite , integer(8) :: sctrl%nsite 1
-Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
-Cgetarg         call pack5('ctrl nsite nbasp',sctrl,nsite,nbasp,0,0,0)
+C$$$C       call shstru('site',v_ssite,1,nsite)
+C$$$        endif
+C$$$        call rlse(opgord)
+C$$$Cgetarg...info...           integer :: nsite , integer(8) :: sctrl%nsite 1
+C$$$Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
+C$$$Cgetarg         call pack5('ctrl nsite nbasp',sctrl,nsite,nbasp,0,0,0)
          
-         sctrl%nsite=nsite 
-         sctrl%nbasp=nbasp 
+C$$$         sctrl%nsite=nsite 
+C$$$         sctrl%nbasp=nbasp 
 
-      else
+C$$$      else
 C   ... No partitioning of hamiltonian: make global pgplp
         npadl = 0
         npadr = 0
@@ -440,7 +437,7 @@ Cgetarg         call pack1('pot ovshf',spot,ovshft)
          
          spot%ovshf=ovshft 
 
-      endif
+C$$$      endif
 
 C --- Euler angles and external magnetic fields ---
 Cgetarg       if (lgors('ctrl lncol,11',sctrl)) then

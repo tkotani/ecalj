@@ -41,7 +41,7 @@ Cgetarg       double precision sctrl(1),sspec(1),slat(1),sarray(1),smove(1)
 
 C Local
       logical cmdopt
-      integer i,i1,i2,igets,iosiga,j,lpbc,lpgf,ltype(2),nbas,nbasp,
+      integer i,i1,i2,igets,iosiga,j,lpbc,ltype(2),nbas,nbasp,
      .  nspec,nttab,ntype(2),oepair,oesite,oiax,oipair,oiprm,oiprmi,
      .  oips,oisite,ontab,opgfsl,opos,orham,ortab,osigb,osigl,osigma
       character htype(2)*5, outs*80
@@ -88,10 +88,10 @@ Cgetarg       call spackv(10,'spec rham',sspec,1,nspec,w(orham))
        enddo
 
 Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
-       lpgf = int(sctrl%lpgf(1)) 
+c       lpgf = int(sctrl%lpgf(1)) 
 
       lpbc = 0
-      if (lpgf .gt. 0) lpbc = 11
+c      if (lpgf .gt. 0) lpbc = 11
 
 C --- Make iax and rtab ---
       if (lpbc .eq. 0) then

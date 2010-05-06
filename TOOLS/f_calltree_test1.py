@@ -8,27 +8,10 @@ def addfsdist(fsdict,key,data):
         fsdict[key]=data
     return
 
-def lineall(item):
-    line=item.strline
-    dict=item.strlinemap
-    lineout=line
-#    for key,dat in dict.iteritems():
-#        lineout=re.sub(key,dat,lineout)
-    for key in dict:
-        #print key,dict[key]
-        lineout=re.sub(key,dict[key],lineout)
-    lineout=re.sub(",\s+",",",lineout)
-    #print lineout
-    #sys.exit()
-    return lineout
-
-
-
 
 import sys,os
 thisdir= os.path.dirname(os.path.abspath(__file__))
 sys.path.append(thisdir+'/f2py/fparser')
-sys.path.append(thisdir+'/numpy')
 from api import parse,walk
 from readfortran import *
 from parsefortran import FortranParser
@@ -96,39 +79,29 @@ for ffile in argset:
         if(isinstance(ins, classes.Comment)): continue
         if(depth>deptho):         sstack.append(inso)
         while len(sstack)>depth:  sstack.pop()
-#        print len(sstack),depth, type(ins), item.span,  item.strline, item.label #, item.name
+#        print len(sstack),depth, type(ins), ins.item.span,  ins.item.line, ins.item.label #, ins.item.name
 #        deptho=depth
 #        inso=ins
 #        continue
         frame2x= [x.__class__.__name__+':'+x.name for x in sstack[1:] if x.__class__.__name__ in ranktag]
         frame2='@'.join(frame2x)
 #        if(isinstance(ins,classes.Type)):
-#            print ins.__class__.__name__ #,item.strline
+#            print ins.__class__.__name__ #,ins.item.line
 #        continue
-        if( "item" in dir(ins)) :
-            item = ins.item
-        else:
-            item = ins
-
-        #print 
-        #print 'vvvv111',classes.Type,dir(ins)
         loc1 =  ' in '+frame2+' '
-        loc  =  ' '+ffile+(":L%d" % item.span[0])
-        #print 'vvvv222',classes.Type
-
-
-#        if(isinstance(ins, classes.Call)):      print "@cal Subr:"+ins.designator+loc1+loc #item.strline
-        if(isinstance(ins, classes.Type)):      print "@dcl Type:"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap
+        loc  =  ' '+ffile+(":L%d" % ins.item.span[0])
+#        if(isinstance(ins, classes.Call)):      print "@cal Subr:"+ins.designator+loc1+loc #ins.item.line
+        if(isinstance(ins, classes.Type)):      print "@dcl Type:"+ins.name+loc1+loc + ' ---> '+ins.item.line
 #        if(isinstance(ins, classes.Use)):       print "@use Modu:"+ins.name
-         #label=item.label
-        if(isinstance(ins, classes.Program)):   print "@def Prog:"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap
-        if(isinstance(ins, classes.Interface)) :print "@def ifc :"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap #,ins.a #,ins.a.variable_names
+         #label=ins.item.label
+        if(isinstance(ins, classes.Program)):   print "@def Prog:"+ins.name+loc1+loc + ' ---> '+ins.item.line
+        if(isinstance(ins, classes.Interface)) :print "@def ifc :"+ins.name+loc1+loc + ' ---> '+ins.item.line #,ins.a #,ins.a.variable_names
         if(isinstance(ins, classes.Subroutine)):
-            print "@def Subr:"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap #,ins.a #,ins.a.variable_names
+            print "@def Subr:"+ins.name+loc1+loc + ' ---> '+ins.item.line #,ins.a #,ins.a.variable_names
             subs.append(ins.name)
             addfsdist(fsdict,ins.name,ffile)
         if(isinstance(ins, classes.Function)):  
-            print "@def Func:"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap #,type(ins) #,ins.a
+            print "@def Func:"+ins.name+loc1+loc + ' ---> '+ins.item.line #,type(ins) #,ins.a
             functions.append(ins.name)
             addfsdist(fsdict,ins.name,ffile)
 # now all entry is classified to function (not correct but safer treatment)
@@ -142,20 +115,18 @@ for ffile in argset:
                 aaa="@def Enty_Subr:"
                 subs.append(ins.name)
                 addfsdist(fsdict,ins.name,ffile)
-            print aaa+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap
+            print aaa+ins.name+loc1+loc + ' ---> '+ins.item.line
         if(isinstance(ins, classes.Module)):        
             mods.append(ins.name)
-            print "@def Modu:"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap
+            print "@def Modu:"+ins.name+loc1+loc + ' ---> '+ins.item.line
             addfsdist(fsdict,ins.name,ffile)
-#########
             ffileo = re.sub('subs/','$(subs_obj_path)/',ffile)
             ffileo = re.sub('fp/'  ,'$(fp_obj_path)/',ffileo)
             ffileo = re.sub('slatsm/','$(slatsm_obj_path)/',ffileo)
             ffileo = re.sub('.F','.o',ffileo)
             moddep.write("# $(moddir)/"+ins.name+".mod :"+ffile+"\n")
             moddict[ins.name]=ffileo
-#########
-        if(isinstance(ins, block_statements.Type)): print "@def Type:"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap
+        if(isinstance(ins, block_statements.Type)): print "@def Type:"+ins.name+loc1+loc + ' ---> '+ins.item.line
         deptho=depth
         inso=ins
 
@@ -223,12 +194,10 @@ for ffile in argset:
     sstack=[]
     deptho=-1
     inso=None
-###########
     ffileo = re.sub('subs/','$(subs_obj_path)/',ffile)
     ffileo = re.sub('fp/'  ,'$(fp_obj_path)/',ffileo)
     ffileo = re.sub('slatsm/','$(slatsm_obj_path)/',ffileo)
     ffileo = re.sub('.F','.o',ffileo)
-##########
     for c in walk(parser.block):
         ins=c[0]
         depth=c[1]
@@ -238,16 +207,12 @@ for ffile in argset:
         frame2= [x.__class__.__name__+':'+x.name for x in sstack[1:] if x.__class__.__name__ in ranktag]
         frame2='@'.join(frame2)
         loc1 =  ' in '+frame2+' '
+        loc  =  ' '+ffile+(":L%d" % ins.item.span[0])
+        line= rr.sub("''",ins.item.line)
         #print line
-        if( "item" in dir(ins)) :
-            item = ins.item
-        else:
-            item = ins
-        loc  =  ' '+ffile+(":L%d" % item.span[0])
-        line= rr.sub("''",item.line)
         if(ps0.search(line)) :
             if(isinstance(ins, classes.Call)):      
-                print "@cal Subr:"+ins.designator+loc1+loc+ ' ---> '+lineall(item)   #+item.strline,item.strlinemap
+                print "@cal Subr:"+ins.designator+loc1+loc+ ' ---> '+ins.item.line
                 frame3= [x.name for x in sstack[1:] if x.__class__.__name__ in ranktag]
                 mother= frame3[-1]
                 child = ins.designator
@@ -256,15 +221,13 @@ for ffile in argset:
                 #srcfiles.discard(ffile)
                 usedsf.add(child)
         if(isinstance(ins, classes.Use)):
-            print "@use Modu:"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap
+            print "@use Modu:"+ins.name+loc1+loc + ' ---> '+ins.item.line
             usedsf.add(ins.name)
 ## For test, you may need to comment out a following line because it can cause key error 
 ## if all used modules are not contained in input files.
-#############
-            if(moddict[ins.name] != ffileo):
-                #print 'checkwrite qqqqq', moddict[ins.name],ffileo
-                modd.append(moddict[ins.name])
-#############
+#            if(moddict[ins.name] != ffileo):
+#                #print 'checkwrite qqqqq', moddict[ins.name],ffileo
+#                modd.append(moddict[ins.name])
         deptho=depth
         inso=ins
     #print modd
@@ -302,19 +265,13 @@ for ffile in argset:
         if(isinstance(ins, classes.Comment)): continue
         if(depth>deptho):         sstack.append(inso)
         while len(sstack)>depth:  sstack.pop()
-        if( "item" in dir(ins)) :
-            item = ins.item
-        else:
-            item = ins
 
         frame2= [x.__class__.__name__+':'+x.name for x in sstack[1:] if x.__class__.__name__ in ranktag]
         frame2='@'.join(frame2)
         loc1 =  ' in '+frame2+' '
-        loc  =  ' '+ffile+(":L%d" % item.span[0])
+        loc  =  ' '+ffile+(":L%d" % ins.item.span[0])
 
-#takao find that item.line may not include full line data ---> it is replaced by F2PY_something in cases. Why???
-#
-        line= item.line
+        line= ins.item.line
         line= rr.sub("''",line)
 #        print 'ppppp',depth,line,[x.name for x in sstack[1:]]
 #        print 'pppp2',depth,rr.sub("''",line)
@@ -341,14 +298,14 @@ for ffile in argset:
             if(mother != child):  #mother = child means a case where a function name is in the function.
                 #lll=(mother+"->"+child+";").lower()
                 #if(pn.search(lll)): continue
-                print "@cal Func:"+child+loc1+loc +' ---> '+lineall(item)   #+item.strline,item.strlinemap  #,type(ins)
+                print "@cal Func:"+child+loc1+loc +' ---> '+ins.item.line  #,type(ins)
                 dotdata.write( (mother+"->"+child+";\n").lower() )
         deptho=depth
         inso=ins
 #print 'ppppp',line
 #         for fun in functions:
 #             if(fun in line) :
-#                 print "@cal Func:"+fun+loc1+loc,type(ins) #item.line
+#                 print "@cal Func:"+fun+loc1+loc,type(ins) #ins.item.line
 #         deptho=depth
 #         inso=ins
 #    print '---- '+ffile+' end   -----'
