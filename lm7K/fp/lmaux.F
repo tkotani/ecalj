@@ -147,7 +147,7 @@ Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
 Cgetarg...info...           integer :: modep(3) , integer(8) :: sctrl%modep 3
 Cgetarg       call upack('ctrl lncol modep',sctrl,lncol,modep,0,0,0)
        
-       lncol=sctrl%lncol
+c       lncol=sctrl%lncol
        i_copy_size=size(sctrl%modep) 
        call i8icopy(i_copy_size,sctrl%modep,1,modep,1) 
 
@@ -198,10 +198,10 @@ Cgetarg...info...           integer :: neul , integer(8) :: sham%neula 1
 Cgetarg...info...           real(8) :: qss(4) , real(8) :: sham%qss 4
 Cgetarg       call upack('ham oeula neula qss',sham,oeula,neul,qss,0,0)
        
-       oeula=sham%oeula
-       neul=sham%neula
-       i_copy_size=size(sham%qss) 
-       call dcopy(i_copy_size,sham%qss,1,qss,1) 
+c       oeula=sham%oeula
+c       neul=sham%neula
+c       i_copy_size=size(sham%qss) 
+c       call dcopy(i_copy_size,sham%qss,1,qss,1) 
 
 Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
 Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
@@ -509,13 +509,13 @@ C ... Write positions to file
      .  call iopos(T,0,outs(8:),nbasp,w(opos))
 
 C ... Inner products between Euler angles
-      if (mod(lncol,2) .eq. 1) then
-        call amagnc(nbas,nl,w(oipc),w(1),1,w(oqnu),w(oeula),neul,1,xv,
-     .    w(oaamom))
-        print '(1x)'
-        call angtab(nbas,w(opos),alat,rmax,qss,w(oqlv),
-     .    w(odlv),nkd,w(oipc),neul,w(oeula))
-      endif
+c      if (mod(lncol,2) .eq. 1) then
+c        call amagnc(nbas,nl,w(oipc),w(1),1,w(oqnu),w(oeula),neul,1,xv,
+c     .    w(oaamom))
+c        print '(1x)'
+c        call angtab(nbas,w(opos),alat,rmax,qss,w(oqlv),
+c     .    w(odlv),nkd,w(oipc),neul,w(oeula))
+c      endif
 
       endif
 

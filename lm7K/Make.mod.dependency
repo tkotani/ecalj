@@ -5,7 +5,6 @@
 # $(moddir)/m_rdctrl.mod :subs/m_rdctrl.F
 # $(moddir)/m_sstrnsname.mod :subs/m_sstrnsname.F
 # $(moddir)/m_struc_def.mod :subs/m_struc_def.F
-# $(moddir)/m_struc_func.mod :subs/m_struc_def.F
 # $(moddir)/m_toksw.mod :subs/m_toksw.F
 # $(moddir)/m_rdctrl2_func.mod :subs/rdctrl2.F
 # $(moddir)/m_susite_func.mod :subs/susite.F
@@ -87,7 +86,6 @@ $(fp_obj_path)/vesgcm.o : fp/vesgcm.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/aiocls.o : subs/aiocls.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/asados.o : subs/asados.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/asars.o : subs/asars.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/atfold.o : subs/atfold.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/chkdmu.o : subs/chkdmu.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/clsprm.o : subs/clsprm.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/clsset.o : subs/clsset.F $(subs_obj_path)/m_struc_def.o
@@ -112,7 +110,7 @@ $(subs_obj_path)/mkqp.o : subs/mkqp.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/mksym.o : subs/mksym.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/prdmts.o : subs/prdmts.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/pvsms2.o : subs/pvsms2.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/rdctrl2.o : subs/rdctrl2.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/susite.o $(subs_obj_path)/m_rdctrl.o $(subs_obj_path)/m_struc_def.o
+$(subs_obj_path)/rdctrl2.o : subs/rdctrl2.F $(subs_obj_path)/m_gtv.o $(subs_obj_path)/susite.o $(subs_obj_path)/m_rdctrl.o
 $(subs_obj_path)/rdsigm.o : subs/rdsigm.F $(subs_obj_path)/m_psigd.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rdsigm2.o : subs/rdsigm2.F $(subs_obj_path)/m_hamindex.o $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/relax.o : subs/relax.F $(subs_obj_path)/m_struc_def.o
@@ -120,7 +118,6 @@ $(subs_obj_path)/rlxstp.o : subs/rlxstp.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/rotwv.o : subs/rotwv.F $(subs_obj_path)/m_hamindex.o
 $(subs_obj_path)/rotycs.o : subs/rotycs.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/setcg.o : subs/setcg.F $(subs_obj_path)/m_struc_def.o
-$(subs_obj_path)/spackv_array_copy.o : subs/spackv_array_copy.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/struc_strn.o : subs/struc_strn.F $(subs_obj_path)/m_sstrnsname.o
 $(subs_obj_path)/suclst.o : subs/suclst.F $(subs_obj_path)/m_struc_def.o
 $(subs_obj_path)/sudmtu.o : subs/sudmtu.F $(subs_obj_path)/m_struc_def.o

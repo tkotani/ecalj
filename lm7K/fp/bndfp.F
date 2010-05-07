@@ -853,6 +853,7 @@ C --- More k-point independent local arrays ---
         call defrr (ofes2,  3*nbas)
       endif
       call suham2(sctrl,slat,sspec,ssite,sham,spot,sstrn)
+      print *,'end of suham2'
 
 C --- Options for core level specta (CLS) ---
 C     Allocate aus for all qp

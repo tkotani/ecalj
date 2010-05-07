@@ -94,6 +94,7 @@ C ... Heap
       common /w/ w
 
       integer,allocatable:: ics(:)
+      integer:: i_dummy=-999
 Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
 Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
 Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
@@ -185,42 +186,44 @@ Cgetarg      .    ovrmax,orhrmx,opp)
          spot%opp=opp 
 
 C       Even in collinear case, bxc might be written to
-        call defdr(obxc,-3*nclasp)
+c        call defdr(obxc,-3*nclasp)
 Cgetarg...info...           integer :: opprel , integer(8) :: spot%opprel 1
 Cgetarg...info...           integer :: obxc , integer(8) :: spot%obxc 1
 Cgetarg         call pack5('pot opprel obxc nrhos',spot,opprel,obxc,0,0,0)
          
-         spot%opprel=opprel 
-         spot%obxc=obxc 
-         spot%nrhos=0 
+         spot%opprel=i_dummy !opprel 
+c         spot%obxc=obxc 
+c         spot%nrhos=0 
 
 Cgetarg         if (lgors('ctrl lncol,-1',sctrl)) then
 c
 c takao Kino's bug--> his replied that iand(-1,i)=i 
 c         if ( iand(-1,int(sctrl%lncol)) .ne.0 ) then 
 
-         if ( sctrl%lncol /=0 ) then 
+c         if ( sctrl%lncol /=0 ) then 
 Cgetarg...info...           integer :: neula , integer(8) :: sham%neula 1
 Cgetarg...info...           integer :: nbf , integer(8) :: sham%nbf 1
 Cgetarg           call upack2('ham neula nbf',sham,neula,nbf)
-          neula=sham%neula
-          nbf=sham%nbf
-          nrhos = max(nl,neula,nbf)
-          call rlse(obxc)
-          call defdr(orhos,2*3*4*nrhos*nclasp)
-          call defdr(osop,-nlspc*nsp*9)
-          call defdr(obxc,-3*nclasp)
+c          neula=sham%neula
+c          nbf=sham%nbf
+c          nrhos = max(nl,neula,nbf)
+c          call rlse(obxc)
+c          call defdr(orhos,2*3*4*nrhos*nclasp)
+c          call defdr(osop,-nlspc*nsp*9)
+c          call defdr(obxc,-3*nclasp)
 Cgetarg...info...           integer :: nrhos , integer(8) :: spot%nrhos 1
 Cgetarg...info...           integer :: orhos , integer(8) :: spot%orhos 1
 Cgetarg...info...           integer :: obxc , integer(8) :: spot%obxc 1
 Cgetarg...info...           integer :: osop , integer(8) :: spot%osop 1
 Cgetarg           call pack5('pot nrhos orhos obxc osop',spot,
 Cgetarg      .      nrhos,orhos,obxc,osop,0)
-          spot%nrhos=nrhos 
-          spot%orhos=orhos 
-          spot%obxc=obxc 
-          spot%osop=osop 
-        endif
+c          spot%nrhos=nrhos 
+c          spot%orhos=orhos 
+c          spot%obxc=obxc 
+c          spot%osop= osop 
+c        endif
+        spot%osop=i_dummy !osop 
+
 
         ogrrme = 0
 Cgetarg         if (igets('ctrl loptc',sctrl) .gt. 0)
@@ -235,13 +238,12 @@ Cgetarg         call pack1('pot ogrrme',spot,ogrrme)
 
 Cgetarg         if (lgors('ctrl lsx,3',sctrl) .or.
 Cgetarg      .      lgors('ctrl lscr,-1',sctrl)) then
-         if ( iand(3,int(sctrl%lsx)) .ne.0 .or. iand(-1,int(sctrl%lscr)) .ne.0 
-     .   ) then 
-
+c         if ( iand(3,int(sctrl%lsx)) .ne.0 .or. iand(-1,int(sctrl%lscr)) .ne.0 
+c     .   ) then 
+         if ( iand(-1,int(sctrl%lscr)) .ne.0  ) then 
           call defdr(ovintr,-nclasp*(nl*nsp)**2)
 Cgetarg...info...           integer :: ovintr , integer(8) :: spot%ovintr 1
 Cgetarg           call pack1('pot ovintr',spot,ovintr)
-           
            spot%ovintr=ovintr 
 
         endif

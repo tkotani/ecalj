@@ -395,6 +395,9 @@ C   --- Read smooth charge density ---
         if (mode .eq. 0) then
 C   ... FP mesh density
         elseif (mode .eq. 1 .or. mode .eq. -2) then
+cccccccccccccc
+c           print *, 'yyyyyyyy iors 11111'
+cccccccccccccc
 #if FP
         line = 'smoothed density'
         if (procid .eq. master) then
@@ -404,6 +407,10 @@ C   ... FP mesh density
           read(jfi,*,err=999,end=999)
           read(jfi,*,err=999,end=999) n11,n21,n31
         endif
+cccccccccccccc
+c           print *, 'yyyyyyyy iors 2222'
+cccccccccccccc
+
         if (mode .eq. -2) then
           n1 = n11
           n2 = n21
@@ -419,9 +426,17 @@ Cgetarg           call pack1('lat nabc',slat,ngabc)
           call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
           call rlse(osmrho)
         elseif (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
+c          if (ipr .ge. 10) write(stdo,450) n11,n21,n31,n1,n2,n3
+cccccccccccccccccc
+c          write(6,*)'yyyyyyyy 222111',n11,n21,n31,n1,n2,n3,k1,k2,k3
+c          write(6,*)'yyyyyyyy 222444',nsp0,lbin,jfi,osmrho
+cccccccccccccccccc
           call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
           if (nsp .gt. nsp0) then
 C           call zprm3('smrho before split',0,w(osmrho),k1,k2,k3)
+cccccccccccccccccc
+c          write(6,*)'yyyyyyyy 222333'
+cccccccccccccccccc
             i = k1*k2*k3*2
             call dscal(i,0.5d0,w(osmrho),1)
             call dpscop(w(osmrho),w(osmrho),i,1,1+i,1d0)
@@ -449,6 +464,11 @@ C           call zprm3('smrho before split',0,w(oh),k1,k2,k3)
           call poppr
           call rlse (oh)
         endif
+
+cccccccccccccc
+c           print *, 'yyyyyyyy iors 33333'
+cccccccccccccc
+
         if (mode .eq. -2) goto 115
 C   ... If cell volume changed, scale smooth density to maintain charge
         vfac = vol0/vol
@@ -465,6 +485,10 @@ C   ... If cell volume changed, scale smooth density to maintain charge
         call rx('smooth density not implemented')
 #endif
         endif
+
+cccccccccccccc
+c           print *, 'yyyyyyyy iors 44444'
+cccccccccccccc
 
 C   --- Read information related to dynamics ---
 C       For compatibility with nfp, read record into wk
@@ -491,6 +515,10 @@ Cgetarg           call pack5('bz ef def w',sbz,wk(1),wk(2),wk(3),0,0)
            sbz%w=wk(3) 
 
         endif
+
+cccccccccccccc
+c           print *, 'yyyyyyyy iors 55555'
+cccccccccccccc
 
 C   --- Read atomic positions,forces,velocities ---
         line = 'site data'
@@ -575,6 +603,10 @@ Cgetarg      .      vel)
 
    10   continue
         enddo
+
+cccccccccccccc
+c           print *, 'yyyyyyyy iors 66666'
+cccccccccccccc
 
 C   --- Read information for local densities ---
         if (lrs(3) .ne. 0) then

@@ -21,7 +21,7 @@ Cgetarg...info...           structure ['rdctrl2', 'mix', 'v_smix']
 
       use m_rdctrl
       use m_gtv
-      use m_struc_func
+c      use m_struc_size !   use m_struc_func
       use m_susite_func, only: susite
 C- Main input for LMTO programs
 C ----------------------------------------------------------------------
@@ -190,9 +190,9 @@ C ... Local parameters
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
      .  iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lasa,lbas,lcd,lqp,
-     .  lfrzw,lgunit,lham,lmet,lncol,
-     .  lrs,lstsym,lsx1,ltb,lxcf,nat,nlibu,nclasp,
-     .  nglob,nspc,nlmax,scrwid,stdo,stdl,stde,k1,k2,mpipid !nkap,
+     .  lfrzw,lgunit,lmet,lncol, !,lham
+     .  lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
+     .  nglob,nspc,nlmax,scrwid,stdo,stdl,stde,k1,k2,mpipid !nkap,lsx1,
         character*(8),allocatable::clabl(:)
         integer,allocatable:: ipc(:),initc(:),ics(:)
         real(8),allocatable:: pnuc(:,:,:),qnuc(:,:,:,:),
@@ -210,7 +210,8 @@ C ... Heap
 c takao 
       real(8):: pnux(20)
       integer:: nnn
-CKi      integer:: umix_size
+      integer:: umix_size,umove_size,uspec_size,usite_size,ubz_size,
+     &  uctrl_size,ulat_size,uham_size,uarray_size,upot_size,ustr_size
 c
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
 
@@ -331,7 +332,7 @@ Cgetarg      .  bz_def,bz_dosw,bz_ef,bz_efmax,bz_fsmom)
        v_sbz%efmax=bz_efmax 
        v_sbz%fsmom=bz_fsmom 
 
-      i = 1*isw(bz_lio1)+2*isw(bz_lio2)+8*isw(bz_lio8)
+      i = 1*isw(bz_lio1)+2*isw(bz_lio2) !+8*isw(bz_lio8)
 Cgetarg...info...           NG:: bz_lcond , real(8) :: v_sbz%lcond 4
 Cgetarg...info...           integer :: i , integer(8) :: v_sbz%lio 1
 Cgetarg...info...           NG:: bz_lmet , integer(8) :: v_sbz%lmet 1
@@ -402,7 +403,7 @@ C          8 represent full potential density via TCF
 C         16 unused
 C         32 unused
 C         64 (molecules) XC potential by FFT
-      k = 1*isw(lcd1)+2*isw(lcd2)+4*isw(lcd4)+8*isw(lcd8)+64*isw(lcd64)
+      k = 2*isw(lcd2)+4*isw(lcd4) !+ 1*isw(lcd1)   +8*isw(lcd8)+64*isw(lcd64)
 Cgetarg...info...           NG:: lat_defm , real(8) :: v_sctrl%defm 6
 Cgetarg...info...           NG:: asa_elin , real(8) :: v_sctrl%elin 1
 Cgetarg...info...           integer :: lasa , integer(8) :: v_sctrl%lasa 1
@@ -444,26 +445,40 @@ C          32 (ASA) preserve ortho. evecs
 C          64 (ASA) save evecs to disk
 C         128 (ASA) gamma-rep
 C         256       use true spherical harmonics
-      lham = 1*isw(lham1)+4*isw(lham4)+8*isw(lham8)+16*isw(lham16)+
-     .      32*isw(lham32)+64*isw(lham64)+128*isw(lham128)+
-     .     256*isw(lham256) + lham3
+c      lham = 1*isw(lham1)+4*isw(lham4)+8*isw(lham8)+16*isw(lham16)+
+c     .      32*isw(lham32)+64*isw(lham64)+128*isw(lham128)+
+c     .     256*isw(lham256) + lham3
+c     lham = 256*isw(lham256)
+
+c takao. we may need to remove lmet4 or lmet8... but a little complicated...
+c Now ctrl_lmet4 and ctrl_lmet8 are fixed as .true.in m_rdctl.F
 C     ctrl_lmet    1 metal  2 tetrahedron
 Cr                 4 (PGF) V-shift1 is zero
 Cr                 8 (PGF) V-shift2 is zero
-      lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) +
-     .     4*isw(ctrl_lmet4) + 8*isw(ctrl_lmet8)
-C     lncol 1 noncollinear magnetism
-C           2 spin spirals
-C           4 spin-orbit coupling
-C           8 External magnetic field
-C          16 mag. forces
-C          32 spin-orbit coupling, LzSz only
-C          64 spin-orbit coupling, LzSz + (L.S-LzSz) pert
+      lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) 
+     .      +4*isw(ctrl_lmet4) + 8*isw(ctrl_lmet8)
+
+
+C takao in lmf only lncol4, lncol32, lncol64 are used.
+C     lncol 1 noncollinear magnetism                      !=F in lmf
+C           2 spin spirals                                !=F in lmf 
+C           4 spin-orbit coupling                         !Used in lmf.
+C           8 External magnetic field                     !=F in lmf
+C          16 mag. forces                                 !=F in lmf
+C          32 spin-orbit coupling, LzSz only              !Used in lmf
+C          64 spin-orbit coupling, LzSz + (L.S-LzSz) pert !Used in lmf
 C     If spin-orbit or SS, also turn on noncollinear
-      k = 2*isw(lncol2)+4*isw(lncol4)+8*isw(lncol8)+16*isw(lncol16)
-      if (k .ne. 0) lncol1=T
-      lncol = 1*isw(lncol1)+2*isw(lncol2)+4*isw(lncol4)+8*isw(lncol8)+
-     .  16*isw(lncol16)+32*isw(lncol32)+64*isw(lncol64)
+
+c      k = 2*isw(lncol2)+4*isw(lncol4)+8*isw(lncol8)+16*isw(lncol16)
+c      if (k .ne. 0) lncol1=T
+c      lncol = 1*isw(lncol1)+2*isw(lncol2)+4*isw(lncol4)+8*isw(lncol8)+
+c     .  16*isw(lncol16)+32*isw(lncol32)+64*isw(lncol64)
+
+c takao lncol is used only in limited routines.
+c One of lncol4,lncol32, or lncor64 is true, others are false.
+      lncol= 4*isw(lncol4)+32*isw(lncol32)+64*isw(lncol64)
+
+
 c      lordn = 0
 Cgetarg...info...           integer :: lham , integer(8) :: v_sctrl%lham 1
 Cgetarg...info...           integer :: lmet , integer(8) :: v_sctrl%lmet 1
@@ -473,7 +488,7 @@ Cgetarg...info...           integer :: lordn , integer(8) :: v_sctrl%lordn 1
 Cgetarg       call pack5('ctrl lham lmet lncol loptc lordn',v_sctrl,
 Cgetarg      .  lham,lmet,lncol,ctrl_loptc,lordn)
        
-       v_sctrl%lham=lham 
+c       v_sctrl%lham=lham 
        v_sctrl%lmet=lmet 
        v_sctrl%lncol=lncol 
 c       v_sctrl%loptc=ctrl_loptc 
@@ -561,7 +576,7 @@ Cgetarg      .   lstonr,0,lsx,i,lves)
 C$$$        i_copy_size=size(v_sctrl%lstonr) 
 C$$$        call ii8copy(i_copy_size,lstonr,1,v_sctrl%lstonr,1) 
         v_sctrl%lstr=0 
-        v_sctrl%lsx=lsx 
+c        v_sctrl%lsx=lsx 
 c        v_sctrl%ltb=i 
         v_sctrl%lves=lves 
 
@@ -793,7 +808,7 @@ Cgetarg       call pack1('ham lncol',v_sham,igets('ctrl lncol',v_sctrl))
 
 Cgetarg       call pack1('ham lham',v_sham,igets('ctrl lham',v_sctrl))
        
-       v_sham%lham=(int(v_sctrl%lham)) 
+c       v_sham%lham=(int(v_sctrl%lham)) 
 
 Cgetarg       call pack1('ham lgen3',v_sham,igets('ctrl lgen3',v_sctrl))
 c       v_sham%lgen3=(int(v_sctrl%lgen3)) 
@@ -1709,7 +1724,7 @@ Cgetarg       call pack1('ham lncol',v_sham,lncol)
        
        v_sham%lncol=lncol 
 
-      lsx1 = mod(lsx,2)
+c      lsx1 = mod(lsx,2)
 Cgetarg       if (lasa32) call pack1('mix nsave',v_smix,3)
 C$$$       if ( lasa32 ) then 
        
@@ -1722,9 +1737,9 @@ Cgetarg      .  call lsets('ctrl lham',v_sctrl,.true.,256)
 
 c       if ( bittst ( lncol , 4 ) .or. ctrl_loptc .ne. 0 .or. lrel .eq. 
 c     . 2 ) then 
-       if ( bittst ( lncol , 4 ) .or. lrel .eq. 2 ) then 
-       call lsets_bitop_i8(v_sctrl%lham,1,.true.,256)
-       endif 
+c       if ( bittst ( lncol , 4 ) .or. lrel .eq. 2 ) then 
+c       call lsets_bitop_i8(v_sctrl%lham,1,.true.,256)
+c       endif 
 
 
 C ... Dirac equation requires spin polarization
@@ -1737,12 +1752,11 @@ Cgetarg       if (nsp.eq.1 .and. igets('ctrl lrel',v_sctrl).eq.2) then
 C ... Suppress inversion when noncollinear magnetism, SX, NLO
 c      if (lncol+lsx1 .ne. 0 .or. ctrl_loptc .ge. 10 .or.
 c     .   (mod(lscr,10) .eq. 1 .and. prgnam .eq. 'LM'))
-      if (lncol+lsx1 .ne. 0 .or.
-     .   (mod(lscr,10) .eq. 1 .and. prgnam .eq. 'LM'))
+      if (lncol .ne. 0)
      .  lqp = lqp-bitand(lqp,1)+1
+
 Cgetarg...info...           integer :: lqp , integer(8) :: v_sctrl%lqp 1
 Cgetarg       call pack5('ctrl lqp',v_sctrl,lqp,0,0,0,0) !repack lqp
-       
        v_sctrl%lqp=lqp 
 
 
@@ -1757,9 +1771,10 @@ C$$$      endif
 
 C ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
 Cgetarg       j = igets('ctrl lham,4',v_sctrl)/4
-       j = iand(4,int(v_sctrl%lham)) /4 
+c     j = iand(4,int(v_sctrl%lham)) /4 
+c     j = 2*(1-j)
+      j= 2
 
-      j = 2*(1-j)
 C     No screening => no downfolding; also lmxb<l<=lmxa => 'high'
 C     Probably ought to have lmxb<l<=lmxa => 'high' always
 Cgetarg       if (lgors('ctrl lbas,1',v_sctrl)) j = 3
@@ -1789,7 +1804,8 @@ Cgetarg       lxcf  = igets('ctrl lxcf',v_sctrl)
       xx(1) = dglob('stdl',dble(stdl),1)
       xx(1) = dglob('stde',dble(stde),1)
       nspc = 1
-      if (bitand(lncol,1+2+4) .ne. 0) nspc = 2
+c      if (bitand(lncol,1+2+4) .ne. 0) nspc = 2
+      if (iand(lncol,4) .ne. 0) nspc = 2
       xx(1) = dglob('nspc',dble(nspc),1)
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid .eq. master) then
@@ -1860,27 +1876,27 @@ C --- Printout ---
         do  90  k = 1, 2
 
         strn = '  '//prgnam
-        if (prgnam .eq. 'LMMC') then
-Cgetarg           call awrit4(
-Cgetarg      .    '%N %a:%12palat = %;5d  '//
-Cgetarg      .    'nbas = %i%?#n#%-1j(+%i)##'//
-Cgetarg      .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',v_slat),
-Cgetarg      .      nbas,nsite-nbas,nspec)
-           call awrit4 ( '%N %a:%12palat = %;5d  ' // 'nbas = %i%?#n#%-1j(+%i)##' 
-     .     // '  nspec = %i' , strn , scrwid , 0 , v_slat%alat , nbas , 
-     .     nsite-nbas , nspec ) 
+C$$$        if (prgnam .eq. 'LMMC') then
+C$$$Cgetarg           call awrit4(
+C$$$Cgetarg      .    '%N %a:%12palat = %;5d  '//
+C$$$Cgetarg      .    'nbas = %i%?#n#%-1j(+%i)##'//
+C$$$Cgetarg      .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',v_slat),
+C$$$Cgetarg      .      nbas,nsite-nbas,nspec)
+C$$$           call awrit4 ( '%N %a:%12palat = %;5d  ' // 'nbas = %i%?#n#%-1j(+%i)##' 
+C$$$     .     // '  nspec = %i' , strn , scrwid , 0 , v_slat%alat , nbas , 
+C$$$     .     nsite-nbas , nspec ) 
 
-        else
-Cgetarg           call awrit6(
-Cgetarg      .    '%N %a:%12palat = %;5d  '//
-Cgetarg      .    'nbas = %i%?#n#%-1j(+%i)##%?#n#+%i#%j#'//
-Cgetarg      .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',v_slat),
-Cgetarg      .    nat,nbas-nat,nbas-nsite,nsite,nspec)
-           call awrit6 ( '%N %a:%12palat = %;5d  ' // 'nbas = %i%?#n#%-1j(+%i)##%?#n#+%i#%j#' 
-     .     // '  nspec = %i' , strn , scrwid , 0 , v_slat%alat , nat , nbas-nat 
-     .     , nbas-nsite , nsite , nspec ) 
+C$$$        else
+C$$$Cgetarg           call awrit6(
+C$$$Cgetarg      .    '%N %a:%12palat = %;5d  '//
+C$$$Cgetarg      .    'nbas = %i%?#n#%-1j(+%i)##%?#n#+%i#%j#'//
+C$$$Cgetarg      .    '  nspec = %i',strn,scrwid,0,dgets('lat alat',v_slat),
+C$$$Cgetarg      .    nat,nbas-nat,nbas-nsite,nsite,nspec)
+C$$$           call awrit6 ( '%N %a:%12palat = %;5d  ' // 'nbas = %i%?#n#%-1j(+%i)##%?#n#+%i#%j#' 
+C$$$     .     // '  nspec = %i' , strn , scrwid , 0 , v_slat%alat , nat , nbas-nat 
+C$$$     .     , nbas-nsite , nsite , nspec ) 
 
-        endif
+C$$$        endif
         if (vn(2) .eq. 0) then
           call awrit6('%a  vn %,2d  verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
      .    strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,
@@ -1898,7 +1914,7 @@ Cgetarg         call upack('ctrl lxcf',v_sctrl,lxcf,0,0,0,0)
          lxcf=v_sctrl%lxcf
 
 Cgetarg         i = igets('ctrl lham,256',v_sctrl)
-         i = iand(256,int(v_sctrl%lham)) 
+c         i = iand(256,int(v_sctrl%lham)) 
 
 Cgetarg         lfrzw = isw(lgors('ctrl lbas,16',v_sctrl))
          lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 ) 
@@ -1916,8 +1932,9 @@ Cgetarg         lfrzw = isw(lgors('ctrl lbas,16',v_sctrl))
      .    '%?;n==2;%2bVanderbuilt,;;'//
      .    '%?;n; APW basis,;;'//
      .    '%?;n; oveps,;;'//
-     .    '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,i,0, !ctrl_loptc,
+c     .    '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,i,0, !ctrl_loptc,
 c     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
+     .    '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,0,0, !ctrl_loptc,
      .    mod(lscr,10),0,pwmode,isw(oveps.ne.0))
         if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
 
@@ -1945,7 +1962,8 @@ c     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
      .    '%?;n; make SX,;;'//
      .    '%b %b',
      .      strn,scrwid,0,nsp,nlibu,mod(lxcf,10),lxcf/10,lfrzw,
-     .      isw(lasa32),lrsig,lsx)
+c     .      isw(lasa32),lrsig,lsx)
+     .      0,lrsig,0)
           call awrit0(strn,' ',-80,lgunit(k))
         endif
         call isanrg(mod(lxcf,10),0,4,prgnam,'XC functional',.true.)
@@ -1954,24 +1972,24 @@ c     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
      .      mod(lxcf,10) .ne. 2 .and. lxcf/10 .eq. 1) call info0
      .    (10,0,0,'%10f(warning) mixing incompatible functionals')
 
-        if (bitand(lncol,1+2+4+8+32+64) .ne. 0) then
-Cgetarg           i = igets('ctrl sdmod',v_sctrl)
-           i = int(v_sctrl%sdmod) 
+C$$$        if (bitand(lncol,1+2+4+8+32+64) .ne. 0) then
+C$$$Cgetarg           i = igets('ctrl sdmod',v_sctrl)
+C$$$           i = int(v_sctrl%sdmod) 
 
-          if (.not. bittst(lncol,16)) i = -1
-          call awrit8(' noncoll: '//
-     .    '%?;n; Non-coll,;;'//
-     .    '%?;n; Spin-orbit,;;'//
-     .    '%?;n; LzSz,;;%-1j%?;(n>32);%b+L.S(pert),;;'//
-     .    '%?;n; B-field,;;'//
-     .    '%?;n; spin-spiral,;;'//
-     .    '%?;n; mag-forces:;;'//
-     .    '%?;(n%10)<2&(n%10)>=0; relax,;;'//
-     .    '%?;(n%10)>1; spin-dynamics,;;'//
-     .    '%a%b %a',strn,scrwid,lgunit(k),
-     .      bitand(lncol,1),bitand(lncol,4),bitand(lncol,32+64),
-     .      bitand(lncol,8),bitand(lncol,2),bitand(lncol,16),i,i)
-        endif
+C$$$          if (.not. bittst(lncol,16)) i = -1
+C$$$          call awrit8(' noncoll: '//
+C$$$     .    '%?;n; Non-coll,;;'//
+C$$$     .    '%?;n; Spin-orbit,;;'//
+C$$$     .    '%?;n; LzSz,;;%-1j%?;(n>32);%b+L.S(pert),;;'//
+C$$$     .    '%?;n; B-field,;;'//
+C$$$     .    '%?;n; spin-spiral,;;'//
+C$$$     .    '%?;n; mag-forces:;;'//
+C$$$     .    '%?;(n%10)<2&(n%10)>=0; relax,;;'//
+C$$$     .    '%?;(n%10)>1; spin-dynamics,;;'//
+C$$$     .    '%a%b %a',strn,scrwid,lgunit(k),
+C$$$     .      bitand(lncol,1),bitand(lncol,4),bitand(lncol,32+64),
+C$$$     .      bitand(lncol,8),bitand(lncol,2),bitand(lncol,16),i,i)
+C$$$        endif
 
 C$$$        if (asa) then
 C$$$Cgetarg...info...           integer :: lham , integer(8) :: v_sctrl%lham 1
@@ -2092,7 +2110,8 @@ Cgetarg      .    isw(dgets('bz fsmom',v_sbz).ne.0))
      .   // '%?;n; invit,;;' // '%?;n; dens-mat,;;' // '%?;(n>0); %-1jmull=%i,;;' 
      .   // '%?;n; fixed-spin-mom,;;%b ' , strn , scrwid , lgunit ( k 
      .   ) , int(v_sbz%lmet) , bitand ( lmet , 2 ) , iand(1,int(v_sbz%lio)) 
-     .   , iand(2,int(v_sctrl%lqp)) , iand(8,int(v_sbz%lio)) , int(v_sbz%lmull) 
+c    .   , iand(2,int(v_sctrl%lqp)) , iand(8,int(v_sbz%lio)) , int(v_sbz%lmull) 
+     .   , iand(2,int(v_sctrl%lqp)) , .false.                , int(v_sbz%lmull) 
      .   , isw ( v_sbz%fsmom .ne.0 ) ) 
 
 
@@ -2116,14 +2135,14 @@ C$$$Cgetarg      . lgors('ctrl lham,4',v_sctrl),'Stoner not compatible with ADNF
 C$$$       call rxx ( iand(-1,int(v_sctrl%lstonr(1))) .ne.0 .and. iand(4,int(v_sctrl%lham)) .ne.0 
 C$$$     . , 'Stoner not compatible with ADNF' ) 
 
-
-C --- Check and order principal layers, and sites by PL ---
+C --- takao's simplified susite only for lmf, lmfgw.
+c      print *,'www000 spec=',v_ssite(1)%spec
       call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,
      .  v_sspec,v_ssite)
 
+
 Cgetarg       call pack1('ham lham',v_sham,igets('ctrl lham',v_sctrl))
-       
-       v_sham%lham=(int(v_sctrl%lham)) 
+c       v_sham%lham=(int(v_sctrl%lham)) 
 
 
       if (procid .eq. master) then

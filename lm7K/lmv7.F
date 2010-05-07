@@ -397,9 +397,9 @@ C --- Generate symmetry operations; split species into classes  ---
 
 #ifndef LMFGWD
 Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
-c       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2 
+       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2 
 c this is equivalent to
-       if ( v_sctrl%lqp==0 ) lc = lc+2 
+c       if ( v_sctrl%lqp==0 ) lc = lc+2 
 #endif
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
 

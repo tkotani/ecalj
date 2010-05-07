@@ -109,7 +109,7 @@ C ... Local variables
      .  onq,onw,oqp,ormax,ovx,ovy,owtkp,owk,ox,oy,oz,oipq,
      .  oclabl,ochan
       integer awrite,fopnn,fopno,i,iblst(1000),ichds,icond,il,imax,
-     .  iprint,igets,isw,iv(10),j,j1,j2,l,nband,nbandx,ldos,lham,
+     .  iprint,igets,isw,iv(10),j,j1,j2,l,nband,nbandx,ldos, !lham,
      .  lncol,lstyle,m,n1,n2,nbas,nblst,nchan,nchan2,nchds,nclasp,
      .  nclass,ndum,nevmx,nfilem,nfilqp,nfstg,nkp,nkxyz(3),nl,nlf,nlo,
      .  nlstc,norder,np0,npgrp,npln,npts,nqmx,nsp,nspc,nspd,nspec,nspx,
@@ -151,7 +151,7 @@ Cgetarg...info...           integer :: ldos , integer(8) :: sctrl%ldos 1
 Cgetarg       call upack('ctrl lncol lham ldos',sctrl,lncol,lham,ldos,0,0)
        
        lncol=sctrl%lncol
-       lham=sctrl%lham
+c       lham=sctrl%lham
        ldos=sctrl%ldos
 
 Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1

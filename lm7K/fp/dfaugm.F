@@ -63,6 +63,7 @@ C     double precision z,rmt
       nsp = nglob('nsp')
       nspc = nglob('nspc')
       nkaph = nglob('nkaph')
+c      print *,'lso nspc=',lso,nspc
       call rxx(lso.eq.1.and.nspc.ne.2,'dfaugm: inconsistent parameters')
       nso = 1
       if (lso .ne. 0) nso = 2

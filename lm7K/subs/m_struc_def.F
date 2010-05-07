@@ -1890,15 +1890,18 @@ C  7  11 -1       size  1
 
       
 c------------------------------------------------------------------
-      module m_struc_func
+c      module m_struc_func
+cc dummy now
+c      end module m_struc_func
 
 c      interface struc_eval_io
 c      module procedure struc_eval_io_r8, struc_eval_io_i8
 c     .     , struc_eval_io_r8v, struc_eval_io_i8v
 c      end interface struc_eval_io 
 
-      contains
+c      contains
 
+c      module m_struc_size
         integer function uarray_size()
         integer:: n
         n= 32
@@ -2063,8 +2066,9 @@ C         n=n+2
 #endif
         utb_size=n
         end function utb_size
+c       end module m_struc_size
 
-      end module m_struc_func
+c      end module m_struc_func
 c------------------------------------------------------------------
 
 
@@ -2073,7 +2077,7 @@ c------------------------------------------------------------------
 c------------------------------------------------------------------
         subroutine uarray_init(struc)
         use m_struc_def
-        use m_struc_func
+c        use m_struc_func
         implicit none
         type(s_array):: struc
         integer:: uarray_size
@@ -2134,7 +2138,7 @@ C$$$        end subroutine uarray
        
         subroutine ubz_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_bz):: struc
         integer:: ubz_size
@@ -2193,7 +2197,7 @@ C$$$        end subroutine ubz
        
         subroutine uctrl_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_ctrl):: struc
         integer:: uctrl_size
@@ -2326,7 +2330,7 @@ C$$$        end subroutine ugw
        
         subroutine uham_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_ham):: struc
         integer:: uham_size
@@ -2411,7 +2415,7 @@ C$$$        end subroutine uham
        
         subroutine ulat_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_lat):: struc
         integer:: ulat_size
@@ -2483,7 +2487,7 @@ C$$$        end subroutine ulat
        
         subroutine umix_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_mix):: struc
         integer:: umix_size
@@ -2535,7 +2539,7 @@ C$$$        end subroutine umix
        
         subroutine umove_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_move):: struc
         integer:: umove_size
@@ -2575,7 +2579,7 @@ C$$$        end subroutine umove
        
         subroutine uoptic_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_optic):: struc
         integer:: uoptic_size
@@ -2617,7 +2621,7 @@ C$$$        end subroutine uoptic
        
         subroutine uordn_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_ordn):: struc
         integer:: uordn_size
@@ -2657,7 +2661,7 @@ C$$$        end subroutine uordn
        
         subroutine upot_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_pot):: struc
         integer:: upot_size
@@ -2744,7 +2748,7 @@ C$$$        end subroutine upot
        
         subroutine usite_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_site):: struc
         integer:: usite_size
@@ -2800,7 +2804,7 @@ C$$$        end subroutine usite
        
         subroutine uspec_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_spec):: struc
         integer:: uspec_size
@@ -2903,7 +2907,7 @@ C$$$        end subroutine uspec
        
         subroutine ustr_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_str):: struc
         integer:: ustr_size
@@ -2962,7 +2966,7 @@ C$$$        end subroutine ustr
        
         subroutine utb_init(struc)
         use m_struc_def
-         use m_struc_func
+c         use m_struc_func
         implicit none
         type(s_tb):: struc
         integer:: utb_size

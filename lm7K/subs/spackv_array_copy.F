@@ -95,8 +95,8 @@ C     o Outputs
 C     o  struc element corresponding to label 'name' is modified.
 C     o        The mask bit of that entry is set to lval.
 C     ----------------------------------------------------------------
-      use m_struc_def
-      use m_struc_func
+c      use m_struc_def
+c      use m_struc_func
       implicit none
       integer(8):: v_iv(n)
       logical,intent(in):: lval

@@ -368,9 +368,9 @@ Cgetarg      .  sham(1),spot(1),sbz(1)
 C ... Local parameters
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5)
-      integer hord,i,i1,i2,iprint,ldham(16),ldim, !lgen3,
-     .  lgunit,lham,lidim,lihdim,lncol,nbasp,nclasp,ndim,neul,nl,
-     .  nlspcp,nsp,nspc,nspec,nspx,nttab,partok,igets,lfp,nvi,nvl,
+      integer hord,i,i1,i2,iprint,ldham(16),ldim, !lgen3,lham,
+     .  lgunit,lidim,lihdim,lncol,nbasp,nclasp,ndim,neul,nl,
+     .  nlspcp,nsp,nspc,nspec,nspx,nttab,partok,igets,nvi,nvl, !lfp,
      .  ib,is,lmxa,lmxl,stdo,nglob,nkaph,isw,nbf,lmxax,pwmode,
      .  j1,j2,j3,m,npw,npwmin,npwmax,ndham
       double precision pwemin,pwemax,plat(3,3),qlat(3,3),q(3),Gmin,Gmax,
@@ -419,10 +419,10 @@ Cgetarg...info...           integer :: lfp , integer(8) :: sctrl%lfp 1
 Cgetarg       call upack('ctrl lham lcgf lgen3 lfp',sctrl,lham,lcgf,lgen3,
 Cgetarg      .  lfp,0)
        
-       lham=sctrl%lham
+c       lham=sctrl%lham
 c       lcgf=sctrl%lcgf
 c       lgen3=sctrl%lgen3
-       lfp=sctrl%lfp
+c       lfp=sctrl%lfp
 
 Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
 Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
@@ -461,19 +461,19 @@ Cgetarg      .  pwemax,npwpad,0)
 
 C --- Automatic downfolding (2nd generation only?) ---
 c      if (lgen3 .eq. 0 .and. lfp .eq. 0) then
-      if (lfp .eq. 0) then
-        adnf = bittst(lham,4)
-C       Suppress if in gamma repsn (not needed for GF mode)
-C       if (lgors('ctrl lham,128',sctrl)) adnf = 0
-Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
-Cgetarg...info...           real(8) :: vmtz , real(8) :: spot%vmtz 1
-Cgetarg         call upack2('pot opp vmtz',spot,opp,vmtz)
+C$$$      if (lfp .eq. 0) then
+C$$$        adnf = bittst(lham,4)
+C$$$C       Suppress if in gamma repsn (not needed for GF mode)
+C$$$C       if (lgors('ctrl lham,128',sctrl)) adnf = 0
+C$$$Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
+C$$$Cgetarg...info...           real(8) :: vmtz , real(8) :: spot%vmtz 1
+C$$$Cgetarg         call upack2('pot opp vmtz',spot,opp,vmtz)
          
-         opp=spot%opp
-         vmtz=spot%vmtz
+C$$$         opp=spot%opp
+C$$$         vmtz=spot%vmtz
 
-        call atfold(0,adnf,nl,nsp,vmtz,w(opp),sspec)
-      endif
+C$$$        call atfold(0,adnf,nl,nsp,vmtz,w(opp),sspec)
+C$$$      endif
 
 C --- Hamiltonian offsets, orbital permutation table ---
       call iinit(ldham,16)
@@ -524,7 +524,7 @@ Cgetarg       call upack3('lat alat plat qlat',slat,alat,plat,qlat)
        i_copy_size=size(slat%qlat) 
        call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
 
-      if (lfp .ne. 0) then
+c      if (lfp .ne. 0) then
         nvi = 0
         nvl = 0
         lmxax = -1
@@ -690,7 +690,7 @@ C    ...  Printout
             call rlse(oigv2)
           endif
         endif
-      endif
+c      endif
 
 C ... Printout orbital positions in hamiltonian, resolved by l
 c      if (iprint() .gt. 50) then
@@ -760,41 +760,41 @@ C ... 2nd gen LMTO-specific initialization
 C     Make pti here since pp in gamma rep
 c      if (lcgf .eq. 0 .and. lfp .eq. 0 .and. lgen3 .eq. 0) then
 c      if (lfp .eq. 0 .and. lgen3 .eq. 0) then
-      if (lfp .eq. 0) then
+C$$$      if (lfp .eq. 0) then
 
-        call defdr(opti,-ndim*nsp)
-        call makipt(nl,nbasp,nsp,w(oipc),lihdim,w(oidxsh),w(opp),ndim,
-     .    w(opti))
-Cgetarg...info...           integer :: opti , integer(8) :: spot%opti 1
-Cgetarg         call pack1('pot opti',spot,opti)
+C$$$        call defdr(opti,-ndim*nsp)
+C$$$        call makipt(nl,nbasp,nsp,w(oipc),lihdim,w(oidxsh),w(opp),ndim,
+C$$$     .    w(opti))
+C$$$Cgetarg...info...           integer :: opti , integer(8) :: spot%opti 1
+C$$$Cgetarg         call pack1('pot opti',spot,opti)
          
-         spot%opti=opti 
+C$$$         spot%opti=opti 
 
 
-      endif
+C$$$      endif
 
 C ... Transform pp's to alpha representation
 c      if (lfp .eq. 0 .and. lgen3 .eq. 0) then
-      if (lfp .eq. 0) then
-C       Get screening alpha's
-Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
-Cgetarg...info...           integer :: obas , integer(8) :: sarray%opos 1
-Cgetarg         call upack('array nclasp opos',sarray,nclasp,obas,0,0,0)
+C$$$      if (lfp .eq. 0) then
+C$$$C       Get screening alpha's
+C$$$Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
+C$$$Cgetarg...info...           integer :: obas , integer(8) :: sarray%opos 1
+C$$$Cgetarg         call upack('array nclasp opos',sarray,nclasp,obas,0,0,0)
          
-         nclasp=sarray%nclasp
-         obas=sarray%opos
+C$$$         nclasp=sarray%nclasp
+C$$$         obas=sarray%opos
 
-        nlspcp = nl * nsp * nclasp
-        ckbas = cksumf(w(obas),3*nbasp)
-        ltmp = iostr(8,'STR',nl,nbasp,1,kap2,0,ckbas,-1,nttab,oalph,
-     .    oiax,ontab,os)
-        i = 0
-        if (bittst(lham,1) .or. bittst(lham,2)) i = 10
-C       Do the transformation
-        call defdr(oo,nlspcp)
-        call pptrns(i,nl,w(oipc),nclasp,nsp,w(oalph),1,w(opp),w(oo))
-        call rlse(oalph)
-      endif
+C$$$        nlspcp = nl * nsp * nclasp
+C$$$        ckbas = cksumf(w(obas),3*nbasp)
+C$$$        ltmp = iostr(8,'STR',nl,nbasp,1,kap2,0,ckbas,-1,nttab,oalph,
+C$$$     .    oiax,ontab,os)
+C$$$        i = 0
+C$$$        if (bittst(lham,1) .or. bittst(lham,2)) i = 10
+C$$$C       Do the transformation
+C$$$        call defdr(oo,nlspcp)
+C$$$        call pptrns(i,nl,w(oipc),nclasp,nsp,w(oalph),1,w(opp),w(oo))
+C$$$        call rlse(oalph)
+C$$$      endif
 
 C ... Printout Euler angles
 Cgetarg...info...           integer :: lncol , integer(8) :: sham%lncol 1
@@ -804,42 +804,42 @@ Cgetarg...info...           real(8) :: qss(4) , real(8) :: sham%qss 4
 Cgetarg       call upack('ham lncol oeula neula qss',sham,lncol,oeula,neul,qss,
 Cgetarg      .  0)
        
-       lncol=sham%lncol
-       oeula=sham%oeula
-       neul=sham%neula
-       i_copy_size=size(sham%qss) 
-       call dcopy(i_copy_size,sham%qss,1,qss,1) 
+c       lncol=sham%lncol
+c       oeula=sham%oeula
+c       neul=sham%neula
+c       i_copy_size=size(sham%qss) 
+c       call dcopy(i_copy_size,sham%qss,1,qss,1) 
 
-      if (iprint() .ge. 30 .and. lncol .ne. 0) then
-        call awrit4('%x          %?#n#Qss%3:1;6d angle %;6d.  #%2j#'//
-     .    '%?#n#Euler angles:#noncollinear hamiltonian',outs,80,
-     .    -stdo,bittst(lncol,2),qss,qss(4),isw(bittst(lncol,1).and.
-     .    iprint().gt.30))
-        if (iprint().gt.30 .and. bittst(lncol,1))
-     .    call pvioeu(1,ssite,w(oeula),nbasp,neul)
-      endif
+C$$$      if (iprint() .ge. 30 .and. lncol .ne. 0) then
+C$$$        call awrit4('%x          %?#n#Qss%3:1;6d angle %;6d.  #%2j#'//
+C$$$     .    '%?#n#Euler angles:#noncollinear hamiltonian',outs,80,
+C$$$     .    -stdo,bittst(lncol,2),qss,qss(4),isw(bittst(lncol,1).and.
+C$$$     .    iprint().gt.30))
+C$$$        if (iprint().gt.30 .and. bittst(lncol,1))
+C$$$     .    call pvioeu(1,ssite,w(oeula),nbasp,neul)
+C$$$      endif
 
 C ... Make B.sigma for magnetic field
-      obs = 1
+c      obs = 1
 c      if (lfp.eq.0 .and. lgen3.eq.0 .and. bittst(lncol,8)) then
-      if (lfp.eq.0 .and. bittst(lncol,8)) then
-Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
-Cgetarg...info...           integer :: omagf , integer(8) :: sham%omagf 1
-Cgetarg...info...           integer :: nbf , integer(8) :: sham%nbf 1
-Cgetarg         call upack('ham oeula omagf nbf',sham,oeula,omagf,nbf,0,0)
+C$$$      if (lfp.eq.0 .and. bittst(lncol,8)) then
+C$$$Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
+C$$$Cgetarg...info...           integer :: omagf , integer(8) :: sham%omagf 1
+C$$$Cgetarg...info...           integer :: nbf , integer(8) :: sham%nbf 1
+C$$$Cgetarg         call upack('ham oeula omagf nbf',sham,oeula,omagf,nbf,0,0)
          
-         oeula=sham%oeula
-         omagf=sham%omagf
-         nbf=sham%nbf
+C$$$         oeula=sham%oeula
+C$$$         omagf=sham%omagf
+C$$$         nbf=sham%nbf
 
-        call defcc(obs,-4*lihdim)
-        call mkbfld(nl,nbasp,lihdim,w(oidxsh),w(omagf),nbf,w(oeula),
-     .    neul,w(obs))
-      endif
+C$$$        call defcc(obs,-4*lihdim)
+C$$$        call mkbfld(nl,nbasp,lihdim,w(oidxsh),w(omagf),nbf,w(oeula),
+C$$$     .    neul,w(obs))
+C$$$      endif
 Cgetarg...info...           integer :: obs , integer(8) :: sham%obdots 1
 Cgetarg       call pack1('ham obdots',sham,obs)
        
-       sham%obdots=obs 
+c       sham%obdots=obs 
 
 
 Cgetarg       end

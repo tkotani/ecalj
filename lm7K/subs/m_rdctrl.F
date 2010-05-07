@@ -60,19 +60,21 @@ C     .  (sigp_nmax,sigp(4))
 
 C ... OPTIONS
       logical ::
-     .  lcd1,lcd2,lcd4=F,lcd8=F,lcd64, lasa32=F!lasa32 is dummy not used but wor awrit8 in rdctrl2
+     .  lcd2,lcd4=F !,lcd64, lasa32=F,lcd1,lcd8=Flasa32 is dummy not used but wor awrit8 in rdctrl2
 C$$$    &  ,lasa4=T,lasa8=F,,lasa64=F,
 C$$$     .  lasa512
-     &  ,lham1,lham4=F,lham8,lham16,lham32=F,lham64,lham128,
-     .  lham256 !,lves takao2010apr lves is integer
+c     &  ,lham1,lham4=F,lham8=F,lham16=F,lham32=F,lham64,lham128=F,
+c     .  lham256 !,lves takao2010apr lves is integer
       integer ::lves
 C     Initialize, since read is only executed when NSPIN=2
-      logical:: lncol1=F,lncol2=F,lncol4=F,lncol8=F,lncol16=F,
-     .  lncol32=F,lncol64=F
-      character(256):: sxopt=' '
-      integer:: lsx,lscr,smalit(2),nesabc(3), !lasa3=1,
-     .  lstonr(3)=0,quit,nl,lham3,lpfloat
-      real(8):: rmines,rmaxes,ham_qss(4) !asa_elin,
+      logical:: lncol1=F,lncol2=F,lncol8=F,lncol16=F
+c     .  lncol32=F,lncol64=F
+      logical:: lncol4=F, lncol32=F,lncol64=F
+
+c      character(256):: sxopt=' '
+      integer:: lscr,smalit(2),nesabc(3), !lasa3=1,lsx,
+     .  lstonr(3)=0,quit,nl,lpfloat
+      real(8):: rmines,rmaxes,ham_qss(4) !asa_elin,,lham3=0
 
 C ... STRUC
 C     Initializing nbas and alat flags no nbas or alat has been input
@@ -119,7 +121,7 @@ C ... BZ
      .  bz_lmet,bz_n,bz_nevmx,bz_lmull,ctrl_ldos,bz_ndos
       real(8):: bz_w,bz_ef,bz_def,bz_efmax,bz_zval,bz_fsmom,
      .  bz_semsh(10),zbak(2),bz_dosw(2),bz_lcond(4),bz_range=5d0
-      logical:: bz_lio1,bz_lio2,bz_lio8,ctrl_lmet2,
+      logical:: bz_lio1,bz_lio2,ctrl_lmet2, !,bz_lio8
      .  ctrl_lmet4=.true.,ctrl_lmet8=.true.,ctrl_lqp1,ctrl_lqp2
 
 C$$$C ... TB
@@ -231,13 +233,13 @@ C ... PW takao
 ccccccccccccccccccccccccccccccccccccccccc
 
 Cr         1   amix    amix mode
-Cr         2   gemb    file names for embedding GF
-Cr         3   gfopt   GF options
+cccCr         2   gemb    file names for embedding GF
+cccCr         3   gfopt   GF options
 Cr         4   jobid   job id
-Cr         5   map     mapping
+cccCr         5   map     mapping
 Cr         6   mix     mixing mode
-Cr         7   mmham   micromagnetics hamiltonian
-Cr         8   sxopt   SX options
+cccCr         7   mmham   micromagnetics hamiltonian
+cccCr         8   sxopt   SX options
 Cr         9   symg    symmetry group
 
 ctest
@@ -323,7 +325,8 @@ C     mlog = cmdopt('--mlog',6,0,a)
 C     Used to set tbe-dependent or f-dependent defaults
 c      ltbe = prgn .eq. 'TBE'
       lfp = 0
-      if (prgn=='LMF' .or. prgn=='LMFGWD' .or. prgn=='LMMC') lfp = 1
+c      if (prgn=='LMF' .or. prgn=='LMFGWD' .or. prgn=='LMMC') lfp = 1
+      if (prgn=='LMF' .or. prgn=='LMFGWD') lfp = 1
 
 C      print *, '!! choose default nl? ... NL now only sets defaults'
 C      print *, '!! molecules stuff around LMXB not done yet '
@@ -608,17 +611,17 @@ C      nm='OPTIONS'; call gtv(trim(nm),tksw(prgn,nm),Texist=ltmp,
 C     .  note='Various optional input')
       nm='OPTIONS_HF'; call gtv(trim(nm),tksw(prgn,nm),lcd2,
      .  def_lg=F,note='T for non-self-consistent Harris')
-      nm='OPTIONS_SHARM'; call gtv(trim(nm),tksw(prgn,nm),lham256,
-     .  def_lg=F, note='Use true spherical harmonics')
-      nm='OPTIONS_FRZ'; call gtv(trim(nm),tksw(prgn,nm),lcd1,
-     .  def_lg=F, note= 'Freeze core')
-      nm='OPTIONS_XCQS'; call gtv(trim(nm),tksw(prgn,nm),lcd64,note=
-     .  'XC potential in reciprocal space')
+c      nm='OPTIONS_SHARM'; call gtv(trim(nm),tksw(prgn,nm),lham256,
+c     .  def_lg=F, note='Use true spherical harmonics')
+c      nm='OPTIONS_FRZ'; call gtv(trim(nm),tksw(prgn,nm),lcd1,
+c     .  def_lg=F, note= 'Freeze core')
+c      nm='OPTIONS_XCQS'; call gtv(trim(nm),tksw(prgn,nm),lcd64,note=
+c     .  'XC potential in reciprocal space')
 
-      nm='OPTIONS_TPAN'; call gtv(trim(nm),tksw(prgn,nm),lham1,
-     .  def_lg=F,note='two-panel')
-      nm='OPTIONS_SAVVEC'; call gtv(trim(nm),tksw(prgn,nm),lham64,
-     .  def_lg=F,note='Save eigenvectors on disk')
+c      nm='OPTIONS_TPAN'; call gtv(trim(nm),tksw(prgn,nm),lham1,
+c     .  def_lg=F,note='two-panel')
+c      nm='OPTIONS_SAVVEC'; call gtv(trim(nm),tksw(prgn,nm),lham64,
+c     .  def_lg=F,note='Save eigenvectors on disk')
 
       nm='OPTIONS_RMINES'; call gtv(trim(nm),tksw(prgn,nm),rmines,
      .  def_r8=1d0,note='Minimum MT radius when finding new ES')
@@ -678,13 +681,13 @@ C$$$      if (sw .ne. 2) then
 C$$$C     This call does nothing except for printout
 C$$$      nm='OPTIONS_ASA'; call gtv(trim(nm),sw,nono,Texist=ltmp,
 C$$$     .  note= 'Contains the following ASA-specific tokens:')
-      nm='OPTIONS_ASA_ADNF'; call gtv(trim(nm),tksw(prgn,nm),lham4,
-     .  def_lg=F,note= 'Turn on automatic downfolding')
+c      nm='OPTIONS_ASA_ADNF'; call gtv(trim(nm),tksw(prgn,nm),lham4,
+c     .  def_lg=F,note= 'Turn on automatic downfolding')
 C$$$      nm='OPTIONS_ASA_NSPH'; call gtv(trim(nm),tksw(prgn,nm),lasa32,
 C$$$     .  note='generate multipole moments in output density')
-      nm='OPTIONS_ASA_TWOC'; call gtv(trim(nm),tksw(prgn,nm),lham3,
-     .  def_i4=0,note='Two-center ASA hamiltonian.'//
-     .  '  Use TWOC=3 for 2C+pert corr')
+c      nm='OPTIONS_ASA_TWOC'; call gtv(trim(nm),tksw(prgn,nm),lham3,
+c     .  def_i4=0,note='Two-center ASA hamiltonian.'//
+c     .  '  Use TWOC=3 for 2C+pert corr')
 C$$$      j = 0
 C$$$      nm='OPTIONS_ASA_GAMMA'; call gtv(trim(nm),tksw(prgn,nm),j,
 C$$$     .  def_i4=0,note=
@@ -694,18 +697,18 @@ C$$$     . '%N%02f>1: (gamma(1)+gamma(nsp))/2'//
 C$$$     .  '%N%3f : Some noncollinear algorithms automatically'//
 C$$$     .  '%N%3f : average spins this latter representation')
 C$$$      if (io_help==0) call isanrg(j,0,2,' rdccat:','GAMMA',.true.)
-      lham128 = j .gt. 0
+c      lham128 = j .gt. 0
 C$$$      lasa512 = j .gt. 1
 C$$$      nm='OPTIONS_ASA_CCOR'; call gtv(trim(nm),tksw(prgn,nm),lasa4,
 C$$$     .  def_lg=T,note= 'Turn on combined correction')
 C$$$      nm='OPTIONS_ASA_ELIN'; call gtv(trim(nm),tksw(prgn,nm),asa_elin,
 C$$$     .  def_r8=0d0,note=
 C$$$     .  'Energy to linearize for CCOR (2nd gen ASA 2C hamiltonian)')
-      nm='OPTIONS_ASA_NEWREP'; call gtv(trim(nm),tksw(prgn,nm),lham8,
-     .  def_lg=F,note=
-     .  'Interactively transform representation, (2nd gen ASA)')
-      nm='OPTIONS_ASA_NOHYB'; call gtv(trim(nm),tksw(prgn,nm),lham16,
-     .  def_lg=F,note='Turns off hybridisation ')
+c      nm='OPTIONS_ASA_NEWREP'; call gtv(trim(nm),tksw(prgn,nm),lham8,
+c     .  def_lg=F,note=
+c     .  'Interactively transform representation, (2nd gen ASA)')
+c      nm='OPTIONS_ASA_NOHYB'; call gtv(trim(nm),tksw(prgn,nm),lham16,
+c     .  def_lg=F,note='Turns off hybridisation ')
 C$$$      nm='OPTIONS_ASA_MTCOR'; call gtv(trim(nm),tksw(prgn,nm),lasa64,
 C$$$     .  def_lg=F,note='Turns on Ewald MT correction')
 C$$$      nm='OPTIONS_ASA_QMT'; call gtv(trim(nm),tksw(prgn,nm),
@@ -720,10 +723,10 @@ C --- Hamiltonian parameters ---
       if (io_show+io_help/=0 .and. tksw(prgn,'HAM')/=2) call info0(1,1,
      .  0,' --- Parameters for hamiltonian ---')
       nsp = 1
-      if (prgn == 'MMAG') then
-        nsp = 2
-        lncol1 = T
-      endif
+c      if (prgn == 'MMAG') then
+c        nsp = 2
+c        lncol1 = T
+c      endif
       nm='HAM_NSPIN'; call gtv(trim(nm),tksw(prgn,nm),nsp,
      .  def_i4=1,note='Set to 2 for spin polarized calculations')
       if (io_help .eq. 0) then
@@ -740,7 +743,7 @@ ctakao
 
 C     Flags representing how cd is represented: default values
       if (prgn == 'LMF' .or. prgn == 'LMFGWD') lcd4=T
-      if (prgn == 'LMMC') lcd8=T
+c      if (prgn == 'LMMC') lcd8=T
 
       nm='HAM_REL'; call gtv(trim(nm),tksw(prgn,nm),lrel,def_i4=1,
      .  note='0 for nonrelativistic Schrodinger equation'//
@@ -763,19 +766,19 @@ C     Fully relativistic => spin-orbit coupling
       if (lso == 1) lncol4 = T
       if (lso == 2) lncol32= T
       if (lso == 3) lncol64= T
-      nm='HAM_NONCOL'; call gtv(trim(nm),tksw(prgn,nm),lncol1,
-     .  def_lg=F, note='Noncollinear magnetism')
-      nm='HAM_SS'; call gtv(trim(nm),tksw(prgn,nm),ham_qss,nmin=4,nout=
-     .  nout,note='Magnetic spin spiral, direction vector and angle')
-      lncol2 = (nout == 4)
+c      nm='HAM_NONCOL'; call gtv(trim(nm),tksw(prgn,nm),lncol1,
+c     .  def_lg=F, note='Noncollinear magnetism')
+c      nm='HAM_SS'; call gtv(trim(nm),tksw(prgn,nm),ham_qss,nmin=4,nout=
+c     .  nout,note='Magnetic spin spiral, direction vector and angle')
+c      lncol2 = (nout == 4)
 C     If spin-orbit or SS, also turn on noncollinear
-      if (lncol2 .or. lncol4) lncol1 = T
-      if (lncol1 .or. io_help/=0) then
-C      nm='HAM_SPINTRQ'; call gtv(trim(nm),tksw(prgn,nm),lncol16,
-C     .  def_lg=F, note='Calculate spin torques (requires NONCOL=t)')
-      nm='HAM_BFIELD'; call gtv(trim(nm),tksw(prgn,nm),lncol8,
-     .  def_lg=F, note='Applied magnetic field (requires NONCOL=t)')
-      endif
+c      if (lncol2 .or. lncol4) lncol1 = T
+c      if (lncol1 .or. io_help/=0) then
+cC      nm='HAM_SPINTRQ'; call gtv(trim(nm),tksw(prgn,nm),lncol16,
+cC     .  def_lg=F, note='Calculate spin torques (requires NONCOL=t)')
+c      nm='HAM_BFIELD'; call gtv(trim(nm),tksw(prgn,nm),lncol8,
+c     .  def_lg=F, note='Applied magnetic field (requires NONCOL=t)')
+c      endif
       endif
 
       sw = tksw(prgn,'HAM_GMAX')
@@ -946,13 +949,13 @@ C ... APW basis
      .  npwpad, def_i4=-1, note=
      .  'Overrides default padding of variable basis dimension')
 
-      nm='HAM_SX'; call gtv(trim(nm),tksw(prgn,nm),lsx,
-     .  def_i4=0,note='Screened exchange:'//
-     .  '%N%3f 0 do nothing'//
-     .  '%N%3f 1 Calculate SX Sigma'//
-     .  '%N%3f11 Calculate SX Sigma w/ local W')
-      nm='HAM_SXOPTS'; call gtv(trim(nm),tksw(prgn,nm),sxopt,nmin=10,
-     .  note='Options for screened exchange,.e.g.  SXOPTS=rssig;nit=3')
+C$$$      nm='HAM_SX'; call gtv(trim(nm),tksw(prgn,nm),lsx,
+C$$$     .  def_i4=0,note='Screened exchange:'//
+C$$$     .  '%N%3f 0 do nothing'//
+C$$$     .  '%N%3f 1 Calculate SX Sigma'//
+C$$$     .  '%N%3f11 Calculate SX Sigma w/ local W')
+C$$$      nm='HAM_SXOPTS'; call gtv(trim(nm),tksw(prgn,nm),sxopt,nmin=10,
+C$$$     .  note='Options for screened exchange,.e.g.  SXOPTS=rssig;nit=3')
 
       sw = tksw(prgn,'HAM_SIGP')
 C     This call does nothing except for printout
@@ -1493,15 +1496,15 @@ C       Negative radii: convert to actual numbers
      .    note='Minimum smoothing radius for local orbital')
 
 C       Downfolding switches: if auto DNF turned on, default is zero.
-        if (lham4) then
-          nn = 0
-C       Help mode: If ADNF COULD have been turned on, default unknown
-        elseif (tksw(prgn,'OPTIONS_ADNF')/= 2.and. io_help==1) then
-          nn = NULLI
-C       All other cases: default is 1
-        else
+c        if (lham4) then
+c          nn = 0
+cC       Help mode: If ADNF COULD have been turned on, default unknown
+c        elseif (tksw(prgn,'OPTIONS_ADNF')/= 2.and. io_help==1) then
+c          nn = NULLI
+cC       All other cases: default is 1
+c        else
           nn = 1
-        endif
+c        endif
         nm='SPEC_ATOM_IDXDN'; call gtv(trim(nm),tksw(prgn,nm),
      .    idxdn(1:nlbj,j),nmin=nlbj,
      .    def_i4v=(/(nn,i=1,nlbj)/),cindx=jj,
@@ -1854,9 +1857,10 @@ C ... Site data, one pass for each atom
      .    cindx=jj,note='Species label')
         if (io_help .ne. 1) then
           do  i = 1, nspec
-             print *, alabl,' xxx ', slabl(i)
+c             print *, alabl,' xxx ', slabl(i)
             if (trim(alabl) == trim(slabl(i)) ) then
               ips(j) = i
+              print *, alabl,' xxx ', i,ips(j)
               goto 881
             endif
           enddo
@@ -2135,8 +2139,8 @@ c      if (ltbe) xx = 5d0
      .  'Suppress automatic inclusion of inversion symmetry for BZ')
       nm='BZ_FSMOM'; call gtv(trim(nm),tksw(prgn,nm),bz_fsmom,
      .  def_r8=0d0,note='Fixed-spin moment (fixed-spin moment method)')
-      nm='BZ_DMAT'; call gtv(trim(nm),tksw(prgn,nm),bz_lio8,
-     .  def_lg=F,note='Calculate density matrix')
+c      nm='BZ_DMAT'; call gtv(trim(nm),tksw(prgn,nm),bz_lio8,
+c     .  def_lg=F,note='Calculate density matrix')
       nm='BZ_INVIT'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lqp2,
      .  def_lg=T,note='Use inverse iteration for diagonalization')
       i0 = 0
@@ -2258,29 +2262,29 @@ C ... Sanity check and printout
         if (io_show==0) call poppr
       endif
 
-      if (prgn /= 'LMMC') then
+c      if (prgn /= 'LMMC') then
         nm='ITER_CONV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(3),
      .    def_r8=1d-4,note='Tolerance in energy change from prior'//
      .    ' iteration for self-consistency')
         nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(1),
      .    def_r8=1d-4,note='Tolerance in output-input charge for'//
      .    ' self-consistency')
-      else
-C ... CONV and CONVC are stored in the opposite order in LMMC  
-        nm='ITER_CONV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(1),
-     .    def_r8=1d-4,note='Tolerance in energy change from prior'//
-     .    ' iteration for self-consistency')
-        nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(3),
-     .    def_r8=1d-4,note='Tolerance in output-input charge for'//
-     .    ' self-consistency')
-        ctrl_tol(2) = ctrl_tol(3)
+c      else
+cC ... CONV and CONVC are stored in the opposite order in LMMC  
+c        nm='ITER_CONV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(1),
+c     .    def_r8=1d-4,note='Tolerance in energy change from prior'//
+c     .    ' iteration for self-consistency')
+c        nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(3),
+c     .    def_r8=1d-4,note='Tolerance in output-input charge for'//
+c     .    ' self-consistency')
+c        ctrl_tol(2) = ctrl_tol(3)
 c       nm='ITER_QTOLSP'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(2),
 c    .    def_r8=1d-4,note='Tolerance in sphere charge'//
 c    .    ' for self-consistency')
 c       nm='ITER_QTOLI'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(3),
 c    .    def_r8=1d-4,note='Tolerance in interstitial charge'//
 c    .    ' for self-consistency')
-      endif 
+c      endif 
 
       i0 = 0
       nm='ITER_XIPMX'; call gtv(trim(nm),tksw(prgn,nm),i0,def_i4=0,
@@ -2452,7 +2456,7 @@ C --- Dynamics ---
         nm='DYN_SSTAT_ETOL'; call gtv(trim(nm),tksw(prgn,nm),sdprm(5),
      .    def_r8=0d0,note='Set tau=0 this iter if etot-ehf>ETOL')
       endif
-      lncol16 = sdmod .ge. 0
+c      lncol16 = sdmod .ge. 0
 
       nm='DYN_MSTAT'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=ltmp,
      .  note='Parameters for molecular statics')
@@ -3312,7 +3316,7 @@ C --- LMDOS switches ---
       call tkadd(" OPTIONS_FRZ~")
       call tkadd(" OPTIONS_HF~")
 C     call tkadd(" OPTIONS_SCR~")
-      call tkadd(" OPTIONS_SHARM~")
+c      call tkadd(" OPTIONS_SHARM~")
 C     call tkadd(" OPTIONS_STONER~")
       call tkadd(" SPEC")
       call tkadd(sscale)

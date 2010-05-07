@@ -229,6 +229,7 @@ C ... Heap
       real(8),allocatable:: qzz(:,:)
 
 C --- Setup ---
+      print *,'sugw:'
       call getpr(ipr)
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9

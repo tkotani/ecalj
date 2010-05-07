@@ -15,12 +15,9 @@ subs_list:=\
 	aiorme.o \
 	aiosop.o \
 	aiova.o \
-	amagnc.o \
-	angtab.o \
 	asars.o \
 	asados.o \
 	asymop.o \
-	atfold.o \
 	atomsr.o \
 	atwf.o \
 	avwsr.o \
@@ -104,7 +101,6 @@ subs_list:=\
 	iobsmv.o \
 	ioeula.o \
 	iofa.o \
-	iomagf.o \
 	iomomq.o \
 	iomoms.o \
 	iomomx.o \
@@ -127,7 +123,6 @@ subs_list:=\
 	makdla.o \
 	makdos.o \
 	makidx.o \
-	makipt.o \
 	maknos.o \
 	maknrs.o \
 	makrm0.o \
@@ -135,7 +130,6 @@ subs_list:=\
 	makrwf.o \
 	mcasim.o \
 	mchan.o \
-	mkbfld.o \
 	mkcond.o \
 	mkplat.o \
 	mkqp.o \

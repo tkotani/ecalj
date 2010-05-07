@@ -52,7 +52,7 @@ Cgetarg       double precision sctrl(1),sbz(1),slat(1)
        type(s_lat)::slat
 
 C ... Local parameters
-      logical lgors,ltet,lsx,lnoirr,llshft(3),lipq
+      logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
       integer fopna,mxkp,nfilqp,nkp,nkxyz(3),nsgrp,npgrp,lshft(3),
      .  lpbc,ntet,i,oidtet,oqp,owtkp,ogstar,oipq,owk,osymgr,
      .  iprint,igets,stdo,nglob
@@ -105,7 +105,7 @@ Cgetarg       call lsets('ctrl lmet',sctrl,ltet,2)
        call lsets_bitop_i8(sctrl%lmet,1,ltet,2)
 
 Cgetarg       lsx  = lgors('ctrl lsx,1',sctrl) .or. lgors('ctrl lscr,1',sctrl)
-       lsx = iand(1,int(sctrl%lsx)) .ne.0 .or. iand(1,int(sctrl%lscr)) .ne.0 
+c       lsx = iand(1,int(sctrl%lsx)) .ne.0 .or. iand(1,int(sctrl%lscr)) .ne.0 
 
       lipq = lreduc .eq. 1
       if (lreduc .eq. -1) npgrp = 1
@@ -185,8 +185,8 @@ C   ... Restrict BZ to two dimensions
      .    lpbc)
 
 C   ... Sanity check
-        if (lsx .and. lshft(1)+lshft(2)+lshft(3) .gt. 0) call
-     .    rx('MKQP:  shifted BZ mesh not allowed with SX')
+c        if (lsx .and. lshft(1)+lshft(2)+lshft(3) .gt. 0) call
+c     .    rx('MKQP:  shifted BZ mesh not allowed with SX')
 
 C   ... Remake, with exactly allocated arrays, ipq on top
         call rlse(owtkp)

@@ -120,8 +120,8 @@ C ... Local variables
       logical mlog
       logical lgors,cmdopt,bittst
       integer fopna,fopng,i,ifi,igets,iors,ipr,irs(5),iscr,isw,ix(5),j,
-     .  k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,lsx,nbas,nat,
-     .  nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,
+     .  k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,nbas,nat,
+     .  nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .  stdo,pdim,lsc
       integer oevl,ofrc,oftot,oorhat,opos,opos2,osmpot,osmrho,owk,op,o
       double precision plat(3,3),qlat(3,3),qbg,xv(10),fptol,umix
@@ -310,7 +310,7 @@ c       i_copy_size=size(sctrl%lpgf)
 c       call i8icopy(i_copy_size,sctrl%lpgf,1,lpgf,1) 
 c       lcgf=sctrl%lcgf
        iscr=sctrl%lscr
-       lsx=sctrl%lsx
+c       lsx=sctrl%lsx
 
 C     call upack('ctrl lncol',sctrl,lncol,0,0,0,0)
       nat = nglob('nat')
@@ -329,7 +329,7 @@ Cgetarg       lhf    = lgors('ctrl lcd,2',sctrl)
 
       if (lhf) maxit = 1
 C     nbasp  = nbas +    npadl + npadr
-      nbaspp = nbas + 2*(npadl + npadr)
+      nbaspp = nbas !+ 2*(npadl + npadr)
       stdo   = lgunit(1)
 C     stdl   = lgunit(2)
       call setcc(lrel)
@@ -362,7 +362,7 @@ C     Sanity checks: most ASA "extras" are not implemented here
 c      call isanrg(lcgf, 0,0,'lmfp:','lcgf', .true.)
 c      call isanrg(lpgf, 0,0,'lmfp:','lpgf', .true.)
       call isanrg(iscr, 0,0,'lmfp:','lscr', .true.)
-      call isanrg(lsx,  0,0,'lmfp:','lsx',  .true.)
+c      call isanrg(lsx,  0,0,'lmfp:','lsx',  .true.)
 C     call isanrg(lncol,0,0,'lmfp:','lncol',.true.)
 
 C ... Printout properties of species
@@ -548,6 +548,7 @@ C ... Setup of hamiltonian, augmentation
       call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
 
 
+
 C ... Quit if --quit=ham given
 Cgetarg       if (igets('ctrl quit',sctrl) .eq. 8) then
        if ( int(sctrl%quit) .eq. 8 ) then 
@@ -562,6 +563,9 @@ Cgetarg...info...           integer :: osmrho , integer(8) :: spot%osmrho 1
 Cgetarg...info...           integer :: osmpot , integer(8) :: spot%osmpot 1
 Cgetarg       call upack('pot oorhat osmrho osmpot',spot,oorhat,osmrho,osmpot,0,
 Cgetarg      .  0)
+
+ccccccccccccc
+c        print *,'eee 333=',spot%osmrho
        
        oorhat=spot%oorhat
        osmrho=spot%osmrho
@@ -728,8 +732,10 @@ Cgetarg         call upack('bz w',sbz,bz_w,0,0,0,0)
          
          bz_w=sbz%w
 
+c        print *,'yyyyyyy goto iors osmrho=',spot%osmrho
         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,
      .    nspec,w(oorhat),w,nit1,lbin,ifi)
+c        print *,'yyyyyyyyyy end of iors'
 ctakao 
 Cgetarg...info...           real(8) :: bz_w , real(8) :: sbz%w 1
 Cgetarg         call pack5('bz w',sbz,bz_w,0,0,0,0)

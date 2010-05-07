@@ -227,7 +227,7 @@ C --- Read recrd ---
 
 c
 
-
+      print *,'end of rdctrl2 in imfav7'
 C ... Input to scale MT radii (define RESIZE)
 
 
