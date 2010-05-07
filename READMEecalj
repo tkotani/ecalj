@@ -1,0 +1,77 @@
+======================================================
+Welcome to ecalj!
+
+Our home page is at http://pmt.sakura.ne.jp/wiki/,
+(not so much documents in English yet).
+Here is minimum instruction for installation and its tests.
+See the wiki page about its details.
+======================================================
+
+
+--------------------
+*Installation for lm7K
+     I recommend you to use ubuntu 9.04,9.10 or so.
+It makes you to install things very easy. 
+You can install and do minimum tests with little problems.
+Then you can move to other systems if you like.
+(But you don't need to stick to ubuntu if you have a skill as 
+ you can set math library to Makefile by yourself).
+
+     You can use gfortran. Nothing need to buy. 
+When you boot ubuntu from the USB memory, nothing remains in your
+computer if you set up the ubuntu as USB boot.
+For test, a low level PC as \sim 1GHz, \sim 1GB memory should work.
+
+sudo apt-get install gfortran
+suto apt-get install mpich2
+
+are required. mpich2 is for mpi.
+
+For install lmf, run
+prompt>make PLATFORM=gfortran
+at lm7K/. If something strange occurs, you have to modify
+lm7K/MAKEINK/Make.inc.gfortran. 
+(Usually only modify math library defined in it).
+
+Parallel make as
+prompt>make -j4
+may speed it up for multicore machines.
+
+--------------------
+*Test for lm7K
+You first have to make your bin directory at your_name/bin/.
+Then you have to 
+At lm7K/, you 
+
+prompt>make install
+This only copy several binanries to your /bin. 
+No changed to systems.
+
+prompt>make check.
+It may take ten minutes or so. 
+If you see "All test passed" finally, 
+your installation is OK.
+
+
+--------------------
+*Installation for fpgw/
+At fpgw/exec/ directory, you have to run 
+prompt>make
+prompt>make install
+prompt>make install2
+. Before this, you have to set blas and lapack in fpge/exec/make.inc.
+--------------------
+*Installation test for fpgw/
+At fpgw/TESTInstallGW/, run
+prompt>./testgw.py
+(it pauses once and you need to push return again).
+
+It makes temp_* directories under TESTinstallGW/.
+prompt>./testgw.py --help
+shows help.
+
+
+---------------------------
+* Other points
+prompt>make cleanall 
+This removes all *.o *.a and binaries except original source.

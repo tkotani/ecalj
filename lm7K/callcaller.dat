@@ -279,9 +279,9 @@
 @dcl Type:s_pot in Subroutine:lmfp  fp/lmfp.F:L111 ---> type(s_pot)::spot
 @dcl Type:s_str in Subroutine:lmfp  fp/lmfp.F:L112 ---> type(s_str)::sstr
 @dcl Type:s_move in Subroutine:lmfp  fp/lmfp.F:L113 ---> type(s_move)::smove
-@def Subr:cppos in   fp/lmfp.F:L1337 ---> subroutine cppos(ib1,ib2,ssite)
-@dcl Type:s_site in Subroutine:cppos  fp/lmfp.F:L1346 ---> type(s_site)::ssite(*)
-@def Subr:grdepl in   fp/lmfp.F:L1368 ---> subroutine grdepl(nvrelx,indrlx,alpha,etot,irlxsh,pletot,dist)
+@def Subr:cppos in   fp/lmfp.F:L1339 ---> subroutine cppos(ib1,ib2,ssite)
+@dcl Type:s_site in Subroutine:cppos  fp/lmfp.F:L1348 ---> type(s_site)::ssite(*)
+@def Subr:grdepl in   fp/lmfp.F:L1370 ---> subroutine grdepl(nvrelx,indrlx,alpha,etot,irlxsh,pletot,dist)
 @def Subr:locpot in   fp/locpot.F:L6 ---> subroutine locpot(nbas,nsp,lso,lcplxp,ssite,sspec,slat,orhoat,qmom,vval,gpot0,osig,otau,oppi,ppnl,hab,vab,sab,vvesat,cpnvsa,rhoexc,rhoex,rhoec,rhovxc,rvepsv,rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,focexc,focex,focec,focvxc,sqloc,sqlocc,saloc,qval,qsc,job,rhobg,nlibu,lmaxu,vorb,lldau)
 @dcl Type:s_site in Subroutine:locpot  fp/locpot.F:L133 ---> type(s_site)::ssite(*)
 @dcl Type:s_spec in Subroutine:locpot  fp/locpot.F:L134 ---> type(s_spec)::sspec(*)
@@ -680,11 +680,11 @@
 @dcl Type:s_lat in Subroutine:clsprm  subs/clsprm.F:L76 ---> type(s_lat)::slat
 @dcl Type:s_bz in Subroutine:clsprm  subs/clsprm.F:L77 ---> type(s_bz)::sbz
 @dcl Type:s_str in Subroutine:clsprm  subs/clsprm.F:L78 ---> type(s_str)::sstr
-@def Enty_Subr:clsprp in Subroutine:clsprm  subs/clsprm.F:L418 ---> entry clsprp(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,sstr,sstrn)
-@def Subr:ioqpp in   subs/clsprm.F:L487 ---> subroutine ioqpp(lio,sctrl,spot)
-@dcl Type:s_ctrl in Subroutine:ioqpp  subs/clsprm.F:L503 ---> type(s_ctrl)::sctrl
-@dcl Type:s_pot in Subroutine:ioqpp  subs/clsprm.F:L504 ---> type(s_pot)::spot
-@def Subr:spinav in   subs/clsprm.F:L549 ---> subroutine spinav(mode,nclass,nl,nsp,pnu,qnu)
+@def Enty_Subr:clsprp in Subroutine:clsprm  subs/clsprm.F:L419 ---> entry clsprp(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,sstr,sstrn)
+@def Subr:ioqpp in   subs/clsprm.F:L488 ---> subroutine ioqpp(lio,sctrl,spot)
+@dcl Type:s_ctrl in Subroutine:ioqpp  subs/clsprm.F:L504 ---> type(s_ctrl)::sctrl
+@dcl Type:s_pot in Subroutine:ioqpp  subs/clsprm.F:L505 ---> type(s_pot)::spot
+@def Subr:spinav in   subs/clsprm.F:L550 ---> subroutine spinav(mode,nclass,nl,nsp,pnu,qnu)
 @def Subr:clsset in   subs/clsset.F:L3 ---> subroutine clsset(mode,slat,nbas,pos,ncl,clssl,cllst,clord,clp)
 @dcl Type:s_lat in Subroutine:clsset  subs/clsset.F:L40 ---> type(s_lat)::slat
 @def Func:pvclst in   subs/clsset.F:L196 ---> function pvclst(nbas,pose,clssl,clord)
@@ -960,77 +960,93 @@
 @def Type:s_site in Module:m_struc_def  subs/m_struc_def.F:L1711 ---> type s_site
 @def Type:s_str in Module:m_struc_def  subs/m_struc_def.F:L1824 ---> type s_str
 @def Type:s_tb in Module:m_struc_def  subs/m_struc_def.F:L1879 ---> type s_tb
-@def Func:uarray_size in   subs/m_struc_def.F:L1905 ---> function uarray_size()
-@def Func:ubz_size in   subs/m_struc_def.F:L1916 ---> function ubz_size()
-@def Func:uctrl_size in   subs/m_struc_def.F:L1927 ---> function uctrl_size()
-@def Func:ugw_size in   subs/m_struc_def.F:L1938 ---> function ugw_size()
-@def Func:uham_size in   subs/m_struc_def.F:L1949 ---> function uham_size()
-@def Func:ulat_size in   subs/m_struc_def.F:L1960 ---> function ulat_size()
-@def Func:umix_size in   subs/m_struc_def.F:L1971 ---> function umix_size()
-@def Func:umove_size in   subs/m_struc_def.F:L1982 ---> function umove_size()
-@def Func:uoptic_size in   subs/m_struc_def.F:L1993 ---> function uoptic_size()
-@def Func:uordn_size in   subs/m_struc_def.F:L2004 ---> function uordn_size()
-@def Func:upot_size in   subs/m_struc_def.F:L2015 ---> function upot_size()
-@def Func:usite_size in   subs/m_struc_def.F:L2026 ---> function usite_size()
-@def Func:uspec_size in   subs/m_struc_def.F:L2037 ---> function uspec_size()
-@def Func:ustr_size in   subs/m_struc_def.F:L2048 ---> function ustr_size()
-@def Func:utb_size in   subs/m_struc_def.F:L2059 ---> function utb_size()
-@def Subr:uarray_init in   subs/m_struc_def.F:L2078 ---> subroutine uarray_init(struc)
-@dcl Type:s_array in Subroutine:uarray_init  subs/m_struc_def.F:L2082 ---> type(s_array):: struc
-@def Subr:uarray_show in   subs/m_struc_def.F:L2118 ---> subroutine uarray_show(struc)
-@dcl Type:s_array in Subroutine:uarray_show  subs/m_struc_def.F:L2121 ---> type(s_array):: struc
-@def Subr:ubz_init in   subs/m_struc_def.F:L2139 ---> subroutine ubz_init(struc)
-@dcl Type:s_bz in Subroutine:ubz_init  subs/m_struc_def.F:L2143 ---> type(s_bz):: struc
-@def Subr:ubz_show in   subs/m_struc_def.F:L2177 ---> subroutine ubz_show(struc)
-@dcl Type:s_bz in Subroutine:ubz_show  subs/m_struc_def.F:L2180 ---> type(s_bz):: struc
-@def Subr:uctrl_init in   subs/m_struc_def.F:L2198 ---> subroutine uctrl_init(struc)
-@dcl Type:s_ctrl in Subroutine:uctrl_init  subs/m_struc_def.F:L2202 ---> type(s_ctrl):: struc
-@def Subr:uctrl_show in   subs/m_struc_def.F:L2262 ---> subroutine uctrl_show(struc)
-@dcl Type:s_ctrl in Subroutine:uctrl_show  subs/m_struc_def.F:L2265 ---> type(s_ctrl):: struc
-@def Subr:uham_init in   subs/m_struc_def.F:L2331 ---> subroutine uham_init(struc)
-@dcl Type:s_ham in Subroutine:uham_init  subs/m_struc_def.F:L2335 ---> type(s_ham):: struc
-@def Subr:uham_show in   subs/m_struc_def.F:L2395 ---> subroutine uham_show(struc)
-@dcl Type:s_ham in Subroutine:uham_show  subs/m_struc_def.F:L2398 ---> type(s_ham):: struc
-@def Subr:ulat_init in   subs/m_struc_def.F:L2416 ---> subroutine ulat_init(struc)
-@dcl Type:s_lat in Subroutine:ulat_init  subs/m_struc_def.F:L2420 ---> type(s_lat):: struc
-@def Subr:ulat_show in   subs/m_struc_def.F:L2467 ---> subroutine ulat_show(struc)
-@dcl Type:s_lat in Subroutine:ulat_show  subs/m_struc_def.F:L2470 ---> type(s_lat):: struc
-@def Subr:umix_init in   subs/m_struc_def.F:L2488 ---> subroutine umix_init(struc)
-@dcl Type:s_mix in Subroutine:umix_init  subs/m_struc_def.F:L2492 ---> type(s_mix):: struc
-@def Subr:umix_show in   subs/m_struc_def.F:L2519 ---> subroutine umix_show(struc)
-@dcl Type:s_mix in Subroutine:umix_show  subs/m_struc_def.F:L2522 ---> type(s_mix):: struc
-@def Subr:umove_init in   subs/m_struc_def.F:L2540 ---> subroutine umove_init(struc)
-@dcl Type:s_move in Subroutine:umove_init  subs/m_struc_def.F:L2544 ---> type(s_move):: struc
-@def Subr:umove_show in   subs/m_struc_def.F:L2559 ---> subroutine umove_show(struc)
-@dcl Type:s_move in Subroutine:umove_show  subs/m_struc_def.F:L2562 ---> type(s_move):: struc
-@def Subr:uoptic_init in   subs/m_struc_def.F:L2580 ---> subroutine uoptic_init(struc)
-@dcl Type:s_optic in Subroutine:uoptic_init  subs/m_struc_def.F:L2584 ---> type(s_optic):: struc
-@def Subr:uoptic_show in   subs/m_struc_def.F:L2601 ---> subroutine uoptic_show(struc)
-@dcl Type:s_optic in Subroutine:uoptic_show  subs/m_struc_def.F:L2604 ---> type(s_optic):: struc
-@def Subr:uordn_init in   subs/m_struc_def.F:L2622 ---> subroutine uordn_init(struc)
-@dcl Type:s_ordn in Subroutine:uordn_init  subs/m_struc_def.F:L2626 ---> type(s_ordn):: struc
-@def Subr:uordn_show in   subs/m_struc_def.F:L2641 ---> subroutine uordn_show(struc)
-@dcl Type:s_ordn in Subroutine:uordn_show  subs/m_struc_def.F:L2644 ---> type(s_ordn):: struc
-@def Subr:upot_init in   subs/m_struc_def.F:L2662 ---> subroutine upot_init(struc)
-@dcl Type:s_pot in Subroutine:upot_init  subs/m_struc_def.F:L2666 ---> type(s_pot):: struc
-@def Subr:upot_show in   subs/m_struc_def.F:L2728 ---> subroutine upot_show(struc)
-@dcl Type:s_pot in Subroutine:upot_show  subs/m_struc_def.F:L2731 ---> type(s_pot):: struc
-@def Subr:usite_init in   subs/m_struc_def.F:L2749 ---> subroutine usite_init(struc)
-@dcl Type:s_site in Subroutine:usite_init  subs/m_struc_def.F:L2753 ---> type(s_site):: struc
-@def Subr:usite_show in   subs/m_struc_def.F:L2784 ---> subroutine usite_show(struc)
-@dcl Type:s_site in Subroutine:usite_show  subs/m_struc_def.F:L2787 ---> type(s_site):: struc
-@def Subr:uspec_init in   subs/m_struc_def.F:L2805 ---> subroutine uspec_init(struc)
-@dcl Type:s_spec in Subroutine:uspec_init  subs/m_struc_def.F:L2809 ---> type(s_spec):: struc
-@def Subr:uspec_show in   subs/m_struc_def.F:L2887 ---> subroutine uspec_show(struc)
-@dcl Type:s_spec in Subroutine:uspec_show  subs/m_struc_def.F:L2890 ---> type(s_spec):: struc
-@def Subr:ustr_init in   subs/m_struc_def.F:L2908 ---> subroutine ustr_init(struc)
-@dcl Type:s_str in Subroutine:ustr_init  subs/m_struc_def.F:L2912 ---> type(s_str):: struc
-@def Subr:ustr_show in   subs/m_struc_def.F:L2946 ---> subroutine ustr_show(struc)
-@dcl Type:s_str in Subroutine:ustr_show  subs/m_struc_def.F:L2949 ---> type(s_str):: struc
-@def Subr:utb_init in   subs/m_struc_def.F:L2967 ---> subroutine utb_init(struc)
-@dcl Type:s_tb in Subroutine:utb_init  subs/m_struc_def.F:L2971 ---> type(s_tb):: struc
-@def Subr:utb_show in   subs/m_struc_def.F:L2982 ---> subroutine utb_show(struc)
-@dcl Type:s_tb in Subroutine:utb_show  subs/m_struc_def.F:L2985 ---> type(s_tb):: struc
+@def Modu:m_struc_func in   subs/m_struc_def.F:L1893 ---> module m_struc_func
+@def Func:uarray_size in Module:m_struc_func  subs/m_struc_def.F:L1902 ---> function uarray_size()
+@dcl Type:s_array in Module:m_struc_func@Function:uarray_size  subs/m_struc_def.F:L1906 ---> type(s_array):: v(2)
+@def Func:ubz_size in Module:m_struc_func  subs/m_struc_def.F:L1931 ---> function ubz_size()
+@dcl Type:s_bz in Module:m_struc_func@Function:ubz_size  subs/m_struc_def.F:L1935 ---> type(s_bz):: v(2)
+@def Func:uctrl_size in Module:m_struc_func  subs/m_struc_def.F:L1960 ---> function uctrl_size()
+@dcl Type:s_ctrl in Module:m_struc_func@Function:uctrl_size  subs/m_struc_def.F:L1964 ---> type(s_ctrl):: v(2)
+@def Func:ugw_size in Module:m_struc_func  subs/m_struc_def.F:L1989 ---> function ugw_size()
+@dcl Type:s_gw in Module:m_struc_func@Function:ugw_size  subs/m_struc_def.F:L1993 ---> type(s_gw):: v(2)
+@def Func:uham_size in Module:m_struc_func  subs/m_struc_def.F:L2018 ---> function uham_size()
+@dcl Type:s_ham in Module:m_struc_func@Function:uham_size  subs/m_struc_def.F:L2022 ---> type(s_ham):: v(2)
+@def Func:ulat_size in Module:m_struc_func  subs/m_struc_def.F:L2047 ---> function ulat_size()
+@dcl Type:s_lat in Module:m_struc_func@Function:ulat_size  subs/m_struc_def.F:L2051 ---> type(s_lat):: v(2)
+@def Func:umix_size in Module:m_struc_func  subs/m_struc_def.F:L2076 ---> function umix_size()
+@dcl Type:s_mix in Module:m_struc_func@Function:umix_size  subs/m_struc_def.F:L2080 ---> type(s_mix):: v(2)
+@def Func:umove_size in Module:m_struc_func  subs/m_struc_def.F:L2105 ---> function umove_size()
+@dcl Type:s_move in Module:m_struc_func@Function:umove_size  subs/m_struc_def.F:L2109 ---> type(s_move):: v(2)
+@def Func:uoptic_size in Module:m_struc_func  subs/m_struc_def.F:L2134 ---> function uoptic_size()
+@dcl Type:s_optic in Module:m_struc_func@Function:uoptic_size  subs/m_struc_def.F:L2138 ---> type(s_optic):: v(2)
+@def Func:uordn_size in Module:m_struc_func  subs/m_struc_def.F:L2163 ---> function uordn_size()
+@dcl Type:s_ordn in Module:m_struc_func@Function:uordn_size  subs/m_struc_def.F:L2167 ---> type(s_ordn):: v(2)
+@def Func:upot_size in Module:m_struc_func  subs/m_struc_def.F:L2192 ---> function upot_size()
+@dcl Type:s_pot in Module:m_struc_func@Function:upot_size  subs/m_struc_def.F:L2196 ---> type(s_pot):: v(2)
+@def Func:usite_size in Module:m_struc_func  subs/m_struc_def.F:L2221 ---> function usite_size()
+@dcl Type:s_site in Module:m_struc_func@Function:usite_size  subs/m_struc_def.F:L2225 ---> type(s_site):: v(2)
+@def Func:uspec_size in Module:m_struc_func  subs/m_struc_def.F:L2250 ---> function uspec_size()
+@dcl Type:s_spec in Module:m_struc_func@Function:uspec_size  subs/m_struc_def.F:L2254 ---> type(s_spec):: v(2)
+@def Func:ustr_size in Module:m_struc_func  subs/m_struc_def.F:L2279 ---> function ustr_size()
+@dcl Type:s_str in Module:m_struc_func@Function:ustr_size  subs/m_struc_def.F:L2283 ---> type(s_str):: v(2)
+@def Func:utb_size in Module:m_struc_func  subs/m_struc_def.F:L2308 ---> function utb_size()
+@dcl Type:s_tb in Module:m_struc_func@Function:utb_size  subs/m_struc_def.F:L2312 ---> type(s_tb):: v(2)
+@def Subr:uarray_init in   subs/m_struc_def.F:L2344 ---> subroutine uarray_init(struc)
+@dcl Type:s_array in Subroutine:uarray_init  subs/m_struc_def.F:L2348 ---> type(s_array):: struc
+@def Subr:uarray_show in   subs/m_struc_def.F:L2383 ---> subroutine uarray_show(struc)
+@dcl Type:s_array in Subroutine:uarray_show  subs/m_struc_def.F:L2386 ---> type(s_array):: struc
+@def Subr:ubz_init in   subs/m_struc_def.F:L2404 ---> subroutine ubz_init(struc)
+@dcl Type:s_bz in Subroutine:ubz_init  subs/m_struc_def.F:L2408 ---> type(s_bz):: struc
+@def Subr:ubz_show in   subs/m_struc_def.F:L2441 ---> subroutine ubz_show(struc)
+@dcl Type:s_bz in Subroutine:ubz_show  subs/m_struc_def.F:L2444 ---> type(s_bz):: struc
+@def Subr:uctrl_init in   subs/m_struc_def.F:L2462 ---> subroutine uctrl_init(struc)
+@dcl Type:s_ctrl in Subroutine:uctrl_init  subs/m_struc_def.F:L2466 ---> type(s_ctrl):: struc
+@def Subr:uctrl_show in   subs/m_struc_def.F:L2525 ---> subroutine uctrl_show(struc)
+@dcl Type:s_ctrl in Subroutine:uctrl_show  subs/m_struc_def.F:L2528 ---> type(s_ctrl):: struc
+@def Subr:uham_init in   subs/m_struc_def.F:L2593 ---> subroutine uham_init(struc)
+@dcl Type:s_ham in Subroutine:uham_init  subs/m_struc_def.F:L2597 ---> type(s_ham):: struc
+@def Subr:uham_show in   subs/m_struc_def.F:L2656 ---> subroutine uham_show(struc)
+@dcl Type:s_ham in Subroutine:uham_show  subs/m_struc_def.F:L2659 ---> type(s_ham):: struc
+@def Subr:ulat_init in   subs/m_struc_def.F:L2677 ---> subroutine ulat_init(struc)
+@dcl Type:s_lat in Subroutine:ulat_init  subs/m_struc_def.F:L2681 ---> type(s_lat):: struc
+@def Subr:ulat_show in   subs/m_struc_def.F:L2727 ---> subroutine ulat_show(struc)
+@dcl Type:s_lat in Subroutine:ulat_show  subs/m_struc_def.F:L2730 ---> type(s_lat):: struc
+@def Subr:umix_init in   subs/m_struc_def.F:L2748 ---> subroutine umix_init(struc)
+@dcl Type:s_mix in Subroutine:umix_init  subs/m_struc_def.F:L2752 ---> type(s_mix):: struc
+@def Subr:umix_show in   subs/m_struc_def.F:L2778 ---> subroutine umix_show(struc)
+@dcl Type:s_mix in Subroutine:umix_show  subs/m_struc_def.F:L2781 ---> type(s_mix):: struc
+@def Subr:umove_init in   subs/m_struc_def.F:L2799 ---> subroutine umove_init(struc)
+@dcl Type:s_move in Subroutine:umove_init  subs/m_struc_def.F:L2803 ---> type(s_move):: struc
+@def Subr:umove_show in   subs/m_struc_def.F:L2817 ---> subroutine umove_show(struc)
+@dcl Type:s_move in Subroutine:umove_show  subs/m_struc_def.F:L2820 ---> type(s_move):: struc
+@def Subr:uoptic_init in   subs/m_struc_def.F:L2838 ---> subroutine uoptic_init(struc)
+@dcl Type:s_optic in Subroutine:uoptic_init  subs/m_struc_def.F:L2842 ---> type(s_optic):: struc
+@def Subr:uoptic_show in   subs/m_struc_def.F:L2858 ---> subroutine uoptic_show(struc)
+@dcl Type:s_optic in Subroutine:uoptic_show  subs/m_struc_def.F:L2861 ---> type(s_optic):: struc
+@def Subr:uordn_init in   subs/m_struc_def.F:L2879 ---> subroutine uordn_init(struc)
+@dcl Type:s_ordn in Subroutine:uordn_init  subs/m_struc_def.F:L2883 ---> type(s_ordn):: struc
+@def Subr:uordn_show in   subs/m_struc_def.F:L2897 ---> subroutine uordn_show(struc)
+@dcl Type:s_ordn in Subroutine:uordn_show  subs/m_struc_def.F:L2900 ---> type(s_ordn):: struc
+@def Subr:upot_init in   subs/m_struc_def.F:L2918 ---> subroutine upot_init(struc)
+@dcl Type:s_pot in Subroutine:upot_init  subs/m_struc_def.F:L2922 ---> type(s_pot):: struc
+@def Subr:upot_show in   subs/m_struc_def.F:L2983 ---> subroutine upot_show(struc)
+@dcl Type:s_pot in Subroutine:upot_show  subs/m_struc_def.F:L2986 ---> type(s_pot):: struc
+@def Subr:usite_init in   subs/m_struc_def.F:L3004 ---> subroutine usite_init(struc)
+@dcl Type:s_site in Subroutine:usite_init  subs/m_struc_def.F:L3008 ---> type(s_site):: struc
+@def Subr:usite_show in   subs/m_struc_def.F:L3038 ---> subroutine usite_show(struc)
+@dcl Type:s_site in Subroutine:usite_show  subs/m_struc_def.F:L3041 ---> type(s_site):: struc
+@def Subr:uspec_init in   subs/m_struc_def.F:L3059 ---> subroutine uspec_init(struc)
+@dcl Type:s_spec in Subroutine:uspec_init  subs/m_struc_def.F:L3063 ---> type(s_spec):: struc
+@def Subr:uspec_show in   subs/m_struc_def.F:L3140 ---> subroutine uspec_show(struc)
+@dcl Type:s_spec in Subroutine:uspec_show  subs/m_struc_def.F:L3143 ---> type(s_spec):: struc
+@def Subr:ustr_init in   subs/m_struc_def.F:L3161 ---> subroutine ustr_init(struc)
+@dcl Type:s_str in Subroutine:ustr_init  subs/m_struc_def.F:L3165 ---> type(s_str):: struc
+@def Subr:ustr_show in   subs/m_struc_def.F:L3198 ---> subroutine ustr_show(struc)
+@dcl Type:s_str in Subroutine:ustr_show  subs/m_struc_def.F:L3201 ---> type(s_str):: struc
+@def Subr:utb_init in   subs/m_struc_def.F:L3219 ---> subroutine utb_init(struc)
+@dcl Type:s_tb in Subroutine:utb_init  subs/m_struc_def.F:L3223 ---> type(s_tb):: struc
+@def Subr:utb_show in   subs/m_struc_def.F:L3233 ---> subroutine utb_show(struc)
+@dcl Type:s_tb in Subroutine:utb_show  subs/m_struc_def.F:L3236 ---> type(s_tb):: struc
 @def Modu:m_toksw in   subs/m_toksw.F:L1 ---> module m_toksw
 @def Subr:clear_swtok in Module:m_toksw  subs/m_toksw.F:L49 ---> subroutine clear_swtok(debug_in)
 @def Subr:nswadd in Module:m_toksw  subs/m_toksw.F:L72 ---> subroutine nswadd()
@@ -1935,70 +1951,70 @@
 @use Modu:m_struc_def in Subroutine:lmfp  fp/lmfp.F:L17 ---> use m_struc_def
 @cal Subr:lsets_bitop_i8 in Subroutine:lmfp  fp/lmfp.F:L262 ---> call lsets_bitop_i8(sctrl%lrs,1,.false.,8)
 @cal Subr:lsets_bitop_i8 in Subroutine:lmfp  fp/lmfp.F:L266 ---> call lsets_bitop_i8(sctrl%lrs,1,.false.,16)
-@cal Subr:setcc in Subroutine:lmfp  fp/lmfp.F:L335 ---> call setcc(lrel)
-@cal Subr:praugm in Subroutine:lmfp  fp/lmfp.F:L371 ---> call praugm(sspec,0)
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L394 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
-@cal Subr:shorps in Subroutine:lmfp  fp/lmfp.F:L401 ---> call shorps(nbas,plat,ix,w(opos2),w(opos))
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L405 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-@cal Subr:parms0 in Subroutine:lmfp  fp/lmfp.F:L435 ---> call parms0(0,0,0d0,0)
-@cal Subr:rlxstp in Subroutine:lmfp  fp/lmfp.F:L510 ---> call rlxstp(sctrl,ssite,natrlx,nvrelx,w(oindrx),xyzfrz,pdim)
-@cal Subr:shorps in Subroutine:lmfp  fp/lmfp.F:L526 ---> call shorps(nbas,plat,ix,w(opos),w(opos2))
-@cal Subr:iobsm0 in Subroutine:lmfp  fp/lmfp.F:L527 ---> call iobsm0(0,bstim,0d0,0d0,nbas,alat,w(opos2),ifi)
-@cal Subr:supot in Subroutine:lmfp  fp/lmfp.F:L538 ---> call supot(0,sctrl,slat,spot)
-@cal Subr:subasi in Subroutine:lmfp  fp/lmfp.F:L546 ---> call subasi(sctrl,sspec,sham)
-@cal Subr:suham in Subroutine:lmfp  fp/lmfp.F:L548 ---> call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
-@cal Subr:suldau in Subroutine:lmfp  fp/lmfp.F:L640 ---> call suldau(nbas,sspec,ssite,nlibu,lmaxu,w(olldau))
-@cal Subr:sudmtu in Subroutine:lmfp  fp/lmfp.F:L668 ---> call sudmtu(nbas,nsp,nlibu,lmaxu,ssite,sspec,0,w(olldau),ng,w(og),w(oistab),w(odmatu),w(ovorb))
-@cal Subr:rsedit in Subroutine:lmfp  fp/lmfp.F:L675 ---> call rsedit(strn(9:),1,sctrl,ssite,sspec,slat,spot,sbz,nbas,nat,nspec)
-@cal Subr:chimedit in Subroutine:lmfp  fp/lmfp.F:L682 ---> call chimedit(strn(11:),1,sctrl,ssite,sspec,slat,spot,sbz,nbas,nat,nspec)
-@cal Subr:rdovfa in Subroutine:lmfp  fp/lmfp.F:L719 ---> call rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,w(oorhat))
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L763 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-@cal Subr:smshft in Subroutine:lmfp  fp/lmfp.F:L782 ---> call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
-@cal Subr:spacks_copy in Subroutine:lmfp  fp/lmfp.F:L833 ---> call spacks_copy('u',sspec(i_spacks)%name,j,j,alabl,i_spacks)
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L848 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
-@cal Subr:shorps in Subroutine:lmfp  fp/lmfp.F:L854 ---> call shorps(-nbas,plat,ix,w(opos2),w(opos))
-@cal Subr:iopos in Subroutine:lmfp  fp/lmfp.F:L857 ---> call iopos(.true.,1,'shorps',nbas,w(opos))
-@cal Subr:shorps in Subroutine:lmfp  fp/lmfp.F:L858 ---> call shorps(nbas,plat,ix,w(opos2),w(opos))
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L862 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-@cal Subr:bndfp in Subroutine:lmfp  fp/lmfp.F:L885 ---> call bndfp(nbas,nsp,nlibu,lmaxu,w(olldau),ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit,w(oevl),w(ofrc),w(odmatu),w(ovorb),llmfgw)
-@cal Subr:chkdmu in Subroutine:lmfp  fp/lmfp.F:L892 ---> call chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,sham,0,w(odmatu),w(odmato),w(ovorb),tolu,umix,w(olldau),ng,w(og),w(oistab))
-@cal Subr:ioden in Subroutine:lmfp  fp/lmfp.F:L910 ---> call ioden(strn(7:),slat,ssite,sspec,w(oorhat),w(osmrho))
-@cal Subr:upacks in Subroutine:lmfp  fp/lmfp.F:L936 ---> call upacks('strn jobid',i,j)
-@cal Subr:nwit in Subroutine:lmfp  fp/lmfp.F:L981 ---> call nwit (int(sctrl%nvario) ,iter ,maxit ,lhf.or.irs ( 1   ) .eq.0.and.iter.eq.1 ,leks+i ,etol ,qtol ,qdiff ,'cxhi'   ,amom ,etot ,lsc)
-@cal Subr:cppos in Subroutine:lmfp  fp/lmfp.F:L1017 ---> call cppos(1,nbas,ssite)
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L1023 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-@cal Subr:grdepl in Subroutine:lmfp  fp/lmfp.F:L1033 ---> call grdepl(nvrelx,w(oindrx),0.01d0,etot,irlxsh,pletot,dist)
-@cal Subr:grdep2 in Subroutine:lmfp  fp/lmfp.F:L1035 ---> call grdep2(1,nvrelx,w(oindrx),dist0,dist)
-@cal Subr:relax in Subroutine:lmfp  fp/lmfp.F:L1038 ---> call relax(prgnam,sctrl,ssite,sspec,itrlx,w(oindrx),natrlx,nvrelx,pletot,w(op),w(ow),0,0d0,dist0,icom)
-@cal Subr:grdep2 in Subroutine:lmfp  fp/lmfp.F:L1041 ---> call grdep2(1,nvrelx,w(oindrx),dist0,dist)
-@cal Subr:relax in Subroutine:lmfp  fp/lmfp.F:L1046 ---> call relax(prgnam,sctrl,ssite,sspec,itrlx,w(oindrx),natrlx,nvrelx,w(ofrc),w(op),w(ow),0,0d0,w(opos),icom)
-@cal Subr:fixpos in Subroutine:lmfp  fp/lmfp.F:L1071 ---> call fixpos(w(opos),nbas,fptol,ng,plat,w(og),w(oag),w(oistab))
-@cal Subr:shorps in Subroutine:lmfp  fp/lmfp.F:L1082 ---> call shorps(nbas,plat,ix,w(opos),w(opos2))
-@cal Subr:iobsmv in Subroutine:lmfp  fp/lmfp.F:L1083 ---> call iobsmv(0,bstim,0d0,0d0,nbas,alat,w(opos2),-ifi)
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L1091 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-@cal Subr:nwitsv in Subroutine:lmfp  fp/lmfp.F:L1106 ---> call nwitsv(1+2,k,flg,nsp,amom,etot)
-@cal Subr:prelx1 in Subroutine:lmfp  fp/lmfp.F:L1123 ---> call prelx1(1,nm,lshr,natrlx,nvrelx,w(oindrx),w(op),w(opos))
-@cal Subr:prelx1 in Subroutine:lmfp  fp/lmfp.F:L1126 ---> call prelx1(1,nm,lshr,natrlx,nvrelx,w(oindrx),w(op),dist0)
-@cal Subr:grdep2 in Subroutine:lmfp  fp/lmfp.F:L1128 ---> call grdep2(1,nvrelx,w(oindrx),dist0,dist)
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L1140 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-@cal Subr:smshft in Subroutine:lmfp  fp/lmfp.F:L1156 ---> call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
-@cal Subr:upacks in Subroutine:lmfp  fp/lmfp.F:L1162 ---> call upacks('strn jobid',i,j)
-@cal Subr:rdistn in Subroutine:lmfp  fp/lmfp.F:L1179 ---> call rdistn(w(opos),w(owk),nbas,gam(1),gam(2),gam(3),1/gam1)
-@cal Subr:iopos in Subroutine:lmfp  fp/lmfp.F:L1180 ---> call iopos(.true.,0,strn(8:),nbas,w(owk))
-@cal Subr:parms0 in Subroutine:lmfp  fp/lmfp.F:L1194 ---> call parms0(0,0,0d0,0)
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L1224 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-@cal Subr:rdistn in Subroutine:lmfp  fp/lmfp.F:L1234 ---> call rdistn(w(opos),w(owk),nbas,gam(1),gam(2),gam(3),1/gam1)
-@cal Subr:iopos in Subroutine:lmfp  fp/lmfp.F:L1236 ---> call iopos(.true.,1,strn(14:),nbas,w(owk))
-@cal Subr:iopos in Subroutine:lmfp  fp/lmfp.F:L1239 ---> call iopos(.true.,0,strn(8:),nbas,w(owk))
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L1278 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-@cal Subr:cppos in Subroutine:lmfp  fp/lmfp.F:L1281 ---> call cppos(1,nbas,ssite)
-@cal Subr:lattic in Subroutine:lmfp  fp/lmfp.F:L1295 ---> call lattic(slat,sctrl,ssite,sarray)
-@cal Subr:mkqp in Subroutine:lmfp  fp/lmfp.F:L1308 ---> call mkqp(sctrl,sbz,slat,ltmp,.false.,1,-2)
-@cal Subr:upacks in Subroutine:lmfp  fp/lmfp.F:L1313 ---> call upacks('strn jobid',i,j)
-@use Modu:m_struc_def in Subroutine:cppos  fp/lmfp.F:L1339 ---> use m_struc_def
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:cppos  fp/lmfp.F:L1354 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,1,pos)
-@cal Subr:spackv_array_copy_r8_r8 in Subroutine:cppos  fp/lmfp.F:L1360 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos0,i_copy_size,1,pos)
-@cal Subr:grdep2 in Subroutine:grdepl  fp/lmfp.F:L1414 ---> call grdep2(iv,iv,indrlx,vec1,dist)
+@cal Subr:setcc in Subroutine:lmfp  fp/lmfp.F:L337 ---> call setcc(lrel)
+@cal Subr:praugm in Subroutine:lmfp  fp/lmfp.F:L373 ---> call praugm(sspec,0)
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L396 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
+@cal Subr:shorps in Subroutine:lmfp  fp/lmfp.F:L403 ---> call shorps(nbas,plat,ix,w(opos2),w(opos))
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L407 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+@cal Subr:parms0 in Subroutine:lmfp  fp/lmfp.F:L437 ---> call parms0(0,0,0d0,0)
+@cal Subr:rlxstp in Subroutine:lmfp  fp/lmfp.F:L512 ---> call rlxstp(sctrl,ssite,natrlx,nvrelx,w(oindrx),xyzfrz,pdim)
+@cal Subr:shorps in Subroutine:lmfp  fp/lmfp.F:L528 ---> call shorps(nbas,plat,ix,w(opos),w(opos2))
+@cal Subr:iobsm0 in Subroutine:lmfp  fp/lmfp.F:L529 ---> call iobsm0(0,bstim,0d0,0d0,nbas,alat,w(opos2),ifi)
+@cal Subr:supot in Subroutine:lmfp  fp/lmfp.F:L540 ---> call supot(0,sctrl,slat,spot)
+@cal Subr:subasi in Subroutine:lmfp  fp/lmfp.F:L548 ---> call subasi(sctrl,sspec,sham)
+@cal Subr:suham in Subroutine:lmfp  fp/lmfp.F:L550 ---> call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
+@cal Subr:suldau in Subroutine:lmfp  fp/lmfp.F:L642 ---> call suldau(nbas,sspec,ssite,nlibu,lmaxu,w(olldau))
+@cal Subr:sudmtu in Subroutine:lmfp  fp/lmfp.F:L670 ---> call sudmtu(nbas,nsp,nlibu,lmaxu,ssite,sspec,0,w(olldau),ng,w(og),w(oistab),w(odmatu),w(ovorb))
+@cal Subr:rsedit in Subroutine:lmfp  fp/lmfp.F:L677 ---> call rsedit(strn(9:),1,sctrl,ssite,sspec,slat,spot,sbz,nbas,nat,nspec)
+@cal Subr:chimedit in Subroutine:lmfp  fp/lmfp.F:L684 ---> call chimedit(strn(11:),1,sctrl,ssite,sspec,slat,spot,sbz,nbas,nat,nspec)
+@cal Subr:rdovfa in Subroutine:lmfp  fp/lmfp.F:L721 ---> call rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,w(oorhat))
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L765 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+@cal Subr:smshft in Subroutine:lmfp  fp/lmfp.F:L784 ---> call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
+@cal Subr:spacks_copy in Subroutine:lmfp  fp/lmfp.F:L835 ---> call spacks_copy('u',sspec(i_spacks)%name,j,j,alabl,i_spacks)
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L850 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
+@cal Subr:shorps in Subroutine:lmfp  fp/lmfp.F:L856 ---> call shorps(-nbas,plat,ix,w(opos2),w(opos))
+@cal Subr:iopos in Subroutine:lmfp  fp/lmfp.F:L859 ---> call iopos(.true.,1,'shorps',nbas,w(opos))
+@cal Subr:shorps in Subroutine:lmfp  fp/lmfp.F:L860 ---> call shorps(nbas,plat,ix,w(opos2),w(opos))
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L864 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+@cal Subr:bndfp in Subroutine:lmfp  fp/lmfp.F:L887 ---> call bndfp(nbas,nsp,nlibu,lmaxu,w(olldau),ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit,w(oevl),w(ofrc),w(odmatu),w(ovorb),llmfgw)
+@cal Subr:chkdmu in Subroutine:lmfp  fp/lmfp.F:L894 ---> call chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,sham,0,w(odmatu),w(odmato),w(ovorb),tolu,umix,w(olldau),ng,w(og),w(oistab))
+@cal Subr:ioden in Subroutine:lmfp  fp/lmfp.F:L912 ---> call ioden(strn(7:),slat,ssite,sspec,w(oorhat),w(osmrho))
+@cal Subr:upacks in Subroutine:lmfp  fp/lmfp.F:L938 ---> call upacks('strn jobid',i,j)
+@cal Subr:nwit in Subroutine:lmfp  fp/lmfp.F:L983 ---> call nwit (int(sctrl%nvario) ,iter ,maxit ,lhf.or.irs ( 1   ) .eq.0.and.iter.eq.1 ,leks+i ,etol ,qtol ,qdiff ,'cxhi'   ,amom ,etot ,lsc)
+@cal Subr:cppos in Subroutine:lmfp  fp/lmfp.F:L1019 ---> call cppos(1,nbas,ssite)
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L1025 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+@cal Subr:grdepl in Subroutine:lmfp  fp/lmfp.F:L1035 ---> call grdepl(nvrelx,w(oindrx),0.01d0,etot,irlxsh,pletot,dist)
+@cal Subr:grdep2 in Subroutine:lmfp  fp/lmfp.F:L1037 ---> call grdep2(1,nvrelx,w(oindrx),dist0,dist)
+@cal Subr:relax in Subroutine:lmfp  fp/lmfp.F:L1040 ---> call relax(prgnam,sctrl,ssite,sspec,itrlx,w(oindrx),natrlx,nvrelx,pletot,w(op),w(ow),0,0d0,dist0,icom)
+@cal Subr:grdep2 in Subroutine:lmfp  fp/lmfp.F:L1043 ---> call grdep2(1,nvrelx,w(oindrx),dist0,dist)
+@cal Subr:relax in Subroutine:lmfp  fp/lmfp.F:L1048 ---> call relax(prgnam,sctrl,ssite,sspec,itrlx,w(oindrx),natrlx,nvrelx,w(ofrc),w(op),w(ow),0,0d0,w(opos),icom)
+@cal Subr:fixpos in Subroutine:lmfp  fp/lmfp.F:L1073 ---> call fixpos(w(opos),nbas,fptol,ng,plat,w(og),w(oag),w(oistab))
+@cal Subr:shorps in Subroutine:lmfp  fp/lmfp.F:L1084 ---> call shorps(nbas,plat,ix,w(opos),w(opos2))
+@cal Subr:iobsmv in Subroutine:lmfp  fp/lmfp.F:L1085 ---> call iobsmv(0,bstim,0d0,0d0,nbas,alat,w(opos2),-ifi)
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L1093 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+@cal Subr:nwitsv in Subroutine:lmfp  fp/lmfp.F:L1108 ---> call nwitsv(1+2,k,flg,nsp,amom,etot)
+@cal Subr:prelx1 in Subroutine:lmfp  fp/lmfp.F:L1125 ---> call prelx1(1,nm,lshr,natrlx,nvrelx,w(oindrx),w(op),w(opos))
+@cal Subr:prelx1 in Subroutine:lmfp  fp/lmfp.F:L1128 ---> call prelx1(1,nm,lshr,natrlx,nvrelx,w(oindrx),w(op),dist0)
+@cal Subr:grdep2 in Subroutine:lmfp  fp/lmfp.F:L1130 ---> call grdep2(1,nvrelx,w(oindrx),dist0,dist)
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L1142 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+@cal Subr:smshft in Subroutine:lmfp  fp/lmfp.F:L1158 ---> call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
+@cal Subr:upacks in Subroutine:lmfp  fp/lmfp.F:L1164 ---> call upacks('strn jobid',i,j)
+@cal Subr:rdistn in Subroutine:lmfp  fp/lmfp.F:L1181 ---> call rdistn(w(opos),w(owk),nbas,gam(1),gam(2),gam(3),1/gam1)
+@cal Subr:iopos in Subroutine:lmfp  fp/lmfp.F:L1182 ---> call iopos(.true.,0,strn(8:),nbas,w(owk))
+@cal Subr:parms0 in Subroutine:lmfp  fp/lmfp.F:L1196 ---> call parms0(0,0,0d0,0)
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L1226 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+@cal Subr:rdistn in Subroutine:lmfp  fp/lmfp.F:L1236 ---> call rdistn(w(opos),w(owk),nbas,gam(1),gam(2),gam(3),1/gam1)
+@cal Subr:iopos in Subroutine:lmfp  fp/lmfp.F:L1238 ---> call iopos(.true.,1,strn(14:),nbas,w(owk))
+@cal Subr:iopos in Subroutine:lmfp  fp/lmfp.F:L1241 ---> call iopos(.true.,0,strn(8:),nbas,w(owk))
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:lmfp  fp/lmfp.F:L1280 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+@cal Subr:cppos in Subroutine:lmfp  fp/lmfp.F:L1283 ---> call cppos(1,nbas,ssite)
+@cal Subr:lattic in Subroutine:lmfp  fp/lmfp.F:L1297 ---> call lattic(slat,sctrl,ssite,sarray)
+@cal Subr:mkqp in Subroutine:lmfp  fp/lmfp.F:L1310 ---> call mkqp(sctrl,sbz,slat,ltmp,.false.,1,-2)
+@cal Subr:upacks in Subroutine:lmfp  fp/lmfp.F:L1315 ---> call upacks('strn jobid',i,j)
+@use Modu:m_struc_def in Subroutine:cppos  fp/lmfp.F:L1341 ---> use m_struc_def
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:cppos  fp/lmfp.F:L1356 ---> call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,1,pos)
+@cal Subr:spackv_array_copy_r8_r8 in Subroutine:cppos  fp/lmfp.F:L1362 ---> call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos0,i_copy_size,1,pos)
+@cal Subr:grdep2 in Subroutine:grdepl  fp/lmfp.F:L1416 ---> call grdep2(iv,iv,indrlx,vec1,dist)
 @use Modu:m_struc_def in Subroutine:locpot  fp/locpot.F:L12 ---> use m_struc_def
 @cal Subr:spacks_copy in Subroutine:locpot  fp/locpot.F:L277 ---> call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
 @cal Subr:i8icopy in Subroutine:locpot  fp/locpot.F:L308 ---> call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)
@@ -2800,8 +2816,8 @@
 @cal Subr:praldm in Subroutine:chkdmu  subs/chkdmu.F:L281 ---> call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' New vorb',vorb)
 @cal Subr:ffnam in Subroutine:clist  subs/clist.F:L90 ---> call ffnam(slist(1:ls1+1),filnam)
 @use Modu:m_struc_def in Subroutine:clsprm  subs/clsprm.F:L12 ---> use m_struc_def
-@cal Subr:ioqpp in Subroutine:clsprm  subs/clsprm.F:L267 ---> call ioqpp(.false.,sctrl,spot)
-@use Modu:m_struc_def in Subroutine:ioqpp  subs/clsprm.F:L489 ---> use m_struc_def
+@cal Subr:ioqpp in Subroutine:clsprm  subs/clsprm.F:L268 ---> call ioqpp(.false.,sctrl,spot)
+@use Modu:m_struc_def in Subroutine:ioqpp  subs/clsprm.F:L490 ---> use m_struc_def
 @use Modu:m_struc_def in Subroutine:clsset  subs/clsset.F:L5 ---> use m_struc_def
 @cal Subr:shorps in Subroutine:clsset  subs/clsset.F:L94 ---> call shorps(nbas,plat,ix,pos,pos)
 @cal Subr:prjpos in Subroutine:clsset  subs/clsset.F:L103 ---> call prjpos(2,ix,w,plat,nbas,pos,w(opos))
@@ -3630,34 +3646,63 @@
 @cal Subr:tkadd in Subroutine:toksw_init  subs/m_rdctrl.F:L3455 ---> call tkadd(" HAM_NSPIN~")
 @cal Subr:tkadd in Subroutine:toksw_init  subs/m_rdctrl.F:L3456 ---> call tkadd(" HAM_NONCOL~ HAM_SS~")
 @cal Subr:tkadd in Subroutine:toksw_init  subs/m_rdctrl.F:L3457 ---> call tkadd(" HAM_XCFUN~")
-@use Modu:m_struc_def in Subroutine:uarray_init  subs/m_struc_def.F:L2079 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:uarray_show  subs/m_struc_def.F:L2119 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:ubz_init  subs/m_struc_def.F:L2140 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:ubz_show  subs/m_struc_def.F:L2178 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:uctrl_init  subs/m_struc_def.F:L2199 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:uctrl_show  subs/m_struc_def.F:L2263 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:uham_init  subs/m_struc_def.F:L2332 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:uham_show  subs/m_struc_def.F:L2396 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:ulat_init  subs/m_struc_def.F:L2417 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:ulat_show  subs/m_struc_def.F:L2468 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:umix_init  subs/m_struc_def.F:L2489 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:umix_show  subs/m_struc_def.F:L2520 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:umove_init  subs/m_struc_def.F:L2541 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:umove_show  subs/m_struc_def.F:L2560 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:uoptic_init  subs/m_struc_def.F:L2581 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:uoptic_show  subs/m_struc_def.F:L2602 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:uordn_init  subs/m_struc_def.F:L2623 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:uordn_show  subs/m_struc_def.F:L2642 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:upot_init  subs/m_struc_def.F:L2663 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:upot_show  subs/m_struc_def.F:L2729 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:usite_init  subs/m_struc_def.F:L2750 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:usite_show  subs/m_struc_def.F:L2785 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:uspec_init  subs/m_struc_def.F:L2806 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:uspec_show  subs/m_struc_def.F:L2888 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:ustr_init  subs/m_struc_def.F:L2909 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:ustr_show  subs/m_struc_def.F:L2947 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:utb_init  subs/m_struc_def.F:L2968 ---> use m_struc_def
-@use Modu:m_struc_def in Subroutine:utb_show  subs/m_struc_def.F:L2983 ---> use m_struc_def
+@use Modu:m_struc_def in Module:m_struc_func@Function:uarray_size  subs/m_struc_def.F:L1904 ---> use m_struc_def,only: s_array
+@use Modu:m_struc_def in Module:m_struc_func@Function:ubz_size  subs/m_struc_def.F:L1933 ---> use m_struc_def,only: s_bz
+@use Modu:m_struc_def in Module:m_struc_func@Function:uctrl_size  subs/m_struc_def.F:L1962 ---> use m_struc_def,only: s_ctrl
+@use Modu:m_struc_def in Module:m_struc_func@Function:ugw_size  subs/m_struc_def.F:L1991 ---> use m_struc_def,only: s_gw
+@use Modu:m_struc_def in Module:m_struc_func@Function:uham_size  subs/m_struc_def.F:L2020 ---> use m_struc_def,only: s_ham
+@use Modu:m_struc_def in Module:m_struc_func@Function:ulat_size  subs/m_struc_def.F:L2049 ---> use m_struc_def,only: s_lat
+@use Modu:m_struc_def in Module:m_struc_func@Function:umix_size  subs/m_struc_def.F:L2078 ---> use m_struc_def,only: s_mix
+@use Modu:m_struc_def in Module:m_struc_func@Function:umove_size  subs/m_struc_def.F:L2107 ---> use m_struc_def,only: s_move
+@use Modu:m_struc_def in Module:m_struc_func@Function:uoptic_size  subs/m_struc_def.F:L2136 ---> use m_struc_def,only: s_optic
+@use Modu:m_struc_def in Module:m_struc_func@Function:uordn_size  subs/m_struc_def.F:L2165 ---> use m_struc_def,only: s_ordn
+@use Modu:m_struc_def in Module:m_struc_func@Function:upot_size  subs/m_struc_def.F:L2194 ---> use m_struc_def,only: s_pot
+@use Modu:m_struc_def in Module:m_struc_func@Function:usite_size  subs/m_struc_def.F:L2223 ---> use m_struc_def,only: s_site
+@use Modu:m_struc_def in Module:m_struc_func@Function:uspec_size  subs/m_struc_def.F:L2252 ---> use m_struc_def,only: s_spec
+@use Modu:m_struc_def in Module:m_struc_func@Function:ustr_size  subs/m_struc_def.F:L2281 ---> use m_struc_def,only: s_str
+@use Modu:m_struc_def in Module:m_struc_func@Function:utb_size  subs/m_struc_def.F:L2310 ---> use m_struc_def,only: s_tb
+@use Modu:m_struc_def in Subroutine:uarray_init  subs/m_struc_def.F:L2345 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:uarray_init  subs/m_struc_def.F:L2346 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:uarray_show  subs/m_struc_def.F:L2384 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:ubz_init  subs/m_struc_def.F:L2405 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:ubz_init  subs/m_struc_def.F:L2406 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:ubz_show  subs/m_struc_def.F:L2442 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:uctrl_init  subs/m_struc_def.F:L2463 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:uctrl_init  subs/m_struc_def.F:L2464 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:uctrl_show  subs/m_struc_def.F:L2526 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:uham_init  subs/m_struc_def.F:L2594 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:uham_init  subs/m_struc_def.F:L2595 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:uham_show  subs/m_struc_def.F:L2657 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:ulat_init  subs/m_struc_def.F:L2678 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:ulat_init  subs/m_struc_def.F:L2679 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:ulat_show  subs/m_struc_def.F:L2728 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:umix_init  subs/m_struc_def.F:L2749 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:umix_init  subs/m_struc_def.F:L2750 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:umix_show  subs/m_struc_def.F:L2779 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:umove_init  subs/m_struc_def.F:L2800 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:umove_init  subs/m_struc_def.F:L2801 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:umove_show  subs/m_struc_def.F:L2818 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:uoptic_init  subs/m_struc_def.F:L2839 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:uoptic_init  subs/m_struc_def.F:L2840 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:uoptic_show  subs/m_struc_def.F:L2859 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:uordn_init  subs/m_struc_def.F:L2880 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:uordn_init  subs/m_struc_def.F:L2881 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:uordn_show  subs/m_struc_def.F:L2898 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:upot_init  subs/m_struc_def.F:L2919 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:upot_init  subs/m_struc_def.F:L2920 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:upot_show  subs/m_struc_def.F:L2984 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:usite_init  subs/m_struc_def.F:L3005 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:usite_init  subs/m_struc_def.F:L3006 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:usite_show  subs/m_struc_def.F:L3039 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:uspec_init  subs/m_struc_def.F:L3060 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:uspec_init  subs/m_struc_def.F:L3061 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:uspec_show  subs/m_struc_def.F:L3141 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:ustr_init  subs/m_struc_def.F:L3162 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:ustr_init  subs/m_struc_def.F:L3163 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:ustr_show  subs/m_struc_def.F:L3199 ---> use m_struc_def
+@use Modu:m_struc_def in Subroutine:utb_init  subs/m_struc_def.F:L3220 ---> use m_struc_def
+@use Modu:m_struc_func in Subroutine:utb_init  subs/m_struc_def.F:L3221 ---> use m_struc_func
+@use Modu:m_struc_def in Subroutine:utb_show  subs/m_struc_def.F:L3234 ---> use m_struc_def
 @cal Subr:shortn in Subroutine:madmat  subs/madmat.F:L33 ---> call shortn(tau,tau,dlat,nkd)
 @cal Subr:strx00 in Subroutine:madmat  subs/madmat.F:L34 ---> call strx00(tau,awald,alat,vol,glat,nkg,dlat,nkd,dmad(ibas,jbas))
 @cal Subr:bessl2 in Subroutine:makdla  subs/makdla.F:L33 ---> call bessl2(er2,0,l+1,fi(0),gi(0))
@@ -3770,15 +3815,15 @@
 @cal Subr:imxmnx in Subroutine:offshp  subs/orbl.F:L229 ---> call imxmnx(mxorb,iprmb(1+mxorb*(ib-1)),1,1+ldimp,ldim,i,k)
 @cal Subr:imxmnx in Subroutine:offshp  subs/orbl.F:L243 ---> call imxmnx(mxorb,iprmb(1+mxorb*(ib-1)),1,1+ldimp,ldim,i,k)
 @cal Subr:shorps in Subroutine:ovlchk  subs/ovlchk.F:L143 ---> call shorps(1,plat,mode,dd,dd)
-@cal Subr:ovlchk in Subroutine:ovmin  subs/ovmin.F:L64 ---> call ovlchk(f2py_expr_tuple_32905)
+@cal Subr:ovlchk in Subroutine:ovmin  subs/ovmin.F:L64 ---> call ovlchk(f2py_expr_tuple_32980)
 @cal Subr:fovlp in Subroutine:ovmin  subs/ovmin.F:L66 ---> call fovlp(1,nbas,w(ontab),w(oiax),plat,pos,ips,alat,rmax,z,6d0,1d0,.75d0,.5d0,fovmx,fovl,novl)
 @cal Subr:clist in Subroutine:ovmin  subs/ovmin.F:L112 ---> call clist(lstyle,sovmin(j1:j2+1),dclabl,z,nclass,nlstc,w(olist))
-@cal Subr:ovlchk in Subroutine:ovmin  subs/ovmin.F:L185 ---> call ovlchk(f2py_expr_tuple_32954)
+@cal Subr:ovlchk in Subroutine:ovmin  subs/ovmin.F:L185 ---> call ovlchk(f2py_expr_tuple_33029)
 @cal Subr:fovlp in Subroutine:ovmin  subs/ovmin.F:L187 ---> call fovlp(1,nbas,w(ontab),w(oiax),plat,pos,ips,alat,rmax,z,6d0,1d0,.75d0,.5d0,fovmx,fovl,novl)
 @cal Subr:ovlchk in Function:ovcall  subs/ovmin.F:L235 ---> call ovlchk(nbaso,nbaspo,w(opos),alato,w(ormax),0d0,0d0,w(oips),modeo,plato,fovl,xx)
 @cal Subr:fovlp in Function:ovcall  subs/ovmin.F:L237 ---> call fovlp(1,nbaso,w(ontabo),w(oiaxo),plato,w(opos),w(oips),alato,w(ormax),w(oz),6d0,1d0,.75d0,.5d0,xx,fovl,novl)
 @cal Subr:ovlchk in Function:ovcall  subs/ovmin.F:L245 ---> call ovlchk(nbaso,nbaspo,w(opos),alato,w(ormax),0d0,0d0,w(oips),modeo,plato,fovp,xx)
-@cal Subr:iopos in Function:ovcall  subs/ovmin.F:L247 ---> call iopos(f2py_expr_tuple_32973)
+@cal Subr:iopos in Function:ovcall  subs/ovmin.F:L247 ---> call iopos(f2py_expr_tuple_33048)
 @cal Subr:fovlp in Function:ovcall  subs/ovmin.F:L255 ---> call fovlp(j,j,w(ontabo),w(oiaxo),plato,w(opos),w(oips),alato,w(ormax),w(oz),6d0,1d0,.75d0,.5d0,xx,fov0,novl0)
 @cal Subr:fovlp in Function:ovcall  subs/ovmin.F:L262 ---> call fovlp(j,j,w(ontabo),w(oiaxo),plato,w(opos),w(oips),alato,w(ormax),w(oz),6d0,1d0,.75d0,.5d0,xx,fovp,novlp)
 @cal Subr:fovlp in Function:ovcall  subs/ovmin.F:L267 ---> call fovlp(j,j,w(ontabo),w(oiaxo),plato,w(opos),w(oips),alato,w(ormax),w(oz),6d0,1d0,.75d0,.5d0,xx,fovm,novlm)
@@ -3807,9 +3852,9 @@
 @cal Subr:rseq in Subroutine:phidx  subs/phidx.F:L119 ---> call rseq(eb1,eb2,e,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nr,nre)
 @cal Subr:rsq1 in Subroutine:phidx  subs/phidx.F:L127 ---> call rsq1(0,e,l,z,v,nr,g,val,slo,nn,a,b,rofi,nr)
 @cal Subr:rseq in Subroutine:phidx  subs/phidx.F:L133 ---> call rseq(eb1,eb2,ei,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nr,nre)
-@cal Subr:makdla in Subroutine:phidx  subs/phidx.F:L150 ---> call makdla(f2py_expr_tuple_33638)
+@cal Subr:makdla in Subroutine:phidx  subs/phidx.F:L150 ---> call makdla(f2py_expr_tuple_33713)
 @cal Subr:rseq in Subroutine:phidx  subs/phidx.F:L163 ---> call rseq(eb1,eb2,ei(i),tol,z,l,nn,val,sloi(i),v,gp(1,i),sum,a,b,rofi,nr,nre)
-@cal Subr:makdla in Subroutine:phidx  subs/phidx.F:L167 ---> call makdla(f2py_expr_tuple_33643)
+@cal Subr:makdla in Subroutine:phidx  subs/phidx.F:L167 ---> call makdla(f2py_expr_tuple_33718)
 @cal Subr:dfphi in Subroutine:phidx  subs/phidx.F:L177 ---> call dfphi(de1,del1,de2,del2,1,val,vali,nptdif.eq.4)
 @cal Subr:dfphi in Subroutine:phidx  subs/phidx.F:L178 ---> call dfphi(de1,del1,de2,del2,1,slo,sloi,nptdif.eq.4)
 @cal Subr:dfphi in Subroutine:phidx  subs/phidx.F:L181 ---> call dfphi(de1,del1,de2,del2,1,dla,dlai,nptdif.eq.4)
@@ -3829,8 +3874,8 @@
 @cal Subr:pqmxio in Subroutine:pqmix  subs/pqmix.F:L168 ---> call pqmxio(mmix,mxsav,ifi,.true.,nclass,nl,nsp,nx,lmx,pnu,pold,qnu,qold,xnew,xold,cnst,nda,w(oa),na,rms2)
 @cal Subr:pqmxio in Subroutine:pqmix  subs/pqmix.F:L187 ---> call pqmxio(mmix+1,mxsav,-ifi,.true.,nclass,nl,nsp,nx,lmx,pnu,pold,qnu,qold,xnew,xold,cnst,nda,w(oa),na,rms2)
 @cal Subr:pqsclf in Subroutine:pqmix  subs/pqmix.F:L207 ---> call pqsclf(0,nda,npq,npq*nsp,(nsp-1)*npq,nx,naa,mxsav,wt,w(oa),w(oaa),rms2f)
-@cal Subr:pqmixb in Subroutine:pqmix  subs/pqmix.F:L215 ---> call pqmixb(f2py_expr_tuple_33982)
-@cal Subr:pqmixc in Subroutine:pqmix  subs/pqmix.F:L222 ---> call pqmixc(f2py_expr_tuple_33984)
+@cal Subr:pqmixb in Subroutine:pqmix  subs/pqmix.F:L215 ---> call pqmixb(f2py_expr_tuple_34057)
+@cal Subr:pqmixc in Subroutine:pqmix  subs/pqmix.F:L222 ---> call pqmixc(f2py_expr_tuple_34059)
 @cal Subr:pqmixa in Subroutine:pqmix  subs/pqmix.F:L229 ---> call pqmixa(naa,nmix,mmix,mxsav,beta,rms2,w(oaa),dmxp(16))
 @cal Subr:pqsclb in Subroutine:pqmix  subs/pqmix.F:L235 ---> call pqsclb(nda,npq,npq*nsp,(nsp-1)*npq,nx,naa,mxsav,wt,w(oa),w(oaa))
 @cal Subr:pqmxup in Subroutine:pqmix  subs/pqmix.F:L240 ---> call pqmxup(na,mxsav,nclass,nl,nsp,nx,lmx,pnu,qnu,xnew,pold,qold,xold,cnst,nda,w(oa),rms2)
@@ -3853,49 +3898,50 @@
 @cal Subr:radwgt in Subroutine:radext  subs/radmsh.F:L150 ---> call radwgt(rbig,a,nrbig,rwgt)
 @use Modu:m_rdctrl in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L22 ---> use m_rdctrl
 @use Modu:m_gtv in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L23 ---> use m_gtv
-@use Modu:m_susite_func in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L25 ---> use m_susite_func,only: susite
-@cal Subr:gtv_setst in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L228 ---> call gtv_setst(stdo,stdl,stde)
-@cal Subr:gtv_setrcd in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L229 ---> call gtv_setrcd(recrd,nrecs,recln)
-@cal Subr:readctrl in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L274 ---> call readctrl(prgnam,vrsion(1),vn(1))
-@cal Subr:readctrlpq in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L276 ---> call readctrlpq(prgnam,nclasp,nl,nsp,pnuc,qnuc,pp,zc,ves,initc,ics,clabl)
-@cal Subr:iopos in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L301 ---> call iopos(.false.,-1,fileid(8:),nbasp,pos)
-@cal Subr:ubz_init in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L317 ---> call ubz_init(v_sbz)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L359 ---> call ii8copy(i_copy_size,bz_lshft,1,v_sbz%lshft,1)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L364 ---> call ii8copy(i_copy_size,bz_nabc,1,v_sbz%nkabc,1)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L613 ---> call ii8copy(i_copy_size,ix(1:3),1,v_sctrl%modep,1)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L632 ---> call ii8copy(i_copy_size,nesabc,1,v_sctrl%nesabc,1)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L686 ---> call ii8copy(i_copy_size,smalit,1,v_sctrl%smalit,1)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L726 ---> call ii8copy(i_copy_size,ftmesh,1,v_slat%nabc,1)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L939 ---> call ii8copy(i_copy_size,gd_modt,1,v_smove%modt,1)
-@cal Subr:spackv_array_copy_r8_r8 in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1238 ---> call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
-@cal Subr:spackv_array_copy_r8_r8 in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1244 ---> call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
-@cal Subr:spackv_array_copy_i8_i in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1250 ---> call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
-@cal Subr:spackv_array_copy_i8_i in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1256 ---> call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
-@cal Subr:spackv_array_copy_r8_r8 in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1262 ---> call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
-@cal Subr:spacks_copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1271 ---> call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
-@cal Subr:spacks_copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1277 ---> call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
-@cal Subr:spacks_copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1283 ---> call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
-@cal Subr:spacks_copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1289 ---> call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1329 ---> call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1348 ---> call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1350 ---> call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
-@cal Subr:spacks_copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1545 ---> call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1570 ---> call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
-@cal Subr:packs in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1595 ---> call packs('strn amix',sstrn,iter_amix)
-@cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1596 ---> call upacks('strn amix',inix,iendx)
-@cal Subr:packs in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1605 ---> call packs('strn mix',sstrn,iter_mix)
-@cal Subr:packs in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1619 ---> call packs('strn jobid',sstrn,header)
-@cal Subr:packs in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1665 ---> call packs('strn symg',sstrn,symg)
-@cal Subr:uspecb in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1690 ---> call uspecb(0,1,v_sspec,1,nspec,xx,xx,xx,k1)
-@cal Subr:uspecb in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1708 ---> call uspecb(0,-1,v_sspec,1,nspec,xx,xx,xx,xx)
-@cal Subr:suidx in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1787 ---> call suidx(nglob('nkaph'),j,nspec,v_sspec)
-@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1841 ---> call ii8copy(i_copy_size,ix,1,v_sctrl%modep,1)
-@cal Subr:suldau in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1852 ---> call suldau(nbas,v_sspec,v_ssite,nlibu,k,w(owk))
-@cal Subr:susite in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2140 ---> call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,v_sspec,v_ssite)
-@cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2151 ---> call upacks('strn symg',i,j)
-@cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2167 ---> call upacks('strn amix',i,j)
-@cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2169 ---> call upacks('strn mix',i,j)
-@cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2175 ---> call upacks('strn symg',i,j)
+@use Modu:m_struc_func in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L24 ---> use m_struc_func
+@cal Subr:gtv_setst in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L230 ---> call gtv_setst(stdo,stdl,stde)
+@cal Subr:gtv_setrcd in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L231 ---> call gtv_setrcd(recrd,nrecs,recln)
+@cal Subr:readctrl in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L276 ---> call readctrl(prgnam,vrsion(1),vn(1))
+@cal Subr:readctrlpq in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L278 ---> call readctrlpq(prgnam,nclasp,nl,nsp,pnuc,qnuc,pp,zc,ves,initc,ics,clabl)
+@cal Subr:iopos in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L303 ---> call iopos(.false.,-1,fileid(8:),nbasp,pos)
+@cal Subr:ubz_init in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L319 ---> call ubz_init(v_sbz)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L361 ---> call ii8copy(i_copy_size,bz_lshft,1,v_sbz%lshft,1)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L366 ---> call ii8copy(i_copy_size,bz_nabc,1,v_sbz%nkabc,1)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L615 ---> call ii8copy(i_copy_size,ix(1:3),1,v_sctrl%modep,1)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L634 ---> call ii8copy(i_copy_size,nesabc,1,v_sctrl%nesabc,1)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L688 ---> call ii8copy(i_copy_size,smalit,1,v_sctrl%smalit,1)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L728 ---> call ii8copy(i_copy_size,ftmesh,1,v_slat%nabc,1)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L941 ---> call ii8copy(i_copy_size,gd_modt,1,v_smove%modt,1)
+@cal Subr:spackv_array_copy_r8_r8 in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1240 ---> call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
+@cal Subr:spackv_array_copy_r8_r8 in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1246 ---> call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
+@cal Subr:spackv_array_copy_i8_i in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1252 ---> call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
+@cal Subr:spackv_array_copy_i8_i in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1258 ---> call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
+@cal Subr:spackv_array_copy_r8_r8 in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1264 ---> call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
+@cal Subr:spacks_copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1273 ---> call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
+@cal Subr:spacks_copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1279 ---> call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
+@cal Subr:spacks_copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1285 ---> call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
+@cal Subr:spacks_copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1291 ---> call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1331 ---> call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1350 ---> call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1352 ---> call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
+@cal Subr:spacks_copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1547 ---> call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1572 ---> call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
+@cal Subr:packs in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1597 ---> call packs('strn amix',sstrn,iter_amix)
+@cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1598 ---> call upacks('strn amix',inix,iendx)
+@cal Subr:packs in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1607 ---> call packs('strn mix',sstrn,iter_mix)
+@cal Subr:packs in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1621 ---> call packs('strn jobid',sstrn,header)
+@cal Subr:packs in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1667 ---> call packs('strn symg',sstrn,symg)
+@cal Subr:uspecb in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1692 ---> call uspecb(0,1,v_sspec,1,nspec,xx,xx,xx,k1)
+@cal Subr:uspecb in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1710 ---> call uspecb(0,-1,v_sspec,1,nspec,xx,xx,xx,xx)
+@cal Subr:suidx in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1789 ---> call suidx(nglob('nkaph'),j,nspec,v_sspec)
+@cal Subr:ii8copy in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1843 ---> call ii8copy(i_copy_size,ix,1,v_sctrl%modep,1)
+@cal Subr:suldau in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1854 ---> call suldau(nbas,v_sspec,v_ssite,nlibu,k,w(owk))
+@cal Subr:spackv_array_copy_r8_r8 in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2158 ---> call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+@cal Subr:spackv_array_copy_i8_i in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2160 ---> call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+@cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2173 ---> call upacks('strn symg',i,j)
+@cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2189 ---> call upacks('strn amix',i,j)
+@cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2191 ---> call upacks('strn mix',i,j)
+@cal Subr:upacks in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L2197 ---> call upacks('strn symg',i,j)
 @cal Subr:product2 in Subroutine:rdeq  subs/rdeq.F:L456 ---> call product2(psi,ksi,a,b,rofi,nr,e1,vm,z,xk,norm)
 @cal Subr:product2 in Subroutine:rdeq  subs/rdeq.F:L498 ---> call product2(psi,ksi,a,b,rofi,nr,enu1,vm,z,xk,product)
 @cal Subr:product2 in Subroutine:rdeq  subs/rdeq.F:L628 ---> call product2(psi,ksi,a,b,rofi,nr,enu1,vm,z,xk,product)
@@ -4034,7 +4080,7 @@
 @cal Subr:beschb in Subroutine:bessjy  subs/ropbes.F:L111 ---> call beschb(xmu,gam1,gam2,gampl,gammi)
 @cal Subr:bessjy in Subroutine:sphbes  subs/ropbes.F:L217 ---> call bessjy(x,order,rj,ry,rjp,ryp)
 @cal Subr:ropbs1 in Subroutine:ropbes  subs/ropbes.old.F:L24 ---> call ropbs1(y,lmax,xi(1,lmax),h,n)
-@cal Subr:ropbs1 in Subroutine:ropbes  subs/ropbes.old.F:L25 ---> call ropbs1(f2py_expr_tuple_37236)
+@cal Subr:ropbs1 in Subroutine:ropbes  subs/ropbes.old.F:L25 ---> call ropbs1(f2py_expr_tuple_37315)
 @cal Subr:bessel in Subroutine:ropbes  subs/ropbes_alternative.F:L24 ---> call bessel(lmax,x,f,y)
 @cal Subr:bessel in Subroutine:bessel_yl  subs/ropbes_alternative.F:L42 ---> call bessel(lmax,x,f,d)
 @cal Subr:prodln in Subroutine:cpplat  subs/roplat.F:L232 ---> call prodln(platin,qlatin,vol,pro1,pro2)
@@ -4254,7 +4300,7 @@
 @cal Subr:grpfnd in Subroutine:symia0  subs/symiax.F:L193 ---> call grpfnd(fuzz,g,ag,ig,pos,nbas,qlat,ib,ibp)
 @cal Subr:grpfnd in Subroutine:symia0  subs/symiax.F:L194 ---> call grpfnd(fuzz,g,ag,ig,pos,nbas,qlat,jb,jbp)
 @cal Subr:rotpnt in Subroutine:symia0  subs/symiax.F:L200 ---> call rotpnt(v,rv,g(1,ig))
-@cal Subr:symia1 in Subroutine:symia0  subs/symiax.F:L298 ---> call symia1(f2py_expr_tuple_42227)
+@cal Subr:symia1 in Subroutine:symia0  subs/symiax.F:L298 ---> call symia1(f2py_expr_tuple_42306)
 @cal Subr:csymop in Subroutine:symlat  subs/symlat.F:L47 ---> call csymop(-1,grp(1,1),.false.,1,0d0)
 @cal Subr:csymop in Subroutine:symlat  subs/symlat.F:L48 ---> call csymop(-1,grp(1,2),.true.,1,0d0)
 @cal Subr:csymop in Subroutine:symlat  subs/symlat.F:L65 ---> call csymop(-1,mat,.false.,nrot(m),vecg)
@@ -4373,10 +4419,10 @@
 @cal Func:ifindiv in Subroutine:hsibl6  fp/hsibl.F:L855 ---> i2x = ifindiv(igapw(1,ig),igv,ng)
 @cal Func:iosits in Subroutine:lmaux  fp/lmaux.F:L456 ---> j = iosits(8070,3d0,0,fnam,ifi,slabl,alat,plat,nbas,nspec,sspec,ssite)
 @cal Func:cmplat in Subroutine:lmaux  fp/lmaux.F:L475 ---> j = cmplat(nbas,plat,plat,ngrp,w(og),w(oips),w(opos),w(oips2),w(opos2))
-@cal Func:iors in Subroutine:lmfp  fp/lmfp.F:L736 ---> k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,nspec,w(oorhat),w,nit1,lbin,ifi)
-@cal Func:iors in Subroutine:lmfp  fp/lmfp.F:L938 ---> k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,nspec,w(oorhat),w,iter,lbin,-ifi)
-@cal Func:iors in Subroutine:lmfp  fp/lmfp.F:L1164 ---> k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
-@cal Func:iors in Subroutine:lmfp  fp/lmfp.F:L1315 ---> k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
+@cal Func:iors in Subroutine:lmfp  fp/lmfp.F:L738 ---> k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,nspec,w(oorhat),w,nit1,lbin,ifi)
+@cal Func:iors in Subroutine:lmfp  fp/lmfp.F:L940 ---> k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,nspec,w(oorhat),w,iter,lbin,-ifi)
+@cal Func:iors in Subroutine:lmfp  fp/lmfp.F:L1166 ---> k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
+@cal Func:iors in Subroutine:lmfp  fp/lmfp.F:L1317 ---> k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
 @cal Func:parmxp in Subroutine:mixrho  fp/mixrho.F:L341 ---> if (.not. parmxp(iter,mixmod,len(mixmod),broy,nmix,wt,beta,elinl,fnam,wc,nkill,dmxp(9),rms2)) call rx('MIXRHO: parse in parmxp failed')
 @cal Func:parmxp in Subroutine:mixrho  fp/mixrho.F:L365 ---> if (.not. parmxp(iter,mixmod,len(mixmod),broy,nmix,wt,beta,elinl,fnam,wc,nkill,dmxp(9),rms2))call rx('MIXRHO: parse in parmxp failed')
 @cal Func:iclbas in Subroutine:symvvl  fp/mshvmt.F:L287 ---> ib = iclbas(ic,ipc)
@@ -4729,20 +4775,20 @@
 @cal Func:tksw in Module:m_rdctrl@Subroutine:readctrlpq  subs/m_rdctrl.F:L2824 ---> call gtv(trim(nm),tksw(prgn,nm),xv(1:nlaj*nsp),nmin=nlaji*nsp,nout=nout,cindx=jj,note=    'Linearization energies')
 @cal Func:tksw in Module:m_rdctrl@Subroutine:readctrlpq  subs/m_rdctrl.F:L2834 ---> call gtv(trim(nm),tksw(prgn,nm),xx,nmin=1,nout=nout,cindx=jj,note=      'ASA potential at MT boundary')
 @cal Func:tksw in Module:m_rdctrl@Subroutine:readctrlpq  subs/m_rdctrl.F:L2838 ---> call gtv(trim(nm),tksw(prgn,nm),xx,nmin=1,nout=nout,cindx=jj,note=      'Add to ASA potential at MT boundary')
-@cal Func:uarray_size in Subroutine:uarray_init  subs/m_struc_def.F:L2084 ---> struc%size=uarray_size()
-@cal Func:ubz_size in Subroutine:ubz_init  subs/m_struc_def.F:L2145 ---> struc%size=ubz_size()
-@cal Func:uctrl_size in Subroutine:uctrl_init  subs/m_struc_def.F:L2204 ---> struc%size=uctrl_size()
-@cal Func:uham_size in Subroutine:uham_init  subs/m_struc_def.F:L2337 ---> struc%size=uham_size()
-@cal Func:ulat_size in Subroutine:ulat_init  subs/m_struc_def.F:L2422 ---> struc%size=ulat_size()
-@cal Func:umix_size in Subroutine:umix_init  subs/m_struc_def.F:L2494 ---> struc%size=umix_size()
-@cal Func:umove_size in Subroutine:umove_init  subs/m_struc_def.F:L2546 ---> struc%size=umove_size()
-@cal Func:uoptic_size in Subroutine:uoptic_init  subs/m_struc_def.F:L2586 ---> struc%size=uoptic_size()
-@cal Func:uordn_size in Subroutine:uordn_init  subs/m_struc_def.F:L2628 ---> struc%size=uordn_size()
-@cal Func:upot_size in Subroutine:upot_init  subs/m_struc_def.F:L2668 ---> struc%size=upot_size()
-@cal Func:usite_size in Subroutine:usite_init  subs/m_struc_def.F:L2755 ---> struc%size=usite_size()
-@cal Func:uspec_size in Subroutine:uspec_init  subs/m_struc_def.F:L2811 ---> struc%size=uspec_size()
-@cal Func:ustr_size in Subroutine:ustr_init  subs/m_struc_def.F:L2914 ---> struc%size=ustr_size()
-@cal Func:utb_size in Subroutine:utb_init  subs/m_struc_def.F:L2973 ---> struc%size=utb_size()
+@cal Func:uarray_size in Subroutine:uarray_init  subs/m_struc_def.F:L2349 ---> struc%size=uarray_size()
+@cal Func:ubz_size in Subroutine:ubz_init  subs/m_struc_def.F:L2409 ---> struc%size=ubz_size()
+@cal Func:uctrl_size in Subroutine:uctrl_init  subs/m_struc_def.F:L2467 ---> struc%size=uctrl_size()
+@cal Func:uham_size in Subroutine:uham_init  subs/m_struc_def.F:L2598 ---> struc%size=uham_size()
+@cal Func:ulat_size in Subroutine:ulat_init  subs/m_struc_def.F:L2682 ---> struc%size=ulat_size()
+@cal Func:umix_size in Subroutine:umix_init  subs/m_struc_def.F:L2753 ---> struc%size=umix_size()
+@cal Func:umove_size in Subroutine:umove_init  subs/m_struc_def.F:L2804 ---> struc%size=umove_size()
+@cal Func:uoptic_size in Subroutine:uoptic_init  subs/m_struc_def.F:L2843 ---> struc%size=uoptic_size()
+@cal Func:uordn_size in Subroutine:uordn_init  subs/m_struc_def.F:L2884 ---> struc%size=uordn_size()
+@cal Func:upot_size in Subroutine:upot_init  subs/m_struc_def.F:L2923 ---> struc%size=upot_size()
+@cal Func:usite_size in Subroutine:usite_init  subs/m_struc_def.F:L3009 ---> struc%size=usite_size()
+@cal Func:uspec_size in Subroutine:uspec_init  subs/m_struc_def.F:L3064 ---> struc%size=uspec_size()
+@cal Func:ustr_size in Subroutine:ustr_init  subs/m_struc_def.F:L3166 ---> struc%size=ustr_size()
+@cal Func:utb_size in Subroutine:utb_init  subs/m_struc_def.F:L3224 ---> struc%size=utb_size()
 @cal Func:idxpr in Subroutine:makidx  subs/makidx.F:L203 ---> if (idxpr(idxdn(l+1,ik)) .lt. 3) idxdn(l+1,ik) = 3
 @cal Func:idxpr in Subroutine:makidx  subs/makidx.F:L204 ---> if (idxpr(idxdn(l+1,ik)) .lt. 4 .and. l .gt. lmxa)      idxdn(l+1,ik) = 4
 @cal Func:idxpr in Subroutine:makidx  subs/makidx.F:L303 ---> lx = iabs(idxpr(idxdn(l+1,ik))) .eq. iprior .or.           iabs(idxpr(idxdn(l+1,ik))) .gt. iprior .and.           iprior .gt. maxp
@@ -4787,19 +4833,19 @@
 @cal Func:iclbas in Subroutine:pptrns  subs/pptrns.F:L110 ---> jb = iclbas(ipc(ib),ipc)
 @cal Func:parmxp in Subroutine:pqmix  subs/pqmix.F:L130 ---> if (.not. parmxp(iter,mixmod,len(mixmod),broy,nmix,wt,beta,elind,fnam,wc,nkill,dmxp(9),rms2)) call rx('PQMIX: parse in parmxp failed')
 @cal Func:parmxp in Subroutine:pqmix  subs/pqmix.F:L141 ---> if (.not. parmxp(iter,mixmod,len(mixmod),broy,nmix,wt,beta,elind,fnam,wc,nkill,dmxp(9),rms2)) call rx('PQMIX: parse in parmxp failed')
-@cal Func:ubz_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L318 ---> v_sbz%size=ubz_size()
-@cal Func:uctrl_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L385 ---> v_sctrl%size=uctrl_size()
-@cal Func:ulat_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L699 ---> v_slat%size=ulat_size()
-@cal Func:uham_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L786 ---> v_sham%size=uham_size()
-@cal Func:uarray_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L873 ---> v_sarry%size=uarray_size()
-@cal Func:upot_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L879 ---> v_spot%size=upot_size()
-@cal Func:umix_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L891 ---> v_smix%size=umix_size()
-@cal Func:umix_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L895 ---> nnn = umix_size()
-@cal Func:umove_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L917 ---> v_smove%size=umove_size()
-@cal Func:ustr_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1086 ---> v_sstr%size=ustr_size()
-@cal Func:uspec_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1210 ---> v_sspec(i)%size=uspec_size()
-@cal Func:usite_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1521 ---> v_ssite(i)%size=usite_size()
-@cal Func:ioorbp in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1696 ---> if (.not. ioorbp(111,2,1,nspec,v_sspec,k2,ifi))    call rxs2('lmfp: failed to find BASIS: token in file "',fileid(1:j),'"')
+@cal Func:ubz_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L320 ---> v_sbz%size=ubz_size()
+@cal Func:uctrl_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L387 ---> v_sctrl%size=uctrl_size()
+@cal Func:ulat_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L701 ---> v_slat%size=ulat_size()
+@cal Func:uham_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L788 ---> v_sham%size=uham_size()
+@cal Func:uarray_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L875 ---> v_sarry%size=uarray_size()
+@cal Func:upot_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L881 ---> v_spot%size=upot_size()
+@cal Func:umix_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L893 ---> v_smix%size=umix_size()
+@cal Func:umix_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L897 ---> nnn = umix_size()
+@cal Func:umove_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L919 ---> v_smove%size=umove_size()
+@cal Func:ustr_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1088 ---> v_sstr%size=ustr_size()
+@cal Func:uspec_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1212 ---> v_sspec(i)%size=uspec_size()
+@cal Func:usite_size in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1523 ---> v_ssite(i)%size=usite_size()
+@cal Func:ioorbp in Module:m_rdctrl2_func@Subroutine:rdctrl2  subs/rdctrl2.F:L1698 ---> if (.not. ioorbp(111,2,1,nspec,v_sspec,k2,ifi))    call rxs2('lmfp: failed to find BASIS: token in file "',fileid(1:j),'"')
 @cal Func:debugmode in Subroutine:rdsigm  subs/rdsigm.F:L571 ---> if(debugmode()>0) print *,' go to hft2rs i=',i
 @cal Func:latvec in Subroutine:rdsigm  subs/rdsigm.F:L677 ---> if (.not. latvec(1,tolq,plat,tmp)) then
 @cal Func:drr2 in Subroutine:siged  subs/rdsigm.F:L1805 ---> rr = dsqrt(drr2(plat,pos(1,ib),pos(1,jb),iax(3,it),iax(4,it),iax(5,it),vlat))

@@ -1599,7 +1599,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               write(6,"(' uuu: weavx omg ef ekc esmr=',14d13.6)") 
      &       weavx2(omg,ef, ekc(it),esmr), omg, ef, ekc(it), esmr
               write(6,"(' uuu: fffr=',d13.6,2x,3d13.6)") we,fffr
-              print *,'zwz3mode=',zwz3mode
+              print *,'uuu zwz3mode=',zwz3mode
             endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             if(zwz3mode) then
@@ -1657,6 +1657,9 @@ c     &      + wfac*alagr3(we,freq_r(ixs-1),zwzz)
 c            endif
             endif
 c------------
+cccccccccccccccccccccccccccccccccccccccc
+            if(debug) write(6,"('wwwwwww bottom of 2011 loop')")
+cccccccccccccccccccccccccccccccccccccccc
  2011     continue
 cccccccccccccccccccccccccccccccccccccccc
 c         write(6,"('www1: ',4d13.5)") zsec(30,1,1)

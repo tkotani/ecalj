@@ -240,7 +240,8 @@ Cgetarg         if (lgors('ctrl lsx,3',sctrl) .or.
 Cgetarg      .      lgors('ctrl lscr,-1',sctrl)) then
 c         if ( iand(3,int(sctrl%lsx)) .ne.0 .or. iand(-1,int(sctrl%lscr)) .ne.0 
 c     .   ) then 
-         if ( iand(-1,int(sctrl%lscr)) .ne.0  ) then 
+c         if ( iand(-1,int(sctrl%lscr)) .ne.0  ) then 
+         if ( int(sctrl%lscr) .ne.0  ) then 
           call defdr(ovintr,-nclasp*(nl*nsp)**2)
 Cgetarg...info...           integer :: ovintr , integer(8) :: spot%ovintr 1
 Cgetarg           call pack1('pot ovintr',spot,ovintr)

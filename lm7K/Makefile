@@ -115,7 +115,7 @@ $(fp_obj_path)/%.o: fp/%.F
 # I must load Make.inc here
 ########################################
 
-include Make.mod.dependency
+#include Make.mod.dependency
 include MAKEINC/Make.inc.$(PLATFORM)
 #include MAKEINC/Make.inc.$(PLATFORM).patch #this is for less optimization to avoid compilar bugs.
 
@@ -184,9 +184,8 @@ lmf2gw:	lmf2gw.o
 rdcmd:	rdcmd.o $(LIBSUBS) $(LIBSLA)
 	$(LK) $(LKFLAGS1) $@.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
-lm67:	
-	$(FC) $(FFLAGS_LESS3) lm67.F  $(LIBLOC) -o lm67
-
+lm67:	lm67src/lm67.F
+	(cd lm67src; $(FC) $(FFLAGS_LESS67) lm67.F $(LIBLOC) -o lm67 ; mv lm67 ../)
 
 ####### for MPI
 lmf-MPI.o: lmv7.F

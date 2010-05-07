@@ -37,7 +37,7 @@ from base_classes import classes
 import block_statements
 
 dotdata = open("callcaller.dotdata",'wt')
-moddep  = open("Make.mod.dependency",'wt')
+#moddep  = open("Make.mod.dependency",'wt')
 mover   = open("MoveUnUsed",'wt')
 notused = open("notused",'wt')
 
@@ -152,7 +152,7 @@ for ffile in argset:
             ffileo = re.sub('fp/'  ,'$(fp_obj_path)/',ffileo)
             ffileo = re.sub('slatsm/','$(slatsm_obj_path)/',ffileo)
             ffileo = re.sub('.F','.o',ffileo)
-            moddep.write("# $(moddir)/"+ins.name+".mod :"+ffile+"\n")
+            #moddep.write("# $(moddir)/"+ins.name+".mod :"+ffile+"\n")
             moddict[ins.name]=ffileo
 #########
         if(isinstance(ins, block_statements.Type)): print "@def Type:"+ins.name+loc1+loc + ' ---> '+lineall(item)   #+item.strline,item.strlinemap
@@ -271,8 +271,9 @@ for ffile in argset:
     moddx   = ' '.join(list(set(modd)))
     #print moddx
     #print 'xxxxxxx',ffile
-    if(moddx != '') :
-        moddep.write( ffileo+' : '+ffile+' '+moddx+'\n')
+
+#    if(moddx != '') :
+#        moddep.write( ffileo+' : '+ffile+' '+moddx+'\n')
 
 
 #    print '---- '+ffile+'  end   -----'

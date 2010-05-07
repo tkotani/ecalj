@@ -38,8 +38,8 @@ qpu1 = open(sys.argv[1],'rt').read()
 qpu2 = open(sys.argv[2],'rt').read()
 errsum = compareqpu(qpu1,qpu2, printsw=0)
 	
-if(errsum<1e-4):
-	print '   Comparison OK!  Difference<1e-4 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2]
+if(errsum<2e-4):
+	print '   Comparison OK!  Difference<2e-4 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2]
 	sys.exit()
 else:
 	errsum = compareqpu(qpu1,qpu2, printsw=1)

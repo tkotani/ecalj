@@ -21,8 +21,8 @@ Cgetarg...info...           structure ['rdctrl2', 'mix', 'v_smix']
 
       use m_rdctrl
       use m_gtv
-c      use m_struc_size !   use m_struc_func
-      use m_susite_func, only: susite
+      use m_struc_func
+c      use m_susite_func, only: susite
 C- Main input for LMTO programs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -210,10 +210,12 @@ C ... Heap
 c takao 
       real(8):: pnux(20)
       integer:: nnn
-      integer:: umix_size,umove_size,uspec_size,usite_size,ubz_size,
-     &  uctrl_size,ulat_size,uham_size,uarray_size,upot_size,ustr_size
+c      integer:: umix_size,umove_size,uspec_size,usite_size,ubz_size,
+c     &  uctrl_size,ulat_size,uham_size,uarray_size,upot_size,ustr_size
 c
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
+      real(8):: seref
+      integer:: ib,ispec,opos,oips
 
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -2135,15 +2137,35 @@ C$$$Cgetarg      . lgors('ctrl lham,4',v_sctrl),'Stoner not compatible with ADNF
 C$$$       call rxx ( iand(-1,int(v_sctrl%lstonr(1))) .ne.0 .and. iand(4,int(v_sctrl%lham)) .ne.0 
 C$$$     . , 'Stoner not compatible with ADNF' ) 
 
-C --- takao's simplified susite only for lmf, lmfgw.
-c      print *,'www000 spec=',v_ssite(1)%spec
-      call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,
-     .  v_sspec,v_ssite)
+
+C --- takao embed contents in susite here. This is only for lmf and lmfgw.
+c      call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,v_sspec,v_ssite)
+      seref = 0d0
+      do ib = 1, nsite
+        ispec = v_ssite(ib)%spec 
+        if (ispec <= 0) cycle
+c         call spacks_copy('u',sspec(i)%name,i,i,spid,ispec)
+c         call spacks_copy('p',v_ssite(i)%clabel,ib,ib,spid,ispec)
+        v_ssite(ispec)%clabel = v_sspec(ispec)%name
+        seref = seref +     v_sspec(ispec)%eref 
+      enddo
+      v_sham%seref=seref 
+c
+      call defrr(opos,3*nsite)
+      call defi(oips,nsite)
+      do i_spackv=1,nsite 
+       i_copy_size=3
+       call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+       i_copy_size=1 
+       call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+      enddo
+      v_slat%opos=opos 
+      v_sarry%opos=opos 
+      v_sarry%oips=oips 
 
 
 Cgetarg       call pack1('ham lham',v_sham,igets('ctrl lham',v_sctrl))
 c       v_sham%lham=(int(v_sctrl%lham)) 
-
 
       if (procid .eq. master) then
       if (iprint() .ge. 20) then

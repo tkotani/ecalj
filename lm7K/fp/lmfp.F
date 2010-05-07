@@ -322,7 +322,9 @@ Cgetarg       maxit  = igets('ctrl maxit',sctrl)
        maxit = int(sctrl%maxit) 
 
 Cgetarg       lrel   = isw(lgors('ctrl lrel,-1',sctrl))
-       lrel = isw ( iand(-1,int(sctrl%lrel)) .ne.0 ) 
+c       lrel = isw ( iand(-1,int(sctrl%lrel)) .ne.0 ) 
+c nim-hrkn <nim-hrkn@foo>  2010-05-07 15:45:00  
+       lrel = isw ( int(sctrl%lrel) .ne.0 ) 
 
 Cgetarg       lhf    = lgors('ctrl lcd,2',sctrl)
        lhf = iand(2,int(sctrl%lcd)) .ne.0 

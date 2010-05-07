@@ -1890,19 +1890,33 @@ C  7  11 -1       size  1
 
       
 c------------------------------------------------------------------
-c      module m_struc_func
-cc dummy now
-c      end module m_struc_func
+      module m_struc_func
 
 c      interface struc_eval_io
 c      module procedure struc_eval_io_r8, struc_eval_io_i8
 c     .     , struc_eval_io_r8v, struc_eval_io_i8v
 c      end interface struc_eval_io 
 
-c      contains
+      contains
 
-c      module m_struc_size
         integer function uarray_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_array
+        implicit none
+        type(s_array):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uarray_size=n
+C        write(*,*) 'uarray_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 32
 C  +2 is margin
@@ -1911,9 +1925,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         uarray_size=n
+#endif  /* MPIADDRESS*/
         end function uarray_size
        
         integer function ubz_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_bz
+        implicit none
+        type(s_bz):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        ubz_size=n
+C        write(*,*) 'ubz_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 47
 C  +2 is margin
@@ -1922,9 +1954,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         ubz_size=n
+#endif  /* MPIADDRESS*/
         end function ubz_size
        
         integer function uctrl_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_ctrl
+        implicit none
+        type(s_ctrl):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uctrl_size=n
+C        write(*,*) 'uctrl_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 88
 C  +2 is margin
@@ -1933,9 +1983,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         uctrl_size=n
+#endif  /* MPIADDRESS*/
         end function uctrl_size
        
         integer function ugw_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_gw
+        implicit none
+        type(s_gw):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        ugw_size=n
+C        write(*,*) 'ugw_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 22
 C  +2 is margin
@@ -1944,9 +2012,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         ugw_size=n
+#endif  /* MPIADDRESS*/
         end function ugw_size
        
         integer function uham_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_ham
+        implicit none
+        type(s_ham):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uham_size=n
+C        write(*,*) 'uham_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 129
 C  +2 is margin
@@ -1955,9 +2041,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         uham_size=n
+#endif  /* MPIADDRESS*/
         end function uham_size
        
         integer function ulat_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_lat
+        implicit none
+        type(s_lat):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        ulat_size=n
+C        write(*,*) 'ulat_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 120
 C  +2 is margin
@@ -1966,9 +2070,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         ulat_size=n
+#endif  /* MPIADDRESS*/
         end function ulat_size
        
         integer function umix_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_mix
+        implicit none
+        type(s_mix):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        umix_size=n
+C        write(*,*) 'umix_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 36
 C  +2 is margin
@@ -1977,9 +2099,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         umix_size=n
+#endif  /* MPIADDRESS*/
         end function umix_size
        
         integer function umove_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_move
+        implicit none
+        type(s_move):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        umove_size=n
+C        write(*,*) 'umove_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 34
 C  +2 is margin
@@ -1988,9 +2128,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         umove_size=n
+#endif  /* MPIADDRESS*/
         end function umove_size
        
         integer function uoptic_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_optic
+        implicit none
+        type(s_optic):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uoptic_size=n
+C        write(*,*) 'uoptic_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 33
 C  +2 is margin
@@ -1999,9 +2157,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         uoptic_size=n
+#endif  /* MPIADDRESS*/
         end function uoptic_size
        
         integer function uordn_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_ordn
+        implicit none
+        type(s_ordn):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uordn_size=n
+C        write(*,*) 'uordn_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 13
 C  +2 is margin
@@ -2010,9 +2186,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         uordn_size=n
+#endif  /* MPIADDRESS*/
         end function uordn_size
        
         integer function upot_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_pot
+        implicit none
+        type(s_pot):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        upot_size=n
+C        write(*,*) 'upot_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 63
 C  +2 is margin
@@ -2021,9 +2215,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         upot_size=n
+#endif  /* MPIADDRESS*/
         end function upot_size
        
         integer function usite_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_site
+        implicit none
+        type(s_site):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        usite_size=n
+C        write(*,*) 'usite_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 86
 C  +2 is margin
@@ -2032,9 +2244,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         usite_size=n
+#endif  /* MPIADDRESS*/
         end function usite_size
        
         integer function uspec_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_spec
+        implicit none
+        type(s_spec):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        uspec_size=n
+C        write(*,*) 'uspec_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 352
 C  +2 is margin
@@ -2043,9 +2273,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         uspec_size=n
+#endif  /* MPIADDRESS*/
         end function uspec_size
        
         integer function ustr_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_str
+        implicit none
+        type(s_str):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        ustr_size=n
+C        write(*,*) 'ustr_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 46
 C  +2 is margin
@@ -2054,9 +2302,27 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         ustr_size=n
+#endif  /* MPIADDRESS*/
         end function ustr_size
        
         integer function utb_size()
+#if MPI|MPIK|MPIADDRESS
+        use m_struc_def, only: s_tb
+        implicit none
+        type(s_tb):: v(2)
+        integer:: iadd(2), ierr,imod,n
+        call mpi_get_address(v(1),iadd(1),ierr)
+        call mpi_get_address(v(2),iadd(2),ierr)
+        n=iadd(2)-iadd(1)
+        imod=mod(n,8)
+        n=n/8
+        if (imod.ne.0) n=n+1
+#ifdef ALIGNMENT128
+        if (mod(n,2).eq.1) n=n+1
+#endif
+        utb_size=n
+C        write(*,*) 'utb_size=',n
+#else  /* MPIADDRESS*/
         integer:: n
         n= 10
 C  +2 is margin
@@ -2065,10 +2331,10 @@ C         n=n+2
         if (mod(n,2).eq.1) n=n+1
 #endif
         utb_size=n
+#endif  /* MPIADDRESS*/
         end function utb_size
-c       end module m_struc_size
 
-c      end module m_struc_func
+      end module m_struc_func
 c------------------------------------------------------------------
 
 
@@ -2077,10 +2343,9 @@ c------------------------------------------------------------------
 c------------------------------------------------------------------
         subroutine uarray_init(struc)
         use m_struc_def
-c        use m_struc_func
+        use m_struc_func
         implicit none
         type(s_array):: struc
-        integer:: uarray_size
         struc%size=uarray_size()
         struc%ncl=0
         struc%nclasp=0
@@ -2138,10 +2403,9 @@ C$$$        end subroutine uarray
        
         subroutine ubz_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_bz):: struc
-        integer:: ubz_size
         struc%size=ubz_size()
         struc%def=0.0d0
         struc%dosw(:)=0.0d0
@@ -2197,10 +2461,9 @@ C$$$        end subroutine ubz
        
         subroutine uctrl_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_ctrl):: struc
-        integer:: uctrl_size
         struc%size=uctrl_size()
         struc%defm(:)=0.0d0
         struc%elin=0.0d0
@@ -2285,7 +2548,6 @@ C$$$        use m_struc_def
 C$$$         use m_struc_func
 C$$$        implicit none
 C$$$        type(s_gw):: struc
-C$$$        integer:: ugw_size
 C$$$        struc%size=ugw_size()
 C$$$        struc%delre(:)=0.0d0
 C$$$        struc%deltaw=0.0d0
@@ -2330,10 +2592,9 @@ C$$$        end subroutine ugw
        
         subroutine uham_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_ham):: struc
-        integer:: uham_size
         struc%size=uham_size()
         struc%alfsi=0.0d0
         struc%amgm=0.0d0
@@ -2415,10 +2676,9 @@ C$$$        end subroutine uham
        
         subroutine ulat_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_lat):: struc
-        integer:: ulat_size
         struc%size=ulat_size()
         struc%alat=0.0d0
         struc%as=0.0d0
@@ -2487,10 +2747,9 @@ C$$$        end subroutine ulat
        
         subroutine umix_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_mix):: struc
-        integer:: umix_size
         struc%size=umix_size()
         struc%b=0.0d0
         struc%bl=0.0d0
@@ -2539,10 +2798,9 @@ C$$$        end subroutine umix
        
         subroutine umove_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_move):: struc
-        integer:: umove_size
         struc%size=umove_size()
         struc%ct(:)=0.0d0
         struc%gyro=0.0d0
@@ -2579,10 +2837,9 @@ C$$$        end subroutine umove
        
         subroutine uoptic_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_optic):: struc
-        integer:: uoptic_size
         struc%size=uoptic_size()
         struc%axes(:)=0
         struc%cll=0
@@ -2621,10 +2878,9 @@ C$$$        end subroutine uoptic
        
         subroutine uordn_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_ordn):: struc
-        integer:: uordn_size
         struc%size=uordn_size()
         struc%efre=0.0d0
         struc%mode=0
@@ -2661,10 +2917,9 @@ C$$$        end subroutine uordn
        
         subroutine upot_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_pot):: struc
-        integer:: upot_size
         struc%size=upot_size()
         struc%bfield(:)=0.0d0
         struc%nlma=0
@@ -2748,10 +3003,9 @@ C$$$        end subroutine upot
        
         subroutine usite_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_site):: struc
-        integer:: usite_size
         struc%size=usite_size()
         struc%bfield(:)=0.0d0
         struc%clabel=0.0d0
@@ -2804,10 +3058,9 @@ C$$$        end subroutine usite
        
         subroutine uspec_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_spec):: struc
-        integer:: uspec_size
         struc%size=uspec_size()
         struc%z=0.0d0
         struc%mass=0.0d0
@@ -2907,10 +3160,9 @@ C$$$        end subroutine uspec
        
         subroutine ustr_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_str):: struc
-        integer:: ustr_size
         struc%size=ustr_size()
         struc%adec=0.0d0
         struc%amode=0
@@ -2966,10 +3218,9 @@ C$$$        end subroutine ustr
        
         subroutine utb_init(struc)
         use m_struc_def
-c         use m_struc_func
+         use m_struc_func
         implicit none
         type(s_tb):: struc
-        integer:: utb_size
         struc%size=utb_size()
         struc%alam=0.0d0
         struc%alsc=0.0d0

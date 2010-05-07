@@ -215,7 +215,6 @@ subs_list:=\
 	sumlst.o \
 	sumsro.o \
 	suqlst.o \
-	susite.o \
 	sylm.o \
 	sylmnc.o \
 	symcry.o \

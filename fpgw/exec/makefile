@@ -25,7 +25,8 @@ progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmerge
 progs2 = $(progs) $(tags)TAGS 
 #checkmod 
 
-script = cleargw* dqpu dtote eps* ex* gw* hqpemetal* inf* lmgw* plotg save* tote_lmfh2 xqp mkG*
+#script = cleargw* dqpu dtote eps* ex* gw* hqpemetal* inf* lmgw* plotg save* tote_lmfh2 xqp mkG*
+script = cleargw* dqpu eps* gw* mkG*
 
 #### You can choose these options. all is default.
 

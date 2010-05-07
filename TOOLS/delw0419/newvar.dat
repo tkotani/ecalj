@@ -1,5 +1,0 @@
-var odelq 0 odelq nclass real(8) rv_w_ vtoq 
-var oqc 0 oqc nclass real(8) rv_w_ vtoq 
-var oiwk 0 oiwk nclass integer iv_w_ vtoq 
-var odwk 0 odwk nclass real(8) rv_w_ vtoq 
-change enable vtoq

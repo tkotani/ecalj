@@ -1,0 +1,14 @@
+1. copy *.F to subs/ directory
+2. python getarg.py < file.F > x
+   mv x file.F
+
+
+getarg.py change pack/upack to the code that accesses structures directly.
+
+
+3. sed -f change_w.sed file.F > x
+ a utility which changes w(osspec) -> v_spec.
+
+4. gawk -f cut.awk lmfav7.F > x
+ a utility which delete "# linenumber", which creates line numbers in idb.
+

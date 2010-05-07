@@ -98,7 +98,7 @@ except:
 
 file1 = open(sys.argv[1],'rt').read()
 file2 = open(sys.argv[2],'rt').read()
-tol=1.1e-4
+tol=2e-4
 comparekeys=sys.argv[3:]
 errmax = comparenum(tol,file1,file2, comparekeys, printsw=0)
 
