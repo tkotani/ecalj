@@ -1,3 +1,6 @@
+Cdelw1 var ['oeb', '0', 'oeb', 'nband', 'real(8)', 'rv_w_', 'iomomx']
+Cdelw1 var ['oaccm', '0', 'oaccm', 'nchan*nband*nfstg', 'real(8)', 'rv_w_', 'iomomx']
+Cdelw1 var ['odosw', '0', 'odosw', 'nchan*nband*nfstg', 'real(8)', 'rv_w_', 'iomomx']
       subroutine iomomx(ifi,mode,nl,nsp,nspc,nkp,ldim,nfstg,iq,
      .  nband,nchan,nchan2,nchds,nevmx,nlistc,listc,eb,accwt,doswt,
      .  dosw2,efermi,vmtz)
@@ -64,8 +67,14 @@ C     implicit none
      .  efermi,vmtz
 C Local variables
       double precision xx
-      integer nlf,nspf,nspcf,nkpf,ldimf,nfstgf,iprint,i1mach,jq,iomoms,
-     .  nev,oeb,oaccm,odosw,nschan
+Cdelw1       integer nlf,nspf,nspcf,nkpf,ldimf,nfstgf,iprint,i1mach,jq,iomoms,
+Cdelw1      .  nev,oeb,oaccm,odosw,nschan
+       integer:: nlf , nspf , nspcf , nkpf , ldimf , nfstgf , iprint 
+     . , i1mach , jq , iomoms , nev , nschan 
+       real(8) ,allocatable :: rv_w_oeb(:)
+       real(8) ,allocatable :: rv_w_oaccm(:)
+       real(8) ,allocatable :: rv_w_odosw(:)
+
       character outs*80
 C ... Heap
       integer w(1)
@@ -75,6 +84,9 @@ C --- Read header, checking req'd matches and copying the rest ---
       rewind ifi
       if (mod(mode,10) .eq. 0) then
         read (ifi,err=999,end=999) nl, nsp, nspc, nkp, ldim, nfstg
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
         if (mode .eq. 0) return
       else
         read (ifi,err=999,end=999) nlf, nspf, nspcf, nkpf, ldimf, nfstgf
@@ -89,6 +101,9 @@ C --- Read header, checking req'd matches and copying the rest ---
       if (iomoms(ifi,nl,nsp,nspc,nkp,ldim,nfstg,1,iq,1,nevmx,nevmx,
      .  nchan,nchan2,nevmx,eb,accwt,doswt,dosw2,efermi,vmtz) .lt. 0)
      .  goto 999
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (mod(mode/10,10) .eq. 0) return
 
 C --- Determine number of qp available ---
@@ -113,19 +128,43 @@ C --- Read info spec'd by nfstg for each qp until error ---
       rewind ifi
       read (ifi,err=999,end=999) nlf
       nevmx = 0
-      call defrr(oeb,  nband)
-      call defrr(oaccm,nchan*nband*nfstg)
-      call defrr(odosw,nchan*nband*nfstg)
+Cdelw1       call defrr(oeb,  nband)
+       allocate(rv_w_oeb(nband))
+       if (nband<0) rv_w_oeb(:)=0.0d0
+
+Cdelw1       call defrr(oaccm,nchan*nband*nfstg)
+       allocate(rv_w_oaccm(nchan*nband*nfstg))
+       if (nchan*nband*nfstg<0) rv_w_oaccm(:)=0.0d0
+
+Cdelw1       call defrr(odosw,nchan*nband*nfstg)
+       allocate(rv_w_odosw(nchan*nband*nfstg))
+       if (nchan*nband*nfstg<0) rv_w_odosw(:)=0.0d0
+
       if (nfstg .ge. 100) call rxi('iomomx not ready for nfstg=',nfstg)
       do  10  jq = 1, iq*(nsp/nspc)
-        if (iomoms(ifi,nl,nsp,nspc,nkp,ldim,nfstg,nschan,1,1,nband*nspc,
-     .    nband*nspc,nchan,nchan2,nev,w(oeb),w(oaccm),w(odosw),dosw2,
-     .    efermi,vmtz).lt. 0)goto 999
-        call pviomx(nchan,nchds,nband*nspc,nl,nspc,listc,nlistc,nfstg,
-     .    nschan,jq,w(oeb),w(odosw),eb,doswt)
+Cdelw1         if (iomoms(ifi,nl,nsp,nspc,nkp,ldim,nfstg,nschan,1,1,nband*nspc,
+Cdelw1      .    nband*nspc,nchan,nchan2,nev,w(oeb),w(oaccm),w(odosw),dosw2,
+Cdelw1      .    efermi,vmtz).lt. 0)goto 999
+         if ( iomoms ( ifi , nl , nsp , nspc , nkp , ldim , nfstg , nschan 
+     .   , 1 , 1 , nband * nspc , nband * nspc , nchan , nchan2 , nev 
+     .   , rv_w_oeb , rv_w_oaccm , rv_w_odosw , dosw2 , efermi , vmtz 
+     .   ) .lt. 0 ) goto 999 
+
+Cdelw1         call pviomx(nchan,nchds,nband*nspc,nl,nspc,listc,nlistc,nfstg,
+Cdelw1      .    nschan,jq,w(oeb),w(odosw),eb,doswt)
+         call pviomx ( nchan , nchds , nband * nspc , nl , nspc , listc 
+     .   , nlistc , nfstg , nschan , jq , rv_w_oeb , rv_w_odosw , eb , 
+     .   doswt ) 
+
         nevmx = max(nev,nevmx)
    10 continue
-      call rlse(oeb)
+Cdelw1 rlse name= oeb old_list= oeb oaccm odosw 
+Cdelw1 rlse name= oeb new_list= (None)
+Cdelw1       call rlse(oeb)
+       if (allocated(rv_w_odosw)) deallocate(rv_w_odosw)
+       if (allocated(rv_w_oaccm)) deallocate(rv_w_oaccm)
+       if (allocated(rv_w_oeb)) deallocate(rv_w_oeb)
+
 
       if (mod(mode/10,10) .eq. 2 .or. iq .ne. nkp) goto 99
 
@@ -135,14 +174,23 @@ C --- Read efermi, vmtz if sought and info available ---
 
 C --- Exit ---
    99 continue
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (iprint() .lt. 30) return
       call awrit0('%a from moms file',outs,80,-i1mach(2))
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       return
 
 C --- Error exit ---
   999 if (iprint() .gt. 10)
      .  print *, 'IOMOMX (warning): empty or bad moments file'
       iq = -1
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 
       subroutine pviomx(nchan,nchds,ndim,nl,nspc,listc,nlistc,nfstg,
@@ -174,5 +222,8 @@ C     implicit none
 
         il = il+1
    10 continue
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 

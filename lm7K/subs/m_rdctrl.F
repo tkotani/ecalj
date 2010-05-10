@@ -2670,6 +2670,9 @@ c     .  slat_plat2(1:3),def_r8v=zerov,note='Plane X-axis')
 c      nm='PLANE_NORMAL'; call gtv(trim(nm),tksw(prgn,nm),
 c     .  slat_plat2(4:6),def_r8v=zerov,note='Plane Y-axis')
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end subroutine readctrl
 
       subroutine readctrlpq(prgn,nclasp,nl,nsp,pnu,qnu,pp,z,ves,
@@ -2883,6 +2886,9 @@ C ... Printout
 
   159 continue                  ! End of START
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end subroutine readctrlpq
 
       end module
@@ -2897,6 +2903,9 @@ C     implicit none
       elseif (nin==1) then
         res(2:3) = res(1)
       endif
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 
 
@@ -3462,6 +3471,9 @@ c      call tkadd(" PGF_PLATL")
 c      call tkadd(" PGF_PLATR")
 c      call tkadd(" PGF_SPARSE~")
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end subroutine toksw_init
 C      subroutine snit
 C      return

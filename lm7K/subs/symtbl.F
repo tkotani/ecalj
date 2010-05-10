@@ -1,3 +1,5 @@
+Cdelw1 var ['oiwk', '0', 'oiwk', 'nbas', 'integer', 'iv_w_', 'symtbl']
+Cdelw1 undel [['wref'], 'oiwk', 'symtbl']
       subroutine symtbl(mode,tol,nbas,ipc,pos,g,ag,ng,qlat,istab)
 C- Make symmetry transformation table for posis atoms; check classes
 C ----------------------------------------------------------------------
@@ -26,6 +28,7 @@ C Passed parameters
       integer ipc(1),istab(nbas,1)
       double precision pos(3,1),g(9,1),ag(3,1),qlat(9),tol
 C Local variables
+Cdelw1 do not change  [['wref'], 'oiwk', 'symtbl']
       integer ib,ic,ig,jb,jc,mode1,mode10,oiwk
       double precision tol0,tol1
       parameter (tol0=1d-5)
@@ -33,6 +36,10 @@ C ... Heap
       integer w(1)
       common /w/ w
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oiwk]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (ng .eq. 0) return
       mode1 = mod(mode,10)
       mode10 = mod(mode/10,10)
@@ -61,24 +68,43 @@ C --- Make atom transformation table ---
    10   continue
    20 continue
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oiwk]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (mode10 .eq. 0) return
 
 C --- Check atom classes ---
+Cdelw1 do not change oiwk because of ['wref']
       call defi(oiwk, nbas)
       do  50  ib = 1, nbas
         ic = ipc(ib)
+Cdelw1 do not change oiwk because of ['wref']
         call iinit(w(oiwk),nbas)
         do  30  ig = 1, ng
+Cdelw1 1 is digit, dropped
+Cdelw1 do not change oiwk because of ['wref']
    30   w(oiwk+istab(ib,ig)-1) = 1
         do  40  jb = 1, nbas
+Cdelw1 1 is digit, dropped
+Cdelw1 do not change oiwk because of ['wref']
           if (w(oiwk+jb-1) .eq. 1) goto 40
           jc = ipc(jb)
           if (ic .eq. jc) call fexit2(-1,111,' Exit -1 SYMTBL:  '//
      .      'site ib=%i in same class as inequivalent site jb=%i',ib,jb)
    40   continue
    50 continue
-      call rlse(oiwk)
+Cdelw1 rlse name= oiwk old_list= oiwk 
+Cdelw1 rlse name= oiwk new_list= (None)
+Cdelw1 not deallocate oiwk because of [wref]
+Cdelw1       call rlse(oiwk)
+       call rlse(oiwk)
 
+
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oiwk]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 
       subroutine istbpm(istab,nbas,ng,istab2)
@@ -98,6 +124,9 @@ C Local
         enddo
       enddo
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 
 

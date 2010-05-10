@@ -1,3 +1,9 @@
+Cdelw1 var ['opos', '-1', 'undef', '0', 'undef', 'x', 'lattic']
+Cdelw1 var ['odlv', '0', 'odlv', '3*nkdmx', 'real(8)', 'rv_w_', 'lattic']
+Cdelw1 var ['oqlv', '0', 'oqlv', '3*nkqmx', 'real(8)', 'rv_w_', 'lattic']
+Cdelw1 undel [['undef', 'wref'], 'opos', 'lattic']
+Cdelw1 undel [['wref'], 'odlv', 'lattic']
+Cdelw1 undel [['wref'], 'oqlv', 'lattic']
 Cgetarg...info...           structure ['lattic', 'lat', 'slat']
 Cgetarg...info...           structure ['lattic', 'ctrl', 'sctrl']
 Cgetarg...info...           structure ['lattic', 'array', 'sarray']
@@ -45,6 +51,9 @@ Cgetarg       double precision slat(1),sctrl(1),ssite(1),sarray(1)
        type(s_array)::sarray
 
 C ... Local parameters
+Cdelw1 do not change  [['wref'], 'odlv', 'lattic']
+Cdelw1 do not change  [['wref'], 'oqlv', 'lattic']
+Cdelw1 do not change  [['undef', 'wref'], 'opos', 'lattic']
       integer ldist,lmxst,nkd,nkdmx,nkq,nkqmx,nbas,odlv,oqlv,opos
       integer nbaspp,npadl,npadr
       double precision alat,awald,awald0,gam(4),gx,gy,gz,gt,tol,vol,
@@ -143,14 +152,20 @@ Cgetarg       call upack('lat ldist dist opos',slat,ldist,dist,opos,0,0)
        ldist=slat%ldist
        i_copy_size=size(slat%dist) 
        call dcopy(i_copy_size,slat%dist,1,dist,1) 
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 146
+Cdelw1 do not change opos because of ['undef', 'wref']
        opos=slat%opos
 
 c      print *,'xxxxxxx2'
 C     call prmx('pos from lat',w(opos),3,3,nbaspp)
 
       if (abs(gt-1) .gt. 1d-10) then
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 152
+Cdelw1 do not change opos because of ['undef', 'wref']
         call rdistn(w(opos),w(opos),nbaspp,gx,gy,gz,gt)
       elseif (ldist .ne. 0) then
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 154
+Cdelw1 do not change opos because of ['undef', 'wref']
         call lattdf(ldist,dist,plat0,nbaspp,w(opos),0,0d0)
 c        if (nbaspp .gt. nbas) then
 c          call lattdf(ldist,dist,platl,0,w,0,0d0)
@@ -163,9 +178,13 @@ c        endif
         dist(3,3) = 1
       endif
 
+Cdelw1 do not change odlv because of ['wref']
       call defrr(odlv,  3*nkdmx)
+Cdelw1 do not change oqlv because of ['wref']
       call defrr(oqlv,  3*nkqmx)
       lmxst = 6
+Cdelw1 do not change odlv because of ['wref']
+Cdelw1 do not change oqlv because of ['wref']
       call lattc(awald0,tol,rpad,alat,alat,plat0,gx,gy,gz,gt,plat,qlat,
      .   lmxst,vol,awald,w(odlv),nkd,w(oqlv),nkq,nkdmx,nkqmx)
 
@@ -202,8 +221,12 @@ c       call dcopy(i_copy_size,platl,1,slat%platl,1)
 c       i_copy_size=size(slat%platr) 
 c       call dcopy(i_copy_size,platr,1,slat%platr,1) 
 
+Cdelw1 do not change oqlv because of ['wref']
       call redfrr(oqlv,3*nkq)
+Cdelw1 do not change odlv because of ['wref']
+Cdelw1 do not change oqlv because of ['wref']
       call defps2(odlv,oqlv)
+Cdelw1 do not change odlv because of ['wref']
       call redfrr(odlv,3*nkd)
 Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
 Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
@@ -216,7 +239,9 @@ Cgetarg      .  oqlv)
        slat%awald=awald 
        slat%nkd=nkd 
        slat%nkq=nkq 
+Cdelw1 do not change odlv because of ['wref']
        slat%odlv=odlv 
+Cdelw1 do not change oqlv because of ['wref']
        slat%oqlv=oqlv 
 
 Cgetarg...info...           real(8) :: dist(3,3) , real(8) :: slat%dist 9
@@ -228,12 +253,20 @@ Cgetarg       call pack5('lat dist',slat,dist,0,0,0,0)
 Cgetarg       call spackv(11,'site pos',ssite,1,nbaspp,w(opos))
        i_copy_size=size(ssite(1)%pos)
        do i_spackv=1,nbaspp 
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 231
+Cdelw1 do not change opos because of ['undef', 'wref']
        call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
        enddo
 
 C     call prmx('repack pos',w(opos),3,3,nbaspp)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: odlv oqlv 
+Cdelw1 w_varlistundel: [opos odlv oqlv]
+Cdelw1 w_varlist (undel), remains: [odlv oqlv]
+Cdelw1 w_varlist (del), remains: (None)
+Cdelw1 not deallocate oqlv because of [wref]
+Cdelw1 not deallocate odlv because of [wref]
        end subroutine lattic 
 
 

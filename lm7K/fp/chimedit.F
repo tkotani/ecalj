@@ -1,3 +1,9 @@
+Cdelw1 var ['opos', '-1', 'undef', '0', 'undef', 'x', 'chimedit']
+Cdelw1 var ['ogstar', '2', 'ogstar', '-mxkp-1', 'integer', 'iv_w_', 'chimedit']
+Cdelw1 var ['owgt', '2', 'owgt', '-mxkp', 'real(8)', 'rv_w_', 'chimedit']
+Cdelw1 var ['og', '-1', 'undef', '0', 'undef', 'x', 'chimedit']
+Cdelw1 undel [['undef', 'wref'], 'opos', 'chimedit']
+Cdelw1 undel [['undef', 'wref'], 'og', 'chimedit']
 Cgetarg...info...           structure ['chimedit', 'lat', 'slat']
 Cgetarg...info...           structure ['chimedit', 'bz', 'sbz']
 Cgetarg...info...           use_to_add ['chimedit', 'm_struc_def']
@@ -69,7 +75,7 @@ Ci   nx       : cutoff number of w points in calculation, such  X0(q,w)
 Ci   cutw     : cutoff value(in meV)  of w in calculation of X(q,w)
 Ci   nbloch   : dimension of product basis
 Ci   ngbin    : dimension of mix basis
-Ci   nq       : total number of q points in calculation of X(q,w)	
+Ci   nq       : total number of q points in calculation of X(q,w)        
 Ci   qpi      : vector of current q,   X(q,w)  
 Ci   qgbin    : vector of all q points,   qgbin(3,nq0i)
 Ci   imbas    : magnetic atom index   
@@ -84,7 +90,7 @@ Ci   chi0     : <~e|X0|~e> = <m|B><B|X0|B><B|m> / norm(<m_i|m_i>) /norm(<m_j|m_j
 Ci            :            = <m|x0|m'>/ norm(<m_i|m_i>) /norm(<B|m_j>)
 Ci            :            = <m_a|x0|m_a'>/(sqrt(<m_i|m_i> sqrt(<m_j|m_j>)
 Ci            :     |~e_a> = |m_a>/<m_a|m_a>   
-Ci   gbvec    : <e^iqr|B+>  projection of |e^iqr> on mix basis set,  gbvec(ngbin,nq0i)	
+Ci   gbvec    : <e^iqr|B+>  projection of |e^iqr> on mix basis set,  gbvec(ngbin,nq0i)        
 Ci   gbvec0   : <e^iqr|B>   subset(prod. bas. part) of gbvec,  gbvec0(nbloch,nq0i)
 Ci   eiqrm    : eiqrm_i = <~e_i|e^{iqr}> =  <M_i|eiqr>/sqrt(<M_i|M_i>)
 Ci            : sum( dconjg(gbvec(1:nbloch))*svec(1:nbloch,imb) )/mmnorm(imb)
@@ -121,7 +127,13 @@ C ... Local parameters
       integer nkxyz(3),mxkp,nk1,nk2,nk3,k1,k2,k3
       equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer nmag,nmagf,magat(100),magatf(100),ix(10),nmbas
-      integer opos,ogstar,owgt,oistab,og,oag
+Cdelw1 do not change  [['undef', 'wref'], 'opos', 'chimedit']
+Cdelw1 do not change  [['undef', 'wref'], 'og', 'chimedit']
+Cdelw1       integer opos,ogstar,owgt,oistab,og,oag
+       integer:: opos , oistab , og , oag 
+       integer ,allocatable :: iv_w_ogstar(:)
+       real(8) ,allocatable :: rv_w_owgt(:)
+
       double precision xx,qpi(3),ddot,plat(3,3),rb(3,3),qb(3,3),
      .  pos(3,nbas)
       character dc*1, fn*120, outs*150, strn*120
@@ -160,6 +172,8 @@ Cgetarg       call upack('lat plat opos',slat,plat,opos,0,0,0)
        
        i_copy_size=size(slat%plat) 
        call dcopy(i_copy_size,slat%plat,1,plat,1) 
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 163
+Cdelw1 do not change opos because of ['undef', 'wref']
        opos=slat%opos
 
 Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
@@ -171,6 +185,8 @@ Cgetarg      .  oag,0)
        
        nsgrp=slat%nsgrp
        oistab=slat%oistab
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 174
+Cdelw1 do not change og because of ['undef', 'wref']
        og=slat%osymgr
        oag=slat%oag
 
@@ -182,6 +198,8 @@ Cgetarg       call upack('bz nkabc',sbz,nkxyz,0,0,0,0)
        i_copy_size=size(sbz%nkabc) 
        call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
 
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 185
+Cdelw1 do not change opos because of ['undef', 'wref']
       call dcopy(3*nbas,w(opos),1,pos,1)
       call pshpr(0)
       llshft = .false.
@@ -268,19 +286,40 @@ C ... Number of k-points
           mxkp = nk1*nk2*nk3
           if (allocated(qfbz)) deallocate(qfbz)
           allocate(qfbz(3,mxkp))
-          call defi(ogstar,-mxkp-1)
-          w(ogstar) = -2
+Cdelw1           call defi(ogstar,-mxkp-1)
+           allocate(iv_w_ogstar(abs(-mxkp-1)))
+           if (-mxkp-1<0) iv_w_ogstar(:)=0
+
+Cdelw1           w(ogstar) = -2
+           iv_w_ogstar = - 2 
+
           if (allocated(ipq)) deallocate(ipq)
           allocate(ipq(nk1,nk2,nk3))
-          call defdr(owgt,-mxkp)
+Cdelw1           call defdr(owgt,-mxkp)
+           allocate(rv_w_owgt(abs(-mxkp)))
+           if (-mxkp<0) rv_w_owgt(:)=0.0d0
+
           call info0(20,1,0,' q-points in full BZ ...')
-          call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,ipq,
-     .      qfbz,w(owgt),nq,mxkp,0,0)
-          call dpzero(w(owgt),mxkp)
+Cdelw1           call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,ipq,
+Cdelw1      .      qfbz,w(owgt),nq,mxkp,0,0)
+           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     .     ipq , qfbz , rv_w_owgt , nq , mxkp , 0 , 0 ) 
+
+Cdelw1           call dpzero(w(owgt),mxkp)
+           call dpzero ( rv_w_owgt , mxkp ) 
+
           call info2(20,0,0,' Irr. qp ...',0,0)
           allocate(qp(3,nq))
-          call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrp,ipq,
-     .      qp,w(owgt),nq,mxkp,w(ogstar),0)
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 282
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 282
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1           call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrp,ipq,
+Cdelw1      .      qp,w(owgt),nq,mxkp,w(ogstar),0)
+           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+     .     , nsgrp , ipq , qp , rv_w_owgt , nq , mxkp , iv_w_ogstar , 0 
+     .     ) 
+
           lqp = 4
           call rx('irr still in progress')
         else
@@ -618,6 +657,13 @@ C ... help
       goto 10
 
 Cgetarg       end
+Cdelw1 w_varlist remains: ogstar owgt 
+Cdelw1 w_varlistundel: [opos og]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: [ogstar owgt]
+        if (allocated(rv_w_owgt)) deallocate(rv_w_owgt)
+        if (allocated(iv_w_ogstar)) deallocate(iv_w_ogstar)
+
        end subroutine chimedit 
 
 

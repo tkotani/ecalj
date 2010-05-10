@@ -1,3 +1,5 @@
+Cdelw1 var ['owk', '3', 'owk', '3*nbas', 'real(8)', 'rv_w_', 'iopos']
+Cdelw1 var ['opos', '0', 'opos', '3*nbas', 'real(8)', 'rv_w_', 'ioposs']
 Cgetarg...info...           structure ['ioposs', 'site', 'ssite']
 Cgetarg...info...           use_to_add ['ioposs', 'm_struc_def']
       subroutine iopos(lio,mode,filnam,nbas,bas)
@@ -50,7 +52,11 @@ C     implicit none
       double precision bas(3,nbas)
 C Local variables
       logical parstr,a2bin
-      integer j1,j2,ifi,fopna,owk,j,rdm,ipr,lgunit,i,lmode,a2vec,ix(4)
+Cdelw1       integer j1,j2,ifi,fopna,owk,j,rdm,ipr,lgunit,i,lmode,a2vec,ix(4)
+       integer:: j1 , j2 , ifi , fopna , j , rdm , ipr , lgunit , i 
+     . , lmode , a2vec , ix(4) 
+       real(8) ,allocatable :: rv_w_owk(:)
+
       double precision xv(4)
       character*100 fnam
 C ... for rdfiln
@@ -99,9 +105,17 @@ C   ... Write, mode=1
 
 C   ... Write, mode=0
         elseif (mode .eq. 0) then
-          call defrr(owk, 3*nbas)
-          call dmcpy(bas,3,1,w(owk),1,nbas,3,nbas)
-          call ywrm(0,' ',1,ifi,'(3f14.8)',w(owk),1,nbas,nbas,3)
+Cdelw1           call defrr(owk, 3*nbas)
+           allocate(rv_w_owk(3*nbas))
+           if (3*nbas<0) rv_w_owk(:)=0.0d0
+
+Cdelw1           call dmcpy(bas,3,1,w(owk),1,nbas,3,nbas)
+           call dmcpy ( bas , 3 , 1 , rv_w_owk , 1 , nbas , 3 , nbas ) 
+
+Cdelw1           call ywrm(0,' ',1,ifi,'(3f14.8)',w(owk),1,nbas,nbas,3)
+           call ywrm ( 0 , ' ' , 1 , ifi , '(3f14.8)' , rv_w_owk , 1 , nbas 
+     .     , nbas , 3 ) 
+
           call fclose(ifi)
         else
           call rxi('IOPOS: not implemented, mode=',mode)
@@ -131,12 +145,23 @@ C   ... Look for mode on first line
      .    call rxi('IOPOS: mode mismatch: need mode',mode)
 C   ... Read, mode=0
         if (lmode .eq. 0) then
-          call defrr(owk, 3*nbas*2)
-          j = rdm(ifi,0,3*nbas,' ',w(owk),nbas,3)
+Cdelw1           call defrr(owk, 3*nbas*2)
+           allocate(rv_w_owk(3*nbas*2))
+           if (3*nbas*2<0) rv_w_owk(:)=0.0d0
+
+Cdelw1           j = rdm(ifi,0,3*nbas,' ',w(owk),nbas,3)
+           j = rdm ( ifi , 0 , 3 * nbas , ' ' , rv_w_owk , nbas , 3 ) 
+
           if (j .lt. 0) call rxi(
      .      'IOPOS: file incompatible with nbas=',nbas)
-          call dmcpy(w(owk),nbas,1,bas,1,3,nbas,3)
-          call rlse(owk)
+Cdelw1           call dmcpy(w(owk),nbas,1,bas,1,3,nbas,3)
+           call dmcpy ( rv_w_owk , nbas , 1 , bas , 1 , 3 , nbas , 3 ) 
+
+Cdelw1 rlse name= owk old_list= owk 
+Cdelw1 rlse name= owk new_list= (None)
+Cdelw1           call rlse(owk)
+           if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+
           nr = nbas
 C   ... Read, mode=1
         elseif (lmode .eq. 1) then
@@ -187,6 +212,9 @@ C     ... Show input
 #endif
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine iopos 
 
       subroutine ioposs(lio,mode,filnam,nbas,ssite)
@@ -201,30 +229,50 @@ Cgetarg       double precision ssite(1)
        type(s_site)::ssite(*)
 
       character*(*) filnam
-      integer opos
+Cdelw1       integer opos
+       real(8) ,allocatable :: rv_w_opos(:)
+
 C heap:
       integer w(1)
       common /w/ w
 
 C ... Unpack site positions
-      call defrr(opos,3*nbas)
+Cdelw1       call defrr(opos,3*nbas)
+       allocate(rv_w_opos(3*nbas))
+       if (3*nbas<0) rv_w_opos(:)=0.0d0
+
 Cgetarg       call spackv(10,'site pos',ssite,1,nbas,w(opos))
        i_copy_size=size(ssite(1)%pos)
        do i_spackv=1,nbas 
-       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cdelw1        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+        call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+     .  , i_copy_size , i_spackv + 1 - 1 , rv_w_opos ) 
+
        enddo
 
 C ... File I/O
-      call iopos(lio,mode,filnam,nbas,w(opos))
+Cdelw1       call iopos(lio,mode,filnam,nbas,w(opos))
+       call iopos ( lio , mode , filnam , nbas , rv_w_opos ) 
+
 C ... Repack site positions
 Cgetarg       call spackv(11,'site pos',ssite,1,nbas,w(opos))
        i_copy_size=size(ssite(1)%pos)
        do i_spackv=1,nbas 
-       call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cdelw1        call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
+     .  , i_copy_size , i_spackv + 1 - 1 , rv_w_opos ) 
+
        enddo
 
-      call rlse(opos)
+Cdelw1 rlse name= opos old_list= opos 
+Cdelw1 rlse name= opos new_list= (None)
+Cdelw1       call rlse(opos)
+       if (allocated(rv_w_opos)) deallocate(rv_w_opos)
+
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine ioposs 
 
 

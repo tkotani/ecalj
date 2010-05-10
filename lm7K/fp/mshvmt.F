@@ -1,3 +1,9 @@
+Cdelw1 var ['oqwk', '3', 'oqwk', 'nlml', 'real(8)', 'rv_w_', 'symvvl']
+Cdelw1 var ['osym', '3', 'osym', 'nlml*nlml*nrclas', 'real(8)', 'rv_w_', 'symvvl']
+Cdelw1 var ['og', '-1', 'undef', '0', 'undef', 'x', 'symvvl']
+Cdelw1 var ['oag', '-1', 'undef', '0', 'undef', 'x', 'symvvl']
+Cdelw1 undel [['undef', 'wref'], 'og', 'symvvl']
+Cdelw1 undel [['undef', 'wref'], 'oag', 'symvvl']
 Cgetarg...info...           structure ['mshvmt', 'lat', 'slat']
 Cgetarg...info...           structure ['mshvmt', 'site', 'ssite']
 Cgetarg...info...           structure ['mshvmt', 'spec', 'sspec']
@@ -68,6 +74,7 @@ C     double precision q(3),qlat(3,3)
       double complex vvali,fprli
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       parameter (lmxx=6, nlmx=(lmxx+1)**2)
+Cki#error have #if F90 directive
 #if F90
       double precision,allocatable:: phil(:,:),yl(:,:)
       double precision,allocatable:: gv2(:,:),agv(:),cgp(:),sgp(:)
@@ -77,6 +84,7 @@ C     double precision q(3),qlat(3,3)
 #endif
 
       call tcn('mshvmt')
+Cki#error have #if F90 directive
 #if F90
       allocate(phil(ng,0:lmxx),yl(ng,nlmx))
       allocate(gv2(ng,3),agv(ng),cgp(ng),sgp(ng))
@@ -182,12 +190,16 @@ C        endif
         iv0 = iv0 + nlm
    10   continue
       enddo
+Cki#error have #if F90 directive
 #if F90
       deallocate(phil,yl)
       deallocate(gv2,agv,cgp,sgp)
 #endif
       call tcx('mshvmt')
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine mshvmt 
 
 
@@ -235,7 +247,14 @@ C ... Local parameters
       integer ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,stdo,iv0
       integer ipc(nbas),ips(nbas),lmxl(nbas)
       double precision pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
-      integer igetss,nlml,lgunit,ipr,jpr,ngrp,og,oag,oqwk,osym,nn,iclbas
+Cdelw1 do not change  [['undef', 'wref'], 'og', 'symvvl']
+Cdelw1 do not change  [['undef', 'wref'], 'oag', 'symvvl']
+Cdelw1       integer igetss,nlml,lgunit,ipr,jpr,ngrp,og,oag,oqwk,osym,nn,iclbas
+       integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , og , oag 
+     . , nn , iclbas 
+       real(8) ,allocatable :: rv_w_oqwk(:)
+       real(8) ,allocatable :: rv_w_osym(:)
+
 C ... Heap
       integer w(1)
       common /w/ w
@@ -251,7 +270,11 @@ Cgetarg       call upack('lat plat nsgrp osymgr oag',slat,plat,ngrp,og,oag,0)
        i_copy_size=size(slat%plat) 
        call dcopy(i_copy_size,slat%plat,1,plat,1) 
        ngrp=slat%nsgrp
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 254
+Cdelw1 do not change og because of ['undef', 'wref']
        og=slat%osymgr
+Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 255
+Cdelw1 do not change oag because of ['undef', 'wref']
        oag=slat%oag
 
 Cgetarg       call spackv(10,'site class',ssite,1,nbas,ipc)
@@ -290,10 +313,33 @@ C   ... Make nrclas,ipa,posc
         if (ipr .ge. 50) write(stdo,800) ic,nrclas,nlml
   800   format(' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
 
-        call defrr(oqwk,nlml)
-        call defrr(osym,nlml*nlml*nrclas)
-        call symqmp(nrclas,nlml,nlml,plat,posc,ngrp,w(og),w(oag),
-     .    w(oqwk),ipa,w(osym),vval,nn)
+Cdelw1         call defrr(oqwk,nlml)
+         allocate(rv_w_oqwk(nlml))
+         if (nlml<0) rv_w_oqwk(:)=0.0d0
+
+Cdelw1         call defrr(osym,nlml*nlml*nrclas)
+         allocate(rv_w_osym(nlml*nlml*nrclas))
+         if (nlml*nlml*nrclas<0) rv_w_osym(:)=0.0d0
+
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 295
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 295
+Cdelw1 do not change oag because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 295
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 295
+Cdelw1 do not change oag because of ['undef', 'wref']
+Cdelw1         call symqmp(nrclas,nlml,nlml,plat,posc,ngrp,w(og),w(oag),
+Cdelw1      .    w(oqwk),ipa,w(osym),vval,nn)
+         call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , w ( 
+     .   og ) , w ( oag ) , rv_w_oqwk , ipa , rv_w_osym , vval , nn ) 
+
+Cdelw1 w_varlist remains: oqwk osym 
+Cdelw1 w_varlistundel: [og oag]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: [oqwk osym]
+        if (allocated(rv_w_osym)) deallocate(rv_w_osym)
+        if (allocated(rv_w_oqwk)) deallocate(rv_w_oqwk)
 
        endif
        endif
@@ -336,6 +382,7 @@ C   ... Printout
       enddo
 
 Cgetarg       end
+
        end subroutine symvvl 
 
 

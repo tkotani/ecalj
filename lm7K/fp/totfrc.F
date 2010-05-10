@@ -1,3 +1,8 @@
+Cdelw1 var ['owk', '1', 'owk', '3*nbas', 'real(8)', 'rv_w_', 'totfrc']
+Cdelw1 var ['og', '-1', 'undef', '0', 'undef', 'x', 'totfrc']
+Cdelw1 var ['oistab', '-1', 'undef', '0', 'undef', 'x', 'totfrc']
+Cdelw1 undel [['undef', 'wref'], 'og', 'totfrc']
+Cdelw1 undel [['undef', 'wref'], 'oistab', 'totfrc']
 Cgetarg...info...           structure ['totfrc', 'site', 'ssite']
 Cgetarg...info...           structure ['totfrc', 'lat', 'slat']
 Cgetarg...info...           use_to_add ['totfrc', 'm_struc_def']
@@ -35,7 +40,13 @@ Cgetarg      .  fes2(3,nbas),dfhf(3,nbas)
        type(s_lat)::slat
 
 C ... Local parameters
-      integer stdo,stdl,lgunit,ipr,ipl,ib,m,owk,ng,oistab,og,ibmx,isw
+Cdelw1 do not change  [['undef', 'wref'], 'oistab', 'totfrc']
+Cdelw1 do not change  [['undef', 'wref'], 'og', 'totfrc']
+Cdelw1       integer stdo,stdl,lgunit,ipr,ipl,ib,m,owk,ng,oistab,og,ibmx,isw
+       integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , oistab 
+     . , og , ibmx , isw 
+       real(8) ,allocatable :: rv_w_owk(:)
+
       double precision fev1(3),fev2(3),fhar(3),fks(3),c,ddot,fmax,dfmax
 C ... Heap
       integer w(1)
@@ -43,6 +54,10 @@ C ... Heap
 
       stdo = lgunit(1)
       stdl = lgunit(2)
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [og oistab]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (leks .lt. 0) return
       c = 1000d0
       call getpr(ipr)
@@ -119,17 +134,43 @@ Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
 Cgetarg       call upack('lat nsgrp oistab osymgr',slat,ng,oistab,og,0,0)
        
        ng=slat%nsgrp
+Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 122
+Cdelw1 do not change oistab because of ['undef', 'wref']
        oistab=slat%oistab
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 123
+Cdelw1 do not change og because of ['undef', 'wref']
        og=slat%osymgr
 
       if (ng .gt. 1) then
       call info(30,1,0,' Symmetrize forces ...',0,0)
-      call defdr(owk,3*nbas)
-      call symfor(nbas,1,w(og),ng,w(oistab),w(owk),f)
-      call rlse(owk)
+Cdelw1       call defdr(owk,3*nbas)
+       allocate(rv_w_owk(3*nbas))
+       if (3*nbas<0) rv_w_owk(:)=0.0d0
+
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 128
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 128
+Cdelw1 do not change oistab because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 128
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 128
+Cdelw1 do not change oistab because of ['undef', 'wref']
+Cdelw1       call symfor(nbas,1,w(og),ng,w(oistab),w(owk),f)
+       call symfor ( nbas , 1 , w ( og ) , ng , w ( oistab ) , rv_w_owk 
+     . , f ) 
+
+Cdelw1 rlse name= owk old_list= owk 
+Cdelw1 rlse name= owk new_list= (None)
+Cdelw1       call rlse(owk)
+       if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+
       endif
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [og oistab]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine totfrc 
 
 

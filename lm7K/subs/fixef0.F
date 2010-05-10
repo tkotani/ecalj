@@ -1,3 +1,5 @@
+Cdelw1 var ['obmap', '1', 'obmap', '-(nevx*nsp/nbpw+1)', 'integer', 'iv_w_', 'fixef0']
+Cdelw1 var ['owk', '1', 'owk', 'nevx*nsp', 'real(8)', 'rv_w_', 'fixef0']
       subroutine fixef0(zval,nsp,nspc,nevx,ndev,evl,dosw,ef0)
 C- Corrects estimate for Fermi level
 C ----------------------------------------------------------------------
@@ -22,7 +24,11 @@ C ... Passed parameters
       integer nsp,nspc,ndev,nevx
       double precision zval,ef0,evl(ndev),dosw(2)
 C ... Local parameters
-      integer i,i1,stdo,lgunit,ipr,nbpw,i1mach,obmap,owk
+Cdelw1       integer i,i1,stdo,lgunit,ipr,nbpw,i1mach,obmap,owk
+       integer:: i , i1 , stdo , lgunit , ipr , nbpw , i1mach 
+       integer ,allocatable :: iv_w_obmap(:)
+       real(8) ,allocatable :: rv_w_owk(:)
+
       double precision w2,xx,doso(2)
 C ... Heap
       integer w(1)
@@ -32,9 +38,18 @@ C ... Heap
       stdo = lgunit(1)
       if (nsp .eq. 2) then
         nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
-        call defi(obmap,-(nevx*nsp/nbpw+1))
-        call defdr(owk, nevx*nsp)
-        call ebcpl(0,ndev,nevx,nsp,nspc,1,nbpw,w(obmap),w(owk),evl)
+Cdelw1         call defi(obmap,-(nevx*nsp/nbpw+1))
+         allocate(iv_w_obmap(abs(-(nevx*nsp/nbpw+1))))
+         if (-(nevx*nsp/nbpw+1)<0) iv_w_obmap(:)=0
+
+Cdelw1         call defdr(owk, nevx*nsp)
+         allocate(rv_w_owk(nevx*nsp))
+         if (nevx*nsp<0) rv_w_owk(:)=0.0d0
+
+Cdelw1         call ebcpl(0,ndev,nevx,nsp,nspc,1,nbpw,w(obmap),w(owk),evl)
+         call ebcpl ( 0 , ndev , nevx , nsp , nspc , 1 , nbpw , iv_w_obmap 
+     .   , rv_w_owk , evl ) 
+
       endif
       i = max(1,int(zval)/(3-nsp))
       if (ef0 .lt. evl(i)) then
@@ -48,8 +63,16 @@ C ... Heap
       endif
 
       if (nsp .eq. 2) then
-        call ebcpl(1,ndev,nevx,nsp,nspc,1,nbpw,w(obmap),w(owk),evl)
-        call rlse(obmap)
+Cdelw1         call ebcpl(1,ndev,nevx,nsp,nspc,1,nbpw,w(obmap),w(owk),evl)
+         call ebcpl ( 1 , ndev , nevx , nsp , nspc , 1 , nbpw , iv_w_obmap 
+     .   , rv_w_owk , evl ) 
+
+Cdelw1 rlse name= obmap old_list= obmap owk 
+Cdelw1 rlse name= obmap new_list= (None)
+Cdelw1         call rlse(obmap)
+         if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+         if (allocated(iv_w_obmap)) deallocate(iv_w_obmap)
+
       endif
 
       if (dosw(1) .gt. evl(1) .or. dosw(2) .lt. ef0) then
@@ -62,6 +85,9 @@ C ... Heap
      .    dosw(1),dosw(2))
       endif
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 
 

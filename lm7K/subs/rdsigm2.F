@@ -1,3 +1,45 @@
+Cdelw1 var ['oiprmb', '-1', 'undef', '0', 'undef', 'x', 'seneinterp']
+Cdelw1 var ['og', '-1', 'undef', '0', 'undef', 'x', 'seneinterp']
+Cdelw1 var ['oag', '-1', 'undef', '0', 'undef', 'x', 'seneinterp']
+Cdelw1 var ['ooffh', '-1', 'undef', '0', 'undef', 'x', 'seneinterp']
+Cdelw1 var ['opos', '-1', 'undef', '0', 'undef', 'x', 'seneinterp']
+Cdelw1 var ['ontabs', '-1', 'undef', '0', 'undef', 'x', 'seneinterp']
+Cdelw1 var ['ohrs', '1', 'ohrs', '-ndhrs**2*nttabs*nsp', 'real(8)', 'rv_w_', 'seneinterp']
+Cdelw1 var ['oqsig', '0', 'oqsig', '3*mxkp', 'real(8)', 'rv_w_', 'seneinterp']
+Cdelw1 var ['oqp', '0', 'oqp', '3*mxkp', 'real(8)', 'rv_w_', 'seneinterp']
+Cdelw1 var ['ogstar', '0', 'ogstar', '-mxkp-1', 'integer', 'iv_w_', 'seneinterp']
+Cdelw1 var ['oipq', '0', 'oipq', 'mxkp', 'integer', 'iv_w_', 'seneinterp']
+Cdelw1 var ['owgt', '0', 'owgt', '-mxkp', 'real(8)', 'rv_w_', 'seneinterp']
+Cdelw1 var ['owk', '2', 'owk', 'ndimh**2', 'complex(8)', 'zv_w_', 'seneinterp']
+Cdelw1 var ['osigm', '2', 'osigm', 'ndimh**2', 'complex(8)', 'zv_w_', 'seneinterp']
+Cdelw1 var ['osigm2', '4', 'osigm2', 'ndimh**2', 'complex(8)', 'zv_w_', 'seneinterp']
+Cdelw1 var ['oiaxs', '-1', 'undef', '0', 'undef', 'x', 'seneinterp']
+Cdelw1 var ['ohrss', '2', 'ohrss', 'ndhrs**2*nttabs*nsp', 'real(8)', 'rv_w_', 'seneinterp']
+Cdelw1 var ['oistb2', '1', 'oistb2', 'nsgrp*nbas', 'integer', 'iv_w_', 'seneinterp']
+Cdelw1 var ['oistab', '-1', 'undef', '0', 'undef', 'x', 'seneinterp']
+Cdelw1 var ['odelt', '4', 'odelt', '-3*nbas', 'real(8)', 'rv_w_', 'seneinterp']
+Cdelw1 var ['oqsig', '0', 'oqsig', '3*mxkp', 'real(8)', 'rv_w_', 'rdsigm2']
+Cdelw1 var ['oqp', '0', 'oqp', '3*mxkp', 'real(8)', 'rv_w_', 'rdsigm2']
+Cdelw1 var ['ogstar', '0', 'ogstar', '-mxkp-1', 'integer', 'iv_w_', 'rdsigm2']
+Cdelw1 var ['oipq', '0', 'oipq', 'mxkp', 'integer', 'iv_w_', 'rdsigm2']
+Cdelw1 var ['owgt', '0', 'owgt', '-mxkp', 'real(8)', 'rv_w_', 'rdsigm2']
+Cdelw1 var ['og', '-1', 'undef', '0', 'undef', 'x', 'rdsigm2']
+Cdelw1 var ['owk', '2', 'owk', 'ndimh**2', 'complex(8)', 'zv_w_', 'rdsigm2']
+Cdelw1 var ['osigm', '2', 'osigm', 'ndimh**2', 'complex(8)', 'zv_w_', 'rdsigm2']
+Cdelw1 undel [['undef', 'wref'], 'oiprmb', 'seneinterp']
+Cdelw1 undel [['undef', 'wref'], 'og', 'seneinterp']
+Cdelw1 undel [['undef', 'wref'], 'oag', 'seneinterp']
+Cdelw1 undel [['undef', 'wref'], 'ooffh', 'seneinterp']
+Cdelw1 undel [['undef', 'wref'], 'opos', 'seneinterp']
+Cdelw1 undel [['undef', 'wref'], 'ontabs', 'seneinterp']
+Cdelw1 undel [['undef', 'wref'], 'oiaxs', 'seneinterp']
+Cdelw1 undel [['undef', 'wref'], 'oistab', 'seneinterp']
+Cdelw1 undel [['undef', 'wref'], 'og', 'rdsigm2']
+Cdelw1 undel [['redef', 'wref'], 'ohrs', 'seneinterp']
+Cdelw1 undel [['wref'], 'oqsig', 'seneinterp']
+Cdelw1 undel [['redef', 'wref'], 'ohrss', 'seneinterp']
+Cdelw1 undel [['wref'], 'oqp', 'seneinterp']
+Cdelw1 undel [['wref'], 'oqsig', 'rdsigm2']
 Cgetarg...info...           structure ['seneinterp', 'ham', 'sham']
 Cgetarg...info...           structure ['seneinterp', 'lat', 'slat']
 Cgetarg...info...           structure ['seneinterp', 'bz', 'sbz']
@@ -38,8 +80,31 @@ C ... Local parameters
      .  ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
-      integer og,oag,ogstar,oipq,oqp,owgt,ooffH,oiprmb,opos,ontabs,
-     .  oiaxs,ohrs,ohrss,owk,oistab,osigm,osigm2,oqsig,odelT,oistb2 !osfz
+Cdelw1 do not change  [['undef', 'wref'], 'og', 'seneinterp']
+Cdelw1 do not change  [['undef', 'wref'], 'oag', 'seneinterp']
+Cdelw1 do not change  [['wref'], 'oqp', 'seneinterp']
+Cdelw1 do not change  [['undef', 'wref'], 'ooffh', 'seneinterp']
+Cdelw1 do not change  [['undef', 'wref'], 'oiprmb', 'seneinterp']
+Cdelw1 do not change  [['undef', 'wref'], 'opos', 'seneinterp']
+Cdelw1 do not change  [['undef', 'wref'], 'ontabs', 'seneinterp']
+Cdelw1 do not change  [['undef', 'wref'], 'oiaxs', 'seneinterp']
+Cdelw1 do not change  [['redef', 'wref'], 'ohrs', 'seneinterp']
+Cdelw1 do not change  [['redef', 'wref'], 'ohrss', 'seneinterp']
+Cdelw1 do not change  [['undef', 'wref'], 'oistab', 'seneinterp']
+Cdelw1 do not change  [['wref'], 'oqsig', 'seneinterp']
+Cdelw1       integer og,oag,ogstar,oipq,oqp,owgt,ooffH,oiprmb,opos,ontabs,
+Cdelw1      .  oiaxs,ohrs,ohrss,owk,oistab,osigm,osigm2,oqsig,odelT,oistb2 !osfz
+       integer:: og , oag , oqp , ooffh , oiprmb , opos , ontabs , oiaxs 
+     . , ohrs , ohrss , oistab , oqsig 
+       integer ,allocatable :: iv_w_ogstar(:)
+       integer ,allocatable :: iv_w_oipq(:)
+       real(8) ,allocatable :: rv_w_owgt(:)
+       complex(8) ,allocatable :: zv_w_owk(:)
+       complex(8) ,allocatable :: zv_w_osigm(:)
+       complex(8) ,allocatable :: zv_w_osigm2(:)
+       real(8) ,allocatable :: rv_w_odelt(:)
+       integer ,allocatable :: iv_w_oistb2(:)
+
       double precision tmp(3)
       real(8),allocatable:: evls(:),evlz(:),sigii(:)
       complex(8),allocatable:: siglda(:,:),z(:,:),sigo(:,:)
@@ -116,6 +181,10 @@ C     tolq is allowed fuzz in qp
 C     Switch flagging whether input file has symops or not
       hreal = 0
       if (lrsig .ge. 4) hreal = 1
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oiprmb og oag ooffh opos ontabs oiaxs oistab ohrs oqsig ohrss oqp]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (lrsig .eq. 0) return
 
       ltrans = mod(mode/1000,10) .eq. 0
@@ -163,7 +232,11 @@ Cgetarg      .  oiprmb,sigp,rsstol)
        
        i_copy_size=size(sham%ldham) 
        call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
+Cdelw1 warning(1) , probably  ooffh  is not defined yet at linenumber= 166
+Cdelw1 do not change ooffh because of ['undef', 'wref']
        ooffH=sham%ooffH
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 167
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
        oiprmb=sham%oindxo
        i_copy_size=size(sham%sigp) 
        call dcopy(i_copy_size,sham%sigp,1,sigp,1) 
@@ -265,6 +338,8 @@ Cgetarg       call upack('lat plat opos',slat,plat,opos,0,0,0)
        
        i_copy_size=size(slat%plat) 
        call dcopy(i_copy_size,slat%plat,1,plat,1) 
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 268
+Cdelw1 do not change opos because of ['undef', 'wref']
        opos=slat%opos
 
 Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
@@ -275,18 +350,22 @@ Cgetarg       call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
 Cgetarg      .  oag,0)
        
        nsgrp=slat%nsgrp
+Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 278
+Cdelw1 do not change oistab because of ['undef', 'wref']
        oistab=slat%oistab
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 279
+Cdelw1 do not change og because of ['undef', 'wref']
        og=slat%osymgr
+Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 280
+Cdelw1 do not change oag because of ['undef', 'wref']
        oag=slat%oag
 
 C     Get leading dimension of hrs
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 283
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
       call offsHp(w(oiprmb),1,nbas,2,0,ndimh,0,ndhrs)
 C     Setup for FFT
-c      call fftz30(nk1,nk2,nk3,k1,k2,k3) !takao comment out because k1 k2 k3 are supplied at the begining of routine.
-      k1 = nk1
-      k2 = nk2
-      k3 = nk3
-
+      call fftz30(nk1,nk2,nk3,k1,k2,k3) !takao comment out because k1 k2 k3 are supplied at the begining of routine.
       if (nk1.ne.k1 .or. nk2.ne.k2 .or. nk3.ne.k3) call rx(
      .  'rdsigm: not ready for FFT w/ dimensions ne no div.')
 C ... Number of group operations for input file sigma
@@ -309,41 +388,89 @@ C      print *, '!!'; i = 1000*0 + 10*hreal + 0
       if (mod(lssym,4) .ge. 2) i = 10*hreal + 0
       if (ltrans) i = i + 10000
       print *,' go to hft2rs i=',i
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 308
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 308
+Cdelw1 do not change oag because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ooffh  is not defined yet at linenumber= 308
+Cdelw1 do not change ooffh because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 308
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontabs  is not defined yet at linenumber= 308
+Cdelw1 do not change ontabs because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oiaxs  is not defined yet at linenumber= 308
+Cdelw1 do not change oiaxs because of ['undef', 'wref']
       call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,1,nsp,nbas,w(og),w(oag),
      .  nsgrp,rsrnge,w(ooffH),1,nbas,ndimh,ndimh,w,plat,w(opos),ontabs,
      .  oiaxs,ndhrs,w)
+Cdelw1 warning(1) , probably  ontabs  is not defined yet at linenumber= 311
+Cdelw1 do not change ontabs because of ['undef', 'wref']
       nttabs = ival(w(ontabs),nbas+1)
 C     Allocate memory for hrs
       if (hreal .eq. 1) then
+Cdelw1 do not change ohrs because of ['redef', 'wref']
         call defdr(ohrs,-ndhrs**2*nttabs*nsp)
       else
+Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: ohrs real(8) and complex(8)
+Cdelw1 do not change ohrs because of ['redef', 'wref']
         call defdc(ohrs,-ndhrs**2*nttabs*nsp)
       endif
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
+Cdelw1 do not change oqsig because of ['wref']
       call defrr(oqsig,3*mxkp)
+Cdelw1 do not change oqp because of ['wref']
       call defdr(oqp,3*mxkp)
-      call defi(ogstar,-mxkp-1)
-      w(ogstar) = -2
-      call defi(oipq,mxkp)
-      call defdr(owgt,-mxkp)
+Cdelw1       call defi(ogstar,-mxkp-1)
+       allocate(iv_w_ogstar(abs(-mxkp-1)))
+       if (-mxkp-1<0) iv_w_ogstar(:)=0
+
+Cdelw1       w(ogstar) = -2
+       iv_w_ogstar = - 2 
+
+Cdelw1       call defi(oipq,mxkp)
+       allocate(iv_w_oipq(mxkp))
+       if (mxkp<0) iv_w_oipq(:)=0
+
+Cdelw1       call defdr(owgt,-mxkp)
+       allocate(rv_w_owgt(abs(-mxkp)))
+       if (-mxkp<0) rv_w_owgt(:)=0.0d0
+
       call info(20,1,0,
      .  ' q-points in full BZ where sigma calculable ...',0,0)
-      call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
-     .  w(oqsig),w(owgt),nqsig,mxkp,0,0)
+Cdelw1 do not change oqsig because of ['wref']
+Cdelw1 do not change oqsig because of ['wref']
+Cdelw1       call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
+Cdelw1      .  w(oqsig),w(owgt),nqsig,mxkp,0,0)
+       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     . iv_w_oipq , w ( oqsig ) , rv_w_owgt , nqsig , mxkp , 0 , 0 ) 
+
 Cgetarg...info...           integer :: nqsig , integer(8) :: sham%nqsig 1
 Cgetarg...info...           integer :: oqsig , integer(8) :: sham%oqsig 1
 Cgetarg       call pack2('ham nqsig oqsig',sham,nqsig,oqsig)
        
        sham%nqsig=nqsig 
+Cdelw1 do not change oqsig because of ['wref']
        sham%oqsig=oqsig 
 
-      call dpzero(w(owgt),mxkp)
+Cdelw1       call dpzero(w(owgt),mxkp)
+       call dpzero ( rv_w_owgt , mxkp ) 
+
       call info2(20,0,0,
      .  ' Irr. qp for which sigma is calculated ...',0,0)
-      call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrps,w(oipq),
-     .  w(oqp),w(owgt),nqps,mxkp,w(ogstar),0)
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 341
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 do not change oqp because of ['wref']
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 341
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 do not change oqp because of ['wref']
+Cdelw1       call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrps,w(oipq),
+Cdelw1      .  w(oqp),w(owgt),nqps,mxkp,w(ogstar),0)
+       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+     . , nsgrps , iv_w_oipq , w ( oqp ) , rv_w_owgt , nqps , mxkp , 
+     . iv_w_ogstar , 0 ) 
+
       call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
 C     call prmx('q for which sigma is read',w(oqp),3,3,nqp)
       call info2(30,0,0,
@@ -408,10 +535,16 @@ C ... titus
 C      call defcc(osfz,k1*k2*k3*ndimh*nlmaa)
 C      call defcc(osfz1,k1*k2*k3*ndimh*nlmaa)
 C ... titus
-      call defcc(owk,ndimh**2)
+Cdelw1       call defcc(owk,ndimh**2)
+       allocate(zv_w_owk(ndimh**2))
+       if (ndimh**2<0) zv_w_owk(:)=0.0d0
+
       nl = nglob('nl')
       nspc = 1
-      call defcc(osigm,ndimh**2)
+Cdelw1       call defcc(osigm,ndimh**2)
+       allocate(zv_w_osigm(ndimh**2))
+       if (ndimh**2<0) zv_w_osigm(:)=0.0d0
+
 ccccccccccccccccccccccccc
 ctakaox
 c      call defcc(oss,ndimh**2)
@@ -424,11 +557,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         read(ifis) qp,  eseavr !june2009  add eseavr
         if(debugmode()>0) print *,' uuu2 iq1 eseavr=',iq1,eseavr
         call dpscop(qp,tmp,3,1,1,1d0)
+Cdelw1 do not change oqp because of ['wref']
         call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
         call dpsadd(tmp,qoffi,3,1,1,-1d0)
 
         !tmp= qp - w((oqp(3*(iq1-1)+1:3*(iq1-1)+3))+qoffi)
         if (.not. latvec(1,tolq,plat,tmp)) then
+Cdelw1 do not change oqp because of ['wref']
           call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
           if (lssym .ge. 4) then
             call info5(20,0,0,' rdsigm (warning) qp %i : '//
@@ -445,7 +580,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C       File read sigma
         print *,' nscnts =',nscnts
         if (nscnts == 5) call dpdump(tmp,1,ifis)
-        call dpdump(w(osigm),ndimh**2*2,ifis)
+Cdelw1         call dpdump(w(osigm),ndimh**2*2,ifis)
+         call dpdump ( zv_w_osigm , ndimh * * 2 * 2 , ifis ) 
+
 
 C        if (isp .eq. 2) then
 C          print *, iq1,isp
@@ -466,14 +603,18 @@ c
 
 c ... scalced sigm. alf(1:2)
         if (alf(1) .ne. 1d0) then
-          call dscal(ndimh**2*2,alf(1),w(osigm),1)
+Cdelw1           call dscal(ndimh**2*2,alf(1),w(osigm),1)
+           call dscal ( ndimh * * 2 * 2 , alf ( 1 ) , zv_w_osigm , 1 ) 
+
         endif
         if (alf(2) .ne. 0d0) then
           read(ifis2) qp
           call dpscop(qp,tmp,3,1,1,1d0)
+Cdelw1 do not change oqp because of ['wref']
           call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
           call dpsadd(tmp,qoffi,3,1,1,-1d0)
           if (abs(tmp(1))+abs(tmp(2))+abs(tmp(3)) .gt. tolq) then
+Cdelw1 do not change oqp because of ['wref']
             call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
             if (lssym .ge. 4) then
               call info5(20,0,0,' rdsigm (warning) qp %i : '//
@@ -484,10 +625,22 @@ c ... scalced sigm. alf(1:2)
             endif
           endif
 C         call dpsadd(qp,w(oqp),3,1,3*iq1-2,1d0)
-          call defcc(osigm2,ndimh**2)
-          call dpdump(w(osigm2),ndimh**2*2,ifis2)
-          call daxpy(ndimh**2*2,alf(2),w(osigm2),1,w(osigm),1)
-          call rlse(osigm2)
+Cdelw1           call defcc(osigm2,ndimh**2)
+           allocate(zv_w_osigm2(ndimh**2))
+           if (ndimh**2<0) zv_w_osigm2(:)=0.0d0
+
+Cdelw1           call dpdump(w(osigm2),ndimh**2*2,ifis2)
+           call dpdump ( zv_w_osigm2 , ndimh * * 2 * 2 , ifis2 ) 
+
+Cdelw1           call daxpy(ndimh**2*2,alf(2),w(osigm2),1,w(osigm),1)
+           call daxpy ( ndimh * * 2 * 2 , alf ( 2 ) , zv_w_osigm2 , 1 , 
+     .     zv_w_osigm , 1 ) 
+
+Cdelw1 rlse name= osigm2 old_list= ohrs oqsig oqp ogstar oipq owgt owk osigm osigm2 
+Cdelw1 rlse name= osigm2 new_list= ohrs oqsig oqp ogstar oipq owgt owk osigm 
+Cdelw1           call rlse(osigm2)
+           if (allocated(zv_w_osigm2)) deallocate(zv_w_osigm2)
+
         endif
 
 c ... rotate sigm. w(osigm) at qp ---> w(ofbz) at stars of qp.
@@ -501,9 +654,13 @@ Cgetarg         call upack('lat qlat',slat,qlat,0,0,0,0)
          call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
 
 
-        call hamfb3k(qp,iq1,nk1,nk2,nk3,k1,k2,k3,w(oipq),
-     &   napw_in,ndimh,ndimh,ndimh,qb,plat,qlat,ifac,w(ogstar),w(osigm),
-     &   sfz(1,1,1,1,1,isp))
+Cdelw1         call hamfb3k(qp,iq1,nk1,nk2,nk3,k1,k2,k3,w(oipq),
+Cdelw1      &   napw_in,ndimh,ndimh,ndimh,qb,plat,qlat,ifac,w(ogstar),w(osigm),
+Cdelw1      &   sfz(1,1,1,1,1,isp))
+         call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , iv_w_oipq 
+     .   , napw_in , ndimh , ndimh , ndimh , qb , plat , qlat , ifac , 
+     .   iv_w_ogstar , zv_w_osigm , sfz ( 1 , 1 , 1 , 1 , 1 , isp ) ) 
+
         write(6,"(a,3f13.5)")'end of hamfbk3'
 c
 c        i = 100*kcplx + 00
@@ -552,6 +709,19 @@ C     .  ,nsgrps,rsrnge,w(ooffH),ib,ib,nlmaa,ndimh,w(osfz),plat,
 C     .  w(opos),ontabs,
 C     .  oiaxs,ndhrs,w(ohrs))
 C ... titus
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 551
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 551
+Cdelw1 do not change oag because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ooffh  is not defined yet at linenumber= 551
+Cdelw1 do not change ooffh because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 551
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontabs  is not defined yet at linenumber= 551
+Cdelw1 do not change ontabs because of ['undef', 'wref']
+Cdelw1 do not change ohrs because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  oiaxs  is not defined yet at linenumber= 551
+Cdelw1 do not change oiaxs because of ['undef', 'wref']
       call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,isp,nsp,nbas,w(og),w(oag),
      .  nsgrps,rsrnge,w(ooffH),1,nbas,ndimh,ndimh, sfz(1,1,1,1,1,isp),plat,w(opos), !,w(osfz),plat,w(opos)
      .  ontabs,oiaxs,ndhrs,w(ohrs))
@@ -568,7 +738,15 @@ C ... titus
 C 100  continue
 C     exit of MPI master loop
       endif
-      call rlse(ogstar)
+Cdelw1 rlse name= ogstar old_list= ohrs oqsig oqp ogstar oipq owgt owk osigm 
+Cdelw1 rlse name= ogstar new_list= ohrs oqsig oqp 
+Cdelw1       call rlse(ogstar)
+       if (allocated(zv_w_osigm)) deallocate(zv_w_osigm)
+       if (allocated(zv_w_owk)) deallocate(zv_w_owk)
+       if (allocated(rv_w_owgt)) deallocate(rv_w_owgt)
+       if (allocated(iv_w_oipq)) deallocate(iv_w_oipq)
+       if (allocated(iv_w_ogstar)) deallocate(iv_w_ogstar)
+
 
 Cgetarg...info...           integer :: ndhrs , integer(8) :: sham%ndhrs 1
 Cgetarg...info...           integer :: ontabs , integer(8) :: sham%ontabs 1
@@ -578,8 +756,13 @@ Cgetarg       call pack5('ham ndhrs ontabs oiaxs ohrs',sham,ndhrs,ontabs,oiaxs,
 Cgetarg      .  ohrs,0)
        
        sham%ndhrs=ndhrs 
+Cdelw1 warning(1) , probably  ontabs  is not defined yet at linenumber= 577
+Cdelw1 do not change ontabs because of ['undef', 'wref']
        sham%ontabs=ontabs 
+Cdelw1 warning(1) , probably  oiaxs  is not defined yet at linenumber= 578
+Cdelw1 do not change oiaxs because of ['undef', 'wref']
        sham%oiaxs=oiaxs 
+Cdelw1 do not change ohrs because of ['redef', 'wref']
        sham%ohrs=ohrs 
 
 
@@ -595,19 +778,35 @@ C     if (alf(1) .ne. 1 .or. alf(2) .ne. 0 .or. .true.) then
         if (lssym .ge. 4) j1 = 2
         if (procid .eq. master) then
           call dpzero(tmp,3)
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 594
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
+Cdelw1 do not change ohrs because of ['redef', 'wref']
+Cdelw1 do not change oqp because of ['wref']
+Cdelw1 warning(1) , probably  oiaxs  is not defined yet at linenumber= 594
+Cdelw1 do not change oiaxs because of ['undef', 'wref']
           call chksgr(j1,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
      .      w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,i,w(oqp),
      .      nbas,0,rotm,w)
         endif
       endif
 
-      if (.not. (cmdopt('--wsig',6,0,outs).or.cmdopt('-wsig',5,0,outs)))
-     .  call rlse(oqp)
+Cdelw1 rlse name= oqp old_list= ohrs oqsig oqp 
+Cdelw1 rlse name= oqp new_list= ohrs oqsig 
+Cdelw1 not deallocate oqp because of [wref]
+Cdelw1       if (.not. (cmdopt('--wsig',6,0,outs).or.cmdopt('-wsig',5,0,outs)))
+Cdelw1      .  call rlse(oqp)
+       if ( .not. ( cmdopt ( '--wsig' , 6 , 0 , outs ) .or.cmdopt ( 
+     . '-wsig' , 5 , 0 , outs ) ) ) then 
+       call rlse(oqp)
+       endif 
+
 
 C ... Broadcast R.S. sigma before symmetrization
       if (hreal .eq. 1) then
+Cdelw1 do not change ohrs because of ['redef', 'wref']
         call mpibc1(w(ohrs),ndhrs**2*nttabs*nsp,4,mlog,'rdsigm','hrs')
       else
+Cdelw1 do not change ohrs because of ['redef', 'wref']
         call mpibc1(w(ohrs),2*ndhrs**2*nttabs*nsp,4,mlog,'rdsigm','hrs')
       endif
 
@@ -619,23 +818,74 @@ C     increase if nsgrp>nsgrps.  This branch will fail in that case.
 
 C       Allocate memory for hrs
         if (hreal .eq. 1) then
+Cdelw1 do not change ohrss because of ['redef', 'wref']
           call defdr(ohrss,ndhrs**2*nttabs*nsp)
+Cdelw1 do not change ohrs because of ['redef', 'wref']
+Cdelw1 do not change ohrss because of ['redef', 'wref']
           call dcopy(ndhrs**2*nttabs*nsp*1,w(ohrs),1,w(ohrss),1)
         else
+Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: ohrss real(8) and complex(8)
+Cdelw1 do not change ohrss because of ['redef', 'wref']
           call defdc(ohrss,ndhrs**2*nttabs*nsp)
+Cdelw1 do not change ohrs because of ['redef', 'wref']
+Cdelw1 do not change ohrss because of ['redef', 'wref']
           call dcopy(ndhrs**2*nttabs*nsp*2,w(ohrs),1,w(ohrss),1)
         endif
         mxorb = nglob('mxorb')
 C       10s digit distributes ri-rj pairs to avg (ri-rj),(rj-ri) pairs
 C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         i = 1-hreal + 10*2 + 100*(1-hreal) + 100000
-        call defi(oistb2,nsgrp*nbas)
-        call istbpm(w(oistab),nbas,nsgrp,w(oistb2))
+Cdelw1         call defi(oistb2,nsgrp*nbas)
+         allocate(iv_w_oistb2(nsgrp*nbas))
+         if (nsgrp*nbas<0) iv_w_oistb2(:)=0
+
+Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 629
+Cdelw1 do not change oistab because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 629
+Cdelw1 do not change oistab because of ['undef', 'wref']
+Cdelw1         call istbpm(w(oistab),nbas,nsgrp,w(oistb2))
+         call istbpm ( w ( oistab ) , nbas , nsgrp , iv_w_oistb2 ) 
+
         nl = nglob('nl')
-        call rsmsym(i,plat,mxorb,w(oiprmb),ndimh,nbas,w(opos),nl,nsp,1,
-     .    nttabs,w(ontabs),w(oiaxs),w(og),w(oistb2),nsgrp,ndhrs,
-     .    w(ohrss),w(ohrs))
-        call rlse(ohrss)
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 631
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 631
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 631
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontabs  is not defined yet at linenumber= 631
+Cdelw1 do not change ontabs because of ['undef', 'wref']
+Cdelw1 do not change ohrs because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  oiaxs  is not defined yet at linenumber= 631
+Cdelw1 do not change oiaxs because of ['undef', 'wref']
+Cdelw1 do not change ohrss because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 631
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 631
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 631
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontabs  is not defined yet at linenumber= 631
+Cdelw1 do not change ontabs because of ['undef', 'wref']
+Cdelw1 do not change ohrs because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  oiaxs  is not defined yet at linenumber= 631
+Cdelw1 do not change oiaxs because of ['undef', 'wref']
+Cdelw1 do not change ohrss because of ['redef', 'wref']
+Cdelw1         call rsmsym(i,plat,mxorb,w(oiprmb),ndimh,nbas,w(opos),nl,nsp,1,
+Cdelw1      .    nttabs,w(ontabs),w(oiaxs),w(og),w(oistb2),nsgrp,ndhrs,
+Cdelw1      .    w(ohrss),w(ohrs))
+         call rsmsym ( i , plat , mxorb , w ( oiprmb ) , ndimh , nbas 
+     .   , w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
+     .   ) , w ( og ) , iv_w_oistb2 , nsgrp , ndhrs , w ( ohrss ) , w 
+     .   ( ohrs ) ) 
+
+Cdelw1 rlse name= ohrss old_list= ohrs oqsig ohrss oistb2 
+Cdelw1 rlse name= ohrss new_list= ohrs oqsig 
+Cdelw1 not deallocate ohrss because of [redef wref]
+Cdelw1         call rlse(ohrss)
+         if (allocated(iv_w_oistb2)) deallocate(iv_w_oistb2)
+         call rlse(ohrss)
+
 
 C        Debugging
 C        ifis2 = fopna('out',-1,0)
@@ -651,6 +901,11 @@ C   ... Check how well symmetrized FT replicates sigma(k) at file qp
           call info0(20,0,0,' skipping check of symmetrized sigma'//
      .    ' (sigma scaled) ')
         else
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 650
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
+Cdelw1 do not change ohrs because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  oiaxs  is not defined yet at linenumber= 650
+Cdelw1 do not change oiaxs because of ['undef', 'wref']
           call chksgr(0,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
      .      w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,i,0,
      .      nbas,0,rotm,w)
@@ -659,8 +914,10 @@ C   ... Check how well symmetrized FT replicates sigma(k) at file qp
 
 C   ... Broadcast R.S. sigma after symmetrization
         if (hreal .eq. 1) then
+Cdelw1 do not change ohrs because of ['redef', 'wref']
           call mpibc1(w(ohrs),ndhrs**2*nttabs*nsp,4,mlog,'rdsigm','hrs')
         else
+Cdelw1 do not change ohrs because of ['redef', 'wref']
         call mpibc1(w(ohrs),2*ndhrs**2*nttabs*nsp,4,mlog,'rdsigm','hrs')
         endif
 
@@ -681,11 +938,29 @@ C ... lwsig=0 modes that internally transform sigma, save and exit
         if (lonesp .eq. 1) then
           if (nsp .eq. 1) call rx(
      .      'onesp option nonsensical unless sigma file is spin pol')
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 680
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 680
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontabs  is not defined yet at linenumber= 680
+Cdelw1 do not change ontabs because of ['undef', 'wref']
+Cdelw1 do not change ohrs because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  oiaxs  is not defined yet at linenumber= 680
+Cdelw1 do not change oiaxs because of ['undef', 'wref']
           call siged(1,nbas,nsp,ndhrs,plat,w(opos),ndimh,w(oiprmb),
      .      hreal,w(ontabs),w(oiaxs),w(ohrs))
         endif
 
         if (ledit .eq. 1) then
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 685
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 685
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontabs  is not defined yet at linenumber= 685
+Cdelw1 do not change ontabs because of ['undef', 'wref']
+Cdelw1 do not change ohrs because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  oiaxs  is not defined yet at linenumber= 685
+Cdelw1 do not change oiaxs because of ['undef', 'wref']
           call siged(0,nbas,nsp,ndhrs,plat,w(opos),ndimh,w(oiprmb),
      .      hreal,w(ontabs),w(oiaxs),w(ohrs))
         endif
@@ -706,33 +981,66 @@ Cgetarg           call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
            i_copy_size=size(sbz%lshft) 
            call i8icopy(i_copy_size,sbz%lshft,1,lshft,1) 
            nqp=sbz%nkp
+Cdelw1 warning(1) , probably  oqp  is not defined yet at linenumber= 705
+Cdelw1 do not change oqp because of ['wref']
            oqp=sbz%oqp
 
 
           mxkp = nk1*nk2*nk3
+Cdelw1 do not change oqp because of ['wref']
           call defdr(oqp,3*mxkp)
-          call defi(ogstar,-mxkp-1)
-          w(ogstar) = -2
-          call defi(oipq,mxkp)
-          call defdr(owgt,-mxkp)
+Cdelw1           call defi(ogstar,-mxkp-1)
+           allocate(iv_w_ogstar(abs(-mxkp-1)))
+           if (-mxkp-1<0) iv_w_ogstar(:)=0
+
+Cdelw1           w(ogstar) = -2
+           iv_w_ogstar = - 2 
+
+Cdelw1           call defi(oipq,mxkp)
+           allocate(iv_w_oipq(mxkp))
+           if (mxkp<0) iv_w_oipq(:)=0
+
+Cdelw1           call defdr(owgt,-mxkp)
+           allocate(rv_w_owgt(abs(-mxkp)))
+           if (-mxkp<0) rv_w_owgt(:)=0.0d0
+
           do  i = 1, 3
             llshft(i) = lshft(i) .ne. 0
           enddo
-          call dpzero(w(owgt),mxkp)
+Cdelw1           call dpzero(w(owgt),mxkp)
+           call dpzero ( rv_w_owgt , mxkp ) 
+
           if (lfbzout) then
             call info0(20,1,0,
      .        ' Creating sigma for new mesh, full BZ (file sigm2) ...')
-            call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
-     .        w(oqp),w(owgt),nqp,mxkp,0,0)
+Cdelw1 do not change oqp because of ['wref']
+Cdelw1 do not change oqp because of ['wref']
+Cdelw1             call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
+Cdelw1      .        w(oqp),w(owgt),nqp,mxkp,0,0)
+             call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     .       iv_w_oipq , w ( oqp ) , rv_w_owgt , nqp , mxkp , 0 , 0 ) 
+
           else
             call info0(20,1,0,
      .        ' Creating sigma for new mesh (file sigm2) ...')
-            call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrp,w(oipq),
-     .        w(oqp),w(owgt),nqp,mxkp,w(ogstar),0)
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 726
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 do not change oqp because of ['wref']
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 726
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 do not change oqp because of ['wref']
+Cdelw1             call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrp,w(oipq),
+Cdelw1      .        w(oqp),w(owgt),nqp,mxkp,w(ogstar),0)
+             call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+     .       , nsgrp , iv_w_oipq , w ( oqp ) , rv_w_owgt , nqp , mxkp , iv_w_ogstar 
+     .       , 0 ) 
+
 
           endif
 
         elseif (lfbzout) then
+Cdelw1 do not change oqsig because of ['wref']
+Cdelw1 do not change oqp because of ['wref']
           oqp = oqsig
           nqp = nqsig
           call info2(20,1,0,
@@ -755,10 +1063,15 @@ C   ... Setup rotation matrix
 
 C   ... Setup phase matrix
         if (lrot .ge. 2) then
-          call defrr(odelT,-3*nbas)
+Cdelw1           call defrr(odelT,-3*nbas)
+           allocate(rv_w_odelt(abs(-3*nbas)))
+           if (-3*nbas<0) rv_w_odelt(:)=0.0d0
+
           call info0(0,0,0,' Phase shift of sigma.  '//
      .      'Translation vectors from shorps file:')
-          call iopos(.false.,-1,'shorps',nbas,w(odelT))
+Cdelw1           call iopos(.false.,-1,'shorps',nbas,w(odelT))
+           call iopos ( .false. , - 1 , 'shorps' , nbas , rv_w_odelt ) 
+
         endif
 C       call prmx('q for which sigm is written',w(oqp),3,3,nqp)
 
@@ -767,13 +1080,31 @@ C       call prmx('q for which sigm is written',w(oqp),3,3,nqp)
         if (lqoffo .ne. 0) then
 C         call prmx('qp',w(oqp),3,3,nqp)
           do  i = 1, nqp
+Cdelw1 do not change oqp because of ['wref']
             call dmsadd(w(oqp),1,qoffo,1,1,3,1,1,3*i-2,1,1d0)
           enddo
 C         call prmx('qp',w(oqp),3,3,nqp)
         endif
-        call chksgr(1,ltrans,kcplx,plat,nsp,ndimh,ifis2,hreal,
-     .    w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,nqp,
-     .    w(oqp),nbas,lrot,rotm,w(odelT))
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 770
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
+Cdelw1 do not change ohrs because of ['redef', 'wref']
+Cdelw1 do not change oqp because of ['wref']
+Cdelw1 warning(1) , probably  oiaxs  is not defined yet at linenumber= 770
+Cdelw1 do not change oiaxs because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 770
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
+Cdelw1 do not change ohrs because of ['redef', 'wref']
+Cdelw1 do not change oqp because of ['wref']
+Cdelw1 warning(1) , probably  oiaxs  is not defined yet at linenumber= 770
+Cdelw1 do not change oiaxs because of ['undef', 'wref']
+Cdelw1         call chksgr(1,ltrans,kcplx,plat,nsp,ndimh,ifis2,hreal,
+Cdelw1      .    w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,nqp,
+Cdelw1      .    w(oqp),nbas,lrot,rotm,w(odelT))
+         call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
+     .   , hreal , w ( oiprmb ) , nttabs , w ( oiaxs ) , w ( ohrs ) , 
+     .   ndhrs , rsstol , nqp , w ( oqp ) , nbas , lrot , rotm , rv_w_odelt 
+     .   ) 
+
         call fclose(ifis2)
         call rx0('done writing sigma, file sigm2')
 C      elseif (lwsig .eq. 1 .or. lwsig .eq. 2) then
@@ -807,6 +1138,7 @@ Cgetarg         call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
          i_copy_size=size(sbz%lshft) 
          call i8icopy(i_copy_size,sbz%lshft,1,lshft,1) 
          nqp=sbz%nkp
+Cdelw1 do not change oqp because of ['wref']
          oqp=sbz%oqp
 
         call info2(20,0,0,
@@ -817,9 +1149,16 @@ Cgetarg         call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
       if (lfbzout) then
         mxkp = nk1*nk2*nk3
         call info(20,0,0,' rdsigm: use full BZ (%i q-points)...',mxkp,0)
+Cdelw1 do not change oqp because of ['wref']
         call defdr(oqp,3*mxkp)
-        call defi(oipq,mxkp)
-        call defdr(owgt,-mxkp)
+Cdelw1         call defi(oipq,mxkp)
+         allocate(iv_w_oipq(mxkp))
+         if (mxkp<0) iv_w_oipq(:)=0
+
+Cdelw1         call defdr(owgt,-mxkp)
+         allocate(rv_w_owgt(abs(-mxkp)))
+         if (-mxkp<0) rv_w_owgt(:)=0.0d0
+
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg         call upack('lat plat',slat,plat,0,0,0,0)
          
@@ -833,16 +1172,27 @@ C   ... Make is,ifac,qb,qlat
         call pshpr(0)
         call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
         call poppr
-        call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
-     .    w(oqp),w(owgt),nqp,mxkp,0,0)
+Cdelw1 do not change oqp because of ['wref']
+Cdelw1 do not change oqp because of ['wref']
+Cdelw1         call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
+Cdelw1      .    w(oqp),w(owgt),nqp,mxkp,0,0)
+         call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     .   iv_w_oipq , w ( oqp ) , rv_w_owgt , nqp , mxkp , 0 , 0 ) 
+
 C       call pack2('bz nkp oqp',sbz,nqp,oqp)
-        call rlse(owgt)
+Cdelw1 rlse name= owgt old_list= ohrs oqsig oqp ogstar oipq owgt odelt 
+Cdelw1 rlse name= owgt new_list= ohrs oqsig oqp ogstar oipq 
+Cdelw1         call rlse(owgt)
+         if (allocated(rv_w_odelt)) deallocate(rv_w_odelt)
+         if (allocated(rv_w_owgt)) deallocate(rv_w_owgt)
+
       endif
 
 C ... Write points to disk, shifting by qoffo
       if (lqoffo .ne. 0) then
 C       call prmx('qp',w(oqp),3,3,nqp)
         do  i = 1, nqp
+Cdelw1 do not change oqp because of ['wref']
           call dmsadd(w(oqp),1,qoffo,1,1,3,1,1,3*i-2,1,1d0)
         enddo
 C       call prmx('qp',w(oqp),3,3,nqp)
@@ -850,10 +1200,15 @@ C       call prmx('qp',w(oqp),3,3,nqp)
 
       call info0(30,0,0,' RDSIGM: writing data to file QPTS ...')
       ifiz = fopna('qpts',-1,0)
+Cdelw1 do not change oqp because of ['wref']
       call getqp(1,-ifiz,nqp,nkxyz,lshft,0,w(oqp),w,w)
 
       if (lfbzout) then
-        call rlse(oipq)
+Cdelw1 rlse name= oipq old_list= ohrs oqsig oqp ogstar oipq 
+Cdelw1 rlse name= oipq new_list= ohrs oqsig oqp ogstar 
+Cdelw1         call rlse(oipq)
+         if (allocated(iv_w_oipq)) deallocate(iv_w_oipq)
+
       endif
 
       endif
@@ -861,6 +1216,15 @@ C       call prmx('qp',w(oqp),3,3,nqp)
       call tcx('seneinterp')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: ohrs oqsig oqp ogstar 
+Cdelw1 w_varlistundel: [oiprmb og oag ooffh opos ontabs oiaxs oistab ohrs oqsig ohrss oqp]
+Cdelw1 w_varlist (undel), remains: [ohrs oqsig oqp]
+Cdelw1 w_varlist (del), remains: [ogstar]
+Cdelw1 not deallocate oqp because of [wref]
+Cdelw1 not deallocate oqsig because of [wref]
+Cdelw1 not deallocate ohrs because of [redef wref]
+        if (allocated(iv_w_ogstar)) deallocate(iv_w_ogstar)
+
        end subroutine seneinterp 
 
 
@@ -1068,8 +1432,19 @@ C ... Local parameters
      .  ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
-      integer og,oag,ogstar,oipq,oqp,owgt,ooffH,oiprmb,opos,ontabs,
-     .  oiaxs,ohrs,ohrss,owk,oistab,osigm,osigm2,oqsig,odelT,oistb2 !osfz
+Cdelw1 do not change  [['undef', 'wref'], 'og', 'rdsigm2']
+Cdelw1 do not change  [['wref'], 'oqsig', 'rdsigm2']
+Cdelw1       integer og,oag,ogstar,oipq,oqp,owgt,ooffH,oiprmb,opos,ontabs,
+Cdelw1      .  oiaxs,ohrs,ohrss,owk,oistab,osigm,osigm2,oqsig,odelT,oistb2 !osfz
+       integer:: og , oag , ooffh , oiprmb , opos , ontabs , oiaxs , 
+     . ohrs , ohrss , oistab , osigm2 , oqsig , odelt , oistb2 
+       integer ,allocatable :: iv_w_ogstar(:)
+       integer ,allocatable :: iv_w_oipq(:)
+       real(8) ,allocatable :: rv_w_oqp(:)
+       real(8) ,allocatable :: rv_w_owgt(:)
+       complex(8) ,allocatable :: zv_w_owk(:)
+       complex(8) ,allocatable :: zv_w_osigm(:)
+
       double precision tmp(3)
       real(8),allocatable:: evls(:),evlz(:),sigii(:)
       complex(8),allocatable:: siglda(:,:),z(:,:),sigo(:,:)
@@ -1301,17 +1676,15 @@ Cgetarg      .  oag,0)
        
        nsgrp=slat%nsgrp
        oistab=slat%oistab
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 1300
+Cdelw1 do not change og because of ['undef', 'wref']
        og=slat%osymgr
        oag=slat%oag
 
 C     Get leading dimension of hrs
 c      call offsHp(w(oiprmb),1,nbas,2,0,ndimh,0,ndhrs)
 C     Setup for FFT
-c      call fftz30(nk1,nk2,nk3,k1,k2,k3) !takao comment out because k1 k2 k3 are supplied at the begining of routine.
-      k1 = nk1
-      k2 = nk2
-      k3 = nk3
-
+      call fftz30(nk1,nk2,nk3,k1,k2,k3) !takao comment out because k1 k2 k3 are supplied at the begining of routine.
       if (nk1.ne.k1 .or. nk2.ne.k2 .or. nk3.ne.k3) call rx(
      .  'rdsigm: not ready for FFT w/ dimensions ne no div.')
 C ... Number of group operations for input file sigma
@@ -1364,28 +1737,59 @@ c      endif
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
+Cdelw1 do not change oqsig because of ['wref']
       call defrr(oqsig,3*mxkp)
-      call defdr(oqp,3*mxkp)
-      call defi(ogstar,-mxkp-1)
-      w(ogstar) = -2
-      call defi(oipq,mxkp)
-      call defdr(owgt,-mxkp)
+Cdelw1       call defdr(oqp,3*mxkp)
+       allocate(rv_w_oqp(3*mxkp))
+       if (3*mxkp<0) rv_w_oqp(:)=0.0d0
+
+Cdelw1       call defi(ogstar,-mxkp-1)
+       allocate(iv_w_ogstar(abs(-mxkp-1)))
+       if (-mxkp-1<0) iv_w_ogstar(:)=0
+
+Cdelw1       w(ogstar) = -2
+       iv_w_ogstar = - 2 
+
+Cdelw1       call defi(oipq,mxkp)
+       allocate(iv_w_oipq(mxkp))
+       if (mxkp<0) iv_w_oipq(:)=0
+
+Cdelw1       call defdr(owgt,-mxkp)
+       allocate(rv_w_owgt(abs(-mxkp)))
+       if (-mxkp<0) rv_w_owgt(:)=0.0d0
+
       call info(20,1,0,
      .  ' q-points in full BZ where sigma calculable ...',0,0)
-      call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
-     .  w(oqsig),w(owgt),nqsig,mxkp,0,0)
+Cdelw1 do not change oqsig because of ['wref']
+Cdelw1 do not change oqsig because of ['wref']
+Cdelw1       call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
+Cdelw1      .  w(oqsig),w(owgt),nqsig,mxkp,0,0)
+       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     . iv_w_oipq , w ( oqsig ) , rv_w_owgt , nqsig , mxkp , 0 , 0 ) 
+
 Cgetarg...info...           integer :: nqsig , integer(8) :: sham%nqsig 1
 Cgetarg...info...           integer :: oqsig , integer(8) :: sham%oqsig 1
 Cgetarg       call pack2('ham nqsig oqsig',sham,nqsig,oqsig)
        
        sham%nqsig=nqsig 
+Cdelw1 do not change oqsig because of ['wref']
        sham%oqsig=oqsig 
 
-      call dpzero(w(owgt),mxkp)
+Cdelw1       call dpzero(w(owgt),mxkp)
+       call dpzero ( rv_w_owgt , mxkp ) 
+
       call info2(20,0,0,
      .  ' Irr. qp for which sigma is calculated ...',0,0)
-      call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrps,w(oipq),
-     .  w(oqp),w(owgt),nqps,mxkp,w(ogstar),0)
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 1379
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 1379
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1       call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrps,w(oipq),
+Cdelw1      .  w(oqp),w(owgt),nqps,mxkp,w(ogstar),0)
+       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+     . , nsgrps , iv_w_oipq , rv_w_oqp , rv_w_owgt , nqps , mxkp , iv_w_ogstar 
+     . , 0 ) 
+
       call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
 C     call prmx('q for which sigma is read',w(oqp),3,3,nqp)
 c      call info2(30,0,0,
@@ -1439,20 +1843,30 @@ C ... titus
 C      call defcc(osfz,k1*k2*k3*ndimh*nlmaa)
 C      call defcc(osfz1,k1*k2*k3*ndimh*nlmaa)
 C ... titus
-      call defcc(owk,ndimh**2)
+Cdelw1       call defcc(owk,ndimh**2)
+       allocate(zv_w_owk(ndimh**2))
+       if (ndimh**2<0) zv_w_owk(:)=0.0d0
+
       nl = nglob('nl')
       nspc = 1
-      call defcc(osigm,ndimh**2)
+Cdelw1       call defcc(osigm,ndimh**2)
+       allocate(zv_w_osigm(ndimh**2))
+       if (ndimh**2<0) zv_w_osigm(:)=0.0d0
+
       do  iq1 = 1, nqps
         read(ifis) qp,  eseavr !june2009  add eseavr
         if(debugmode()>0) print *,' uuu2 iq1 eseavr=',iq1,eseavr
         call dpscop(qp,tmp,3,1,1,1d0)
-        call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
+Cdelw1         call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
+         call dpsadd ( tmp , rv_w_oqp , 3 , 1 , 3 * iq1 - 2 , - 1d0 ) 
+
 c        call dpsadd(tmp,qoffi,3,1,1,-1d0)
 
         !tmp= qp - w((oqp(3*(iq1-1)+1:3*(iq1-1)+3))+qoffi)
         if (.not. latvec(1,tolq,plat,tmp)) then
-          call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
+Cdelw1           call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
+           call dpscop ( rv_w_oqp , tmp , 3 , 3 * iq1 - 2 , 1 , 1d0 ) 
+
           if (lssym .ge. 4) then
             call info5(20,0,0,' rdsigm (warning) qp %i : '//
      .        'expected%3;8,4D read%3;8,4D',iq1,tmp,qp,0,0)
@@ -1468,7 +1882,9 @@ c        call dpsadd(tmp,qoffi,3,1,1,-1d0)
 C       File read sigma
 c        print *,' nscnts =',nscnts
 c        if (nscnts == 5) call dpdump(tmp,1,ifis)
-        call dpdump(w(osigm),ndimh**2*2,ifis)
+Cdelw1         call dpdump(w(osigm),ndimh**2*2,ifis)
+         call dpdump ( zv_w_osigm , ndimh * * 2 * 2 , ifis ) 
+
 
 C        if (isp .eq. 2) then
 C          print *, iq1,isp
@@ -1488,7 +1904,9 @@ ccccccccccccccccccccccccccccccccccccc
 
 c ... scalced sigm. alf(1:2)
         if (alf(1) .ne. 1d0) then
-          call dscal(ndimh**2*2,alf(1),w(osigm),1)
+Cdelw1           call dscal(ndimh**2*2,alf(1),w(osigm),1)
+           call dscal ( ndimh * * 2 * 2 , alf ( 1 ) , zv_w_osigm , 1 ) 
+
         endif
 c$$$        if (alf(2) .ne. 0d0) then
 c$$$          read(ifis2) qp
@@ -1522,9 +1940,14 @@ Cgetarg         call upack('lat qlat',slat,qlat,0,0,0,0)
          i_copy_size=size(slat%qlat) 
          call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
 
-        call hamfb3k(qp,iq1,nk1,nk2,nk3,k1,k2,k3,w(oipq),
-     &   napw_in,ndimh,ndimh,ndimh,qb,plat,qlat,ldim,ifac,w(ogstar),w(osigm),
-     &   sfz(1,1,1,1,1,isp))
+Cdelw1         call hamfb3k(qp,iq1,nk1,nk2,nk3,k1,k2,k3,w(oipq),
+Cdelw1      &   napw_in,ndimh,ndimh,ndimh,qb,plat,qlat,ldim,ifac,w(ogstar),w(osigm),
+Cdelw1      &   sfz(1,1,1,1,1,isp))
+         call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , iv_w_oipq 
+     .   , napw_in , ndimh , ndimh , ndimh , qb , plat , qlat , ldim , 
+     .   ifac , iv_w_ogstar , zv_w_osigm , sfz ( 1 , 1 , 1 , 1 , 1 , isp 
+     .   ) ) 
+
         write(6,"(a,3f13.5)")'end of hamfbk3'
       enddo
 C ... End loop over spins
@@ -1532,6 +1955,18 @@ C ... End loop over spins
       endif ! exit of MPI master loop
       call tcx('rdsigm2')
 Cgetarg       end
+Cdelw1 w_varlist remains: oqsig oqp ogstar oipq owgt owk osigm 
+Cdelw1 w_varlistundel: [og oqsig]
+Cdelw1 w_varlist (undel), remains: [oqsig]
+Cdelw1 w_varlist (del), remains: [oqp ogstar oipq owgt owk osigm]
+Cdelw1 not deallocate oqsig because of [wref]
+        if (allocated(zv_w_osigm)) deallocate(zv_w_osigm)
+        if (allocated(zv_w_owk)) deallocate(zv_w_owk)
+        if (allocated(rv_w_owgt)) deallocate(rv_w_owgt)
+        if (allocated(iv_w_oipq)) deallocate(iv_w_oipq)
+        if (allocated(iv_w_ogstar)) deallocate(iv_w_ogstar)
+        if (allocated(rv_w_oqp)) deallocate(rv_w_oqp)
+
        end subroutine rdsigm2 
 
 

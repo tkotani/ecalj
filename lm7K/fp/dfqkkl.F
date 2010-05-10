@@ -1,3 +1,4 @@
+Cdelw1 undel [['call', 'array', 'wref'], 'oqkkl', 'dfqkkl']
 Cgetarg...info...           structure ['dfqkkl', 'site', 'ssite']
 Cgetarg...info...           structure ['dfqkkl', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['dfqkkl', 'm_struc_def']
@@ -33,6 +34,7 @@ Cu   22 Apr 00 Adapted from nfp df_qkkl.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
+Cdelw1 do not change  [['call', 'array', 'wref'], 'oqkkl', 'dfqkkl']
       integer nbas,numq,oqkkl(3,nbas)
 Cgetarg       double precision  ssite(1),sspec(1)
        type(s_site)::ssite(*)
@@ -67,14 +69,17 @@ Cgetarg         call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
 
 C   ... Case Pkl*Pkl
         nelt1 = (kmax+1)*(kmax+1)*nlma*nlma
+Cdelw1 do not change oqkkl because of ['call', 'array', 'wref']
         call defrr(oqkkl(1,ib), nelt1*numq*nsp*nspc)
 
 C   ... Case Pkl*Hsm
         nelt2 = (kmax+1)*nkaph*nlma*nlmh
+Cdelw1 do not change oqkkl because of ['call', 'array', 'wref']
         call defrr(oqkkl(2,ib), nelt2*numq*nsp*nspc)
 
 C   ... Case Hsm*Hsm
         nelt3 = nkaph*nkaph*nlmh*nlmh
+Cdelw1 do not change oqkkl because of ['call', 'array', 'wref']
         call defrr(oqkkl(3,ib), nelt3*numq*nsp*nspc)
 
 c|        write(6,836) nelt1,nelt3,nelt2
@@ -83,6 +88,11 @@ c|  836   format('   nelt=',3i6)
       enddo
 
 Cgetarg       end
+Cdelw1 w_varlist remains: oqkkl 
+Cdelw1 w_varlistundel: [oqkkl]
+Cdelw1 w_varlist (undel), remains: [oqkkl]
+Cdelw1 w_varlist (del), remains: (None)
+Cdelw1 not deallocate oqkkl because of [call array wref]
        end subroutine dfqkkl 
 
 

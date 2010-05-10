@@ -1,3 +1,6 @@
+Cdelw1 var ['oyl', '0', 'oyl', 'ntop*ng', 'real(8)', 'rv_w_', 'ftlxp']
+Cdelw1 var ['og2', '0', 'og2', 'ng', 'real(8)', 'rv_w_', 'ftlxp']
+Cdelw1 var ['oh', '0', 'oh', 'ng', 'complex(8)', 'zv_w_', 'ftlxp']
 Cgetarg...info...           structure ['ftlxp', 'site', 'ssite']
 Cgetarg...info...           structure ['ftlxp', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['ftlxp', 'm_struc_def']
@@ -40,8 +43,14 @@ Cgetarg       double precision ssite(1),sspec(1),gv(ng,3),alat
 
       double complex cv(ng),fkl(0:k0,nlm0,nbas)
 C ... Local parameters
-      integer ib,ilm,ipr,is,k,kmxv,l,lgunit,lmxl,ltop,m,nlm,ntop,og2,oh,
-     .  oyl,stdo,igetss
+Cdelw1       integer ib,ilm,ipr,is,k,kmxv,l,lgunit,lmxl,ltop,m,nlm,ntop,og2,oh,
+Cdelw1      .  oyl,stdo,igetss
+       integer:: ib , ilm , ipr , is , k , kmxv , l , lgunit , lmxl 
+     . , ltop , m , nlm , ntop , stdo , igetss 
+       real(8) ,allocatable :: rv_w_og2(:)
+       complex(8) ,allocatable :: zv_w_oh(:)
+       real(8) ,allocatable :: rv_w_oyl(:)
+
       double precision a,fpi,pfac,pi,rsmv,tip,top,tpiba,df(0:20),
      .  fact(0:20),tau(3)
       double complex cfac
@@ -69,13 +78,27 @@ Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
         ltop = max0(ltop,lmxl)
       enddo
       ntop = (ltop+1)**2
-      call defrr(oyl, ntop*ng)
-      call defrr(og2, ng)
-      call defcc(oh,  ng)
-      call ropyln(ng,gv(1,1),gv(1,2),gv(1,3),ltop,ng,w(oyl),w(og2))
+Cdelw1       call defrr(oyl, ntop*ng)
+       allocate(rv_w_oyl(ntop*ng))
+       if (ntop*ng<0) rv_w_oyl(:)=0.0d0
+
+Cdelw1       call defrr(og2, ng)
+       allocate(rv_w_og2(ng))
+       if (ng<0) rv_w_og2(:)=0.0d0
+
+Cdelw1       call defcc(oh,  ng)
+       allocate(zv_w_oh(ng))
+       if (ng<0) zv_w_oh(:)=0.0d0
+
+Cdelw1       call ropyln(ng,gv(1,1),gv(1,2),gv(1,3),ltop,ng,w(oyl),w(og2))
+       call ropyln ( ng , gv ( 1 , 1 ) , gv ( 1 , 2 ) , gv ( 1 , 3 ) 
+     . , ltop , ng , rv_w_oyl , rv_w_og2 ) 
+
 
 C ... Scale g2 by (2pi/a)**2
-      call dpcopy(w(og2),w(og2),1,ng,tpiba*tpiba)
+Cdelw1       call dpcopy(w(og2),w(og2),1,ng,tpiba*tpiba)
+       call dpcopy ( rv_w_og2 , rv_w_og2 , 1 , ng , tpiba * tpiba ) 
+
 
 C --- Start loop over atoms ---
       do  ib = 1, nbas
@@ -106,8 +129,11 @@ Cgetarg         call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
      .     '  lv,kv=',2i2,'  pos=',3f7.4/
      .     ' Expansion coefficients:')
 
-        call ftlxp2(rsmv,tau,kmxv,k0,nlm,ng,gv,w(og2),w(oyl),w(oh),cv,
-     .    fkl(0,1,ib))
+Cdelw1         call ftlxp2(rsmv,tau,kmxv,k0,nlm,ng,gv,w(og2),w(oyl),w(oh),cv,
+Cdelw1      .    fkl(0,1,ib))
+         call ftlxp2 ( rsmv , tau , kmxv , k0 , nlm , ng , gv , rv_w_og2 
+     .   , rv_w_oyl , zv_w_oh , cv , fkl ( 0 , 1 , ib ) ) 
+
 
 C   ... Put in factors independent of G
         a = 1d0/rsmv
@@ -145,9 +171,18 @@ C   ... Printout
    10   continue
       enddo
 
-      call rlse(oyl)
+Cdelw1 rlse name= oyl old_list= oyl og2 oh 
+Cdelw1 rlse name= oyl new_list= (None)
+Cdelw1       call rlse(oyl)
+       if (allocated(zv_w_oh)) deallocate(zv_w_oh)
+       if (allocated(rv_w_og2)) deallocate(rv_w_og2)
+       if (allocated(rv_w_oyl)) deallocate(rv_w_oyl)
+
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine ftlxp 
 
 
@@ -189,6 +224,9 @@ C   ... Multiply h to get next k-th power of (-g2)
       enddo
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine ftlxp2 
 
 

@@ -1,3 +1,4 @@
+Cdelw1 undel [['call', 'array', 'wref'], 'orhoat', 'dfratm']
 Cgetarg...info...           structure ['dfratm', 'site', 'ssite']
 Cgetarg...info...           structure ['dfratm', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['dfratm', 'm_struc_def']
@@ -22,6 +23,7 @@ Cu   18 Jun 98 adapted from nfp df_rhoat.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
+Cdelw1 do not change  [['call', 'array', 'wref'], 'orhoat', 'dfratm']
       integer nbas,orhoat(3,nbas)
 Cgetarg       double precision ssite(1),sspec(1)
        type(s_site)::ssite(*)
@@ -45,12 +47,20 @@ Cgetarg         call upack('spec nr lmxl',sspec,is,nr,lmxl,0,0)
 
         nlml = (lmxl+1)**2
         if (lmxl .gt. -1) then
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
         call defrr (orhoat(1,ib),  nr*nlml*nsp)
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
         call defrr (orhoat(2,ib),  nr*nlml*nsp)
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
         call defrr (orhoat(3,ib),  nr*nsp)
         endif
       enddo
 Cgetarg       end
+Cdelw1 w_varlist remains: orhoat 
+Cdelw1 w_varlistundel: [orhoat]
+Cdelw1 w_varlist (undel), remains: [orhoat]
+Cdelw1 w_varlist (del), remains: (None)
+Cdelw1 not deallocate orhoat because of [call array wref]
        end subroutine dfratm 
 
 

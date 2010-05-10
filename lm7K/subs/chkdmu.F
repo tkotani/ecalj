@@ -1,3 +1,4 @@
+Cdelw1 var ['odmwk', '0', 'odmwk', '-ivsiz', 'complex(8)', 'zv_w_', 'chkdmu']
 Cgetarg...info...           structure ['chkdmu', 'site', 'ssite']
 Cgetarg...info...           structure ['chkdmu', 'spec', 'sspec']
 Cgetarg...info...           structure ['chkdmu', 'ham', 'sham']
@@ -69,7 +70,9 @@ C ... Local parameters
       integer nglob,stdl,iprint,ipl,havesh
       double precision ddmat,uh(4),jh(4),eorbi,eterms(20),eks,ddot,xx
       equivalence (eterms(2),eks)
-      integer odmwk
+Cdelw1       integer odmwk
+       complex(8) ,allocatable :: zv_w_odmwk(:)
+
 C ... MPI
       integer procid,master,mpipid
 C     logical mlog,cmdopt
@@ -81,6 +84,9 @@ C     print *, 'dmatu',dmatu(-lmaxu,-lmaxu,1,1)
 C     call rx0('done')
 C     call prmx('dmatu',dmatu,2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (nlibu .eq. 0) return
 C     stdo = nglob('stdo')
       havesh = idvsh
@@ -101,10 +107,20 @@ C --- Symmetrize output dmatu (req. real harmonics); compare diff ---
         call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = 0
       endif
-      call defcc(odmwk,-ivsiz)
-      call symdmu(dmatu,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
-     .  lldau,xx)
-      call rlse(odmwk)
+Cdelw1       call defcc(odmwk,-ivsiz)
+       allocate(zv_w_odmwk(abs(-ivsiz)))
+       if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
+
+Cdelw1       call symdmu(dmatu,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
+Cdelw1      .  lldau,xx)
+       call symdmu ( dmatu , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
+     . , ssite , ng , g , istab , lldau , xx ) 
+
+Cdelw1 rlse name= odmwk old_list= odmwk 
+Cdelw1 rlse name= odmwk new_list= (None)
+Cdelw1       call rlse(odmwk)
+       if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
+
       if (havesh .ne. idvsh) then
         call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = idvsh
@@ -193,6 +209,9 @@ C --- Case self-consistent within tolerance tolu ---
      .    '  RMS diff (%;3g) < tolu (%;3g)',ddmat,tolu,0,0,0)
 C       Restore dmatuo to dmatu
         call dcopy(2*ivsiz,dmatuo,1,dmatu,1)
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
         return
 
 C --- Case not self-consistent ---
@@ -245,12 +264,22 @@ Cgetarg           call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
 C       At this point, dmatu and vorb are in spherical harmonics
 
 C   ... Symmetrize vorb to check (symdmu requires real harmonics)
-        call defcc(odmwk,-ivsiz)
+Cdelw1         call defcc(odmwk,-ivsiz)
+         allocate(zv_w_odmwk(abs(-ivsiz)))
+         if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
+
         call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
-        call symdmu(vorb,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
-     .    lldau,xx)
+Cdelw1         call symdmu(vorb,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
+Cdelw1      .    lldau,xx)
+         call symdmu ( vorb , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
+     .   , ssite , ng , g , istab , lldau , xx ) 
+
         call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
-        call rlse(odmwk)
+Cdelw1 rlse name= odmwk old_list= odmwk 
+Cdelw1 rlse name= odmwk new_list= (None)
+Cdelw1         call rlse(odmwk)
+         if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
+
 C       At this point, dmatu and vorb are in spherical harmonics
 
 C   ... Printout
@@ -285,6 +314,9 @@ C   ... Exit with dmatu, vorb in real harmonics, depending on idvsh
       endif
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine chkdmu 
 
 

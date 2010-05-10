@@ -1,3 +1,4 @@
+Cdelw1 var ['owk', '0', 'owk', 'lidimx**2', 'complex(8)', 'zv_w_', 'hamfb3']
       subroutine hamfb3k(qin,iq,nk1,nk2,nk3,
      i  k1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,plat,qlat,ldim,ifac,igstar,
      i  hq,
@@ -78,6 +79,9 @@ c$$$       enddo
 c$$$       enddo
 c$$$       close(3013)
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 
 
@@ -155,8 +159,12 @@ C Passed variables
       double precision pos(3,*),g(3,3,*),ag(3,*),qb(3,3)
       double complex gfbz(k1,k2,k3,ldima,nspc,ldimb,nspc)
 C Local variables
-      integer i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,nl,kcplx,
-     .  optrot,owk,lidimx,offi
+Cdelw1       integer i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,nl,kcplx,
+Cdelw1      .  optrot,owk,lidimx,offi
+       integer:: i , i1 , i2 , i3 , ig , iq , iq1 , is , j , jj1 , jj2 
+     . , jj3 , js , k , nl , kcplx , optrot , lidimx , offi 
+       complex(8) ,allocatable :: zv_w_owk(:)
+
       double precision q1(3),qk
 C heap:
       integer w(1)
@@ -181,7 +189,10 @@ C       roth works with kcplx=2 mode
       endif
 
 C     Temporary memory for roth
-      call defcc(owk,lidimx**2)
+Cdelw1       call defcc(owk,lidimx**2)
+       allocate(zv_w_owk(lidimx**2))
+       if (lidimx**2<0) zv_w_owk(:)=0.0d0
+
 
 C --- Copy gf for each qp in star of qp(iq) ---
       iq1 = 0
@@ -212,8 +223,12 @@ C   ... Rotate and copy
         do  14  js = 1, nspc
           if (kcplx .eq. 0) then
           if (ig .ne. 1) then
-            call roth(optrot,nl,nbas,pos,0,offH,iprmb,istab(1,ig),
-     .      g(1,1,ig),ag(1,ig),q1,lidim,lidim,w(owk),hw(1,is,1,js))
+Cdelw1             call roth(optrot,nl,nbas,pos,0,offH,iprmb,istab(1,ig),
+Cdelw1      .      g(1,1,ig),ag(1,ig),q1,lidim,lidim,w(owk),hw(1,is,1,js))
+             call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+     .       ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
+     .       lidim , zv_w_owk , hw ( 1 , is , 1 , js ) ) 
+
           endif
 
           do  16  j  = 1, ldimb
@@ -223,8 +238,12 @@ C   ... Rotate and copy
    16     continue
           else
           if (ig .ne. 1) then
-            call roth(optrot,nl,nbas,pos,0,offH,iprmb,istab(1,ig),
-     .      g(1,1,ig),ag(1,ig),q1,lidim,lidim,w(owk),hw2(1,1,is,1,js))
+Cdelw1             call roth(optrot,nl,nbas,pos,0,offH,iprmb,istab(1,ig),
+Cdelw1      .      g(1,1,ig),ag(1,ig),q1,lidim,lidim,w(owk),hw2(1,1,is,1,js))
+             call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+     .       ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
+     .       lidim , zv_w_owk , hw2 ( 1 , 1 , is , 1 , js ) ) 
+
           endif
 
           do  18  j  = 1, ldimb
@@ -240,7 +259,11 @@ C 357     format(' hamfb3: iq=',i4,' filling i1,i2,i3=',3i4,2f12.5)
    14   continue
    12 continue
 
-      call rlse(owk)
+Cdelw1 rlse name= owk old_list= owk 
+Cdelw1 rlse name= owk new_list= (None)
+Cdelw1       call rlse(owk)
+       if (allocated(zv_w_owk)) deallocate(zv_w_owk)
+
 
 C     Restore hq to complex*16 storage mode
       if (kcplx .eq. 1) then
@@ -268,5 +291,8 @@ c$$$       enddo
 c$$$       close(3013)
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 

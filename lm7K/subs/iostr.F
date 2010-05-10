@@ -1,3 +1,11 @@
+Cdelw1 var ['os', '2', 'os', 'nds**2*nitab*nkaps**2*ncplx*nkapn', 'real(8)', 'rv_w_', 'iostr']
+Cdelw1 var ['onpr', '2', 'onpr', 'nbas+1', 'integer', 'iv_w_', 'iostr']
+Cdelw1 var ['oiax', '2', 'oiax', 'niax*nttab', 'integer', 'iv_w_', 'iostr']
+Cdelw1 var ['oalpha', '2', 'oalpha', 'lscoff', 'real(8)', 'rv_w_', 'iostr']
+Cdelw1 undel [['call', 'undef', 'wref', 'redef'], 'os', 'iostr']
+Cdelw1 undel [['call', 'wref', 'undef', 'redef'], 'onpr', 'iostr']
+Cdelw1 undel [['call', 'undef', 'wref', 'redef'], 'oiax', 'iostr']
+Cdelw1 undel [['call', 'undef', 'wref', 'redef'], 'oalpha', 'iostr']
       logical function iostr(lio,name,nl,nbas,nkap,kap2,itral,ckbas,
      .  lmaxw,nitab,oalpha,oiax,onpr,os)
 C- Real space structure constants file read or write
@@ -63,6 +71,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       character name*(*)
+Cdelw1 do not change  [['call', 'undef', 'wref', 'redef'], 'oalpha', 'iostr']
+Cdelw1 do not change  [['call', 'undef', 'wref', 'redef'], 'oiax', 'iostr']
+Cdelw1 do not change  [['call', 'wref', 'undef', 'redef'], 'onpr', 'iostr']
+Cdelw1 do not change  [['call', 'undef', 'wref', 'redef'], 'os', 'iostr']
       integer itral,lio,nitab,nl,nbas,nkap,lmaxw,oalpha,oiax,onpr,os
       double precision kap2(nkap),ckbas
 C ... Local parameters
@@ -105,6 +117,8 @@ C       Use nds=nl**2 for now, until nds is passed
         lscoff = nds*nbas*nkaps**2*nkapn
 
 C   ... Write header
+Cdelw1 warning(1) , probably  onpr  is not defined yet at linenumber= 108
+Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
         nttab = w(onpr+nbas)
         if (.not. iostr1(lio,name,itral,nttab,nitab,nl,nbas,
      .    nkap,lmaxw,ckbas,ifi)) goto 99
@@ -112,10 +126,24 @@ C   ... Write strux, block format
         if (getdig(lio23,1,2) .eq. 0) then
         nblk = nitab*nkaps**2*nkapn
           call rxx(getdig(lio23,0,2).eq.1,'iostr not ready for complex')
+Cdelw1 warning(1) , probably  os  is not defined yet at linenumber= 115
+Cdelw1 do not change os because of ['call', 'undef', 'wref', 'redef']
+Cdelw1 warning(1) , probably  onpr  is not defined yet at linenumber= 115
+Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
+Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 115
+Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
+Cdelw1 warning(1) , probably  oalpha  is not defined yet at linenumber= 115
+Cdelw1 do not change oalpha because of ['call', 'undef', 'wref', 'redef']
           if (.not. iostr2(-ifi,nbas,nttab,nblk,lscoff,nds,nkap,
      .        w(onpr),w(oiax),kap2,w(oalpha),w(os))) goto 99
 C   ... Write strux, vector format
         else
+Cdelw1 warning(1) , probably  os  is not defined yet at linenumber= 119
+Cdelw1 do not change os because of ['call', 'undef', 'wref', 'redef']
+Cdelw1 warning(1) , probably  onpr  is not defined yet at linenumber= 119
+Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
+Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 119
+Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
           if (.not. iostr4(-ifi,nbas,nttab,ncplx,nl,nkap,
      .        w(onpr),w(oiax),kap2,w(os))) goto 99
         endif
@@ -184,15 +212,28 @@ C       Use nds=nl**2 for now, until nds is passed
 C   ... Allocate memory for arrays
         if (getdig(lio01,3,2) .eq. 1) then
           lscoff = nds*nbas*nkaps**2*nkapn
+Cdelw1 do not change oalpha because of ['call', 'undef', 'wref', 'redef']
           call defdr(oalpha,lscoff)
+Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
           call defi(oiax,niax*nttab)
+Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
           call defi(onpr,nbas+1)
+Cdelw1 do not change os because of ['call', 'undef', 'wref', 'redef']
           call defdr(os,nds**2*nitab*nkaps**2*ncplx*nkapn)
         endif
 
 C   ... If only header is to be read, exit
         if (getdig(lio01,2,2) .eq. 1) then
           iostr = .true.
+Cki#error, have return with len(w_varlist)>0 at line 196
+Cdelw1 w_varlist remains: oalpha oiax onpr os 
+Cdelw1 w_varlistundel: [os onpr oiax oalpha]
+Cdelw1 w_varlist (undel), remains: [oalpha oiax onpr os]
+Cdelw1 w_varlist (del), remains: (None)
+Cdelw1 not deallocate os because of [call undef wref redef]
+Cdelw1 not deallocate onpr because of [call wref undef redef]
+Cdelw1 not deallocate oiax because of [call undef wref redef]
+Cdelw1 not deallocate oalpha because of [call undef wref redef]
           return
         endif
 
@@ -204,6 +245,10 @@ C   ... Read strux, block format
 #endif
           nblk = nitab*nkap**2
           if (nmto .eq. 1) nblk = nitab*nkap
+Cdelw1 do not change os because of ['call', 'undef', 'wref', 'redef']
+Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
+Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
+Cdelw1 do not change oalpha because of ['call', 'undef', 'wref', 'redef']
           lerr = iostr2(ifi,nbas,nttab,nblk,lscoff,nds,nkap,
      .                  w(onpr),w(oiax),kap2,w(oalpha),w(os))
 #if MASTERIO
@@ -211,10 +256,14 @@ C   ... Read strux, block format
 C         sttime = MPI_WTIME()
 C         call info0(20,0,-1,' iostr: MPI broadcast strx data ...')
           call mpibc1(lerr,1,0,.false.,'iostr','lerr')
+Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
           call mpibc1(w(onpr),nbas+1,2,.false.,'iostr','ntab')
+Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
           call mpibc1(w(oiax),niax*nttab,2,.false.,'iostr','iax')
           call mpibc1(kap2,nkap,4,.false.,'iostr','kap2')
+Cdelw1 do not change oalpha because of ['call', 'undef', 'wref', 'redef']
           call mpibc1(w(oalpha),lscoff,4,.false.,'iostr','alp')
+Cdelw1 do not change os because of ['call', 'undef', 'wref', 'redef']
           call mpibc1(w(os),nds**2*nitab*nkap,4,.false.,'iostr','s')
 C         entime = MPI_WTIME()
 C         call info2(20,0,0,'  took %;1d sec',(entime-sttime),0)
@@ -224,14 +273,20 @@ C   ... Read strux, vector format
 #if MASTERIO
           if (procid .eq. 0) then
 #endif
+Cdelw1 do not change os because of ['call', 'undef', 'wref', 'redef']
+Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
+Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
           lerr = iostr4(ifi,nbas,nttab,ncplx,nl,nkap,
      .                  w(onpr),w(oiax),kap2,w(os))
         endif
 #if MASTERIO
           call mpibc1(lerr,1,0,.false.,'iostr','lerr')
+Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
           call mpibc1(w(onpr),nbas+1,2,.false.,'iostr','ntab')
+Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
           call mpibc1(w(oiax),niax*nttab,2,.false.,'iostr','iax')
           call mpibc1(kap2,nkap,4,.false.,'iostr','kap2')
+Cdelw1 do not change os because of ['call', 'undef', 'wref', 'redef']
           call mpibc1(w(os),nds**2*nitab*nkap*ncplx,4,.false.,'iostr',
      .      's')
         endif
@@ -242,6 +297,15 @@ C   ... Read strux, vector format
      .    lgunit(1),nttab,nttab-nitab,nitab)
       endif
       iostr = .true.
+Cki#error, have return with len(w_varlist)>0 at line 245
+Cdelw1 w_varlist remains: os onpr oiax oalpha 
+Cdelw1 w_varlistundel: [os onpr oiax oalpha]
+Cdelw1 w_varlist (undel), remains: [os onpr oiax oalpha]
+Cdelw1 w_varlist (del), remains: (None)
+Cdelw1 not deallocate oalpha because of [call undef wref redef]
+Cdelw1 not deallocate oiax because of [call undef wref redef]
+Cdelw1 not deallocate onpr because of [call wref undef redef]
+Cdelw1 not deallocate os because of [call undef wref redef]
       return
 
 C ... Error handling
@@ -251,6 +315,14 @@ C ... Error handling
      .  print *, 'IOSTR (warning): failed to read file ',name
       iostr = .false.
 
+Cdelw1 w_varlist remains: oalpha oiax onpr os 
+Cdelw1 w_varlistundel: [os onpr oiax oalpha]
+Cdelw1 w_varlist (undel), remains: [oalpha oiax onpr os]
+Cdelw1 w_varlist (del), remains: (None)
+Cdelw1 not deallocate os because of [call undef wref redef]
+Cdelw1 not deallocate onpr because of [call wref undef redef]
+Cdelw1 not deallocate oiax because of [call undef wref redef]
+Cdelw1 not deallocate oalpha because of [call undef wref redef]
       end
       logical function iostr1(lio,name,itral,nttab,nitab,nl,nbas,
      .  nkap,lmaxw,ckbas,ifi)
@@ -352,8 +424,14 @@ C       This is version 2
       call info5(110,1,0,strn,i,nkap,nl,nttab,0)
 
       iostr1 = .true.
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       return
    99 iostr1 = .false.
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
       logical function iostr2(ifi,nbas,nttab,nblk,lscoff,nds,nkap,
      .  ntab,iax,kap2,scoffs,s)
@@ -386,9 +464,15 @@ C     implicit none
       else
         write(-ifi) ntab,iax,kap2,scoffs,s
       endif
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       return
    99 continue
       iostr2 = .false.
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
       logical function iostr4(ifi,nbas,nttab,ncplx,ndim,nkap,ntab,
      .  iax,kap2,s)
@@ -418,8 +502,14 @@ C     implicit none
       else
         write(-ifi) kap2,s
       endif
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       return
    99 continue
       iostr4 = .false.
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 

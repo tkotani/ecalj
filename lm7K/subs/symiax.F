@@ -1,3 +1,5 @@
+Cdelw1 var ['oiaxib', '0', 'oiaxib', '-ldiaxb*nbas*niax', 'integer', 'iv_w_', 'symiax']
+Cdelw1 var ['ontabb', '0', 'ontabb', 'nbas', 'integer', 'iv_w_', 'symiax']
       subroutine symiax(mode,plat,nbas,pos,g,ag,ng,ntab,iax,nttab,mxcsz)
 C- Render a neighbor list compatible with symmetry operations
 C ----------------------------------------------------------------------
@@ -54,7 +56,10 @@ C ... Passed parameters
       double precision pos(3,*),g(9,*),ag(3,*),plat(3,3)
 C ... Local parameters
       integer ldiaxb,ib,grow
-      integer oiaxib,ontabb
+Cdelw1       integer oiaxib,ontabb
+       integer ,allocatable :: iv_w_oiaxib(:)
+       integer ,allocatable :: iv_w_ontabb(:)
+
 C ... Heap
       integer w(1)
       common /w/ w
@@ -66,22 +71,37 @@ C     Assume no cluster in new iax table will not exceed 8x old one
         mxcsz = max(mxcsz,ntab(ib+1)-ntab(ib))
       enddo
       ldiaxb = 8*mxcsz
-      call defi(oiaxib,-ldiaxb*nbas*niax)
-      call defi(ontabb,nbas)
+Cdelw1       call defi(oiaxib,-ldiaxb*nbas*niax)
+       allocate(iv_w_oiaxib(abs(-ldiaxb*nbas*niax)))
+       if (-ldiaxb*nbas*niax<0) iv_w_oiaxib(:)=0
+
+Cdelw1       call defi(ontabb,nbas)
+       allocate(iv_w_ontabb(nbas))
+       if (nbas<0) iv_w_ontabb(:)=0
+
 C     call yprm('iax before copy',0,iax,0,10,10,nttab)
-      call iax2fd(0,nbas,ntab,iax,w(ontabb),w(oiaxib),ldiaxb)
+Cdelw1       call iax2fd(0,nbas,ntab,iax,w(ontabb),w(oiaxib),ldiaxb)
+       call iax2fd ( 0 , nbas , ntab , iax , iv_w_ontabb , iv_w_oiaxib 
+     . , ldiaxb ) 
+
 
 C ... Update the table
       if (ng .gt. 0) then
-      call symia0(mode,plat,nbas,pos,g,ag,ng,w(ontabb),w(oiaxib),ldiaxb,
-     .  grow)
+Cdelw1       call symia0(mode,plat,nbas,pos,g,ag,ng,w(ontabb),w(oiaxib),ldiaxb,
+Cdelw1      .  grow)
+       call symia0 ( mode , plat , nbas , pos , g , ag , ng , iv_w_ontabb 
+     . , iv_w_oiaxib , ldiaxb , grow ) 
+
       ib = ntab(nbas+1)+grow
       if (ib .gt. nttab) call rxi(
      .  'symiax: not enough memory for new iax table: need dim',ib)
       endif
 
 C ... Copy iax from fixed-basis format
-      call iax2fd(1,nbas,ntab,iax,w(ontabb),w(oiaxib),nttab)
+Cdelw1       call iax2fd(1,nbas,ntab,iax,w(ontabb),w(oiaxib),nttab)
+       call iax2fd ( 1 , nbas , ntab , iax , iv_w_ontabb , iv_w_oiaxib 
+     . , nttab ) 
+
       mxcsz = 0
       do  ib = 1, nbas
         mxcsz = max(mxcsz,ntab(ib+1)-ntab(ib))
@@ -93,7 +113,15 @@ C      call symia0(mode,plat,nbas,pos,g,ag,ng,w(ontabb),w(oiaxib),ldiaxb,
 C     .  grow)
 C      call iax2fd(1,nbas,ntab,iax,w(ontabb),w(oiaxib),nttab)
 
-      call rlse(oiaxib)
+Cdelw1 rlse name= oiaxib old_list= oiaxib ontabb 
+Cdelw1 rlse name= oiaxib new_list= (None)
+Cdelw1       call rlse(oiaxib)
+       if (allocated(iv_w_ontabb)) deallocate(iv_w_ontabb)
+       if (allocated(iv_w_oiaxib)) deallocate(iv_w_oiaxib)
+
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 
       subroutine symia0(mode,plat,nbas,pos,g,ag,ng,ntabib,iaxib,ldiaxb,
@@ -154,6 +182,9 @@ C ... ix-th component of connecting vector of pair i
      .  + plat(ix,3)*iaxib(5,ibas,i)
 
 C --- Setup ---
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (ng .le. 0) return
       fuzz = 1d-5
       call getpr(ipr)
@@ -299,6 +330,9 @@ C ... Sort enlarged table by increasing length
      .  call symia1(plat,nbas,pos,ntabib,iaxib,ldiaxb)
 C     call tcx('symiax')
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 
       subroutine symia1(plat,nbas,pos,ntabib,iaxib,ldiaxb)
@@ -361,5 +395,8 @@ C    .      sqrt(dx(1,ib,is)**2+dx(2,ib,is)**2+dx(3,ib,is)**2)
         enddo
       enddo
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 

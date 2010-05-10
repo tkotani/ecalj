@@ -1,3 +1,5 @@
+Cdelw1 var ['ow', '0', 'ow', 'n1*nbasp*n2', 'real(8)', 'rv_w_', 'pgfpp']
+Cdelw1 undel [['call', 'array', 'wref', 'redef'], 'vpp', 'pgfpp']
       subroutine pgfp(nbas,npadl,npadr,n1,n2,lint,v,vp,iv,ivp)
 C- Pads a matrix for basis from bulk layers on LHS and RHS.
 C ----------------------------------------------------------------
@@ -34,31 +36,72 @@ C     implicit none
    10 continue
 
 c      call snit(nbas,nbasp,lint,n1,n2,v,vp,iv,ivp)
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine pgfpp(nbas,npadl,npadr,n1,n2,lint,lalloc,v,vpp)
 C- Doubly pads a matrix for basis from bulk layers on LHS and RHS.
 C     implicit none
       logical lint,lalloc
+Cdelw1 do not change  [['call', 'array', 'wref', 'redef'], 'vpp', 'pgfpp']
       integer nbas,npadl,npadr,n1,n2,v(1),vpp(1)
-      integer nbasp,nbaspp,ow
+Cdelw1       integer nbasp,nbaspp,ow
+       integer:: nbasp , nbaspp 
+       real(8) ,allocatable :: rv_w_ow(:)
+
 C heap:
       integer w(1)
       common /w/ w
 
       nbasp = nbas + npadl + npadr
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [vpp]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (nbasp .eq. nbas) return
       nbaspp = (2*nbasp-nbas)
+Cdelw1 do not change vpp because of ['call', 'array', 'wref', 'redef']
       if (lalloc .and. lint) call defi(vpp(1),  n1*nbaspp*n2)
+Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: vpp integer and real(8)
+Cdelw1 do not change vpp because of ['call', 'array', 'wref', 'redef']
       if (lalloc .and. .not. lint) call defdr(vpp(1),  n1*nbaspp*n2)
-      call defdr(ow,  n1*nbasp*n2)
-      call pgfp(nbas,npadl,npadr,n1,n2,lint,v,w(ow),v,w(ow))
+Cdelw1       call defdr(ow,  n1*nbasp*n2)
+       allocate(rv_w_ow(n1*nbasp*n2))
+       if (n1*nbasp*n2<0) rv_w_ow(:)=0.0d0
+
+Cdelw1       call pgfp(nbas,npadl,npadr,n1,n2,lint,v,w(ow),v,w(ow))
+       call pgfp ( nbas , npadl , npadr , n1 , n2 , lint , v , rv_w_ow 
+     . , v , rv_w_ow ) 
+
       if (lalloc) then
-        call pgfp(nbasp,npadl,npadr,n1,n2,lint,w(ow),
-     .    w(vpp(1)),w(ow),w(vpp(1)))
+Cdelw1 1 is digit, dropped
+Cdelw1 1 is digit, dropped
+Cdelw1 do not change vpp because of ['call', 'array', 'wref', 'redef']
+Cdelw1 do not change vpp because of ['call', 'array', 'wref', 'redef']
+Cdelw1         call pgfp(nbasp,npadl,npadr,n1,n2,lint,w(ow),
+Cdelw1      .    w(vpp(1)),w(ow),w(vpp(1)))
+         call pgfp ( nbasp , npadl , npadr , n1 , n2 , lint , rv_w_ow 
+     .   , w ( vpp ( 1 ) ) , rv_w_ow , w ( vpp ( 1 ) ) ) 
+
       else
-        call pgfp(nbasp,npadl,npadr,n1,n2,lint,w(ow),vpp,w(ow),vpp)
+Cdelw1 do not change vpp because of ['call', 'array', 'wref', 'redef']
+Cdelw1 do not change vpp because of ['call', 'array', 'wref', 'redef']
+Cdelw1         call pgfp(nbasp,npadl,npadr,n1,n2,lint,w(ow),vpp,w(ow),vpp)
+         call pgfp ( nbasp , npadl , npadr , n1 , n2 , lint , rv_w_ow 
+     .   , vpp , rv_w_ow , vpp ) 
+
       endif
-      call rlse(ow)
+Cdelw1 rlse name= ow old_list= vpp ow 
+Cdelw1 rlse name= ow new_list= vpp 
+Cdelw1       call rlse(ow)
+       if (allocated(rv_w_ow)) deallocate(rv_w_ow)
+
+Cdelw1 w_varlist remains: vpp 
+Cdelw1 w_varlistundel: [vpp]
+Cdelw1 w_varlist (undel), remains: [vpp]
+Cdelw1 w_varlist (del), remains: (None)
+Cdelw1 not deallocate vpp because of [call array wref redef]
       end
 C      subroutine pgfpad(nbas,nbasp,npadl,npadr,nl,nkap,plat,platl,platr,
 C     .  mode,iclass,bas,pgfsl,alpha,adot,oiclpp,obaspp,opgslp,oalpp,

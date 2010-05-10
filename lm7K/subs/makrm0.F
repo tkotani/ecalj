@@ -1,3 +1,7 @@
+Cdelw1 var ['oexcx', '2', 'oexcx', 'np', 'real(8)', 'rv_w_', 'makrm0']
+Cdelw1 var ['oexcc', '2', 'oexcc', 'np', 'real(8)', 'rv_w_', 'makrm0']
+Cdelw1 var ['ovxcx', '2', 'ovxcx', 'np', 'real(8)', 'rv_w_', 'makrm0']
+Cdelw1 var ['ovxcc', '2', 'ovxcc', 'np', 'real(8)', 'rv_w_', 'makrm0']
       subroutine makrm0(opt,nspec,nbas,alat,plat,pos,slabl,ips,modep,
      .  lock,z,rmt)
 C- Estimate muffin-tin radii overlapping atomic potentials
@@ -59,9 +63,9 @@ Cr   1. The free-atom potential is constructed for all species.
 Cr   For each atom:
 Cr   2. A neighbor table is made for the atom.
 Cr   3. The connecting vectors to each neighbor make up a group
-Cr 	of direction vectors stellating from that atom.
+Cr         of direction vectors stellating from that atom.
 Cr   4. The first occurence of a maximum in the potential along any
-Cr 	of these vectors determines rmt for the atom
+Cr         of these vectors determines rmt for the atom
 Cr
 Cr   Finally, rmt may be averaged over species (or classes).
 Cu Updates
@@ -90,7 +94,12 @@ C Local variables:
      .  rhoc(nrmx,nspec+1),rofi(nrmx*2),range(nbas),rmti(nbas)
       double precision vp(npmx,0:2),xp(3,npmx),rp(npmx),
      .  vxcp(npmx),excp(npmx)
-      integer oexcx,oexcc,ovxcx,ovxcc
+Cdelw1       integer oexcx,oexcc,ovxcx,ovxcc
+       real(8) ,allocatable :: rv_w_oexcx(:)
+       real(8) ,allocatable :: rv_w_oexcc(:)
+       real(8) ,allocatable :: rv_w_ovxcx(:)
+       real(8) ,allocatable :: rv_w_ovxcc(:)
+
 C     Sets scale for neighbor table
       double precision facr,facri
       parameter (facr=2d0,facri=1.02d0)
@@ -242,14 +251,36 @@ C       Add superposition of potentials for each vector
 C       Add vxc[superposition of densities] for each vector
         if (opt1 .eq. 1) then
           call sumsro(xp,np,ips,a,b,rho,nttab,iax,rpos,rp)
-          call defrr(oexcx,np)
-          call defrr(oexcc,np)
-          call defrr(ovxcx,np)
-          call defrr(ovxcc,np)
-          call evxcv(rp,rp,np,1,lxcfun,
-     .      excp,w(oexcx),w(oexcc),vxcp,w(ovxcx),w(ovxcc))
+Cdelw1           call defrr(oexcx,np)
+           allocate(rv_w_oexcx(np))
+           if (np<0) rv_w_oexcx(:)=0.0d0
+
+Cdelw1           call defrr(oexcc,np)
+           allocate(rv_w_oexcc(np))
+           if (np<0) rv_w_oexcc(:)=0.0d0
+
+Cdelw1           call defrr(ovxcx,np)
+           allocate(rv_w_ovxcx(np))
+           if (np<0) rv_w_ovxcx(:)=0.0d0
+
+Cdelw1           call defrr(ovxcc,np)
+           allocate(rv_w_ovxcc(np))
+           if (np<0) rv_w_ovxcc(:)=0.0d0
+
+Cdelw1           call evxcv(rp,rp,np,1,lxcfun,
+Cdelw1      .      excp,w(oexcx),w(oexcc),vxcp,w(ovxcx),w(ovxcc))
+           call evxcv ( rp , rp , np , 1 , lxcfun , excp , rv_w_oexcx , 
+     .     rv_w_oexcc , vxcp , rv_w_ovxcx , rv_w_ovxcc ) 
+
           call daxpy(np,1d0,vxcp,1,vp(1,2),1)
-          call rlse(oexcx)
+Cdelw1 rlse name= oexcx old_list= oexcx oexcc ovxcx ovxcc 
+Cdelw1 rlse name= oexcx new_list= (None)
+Cdelw1           call rlse(oexcx)
+           if (allocated(rv_w_ovxcc)) deallocate(rv_w_ovxcc)
+           if (allocated(rv_w_ovxcx)) deallocate(rv_w_ovxcx)
+           if (allocated(rv_w_oexcc)) deallocate(rv_w_oexcc)
+           if (allocated(rv_w_oexcx)) deallocate(rv_w_oexcx)
+
         endif
 
 C       Check against prior point.  Skip if nothing yet to compare
@@ -354,5 +385,8 @@ C       Index where to poke rnew
 C    print *, rmt
 
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 

@@ -1,3 +1,27 @@
+Cdelw1 var ['oips', '0', 'oips', 'nbas', 'integer', 'iv_w_', 'symrat']
+Cdelw1 var ['oipc', '0', 'oipc', 'nbas', 'integer', 'iv_w_', 'symrat']
+Cdelw1 var ['opos0', '0', 'opos0', '3*nbas', 'real(8)', 'rv_w_', 'symrat']
+Cdelw1 var ['oipa', '0', 'oipa', 'nbas', 'integer', 'iv_w_', 'symrat']
+Cdelw1 var ['opos', '0', 'opos', '3*nbas', 'real(8)', 'rv_w_', 'symrat']
+Cdelw1 var ['osym', '2', 'osym', 'nlmx*nlmx*nrclas', 'real(8)', 'rv_w_', 'symrat']
+Cdelw1 var ['oistab', '-1', 'undef', '0', 'undef', 'x', 'symrat']
+Cdelw1 var ['og', '-1', 'undef', '0', 'undef', 'x', 'symrat']
+Cdelw1 var ['oag', '-1', 'undef', '0', 'undef', 'x', 'symrat']
+Cdelw1 var ['orho', '3', 'orho', 'nr*nlml*nsp', 'real(8)', 'rv_w_', 'symrat']
+Cdelw1 var ['ocv', '1', 'ocv', 'ng', 'complex(8)', 'zv_w_', 'symsmr']
+Cdelw1 var ['ocsym', '1', 'ocsym', 'ng', 'complex(8)', 'zv_w_', 'symsmr']
+Cdelw1 var ['okv', '-1', 'undef', '0', 'undef', 'x', 'symsmr']
+Cdelw1 var ['ogv', '-1', 'undef', '0', 'undef', 'x', 'symsmr']
+Cdelw1 var ['oips0', '-1', 'undef', '0', 'undef', 'x', 'symsmr']
+Cdelw1 var ['obgv', '-1', 'undef', '0', 'undef', 'x', 'symsmr']
+Cdelw1 undel [['undef', 'wref'], 'oistab', 'symrat']
+Cdelw1 undel [['undef', 'wref'], 'og', 'symrat']
+Cdelw1 undel [['undef', 'wref'], 'oag', 'symrat']
+Cdelw1 undel [['undef', 'wref'], 'okv', 'symsmr']
+Cdelw1 undel [['undef', 'wref'], 'ogv', 'symsmr']
+Cdelw1 undel [['undef', 'wref'], 'oips0', 'symsmr']
+Cdelw1 undel [['undef', 'wref'], 'obgv', 'symsmr']
+Cdelw1 undel [['call'], 'orhoat', 'psymr1']
 Cgetarg...info...           structure ['symrho', 'lat', 'slat']
 Cgetarg...info...           structure ['symrat', 'lat', 'slat']
 Cgetarg...info...           structure ['symrat', 'site', 'ssite']
@@ -64,17 +88,16 @@ Cgetarg       call upack1('lat nabc',slat,ngabc)
        i_copy_size=size(slat%nabc) 
        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
 
-c      call fftz30(n1,n2,n3,k1,k2,k3)
-      k1 = n1
-      k2 = n2
-      k3 = n3
-
+      call fftz30(n1,n2,n3,k1,k2,k3)
 
       call symrat(ssite,sspec,slat,nbas,nsp,lf,orhoat,qbyl,hbyl,f)
       if (iprint() .gt. 50) call prrhat(nbas,ssite,sspec,orhoat)
       call symsmr(slat,nsp,k1,k2,k3,smrho)
       call tcx('symrho')
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine symrho 
 
 
@@ -125,9 +148,23 @@ Cgetarg      .  f(3,nbas),qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas)
        type(s_lat)::slat
 
 C ... Local parameters
-      integer stdo,ib0,ic,ipr,iprint,is,lgunit,lmxa,lmxl,nclass,
-     .  ngrp,nlml,nlmx,nr,nrclas,oag,ocg,ocy,og,oidxcg,oipa,oipc,oips,
-     .  ojcg,opos,opos0,orho,osym,igetss,mxint,oistab,ival
+Cdelw1 do not change  [['undef', 'wref'], 'oag', 'symrat']
+Cdelw1 do not change  [['undef', 'wref'], 'og', 'symrat']
+Cdelw1 do not change  [['undef', 'wref'], 'oistab', 'symrat']
+Cdelw1       integer stdo,ib0,ic,ipr,iprint,is,lgunit,lmxa,lmxl,nclass,
+Cdelw1      .  ngrp,nlml,nlmx,nr,nrclas,oag,ocg,ocy,og,oidxcg,oipa,oipc,oips,
+Cdelw1      .  ojcg,opos,opos0,orho,osym,igetss,mxint,oistab,ival
+       integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
+     . , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , oag , ocg 
+     . , ocy , og , oidxcg , ojcg , igetss , mxint , oistab , ival 
+       integer ,allocatable :: iv_w_oipa(:)
+       integer ,allocatable :: iv_w_oipc(:)
+       integer ,allocatable :: iv_w_oips(:)
+       real(8) ,allocatable :: rv_w_opos(:)
+       real(8) ,allocatable :: rv_w_opos0(:)
+       real(8) ,allocatable :: rv_w_orho(:)
+       real(8) ,allocatable :: rv_w_osym(:)
+
       double precision plat(9),qlat(9)
 C ... Heap
       integer w(1)
@@ -157,6 +194,8 @@ Cgetarg       call upack('lat plat qlat oistab',slat,plat,qlat,oistab,0,0)
        call dcopy(i_copy_size,slat%plat,1,plat,1) 
        i_copy_size=size(slat%qlat) 
        call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 156
+Cdelw1 do not change oistab because of ['undef', 'wref']
        oistab=slat%oistab
 
 Cgetarg...info...           integer :: ngrp , integer(8) :: slat%nsgrp 1
@@ -165,13 +204,26 @@ Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
 Cgetarg       call upack('lat nsgrp osymgr oag',slat,ngrp,og,oag,0,0)
        
        ngrp=slat%nsgrp
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 164
+Cdelw1 do not change og because of ['undef', 'wref']
        og=slat%osymgr
+Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 165
+Cdelw1 do not change oag because of ['undef', 'wref']
        oag=slat%oag
 
 
-      call defi (oips, nbas)
-      call defi (oipc, nbas)
-      call defrr(opos0,3*nbas)
+Cdelw1       call defi (oips, nbas)
+       allocate(iv_w_oips(nbas))
+       if (nbas<0) iv_w_oips(:)=0
+
+Cdelw1       call defi (oipc, nbas)
+       allocate(iv_w_oipc(nbas))
+       if (nbas<0) iv_w_oipc(:)=0
+
+Cdelw1       call defrr(opos0,3*nbas)
+       allocate(rv_w_opos0(3*nbas))
+       if (3*nbas<0) rv_w_opos0(:)=0.0d0
+
 
 C ... Separate sites into symmetry classes
 C      call symcls(nbas,ssite,sspec,slat,ngrp,w(og),w(oag),
@@ -182,25 +234,44 @@ C  300 format(/' symrat: number of symmetry classes is',i3)
 Cgetarg       call spackv(10,'site class',ssite,1,nbas,w(oipc))
        i_copy_size=1; 
        do i_spackv=1,nbas 
-       call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
+Cdelw1        call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
+        call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %class 
+     .  , i_copy_size , i_spackv + 1 - 1 , iv_w_oipc ) 
+
        enddo
 
 Cgetarg       call spackv(10,'site pos',ssite,1,nbas,w(opos0))
        i_copy_size=size(ssite(1)%pos)
        do i_spackv=1,nbas 
-       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos0))
+Cdelw1        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos0))
+        call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+     .  , i_copy_size , i_spackv + 1 - 1 , rv_w_opos0 ) 
+
        enddo
 
-      nclass = mxint(nbas,w(oipc))
+Cdelw1       nclass = mxint(nbas,w(oipc))
+       nclass = mxint ( nbas , iv_w_oipc ) 
+
 
 C --- Start loop over classes ---
-      call defi  (oipa,    nbas)
-      call defrr (opos,    3*nbas)
+Cdelw1       call defi  (oipa,    nbas)
+       allocate(iv_w_oipa(nbas))
+       if (nbas<0) iv_w_oipa(:)=0
+
+Cdelw1       call defrr (opos,    3*nbas)
+       allocate(rv_w_opos(3*nbas))
+       if (3*nbas<0) rv_w_opos(:)=0.0d0
+
 
       do  ic = 1, nclass
-        call psymr0(-2,ic,nbas,w(oipc),w(opos0),w(opos),w(oipa),nrclas)
+Cdelw1         call psymr0(-2,ic,nbas,w(oipc),w(opos0),w(opos),w(oipa),nrclas)
+         call psymr0 ( - 2 , ic , nbas , iv_w_oipc , rv_w_opos0 , rv_w_opos 
+     .   , iv_w_oipa , nrclas ) 
+
         if (nrclas .gt. 0) then
-        ib0 = ival(w(oipa),1)
+Cdelw1         ib0 = ival(w(oipa),1)
+         ib0 = ival ( iv_w_oipa , 1 ) 
+
 Cgetarg         is = igetss('site spec',ib0,ssite)
          is = int(ssite(ib0)%spec) 
 
@@ -219,34 +290,83 @@ Cgetarg         call upack('spec lmxl lmxa nr',sspec,is,lmxl,lmxa,nr,0)
 
 C   ... Make the projectors; make to at least to l=1 for forces
         nlmx = max0(nlml,4)
-        call defrr (osym,   nlmx*nlmx*nrclas)
-        call symprj(nrclas,nlmx,ngrp,nbas,w(oistab),w(og),w(oag),plat,
-     .    qlat,w(opos),w(osym))
+Cdelw1         call defrr (osym,   nlmx*nlmx*nrclas)
+         allocate(rv_w_osym(nlmx*nlmx*nrclas))
+         if (nlmx*nlmx*nrclas<0) rv_w_osym(:)=0.0d0
+
+Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 219
+Cdelw1 do not change oistab because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 219
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 219
+Cdelw1 do not change oag because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 219
+Cdelw1 do not change oistab because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 219
+Cdelw1 do not change og because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 219
+Cdelw1 do not change oag because of ['undef', 'wref']
+Cdelw1         call symprj(nrclas,nlmx,ngrp,nbas,w(oistab),w(og),w(oag),plat,
+Cdelw1      .    qlat,w(opos),w(osym))
+         call symprj ( nrclas , nlmx , ngrp , nbas , w ( oistab ) , w 
+     .   ( og ) , w ( oag ) , plat , qlat , rv_w_opos , rv_w_osym ) 
+
 
 C   ... Apply the projectors to rhoat
         if (lmxl .gt. -1) then
-        call defrr(orho,  nr*nlml*nsp)
-        call psymr1(nrclas,w(oipa),nr,nlml,nsp,nlmx,w(osym),w(orho),
-     .    orhoat,1)
-        call psymr1(nrclas,w(oipa),nr,nlml,nsp,nlmx,w(osym),w(orho),
-     .    orhoat,2)
+Cdelw1         call defrr(orho,  nr*nlml*nsp)
+         allocate(rv_w_orho(nr*nlml*nsp))
+         if (nr*nlml*nsp<0) rv_w_orho(:)=0.0d0
+
+Cdelw1         call psymr1(nrclas,w(oipa),nr,nlml,nsp,nlmx,w(osym),w(orho),
+Cdelw1      .    orhoat,1)
+         call psymr1 ( nrclas , iv_w_oipa , nr , nlml , nsp , nlmx , rv_w_osym 
+     .   , rv_w_orho , orhoat , 1 ) 
+
+Cdelw1         call psymr1(nrclas,w(oipa),nr,nlml,nsp,nlmx,w(osym),w(orho),
+Cdelw1      .    orhoat,2)
+         call psymr1 ( nrclas , iv_w_oipa , nr , nlml , nsp , nlmx , rv_w_osym 
+     .   , rv_w_orho , orhoat , 2 ) 
+
 
 C   ... Symmetrize site charges and eigval sum
-        call psymrq(nrclas,nsp,w(oipa),lmxa,qbyl,hbyl)
+Cdelw1         call psymrq(nrclas,nsp,w(oipa),lmxa,qbyl,hbyl)
+         call psymrq ( nrclas , nsp , iv_w_oipa , lmxa , qbyl , hbyl ) 
+
         endif
 
 C   ... Symmetrize the forces
-        if (lf .ne. 0) call psymrf(nrclas,w(oipa),nlmx,w(osym),f)
+Cdelw1         if (lf .ne. 0) call psymrf(nrclas,w(oipa),nlmx,w(osym),f)
+         if ( lf .ne. 0 ) call psymrf ( nrclas , iv_w_oipa , nlmx , rv_w_osym 
+     .   , f ) 
 
-        call rlse (osym)
+
+Cdelw1 rlse name= osym old_list= oips oipc opos0 oipa opos osym orho 
+Cdelw1 rlse name= osym new_list= oips oipc opos0 oipa opos 
+Cdelw1         call rlse (osym)
+         if (allocated(rv_w_orho)) deallocate(rv_w_orho)
+         if (allocated(rv_w_osym)) deallocate(rv_w_osym)
+
         endif
       enddo
 
-      call rlse (oips)
+Cdelw1 rlse name= oips old_list= oips oipc opos0 oipa opos 
+Cdelw1 rlse name= oips new_list= (None)
+Cdelw1       call rlse (oips)
+       if (allocated(rv_w_opos)) deallocate(rv_w_opos)
+       if (allocated(iv_w_oipa)) deallocate(iv_w_oipa)
+       if (allocated(rv_w_opos0)) deallocate(rv_w_opos0)
+       if (allocated(iv_w_oipc)) deallocate(iv_w_oipc)
+       if (allocated(iv_w_oips)) deallocate(iv_w_oips)
+
 
       call tcx('symrat')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oistab og oag]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine symrat 
 
 
@@ -277,6 +397,9 @@ C ... Local parameters
         f(3,ib) = (s(4,3,ia)*x(1)+s(2,3,ia)*x(2)+s(3,3,ia)*x(3))*nrclas
       enddo
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine psymrf 
 
 
@@ -328,6 +451,9 @@ C ... Local parameters
       enddo
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine psymrq 
 
 
@@ -337,6 +463,7 @@ C- Symmetrize density for one class of atoms
 C     implicit none
 C ... Passed parameters
       integer nrclas,nsp
+Cdelw1 do not change  [['call'], 'orhoat', 'psymr1']
       integer ipa(nrclas),orhoat(3,1),nlmx,nr,nlml,icmp
       double precision sym(nlmx,nlmx,nrclas),rho(nr,nlml,nsp)
 C ... Local parameters
@@ -367,6 +494,10 @@ C ... Copy to all sites in class
   100 format(' psymr: did',i5,'  of',i5)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [orhoat]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine psymr1 
 
 
@@ -383,8 +514,17 @@ Cgetarg       double precision slat(1)
 
       double complex smrho(k1,k2,k3,nsp)
 C ... Local parameters
-      integer n1,n2,n3,ng,ngrp,obgv,ocsym,ocv,ogv,oips0,okv,ngabc(3),
-     .  isp
+Cdelw1 do not change  [['undef', 'wref'], 'obgv', 'symsmr']
+Cdelw1 do not change  [['undef', 'wref'], 'ogv', 'symsmr']
+Cdelw1 do not change  [['undef', 'wref'], 'oips0', 'symsmr']
+Cdelw1 do not change  [['undef', 'wref'], 'okv', 'symsmr']
+Cdelw1       integer n1,n2,n3,ng,ngrp,obgv,ocsym,ocv,ogv,oips0,okv,ngabc(3),
+Cdelw1      .  isp
+       integer:: n1 , n2 , n3 , ng , ngrp , obgv , ogv , oips0 , okv 
+     . , ngabc(3) , isp 
+       complex(8) ,allocatable :: zv_w_ocsym(:)
+       complex(8) ,allocatable :: zv_w_ocv(:)
+
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 C ... Heap
       integer w(1)
@@ -400,7 +540,11 @@ Cgetarg       call upack('lat nabc ng ogv okv',slat,ngabc,ng,ogv,okv,0)
        i_copy_size=size(slat%nabc) 
        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
        ng=slat%ng
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 399
+Cdelw1 do not change ogv because of ['undef', 'wref']
        ogv=slat%ogv
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 400
+Cdelw1 do not change okv because of ['undef', 'wref']
        okv=slat%okv
 
 Cgetarg...info...           integer :: ngrp , integer(8) :: slat%nsgrp 1
@@ -409,24 +553,70 @@ Cgetarg...info...           integer :: obgv , integer(8) :: slat%obgv 1
 Cgetarg       call upack('lat nsgrp oips0 obgv',slat,ngrp,oips0,obgv,0,0)
        
        ngrp=slat%nsgrp
+Cdelw1 warning(1) , probably  oips0  is not defined yet at linenumber= 408
+Cdelw1 do not change oips0 because of ['undef', 'wref']
        oips0=slat%oips0
+Cdelw1 warning(1) , probably  obgv  is not defined yet at linenumber= 409
+Cdelw1 do not change obgv because of ['undef', 'wref']
        obgv=slat%obgv
 
       if (ngrp .gt. 1) then
 C       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
-        call defcc(ocv,     ng)
-        call defcc(ocsym,   ng)
+Cdelw1         call defcc(ocv,     ng)
+         allocate(zv_w_ocv(ng))
+         if (ng<0) zv_w_ocv(:)=0.0d0
+
+Cdelw1         call defcc(ocsym,   ng)
+         allocate(zv_w_ocsym(ng))
+         if (ng<0) zv_w_ocsym(:)=0.0d0
+
         call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 C       call zprm3('smrho before poke',smrho,k1,k2,k3)
         do  isp = 1, nsp
-          call gvgetf(ng,1,w(okv),k1,k2,k3,smrho(1,1,1,isp),w(ocv))
-          call gvsym(ng,w(ogv),w(oips0),w(obgv),w(ocv),w(ocsym))
-          call dpadd(w(ocsym),w(ocv),1,ng*2,-1d0)
-          call gvaddf(ng,w(okv),k1,k2,k3,w(ocsym),smrho(1,1,1,isp))
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 418
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 418
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1           call gvgetf(ng,1,w(okv),k1,k2,k3,smrho(1,1,1,isp),w(ocv))
+           call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smrho ( 1 , 
+     .     1 , 1 , isp ) , zv_w_ocv ) 
+
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 419
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips0  is not defined yet at linenumber= 419
+Cdelw1 do not change oips0 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  obgv  is not defined yet at linenumber= 419
+Cdelw1 do not change obgv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 419
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips0  is not defined yet at linenumber= 419
+Cdelw1 do not change oips0 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  obgv  is not defined yet at linenumber= 419
+Cdelw1 do not change obgv because of ['undef', 'wref']
+Cdelw1           call gvsym(ng,w(ogv),w(oips0),w(obgv),w(ocv),w(ocsym))
+           call gvsym ( ng , w ( ogv ) , w ( oips0 ) , w ( obgv ) , zv_w_ocv 
+     .     , zv_w_ocsym ) 
+
+Cdelw1           call dpadd(w(ocsym),w(ocv),1,ng*2,-1d0)
+           call dpadd ( zv_w_ocsym , zv_w_ocv , 1 , ng * 2 , - 1d0 ) 
+
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 421
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 421
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1           call gvaddf(ng,w(okv),k1,k2,k3,w(ocsym),smrho(1,1,1,isp))
+           call gvaddf ( ng , w ( okv ) , k1 , k2 , k3 , zv_w_ocsym , smrho 
+     .     ( 1 , 1 , 1 , isp ) ) 
+
 C         call zprm3('smrho after poke',smrho,k1,k2,k3)
         enddo
         call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
-        call rlse(ocv)
+Cdelw1 rlse name= ocv old_list= ocv ocsym 
+Cdelw1 rlse name= ocv new_list= (None)
+Cdelw1         call rlse(ocv)
+         if (allocated(zv_w_ocsym)) deallocate(zv_w_ocsym)
+         if (allocated(zv_w_ocv)) deallocate(zv_w_ocv)
+
 
 C ... Force density to be real and positive
 C       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
@@ -441,6 +631,10 @@ C   10   smrho(i1,i23,1) = dble(smrho(i1,i23,1))
       call tcx('symsmr')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [okv ogv oips0 obgv]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine symsmr 
 
 
@@ -475,6 +669,9 @@ C ... Local parameters
      .  ' points.  min=',f13.8)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine rhopos 
 
 
@@ -531,6 +728,9 @@ C     write(*,333) qsum
 C 333 format(' rhoqm : istl charge, moment = ',2f13.7)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine rhoqm 
 
 

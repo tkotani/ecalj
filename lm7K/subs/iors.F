@@ -1,3 +1,16 @@
+Cdelw1 var ['osmrho', '4', 'osmrho', '-k1*k2*k3*nsp', 'complex(8)', 'zv_w_', 'iors']
+Cdelw1 var ['oh', '4', 'oh', '-k11*k21*k31*nsp', 'complex(8)', 'zv_w_', 'iors']
+Cdelw1 var ['ov0', '2', 'ov0', 'nr*nsp', 'real(8)', 'rv_w_', 'iors']
+Cdelw1 var ['ov1', '3', 'ov1', 'nr*nsp', 'real(8)', 'rv_w_', 'iors']
+Cdelw1 var ['oves', '-1', 'undef', '0', 'undef', 'x', 'iors']
+Cdelw1 var ['orhoca', '3', 'orhoca', 'nr*nsp', 'real(8)', 'rv_w_', 'iors']
+Cdelw1 var ['orwgt', '4', 'orwgt', 'nr', 'real(8)', 'rv_w_', 'iors']
+Cdelw1 undel [['undef', 'wref'], 'oves', 'iors']
+Cdelw1 undel [['call', 'array', 'wref'], 'orhoat', 'iors']
+Cdelw1 undel [['wref'], 'ov0', 'iors']
+Cdelw1 undel [['wref'], 'ov1', 'iors']
+Cdelw1 undel [['wref'], 'orhoca', 'iors']
+Cdelw1 undel [['wref'], 'osmrho', 'iors']
 Cgetarg...info...           structure ['iors', 'lat', 'slat']
 Cgetarg...info...           structure ['iors', 'ctrl', 'sctrl']
 Cgetarg...info...           structure ['iors', 'pot', 'spot']
@@ -128,6 +141,7 @@ C  ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       logical lbin
+Cdelw1 do not change  [['call', 'array', 'wref'], 'orhoat', 'iors']
       integer mode,nbas,nat,nspec,nit,ifi,orhoat(3,nbas),n0
       parameter (n0=10)
 Cgetarg       double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
@@ -147,8 +161,18 @@ C ... Local parameters
      .  lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel,lrel0,n11,n21,
      .  n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
      .  nxi,nat0,ibaug
-      integer oh,orhoca,orwgt,ov0,ov1,ngabc(3),n1,n2,n3,lgunit,stdo,
-     .  isw,osmrho,oves
+Cdelw1 do not change  [['wref'], 'orhoca', 'iors']
+Cdelw1 do not change  [['wref'], 'ov0', 'iors']
+Cdelw1 do not change  [['wref'], 'ov1', 'iors']
+Cdelw1 do not change  [['wref'], 'osmrho', 'iors']
+Cdelw1 do not change  [['undef', 'wref'], 'oves', 'iors']
+Cdelw1       integer oh,orhoca,orwgt,ov0,ov1,ngabc(3),n1,n2,n3,lgunit,stdo,
+Cdelw1      .  isw,osmrho,oves
+       integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
+     . , stdo , isw , osmrho , oves 
+       complex(8) ,allocatable :: zv_w_oh(:)
+       real(8) ,allocatable :: rv_w_orwgt(:)
+
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer idmod(n0),idmoz(n0),lrs(10),nl
       logical isanrg,lgors,lfail,ltmp1,ltmp2,latvec,lshear,cmdopt,mlog
@@ -218,14 +242,12 @@ Cgetarg       lrs(3) = isw(lgors('ctrl lrs,128',sctrl))
 C     ndyn = igets('move size',smove)
       line = 'header'
       if (mode .eq. 1) then
-c        call fftz30(n1,n2,n3,k1,k2,k3)
-        k1 = n1
-        k2 = n2
-        k3 = n3
-
+        call fftz30(n1,n2,n3,k1,k2,k3)
 Cgetarg...info...           integer :: osmrho , integer(8) :: spot%osmrho 1
 Cgetarg         call upack1('pot osmrho',spot,osmrho)
          
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 225
+Cdelw1 do not change osmrho because of ['wref']
          osmrho=spot%osmrho
 
       endif
@@ -364,6 +386,10 @@ Cgetarg           call pack2('lat alat plat',slat,alat0,plat0)
           nbas = nbas0
           nat  = nat0
           nspec = nspec0
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oves orhoat ov0 ov1 orhoca osmrho]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
           return
         endif
 
@@ -425,20 +451,25 @@ Cgetarg           call pack1('lat nabc',slat,ngabc)
            i_copy_size=size(slat%nabc) 
            call ii8copy(i_copy_size,ngabc,1,slat%nabc,1) 
 
-c          call fftz30(n1,n2,n3,k1,k2,k3)
-           k1 = n1
-           k2 = n2
-           k3 = n3
-
+          call fftz30(n1,n2,n3,k1,k2,k3)
+Cdelw1 do not change osmrho because of ['wref']
           call defcc (osmrho,-k1*k2*k3*nsp)
+Cdelw1 do not change osmrho because of ['wref']
           call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
-          call rlse(osmrho)
+Cdelw1 rlse name= osmrho old_list= osmrho 
+Cdelw1 rlse name= osmrho new_list= (None)
+Cdelw1 not deallocate osmrho because of [wref]
+Cdelw1           call rlse(osmrho)
+           call rlse(osmrho)
+
         elseif (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
 c          if (ipr .ge. 10) write(stdo,450) n11,n21,n31,n1,n2,n3
 cccccccccccccccccc
 c          write(6,*)'yyyyyyyy 222111',n11,n21,n31,n1,n2,n3,k1,k2,k3
 c          write(6,*)'yyyyyyyy 222444',nsp0,lbin,jfi,osmrho
 cccccccccccccccccc
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 434
+Cdelw1 do not change osmrho because of ['wref']
           call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
           if (nsp .gt. nsp0) then
 C           call zprm3('smrho before split',0,w(osmrho),k1,k2,k3)
@@ -446,7 +477,11 @@ cccccccccccccccccc
 c          write(6,*)'yyyyyyyy 222333'
 cccccccccccccccccc
             i = k1*k2*k3*2
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 441
+Cdelw1 do not change osmrho because of ['wref']
             call dscal(i,0.5d0,w(osmrho),1)
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 442
+Cdelw1 do not change osmrho because of ['wref']
             call dpscop(w(osmrho),w(osmrho),i,1,1+i,1d0)
 C           call zprm3('smrho after split',0,w(osmrho),k1,k2,k3*2)
           endif
@@ -455,26 +490,43 @@ c   ... or read and remesh
           if (ipr .ge. 10) write(stdo,450) n11,n21,n31,n1,n2,n3
   450     format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,
      .       '    to  ',i4,'  *',i4,'  *',i4)
-c          call fftz30(n11,n21,n31,k11,k21,k31)
-          k11 = n11
-          k21 = n21
-          k31 = n31
+          call fftz30(n11,n21,n31,k11,k21,k31)
+Cdelw1           call defcc(oh, -k11*k21*k31*nsp)
+           allocate(zv_w_oh(abs(-k11*k21*k31*nsp)))
+           if (-k11*k21*k31*nsp<0) zv_w_oh(:)=0.0d0
 
-          call defcc(oh, -k11*k21*k31*nsp)
-          call dpdftr(n11,n21,n31,k11,k21,k31,nsp0,w(oh),lbin,jfi)
+Cdelw1           call dpdftr(n11,n21,n31,k11,k21,k31,nsp0,w(oh),lbin,jfi)
+           call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , zv_w_oh 
+     .     , lbin , jfi ) 
+
           if (nsp .gt. nsp0) then
 C           call zprm3('smrho before split',0,w(oh),k1,k2,k3)
             i = k11*k21*k31*2
-            call dscal(i,0.5d0,w(oh),1)
-            call dpscop(w(oh),w(oh),i,1,1+i,1d0)
+Cdelw1             call dscal(i,0.5d0,w(oh),1)
+             call dscal ( i , 0.5d0 , zv_w_oh , 1 ) 
+
+Cdelw1             call dpscop(w(oh),w(oh),i,1,1+i,1d0)
+             call dpscop ( zv_w_oh , zv_w_oh , i , 1 , 1 + i , 1d0 ) 
+
           endif
           call pshpr(0)
           i = 0
           if (n1 .eq. 2*n11 .and. n2 .eq. 2*n21 .and. n3 .eq. 2*n31) i=3
-          call chgmsh(i,plat,nsp,n11,n21,n31,k11,k21,k31,w(oh),
-     .                n1,n2,n3,k1,k2,k3,w(osmrho))
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 462
+Cdelw1 do not change osmrho because of ['wref']
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 462
+Cdelw1 do not change osmrho because of ['wref']
+Cdelw1           call chgmsh(i,plat,nsp,n11,n21,n31,k11,k21,k31,w(oh),
+Cdelw1      .                n1,n2,n3,k1,k2,k3,w(osmrho))
+           call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , 
+     .     k31 , zv_w_oh , n1 , n2 , n3 , k1 , k2 , k3 , w ( osmrho ) ) 
+
           call poppr
-          call rlse (oh)
+Cdelw1 rlse name= oh old_list= oh 
+Cdelw1 rlse name= oh new_list= (None)
+Cdelw1           call rlse (oh)
+           if (allocated(zv_w_oh)) deallocate(zv_w_oh)
+
         endif
 
 cccccccccccccc
@@ -488,9 +540,13 @@ C   ... If cell volume changed, scale smooth density to maintain charge
           if (ipr .ge. 10) write(stdo,460) vol0,vfac
   460     format(9x,'volume changed from',f8.2,
      .       ' :  scale smooth density by',f8.4)
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 479
+Cdelw1 do not change osmrho because of ['wref']
           call dpcopy(w(osmrho),w(osmrho),1,2*k1*k2*k3*nsp,vfac)
         endif
         endif
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 482
+Cdelw1 do not change osmrho because of ['wref']
         call mpibc1(w(osmrho),2*k1*k2*k3*nsp,4,mlog,'iors','smrho')
   115   continue
 #else
@@ -983,21 +1039,30 @@ C     --- Allocate and read arrays for local density and potential ---
           nlml0 = (lmxl0+1)**2
           nlml = (lmxl+1)**2
 
+Cdelw1 do not change ov0 because of ['wref']
           call defrr(ov0,           nr*nsp)
 C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
           if (mode .eq. 1 .or. mode .eq. -2) then
             if (nr .ne. nr0)
      .        call rx('iors not set up to convert radial mesh')
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call defrr(orhoat(1,ib),  nr*nlml*nsp)
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call defrr(orhoat(2,ib),  nr*nlml*nsp)
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call defrr(orhoat(3,ib),  nr*nsp)
+Cdelw1 do not change ov1 because of ['wref']
             call defrr(ov1,           nr*nsp)
 
             if (procid .eq. master) then
             if (.not. lbin) read(jfi,*)
+Cdelw1 1 is digit, dropped
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpdbyl(w(orhoat(1,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
      .                  jfi)
             if (.not. lbin) read(jfi,*)
+Cdelw1 2 is digit, dropped
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpdbyl(w(orhoat(2,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
      .                  jfi)
             if (nlml0.gt.nlml.and.ipr.ge.10)
@@ -1007,13 +1072,19 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
   202       format(9x,'site',i4,', species ',a,
      .             ': ',a,' local density from nlm=',i3,' to',i3)
             if (.not. lbin) read(jfi,*)
+Cdelw1 3 is digit, dropped
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpdbyl(w(orhoat(3,ib)),nr0,1,1,nsp0,nsp,lbin,jfi)
             if (.not. lbin) read(jfi,*)
+Cdelw1 do not change ov0 because of ['wref']
             call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
             if (.not. lbin) read(jfi,*)
+Cdelw1 do not change ov1 because of ['wref']
             call dpdbyl(w(ov1),nr0,1,1,nsp0,nsp,lbin,jfi)
             if (nsp0 .lt. nsp) then
+Cdelw1 do not change ov0 because of ['wref']
               call dscal(nr0*2,2d0,w(ov0),1)
+Cdelw1 do not change ov1 because of ['wref']
               call dscal(nr0*2,2d0,w(ov1),1)
             endif
 C           call prmx('iors: v0',w(ov0),nr0,nr0,nsp)
@@ -1024,16 +1095,37 @@ C              goto 20
 C           endif
 
             if (mode .eq. -2) then
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call rlse(orhoat(1,ib))
-              call rlse(ov0)
+Cdelw1 rlse name= ov0 old_list= ov0 orhoat ov1 
+Cdelw1 rlse name= ov0 new_list= (None)
+Cdelw1 not deallocate ov1 because of [wref]
+Cdelw1 not deallocate orhoat because of [call array wref]
+Cdelw1 not deallocate ov0 because of [wref]
+Cdelw1               call rlse(ov0)
+               call rlse(ov0)
+
             else
+Cdelw1 1 is digit, dropped
+Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1018
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call mpibc1(w(orhoat(1,ib)),nr*nlml*nsp,4,mlog,'iors',
      .          'rhoat(1)')
+Cdelw1 2 is digit, dropped
+Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1020
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call mpibc1(w(orhoat(2,ib)),nr*nlml*nsp,4,mlog,'iors',
      .          'rhoat(2)')
+Cdelw1 3 is digit, dropped
+Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1022
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call mpibc1(w(orhoat(3,ib)),nr*nlml*nsp,4,mlog,'iors',
      .          'rhoat(3)')
+Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1024
+Cdelw1 do not change ov0 because of ['wref']
               call mpibc1(w(ov0),nr*nsp,4,mlog,'iors','v0')
+Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1025
+Cdelw1 do not change ov1 because of ['wref']
               call mpibc1(w(ov1),nr*nsp,4,mlog,'iors','v1')
             endif
 C     ... ASA sphere densities
@@ -1050,12 +1142,18 @@ C           call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 Cgetarg               call upack('pot oves',spot,oves,0,0,0,0)
                
+Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 1041
+Cdelw1 do not change oves because of ['undef', 'wref']
                oves=spot%oves
 
+Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 1043
+Cdelw1 do not change oves because of ['undef', 'wref']
               call dvset(w(oves),ic,ic,vrmax)
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 Cgetarg               call pack5('pot oves',spot,oves,0,0,0,0)
                
+Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 1047
+Cdelw1 do not change oves because of ['undef', 'wref']
                spot%oves=oves 
 
             endif
@@ -1097,7 +1195,11 @@ Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
 Cgetarg...info...           integer :: ov1 , integer(8) :: ssite%ov1 1
 Cgetarg           call pack5('site ov0 ov1',ssite,ib,ov0,ov1,0,0)
            
+Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1088
+Cdelw1 do not change ov0 because of ['wref']
            ssite(ib)%ov0=ov0 
+Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1089
+Cdelw1 do not change ov1 because of ['wref']
            ssite(ib)%ov1=ov1 
 
    20     continue
@@ -1117,6 +1219,8 @@ Cgetarg           call upack('lat dist',slat,wk,0,0,0,0)
 C         call prmx('wk',wk,3,3,3)
           call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
 C         call prmx('wk',wk,3,3,3)
+Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1108
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
           call pvsms2(ssite,sspec,wk,nbas,nsp,orhoat)
         endif
 #endif
@@ -1166,26 +1270,37 @@ Cgetarg           call pack3('spec lfoca rfoca',sspec,is,lfoc0,rfoc0)
 
 C     ... FP core densities
           if (mode .eq. 1 .or. mode .eq. -2) then
+Cdelw1 do not change orhoca because of ['wref']
           call defrr(orhoca, nr*nsp)
           if (procid .eq. master) then
             if (nr .ne. nr0)
      .        call rx('iors not set up to convert core radial mesh')
             if (lbin) then
+Cdelw1 do not change orhoca because of ['wref']
               call dpdump(w(orhoca),nr*nsp0,jfi)
             else
+Cdelw1 do not change orhoca because of ['wref']
               call dfdump(w(orhoca),nr*nsp0,jfi)
             endif
 C           spin-split core density
             if (nsp .gt. nsp0) then
               i = nr
+Cdelw1 do not change orhoca because of ['wref']
               call dscal(i,0.5d0,w(orhoca),1)
+Cdelw1 do not change orhoca because of ['wref']
               call dpscop(w(orhoca),w(orhoca),i,1,1+i,1d0)
             endif
           endif
           if (mode .eq. 1) then
+Cdelw1 do not change orhoca because of ['wref']
             call mpibc1(w(orhoca),nr*nsp,4,mlog,'iors','rhoca')
           else
-            call rlse(orhoca)
+Cdelw1 rlse name= orhoca old_list= orhoca 
+Cdelw1 rlse name= orhoca new_list= (None)
+Cdelw1 not deallocate orhoca because of [wref]
+Cdelw1             call rlse(orhoca)
+             call rlse(orhoca)
+
 Cgetarg...info...          check_variable ' ' not found
 Cgetarg             call spacks(1,'spec coreh',sspec,' ',is,is)
              do i_spacks=is,is 
@@ -1232,6 +1347,8 @@ Cgetarg             call spacks(1,'spec pb2',sspec,' ',is,is)
 
 C     ... For now, mode 0 (ASA) stores no core data
           elseif (mode .eq. 0) then
+Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1223
+Cdelw1 do not change orhoca because of ['wref']
             orhoca = 0
             rsmfa = 0
             nxi = 0
@@ -1250,6 +1367,8 @@ Cgetarg      .      orhoca)
            sspec(is)%ctail=cof 
            sspec(is)%etail=eh 
            sspec(is)%stc=stc 
+Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1241
+Cdelw1 do not change orhoca because of ['wref']
            sspec(is)%orhoc=orhoca 
 
 Cgetarg...info...           integer :: nxi , integer(8) :: sspec%nxi 1
@@ -1292,22 +1411,50 @@ Cgetarg           call upack('spec lfoca qc orhoc',sspec,is,lfoc,qc,orhoca,0)
            
            lfoc=sspec(is)%lfoca
            qc=sspec(is)%qc
+Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1283
+Cdelw1 do not change orhoca because of ['wref']
            orhoca=sspec(is)%orhoc
 
           if (lmxa .eq. -1) goto 40
           if (lfoc .gt. 0) then
+Cdelw1 3 is digit, dropped
+Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1287
+Cdelw1 do not change orhoca because of ['wref']
+Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1287
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpcopy(w(orhoca),w(orhoat(3,ib)),1,nr*nsp,1d0)
           else
-            call defrr(orwgt, nr)
-            call radwgt(rmt,a,nr,w(orwgt))
-            call radsum(nr,nr,1,nsp,w(orwgt),w(orhoat(3,ib)),sum)
+Cdelw1             call defrr(orwgt, nr)
+             allocate(rv_w_orwgt(nr))
+             if (nr<0) rv_w_orwgt(:)=0.0d0
+
+Cdelw1             call radwgt(rmt,a,nr,w(orwgt))
+             call radwgt ( rmt , a , nr , rv_w_orwgt ) 
+
+Cdelw1 3 is digit, dropped
+Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1291
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
+Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1291
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
+Cdelw1             call radsum(nr,nr,1,nsp,w(orwgt),w(orhoat(3,ib)),sum)
+             call radsum ( nr , nr , 1 , nsp , rv_w_orwgt , w ( orhoat ( 3 
+     .       , ib ) ) , sum ) 
+
             fac = 1d0
             if (dabs(sum) .gt. 1d-6) fac = qc/sum
             if (dabs(fac-1d0).gt.1d-7 .and. ipr.ge.30)
      .         write(stdo,787) ib,qc,sum,fac
   787       format(' fix core chg: ib=',i4,'  qc,sum,fac=',3f12.6)
+Cdelw1 3 is digit, dropped
+Cdelw1 3 is digit, dropped
+Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1297
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
-            call rlse(orwgt)
+Cdelw1 rlse name= orwgt old_list= orwgt 
+Cdelw1 rlse name= orwgt new_list= (None)
+Cdelw1             call rlse(orwgt)
+             if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+
           endif
    40     continue
         enddo
@@ -1342,6 +1489,10 @@ C --- Output ---
       else
         if (procid .ne. master) then
           iors = 0
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oves orhoat ov0 ov1 orhoca osmrho]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
           return
         endif
         jfi = -ifi
@@ -1408,6 +1559,8 @@ C   --- Write smooth charge density ---
           write(jfi,721) 'smooth density'
           write(jfi,ifmt) n1,n2,n3
         endif
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 1399
+Cdelw1 do not change osmrho because of ['wref']
         call dpdftr(n1,n2,n3,k1,k2,k3,nsp,w(osmrho),lbin,-jfi)
 #endif
 
@@ -1519,7 +1672,11 @@ Cgetarg           call upack('site pnu pz ov0 ov1',ssite,ib,pnu,pnz,ov0,ov1)
            call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
            i_copy_size=size(ssite(ib)%pz) 
            call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1510
+Cdelw1 do not change ov0 because of ['wref']
            ov0=ssite(ib)%ov0
+Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1511
+Cdelw1 do not change ov1 because of ['wref']
            ov1=ssite(ib)%ov1
 
           if (lmxa .eq. -1) goto 120
@@ -1569,14 +1726,27 @@ C     ... Write arrays for local density and potential
           nlml = (lmxl+1)**2
           if (mode .eq. 1) then
             if (.not. lbin) write(jfi,'('' rho1'')')
+Cdelw1 1 is digit, dropped
+Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1560
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpdbyl(w(orhoat(1,ib)),nr,nlml,nlml,nsp,nsp,lbin,-jfi)
             if (.not. lbin) write(jfi,'('' rho2'')')
+Cdelw1 2 is digit, dropped
+Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1562
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpdbyl(w(orhoat(2,ib)),nr,nlml,nlml,nsp,nsp,lbin,-jfi)
             if (.not. lbin) write(jfi,'('' rhoc'')')
+Cdelw1 3 is digit, dropped
+Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1564
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpdbyl(w(orhoat(3,ib)),nr,1,1,nsp,nsp,lbin,-jfi)
             if (.not. lbin) write(jfi,'('' v0'')')
+Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1566
+Cdelw1 do not change ov0 because of ['wref']
             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
             if (.not. lbin) write(jfi,'('' v1'')')
+Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1568
+Cdelw1 do not change ov1 because of ['wref']
             call dpdbyl(w(ov1),nr,1,1,nsp,nsp,lbin,-jfi)
           else
             if (lbin) then
@@ -1593,8 +1763,12 @@ C             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 Cgetarg               call upack('pot oves',spot,oves,0,0,0,0)
                
+Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 1584
+Cdelw1 do not change oves because of ['undef', 'wref']
                oves=spot%oves
 
+Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 1586
+Cdelw1 do not change oves because of ['undef', 'wref']
               vrmax(1) = dval(w(oves),ic)
               write(jfi,143) vrmax(1)
   143         format('  Ves(rmax)=',f11.7)
@@ -1645,6 +1819,8 @@ Cgetarg      .      orhoca)
            cof=sspec(is)%ctail
            eh=sspec(is)%etail
            stc=sspec(is)%stc
+Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1636
+Cdelw1 do not change orhoca because of ['wref']
            orhoca=sspec(is)%orhoc
 
 Cgetarg...info...           integer :: nxi , integer(8) :: sspec%nxi 1
@@ -1682,10 +1858,14 @@ Cgetarg             call spacks(0,'spec name',sspec,spid0,is,is)
 C     ... For now, ASA stores no core data
           if (mode .eq. 1) then
             if (lbin) then
+Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1673
+Cdelw1 do not change orhoca because of ['wref']
               call dpdump(w(orhoca),nr*nsp,-jfi)
               write(jfi) rsmfa,nxi
               write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
             else
+Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1677
+Cdelw1 do not change orhoca because of ['wref']
               call dfdump(w(orhoca),nr*nsp,-jfi)
               write(jfi,'('' core tail: rsmfa,n,e,cof=''/f15.10,i4)')
      .          rsmfa,nxi
@@ -1703,17 +1883,29 @@ C     ... For now, ASA stores no core data
   364 format(/9x,'ib:spc la ll   rmt     nr   a     pnu')
 
       iors = 0
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oves orhoat ov0 ov1 orhoca osmrho]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       return
 
 C ... Error handling
   998 if (ipr .gt. 0)
      .  write(stdo,'('' iors  : empty file ... nothing read'')')
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oves orhoat ov0 ov1 orhoca osmrho]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       return
   999 continue
       if (ipr .gt. 0)
      .  write(stdo,'('' iors  : read failed in: '',a)') line
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oves orhoat ov0 ov1 orhoca osmrho]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end function iors 
 
 

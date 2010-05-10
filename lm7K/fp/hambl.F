@@ -1,3 +1,5 @@
+Cdelw1 var ['oiprmb', '-1', 'undef', '0', 'undef', 'x', 'hambl']
+Cdelw1 undel [['undef', 'wref'], 'oiprmb', 'hambl']
 Cgetarg...info...           structure ['hambl', 'ham', 'sham']
 Cgetarg...info...           structure ['pvhmb1', 'lat', 'slat']
 Cgetarg...info...           use_to_add ['hambl', 'm_struc_def']
@@ -80,6 +82,7 @@ Cgetarg       double precision ssite(1),sspec(1),sham(1),slat(1),q(3),vconst
       double complex hso(ndimh,ndimh)
 C ... Local parameters
       integer mode0,mode1,ipr
+Cdelw1 do not change  [['undef', 'wref'], 'oiprmb', 'hambl']
       integer oiprmb
       double precision vavg
 C     double precision plat(3,3)
@@ -97,6 +100,8 @@ C ... Heap
 Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
 Cgetarg       call upack('ham oindxo',sham,oiprmb,0,0,0,0)
        
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 100
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
        oiprmb=sham%oindxo
 
 
@@ -108,6 +113,8 @@ C ... Skip LDA H, S
       if (mode0 .gt. 1) goto 100
 
 C --- Augmentation part of hamiltonian and overlap ---
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 111
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
       call augmbl(mode0+10*mode1,ssite,sspec,slat,isp,lcplxp,q,
      .  osig,otau,oppi,w(oiprmb),ndimh,napw,igvapw,h,hso,s)
 
@@ -125,11 +132,15 @@ C     call pvhmb1(1,slat,k1,k2,k3,smpot,-vavg)
 C --- Smoothed hamiltonian and overlap, S and T done analytically ---
 C     print *, '!!'; s = 0
 
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 128
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
       call smhsbl(mode0,ssite,sspec,slat,vavg+vconst,q,ndimh,w(oiprmb),
      .  napw,igvapw,h,s)
 C     call zprm('s',12,s,ndimh,ndimh,ndimh)
 
       if (mode0 .eq. 1) goto 100
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 133
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
       call hsibl(ssite,sspec,slat,k1,k2,k3,smpot,isp,q,ndimh,w(oiprmb),
      .  napw,igvapw,h)
 
@@ -201,6 +212,10 @@ C     call pvhmb2(ndimh,h,s)
       endif
       call tcx('hambl')
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oiprmb]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine hambl 
 
 
@@ -254,6 +269,9 @@ Cgetarg         call upack1('lat nabc',slat,ngabc)
         call rx('pvhmb1: bad mode')
       endif
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvhmb1 
 
 

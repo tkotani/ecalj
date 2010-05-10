@@ -1,3 +1,24 @@
+Cdelw1 var ['orofi', '1', 'orofi', 'nr', 'real(8)', 'rv_w_', 'makusq']
+Cdelw1 var ['ofh', '1', 'ofh', 'nr*(lmxh+1)*nkapi', 'real(8)', 'rv_w_', 'makusq']
+Cdelw1 var ['oxh', '1', 'oxh', 'nr*(lmxh+1)*nkapi', 'real(8)', 'rv_w_', 'makusq']
+Cdelw1 var ['ovh', '1', 'ovh', '(lmxh+1)*nkapi', 'real(8)', 'rv_w_', 'makusq']
+Cdelw1 var ['odh', '1', 'odh', '(lmxh+1)*nkapi', 'real(8)', 'rv_w_', 'makusq']
+Cdelw1 var ['ofp', '1', 'ofp', 'nr*(lmxa+1)*(kmax+1)', 'real(8)', 'rv_w_', 'makusq']
+Cdelw1 var ['oxp', '1', 'oxp', 'nr*(lmxa+1)*(kmax+1)', 'real(8)', 'rv_w_', 'makusq']
+Cdelw1 var ['ovp', '1', 'ovp', '(lmxa+1)*(kmax+1)', 'real(8)', 'rv_w_', 'makusq']
+Cdelw1 var ['odp', '1', 'odp', '(lmxa+1)*(kmax+1)', 'real(8)', 'rv_w_', 'makusq']
+Cdelw1 var ['oiprmb', '-1', 'undef', '0', 'undef', 'x', 'makusq']
+Cdelw1 var ['ob', '0', 'ob', '(kmax+1)*nlma*ndimh', 'complex(8)', 'zv_w_', 'pusq1']
+Cdelw1 var ['ocg', '-1', 'undef', '0', 'undef', 'x', 'pusq1']
+Cdelw1 var ['oidxcg', '-1', 'undef', '0', 'undef', 'x', 'pusq1']
+Cdelw1 var ['ojcg', '-1', 'undef', '0', 'undef', 'x', 'pusq1']
+Cdelw1 var ['ocy', '-1', 'undef', '0', 'undef', 'x', 'pusq1']
+Cdelw1 var ['oa', '1', 'oa', '(kmax+1)*nlma', 'complex(8)', 'zv_w_', 'pusq1']
+Cdelw1 undel [['undef', 'wref'], 'oiprmb', 'makusq']
+Cdelw1 undel [['undef', 'wref'], 'ocg', 'pusq1']
+Cdelw1 undel [['undef', 'wref'], 'oidxcg', 'pusq1']
+Cdelw1 undel [['undef', 'wref'], 'ojcg', 'pusq1']
+Cdelw1 undel [['undef', 'wref'], 'ocy', 'pusq1']
 Cgetarg...info...           structure ['makusq', 'site', 'ssite']
 Cgetarg...info...           structure ['makusq', 'ham', 'sham']
 Cgetarg...info...           structure ['makusq', 'spec', 'sspec']
@@ -114,7 +135,19 @@ C ... Local parameters
       integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0),rsma,a,rmt
       integer igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
-      integer oiprmb,orofi,ofh,oxh,ovh,odh,ofp,oxp,ovp,odp
+Cdelw1 do not change  [['undef', 'wref'], 'oiprmb', 'makusq']
+Cdelw1       integer oiprmb,orofi,ofh,oxh,ovh,odh,ofp,oxp,ovp,odp
+       integer:: oiprmb 
+       real(8) ,allocatable :: rv_w_orofi(:)
+       real(8) ,allocatable :: rv_w_ofh(:)
+       real(8) ,allocatable :: rv_w_oxh(:)
+       real(8) ,allocatable :: rv_w_ovh(:)
+       real(8) ,allocatable :: rv_w_odh(:)
+       real(8) ,allocatable :: rv_w_ofp(:)
+       real(8) ,allocatable :: rv_w_oxp(:)
+       real(8) ,allocatable :: rv_w_ovp(:)
+       real(8) ,allocatable :: rv_w_odp(:)
+
 C ... Heap
       integer w(1)
       common /w/ w
@@ -137,6 +170,8 @@ Cgetarg         is = igetss('site spec',ib,ssite)
 Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
 Cgetarg         call upack('ham oindxo',sham,oiprmb,0,0,0,0)
          
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 140
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
          oiprmb=sham%oindxo
 
 Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
@@ -169,26 +204,84 @@ Cgetarg         call upack('spec lmxb',sspec,is,lmxh,0,0,0)
         if (lmxa .eq. -1) goto 10
 
 C   --- Set up all radial head and tail functions, and their BC's
-        call defrr(orofi, nr)
-        call radmsh(rmt,a,nr,w(orofi))
-        call defrr(ofh, nr*(lmxh+1)*nkapi)
-        call defrr(oxh, nr*(lmxh+1)*nkapi)
-        call defrr(ovh, (lmxh+1)*nkapi)
-        call defrr(odh, (lmxh+1)*nkapi)
-        call fradhd(nkapi,eh,rsmh,lh,lmxh,nr,w(orofi),w(ofh),
-     .    w(oxh),w(ovh),w(odh))
-        call defrr(ofp, nr*(lmxa+1)*(kmax+1))
-        call defrr(oxp, nr*(lmxa+1)*(kmax+1))
-        call defrr(ovp, (lmxa+1)*(kmax+1))
-        call defrr(odp, (lmxa+1)*(kmax+1))
-        call fradpk(kmax,rsma,lmxa,nr,w(orofi),w(ofp),w(oxp),w(ovp),
-     .    w(odp))
+Cdelw1         call defrr(orofi, nr)
+         allocate(rv_w_orofi(nr))
+         if (nr<0) rv_w_orofi(:)=0.0d0
+
+Cdelw1         call radmsh(rmt,a,nr,w(orofi))
+         call radmsh ( rmt , a , nr , rv_w_orofi ) 
+
+Cdelw1         call defrr(ofh, nr*(lmxh+1)*nkapi)
+         allocate(rv_w_ofh(nr*(lmxh+1)*nkapi))
+         if (nr*(lmxh+1)*nkapi<0) rv_w_ofh(:)=0.0d0
+
+Cdelw1         call defrr(oxh, nr*(lmxh+1)*nkapi)
+         allocate(rv_w_oxh(nr*(lmxh+1)*nkapi))
+         if (nr*(lmxh+1)*nkapi<0) rv_w_oxh(:)=0.0d0
+
+Cdelw1         call defrr(ovh, (lmxh+1)*nkapi)
+         allocate(rv_w_ovh((lmxh+1)*nkapi))
+         if ((lmxh+1)*nkapi<0) rv_w_ovh(:)=0.0d0
+
+Cdelw1         call defrr(odh, (lmxh+1)*nkapi)
+         allocate(rv_w_odh((lmxh+1)*nkapi))
+         if ((lmxh+1)*nkapi<0) rv_w_odh(:)=0.0d0
+
+Cdelw1         call fradhd(nkapi,eh,rsmh,lh,lmxh,nr,w(orofi),w(ofh),
+Cdelw1      .    w(oxh),w(ovh),w(odh))
+         call fradhd ( nkapi , eh , rsmh , lh , lmxh , nr , rv_w_orofi 
+     .   , rv_w_ofh , rv_w_oxh , rv_w_ovh , rv_w_odh ) 
+
+Cdelw1         call defrr(ofp, nr*(lmxa+1)*(kmax+1))
+         allocate(rv_w_ofp(nr*(lmxa+1)*(kmax+1)))
+         if (nr*(lmxa+1)*(kmax+1)<0) rv_w_ofp(:)=0.0d0
+
+Cdelw1         call defrr(oxp, nr*(lmxa+1)*(kmax+1))
+         allocate(rv_w_oxp(nr*(lmxa+1)*(kmax+1)))
+         if (nr*(lmxa+1)*(kmax+1)<0) rv_w_oxp(:)=0.0d0
+
+Cdelw1         call defrr(ovp, (lmxa+1)*(kmax+1))
+         allocate(rv_w_ovp((lmxa+1)*(kmax+1)))
+         if ((lmxa+1)*(kmax+1)<0) rv_w_ovp(:)=0.0d0
+
+Cdelw1         call defrr(odp, (lmxa+1)*(kmax+1))
+         allocate(rv_w_odp((lmxa+1)*(kmax+1)))
+         if ((lmxa+1)*(kmax+1)<0) rv_w_odp(:)=0.0d0
+
+Cdelw1         call fradpk(kmax,rsma,lmxa,nr,w(orofi),w(ofp),w(oxp),w(ovp),
+Cdelw1      .    w(odp))
+         call fradpk ( kmax , rsma , lmxa , nr , rv_w_orofi , rv_w_ofp 
+     .   , rv_w_oxp , rv_w_ovp , rv_w_odp ) 
+
 C   --- Add to the coefficient for the projection onto (u,s) for this site
-        call pusq1(mode,ib,isp,nspc,w(oiprmb),nlmax,lmxh,nbas,ssite,
-     .    sspec,slat,q,ndham,ndimh,napw,igvapw,nev,evec,w(ovh),w(odh),
-     .    w(ovp),w(odp),ppnl(1,1,1,ib),
-     .    aus(1,1,1,1,i,iq),aus(1,1,2,1,i,iq),aus(1,1,3,1,i,iq))
-        call rlse(orofi)
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 187
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 187
+Cdelw1 do not change oiprmb because of ['undef', 'wref']
+Cdelw1         call pusq1(mode,ib,isp,nspc,w(oiprmb),nlmax,lmxh,nbas,ssite,
+Cdelw1      .    sspec,slat,q,ndham,ndimh,napw,igvapw,nev,evec,w(ovh),w(odh),
+Cdelw1      .    w(ovp),w(odp),ppnl(1,1,1,ib),
+Cdelw1      .    aus(1,1,1,1,i,iq),aus(1,1,2,1,i,iq),aus(1,1,3,1,i,iq))
+         call pusq1 ( mode , ib , isp , nspc , w ( oiprmb ) , nlmax , 
+     .   lmxh , nbas , ssite , sspec , slat , q , ndham , ndimh , napw 
+     .   , igvapw , nev , evec , rv_w_ovh , rv_w_odh , rv_w_ovp , rv_w_odp 
+     .   , ppnl ( 1 , 1 , 1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , 
+     .   aus ( 1 , 1 , 2 , 1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq 
+     .   ) ) 
+
+Cdelw1 rlse name= orofi old_list= orofi ofh oxh ovh odh ofp oxp ovp odp 
+Cdelw1 rlse name= orofi new_list= (None)
+Cdelw1         call rlse(orofi)
+         if (allocated(rv_w_odp)) deallocate(rv_w_odp)
+         if (allocated(rv_w_ovp)) deallocate(rv_w_ovp)
+         if (allocated(rv_w_oxp)) deallocate(rv_w_oxp)
+         if (allocated(rv_w_ofp)) deallocate(rv_w_ofp)
+         if (allocated(rv_w_odh)) deallocate(rv_w_odh)
+         if (allocated(rv_w_ovh)) deallocate(rv_w_ovh)
+         if (allocated(rv_w_oxh)) deallocate(rv_w_oxh)
+         if (allocated(rv_w_ofh)) deallocate(rv_w_ofh)
+         if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+
 C   --- print
 C        print *, 'isp,ib,nev,iq=',isp,ib,nev,iq
 C        call zprm('val',2,aus(1,1,1,isp,ib,iq),nlmax,(lmxa+1)**2,nev)
@@ -198,6 +291,10 @@ C        call zprm('loc',2,aus(1,1,3,isp,ib,iq),nlmax,(lmxa+1)**2,nev)
       enddo
       call tcx('makusq')
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oiprmb]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine makusq 
 
 
@@ -282,7 +379,15 @@ C ... Local parameters
       integer nkap0,nlmxx
       parameter (nkap0=3,nlmxx=121)
       integer lh(nkap0)
-      integer ocg,ojcg,oidxcg,ocy,ob,oa
+Cdelw1 do not change  [['undef', 'wref'], 'ocg', 'pusq1']
+Cdelw1 do not change  [['undef', 'wref'], 'ojcg', 'pusq1']
+Cdelw1 do not change  [['undef', 'wref'], 'oidxcg', 'pusq1']
+Cdelw1 do not change  [['undef', 'wref'], 'ocy', 'pusq1']
+Cdelw1       integer ocg,ojcg,oidxcg,ocy,ob,oa
+       integer:: ocg , ojcg , oidxcg , ocy 
+       complex(8) ,allocatable :: zv_w_ob(:)
+       complex(8) ,allocatable :: zv_w_oa(:)
+
       integer isa,lmxa,lmxha,kmax,nlma,ivec,
      .  ilm,k,ll,nkape,ksp,ispc,nlmto
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
@@ -299,9 +404,17 @@ Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
 Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
 Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
        
+Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 302
+Cdelw1 do not change ocg because of ['undef', 'wref']
        ocg=slat%ocg
+Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 303
+Cdelw1 do not change ojcg because of ['undef', 'wref']
        ojcg=slat%ojcg
+Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 304
+Cdelw1 do not change oidxcg because of ['undef', 'wref']
        oidxcg=slat%oidxcg
+Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 305
+Cdelw1 do not change ocy because of ['undef', 'wref']
        ocy=slat%ocy
 
 Cgetarg...info...           integer :: isa , integer(8) :: ssite%spec 1
@@ -329,6 +442,10 @@ Cgetarg       call upack2('spec rmt',sspec,isa,rmt)
        
        rmt=sspec(isa)%rmt
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [ocg oidxcg ojcg ocy]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (lmxa .eq. -1) return
       nlmto = ndimh-napw
 
@@ -339,9 +456,32 @@ C     Count no. envelope functions connecting (phi,phidot) at site ia
       call uspecb(0,1,sspec,isa,isa,lh,rsmh,eh,nkape)
 
 C --- Make strux to expand all orbitals at site ia ---
-      call defcc (ob,   (kmax+1)*nlma*ndimh)
-      call bstrux(2,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
-     .  iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igvapw,w(ob),w)
+Cdelw1       call defcc (ob,   (kmax+1)*nlma*ndimh)
+       allocate(zv_w_ob((kmax+1)*nlma*ndimh))
+       if ((kmax+1)*nlma*ndimh<0) zv_w_ob(:)=0.0d0
+
+Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 343
+Cdelw1 do not change ocg because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 343
+Cdelw1 do not change oidxcg because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 343
+Cdelw1 do not change ojcg because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 343
+Cdelw1 do not change ocy because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 343
+Cdelw1 do not change ocg because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 343
+Cdelw1 do not change oidxcg because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 343
+Cdelw1 do not change ojcg because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 343
+Cdelw1 do not change ocy because of ['undef', 'wref']
+Cdelw1       call bstrux(2,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
+Cdelw1      .  iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igvapw,w(ob),w)
+       call bstrux ( 2 , slat , ssite , sspec , w ( ocg ) , w ( oidxcg 
+     . ) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
+     . q , kmax , nlma , ndimh , napw , igvapw , zv_w_ob , w ) 
+
 
 C     In noncollinear case, isp=1 always => need internal ispc=1..2
 C     ksp is the current spin index in both cases:
@@ -370,16 +510,31 @@ C     whereas ispc=1 for independent spins, and spin index when nspc=2
       endif
 
 C --- Loop over eigenstates ---
-      call defcc (oa,   (kmax+1)*nlma)
+Cdelw1       call defcc (oa,   (kmax+1)*nlma)
+       allocate(zv_w_oa((kmax+1)*nlma))
+       if ((kmax+1)*nlma<0) zv_w_oa(:)=0.0d0
+
       do  ivec = 1, nev
 C       call pusq3(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),w(oa))
-        call rlocb1(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),w(oa))
+Cdelw1         call rlocb1(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),w(oa))
+         call rlocb1 ( ndimh , nlma , kmax , evec ( 1 , ispc , ivec ) 
+     .   , zv_w_ob , zv_w_oa ) 
+
 C       call zprm('cPkL',2,w(oa),kmax+1,kmax+1,nlma)
-        call pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,min(nlma,nlmax),
-     .    iprmb,w(oa),rotp,evec(1,ispc,ivec),vh,dh,vp,dp,
-     .    au(1,ivec,1,ksp),as(1,ivec,1,ksp),az(1,ivec,1,ksp))
+Cdelw1         call pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,min(nlma,nlmax),
+Cdelw1      .    iprmb,w(oa),rotp,evec(1,ispc,ivec),vh,dh,vp,dp,
+Cdelw1      .    au(1,ivec,1,ksp),as(1,ivec,1,ksp),az(1,ivec,1,ksp))
+         call pusq2 ( mode , ia , nkape , kmax , lmxa , lmxh , nlmto , 
+     .   min ( nlma , nlmax ) , iprmb , zv_w_oa , rotp , evec ( 1 , ispc 
+     .   , ivec ) , vh , dh , vp , dp , au ( 1 , ivec , 1 , ksp ) , as 
+     .   ( 1 , ivec , 1 , ksp ) , az ( 1 , ivec , 1 , ksp ) ) 
+
       enddo
-      call rlse(oa)
+Cdelw1 rlse name= oa old_list= ob oa 
+Cdelw1 rlse name= oa new_list= ob 
+Cdelw1       call rlse(oa)
+       if (allocated(zv_w_oa)) deallocate(zv_w_oa)
+
 
 C  --- Debugging --
 C      print *, 'ksp,ib,nev=',ksp,ib,nev
@@ -390,10 +545,18 @@ C      call zprm('loc',2,az(1,1,3,ksp),nlmax,(lmxa+1)**2,nev)
 C ... end loop over noncollinear spins
       enddo
 
-      call rlse(ob)
+Cdelw1 rlse name= ob old_list= ob 
+Cdelw1 rlse name= ob new_list= (None)
+Cdelw1       call rlse(ob)
+       if (allocated(zv_w_ob)) deallocate(zv_w_ob)
+
       call tcx('pusq1')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [ocg oidxcg ojcg ocy]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pusq1 
 
 
@@ -455,6 +618,9 @@ C Local
       double complex wk(nlmxx,2)
 
 C     call tcn('pusq2')
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (nlmto .eq. 0) return
       if (nlma .gt. nlmxx) call rxi('makusq:  nlmxx.lt.nlma=',nlma)
 
@@ -505,6 +671,9 @@ C     Rotate to (phi,phidot)
 
 C     call tcx('pusq2')
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pusq2 
 
 

@@ -1,3 +1,44 @@
+Cdelw1 var ['oceps', '0', 'oceps', 'ng', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['ocnomi', '0', 'ocnomi', 'ng', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['ocvin', '0', 'ocvin', 'ng', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['ocdvx', '0', 'ocdvx', 'ng*nsp', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['oyl', '0', 'oyl', 'ng*nlmtop', 'real(8)', 'rv_w_', 'dfrce']
+Cdelw1 var ['og2', '0', 'og2', 'ng', 'real(8)', 'rv_w_', 'dfrce']
+Cdelw1 var ['og', '0', 'og', 'ng*3', 'real(8)', 'rv_w_', 'dfrce']
+Cdelw1 var ['ogv', '-1', 'undef', '0', 'undef', 'x', 'dfrce']
+Cdelw1 var ['oiv', '0', 'oiv', 'ng*3', 'integer', 'iv_w_', 'dfrce']
+Cdelw1 var ['osmro', '0', 'osmro', 'nn', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['ocs', '0', 'ocs', 'ng', 'real(8)', 'rv_w_', 'dfrce']
+Cdelw1 var ['osn', '0', 'osn', 'ng', 'real(8)', 'rv_w_', 'dfrce']
+Cdelw1 var ['okv', '-1', 'undef', '0', 'undef', 'x', 'dfrce']
+Cdelw1 var ['odvxc', '0', 'odvxc', 'nn*nsp', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['ovxcp', '0', 'ovxcp', 'nn*nsp', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['ovxcm', '0', 'ovxcm', 'nn*nsp', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['owk1', '0', 'owk1', 'nn*nsp', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['owk2', '0', 'owk2', 'nn*nsp', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['owk3', '0', 'owk3', 'nn*nsp', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['oqmout', '0', 'oqmout', 'nvl', 'real(8)', 'rv_w_', 'dfrce']
+Cdelw1 var ['oicdn', '1', 'oicdn(ip)', 'ng', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['oicdn0', '1', 'oicdn0(ip)', 'ng*nsp', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['oicdv', '1', 'oicdv(ip)', 'ng', 'complex(8)', 'zv_w_', 'dfrce']
+Cdelw1 var ['oics', '1', 'oics(ip)', 'ng', 'real(8)', 'rv_w_', 'dfrce']
+Cdelw1 var ['oisn', '1', 'oisn(ip)', 'ng', 'real(8)', 'rv_w_', 'dfrce']
+Cdelw1 var ['ocdn0', '-1', 'undef', '0', 'undef', 'x', 'dfrce']
+Cdelw1 var ['ocdn', '-1', 'undef', '0', 'undef', 'x', 'dfrce']
+Cdelw1 var ['ocdv', '-1', 'undef', '0', 'undef', 'x', 'dfrce']
+Cdelw1 undel [['undef', 'wref'], 'ogv', 'dfrce']
+Cdelw1 undel [['undef', 'wref'], 'okv', 'dfrce']
+Cdelw1 undel [['undef', 'wref'], 'ocdn0', 'dfrce']
+Cdelw1 undel [['undef', 'wref'], 'ocdn', 'dfrce']
+Cdelw1 undel [['undef', 'wref'], 'ocdv', 'dfrce']
+Cdelw1 undel [['array', 'wref'], 'oicdn', 'dfrce']
+Cdelw1 undel [['array', 'wref'], 'oicdn0', 'dfrce']
+Cdelw1 undel [['array', 'wref'], 'oicdv', 'dfrce']
+Cdelw1 undel [['array', 'wref'], 'oics', 'dfrce']
+Cdelw1 undel [['array', 'wref'], 'oisn', 'dfrce']
+Cdelw1 undel [['wref'], 'ocs', 'dfrce']
+Cdelw1 undel [['wref'], 'osn', 'dfrce']
+Cdelw1 undel [['call'], 'orhoat', 'pvdf1']
 Cgetarg...info...           structure ['dfrce', 'ctrl', 'sctrl']
 Cgetarg...info...           structure ['dfrce', 'lat', 'slat']
 Cgetarg...info...           structure ['dfrce', 'spec', 'sspec']
@@ -97,12 +138,42 @@ C Local variables
       integer nbas,job,n1,n2,n3,ng,iprint,nsp,nglob,ib,is,lmxl,iv0,nlm,
      .  ip,m,i,ngabc(3),ltop,nspec,nlmtop,igets,igetss,nn,lgunit,stdo
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      integer ogv,okv,ocdv,oceps,ocdn,ocnomi,osmro,odvxc,ovxcp,ovxcm,
-     .  ocdvx,oqmout,ocvin,ocdn0,oyl,og2,og,oiv,ocs,osn,owk1,owk2,owk3
+Cdelw1 do not change  [['undef', 'wref'], 'ogv', 'dfrce']
+Cdelw1 do not change  [['undef', 'wref'], 'okv', 'dfrce']
+Cdelw1 do not change  [['undef', 'wref'], 'ocdv', 'dfrce']
+Cdelw1 do not change  [['undef', 'wref'], 'ocdn', 'dfrce']
+Cdelw1 do not change  [['undef', 'wref'], 'ocdn0', 'dfrce']
+Cdelw1 do not change  [['wref'], 'ocs', 'dfrce']
+Cdelw1 do not change  [['wref'], 'osn', 'dfrce']
+Cdelw1       integer ogv,okv,ocdv,oceps,ocdn,ocnomi,osmro,odvxc,ovxcp,ovxcm,
+Cdelw1      .  ocdvx,oqmout,ocvin,ocdn0,oyl,og2,og,oiv,ocs,osn,owk1,owk2,owk3
+       integer:: ogv , okv , ocdv , ocdn , ocdn0 , ocs , osn 
+       complex(8) ,allocatable :: zv_w_oceps(:)
+       complex(8) ,allocatable :: zv_w_ocnomi(:)
+       complex(8) ,allocatable :: zv_w_osmro(:)
+       complex(8) ,allocatable :: zv_w_odvxc(:)
+       complex(8) ,allocatable :: zv_w_ovxcp(:)
+       complex(8) ,allocatable :: zv_w_ovxcm(:)
+       complex(8) ,allocatable :: zv_w_ocdvx(:)
+       real(8) ,allocatable :: rv_w_oqmout(:)
+       complex(8) ,allocatable :: zv_w_ocvin(:)
+       real(8) ,allocatable :: rv_w_oyl(:)
+       real(8) ,allocatable :: rv_w_og2(:)
+       real(8) ,allocatable :: rv_w_og(:)
+       integer ,allocatable :: iv_w_oiv(:)
+       complex(8) ,allocatable :: zv_w_owk1(:)
+       complex(8) ,allocatable :: zv_w_owk2(:)
+       complex(8) ,allocatable :: zv_w_owk3(:)
+
       double precision vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind,
      .  fes1(3),fes2(3),fxc(3),c,avgdf(3)
       integer npmx,mp
       parameter (npmx=32)
+Cdelw1 do not change  [['array', 'wref'], 'oicdn', 'dfrce']
+Cdelw1 do not change  [['array', 'wref'], 'oicdn0', 'dfrce']
+Cdelw1 do not change  [['array', 'wref'], 'oicdv', 'dfrce']
+Cdelw1 do not change  [['array', 'wref'], 'oics', 'dfrce']
+Cdelw1 do not change  [['array', 'wref'], 'oisn', 'dfrce']
       integer oicdn(npmx),oicdn0(npmx),oicdv(npmx),oics(npmx),oisn(npmx)
 #if MPI | MPIK
       integer, dimension(:), allocatable :: bproc, iiv0
@@ -122,6 +193,10 @@ C ... Heap
 Cgetarg       job = igets('ctrl lfrce',sctrl)
        job = int(sctrl%lfrce) 
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [ogv okv ocdn0 ocdn ocdv oicdn oicdn0 oicdv oics oisn ocs osn]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (job .le. 0) return
       call tcn('dfrce')
 
@@ -154,7 +229,11 @@ Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
        i_copy_size=size(slat%nabc) 
        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
        ng=slat%ng
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 157
+Cdelw1 do not change ogv because of ['undef', 'wref']
        ogv=slat%ogv
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 158
+Cdelw1 do not change okv because of ['undef', 'wref']
        okv=slat%okv
        vol=slat%vol
 
@@ -177,10 +256,22 @@ Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
       nn   = k1*k2*k3
 
 C ... Arrays needed for pvdf1
-      call defcc(oceps, ng)
-      call defcc(ocnomi,ng)
-      call defcc(ocvin, ng)
-      call defcc(ocdvx, ng*nsp)
+Cdelw1       call defcc(oceps, ng)
+       allocate(zv_w_oceps(ng))
+       if (ng<0) zv_w_oceps(:)=0.0d0
+
+Cdelw1       call defcc(ocnomi,ng)
+       allocate(zv_w_ocnomi(ng))
+       if (ng<0) zv_w_ocnomi(:)=0.0d0
+
+Cdelw1       call defcc(ocvin, ng)
+       allocate(zv_w_ocvin(ng))
+       if (ng<0) zv_w_ocvin(:)=0.0d0
+
+Cdelw1       call defcc(ocdvx, ng*nsp)
+       allocate(zv_w_ocdvx(ng*nsp))
+       if (ng*nsp<0) zv_w_ocdvx(:)=0.0d0
+
 
 C ... Set up for vectorized Y_lm and gaussians
       ltop = 0
@@ -191,60 +282,194 @@ Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
         ltop = max0(ltop,lmxl)
       enddo
       nlmtop = (ltop+1)**2
-      call defrr(oyl,  ng*nlmtop)
-      call defrr(og2,  ng)
-      call defrr(og,   ng*3)
-      call suylg(ltop,alat,ng,w(ogv),w(og),w(og2),w(oyl))
-      call rlse(og)
-      call defi(oiv, ng*3)
-      call suphs0(plat,ng,w(ogv),w(oiv))
+Cdelw1       call defrr(oyl,  ng*nlmtop)
+       allocate(rv_w_oyl(ng*nlmtop))
+       if (ng*nlmtop<0) rv_w_oyl(:)=0.0d0
+
+Cdelw1       call defrr(og2,  ng)
+       allocate(rv_w_og2(ng))
+       if (ng<0) rv_w_og2(:)=0.0d0
+
+Cdelw1       call defrr(og,   ng*3)
+       allocate(rv_w_og(ng*3))
+       if (ng*3<0) rv_w_og(:)=0.0d0
+
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 197
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 197
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1       call suylg(ltop,alat,ng,w(ogv),w(og),w(og2),w(oyl))
+       call suylg ( ltop , alat , ng , w ( ogv ) , rv_w_og , rv_w_og2 
+     . , rv_w_oyl ) 
+
+Cdelw1 rlse name= og old_list= oceps ocnomi ocvin ocdvx oyl og2 og 
+Cdelw1 rlse name= og new_list= oceps ocnomi ocvin ocdvx oyl og2 
+Cdelw1       call rlse(og)
+       if (allocated(rv_w_og)) deallocate(rv_w_og)
+
+Cdelw1       call defi(oiv, ng*3)
+       allocate(iv_w_oiv(ng*3))
+       if (ng*3<0) iv_w_oiv(:)=0
+
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 200
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 200
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1       call suphs0(plat,ng,w(ogv),w(oiv))
+       call suphs0 ( plat , ng , w ( ogv ) , iv_w_oiv ) 
+
 
 C --- Make ves(rhoin,q) ---
-      call defcc(osmro, nn)
+Cdelw1       call defcc(osmro, nn)
+       allocate(zv_w_osmro(nn))
+       if (nn<0) zv_w_osmro(:)=0.0d0
+
+Cdelw1 do not change ocs because of ['wref']
       call defrr(ocs, ng)
+Cdelw1 do not change osn because of ['wref']
       call defrr(osn, ng)
-      call dpcopy(smrho,w(osmro),1,2*nn,1d0)
-      if (nsp.eq.2) call dpadd(w(osmro),smrho(1,1,1,2),1,2*nn,1d0)
-      call fftz3(w(osmro),n1,n2,n3,k1,k2,k3,1,0,-1)
-      call gvgetf(ng,1,w(okv),k1,k2,k3,w(osmro),w(ocvin))
-      call pvdf4(ssite,sspec,slat,qmom,ng,
-     .  w(og2),w(oyl),w(ocs),w(osn),w(oiv),qlat,w(ocvin))
+Cdelw1       call dpcopy(smrho,w(osmro),1,2*nn,1d0)
+       call dpcopy ( smrho , zv_w_osmro , 1 , 2 * nn , 1d0 ) 
+
+Cdelw1       if (nsp.eq.2) call dpadd(w(osmro),smrho(1,1,1,2),1,2*nn,1d0)
+       if ( nsp.eq.2 ) call dpadd ( zv_w_osmro , smrho ( 1 , 1 , 1 , 
+     . 2 ) , 1 , 2 * nn , 1d0 ) 
+
+Cdelw1       call fftz3(w(osmro),n1,n2,n3,k1,k2,k3,1,0,-1)
+       call fftz3 ( zv_w_osmro , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 
+     . , - 1 ) 
+
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 209
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 209
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1       call gvgetf(ng,1,w(okv),k1,k2,k3,w(osmro),w(ocvin))
+       call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , zv_w_osmro 
+     . , zv_w_ocvin ) 
+
+Cdelw1 do not change ocs because of ['wref']
+Cdelw1 do not change osn because of ['wref']
+Cdelw1 do not change ocs because of ['wref']
+Cdelw1 do not change osn because of ['wref']
+Cdelw1       call pvdf4(ssite,sspec,slat,qmom,ng,
+Cdelw1      .  w(og2),w(oyl),w(ocs),w(osn),w(oiv),qlat,w(ocvin))
+       call pvdf4 ( ssite , sspec , slat , qmom , ng , rv_w_og2 , rv_w_oyl 
+     . , w ( ocs ) , w ( osn ) , iv_w_oiv , qlat , zv_w_ocvin ) 
+
 C     call gvputf(ng,1,w(okv),k1,k2,k3,w(ocvin),w(osmro))
 C     call zprm3('ves(input rho)',0,w(osmro),k1,k2,k3)
-      call rlse(osmro)
+Cdelw1 rlse name= osmro old_list= oceps ocnomi ocvin ocdvx oyl og2 oiv osmro ocs osn 
+Cdelw1 rlse name= osmro new_list= oceps ocnomi ocvin ocdvx oyl og2 oiv 
+Cdelw1 not deallocate osn because of [wref]
+Cdelw1 not deallocate ocs because of [wref]
+Cdelw1       call rlse(osmro)
+       if (allocated(zv_w_osmro)) deallocate(zv_w_osmro)
+       call rlse(ocs)
+
 
 C --- Make dVxc(in)/dn ---
-      call defcc(odvxc, nn*nsp)
-      call defcc(osmro, nn*nsp)
-      call defcc(ovxcp, nn*nsp)
-      call defcc(ovxcm, nn*nsp)
-      call defcc(owk1,  nn*nsp)
-      call defcc(owk2,  nn*nsp)
-      call defcc(owk3,  nn*nsp)
-      call dpcopy(smrho,w(osmro),1,2*nn*nsp,1d0)
-      call pvdf2(nbas,nsp,ssite,sspec,slat,n1,n2,n3,k1,k2,k3,w(osmro),
-     .  w(ovxcp),w(ovxcm),w(owk1),w(owk2),w(owk3),w(odvxc))
-      call rlse(ovxcp)
+Cdelw1       call defcc(odvxc, nn*nsp)
+       allocate(zv_w_odvxc(nn*nsp))
+       if (nn*nsp<0) zv_w_odvxc(:)=0.0d0
+
+Cdelw1       call defcc(osmro, nn*nsp)
+       allocate(zv_w_osmro(nn*nsp))
+       if (nn*nsp<0) zv_w_osmro(:)=0.0d0
+
+Cdelw1       call defcc(ovxcp, nn*nsp)
+       allocate(zv_w_ovxcp(nn*nsp))
+       if (nn*nsp<0) zv_w_ovxcp(:)=0.0d0
+
+Cdelw1       call defcc(ovxcm, nn*nsp)
+       allocate(zv_w_ovxcm(nn*nsp))
+       if (nn*nsp<0) zv_w_ovxcm(:)=0.0d0
+
+Cdelw1       call defcc(owk1,  nn*nsp)
+       allocate(zv_w_owk1(nn*nsp))
+       if (nn*nsp<0) zv_w_owk1(:)=0.0d0
+
+Cdelw1       call defcc(owk2,  nn*nsp)
+       allocate(zv_w_owk2(nn*nsp))
+       if (nn*nsp<0) zv_w_owk2(:)=0.0d0
+
+Cdelw1       call defcc(owk3,  nn*nsp)
+       allocate(zv_w_owk3(nn*nsp))
+       if (nn*nsp<0) zv_w_owk3(:)=0.0d0
+
+Cdelw1       call dpcopy(smrho,w(osmro),1,2*nn*nsp,1d0)
+       call dpcopy ( smrho , zv_w_osmro , 1 , 2 * nn * nsp , 1d0 ) 
+
+Cdelw1       call pvdf2(nbas,nsp,ssite,sspec,slat,n1,n2,n3,k1,k2,k3,w(osmro),
+Cdelw1      .  w(ovxcp),w(ovxcm),w(owk1),w(owk2),w(owk3),w(odvxc))
+       call pvdf2 ( nbas , nsp , ssite , sspec , slat , n1 , n2 , n3 
+     . , k1 , k2 , k3 , zv_w_osmro , zv_w_ovxcp , zv_w_ovxcm , zv_w_owk1 
+     . , zv_w_owk2 , zv_w_owk3 , zv_w_odvxc ) 
+
+Cdelw1 rlse name= ovxcp old_list= oceps ocnomi ocvin ocdvx oyl og2 oiv odvxc osmro ovxcp ovxcm owk1 owk2 owk3 
+Cdelw1 rlse name= ovxcp new_list= oceps ocnomi ocvin ocdvx oyl og2 oiv odvxc osmro 
+Cdelw1       call rlse(ovxcp)
+       if (allocated(zv_w_owk3)) deallocate(zv_w_owk3)
+       if (allocated(zv_w_owk2)) deallocate(zv_w_owk2)
+       if (allocated(zv_w_owk1)) deallocate(zv_w_owk1)
+       if (allocated(zv_w_ovxcm)) deallocate(zv_w_ovxcm)
+       if (allocated(zv_w_ovxcp)) deallocate(zv_w_ovxcp)
+
 
 C --- cdvx = FFT ((n0_out-n0_in) dVxc/dn) ---
 C     Use total n0_out-n0_in but keep vxc spin polarized
-      call dpzero(w(osmro),2*nn)
+Cdelw1       call dpzero(w(osmro),2*nn)
+       call dpzero ( zv_w_osmro , 2 * nn ) 
+
       do  i = 1, nsp
-        call dpadd(w(osmro),smrout(1,1,1,i),1,2*nn,1d0)
-        call dpadd(w(osmro),smrho(1,1,1,i),1,2*nn,-1d0)
+Cdelw1         call dpadd(w(osmro),smrout(1,1,1,i),1,2*nn,1d0)
+         call dpadd ( zv_w_osmro , smrout ( 1 , 1 , 1 , i ) , 1 , 2 * 
+     .   nn , 1d0 ) 
+
+Cdelw1         call dpadd(w(osmro),smrho(1,1,1,i),1,2*nn,-1d0)
+         call dpadd ( zv_w_osmro , smrho ( 1 , 1 , 1 , i ) , 1 , 2 * nn 
+     .   , - 1d0 ) 
+
       enddo
 C     call zprm3('drho',0,w(osmro),k1,k2,k3)
-      call pvdf3(n1,n2,n3,k1,k2,k3,nsp,w(osmro),w(odvxc))
-      call fftz3(w(odvxc),n1,n2,n3,k1,k2,k3,nsp,0,-1)
-      call gvgetf(ng,nsp,w(okv),k1,k2,k3,w(odvxc),w(ocdvx))
+Cdelw1       call pvdf3(n1,n2,n3,k1,k2,k3,nsp,w(osmro),w(odvxc))
+       call pvdf3 ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , zv_w_osmro , 
+     . zv_w_odvxc ) 
+
+Cdelw1       call fftz3(w(odvxc),n1,n2,n3,k1,k2,k3,nsp,0,-1)
+       call fftz3 ( zv_w_odvxc , n1 , n2 , n3 , k1 , k2 , k3 , nsp , 
+     . 0 , - 1 ) 
+
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 239
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 239
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1       call gvgetf(ng,nsp,w(okv),k1,k2,k3,w(odvxc),w(ocdvx))
+       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , zv_w_odvxc 
+     . , zv_w_ocdvx ) 
+
 
 C --- Cnomi = (n0_out(q) - n0_in(q)) ---
-      call fftz3(w(osmro),n1,n2,n3,k1,k2,k3,1,0,-1)
+Cdelw1       call fftz3(w(osmro),n1,n2,n3,k1,k2,k3,1,0,-1)
+       call fftz3 ( zv_w_osmro , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 
+     . , - 1 ) 
+
 c     call zprm3('FFT smrout-smrin',w(osmro),k1,k2,k3*nsp)
-      call gvgetf(ng,1,w(okv),k1,k2,k3,w(osmro),w(ocnomi))
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 244
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 244
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1       call gvgetf(ng,1,w(okv),k1,k2,k3,w(osmro),w(ocnomi))
+       call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , zv_w_osmro 
+     . , zv_w_ocnomi ) 
+
 C     dqsmo = vol*dval(w(ocnomi),1)
 
-      call rlse(odvxc)
+Cdelw1 rlse name= odvxc old_list= oceps ocnomi ocvin ocdvx oyl og2 oiv odvxc osmro 
+Cdelw1 rlse name= odvxc new_list= oceps ocnomi ocvin ocdvx oyl og2 oiv 
+Cdelw1       call rlse(odvxc)
+       if (allocated(zv_w_osmro)) deallocate(zv_w_osmro)
+       if (allocated(zv_w_odvxc)) deallocate(zv_w_odvxc)
+
 
 C ... Debugging slot smrho(out) for out-in
 C      print *, '*** debugging ... subs smrout for out-in'
@@ -254,11 +479,19 @@ C      call gvgetf(ng,1,w(okv),k1,k2,k3,w(osmro),w(ocnomi))
 C      call zprm3('rho-out(q)',w(osmro),k1,k2,k3)
 
 C --- Multipole moments of the output density ---
-      call defrr (oqmout,   nvl)
+Cdelw1       call defrr (oqmout,   nvl)
+       allocate(rv_w_oqmout(nvl))
+       if (nvl<0) rv_w_oqmout(:)=0.0d0
+
       call pshpr(0)
-      call rhomom(nbas,ssite,sspec,orhat1,w(oqmout),vsum)
+Cdelw1       call rhomom(nbas,ssite,sspec,orhat1,w(oqmout),vsum)
+       call rhomom ( nbas , ssite , sspec , orhat1 , rv_w_oqmout , vsum 
+     . ) 
+
       call poppr
-      call dpadd(w(oqmout),qmom,1,nvl,-1d0)
+Cdelw1       call dpadd(w(oqmout),qmom,1,nvl,-1d0)
+       call dpadd ( rv_w_oqmout , qmom , 1 , nvl , - 1d0 ) 
+
 
 C --- Lindhard dielectric function ---
       if (job .gt. 10) then
@@ -266,7 +499,14 @@ C --- Lindhard dielectric function ---
         tpiba = 2*pi/alat
 C        call lindxx(123,n1,n2,n3,k1,k2,k3,ng,w(okv),w(oceps),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
-        call lindsc(3,ng,w(ogv),tpiba,elind,w(oceps))
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 269
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 269
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1         call lindsc(3,ng,w(ogv),tpiba,elind,w(oceps))
+         call lindsc ( 3 , ng , w ( ogv ) , tpiba , elind , zv_w_oceps 
+     .   ) 
+
       endif
 
 C --- For each site, get correction to force ---
@@ -313,10 +553,15 @@ C$ 12 continue
 C$    mp=mp_numthreads()
 C$    if(npmx.lt.mp) call rxi('rsif_q: increase npmx, needed',mp)
       do  14  ip = 1, min(nbas,mp)
+Cdelw1 do not change oicdn because of ['array', 'wref']
         call defcc(oicdn(ip),  ng)
+Cdelw1 do not change oicdn0 because of ['array', 'wref']
         call defcc(oicdn0(ip), ng*nsp)
+Cdelw1 do not change oicdv because of ['array', 'wref']
         call defcc(oicdv(ip),  ng)
+Cdelw1 do not change oics because of ['array', 'wref']
         call defrr(oics(ip), ng)
+Cdelw1 do not change oisn because of ['array', 'wref']
         call defrr(oisn(ip), ng)
    14 continue
 
@@ -363,16 +608,61 @@ Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
         nlm = (lmxl+1)**2
 C$      iv0 = iiv0(ib)
 C$      ip  = mp_my_threadnum()+1
+Cdelw1 warning(1) , probably  ocs  is not defined yet at linenumber= 366
+Cdelw1 do not change ocs because of ['wref']
+Cdelw1 do not change oics because of ['array', 'wref']
         ocs = oics(ip)
+Cdelw1 warning(1) , probably  osn  is not defined yet at linenumber= 367
+Cdelw1 do not change osn because of ['wref']
+Cdelw1 do not change oisn because of ['array', 'wref']
         osn = oisn(ip)
+Cdelw1 do not change oicdn because of ['array', 'wref']
+Cdelw1 warning(1) , probably  ocdn  is not defined yet at linenumber= 368
+Cdelw1 do not change ocdn because of ['undef', 'wref']
         ocdn = oicdn(ip)
+Cdelw1 do not change oicdn0 because of ['array', 'wref']
+Cdelw1 warning(1) , probably  ocdn0  is not defined yet at linenumber= 369
+Cdelw1 do not change ocdn0 because of ['undef', 'wref']
         ocdn0 = oicdn0(ip)
+Cdelw1 do not change oicdv because of ['array', 'wref']
+Cdelw1 warning(1) , probably  ocdv  is not defined yet at linenumber= 370
+Cdelw1 do not change ocdv because of ['undef', 'wref']
         ocdv = oicdv(ip)
 
-        call pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,w(oqmout),
-     .    ng,w(ogv),w(og2),w(oyl),w(ocs),w(osn),w(oiv),qlat,
-     .    0,w(ocnomi),w(oceps),w(ocdn0),w(ocdn),w(ocdv),
-     .    w(ocdvx),w(ocvin),orhoat(1,ib),fes1,fes2,fxc)
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 372
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocs  is not defined yet at linenumber= 372
+Cdelw1 do not change ocs because of ['wref']
+Cdelw1 warning(1) , probably  osn  is not defined yet at linenumber= 372
+Cdelw1 do not change osn because of ['wref']
+Cdelw1 warning(1) , probably  ocdn0  is not defined yet at linenumber= 372
+Cdelw1 do not change ocdn0 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocdn  is not defined yet at linenumber= 372
+Cdelw1 do not change ocdn because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocdv  is not defined yet at linenumber= 372
+Cdelw1 do not change ocdv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 372
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocs  is not defined yet at linenumber= 372
+Cdelw1 do not change ocs because of ['wref']
+Cdelw1 warning(1) , probably  osn  is not defined yet at linenumber= 372
+Cdelw1 do not change osn because of ['wref']
+Cdelw1 warning(1) , probably  ocdn0  is not defined yet at linenumber= 372
+Cdelw1 do not change ocdn0 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocdn  is not defined yet at linenumber= 372
+Cdelw1 do not change ocdn because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocdv  is not defined yet at linenumber= 372
+Cdelw1 do not change ocdv because of ['undef', 'wref']
+Cdelw1         call pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,w(oqmout),
+Cdelw1      .    ng,w(ogv),w(og2),w(oyl),w(ocs),w(osn),w(oiv),qlat,
+Cdelw1      .    0,w(ocnomi),w(oceps),w(ocdn0),w(ocdn),w(ocdv),
+Cdelw1      .    w(ocdvx),w(ocvin),orhoat(1,ib),fes1,fes2,fxc)
+         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
+     .   , rv_w_oqmout , ng , w ( ogv ) , rv_w_og2 , rv_w_oyl , w ( ocs 
+     .   ) , w ( osn ) , iv_w_oiv , qlat , 0 , zv_w_ocnomi , zv_w_oceps 
+     .   , w ( ocdn0 ) , w ( ocdn ) , w ( ocdv ) , zv_w_ocdvx , zv_w_ocvin 
+     .   , orhoat ( 1 , ib ) , fes1 , fes2 , fxc ) 
+
 
 C        call gvputf(ng,1,w(okv),k1,k2,k3,w(ocdn),smpot)
 C        call fftz3(smpot,n1,n2,n3,k1,k2,k3,1,0,1)
@@ -448,9 +738,30 @@ C ... Shift all forces to make avg correction zero
    24 dfh(i,ib) = dfh(i,ib) - avgdf(i)
       if (iprint() .ge. 30) write(stdo,331) (c*avgdf(m),m=1,3)
   331 format(' shift forces to make zero average correction:',8x,3f8.2)
-      call rlse(oceps)
+Cdelw1 rlse name= oceps old_list= oceps ocnomi ocvin ocdvx oyl og2 oiv oqmout oicdn oicdn0 oicdv oics oisn 
+Cdelw1 rlse name= oceps new_list= (None)
+Cdelw1 not deallocate oisn because of [array wref]
+Cdelw1 not deallocate oics because of [array wref]
+Cdelw1 not deallocate oicdv because of [array wref]
+Cdelw1 not deallocate oicdn0 because of [array wref]
+Cdelw1 not deallocate oicdn because of [array wref]
+Cdelw1       call rlse(oceps)
+       if (allocated(rv_w_oqmout)) deallocate(rv_w_oqmout)
+       if (allocated(iv_w_oiv)) deallocate(iv_w_oiv)
+       if (allocated(rv_w_og2)) deallocate(rv_w_og2)
+       if (allocated(rv_w_oyl)) deallocate(rv_w_oyl)
+       if (allocated(zv_w_ocdvx)) deallocate(zv_w_ocdvx)
+       if (allocated(zv_w_ocvin)) deallocate(zv_w_ocvin)
+       if (allocated(zv_w_ocnomi)) deallocate(zv_w_ocnomi)
+       if (allocated(zv_w_oceps)) deallocate(zv_w_oceps)
+       call rlse(oicdn)
+
       call tcx('dfrce')
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [ogv okv ocdn0 ocdn ocdv oicdn oicdn0 oicdv oics oisn ocs osn]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine dfrce 
 
 
@@ -490,6 +801,7 @@ Co   fes1,fes2,fxc
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
+Cdelw1 do not change  [['call'], 'orhoat', 'pvdf1']
       integer ng,nsp,iv0,kmax,ib,job,orhoat(3),iv(ng,3)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),qmom(1),qmout(1),
 Cgetarg      .  gv(ng,3),tau(3),fes1(3),fes2(3),fxc(3),g2(ng),yl(ng,1),
@@ -603,7 +915,9 @@ Cgetarg         call upack('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,rsmfa)
         if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
         call radwgt(rmt,a,nr,rwgt)
         nlml = (lmxl+1)**2
+Cdelw1 1 is digit, dropped
         call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(1)),qloc)
+Cdelw1 2 is digit, dropped
         call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(2)),sum)
         qloc = (qloc-sum)/y0
         qfat = 0d0
@@ -866,6 +1180,10 @@ C      print 339, 'qmom(out-in) dv     ',fes2
       call tcx('pvdf1')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [orhoat]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvdf1 
 
 
@@ -996,6 +1314,9 @@ C     call zprm3('d vxc / dn',0,dvxc,k1,k2,k3*nsp)
       call poppr
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvdf2 
 
 
@@ -1018,6 +1339,9 @@ C ... Local parameters
 C     call zprm3('dvxc/dn * (nout-nin)',0,dvxc,k1,k2,k3*nsp)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvdf3 
 
 
@@ -1158,6 +1482,9 @@ C --- Potential is 8pi/G**2 * density; overwrite cv with potential ---
 
       call tcx('pvdf4')
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvdf4 
 
 

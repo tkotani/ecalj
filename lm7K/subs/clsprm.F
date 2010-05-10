@@ -1,3 +1,38 @@
+Cdelw1 var ['opnu', '1', 'opnu', '-nlspc', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['oqnu', '1', 'oqnu', '-3*nlspc', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['opp', '1', 'opp', '-6*nlspc', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['opprel', '1', 'opprel', '-32*nl*nl*max(nclspp,nspec)', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['oqc', '1', 'oqc', '-nclasp', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['oqt', '1', 'oqt', '-nclasp', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['oinitc', '1', 'oinitc', '-nclasp', 'integer', 'iv_w_', 'clsprm']
+Cdelw1 var ['ogroup', '1', 'ogroup', '-2*nclasp', 'integer', 'iv_w_', 'clsprm']
+Cdelw1 var ['oves', '1', 'oves', '-nclspp', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['ovdif', '1', 'ovdif', '-nclspp', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['orhrmx', '1', 'orhrmx', '-nclspp', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['ovrmax', '1', 'ovrmax', '-2*nclspp', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['oics', '-1', 'undef', '0', 'undef', 'x', 'clsprm']
+Cdelw1 var ['ormax', '1', 'ormax', 'nclspp', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['ovintr', '2', 'ovintr', '-nclasp*(nl*nsp)**2', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['opmpol', '2', 'opmpol', '-(2*nl-1)*nl**2*3*nsp*nclasp', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['oqpp', '2', 'oqpp', '2*nqpp*4*nsp*nbas', 'real(8)', 'rv_w_', 'clsprm']
+Cdelw1 var ['oqpp', '-1', 'undef', '0', 'undef', 'x', 'ioqpp']
+Cdelw1 undel [['undef', 'wref'], 'oics', 'clsprm']
+Cdelw1 undel [['undef', 'wref'], 'oqpp', 'ioqpp']
+Cdelw1 undel [['wref'], 'ogroup', 'clsprm']
+Cdelw1 undel [['wref'], 'ormax', 'clsprm']
+Cdelw1 undel [['wref'], 'oinitc', 'clsprm']
+Cdelw1 undel [['wref'], 'opnu', 'clsprm']
+Cdelw1 undel [['wref'], 'oqnu', 'clsprm']
+Cdelw1 undel [['wref'], 'oqc', 'clsprm']
+Cdelw1 undel [['wref'], 'oqt', 'clsprm']
+Cdelw1 undel [['wref'], 'oves', 'clsprm']
+Cdelw1 undel [['wref'], 'ovdif', 'clsprm']
+Cdelw1 undel [['wref'], 'ovrmax', 'clsprm']
+Cdelw1 undel [['wref'], 'orhrmx', 'clsprm']
+Cdelw1 undel [['wref'], 'opp', 'clsprm']
+Cdelw1 undel [['wref'], 'ovintr', 'clsprm']
+Cdelw1 undel [['wref'], 'opmpol', 'clsprm']
+Cdelw1 undel [['wref'], 'oqpp', 'clsprm']
 Cgetarg...info...           structure ['clsprm', 'ctrl', 'sctrl']
 Cgetarg...info...           structure ['clsprm', 'ham', 'sham']
 Cgetarg...info...           structure ['clsprm', 'array', 'sarray']
@@ -80,9 +115,31 @@ Cgetarg      .  slat(1),sbz(1),sstr(1)
 C Local variables
       logical lgors,cmdopt
       character*80 strn,clabl*8
-      integer obxc,oinitc,opnu,oqnu,oqc,oqt,oves,ovdif,orhrmx,ovrmax,
-     .  orhos,osop,ogroup,ovintr,opp,opprel,oifrlx,oivso,oipc,oclabl,
-     .  opos,oics,ozos,ormax,opmpol,oqpp,ogrrme,n0
+Cdelw1 do not change  [['wref'], 'oinitc', 'clsprm']
+Cdelw1 do not change  [['wref'], 'opnu', 'clsprm']
+Cdelw1 do not change  [['wref'], 'oqnu', 'clsprm']
+Cdelw1 do not change  [['wref'], 'oqc', 'clsprm']
+Cdelw1 do not change  [['wref'], 'oqt', 'clsprm']
+Cdelw1 do not change  [['wref'], 'oves', 'clsprm']
+Cdelw1 do not change  [['wref'], 'ovdif', 'clsprm']
+Cdelw1 do not change  [['wref'], 'orhrmx', 'clsprm']
+Cdelw1 do not change  [['wref'], 'ovrmax', 'clsprm']
+Cdelw1 do not change  [['wref'], 'ogroup', 'clsprm']
+Cdelw1 do not change  [['wref'], 'ovintr', 'clsprm']
+Cdelw1 do not change  [['wref'], 'opp', 'clsprm']
+Cdelw1 do not change  [['undef', 'wref'], 'oics', 'clsprm']
+Cdelw1 do not change  [['wref'], 'ormax', 'clsprm']
+Cdelw1 do not change  [['wref'], 'opmpol', 'clsprm']
+Cdelw1 do not change  [['wref'], 'oqpp', 'clsprm']
+Cdelw1       integer obxc,oinitc,opnu,oqnu,oqc,oqt,oves,ovdif,orhrmx,ovrmax,
+Cdelw1      .  orhos,osop,ogroup,ovintr,opp,opprel,oifrlx,oivso,oipc,oclabl,
+Cdelw1      .  opos,oics,ozos,ormax,opmpol,oqpp,ogrrme,n0
+       integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
+     . , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx 
+     . , oivso , oipc , oclabl , opos , oics , ozos , ormax , opmpol 
+     . , oqpp , ogrrme , n0 
+       real(8) ,allocatable :: rv_w_opprel(:)
+
       parameter (n0=10)
       integer nbas,nclass,nspec,nl,nsp,nlspc,igets,nclasp,i1,i2,nmap,ic,
      .  is,ib,iclbsj,idmod(n0),iprint,lmx,nclspp,nqpp,lnsph,isw,neula,
@@ -124,30 +181,50 @@ Cgetarg       call upack1('array nclasp',sarray,nclasp)
 
 C ... Allocate ASA arrays
       if (mod(mode,10) .eq. 1) then
+Cdelw1 do not change opnu because of ['wref']
         call defdr(opnu,-nlspc)
+Cdelw1 do not change oqnu because of ['wref']
         call defdr(oqnu,-3*nlspc)
+Cdelw1 do not change opp because of ['wref']
         call defdr(opp,-6*nlspc)
-        call defdr(opprel,-32*nl*nl*max(nclspp,nspec))
+Cdelw1         call defdr(opprel,-32*nl*nl*max(nclspp,nspec))
+         allocate(rv_w_opprel(abs(-32*nl*nl*max(nclspp,nspec))))
+         if (-32*nl*nl*max(nclspp,nspec)<0) rv_w_opprel(:)=0.0d0
+
+Cdelw1 do not change oqc because of ['wref']
         call defdr(oqc,-nclasp)
+Cdelw1 do not change oqt because of ['wref']
         call defdr(oqt,-nclasp)
+Cdelw1 do not change oinitc because of ['wref']
         call defi (oinitc,-nclasp)
+Cdelw1 do not change ogroup because of ['wref']
         call defi (ogroup,-2*nclasp)
+Cdelw1 do not change oves because of ['wref']
         call defdr(oves,-nclspp)
+Cdelw1 do not change ovdif because of ['wref']
         call defdr(ovdif,-nclspp)
+Cdelw1 do not change orhrmx because of ['wref']
         call defdr(orhrmx,-nclspp)
+Cdelw1 do not change ovrmax because of ['wref']
         call defdr(ovrmax,-2*nclspp)
 C       call defdr(oqnu,-3*nlspc)
 Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
 Cgetarg         call upack1('array oics',sarray,oics)
          
+Cdelw1 warning(1) , probably  oics  is not defined yet at linenumber= 143
+Cdelw1 do not change oics because of ['undef', 'wref']
          oics=sarray%oics
 
 c takao sp2cls is replaced.
 c        call sp2cls('spec rmt',sspec,w(oics),1,1,nclspp,ormax)
          allocate( ics(nclspp) )
+Cdelw1 warning(1) , probably  oics  is not defined yet at linenumber= 148
+Cdelw1 do not change oics because of ['undef', 'wref']
          call icopy(nclspp,w(oics),1,ics,1)
          print *,' qqqqq ics=',ics
+Cdelw1 do not change ormax because of ['wref']
          call defdr(ormax,nclspp)
+Cdelw1 do not change ormax because of ['wref']
          call dcopy(nclspp,sspec(ics(1:nclspp))%rmt,1,w(ormax),1)
 
 Cgetarg...info...           integer :: ogroup , integer(8) :: sarray%ogroup 1
@@ -156,8 +233,11 @@ Cgetarg...info...           integer :: oinitc , integer(8) :: sarray%ohave 1
 Cgetarg         call pack5('array ogroup ormax ohave',sarray,ogroup,ormax,
 Cgetarg      .    oinitc,0,0)
          
+Cdelw1 do not change ogroup because of ['wref']
          sarray%ogroup=ogroup 
+Cdelw1 do not change ormax because of ['wref']
          sarray%ormax=ormax 
+Cdelw1 do not change oinitc because of ['wref']
          sarray%ohave=oinitc 
 
 Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
@@ -166,9 +246,13 @@ Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
 Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
 Cgetarg         call pack5('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
          
+Cdelw1 do not change opnu because of ['wref']
          spot%opnu=opnu 
+Cdelw1 do not change oqnu because of ['wref']
          spot%oqnu=oqnu 
+Cdelw1 do not change oqc because of ['wref']
          spot%oqc=oqc 
+Cdelw1 do not change oqt because of ['wref']
          spot%oqt=oqt 
 
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
@@ -179,10 +263,15 @@ Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
 Cgetarg         call pack5('pot oves ovdif ovrmax orhrmx opp',spot,oves,ovdif,
 Cgetarg      .    ovrmax,orhrmx,opp)
          
+Cdelw1 do not change oves because of ['wref']
          spot%oves=oves 
+Cdelw1 do not change ovdif because of ['wref']
          spot%ovdif=ovdif 
+Cdelw1 do not change ovrmax because of ['wref']
          spot%ovrmax=ovrmax 
+Cdelw1 do not change orhrmx because of ['wref']
          spot%orhrmx=orhrmx 
+Cdelw1 do not change opp because of ['wref']
          spot%opp=opp 
 
 C       Even in collinear case, bxc might be written to
@@ -242,9 +331,11 @@ c         if ( iand(3,int(sctrl%lsx)) .ne.0 .or. iand(-1,int(sctrl%lscr)) .ne.0
 c     .   ) then 
 c         if ( iand(-1,int(sctrl%lscr)) .ne.0  ) then 
          if ( int(sctrl%lscr) .ne.0  ) then 
+Cdelw1 do not change ovintr because of ['wref']
           call defdr(ovintr,-nclasp*(nl*nsp)**2)
 Cgetarg...info...           integer :: ovintr , integer(8) :: spot%ovintr 1
 Cgetarg           call pack1('pot ovintr',spot,ovintr)
+Cdelw1 do not change ovintr because of ['wref']
            spot%ovintr=ovintr 
 
         endif
@@ -255,15 +346,20 @@ ctakao remove asa
 
 C   ... Allocate memory for, attempt to read qpp from file
         if (lnsph .ne. 0 .or. nlibu .ne. 0) then
+Cdelw1 do not change opmpol because of ['wref']
           call defrr(opmpol,-(2*nl-1)*nl**2*3*nsp*nclasp)
           i1 = nl**2
           nqpp = (i1*(i1+1))/2
+Cdelw1 do not change oqpp because of ['wref']
           call defrr(oqpp,2*nqpp*4*nsp*nbas)
+Cdelw1 do not change oqpp because of ['wref']
           call dvset(w(oqpp),1,1,-1d0)
 Cgetarg...info...           integer :: opmpol , integer(8) :: spot%opmpol 1
 Cgetarg...info...           integer :: oqpp , integer(8) :: spot%oqpp 1
 Cgetarg           call pack2('pot opmpol oqpp',spot,opmpol,oqpp)
+Cdelw1 do not change opmpol because of ['wref']
            spot%opmpol=opmpol 
+Cdelw1 do not change oqpp because of ['wref']
            spot%oqpp=oqpp 
           call ioqpp(.false.,sctrl,spot)
         endif
@@ -414,7 +510,30 @@ C      call pack1('ctrl nla',sctrl,nla)
 C     call shstru('array',sarray,0,0)
 C     stop
 
-      return
+#error, have return with len(w_varlist)>0 at line 417
+Cdelw1 w_varlist remains: opnu oqnu opp opprel oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax ovintr opmpol oqpp 
+Cdelw1 w_varlistundel: [oics ogroup ormax oinitc opnu oqnu oqc oqt oves ovdif ovrmax orhrmx opp ovintr opmpol oqpp]
+Cdelw1 w_varlist (undel), remains: [opnu oqnu opp oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax ovintr opmpol oqpp]
+Cdelw1 w_varlist (del), remains: [opprel]
+Cdelw1 not deallocate oqpp because of [wref]
+Cdelw1 not deallocate opmpol because of [wref]
+Cdelw1 not deallocate ovintr because of [wref]
+Cdelw1 not deallocate ormax because of [wref]
+Cdelw1 not deallocate ovrmax because of [wref]
+Cdelw1 not deallocate orhrmx because of [wref]
+Cdelw1 not deallocate ovdif because of [wref]
+Cdelw1 not deallocate oves because of [wref]
+Cdelw1 not deallocate ogroup because of [wref]
+Cdelw1 not deallocate oinitc because of [wref]
+Cdelw1 not deallocate oqt because of [wref]
+Cdelw1 not deallocate oqc because of [wref]
+Cdelw1 not deallocate opp because of [wref]
+Cdelw1 not deallocate oqnu because of [wref]
+Cdelw1 not deallocate opnu because of [wref]
+Cdelw1       return
+       if (allocated(rv_w_opprel)) deallocate(rv_w_opprel)
+       return 
+
 
       entry clsprp(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,
      .  sstr,sstrn)
@@ -437,7 +556,32 @@ Cgetarg       call upack1('array nclasp',sarray,nclasp)
        
        nclasp=sarray%nclasp
 
-      if (nclasp .eq. nclass) return
+#error, have return with len(w_varlist)>0 at line 440
+Cdelw1 w_varlist remains: oqpp opmpol ovintr ormax ovrmax orhrmx ovdif oves ogroup oinitc oqt oqc opprel opp oqnu opnu 
+Cdelw1 w_varlistundel: [oics ogroup ormax oinitc opnu oqnu oqc oqt oves ovdif ovrmax orhrmx opp ovintr opmpol oqpp]
+Cdelw1 w_varlist (undel), remains: [oqpp opmpol ovintr ormax ovrmax orhrmx ovdif oves ogroup oinitc oqt oqc opp oqnu opnu]
+Cdelw1 w_varlist (del), remains: [opprel]
+Cdelw1 not deallocate opnu because of [wref]
+Cdelw1 not deallocate oqnu because of [wref]
+Cdelw1 not deallocate opp because of [wref]
+Cdelw1 not deallocate oqc because of [wref]
+Cdelw1 not deallocate oqt because of [wref]
+Cdelw1 not deallocate oinitc because of [wref]
+Cdelw1 not deallocate ogroup because of [wref]
+Cdelw1 not deallocate oves because of [wref]
+Cdelw1 not deallocate ovdif because of [wref]
+Cdelw1 not deallocate orhrmx because of [wref]
+Cdelw1 not deallocate ovrmax because of [wref]
+Cdelw1 not deallocate ormax because of [wref]
+Cdelw1 not deallocate ovintr because of [wref]
+Cdelw1 not deallocate opmpol because of [wref]
+Cdelw1 not deallocate oqpp because of [wref]
+Cdelw1       if (nclasp .eq. nclass) return
+       if ( nclasp .eq. nclass ) then 
+       if (allocated(rv_w_opprel)) deallocate(rv_w_opprel)
+       return
+       endif 
+
       nclspp = max(2*nclasp-nclass,nspec)
 C ... Allocate ASA arrays
       if (mod(mode,10) .eq. 1) then
@@ -447,11 +591,15 @@ Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
 Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
 Cgetarg         call upack('pot opnu oqnu',spot,opnu,oqnu,0,0,0)
          
+Cdelw1 do not change opnu because of ['wref']
          opnu=spot%opnu
+Cdelw1 do not change oqnu because of ['wref']
          oqnu=spot%oqnu
 
+Cdelw1 do not change opnu because of ['wref']
         call dpscop(w(opnu),w(opnu),nl*nsp*i1,
      .    nl*nsp*nclass+1,nl*nsp*nclasp+1,1d0)
+Cdelw1 do not change oqnu because of ['wref']
         call dpscop(w(oqnu),w(oqnu),3*nl*nsp*i1,
      .    3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
 
@@ -462,14 +610,22 @@ Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
 Cgetarg         call upack('pot oves ovdif ovrmax orhrmx',spot,oves,ovdif,
 Cgetarg      .    ovrmax,orhrmx,0)
          
+Cdelw1 do not change oves because of ['wref']
          oves=spot%oves
+Cdelw1 do not change ovdif because of ['wref']
          ovdif=spot%ovdif
+Cdelw1 do not change ovrmax because of ['wref']
          ovrmax=spot%ovrmax
+Cdelw1 do not change orhrmx because of ['wref']
          orhrmx=spot%orhrmx
 
+Cdelw1 do not change oves because of ['wref']
         call dpscop(w(oves),w(oves),i1,nclass+1,nclasp+1,1d0)
+Cdelw1 do not change ovdif because of ['wref']
         call dpscop(w(ovdif),w(ovdif),i1,nclass+1,nclasp+1,1d0)
+Cdelw1 do not change ovrmax because of ['wref']
         call dpscop(w(ovrmax),w(ovrmax),i1,nclass+1,nclasp+1,1d0)
+Cdelw1 do not change orhrmx because of ['wref']
         call dpscop(w(orhrmx),w(orhrmx),i1,nclass+1,nclasp+1,1d0)
 
       else
@@ -477,6 +633,27 @@ Cgetarg      .    ovrmax,orhrmx,0)
       endif
 
 Cgetarg       end
+Cdelw1 w_varlist remains: opnu oqnu opp opprel oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax ovintr opmpol oqpp 
+Cdelw1 w_varlistundel: [oics ogroup ormax oinitc opnu oqnu oqc oqt oves ovdif ovrmax orhrmx opp ovintr opmpol oqpp]
+Cdelw1 w_varlist (undel), remains: [opnu oqnu opp oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax ovintr opmpol oqpp]
+Cdelw1 w_varlist (del), remains: [opprel]
+Cdelw1 not deallocate oqpp because of [wref]
+Cdelw1 not deallocate opmpol because of [wref]
+Cdelw1 not deallocate ovintr because of [wref]
+Cdelw1 not deallocate ormax because of [wref]
+Cdelw1 not deallocate ovrmax because of [wref]
+Cdelw1 not deallocate orhrmx because of [wref]
+Cdelw1 not deallocate ovdif because of [wref]
+Cdelw1 not deallocate oves because of [wref]
+Cdelw1 not deallocate ogroup because of [wref]
+Cdelw1 not deallocate oinitc because of [wref]
+Cdelw1 not deallocate oqt because of [wref]
+Cdelw1 not deallocate oqc because of [wref]
+Cdelw1 not deallocate opp because of [wref]
+Cdelw1 not deallocate oqnu because of [wref]
+Cdelw1 not deallocate opnu because of [wref]
+        if (allocated(rv_w_opprel)) deallocate(rv_w_opprel)
+
        end subroutine clsprm 
 
 
@@ -508,6 +685,7 @@ C ... Heap
       integer w(1)
       common /w/ w
 C ... Local parameters
+Cdelw1 do not change  [['undef', 'wref'], 'oqpp', 'ioqpp']
       integer i1,i2,nbas,nl,nsp,igets,ifi,oqpp,fopna,rdm,ipr
 
       call getpr(ipr)
@@ -523,18 +701,26 @@ Cgetarg       call upack('ctrl nbas nl nspin',sctrl,nbas,nl,nsp,0,0)
       i1 = nl**2*(nl**2+1)
       i2 = 4*nsp*nbas
 Cgetarg       oqpp = igets('pot oqpp',spot)
+Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 526
+Cdelw1 do not change oqpp because of ['undef', 'wref']
        oqpp = int(spot%oqpp) 
 
       ifi = fopna('qpp',-1,4+8)
 
       if (lio) then
+Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 531
+Cdelw1 do not change oqpp because of ['undef', 'wref']
         call ywrm(1,'lmasa',1,ifi,' ',w(oqpp),1,i1,i1,i2)
         if (ipr .ge. 30) print *, 'IOQPP:  wrote qpp to disk'
       else
         if (ipr .ge. 30) print *, 'IOQPP:  reading qpp from disk ...'
         call pshpr(0)
+Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 536
+Cdelw1 do not change oqpp because of ['undef', 'wref']
         if (rdm(ifi,2,i1*i2,' ',w(oqpp),i1,i2) .lt. 0) then
           if (ipr .ge. 0) print *,'IOQPP:  (warning) failed to qpp file'
+Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 538
+Cdelw1 do not change oqpp because of ['undef', 'wref']
           call dvset(w(oqpp),1,1,-1d0)
         endif
         call poppr
@@ -542,6 +728,10 @@ Cgetarg       oqpp = igets('pot oqpp',spot)
 
       call fclose(ifi)
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [oqpp]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine ioqpp 
 
 
@@ -574,6 +764,9 @@ C     implicit none
       integer mode,nclass,nl,nsp,ic
       double precision pnu(nl,nsp,nclass),qnu(3,nl,nsp,nclass)
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (nsp .eq. 1) return
 
       if (mode .gt. 1) then
@@ -583,6 +776,9 @@ C     implicit none
           call dswap(nl,pnu(1,2,ic),1,pnu(1,1,ic),1)
           call dswap(3*nl,qnu(1,1,2,ic),1,qnu(1,1,1,ic),1)
         enddo
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
         return
       endif
 
@@ -597,5 +793,8 @@ C     implicit none
         call dcopy(3*nl,qnu(1,1,1,ic),1,qnu(1,1,ic,1),1)
       enddo
       nsp = 1
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 

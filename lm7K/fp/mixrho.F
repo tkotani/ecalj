@@ -1,3 +1,42 @@
+Cdelw1 var ['ocn', '0', 'ocn', 'ng', 'complex(8)', 'zv_w_', 'mixrho']
+Cdelw1 var ['owk', '0', 'owk', 'kkk', 'complex(8)', 'zv_w_', 'mixrho']
+Cdelw1 var ['okv', '-1', 'undef', '0', 'undef', 'x', 'mixrho']
+Cdelw1 var ['ocg1', '0', 'ocg1', '-ng', 'complex(8)', 'zv_w_', 'mixrho']
+Cdelw1 var ['ocg2', '0', 'ocg2', '-ng', 'complex(8)', 'zv_w_', 'mixrho']
+Cdelw1 var ['ogv', '-1', 'undef', '0', 'undef', 'x', 'mixrho']
+Cdelw1 var ['ofkl', '0', 'ofkl', '(k0+1)*nlm0*nbas', 'complex(8)', 'zv_w_', 'mixrho']
+Cdelw1 var ['orofi', '1', 'orofi', 'nr', 'real(8)', 'rv_w_', 'mixrho']
+Cdelw1 var ['orwgt', '1', 'orwgt', 'nr', 'real(8)', 'rv_w_', 'mixrho']
+Cdelw1 var ['oips0', '0', 'oips0', 'ng', 'integer', 'iv_w_', 'mixrho']
+Cdelw1 var ['oco', '0', 'oco', 'ng*2*nsp', 'real(8)', 'rv_w_', 'mixrho']
+Cdelw1 var ['oa', '0', 'oa', '-nda*nsp*(mxsav+2)*2', 'real(8)', 'rv_w_', 'mixrho']
+Cdelw1 var ['oqkl', '0', 'oqkl', '-(kmxr+1)*nlm0*nsp*4*nbas', 'complex(8)', 'zv_w_', 'mixrho']
+Cdelw1 var ['oaa', '1', 'oaa', '-naa*(mxsav+2)*2', 'real(8)', 'rv_w_', 'mixrho']
+Cdelw1 var ['owk1', '2', 'owk1', 'nr', 'real(8)', 'rv_w_', 'mixrho']
+Cdelw1 var ['owk2', '2', 'owk2', 'nr', 'real(8)', 'rv_w_', 'mixrho']
+Cdelw1 var ['ori', '1', 'ori', 'nr', 'real(8)', 'rv_w_', 'pvmix3']
+Cdelw1 var ['orwgt', '1', 'orwgt', 'nr', 'real(8)', 'rv_w_', 'pvmix3']
+Cdelw1 var ['orsm', '3', 'orsm(m)', 'nr*nlml*nsp', 'real(8)', 'rv_w_', 'pvmix3']
+Cdelw1 var ['orofi', '2', 'orofi', 'nr', 'real(8)', 'rv_w_', 'pvmix5']
+Cdelw1 var ['orofi', '1', 'orofi', 'nr', 'real(8)', 'rv_w_', 'pvmix7']
+Cdelw1 var ['orwgt', '1', 'orwgt', 'nr', 'real(8)', 'rv_w_', 'pvmix7']
+Cdelw1 var ['orsm', '3', 'orsm(m)', 'nr*nlml*nsp', 'real(8)', 'rv_w_', 'pvmix7']
+Cdelw1 undel [['undef', 'wref'], 'okv', 'mixrho']
+Cdelw1 undel [['undef', 'wref'], 'ogv', 'mixrho']
+Cdelw1 undel [['call'], 'orhnew', 'mixrho']
+Cdelw1 undel [['call'], 'orhold', 'mixrho']
+Cdelw1 undel [['redef', 'wref'], 'ocn', 'mixrho']
+Cdelw1 undel [['redef', 'wref'], 'owk', 'mixrho']
+Cdelw1 undel [['wref'], 'oa', 'mixrho']
+Cdelw1 undel [['wref'], 'oaa', 'mixrho']
+Cdelw1 undel [['array', 'wref', 'call'], 'orsm', 'pvmix3']
+Cdelw1 undel [['call'], 'orhold', 'pvmix3']
+Cdelw1 undel [['call'], 'orhnew', 'pvmix3']
+Cdelw1 undel [['call'], 'orhold', 'pvmix5']
+Cdelw1 undel [['call'], 'orhnew', 'pvmix5']
+Cdelw1 undel [['call'], 'orhold', 'pvmix7']
+Cdelw1 undel [['array', 'wref', 'call'], 'orsm', 'pvmix7']
+Cdelw1 undel [['wref'], 'oqkl', 'mixrho']
 Cgetarg...info...           structure ['mixrho', 'lat', 'slat']
 Cgetarg...info...           structure ['mixrho', 'site', 'ssite']
 Cgetarg...info...           structure ['mixrho', 'spec', 'sspec']
@@ -198,6 +237,8 @@ C ... Passed parameters
       character*120 strn
       logical mlog,cmdopt
 #endif
+Cdelw1 do not change  [['call'], 'orhold', 'mixrho']
+Cdelw1 do not change  [['call'], 'orhnew', 'mixrho']
       integer nsp,k1,k2,k3,orhold(3,1),orhnew(3,1),iter,procid,master
       character*(*) mixmod
 Cgetarg       double precision ssite(1),sspec(1),slat(1)
@@ -212,8 +253,26 @@ C ... Local parameters
      .  lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nmix,nda,mxsav,ifi,nlm0,
      .  kkk,nnnew,nnmix,ngabc(3),igetss,fopna,broy,nx,
      .  nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
-      integer oips0,ng0,oco,ocn,ocg1,ocg2,ofkl,ogv,okv,orofi,orwgt,oa,
-     .  oaa,owk,oqkl,owk1,owk2
+Cdelw1 do not change  [['redef', 'wref'], 'ocn', 'mixrho']
+Cdelw1 do not change  [['undef', 'wref'], 'ogv', 'mixrho']
+Cdelw1 do not change  [['undef', 'wref'], 'okv', 'mixrho']
+Cdelw1 do not change  [['wref'], 'oa', 'mixrho']
+Cdelw1 do not change  [['wref'], 'oaa', 'mixrho']
+Cdelw1 do not change  [['redef', 'wref'], 'owk', 'mixrho']
+Cdelw1 do not change  [['wref'], 'oqkl', 'mixrho']
+Cdelw1       integer oips0,ng0,oco,ocn,ocg1,ocg2,ofkl,ogv,okv,orofi,orwgt,oa,
+Cdelw1      .  oaa,owk,oqkl,owk1,owk2
+       integer:: ng0 , ocn , ogv , okv , oa , oaa , owk , oqkl 
+       integer ,allocatable :: iv_w_oips0(:)
+       real(8) ,allocatable :: rv_w_oco(:)
+       complex(8) ,allocatable :: zv_w_ocg1(:)
+       complex(8) ,allocatable :: zv_w_ocg2(:)
+       complex(8) ,allocatable :: zv_w_ofkl(:)
+       real(8) ,allocatable :: rv_w_orofi(:)
+       real(8) ,allocatable :: rv_w_orwgt(:)
+       real(8) ,allocatable :: rv_w_owk1(:)
+       real(8) ,allocatable :: rv_w_owk2(:)
+
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       parameter (nlm0=49)
       double precision a,beta0,beta,dif,difx,difxu,fac,rms,rmt,
@@ -229,6 +288,10 @@ C ... Heap
 
       complex(8),allocatable:: smrnewbk(:,:,:,:)
 C     print *, '!!' ; call pshpr(40)
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [okv ogv orhnew orhold ocn owk oa oaa oqkl]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (mixmod .eq. 'none') return
       call tcn('mixrho')
 
@@ -311,7 +374,11 @@ Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
        i_copy_size=size(slat%nabc) 
        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
        ng=slat%ng
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 314
+Cdelw1 do not change ogv because of ['undef', 'wref']
        ogv=slat%ogv
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 315
+Cdelw1 do not change okv because of ['undef', 'wref']
        okv=slat%okv
        vol=slat%vol
 
@@ -408,19 +475,45 @@ C ... <smrout-smrhoin> and <(smrout-smrhoin)**2>, unscreened smrout
    12 rmsuns = rmsuns + dble(smrnew(i1,i2,i3,1)-smrho(i1,i2,i3,1))**2
 
 C ... 2. cn <- (smrnew - smrho)(G)
+Cdelw1 do not change ocn because of ['redef', 'wref']
       call defcc(ocn, ng)
+Cdelw1 do not change owk because of ['redef', 'wref']
       call defcc(owk, kkk)
+Cdelw1 do not change owk because of ['redef', 'wref']
       call dcopy(kkk*2,smrnew,1,w(owk),1)
+Cdelw1 do not change owk because of ['redef', 'wref']
       call dpadd(w(owk),smrho,1,kkk*2,-1d0)
+Cdelw1 do not change owk because of ['redef', 'wref']
       call fftz3(w(owk),n1,n2,n3,k1,k2,k3,1,0,-1)
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 do not change owk because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 416
+Cdelw1 do not change okv because of ['undef', 'wref']
       call gvgetf(ng,1,w(okv),k1,k2,k3,w(owk),w(ocn))
-      call rlse(owk)
+Cdelw1 rlse name= owk old_list= ocn owk 
+Cdelw1 rlse name= owk new_list= ocn 
+Cdelw1 not deallocate owk because of [redef wref]
+Cdelw1       call rlse(owk)
+       call rlse(owk)
+
 
 C ... 3. Sum of local densities on Fourier mesh (up+down)
-      call defcc(ocg1,  -ng)
-      call defcc(ocg2,  -ng)
-      call rhgcmp(131,1,nbas,ssite,sspec,slat,orhold,kmxs,ng,w(ocg1))
-      call rhgcmp(131,1,nbas,ssite,sspec,slat,orhnew,kmxs,ng,w(ocg2))
+Cdelw1       call defcc(ocg1,  -ng)
+       allocate(zv_w_ocg1(abs(-ng)))
+       if (-ng<0) zv_w_ocg1(:)=0.0d0
+
+Cdelw1       call defcc(ocg2,  -ng)
+       allocate(zv_w_ocg2(abs(-ng)))
+       if (-ng<0) zv_w_ocg2(:)=0.0d0
+
+Cdelw1       call rhgcmp(131,1,nbas,ssite,sspec,slat,orhold,kmxs,ng,w(ocg1))
+       call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , orhold 
+     . , kmxs , ng , zv_w_ocg1 ) 
+
+Cdelw1       call rhgcmp(131,1,nbas,ssite,sspec,slat,orhnew,kmxs,ng,w(ocg2))
+       call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , orhnew 
+     . , kmxs , ng , zv_w_ocg2 ) 
+
 C     call gvputf(ng,1,w(okv),k1,k2,k3,w(ocg1),smrnew)
 C     call fftz3(smrnew,n1,n2,n3,k1,k2,k3,1,0,1)
 C     call zprm3('input local densities (r)',0,smrnew,k1,k2,k3)
@@ -428,22 +521,50 @@ C     call zprm3('input local densities (r)',0,smrnew,k1,k2,k3)
 C ... Add output-input difference in gaussian rho to make total rho
 C     call dpzero(w(ocn),ng*2)
       if (.true.) then
-      call daxpy(2*ng,1d0,w(ocg2),1,w(ocn),1)
-      call daxpy(2*ng,-1d0,w(ocg1),1,w(ocn),1)
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1       call daxpy(2*ng,1d0,w(ocg2),1,w(ocn),1)
+       call daxpy ( 2 * ng , 1d0 , zv_w_ocg2 , 1 , w ( ocn ) , 1 ) 
+
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1       call daxpy(2*ng,-1d0,w(ocg1),1,w(ocn),1)
+       call daxpy ( 2 * ng , - 1d0 , zv_w_ocg1 , 1 , w ( ocn ) , 1 ) 
+
       endif
-      call rlse(ocg1)
+Cdelw1 rlse name= ocg1 old_list= ocn ocg1 ocg2 
+Cdelw1 rlse name= ocg1 new_list= ocn 
+Cdelw1       call rlse(ocg1)
+       if (allocated(zv_w_ocg2)) deallocate(zv_w_ocg2)
+       if (allocated(zv_w_ocg1)) deallocate(zv_w_ocg1)
+
 
 C ... 4. Make cn = screening charge = (eps^-1 - 1) (n_out - n_in)
       tpiba = 2*pi/alat
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 438
+Cdelw1 do not change ogv because of ['undef', 'wref']
       call lindsc(2,ng,w(ogv),tpiba,elinl,w(ocn))
 
 C ... 5. Add cn = screening charge into smrnew
+Cdelw1 do not change owk because of ['redef', 'wref']
       call defcc(owk,kkk)
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 do not change owk because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 442
+Cdelw1 do not change okv because of ['undef', 'wref']
       call gvputf(ng,1,w(okv),k1,k2,k3,w(ocn),w(owk))
+Cdelw1 do not change owk because of ['redef', 'wref']
       call fftz3(w(owk),n1,n2,n3,k1,k2,k3,1,0,1)
 C     call zprm3('unscreened smrnew',0,smrnew,k1,k2,k3)
+Cdelw1 do not change owk because of ['redef', 'wref']
       call dpadd(smrnew,w(owk),1,kkk*2,1d0)
-      call rlse(owk)
+Cdelw1 rlse name= owk old_list= ocn owk 
+Cdelw1 rlse name= owk new_list= ocn 
+Cdelw1 not deallocate owk because of [redef wref]
+Cdelw1       call rlse(owk)
+       call rlse(owk)
+
 C     call zprm3('screened smrnw, charge',0,smrnew,k1,k2,k3)
 C     call zprm3('screened smrnw, moment',0,smrnew(1,1,1,2),k1,k2,k3)
 
@@ -486,8 +607,20 @@ C     call zprm3('smrnew',0,smrnew,k1,k2,k3)
 
 C --- 7. Project cn = screening density into local densities ---
       k0 = 20
-      call defcc(ofkl,(k0+1)*nlm0*nbas)
-      call ftlxp(nbas,ssite,sspec,alat,ng,w(ogv),w(ocn),k0,nlm0,w(ofkl))
+Cdelw1       call defcc(ofkl,(k0+1)*nlm0*nbas)
+       allocate(zv_w_ofkl((k0+1)*nlm0*nbas))
+       if ((k0+1)*nlm0*nbas<0) zv_w_ofkl(:)=0.0d0
+
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 490
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 490
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1       call ftlxp(nbas,ssite,sspec,alat,ng,w(ogv),w(ocn),k0,nlm0,w(ofkl))
+       call ftlxp ( nbas , ssite , sspec , alat , ng , w ( ogv ) , w 
+     . ( ocn ) , k0 , nlm0 , zv_w_ofkl ) 
+
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
          is = int(ssite(ib)%spec) 
@@ -513,17 +646,39 @@ Cgetarg         call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
         if (lmxl .lt. 0) cycle
         nlml = (lmxl+1)**2
         if (nlml.gt.nlm0) call rxi('mixrho: nlml.gt.nlm0, need',nlml)
-        call defrr(orofi, nr)
-        call defrr(orwgt, nr)
-        call radmsh(rmt,a,nr,w(orofi))
-        call radwgt(rmt,a,nr,w(orwgt))
+Cdelw1         call defrr(orofi, nr)
+         allocate(rv_w_orofi(nr))
+         if (nr<0) rv_w_orofi(:)=0.0d0
+
+Cdelw1         call defrr(orwgt, nr)
+         allocate(rv_w_orwgt(nr))
+         if (nr<0) rv_w_orwgt(:)=0.0d0
+
+Cdelw1         call radmsh(rmt,a,nr,w(orofi))
+         call radmsh ( rmt , a , nr , rv_w_orofi ) 
+
+Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
+         call radwgt ( rmt , a , nr , rv_w_orwgt ) 
+
 C       Overwrite rho+, rho- with rho, rho+ - rho-
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1 3 is digit, dropped
         call splrho(0,nsp,nr,nlml,
      .    w(orhnew(1,ib)),w(orhnew(2,ib)),w(orhnew(3,ib)))
 C   ... Add site-projected screening density to rhn1,rhn2
-        call pkl2ro(110,ib,rsmv,kmxv,nr,nlml,1,w(orofi),w(orwgt),
-     .    k0,nlm0,w(ofkl),w,w(orhnew(1,ib)),w(orhnew(2,ib)),qmx)
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1         call pkl2ro(110,ib,rsmv,kmxv,nr,nlml,1,w(orofi),w(orwgt),
+Cdelw1      .    k0,nlm0,w(ofkl),w,w(orhnew(1,ib)),w(orhnew(2,ib)),qmx)
+         call pkl2ro ( 110 , ib , rsmv , kmxv , nr , nlml , 1 , rv_w_orofi 
+     .   , rv_w_orwgt , k0 , nlm0 , zv_w_ofkl , w , w ( orhnew ( 1 , ib 
+     .   ) ) , w ( orhnew ( 2 , ib ) ) , qmx ) 
+
 C       Restore rho+, rho-
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1 3 is digit, dropped
         call splrho(1,nsp,nr,nlml,
      .    w(orhnew(1,ib)),w(orhnew(2,ib)),w(orhnew(3,ib)))
 
@@ -532,10 +687,20 @@ C        print *, 'ib=',ib
 C        call prrmsh('rhold1',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
 C        call prrmsh('rhold2',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
 
-        call pvmix9(1,0,nr,nlml*nsp,0,0d0,w(orofi),w(orhold(1,ib)),
-     .    w(orhold(2,ib)))
-        call pvmix9(1,0,nr,nlml*nsp,0,0d0,w(orofi),w(orhnew(1,ib)),
-     .    w(orhnew(2,ib)))
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1         call pvmix9(1,0,nr,nlml*nsp,0,0d0,w(orofi),w(orhold(1,ib)),
+Cdelw1      .    w(orhold(2,ib)))
+         call pvmix9 ( 1 , 0 , nr , nlml * nsp , 0 , 0d0 , rv_w_orofi 
+     .   , w ( orhold ( 1 , ib ) ) , w ( orhold ( 2 , ib ) ) ) 
+
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1         call pvmix9(1,0,nr,nlml*nsp,0,0d0,w(orofi),w(orhnew(1,ib)),
+Cdelw1      .    w(orhnew(2,ib)))
+         call pvmix9 ( 1 , 0 , nr , nlml * nsp , 0 , 0d0 , rv_w_orofi 
+     .   , w ( orhnew ( 1 , ib ) ) , w ( orhnew ( 2 , ib ) ) ) 
+
 
 C       debugging
 C       call prrmsh('1 post t',w(orofi),w(orhnew(1,1)),nr,nr,nlml*nsp)
@@ -549,9 +714,20 @@ C       call prrmsh('1 rest',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
 C       call prrmsh('2 rest',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
 C       stop
 
-        call rlse(orofi)
+Cdelw1 rlse name= orofi old_list= ocn ofkl orofi orwgt 
+Cdelw1 rlse name= orofi new_list= ocn ofkl 
+Cdelw1         call rlse(orofi)
+         if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+         if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+
       enddo                     ! Loop over sites
-      call rlse(ocn)
+Cdelw1 rlse name= ocn old_list= ocn ofkl 
+Cdelw1 rlse name= ocn new_list= (None)
+Cdelw1 not deallocate ocn because of [redef wref]
+Cdelw1       call rlse(ocn)
+       if (allocated(zv_w_ofkl)) deallocate(zv_w_ofkl)
+       call rlse(ocn)
+
 
 C --- Fancy mixing of smoothed + some representation of local rho ---
 C ... Count number of elts from local densities for fancy mixing scheme
@@ -582,37 +758,95 @@ C         and spherical part of rho1-rho2
    20   continue
       enddo
 C ... Find and include number of smooth mesh points.
-      call defi(oips0,ng)
-      call lgstar(0,ng,1,w(ogv),ng0,w(oips0),w)
+Cdelw1       call defi(oips0,ng)
+       allocate(iv_w_oips0(ng))
+       if (ng<0) iv_w_oips0(:)=0
+
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 586
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 586
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1       call lgstar(0,ng,1,w(ogv),ng0,w(oips0),w)
+       call lgstar ( 0 , ng , 1 , w ( ogv ) , ng0 , iv_w_oips0 , w ) 
+
 C     if (ng .ne. (ng0-1)*2+1) call rx('bug in mixrho')
       nda = nda + 2*ng0
 
 C ... 8. FFT smooth densities -> rho(G) for mixing
+Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: ocn complex(8) and real(8)
+Cdelw1 do not change ocn because of ['redef', 'wref']
       call defrr(ocn,ng*2*nsp)
-      call defrr(oco,ng*2*nsp)
+Cdelw1       call defrr(oco,ng*2*nsp)
+       allocate(rv_w_oco(ng*2*nsp))
+       if (ng*2*nsp<0) rv_w_oco(:)=0.0d0
+
+Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: owk complex(8) and real(8)
+Cdelw1 do not change owk because of ['redef', 'wref']
       call defrr(owk,kkk*2*nsp)
+Cdelw1 do not change owk because of ['redef', 'wref']
       call dpcopy(smrnew,w(owk),1,kkk*2*nsp,1d0)
+Cdelw1 do not change owk because of ['redef', 'wref']
       call fftz3(w(owk),n1,n2,n3,k1,k2,k3,nsp,0,-1)
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 do not change owk because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 596
+Cdelw1 do not change okv because of ['undef', 'wref']
       call gvgetf(ng,nsp,w(okv),k1,k2,k3,w(owk),w(ocn))
 C     call zprm('cn-u',2,w(ocn),ng,ng,nsp)
-      call lgstar(1,ng,nsp,w(ogv),i,w(oips0),w(ocn))   !ocn new
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 598
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 598
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1       call lgstar(1,ng,nsp,w(ogv),i,w(oips0),w(ocn))   !ocn new
+       call lgstar ( 1 , ng , nsp , w ( ogv ) , i , iv_w_oips0 , w ( 
+     . ocn ) ) 
+
 C     call zprm('cn-c',2,w(ocn),ng,ng0,nsp)
 C     call lgstar(2,ng,nsp,w(ogv),i,w(oips0),w(ocn))
 C     call zprm('cn-u',2,w(ocn),ng,ng,nsp)
+Cdelw1 do not change owk because of ['redef', 'wref']
       call dpcopy(smrho,w(owk),1,kkk*2*nsp,1d0)
+Cdelw1 do not change owk because of ['redef', 'wref']
       call fftz3(w(owk),n1,n2,n3,k1,k2,k3,nsp,0,-1)
-      call gvgetf(ng,nsp,w(okv),k1,k2,k3,w(owk),w(oco))
+Cdelw1 do not change owk because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 604
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 do not change owk because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 604
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1       call gvgetf(ng,nsp,w(okv),k1,k2,k3,w(owk),w(oco))
+       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , w ( owk ) 
+     . , rv_w_oco ) 
+
 C     call zprm('co-u',2,w(oco),ng,ng,nsp)
-      call lgstar(1,ng,nsp,w(ogv),i,w(oips0),w(oco))   !oco init
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 606
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 606
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1       call lgstar(1,ng,nsp,w(ogv),i,w(oips0),w(oco))   !oco init
+       call lgstar ( 1 , ng , nsp , w ( ogv ) , i , iv_w_oips0 , rv_w_oco 
+     . ) 
+
 ccccccccccc
 c      print *,'vvv lgstar i=',i
 ccccccccccc
 C     call zprm('co-c',2,w(oco),ng,ng0,nsp)
-      call rlse(owk)
+Cdelw1 rlse name= owk old_list= oips0 ocn oco owk 
+Cdelw1 rlse name= owk new_list= oips0 ocn oco 
+Cdelw1 not deallocate owk because of [redef wref]
+Cdelw1       call rlse(owk)
+       call rlse(owk)
+
+Cdelw1 do not change oa because of ['wref']
       call defrr(oa,-nda*nsp*(mxsav+2)*2)
 
 C ... Allocate memory for coffs to G_kL expansion of rho
+Cdelw1 warning(1) , probably  oqkl  is not defined yet at linenumber= 615
+Cdelw1 do not change oqkl because of ['wref']
       oqkl = 1
+Cdelw1 do not change oqkl because of ['wref']
       if (locmix .ge. 2) call defcc(oqkl,-(kmxr+1)*nlm0*nsp*4*nbas)
 
 C --- 9. Read prior iterations from disk; update with current iter ---
@@ -633,9 +867,20 @@ C --- 9. Read prior iterations from disk; update with current iter ---
 
 C     NB: For now, nx must be zero
       k9 = 10
-      call pvmix5(nmix,mxsav,fnam,ifi,.true.,rmsdel,locmix,k9,nbas,kmxr,
-     .  nlm0,ssite,sspec,nsp,orhold,orhnew,w(oco),w(ocn),ng,ng0,0,nda,
-     .  w(oa),w(oqkl),rms2,nmixr)
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 do not change oa because of ['wref']
+Cdelw1 do not change oqkl because of ['wref']
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 do not change oa because of ['wref']
+Cdelw1 do not change oqkl because of ['wref']
+Cdelw1       call pvmix5(nmix,mxsav,fnam,ifi,.true.,rmsdel,locmix,k9,nbas,kmxr,
+Cdelw1      .  nlm0,ssite,sspec,nsp,orhold,orhnew,w(oco),w(ocn),ng,ng0,0,nda,
+Cdelw1      .  w(oa),w(oqkl),rms2,nmixr)
+       call pvmix5 ( nmix , mxsav , fnam , ifi , .true. , rmsdel , locmix 
+     . , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , orhold , orhnew 
+     . , rv_w_oco , w ( ocn ) , ng , ng0 , 0 , nda , w ( oa ) , w ( 
+     . oqkl ) , rms2 , nmixr ) 
+
 
 C     debugging check
 C      ib = 1
@@ -656,9 +901,20 @@ C      stop
       rmsdel = rms2
       nmix = min(nmix,nmixr)
 C ... Write this and prior iterations onto disk
-      call pvmix5(nmix,mxsav,fnam,-ifi,.true.,rmsdel,locmix,k9,nbas,
-     .  kmxr,nlm0,ssite,sspec,nsp,orhold,orhnew,w(oco),w(ocn),ng,ng0,0,
-     .  nda,w(oa),w(oqkl),rms2,nmixr)
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 do not change oa because of ['wref']
+Cdelw1 do not change oqkl because of ['wref']
+Cdelw1 do not change ocn because of ['redef', 'wref']
+Cdelw1 do not change oa because of ['wref']
+Cdelw1 do not change oqkl because of ['wref']
+Cdelw1       call pvmix5(nmix,mxsav,fnam,-ifi,.true.,rmsdel,locmix,k9,nbas,
+Cdelw1      .  kmxr,nlm0,ssite,sspec,nsp,orhold,orhnew,w(oco),w(ocn),ng,ng0,0,
+Cdelw1      .  nda,w(oa),w(oqkl),rms2,nmixr)
+       call pvmix5 ( nmix , mxsav , fnam , - ifi , .true. , rmsdel , 
+     . locmix , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , orhold 
+     . , orhnew , rv_w_oco , w ( ocn ) , ng , ng0 , 0 , nda , w ( oa 
+     . ) , w ( oqkl ) , rms2 , nmixr ) 
+
       if (nkill .lt. 0) then
         if (ipr .ge. 20) then
           sout = ' ...  deleting file '//fnam
@@ -687,6 +943,7 @@ C    .  sumo*fac,sumu*fac,sums*fac,rms,summ*fac
   101 format(' mmom   ',2f14.6,28x,f14.6)
 
 C --- 10. Linear mixing of local densities  ---
+Cdelw1 do not change oqkl because of ['wref']
       call pvmix3(ssite,sspec,nbas,nsp,beta,locmix,wt,kmxr,nlm0,
      .  k9,w(oqkl),orhold,orhnew,difx)
       difxu = difx
@@ -706,7 +963,10 @@ C       FP     nda*nsp       0       naa      nda            naa
         if (wt(3) .ne. 0) naa = naa+nx
         offx = 0                !offset to extra elements (none now)
         off2 = (nsp-1)*nda      !offset to spin down part of a
+Cdelw1 do not change oaa because of ['wref']
         call defdr(oaa,-naa*(mxsav+2)*2)
+Cdelw1 do not change oa because of ['wref']
+Cdelw1 do not change oaa because of ['wref']
         call pqsclf(0,nda*nsp,nda,offx,off2,nx,naa,mxsav,wt,
      .    w(oa),w(oaa),rms2f)
         if (wt(1)*wt(2) .ne. 0) then
@@ -717,19 +977,30 @@ C          rms2f = rms2f * 2
           rmsdel = rms2f
         endif
       else
+Cdelw1 do not change oa because of ['wref']
+Cdelw1 do not change oaa because of ['wref']
         oaa = oa
         naa = nda
       endif
 
 C --- 12. Mix the soup of densities ---
       beta0 = beta
+Cdelw1 do not change oaa because of ['wref']
       call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w(oaa))
 
 C ... 13. Restore matrix a to rho+, rho-
       if (nsp .eq. 2 .or. nx .gt. 0) then
+Cdelw1 do not change oa because of ['wref']
+Cdelw1 do not change oaa because of ['wref']
         call pqsclb(nda*nsp,nda,offx,off2,nx,naa,mxsav,wt,w(oa),w(oaa))
+Cdelw1 do not change oa because of ['wref']
         call pqsclc(nda*nsp,nda*nsp,nx,mxsav,w(oa))
-        call rlse(oaa)
+Cdelw1 rlse name= oaa old_list= oips0 ocn oco oa oqkl oaa 
+Cdelw1 rlse name= oaa new_list= oips0 ocn oco oa oqkl 
+Cdelw1 not deallocate oaa because of [wref]
+Cdelw1         call rlse(oaa)
+         call rlse(oaa)
+
       endif
 
 C      nlml = 16
@@ -737,14 +1008,51 @@ C      call prrmsh('rho1, ante 7',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
 C      call prrmsh('rho2, ante 7',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
 
 C ... 14. Poke mixed smooth and local densities into smrho,rhoold
+Cdelw1 do not change owk because of ['redef', 'wref']
       call defcc(owk,kkk)
-      call pvmix7(ssite,sspec,nbas,nsp,nda,w(oa),n1,n2,n3,k1,k2,k3,
-     .  locmix,wt,k9,kmxr,nlm0,w(oqkl),ng,ng0,w(okv),w(oips0),w(ogv),
-     .  w(oco),w(owk),orhold,smrho)
+Cdelw1 do not change owk because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 741
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 741
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 do not change oa because of ['wref']
+Cdelw1 do not change oqkl because of ['wref']
+Cdelw1 do not change owk because of ['redef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 741
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 741
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 do not change oa because of ['wref']
+Cdelw1 do not change oqkl because of ['wref']
+Cdelw1       call pvmix7(ssite,sspec,nbas,nsp,nda,w(oa),n1,n2,n3,k1,k2,k3,
+Cdelw1      .  locmix,wt,k9,kmxr,nlm0,w(oqkl),ng,ng0,w(okv),w(oips0),w(ogv),
+Cdelw1      .  w(oco),w(owk),orhold,smrho)
+       call pvmix7 ( ssite , sspec , nbas , nsp , nda , w ( oa ) , n1 
+     . , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w 
+     . ( oqkl ) , ng , ng0 , w ( okv ) , iv_w_oips0 , w ( ogv ) , rv_w_oco 
+     . , w ( owk ) , orhold , smrho ) 
 
-      call rlse(oa)
-      call rlse(ocn)
-      call rlse(oips0)
+
+Cdelw1 rlse name= oa old_list= oips0 ocn oco oa oqkl owk 
+Cdelw1 rlse name= oa new_list= oips0 ocn oco 
+Cdelw1 not deallocate owk because of [redef wref]
+Cdelw1 not deallocate oqkl because of [wref]
+Cdelw1 not deallocate oa because of [wref]
+Cdelw1       call rlse(oa)
+       call rlse(oa)
+
+Cdelw1 rlse name= ocn old_list= oips0 ocn oco 
+Cdelw1 rlse name= ocn new_list= oips0 
+Cdelw1 not deallocate ocn because of [redef wref]
+Cdelw1       call rlse(ocn)
+       if (allocated(rv_w_oco)) deallocate(rv_w_oco)
+       call rlse(ocn)
+
+Cdelw1 rlse name= oips0 old_list= oips0 
+Cdelw1 rlse name= oips0 new_list= (None)
+Cdelw1       call rlse(oips0)
+       if (allocated(iv_w_oips0)) deallocate(iv_w_oips0)
+
 
 C      nlml = 16
 C      call prrmsh('rho1 post 7',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
@@ -786,15 +1094,35 @@ Cgetarg         call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
         if (lmxl .lt. 0) cycle
         nlml = (lmxl+1)**2
         if (nlml.gt.nlm0) call rxi('mixrho: nlml.gt.nlm0, need',nlml)
-        call defrr(orofi, nr)
-        call defrr(orwgt, nr)
-        call radmsh(rmt,a,nr,w(orofi))
-        call radwgt(rmt,a,nr,w(orwgt))
+Cdelw1         call defrr(orofi, nr)
+         allocate(rv_w_orofi(nr))
+         if (nr<0) rv_w_orofi(:)=0.0d0
 
-        call pvmix9(1,-1,nr,nlml*nsp,0,0d0,w(orofi),w(orhold(1,ib)),
-     .    w(orhold(2,ib)))
-        call pvmix9(1,-1,nr,nlml*nsp,0,0d0,w(orofi),w(orhnew(1,ib)),
-     .    w(orhnew(2,ib)))
+Cdelw1         call defrr(orwgt, nr)
+         allocate(rv_w_orwgt(nr))
+         if (nr<0) rv_w_orwgt(:)=0.0d0
+
+Cdelw1         call radmsh(rmt,a,nr,w(orofi))
+         call radmsh ( rmt , a , nr , rv_w_orofi ) 
+
+Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
+         call radwgt ( rmt , a , nr , rv_w_orwgt ) 
+
+
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1         call pvmix9(1,-1,nr,nlml*nsp,0,0d0,w(orofi),w(orhold(1,ib)),
+Cdelw1      .    w(orhold(2,ib)))
+         call pvmix9 ( 1 , - 1 , nr , nlml * nsp , 0 , 0d0 , rv_w_orofi 
+     .   , w ( orhold ( 1 , ib ) ) , w ( orhold ( 2 , ib ) ) ) 
+
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1         call pvmix9(1,-1,nr,nlml*nsp,0,0d0,w(orofi),w(orhnew(1,ib)),
+Cdelw1      .    w(orhnew(2,ib)))
+         call pvmix9 ( 1 , - 1 , nr , nlml * nsp , 0 , 0d0 , rv_w_orofi 
+     .   , w ( orhnew ( 1 , ib ) ) , w ( orhnew ( 2 , ib ) ) ) 
+
 
 C       debugging
 C        print *, 'ib=',ib
@@ -804,20 +1132,47 @@ C        call prrmsh('2 final',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
 C   ... Add net local charge to qmix
         do  i = 1, nsp
           off2 = 1 + nr*nlml*(i-1)
-          call defrr(owk1,nr)
-          call defrr(owk2,nr)
-          call dpscop(w(orhold(1,ib)),w(owk1),nr,off2,1,1d0)
-          call dpscop(w(orhold(2,ib)),w(owk2),nr,off2,1,1d0)
-          qmx = srfpi*(ddot(nr,w(owk1),1,w(orwgt),1) -
-     .                 ddot(nr,w(owk2),1,w(orwgt),1))
+Cdelw1           call defrr(owk1,nr)
+           allocate(rv_w_owk1(nr))
+           if (nr<0) rv_w_owk1(:)=0.0d0
+
+Cdelw1           call defrr(owk2,nr)
+           allocate(rv_w_owk2(nr))
+           if (nr<0) rv_w_owk2(:)=0.0d0
+
+Cdelw1 1 is digit, dropped
+Cdelw1           call dpscop(w(orhold(1,ib)),w(owk1),nr,off2,1,1d0)
+           call dpscop ( w ( orhold ( 1 , ib ) ) , rv_w_owk1 , nr , off2 
+     .     , 1 , 1d0 ) 
+
+Cdelw1 2 is digit, dropped
+Cdelw1           call dpscop(w(orhold(2,ib)),w(owk2),nr,off2,1,1d0)
+           call dpscop ( w ( orhold ( 2 , ib ) ) , rv_w_owk2 , nr , off2 
+     .     , 1 , 1d0 ) 
+
+Cdelw1           qmx = srfpi*(ddot(nr,w(owk1),1,w(orwgt),1) -
+Cdelw1      .                 ddot(nr,w(owk2),1,w(orwgt),1))
+           qmx = srfpi * ( ddot ( nr , rv_w_owk1 , 1 , rv_w_orwgt , 1 ) 
+     .     - ddot ( nr , rv_w_owk2 , 1 , rv_w_orwgt , 1 ) ) 
+
 C         print *, 'spin, qmx',i,qmx
           if (i .eq. 2) qmix(2) = qmix(2) + qmx-q1
           q1 = qmx
           qmix(1) = qmix(1) + qmx
-          call rlse(owk1)
+Cdelw1 rlse name= owk1 old_list= orofi orwgt owk1 owk2 
+Cdelw1 rlse name= owk1 new_list= orofi orwgt 
+Cdelw1           call rlse(owk1)
+           if (allocated(rv_w_owk2)) deallocate(rv_w_owk2)
+           if (allocated(rv_w_owk1)) deallocate(rv_w_owk1)
+
         enddo
 
-        call rlse(orofi)
+Cdelw1 rlse name= orofi old_list= orofi orwgt 
+Cdelw1 rlse name= orofi new_list= (None)
+Cdelw1         call rlse(orofi)
+         if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+         if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+
       enddo                     !Loop over sites
 
 C ... Force density positive
@@ -937,6 +1292,10 @@ c      enddo
 c      print *,'vvv mixrho sum smrho output 222=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
 ccccccccccccccccccccccccccccccccc
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [okv ogv orhnew orhold ocn owk oa oaa oqkl]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine mixrho 
 
 
@@ -990,6 +1349,8 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,kmxr,nlm0,locmix,k9
+Cdelw1 do not change  [['call'], 'orhold', 'pvmix3']
+Cdelw1 do not change  [['call'], 'orhnew', 'pvmix3']
       integer orhold(3,nbas),orhnew(3,nbas)
 Cgetarg       double precision ssite(1),sspec(1),difx,beta,wt(2),
 Cgetarg      .  qkl(0:kmxr,nlm0,nsp,4,nbas)
@@ -999,7 +1360,12 @@ Cgetarg      .  qkl(0:kmxr,nlm0,nsp,4,nbas)
 
 C ... Local parameters
       integer ib,is,igetss,nr,nlml,m,lmxl,k9l
-      integer ori,orwgt,orsm(4),i
+Cdelw1 do not change  [['array', 'wref', 'call'], 'orsm', 'pvmix3']
+Cdelw1       integer ori,orwgt,orsm(4),i
+       integer:: orsm(4) , i 
+       real(8) ,allocatable :: rv_w_ori(:)
+       real(8) ,allocatable :: rv_w_orwgt(:)
+
       double precision a,rmt,rg,difa,rf
 C ... Heap
       integer w(1)
@@ -1026,21 +1392,38 @@ Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
 
         if (lmxl .eq. -1) goto 10
         nlml = (lmxl+1)**2
-        call defrr(ori, nr)
-        call defrr(orwgt, nr)
-        call radmsh(rmt,a,nr,w(ori))
-        call radwgt(rmt,a,nr,w(orwgt))
+Cdelw1         call defrr(ori, nr)
+         allocate(rv_w_ori(nr))
+         if (nr<0) rv_w_ori(:)=0.0d0
+
+Cdelw1         call defrr(orwgt, nr)
+         allocate(rv_w_orwgt(nr))
+         if (nr<0) rv_w_orwgt(:)=0.0d0
+
+Cdelw1         call radmsh(rmt,a,nr,w(ori))
+         call radmsh ( rmt , a , nr , rv_w_ori ) 
+
+Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
+         call radwgt ( rmt , a , nr , rv_w_orwgt ) 
+
         rf = rmt/3
 
         do  m = 1, 4
           if (locmix .ge. 2) then
 C           Generate on a mesh the smooth density to be subtracted
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
             call defrr(orsm(m),nr*nlml*nsp)
             i = 1001
             if (wt(1) .eq. 0) i = 11001
             if (wt(2) .eq. 0) i = 21001
-            call pkl2ro(i,1,rg,kmxr,nr,nlml,nsp,w(ori),w(orwgt),
-     .        kmxr,nlm0,w,qkl(0,1,1,m,ib),w(orsm(m)),w,difa)
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
+Cdelw1             call pkl2ro(i,1,rg,kmxr,nr,nlml,nsp,w(ori),w(orwgt),
+Cdelw1      .        kmxr,nlm0,w,qkl(0,1,1,m,ib),w(orsm(m)),w,difa)
+             call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , rv_w_ori 
+     .       , rv_w_orwgt , kmxr , nlm0 , w , qkl ( 0 , 1 , 1 , m , ib ) , 
+     .       w ( orsm ( m ) ) , w , difa ) 
+
 
 C           Undo scaling of rho1+rho2 for linear mix
             if (locmix .eq. 3 .and. (m .eq. 2 .or. m .eq. 4)) then
@@ -1054,8 +1437,14 @@ C     .         nr,nr,nlml*nsp)
 C             call prrmsh('scaled rhosm1-2 from qkl',w(ori),w(orsm(m)),
 C     .         nr,nr,nlml*nsp)
               k9l = k9 - mod(k9,10)
-              call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(ori),
-     .            w(orsm(m-1)),w(orsm(m)))
+Cdelw1 1 is digit, dropped
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
+Cdelw1               call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(ori),
+Cdelw1      .            w(orsm(m-1)),w(orsm(m)))
+               call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rv_w_ori 
+     .         , w ( orsm ( m - 1 ) ) , w ( orsm ( m ) ) ) 
+
 C             call prrmsh('unscaled rhosm1+2',w(ori),w(orsm(m-1)),
 C     .         nr,nr,nlml*nsp)
 C             call prrmsh('unscaled rhosm1-2',w(ori),w(orsm(m)),
@@ -1063,6 +1452,7 @@ C     .         nr,nr,nlml*nsp)
             endif
 
           else
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
             orsm(m) = 1
           endif
         enddo
@@ -1076,16 +1466,46 @@ C        call pvmix8(i,nr,nlml,nsp,w(orsm(1)),w(orsm(2)))
 C        call pvmix8(i,nr,nlml,nsp,w(orsm(3)),w(orsm(4)))
 
 C   ... Linear mix, this site
-        call pvmix4(nr,nlml,nsp,w(ori),locmix,wt,beta,ib,
-     .    w(orsm(1)),w(orsm(2)),w(orsm(3)),w(orsm(4)),
-     .    w(orhold(1,ib)),w(orhold(2,ib)),w(orhold(3,ib)),
-     .    w(orhnew(1,ib)),w(orhnew(2,ib)),w(orhnew(3,ib)),w(orwgt),difa)
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1 3 is digit, dropped
+Cdelw1 4 is digit, dropped
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1 3 is digit, dropped
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1 3 is digit, dropped
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
+Cdelw1         call pvmix4(nr,nlml,nsp,w(ori),locmix,wt,beta,ib,
+Cdelw1      .    w(orsm(1)),w(orsm(2)),w(orsm(3)),w(orsm(4)),
+Cdelw1      .    w(orhold(1,ib)),w(orhold(2,ib)),w(orhold(3,ib)),
+Cdelw1      .    w(orhnew(1,ib)),w(orhnew(2,ib)),w(orhnew(3,ib)),w(orwgt),difa)
+         call pvmix4 ( nr , nlml , nsp , rv_w_ori , locmix , wt , beta 
+     .   , ib , w ( orsm ( 1 ) ) , w ( orsm ( 2 ) ) , w ( orsm ( 3 ) ) 
+     .   , w ( orsm ( 4 ) ) , w ( orhold ( 1 , ib ) ) , w ( orhold ( 2 
+     .   , ib ) ) , w ( orhold ( 3 , ib ) ) , w ( orhnew ( 1 , ib ) ) 
+     .   , w ( orhnew ( 2 , ib ) ) , w ( orhnew ( 3 , ib ) ) , rv_w_orwgt 
+     .   , difa ) 
+
         difx  = dmax1(difx,difa)
 
-        call rlse(ori)
+Cdelw1 rlse name= ori old_list= ori orwgt orsm 
+Cdelw1 rlse name= ori new_list= (None)
+Cdelw1 not deallocate orsm because of [array wref call]
+Cdelw1         call rlse(ori)
+         if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+         if (allocated(rv_w_ori)) deallocate(rv_w_ori)
+         call rlse(orsm)
+
    10   continue
       enddo
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [orsm orhold orhnew]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvmix3 
 
 
@@ -1233,6 +1653,9 @@ C       call prrmsh('rho1 after lin mix',ri,rho1,nr,nr,nlml*nsp)
 C       call prrmsh('rho2 after lin mix',ri,rho2,nr,nr,nlml*nsp)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvmix4 
 
 
@@ -1336,6 +1759,8 @@ C ... Passed parameters
       logical lbin
       integer ng,ng0,nda,nmix,mxsav,ifi,nbas,nr,nsp,cnst(0:1),locmix,
      .  k9,kmxr,nlm0
+Cdelw1 do not change  [['call'], 'orhold', 'pvmix5']
+Cdelw1 do not change  [['call'], 'orhnew', 'pvmix5']
       integer orhold(3,1),orhnew(3,1)
       double precision a(nda,nsp,mxsav+2,2),rms2,rmsdel
 Cgetarg       double precision ssite(1),sspec(1),co(2,ng,nsp),cn(2,ng,nsp),
@@ -1348,7 +1773,9 @@ Cgetarg      .  qkl(0:kmxr,nlm0,nsp,4,1)
 C ... Local parameters
       integer stdo,lgunit,ib,na,i,j,k,m,np,iprint,nmixr,is,igetss,
      .  awrite,off,nlml,lmxl,k9l
-      integer orofi
+Cdelw1       integer orofi
+       real(8) ,allocatable :: rv_w_orofi(:)
+
       logical lcnst,lfdmp,lddump
       double precision ddot,rmt,aat,rf
 
@@ -1400,15 +1827,24 @@ Cgetarg         call upack('spec a nr rmt lmxl',sspec,is,aat,nr,rmt,lmxl)
         if (lmxl .eq. -1) cycle
         rf = rmt/3
         nlml = (lmxl+1)**2
-        call defrr(orofi, nr)
-        call radmsh(rmt,aat,nr,w(orofi))
+Cdelw1         call defrr(orofi, nr)
+         allocate(rv_w_orofi(nr))
+         if (nr<0) rv_w_orofi(:)=0.0d0
+
+Cdelw1         call radmsh(rmt,aat,nr,w(orofi))
+         call radmsh ( rmt , aat , nr , rv_w_orofi ) 
+
 
 C   ... If site is constrained, freeze density at rhold (not checked)
         if (lcnst) then
           if (cnst(ib) .ne. 0) then
             do  i = 1, nsp
             off = 1+nr*nlml*(i-1)
+Cdelw1 1 is digit, dropped
+Cdelw1 1 is digit, dropped
             call dpscop(w(orhold(1,ib)),w(orhnew(1,ib)),nr,off,off,1d0)
+Cdelw1 2 is digit, dropped
+Cdelw1 2 is digit, dropped
             call dpscop(w(orhold(2,ib)),w(orhnew(2,ib)),nr,off,off,1d0)
             enddo
           endif
@@ -1427,18 +1863,32 @@ C       NB: Increment na after all actions takend w/ local densities
 
 C         Scaling rho1+rho2, old and new densities
           k9l = k9 - mod(k9,10)
-          call pvmix9(k9l,0,nr,nlml*nsp,0,rf,w(orofi),w(orhold(1,ib)),
-     .      w(orhold(2,ib)))
-          call pvmix9(k9l,0,nr,nlml*nsp,0,rf,w(orofi),w(orhnew(1,ib)),
-     .      w(orhnew(2,ib)))
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1           call pvmix9(k9l,0,nr,nlml*nsp,0,rf,w(orofi),w(orhold(1,ib)),
+Cdelw1      .      w(orhold(2,ib)))
+           call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rv_w_orofi 
+     .     , w ( orhold ( 1 , ib ) ) , w ( orhold ( 2 , ib ) ) ) 
+
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1           call pvmix9(k9l,0,nr,nlml*nsp,0,rf,w(orofi),w(orhnew(1,ib)),
+Cdelw1      .      w(orhnew(2,ib)))
+           call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rv_w_orofi 
+     .     , w ( orhnew ( 1 , ib ) ) , w ( orhnew ( 2 , ib ) ) ) 
+
 C         call prrmsh('1 post',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
 C         call prrmsh('2 post',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
 C         Copy (scaled) spherical part of rho1+rho2, rho1-rho2 to a
           do  i = 1, nsp
             off = 1+nr*nlml*(i-1)
+Cdelw1 1 is digit, dropped
             call dpscop(w(orhold(1,ib)),a(na+00,i,1,2),nr,off,1,1d0)
+Cdelw1 2 is digit, dropped
             call dpscop(w(orhold(2,ib)),a(na+nr,i,1,2),nr,off,1,1d0)
+Cdelw1 1 is digit, dropped
             call dpscop(w(orhnew(1,ib)),a(na+00,i,1,1),nr,off,1,1d0)
+Cdelw1 2 is digit, dropped
             call dpscop(w(orhnew(2,ib)),a(na+nr,i,1,1),nr,off,1,1d0)
           enddo
 
@@ -1504,10 +1954,20 @@ C         call prmx('qkl',qkl,1+kmxr,1+kmxr,nlm0*nsp)
 
 C       Undo scaling transformation of rho1+rho2
         if (locmix .le. 1 .or. locmix .eq. 3) then
-          call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(orofi),w(orhold(1,ib)),
-     .      w(orhold(2,ib)))
-          call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(orofi),w(orhnew(1,ib)),
-     .      w(orhnew(2,ib)))
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1           call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(orofi),w(orhold(1,ib)),
+Cdelw1      .      w(orhold(2,ib)))
+           call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rv_w_orofi 
+     .     , w ( orhold ( 1 , ib ) ) , w ( orhold ( 2 , ib ) ) ) 
+
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1           call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(orofi),w(orhnew(1,ib)),
+Cdelw1      .      w(orhnew(2,ib)))
+           call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rv_w_orofi 
+     .     , w ( orhnew ( 1 , ib ) ) , w ( orhnew ( 2 , ib ) ) ) 
+
 C         call prrmsh('1 rest',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
 C         call prrmsh('2 rest',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
         endif
@@ -1519,7 +1979,11 @@ C   ... Increment index na to a
           na = na + 2*np
         endif
 
-        call rlse(orofi)
+Cdelw1 rlse name= orofi old_list= orofi 
+Cdelw1 rlse name= orofi new_list= (None)
+Cdelw1         call rlse(orofi)
+         if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+
         enddo                     !Loop over sites
         na = na-1
         if (nda .ne. na) call rx('mixrho: bug in pvmix5')
@@ -1528,6 +1992,10 @@ C       call prmx('a',a,nda,na,1)
         rms2 = dsqrt(dabs(ddot(na,a,1,a,1)     -
      .             2*ddot(na,a,1,a(1,1,1,2),1) +
      .               ddot(na,a(1,1,1,2),1,a(1,1,1,2),1))/(na-0))*nsp
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [orhold orhnew]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
         if (mxsav .eq. 0) return
 C   ... File I/O of previous iterations; nmixr is number actually read
         nmixr = 0
@@ -1663,6 +2131,10 @@ C       call prm('a after write',a,nda*nsp,nda*nsp,(mxsav+2)*2)
       endif
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [orhold orhnew]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvmix5 
 
 
@@ -1746,6 +2218,9 @@ C ... Add the change relative to linear mixing
 C     sqmix = (a(1,0,1) - sqmix)*vol
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvmix6 
 
 
@@ -1798,6 +2273,7 @@ C     implicit none
 C ... Passed parameters
       integer nsp,n1,n2,n3,k1,k2,k3,ng,ng0,nda,na,nr,nbas,locmix,k9,
      .  kv(ng,3),ips0(ng),kmxr,nlm0
+Cdelw1 do not change  [['call'], 'orhold', 'pvmix7']
       integer orhold(3,1)
 Cgetarg       double precision ssite(1),sspec(1),gv(ng,3),a(nda,nsp),
 Cgetarg      .  qkl(0:kmxr,nlm0,nsp,4,nbas),rf,wt(2)
@@ -1808,7 +2284,11 @@ Cgetarg      .  qkl(0:kmxr,nlm0,nsp,4,nbas),rf,wt(2)
 
       double complex crho(ng,nsp),smrho(k1,k2,k3,nsp),wk(k1,k2,k3)
 C ... Local parameters
-      integer orofi,orwgt
+Cdelw1       integer orofi,orwgt
+       real(8) ,allocatable :: rv_w_orofi(:)
+       real(8) ,allocatable :: rv_w_orwgt(:)
+
+Cdelw1 do not change  [['array', 'wref', 'call'], 'orsm', 'pvmix7']
       integer ib,is,igetss,i,m,lmxl,nlml,off,np,k9l,orsm(2)
       double precision aat,rmt,rg,xx
 C ... Heap
@@ -1856,22 +2336,39 @@ Cgetarg         call upack2('spec rg',sspec,is,rg)
          rg=sspec(is)%rg
 
         nlml = (lmxl+1)**2
-        call defrr(orofi, nr)
-        call defrr(orwgt, nr)
-        call radmsh(rmt,aat,nr,w(orofi))
-        call radwgt(rmt,aat,nr,w(orwgt))
+Cdelw1         call defrr(orofi, nr)
+         allocate(rv_w_orofi(nr))
+         if (nr<0) rv_w_orofi(:)=0.0d0
+
+Cdelw1         call defrr(orwgt, nr)
+         allocate(rv_w_orwgt(nr))
+         if (nr<0) rv_w_orwgt(:)=0.0d0
+
+Cdelw1         call radmsh(rmt,aat,nr,w(orofi))
+         call radmsh ( rmt , aat , nr , rv_w_orofi ) 
+
+Cdelw1         call radwgt(rmt,aat,nr,w(orwgt))
+         call radwgt ( rmt , aat , nr , rv_w_orwgt ) 
+
 
 C       Scale rho1+rho2 to match scaled spherical parts and sm parts
 C       call prrmsh('1 mix7a',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
-        call pvmix9(k9l,0,nr,nlml*nsp,0,rf,w(orofi),
-     .    w(orhold(1,ib)),w(orhold(2,ib)))
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1         call pvmix9(k9l,0,nr,nlml*nsp,0,rf,w(orofi),
+Cdelw1      .    w(orhold(1,ib)),w(orhold(2,ib)))
+         call pvmix9 ( k9l , 0 , nr , nlml * nsp , 0 , rf , rv_w_orofi 
+     .   , w ( orhold ( 1 , ib ) ) , w ( orhold ( 2 , ib ) ) ) 
+
 C       call prrmsh('1 mix7b',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
 
 C       Overwrite sph. rhold with scaled mixed rho; do not unscale
         if (locmix .le. 1 .or. locmix .eq. 3) then
           do  i = 1, nsp
             off = 1 + nr*nlml*(i-1)
+Cdelw1 1 is digit, dropped
             call dpscop(a(na+00,i),w(orhold(1,ib)),nr,1,off,1d0)
+Cdelw1 2 is digit, dropped
             call dpscop(a(na+nr,i),w(orhold(2,ib)),nr,1,off,1d0)
 C            call pvmix9(k9l,-1,nr,1,off-1,rf,w(orofi),w(orhold(1,ib)),
 C     .        w(orhold(2,ib)))
@@ -1887,6 +2384,7 @@ C   ... Mixing mode 2,3: add mixed sm density to existing rhold
 C         call prrmsh('1 scale',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
           np = (1+kmxr)*nlml
           do  m = 1, 2
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
             call defrr(orsm(m),nr*nlml*nsp)
             do  i = 1, nsp
               call dpscop(a(na+np*(m-1),i),qkl(0,1,i,m,ib),np,1,1,1d0)
@@ -1894,34 +2392,64 @@ C         call prrmsh('1 scale',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
             i = 1001
             if (wt(1) .eq. 0) i = 11001
             if (wt(2) .eq. 0) i = 21001
-            call pkl2ro(i,1,rg,kmxr,nr,nlml,nsp,w(orofi),w(orwgt),
-     .        kmxr,nlm0,w,qkl(0,1,1,m,ib),w(orsm(m)),w,xx)
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
+Cdelw1             call pkl2ro(i,1,rg,kmxr,nr,nlml,nsp,w(orofi),w(orwgt),
+Cdelw1      .        kmxr,nlm0,w,qkl(0,1,1,m,ib),w(orsm(m)),w,xx)
+             call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , rv_w_orofi 
+     .       , rv_w_orwgt , kmxr , nlm0 , w , qkl ( 0 , 1 , 1 , m , ib ) , 
+     .       w ( orsm ( m ) ) , w , xx ) 
+
           enddo
 C         Don't undo scaling of smoothed density since rho1+rho2 scaled
 C          call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(orofi),
 C     .      w(orsm(1)),w(orsm(2)))
 C         Add to rhold(1,2)
+Cdelw1 1 is digit, dropped
+Cdelw1 1 is digit, dropped
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
           call daxpy(nr*nlml*nsp,1d0,w(orsm(1)),1,w(orhold(1,ib)),1)
+Cdelw1 2 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
           call daxpy(nr*nlml*nsp,1d0,w(orsm(2)),1,w(orhold(2,ib)),1)
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
           call rlse(orsm(2))
+Cdelw1 do not change orsm because of ['array', 'wref', 'call']
           call rlse(orsm(1))
 
           na = na + 2*np
         endif
 C       call prrmsh('1 mix7d',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
 
-        call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(orofi),w(orhold(1,ib)),
-     .    w(orhold(2,ib)))
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1         call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(orofi),w(orhold(1,ib)),
+Cdelw1      .    w(orhold(2,ib)))
+         call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , rv_w_orofi 
+     .   , w ( orhold ( 1 , ib ) ) , w ( orhold ( 2 , ib ) ) ) 
+
 
 C      call prrmsh('rho1,mixed',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
 C      call prrmsh('rho2,mixed',w(orofi),w(orhold(2,ib)),nr,nr,nlml*nsp)
 
-        call rlse(orofi)
+Cdelw1 rlse name= orofi old_list= orofi orwgt orsm 
+Cdelw1 rlse name= orofi new_list= (None)
+Cdelw1 not deallocate orsm because of [array wref call]
+Cdelw1         call rlse(orofi)
+         if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+         if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+         call rlse(orsm)
+
       enddo                     !Loop over sites
       na = na-1
       if (nda .ne. na) call rx('mixrho: bug in pvmix7')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [orhold orsm]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvmix7 
 
 
@@ -2020,6 +2548,9 @@ C ... Local parameters
       integer i,ilm,mode0,mode1
       double precision ri
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (mode .le. 0) return
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
@@ -2079,6 +2610,9 @@ C      call prrmsh('pvmix9 rho1',rofi,rho1,nr,nr,nlml)
 C      call prrmsh('pvmix9,rho2',rofi,rho2,nr,nr,nlml)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvmix9 
 
 

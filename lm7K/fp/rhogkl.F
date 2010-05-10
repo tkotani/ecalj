@@ -1,3 +1,7 @@
+Cdelw1 var ['orofi', '0', 'orofi', 'nrmx', 'real(8)', 'rv_w_', 'rhogkl']
+Cdelw1 var ['orwgt', '0', 'orwgt', 'nrmx', 'real(8)', 'rv_w_', 'rhogkl']
+Cdelw1 var ['oh', '1', 'oh', 'nr*(kmax+1)*(lmxl+1)', 'real(8)', 'rv_w_', 'rhogkl']
+Cdelw1 undel [['call'], 'orhoat', 'rhogkl']
 Cgetarg...info...           structure ['rhogkl', 'site', 'ssite']
 Cgetarg...info...           structure ['rhogkl', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['rhogkl', 'm_struc_def']
@@ -41,6 +45,7 @@ Cu   19 Oct 01 Adapted from rhomom.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
+Cdelw1 do not change  [['call'], 'orhoat', 'rhogkl']
       integer ib1,ib2,nsp,mode,orhoat(3,1),kmax
 Cgetarg       double precision ssite(1),sspec(1),qkl(0:kmax,1)
        real(8):: qkl(0:kmax,1) 
@@ -48,8 +53,14 @@ Cgetarg       double precision ssite(1),sspec(1),qkl(0:kmax,1)
        type(s_spec)::sspec(*)
 
 C ... Local parameters
-      integer stdo,ipr,iprint,lgunit,orofi,nrmx,orwgt,oh,
-     .  j1,ib,is,igetss,lmxl,nr,nlml,ilm,j,lfoc,k,l,m
+Cdelw1       integer stdo,ipr,iprint,lgunit,orofi,nrmx,orwgt,oh,
+Cdelw1      .  j1,ib,is,igetss,lmxl,nr,nlml,ilm,j,lfoc,k,l,m
+       integer:: stdo , ipr , iprint , lgunit , nrmx , j1 , ib , is 
+     . , igetss , lmxl , nr , nlml , ilm , j , lfoc , k , l , m 
+       real(8) ,allocatable :: rv_w_orofi(:)
+       real(8) ,allocatable :: rv_w_orwgt(:)
+       real(8) ,allocatable :: rv_w_oh(:)
+
       parameter( nrmx=1501)
       double precision z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
      .  ceh,rfoc,df(0:20)
@@ -60,8 +71,14 @@ C ... Heap
 C --- Setup ---
       ipr  = iprint()
       stdo = lgunit(1)
-      call defrr(orofi,nrmx)
-      call defrr(orwgt,nrmx)
+Cdelw1       call defrr(orofi,nrmx)
+       allocate(rv_w_orofi(nrmx))
+       if (nrmx<0) rv_w_orofi(:)=0.0d0
+
+Cdelw1       call defrr(orwgt,nrmx)
+       allocate(rv_w_orwgt(nrmx))
+       if (nrmx<0) rv_w_orwgt(:)=0.0d0
+
       call stdfac(20,df)
       if (ipr .ge. 40) write(stdo,221)
 
@@ -98,13 +115,32 @@ Cgetarg         call upack2('spec rg',sspec,is,rg)
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         qc = qcorg+qcorh
         nlml = (lmxl+1)**2
-        call radmsh(rmt,a,nr,w(orofi))
-        call radwgt(rmt,a,nr,w(orwgt))
-        call defrr(oh,   nr*(kmax+1)*(lmxl+1))
-        call pvrgkl(mode,kmax,nlml,nr,nsp,w(orofi),w(orwgt),
-     .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)),w(oh),
-     .    cofh,rg,ceh,rfoc,z,qkl(0,j1))
-        call rlse(oh)
+Cdelw1         call radmsh(rmt,a,nr,w(orofi))
+         call radmsh ( rmt , a , nr , rv_w_orofi ) 
+
+Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
+         call radwgt ( rmt , a , nr , rv_w_orwgt ) 
+
+Cdelw1         call defrr(oh,   nr*(kmax+1)*(lmxl+1))
+         allocate(rv_w_oh(nr*(kmax+1)*(lmxl+1)))
+         if (nr*(kmax+1)*(lmxl+1)<0) rv_w_oh(:)=0.0d0
+
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1 3 is digit, dropped
+Cdelw1         call pvrgkl(mode,kmax,nlml,nr,nsp,w(orofi),w(orwgt),
+Cdelw1      .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)),w(oh),
+Cdelw1      .    cofh,rg,ceh,rfoc,z,qkl(0,j1))
+         call pvrgkl ( mode , kmax , nlml , nr , nsp , rv_w_orofi , rv_w_orwgt 
+     .   , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
+     .   ( 3 , ib ) ) , rv_w_oh , cofh , rg , ceh , rfoc , z , qkl ( 0 
+     .   , j1 ) ) 
+
+Cdelw1 rlse name= oh old_list= orofi orwgt oh 
+Cdelw1 rlse name= oh new_list= orofi orwgt 
+Cdelw1         call rlse(oh)
+         if (allocated(rv_w_oh)) deallocate(rv_w_oh)
+
         if (ipr .ge. 40) then
           write(stdo,222) ib,0,1,(qkl(k,j1), k=0,kmax)
           ilm = 1
@@ -124,16 +160,32 @@ Cgetarg         call upack2('spec rg',sspec,is,rg)
 #if DEBUG
         if (ib .eq. 1) then
         print *, 'ib=',ib
-        call prtrkl(mode,kmax,rg,nr,nlml,nsp,w(orofi),w(orhoat(1,ib)),
-     .    w(orhoat(2,ib)),w(orhoat(3,ib)),qkl(0,j1))
+Cdelw1 1 is digit, dropped
+Cdelw1 2 is digit, dropped
+Cdelw1 3 is digit, dropped
+Cdelw1         call prtrkl(mode,kmax,rg,nr,nlml,nsp,w(orofi),w(orhoat(1,ib)),
+Cdelw1      .    w(orhoat(2,ib)),w(orhoat(3,ib)),qkl(0,j1))
+         call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rv_w_orofi 
+     .   , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
+     .   ( 3 , ib ) ) , qkl ( 0 , j1 ) ) 
+
         endif
 #endif
         j1 = j1+nlml
    10   continue
       enddo
 
-      call rlse(orofi)
+Cdelw1 rlse name= orofi old_list= orofi orwgt 
+Cdelw1 rlse name= orofi new_list= (None)
+Cdelw1       call rlse(orofi)
+       if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+       if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [orhoat]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine rhogkl 
 
 
@@ -294,6 +346,9 @@ C ... Scale to get coefficients of the G_kL; see radpkl
       enddo
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvrgkl 
 
 #if DEBUG
@@ -343,6 +398,9 @@ C       call radpkl(rofi(ir),rg,kmax,lmxl,kmax,g)
         call daxpy(nr*nlml*nsp,1d0,rho2,1,rho1,1)
       endif
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine prtrkl 
 
 #endif

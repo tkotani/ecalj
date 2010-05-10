@@ -1,3 +1,11 @@
+Cdelw1 var ['ocgr', '0', 'ocgr', 'ng*nsp', 'complex(8)', 'zv_w_', 'smshft']
+Cdelw1 var ['okv', '-1', 'undef', '0', 'undef', 'x', 'smshft']
+Cdelw1 var ['ocgs', '0', 'ocgs', 'ng*nsp', 'complex(8)', 'zv_w_', 'smshft']
+Cdelw1 var ['ocwk', '0', 'ocwk', 'ng', 'complex(8)', 'zv_w_', 'smshft']
+Cdelw1 var ['ogv', '-1', 'undef', '0', 'undef', 'x', 'smshft']
+Cdelw1 undel [['undef', 'wref'], 'okv', 'smshft']
+Cdelw1 undel [['undef', 'wref'], 'ogv', 'smshft']
+Cdelw1 undel [['call'], 'orhoat', 'pvsms1']
 Cgetarg...info...           structure ['smshft', 'ctrl', 'sctrl']
 Cgetarg...info...           structure ['smshft', 'lat', 'slat']
 Cgetarg...info...           structure ['smshft', 'site', 'ssite']
@@ -66,7 +74,14 @@ Cgetarg       double precision ssite(1),sspec(1),slat(1),sctrl(1),sham(1)
 C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
      .  n2,n3,nbas,ng,ngabc(3),nglob,nsp
-      integer ocgr,ocgs,ocwk,ogv,okv
+Cdelw1 do not change  [['undef', 'wref'], 'ogv', 'smshft']
+Cdelw1 do not change  [['undef', 'wref'], 'okv', 'smshft']
+Cdelw1       integer ocgr,ocgs,ocwk,ogv,okv
+       integer:: ogv , okv 
+       complex(8) ,allocatable :: zv_w_ocgr(:)
+       complex(8) ,allocatable :: zv_w_ocgs(:)
+       complex(8) ,allocatable :: zv_w_ocwk(:)
+
       integer kmax,job
       parameter (n0=10)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -80,6 +95,10 @@ C     stdo = lgunit(1)
 Cgetarg       job = igets('ctrl lfrce',sctrl)
        job = int(sctrl%lfrce) 
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [okv ogv]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (job .le. 0) return
 
       call tcn('smshft')
@@ -108,29 +127,56 @@ Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
        i_copy_size=size(slat%nabc) 
        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
        ng=slat%ng
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 111
+Cdelw1 do not change ogv because of ['undef', 'wref']
        ogv=slat%ogv
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 112
+Cdelw1 do not change okv because of ['undef', 'wref']
        okv=slat%okv
        vol=slat%vol
 
-c      call fftz30(n1,n2,n3,k1,k2,k3)
-      k1 = n1
-      k2 = n2
-      k3 = n3
-
+      call fftz30(n1,n2,n3,k1,k2,k3)
 C     call zprm3('input smrho',0,smrho,k1,k2,k3)
 
 C ... Hold on to original smrho (cgr)
-      call defcc (ocgr,  ng*nsp)
+Cdelw1       call defcc (ocgr,  ng*nsp)
+       allocate(zv_w_ocgr(ng*nsp))
+       if (ng*nsp<0) zv_w_ocgr(:)=0.0d0
+
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-      call gvgetf(ng,nsp,w(okv),k1,k2,k3,smrho,w(ocgr))
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 121
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 121
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1       call gvgetf(ng,nsp,w(okv),k1,k2,k3,smrho,w(ocgr))
+       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smrho , zv_w_ocgr 
+     . ) 
+
 
 C --- Shift in unscreened density at the two positions ---
-      call defcc (ocgs, ng*nsp)
-      call defcc (ocwk, ng)
+Cdelw1       call defcc (ocgs, ng*nsp)
+       allocate(zv_w_ocgs(ng*nsp))
+       if (ng*nsp<0) zv_w_ocgs(:)=0.0d0
+
+Cdelw1       call defcc (ocwk, ng)
+       allocate(zv_w_ocwk(ng))
+       if (ng<0) zv_w_ocwk(:)=0.0d0
+
       kmax = 0
-      call pvsms1(ssite,sspec,slat,nbas,nsp,kmax,
-     .  ng,w(ogv),orhoat,w(ocwk),w(ocgs),job)
-      call rlse(ocwk)
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 127
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 127
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1       call pvsms1(ssite,sspec,slat,nbas,nsp,kmax,
+Cdelw1      .  ng,w(ogv),orhoat,w(ocwk),w(ocgs),job)
+       call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
+     . w ( ogv ) , orhoat , zv_w_ocwk , zv_w_ocgs , job ) 
+
+Cdelw1 rlse name= ocwk old_list= ocgr ocgs ocwk 
+Cdelw1 rlse name= ocwk new_list= ocgr ocgs 
+Cdelw1       call rlse(ocwk)
+       if (allocated(zv_w_ocwk)) deallocate(zv_w_ocwk)
+
 
 C ... Debugging: print unscreened shift in pseudo core density
 C      call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocgs),smrho)
@@ -169,17 +215,37 @@ Cgetarg         elind = dgets('ham elind',sham)
          elind = sham%elind 
 
         if (elind .lt. 0d0) elind = -(3*pi**2*qval/vol)**.66666d0*elind
-        if (nsp.eq.2) call dsumdf(ng*2,1d0,w(ocgs),0,1,w(ocgs),ng*2,1)
+Cdelw1         if (nsp.eq.2) call dsumdf(ng*2,1d0,w(ocgs),0,1,w(ocgs),ng*2,1)
+         if ( nsp.eq.2 ) call dsumdf ( ng * 2 , 1d0 , zv_w_ocgs , 0 , 
+     .   1 , zv_w_ocgs , ng * 2 , 1 ) 
+
 C        call lindxx(122,n1,n2,n3,k1,k2,k3,ng,w(okv),w(ocgs),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
-        call lindsc(2,ng,w(ogv),tpiba,elind,w(ocgs))
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 171
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 171
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1         call lindsc(2,ng,w(ogv),tpiba,elind,w(ocgs))
+         call lindsc ( 2 , ng , w ( ogv ) , tpiba , elind , zv_w_ocgs 
+     .   ) 
+
 C        call dscal(2*ng,.001d0,w(ocgs),1)
 
-        if (nsp.eq.2) call dsumdf(ng*2,.5d0,w(ocgs),0,1,w(ocgs),ng*2,1)
+Cdelw1         if (nsp.eq.2) call dsumdf(ng*2,.5d0,w(ocgs),0,1,w(ocgs),ng*2,1)
+         if ( nsp.eq.2 ) call dsumdf ( ng * 2 , .5d0 , zv_w_ocgs , 0 , 
+     .   1 , zv_w_ocgs , ng * 2 , 1 ) 
+
       endif
 
 C ... Debugging: show delta smrho
-      call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocgs),smrho)
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 178
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 178
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1       call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocgs),smrho)
+       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , zv_w_ocgs 
+     . , smrho ) 
+
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 C      call zprm3('screened delta smrho',0,smrho,k1,k2,k3)
 C      print *, 'returning with delta smrho'
@@ -187,10 +253,22 @@ C      return
 
 C --- Add shift to smrho, ensuring no shift in <rho> ---
       do  i = 1, nsp
-        call dvset(w(ocgs),1+ng*(i-1),1+ng*(i-1),0d0)
+Cdelw1         call dvset(w(ocgs),1+ng*(i-1),1+ng*(i-1),0d0)
+         call dvset ( zv_w_ocgs , 1 + ng * ( i - 1 ) , 1 + ng * ( i - 
+     .   1 ) , 0d0 ) 
+
       enddo
-      call dpadd(w(ocgr),w(ocgs),1,ng*2*nsp,1d0)
-      call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocgr),smrho)
+Cdelw1       call dpadd(w(ocgr),w(ocgs),1,ng*2*nsp,1d0)
+       call dpadd ( zv_w_ocgr , zv_w_ocgs , 1 , ng * 2 * nsp , 1d0 ) 
+
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 189
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 189
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1       call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocgr),smrho)
+       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , zv_w_ocgr 
+     . , smrho ) 
+
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 
 C --- Symmetrize the shifted density ---
@@ -199,10 +277,19 @@ C --- Symmetrize the shifted density ---
       if (iprint() .gt. 100)
      .  call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
 
-      call rlse(ocgr)
+Cdelw1 rlse name= ocgr old_list= ocgr ocgs 
+Cdelw1 rlse name= ocgr new_list= (None)
+Cdelw1       call rlse(ocgr)
+       if (allocated(zv_w_ocgs)) deallocate(zv_w_ocgs)
+       if (allocated(zv_w_ocgr)) deallocate(zv_w_ocgr)
+
       call tcx('smshft')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [okv ogv]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine smshft 
 
 
@@ -287,6 +374,7 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
+Cdelw1 do not change  [['call'], 'orhoat', 'pvsms1']
       integer nbas,nsp,ng,job,orhoat(3,1)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),gv(ng,3)
        real(8):: gv(ng,3) 
@@ -410,7 +498,9 @@ Cgetarg      .      rsmfa)
           call gtpcor(sspec,is,kcor,lcor,qcor)
           if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
           call radwgt(rmt,a,nr,rwgt)
+Cdelw1 1 is digit, dropped
           call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(1,ib)),qloc)
+Cdelw1 2 is digit, dropped
           call radsum(nr,nr,nlml,nsp,rwgt,w(orhoat(2,ib)),sum)
           qloc = (qloc-sum)/y0
           qfat = 0d0
@@ -492,6 +582,10 @@ C     ... Add to cg
 
       call tcx('pvsms1')
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [orhoat]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pvsms1 
 
 

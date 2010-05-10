@@ -1,3 +1,9 @@
+Cdelw1 var ['og', '4', 'og', 'nr*2', 'real(8)', 'rv_w_', 'pnunew']
+Cdelw1 var ['orofi', '4', 'orofi', 'nr*2', 'real(8)', 'rv_w_', 'pnunew']
+Cdelw1 var ['ov0i', '4', 'ov0i', 'nr', 'real(8)', 'rv_w_', 'pnunew']
+Cdelw1 var ['ov0', '-1', 'undef', '0', 'undef', 'x', 'pnunew']
+Cdelw1 var ['ogp', '5', 'ogp', '8*nr', 'real(8)', 'rv_w_', 'pnunew']
+Cdelw1 undel [['undef', 'wref'], 'ov0', 'pnunew']
 Cgetarg...info...           structure ['pnunew', 'site', 'ssite']
 Cgetarg...info...           structure ['pnunew', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['pnunew', 'm_struc_def']
@@ -58,8 +64,16 @@ Cgetarg      .  sab(nab,n0,nsp,nbas),hab(nab,n0,nsp,nbas)
 
 C ... Local parameters
       logical lpz,lfrzv,lfrzz
-      integer idmod(n0),stdo,lgunit,ipr,ib,is,lmxa,l,ipqn,m,isp,ov0,nr,
-     .  nn,og,ogp,orofi,ov0i,mxcst
+Cdelw1 do not change  [['undef', 'wref'], 'ov0', 'pnunew']
+Cdelw1       integer idmod(n0),stdo,lgunit,ipr,ib,is,lmxa,l,ipqn,m,isp,ov0,nr,
+Cdelw1      .  nn,og,ogp,orofi,ov0i,mxcst
+       integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
+     . l , ipqn , m , isp , ov0 , nr , nn , mxcst 
+       real(8) ,allocatable :: rv_w_og(:)
+       real(8) ,allocatable :: rv_w_ogp(:)
+       real(8) ,allocatable :: rv_w_orofi(:)
+       real(8) ,allocatable :: rv_w_ov0i(:)
+
       double precision pi,rmt,p1,ebar,a,d0l,pfree,pold,ptry,z,
      .  val(5),slo(5),dl,phi,dphi,pnu(n0,2),pnz(n0,2)
       double precision ez,umegam,phip,dphip,dlphi,dlphip,cz
@@ -88,6 +102,8 @@ Cgetarg         call upack('site spec pnu pz ov0',ssite,ib,is,pnu,pnz,ov0)
          call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
          i_copy_size=size(ssite(ib)%pz) 
          call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 91
+Cdelw1 do not change ov0 because of ['undef', 'wref']
          ov0=ssite(ib)%ov0
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
@@ -144,22 +160,47 @@ Cgetarg             call upack('spec z a nr',sspec,is,z,a,nr,0)
              a=sspec(is)%a
              nr=sspec(is)%nr
 
-            call defrr(og,nr*2)
-            call defrr(orofi,nr*2)
-            call radmsh(rmt,a,nr,w(orofi))
-            call defrr(ov0i,nr)
-            call dpscop(w(ov0),w(ov0i),nr,1+nr*(isp-1),1,1d0)
+Cdelw1             call defrr(og,nr*2)
+             allocate(rv_w_og(nr*2))
+             if (nr*2<0) rv_w_og(:)=0.0d0
+
+Cdelw1             call defrr(orofi,nr*2)
+             allocate(rv_w_orofi(nr*2))
+             if (nr*2<0) rv_w_orofi(:)=0.0d0
+
+Cdelw1             call radmsh(rmt,a,nr,w(orofi))
+             call radmsh ( rmt , a , nr , rv_w_orofi ) 
+
+Cdelw1             call defrr(ov0i,nr)
+             allocate(rv_w_ov0i(nr))
+             if (nr<0) rv_w_ov0i(:)=0.0d0
+
+Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 151
+Cdelw1 do not change ov0 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 151
+Cdelw1 do not change ov0 because of ['undef', 'wref']
+Cdelw1             call dpscop(w(ov0),w(ov0i),nr,1+nr*(isp-1),1,1d0)
+             call dpscop ( w ( ov0 ) , rv_w_ov0i , nr , 1 + nr * ( isp - 1 
+     .       ) , 1 , 1d0 ) 
+
 
             if (mod(idmod(m),10) .eq. 3) then
               val(1) = rmt
               dl = dtan(pi*(0.5d0-mod(pnu(m,isp),10d0)))
               slo(1) = dl + 1d0
               nn = int(mod(pnu(m,1),10d0))-l-1
-              call defdr(ogp,8*nr)
+Cdelw1               call defdr(ogp,8*nr)
+               allocate(rv_w_ogp(8*nr))
+               if (8*nr<0) rv_w_ogp(:)=0.0d0
+
 C             xx = dval(w(ov0i),nr)
-              call phidx(0,z,l,w(ov0i),0d0,0d0,w(orofi),nr,2,1d-12,ebar,
-     .          val,slo,nn,w(og),w(ogp),phi,dphi,phip,dphip,xx,xx,xx,
-     .          xx,xx)
+Cdelw1               call phidx(0,z,l,w(ov0i),0d0,0d0,w(orofi),nr,2,1d-12,ebar,
+Cdelw1      .          val,slo,nn,w(og),w(ogp),phi,dphi,phip,dphip,xx,xx,xx,
+Cdelw1      .          xx,xx)
+               call phidx ( 0 , z , l , rv_w_ov0i , 0d0 , 0d0 , rv_w_orofi , 
+     .         nr , 2 , 1d - 12 , ebar , val , slo , nn , rv_w_og , rv_w_ogp 
+     .         , phi , dphi , phip , dphip , xx , xx , xx , xx , xx ) 
+
 C         ... cz = estimate for energy of orbital with b.c. connecting
 C             to Hankel of energy 0
               dlphi = rmt*dphi/phi
@@ -177,8 +218,12 @@ C             val(1) = rmt
 C             slo(1) = dl + 1d0
             endif
 
-            call phidx(2,z,l,w(ov0i),0d0,0d0,w(orofi),nr,0,1d-12,ebar,
-     .        val,slo,nn,w(og),w,phi,dphi,w,w,w,w,w,w,w)
+Cdelw1             call phidx(2,z,l,w(ov0i),0d0,0d0,w(orofi),nr,0,1d-12,ebar,
+Cdelw1      .        val,slo,nn,w(og),w,phi,dphi,w,w,w,w,w,w,w)
+             call phidx ( 2 , z , l , rv_w_ov0i , 0d0 , 0d0 , rv_w_orofi , 
+     .       nr , 0 , 1d - 12 , ebar , val , slo , nn , rv_w_og , w , phi 
+     .       , dphi , w , w , w , w , w , w , w ) 
+
 C           dphip = (slo(2)-phip)/rmt
             if (nn .eq. int(pnu(m,1))-l-1) then
               dl = rmt*slo(1)/val(1) - 1
@@ -197,10 +242,17 @@ C       ... Estimate new pnz for semicore state
               dnz = dtan(pi*(0.5d0-mod(pnz(m,isp),10d0)))
               slo(1) = dnz + 1d0
               nn = int(mod(pnz(m,1),10d0))-l-1
-              call defdr(ogp,8*nr)
-              call phidx(0,z,l,w(ov0i),0d0,0d0,w(orofi),nr,2,1d-12,ez,
-     .          val,slo,nn,w(og),w(ogp),phi,dphi,phip,dphip,xx,xx,xx,
-     .          xx,xx)
+Cdelw1               call defdr(ogp,8*nr)
+               allocate(rv_w_ogp(8*nr))
+               if (8*nr<0) rv_w_ogp(:)=0.0d0
+
+Cdelw1               call phidx(0,z,l,w(ov0i),0d0,0d0,w(orofi),nr,2,1d-12,ez,
+Cdelw1      .          val,slo,nn,w(og),w(ogp),phi,dphi,phip,dphip,xx,xx,xx,
+Cdelw1      .          xx,xx)
+               call phidx ( 0 , z , l , rv_w_ov0i , 0d0 , 0d0 , rv_w_orofi , 
+     .         nr , 2 , 1d - 12 , ez , val , slo , nn , rv_w_og , rv_w_ogp , 
+     .         phi , dphi , phip , dphip , xx , xx , xx , xx , xx ) 
+
 C             dphip = (slo(2)-phip)/rmt
               dlphi = rmt*dphi/phi
               dlphip = rmt*dphip/phip
@@ -222,7 +274,14 @@ C             when cz -> 0,  dl -> -l-1
               pznew = 0.5d0 - datan(dble(l))/pi
               ez = 0
             endif
-            call rlse(og)
+Cdelw1 rlse name= og old_list= og orofi ov0i ogp 
+Cdelw1 rlse name= og new_list= (None)
+Cdelw1             call rlse(og)
+             if (allocated(rv_w_ogp)) deallocate(rv_w_ogp)
+             if (allocated(rv_w_ov0i)) deallocate(rv_w_ov0i)
+             if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+             if (allocated(rv_w_og)) deallocate(rv_w_og)
+
 
 C       ... First root of quad equation is the one we want
 C           huu = hab(1,m,isp,ib)
@@ -318,6 +377,10 @@ Cgetarg         call pack5('site pnu pz',ssite,ib,pnu,pnz,0,0)
       enddo
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [ov0]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pnunew 
 
 

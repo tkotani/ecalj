@@ -1,4 +1,10 @@
 c takao modified this based on delw_2.2.
+      subroutine fftz30(n1,n2,n3,k1,k2,k3)
+      k1=n1
+      k2=n2
+      k3=n3
+      end
+
       subroutine fftz3(c,n1,n2,n3,k1,k2,k3,nfft,iset,isig)
 C     implicit none
       integer n1,n2,n3,k1,k2,k3,nfft,iset,isig

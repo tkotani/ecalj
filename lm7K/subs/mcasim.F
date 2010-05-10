@@ -1,3 +1,23 @@
+Cdelw1 var ['orham', '0', 'orham', 'nspec', 'real(8)', 'rv_w_', 'mcasim']
+Cdelw1 var ['opos', '-1', 'undef', '0', 'undef', 'x', 'mcasim']
+Cdelw1 var ['oips', '-1', 'undef', '0', 'undef', 'x', 'mcasim']
+Cdelw1 var ['ortab', '0', 'ortab', '3*nttab', 'real(8)', 'rv_w_', 'mcasim']
+Cdelw1 var ['oiax', '-1', 'undef', '0', 'undef', 'x', 'mcasim']
+Cdelw1 var ['oesite', '0', 'oesite', 'nbasp', 'real(8)', 'rv_w_', 'mcasim']
+Cdelw1 var ['oisite', '0', 'oisite', 'nbasp', 'integer', 'iv_w_', 'mcasim']
+Cdelw1 var ['oepair', '0', 'oepair', 'nttab', 'real(8)', 'rv_w_', 'mcasim']
+Cdelw1 var ['oipair', '0', 'oipair', 'nttab', 'integer', 'iv_w_', 'mcasim']
+Cdelw1 var ['ontab', '-1', 'undef', '0', 'undef', 'x', 'mcasim']
+Cdelw1 var ['oiprm', '0', 'oiprm', 'nbasp', 'integer', 'iv_w_', 'mcasim']
+Cdelw1 var ['oiprmi', '0', 'oiprmi', 'nbasp', 'integer', 'iv_w_', 'mcasim']
+Cdelw1 var ['osigb', '0', 'osigb', 'nbasp', 'integer', 'iv_w_', 'mcasim']
+Cdelw1 var ['osigl', '0', 'osigl', 'nbasp', 'integer', 'iv_w_', 'mcasim']
+Cdelw1 var ['osigma', '0', 'osigma', 'nbasp', 'integer', 'iv_w_', 'mcasim']
+Cdelw1 undel [['undef', 'wref'], 'opos', 'mcasim']
+Cdelw1 undel [['undef', 'wref'], 'oips', 'mcasim']
+Cdelw1 undel [['undef', 'wref'], 'oiax', 'mcasim']
+Cdelw1 undel [['undef', 'wref'], 'ontab', 'mcasim']
+Cdelw1 undel [['wref'], 'oiprm', 'mcasim']
 Cgetarg...info...           structure ['mcasim', 'ctrl', 'sctrl']
 Cgetarg...info...           structure ['mcasim', 'lat', 'slat']
 Cgetarg...info...           structure ['mcasim', 'array', 'sarray']
@@ -41,9 +61,28 @@ Cgetarg       double precision sctrl(1),sspec(1),slat(1),sarray(1),smove(1)
 
 C Local
       logical cmdopt
-      integer i,i1,i2,igets,iosiga,j,lpbc,ltype(2),nbas,nbasp,
-     .  nspec,nttab,ntype(2),oepair,oesite,oiax,oipair,oiprm,oiprmi,
-     .  oips,oisite,ontab,opgfsl,opos,orham,ortab,osigb,osigl,osigma
+Cdelw1 do not change  [['undef', 'wref'], 'oiax', 'mcasim']
+Cdelw1 do not change  [['wref'], 'oiprm', 'mcasim']
+Cdelw1 do not change  [['undef', 'wref'], 'oips', 'mcasim']
+Cdelw1 do not change  [['undef', 'wref'], 'ontab', 'mcasim']
+Cdelw1 do not change  [['undef', 'wref'], 'opos', 'mcasim']
+Cdelw1       integer i,i1,i2,igets,iosiga,j,lpbc,ltype(2),nbas,nbasp,
+Cdelw1      .  nspec,nttab,ntype(2),oepair,oesite,oiax,oipair,oiprm,oiprmi,
+Cdelw1      .  oips,oisite,ontab,opgfsl,opos,orham,ortab,osigb,osigl,osigma
+       integer:: i , i1 , i2 , igets , iosiga , j , lpbc , ltype(2) 
+     . , nbas , nbasp , nspec , nttab , ntype(2) , oiax , oiprm , oips 
+     . , ontab , opgfsl , opos 
+       real(8) ,allocatable :: rv_w_oepair(:)
+       real(8) ,allocatable :: rv_w_oesite(:)
+       integer ,allocatable :: iv_w_oipair(:)
+       integer ,allocatable :: iv_w_oiprmi(:)
+       integer ,allocatable :: iv_w_oisite(:)
+       real(8) ,allocatable :: rv_w_orham(:)
+       real(8) ,allocatable :: rv_w_ortab(:)
+       integer ,allocatable :: iv_w_osigb(:)
+       integer ,allocatable :: iv_w_osigl(:)
+       integer ,allocatable :: iv_w_osigma(:)
+
       character htype(2)*5, outs*80
       double precision alat,plat(3,3),avw
 C ... Heap
@@ -79,14 +118,24 @@ Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
 Cgetarg       call upack('array opgfsl oips opos',sarray,opgfsl,oips,opos,0,0)
        
 c       opgfsl=sarray%opgfsl
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 82
+Cdelw1 do not change oips because of ['undef', 'wref']
        oips=sarray%oips
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 83
+Cdelw1 do not change opos because of ['undef', 'wref']
        opos=sarray%opos
 
-      call defrr(orham,nspec)
+Cdelw1       call defrr(orham,nspec)
+       allocate(rv_w_orham(nspec))
+       if (nspec<0) rv_w_orham(:)=0.0d0
+
 Cgetarg       call spackv(10,'spec rham',sspec,1,nspec,w(orham))
        i_copy_size=1; 
        do i_spackv=1,nspec 
-       call spackv_array_copy_r8_r8('u',sspec(i_spackv)%rham,i_copy_size,i_spackv+1-1,w(orham))
+Cdelw1        call spackv_array_copy_r8_r8('u',sspec(i_spackv)%rham,i_copy_size,i_spackv+1-1,w(orham))
+        call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rham 
+     .  , i_copy_size , i_spackv + 1 - 1 , rv_w_orham ) 
+
        enddo
 
 Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
@@ -108,52 +157,235 @@ C --- Make iax and rtab ---
       mxcsiz = 0
 c      call pairs(nbas,nbasp,alat,plat,w(orham),w(opos),
 c     .  w(oips),i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
-      call pairs(nbas,nbasp,alat,plat,w(orham),w(opos),
-     .  w(oips),i,j,w_dummy,nttab,ontab,oiax,mxcsiz)
-      call defrr(ortab,3*nttab)
-      call mkrtab(000,alat,plat,w(opos),w(oiax),nttab,w(opos),w(ortab))
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 111
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 111
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 111
+Cdelw1 do not change oiax because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 111
+Cdelw1 do not change ontab because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 111
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 111
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 111
+Cdelw1 do not change oiax because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 111
+Cdelw1 do not change ontab because of ['undef', 'wref']
+Cdelw1       call pairs(nbas,nbasp,alat,plat,w(orham),w(opos),
+Cdelw1      .  w(oips),i,j,w_dummy,nttab,ontab,oiax,mxcsiz)
+       call pairs ( nbas , nbasp , alat , plat , rv_w_orham , w ( opos 
+     . ) , w ( oips ) , i , j , w_dummy , nttab , ontab , oiax , mxcsiz 
+     . ) 
+
+Cdelw1       call defrr(ortab,3*nttab)
+       allocate(rv_w_ortab(3*nttab))
+       if (3*nttab<0) rv_w_ortab(:)=0.0d0
+
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 114
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 114
+Cdelw1 do not change oiax because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 114
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 114
+Cdelw1 do not change oiax because of ['undef', 'wref']
+Cdelw1       call mkrtab(000,alat,plat,w(opos),w(oiax),nttab,w(opos),w(ortab))
+       call mkrtab ( 000 , alat , plat , w ( opos ) , w ( oiax ) , nttab 
+     . , w ( opos ) , rv_w_ortab ) 
+
 
 C --- Make the Hamiltonian ---
-      call defrr(oesite, nbasp)
-      call defi(oisite,  nbasp)
-      call defrr(oepair, nttab)
-      call defi(oipair,  nttab)
+Cdelw1       call defrr(oesite, nbasp)
+       allocate(rv_w_oesite(nbasp))
+       if (nbasp<0) rv_w_oesite(:)=0.0d0
+
+Cdelw1       call defi(oisite,  nbasp)
+       allocate(iv_w_oisite(nbasp))
+       if (nbasp<0) iv_w_oisite(:)=0
+
+Cdelw1       call defrr(oepair, nttab)
+       allocate(rv_w_oepair(nttab))
+       if (nttab<0) rv_w_oepair(:)=0.0d0
+
+Cdelw1       call defi(oipair,  nttab)
+       allocate(iv_w_oipair(nttab))
+       if (nttab<0) iv_w_oipair(:)=0
+
       call upacks('strn mmham',i1,i2)
       ntype(1) = 1
       ntype(2) = 1
       ltype(1) = 1
       ltype(2) = 1
-      call suemph(sspec,sstrn(i1:i2),w(ontab),w(oiax),w(ortab),nbasp,
-     .  nttab,w(oips),ntype,ltype,htype,w(oesite),w(oisite),w(oepair),
-     .  w(oipair))
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 126
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 126
+Cdelw1 do not change oiax because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 126
+Cdelw1 do not change ontab because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 126
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 126
+Cdelw1 do not change oiax because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 126
+Cdelw1 do not change ontab because of ['undef', 'wref']
+Cdelw1       call suemph(sspec,sstrn(i1:i2),w(ontab),w(oiax),w(ortab),nbasp,
+Cdelw1      .  nttab,w(oips),ntype,ltype,htype,w(oesite),w(oisite),w(oepair),
+Cdelw1      .  w(oipair))
+       call suemph ( sspec , sstrn ( i1:i2 ) , w ( ontab ) , w ( oiax 
+     . ) , rv_w_ortab , nbasp , nttab , w ( oips ) , ntype , ltype , 
+     . htype , rv_w_oesite , iv_w_oisite , rv_w_oepair , iv_w_oipair 
+     . ) 
+
 
 C --- sigmas, permutation table from file; if missing create and exit---
+Cdelw1 do not change oiprm because of ['wref']
       call defi(oiprm, nbasp)
-      call defi(oiprmi,nbasp)
-      call defi(osigb,  nbasp)
-      call defi(osigl,  nbasp)
-      call defi(osigma,  nbasp)
-      if  (iosiga(0,'sigma',nbasp,w(oips),w(osigl),w(osigb),w(oiprm),
-     .  w(opos)).lt. 0) then
+Cdelw1       call defi(oiprmi,nbasp)
+       allocate(iv_w_oiprmi(nbasp))
+       if (nbasp<0) iv_w_oiprmi(:)=0
+
+Cdelw1       call defi(osigb,  nbasp)
+       allocate(iv_w_osigb(nbasp))
+       if (nbasp<0) iv_w_osigb(:)=0
+
+Cdelw1       call defi(osigl,  nbasp)
+       allocate(iv_w_osigl(nbasp))
+       if (nbasp<0) iv_w_osigl(:)=0
+
+Cdelw1       call defi(osigma,  nbasp)
+       allocate(iv_w_osigma(nbasp))
+       if (nbasp<0) iv_w_osigma(:)=0
+
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 136
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 136
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 do not change oiprm because of ['wref']
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 136
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 136
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 do not change oiprm because of ['wref']
+Cdelw1       if  (iosiga(0,'sigma',nbasp,w(oips),w(osigl),w(osigb),w(oiprm),
+Cdelw1      .  w(opos)).lt. 0) then
+       if ( iosiga ( 0 , 'sigma' , nbasp , w ( oips ) , iv_w_osigl , 
+     . iv_w_osigb , w ( oiprm ) , w ( opos ) ) .lt. 0 ) then 
+
 C       Initial permutation table
         do  10  i = 1, nbasp
+Cdelw1 1 is digit, dropped
+Cdelw1 do not change oiprm because of ['wref']
    10   w(oiprm+i-1) = i
 C       Both sigb and sigl have same convention for now
-        call mcasms(0,1,nbas,w(oips),w(osigb))
-        call mcasms(0,1,nbas,w(oips),w(osigl))
-        i = iosiga(1,'sigma',nbasp,w(oips),w(osigl),w(osigb),w(oiprm),
-     .    w(opos))
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 142
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 142
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1         call mcasms(0,1,nbas,w(oips),w(osigb))
+         call mcasms ( 0 , 1 , nbas , w ( oips ) , iv_w_osigb ) 
+
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 143
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 143
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1         call mcasms(0,1,nbas,w(oips),w(osigl))
+         call mcasms ( 0 , 1 , nbas , w ( oips ) , iv_w_osigl ) 
+
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 144
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 144
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 do not change oiprm because of ['wref']
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 144
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 144
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 do not change oiprm because of ['wref']
+Cdelw1         i = iosiga(1,'sigma',nbasp,w(oips),w(osigl),w(osigb),w(oiprm),
+Cdelw1      .    w(opos))
+         i = iosiga ( 1 , 'sigma' , nbasp , w ( oips ) , iv_w_osigl , 
+     .   iv_w_osigb , w ( oiprm ) , w ( opos ) ) 
+
         call rx0(' wrote new sigma file')
       endif
 
-      call mcasm2(smove,w(ontab),w(oiax),nbasp,nttab,w(oips),w(oesite),
-     .  w(oepair),w(osigma),w(oiprm),w(oiprmi),w(osigb),w(osigl))
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 149
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 149
+Cdelw1 do not change oiax because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 149
+Cdelw1 do not change ontab because of ['undef', 'wref']
+Cdelw1 do not change oiprm because of ['wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 149
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 149
+Cdelw1 do not change oiax because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 149
+Cdelw1 do not change ontab because of ['undef', 'wref']
+Cdelw1 do not change oiprm because of ['wref']
+Cdelw1       call mcasm2(smove,w(ontab),w(oiax),nbasp,nttab,w(oips),w(oesite),
+Cdelw1      .  w(oepair),w(osigma),w(oiprm),w(oiprmi),w(osigb),w(osigl))
+       call mcasm2 ( smove , w ( ontab ) , w ( oiax ) , nbasp , nttab 
+     . , w ( oips ) , rv_w_oesite , rv_w_oepair , iv_w_osigma , w ( 
+     . oiprm ) , iv_w_oiprmi , iv_w_osigb , iv_w_osigl ) 
 
-      if (.not. cmdopt('-wsigma=',8,0,outs)) return
-      i = iosiga(1,outs(9:),nbasp,w(oips),w(osigl),w(osigb),w(oiprm),
-     .  w(opos))
+
+Cki#error, have return with len(w_varlist)>0 at line 152
+Cdelw1 w_varlist remains: orham ortab oesite oisite oepair oipair oiprm oiprmi osigb osigl osigma 
+Cdelw1 w_varlistundel: [opos oips oiax ontab oiprm]
+Cdelw1 w_varlist (undel), remains: [oiprm]
+Cdelw1 w_varlist (del), remains: [orham ortab oesite oisite oepair oipair oiprmi osigb osigl osigma]
+Cdelw1 not deallocate oiprm because of [wref]
+Cdelw1       if (.not. cmdopt('-wsigma=',8,0,outs)) return
+       if ( .not. cmdopt ( '-wsigma=' , 8 , 0 , outs ) ) then 
+       if (allocated(iv_w_osigma)) deallocate(iv_w_osigma)
+       if (allocated(iv_w_osigl)) deallocate(iv_w_osigl)
+       if (allocated(iv_w_osigb)) deallocate(iv_w_osigb)
+       if (allocated(iv_w_oiprmi)) deallocate(iv_w_oiprmi)
+       if (allocated(iv_w_oipair)) deallocate(iv_w_oipair)
+       if (allocated(rv_w_oepair)) deallocate(rv_w_oepair)
+       if (allocated(iv_w_oisite)) deallocate(iv_w_oisite)
+       if (allocated(rv_w_oesite)) deallocate(rv_w_oesite)
+       if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
+       if (allocated(rv_w_orham)) deallocate(rv_w_orham)
+       return
+       endif 
+
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 153
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 153
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 do not change oiprm because of ['wref']
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 153
+Cdelw1 do not change opos because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 153
+Cdelw1 do not change oips because of ['undef', 'wref']
+Cdelw1 do not change oiprm because of ['wref']
+Cdelw1       i = iosiga(1,outs(9:),nbasp,w(oips),w(osigl),w(osigb),w(oiprm),
+Cdelw1      .  w(opos))
+       i = iosiga ( 1 , outs ( 9: ) , nbasp , w ( oips ) , iv_w_osigl 
+     . , iv_w_osigb , w ( oiprm ) , w ( opos ) ) 
+
 
 Cgetarg       end
+Cdelw1 w_varlist remains: osigma osigl osigb oiprmi oiprm oipair oepair oisite oesite ortab orham 
+Cdelw1 w_varlistundel: [opos oips oiax ontab oiprm]
+Cdelw1 w_varlist (undel), remains: [oiprm]
+Cdelw1 w_varlist (del), remains: [osigma osigl osigb oiprmi oipair oepair oisite oesite ortab orham]
+Cdelw1 not deallocate oiprm because of [wref]
+        if (allocated(rv_w_orham)) deallocate(rv_w_orham)
+        if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
+        if (allocated(rv_w_oesite)) deallocate(rv_w_oesite)
+        if (allocated(iv_w_oisite)) deallocate(iv_w_oisite)
+        if (allocated(rv_w_oepair)) deallocate(rv_w_oepair)
+        if (allocated(iv_w_oipair)) deallocate(iv_w_oipair)
+        if (allocated(iv_w_oiprmi)) deallocate(iv_w_oiprmi)
+        if (allocated(iv_w_osigb)) deallocate(iv_w_osigb)
+        if (allocated(iv_w_osigl)) deallocate(iv_w_osigl)
+        if (allocated(iv_w_osigma)) deallocate(iv_w_osigma)
+
        end subroutine mcasim 
 
       subroutine mcasm2(smove,ntab,iax,nbas,nttab,ips,
@@ -246,6 +478,9 @@ C     Create inverse of iprm and initial sigma
      .  iprm,iprmi,sigb,sigl)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine mcasm2 
 
 
@@ -409,6 +644,9 @@ C ... end of big loop
 
       call tcx('mcmet')
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine mcmet 
 
       subroutine mcasw(ib1,ib2,iprm,iprmi,sigb,sigl,sigma)
@@ -453,6 +691,9 @@ C     sigma(ib2) = sigb(ib2)*sigl(iprmi(ib2))
       sigma(ib2) = sigb(ib2)*sigl(i1)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine mcasw 
 
 
@@ -488,6 +729,9 @@ C Local
    10 continue
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine mcasms 
 
       subroutine mcasme(ib1,ib2,ntab,iax,esite,epair,iprm,iprmi,
@@ -539,6 +783,9 @@ C   20 continue
       call tcx('mcasme')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine mcasme 
 
       integer function iosiga(lread,fnam,nbas,ips,sigl,sigb,iprm,pos)
@@ -599,6 +846,9 @@ C         read(a,*,end=99,err=99) sigl(ib),sigb(ib),iprm(ib),px,py,pz
       endif
       call fclose(ifi)
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       return
 C --- Error exit ---
    99 continue
@@ -606,6 +856,9 @@ C --- Error exit ---
       iosiga = -1
       call fclose(ifi)
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end function iosiga 
 
 
@@ -647,6 +900,9 @@ C Local
      .  ib2-ib1+1,nskip,ncol,nskip,'  | ',i,iprmi,sig1,sig2,i,i,i,i)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine mcasho 
 
       subroutine mcasan(ib1,ib2,iprm,iprmi,ntab,iax,ips,esite,epair,
@@ -673,6 +929,9 @@ C     Check that sigma tables are sensible
    10 continue
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine mcasan 
 
 

@@ -1,3 +1,9 @@
+Cdelw1 var ['owk', '0', 'owk', '1', 'real(8)', 'rv_w_', 'rdctrl2']
+Cdelw1 var ['opos', '0', 'opos', '3*nsite', 'real(8)', 'rv_w_', 'rdctrl2']
+Cdelw1 var ['oips', '0', 'oips', 'nsite', 'integer', 'iv_w_', 'rdctrl2']
+Cdelw1 undel [['redef', 'wref'], 'owk', 'rdctrl2']
+Cdelw1 undel [['wref'], 'opos', 'rdctrl2']
+Cdelw1 undel [['wref'], 'oips', 'rdctrl2']
 Cgetarg...info...           structure ['rdctrl2', 'bz', 'v_sbz']
 Cgetarg...info...           structure ['rdctrl2', 'ctrl', 'v_sctrl']
 Cgetarg...info...           structure ['rdctrl2', 'lat', 'v_slat']
@@ -201,6 +207,7 @@ C ... Local parameters
 
 C ... basis
       double precision orbp(n0,2,nkap0)
+Cdelw1 do not change  [['redef', 'wref'], 'owk', 'rdctrl2']
       integer o,oclabl,ohave,oics,opnu,opp,oqnu,osgw,osoptc,
      .  oves,owk !osordn,
 C ... Heap
@@ -215,6 +222,8 @@ c     &  uctrl_size,ulat_size,uham_size,uarray_size,upot_size,ustr_size
 c
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
       real(8):: seref
+Cdelw1 do not change  [['wref'], 'opos', 'rdctrl2']
+Cdelw1 do not change  [['wref'], 'oips', 'rdctrl2']
       integer:: ib,ispec,opos,oips
 
       procid = mpipid(1)
@@ -280,6 +289,7 @@ C --- Read input parameters from contents of rcd ---
         call cexit(0,1)
       endif
 
+Cdelw1 do not change owk because of ['redef', 'wref']
       call defrr(owk,1)
 C     Set switches depending type of program
       lbas = 0
@@ -1849,8 +1859,11 @@ Cgetarg       call pack1('ham lxcf',v_sham,lxcf)
 
 
 C ... Count LDA+U blocks (printout only)
+Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: owk real(8) and integer
+Cdelw1 do not change owk because of ['redef', 'wref']
       call defi(owk,-nbas)
       call pshpr(0)
+Cdelw1 do not change owk because of ['redef', 'wref']
       call suldau(nbas,v_sspec,v_ssite,nlibu,k,w(owk))
 Cgetarg...info...           integer :: nlibu , integer(8) :: v_sham%nlibu 1
 Cgetarg...info...           integer :: k , integer(8) :: v_sham%lmaxu 1
@@ -1860,7 +1873,12 @@ Cgetarg       call pack5('ham nlibu lmaxu',v_sham,nlibu,k,0,0,0)
        v_sham%lmaxu=k 
 
       call poppr
-      call rlse(owk)
+Cdelw1 rlse name= owk old_list= owk 
+Cdelw1 rlse name= owk new_list= (None)
+Cdelw1 not deallocate owk because of [redef wref]
+Cdelw1       call rlse(owk)
+       call rlse(owk)
+
 
 C     Free arrays used to read input
       deallocate(pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
@@ -2151,16 +2169,23 @@ c         call spacks_copy('p',v_ssite(i)%clabel,ib,ib,spid,ispec)
       enddo
       v_sham%seref=seref 
 c
+Cdelw1 do not change opos because of ['wref']
       call defrr(opos,3*nsite)
+Cdelw1 do not change oips because of ['wref']
       call defi(oips,nsite)
       do i_spackv=1,nsite 
        i_copy_size=3
+Cdelw1 do not change opos because of ['wref']
        call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
        i_copy_size=1 
+Cdelw1 do not change oips because of ['wref']
        call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
       enddo
+Cdelw1 do not change opos because of ['wref']
       v_slat%opos=opos 
+Cdelw1 do not change opos because of ['wref']
       v_sarry%opos=opos 
+Cdelw1 do not change oips because of ['wref']
       v_sarry%oips=oips 
 
 
@@ -2219,6 +2244,12 @@ C$$$        call shstru('site',v_ssite,1,nsite)
 
       endif
 c      call rx0('done')
+Cdelw1 w_varlist remains: opos oips 
+Cdelw1 w_varlistundel: [owk opos oips]
+Cdelw1 w_varlist (undel), remains: [opos oips]
+Cdelw1 w_varlist (del), remains: (None)
+Cdelw1 not deallocate oips because of [wref]
+Cdelw1 not deallocate opos because of [wref]
       end subroutine rdctrl2
 
 C      subroutine string_replace(rcd,aaa,bbb)

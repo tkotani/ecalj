@@ -150,5 +150,8 @@ C      call yprm('u s u+ from cb2sph',2,
 C     .  sph,ndss1*ndss2,ndss1,nla**2,nla**2)
 CC      call rlse(ou)
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 

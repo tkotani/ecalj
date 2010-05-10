@@ -100,10 +100,6 @@ C ... Local parameters
      .  tpiba,tol,gg,vol,gmax2,q(3),s1,s2,s3,ddot
       character*256 outs
       parameter (PRTG=30)
-      integer,parameter :: m_gslist=10
-      integer:: n_gslist,i_gslist,if1,if2,if3
-      double precision:: gslist(3,m_gslist)
-      integer:: gsflags(3)
 C ... Heap
       integer w(1)
       common /w/ w
@@ -113,6 +109,12 @@ C ... External calls
 cccccccccccccc
       integer,save:: i,iyy
       integer,allocatable:: ixx(:,:)
+
+      integer,parameter :: m_gslist=10
+      integer:: n_gslist,i_gslist,if1,if2,if3
+      double precision:: gslist(3,m_gslist)
+      integer:: gsflags(3)
+      logical:: fullmesh
 cccccccccccccc
 
 C ... Setup
@@ -151,23 +153,28 @@ C ... Basis vectors for real-space mesh and recip-space supercell
 C --- Loop through g vectors, shorten, count and keep if within gmax ---
       ig = 0
       gmax2 = (gmax-tol)**2/tpiba**2
-      do  20  j1 = 0, n1-1
-      do  20  j2 = 0, n2-1
-      do  20  j3 = 0, n3-1
-        n_gslist=0
-        do 20 if1=0,1
-        do 20 if2=0,1
-        do 20 if3=0,1
-        gsflags=(/if1,if2,if3/)
-        qpg(1) = j1*qlat(1,1) + j2*qlat(1,2) + j3*qlat(1,3) + q(1)
-        qpg(2) = j1*qlat(2,1) + j2*qlat(2,2) + j3*qlat(2,3) + q(2)
-        qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
+
+      if(fullmesh()) then !kino's path. Something wrong
+                          ! ---> Kino think this is OK even for fullmesh()=F. 
+                          ! But this path did not go through make check.
+
+       do  21  j1 = 0, n1-1
+       do  21  j2 = 0, n2-1
+       do  21  j3 = 0, n3-1
+       n_gslist=0
+       do 21 if1=0,1
+       do 21 if2=0,1
+       do 21 if3=0,1
+       gsflags=(/if1,if2,if3/)
+       qpg(1) = j1*qlat(1,1) + j2*qlat(1,2) + j3*qlat(1,3) + q(1)
+       qpg(2) = j1*qlat(2,1) + j2*qlat(2,2) + j3*qlat(2,3) + q(2)
+       qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
         call shorbzm(gsflags,qpg,gs,qlat1,plat1)
         do i_gslist=1,n_gslist
             if ( gs(1).eq.gslist(1,i_gslist) .and.
      .            gs(2).eq.gslist(2,i_gslist) .and.
      .            gs(3).eq.gslist(3,i_gslist) ) then
-              goto 20 
+              goto 21 
             endif
         enddo
         n_gslist=n_gslist+1
@@ -187,7 +194,7 @@ C           print *, j1,j2,j3
 C           print *, gs
 C         endif
 
-          if (job0 .ne. 0) then
+        if (job0 .ne. 0) then
 
           if (ig .gt. ngmx) call rx('gvlist: ng exceeds ngmx')
 
@@ -206,13 +213,10 @@ C     ... Copy lattice vectors to gv,igv,igv2, depending on job
             s3 = (gs(1)-q(1))*plat(1,3)
      .         + (gs(2)-q(2))*plat(2,3)
      .         + (gs(3)-q(3))*plat(3,3)
-
-
-#if DEBUG
-            if ((nint(s1)-s1)**2+(nint(s2)-s2)**2+(nint(s3)-s3)**2
-     .        .gt. 1d-12) call rx('bug in gvlist')
-#endif
-
+c#if DEBUG
+c            if ((nint(s1)-s1)**2+(nint(s2)-s2)**2+(nint(s3)-s3)**2
+c     .        .gt. 1d-12) call rx('bug in gvlist')
+c#endif
             if (ligv) then
               igv(ig,1) = nint(s1)
               igv(ig,2) = nint(s2)
@@ -238,8 +242,80 @@ C     ... Copy lattice vectors to gv,igv,igv2, depending on job
           endif
 
         endif
+        endif
+   21  continue
+
+      else
+
+       do  20  j1 = 0, n1-1
+       do  20  j2 = 0, n2-1
+       do  20  j3 = 0, n3-1
+        qpg(1) = j1*qlat(1,1) + j2*qlat(1,2) + j3*qlat(1,3) + q(1)
+        qpg(2) = j1*qlat(2,1) + j2*qlat(2,2) + j3*qlat(2,3) + q(2)
+        qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
+        call shorbz(qpg,gs,qlat1,plat1)
+C        print 333, j1,j2,j3,gs(1)+tau(1),gs(2)+tau(2),gs(3)+tau(3)
+C  333   format(3i4,3f12.6)
+        gg = (gs(1)**2+gs(2)**2+gs(3)**2)
+        if (gg .le. gmax2) then
+          ig = ig+1
+C         if (abs(gs(1)+5) .lt.1d-4 .and. gs(3).lt.-10.8) then
+C           print *, j1,j2,j3
+C           print *, gs
+C         endif
+
+        if (job0 .ne. 0) then
+
+          if (ig .gt. ngmx) call rx('gvlist: ng exceeds ngmx')
+
+          kv(ig,1) = j1+1
+          kv(ig,2) = j2+1
+          kv(ig,3) = j3+1
+
+C     ... Copy lattice vectors to gv,igv,igv2, depending on job
+          if (ligv .or. ligv2 .or. .true.) then
+            s1 = (gs(1)-q(1))*plat(1,1)
+     .         + (gs(2)-q(2))*plat(2,1)
+     .         + (gs(3)-q(3))*plat(3,1)
+            s2 = (gs(1)-q(1))*plat(1,2)
+     .         + (gs(2)-q(2))*plat(2,2)
+     .         + (gs(3)-q(3))*plat(3,2)
+            s3 = (gs(1)-q(1))*plat(1,3)
+     .         + (gs(2)-q(2))*plat(2,3)
+     .         + (gs(3)-q(3))*plat(3,3)
+c#if DEBUG
+c            if ((nint(s1)-s1)**2+(nint(s2)-s2)**2+(nint(s3)-s3)**2
+c     .        .gt. 1d-12) call rx('bug in gvlist')
+c#endif
+            if (ligv) then
+              igv(ig,1) = nint(s1)
+              igv(ig,2) = nint(s2)
+              igv(ig,3) = nint(s3)
+            endif
+            if (ligv2) then
+              igv2(1,ig) = nint(s1)
+              igv2(2,ig) = nint(s2)
+              igv2(3,ig) = nint(s3)
+            endif
+          endif
+
+          if (lgv) then
+            if (lgpq) then
+              gv(ig,1) = gs(1)
+              gv(ig,2) = gs(2)
+              gv(ig,3) = gs(3)
+            else
+              gv(ig,1) = gs(1) - q(1)
+              gv(ig,2) = gs(2) - q(2)
+              gv(ig,3) = gs(3) - q(3)
+            endif
+          endif
+
+        endif
+        endif
+   20  continue
+
       endif
-   20 continue
       ng = ig
 
 C ... Printout

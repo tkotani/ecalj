@@ -1,3 +1,4 @@
+Cdelw1 var ['oips', '0', 'oips', 'nbas', 'integer', 'iv_w_', 'chkxpn']
 Cgetarg...info...           structure ['chkxpn', 'site', 'ssite']
 Cgetarg...info...           structure ['chkxpn', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['chkxpn', 'm_struc_def']
@@ -28,6 +29,9 @@ Cgetarg       double precision sspec(1),ssite(1)
      .   ' ----- Check accuracy of augmentation expansion -----',0,0)
       call chkxpn(ssite,sspec)
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine fpchk 
 
 
@@ -46,9 +50,14 @@ C ... Local parameters
       integer k0,nlm0,nrx,n0,nkap0,stdo,lgunit
       parameter (k0=20, nlm0=25, nrx=201)
       parameter (nkap0=3,n0=10)
-      integer nglob,nbas,nspec,ib1,is,oips,
-     .  iclbsj,nr,j1,nch,lmxa,kmax,lh(nkap0),nkapi,ik,l1,l2,l,
-     .  lmax,nlm,k,i,ilm,ipr
+Cdelw1       integer nglob,nbas,nspec,ib1,is,oips,
+Cdelw1      .  iclbsj,nr,j1,nch,lmxa,kmax,lh(nkap0),nkapi,ik,l1,l2,l,
+Cdelw1      .  lmax,nlm,k,i,ilm,ipr
+       integer:: nglob , nbas , nspec , ib1 , is , iclbsj , nr , j1 
+     . , nch , lmxa , kmax , lh(nkap0) , nkapi , ik , l1 , l2 , l , 
+     . lmax , nlm , k , i , ilm , ipr 
+       integer ,allocatable :: iv_w_oips(:)
+
       double precision c(0:k0,nlm0),
      .  rofi(nrx),rwgt(nrx),pkl(0:k0,0:n0),
      .  xi(0:n0),sumh(0:n0),difh(0:n0),errh(0:n0),errj(0:n0),
@@ -71,17 +80,25 @@ C ... setup
   400 format(/' RMS errors in expanded head and tail functions.'
      .   /' Only column ''tail'' matters for program accuracy.')
 
-      call defi(oips,nbas)
+Cdelw1       call defi(oips,nbas)
+       allocate(iv_w_oips(nbas))
+       if (nbas<0) iv_w_oips(:)=0
+
 Cgetarg       call spackv(10,'site spec',ssite,1,nbas,w(oips))
        i_copy_size=1; 
        do i_spackv=1,nbas 
-       call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+Cdelw1        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+        call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
+     .  , i_copy_size , i_spackv + 1 - 1 , iv_w_oips ) 
+
        enddo
 
 
 C --- Loop over species ---
       do  40  is = 1, nspec
-        ib1 = iclbsj(is,w(oips),-nbas,1)
+Cdelw1         ib1 = iclbsj(is,w(oips),-nbas,1)
+         ib1 = iclbsj ( is , iv_w_oips , - nbas , 1 ) 
+
         if (ib1 .lt. 0) then
           if (ipr .ge. 20) write(stdo,
      .   '('' chkxpn (warning) no sites corresponding to species'',i3)')
@@ -197,6 +214,11 @@ C         call hxps(rsmh,rsma,e,kmax,nlm,k0,c)
         enddo
   40  continue
 Cgetarg       end
+Cdelw1 w_varlist remains: oips 
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: [oips]
+        if (allocated(iv_w_oips)) deallocate(iv_w_oips)
+
        end subroutine chkxpn 
 
 

@@ -1,3 +1,4 @@
+Cdelw1 var ['odmwk', '0', 'odmwk', '-ivsiz', 'complex(8)', 'zv_w_', 'sudmtu']
 Cgetarg...info...           structure ['sudmtu', 'site', 'ssite']
 Cgetarg...info...           structure ['sudmtu', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['sudmtu', 'm_struc_def']
@@ -64,7 +65,9 @@ C     integer nglob,stdo
       integer idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec
       double precision uh(4),jh(4),eorb,tmp(2,7,7),xx
       character str*80,spid*8
-      integer odmwk
+Cdelw1       integer odmwk
+       complex(8) ,allocatable :: zv_w_odmwk(:)
+
 C ... MPI
       integer procid,master,mpipid
       logical mlog
@@ -205,16 +208,25 @@ C ... Density matrix in real or spherical harmonics (fixed by idvsh)
       endif
 
 C ... Symmetrize dmatu (symdmu requires real harmonics)
-      call defcc(odmwk,-ivsiz)
+Cdelw1       call defcc(odmwk,-ivsiz)
+       allocate(zv_w_odmwk(abs(-ivsiz)))
+       if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
+
       if (havesh .eq. 1) then
         call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = 0
       endif
-      call symdmu(dmatu,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
-     .  lldau,xx)
+Cdelw1       call symdmu(dmatu,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
+Cdelw1      .  lldau,xx)
+       call symdmu ( dmatu , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
+     . , ssite , ng , g , istab , lldau , xx ) 
+
       if (havesh .ne. idvsh) then
         call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
-        call rotycs(2*idvsh-1,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,lldau)
+Cdelw1         call rotycs(2*idvsh-1,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,lldau)
+         call rotycs ( 2 * idvsh - 1 , zv_w_odmwk , nbas , nsp , lmaxu 
+     .   , sspec , ssite , lldau ) 
+
         havesh = idvsh
       endif
       if (ng .ne. 0) then
@@ -222,32 +234,62 @@ C ... Symmetrize dmatu (symdmu requires real harmonics)
      .  ' from symmetrization = %,6d',xx,0)
       if (xx .gt. .01d0) call info0(30,0,0,
      .  '          (warning) RMS change unexpectely large')
-      call daxpy(ivsiz*2,-1d0,dmatu,1,w(odmwk),1)
+Cdelw1       call daxpy(ivsiz*2,-1d0,dmatu,1,w(odmwk),1)
+       call daxpy ( ivsiz * 2 , - 1d0 , dmatu , 1 , zv_w_odmwk , 1 ) 
+
       call info0(60,0,0,' change in dmat wrought by symmetrization')
-      call praldm(0,60,60,0,nbas,nsp,lmaxu,lldau,sspec,ssite,' ',
-     .  w(odmwk))
-      call rlse(odmwk)
+Cdelw1       call praldm(0,60,60,0,nbas,nsp,lmaxu,lldau,sspec,ssite,' ',
+Cdelw1      .  w(odmwk))
+       call praldm ( 0 , 60 , 60 , 0 , nbas , nsp , lmaxu , lldau , 
+     . sspec , ssite , ' ' , zv_w_odmwk ) 
+
+Cdelw1 rlse name= odmwk old_list= odmwk 
+Cdelw1 rlse name= odmwk new_list= (None)
+Cdelw1       call rlse(odmwk)
+       if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
+
       endif
 
 C     Print dmats in specified harmonics
-      call defcc(odmwk,-ivsiz)
-      call dcopy(ivsiz*2,dmatu,1,w(odmwk),1)
+Cdelw1       call defcc(odmwk,-ivsiz)
+       allocate(zv_w_odmwk(abs(-ivsiz)))
+       if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
+
+Cdelw1       call dcopy(ivsiz*2,dmatu,1,w(odmwk),1)
+       call dcopy ( ivsiz * 2 , dmatu , 1 , zv_w_odmwk , 1 ) 
+
       if (havesh .ne. idvsh) then
-        call rotycs(2*idvsh-1,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,lldau)
+Cdelw1         call rotycs(2*idvsh-1,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,lldau)
+         call rotycs ( 2 * idvsh - 1 , zv_w_odmwk , nbas , nsp , lmaxu 
+     .   , sspec , ssite , lldau ) 
+
       endif
       call info0(30,0,0,' ')
-      call praldm(0,30,30,idvsh,nbas,nsp,lmaxu,lldau,sspec,ssite,
-     .  ' Symmetrized dmats',w(odmwk))
+Cdelw1       call praldm(0,30,30,idvsh,nbas,nsp,lmaxu,lldau,sspec,ssite,
+Cdelw1      .  ' Symmetrized dmats',w(odmwk))
+       call praldm ( 0 , 30 , 30 , idvsh , nbas , nsp , lmaxu , lldau 
+     . , sspec , ssite , ' Symmetrized dmats' , zv_w_odmwk ) 
+
 
 C     Print dmats in complementary harmonics
       if (ipr.ge.45 .or. ipr.ge.40 .and. idvsh.eq.0) then
         i = 1-idvsh
-        call rotycs(2*i-1,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,lldau)
+Cdelw1         call rotycs(2*i-1,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,lldau)
+         call rotycs ( 2 * i - 1 , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
+     .   , ssite , lldau ) 
+
         call info0(30,0,0,' ')
-        call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau,sspec,ssite,
-     .    ' Symmetrized dmats',w(odmwk))
+Cdelw1         call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau,sspec,ssite,
+Cdelw1      .    ' Symmetrized dmats',w(odmwk))
+         call praldm ( 0 , 30 , 30 , i , nbas , nsp , lmaxu , lldau , 
+     .   sspec , ssite , ' Symmetrized dmats' , zv_w_odmwk ) 
+
       endif
-      call rlse(odmwk)
+Cdelw1 rlse name= odmwk old_list= odmwk 
+Cdelw1 rlse name= odmwk new_list= (None)
+Cdelw1       call rlse(odmwk)
+       if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
+
 
 C ... Make Vorb (ldau requires spherical harmonics)
       if (havesh .ne. 1) then
@@ -299,11 +341,21 @@ C     .        l,lmaxu,iblu,vorb,nsp,1)
 C     At this point, dmatu and vorb are in spherical harmonics
 
 C ... Symmetrize vorb to check (symdmu requires real harmonics)
-      call defcc(odmwk,-ivsiz)
+Cdelw1       call defcc(odmwk,-ivsiz)
+       allocate(zv_w_odmwk(abs(-ivsiz)))
+       if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
+
       call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
-      call symdmu(vorb,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
-     .  lldau,xx)
-      call rlse(odmwk)
+Cdelw1       call symdmu(vorb,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
+Cdelw1      .  lldau,xx)
+       call symdmu ( vorb , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
+     . , ssite , ng , g , istab , lldau , xx ) 
+
+Cdelw1 rlse name= odmwk old_list= odmwk 
+Cdelw1 rlse name= odmwk new_list= (None)
+Cdelw1       call rlse(odmwk)
+       if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
+
 
 C ... Exit with vorb,dmatu in spherical or real harmonics
 C     EITHER: vorb =>  spherical harmonics OR dmatu => real harmonics
@@ -328,17 +380,32 @@ C     Print vorb in specified harmonics
 C     Print vorb in complementary harmonics
       if (ipr.ge.45 .or. ipr.ge.40 .and. idvsh.eq.0) then
         i = 1-idvsh
-        call defcc(odmwk,-ivsiz)
+Cdelw1         call defcc(odmwk,-ivsiz)
+         allocate(zv_w_odmwk(abs(-ivsiz)))
+         if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
+
 C        call dcopy(ivsiz*2,dmatu,1,w(odmwk),1)
 C        call rotycs(2*i-1,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,lldau)
 C        call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau,sspec,ssite,
 C     .    ' dmats',w(odmwk))
-        call dcopy(ivsiz*2,vorb,1,w(odmwk),1)
-        call rotycs(2*i-1,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,lldau)
+Cdelw1         call dcopy(ivsiz*2,vorb,1,w(odmwk),1)
+         call dcopy ( ivsiz * 2 , vorb , 1 , zv_w_odmwk , 1 ) 
+
+Cdelw1         call rotycs(2*i-1,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,lldau)
+         call rotycs ( 2 * i - 1 , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
+     .   , ssite , lldau ) 
+
         call info0(30,0,0,' ')
-        call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau,sspec,ssite,
-     .    ' Vorb',w(odmwk))
-        call rlse(odmwk)
+Cdelw1         call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau,sspec,ssite,
+Cdelw1      .    ' Vorb',w(odmwk))
+         call praldm ( 0 , 30 , 30 , i , nbas , nsp , lmaxu , lldau , 
+     .   sspec , ssite , ' Vorb' , zv_w_odmwk ) 
+
+Cdelw1 rlse name= odmwk old_list= odmwk 
+Cdelw1 rlse name= odmwk new_list= (None)
+Cdelw1         call rlse(odmwk)
+         if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
+
       endif
 
       eorb = 0
@@ -346,12 +413,18 @@ C     .    ' dmats',w(odmwk))
 C     call prmx('vorb',vorb(1,1,1,1),2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
 
 C --- Error exit ---
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       return
    99 continue
       call awrit2('bad occnum file, site %i, l=%i',str,len(str),0,ib,l)
       call rx(str)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine sudmtu 
 
 

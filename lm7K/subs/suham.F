@@ -1,3 +1,19 @@
+Cdelw1 var ['og', '-1', 'undef', '0', 'undef', 'x', 'gen_hamindex']
+Cdelw1 var ['oag', '-1', 'undef', '0', 'undef', 'x', 'gen_hamindex']
+Cdelw1 var ['opos', '-1', 'undef', '0', 'undef', 'x', 'gen_hamindex']
+Cdelw1 var ['offh', '0', 'offh', '-n0h*nkap0*(nbasp+1)', 'integer', 'iv_w_', 'suham']
+Cdelw1 var ['oidxsh', '0', 'oidxsh', 'ndim+3', 'integer', 'iv_w_', 'suham']
+Cdelw1 var ['oips', '-1', 'undef', '0', 'undef', 'x', 'suham']
+Cdelw1 var ['ogv', '-1', 'undef', '0', 'undef', 'x', 'suham']
+Cdelw1 var ['oigv2', '2', 'oigv2', '3*npw', 'integer', 'iv_w_', 'suham']
+Cdelw1 var ['okv', '2', 'okv', '3*npw', 'integer', 'iv_w_', 'suham']
+Cdelw1 undel [['undef', 'wref'], 'og', 'gen_hamindex']
+Cdelw1 undel [['undef', 'wref'], 'oag', 'gen_hamindex']
+Cdelw1 undel [['undef', 'wref'], 'opos', 'gen_hamindex']
+Cdelw1 undel [['undef', 'wref'], 'oips', 'suham']
+Cdelw1 undel [['undef', 'wref', 'redef'], 'ogv', 'suham']
+Cdelw1 undel [['wref'], 'offh', 'suham']
+Cdelw1 undel [['wref'], 'oidxsh', 'suham']
 Cgetarg...info...           structure ['gen_hamindex', 'lat', 'slat']
 Cgetarg...info...           structure ['gen_hamindex', 'site', 'ssite']
 Cgetarg...info...           structure ['gen_hamindex', 'spec', 'sspec']
@@ -45,8 +61,11 @@ Cgetarg       double precision sspec(1),ssite(1),slat(1),sbz(1),sham(1)
 c      integer nkaph,iprma(*)
       integer iprmb(*),nl
 C Local parameters
+Cdelw1 do not change  [['undef', 'wref'], 'oag', 'gen_hamindex']
+Cdelw1 do not change  [['undef', 'wref'], 'og', 'gen_hamindex']
       integer nkap0,n0, oag,og,ibas,k
 c      parameter (nkap0=3,n0=10)
+Cdelw1 do not change  [['undef', 'wref'], 'opos', 'gen_hamindex']
       integer l,ndim,ipr,nglob,nbas,ldim,off,offs,
      .  specw,fieldw,iorb,offsi,ib,is,opos,norb
 c     .  ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
@@ -74,7 +93,11 @@ Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
 Cgetarg...info...           NG:: ngrp , integer(8) :: slat%nsgrp 1
 Cgetarg       call upack('lat oag osymgr nsgrp',slat,oag,og,ngrp,0,0)
        
+Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 77
+Cdelw1 do not change oag because of ['undef', 'wref']
        oag=slat%oag
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 78
+Cdelw1 do not change og because of ['undef', 'wref']
        og=slat%osymgr
        ngrp=slat%nsgrp
 
@@ -86,6 +109,8 @@ Cgetarg       call upack('lat plat opos qlat alat',slat,plat,opos,qlat,alat,0)
        
        i_copy_size=size(slat%plat) 
        call dcopy(i_copy_size,slat%plat,1,plat,1) 
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 89
+Cdelw1 do not change opos because of ['undef', 'wref']
        opos=slat%opos
        i_copy_size=size(slat%qlat) 
        call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
@@ -157,7 +182,11 @@ c ... reverse maping of offset-index for hamiltonian
 
 C ... symmetry operation 
       allocate(symops(3,3,ngrp),ag(3,ngrp))
+Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 160
+Cdelw1 do not change og because of ['undef', 'wref']
       call dcopy(ngrp*9,w(og),1,symops,1)
+Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 161
+Cdelw1 do not change oag because of ['undef', 'wref']
       call dcopy(ngrp*3,w(oag),1,ag,1)
 
       allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
@@ -169,6 +198,8 @@ Cgetarg         call upack('site class',ssite,ib,iclasst(ib),0,0,0)
 
       enddo
 c ... get space group information
+Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 172
+Cdelw1 do not change opos because of ['undef', 'wref']
       call mptauof(symops,ngrp,plat,nbas,w(opos),iclasst
      o     ,miat,tiat,invgx,shtvg )
 c ... get rotation matrix dlmm
@@ -214,6 +245,10 @@ Cgetarg       call upack3('ham pwmode pwemin pwemax',sham,pwmode,pwemin,pwemax)
          allocate(napwk(nkt))
          napwk=0
          napwmx=0
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [og oag opos]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
          return
       endif
 
@@ -282,6 +317,10 @@ C ... Reverse table of igv2 --->igv2rev
       print *,' --- nkt,napwmx = ',nkt,napwmx
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [og oag opos]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine gen_hamindex 
 
 
@@ -381,7 +420,15 @@ C ... Local parameters
 
 C ... Needed for iostr
       double precision ckbas,cksumf,kap2(10)
-      integer oalph,oiax,ontab,os,ng,ogv,okv,oigv2
+Cdelw1 do not change  [['undef', 'wref', 'redef'], 'ogv', 'suham']
+Cdelw1       integer oalph,oiax,ontab,os,ng,ogv,okv,oigv2
+       integer:: oalph , oiax , ontab , os , ng , ogv 
+       integer ,allocatable :: iv_w_okv(:)
+       integer ,allocatable :: iv_w_oigv2(:)
+
+Cdelw1 do not change  [['wref'], 'offh', 'suham']
+Cdelw1 do not change  [['wref'], 'oidxsh', 'suham']
+Cdelw1 do not change  [['undef', 'wref'], 'oips', 'suham']
       integer obas,offH,oidxsh,oipc,oips,oo,opp,oeula,opti,obs,omagf
       logical ltmp,iostr,bittst,adnf
       character*80 outs,gfopts
@@ -400,6 +447,8 @@ Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
 Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
 Cgetarg       call upack('array oips oipc',sarray,oips,oipc,0,0,0)
        
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 403
+Cdelw1 do not change oips because of ['undef', 'wref']
        oips=sarray%oips
        oipc=sarray%oipc
 
@@ -455,7 +504,9 @@ Cgetarg      .  pwemax,npwpad,0)
         nspx = 1
       endif
       ndim = nbasp * nl**2 * nkaph
+Cdelw1 do not change offh because of ['wref']
       call defi(offH, -n0H*nkap0*(nbasp+1))
+Cdelw1 do not change oidxsh because of ['wref']
       call defi(oidxsh,ndim+3)
       stdo = lgunit(1)
 
@@ -480,6 +531,10 @@ C --- Hamiltonian offsets, orbital permutation table ---
       if (mod(pwmode,10) .eq. 2) then
         call info0(20,0,0,' suham: LMTO basis will be excluded')
       else
+Cdelw1 do not change offh because of ['wref']
+Cdelw1 do not change oidxsh because of ['wref']
+Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 483
+Cdelw1 do not change oips because of ['undef', 'wref']
         call makidx(nl,nkaph,1,nbasp,0,sspec,w(oips),w(offH),w(oidxsh),
      .    ldham)
       endif
@@ -505,7 +560,9 @@ Cgetarg       call pack5('ham ndofH ooffH oindxo ldham',sham,nbasp+1,offH,
 Cgetarg      .  oidxsh,ldham,0)
        
        sham%ndofH=nbasp+1 
+Cdelw1 do not change offh because of ['wref']
        sham%ooffH=offH 
+Cdelw1 do not change oidxsh because of ['wref']
        sham%oindxo=oidxsh 
        i_copy_size=size(sham%ldham) 
        call ii8copy(i_copy_size,ldham,1,sham%ldham,1) 
@@ -589,10 +646,14 @@ Cgetarg...info...           real(8) :: tolgv , real(8) :: slat%tolft 1
 Cgetarg         call upack('lat ng ogv alat tolft',slat,ng,ogv,alat,tolgv,0)
          
          ng=slat%ng
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 592
+Cdelw1 do not change ogv because of ['undef', 'wref', 'redef']
          ogv=slat%ogv
          alat=slat%alat
          tolgv=slat%tolft
 
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 596
+Cdelw1 do not change ogv because of ['undef', 'wref', 'redef']
         call sugcut(1,nspec,sspec,alat,ng,w(ogv),tolgv)
 
 C   ... PW setup : estimate upper bound to number of G vectors
@@ -679,15 +740,35 @@ C    ...  Printout
      .        xx,xx,xx)
             call poppr
             call info0(40,1,-1,' G vectors at the Gamma point:')
-            call defi(oigv2,3*npw)
-            call defi(okv,3*npw)
+Cdelw1             call defi(oigv2,3*npw)
+             allocate(iv_w_oigv2(3*npw))
+             if (3*npw<0) iv_w_oigv2(:)=0
+
+Cdelw1             call defi(okv,3*npw)
+             allocate(iv_w_okv(3*npw))
+             if (3*npw<0) iv_w_okv(:)=0
+
+Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: ogv undef and real(8)
+Cdelw1 do not change ogv because of ['undef', 'wref', 'redef']
             call defrr(ogv,3*npw)
             call pshpr(iprint())
             if (iprint() .ge. 50) call setpr(100)
-            call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,8+2,npw,npw,
-     .        w(okv),w(ogv),xx,w(oigv2))
+Cdelw1 do not change ogv because of ['undef', 'wref', 'redef']
+Cdelw1 do not change ogv because of ['undef', 'wref', 'redef']
+Cdelw1             call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,8+2,npw,npw,
+Cdelw1      .        w(okv),w(ogv),xx,w(oigv2))
+             call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , 
+     .       8 + 2 , npw , npw , iv_w_okv , w ( ogv ) , xx , iv_w_oigv2 ) 
+
             call poppr
-            call rlse(oigv2)
+Cdelw1 rlse name= oigv2 old_list= offh oidxsh oigv2 okv ogv 
+Cdelw1 rlse name= oigv2 new_list= offh oidxsh 
+Cdelw1 not deallocate ogv because of [undef wref redef]
+Cdelw1             call rlse(oigv2)
+             if (allocated(iv_w_okv)) deallocate(iv_w_okv)
+             if (allocated(iv_w_oigv2)) deallocate(iv_w_oigv2)
+             call rlse(ogv)
+
           endif
         endif
 c      endif
@@ -843,6 +924,12 @@ c       sham%obdots=obs
 
 
 Cgetarg       end
+Cdelw1 w_varlist remains: offh oidxsh 
+Cdelw1 w_varlistundel: [oips ogv offh oidxsh]
+Cdelw1 w_varlist (undel), remains: [offh oidxsh]
+Cdelw1 w_varlist (del), remains: (None)
+Cdelw1 not deallocate oidxsh because of [wref]
+Cdelw1 not deallocate offh because of [wref]
        end subroutine suham 
 
 
@@ -997,6 +1084,9 @@ c          write(6,4658)tr1,tr2,tr3
 c---------------------------------------------------
    10 continue
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine mptauof 
 
 
@@ -1198,6 +1288,9 @@ cccccccccccccccccccccc
    23 continue
       if(debugmode()>1) print *,' end of rotdlmm'
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine rotdlmm 
 
 c--------------------------------------------
@@ -1208,5 +1301,8 @@ c--------------------------------------------
         igann=igann*dble(ix)
       enddo
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end function igann 
 

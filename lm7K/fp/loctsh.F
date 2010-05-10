@@ -1,3 +1,6 @@
+Cdelw1 var ['oh', '1', 'oh', 'nr', 'real(8)', 'rv_w_', 'loctsh']
+Cdelw1 var ['og', '1', 'og', '2*nr', 'real(8)', 'rv_w_', 'loctsh']
+Cdelw1 var ['ogp', '1', 'ogp', '2*nr*4', 'real(8)', 'rv_w_', 'loctsh']
       subroutine loctsh(mode,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,
      .  rs3,eh3,vmtz,vsel,rsml,ehl)
 C- Fit value and slope of local orbitals to smoothed Hankel
@@ -70,8 +73,15 @@ C ... Passed parameters
       double precision rsml(n0,2),ehl(n0,2),vsel(4,n0)
 C ... Local parameters
       character spid*8,orbit(2)*4,flg(2)*1
-      integer ipr,iprint,i,l,info,nglob,og,ogp,oh,stdo,
-     .  mode0,mode1,mode2,mode3,mode4,modei,loclo,nfit,IPRT,isw
+Cdelw1       integer ipr,iprint,i,l,info,nglob,og,ogp,oh,stdo,
+Cdelw1      .  mode0,mode1,mode2,mode3,mode4,modei,loclo,nfit,IPRT,isw
+       integer:: ipr , iprint , i , l , info , nglob , stdo , mode0 
+     . , mode1 , mode2 , mode3 , mode4 , modei , loclo , nfit , iprt 
+     . , isw 
+       real(8) ,allocatable :: rv_w_og(:)
+       real(8) ,allocatable :: rv_w_ogp(:)
+       real(8) ,allocatable :: rv_w_oh(:)
+
       integer nrx,nrbig,ir,lp1
       double precision dphi,dphip,eh,eval,p,phi,phip,
      .  pnul,rsm,rsmin,rsmax,rmt,ekin,h,sum1,sum2,qrmt
@@ -108,9 +118,18 @@ C     b = rmt/(dexp(a*nrmt-a)-1d0)
       nfit = 0
 
       do  i = 1, nsp
-      call defrr (oh,    nr)
-      call defrr (og,    2*nr)
-      call defrr (ogp,   2*nr*4)
+Cdelw1       call defrr (oh,    nr)
+       allocate(rv_w_oh(nr))
+       if (nr<0) rv_w_oh(:)=0.0d0
+
+Cdelw1       call defrr (og,    2*nr)
+       allocate(rv_w_og(2*nr))
+       if (2*nr<0) rv_w_og(:)=0.0d0
+
+Cdelw1       call defrr (ogp,   2*nr*4)
+       allocate(rv_w_ogp(2*nr*4))
+       if (2*nr*4<0) rv_w_ogp(:)=0.0d0
+
 
 C --- Loop over local orbitals ---
       do  l = 0, lmxb
@@ -162,8 +181,12 @@ C     ... Overwrite V+, V- with (V+ + V-)/2, (V+ - V-)/2,
           endif
 
 C     ... Wave function and potential parameters at MT sphere
-          call makrwf(0,z,rmt,l,v(1,i),a,nrmt,rofi,pnz(1,i),4,
-     .      w(og),w(ogp),eval,phi,dphi,phip,dphip,p)
+Cdelw1           call makrwf(0,z,rmt,l,v(1,i),a,nrmt,rofi,pnz(1,i),4,
+Cdelw1      .      w(og),w(ogp),eval,phi,dphi,phip,dphip,p)
+           call makrwf ( 0 , z , rmt , l , v ( 1 , i ) , a , nrmt , rofi 
+     .     , pnz ( 1 , i ) , 4 , rv_w_og , rv_w_ogp , eval , phi , dphi 
+     .     , phip , dphip , p ) 
+
 C         call prrmsh('gz',rofi,w(og),nr,nr,2)
 
 C     ... Restore V+, V-
@@ -266,8 +289,17 @@ C     .     rofi,w(opsi),v,w(og),a,b,spid)
 C        call rlse(opsi)
       endif
 
-      call rlse (oh)
+Cdelw1 rlse name= oh old_list= oh og ogp 
+Cdelw1 rlse name= oh new_list= (None)
+Cdelw1       call rlse (oh)
+       if (allocated(rv_w_ogp)) deallocate(rv_w_ogp)
+       if (allocated(rv_w_og)) deallocate(rv_w_og)
+       if (allocated(rv_w_oh)) deallocate(rv_w_oh)
 
+
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 
 

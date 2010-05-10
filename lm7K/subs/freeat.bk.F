@@ -1,3 +1,13 @@
+Cdelw1 var ['og', '2', 'og', 'nr*2', 'real(8)', 'rv_w_', 'freats']
+Cdelw1 var ['opsi', '2', 'opsi', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'freats']
+Cdelw1 var ['oh', '1', 'oh', 'nr', 'real(8)', 'rv_w_', 'optfab']
+Cdelw1 var ['og', '1', 'og', '2*nr', 'real(8)', 'rv_w_', 'optfab']
+Cdelw1 var ['ogp', '1', 'ogp', '2*nr*4', 'real(8)', 'rv_w_', 'optfab']
+Cdelw1 var ['opsi', '1', 'opsi', 'nr*lmxa', 'real(8)', 'rv_w_', 'optfab']
+Cdelw1 var ['oh', '1', 'oh', 'nr', 'real(8)', 'rv_w_', 'ftfalo']
+Cdelw1 var ['og', '1', 'og', '2*nr', 'real(8)', 'rv_w_', 'ftfalo']
+Cdelw1 var ['ogp', '1', 'ogp', '2*nr*4', 'real(8)', 'rv_w_', 'ftfalo']
+Cdelw1 var ['opsi', '1', 'opsi', 'nr*lmxa', 'real(8)', 'rv_w_', 'ftfalo']
 Cgetarg...info...           structure ['freeat', 'ctrl', 'sctrl']
 Cgetarg...info...           structure ['freeat', 'spec', 'sspec']
 Cgetarg...info...           structure ['freeat', 'ham', 'sham']
@@ -229,6 +239,9 @@ Cgetarg         seref = dgets('ham seref',sham)
       endif
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine freeat 
 
 
@@ -325,7 +338,10 @@ C     double precision qz(n0,2)
       integer fopna,i,ifi,ipr,iprint,isp,isw,l,lfrz,
      .  lgrad,lgunit,lmxa,lplfa,lrel,nglob,nitmax,nmix,nr,
      .  nsp,stdl,stdo,lplawv,irchan(n0)
-      integer og,opsi
+Cdelw1       integer og,opsi
+       real(8) ,allocatable :: rv_w_og(:)
+       real(8) ,allocatable :: rv_w_opsi(:)
+
 C     Parameters for optimized free-atom wave functions
       integer itab(n0,2)
 C Heap
@@ -492,13 +508,27 @@ C     call prrmsh('ending total rho',rofi,rhot,nr,nr,nsp)
 C --- Print info about free-atom wavefunctions ---
       if (lwf .ne. 0) then
       if (ipr .gt. 30) then
-      call defrr(og,  nr*2)
-      call defrr(opsi, nr*(lmxa+1)*nsp)
+Cdelw1       call defrr(og,  nr*2)
+       allocate(rv_w_og(nr*2))
+       if (nr*2<0) rv_w_og(:)=0.0d0
+
+Cdelw1       call defrr(opsi, nr*(lmxa+1)*nsp)
+       allocate(rv_w_opsi(nr*(lmxa+1)*nsp))
+       if (nr*(lmxa+1)*nsp<0) rv_w_opsi(:)=0.0d0
+
       lplawv = 0
       if (ipr .ge. 50) lplawv = 1
-      call pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmxa,pl,nsp,v,rofi,w(og),
-     .  w(opsi))
-      call rlse(og)
+Cdelw1       call pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmxa,pl,nsp,v,rofi,w(og),
+Cdelw1      .  w(opsi))
+       call pratfs ( spid , lplawv , z , a , nr , rmax , nrmt , lmxa 
+     . , pl , nsp , v , rofi , rv_w_og , rv_w_opsi ) 
+
+Cdelw1 rlse name= og old_list= og opsi 
+Cdelw1 rlse name= og new_list= (None)
+Cdelw1       call rlse(og)
+       if (allocated(rv_w_opsi)) deallocate(rv_w_opsi)
+       if (allocated(rv_w_og)) deallocate(rv_w_og)
+
       endif
 
 C --- Optimise smooth-Hankel basis ---
@@ -578,6 +608,9 @@ C --- Fit analytical expression to tail of core density ---
       call fctail(nr,nrmt,a,b,rfoca,rofi,rhoc,ccof,ceh)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine freats 
 
 
@@ -709,6 +742,9 @@ C --- Write file with valence wavefunctions
       endif
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine pratfs 
 
 
@@ -776,6 +812,9 @@ C ... Find the outermost maximum
         pmax = b*(dexp(a*(ir+x))-1d0)
       endif
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine ppratf 
 
 
@@ -820,8 +859,16 @@ C ... Local parameters
       character strn*80
       integer itab(n0,2)
       double precision rtab(n0,2),etab(n0,2)
-      integer ipr,iprint,irep,isp,istife,istifr,jpr,konfig,l,
-     .  lgunit,lplawv,lrel,nglob,nn,nrep,og,ogp,oh,opsi,stdo,stdl
+Cdelw1       integer ipr,iprint,irep,isp,istife,istifr,jpr,konfig,l,
+Cdelw1      .  lgunit,lplawv,lrel,nglob,nn,nrep,og,ogp,oh,opsi,stdo,stdl
+       integer:: ipr , iprint , irep , isp , istife , istifr , jpr , 
+     . konfig , l , lgunit , lplawv , lrel , nglob , nn , nrep , stdo 
+     . , stdl 
+       real(8) ,allocatable :: rv_w_og(:)
+       real(8) ,allocatable :: rv_w_ogp(:)
+       real(8) ,allocatable :: rv_w_oh(:)
+       real(8) ,allocatable :: rv_w_opsi(:)
+
       double precision b,deh,deh0,dphi,dphip,drsm,drsm0,e1,e2,e3,eadd,
      .  eaddx,eh,elim1,elim2,enew,enu,eval,p,phi,phip,pnu,qvl,radd,
      .  raddx,rlim1,rlim2,rnew,rsm,stife,stifr,sume1,sume2,qrmt
@@ -841,9 +888,18 @@ C ... Heap
       if (ipr .ge. 20) call awrit2('%?#n>=30#%N##'//
      .  ' Optimise free-atom basis for species '//spid//'%a, rmt=%;7g',
      .  ' ',80,stdo,ipr,rmt)
-      call defrr (oh,    nr)
-      call defrr (og,    2*nr)
-      call defrr (ogp,   2*nr*4)
+Cdelw1       call defrr (oh,    nr)
+       allocate(rv_w_oh(nr))
+       if (nr<0) rv_w_oh(:)=0.0d0
+
+Cdelw1       call defrr (og,    2*nr)
+       allocate(rv_w_og(2*nr))
+       if (2*nr<0) rv_w_og(:)=0.0d0
+
+Cdelw1       call defrr (ogp,   2*nr*4)
+       allocate(rv_w_ogp(2*nr*4))
+       if (2*nr*4<0) rv_w_ogp(:)=0.0d0
+
 
 C --- Parameters for minimisation ---
       drsm0 = 0.1d0
@@ -877,13 +933,20 @@ C --- Loop over bound valence states ---
         nn = konfig-l-1
         qvl = ql(1,l+1,isp)
 C   ... Get exact fa wavefunction, eigval, pnu at rmt
-        call popta3(0,l,z,nn,rmt,nr,nrmt,rofi,v(1,isp),a,b,
-     .    eval,pnu,w(og))
+Cdelw1         call popta3(0,l,z,nn,rmt,nr,nrmt,rofi,v(1,isp),a,b,
+Cdelw1      .    eval,pnu,w(og))
+         call popta3 ( 0 , l , z , nn , rmt , nr , nrmt , rofi , v ( 1 
+     .   , isp ) , a , b , eval , pnu , rv_w_og ) 
+
         if (eval .gt. 0d0) goto 10
         sume1 = sume1 + qvl*eval
 C   ... Potential parameters at MT sphere
-        call popta4(l,z,rmt,nrmt,rofi,v(1,isp),w(og),w(ogp),
-     .    a,b,pnu,enu,p,phi,dphi,phip,dphip)
+Cdelw1         call popta4(l,z,rmt,nrmt,rofi,v(1,isp),w(og),w(ogp),
+Cdelw1      .    a,b,pnu,enu,p,phi,dphi,phip,dphip)
+         call popta4 ( l , z , rmt , nrmt , rofi , v ( 1 , isp ) , rv_w_og 
+     .   , rv_w_ogp , a , b , pnu , enu , p , phi , dphi , phip , dphip 
+     .   ) 
+
         rsm = rmt
         eh = -1
         if (jpr .gt. 0) write (stdo,340)
@@ -892,23 +955,43 @@ C   ... Potential parameters at MT sphere
         do  12  irep = 1, 50
           nrep = irep
 C     ... Get center energy
-          call popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
-     .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e2,qrmt)
+Cdelw1           call popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
+Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e2,qrmt)
+           call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , rv_w_oh 
+     .     , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip , dphip 
+     .     , e2 , qrmt ) 
+
 C     ... Vary rsm
           drsm = drsm0
-          call popta1(rsm+drsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
-     .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e3,qrmt)
-          call popta1(rsm-drsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
-     .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e1,qrmt)
+Cdelw1           call popta1(rsm+drsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
+Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e3,qrmt)
+           call popta1 ( rsm + drsm , eh , l , z , rmt , nr , nrmt , rofi 
+     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , dphip , e3 , qrmt ) 
+
+Cdelw1           call popta1(rsm-drsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
+Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e1,qrmt)
+           call popta1 ( rsm - drsm , eh , l , z , rmt , nr , nrmt , rofi 
+     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , dphip , e1 , qrmt ) 
+
           call popta2(l,rsm,eh,drsm,e1,e2,e3,rlim1,rlim2,raddx,rnew,
      .       stifr,jpr)
 C     ... Vary eh
           deh = deh0
 c         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
-          call popta1(rsm,eh+deh,l,z,rmt,nr,nrmt,rofi,w(oh),
-     .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e3,qrmt)
-          call popta1(rsm,eh-deh,l,z,rmt,nr,nrmt,rofi,w(oh),
-     .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e1,qrmt)
+Cdelw1           call popta1(rsm,eh+deh,l,z,rmt,nr,nrmt,rofi,w(oh),
+Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e3,qrmt)
+           call popta1 ( rsm , eh + deh , l , z , rmt , nr , nrmt , rofi 
+     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , dphip , e3 , qrmt ) 
+
+Cdelw1           call popta1(rsm,eh-deh,l,z,rmt,nr,nrmt,rofi,w(oh),
+Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e1,qrmt)
+           call popta1 ( rsm , eh - deh , l , z , rmt , nr , nrmt , rofi 
+     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , dphip , e1 , qrmt ) 
+
           call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew,
      .       stife,jpr)
 
@@ -949,15 +1032,27 @@ c        rsm = rmt
         do  112  irep = 1,50
           nrep = irep
 C     ... Get center energy
-          call popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
-     .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e2,qrmt)
+Cdelw1           call popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
+Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e2,qrmt)
+           call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , rv_w_oh 
+     .     , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip , dphip 
+     .     , e2 , qrmt ) 
+
 C     ... Vary eh
           deh = deh0
 c         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
-          call popta1(rsm,eh+deh,l,z,rmt,nr,nrmt,rofi,w(oh),
-     .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e3,qrmt)
-          call popta1(rsm,eh-deh,l,z,rmt,nr,nrmt,rofi,w(oh),
-     .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e1,qrmt)
+Cdelw1           call popta1(rsm,eh+deh,l,z,rmt,nr,nrmt,rofi,w(oh),
+Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e3,qrmt)
+           call popta1 ( rsm , eh + deh , l , z , rmt , nr , nrmt , rofi 
+     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , dphip , e3 , qrmt ) 
+
+Cdelw1           call popta1(rsm,eh-deh,l,z,rmt,nr,nrmt,rofi,w(oh),
+Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e1,qrmt)
+           call popta1 ( rsm , eh - deh , l , z , rmt , nr , nrmt , rofi 
+     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , dphip , e1 , qrmt ) 
+
           call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew,
      .       stife,jpr)
 
@@ -995,15 +1090,34 @@ C     lplawv=nglob('lplawv')
       if (cmdopt('--plotwf',8,0,strn)) lplawv = 1
       if (lplawv .eq. 1) then
         if (nsp .eq. 2) call rx('optfab is not spinpol yet')
-        call defrr(opsi,  nr*lmxa)
-        call popta5(lmxa,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,
-     .     rofi,w(opsi),v,w(og),a,b,spid)
-        call rlse(opsi)
+Cdelw1         call defrr(opsi,  nr*lmxa)
+         allocate(rv_w_opsi(nr*lmxa))
+         if (nr*lmxa<0) rv_w_opsi(:)=0.0d0
+
+Cdelw1         call popta5(lmxa,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,
+Cdelw1      .     rofi,w(opsi),v,w(og),a,b,spid)
+         call popta5 ( lmxa , rtab , etab , itab , z , pl , rmax , rmt 
+     .   , nr , nrmt , rofi , rv_w_opsi , v , rv_w_og , a , b , spid ) 
+
+Cdelw1 rlse name= opsi old_list= oh og ogp opsi 
+Cdelw1 rlse name= opsi new_list= oh og ogp 
+Cdelw1         call rlse(opsi)
+         if (allocated(rv_w_opsi)) deallocate(rv_w_opsi)
+
       endif
 
-      call rlse (oh)
+Cdelw1 rlse name= oh old_list= oh og ogp 
+Cdelw1 rlse name= oh new_list= (None)
+Cdelw1       call rlse (oh)
+       if (allocated(rv_w_ogp)) deallocate(rv_w_ogp)
+       if (allocated(rv_w_og)) deallocate(rv_w_og)
+       if (allocated(rv_w_oh)) deallocate(rv_w_oh)
+
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine optfab 
 
 
@@ -1052,9 +1166,17 @@ C ... Passed parameters
 C ... Local parameters
       logical cmdopt
       character spid*8, strn*80, flg(2)*1
-      integer ipr,iprint,i,konfig,l,info,lgunit,nn,og,ogp,oh,stdo,
-     .  lplawv,loclo,nfit,isw
-      integer opsi
+Cdelw1       integer ipr,iprint,i,konfig,l,info,lgunit,nn,og,ogp,oh,stdo,
+Cdelw1      .  lplawv,loclo,nfit,isw
+       integer:: ipr , iprint , i , konfig , l , info , lgunit , nn 
+     . , stdo , lplawv , loclo , nfit , isw 
+       real(8) ,allocatable :: rv_w_og(:)
+       real(8) ,allocatable :: rv_w_ogp(:)
+       real(8) ,allocatable :: rv_w_oh(:)
+
+Cdelw1       integer opsi
+       real(8) ,allocatable :: rv_w_opsi(:)
+
       double precision b,dasum,dphi,dphip,e2,eh,eval,p,phi,phip,
      .  pnul,rsm,rsmin,rsmax,ekin
 C     emin and emax are the maximum allowed ranges in Hankel energies
@@ -1077,12 +1199,24 @@ C     stdl = lgunit(2)
       b = rmax/(dexp(a*nr-a)-1d0)
       nfit = 0
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (dasum(lmxa+1,pz,1) .eq. 0) return
 
       do  80  i = 1, nsp
-      call defrr (oh,    nr)
-      call defrr (og,    2*nr)
-      call defrr (ogp,   2*nr*4)
+Cdelw1       call defrr (oh,    nr)
+       allocate(rv_w_oh(nr))
+       if (nr<0) rv_w_oh(:)=0.0d0
+
+Cdelw1       call defrr (og,    2*nr)
+       allocate(rv_w_og(2*nr))
+       if (2*nr<0) rv_w_og(:)=0.0d0
+
+Cdelw1       call defrr (ogp,   2*nr*4)
+       allocate(rv_w_ogp(2*nr*4))
+       if (2*nr*4<0) rv_w_ogp(:)=0.0d0
+
 
 C --- Loop over local orbitals ---
 C      sume1 = 0d0
@@ -1129,8 +1263,11 @@ C       Skip high-lying local orbitals unless specifically sought
 C   ... Get exact fa wavefunction, eigval, pnu_l at rmt
         if (loclo .eq. 1) then
           nn = konfig-l-1
-          call popta3(0,l,z,nn,rmt,nr,nrmt,rofi,v(1,i),a,b,eval,
-     .      pnul,w(og))
+Cdelw1           call popta3(0,l,z,nn,rmt,nr,nrmt,rofi,v(1,i),a,b,eval,
+Cdelw1      .      pnul,w(og))
+           call popta3 ( 0 , l , z , nn , rmt , nr , nrmt , rofi , v ( 1 
+     .     , i ) , a , b , eval , pnul , rv_w_og ) 
+
 C       Finish if in future, need w.f. at r>rmt
 C        else
 C          call popta3(1,l,z,nn,rmt,nr,nrmt,rofi,v(1,i),a,b,eval,
@@ -1139,8 +1276,12 @@ C     .      pnul,w(og))
         pl(l+1,i) = pnul
 
 C   ... Potential parameters at MT sphere
-        call popta4(l,z,rmt,nrmt,rofi,v(1,i),w(og),w(ogp),
-     .    a,b,pnul,eval,p,phi,dphi,phip,dphip)
+Cdelw1         call popta4(l,z,rmt,nrmt,rofi,v(1,i),w(og),w(ogp),
+Cdelw1      .    a,b,pnul,eval,p,phi,dphi,phip,dphip)
+         call popta4 ( l , z , rmt , nrmt , rofi , v ( 1 , i ) , rv_w_og 
+     .   , rv_w_ogp , a , b , pnul , eval , p , phi , dphi , phip , dphip 
+     .   ) 
+
 
 C   ... Set conditions on envelope functions ... For now
         rsmin = rs3
@@ -1185,8 +1326,12 @@ C    .      dphi,rsm,eh,ekin,info)
         endif
 
 C  ... Get energy of this wave function
-        call popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
-     .    v(1,i),a,b,eval,p,phi,dphi,phip,dphip,e2,qrmt)
+Cdelw1         call popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
+Cdelw1      .    v(1,i),a,b,eval,p,phi,dphi,phip,dphip,e2,qrmt)
+         call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , rv_w_oh 
+     .   , v ( 1 , i ) , a , b , eval , p , phi , dphi , phip , dphip 
+     .   , e2 , qrmt ) 
+
 
         if (ipr .ge. 20)
      .    write (stdo,260) l,rsm,eh,qrmt,e2,eval,pnul,tphi,ekin,
@@ -1209,15 +1354,34 @@ C     lplawv=nglob('lplawv')
       if (cmdopt('--plotwf',8,0,strn)) lplawv = 1
       if (lplawv .eq. 1) then
         if (nsp .eq. 2) call rx('optfab is not spinpol yet')
-        call defrr(opsi,  nr*lmxa)
-        call popta5(lmxa,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,
-     .     rofi,w(opsi),v,w(og),a,b,spid)
-        call rlse(opsi)
+Cdelw1         call defrr(opsi,  nr*lmxa)
+         allocate(rv_w_opsi(nr*lmxa))
+         if (nr*lmxa<0) rv_w_opsi(:)=0.0d0
+
+Cdelw1         call popta5(lmxa,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,
+Cdelw1      .     rofi,w(opsi),v,w(og),a,b,spid)
+         call popta5 ( lmxa , rtab , etab , itab , z , pl , rmax , rmt 
+     .   , nr , nrmt , rofi , rv_w_opsi , v , rv_w_og , a , b , spid ) 
+
+Cdelw1 rlse name= opsi old_list= oh og ogp opsi 
+Cdelw1 rlse name= opsi new_list= oh og ogp 
+Cdelw1         call rlse(opsi)
+         if (allocated(rv_w_opsi)) deallocate(rv_w_opsi)
+
       endif
 
-      call rlse (oh)
+Cdelw1 rlse name= oh old_list= oh og ogp 
+Cdelw1 rlse name= oh new_list= (None)
+Cdelw1       call rlse (oh)
+       if (allocated(rv_w_ogp)) deallocate(rv_w_ogp)
+       if (allocated(rv_w_og)) deallocate(rv_w_og)
+       if (allocated(rv_w_oh)) deallocate(rv_w_oh)
+
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine ftfalo 
 
 
@@ -1331,6 +1495,9 @@ C     O = alpha^2 <phi | phi> + beta^2 <phidot | phidot>
 
       qrmt = sum2/sum
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine popta1 
 
 
@@ -1396,6 +1563,9 @@ C ... Local parameters
   810 format(i3,f8.3,f8.3,f10.3,2f9.3,f9.1,f10.3,f8.3,a)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine popta2 
 
       subroutine popta3(mode,l,z,nn,rmt,nr,nrmt,rofi,v,a,b,evl,pnu,g)
@@ -1482,6 +1652,9 @@ C ... Don't set too low..
       endif
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine popta3 
 
       subroutine popta4(l,z,rmt,nrmt,rofi,v,g,gp,a,b,pnu,enu,p,phi,dphi,
@@ -1548,6 +1721,9 @@ c|    write(stdo,200) l,enu,p,phi,dphi,phip,dphip
 c|200 format(' PP',i2,'  e',f10.5,'  p',f10.5,'  bc',4f10.5)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine popta4 
 
 
@@ -1662,6 +1838,9 @@ C ... Write the plot file
       call fclose(ifi)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine popta5 
 
 
@@ -1717,6 +1896,9 @@ C  339 format(/' coretail:  rho(rmt)=',f12.8,'   charge=',f12.8)
       if (dabs(q0) .lt. 1d-6) then
         c = 0d0
         eh = -1d0
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
         return
       endif
 
@@ -1781,6 +1963,9 @@ c|      write(stdo,965) q
 c|  965 format(' integral over smoothed core:',f10.5)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine fctail 
 
 

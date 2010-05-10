@@ -1,3 +1,7 @@
+Cdelw1 var ['ocm', '0', 'ocm', 'n', 'real(8)', 'rv_w_', 'ropyln']
+Cdelw1 var ['osm', '0', 'osm', 'n', 'real(8)', 'rv_w_', 'ropyln']
+Cdelw1 var ['oq', '0', 'oq', 'n*2', 'real(8)', 'rv_w_', 'ropyln']
+Cdelw1 var ['oh', '0', 'oh', 'n', 'real(8)', 'rv_w_', 'ropyln']
       subroutine ropyln(n,x,y,z,lmax,nd,yl,rsq)
 C- Normalized spheric harmonic polynomials (vectorizes).
 C ----------------------------------------------------------------------
@@ -18,7 +22,13 @@ Cu Updates
 Cu  25 Jun 03 (Kino) initialize cx to zero
 C ----------------------------------------------------------------------
 C     implicit none
-      integer nd,n,i,m,lmax,l,kk,ocm,osm,oq,oh
+Cdelw1       integer nd,n,i,m,lmax,l,kk,ocm,osm,oq,oh
+       integer:: nd , n , i , m , lmax , l , kk 
+       real(8) ,allocatable :: rv_w_ocm(:)
+       real(8) ,allocatable :: rv_w_osm(:)
+       real(8) ,allocatable :: rv_w_oq(:)
+       real(8) ,allocatable :: rv_w_oh(:)
+
       double precision x(1),y(1),z(1),yl(nd,1),rsq(1),cx(3)
       double precision fpi,f2m
       integer w(1)
@@ -27,10 +37,22 @@ C     implicit none
 C     call tcn('ropyln')
       if (n .gt. nd) call rx('ropyln: nd too small')
       fpi = 16*datan(1d0)
-      call defrr(ocm,  n)
-      call defrr(osm,  n)
-      call defrr(oq,   n*2)
-      call defrr(oh,   n)
+Cdelw1       call defrr(ocm,  n)
+       allocate(rv_w_ocm(n))
+       if (n<0) rv_w_ocm(:)=0.0d0
+
+Cdelw1       call defrr(osm,  n)
+       allocate(rv_w_osm(n))
+       if (n<0) rv_w_osm(:)=0.0d0
+
+Cdelw1       call defrr(oq,   n*2)
+       allocate(rv_w_oq(n*2))
+       if (n*2<0) rv_w_oq(:)=0.0d0
+
+Cdelw1       call defrr(oh,   n)
+       allocate(rv_w_oh(n))
+       if (n<0) rv_w_oh(:)=0.0d0
+
       do  2  i = 1, n
     2 rsq(i) = x(i)*x(i)+y(i)*y(i)+z(i)*z(i)
       cx(1) = 0
@@ -40,7 +62,9 @@ C     call tcn('ropyln')
 C --- Loop over m: cx are normalizations for l, l-1, l-2 ---
       f2m = 1d0
       do  10  m = 0, lmax
-      call ropcsm(m,n,x,y,w(oh),w(ocm),w(osm))
+Cdelw1       call ropcsm(m,n,x,y,w(oh),w(ocm),w(osm))
+       call ropcsm ( m , n , x , y , rv_w_oh , rv_w_ocm , rv_w_osm ) 
+
       if (m .eq. 0) then
         cx(1) = dsqrt(1/fpi)
       else
@@ -48,15 +72,30 @@ C --- Loop over m: cx are normalizations for l, l-1, l-2 ---
         cx(1) = dsqrt((2*m+1)*2/fpi/f2m)
       endif
       do  11  l = m, lmax
-        call ropqln(m,l,n,rsq,z,cx,w(oq),kk)
-        call ropynx(m,l,kk,n,w(oq),w(ocm),w(osm),nd,yl)
+Cdelw1         call ropqln(m,l,n,rsq,z,cx,w(oq),kk)
+         call ropqln ( m , l , n , rsq , z , cx , rv_w_oq , kk ) 
+
+Cdelw1         call ropynx(m,l,kk,n,w(oq),w(ocm),w(osm),nd,yl)
+         call ropynx ( m , l , kk , n , rv_w_oq , rv_w_ocm , rv_w_osm 
+     .   , nd , yl ) 
+
         cx(3) = cx(2)
         cx(2) = cx(1)
         cx(1) = cx(1)*dsqrt(dble((l+1-m)*(2*l+3))/dble((l+1+m)*(2*l+1)))
    11 continue
    10 continue
-      call rlse(ocm)
+Cdelw1 rlse name= ocm old_list= ocm osm oq oh 
+Cdelw1 rlse name= ocm new_list= (None)
+Cdelw1       call rlse(ocm)
+       if (allocated(rv_w_oh)) deallocate(rv_w_oh)
+       if (allocated(rv_w_oq)) deallocate(rv_w_oq)
+       if (allocated(rv_w_osm)) deallocate(rv_w_osm)
+       if (allocated(rv_w_ocm)) deallocate(rv_w_ocm)
+
 C     call tcx('ropyln')
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 C     Separate subroutines below to avoid problems with some
 C     optimizing compilers.
@@ -173,6 +212,9 @@ C     print *, ylok(1,2)
 
       print 335, tops
   335 format(' max error for ylm:',1pe12.2)
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine makr(rsm,nr,x,y,z)
       implicit none
@@ -190,6 +232,9 @@ C     print *, ylok(1,2)
         z(i) = (ran1()-.5d0)*5*rs
    10 continue
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 #endif
 

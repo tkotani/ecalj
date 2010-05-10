@@ -1,3 +1,54 @@
+Cdelw1 var ['ogv', '1', 'ogv', 'ng*3', 'real(8)', 'rv_w_', 'hsibl']
+Cdelw1 var ['okv', '1', 'okv', 'ng*3', 'integer', 'iv_w_', 'hsibl']
+Cdelw1 var ['oiv', '1', 'oiv', 'ng*3', 'integer', 'iv_w_', 'hsibl']
+Cdelw1 var ['og', '1', 'og', 'ng*3', 'real(8)', 'rv_w_', 'hsibl']
+Cdelw1 var ['oyl', '1', 'oyl', 'ng*nlmtop', 'real(8)', 'rv_w_', 'hsibl']
+Cdelw1 var ['og2', '1', 'og2', 'ng', 'real(8)', 'rv_w_', 'hsibl']
+Cdelw1 var ['ohe', '1', 'ohe', 'ng*net', 'real(8)', 'rv_w_', 'hsibl']
+Cdelw1 var ['ohr', '1', 'ohr', 'ng*nrt', 'real(8)', 'rv_w_', 'hsibl']
+Cdelw1 var ['oic1', '2', 'oic1(ip)', 'ng*ndimx', 'complex(8)', 'zv_w_', 'hsibl']
+Cdelw1 var ['oicf1', '2', 'oicf1(ip)', 'nhblk*ndimx', 'complex(8)', 'zv_w_', 'hsibl']
+Cdelw1 var ['oic2', '2', 'oic2(ip)', 'ng*ndimx', 'complex(8)', 'zv_w_', 'hsibl']
+Cdelw1 var ['oicf2', '2', 'oicf2(ip)', 'ndimx', 'complex(8)', 'zv_w_', 'hsibl']
+Cdelw1 var ['oicos1', '2', 'oicos1(ip)', 'ng', 'real(8)', 'rv_w_', 'hsibl']
+Cdelw1 var ['oisin1', '2', 'oisin1(ip)', 'ng', 'real(8)', 'rv_w_', 'hsibl']
+Cdelw1 var ['oicos2', '2', 'oicos2(ip)', 'ng', 'real(8)', 'rv_w_', 'hsibl']
+Cdelw1 var ['oisin2', '2', 'oisin2(ip)', 'ng', 'real(8)', 'rv_w_', 'hsibl']
+Cdelw1 var ['oiwk', '2', 'oiwk(ip)', 'ng', 'real(8)', 'rv_w_', 'hsibl']
+Cdelw1 var ['oif', '2', 'oif(ip)', 'k1*k2*k3', 'complex(8)', 'zv_w_', 'hsibl']
+Cdelw1 var ['oh', '1', 'oh', '-ndimh*ndimh', 'complex(8)', 'zv_w_', 'hsibl']
+Cdelw1 var ['ocos1', '-1', 'undef', '0', 'undef', 'x', 'hsibl']
+Cdelw1 var ['osin1', '-1', 'undef', '0', 'undef', 'x', 'hsibl']
+Cdelw1 var ['owk', '-1', 'undef', '0', 'undef', 'x', 'hsibl']
+Cdelw1 var ['oc1', '-1', 'undef', '0', 'undef', 'x', 'hsibl']
+Cdelw1 var ['ocf1', '-1', 'undef', '0', 'undef', 'x', 'hsibl']
+Cdelw1 var ['of', '-1', 'undef', '0', 'undef', 'x', 'hsibl']
+Cdelw1 var ['ocos2', '-1', 'undef', '0', 'undef', 'x', 'hsibl']
+Cdelw1 var ['osin2', '-1', 'undef', '0', 'undef', 'x', 'hsibl']
+Cdelw1 var ['oc2', '-1', 'undef', '0', 'undef', 'x', 'hsibl']
+Cdelw1 var ['ocf2', '-1', 'undef', '0', 'undef', 'x', 'hsibl']
+Cdelw1 var ['owk2', '3', 'owk2', '-ndim1*ndim2', 'complex(8)', 'zv_w_', 'hsibl']
+Cdelw1 var ['ohbuf', '1', 'ohbuf', 'ndimh*ndimh', 'complex(8)', 'zv_w_', 'hsibl']
+Cdelw1 undel [['undef', 'wref'], 'ocos1', 'hsibl']
+Cdelw1 undel [['undef', 'wref'], 'osin1', 'hsibl']
+Cdelw1 undel [['undef', 'wref'], 'owk', 'hsibl']
+Cdelw1 undel [['undef', 'wref'], 'oc1', 'hsibl']
+Cdelw1 undel [['undef', 'wref'], 'ocf1', 'hsibl']
+Cdelw1 undel [['undef', 'wref'], 'of', 'hsibl']
+Cdelw1 undel [['undef', 'wref'], 'ocos2', 'hsibl']
+Cdelw1 undel [['undef', 'wref'], 'osin2', 'hsibl']
+Cdelw1 undel [['undef', 'wref'], 'oc2', 'hsibl']
+Cdelw1 undel [['undef', 'wref'], 'ocf2', 'hsibl']
+Cdelw1 undel [['array', 'wref'], 'oic1', 'hsibl']
+Cdelw1 undel [['array', 'wref'], 'oicf1', 'hsibl']
+Cdelw1 undel [['array', 'wref'], 'oic2', 'hsibl']
+Cdelw1 undel [['array', 'wref'], 'oicf2', 'hsibl']
+Cdelw1 undel [['array', 'wref'], 'oicos1', 'hsibl']
+Cdelw1 undel [['array', 'wref'], 'oisin1', 'hsibl']
+Cdelw1 undel [['array', 'wref'], 'oicos2', 'hsibl']
+Cdelw1 undel [['array', 'wref'], 'oisin2', 'hsibl']
+Cdelw1 undel [['array', 'wref'], 'oiwk', 'hsibl']
+Cdelw1 undel [['array', 'wref'], 'oif', 'hsibl']
 Cgetarg...info...           structure ['hsibl', 'lat', 'slat']
 Cgetarg...info...           structure ['hsibl', 'site', 'ssite']
 Cgetarg...info...           structure ['hsibl', 'spec', 'sspec']
@@ -97,19 +148,56 @@ C ... Local parameters
       integer n0,npmx,nkap0,nkape,nermx,nspec,ngabc(3),nhblk,nlmto
       parameter (n0=10,nkap0=3,nkape=2,nermx=100)
       parameter (npmx=128,nhblk=60)
+Cdelw1 do not change  [['array', 'wref'], 'oic1', 'hsibl']
+Cdelw1 do not change  [['array', 'wref'], 'oic2', 'hsibl']
+Cdelw1 do not change  [['array', 'wref'], 'oicos1', 'hsibl']
+Cdelw1 do not change  [['array', 'wref'], 'oicos2', 'hsibl']
+Cdelw1 do not change  [['array', 'wref'], 'oicf1', 'hsibl']
+Cdelw1 do not change  [['array', 'wref'], 'oicf2', 'hsibl']
+Cdelw1 do not change  [['array', 'wref'], 'oisin1', 'hsibl']
+Cdelw1 do not change  [['array', 'wref'], 'oisin2', 'hsibl']
+Cdelw1 do not change  [['array', 'wref'], 'oiwk', 'hsibl']
+Cdelw1 do not change  [['array', 'wref'], 'oif', 'hsibl']
       integer oic1(npmx),oic2(npmx),oicos1(npmx),oicos2(npmx),
      .        oicf1(npmx),oicf2(npmx),
      .        oisin1(npmx),oisin2(npmx),oiwk(npmx),oif(npmx)
-      integer ltop,nbas,n1,n2,n3,net,ng,nglob,nlmtop,nrt,og,og2,ogv,
-     .  ohe,ohr,okv,oyl,ndimx,nnrl,ncuti(nhblk),iprint
+Cdelw1       integer ltop,nbas,n1,n2,n3,net,ng,nglob,nlmtop,nrt,og,og2,ogv,
+Cdelw1      .  ohe,ohr,okv,oyl,ndimx,nnrl,ncuti(nhblk),iprint
+       integer:: ltop , nbas , n1 , n2 , n3 , net , ng , nglob , nlmtop 
+     . , nrt , ndimx , nnrl , ncuti(nhblk) , iprint 
+       real(8) ,allocatable :: rv_w_og(:)
+       real(8) ,allocatable :: rv_w_og2(:)
+       real(8) ,allocatable :: rv_w_ogv(:)
+       real(8) ,allocatable :: rv_w_ohe(:)
+       real(8) ,allocatable :: rv_w_ohr(:)
+       integer ,allocatable :: iv_w_okv(:)
+       real(8) ,allocatable :: rv_w_oyl(:)
+
       double precision alat,plat(3,3),qlat(3,3),vol,gmax,q0(3)
       double precision etab(nermx),rtab(nermx)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 C     Shared variables
-      integer i,ib1,ib2,ie,ofh1,ofh2,ip,ir,is1,is2,j,
-     .        mp,nlm1,nlm2,ik1,ik2,l1,iorb1,l2,l2t,iorb2,jorb2,
-     .        oiv,osin1,osin2,oc1,ocf1,oc2,ocf2,ocos1,ocos2,
-     .        of,owk,owk2,ndim1,ndim2,nkap1,nkap2
+Cdelw1 do not change  [['undef', 'wref'], 'osin1', 'hsibl']
+Cdelw1 do not change  [['undef', 'wref'], 'osin2', 'hsibl']
+Cdelw1 do not change  [['undef', 'wref'], 'oc1', 'hsibl']
+Cdelw1 do not change  [['undef', 'wref'], 'ocf1', 'hsibl']
+Cdelw1 do not change  [['undef', 'wref'], 'oc2', 'hsibl']
+Cdelw1 do not change  [['undef', 'wref'], 'ocf2', 'hsibl']
+Cdelw1 do not change  [['undef', 'wref'], 'ocos1', 'hsibl']
+Cdelw1 do not change  [['undef', 'wref'], 'ocos2', 'hsibl']
+Cdelw1 do not change  [['undef', 'wref'], 'of', 'hsibl']
+Cdelw1 do not change  [['undef', 'wref'], 'owk', 'hsibl']
+Cdelw1       integer i,ib1,ib2,ie,ofh1,ofh2,ip,ir,is1,is2,j,
+Cdelw1      .        mp,nlm1,nlm2,ik1,ik2,l1,iorb1,l2,l2t,iorb2,jorb2,
+Cdelw1      .        oiv,osin1,osin2,oc1,ocf1,oc2,ocf2,ocos1,ocos2,
+Cdelw1      .        of,owk,owk2,ndim1,ndim2,nkap1,nkap2
+       integer:: i , ib1 , ib2 , ie , ofh1 , ofh2 , ip , ir , is1 , 
+     . is2 , j , mp , nlm1 , nlm2 , ik1 , ik2 , l1 , iorb1 , l2 , l2t 
+     . , iorb2 , jorb2 , osin1 , osin2 , oc1 , ocf1 , oc2 , ocf2 , ocos1 
+     . , ocos2 , of , owk , ndim1 , ndim2 , nkap1 , nkap2 
+       integer ,allocatable :: iv_w_oiv(:)
+       complex(8) ,allocatable :: zv_w_owk2(:)
+
       integer iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx),
      .        ncut(n0,nkap0),lh(nkap0)
       integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
@@ -125,7 +213,11 @@ C$    integer mp_numthreads,mp_my_threadnum
       double precision, dimension(:), allocatable :: buffer
       integer, dimension(:,:), allocatable :: index
 #endif 
-      integer oh,ohbuf,iloop
+Cdelw1       integer oh,ohbuf,iloop
+       integer:: iloop 
+       complex(8) ,allocatable :: zv_w_oh(:)
+       complex(8) ,allocatable :: zv_w_ohbuf(:)
+
 C ... Heap
       integer w(1)
       common /w/ w
@@ -183,13 +275,25 @@ C     NB: gv generated by gvlst2 has q already added to it!
       call pshpr(iprint()-30)
 C     call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1000,0,ng,xx,xx,xx,xx)
       call gvlist(alat,plat,q,n1,n2,n3,gmax,500,0,ng,xx,xx,xx,xx)
-      call defrr(ogv, ng*3)
-      call defi (okv, ng*3)
-      call defi (oiv, ng*3)
+Cdelw1       call defrr(ogv, ng*3)
+       allocate(rv_w_ogv(ng*3))
+       if (ng*3<0) rv_w_ogv(:)=0.0d0
+
+Cdelw1       call defi (okv, ng*3)
+       allocate(iv_w_okv(ng*3))
+       if (ng*3<0) iv_w_okv(:)=0
+
+Cdelw1       call defi (oiv, ng*3)
+       allocate(iv_w_oiv(ng*3))
+       if (ng*3<0) iv_w_oiv(:)=0
+
 C      call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1009,ng,ng,w(okv),
 C     .  w(ogv),w(oiv),w(oiv))
-      call gvlist(alat,plat,q,n1,n2,n3,gmax,509,ng,ng,w(okv),w(ogv),
-     .  w(oiv),w(oiv)) !Only former one, igv(ng,3), is effective for job=509
+Cdelw1       call gvlist(alat,plat,q,n1,n2,n3,gmax,509,ng,ng,w(okv),w(ogv),
+Cdelw1      .  w(oiv),w(oiv)) !Only former one, igv(ng,3), is effective for job=509
+       call gvlist ( alat , plat , q , n1 , n2 , n3 , gmax , 509 , ng 
+     . , ng , iv_w_okv , rv_w_ogv , iv_w_oiv , iv_w_oiv ) 
+
       call poppr
       call tcx('gvlist')
 
@@ -200,15 +304,34 @@ C     ndimx = maximum hamiltonian dimension for any site
 
 C --- Allocate and occupy arrays for YL, energy factors, rsm factors ---
       nlmtop = (ltop+1)**2
-      call defrr(og,  ng*3)
-      call defrr(oyl, ng*nlmtop)
-      call defrr(og2, ng)
-      call defrr(ohe, ng*net)
-      call defrr(ohr, ng*nrt)
+Cdelw1       call defrr(og,  ng*3)
+       allocate(rv_w_og(ng*3))
+       if (ng*3<0) rv_w_og(:)=0.0d0
+
+Cdelw1       call defrr(oyl, ng*nlmtop)
+       allocate(rv_w_oyl(ng*nlmtop))
+       if (ng*nlmtop<0) rv_w_oyl(:)=0.0d0
+
+Cdelw1       call defrr(og2, ng)
+       allocate(rv_w_og2(ng))
+       if (ng<0) rv_w_og2(:)=0.0d0
+
+Cdelw1       call defrr(ohe, ng*net)
+       allocate(rv_w_ohe(ng*net))
+       if (ng*net<0) rv_w_ohe(:)=0.0d0
+
+Cdelw1       call defrr(ohr, ng*nrt)
+       allocate(rv_w_ohr(ng*nrt))
+       if (ng*nrt<0) rv_w_ohr(:)=0.0d0
+
 C     gv has q already added ...
       call dpzero(q0,3)
-      call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,w(ogv),w(og),w(og2),
-     .  w(oyl),w(ohe),w(ohr))
+Cdelw1       call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,w(ogv),w(og),w(og2),
+Cdelw1      .  w(oyl),w(ohe),w(ohr))
+       call hsibl1 ( net , etab , nrt , rtab , ltop , alat , q0 , ng 
+     . , rv_w_ogv , rv_w_og , rv_w_og2 , rv_w_oyl , rv_w_ohe , rv_w_ohr 
+     . ) 
+
 
 C ... Allocate local arrays; setup for fast phase factors
 C     Setup already done in gvlst2
@@ -219,19 +342,31 @@ C$    mp = mp_numthreads()
 C$    if (mp .gt. npmx) call rxi('hsibl: increase npmx, needed',mp)
       do  ip = 1, min(mp,nbas)
 #if SGI | MPI
+Cdelw1 do not change oic1 because of ['array', 'wref']
         call defcc(oic1(ip),   ng*ndimx)
+Cdelw1 do not change oicf1 because of ['array', 'wref']
         call defcc(oicf1(ip),  nhblk*ndimx)
 #else
+Cdelw1 do not change oic1 because of ['array', 'wref']
         call defcc(oic1(ip),   ng*nhblk)
+Cdelw1 do not change oicf1 because of ['array', 'wref']
         call defcc(oicf1(ip),  nhblk)
 #endif
+Cdelw1 do not change oic2 because of ['array', 'wref']
         call defcc(oic2(ip),   ng*ndimx)
+Cdelw1 do not change oicf2 because of ['array', 'wref']
         call defcc(oicf2(ip),  ndimx)
+Cdelw1 do not change oicos1 because of ['array', 'wref']
         call defrr(oicos1(ip), ng)
+Cdelw1 do not change oisin1 because of ['array', 'wref']
         call defrr(oisin1(ip), ng)
+Cdelw1 do not change oicos2 because of ['array', 'wref']
         call defrr(oicos2(ip), ng)
+Cdelw1 do not change oisin2 because of ['array', 'wref']
         call defrr(oisin2(ip), ng)
+Cdelw1 do not change oiwk because of ['array', 'wref']
         call defrr(oiwk(ip),   ng)
+Cdelw1 do not change oif because of ['array', 'wref']
         call defcc(oif(ip),    k1*k2*k3)
       enddo
 
@@ -248,7 +383,10 @@ C$&       MP_SCHEDTYPE=RUNTIME
 #if MPE
       ierr = MPE_LOG_EVENT(EVENT_START_HSIBL,procid,"hsibl")
 #endif 
-      call defcc(oh, -ndimh*ndimh)
+Cdelw1       call defcc(oh, -ndimh*ndimh)
+       allocate(zv_w_oh(abs(-ndimh*ndimh)))
+       if (-ndimh*ndimh<0) zv_w_oh(:)=0.0d0
+
       allocate (index(0:numprocs-1,0:nbas-1), stat=ierr)
       call dstrbp(nbas,numprocs,-1,index(0,0))
 
@@ -277,15 +415,45 @@ c      do  ib1 = 1, nbas
         ip = 1
 C$      ip = mp_my_threadnum()+1
         if (nbas .lt. mp) ip = ib1
+Cdelw1 do not change oic1 because of ['array', 'wref']
+Cdelw1 warning(1) , probably  oc1  is not defined yet at linenumber= 280
+Cdelw1 do not change oc1 because of ['undef', 'wref']
         oc1   = oic1(ip)
+Cdelw1 do not change oic2 because of ['array', 'wref']
+Cdelw1 warning(1) , probably  oc2  is not defined yet at linenumber= 281
+Cdelw1 do not change oc2 because of ['undef', 'wref']
         oc2   = oic2(ip)
+Cdelw1 do not change oicf1 because of ['array', 'wref']
+Cdelw1 warning(1) , probably  ocf1  is not defined yet at linenumber= 282
+Cdelw1 do not change ocf1 because of ['undef', 'wref']
         ocf1  = oicf1(ip)
+Cdelw1 do not change oicf2 because of ['array', 'wref']
+Cdelw1 warning(1) , probably  ocf2  is not defined yet at linenumber= 283
+Cdelw1 do not change ocf2 because of ['undef', 'wref']
         ocf2  = oicf2(ip)
+Cdelw1 do not change oicos1 because of ['array', 'wref']
+Cdelw1 warning(1) , probably  ocos1  is not defined yet at linenumber= 284
+Cdelw1 do not change ocos1 because of ['undef', 'wref']
         ocos1 = oicos1(ip)
+Cdelw1 do not change oisin1 because of ['array', 'wref']
+Cdelw1 warning(1) , probably  osin1  is not defined yet at linenumber= 285
+Cdelw1 do not change osin1 because of ['undef', 'wref']
         osin1 = oisin1(ip)
+Cdelw1 do not change oicos2 because of ['array', 'wref']
+Cdelw1 warning(1) , probably  ocos2  is not defined yet at linenumber= 286
+Cdelw1 do not change ocos2 because of ['undef', 'wref']
         ocos2 = oicos2(ip)
+Cdelw1 do not change oisin2 because of ['array', 'wref']
+Cdelw1 warning(1) , probably  osin2  is not defined yet at linenumber= 287
+Cdelw1 do not change osin2 because of ['undef', 'wref']
         osin2 = oisin2(ip)
+Cdelw1 do not change oiwk because of ['array', 'wref']
+Cdelw1 warning(1) , probably  owk  is not defined yet at linenumber= 288
+Cdelw1 do not change owk because of ['undef', 'wref']
         owk   = oiwk(ip)
+Cdelw1 do not change oif because of ['array', 'wref']
+Cdelw1 warning(1) , probably  of  is not defined yet at linenumber= 289
+Cdelw1 do not change of because of ['undef', 'wref']
         of    = oif(ip)
         ndim1 = 0
 
@@ -297,7 +465,18 @@ Cgetarg         call upack('site spec pos',ssite,ib1,is1,p1,0,0)
          i_copy_size=size(ssite(ib1)%pos) 
          call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1) 
 
-        call suphas(q,p1,ng,w(oiv),n1,n2,n3,qlat,w(ocos1),w(osin1))
+Cdelw1 warning(1) , probably  ocos1  is not defined yet at linenumber= 300
+Cdelw1 do not change ocos1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  osin1  is not defined yet at linenumber= 300
+Cdelw1 do not change osin1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocos1  is not defined yet at linenumber= 300
+Cdelw1 do not change ocos1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  osin1  is not defined yet at linenumber= 300
+Cdelw1 do not change osin1 because of ['undef', 'wref']
+Cdelw1         call suphas(q,p1,ng,w(oiv),n1,n2,n3,qlat,w(ocos1),w(osin1))
+         call suphas ( q , p1 , ng , iv_w_oiv , n1 , n2 , n3 , qlat , 
+     .   w ( ocos1 ) , w ( osin1 ) ) 
+
 C       List of orbitals, their l- and k- indices, and ham offsets
         call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
         ofh1 = offl1(1)
@@ -312,15 +491,50 @@ C       Block routines into groups with common (e,rsm)
           nlm2 = nlm1 + blks1(iorb1)-1
           ie   = ipet(l1+1,ik1,is1)
           ir   = iprt(l1+1,ik1,is1)
-          call hsibl3(ie,ir,etab,rtab,vol,nlm1,nlm2,ndim1,ng,w(oyl),
-     .      w(ohe),w(ohr),w(ocos1),w(osin1),w(owk),w(oc1),w(ocf1))
+Cdelw1 warning(1) , probably  ocos1  is not defined yet at linenumber= 315
+Cdelw1 do not change ocos1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  osin1  is not defined yet at linenumber= 315
+Cdelw1 do not change osin1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  owk  is not defined yet at linenumber= 315
+Cdelw1 do not change owk because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oc1  is not defined yet at linenumber= 315
+Cdelw1 do not change oc1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf1  is not defined yet at linenumber= 315
+Cdelw1 do not change ocf1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocos1  is not defined yet at linenumber= 315
+Cdelw1 do not change ocos1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  osin1  is not defined yet at linenumber= 315
+Cdelw1 do not change osin1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  owk  is not defined yet at linenumber= 315
+Cdelw1 do not change owk because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oc1  is not defined yet at linenumber= 315
+Cdelw1 do not change oc1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf1  is not defined yet at linenumber= 315
+Cdelw1 do not change ocf1 because of ['undef', 'wref']
+Cdelw1           call hsibl3(ie,ir,etab,rtab,vol,nlm1,nlm2,ndim1,ng,w(oyl),
+Cdelw1      .      w(ohe),w(ohr),w(ocos1),w(osin1),w(owk),w(oc1),w(ocf1))
+           call hsibl3 ( ie , ir , etab , rtab , vol , nlm1 , nlm2 , ndim1 
+     .     , ng , rv_w_oyl , rv_w_ohe , rv_w_ohr , w ( ocos1 ) , w ( osin1 
+     .     ) , w ( owk ) , w ( oc1 ) , w ( ocf1 ) ) 
+
           ndim1 = ndim1 + max(nlm2-nlm1+1,0)
         endif
         enddo
 
 C   ... Multiply potential into wave functions for orbitals in ib1
-        call hsibl4(n1,n2,n3,k1,k2,k3,vsm(1,1,1,isp),w(of),ng,w(okv),
-     .    ndim1,w(oc1))
+Cdelw1 warning(1) , probably  oc1  is not defined yet at linenumber= 322
+Cdelw1 do not change oc1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  of  is not defined yet at linenumber= 322
+Cdelw1 do not change of because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oc1  is not defined yet at linenumber= 322
+Cdelw1 do not change oc1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  of  is not defined yet at linenumber= 322
+Cdelw1 do not change of because of ['undef', 'wref']
+Cdelw1         call hsibl4(n1,n2,n3,k1,k2,k3,vsm(1,1,1,isp),w(of),ng,w(okv),
+Cdelw1      .    ndim1,w(oc1))
+         call hsibl4 ( n1 , n2 , n3 , k1 , k2 , k3 , vsm ( 1 , 1 , 1 , 
+     .   isp ) , w ( of ) , ng , iv_w_okv , ndim1 , w ( oc1 ) ) 
+
 
 C   ... Loop over second of (ib1,ib2) site pairs
         do  ib2 = ib1, nbas
@@ -340,7 +554,18 @@ Cgetarg           call upack2('spec ngcut',sspec,is2,ncut)
            i_copy_size=size(sspec(is2)%ngcut) 
            call i8icopy(i_copy_size,sspec(is2)%ngcut,1,ncut,1) 
 
-          call suphas(q,p2,ng,w(oiv),n1,n2,n3,qlat,w(ocos2),w(osin2))
+Cdelw1 warning(1) , probably  ocos2  is not defined yet at linenumber= 343
+Cdelw1 do not change ocos2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  osin2  is not defined yet at linenumber= 343
+Cdelw1 do not change osin2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocos2  is not defined yet at linenumber= 343
+Cdelw1 do not change ocos2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  osin2  is not defined yet at linenumber= 343
+Cdelw1 do not change osin2 because of ['undef', 'wref']
+Cdelw1           call suphas(q,p2,ng,w(oiv),n1,n2,n3,qlat,w(ocos2),w(osin2))
+           call suphas ( q , p2 , ng , iv_w_oiv , n1 , n2 , n3 , qlat , 
+     .     w ( ocos2 ) , w ( osin2 ) ) 
+
 C         List of orbitals, their l- and k- indices, and ham offsets
           call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
           ofh2 = offl2(1)
@@ -360,46 +585,126 @@ C         Block into groups with consecutive l and common (e,rsm)
             if (ndim2+nlm2-nlm1+1 .gt. nhblk) call rxi(
      .        'increase nhblk in hsibl; need',ndim2+nlm2-nlm1+1)
 C           Assemble hkl(G+q)
-            call hsibl3(ie,ir,etab,rtab,vol,nlm1,nlm2,ndim2,ng,w(oyl),
-     .        w(ohe),w(ohr),w(ocos2),w(osin2),w(owk),w(oc2),w(ocf2))
+Cdelw1 warning(1) , probably  owk  is not defined yet at linenumber= 363
+Cdelw1 do not change owk because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocos2  is not defined yet at linenumber= 363
+Cdelw1 do not change ocos2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  osin2  is not defined yet at linenumber= 363
+Cdelw1 do not change osin2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oc2  is not defined yet at linenumber= 363
+Cdelw1 do not change oc2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf2  is not defined yet at linenumber= 363
+Cdelw1 do not change ocf2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  owk  is not defined yet at linenumber= 363
+Cdelw1 do not change owk because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocos2  is not defined yet at linenumber= 363
+Cdelw1 do not change ocos2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  osin2  is not defined yet at linenumber= 363
+Cdelw1 do not change osin2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oc2  is not defined yet at linenumber= 363
+Cdelw1 do not change oc2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf2  is not defined yet at linenumber= 363
+Cdelw1 do not change ocf2 because of ['undef', 'wref']
+Cdelw1             call hsibl3(ie,ir,etab,rtab,vol,nlm1,nlm2,ndim2,ng,w(oyl),
+Cdelw1      .        w(ohe),w(ohr),w(ocos2),w(osin2),w(owk),w(oc2),w(ocf2))
+             call hsibl3 ( ie , ir , etab , rtab , vol , nlm1 , nlm2 , ndim2 
+     .       , ng , rv_w_oyl , rv_w_ohe , rv_w_ohr , w ( ocos2 ) , w ( osin2 
+     .       ) , w ( owk ) , w ( oc2 ) , w ( ocf2 ) ) 
+
             call ivset(ncuti,ndim2+1,ndim2+nlm2-nlm1+1,ncut(l2t+1,ik2))
             ndim2 = ndim2 + max(nlm2-nlm1+1,0)
           endif
           enddo
 
 C     ... Scalar products phi1*vsm*phi2 for all orbitals in (ib1,ib2)
-          call defcc(owk2,-ndim1*ndim2)
+Cdelw1           call defcc(owk2,-ndim1*ndim2)
+           allocate(zv_w_owk2(abs(-ndim1*ndim2)))
+           if (-ndim1*ndim2<0) zv_w_owk2(:)=0.0d0
+
 
 ctakao Apr2009
 c ncuti give by lmfp-suham-sugcut(1,..) lmfp-bndfp-suham2-sugcut(2,..) (1 is for normal MTO, 2 is for lo)
 c are only at Gamma point; thus symmetry can not be kept well for other k points.
-          call ncutcorrect(ncuti,ndim2,w(ogv),ng)
+Cdelw1           call ncutcorrect(ncuti,ndim2,w(ogv),ng)
+           call ncutcorrect ( ncuti , ndim2 , rv_w_ogv , ng ) 
+
 c
 
-          call hsibl2(ndim1,ndim2,ng,ncuti,w(oc1),w(ocf1),
-     .      w(oc2),w(ocf2),ndim1,0,0,w(owk2))
+Cdelw1 warning(1) , probably  oc1  is not defined yet at linenumber= 379
+Cdelw1 do not change oc1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf1  is not defined yet at linenumber= 379
+Cdelw1 do not change ocf1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oc2  is not defined yet at linenumber= 379
+Cdelw1 do not change oc2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf2  is not defined yet at linenumber= 379
+Cdelw1 do not change ocf2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oc1  is not defined yet at linenumber= 379
+Cdelw1 do not change oc1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf1  is not defined yet at linenumber= 379
+Cdelw1 do not change ocf1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oc2  is not defined yet at linenumber= 379
+Cdelw1 do not change oc2 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf2  is not defined yet at linenumber= 379
+Cdelw1 do not change ocf2 because of ['undef', 'wref']
+Cdelw1           call hsibl2(ndim1,ndim2,ng,ncuti,w(oc1),w(ocf1),
+Cdelw1      .      w(oc2),w(ocf2),ndim1,0,0,w(owk2))
+           call hsibl2 ( ndim1 , ndim2 , ng , ncuti , w ( oc1 ) , w ( ocf1 
+     .     ) , w ( oc2 ) , w ( ocf2 ) , ndim1 , 0 , 0 , zv_w_owk2 ) 
+
 
 C     ... Add to hamiltonian
 #if MPI
-          call hsibl5(norb1,blks1,offl1,ndim1,norb2,blks2,offl2,ndim2,
-     .                ndimh,w(owk2),w(oh))
+Cdelw1           call hsibl5(norb1,blks1,offl1,ndim1,norb2,blks2,offl2,ndim2,
+Cdelw1      .                ndimh,w(owk2),w(oh))
+           call hsibl5 ( norb1 , blks1 , offl1 , ndim1 , norb2 , blks2 , 
+     .     offl2 , ndim2 , ndimh , zv_w_owk2 , zv_w_oh ) 
+
 #else
 C         print *, ib1,ib2
-          call hsibl5(norb1,blks1,offl1,ndim1,norb2,blks2,offl2,ndim2,
-     .                ndimh,w(owk2),h)
+Cdelw1           call hsibl5(norb1,blks1,offl1,ndim1,norb2,blks2,offl2,ndim2,
+Cdelw1      .                ndimh,w(owk2),h)
+           call hsibl5 ( norb1 , blks1 , offl1 , ndim1 , norb2 , blks2 , 
+     .     offl2 , ndim2 , ndimh , zv_w_owk2 , h ) 
+
 #endif 
 
-          call rlse(owk2)
+Cdelw1 rlse name= owk2 old_list= ogv okv oiv og oyl og2 ohe ohr oic1 oicf1 oic2 oicf2 oicos1 oisin1 oicos2 oisin2 oiwk oif oh owk2 
+Cdelw1 rlse name= owk2 new_list= ogv okv oiv og oyl og2 ohe ohr oic1 oicf1 oic2 oicf2 oicos1 oisin1 oicos2 oisin2 oiwk oif oh 
+Cdelw1           call rlse(owk2)
+           if (allocated(zv_w_owk2)) deallocate(zv_w_owk2)
+
 C       Ends loop over ib2
         enddo
 
 C   ... Matrix elements <Hsm| Vsm |PW>
 #if MPI
-        call hsibl6(ndimh,nlmto,norb1,blks1,offl1,ng,w(oiv),napw,igapw,
-     .  w(oc1),w(ocf1),w(oh))
+Cdelw1 warning(1) , probably  oc1  is not defined yet at linenumber= 398
+Cdelw1 do not change oc1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf1  is not defined yet at linenumber= 398
+Cdelw1 do not change ocf1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oc1  is not defined yet at linenumber= 398
+Cdelw1 do not change oc1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf1  is not defined yet at linenumber= 398
+Cdelw1 do not change ocf1 because of ['undef', 'wref']
+Cdelw1         call hsibl6(ndimh,nlmto,norb1,blks1,offl1,ng,w(oiv),napw,igapw,
+Cdelw1      .  w(oc1),w(ocf1),w(oh))
+         call hsibl6 ( ndimh , nlmto , norb1 , blks1 , offl1 , ng , iv_w_oiv 
+     .   , napw , igapw , w ( oc1 ) , w ( ocf1 ) , zv_w_oh ) 
+
 #else
-        call hsibl6(ndimh,nlmto,norb1,blks1,offl1,ng,w(oiv),napw,igapw,
-     .  w(oc1),w(ocf1),h)
+Cdelw1 warning(1) , probably  oc1  is not defined yet at linenumber= 401
+Cdelw1 do not change oc1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf1  is not defined yet at linenumber= 401
+Cdelw1 do not change ocf1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  oc1  is not defined yet at linenumber= 401
+Cdelw1 do not change oc1 because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ocf1  is not defined yet at linenumber= 401
+Cdelw1 do not change ocf1 because of ['undef', 'wref']
+Cdelw1         call hsibl6(ndimh,nlmto,norb1,blks1,offl1,ng,w(oiv),napw,igapw,
+Cdelw1      .  w(oc1),w(ocf1),h)
+         call hsibl6 ( ndimh , nlmto , norb1 , blks1 , offl1 , ng , iv_w_oiv 
+     .   , napw , igapw , w ( oc1 ) , w ( ocf1 ) , h ) 
+
 #endif 
 
 C     Ends loop over ib1
@@ -415,9 +720,15 @@ C     Ends loop over ib1
       ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
       ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
 #endif 
-      call defcc(ohbuf, ndimh*ndimh)
-      call MPI_ALLREDUCE(w(oh),w(ohbuf),2*ndimh*ndimh,
-     .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+Cdelw1       call defcc(ohbuf, ndimh*ndimh)
+       allocate(zv_w_ohbuf(ndimh*ndimh))
+       if (ndimh*ndimh<0) zv_w_ohbuf(:)=0.0d0
+
+Cdelw1       call MPI_ALLREDUCE(w(oh),w(ohbuf),2*ndimh*ndimh,
+Cdelw1      .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+       call mpi_allreduce ( zv_w_oh , zv_w_ohbuf , 2 * ndimh * ndimh 
+     . , mpi_double_precision , mpi_sum , mpi_comm_world , ierr ) 
+
       if (mlog) then
         call gettime(datim)
         call awrit3(' hsibl '//datim//' Process %i of %i on '
@@ -425,14 +736,44 @@ C     Ends loop over ib1
      .        ' allreduce h ndimh=%i',' ',256,lgunit(3),
      .        procid,numprocs,ndimh)
       endif
-      call daxpy(2*ndimh*ndimh,1d0,w(ohbuf),1,h,1)
-      call rlse(oh)
+Cdelw1       call daxpy(2*ndimh*ndimh,1d0,w(ohbuf),1,h,1)
+       call daxpy ( 2 * ndimh * ndimh , 1d0 , zv_w_ohbuf , 1 , h , 1 
+     . ) 
+
+Cdelw1 rlse name= oh old_list= ogv okv oiv og oyl og2 ohe ohr oic1 oicf1 oic2 oicf2 oicos1 oisin1 oicos2 oisin2 oiwk oif oh ohbuf 
+Cdelw1 rlse name= oh new_list= ogv okv oiv og oyl og2 ohe ohr oic1 oicf1 oic2 oicf2 oicos1 oisin1 oicos2 oisin2 oiwk oif 
+Cdelw1       call rlse(oh)
+       if (allocated(zv_w_ohbuf)) deallocate(zv_w_ohbuf)
+       if (allocated(zv_w_oh)) deallocate(zv_w_oh)
+
       deallocate(index, stat=ierr)
 #if MPE
       ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
 #endif 
 #endif 
-      call rlse(ogv)
+Cdelw1 rlse name= ogv old_list= ogv okv oiv og oyl og2 ohe ohr oic1 oicf1 oic2 oicf2 oicos1 oisin1 oicos2 oisin2 oiwk oif 
+Cdelw1 rlse name= ogv new_list= (None)
+Cdelw1 not deallocate oif because of [array wref]
+Cdelw1 not deallocate oiwk because of [array wref]
+Cdelw1 not deallocate oisin2 because of [array wref]
+Cdelw1 not deallocate oicos2 because of [array wref]
+Cdelw1 not deallocate oisin1 because of [array wref]
+Cdelw1 not deallocate oicos1 because of [array wref]
+Cdelw1 not deallocate oicf2 because of [array wref]
+Cdelw1 not deallocate oic2 because of [array wref]
+Cdelw1 not deallocate oicf1 because of [array wref]
+Cdelw1 not deallocate oic1 because of [array wref]
+Cdelw1       call rlse(ogv)
+       if (allocated(rv_w_ohr)) deallocate(rv_w_ohr)
+       if (allocated(rv_w_ohe)) deallocate(rv_w_ohe)
+       if (allocated(rv_w_og2)) deallocate(rv_w_og2)
+       if (allocated(rv_w_oyl)) deallocate(rv_w_oyl)
+       if (allocated(rv_w_og)) deallocate(rv_w_og)
+       if (allocated(iv_w_oiv)) deallocate(iv_w_oiv)
+       if (allocated(iv_w_okv)) deallocate(iv_w_okv)
+       if (allocated(rv_w_ogv)) deallocate(rv_w_ogv)
+       call rlse(oic1)
+
       endif
 
 C --- <e^i qpG | V |e^i qpG'>/vol = V(G'-G) ---
@@ -462,6 +803,10 @@ C ... Occupy second half of matrix
       call tcx('hsibl')
 C     call zprm('h-i',2,h,ndimh,ndimh,ndimh)
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlistundel: [ocos1 osin1 owk oc1 ocf1 of ocos2 osin2 oc2 ocf2 oic1 oicf1 oic2 oicf2 oicos1 oisin1 oicos2 oisin2 oiwk oif]
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine hsibl 
 
 
@@ -524,6 +869,9 @@ C ... Make the rsm factors
         enddo
       enddo
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine hsibl1 
 
 
@@ -627,6 +975,9 @@ C         This reduces accuracy, but makes exactly compatible
 
       call tcx('hsibl2')
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine hsibl2 
 
 
@@ -671,6 +1022,9 @@ C ... Local parameters
       double complex cf
       parameter (pi = 3.1415926535897931d0)
 
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (nlm2 .eq. 0) return
       call tcn('hsibl3')
       do  i = 1, ng
@@ -700,6 +1054,9 @@ C     Constant factor
       call tcx('hsibl3')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine hsibl3 
 
       subroutine hsibl4(n1,n2,n3,k1,k2,k3,vsm,f,ng,kv,nc,c)
@@ -749,6 +1106,9 @@ c       call zprm3('v*psir',0,f,n1,n2,n3)
       enddo
       call tcx('hsibl4')
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine hsibl4 
 
       subroutine hsibl5(norb1,blks1,offl1,ndim1,norb2,blks2,offl2,ndim2,
@@ -818,6 +1178,9 @@ C     .      ofw1+1,ofw2+1,blks1(io1),blks2(io2)
       enddo
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine hsibl5 
 
 
@@ -866,6 +1229,9 @@ C       index matching igv,igapw
         enddo
       enddo
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine hsibl6 
 
 
@@ -892,6 +1258,9 @@ C ... Local parameters
         if (igapw(2) .ne. igv(ig,2)) cycle
         if (igapw(3) .ne. igv(ig,3)) cycle
         ifindiv = ig
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
         return
       enddo
 
@@ -902,6 +1271,9 @@ C      enddo
       call rx('ifindiv: igapw not found in igv')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end function ifindiv 
 
 
@@ -928,6 +1300,9 @@ C ... Local parameters
         if (igapw(2) .ne. igv2(2,ig)) cycle
         if (igapw(3) .ne. igv2(3,ig)) cycle
         ifindiv2 = ig
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
         return
       enddo
 
@@ -938,6 +1313,9 @@ C      enddo
       call rx('ifindiv2: igapw not found in igv')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end function ifindiv2 
 
 

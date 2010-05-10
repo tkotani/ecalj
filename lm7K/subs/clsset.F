@@ -1,3 +1,8 @@
+Cdelw1 var ['opose', '1', 'opose', '3*nbas', 'real(8)', 'rv_w_', 'clsset']
+Cdelw1 var ['opos', '1', 'opos', '3*nbas', 'real(8)', 'rv_w_', 'clsset']
+Cdelw1 var ['oncltb', '0', 'oncltb', 'ncl+1', 'real(8)', 'rv_w_', 'clsset']
+Cdelw1 var ['oclctr', '0', 'oclctr', '3*nbas', 'real(8)', 'rv_w_', 'clsset']
+Cdelw1 var ['ow', '0', 'ow', 'nbas', 'integer', 'iv_w_', 'clsset']
 Cgetarg...info...           structure ['clsset', 'lat', 'slat']
 Cgetarg...info...           use_to_add ['clsset', 'm_struc_def']
       subroutine clsset(mode,slat,nbas,pos,ncl,clssl,cllst,clord,clp)
@@ -41,13 +46,24 @@ Cgetarg       double precision slat(1),pos(3,nbas)
 
 C Local variables
       logical lrat,pvclst
-      integer lgunit,m,k,i,ib,ipr,ipose(3),i1mach,ndig,ndigi,
-     .  ifac,ncl,idmx,ngmx,ngmn,opos,opose,ow,ncol,nskip,
-     .  isw,ix(3),j,i1,i2
+Cdelw1       integer lgunit,m,k,i,ib,ipr,ipose(3),i1mach,ndig,ndigi,
+Cdelw1      .  ifac,ncl,idmx,ngmx,ngmn,opos,opose,ow,ncol,nskip,
+Cdelw1      .  isw,ix(3),j,i1,i2
+       integer:: lgunit , m , k , i , ib , ipr , ipose(3) , i1mach , 
+     . ndig , ndigi , ifac , ncl , idmx , ngmx , ngmn , ncol , nskip 
+     . , isw , ix(3) , j , i1 , i2 
+       real(8) ,allocatable :: rv_w_opos(:)
+       real(8) ,allocatable :: rv_w_opose(:)
+       integer ,allocatable :: iv_w_ow(:)
+
       double precision plat(3,3),plate(3,3),qlat(3,3),qlate(3,3)
       double precision vol,volm
       character*80 outs,fmt
-      integer ocllst,oncltb,oclctr
+Cdelw1       integer ocllst,oncltb,oclctr
+       integer:: ocllst 
+       real(8) ,allocatable :: rv_w_oncltb(:)
+       real(8) ,allocatable :: rv_w_oclctr(:)
+
 C heap:
       integer w(1)
       common /w/ w
@@ -87,27 +103,42 @@ C   ... Determine supercell size
         ndig = int(dlog(dble(i1mach(9)))/dlog(2d0)/3)
         ifac = 2**ndig
         if (ifac .eq. 1024) ifac = 1000
-        call defrr(opose, 3*nbas)
+Cdelw1         call defrr(opose, 3*nbas)
+         allocate(rv_w_opose(3*nbas))
+         if (3*nbas<0) rv_w_opose(:)=0.0d0
+
         ix(1) = 1
         ix(2) = 1
         ix(3) = 1
         call shorps(nbas,plat,ix,pos,pos)
 c       call prmx('shortened pos',pos,3,3,nbas)
-        call defrr(opos, 3*nbas)
-        call dcopy(3*nbas,pos,1,w(opos),1)
+Cdelw1         call defrr(opos, 3*nbas)
+         allocate(rv_w_opos(3*nbas))
+         if (3*nbas<0) rv_w_opos(:)=0.0d0
+
+Cdelw1         call dcopy(3*nbas,pos,1,w(opos),1)
+         call dcopy ( 3 * nbas , pos , 1 , rv_w_opos , 1 ) 
+
 C   ... Shift pos off axis by a tiny amount, avoiding boundary problems
 *       call daxpy(3*nbas,1d0,1d-5,0,w(opos),1)
 c       call prmx('plat',plat,3,3,3)
 c       call prmx('plate',plate,3,3,3)
 C   ... w(opos) = positions as multiples of plat
-        call prjpos(2,ix,w,plat,nbas,pos,w(opos))
+Cdelw1         call prjpos(2,ix,w,plat,nbas,pos,w(opos))
+         call prjpos ( 2 , ix , w , plat , nbas , pos , rv_w_opos ) 
+
 C       call prmx('pos, units of plat',w(opos),3,3,nbas)
 C   ... Positions as multiples of plate
-        call prjpos(63,ix,plat,plate,nbas,w(opos),w(opose))
+Cdelw1         call prjpos(63,ix,plat,plate,nbas,w(opos),w(opose))
+         call prjpos ( 63 , ix , plat , plate , nbas , rv_w_opos , rv_w_opose 
+     .   ) 
+
 C       call prmx('pos, units of plate',w(opose),3,3,nbas)
 C   ... index as ifac**2*pose(1) + ifac*pose(2) + pose(3), integer parts
         do  20  ib = 1, nbas
-          call discop(w(opose),ipose,3,3*ib-2,1,0)
+Cdelw1           call discop(w(opose),ipose,3,3*ib-2,1,0)
+           call discop ( rv_w_opose , ipose , 3 , 3 * ib - 2 , 1 , 0 ) 
+
           clssl(ib) = ipose(1)*ifac*ifac + ipose(2)*ifac + ipose(3)
    20   continue
 
@@ -117,7 +148,12 @@ C   ... Attempt to combine clusters
 C        if (ncl .lt. nbas) then
 C          if (pvclst(nbas,w(opose),clssl,clord)) goto 30
 C        endif
-        call rlse(opose)
+Cdelw1 rlse name= opose old_list= opose opos 
+Cdelw1 rlse name= opose new_list= (None)
+Cdelw1         call rlse(opose)
+         if (allocated(rv_w_opos)) deallocate(rv_w_opos)
+         if (allocated(rv_w_opose)) deallocate(rv_w_opose)
+
       else
         call rx1('clsset: unrecognized mode %i',mode)
       endif
@@ -158,16 +194,35 @@ C     call awrit2(' clsset: %n:1i',' ',255,lgunit(1),nbas,clssl)
    40 continue
 
 C ... Make cllst
-      call defrr(oncltb, ncl+1)
-      call defrr(oclctr, 3*nbas)
-      call clsctr(nbas,pos,clssl,clord,w(oncltb),cllst,w(oclctr))
-      call rlse(oncltb)
+Cdelw1       call defrr(oncltb, ncl+1)
+       allocate(rv_w_oncltb(ncl+1))
+       if (ncl+1<0) rv_w_oncltb(:)=0.0d0
+
+Cdelw1       call defrr(oclctr, 3*nbas)
+       allocate(rv_w_oclctr(3*nbas))
+       if (3*nbas<0) rv_w_oclctr(:)=0.0d0
+
+Cdelw1       call clsctr(nbas,pos,clssl,clord,w(oncltb),cllst,w(oclctr))
+       call clsctr ( nbas , pos , clssl , clord , rv_w_oncltb , cllst 
+     . , rv_w_oclctr ) 
+
+Cdelw1 rlse name= oncltb old_list= oncltb oclctr 
+Cdelw1 rlse name= oncltb new_list= (None)
+Cdelw1       call rlse(oncltb)
+       if (allocated(rv_w_oclctr)) deallocate(rv_w_oclctr)
+       if (allocated(rv_w_oncltb)) deallocate(rv_w_oncltb)
+
 
 C ... Print re-ordering of sites
 C     call awrit2(' clord: %n:1i',' ',255,lgunit(1),nbas,clord)
 C     call awrit2(' clssl: %n:1i',' ',255,lgunit(1),nbas,clssl)
-      call defi(ow, nbas)
-      call ivprm(1,nbas,clssl,w(ow),clord,.false.)
+Cdelw1       call defi(ow, nbas)
+       allocate(iv_w_ow(nbas))
+       if (nbas<0) iv_w_ow(:)=0
+
+Cdelw1       call ivprm(1,nbas,clssl,w(ow),clord,.false.)
+       call ivprm ( 1 , nbas , clssl , iv_w_ow , clord , .false. ) 
+
       call awrit1(' ... sites reordered by cluster%?#n>30#:',' ',80,
      .  lgunit(1),ipr)
       if (ipr .gt. 30) then
@@ -180,17 +235,30 @@ C     call awrit2(' clssl: %n:1i',' ',255,lgunit(1),nbas,clssl)
         nskip = nbas/ncol
         if (ncol*(nbas/ncol) .ne. nbas) nskip = nskip+1
         outs = ' Old New   id'
-        call arrprt(outs,fmt(i:k),'iIi',nbas,nskip,ncol,
-     .    nskip,'  | ',clord,w,w(ow),w,w,w,w,w)
-        call rlse(ow)
+Cdelw1         call arrprt(outs,fmt(i:k),'iIi',nbas,nskip,ncol,
+Cdelw1      .    nskip,'  | ',clord,w,w(ow),w,w,w,w,w)
+         call arrprt ( outs , fmt ( i:k ) , 'iIi' , nbas , nskip , ncol 
+     .   , nskip , '  | ' , clord , w , iv_w_ow , w , w , w , w , w ) 
+
+Cdelw1 rlse name= ow old_list= ow 
+Cdelw1 rlse name= ow new_list= (None)
+Cdelw1         call rlse(ow)
+         if (allocated(iv_w_ow)) deallocate(iv_w_ow)
+
 
       endif
 
 C ... Re-order clssl
-      call icopy(nbas,w(ow),1,clssl,1)
+Cdelw1 warning(1) , probably  ow  is not defined yet at linenumber= 190
+Cdelw1       call icopy(nbas,w(ow),1,clssl,1)
+       call icopy ( nbas , iv_w_ow , 1 , clssl , 1 ) 
+
 C     call awrit2(' clssl: %n:1i',' ',255,lgunit(1),nbas,clssl)
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine clsset 
 
       logical function pvclst(nbas,pose,clssl,clord)
@@ -209,6 +277,9 @@ C     implicit none
       do  10  il = 1, nbas
         i1 = i2+1
         call nxtgrp(nbas,clssl(clord(i1)),clssl,clord,i1,i2)
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
         if (i1 .gt. i2) return
 
         j2 = i2
@@ -245,6 +316,9 @@ C     ... resort the group
       call rx('bug in pvclst')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end function pvclst 
 
       subroutine clsctr(nbas,bas,clssl,clord,ncltab,cllst,ctr)
@@ -305,6 +379,9 @@ C --- Make cluster center of gravity ---
 
 C --- Printout ---
       call getpr(ipr)
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       if (ipr .lt. 40) return
       if (ipr .gt. 40) then
         print '(1x)'
@@ -329,6 +406,9 @@ c       print 332, icl, ncli, (ctr(ix,kb), ix=1,3)
    30 continue
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine clsctr 
 
 

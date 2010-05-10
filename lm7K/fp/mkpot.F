@@ -1,3 +1,9 @@
+Cdelw1 var ['ohpot0', '0', 'ohpot0', 'nbas', 'real(8)', 'rv_w_', 'mkpot']
+Cdelw1 var ['osmvxc', '1', 'osmvxc', '-k1*k2*k3*nsp', 'complex(8)', 'zv_w_', 'mkpot']
+Cdelw1 var ['osmvx', '1', 'osmvx', '-k1*k2*k3*nsp', 'complex(8)', 'zv_w_', 'mkpot']
+Cdelw1 var ['osmvc', '1', 'osmvc', '-k1*k2*k3*nsp', 'complex(8)', 'zv_w_', 'mkpot']
+Cdelw1 var ['osmexc', '1', 'osmexc', '-k1*k2*k3', 'complex(8)', 'zv_w_', 'mkpot']
+Cdelw1 var ['ofxc', '1', 'ofxc', '-3*nbas', 'real(8)', 'rv_w_', 'mkpot']
 Cgetarg...info...           structure ['mkpot', 'ham', 'sham']
 Cgetarg...info...           structure ['mkpot', 'lat', 'slat']
 Cgetarg...info...           use_to_add ['mkpot', 'm_struc_def']
@@ -191,7 +197,14 @@ C ... Local parameters
       character*80 outs
       integer i,lgunit,nglob,ipl,ipr,iprint,n1,n2,n3,ngabc(3),stdo,
      .  stdl,lxcfun,lso,isw,nsp,isum
-      integer ofxc,ohpot0,osmvxc,osmvx,osmvc,osmexc
+Cdelw1       integer ofxc,ohpot0,osmvxc,osmvx,osmvc,osmexc
+       real(8) ,allocatable :: rv_w_ofxc(:)
+       real(8) ,allocatable :: rv_w_ohpot0(:)
+       complex(8) ,allocatable :: zv_w_osmvxc(:)
+       complex(8) ,allocatable :: zv_w_osmvx(:)
+       complex(8) ,allocatable :: zv_w_osmvc(:)
+       complex(8) ,allocatable :: zv_w_osmexc(:)
+
       double precision amom,cpnvsa,cpnves,dq,eh,eks,focexc,
      .  focvxc,qsmc,smq,smag,sum2,rhoexc,rhoex,rhoec,rhovxc,rhvsm,sgp0,
      .  sqloc,sqlocc,saloc,sumec,sumtc,uat,usm,utot,valfsm,valftr,
@@ -308,7 +321,10 @@ C --- Smooth electrostatic potential ---
       vconst = -vsum/vol
 C      if (ipr .ge. 40) write (stdo,334) vsum,vconst
 C  334 format(' vsum=',f14.6,'   vconst=',f14.6)
-      call defrr(ohpot0,  nbas)
+Cdelw1       call defrr(ohpot0,  nbas)
+       allocate(rv_w_ohpot0(nbas))
+       if (nbas<0) rv_w_ohpot0(:)=0.0d0
+
 
       i = 1
       if (cmdopt('--oldvc',7,0,outs)) i = 0
@@ -319,9 +335,13 @@ c      allocate(smpotbk(k1,k2,k3))
 c      smpotbk=smpot(:,:,:,1)
 ccccccccccccccccccccc
 
-      call smves(i,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,vval,
-     .  w(ohpot0),sgp0,smrho,smpot,vconst,smq,qsmc,fes,rhvsm,zvnsm,zsum,
-     .  vesrmt,qbg)
+Cdelw1       call smves(i,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,vval,
+Cdelw1      .  w(ohpot0),sgp0,smrho,smpot,vconst,smq,qsmc,fes,rhvsm,zvnsm,zsum,
+Cdelw1      .  vesrmt,qbg)
+       call smves ( i , nbas , ssite , sspec , slat , k1 , k2 , k3 , 
+     . qmom , gpot0 , vval , rv_w_ohpot0 , sgp0 , smrho , smpot , vconst 
+     . , smq , qsmc , fes , rhvsm , zvnsm , zsum , vesrmt , qbg ) 
+
 
 cccccccccccccccccc
 c      print *,'vvv fix smves'
@@ -351,7 +371,11 @@ ccccccccccccccccc
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho,smag,sum2)
         smag = 2*smag - smq
       endif
-      call rlse (ohpot0)
+Cdelw1 rlse name= ohpot0 old_list= ohpot0 
+Cdelw1 rlse name= ohpot0 new_list= (None)
+Cdelw1       call rlse (ohpot0)
+       if (allocated(rv_w_ohpot0)) deallocate(rv_w_ohpot0)
+
 C     print *, k1,k2,k3
 C     call zprm('smves',2,smpot,k1,k1,k2)
 
@@ -363,24 +387,47 @@ C --- Add smooth exchange-correlation potential ---
       call dpzero(rvecv,2)
       call dpzero(rvvxcv,2)
       if (mod(job,1000) .lt. 100) then
-        call defcc (osmvxc, -k1*k2*k3*nsp)
-        call defcc (osmvx,  -k1*k2*k3*nsp)
-        call defcc (osmvc,  -k1*k2*k3*nsp)
-        call defcc (osmexc, -k1*k2*k3)
-        call defrr (ofxc,   -3*nbas)
+Cdelw1         call defcc (osmvxc, -k1*k2*k3*nsp)
+         allocate(zv_w_osmvxc(abs(-k1*k2*k3*nsp)))
+         if (-k1*k2*k3*nsp<0) zv_w_osmvxc(:)=0.0d0
+
+Cdelw1         call defcc (osmvx,  -k1*k2*k3*nsp)
+         allocate(zv_w_osmvx(abs(-k1*k2*k3*nsp)))
+         if (-k1*k2*k3*nsp<0) zv_w_osmvx(:)=0.0d0
+
+Cdelw1         call defcc (osmvc,  -k1*k2*k3*nsp)
+         allocate(zv_w_osmvc(abs(-k1*k2*k3*nsp)))
+         if (-k1*k2*k3*nsp<0) zv_w_osmvc(:)=0.0d0
+
+Cdelw1         call defcc (osmexc, -k1*k2*k3)
+         allocate(zv_w_osmexc(abs(-k1*k2*k3)))
+         if (-k1*k2*k3<0) zv_w_osmexc(:)=0.0d0
+
+Cdelw1         call defrr (ofxc,   -3*nbas)
+         allocate(rv_w_ofxc(abs(-3*nbas)))
+         if (-3*nbas<0) rv_w_ofxc(:)=0.0d0
+
 C   ... Compute int smrho*exc(smrho) and int smrho*vxc(smrho)
         call pshpr(ipr-30)
-        call smvxc2(0,nsp,lxcfun,vol,n1,n2,n3,
-     .    k1,k2,k3,smrho,w(osmvxc),w(osmvx),w(osmvc),w(osmexc),
-     .    w,rvepsv,rvexv,rvecv,rvvxcv,vxcavg)
+Cdelw1         call smvxc2(0,nsp,lxcfun,vol,n1,n2,n3,
+Cdelw1      .    k1,k2,k3,smrho,w(osmvxc),w(osmvx),w(osmvc),w(osmexc),
+Cdelw1      .    w,rvepsv,rvexv,rvecv,rvvxcv,vxcavg)
+         call smvxc2 ( 0 , nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
+     .   , k3 , smrho , zv_w_osmvxc , zv_w_osmvx , zv_w_osmvc , zv_w_osmexc 
+     .   , w , rvepsv , rvexv , rvecv , rvvxcv , vxcavg ) 
+
 C        call mshdot(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,w(osmvxc),
 C     .    tmp,tmp(2))
         call poppr
         rvepsv(1) = rvepsv(1) + rvepsv(2)
         rvvxcv(1) = rvvxcv(1) + rvvxcv(2)
 C   ... Smooth exchange-correlation potential
-        call dpzero(w(osmvxc), k1*k2*k3*nsp)
-        call dpzero(w(osmexc), k1*k2*k3)
+Cdelw1         call dpzero(w(osmvxc), k1*k2*k3*nsp)
+         call dpzero ( zv_w_osmvxc , k1 * k2 * k3 * nsp ) 
+
+Cdelw1         call dpzero(w(osmexc), k1*k2*k3)
+         call dpzero ( zv_w_osmexc , k1 * k2 * k3 ) 
+
 
 
 cccccccccccccccccccccccc
@@ -401,10 +448,15 @@ c      allocate(smpotbkx(k1,k2,k3))
 c      smpotbkx=smpot(:,:,:,1)
 cccccccccccccccccc
 
-        call smvxcm(ssite,sspec,slat,nbas,lfrce,k1,k2,k3,
-     .    smrho,smpot,w(osmvxc),w(osmvx),w(osmvc),w(osmexc),repsm,
-     .    repsmx,repsmc,rmusm,rvmusm,rvepsm,
-     .    fcexc0,fcex0,fcec0,fcvxc0,w(ofxc))
+Cdelw1         call smvxcm(ssite,sspec,slat,nbas,lfrce,k1,k2,k3,
+Cdelw1      .    smrho,smpot,w(osmvxc),w(osmvx),w(osmvc),w(osmexc),repsm,
+Cdelw1      .    repsmx,repsmc,rmusm,rvmusm,rvepsm,
+Cdelw1      .    fcexc0,fcex0,fcec0,fcvxc0,w(ofxc))
+         call smvxcm ( ssite , sspec , slat , nbas , lfrce , k1 , k2 , 
+     .   k3 , smrho , smpot , zv_w_osmvxc , zv_w_osmvx , zv_w_osmvc , 
+     .   zv_w_osmexc , repsm , repsmx , repsmc , rmusm , rvmusm , rvepsm 
+     .   , fcexc0 , fcex0 , fcec0 , fcvxc0 , rv_w_ofxc ) 
+
 
 
 cccccccccccccccccccccccc
@@ -429,8 +481,19 @@ ccccccccccccc
 c        print *,'vvv sum smrho=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1)))
 c        print *,'vvv repsm=',repsm
 cccccccccccc
-        if (lfrce .ne. 0) call dpadd(fes,w(ofxc),1,3*nbas,1d0)
-        call rlse(osmvxc)
+Cdelw1         if (lfrce .ne. 0) call dpadd(fes,w(ofxc),1,3*nbas,1d0)
+         if ( lfrce .ne. 0 ) call dpadd ( fes , rv_w_ofxc , 1 , 3 * nbas 
+     .   , 1d0 ) 
+
+Cdelw1 rlse name= osmvxc old_list= osmvxc osmvx osmvc osmexc ofxc 
+Cdelw1 rlse name= osmvxc new_list= (None)
+Cdelw1         call rlse(osmvxc)
+         if (allocated(rv_w_ofxc)) deallocate(rv_w_ofxc)
+         if (allocated(zv_w_osmexc)) deallocate(zv_w_osmexc)
+         if (allocated(zv_w_osmvc)) deallocate(zv_w_osmvc)
+         if (allocated(zv_w_osmvx)) deallocate(zv_w_osmvx)
+         if (allocated(zv_w_osmvxc)) deallocate(zv_w_osmvxc)
+
       else
         call dpzero(repsm,2)
         call dpzero(repsmx,2)
@@ -607,6 +670,9 @@ Cgetarg       call pack1('ham eterms',sham,eterms)
       call tcx('mkpot')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine mkpot 
 
 

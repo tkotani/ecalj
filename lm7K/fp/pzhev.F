@@ -1,3 +1,12 @@
+Cdelw1 var ['oa', '0', 'oa', 'lda*mda', 'complex(8)', 'zv_w_', 'pzhev']
+Cdelw1 var ['ob', '1', 'ob', 'ldb*mdb', 'complex(8)', 'zv_w_', 'pzhev']
+Cdelw1 var ['oz', '0', 'oz', 'ldz*mdz', 'complex(8)', 'zv_w_', 'pzhev']
+Cdelw1 var ['owork', '0', 'owork', 'lwork', 'complex(8)', 'zv_w_', 'pzhev']
+Cdelw1 var ['orwork', '0', 'orwork', 'lrwork', 'real(8)', 'rv_w_', 'pzhev']
+Cdelw1 var ['oiwork', '0', 'oiwork', 'liwork', 'integer', 'iv_w_', 'pzhev']
+Cdelw1 var ['oifail', '0', 'oifail', 'n', 'integer', 'iv_w_', 'pzhev']
+Cdelw1 var ['ot', '0', 'ot', 'n*n', 'complex(8)', 'zv_w_', 'pzhev']
+Cdelw1 undel [['call', 'wref'], 'ot', 'pzhev']
 c      subroutine pzhev(lov,n,oh,os,nb,nprow,npcol,emx,nmx,nev,e,ot)
       subroutine pzhev(lov,n,hamm,ovlm,nb,nprow,npcol,emx,nmx,nev,e,ot)
 
@@ -64,13 +73,23 @@ C E-vals (output)
       double precision e(n)
 C Pointers to H, S (input) and Z (output)
 c      integer oh,os,ot !oh --> hamm takao
+Cdelw1 do not change  [['call', 'wref'], 'ot', 'pzhev']
       integer ot 
       complex(8):: hamm(*),ovlm(*)
 C Pointers to local distributed arrays
-      integer oa,ob,oz
+Cdelw1       integer oa,ob,oz
+       complex(8) ,allocatable :: zv_w_oa(:)
+       complex(8) ,allocatable :: zv_w_ob(:)
+       complex(8) ,allocatable :: zv_w_oz(:)
+
 C Work arrays
       integer lrwork,lwork,liwork,ifail
-      integer owork,orwork,oiwork,oifail
+Cdelw1       integer owork,orwork,oiwork,oifail
+       complex(8) ,allocatable :: zv_w_owork(:)
+       real(8) ,allocatable :: rv_w_orwork(:)
+       integer ,allocatable :: iv_w_oiwork(:)
+       integer ,allocatable :: iv_w_oifail(:)
+
 C Work array sizes
       double complex swork
       double precision srwork(3)
@@ -188,17 +207,42 @@ C Get dimensions of local matrices a, b and z
         call ftflsh(-1)
       endif
 C Distribute h and s into local arrays
-      call defcc(oa, lda*mda)
-      call dstmt(desca,n,hamm,w(oa))
-      call dcopy(2*lda*mda,w(oa),1,hamm,1)
-      call rlse(oa)
+Cdelw1       call defcc(oa, lda*mda)
+       allocate(zv_w_oa(lda*mda))
+       if (lda*mda<0) zv_w_oa(:)=0.0d0
+
+Cdelw1       call dstmt(desca,n,hamm,w(oa))
+       call dstmt ( desca , n , hamm , zv_w_oa ) 
+
+Cdelw1       call dcopy(2*lda*mda,w(oa),1,hamm,1)
+       call dcopy ( 2 * lda * mda , zv_w_oa , 1 , hamm , 1 ) 
+
+Cdelw1 rlse name= oa old_list= oa 
+Cdelw1 rlse name= oa new_list= (None)
+Cdelw1       call rlse(oa)
+       if (allocated(zv_w_oa)) deallocate(zv_w_oa)
+
       if (lov) then
-        call defcc(ob, ldb*mdb)
-        call dstmt(descb,n,ovlm,w(ob))
-        call dcopy(2*ldb*mdb,w(ob),1,ovlm,1)
-        call rlse(ob)
+Cdelw1         call defcc(ob, ldb*mdb)
+         allocate(zv_w_ob(ldb*mdb))
+         if (ldb*mdb<0) zv_w_ob(:)=0.0d0
+
+Cdelw1         call dstmt(descb,n,ovlm,w(ob))
+         call dstmt ( descb , n , ovlm , zv_w_ob ) 
+
+Cdelw1         call dcopy(2*ldb*mdb,w(ob),1,ovlm,1)
+         call dcopy ( 2 * ldb * mdb , zv_w_ob , 1 , ovlm , 1 ) 
+
+Cdelw1 rlse name= ob old_list= ob 
+Cdelw1 rlse name= ob new_list= (None)
+Cdelw1         call rlse(ob)
+         if (allocated(zv_w_ob)) deallocate(zv_w_ob)
+
       endif
-      call defcc(oz, ldz*mdz)
+Cdelw1       call defcc(oz, ldz*mdz)
+       allocate(zv_w_oz(ldz*mdz))
+       if (ldz*mdz<0) zv_w_oz(:)=0.0d0
+
       ibtype = 1
       if (nmx .le. 0) then
         jobz = 'N'
@@ -216,15 +260,25 @@ C Distribute h and s into local arrays
       abstol = d1mach(3)
 C Workspace query
       if (lov) then
-        call PZHEGVX(ibtype,jobz,range,'U',n,hamm,1,1,desca,ovlm,1,1,
-     .               descb,VL,VU,1,IU,abstol,m,nz,e,
-     .               zero,w(oz),1,1,descz,swork,-1,srwork,-1,
-     .               liwork,-1,ifail,iclustr,gap,info)
+Cdelw1         call PZHEGVX(ibtype,jobz,range,'U',n,hamm,1,1,desca,ovlm,1,1,
+Cdelw1      .               descb,VL,VU,1,IU,abstol,m,nz,e,
+Cdelw1      .               zero,w(oz),1,1,descz,swork,-1,srwork,-1,
+Cdelw1      .               liwork,-1,ifail,iclustr,gap,info)
+         call pzhegvx ( ibtype , jobz , range , 'U' , n , hamm , 1 , 1 
+     .   , desca , ovlm , 1 , 1 , descb , vl , vu , 1 , iu , abstol , 
+     .   m , nz , e , zero , zv_w_oz , 1 , 1 , descz , swork , - 1 , srwork 
+     .   , - 1 , liwork , - 1 , ifail , iclustr , gap , info ) 
+
       else
-        call PZHEEVX(jobz,range,'U',n,hamm,1,1,desca,
-     .               VL,VU,1,IU,abstol,m,nz,e,
-     .               zero,w(oz),1,1,descz,swork,-1,srwork,-1,
-     .               liwork,-1,ifail,iclustr,gap,info)
+Cdelw1         call PZHEEVX(jobz,range,'U',n,hamm,1,1,desca,
+Cdelw1      .               VL,VU,1,IU,abstol,m,nz,e,
+Cdelw1      .               zero,w(oz),1,1,descz,swork,-1,srwork,-1,
+Cdelw1      .               liwork,-1,ifail,iclustr,gap,info)
+         call pzheevx ( jobz , range , 'U' , n , hamm , 1 , 1 , desca 
+     .   , vl , vu , 1 , iu , abstol , m , nz , e , zero , zv_w_oz , 1 
+     .   , 1 , descz , swork , - 1 , srwork , - 1 , liwork , - 1 , ifail 
+     .   , iclustr , gap , info ) 
+
       endif
       lwork = int(swork)
       lrwork = int(srwork(1))
@@ -236,21 +290,44 @@ C Workspace query
      .              lwork,lrwork,liwork)
         call ftflsh(-1)
       endif
-      call defcc(owork,   lwork)
-      call defrr(orwork,  lrwork)
-      call defi (oiwork,  liwork)
-      call defi (oifail,  n)
+Cdelw1       call defcc(owork,   lwork)
+       allocate(zv_w_owork(lwork))
+       if (lwork<0) zv_w_owork(:)=0.0d0
+
+Cdelw1       call defrr(orwork,  lrwork)
+       allocate(rv_w_orwork(lrwork))
+       if (lrwork<0) rv_w_orwork(:)=0.0d0
+
+Cdelw1       call defi (oiwork,  liwork)
+       allocate(iv_w_oiwork(liwork))
+       if (liwork<0) iv_w_oiwork(:)=0
+
+Cdelw1       call defi (oifail,  n)
+       allocate(iv_w_oifail(n))
+       if (n<0) iv_w_oifail(:)=0
+
 C Diagonalise
       if (lov) then
-        call PZHEGVX(ibtype,jobz,range,'U',n,hamm,1,1,desca,ovlm,1,1,
-     .               descb,VL,VU,1,IU,abstol,m,nz,e,
-     .               zero,w(oz),1,1,descz,w(owork),lwork,w(orwork),
-     .               lrwork,w(oiwork),liwork,w(oifail),iclustr,gap,info)
+Cdelw1         call PZHEGVX(ibtype,jobz,range,'U',n,hamm,1,1,desca,ovlm,1,1,
+Cdelw1      .               descb,VL,VU,1,IU,abstol,m,nz,e,
+Cdelw1      .               zero,w(oz),1,1,descz,w(owork),lwork,w(orwork),
+Cdelw1      .               lrwork,w(oiwork),liwork,w(oifail),iclustr,gap,info)
+         call pzhegvx ( ibtype , jobz , range , 'U' , n , hamm , 1 , 1 
+     .   , desca , ovlm , 1 , 1 , descb , vl , vu , 1 , iu , abstol , 
+     .   m , nz , e , zero , zv_w_oz , 1 , 1 , descz , zv_w_owork , lwork 
+     .   , rv_w_orwork , lrwork , iv_w_oiwork , liwork , iv_w_oifail , 
+     .   iclustr , gap , info ) 
+
       else
-        call PZHEEVX(jobz,range,'U',n,hamm,1,1,desca,
-     .               VL,VU,1,IU,abstol,m,nz,e,
-     .               zero,w(oz),1,1,descz,w(owork),lwork,w(orwork),
-     .               lrwork,w(oiwork),liwork,w(oifail),iclustr,gap,info)
+Cdelw1         call PZHEEVX(jobz,range,'U',n,hamm,1,1,desca,
+Cdelw1      .               VL,VU,1,IU,abstol,m,nz,e,
+Cdelw1      .               zero,w(oz),1,1,descz,w(owork),lwork,w(orwork),
+Cdelw1      .               lrwork,w(oiwork),liwork,w(oifail),iclustr,gap,info)
+         call pzheevx ( jobz , range , 'U' , n , hamm , 1 , 1 , desca 
+     .   , vl , vu , 1 , iu , abstol , m , nz , e , zero , zv_w_oz , 1 
+     .   , 1 , descz , zv_w_owork , lwork , rv_w_orwork , lrwork , iv_w_oiwork 
+     .   , liwork , iv_w_oifail , iclustr , gap , info ) 
+
       endif
       if (info .ne. 0 .and. procid .eq. master) then
         if (lov) then
@@ -262,10 +339,35 @@ C Diagonalise
         endif
       endif
       nev = nz
-      call rlse(owork)
-      call rlse(orwork)
-      call rlse(oiwork)
-      call rlse(oifail)
+Cdelw1 rlse name= owork old_list= oz owork orwork oiwork oifail 
+Cdelw1 rlse name= owork new_list= oz 
+Cdelw1       call rlse(owork)
+       if (allocated(iv_w_oifail)) deallocate(iv_w_oifail)
+       if (allocated(iv_w_oiwork)) deallocate(iv_w_oiwork)
+       if (allocated(rv_w_orwork)) deallocate(rv_w_orwork)
+       if (allocated(zv_w_owork)) deallocate(zv_w_owork)
+
+Cdelw1 rlse name= orwork old_list= oz 
+
+#error ERROR, try to release name= orwork ,but list does not have  orwork at linenumber= 266 list= oz 
+
+Cdelw1 rlse name= orwork new_list= oz 
+Cdelw1       call rlse(orwork)
+
+Cdelw1 rlse name= oiwork old_list= oz 
+
+#error ERROR, try to release name= oiwork ,but list does not have  oiwork at linenumber= 267 list= oz 
+
+Cdelw1 rlse name= oiwork new_list= oz 
+Cdelw1       call rlse(oiwork)
+
+Cdelw1 rlse name= oifail old_list= oz 
+
+#error ERROR, try to release name= oifail ,but list does not have  oifail at linenumber= 268 list= oz 
+
+Cdelw1 rlse name= oifail new_list= oz 
+Cdelw1       call rlse(oifail)
+
       if (mlog) then
         call gettime(datim)
         call awrit2(' pzhev '//datim//' Process %i of %i on '
@@ -276,7 +378,9 @@ C Diagonalise
       endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 C Poke distributed array into t (use heap location hamm for temp)
-      call dcopy(2*ldz*mdz,w(oz),1,hamm,1)
+Cdelw1       call dcopy(2*ldz*mdz,w(oz),1,hamm,1)
+       call dcopy ( 2 * ldz * mdz , zv_w_oz , 1 , hamm , 1 ) 
+
       if (mlog) then
         call gettime(datim)
         call awrit2(' pzhev '//datim//' Process %i of %i on '
@@ -285,7 +389,12 @@ C Poke distributed array into t (use heap location hamm for temp)
      .    procid,numprocs)
         call ftflsh(-1)
       endif
-      call rlse(oz)
+Cdelw1 rlse name= oz old_list= oz 
+Cdelw1 rlse name= oz new_list= (None)
+Cdelw1       call rlse(oz)
+       if (allocated(zv_w_oz)) deallocate(zv_w_oz)
+
+Cdelw1 do not change ot because of ['call', 'wref']
       call defcc(ot, n*n)
       if (mlog) then
         call gettime(datim)
@@ -295,6 +404,7 @@ C Poke distributed array into t (use heap location hamm for temp)
      .    procid,numprocs)
         call ftflsh(-1)
       endif
+Cdelw1 do not change ot because of ['call', 'wref']
       call udstmt(descz,n,hamm,w(ot))
       if (mlog) then
         call gettime(datim)
@@ -313,6 +423,11 @@ C      call blacs_exit(1)
 #endif
 c##### MPI
 Cgetarg       end
+Cdelw1 w_varlist remains: ot 
+Cdelw1 w_varlistundel: [ot]
+Cdelw1 w_varlist (undel), remains: [ot]
+Cdelw1 w_varlist (del), remains: (None)
+Cdelw1 not deallocate ot because of [call wref]
        end subroutine pzhev 
 
 #if MPI & BLACS 
@@ -329,6 +444,9 @@ C Distribute global matrix ag into local matrix al
          enddo
        enddo
 Cgetarg        end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
         end subroutine dstmt 
 
       subroutine udstmt(desc,n,al,ag)
@@ -348,6 +466,9 @@ C Undistribute local matrix al into global matrix ag
         enddo
       enddo
 Cgetarg       end
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
        end subroutine udstmt 
 
 #endif

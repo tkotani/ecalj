@@ -1,3 +1,22 @@
+Cdelw1 var ['orhofa', '1', 'orhofa(is)', '-nrmx*nsp', 'real(8)', 'rv_w_', 'rdovfa']
+Cdelw1 var ['orhoca', '1', 'orhoca(is)', '-nrmx*nsp', 'real(8)', 'rv_w_', 'rdovfa']
+Cdelw1 var ['ov0a', '1', 'ov0a(is)', '-nrmx*nsp', 'real(8)', 'rv_w_', 'rdovfa']
+Cdelw1 var ['ov0', '1', 'ov0', 'nr*nsp', 'real(8)', 'rv_w_', 'rdovfa']
+Cdelw1 var ['ov1', '1', 'ov1', 'nr*nsp', 'real(8)', 'rv_w_', 'rdovfa']
+Cdelw1 var ['orwgt', '2', 'orwgt', 'nr', 'real(8)', 'rv_w_', 'rdovfa']
+Cdelw1 var ['ocv', '0', 'ocv', 'ng*nsp', 'complex(8)', 'zv_w_', 'rdovfa']
+Cdelw1 var ['ogv', '-1', 'undef', '0', 'undef', 'x', 'rdovfa']
+Cdelw1 var ['okv', '-1', 'undef', '0', 'undef', 'x', 'rdovfa']
+Cdelw1 var ['osmrho', '-1', 'undef', '0', 'undef', 'x', 'rdovfa']
+Cdelw1 undel [['undef', 'wref'], 'ogv', 'rdovfa']
+Cdelw1 undel [['undef', 'wref'], 'okv', 'rdovfa']
+Cdelw1 undel [['undef', 'wref'], 'osmrho', 'rdovfa']
+Cdelw1 undel [['call', 'array', 'wref'], 'orhoat', 'rdovfa']
+Cdelw1 undel [['array', 'wref', 'call'], 'orhofa', 'rdovfa']
+Cdelw1 undel [['array', 'wref', 'call'], 'orhoca', 'rdovfa']
+Cdelw1 undel [['array', 'wref', 'call'], 'ov0a', 'rdovfa']
+Cdelw1 undel [['wref'], 'ov0', 'rdovfa']
+Cdelw1 undel [['wref'], 'ov1', 'rdovfa']
 Cgetarg...info...           structure ['rdovfa', 'pot', 'spot']
 Cgetarg...info...           structure ['rdovfa', 'lat', 'slat']
 Cgetarg...info...           structure ['rdovfa', 'spec', 'sspec']
@@ -38,6 +57,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer procid, master, mpipid
+Cdelw1 do not change  [['call', 'array', 'wref'], 'orhoat', 'rdovfa']
       integer nbas,nspec,orhoat(3,nbas)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),spot(1),qbg
        real(8):: qbg 
@@ -49,13 +69,28 @@ Cgetarg       double precision ssite(1),sspec(1),slat(1),spot(1),qbg
 C ... Local parameters
       integer nrmx, n0
       parameter ( nrmx=1501, n0=10 )
+Cdelw1 do not change  [['array', 'wref', 'call'], 'orhofa', 'rdovfa']
+Cdelw1 do not change  [['array', 'wref', 'call'], 'ov0a', 'rdovfa']
+Cdelw1 do not change  [['array', 'wref', 'call'], 'orhoca', 'rdovfa']
       integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
       double precision rsmfa(nspec),pnu(n0,2),exi(n0,nspec),
      .  hfc(n0,2,nspec),hfct(n0,2,nspec)
       character*8 spid(nspec),spidr
-      integer ipr,iprint,ngabc(3),n1,n2,n3,k1,k2,k3,nsp,nglob,lgunit,
-     .  stdo,stdl,i,ifi,fopna,is,nr,lfoc,nr0,i1,nch,ib,igetss,lmxl,nlml,
-     .  ov0,ov1,orwgt,ng,ogv,okv,ocv,iofa,osmrho,kcor,lcor
+Cdelw1 do not change  [['wref'], 'ov0', 'rdovfa']
+Cdelw1 do not change  [['wref'], 'ov1', 'rdovfa']
+Cdelw1 do not change  [['undef', 'wref'], 'ogv', 'rdovfa']
+Cdelw1 do not change  [['undef', 'wref'], 'okv', 'rdovfa']
+Cdelw1 do not change  [['undef', 'wref'], 'osmrho', 'rdovfa']
+Cdelw1       integer ipr,iprint,ngabc(3),n1,n2,n3,k1,k2,k3,nsp,nglob,lgunit,
+Cdelw1      .  stdo,stdl,i,ifi,fopna,is,nr,lfoc,nr0,i1,nch,ib,igetss,lmxl,nlml,
+Cdelw1      .  ov0,ov1,orwgt,ng,ogv,okv,ocv,iofa,osmrho,kcor,lcor
+       integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
+     . k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
+     . , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
+     . , ov1 , ng , ogv , okv , iofa , osmrho , kcor , lcor 
+       real(8) ,allocatable :: rv_w_orwgt(:)
+       complex(8) ,allocatable :: zv_w_ocv(:)
+
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision alat,plat(3,3),a,rmt,z,rfoc,z0,rmt0,a0,qc,ccof,
      .  ceh,stc,ztot,ctot,corm,sum,fac,sum1,sum2,sqloc,dq,vol,smom,
@@ -75,6 +110,8 @@ C ... Heap
 Cgetarg...info...           integer :: osmrho , integer(8) :: spot%osmrho 1
 Cgetarg       call upack1('pot osmrho',spot,osmrho)
        
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 78
+Cdelw1 do not change osmrho because of ['undef', 'wref']
        osmrho=spot%osmrho
 
       procid = mpipid(1)
@@ -98,10 +135,7 @@ Cgetarg       call upack('lat alat plat vol nabc',slat,alat,plat,vol,ngabc,0)
        i_copy_size=size(slat%nabc) 
        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
 
-c      call fftz30(n1,n2,n3,k1,k2,k3)
-      k1 = n1
-      k2 = n2
-      k3 = n3
+      call fftz30(n1,n2,n3,k1,k2,k3)
       call dpzero(hfc,n0*2*nspec)
       call dpzero(pnu,n0*2)
 
@@ -112,8 +146,11 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
          rewind ifi
        endif
        do  10  is = 1, nspec
+Cdelw1 do not change orhofa because of ['array', 'wref', 'call']
         call defrr(orhofa(is),   -nrmx*nsp)
+Cdelw1 do not change orhoca because of ['array', 'wref', 'call']
         call defrr(orhoca(is),   -nrmx*nsp)
+Cdelw1 do not change ov0a because of ['array', 'wref', 'call']
         call defrr(ov0a(is),     -nrmx*nsp)
 Cgetarg         call spacks(0,'spec name',sspec,spid(is),is,is)
          do i_spacks=is,is 
@@ -154,10 +191,16 @@ Cgetarg         call upack('spec lfoca rfoca',sspec,is,lfoc,rfoc,0,0)
           ccof=0
           ceh=0
           stc=0
+Cdelw1 do not change ov0a because of ['array', 'wref', 'call']
           call rlse(ov0a(is))
+Cdelw1 do not change orhoca because of ['array', 'wref', 'call']
           call rlse(orhoca(is))
+Cdelw1 do not change orhofa because of ['array', 'wref', 'call']
           call rlse(orhofa(is))
         else
+Cdelw1 do not change orhofa because of ['array', 'wref', 'call']
+Cdelw1 do not change orhoca because of ['array', 'wref', 'call']
+Cdelw1 do not change ov0a because of ['array', 'wref', 'call']
           lfail = 
      .     (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
      .      hfct(1,1,is),rsmfa(is),z0,rmt0,a0,nr0,qc,ccof,
@@ -176,8 +219,11 @@ C   ... Broadcast file data
         call mpibc1(hfct(1,1,is),nsp*n0,4,mlog,'rdovfa','hfct')
         call mpibc1(rsmfa(is),1,4,mlog,'rdovfa','rsmfa')
         call mpibc1(a0,1,4,mlog,'rdovfa','a0')
+Cdelw1 do not change orhofa because of ['array', 'wref', 'call']
         call mpibc1(w(orhofa(is)),nr0*nsp,4,mlog,'rdovfa','rhofa')
+Cdelw1 do not change orhoca because of ['array', 'wref', 'call']
         call mpibc1(w(orhoca(is)),nr0*nsp,4,mlog,'rdovfa','rhoca')
+Cdelw1 do not change ov0a because of ['array', 'wref', 'call']
         call mpibc1(w(ov0a(is)),nr0*nsp,4,mlog,'rdovfa','v0a')
         i = mpipid(3)
 
@@ -238,6 +284,7 @@ Cgetarg      .    orhoca(is))
          sspec(is)%ctail=ccof 
          sspec(is)%etail=ceh 
          sspec(is)%stc=stc 
+Cdelw1 do not change orhoca because of ['array', 'wref', 'call']
          sspec(is)%orhoc=orhoca(is) 
 
    10 continue
@@ -284,18 +331,38 @@ C        call upack('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
 C     .      orca)
 
         nlml = (lmxl+1)**2
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
         call defrr (orhoat(1,ib),  nr*nlml*nsp)
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
         call defrr (orhoat(2,ib),  nr*nlml*nsp)
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
         call defrr (orhoat(3,ib),  nr*nsp)
+Cdelw1 do not change ov0 because of ['wref']
         call defrr (ov0,           nr*nsp)
+Cdelw1 do not change ov1 because of ['wref']
         call defrr (ov1,           nr*nsp)
 
 C       Core magnetic moment (possible if magnetized core hole)
         if (nsp .eq. 2 .and. lmxl .gt. -1) then
-          call defrr(orwgt, nr)
-          call radwgt(rmt,a,nr,w(orwgt))
-          call radsum(nr,nr,1,nsp,w(orwgt),w(orhoca(is)),sum)
-          call radsum(nr,nr,1,1,w(orwgt),w(orhoca(is)),sum1)
+Cdelw1           call defrr(orwgt, nr)
+           allocate(rv_w_orwgt(nr))
+           if (nr<0) rv_w_orwgt(:)=0.0d0
+
+Cdelw1           call radwgt(rmt,a,nr,w(orwgt))
+           call radwgt ( rmt , a , nr , rv_w_orwgt ) 
+
+Cdelw1 do not change orhoca because of ['array', 'wref', 'call']
+Cdelw1 do not change orhoca because of ['array', 'wref', 'call']
+Cdelw1           call radsum(nr,nr,1,nsp,w(orwgt),w(orhoca(is)),sum)
+           call radsum ( nr , nr , 1 , nsp , rv_w_orwgt , w ( orhoca ( is 
+     .     ) ) , sum ) 
+
+Cdelw1 do not change orhoca because of ['array', 'wref', 'call']
+Cdelw1 do not change orhoca because of ['array', 'wref', 'call']
+Cdelw1           call radsum(nr,nr,1,1,w(orwgt),w(orhoca(is)),sum1)
+           call radsum ( nr , nr , 1 , 1 , rv_w_orwgt , w ( orhoca ( is 
+     .     ) ) , sum1 ) 
+
           sum2 = sum - sum1
           call gtpcor(sspec,is,kcor,lcor,qcor)
 
@@ -305,25 +372,54 @@ C       Core magnetic moment (possible if magnetized core hole)
      .        is,qcor(2),sum1-sum2,0,0)
           endif
           corm = corm + qcor(2)
-          call rlse(orwgt)
+Cdelw1 rlse name= orwgt old_list= orhofa orhoca ov0a orhoat ov0 ov1 orwgt 
+Cdelw1 rlse name= orwgt new_list= orhofa orhoca ov0a orhoat ov0 ov1 
+Cdelw1           call rlse(orwgt)
+           if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+
         endif
 
         if (lmxl .gt. -1) then
+Cdelw1 do not change ov0a because of ['array', 'wref', 'call']
+Cdelw1 do not change ov0 because of ['wref']
           call dpcopy(w(ov0a(is)),  w(ov0),  1,nr*nsp,1d0)
+Cdelw1 do not change ov0a because of ['array', 'wref', 'call']
+Cdelw1 do not change ov1 because of ['wref']
           call dpcopy(w(ov0a(is)),  w(ov1),  1,nr*nsp,1d0)
+Cdelw1 3 is digit, dropped
+Cdelw1 do not change orhoca because of ['array', 'wref', 'call']
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
           call dpcopy(w(orhoca(is)),w(orhoat(3,ib)),1,nr*nsp,1d0)
   
           if (lfoc .eq. 0) then
-            call defrr(orwgt, nr)
-            call radwgt(rmt,a,nr,w(orwgt))
-            call radsum(nr,nr,1,nsp,w(orwgt),w(orhoat(3,ib)),sum)
+Cdelw1             call defrr(orwgt, nr)
+             allocate(rv_w_orwgt(nr))
+             if (nr<0) rv_w_orwgt(:)=0.0d0
+
+Cdelw1             call radwgt(rmt,a,nr,w(orwgt))
+             call radwgt ( rmt , a , nr , rv_w_orwgt ) 
+
+Cdelw1 3 is digit, dropped
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
+Cdelw1             call radsum(nr,nr,1,nsp,w(orwgt),w(orhoat(3,ib)),sum)
+             call radsum ( nr , nr , 1 , nsp , rv_w_orwgt , w ( orhoat ( 3 
+     .       , ib ) ) , sum ) 
+
             fac = 1d0
             if(dabs(sum) .gt. 1d-7) fac = qc/sum
             if (ipr .ge. 40) write(stdo,787) is,qc,sum,fac
   787       format(' scale foca=0 core species',i2,': qc,sum,scale=',
      .        3f12.6,f12.6)
+Cdelw1 3 is digit, dropped
+Cdelw1 3 is digit, dropped
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
-            call rlse(orwgt)
+Cdelw1 rlse name= orwgt old_list= orhofa orhoca ov0a orhoat ov0 ov1 orwgt 
+Cdelw1 rlse name= orwgt new_list= orhofa orhoca ov0a orhoat ov0 ov1 
+Cdelw1             call rlse(orwgt)
+             if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+
           endif
         endif
 
@@ -331,7 +427,9 @@ Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
 Cgetarg...info...           integer :: ov1 , integer(8) :: ssite%ov1 1
 Cgetarg         call pack5('site ov0 ov1',ssite,ib,ov0,ov1,0,0)
          
+Cdelw1 do not change ov0 because of ['wref']
          ssite(ib)%ov0=ov0 
+Cdelw1 do not change ov1 because of ['wref']
          ssite(ib)%ov1=ov1 
 
         ztot = ztot+z
@@ -347,12 +445,26 @@ Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
 Cgetarg       call upack('lat ng ogv okv',slat,ng,ogv,okv,0,0)
        
        ng=slat%ng
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 347
+Cdelw1 do not change ogv because of ['undef', 'wref']
        ogv=slat%ogv
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 348
+Cdelw1 do not change okv because of ['undef', 'wref']
        okv=slat%okv
 
-      call defcc(ocv, ng*nsp)
-      call ovlpfa(ssite,slat,nbas,nxi,n0,exi,hfc,rsmfa,ng,ng,w(ogv),
-     .  w(ocv))
+Cdelw1       call defcc(ocv, ng*nsp)
+       allocate(zv_w_ocv(ng*nsp))
+       if (ng*nsp<0) zv_w_ocv(:)=0.0d0
+
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 351
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 351
+Cdelw1 do not change ogv because of ['undef', 'wref']
+Cdelw1       call ovlpfa(ssite,slat,nbas,nxi,n0,exi,hfc,rsmfa,ng,ng,w(ogv),
+Cdelw1      .  w(ocv))
+       call ovlpfa ( ssite , slat , nbas , nxi , n0 , exi , hfc , rsmfa 
+     . , ng , ng , w ( ogv ) , zv_w_ocv ) 
+
 
 ccccccccccccccc
 c        is=1
@@ -363,7 +475,18 @@ c        call wkchk('qqq: aaa')
 c        print *,' qqq: okv ocv osmrho=', okv,ocv,osmrho
 ccccccccccccccc
 
-      call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocv),w(osmrho))
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 363
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 363
+Cdelw1 do not change osmrho because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 363
+Cdelw1 do not change okv because of ['undef', 'wref']
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 363
+Cdelw1 do not change osmrho because of ['undef', 'wref']
+Cdelw1       call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocv),w(osmrho))
+       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , zv_w_ocv 
+     . , w ( osmrho ) ) 
+
 
 ccccccccccccccc
 c        is=1
@@ -372,26 +495,41 @@ c        call wkchk('qqq: 1bb')
 c        print *,'qqq: 2 aaaaaaaaaaaaaaaaaaaaaaa is nr=',is, nr
 c        stop 'xxxxxxx'
 ccccccccccccccc
-      call rlse(ocv)
+Cdelw1 rlse name= ocv old_list= orhofa orhoca ov0a orhoat ov0 ov1 ocv 
+Cdelw1 rlse name= ocv new_list= orhofa orhoca ov0a orhoat ov0 ov1 
+Cdelw1       call rlse(ocv)
+       if (allocated(zv_w_ocv)) deallocate(zv_w_ocv)
+
 
 
 
 C ... FFT to real-space mesh
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 377
+Cdelw1 do not change osmrho because of ['undef', 'wref']
       call fftz3(w(osmrho),n1,n2,n3,k1,k2,k3,nsp,0,1)
 C ... Add compensating uniform electron density to compensate background
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 379
+Cdelw1 do not change osmrho because of ['undef', 'wref']
       call addbkgsm(w(osmrho),k1,k2,k3,nsp,qbg,vol,-1d0)
 C ... integrate
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 381
+Cdelw1 do not change osmrho because of ['undef', 'wref']
       call mshint(vol,nsp,n1,n2,n3,k1,k2,k3,w(osmrho),sum1,sum2)
       if (nsp .eq. 2) then
+Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 383
+Cdelw1 do not change osmrho because of ['undef', 'wref']
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmrho),smom,sum2)
         smom = 2*smom - sum1
       endif
 C --- Set up local densities using rmt from atm file ---
 
 
+Cdelw1 do not change orhofa because of ['array', 'wref', 'call']
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
       call ovlocr(nbas,ssite,sspec,slat,n0,nxi,exi,hfc,rsmfa,orhofa,
      .  orhoat,sqloc,slmom)
 C --- Add compensating uniform electron density to compensate background
+Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
       call adbkql(orhoat,nbas,nsp,qbg,vol,-1d0,sspec,ssite)
       if (abs(qbg) .ne. 0) call info(10,0,0,' Uniform '//
      .  'density added to neutralize background, q=%;6,6d',qbg,0)
@@ -434,6 +572,16 @@ C --- Print charges ---
       call tcx('rdovfa')
 
 Cgetarg       end
+Cdelw1 w_varlist remains: orhofa orhoca ov0a orhoat ov0 ov1 
+Cdelw1 w_varlistundel: [ogv okv osmrho orhoat orhofa orhoca ov0a ov0 ov1]
+Cdelw1 w_varlist (undel), remains: [orhofa orhoca ov0a orhoat ov0 ov1]
+Cdelw1 w_varlist (del), remains: (None)
+Cdelw1 not deallocate ov1 because of [wref]
+Cdelw1 not deallocate ov0 because of [wref]
+Cdelw1 not deallocate orhoat because of [call array wref]
+Cdelw1 not deallocate ov0a because of [array wref call]
+Cdelw1 not deallocate orhoca because of [array wref call]
+Cdelw1 not deallocate orhofa because of [array wref call]
        end subroutine rdovfa 
 
 
