@@ -64,7 +64,11 @@ Cgetarg       call upack1('lat nabc',slat,ngabc)
        i_copy_size=size(slat%nabc) 
        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
 
-      call fftz30(n1,n2,n3,k1,k2,k3)
+c      call fftz30(n1,n2,n3,k1,k2,k3)
+      k1 = n1
+      k2 = n2
+      k3 = n3
+
 
       call symrat(ssite,sspec,slat,nbas,nsp,lf,orhoat,qbyl,hbyl,f)
       if (iprint() .gt. 50) call prrhat(nbas,ssite,sspec,orhoat)

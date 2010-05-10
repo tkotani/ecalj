@@ -1,0 +1,60 @@
+Usage:
+python delw.py < source.F > x
+mv x source.F
+
+========================================
+
+Comments:
+
+***don't change subs/xlgen.F***
+
+
+------------------------------
+fp/bndfp.F
+Only MPIK uses rv_w_oeomin
+
+
+------------------------------
+if you find #error:  have #if F90 directive
+git checkout foo.F
+
+
+------------------------------
+subs/ovmin.F
+variables are defined in common block.
+
+
+------------------------------
+fp/mshvmt.F
+old:
+do ic=...
+   alloctate(rv_w_oqwk...
+   alloctate(rv_w_osym...
+
+enddo
+   deallocate(rv_w_osym)
+   deallocate(rv_w_oqwk)
+new:
+do ic=...
+   alloctate(rv_w_oqwk...
+   alloctate(rv_w_osym...
+
+enddo
+   deallocate(rv_w_osym)
+   deallocate(rv_w_oqwk)
+
+
+------------------------------
+subs/freeat.F
+subroutine optfab
+do 80
+      call defrr (oh,    nr)
+      call defrr (og,    2*nr)
+      call defrr (ogp,   2*nr*4)
+
+...
+      call rlse(oh) <--- add a line 
+80 continue
+
+
+------------------------------

@@ -216,7 +216,6 @@ sla_list=\
 	tred1.o \
 	tred2.o \
 	verfc.o \
-	vmem.o \
 	wordg.o \
 	words.o \
 	ygemm.o \

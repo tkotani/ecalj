@@ -260,7 +260,11 @@ Cgetarg           call upack1('lat nabc',w(oslat2),ngabc2)
            i_copy_size=size(slat2%nabc) 
            call i8icopy(i_copy_size,slat2%nabc,1,ngabc2,1) 
 
-          call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
+c          call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
+           k1 = ngabc2(1)
+           k2 = ngabc2(2)
+           k3 = ngabc2(3)
+
           call defcc(osmrh2, -k1*k2*k3*nsp)
 Cgetarg...info...           integer :: osmrh2 , integer(8) :: w(ospot2)%osmrho 1
 Cgetarg           call pack1('pot osmrho',w(ospot2),osmrh2)
@@ -346,7 +350,11 @@ Cgetarg         call upack1('lat nabc',w(oslat2),ngabc2)
          i_copy_size=size(slat2%nabc) 
          call i8icopy(i_copy_size,slat2%nabc,1,ngabc2,1) 
 
-        call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
+c        call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
+           k1 = ngabc2(1)
+           k2 = ngabc2(2)
+           k3 = ngabc2(3)
+
         call defcc(osmrh2, -k1*k2*k3*nsp)
         call defcc(osmpt2, -k1*k2*k3*nsp)
 Cgetarg...info...           integer :: osmrh2 , integer(8) :: w(ospot2)%osmrho 1
@@ -372,7 +380,11 @@ Cgetarg         call pack1('ctrl lrs',sctrl,lrssav)
 
 
         call info0(1,1,0,' Second Density:')
-        call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
+c        call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
+           k1 = ngabc2(1)
+           k2 = ngabc2(2)
+           k3 = ngabc2(3)
+
         call prsed2(nbask(2),nsp,ssite2,sspec2,w(oorh2),
      .    slat2,w(osmrh2),k1,k2,k3)
 
@@ -423,7 +435,11 @@ Cgetarg         call upack1('lat nabc',slat,ngabc)
          i_copy_size=size(slat%nabc) 
          call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
 
-        call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
+c        call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
+           k1 = ngabc2(1)
+           k2 = ngabc2(2)
+           k3 = ngabc2(3)
+
         call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
      .    slat,w(osmrho),k1,k2,k3)
 
@@ -442,7 +458,11 @@ C ... show
           call info2(1,1,0,' Density from rs file:  '//
      .      '%i sites, %i species',nbask(1),nspeck(1))
 C          call upack1('lat nabc',slat,ngabc)
-          call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
+c          call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
+           k1 = ngabc2(1)
+           k2 = ngabc2(2)
+           k3 = ngabc2(3)
+
           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
      .      slat,w(osmrho),k1,k2,k3)
         endif
@@ -451,7 +471,11 @@ C          call upack1('lat nabc',slat,ngabc)
           call info2(1,1,0,' Second Density:  '//
      .      '%i sites, %i species',nbask(2),nspeck(2))
 
-          call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
+c          call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
+           k1 = ngabc2(1)
+           k2 = ngabc2(2)
+           k3 = ngabc2(3)
+
           call prsed2(nbask(2),nsp,ssite2,sspec2,w(oorh2),
      .      slat2,w(osmrh2),k1,k2,k3)
         endif
@@ -711,7 +735,11 @@ C        call upack1('lat nabc',w(oslat2),ngabc2)
           call info0(0,0,0,' Densities synchronized')
         elseif (isync .eq. 1) then
 C         call upack1('lat nabc',slat,ngabc)
-          call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
+c          call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
+           k1 = ngabc2(1)
+           k2 = ngabc2(2)
+           k3 = ngabc2(3)
+
           call info0(1,1,0,' New density from rs file:')
           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
      .      slat,w(osmrho),k1,k2,k3)

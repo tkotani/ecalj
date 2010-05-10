@@ -98,7 +98,10 @@ Cgetarg       call upack('lat alat plat vol nabc',slat,alat,plat,vol,ngabc,0)
        i_copy_size=size(slat%nabc) 
        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
 
-      call fftz30(n1,n2,n3,k1,k2,k3)
+c      call fftz30(n1,n2,n3,k1,k2,k3)
+      k1 = n1
+      k2 = n2
+      k3 = n3
       call dpzero(hfc,n0*2*nspec)
       call dpzero(pnu,n0*2)
 

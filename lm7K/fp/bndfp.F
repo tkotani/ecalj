@@ -559,7 +559,12 @@ Cgetarg       call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
 Cgetarg       vol = dgets('lat vol',slat)
        vol = slat%vol 
 
-      call fftz30(n1,n2,n3,k1,k2,k3)
+
+c      call fftz30(n1,n2,n3,k1,k2,k3)
+      k1 = n1
+      k2 = n2
+      k3 = n3
+
 
 C ... for BZ integration
 Cgetarg...info...           integer :: nkabc(3) , integer(8) :: sbz%nkabc 3

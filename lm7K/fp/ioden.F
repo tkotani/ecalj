@@ -164,7 +164,11 @@ Cgetarg         call upack('spec z',sspec,is,w(oz-2+ib*2),0,0,0)
          w(oz-2+ib*2)=sspec(is)%z
 
       enddo   
-      call fftz30(n1,n2,n3,k1,k2,k3)
+c      call fftz30(n1,n2,n3,k1,k2,k3)
+      k1 = n1
+      k2 = n2
+      k3 = n3
+
       kkk = k1*k2*k3
       kmax = 3
       modrhg = 2

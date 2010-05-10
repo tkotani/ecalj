@@ -112,7 +112,11 @@ Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
        okv=slat%okv
        vol=slat%vol
 
-      call fftz30(n1,n2,n3,k1,k2,k3)
+c      call fftz30(n1,n2,n3,k1,k2,k3)
+      k1 = n1
+      k2 = n2
+      k3 = n3
+
 C     call zprm3('input smrho',0,smrho,k1,k2,k3)
 
 C ... Hold on to original smrho (cgr)

@@ -282,7 +282,11 @@ Cgetarg      .  oag,0)
 C     Get leading dimension of hrs
       call offsHp(w(oiprmb),1,nbas,2,0,ndimh,0,ndhrs)
 C     Setup for FFT
-      call fftz30(nk1,nk2,nk3,k1,k2,k3) !takao comment out because k1 k2 k3 are supplied at the begining of routine.
+c      call fftz30(nk1,nk2,nk3,k1,k2,k3) !takao comment out because k1 k2 k3 are supplied at the begining of routine.
+      k1 = nk1
+      k2 = nk2
+      k3 = nk3
+
       if (nk1.ne.k1 .or. nk2.ne.k2 .or. nk3.ne.k3) call rx(
      .  'rdsigm: not ready for FFT w/ dimensions ne no div.')
 C ... Number of group operations for input file sigma
@@ -1303,7 +1307,11 @@ Cgetarg      .  oag,0)
 C     Get leading dimension of hrs
 c      call offsHp(w(oiprmb),1,nbas,2,0,ndimh,0,ndhrs)
 C     Setup for FFT
-      call fftz30(nk1,nk2,nk3,k1,k2,k3) !takao comment out because k1 k2 k3 are supplied at the begining of routine.
+c      call fftz30(nk1,nk2,nk3,k1,k2,k3) !takao comment out because k1 k2 k3 are supplied at the begining of routine.
+      k1 = nk1
+      k2 = nk2
+      k3 = nk3
+
       if (nk1.ne.k1 .or. nk2.ne.k2 .or. nk3.ne.k3) call rx(
      .  'rdsigm: not ready for FFT w/ dimensions ne no div.')
 C ... Number of group operations for input file sigma

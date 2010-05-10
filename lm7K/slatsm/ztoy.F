@@ -1,4 +1,3 @@
-#define F90 1
       subroutine ztoy(a,lda,nr,nc,lbak)
 C- Separates real and imaginary parts of subblock of a complex*16 matrix
 C ----------------------------------------------------------------------
@@ -29,17 +28,10 @@ C ----------------------------------------------------------------------
 C     implicit none
       integer lda,lbak,nr,nc
       double precision a(1)
-#if AUTO_ARRAY | F90
-      double precision wk(nr)
+      real(8),allocatable:: wk(:)
+      allocate(wk(nr))
       call ztoy1(a,lda,nr,nc,wk,lbak)
-#else
-      integer w(1),owk
-      common /w/ w
-      call defrr(owk,nr)
-      call ztoy1(a,lda,nr,nc,w(owk),lbak)
-      call rlse(owk)
-#endif
-
+      deallocate(wk)
       end
       subroutine ztoy1(a,lda,nr,nc,wk,lbak)
 C- Separates real and imaginary parts of subblock of a complex*16 matrix
@@ -70,9 +62,7 @@ C ----------------------------------------------------------------------
 C     implicit none
       integer lda,lbak,nr,nc
       double precision a(1),wk(nr)
-#if F90
       double precision,allocatable:: wk2(:)
-#endif
       integer j,k,l,mdim
 
       mdim = 2*lda
@@ -81,7 +71,6 @@ C     implicit none
 
 C --- Separate real and imaginary parts ---
 C ..  k is offset to col j, l to imaginary part
-#if F90
       allocate(wk2(nr))
       do  10  j = 1, nc
         k = (j-1)*mdim + 1
@@ -92,20 +81,10 @@ C ..  k is offset to col j, l to imaginary part
         call dcopy(nr,wk,1,a(l),1)
    10 continue
       deallocate(wk2)
-#else
-      do  10  j = 1, nc
-        k = (j-1)*mdim + 1
-        l = k + lda
-        call dcopy(nr,a(k+1),2,wk,1)
-        call dcopy(nr,a(k),2,a(k),1)
-        call dcopy(nr,wk,1,a(l),1)
-   10 continue
-#endif
       return
 
 C --- Restore to complex storage ---
    20 continue
-#if F90
       allocate(wk2(nr))
       do  30  j = 1, nc
         k = (j-1)*mdim + 1
@@ -116,58 +95,49 @@ C --- Restore to complex storage ---
         call dcopy(nr,wk,1,a(k),2)
    30 continue
       deallocate(wk2)
-#else
-      do  30  j = 1, nc
-        k = (j-1)*mdim + 1
-        l = k + lda
-        call dcopy(nr,a(k),1,wk,1)
-        call dcopy(nr,a(l),1,a(k+1),2)
-        call dcopy(nr,wk,1,a(k),2)
-   30 continue
-#endif
-
-      end
-#if TEST
-      subroutine fmain
-      double precision a(2,4,2),z(8),aa(16)
-      data a /1d0,11d0,2d0,12d0,3d0,13d0,4d0,14d0,
-     .        5d0,15d0,6d0,16d0,7d0,17d0,8d0,18d0/
-      equivalence(a,aa)
-      integer w(1000)
-      call wkinit(1000)
-      lda = 4
-      nr  = 3
-      nc  = 2
-      call zwrm('(2f12.6)',a,lda,nr,nc)
-      print *, 'call ztoy with lbak=',0
-      call ztoy(a,lda,nr,nc,0)
-      call ywrm('(2f12.6)',a,lda,nr,nc)
-      print *, 'call ztoy with lbak=',1
-      call ztoy(a,lda,nr,nc,1)
-      call zwrm('(2f12.6)',a,lda,nr,nc)
-
-      end
-      subroutine zwrm(fmt,s,ns,nr,nc)
-      double precision s(0:1,ns,nc)
-      character*(8) fmt
-      print *, 'complex*16 s'
-      print *, nr, nc
-      do  10  i = 1, nr
-   10 print fmt, (s(0,i,j), j=1,nc)
-      do  20  i = 1, nr
-   20 print fmt, (s(1,i,j), j=1,nc)
       end
 
-      subroutine ywrm(fmt,s,lds,nr,nc)
-      double precision s(lds,2,nc)
-      character*(8) fmt
-      print *, 'real,imaginary parts separated'
-      print *, nr, nc
-      do  10  i = 1, nr
-   10 print fmt, (s(i,1,j), j=1,nc)
-      do  20  i = 1, nr
-   20 print fmt, (s(i,2,j), j=1,nc)
-      end
-#endif
+C$$$#if TEST
+C$$$      subroutine fmain
+C$$$      double precision a(2,4,2),z(8),aa(16)
+C$$$      data a /1d0,11d0,2d0,12d0,3d0,13d0,4d0,14d0,
+C$$$     .        5d0,15d0,6d0,16d0,7d0,17d0,8d0,18d0/
+C$$$      equivalence(a,aa)
+C$$$      integer w(1000)
+C$$$      call wkinit(1000)
+C$$$      lda = 4
+C$$$      nr  = 3
+C$$$      nc  = 2
+C$$$      call zwrm('(2f12.6)',a,lda,nr,nc)
+C$$$      print *, 'call ztoy with lbak=',0
+C$$$      call ztoy(a,lda,nr,nc,0)
+C$$$      call ywrm('(2f12.6)',a,lda,nr,nc)
+C$$$      print *, 'call ztoy with lbak=',1
+C$$$      call ztoy(a,lda,nr,nc,1)
+C$$$      call zwrm('(2f12.6)',a,lda,nr,nc)
+C$$$      end
+
+C$$$      subroutine zwrm(fmt,s,ns,nr,nc)
+C$$$      double precision s(0:1,ns,nc)
+C$$$      character*(8) fmt
+C$$$      print *, 'complex*16 s'
+C$$$      print *, nr, nc
+C$$$      do  10  i = 1, nr
+C$$$   10 print fmt, (s(0,i,j), j=1,nc)
+C$$$      do  20  i = 1, nr
+C$$$   20 print fmt, (s(1,i,j), j=1,nc)
+C$$$      end
+
+C$$$      subroutine ywrm(fmt,s,lds,nr,nc)
+C$$$      double precision s(lds,2,nc)
+C$$$      character*(8) fmt
+C$$$      print *, 'real,imaginary parts separated'
+C$$$      print *, nr, nc
+C$$$      do  10  i = 1, nr
+C$$$   10 print fmt, (s(i,1,j), j=1,nc)
+C$$$      do  20  i = 1, nr
+C$$$   20 print fmt, (s(i,2,j), j=1,nc)
+C$$$      end
+C$$$#endif
 
 

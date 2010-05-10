@@ -259,7 +259,11 @@ Cgetarg       call upack('lat npgrp nsgrp osymgr',slat,npgrp,nsgrp,og,0,0)
        nsgrp=slat%nsgrp
        og=slat%osymgr
 
-      call fftz30(n1,n2,n3,k1,k2,k3)
+c      call fftz30(n1,n2,n3,k1,k2,k3)
+      k1 = n1
+      k2 = n2
+      k3 = n3
+
       stdo = lgunit(1)
       lchk = 1
       nsp  = nglob('nsp')

@@ -1,0 +1,295 @@
+
+
+
+
+indentmap
+    00436 [subroutine clsprm] 
+    00552 [if 1] 
+    00553     [defdr opnu] name=opnu size=-nlspc
+    00554     [defdr oqnu] name=oqnu size=-3*nlspc
+    00555     [defdr opp] name=opp size=-6*nlspc
+    00556     [defdr opprel] name=opprel size=-32*nl*nl*max(nclspp,nspec)
+    00557     [defdr oqc] name=oqc size=-nclasp
+    00558     [defdr oqt] name=oqt size=-nclasp
+    00559     [defi oinitc] name=oinitc size=-nclasp
+    00560     [defi ogroup] name=ogroup size=-2*nclasp
+    00561     [defdr oves] name=oves size=-nclspp
+    00562     [defdr ovdif] name=ovdif size=-nclspp
+    00563     [defdr orhrmx] name=orhrmx size=-nclspp
+    00564     [defdr ovrmax] name=ovrmax size=-2*nclspp
+    00574     [wref oics clsprm] name=oics
+ERROR, probably oics is not defined yet.
+    00576     [defdr ormax] name=ormax size=nclspp
+    00577     [wvar ormax 1] name=ormax
+    00585     [wref ogroup 1] name=ogroup
+    00586     [wref ormax 1] name=ormax
+    00587     [wref oinitc 1] name=oinitc
+    00595     [wref opnu 1] name=opnu
+    00596     [wref oqnu 1] name=oqnu
+    00597     [wref oqc 1] name=oqc
+    00598     [wref oqt 1] name=oqt
+    00608     [wref oves 1] name=oves
+    00609     [wref ovdif 1] name=ovdif
+    00610     [wref ovrmax 1] name=ovrmax
+    00611     [wref orhrmx 1] name=orhrmx
+    00612     [wref opp 1] name=opp
+    00615     [defdr obxc] name=obxc size=-3*nclasp
+    00620     [wref opprel 1] name=opprel
+    00621     [wref obxc 1] name=obxc
+    00629     [if 2] 
+    00636         [rlse obxc] 
+old w_varlist=opnu oqnu opp opprel oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax obxc 
+release obxc
+new w_varlist=opnu oqnu opp opprel oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax 
+    00637         [defdr orhos] name=orhos size=2*3*4*nrhos*nclasp
+    00638         [defdr osop] name=osop size=-nlspc*nsp*9
+    00639         [defdr obxc] name=obxc size=-3*nclasp
+    00647         [wref orhos 2] name=orhos
+    00648         [wref obxc clsprm] name=obxc
+    00649         [wref osop 2] name=osop
+    00650     [endif 2] 
+    00655     [defrr ogrrme] name=ogrrme size=-16*nl*nsp*nclasp
+    00665     [if 3] 
+    00668         [defdr ovintr] name=ovintr size=-nclasp*(nl*nsp)**2
+    00674     [endif 3] 
+    00681     [if 4] 
+    00682         [defrr opmpol] name=opmpol size=-(2*nl-1)*nl**2*3*nsp*nclasp
+    00685         [defrr oqpp] name=oqpp size=2*nqpp*4*nsp*nbas
+    00686         [wvar oqpp 2] name=oqpp
+    00690         [wref opmpol 2] name=opmpol
+    00691         [wref oqpp 2] name=oqpp
+    00693     [endif 4] 
+    00786 [endif 1] 
+    00841 [return] 
+ERROR, return but w_varlist remains:opnu oqnu opp opprel oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax orhos osop obxc ogrrme ovintr opmpol oqpp 
+    00864 [return] 
+ERROR, return but w_varlist remains:opnu oqnu opp opprel oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax orhos osop obxc ogrrme ovintr opmpol oqpp 
+    00867 [if 5] 
+    00874     [wref opnu clsprm] name=opnu
+    00875     [wref oqnu clsprm] name=oqnu
+    00877     [wref opnu clsprm] name=opnu
+    00879     [wref oqnu clsprm] name=oqnu
+    00889     [wref oves clsprm] name=oves
+    00890     [wref ovdif clsprm] name=ovdif
+    00891     [wref ovrmax clsprm] name=ovrmax
+    00892     [wref orhrmx clsprm] name=orhrmx
+    00894     [wref oves clsprm] name=oves
+    00895     [wref ovdif clsprm] name=ovdif
+    00896     [wref ovrmax clsprm] name=ovrmax
+    00897     [wref orhrmx clsprm] name=orhrmx
+    00899 [else 5] 
+    00901 [endif 5] 
+end but w_varlist remains:opnu oqnu opp opprel oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax orhos osop obxc ogrrme ovintr opmpol oqpp 
+w_varlistundel(reason) :oics(undef wref) ogroup(wref) ormax(wref) oinitc(wref) opnu(wref) oqnu(wref) oqc(wref) oqt(wref) oves(wref) ovdif(wref) ovrmax(wref) orhrmx(wref) opp(wref) opprel(wref) obxc(wref) orhos(wref) osop(wref) ogrrme(wref) ovintr(wref) opmpol(wref) oqpp(wref) 
+
+w_varlist used (all): opnu oqnu opp opprel oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax obxc orhos osop ogrrme ovintr opmpol oqpp 
+to deallcate all
+
+indentmap
+    00911 [subroutine ioqpp] 
+    00953 [if 1] 
+    00954     [wref oqpp ioqpp] name=oqpp
+ERROR, probably oqpp is not defined yet.
+    00956 [else 1] 
+    00959     [if 2] 
+    00959         [wref oqpp ioqpp] name=oqpp
+ERROR, probably oqpp is not defined yet.
+    00961         [wref oqpp ioqpp] name=oqpp
+ERROR, probably oqpp is not defined yet.
+    00962     [endif 2] 
+    00964 [endif 1] 
+w_varlistundel(reason) :oqpp(undef wref) 
+
+
+
+
+indentmap
+    01032 [subroutine aiocls] 
+    01183 [defdr olpp] name=olpp size=100
+    01184 [defdr olppr] name=olppr size=3000
+    01185 [defdr olsop] name=olsop size=500
+    01186 [defdr olgrme] name=olgrme size=500
+    01187 [defdr olva] name=olva size=100
+    01188 [defdr olmp] name=olmp size=3000
+    01189 [defdr opot] name=opot size=3000
+    01190 [defdr ocor] name=ocor size=3000
+    01194 [do 1 10] 
+    01196     [wref oics aiocls] name=oics
+ERROR, probably oics is not defined yet.
+    01220     [wref oclabl aiocls] name=oclabl
+ERROR, probably oclabl is not defined yet.
+    01231     [wref ohave aiocls] name=ohave
+ERROR, probably ohave is not defined yet.
+    01234     [if 2] 
+    01235         [wref opnu aiocls] name=opnu
+ERROR, probably opnu is not defined yet.
+    01236         [wref oqnu aiocls] name=oqnu
+ERROR, probably oqnu is not defined yet.
+    01237         [wref orhrmx aiocls] name=orhrmx
+ERROR, probably orhrmx is not defined yet.
+    01238         [wref ovrmax aiocls] name=ovrmax
+ERROR, probably ovrmax is not defined yet.
+    01240     [endif 2] 
+    01242     [wref ohave aiocls] name=ohave
+ERROR, probably ohave is not defined yet.
+    01245     [if 3] 
+    01246         [wvar olpp 0] name=olpp
+    01246         [wref opp aiocls] name=opp
+ERROR, probably opp is not defined yet.
+    01246         [wref opp aiocls] name=opp
+ERROR, probably opp is not defined yet.
+    01247         [if 4] 
+    01249             [wvar olppr 0] name=olppr
+    01249             [wref opprel aiocls] name=opprel
+ERROR, probably opprel is not defined yet.
+    01249             [wref opprel aiocls] name=opprel
+ERROR, probably opprel is not defined yet.
+    01250         [endif 4] 
+    01251         [wref oves aiocls] name=oves
+ERROR, probably oves is not defined yet.
+    01253     [endif 3] 
+    01255     [wref ohave aiocls] name=ohave
+ERROR, probably ohave is not defined yet.
+    01259     [if 5] 
+    01260         [wvar olva 0] name=olva
+    01260         [wref ova aiocls] name=ova
+ERROR, probably ova is not defined yet.
+    01260         [wref ova aiocls] name=ova
+ERROR, probably ova is not defined yet.
+    01262     [endif 5] 
+    01264     [wref ohave aiocls] name=ohave
+ERROR, probably ohave is not defined yet.
+    01268     [if 6] 
+    01269         [wvar olmp 0] name=olmp
+    01269         [wref omp aiocls] name=omp
+ERROR, probably omp is not defined yet.
+    01269         [wref omp aiocls] name=omp
+ERROR, probably omp is not defined yet.
+    01271     [endif 6] 
+    01273     [wref ohave aiocls] name=ohave
+ERROR, probably ohave is not defined yet.
+    01277     [if 7] 
+    01278         [wvar olsop 0] name=olsop
+    01278         [wref osop aiocls] name=osop
+ERROR, probably osop is not defined yet.
+    01278         [wref osop aiocls] name=osop
+ERROR, probably osop is not defined yet.
+    01280     [endif 7] 
+    01282     [wref ohave aiocls] name=ohave
+ERROR, probably ohave is not defined yet.
+    01286     [if 8] 
+    01287         [wvar olgrme 0] name=olgrme
+    01287         [wref ogrrme aiocls] name=ogrrme
+ERROR, probably ogrrme is not defined yet.
+    01287         [wref ogrrme aiocls] name=ogrrme
+ERROR, probably ogrrme is not defined yet.
+    01289     [endif 8] 
+    01292     [if 9] 
+    01301         [if 10] 
+    01304             [wvar opot 0] name=opot
+    01305         [endif 10] 
+    01306         [wvar ocor 0] name=ocor
+    01314         [wvar olpp 0] name=olpp
+    01314         [wvar olppr 0] name=olppr
+    01316         [wvar olva 0] name=olva
+    01317         [wvar olmp 0] name=olmp
+    01318         [wvar olsop 0] name=olsop
+    01319         [wvar olgrme 0] name=olgrme
+    01320         [wvar opot 0] name=opot
+    01321         [wvar ocor 0] name=ocor
+    01324     [else 9] 
+    01342         [if 11] 
+    01343             [wvar olpp 0] name=olpp
+    01343             [wvar olppr 0] name=olppr
+    01346         [endif 11] 
+    01347         [if 12] 
+    01347             [wref osop aiocls] name=osop
+ERROR, probably osop is not defined yet.
+    01348             [wvar olsop 0] name=olsop
+    01350         [endif 12] 
+    01351         [if 13] 
+    01351             [wref ogrrme aiocls] name=ogrrme
+ERROR, probably ogrrme is not defined yet.
+    01352             [wvar olgrme 0] name=olgrme
+    01354         [endif 13] 
+    01355         [if 14] 
+    01355             [wref ova aiocls] name=ova
+ERROR, probably ova is not defined yet.
+    01356             [wvar olva 0] name=olva
+    01358         [endif 14] 
+    01359         [if 15] 
+    01359             [wref omp aiocls] name=omp
+ERROR, probably omp is not defined yet.
+    01360             [wvar olmp 0] name=olmp
+    01362         [endif 15] 
+    01365         [wref ohave aiocls] name=ohave
+ERROR, probably ohave is not defined yet.
+    01374         [if 16] 
+    01375             [wref opnu aiocls] name=opnu
+ERROR, probably opnu is not defined yet.
+    01376             [wref oqnu aiocls] name=oqnu
+ERROR, probably oqnu is not defined yet.
+    01377             [wref orhrmx aiocls] name=orhrmx
+ERROR, probably orhrmx is not defined yet.
+    01378             [wref ovrmax aiocls] name=ovrmax
+ERROR, probably ovrmax is not defined yet.
+    01379         [endif 16] 
+    01381         [if 17] 
+    01382             [wvar olpp 0] name=olpp
+    01382             [wref opp aiocls] name=opp
+ERROR, probably opp is not defined yet.
+    01382             [wref opp aiocls] name=opp
+ERROR, probably opp is not defined yet.
+    01383             [if 18] 
+    01385                 [wvar olppr 0] name=olppr
+    01385                 [wref opprel aiocls] name=opprel
+ERROR, probably opprel is not defined yet.
+    01385                 [wref opprel aiocls] name=opprel
+ERROR, probably opprel is not defined yet.
+    01386             [endif 18] 
+    01387             [wref oves aiocls] name=oves
+ERROR, probably oves is not defined yet.
+    01388         [endif 17] 
+    01390         [wvar olva 0] name=olva
+    01390         [wref ova aiocls] name=ova
+ERROR, probably ova is not defined yet.
+    01390         [wref ova aiocls] name=ova
+ERROR, probably ova is not defined yet.
+    01393         [wvar olmp 0] name=olmp
+    01393         [wref omp aiocls] name=omp
+ERROR, probably omp is not defined yet.
+    01393         [wref omp aiocls] name=omp
+ERROR, probably omp is not defined yet.
+    01396         [wvar olsop 0] name=olsop
+    01396         [wref osop aiocls] name=osop
+ERROR, probably osop is not defined yet.
+    01396         [wref osop aiocls] name=osop
+ERROR, probably osop is not defined yet.
+    01399         [wvar olgrme 0] name=olgrme
+    01399         [wref ogrrme aiocls] name=ogrrme
+ERROR, probably ogrrme is not defined yet.
+    01399         [wref ogrrme aiocls] name=ogrrme
+ERROR, probably ogrrme is not defined yet.
+    01401     [endif 9] 
+    01427 [enddo 1 10] 
+    01429 [rlse olpp] 
+old w_varlist=olpp olppr olsop olgrme olva olmp opot ocor 
+release olpp
+new w_varlist=
+w_varlistundel(reason) :oics(wref undef) oclabl(undef wref) ohave(undef wref) opnu(undef wref) oqnu(undef wref) orhrmx(undef wref) ovrmax(undef wref) opp(undef wref) opprel(undef wref) oves(undef wref) ova(undef wref) omp(undef wref) osop(undef wref) ogrrme(undef wref) 
+
+w_varlist used (all): olpp olppr olsop olgrme olva olmp opot ocor 
+to deallcate all
+      if (allocated(rv_w_ocor)) deallocate(rv_w_ocor)
+      if (allocated(rv_w_opot)) deallocate(rv_w_opot)
+      if (allocated(rv_w_olmp)) deallocate(rv_w_olmp)
+      if (allocated(rv_w_olva)) deallocate(rv_w_olva)
+      if (allocated(rv_w_olgrme)) deallocate(rv_w_olgrme)
+      if (allocated(rv_w_olsop)) deallocate(rv_w_olsop)
+      if (allocated(rv_w_olppr)) deallocate(rv_w_olppr)
+      if (allocated(rv_w_olpp)) deallocate(rv_w_olpp)
+
+
+
+
+

@@ -1,0 +1,152 @@
+indentmap
+    00036 [subroutine wkinit] 
+    00069 [return] 
+    00078 [return] 
+    00081 [return] 
+    00084 [return] 
+    00090 [goto 10] 
+    00095 [goto 10] 
+    00100 [goto 10] 
+    00106 [goto 10] 
+    00111 [goto 10] 
+    00119 [label 10] 
+    00126 [goto 84] 
+    00128 [goto 83] 
+    00129 [label 84] 
+    00130 [if 1] 
+    00134     [return] 
+    00135 [endif 1] 
+    00150 [if 2] 
+    00151     [goto 201] 
+    00151     [goto 202] 
+    00151     [goto 203] 
+    00151     [goto 204] 
+    00151     [goto 205] 
+    00152     [return] 
+    00154     [label 201] 
+    00154     [wref ipname wkinit] name=ipname
+ERROR, probably ipname is not defined yet.
+    00155     [return] 
+    00156     [label 202] 
+    00156     [wref ipname wkinit] name=ipname
+ERROR, probably ipname is not defined yet.
+    00157     [return] 
+    00158     [label 203] 
+    00158     [wref ipname wkinit] name=ipname
+ERROR, probably ipname is not defined yet.
+    00159     [return] 
+    00160     [label 204] 
+    00160     [wref ipname wkinit] name=ipname
+ERROR, probably ipname is not defined yet.
+    00161     [return] 
+    00162     [label 205] 
+    00162     [wref ipname wkinit] name=ipname
+ERROR, probably ipname is not defined yet.
+    00163     [return] 
+    00164 [endif 2] 
+    00171 [goto 60] 
+    00175 [goto 60] 
+    00179 [goto 60] 
+    00183 [goto 60] 
+    00185 [label 60] 
+    00189 [do 3 62] 
+    00191     [goto 83] 
+    00192     [goto 66] 
+    00197 [enddo 3 62] 
+    00198 [label 66] 
+    00223 [return] 
+    00226 [wref ipname wkinit] name=ipname
+ERROR, probably ipname is not defined yet.
+    00227 [wref ipname wkinit] name=ipname
+ERROR, probably ipname is not defined yet.
+    00228 [wref ipname wkinit] name=ipname
+ERROR, probably ipname is not defined yet.
+    00229 [goto 82] 
+    00232 [goto 83] 
+    00233 [label 87] 
+    00234 [wref ipname wkinit] name=ipname
+ERROR, probably ipname is not defined yet.
+    00237 [goto 83] 
+    00238 [label 91] 
+    00238 [wref ipname wkinit] name=ipname
+ERROR, probably ipname is not defined yet.
+    00240 [label 82] 
+    00240 [wref ipname wkinit] name=ipname
+ERROR, probably ipname is not defined yet.
+    00241 [return] 
+    00248 [return] 
+    00251 [return] 
+    00257 [return] 
+    00263 [goto 83] 
+    00264 [label 81] 
+    00269 [return] 
+    00273 [do 4 30] 
+    00275     [return] 
+    00277     [return] 
+    00281 [enddo 4 30] 
+    00282 [return] 
+    00290 [label 83] 
+    00293 [do 5 35] 
+    00300     [goto 86] 
+    00303 [enddo 5 35] 
+    00303 [wref ipploc wkinit] name=ipploc
+ERROR, probably ipploc is not defined yet.
+    00304 [label 86] 
+    00305 [goto 84] 
+    00305 [goto 81] 
+    00305 [goto 87] 
+    00305 [goto 91] 
+    00305 [goto 66] 
+w_varlistundel(reason) :ipname(undef wref) ipploc(undef wref) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+indentmap
+    00397 [subroutine redfrr] 
+    00401 [rlse oname] 
+old w_varlist=
+release oname
+new w_varlist=
+    00402 [defrr oname] name=oname size=leng
+end but w_varlist remains:oname 
+
+w_varlist used (all): oname 
+to deallcate all
+      if (allocated(rv_w_oname)) deallocate(rv_w_oname)
+
+indentmap
+    00404 [subroutine redfi] 
+    00408 [rlse oname] 
+old w_varlist=
+release oname
+new w_varlist=
+    00409 [defi oname] name=oname size=leng
+end but w_varlist remains:oname 
+
+w_varlist used (all): oname 
+to deallcate all
+      if (allocated(iv_w_oname)) deallocate(iv_w_oname)
+

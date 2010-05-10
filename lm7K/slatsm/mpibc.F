@@ -262,9 +262,6 @@ C ... Passed parameters
 C ... Local parameters
       integer, allocatable :: ibuf(:)
       real(8) ,allocatable :: dbuf(:)
-C ... Heap (needed only if avoid allocate)
-      integer w(1)
-      common /w/ w
       integer obuf
 
       if (n .le. 0) return

@@ -114,7 +114,10 @@ Cgetarg      .    0)
 C   ... Generate energy cutoff gmax or n1..n3
 c        call pshpr(iprint()-0)
         call mshsiz(alat,plat,0,gmax,ngabc,ngmx)
-        call fftz30(n1,n2,n3,k1,k2,k3)
+c        call fftz30(n1,n2,n3,k1,k2,k3)
+        k1 = n1
+        k2 = n2
+        k3 = n3
 
 C   ... Make list of lattice vectors within cutoff
         call defrr(ogv, ngmx*3)

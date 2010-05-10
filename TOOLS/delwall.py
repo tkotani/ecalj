@@ -3,7 +3,7 @@
 import sys,os
 thisdir= os.path.dirname(os.path.abspath(__file__))
 #pathname=thisdir+ ' '+thisdir+'/delw0419'
-delw=thisdir+"/delw0419/delw.py"
+delw=thisdir+"/KINO/del_w2.2/delw.py"
 #print pathname
 #sys.path.append(pathname)
 
@@ -17,6 +17,6 @@ argset= sys.argv[1:]
 if(not os.path.exists('converted')): os.mkdir('./converted')
 for i in argset:
     print '------- file name:', i, '-------------'
-    os.system(delw+" < "+ i + " > ./converted/"+i)
+    os.system("python "+delw+" < "+ i + " > ./converted/"+i)
     os.system("cp file.map ./converted/"+i+'.file.map')
 sys.exit()

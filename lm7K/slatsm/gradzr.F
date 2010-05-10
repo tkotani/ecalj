@@ -1,4 +1,5 @@
-#define PROB0 1 1
+c takao modified this based on delw_2.2.
+c#define PROB0 1 1
       subroutine gradzr(n,p,hess,xtoll,dxmx,xtol,gtol,grfac,wk,isw,ir)
 C- Find zero in gradients of a multivariate function
 C ----------------------------------------------------------------------
@@ -654,7 +655,6 @@ C        call info2(-20,0,0,'restore vector for minimum g, g=%1;3g',
 C     .    wk(27),0)
 C        call dcopy(n,p(1,nm),1,p,1)
 C      endif
-
       return
 
 C --- Global convergence FP or CG ---
@@ -672,7 +672,6 @@ C     Restore position vector to current position
 C     Clean up and exit
       ir = 0
       goto 999
-
       end
       subroutine drgrzr(n,pnew,gnew,p,hess,xtoll,dxmx,xtol,gtol,grfac,
      .  wk,copt,isw,ir)
@@ -802,7 +801,6 @@ C ... Set p(nx) to pnew and p(ng) to gnew
 
 C ... Call gradzr for next step in minimization
       call gradzr(n,p,hess,xtoll,dxmx,xtol,gtol,grfac,wk,isw,ir)
-
       end
 
       double precision function pgrada(isw1,isw4)
@@ -820,7 +818,6 @@ C       If zero, use a default value
       endif
 
       pgrada = gtll
-
       end
 
       subroutine pgradz(itol,n,amp,p,g,xtol,gtol,dxmx,resx,dgmx,resg,
@@ -888,714 +885,768 @@ C     If either is permissible and one is satisfied, set both true
         cnvgx = .true.
         cnvgg = .true.
       endif
-
       end
 
-#if TEST
-      subroutine hessmp(nelt,ido,ncofn,icofn,cofn,grad,rotm,gradr)
-C- Maps gradient to change its sign along a fixed direction
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   nelt  :number of elements in vector
-Ci   ido   :tells hessmp what to make.
-Ci          1s digit
-Ci           1 make rotm grad or rotm^-1 grad depending on 1s digit
-Ci           2 make rotm^-1 grad
-Ci          >2 make rotm^-1 (-1)'' rotm grad
-Ci          10s digit
-Ci           1 make rotm
-Ci          >1 make rotm^-1
-Ci  ncofn  :number of nonzero elements in normal direction
-Ci  icofn  :index to a nonzero element of the normal direction
-Ci  cofn   :coefficients of normal direction corresponding to icofn
-Ci  grad   :gradient in unrotated coordinates
-Co Outputs
-Co   gradr :gradient in rotated coordinates
-Co          Only calculated if 1s digit of ido is nonzero
-Co   rotm  :full similarity transformation matrix rotm, or inverse
-Co          Only calculated if 10s digit of ido is nonzero
-Cr Remarks
-Cr   The ido=2 case can be done analytically:
-Cr   gradr_i = sum_j grad_j delta_ij - n_i n_j
-Cr   but we leave it the way it is for testing.
-Cd Debugging
-Cd  To generate grad (rotm^-1 (-1)'' rotm), specify grad,rotm,i,n
-Cd  mc -vn=10 -vi=4 grad -t rotm -i -x -1:n -1:1
-Cd     -s-2 -sub 2-i,n-i+1,2-i,n-i+1 -+ -x rotm -x -t
-Cu Updates
-C ----------------------------------------------------------------------
-C      implicit none
-C ... Passed parameters
-      integer nelt,ncofn,icofn(ncofn)
-      double precision cofn(ncofn),grad(nelt)
-      double precision rotm(nelt,nelt),gradr(nelt)
-C ... Local parameters
-      integer i,ivm,idamax,ido,ido0,ido1,iv,jv,j,iivm
+C$$$#if TEST
+C$$$      subroutine hessmp(nelt,ido,ncofn,icofn,cofn,grad,rotm,gradr)
+C$$$C- Maps gradient to change its sign along a fixed direction
+C$$$C ----------------------------------------------------------------------
+C$$$Ci Inputs
+C$$$Ci   nelt  :number of elements in vector
+C$$$Ci   ido   :tells hessmp what to make.
+C$$$Ci          1s digit
+C$$$Ci           1 make rotm grad or rotm^-1 grad depending on 1s digit
+C$$$Ci           2 make rotm^-1 grad
+C$$$Ci          >2 make rotm^-1 (-1)'' rotm grad
+C$$$Ci          10s digit
+C$$$Ci           1 make rotm
+C$$$Ci          >1 make rotm^-1
+C$$$Ci  ncofn  :number of nonzero elements in normal direction
+C$$$Ci  icofn  :index to a nonzero element of the normal direction
+C$$$Ci  cofn   :coefficients of normal direction corresponding to icofn
+C$$$Ci  grad   :gradient in unrotated coordinates
+C$$$Co Outputs
+C$$$Co   gradr :gradient in rotated coordinates
+C$$$Co          Only calculated if 1s digit of ido is nonzero
+C$$$Co   rotm  :full similarity transformation matrix rotm, or inverse
+C$$$Co          Only calculated if 10s digit of ido is nonzero
+C$$$Cr Remarks
+C$$$Cr   The ido=2 case can be done analytically:
+C$$$Cr   gradr_i = sum_j grad_j delta_ij - n_i n_j
+C$$$Cr   but we leave it the way it is for testing.
+C$$$Cd Debugging
+C$$$Cd  To generate grad (rotm^-1 (-1)'' rotm), specify grad,rotm,i,n
+C$$$Cd  mc -vn=10 -vi=4 grad -t rotm -i -x -1:n -1:1
+C$$$Cd     -s-2 -sub 2-i,n-i+1,2-i,n-i+1 -+ -x rotm -x -t
+C$$$Cu Updates
+C$$$C ----------------------------------------------------------------------
+C$$$C      implicit none
+C$$$C ... Passed parameters
+C$$$      integer nelt,ncofn,icofn(ncofn)
+C$$$      double precision cofn(ncofn),grad(nelt)
+C$$$      double precision rotm(nelt,nelt),gradr(nelt)
+C$$$C ... Local parameters
+C$$$      integer i,ivm,idamax,ido,ido0,ido1,iv,jv,j,iivm
 
-      ido0 = mod(ido,10)
-      ido1 = mod(ido/10,10)
-      if (ido0 .eq. 0 .and. ido1 .eq. 0) return
-      ivm = idamax(ncofn,cofn,1)
-      iivm = icofn(ivm)
+C$$$      ido0 = mod(ido,10)
+C$$$      ido1 = mod(ido/10,10)
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$      if (ido0 .eq. 0 .and. ido1 .eq. 0) return
+C$$$      ivm = idamax(ncofn,cofn,1)
+C$$$      iivm = icofn(ivm)
 
-C --- gradr <- grad rotm^-1: loop over all nonzero pairs ---
-      if (ido0 .eq. 1) then
-C   ... Contribution gradr(i) = sum_j delta_ij grad_j
-        call dcopy(nelt,grad,1,gradr,1)
-        do  10  iv = 1, ncofn
-          i = icofn(iv)
-C     ... gradr(ivm) += grad(i) n_iv
-          gradr(iivm) = gradr(iivm) + grad(i) * cofn(iv)
-C     ... gradr(i) -= grad(ivm) n_i /n_ivm
-          gradr(i) = gradr(i) - cofn(iv)/cofn(ivm)*grad(iivm)
-   10   continue
-      endif
+C$$$C --- gradr <- grad rotm^-1: loop over all nonzero pairs ---
+C$$$      if (ido0 .eq. 1) then
+C$$$C   ... Contribution gradr(i) = sum_j delta_ij grad_j
+C$$$        call dcopy(nelt,grad,1,gradr,1)
+C$$$        do  10  iv = 1, ncofn
+C$$$          i = icofn(iv)
+C$$$C     ... gradr(ivm) += grad(i) n_iv
+C$$$          gradr(iivm) = gradr(iivm) + grad(i) * cofn(iv)
+C$$$C     ... gradr(i) -= grad(ivm) n_i /n_ivm
+C$$$          gradr(i) = gradr(i) - cofn(iv)/cofn(ivm)*grad(iivm)
+C$$$   10   continue
+C$$$      endif
 
-C ... Brute force making of grad rotm^-1 (-1) rotm
-C     replace 'if (ido0 .eq. 1) then' above with:
-C             if (ido0 .eq. 1 .or. ido0 .gt. 2)
-C     and 'if (ido0 .eq. 2)' below with ... .ge.
-C      if (ido0 .eq. 3) then
-C        call dcopy(nelt,gradr,1,grad,1)
-C        grad(iivm) = -grad(iivm)
-C      endif
+C$$$C ... Brute force making of grad rotm^-1 (-1) rotm
+C$$$C     replace 'if (ido0 .eq. 1) then' above with:
+C$$$C             if (ido0 .eq. 1 .or. ido0 .gt. 2)
+C$$$C     and 'if (ido0 .eq. 2)' below with ... .ge.
+C$$$C      if (ido0 .eq. 3) then
+C$$$C        call dcopy(nelt,gradr,1,grad,1)
+C$$$C        grad(iivm) = -grad(iivm)
+C$$$C      endif
 
-C --- gradr <- grad rotm : loop over all nonzero pairs ---
-      if (ido0 .eq. 2) then
-C   ... Contribution gradr(i) = sum_j delta_ij grad_j
-        call dcopy(nelt,grad,1,gradr,1)
-        gradr(iivm) = 0
-        do  20  iv = 1, ncofn
-          i = icofn(iv)
-C     ... gradr(i) += grad(ivm) (n_iv + n_ivm n_iv)
-          gradr(i) = gradr(i) +
-     .               grad(iivm) * (cofn(iv) + cofn(ivm)*cofn(iv))
-C     ... gradr(i) -= sum_j sum n_i n_j grad_j
-          do  24  jv = 1, ncofn
-            j = icofn(jv)
-            gradr(i) = gradr(i) - grad(j) * cofn(iv)*cofn(jv)
-   24     continue
-   20   continue
-      endif
+C$$$C --- gradr <- grad rotm : loop over all nonzero pairs ---
+C$$$      if (ido0 .eq. 2) then
+C$$$C   ... Contribution gradr(i) = sum_j delta_ij grad_j
+C$$$        call dcopy(nelt,grad,1,gradr,1)
+C$$$        gradr(iivm) = 0
+C$$$        do  20  iv = 1, ncofn
+C$$$          i = icofn(iv)
+C$$$C     ... gradr(i) += grad(ivm) (n_iv + n_ivm n_iv)
+C$$$          gradr(i) = gradr(i) +
+C$$$     .               grad(iivm) * (cofn(iv) + cofn(ivm)*cofn(iv))
+C$$$C     ... gradr(i) -= sum_j sum n_i n_j grad_j
+C$$$          do  24  jv = 1, ncofn
+C$$$            j = icofn(jv)
+C$$$            gradr(i) = gradr(i) - grad(j) * cofn(iv)*cofn(jv)
+C$$$   24     continue
+C$$$   20   continue
+C$$$      endif
 
-C --- gradr <- grad rotm^-1 (-1)' rotm ---
-      if (ido0 .eq. 3) then
-        call dcopy(nelt,grad,1,gradr,1)
-        do  30  iv = 1, ncofn
-          i = icofn(iv)
-C     ... gradr(i) -= 2 grad_j sum_j sum n_i n_j
-          do  34  jv = 1, ncofn
-            j = icofn(jv)
-            gradr(i) = gradr(i) - grad(j) * 2 * cofn(iv)*cofn(jv)
-   34     continue
-   30   continue
-      endif
+C$$$C --- gradr <- grad rotm^-1 (-1)' rotm ---
+C$$$      if (ido0 .eq. 3) then
+C$$$        call dcopy(nelt,grad,1,gradr,1)
+C$$$        do  30  iv = 1, ncofn
+C$$$          i = icofn(iv)
+C$$$C     ... gradr(i) -= 2 grad_j sum_j sum n_i n_j
+C$$$          do  34  jv = 1, ncofn
+C$$$            j = icofn(jv)
+C$$$            gradr(i) = gradr(i) - grad(j) * 2 * cofn(iv)*cofn(jv)
+C$$$   34     continue
+C$$$   30   continue
+C$$$      endif
 
-C --- Make rotm or rotm^-1: loop over all nonzero pairs ---
-      if (ido1 .ne. 0) then
-        call dpzero(rotm,nelt**2)
-        do  80  i = 1, nelt
-          rotm(i,i) = 1
-   80   continue
-C   ... Normal vector goes into row with largest projection
-        i = icofn(ivm)
-        do  82  jv = 1, ncofn
-          j = icofn(jv)
-          if (ido1 .eq. 1) rotm(i,j) = cofn(jv)
-          if (ido1 .ne. 1) rotm(j,i) = cofn(jv)
-   82   continue
-        j = icofn(ivm)
-        do  84  iv = 1, ncofn
-          i = icofn(iv)
-          if (iv .eq. ivm) goto 84
-          if (ido1 .eq. 1) then
-            do  86  jv = 1, ncofn
-              j = icofn(jv)
-              rotm(i,j) = rotm(i,j) - cofn(iv)*cofn(jv)
-   86       continue
-          else
-            rotm(j,i) = - cofn(iv)/cofn(ivm)
-          endif
-   84   continue
-C       call prmx('rotm',rotm,nelt,nelt,nelt)
-      endif
-      end
+C$$$C --- Make rotm or rotm^-1: loop over all nonzero pairs ---
+C$$$      if (ido1 .ne. 0) then
+C$$$        call dpzero(rotm,nelt**2)
+C$$$        do  80  i = 1, nelt
+C$$$          rotm(i,i) = 1
+C$$$   80   continue
+C$$$C   ... Normal vector goes into row with largest projection
+C$$$        i = icofn(ivm)
+C$$$        do  82  jv = 1, ncofn
+C$$$          j = icofn(jv)
+C$$$          if (ido1 .eq. 1) rotm(i,j) = cofn(jv)
+C$$$          if (ido1 .ne. 1) rotm(j,i) = cofn(jv)
+C$$$   82   continue
+C$$$        j = icofn(ivm)
+C$$$        do  84  iv = 1, ncofn
+C$$$          i = icofn(iv)
+C$$$          if (iv .eq. ivm) goto 84
+C$$$          if (ido1 .eq. 1) then
+C$$$            do  86  jv = 1, ncofn
+C$$$              j = icofn(jv)
+C$$$              rotm(i,j) = rotm(i,j) - cofn(iv)*cofn(jv)
+C$$$   86       continue
+C$$$          else
+C$$$            rotm(j,i) = - cofn(iv)/cofn(ivm)
+C$$$          endif
+C$$$   84   continue
+C$$$C       call prmx('rotm',rotm,nelt,nelt,nelt)
+C$$$      endif
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$      end
 
-      subroutine suhsmp(nbas,nd,iprm,wk,ipr,veclst,nvclst,icofn,cofn)
-C- Unpacks normal direction into standard form
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   nbas : size of basis
-Ci     nd : number of dimensions (2 for xy, 3 for xyz)
-Ci   iprm : integer work array of length nvclst, used to sort veclst
-Ci     wk : work array of length 3*nvclst, used to sort veclst
-Ci    ipr : verbosity
-Ci veclst : a list of parameters describing normal matrix:
-Ci          veclst(1,..) = basis atom
-Ci          veclst(2,..) = 1,2 or 3 for x,y,z
-Ci          veclst(3,..) = weight for this direction
-Ci nvclst : number of members in veclst
-Co Outputs
-Co  icofn : list of nonzero coefficients for normal direction
-Co  cofn  : coefficients corresponding to icofn
-Co nvclst : number of nonzero elements, and size of icofn,cofn
-Cr Remarks
-Cu Updates
-C ----------------------------------------------------------------------
-C      implicit none
-C ... Passed parameters
-      integer nbas,nvclst,nd,icofn(nvclst),iprm(nvclst)
-      double precision veclst(3,nvclst),cofn(nvclst),wt,wk(3,nvclst)
-C ... Local parameters
-      integer ib,ix,i,ipr,ixb,iv,lo,ncofn,cofi,ivm,idamax
-      double precision ddot,cofib(5)
+C$$$      subroutine suhsmp(nbas,nd,iprm,wk,ipr,veclst,nvclst,icofn,cofn)
+C$$$C- Unpacks normal direction into standard form
+C$$$C ----------------------------------------------------------------------
+C$$$Ci Inputs
+C$$$Ci   nbas : size of basis
+C$$$Ci     nd : number of dimensions (2 for xy, 3 for xyz)
+C$$$Ci   iprm : integer work array of length nvclst, used to sort veclst
+C$$$Ci     wk : work array of length 3*nvclst, used to sort veclst
+C$$$Ci    ipr : verbosity
+C$$$Ci veclst : a list of parameters describing normal matrix:
+C$$$Ci          veclst(1,..) = basis atom
+C$$$Ci          veclst(2,..) = 1,2 or 3 for x,y,z
+C$$$Ci          veclst(3,..) = weight for this direction
+C$$$Ci nvclst : number of members in veclst
+C$$$Co Outputs
+C$$$Co  icofn : list of nonzero coefficients for normal direction
+C$$$Co  cofn  : coefficients corresponding to icofn
+C$$$Co nvclst : number of nonzero elements, and size of icofn,cofn
+C$$$Cr Remarks
+C$$$Cu Updates
+C$$$C ----------------------------------------------------------------------
+C$$$C      implicit none
+C$$$C ... Passed parameters
+C$$$      integer nbas,nvclst,nd,icofn(nvclst),iprm(nvclst)
+C$$$      double precision veclst(3,nvclst),cofn(nvclst),wt,wk(3,nvclst)
+C$$$C ... Local parameters
+C$$$      integer ib,ix,i,ipr,ixb,iv,lo,ncofn,cofi,ivm,idamax
+C$$$      double precision ddot,cofib(5)
 
-C ... Sort vecs
-      call dvheap(3,nvclst,veclst,iprm,0d0,1)
-      call dvprm(3,nvclst,veclst,wk,iprm,.true.)
+C$$$C ... Sort vecs
+C$$$      call dvheap(3,nvclst,veclst,iprm,0d0,1)
+C$$$      call dvprm(3,nvclst,veclst,wk,iprm,.true.)
 
-C ... Copy veclst to (icofn,cofn) format
-      ncofn = 0
-      do  10  i = 1, nvclst
-        if (veclst(3,i) .eq. 0) goto 10
-        ncofn = ncofn+1
-        ib = veclst(1,i)
-        ix = veclst(2,i)
-        ixb = ix + nd*(ib-1)
-        if (ib .gt. nbas .or. ix .gt. nd) call fexit2(-1,1,' Exit -1 '//
-     .    'SUHSMP: index out of bounds: ib=%i  ix=%i',ib,ix)
-        icofn(ncofn) = ixb
-        cofn(ncofn) = veclst(3,i)
-   10 continue
+C$$$C ... Copy veclst to (icofn,cofn) format
+C$$$      ncofn = 0
+C$$$      do  10  i = 1, nvclst
+C$$$        if (veclst(3,i) .eq. 0) goto 10
+C$$$        ncofn = ncofn+1
+C$$$        ib = veclst(1,i)
+C$$$        ix = veclst(2,i)
+C$$$        ixb = ix + nd*(ib-1)
+C$$$        if (ib .gt. nbas .or. ix .gt. nd) call fexit2(-1,1,' Exit -1 '//
+C$$$     .    'SUHSMP: index out of bounds: ib=%i  ix=%i',ib,ix)
+C$$$        icofn(ncofn) = ixb
+C$$$        cofn(ncofn) = veclst(3,i)
+C$$$   10 continue
 
-      if (ncofn .eq. 0) goto 30
-      wt = ddot(ncofn,cofn,1,cofn,1)
-      call dscal(ncofn,1/dsqrt(wt),cofn,1)
-      ivm = idamax(ncofn,cofn,1)
+C$$$      if (ncofn .eq. 0) goto 30
+C$$$      wt = ddot(ncofn,cofn,1,cofn,1)
+C$$$      call dscal(ncofn,1/dsqrt(wt),cofn,1)
+C$$$      ivm = idamax(ncofn,cofn,1)
 
-      if (ipr .ge. 30 .and. ncofn .gt. 0) then
-        print 334, ivm
-  334   format (' suhsmp:  normal vector for negative Hessian.  ',
-     .    'Max projection:  element',i4/
-     .    1x,' ib  elt      x           y         z')
-        lo = 0
-        iv = 0
-        call iinit(cofi,nd)
-   20   iv = iv+1
-          ixb = icofn(iv)
-          ib = (ixb-1)/nd + 1
-          ix = ixb - nd*(ib-1)
-          if (ib .ne. lo) then
-            if (lo .ne. 0) print  333, lo, cofi, (cofib(i), i=1,nd)
-            lo = ib
-            cofi = ixb
-            call dpzero(cofib,nd)
-          endif
-          cofib(ix) = cofn(iv)
-          if (iv .lt. ncofn) goto 20
-          print  333, ib, cofi, (cofib(i), i=1,nd)
-  333     format(2i4,3f12.8)
+C$$$      if (ipr .ge. 30 .and. ncofn .gt. 0) then
+C$$$        print 334, ivm
+C$$$  334   format (' suhsmp:  normal vector for negative Hessian.  ',
+C$$$     .    'Max projection:  element',i4/
+C$$$     .    1x,' ib  elt      x           y         z')
+C$$$        lo = 0
+C$$$        iv = 0
+C$$$        call iinit(cofi,nd)
+C$$$   20   iv = iv+1
+C$$$          ixb = icofn(iv)
+C$$$          ib = (ixb-1)/nd + 1
+C$$$          ix = ixb - nd*(ib-1)
+C$$$          if (ib .ne. lo) then
+C$$$            if (lo .ne. 0) print  333, lo, cofi, (cofib(i), i=1,nd)
+C$$$            lo = ib
+C$$$            cofi = ixb
+C$$$            call dpzero(cofib,nd)
+C$$$          endif
+C$$$          cofib(ix) = cofn(iv)
+C$$$          if (iv .lt. ncofn) goto 20
+C$$$          print  333, ib, cofi, (cofib(i), i=1,nd)
+C$$$  333     format(2i4,3f12.8)
 
-      endif
-   30 continue
-      nvclst = ncofn
-      end
-      double precision function f1dim(n,x,p,ir)
-C- Generic function call for projection grad f in a specified direction
-C  for subroutine gradzr.
-Ci p(1..n) pos'n vec; 2n+1..3n direction vec
-Co p(1..2n): grad f(posn-vec + x * direction-vec)
-Co p(5n+1..6n): (posn-vec + x * direction-vec)
-Co f1dim: grad f(posn-vec + x * direction-vec) . (unit direction-vec)
-Cr This routine expects an eternal subroutine dfunc, which returns
-Cr the gradient of a function at a point p.
-C      implicit none
-      double precision x
-      integer j,ir,n
-      double precision p(12),ddot,func,xx
+C$$$      endif
+C$$$   30 continue
+C$$$      nvclst = ncofn
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$      end
+C$$$      double precision function f1dim(n,x,p,ir)
+C$$$C- Generic function call for projection grad f in a specified direction
+C$$$C  for subroutine gradzr.
+C$$$Ci p(1..n) pos'n vec; 2n+1..3n direction vec
+C$$$Co p(1..2n): grad f(posn-vec + x * direction-vec)
+C$$$Co p(5n+1..6n): (posn-vec + x * direction-vec)
+C$$$Co f1dim: grad f(posn-vec + x * direction-vec) . (unit direction-vec)
+C$$$Cr This routine expects an eternal subroutine dfunc, which returns
+C$$$Cr the gradient of a function at a point p.
+C$$$C      implicit none
+C$$$      double precision x
+C$$$      integer j,ir,n
+C$$$      double precision p(12),ddot,func,xx
 
-      integer jj
-      save jj
-      data jj /0/
+C$$$      integer jj
+C$$$      save jj
+C$$$      data jj /0/
 
-C ... Return total number of function calls if n is 0
-      if (n .eq. 0) then
-        f1dim = jj
-        return
-      endif
-      if (n .lt. 0) then
-        jj = 0
-        return
-      endif
+C$$$C ... Return total number of function calls if n is 0
+C$$$      if (n .eq. 0) then
+C$$$        f1dim = jj
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$        return
+C$$$      endif
+C$$$      if (n .lt. 0) then
+C$$$        jj = 0
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$        return
+C$$$      endif
 
-      jj = jj+1
-C     print *, jj
+C$$$      jj = jj+1
+C$$$C     print *, jj
 
-C ... (posn-vec + x * direction-vec)
-C      do  10  j = 1, n
-C   10 p(5*n+j) = p(j) + x*0*p(2*n+j)
+C$$$C ... (posn-vec + x * direction-vec)
+C$$$C      do  10  j = 1, n
+C$$$C   10 p(5*n+j) = p(j) + x*0*p(2*n+j)
 
-C ... Gradient (posn-vec + 0 * direction-vec) and inner product
-      call dfunc(p,xx,p(n+1))
-      f1dim = xx
-      end
-C ... For testing gradzr ...
-      double precision FUNCTION FUNC(X)
-C      implicit none
-#if PROB0
-      integer natom
-      parameter (natom=19)
-      double precision df(2*natom),x(2*natom),xx
-      double precision normal(2*natom)
-      call g2(natom,x(1),xx,df)
-      func = xx
-#elif PROB1
-      double precision x(3),bessj0,bessj1,xx
-      xx=1.0d0-BESSJ0(X(1)-0.5d0)*BESSJ0(X(2)-0.5d0)*
-     .  BESSJ0(X(3)-1d0)
-      func = -xx
-#endif
-C      print 333,  x, xx
-C  333 format('x=',3f14.10, ' f=',f12.6)
-      END
+C$$$C ... Gradient (posn-vec + 0 * direction-vec) and inner product
+C$$$      call dfunc(p,xx,p(n+1))
+C$$$      f1dim = xx
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$      end
+C$$$C ... For testing gradzr ...
+C$$$      double precision FUNCTION FUNC(X)
+C$$$C      implicit none
+C$$$#if PROB0
+C$$$      integer natom
+C$$$      parameter (natom=19)
+C$$$      double precision df(2*natom),x(2*natom),xx
+C$$$      double precision normal(2*natom)
+C$$$      call g2(natom,x(1),xx,df)
+C$$$      func = xx
+C$$$#elif PROB1
+C$$$      double precision x(3),bessj0,bessj1,xx
+C$$$      xx=1.0d0-BESSJ0(X(1)-0.5d0)*BESSJ0(X(2)-0.5d0)*
+C$$$     .  BESSJ0(X(3)-1d0)
+C$$$      func = -xx
+C$$$#endif
+C$$$C      print 333,  x, xx
+C$$$C  333 format('x=',3f14.10, ' f=',f12.6)
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$      END
 
-      subroutine dfunc(x,f,df)
-C      implicit none
-      integer nmax
-      double precision x(3),df(3),bessj0,bessj1,func
-      double precision f1,f2,f3,f1x,f1y,f1z,f2x,f2y,f2z,f3x,f3y,f3z,f
-#if PROB0
-      integer natom
-      natom = 19
-      call g2(natom,x(1),f,df)
-#elif PROB1
-      df(1)=-bessj1(x(1)-0.5d0)*bessj0(x(2)-0.5d0)*bessj0(x(3)-1.0d0)
-      df(2)=-bessj0(x(1)-0.5d0)*bessj1(x(2)-0.5d0)*bessj0(x(3)-1.0d0)
-      df(3)=-bessj0(x(1)-0.5d0)*bessj0(x(2)-0.5d0)*bessj1(x(3)-1.0d0)
-      f = FUNC(X)
-      return
-#elif PROB2 | PROB3
-      f1  = -cos(x(1)*x(2))
-      f1x = x(2)*sin(x(1)*x(2))
-      f1y = x(1)*sin(x(1)*x(2))
-      f1z = 0
-      f2  = sin(x(1)+2*x(3))**2
-      f2x = 2*sin(x(1)+2*x(3))*cos(x(1)+2*x(3))
-      f2y = 0
-      f2z = 2*f2x
-      f3  = cos(x(1))*cos(6*x(2))*cos(x(3))
-      f3x =-sin(x(1))*cos(6*x(2))*cos(x(3))
-      f3y =-6*cos(x(1))*sin(6*x(2))*cos(x(3))
-      f3z =-cos(x(1))*cos(6*x(2))*sin(x(3))
-      f   = (f1+f2)*f3
-      df(1) = (f1x+f2x)*f3 + (f1+f2)*f3x
-      df(2) = (f1y+f2y)*f3 + (f1+f2)*f3y
-      df(3) = (f1z+f2z)*f3 + (f1+f2)*f3z
-c      f = FUNC(X)
-#elif PROB4
-      f1 = -.1d0
-      f = x(1)**2 + 2*x(2)**2 + 3*x(3)**2 + f1*x(1)*x(2)*x(3)
-      df(1) = 2*x(1) + f1*x(2)*x(3)
-      df(2) = 4*x(2) + f1*x(1)*x(3)
-      df(3) = 6*x(3) + f1*x(1)*x(2)
-      f = FUNC(X)
-#endif
-      end
+C$$$      subroutine dfunc(x,f,df)
+C$$$C      implicit none
+C$$$      integer nmax
+C$$$      double precision x(3),df(3),bessj0,bessj1,func
+C$$$      double precision f1,f2,f3,f1x,f1y,f1z,f2x,f2y,f2z,f3x,f3y,f3z,f
+C$$$#if PROB0
+C$$$      integer natom
+C$$$      natom = 19
+C$$$      call g2(natom,x(1),f,df)
+C$$$#elif PROB1
+C$$$      df(1)=-bessj1(x(1)-0.5d0)*bessj0(x(2)-0.5d0)*bessj0(x(3)-1.0d0)
+C$$$      df(2)=-bessj0(x(1)-0.5d0)*bessj1(x(2)-0.5d0)*bessj0(x(3)-1.0d0)
+C$$$      df(3)=-bessj0(x(1)-0.5d0)*bessj0(x(2)-0.5d0)*bessj1(x(3)-1.0d0)
+C$$$      f = FUNC(X)
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$      return
+C$$$#elif PROB2 | PROB3
+C$$$      f1  = -cos(x(1)*x(2))
+C$$$      f1x = x(2)*sin(x(1)*x(2))
+C$$$      f1y = x(1)*sin(x(1)*x(2))
+C$$$      f1z = 0
+C$$$      f2  = sin(x(1)+2*x(3))**2
+C$$$      f2x = 2*sin(x(1)+2*x(3))*cos(x(1)+2*x(3))
+C$$$      f2y = 0
+C$$$      f2z = 2*f2x
+C$$$      f3  = cos(x(1))*cos(6*x(2))*cos(x(3))
+C$$$      f3x =-sin(x(1))*cos(6*x(2))*cos(x(3))
+C$$$      f3y =-6*cos(x(1))*sin(6*x(2))*cos(x(3))
+C$$$      f3z =-cos(x(1))*cos(6*x(2))*sin(x(3))
+C$$$      f   = (f1+f2)*f3
+C$$$      df(1) = (f1x+f2x)*f3 + (f1+f2)*f3x
+C$$$      df(2) = (f1y+f2y)*f3 + (f1+f2)*f3y
+C$$$      df(3) = (f1z+f2z)*f3 + (f1+f2)*f3z
+C$$$c      f = FUNC(X)
+C$$$#elif PROB4
+C$$$      f1 = -.1d0
+C$$$      f = x(1)**2 + 2*x(2)**2 + 3*x(3)**2 + f1*x(1)*x(2)*x(3)
+C$$$      df(1) = 2*x(1) + f1*x(2)*x(3)
+C$$$      df(2) = 4*x(2) + f1*x(1)*x(3)
+C$$$      df(3) = 6*x(3) + f1*x(1)*x(2)
+C$$$      f = FUNC(X)
+C$$$#endif
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$      end
 
-      double precision function bessj0(x)
-C      implicit none
-      double precision x,xx,ax,z
-      double precision y,p1,p2,p3,p4,p5,q1,q2,q3,q4,q5,r1,r2,r3,
-     .  r4,r5,r6,s1,s2,s3,s4,s5,s6
-      data p1,p2,p3,p4,p5/1.d0,-.1098628627d-2,.2734510407d-4,
-     .  -.2073370639d-5,.2093887211d-6/,
-     .  q1,q2,q3,q4,q5/-.1562499995d-1,
-     .  .1430488765d-3,-.6911147651d-5,.7621095161d-6,-.934945152d-7/
-      data r1,r2,r3,r4,r5,r6/57568490574.d0,-13362590354.d0,
-     .  651619640.7d0,
-     .  -11214424.18d0,77392.33017d0,-184.9052456d0/,
-     .  s1,s2,s3,s4,s5,s6/57568490411.d0,1029532985.d0,
-     .  9494680.718d0,59272.64853d0,267.8532712d0,1.d0/
-      if(dabs(x).lt.8.d0)then
-        y=x**2
-        bessj0=(r1+y*(r2+y*(r3+y*(r4+y*(r5+y*r6)))))
-     .    /(s1+y*(s2+y*(s3+y*(s4+y*(s5+y*s6)))))
-      else
-        ax=dabs(x)
-        z=8.d0/ax
-        y=z**2
-        xx=ax-.785398164d0
-        bessj0=dsqrt(.636619772d0/ax)*(dcos(xx)*(p1+y*(p2+y*(p3+y*(p4+y
-     .    *p5))))-z*dsin(xx)*(q1+y*(q2+y*(q3+y*(q4+y*q5)))))
-      endif
-      end
-      double precision function bessj1(x)
-C      implicit none
-      double precision x,xx,ax,z
-      double precision y,p1,p2,p3,p4,p5,q1,q2,q3,q4,q5,r1,r2,r3,r4,
-     .  r5,r6,s1,s2,s3,s4,s5,s6
-      data r1,r2,r3,r4,r5,r6/72362614232.d0,-7895059235.d0,242396853.1d0
-     .,
-     .    -2972611.439d0,15704.48260d0,-30.16036606d0/,
-     .    s1,s2,s3,s4,s5,s6/144725228442.d0,2300535178.d0,
-     .    18583304.74d0,99447.43394d0,376.9991397d0,1.d0/
-      data p1,p2,p3,p4,p5/1.d0,.183105d-2,-.3516396496d-4,.2457520174d-5
-     .,
-     .    -.240337019d-6/, q1,q2,q3,q4,q5/.04687499995d0,-.2002690873d-3
-     .,
-     .    .8449199096d-5,-.88228987d-6,.105787412d-6/
-      if(dabs(x).lt.8.d0)then
-        y=x**2
-        bessj1=x*(r1+y*(r2+y*(r3+y*(r4+y*(r5+y*r6)))))
-     .      /(s1+y*(s2+y*(s3+y*(s4+y*(s5+y*s6)))))
-      else
-        ax=dabs(x)
-        z=8.d0/ax
-        y=z**2
-        xx=ax-2.356194491d0
-        bessj1=dsqrt(.636619772d0/ax)*(dcos(xx)*(p1+y*(p2+y*(p3+y*(p4+y
-     .      *p5))))-z*dsin(xx)*(q1+y*(q2+y*(q3+y*(q4+y*q5)))))
-     .      *dsign(1.d0,x)
-      endif
-      end
-      subroutine prm(lbin,icast,ifi,fmt,s,nr,nc)
-C- writes complex matrix to file ifi
-Cr lbin: writes in binary mode
-C      implicit none
-      integer lbin,icast,nr,nc,ifi
-      character*(*) fmt, fmt0*20
-      double precision s(nr,nc,2)
+C$$$      double precision function bessj0(x)
+C$$$C      implicit none
+C$$$      double precision x,xx,ax,z
+C$$$      double precision y,p1,p2,p3,p4,p5,q1,q2,q3,q4,q5,r1,r2,r3,
+C$$$     .  r4,r5,r6,s1,s2,s3,s4,s5,s6
+C$$$      data p1,p2,p3,p4,p5/1.d0,-.1098628627d-2,.2734510407d-4,
+C$$$     .  -.2073370639d-5,.2093887211d-6/,
+C$$$     .  q1,q2,q3,q4,q5/-.1562499995d-1,
+C$$$     .  .1430488765d-3,-.6911147651d-5,.7621095161d-6,-.934945152d-7/
+C$$$      data r1,r2,r3,r4,r5,r6/57568490574.d0,-13362590354.d0,
+C$$$     .  651619640.7d0,
+C$$$     .  -11214424.18d0,77392.33017d0,-184.9052456d0/,
+C$$$     .  s1,s2,s3,s4,s5,s6/57568490411.d0,1029532985.d0,
+C$$$     .  9494680.718d0,59272.64853d0,267.8532712d0,1.d0/
+C$$$      if(dabs(x).lt.8.d0)then
+C$$$        y=x**2
+C$$$        bessj0=(r1+y*(r2+y*(r3+y*(r4+y*(r5+y*r6)))))
+C$$$     .    /(s1+y*(s2+y*(s3+y*(s4+y*(s5+y*s6)))))
+C$$$      else
+C$$$        ax=dabs(x)
+C$$$        z=8.d0/ax
+C$$$        y=z**2
+C$$$        xx=ax-.785398164d0
+C$$$        bessj0=dsqrt(.636619772d0/ax)*(dcos(xx)*(p1+y*(p2+y*(p3+y*(p4+y
+C$$$     .    *p5))))-z*dsin(xx)*(q1+y*(q2+y*(q3+y*(q4+y*q5)))))
+C$$$      endif
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$      end
+C$$$      double precision function bessj1(x)
+C$$$C      implicit none
+C$$$      double precision x,xx,ax,z
+C$$$      double precision y,p1,p2,p3,p4,p5,q1,q2,q3,q4,q5,r1,r2,r3,r4,
+C$$$     .  r5,r6,s1,s2,s3,s4,s5,s6
+C$$$      data r1,r2,r3,r4,r5,r6/72362614232.d0,-7895059235.d0,242396853.1d0
+C$$$     .,
+C$$$     .    -2972611.439d0,15704.48260d0,-30.16036606d0/,
+C$$$     .    s1,s2,s3,s4,s5,s6/144725228442.d0,2300535178.d0,
+C$$$     .    18583304.74d0,99447.43394d0,376.9991397d0,1.d0/
+C$$$      data p1,p2,p3,p4,p5/1.d0,.183105d-2,-.3516396496d-4,.2457520174d-5
+C$$$     .,
+C$$$     .    -.240337019d-6/, q1,q2,q3,q4,q5/.04687499995d0,-.2002690873d-3
+C$$$     .,
+C$$$     .    .8449199096d-5,-.88228987d-6,.105787412d-6/
+C$$$      if(dabs(x).lt.8.d0)then
+C$$$        y=x**2
+C$$$        bessj1=x*(r1+y*(r2+y*(r3+y*(r4+y*(r5+y*r6)))))
+C$$$     .      /(s1+y*(s2+y*(s3+y*(s4+y*(s5+y*s6)))))
+C$$$      else
+C$$$        ax=dabs(x)
+C$$$        z=8.d0/ax
+C$$$        y=z**2
+C$$$        xx=ax-2.356194491d0
+C$$$        bessj1=dsqrt(.636619772d0/ax)*(dcos(xx)*(p1+y*(p2+y*(p3+y*(p4+y
+C$$$     .      *p5))))-z*dsin(xx)*(q1+y*(q2+y*(q3+y*(q4+y*q5)))))
+C$$$     .      *dsign(1.d0,x)
+C$$$      endif
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$      end
+C$$$      subroutine prm(lbin,icast,ifi,fmt,s,nr,nc)
+C$$$C- writes complex matrix to file ifi
+C$$$Cr lbin: writes in binary mode
+C$$$C      implicit none
+C$$$      integer lbin,icast,nr,nc,ifi
+C$$$      character*(*) fmt, fmt0*20
+C$$$      double precision s(nr,nc,2)
 
-      fmt0 = '(9f15.10)'
-      if (fmt .ne. ' ') fmt0 = fmt
+C$$$      fmt0 = '(9f15.10)'
+C$$$      if (fmt .ne. ' ') fmt0 = fmt
 
-      call ywrm(lbin,' ',icast,ifi,fmt0,s,nr*nc,nr,nr,nc)
-      if (ifi .ne. 6) close(ifi)
-      end
-      subroutine fmain
-C      implicit none
-      integer ndim,iter,k,ir,isw,i,j,ifi,ifl,fopna
-      double precision gtol,pio2,f1dim
-      double precision angl
-      parameter(pio2=1.5707963d0)
-c      double precision f(ndim)
-      real(8),allocatable:: f(:)
+C$$$      call ywrm(lbin,' ',icast,ifi,fmt0,s,nr*nc,nr,nr,nc)
+C$$$      if (ifi .ne. 6) close(ifi)
+C$$$Cdelw1 w_varlist remains: (None)
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$      end
+C$$$      subroutine fmain
+C$$$C      implicit none
+C$$$      integer ndim,iter,k,ir,isw,i,j,ifi,ifl,fopna
+C$$$      double precision gtol,pio2,f1dim
+C$$$      double precision angl
+C$$$      parameter(pio2=1.5707963d0)
+C$$$c      double precision f(ndim)
+C$$$      real(8),allocatable:: f(:)
 
-      integer ietype
-      double precision rcut,amu,azero
+C$$$      integer ietype
+C$$$      double precision rcut,amu,azero
 
 
-      integer nvclst,owk,oiwk,nlin,nlinmx
-      double precision hess(ndim,ndim),p(ndim*(11+2*ndim)),dxmx,xtol,xx,
-     .  xn,veclst(3,5),wk(0:26),dx
-      real ran1
-      equivalence (wk(0),xn)
-      external f1dim
-C ... for mstmin
-      double precision w2(ndim,ndim),g1(ndim),g2(ndim),del(ndim),
-     .  wrk(ndim),pos(ndim),psav(ndim),cofn(ndim),
-     .  alpha1,alpha2,gd1,alphau,alphal,alpha,xtoll,ddot
-      integer icom,iprint,nit,nsrch,i1mach,rdm,icofn(ndim),nitm
-      character*80 outs
-      logical cmdopt
-      integer w(10000)
-      common /w/ w
+C$$$Cdelw1       integer nvclst,owk,oiwk,nlin,nlinmx
+C$$$       integer:: nvclst , nlin , nlinmx 
+C$$$       real(8) ,allocatable :: rv_w_owk(:)
+C$$$       integer ,allocatable :: iv_w_oiwk(:)
 
-#if PROB0
-      ndim=2*19
-#elif PROB1 | PROB2
-      ndim=3
-#elif PROBN
-      ndim=2*19
-#endif
-      allocate(f(ndim))
+C$$$      double precision hess(ndim,ndim),p(ndim*(11+2*ndim)),dxmx,xtol,xx,
+C$$$     .  xn,veclst(3,5),wk(0:26),dx
+C$$$      real ran1
+C$$$      equivalence (wk(0),xn)
+C$$$      external f1dim
+C$$$C ... for mstmin
+C$$$      double precision w2(ndim,ndim),g1(ndim),g2(ndim),del(ndim),
+C$$$     .  wrk(ndim),pos(ndim),psav(ndim),cofn(ndim),
+C$$$     .  alpha1,alpha2,gd1,alphau,alphal,alpha,xtoll,ddot
+C$$$      integer icom,iprint,nit,nsrch,i1mach,rdm,icofn(ndim),nitm
+C$$$      character*80 outs
+C$$$      logical cmdopt
+C$$$      integer w(10000)
+C$$$      common /w/ w
 
-C ... for suhsmp
-      call pshpr(0)
-      call wkinit(10000)
-      call poppr
+C$$$#if PROB0
+C$$$      ndim=2*19
+C$$$#elif PROB1 | PROB2
+C$$$      ndim=3
+C$$$#elif PROBN
+C$$$      ndim=2*19
+C$$$#endif
+C$$$      allocate(f(ndim))
 
-C ... for mstmin
-      call pshpr(51)
-      call dpzero(w2,ndim**2)
-      call dcopy(ndim,1d0,0,w2,ndim+1)
-      call finits(2,0,0,i)
-      xtoll = 1d-6
-      xtol = 1d-4
-      gtol = 1d-4
-      xn = 0
-      nitm = 200
-      nlin = 0
-      nlinmx = 0
+C$$$C ... for suhsmp
+C$$$      call pshpr(0)
+C$$$      call wkinit(10000)
+C$$$      call poppr
 
-C ... The following tests suhsmp,hessmp
-C      veclst(1,1) = 1
-C      veclst(2,1) = 1
-C      veclst(3,1) = .20d0/2
-C      veclst(1,2) = 2
-C      veclst(2,2) = 2
-C      veclst(3,2) = 1d0/2
-C      veclst(1,1+2) = 3
-C      veclst(2,1+2) = 1
-C      veclst(3,1+2) = .31d0/2
-C      veclst(1,2+2) = 3
-C      veclst(2,2+2) = 2
-C      veclst(3,2+2) = .32d0/2
-C      nvclst = 4
-C      call defrr(owk, 3*nvclst)
-C      call defi(oiwk,nvclst)
-C      call suhsmp(5,2,w(oiwk),w(owk),30,veclst,nvclst,icofn,cofn)
-C      call ran1in(10)
-C      do  88 i = 1, 5*2
-C   88 p(i+ndim) = 4*ran1() - 2
-C      call prmx('grad',p(1+ndim),5*2,5*2,1)
-C      i = 10+1
-C      call hessmp(5*2,i,nvclst,icofn,cofn,p(1+ndim),w2,wrk)
-C      call prmx('grad rotm^-1',wrk,5*2,5*2,1)
-C      i = 2
-C      call hessmp(5*2,i,nvclst,icofn,cofn,p(1+ndim),w2,wrk)
-C      call prmx('grad rotm',wrk,5*2,5*2,1)
-C      i = 3
-C      call hessmp(5*2,i,nvclst,icofn,cofn,p(1+ndim),w2,wrk)
-C      call prmx('rotm^-1 (-1) rotm grad',wrk,5*2,5*2,1)
-C      stop
+C$$$C ... for mstmin
+C$$$      call pshpr(51)
+C$$$      call dpzero(w2,ndim**2)
+C$$$      call dcopy(ndim,1d0,0,w2,ndim+1)
+C$$$      call finits(2,0,0,i)
+C$$$      xtoll = 1d-6
+C$$$      xtol = 1d-4
+C$$$      gtol = 1d-4
+C$$$      xn = 0
+C$$$      nitm = 200
+C$$$      nlin = 0
+C$$$      nlinmx = 0
 
-#if ! (PROB0 | PROBN)
-      do 11 k=0,4
-C      do 11 k=2,2
-        print *
-        angl = pio2*k/4.0d0
-#endif
-#if PROB0
-        if (cmdopt('-hessmp',7,0,outs)) then
-C   ... The following sets up normal direction
-        veclst(1,1) = 8
-        veclst(2,1) = 1
-        veclst(3,1) = 1
-        veclst(1,2) = 8
-        veclst(2,2) = 2
-        veclst(3,2) = 2
-        nvclst = 2
-        call defrr(owk, 3*nvclst)
-        call defi(oiwk,nvclst)
-        call suhsmp(ndim/2,2,w(oiwk),w(owk),30,veclst,nvclst,icofn,cofn)
-        endif
-C .... the following reads x-y pairs from file in.dat
-        ifi = fopna('in',-1,0)
-        if (rdm(ifi,10000,ndim,' ',p(1),ndim/2,2) .lt. 0)
-     .    call rx('failed to read from file in.dat')
-        call fkset(1,1,1,ietype,rcut,amu,azero)
-#elif PROBN
-        stop 'read in array'
-#elif PROB1
-        print '(/'' minimize J0(x-.5)J0(y-.5)J0(z-1)''/)'
-        dxmx = .5d0
-        p(1)=2.0d0*dcos(angl)
-        p(2)=2.0d0*dsin(angl)
-        p(3)=0.0d0
-#elif PROB2
-c .... the following finds a minimum of trig fn at 1.08,.605,.237
-        print '(/''prob2: trig fun (3 vars), min= 1.08,.605,.237''/)'
-        dxmx = .3
-        p(1) = .5d0
-        p(2) = .5d0
-        p(3) = .3d0
-#elif PROB3 | PROB4
-c .... or at zero
-        dxmx = .3
-        p(1) = .3d0
-        p(2) = .3d0
-        p(3) = .3d0
-#elif PROB4
-c .... or at zero
-        xtol = 1d-6
-        gtol = 1d-6
-        dxmx = .3
-        p(1) = .3d0
-        p(2) = .3d0
-        p(3) = .3d0
-#endif
-        ir = 0
-        isw = 0001
-        call dpzero(hess,ndim**2)
-#if PROB0
-        isw = 55
-        dxmx = .1d0
-        xtol = .01d0
-        gtol = 1d-3
-        call pshpr(70)
-#endif
-#if PROBN
-        isw = 15
-        dxmx = .01d0
-        xtol = .005d0
-        gtol = 0d0
-        call pshpr(70)
-#endif
-        xtoll = xtol
-        call getsyv('sw',xx,i)
-        if (i .gt. 0) isw = nint(xx)
-        call getsyv('xtol',xx,i)
-        if (i .gt. 0) xtol = xx
-        call getsyv('gtol',xx,i)
-        if (i .gt. 0) gtol = xx
-        call getsyv('xtoll',xx,i)
-        if (i .gt. 0) xtoll = xx
-        call getsyv('maxit',xx,i)
-        if (i .gt. 0) nitm = xx
-        call getsyv('mxlin',xx,i)
-        if (i .gt. 0) nlinmx = xx
-        call getsyv('dxmx',xx,i)
-        if (i .gt. 0) dxmx = xx
-        ifl = fopna('log',-1,0)
-        call dfclos(ifl)
-        ifl = fopna('log',-1,0)
-        if (cmdopt('-rdhess',7,0,outs)) then
-          print *, 'reading hessian matrix from hssn.dat'
-          ifi = fopna('hssn',-1,0)
-          i = rdm(ifi,0,ndim**2,' ',hess,ndim,ndim)
-          if (i .lt. 0) call rx('failed to read file')
-          call fclose(ifi)
-        endif
-C ...   for mstmin
-C        iter = 0
-C        call dcopy(ndim,p(1),1,pos,1)
-C        call dfunc(pos,xx,p(2*ndim+1))
-C        call awrit4('   f1dim: xn=%,8;8d fn=%,8;8d g=%n:1,8;8d',' ',
-C     .    80,i1mach(2),xn,xx,ndim,p(2*ndim+1))
-C        call dpzero(del,ndim)
-C        icom = 0
-C   15   continue
-C        iter = iter+1
-C        call dcopy(ndim,p(2*ndim+1),1,p(ndim+1),1)
-C        call daxpy(ndim,alpha,del,1,pos,1)
-C        call dfunc(pos,xx,p(2*ndim+1))
-C        call awrit4('   f1dim: xn=%,8;8d fn=%,8;8d g=%n:1,8;8d',' ',
-C     .    80,i1mach(2),xn,xx,ndim,p(2*ndim+1))
-C        call awrit2('  p=%n:;10F',' ',80,i1mach(2),ndim,pos)
-C        call awrit2('  g=%n:;10F',' ',80,i1mach(2),ndim,p(2*ndim+1))
-C        call mstmin(ndim,w2,p(ndim+1),p(2*ndim+1),del,wrk,dxmx,xtol,
-C     .    alpha,0d0,icom,gd1,alpha1,alpha2,alphau,alphal,nsrch,6)
-C        call awrit5(' done mstmin:  nit = %i  nsrch = %i alpha = %d'//
-C     .    '  icom = %i  grad=%1;4g',' ',80,i1mach(2),iter,nsrch,alpha,
-C     .    icom,dsqrt(ddot(ndim,p(2*ndim+1),1,p(2*ndim+1),1)))
-C        if (icom .ne. 1) goto 15
-C        call awrit2('  p=%n:;10F',' ',80,i1mach(2),ndim,pos)
-C        call awrit2('  g=%n:;10F',' ',80,i1mach(2),ndim,p(2*ndim+1))
-C        call rx('done')
+C$$$C ... The following tests suhsmp,hessmp
+C$$$C      veclst(1,1) = 1
+C$$$C      veclst(2,1) = 1
+C$$$C      veclst(3,1) = .20d0/2
+C$$$C      veclst(1,2) = 2
+C$$$C      veclst(2,2) = 2
+C$$$C      veclst(3,2) = 1d0/2
+C$$$C      veclst(1,1+2) = 3
+C$$$C      veclst(2,1+2) = 1
+C$$$C      veclst(3,1+2) = .31d0/2
+C$$$C      veclst(1,2+2) = 3
+C$$$C      veclst(2,2+2) = 2
+C$$$C      veclst(3,2+2) = .32d0/2
+C$$$C      nvclst = 4
+C$$$C      call defrr(owk, 3*nvclst)
+C$$$C      call defi(oiwk,nvclst)
+C$$$C      call suhsmp(5,2,w(oiwk),w(owk),30,veclst,nvclst,icofn,cofn)
+C$$$C      call ran1in(10)
+C$$$C      do  88 i = 1, 5*2
+C$$$C   88 p(i+ndim) = 4*ran1() - 2
+C$$$C      call prmx('grad',p(1+ndim),5*2,5*2,1)
+C$$$C      i = 10+1
+C$$$C      call hessmp(5*2,i,nvclst,icofn,cofn,p(1+ndim),w2,wrk)
+C$$$C      call prmx('grad rotm^-1',wrk,5*2,5*2,1)
+C$$$C      i = 2
+C$$$C      call hessmp(5*2,i,nvclst,icofn,cofn,p(1+ndim),w2,wrk)
+C$$$C      call prmx('grad rotm',wrk,5*2,5*2,1)
+C$$$C      i = 3
+C$$$C      call hessmp(5*2,i,nvclst,icofn,cofn,p(1+ndim),w2,wrk)
+C$$$C      call prmx('rotm^-1 (-1) rotm grad',wrk,5*2,5*2,1)
+C$$$C      stop
 
-C ...   for gradzr
-#if PROBN
-        call dfdump(f,ndim,ifi)
-        call dpcopy(f,p(ndim+1),1,ndim,-1d0)
-#else
-        ir = 0
-        xx = f1dim(ndim,0d0,p,ir)
-#endif
-        iter = 0
-   10   continue
-C        call awrit4('   f1dim: xn=%,8;8d fn=%,8;8d g=%n:1,8;8d',' ',
-C     .    80,i1mach(2),xn,xx,ndim,p(ndim+1))
-        call awrit4('f xn=%,8;8d fn=%,8;8d g=%n:1,8;8d',' ',
-     .    80,ifl,xn,xx,ndim,p(ndim+1))
-C        call awrit2('  p=%n:;10F',' ',80,i1mach(2),ndim,p(0*ndim+1))
-C        call awrit2('  g=%n:;10F',' ',80,i1mach(2),ndim,p(ndim+1))
-        iter = iter+1
+C$$$#if ! (PROB0 | PROBN)
+C$$$      do 11 k=0,4
+C$$$C      do 11 k=2,2
+C$$$        print *
+C$$$        angl = pio2*k/4.0d0
+C$$$#endif
+C$$$#if PROB0
+C$$$        if (cmdopt('-hessmp',7,0,outs)) then
+C$$$C   ... The following sets up normal direction
+C$$$        veclst(1,1) = 8
+C$$$        veclst(2,1) = 1
+C$$$        veclst(3,1) = 1
+C$$$        veclst(1,2) = 8
+C$$$        veclst(2,2) = 2
+C$$$        veclst(3,2) = 2
+C$$$        nvclst = 2
+C$$$Cdelw1         call defrr(owk, 3*nvclst)
+C$$$         allocate(rv_w_owk(3*nvclst))
+C$$$         if (3*nvclst<0) rv_w_owk(:)=0.0d0
 
-        if (cmdopt('-hessmp',7,0,outs)) then
-          call hessmp(ndim,3,nvclst,icofn,cofn,p(1+ndim),w,wrk)
-          i = 100
-          call awrit2('  p=%n:;10F',' ',i,i1mach(2),10,p(0*ndim+10))
-          call awrit2('  g=%n:;10F',' ',i,i1mach(2),10,p(ndim+10))
-          call awrit2(' rg=%n:;10F',' ',i,i1mach(2),10,wrk(10))
-          call dcopy(ndim,wrk,1,p(ndim+1),1)
-        endif
+C$$$Cdelw1         call defi(oiwk,nvclst)
+C$$$         allocate(iv_w_oiwk(nvclst))
+C$$$         if (nvclst<0) iv_w_oiwk(:)=0
 
-        call gradzr(ndim,p,hess,xtoll,dxmx,xtol,gtol,1.2d0,wk,isw,ir)
-        if (ir .lt. 0) then
-          if (iter .gt. nitm) then
-            print *, 'convergence failed after', nitm,' iterations'
-            goto 20
-          endif
-          if (mod(isw/100,10) .lt. 2 .and. ir .eq. -1) then
-            nlin = nlin+1
-            if (nlin .gt. nlinmx .and. nlinmx .ne. 0) then
-              nlin = 0
-              ir = 0
-              call dpzero(hess,ndim**2)
-            endif
-          endif
-          if (ir .eq. -9 .or. ir .eq. 0) xn = 0
-#if PROBN
-          call dcopy(ndim,pos,1,psav,1)
-C          do  19  i = 1, ndim
-C   19     print 356, i, (p(i) + xn*p(2*ndim+i)),
-C     .        psav(i), (p(i) + xn*p(2*ndim+i))-psav(i)
-C  356     format(i4,3f11.5)
-C          pause
-          read(ifi,'(a1)',err=99,end=99)
-          read(ifi,'(a1)',err=99,end=99)
-          backspace ifi
-          call dfdump(pos,ndim,ifi)
-          do  18  i = 1, ndim
-   18     if (dabs(pos(i) - (p(i) + xn*p(2*ndim+i))) .gt. 1d-12)
-     .      call rx('file''s position does not match gradzr''s request')
-          call dfdump(f,ndim,ifi)
-          call dpcopy(f,p(ndim+1),1,ndim,-1d0)
-          goto 10
-   99     call rx('no more points')
-#else
-          xx = f1dim(ndim,xn,p,ir)
-          goto 10
-#endif
-        endif
-   20   print '('' test finished in'',i3,'' function calls, ir='',i3)',
-     .    iter,ir
-        xx = f1dim(ndim,xn,p,ir)
-        call awrit4(' f1dim: xn=%,8;8d fn=%,8;8d g=%n:1,8;8d',' ',
-     .    80,i1mach(2),xn,xx,ndim,p(ndim+1))
-#if PROB0
-        ifi = fopna('out',-1,0)
-        call dcopy(ndim/2,p(1),2,p(ndim+1),1)
-        call dcopy(ndim/2,p(2),2,p(ndim+ndim/2+1),1)
-        call ywrm(0,' ',1,ifi,'(2f15.8)',p(ndim+1),ndim,
-     .    ndim/2,ndim/2,2)
-        call fclose(ifi)
-        print *, 'wrote pos to file out.dat'
-        if (mod(isw/100,10) .eq. 1 .or. mod(isw/100,10) .eq. 2) then
-           ifi = fopna('hssn',-1,0)
-           call ywrm(0,' ',11,ifi,'(5f15.10)',hess,ndim*ndim,ndim,ndim,
-     .       ndim)
-          call fclose(ifi)
-          print *, 'wrote hessian to file to file hssn.dat'
-        endif
-#endif
+C$$$Cdelw1         call suhsmp(ndim/2,2,w(oiwk),w(owk),30,veclst,nvclst,icofn,cofn)
+C$$$         call suhsmp ( ndim / 2 , 2 , iv_w_oiwk , rv_w_owk , 30 , veclst 
+C$$$     .   , nvclst , icofn , cofn ) 
 
-C   ... Make true hessian
-        dx = 1d-4
-        do  60  j = 1, ndim
-          p(j) = p(j) + dx/2
-          xx = f1dim(ndim,xn,p,ir)
-          call dcopy(ndim,p(ndim+1),1,wrk,1)
-          p(j) = p(j) - dx
-          xx = f1dim(ndim,xn,p,ir)
-          p(j) = p(j) + dx/2
-          do  62  i = 1, ndim
-   62     hess(i,j) = (wrk(i) - p(ndim+i))/dx
-   60   continue
-         ifi = fopna('thssn',-1,0)
-         call ywrm(0,' ',11,ifi,'(5f15.10)',hess,ndim*ndim,ndim,ndim,
-     .     ndim)
-        call fclose(ifi)
-        print *, 'wrote true hessian to file to file thssn.dat'
+C$$$        endif
+C$$$C .... the following reads x-y pairs from file in.dat
+C$$$        ifi = fopna('in',-1,0)
+C$$$        if (rdm(ifi,10000,ndim,' ',p(1),ndim/2,2) .lt. 0)
+C$$$     .    call rx('failed to read from file in.dat')
+C$$$        call fkset(1,1,1,ietype,rcut,amu,azero)
+C$$$#elif PROBN
+C$$$        stop 'read in array'
+C$$$#elif PROB1
+C$$$        print '(/'' minimize J0(x-.5)J0(y-.5)J0(z-1)''/)'
+C$$$        dxmx = .5d0
+C$$$        p(1)=2.0d0*dcos(angl)
+C$$$        p(2)=2.0d0*dsin(angl)
+C$$$        p(3)=0.0d0
+C$$$#elif PROB2
+C$$$c .... the following finds a minimum of trig fn at 1.08,.605,.237
+C$$$        print '(/''prob2: trig fun (3 vars), min= 1.08,.605,.237''/)'
+C$$$        dxmx = .3
+C$$$        p(1) = .5d0
+C$$$        p(2) = .5d0
+C$$$        p(3) = .3d0
+C$$$#elif PROB3 | PROB4
+C$$$c .... or at zero
+C$$$        dxmx = .3
+C$$$        p(1) = .3d0
+C$$$        p(2) = .3d0
+C$$$        p(3) = .3d0
+C$$$#elif PROB4
+C$$$c .... or at zero
+C$$$        xtol = 1d-6
+C$$$        gtol = 1d-6
+C$$$        dxmx = .3
+C$$$        p(1) = .3d0
+C$$$        p(2) = .3d0
+C$$$        p(3) = .3d0
+C$$$#endif
+C$$$        ir = 0
+C$$$        isw = 0001
+C$$$        call dpzero(hess,ndim**2)
+C$$$#if PROB0
+C$$$        isw = 55
+C$$$        dxmx = .1d0
+C$$$        xtol = .01d0
+C$$$        gtol = 1d-3
+C$$$        call pshpr(70)
+C$$$#endif
+C$$$#if PROBN
+C$$$        isw = 15
+C$$$        dxmx = .01d0
+C$$$        xtol = .005d0
+C$$$        gtol = 0d0
+C$$$        call pshpr(70)
+C$$$#endif
+C$$$        xtoll = xtol
+C$$$        call getsyv('sw',xx,i)
+C$$$        if (i .gt. 0) isw = nint(xx)
+C$$$        call getsyv('xtol',xx,i)
+C$$$        if (i .gt. 0) xtol = xx
+C$$$        call getsyv('gtol',xx,i)
+C$$$        if (i .gt. 0) gtol = xx
+C$$$        call getsyv('xtoll',xx,i)
+C$$$        if (i .gt. 0) xtoll = xx
+C$$$        call getsyv('maxit',xx,i)
+C$$$        if (i .gt. 0) nitm = xx
+C$$$        call getsyv('mxlin',xx,i)
+C$$$        if (i .gt. 0) nlinmx = xx
+C$$$        call getsyv('dxmx',xx,i)
+C$$$        if (i .gt. 0) dxmx = xx
+C$$$        ifl = fopna('log',-1,0)
+C$$$        call dfclos(ifl)
+C$$$        ifl = fopna('log',-1,0)
+C$$$        if (cmdopt('-rdhess',7,0,outs)) then
+C$$$          print *, 'reading hessian matrix from hssn.dat'
+C$$$          ifi = fopna('hssn',-1,0)
+C$$$          i = rdm(ifi,0,ndim**2,' ',hess,ndim,ndim)
+C$$$          if (i .lt. 0) call rx('failed to read file')
+C$$$          call fclose(ifi)
+C$$$        endif
+C$$$C ...   for mstmin
+C$$$C        iter = 0
+C$$$C        call dcopy(ndim,p(1),1,pos,1)
+C$$$C        call dfunc(pos,xx,p(2*ndim+1))
+C$$$C        call awrit4('   f1dim: xn=%,8;8d fn=%,8;8d g=%n:1,8;8d',' ',
+C$$$C     .    80,i1mach(2),xn,xx,ndim,p(2*ndim+1))
+C$$$C        call dpzero(del,ndim)
+C$$$C        icom = 0
+C$$$C   15   continue
+C$$$C        iter = iter+1
+C$$$C        call dcopy(ndim,p(2*ndim+1),1,p(ndim+1),1)
+C$$$C        call daxpy(ndim,alpha,del,1,pos,1)
+C$$$C        call dfunc(pos,xx,p(2*ndim+1))
+C$$$C        call awrit4('   f1dim: xn=%,8;8d fn=%,8;8d g=%n:1,8;8d',' ',
+C$$$C     .    80,i1mach(2),xn,xx,ndim,p(2*ndim+1))
+C$$$C        call awrit2('  p=%n:;10F',' ',80,i1mach(2),ndim,pos)
+C$$$C        call awrit2('  g=%n:;10F',' ',80,i1mach(2),ndim,p(2*ndim+1))
+C$$$C        call mstmin(ndim,w2,p(ndim+1),p(2*ndim+1),del,wrk,dxmx,xtol,
+C$$$C     .    alpha,0d0,icom,gd1,alpha1,alpha2,alphau,alphal,nsrch,6)
+C$$$C        call awrit5(' done mstmin:  nit = %i  nsrch = %i alpha = %d'//
+C$$$C     .    '  icom = %i  grad=%1;4g',' ',80,i1mach(2),iter,nsrch,alpha,
+C$$$C     .    icom,dsqrt(ddot(ndim,p(2*ndim+1),1,p(2*ndim+1),1)))
+C$$$C        if (icom .ne. 1) goto 15
+C$$$C        call awrit2('  p=%n:;10F',' ',80,i1mach(2),ndim,pos)
+C$$$C        call awrit2('  g=%n:;10F',' ',80,i1mach(2),ndim,p(2*ndim+1))
+C$$$C        call rx('done')
 
-#ifndef PROB1
-       deallocate(f)
-       call cexit(1,1)
-#endif
-   11 continue
-      deallocate(f)
-      end
-#endif
+C$$$C ...   for gradzr
+C$$$#if PROBN
+C$$$        call dfdump(f,ndim,ifi)
+C$$$        call dpcopy(f,p(ndim+1),1,ndim,-1d0)
+C$$$#else
+C$$$        ir = 0
+C$$$        xx = f1dim(ndim,0d0,p,ir)
+C$$$#endif
+C$$$        iter = 0
+C$$$   10   continue
+C$$$C        call awrit4('   f1dim: xn=%,8;8d fn=%,8;8d g=%n:1,8;8d',' ',
+C$$$C     .    80,i1mach(2),xn,xx,ndim,p(ndim+1))
+C$$$        call awrit4('f xn=%,8;8d fn=%,8;8d g=%n:1,8;8d',' ',
+C$$$     .    80,ifl,xn,xx,ndim,p(ndim+1))
+C$$$C        call awrit2('  p=%n:;10F',' ',80,i1mach(2),ndim,p(0*ndim+1))
+C$$$C        call awrit2('  g=%n:;10F',' ',80,i1mach(2),ndim,p(ndim+1))
+C$$$        iter = iter+1
+
+C$$$        if (cmdopt('-hessmp',7,0,outs)) then
+C$$$          call hessmp(ndim,3,nvclst,icofn,cofn,p(1+ndim),w,wrk)
+C$$$          i = 100
+C$$$          call awrit2('  p=%n:;10F',' ',i,i1mach(2),10,p(0*ndim+10))
+C$$$          call awrit2('  g=%n:;10F',' ',i,i1mach(2),10,p(ndim+10))
+C$$$          call awrit2(' rg=%n:;10F',' ',i,i1mach(2),10,wrk(10))
+C$$$          call dcopy(ndim,wrk,1,p(ndim+1),1)
+C$$$        endif
+
+C$$$        call gradzr(ndim,p,hess,xtoll,dxmx,xtol,gtol,1.2d0,wk,isw,ir)
+C$$$        if (ir .lt. 0) then
+C$$$          if (iter .gt. nitm) then
+C$$$            print *, 'convergence failed after', nitm,' iterations'
+C$$$            goto 20
+C$$$          endif
+C$$$          if (mod(isw/100,10) .lt. 2 .and. ir .eq. -1) then
+C$$$            nlin = nlin+1
+C$$$            if (nlin .gt. nlinmx .and. nlinmx .ne. 0) then
+C$$$              nlin = 0
+C$$$              ir = 0
+C$$$              call dpzero(hess,ndim**2)
+C$$$            endif
+C$$$          endif
+C$$$          if (ir .eq. -9 .or. ir .eq. 0) xn = 0
+C$$$#if PROBN
+C$$$          call dcopy(ndim,pos,1,psav,1)
+C$$$C          do  19  i = 1, ndim
+C$$$C   19     print 356, i, (p(i) + xn*p(2*ndim+i)),
+C$$$C     .        psav(i), (p(i) + xn*p(2*ndim+i))-psav(i)
+C$$$C  356     format(i4,3f11.5)
+C$$$C          pause
+C$$$          read(ifi,'(a1)',err=99,end=99)
+C$$$          read(ifi,'(a1)',err=99,end=99)
+C$$$          backspace ifi
+C$$$          call dfdump(pos,ndim,ifi)
+C$$$          do  18  i = 1, ndim
+C$$$   18     if (dabs(pos(i) - (p(i) + xn*p(2*ndim+i))) .gt. 1d-12)
+C$$$     .      call rx('file''s position does not match gradzr''s request')
+C$$$          call dfdump(f,ndim,ifi)
+C$$$          call dpcopy(f,p(ndim+1),1,ndim,-1d0)
+C$$$          goto 10
+C$$$   99     call rx('no more points')
+C$$$#else
+C$$$          xx = f1dim(ndim,xn,p,ir)
+C$$$          goto 10
+C$$$#endif
+C$$$        endif
+C$$$   20   print '('' test finished in'',i3,'' function calls, ir='',i3)',
+C$$$     .    iter,ir
+C$$$        xx = f1dim(ndim,xn,p,ir)
+C$$$        call awrit4(' f1dim: xn=%,8;8d fn=%,8;8d g=%n:1,8;8d',' ',
+C$$$     .    80,i1mach(2),xn,xx,ndim,p(ndim+1))
+C$$$#if PROB0
+C$$$        ifi = fopna('out',-1,0)
+C$$$        call dcopy(ndim/2,p(1),2,p(ndim+1),1)
+C$$$        call dcopy(ndim/2,p(2),2,p(ndim+ndim/2+1),1)
+C$$$        call ywrm(0,' ',1,ifi,'(2f15.8)',p(ndim+1),ndim,
+C$$$     .    ndim/2,ndim/2,2)
+C$$$        call fclose(ifi)
+C$$$        print *, 'wrote pos to file out.dat'
+C$$$        if (mod(isw/100,10) .eq. 1 .or. mod(isw/100,10) .eq. 2) then
+C$$$           ifi = fopna('hssn',-1,0)
+C$$$           call ywrm(0,' ',11,ifi,'(5f15.10)',hess,ndim*ndim,ndim,ndim,
+C$$$     .       ndim)
+C$$$          call fclose(ifi)
+C$$$          print *, 'wrote hessian to file to file hssn.dat'
+C$$$        endif
+C$$$#endif
+
+C$$$C   ... Make true hessian
+C$$$        dx = 1d-4
+C$$$        do  60  j = 1, ndim
+C$$$          p(j) = p(j) + dx/2
+C$$$          xx = f1dim(ndim,xn,p,ir)
+C$$$          call dcopy(ndim,p(ndim+1),1,wrk,1)
+C$$$          p(j) = p(j) - dx
+C$$$          xx = f1dim(ndim,xn,p,ir)
+C$$$          p(j) = p(j) + dx/2
+C$$$          do  62  i = 1, ndim
+C$$$   62     hess(i,j) = (wrk(i) - p(ndim+i))/dx
+C$$$   60   continue
+C$$$         ifi = fopna('thssn',-1,0)
+C$$$         call ywrm(0,' ',11,ifi,'(5f15.10)',hess,ndim*ndim,ndim,ndim,
+C$$$     .     ndim)
+C$$$        call fclose(ifi)
+C$$$        print *, 'wrote true hessian to file to file thssn.dat'
+
+C$$$#ifndef PROB1
+C$$$       deallocate(f)
+C$$$       call cexit(1,1)
+C$$$#endif
+C$$$   11 continue
+C$$$      deallocate(f)
+C$$$Cdelw1 w_varlist remains: owk oiwk 
+C$$$Cdelw1 w_varlist (undel), remains: (None)
+C$$$Cdelw1 w_varlist (del), remains: [owk oiwk]
+C$$$       if (allocated(iv_w_oiwk)) deallocate(iv_w_oiwk)
+C$$$       if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+
+C$$$      end
+C$$$#endif
 
 

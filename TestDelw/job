@@ -1,3 +1,0 @@
-#!/bin/csh
-cp ~/ecal/lm7K/fp/*.F .
-~/ecal/TOOLS/delwall.py *.F

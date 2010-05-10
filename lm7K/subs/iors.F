@@ -218,7 +218,11 @@ Cgetarg       lrs(3) = isw(lgors('ctrl lrs,128',sctrl))
 C     ndyn = igets('move size',smove)
       line = 'header'
       if (mode .eq. 1) then
-        call fftz30(n1,n2,n3,k1,k2,k3)
+c        call fftz30(n1,n2,n3,k1,k2,k3)
+        k1 = n1
+        k2 = n2
+        k3 = n3
+
 Cgetarg...info...           integer :: osmrho , integer(8) :: spot%osmrho 1
 Cgetarg         call upack1('pot osmrho',spot,osmrho)
          
@@ -421,7 +425,11 @@ Cgetarg           call pack1('lat nabc',slat,ngabc)
            i_copy_size=size(slat%nabc) 
            call ii8copy(i_copy_size,ngabc,1,slat%nabc,1) 
 
-          call fftz30(n1,n2,n3,k1,k2,k3)
+c          call fftz30(n1,n2,n3,k1,k2,k3)
+           k1 = n1
+           k2 = n2
+           k3 = n3
+
           call defcc (osmrho,-k1*k2*k3*nsp)
           call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
           call rlse(osmrho)
@@ -447,7 +455,11 @@ c   ... or read and remesh
           if (ipr .ge. 10) write(stdo,450) n11,n21,n31,n1,n2,n3
   450     format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,
      .       '    to  ',i4,'  *',i4,'  *',i4)
-          call fftz30(n11,n21,n31,k11,k21,k31)
+c          call fftz30(n11,n21,n31,k11,k21,k31)
+          k11 = n11
+          k21 = n21
+          k31 = n31
+
           call defcc(oh, -k11*k21*k31*nsp)
           call dpdftr(n11,n21,n31,k11,k21,k31,nsp0,w(oh),lbin,jfi)
           if (nsp .gt. nsp0) then

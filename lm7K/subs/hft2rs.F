@@ -167,7 +167,7 @@ C ... Heap
       integer w(1)
       common /w/ w
 C ... External calls
-      external defi,fftz3,fftz3s,getpr,hft2r1,hft2r3,info,pairs,poppr,
+      external defi,fftz3,getpr,hft2r1,hft2r3,info,pairs,poppr, !fftz3s,
      .         ppair1,pshpr,redfi,rlse,tcn,tcx
 
       call tcn('hft2rs')
@@ -254,7 +254,7 @@ C       call pshpr(ipr)
 C ... hq to real-space representation by FFT; copy hq to hrs
       if (mode0 .eq. 1 .and. mode2 .eq. 0) then
         iset = 0
-        call fftz3s(n1,n2,n3,k1,k2,k3,iset)
+c        call fftz3s(n1,n2,n3,k1,k2,k3,iset) !do nothing 
 C       call yprm('hfbz',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)
         call fftz3(hq,n1,n2,n3,k1,k2,k3,idim*jdim,iset,-1)
 C       call yprm('hfbz(FT)',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)

@@ -1,3 +1,5 @@
 #!/bin/csh
-cp ~/ecal/lm7K/subs/*.F .
-~/ecal/TOOLS/delwall.py *.F
+foreach x (`egrep '^\ +common' ~/ecalj/lm7K/subs/*.F |grep w|cut -f 1 -d : |uniq`)
+   cp $x .
+end
+~/ecalj/TOOLS/delwall.py *.F

@@ -31,8 +31,8 @@ C ... Local parameters
       integer n,nrowr,ncolr,castr
       character*20 outs
 C ... Heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 
       if (l1 .and. .not. l2) goto 99
       if (.not. l2) return

@@ -1,0 +1,656 @@
+var opnu 1 opnu -nlspc real(8) rv_w_ clsprm 
+var oqnu 1 oqnu -3*nlspc real(8) rv_w_ clsprm 
+var opp 1 opp -6*nlspc real(8) rv_w_ clsprm 
+var opprel 1 opprel -32*nl*nl*max(nclspp,nspec) real(8) rv_w_ clsprm 
+var oqc 1 oqc -nclasp real(8) rv_w_ clsprm 
+var oqt 1 oqt -nclasp real(8) rv_w_ clsprm 
+var oinitc 1 oinitc -nclasp integer iv_w_ clsprm 
+var ogroup 1 ogroup -2*nclasp integer iv_w_ clsprm 
+var oves 1 oves -nclspp real(8) rv_w_ clsprm 
+var ovdif 1 ovdif -nclspp real(8) rv_w_ clsprm 
+var orhrmx 1 orhrmx -nclspp real(8) rv_w_ clsprm 
+var ovrmax 1 ovrmax -2*nclspp real(8) rv_w_ clsprm 
+var oics -1 undef 0 undef x clsprm 
+var ormax 1 ormax nclspp real(8) rv_w_ clsprm 
+var obxc 1 obxc -3*nclasp real(8) rv_w_ clsprm 
+var orhos 2 orhos 2*3*4*nrhos*nclasp real(8) rv_w_ clsprm 
+var osop 2 osop -nlspc*nsp*9 real(8) rv_w_ clsprm 
+var ogrrme 1 ogrrme -16*nl*nsp*nclasp real(8) rv_w_ clsprm 
+var ovintr 2 ovintr -nclasp*(nl*nsp)**2 real(8) rv_w_ clsprm 
+var opmpol 2 opmpol -(2*nl-1)*nl**2*3*nsp*nclasp real(8) rv_w_ clsprm 
+var oqpp 2 oqpp 2*nqpp*4*nsp*nbas real(8) rv_w_ clsprm 
+var oqpp -1 undef 0 undef x ioqpp 
+var olpp 0 olpp 100 real(8) rv_w_ aiocls 
+var olppr 0 olppr 3000 real(8) rv_w_ aiocls 
+var olsop 0 olsop 500 real(8) rv_w_ aiocls 
+var olgrme 0 olgrme 500 real(8) rv_w_ aiocls 
+var olva 0 olva 100 real(8) rv_w_ aiocls 
+var olmp 0 olmp 3000 real(8) rv_w_ aiocls 
+var opot 0 opot 3000 real(8) rv_w_ aiocls 
+var ocor 0 ocor 3000 real(8) rv_w_ aiocls 
+var oics -1 undef 0 undef x aiocls 
+var oclabl -1 undef 0 undef x aiocls 
+var ohave -1 undef 0 undef x aiocls 
+var opnu -1 undef 0 undef x aiocls 
+var oqnu -1 undef 0 undef x aiocls 
+var orhrmx -1 undef 0 undef x aiocls 
+var ovrmax -1 undef 0 undef x aiocls 
+var opp -1 undef 0 undef x aiocls 
+var opprel -1 undef 0 undef x aiocls 
+var oves -1 undef 0 undef x aiocls 
+var ova -1 undef 0 undef x aiocls 
+var omp -1 undef 0 undef x aiocls 
+var osop -1 undef 0 undef x aiocls 
+var ogrrme -1 undef 0 undef x aiocls 
+undel oics clsprm undef wref
+undel oqpp ioqpp undef wref
+undel oics aiocls undef wref
+undel oclabl aiocls undef wref
+undel ohave aiocls undef wref
+undel opnu aiocls undef wref
+undel oqnu aiocls undef wref
+undel orhrmx aiocls undef wref
+undel ovrmax aiocls undef wref
+undel opp aiocls undef wref
+undel opprel aiocls undef wref
+undel oves aiocls undef wref
+undel ova aiocls undef wref
+undel omp aiocls undef wref
+undel osop aiocls undef wref
+undel ogrrme aiocls undef wref
+undel ogroup clsprm wref
+undel ormax clsprm wref
+undel oinitc clsprm wref
+undel opnu clsprm wref
+undel oqnu clsprm wref
+undel oqc clsprm wref
+undel oqt clsprm wref
+undel oves clsprm wref
+undel ovdif clsprm wref
+undel ovrmax clsprm wref
+undel orhrmx clsprm wref
+undel opp clsprm wref
+undel opprel clsprm wref
+undel obxc clsprm wref
+undel orhos clsprm wref
+undel osop clsprm wref
+undel ogrrme clsprm wref
+undel ovintr clsprm wref
+undel opmpol clsprm wref
+undel oqpp clsprm wref
+undel olppr aiocls wref
+change enable lmhelp
+var opnu 1 opnu -nlspc real(8) rv_w_ clsprm 
+var oqnu 1 oqnu -3*nlspc real(8) rv_w_ clsprm 
+var opp 1 opp -6*nlspc real(8) rv_w_ clsprm 
+var opprel 1 opprel -32*nl*nl*max(nclspp,nspec) real(8) rv_w_ clsprm 
+var oqc 1 oqc -nclasp real(8) rv_w_ clsprm 
+var oqt 1 oqt -nclasp real(8) rv_w_ clsprm 
+var oinitc 1 oinitc -nclasp integer iv_w_ clsprm 
+var ogroup 1 ogroup -2*nclasp integer iv_w_ clsprm 
+var oves 1 oves -nclspp real(8) rv_w_ clsprm 
+var ovdif 1 ovdif -nclspp real(8) rv_w_ clsprm 
+var orhrmx 1 orhrmx -nclspp real(8) rv_w_ clsprm 
+var ovrmax 1 ovrmax -2*nclspp real(8) rv_w_ clsprm 
+var oics -1 undef 0 undef x clsprm 
+var ormax 1 ormax nclspp real(8) rv_w_ clsprm 
+var obxc 1 obxc -3*nclasp real(8) rv_w_ clsprm 
+var orhos 2 orhos 2*3*4*nrhos*nclasp real(8) rv_w_ clsprm 
+var osop 2 osop -nlspc*nsp*9 real(8) rv_w_ clsprm 
+var ogrrme 1 ogrrme -16*nl*nsp*nclasp real(8) rv_w_ clsprm 
+var ovintr 2 ovintr -nclasp*(nl*nsp)**2 real(8) rv_w_ clsprm 
+var opmpol 2 opmpol -(2*nl-1)*nl**2*3*nsp*nclasp real(8) rv_w_ clsprm 
+var oqpp 2 oqpp 2*nqpp*4*nsp*nbas real(8) rv_w_ clsprm 
+var oqpp -1 undef 0 undef x ioqpp 
+var olpp 0 olpp 100 real(8) rv_w_ aiocls 
+var olppr 0 olppr 3000 real(8) rv_w_ aiocls 
+var olsop 0 olsop 500 real(8) rv_w_ aiocls 
+var olgrme 0 olgrme 500 real(8) rv_w_ aiocls 
+var olva 0 olva 100 real(8) rv_w_ aiocls 
+var olmp 0 olmp 3000 real(8) rv_w_ aiocls 
+var opot 0 opot 3000 real(8) rv_w_ aiocls 
+var ocor 0 ocor 3000 real(8) rv_w_ aiocls 
+var oics -1 undef 0 undef x aiocls 
+var oclabl -1 undef 0 undef x aiocls 
+var ohave -1 undef 0 undef x aiocls 
+var opnu -1 undef 0 undef x aiocls 
+var oqnu -1 undef 0 undef x aiocls 
+var orhrmx -1 undef 0 undef x aiocls 
+var ovrmax -1 undef 0 undef x aiocls 
+var opp -1 undef 0 undef x aiocls 
+var opprel -1 undef 0 undef x aiocls 
+var oves -1 undef 0 undef x aiocls 
+var ova -1 undef 0 undef x aiocls 
+var omp -1 undef 0 undef x aiocls 
+var osop -1 undef 0 undef x aiocls 
+var ogrrme -1 undef 0 undef x aiocls 
+undel oics clsprm undef wref
+undel oqpp ioqpp undef wref
+undel oics aiocls undef wref
+undel oclabl aiocls undef wref
+undel ohave aiocls undef wref
+undel opnu aiocls undef wref
+undel oqnu aiocls undef wref
+undel orhrmx aiocls undef wref
+undel ovrmax aiocls undef wref
+undel opp aiocls undef wref
+undel opprel aiocls undef wref
+undel oves aiocls undef wref
+undel ova aiocls undef wref
+undel omp aiocls undef wref
+undel osop aiocls undef wref
+undel ogrrme aiocls undef wref
+undel ogroup clsprm wref
+undel ormax clsprm wref
+undel oinitc clsprm wref
+undel opnu clsprm wref
+undel oqnu clsprm wref
+undel oqc clsprm wref
+undel oqt clsprm wref
+undel oves clsprm wref
+undel ovdif clsprm wref
+undel ovrmax clsprm wref
+undel orhrmx clsprm wref
+undel opp clsprm wref
+undel opprel clsprm wref
+undel obxc clsprm wref
+undel orhos clsprm wref
+undel osop clsprm wref
+undel ogrrme clsprm wref
+undel ovintr clsprm wref
+undel opmpol clsprm wref
+undel oqpp clsprm wref
+undel olppr aiocls wref
+change enable findctrlstart
+var opnu 1 opnu -nlspc real(8) rv_w_ clsprm 
+var oqnu 1 oqnu -3*nlspc real(8) rv_w_ clsprm 
+var opp 1 opp -6*nlspc real(8) rv_w_ clsprm 
+var opprel 1 opprel -32*nl*nl*max(nclspp,nspec) real(8) rv_w_ clsprm 
+var oqc 1 oqc -nclasp real(8) rv_w_ clsprm 
+var oqt 1 oqt -nclasp real(8) rv_w_ clsprm 
+var oinitc 1 oinitc -nclasp integer iv_w_ clsprm 
+var ogroup 1 ogroup -2*nclasp integer iv_w_ clsprm 
+var oves 1 oves -nclspp real(8) rv_w_ clsprm 
+var ovdif 1 ovdif -nclspp real(8) rv_w_ clsprm 
+var orhrmx 1 orhrmx -nclspp real(8) rv_w_ clsprm 
+var ovrmax 1 ovrmax -2*nclspp real(8) rv_w_ clsprm 
+var oics -1 undef 0 undef x clsprm 
+var ormax 1 ormax nclspp real(8) rv_w_ clsprm 
+var obxc 1 obxc -3*nclasp real(8) rv_w_ clsprm 
+var orhos 2 orhos 2*3*4*nrhos*nclasp real(8) rv_w_ clsprm 
+var osop 2 osop -nlspc*nsp*9 real(8) rv_w_ clsprm 
+var ogrrme 1 ogrrme -16*nl*nsp*nclasp real(8) rv_w_ clsprm 
+var ovintr 2 ovintr -nclasp*(nl*nsp)**2 real(8) rv_w_ clsprm 
+var opmpol 2 opmpol -(2*nl-1)*nl**2*3*nsp*nclasp real(8) rv_w_ clsprm 
+var oqpp 2 oqpp 2*nqpp*4*nsp*nbas real(8) rv_w_ clsprm 
+var oqpp -1 undef 0 undef x ioqpp 
+var olpp 0 olpp 100 real(8) rv_w_ aiocls 
+var olppr 0 olppr 3000 real(8) rv_w_ aiocls 
+var olsop 0 olsop 500 real(8) rv_w_ aiocls 
+var olgrme 0 olgrme 500 real(8) rv_w_ aiocls 
+var olva 0 olva 100 real(8) rv_w_ aiocls 
+var olmp 0 olmp 3000 real(8) rv_w_ aiocls 
+var opot 0 opot 3000 real(8) rv_w_ aiocls 
+var ocor 0 ocor 3000 real(8) rv_w_ aiocls 
+var oics -1 undef 0 undef x aiocls 
+var oclabl -1 undef 0 undef x aiocls 
+var ohave -1 undef 0 undef x aiocls 
+var opnu -1 undef 0 undef x aiocls 
+var oqnu -1 undef 0 undef x aiocls 
+var orhrmx -1 undef 0 undef x aiocls 
+var ovrmax -1 undef 0 undef x aiocls 
+var opp -1 undef 0 undef x aiocls 
+var opprel -1 undef 0 undef x aiocls 
+var oves -1 undef 0 undef x aiocls 
+var ova -1 undef 0 undef x aiocls 
+var omp -1 undef 0 undef x aiocls 
+var osop -1 undef 0 undef x aiocls 
+var ogrrme -1 undef 0 undef x aiocls 
+undel oics clsprm undef wref
+undel oqpp ioqpp undef wref
+undel oics aiocls undef wref
+undel oclabl aiocls undef wref
+undel ohave aiocls undef wref
+undel opnu aiocls undef wref
+undel oqnu aiocls undef wref
+undel orhrmx aiocls undef wref
+undel ovrmax aiocls undef wref
+undel opp aiocls undef wref
+undel opprel aiocls undef wref
+undel oves aiocls undef wref
+undel ova aiocls undef wref
+undel omp aiocls undef wref
+undel osop aiocls undef wref
+undel ogrrme aiocls undef wref
+undel ogroup clsprm wref
+undel ormax clsprm wref
+undel oinitc clsprm wref
+undel opnu clsprm wref
+undel oqnu clsprm wref
+undel oqc clsprm wref
+undel oqt clsprm wref
+undel oves clsprm wref
+undel ovdif clsprm wref
+undel ovrmax clsprm wref
+undel orhrmx clsprm wref
+undel opp clsprm wref
+undel opprel clsprm wref
+undel obxc clsprm wref
+undel orhos clsprm wref
+undel osop clsprm wref
+undel ogrrme clsprm wref
+undel ovintr clsprm wref
+undel opmpol clsprm wref
+undel oqpp clsprm wref
+undel olppr aiocls wref
+change enable clsprm
+var opnu 1 opnu -nlspc real(8) rv_w_ clsprm 
+var oqnu 1 oqnu -3*nlspc real(8) rv_w_ clsprm 
+var opp 1 opp -6*nlspc real(8) rv_w_ clsprm 
+var opprel 1 opprel -32*nl*nl*max(nclspp,nspec) real(8) rv_w_ clsprm 
+var oqc 1 oqc -nclasp real(8) rv_w_ clsprm 
+var oqt 1 oqt -nclasp real(8) rv_w_ clsprm 
+var oinitc 1 oinitc -nclasp integer iv_w_ clsprm 
+var ogroup 1 ogroup -2*nclasp integer iv_w_ clsprm 
+var oves 1 oves -nclspp real(8) rv_w_ clsprm 
+var ovdif 1 ovdif -nclspp real(8) rv_w_ clsprm 
+var orhrmx 1 orhrmx -nclspp real(8) rv_w_ clsprm 
+var ovrmax 1 ovrmax -2*nclspp real(8) rv_w_ clsprm 
+var oics -1 undef 0 undef x clsprm 
+var ormax 1 ormax nclspp real(8) rv_w_ clsprm 
+var obxc 1 obxc -3*nclasp real(8) rv_w_ clsprm 
+var orhos 2 orhos 2*3*4*nrhos*nclasp real(8) rv_w_ clsprm 
+var osop 2 osop -nlspc*nsp*9 real(8) rv_w_ clsprm 
+var ogrrme 1 ogrrme -16*nl*nsp*nclasp real(8) rv_w_ clsprm 
+var ovintr 2 ovintr -nclasp*(nl*nsp)**2 real(8) rv_w_ clsprm 
+var opmpol 2 opmpol -(2*nl-1)*nl**2*3*nsp*nclasp real(8) rv_w_ clsprm 
+var oqpp 2 oqpp 2*nqpp*4*nsp*nbas real(8) rv_w_ clsprm 
+var oqpp -1 undef 0 undef x ioqpp 
+var olpp 0 olpp 100 real(8) rv_w_ aiocls 
+var olppr 0 olppr 3000 real(8) rv_w_ aiocls 
+var olsop 0 olsop 500 real(8) rv_w_ aiocls 
+var olgrme 0 olgrme 500 real(8) rv_w_ aiocls 
+var olva 0 olva 100 real(8) rv_w_ aiocls 
+var olmp 0 olmp 3000 real(8) rv_w_ aiocls 
+var opot 0 opot 3000 real(8) rv_w_ aiocls 
+var ocor 0 ocor 3000 real(8) rv_w_ aiocls 
+var oics -1 undef 0 undef x aiocls 
+var oclabl -1 undef 0 undef x aiocls 
+var ohave -1 undef 0 undef x aiocls 
+var opnu -1 undef 0 undef x aiocls 
+var oqnu -1 undef 0 undef x aiocls 
+var orhrmx -1 undef 0 undef x aiocls 
+var ovrmax -1 undef 0 undef x aiocls 
+var opp -1 undef 0 undef x aiocls 
+var opprel -1 undef 0 undef x aiocls 
+var oves -1 undef 0 undef x aiocls 
+var ova -1 undef 0 undef x aiocls 
+var omp -1 undef 0 undef x aiocls 
+var osop -1 undef 0 undef x aiocls 
+var ogrrme -1 undef 0 undef x aiocls 
+undel oics clsprm undef wref
+undel oqpp ioqpp undef wref
+undel oics aiocls undef wref
+undel oclabl aiocls undef wref
+undel ohave aiocls undef wref
+undel opnu aiocls undef wref
+undel oqnu aiocls undef wref
+undel orhrmx aiocls undef wref
+undel ovrmax aiocls undef wref
+undel opp aiocls undef wref
+undel opprel aiocls undef wref
+undel oves aiocls undef wref
+undel ova aiocls undef wref
+undel omp aiocls undef wref
+undel osop aiocls undef wref
+undel ogrrme aiocls undef wref
+undel ogroup clsprm wref
+undel ormax clsprm wref
+undel oinitc clsprm wref
+undel opnu clsprm wref
+undel oqnu clsprm wref
+undel oqc clsprm wref
+undel oqt clsprm wref
+undel oves clsprm wref
+undel ovdif clsprm wref
+undel ovrmax clsprm wref
+undel orhrmx clsprm wref
+undel opp clsprm wref
+undel opprel clsprm wref
+undel obxc clsprm wref
+undel orhos clsprm wref
+undel osop clsprm wref
+undel ogrrme clsprm wref
+undel ovintr clsprm wref
+undel opmpol clsprm wref
+undel oqpp clsprm wref
+undel olppr aiocls wref
+change enable ioqpp
+var opnu 1 opnu -nlspc real(8) rv_w_ clsprm 
+var oqnu 1 oqnu -3*nlspc real(8) rv_w_ clsprm 
+var opp 1 opp -6*nlspc real(8) rv_w_ clsprm 
+var opprel 1 opprel -32*nl*nl*max(nclspp,nspec) real(8) rv_w_ clsprm 
+var oqc 1 oqc -nclasp real(8) rv_w_ clsprm 
+var oqt 1 oqt -nclasp real(8) rv_w_ clsprm 
+var oinitc 1 oinitc -nclasp integer iv_w_ clsprm 
+var ogroup 1 ogroup -2*nclasp integer iv_w_ clsprm 
+var oves 1 oves -nclspp real(8) rv_w_ clsprm 
+var ovdif 1 ovdif -nclspp real(8) rv_w_ clsprm 
+var orhrmx 1 orhrmx -nclspp real(8) rv_w_ clsprm 
+var ovrmax 1 ovrmax -2*nclspp real(8) rv_w_ clsprm 
+var oics -1 undef 0 undef x clsprm 
+var ormax 1 ormax nclspp real(8) rv_w_ clsprm 
+var obxc 1 obxc -3*nclasp real(8) rv_w_ clsprm 
+var orhos 2 orhos 2*3*4*nrhos*nclasp real(8) rv_w_ clsprm 
+var osop 2 osop -nlspc*nsp*9 real(8) rv_w_ clsprm 
+var ogrrme 1 ogrrme -16*nl*nsp*nclasp real(8) rv_w_ clsprm 
+var ovintr 2 ovintr -nclasp*(nl*nsp)**2 real(8) rv_w_ clsprm 
+var opmpol 2 opmpol -(2*nl-1)*nl**2*3*nsp*nclasp real(8) rv_w_ clsprm 
+var oqpp 2 oqpp 2*nqpp*4*nsp*nbas real(8) rv_w_ clsprm 
+var oqpp -1 undef 0 undef x ioqpp 
+var olpp 0 olpp 100 real(8) rv_w_ aiocls 
+var olppr 0 olppr 3000 real(8) rv_w_ aiocls 
+var olsop 0 olsop 500 real(8) rv_w_ aiocls 
+var olgrme 0 olgrme 500 real(8) rv_w_ aiocls 
+var olva 0 olva 100 real(8) rv_w_ aiocls 
+var olmp 0 olmp 3000 real(8) rv_w_ aiocls 
+var opot 0 opot 3000 real(8) rv_w_ aiocls 
+var ocor 0 ocor 3000 real(8) rv_w_ aiocls 
+var oics -1 undef 0 undef x aiocls 
+var oclabl -1 undef 0 undef x aiocls 
+var ohave -1 undef 0 undef x aiocls 
+var opnu -1 undef 0 undef x aiocls 
+var oqnu -1 undef 0 undef x aiocls 
+var orhrmx -1 undef 0 undef x aiocls 
+var ovrmax -1 undef 0 undef x aiocls 
+var opp -1 undef 0 undef x aiocls 
+var opprel -1 undef 0 undef x aiocls 
+var oves -1 undef 0 undef x aiocls 
+var ova -1 undef 0 undef x aiocls 
+var omp -1 undef 0 undef x aiocls 
+var osop -1 undef 0 undef x aiocls 
+var ogrrme -1 undef 0 undef x aiocls 
+undel oics clsprm undef wref
+undel oqpp ioqpp undef wref
+undel oics aiocls undef wref
+undel oclabl aiocls undef wref
+undel ohave aiocls undef wref
+undel opnu aiocls undef wref
+undel oqnu aiocls undef wref
+undel orhrmx aiocls undef wref
+undel ovrmax aiocls undef wref
+undel opp aiocls undef wref
+undel opprel aiocls undef wref
+undel oves aiocls undef wref
+undel ova aiocls undef wref
+undel omp aiocls undef wref
+undel osop aiocls undef wref
+undel ogrrme aiocls undef wref
+undel ogroup clsprm wref
+undel ormax clsprm wref
+undel oinitc clsprm wref
+undel opnu clsprm wref
+undel oqnu clsprm wref
+undel oqc clsprm wref
+undel oqt clsprm wref
+undel oves clsprm wref
+undel ovdif clsprm wref
+undel ovrmax clsprm wref
+undel orhrmx clsprm wref
+undel opp clsprm wref
+undel opprel clsprm wref
+undel obxc clsprm wref
+undel orhos clsprm wref
+undel osop clsprm wref
+undel ogrrme clsprm wref
+undel ovintr clsprm wref
+undel opmpol clsprm wref
+undel oqpp clsprm wref
+undel olppr aiocls wref
+change enable spinav
+var opnu 1 opnu -nlspc real(8) rv_w_ clsprm 
+var oqnu 1 oqnu -3*nlspc real(8) rv_w_ clsprm 
+var opp 1 opp -6*nlspc real(8) rv_w_ clsprm 
+var opprel 1 opprel -32*nl*nl*max(nclspp,nspec) real(8) rv_w_ clsprm 
+var oqc 1 oqc -nclasp real(8) rv_w_ clsprm 
+var oqt 1 oqt -nclasp real(8) rv_w_ clsprm 
+var oinitc 1 oinitc -nclasp integer iv_w_ clsprm 
+var ogroup 1 ogroup -2*nclasp integer iv_w_ clsprm 
+var oves 1 oves -nclspp real(8) rv_w_ clsprm 
+var ovdif 1 ovdif -nclspp real(8) rv_w_ clsprm 
+var orhrmx 1 orhrmx -nclspp real(8) rv_w_ clsprm 
+var ovrmax 1 ovrmax -2*nclspp real(8) rv_w_ clsprm 
+var oics -1 undef 0 undef x clsprm 
+var ormax 1 ormax nclspp real(8) rv_w_ clsprm 
+var obxc 1 obxc -3*nclasp real(8) rv_w_ clsprm 
+var orhos 2 orhos 2*3*4*nrhos*nclasp real(8) rv_w_ clsprm 
+var osop 2 osop -nlspc*nsp*9 real(8) rv_w_ clsprm 
+var ogrrme 1 ogrrme -16*nl*nsp*nclasp real(8) rv_w_ clsprm 
+var ovintr 2 ovintr -nclasp*(nl*nsp)**2 real(8) rv_w_ clsprm 
+var opmpol 2 opmpol -(2*nl-1)*nl**2*3*nsp*nclasp real(8) rv_w_ clsprm 
+var oqpp 2 oqpp 2*nqpp*4*nsp*nbas real(8) rv_w_ clsprm 
+var oqpp -1 undef 0 undef x ioqpp 
+var olpp 0 olpp 100 real(8) rv_w_ aiocls 
+var olppr 0 olppr 3000 real(8) rv_w_ aiocls 
+var olsop 0 olsop 500 real(8) rv_w_ aiocls 
+var olgrme 0 olgrme 500 real(8) rv_w_ aiocls 
+var olva 0 olva 100 real(8) rv_w_ aiocls 
+var olmp 0 olmp 3000 real(8) rv_w_ aiocls 
+var opot 0 opot 3000 real(8) rv_w_ aiocls 
+var ocor 0 ocor 3000 real(8) rv_w_ aiocls 
+var oics -1 undef 0 undef x aiocls 
+var oclabl -1 undef 0 undef x aiocls 
+var ohave -1 undef 0 undef x aiocls 
+var opnu -1 undef 0 undef x aiocls 
+var oqnu -1 undef 0 undef x aiocls 
+var orhrmx -1 undef 0 undef x aiocls 
+var ovrmax -1 undef 0 undef x aiocls 
+var opp -1 undef 0 undef x aiocls 
+var opprel -1 undef 0 undef x aiocls 
+var oves -1 undef 0 undef x aiocls 
+var ova -1 undef 0 undef x aiocls 
+var omp -1 undef 0 undef x aiocls 
+var osop -1 undef 0 undef x aiocls 
+var ogrrme -1 undef 0 undef x aiocls 
+undel oics clsprm undef wref
+undel oqpp ioqpp undef wref
+undel oics aiocls undef wref
+undel oclabl aiocls undef wref
+undel ohave aiocls undef wref
+undel opnu aiocls undef wref
+undel oqnu aiocls undef wref
+undel orhrmx aiocls undef wref
+undel ovrmax aiocls undef wref
+undel opp aiocls undef wref
+undel opprel aiocls undef wref
+undel oves aiocls undef wref
+undel ova aiocls undef wref
+undel omp aiocls undef wref
+undel osop aiocls undef wref
+undel ogrrme aiocls undef wref
+undel ogroup clsprm wref
+undel ormax clsprm wref
+undel oinitc clsprm wref
+undel opnu clsprm wref
+undel oqnu clsprm wref
+undel oqc clsprm wref
+undel oqt clsprm wref
+undel oves clsprm wref
+undel ovdif clsprm wref
+undel ovrmax clsprm wref
+undel orhrmx clsprm wref
+undel opp clsprm wref
+undel opprel clsprm wref
+undel obxc clsprm wref
+undel orhos clsprm wref
+undel osop clsprm wref
+undel ogrrme clsprm wref
+undel ovintr clsprm wref
+undel opmpol clsprm wref
+undel oqpp clsprm wref
+undel olppr aiocls wref
+change enable aiocls
+var opnu 1 opnu -nlspc real(8) rv_w_ clsprm 
+var oqnu 1 oqnu -3*nlspc real(8) rv_w_ clsprm 
+var opp 1 opp -6*nlspc real(8) rv_w_ clsprm 
+var opprel 1 opprel -32*nl*nl*max(nclspp,nspec) real(8) rv_w_ clsprm 
+var oqc 1 oqc -nclasp real(8) rv_w_ clsprm 
+var oqt 1 oqt -nclasp real(8) rv_w_ clsprm 
+var oinitc 1 oinitc -nclasp integer iv_w_ clsprm 
+var ogroup 1 ogroup -2*nclasp integer iv_w_ clsprm 
+var oves 1 oves -nclspp real(8) rv_w_ clsprm 
+var ovdif 1 ovdif -nclspp real(8) rv_w_ clsprm 
+var orhrmx 1 orhrmx -nclspp real(8) rv_w_ clsprm 
+var ovrmax 1 ovrmax -2*nclspp real(8) rv_w_ clsprm 
+var oics -1 undef 0 undef x clsprm 
+var ormax 1 ormax nclspp real(8) rv_w_ clsprm 
+var obxc 1 obxc -3*nclasp real(8) rv_w_ clsprm 
+var orhos 2 orhos 2*3*4*nrhos*nclasp real(8) rv_w_ clsprm 
+var osop 2 osop -nlspc*nsp*9 real(8) rv_w_ clsprm 
+var ogrrme 1 ogrrme -16*nl*nsp*nclasp real(8) rv_w_ clsprm 
+var ovintr 2 ovintr -nclasp*(nl*nsp)**2 real(8) rv_w_ clsprm 
+var opmpol 2 opmpol -(2*nl-1)*nl**2*3*nsp*nclasp real(8) rv_w_ clsprm 
+var oqpp 2 oqpp 2*nqpp*4*nsp*nbas real(8) rv_w_ clsprm 
+var oqpp -1 undef 0 undef x ioqpp 
+var olpp 0 olpp 100 real(8) rv_w_ aiocls 
+var olppr 0 olppr 3000 real(8) rv_w_ aiocls 
+var olsop 0 olsop 500 real(8) rv_w_ aiocls 
+var olgrme 0 olgrme 500 real(8) rv_w_ aiocls 
+var olva 0 olva 100 real(8) rv_w_ aiocls 
+var olmp 0 olmp 3000 real(8) rv_w_ aiocls 
+var opot 0 opot 3000 real(8) rv_w_ aiocls 
+var ocor 0 ocor 3000 real(8) rv_w_ aiocls 
+var oics -1 undef 0 undef x aiocls 
+var oclabl -1 undef 0 undef x aiocls 
+var ohave -1 undef 0 undef x aiocls 
+var opnu -1 undef 0 undef x aiocls 
+var oqnu -1 undef 0 undef x aiocls 
+var orhrmx -1 undef 0 undef x aiocls 
+var ovrmax -1 undef 0 undef x aiocls 
+var opp -1 undef 0 undef x aiocls 
+var opprel -1 undef 0 undef x aiocls 
+var oves -1 undef 0 undef x aiocls 
+var ova -1 undef 0 undef x aiocls 
+var omp -1 undef 0 undef x aiocls 
+var osop -1 undef 0 undef x aiocls 
+var ogrrme -1 undef 0 undef x aiocls 
+undel oics clsprm undef wref
+undel oqpp ioqpp undef wref
+undel oics aiocls undef wref
+undel oclabl aiocls undef wref
+undel ohave aiocls undef wref
+undel opnu aiocls undef wref
+undel oqnu aiocls undef wref
+undel orhrmx aiocls undef wref
+undel ovrmax aiocls undef wref
+undel opp aiocls undef wref
+undel opprel aiocls undef wref
+undel oves aiocls undef wref
+undel ova aiocls undef wref
+undel omp aiocls undef wref
+undel osop aiocls undef wref
+undel ogrrme aiocls undef wref
+undel ogroup clsprm wref
+undel ormax clsprm wref
+undel oinitc clsprm wref
+undel opnu clsprm wref
+undel oqnu clsprm wref
+undel oqc clsprm wref
+undel oqt clsprm wref
+undel oves clsprm wref
+undel ovdif clsprm wref
+undel ovrmax clsprm wref
+undel orhrmx clsprm wref
+undel opp clsprm wref
+undel opprel clsprm wref
+undel obxc clsprm wref
+undel orhos clsprm wref
+undel osop clsprm wref
+undel ogrrme clsprm wref
+undel ovintr clsprm wref
+undel opmpol clsprm wref
+undel oqpp clsprm wref
+undel olppr aiocls wref
+change enable pvaioc
+var opnu 1 opnu -nlspc real(8) rv_w_ clsprm 
+var oqnu 1 oqnu -3*nlspc real(8) rv_w_ clsprm 
+var opp 1 opp -6*nlspc real(8) rv_w_ clsprm 
+var opprel 1 opprel -32*nl*nl*max(nclspp,nspec) real(8) rv_w_ clsprm 
+var oqc 1 oqc -nclasp real(8) rv_w_ clsprm 
+var oqt 1 oqt -nclasp real(8) rv_w_ clsprm 
+var oinitc 1 oinitc -nclasp integer iv_w_ clsprm 
+var ogroup 1 ogroup -2*nclasp integer iv_w_ clsprm 
+var oves 1 oves -nclspp real(8) rv_w_ clsprm 
+var ovdif 1 ovdif -nclspp real(8) rv_w_ clsprm 
+var orhrmx 1 orhrmx -nclspp real(8) rv_w_ clsprm 
+var ovrmax 1 ovrmax -2*nclspp real(8) rv_w_ clsprm 
+var oics -1 undef 0 undef x clsprm 
+var ormax 1 ormax nclspp real(8) rv_w_ clsprm 
+var obxc 1 obxc -3*nclasp real(8) rv_w_ clsprm 
+var orhos 2 orhos 2*3*4*nrhos*nclasp real(8) rv_w_ clsprm 
+var osop 2 osop -nlspc*nsp*9 real(8) rv_w_ clsprm 
+var ogrrme 1 ogrrme -16*nl*nsp*nclasp real(8) rv_w_ clsprm 
+var ovintr 2 ovintr -nclasp*(nl*nsp)**2 real(8) rv_w_ clsprm 
+var opmpol 2 opmpol -(2*nl-1)*nl**2*3*nsp*nclasp real(8) rv_w_ clsprm 
+var oqpp 2 oqpp 2*nqpp*4*nsp*nbas real(8) rv_w_ clsprm 
+var oqpp -1 undef 0 undef x ioqpp 
+var olpp 0 olpp 100 real(8) rv_w_ aiocls 
+var olppr 0 olppr 3000 real(8) rv_w_ aiocls 
+var olsop 0 olsop 500 real(8) rv_w_ aiocls 
+var olgrme 0 olgrme 500 real(8) rv_w_ aiocls 
+var olva 0 olva 100 real(8) rv_w_ aiocls 
+var olmp 0 olmp 3000 real(8) rv_w_ aiocls 
+var opot 0 opot 3000 real(8) rv_w_ aiocls 
+var ocor 0 ocor 3000 real(8) rv_w_ aiocls 
+var oics -1 undef 0 undef x aiocls 
+var oclabl -1 undef 0 undef x aiocls 
+var ohave -1 undef 0 undef x aiocls 
+var opnu -1 undef 0 undef x aiocls 
+var oqnu -1 undef 0 undef x aiocls 
+var orhrmx -1 undef 0 undef x aiocls 
+var ovrmax -1 undef 0 undef x aiocls 
+var opp -1 undef 0 undef x aiocls 
+var opprel -1 undef 0 undef x aiocls 
+var oves -1 undef 0 undef x aiocls 
+var ova -1 undef 0 undef x aiocls 
+var omp -1 undef 0 undef x aiocls 
+var osop -1 undef 0 undef x aiocls 
+var ogrrme -1 undef 0 undef x aiocls 
+undel oics clsprm undef wref
+undel oqpp ioqpp undef wref
+undel oics aiocls undef wref
+undel oclabl aiocls undef wref
+undel ohave aiocls undef wref
+undel opnu aiocls undef wref
+undel oqnu aiocls undef wref
+undel orhrmx aiocls undef wref
+undel ovrmax aiocls undef wref
+undel opp aiocls undef wref
+undel opprel aiocls undef wref
+undel oves aiocls undef wref
+undel ova aiocls undef wref
+undel omp aiocls undef wref
+undel osop aiocls undef wref
+undel ogrrme aiocls undef wref
+undel ogroup clsprm wref
+undel ormax clsprm wref
+undel oinitc clsprm wref
+undel opnu clsprm wref
+undel oqnu clsprm wref
+undel oqc clsprm wref
+undel oqt clsprm wref
+undel oves clsprm wref
+undel ovdif clsprm wref
+undel ovrmax clsprm wref
+undel orhrmx clsprm wref
+undel opp clsprm wref
+undel opprel clsprm wref
+undel obxc clsprm wref
+undel orhos clsprm wref
+undel osop clsprm wref
+undel ogrrme clsprm wref
+undel ovintr clsprm wref
+undel opmpol clsprm wref
+undel oqpp clsprm wref
+undel olppr aiocls wref
+change enable paioc2

@@ -1,3 +1,4 @@
+c takao modified this based on delw_2.2.
       subroutine pertev(iopt,ld,dh,ds,wk,de,e0,z)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -27,10 +28,10 @@ C     implicit none
       integer ld,iopt
       double precision e0(ld),dh(ld,ld,2),z(ld,ld,2),wk(ld,ld,2),de(ld)
       double precision ds(ld,ld,2)
-      integer l2,k,m,ow,i,j
+      integer:: l2 , k , m , i , j 
+      complex(8) ,allocatable :: zv_w_ow(:)
+
       double precision tol,xx,ddot,dr,di
-      integer w(1)
-      common /w/ w
 
       tol = 1d-12
       l2 = ld**2
@@ -45,14 +46,15 @@ C --- First order correction for eigenvalues ---
 C --- Eigenvectors, 1st order perturbation theory; overwrite dh ---
 C ... hang onto dh for 2nd order perturbation correction
       if (mod(iopt/100,10) .eq. 1) then
-        call defcc(ow, l2)
-        call dcopy(l2*2,dh,1,w(ow),1)
+         allocate(zv_w_ow(l2))
+         call dcopy ( l2 * 2 , dh , 1 , zv_w_ow , 1 ) 
       endif
 C ... Make A_mk = <z_m dH z_k>
       call yygemm('C','N',ld,ld,ld,1d0,z,z(1,1,2),ld,
      .  wk,wk(1,1,2),ld,0d0,dh,dh(1,1,2),ld)
 C ... Make A_mk/(em-ek) and  sum_k |A_mk|/(em-ek)
-      call dpzero(wk,ld)
+c      call dpzero(wk,ld)
+      wk=0d0
       do  40  k = 1, ld
       do  40  m = 1, ld
         if (abs(e0(m)-e0(k)) .lt. tol) then
@@ -76,8 +78,8 @@ C     call yprm('dz',2,wk,ld*ld,ld,ld,ld)
 
 C ... Restore w to dh; save z0 in w; add pert. correction to z
       if (mod(iopt/100,10) .eq. 1) then
-        call dcopy(l2*2,w(ow),1,dh,1)
-        call dcopy(l2*2,z,1,w(ow),1)
+        call dcopy ( l2 * 2 , zv_w_ow , 1 , dh , 1 ) 
+        call dcopy ( l2 * 2 , z , 1 , zv_w_ow , 1 ) 
       endif
       call daxpy(l2*2,1d0,wk,1,z,1)
 C     call yprm('new z',2,z,ld*ld,ld,ld,ld)
@@ -110,6 +112,7 @@ C        print *, 'second order'
 Cc        call pvpert(iopt,ld,e0,dh,ds,w(ow),z,wk,de)
 C        call rlse(ow)
 C      endif
+       if (allocated(zv_w_ow)) deallocate(zv_w_ow)
 
       end
 
@@ -145,7 +148,8 @@ C --- dh - eps ds * z ---
 C     call yprm('dh - e0 ds * z',2,wk,ld*ld,ld,ld,ld)
 
 C --- First order eigenvalue correction ---
-      call dpzero(de,ld)
+c      call dpzero(de,ld)
+      de=0d0
       do  10  i = 1, ld
       do  10  j = 1, ld
    10 de(i) = de(i) + z0(j,i,1)*wk(j,i,1) + z0(j,i,2)*wk(j,i,2)
@@ -193,5 +197,8 @@ C     ... Not necessary to sort e0, but do anyway
 C     call prmx('de, sorted 1st order',de,ld,ld,1)
 C     call yprm('z, permuted',2,z,ld*ld,ld,ld,ld)
 C     call yprm('dh z, permuted',2,wk,ld*ld,ld,ld,ld)
+Cdelw1 w_varlist remains: (None)
+Cdelw1 w_varlist (undel), remains: (None)
+Cdelw1 w_varlist (del), remains: (None)
       end
 
