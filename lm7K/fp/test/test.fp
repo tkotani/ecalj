@@ -3,6 +3,9 @@
 # A shell script testing operation of fp suite
 # set verbose
 
+
+
+
 alias call 'set retcall = \!\!:2 ; set callarg = \!\!:3 ; goto \!\!:1'
 alias runjob 'set retcall = \!\!:1; set outfile = \!\!:2 ; set callarg = \!\!:3 ; goto runjob'
 alias runrdcmd 'set retcall = \!\!:1; set rdcmdfmt = \!\!:2 ; set outfile = \!\!:3 ; set callarg = \!\!:4 ; goto runrdcmd'
@@ -22,7 +25,7 @@ set slow
 set testfile = $0
 set testdir = $testfile:h
 #set topdir  = `$testdir/../../startup/absolute-path $testdir/../..`
-set topdir  = `$testdir/../../TOOLS/absolute-path  $testdir/../..`
+set topdir  = `$testdir/../../../TOOLS/absolute-path  $testdir/../..`
 set maindir = $topdir/main
 set space = '        '
 set failed = 0
@@ -30,15 +33,25 @@ alias zcat 'gunzip -c'
 
 # Prepend current working-directory, top-level dir and maindir to path
 set path = ($cwd $topdir $maindir $path)
+#set path = $topdir
+
+#echo $cwd 
+#echo
+#echo $topdir 
+#echo 
+#echo $maindir
+#echo
+#echo $path
+#exit
 
 set plot = `which fplot`
 if (-x "$plot") then
   if `$plot --h | head -1 | awk '{print ($3 == "fplot")}'` set have_fplot
 endif
-set mc = `which mc`
-if (-x "$mc") then
-  if `$mc --h |& head -1 | awk '{print ($7 == "(vsn" && ($8 * 1 >= 1.04))}'` set have_mc
-endif
+#set mc = `which mc`
+#if (-x "$mc") then
+#  if `$mc --h |& head -1 | awk '{print ($7 == "(vsn" && ($8 * 1 >= 1.04))}'` set have_mc
+#endif
 set pldos = `which pldos`
 if (-x "$pldos") then
   if `$pldos --h | head -1 | awk '{print ($2 == "pldos")}'` set have_pldos
@@ -482,11 +495,11 @@ set pass
 query chk11 chk1e 'run this test'
 chk11:
 # ... Look for executables
-findcmd chk11a rdcmd "$path" "optional"
+findcmd chk11a rdcmd "$topdir" "dummy"
 chk11a:
-findcmd chk11b lmf "$path" "$topdir"
+findcmd chk11b lmf "$topdir"  "dummy"
 chk11b:
-findcmd chk11c lmfa "$path" "optional"
+findcmd chk11c lmfa "$topdir" "dummy"
 chk11c:
 
 # goto chk1ch
@@ -495,8 +508,8 @@ chk11c:
 echo "$space rm -f {atm,eula,moms,mixm,rst,rsta,save,log,hssn,wkp,cv,bsmv,bnds,dmats,dmats-save,sigm,qpp}.$ext $testout"
              rm -f {atm,eula,moms,mixm,rst,rsta,save,log,hssn,wkp,cv,bsmv,bnds,dmats,dmats-save,sigm,qpp}.$ext $testout
 if (! $?clean) then
-echo "$space cp $cplst ."
-             cp $cplst .
+echo "$space cp -f $cplst ."
+             cp -f $cplst .
 endif
 # ... Run lmf program
 if (! $?clean) then
@@ -863,17 +876,17 @@ set pass
 query chk21 chk2e 'run this test'
 chk21:
 # ... Look for executables
-findcmd chk21a rdcmd "$path" "optional"
+findcmd chk21a rdcmd "$topdir" "dummy"
 chk21a:
-findcmd chk21b lmf "$path" "$topdir"
+findcmd chk21b lmf "$topdir" "dummy"
 chk21b:
-findcmd chk21c lmfa "$path" "optional"
+findcmd chk21c lmfa "$topdir" "dummy"
 chk21c:
-findcmd chk21d lmdos "$path" "optional"
+findcmd chk21d lmdos "$topdir" "dummy"
 chk21d:
 
-echo "$space cp $cplst ."
-             cp $cplst .
+echo "$space cp -f $cplst ."
+             cp -f $cplst .
 echo "$space rm -f {atm,mixm,rst,save,log,hssn,wkp,dos,tdos,pdos,dos-mull,qpp}.$ext $testout"
              rm -f {atm,mixm,rst,save,log,hssn,wkp,dos,tdos,pdos,dos-mull,qpp}.$ext $testout
 if (! $?clean) then
@@ -1104,11 +1117,11 @@ set pass
 query chk31 chk3e 'run this test'
 chk31:
 # ... Look for executables
-findcmd chk31a rdcmd "$path" "optional"
+findcmd chk31a rdcmd "$topdir" "dummy"
 chk31a:
-findcmd chk31b lmf "$path" "$topdir"
+findcmd chk31b lmf "$topdir" "dummy"
 chk31b:
-findcmd chk31c lmfa "$path" "optional"
+findcmd chk31c lmfa "$topdir" "dummy"
 chk31c:
 
 #  goto chk32
@@ -1116,8 +1129,8 @@ chk31c:
 # ... Setup: remove existing files and copy new ones
 echo "$space rm -f {mixm,rst,save,log,hssn,wkp,bsmv,bnds}.$ext"
              rm -f {mixm,rst,save,log,hssn,wkp,bsmv,bnds}.$ext
-echo "$space cp $cplst ."
-             cp $cplst .
+echo "$space cp -f $cplst ."
+             cp -f $cplst .
 
 #  goto xxxx
 
@@ -1356,8 +1369,8 @@ set refout=$testdir/out.lmf.ionized.$ext.gz testout=out.lmf.$ext
 # ... Setup: remove existing files and copy new ones
 echo "$space rm -f {mixm,rst,save,log,hssn,wkp,bsmv,bnds}.$ext"
              rm -f {mixm,rst,save,log,hssn,wkp,bsmv,bnds}.$ext
-echo "$space cp $cplst ."
-             cp $cplst .
+echo "$space cp -f $cplst ."
+             cp -f $cplst .
 
 # ... Run lmf program
 if (! $?clean) then
@@ -1634,11 +1647,11 @@ chk41:
 set pass
 if ($a == "s") goto chk4e
 # ... Look for executables
-findcmd chk41a rdcmd "$path" "$maindir"
+findcmd chk41a rdcmd "$topdir" "dummy"
 chk41a:
-findcmd chk41b lmf "$path" "$topdir"
+findcmd chk41b lmf "$topdir" "dummy"
 chk41b:
-findcmd chk41c lmfa "$path" "$topdir"
+findcmd chk41c lmfa "$topdir" "dummy"
 chk41c:
 
 #goto chk42
@@ -1657,8 +1670,8 @@ if ($?clean) then
                rm -f $testout
 endif
 # ... copy required files
-echo "$space cp $cplst ."
-             cp $cplst .
+echo "$space cp -f $cplst ."
+             cp -f $cplst .
 # ... Run lmf program
 if (! $?clean) then
   runrdcmd chk42 %11f $testout "-cat:TESTSZ --noerr ctrl.$ext"
@@ -1785,19 +1798,19 @@ chk4c1:
 set pass
 if ($a == "s") goto chk4e
 # ... Look for executables
-findcmd chk4c1a rdcmd "$path" "$maindir"
+findcmd chk4c1a rdcmd "$topdir" "dummy"
 chk4c1a:
-findcmd chk4c1b lmf "$path" "$topdir"
+findcmd chk4c1b lmf "$topdir" "dummy"
 chk4c1b:
-findcmd chk4c1c lmfa "$path" "$topdir"
+findcmd chk4c1c lmfa "$topdir" "dummy"
 chk4c1c:
 
 # ... remove related files
 echo "$space rm -f {ctrl,rst,syml,wkp,bnds}.$ext"
              rm -f {ctrl,rst,syml,wkp,bnds}.$ext
 # ... copy required files
-echo "$space cp $cplst ."
-             cp $cplst .
+echo "$space cp -f $cplst ."
+             cp -f $cplst .
 
 # ... Run lmf program
 if (! $?clean) then
@@ -2239,6 +2252,7 @@ showout:
 # Otherwise findcmd aborts with a message, which assumes
 # $make_path is the path where $executable_command is made.
 exit
+
 findcmd:
 set found = 'no'
 foreach ac_dir ($path_name)
