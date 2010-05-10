@@ -178,3 +178,15 @@ C ... Printout
 
       end
 
+      subroutine gtpfac(npfac,pfac)
+C- Returns allowed prime factors in integers for uniform mesh
+C     implicit none
+      integer npfac,pfac(5)
+      npfac = 5
+      pfac(1) = 2
+      pfac(2) = 3
+      pfac(3) = 5
+      pfac(4) = 7
+      pfac(5) = 11
+      end
+

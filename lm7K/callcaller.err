@@ -602,219 +602,219 @@ WARNING while processing 'fp/bndfp.F' (mode='fix')..
   526:      endif
   527:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
-  820:          ef0 = eferm
-  821:        endif
-  822:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  825:          ef0 = eferm
+  826:        endif
+  827:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
-  824:          call defrr(oeomin,nsp*nkp)
-  825:        endif
-  826:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  829:          call defrr(oeomin,nsp*nkp)
+  830:        endif
+  831:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1012:        iopq = 0
- 1013:C       suqlst in MPIK mode; returns cumulative number of k-points
- 1014:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1017:        iopq = 0
+ 1018:C       suqlst in MPIK mode; returns cumulative number of k-points
+ 1019:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1014:#if MPIK
- 1015:        iopq = 2
- 1016:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1019:#if MPIK
+ 1020:        iopq = 2
+ 1021:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1037:
- 1038:C MPIK: Setup to assemble all k-points into single list with qp table
- 1039:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1042:
+ 1043:C MPIK: Setup to assemble all k-points into single list with qp table
+ 1044:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1077:        endif
- 1078:        call mpibc1(w(oqp),3*nkp,4,.false.,'bndfp','qp')
- 1079:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1082:        endif
+ 1083:        call mpibc1(w(oqp),3*nkp,4,.false.,'bndfp','qp')
+ 1084:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1294:C     evl is dimensioned evl(ndham,2)
- 1295:C     w(oevl), w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
- 1296:#if MPE & MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1299:C     evl is dimensioned evl(ndham,2)
+ 1300:C     w(oevl), w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
+ 1301:#if MPE & MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1296:#if MPE & MPIK
- 1297:      ierr = MPE_LOG_EVENT(EVENT_START_KLOOP,procid,"k-loop")
- 1298:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1301:#if MPE & MPIK
+ 1302:      ierr = MPE_LOG_EVENT(EVENT_START_KLOOP,procid,"k-loop")
+ 1303:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1298:#endif
- 1299:
- 1300:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1303:#endif
+ 1304:
+ 1305:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1315:c          endif
- 1316:c        endif
- 1317:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1320:c          endif
+ 1321:c        endif
+ 1322:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1319:       iqini=1
- 1320:       iqend=nkp
- 1321:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1324:       iqini=1
+ 1325:       iqend=nkp
+ 1326:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1322:
- 1323:      do 2010 iq = iqini, iqend
- 1324:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1327:
+ 1328:      do 2010 iq = iqini, iqend
+ 1329:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1332:          endif
- 1333:        endif
- 1334:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1337:          endif
+ 1338:        endif
+ 1339:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1337:
- 1338:
- 1339:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1342:
+ 1343:
+ 1344:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1347:c        endif
- 1348:        qp=qplist(:,iq)
- 1349:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1352:c        endif
+ 1353:        qp=qplist(:,iq)
+ 1354:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1349:#else
- 1350:        call dpscop(w(oqp),qp,3,3*iq-2,1,1d0) !this should be modified as in non-MPIK mode.
- 1351:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1354:#else
+ 1355:        call dpscop(w(oqp),qp,3,3*iq-2,1,1d0) !this should be modified as in non-MPIK mode.
+ 1356:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1837:
- 1838:        if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
- 1839:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1842:
+ 1843:        if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
+ 1844:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1841:     .    '%?#n#   ndimh = %i##',
- 1842:     .    iq,nkp,qp,mod(pwmode/10,10),ndimh)
- 1843:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1846:     .    '%?#n#   ndimh = %i##',
+ 1847:     .    iq,nkp,qp,mod(pwmode/10,10),ndimh)
+ 1848:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1863:        if(lpdiag .eq. 1) then
- 1864:          call rxx(nspc.ne.1,'parallel diag not implemented for noncol')
- 1865:#if MPE & MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1868:        if(lpdiag .eq. 1) then
+ 1869:          call rxx(nspc.ne.1,'parallel diag not implemented for noncol')
+ 1870:#if MPE & MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1865:#if MPE & MPI
- 1866:          ierr = MPE_LOG_EVENT(EVENT_START_PZHEV,procid,"pzhev")
- 1867:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1870:#if MPE & MPI
+ 1871:          ierr = MPE_LOG_EVENT(EVENT_START_PZHEV,procid,"pzhev")
+ 1872:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1874:
- 1875:          nevl = ndimh
- 1876:#if MPE & MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1879:
+ 1880:          nevl = ndimh
+ 1881:#if MPE & MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1876:#if MPE & MPI
- 1877:          ierr = MPE_LOG_EVENT(EVENT_END_PZHEV,procid,"pzhev")
- 1878:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1881:#if MPE & MPI
+ 1882:          ierr = MPE_LOG_EVENT(EVENT_END_PZHEV,procid,"pzhev")
+ 1883:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1942:        if(debug) print *,'iq isp nevls=',iq,isp,nevls(iq,isp)
- 1943:
- 1944:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1947:        if(debug) print *,'iq isp nevls=',iq,isp,nevls(iq,isp)
+ 1948:
+ 1949:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1955:          if (nev .gt. 0) call zprm('evecs',2,w(ot),ndimhx,ndimhx,nev)
- 1956:        endif
- 1957:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1960:          if (nev .gt. 0) call zprm('evecs',2,w(ot),ndimhx,ndimhx,nev)
+ 1961:        endif
+ 1962:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1959:
- 1960:C ...  In k-parallel mode, defer this section until all qp available
- 1961:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1964:
+ 1965:C ...  In k-parallel mode, defer this section until all qp available
+ 1966:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1966:        if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
- 1967:        if (plbnd .eq. 0) then
- 1968:#if ! (MPI | MPIK | MPE) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1971:        if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
+ 1972:        if (plbnd .eq. 0) then
+ 1973:#if ! (MPI | MPIK | MPE) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1970:     .  write (stdl,712) (evl(i,jsp),i=1,nev)
- 1971:  712   format('fp evl',8f8.4)
- 1972:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1975:     .  write (stdl,712) (evl(i,jsp),i=1,nev)
+ 1976:  712   format('fp evl',8f8.4)
+ 1977:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2002:        endif
- 2003:        endif
- 2004:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2007:        endif
+ 2008:        endif
+ 2009:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2010:        call dpscop(evl(1,jsp),w(oevl),ndhamx,
- 2011:     .              1,1+ndham*(jsp-1+isqp),1d0)
- 2012:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2015:        call dpscop(evl(1,jsp),w(oevl),ndhamx,
+ 2016:     .              1,1+ndham*(jsp-1+isqp),1d0)
+ 2017:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2014:          call dpscop(eomin,w(oeomin),1,1,1+(jsp-1+isqp),1d0)
- 2015:        endif
- 2016:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2019:          call dpscop(eomin,w(oeomin),1,1,1+(jsp-1+isqp),1d0)
+ 2020:        endif
+ 2021:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2040:        if (procid .eq. master) then
- 2041:        if (cmdopt('--mull',6,0,strn)) then
- 2042:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2045:        if (procid .eq. master) then
+ 2046:        if (cmdopt('--mull',6,0,strn)) then
+ 2047:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2042:#if MPIK
- 2043:          call rx('MULL not k-parallel.')
- 2044:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2047:#if MPIK
+ 2048:          call rx('MULL not k-parallel.')
+ 2049:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2059:          call rlse(odoswt)
- 2060:        elseif (cmdopt('--pdos',6,0,strn)) then
- 2061:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2064:          call rlse(odoswt)
+ 2065:        elseif (cmdopt('--pdos',6,0,strn)) then
+ 2066:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2061:#if MPIK
- 2062:          call rx('PDOS not k-parallel.')
- 2063:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2066:#if MPIK
+ 2067:          call rx('PDOS not k-parallel.')
+ 2068:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2072:     .      nchan,1,lsites,nsites,w(oppnl),w(oausp),w(odoswt))
- 2073:          call iomomn(.true.,2,.false.,1,nspc,1,1,i)
- 2074:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2077:     .      nchan,1,lsites,nsites,w(oppnl),w(oausp),w(odoswt))
+ 2078:          call iomomn(.true.,2,.false.,1,nspc,1,1,i)
+ 2079:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2076:     .      ndham,ndimh,nchan,nchan,nev,evl(1,jsp),0d0,w(odoswt),0d0,
- 2077:     .      0d0,0d0)
- 2078:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2081:     .      ndham,ndimh,nchan,nchan,nev,evl(1,jsp),0d0,w(odoswt),0d0,
+ 2082:     .      0d0,0d0)
+ 2083:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2079:          i1 = iomoms(-nfilem,nl,nsp,nspc,2,ndimh,i,1,1,1,ndham,ndimh,
- 2080:     .      nchan,nchan,nev,evl(1,jsp),0d0,w(odoswt),0d0,0d0,0d0)
- 2081:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2084:          i1 = iomoms(-nfilem,nl,nsp,nspc,2,ndimh,i,1,1,1,ndham,ndimh,
+ 2085:     .      nchan,nchan,nev,evl(1,jsp),0d0,w(odoswt),0d0,0d0,0d0)
+ 2086:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2109:        if (icls .ne. 0 .and. lwtkb .ne. -1) then
- 2110:          call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
- 2111:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2114:        if (icls .ne. 0 .and. lwtkb .ne. -1) then
+ 2115:          call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
+ 2116:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2111:#if MPI
- 2112:            call rx('CLS only k-parallel')
- 2113:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2116:#if MPI
+ 2117:            call rx('CLS only k-parallel')
+ 2118:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2129:C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
- 2130:        endif
- 2131:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2134:C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
+ 2135:        endif
+ 2136:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2149:     .        w(ot),evl)
- 2150:          endif
- 2151:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2154:     .        w(ot),evl)
+ 2155:          endif
+ 2156:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2157:            call dpscop(eomin,w(oeomin),1,1,1+(jsp-1+isqp),1d0)
- 2158:          endif
- 2159:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2162:            call dpscop(eomin,w(oeomin),1,1,1+(jsp-1+isqp),1d0)
+ 2163:          endif
+ 2164:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2231:C --- Second loop over qp, needed to make k-parallelisation possible: ---
- 2232:C     You can't do this until you have all the evals.
- 2233:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2236:C --- Second loop over qp, needed to make k-parallelisation possible: ---
+ 2237:C     You can't do this until you have all the evals.
+ 2238:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2232:C     You can't do this until you have all the evals.
- 2233:#if MPIK
- 2234:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2237:C     You can't do this until you have all the evals.
+ 2238:#if MPIK
+ 2239:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2234:#if MPE
- 2235:      ierr = MPE_LOG_EVENT(EVENT_END_KLOOP,procid,"k-loop")
- 2236:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2239:#if MPE
+ 2240:      ierr = MPE_LOG_EVENT(EVENT_END_KLOOP,procid,"k-loop")
+ 2241:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2476:ckino 05Feb09
- 2477:      if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
- 2478:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2481:ckino 05Feb09
+ 2482:      if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
+ 2483:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2822:        call defrr(oqm2, nvl)
- 2823:        call upacks('strn mix',i1,i2)
- 2824:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2827:        call defrr(oqm2, nvl)
+ 2828:        call upacks('strn mix',i1,i2)
+ 2829:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2824:#if MPE
- 2825:        ierr = MPE_LOG_EVENT(EVENT_START_MIXRHO,procid,"mixrho")
- 2826:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2829:#if MPE
+ 2830:        ierr = MPE_LOG_EVENT(EVENT_START_MIXRHO,procid,"mixrho")
+ 2831:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2837:ccccccccccccccccccccccccc
- 2838:
- 2839:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2842:ccccccccccccccccccccccccc
+ 2843:
+ 2844:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2839:#if MPE
- 2840:        ierr = MPE_LOG_EVENT(EVENT_END_MIXRHO,procid,"mixrho")
- 2841:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2844:#if MPE
+ 2845:        ierr = MPE_LOG_EVENT(EVENT_END_MIXRHO,procid,"mixrho")
+ 2846:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2865:
- 2866:
- 2867:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2870:
+ 2871:
+ 2872:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2885:C ----------------------------------------------------------------------
- 2886:      implicit none
- 2887:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
- 2888:C ... Passed parameters
- 2889:      integer kpproc(0:*),ndham,nkp,nsp
+ 2890:C ----------------------------------------------------------------------
+ 2891:      implicit none
+ 2892:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+ 2893:C ... Passed parameters
+ 2894:      integer kpproc(0:*),ndham,nkp,nsp
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2930:       end subroutine xmpbnd
- 2931:
- 2932:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2935:       end subroutine xmpbnd
+ 2936:
+ 2937:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bstrux.F' (mode='fix')..
     2:Cgetarg...info...           structure ['bstrux', 'site', 'ssite']
     3:Cgetarg...info...           use_to_add ['bstrux', 'm_struc_def']
@@ -2909,17 +2909,17 @@ WARNING while processing 'fp/sugw.F' (mode='fix')..
   193:      complex(8),allocatable:: sig(:,:)
   194:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/sugw.F' (mode='fix')..
-  539:        rewind i
-  540:
-  541:#if V2 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  543:        rewind i
+  544:
+  545:#if V2 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/sugw.F' (mode='fix')..
-  543:C       write(ifi) nbas,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !takao 2003 Sep
-  544:        write(ifi) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !mark 2005 Jul
-  545:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  547:C       write(ifi) nbas,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !takao 2003 Sep
+  548:        write(ifi) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !mark 2005 Jul
+  549:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/sugw.F' (mode='fix')..
-  545:#else
-  546:        write(ifi) nbas,nsp,nchan,ndham,alat,qlat,ef0,n1q,n2q,n3q,plat
-  547:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  549:#else
+  550:        write(ifi) nbas,nsp,nchan,ndham,alat,qlat,ef0,n1q,n2q,n3q,plat
+  551:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/supot.F' (mode='fix')..
     3:Cgetarg...info...           structure ['supot', 'pot', 'spot']
     4:Cgetarg...info...           use_to_add ['supot', 'm_struc_def']
@@ -2929,9 +2929,9 @@ WARNING while processing 'fp/supot.F' (mode='fix')..
    93:
    94:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/supot.F' (mode='fix')..
-  177:
-  178:      endif
-  179:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  180:
+  181:      endif
+  182:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/ugcomp.F' (mode='fix')..
     2:Cgetarg...info...           structure ['ugcomp', 'spec', 'sspec']
     3:Cgetarg...info...           use_to_add ['ugcomp', 'm_struc_def']
@@ -3392,41 +3392,41 @@ WARNING while processing 'subs/iors.F' (mode='fix')..
     7:Cgetarg...info...           use_to_add ['iors', 'm_struc_def']
     8:#define FP 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
-  399:c           print *, 'yyyyyyyy iors 11111'
-  400:cccccccccccccc
-  401:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  403:c           print *, 'yyyyyyyy iors 11111'
+  404:cccccccccccccc
+  405:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
-  482:        call mpibc1(w(osmrho),2*k1*k2*k3*nsp,4,mlog,'iors','smrho')
-  483:  115   continue
-  484:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  494:        call mpibc1(w(osmrho),2*k1*k2*k3*nsp,4,mlog,'iors','smrho')
+  495:  115   continue
+  496:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
-  484:#else
-  485:        call rx('smooth density not implemented')
-  486:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  496:#else
+  497:        call rx('smooth density not implemented')
+  498:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
-  952:          if (isanrg(lmxl,  0,lmxa,  msg,'lmxl', .false.)) goto 999
-  953:
-  954:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  964:          if (isanrg(lmxl,  0,lmxa,  msg,'lmxl', .false.)) goto 999
+  965:
+  966:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
-  955:          if (kmax0.ne.kmax.and.ipr.ge.10)
-  956:     .      write(stdo,201) ib,spid,'kmax',kmax0,kmax
-  957:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  967:          if (kmax0.ne.kmax.and.ipr.ge.10)
+  968:     .      write(stdo,201) ib,spid,'kmax',kmax0,kmax
+  969:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
- 1093:        if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
- 1094:
- 1095:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1105:        if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
+ 1106:
+ 1107:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
- 1108:          call pvsms2(ssite,sspec,wk,nbas,nsp,orhoat)
- 1109:        endif
- 1110:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1120:          call pvsms2(ssite,sspec,wk,nbas,nsp,orhoat)
+ 1121:        endif
+ 1122:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
- 1390:
- 1391:C   --- Write smooth charge density ---
- 1392:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1402:
+ 1403:C   --- Write smooth charge density ---
+ 1404:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
- 1398:        endif
- 1399:        call dpdftr(n1,n2,n3,k1,k2,k3,nsp,w(osmrho),lbin,-jfi)
- 1400:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1410:        endif
+ 1411:        call dpdftr(n1,n2,n3,k1,k2,k3,nsp,w(osmrho),lbin,-jfi)
+ 1412:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iosits.F' (mode='fix')..
   140:
   141:C ... Local parameters
@@ -4055,61 +4055,61 @@ WARNING while processing 'subs/rdsigm.F' (mode='fix')..
   283:      lfbzin = lfbzin .or. mod(lssym,2)
   284:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1278:      double precision qp(3),errmxx,errmx,err,qpr(3),xx
- 1279:      double complex hwk(ndhrs,ndhrs)
- 1280:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1282:      double precision qp(3),errmxx,errmx,err,qpr(3),xx
+ 1283:      double complex hwk(ndhrs,ndhrs)
+ 1284:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1281:      complex(8),allocatable:: sq(:,:),sq1(:,:),uz(:,:)
- 1282:C     complex(8),allocatable:: h(:,:),s(:,:)
- 1283:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1285:      complex(8),allocatable:: sq(:,:),sq1(:,:),uz(:,:)
+ 1286:C     complex(8),allocatable:: h(:,:),s(:,:)
+ 1287:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1283:#else
- 1284:      double complex sq(ndimh,ndimh),sq1(ndimh,ndimh),uz(ndimh,ndimh)
- 1285:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1287:#else
+ 1288:      double complex sq(ndimh,ndimh),sq1(ndimh,ndimh),uz(ndimh,ndimh)
+ 1289:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1297:      nscnts = 0
- 1298:
- 1299:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1301:      nscnts = 0
+ 1302:
+ 1303:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1299:#if F90
- 1300:      allocate(sq(ndimh,ndimh),sq1(ndimh,ndimh))
- 1301:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1303:#if F90
+ 1304:      allocate(sq(ndimh,ndimh),sq1(ndimh,ndimh))
+ 1305:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1303:C --- Rotate hrs if switch set ---
- 1304:      if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
- 1305:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1307:C --- Rotate hrs if switch set ---
+ 1308:      if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
+ 1309:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1305:#if F90
- 1306:        allocate(uz(ndimh,ndimh))
- 1307:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1309:#if F90
+ 1310:        allocate(uz(ndimh,ndimh))
+ 1311:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1486:      enddo
- 1487:
- 1488:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1488:#if F90
- 1489:      deallocate(sq,sq1)
- 1490:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1490:#endif
- 1491:      if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
+ 1490:      enddo
+ 1491:
  1492:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
  1492:#if F90
- 1493:        deallocate(uz)
+ 1493:      deallocate(sq,sq1)
  1494:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1581:  306 format(' Failed to parse string ',a,' ... try again.')
- 1582:  100 continue
- 1583:#if PRTNOCR <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1494:#endif
+ 1495:      if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
+ 1496:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1583:#if PRTNOCR
- 1584:      print '('' Option (enter ? for menu) : '',$)'
- 1585:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1496:#if F90
+ 1497:        deallocate(uz)
+ 1498:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1585:#else
- 1586:      print '('' Option (enter ? for menu) : '')'
- 1587:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1585:  306 format(' Failed to parse string ',a,' ... try again.')
+ 1586:  100 continue
+ 1587:#if PRTNOCR <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'subs/rdsigm.F' (mode='fix')..
+ 1587:#if PRTNOCR
+ 1588:      print '('' Option (enter ? for menu) : '',$)'
+ 1589:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'subs/rdsigm.F' (mode='fix')..
+ 1589:#else
+ 1590:      print '('' Option (enter ? for menu) : '')'
+ 1591:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm2.F' (mode='fix')..
   134:        call sigflg(dc,'rsig',out2,w,w,w,lfbzin,w,lonesp,qoffi,w)
   135:      endif
@@ -4276,7 +4276,7 @@ WARNING while processing 'subs/symdmu.F' (mode='fix')..
    72:      parameter(ngmx=48)
    73:      double complex u(2,2,ngmx)
    74:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-moddict= {'m_struc_def': '$(subs_obj_path)/m_struc_def.o', 'm_toksw': '$(subs_obj_path)/m_toksw.o', 'm_events': '$(fp_obj_path)/m_events.o', 'm_rdctrl2_func': '$(subs_obj_path)/rdctrl2.o', 'm_psigd': '$(subs_obj_path)/m_psigd.o', 'm_struc_func': '$(subs_obj_path)/m_struc_def.o', 'm_hamindex': '$(subs_obj_path)/m_hamindex.o', 'm_sstrnsname': '$(subs_obj_path)/m_sstrnsname.o', 'm_rdctrl': '$(subs_obj_path)/m_rdctrl.o', 'm_gtv': '$(subs_obj_path)/m_gtv.o', 'm_susite_func': '$(subs_obj_path)/susite.o'}
+moddict= {'m_struc_def': '$(subs_obj_path)/m_struc_def.o', 'm_toksw': '$(subs_obj_path)/m_toksw.o', 'm_events': '$(fp_obj_path)/m_events.o', 'm_rdctrl2_func': '$(subs_obj_path)/rdctrl2.o', 'm_psigd': '$(subs_obj_path)/m_psigd.o', 'm_struc_func': '$(subs_obj_path)/m_struc_def.o', 'm_hamindex': '$(subs_obj_path)/m_hamindex.o', 'm_sstrnsname': '$(subs_obj_path)/m_sstrnsname.o', 'm_rdctrl': '$(subs_obj_path)/m_rdctrl.o', 'm_gtv': '$(subs_obj_path)/m_gtv.o'}
 pf= (\Wifindiv\s*\(|\Wifindiv2\s*\(|\Wpolinta\s*\(|\Waiocor\s*\(|\Waiogen\s*\(|\Waiomom\s*\(|\Waiomp\s*\(|\Waiopar\s*\(|\Waiopot\s*\(|\Waiorme\s*\(|\Waiosop\s*\(|\Waiova\s*\(|\Wavwsr\s*\(|\Wmxxyz\s*\(|\Wiget\s*\(|\Wpvclst\s*\(|\Wcmplat\s*\(|\Wdrr2\s*\(|\Wefrng2\s*\(|\Wexcsan\s*\(|\Wf100\s*\(|\Wf102\s*\(|\Wlatrel\s*\(|\Wd3nrm2\s*\(|\Wgetef\s*\(|\Wgrpeql\s*\(|\Wiclbas\s*\(|\Wiclbsj\s*\(|\Wiofa\s*\(|\Wiomoms\s*\(|\Wioorbp\s*\(|\Wiors\s*\(|\Wiosite\s*\(|\Wiosits\s*\(|\Wiostr\s*\(|\Wiostr1\s*\(|\Wiostr2\s*\(|\Wiostr4\s*\(|\Wlatvec\s*\(|\Wgetikt\s*\(|\Wuarray_size\s*\(|\Wubz_size\s*\(|\Wuctrl_size\s*\(|\Wugw_size\s*\(|\Wuham_size\s*\(|\Wulat_size\s*\(|\Wumix_size\s*\(|\Wumove_size\s*\(|\Wuoptic_size\s*\(|\Wuordn_size\s*\(|\Wupot_size\s*\(|\Wusite_size\s*\(|\Wuspec_size\s*\(|\Wustr_size\s*\(|\Wutb_size\s*\(|\Wtksw\s*\(|\Widxpr\s*\(|\Wiosiga\s*\(|\Wddet33\s*\(|\Wcosvec\s*\(|\Waginv\s*\(|\Wnnrl\s*\(|\Wovcall\s*\(|\Wparmxp\s*\(|\Woalpha\s*\(|\Wchebev\s*\(|\Wdanrm2\s*\(|\Wroth\s*\(|\Wprotht\s*\(|\Wspgeql\s*\(|\Wiobzwt\s*\(|\Wigann\s*\(|\Wnewsigmasw\s*\(|\Wpmtsig\s*\(|\Wdebugmode\s*\(|\Wsigswitch\s*\(|\Wfullmesh\s*\(|\Wnoshorbz\s*\(|\Wmatmul_pwhovl\s*\(|\Wvolsph\s*\(|\Wsclp\s*\()
 using cached lmv7.F
 using cached lmfav7.F
@@ -4641,7 +4641,6 @@ using cached subs/suldau.F
 using cached subs/sumlst.F
 using cached subs/sumsro.F
 using cached subs/suqlst.F
-using cached subs/susite.F
 using cached subs/switch.F
 using cached subs/sylm.F
 using cached subs/sylmnc.F
@@ -5034,7 +5033,6 @@ using cached subs/suldau.F
 using cached subs/sumlst.F
 using cached subs/sumsro.F
 using cached subs/suqlst.F
-using cached subs/susite.F
 using cached subs/switch.F
 using cached subs/sylm.F
 using cached subs/sylmnc.F
@@ -5065,9 +5063,9 @@ using cached subs/xxxbnd.F
 using cached subs/xxxdif.F
 using cached subs/ylmrtg.F
 ------------ dictionary ------------------
-{'hansr4': 'subs/hansr4.F', 'hansr5': 'subs/hansr5.F', 'invbl': 'subs/invbl.F', 'interparam': 'subs/rotwv.F', 'ppi2z': 'fp/gaugm.F', 'hansr1': 'subs/hansr.F', 'hansr2': 'subs/hansr.F', 'scg': 'subs/scg.F', 'imxmnx': 'subs/orbl.F', 'ddet33': 'subs/mkplat.F', 'rotdlmm': 'subs/suham.F', 'aiomp': 'subs/aiomp.F', 'getef': 'subs/getef.F', 'vecpkl': 'subs/vecpkl.F', 'gvlst2': 'subs/gvlst2.F', 'vxcnsp': 'fp/vxcnsp.F', 'iorbtm': 'subs/iorbtm.F', 'clsset': 'subs/clsset.F', 'nwitsv': 'subs/nwit.F', 'getqvc': 'subs/getq.F', 'iclbsj': 'subs/iclbas.F', 'rseq': 'subs/rseq.F', 'poiss0': 'subs/atomsr.F', 'gvsym': 'fp/gvsym.F', 'ioqpp': 'lmv7util.F subs/clsprm.F', 'rdistn': 'subs/qdist.F', 'uham_init': 'subs/m_struc_def.F', 'setcg': 'subs/setcg.F', 'eprod': 'subs/pairc.F', 'gvlstn': 'subs/gvlst2.F', 'pqmixb': 'subs/pqmix.F', 'hansrz': 'subs/hansrz.F', 'fint': 'subs/hnsmft.F', 'mkewgt': 'fp/mkewgt.F', 'sclwsr': 'subs/sclwsr.F', 'gvlsts': 'subs/gvlst2.F', 'cshear': 'subs/cshear.F', 'pblch1': 'subs/bloch.F', 'aiosop': 'subs/aiosop.F', 'ovmin': 'subs/ovmin.F', 'symtbl': 'subs/symtbl.F', 'rnatm': 'subs/rnatm.F', 'tocast': 'subs/findes.F', 'bessel': 'subs/ropbes_alternative.F', 'corlsd': 'subs/easypbe.F subs/evxc.F', 'gensym': 'subs/gensym.F', 'gwcphi': 'fp/gwcphi.F', 'prelx1': 'subs/relax.F', 'intnos': 'subs/intnos.F', 'mark1': 'subs/bzwts.F', 'gengrp': 'subs/gengrp.F', 'xmpbnd': 'fp/bndfp.F', 'tailsm': 'subs/tailsm.F', 'ioorbp': 'subs/ioorbp.F', 'uspecb': 'subs/uspecb.F', 'sgroup': 'subs/spcgrp.F', 'prlcb1': 'fp/bstrux.F', 'ropbs1': 'subs/ropbes.old.F', 'prlcb3': 'fp/rlocbl.F', 'prlcb2': 'fp/rlocbl.F', 'suqlst': 'subs/suqlst.F', 'xxxadd': 'subs/shear.F', 'vldau': 'subs/vldau.F', 'ifindiv': 'fp/hsibl.F', 'suqlsm': 'subs/suqlst.F', 'ftlxp2': 'fp/ftlxp.F', 'stplat': 'subs/mkplat.F', 'newrho': 'subs/atomsr.F', 'rwftai': 'fp/vxtrap.F', 'upot_size': 'subs/m_struc_def.F', 'makrm0': 'subs/makrm0.F', 'pgvmat': 'subs/gvmtch.F', 'rhgcm3': 'fp/rhgcmp.F', 'rhgcm2': 'fp/rhgcmp.F', 'grdepl': 'fp/lmfp.F', 'm_struc_func': 'subs/m_struc_def.F', 'iosigh': 'subs/rdsigm.F', 'symes': 'subs/findes.F', 'pqmxio': 'subs/pqmix.F', 'product2': 'subs/rdeq.F', 'gtv_i4': 'subs/m_gtv.F', 'igann': 'subs/suham.F', 'atomsc': 'subs/atomsr.F', 'volsph': 'subs/volsph.F', 'hxpbl': 'fp/hxpbl.F', 'groupg': 'subs/groupg.F', 'ifindiv2': 'fp/hsibl.F', 'bzwtsm': 'subs/bzwtsf.F', 'dfphi': 'subs/dfphi.F', 'bzwtsf': 'subs/bzwtsf.F', 'shortn3_initialize': 'subs/shorbz.F', 'chebev': 'subs/ropbes.F', 'cpplat': 'subs/roplat.F', 'getgv2': 'subs/pairc.F', 'cvplat': 'subs/mkplat.F', 'iclbas': 'subs/iclbas.F', 'corpbe': 'subs/easypbe.F', 'writebasis': 'subs/writebasis.F', 'sugw': 'fp/sugw.F', 'bessel_yl': 'subs/ropbes_alternative.F', 'upot_init': 'subs/m_struc_def.F', 'gennlat': 'subs/pairc.F', 'chkes': 'subs/findes.F', 'hansr': 'subs/hansr.F', 'gtv_setst': 'subs/m_gtv.F', 'rhgcmp': 'fp/rhgcmp.F', 'asars1': 'subs/asars.F', 'prlrho': 'fp/prrhat.F', 'uspec_size': 'subs/m_struc_def.F', 'upacks': 'subs/struc_strn.F', 's3pklx': 'subs/pkli.F', 'iosiga': 'subs/mcasim.F', 'pvgtkn': 'fp/mkekin.F', 'fpchk': 'fp/fpchk.F', 'ropynx': 'subs/ropyln1.F', 'mcasho': 'subs/mcasim.F', 'ropbes': 'subs/ropbes.F subs/ropbes.old.F subs/ropbes_alternative.F', 'rlxstp': 'subs/rlxstp.F', 'getuk': 'subs/easypbe.F', 'hklos': 'fp/hklos.F', 'symsmr': 'fp/symrho.F', 'baslst': 'subs/baslst.F', 'pwmat': 'fp/pwmat.F', 'initialize': 'subs/m_sstrnsname.F', 'bndfp': 'fp/bndfp.F', 'pvmix3': 'fp/mixrho.F', 'paugnl': 'fp/paug1.F', 'shortn3': 'subs/shorbz.F', 'ghibl': 'fp/ghibl.F', 'mshdot': 'fp/mshdot.F', 'flocbl': 'fp/flocbl.F', 'pvmix6': 'fp/mixrho.F', 'swrho': 'fp/splrho.F', 'findctrlstart': 'lmv7.F lmfav7.F lmv7util.F', 'bzmio': 'subs/bzmio.F', 'jxpos': 'fp/jxpos.F', 'xxxbfp': 'fp/bndfp.F', 'rotspu': 'subs/rotspu.F', 'utb_init': 'subs/m_struc_def.F', 'ovlchk': 'subs/ovlchk.F', 'atwf': 'subs/atwf.F', 'shoist': 'subs/shoist.F', 'lsets_bitop_i8': 'subs/spackv_array_copy.F', 'clabel': 'subs/clabel.F', 'aiocls': 'lmv7util.F subs/aiocls.F', 'prmx': 'subs/prmx.F', 'dvdos': 'subs/dvdos.F', 'relax': 'subs/relax.F', 'paug2': 'fp/paug1.F', 'paug3': 'fp/paug1.F', 'paug1': 'fp/paug1.F', 'paug4': 'fp/paug1.F', 'ylmrtg': 'subs/ylmrtg.F', 'sigswitch': 'subs/switch.F', 'ustr_show': 'subs/m_struc_def.F', 'prodx2d': 'subs/rotwv.F', 'totfrc': 'fp/totfrc.F', 'freeat': 'subs/freeat.F subs/freeat.bk.F', 'fullmesh': 'subs/switch.F', 'shortn': 'subs/shortn.F', 'gtbsl2': 'fp/gtbsl2.F', 'defpq': 'subs/defpq.F', 'addbas': 'subs/addbas.F', 'smhsbl': 'fp/smhsbl.F', 'supot': 'fp/supot.F', 'splwts': 'subs/splwts.F', 'pysmr1': 'subs/symq.F', 'setuk': 'subs/easypbe.F', 'ppair1': 'subs/pairc.F', 'evcflg': 'subs/rotevs.F', 'flocb2': 'fp/flocbl.F', 'mtchae': 'subs/mtchae.F', 'lx2vec': 'subs/lx2vec.F', 'grpgen': 'subs/grpgen.F', 'parsop': 'subs/psymop.F', 'prothr': 'subs/roth.F', 'addes2': 'subs/findes.F', 'makusq': 'fp/makusq.F', 'shoshl': 'subs/shoshl.F', 'grdep2': 'subs/relax.F', 'makusp': 'fp/makusp.F', 'pvang1': 'subs/shoshl.F', 'pvang2': 'subs/shoshl.F', 'paioc2': 'lmv7util.F subs/aiocls.F', 'perdew': 'subs/evxc.F', 'rdist': 'subs/qdist.F', 'addrwf': 'subs/addrwf.F', 'gtv_setio': 'subs/m_gtv.F', 'lmfp': 'fp/lmfp.F', 'm_susite_func': 'subs/susite.F', 'shorbz': 'subs/shorbz.F', 'pairc': 'subs/pairc.F', 'pchms2': 'subs/chgmsh.F', 'aginv': 'subs/mksym.F', 'prpos': 'subs/findes.F', 'getinput_i4': 'subs/m_gtv.F', 'surho': 'fp/surho.F', 'pz2idx': 'subs/suidx.F', 'mkekin': 'fp/mkekin.F', 'config': 'subs/config.F', 'praugm': 'fp/praugm.F', 'dosio': 'subs/dosio.F', 'yprm': 'subs/prmx.F', 'gvgvcomp': 'fp/rsibl.F', 'trysop': 'subs/trysop.F', 'augq3z': 'fp/augmbl.F', 'mkcond': 'subs/mkcond.F', 'lattc': 'subs/lattc.F', 'deflmx': 'subs/findes.F', 'zclabl': 'subs/findes.F', 'rotwv': 'subs/rotwv.F', 'splrho': 'fp/splrho.F', 'fradhd': 'fp/fradhd.F', 'hgugbl': 'fp/hgugbl.F', 'uspec_show': 'subs/m_struc_def.F', 'gtv_lg': 'subs/m_gtv.F', 'iax2fd': 'subs/iax2fd.F', 'siged': 'subs/rdsigm.F', 'ugw_size': 'subs/m_struc_def.F', 'rsedit': 'fp/rsedit.F', 'sylm': 'subs/sylm.F', 'conv2int': 'subs/rotwv.F', 'pdstlb': 'subs/dstrbp.F', 'pmtsig': 'subs/switch.F', 'pchmsh': 'subs/chgmsh.F', 'avwsr': 'subs/avwsr.F', 'spkli': 'subs/pkli.F', 'rsibl': 'fp/rsibl.F', 'dfratm': 'fp/dfratm.F', 'popta5': 'subs/freeat.F subs/freeat.bk.F', 'popta2': 'subs/freeat.F subs/freeat.bk.F', 'popta3': 'subs/freeat.F subs/freeat.bk.F', 'popta1': 'subs/freeat.F subs/freeat.bk.F', 'delstd': 'subs/delstd.F', 'getqp': 'subs/getqp.F', 'mkrout': 'fp/mkrout.F', 'hamfb3k': 'subs/hamfb3.F', 'symstr': 'subs/symstr.F', 'ghios': 'fp/ghios.F', 'vxcgr2': 'subs/vxcgr2.F', 'asprjq': 'subs/atomsr.F', 'delstp': 'subs/delstp.F', 'bzmsh0': 'subs/bzmesh.F', 'rsmsym': 'subs/rsmsym.F', 'bstrux': 'fp/bstrux.F', 'lmhelp': 'lmv7.F lmfav7.F lmv7util.F', 'tbhsi': 'fp/tbhsi.F', 'soprm': 'subs/soprm.F', 'ftfalo': 'subs/freeat.F subs/freeat.bk.F', 'suham2': 'subs/suham2.F', 'freats': 'subs/freeat.F subs/freeat.bk.F', 'gcor': 'subs/easypbe.F subs/evxc.F', 'nnrl': 'subs/nnrl.F', 'makrwf': 'subs/makrwf.F', 'pnunew': 'fp/pnunew.F', 'chkxpn': 'fp/fpchk.F', 'poinsp': 'fp/poinsp.F', 'usite_size': 'subs/m_struc_def.F', 'adbkql': 'fp/addbkg.F', 'iostr': 'subs/iostr.F', 'shear': 'subs/shear.F', 'rmesh': 'subs/rmesh.F', 'mkrou1': 'fp/mkrout.F', 'mkrou2': 'fp/mkrout.F', 'mkrou3': 'fp/mkrout.F', 'mkrou4': 'fp/mkrout.F', 'mkrou5': 'fp/mkrout.F', 'mkrou6': 'fp/mkrout.F', 'xlgen': 'subs/xlgen.F', 'zprm3': 'subs/prmx.F', 'gvgetf': 'subs/gvlist.F', 'clsprp': 'lmv7util.F subs/clsprm.F', 'augqs3': 'fp/augmbl.F', 'clsprm': 'lmv7util.F subs/clsprm.F', 'shorps': 'subs/shorps.F', 'hklgbl': 'fp/hklgbl.F', 'debugmode': 'subs/switch.F', 'tkadd': 'subs/m_toksw.F', 'sortea': 'subs/pairc.F', 'lcrho': 'fp/splrho.F', 'bigges': 'subs/findes.F', 'rhomom': 'fp/rhomom.F', 'gtv_r8v': 'subs/m_gtv.F', 'hsmq': 'subs/hsmq.F', 'spgcop': 'subs/spcgrp.F', 'cppos': 'fp/lmfp.F', 'zevl': 'fp/stonerrsa.F', 'pvioeu': 'subs/ioeula.F', 'mcasan': 'subs/mcasim.F', 'tksw': 'subs/m_toksw.F', 'susite': 'subs/susite.F', 'prmx0': 'subs/prmx.F', 'gtpmin': 'subs/findes.F', 'suqlse': 'subs/suqlst.F', 'hansz1': 'subs/hansrz.F', 'hansz2': 'subs/hansrz.F', 'divctakao': 'subs/rdsigm.F', 'suphas': 'fp/suphas.F', 'gtbvec': 'subs/gtbvec.F', 'mkidx2': 'subs/makidx.F', 'pvrhm2': 'fp/rhomom.F', 'projql': 'subs/projql.F', 'latrel': 'subs/findes.F', 'beschb': 'subs/ropbes.F', 'ovcall': 'subs/ovmin.F', 'getinput_i4v': 'subs/m_gtv.F', 'chkdmu': 'subs/chkdmu.F', 'lgstar': 'fp/lgstar.F', 'prodln': 'subs/roplat.F', 'rstr0': 'subs/rstr0.F', 'paugq1': 'fp/bstrux.F', 'paugq2': 'fp/bstrux.F', 'f100': 'subs/f100.F', 'optfab': 'subs/freeat.F subs/freeat.bk.F', 'uoptic_show': 'subs/m_struc_def.F', 'hnsmft': 'subs/hnsmft.F', 'hsibl1': 'fp/hsibl.F', 'wripp': 'subs/invbl.F', 'pairtakao': 'subs/pairc.F', 'spec2c': 'fp/lmaux.F', 'makus2': 'fp/makusp.F', 'sugcut': 'subs/sugcut.F', 'pqmixa': 'subs/pqmix.F', 'pqmixc': 'subs/pqmix.F', 'lattic': 'subs/lattic.F', 'pvaioc': 'lmv7util.F subs/aiocls.F', 'vxc0sp': 'subs/vxc0sp.F', 'fswgts': 'subs/fswgts.F', 'matm': 'fp/bndconn_v2.F', 'nosbzm': 'subs/nosbzm.F', 'uordn_show': 'subs/m_struc_def.F', 'ortrwf': 'subs/addrwf.F', 'ubz_init': 'subs/m_struc_def.F', 'spacks_copy': 'subs/spackv_array_copy.F', 'pvmix9': 'fp/mixrho.F', 'uordn_size': 'subs/m_struc_def.F', 'pusq2': 'fp/makusq.F', 'hambl': 'fp/hambl.F', 'polinta': 'fp/polinta.F', 'pusq1': 'fp/makusq.F', 'paugqp': 'fp/bstrux.F', 'pvmix7': 'fp/mixrho.F', 'pvmix4': 'fp/mixrho.F', 'pvmix5': 'fp/mixrho.F', 'sumlst': 'subs/sumlst.F', 'pairs': 'subs/pairc.F', 'pviomx': 'subs/iomomx.F', 'sttmpd': 'lmv7.F lmfav7.F', 'vxcns4': 'fp/vxcnsp.F', 'vxcns5': 'fp/vxcnsp.F', 'vxcns2': 'fp/vxcnsp.F', 'vxcns3': 'fp/vxcnsp.F', 'lindsc': 'fp/lindsc.F', 'corpw91': 'subs/easypbe.F', 'rdsigm': 'subs/rdsigm.F', 'makrot': 'subs/makrot.F', 'hsmbl': 'fp/hsmbl.F', 'radpkl': 'subs/radpkl.F', 'fradpk': 'fp/fradpk.F', 'rhogkl': 'fp/rhogkl.F', 'bessl2': 'subs/besslr.F', 'uham_size': 'subs/m_struc_def.F', 'suham': 'subs/suham.F', 'phidx': 'subs/phidx.F', 'mchan': 'subs/mchan.F', 'getinput_char': 'subs/m_gtv.F', 'm_events': 'fp/m_events.F', 'psymrf': 'fp/symrho.F', 'm_hamindex': 'subs/m_hamindex.F', 'mkcfus': 'fp/mkrout.F', 'easypbe': 'subs/easypbe.F', 'prmr': 'subs/prmx.F', 'psymrq': 'fp/symrho.F', 'uoptic_size': 'subs/m_struc_def.F', 'wrirsh': 'subs/invbl.F', 'dosspl': 'subs/dosspl.F', 'mkpdos': 'fp/mkpdos.F', 'radmsh': 'subs/radmsh.F', 'addzbk': 'subs/atomsr.F', 'dlmn': 'subs/dlmn.F', 'rhopos': 'fp/symrho.F', 'pxsmr1': 'subs/symq.F', 'strx00': 'subs/strx00.F', 'm_gtv': 'subs/m_gtv.F', 'suqlsr': 'subs/suqlst.F', 'radgkl': 'subs/radgkl.F', 'uspec_init': 'subs/m_struc_def.F', 'besslr': 'subs/besslr.F', 'phvsfp': 'subs/phvsfp.F', 'aiorme': 'subs/aiorme.F', 'xperdew': 'subs/evxc.F', 'clear_swtok': 'subs/m_toksw.F', 'mcasw': 'subs/mcasim.F', 'prm3': 'subs/prmx.F', 'chimedit': 'fp/chimedit.F', 'psymr1': 'fp/symrho.F', 'psymr0': 'subs/symq.F', 'besslm': 'subs/besslr.F', 'suqlsw': 'subs/suqlst.F', 'sgvsym': 'fp/sgvsym.F', 'fctp': 'subs/atomsr.F', 'xyrhsr': 'subs/atomsr.F', 'optimise': 'subs/dstrbp.F', 'm_toksw': 'subs/m_toksw.F', 'gtv_r8': 'subs/m_gtv.F', 'aiopar': 'subs/aiopar.F', 'nghbor': 'subs/nghbor.F', 'radgra': 'subs/evxc.F', 'gvaddf': 'subs/gvlist.F', 'atqval': 'fp/atqval.F', 'pptrns': 'subs/pptrns.F', 'suphs0': 'fp/suphas.F', 'mkrtab': 'subs/mkrtab.F', 'parmx0': 'subs/parmxp.F', 'mcasms': 'subs/mcasim.F', 'prm': 'subs/prmx.F', 'ropqln': 'subs/ropyln1.F', 'tpkli': 'subs/pkli.F', 'mcasme': 'subs/mcasim.F', 'bndconn_v2': 'fp/bndconn_v2.F', 'ropyln': 'subs/ropyln.F', 'suqlsw2': 'subs/suqlst.F', 'matgg2': 'fp/pwmat.F', 'ebcpl': 'subs/bzwts.F', 'radmwt': 'subs/radmsh.F', 'rotmat': 'subs/mkplat.F', 'exchpw91': 'subs/easypbe.F', 'gvmtch': 'subs/gvmtch.F', 'nwit': 'subs/nwit.F', 'rdsigm2': 'subs/rdsigm2.F', 'mxxyz': 'subs/bzmesh.F', 'iors': 'subs/iors.F', 'scglp1': 'subs/scglp1.F', 'distes': 'subs/findes.F', 'pvstr0': 'subs/rstr0.F', 'hansmd': 'subs/hansmd.F', 'readctrlpq': 'subs/m_rdctrl.F', 'parms0': 'subs/parmxp.F', 'fixpos': 'subs/fixpos.F', 'multiple': 'subs/dstrbp.F', 'dpdftr': 'subs/dpdftr.F', 'mcasm2': 'subs/mcasim.F', 'prsed1': 'fp/rsedit.F', 'prsed2': 'fp/rsedit.F', 'prsed3': 'fp/rsedit.F', 'prsed4': 'fp/rsedit.F', 'prsed5': 'fp/rsedit.F', 'sigflg': 'subs/rdsigm.F', 'noshorbz': 'subs/switch.F', 'gvlist': 'subs/gvlist.F', 'iosits': 'subs/iosits.F', 'utb_size': 'subs/m_struc_def.F', 'popta4': 'subs/freeat.F subs/freeat.bk.F', 'find_region': 'subs/m_toksw.F', 'renam': 'subs/findes.F', 'symvvl': 'fp/mshvmt.F', 'mkpot': 'fp/mkpot.F', 'potpus': 'fp/potpus.F', 'getinput_r8': 'subs/m_gtv.F', 'grpfnd': 'subs/grpfnd.F', 'danrm2': 'subs/roplat.F', 'makidx': 'subs/makidx.F', 'toksw_init': 'subs/m_rdctrl.F', 'hklft': 'fp/hklft.F', 'stoner': 'subs/stoner.F', 'mkqp': 'subs/mkqp.F', 'symia1': 'subs/symiax.F', 'symprj': 'subs/symprj.F', 'symia0': 'subs/symiax.F', 'uctrl_size': 'subs/m_struc_def.F', 'hsmblq': 'fp/hsmbl.F', 'hhibl': 'fp/hhibl.F', 'makdos': 'subs/makdos.F', 'mdeses': 'subs/findes.F', 'locpt2': 'fp/locpot.F', 'sumsro': 'subs/sumsro.F', 'hsmbld': 'fp/hsmbl.F', 'radsum': 'subs/radmsh.F', 'mkorbm': 'fp/mkorbm.F', 'gaugm': 'fp/gaugm.F', 'umix_show': 'subs/m_struc_def.F', 'mkplat': 'subs/mkplat.F', 'hhugbl': 'fp/hhugbl.F', 'sphbes': 'subs/ropbes.F', 'cosvec': 'subs/mkplat.F', 'suldau': 'subs/suldau.F', 'ldau': 'subs/ldau.F', 'pqmix': 'subs/pqmix.F', 'madmat': 'subs/madmat.F', 'intnb': 'subs/stoner.F', 'hansmr': 'subs/hansmr.F', 'pvsym2': 'subs/mksym.F', 'maknos': 'subs/maknos.F', 'fixef0': 'subs/fixef0.F', 'prothl': 'subs/roth.F', 'gtv_entrance': 'subs/m_gtv.F', 'loctsh': 'fp/loctsh.F', 'pvrotd': 'subs/roth.F', 'ioden2': 'fp/ioden.F', 'suidx': 'subs/suidx.F', 'm_rdctrl': 'subs/m_rdctrl.F', 'dfaugm': 'fp/dfaugm.F', 'pkl2r': 'subs/pkli.F', 'pvrott': 'subs/roth.F', 'spackv_array_copy_i8_i': 'subs/spackv_array_copy.F', 'ubz_size': 'subs/m_struc_def.F', 'protht': 'subs/roth.F', 'pvrots': 'subs/roth.F', 'dfqkkl': 'fp/dfqkkl.F', 's3pkl0': 'subs/pkli.F', 'p2ovlc': 'fp/ovlocr.F', 'ioeula': 'subs/ioeula.F', 'chksgr': 'subs/rdsigm.F', 'dpdbyl': 'subs/dpdbyl.F', 'm_rdctrl2_func': 'subs/rdctrl2.F', 'd3nrm2': 'subs/findes.F', 'efldos': 'fp/efldos.F', 'hsibl2': 'fp/hsibl.F', 'hsibl3': 'fp/hsibl.F', 'hsibl4': 'fp/hsibl.F', 'hsibl5': 'fp/hsibl.F', 'hsibl6': 'fp/hsibl.F', 'fsmbpw': 'fp/fsmbpw.F', 'getinput_none': 'subs/m_gtv.F', 'evxc': 'subs/evxc.F subs/evxc.F', 'rsiblp': 'fp/rsibl.F', 'elocp': 'fp/elocp.F', 'nlocxc': 'subs/evxc.F subs/evxc.F', 'augqp3': 'fp/augmbl.F', 'prjpos': 'subs/prjpos.F', 'wrhomt': 'fp/wrhomt.F', 'drr2': 'subs/drr2.F', 'ggugbl': 'fp/ggugbl.F', 'mcmet': 'subs/mcasim.F', 'mcasim': 'subs/mcasim.F', 'iopos': 'subs/iopos.F', 'ulat_init': 'subs/m_struc_def.F', 'rtoint': 'subs/rotwv.F', 'rhocor': 'subs/atomsr.F', 'mullmf': 'fp/mullmf.F', 'smcorm': 'fp/smcorm.F', 'rdctrl2': 'subs/rdctrl2.F', 'rsibl5': 'fp/rsibl.F', 'momusl': 'fp/momusl.F', 'clist': 'subs/clist.F', 'ubz_show': 'subs/m_struc_def.F', 'fctail': 'subs/freeat.F subs/freeat.bk.F', 'iobzwt': 'subs/subzi.F', 'subzi': 'subs/subzi.F', 'hft2rs': 'subs/hft2rs.F', 'sint': 'subs/hnsmft.F', 'rsibl2': 'fp/rsibl.F', 'usite_show': 'subs/m_struc_def.F', 'rsibl1': 'fp/rsibl.F', 'rsibl6': 'fp/rsibl.F', 'rsibl7': 'fp/rsibl.F', 'rsibl4': 'fp/rsibl.F', 'pvaglc': 'fp/gaugm.F', 'prtev': 'fp/prtev.F', 'phkl2r': 'subs/pkli.F', 'gklq': 'fp/gklq.F', 'fovlp': 'subs/fovlp.F', 'pwmat2': 'fp/pwmat.F', 'pvsms3': 'subs/pvsms2.F', 'dstrbp': 'subs/dstrbp.F', 'mxmymz': 'subs/mxmymz.F', 'fctor1': 'subs/veecomp.F', 'bzmesh': 'subs/bzmesh.F', 'vxtrap': 'fp/vxtrap.F', 'idxpr': 'subs/makidx.F', 'setofl': 'fp/setofl.F', 'corprm': 'fp/corprm.F', 'splcls': 'subs/splcls.F', 'symrat': 'fp/symrho.F', 'sclp': 'subs/xxxbnd.F', 'rangedq': 'subs/rotwv.F', 'pqmxup': 'subs/pqmix.F', 't3j_all': 'subs/veecomp.F', 'hft2r1': 'subs/hft2rs.F', 'hft2r2': 'subs/hft2rs.F', 'hft2r3': 'subs/hft2rs.F', 'makrvl': 'subs/rnatm.F', 'hxpgbl': 'fp/hxpgbl.F', 'symiax': 'subs/symiax.F', 'aiogen': 'subs/aiogen.F', 'praldm': 'subs/prdmts.F', 'asymop': 'subs/asymop.F', 'p2pkl': 'subs/pkli.F', 'grpcop': 'subs/grpgen.F', 'offshp': 'subs/orbl.F', 'mshn3p': 'fp/mshn3p.F', 'pvsms1': 'fp/smshft.F', 'mdesat': 'subs/findes.F', 'pvsms2': 'subs/pvsms2.F', 'spackv_array_copy_r8_r8': 'subs/spackv_array_copy.F', 'iget': 'subs/bzwts.F', 'rdm3': 'subs/prmx.F', 'latlim': 'subs/latlim.F', 'vxcgga': 'subs/vxcgga.F', 'umix_init': 'subs/m_struc_def.F', 'getfmt': 'subs/findes.F', 'vlm2us': 'fp/vlm2us.F', 'umove_size': 'subs/m_struc_def.F', 'uarray_show': 'subs/m_struc_def.F', 'gintsr': 'subs/atomsr.F', 'ropcsm': 'subs/ropcsm.F', 'hsibl': 'fp/hsibl.F', 'spgeql': 'subs/spcgrp.F', 'xxxdif': 'subs/xxxdif.F', 'm_sstrnsname': 'subs/m_sstrnsname.F', 'pvclst': 'subs/clsset.F', 'mtchre': 'subs/mtchae.F', 'mul22': 'subs/rdeq.F', 'iomomx': 'subs/iomomx.F', 'mshn31': 'fp/mshn3p.F', 'fctp0': 'subs/atomsr.F', 'mshn32': 'fp/mshn3p.F', 'iomomq': 'subs/iomomq.F', 'gintsl': 'subs/atomsr.F', 'iomoms': 'subs/iomoms.F', 'gfigbl': 'fp/gfigbl.F', 'ulat_show': 'subs/m_struc_def.F', 'hambls': 'fp/hambls.F', 'ustr_size': 'subs/m_struc_def.F', 'smshft': 'fp/smshft.F', 'uordn_init': 'subs/m_struc_def.F', 'ioden': 'fp/ioden.F', 'subasi': 'subs/subasi.F', 'gvctof': 'subs/gvctof.F', 'gtv_setrcd': 'subs/m_gtv.F', 'gtpcor': 'subs/gtpcor.F', 'getkin': 'subs/stoner.F', 'symqmp': 'subs/symq.F', 's3pkl': 'subs/pkli.F', 'psho1': 'subs/shoshl.F', 'ncutcorrect': 'fp/ncutcorrect.F', 'psymq0': 'subs/symq.F', 'uctrl_init': 'subs/m_struc_def.F', 'lctoff': 'subs/lattc.F', 'pvpus1': 'fp/potpus.F', 'ustr_init': 'subs/m_struc_def.F', 'istbpm': 'subs/symtbl.F', 'ppair2': 'subs/pairc.F', 'ppair3': 'subs/pairc.F', 'upot_show': 'subs/m_struc_def.F', 'ppair4': 'subs/pairc.F', 'ppair5': 'subs/pairc.F', 'uctrl_show': 'subs/m_struc_def.F', 'makdla': 'subs/makdla.F', 'contet': 'subs/contet.F', 'utb_show': 'subs/m_struc_def.F', 'xxxse': 'subs/shear.F', 'pqsclb': 'subs/pqmix.F', 'pzhev': 'fp/pzhev.F', 'clsctr': 'subs/clsset.F', 'gtv_char': 'subs/m_gtv.F', 'rsq2': 'subs/rseq.F', 'rsq1': 'subs/rseq.F', 'corgga': 'subs/evxc.F', 'iobsmv': 'subs/iobsmv.F', 'ppratf': 'subs/freeat.F subs/freeat.bk.F', 'qparam': 'subs/rotwv.F', 'rothph': 'subs/rothrm.F', 'pvsug1': 'fp/sugw.F', 'getq': 'subs/getq.F', 'stonerrsa': 'fp/stonerrsa.F', 'rsmesh': 'subs/findes.F', 'getikt': 'subs/m_hamindex.F', 'vesgcm': 'fp/vesgcm.F', 'nsitsh': 'subs/siteid.F', 'getcor': 'subs/getcor.F', 'iosite': 'subs/iosite.F', 'qmpkl': 'subs/pkli.F', 'wlattc': 'fp/sugw.F', 'vesft': 'fp/vesft.F', 'bravsy': 'subs/mkplat.F', 'ellipsoidxmax': 'subs/shorbz.F', 'defspc': 'subs/defspc.F', 'sopert': 'fp/sopert.F', 'symdmu': 'subs/symdmu.F', 'hanr': 'subs/hanr.F', 'clebsh': 'subs/rdeq.F', 'uoptic_init': 'subs/m_struc_def.F', 'mshint': 'fp/mshint.F', 'umix_size': 'subs/m_struc_def.F', 'spcgrp': 'subs/spcgrp.F', 'prrhat': 'fp/prrhat.F', 'gklbld': 'fp/gklbl.F', 'rsort': 'subs/rsort.F', 'gcor2': 'subs/easypbe.F', 'prdmts': 'subs/prdmts.F', 'gtcsym': 'subs/gengrp.F', 'rdeq': 'subs/rdeq.F', 'iprmsb': 'subs/orbl.F', 'gklblq': 'fp/gklbl.F', 'iobsm0': 'subs/iobsmv.F', 'addsds': 'fp/addrbl.F', 'pratfs': 'subs/freeat.F subs/freeat.bk.F', 'ordbas': 'subs/findes.F', 'wf2lo': 'subs/addrwf.F', 'tetirr': 'subs/tetirr.F', 'xxxes': 'subs/shear.F', 'bzints': 'subs/bzints.F', 'atmoms': 'subs/defpq.F', 'mtchr2': 'subs/mtchae.F', 'dfrce': 'fp/dfrce.F', 'radwgt': 'subs/radmsh.F', 'grpprd': 'subs/grpgen.F', 'mksym': 'subs/mksym.F', 'psymop': 'subs/psymop.F', 'smvxc4': 'fp/smvxcm.F', 'maknrs': 'subs/maknrs.F', 'getirr': 'subs/findes.F', 'uarray_init': 'subs/m_struc_def.F', 'smvxc3': 'fp/smvxcm.F', 'smvxc2': 'fp/smvxcm.F', 'gklbl': 'fp/gklbl.F', 'exchpbe': 'subs/easypbe.F', 'fklbl': 'fp/fklbl.F', 'defwsr': 'subs/defwsr.F', 'permhk': 'fp/hambls.F', 'phmbl3': 'fp/hambls.F', 'orbl': 'subs/orbl.F', 'ioaindx': 'fp/sugw.F', 'spgprd': 'subs/spcgrp.F', 'efrng2': 'subs/efrng2.F', 'umove_init': 'subs/m_struc_def.F', 'pkl2ro': 'fp/pkl2ro.F', 'findes': 'subs/findes.F', 'lattdf': 'subs/lattdf.F', 'ioposs': 'subs/iopos.F', 'tri_rule': 'subs/veecomp.F', 'stonerpb': 'fp/stonerpb.F', 'addbkgl': 'fp/addbkg.F', 'hxpos': 'fp/hxpos.F', 'gpfndx': 'subs/spcgrp.F', 'uarray_size': 'subs/m_struc_def.F', 'iosave': 'subs/iosave.F', 'dlmtor': 'subs/lattc.F', 'pvdf1': 'fp/dfrce.F', 'makr': 'subs/ropyln.F', 'pvdf3': 'fp/dfrce.F', 'pvdf2': 'fp/dfrce.F', 'gtv_i4v': 'subs/m_gtv.F', 'pvdf4': 'fp/dfrce.F', 'ovlpfa': 'fp/ovlpfa.F', 'shftpp': 'subs/shftpp.F', 'zprm': 'subs/prmx.F', 'fmain': 'subs/ropyln.F subs/shorps.F subs/shorps.F', 'iofa': 'subs/iofa.F', 'rothrm': 'subs/rothrm.F', 'roth': 'subs/roth.F', 'suylg': 'fp/suylg.F', 'phmbls': 'fp/hambls.F', 'ghigbl': 'fp/ghigbl.F', 'smvxcm': 'fp/smvxcm.F', 'yprm0': 'subs/prmx.F', 'ii8copy': 'subs/spackv_array_copy.F', 'qdistn': 'subs/qdist.F', 'parmxp': 'subs/parmxp.F', 'fill3in': 'subs/m_rdctrl.F', 'setcc': 'subs/rseq.F', 'rotpnt': 'subs/rotpnt.F', 'mkdmtu': 'fp/mkdmtu.F', 'asados': 'subs/asados.F', 'pvcdm2': 'fp/vcdmel.F', 'pvcdm1': 'fp/vcdmel.F', 'latvec': 'subs/latvec.F', 'pvhmb1': 'fp/hambl.F', 'hhigbl': 'fp/hhigbl.F', 'vxnloc': 'subs/vxnloc.F', 'veecomp': 'subs/veecomp.F', 'suemph': 'subs/suemph.F', 'fdpp': 'subs/rdeq.F', 'getbzp': 'subs/getbzp.F', 'p1ovlc': 'fp/ovlocr.F', 'rlocbl': 'fp/rlocbl.F', 'clean0': 'subs/invbl.F', 'pvrgkl': 'fp/rhogkl.F', 'bessjy': 'subs/ropbes.F', 'latpar': 'subs/mkplat.F', 'dostet': 'subs/dostet.F', 'grpop': 'subs/grpop.F', 'nswadd': 'subs/m_toksw.F', 'hklbl': 'fp/hklbl.F', 'augq12': 'fp/augmbl.F', 'augmat': 'fp/augmat.F', 'rotsig': 'subs/rotwv.F', 'cmplat': 'subs/cmplat.F', 'ulat_size': 'subs/m_struc_def.F', 'mshvmt': 'fp/mshvmt.F', 'pvagm3': 'fp/gaugm.F', 'pvagm2': 'fp/gaugm.F', 'pvagm1': 'fp/gaugm.F', 'matmul_pwhovl': 'subs/switch.F', 'readctrl': 'subs/m_rdctrl.F', 'rotycs': 'subs/rotycs.F', 'iostr4': 'subs/iostr.F', 'iostr1': 'subs/iostr.F', 'sclws2': 'subs/sclwsr.F', 'iostr2': 'subs/iostr.F', 'aiopot': 'subs/aiopot.F', 'pair3c': 'subs/pairc.F', 'gvputf': 'subs/gvlist.F', 'grpeql': 'subs/grpgen.F', 'pvglst': 'subs/gvlist.F', 'phhigb': 'fp/hhigbl.F', 'rlocb1': 'fp/rlocbl.F', 'dstmt': 'fp/pzhev.F', 'siteid': 'subs/siteid.F', 'asars': 'subs/asars.F', 'hsmqe0': 'subs/hsmq.F', 'bloch': 'subs/bloch.F', 'chgmsh': 'subs/chgmsh.F', 'addbkgsm': 'fp/addbkg.F', 'augq2z': 'fp/augmbl.F', 'sudmtu': 'subs/sudmtu.F', 'spinav': 'lmv7util.F subs/clsprm.F', 'slist': 'subs/slist.F', 'fsmbl': 'fp/fsmbl.F', 'shoang': 'subs/shoshl.F', 'mptauof': 'subs/suham.F', 'aiomom': 'subs/aiomom.F', 'prrmsh': 'subs/prrmsh.F', 'nrmliz': 'subs/mkplat.F', 'pgfpp': 'subs/pgfp.F', 'xxxbnd': 'subs/xxxbnd.F', 'radgrx': 'subs/vxcgr2.F', 'mixrho': 'fp/mixrho.F', 'symrho': 'fp/symrho.F', 'pvrhom': 'fp/rhomom.F', 'hamfb3': 'subs/hamfb3.F', 'uham_show': 'subs/m_struc_def.F', 'xxsho': 'subs/shoshl.F', 'i8icopy': 'subs/spackv_array_copy.F', 'pvhsmq': 'subs/hsmq.F', 'gklft': 'fp/gklft.F', 'mkehkf': 'fp/mkehkf.F', 's2sph': 'subs/s2sph.F', 'udstmt': 'fp/pzhev.F', 'mkppovl2': 'fp/sugw.F', 'getinput_entrance': 'subs/m_gtv.F', 'lmaux': 'fp/lmaux.F', 'm_psigd': 'subs/m_psigd.F', 'suclst': 'subs/suclst.F', 'seneinterp': 'subs/rdsigm2.F', 'smves': 'fp/smves.F', 'blsig': 'fp/hambls.F', 'addrbl': 'fp/addrbl.F', 'vcdmel': 'fp/vcdmel.F', 'roplat': 'subs/roplat.F', 'fermi': 'subs/fermi.F', 'wsymops': 'fp/sugw.F', 'rotevs': 'subs/rotevs.F', 'bessl': 'subs/besslr.F', 'getinput_r8v': 'subs/m_gtv.F', 'rhoqm': 'fp/symrho.F', 'augmbl': 'fp/augmbl.F', 'aiocor': 'subs/aiocor.F', 'aiova': 'subs/aiova.F', 'm_struc_def': 'subs/m_struc_def.F', 'getde': 'subs/stoner.F', 'single': 'subs/dstrbp.F', 'iomomn': 'subs/iomoms.F', 'elfigr': 'fp/locpot.F', 'pqsclc': 'subs/pqmix.F', 'evxcp': 'subs/evxcp.F', 'evxcv': 'subs/evxcv.F', 'pqsclf': 'subs/pqmix.F', 'phhibl': 'fp/hhibl.F', 'fillat': 'subs/findes.F', 'regioncheck': 'subs/rotwv.F', 'packs': 'subs/struc_strn.F', 'f102': 'subs/f102.F', 'symfor': 'subs/symfor.F', 'symlat': 'subs/symlat.F', 'ftlxp': 'fp/ftlxp.F', 'rdovfa': 'fp/rdovfa.F', 'locpot': 'fp/locpot.F', 'oalpha': 'subs/pptrns.F', 'ipwovl': 'fp/pwmat.F', 'sylmnc': 'subs/sylmnc.F', 'reducv': 'subs/findes.F', 'pgfp': 'subs/pgfp.F', 'umove_show': 'subs/m_struc_def.F', 'ccutup': 'subs/ccutup.F', 'pbevxc': 'subs/vxnloc.F', 'excsan': 'subs/evxcv.F', 'gen_hamindex': 'subs/suham.F', 'mshsiz': 'subs/mshsiz.F', 'csymop': 'subs/asymop.F', 'psigd': 'subs/m_psigd.F', 'ovlocr': 'fp/ovlocr.F', 'slinz': 'subs/slinz.F', 'prtrkl': 'fp/rhogkl.F', 'bzwts': 'subs/bzwts.F', 'ugcomp': 'fp/ugcomp.F', 'newsigmasw': 'subs/switch.F', 'gtbsl1': 'subs/gtbsl1.F', 'radext': 'subs/radmsh.F', 'gtv_none': 'subs/m_gtv.F', 'qdist': 'subs/qdist.F', 'symcry': 'subs/symcry.F', 'usite_init': 'subs/m_struc_def.F'}
+{'hansr4': 'subs/hansr4.F', 'hansr5': 'subs/hansr5.F', 'invbl': 'subs/invbl.F', 'interparam': 'subs/rotwv.F', 'ppi2z': 'fp/gaugm.F', 'hansr1': 'subs/hansr.F', 'hansr2': 'subs/hansr.F', 'scg': 'subs/scg.F', 'imxmnx': 'subs/orbl.F', 'ddet33': 'subs/mkplat.F', 'rotdlmm': 'subs/suham.F', 'aiomp': 'subs/aiomp.F', 'getef': 'subs/getef.F', 'vecpkl': 'subs/vecpkl.F', 'gvlst2': 'subs/gvlst2.F', 'vxcnsp': 'fp/vxcnsp.F', 'iorbtm': 'subs/iorbtm.F', 'clsset': 'subs/clsset.F', 'nwitsv': 'subs/nwit.F', 'getqvc': 'subs/getq.F', 'iclbsj': 'subs/iclbas.F', 'rseq': 'subs/rseq.F', 'poiss0': 'subs/atomsr.F', 'gvsym': 'fp/gvsym.F', 'ioqpp': 'lmv7util.F subs/clsprm.F', 'rdistn': 'subs/qdist.F', 'uham_init': 'subs/m_struc_def.F', 'setcg': 'subs/setcg.F', 'eprod': 'subs/pairc.F', 'gvlstn': 'subs/gvlst2.F', 'pqmixb': 'subs/pqmix.F', 'hansrz': 'subs/hansrz.F', 'fint': 'subs/hnsmft.F', 'mkewgt': 'fp/mkewgt.F', 'sclwsr': 'subs/sclwsr.F', 'gvlsts': 'subs/gvlst2.F', 'cshear': 'subs/cshear.F', 'pblch1': 'subs/bloch.F', 'aiosop': 'subs/aiosop.F', 'ovmin': 'subs/ovmin.F', 'symtbl': 'subs/symtbl.F', 'rnatm': 'subs/rnatm.F', 'tocast': 'subs/findes.F', 'bessel': 'subs/ropbes_alternative.F', 'corlsd': 'subs/easypbe.F subs/evxc.F', 'gensym': 'subs/gensym.F', 'gwcphi': 'fp/gwcphi.F', 'prelx1': 'subs/relax.F', 'intnos': 'subs/intnos.F', 'mark1': 'subs/bzwts.F', 'gengrp': 'subs/gengrp.F', 'xmpbnd': 'fp/bndfp.F', 'tailsm': 'subs/tailsm.F', 'ioorbp': 'subs/ioorbp.F', 'uspecb': 'subs/uspecb.F', 'sgroup': 'subs/spcgrp.F', 'prlcb1': 'fp/bstrux.F', 'ropbs1': 'subs/ropbes.old.F', 'prlcb3': 'fp/rlocbl.F', 'prlcb2': 'fp/rlocbl.F', 'suqlst': 'subs/suqlst.F', 'xxxadd': 'subs/shear.F', 'vldau': 'subs/vldau.F', 'ifindiv': 'fp/hsibl.F', 'suqlsm': 'subs/suqlst.F', 'ftlxp2': 'fp/ftlxp.F', 'stplat': 'subs/mkplat.F', 'newrho': 'subs/atomsr.F', 'rwftai': 'fp/vxtrap.F', 'upot_size': 'subs/m_struc_def.F', 'makrm0': 'subs/makrm0.F', 'pgvmat': 'subs/gvmtch.F', 'rhgcm3': 'fp/rhgcmp.F', 'rhgcm2': 'fp/rhgcmp.F', 'grdepl': 'fp/lmfp.F', 'm_struc_func': 'subs/m_struc_def.F', 'iosigh': 'subs/rdsigm.F', 'symes': 'subs/findes.F', 'pqmxio': 'subs/pqmix.F', 'product2': 'subs/rdeq.F', 'gtv_i4': 'subs/m_gtv.F', 'igann': 'subs/suham.F', 'atomsc': 'subs/atomsr.F', 'volsph': 'subs/volsph.F', 'hxpbl': 'fp/hxpbl.F', 'groupg': 'subs/groupg.F', 'ifindiv2': 'fp/hsibl.F', 'bzwtsm': 'subs/bzwtsf.F', 'dfphi': 'subs/dfphi.F', 'bzwtsf': 'subs/bzwtsf.F', 'shortn3_initialize': 'subs/shorbz.F', 'chebev': 'subs/ropbes.F', 'cpplat': 'subs/roplat.F', 'getgv2': 'subs/pairc.F', 'cvplat': 'subs/mkplat.F', 'iclbas': 'subs/iclbas.F', 'corpbe': 'subs/easypbe.F', 'writebasis': 'subs/writebasis.F', 'sugw': 'fp/sugw.F', 'bessel_yl': 'subs/ropbes_alternative.F', 'upot_init': 'subs/m_struc_def.F', 'gennlat': 'subs/pairc.F', 'chkes': 'subs/findes.F', 'hansr': 'subs/hansr.F', 'gtv_setst': 'subs/m_gtv.F', 'rhgcmp': 'fp/rhgcmp.F', 'asars1': 'subs/asars.F', 'prlrho': 'fp/prrhat.F', 'uspec_size': 'subs/m_struc_def.F', 'upacks': 'subs/struc_strn.F', 's3pklx': 'subs/pkli.F', 'iosiga': 'subs/mcasim.F', 'pvgtkn': 'fp/mkekin.F', 'fpchk': 'fp/fpchk.F', 'ropynx': 'subs/ropyln1.F', 'mcasho': 'subs/mcasim.F', 'ropbes': 'subs/ropbes.F subs/ropbes.old.F subs/ropbes_alternative.F', 'rlxstp': 'subs/rlxstp.F', 'getuk': 'subs/easypbe.F', 'hklos': 'fp/hklos.F', 'symsmr': 'fp/symrho.F', 'baslst': 'subs/baslst.F', 'pwmat': 'fp/pwmat.F', 'initialize': 'subs/m_sstrnsname.F', 'bndfp': 'fp/bndfp.F', 'pvmix3': 'fp/mixrho.F', 'paugnl': 'fp/paug1.F', 'shortn3': 'subs/shorbz.F', 'ghibl': 'fp/ghibl.F', 'mshdot': 'fp/mshdot.F', 'flocbl': 'fp/flocbl.F', 'pvmix6': 'fp/mixrho.F', 'swrho': 'fp/splrho.F', 'findctrlstart': 'lmv7.F lmfav7.F lmv7util.F', 'bzmio': 'subs/bzmio.F', 'jxpos': 'fp/jxpos.F', 'xxxbfp': 'fp/bndfp.F', 'rotspu': 'subs/rotspu.F', 'utb_init': 'subs/m_struc_def.F', 'ovlchk': 'subs/ovlchk.F', 'atwf': 'subs/atwf.F', 'shoist': 'subs/shoist.F', 'lsets_bitop_i8': 'subs/spackv_array_copy.F', 'clabel': 'subs/clabel.F', 'aiocls': 'lmv7util.F subs/aiocls.F', 'prmx': 'subs/prmx.F', 'dvdos': 'subs/dvdos.F', 'relax': 'subs/relax.F', 'paug2': 'fp/paug1.F', 'paug3': 'fp/paug1.F', 'paug1': 'fp/paug1.F', 'paug4': 'fp/paug1.F', 'ylmrtg': 'subs/ylmrtg.F', 'sigswitch': 'subs/switch.F', 'ustr_show': 'subs/m_struc_def.F', 'prodx2d': 'subs/rotwv.F', 'totfrc': 'fp/totfrc.F', 'freeat': 'subs/freeat.F subs/freeat.bk.F', 'fullmesh': 'subs/switch.F', 'shortn': 'subs/shortn.F', 'gtbsl2': 'fp/gtbsl2.F', 'defpq': 'subs/defpq.F', 'addbas': 'subs/addbas.F', 'smhsbl': 'fp/smhsbl.F', 'supot': 'fp/supot.F', 'splwts': 'subs/splwts.F', 'pysmr1': 'subs/symq.F', 'setuk': 'subs/easypbe.F', 'ppair1': 'subs/pairc.F', 'evcflg': 'subs/rotevs.F', 'flocb2': 'fp/flocbl.F', 'mtchae': 'subs/mtchae.F', 'lx2vec': 'subs/lx2vec.F', 'grpgen': 'subs/grpgen.F', 'parsop': 'subs/psymop.F', 'prothr': 'subs/roth.F', 'addes2': 'subs/findes.F', 'makusq': 'fp/makusq.F', 'shoshl': 'subs/shoshl.F', 'grdep2': 'subs/relax.F', 'makusp': 'fp/makusp.F', 'pvang1': 'subs/shoshl.F', 'pvang2': 'subs/shoshl.F', 'paioc2': 'lmv7util.F subs/aiocls.F', 'perdew': 'subs/evxc.F', 'rdist': 'subs/qdist.F', 'addrwf': 'subs/addrwf.F', 'gtv_setio': 'subs/m_gtv.F', 'lmfp': 'fp/lmfp.F', 'shorbz': 'subs/shorbz.F', 'pairc': 'subs/pairc.F', 'pchms2': 'subs/chgmsh.F', 'aginv': 'subs/mksym.F', 'prpos': 'subs/findes.F', 'getinput_i4': 'subs/m_gtv.F', 'surho': 'fp/surho.F', 'pz2idx': 'subs/suidx.F', 'mkekin': 'fp/mkekin.F', 'config': 'subs/config.F', 'praugm': 'fp/praugm.F', 'dosio': 'subs/dosio.F', 'yprm': 'subs/prmx.F', 'gvgvcomp': 'fp/rsibl.F', 'trysop': 'subs/trysop.F', 'augq3z': 'fp/augmbl.F', 'mkcond': 'subs/mkcond.F', 'lattc': 'subs/lattc.F', 'deflmx': 'subs/findes.F', 'zclabl': 'subs/findes.F', 'rotwv': 'subs/rotwv.F', 'splrho': 'fp/splrho.F', 'fradhd': 'fp/fradhd.F', 'hgugbl': 'fp/hgugbl.F', 'uspec_show': 'subs/m_struc_def.F', 'gtv_lg': 'subs/m_gtv.F', 'iax2fd': 'subs/iax2fd.F', 'siged': 'subs/rdsigm.F', 'ugw_size': 'subs/m_struc_def.F', 'rsedit': 'fp/rsedit.F', 'sylm': 'subs/sylm.F', 'conv2int': 'subs/rotwv.F', 'pdstlb': 'subs/dstrbp.F', 'pmtsig': 'subs/switch.F', 'pchmsh': 'subs/chgmsh.F', 'avwsr': 'subs/avwsr.F', 'spkli': 'subs/pkli.F', 'rsibl': 'fp/rsibl.F', 'dfratm': 'fp/dfratm.F', 'popta5': 'subs/freeat.F subs/freeat.bk.F', 'popta2': 'subs/freeat.F subs/freeat.bk.F', 'popta3': 'subs/freeat.F subs/freeat.bk.F', 'popta1': 'subs/freeat.F subs/freeat.bk.F', 'delstd': 'subs/delstd.F', 'getqp': 'subs/getqp.F', 'mkrout': 'fp/mkrout.F', 'hamfb3k': 'subs/hamfb3.F', 'symstr': 'subs/symstr.F', 'ghios': 'fp/ghios.F', 'vxcgr2': 'subs/vxcgr2.F', 'asprjq': 'subs/atomsr.F', 'delstp': 'subs/delstp.F', 'bzmsh0': 'subs/bzmesh.F', 'rsmsym': 'subs/rsmsym.F', 'bstrux': 'fp/bstrux.F', 'lmhelp': 'lmv7.F lmfav7.F lmv7util.F', 'tbhsi': 'fp/tbhsi.F', 'soprm': 'subs/soprm.F', 'ftfalo': 'subs/freeat.F subs/freeat.bk.F', 'suham2': 'subs/suham2.F', 'freats': 'subs/freeat.F subs/freeat.bk.F', 'gcor': 'subs/easypbe.F subs/evxc.F', 'nnrl': 'subs/nnrl.F', 'makrwf': 'subs/makrwf.F', 'pnunew': 'fp/pnunew.F', 'chkxpn': 'fp/fpchk.F', 'poinsp': 'fp/poinsp.F', 'usite_size': 'subs/m_struc_def.F', 'adbkql': 'fp/addbkg.F', 'iostr': 'subs/iostr.F', 'shear': 'subs/shear.F', 'rmesh': 'subs/rmesh.F', 'mkrou1': 'fp/mkrout.F', 'mkrou2': 'fp/mkrout.F', 'mkrou3': 'fp/mkrout.F', 'mkrou4': 'fp/mkrout.F', 'mkrou5': 'fp/mkrout.F', 'mkrou6': 'fp/mkrout.F', 'xlgen': 'subs/xlgen.F', 'zprm3': 'subs/prmx.F', 'gvgetf': 'subs/gvlist.F', 'clsprp': 'lmv7util.F subs/clsprm.F', 'augqs3': 'fp/augmbl.F', 'clsprm': 'lmv7util.F subs/clsprm.F', 'shorps': 'subs/shorps.F', 'hklgbl': 'fp/hklgbl.F', 'debugmode': 'subs/switch.F', 'tkadd': 'subs/m_toksw.F', 'sortea': 'subs/pairc.F', 'lcrho': 'fp/splrho.F', 'bigges': 'subs/findes.F', 'rhomom': 'fp/rhomom.F', 'gtv_r8v': 'subs/m_gtv.F', 'hsmq': 'subs/hsmq.F', 'spgcop': 'subs/spcgrp.F', 'cppos': 'fp/lmfp.F', 'zevl': 'fp/stonerrsa.F', 'pvioeu': 'subs/ioeula.F', 'mcasan': 'subs/mcasim.F', 'tksw': 'subs/m_toksw.F', 'prmx0': 'subs/prmx.F', 'gtpmin': 'subs/findes.F', 'suqlse': 'subs/suqlst.F', 'hansz1': 'subs/hansrz.F', 'hansz2': 'subs/hansrz.F', 'divctakao': 'subs/rdsigm.F', 'suphas': 'fp/suphas.F', 'gtbvec': 'subs/gtbvec.F', 'mkidx2': 'subs/makidx.F', 'pvrhm2': 'fp/rhomom.F', 'projql': 'subs/projql.F', 'latrel': 'subs/findes.F', 'beschb': 'subs/ropbes.F', 'ovcall': 'subs/ovmin.F', 'getinput_i4v': 'subs/m_gtv.F', 'chkdmu': 'subs/chkdmu.F', 'lgstar': 'fp/lgstar.F', 'prodln': 'subs/roplat.F', 'rstr0': 'subs/rstr0.F', 'paugq1': 'fp/bstrux.F', 'paugq2': 'fp/bstrux.F', 'f100': 'subs/f100.F', 'optfab': 'subs/freeat.F subs/freeat.bk.F', 'uoptic_show': 'subs/m_struc_def.F', 'hnsmft': 'subs/hnsmft.F', 'hsibl1': 'fp/hsibl.F', 'wripp': 'subs/invbl.F', 'pairtakao': 'subs/pairc.F', 'spec2c': 'fp/lmaux.F', 'makus2': 'fp/makusp.F', 'sugcut': 'subs/sugcut.F', 'pqmixa': 'subs/pqmix.F', 'pqmixc': 'subs/pqmix.F', 'lattic': 'subs/lattic.F', 'pvaioc': 'lmv7util.F subs/aiocls.F', 'vxc0sp': 'subs/vxc0sp.F', 'fswgts': 'subs/fswgts.F', 'matm': 'fp/bndconn_v2.F', 'nosbzm': 'subs/nosbzm.F', 'uordn_show': 'subs/m_struc_def.F', 'ortrwf': 'subs/addrwf.F', 'ubz_init': 'subs/m_struc_def.F', 'spacks_copy': 'subs/spackv_array_copy.F', 'pvmix9': 'fp/mixrho.F', 'uordn_size': 'subs/m_struc_def.F', 'pusq2': 'fp/makusq.F', 'hambl': 'fp/hambl.F', 'polinta': 'fp/polinta.F', 'pusq1': 'fp/makusq.F', 'paugqp': 'fp/bstrux.F', 'pvmix7': 'fp/mixrho.F', 'pvmix4': 'fp/mixrho.F', 'pvmix5': 'fp/mixrho.F', 'sumlst': 'subs/sumlst.F', 'pairs': 'subs/pairc.F', 'pviomx': 'subs/iomomx.F', 'sttmpd': 'lmv7.F lmfav7.F', 'vxcns4': 'fp/vxcnsp.F', 'vxcns5': 'fp/vxcnsp.F', 'vxcns2': 'fp/vxcnsp.F', 'vxcns3': 'fp/vxcnsp.F', 'lindsc': 'fp/lindsc.F', 'corpw91': 'subs/easypbe.F', 'rdsigm': 'subs/rdsigm.F', 'makrot': 'subs/makrot.F', 'hsmbl': 'fp/hsmbl.F', 'radpkl': 'subs/radpkl.F', 'fradpk': 'fp/fradpk.F', 'rhogkl': 'fp/rhogkl.F', 'bessl2': 'subs/besslr.F', 'uham_size': 'subs/m_struc_def.F', 'suham': 'subs/suham.F', 'phidx': 'subs/phidx.F', 'mchan': 'subs/mchan.F', 'getinput_char': 'subs/m_gtv.F', 'm_events': 'fp/m_events.F', 'psymrf': 'fp/symrho.F', 'm_hamindex': 'subs/m_hamindex.F', 'mkcfus': 'fp/mkrout.F', 'easypbe': 'subs/easypbe.F', 'prmr': 'subs/prmx.F', 'psymrq': 'fp/symrho.F', 'uoptic_size': 'subs/m_struc_def.F', 'wrirsh': 'subs/invbl.F', 'dosspl': 'subs/dosspl.F', 'mkpdos': 'fp/mkpdos.F', 'radmsh': 'subs/radmsh.F', 'addzbk': 'subs/atomsr.F', 'dlmn': 'subs/dlmn.F', 'rhopos': 'fp/symrho.F', 'pxsmr1': 'subs/symq.F', 'strx00': 'subs/strx00.F', 'm_gtv': 'subs/m_gtv.F', 'suqlsr': 'subs/suqlst.F', 'radgkl': 'subs/radgkl.F', 'uspec_init': 'subs/m_struc_def.F', 'besslr': 'subs/besslr.F', 'phvsfp': 'subs/phvsfp.F', 'aiorme': 'subs/aiorme.F', 'xperdew': 'subs/evxc.F', 'clear_swtok': 'subs/m_toksw.F', 'mcasw': 'subs/mcasim.F', 'prm3': 'subs/prmx.F', 'chimedit': 'fp/chimedit.F', 'psymr1': 'fp/symrho.F', 'psymr0': 'subs/symq.F', 'besslm': 'subs/besslr.F', 'suqlsw': 'subs/suqlst.F', 'sgvsym': 'fp/sgvsym.F', 'fctp': 'subs/atomsr.F', 'xyrhsr': 'subs/atomsr.F', 'optimise': 'subs/dstrbp.F', 'm_toksw': 'subs/m_toksw.F', 'gtv_r8': 'subs/m_gtv.F', 'aiopar': 'subs/aiopar.F', 'nghbor': 'subs/nghbor.F', 'radgra': 'subs/evxc.F', 'gvaddf': 'subs/gvlist.F', 'atqval': 'fp/atqval.F', 'pptrns': 'subs/pptrns.F', 'suphs0': 'fp/suphas.F', 'mkrtab': 'subs/mkrtab.F', 'parmx0': 'subs/parmxp.F', 'mcasms': 'subs/mcasim.F', 'prm': 'subs/prmx.F', 'ropqln': 'subs/ropyln1.F', 'tpkli': 'subs/pkli.F', 'mcasme': 'subs/mcasim.F', 'bndconn_v2': 'fp/bndconn_v2.F', 'ropyln': 'subs/ropyln.F', 'suqlsw2': 'subs/suqlst.F', 'matgg2': 'fp/pwmat.F', 'ebcpl': 'subs/bzwts.F', 'radmwt': 'subs/radmsh.F', 'rotmat': 'subs/mkplat.F', 'exchpw91': 'subs/easypbe.F', 'gvmtch': 'subs/gvmtch.F', 'nwit': 'subs/nwit.F', 'rdsigm2': 'subs/rdsigm2.F', 'mxxyz': 'subs/bzmesh.F', 'iors': 'subs/iors.F', 'scglp1': 'subs/scglp1.F', 'distes': 'subs/findes.F', 'pvstr0': 'subs/rstr0.F', 'hansmd': 'subs/hansmd.F', 'readctrlpq': 'subs/m_rdctrl.F', 'parms0': 'subs/parmxp.F', 'fixpos': 'subs/fixpos.F', 'multiple': 'subs/dstrbp.F', 'dpdftr': 'subs/dpdftr.F', 'mcasm2': 'subs/mcasim.F', 'prsed1': 'fp/rsedit.F', 'prsed2': 'fp/rsedit.F', 'prsed3': 'fp/rsedit.F', 'prsed4': 'fp/rsedit.F', 'prsed5': 'fp/rsedit.F', 'sigflg': 'subs/rdsigm.F', 'noshorbz': 'subs/switch.F', 'gvlist': 'subs/gvlist.F', 'iosits': 'subs/iosits.F', 'utb_size': 'subs/m_struc_def.F', 'popta4': 'subs/freeat.F subs/freeat.bk.F', 'find_region': 'subs/m_toksw.F', 'renam': 'subs/findes.F', 'symvvl': 'fp/mshvmt.F', 'mkpot': 'fp/mkpot.F', 'potpus': 'fp/potpus.F', 'getinput_r8': 'subs/m_gtv.F', 'grpfnd': 'subs/grpfnd.F', 'danrm2': 'subs/roplat.F', 'makidx': 'subs/makidx.F', 'toksw_init': 'subs/m_rdctrl.F', 'hklft': 'fp/hklft.F', 'stoner': 'subs/stoner.F', 'mkqp': 'subs/mkqp.F', 'symia1': 'subs/symiax.F', 'symprj': 'subs/symprj.F', 'symia0': 'subs/symiax.F', 'uctrl_size': 'subs/m_struc_def.F', 'hsmblq': 'fp/hsmbl.F', 'hhibl': 'fp/hhibl.F', 'makdos': 'subs/makdos.F', 'mdeses': 'subs/findes.F', 'locpt2': 'fp/locpot.F', 'sumsro': 'subs/sumsro.F', 'hsmbld': 'fp/hsmbl.F', 'radsum': 'subs/radmsh.F', 'mkorbm': 'fp/mkorbm.F', 'gaugm': 'fp/gaugm.F', 'umix_show': 'subs/m_struc_def.F', 'mkplat': 'subs/mkplat.F', 'hhugbl': 'fp/hhugbl.F', 'sphbes': 'subs/ropbes.F', 'cosvec': 'subs/mkplat.F', 'suldau': 'subs/suldau.F', 'ldau': 'subs/ldau.F', 'pqmix': 'subs/pqmix.F', 'madmat': 'subs/madmat.F', 'intnb': 'subs/stoner.F', 'hansmr': 'subs/hansmr.F', 'pvsym2': 'subs/mksym.F', 'maknos': 'subs/maknos.F', 'fixef0': 'subs/fixef0.F', 'prothl': 'subs/roth.F', 'gtv_entrance': 'subs/m_gtv.F', 'loctsh': 'fp/loctsh.F', 'pvrotd': 'subs/roth.F', 'ioden2': 'fp/ioden.F', 'suidx': 'subs/suidx.F', 'm_rdctrl': 'subs/m_rdctrl.F', 'dfaugm': 'fp/dfaugm.F', 'pkl2r': 'subs/pkli.F', 'pvrott': 'subs/roth.F', 'spackv_array_copy_i8_i': 'subs/spackv_array_copy.F', 'ubz_size': 'subs/m_struc_def.F', 'protht': 'subs/roth.F', 'pvrots': 'subs/roth.F', 'dfqkkl': 'fp/dfqkkl.F', 's3pkl0': 'subs/pkli.F', 'p2ovlc': 'fp/ovlocr.F', 'ioeula': 'subs/ioeula.F', 'chksgr': 'subs/rdsigm.F', 'dpdbyl': 'subs/dpdbyl.F', 'm_rdctrl2_func': 'subs/rdctrl2.F', 'd3nrm2': 'subs/findes.F', 'efldos': 'fp/efldos.F', 'hsibl2': 'fp/hsibl.F', 'hsibl3': 'fp/hsibl.F', 'hsibl4': 'fp/hsibl.F', 'hsibl5': 'fp/hsibl.F', 'hsibl6': 'fp/hsibl.F', 'fsmbpw': 'fp/fsmbpw.F', 'getinput_none': 'subs/m_gtv.F', 'evxc': 'subs/evxc.F subs/evxc.F', 'rsiblp': 'fp/rsibl.F', 'elocp': 'fp/elocp.F', 'nlocxc': 'subs/evxc.F subs/evxc.F', 'augqp3': 'fp/augmbl.F', 'prjpos': 'subs/prjpos.F', 'wrhomt': 'fp/wrhomt.F', 'drr2': 'subs/drr2.F', 'ggugbl': 'fp/ggugbl.F', 'mcmet': 'subs/mcasim.F', 'mcasim': 'subs/mcasim.F', 'iopos': 'subs/iopos.F', 'ulat_init': 'subs/m_struc_def.F', 'rtoint': 'subs/rotwv.F', 'rhocor': 'subs/atomsr.F', 'mullmf': 'fp/mullmf.F', 'smcorm': 'fp/smcorm.F', 'rdctrl2': 'subs/rdctrl2.F', 'rsibl5': 'fp/rsibl.F', 'momusl': 'fp/momusl.F', 'clist': 'subs/clist.F', 'ubz_show': 'subs/m_struc_def.F', 'fctail': 'subs/freeat.F subs/freeat.bk.F', 'iobzwt': 'subs/subzi.F', 'subzi': 'subs/subzi.F', 'hft2rs': 'subs/hft2rs.F', 'sint': 'subs/hnsmft.F', 'rsibl2': 'fp/rsibl.F', 'usite_show': 'subs/m_struc_def.F', 'rsibl1': 'fp/rsibl.F', 'rsibl6': 'fp/rsibl.F', 'rsibl7': 'fp/rsibl.F', 'rsibl4': 'fp/rsibl.F', 'pvaglc': 'fp/gaugm.F', 'prtev': 'fp/prtev.F', 'phkl2r': 'subs/pkli.F', 'gklq': 'fp/gklq.F', 'fovlp': 'subs/fovlp.F', 'pwmat2': 'fp/pwmat.F', 'pvsms3': 'subs/pvsms2.F', 'dstrbp': 'subs/dstrbp.F', 'mxmymz': 'subs/mxmymz.F', 'fctor1': 'subs/veecomp.F', 'bzmesh': 'subs/bzmesh.F', 'vxtrap': 'fp/vxtrap.F', 'idxpr': 'subs/makidx.F', 'setofl': 'fp/setofl.F', 'corprm': 'fp/corprm.F', 'splcls': 'subs/splcls.F', 'symrat': 'fp/symrho.F', 'sclp': 'subs/xxxbnd.F', 'rangedq': 'subs/rotwv.F', 'pqmxup': 'subs/pqmix.F', 't3j_all': 'subs/veecomp.F', 'hft2r1': 'subs/hft2rs.F', 'hft2r2': 'subs/hft2rs.F', 'hft2r3': 'subs/hft2rs.F', 'makrvl': 'subs/rnatm.F', 'hxpgbl': 'fp/hxpgbl.F', 'symiax': 'subs/symiax.F', 'aiogen': 'subs/aiogen.F', 'praldm': 'subs/prdmts.F', 'asymop': 'subs/asymop.F', 'p2pkl': 'subs/pkli.F', 'grpcop': 'subs/grpgen.F', 'offshp': 'subs/orbl.F', 'mshn3p': 'fp/mshn3p.F', 'pvsms1': 'fp/smshft.F', 'mdesat': 'subs/findes.F', 'pvsms2': 'subs/pvsms2.F', 'spackv_array_copy_r8_r8': 'subs/spackv_array_copy.F', 'iget': 'subs/bzwts.F', 'rdm3': 'subs/prmx.F', 'latlim': 'subs/latlim.F', 'vxcgga': 'subs/vxcgga.F', 'umix_init': 'subs/m_struc_def.F', 'getfmt': 'subs/findes.F', 'vlm2us': 'fp/vlm2us.F', 'umove_size': 'subs/m_struc_def.F', 'uarray_show': 'subs/m_struc_def.F', 'gintsr': 'subs/atomsr.F', 'ropcsm': 'subs/ropcsm.F', 'hsibl': 'fp/hsibl.F', 'spgeql': 'subs/spcgrp.F', 'xxxdif': 'subs/xxxdif.F', 'm_sstrnsname': 'subs/m_sstrnsname.F', 'pvclst': 'subs/clsset.F', 'mtchre': 'subs/mtchae.F', 'mul22': 'subs/rdeq.F', 'iomomx': 'subs/iomomx.F', 'mshn31': 'fp/mshn3p.F', 'fctp0': 'subs/atomsr.F', 'mshn32': 'fp/mshn3p.F', 'iomomq': 'subs/iomomq.F', 'gintsl': 'subs/atomsr.F', 'iomoms': 'subs/iomoms.F', 'gfigbl': 'fp/gfigbl.F', 'ulat_show': 'subs/m_struc_def.F', 'hambls': 'fp/hambls.F', 'ustr_size': 'subs/m_struc_def.F', 'smshft': 'fp/smshft.F', 'uordn_init': 'subs/m_struc_def.F', 'ioden': 'fp/ioden.F', 'subasi': 'subs/subasi.F', 'gvctof': 'subs/gvctof.F', 'gtv_setrcd': 'subs/m_gtv.F', 'gtpcor': 'subs/gtpcor.F', 'getkin': 'subs/stoner.F', 'symqmp': 'subs/symq.F', 's3pkl': 'subs/pkli.F', 'psho1': 'subs/shoshl.F', 'ncutcorrect': 'fp/ncutcorrect.F', 'psymq0': 'subs/symq.F', 'uctrl_init': 'subs/m_struc_def.F', 'lctoff': 'subs/lattc.F', 'pvpus1': 'fp/potpus.F', 'ustr_init': 'subs/m_struc_def.F', 'istbpm': 'subs/symtbl.F', 'ppair2': 'subs/pairc.F', 'ppair3': 'subs/pairc.F', 'upot_show': 'subs/m_struc_def.F', 'ppair4': 'subs/pairc.F', 'ppair5': 'subs/pairc.F', 'uctrl_show': 'subs/m_struc_def.F', 'makdla': 'subs/makdla.F', 'contet': 'subs/contet.F', 'utb_show': 'subs/m_struc_def.F', 'xxxse': 'subs/shear.F', 'pqsclb': 'subs/pqmix.F', 'pzhev': 'fp/pzhev.F', 'clsctr': 'subs/clsset.F', 'gtv_char': 'subs/m_gtv.F', 'rsq2': 'subs/rseq.F', 'rsq1': 'subs/rseq.F', 'corgga': 'subs/evxc.F', 'iobsmv': 'subs/iobsmv.F', 'ppratf': 'subs/freeat.F subs/freeat.bk.F', 'qparam': 'subs/rotwv.F', 'rothph': 'subs/rothrm.F', 'pvsug1': 'fp/sugw.F', 'getq': 'subs/getq.F', 'stonerrsa': 'fp/stonerrsa.F', 'rsmesh': 'subs/findes.F', 'getikt': 'subs/m_hamindex.F', 'vesgcm': 'fp/vesgcm.F', 'nsitsh': 'subs/siteid.F', 'getcor': 'subs/getcor.F', 'iosite': 'subs/iosite.F', 'qmpkl': 'subs/pkli.F', 'wlattc': 'fp/sugw.F', 'vesft': 'fp/vesft.F', 'bravsy': 'subs/mkplat.F', 'ellipsoidxmax': 'subs/shorbz.F', 'defspc': 'subs/defspc.F', 'sopert': 'fp/sopert.F', 'symdmu': 'subs/symdmu.F', 'hanr': 'subs/hanr.F', 'clebsh': 'subs/rdeq.F', 'uoptic_init': 'subs/m_struc_def.F', 'mshint': 'fp/mshint.F', 'umix_size': 'subs/m_struc_def.F', 'spcgrp': 'subs/spcgrp.F', 'prrhat': 'fp/prrhat.F', 'gklbld': 'fp/gklbl.F', 'rsort': 'subs/rsort.F', 'gcor2': 'subs/easypbe.F', 'prdmts': 'subs/prdmts.F', 'gtcsym': 'subs/gengrp.F', 'rdeq': 'subs/rdeq.F', 'iprmsb': 'subs/orbl.F', 'gklblq': 'fp/gklbl.F', 'iobsm0': 'subs/iobsmv.F', 'addsds': 'fp/addrbl.F', 'pratfs': 'subs/freeat.F subs/freeat.bk.F', 'ordbas': 'subs/findes.F', 'wf2lo': 'subs/addrwf.F', 'tetirr': 'subs/tetirr.F', 'xxxes': 'subs/shear.F', 'bzints': 'subs/bzints.F', 'atmoms': 'subs/defpq.F', 'mtchr2': 'subs/mtchae.F', 'dfrce': 'fp/dfrce.F', 'radwgt': 'subs/radmsh.F', 'grpprd': 'subs/grpgen.F', 'mksym': 'subs/mksym.F', 'psymop': 'subs/psymop.F', 'smvxc4': 'fp/smvxcm.F', 'maknrs': 'subs/maknrs.F', 'getirr': 'subs/findes.F', 'uarray_init': 'subs/m_struc_def.F', 'smvxc3': 'fp/smvxcm.F', 'smvxc2': 'fp/smvxcm.F', 'gklbl': 'fp/gklbl.F', 'exchpbe': 'subs/easypbe.F', 'fklbl': 'fp/fklbl.F', 'defwsr': 'subs/defwsr.F', 'permhk': 'fp/hambls.F', 'phmbl3': 'fp/hambls.F', 'orbl': 'subs/orbl.F', 'ioaindx': 'fp/sugw.F', 'spgprd': 'subs/spcgrp.F', 'efrng2': 'subs/efrng2.F', 'umove_init': 'subs/m_struc_def.F', 'pkl2ro': 'fp/pkl2ro.F', 'findes': 'subs/findes.F', 'lattdf': 'subs/lattdf.F', 'ioposs': 'subs/iopos.F', 'tri_rule': 'subs/veecomp.F', 'stonerpb': 'fp/stonerpb.F', 'addbkgl': 'fp/addbkg.F', 'hxpos': 'fp/hxpos.F', 'gpfndx': 'subs/spcgrp.F', 'uarray_size': 'subs/m_struc_def.F', 'iosave': 'subs/iosave.F', 'dlmtor': 'subs/lattc.F', 'pvdf1': 'fp/dfrce.F', 'makr': 'subs/ropyln.F', 'pvdf3': 'fp/dfrce.F', 'pvdf2': 'fp/dfrce.F', 'gtv_i4v': 'subs/m_gtv.F', 'pvdf4': 'fp/dfrce.F', 'ovlpfa': 'fp/ovlpfa.F', 'shftpp': 'subs/shftpp.F', 'zprm': 'subs/prmx.F', 'fmain': 'subs/ropyln.F subs/shorps.F subs/shorps.F', 'iofa': 'subs/iofa.F', 'rothrm': 'subs/rothrm.F', 'roth': 'subs/roth.F', 'suylg': 'fp/suylg.F', 'phmbls': 'fp/hambls.F', 'ghigbl': 'fp/ghigbl.F', 'smvxcm': 'fp/smvxcm.F', 'yprm0': 'subs/prmx.F', 'ii8copy': 'subs/spackv_array_copy.F', 'qdistn': 'subs/qdist.F', 'parmxp': 'subs/parmxp.F', 'fill3in': 'subs/m_rdctrl.F', 'setcc': 'subs/rseq.F', 'rotpnt': 'subs/rotpnt.F', 'mkdmtu': 'fp/mkdmtu.F', 'asados': 'subs/asados.F', 'pvcdm2': 'fp/vcdmel.F', 'pvcdm1': 'fp/vcdmel.F', 'latvec': 'subs/latvec.F', 'pvhmb1': 'fp/hambl.F', 'hhigbl': 'fp/hhigbl.F', 'vxnloc': 'subs/vxnloc.F', 'veecomp': 'subs/veecomp.F', 'suemph': 'subs/suemph.F', 'fdpp': 'subs/rdeq.F', 'getbzp': 'subs/getbzp.F', 'p1ovlc': 'fp/ovlocr.F', 'rlocbl': 'fp/rlocbl.F', 'clean0': 'subs/invbl.F', 'pvrgkl': 'fp/rhogkl.F', 'bessjy': 'subs/ropbes.F', 'latpar': 'subs/mkplat.F', 'dostet': 'subs/dostet.F', 'grpop': 'subs/grpop.F', 'nswadd': 'subs/m_toksw.F', 'hklbl': 'fp/hklbl.F', 'augq12': 'fp/augmbl.F', 'augmat': 'fp/augmat.F', 'rotsig': 'subs/rotwv.F', 'cmplat': 'subs/cmplat.F', 'ulat_size': 'subs/m_struc_def.F', 'mshvmt': 'fp/mshvmt.F', 'pvagm3': 'fp/gaugm.F', 'pvagm2': 'fp/gaugm.F', 'pvagm1': 'fp/gaugm.F', 'matmul_pwhovl': 'subs/switch.F', 'gtpfac': 'subs/mshsiz.F', 'readctrl': 'subs/m_rdctrl.F', 'rotycs': 'subs/rotycs.F', 'iostr4': 'subs/iostr.F', 'iostr1': 'subs/iostr.F', 'sclws2': 'subs/sclwsr.F', 'iostr2': 'subs/iostr.F', 'aiopot': 'subs/aiopot.F', 'pair3c': 'subs/pairc.F', 'gvputf': 'subs/gvlist.F', 'grpeql': 'subs/grpgen.F', 'pvglst': 'subs/gvlist.F', 'phhigb': 'fp/hhigbl.F', 'rlocb1': 'fp/rlocbl.F', 'dstmt': 'fp/pzhev.F', 'siteid': 'subs/siteid.F', 'asars': 'subs/asars.F', 'hsmqe0': 'subs/hsmq.F', 'bloch': 'subs/bloch.F', 'chgmsh': 'subs/chgmsh.F', 'addbkgsm': 'fp/addbkg.F', 'augq2z': 'fp/augmbl.F', 'sudmtu': 'subs/sudmtu.F', 'spinav': 'lmv7util.F subs/clsprm.F', 'slist': 'subs/slist.F', 'fsmbl': 'fp/fsmbl.F', 'shoang': 'subs/shoshl.F', 'mptauof': 'subs/suham.F', 'aiomom': 'subs/aiomom.F', 'prrmsh': 'subs/prrmsh.F', 'nrmliz': 'subs/mkplat.F', 'pgfpp': 'subs/pgfp.F', 'xxxbnd': 'subs/xxxbnd.F', 'radgrx': 'subs/vxcgr2.F', 'mixrho': 'fp/mixrho.F', 'symrho': 'fp/symrho.F', 'pvrhom': 'fp/rhomom.F', 'hamfb3': 'subs/hamfb3.F', 'uham_show': 'subs/m_struc_def.F', 'xxsho': 'subs/shoshl.F', 'i8icopy': 'subs/spackv_array_copy.F', 'pvhsmq': 'subs/hsmq.F', 'gklft': 'fp/gklft.F', 'mkehkf': 'fp/mkehkf.F', 's2sph': 'subs/s2sph.F', 'udstmt': 'fp/pzhev.F', 'mkppovl2': 'fp/sugw.F', 'getinput_entrance': 'subs/m_gtv.F', 'lmaux': 'fp/lmaux.F', 'm_psigd': 'subs/m_psigd.F', 'suclst': 'subs/suclst.F', 'seneinterp': 'subs/rdsigm2.F', 'smves': 'fp/smves.F', 'blsig': 'fp/hambls.F', 'addrbl': 'fp/addrbl.F', 'vcdmel': 'fp/vcdmel.F', 'roplat': 'subs/roplat.F', 'fermi': 'subs/fermi.F', 'wsymops': 'fp/sugw.F', 'rotevs': 'subs/rotevs.F', 'bessl': 'subs/besslr.F', 'getinput_r8v': 'subs/m_gtv.F', 'rhoqm': 'fp/symrho.F', 'augmbl': 'fp/augmbl.F', 'aiocor': 'subs/aiocor.F', 'aiova': 'subs/aiova.F', 'm_struc_def': 'subs/m_struc_def.F', 'getde': 'subs/stoner.F', 'single': 'subs/dstrbp.F', 'iomomn': 'subs/iomoms.F', 'elfigr': 'fp/locpot.F', 'pqsclc': 'subs/pqmix.F', 'evxcp': 'subs/evxcp.F', 'evxcv': 'subs/evxcv.F', 'pqsclf': 'subs/pqmix.F', 'phhibl': 'fp/hhibl.F', 'fillat': 'subs/findes.F', 'regioncheck': 'subs/rotwv.F', 'packs': 'subs/struc_strn.F', 'f102': 'subs/f102.F', 'symfor': 'subs/symfor.F', 'symlat': 'subs/symlat.F', 'ftlxp': 'fp/ftlxp.F', 'rdovfa': 'fp/rdovfa.F', 'locpot': 'fp/locpot.F', 'oalpha': 'subs/pptrns.F', 'ipwovl': 'fp/pwmat.F', 'sylmnc': 'subs/sylmnc.F', 'reducv': 'subs/findes.F', 'pgfp': 'subs/pgfp.F', 'umove_show': 'subs/m_struc_def.F', 'ccutup': 'subs/ccutup.F', 'pbevxc': 'subs/vxnloc.F', 'excsan': 'subs/evxcv.F', 'gen_hamindex': 'subs/suham.F', 'mshsiz': 'subs/mshsiz.F', 'csymop': 'subs/asymop.F', 'psigd': 'subs/m_psigd.F', 'ovlocr': 'fp/ovlocr.F', 'slinz': 'subs/slinz.F', 'prtrkl': 'fp/rhogkl.F', 'bzwts': 'subs/bzwts.F', 'ugcomp': 'fp/ugcomp.F', 'newsigmasw': 'subs/switch.F', 'gtbsl1': 'subs/gtbsl1.F', 'radext': 'subs/radmsh.F', 'gtv_none': 'subs/m_gtv.F', 'qdist': 'subs/qdist.F', 'symcry': 'subs/symcry.F', 'usite_init': 'subs/m_struc_def.F'}
 ------------ Used sub/fun ----------------
-set(['hansr4', 'hansr5', 'rotdlmm', 'interparam', 'ppi2z', 'hansr1', 'hansr2', 'scg', 'setcg', 'ddet33', 'setcc', 'tailsm', 'gvlst2', 'vxcnsp', 'clean0', 'vxcns3', 'getqvc', 'iclbsj', 'rseq', 'poiss0', 'gvsym', 'ioqpp', 'rdistn', 'imxmnx', 'eprod', 'gvlstn', 'pqmixb', 'hsmblq', 'rdsigm2', 'sclwsr', 'gvlsts', 'cshear', 'pblch1', 'aiomp', 'ovmin', 'popta2', 'fctail', 'symtbl', 'rnatm', 'tocast', 'gtbvec', 'hhibl', 'gwcphi', 'prelx1', 'intnos', 'mark1', 'sclws2', 'xmpbnd', 'ioorbp', 'sgroup', 'prlcb1', 'ropbs1', 'prlcb3', 'prlcb2', 'suqlst', 'xxxadd', 'vldau', 'nghbor', 'freeat', 'suqlsm', 'ftlxp2', 'stplat', 'suqlse', 'rwftai', 'upot_size', 'makrm0', 'pgvmat', 'rhgcm3', 'rhgcm2', 'grdepl', 'm_struc_func', 'iosigh', 'symes', 'gvctof', 'pqmxio', 'product2', 'igann', 'atomsc', 'volsph', 'hxpbl', 'mkcond', 'ifindiv2', 'bzwtsm', 'sint', 'bzwtsf', 'shortn3_initialize', 'chebev', 'cpplat', 'getgv2', 'cvplat', 'iclbas', 'corpbe', 'writebasis', 'sugw', 'gennlat', 'chkes', 'hansr', 'gtv_setst', 'rhgcmp', 'asars1', 'addbas', 'prlrho', 'uspec_size', 'upacks', 'iosiga', 'pvgtkn', 'fpchk', 'ropynx', 'ropbes', 'rlxstp', 'getuk', 'hklos', 'symsmr', 'beschb', 'pwmat', 'ffnam', 'zprm', 'ncutcorrect', 'pvmix3', 'paugnl', 'shortn3', 'ghibl', 'mshdot', 'flocbl', 'pvmix6', 'swrho', 'findctrlstart', 'bzmio', 'jxpos', 'prrmsh', 'rotspu', 'ovlchk', 'atwf', 'shoist', 'lsets_bitop_i8', 'clabel', 'aiocls', 'dvdos', 'relax', 'paug2', 'paug3', 'paug1', 'paug4', 'ylmrtg', 'sigswitch', 'rothph', 'prodx2d', 'totfrc', 'nwitsv', 'fullmesh', 'gtbsl2', 'defpq', 'mkewgt', 'smhsbl', 'supot', 'pysmr1', 'setuk', 'ppair1', 'flocb2', 'mtchae', 'lx2vec', 'grpgen', 'addes2', 'vxcns2', 'grdep2', 'seneinterp', 'pvang1', 'pvang2', 'paioc2', 'perdew', 'rdist', 'addrwf', 'gtv_setio', 'lmfp', 'regioncheck', 'shorbz', 'pairc', 'pchms2', 'aginv', 'prpos', 'surho', 'pz2idx', 'mkekin', 'config', 'aiopot', 'praugm', 'dosio', 'yprm', 'gvgvcomp', 'trysop', 'augq3z', 'lattc', 'deflmx', 'zclabl', 'rotwv', 'splrho', 'fradhd', 'hgugbl', 'iax2fd', 'siged', 'rsedit', 'bloch', 'mxxyz', 'pdstlb', 'pmtsig', 'pchmsh', 'dpdftr', 'rsibl', 'dfratm', 'popta5', 'nrmliz', 'popta3', 'popta1', 'delstd', 'getqp', 'mkrout', 'hamfb3k', 'symstr', 'ghios', 'vxcgr2', 'noshorbz', 'delstp', 'bzmsh0', 'rsmsym', 'bstrux', 'rsq1', 'lmhelp', 'tbhsi', 'soprm', 'gtv_setrcd', 'iobsmv', 'freats', 'gcor', 'vxcgga', 'makrwf', 'pnunew', 'chkxpn', 'poinsp', 'usite_size', 'adbkql', 'mksym', 'shear', 'rmesh', 'mkrou1', 'mkrou2', 'mkrou3', 'mkrou4', 'mkrou5', 'mkrou6', 'xlgen', 'zprm3', 'gvgetf', 'clsprp', 'augqs3', 'clsprm', 'fint', 'shorps', 'hklgbl', 'tkadd', 'sortea', 'lcrho', 'bigges', 'rhomom', 'hsmq', 'spgcop', 'cppos', 'zevl', 'pvioeu', 'tksw', 'gtpmin', 'hansz1', 'hansz2', 'suphas', 'iofa', 'mkidx2', 'pvrhm2', 'projql', 'm_psigd', 'gensym', 'ovcall', 'chkdmu', 'lgstar', 'prodln', 'paugq1', 'paugq2', 'reducv', 'optfab', 'hnsmft', 'hsibl1', 'wripp', 'spec2c', 'makus2', 'sugcut', 'pqmixa', 'pqmixc', 'lattic', 'pvaioc', 'vxc0sp', 'fswgts', 'matm', 'fovlp', 'ortrwf', 'ubz_init', 'spacks_copy', 'pvmix9', 'mcasho', 'pusq2', 'hambl', 'polinta', 'pusq1', 'paugqp', 'pvmix7', 'pvmix4', 'pvmix5', 'ellipsoidxmax', 'pairs', 'pviomx', 'vxcns4', 'vxcns5', 'makusq', 'makusp', 'lindsc', 'corpw91', 'hsmbl', 'radpkl', 'fradpk', 'rhogkl', 'bessl2', 'uham_size', 'suham', 'phidx', 'mchan', 'm_events', 'psymrf', 'm_hamindex', 'mkcfus', 'easypbe', 'psymrq', 'uoptic_size', 'prmx', 'fixpos', 'mkpdos', 'addzbk', 'dlmn', 'pxsmr1', 'strx00', 'radgkl', 'uspec_init', 'besslr', 'phvsfp', 'hansmd', 'xperdew', 'clear_swtok', 'drr2', 'symia1', 'chimedit', 'psymr1', 'psymr0', 'shortn', 'hansmr', 'loctsh', 'xyrhsr', 'initialize', 'optimise', 'm_toksw', 'aiopar', 'ifindiv', 'gklft', 'gvaddf', 'atqval', 'suphs0', 'mkrtab', 'parmx0', 'mcasms', 'ropqln', 'mcasme', 'udstmt', 'ropyln', 'conv2int', 'matgg2', 'ebcpl', 'symcry', 'rotmat', 'nosbzm', 'nwit', 'newrho', 'iors', 'distes', 'pvstr0', 'iprmsb', 'uspecb', 'parms0', 'parmxp', 'multiple', 'avwsr', 'mcasm2', 'prsed1', 'prsed2', 'prsed3', 'prsed4', 'prsed5', 'sigflg', 'gvlist', 'ubz_size', 'utb_size', 'popta4', 'find_region', 'renam', 'symvvl', 'mkpot', 'potpus', 'grpfnd', 'danrm2', 'makidx', 'toksw_init', 'hklft', 'getef', 'symprj', 'symia0', 'uctrl_size', 'sylm', 'getcor', 'makdos', 'mdeses', 'locpt2', 'sumsro', 'hsmbld', 'radsum', 'mkorbm', 'gaugm', 'shoshl', 'hhugbl', 'exchpw91', 'sphbes', 'cosvec', 'suldau', 'ldau', 'madmat', 'intnb', 'sgvsym', 'pvsym2', 'maknos', 'fixef0', 'prothl', 'fctp', 'pvrotd', 'ioden2', 'suidx', 'm_rdctrl', 'dfaugm', 'pkl2r', 'pvrott', 'spackv_array_copy_i8_i', 'prothr', 'protht', 'pvrots', 'dfqkkl', 'p2ovlc', 'chksgr', 'dpdbyl', 'm_rdctrl2_func', 'd3nrm2', 'efldos', 'hsibl2', 'hsibl3', 'hsibl4', 'hsibl5', 'hsibl6', 'fsmbpw', 'makrot', 'f102', 'rsiblp', 'elocp', 'gintsr', 'augqp3', 'prjpos', 'wrhomt', 'mcasw', 'ggugbl', 'mcmet', 'iopos', 'rtoint', 'mullmf', 'smcorm', 'rdctrl2', 'mkqp', 'momusl', 'clist', 'spackv_array_copy_r8_r8', 'iobzwt', 'fermi', 'hft2rs', 'dfphi', 'rsibl2', 'rsibl1', 'rsibl6', 'rhocor', 'rsibl4', 'pvaglc', 'prtev', 'phkl2r', 'gklq', 'm_gtv', 'dstrbp', 'mxmymz', 'fctor1', 'bzmesh', 'vxtrap', 'idxpr', 'setofl', 'corprm', 'splcls', 'symrat', 'sclp', 'bessl', 'pqmxup', 't3j_all', 'hft2r1', 'hft2r2', 'hft2r3', 'makrvl', 'hxpgbl', 'symiax', 'aiogen', 'praldm', 'asymop', 'aiosop', 'grpcop', 'offshp', 'mshn3p', 'pvsms1', 'mdesat', 'pvsms2', 'iget', 'latlim', 'baslst', 'nnrl', 'umix_init', 'vlm2us', 'aiocor', 'iomomn', 'ropcsm', 'hsibl', 'ioaindx', 'm_sstrnsname', 'ftfalo', 'mul22', 'iomomx', 'mshn31', 'fctp0', 'mshn32', 'iomomq', 'gintsl', 'iomoms', 'gfigbl', 'ustr_size', 'smshft', 'ioden', 'subasi', 'bndconn_v2', 'gtpcor', 'symqmp', 'psho1', 'bndfp', 'psymq0', 'lctoff', 'pvpus1', 'istbpm', 'ppair2', 'ppair3', 'splwts', 'ppair4', 'ppair5', 'makdla', 'contet', 'radmsh', 'xxxse', 'evxcp', 'm_struc_def', 'clsctr', 'rsq2', 'dosspl', 'corgga', 'suham2', 'ppratf', 'qparam', 'pvsug1', 'debugmode', 'stonerrsa', 'makr', 'getikt', 'vesgcm', 'iosite', 'wlattc', 'vesft', 'bravsy', 'sumlst', 'defspc', 'sopert', 'symdmu', 'hanr', 'mshint', 'umix_size', 'prrhat', 'gklbld', 'rsort', 'gcor2', 'prdmts', 'gtcsym', 'suqlsw2', 'gklblq', 'iobsm0', 'addsds', 'pratfs', 'ordbas', 'wf2lo', 'tetirr', 'xxxes', 'bzints', 'rangedq', 'atmoms', 'mtchr2', 'dfrce', 'gvmtch', 'pvsms3', 'psymop', 'smvxc4', 'maknrs', 'getirr', 'smvxc3', 'smvxc2', 'gklbl', 'exchpbe', 'fklbl', 'defwsr', 'iosits', 'umove_size', 'orbl', 'xxxdif', 'spgprd', 'efrng2', 'pkl2ro', 'findes', 'lattdf', 'mtchre', 'tri_rule', 'stonerpb', 'pzhev', 'hxpos', 'uarray_size', 'iosave', 'dlmtor', 'pvdf1', 'pvdf3', 'pvdf2', 'pvdf4', 'ovlpfa', 'groupg', 'shftpp', 'readctrlpq', 'rothrm', 'roth', 'suylg', 'phmbls', 'augq12', 'smvxcm', 'ii8copy', 'qdistn', 'fill3in', 'uordn_size', 'rotpnt', 'mkdmtu', 'asados', 'pvcdm2', 'pvcdm1', 'latvec', 'hhigbl', 'vxnloc', 'veecomp', 'suemph', 'getbzp', 'p1ovlc', 'rlocbl', 'iorbtm', 'pvrgkl', 'ccutup', 'latpar', 'dostet', 'grpop', 'bessel', 'hklbl', 'ghigbl', 'augmat', 'rotsig', 'cmplat', 'ulat_size', 'mshvmt', 'aiova', 'pvagm3', 'pvagm2', 'pvagm1', 'matmul_pwhovl', 'readctrl', 'rotycs', 'iostr4', 'iostr1', 'iostr2', 'rsmesh', 'grpeql', 'bzwts', 'gvputf', 'parsop', 'pvglst', 'phhigb', 'rlocb1', 'dstmt', 'siteid', 'asars', 'hsmqe0', 'vecpkl', 'chgmsh', 'addbkgsm', 'augq2z', 'sudmtu', 'slist', 'fsmbl', 'shoang', 'mptauof', 'aiomom', 'aiorme', 'radgrx', 'mixrho', 'symrho', 'pvrhom', 'hamfb3', 'xxsho', 'i8icopy', 'pvhsmq', 'radgra', 'mkehkf', 's2sph', 'radwgt', 'mkppovl2', 'scglp1', 'lmaux', 'latrel', 'suclst', 'smves', 'blsig', 'addrbl', 'vcdmel', 'roplat', 'subzi', 'wsymops', 'rotevs', 'rsibl5', 'mcasan', 'rhoqm', 'augmbl', 'radext', 'getfmt', 'spgeql', 'getde', 'single', 'nswadd', 'elfigr', 'pqsclc', 'pqsclb', 'evxcv', 'pqsclf', 'phhibl', 'fillat', 'corlsd', 'packs', 'grpprd', 'symfor', 'symlat', 'ftlxp', 'rdovfa', 'locpot', 'oalpha', 'ipwovl', 'sylmnc', 'f100', 'pgfp', 'bessjy', 'excsan', 'gen_hamindex', 'mshsiz', 'csymop', 'psigd', 'ovlocr', 'slinz', 'prtrkl', 'hambls', 'ugcomp', 'newsigmasw', 'gtbsl1', 'addbkgl', 'qdist', 'usite_init'])
+set(['hansr4', 'hansr5', 'rotdlmm', 'interparam', 'ppi2z', 'hansr1', 'hansr2', 'scg', 'setcg', 'ddet33', 'setcc', 'tailsm', 'gvlst2', 'vxcnsp', 'clean0', 'vxcns3', 'getqvc', 'iclbsj', 'rseq', 'poiss0', 'gvsym', 'ioqpp', 'rdistn', 'imxmnx', 'eprod', 'gvlstn', 'pqmixb', 'hsmblq', 'rdsigm2', 'sclwsr', 'gvlsts', 'cshear', 'pblch1', 'aiomp', 'ovmin', 'popta2', 'fctail', 'symtbl', 'rnatm', 'tocast', 'gtbvec', 'hhibl', 'gwcphi', 'prelx1', 'intnos', 'mark1', 'sclws2', 'xmpbnd', 'ioorbp', 'sgroup', 'prlcb1', 'ropbs1', 'prlcb3', 'prlcb2', 'suqlst', 'xxxadd', 'vldau', 'nghbor', 'freeat', 'suqlsm', 'ftlxp2', 'stplat', 'suqlse', 'rwftai', 'upot_size', 'makrm0', 'pgvmat', 'rhgcm3', 'rhgcm2', 'grdepl', 'm_struc_func', 'iosigh', 'symes', 'gvctof', 'pqmxio', 'product2', 'igann', 'atomsc', 'volsph', 'hxpbl', 'mkcond', 'ifindiv2', 'bzwtsm', 'sint', 'bzwtsf', 'shortn3_initialize', 'chebev', 'cpplat', 'getgv2', 'cvplat', 'iclbas', 'corpbe', 'writebasis', 'sugw', 'gennlat', 'chkes', 'hansr', 'gtv_setst', 'rhgcmp', 'asars1', 'addbas', 'prlrho', 'uspec_size', 'upacks', 'iosiga', 'pvgtkn', 'fpchk', 'ropynx', 'ropbes', 'rlxstp', 'getuk', 'hklos', 'symsmr', 'beschb', 'pwmat', 'ffnam', 'zprm', 'ncutcorrect', 'pvmix3', 'paugnl', 'shortn3', 'ghibl', 'mshdot', 'flocbl', 'pvmix6', 'swrho', 'findctrlstart', 'bzmio', 'jxpos', 'prrmsh', 'rotspu', 'ovlchk', 'atwf', 'shoist', 'lsets_bitop_i8', 'clabel', 'aiocls', 'dvdos', 'relax', 'paug2', 'paug3', 'paug1', 'paug4', 'ylmrtg', 'sigswitch', 'rothph', 'prodx2d', 'totfrc', 'nwitsv', 'fullmesh', 'gtbsl2', 'defpq', 'mkewgt', 'smhsbl', 'supot', 'pysmr1', 'setuk', 'ppair1', 'flocb2', 'mtchae', 'lx2vec', 'grpgen', 'addes2', 'vxcns2', 'grdep2', 'seneinterp', 'pvang1', 'pvang2', 'paioc2', 'perdew', 'rdist', 'addrwf', 'gtv_setio', 'lmfp', 'regioncheck', 'shorbz', 'pairc', 'pchms2', 'aginv', 'prpos', 'surho', 'pz2idx', 'mkekin', 'config', 'aiopot', 'praugm', 'dosio', 'yprm', 'gvgvcomp', 'trysop', 'augq3z', 'lattc', 'deflmx', 'zclabl', 'rotwv', 'splrho', 'fradhd', 'hgugbl', 'iax2fd', 'siged', 'rsedit', 'bloch', 'mxxyz', 'pdstlb', 'pmtsig', 'pchmsh', 'dpdftr', 'rsibl', 'dfratm', 'popta5', 'nrmliz', 'popta3', 'popta1', 'delstd', 'getqp', 'mkrout', 'hamfb3k', 'symstr', 'ghios', 'vxcgr2', 'noshorbz', 'delstp', 'bzmsh0', 'rsmsym', 'bstrux', 'rsq1', 'lmhelp', 'tbhsi', 'soprm', 'gtv_setrcd', 'iobsmv', 'freats', 'gcor', 'vxcgga', 'makrwf', 'pnunew', 'chkxpn', 'poinsp', 'usite_size', 'adbkql', 'mksym', 'shear', 'rmesh', 'mkrou1', 'mkrou2', 'mkrou3', 'mkrou4', 'mkrou5', 'mkrou6', 'xlgen', 'zprm3', 'gvgetf', 'clsprp', 'augqs3', 'clsprm', 'fint', 'shorps', 'hklgbl', 'tkadd', 'sortea', 'lcrho', 'bigges', 'rhomom', 'hsmq', 'spgcop', 'cppos', 'zevl', 'pvioeu', 'tksw', 'gtpmin', 'hansz1', 'hansz2', 'suphas', 'iofa', 'mkidx2', 'pvrhm2', 'projql', 'm_psigd', 'gensym', 'ovcall', 'chkdmu', 'lgstar', 'prodln', 'paugq1', 'paugq2', 'reducv', 'optfab', 'hnsmft', 'hsibl1', 'wripp', 'spec2c', 'makus2', 'sugcut', 'pqmixa', 'pqmixc', 'lattic', 'pvaioc', 'vxc0sp', 'fswgts', 'matm', 'fovlp', 'ortrwf', 'ubz_init', 'spacks_copy', 'pvmix9', 'mcasho', 'pusq2', 'hambl', 'polinta', 'pusq1', 'paugqp', 'pvmix7', 'pvmix4', 'pvmix5', 'ellipsoidxmax', 'pairs', 'pviomx', 'vxcns4', 'vxcns5', 'makusq', 'makusp', 'lindsc', 'corpw91', 'hsmbl', 'radpkl', 'fradpk', 'rhogkl', 'bessl2', 'uham_size', 'suham', 'phidx', 'mchan', 'm_events', 'psymrf', 'm_hamindex', 'mkcfus', 'easypbe', 'psymrq', 'uoptic_size', 'prmx', 'fixpos', 'mkpdos', 'addzbk', 'dlmn', 'pxsmr1', 'strx00', 'radgkl', 'uspec_init', 'besslr', 'phvsfp', 'hansmd', 'xperdew', 'clear_swtok', 'drr2', 'symia1', 'chimedit', 'psymr1', 'psymr0', 'shortn', 'hansmr', 'loctsh', 'xyrhsr', 'initialize', 'optimise', 'm_toksw', 'aiopar', 'ifindiv', 'gklft', 'gvaddf', 'atqval', 'suphs0', 'mkrtab', 'parmx0', 'mcasms', 'ropqln', 'mcasme', 'udstmt', 'ropyln', 'conv2int', 'matgg2', 'ebcpl', 'symcry', 'rotmat', 'nosbzm', 'nwit', 'newrho', 'iors', 'distes', 'pvstr0', 'iprmsb', 'uspecb', 'parms0', 'parmxp', 'multiple', 'avwsr', 'mcasm2', 'prsed1', 'prsed2', 'prsed3', 'prsed4', 'prsed5', 'sigflg', 'gvlist', 'ubz_size', 'utb_size', 'popta4', 'find_region', 'renam', 'symvvl', 'mkpot', 'potpus', 'grpfnd', 'danrm2', 'makidx', 'toksw_init', 'hklft', 'getef', 'symprj', 'symia0', 'uctrl_size', 'sylm', 'getcor', 'makdos', 'mdeses', 'locpt2', 'sumsro', 'hsmbld', 'radsum', 'mkorbm', 'gaugm', 'shoshl', 'hhugbl', 'exchpw91', 'sphbes', 'cosvec', 'suldau', 'ldau', 'madmat', 'intnb', 'sgvsym', 'pvsym2', 'maknos', 'fixef0', 'prothl', 'fctp', 'pvrotd', 'ioden2', 'suidx', 'm_rdctrl', 'dfaugm', 'pkl2r', 'pvrott', 'spackv_array_copy_i8_i', 'prothr', 'protht', 'pvrots', 'dfqkkl', 'p2ovlc', 'chksgr', 'dpdbyl', 'm_rdctrl2_func', 'd3nrm2', 'efldos', 'hsibl2', 'hsibl3', 'hsibl4', 'hsibl5', 'hsibl6', 'fsmbpw', 'makrot', 'f102', 'rsiblp', 'elocp', 'gintsr', 'augqp3', 'prjpos', 'wrhomt', 'mcasw', 'ggugbl', 'mcmet', 'iopos', 'rtoint', 'mullmf', 'smcorm', 'rdctrl2', 'mkqp', 'momusl', 'clist', 'spackv_array_copy_r8_r8', 'iobzwt', 'fermi', 'hft2rs', 'dfphi', 'rsibl2', 'rsibl1', 'rsibl6', 'rhocor', 'rsibl4', 'pvaglc', 'prtev', 'phkl2r', 'gklq', 'm_gtv', 'dstrbp', 'mxmymz', 'fctor1', 'bzmesh', 'vxtrap', 'idxpr', 'setofl', 'corprm', 'splcls', 'symrat', 'sclp', 'bessl', 'pqmxup', 't3j_all', 'hft2r1', 'hft2r2', 'hft2r3', 'makrvl', 'hxpgbl', 'symiax', 'aiogen', 'praldm', 'asymop', 'aiosop', 'grpcop', 'offshp', 'mshn3p', 'pvsms1', 'mdesat', 'pvsms2', 'iget', 'latlim', 'baslst', 'nnrl', 'umix_init', 'vlm2us', 'aiocor', 'iomomn', 'ropcsm', 'hsibl', 'ioaindx', 'm_sstrnsname', 'ftfalo', 'mul22', 'iomomx', 'mshn31', 'fctp0', 'mshn32', 'iomomq', 'gintsl', 'iomoms', 'gfigbl', 'ustr_size', 'smshft', 'ioden', 'subasi', 'bndconn_v2', 'gtpcor', 'symqmp', 'psho1', 'bndfp', 'psymq0', 'lctoff', 'pvpus1', 'istbpm', 'ppair2', 'ppair3', 'splwts', 'ppair4', 'ppair5', 'makdla', 'contet', 'radmsh', 'xxxse', 'evxcp', 'm_struc_def', 'clsctr', 'rsq2', 'dosspl', 'corgga', 'suham2', 'ppratf', 'qparam', 'pvsug1', 'debugmode', 'stonerrsa', 'makr', 'getikt', 'vesgcm', 'iosite', 'wlattc', 'vesft', 'bravsy', 'sumlst', 'defspc', 'sopert', 'symdmu', 'hanr', 'mshint', 'umix_size', 'prrhat', 'gklbld', 'rsort', 'gcor2', 'prdmts', 'gtcsym', 'suqlsw2', 'gklblq', 'iobsm0', 'addsds', 'pratfs', 'ordbas', 'wf2lo', 'tetirr', 'xxxes', 'bzints', 'rangedq', 'atmoms', 'mtchr2', 'dfrce', 'gvmtch', 'pvsms3', 'psymop', 'smvxc4', 'maknrs', 'getirr', 'smvxc3', 'smvxc2', 'gklbl', 'exchpbe', 'fklbl', 'defwsr', 'iosits', 'umove_size', 'orbl', 'xxxdif', 'spgprd', 'efrng2', 'pkl2ro', 'findes', 'lattdf', 'mtchre', 'tri_rule', 'stonerpb', 'pzhev', 'hxpos', 'uarray_size', 'iosave', 'dlmtor', 'pvdf1', 'pvdf3', 'pvdf2', 'pvdf4', 'ovlpfa', 'groupg', 'shftpp', 'readctrlpq', 'rothrm', 'roth', 'suylg', 'phmbls', 'augq12', 'smvxcm', 'ii8copy', 'qdistn', 'fill3in', 'uordn_size', 'rotpnt', 'mkdmtu', 'asados', 'pvcdm2', 'pvcdm1', 'latvec', 'hhigbl', 'vxnloc', 'veecomp', 'suemph', 'getbzp', 'p1ovlc', 'rlocbl', 'iorbtm', 'pvrgkl', 'ccutup', 'latpar', 'dostet', 'grpop', 'bessel', 'hklbl', 'ghigbl', 'augmat', 'rotsig', 'cmplat', 'ulat_size', 'mshvmt', 'aiova', 'pvagm3', 'pvagm2', 'pvagm1', 'matmul_pwhovl', 'gtpfac', 'readctrl', 'rotycs', 'iostr4', 'iostr1', 'iostr2', 'rsmesh', 'grpeql', 'bzwts', 'gvputf', 'parsop', 'pvglst', 'phhigb', 'rlocb1', 'dstmt', 'siteid', 'asars', 'hsmqe0', 'vecpkl', 'chgmsh', 'addbkgsm', 'augq2z', 'sudmtu', 'slist', 'fsmbl', 'shoang', 'mptauof', 'aiomom', 'aiorme', 'radgrx', 'mixrho', 'symrho', 'pvrhom', 'hamfb3', 'xxsho', 'i8icopy', 'pvhsmq', 'radgra', 'mkehkf', 's2sph', 'radwgt', 'mkppovl2', 'scglp1', 'lmaux', 'latrel', 'suclst', 'smves', 'blsig', 'addrbl', 'vcdmel', 'roplat', 'subzi', 'wsymops', 'rotevs', 'rsibl5', 'mcasan', 'rhoqm', 'augmbl', 'radext', 'getfmt', 'spgeql', 'getde', 'single', 'nswadd', 'elfigr', 'pqsclc', 'pqsclb', 'evxcv', 'pqsclf', 'phhibl', 'fillat', 'corlsd', 'packs', 'grpprd', 'symfor', 'symlat', 'ftlxp', 'rdovfa', 'locpot', 'oalpha', 'ipwovl', 'sylmnc', 'f100', 'pgfp', 'bessjy', 'excsan', 'gen_hamindex', 'mshsiz', 'csymop', 'psigd', 'ovlocr', 'slinz', 'prtrkl', 'hambls', 'ugcomp', 'newsigmasw', 'gtbsl1', 'addbkgl', 'qdist', 'usite_init'])
 ------------ Used files ------------------
 ['subs/hansr4.F']
 ['subs/hansr5.F']
@@ -5770,6 +5768,7 @@ set(['hansr4', 'hansr5', 'rotdlmm', 'interparam', 'ppi2z', 'hansr1', 'hansr2', '
 ['fp/gaugm.F']
 ['fp/gaugm.F']
 ['subs/switch.F']
+['subs/mshsiz.F']
 ['subs/m_rdctrl.F']
 ['subs/rotycs.F']
 ['subs/iostr.F']
@@ -5872,4 +5871,4 @@ set(['hansr4', 'hansr5', 'rotdlmm', 'interparam', 'ppi2z', 'hansr1', 'hansr2', '
 set(['subs/shoshl.F', 'subs/intnos.F', 'subs/dosspl.F', 'subs/fixpos.F', 'subs/sumlst.F', 'subs/pkli.F', 'subs/vldau.F', 'subs/tetirr.F', 'fp/supot.F', 'subs/gensym.F', 'subs/ropbes.F', 'subs/freeat.bk.F', 'fp/sopert.F', 'fp/stonerpb.F', 'fp/ghigbl.F', 'subs/lattic.F', 'fp/mkorbm.F', 'subs/iomomq.F', 'subs/vxnloc.F', 'fp/ovlocr.F', 'subs/pairc.F', 'subs/symfor.F', 'subs/pqmix.F', 'subs/radmsh.F', 'fp/ioden.F', 'fp/hhibl.F', 'fp/bndfp.F', 'subs/radgkl.F', 'subs/mtchae.F', 'fp/hklft.F', 'fp/rsibl.F', 'fp/gaugm.F', 'fp/pkl2ro.F', 'subs/rseq.F', 'fp/stonerrsa.F', 'subs/getqp.F', 'subs/hsmq.F', 'fp/augmat.F', 'subs/gvlst2.F', 'fp/mkpdos.F', 'fp/hklbl.F', 'subs/hansr.F', 'fp/hxpos.F', 'subs/aiogen.F', 'subs/ropbes_alternative.F', 'subs/rdctrl2.F', 'subs/dpdbyl.F', 'subs/psymop.F', 'subs/splwts.F', 'subs/lx2vec.F', 'subs/grpfnd.F', 'subs/m_hamindex.F', 'subs/gtbvec.F', 'subs/s2sph.F', 'subs/vxcgga.F', 'subs/dstrbp.F', 'subs/dlmn.F', 'subs/latvec.F', 'subs/rnatm.F', 'subs/prrmsh.F', 'subs/aiomom.F', 'subs/getcor.F', 'subs/gvctof.F', 'fp/rlocbl.F', 'subs/cshear.F', 'subs/nwit.F', 'subs/delstd.F', 'subs/latlim.F', 'fp/vxcnsp.F', 'subs/mkqp.F', 'fp/polinta.F', 'subs/symq.F', 'subs/getbzp.F', 'subs/iorbtm.F', 'subs/iors.F', 'fp/addbkg.F', 'subs/asymop.F', 'subs/radpkl.F', 'subs/sclwsr.F', 'subs/delstp.F', 'subs/spackv_array_copy.F', 'fp/ovlpfa.F', 'subs/rotycs.F', 'subs/iosite.F', 'fp/momusl.F', 'fp/pwmat.F', 'subs/aiocls.F', 'subs/ovmin.F', 'fp/sgvsym.F', 'subs/iopos.F', 'fp/bndconn_v2.F', 'fp/addrbl.F', 'subs/aiosop.F', 'subs/hnsmft.F', 'subs/iostr.F', 'fp/ghibl.F', 'fp/mshdot.F', 'subs/clabel.F', 'subs/aiomp.F', 'fp/fpchk.F', 'fp/rdovfa.F', 'fp/flocbl.F', 'fp/ugcomp.F', 'subs/gengrp.F', 'fp/setofl.F', 'fp/mkehkf.F', 'subs/makdos.F', 'subs/makrot.F', 'fp/hxpbl.F', 'subs/suham2.F', 'subs/mcasim.F', 'subs/rotevs.F', 'subs/nghbor.F', 'fp/mkewgt.F', 'fp/potpus.F', 'fp/mkekin.F', 'subs/chkdmu.F', 'subs/switch.F', 'subs/soprm.F', 'subs/ropyln1.F', 'fp/hhugbl.F', 'fp/ghios.F', 'subs/vecpkl.F', 'subs/baslst.F', 'fp/mshint.F', 'fp/elocp.F', 'subs/m_psigd.F', 'subs/sylmnc.F', 'subs/suemph.F', 'subs/ccutup.F', 'subs/m_toksw.F', 'subs/avwsr.F', 'subs/struc_strn.F', 'subs/maknrs.F', 'subs/rdsigm2.F', 'fp/paug1.F', 'subs/aiocor.F', 'subs/defwsr.F', 'subs/rmesh.F', 'subs/nnrl.F', 'subs/rsort.F', 'subs/tailsm.F', 'subs/subasi.F', 'subs/iosits.F', 'fp/mixrho.F', 'subs/hanr.F', 'subs/rdeq.F', 'fp/ftlxp.F', 'subs/hansr4.F', 'fp/gwcphi.F', 'subs/fermi.F', 'subs/symlat.F', 'subs/getq.F', 'subs/hamfb3.F', 'subs/scglp1.F', 'subs/iclbas.F', 'subs/f100.F', 'subs/ropcsm.F', 'subs/rotspu.F', 'subs/f102.F', 'fp/gklq.F', 'subs/symprj.F', 'subs/mksym.F', 'subs/defspc.F', 'fp/ncutcorrect.F', 'fp/hhigbl.F', 'fp/hgugbl.F', 'subs/besslr.F', 'subs/strx00.F', 'fp/dfrce.F', 'subs/lattdf.F', 'subs/spcgrp.F', 'subs/rdsigm.F', 'subs/nosbzm.F', 'fp/makusp.F', 'subs/addbas.F', 'fp/corprm.F', 'subs/suham.F', 'subs/iofa.F', 'subs/trysop.F', 'subs/dosio.F', 'subs/gvlist.F', 'fp/pnunew.F', 'subs/ropbes.old.F', 'subs/aiorme.F', 'fp/gtbsl2.F', 'subs/bzmio.F', 'fp/vesft.F', 'subs/addrwf.F', 'fp/wrhomt.F', 'fp/lgstar.F', 'subs/efrng2.F', 'subs/mchan.F', 'subs/evxcp.F', 'subs/bzints.F', 'subs/aiova.F', 'subs/prmx.F', 'fp/loctsh.F', 'subs/rotwv.F', 'subs/rotpnt.F', 'fp/augmbl.F', 'subs/sugcut.F', 'subs/grpgen.F', 'subs/invbl.F', 'subs/symstr.F', 'fp/fsmbl.F', 'subs/bzwts.F', 'subs/suidx.F', 'subs/symtbl.F', 'fp/efldos.F', 'subs/phvsfp.F', 'fp/m_events.F', 'subs/mkplat.F', 'subs/atwf.F', 'subs/evxcv.F', 'fp/dfaugm.F', 'subs/writebasis.F', 'subs/m_struc_def.F', 'fp/fradpk.F', 'subs/veecomp.F', 'subs/lattc.F', 'fp/mkdmtu.F', 'subs/getef.F', 'subs/shortn.F', 'subs/cmplat.F', 'subs/uspecb.F', 'fp/prtev.F', 'subs/ylmrtg.F', 'subs/symcry.F', 'subs/vxcgr2.F', 'fp/gfigbl.F', 'subs/atomsr.F', 'fp/vesgcm.F', 'subs/mxmymz.F', 'subs/asados.F', 'subs/shear.F', 'subs/makdla.F', 'fp/smcorm.F', 'subs/clsset.F', 'fp/rsedit.F', 'subs/xxxdif.F', 'subs/subzi.F', 'subs/symdmu.F', 'fp/pzhev.F', 'subs/evxc.F', 'fp/splrho.F', 'fp/gvsym.F', 'subs/slist.F', 'subs/shoist.F', 'subs/clsprm.F', 'lmv7util.F', 'subs/stoner.F', 'subs/iomoms.F', 'subs/defpq.F', 'fp/dfratm.F', 'subs/makrm0.F', 'subs/iobsmv.F', 'subs/roth.F', 'subs/suldau.F', 'fp/hsmbl.F', 'subs/gvmtch.F', 'subs/bzwtsf.F', 'subs/sylm.F', 'subs/ioeula.F', 'subs/dostet.F', 'fp/suylg.F', 'subs/suclst.F', 'fp/gklbl.F', 'subs/freeat.F', 'fp/smshft.F', 'fp/hambl.F', 'subs/pptrns.F', 'subs/prjpos.F', 'fp/rhgcmp.F', 'subs/ldau.F', 'subs/makrwf.F', 'subs/xxxbnd.F', 'fp/hxpgbl.F', 'subs/xlgen.F', 'subs/gtbsl1.F', 'fp/vcdmel.F', 'subs/sumsro.F', 'fp/gklft.F', 'subs/aiopar.F', 'fp/mshn3p.F', 'subs/setcg.F', 'subs/makidx.F', 'subs/groupg.F', 'subs/iax2fd.F', 'fp/lmaux.F', 'subs/m_sstrnsname.F', 'fp/lmfp.F', 'fp/fklbl.F', 'fp/dfqkkl.F', 'subs/rsmsym.F', 'subs/rlxstp.F', 'subs/m_rdctrl.F', 'subs/config.F', 'subs/gtpcor.F', 'fp/mkrout.F', 'subs/sudmtu.F', 'subs/fswgts.F', 'subs/aiopot.F', 'subs/vxc0sp.F', 'fp/rhomom.F', 'fp/fsmbpw.F', 'subs/mshsiz.F', 'fp/hambls.F', 'subs/ovlchk.F', 'fp/jxpos.F', 'subs/mkcond.F', 'subs/bloch.F', 'subs/dpdftr.F', 'subs/shorbz.F', 'subs/rothrm.F', 'subs/iosave.F', 'subs/grpop.F', 'subs/fovlp.F', 'fp/hsibl.F', 'subs/chgmsh.F', 'subs/projql.F', 'fp/hklos.F', 'fp/hklgbl.F', 'lmv7.F', 'subs/scg.F', 'subs/volsph.F', 'subs/fixef0.F', 'fp/prrhat.F', 'subs/bzmesh.F', 'fp/bstrux.F', 'subs/madmat.F', 'subs/iomomx.F', 'fp/sugw.F', 'subs/symiax.F', 'fp/vxtrap.F', 'fp/mshvmt.F', 'subs/hansrz.F', 'fp/praugm.F', 'subs/clist.F', 'subs/rstr0.F', 'fp/totfrc.F', 'subs/splcls.F', 'subs/mkrtab.F', 'subs/phidx.F', 'fp/symrho.F', 'fp/smvxcm.F', 'fp/vlm2us.F', 'subs/slinz.F', 'fp/smhsbl.F', 'subs/hft2rs.F', 'subs/asars.F', 'lmfav7.F', 'subs/orbl.F', 'subs/drr2.F', 'subs/maknos.F', 'fp/mullmf.F', 'subs/contet.F', 'fp/smves.F', 'subs/dfphi.F', 'subs/shftpp.F', 'subs/suqlst.F', 'subs/dvdos.F', 'subs/hansmd.F', 'subs/pgfp.F', 'fp/ggugbl.F', 'fp/poinsp.F', 'subs/hansmr.F', 'subs/prdmts.F', 'fp/rhogkl.F', 'subs/roplat.F', 'fp/locpot.F', 'subs/hansr5.F', 'fp/mkpot.F', 'subs/m_gtv.F', 'subs/easypbe.F', 'subs/pvsms2.F', 'subs/ropyln.F', 'fp/fradhd.F', 'subs/qdist.F', 'fp/suphas.F', 'subs/ioorbp.F', 'fp/surho.F', 'fp/makusq.F', 'subs/relax.F', 'subs/siteid.F', 'fp/lindsc.F', 'subs/shorps.F', 'fp/tbhsi.F', 'fp/chimedit.F', 'fp/atqval.F', 'subs/findes.F', 'subs/parmxp.F'])
 ------------ UnUsed files ------------
 
-set(['subs/susite.F'])
+set([])

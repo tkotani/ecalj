@@ -91,8 +91,7 @@ ctakao
       if(fullmesh()) then
         print *,
      &   ' Full mesh mode: taka all G for charge density. n1*n2*n3'
-c        ng = ngabc(1)*ngabc(2)*ngabc(3)
-        ng = (ngabc(1)+1)*(ngabc(2)+1)*(ngabc(3)+1)
+        ng = ngabc(1)*ngabc(2)*ngabc(3)
         goto 18
       endif
 
@@ -189,4 +188,3 @@ C     implicit none
       pfac(4) = 7
       pfac(5) = 11
       end
-
