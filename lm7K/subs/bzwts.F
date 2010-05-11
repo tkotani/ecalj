@@ -88,8 +88,8 @@ Cdelw1       integer otlst
 
       parameter (nulli=-99999)
 C Dynamic memory
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 
 C --- Locate band limits: lfill => insulator ---
       procid = mpipid(1)

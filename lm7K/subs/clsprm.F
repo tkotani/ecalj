@@ -138,7 +138,7 @@ Cdelw1      .  opos,oics,ozos,ormax,opmpol,oqpp,ogrrme,n0
      . , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx 
      . , oivso , oipc , oclabl , opos , oics , ozos , ormax , opmpol 
      . , oqpp , ogrrme , n0 
-       real(8) ,allocatable :: rv_w_opprel(:)
+c       real(8) ,allocatable :: rv_w_opprel(:)
 
       parameter (n0=10)
       integer nbas,nclass,nspec,nl,nsp,nlspc,igets,nclasp,i1,i2,nmap,ic,
@@ -187,9 +187,9 @@ Cdelw1 do not change oqnu because of ['wref']
         call defdr(oqnu,-3*nlspc)
 Cdelw1 do not change opp because of ['wref']
         call defdr(opp,-6*nlspc)
-Cdelw1         call defdr(opprel,-32*nl*nl*max(nclspp,nspec))
-         allocate(rv_w_opprel(abs(-32*nl*nl*max(nclspp,nspec))))
-         if (-32*nl*nl*max(nclspp,nspec)<0) rv_w_opprel(:)=0.0d0
+cCdelw1         call defdr(opprel,-32*nl*nl*max(nclspp,nspec))
+c         allocate(rv_w_opprel(32*nl*nl*max(nclspp,nspec)))
+c         rv_w_opprel(:)=0.0d0
 
 Cdelw1 do not change oqc because of ['wref']
         call defdr(oqc,-nclasp)
@@ -510,7 +510,7 @@ C      call pack1('ctrl nla',sctrl,nla)
 C     call shstru('array',sarray,0,0)
 C     stop
 
-#error, have return with len(w_varlist)>0 at line 417
+ccc #error, have return with len(w_varlist)>0 at line 417
 Cdelw1 w_varlist remains: opnu oqnu opp opprel oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax ovintr opmpol oqpp 
 Cdelw1 w_varlistundel: [oics ogroup ormax oinitc opnu oqnu oqc oqt oves ovdif ovrmax orhrmx opp ovintr opmpol oqpp]
 Cdelw1 w_varlist (undel), remains: [opnu oqnu opp oqc oqt oinitc ogroup oves ovdif orhrmx ovrmax ormax ovintr opmpol oqpp]
@@ -531,7 +531,7 @@ Cdelw1 not deallocate opp because of [wref]
 Cdelw1 not deallocate oqnu because of [wref]
 Cdelw1 not deallocate opnu because of [wref]
 Cdelw1       return
-       if (allocated(rv_w_opprel)) deallocate(rv_w_opprel)
+c       if (allocated(rv_w_opprel)) deallocate(rv_w_opprel)
        return 
 
 
@@ -556,7 +556,7 @@ Cgetarg       call upack1('array nclasp',sarray,nclasp)
        
        nclasp=sarray%nclasp
 
-#error, have return with len(w_varlist)>0 at line 440
+c#error, have return with len(w_varlist)>0 at line 440
 Cdelw1 w_varlist remains: oqpp opmpol ovintr ormax ovrmax orhrmx ovdif oves ogroup oinitc oqt oqc opprel opp oqnu opnu 
 Cdelw1 w_varlistundel: [oics ogroup ormax oinitc opnu oqnu oqc oqt oves ovdif ovrmax orhrmx opp ovintr opmpol oqpp]
 Cdelw1 w_varlist (undel), remains: [oqpp opmpol ovintr ormax ovrmax orhrmx ovdif oves ogroup oinitc oqt oqc opp oqnu opnu]

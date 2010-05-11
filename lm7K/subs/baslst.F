@@ -1,5 +1,3 @@
-Cdelw1 var ['olist', '1', 'olist', 'nspec', 'integer', 'iv_w_', 'baslst']
-Cdelw1 undel [['wref'], 'olist', 'baslst']
       subroutine baslst(lstyld,iopt,slst,ilast,ips,nbas,slabl,z,nopt,
      .  optlst,optarg,nlist,list)
 C- Generates a list of sites from a string specification
@@ -29,29 +27,22 @@ Cu Updates
 Cu   07 Apr 03 New arguments lstyld and ilast
 Cu   13 Sep 01 Supersedes old optget.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer lstyld,iopt,nbas,ips(1),nlist,list(*),nopt,ilast
       character slst*(*),optlst(nopt)*(*)
       character*8 slabl(*)
       double precision z(*),optarg(1)
 C ... Local parameters
-Cdelw1 do not change  [['wref'], 'olist', 'baslst']
       integer i,j,j1,j2,ls,m,lstyle,k1,k2,
-     .  iv,parg,olist,nlists,mxint,nspec,ib,is,iclbsj
+     .  iv,parg,nlists,mxint,nspec,ib,is,iclbsj
       character dc*1
       integer lgunit
-C ... Heap
-      integer w(1)
-      common /w/ w
-C ... External calls
       external awrit2,defi,ishell,mkilst,nwordg,rxs,slist,word
+c
+      integer,allocatable::olist(:)
 
       nlist = 0
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [olist]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (slst .eq. ' ') return
       ls = len(slst)
       j1 = 1
@@ -84,16 +75,16 @@ C --- List of sites ---
       if (lstyle .gt. 1) then
         nspec = mxint(nbas,ips)
 Cdelw1 do not change olist because of ['wref']
-        call defi(olist, nspec)
+c        call defi(olist, nspec)
+        allocate(olist(nspec))
         if (lstyle .eq. 2) j2=j2+1
 Cdelw1 do not change olist because of ['wref']
-        call slist(lstyle,slst(j1:j2),slabl,z,nspec,nlists,w(olist))
+        call slist(lstyle,slst(j1:j2),slabl,z,nspec,nlists,olist)
         if (lstyle .ne. 2) j2=j2+1
         nlist = 0
         do  i = 1, nlists
 Cdelw1 1 is digit, dropped
-Cdelw1 do not change olist because of ['wref']
-          is = w(olist+i-1)
+          is = olist(i) !w(olist+i-1)
           do  j = 1, nbas
             ib = iclbsj(is,ips,-nbas,j)
             if (ib .ge. 0) then
@@ -147,18 +138,7 @@ C        j2=j2+1
       endif
 
       ilast = j2
-Cki#error, have return with len(w_varlist)>0 at line 139
-Cdelw1 w_varlist remains: olist 
-Cdelw1 w_varlistundel: [olist]
-Cdelw1 w_varlist (undel), remains: [olist]
-Cdelw1 w_varlist (del), remains: (None)
-Cdelw1 not deallocate olist because of [wref]
    99 if (mod(iopt,10) .eq. 0) return
       call awrit2(' baslst: %n:1i',slst,255,lgunit(1),nlist,list)
-Cdelw1 w_varlist remains: olist 
-Cdelw1 w_varlistundel: [olist]
-Cdelw1 w_varlist (undel), remains: [olist]
-Cdelw1 w_varlist (del), remains: (None)
-Cdelw1 not deallocate olist because of [wref]
       end
 

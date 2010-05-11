@@ -138,7 +138,7 @@ Cdelw1       integer opnu,oqnu,orhrmx,ovrmax,opp,opprel,oves,ova,omp,osop,olpp,
 Cdelw1      .  olppr,olsop,olgrme,olva,olmp,opot,ocor,oics,ohave,oclabl,onrc,
 Cdelw1      .  ogrrme,n0,nglob
        integer:: opnu , oqnu , orhrmx , ovrmax , opp , opprel , oves 
-     . , ova , omp , osop , olppr , oics , ohave , oclabl , onrc , ogrrme 
+     . , ova , omp , osop  , oics , ohave , oclabl , onrc , ogrrme  !, olppr
      . , n0 , nglob 
        real(8) ,allocatable :: rv_w_olpp(:)
        real(8) ,allocatable :: rv_w_olsop(:)
@@ -156,6 +156,8 @@ Cdelw1      .  ogrrme,n0,nglob
       double precision rhrmx,vrmax(2),ves,z,rmxx,ax,qc,dq,vrmxx(2),
      .  sumec,sumtc,sumev,thrpv,ekin,utot,rhoeps,etot,a,rmax,dval,
      .  zbak(2),dgets,pdf(n0,2),qdf(n0,2),pnuloc(100),qnuloc(100)
+ctakao
+      real(8),allocatable:: rv_w_olppr
 
 Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
 Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
@@ -250,13 +252,16 @@ C ... MPI: only master does sphere program
 
 Cdelw1 warning(1) , probably  olppr  is not defined yet at linenumber= 158
 Cdelw1 do not change olppr because of ['wref']
-      olppr = 1
+c      olppr = 1
 Cdelw1       call defdr(olpp,100)
        allocate(rv_w_olpp(100))
 Ctakao_ZeroClear_NotRequiered        if (100<0) rv_w_olpp(:)=0.0d0
 
 Cdelw1 do not change olppr because of ['wref']
-      call defdr(olppr,3000)
+c      call defdr(olppr,3000)
+       allocate(rv_w_olppr(3000))
+c
+
 Cdelw1       call defdr(olsop,500)
        allocate(rv_w_olsop(500))
 Ctakao_ZeroClear_NotRequiered        if (500<0) rv_w_olsop(:)=0.0d0
@@ -368,7 +373,7 @@ Cdelw1           call dpscop(w(opp),w(olpp),k,1+(jc-1)*k,1,1d0)
 Cdelw1 do not change olppr because of ['wref']
 Cdelw1 warning(1) , probably  opprel  is not defined yet at linenumber= 225
 Cdelw1 do not change opprel because of ['undef', 'wref']
-            call dpscop(w(opprel),w(olppr),k,1+(jc-1)*k,1,1d0)
+            call dpscop(w(opprel),rv_w_olppr,k,1+(jc-1)*k,1,1d0)
           endif
 Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 227
 Cdelw1 do not change oves because of ['undef', 'wref']
@@ -495,8 +500,8 @@ Cdelw1 do not change olppr because of ['wref']
 Cdelw1 do not change olppr because of ['wref']
 Cdelw1           if (havepp) sw = aiopar(clabl,lrel,w(olpp),w(olppr),ves,nl,
 Cdelw1      .      lmx,nsp,jfi)
-           if ( havepp ) sw = aiopar ( clabl , lrel , rv_w_olpp , w ( olppr 
-     .     ) , ves , nl , lmx , nsp , jfi ) 
+           if ( havepp ) sw = aiopar ( clabl , lrel , rv_w_olpp , 
+     .       rv_w_olppr , ves , nl , lmx , nsp , jfi ) 
 
 Cdelw1           if (haveva) sw = aiova(clabl,w(olva),nl,lmx,nsp,jfi)
            if ( haveva ) sw = aiova ( clabl , rv_w_olva , nl , lmx , nsp 
@@ -547,7 +552,7 @@ Cdelw1 do not change olppr because of ['wref']
 Cdelw1 do not change olppr because of ['wref']
 Cdelw1             readpp = aiopar(clabl,lrel,w(olpp),w(olppr),ves,nl,lmx,nsp,
 Cdelw1      .        ifi)
-             readpp = aiopar ( clabl , lrel , rv_w_olpp , w ( olppr ) , ves 
+             readpp = aiopar ( clabl , lrel , rv_w_olpp , rv_w_olppr , ves 
      .       , nl , lmx , nsp , ifi ) 
 
             if (readpp) call awrit0('%a pp,',outs2,len(outs2),0)
@@ -630,7 +635,7 @@ Cdelw1             call dpscop(w(olpp),w(opp),k,1,1+(ic-1)*k,1d0)
 Cdelw1 do not change olppr because of ['wref']
 Cdelw1 warning(1) , probably  opprel  is not defined yet at linenumber= 361
 Cdelw1 do not change opprel because of ['undef', 'wref']
-              call dpscop(w(olppr),w(opprel),k,1,1+(ic-1)*k,1d0)
+              call dpscop(rv_w_olppr,w(opprel),k,1,1+(ic-1)*k,1d0)
             endif
 Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 363
 Cdelw1 do not change oves because of ['undef', 'wref']
@@ -716,7 +721,7 @@ Cdelw1       call rlse(olpp)
        if (allocated(rv_w_olgrme)) deallocate(rv_w_olgrme)
        if (allocated(rv_w_olsop)) deallocate(rv_w_olsop)
        if (allocated(rv_w_olpp)) deallocate(rv_w_olpp)
-       call rlse(olppr)
+c       call rlse(olppr)
 
 C     End of MPI master-only branch
       endif

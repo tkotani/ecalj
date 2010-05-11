@@ -90,8 +90,8 @@ Cdelw1      .  nspec,nat
 
       parameter (n0=10)
 C ... Heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 
       jobid = 'ASA output'
       nbas = nglob('nbasp')

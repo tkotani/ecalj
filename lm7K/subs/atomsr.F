@@ -2,7 +2,7 @@ Cdelw1 var ['orho', '0', 'orho', 'nr*nsp*2*(nmix+2)', 'real(8)', 'rv_w_', 'atoms
 Cgetarg...info...           structure ['atscpp', 'ctrl', 'sctrl']
 Cgetarg...info...           structure ['atscpp', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['atscpp', 'm_struc_def']
-#define ONE_ATOM_UNIT 1
+c#define ONE_ATOM_UNIT 1
 
       subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a,
      .  nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec,
@@ -123,8 +123,8 @@ Cdelw1       integer amix,nmix,orho
       double precision norm(10,10),awk(10,2),beta,beta1
       parameter (beta = 0.3d0)
 c Heap allocation
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 C tolch is tolerance for change in the charge density, tolv for rseq
       double precision tolch,tl
       parameter (tolch=5d-5,tolrsq=1d-12)

@@ -374,151 +374,151 @@ WARNING while processing 'fp/addrbl.F' (mode='fix')..
   324:      deallocate(qpgv,qpg2v,ylv)
   325:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-    9:
-   10:      use m_struc_def  !Cgetarg
-   11:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   24:
+   25:      use m_struc_def  !Cgetarg
+   26:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-   11:#if MPE
-   12:      use m_events !Event numbers: include "events.ins"
-   13:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   26:#if MPE
+   27:      use m_events !Event numbers: include "events.ins"
+   28:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-   89:C     implicit none
-   90:C ... Passed parameters
-   91:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  104:C     implicit none
+  105:C ... Passed parameters
+  106:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-   90:C ... Passed parameters
-   91:#if MPI
-   92:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  105:C ... Passed parameters
+  106:#if MPI
+  107:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-   91:#if MPI
-   92:#if MPE
-   93:      include "mpef.h" <== 'mpef.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
-   94:#endif
+  106:#if MPI
+  107:#if MPE
+  108:      include "mpef.h" <== 'mpef.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+  109:#endif
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-   92:#if MPE
-   93:      include "mpef.h"
-   94:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'fp/augmbl.F' (mode='fix')..
-   93:      include "mpef.h"
-   94:#endif
-   95:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
-   96:      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
-WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  107:      integer i,lgunit
-  108:      character*120 strn
+  107:#if MPE
+  108:      include "mpef.h"
   109:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  140:c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
-  141:c#endif
-  142:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  108:      include "mpef.h"
+  109:#endif
+  110:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+  111:      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  143:      integer, dimension(:), allocatable :: bproc
-  144:      integer oh,ohbuf,os,osbuf,ohso
-  145:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  122:      integer i,lgunit
+  123:      character*120 strn
+  124:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  153:      call tcn ('augmbl')
-  154:
-  155:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  161:c      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
+  162:c#endif
+  163:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  161:      master = 0
-  162:      mlog = cmdopt('--mlog',6,0,strn)
-  163:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  170:       complex(8) ,allocatable :: zv_w_ohso(:)
+  171:
+  172:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  163:#else
-  164:      numprocs=1
-  165:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  180:      call tcn ('augmbl')
+  181:
+  182:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  199:
-  200:C --- Loop over augmentation sites --- ---
-  201:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  188:      master = 0
+  189:      mlog = cmdopt('--mlog',6,0,strn)
+  190:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  200:C --- Loop over augmentation sites --- ---
-  201:#if MPI
-  202:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  190:#else
+  191:      numprocs=1
+  192:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  202:#if MPE
-  203:      ierr = MPE_LOG_EVENT(EVENT_START_AUGMBL,procid,"augmbl")
-  204:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  234:
+  235:C --- Loop over augmentation sites --- ---
+  236:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  212:      initbas=bproc(procid)
-  213:      endbas =bproc(procid+1)-1
-  214:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  235:C --- Loop over augmentation sites --- ---
+  236:#if MPI
+  237:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  215:      initbas=1
-  216:      endbas=nbas
-  217:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  237:#if MPE
+  238:      ierr = MPE_LOG_EVENT(EVENT_START_AUGMBL,procid,"augmbl")
+  239:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  218:
-  219:      do  ia = initbas, endbas
-  220:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  256:      initbas=bproc(procid)
+  257:      endbas =bproc(procid+1)-1
+  258:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  226:     .        procid,numprocs,bproc(procid),bproc(procid+1)-1)
-  227:        endif
-  228:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  259:      initbas=1
+  260:      endbas=nbas
+  261:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  302:
-  303:C   --- Add 1-center and 2-center terms ---
-  304:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  262:
+  263:      do  ia = initbas, endbas
+  264:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  312:     .    w(oppi(2,ia)),b,ndimh,nlmto,w(os),w(oh),w(ohso))
-  313:        endif
-  314:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  270:     .        procid,numprocs,bproc(procid),bproc(procid+1)-1)
+  271:        endif
+  272:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  313:        endif
-  314:#else
-  315:#ifndef ALL3C <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  354:
+  355:C   --- Add 1-center and 2-center terms ---
+  356:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  323:     .      w(oppi(2,ia)),b,ndimh,nlmto,s,h,hso)
-  324:        endif
-  325:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  382:
+  383:        endif
+  384:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  324:        endif
-  325:#endif
-  326:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  383:        endif
+  384:#else
+  385:#ifndef ALL3C <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  327:
-  328:C   --- Add B+ sig B to S and B+ ppi B to H ---
-  329:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  401:     .      w(oppi(2,ia)),b,ndimh,nlmto,s,h,hso)
+  402:        endif
+  403:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  335:     .   w(ohso))
-  336:        endif
-  337:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  343:     .                hso)
-  344:        endif
-  345:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  348:C ... end loop over ia
-  349:      enddo
-  350:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  349:      enddo
-  350:#if MPI
-  351:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  352:      ierr = MPE_LOG_EVENT(EVENT_END_AUGMBL,procid,"augmbl")
-  353:      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-  354:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  354:#endif
-  355:      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-  356:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  357:      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-  358:      ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
-  359:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  400:      call rlse(os)
-  401:      deallocate(bproc, stat=ierr)
-  402:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  402:#if MPE
-  403:      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
+  402:        endif
+  403:#endif
   404:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/augmbl.F' (mode='fix')..
-  403:      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
-  404:#endif
-  405:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  405:
+  406:C   --- Add B+ sig B to S and B+ ppi B to H ---
+  407:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/augmbl.F' (mode='fix')..
+  425:
+  426:        endif
+  427:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/augmbl.F' (mode='fix')..
+  436:     .                hso)
+  437:        endif
+  438:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/augmbl.F' (mode='fix')..
+  441:C ... end loop over ia
+  442:      enddo
+  443:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/augmbl.F' (mode='fix')..
+  442:      enddo
+  443:#if MPI
+  444:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/augmbl.F' (mode='fix')..
+  445:      ierr = MPE_LOG_EVENT(EVENT_END_AUGMBL,procid,"augmbl")
+  446:      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
+  447:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/augmbl.F' (mode='fix')..
+  447:#endif
+  448:      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+  449:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/augmbl.F' (mode='fix')..
+  450:      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
+  451:      ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
+  452:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/augmbl.F' (mode='fix')..
+  545:
+  546:      deallocate(bproc, stat=ierr)
+  547:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/augmbl.F' (mode='fix')..
+  547:#if MPE
+  548:      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
+  549:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/augmbl.F' (mode='fix')..
+  548:      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
+  549:#endif
+  550:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
    14:      use m_hamindex
    15:      use m_struc_def
@@ -852,159 +852,159 @@ WARNING while processing 'fp/bstrux.F' (mode='fix')..
   442:      call rx('bstrux requires F90')
   443:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/chimedit.F' (mode='fix')..
-  235:C 306 format(' Failed to parse string ',a,' ... try again.')
-  236:  100 continue
-  237:#if PRTNOCR <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  253:C 306 format(' Failed to parse string ',a,' ... try again.')
+  254:  100 continue
+  255:#if PRTNOCR <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/chimedit.F' (mode='fix')..
-  237:#if PRTNOCR
-  238:      print '(/'' Option : '',$)'
-  239:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  255:#if PRTNOCR
+  256:      print '(/'' Option : '',$)'
+  257:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/chimedit.F' (mode='fix')..
-  239:#else
-  240:      print '(/'' Option : '')'
-  241:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  257:#else
+  258:      print '(/'' Option : '')'
+  259:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-   15:     .  orhoat,orhat1,elind,qmom,smrho,smrout,dfh)
-   16:       use m_struc_def  !Cgetarg
-   17:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   56:     .  orhoat,orhat1,elind,qmom,smrho,smrout,dfh)
+   57:       use m_struc_def  !Cgetarg
+   58:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-   17:#if MPE
-   18:      use m_events !Event numbers: include "events.ins"
-   19:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   58:#if MPE
+   59:      use m_events !Event numbers: include "events.ins"
+   60:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-   67:C     implicit none
-   68:C ... Passed parameters
-   69:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  108:C     implicit none
+  109:C ... Passed parameters
+  110:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-   68:C ... Passed parameters
-   69:#if MPI | MPIK
-   70:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
-   71:#if MPE
+  109:C ... Passed parameters
+  110:#if MPI | MPIK
+  111:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+  112:#if MPE
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-   69:#if MPI | MPIK
-   70:      include "mpif.h"
-   71:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  110:#if MPI | MPIK
+  111:      include "mpif.h"
+  112:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-   70:      include "mpif.h"
-   71:#if MPE
-   72:      include "mpef.h" <== 'mpef.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
-   73:#endif
+  111:      include "mpif.h"
+  112:#if MPE
+  113:      include "mpef.h" <== 'mpef.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+  114:#endif
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-   71:#if MPE
-   72:      include "mpef.h"
-   73:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  112:#if MPE
+  113:      include "mpef.h"
+  114:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-   83:      double precision starttime, endtime
-   84:      logical mlog,cmdopt
-   85:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  124:      double precision starttime, endtime
+  125:      logical mlog,cmdopt
+  126:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  105:      parameter (npmx=32)
-  106:      integer oicdn(npmx),oicdn0(npmx),oicdv(npmx),oics(npmx),oisn(npmx)
-  107:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  176:Cdelw1 do not change  [['array', 'wref'], 'oisn', 'dfrce']
+  177:      integer oicdn(npmx),oicdn0(npmx),oicdv(npmx),oics(npmx),oisn(npmx)
+  178:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  108:      integer, dimension(:), allocatable :: bproc, iiv0
-  109:      integer pid,jb
-  110:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  179:      integer, dimension(:), allocatable :: bproc, iiv0
+  180:      integer pid,jb
+  181:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  126:      call tcn('dfrce')
-  127:
-  128:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  201:      call tcn('dfrce')
+  202:
+  203:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  142:        enddo
-  143:      endif
-  144:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  217:        enddo
+  218:      endif
+  219:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  271:
-  272:C --- For each site, get correction to force ---
-  273:#if ! (MPI | MPIK) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  511:
+  512:C --- For each site, get correction to force ---
+  513:#if ! (MPI | MPIK) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  278:        write(stdo,201) strn
-  279:      endif
-  280:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  518:        write(stdo,201) strn
+  519:      endif
+  520:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  286:
-  287:C ... Setup array iiv0 = (vector of iv0 for parallel); allocate work arrays
-  288:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  526:
+  527:C ... Setup array iiv0 = (vector of iv0 for parallel); allocate work arrays
+  528:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  300:        iv0 = iv0+nlm
-  301:   12 continue
-  302:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  540:        iv0 = iv0+nlm
+  541:   12 continue
+  542:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  328:C$&        SHARED (job,ng,iiv0,ocnomi,ocvin,ocdvx)
-  329:C$&        MP_SCHEDTYPE=RUNTIME
-  330:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  573:C$&        SHARED (job,ng,iiv0,ocnomi,ocvin,ocdvx)
+  574:C$&        MP_SCHEDTYPE=RUNTIME
+  575:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  329:C$&        MP_SCHEDTYPE=RUNTIME
-  330:#if MPI | MPIK
-  331:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  574:C$&        MP_SCHEDTYPE=RUNTIME
+  575:#if MPI | MPIK
+  576:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  331:#if MPE
-  332:      ierr = MPE_LOG_EVENT(EVENT_START_DFRCE,procid,"dfrce")
-  333:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  576:#if MPE
+  577:      ierr = MPE_LOG_EVENT(EVENT_START_DFRCE,procid,"dfrce")
+  578:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  336:      ibini = bproc(procid)
-  337:      ibend = bproc(procid+1)-1
-  338:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  581:      ibini = bproc(procid)
+  582:      ibend = bproc(procid+1)-1
+  583:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  339:      ibini=1
-  340:      ibend=nbas
-  341:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  584:      ibini=1
+  585:      ibend=nbas
+  586:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  342:
-  343:      do  ib = ibini, ibend
-  344:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  587:
+  588:      do  ib = ibini, ibend
+  589:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  351:        endif
-  352:        iv0 = iiv0(ib)
-  353:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  596:        endif
+  597:        iv0 = iiv0(ib)
+  598:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  383:        enddo
-  384:
-  385:#if ! (MPI | MPIK) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  673:        enddo
+  674:
+  675:#if ! (MPI | MPIK) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  388:     .    (c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
-  389:  200   format(i4,3f8.2,1x,3f8.2,1x,3f8.2:1x,3f8.2)
-  390:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  678:     .    (c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
+  679:  200   format(i4,3f8.2,1x,3f8.2,1x,3f8.2:1x,3f8.2)
+  680:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  393:   20 continue
-  394:      enddo
-  395:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  683:   20 continue
+  684:      enddo
+  685:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  394:      enddo
-  395:#if MPI | MPIK
-  396:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  684:      enddo
+  685:#if MPI | MPIK
+  686:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  397:      ierr = MPE_LOG_EVENT(EVENT_END_DFRCE,procid,"dfrce")
-  398:      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-  399:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  687:      ierr = MPE_LOG_EVENT(EVENT_END_DFRCE,procid,"dfrce")
+  688:      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
+  689:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  399:#endif
-  400:      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-  401:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  689:#endif
+  690:      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+  691:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  402:      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-  403:      ierr = MPE_LOG_EVENT(EVENT_START_BCAST,procid,"broadcast")
-  404:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  692:      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
+  693:      ierr = MPE_LOG_EVENT(EVENT_START_BCAST,procid,"broadcast")
+  694:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  421:      deallocate (bproc, stat=ierr)
-  422:      deallocate (iiv0, stat=ierr)
-  423:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  711:      deallocate (bproc, stat=ierr)
+  712:      deallocate (iiv0, stat=ierr)
+  713:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  423:#if MPE
-  424:      ierr = MPE_LOG_EVENT(EVENT_END_BCAST,procid,"broadcast")
-  425:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  713:#if MPE
+  714:      ierr = MPE_LOG_EVENT(EVENT_END_BCAST,procid,"broadcast")
+  715:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  424:      ierr = MPE_LOG_EVENT(EVENT_END_BCAST,procid,"broadcast")
-  425:#endif
-  426:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  714:      ierr = MPE_LOG_EVENT(EVENT_END_BCAST,procid,"broadcast")
+  715:#endif
+  716:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  431:
-  432:C ... MPI printout
-  433:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  721:
+  722:C ... MPI printout
+  723:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/dfrce.F' (mode='fix')..
-  441:  202   format(i4,50x,3f8.2)
-  442:      endif
-  443:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  731:  202   format(i4,50x,3f8.2)
+  732:      endif
+  733:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/fklbl.F' (mode='fix')..
     1:Cgetarg...info...           structure ['fklbl', 'lat', 'slat']
     2:Cgetarg...info...           use_to_add ['fklbl', 'm_struc_def']
@@ -1542,191 +1542,191 @@ WARNING while processing 'fp/hklbl.F' (mode='fix')..
   128:      call rlse(owk)
   129:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-    3:Cgetarg...info...           structure ['hsibl', 'spec', 'sspec']
-    4:Cgetarg...info...           use_to_add ['hsibl', 'm_struc_def']
-    5:#define SGI 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   54:Cgetarg...info...           structure ['hsibl', 'spec', 'sspec']
+   55:Cgetarg...info...           use_to_add ['hsibl', 'm_struc_def']
+   56:#define SGI 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-    7:     .  napw,igapw,h)
-    8:       use m_struc_def  !Cgetarg
-    9:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   58:     .  napw,igapw,h)
+   59:       use m_struc_def  !Cgetarg
+   60:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-    9:#if MPE
-   10:      use m_events !Event numbers: include "events.ins"
-   11:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   60:#if MPE
+   61:      use m_events !Event numbers: include "events.ins"
+   62:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-   61:C ----------------------------------------------------------------------
-   62:      implicit none
-   63:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  112:C ----------------------------------------------------------------------
+  113:      implicit none
+  114:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-   62:      implicit none
-   63:#if MPI
-   64:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  113:      implicit none
+  114:#if MPI
+  115:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-   63:#if MPI
-   64:#if MPE
-   65:      include "mpef.h" <== 'mpef.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
-   66:#endif
+  114:#if MPI
+  115:#if MPE
+  116:      include "mpef.h" <== 'mpef.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+  117:#endif
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-   64:#if MPE
-   65:      include "mpef.h"
-   66:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  115:#if MPE
+  116:      include "mpef.h"
+  117:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-   65:      include "mpef.h"
-   66:#endif
-   67:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
-   68:      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
+  116:      include "mpef.h"
+  117:#endif
+  118:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+  119:      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-   79:      integer lgunit
-   80:      character*120 strn
-   81:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  130:      integer lgunit
+  131:      character*120 strn
+  132:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  122:      integer ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3,oiv1
-  123:C$    integer mp_numthreads,mp_my_threadnum
-  124:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  210:      integer ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3,oiv1
+  211:C$    integer mp_numthreads,mp_my_threadnum
+  212:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  125:      double precision, dimension(:), allocatable :: buffer
-  126:      integer, dimension(:,:), allocatable :: index
-  127:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  213:      double precision, dimension(:), allocatable :: buffer
+  214:      integer, dimension(:,:), allocatable :: index
+  215:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  136:      call tcn('hsibl')
-  137:
-  138:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  228:      call tcn('hsibl')
+  229:
+  230:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  144:      master = 0
-  145:      mlog = cmdopt('--mlog',6,0,strn)
-  146:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  236:      master = 0
+  237:      mlog = cmdopt('--mlog',6,0,strn)
+  238:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  219:C$    if (mp .gt. npmx) call rxi('hsibl: increase npmx, needed',mp)
-  220:      do  ip = 1, min(mp,nbas)
-  221:#if SGI | MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  342:C$    if (mp .gt. npmx) call rxi('hsibl: increase npmx, needed',mp)
+  343:      do  ip = 1, min(mp,nbas)
+  344:#if SGI | MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  222:        call defcc(oic1(ip),   ng*ndimx)
-  223:        call defcc(oicf1(ip),  nhblk*ndimx)
-  224:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  347:Cdelw1 do not change oicf1 because of ['array', 'wref']
+  348:        call defcc(oicf1(ip),  nhblk*ndimx)
+  349:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  225:        call defcc(oic1(ip),   ng*nhblk)
-  226:        call defcc(oicf1(ip),  nhblk)
-  227:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  352:Cdelw1 do not change oicf1 because of ['array', 'wref']
+  353:        call defcc(oicf1(ip),  nhblk)
+  354:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  245:C$&       SHARED(nbas,n1,n2,n3,k1,k2,k3,ng,vol,ndimh,oiv)
-  246:C$&       MP_SCHEDTYPE=RUNTIME
-  247:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  380:C$&       SHARED(nbas,n1,n2,n3,k1,k2,k3,ng,vol,ndimh,oiv)
+  381:C$&       MP_SCHEDTYPE=RUNTIME
+  382:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  246:C$&       MP_SCHEDTYPE=RUNTIME
-  247:#if MPI
-  248:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  381:C$&       MP_SCHEDTYPE=RUNTIME
+  382:#if MPI
+  383:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  248:#if MPE
-  249:      ierr = MPE_LOG_EVENT(EVENT_START_HSIBL,procid,"hsibl")
-  250:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  383:#if MPE
+  384:      ierr = MPE_LOG_EVENT(EVENT_START_HSIBL,procid,"hsibl")
+  385:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  256:      ibini=1
-  257:      ibend=index(procid,0)
-  258:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  394:      ibini=1
+  395:      ibend=index(procid,0)
+  396:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  260:      ibini=1
-  261:      ibend=nbas
-  262:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  398:      ibini=1
+  399:      ibend=nbas
+  400:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  263:
-  264:      do  iloop = ibini,ibend
-  265:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  401:
+  402:      do  iloop = ibini,ibend
+  403:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  272:     .        procid,numprocs,ib1,index(procid,0))
-  273:        endif
-  274:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  410:     .        procid,numprocs,ib1,index(procid,0))
+  411:        endif
+  412:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  274:#else
-  275:        ib1=iloop
-  276:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  412:#else
+  413:        ib1=iloop
+  414:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  381:
-  382:C     ... Add to hamiltonian
-  383:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  654:
+  655:C     ... Add to hamiltonian
+  656:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  384:          call hsibl5(norb1,blks1,offl1,ndim1,norb2,blks2,offl2,ndim2,
-  385:     .                ndimh,w(owk2),w(oh))
-  386:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  660:     .     offl2 , ndim2 , ndimh , zv_w_owk2 , zv_w_oh )
+  661:
+  662:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  388:          call hsibl5(norb1,blks1,offl1,ndim1,norb2,blks2,offl2,ndim2,
-  389:     .                ndimh,w(owk2),h)
-  390:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  667:     .     offl2 , ndim2 , ndimh , zv_w_owk2 , h )
+  668:
+  669:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  395:
-  396:C   ... Matrix elements <Hsm| Vsm |PW>
-  397:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  678:
+  679:C   ... Matrix elements <Hsm| Vsm |PW>
+  680:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  398:        call hsibl6(ndimh,nlmto,norb1,blks1,offl1,ng,w(oiv),napw,igapw,
-  399:     .  w(oc1),w(ocf1),w(oh))
-  400:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  692:     .   , napw , igapw , w ( oc1 ) , w ( ocf1 ) , zv_w_oh )
+  693:
+  694:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  401:        call hsibl6(ndimh,nlmto,norb1,blks1,offl1,ng,w(oiv),napw,igapw,
-  402:     .  w(oc1),w(ocf1),h)
-  403:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  706:     .   , napw , igapw , w ( oc1 ) , w ( ocf1 ) , h )
+  707:
+  708:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  406:      enddo
-  407:
-  408:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  711:      enddo
+  712:
+  713:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  407:
-  408:#if MPI
-  409:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  712:
+  713:#if MPI
+  714:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  410:      ierr = MPE_LOG_EVENT(EVENT_END_HSIBL,procid,"hsibl")
-  411:      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-  412:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  715:      ierr = MPE_LOG_EVENT(EVENT_END_HSIBL,procid,"hsibl")
+  716:      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
+  717:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  412:#endif
-  413:      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-  414:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  717:#endif
+  718:      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+  719:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  415:      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-  416:      ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
-  417:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  720:      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
+  721:      ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
+  722:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  429:      call rlse(oh)
-  430:      deallocate(index, stat=ierr)
-  431:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  748:
+  749:      deallocate(index, stat=ierr)
+  750:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  431:#if MPE
-  432:      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
-  433:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  750:#if MPE
+  751:      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
+  752:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  432:      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
-  433:#endif
-  434:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  751:      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
+  752:#endif
+  753:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  558:      integer i,i1,i2,ncut
-  559:      double complex csum
-  560:#if NBAR <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  906:      integer i,i1,i2,ncut
+  907:      double complex csum
+  908:#if NBAR <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  562:      double precision xx
-  563:      double complex wk(n1,n2)
-  564:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  910:      double precision xx
+  911:      double complex wk(n1,n2)
+  912:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  563:      double complex wk(n1,n2)
-  564:#endif
-  565:#if CRAY <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  911:      double complex wk(n1,n2)
+  912:#endif
+  913:#if CRAY <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  565:#if CRAY
-  566:      double complex wk(n1)
-  567:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  913:#if CRAY
+  914:      double complex wk(n1)
+  915:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  569:      call tcn('hsibl2')
-  570:
-  571:#if NBAR <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  917:      call tcn('hsibl2')
+  918:
+  919:#if NBAR <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  596:        enddo
-  597:      enddo
-  598:#elif CRAY <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  944:        enddo
+  945:      enddo
+  946:#elif CRAY <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  612:        enddo
-  613:      enddo
-  614:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  960:        enddo
+  961:      enddo
+  962:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hsibl.F' (mode='fix')..
-  624:        enddo
-  625:      enddo
-  626:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  972:        enddo
+  973:      enddo
+  974:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hxpbl.F' (mode='fix')..
     1:#define F90 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hxpbl.F' (mode='fix')..
@@ -1822,26 +1822,26 @@ WARNING while processing 'fp/hxpos.F' (mode='fix')..
    87:      deallocate(s)
    88:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/lmfp.F' (mode='fix')..
-  158:      real(8):: pnu(20),bz_w
-  159:      logical :: llmfgw
-  160:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  217:      real(8):: pnu(20),bz_w
+  218:      logical :: llmfgw
+  219:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/lmfp.F' (mode='fix')..
-  160:#if MPI
-  161:      integer:: ierr
-  162:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
-  163:#endif
+  219:#if MPI
+  220:      integer:: ierr
+  221:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+  222:#endif
 WARNING while processing 'fp/lmfp.F' (mode='fix')..
-  161:      integer:: ierr
-  162:      include "mpif.h"
-  163:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'fp/lmfp.F' (mode='fix')..
-  197:      mlog = cmdopt('--mlog',6,0,strn)
-  198:ckino. Mark says nproc <= nbas should be for MPI.
-  199:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'fp/lmfp.F' (mode='fix')..
-  220:c             ---------- may be stop is unnecessary.
-  221:      endif
+  220:      integer:: ierr
+  221:      include "mpif.h"
   222:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/lmfp.F' (mode='fix')..
+  256:      mlog = cmdopt('--mlog',6,0,strn)
+  257:ckino. Mark says nproc <= nbas should be for MPI.
+  258:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/lmfp.F' (mode='fix')..
+  279:c             ---------- may be stop is unnecessary.
+  280:      endif
+  281:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/locpot.F' (mode='fix')..
     3:Cgetarg...info...           structure ['locpot', 'lat', 'slat']
     4:Cgetarg...info...           use_to_add ['locpot', 'm_struc_def']
@@ -1911,87 +1911,87 @@ WARNING while processing 'fp/makusp.F' (mode='fix')..
   121:        endif
   122:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
-  183:C     implicit none
-  184:C ... Passed parameters
-  185:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  222:C     implicit none
+  223:C ... Passed parameters
+  224:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
-  184:C ... Passed parameters
-  185:#if MPI | MPIK
-  186:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
-  187:      integer numprocs, ierr, status(MPI_STATUS_SIZE)
+  223:C ... Passed parameters
+  224:#if MPI | MPIK
+  225:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+  226:      integer numprocs, ierr, status(MPI_STATUS_SIZE)
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
-  198:      character*120 strn
-  199:      logical mlog,cmdopt
-  200:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  237:      character*120 strn
+  238:      logical mlog,cmdopt
+  239:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
-  273:
-  274:
-  275:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  336:
+  337:
+  338:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
-  281:      master = 0
-  282:      mlog = cmdopt('--mlog',6,0,strn)
-  283:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  344:      master = 0
+  345:      mlog = cmdopt('--mlog',6,0,strn)
+  346:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
-  284:      procid = 0
-  285:      master = 0
-  286:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  347:      procid = 0
+  348:      master = 0
+  349:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
-  621:        rewind ifi
-  622:      endif
-  623:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  855:        rewind ifi
+  856:      endif
+  857:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
-  630:     .      256,lgunit(3),procid,numprocs,ifi)
-  631:      endif
-  632:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  864:     .      256,lgunit(3),procid,numprocs,ifi)
+  865:      endif
+  866:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1317:C     implicit none
- 1318:C ... Passed parameters
- 1319:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1740:C     implicit none
+ 1741:C ... Passed parameters
+ 1742:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1318:C ... Passed parameters
- 1319:#if MPI | MPIK
- 1320:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
- 1321:      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
+ 1741:C ... Passed parameters
+ 1742:#if MPI | MPIK
+ 1743:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+ 1744:      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1333:      integer iunit
- 1334:      logical readerror
- 1335:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1756:      integer iunit
+ 1757:      logical readerror
+ 1758:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1358:      common /w/ w
- 1359:
- 1360:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1785:      common /w/ w
+ 1786:
+ 1787:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1366:      master = 0
- 1367:      mlog = cmdopt('--mlog',6,0,strn)
- 1368:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1793:      master = 0
+ 1794:      mlog = cmdopt('--mlog',6,0,strn)
+ 1795:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1532:C   ... File I/O of previous iterations; nmixr is number actually read
- 1533:        nmixr = 0
- 1534:#if ! (MPI | MPIK) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2000:C   ... File I/O of previous iterations; nmixr is number actually read
+ 2001:        nmixr = 0
+ 2002:#if ! (MPI | MPIK) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1553:   30   continue
- 1554:   31   continue
- 1555:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2021:   30   continue
+ 2022:   31   continue
+ 2023:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1627:        endif
- 1628:   31   continue
- 1629:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2095:        endif
+ 2096:   31   continue
+ 2097:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1642:C --- Save iterations on disk ---
- 1643:      else
- 1644:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2110:C --- Save iterations on disk ---
+ 2111:      else
+ 2112:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1644:#if MPI | MPIK
- 1645:        if (procid .eq. master) then
- 1646:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2112:#if MPI | MPIK
+ 2113:        if (procid .eq. master) then
+ 2114:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1658:        enddo
- 1659:C       call prm('a after write',a,nda*nsp,nda*nsp,(mxsav+2)*2)
- 1660:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2126:        enddo
+ 2127:C       call prm('a after write',a,nda*nsp,nda*nsp,(mxsav+2)*2)
+ 2128:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1660:#if MPI | MPIK
- 1661:        endif
- 1662:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2128:#if MPI | MPIK
+ 2129:        endif
+ 2130:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mkekin.F' (mode='fix')..
   172:      integer w(1)
   173:      common /w/ w
@@ -2017,37 +2017,37 @@ WARNING while processing 'fp/mkekin.F' (mode='fix')..
   359:      read (i) ppihp
   360:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mshvmt.F' (mode='fix')..
-    7:Cgetarg...info...           use_to_add ['mshvmt', 'm_struc_def']
-    8:Cgetarg...info...           use_to_add ['symvvl', 'm_struc_def']
-    9:#define F90 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   13:Cgetarg...info...           use_to_add ['mshvmt', 'm_struc_def']
+   14:Cgetarg...info...           use_to_add ['symvvl', 'm_struc_def']
+   15:#define F90 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mshvmt.F' (mode='fix')..
-   69:      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-   70:      parameter (lmxx=6, nlmx=(lmxx+1)**2)
-   71:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   76:      parameter (lmxx=6, nlmx=(lmxx+1)**2)
+   77:Cki#error have #if F90 directive
+   78:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mshvmt.F' (mode='fix')..
-   72:      double precision,allocatable:: phil(:,:),yl(:,:)
-   73:      double precision,allocatable:: gv2(:,:),agv(:),cgp(:),sgp(:)
-   74:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   79:      double precision,allocatable:: phil(:,:),yl(:,:)
+   80:      double precision,allocatable:: gv2(:,:),agv(:),cgp(:),sgp(:)
+   81:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mshvmt.F' (mode='fix')..
-   75:      double precision phil(ng,0:lmxx),yl(ng,nlmx)
-   76:      double precision gv2(ng,3),agv(ng),cgp(ng),sgp(ng)
-   77:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   82:      double precision phil(ng,0:lmxx),yl(ng,nlmx)
+   83:      double precision gv2(ng,3),agv(ng),cgp(ng),sgp(ng)
+   84:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mshvmt.F' (mode='fix')..
-   78:
-   79:      call tcn('mshvmt')
-   80:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   86:      call tcn('mshvmt')
+   87:Cki#error have #if F90 directive
+   88:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mshvmt.F' (mode='fix')..
-   81:      allocate(phil(ng,0:lmxx),yl(ng,nlmx))
-   82:      allocate(gv2(ng,3),agv(ng),cgp(ng),sgp(ng))
-   83:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   89:      allocate(phil(ng,0:lmxx),yl(ng,nlmx))
+   90:      allocate(gv2(ng,3),agv(ng),cgp(ng),sgp(ng))
+   91:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mshvmt.F' (mode='fix')..
-  183:   10   continue
-  184:      enddo
-  185:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  192:      enddo
+  193:Cki#error have #if F90 directive
+  194:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mshvmt.F' (mode='fix')..
-  186:      deallocate(phil,yl)
-  187:      deallocate(gv2,agv,cgp,sgp)
-  188:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  195:      deallocate(phil,yl)
+  196:      deallocate(gv2,agv,cgp,sgp)
+  197:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mullmf.F' (mode='fix')..
     2:Cgetarg...info...           structure ['mullmf', 'spec', 'sspec']
     3:Cgetarg...info...           use_to_add ['mullmf', 'm_struc_def']
@@ -2181,50 +2181,62 @@ WARNING while processing 'fp/prtev.F' (mode='fix')..
    36:        call ftflsh(stdo)
    37:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/pzhev.F' (mode='fix')..
-   39:Cu   25 Apr 04 (K. Beleshenko) workaround scalapack bug
-   40:C ----------------------------------------------------------------------
-   41:#if MPI & BLACS <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   48:Cu   25 Apr 04 (K. Beleshenko) workaround scalapack bug
+   49:C ----------------------------------------------------------------------
+   50:#if MPI & BLACS <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/pzhev.F' (mode='fix')..
-   41:#if MPI & BLACS
-   42:      implicit none
-   43:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
-   44:      integer procid, master, numprocs, ierr
+   50:#if MPI & BLACS
+   51:      implicit none
+   52:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+   53:      integer procid, master, numprocs, ierr
 WARNING while processing 'fp/pzhev.F' (mode='fix')..
-  308:C      call blacs_gridexit(context)
-  309:C      call blacs_exit(1)
-  310:#if SUN <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  350:Cdelw1 rlse name= orwork old_list= oz
+  351:
+  352:#error ERROR, try to release name= orwork ,but list does not have  orwork at linenumber= 266 list= oz <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/pzhev.F' (mode='fix')..
-  310:#if SUN
-  311:      call ieee_flags( 'clear', 'exception', 'underflow', '')
-  312:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  357:Cdelw1 rlse name= oiwork old_list= oz
+  358:
+  359:#error ERROR, try to release name= oiwork ,but list does not have  oiwork at linenumber= 267 list= oz <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/pzhev.F' (mode='fix')..
-  311:      call ieee_flags( 'clear', 'exception', 'underflow', '')
-  312:#endif
-  313:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  364:Cdelw1 rlse name= oifail old_list= oz
+  365:
+  366:#error ERROR, try to release name= oifail ,but list does not have  oifail at linenumber= 268 list= oz <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/pzhev.F' (mode='fix')..
-  316:       end subroutine pzhev
-  317:
-  318:#if MPI & BLACS <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  418:C      call blacs_gridexit(context)
+  419:C      call blacs_exit(1)
+  420:#if SUN <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/pzhev.F' (mode='fix')..
-  351:       end subroutine udstmt
-  352:
-  353:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  420:#if SUN
+  421:      call ieee_flags( 'clear', 'exception', 'underflow', '')
+  422:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/pzhev.F' (mode='fix')..
+  421:      call ieee_flags( 'clear', 'exception', 'underflow', '')
+  422:#endif
+  423:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/pzhev.F' (mode='fix')..
+  431:       end subroutine pzhev
+  432:
+  433:#if MPI & BLACS <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/pzhev.F' (mode='fix')..
+  472:       end subroutine udstmt
+  473:
+  474:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/rhogkl.F' (mode='fix')..
-  122:  220   format(9x,i4,i6,f12.6,10f12.6)
-  123:  221   format(/' rhogkl:    k   ilm      qkl (2l+1)!! ...')
-  124:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  158:  220   format(9x,i4,i6,f12.6,10f12.6)
+  159:  221   format(/' rhogkl:    k   ilm      qkl (2l+1)!! ...')
+  160:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/rhogkl.F' (mode='fix')..
-  128:     .    w(orhoat(2,ib)),w(orhoat(3,ib)),qkl(0,j1))
-  129:        endif
-  130:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  171:
+  172:        endif
+  173:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/rhogkl.F' (mode='fix')..
-  297:       end subroutine pvrgkl
-  298:
-  299:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  352:       end subroutine pvrgkl
+  353:
+  354:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/rhogkl.F' (mode='fix')..
-  346:       end subroutine prtrkl
-  347:
-  348:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  404:       end subroutine prtrkl
+  405:
+  406:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/rlocbl.F' (mode='fix')..
     3:Cgetarg...info...           structure ['rlocbl', 'spec', 'sspec']
     4:Cgetarg...info...           use_to_add ['rlocbl', 'm_struc_def']
@@ -2897,41 +2909,41 @@ WARNING while processing 'fp/stonerrsa.F' (mode='fix')..
   350:      call fclose(ifi)
   351:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/sugw.F' (mode='fix')..
-    4:Cgetarg...info...           structure ['sugw', 'spec', 'sspec']
-    5:Cgetarg...info...           use_to_add ['sugw', 'm_struc_def']
-    6:#define V2 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   17:Cgetarg...info...           structure ['sugw', 'spec', 'sspec']
+   18:Cgetarg...info...           use_to_add ['sugw', 'm_struc_def']
+   19:#define V2 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/sugw.F' (mode='fix')..
-  190:      integer ndhamx,nspx,nnnx,ifiv
-  191:      character strn*120
-  192:#if SIGNN <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  210:      integer ndhamx,nspx,nnnx,ifiv
+  211:      character strn*120
+  212:#if SIGNN <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/sugw.F' (mode='fix')..
-  192:#if SIGNN
-  193:      complex(8),allocatable:: sig(:,:)
-  194:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  212:#if SIGNN
+  213:      complex(8),allocatable:: sig(:,:)
+  214:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/sugw.F' (mode='fix')..
-  543:        rewind i
-  544:
-  545:#if V2 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  576:        rewind i
+  577:
+  578:#if V2 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/sugw.F' (mode='fix')..
-  547:C       write(ifi) nbas,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !takao 2003 Sep
-  548:        write(ifi) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !mark 2005 Jul
-  549:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  580:C       write(ifi) nbas,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !takao 2003 Sep
+  581:        write(ifi) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !mark 2005 Jul
+  582:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/sugw.F' (mode='fix')..
-  549:#else
-  550:        write(ifi) nbas,nsp,nchan,ndham,alat,qlat,ef0,n1q,n2q,n3q,plat
-  551:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  582:#else
+  583:        write(ifi) nbas,nsp,nchan,ndham,alat,qlat,ef0,n1q,n2q,n3q,plat
+  584:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/supot.F' (mode='fix')..
-    3:Cgetarg...info...           structure ['supot', 'pot', 'spot']
-    4:Cgetarg...info...           use_to_add ['supot', 'm_struc_def']
-    5:#define FP 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   29:Cgetarg...info...           structure ['supot', 'pot', 'spot']
+   30:Cgetarg...info...           use_to_add ['supot', 'm_struc_def']
+   31:#define FP 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/supot.F' (mode='fix')..
-   92:      endif
-   93:
-   94:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  146:      endif
+  147:
+  148:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/supot.F' (mode='fix')..
-  180:
-  181:      endif
-  182:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  258:
+  259:      endif
+  260:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/ugcomp.F' (mode='fix')..
     2:Cgetarg...info...           structure ['ugcomp', 'spec', 'sspec']
     3:Cgetarg...info...           use_to_add ['ugcomp', 'm_struc_def']
@@ -3161,21 +3173,21 @@ WARNING while processing 'fp/vxcnsp.F' (mode='fix')..
   462:      deallocate (vxc,vxcx,vxcc,vxc2,vxc2x,vxc2c)
   463:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/aiocls.F' (mode='fix')..
-    5:Cgetarg...info...           structure ['aiocls', 'lat', 'slat']
-    6:Cgetarg...info...           use_to_add ['aiocls', 'm_struc_def']
-    7:#define ONE_ATOM_UNIT 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   43:Cgetarg...info...           structure ['aiocls', 'lat', 'slat']
+   44:Cgetarg...info...           use_to_add ['aiocls', 'm_struc_def']
+   45:#define ONE_ATOM_UNIT 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/aiocls.F' (mode='fix')..
-  196:        call r8tos8(dval(w(oclabl),ic),clabl)
-  197:        if (mode00 .ne. 3) then
-  198:#if ONE_ATOM_UNIT <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  320:        call r8tos8(dval(w(oclabl),ic),clabl)
+  321:        if (mode00 .ne. 3) then
+  322:#if ONE_ATOM_UNIT <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/aiocls.F' (mode='fix')..
-  198:#if ONE_ATOM_UNIT
-  199:          ifi = fopn(clabl)
-  200:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  322:#if ONE_ATOM_UNIT
+  323:          ifi = fopn(clabl)
+  324:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/aiocls.F' (mode='fix')..
-  200:#else
-  201:         ifi = fopna(clabl,30+ic,0)
-  202:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  324:#else
+  325:         ifi = fopna(clabl,30+ic,0)
+  326:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/aiomom.F' (mode='fix')..
   107:   16   continue
   108:C --- Patch for bug in AIX err= ---
@@ -3193,9 +3205,9 @@ WARNING while processing 'subs/aiomom.F' (mode='fix')..
   146:      i = 2
   147:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/atomsr.F' (mode='fix')..
-    2:Cgetarg...info...           structure ['atscpp', 'spec', 'sspec']
-    3:Cgetarg...info...           use_to_add ['atscpp', 'm_struc_def']
-    4:#define ONE_ATOM_UNIT 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+    3:Cgetarg...info...           structure ['atscpp', 'spec', 'sspec']
+    4:Cgetarg...info...           use_to_add ['atscpp', 'm_struc_def']
+    5:#define ONE_ATOM_UNIT 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/bzmesh.F' (mode='fix')..
   114:     .         grpop,iinit,projql,rx,rxx
   115:      character*1 chr(0:2)
@@ -3249,13 +3261,21 @@ WARNING while processing 'subs/bzmesh.F' (mode='fix')..
   334:     .' Exit -1 BZMESH: QP weights sum to %1;6d but must sum to 2',swgt)
   335:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/chgmsh.F' (mode='fix')..
-   48:        if (m3 .eq. 1) n3 = 1
-   49:      endif
-   50:#if AWRITE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   66:        if (m3 .eq. 1) n3 = 1
+   67:      endif
+   68:#if AWRITE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/chgmsh.F' (mode='fix')..
-   54:     .    lgunit(1),m1,m2,m3,n1,n2,n3,iopt)
-   55:      endif
-   56:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   72:     .    lgunit(1),m1,m2,m3,n1,n2,n3,iopt)
+   73:      endif
+   74:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'subs/clsprm.F' (mode='fix')..
+  511:C     stop
+  512:
+  513:#error, have return with len(w_varlist)>0 at line 417 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'subs/clsprm.F' (mode='fix')..
+  557:       nclasp=sarray%nclasp
+  558:
+  559:#error, have return with len(w_varlist)>0 at line 440 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/dstrbp.F' (mode='fix')..
    31:Cu   Written by Karen Johnston
    32:C ----------------------------------------------------------------------
@@ -3309,25 +3329,17 @@ WARNING while processing 'subs/fixpos.F' (mode='fix')..
    35:      if (nbas .gt. nbmx) call rx('fixpos: increase nbmx')
    36:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/gvlist.F' (mode='fix')..
-  187:
-  188:
-  189:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  324:C ... Printout
+  325:      if (iprint() .ge. PRTG) then
+  326:#if AWRITE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/gvlist.F' (mode='fix')..
-  190:            if ((nint(s1)-s1)**2+(nint(s2)-s2)**2+(nint(s3)-s3)**2
-  191:     .        .gt. 1d-12) call rx('bug in gvlist')
-  192:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  335:     .    len(outs),0,n1,n2,n3,s1,s2,s3)
+  336:        call awrit0('%a',outs,len(outs),-stdo)
+  337:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/gvlist.F' (mode='fix')..
-  223:C ... Printout
-  224:      if (iprint() .ge. PRTG) then
-  225:#if AWRITE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'subs/gvlist.F' (mode='fix')..
-  234:     .    len(outs),0,n1,n2,n3,s1,s2,s3)
-  235:        call awrit0('%a',outs,len(outs),-stdo)
-  236:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'subs/gvlist.F' (mode='fix')..
-  238:  861 format(/' gvlist: cutoff radius ',f7.3,' gives',i7,
-  239:     .  '   recips of max',i7)
-  240:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  339:  861 format(/' gvlist: cutoff radius ',f7.3,' gives',i7,
+  340:     .  '   recips of max',i7)
+  341:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/gvlst2.F' (mode='fix')..
     1:#define F90 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/gvlst2.F' (mode='fix')..
@@ -3343,90 +3355,98 @@ WARNING while processing 'subs/gvlst2.F' (mode='fix')..
   334:      if (ng .gt. ngmxx) call rxi('gvlst2: increase ngmx, need',ng)
   335:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/hft2rs.F' (mode='fix')..
-  160:      integer oiwk
-  161:      double precision dmx(2)
-  162:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  173:
+  174:      double precision dmx(2)
+  175:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/hft2rs.F' (mode='fix')..
-  163:      integer iaxi(5)
-  164:      double precision tau(3)
-  165:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  176:      integer iaxi(5)
+  177:      double precision tau(3)
+  178:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/hft2rs.F' (mode='fix')..
-  279:      call tcx('hft2rs')
-  280:
-  281:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  332:      call tcx('hft2rs')
+  333:
+  334:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/hft2rs.F' (mode='fix')..
-  299:  393 format(9f12.6)
-  300:      goto 998
-  301:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  333:
+  334:#if DEBUG
+  335:#error, have return with len(w_varlist)>0 at line 282 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'subs/hft2rs.F' (mode='fix')..
+  342:  998 print *, 'is?'
+  343:      read(*,*) iset
+  344:#error, have return with len(w_varlist)>0 at line 285 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'subs/hft2rs.F' (mode='fix')..
+  365:  393 format(9f12.6)
+  366:      goto 998
+  367:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iopos.F' (mode='fix')..
-   30:C ----------------------------------------------------------------
-   31:C     implicit none
-   32:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   32:C ----------------------------------------------------------------
+   33:C     implicit none
+   34:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iopos.F' (mode='fix')..
-   31:C     implicit none
-   32:#if MPI | MPIK
-   33:      include "mpif.h" <== 'mpif.h' not found in 'subs:.'. The INCLUDE line will be turned to a comment.
-   34:      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
+   33:C     implicit none
+   34:#if MPI | MPIK
+   35:      include "mpif.h" <== 'mpif.h' not found in 'subs:.'. The INCLUDE line will be turned to a comment.
+   36:      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
 WARNING while processing 'subs/iopos.F' (mode='fix')..
-   44:      logical mlog, cmdopt
-   45:      character*120 strn
-   46:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   46:      logical mlog, cmdopt
+   47:      character*120 strn
+   48:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iopos.F' (mode='fix')..
-   68:      data rdarg /'#{}% c'/
-   69:
-   70:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   74:      data rdarg /'#{}% c'/
+   75:
+   76:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iopos.F' (mode='fix')..
-   77:      mlog = cmdopt('--mlog',6,0,strn)
-   78:      if (procid .eq. master) then
-   79:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   83:      mlog = cmdopt('--mlog',6,0,strn)
+   84:      if (procid .eq. master) then
+   85:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iopos.F' (mode='fix')..
-  172:      endif
-  173:      call fclose(ifi)
-  174:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  197:      endif
+  198:      call fclose(ifi)
+  199:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iopos.F' (mode='fix')..
-  185:        endif
-  186:      endif
-  187:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  210:        endif
+  211:      endif
+  212:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
-    6:Cgetarg...info...           structure ['iors', 'spec', 'sspec']
-    7:Cgetarg...info...           use_to_add ['iors', 'm_struc_def']
-    8:#define FP 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+   19:Cgetarg...info...           structure ['iors', 'spec', 'sspec']
+   20:Cgetarg...info...           use_to_add ['iors', 'm_struc_def']
+   21:#define FP 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
-  403:c           print *, 'yyyyyyyy iors 11111'
-  404:cccccccccccccc
-  405:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  429:c           print *, 'yyyyyyyy iors 11111'
+  430:cccccccccccccc
+  431:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
-  494:        call mpibc1(w(osmrho),2*k1*k2*k3*nsp,4,mlog,'iors','smrho')
-  495:  115   continue
-  496:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  550:        call mpibc1(w(osmrho),2*k1*k2*k3*nsp,4,mlog,'iors','smrho')
+  551:  115   continue
+  552:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
-  496:#else
-  497:        call rx('smooth density not implemented')
-  498:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  552:#else
+  553:        call rx('smooth density not implemented')
+  554:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
-  964:          if (isanrg(lmxl,  0,lmxa,  msg,'lmxl', .false.)) goto 999
-  965:
-  966:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1020:          if (isanrg(lmxl,  0,lmxa,  msg,'lmxl', .false.)) goto 999
+ 1021:
+ 1022:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
-  967:          if (kmax0.ne.kmax.and.ipr.ge.10)
-  968:     .      write(stdo,201) ib,spid,'kmax',kmax0,kmax
-  969:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1023:          if (kmax0.ne.kmax.and.ipr.ge.10)
+ 1024:     .      write(stdo,201) ib,spid,'kmax',kmax0,kmax
+ 1025:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
- 1105:        if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
- 1106:
- 1107:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1207:        if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
+ 1208:
+ 1209:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
- 1120:          call pvsms2(ssite,sspec,wk,nbas,nsp,orhoat)
- 1121:        endif
- 1122:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1224:          call pvsms2(ssite,sspec,wk,nbas,nsp,orhoat)
+ 1225:        endif
+ 1226:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
- 1402:
- 1403:C   --- Write smooth charge density ---
- 1404:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1553:
+ 1554:C   --- Write smooth charge density ---
+ 1555:#if FP <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iors.F' (mode='fix')..
- 1410:        endif
- 1411:        call dpdftr(n1,n2,n3,k1,k2,k3,nsp,w(osmrho),lbin,-jfi)
- 1412:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1563:Cdelw1 do not change osmrho because of ['wref']
+ 1564:        call dpdftr(n1,n2,n3,k1,k2,k3,nsp,w(osmrho),lbin,-jfi)
+ 1565:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iosits.F' (mode='fix')..
   140:
   141:C ... Local parameters
@@ -3457,53 +3477,53 @@ WARNING while processing 'subs/iosits.F' (mode='fix')..
   604:      endif
   605:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  131:      else
-  132:C   ... Open file, and read header
-  133:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  159:      else
+  160:C   ... Open file, and read header
+  161:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  133:#if MASTERIO
-  134:        if (procid .eq. 0) then
-  135:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  161:#if MASTERIO
+  162:        if (procid .eq. 0) then
+  163:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  156:        call isanrg(lmaxwr,lmaxw,lmaxw,'file: IOSTR:','lmaxw',.false.)
-  157:
-  158:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  184:        call isanrg(lmaxwr,lmaxw,lmaxw,'file: IOSTR:','lmaxw',.false.)
+  185:
+  186:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  167:        call mpibc1(nttab,1,2,.false.,'iostr','nttab')
-  168:        call mpibc1(nitab,1,2,.false.,'iostr','nitab')
-  169:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  195:        call mpibc1(nttab,1,2,.false.,'iostr','nttab')
+  196:        call mpibc1(nitab,1,2,.false.,'iostr','nitab')
+  197:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  200:        if (getdig(lio23,1,2) .eq. 0) then
-  201:          call rxx(getdig(lio23,0,2).eq.1,'iostr not ready for complex')
-  202:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  241:        if (getdig(lio23,1,2) .eq. 0) then
+  242:          call rxx(getdig(lio23,0,2).eq.1,'iostr not ready for complex')
+  243:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  202:#if MASTERIO
-  203:          if (procid .eq. 0) then
-  204:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  243:#if MASTERIO
+  244:          if (procid .eq. 0) then
+  245:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  207:          lerr = iostr2(ifi,nbas,nttab,nblk,lscoff,nds,nkap,
-  208:     .                  w(onpr),w(oiax),kap2,w(oalpha),w(os))
-  209:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  252:          lerr = iostr2(ifi,nbas,nttab,nblk,lscoff,nds,nkap,
+  253:     .                  w(onpr),w(oiax),kap2,w(oalpha),w(os))
+  254:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  219:C         entime = MPI_WTIME()
-  220:C         call info2(20,0,0,'  took %;1d sec',(entime-sttime),0)
-  221:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  268:C         entime = MPI_WTIME()
+  269:C         call info2(20,0,0,'  took %;1d sec',(entime-sttime),0)
+  270:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  222:C   ... Read strux, vector format
-  223:        else
-  224:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  271:C   ... Read strux, vector format
+  272:        else
+  273:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  224:#if MASTERIO
-  225:          if (procid .eq. 0) then
-  226:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  273:#if MASTERIO
+  274:          if (procid .eq. 0) then
+  275:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  228:     .                  w(onpr),w(oiax),kap2,w(os))
-  229:        endif
-  230:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  280:     .                  w(onpr),w(oiax),kap2,w(os))
+  281:        endif
+  282:#if MASTERIO <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/iostr.F' (mode='fix')..
-  236:     .      's')
-  237:        endif
-  238:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  291:     .      's')
+  292:        endif
+  293:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/lattc.F' (mode='fix')..
     1:#define F90 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/lattc.F' (mode='fix')..
@@ -3939,37 +3959,37 @@ WARNING while processing 'subs/m_struc_def.F' (mode='fix')..
  2333:        utb_size=n
  2334:#endif  /* MPIADDRESS*/ <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/mcasim.F' (mode='fix')..
-  366:        endif
-  367:
-  368:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  601:        endif
+  602:
+  603:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/mcasim.F' (mode='fix')..
-  374:C     .  ' etot=%;4d de=%;4d undo=%l',' ',80,6,i1,ib,i2,jb,etot,de,lundo)
-  375:C        call awrit2('  iprm=%n:1i',' ',80,6,nbas,iprm)
-  376:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  609:C     .  ' etot=%;4d de=%;4d undo=%l',' ',80,6,i1,ib,i2,jb,etot,de,lundo)
+  610:C        call awrit2('  iprm=%n:1i',' ',80,6,nbas,iprm)
+  611:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/mcasim.F' (mode='fix')..
-  440:      iprmi(ib1) = i2
-  441:      iprmi(ib2) = i1
-  442:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  678:      iprmi(ib1) = i2
+  679:      iprmi(ib2) = i1
+  680:#if DEBUG <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/mcasim.F' (mode='fix')..
-  445:      if (iprm(i1) .ne. ib1) stop 'bug in mcasw'
-  446:      if (iprm(i2) .ne. ib2) stop 'bug in mcasw'
-  447:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  683:      if (iprm(i1) .ne. ib1) stop 'bug in mcasw'
+  684:      if (iprm(i2) .ne. ib2) stop 'bug in mcasw'
+  685:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/mkqp.F' (mode='fix')..
-  157:        endif
-  158:        call defdr(owtkp,-mxkp)
-  159:#if TRSYMM <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'subs/mkqp.F' (mode='fix')..
-  159:#if TRSYMM
-  160:        call dvset(w(owtkp),1,1,dble(nsgrp))
-  161:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'subs/mkqp.F' (mode='fix')..
-  192:        call rlse(owtkp)
-  193:        call defdr(owtkp,-nkp)
+  192:Cdelw1 do not change owtkp because of ['wref']
+  193:        call defdr(owtkp,-mxkp)
   194:#if TRSYMM <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/mkqp.F' (mode='fix')..
-  194:#if TRSYMM
-  195:        call dvset(w(owtkp),1,1,dble(nsgrp))
-  196:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  195:Cdelw1 do not change owtkp because of ['wref']
+  196:        call dvset(w(owtkp),1,1,dble(nsgrp))
+  197:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'subs/mkqp.F' (mode='fix')..
+  246:Cdelw1 do not change owtkp because of ['wref']
+  247:        call defdr(owtkp,-nkp)
+  248:#if TRSYMM <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'subs/mkqp.F' (mode='fix')..
+  249:Cdelw1 do not change owtkp because of ['wref']
+  250:        call dvset(w(owtkp),1,1,dble(nsgrp))
+  251:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/prmx.F' (mode='fix')..
    32:      ifi = fopna('out',29,0)
    33:      rewind ifi
@@ -4055,73 +4075,73 @@ WARNING while processing 'subs/rdsigm.F' (mode='fix')..
   283:      lfbzin = lfbzin .or. mod(lssym,2)
   284:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1282:      double precision qp(3),errmxx,errmx,err,qpr(3),xx
- 1283:      double complex hwk(ndhrs,ndhrs)
- 1284:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1278:      double precision qp(3),errmxx,errmx,err,qpr(3),xx
+ 1279:      double complex hwk(ndhrs,ndhrs)
+ 1280:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1285:      complex(8),allocatable:: sq(:,:),sq1(:,:),uz(:,:)
- 1286:C     complex(8),allocatable:: h(:,:),s(:,:)
- 1287:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1281:      complex(8),allocatable:: sq(:,:),sq1(:,:),uz(:,:)
+ 1282:C     complex(8),allocatable:: h(:,:),s(:,:)
+ 1283:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1287:#else
- 1288:      double complex sq(ndimh,ndimh),sq1(ndimh,ndimh),uz(ndimh,ndimh)
- 1289:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1283:#else
+ 1284:      double complex sq(ndimh,ndimh),sq1(ndimh,ndimh),uz(ndimh,ndimh)
+ 1285:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1301:      nscnts = 0
- 1302:
- 1303:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1297:      nscnts = 0
+ 1298:
+ 1299:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1303:#if F90
- 1304:      allocate(sq(ndimh,ndimh),sq1(ndimh,ndimh))
- 1305:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1299:#if F90
+ 1300:      allocate(sq(ndimh,ndimh),sq1(ndimh,ndimh))
+ 1301:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1307:C --- Rotate hrs if switch set ---
- 1308:      if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
- 1309:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1303:C --- Rotate hrs if switch set ---
+ 1304:      if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
+ 1305:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1309:#if F90
- 1310:        allocate(uz(ndimh,ndimh))
- 1311:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1305:#if F90
+ 1306:        allocate(uz(ndimh,ndimh))
+ 1307:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1490:      enddo
- 1491:
+ 1486:      enddo
+ 1487:
+ 1488:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'subs/rdsigm.F' (mode='fix')..
+ 1488:#if F90
+ 1489:      deallocate(sq,sq1)
+ 1490:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'subs/rdsigm.F' (mode='fix')..
+ 1490:#endif
+ 1491:      if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
  1492:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
  1492:#if F90
- 1493:      deallocate(sq,sq1)
+ 1493:        deallocate(uz)
  1494:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1494:#endif
- 1495:      if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
- 1496:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1581:  306 format(' Failed to parse string ',a,' ... try again.')
+ 1582:  100 continue
+ 1583:#if PRTNOCR <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1496:#if F90
- 1497:        deallocate(uz)
- 1498:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1583:#if PRTNOCR
+ 1584:      print '('' Option (enter ? for menu) : '',$)'
+ 1585:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1585:  306 format(' Failed to parse string ',a,' ... try again.')
- 1586:  100 continue
- 1587:#if PRTNOCR <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1587:#if PRTNOCR
- 1588:      print '('' Option (enter ? for menu) : '',$)'
- 1589:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
-WARNING while processing 'subs/rdsigm.F' (mode='fix')..
- 1589:#else
- 1590:      print '('' Option (enter ? for menu) : '')'
- 1591:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1585:#else
+ 1586:      print '('' Option (enter ? for menu) : '')'
+ 1587:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm2.F' (mode='fix')..
-  134:        call sigflg(dc,'rsig',out2,w,w,w,lfbzin,w,lonesp,qoffi,w)
-  135:      endif
-  136:#if 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  203:        call sigflg(dc,'rsig',out2,w,w,w,lfbzin,w,lonesp,qoffi,w)
+  204:      endif
+  205:#if 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm2.F' (mode='fix')..
-  140:      lfbzin = .false.
-  141:      endif
-  142:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  209:      lfbzin = .false.
+  210:      endif
+  211:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rdsigm2.F' (mode='fix')..
-  142:#else
-  143:      lfbzin = lfbzin .or. mod(lssym,2)
-  144:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  211:#else
+  212:      lfbzin = lfbzin .or. mod(lssym,2)
+  213:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rnatm.F' (mode='fix')..
     1:#define F90 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/rnatm.F' (mode='fix')..
@@ -4153,13 +4173,13 @@ WARNING while processing 'subs/ropbes_alternative.F' (mode='fix')..
    46:      end subroutine bessel_yl
    47:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/ropyln.F' (mode='fix')..
-  117:C    2 yl(i,lav-m) = sm(i)*q(i,kk)
-  118:C      end
-  119:#if TEST <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  156:C    2 yl(i,lav-m) = sm(i)*q(i,kk)
+  157:C      end
+  158:#if TEST <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/ropyln.F' (mode='fix')..
-  192:
-  193:      end
-  194:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  237:Cdelw1 w_varlist (del), remains: (None)
+  238:      end
+  239:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/roth.F' (mode='fix')..
   600:     .  offli(n0*nkap0),offlj(n0*nkap0)
   601:      double precision twopi,sp,cosP,sinP,tbas(3),xx
@@ -4229,7 +4249,9 @@ WARNING while processing 'subs/shorps.F' (mode='fix')..
   231:      end
   232:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/subzi.F' (mode='fix')..
-    1:#define MPI 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+    5:Cdelw1 undel [['call', 'wref'], 'oevl', 'subzi']
+    6:Cdelw1 undel [['call', 'wref'], 'owtkb', 'subzi']
+    7:#define MPI 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/suqlst.F' (mode='fix')..
     1:#define MULLIKEN 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'subs/suqlst.F' (mode='fix')..
@@ -5063,9 +5085,9 @@ using cached subs/xxxbnd.F
 using cached subs/xxxdif.F
 using cached subs/ylmrtg.F
 ------------ dictionary ------------------
-{'hansr4': 'subs/hansr4.F', 'hansr5': 'subs/hansr5.F', 'invbl': 'subs/invbl.F', 'interparam': 'subs/rotwv.F', 'ppi2z': 'fp/gaugm.F', 'hansr1': 'subs/hansr.F', 'hansr2': 'subs/hansr.F', 'scg': 'subs/scg.F', 'imxmnx': 'subs/orbl.F', 'ddet33': 'subs/mkplat.F', 'rotdlmm': 'subs/suham.F', 'aiomp': 'subs/aiomp.F', 'getef': 'subs/getef.F', 'vecpkl': 'subs/vecpkl.F', 'gvlst2': 'subs/gvlst2.F', 'vxcnsp': 'fp/vxcnsp.F', 'iorbtm': 'subs/iorbtm.F', 'clsset': 'subs/clsset.F', 'nwitsv': 'subs/nwit.F', 'getqvc': 'subs/getq.F', 'iclbsj': 'subs/iclbas.F', 'rseq': 'subs/rseq.F', 'poiss0': 'subs/atomsr.F', 'gvsym': 'fp/gvsym.F', 'ioqpp': 'lmv7util.F subs/clsprm.F', 'rdistn': 'subs/qdist.F', 'uham_init': 'subs/m_struc_def.F', 'setcg': 'subs/setcg.F', 'eprod': 'subs/pairc.F', 'gvlstn': 'subs/gvlst2.F', 'pqmixb': 'subs/pqmix.F', 'hansrz': 'subs/hansrz.F', 'fint': 'subs/hnsmft.F', 'mkewgt': 'fp/mkewgt.F', 'sclwsr': 'subs/sclwsr.F', 'gvlsts': 'subs/gvlst2.F', 'cshear': 'subs/cshear.F', 'pblch1': 'subs/bloch.F', 'aiosop': 'subs/aiosop.F', 'ovmin': 'subs/ovmin.F', 'symtbl': 'subs/symtbl.F', 'rnatm': 'subs/rnatm.F', 'tocast': 'subs/findes.F', 'bessel': 'subs/ropbes_alternative.F', 'corlsd': 'subs/easypbe.F subs/evxc.F', 'gensym': 'subs/gensym.F', 'gwcphi': 'fp/gwcphi.F', 'prelx1': 'subs/relax.F', 'intnos': 'subs/intnos.F', 'mark1': 'subs/bzwts.F', 'gengrp': 'subs/gengrp.F', 'xmpbnd': 'fp/bndfp.F', 'tailsm': 'subs/tailsm.F', 'ioorbp': 'subs/ioorbp.F', 'uspecb': 'subs/uspecb.F', 'sgroup': 'subs/spcgrp.F', 'prlcb1': 'fp/bstrux.F', 'ropbs1': 'subs/ropbes.old.F', 'prlcb3': 'fp/rlocbl.F', 'prlcb2': 'fp/rlocbl.F', 'suqlst': 'subs/suqlst.F', 'xxxadd': 'subs/shear.F', 'vldau': 'subs/vldau.F', 'ifindiv': 'fp/hsibl.F', 'suqlsm': 'subs/suqlst.F', 'ftlxp2': 'fp/ftlxp.F', 'stplat': 'subs/mkplat.F', 'newrho': 'subs/atomsr.F', 'rwftai': 'fp/vxtrap.F', 'upot_size': 'subs/m_struc_def.F', 'makrm0': 'subs/makrm0.F', 'pgvmat': 'subs/gvmtch.F', 'rhgcm3': 'fp/rhgcmp.F', 'rhgcm2': 'fp/rhgcmp.F', 'grdepl': 'fp/lmfp.F', 'm_struc_func': 'subs/m_struc_def.F', 'iosigh': 'subs/rdsigm.F', 'symes': 'subs/findes.F', 'pqmxio': 'subs/pqmix.F', 'product2': 'subs/rdeq.F', 'gtv_i4': 'subs/m_gtv.F', 'igann': 'subs/suham.F', 'atomsc': 'subs/atomsr.F', 'volsph': 'subs/volsph.F', 'hxpbl': 'fp/hxpbl.F', 'groupg': 'subs/groupg.F', 'ifindiv2': 'fp/hsibl.F', 'bzwtsm': 'subs/bzwtsf.F', 'dfphi': 'subs/dfphi.F', 'bzwtsf': 'subs/bzwtsf.F', 'shortn3_initialize': 'subs/shorbz.F', 'chebev': 'subs/ropbes.F', 'cpplat': 'subs/roplat.F', 'getgv2': 'subs/pairc.F', 'cvplat': 'subs/mkplat.F', 'iclbas': 'subs/iclbas.F', 'corpbe': 'subs/easypbe.F', 'writebasis': 'subs/writebasis.F', 'sugw': 'fp/sugw.F', 'bessel_yl': 'subs/ropbes_alternative.F', 'upot_init': 'subs/m_struc_def.F', 'gennlat': 'subs/pairc.F', 'chkes': 'subs/findes.F', 'hansr': 'subs/hansr.F', 'gtv_setst': 'subs/m_gtv.F', 'rhgcmp': 'fp/rhgcmp.F', 'asars1': 'subs/asars.F', 'prlrho': 'fp/prrhat.F', 'uspec_size': 'subs/m_struc_def.F', 'upacks': 'subs/struc_strn.F', 's3pklx': 'subs/pkli.F', 'iosiga': 'subs/mcasim.F', 'pvgtkn': 'fp/mkekin.F', 'fpchk': 'fp/fpchk.F', 'ropynx': 'subs/ropyln1.F', 'mcasho': 'subs/mcasim.F', 'ropbes': 'subs/ropbes.F subs/ropbes.old.F subs/ropbes_alternative.F', 'rlxstp': 'subs/rlxstp.F', 'getuk': 'subs/easypbe.F', 'hklos': 'fp/hklos.F', 'symsmr': 'fp/symrho.F', 'baslst': 'subs/baslst.F', 'pwmat': 'fp/pwmat.F', 'initialize': 'subs/m_sstrnsname.F', 'bndfp': 'fp/bndfp.F', 'pvmix3': 'fp/mixrho.F', 'paugnl': 'fp/paug1.F', 'shortn3': 'subs/shorbz.F', 'ghibl': 'fp/ghibl.F', 'mshdot': 'fp/mshdot.F', 'flocbl': 'fp/flocbl.F', 'pvmix6': 'fp/mixrho.F', 'swrho': 'fp/splrho.F', 'findctrlstart': 'lmv7.F lmfav7.F lmv7util.F', 'bzmio': 'subs/bzmio.F', 'jxpos': 'fp/jxpos.F', 'xxxbfp': 'fp/bndfp.F', 'rotspu': 'subs/rotspu.F', 'utb_init': 'subs/m_struc_def.F', 'ovlchk': 'subs/ovlchk.F', 'atwf': 'subs/atwf.F', 'shoist': 'subs/shoist.F', 'lsets_bitop_i8': 'subs/spackv_array_copy.F', 'clabel': 'subs/clabel.F', 'aiocls': 'lmv7util.F subs/aiocls.F', 'prmx': 'subs/prmx.F', 'dvdos': 'subs/dvdos.F', 'relax': 'subs/relax.F', 'paug2': 'fp/paug1.F', 'paug3': 'fp/paug1.F', 'paug1': 'fp/paug1.F', 'paug4': 'fp/paug1.F', 'ylmrtg': 'subs/ylmrtg.F', 'sigswitch': 'subs/switch.F', 'ustr_show': 'subs/m_struc_def.F', 'prodx2d': 'subs/rotwv.F', 'totfrc': 'fp/totfrc.F', 'freeat': 'subs/freeat.F subs/freeat.bk.F', 'fullmesh': 'subs/switch.F', 'shortn': 'subs/shortn.F', 'gtbsl2': 'fp/gtbsl2.F', 'defpq': 'subs/defpq.F', 'addbas': 'subs/addbas.F', 'smhsbl': 'fp/smhsbl.F', 'supot': 'fp/supot.F', 'splwts': 'subs/splwts.F', 'pysmr1': 'subs/symq.F', 'setuk': 'subs/easypbe.F', 'ppair1': 'subs/pairc.F', 'evcflg': 'subs/rotevs.F', 'flocb2': 'fp/flocbl.F', 'mtchae': 'subs/mtchae.F', 'lx2vec': 'subs/lx2vec.F', 'grpgen': 'subs/grpgen.F', 'parsop': 'subs/psymop.F', 'prothr': 'subs/roth.F', 'addes2': 'subs/findes.F', 'makusq': 'fp/makusq.F', 'shoshl': 'subs/shoshl.F', 'grdep2': 'subs/relax.F', 'makusp': 'fp/makusp.F', 'pvang1': 'subs/shoshl.F', 'pvang2': 'subs/shoshl.F', 'paioc2': 'lmv7util.F subs/aiocls.F', 'perdew': 'subs/evxc.F', 'rdist': 'subs/qdist.F', 'addrwf': 'subs/addrwf.F', 'gtv_setio': 'subs/m_gtv.F', 'lmfp': 'fp/lmfp.F', 'shorbz': 'subs/shorbz.F', 'pairc': 'subs/pairc.F', 'pchms2': 'subs/chgmsh.F', 'aginv': 'subs/mksym.F', 'prpos': 'subs/findes.F', 'getinput_i4': 'subs/m_gtv.F', 'surho': 'fp/surho.F', 'pz2idx': 'subs/suidx.F', 'mkekin': 'fp/mkekin.F', 'config': 'subs/config.F', 'praugm': 'fp/praugm.F', 'dosio': 'subs/dosio.F', 'yprm': 'subs/prmx.F', 'gvgvcomp': 'fp/rsibl.F', 'trysop': 'subs/trysop.F', 'augq3z': 'fp/augmbl.F', 'mkcond': 'subs/mkcond.F', 'lattc': 'subs/lattc.F', 'deflmx': 'subs/findes.F', 'zclabl': 'subs/findes.F', 'rotwv': 'subs/rotwv.F', 'splrho': 'fp/splrho.F', 'fradhd': 'fp/fradhd.F', 'hgugbl': 'fp/hgugbl.F', 'uspec_show': 'subs/m_struc_def.F', 'gtv_lg': 'subs/m_gtv.F', 'iax2fd': 'subs/iax2fd.F', 'siged': 'subs/rdsigm.F', 'ugw_size': 'subs/m_struc_def.F', 'rsedit': 'fp/rsedit.F', 'sylm': 'subs/sylm.F', 'conv2int': 'subs/rotwv.F', 'pdstlb': 'subs/dstrbp.F', 'pmtsig': 'subs/switch.F', 'pchmsh': 'subs/chgmsh.F', 'avwsr': 'subs/avwsr.F', 'spkli': 'subs/pkli.F', 'rsibl': 'fp/rsibl.F', 'dfratm': 'fp/dfratm.F', 'popta5': 'subs/freeat.F subs/freeat.bk.F', 'popta2': 'subs/freeat.F subs/freeat.bk.F', 'popta3': 'subs/freeat.F subs/freeat.bk.F', 'popta1': 'subs/freeat.F subs/freeat.bk.F', 'delstd': 'subs/delstd.F', 'getqp': 'subs/getqp.F', 'mkrout': 'fp/mkrout.F', 'hamfb3k': 'subs/hamfb3.F', 'symstr': 'subs/symstr.F', 'ghios': 'fp/ghios.F', 'vxcgr2': 'subs/vxcgr2.F', 'asprjq': 'subs/atomsr.F', 'delstp': 'subs/delstp.F', 'bzmsh0': 'subs/bzmesh.F', 'rsmsym': 'subs/rsmsym.F', 'bstrux': 'fp/bstrux.F', 'lmhelp': 'lmv7.F lmfav7.F lmv7util.F', 'tbhsi': 'fp/tbhsi.F', 'soprm': 'subs/soprm.F', 'ftfalo': 'subs/freeat.F subs/freeat.bk.F', 'suham2': 'subs/suham2.F', 'freats': 'subs/freeat.F subs/freeat.bk.F', 'gcor': 'subs/easypbe.F subs/evxc.F', 'nnrl': 'subs/nnrl.F', 'makrwf': 'subs/makrwf.F', 'pnunew': 'fp/pnunew.F', 'chkxpn': 'fp/fpchk.F', 'poinsp': 'fp/poinsp.F', 'usite_size': 'subs/m_struc_def.F', 'adbkql': 'fp/addbkg.F', 'iostr': 'subs/iostr.F', 'shear': 'subs/shear.F', 'rmesh': 'subs/rmesh.F', 'mkrou1': 'fp/mkrout.F', 'mkrou2': 'fp/mkrout.F', 'mkrou3': 'fp/mkrout.F', 'mkrou4': 'fp/mkrout.F', 'mkrou5': 'fp/mkrout.F', 'mkrou6': 'fp/mkrout.F', 'xlgen': 'subs/xlgen.F', 'zprm3': 'subs/prmx.F', 'gvgetf': 'subs/gvlist.F', 'clsprp': 'lmv7util.F subs/clsprm.F', 'augqs3': 'fp/augmbl.F', 'clsprm': 'lmv7util.F subs/clsprm.F', 'shorps': 'subs/shorps.F', 'hklgbl': 'fp/hklgbl.F', 'debugmode': 'subs/switch.F', 'tkadd': 'subs/m_toksw.F', 'sortea': 'subs/pairc.F', 'lcrho': 'fp/splrho.F', 'bigges': 'subs/findes.F', 'rhomom': 'fp/rhomom.F', 'gtv_r8v': 'subs/m_gtv.F', 'hsmq': 'subs/hsmq.F', 'spgcop': 'subs/spcgrp.F', 'cppos': 'fp/lmfp.F', 'zevl': 'fp/stonerrsa.F', 'pvioeu': 'subs/ioeula.F', 'mcasan': 'subs/mcasim.F', 'tksw': 'subs/m_toksw.F', 'prmx0': 'subs/prmx.F', 'gtpmin': 'subs/findes.F', 'suqlse': 'subs/suqlst.F', 'hansz1': 'subs/hansrz.F', 'hansz2': 'subs/hansrz.F', 'divctakao': 'subs/rdsigm.F', 'suphas': 'fp/suphas.F', 'gtbvec': 'subs/gtbvec.F', 'mkidx2': 'subs/makidx.F', 'pvrhm2': 'fp/rhomom.F', 'projql': 'subs/projql.F', 'latrel': 'subs/findes.F', 'beschb': 'subs/ropbes.F', 'ovcall': 'subs/ovmin.F', 'getinput_i4v': 'subs/m_gtv.F', 'chkdmu': 'subs/chkdmu.F', 'lgstar': 'fp/lgstar.F', 'prodln': 'subs/roplat.F', 'rstr0': 'subs/rstr0.F', 'paugq1': 'fp/bstrux.F', 'paugq2': 'fp/bstrux.F', 'f100': 'subs/f100.F', 'optfab': 'subs/freeat.F subs/freeat.bk.F', 'uoptic_show': 'subs/m_struc_def.F', 'hnsmft': 'subs/hnsmft.F', 'hsibl1': 'fp/hsibl.F', 'wripp': 'subs/invbl.F', 'pairtakao': 'subs/pairc.F', 'spec2c': 'fp/lmaux.F', 'makus2': 'fp/makusp.F', 'sugcut': 'subs/sugcut.F', 'pqmixa': 'subs/pqmix.F', 'pqmixc': 'subs/pqmix.F', 'lattic': 'subs/lattic.F', 'pvaioc': 'lmv7util.F subs/aiocls.F', 'vxc0sp': 'subs/vxc0sp.F', 'fswgts': 'subs/fswgts.F', 'matm': 'fp/bndconn_v2.F', 'nosbzm': 'subs/nosbzm.F', 'uordn_show': 'subs/m_struc_def.F', 'ortrwf': 'subs/addrwf.F', 'ubz_init': 'subs/m_struc_def.F', 'spacks_copy': 'subs/spackv_array_copy.F', 'pvmix9': 'fp/mixrho.F', 'uordn_size': 'subs/m_struc_def.F', 'pusq2': 'fp/makusq.F', 'hambl': 'fp/hambl.F', 'polinta': 'fp/polinta.F', 'pusq1': 'fp/makusq.F', 'paugqp': 'fp/bstrux.F', 'pvmix7': 'fp/mixrho.F', 'pvmix4': 'fp/mixrho.F', 'pvmix5': 'fp/mixrho.F', 'sumlst': 'subs/sumlst.F', 'pairs': 'subs/pairc.F', 'pviomx': 'subs/iomomx.F', 'sttmpd': 'lmv7.F lmfav7.F', 'vxcns4': 'fp/vxcnsp.F', 'vxcns5': 'fp/vxcnsp.F', 'vxcns2': 'fp/vxcnsp.F', 'vxcns3': 'fp/vxcnsp.F', 'lindsc': 'fp/lindsc.F', 'corpw91': 'subs/easypbe.F', 'rdsigm': 'subs/rdsigm.F', 'makrot': 'subs/makrot.F', 'hsmbl': 'fp/hsmbl.F', 'radpkl': 'subs/radpkl.F', 'fradpk': 'fp/fradpk.F', 'rhogkl': 'fp/rhogkl.F', 'bessl2': 'subs/besslr.F', 'uham_size': 'subs/m_struc_def.F', 'suham': 'subs/suham.F', 'phidx': 'subs/phidx.F', 'mchan': 'subs/mchan.F', 'getinput_char': 'subs/m_gtv.F', 'm_events': 'fp/m_events.F', 'psymrf': 'fp/symrho.F', 'm_hamindex': 'subs/m_hamindex.F', 'mkcfus': 'fp/mkrout.F', 'easypbe': 'subs/easypbe.F', 'prmr': 'subs/prmx.F', 'psymrq': 'fp/symrho.F', 'uoptic_size': 'subs/m_struc_def.F', 'wrirsh': 'subs/invbl.F', 'dosspl': 'subs/dosspl.F', 'mkpdos': 'fp/mkpdos.F', 'radmsh': 'subs/radmsh.F', 'addzbk': 'subs/atomsr.F', 'dlmn': 'subs/dlmn.F', 'rhopos': 'fp/symrho.F', 'pxsmr1': 'subs/symq.F', 'strx00': 'subs/strx00.F', 'm_gtv': 'subs/m_gtv.F', 'suqlsr': 'subs/suqlst.F', 'radgkl': 'subs/radgkl.F', 'uspec_init': 'subs/m_struc_def.F', 'besslr': 'subs/besslr.F', 'phvsfp': 'subs/phvsfp.F', 'aiorme': 'subs/aiorme.F', 'xperdew': 'subs/evxc.F', 'clear_swtok': 'subs/m_toksw.F', 'mcasw': 'subs/mcasim.F', 'prm3': 'subs/prmx.F', 'chimedit': 'fp/chimedit.F', 'psymr1': 'fp/symrho.F', 'psymr0': 'subs/symq.F', 'besslm': 'subs/besslr.F', 'suqlsw': 'subs/suqlst.F', 'sgvsym': 'fp/sgvsym.F', 'fctp': 'subs/atomsr.F', 'xyrhsr': 'subs/atomsr.F', 'optimise': 'subs/dstrbp.F', 'm_toksw': 'subs/m_toksw.F', 'gtv_r8': 'subs/m_gtv.F', 'aiopar': 'subs/aiopar.F', 'nghbor': 'subs/nghbor.F', 'radgra': 'subs/evxc.F', 'gvaddf': 'subs/gvlist.F', 'atqval': 'fp/atqval.F', 'pptrns': 'subs/pptrns.F', 'suphs0': 'fp/suphas.F', 'mkrtab': 'subs/mkrtab.F', 'parmx0': 'subs/parmxp.F', 'mcasms': 'subs/mcasim.F', 'prm': 'subs/prmx.F', 'ropqln': 'subs/ropyln1.F', 'tpkli': 'subs/pkli.F', 'mcasme': 'subs/mcasim.F', 'bndconn_v2': 'fp/bndconn_v2.F', 'ropyln': 'subs/ropyln.F', 'suqlsw2': 'subs/suqlst.F', 'matgg2': 'fp/pwmat.F', 'ebcpl': 'subs/bzwts.F', 'radmwt': 'subs/radmsh.F', 'rotmat': 'subs/mkplat.F', 'exchpw91': 'subs/easypbe.F', 'gvmtch': 'subs/gvmtch.F', 'nwit': 'subs/nwit.F', 'rdsigm2': 'subs/rdsigm2.F', 'mxxyz': 'subs/bzmesh.F', 'iors': 'subs/iors.F', 'scglp1': 'subs/scglp1.F', 'distes': 'subs/findes.F', 'pvstr0': 'subs/rstr0.F', 'hansmd': 'subs/hansmd.F', 'readctrlpq': 'subs/m_rdctrl.F', 'parms0': 'subs/parmxp.F', 'fixpos': 'subs/fixpos.F', 'multiple': 'subs/dstrbp.F', 'dpdftr': 'subs/dpdftr.F', 'mcasm2': 'subs/mcasim.F', 'prsed1': 'fp/rsedit.F', 'prsed2': 'fp/rsedit.F', 'prsed3': 'fp/rsedit.F', 'prsed4': 'fp/rsedit.F', 'prsed5': 'fp/rsedit.F', 'sigflg': 'subs/rdsigm.F', 'noshorbz': 'subs/switch.F', 'gvlist': 'subs/gvlist.F', 'iosits': 'subs/iosits.F', 'utb_size': 'subs/m_struc_def.F', 'popta4': 'subs/freeat.F subs/freeat.bk.F', 'find_region': 'subs/m_toksw.F', 'renam': 'subs/findes.F', 'symvvl': 'fp/mshvmt.F', 'mkpot': 'fp/mkpot.F', 'potpus': 'fp/potpus.F', 'getinput_r8': 'subs/m_gtv.F', 'grpfnd': 'subs/grpfnd.F', 'danrm2': 'subs/roplat.F', 'makidx': 'subs/makidx.F', 'toksw_init': 'subs/m_rdctrl.F', 'hklft': 'fp/hklft.F', 'stoner': 'subs/stoner.F', 'mkqp': 'subs/mkqp.F', 'symia1': 'subs/symiax.F', 'symprj': 'subs/symprj.F', 'symia0': 'subs/symiax.F', 'uctrl_size': 'subs/m_struc_def.F', 'hsmblq': 'fp/hsmbl.F', 'hhibl': 'fp/hhibl.F', 'makdos': 'subs/makdos.F', 'mdeses': 'subs/findes.F', 'locpt2': 'fp/locpot.F', 'sumsro': 'subs/sumsro.F', 'hsmbld': 'fp/hsmbl.F', 'radsum': 'subs/radmsh.F', 'mkorbm': 'fp/mkorbm.F', 'gaugm': 'fp/gaugm.F', 'umix_show': 'subs/m_struc_def.F', 'mkplat': 'subs/mkplat.F', 'hhugbl': 'fp/hhugbl.F', 'sphbes': 'subs/ropbes.F', 'cosvec': 'subs/mkplat.F', 'suldau': 'subs/suldau.F', 'ldau': 'subs/ldau.F', 'pqmix': 'subs/pqmix.F', 'madmat': 'subs/madmat.F', 'intnb': 'subs/stoner.F', 'hansmr': 'subs/hansmr.F', 'pvsym2': 'subs/mksym.F', 'maknos': 'subs/maknos.F', 'fixef0': 'subs/fixef0.F', 'prothl': 'subs/roth.F', 'gtv_entrance': 'subs/m_gtv.F', 'loctsh': 'fp/loctsh.F', 'pvrotd': 'subs/roth.F', 'ioden2': 'fp/ioden.F', 'suidx': 'subs/suidx.F', 'm_rdctrl': 'subs/m_rdctrl.F', 'dfaugm': 'fp/dfaugm.F', 'pkl2r': 'subs/pkli.F', 'pvrott': 'subs/roth.F', 'spackv_array_copy_i8_i': 'subs/spackv_array_copy.F', 'ubz_size': 'subs/m_struc_def.F', 'protht': 'subs/roth.F', 'pvrots': 'subs/roth.F', 'dfqkkl': 'fp/dfqkkl.F', 's3pkl0': 'subs/pkli.F', 'p2ovlc': 'fp/ovlocr.F', 'ioeula': 'subs/ioeula.F', 'chksgr': 'subs/rdsigm.F', 'dpdbyl': 'subs/dpdbyl.F', 'm_rdctrl2_func': 'subs/rdctrl2.F', 'd3nrm2': 'subs/findes.F', 'efldos': 'fp/efldos.F', 'hsibl2': 'fp/hsibl.F', 'hsibl3': 'fp/hsibl.F', 'hsibl4': 'fp/hsibl.F', 'hsibl5': 'fp/hsibl.F', 'hsibl6': 'fp/hsibl.F', 'fsmbpw': 'fp/fsmbpw.F', 'getinput_none': 'subs/m_gtv.F', 'evxc': 'subs/evxc.F subs/evxc.F', 'rsiblp': 'fp/rsibl.F', 'elocp': 'fp/elocp.F', 'nlocxc': 'subs/evxc.F subs/evxc.F', 'augqp3': 'fp/augmbl.F', 'prjpos': 'subs/prjpos.F', 'wrhomt': 'fp/wrhomt.F', 'drr2': 'subs/drr2.F', 'ggugbl': 'fp/ggugbl.F', 'mcmet': 'subs/mcasim.F', 'mcasim': 'subs/mcasim.F', 'iopos': 'subs/iopos.F', 'ulat_init': 'subs/m_struc_def.F', 'rtoint': 'subs/rotwv.F', 'rhocor': 'subs/atomsr.F', 'mullmf': 'fp/mullmf.F', 'smcorm': 'fp/smcorm.F', 'rdctrl2': 'subs/rdctrl2.F', 'rsibl5': 'fp/rsibl.F', 'momusl': 'fp/momusl.F', 'clist': 'subs/clist.F', 'ubz_show': 'subs/m_struc_def.F', 'fctail': 'subs/freeat.F subs/freeat.bk.F', 'iobzwt': 'subs/subzi.F', 'subzi': 'subs/subzi.F', 'hft2rs': 'subs/hft2rs.F', 'sint': 'subs/hnsmft.F', 'rsibl2': 'fp/rsibl.F', 'usite_show': 'subs/m_struc_def.F', 'rsibl1': 'fp/rsibl.F', 'rsibl6': 'fp/rsibl.F', 'rsibl7': 'fp/rsibl.F', 'rsibl4': 'fp/rsibl.F', 'pvaglc': 'fp/gaugm.F', 'prtev': 'fp/prtev.F', 'phkl2r': 'subs/pkli.F', 'gklq': 'fp/gklq.F', 'fovlp': 'subs/fovlp.F', 'pwmat2': 'fp/pwmat.F', 'pvsms3': 'subs/pvsms2.F', 'dstrbp': 'subs/dstrbp.F', 'mxmymz': 'subs/mxmymz.F', 'fctor1': 'subs/veecomp.F', 'bzmesh': 'subs/bzmesh.F', 'vxtrap': 'fp/vxtrap.F', 'idxpr': 'subs/makidx.F', 'setofl': 'fp/setofl.F', 'corprm': 'fp/corprm.F', 'splcls': 'subs/splcls.F', 'symrat': 'fp/symrho.F', 'sclp': 'subs/xxxbnd.F', 'rangedq': 'subs/rotwv.F', 'pqmxup': 'subs/pqmix.F', 't3j_all': 'subs/veecomp.F', 'hft2r1': 'subs/hft2rs.F', 'hft2r2': 'subs/hft2rs.F', 'hft2r3': 'subs/hft2rs.F', 'makrvl': 'subs/rnatm.F', 'hxpgbl': 'fp/hxpgbl.F', 'symiax': 'subs/symiax.F', 'aiogen': 'subs/aiogen.F', 'praldm': 'subs/prdmts.F', 'asymop': 'subs/asymop.F', 'p2pkl': 'subs/pkli.F', 'grpcop': 'subs/grpgen.F', 'offshp': 'subs/orbl.F', 'mshn3p': 'fp/mshn3p.F', 'pvsms1': 'fp/smshft.F', 'mdesat': 'subs/findes.F', 'pvsms2': 'subs/pvsms2.F', 'spackv_array_copy_r8_r8': 'subs/spackv_array_copy.F', 'iget': 'subs/bzwts.F', 'rdm3': 'subs/prmx.F', 'latlim': 'subs/latlim.F', 'vxcgga': 'subs/vxcgga.F', 'umix_init': 'subs/m_struc_def.F', 'getfmt': 'subs/findes.F', 'vlm2us': 'fp/vlm2us.F', 'umove_size': 'subs/m_struc_def.F', 'uarray_show': 'subs/m_struc_def.F', 'gintsr': 'subs/atomsr.F', 'ropcsm': 'subs/ropcsm.F', 'hsibl': 'fp/hsibl.F', 'spgeql': 'subs/spcgrp.F', 'xxxdif': 'subs/xxxdif.F', 'm_sstrnsname': 'subs/m_sstrnsname.F', 'pvclst': 'subs/clsset.F', 'mtchre': 'subs/mtchae.F', 'mul22': 'subs/rdeq.F', 'iomomx': 'subs/iomomx.F', 'mshn31': 'fp/mshn3p.F', 'fctp0': 'subs/atomsr.F', 'mshn32': 'fp/mshn3p.F', 'iomomq': 'subs/iomomq.F', 'gintsl': 'subs/atomsr.F', 'iomoms': 'subs/iomoms.F', 'gfigbl': 'fp/gfigbl.F', 'ulat_show': 'subs/m_struc_def.F', 'hambls': 'fp/hambls.F', 'ustr_size': 'subs/m_struc_def.F', 'smshft': 'fp/smshft.F', 'uordn_init': 'subs/m_struc_def.F', 'ioden': 'fp/ioden.F', 'subasi': 'subs/subasi.F', 'gvctof': 'subs/gvctof.F', 'gtv_setrcd': 'subs/m_gtv.F', 'gtpcor': 'subs/gtpcor.F', 'getkin': 'subs/stoner.F', 'symqmp': 'subs/symq.F', 's3pkl': 'subs/pkli.F', 'psho1': 'subs/shoshl.F', 'ncutcorrect': 'fp/ncutcorrect.F', 'psymq0': 'subs/symq.F', 'uctrl_init': 'subs/m_struc_def.F', 'lctoff': 'subs/lattc.F', 'pvpus1': 'fp/potpus.F', 'ustr_init': 'subs/m_struc_def.F', 'istbpm': 'subs/symtbl.F', 'ppair2': 'subs/pairc.F', 'ppair3': 'subs/pairc.F', 'upot_show': 'subs/m_struc_def.F', 'ppair4': 'subs/pairc.F', 'ppair5': 'subs/pairc.F', 'uctrl_show': 'subs/m_struc_def.F', 'makdla': 'subs/makdla.F', 'contet': 'subs/contet.F', 'utb_show': 'subs/m_struc_def.F', 'xxxse': 'subs/shear.F', 'pqsclb': 'subs/pqmix.F', 'pzhev': 'fp/pzhev.F', 'clsctr': 'subs/clsset.F', 'gtv_char': 'subs/m_gtv.F', 'rsq2': 'subs/rseq.F', 'rsq1': 'subs/rseq.F', 'corgga': 'subs/evxc.F', 'iobsmv': 'subs/iobsmv.F', 'ppratf': 'subs/freeat.F subs/freeat.bk.F', 'qparam': 'subs/rotwv.F', 'rothph': 'subs/rothrm.F', 'pvsug1': 'fp/sugw.F', 'getq': 'subs/getq.F', 'stonerrsa': 'fp/stonerrsa.F', 'rsmesh': 'subs/findes.F', 'getikt': 'subs/m_hamindex.F', 'vesgcm': 'fp/vesgcm.F', 'nsitsh': 'subs/siteid.F', 'getcor': 'subs/getcor.F', 'iosite': 'subs/iosite.F', 'qmpkl': 'subs/pkli.F', 'wlattc': 'fp/sugw.F', 'vesft': 'fp/vesft.F', 'bravsy': 'subs/mkplat.F', 'ellipsoidxmax': 'subs/shorbz.F', 'defspc': 'subs/defspc.F', 'sopert': 'fp/sopert.F', 'symdmu': 'subs/symdmu.F', 'hanr': 'subs/hanr.F', 'clebsh': 'subs/rdeq.F', 'uoptic_init': 'subs/m_struc_def.F', 'mshint': 'fp/mshint.F', 'umix_size': 'subs/m_struc_def.F', 'spcgrp': 'subs/spcgrp.F', 'prrhat': 'fp/prrhat.F', 'gklbld': 'fp/gklbl.F', 'rsort': 'subs/rsort.F', 'gcor2': 'subs/easypbe.F', 'prdmts': 'subs/prdmts.F', 'gtcsym': 'subs/gengrp.F', 'rdeq': 'subs/rdeq.F', 'iprmsb': 'subs/orbl.F', 'gklblq': 'fp/gklbl.F', 'iobsm0': 'subs/iobsmv.F', 'addsds': 'fp/addrbl.F', 'pratfs': 'subs/freeat.F subs/freeat.bk.F', 'ordbas': 'subs/findes.F', 'wf2lo': 'subs/addrwf.F', 'tetirr': 'subs/tetirr.F', 'xxxes': 'subs/shear.F', 'bzints': 'subs/bzints.F', 'atmoms': 'subs/defpq.F', 'mtchr2': 'subs/mtchae.F', 'dfrce': 'fp/dfrce.F', 'radwgt': 'subs/radmsh.F', 'grpprd': 'subs/grpgen.F', 'mksym': 'subs/mksym.F', 'psymop': 'subs/psymop.F', 'smvxc4': 'fp/smvxcm.F', 'maknrs': 'subs/maknrs.F', 'getirr': 'subs/findes.F', 'uarray_init': 'subs/m_struc_def.F', 'smvxc3': 'fp/smvxcm.F', 'smvxc2': 'fp/smvxcm.F', 'gklbl': 'fp/gklbl.F', 'exchpbe': 'subs/easypbe.F', 'fklbl': 'fp/fklbl.F', 'defwsr': 'subs/defwsr.F', 'permhk': 'fp/hambls.F', 'phmbl3': 'fp/hambls.F', 'orbl': 'subs/orbl.F', 'ioaindx': 'fp/sugw.F', 'spgprd': 'subs/spcgrp.F', 'efrng2': 'subs/efrng2.F', 'umove_init': 'subs/m_struc_def.F', 'pkl2ro': 'fp/pkl2ro.F', 'findes': 'subs/findes.F', 'lattdf': 'subs/lattdf.F', 'ioposs': 'subs/iopos.F', 'tri_rule': 'subs/veecomp.F', 'stonerpb': 'fp/stonerpb.F', 'addbkgl': 'fp/addbkg.F', 'hxpos': 'fp/hxpos.F', 'gpfndx': 'subs/spcgrp.F', 'uarray_size': 'subs/m_struc_def.F', 'iosave': 'subs/iosave.F', 'dlmtor': 'subs/lattc.F', 'pvdf1': 'fp/dfrce.F', 'makr': 'subs/ropyln.F', 'pvdf3': 'fp/dfrce.F', 'pvdf2': 'fp/dfrce.F', 'gtv_i4v': 'subs/m_gtv.F', 'pvdf4': 'fp/dfrce.F', 'ovlpfa': 'fp/ovlpfa.F', 'shftpp': 'subs/shftpp.F', 'zprm': 'subs/prmx.F', 'fmain': 'subs/ropyln.F subs/shorps.F subs/shorps.F', 'iofa': 'subs/iofa.F', 'rothrm': 'subs/rothrm.F', 'roth': 'subs/roth.F', 'suylg': 'fp/suylg.F', 'phmbls': 'fp/hambls.F', 'ghigbl': 'fp/ghigbl.F', 'smvxcm': 'fp/smvxcm.F', 'yprm0': 'subs/prmx.F', 'ii8copy': 'subs/spackv_array_copy.F', 'qdistn': 'subs/qdist.F', 'parmxp': 'subs/parmxp.F', 'fill3in': 'subs/m_rdctrl.F', 'setcc': 'subs/rseq.F', 'rotpnt': 'subs/rotpnt.F', 'mkdmtu': 'fp/mkdmtu.F', 'asados': 'subs/asados.F', 'pvcdm2': 'fp/vcdmel.F', 'pvcdm1': 'fp/vcdmel.F', 'latvec': 'subs/latvec.F', 'pvhmb1': 'fp/hambl.F', 'hhigbl': 'fp/hhigbl.F', 'vxnloc': 'subs/vxnloc.F', 'veecomp': 'subs/veecomp.F', 'suemph': 'subs/suemph.F', 'fdpp': 'subs/rdeq.F', 'getbzp': 'subs/getbzp.F', 'p1ovlc': 'fp/ovlocr.F', 'rlocbl': 'fp/rlocbl.F', 'clean0': 'subs/invbl.F', 'pvrgkl': 'fp/rhogkl.F', 'bessjy': 'subs/ropbes.F', 'latpar': 'subs/mkplat.F', 'dostet': 'subs/dostet.F', 'grpop': 'subs/grpop.F', 'nswadd': 'subs/m_toksw.F', 'hklbl': 'fp/hklbl.F', 'augq12': 'fp/augmbl.F', 'augmat': 'fp/augmat.F', 'rotsig': 'subs/rotwv.F', 'cmplat': 'subs/cmplat.F', 'ulat_size': 'subs/m_struc_def.F', 'mshvmt': 'fp/mshvmt.F', 'pvagm3': 'fp/gaugm.F', 'pvagm2': 'fp/gaugm.F', 'pvagm1': 'fp/gaugm.F', 'matmul_pwhovl': 'subs/switch.F', 'gtpfac': 'subs/mshsiz.F', 'readctrl': 'subs/m_rdctrl.F', 'rotycs': 'subs/rotycs.F', 'iostr4': 'subs/iostr.F', 'iostr1': 'subs/iostr.F', 'sclws2': 'subs/sclwsr.F', 'iostr2': 'subs/iostr.F', 'aiopot': 'subs/aiopot.F', 'pair3c': 'subs/pairc.F', 'gvputf': 'subs/gvlist.F', 'grpeql': 'subs/grpgen.F', 'pvglst': 'subs/gvlist.F', 'phhigb': 'fp/hhigbl.F', 'rlocb1': 'fp/rlocbl.F', 'dstmt': 'fp/pzhev.F', 'siteid': 'subs/siteid.F', 'asars': 'subs/asars.F', 'hsmqe0': 'subs/hsmq.F', 'bloch': 'subs/bloch.F', 'chgmsh': 'subs/chgmsh.F', 'addbkgsm': 'fp/addbkg.F', 'augq2z': 'fp/augmbl.F', 'sudmtu': 'subs/sudmtu.F', 'spinav': 'lmv7util.F subs/clsprm.F', 'slist': 'subs/slist.F', 'fsmbl': 'fp/fsmbl.F', 'shoang': 'subs/shoshl.F', 'mptauof': 'subs/suham.F', 'aiomom': 'subs/aiomom.F', 'prrmsh': 'subs/prrmsh.F', 'nrmliz': 'subs/mkplat.F', 'pgfpp': 'subs/pgfp.F', 'xxxbnd': 'subs/xxxbnd.F', 'radgrx': 'subs/vxcgr2.F', 'mixrho': 'fp/mixrho.F', 'symrho': 'fp/symrho.F', 'pvrhom': 'fp/rhomom.F', 'hamfb3': 'subs/hamfb3.F', 'uham_show': 'subs/m_struc_def.F', 'xxsho': 'subs/shoshl.F', 'i8icopy': 'subs/spackv_array_copy.F', 'pvhsmq': 'subs/hsmq.F', 'gklft': 'fp/gklft.F', 'mkehkf': 'fp/mkehkf.F', 's2sph': 'subs/s2sph.F', 'udstmt': 'fp/pzhev.F', 'mkppovl2': 'fp/sugw.F', 'getinput_entrance': 'subs/m_gtv.F', 'lmaux': 'fp/lmaux.F', 'm_psigd': 'subs/m_psigd.F', 'suclst': 'subs/suclst.F', 'seneinterp': 'subs/rdsigm2.F', 'smves': 'fp/smves.F', 'blsig': 'fp/hambls.F', 'addrbl': 'fp/addrbl.F', 'vcdmel': 'fp/vcdmel.F', 'roplat': 'subs/roplat.F', 'fermi': 'subs/fermi.F', 'wsymops': 'fp/sugw.F', 'rotevs': 'subs/rotevs.F', 'bessl': 'subs/besslr.F', 'getinput_r8v': 'subs/m_gtv.F', 'rhoqm': 'fp/symrho.F', 'augmbl': 'fp/augmbl.F', 'aiocor': 'subs/aiocor.F', 'aiova': 'subs/aiova.F', 'm_struc_def': 'subs/m_struc_def.F', 'getde': 'subs/stoner.F', 'single': 'subs/dstrbp.F', 'iomomn': 'subs/iomoms.F', 'elfigr': 'fp/locpot.F', 'pqsclc': 'subs/pqmix.F', 'evxcp': 'subs/evxcp.F', 'evxcv': 'subs/evxcv.F', 'pqsclf': 'subs/pqmix.F', 'phhibl': 'fp/hhibl.F', 'fillat': 'subs/findes.F', 'regioncheck': 'subs/rotwv.F', 'packs': 'subs/struc_strn.F', 'f102': 'subs/f102.F', 'symfor': 'subs/symfor.F', 'symlat': 'subs/symlat.F', 'ftlxp': 'fp/ftlxp.F', 'rdovfa': 'fp/rdovfa.F', 'locpot': 'fp/locpot.F', 'oalpha': 'subs/pptrns.F', 'ipwovl': 'fp/pwmat.F', 'sylmnc': 'subs/sylmnc.F', 'reducv': 'subs/findes.F', 'pgfp': 'subs/pgfp.F', 'umove_show': 'subs/m_struc_def.F', 'ccutup': 'subs/ccutup.F', 'pbevxc': 'subs/vxnloc.F', 'excsan': 'subs/evxcv.F', 'gen_hamindex': 'subs/suham.F', 'mshsiz': 'subs/mshsiz.F', 'csymop': 'subs/asymop.F', 'psigd': 'subs/m_psigd.F', 'ovlocr': 'fp/ovlocr.F', 'slinz': 'subs/slinz.F', 'prtrkl': 'fp/rhogkl.F', 'bzwts': 'subs/bzwts.F', 'ugcomp': 'fp/ugcomp.F', 'newsigmasw': 'subs/switch.F', 'gtbsl1': 'subs/gtbsl1.F', 'radext': 'subs/radmsh.F', 'gtv_none': 'subs/m_gtv.F', 'qdist': 'subs/qdist.F', 'symcry': 'subs/symcry.F', 'usite_init': 'subs/m_struc_def.F'}
+{'hansr4': 'subs/hansr4.F', 'hansr5': 'subs/hansr5.F', 'invbl': 'subs/invbl.F', 'interparam': 'subs/rotwv.F', 'ppi2z': 'fp/gaugm.F', 'hansr1': 'subs/hansr.F', 'hansr2': 'subs/hansr.F', 'scg': 'subs/scg.F', 'imxmnx': 'subs/orbl.F', 'ddet33': 'subs/mkplat.F', 'rotdlmm': 'subs/suham.F', 'aiomp': 'subs/aiomp.F', 'getef': 'subs/getef.F', 'vecpkl': 'subs/vecpkl.F', 'gvlst2': 'subs/gvlst2.F', 'vxcnsp': 'fp/vxcnsp.F', 'iorbtm': 'subs/iorbtm.F', 'clsset': 'subs/clsset.F', 'nwitsv': 'subs/nwit.F', 'getqvc': 'subs/getq.F', 'iclbsj': 'subs/iclbas.F', 'rseq': 'subs/rseq.F', 'poiss0': 'subs/atomsr.F', 'gvsym': 'fp/gvsym.F', 'ioqpp': 'lmv7util.F subs/clsprm.F', 'rdistn': 'subs/qdist.F', 'uham_init': 'subs/m_struc_def.F', 'setcg': 'subs/setcg.F', 'eprod': 'subs/pairc.F', 'gvlstn': 'subs/gvlst2.F', 'pqmixb': 'subs/pqmix.F', 'hansrz': 'subs/hansrz.F', 'fint': 'subs/hnsmft.F', 'mkewgt': 'fp/mkewgt.F', 'sclwsr': 'subs/sclwsr.F', 'gvlsts': 'subs/gvlst2.F', 'cshear': 'subs/cshear.F', 'pblch1': 'subs/bloch.F', 'aiosop': 'subs/aiosop.F', 'ovmin': 'subs/ovmin.F', 'symtbl': 'subs/symtbl.F', 'rnatm': 'subs/rnatm.F', 'tocast': 'subs/findes.F', 'bessel': 'subs/ropbes_alternative.F', 'corlsd': 'subs/easypbe.F subs/evxc.F', 'gensym': 'subs/gensym.F', 'gwcphi': 'fp/gwcphi.F', 'prelx1': 'subs/relax.F', 'intnos': 'subs/intnos.F', 'mark1': 'subs/bzwts.F', 'gengrp': 'subs/gengrp.F', 'xmpbnd': 'fp/bndfp.F', 'tailsm': 'subs/tailsm.F', 'ioorbp': 'subs/ioorbp.F', 'uspecb': 'subs/uspecb.F', 'sgroup': 'subs/spcgrp.F', 'prlcb1': 'fp/bstrux.F', 'ropbs1': 'subs/ropbes.old.F', 'prlcb3': 'fp/rlocbl.F', 'prlcb2': 'fp/rlocbl.F', 'suqlst': 'subs/suqlst.F', 'xxxadd': 'subs/shear.F', 'vldau': 'subs/vldau.F', 'ifindiv': 'fp/hsibl.F', 'suqlsm': 'subs/suqlst.F', 'ftlxp2': 'fp/ftlxp.F', 'stplat': 'subs/mkplat.F', 'newrho': 'subs/atomsr.F', 'rwftai': 'fp/vxtrap.F', 'upot_size': 'subs/m_struc_def.F', 'makrm0': 'subs/makrm0.F', 'pgvmat': 'subs/gvmtch.F', 'rhgcm3': 'fp/rhgcmp.F', 'rhgcm2': 'fp/rhgcmp.F', 'grdepl': 'fp/lmfp.F', 'm_struc_func': 'subs/m_struc_def.F', 'iosigh': 'subs/rdsigm.F', 'symes': 'subs/findes.F', 'pqmxio': 'subs/pqmix.F', 'product2': 'subs/rdeq.F', 'gtv_i4': 'subs/m_gtv.F', 'igann': 'subs/suham.F', 'atomsc': 'subs/atomsr.F', 'volsph': 'subs/volsph.F', 'hxpbl': 'fp/hxpbl.F', 'groupg': 'subs/groupg.F', 'ifindiv2': 'fp/hsibl.F', 'bzwtsm': 'subs/bzwtsf.F', 'dfphi': 'subs/dfphi.F', 'bzwtsf': 'subs/bzwtsf.F', 'shortn3_initialize': 'subs/shorbz.F', 'chebev': 'subs/ropbes.F', 'cpplat': 'subs/roplat.F', 'getgv2': 'subs/pairc.F', 'cvplat': 'subs/mkplat.F', 'iclbas': 'subs/iclbas.F', 'corpbe': 'subs/easypbe.F', 'writebasis': 'subs/writebasis.F', 'sugw': 'fp/sugw.F', 'bessel_yl': 'subs/ropbes_alternative.F', 'upot_init': 'subs/m_struc_def.F', 'gennlat': 'subs/pairc.F', 'chkes': 'subs/findes.F', 'hansr': 'subs/hansr.F', 'gtv_setst': 'subs/m_gtv.F', 'rhgcmp': 'fp/rhgcmp.F', 'asars1': 'subs/asars.F', 'prlrho': 'fp/prrhat.F', 'uspec_size': 'subs/m_struc_def.F', 'upacks': 'subs/struc_strn.F', 's3pklx': 'subs/pkli.F', 'iosiga': 'subs/mcasim.F', 'pvgtkn': 'fp/mkekin.F', 'fpchk': 'fp/fpchk.F', 'ropynx': 'subs/ropyln1.F', 'mcasho': 'subs/mcasim.F', 'ropbes': 'subs/ropbes.F subs/ropbes.old.F subs/ropbes_alternative.F', 'rlxstp': 'subs/rlxstp.F', 'getuk': 'subs/easypbe.F', 'hklos': 'fp/hklos.F', 'symsmr': 'fp/symrho.F', 'baslst': 'subs/baslst.F', 'pwmat': 'fp/pwmat.F', 'initialize': 'subs/m_sstrnsname.F', 'bndfp': 'fp/bndfp.F', 'pvmix3': 'fp/mixrho.F', 'paugnl': 'fp/paug1.F', 'shortn3': 'subs/shorbz.F', 'ghibl': 'fp/ghibl.F', 'mshdot': 'fp/mshdot.F', 'flocbl': 'fp/flocbl.F', 'pvmix6': 'fp/mixrho.F', 'swrho': 'fp/splrho.F', 'findctrlstart': 'lmv7.F lmfav7.F lmv7util.F', 'bzmio': 'subs/bzmio.F', 'jxpos': 'fp/jxpos.F', 'xxxbfp': 'fp/bndfp.F', 'rotspu': 'subs/rotspu.F', 'utb_init': 'subs/m_struc_def.F', 'ovlchk': 'subs/ovlchk.F', 'atwf': 'subs/atwf.F', 'shoist': 'subs/shoist.F', 'lsets_bitop_i8': 'subs/spackv_array_copy.F', 'clabel': 'subs/clabel.F', 'aiocls': 'lmv7util.F subs/aiocls.F', 'prmx': 'subs/prmx.F', 'dvdos': 'subs/dvdos.F', 'relax': 'subs/relax.F', 'paug2': 'fp/paug1.F', 'paug3': 'fp/paug1.F', 'paug1': 'fp/paug1.F', 'paug4': 'fp/paug1.F', 'ylmrtg': 'subs/ylmrtg.F', 'sigswitch': 'subs/switch.F', 'ustr_show': 'subs/m_struc_def.F', 'prodx2d': 'subs/rotwv.F', 'totfrc': 'fp/totfrc.F', 'freeat': 'subs/freeat.F subs/freeat.bk.F', 'fullmesh': 'subs/switch.F', 'shortn': 'subs/shortn.F', 'gtbsl2': 'fp/gtbsl2.F', 'defpq': 'subs/defpq.F', 'addbas': 'subs/addbas.F', 'smhsbl': 'fp/smhsbl.F', 'supot': 'fp/supot.F', 'splwts': 'subs/splwts.F', 'pysmr1': 'subs/symq.F', 'setuk': 'subs/easypbe.F', 'ppair1': 'subs/pairc.F', 'evcflg': 'subs/rotevs.F', 'flocb2': 'fp/flocbl.F', 'mtchae': 'subs/mtchae.F', 'lx2vec': 'subs/lx2vec.F', 'grpgen': 'subs/grpgen.F', 'parsop': 'subs/psymop.F', 'prothr': 'subs/roth.F', 'addes2': 'subs/findes.F', 'makusq': 'fp/makusq.F', 'shoshl': 'subs/shoshl.F', 'grdep2': 'subs/relax.F', 'makusp': 'fp/makusp.F', 'pvang1': 'subs/shoshl.F', 'pvang2': 'subs/shoshl.F', 'paioc2': 'lmv7util.F subs/aiocls.F', 'perdew': 'subs/evxc.F', 'rdist': 'subs/qdist.F', 'addrwf': 'subs/addrwf.F', 'gtv_setio': 'subs/m_gtv.F', 'lmfp': 'fp/lmfp.F', 'shorbz': 'subs/shorbz.F', 'pairc': 'subs/pairc.F', 'pchms2': 'subs/chgmsh.F', 'aginv': 'subs/mksym.F', 'prpos': 'subs/findes.F', 'getinput_i4': 'subs/m_gtv.F', 'surho': 'fp/surho.F', 'pz2idx': 'subs/suidx.F', 'mkekin': 'fp/mkekin.F', 'config': 'subs/config.F', 'praugm': 'fp/praugm.F', 'dosio': 'subs/dosio.F', 'yprm': 'subs/prmx.F', 'gvgvcomp': 'fp/rsibl.F', 'trysop': 'subs/trysop.F', 'augq3z': 'fp/augmbl.F', 'mkcond': 'subs/mkcond.F', 'lattc': 'subs/lattc.F', 'deflmx': 'subs/findes.F', 'zclabl': 'subs/findes.F', 'rotwv': 'subs/rotwv.F', 'splrho': 'fp/splrho.F', 'fradhd': 'fp/fradhd.F', 'hgugbl': 'fp/hgugbl.F', 'uspec_show': 'subs/m_struc_def.F', 'gtv_lg': 'subs/m_gtv.F', 'iax2fd': 'subs/iax2fd.F', 'siged': 'subs/rdsigm.F', 'ugw_size': 'subs/m_struc_def.F', 'rsedit': 'fp/rsedit.F', 'sylm': 'subs/sylm.F', 'conv2int': 'subs/rotwv.F', 'pdstlb': 'subs/dstrbp.F', 'pmtsig': 'subs/switch.F', 'pchmsh': 'subs/chgmsh.F', 'avwsr': 'subs/avwsr.F', 'spkli': 'subs/pkli.F', 'rsibl': 'fp/rsibl.F', 'dfratm': 'fp/dfratm.F', 'popta5': 'subs/freeat.F subs/freeat.bk.F', 'popta2': 'subs/freeat.F subs/freeat.bk.F', 'popta3': 'subs/freeat.F subs/freeat.bk.F', 'popta1': 'subs/freeat.F subs/freeat.bk.F', 'delstd': 'subs/delstd.F', 'getqp': 'subs/getqp.F', 'mkrout': 'fp/mkrout.F', 'hamfb3k': 'subs/hamfb3.F', 'symstr': 'subs/symstr.F', 'ghios': 'fp/ghios.F', 'vxcgr2': 'subs/vxcgr2.F', 'asprjq': 'subs/atomsr.F', 'delstp': 'subs/delstp.F', 'bzmsh0': 'subs/bzmesh.F', 'rsmsym': 'subs/rsmsym.F', 'bstrux': 'fp/bstrux.F', 'lmhelp': 'lmv7.F lmfav7.F lmv7util.F', 'tbhsi': 'fp/tbhsi.F', 'soprm': 'subs/soprm.F', 'ftfalo': 'subs/freeat.F subs/freeat.bk.F', 'suham2': 'subs/suham2.F', 'freats': 'subs/freeat.F subs/freeat.bk.F', 'gcor': 'subs/easypbe.F subs/evxc.F', 'nnrl': 'subs/nnrl.F', 'makrwf': 'subs/makrwf.F', 'pnunew': 'fp/pnunew.F', 'chkxpn': 'fp/fpchk.F', 'poinsp': 'fp/poinsp.F', 'usite_size': 'subs/m_struc_def.F', 'adbkql': 'fp/addbkg.F', 'iostr': 'subs/iostr.F', 'shear': 'subs/shear.F', 'rmesh': 'subs/rmesh.F', 'mkrou1': 'fp/mkrout.F', 'mkrou2': 'fp/mkrout.F', 'mkrou3': 'fp/mkrout.F', 'mkrou4': 'fp/mkrout.F', 'mkrou5': 'fp/mkrout.F', 'mkrou6': 'fp/mkrout.F', 'xlgen': 'subs/xlgen.F', 'zprm3': 'subs/prmx.F', 'gvgetf': 'subs/gvlist.F', 'clsprp': 'lmv7util.F subs/clsprm.F', 'augqs3': 'fp/augmbl.F', 'clsprm': 'lmv7util.F subs/clsprm.F', 'shorps': 'subs/shorps.F', 'hklgbl': 'fp/hklgbl.F', 'debugmode': 'subs/switch.F', 'tkadd': 'subs/m_toksw.F', 'sortea': 'subs/pairc.F', 'lcrho': 'fp/splrho.F', 'bigges': 'subs/findes.F', 'rhomom': 'fp/rhomom.F', 'gtv_r8v': 'subs/m_gtv.F', 'hsmq': 'subs/hsmq.F', 'spgcop': 'subs/spcgrp.F', 'cppos': 'fp/lmfp.F', 'zevl': 'fp/stonerrsa.F', 'pvioeu': 'subs/ioeula.F', 'mcasan': 'subs/mcasim.F', 'tksw': 'subs/m_toksw.F', 'prmx0': 'subs/prmx.F', 'gtpmin': 'subs/findes.F', 'suqlse': 'subs/suqlst.F', 'hansz1': 'subs/hansrz.F', 'hansz2': 'subs/hansrz.F', 'divctakao': 'subs/rdsigm.F', 'suphas': 'fp/suphas.F', 'gtbvec': 'subs/gtbvec.F', 'mkidx2': 'subs/makidx.F', 'pvrhm2': 'fp/rhomom.F', 'projql': 'subs/projql.F', 'latrel': 'subs/findes.F', 'beschb': 'subs/ropbes.F', 'ovcall': 'subs/ovmin.F', 'getinput_i4v': 'subs/m_gtv.F', 'chkdmu': 'subs/chkdmu.F', 'lgstar': 'fp/lgstar.F', 'prodln': 'subs/roplat.F', 'rstr0': 'subs/rstr0.F', 'paugq1': 'fp/bstrux.F', 'paugq2': 'fp/bstrux.F', 'f100': 'subs/f100.F', 'optfab': 'subs/freeat.F subs/freeat.bk.F', 'uoptic_show': 'subs/m_struc_def.F', 'hnsmft': 'subs/hnsmft.F', 'hsibl1': 'fp/hsibl.F', 'wripp': 'subs/invbl.F', 'pairtakao': 'subs/pairc.F', 'spec2c': 'fp/lmaux.F', 'makus2': 'fp/makusp.F', 'sugcut': 'subs/sugcut.F', 'pqmixa': 'subs/pqmix.F', 'pqmixc': 'subs/pqmix.F', 'lattic': 'subs/lattic.F', 'pvaioc': 'lmv7util.F subs/aiocls.F', 'vxc0sp': 'subs/vxc0sp.F', 'fswgts': 'subs/fswgts.F', 'matm': 'fp/bndconn_v2.F', 'nosbzm': 'subs/nosbzm.F', 'uordn_show': 'subs/m_struc_def.F', 'ortrwf': 'subs/addrwf.F', 'ubz_init': 'subs/m_struc_def.F', 'spacks_copy': 'subs/spackv_array_copy.F', 'pvmix9': 'fp/mixrho.F', 'uordn_size': 'subs/m_struc_def.F', 'pusq2': 'fp/makusq.F', 'hambl': 'fp/hambl.F', 'polinta': 'fp/polinta.F', 'pusq1': 'fp/makusq.F', 'paugqp': 'fp/bstrux.F', 'pvmix7': 'fp/mixrho.F', 'pvmix4': 'fp/mixrho.F', 'pvmix5': 'fp/mixrho.F', 'sumlst': 'subs/sumlst.F', 'pairs': 'subs/pairc.F', 'pviomx': 'subs/iomomx.F', 'sttmpd': 'lmv7.F lmfav7.F', 'vxcns4': 'fp/vxcnsp.F', 'vxcns5': 'fp/vxcnsp.F', 'vxcns2': 'fp/vxcnsp.F', 'vxcns3': 'fp/vxcnsp.F', 'lindsc': 'fp/lindsc.F', 'corpw91': 'subs/easypbe.F', 'rdsigm': 'subs/rdsigm.F', 'makrot': 'subs/makrot.F', 'hsmbl': 'fp/hsmbl.F', 'radpkl': 'subs/radpkl.F', 'fradpk': 'fp/fradpk.F', 'rhogkl': 'fp/rhogkl.F', 'bessl2': 'subs/besslr.F', 'uham_size': 'subs/m_struc_def.F', 'suham': 'subs/suham.F', 'phidx': 'subs/phidx.F', 'mchan': 'subs/mchan.F', 'getinput_char': 'subs/m_gtv.F', 'm_events': 'fp/m_events.F', 'psymrf': 'fp/symrho.F', 'm_hamindex': 'subs/m_hamindex.F', 'mkcfus': 'fp/mkrout.F', 'easypbe': 'subs/easypbe.F', 'shorbzm': 'subs/shorbz.F', 'prmr': 'subs/prmx.F', 'psymrq': 'fp/symrho.F', 'uoptic_size': 'subs/m_struc_def.F', 'wrirsh': 'subs/invbl.F', 'dosspl': 'subs/dosspl.F', 'mkpdos': 'fp/mkpdos.F', 'radmsh': 'subs/radmsh.F', 'addzbk': 'subs/atomsr.F', 'dlmn': 'subs/dlmn.F', 'rhopos': 'fp/symrho.F', 'pxsmr1': 'subs/symq.F', 'strx00': 'subs/strx00.F', 'm_gtv': 'subs/m_gtv.F', 'suqlsr': 'subs/suqlst.F', 'radgkl': 'subs/radgkl.F', 'uspec_init': 'subs/m_struc_def.F', 'besslr': 'subs/besslr.F', 'phvsfp': 'subs/phvsfp.F', 'aiorme': 'subs/aiorme.F', 'xperdew': 'subs/evxc.F', 'clear_swtok': 'subs/m_toksw.F', 'mcasw': 'subs/mcasim.F', 'prm3': 'subs/prmx.F', 'chimedit': 'fp/chimedit.F', 'psymr1': 'fp/symrho.F', 'psymr0': 'subs/symq.F', 'besslm': 'subs/besslr.F', 'suqlsw': 'subs/suqlst.F', 'sgvsym': 'fp/sgvsym.F', 'fctp': 'subs/atomsr.F', 'xyrhsr': 'subs/atomsr.F', 'optimise': 'subs/dstrbp.F', 'm_toksw': 'subs/m_toksw.F', 'gtv_r8': 'subs/m_gtv.F', 'aiopar': 'subs/aiopar.F', 'nghbor': 'subs/nghbor.F', 'radgra': 'subs/evxc.F', 'gvaddf': 'subs/gvlist.F', 'atqval': 'fp/atqval.F', 'pptrns': 'subs/pptrns.F', 'suphs0': 'fp/suphas.F', 'mkrtab': 'subs/mkrtab.F', 'parmx0': 'subs/parmxp.F', 'mcasms': 'subs/mcasim.F', 'prm': 'subs/prmx.F', 'ropqln': 'subs/ropyln1.F', 'tpkli': 'subs/pkli.F', 'mcasme': 'subs/mcasim.F', 'bndconn_v2': 'fp/bndconn_v2.F', 'ropyln': 'subs/ropyln.F', 'suqlsw2': 'subs/suqlst.F', 'matgg2': 'fp/pwmat.F', 'ebcpl': 'subs/bzwts.F', 'radmwt': 'subs/radmsh.F', 'rotmat': 'subs/mkplat.F', 'exchpw91': 'subs/easypbe.F', 'gvmtch': 'subs/gvmtch.F', 'nwit': 'subs/nwit.F', 'rdsigm2': 'subs/rdsigm2.F', 'mxxyz': 'subs/bzmesh.F', 'iors': 'subs/iors.F', 'scglp1': 'subs/scglp1.F', 'distes': 'subs/findes.F', 'pvstr0': 'subs/rstr0.F', 'hansmd': 'subs/hansmd.F', 'readctrlpq': 'subs/m_rdctrl.F', 'parms0': 'subs/parmxp.F', 'fixpos': 'subs/fixpos.F', 'multiple': 'subs/dstrbp.F', 'dpdftr': 'subs/dpdftr.F', 'mcasm2': 'subs/mcasim.F', 'prsed1': 'fp/rsedit.F', 'prsed2': 'fp/rsedit.F', 'prsed3': 'fp/rsedit.F', 'prsed4': 'fp/rsedit.F', 'prsed5': 'fp/rsedit.F', 'sigflg': 'subs/rdsigm.F', 'noshorbz': 'subs/switch.F', 'gvlist': 'subs/gvlist.F', 'iosits': 'subs/iosits.F', 'utb_size': 'subs/m_struc_def.F', 'popta4': 'subs/freeat.F subs/freeat.bk.F', 'find_region': 'subs/m_toksw.F', 'renam': 'subs/findes.F', 'symvvl': 'fp/mshvmt.F', 'mkpot': 'fp/mkpot.F', 'potpus': 'fp/potpus.F', 'getinput_r8': 'subs/m_gtv.F', 'grpfnd': 'subs/grpfnd.F', 'danrm2': 'subs/roplat.F', 'makidx': 'subs/makidx.F', 'toksw_init': 'subs/m_rdctrl.F', 'hklft': 'fp/hklft.F', 'stoner': 'subs/stoner.F', 'mkqp': 'subs/mkqp.F', 'symia1': 'subs/symiax.F', 'symprj': 'subs/symprj.F', 'symia0': 'subs/symiax.F', 'uctrl_size': 'subs/m_struc_def.F', 'hsmblq': 'fp/hsmbl.F', 'hhibl': 'fp/hhibl.F', 'makdos': 'subs/makdos.F', 'mdeses': 'subs/findes.F', 'locpt2': 'fp/locpot.F', 'sumsro': 'subs/sumsro.F', 'hsmbld': 'fp/hsmbl.F', 'radsum': 'subs/radmsh.F', 'mkorbm': 'fp/mkorbm.F', 'gaugm': 'fp/gaugm.F', 'umix_show': 'subs/m_struc_def.F', 'mkplat': 'subs/mkplat.F', 'hhugbl': 'fp/hhugbl.F', 'sphbes': 'subs/ropbes.F', 'cosvec': 'subs/mkplat.F', 'suldau': 'subs/suldau.F', 'ldau': 'subs/ldau.F', 'pqmix': 'subs/pqmix.F', 'madmat': 'subs/madmat.F', 'intnb': 'subs/stoner.F', 'hansmr': 'subs/hansmr.F', 'pvsym2': 'subs/mksym.F', 'maknos': 'subs/maknos.F', 'fixef0': 'subs/fixef0.F', 'prothl': 'subs/roth.F', 'gtv_entrance': 'subs/m_gtv.F', 'loctsh': 'fp/loctsh.F', 'pvrotd': 'subs/roth.F', 'ioden2': 'fp/ioden.F', 'suidx': 'subs/suidx.F', 'm_rdctrl': 'subs/m_rdctrl.F', 'dfaugm': 'fp/dfaugm.F', 'pkl2r': 'subs/pkli.F', 'pvrott': 'subs/roth.F', 'spackv_array_copy_i8_i': 'subs/spackv_array_copy.F', 'ubz_size': 'subs/m_struc_def.F', 'protht': 'subs/roth.F', 'pvrots': 'subs/roth.F', 'dfqkkl': 'fp/dfqkkl.F', 's3pkl0': 'subs/pkli.F', 'p2ovlc': 'fp/ovlocr.F', 'ioeula': 'subs/ioeula.F', 'chksgr': 'subs/rdsigm.F', 'dpdbyl': 'subs/dpdbyl.F', 'm_rdctrl2_func': 'subs/rdctrl2.F', 'd3nrm2': 'subs/findes.F', 'efldos': 'fp/efldos.F', 'hsibl2': 'fp/hsibl.F', 'hsibl3': 'fp/hsibl.F', 'hsibl4': 'fp/hsibl.F', 'hsibl5': 'fp/hsibl.F', 'hsibl6': 'fp/hsibl.F', 'fsmbpw': 'fp/fsmbpw.F', 'getinput_none': 'subs/m_gtv.F', 'evxc': 'subs/evxc.F subs/evxc.F', 'rsiblp': 'fp/rsibl.F', 'elocp': 'fp/elocp.F', 'nlocxc': 'subs/evxc.F subs/evxc.F', 'augqp3': 'fp/augmbl.F', 'prjpos': 'subs/prjpos.F', 'wrhomt': 'fp/wrhomt.F', 'drr2': 'subs/drr2.F', 'ggugbl': 'fp/ggugbl.F', 'mcmet': 'subs/mcasim.F', 'mcasim': 'subs/mcasim.F', 'iopos': 'subs/iopos.F', 'ulat_init': 'subs/m_struc_def.F', 'rtoint': 'subs/rotwv.F', 'rhocor': 'subs/atomsr.F', 'mullmf': 'fp/mullmf.F', 'smcorm': 'fp/smcorm.F', 'rdctrl2': 'subs/rdctrl2.F', 'rsibl5': 'fp/rsibl.F', 'momusl': 'fp/momusl.F', 'clist': 'subs/clist.F', 'ubz_show': 'subs/m_struc_def.F', 'fctail': 'subs/freeat.F subs/freeat.bk.F', 'iobzwt': 'subs/subzi.F', 'subzi': 'subs/subzi.F', 'hft2rs': 'subs/hft2rs.F', 'sint': 'subs/hnsmft.F', 'rsibl2': 'fp/rsibl.F', 'usite_show': 'subs/m_struc_def.F', 'rsibl1': 'fp/rsibl.F', 'rsibl6': 'fp/rsibl.F', 'rsibl7': 'fp/rsibl.F', 'rsibl4': 'fp/rsibl.F', 'pvaglc': 'fp/gaugm.F', 'prtev': 'fp/prtev.F', 'phkl2r': 'subs/pkli.F', 'gklq': 'fp/gklq.F', 'fovlp': 'subs/fovlp.F', 'pwmat2': 'fp/pwmat.F', 'pvsms3': 'subs/pvsms2.F', 'dstrbp': 'subs/dstrbp.F', 'mxmymz': 'subs/mxmymz.F', 'fctor1': 'subs/veecomp.F', 'bzmesh': 'subs/bzmesh.F', 'vxtrap': 'fp/vxtrap.F', 'idxpr': 'subs/makidx.F', 'setofl': 'fp/setofl.F', 'corprm': 'fp/corprm.F', 'splcls': 'subs/splcls.F', 'symrat': 'fp/symrho.F', 'sclp': 'subs/xxxbnd.F', 'rangedq': 'subs/rotwv.F', 'pqmxup': 'subs/pqmix.F', 't3j_all': 'subs/veecomp.F', 'hft2r1': 'subs/hft2rs.F', 'hft2r2': 'subs/hft2rs.F', 'hft2r3': 'subs/hft2rs.F', 'makrvl': 'subs/rnatm.F', 'hxpgbl': 'fp/hxpgbl.F', 'symiax': 'subs/symiax.F', 'aiogen': 'subs/aiogen.F', 'praldm': 'subs/prdmts.F', 'asymop': 'subs/asymop.F', 'p2pkl': 'subs/pkli.F', 'grpcop': 'subs/grpgen.F', 'offshp': 'subs/orbl.F', 'mshn3p': 'fp/mshn3p.F', 'pvsms1': 'fp/smshft.F', 'mdesat': 'subs/findes.F', 'pvsms2': 'subs/pvsms2.F', 'spackv_array_copy_r8_r8': 'subs/spackv_array_copy.F', 'iget': 'subs/bzwts.F', 'rdm3': 'subs/prmx.F', 'latlim': 'subs/latlim.F', 'vxcgga': 'subs/vxcgga.F', 'umix_init': 'subs/m_struc_def.F', 'getfmt': 'subs/findes.F', 'vlm2us': 'fp/vlm2us.F', 'umove_size': 'subs/m_struc_def.F', 'uarray_show': 'subs/m_struc_def.F', 'gintsr': 'subs/atomsr.F', 'ropcsm': 'subs/ropcsm.F', 'hsibl': 'fp/hsibl.F', 'spgeql': 'subs/spcgrp.F', 'xxxdif': 'subs/xxxdif.F', 'm_sstrnsname': 'subs/m_sstrnsname.F', 'pvclst': 'subs/clsset.F', 'mtchre': 'subs/mtchae.F', 'mul22': 'subs/rdeq.F', 'iomomx': 'subs/iomomx.F', 'mshn31': 'fp/mshn3p.F', 'fctp0': 'subs/atomsr.F', 'mshn32': 'fp/mshn3p.F', 'iomomq': 'subs/iomomq.F', 'gintsl': 'subs/atomsr.F', 'iomoms': 'subs/iomoms.F', 'gfigbl': 'fp/gfigbl.F', 'ulat_show': 'subs/m_struc_def.F', 'hambls': 'fp/hambls.F', 'ustr_size': 'subs/m_struc_def.F', 'smshft': 'fp/smshft.F', 'uordn_init': 'subs/m_struc_def.F', 'ioden': 'fp/ioden.F', 'subasi': 'subs/subasi.F', 'gvctof': 'subs/gvctof.F', 'gtv_setrcd': 'subs/m_gtv.F', 'gtpcor': 'subs/gtpcor.F', 'getkin': 'subs/stoner.F', 'symqmp': 'subs/symq.F', 's3pkl': 'subs/pkli.F', 'psho1': 'subs/shoshl.F', 'ncutcorrect': 'fp/ncutcorrect.F', 'psymq0': 'subs/symq.F', 'uctrl_init': 'subs/m_struc_def.F', 'lctoff': 'subs/lattc.F', 'pvpus1': 'fp/potpus.F', 'ustr_init': 'subs/m_struc_def.F', 'istbpm': 'subs/symtbl.F', 'ppair2': 'subs/pairc.F', 'ppair3': 'subs/pairc.F', 'upot_show': 'subs/m_struc_def.F', 'ppair4': 'subs/pairc.F', 'ppair5': 'subs/pairc.F', 'uctrl_show': 'subs/m_struc_def.F', 'makdla': 'subs/makdla.F', 'contet': 'subs/contet.F', 'utb_show': 'subs/m_struc_def.F', 'xxxse': 'subs/shear.F', 'pqsclb': 'subs/pqmix.F', 'pzhev': 'fp/pzhev.F', 'clsctr': 'subs/clsset.F', 'gtv_char': 'subs/m_gtv.F', 'rsq2': 'subs/rseq.F', 'rsq1': 'subs/rseq.F', 'corgga': 'subs/evxc.F', 'iobsmv': 'subs/iobsmv.F', 'ppratf': 'subs/freeat.F subs/freeat.bk.F', 'qparam': 'subs/rotwv.F', 'rothph': 'subs/rothrm.F', 'pvsug1': 'fp/sugw.F', 'getq': 'subs/getq.F', 'stonerrsa': 'fp/stonerrsa.F', 'rsmesh': 'subs/findes.F', 'getikt': 'subs/m_hamindex.F', 'vesgcm': 'fp/vesgcm.F', 'nsitsh': 'subs/siteid.F', 'getcor': 'subs/getcor.F', 'iosite': 'subs/iosite.F', 'qmpkl': 'subs/pkli.F', 'wlattc': 'fp/sugw.F', 'vesft': 'fp/vesft.F', 'bravsy': 'subs/mkplat.F', 'ellipsoidxmax': 'subs/shorbz.F', 'defspc': 'subs/defspc.F', 'sopert': 'fp/sopert.F', 'symdmu': 'subs/symdmu.F', 'hanr': 'subs/hanr.F', 'clebsh': 'subs/rdeq.F', 'uoptic_init': 'subs/m_struc_def.F', 'mshint': 'fp/mshint.F', 'umix_size': 'subs/m_struc_def.F', 'spcgrp': 'subs/spcgrp.F', 'prrhat': 'fp/prrhat.F', 'gklbld': 'fp/gklbl.F', 'rsort': 'subs/rsort.F', 'gcor2': 'subs/easypbe.F', 'prdmts': 'subs/prdmts.F', 'gtcsym': 'subs/gengrp.F', 'rdeq': 'subs/rdeq.F', 'iprmsb': 'subs/orbl.F', 'gklblq': 'fp/gklbl.F', 'iobsm0': 'subs/iobsmv.F', 'addsds': 'fp/addrbl.F', 'pratfs': 'subs/freeat.F subs/freeat.bk.F', 'ordbas': 'subs/findes.F', 'wf2lo': 'subs/addrwf.F', 'tetirr': 'subs/tetirr.F', 'xxxes': 'subs/shear.F', 'bzints': 'subs/bzints.F', 'atmoms': 'subs/defpq.F', 'mtchr2': 'subs/mtchae.F', 'dfrce': 'fp/dfrce.F', 'radwgt': 'subs/radmsh.F', 'grpprd': 'subs/grpgen.F', 'mksym': 'subs/mksym.F', 'psymop': 'subs/psymop.F', 'smvxc4': 'fp/smvxcm.F', 'maknrs': 'subs/maknrs.F', 'getirr': 'subs/findes.F', 'uarray_init': 'subs/m_struc_def.F', 'smvxc3': 'fp/smvxcm.F', 'smvxc2': 'fp/smvxcm.F', 'gklbl': 'fp/gklbl.F', 'exchpbe': 'subs/easypbe.F', 'fklbl': 'fp/fklbl.F', 'defwsr': 'subs/defwsr.F', 'permhk': 'fp/hambls.F', 'phmbl3': 'fp/hambls.F', 'orbl': 'subs/orbl.F', 'ioaindx': 'fp/sugw.F', 'spgprd': 'subs/spcgrp.F', 'efrng2': 'subs/efrng2.F', 'umove_init': 'subs/m_struc_def.F', 'pkl2ro': 'fp/pkl2ro.F', 'findes': 'subs/findes.F', 'lattdf': 'subs/lattdf.F', 'ioposs': 'subs/iopos.F', 'tri_rule': 'subs/veecomp.F', 'stonerpb': 'fp/stonerpb.F', 'addbkgl': 'fp/addbkg.F', 'hxpos': 'fp/hxpos.F', 'gpfndx': 'subs/spcgrp.F', 'uarray_size': 'subs/m_struc_def.F', 'iosave': 'subs/iosave.F', 'dlmtor': 'subs/lattc.F', 'pvdf1': 'fp/dfrce.F', 'makr': 'subs/ropyln.F', 'pvdf3': 'fp/dfrce.F', 'pvdf2': 'fp/dfrce.F', 'gtv_i4v': 'subs/m_gtv.F', 'pvdf4': 'fp/dfrce.F', 'ovlpfa': 'fp/ovlpfa.F', 'shftpp': 'subs/shftpp.F', 'zprm': 'subs/prmx.F', 'fmain': 'subs/ropyln.F subs/shorps.F subs/shorps.F', 'iofa': 'subs/iofa.F', 'rothrm': 'subs/rothrm.F', 'roth': 'subs/roth.F', 'suylg': 'fp/suylg.F', 'phmbls': 'fp/hambls.F', 'ghigbl': 'fp/ghigbl.F', 'smvxcm': 'fp/smvxcm.F', 'yprm0': 'subs/prmx.F', 'ii8copy': 'subs/spackv_array_copy.F', 'qdistn': 'subs/qdist.F', 'parmxp': 'subs/parmxp.F', 'fill3in': 'subs/m_rdctrl.F', 'setcc': 'subs/rseq.F', 'rotpnt': 'subs/rotpnt.F', 'mkdmtu': 'fp/mkdmtu.F', 'asados': 'subs/asados.F', 'pvcdm2': 'fp/vcdmel.F', 'pvcdm1': 'fp/vcdmel.F', 'latvec': 'subs/latvec.F', 'pvhmb1': 'fp/hambl.F', 'hhigbl': 'fp/hhigbl.F', 'vxnloc': 'subs/vxnloc.F', 'veecomp': 'subs/veecomp.F', 'suemph': 'subs/suemph.F', 'fdpp': 'subs/rdeq.F', 'getbzp': 'subs/getbzp.F', 'p1ovlc': 'fp/ovlocr.F', 'rlocbl': 'fp/rlocbl.F', 'clean0': 'subs/invbl.F', 'pvrgkl': 'fp/rhogkl.F', 'bessjy': 'subs/ropbes.F', 'latpar': 'subs/mkplat.F', 'dostet': 'subs/dostet.F', 'grpop': 'subs/grpop.F', 'nswadd': 'subs/m_toksw.F', 'hklbl': 'fp/hklbl.F', 'augq12': 'fp/augmbl.F', 'augmat': 'fp/augmat.F', 'rotsig': 'subs/rotwv.F', 'cmplat': 'subs/cmplat.F', 'ulat_size': 'subs/m_struc_def.F', 'mshvmt': 'fp/mshvmt.F', 'pvagm3': 'fp/gaugm.F', 'pvagm2': 'fp/gaugm.F', 'pvagm1': 'fp/gaugm.F', 'matmul_pwhovl': 'subs/switch.F', 'gtpfac': 'subs/mshsiz.F', 'readctrl': 'subs/m_rdctrl.F', 'rotycs': 'subs/rotycs.F', 'iostr4': 'subs/iostr.F', 'iostr1': 'subs/iostr.F', 'sclws2': 'subs/sclwsr.F', 'iostr2': 'subs/iostr.F', 'aiopot': 'subs/aiopot.F', 'pair3c': 'subs/pairc.F', 'gvputf': 'subs/gvlist.F', 'grpeql': 'subs/grpgen.F', 'pvglst': 'subs/gvlist.F', 'phhigb': 'fp/hhigbl.F', 'rlocb1': 'fp/rlocbl.F', 'dstmt': 'fp/pzhev.F', 'siteid': 'subs/siteid.F', 'asars': 'subs/asars.F', 'hsmqe0': 'subs/hsmq.F', 'bloch': 'subs/bloch.F', 'chgmsh': 'subs/chgmsh.F', 'addbkgsm': 'fp/addbkg.F', 'augq2z': 'fp/augmbl.F', 'sudmtu': 'subs/sudmtu.F', 'spinav': 'lmv7util.F subs/clsprm.F', 'slist': 'subs/slist.F', 'fsmbl': 'fp/fsmbl.F', 'shoang': 'subs/shoshl.F', 'mptauof': 'subs/suham.F', 'aiomom': 'subs/aiomom.F', 'prrmsh': 'subs/prrmsh.F', 'nrmliz': 'subs/mkplat.F', 'pgfpp': 'subs/pgfp.F', 'xxxbnd': 'subs/xxxbnd.F', 'radgrx': 'subs/vxcgr2.F', 'mixrho': 'fp/mixrho.F', 'symrho': 'fp/symrho.F', 'pvrhom': 'fp/rhomom.F', 'hamfb3': 'subs/hamfb3.F', 'uham_show': 'subs/m_struc_def.F', 'xxsho': 'subs/shoshl.F', 'i8icopy': 'subs/spackv_array_copy.F', 'pvhsmq': 'subs/hsmq.F', 'gklft': 'fp/gklft.F', 'mkehkf': 'fp/mkehkf.F', 's2sph': 'subs/s2sph.F', 'udstmt': 'fp/pzhev.F', 'mkppovl2': 'fp/sugw.F', 'getinput_entrance': 'subs/m_gtv.F', 'lmaux': 'fp/lmaux.F', 'm_psigd': 'subs/m_psigd.F', 'suclst': 'subs/suclst.F', 'seneinterp': 'subs/rdsigm2.F', 'smves': 'fp/smves.F', 'blsig': 'fp/hambls.F', 'addrbl': 'fp/addrbl.F', 'vcdmel': 'fp/vcdmel.F', 'roplat': 'subs/roplat.F', 'fermi': 'subs/fermi.F', 'wsymops': 'fp/sugw.F', 'rotevs': 'subs/rotevs.F', 'bessl': 'subs/besslr.F', 'getinput_r8v': 'subs/m_gtv.F', 'rhoqm': 'fp/symrho.F', 'augmbl': 'fp/augmbl.F', 'aiocor': 'subs/aiocor.F', 'aiova': 'subs/aiova.F', 'm_struc_def': 'subs/m_struc_def.F', 'getde': 'subs/stoner.F', 'single': 'subs/dstrbp.F', 'iomomn': 'subs/iomoms.F', 'elfigr': 'fp/locpot.F', 'pqsclc': 'subs/pqmix.F', 'evxcp': 'subs/evxcp.F', 'evxcv': 'subs/evxcv.F', 'pqsclf': 'subs/pqmix.F', 'phhibl': 'fp/hhibl.F', 'fillat': 'subs/findes.F', 'regioncheck': 'subs/rotwv.F', 'packs': 'subs/struc_strn.F', 'f102': 'subs/f102.F', 'symfor': 'subs/symfor.F', 'symlat': 'subs/symlat.F', 'ftlxp': 'fp/ftlxp.F', 'rdovfa': 'fp/rdovfa.F', 'locpot': 'fp/locpot.F', 'oalpha': 'subs/pptrns.F', 'ipwovl': 'fp/pwmat.F', 'sylmnc': 'subs/sylmnc.F', 'reducv': 'subs/findes.F', 'pgfp': 'subs/pgfp.F', 'umove_show': 'subs/m_struc_def.F', 'ccutup': 'subs/ccutup.F', 'pbevxc': 'subs/vxnloc.F', 'excsan': 'subs/evxcv.F', 'gen_hamindex': 'subs/suham.F', 'mshsiz': 'subs/mshsiz.F', 'csymop': 'subs/asymop.F', 'psigd': 'subs/m_psigd.F', 'ovlocr': 'fp/ovlocr.F', 'slinz': 'subs/slinz.F', 'prtrkl': 'fp/rhogkl.F', 'bzwts': 'subs/bzwts.F', 'ugcomp': 'fp/ugcomp.F', 'newsigmasw': 'subs/switch.F', 'gtbsl1': 'subs/gtbsl1.F', 'radext': 'subs/radmsh.F', 'gtv_none': 'subs/m_gtv.F', 'qdist': 'subs/qdist.F', 'symcry': 'subs/symcry.F', 'usite_init': 'subs/m_struc_def.F'}
 ------------ Used sub/fun ----------------
-set(['hansr4', 'hansr5', 'rotdlmm', 'interparam', 'ppi2z', 'hansr1', 'hansr2', 'scg', 'setcg', 'ddet33', 'setcc', 'tailsm', 'gvlst2', 'vxcnsp', 'clean0', 'vxcns3', 'getqvc', 'iclbsj', 'rseq', 'poiss0', 'gvsym', 'ioqpp', 'rdistn', 'imxmnx', 'eprod', 'gvlstn', 'pqmixb', 'hsmblq', 'rdsigm2', 'sclwsr', 'gvlsts', 'cshear', 'pblch1', 'aiomp', 'ovmin', 'popta2', 'fctail', 'symtbl', 'rnatm', 'tocast', 'gtbvec', 'hhibl', 'gwcphi', 'prelx1', 'intnos', 'mark1', 'sclws2', 'xmpbnd', 'ioorbp', 'sgroup', 'prlcb1', 'ropbs1', 'prlcb3', 'prlcb2', 'suqlst', 'xxxadd', 'vldau', 'nghbor', 'freeat', 'suqlsm', 'ftlxp2', 'stplat', 'suqlse', 'rwftai', 'upot_size', 'makrm0', 'pgvmat', 'rhgcm3', 'rhgcm2', 'grdepl', 'm_struc_func', 'iosigh', 'symes', 'gvctof', 'pqmxio', 'product2', 'igann', 'atomsc', 'volsph', 'hxpbl', 'mkcond', 'ifindiv2', 'bzwtsm', 'sint', 'bzwtsf', 'shortn3_initialize', 'chebev', 'cpplat', 'getgv2', 'cvplat', 'iclbas', 'corpbe', 'writebasis', 'sugw', 'gennlat', 'chkes', 'hansr', 'gtv_setst', 'rhgcmp', 'asars1', 'addbas', 'prlrho', 'uspec_size', 'upacks', 'iosiga', 'pvgtkn', 'fpchk', 'ropynx', 'ropbes', 'rlxstp', 'getuk', 'hklos', 'symsmr', 'beschb', 'pwmat', 'ffnam', 'zprm', 'ncutcorrect', 'pvmix3', 'paugnl', 'shortn3', 'ghibl', 'mshdot', 'flocbl', 'pvmix6', 'swrho', 'findctrlstart', 'bzmio', 'jxpos', 'prrmsh', 'rotspu', 'ovlchk', 'atwf', 'shoist', 'lsets_bitop_i8', 'clabel', 'aiocls', 'dvdos', 'relax', 'paug2', 'paug3', 'paug1', 'paug4', 'ylmrtg', 'sigswitch', 'rothph', 'prodx2d', 'totfrc', 'nwitsv', 'fullmesh', 'gtbsl2', 'defpq', 'mkewgt', 'smhsbl', 'supot', 'pysmr1', 'setuk', 'ppair1', 'flocb2', 'mtchae', 'lx2vec', 'grpgen', 'addes2', 'vxcns2', 'grdep2', 'seneinterp', 'pvang1', 'pvang2', 'paioc2', 'perdew', 'rdist', 'addrwf', 'gtv_setio', 'lmfp', 'regioncheck', 'shorbz', 'pairc', 'pchms2', 'aginv', 'prpos', 'surho', 'pz2idx', 'mkekin', 'config', 'aiopot', 'praugm', 'dosio', 'yprm', 'gvgvcomp', 'trysop', 'augq3z', 'lattc', 'deflmx', 'zclabl', 'rotwv', 'splrho', 'fradhd', 'hgugbl', 'iax2fd', 'siged', 'rsedit', 'bloch', 'mxxyz', 'pdstlb', 'pmtsig', 'pchmsh', 'dpdftr', 'rsibl', 'dfratm', 'popta5', 'nrmliz', 'popta3', 'popta1', 'delstd', 'getqp', 'mkrout', 'hamfb3k', 'symstr', 'ghios', 'vxcgr2', 'noshorbz', 'delstp', 'bzmsh0', 'rsmsym', 'bstrux', 'rsq1', 'lmhelp', 'tbhsi', 'soprm', 'gtv_setrcd', 'iobsmv', 'freats', 'gcor', 'vxcgga', 'makrwf', 'pnunew', 'chkxpn', 'poinsp', 'usite_size', 'adbkql', 'mksym', 'shear', 'rmesh', 'mkrou1', 'mkrou2', 'mkrou3', 'mkrou4', 'mkrou5', 'mkrou6', 'xlgen', 'zprm3', 'gvgetf', 'clsprp', 'augqs3', 'clsprm', 'fint', 'shorps', 'hklgbl', 'tkadd', 'sortea', 'lcrho', 'bigges', 'rhomom', 'hsmq', 'spgcop', 'cppos', 'zevl', 'pvioeu', 'tksw', 'gtpmin', 'hansz1', 'hansz2', 'suphas', 'iofa', 'mkidx2', 'pvrhm2', 'projql', 'm_psigd', 'gensym', 'ovcall', 'chkdmu', 'lgstar', 'prodln', 'paugq1', 'paugq2', 'reducv', 'optfab', 'hnsmft', 'hsibl1', 'wripp', 'spec2c', 'makus2', 'sugcut', 'pqmixa', 'pqmixc', 'lattic', 'pvaioc', 'vxc0sp', 'fswgts', 'matm', 'fovlp', 'ortrwf', 'ubz_init', 'spacks_copy', 'pvmix9', 'mcasho', 'pusq2', 'hambl', 'polinta', 'pusq1', 'paugqp', 'pvmix7', 'pvmix4', 'pvmix5', 'ellipsoidxmax', 'pairs', 'pviomx', 'vxcns4', 'vxcns5', 'makusq', 'makusp', 'lindsc', 'corpw91', 'hsmbl', 'radpkl', 'fradpk', 'rhogkl', 'bessl2', 'uham_size', 'suham', 'phidx', 'mchan', 'm_events', 'psymrf', 'm_hamindex', 'mkcfus', 'easypbe', 'psymrq', 'uoptic_size', 'prmx', 'fixpos', 'mkpdos', 'addzbk', 'dlmn', 'pxsmr1', 'strx00', 'radgkl', 'uspec_init', 'besslr', 'phvsfp', 'hansmd', 'xperdew', 'clear_swtok', 'drr2', 'symia1', 'chimedit', 'psymr1', 'psymr0', 'shortn', 'hansmr', 'loctsh', 'xyrhsr', 'initialize', 'optimise', 'm_toksw', 'aiopar', 'ifindiv', 'gklft', 'gvaddf', 'atqval', 'suphs0', 'mkrtab', 'parmx0', 'mcasms', 'ropqln', 'mcasme', 'udstmt', 'ropyln', 'conv2int', 'matgg2', 'ebcpl', 'symcry', 'rotmat', 'nosbzm', 'nwit', 'newrho', 'iors', 'distes', 'pvstr0', 'iprmsb', 'uspecb', 'parms0', 'parmxp', 'multiple', 'avwsr', 'mcasm2', 'prsed1', 'prsed2', 'prsed3', 'prsed4', 'prsed5', 'sigflg', 'gvlist', 'ubz_size', 'utb_size', 'popta4', 'find_region', 'renam', 'symvvl', 'mkpot', 'potpus', 'grpfnd', 'danrm2', 'makidx', 'toksw_init', 'hklft', 'getef', 'symprj', 'symia0', 'uctrl_size', 'sylm', 'getcor', 'makdos', 'mdeses', 'locpt2', 'sumsro', 'hsmbld', 'radsum', 'mkorbm', 'gaugm', 'shoshl', 'hhugbl', 'exchpw91', 'sphbes', 'cosvec', 'suldau', 'ldau', 'madmat', 'intnb', 'sgvsym', 'pvsym2', 'maknos', 'fixef0', 'prothl', 'fctp', 'pvrotd', 'ioden2', 'suidx', 'm_rdctrl', 'dfaugm', 'pkl2r', 'pvrott', 'spackv_array_copy_i8_i', 'prothr', 'protht', 'pvrots', 'dfqkkl', 'p2ovlc', 'chksgr', 'dpdbyl', 'm_rdctrl2_func', 'd3nrm2', 'efldos', 'hsibl2', 'hsibl3', 'hsibl4', 'hsibl5', 'hsibl6', 'fsmbpw', 'makrot', 'f102', 'rsiblp', 'elocp', 'gintsr', 'augqp3', 'prjpos', 'wrhomt', 'mcasw', 'ggugbl', 'mcmet', 'iopos', 'rtoint', 'mullmf', 'smcorm', 'rdctrl2', 'mkqp', 'momusl', 'clist', 'spackv_array_copy_r8_r8', 'iobzwt', 'fermi', 'hft2rs', 'dfphi', 'rsibl2', 'rsibl1', 'rsibl6', 'rhocor', 'rsibl4', 'pvaglc', 'prtev', 'phkl2r', 'gklq', 'm_gtv', 'dstrbp', 'mxmymz', 'fctor1', 'bzmesh', 'vxtrap', 'idxpr', 'setofl', 'corprm', 'splcls', 'symrat', 'sclp', 'bessl', 'pqmxup', 't3j_all', 'hft2r1', 'hft2r2', 'hft2r3', 'makrvl', 'hxpgbl', 'symiax', 'aiogen', 'praldm', 'asymop', 'aiosop', 'grpcop', 'offshp', 'mshn3p', 'pvsms1', 'mdesat', 'pvsms2', 'iget', 'latlim', 'baslst', 'nnrl', 'umix_init', 'vlm2us', 'aiocor', 'iomomn', 'ropcsm', 'hsibl', 'ioaindx', 'm_sstrnsname', 'ftfalo', 'mul22', 'iomomx', 'mshn31', 'fctp0', 'mshn32', 'iomomq', 'gintsl', 'iomoms', 'gfigbl', 'ustr_size', 'smshft', 'ioden', 'subasi', 'bndconn_v2', 'gtpcor', 'symqmp', 'psho1', 'bndfp', 'psymq0', 'lctoff', 'pvpus1', 'istbpm', 'ppair2', 'ppair3', 'splwts', 'ppair4', 'ppair5', 'makdla', 'contet', 'radmsh', 'xxxse', 'evxcp', 'm_struc_def', 'clsctr', 'rsq2', 'dosspl', 'corgga', 'suham2', 'ppratf', 'qparam', 'pvsug1', 'debugmode', 'stonerrsa', 'makr', 'getikt', 'vesgcm', 'iosite', 'wlattc', 'vesft', 'bravsy', 'sumlst', 'defspc', 'sopert', 'symdmu', 'hanr', 'mshint', 'umix_size', 'prrhat', 'gklbld', 'rsort', 'gcor2', 'prdmts', 'gtcsym', 'suqlsw2', 'gklblq', 'iobsm0', 'addsds', 'pratfs', 'ordbas', 'wf2lo', 'tetirr', 'xxxes', 'bzints', 'rangedq', 'atmoms', 'mtchr2', 'dfrce', 'gvmtch', 'pvsms3', 'psymop', 'smvxc4', 'maknrs', 'getirr', 'smvxc3', 'smvxc2', 'gklbl', 'exchpbe', 'fklbl', 'defwsr', 'iosits', 'umove_size', 'orbl', 'xxxdif', 'spgprd', 'efrng2', 'pkl2ro', 'findes', 'lattdf', 'mtchre', 'tri_rule', 'stonerpb', 'pzhev', 'hxpos', 'uarray_size', 'iosave', 'dlmtor', 'pvdf1', 'pvdf3', 'pvdf2', 'pvdf4', 'ovlpfa', 'groupg', 'shftpp', 'readctrlpq', 'rothrm', 'roth', 'suylg', 'phmbls', 'augq12', 'smvxcm', 'ii8copy', 'qdistn', 'fill3in', 'uordn_size', 'rotpnt', 'mkdmtu', 'asados', 'pvcdm2', 'pvcdm1', 'latvec', 'hhigbl', 'vxnloc', 'veecomp', 'suemph', 'getbzp', 'p1ovlc', 'rlocbl', 'iorbtm', 'pvrgkl', 'ccutup', 'latpar', 'dostet', 'grpop', 'bessel', 'hklbl', 'ghigbl', 'augmat', 'rotsig', 'cmplat', 'ulat_size', 'mshvmt', 'aiova', 'pvagm3', 'pvagm2', 'pvagm1', 'matmul_pwhovl', 'gtpfac', 'readctrl', 'rotycs', 'iostr4', 'iostr1', 'iostr2', 'rsmesh', 'grpeql', 'bzwts', 'gvputf', 'parsop', 'pvglst', 'phhigb', 'rlocb1', 'dstmt', 'siteid', 'asars', 'hsmqe0', 'vecpkl', 'chgmsh', 'addbkgsm', 'augq2z', 'sudmtu', 'slist', 'fsmbl', 'shoang', 'mptauof', 'aiomom', 'aiorme', 'radgrx', 'mixrho', 'symrho', 'pvrhom', 'hamfb3', 'xxsho', 'i8icopy', 'pvhsmq', 'radgra', 'mkehkf', 's2sph', 'radwgt', 'mkppovl2', 'scglp1', 'lmaux', 'latrel', 'suclst', 'smves', 'blsig', 'addrbl', 'vcdmel', 'roplat', 'subzi', 'wsymops', 'rotevs', 'rsibl5', 'mcasan', 'rhoqm', 'augmbl', 'radext', 'getfmt', 'spgeql', 'getde', 'single', 'nswadd', 'elfigr', 'pqsclc', 'pqsclb', 'evxcv', 'pqsclf', 'phhibl', 'fillat', 'corlsd', 'packs', 'grpprd', 'symfor', 'symlat', 'ftlxp', 'rdovfa', 'locpot', 'oalpha', 'ipwovl', 'sylmnc', 'f100', 'pgfp', 'bessjy', 'excsan', 'gen_hamindex', 'mshsiz', 'csymop', 'psigd', 'ovlocr', 'slinz', 'prtrkl', 'hambls', 'ugcomp', 'newsigmasw', 'gtbsl1', 'addbkgl', 'qdist', 'usite_init'])
+set(['hansr4', 'hansr5', 'rotdlmm', 'interparam', 'ppi2z', 'hansr1', 'hansr2', 'scg', 'setcg', 'ddet33', 'setcc', 'tailsm', 'gvlst2', 'vxcnsp', 'clean0', 'vxcns3', 'getqvc', 'iclbsj', 'rseq', 'poiss0', 'gvsym', 'ioqpp', 'rdistn', 'imxmnx', 'eprod', 'gvlstn', 'pqmixb', 'hsmblq', 'rdsigm2', 'sclwsr', 'gvlsts', 'cshear', 'pblch1', 'aiomp', 'ovmin', 'popta2', 'fctail', 'symtbl', 'rnatm', 'tocast', 'gtbvec', 'hhibl', 'gwcphi', 'prelx1', 'intnos', 'mark1', 'sclws2', 'xmpbnd', 'ioorbp', 'sgroup', 'prlcb1', 'ropbs1', 'prlcb3', 'prlcb2', 'suqlst', 'xxxadd', 'vldau', 'nghbor', 'freeat', 'suqlsm', 'ftlxp2', 'stplat', 'suqlse', 'rwftai', 'upot_size', 'makrm0', 'pgvmat', 'rhgcm3', 'rhgcm2', 'grdepl', 'm_struc_func', 'iosigh', 'symes', 'gvctof', 'pqmxio', 'product2', 'igann', 'atomsc', 'volsph', 'hxpbl', 'mkcond', 'ifindiv2', 'bzwtsm', 'sint', 'bzwtsf', 'shortn3_initialize', 'chebev', 'cpplat', 'getgv2', 'cvplat', 'iclbas', 'corpbe', 'writebasis', 'sugw', 'gennlat', 'chkes', 'hansr', 'gtv_setst', 'rhgcmp', 'asars1', 'addbas', 'prlrho', 'uspec_size', 'upacks', 'iosiga', 'pvgtkn', 'fpchk', 'ropynx', 'ropbes', 'rlxstp', 'getuk', 'hklos', 'symsmr', 'beschb', 'pwmat', 'ffnam', 'zprm', 'ncutcorrect', 'pvmix3', 'paugnl', 'shortn3', 'ghibl', 'mshdot', 'flocbl', 'pvmix6', 'swrho', 'findctrlstart', 'bzmio', 'jxpos', 'prrmsh', 'rotspu', 'ovlchk', 'atwf', 'shoist', 'lsets_bitop_i8', 'clabel', 'aiocls', 'dvdos', 'relax', 'paug2', 'paug3', 'paug1', 'paug4', 'ylmrtg', 'sigswitch', 'rothph', 'prodx2d', 'totfrc', 'nwitsv', 'fullmesh', 'gtbsl2', 'defpq', 'mkewgt', 'smhsbl', 'supot', 'pysmr1', 'setuk', 'ppair1', 'flocb2', 'mtchae', 'lx2vec', 'grpgen', 'addes2', 'vxcns2', 'grdep2', 'seneinterp', 'pvang1', 'pvang2', 'paioc2', 'perdew', 'rdist', 'addrwf', 'gtv_setio', 'lmfp', 'regioncheck', 'shorbz', 'pairc', 'pchms2', 'aginv', 'prpos', 'surho', 'pz2idx', 'mkekin', 'config', 'aiopot', 'praugm', 'dosio', 'yprm', 'gvgvcomp', 'trysop', 'augq3z', 'lattc', 'deflmx', 'zclabl', 'rotwv', 'splrho', 'fradhd', 'hgugbl', 'iax2fd', 'siged', 'rsedit', 'bloch', 'mxxyz', 'pdstlb', 'pmtsig', 'pchmsh', 'dpdftr', 'rsibl', 'dfratm', 'popta5', 'nrmliz', 'popta3', 'popta1', 'delstd', 'getqp', 'mkrout', 'hamfb3k', 'symstr', 'ghios', 'vxcgr2', 'noshorbz', 'delstp', 'bzmsh0', 'rsmsym', 'bstrux', 'rsq1', 'lmhelp', 'tbhsi', 'soprm', 'gtv_setrcd', 'iobsmv', 'freats', 'gcor', 'vxcgga', 'makrwf', 'pnunew', 'chkxpn', 'poinsp', 'usite_size', 'adbkql', 'mksym', 'shear', 'rmesh', 'mkrou1', 'mkrou2', 'mkrou3', 'mkrou4', 'mkrou5', 'mkrou6', 'xlgen', 'zprm3', 'gvgetf', 'clsprp', 'augqs3', 'clsprm', 'fint', 'shorps', 'hklgbl', 'tkadd', 'sortea', 'lcrho', 'bigges', 'rhomom', 'hsmq', 'spgcop', 'cppos', 'zevl', 'pvioeu', 'tksw', 'gtpmin', 'hansz1', 'hansz2', 'suphas', 'iofa', 'mkidx2', 'pvrhm2', 'projql', 'm_psigd', 'gensym', 'ovcall', 'chkdmu', 'lgstar', 'prodln', 'paugq1', 'paugq2', 'reducv', 'optfab', 'hnsmft', 'hsibl1', 'wripp', 'spec2c', 'makus2', 'sugcut', 'pqmixa', 'pqmixc', 'lattic', 'pvaioc', 'vxc0sp', 'fswgts', 'matm', 'fovlp', 'ortrwf', 'ubz_init', 'spacks_copy', 'pvmix9', 'mcasho', 'pusq2', 'hambl', 'polinta', 'pusq1', 'paugqp', 'pvmix7', 'pvmix4', 'pvmix5', 'ellipsoidxmax', 'pairs', 'pviomx', 'vxcns4', 'vxcns5', 'makusq', 'makusp', 'lindsc', 'corpw91', 'hsmbl', 'radpkl', 'fradpk', 'rhogkl', 'bessl2', 'uham_size', 'suham', 'phidx', 'mchan', 'm_events', 'psymrf', 'm_hamindex', 'mkcfus', 'easypbe', 'shorbzm', 'psymrq', 'uoptic_size', 'prmx', 'fixpos', 'mkpdos', 'addzbk', 'dlmn', 'pxsmr1', 'strx00', 'radgkl', 'uspec_init', 'besslr', 'phvsfp', 'hansmd', 'xperdew', 'clear_swtok', 'drr2', 'symia1', 'chimedit', 'psymr1', 'psymr0', 'shortn', 'hansmr', 'loctsh', 'xyrhsr', 'initialize', 'optimise', 'm_toksw', 'aiopar', 'ifindiv', 'gklft', 'gvaddf', 'atqval', 'suphs0', 'mkrtab', 'parmx0', 'mcasms', 'ropqln', 'mcasme', 'udstmt', 'ropyln', 'conv2int', 'matgg2', 'ebcpl', 'symcry', 'rotmat', 'nosbzm', 'nwit', 'newrho', 'iors', 'distes', 'pvstr0', 'iprmsb', 'uspecb', 'parms0', 'parmxp', 'multiple', 'avwsr', 'mcasm2', 'prsed1', 'prsed2', 'prsed3', 'prsed4', 'prsed5', 'sigflg', 'gvlist', 'ubz_size', 'utb_size', 'popta4', 'find_region', 'renam', 'symvvl', 'mkpot', 'potpus', 'grpfnd', 'danrm2', 'makidx', 'toksw_init', 'hklft', 'getef', 'symprj', 'symia0', 'uctrl_size', 'sylm', 'getcor', 'makdos', 'mdeses', 'locpt2', 'sumsro', 'hsmbld', 'radsum', 'mkorbm', 'gaugm', 'shoshl', 'hhugbl', 'exchpw91', 'sphbes', 'cosvec', 'suldau', 'ldau', 'madmat', 'intnb', 'sgvsym', 'pvsym2', 'maknos', 'fixef0', 'prothl', 'fctp', 'pvrotd', 'ioden2', 'suidx', 'm_rdctrl', 'dfaugm', 'pkl2r', 'pvrott', 'spackv_array_copy_i8_i', 'prothr', 'protht', 'pvrots', 'dfqkkl', 'p2ovlc', 'chksgr', 'dpdbyl', 'm_rdctrl2_func', 'd3nrm2', 'efldos', 'hsibl2', 'hsibl3', 'hsibl4', 'hsibl5', 'hsibl6', 'fsmbpw', 'makrot', 'f102', 'rsiblp', 'elocp', 'gintsr', 'augqp3', 'prjpos', 'wrhomt', 'mcasw', 'ggugbl', 'mcmet', 'iopos', 'rtoint', 'mullmf', 'smcorm', 'rdctrl2', 'mkqp', 'momusl', 'clist', 'spackv_array_copy_r8_r8', 'iobzwt', 'fermi', 'hft2rs', 'dfphi', 'rsibl2', 'rsibl1', 'rsibl6', 'rhocor', 'rsibl4', 'pvaglc', 'prtev', 'phkl2r', 'gklq', 'm_gtv', 'dstrbp', 'mxmymz', 'fctor1', 'bzmesh', 'vxtrap', 'idxpr', 'setofl', 'corprm', 'splcls', 'symrat', 'sclp', 'bessl', 'pqmxup', 't3j_all', 'hft2r1', 'hft2r2', 'hft2r3', 'makrvl', 'hxpgbl', 'symiax', 'aiogen', 'praldm', 'asymop', 'aiosop', 'grpcop', 'offshp', 'mshn3p', 'pvsms1', 'mdesat', 'pvsms2', 'iget', 'latlim', 'baslst', 'nnrl', 'umix_init', 'vlm2us', 'aiocor', 'iomomn', 'ropcsm', 'hsibl', 'ioaindx', 'm_sstrnsname', 'ftfalo', 'mul22', 'iomomx', 'mshn31', 'fctp0', 'mshn32', 'iomomq', 'gintsl', 'iomoms', 'gfigbl', 'ustr_size', 'smshft', 'ioden', 'subasi', 'bndconn_v2', 'gtpcor', 'symqmp', 'psho1', 'bndfp', 'psymq0', 'lctoff', 'pvpus1', 'istbpm', 'ppair2', 'ppair3', 'splwts', 'ppair4', 'ppair5', 'makdla', 'contet', 'radmsh', 'xxxse', 'evxcp', 'm_struc_def', 'clsctr', 'rsq2', 'dosspl', 'corgga', 'suham2', 'ppratf', 'qparam', 'pvsug1', 'debugmode', 'stonerrsa', 'makr', 'getikt', 'vesgcm', 'iosite', 'wlattc', 'vesft', 'bravsy', 'sumlst', 'defspc', 'sopert', 'symdmu', 'hanr', 'mshint', 'umix_size', 'prrhat', 'gklbld', 'rsort', 'gcor2', 'prdmts', 'gtcsym', 'suqlsw2', 'gklblq', 'iobsm0', 'addsds', 'pratfs', 'ordbas', 'wf2lo', 'tetirr', 'xxxes', 'bzints', 'rangedq', 'atmoms', 'mtchr2', 'dfrce', 'gvmtch', 'pvsms3', 'psymop', 'smvxc4', 'maknrs', 'getirr', 'smvxc3', 'smvxc2', 'gklbl', 'exchpbe', 'fklbl', 'defwsr', 'iosits', 'umove_size', 'orbl', 'xxxdif', 'spgprd', 'efrng2', 'pkl2ro', 'findes', 'lattdf', 'mtchre', 'tri_rule', 'stonerpb', 'pzhev', 'hxpos', 'uarray_size', 'iosave', 'dlmtor', 'pvdf1', 'pvdf3', 'pvdf2', 'pvdf4', 'ovlpfa', 'groupg', 'shftpp', 'readctrlpq', 'rothrm', 'roth', 'suylg', 'phmbls', 'augq12', 'smvxcm', 'ii8copy', 'qdistn', 'fill3in', 'uordn_size', 'rotpnt', 'mkdmtu', 'asados', 'pvcdm2', 'pvcdm1', 'latvec', 'hhigbl', 'vxnloc', 'veecomp', 'suemph', 'getbzp', 'p1ovlc', 'rlocbl', 'iorbtm', 'pvrgkl', 'ccutup', 'latpar', 'dostet', 'grpop', 'bessel', 'hklbl', 'ghigbl', 'augmat', 'rotsig', 'cmplat', 'ulat_size', 'mshvmt', 'aiova', 'pvagm3', 'pvagm2', 'pvagm1', 'matmul_pwhovl', 'gtpfac', 'readctrl', 'rotycs', 'iostr4', 'iostr1', 'iostr2', 'rsmesh', 'grpeql', 'bzwts', 'gvputf', 'parsop', 'pvglst', 'phhigb', 'rlocb1', 'dstmt', 'siteid', 'asars', 'hsmqe0', 'vecpkl', 'chgmsh', 'addbkgsm', 'augq2z', 'sudmtu', 'slist', 'fsmbl', 'shoang', 'mptauof', 'aiomom', 'aiorme', 'radgrx', 'mixrho', 'symrho', 'pvrhom', 'hamfb3', 'xxsho', 'i8icopy', 'pvhsmq', 'radgra', 'mkehkf', 's2sph', 'radwgt', 'mkppovl2', 'scglp1', 'lmaux', 'latrel', 'suclst', 'smves', 'blsig', 'addrbl', 'vcdmel', 'roplat', 'subzi', 'wsymops', 'rotevs', 'rsibl5', 'mcasan', 'rhoqm', 'augmbl', 'radext', 'getfmt', 'spgeql', 'getde', 'single', 'nswadd', 'elfigr', 'pqsclc', 'pqsclb', 'evxcv', 'pqsclf', 'phhibl', 'fillat', 'corlsd', 'packs', 'grpprd', 'symfor', 'symlat', 'ftlxp', 'rdovfa', 'locpot', 'oalpha', 'ipwovl', 'sylmnc', 'f100', 'pgfp', 'bessjy', 'excsan', 'gen_hamindex', 'mshsiz', 'csymop', 'psigd', 'ovlocr', 'slinz', 'prtrkl', 'hambls', 'ugcomp', 'newsigmasw', 'gtbsl1', 'addbkgl', 'qdist', 'usite_init'])
 ------------ Used files ------------------
 ['subs/hansr4.F']
 ['subs/hansr5.F']
@@ -5403,6 +5425,7 @@ set(['hansr4', 'hansr5', 'rotdlmm', 'interparam', 'ppi2z', 'hansr1', 'hansr2', '
 ['subs/m_hamindex.F']
 ['fp/mkrout.F']
 ['subs/easypbe.F']
+['subs/shorbz.F']
 ['fp/symrho.F']
 ['subs/m_struc_def.F']
 ['subs/prmx.F']

@@ -77,8 +77,8 @@ C ... MPI
       integer procid,master,mpipid
 C     logical mlog,cmdopt
 C ... Heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 
 C     print *, 'dmatu',dmatu(-lmaxu,-lmaxu,1,1)
 C     call rx0('done')

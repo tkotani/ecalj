@@ -1,5 +1,3 @@
-Cdelw1 var ['oilst', '0', 'oilst', 'nlist', 'integer', 'iv_w_', 'clist']
-Cdelw1 undel [['wref'], 'oilst', 'clist']
       subroutine clist(lstyle,slist,dclabl,z,nclass,nlist,list)
 C- Generates a list of classes from a string specification
 C ----------------------------------------------------------------
@@ -31,66 +29,43 @@ C     implicit none
       character*(*) slist
       double precision z(nclass),dclabl(nclass)
 C Local variables
-Cdelw1 do not change  [['wref'], 'oilst', 'clist']
-      integer iv0,ic,ival,is,i,j,ls,ls1,oilst
+      integer iv0,ic,ival,is,i,j,ls,ls1
       logical a2bin,sw
       character strn*120,filnam*72,cnam*72,clabl*8
 C Heap:
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
+      integer,allocatable:: oilst(:)
 
       ls = len(slist)
       nlist = 0
       goto (10,20,30) lstyle
       call rxi('clist: bad style',lstyle)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oilst]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       return
 
 C -- lstyle=1 ---
    10 continue
       call mkils0(slist,nlist,i)
-Cdelw1 do not change oilst because of ['wref']
-      call defi(oilst, nlist)
-Cdelw1 do not change oilst because of ['wref']
-      call mkilst(slist,nlist,w(oilst))
-Cki#error, have return with len(w_varlist)>0 at line 50
-Cdelw1 w_varlist remains: oilst 
-Cdelw1 w_varlistundel: [oilst]
-Cdelw1 w_varlist (undel), remains: [oilst]
-Cdelw1 w_varlist (del), remains: (None)
-Cdelw1 not deallocate oilst because of [wref]
+c      call defi(oilst, nlist)
+      allocate(oilst(nlist))
+      call mkilst(slist,nlist,oilst)
       if (nlist .eq. 0) return
-Cdelw1 do not change oilst because of ['wref']
-      call ishell(nlist,w(oilst))
-Cdelw1 do not change oilst because of ['wref']
-      list(1) = w(oilst)
+      call ishell(nlist,oilst)
+c      list(1) = w(oilst)
+      list(1) = oilst(1)
       j = 1
       do  12  i = 2, nlist
-Cdelw1 1 is digit, dropped
-Cdelw1 1 is digit, dropped
-Cdelw1 do not change oilst because of ['wref']
-        if (w(oilst+i-1) .gt. list(j)
-     .      .and. w(oilst+i-1) .le. nclass) then
+c        if (w(oilst+i-1) .gt. list(j)
+c     .      .and. w(oilst+i-1) .le. nclass) then
+        if (oilst(i) .gt. list(j)
+     .      .and. oilst(i) .le. nclass) then
           j = j+1
-Cdelw1 1 is digit, dropped
-Cdelw1 do not change oilst because of ['wref']
-          list(j) = w(oilst+i-1)
+c          list(j) = w(oilst+i-1)
+          list(j) = oilst(i)
         endif
    12 continue
       nlist = j
-Cdelw1 rlse name= oilst old_list= oilst 
-Cdelw1 rlse name= oilst new_list= (None)
-Cdelw1 not deallocate oilst because of [wref]
-Cdelw1       call rlse(oilst)
-       call rlse(oilst)
-
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oilst]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
+c       call rlse(oilst)
       return
 
 C --- lstyle=2 ---
@@ -112,10 +87,6 @@ C   ... Abort if a2bin can't parse expression
         endif
    42 continue
       call clrsyv(iv0)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oilst]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       return
 
 C --- lstyle=3 ---
@@ -137,10 +108,5 @@ C --- lstyle=3 ---
           list(nlist) = ic
         endif
    44 continue
-
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oilst]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 

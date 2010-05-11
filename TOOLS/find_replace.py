@@ -24,6 +24,7 @@ p1 = "^\s.*if\s*\(.*\s*\)\s*\w*_w_o\w"
 p2 = "^\s.*\Ww\W"
 p3 = "^\s.*common.*\/.*w.*\/"
 p4 = "^\s.*if\s*\(\s*-.*\s*\)\s*\w*_w_o\w"
+p5 = "^\s.*\Ww\s*\(\s*"
 #targetf = "("+p1+"|"+p2+"|"+p3+")"
 #targetf = "("+p1+"|"+p3+")"
 #targetf = "("+p4+")"
@@ -41,7 +42,7 @@ for fn in argset:
         i=i+1
         line=oxx[ix]
         a=pf2.search(line)
-#        b=pf2.search(line)
+#        b=pf3.search(line)
 #        c=pf4.search(line)
         if(a):
             ifind=1
