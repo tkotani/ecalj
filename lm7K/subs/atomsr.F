@@ -143,7 +143,7 @@ C tolch is tolerance for change in the charge density, tolv for rseq
       stc(1) = 0d0
 Cdelw1       call defdr(orho,nr*nsp*2*(nmix+2))
        allocate(rv_w_orho(nr*nsp*2*(nmix+2)))
-       if (nr*nsp*2*(nmix+2)<0) rv_w_orho(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nr*nsp*2*(nmix+2)<0) rv_w_orho(:)=0.0d0
 
 
 C --- Core charge, radial mesh points and weights ---

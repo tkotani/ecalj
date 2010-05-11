@@ -50,11 +50,11 @@ Cgetarg         call upack('spec lmxl a nr rmt',sspec,is,lmxl,a,nr,rmt)
         if (lmxl .eq. -1) goto 10
 Cdelw1         call defrr(orofi, nr)
          allocate(rv_w_orofi(nr))
-         if (nr<0) rv_w_orofi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1         call defrr(orwgt, nr)
          allocate(rv_w_orwgt(nr))
-         if (nr<0) rv_w_orwgt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1         call radmsh(rmt,a,nr,w(orofi))
          call radmsh ( rmt , a , nr , rv_w_orofi ) 

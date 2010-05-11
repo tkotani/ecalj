@@ -258,19 +258,19 @@ Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
 C ... Arrays needed for pvdf1
 Cdelw1       call defcc(oceps, ng)
        allocate(zv_w_oceps(ng))
-       if (ng<0) zv_w_oceps(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_oceps(:)=0.0d0
 
 Cdelw1       call defcc(ocnomi,ng)
        allocate(zv_w_ocnomi(ng))
-       if (ng<0) zv_w_ocnomi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocnomi(:)=0.0d0
 
 Cdelw1       call defcc(ocvin, ng)
        allocate(zv_w_ocvin(ng))
-       if (ng<0) zv_w_ocvin(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocvin(:)=0.0d0
 
 Cdelw1       call defcc(ocdvx, ng*nsp)
        allocate(zv_w_ocdvx(ng*nsp))
-       if (ng*nsp<0) zv_w_ocdvx(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) zv_w_ocdvx(:)=0.0d0
 
 
 C ... Set up for vectorized Y_lm and gaussians
@@ -284,15 +284,15 @@ Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
       nlmtop = (ltop+1)**2
 Cdelw1       call defrr(oyl,  ng*nlmtop)
        allocate(rv_w_oyl(ng*nlmtop))
-       if (ng*nlmtop<0) rv_w_oyl(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*nlmtop<0) rv_w_oyl(:)=0.0d0
 
 Cdelw1       call defrr(og2,  ng)
        allocate(rv_w_og2(ng))
-       if (ng<0) rv_w_og2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) rv_w_og2(:)=0.0d0
 
 Cdelw1       call defrr(og,   ng*3)
        allocate(rv_w_og(ng*3))
-       if (ng*3<0) rv_w_og(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*3<0) rv_w_og(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 197
 Cdelw1 do not change ogv because of ['undef', 'wref']
@@ -309,7 +309,7 @@ Cdelw1       call rlse(og)
 
 Cdelw1       call defi(oiv, ng*3)
        allocate(iv_w_oiv(ng*3))
-       if (ng*3<0) iv_w_oiv(:)=0
+Ctakao_ZeroClear_NotRequiered        if (ng*3<0) iv_w_oiv(:)=0
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 200
 Cdelw1 do not change ogv because of ['undef', 'wref']
@@ -322,7 +322,7 @@ Cdelw1       call suphs0(plat,ng,w(ogv),w(oiv))
 C --- Make ves(rhoin,q) ---
 Cdelw1       call defcc(osmro, nn)
        allocate(zv_w_osmro(nn))
-       if (nn<0) zv_w_osmro(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nn<0) zv_w_osmro(:)=0.0d0
 
 Cdelw1 do not change ocs because of ['wref']
       call defrr(ocs, ng)
@@ -370,31 +370,31 @@ Cdelw1       call rlse(osmro)
 C --- Make dVxc(in)/dn ---
 Cdelw1       call defcc(odvxc, nn*nsp)
        allocate(zv_w_odvxc(nn*nsp))
-       if (nn*nsp<0) zv_w_odvxc(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) zv_w_odvxc(:)=0.0d0
 
 Cdelw1       call defcc(osmro, nn*nsp)
        allocate(zv_w_osmro(nn*nsp))
-       if (nn*nsp<0) zv_w_osmro(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) zv_w_osmro(:)=0.0d0
 
 Cdelw1       call defcc(ovxcp, nn*nsp)
        allocate(zv_w_ovxcp(nn*nsp))
-       if (nn*nsp<0) zv_w_ovxcp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) zv_w_ovxcp(:)=0.0d0
 
 Cdelw1       call defcc(ovxcm, nn*nsp)
        allocate(zv_w_ovxcm(nn*nsp))
-       if (nn*nsp<0) zv_w_ovxcm(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) zv_w_ovxcm(:)=0.0d0
 
 Cdelw1       call defcc(owk1,  nn*nsp)
        allocate(zv_w_owk1(nn*nsp))
-       if (nn*nsp<0) zv_w_owk1(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) zv_w_owk1(:)=0.0d0
 
 Cdelw1       call defcc(owk2,  nn*nsp)
        allocate(zv_w_owk2(nn*nsp))
-       if (nn*nsp<0) zv_w_owk2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) zv_w_owk2(:)=0.0d0
 
 Cdelw1       call defcc(owk3,  nn*nsp)
        allocate(zv_w_owk3(nn*nsp))
-       if (nn*nsp<0) zv_w_owk3(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) zv_w_owk3(:)=0.0d0
 
 Cdelw1       call dpcopy(smrho,w(osmro),1,2*nn*nsp,1d0)
        call dpcopy ( smrho , zv_w_osmro , 1 , 2 * nn * nsp , 1d0 ) 
@@ -481,7 +481,7 @@ C      call zprm3('rho-out(q)',w(osmro),k1,k2,k3)
 C --- Multipole moments of the output density ---
 Cdelw1       call defrr (oqmout,   nvl)
        allocate(rv_w_oqmout(nvl))
-       if (nvl<0) rv_w_oqmout(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nvl<0) rv_w_oqmout(:)=0.0d0
 
       call pshpr(0)
 Cdelw1       call rhomom(nbas,ssite,sspec,orhat1,w(oqmout),vsum)

@@ -36,7 +36,7 @@ C ... Heap
       lmxl = ll(nlml)
 Cdelw1       call defrr (ormat,  nlml*nlml)
        allocate(rv_w_ormat(nlml*nlml))
-       if (nlml*nlml<0) rv_w_ormat(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nlml*nlml<0) rv_w_ormat(:)=0.0d0
 
       wgt = 1d0/ngrp
       call dpzero(sym, nlml*nlml*nrclas)

@@ -66,19 +66,19 @@ C --- Setup ---
       nsp  = nglob('nsp')
 Cdelw1       call defrr(orofi,nrmx)
        allocate(rv_w_orofi(nrmx))
-       if (nrmx<0) rv_w_orofi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1       call defrr(orwgt,nrmx)
        allocate(rv_w_orwgt(nrmx))
-       if (nrmx<0) rv_w_orwgt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1       call defrr(oh,   nrmx)
        allocate(rv_w_oh(nrmx))
-       if (nrmx<0) rv_w_oh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_oh(:)=0.0d0
 
 Cdelw1       call defrr(ov,   nrmx)
        allocate(rv_w_ov(nrmx))
-       if (nrmx<0) rv_w_ov(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_ov(:)=0.0d0
 
       if (ipr .ge. 40) write(stdo,221)
 

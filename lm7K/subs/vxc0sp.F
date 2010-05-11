@@ -100,19 +100,19 @@ C --- Generate vxc,exc on a mesh ---
       else
 Cdelw1         call defrr(oexcx,nr)
          allocate(rv_w_oexcx(nr))
-         if (nr<0) rv_w_oexcx(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_oexcx(:)=0.0d0
 
 Cdelw1         call defrr(oexcc,nr)
          allocate(rv_w_oexcc(nr))
-         if (nr<0) rv_w_oexcc(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_oexcc(:)=0.0d0
 
 Cdelw1         call defrr(ovxcx,nr)
          allocate(rv_w_ovxcx(nr))
-         if (nr<0) rv_w_ovxcx(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_ovxcx(:)=0.0d0
 
 Cdelw1         call defrr(ovxcc,nr)
          allocate(rv_w_ovxcc(nr))
-         if (nr<0) rv_w_ovxcc(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_ovxcc(:)=0.0d0
 
         if (nsp .eq. 1) then
 Cdelw1           call evxcv(rp,rp,nr,nsp,lxcf2,
@@ -169,19 +169,19 @@ C --- Gradient correction ---
       if (lxcg2 .ne. 0) then
 Cdelw1         call defrr(ogrh , nrmx*nsp)
          allocate(rv_w_ogrh(nrmx*nsp))
-         if (nrmx*nsp<0) rv_w_ogrh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nrmx*nsp<0) rv_w_ogrh(:)=0.0d0
 
 Cdelw1         call defrr(oggrh, nrmx*nsp)
          allocate(rv_w_oggrh(nrmx*nsp))
-         if (nrmx*nsp<0) rv_w_oggrh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nrmx*nsp<0) rv_w_oggrh(:)=0.0d0
 
 Cdelw1         call defrr(oagrh, nrmx*(3*nsp-2))
          allocate(rv_w_oagrh(nrmx*(3*nsp-2)))
-         if (nrmx*(3*nsp-2)<0) rv_w_oagrh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nrmx*(3*nsp-2)<0) rv_w_oagrh(:)=0.0d0
 
 Cdelw1         call defrr(ogrgag,nrmx*(2*nsp-1))
          allocate(rv_w_ogrgag(nrmx*(2*nsp-1)))
-         if (nrmx*(2*nsp-1)<0) rv_w_ogrgag(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nrmx*(2*nsp-1)<0) rv_w_ogrgag(:)=0.0d0
 
 Cdelw1         call vxcgr2(nr,nsp,nrmx,rofi,rp,w(ogrh),w(oggrh),
 Cdelw1      .    w(oagrh),w(ogrgag),exc,vxc)

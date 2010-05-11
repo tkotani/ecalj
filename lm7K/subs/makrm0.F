@@ -253,19 +253,19 @@ C       Add vxc[superposition of densities] for each vector
           call sumsro(xp,np,ips,a,b,rho,nttab,iax,rpos,rp)
 Cdelw1           call defrr(oexcx,np)
            allocate(rv_w_oexcx(np))
-           if (np<0) rv_w_oexcx(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_oexcx(:)=0.0d0
 
 Cdelw1           call defrr(oexcc,np)
            allocate(rv_w_oexcc(np))
-           if (np<0) rv_w_oexcc(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_oexcc(:)=0.0d0
 
 Cdelw1           call defrr(ovxcx,np)
            allocate(rv_w_ovxcx(np))
-           if (np<0) rv_w_ovxcx(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_ovxcx(:)=0.0d0
 
 Cdelw1           call defrr(ovxcc,np)
            allocate(rv_w_ovxcc(np))
-           if (np<0) rv_w_ovxcc(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_ovxcc(:)=0.0d0
 
 Cdelw1           call evxcv(rp,rp,np,1,lxcfun,
 Cdelw1      .      excp,w(oexcx),w(oexcc),vxcp,w(ovxcx),w(ovxcc))

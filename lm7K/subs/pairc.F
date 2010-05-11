@@ -393,7 +393,7 @@ Cdelw1 do not change oiax because of ['call', 'wref']
       call defi(oiax, -niax*mxnbr)
 Cdelw1       call defdr(owk,  3*mxnbr)
        allocate(rv_w_owk(3*mxnbr))
-       if (3*mxnbr<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) rv_w_owk(:)=0.0d0
 
       do  10  i = 1, 3
         modep(i) = 2
@@ -544,7 +544,7 @@ C ... List of lattice vectors to add to pos(ib)-pos(jb)
       call xlgen(plat,r1/alat,0d0,0,20,mode,i,w)
 Cdelw1       call defrr(olat, 3*i)
        allocate(rv_w_olat(3*i))
-       if (3*i<0) rv_w_olat(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*i<0) rv_w_olat(:)=0.0d0
 
 Cdelw1       call xlgen(plat,r1/alat,0d0,i,0,mode,nlat,w(olat))
        call xlgen ( plat , r1 / alat , 0d0 , i , 0 , mode , nlat , rv_w_olat 
@@ -558,14 +558,14 @@ C ... Save true pos in opos
 C     and ctr in octr in case same address space used for ctr
 Cdelw1       call defrr(opos, 3*nbasp)
        allocate(rv_w_opos(3*nbasp))
-       if (3*nbasp<0) rv_w_opos(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nbasp<0) rv_w_opos(:)=0.0d0
 
 Cdelw1       call dpcopy(pos,w(opos),1,3*nbasp,1d0)
        call dpcopy ( pos , rv_w_opos , 1 , 3 * nbasp , 1d0 ) 
 
 Cdelw1       call defrr(octr, 3*nsite)
        allocate(rv_w_octr(3*nsite))
-       if (3*nsite<0) rv_w_octr(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nsite<0) rv_w_octr(:)=0.0d0
 
 Cdelw1       call dpcopy(ctr,w(octr),1,3*nsite,1d0)
        call dpcopy ( ctr , rv_w_octr , 1 , 3 * nsite , 1d0 ) 
@@ -617,15 +617,15 @@ Cdelw1      .  range,ips,rtab,ib,r1,nlat,w(olat),w(opos),mxntab,nttab,iax)
 C --- Sort table by increasing length ---
 Cdelw1       call defrr(owk1, (nttab-mtab)*niax)
        allocate(rv_w_owk1((nttab-mtab)*niax))
-       if ((nttab-mtab)*niax<0) rv_w_owk1(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)*niax<0) rv_w_owk1(:)=0.0d0
 
 Cdelw1       call defrr(owk2, (nttab-mtab))
        allocate(rv_w_owk2((nttab-mtab)))
-       if ((nttab-mtab)<0) rv_w_owk2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)<0) rv_w_owk2(:)=0.0d0
 
 Cdelw1       call defrr(owk3, (nttab-mtab)*3)
        allocate(rv_w_owk3((nttab-mtab)*3))
-       if ((nttab-mtab)*3<0) rv_w_owk3(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)*3<0) rv_w_owk3(:)=0.0d0
 
 Cdelw1       call ppair3(nttab-mtab,iax(1,mtab),rtab(1,mtab),w(owk1),w(owk2),
 Cdelw1      .  w(owk3))
@@ -773,11 +773,11 @@ Cdelw1 w_varlist (del), remains: (None)
 C ... Assign a unique id for every different site in the cluster table
 Cdelw1       call defi(oiwk,nttab)
        allocate(iv_w_oiwk(nttab))
-       if (nttab<0) iv_w_oiwk(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nttab<0) iv_w_oiwk(:)=0
 
 Cdelw1       call defdr(opos,3*nttab)
        allocate(rv_w_opos(3*nttab))
-       if (3*nttab<0) rv_w_opos(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nttab<0) rv_w_opos(:)=0.0d0
 
 Cdelw1       call siteid(iax,nsite,ntab,plat,pos,w(opos),w(oiwk),i)
        call siteid ( iax , nsite , ntab , plat , pos , rv_w_opos , iv_w_oiwk 
@@ -1045,11 +1045,11 @@ C --- Set iax(7) to sort this cluster ---
         nttab = ntab(ib+1)-ntab(ib)
 Cdelw1         call defrr(owk1, nttab)
          allocate(rv_w_owk1(nttab))
-         if (nttab<0) rv_w_owk1(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nttab<0) rv_w_owk1(:)=0.0d0
 
 Cdelw1         call defrr(owk2, nttab*3)
          allocate(rv_w_owk2(nttab*3))
-         if (nttab*3<0) rv_w_owk2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nttab*3<0) rv_w_owk2(:)=0.0d0
 
 Cdelw1         call ppair4(ntab(ib)+1,ntab(ib+1),plat,pos,pos(1,ib),
 Cdelw1      .    w(owk1),w(owk2),tol,iax)

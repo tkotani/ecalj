@@ -141,7 +141,7 @@ C     call zprm3('input smrho',0,smrho,k1,k2,k3)
 C ... Hold on to original smrho (cgr)
 Cdelw1       call defcc (ocgr,  ng*nsp)
        allocate(zv_w_ocgr(ng*nsp))
-       if (ng*nsp<0) zv_w_ocgr(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) zv_w_ocgr(:)=0.0d0
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 121
@@ -156,11 +156,11 @@ Cdelw1       call gvgetf(ng,nsp,w(okv),k1,k2,k3,smrho,w(ocgr))
 C --- Shift in unscreened density at the two positions ---
 Cdelw1       call defcc (ocgs, ng*nsp)
        allocate(zv_w_ocgs(ng*nsp))
-       if (ng*nsp<0) zv_w_ocgs(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) zv_w_ocgs(:)=0.0d0
 
 Cdelw1       call defcc (ocwk, ng)
        allocate(zv_w_ocwk(ng))
-       if (ng<0) zv_w_ocwk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocwk(:)=0.0d0
 
       kmax = 0
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 127

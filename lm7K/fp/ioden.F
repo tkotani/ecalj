@@ -208,11 +208,11 @@ C ... Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
 C ... Put n0(G) into psrho and cn
 Cdelw1       call defcc(opsrho, kkk*nsp)
        allocate(zv_w_opsrho(kkk*nsp))
-       if (kkk*nsp<0) zv_w_opsrho(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (kkk*nsp<0) zv_w_opsrho(:)=0.0d0
 
 Cdelw1       call defcc(ocn, ng*nsp)
        allocate(zv_w_ocn(ng*nsp))
-       if (ng*nsp<0) zv_w_ocn(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) zv_w_ocn(:)=0.0d0
 
 Cdelw1       call dcopy(kkk*2*nsp,smrho,1,w(opsrho),1)
        call dcopy ( kkk * 2 * nsp , smrho , 1 , zv_w_opsrho , 1 ) 
@@ -305,7 +305,7 @@ C ... File I/O
       nwk = 12*max(k1,k2,k3)
 Cdelw1       call defcc(owk,nwk**2*nsp)
        allocate(zv_w_owk(nwk**2*nsp))
-       if (nwk**2*nsp<0) zv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nwk**2*nsp<0) zv_w_owk(:)=0.0d0
 
 Cdelw1 do not change oz because of ['wref']
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 231

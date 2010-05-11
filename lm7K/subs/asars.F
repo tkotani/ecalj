@@ -103,11 +103,11 @@ C ... Heap
 C ... Get class list
 Cdelw1       call defi(oipc,nbas)
        allocate(iv_w_oipc(nbas))
-       if (nbas<0) iv_w_oipc(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oipc(:)=0
 
 Cdelw1       call defi(oipa,nbas)
        allocate(iv_w_oipa(nbas))
-       if (nbas<0) iv_w_oipa(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oipa(:)=0
 
 Cgetarg       call spackv(10,'site class',ssite,1,nbas,w(oipc))
        i_copy_size=1; 
@@ -132,7 +132,7 @@ Cdelw1       call defrr(opnu,-n0*nsp*nbas)
 C ... For now, just a placeholder.
 Cdelw1       call defi(oov,nbas)
        allocate(iv_w_oov(nbas))
-       if (nbas<0) iv_w_oov(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oov(:)=0
 
 
 C ... Poke class-based P,Q into site->pnu and oqnu

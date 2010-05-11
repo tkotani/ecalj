@@ -130,15 +130,15 @@ C --- Read info spec'd by nfstg for each qp until error ---
       nevmx = 0
 Cdelw1       call defrr(oeb,  nband)
        allocate(rv_w_oeb(nband))
-       if (nband<0) rv_w_oeb(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nband<0) rv_w_oeb(:)=0.0d0
 
 Cdelw1       call defrr(oaccm,nchan*nband*nfstg)
        allocate(rv_w_oaccm(nchan*nband*nfstg))
-       if (nchan*nband*nfstg<0) rv_w_oaccm(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nchan*nband*nfstg<0) rv_w_oaccm(:)=0.0d0
 
 Cdelw1       call defrr(odosw,nchan*nband*nfstg)
        allocate(rv_w_odosw(nchan*nband*nfstg))
-       if (nchan*nband*nfstg<0) rv_w_odosw(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nchan*nband*nfstg<0) rv_w_odosw(:)=0.0d0
 
       if (nfstg .ge. 100) call rxi('iomomx not ready for nfstg=',nfstg)
       do  10  jq = 1, iq*(nsp/nspc)

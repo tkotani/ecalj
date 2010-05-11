@@ -24,15 +24,15 @@ Cdelw1       integer ogg,okk,oiwk
 
 Cdelw1       call defrr(ogg,   ngs)
        allocate(rv_w_ogg(ngs))
-       if (ngs<0) rv_w_ogg(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ngs<0) rv_w_ogg(:)=0.0d0
 
 Cdelw1       call defrr(okk,   ngs)
        allocate(rv_w_okk(ngs))
-       if (ngs<0) rv_w_okk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ngs<0) rv_w_okk(:)=0.0d0
 
 Cdelw1       call defrr(oiwk,  ngs)
        allocate(rv_w_oiwk(ngs))
-       if (ngs<0) rv_w_oiwk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ngs<0) rv_w_oiwk(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ogvs  is not defined yet at linenumber= 12
 Cdelw1 do not change ogvs because of ['call', 'undef', 'wref']

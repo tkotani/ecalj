@@ -206,26 +206,26 @@ Cgetarg         call upack('spec lmxb',sspec,is,lmxh,0,0,0)
 C   --- Set up all radial head and tail functions, and their BC's
 Cdelw1         call defrr(orofi, nr)
          allocate(rv_w_orofi(nr))
-         if (nr<0) rv_w_orofi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1         call radmsh(rmt,a,nr,w(orofi))
          call radmsh ( rmt , a , nr , rv_w_orofi ) 
 
 Cdelw1         call defrr(ofh, nr*(lmxh+1)*nkapi)
          allocate(rv_w_ofh(nr*(lmxh+1)*nkapi))
-         if (nr*(lmxh+1)*nkapi<0) rv_w_ofh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkapi<0) rv_w_ofh(:)=0.0d0
 
 Cdelw1         call defrr(oxh, nr*(lmxh+1)*nkapi)
          allocate(rv_w_oxh(nr*(lmxh+1)*nkapi))
-         if (nr*(lmxh+1)*nkapi<0) rv_w_oxh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkapi<0) rv_w_oxh(:)=0.0d0
 
 Cdelw1         call defrr(ovh, (lmxh+1)*nkapi)
          allocate(rv_w_ovh((lmxh+1)*nkapi))
-         if ((lmxh+1)*nkapi<0) rv_w_ovh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkapi<0) rv_w_ovh(:)=0.0d0
 
 Cdelw1         call defrr(odh, (lmxh+1)*nkapi)
          allocate(rv_w_odh((lmxh+1)*nkapi))
-         if ((lmxh+1)*nkapi<0) rv_w_odh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkapi<0) rv_w_odh(:)=0.0d0
 
 Cdelw1         call fradhd(nkapi,eh,rsmh,lh,lmxh,nr,w(orofi),w(ofh),
 Cdelw1      .    w(oxh),w(ovh),w(odh))
@@ -234,19 +234,19 @@ Cdelw1      .    w(oxh),w(ovh),w(odh))
 
 Cdelw1         call defrr(ofp, nr*(lmxa+1)*(kmax+1))
          allocate(rv_w_ofp(nr*(lmxa+1)*(kmax+1)))
-         if (nr*(lmxa+1)*(kmax+1)<0) rv_w_ofp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) rv_w_ofp(:)=0.0d0
 
 Cdelw1         call defrr(oxp, nr*(lmxa+1)*(kmax+1))
          allocate(rv_w_oxp(nr*(lmxa+1)*(kmax+1)))
-         if (nr*(lmxa+1)*(kmax+1)<0) rv_w_oxp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) rv_w_oxp(:)=0.0d0
 
 Cdelw1         call defrr(ovp, (lmxa+1)*(kmax+1))
          allocate(rv_w_ovp((lmxa+1)*(kmax+1)))
-         if ((lmxa+1)*(kmax+1)<0) rv_w_ovp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) rv_w_ovp(:)=0.0d0
 
 Cdelw1         call defrr(odp, (lmxa+1)*(kmax+1))
          allocate(rv_w_odp((lmxa+1)*(kmax+1)))
-         if ((lmxa+1)*(kmax+1)<0) rv_w_odp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) rv_w_odp(:)=0.0d0
 
 Cdelw1         call fradpk(kmax,rsma,lmxa,nr,w(orofi),w(ofp),w(oxp),w(ovp),
 Cdelw1      .    w(odp))
@@ -458,7 +458,7 @@ C     Count no. envelope functions connecting (phi,phidot) at site ia
 C --- Make strux to expand all orbitals at site ia ---
 Cdelw1       call defcc (ob,   (kmax+1)*nlma*ndimh)
        allocate(zv_w_ob((kmax+1)*nlma*ndimh))
-       if ((kmax+1)*nlma*ndimh<0) zv_w_ob(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if ((kmax+1)*nlma*ndimh<0) zv_w_ob(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 343
 Cdelw1 do not change ocg because of ['undef', 'wref']
@@ -512,7 +512,7 @@ C     whereas ispc=1 for independent spins, and spin index when nspc=2
 C --- Loop over eigenstates ---
 Cdelw1       call defcc (oa,   (kmax+1)*nlma)
        allocate(zv_w_oa((kmax+1)*nlma))
-       if ((kmax+1)*nlma<0) zv_w_oa(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if ((kmax+1)*nlma<0) zv_w_oa(:)=0.0d0
 
       do  ivec = 1, nev
 C       call pusq3(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),w(oa))

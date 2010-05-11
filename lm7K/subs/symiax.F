@@ -77,7 +77,7 @@ Cdelw1       call defi(oiaxib,-ldiaxb*nbas*niax)
 
 Cdelw1       call defi(ontabb,nbas)
        allocate(iv_w_ontabb(nbas))
-       if (nbas<0) iv_w_ontabb(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_ontabb(:)=0
 
 C     call yprm('iax before copy',0,iax,0,10,10,nttab)
 Cdelw1       call iax2fd(0,nbas,ntab,iax,w(ontabb),w(oiaxib),ldiaxb)

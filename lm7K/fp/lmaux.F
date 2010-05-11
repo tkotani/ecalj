@@ -453,7 +453,7 @@ C        xx = dglob('nsp',1d0,1)
 C       Initial estimate for sphere radii: overlapping atom potentials
 Cdelw1         call defrr(ozz,nspec)
          allocate(rv_w_ozz(nspec))
-         if (nspec<0) rv_w_ozz(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nspec<0) rv_w_ozz(:)=0.0d0
 
 Cgetarg         call spackv(10,'spec z',sspec,1,nspec,w(ozz))
          i_copy_size=1; 
@@ -466,7 +466,7 @@ Cdelw1          call spackv_array_copy_r8_r8('u',sspec(i_spackv)%z,i_copy_size,i
 
 Cdelw1         call defrr(ormt,nspec)
          allocate(rv_w_ormt(nspec))
-         if (nspec<0) rv_w_ormt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nspec<0) rv_w_ormt(:)=0.0d0
 
 Cgetarg         call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
          i_copy_size=1; 
@@ -618,11 +618,11 @@ C       call upack('lat nsgrp osymgr',slat,ngrp,og,0,0,0)
      .    sspec,ssite)
 Cdelw1         call defrr(opos2,3*nbas)
          allocate(rv_w_opos2(3*nbas))
-         if (3*nbas<0) rv_w_opos2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) rv_w_opos2(:)=0.0d0
 
 Cdelw1         call defi (oips2, nbas)
          allocate(iv_w_oips2(nbas))
-         if (nbas<0) iv_w_oips2(:)=0
+Ctakao_ZeroClear_NotRequiered          if (nbas<0) iv_w_oips2(:)=0
 
 Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos2))
          i_copy_size=size(ssite(1)%pos)
@@ -898,7 +898,7 @@ Cdelw1 do not change oag because of ['undef', 'wref']
 
 Cdelw1         call defrr(oz,nspec)
          allocate(rv_w_oz(nspec))
-         if (nspec<0) rv_w_oz(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nspec<0) rv_w_oz(:)=0.0d0
 
 Cgetarg         call spackv(10,'spec z',sspec,1,nspec,z)
          i_copy_size=1; 
@@ -908,7 +908,7 @@ Cgetarg         call spackv(10,'spec z',sspec,1,nspec,z)
 
 Cdelw1         call defrr(ormt,nspec)
          allocate(rv_w_ormt(nspec))
-         if (nspec<0) rv_w_ormt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nspec<0) rv_w_ormt(:)=0.0d0
 
 Cgetarg         call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
          i_copy_size=1; 
@@ -934,15 +934,15 @@ Cdelw1      .   , 2 ) )
         enddo
 Cdelw1         call defrr(ozc,mxclas)
          allocate(rv_w_ozc(mxclas))
-         if (mxclas<0) rv_w_ozc(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (mxclas<0) rv_w_ozc(:)=0.0d0
 
 Cdelw1         call defrr(ormtc,mxclas)
          allocate(rv_w_ormtc(mxclas))
-         if (mxclas<0) rv_w_ormtc(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (mxclas<0) rv_w_ormtc(:)=0.0d0
 
 Cdelw1         call defrr(olockc,mxclas)
          allocate(rv_w_olockc(mxclas))
-         if (mxclas<0) rv_w_olockc(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (mxclas<0) rv_w_olockc(:)=0.0d0
 
 Cdelw1 warning(1) , probably  onrc  is not defined yet at linenumber= 720
 Cdelw1 do not change onrc because of ['wref']

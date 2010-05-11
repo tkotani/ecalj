@@ -431,7 +431,7 @@ Cdelw1       w(ogstar) = -2
 
 Cdelw1       call defi(oipq,mxkp)
        allocate(iv_w_oipq(mxkp))
-       if (mxkp<0) iv_w_oipq(:)=0
+Ctakao_ZeroClear_NotRequiered        if (mxkp<0) iv_w_oipq(:)=0
 
 Cdelw1       call defdr(owgt,-mxkp)
        allocate(rv_w_owgt(abs(-mxkp)))
@@ -537,13 +537,13 @@ C      call defcc(osfz1,k1*k2*k3*ndimh*nlmaa)
 C ... titus
 Cdelw1       call defcc(owk,ndimh**2)
        allocate(zv_w_owk(ndimh**2))
-       if (ndimh**2<0) zv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ndimh**2<0) zv_w_owk(:)=0.0d0
 
       nl = nglob('nl')
       nspc = 1
 Cdelw1       call defcc(osigm,ndimh**2)
        allocate(zv_w_osigm(ndimh**2))
-       if (ndimh**2<0) zv_w_osigm(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ndimh**2<0) zv_w_osigm(:)=0.0d0
 
 ccccccccccccccccccccccccc
 ctakaox
@@ -627,7 +627,7 @@ Cdelw1 do not change oqp because of ['wref']
 C         call dpsadd(qp,w(oqp),3,1,3*iq1-2,1d0)
 Cdelw1           call defcc(osigm2,ndimh**2)
            allocate(zv_w_osigm2(ndimh**2))
-           if (ndimh**2<0) zv_w_osigm2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (ndimh**2<0) zv_w_osigm2(:)=0.0d0
 
 Cdelw1           call dpdump(w(osigm2),ndimh**2*2,ifis2)
            call dpdump ( zv_w_osigm2 , ndimh * * 2 * 2 , ifis2 ) 
@@ -837,7 +837,7 @@ C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         i = 1-hreal + 10*2 + 100*(1-hreal) + 100000
 Cdelw1         call defi(oistb2,nsgrp*nbas)
          allocate(iv_w_oistb2(nsgrp*nbas))
-         if (nsgrp*nbas<0) iv_w_oistb2(:)=0
+Ctakao_ZeroClear_NotRequiered          if (nsgrp*nbas<0) iv_w_oistb2(:)=0
 
 Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 629
 Cdelw1 do not change oistab because of ['undef', 'wref']
@@ -998,7 +998,7 @@ Cdelw1           w(ogstar) = -2
 
 Cdelw1           call defi(oipq,mxkp)
            allocate(iv_w_oipq(mxkp))
-           if (mxkp<0) iv_w_oipq(:)=0
+Ctakao_ZeroClear_NotRequiered            if (mxkp<0) iv_w_oipq(:)=0
 
 Cdelw1           call defdr(owgt,-mxkp)
            allocate(rv_w_owgt(abs(-mxkp)))
@@ -1153,7 +1153,7 @@ Cdelw1 do not change oqp because of ['wref']
         call defdr(oqp,3*mxkp)
 Cdelw1         call defi(oipq,mxkp)
          allocate(iv_w_oipq(mxkp))
-         if (mxkp<0) iv_w_oipq(:)=0
+Ctakao_ZeroClear_NotRequiered          if (mxkp<0) iv_w_oipq(:)=0
 
 Cdelw1         call defdr(owgt,-mxkp)
          allocate(rv_w_owgt(abs(-mxkp)))
@@ -1741,7 +1741,7 @@ Cdelw1 do not change oqsig because of ['wref']
       call defrr(oqsig,3*mxkp)
 Cdelw1       call defdr(oqp,3*mxkp)
        allocate(rv_w_oqp(3*mxkp))
-       if (3*mxkp<0) rv_w_oqp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*mxkp<0) rv_w_oqp(:)=0.0d0
 
 Cdelw1       call defi(ogstar,-mxkp-1)
        allocate(iv_w_ogstar(abs(-mxkp-1)))
@@ -1752,7 +1752,7 @@ Cdelw1       w(ogstar) = -2
 
 Cdelw1       call defi(oipq,mxkp)
        allocate(iv_w_oipq(mxkp))
-       if (mxkp<0) iv_w_oipq(:)=0
+Ctakao_ZeroClear_NotRequiered        if (mxkp<0) iv_w_oipq(:)=0
 
 Cdelw1       call defdr(owgt,-mxkp)
        allocate(rv_w_owgt(abs(-mxkp)))
@@ -1845,13 +1845,13 @@ C      call defcc(osfz1,k1*k2*k3*ndimh*nlmaa)
 C ... titus
 Cdelw1       call defcc(owk,ndimh**2)
        allocate(zv_w_owk(ndimh**2))
-       if (ndimh**2<0) zv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ndimh**2<0) zv_w_owk(:)=0.0d0
 
       nl = nglob('nl')
       nspc = 1
 Cdelw1       call defcc(osigm,ndimh**2)
        allocate(zv_w_osigm(ndimh**2))
-       if (ndimh**2<0) zv_w_osigm(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ndimh**2<0) zv_w_osigm(:)=0.0d0
 
       do  iq1 = 1, nqps
         read(ifis) qp,  eseavr !june2009  add eseavr

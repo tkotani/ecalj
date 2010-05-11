@@ -191,7 +191,7 @@ C       roth works with kcplx=2 mode
 C     Temporary memory for roth
 Cdelw1       call defcc(owk,lidimx**2)
        allocate(zv_w_owk(lidimx**2))
-       if (lidimx**2<0) zv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (lidimx**2<0) zv_w_owk(:)=0.0d0
 
 
 C --- Copy gf for each qp in star of qp(iq) ---

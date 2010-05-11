@@ -145,7 +145,7 @@ Cdelw1 do not change og because of ['undef', 'wref']
       call info(30,1,0,' Symmetrize forces ...',0,0)
 Cdelw1       call defdr(owk,3*nbas)
        allocate(rv_w_owk(3*nbas))
-       if (3*nbas<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) rv_w_owk(:)=0.0d0
 
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 128
 Cdelw1 do not change og because of ['undef', 'wref']

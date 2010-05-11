@@ -298,11 +298,11 @@ Cgetarg         call upack2('site pz',ssite,ib,pnz)
         nlmh = (lmxh+1)**2
 Cdelw1         call defrr(orofi, nr)
          allocate(rv_w_orofi(nr))
-         if (nr<0) rv_w_orofi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1         call defrr(orwgt, nr)
          allocate(rv_w_orwgt(nr))
-         if (nr<0) rv_w_orwgt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1         call radmsh(rmt,a,nr,w(orofi))
          call radmsh ( rmt , a , nr , rv_w_orofi ) 
@@ -329,19 +329,19 @@ C   --- Assemble rho1 = products of augmented functions ---
 C   ... Set up all radial head and tail envelope functions, and their bc's
 Cdelw1         call defrr(ofh,  nr*(lmxh+1)*nkaph)
          allocate(rv_w_ofh(nr*(lmxh+1)*nkaph))
-         if (nr*(lmxh+1)*nkaph<0) rv_w_ofh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkaph<0) rv_w_ofh(:)=0.0d0
 
 Cdelw1         call defrr(oxh,  nr*(lmxh+1)*nkaph)
          allocate(rv_w_oxh(nr*(lmxh+1)*nkaph))
-         if (nr*(lmxh+1)*nkaph<0) rv_w_oxh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkaph<0) rv_w_oxh(:)=0.0d0
 
 Cdelw1         call defrr(ovh,  (lmxh+1)*nkaph)
          allocate(rv_w_ovh((lmxh+1)*nkaph))
-         if ((lmxh+1)*nkaph<0) rv_w_ovh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) rv_w_ovh(:)=0.0d0
 
 Cdelw1         call defrr(odh,  (lmxh+1)*nkaph)
          allocate(rv_w_odh((lmxh+1)*nkaph))
-         if ((lmxh+1)*nkaph<0) rv_w_odh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) rv_w_odh(:)=0.0d0
 
 Cdelw1         call fradhd(nkaph,eh,rsmh,lh,lmxh,nr,w(orofi),w(ofh),
 Cdelw1      .    w(oxh),w(ovh),w(odh))
@@ -350,19 +350,19 @@ Cdelw1      .    w(oxh),w(ovh),w(odh))
 
 Cdelw1         call defrr(ofp,  nr*(lmxa+1)*(kmax+1))
          allocate(rv_w_ofp(nr*(lmxa+1)*(kmax+1)))
-         if (nr*(lmxa+1)*(kmax+1)<0) rv_w_ofp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) rv_w_ofp(:)=0.0d0
 
 Cdelw1         call defrr(oxp,  nr*(lmxa+1)*(kmax+1))
          allocate(rv_w_oxp(nr*(lmxa+1)*(kmax+1)))
-         if (nr*(lmxa+1)*(kmax+1)<0) rv_w_oxp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) rv_w_oxp(:)=0.0d0
 
 Cdelw1         call defrr(ovp,  (lmxa+1)*(kmax+1))
          allocate(rv_w_ovp((lmxa+1)*(kmax+1)))
-         if ((lmxa+1)*(kmax+1)<0) rv_w_ovp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) rv_w_ovp(:)=0.0d0
 
 Cdelw1         call defrr(odp,  (lmxa+1)*(kmax+1))
          allocate(rv_w_odp((lmxa+1)*(kmax+1)))
-         if ((lmxa+1)*(kmax+1)<0) rv_w_odp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) rv_w_odp(:)=0.0d0
 
 Cdelw1         call fradpk(kmax,rsma,lmxa,nr,w(orofi),w(ofp),w(oxp),w(ovp),
 Cdelw1      .    w(odp))
@@ -373,27 +373,27 @@ Cdelw1      .    w(odp))
 C   ... Augmented wave functions
 Cdelw1         call defrr(oul,   nr*(lmxa+1)*nsp)
          allocate(rv_w_oul(nr*(lmxa+1)*nsp))
-         if (nr*(lmxa+1)*nsp<0) rv_w_oul(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) rv_w_oul(:)=0.0d0
 
 Cdelw1         call defrr(osl,   nr*(lmxa+1)*nsp)
          allocate(rv_w_osl(nr*(lmxa+1)*nsp))
-         if (nr*(lmxa+1)*nsp<0) rv_w_osl(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) rv_w_osl(:)=0.0d0
 
 Cdelw1         call defrr(ogz,   nr*(lmxa+1)*nsp)
          allocate(rv_w_ogz(nr*(lmxa+1)*nsp))
-         if (nr*(lmxa+1)*nsp<0) rv_w_ogz(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) rv_w_ogz(:)=0.0d0
 
 Cdelw1         call defrr(oruu,  nr*(lmxa+1)*2*nsp)
          allocate(rv_w_oruu(nr*(lmxa+1)*2*nsp))
-         if (nr*(lmxa+1)*2*nsp<0) rv_w_oruu(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rv_w_oruu(:)=0.0d0
 
 Cdelw1         call defrr(orus,  nr*(lmxa+1)*2*nsp)
          allocate(rv_w_orus(nr*(lmxa+1)*2*nsp))
-         if (nr*(lmxa+1)*2*nsp<0) rv_w_orus(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rv_w_orus(:)=0.0d0
 
 Cdelw1         call defrr(orss,  nr*(lmxa+1)*2*nsp)
          allocate(rv_w_orss(nr*(lmxa+1)*2*nsp))
-         if (nr*(lmxa+1)*2*nsp<0) rv_w_orss(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rv_w_orss(:)=0.0d0
 
         call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 240

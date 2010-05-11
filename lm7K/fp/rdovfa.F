@@ -346,7 +346,7 @@ C       Core magnetic moment (possible if magnetized core hole)
         if (nsp .eq. 2 .and. lmxl .gt. -1) then
 Cdelw1           call defrr(orwgt, nr)
            allocate(rv_w_orwgt(nr))
-           if (nr<0) rv_w_orwgt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (nr<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1           call radwgt(rmt,a,nr,w(orwgt))
            call radwgt ( rmt , a , nr , rv_w_orwgt ) 
@@ -394,7 +394,7 @@ Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
           if (lfoc .eq. 0) then
 Cdelw1             call defrr(orwgt, nr)
              allocate(rv_w_orwgt(nr))
-             if (nr<0) rv_w_orwgt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered              if (nr<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1             call radwgt(rmt,a,nr,w(orwgt))
              call radwgt ( rmt , a , nr , rv_w_orwgt ) 
@@ -454,7 +454,7 @@ Cdelw1 do not change okv because of ['undef', 'wref']
 
 Cdelw1       call defcc(ocv, ng*nsp)
        allocate(zv_w_ocv(ng*nsp))
-       if (ng*nsp<0) zv_w_ocv(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) zv_w_ocv(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 351
 Cdelw1 do not change ogv because of ['undef', 'wref']

@@ -238,7 +238,7 @@ C      call pack1('pot osmrho',w(ospot2),osmrh2)
 
 Cdelw1       call defrr (oqmom,  nvl)
        allocate(rv_w_oqmom(nvl))
-       if (nvl<0) rv_w_oqmom(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nvl<0) rv_w_oqmom(:)=0.0d0
 
 
       dc = sopts(1:1)
@@ -319,7 +319,7 @@ Cdelw1 do not change osmrh2 because of ['wref']
 
 Cdelw1           call defi(oorh2,3*nbask(2))
            allocate(iv_w_oorh2(3*nbask(2)))
-           if (3*nbask(2)<0) iv_w_oorh2(:)=0
+Ctakao_ZeroClear_NotRequiered            if (3*nbask(2)<0) iv_w_oorh2(:)=0
 
 Cdelw1           call rdovfa(nbask(2),nspeck(2),ssite2,sspec2,slat2,
 Cdelw1      .      spot2,qbg,w(oorh2))
@@ -380,7 +380,7 @@ C       call shstru('spec',w(ospec2),1,nspeck(2))
 C       call shstru('site',w(osite2),1,nbask(2))
 Cdelw1         call defi(oorh2,3*nbask(2))
          allocate(iv_w_oorh2(3*nbask(2)))
-         if (3*nbask(2)<0) iv_w_oorh2(:)=0
+Ctakao_ZeroClear_NotRequiered          if (3*nbask(2)<0) iv_w_oorh2(:)=0
 
         call pshpr(1)
 Cdelw1         k = iors(-2,sctrl,ssite2,sspec2,slat2,spot2,sbz,

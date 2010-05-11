@@ -134,7 +134,7 @@ Cdelw1 do not change ov0 because of ['undef', 'wref']
 C --- Determine shape of smooth Hankel tails for local orbitals ---
 Cdelw1       call defi(oips,nbas)
        allocate(iv_w_oips(nbas))
-       if (nbas<0) iv_w_oips(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oips(:)=0
 
 Cgetarg       call spackv(10,'site spec',ssite,1,nbas,w(oips))
        i_copy_size=1; 

@@ -742,11 +742,11 @@ C    ...  Printout
             call info0(40,1,-1,' G vectors at the Gamma point:')
 Cdelw1             call defi(oigv2,3*npw)
              allocate(iv_w_oigv2(3*npw))
-             if (3*npw<0) iv_w_oigv2(:)=0
+Ctakao_ZeroClear_NotRequiered              if (3*npw<0) iv_w_oigv2(:)=0
 
 Cdelw1             call defi(okv,3*npw)
              allocate(iv_w_okv(3*npw))
-             if (3*npw<0) iv_w_okv(:)=0
+Ctakao_ZeroClear_NotRequiered              if (3*npw<0) iv_w_okv(:)=0
 
 Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: ogv undef and real(8)
 Cdelw1 do not change ogv because of ['undef', 'wref', 'redef']

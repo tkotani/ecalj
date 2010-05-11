@@ -510,11 +510,11 @@ C --- Print info about free-atom wavefunctions ---
       if (ipr .gt. 30) then
 Cdelw1       call defrr(og,  nr*2)
        allocate(rv_w_og(nr*2))
-       if (nr*2<0) rv_w_og(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nr*2<0) rv_w_og(:)=0.0d0
 
 Cdelw1       call defrr(opsi, nr*(lmxa+1)*nsp)
        allocate(rv_w_opsi(nr*(lmxa+1)*nsp))
-       if (nr*(lmxa+1)*nsp<0) rv_w_opsi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nr*(lmxa+1)*nsp<0) rv_w_opsi(:)=0.0d0
 
       lplawv = 0
       if (ipr .ge. 50) lplawv = 1
@@ -890,15 +890,15 @@ C ... Heap
      .  ' ',80,stdo,ipr,rmt)
 Cdelw1       call defrr (oh,    nr)
        allocate(rv_w_oh(nr))
-       if (nr<0) rv_w_oh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nr<0) rv_w_oh(:)=0.0d0
 
 Cdelw1       call defrr (og,    2*nr)
        allocate(rv_w_og(2*nr))
-       if (2*nr<0) rv_w_og(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (2*nr<0) rv_w_og(:)=0.0d0
 
 Cdelw1       call defrr (ogp,   2*nr*4)
        allocate(rv_w_ogp(2*nr*4))
-       if (2*nr*4<0) rv_w_ogp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (2*nr*4<0) rv_w_ogp(:)=0.0d0
 
 
 C --- Parameters for minimisation ---
@@ -1092,7 +1092,7 @@ C     lplawv=nglob('lplawv')
         if (nsp .eq. 2) call rx('optfab is not spinpol yet')
 Cdelw1         call defrr(opsi,  nr*lmxa)
          allocate(rv_w_opsi(nr*lmxa))
-         if (nr*lmxa<0) rv_w_opsi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*lmxa<0) rv_w_opsi(:)=0.0d0
 
 Cdelw1         call popta5(lmxa,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,
 Cdelw1      .     rofi,w(opsi),v,w(og),a,b,spid)
@@ -1207,15 +1207,15 @@ Cdelw1 w_varlist (del), remains: (None)
       do  80  i = 1, nsp
 Cdelw1       call defrr (oh,    nr)
        allocate(rv_w_oh(nr))
-       if (nr<0) rv_w_oh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nr<0) rv_w_oh(:)=0.0d0
 
 Cdelw1       call defrr (og,    2*nr)
        allocate(rv_w_og(2*nr))
-       if (2*nr<0) rv_w_og(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (2*nr<0) rv_w_og(:)=0.0d0
 
 Cdelw1       call defrr (ogp,   2*nr*4)
        allocate(rv_w_ogp(2*nr*4))
-       if (2*nr*4<0) rv_w_ogp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (2*nr*4<0) rv_w_ogp(:)=0.0d0
 
 
 C --- Loop over local orbitals ---
@@ -1356,7 +1356,7 @@ C     lplawv=nglob('lplawv')
         if (nsp .eq. 2) call rx('optfab is not spinpol yet')
 Cdelw1         call defrr(opsi,  nr*lmxa)
          allocate(rv_w_opsi(nr*lmxa))
-         if (nr*lmxa<0) rv_w_opsi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*lmxa<0) rv_w_opsi(:)=0.0d0
 
 Cdelw1         call popta5(lmxa,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,
 Cdelw1      .     rofi,w(opsi),v,w(og),a,b,spid)

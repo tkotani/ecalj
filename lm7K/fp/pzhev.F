@@ -209,7 +209,7 @@ C Get dimensions of local matrices a, b and z
 C Distribute h and s into local arrays
 Cdelw1       call defcc(oa, lda*mda)
        allocate(zv_w_oa(lda*mda))
-       if (lda*mda<0) zv_w_oa(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (lda*mda<0) zv_w_oa(:)=0.0d0
 
 Cdelw1       call dstmt(desca,n,hamm,w(oa))
        call dstmt ( desca , n , hamm , zv_w_oa ) 
@@ -225,7 +225,7 @@ Cdelw1       call rlse(oa)
       if (lov) then
 Cdelw1         call defcc(ob, ldb*mdb)
          allocate(zv_w_ob(ldb*mdb))
-         if (ldb*mdb<0) zv_w_ob(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (ldb*mdb<0) zv_w_ob(:)=0.0d0
 
 Cdelw1         call dstmt(descb,n,ovlm,w(ob))
          call dstmt ( descb , n , ovlm , zv_w_ob ) 
@@ -241,7 +241,7 @@ Cdelw1         call rlse(ob)
       endif
 Cdelw1       call defcc(oz, ldz*mdz)
        allocate(zv_w_oz(ldz*mdz))
-       if (ldz*mdz<0) zv_w_oz(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ldz*mdz<0) zv_w_oz(:)=0.0d0
 
       ibtype = 1
       if (nmx .le. 0) then
@@ -292,19 +292,19 @@ Cdelw1      .               liwork,-1,ifail,iclustr,gap,info)
       endif
 Cdelw1       call defcc(owork,   lwork)
        allocate(zv_w_owork(lwork))
-       if (lwork<0) zv_w_owork(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (lwork<0) zv_w_owork(:)=0.0d0
 
 Cdelw1       call defrr(orwork,  lrwork)
        allocate(rv_w_orwork(lrwork))
-       if (lrwork<0) rv_w_orwork(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (lrwork<0) rv_w_orwork(:)=0.0d0
 
 Cdelw1       call defi (oiwork,  liwork)
        allocate(iv_w_oiwork(liwork))
-       if (liwork<0) iv_w_oiwork(:)=0
+Ctakao_ZeroClear_NotRequiered        if (liwork<0) iv_w_oiwork(:)=0
 
 Cdelw1       call defi (oifail,  n)
        allocate(iv_w_oifail(n))
-       if (n<0) iv_w_oifail(:)=0
+Ctakao_ZeroClear_NotRequiered        if (n<0) iv_w_oifail(:)=0
 
 C Diagonalise
       if (lov) then

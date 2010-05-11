@@ -226,7 +226,7 @@ C     Electrostatics depend only on total spin density
 
 Cdelw1       call defcc (ocv, ng)
        allocate(zv_w_ocv(ng))
-       if (ng<0) zv_w_ocv(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocv(:)=0.0d0
 
       call dpzero(f, 3*nbas)
 
@@ -253,11 +253,11 @@ Cdelw1       call vesft(slat,ng,w(ogv),w(okv),w(ocv),k1,k2,k3,smrho,smpot,u00)
 C ... Add estatic potential of compensating gaussians to smpot
 Cdelw1       call defcc (ocg1,    ng)
        allocate(zv_w_ocg1(ng))
-       if (ng<0) zv_w_ocg1(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocg1(:)=0.0d0
 
 Cdelw1       call defcc (ocgsum,  ng)
        allocate(zv_w_ocgsum(ng))
-       if (ng<0) zv_w_ocgsum(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocgsum(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 217
 Cdelw1 do not change ogv because of ['undef', 'wref']

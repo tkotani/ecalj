@@ -120,15 +120,15 @@ C     b = rmt/(dexp(a*nrmt-a)-1d0)
       do  i = 1, nsp
 Cdelw1       call defrr (oh,    nr)
        allocate(rv_w_oh(nr))
-       if (nr<0) rv_w_oh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nr<0) rv_w_oh(:)=0.0d0
 
 Cdelw1       call defrr (og,    2*nr)
        allocate(rv_w_og(2*nr))
-       if (2*nr<0) rv_w_og(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (2*nr<0) rv_w_og(:)=0.0d0
 
 Cdelw1       call defrr (ogp,   2*nr*4)
        allocate(rv_w_ogp(2*nr*4))
-       if (2*nr*4<0) rv_w_ogp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (2*nr*4<0) rv_w_ogp(:)=0.0d0
 
 
 C --- Loop over local orbitals ---

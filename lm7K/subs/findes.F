@@ -185,7 +185,7 @@ Cdelw1    10 call defi (oiwtmp,-nirrmx)
 
 Cdelw1       call defdr(orirr ,3*nirrmx)
        allocate(rv_w_orirr(3*nirrmx))
-       if (3*nirrmx<0) rv_w_orirr(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nirrmx<0) rv_w_orirr(:)=0.0d0
 
 Cdelw1       call defi (oirr  ,-nmesh)
        allocate(iv_w_oirr(abs(-nmesh)))
@@ -218,11 +218,11 @@ Cdelw1       call rlse(orirr)
 
 Cdelw1       call defrr(orirr,3*nirr)
        allocate(rv_w_orirr(3*nirr))
-       if (3*nirr<0) rv_w_orirr(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nirr<0) rv_w_orirr(:)=0.0d0
 
 Cdelw1       call defrr(ores,   nirr)
        allocate(rv_w_ores(nirr))
-       if (nirr<0) rv_w_ores(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nirr<0) rv_w_ores(:)=0.0d0
 
 Cdelw1       call defi (olini, -nirr)
        allocate(iv_w_olini(abs(-nirr)))
@@ -336,7 +336,7 @@ Cdelw1 do not change obas1 because of ['wref']
         call defdr(obas1 ,3*(nbas+nsymop))
 Cdelw1         call defi (oicls1,   nbas+nsymop)
          allocate(iv_w_oicls1(nbas+nsymop))
-         if (nbas+nsymop<0) iv_w_oicls1(:)=0
+Ctakao_ZeroClear_NotRequiered          if (nbas+nsymop<0) iv_w_oicls1(:)=0
 
 Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 248
 Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
@@ -382,7 +382,7 @@ C ... Rescale wsr,rmines,rmaxes
       call dscal(1     ,alat,rmaxes,1)
 Cdelw1       call defdr(owk,5*nbas)
        allocate(rv_w_owk(5*nbas))
-       if (5*nbas<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (5*nbas<0) rv_w_owk(:)=0.0d0
 
 Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
 Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 267

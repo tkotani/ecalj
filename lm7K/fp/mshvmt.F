@@ -315,11 +315,11 @@ C   ... Make nrclas,ipa,posc
 
 Cdelw1         call defrr(oqwk,nlml)
          allocate(rv_w_oqwk(nlml))
-         if (nlml<0) rv_w_oqwk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nlml<0) rv_w_oqwk(:)=0.0d0
 
 Cdelw1         call defrr(osym,nlml*nlml*nrclas)
          allocate(rv_w_osym(nlml*nlml*nrclas))
-         if (nlml*nlml*nrclas<0) rv_w_osym(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nlml*nlml*nrclas<0) rv_w_osym(:)=0.0d0
 
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 295
 Cdelw1 do not change og because of ['undef', 'wref']

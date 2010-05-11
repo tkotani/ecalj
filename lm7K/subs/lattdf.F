@@ -47,7 +47,7 @@ Cdelw1 w_varlist (del), remains: (None)
       call getpr(ipr)
 Cdelw1       call defrr(obwk,3*nbas)
        allocate(rv_w_obwk(3*nbas))
-       if (3*nbas<0) rv_w_obwk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) rv_w_obwk(:)=0.0d0
 
       call dcopy(9,defgrd,1,work,1)
       if (iabs(ldist) .eq. 1) call makrot(work,defgrd)

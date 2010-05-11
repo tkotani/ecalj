@@ -161,15 +161,15 @@ Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
       nlmtop = (ltop+1)**2
 Cdelw1       call defrr (oyl,  ng*nlmtop)
        allocate(rv_w_oyl(ng*nlmtop))
-       if (ng*nlmtop<0) rv_w_oyl(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*nlmtop<0) rv_w_oyl(:)=0.0d0
 
 Cdelw1       call defrr (og2,  ng)
        allocate(rv_w_og2(ng))
-       if (ng<0) rv_w_og2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) rv_w_og2(:)=0.0d0
 
 Cdelw1       call defrr (og,   ng*3)
        allocate(rv_w_og(ng*3))
-       if (ng*3<0) rv_w_og(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*3<0) rv_w_og(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 144
 Cdelw1 do not change ogv because of ['undef', 'wref']
@@ -187,7 +187,7 @@ Cdelw1       call rlse (og)
 
 Cdelw1       call defi (oiv, ng*3)
        allocate(iv_w_oiv(ng*3))
-       if (ng*3<0) iv_w_oiv(:)=0
+Ctakao_ZeroClear_NotRequiered        if (ng*3<0) iv_w_oiv(:)=0
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 148
 Cdelw1 do not change ogv because of ['undef', 'wref']
@@ -198,11 +198,11 @@ Cdelw1       call suphs0(plat,ng,w(ogv),w(oiv))
 
 Cdelw1       call defrr (ocs, ng)
        allocate(rv_w_ocs(ng))
-       if (ng<0) rv_w_ocs(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) rv_w_ocs(:)=0.0d0
 
 Cdelw1       call defrr (osn, ng)
        allocate(rv_w_osn(ng))
-       if (ng<0) rv_w_osn(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) rv_w_osn(:)=0.0d0
 
 
 C --- Loop over sites ---
@@ -234,7 +234,7 @@ Cdelw1         call suphas(q0,tau,ng,w(oiv),n1,n2,n3,qlat,w(ocs),w(osn))
 
 Cdelw1         call defrr(oqkl,nlm*(kmax+1))
          allocate(rv_w_oqkl(nlm*(kmax+1)))
-         if (nlm*(kmax+1)<0) rv_w_oqkl(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nlm*(kmax+1)<0) rv_w_oqkl(:)=0.0d0
 
         call pshpr(0)
 Cdelw1         call rhogkl(ib,ib,nsp,modgkl,ssite,sspec,orhat,kmax,w(oqkl))

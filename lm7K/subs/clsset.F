@@ -105,7 +105,7 @@ C   ... Determine supercell size
         if (ifac .eq. 1024) ifac = 1000
 Cdelw1         call defrr(opose, 3*nbas)
          allocate(rv_w_opose(3*nbas))
-         if (3*nbas<0) rv_w_opose(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) rv_w_opose(:)=0.0d0
 
         ix(1) = 1
         ix(2) = 1
@@ -114,7 +114,7 @@ Cdelw1         call defrr(opose, 3*nbas)
 c       call prmx('shortened pos',pos,3,3,nbas)
 Cdelw1         call defrr(opos, 3*nbas)
          allocate(rv_w_opos(3*nbas))
-         if (3*nbas<0) rv_w_opos(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) rv_w_opos(:)=0.0d0
 
 Cdelw1         call dcopy(3*nbas,pos,1,w(opos),1)
          call dcopy ( 3 * nbas , pos , 1 , rv_w_opos , 1 ) 
@@ -196,11 +196,11 @@ C     call awrit2(' clsset: %n:1i',' ',255,lgunit(1),nbas,clssl)
 C ... Make cllst
 Cdelw1       call defrr(oncltb, ncl+1)
        allocate(rv_w_oncltb(ncl+1))
-       if (ncl+1<0) rv_w_oncltb(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ncl+1<0) rv_w_oncltb(:)=0.0d0
 
 Cdelw1       call defrr(oclctr, 3*nbas)
        allocate(rv_w_oclctr(3*nbas))
-       if (3*nbas<0) rv_w_oclctr(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) rv_w_oclctr(:)=0.0d0
 
 Cdelw1       call clsctr(nbas,pos,clssl,clord,w(oncltb),cllst,w(oclctr))
        call clsctr ( nbas , pos , clssl , clord , rv_w_oncltb , cllst 
@@ -218,7 +218,7 @@ C     call awrit2(' clord: %n:1i',' ',255,lgunit(1),nbas,clord)
 C     call awrit2(' clssl: %n:1i',' ',255,lgunit(1),nbas,clssl)
 Cdelw1       call defi(ow, nbas)
        allocate(iv_w_ow(nbas))
-       if (nbas<0) iv_w_ow(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_ow(:)=0
 
 Cdelw1       call ivprm(1,nbas,clssl,w(ow),clord,.false.)
        call ivprm ( 1 , nbas , clssl , iv_w_ow , clord , .false. ) 

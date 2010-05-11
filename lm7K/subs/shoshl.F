@@ -97,21 +97,21 @@ Cdelw1 do not change olstc because of ['undef', 'wref']
       nlst2 = 0
 Cdelw1       call defi(olst1,nbas)
        allocate(iv_w_olst1(nbas))
-       if (nbas<0) iv_w_olst1(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_olst1(:)=0
 
 Cdelw1       call defi(olst2,nbas)
        allocate(iv_w_olst2(nbas))
-       if (nbas<0) iv_w_olst2(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_olst2(:)=0
 
       lnn = 0
       ldisp = 0
 Cdelw1       call defrr(odist,nbas*3)
        allocate(rv_w_odist(nbas*3))
-       if (nbas*3<0) rv_w_odist(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nbas*3<0) rv_w_odist(:)=0.0d0
 
 Cdelw1       call defrr(omark,nbas)
        allocate(rv_w_omark(nbas))
-       if (nbas<0) rv_w_omark(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) rv_w_omark(:)=0.0d0
 
 Cdelw1       call dcopy(nbas*3,bas,1,w(odist),1)
        call dcopy ( nbas * 3 , bas , 1 , rv_w_odist , 1 ) 
@@ -199,7 +199,7 @@ Cdelw1 do not change oiax because of ['undef', 'wref', 'redef']
         call poppr
 Cdelw1         call defrr(ortab,3*nttab)
          allocate(rv_w_ortab(3*nttab))
-         if (3*nttab<0) rv_w_ortab(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (3*nttab<0) rv_w_ortab(:)=0.0d0
 
 Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 146
 Cdelw1 do not change oiax because of ['undef', 'wref', 'redef']
@@ -254,7 +254,7 @@ Cdelw1 do not change oiax because of ['undef', 'wref', 'redef']
       call defi(oiax,niax*mxnbr)
 Cdelw1       call defdr(owk,mxnbr)
        allocate(rv_w_owk(mxnbr))
-       if (mxnbr<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (mxnbr<0) rv_w_owk(:)=0.0d0
 
       avw = avwsr(plat,1d0,xx,nbas)
       avw = 1
@@ -507,7 +507,7 @@ Cdelw1 do not change oslist because of ['wref']
       call defi(oslist,nbas)
 Cdelw1       call defi(oblist,nbas)
        allocate(iv_w_oblist(nbas))
-       if (nbas<0) iv_w_oblist(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oblist(:)=0
 
 
 C ... Switches
@@ -558,11 +558,11 @@ Cdelw1      .        xx,nbonds,w(oblist))
       endif
 Cdelw1       call defi(oiax,niax*mxnbr)
        allocate(iv_w_oiax(niax*mxnbr))
-       if (niax*mxnbr<0) iv_w_oiax(:)=0
+Ctakao_ZeroClear_NotRequiered        if (niax*mxnbr<0) iv_w_oiax(:)=0
 
 Cdelw1       call defdr(owk,mxnbr)
        allocate(rv_w_owk(mxnbr))
-       if (mxnbr<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (mxnbr<0) rv_w_owk(:)=0.0d0
 
       avw = avwsr(plat,1d0,xx,nbas)
 
@@ -604,11 +604,11 @@ Cdelw1         call defi(onum, -nspec**2*nshell**2)
 
 Cdelw1         call defdr(oang, nspec**2*nshell**2*nmxshl**2)
          allocate(rv_w_oang(nspec**2*nshell**2*nmxshl**2))
-         if (nspec**2*nshell**2*nmxshl**2<0) rv_w_oang(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nspec**2*nshell**2*nmxshl**2<0) rv_w_oang(:)=0.0d0
 
 Cdelw1         call defdr(od,   nshell)
          allocate(rv_w_od(nshell))
-         if (nshell<0) rv_w_od(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nshell<0) rv_w_od(:)=0.0d0
 
 
 C   ... Print bond angles

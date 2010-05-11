@@ -232,7 +232,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C     ... Reduce iax table to elements on mesh in common with pairc
 Cdelw1           call defi(oiwk,(niax+1)*mxcsiz)
            allocate(iv_w_oiwk((niax+1)*mxcsiz))
-           if ((niax+1)*mxcsiz<0) iv_w_oiwk(:)=0
+Ctakao_ZeroClear_NotRequiered            if ((niax+1)*mxcsiz<0) iv_w_oiwk(:)=0
 
 C         nttabs = nttab
 Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 214
@@ -481,11 +481,11 @@ c     call gvctof(0,1d0,qlat,tau,n1,n2,n3,gmax,ngmx)
       ngmx = n1*n2*n3
 Cdelw1       call defrr(ogv, ngmx*3)
        allocate(rv_w_ogv(ngmx*3))
-       if (ngmx*3<0) rv_w_ogv(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ngmx*3<0) rv_w_ogv(:)=0.0d0
 
 Cdelw1       call defi (okv, ngmx*3)
        allocate(iv_w_okv(ngmx*3))
-       if (ngmx*3<0) iv_w_okv(:)=0
+Ctakao_ZeroClear_NotRequiered        if (ngmx*3<0) iv_w_okv(:)=0
 
 C     print *, 'ia,ib=',ia,ib
 C     call ogvlst(1d0,qlat,tau,n1,n2,n3,9d9,ngmx,ng,w(ogv),w(okv))
@@ -500,7 +500,7 @@ Cdelw1       call gvlist(1d0,qlat,tau,n1,n2,n3,1d5,i,ngmx,ng,w(okv),w(ogv),w,w)
 C --- For each connecting vector, mark iax table or poke into hrs ---
 Cdelw1       call defrr(ortab,3*(is2-is1+1))
        allocate(rv_w_ortab(3*(is2-is1+1)))
-       if (3*(is2-is1+1)<0) rv_w_ortab(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*(is2-is1+1)<0) rv_w_ortab(:)=0.0d0
 
       if (ltrans) then
 Cdelw1         call hft2r2(mode,k1,k2,k3,ia,ib,jdim,idim,iax,qoff,is1,is2,

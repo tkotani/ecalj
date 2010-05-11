@@ -127,7 +127,7 @@ Cdelw1 do not change opos because of ['undef', 'wref']
 
 Cdelw1       call defrr(orham,nspec)
        allocate(rv_w_orham(nspec))
-       if (nspec<0) rv_w_orham(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nspec<0) rv_w_orham(:)=0.0d0
 
 Cgetarg       call spackv(10,'spec rham',sspec,1,nspec,w(orham))
        i_copy_size=1; 
@@ -181,7 +181,7 @@ Cdelw1      .  w(oips),i,j,w_dummy,nttab,ontab,oiax,mxcsiz)
 
 Cdelw1       call defrr(ortab,3*nttab)
        allocate(rv_w_ortab(3*nttab))
-       if (3*nttab<0) rv_w_ortab(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nttab<0) rv_w_ortab(:)=0.0d0
 
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 114
 Cdelw1 do not change opos because of ['undef', 'wref']
@@ -199,19 +199,19 @@ Cdelw1       call mkrtab(000,alat,plat,w(opos),w(oiax),nttab,w(opos),w(ortab))
 C --- Make the Hamiltonian ---
 Cdelw1       call defrr(oesite, nbasp)
        allocate(rv_w_oesite(nbasp))
-       if (nbasp<0) rv_w_oesite(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nbasp<0) rv_w_oesite(:)=0.0d0
 
 Cdelw1       call defi(oisite,  nbasp)
        allocate(iv_w_oisite(nbasp))
-       if (nbasp<0) iv_w_oisite(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbasp<0) iv_w_oisite(:)=0
 
 Cdelw1       call defrr(oepair, nttab)
        allocate(rv_w_oepair(nttab))
-       if (nttab<0) rv_w_oepair(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nttab<0) rv_w_oepair(:)=0.0d0
 
 Cdelw1       call defi(oipair,  nttab)
        allocate(iv_w_oipair(nttab))
-       if (nttab<0) iv_w_oipair(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nttab<0) iv_w_oipair(:)=0
 
       call upacks('strn mmham',i1,i2)
       ntype(1) = 1
@@ -244,19 +244,19 @@ Cdelw1 do not change oiprm because of ['wref']
       call defi(oiprm, nbasp)
 Cdelw1       call defi(oiprmi,nbasp)
        allocate(iv_w_oiprmi(nbasp))
-       if (nbasp<0) iv_w_oiprmi(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbasp<0) iv_w_oiprmi(:)=0
 
 Cdelw1       call defi(osigb,  nbasp)
        allocate(iv_w_osigb(nbasp))
-       if (nbasp<0) iv_w_osigb(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbasp<0) iv_w_osigb(:)=0
 
 Cdelw1       call defi(osigl,  nbasp)
        allocate(iv_w_osigl(nbasp))
-       if (nbasp<0) iv_w_osigl(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbasp<0) iv_w_osigl(:)=0
 
 Cdelw1       call defi(osigma,  nbasp)
        allocate(iv_w_osigma(nbasp))
-       if (nbasp<0) iv_w_osigma(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbasp<0) iv_w_osigma(:)=0
 
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 136
 Cdelw1 do not change opos because of ['undef', 'wref']

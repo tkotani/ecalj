@@ -164,11 +164,11 @@ Cdelw1 do not change osmrho because of ['wref']
       call defcc (osmrho,-k1*k2*k3*nsp)
 Cdelw1       call defcc (ocgh1,  ng)
        allocate(zv_w_ocgh1(ng))
-       if (ng<0) zv_w_ocgh1(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocgh1(:)=0.0d0
 
 Cdelw1       call defcc (ocgh2,  ng)
        allocate(zv_w_ocgh2(ng))
-       if (ng<0) zv_w_ocgh2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocgh2(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 135
 Cdelw1 do not change ogv because of ['undef', 'wref']
@@ -243,7 +243,7 @@ C --- Perturbation branch (lfoc2 .ne. 0) ---
       if (lfoc2 .ne. 0) then
 Cdelw1         call defcc (odxcv, k1*k2*k3*nsp)
          allocate(zv_w_odxcv(k1*k2*k3*nsp))
-         if (k1*k2*k3*nsp<0) zv_w_odxcv(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (k1*k2*k3*nsp<0) zv_w_odxcv(:)=0.0d0
 
 Cdelw1 do not change osmrho because of ['wref']
 Cdelw1 do not change osmrho because of ['wref']
@@ -346,7 +346,7 @@ C --- Force from foca sm-head; cgh1 is workspace ---
       if (lfrce .ne. 0) then
 Cdelw1       call defcc (ocgh1,  ng*nsp)
        allocate(zv_w_ocgh1(ng*nsp))
-       if (ng*nsp<0) zv_w_ocgh1(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) zv_w_ocgh1(:)=0.0d0
 
       call dpzero(f,3*nbas)
       if (lfoc1.gt.0 .or. lfoc2.gt.0) then

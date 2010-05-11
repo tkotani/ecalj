@@ -578,11 +578,11 @@ C ... default nmix
       nmix = min(mmix,nmix)
 Cdelw1       call defdr(onorm,mxsav**2)
        allocate(rv_w_onorm(mxsav**2))
-       if (mxsav**2<0) rv_w_onorm(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (mxsav**2<0) rv_w_onorm(:)=0.0d0
 
 Cdelw1       call defi(okpvt,mxsav)
        allocate(iv_w_okpvt(mxsav))
-       if (mxsav<0) iv_w_okpvt(:)=0
+Ctakao_ZeroClear_NotRequiered        if (mxsav<0) iv_w_okpvt(:)=0
 
       if (beta .lt. 0) nmix = -nmix
 C ... imix is a local copy of nmix
@@ -591,7 +591,7 @@ C ... imix is a local copy of nmix
 C ... save PQ array
 Cdelw1       call defdr(oa,nda*(mxsav+2)*2)
        allocate(rv_w_oa(nda*(mxsav+2)*2))
-       if (nda*(mxsav+2)*2<0) rv_w_oa(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nda*(mxsav+2)*2<0) rv_w_oa(:)=0.0d0
 
 Cdelw1       call dcopy(nda*(mxsav+2)*2,a,1,w(oa),1)
        call dcopy ( nda * ( mxsav + 2 ) * 2 , a , 1 , rv_w_oa , 1 ) 
@@ -824,31 +824,31 @@ c heap
 C --- Allocate some arrays ---
 Cdelw1       call defdr(oxmp1,nda)
        allocate(rv_w_oxmp1(nda))
-       if (nda<0) rv_w_oxmp1(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_oxmp1(:)=0.0d0
 
 Cdelw1       call defdr(of,nda)
        allocate(rv_w_of(nda))
-       if (nda<0) rv_w_of(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_of(:)=0.0d0
 
 Cdelw1       call defdr(oui,nda)
        allocate(rv_w_oui(nda))
-       if (nda<0) rv_w_oui(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_oui(:)=0.0d0
 
 Cdelw1       call defdr(ovti,nda)
        allocate(rv_w_ovti(nda))
-       if (nda<0) rv_w_ovti(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_ovti(:)=0.0d0
 
 Cdelw1       call defdr(oxold,nda)
        allocate(rv_w_oxold(nda))
-       if (nda<0) rv_w_oxold(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_oxold(:)=0.0d0
 
 Cdelw1       call defdr(odf,nda)
        allocate(rv_w_odf(nda))
-       if (nda<0) rv_w_odf(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_odf(:)=0.0d0
 
 Cdelw1       call defdr(odx,nda)
        allocate(rv_w_odx(nda))
-       if (nda<0) rv_w_odx(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_odx(:)=0.0d0
 
 
 C ... imix is a local copy of nmix
@@ -859,7 +859,7 @@ C --- Starting from iteration mmix, build the Jacobian matrix ---
     1 jmix = min(mmix,iabs(imix))
 Cdelw1       call defdr(owk,nda*2*(jmix+2))
        allocate(rv_w_owk(nda*2*(jmix+2)))
-       if (nda*2*(jmix+2)<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nda*2*(jmix+2)<0) rv_w_owk(:)=0.0d0
 
       do  10  km = 1, jmix
 C   ... this loops from most-distant to most-recent
@@ -996,11 +996,11 @@ c heap
 C --- Allocate some arrays ---
 Cdelw1       call defdr(op, nda*6)
        allocate(rv_w_op(nda*6))
-       if (nda*6<0) rv_w_op(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nda*6<0) rv_w_op(:)=0.0d0
 
 Cdelw1       call defdr(odx,nda)
        allocate(rv_w_odx(nda))
-       if (nda<0) rv_w_odx(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_odx(:)=0.0d0
 
 
 C ... imix is a local copy of nmix

@@ -302,7 +302,7 @@ C     ldos is not set properly when asados is called, so make assumptions
         nchmx = nbas*nl**2
 Cdelw1         call defi(ochan,nchmx)
          allocate(iv_w_ochan(nchmx))
-         if (nchmx<0) iv_w_ochan(:)=0
+Ctakao_ZeroClear_NotRequiered          if (nchmx<0) iv_w_ochan(:)=0
 
 Cdelw1         call sumlst(lopt,nchmx,nbas,1,ssite,sspec,strn(7:),moddos,
 Cdelw1      .    nsite,lsite,lmxch,nchan,w(ochan),nll)
@@ -506,31 +506,31 @@ C   ... Determine number of planes and energy windows for BZ map
 C   ... Get BZ plane(s) and BZ sampling parameters
 Cdelw1         call defi(onw,    npln)
          allocate(iv_w_onw(npln))
-         if (npln<0) iv_w_onw(:)=0
+Ctakao_ZeroClear_NotRequiered          if (npln<0) iv_w_onw(:)=0
 
 Cdelw1         call defi(onq,  2*npln)
          allocate(iv_w_onq(2*npln))
-         if (2*npln<0) iv_w_onq(:)=0
+Ctakao_ZeroClear_NotRequiered          if (2*npln<0) iv_w_onq(:)=0
 
 Cdelw1         call defdr(ovx, 3*npln)
          allocate(rv_w_ovx(3*npln))
-         if (3*npln<0) rv_w_ovx(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (3*npln<0) rv_w_ovx(:)=0.0d0
 
 Cdelw1         call defdr(ovy, 3*npln)
          allocate(rv_w_ovy(3*npln))
-         if (3*npln<0) rv_w_ovy(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (3*npln<0) rv_w_ovy(:)=0.0d0
 
 Cdelw1         call defdr(ox,  2*npln)
          allocate(rv_w_ox(2*npln))
-         if (2*npln<0) rv_w_ox(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (2*npln<0) rv_w_ox(:)=0.0d0
 
 Cdelw1         call defdr(oy,  2*npln)
          allocate(rv_w_oy(2*npln))
-         if (2*npln<0) rv_w_oy(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (2*npln<0) rv_w_oy(:)=0.0d0
 
 Cdelw1         call defdr(oz,    npln)
          allocate(rv_w_oz(npln))
-         if (npln<0) rv_w_oz(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (npln<0) rv_w_oz(:)=0.0d0
 
 Cdelw1         call defdr(oew,-2*npln*nwmx)
          allocate(rv_w_oew(abs(-2*npln*nwmx)))
@@ -590,7 +590,7 @@ C     Empirical TB stores stuff a little differently
       nbandx = nband*nspc
 Cdelw1       call defdr(oeband,nband*nsp*nkp)
        allocate(rv_w_oeband(nband*nsp*nkp))
-       if (nband*nsp*nkp<0) rv_w_oeband(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nband*nsp*nkp<0) rv_w_oeband(:)=0.0d0
 
 
 C ... Determine number of DOS channels (nchan=0 -> total dos only)
@@ -646,23 +646,23 @@ Cdelw1           call dvset(w(odoswt),1,nchds*nbandx*nsp*(nkp+1),1d0)
       else
 Cdelw1         call defdr(odoswt,nchds*nbandx*nspc)
          allocate(rv_w_odoswt(nchds*nbandx*nspc))
-         if (nchds*nbandx*nspc<0) rv_w_odoswt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nchds*nbandx*nspc<0) rv_w_odoswt(:)=0.0d0
 
         nfstg = 1
       endif
       if (bzmap) then
 Cdelw1         call defdr(odos,nqmx*nsp*nchds*nwmx*npln)
          allocate(rv_w_odos(nqmx*nsp*nchds*nwmx*npln))
-         if (nqmx*nsp*nchds*nwmx*npln<0) rv_w_odos(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nqmx*nsp*nchds*nwmx*npln<0) rv_w_odos(:)=0.0d0
 
       else
 Cdelw1         call defdr(owk,npts)
          allocate(rv_w_owk(npts))
-         if (npts<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (npts<0) rv_w_owk(:)=0.0d0
 
 Cdelw1         call defdr(odos,npts*nsp*nchds)
          allocate(rv_w_odos(npts*nsp*nchds))
-         if (npts*nsp*nchds<0) rv_w_odos(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (npts*nsp*nchds<0) rv_w_odos(:)=0.0d0
 
       endif
 
@@ -815,7 +815,7 @@ Cdelw1 do not change oipq because of ['undef', 'wref']
 
 Cdelw1         call defdr(odos,npts*nsp*nchan)
          allocate(rv_w_odos(npts*nsp*nchan))
-         if (npts*nsp*nchan<0) rv_w_odos(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (npts*nsp*nchan<0) rv_w_odos(:)=0.0d0
 
         if (nblst .eq. 0) nblst = nevmx
 Cdelw1 do not change oqp because of ['wref']

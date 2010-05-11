@@ -104,11 +104,11 @@ C --- Locate band limits: lfill => insulator ---
       stdl = nglob('stdl')
 Cdelw1       call defdr(obot,nevx*nsp)
        allocate(rv_w_obot(nevx*nsp))
-       if (nevx*nsp<0) rv_w_obot(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nevx*nsp<0) rv_w_obot(:)=0.0d0
 
 Cdelw1       call defdr(otop,nevx*nsp)
        allocate(rv_w_otop(nevx*nsp))
-       if (nevx*nsp<0) rv_w_otop(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nevx*nsp<0) rv_w_otop(:)=0.0d0
 
       nspx  = 1
       nevxx = nevx*nsp
@@ -135,7 +135,7 @@ Cdelw1         call defi(obmap,-(nevx*nsp*nkp/nbpw+1))
 
 Cdelw1         call defdr(owk, nevx*nsp)
          allocate(rv_w_owk(nevx*nsp))
-         if (nevx*nsp<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) rv_w_owk(:)=0.0d0
 
 Cdelw1         call ebcpl(0,nbmx,nevx,nsp,nspc,nkp,nbpw,w(obmap),w(owk),eb)
          call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , iv_w_obmap 
@@ -185,7 +185,7 @@ Cdelw1         call defi(obmap,-(nevx*nsp*nkp/nbpw+1))
 
 Cdelw1         call defdr(owk, nevx*nsp)
          allocate(rv_w_owk(nevx*nsp))
-         if (nevx*nsp<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) rv_w_owk(:)=0.0d0
 
 Cdelw1         call ebcpl(0,nbmx,nevx,nsp,nspc,nkp,nbpw,w(obmap),w(owk),eb)
          call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , iv_w_obmap 
@@ -239,7 +239,7 @@ C --- BZ weights, sumev and E_f by tetrahedron method (Blochl wts) ---
         nptdos = 101
 Cdelw1         call defdr(odos,nspx*nptdos)
          allocate(rv_w_odos(nspx*nptdos))
-         if (nspx*nptdos<0) rv_w_odos(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nspx*nptdos<0) rv_w_odos(:)=0.0d0
 
         tol = 1d-6
 C       Preliminary check that dos lies within emin,emax
@@ -349,7 +349,7 @@ C   ... Find Fermi level, sampling
      .      'cannot find E_F by bisection, using INTNOS')
 Cdelw1           call defdr(odos,nspx*npts)
            allocate(rv_w_odos(nspx*npts))
-           if (nspx*npts<0) rv_w_odos(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (nspx*npts<0) rv_w_odos(:)=0.0d0
 
           emin = elo - rnge*width/2
           emax = emax + rnge*width/2
@@ -398,7 +398,7 @@ C   ... (optional) Tabulate specific heat in file for list of T's
           if (itmax .gt. 0) then
 Cdelw1           call defrr(otlst,itmax)
            allocate(rv_w_otlst(itmax))
-           if (itmax<0) rv_w_otlst(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (itmax<0) rv_w_otlst(:)=0.0d0
 
           call word(outs,1,it,j)
           call info2(20,0,0,' Writing CV(T) to file for %i vals of T: '

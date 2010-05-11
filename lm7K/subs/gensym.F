@@ -180,7 +180,7 @@ C   ... Symmetry of lattice without basis
 C   ... Symmetry of lattice with basis
 Cdelw1         call defdr(owk,    3*nbas)
          allocate(rv_w_owk(3*nbas))
-         if (3*nbas<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) rv_w_owk(:)=0.0d0
 
 C       call prmx('pos',bas,3,3,nbas)
 Cdelw1         call symcry(fptol,bas,w(owk),ips,nbas,nspec,nrspec,

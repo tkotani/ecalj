@@ -86,7 +86,7 @@ C ... Sort it with fast ivheap unless there is not enough memory
         call ivheap(5,mtet,idtet,ipq,1)
 Cdelw1         call defi(oiwk,mtet*5)
          allocate(iv_w_oiwk(mtet*5))
-         if (mtet*5<0) iv_w_oiwk(:)=0
+Ctakao_ZeroClear_NotRequiered          if (mtet*5<0) iv_w_oiwk(:)=0
 
 Cdelw1         call ivprm(5,mtet,idtet,w(oiwk),ipq,.true.)
          call ivprm ( 5 , mtet , idtet , iv_w_oiwk , ipq , .true. ) 

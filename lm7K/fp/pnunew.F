@@ -162,18 +162,18 @@ Cgetarg             call upack('spec z a nr',sspec,is,z,a,nr,0)
 
 Cdelw1             call defrr(og,nr*2)
              allocate(rv_w_og(nr*2))
-             if (nr*2<0) rv_w_og(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered              if (nr*2<0) rv_w_og(:)=0.0d0
 
 Cdelw1             call defrr(orofi,nr*2)
              allocate(rv_w_orofi(nr*2))
-             if (nr*2<0) rv_w_orofi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered              if (nr*2<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1             call radmsh(rmt,a,nr,w(orofi))
              call radmsh ( rmt , a , nr , rv_w_orofi ) 
 
 Cdelw1             call defrr(ov0i,nr)
              allocate(rv_w_ov0i(nr))
-             if (nr<0) rv_w_ov0i(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered              if (nr<0) rv_w_ov0i(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 151
 Cdelw1 do not change ov0 because of ['undef', 'wref']
@@ -191,7 +191,7 @@ Cdelw1             call dpscop(w(ov0),w(ov0i),nr,1+nr*(isp-1),1,1d0)
               nn = int(mod(pnu(m,1),10d0))-l-1
 Cdelw1               call defdr(ogp,8*nr)
                allocate(rv_w_ogp(8*nr))
-               if (8*nr<0) rv_w_ogp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered                if (8*nr<0) rv_w_ogp(:)=0.0d0
 
 C             xx = dval(w(ov0i),nr)
 Cdelw1               call phidx(0,z,l,w(ov0i),0d0,0d0,w(orofi),nr,2,1d-12,ebar,
@@ -244,7 +244,7 @@ C       ... Estimate new pnz for semicore state
               nn = int(mod(pnz(m,1),10d0))-l-1
 Cdelw1               call defdr(ogp,8*nr)
                allocate(rv_w_ogp(8*nr))
-               if (8*nr<0) rv_w_ogp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered                if (8*nr<0) rv_w_ogp(:)=0.0d0
 
 Cdelw1               call phidx(0,z,l,w(ov0i),0d0,0d0,w(orofi),nr,2,1d-12,ez,
 Cdelw1      .          val,slo,nn,w(og),w(ogp),phi,dphi,phip,dphip,xx,xx,xx,

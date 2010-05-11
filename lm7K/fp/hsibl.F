@@ -277,15 +277,15 @@ C     call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1000,0,ng,xx,xx,xx,xx)
       call gvlist(alat,plat,q,n1,n2,n3,gmax,500,0,ng,xx,xx,xx,xx)
 Cdelw1       call defrr(ogv, ng*3)
        allocate(rv_w_ogv(ng*3))
-       if (ng*3<0) rv_w_ogv(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*3<0) rv_w_ogv(:)=0.0d0
 
 Cdelw1       call defi (okv, ng*3)
        allocate(iv_w_okv(ng*3))
-       if (ng*3<0) iv_w_okv(:)=0
+Ctakao_ZeroClear_NotRequiered        if (ng*3<0) iv_w_okv(:)=0
 
 Cdelw1       call defi (oiv, ng*3)
        allocate(iv_w_oiv(ng*3))
-       if (ng*3<0) iv_w_oiv(:)=0
+Ctakao_ZeroClear_NotRequiered        if (ng*3<0) iv_w_oiv(:)=0
 
 C      call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1009,ng,ng,w(okv),
 C     .  w(ogv),w(oiv),w(oiv))
@@ -306,23 +306,23 @@ C --- Allocate and occupy arrays for YL, energy factors, rsm factors ---
       nlmtop = (ltop+1)**2
 Cdelw1       call defrr(og,  ng*3)
        allocate(rv_w_og(ng*3))
-       if (ng*3<0) rv_w_og(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*3<0) rv_w_og(:)=0.0d0
 
 Cdelw1       call defrr(oyl, ng*nlmtop)
        allocate(rv_w_oyl(ng*nlmtop))
-       if (ng*nlmtop<0) rv_w_oyl(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*nlmtop<0) rv_w_oyl(:)=0.0d0
 
 Cdelw1       call defrr(og2, ng)
        allocate(rv_w_og2(ng))
-       if (ng<0) rv_w_og2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) rv_w_og2(:)=0.0d0
 
 Cdelw1       call defrr(ohe, ng*net)
        allocate(rv_w_ohe(ng*net))
-       if (ng*net<0) rv_w_ohe(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*net<0) rv_w_ohe(:)=0.0d0
 
 Cdelw1       call defrr(ohr, ng*nrt)
        allocate(rv_w_ohr(ng*nrt))
-       if (ng*nrt<0) rv_w_ohr(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*nrt<0) rv_w_ohr(:)=0.0d0
 
 C     gv has q already added ...
       call dpzero(q0,3)
@@ -722,7 +722,7 @@ C     Ends loop over ib1
 #endif 
 Cdelw1       call defcc(ohbuf, ndimh*ndimh)
        allocate(zv_w_ohbuf(ndimh*ndimh))
-       if (ndimh*ndimh<0) zv_w_ohbuf(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ndimh*ndimh<0) zv_w_ohbuf(:)=0.0d0
 
 Cdelw1       call MPI_ALLREDUCE(w(oh),w(ohbuf),2*ndimh*ndimh,
 Cdelw1      .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)

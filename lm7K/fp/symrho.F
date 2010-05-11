@@ -214,15 +214,15 @@ Cdelw1 do not change oag because of ['undef', 'wref']
 
 Cdelw1       call defi (oips, nbas)
        allocate(iv_w_oips(nbas))
-       if (nbas<0) iv_w_oips(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oips(:)=0
 
 Cdelw1       call defi (oipc, nbas)
        allocate(iv_w_oipc(nbas))
-       if (nbas<0) iv_w_oipc(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oipc(:)=0
 
 Cdelw1       call defrr(opos0,3*nbas)
        allocate(rv_w_opos0(3*nbas))
-       if (3*nbas<0) rv_w_opos0(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) rv_w_opos0(:)=0.0d0
 
 
 C ... Separate sites into symmetry classes
@@ -256,11 +256,11 @@ Cdelw1       nclass = mxint(nbas,w(oipc))
 C --- Start loop over classes ---
 Cdelw1       call defi  (oipa,    nbas)
        allocate(iv_w_oipa(nbas))
-       if (nbas<0) iv_w_oipa(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oipa(:)=0
 
 Cdelw1       call defrr (opos,    3*nbas)
        allocate(rv_w_opos(3*nbas))
-       if (3*nbas<0) rv_w_opos(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) rv_w_opos(:)=0.0d0
 
 
       do  ic = 1, nclass
@@ -292,7 +292,7 @@ C   ... Make the projectors; make to at least to l=1 for forces
         nlmx = max0(nlml,4)
 Cdelw1         call defrr (osym,   nlmx*nlmx*nrclas)
          allocate(rv_w_osym(nlmx*nlmx*nrclas))
-         if (nlmx*nlmx*nrclas<0) rv_w_osym(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nlmx*nlmx*nrclas<0) rv_w_osym(:)=0.0d0
 
 Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 219
 Cdelw1 do not change oistab because of ['undef', 'wref']
@@ -316,7 +316,7 @@ C   ... Apply the projectors to rhoat
         if (lmxl .gt. -1) then
 Cdelw1         call defrr(orho,  nr*nlml*nsp)
          allocate(rv_w_orho(nr*nlml*nsp))
-         if (nr*nlml*nsp<0) rv_w_orho(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*nlml*nsp<0) rv_w_orho(:)=0.0d0
 
 Cdelw1         call psymr1(nrclas,w(oipa),nr,nlml,nsp,nlmx,w(osym),w(orho),
 Cdelw1      .    orhoat,1)
@@ -564,11 +564,11 @@ Cdelw1 do not change obgv because of ['undef', 'wref']
 C       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
 Cdelw1         call defcc(ocv,     ng)
          allocate(zv_w_ocv(ng))
-         if (ng<0) zv_w_ocv(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (ng<0) zv_w_ocv(:)=0.0d0
 
 Cdelw1         call defcc(ocsym,   ng)
          allocate(zv_w_ocsym(ng))
-         if (ng<0) zv_w_ocsym(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (ng<0) zv_w_ocsym(:)=0.0d0
 
         call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 C       call zprm3('smrho before poke',smrho,k1,k2,k3)

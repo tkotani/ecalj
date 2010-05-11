@@ -178,7 +178,7 @@ Cdelw1 do not change oics because of ['wref']
       call defi(oics,  nsite)
 Cdelw1       call defi(onrspc,nbas)
        allocate(iv_w_onrspc(nbas))
-       if (nbas<0) iv_w_onrspc(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_onrspc(:)=0
 
 Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
 Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
@@ -242,11 +242,11 @@ Cdelw1 do not change oistab because of ['wref']
 C     call defi (oistb2,(ngmx+1)*nbas)
 Cdelw1       call defi (oips2, ngmx*nbas)
        allocate(iv_w_oips2(ngmx*nbas))
-       if (ngmx*nbas<0) iv_w_oips2(:)=0
+Ctakao_ZeroClear_NotRequiered        if (ngmx*nbas<0) iv_w_oips2(:)=0
 
 Cdelw1       call defdr(opos2, 3*ngmx*nbas)
        allocate(rv_w_opos2(3*ngmx*nbas))
-       if (3*ngmx*nbas<0) rv_w_opos2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*ngmx*nbas<0) rv_w_opos2(:)=0.0d0
 
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 191
 Cdelw1 do not change oips because of ['undef', 'wref']

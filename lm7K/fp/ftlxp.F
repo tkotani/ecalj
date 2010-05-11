@@ -80,15 +80,15 @@ Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
       ntop = (ltop+1)**2
 Cdelw1       call defrr(oyl, ntop*ng)
        allocate(rv_w_oyl(ntop*ng))
-       if (ntop*ng<0) rv_w_oyl(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ntop*ng<0) rv_w_oyl(:)=0.0d0
 
 Cdelw1       call defrr(og2, ng)
        allocate(rv_w_og2(ng))
-       if (ng<0) rv_w_og2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) rv_w_og2(:)=0.0d0
 
 Cdelw1       call defcc(oh,  ng)
        allocate(zv_w_oh(ng))
-       if (ng<0) zv_w_oh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_oh(:)=0.0d0
 
 Cdelw1       call ropyln(ng,gv(1,1),gv(1,2),gv(1,3),ltop,ng,w(oyl),w(og2))
        call ropyln ( ng , gv ( 1 , 1 ) , gv ( 1 , 2 ) , gv ( 1 , 3 ) 

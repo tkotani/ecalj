@@ -957,7 +957,7 @@ Cdelw1 do not change oigv2 because of ['wref']
           call defi(oigv2,3*napw)
 Cdelw1           call defi(okv,3*napw)
            allocate(iv_w_okv(3*napw))
-           if (3*napw<0) iv_w_okv(:)=0
+Ctakao_ZeroClear_NotRequiered            if (3*napw<0) iv_w_okv(:)=0
 
           call pshpr(iprint()-10)
 Cdelw1 do not change oigv2 because of ['wref']
@@ -1057,7 +1057,7 @@ C            call rlse(oww)
 C         call diagcv(ovl,ham,evec,ndimh,evl(1,isp),ndimh,1d60,nev)
 Cdelw1           call defrr(oww,  11*ndimh)
            allocate(rv_w_oww(11*ndimh))
-           if (11*ndimh<0) rv_w_oww(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (11*ndimh<0) rv_w_oww(:)=0.0d0
 
 Cgetarg           epsovl = dgets('ham oveps',sham)
            epsovl = sham%oveps 

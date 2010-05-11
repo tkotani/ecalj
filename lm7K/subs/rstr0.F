@@ -49,11 +49,11 @@ C --- Make ylm for all points, up to lmxy, which find ---
       if (lmxy .gt. lmxx) call rxi('rstr0: lmax exceeds lmxx:',lmxy)
 Cdelw1       call defrr(oylm,(lmxy+1)**2*np)
        allocate(rv_w_oylm((lmxy+1)**2*np))
-       if ((lmxy+1)**2*np<0) rv_w_oylm(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if ((lmxy+1)**2*np<0) rv_w_oylm(:)=0.0d0
 
 Cdelw1       call defrr(or2,np)
        allocate(rv_w_or2(np))
-       if (np<0) rv_w_or2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (np<0) rv_w_or2(:)=0.0d0
 
 Cdelw1       call ropyln(np,x,y,z,lmxy,np,w(oylm),w(or2))
        call ropyln ( np , x , y , z , lmxy , np , rv_w_oylm , rv_w_or2 

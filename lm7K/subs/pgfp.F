@@ -68,7 +68,7 @@ Cdelw1 do not change vpp because of ['call', 'array', 'wref', 'redef']
       if (lalloc .and. .not. lint) call defdr(vpp(1),  n1*nbaspp*n2)
 Cdelw1       call defdr(ow,  n1*nbasp*n2)
        allocate(rv_w_ow(n1*nbasp*n2))
-       if (n1*nbasp*n2<0) rv_w_ow(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (n1*nbasp*n2<0) rv_w_ow(:)=0.0d0
 
 Cdelw1       call pgfp(nbas,npadl,npadr,n1,n2,lint,v,w(ow),v,w(ow))
        call pgfp ( nbas , npadl , npadr , n1 , n2 , lint , v , rv_w_ow 

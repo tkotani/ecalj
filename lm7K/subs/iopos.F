@@ -107,7 +107,7 @@ C   ... Write, mode=0
         elseif (mode .eq. 0) then
 Cdelw1           call defrr(owk, 3*nbas)
            allocate(rv_w_owk(3*nbas))
-           if (3*nbas<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) rv_w_owk(:)=0.0d0
 
 Cdelw1           call dmcpy(bas,3,1,w(owk),1,nbas,3,nbas)
            call dmcpy ( bas , 3 , 1 , rv_w_owk , 1 , nbas , 3 , nbas ) 
@@ -147,7 +147,7 @@ C   ... Read, mode=0
         if (lmode .eq. 0) then
 Cdelw1           call defrr(owk, 3*nbas*2)
            allocate(rv_w_owk(3*nbas*2))
-           if (3*nbas*2<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (3*nbas*2<0) rv_w_owk(:)=0.0d0
 
 Cdelw1           j = rdm(ifi,0,3*nbas,' ',w(owk),nbas,3)
            j = rdm ( ifi , 0 , 3 * nbas , ' ' , rv_w_owk , nbas , 3 ) 
@@ -239,7 +239,7 @@ C heap:
 C ... Unpack site positions
 Cdelw1       call defrr(opos,3*nbas)
        allocate(rv_w_opos(3*nbas))
-       if (3*nbas<0) rv_w_opos(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) rv_w_opos(:)=0.0d0
 
 Cgetarg       call spackv(10,'site pos',ssite,1,nbas,w(opos))
        i_copy_size=size(ssite(1)%pos)

@@ -44,7 +44,7 @@ Cdelw1         call defi(obmap,-(nevx*nsp/nbpw+1))
 
 Cdelw1         call defdr(owk, nevx*nsp)
          allocate(rv_w_owk(nevx*nsp))
-         if (nevx*nsp<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) rv_w_owk(:)=0.0d0
 
 Cdelw1         call ebcpl(0,ndev,nevx,nsp,nspc,1,nbpw,w(obmap),w(owk),evl)
          call ebcpl ( 0 , ndev , nevx , nsp , nspc , 1 , nbpw , iv_w_obmap 

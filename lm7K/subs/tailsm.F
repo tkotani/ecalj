@@ -63,15 +63,15 @@ C --- Tabulate smoothed Hankels on a radial mesh ---
    12 lx0(ie) = 0
 Cdelw1       call defrr(oxi,    nr*nxi)
        allocate(rv_w_oxi(nr*nxi))
-       if (nr*nxi<0) rv_w_oxi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nr*nxi<0) rv_w_oxi(:)=0.0d0
 
 Cdelw1       call defrr(oidx,   nr*2)
        allocate(rv_w_oidx(nr*2))
-       if (nr*2<0) rv_w_oidx(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nr*2<0) rv_w_oidx(:)=0.0d0
 
 Cdelw1       call defrr(owk,    nr*6)
        allocate(rv_w_owk(nr*6))
-       if (nr*6<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nr*6<0) rv_w_owk(:)=0.0d0
 
 C     Patch to properly handle case when rsm=0
       lzero = rsq(1) .eq. 0 .and. rsm .eq. 0

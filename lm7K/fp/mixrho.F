@@ -609,7 +609,7 @@ C --- 7. Project cn = screening density into local densities ---
       k0 = 20
 Cdelw1       call defcc(ofkl,(k0+1)*nlm0*nbas)
        allocate(zv_w_ofkl((k0+1)*nlm0*nbas))
-       if ((k0+1)*nlm0*nbas<0) zv_w_ofkl(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if ((k0+1)*nlm0*nbas<0) zv_w_ofkl(:)=0.0d0
 
 Cdelw1 do not change ocn because of ['redef', 'wref']
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 490
@@ -648,11 +648,11 @@ Cgetarg         call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
         if (nlml.gt.nlm0) call rxi('mixrho: nlml.gt.nlm0, need',nlml)
 Cdelw1         call defrr(orofi, nr)
          allocate(rv_w_orofi(nr))
-         if (nr<0) rv_w_orofi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1         call defrr(orwgt, nr)
          allocate(rv_w_orwgt(nr))
-         if (nr<0) rv_w_orwgt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1         call radmsh(rmt,a,nr,w(orofi))
          call radmsh ( rmt , a , nr , rv_w_orofi ) 
@@ -760,7 +760,7 @@ C         and spherical part of rho1-rho2
 C ... Find and include number of smooth mesh points.
 Cdelw1       call defi(oips0,ng)
        allocate(iv_w_oips0(ng))
-       if (ng<0) iv_w_oips0(:)=0
+Ctakao_ZeroClear_NotRequiered        if (ng<0) iv_w_oips0(:)=0
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 586
 Cdelw1 do not change ogv because of ['undef', 'wref']
@@ -778,7 +778,7 @@ Cdelw1 do not change ocn because of ['redef', 'wref']
       call defrr(ocn,ng*2*nsp)
 Cdelw1       call defrr(oco,ng*2*nsp)
        allocate(rv_w_oco(ng*2*nsp))
-       if (ng*2*nsp<0) rv_w_oco(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ng*2*nsp<0) rv_w_oco(:)=0.0d0
 
 Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: owk complex(8) and real(8)
 Cdelw1 do not change owk because of ['redef', 'wref']
@@ -1096,11 +1096,11 @@ Cgetarg         call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
         if (nlml.gt.nlm0) call rxi('mixrho: nlml.gt.nlm0, need',nlml)
 Cdelw1         call defrr(orofi, nr)
          allocate(rv_w_orofi(nr))
-         if (nr<0) rv_w_orofi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1         call defrr(orwgt, nr)
          allocate(rv_w_orwgt(nr))
-         if (nr<0) rv_w_orwgt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1         call radmsh(rmt,a,nr,w(orofi))
          call radmsh ( rmt , a , nr , rv_w_orofi ) 
@@ -1134,11 +1134,11 @@ C   ... Add net local charge to qmix
           off2 = 1 + nr*nlml*(i-1)
 Cdelw1           call defrr(owk1,nr)
            allocate(rv_w_owk1(nr))
-           if (nr<0) rv_w_owk1(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (nr<0) rv_w_owk1(:)=0.0d0
 
 Cdelw1           call defrr(owk2,nr)
            allocate(rv_w_owk2(nr))
-           if (nr<0) rv_w_owk2(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered            if (nr<0) rv_w_owk2(:)=0.0d0
 
 Cdelw1 1 is digit, dropped
 Cdelw1           call dpscop(w(orhold(1,ib)),w(owk1),nr,off2,1,1d0)
@@ -1394,11 +1394,11 @@ Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
         nlml = (lmxl+1)**2
 Cdelw1         call defrr(ori, nr)
          allocate(rv_w_ori(nr))
-         if (nr<0) rv_w_ori(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_ori(:)=0.0d0
 
 Cdelw1         call defrr(orwgt, nr)
          allocate(rv_w_orwgt(nr))
-         if (nr<0) rv_w_orwgt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1         call radmsh(rmt,a,nr,w(ori))
          call radmsh ( rmt , a , nr , rv_w_ori ) 
@@ -1829,7 +1829,7 @@ Cgetarg         call upack('spec a nr rmt lmxl',sspec,is,aat,nr,rmt,lmxl)
         nlml = (lmxl+1)**2
 Cdelw1         call defrr(orofi, nr)
          allocate(rv_w_orofi(nr))
-         if (nr<0) rv_w_orofi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1         call radmsh(rmt,aat,nr,w(orofi))
          call radmsh ( rmt , aat , nr , rv_w_orofi ) 
@@ -2338,11 +2338,11 @@ Cgetarg         call upack2('spec rg',sspec,is,rg)
         nlml = (lmxl+1)**2
 Cdelw1         call defrr(orofi, nr)
          allocate(rv_w_orofi(nr))
-         if (nr<0) rv_w_orofi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1         call defrr(orwgt, nr)
          allocate(rv_w_orwgt(nr))
-         if (nr<0) rv_w_orwgt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1         call radmsh(rmt,aat,nr,w(orofi))
          call radmsh ( rmt , aat , nr , rv_w_orofi ) 

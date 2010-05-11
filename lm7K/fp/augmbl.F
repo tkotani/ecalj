@@ -452,7 +452,7 @@ C ... end loop over ia
 #endif
 Cdelw1       call defcc(ohbuf, ndimh*ndimh)
        allocate(zv_w_ohbuf(ndimh*ndimh))
-       if (ndimh*ndimh<0) zv_w_ohbuf(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ndimh*ndimh<0) zv_w_ohbuf(:)=0.0d0
 
 Cdelw1       call MPI_ALLREDUCE(w(oh),w(ohbuf),2*ndimh*ndimh,
 Cdelw1      .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
@@ -477,7 +477,7 @@ Cdelw1       call rlse(ohbuf)
 
 Cdelw1       call defcc(osbuf, ndimh*ndimh)
        allocate(zv_w_osbuf(ndimh*ndimh))
-       if (ndimh*ndimh<0) zv_w_osbuf(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (ndimh*ndimh<0) zv_w_osbuf(:)=0.0d0
 
 Cdelw1       call MPI_ALLREDUCE(w(os),w(osbuf),2*ndimh*ndimh,
 Cdelw1      .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
@@ -503,7 +503,7 @@ Cdelw1       call rlse(osbuf)
       if (lcplxp .ne. 0) then 
 Cdelw1        call defcc(osbuf, ndimh*ndimh)
         allocate(zv_w_osbuf(ndimh*ndimh))
-        if (ndimh*ndimh<0) zv_w_osbuf(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered         if (ndimh*ndimh<0) zv_w_osbuf(:)=0.0d0
 
 Cdelw1        call MPI_ALLREDUCE(w(ohso),w(osbuf),2*ndimh*ndimh,
 Cdelw1      .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)

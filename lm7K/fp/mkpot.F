@@ -323,7 +323,7 @@ C      if (ipr .ge. 40) write (stdo,334) vsum,vconst
 C  334 format(' vsum=',f14.6,'   vconst=',f14.6)
 Cdelw1       call defrr(ohpot0,  nbas)
        allocate(rv_w_ohpot0(nbas))
-       if (nbas<0) rv_w_ohpot0(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) rv_w_ohpot0(:)=0.0d0
 
 
       i = 1

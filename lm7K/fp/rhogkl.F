@@ -73,11 +73,11 @@ C --- Setup ---
       stdo = lgunit(1)
 Cdelw1       call defrr(orofi,nrmx)
        allocate(rv_w_orofi(nrmx))
-       if (nrmx<0) rv_w_orofi(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1       call defrr(orwgt,nrmx)
        allocate(rv_w_orwgt(nrmx))
-       if (nrmx<0) rv_w_orwgt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_orwgt(:)=0.0d0
 
       call stdfac(20,df)
       if (ipr .ge. 40) write(stdo,221)
@@ -123,7 +123,7 @@ Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
 
 Cdelw1         call defrr(oh,   nr*(kmax+1)*(lmxl+1))
          allocate(rv_w_oh(nr*(kmax+1)*(lmxl+1)))
-         if (nr*(kmax+1)*(lmxl+1)<0) rv_w_oh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered          if (nr*(kmax+1)*(lmxl+1)<0) rv_w_oh(:)=0.0d0
 
 Cdelw1 1 is digit, dropped
 Cdelw1 2 is digit, dropped

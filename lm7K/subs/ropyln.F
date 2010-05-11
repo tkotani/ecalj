@@ -39,19 +39,19 @@ C     call tcn('ropyln')
       fpi = 16*datan(1d0)
 Cdelw1       call defrr(ocm,  n)
        allocate(rv_w_ocm(n))
-       if (n<0) rv_w_ocm(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (n<0) rv_w_ocm(:)=0.0d0
 
 Cdelw1       call defrr(osm,  n)
        allocate(rv_w_osm(n))
-       if (n<0) rv_w_osm(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (n<0) rv_w_osm(:)=0.0d0
 
 Cdelw1       call defrr(oq,   n*2)
        allocate(rv_w_oq(n*2))
-       if (n*2<0) rv_w_oq(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (n*2<0) rv_w_oq(:)=0.0d0
 
 Cdelw1       call defrr(oh,   n)
        allocate(rv_w_oh(n))
-       if (n<0) rv_w_oh(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (n<0) rv_w_oh(:)=0.0d0
 
       do  2  i = 1, n
     2 rsq(i) = x(i)*x(i)+y(i)*y(i)+z(i)*z(i)

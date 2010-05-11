@@ -1426,7 +1426,7 @@ Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
           else
 Cdelw1             call defrr(orwgt, nr)
              allocate(rv_w_orwgt(nr))
-             if (nr<0) rv_w_orwgt(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered              if (nr<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1             call radwgt(rmt,a,nr,w(orwgt))
              call radwgt ( rmt , a , nr , rv_w_orwgt ) 

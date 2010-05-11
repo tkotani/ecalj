@@ -131,7 +131,7 @@ C --- Make a neighbor table and adjust llock to freeze ES sites ---
       mxnbr = mxcsiz*nbas
 Cdelw1       call defi(ontab, nbasp+1)
        allocate(iv_w_ontab(nbasp+1))
-       if (nbasp+1<0) iv_w_ontab(:)=0
+Ctakao_ZeroClear_NotRequiered        if (nbasp+1<0) iv_w_ontab(:)=0
 
 Cdelw1       call defi(oiax, -niax*mxnbr)
        allocate(iv_w_oiax(abs(-niax*mxnbr)))
@@ -139,7 +139,7 @@ Cdelw1       call defi(oiax, -niax*mxnbr)
 
 Cdelw1       call defdr(owk,  3*mxnbr)
        allocate(rv_w_owk(3*mxnbr))
-       if (3*mxnbr<0) rv_w_owk(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) rv_w_owk(:)=0.0d0
 
       nttab = mxnbr
       call pshpr(ipr-20)

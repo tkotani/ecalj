@@ -253,33 +253,33 @@ Cdelw1 do not change olppr because of ['wref']
       olppr = 1
 Cdelw1       call defdr(olpp,100)
        allocate(rv_w_olpp(100))
-       if (100<0) rv_w_olpp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (100<0) rv_w_olpp(:)=0.0d0
 
 Cdelw1 do not change olppr because of ['wref']
       call defdr(olppr,3000)
 Cdelw1       call defdr(olsop,500)
        allocate(rv_w_olsop(500))
-       if (500<0) rv_w_olsop(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (500<0) rv_w_olsop(:)=0.0d0
 
 Cdelw1       call defdr(olgrme,500)
        allocate(rv_w_olgrme(500))
-       if (500<0) rv_w_olgrme(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (500<0) rv_w_olgrme(:)=0.0d0
 
 Cdelw1       call defdr(olva,100)
        allocate(rv_w_olva(100))
-       if (100<0) rv_w_olva(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (100<0) rv_w_olva(:)=0.0d0
 
 Cdelw1       call defdr(olmp,3000)
        allocate(rv_w_olmp(3000))
-       if (3000<0) rv_w_olmp(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3000<0) rv_w_olmp(:)=0.0d0
 
 Cdelw1       call defdr(opot,3000)
        allocate(rv_w_opot(3000))
-       if (3000<0) rv_w_opot(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3000<0) rv_w_opot(:)=0.0d0
 
 Cdelw1       call defdr(ocor,3000)
        allocate(rv_w_ocor(3000))
-       if (3000<0) rv_w_ocor(:)=0.0d0
+Ctakao_ZeroClear_NotRequiered        if (3000<0) rv_w_ocor(:)=0.0d0
 
       i2 = ic2
       if (i2 .eq. 0) i2 = nclasp
