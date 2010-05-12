@@ -1497,7 +1497,8 @@ Cdelw1 not deallocate orsm because of [array wref call]
 Cdelw1         call rlse(ori)
          if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
          if (allocated(rv_w_ori)) deallocate(rv_w_ori)
-         call rlse(orsm)
+Cki#error, rlse?  orsm = ['orsm(4)', 'integer']
+         call rlse(orsm(1))
 
    10   continue
       enddo
@@ -2439,7 +2440,9 @@ Cdelw1 not deallocate orsm because of [array wref call]
 Cdelw1         call rlse(orofi)
          if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
          if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
-         call rlse(orsm)
+Cki#error, rlse?  orsm = ['orsm(2)', 'integer']
+Cki  bug fix,  unecessary
+Cki         call rlse(orsm(1))
 
       enddo                     !Loop over sites
       na = na-1
