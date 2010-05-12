@@ -4,11 +4,11 @@ C ----------------------------------------------------------------------
 Ci Inputs
 Ci   mode  :1  rsm must match for each orbital type in contiguous block
 Ci         :2  eh  must match for each orbital type in contiguous block
-Ci         :4  requires l be consecutive and kappa index be constant 
+Ci         :4  requires l be consecutive and kappa index be constant
 Ci         :   in contiguous block
 Ci         :8  never make contiguous blocks
 Ci         :16 orbital types with rsmh<=0 are excluded
-Ci         :   any combination is allowed; 
+Ci         :   any combination is allowed;
 Ci             however, if 8 is set, 1,2,4 have no effect.
 Ci   norb  :number of orbital types, i.e. kinds of radial functions
 Ci         :(orbl.f)
@@ -21,7 +21,7 @@ Ci         :unused if 2's bit of mode is not set
 Ci         :       or if 8's bit of mode is set
 Co Outputs
 Co   ntab  :table of upper ranges for each orbital block
-Co   blks  :blks(iorb) = size of contiguous block of orbitals for 
+Co   blks  :blks(iorb) = size of contiguous block of orbitals for
 Co         :orbital type iorb and possibly iorb+1,iorb+2...
 Co         :This enables consecutive orbital types to be grouped into
 Co         :a single block when appropriate, depending on mode.
@@ -103,7 +103,7 @@ C             Flag that jorb is subsumed
               goto 10
             endif
           enddo
-   10   continue
+   10     continue
         endif
       enddo
 

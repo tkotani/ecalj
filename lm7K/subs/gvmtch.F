@@ -15,23 +15,23 @@ Cdelw1 do not change  [['call', 'undef', 'wref'], 'ogvb', 'gvmtch']
 Cdelw1 do not change  [['call', 'undef', 'wref'], 'okvb', 'gvmtch']
       integer ngs,ngb,ogvs,okvs,ogvb,okvb
 Cdelw1       integer ogg,okk,oiwk
-       real(8) ,allocatable :: rv_w_ogg(:)
-       real(8) ,allocatable :: rv_w_okk(:)
-       real(8) ,allocatable :: rv_w_oiwk(:)
+      real(8) ,allocatable :: rv_w_ogg(:)
+      real(8) ,allocatable :: rv_w_okk(:)
+      real(8) ,allocatable :: rv_w_oiwk(:)
 
       integer w(1)
       common /w/ w
 
 Cdelw1       call defrr(ogg,   ngs)
-       allocate(rv_w_ogg(ngs))
+      allocate(rv_w_ogg(ngs))
 Ctakao_ZeroClear_NotRequiered        if (ngs<0) rv_w_ogg(:)=0.0d0
 
 Cdelw1       call defrr(okk,   ngs)
-       allocate(rv_w_okk(ngs))
+      allocate(rv_w_okk(ngs))
 Ctakao_ZeroClear_NotRequiered        if (ngs<0) rv_w_okk(:)=0.0d0
 
 Cdelw1       call defrr(oiwk,  ngs)
-       allocate(rv_w_oiwk(ngs))
+      allocate(rv_w_oiwk(ngs))
 Ctakao_ZeroClear_NotRequiered        if (ngs<0) rv_w_oiwk(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ogvs  is not defined yet at linenumber= 12
@@ -47,15 +47,15 @@ Cdelw1 do not change ogvb because of ['call', 'undef', 'wref']
 Cdelw1 warning(1) , probably  okvb  is not defined yet at linenumber= 12
 Cdelw1 do not change okvb because of ['call', 'undef', 'wref']
 Cdelw1       call pgvmat(w(ogg),w(okk),w(oiwk),ngs,w(ogvs),ngb,w(ogvb),w(okvb))
-       call pgvmat ( rv_w_ogg , rv_w_okk , rv_w_oiwk , ngs , w ( ogvs 
-     . ) , ngb , w ( ogvb ) , w ( okvb ) ) 
+      call pgvmat ( rv_w_ogg , rv_w_okk , rv_w_oiwk , ngs , w ( ogvs 
+     . ) , ngb , w ( ogvb ) , w ( okvb ) )
 
-Cdelw1 rlse name= ogg old_list= ogg okk oiwk 
+Cdelw1 rlse name= ogg old_list= ogg okk oiwk
 Cdelw1 rlse name= ogg new_list= (None)
 Cdelw1       call rlse(ogg)
-       if (allocated(rv_w_oiwk)) deallocate(rv_w_oiwk)
-       if (allocated(rv_w_okk)) deallocate(rv_w_okk)
-       if (allocated(rv_w_ogg)) deallocate(rv_w_ogg)
+      if (allocated(rv_w_oiwk)) deallocate(rv_w_oiwk)
+      if (allocated(rv_w_okk)) deallocate(rv_w_okk)
+      if (allocated(rv_w_ogg)) deallocate(rv_w_ogg)
 
 
 Cdelw1 w_varlist remains: (None)
@@ -77,7 +77,8 @@ C      call prm('gvb',gvb,ngb,ngb,3)
 
 C ... Generate length of g and ensure length matches for both
       do  10  ig = 1, ngs
-   10 gg(ig) = gvs(ig,1)**2 + gvs(ig,2)**2 + gvs(ig,3)**2
+        gg(ig) = gvs(ig,1)**2 + gvs(ig,2)**2 + gvs(ig,3)**2
+   10 continue
 
 C     call prm('gg',gg,ngs,ngs,1)
 
@@ -107,7 +108,8 @@ C   ... Find first and last g-vector list with same length
 
         do  32  jg = low, high
           do  34  mm = 1, 3
-   34     if (abs(gvb(jg,mm)-gvs(ig,mm)) .gt. tol2) goto 32
+            if (abs(gvb(jg,mm)-gvs(ig,mm)) .gt. tol2) goto 32
+   34     continue
 C     ... Found a match
           iwk(ig) = jg
    32   continue

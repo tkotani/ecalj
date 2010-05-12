@@ -4,8 +4,8 @@ Cgetarg...info...           use_to_add ['symdmu', 'm_struc_def']
 #define F90 1
       subroutine symdmu(dmatu,dmatw,nbas,nsp,lmaxu,sspec,ssite,ng,g,
      .  istab,lldau,rms)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Symmetrize LDA+U density matrix dmatu
 C ----------------------------------------------------------------------
@@ -51,8 +51,8 @@ C ... Passed parameters
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       double complex dmatw(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
 Cgetarg       double precision sspec(1),ssite(1)
-       type(s_spec)::sspec(*)
-       type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
 
       double precision g(9,*),rms
 C ... Local parameters
@@ -115,15 +115,15 @@ C --- For each site density-matrix, do ---
       do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
 Cgetarg           is = igetss('site spec',ib,ssite)
-           is = int(ssite(ib)%spec) 
+          is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
 Cgetarg           call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
-           
-           lmxa=sspec(is)%lmxa
-           i_copy_size=size(sspec(is)%idu) 
-           call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+
+          lmxa=sspec(is)%lmxa
+          i_copy_size=size(sspec(is)%idu)
+          call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)
 
           ofjbl = -1
           do  l = 0, min(lmxa,3)
@@ -275,6 +275,6 @@ C     RMS change in dmatu
       call daxpy(2*is,1d0,dmatu,1,dmatw,1)
 
 Cgetarg       end
-       end subroutine symdmu 
+      end subroutine symdmu
 
 

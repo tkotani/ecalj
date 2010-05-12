@@ -28,7 +28,7 @@ C     Guard against overflow, underflow. Make -1 < i0[1..4] < nr+1
 
 C --- Sort the ec ---
       do  3  i = 1, 3
-        do  3  j = 1, 4-i
+      do  3  j = 1, 4-i
         if (ec(j) .gt. ec(j+1)) then
           e = ec(j)
           ec(j) = ec(j+1)
@@ -96,6 +96,7 @@ C --------------------------------
       i4 = max0(i04,1)
    26 continue
       do  25  i = i4, nr
-   25 dosi(i) = dosi(i) + volwgt
+        dosi(i) = dosi(i) + volwgt
+   25 continue
       end
 

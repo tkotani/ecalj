@@ -49,17 +49,20 @@ C ... Local parameters
 
 C --- Do explicitly for k=0,1; See Eqs. 5.14 and 5.15 ---
       do  6  l = 0, lmax
-    6 g(0,l) = ta2**l * g0
+        g(0,l) = ta2**l * g0
+    6 continue
       if (kmax .eq. 0) return
       do  7  l = 0, lmax
-    7 g(1,l) = ta2**(l+1)*(2d0*a*a*r*r-3-2*l) * g0
+        g(1,l) = ta2**(l+1)*(2d0*a*a*r*r-3-2*l) * g0
+    7 continue
 
 C --- Recursion for higher k; see Eq. 5.19 ---
       do  8  k = 2, kmax
       do  8  l = 0, lmax
-      x = 2*(k-1)*(2*k+2*l-1)
-      y = 4*k+2*l-1
-    8 g(k,l) = ta2*(ta2*r*r*g(k-1,l) - y*g(k-1,l) - x*ta2*g(k-2,l))
+        x = 2*(k-1)*(2*k+2*l-1)
+        y = 4*k+2*l-1
+        g(k,l) = ta2*(ta2*r*r*g(k-1,l) - y*g(k-1,l) - x*ta2*g(k-2,l))
+    8 continue
       end
 C      subroutine fmain
 C      integer n0,kmax,lmax,k,l

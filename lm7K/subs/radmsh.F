@@ -24,10 +24,12 @@ C     implicit none
       xx = 2d0*a*b/3d0
       ea = dexp(a)
       do  1  ir = 1, nr
-      wt(ir) = xx
-    1 xx = xx*ea
+        wt(ir) = xx
+        xx = xx*ea
+    1 continue
       do  2  ir = 2, nr-1, 2
-    2 wt(ir) = 2d0*wt(ir)
+        wt(ir) = 2d0*wt(ir)
+    2 continue
       wt(1) = wt(1)/2
       wt(nr) = wt(nr)/2
       end
@@ -72,7 +74,8 @@ C ... Local parameters
         if (opt .eq. 1) wt(ir) = wt(ir)*rofi(ir)**2
     1 continue
       do  2  ir = 2, nr-1, 2
-    2 wt(ir) = 2d0*wt(ir)
+        wt(ir) = 2d0*wt(ir)
+    2 continue
       wt(1) = wt(1)/2
       wt(nr) = wt(nr)/2
       end
@@ -132,16 +135,16 @@ C ... Passed parameters
       double precision rmax,fac,rbig,a,rofi(*),rwgt(*)
 C ... Local parameters
       integer idn
-      
+
       if (mod(mode,10) .eq. 1) then
-      rbig = rmax * (dexp(a*nrx-a)-1d0)/(dexp(a*nr-a)-1d0)
+        rbig = rmax * (dexp(a*nrx-a)-1d0)/(dexp(a*nr-a)-1d0)
 C     If rbig>fac*rmax, estimate from exp((nrbig-nr)a) = fac
-      if (rbig .gt. fac*rmax) then
-        idn = dlog(fac)/a
-        if (mod(idn,2) .eq. 1) idn = idn-1
-        nrbig = min(nr+idn,nrx)
-        rbig = rmax * (dexp(a*nrbig-a)-1d0)/(dexp(a*nr-a)-1d0)
-      endif
+        if (rbig .gt. fac*rmax) then
+          idn = dlog(fac)/a
+          if (mod(idn,2) .eq. 1) idn = idn-1
+          nrbig = min(nr+idn,nrx)
+          rbig = rmax * (dexp(a*nrbig-a)-1d0)/(dexp(a*nr-a)-1d0)
+        endif
       endif
 
 C --- Points and weights on extended mesh ---

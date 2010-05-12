@@ -108,22 +108,22 @@ C --- Loop over spins and sum over bands ---
 
             do  12  jsp = 1, nspc
 C       ... ksp is isp for uncoupled spins, and jsp for coupled spins
-            ksp = max(jsp,isp)
+              ksp = max(jsp,isp)
 
-            call mkcond(mode,eigen,qp,iq(1),iq(2),iq(3),iq(4),cvec,wc)
+              call mkcond(mode,eigen,qp,iq(1),iq(2),iq(3),iq(4),cvec,wc)
 
 C       ... Accumulate no. states assuming constant wt from this tet
-            do  2  ichan = 1, nchan
+              do  2  ichan = 1, nchan
 C         ... This is weight for no. states
-              wt = doswt(ichan,ibp,ksp,jq(1))
+                wt = doswt(ichan,ibp,ksp,jq(1))
      .           + doswt(ichan,ibp,ksp,jq(2))
      .           + doswt(ichan,ibp,ksp,jq(3))
      .           + doswt(ichan,ibp,ksp,jq(4))
-              wt = wt * idtet(0,itet) * v / 4d0
+                wt = wt * idtet(0,itet) * v / 4d0
 C         ... Add weights from mkcond
-              wt = wt*wc
-              call slinz(wt,eigen,emin,emax,zos(1,ksp,ichan),npts)
-    2       continue
+                wt = wt*wc
+                call slinz(wt,eigen,emin,emax,zos(1,ksp,ichan),npts)
+    2         continue
    12       continue
     3     continue
     4   continue
@@ -136,7 +136,8 @@ C --- DOS from finite difference of NOS ---
       do  11  isp  = 1, nsp
       do  11  ichan = 1, nchan
         do  10  i = 2, npts - 1
-   10   wk(i) = (zos(i+1,isp,ichan) - zos(i-1,isp,ichan)) / bin
+          wk(i) = (zos(i+1,isp,ichan) - zos(i-1,isp,ichan)) / bin
+   10   continue
         wk(1)    = wk(2)
         wk(npts) = wk(npts-1)
         call dcopy(npts,wk,1,zos(1,isp,ichan),1)

@@ -106,9 +106,9 @@ C       lpz = konfz .ne. konfig(k)
 C --- Valence wave functions ---
       if (mod(mode0,2) .eq. 1) then
         do  l = 0, lmxa
-        k = l+1
-        do  isp = 1, nsp
-          konf = pnu(k,1)
+          k = l+1
+          do  isp = 1, nsp
+            konf = pnu(k,1)
 
 C    ...  Make phi and phidot
 C         NB: Write gdot to gp, with extra space for higher derivatives
@@ -119,23 +119,23 @@ C         val(1) = rofi(nr)
 C         slo(1) = 1 + dtan(pi*(0.5d0 - pnu(k,isp)))
 C         call phidx(0,z,l,v0(1,isp),hcrl,0d0,rofi,nr,4,tol,e,val,slo,
 C    .      nn,gval(1,l,1,isp),gp,xx,xx,xx,xx,pgam,xx,xx,xx,xx)
-          call makrwf(0,z,rofi(nr),l,v0(1,isp),a,nr,rofi,pnu(1,isp),4,
+            call makrwf(0,z,rofi(nr),l,v0(1,isp),a,nr,rofi,pnu(1,isp),4,
      .      gval(1,l,1,isp),gp,e,phi,dphi,phip,dphip,p)
 C         Copy 1st derivative to passed array
-          call dcopy(2*nr,gp,1,gval(1,l,2,isp),1)
+            call dcopy(2*nr,gp,1,gval(1,l,2,isp),1)
 C         phi,phidot already orthogonal if mode1=1
-          if (mode1 .eq. 2)
+            if (mode1 .eq. 2)
      .     call ortrwf(10*(mode1-1)+2,z,l,v0(1,isp),nr,nr,nr,rofi,rwgt,
      .      e,e,ez,gval(1,l,1,isp),gval(1,l,2,isp),gval(1,l,3,isp),xx)
 
 C     ... Make local orbital
-          if (konf .ne. konfig(k)) then
-            call isanrg(nphimx,3,3,'atwf:','nphimx',.true.)
-            call makrwf(0,z,rofi(nr),l,v0(1,isp),a,nr,rofi,pnz(1,isp),2,
+            if (konf .ne. konfig(k)) then
+              call isanrg(nphimx,3,3,'atwf:','nphimx',.true.)
+              call makrwf(0,z,rofi(nr),l,v0(1,isp),a,nr,rofi,pnz(1,isp),2,
      .        gval(1,l,3,isp),gp,ez,phz,dphz,phzp,dphzp,p)
 
-            call isanrg(mode1,0,2,'atwf:','10s digit mode',.true.)
-            if (mode1 .eq. 0) then
+              call isanrg(mode1,0,2,'atwf:','10s digit mode',.true.)
+              if (mode1 .eq. 0) then
 
 C             Extra scaling
 C              call ortrwf(0,z,l,v0(1,isp),nr,nr,nr,rofi,rwgt,e,e,ez,
@@ -144,18 +144,18 @@ C             call dscal(nr*2,1/xx,gval(1,l,3,isp),1)
 C             phz = phz/xx
 C             dphz = dphz/xx
 
-              call wf2lo(l,a,nr,rofi,rwgt,phi,dphi,phip,dphip,phz,dphz,
+                call wf2lo(l,a,nr,rofi,rwgt,phi,dphi,phip,dphip,phz,dphz,
      .          phzp,dphzp,pnz(1,isp),rsml,ehl,
      .          gval(1,l,1,isp),gval(1,l,2,isp),gval(1,l,3,isp))
-            elseif (pnz(l+1,isp) .lt. 10) then
-              call ortrwf(10*(mode1-1)+1,z,l,v0(1,isp),nr,nr,nr,rofi,
+              elseif (pnz(l+1,isp) .lt. 10) then
+                call ortrwf(10*(mode1-1)+1,z,l,v0(1,isp),nr,nr,nr,rofi,
      .          rwgt,e,e,ez,gval(1,l,1,isp),gval(1,l,2,isp),
      .          gval(1,l,3,isp),xx)
-            endif
+              endif
 C           call prrmsh('gz',rofi,gval(1,l,3,isp),nr,nr,2)
-          endif
+            endif
 
-        enddo
+          enddo
         enddo
 
 C       call prrmsh('gval',rofi,gval,nr,nr,2*(1+lmxa))

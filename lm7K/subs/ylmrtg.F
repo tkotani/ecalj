@@ -70,7 +70,8 @@ C   ... Generate matrix y(p)
             offs = l*l
             if (i .le. nm) then
               do  14   m = 1, nm
-   14         y(m+offs,i+offs) = ylm(i,m+offs)
+                y(m+offs,i+offs) = ylm(i,m+offs)
+   14         continue
             endif
    12     continue
    10   continue
@@ -111,7 +112,8 @@ C ... Make matrix y(rp)
           offs = l*l
           if (i .le. nm) then
             do  24   m = 1, nm
-   24       yp(m+offs,i+offs) = ylm(i,m+offs)
+              yp(m+offs,i+offs) = ylm(i,m+offs)
+   24       continue
           endif
    22   continue
    20 continue

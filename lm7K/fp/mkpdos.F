@@ -3,8 +3,8 @@ Cgetarg...info...           structure ['mkpdos', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['mkpdos', 'm_struc_def']
       subroutine mkpdos(mode,ssite,sspec,isp,nsp,nlmax,ndham,nev,
      .  nchan,npd,lsite,nsite,ppnl,aus,doswt)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Decomposition of norm from projection of w.f into MT sphere
 C ----------------------------------------------------------------------
@@ -47,8 +47,8 @@ C ... Passed parameters
       integer n0,nppn
       parameter (n0=10,nppn=12)
 Cgetarg       double precision ssite(1),sspec(1)
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
       double precision ppnl(nppn,n0,nsp,*),doswt(nchan,npd,nev)
       double complex aus(nlmax,ndham,3,nsp,*)
@@ -69,14 +69,14 @@ C ... Local parameters
           ib = lsite(i)
         endif
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg         call upack('spec lmxa rmt',sspec,is,lmxa,rmt,0,0)
-         
-         lmxa=sspec(is)%lmxa
-         rmt=sspec(is)%rmt
+
+        lmxa=sspec(is)%lmxa
+        rmt=sspec(is)%rmt
 
         lmxa = min(lmxa,lmxax)
         if (lmxa .eq. -1) goto 10
@@ -102,11 +102,11 @@ C       call phvsfp(1,nsp,lmxa,ppnl(1,1,1,ib),rmt,sab,sab,sab)
           ilm = 0
 
           do  l = 0, lmxa
-          do  m = -l, l
-            ilm = ilm+1
-            au = aus(ilm,iv,1,isp,ib)
-            as = aus(ilm,iv,2,isp,ib)
-            az = aus(ilm,iv,3,isp,ib)
+            do  m = -l, l
+              ilm = ilm+1
+              au = aus(ilm,iv,1,isp,ib)
+              as = aus(ilm,iv,2,isp,ib)
+              az = aus(ilm,iv,3,isp,ib)
 
 C           If (au,as) are coefficients to (u,s), use this
 C           s11 = dconjg(au)*au*sab(1,l+1,isp)
@@ -114,25 +114,25 @@ C           s12 = 2*dconjg(au)*as*sab(2,l+1,isp)
 C           s22 = dconjg(as)*as*sab(4,l+1,isp)
 
 C           If (au,as) are coefficients to (phi,phidot), use this
-            s11 = dconjg(au)*au*ppnl(2,l+1,isp,ib)
-            s22 = dconjg(as)*as*ppnl(7,l+1,isp,ib)
-            s33 = dconjg(az)*az*ppnl(8,l+1,isp,ib)
-            s12 = 0
-            s13 = 2*dconjg(au)*az*ppnl(9,l+1,isp,ib)
-            s23 = 2*dconjg(as)*az*ppnl(10,l+1,isp,ib)
+              s11 = dconjg(au)*au*ppnl(2,l+1,isp,ib)
+              s22 = dconjg(as)*as*ppnl(7,l+1,isp,ib)
+              s33 = dconjg(az)*az*ppnl(8,l+1,isp,ib)
+              s12 = 0
+              s13 = 2*dconjg(au)*az*ppnl(9,l+1,isp,ib)
+              s23 = 2*dconjg(as)*az*ppnl(10,l+1,isp,ib)
 
-            sum = s11+s22+s33 + s12+s13+s23
+              sum = s11+s22+s33 + s12+s13+s23
 
 C            if (iv .le. 5 .and. l .eq. 2 .and. s33 .ne. 0) then
 C              print 333, iv,m,s11+s22+s33,s12+s13+s23
 C  333         format('pdos',2i4,2f12.6)
 C            endif
 
-            suma = suma + sum
-            suml(l+1) = suml(l+1) + sum
-            summ(ilm) = sum
+              suma = suma + sum
+              suml(l+1) = suml(l+1) + sum
+              summ(ilm) = sum
 
-          enddo
+            enddo
           enddo
 
           if (lmdim .eq. 1) then
@@ -151,6 +151,6 @@ C            endif
       call isanrg(ichan,1,nchan,' mkpdos','nchan',.true.)
 
 Cgetarg       end
-       end subroutine mkpdos 
+      end subroutine mkpdos
 
 

@@ -29,46 +29,46 @@ C     Slater integrals from U_H, J_H (this will be updated later)
       F(0) = U_H
 C     d-states -> r42 = F(4)/F(2) = 0.625
       if (l .eq. 2) then
-         r42 = 0.625d0
-         F(2) = 14d0*J_H/(1d0+r42)
-         F(4) = F(2)*r42
+        r42 = 0.625d0
+        F(2) = 14d0*J_H/(1d0+r42)
+        F(4) = F(2)*r42
       endif
 C     f-states
       if (l .eq. 3) then
-         r42 = 451d0/675d0
-         r62 = 1001d0/2025d0
-         F(2) = 3d0*J_H/(2d0/15d0+1d0/11d0*r42+50d0/429d0*r62)
-         F(4) = F(2)*r42
-         F(6) = F(2)*r62
+        r42 = 451d0/675d0
+        r62 = 1001d0/2025d0
+        F(2) = 3d0*J_H/(2d0/15d0+1d0/11d0*r42+50d0/429d0*r62)
+        F(4) = F(2)*r42
+        F(6) = F(2)*r62
       endif
 C     Calculate <m,m2|Vee|m1,m3>
       do  m = -l, l
-         do  m2 = -l, l
-            do  m1 = -l, l
-               do  m3 = -l, l
-                  do  k = 0, 2*l,2
+        do  m2 = -l, l
+          do  m1 = -l, l
+            do  m3 = -l, l
+              do  k = 0, 2*l,2
 c                     print *,'k=',k,'F=',F(k)
-                     ak = 0d0
-                     call t3j_all(l,k,l,0,0,0,t1)
+                ak = 0d0
+                call t3j_all(l,k,l,0,0,0,t1)
 c                     print *,'l=',l,'k=',k,'F=',F(k),'t1=',t1
-                     do  jj = -k, k
-                        call t3j_all(l,k,l,-m,jj,m1,t2)
-                        call t3j_all(l,k,l,-m2,-jj,m3,t3)
-                        sg = (-1)**(m+jj+m2)
-                        ak = ak + sg*t2*t3
-                     enddo
-                     ak = (2*l+1)**2*t1**2*ak
+                do  jj = -k, k
+                  call t3j_all(l,k,l,-m,jj,m1,t2)
+                  call t3j_all(l,k,l,-m2,-jj,m3,t3)
+                  sg = (-1)**(m+jj+m2)
+                  ak = ak + sg*t2*t3
+                enddo
+                ak = (2*l+1)**2*t1**2*ak
 c                     print '(5i3,3f8.2)',
 c     .               m,m2,m1,m3,k,Vee(m,m2,m1,m3),ak,F(k)
-                     Vee(m,m2,m1,m3) = Vee(m,m2,m1,m3) + ak*F(k)
+                Vee(m,m2,m1,m3) = Vee(m,m2,m1,m3) + ak*F(k)
 c                     print '(5i3,3f9.4)',
 c     .               m,m2,m1,m3,k,Vee(m,m2,m1,m3),ak,F(k)
-                   enddo
-                enddo
-             enddo
+              enddo
+            enddo
           enddo
-       enddo
-       end
+        enddo
+      enddo
+      end
 
       subroutine t3j_all(j1,j2,j3,m1,m2,m3,t3j)
 C ----------------------------------------------------------------
@@ -121,20 +121,20 @@ C
 
       t3j = 0d0
       do  k = KMIN, KMAX
-      call fctor1(k,a1)
-      call fctor1(j1 +j2 - j3 - k,a2)
-      call fctor1(j1 -m1 - k,a3)
-      call fctor1(j2 +m2 - k,a4)
-      call fctor1(j3 -j2 + m1 + k,a5)
-      call fctor1(j3 -j1 - m2 + k,a6)
-      sgk = (-1d0)**k
-      a1a = a1
-      a2a = a2
-      a3a = a3
-      a4a = a4
-      a5a = a5
-      a6a = a6
-      t3j = t3j + sgk/(a1a*a2a*a3a*a4a*a5a*a6a)
+        call fctor1(k,a1)
+        call fctor1(j1 +j2 - j3 - k,a2)
+        call fctor1(j1 -m1 - k,a3)
+        call fctor1(j2 +m2 - k,a4)
+        call fctor1(j3 -j2 + m1 + k,a5)
+        call fctor1(j3 -j1 - m2 + k,a6)
+        sgk = (-1d0)**k
+        a1a = a1
+        a2a = a2
+        a3a = a3
+        a4a = a4
+        a5a = a5
+        a6a = a6
+        t3j = t3j + sgk/(a1a*a2a*a3a*a4a*a5a*a6a)
       enddo
 
       t3j = C*t3j
@@ -149,8 +149,8 @@ C     implicit none
       f2(0) = 1d0
       f = 0d0
       do  i = 1,nfac
-      f = f+1d0
-      f2(i) = f2(i-1)*f
+        f = f+1d0
+        f2(i) = f2(i-1)*f
       enddo
       fctor2 = f2(nfac)
       end

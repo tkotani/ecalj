@@ -70,10 +70,10 @@ C     stdl = nglob('stdl')
 
 C --- Make and print out magnetic moment ---
       if ((lswtk .eq. 1 .or. nspc .eq. 1) .and. metal) then
-       call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
-       if (ipr .ge. 20) write(stdo,922) amom
-  922  format(9x,'Mag. moment:',f15.6)
-       qval(2) = amom
+        call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
+        if (ipr .ge. 20) write(stdo,922) amom
+  922   format(9x,'Mag. moment:',f15.6)
+        qval(2) = amom
       else
         call info0(20,0,0,
      .    '%9fspin weights not available ... no spin moment calculated')
@@ -123,15 +123,15 @@ C       A root was found
 
 C ... Potential shift
       do  ikp = 1, nkp
-      do  ib = 1, nevx
-        if (nspc .eq. 2) then
-          eb(ib,1,ikp) = eb(ib,1,ikp) + vnow/2*swtk(ib,1,ikp)
-          eb(ib,2,ikp) = eb(ib,2,ikp) + vnow/2*swtk(ib,2,ikp)
-        else
-          eb(ib,1,ikp) = eb(ib,1,ikp) - vnow/2
-          eb(ib,2,ikp) = eb(ib,2,ikp) + vnow/2
-        endif
-      enddo
+        do  ib = 1, nevx
+          if (nspc .eq. 2) then
+            eb(ib,1,ikp) = eb(ib,1,ikp) + vnow/2*swtk(ib,1,ikp)
+            eb(ib,2,ikp) = eb(ib,2,ikp) + vnow/2*swtk(ib,2,ikp)
+          else
+            eb(ib,1,ikp) = eb(ib,1,ikp) - vnow/2
+            eb(ib,2,ikp) = eb(ib,2,ikp) + vnow/2
+          endif
+        enddo
       enddo
 
 C ... Fermi level with dv shift
@@ -147,15 +147,15 @@ C ... Fermi level with dv shift
       if (iter .gt. 0) call poppr
 
       do  ikp = 1, nkp
-      do  ib = 1, nevx
-        if (nspc .eq. 2) then
-          eb(ib,1,ikp) = eb(ib,1,ikp) - vnow/2*swtk(ib,1,ikp)
-          eb(ib,2,ikp) = eb(ib,2,ikp) - vnow/2*swtk(ib,2,ikp)
-        else
-          eb(ib,1,ikp) = eb(ib,1,ikp) + vnow/2
-          eb(ib,2,ikp) = eb(ib,2,ikp) - vnow/2
-        endif
-      enddo
+        do  ib = 1, nevx
+          if (nspc .eq. 2) then
+            eb(ib,1,ikp) = eb(ib,1,ikp) - vnow/2*swtk(ib,1,ikp)
+            eb(ib,2,ikp) = eb(ib,2,ikp) - vnow/2*swtk(ib,2,ikp)
+          else
+            eb(ib,1,ikp) = eb(ib,1,ikp) + vnow/2
+            eb(ib,2,ikp) = eb(ib,2,ikp) - vnow/2
+          endif
+        enddo
       enddo
 
       if (iter .gt. 0) goto 10

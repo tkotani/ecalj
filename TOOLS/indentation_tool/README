@@ -1,0 +1,16 @@
+Copy fortran files here.
+Run 
+prompt>./Findent
+Then you will have /convert directory which contains fortran files
+with indentation. In addition continue lines are added (see top of
+redo file).
+
+Problems.
+1. In cases it fails. In such a case, error is shown.
+   * ! comment may cause problems after do/if  statements or so.
+   * (10,20 30) goto integer, should be rewritten by select case.
+2. Obtained fortran files do not have perfect indentation for
+   contanious lines.
+
+
+takao

@@ -6,8 +6,8 @@ Cgetarg...info...           structure ['rhogkl', 'site', 'ssite']
 Cgetarg...info...           structure ['rhogkl', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['rhogkl', 'm_struc_def']
       subroutine rhogkl(ib1,ib2,nsp,mode,ssite,sspec,orhoat,kmax,qkl)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- G_kL expansion of valence sphere densities
 C ----------------------------------------------------------------------
@@ -48,18 +48,18 @@ C ... Passed parameters
 Cdelw1 do not change  [['call'], 'orhoat', 'rhogkl']
       integer ib1,ib2,nsp,mode,orhoat(3,1),kmax
 Cgetarg       double precision ssite(1),sspec(1),qkl(0:kmax,1)
-       real(8):: qkl(0:kmax,1) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      real(8):: qkl(0:kmax,1)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
 Cdelw1       integer stdo,ipr,iprint,lgunit,orofi,nrmx,orwgt,oh,
 Cdelw1      .  j1,ib,is,igetss,lmxl,nr,nlml,ilm,j,lfoc,k,l,m
-       integer:: stdo , ipr , iprint , lgunit , nrmx , j1 , ib , is 
-     . , igetss , lmxl , nr , nlml , ilm , j , lfoc , k , l , m 
-       real(8) ,allocatable :: rv_w_orofi(:)
-       real(8) ,allocatable :: rv_w_orwgt(:)
-       real(8) ,allocatable :: rv_w_oh(:)
+      integer:: stdo , ipr , iprint , lgunit , nrmx , j1 , ib , is 
+     . , igetss , lmxl , nr , nlml , ilm , j , lfoc , k , l , m
+      real(8) ,allocatable :: rv_w_orofi(:)
+      real(8) ,allocatable :: rv_w_orwgt(:)
+      real(8) ,allocatable :: rv_w_oh(:)
 
       parameter( nrmx=1501)
       double precision z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
@@ -72,11 +72,11 @@ C --- Setup ---
       ipr  = iprint()
       stdo = lgunit(1)
 Cdelw1       call defrr(orofi,nrmx)
-       allocate(rv_w_orofi(nrmx))
+      allocate(rv_w_orofi(nrmx))
 Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1       call defrr(orwgt,nrmx)
-       allocate(rv_w_orwgt(nrmx))
+      allocate(rv_w_orwgt(nrmx))
 Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_orwgt(:)=0.0d0
 
       call stdfac(20,df)
@@ -86,43 +86,43 @@ C --- Loop over sites ---
       j1 = 1
       do  ib = ib1, ib2
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
 Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
 Cgetarg         call upack('spec lmxl z qc',sspec,is,lmxl,z,qc,0)
-         
-         lmxl=sspec(is)%lmxl
-         z=sspec(is)%z
-         qc=sspec(is)%qc
+
+        lmxl=sspec(is)%lmxl
+        z=sspec(is)%z
+        qc=sspec(is)%qc
 
 Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-         
-         a=sspec(is)%a
-         nr=sspec(is)%nr
-         rmt=sspec(is)%rmt
+
+        a=sspec(is)%a
+        nr=sspec(is)%nr
+        rmt=sspec(is)%rmt
 
 Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
 Cgetarg         call upack2('spec rg',sspec,is,rg)
-         
-         rg=sspec(is)%rg
+
+        rg=sspec(is)%rg
 
         if (lmxl .eq. -1) goto 10
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         qc = qcorg+qcorh
         nlml = (lmxl+1)**2
 Cdelw1         call radmsh(rmt,a,nr,w(orofi))
-         call radmsh ( rmt , a , nr , rv_w_orofi ) 
+        call radmsh ( rmt , a , nr , rv_w_orofi )
 
 Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
-         call radwgt ( rmt , a , nr , rv_w_orwgt ) 
+        call radwgt ( rmt , a , nr , rv_w_orwgt )
 
 Cdelw1         call defrr(oh,   nr*(kmax+1)*(lmxl+1))
-         allocate(rv_w_oh(nr*(kmax+1)*(lmxl+1)))
+        allocate(rv_w_oh(nr*(kmax+1)*(lmxl+1)))
 Ctakao_ZeroClear_NotRequiered          if (nr*(kmax+1)*(lmxl+1)<0) rv_w_oh(:)=0.0d0
 
 Cdelw1 1 is digit, dropped
@@ -131,27 +131,27 @@ Cdelw1 3 is digit, dropped
 Cdelw1         call pvrgkl(mode,kmax,nlml,nr,nsp,w(orofi),w(orwgt),
 Cdelw1      .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)),w(oh),
 Cdelw1      .    cofh,rg,ceh,rfoc,z,qkl(0,j1))
-         call pvrgkl ( mode , kmax , nlml , nr , nsp , rv_w_orofi , rv_w_orwgt 
+        call pvrgkl ( mode , kmax , nlml , nr , nsp , rv_w_orofi , rv_w_orwgt 
      .   , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
      .   ( 3 , ib ) ) , rv_w_oh , cofh , rg , ceh , rfoc , z , qkl ( 0 
-     .   , j1 ) ) 
+     .   , j1 ) )
 
-Cdelw1 rlse name= oh old_list= orofi orwgt oh 
-Cdelw1 rlse name= oh new_list= orofi orwgt 
+Cdelw1 rlse name= oh old_list= orofi orwgt oh
+Cdelw1 rlse name= oh new_list= orofi orwgt
 Cdelw1         call rlse(oh)
-         if (allocated(rv_w_oh)) deallocate(rv_w_oh)
+        if (allocated(rv_w_oh)) deallocate(rv_w_oh)
 
         if (ipr .ge. 40) then
           write(stdo,222) ib,0,1,(qkl(k,j1), k=0,kmax)
           ilm = 1
           do  l = 1, lmxl
-          do  m = -l, l
-            ilm = ilm+1
-            j = j1+ilm-1
-            if (dabs(qkl(0,j))*df(2*l+1).gt.1d-6) write(stdo,220) 0,ilm,
+            do  m = -l, l
+              ilm = ilm+1
+              j = j1+ilm-1
+              if (dabs(qkl(0,j))*df(2*l+1).gt.1d-6) write(stdo,220) 0,ilm,
      .        (qkl(k,j)*df(2*l+1),k=0,kmax)
 
-          enddo
+            enddo
           enddo
         endif
   222   format(2x,'ib=',i3,i5,i6,10f12.6)
@@ -159,15 +159,15 @@ Cdelw1         call rlse(oh)
   221   format(/' rhogkl:    k   ilm      qkl (2l+1)!! ...')
 #if DEBUG
         if (ib .eq. 1) then
-        print *, 'ib=',ib
+          print *, 'ib=',ib
 Cdelw1 1 is digit, dropped
 Cdelw1 2 is digit, dropped
 Cdelw1 3 is digit, dropped
 Cdelw1         call prtrkl(mode,kmax,rg,nr,nlml,nsp,w(orofi),w(orhoat(1,ib)),
 Cdelw1      .    w(orhoat(2,ib)),w(orhoat(3,ib)),qkl(0,j1))
-         call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rv_w_orofi 
+          call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rv_w_orofi 
      .   , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
-     .   ( 3 , ib ) ) , qkl ( 0 , j1 ) ) 
+     .   ( 3 , ib ) ) , qkl ( 0 , j1 ) )
 
         endif
 #endif
@@ -175,18 +175,18 @@ Cdelw1      .    w(orhoat(2,ib)),w(orhoat(3,ib)),qkl(0,j1))
    10   continue
       enddo
 
-Cdelw1 rlse name= orofi old_list= orofi orwgt 
+Cdelw1 rlse name= orofi old_list= orofi orwgt
 Cdelw1 rlse name= orofi new_list= (None)
 Cdelw1       call rlse(orofi)
-       if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
-       if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+      if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+      if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
 
 Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [orhoat]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine rhogkl 
+      end subroutine rhogkl
 
 
       subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc,
@@ -252,7 +252,7 @@ C     call prrmsh('rho2',rofi,rho2,nr,nr,nlml*nsp)
       call stdfac(20,df)
       call vecpkl(rofi,rg,nr,kmax,lmxl,nr,kmax,wk,1,pkl,pkl)
 C     Non-vectorized form ... should be able to integrate with
-C     either pkl -> gkl exp, or with gkl -> pkl exp, but 
+C     either pkl -> gkl exp, or with gkl -> pkl exp, but
 C     something is wrong ...  doesn't work
 C      do  i = 1, nr
 C        call radgkl(rofi(i),rg,kmax,lmxl,kmax,wk2)
@@ -267,36 +267,36 @@ C      enddo
 
 C ... rho1-rho2 contribution (or rho1, or rho2, depending on mode)
       if (mod(mode,10) .gt. 0) then
-      if (mod(mode,10) .eq. 1) then
-        f1 = 1
-        f2 = -1
-      elseif (mod(mode,10) .eq. 2) then
-        f1 = 1
-        f2 = 0
-      elseif (mod(mode,10) .eq. 3) then
-        f1 = 0
-        f2 = 1
-      else
-        call rx('rhogkl: bad mode')
-      endif
-      ilm = 0
-      do  l = 0, lmxl
-        do  m = -l, l
-          ilm = ilm+1
-          do  k = 0, kmax
-            do  i = 1, nr
+        if (mod(mode,10) .eq. 1) then
+          f1 = 1
+          f2 = -1
+        elseif (mod(mode,10) .eq. 2) then
+          f1 = 1
+          f2 = 0
+        elseif (mod(mode,10) .eq. 3) then
+          f1 = 0
+          f2 = 1
+        else
+          call rx('rhogkl: bad mode')
+        endif
+        ilm = 0
+        do  l = 0, lmxl
+          do  m = -l, l
+            ilm = ilm+1
+            do  k = 0, kmax
+              do  i = 1, nr
 C             If rg is small enough, these should all integrate to 1
 C             call radgkl(rofi(i),rg,kmax,lmxl,kmax,gkl)
 C              if (m .eq. -l) qkl(k,ilm) = qkl(k,ilm) +
 C     .          rwgt(i)*rofi(i)**(2+l) * gkl(k,l) * pkl(i,k,l)
-              do  isp = 1, nsp
-                qkl(k,ilm) = qkl(k,ilm) + rwgt(i) * pkl(i,k,l) *
+                do  isp = 1, nsp
+                  qkl(k,ilm) = qkl(k,ilm) + rwgt(i) * pkl(i,k,l) *
      .            (f1*rho1(i,ilm,isp) + f2*rho2(i,ilm,isp))
+                enddo
               enddo
             enddo
           enddo
         enddo
-      enddo
       endif
 
 C ... Core part (spec'd by 10s digit mode)
@@ -304,19 +304,19 @@ C ... Core part (spec'd by 10s digit mode)
         do  k = 0, kmax
           do  isp = 1, nsp
 C         Case 1 or 3: add core density
-          if (mod(mod(mode/10,10),2) .ne. 0) then
-            do  i = 1, nr
-              qkl(k,1) = qkl(k,1) + y0*rwgt(i)*rhoc(i,isp)*pkl(i,k,0)
-            enddo
-          endif
+            if (mod(mod(mode/10,10),2) .ne. 0) then
+              do  i = 1, nr
+                qkl(k,1) = qkl(k,1) + y0*rwgt(i)*rhoc(i,isp)*pkl(i,k,0)
+              enddo
+            endif
 C         Case 2 or 3: subtract core density from sm. Hankel
-          if (mod(mode/10,10) .ge. 2) then
-            do  i = 1, nr
-              call hansmr(rofi(i),ceh,1/rfoc,xi,1)
-              smrch = cofh*xi(0)*rofi(i)**2
-              qkl(k,1) = qkl(k,1) - rwgt(i)*smrch*pkl(i,k,0)
-            enddo
-          endif
+            if (mod(mode/10,10) .ge. 2) then
+              do  i = 1, nr
+                call hansmr(rofi(i),ceh,1/rfoc,xi,1)
+                smrch = cofh*xi(0)*rofi(i)**2
+                qkl(k,1) = qkl(k,1) - rwgt(i)*smrch*pkl(i,k,0)
+              enddo
+            endif
           enddo
         enddo
       endif
@@ -349,7 +349,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine pvrgkl 
+      end subroutine pvrgkl
 
 #if DEBUG
       subroutine prtrkl(opt,kmax,rg,nr,nlml,nsp,rofi,rho1,rho2,rhoc,qkl)
@@ -383,13 +383,13 @@ C       call radpkl(rofi(ir),rg,kmax,lmxl,kmax,g)
         call radgkl(rofi(ir),rg,kmax,lmxl,kmax,g)
         ilm = 0
         do  l = 0, lmxl
-        do  m = -l, l
-          ilm = ilm+1
-          do  k = 0, kmax
-            rhop(ir,ilm,1) = rhop(ir,ilm,1) +
+          do  m = -l, l
+            ilm = ilm+1
+            do  k = 0, kmax
+              rhop(ir,ilm,1) = rhop(ir,ilm,1) +
      .        qkl(k,ilm) * g(k,l) * rofi(ir)**(2+l)
+            enddo
           enddo
-        enddo
         enddo
       enddo
       call prrmsh('fit rho',rofi,rhop,nr,nr,nlml)
@@ -401,7 +401,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine prtrkl 
+      end subroutine prtrkl
 
 #endif
 

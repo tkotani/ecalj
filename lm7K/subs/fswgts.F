@@ -18,21 +18,25 @@ C Local parameters
 
       vw4 = volwgt/4
       do  22  i = 1, 4
-      w(i,1) = 0d0
-   22 w(i,2) = 0d0
+        w(i,1) = 0d0
+        w(i,2) = 0d0
+   22 continue
       if (ef .ge. etop) then
         do  23  i = 1, 4
-   23   w(i,1) = vw4
+          w(i,1) = vw4
+   23   continue
         return
       endif
 
 C --- Sort energies into ec ---
       do  2  i = 1, 4
-    2 ex(i) = e(i)
+        ex(i) = e(i)
+    2 continue
       do  3  i = 1, 4
         i00 = 1
         do  4  j = 2, 4
-    4   if (ex(j) .lt. ex(i00)) i00 = j
+          if (ex(j) .lt. ex(i00)) i00 = j
+    4   continue
         ec(i) = ex(i00)
         isort(i) = i00
         ex(i00) = etop + 1d0
@@ -82,9 +86,10 @@ C --- Case Ef between e3,e4 ---
       endif
 C --- Bloechl correction ---
       do  40  m = 1, 4
-      w2(m) = 0d0
+        w2(m) = 0d0
       do  40  n = 1, 4
-   40 w2(m) = w2(m) + (ec(n)-ec(m))*df/40
+        w2(m) = w2(m) + (ec(n)-ec(m))*df/40
+   40 continue
 C ----------------------------------------------
       do  35  i = 1, 4
         j = isort(i)

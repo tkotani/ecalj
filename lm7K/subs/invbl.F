@@ -34,7 +34,7 @@ C Intrinsic functions
       twopi = 8*datan(1d0)
 
       call rxx(nsp.ne.1,'INVBL: not set up for spin')
-      
+
       wt = 1d0 / nk
       ifi = fopn('RSH')
       if (bk(1) .eq. 0d0 .and. bk(2) .eq. 0d0 .and. bk(3) .eq. 0d0
@@ -79,14 +79,14 @@ C --- loop over all pairs ---
             ipa = indxsh(offa)
             if (ipa .le. ldim .and. ipb .le. ldim) then
               hrs(lma,lmb,isite) = hrs(lma,lmb,isite) +
-     .       (hk(ipa,ipb,1)*cosT + hk(ipa,ipb,2)*sinT) * wt   
+     .       (hk(ipa,ipb,1)*cosT + hk(ipa,ipb,2)*sinT) * wt
               if (lov) then
                 srs(lma,lmb,isite) = srs(lma,lmb,isite) +
-     .         (sk(ipa,ipb,1)*cosT + sk(ipa,ipb,2)*sinT) * wt   
+     .         (sk(ipa,ipb,1)*cosT + sk(ipa,ipb,2)*sinT) * wt
               endif
               if (lasa) then
                 strx(lma,lmb,isite) = strx(lma,lmb,isite) +
-     .         (strxk(ipa,ipb,1)*cosT + strxk(ipa,ipb,2)*sinT) * wt   
+     .         (strxk(ipa,ipb,1)*cosT + strxk(ipa,ipb,2)*sinT) * wt
               endif
             endif
           enddo
@@ -103,7 +103,7 @@ Ci Inputs: lasa: std ordering of harmonics, if F empirical TB ordering
 Ci         lov:  non orthogonal (write O as well as H)
 Ci         lgamma: gamma representation used in secmat
 Ci         nl,nbas,plat,pos,alat,dclabl,ipc nsite,iax (pairc.f)
-Ci         hrs, srs, srx: real space H, O and strux 
+Ci         hrs, srs, srx: real space H, O and strux
 Ci                        formatted as in asastr.f
 Ci                        note that srx is actually sqr(del) S sqr(del)
 Ci                        (see invbl)
@@ -216,7 +216,7 @@ C .. get onsite strux
               call strcop(outs,clabli,8,' ',i)
               call awrit1('(%i)',outs(i+1:50),5,0,ib)
               j = i + 1
-              call skp2bl(outs,50,j) 
+              call skp2bl(outs,50,j)
               if (lasa) then
                 call strcop(outs(j+2:50),orb1(lma),8,' ',i)
               else
@@ -322,9 +322,9 @@ C     .              + 2d0*cmenu(icb,lmb)*ob*enu(icb,lmb)
 C- Clean up "zero's"
 C ----------------------------------------------------------------------
 Ci Inputs:
-Ci   
+Ci
 Co Outputs:
-Co   
+Co
 Cr Remarks
 Cr   I don't know why you need to do this. I think it's the Intel
 Cr   compiler, but numbers that are zero can appear as -0 and this
@@ -342,14 +342,14 @@ C Local Variables
         if (dabs(a(i)) .lt. 1d-7) a(i) = 0d0
       enddo
       end
-     
+
       subroutine wripp(nl,nsp,nclass,pp,dclabl,ifi)
 C- Write potential parameters to RSH file
 C ----------------------------------------------------------------------
 Ci Inputs:
-Ci   
+Ci
 Co Outputs:
-Co   
+Co
 Cr Remarks
 C ----------------------------------------------------------------------
 C     implicit none

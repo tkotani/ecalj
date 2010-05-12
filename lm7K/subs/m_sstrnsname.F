@@ -22,13 +22,13 @@ C ----------------------------------------------------------------
       integer::ix
       iend=-1
       sname='xxxxxxxxxxxxxxxxxxxx'
-      sname(1)='strn mix'   
-      sname(2)='strn symg'  
+      sname(1)='strn mix'
+      sname(2)='strn symg'
       sname(3)='strn jobid'
       sname(4)='strn map'
       sname(5)='strn amix'
-      sname(6)='strn mmham' 
-      sname(7)='strn sxopt' 
+      sname(6)='strn mmham'
+      sname(7)='strn sxopt'
       sname(8)='strn gfopt'
       do ix=1,nsname
         init(ix)=nx*(ix-1)+1

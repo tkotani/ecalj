@@ -56,7 +56,7 @@ C --- Loop over spins and sum over bands ---
 
             do  2  jsp = 1, nspc
 C       ... ksp is isp for uncoupled spins, and jsp for coupled spins
-            ksp = max(jsp,isp)
+              ksp = max(jsp,isp)
 
 C       ... Accumulate no. states assuming constant wt from this tet
             do  2  ichan = 1, nchan
@@ -78,7 +78,8 @@ C --- DOS from finite difference of NOS ---
       do  11  isp  = 1, nsp
       do  11  ichan = 1, nchan
         do  10  i = 2, npts - 1
-   10   wk(i) = (zos(i+1,isp,ichan) - zos(i-1,isp,ichan)) / bin
+          wk(i) = (zos(i+1,isp,ichan) - zos(i-1,isp,ichan)) / bin
+   10   continue
         wk(1)    = wk(2)
         wk(npts) = wk(npts-1)
         call dcopy(npts,wk,1,zos(1,isp,ichan),1)

@@ -20,7 +20,7 @@ Co   excc  :correlation-only part of exc
 Co   vxcc  :correlation-only part of vxc
 Cr Remarks
 Cu Updates
-Cu   25 Jul 08 Fixed bug in CA functional when rho>0 and rhosp=0 
+Cu   25 Jul 08 Fixed bug in CA functional when rho>0 and rhosp=0
 Cu    8 Feb 02 vxcx and vxcc (T. Miyake)
 Cu   14 Jan 02 excx and excc (T. Miyake)
 C ----------------------------------------------------------------------
@@ -73,7 +73,7 @@ C --- Vosko-Ceperley-Alder, spin polarized case ---
             ucp  = excp - ap/3d0*(1d0-tp1-cp3*(x/(x-xp0)-tp1-xp0*x/xpx))
 
             xfx = x*x+bf*x + cf
-C           s = 2*rhosp/rho-1 
+C           s = 2*rhosp/rho-1
             s = min(max(2*rhosp(i)/rho(i)-1d0,-1d0),1d0)
 C           sth -> (2*rhosp/rho)^1/3 as rhosp->0
             sth = (s+1d0)**th

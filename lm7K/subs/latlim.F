@@ -12,7 +12,7 @@ Cr Remarks
 Cr   Define I_jk = \vec r_i \dot \vec r_j, where r is a lattice vector
 Cr   and define a vector \vec v as some (non-integral) multiples
 Cr   \vec \alpha of the \vec r_j, which has square length
-Cr   v^2 = \sum_jk \alpha_j \alpha_k I_jk.  Then want to maximize the 
+Cr   v^2 = \sum_jk \alpha_j \alpha_k I_jk.  Then want to maximize the
 Cr   \alpha_j subject to constraint that  v^2 = rmax^2.
 Cr   The result turns out to be \alpha_j = rmax * (I^-1_jj)^1/2.
 Cr

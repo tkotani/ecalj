@@ -137,40 +137,40 @@ C --- Potential on extended mesh ---
 
       do  isp = 1, nsp
 C ... Extrapolate potential, if nrbig > nr
-      if (nr .lt. nrbig) then
+        if (nr .lt. nrbig) then
 
 C       Make r*(true V - vmtz) to facilitate 2nd derivative
-        do  ir = 2, nr
-          vbig(ir,isp) = (v(ir,isp) - 2*z/rofi(ir) - vmtz)*rofi(ir)
+          do  ir = 2, nr
+            vbig(ir,isp) = (v(ir,isp) - 2*z/rofi(ir) - vmtz)*rofi(ir)
 C         vbig(ir,isp) = exp(-2d0*rofi(ir))
-        enddo
+          enddo
 C       call prrmsh('v*r',rofi,vbig,nr,nr,1)
 
 C       First derivative in gbig; second derivative in gzbig
-        k = nr-2*nptirp+1
-        if (k .lt. 2) call rxi('vxtrap: nr too small, nr=',nr)
-        call poldvm(rofi(k),vbig(k,isp),2*nptirp,nptirp,.false.,1d-8,j,
+          k = nr-2*nptirp+1
+          if (k .lt. 2) call rxi('vxtrap: nr too small, nr=',nr)
+          call poldvm(rofi(k),vbig(k,isp),2*nptirp,nptirp,.false.,1d-8,j,
      .    gbig(k))
-        call poldvm(rofi(k),gbig(k),2*nptirp,nptirp,.false.,1d-8,j,
+          call poldvm(rofi(k),gbig(k),2*nptirp,nptirp,.false.,1d-8,j,
      .    gzbig(k))
 C       call prrmsh('v 1st d',rofi(k),gbig(k),2*nptirp,2*nptirp,1)
 C       call prrmsh('v 2nd d',rofi(k),gzbig(k),2*nptirp,2*nptirp,1)
 
 C       Use r*V' = (rV)' - V
-        phi  = vbig(nr,isp)/rofi(nr)
-        dphi = (gbig(nr) - phi)/rofi(nr)
-        tphi = gzbig(nr)/vbig(nr,isp)
-        call info5(40/10,0,0,' vxtrap: extrapolate V using '//
+          phi  = vbig(nr,isp)/rofi(nr)
+          dphi = (gbig(nr) - phi)/rofi(nr)
+          tphi = gzbig(nr)/vbig(nr,isp)
+          call info5(40/10,0,0,' vxtrap: extrapolate V using '//
      .    'vmtz=%;3,3d  v-vmtz=%;3,3d  v''=%;3,3d  (nabla v)/v=%;3,3d',
      .    vmtz,phi,dphi,tphi,0)
-        call rwftai(3,rmax,a,nr,nrbig,rofi,phi,dphi,tphi,0,ehv,rs3,
+          call rwftai(3,rmax,a,nr,nrbig,rofi,phi,dphi,tphi,0,ehv,rs3,
      .    vbig(1,isp))
 
 C       Restore vbig to estimate for true V + 2Z/r
-        vbig(1,isp) = v(1,isp)
-        do  ir = 2, nrbig
-          vbig(ir,isp) = vbig(ir,isp)/rofi(ir) + 2*z/rofi(ir) + vmtz
-        enddo
+          vbig(1,isp) = v(1,isp)
+          do  ir = 2, nrbig
+            vbig(ir,isp) = vbig(ir,isp)/rofi(ir) + 2*z/rofi(ir) + vmtz
+          enddo
 
 C       For pictures ...
 C        do  ir = 2, nrbig
@@ -180,9 +180,9 @@ C        call prrmsh('vbig',rofi,vbig,nrmax,nrbig,nsp)
 C        stop
 
 C ... Just copy potential if nr = nrbig
-      else
-        call dcopy(nr,v(1,isp),1,vbig(1,isp),1)
-      endif
+        else
+          call dcopy(nr,v(1,isp),1,vbig(1,isp),1)
+        endif
       enddo
 
       end

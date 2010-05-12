@@ -46,15 +46,15 @@ Cgetarg...info...           structure ['lmaux', 'site', 'ssite']
 Cgetarg...info...           use_to_add ['lmaux', 'm_struc_def']
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite,sstr,
      .  sarray,sbz,slabl,sstrn,mode,wksize)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Auxilliary programs
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   prgnam:name of main program
 Ci   sctrl :struct for program flow parameters; see routine uctrl
-Ci     Elts read: nbas nclass nl nspec nspin lncol modep lpgf lrs,7 
+Ci     Elts read: nbas nclass nl nspec nspin lncol modep lpgf lrs,7
 Ci                omax1 omax2 wsrmax
 Ci     Stored:    *
 Ci     Passed to: asars supot asamad asvsph aioxtn
@@ -120,17 +120,17 @@ C ... Passed parameters
       character*8 slabl(*)
 Cgetarg       double precision sarray(1),sctrl(1),sham(1),spot(1),slat(1),
 Cgetarg      .  sspec(1),ssite(1),sstr(1),sbz(1)
-       type(s_array)::sarray
-       type(s_ctrl)::sctrl
-       type(s_ham)::sham
-       type(s_pot)::spot
-       type(s_lat)::slat
-       type(s_spec)::sspec(*)
-       type(s_site)::ssite(*)
-       type(s_str)::sstr
-       type(s_bz)::sbz
+      type(s_array)::sarray
+      type(s_ctrl)::sctrl
+      type(s_ham)::sham
+      type(s_pot)::spot
+      type(s_lat)::slat
+      type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_str)::sstr
+      type(s_bz)::sbz
 
-       type(s_site),allocatable::ssite2(:)
+      type(s_site),allocatable::ssite2(:)
 
 C ... Local parameters
       character*120 outs,fnam*8
@@ -161,20 +161,20 @@ Cdelw1      .  opp,oqc,oqnu,oqt,orhrmx,ormax,oves,ovrmax,owk,owk2,oclabl,
 Cdelw1      .  opos,opos2,oqlv,odlv,orham,oamsh,onrmsh,oalpha,oaamom,
 Cdelw1      .  onpr,ormt,olock,olockc,os,oz,ozz,ormx,oip,oips,oips2,opgfsl,
 Cdelw1      .  ontab,oiax,og,oag,ozc,mxclas,ormtc,oics
-       integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
+      integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
      . , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
      . , owk , owk2 , oclabl , opos , oqlv , odlv , orham , oamsh , 
      . onrmsh , oalpha , oaamom , onpr , os , ormx , oip , oips , opgfsl 
-     . , ontab , oiax , og , oag , mxclas , oics 
-       real(8) ,allocatable :: rv_w_opos2(:)
-       real(8) ,allocatable :: rv_w_ormt(:)
-       integer ,allocatable :: iv_w_olock(:)
-       real(8) ,allocatable :: rv_w_olockc(:)
-       real(8) ,allocatable :: rv_w_oz(:)
-       real(8) ,allocatable :: rv_w_ozz(:)
-       integer ,allocatable :: iv_w_oips2(:)
-       real(8) ,allocatable :: rv_w_ozc(:)
-       real(8) ,allocatable :: rv_w_ormtc(:)
+     . , ontab , oiax , og , oag , mxclas , oics
+      real(8) ,allocatable :: rv_w_opos2(:)
+      real(8) ,allocatable :: rv_w_ormt(:)
+      integer ,allocatable :: iv_w_olock(:)
+      real(8) ,allocatable :: rv_w_olockc(:)
+      real(8) ,allocatable :: rv_w_oz(:)
+      real(8) ,allocatable :: rv_w_ozz(:)
+      integer ,allocatable :: iv_w_oips2(:)
+      real(8) ,allocatable :: rv_w_ozc(:)
+      real(8) ,allocatable :: rv_w_ormtc(:)
 
       double precision xv(10),xx,alat,plat(3,3),facrmx,facrng, !,plat2(9)
      .  dval,avw,ekap(2),enu,rmaxs,qss(4),ckbas,cksumf,ehterm(4),
@@ -193,7 +193,7 @@ ctakao
 c      real(8),allocatable::idmod(:,:), z(:),amsh(:),rmax(:), nrmsh(:)
       real(8),allocatable:: z(:),rmax(:)
 
-      print *,' lmaux:' 
+      print *,' lmaux:'
 
 Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
 Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
@@ -202,23 +202,23 @@ Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
 Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
 Cgetarg       call upack('ctrl nbas nclass nl nspec nspin',sctrl,nbas,nclass,nl,
 Cgetarg      .  nspec,nsp)
-       
-       nbas=sctrl%nbas
-       nclass=sctrl%nclass
-       nl=sctrl%nl
-       nspec=sctrl%nspec
-       nsp=sctrl%nspin
+
+      nbas=sctrl%nbas
+      nclass=sctrl%nclass
+      nl=sctrl%nl
+      nspec=sctrl%nspec
+      nsp=sctrl%nspin
 
 Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
 Cgetarg...info...           integer :: modep(3) , integer(8) :: sctrl%modep 3
 Cgetarg       call upack('ctrl lncol modep',sctrl,lncol,modep,0,0,0)
-       
+
 c       lncol=sctrl%lncol
-       i_copy_size=size(sctrl%modep) 
-       call i8icopy(i_copy_size,sctrl%modep,1,modep,1) 
+      i_copy_size=size(sctrl%modep)
+      call i8icopy(i_copy_size,sctrl%modep,1,modep,1)
 
 Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
-c       lpgf = int(sctrl%lpgf(1)) 
+c       lpgf = int(sctrl%lpgf(1))
 
 C     lpbc = 0 for pbc in 3 dimensions, 11 pgf padded geometry
       lpbc = 0
@@ -229,17 +229,17 @@ Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
 Cgetarg...info...           integer :: onrc , integer(8) :: sarray%onrc 1
 Cgetarg       call upack('array ohave oics oclabl onrc',sarray,oinitc,oics,
 Cgetarg      .  oclabl,onrc,0)
-       
-       oinitc=sarray%ohave
+
+      oinitc=sarray%ohave
 Cdelw1 warning(1) , probably  oics  is not defined yet at linenumber= 168
 Cdelw1 do not change oics because of ['undef', 'wref']
-       oics=sarray%oics
+      oics=sarray%oics
 Cdelw1 warning(1) , probably  oclabl  is not defined yet at linenumber= 169
 Cdelw1 do not change oclabl because of ['undef', 'wref']
-       oclabl=sarray%oclabl
+      oclabl=sarray%oclabl
 Cdelw1 warning(1) , probably  onrc  is not defined yet at linenumber= 170
 Cdelw1 do not change onrc because of ['wref']
-       onrc=sarray%onrc
+      onrc=sarray%onrc
 ccc
 
 Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
@@ -249,39 +249,39 @@ Cgetarg...info...           integer :: opgfsl , integer(8) :: sarray%opgfsl 1
 Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
 Cgetarg       call upack('array npadl npadr nclasp opgfsl ormax',sarray,npadl,
 Cgetarg      .  npadr,nclasp,opgfsl,ormax)
-       
+
 c       npadl=sarray%npadl
 c       npadr=sarray%npadr
-       nclasp=sarray%nclasp
+      nclasp=sarray%nclasp
 c       opgfsl=sarray%opgfsl
 Cdelw1 warning(1) , probably  ormax  is not defined yet at linenumber= 185
 Cdelw1 do not change ormax because of ['wref']
-       ormax=sarray%ormax
+      ormax=sarray%ormax
 
 Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
 Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
 Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
 Cgetarg       call upack('array opos oipc oips',sarray,opos,oipc,oips,0,0)
-       
+
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 192
 Cdelw1 do not change opos because of ['undef', 'wref']
-       opos=sarray%opos
+      opos=sarray%opos
 Cdelw1 warning(1) , probably  oipc  is not defined yet at linenumber= 193
 Cdelw1 do not change oipc because of ['undef', 'wref']
-       oipc=sarray%oipc
+      oipc=sarray%oipc
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 194
 Cdelw1 do not change oips because of ['undef', 'wref']
-       oips=sarray%oips
+      oips=sarray%oips
 
 Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
 Cgetarg...info...           integer :: neul , integer(8) :: sham%neula 1
 Cgetarg...info...           real(8) :: qss(4) , real(8) :: sham%qss 4
 Cgetarg       call upack('ham oeula neula qss',sham,oeula,neul,qss,0,0)
-       
+
 c       oeula=sham%oeula
 c       neul=sham%neula
-c       i_copy_size=size(sham%qss) 
-c       call dcopy(i_copy_size,sham%qss,1,qss,1) 
+c       i_copy_size=size(sham%qss)
+c       call dcopy(i_copy_size,sham%qss,1,qss,1)
 
 Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
 Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
@@ -289,16 +289,16 @@ Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
 Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
 Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
 Cgetarg       call upack('pot opnu oqnu opp oqc oqt',spot,opnu,oqnu,opp,oqc,oqt)
-       
+
 Cdelw1 warning(1) , probably  opnu  is not defined yet at linenumber= 213
 Cdelw1 do not change opnu because of ['undef', 'wref']
-       opnu=spot%opnu
+      opnu=spot%opnu
 Cdelw1 warning(1) , probably  oqnu  is not defined yet at linenumber= 214
 Cdelw1 do not change oqnu because of ['undef', 'wref']
-       oqnu=spot%oqnu
-       opp=spot%opp
-       oqc=spot%oqc
-       oqt=spot%oqt
+      oqnu=spot%oqnu
+      opp=spot%opp
+      oqc=spot%oqc
+      oqt=spot%oqt
 
 Cgetarg...info...           integer :: oaamom , integer(8) :: spot%oaamom 1
 Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
@@ -306,44 +306,44 @@ Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 Cgetarg...info...           integer :: ovrmax , integer(8) :: spot%ovrmax 1
 Cgetarg       call upack('pot oaamom orhrmx oves ovrmax',spot,oaamom,orhrmx,
 Cgetarg      .  oves,ovrmax,0)
-       
-       oaamom=spot%oaamom
-       orhrmx=spot%orhrmx
+
+      oaamom=spot%oaamom
+      orhrmx=spot%orhrmx
 Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 228
 Cdelw1 do not change oves because of ['undef', 'wref']
-       oves=spot%oves
-       ovrmax=spot%ovrmax
+      oves=spot%oves
+      ovrmax=spot%ovrmax
 
 Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: plat2(9) , real(8) :: slat%plat2 9
 Cgetarg       call upack('lat avw alat plat plat2',slat,avw,alat,plat,plat2,0)
-       
-       avw=slat%avw
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-c       i_copy_size=size(slat%plat2) 
-c       call dcopy(i_copy_size,slat%plat2,1,plat2,1) 
+
+      avw=slat%avw
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+c       i_copy_size=size(slat%plat2)
+c       call dcopy(i_copy_size,slat%plat2,1,plat2,1)
 
 Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
 Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
 Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
 Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
 Cgetarg       call upack('lat nkd odlv nkq oqlv',slat,nkd,odlv,nkq,oqlv,0)
-       
-       nkd=slat%nkd
-       odlv=slat%odlv
-       nkq=slat%nkq
-       oqlv=slat%oqlv
+
+      nkd=slat%nkd
+      odlv=slat%odlv
+      nkq=slat%nkq
+      oqlv=slat%oqlv
 
 Cgetarg...info...           integer :: mxnbr , integer(8) :: sstr%mxnbr 1
 Cgetarg...info...           real(8) :: rmaxs , real(8) :: sstr%rmax 1
 Cgetarg       call upack2('str mxnbr rmax',sstr,mxnbr,rmaxs)
-       
-       mxnbr=sstr%mxnbr
-       rmaxs=sstr%rmax
+
+      mxnbr=sstr%mxnbr
+      rmaxs=sstr%rmax
 
 ctakao
 c      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx) --->lmxa
@@ -372,7 +372,7 @@ Cdelw1 do not change opos because of ['undef', 'wref']
 C ... Read from restart file
       if (cmdopt('--rs=',5,0,outs)) then
 Cgetarg         irs(1) = igets('ctrl lrs,7',sctrl)
-         irs ( 1 ) = iand(7,int(sctrl%lrs)) 
+        irs ( 1 ) = iand(7,int(sctrl%lrs))
 
         if (irs(1) .gt. 0) then
           ifi = fopna('rsta',-1,0)
@@ -391,112 +391,112 @@ C         call rx('done')
 C --- Neighbor tables and sphere overlaps ---
       if (getdig(mode,0,2) .ne. 0) then
 
-      if (rmaxs .le. 0d0) then
-        rmaxs = 2.7d0*avw
-        call info5(30,0,0,'%1f'//
+        if (rmaxs .le. 0d0) then
+          rmaxs = 2.7d0*avw
+          call info5(30,0,0,'%1f'//
      .    'Use default rmaxs = %;3d a.u. = %;3d*avw = %;3d*alat',
      .    rmaxs,rmaxs/avw,rmaxs/alat,0,0)
-      endif
+        endif
 
 C ... Get neighbor table iax for each atom in the cluster
-      if (lpbc .eq. 0) then
-        i = 3
-        j = -1
-      elseif (lpbc .eq. 1 .or. lpbc .eq. 11) then
-        i = 2
-        j = 1
-      else
-        call rx('ASASTR: not implemented for lpbc>1')
-      endif
+        if (lpbc .eq. 0) then
+          i = 3
+          j = -1
+        elseif (lpbc .eq. 1 .or. lpbc .eq. 11) then
+          i = 2
+          j = 1
+        else
+          call rx('ASASTR: not implemented for lpbc>1')
+        endif
 Cgetarg       mxcsiz = igets('str mxnbr',sstr)
-      mxcsiz = int(sstr%mxnbr) 
+        mxcsiz = int(sstr%mxnbr)
 
-      call pshpr(iprint()-20)
+        call pshpr(iprint()-20)
 c      call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
 c     .  -1,i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 323
 Cdelw1 do not change opos because of ['undef', 'wref']
-      call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
+        call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
      .  -1,i,j,w_dummy,nttab,ontab,oiax,mxcsiz)
-      call poppr
+        call poppr
 
 C --- Print out a few superlattice vectors ---
-      j = 6
-      if (cmdopt('--slat',j-1,0,outs)) then
-      if (iprint() .ge. 10) then
-        call info0(10,1,0,' LMCHK:  print multiples of plat%N'//
+        j = 6
+        if (cmdopt('--slat',j-1,0,outs)) then
+          if (iprint() .ge. 10) then
+            call info0(10,1,0,' LMCHK:  print multiples of plat%N'//
      .    '  i1  i2  i3%7fx%11fy%11fz%11flen')
-        do  i = -2, 2
-        do  j = -2, 2
-        do  k = -2, 2
-        xx = 0
-        do  m = 1, 3
-          xv(m) = i*plat(m,1) + j*plat(m,2) + k*plat(m,3)
-          xx = xx + xv(m)**2
-        enddo
-        xx = dsqrt(xx)
-        print 368, i,j,k, xv(1), xv(2), xv(3), xx
-  368   format(3i4, 3f12.7, 1x, f12.5)
-        enddo
-        enddo
-        enddo
-      endif
-      endif
+            do  i = -2, 2
+              do  j = -2, 2
+                do  k = -2, 2
+                  xx = 0
+                  do  m = 1, 3
+                    xv(m) = i*plat(m,1) + j*plat(m,2) + k*plat(m,3)
+                    xx = xx + xv(m)**2
+                  enddo
+                  xx = dsqrt(xx)
+                  print 368, i,j,k, xv(1), xv(2), xv(3), xx
+  368             format(3i4, 3f12.7, 1x, f12.5)
+                enddo
+              enddo
+            enddo
+          endif
+        endif
 
 C --- Find sphere overlaps ---
-      j = 9
-      ifx=0
-      if (cmdopt('--getwsr',j-1,0,outs)) then
-        call info(10,1,0,' ... Make sphere radii',0,0)
+        j = 9
+        ifx=0
+        if (cmdopt('--getwsr',j-1,0,outs)) then
+          call info(10,1,0,' ... Make sphere radii',0,0)
 C        xx = dglob('lrel',1d0,1)
 C        xx = dglob('nsp',1d0,1)
 C       Initial estimate for sphere radii: overlapping atom potentials
 Cdelw1         call defrr(ozz,nspec)
-         allocate(rv_w_ozz(nspec))
+          allocate(rv_w_ozz(nspec))
 Ctakao_ZeroClear_NotRequiered          if (nspec<0) rv_w_ozz(:)=0.0d0
 
 Cgetarg         call spackv(10,'spec z',sspec,1,nspec,w(ozz))
-         i_copy_size=1; 
-         do i_spackv=1,nspec 
+          i_copy_size=1;
+          do i_spackv=1,nspec
 Cdelw1          call spackv_array_copy_r8_r8('u',sspec(i_spackv)%z,i_copy_size,i_spackv+1-1,w(ozz))
-          call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %z , 
-     .    i_copy_size , i_spackv + 1 - 1 , rv_w_ozz ) 
+            call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %z , 
+     .    i_copy_size , i_spackv + 1 - 1 , rv_w_ozz )
 
-         enddo
+          enddo
 
 Cdelw1         call defrr(ormt,nspec)
-         allocate(rv_w_ormt(nspec))
+          allocate(rv_w_ormt(nspec))
 Ctakao_ZeroClear_NotRequiered          if (nspec<0) rv_w_ormt(:)=0.0d0
 
 Cgetarg         call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
-         i_copy_size=1; 
-         do i_spackv=1,nspec 
+          i_copy_size=1;
+          do i_spackv=1,nspec
 Cdelw1          call spackv_array_copy_r8_r8('u',sspec(i_spackv)%rmt,i_copy_size,i_spackv+1-1,w(ormt))
-          call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rmt 
-     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_ormt ) 
+            call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rmt 
+     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_ormt )
 
-         enddo
+          enddo
 
 Cdelw1         call defi(olock,-nspec)
-         allocate(iv_w_olock(abs(-nspec)))
-         if (-nspec<0) iv_w_olock(:)=0
+          allocate(iv_w_olock(abs(-nspec)))
+          if (-nspec<0) iv_w_olock(:)=0
 
-        do  i = 1, nspec
+          do  i = 1, nspec
 Cgetarg         call ivset(w(olock),i,i,bitand(igetss('spec mxcst',i,sspec),2))
-Cdelw1          call ivset ( w ( olock ) , i , i , bitand ( int(sspec(i)%mxcst) 
-Cdelw1      .   , 2 ) ) 
-          call ivset ( iv_w_olock , i , i , bitand ( int ( sspec ( i ) 
-     .    %mxcst ) , 2 ) ) 
+Cdelw1          call ivset ( w ( olock ) , i , i , bitand ( int(sspec(i)%mxcst)
+Cdelw1      .   , 2 ) )
+            call ivset ( iv_w_olock , i , i , bitand ( int ( sspec ( i ) 
+     .    %mxcst ) , 2 ) )
 
 
-        enddo
-        if (lpbc .eq. 0) then
-          i = 3
-        elseif (lpbc .eq. 1 .or. lpbc .eq. 11) then
-          i = 2
-        else
-          call rx('LMAUX: not implemented for lpbc>1')
-        endif
+          enddo
+          if (lpbc .eq. 0) then
+            i = 3
+          elseif (lpbc .eq. 1 .or. lpbc .eq. 11) then
+            i = 2
+          else
+            call rx('LMAUX: not implemented for lpbc>1')
+          endif
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 386
 Cdelw1 do not change opos because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 386
@@ -507,9 +507,9 @@ Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 386
 Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1         call makrm0(101,nspec,nbas,alat,plat,w(opos),slabl,w(oips),
 Cdelw1      .    modep,w(olock),w(ozz),w(ormt))
-         call makrm0 ( 101 , nspec , nbas , alat , plat , w ( opos ) , 
+          call makrm0 ( 101 , nspec , nbas , alat , plat , w ( opos ) , 
      .   slabl , w ( oips ) , modep , iv_w_olock , rv_w_ozz , rv_w_ormt 
-     .   ) 
+     .   )
 
 C   ... Scale sphere radii satisfying constraints
 Cgetarg...info...           real(8) :: omax1(3) , real(8) :: sctrl%omax1 3
@@ -517,12 +517,12 @@ Cgetarg...info...           real(8) :: omax2(3) , real(8) :: sctrl%omax2 3
 Cgetarg...info...           real(8) :: wsrmax , real(8) :: sctrl%wsrmax 1
 Cgetarg         call upack('ctrl omax1 omax2 wsrmax',sctrl,omax1,omax2,wsrmax,0,
 Cgetarg      .    0)
-         
-         i_copy_size=size(sctrl%omax1) 
-         call dcopy(i_copy_size,sctrl%omax1,1,omax1,1) 
-         i_copy_size=size(sctrl%omax2) 
-         call dcopy(i_copy_size,sctrl%omax2,1,omax2,1) 
-         wsrmax=sctrl%wsrmax
+
+          i_copy_size=size(sctrl%omax1)
+          call dcopy(i_copy_size,sctrl%omax1,1,omax1,1)
+          i_copy_size=size(sctrl%omax2)
+          call dcopy(i_copy_size,sctrl%omax2,1,omax2,1)
+          wsrmax=sctrl%wsrmax
 
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 401
 Cdelw1 do not change opos because of ['undef', 'wref']
@@ -534,53 +534,53 @@ Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 401
 Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1         call sclwsr(20,nbas,nbasp,nspec,alat,plat,w(opos),w(oips),modep,
 Cdelw1      .    slabl,w(ozz),w(olock),1d0,wsrmax,omax1,omax2,w(ormt))
-         call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , w ( opos 
+          call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , w ( opos 
      .   ) , w ( oips ) , modep , slabl , rv_w_ozz , iv_w_olock , 1d0 
-     .   , wsrmax , omax1 , omax2 , rv_w_ormt ) 
+     .   , wsrmax , omax1 , omax2 , rv_w_ormt )
 
 Cgetarg         call spackv(11,'spec rmt',sspec,1,nspec,w(ormt))
-         i_copy_size=1; 
-         do i_spackv=1,nspec 
+          i_copy_size=1;
+          do i_spackv=1,nspec
 Cdelw1          call spackv_array_copy_r8_r8('p',sspec(i_spackv)%rmt,i_copy_size,i_spackv+1-1,w(ormt))
-          call spackv_array_copy_r8_r8 ( 'p' , sspec ( i_spackv ) %rmt 
-     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_ormt ) 
+            call spackv_array_copy_r8_r8 ( 'p' , sspec ( i_spackv ) %rmt 
+     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_ormt )
 
-         enddo
+          enddo
 
-        nclspp = max(2*nclasp-nclass,nspec)
+          nclspp = max(2*nclasp-nclass,nspec)
 c takao
 c        call sp2cls('spec rmt',sspec,ics,1,1,nclspp,ormax)
-        allocate(rmax(nclspp))
-        print *,' zzzz nclspp=',nclspp
-        do i=1,nclspp
-          rmax(i) =sspec(ics(i))%rmt
-        enddo
+          allocate(rmax(nclspp))
+          print *,' zzzz nclspp=',nclspp
+          do i=1,nclspp
+            rmax(i) =sspec(ics(i))%rmt
+          enddo
 Cdelw1 do not change ormax because of ['wref']
-        call defdr(ormax,nclspp)
+          call defdr(ormax,nclspp)
 Cdelw1 do not change ormax because of ['wref']
-        call dcopy(nclspp,rmax,1,w(ormax),1)
+          call dcopy(nclspp,rmax,1,w(ormax),1)
 
 Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
 Cgetarg         call pack1('array ormax',sarray,ormax)
 Cdelw1 do not change ormax because of ['wref']
-         sarray%ormax=ormax 
-         ifx=1
-      endif
+          sarray%ormax=ormax
+          ifx=1
+        endif
 
 c-------
-      if(ifx==0) then
-        allocate(rmax(nclasp))
+        if(ifx==0) then
+          allocate(rmax(nclasp))
 Cdelw1 do not change ormax because of ['wref']
-        call dcopy(nclasp,w(ormax),1,rmax,1)
-      endif
-      
+          call dcopy(nclasp,w(ormax),1,rmax,1)
+        endif
+
 c
 
 
 C --- Show neighbors by shell ---
-      outs = ' '
-      j = 8
-      if (cmdopt('--shell',j-1,0,outs)) then
+        outs = ' '
+        j = 8
+        if (cmdopt('--shell',j-1,0,outs)) then
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 439
 Cdelw1 do not change opos because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 439
@@ -593,60 +593,60 @@ Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 439
 Cdelw1 do not change oves because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oeula  is not defined yet at linenumber= 439
 Cdelw1 do not change oeula because of ['undef', 'wref']
-        call shoshl(outs(j:),nbas,w(opos),plat,mxnbr,z,slabl,
+          call shoshl(outs(j:),nbas,w(opos),plat,mxnbr,z,slabl,
      .    w(oclabl),w(oips),w(oipc),w(oves),w(oeula),nclass)
-      endif
+        endif
 
 C --- Show angles between neighbors ---
-      j = 9
-      if (cmdopt('--angles',j-1,0,outs)) then
+        j = 9
+        if (cmdopt('--angles',j-1,0,outs)) then
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 446
 Cdelw1 do not change opos because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 446
 Cdelw1 do not change oips because of ['undef', 'wref']
-        call shoang(outs(j:),nbas,w(opos),plat,mxnbr,slabl,w(oips))
-      endif
+          call shoang(outs(j:),nbas,w(opos),plat,mxnbr,slabl,w(oips))
+        endif
 
 C --- Check whether basis w(opos) differs from site file by translation ---
-      j = 9
-      if (cmdopt('--basis=',j-1,0,outs)) then
+        j = 9
+        if (cmdopt('--basis=',j-1,0,outs)) then
 C       call upack('lat nsgrp osymgr',slat,ngrp,og,0,0,0)
-        fnam = outs(j:)
-        call info(20,1,0,' checking whether basis equivalent to file '
+          fnam = outs(j:)
+          call info(20,1,0,' checking whether basis equivalent to file '
      .    //fnam//'...',0,0)
-        j = iosits(8070,3d0,0,fnam,ifi,slabl,alat,plat,nbas,nspec,
+          j = iosits(8070,3d0,0,fnam,ifi,slabl,alat,plat,nbas,nspec,
      .    sspec,ssite)
 Cdelw1         call defrr(opos2,3*nbas)
-         allocate(rv_w_opos2(3*nbas))
+          allocate(rv_w_opos2(3*nbas))
 Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) rv_w_opos2(:)=0.0d0
 
 Cdelw1         call defi (oips2, nbas)
-         allocate(iv_w_oips2(nbas))
+          allocate(iv_w_oips2(nbas))
 Ctakao_ZeroClear_NotRequiered          if (nbas<0) iv_w_oips2(:)=0
 
 Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos2))
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbas 
+          i_copy_size=size(ssite(1)%pos)
+          do i_spackv=1,nbas
 Cdelw1          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
-          call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_opos2 ) 
+            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_opos2 )
 
-         enddo
+          enddo
 
 Cgetarg         call spackv(10,'site spec',ssite,1,nbas,w(oips2))
-         i_copy_size=1; 
-         do i_spackv=1,nbas 
+          i_copy_size=1;
+          do i_spackv=1,nbas
 Cdelw1          call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips2))
-          call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-     .    , i_copy_size , i_spackv + 1 - 1 , iv_w_oips2 ) 
+            call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
+     .    , i_copy_size , i_spackv + 1 - 1 , iv_w_oips2 )
 
-         enddo
+          enddo
 
 
 Cdelw1 do not change og because of ['wref']
-        call defrr(og,   9*ngmx)
+          call defrr(og,   9*ngmx)
 Cdelw1 do not change og because of ['wref']
-        call symlat(plat,ngrp,w(og),j)
+          call symlat(plat,ngrp,w(og),j)
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 475
 Cdelw1 do not change opos because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 475
@@ -659,53 +659,53 @@ Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1 do not change og because of ['wref']
 Cdelw1         j = cmplat(nbas,plat,plat,ngrp,w(og),w(oips),w(opos),w(oips2),
 Cdelw1      .    w(opos2))
-         j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , w ( oips 
-     .   ) , w ( opos ) , iv_w_oips2 , rv_w_opos2 ) 
+          j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , w ( oips 
+     .   ) , w ( opos ) , iv_w_oips2 , rv_w_opos2 )
 
-        call fexit(j,1,' Exit %i lmchk --basis= ...',j)
-      endif
+          call fexit(j,1,' Exit %i lmchk --basis= ...',j)
+        endif
 
 C ... Write positions in Cartesian coordinates and as multiples plat
-      if (iprint() .ge. 50) then
-      write(stdo,357)
-  357 format(/' site spec',8x,'pos (Cartesian coordinates)',9x,
+        if (iprint() .ge. 50) then
+          write(stdo,357)
+  357     format(/' site spec',8x,'pos (Cartesian coordinates)',9x,
      .  'pos (multiples of plat)')
 C     qlat = (plat+)^-1
-      call dinv33(plat,1,qlat,xx)
-      do  i = 1, nbas
+          call dinv33(plat,1,qlat,xx)
+          do  i = 1, nbas
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 488
 Cdelw1 do not change opos because of ['undef', 'wref']
-        call dpscop(w(opos),xv,3,3*i-2,1,1d0)
+            call dpscop(w(opos),xv,3,3*i-2,1,1d0)
 C       posp+ = (plat)^-1 pos+
-        call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
+            call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 491
 Cdelw1 do not change oips because of ['undef', 'wref']
-        ip = ival(w(oips),i)
-        print 345, i, slabl(ip), (xv(j),j=1,3), (xv(3+j),j=1,3)
-  345   format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
-      enddo
-      endif
+            ip = ival(w(oips),i)
+            print 345, i, slabl(ip), (xv(j),j=1,3), (xv(3+j),j=1,3)
+  345       format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
+          enddo
+        endif
 
 C --- Print overlaps, optionally minimize wrt spec'd sites ---
-      outs = ' '
-      i = 6
-      swtmp = cmdopt('-mino',5,0,outs)
-      swtmp = cmdopt('--mino',6,0,outs)
-      if (swtmp) i = 7
-      j = 1
-      if (iprint() .lt. 30) j = 0
+        outs = ' '
+        i = 6
+        swtmp = cmdopt('-mino',5,0,outs)
+        swtmp = cmdopt('--mino',6,0,outs)
+        if (swtmp) i = 7
+        j = 1
+        if (iprint() .lt. 30) j = 0
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 505
 Cdelw1 do not change opos because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oclabl  is not defined yet at linenumber= 505
 Cdelw1 do not change oclabl because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oipc  is not defined yet at linenumber= 505
 Cdelw1 do not change oipc because of ['undef', 'wref']
-      call ovmin(outs(i:),nbas,nbasp,alat,plat,rmax,rmax,
+        call ovmin(outs(i:),nbas,nbasp,alat,plat,rmax,rmax,
      .  w(oclabl),w(oipc),modep,z,ontab,oiax,w(opos),j)
 C ... Write positions to file
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 508
 Cdelw1 do not change opos because of ['undef', 'wref']
-      if (cmdopt('--wpos=',7,0,outs))
+        if (cmdopt('--wpos=',7,0,outs))
      .  call iopos(T,0,outs(8:),nbasp,w(opos))
 
 C ... Inner products between Euler angles
@@ -725,7 +725,7 @@ C$$$Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
 C$$$Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
 C$$$Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
 C$$$Cgetarg         call upack('ctrl nbas nbasp nl',sctrl,nbas,nbasp,nl,0,0)
-         
+
 C$$$         nbas=sctrl%nbas
 C$$$         nbasp=sctrl%nbasp
 C$$$         nl=sctrl%nl
@@ -735,7 +735,7 @@ C$$$Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
 C$$$Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
 C$$$Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
 C$$$Cgetarg         call upack('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
-         
+
 C$$$         opnu=spot%opnu
 C$$$         oqnu=spot%oqnu
 C$$$         oqc=spot%oqc
@@ -821,7 +821,7 @@ C$$$c      call sp2cls('spec a',sspec,ics,1,1,nclass,oamsh)
 C$$$c      call sp2cls('spec nr',sspec,ics,1,1,nclass,onrmsh)
 C$$$      allocate(amsh(nclass),nrmsh(nclass))
 C$$$      do i=1,nclass
-C$$$        amsh(i) =sspec(ics(i))%a 
+C$$$        amsh(i) =sspec(ics(i))%a
 C$$$        nrmsh(i)=sspec(ics(i))%nr
 C$$$        print *,' amsh nrmsh=',amsh(i),nrmsh(i)
 C$$$      enddo
@@ -870,7 +870,7 @@ C$$$     .    w(oqnu))
 C$$$C       Output to restart file
 C$$$        if (cmdopt('--rs=',5,0,outs)) then
 C$$$Cgetarg           irs(2) = igets('ctrl lrs,8+16',sctrl)/8
-C$$$           irs ( 2 ) = iand(8+16,int(sctrl%lrs)) /8 
+C$$$           irs ( 2 ) = iand(8+16,int(sctrl%lrs)) /8
 
 C$$$          if (irs(2) .gt. 0) then
 C$$$            ifi = fopna('rsta',-1,0)
@@ -888,60 +888,60 @@ Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
 Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
 Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
 Cgetarg         call upack('lat nsgrp osymgr oag',slat,nsgrp,og,oag,0,0)
-         
-         nsgrp=slat%nsgrp
+
+        nsgrp=slat%nsgrp
 Cdelw1 do not change og because of ['wref']
-         og=slat%osymgr
+        og=slat%osymgr
 Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 694
 Cdelw1 do not change oag because of ['undef', 'wref']
-         oag=slat%oag
+        oag=slat%oag
 
 Cdelw1         call defrr(oz,nspec)
-         allocate(rv_w_oz(nspec))
+        allocate(rv_w_oz(nspec))
 Ctakao_ZeroClear_NotRequiered          if (nspec<0) rv_w_oz(:)=0.0d0
 
 Cgetarg         call spackv(10,'spec z',sspec,1,nspec,z)
-         i_copy_size=1; 
-         do i_spackv=1,nspec 
-         call spackv_array_copy_r8_r8('u',sspec(i_spackv)%z,i_copy_size,i_spackv+1-1,z)
-         enddo
+        i_copy_size=1;
+        do i_spackv=1,nspec
+          call spackv_array_copy_r8_r8('u',sspec(i_spackv)%z,i_copy_size,i_spackv+1-1,z)
+        enddo
 
 Cdelw1         call defrr(ormt,nspec)
-         allocate(rv_w_ormt(nspec))
+        allocate(rv_w_ormt(nspec))
 Ctakao_ZeroClear_NotRequiered          if (nspec<0) rv_w_ormt(:)=0.0d0
 
 Cgetarg         call spackv(10,'spec rmt',sspec,1,nspec,w(ormt))
-         i_copy_size=1; 
-         do i_spackv=1,nspec 
+        i_copy_size=1;
+        do i_spackv=1,nspec
 Cdelw1          call spackv_array_copy_r8_r8('u',sspec(i_spackv)%rmt,i_copy_size,i_spackv+1-1,w(ormt))
           call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rmt 
-     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_ormt ) 
+     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_ormt )
 
-         enddo
+        enddo
 
 Cdelw1         call defi(olock,-nspec)
-         allocate(iv_w_olock(abs(-nspec)))
-         if (-nspec<0) iv_w_olock(:)=0
+        allocate(iv_w_olock(abs(-nspec)))
+        if (-nspec<0) iv_w_olock(:)=0
 
         do  i = 1, nspec
 Cgetarg         call ivset(w(olock),i,i,bitand(igetss('spec mxcst',i,sspec),2))
-Cdelw1          call ivset ( w ( olock ) , i , i , bitand ( int(sspec(i)%mxcst) 
-Cdelw1      .   , 2 ) ) 
+Cdelw1          call ivset ( w ( olock ) , i , i , bitand ( int(sspec(i)%mxcst)
+Cdelw1      .   , 2 ) )
           call ivset ( iv_w_olock , i , i , bitand ( int ( sspec ( i ) 
-     .    %mxcst ) , 2 ) ) 
+     .    %mxcst ) , 2 ) )
 
 
         enddo
 Cdelw1         call defrr(ozc,mxclas)
-         allocate(rv_w_ozc(mxclas))
+        allocate(rv_w_ozc(mxclas))
 Ctakao_ZeroClear_NotRequiered          if (mxclas<0) rv_w_ozc(:)=0.0d0
 
 Cdelw1         call defrr(ormtc,mxclas)
-         allocate(rv_w_ormtc(mxclas))
+        allocate(rv_w_ormtc(mxclas))
 Ctakao_ZeroClear_NotRequiered          if (mxclas<0) rv_w_ormtc(:)=0.0d0
 
 Cdelw1         call defrr(olockc,mxclas)
-         allocate(rv_w_olockc(mxclas))
+        allocate(rv_w_olockc(mxclas))
 Ctakao_ZeroClear_NotRequiered          if (mxclas<0) rv_w_olockc(:)=0.0d0
 
 Cdelw1 warning(1) , probably  onrc  is not defined yet at linenumber= 720
@@ -959,8 +959,8 @@ Cdelw1 do not change owk because of ['undef', 'wref']
         if (nclass .ge. mxclas) call rx('lmaux: increase mxclas')
 Cdelw1         call spec2c(nspec,nclass,ics,w(ormt),w(ormtc),z,w(ozc),
 Cdelw1      .    w(olock),w(olockc))
-         call spec2c ( nspec , nclass , ics , rv_w_ormt , rv_w_ormtc , 
-     .   z , rv_w_ozc , iv_w_olock , rv_w_olockc ) 
+        call spec2c ( nspec , nclass , ics , rv_w_ormt , rv_w_ormtc , 
+     .   z , rv_w_ozc , iv_w_olock , rv_w_olockc )
 
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 727
 Cdelw1 do not change opos because of ['undef', 'wref']
@@ -984,36 +984,36 @@ Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 727
 Cdelw1 do not change oag because of ['undef', 'wref']
 Cdelw1         call findes(sctrl,alat,w(oclabl),nbas,nclass,nl,w(onrc),mxclas,
 Cdelw1      .    nsgrp,opos,oipc,plat,w(og),w(oag),w(olockc),w(ormtc),w(ozc))
-         call findes ( sctrl , alat , w ( oclabl ) , nbas , nclass , nl 
+        call findes ( sctrl , alat , w ( oclabl ) , nbas , nclass , nl 
      .   , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-     .   , w ( oag ) , rv_w_olockc , rv_w_ormtc , rv_w_ozc ) 
+     .   , w ( oag ) , rv_w_olockc , rv_w_ormtc , rv_w_ozc )
 
 
       endif
 ctakao
       deallocate(ics,lmxa,z)
 Cgetarg       end
-Cdelw1 w_varlist remains: ozz ormt olock ormax opos2 oips2 og oz ozc ormtc olockc onrc 
+Cdelw1 w_varlist remains: ozz ormt olock ormax opos2 oips2 og oz ozc ormtc olockc onrc
 Cdelw1 w_varlistundel: [oics opos opnu oqnu oips oclabl oipc oves oeula owk oag ormax og onrc]
 Cdelw1 w_varlist (undel), remains: [ormax og onrc]
 Cdelw1 w_varlist (del), remains: [ozz ormt olock opos2 oips2 oz ozc ormtc olockc]
 Cdelw1 not deallocate onrc because of [wref]
 Cdelw1 not deallocate og because of [wref]
 Cdelw1 not deallocate ormax because of [wref]
-        if (allocated(rv_w_olockc)) deallocate(rv_w_olockc)
-        if (allocated(rv_w_ormtc)) deallocate(rv_w_ormtc)
-        if (allocated(rv_w_ozc)) deallocate(rv_w_ozc)
-        if (allocated(rv_w_oz)) deallocate(rv_w_oz)
-        if (allocated(iv_w_oips2)) deallocate(iv_w_oips2)
-        if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
-        if (allocated(iv_w_olock)) deallocate(iv_w_olock)
-        if (allocated(rv_w_ormt)) deallocate(rv_w_ormt)
-        if (allocated(rv_w_ozz)) deallocate(rv_w_ozz)
+      if (allocated(rv_w_olockc)) deallocate(rv_w_olockc)
+      if (allocated(rv_w_ormtc)) deallocate(rv_w_ormtc)
+      if (allocated(rv_w_ozc)) deallocate(rv_w_ozc)
+      if (allocated(rv_w_oz)) deallocate(rv_w_oz)
+      if (allocated(iv_w_oips2)) deallocate(iv_w_oips2)
+      if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
+      if (allocated(iv_w_olock)) deallocate(iv_w_olock)
+      if (allocated(rv_w_ormt)) deallocate(rv_w_ormt)
+      if (allocated(rv_w_ozz)) deallocate(rv_w_ozz)
 
-       end subroutine lmaux 
+      end subroutine lmaux
 
 
-       subroutine spec2c(nspec,nclass,ics,rmts,rmtc,z,zc,lock,lockc)
+      subroutine spec2c(nspec,nclass,ics,rmts,rmtc,z,zc,lock,lockc)
 
 C- Copy species data to class data
 C ----------------------------------------------------------------------
@@ -1030,9 +1030,9 @@ co   lockc :lock by class
 Cl Local variables
 Cl         :
 Cr Remarks
-Cr   
+Cr
 Cu Updates
-Cu   11 Aug 08 
+Cu   11 Aug 08
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
@@ -1041,7 +1041,7 @@ C ... Passed parameters
 C ... Local parameters
       integer j,k
 
-      do  k = 1, nclass    
+      do  k = 1, nclass
         j = ics(k)
         rmtc(k) = rmts(j)
         zc(k) = z(j)
@@ -1055,7 +1055,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine spec2c 
+      end subroutine spec2c
 
-        
+
 

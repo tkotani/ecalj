@@ -32,7 +32,7 @@ Cr   See J. Math. Phys. {\bf 39},3393 (1998), Eq. 12.17
 Cr
 Cr   As rsmg -> 0, expansion turns into a Taylor series of H_L.
 Cr   As rsmg increases the error is spread out over a progressively
-Cr   larger radius, thus reducing the error for larger r while 
+Cr   larger radius, thus reducing the error for larger r while
 Cr   reducing accuracy at small r.
 Cb Bugs
 Cb   Doesn't properly handle case rsmh<0

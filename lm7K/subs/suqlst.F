@@ -201,60 +201,60 @@ C   ... Defaults
         dc = sopts(1:1)
         if (dc .ne. ' ') then
 C   ... Return here to resume parsing for arguments
-        j2 = 0
-   10   continue
-        j2 = j2+1
-        if (sopts(j2:j2) .eq. dc) goto 10
-        j1 = min(len(sopts),j2)
-        call nwordg(sopts,0,dc//' ',1,j1,j2)
-        if (j2 .ge. j1) then
-          if (.false.) then
-          elseif (sopts(j1:j1+2) .eq. 'fn=')  then
-            if (j1+3 .gt. j2) call rx('suqlst: bad file name')
-            fn = sopts(j1+3:j2)
-          elseif (sopts(j1:j2) .eq. 'qp')  then
-            mode = 2
-          elseif (sopts(j1:j2) .eq. 'spin1')  then
-            onesp = 1
-            nsp = 1
-          elseif (sopts(j1:j2) .eq. 'con')  then
-            mode = 3
-          elseif (sopts(j1:j2) .eq. 'long')  then
-            fmlong = .true.
-          elseif (sopts(j1:j1+3) .eq. 'col=')  then
-            if (j1+4 .gt. j2) call rx('suqlst: bad list, col=..')
-            call mkils0(sopts(j1+4:j2),nfbn,ifblst)
-            call mkilst(sopts(j1+4:j2),nfbn,ifblst)
-            if (nfbn(1) .lt. 0) call rx('suqlst: bad list, col=..')
-          elseif (sopts(j1:j1+4) .eq. 'col2=')  then
-            if (j1+4 .gt. j2) call rx('suqlst: bad list, col2=..')
-            call mkils0(sopts(j1+5:j2),nfbn(2),ifblst(1,2))
-            call mkilst(sopts(j1+5:j2),nfbn(2),ifblst(1,2))
-            if (nfbn(1) .lt. 0) call rx('suqlst: bad list, col=..')
-          elseif (sopts(j1:j1+3) .eq. 'lst=')  then
-            if (j1+4 .gt. j2) call rx('suqlst: bad list, lst=..')
-            call mkils0(sopts(j1+4:j2),nblst,iblst)
-            if (nblst .gt. 100) call rx('increase size of iblst')
-            call mkilst(sopts(j1+4:j2),nblst,iblst)
-          elseif (sopts(j1:j1+2) .eq. 'ef=')  then
-            j = 0
-            i = parg('ef=',4,sopts(j1:),j,len(sopts(j1:)),
+          j2 = 0
+   10     continue
+          j2 = j2+1
+          if (sopts(j2:j2) .eq. dc) goto 10
+          j1 = min(len(sopts),j2)
+          call nwordg(sopts,0,dc//' ',1,j1,j2)
+          if (j2 .ge. j1) then
+            if (.false.) then
+            elseif (sopts(j1:j1+2) .eq. 'fn=')  then
+              if (j1+3 .gt. j2) call rx('suqlst: bad file name')
+              fn = sopts(j1+3:j2)
+            elseif (sopts(j1:j2) .eq. 'qp')  then
+              mode = 2
+            elseif (sopts(j1:j2) .eq. 'spin1')  then
+              onesp = 1
+              nsp = 1
+            elseif (sopts(j1:j2) .eq. 'con')  then
+              mode = 3
+            elseif (sopts(j1:j2) .eq. 'long')  then
+              fmlong = .true.
+            elseif (sopts(j1:j1+3) .eq. 'col=')  then
+              if (j1+4 .gt. j2) call rx('suqlst: bad list, col=..')
+              call mkils0(sopts(j1+4:j2),nfbn,ifblst)
+              call mkilst(sopts(j1+4:j2),nfbn,ifblst)
+              if (nfbn(1) .lt. 0) call rx('suqlst: bad list, col=..')
+            elseif (sopts(j1:j1+4) .eq. 'col2=')  then
+              if (j1+4 .gt. j2) call rx('suqlst: bad list, col2=..')
+              call mkils0(sopts(j1+5:j2),nfbn(2),ifblst(1,2))
+              call mkilst(sopts(j1+5:j2),nfbn(2),ifblst(1,2))
+              if (nfbn(1) .lt. 0) call rx('suqlst: bad list, col=..')
+            elseif (sopts(j1:j1+3) .eq. 'lst=')  then
+              if (j1+4 .gt. j2) call rx('suqlst: bad list, lst=..')
+              call mkils0(sopts(j1+4:j2),nblst,iblst)
+              if (nblst .gt. 100) call rx('increase size of iblst')
+              call mkilst(sopts(j1+4:j2),nblst,iblst)
+            elseif (sopts(j1:j1+2) .eq. 'ef=')  then
+              j = 0
+              i = parg('ef=',4,sopts(j1:),j,len(sopts(j1:)),
      .        dc//' ',1,1,i,efermi)
-            if (i .le. 0) call rxs(
+              if (i .le. 0) call rxs(
      .        'suqlst: failed to parse string for fermi level:  ',
      .        sopts(j1:))
-          elseif (sopts(j1:j1+3) .eq. 'evn=')  then
-            if (j1+4 .gt. j2) call rx('suqlst: bad list')
-            i = j1+3
-            xxv(1) = 0
-            j = a2vec(sopts,j2,i,2,dc//' ',2,3,1,iv,nevn)
-            if (j .ne. 1 .or. nevn .gt. nband)
+            elseif (sopts(j1:j1+3) .eq. 'evn=')  then
+              if (j1+4 .gt. j2) call rx('suqlst: bad list')
+              i = j1+3
+              xxv(1) = 0
+              j = a2vec(sopts,j2,i,2,dc//' ',2,3,1,iv,nevn)
+              if (j .ne. 1 .or. nevn .gt. nband)
      .        call rx('suqlst: bad value for evn')
-          else
-            call rxs('suqlst: failed to parse argument, ',sopts(j1:j2))
+            else
+              call rxs('suqlst: failed to parse argument, ',sopts(j1:j2))
+            endif
+            goto 10
           endif
-          goto 10
-        endif
         endif
 
         if (nfbn(1) .eq. 0) then
@@ -280,34 +280,34 @@ C   ... Return here to resume parsing for arguments
 
 C   ... Open qp file
         if (procid .eq. master) then
-        ifiq = fopno(fn)
-        rewind ifiq
+          ifiq = fopno(fn)
+          rewind ifiq
 
 C   ... open bands file
-        ifib = fopnn('BNDS')
-        rewind ifib
+          ifib = fopnn('BNDS')
+          rewind ifib
 
 C   ... Write header
-        if (mode .eq. 1) then
-          i = nblst
-          if (nblst .eq. 0) i = nband
-          if (nfbn(1) .eq. 0) then
+          if (mode .eq. 1) then
+            i = nblst
+            if (nblst .eq. 0) i = nband
+            if (nfbn(1) .eq. 0) then
 C           Use separate format statment to circumvent gfortran bug
-            write(ifib,335) i,efermi,0
-  335       format(i5,f10.5,i6)
-          elseif (nfbn(2) .eq. 0) then
-            call ilst2a(ifblst,nfbn,strn)
-            call strip(strn,j1,j2)
-            write(ifib,336) i,efermi,1,strn(j1:j2)
-  336       format(i5,f10.5,i6:'  col= ',a:'  col2= ',a)
-          else
-            call ilst2a(ifblst,nfbn,strn)
-            call strip(strn,j1,j2)
-            call ilst2a(ifblst(1,2),nfbn(2),strn2)
-            call strip(strn2,j,k)
-            write(ifib,336) i,efermi,2,strn(j1:j2),strn2(j:k)
+              write(ifib,335) i,efermi,0
+  335         format(i5,f10.5,i6)
+            elseif (nfbn(2) .eq. 0) then
+              call ilst2a(ifblst,nfbn,strn)
+              call strip(strn,j1,j2)
+              write(ifib,336) i,efermi,1,strn(j1:j2)
+  336         format(i5,f10.5,i6:'  col= ',a:'  col2= ',a)
+            else
+              call ilst2a(ifblst,nfbn,strn)
+              call strip(strn,j1,j2)
+              call ilst2a(ifblst(1,2),nfbn(2),strn2)
+              call strip(strn2,j,k)
+              write(ifib,336) i,efermi,2,strn(j1:j2),strn2(j:k)
+            endif
           endif
-        endif
         endif
 
 C   ... Other initializations
@@ -403,18 +403,18 @@ C         call daxpy(3,-sclp(vectx,vecty),vectx,1,vecty,1)
           call dscal(3,plndst/dsqrt(sclp(vect3,vect3)),vect3,1)
           nq = nqx*nqy
           if (iprint() .ge. 10) then
-          write(stdo,717) vectx,x1,x2,nqx,plndst,vecty,y1,y2,nqy,nq
-  717     format(' vx=',3f9.6,'  x1,x2=',2f9.6,'  nx=',i3,'   h=',f9.6/
+            write(stdo,717) vectx,x1,x2,nqx,plndst,vecty,y1,y2,nqy,nq
+  717       format(' vx=',3f9.6,'  x1,x2=',2f9.6,'  nx=',i3,'   h=',f9.6/
      .           ' vy=',3f9.6,'  y1,y2=',2f9.6,'  ny=',i3,'  np=',i5)
-          write(strn,'('' save %i bands: %'',i2,'':1i'')') nblst
-          if (strn(17:18) .eq. '% ') strn(17:18) = ' %'
-          call awrit2(strn,strn,80,stdo,nblst,iblst)
-          if (dabs(sclp(vectx,vecty)) .gt. 1d-6 .and. iprint().gt.20)
+            write(strn,'('' save %i bands: %'',i2,'':1i'')') nblst
+            if (strn(17:18) .eq. '% ') strn(17:18) = ' %'
+            call awrit2(strn,strn,80,stdo,nblst,iblst)
+            if (dabs(sclp(vectx,vecty)) .gt. 1d-6 .and. iprint().gt.20)
      .    print *,'suqlst (warning): input plane vectors not orthogonal'
           endif
 
           if (iop .eq. 0) then
-          allocate(evsav(nqx,nqy,nblst,nsp))
+            allocate(evsav(nqx,nqy,nblst,nsp))
           endif
 
 C       Contour plot, cleanup.
@@ -451,7 +451,8 @@ C         Inner Loop:  excursions in y; outer loop: excursions in x
             xx2 =j*(y2-y1)/(nqy-1)+y1
           endif
           do  93  k = 1, 3
-   93     qp(k) = xx1*vectx(k) + xx2*vecty(k) + vect3(k)
+            qp(k) = xx1*vectx(k) + xx2*vecty(k) + vect3(k)
+   93     continue
           if (j .eq. 0 .and. iprint().ge.20) write(stdo,718) i+1,nqx,qp
   718     format(' line',i3,' of',i3,'   q(1)=',3f10.6)
         else
@@ -543,17 +544,17 @@ C   ... If last qp generated, dump to file and exit
           endif
           rewind ifib
           do  j1 = 1, nsp
-          do  k  = 1, nblst
-            if (nsp .eq. 1)
+            do  k  = 1, nblst
+              if (nsp .eq. 1)
      .        call awrit2('%% rows %i cols %i',' ',80,ifib,nqx,nqy)
-            if (nsp .eq. 2)
+              if (nsp .eq. 2)
      .        call awrit3('%% rows %i cols %i spin %i',' ',80,
      .        ifib,nqx,nqy,j1)
 
-            do  i = 1, nqx
-              write(ifib,prfmt) (evsav(i,j,k,j1), j=1,nqy)
+              do  i = 1, nqx
+                write(ifib,prfmt) (evsav(i,j,k,j1), j=1,nqy)
+              enddo
             enddo
-          enddo
           enddo
           call rx0('finished generating bands on q-mesh')
         endif
@@ -619,17 +620,17 @@ C   ... If last qp generated, dump to file and exit
           endif
           rewind ifib
           do  j1 = 1, nsp
-          do  k  = 1, nblst
-            if (nsp .eq. 1)
+            do  k  = 1, nblst
+              if (nsp .eq. 1)
      .        call awrit2('%% rows %i cols %i',' ',80,ifib,nqx,nqy)
-            if (nsp .eq. 2)
+              if (nsp .eq. 2)
      .        call awrit3('%% rows %i cols %i spin %i',' ',80,
      .        ifib,nqx,nqy,j1)
 
-            do  i = 1, nqx
-              write(ifib,prfmt) (evsav(i,j,k,j1), j=1,nqy)
+              do  i = 1, nqx
+                write(ifib,prfmt) (evsav(i,j,k,j1), j=1,nqy)
+              enddo
             enddo
-          enddo
           enddo
           call rx0('finished generating bands on q-mesh')
         endif
@@ -663,7 +664,7 @@ Cl         :
 Cr Remarks
 Cr   Inefficient, but it works
 Cu Updates
-Cu   08 Jul 08 New argument ndlst so ifblst can be dimensioned 
+Cu   08 Jul 08 New argument ndlst so ifblst can be dimensioned
 Cu             independently from nband
 Cu   05 Jun 06 First created
 C ----------------------------------------------------------------------
@@ -706,17 +707,17 @@ C ... Local parameters
      .        ' outside range (1:%i)',k,ndimhx)
           endif
 #if MULLIKEN
-         wk(i) = wk(i) + evecc(i,k)*evec(k,i)
+          wk(i) = wk(i) + evecc(i,k)*evec(k,i)
 #else
-         wk(i) = wk(i) + dconjg(evec(k,i))*evec(k,i)
+          wk(i) = wk(i) + dconjg(evec(k,i))*evec(k,i)
 #endif
         enddo
 
 #ifndef MULLIKEN
-       wk(i) = wk(i) / zdotc(ndimhx,evec(1,i),1,evec(1,i),1)
-       if (wk(i) .lt. 0 .or. wk(i) .gt. 1+1d-14) then
+        wk(i) = wk(i) / zdotc(ndimhx,evec(1,i),1,evec(1,i),1)
+        if (wk(i) .lt. 0 .or. wk(i) .gt. 1+1d-14) then
           call rx('bug in suqlse')
-       endif
+        endif
 #endif
 
       enddo
@@ -738,7 +739,7 @@ C         if (nblst .gt. 0 .and. nblst .le. 5) prfmt = '(8f10.6)'
         endif
         if (nblst .eq. 0) then
           write(ifib,prfmt) (wk(i),i=1,nband)
-        else                
+        else
           write(ifib,prfmt) (wk(iblst(i)),i=1,nblst)
         endif
 
@@ -763,18 +764,18 @@ C   ... If last qp generated, dump to file and exit
           endif
           rewind ifib
           do  j1 = 1, nsp
-          do  k  = 1, nblst
-            if (nsp .eq. 1)
+            do  k  = 1, nblst
+              if (nsp .eq. 1)
      .        call awrit2('%% rows %i cols %i',' ',80,ifib,nqx,nqy)
-            if (nsp .eq. 2)
+              if (nsp .eq. 2)
      .        call awrit3('%% rows %i cols %i spin %i',' ',80,
      .        ifib,nqx,nqy,j1)
 
-            do  i = 1, nqx
-              write(ifib,prfmt) (evsav(i,j,k,j1), j=1,nqy)
-            enddo
+              do  i = 1, nqx
+                write(ifib,prfmt) (evsav(i,j,k,j1), j=1,nqy)
+              enddo
 
-          enddo
+            enddo
           enddo
           call rx0('finished generating bands on q-mesh')
         endif
@@ -809,7 +810,7 @@ Co   eb    :energy bands, returned if 4s bit of mode is set
 Cl Local variables
 Cl         :
 Cr Remarks
-Cr   
+Cr
 Cu Updates
 Cu   06 Jun 07  First created
 C ----------------------------------------------------------------------

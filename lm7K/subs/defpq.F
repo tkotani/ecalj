@@ -168,9 +168,9 @@ C --- Set default values for P ---
         endif
 C       Poke p(1) into p(nsp), if integer parts don't match
         if (int(p(l+1,1)) .ne. int(p(l+1,nsp))) then
-           p(l+1,nsp) = p(l+1,1)
-           lchange = .true.
-         endif
+          p(l+1,nsp) = p(l+1,1)
+          lchange = .true.
+        endif
       enddo
 C ... Fill in the P's for l>3
       do  l = 4, lmax

@@ -65,7 +65,7 @@ C ... Local parameters
           do  kkk = l+1, konf(l+1)-1
             ncore = ncore+1
             if (mode .ne. 2) then
-            ec(ncore) = -5d0
+              ec(ncore) = -5d0
             endif
             qcore = qcore+deg
           enddo

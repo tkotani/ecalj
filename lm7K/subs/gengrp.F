@@ -598,54 +598,54 @@ C       Parse for integer group id.  Failing that, assign to string
 
         if ((isym7.ge.1.and.isym7.le.230) .or. csym7.ne.' ') then
 C     ... Loop over nelts possibilities until grp id matches
-        do  isym8 = 1, nelts
-          read(c(isym8),200) isym(7),corig,csym(7),symgrp
+          do  isym8 = 1, nelts
+            read(c(isym8),200) isym(7),corig,csym(7),symgrp
 
 C         Group found if integer ID or string ID matches
-          if (isym7.eq.isym(7) .or. csym7.eq.csym(7)) then
+            if (isym7.eq.isym(7) .or. csym7.eq.csym(7)) then
 
 C           For some groups, there is an alternate origin
-            if (corig .eq. '1') then
-              call query('choose origin for this space group (1 or 2):',
+              if (corig .eq. '1') then
+                call query('choose origin for this space group (1 or 2):',
      .          2,iorig)
-              if (iorig .eq. 1) then
-                continue
-              elseif (iorig .eq. 2) then
-                read(c(isym8+1),200) isym(7),corig,csym(7),symgrp
-                if (corig.ne.'2') call rxs(' SPCGRP: bad corig,',corig)
-              else
-                call isanrg(iorig,1,2,'SPCGRP:','iorig',.true.)
+                if (iorig .eq. 1) then
+                  continue
+                elseif (iorig .eq. 2) then
+                  read(c(isym8+1),200) isym(7),corig,csym(7),symgrp
+                  if (corig.ne.'2') call rxs(' SPCGRP: bad corig,',corig)
+                else
+                  call isanrg(iorig,1,2,'SPCGRP:','iorig',.true.)
+                endif
+              elseif (corig .ne. ' ') then
+                call rxs(' SPCGRP: bad corig,',corig)
               endif
-            elseif (corig .ne. ' ') then
-              call rxs(' SPCGRP: bad corig,',corig)
-            endif
 
 C       ... Get isym(6-1) and csym(6-1)
-            isym(6) = isym6(isym(7))
-            isym(5) = isym5(isym(6))
-            isym(4) = isym4(isym(5))
-            do  isym3 = 1, 7
-              if (csym(7)(1:1) .eq. csym3(isym3)) isym(3)=isym3
-            enddo
-            isym(1) = isym1(isym(7))
-            isym(2) = isym2(isym(3),isym(1))
-            call gtcsym(csym,isym)
+              isym(6) = isym6(isym(7))
+              isym(5) = isym5(isym(6))
+              isym(4) = isym4(isym(5))
+              do  isym3 = 1, 7
+                if (csym(7)(1:1) .eq. csym3(isym3)) isym(3)=isym3
+              enddo
+              isym(1) = isym1(isym(7))
+              isym(2) = isym2(isym(3),isym(1))
+              call gtcsym(csym,isym)
 
 C       ... Printout
-            write(stdo,300) csym(7),isym(7),csym(5)
-            if (isym(5) .eq. 5) then
-              if (isym(1).eq.5 .and. isym(3).eq.1) write(*,303)
-              if (isym(1).eq.5 .and. isym(3).eq.7) write(*,304)
-              if (isym(1).eq.6) write(*,305)
-            endif
+              write(stdo,300) csym(7),isym(7),csym(5)
+              if (isym(5) .eq. 5) then
+                if (isym(1).eq.5 .and. isym(3).eq.1) write(*,303)
+                if (isym(1).eq.5 .and. isym(3).eq.7) write(*,304)
+                if (isym(1).eq.6) write(*,305)
+              endif
 
 C       ... Copy symgrp into gens
-            gens = symgrp
-            call words(symgrp,ngen)
-            write(stdo,302) symgrp
-            return
-          endif
-        enddo
+              gens = symgrp
+              call words(symgrp,ngen)
+              write(stdo,302) symgrp
+              return
+            endif
+          enddo
         endif
         isym(7) = 0
         write(stdo,301) instr

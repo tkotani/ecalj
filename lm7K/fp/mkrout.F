@@ -46,8 +46,8 @@ Cgetarg...info...           structure ['mkrout', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['mkrout', 'm_struc_def']
       subroutine mkrout(ssite,sspec,slat,sham,nbas,nsp,nlmto,lekkl,
      .  oqkkl,oeqkkl,orhoat,hab,sab,qbyl,hbyl,lrout)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Assembles local output densities out of the qkkl, and core states
 C ----------------------------------------------------------------------
@@ -108,12 +108,12 @@ Cdelw1 do not change  [['call'], 'orhoat', 'mkrout']
 Cgetarg       double precision ssite(1),sspec(1),sham(1),slat(1),
 Cgetarg      .  qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas),
 Cgetarg      .  sab(nab,n0,nsp,nbas),hab(nab,n0,nsp,nbas)
-       real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(nab,n0,nsp,nbas) 
-     . , hab(nab,n0,nsp,nbas) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_ham)::sham
-       type(s_lat)::slat
+      real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(nab,n0,nsp,nbas) 
+     . , hab(nab,n0,nsp,nbas)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_ham)::sham
+      type(s_lat)::slat
 
 C ... Local parameters
 Cdelw1 do not change  [['undef', 'wref'], 'ocg', 'mkrout']
@@ -131,30 +131,30 @@ Cdelw1      .  lmxl,nlma,nlmh,nlml,nlml1,nr,ncore,ocg,odmatl,
 Cdelw1      .  ocy,odh,odp,ofh,ofp,oidxcg,ojcg,oqhh,oqhp,oqpp,orhoca,orofi,
 Cdelw1      .  orss,orus,oruu,orwgt,osl,oul,ogz,ov0,ov01,ovh,ovp,oxh,oxp,
 Cdelw1      .  oiprmb,stdo,igetss,ochh,ochp,ocpp
-       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+      integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
      . , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
      . nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
-     . orhoca , ov0 , ov01 , oiprmb , stdo , igetss 
-       real(8) ,allocatable :: rv_w_odmatl(:)
-       real(8) ,allocatable :: rv_w_odh(:)
-       real(8) ,allocatable :: rv_w_odp(:)
-       real(8) ,allocatable :: rv_w_ofh(:)
-       real(8) ,allocatable :: rv_w_ofp(:)
-       real(8) ,allocatable :: rv_w_orofi(:)
-       real(8) ,allocatable :: rv_w_orss(:)
-       real(8) ,allocatable :: rv_w_orus(:)
-       real(8) ,allocatable :: rv_w_oruu(:)
-       real(8) ,allocatable :: rv_w_orwgt(:)
-       real(8) ,allocatable :: rv_w_osl(:)
-       real(8) ,allocatable :: rv_w_oul(:)
-       real(8) ,allocatable :: rv_w_ogz(:)
-       real(8) ,allocatable :: rv_w_ovh(:)
-       real(8) ,allocatable :: rv_w_ovp(:)
-       real(8) ,allocatable :: rv_w_oxh(:)
-       real(8) ,allocatable :: rv_w_oxp(:)
-       real(8) ,allocatable :: rv_w_ochh(:)
-       real(8) ,allocatable :: rv_w_ochp(:)
-       real(8) ,allocatable :: rv_w_ocpp(:)
+     . orhoca , ov0 , ov01 , oiprmb , stdo , igetss
+      real(8) ,allocatable :: rv_w_odmatl(:)
+      real(8) ,allocatable :: rv_w_odh(:)
+      real(8) ,allocatable :: rv_w_odp(:)
+      real(8) ,allocatable :: rv_w_ofh(:)
+      real(8) ,allocatable :: rv_w_ofp(:)
+      real(8) ,allocatable :: rv_w_orofi(:)
+      real(8) ,allocatable :: rv_w_orss(:)
+      real(8) ,allocatable :: rv_w_orus(:)
+      real(8) ,allocatable :: rv_w_oruu(:)
+      real(8) ,allocatable :: rv_w_orwgt(:)
+      real(8) ,allocatable :: rv_w_osl(:)
+      real(8) ,allocatable :: rv_w_oul(:)
+      real(8) ,allocatable :: rv_w_ogz(:)
+      real(8) ,allocatable :: rv_w_ovh(:)
+      real(8) ,allocatable :: rv_w_ovp(:)
+      real(8) ,allocatable :: rv_w_oxh(:)
+      real(8) ,allocatable :: rv_w_oxp(:)
+      real(8) ,allocatable :: rv_w_ochh(:)
+      real(8) ,allocatable :: rv_w_ochp(:)
+      real(8) ,allocatable :: rv_w_ocpp(:)
 
       double precision a,ceh,pi,qcor(2),rfoc,rmt,rsma,smec,smtc,stc0,
      .  sum1,sum2,sums1,sums2,sumec,sumtc,sumt0,xx,y0,z,ddot,res,
@@ -189,27 +189,27 @@ Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
 Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
 Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
 Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-       
+
 Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 116
 Cdelw1 do not change ocg because of ['undef', 'wref']
-       ocg=slat%ocg
+      ocg=slat%ocg
 Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 117
 Cdelw1 do not change ojcg because of ['undef', 'wref']
-       ojcg=slat%ojcg
+      ojcg=slat%ojcg
 Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 118
 Cdelw1 do not change oidxcg because of ['undef', 'wref']
-       oidxcg=slat%oidxcg
-       ocy=slat%ocy
+      oidxcg=slat%oidxcg
+      ocy=slat%ocy
 
 Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
 Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
 Cgetarg       call upack('ham oindxo eterms',sham,oiprmb,eterms,0,0,0)
-       
+
 Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 125
 Cdelw1 do not change oiprmb because of ['undef', 'wref']
-       oiprmb=sham%oindxo
-       i_copy_size=size(sham%eterms) 
-       call dcopy(i_copy_size,sham%eterms,1,eterms,1) 
+      oiprmb=sham%oindxo
+      i_copy_size=size(sham%eterms)
+      call dcopy(i_copy_size,sham%eterms,1,eterms,1)
 
 
 C --- Start loop over atoms ---
@@ -225,7 +225,7 @@ C --- Start loop over atoms ---
       endif
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
@@ -233,11 +233,11 @@ Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg         call upack('spec rsma lmxa lmxl kmxt',sspec,is,rsma,lmxa,lmxl,
 Cgetarg      .    kmax)
-         
-         rsma=sspec(is)%rsma
-         lmxa=sspec(is)%lmxa
-         lmxl=sspec(is)%lmxl
-         kmax=sspec(is)%kmxt
+
+        rsma=sspec(is)%rsma
+        lmxa=sspec(is)%lmxa
+        lmxl=sspec(is)%lmxl
+        kmax=sspec(is)%kmxt
 
         if (lmxa .eq. -1) goto 10
 
@@ -245,21 +245,21 @@ Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-         
-         a=sspec(is)%a
-         nr=sspec(is)%nr
-         rmt=sspec(is)%rmt
+
+        a=sspec(is)%a
+        nr=sspec(is)%nr
+        rmt=sspec(is)%rmt
 
 Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
 Cgetarg...info...           real(8) :: stc0 , real(8) :: sspec%stc 1
 Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
 Cgetarg         call upack('spec lmxb stc orhoc',sspec,is,lmxh,stc0,orhoca,0)
-         
-         lmxh=sspec(is)%lmxb
-         stc0=sspec(is)%stc
+
+        lmxh=sspec(is)%lmxb
+        stc0=sspec(is)%stc
 Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 175
 Cdelw1 do not change orhoca because of ['undef', 'wref']
-         orhoca=sspec(is)%orhoc
+        orhoca=sspec(is)%orhoc
 
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
 
@@ -275,155 +275,155 @@ Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
 Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
 Cgetarg...info...           integer :: ov01 , integer(8) :: ssite%ov1 1
 Cgetarg         call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov01)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pnu) 
-         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
+
+        is=ssite(ib)%spec
+        i_copy_size=size(ssite(ib)%pnu)
+        call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 193
 Cdelw1 do not change ov0 because of ['undef', 'wref']
-         ov0=ssite(ib)%ov0
+        ov0=ssite(ib)%ov0
 Cdelw1 warning(1) , probably  ov01  is not defined yet at linenumber= 194
 Cdelw1 do not change ov01 because of ['undef', 'wref']
-         ov01=ssite(ib)%ov1
+        ov01=ssite(ib)%ov1
 
 Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
 Cgetarg         call upack2('site pz',ssite,ib,pnz)
-         
-         i_copy_size=size(ssite(ib)%pz) 
-         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+
+        i_copy_size=size(ssite(ib)%pz)
+        call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
 
         call gtpcor(sspec,is,kcor,lcor,qcor)
         nlml = (lmxl+1)**2
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
 Cdelw1         call defrr(orofi, nr)
-         allocate(rv_w_orofi(nr))
+        allocate(rv_w_orofi(nr))
 Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1         call defrr(orwgt, nr)
-         allocate(rv_w_orwgt(nr))
+        allocate(rv_w_orwgt(nr))
 Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1         call radmsh(rmt,a,nr,w(orofi))
-         call radmsh ( rmt , a , nr , rv_w_orofi ) 
+        call radmsh ( rmt , a , nr , rv_w_orofi )
 
 Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
-         call radwgt ( rmt , a , nr , rv_w_orwgt ) 
+        call radwgt ( rmt , a , nr , rv_w_orwgt )
 
         if (lrout .ne. 0) then
 Cdelw1 warning(1) , probably  oqhh  is not defined yet at linenumber= 211
 Cdelw1 do not change oqhh because of ['undef', 'wref']
-        oqhh = oqkkl(3,ib)
+          oqhh = oqkkl(3,ib)
 Cdelw1 warning(1) , probably  oqhp  is not defined yet at linenumber= 212
 Cdelw1 do not change oqhp because of ['undef', 'wref']
-        oqhp = oqkkl(2,ib)
+          oqhp = oqkkl(2,ib)
 Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 213
 Cdelw1 do not change oqpp because of ['undef', 'wref']
-        oqpp = oqkkl(1,ib)
+          oqpp = oqkkl(1,ib)
 Cdelw1 1 is digit, dropped
-        call dpzero(w(orhoat(1,ib)),nr*nlml*nsp)
+          call dpzero(w(orhoat(1,ib)),nr*nlml*nsp)
 Cdelw1 2 is digit, dropped
-        call dpzero(w(orhoat(2,ib)),nr*nlml*nsp)
+          call dpzero(w(orhoat(2,ib)),nr*nlml*nsp)
 
 C   --- Assemble rho1 = products of augmented functions ---
 C   ... Set up all radial head and tail envelope functions, and their bc's
 Cdelw1         call defrr(ofh,  nr*(lmxh+1)*nkaph)
-         allocate(rv_w_ofh(nr*(lmxh+1)*nkaph))
+          allocate(rv_w_ofh(nr*(lmxh+1)*nkaph))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkaph<0) rv_w_ofh(:)=0.0d0
 
 Cdelw1         call defrr(oxh,  nr*(lmxh+1)*nkaph)
-         allocate(rv_w_oxh(nr*(lmxh+1)*nkaph))
+          allocate(rv_w_oxh(nr*(lmxh+1)*nkaph))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkaph<0) rv_w_oxh(:)=0.0d0
 
 Cdelw1         call defrr(ovh,  (lmxh+1)*nkaph)
-         allocate(rv_w_ovh((lmxh+1)*nkaph))
+          allocate(rv_w_ovh((lmxh+1)*nkaph))
 Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) rv_w_ovh(:)=0.0d0
 
 Cdelw1         call defrr(odh,  (lmxh+1)*nkaph)
-         allocate(rv_w_odh((lmxh+1)*nkaph))
+          allocate(rv_w_odh((lmxh+1)*nkaph))
 Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) rv_w_odh(:)=0.0d0
 
 Cdelw1         call fradhd(nkaph,eh,rsmh,lh,lmxh,nr,w(orofi),w(ofh),
 Cdelw1      .    w(oxh),w(ovh),w(odh))
-         call fradhd ( nkaph , eh , rsmh , lh , lmxh , nr , rv_w_orofi 
-     .   , rv_w_ofh , rv_w_oxh , rv_w_ovh , rv_w_odh ) 
+          call fradhd ( nkaph , eh , rsmh , lh , lmxh , nr , rv_w_orofi 
+     .   , rv_w_ofh , rv_w_oxh , rv_w_ovh , rv_w_odh )
 
 Cdelw1         call defrr(ofp,  nr*(lmxa+1)*(kmax+1))
-         allocate(rv_w_ofp(nr*(lmxa+1)*(kmax+1)))
+          allocate(rv_w_ofp(nr*(lmxa+1)*(kmax+1)))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) rv_w_ofp(:)=0.0d0
 
 Cdelw1         call defrr(oxp,  nr*(lmxa+1)*(kmax+1))
-         allocate(rv_w_oxp(nr*(lmxa+1)*(kmax+1)))
+          allocate(rv_w_oxp(nr*(lmxa+1)*(kmax+1)))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) rv_w_oxp(:)=0.0d0
 
 Cdelw1         call defrr(ovp,  (lmxa+1)*(kmax+1))
-         allocate(rv_w_ovp((lmxa+1)*(kmax+1)))
+          allocate(rv_w_ovp((lmxa+1)*(kmax+1)))
 Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) rv_w_ovp(:)=0.0d0
 
 Cdelw1         call defrr(odp,  (lmxa+1)*(kmax+1))
-         allocate(rv_w_odp((lmxa+1)*(kmax+1)))
+          allocate(rv_w_odp((lmxa+1)*(kmax+1)))
 Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) rv_w_odp(:)=0.0d0
 
 Cdelw1         call fradpk(kmax,rsma,lmxa,nr,w(orofi),w(ofp),w(oxp),w(ovp),
 Cdelw1      .    w(odp))
-         call fradpk ( kmax , rsma , lmxa , nr , rv_w_orofi , rv_w_ofp 
-     .   , rv_w_oxp , rv_w_ovp , rv_w_odp ) 
+          call fradpk ( kmax , rsma , lmxa , nr , rv_w_orofi , rv_w_ofp 
+     .   , rv_w_oxp , rv_w_ovp , rv_w_odp )
 
 
 C   ... Augmented wave functions
 Cdelw1         call defrr(oul,   nr*(lmxa+1)*nsp)
-         allocate(rv_w_oul(nr*(lmxa+1)*nsp))
+          allocate(rv_w_oul(nr*(lmxa+1)*nsp))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) rv_w_oul(:)=0.0d0
 
 Cdelw1         call defrr(osl,   nr*(lmxa+1)*nsp)
-         allocate(rv_w_osl(nr*(lmxa+1)*nsp))
+          allocate(rv_w_osl(nr*(lmxa+1)*nsp))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) rv_w_osl(:)=0.0d0
 
 Cdelw1         call defrr(ogz,   nr*(lmxa+1)*nsp)
-         allocate(rv_w_ogz(nr*(lmxa+1)*nsp))
+          allocate(rv_w_ogz(nr*(lmxa+1)*nsp))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) rv_w_ogz(:)=0.0d0
 
 Cdelw1         call defrr(oruu,  nr*(lmxa+1)*2*nsp)
-         allocate(rv_w_oruu(nr*(lmxa+1)*2*nsp))
+          allocate(rv_w_oruu(nr*(lmxa+1)*2*nsp))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rv_w_oruu(:)=0.0d0
 
 Cdelw1         call defrr(orus,  nr*(lmxa+1)*2*nsp)
-         allocate(rv_w_orus(nr*(lmxa+1)*2*nsp))
+          allocate(rv_w_orus(nr*(lmxa+1)*2*nsp))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rv_w_orus(:)=0.0d0
 
 Cdelw1         call defrr(orss,  nr*(lmxa+1)*2*nsp)
-         allocate(rv_w_orss(nr*(lmxa+1)*2*nsp))
+          allocate(rv_w_orss(nr*(lmxa+1)*2*nsp))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rv_w_orss(:)=0.0d0
 
-        call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
+          call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 240
 Cdelw1 do not change ov0 because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 240
 Cdelw1 do not change ov0 because of ['undef', 'wref']
 Cdelw1         call makusp(n0,z,nsp,rmt,lmxa,w(ov0),a,nr,xx,xx,pnu,pnz,rsml,
 Cdelw1      .    ehl,w(oul),w(osl),w(ogz),w(oruu),w(orus),w(orss))
-         call makusp ( n0 , z , nsp , rmt , lmxa , w ( ov0 ) , a , nr 
+          call makusp ( n0 , z , nsp , rmt , lmxa , w ( ov0 ) , a , nr 
      .   , xx , xx , pnu , pnz , rsml , ehl , rv_w_oul , rv_w_osl , rv_w_ogz 
-     .   , rv_w_oruu , rv_w_orus , rv_w_orss ) 
+     .   , rv_w_oruu , rv_w_orus , rv_w_orss )
 
 
 C   ... Contracted density matrix as coffs to products of (u,s,gz)
-        k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml*nsp
+          k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml*nsp
 Cdelw1         call defrr(ochh, -k)
-         allocate(rv_w_ochh(abs(-k)))
-         if (-k<0) rv_w_ochh(:)=0.0d0
+          allocate(rv_w_ochh(abs(-k)))
+          if (-k<0) rv_w_ochh(:)=0.0d0
 
 Cdelw1         call defrr(ochp, -k)
-         allocate(rv_w_ochp(abs(-k)))
-         if (-k<0) rv_w_ochp(:)=0.0d0
+          allocate(rv_w_ochp(abs(-k)))
+          if (-k<0) rv_w_ochp(:)=0.0d0
 
 Cdelw1         call defrr(ocpp, -k)
-         allocate(rv_w_ocpp(abs(-k)))
-         if (-k<0) rv_w_ocpp(:)=0.0d0
+          allocate(rv_w_ocpp(abs(-k)))
+          if (-k<0) rv_w_ocpp(:)=0.0d0
 
 Cdelw1         call defrr(odmatl,-(lmxa+1)**2*nlml*nsp*9)
-         allocate(rv_w_odmatl(abs(-(lmxa+1)**2*nlml*nsp*9)))
-         if (-(lmxa+1)**2*nlml*nsp*9<0) rv_w_odmatl(:)=0.0d0
+          allocate(rv_w_odmatl(abs(-(lmxa+1)**2*nlml*nsp*9)))
+          if (-(lmxa+1)**2*nlml*nsp*9<0) rv_w_odmatl(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 249
 Cdelw1 do not change ocg because of ['undef', 'wref']
@@ -452,11 +452,11 @@ Cdelw1 do not change oqpp because of ['undef', 'wref']
 Cdelw1         call mkrou1(nsp,nlmh,nlma,nlml,kmax,w(ocg),w(ojcg),w(oidxcg),
 Cdelw1      .    nkaph,nkapi,norb,ltab,ktab,blks,w(oqhh),w(oqhp),w(oqpp),
 Cdelw1      .    w(ovh),w(odh),w(ovp),w(odp),w(ochh),w(ochp),w(ocpp),w(odmatl))
-         call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , w ( ocg ) , w 
+          call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , w ( ocg ) , w 
      .   ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
      .   , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , rv_w_ovh , rv_w_odh 
      .   , rv_w_ovp , rv_w_odp , rv_w_ochh , rv_w_ochp , rv_w_ocpp , rv_w_odmatl 
-     .   ) 
+     .   )
 
 C        call prmx('dmatl',w(odmatl),(lmxa+1)**2,(lmxa+1)**2,nlml*nsp*9)
 
@@ -464,9 +464,9 @@ C   ... True local density for this sphere
 Cdelw1 1 is digit, dropped
 Cdelw1         call mkrou2(nsp,lmxa,nlml,pnz,w(odmatl),nr,w(oul),w(osl),w(ogz),
 Cdelw1      .    w(oruu),w(orus),w(orss),w(orhoat(1,ib)))
-         call mkrou2 ( nsp , lmxa , nlml , pnz , rv_w_odmatl , nr , rv_w_oul 
+          call mkrou2 ( nsp , lmxa , nlml , pnz , rv_w_odmatl , nr , rv_w_oul 
      .   , rv_w_osl , rv_w_ogz , rv_w_oruu , rv_w_orus , rv_w_orss , w 
-     .   ( orhoat ( 1 , ib ) ) ) 
+     .   ( orhoat ( 1 , ib ) ) )
 
 C       call prrmsh('rout',w(orofi),w(orhoat(1,ib)),nr,nr,nlml*nsp)
 C       call pshpr(40)
@@ -479,60 +479,60 @@ C       H H product.  Include local orbitals w/ envelopes (nkapi->nkaph)
 Cdelw1 2 is digit, dropped
 Cdelw1         call mkrou5(nsp,nr,nlml,nkaph,nkaph,w(ofh),lmxh,
 Cdelw1      .    nkaph,nkaph,w(ofh),lmxh,w(ochh),w(orhoat(2,ib)))
-         call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , rv_w_ofh , lmxh 
+          call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , rv_w_ofh , lmxh 
      .   , nkaph , nkaph , rv_w_ofh , lmxh , rv_w_ochh , w ( orhoat ( 
-     .   2 , ib ) ) ) 
+     .   2 , ib ) ) )
 
 C       H Pkl product
 Cdelw1 2 is digit, dropped
 Cdelw1         call mkrou5(nsp,nr,nlml,nkaph,nkaph,w(ofh),lmxh,
 Cdelw1      .    kmax+1,kmax+1,w(ofp),lmxa,w(ochp),w(orhoat(2,ib)))
-         call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , rv_w_ofh , lmxh 
+          call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , rv_w_ofh , lmxh 
      .   , kmax + 1 , kmax + 1 , rv_w_ofp , lmxa , rv_w_ochp , w ( orhoat 
-     .   ( 2 , ib ) ) ) 
+     .   ( 2 , ib ) ) )
 
 C       Pkl Pkl product
 Cdelw1 2 is digit, dropped
 Cdelw1         call mkrou5(nsp,nr,nlml,kmax+1,kmax+1,w(ofp),lmxa,
 Cdelw1      .    kmax+1,kmax+1,w(ofp),lmxa,w(ocpp),w(orhoat(2,ib)))
-         call mkrou5 ( nsp , nr , nlml , kmax + 1 , kmax + 1 , rv_w_ofp 
+          call mkrou5 ( nsp , nr , nlml , kmax + 1 , kmax + 1 , rv_w_ofp 
      .   , lmxa , kmax + 1 , kmax + 1 , rv_w_ofp , lmxa , rv_w_ocpp , 
-     .   w ( orhoat ( 2 , ib ) ) ) 
+     .   w ( orhoat ( 2 , ib ) ) )
 
 C       call prrmsh('sm rout',w(orofi),w(orhoat(2,ib)),nr,nr,nlml*nsp)
 
 C   ... Site charge and eigenvalue sum decomposed by l
 Cdelw1         call mkrou3(2,lmxa,nlml,nsp,pnz,w(odmatl),
 Cdelw1      .    hab(1,1,1,ib),sab(1,1,1,ib),qbyl(1,1,ib),hbyl(1,1,ib))
-         call mkrou3 ( 2 , lmxa , nlml , nsp , pnz , rv_w_odmatl , hab 
+          call mkrou3 ( 2 , lmxa , nlml , nsp , pnz , rv_w_odmatl , hab 
      .   ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 , ib ) , qbyl ( 1 , 1 , 
-     .   ib ) , hbyl ( 1 , 1 , ib ) ) 
+     .   ib ) , hbyl ( 1 , 1 , ib ) )
 
 C       Remake hbyl from energy-weighted density matrix
-        if (lekkl .ne. 0) then
+          if (lekkl .ne. 0) then
 Cdelw1 warning(1) , probably  oqhh  is not defined yet at linenumber= 280
 Cdelw1 do not change oqhh because of ['undef', 'wref']
-          oqhh = oeqkkl(3,ib)
+            oqhh = oeqkkl(3,ib)
 Cdelw1 warning(1) , probably  oqhp  is not defined yet at linenumber= 281
 Cdelw1 do not change oqhp because of ['undef', 'wref']
-          oqhp = oeqkkl(2,ib)
+            oqhp = oeqkkl(2,ib)
 Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 282
 Cdelw1 do not change oqpp because of ['undef', 'wref']
-          oqpp = oeqkkl(1,ib)
-          nlml1 = 1
+            oqpp = oeqkkl(1,ib)
+            nlml1 = 1
 Cdelw1           call dpzero(w(odmatl),(lmxa+1)**2*nlml1*nsp*9)
-           call dpzero ( rv_w_odmatl , ( lmxa + 1 ) * * 2 * nlml1 * nsp 
-     .     * 9 ) 
+            call dpzero ( rv_w_odmatl , ( lmxa + 1 ) * * 2 * nlml1 * nsp 
+     .     * 9 )
 
-          k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml1*nsp
+            k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml1*nsp
 Cdelw1           call dpzero(w(ochh),k)
-           call dpzero ( rv_w_ochh , k ) 
+            call dpzero ( rv_w_ochh , k )
 
 Cdelw1           call dpzero(w(ochp),k)
-           call dpzero ( rv_w_ochp , k ) 
+            call dpzero ( rv_w_ochp , k )
 
 Cdelw1           call dpzero(w(ocpp),k)
-           call dpzero ( rv_w_ocpp , k ) 
+            call dpzero ( rv_w_ocpp , k )
 
 Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 289
 Cdelw1 do not change ocg because of ['undef', 'wref']
@@ -562,57 +562,57 @@ Cdelw1           call mkrou1(nsp,nlmh,nlma,nlml1,kmax,w(ocg),w(ojcg),w(oidxcg),
 Cdelw1      .      nkaph,nkapi,norb,ltab,ktab,blks,w(oqhh),w(oqhp),w(oqpp),
 Cdelw1      .      w(ovh),w(odh),w(ovp),w(odp),w(ochh),w(ochp),w(ocpp),
 Cdelw1      .      w(odmatl))
-           call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , w ( ocg ) , 
+            call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , w ( ocg ) , 
      .     w ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
      .     , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , rv_w_ovh , rv_w_odh 
      .     , rv_w_ovp , rv_w_odp , rv_w_ochh , rv_w_ochp , rv_w_ocpp , rv_w_odmatl 
-     .     ) 
+     .     )
 
 Cdelw1           call mkrou3(1,lmxa,nlml1,nsp,pnz,w(odmatl),
 Cdelw1      .      w,sab(1,1,1,ib),hbyl(1,1,ib),w)
-           call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , rv_w_odmatl , w 
-     .     , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , w ) 
+            call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , rv_w_odmatl , w 
+     .     , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , w )
 
-        endif
+          endif
 
 C   --- Print charges for information ---
 Cdelw1 1 is digit, dropped
 Cdelw1         call radsum(nr,nr,nlml,nsp,w(orwgt),w(orhoat(1,ib)),sum1)
-         call radsum ( nr , nr , nlml , nsp , rv_w_orwgt , w ( orhoat 
-     .   ( 1 , ib ) ) , sum1 ) 
+          call radsum ( nr , nr , nlml , nsp , rv_w_orwgt , w ( orhoat 
+     .   ( 1 , ib ) ) , sum1 )
 
 Cdelw1 2 is digit, dropped
 Cdelw1         call radsum(nr,nr,nlml,nsp,w(orwgt),w(orhoat(2,ib)),sum2)
-         call radsum ( nr , nr , nlml , nsp , rv_w_orwgt , w ( orhoat 
-     .   ( 2 , ib ) ) , sum2 ) 
+          call radsum ( nr , nr , nlml , nsp , rv_w_orwgt , w ( orhoat 
+     .   ( 2 , ib ) ) , sum2 )
 
-        sum1 = sum1/y0
-        sum2 = sum2/y0
-        if (nsp .eq. 2) then
+          sum1 = sum1/y0
+          sum2 = sum2/y0
+          if (nsp .eq. 2) then
 Cdelw1 1 is digit, dropped
 Cdelw1           sums1 = sum1 - 2*ddot(nr,w(orwgt),1,w(orhoat(1,ib)),1)/y0
-           sums1 = sum1 - 2 * ddot ( nr , rv_w_orwgt , 1 , w ( orhoat ( 
-     .     1 , ib ) ) , 1 ) / y0 
+            sums1 = sum1 - 2 * ddot ( nr , rv_w_orwgt , 1 , w ( orhoat ( 
+     .     1 , ib ) ) , 1 ) / y0
 
 Cdelw1 2 is digit, dropped
 Cdelw1           sums2 = sum2 - 2*ddot(nr,w(orwgt),1,w(orhoat(2,ib)),1)/y0
-           sums2 = sum2 - 2 * ddot ( nr , rv_w_orwgt , 1 , w ( orhoat ( 
-     .     2 , ib ) ) , 1 ) / y0 
+            sums2 = sum2 - 2 * ddot ( nr , rv_w_orwgt , 1 , w ( orhoat ( 
+     .     2 , ib ) ) , 1 ) / y0
 
-        endif
-        if (ipr.ge.30 .and. nsp .eq. 1)
+          endif
+          if (ipr.ge.30 .and. nsp .eq. 1)
      .    write(stdo,200) ib,sum1,sum2,sum1-sum2
-        if (ipr.ge.30 .and. nsp .eq. 2)
+          if (ipr.ge.30 .and. nsp .eq. 2)
      .    write(stdo,200) ib,sum1,sum2,sum1-sum2,
      .    -sums1,-sums2,-sums1+sums2
-  200   format(i4,3f12.6,2x,3f12.6)
+  200     format(i4,3f12.6,2x,3f12.6)
         endif
 
 C       Contribution to mag outsite rmt: extrapolate tail to infinity
 Cdelw1 1 is digit, dropped
 Cdelw1         call mkrou6(w(orofi),w(orhoat(1,ib)),nr,nlml,nsp,xx,xx,res)
-         call mkrou6 ( rv_w_orofi , w ( orhoat ( 1 , ib ) ) , nr , nlml 
-     .   , nsp , xx , xx , res ) 
+        call mkrou6 ( rv_w_orofi , w ( orhoat ( 1 , ib ) ) , nr , nlml 
+     .   , nsp , xx , xx , res )
 
         if (ipr.ge.30 .and. res .ne. 0) then
           write(stdo,211) res,res-sums1
@@ -630,9 +630,9 @@ Cdelw1 warning(1) , probably  ov01  is not defined yet at linenumber= 325
 Cdelw1 do not change ov01 because of ['undef', 'wref']
 Cdelw1           call getcor(0,z,a,pnu,pnz,nr,lmxa,w(orofi),w(ov01),kcor,lcor,
 Cdelw1      .      qcor,smec,smtc,w(orhoat(3,ib)),ncore,0d0,0d0)
-           call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rv_w_orofi 
+          call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rv_w_orofi 
      .     , w ( ov01 ) , kcor , lcor , qcor , smec , smtc , w ( orhoat 
-     .     ( 3 , ib ) ) , ncore , 0d0 , 0d0 ) 
+     .     ( 3 , ib ) ) , ncore , 0d0 , 0d0 )
 
           call poppr
 C     ... here if v0 used to make core... then effectively frozen
@@ -654,29 +654,29 @@ Cdelw1 do not change orhoca because of ['undef', 'wref']
           call dpcopy(w(orhoca),w(orhoat(3,ib)),1,nr*nsp,1d0)
         endif
 
-Cdelw1 rlse name= orofi old_list= orofi orwgt ofh oxh ovh odh ofp oxp ovp odp oul osl ogz oruu orus orss ochh ochp ocpp odmatl 
+Cdelw1 rlse name= orofi old_list= orofi orwgt ofh oxh ovh odh ofp oxp ovp odp oul osl ogz oruu orus orss ochh ochp ocpp odmatl
 Cdelw1 rlse name= orofi new_list= (None)
 Cdelw1         call rlse(orofi)
-         if (allocated(rv_w_odmatl)) deallocate(rv_w_odmatl)
-         if (allocated(rv_w_ocpp)) deallocate(rv_w_ocpp)
-         if (allocated(rv_w_ochp)) deallocate(rv_w_ochp)
-         if (allocated(rv_w_ochh)) deallocate(rv_w_ochh)
-         if (allocated(rv_w_orss)) deallocate(rv_w_orss)
-         if (allocated(rv_w_orus)) deallocate(rv_w_orus)
-         if (allocated(rv_w_oruu)) deallocate(rv_w_oruu)
-         if (allocated(rv_w_ogz)) deallocate(rv_w_ogz)
-         if (allocated(rv_w_osl)) deallocate(rv_w_osl)
-         if (allocated(rv_w_oul)) deallocate(rv_w_oul)
-         if (allocated(rv_w_odp)) deallocate(rv_w_odp)
-         if (allocated(rv_w_ovp)) deallocate(rv_w_ovp)
-         if (allocated(rv_w_oxp)) deallocate(rv_w_oxp)
-         if (allocated(rv_w_ofp)) deallocate(rv_w_ofp)
-         if (allocated(rv_w_odh)) deallocate(rv_w_odh)
-         if (allocated(rv_w_ovh)) deallocate(rv_w_ovh)
-         if (allocated(rv_w_oxh)) deallocate(rv_w_oxh)
-         if (allocated(rv_w_ofh)) deallocate(rv_w_ofh)
-         if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
-         if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+        if (allocated(rv_w_odmatl)) deallocate(rv_w_odmatl)
+        if (allocated(rv_w_ocpp)) deallocate(rv_w_ocpp)
+        if (allocated(rv_w_ochp)) deallocate(rv_w_ochp)
+        if (allocated(rv_w_ochh)) deallocate(rv_w_ochh)
+        if (allocated(rv_w_orss)) deallocate(rv_w_orss)
+        if (allocated(rv_w_orus)) deallocate(rv_w_orus)
+        if (allocated(rv_w_oruu)) deallocate(rv_w_oruu)
+        if (allocated(rv_w_ogz)) deallocate(rv_w_ogz)
+        if (allocated(rv_w_osl)) deallocate(rv_w_osl)
+        if (allocated(rv_w_oul)) deallocate(rv_w_oul)
+        if (allocated(rv_w_odp)) deallocate(rv_w_odp)
+        if (allocated(rv_w_ovp)) deallocate(rv_w_ovp)
+        if (allocated(rv_w_oxp)) deallocate(rv_w_oxp)
+        if (allocated(rv_w_ofp)) deallocate(rv_w_ofp)
+        if (allocated(rv_w_odh)) deallocate(rv_w_odh)
+        if (allocated(rv_w_ovh)) deallocate(rv_w_ovh)
+        if (allocated(rv_w_oxh)) deallocate(rv_w_oxh)
+        if (allocated(rv_w_ofh)) deallocate(rv_w_ofh)
+        if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+        if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
 
 
    10   continue
@@ -685,9 +685,9 @@ Cdelw1         call rlse(orofi)
 C --- Put sumec,sumtc into etot struct ---
 Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
 Cgetarg       call pack1('ham eterms',sham,eterms)
-       
-       i_copy_size=size(sham%eterms) 
-       call dcopy(i_copy_size,eterms,1,sham%eterms,1) 
+
+      i_copy_size=size(sham%eterms)
+      call dcopy(i_copy_size,eterms,1,sham%eterms,1)
 
 
       call tcx('mkrout')
@@ -696,7 +696,7 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [oiprmb ov0 ocg ojcg oidxcg oqhh oqhp oqpp ov01 orhoca orhoat]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mkrout 
+      end subroutine mkrout
 
 
       subroutine mkrou1(nsp,nlmh,nlma,nlml,kmax,cg,jcg,indxcg,
@@ -823,7 +823,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mkrou1 
+      end subroutine mkrou1
 
 
       subroutine mkrou2(nsp,lmxa,nlml,pnz,dmatl,nr,ul,sl,gz,ruu,rus,rss,
@@ -886,53 +886,53 @@ C     double precision top
 
 C --- Full density as products (u,s) (u,s); no small component ---
       do  isp = 1, nsp
-      do  mlm = 1, nlml
-        do  l1 = 0, lmxa
-          do  l2 = 0, lmxa
-            lpz1 = pnz(l1+1,1) .ne. 0
-            lpz2 = pnz(l2+1,1) .ne. 0
+        do  mlm = 1, nlml
+          do  l1 = 0, lmxa
+            do  l2 = 0, lmxa
+              lpz1 = pnz(l1+1,1) .ne. 0
+              lpz2 = pnz(l2+1,1) .ne. 0
 
-            xuu = dmatl(l1,l2,mlm,1,1,isp)
-            xus = dmatl(l1,l2,mlm,1,2,isp)
-            xsu = dmatl(l1,l2,mlm,2,1,isp)
-            xss = dmatl(l1,l2,mlm,2,2,isp)
+              xuu = dmatl(l1,l2,mlm,1,1,isp)
+              xus = dmatl(l1,l2,mlm,1,2,isp)
+              xsu = dmatl(l1,l2,mlm,2,1,isp)
+              xss = dmatl(l1,l2,mlm,2,2,isp)
 
 C           top = xuu*xuu + xus*xus + xsu*xsu + xss*xss
 C           if (dsqrt(top).gt.1d-6)
 C    .        write (6,700) mlm,l1,l2,xuu,xus,xsu,xss
 C 700       format(3i5,4f14.8)
 
-            do  i = 1, nr
-              rho(i,mlm,isp) = rho(i,mlm,isp)
+              do  i = 1, nr
+                rho(i,mlm,isp) = rho(i,mlm,isp)
      .           + xuu * ul(i,l1,isp) * ul(i,l2,isp)
      .           + xsu * sl(i,l1,isp) * ul(i,l2,isp)
      .           + xus * ul(i,l1,isp) * sl(i,l2,isp)
      .           + xss * sl(i,l1,isp) * sl(i,l2,isp)
-            enddo
+              enddo
 
-            if (lpz1 .or. lpz2) then
+              if (lpz1 .or. lpz2) then
 
-              xuz = dmatl(l1,l2,mlm,1,3,isp)
-              xsz = dmatl(l1,l2,mlm,2,3,isp)
-              xzu = dmatl(l1,l2,mlm,3,1,isp)
-              xzs = dmatl(l1,l2,mlm,3,2,isp)
-              xzz = dmatl(l1,l2,mlm,3,3,isp)
-              if (xuz.ne.0 .or. xsz.ne.0 .or. xzu.ne.0 .or.
+                xuz = dmatl(l1,l2,mlm,1,3,isp)
+                xsz = dmatl(l1,l2,mlm,2,3,isp)
+                xzu = dmatl(l1,l2,mlm,3,1,isp)
+                xzs = dmatl(l1,l2,mlm,3,2,isp)
+                xzz = dmatl(l1,l2,mlm,3,3,isp)
+                if (xuz.ne.0 .or. xsz.ne.0 .or. xzu.ne.0 .or.
      .            xzs.ne.0 .or. xzz.ne.0) then
-              do  i = 1, nr
-                rho(i,mlm,isp) = rho(i,mlm,isp)
+                  do  i = 1, nr
+                    rho(i,mlm,isp) = rho(i,mlm,isp)
      .            + xuz * ul(i,l1,isp) * gz(i,l2,isp)
      .            + xsz * sl(i,l1,isp) * gz(i,l2,isp)
      .            + xzu * gz(i,l1,isp) * ul(i,l2,isp)
      .            + xzs * gz(i,l1,isp) * sl(i,l2,isp)
      .            + xzz * gz(i,l1,isp) * gz(i,l2,isp)
-              enddo
+                  enddo
+                endif
               endif
-            endif
 
+            enddo
           enddo
         enddo
-      enddo
       enddo
 
 C --- Remake spherical density including small component ---
@@ -941,27 +941,27 @@ C     return
       call dpzero(rho,nr)
       call dpzero(rho(1,1,nsp),nr)
       do  isp = 1, nsp
-      do  l = 0, lmxa
-        xuu = dmatl(l,l,1,1,1,isp)
-        xus = dmatl(l,l,1,1,2,isp) + dmatl(l,l,1,2,1,isp)
-        xss = dmatl(l,l,1,2,2,isp)
-        xuz = dmatl(l,l,1,1,3,isp) + dmatl(l,l,1,3,1,isp)
-        xsz = dmatl(l,l,1,2,3,isp) + dmatl(l,l,1,3,2,isp)
-        xzz = dmatl(l,l,1,3,3,isp)
+        do  l = 0, lmxa
+          xuu = dmatl(l,l,1,1,1,isp)
+          xus = dmatl(l,l,1,1,2,isp) + dmatl(l,l,1,2,1,isp)
+          xss = dmatl(l,l,1,2,2,isp)
+          xuz = dmatl(l,l,1,1,3,isp) + dmatl(l,l,1,3,1,isp)
+          xsz = dmatl(l,l,1,2,3,isp) + dmatl(l,l,1,3,2,isp)
+          xzz = dmatl(l,l,1,3,3,isp)
 
-        do  i = 1, nr
-          rho(i,1,isp) = rho(i,1,isp)
+          do  i = 1, nr
+            rho(i,1,isp) = rho(i,1,isp)
      .       +xuu*ruu(i,l,1,isp)+xus*rus(i,l,1,isp)+xss*rss(i,l,1,isp)
-        enddo
+          enddo
 
-        if (pnz(l+1,1) .ne. 0) then
-        do  i = 1, nr
-          rho(i,1,isp) = rho(i,1,isp)
+          if (pnz(l+1,1) .ne. 0) then
+            do  i = 1, nr
+              rho(i,1,isp) = rho(i,1,isp)
      .       +xuz*ruu(i,l,2,isp)+xsz*rus(i,l,2,isp)+xzz*rss(i,l,2,isp)
-        enddo
-        endif
+            enddo
+          endif
 
-      enddo
+        enddo
       enddo
 
       call tcx('mkrou2')
@@ -969,7 +969,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mkrou2 
+      end subroutine mkrou2
 
 
       subroutine mkrou3(mode,lmxa,nlml,nsp,pnz,dmatl,hab,sab,qsum,hsum)
@@ -1036,7 +1036,7 @@ C     call tcn('mkrou3')
      .       + dmatl(l,l,1,2,1,isp)*sab(3,m,isp)*srfpi
      .       + dmatl(l,l,1,2,2,isp)*sab(4,m,isp)*srfpi
           if (mode .ge. 2) then
-          hsum(m,isp) =
+            hsum(m,isp) =
      .       + dmatl(l,l,1,1,1,isp)*hab(1,m,isp)*srfpi
      .       + dmatl(l,l,1,1,2,isp)*hab(2,m,isp)*srfpi
      .       + dmatl(l,l,1,2,1,isp)*hab(3,m,isp)*srfpi
@@ -1044,20 +1044,20 @@ C     call tcn('mkrou3')
           endif
 C         ... uz, sz, zu, zs, zz terms
           if (pnz(m,1) .ne. 0) then
-          qz =
+            qz =
      .       + dmatl(l,l,1,1,3,isp)*sab(5,m,isp)*srfpi
      .       + dmatl(l,l,1,2,3,isp)*sab(6,m,isp)*srfpi
      .       + dmatl(l,l,1,3,1,isp)*sab(5,m,isp)*srfpi
      .       + dmatl(l,l,1,3,2,isp)*sab(6,m,isp)*srfpi
      .       + dmatl(l,l,1,3,3,isp)*sab(7,m,isp)*srfpi
-          if (mode .ge. 2) then
-          hz =
+            if (mode .ge. 2) then
+              hz =
      .       + dmatl(l,l,1,1,3,isp)*hab(5,m,isp)*srfpi
      .       + dmatl(l,l,1,2,3,isp)*hab(6,m,isp)*srfpi
      .       + dmatl(l,l,1,3,1,isp)*hab(5,m,isp)*srfpi
      .       + dmatl(l,l,1,3,2,isp)*hab(6,m,isp)*srfpi
      .       + dmatl(l,l,1,3,3,isp)*hab(7,m,isp)*srfpi
-          endif
+            endif
           endif
 
         enddo
@@ -1069,7 +1069,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mkrou3 
+      end subroutine mkrou3
 
 
       subroutine mkrou4(nsp,nlml,cg,jcg,indxcg,
@@ -1131,40 +1131,40 @@ C ... Local parameters
 C     call tcn('mkrou4')
 
       do  isp = 1, nsp
-      do  io2 = 1, norb2
-      if (blks2(io2) .ne. 0) then
+        do  io2 = 1, norb2
+          if (blks2(io2) .ne. 0) then
 C       k2,l2 = k and starting l index for this block
-        l2 = ltab2(io2)
-        k2 = ktab2(io2)
-        nlm21 = l2**2+1
-        nlm22 = nlm21 + blks2(io2)-1
-        do  ilm2 = nlm21, nlm22
-          l2 = ll(ilm2)
-          do  io1 = 1, norb1
-          if (blks1(io1) .ne. 0) then
+            l2 = ltab2(io2)
+            k2 = ktab2(io2)
+            nlm21 = l2**2+1
+            nlm22 = nlm21 + blks2(io2)-1
+            do  ilm2 = nlm21, nlm22
+              l2 = ll(ilm2)
+              do  io1 = 1, norb1
+                if (blks1(io1) .ne. 0) then
 C           k1,l1 = k and starting l index for this block
-            l1 = ltab1(io1)
-            k1 = ktab1(io1)
-            nlm11 = l1**2+1
-            nlm12 = nlm11 + blks1(io1)-1
-            do  ilm1 = nlm11, nlm12
-              l1 = ll(ilm1)
+                  l1 = ltab1(io1)
+                  k1 = ktab1(io1)
+                  nlm11 = l1**2+1
+                  nlm12 = nlm11 + blks1(io1)-1
+                  do  ilm1 = nlm11, nlm12
+                    l1 = ll(ilm1)
 
-              ix = max0(ilm1,ilm2)
-              ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
-              do icg = indxcg(ix),indxcg(ix+1)-1
-                mlm = jcg(icg)
-                if (mlm .le. nlml) then
-                  xx = cg(icg)*qkk12(k1,k2,ilm1,ilm2,isp)
-                  ckk(k1,k2,l1,l2,mlm,isp) = ckk(k1,k2,l1,l2,mlm,isp)+xx
+                    ix = max0(ilm1,ilm2)
+                    ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
+                    do icg = indxcg(ix),indxcg(ix+1)-1
+                      mlm = jcg(icg)
+                      if (mlm .le. nlml) then
+                        xx = cg(icg)*qkk12(k1,k2,ilm1,ilm2,isp)
+                        ckk(k1,k2,l1,l2,mlm,isp) = ckk(k1,k2,l1,l2,mlm,isp)+xx
+                      endif
+                    enddo
+                  enddo
                 endif
               enddo
             enddo
           endif
-          enddo
         enddo
-      endif
-      enddo
       enddo
 
 C     call tcx('mkrou4')
@@ -1172,7 +1172,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mkrou4 
+      end subroutine mkrou4
 
 
       subroutine mkcfus(nsp,lmxa,nlml,nf1,nf1s,val1,slo1,lmx1,
@@ -1229,27 +1229,27 @@ C ... Local parameters
 C     call tcn('mkcfus')
 
       do  isp = 1, nsp
-      do  mlm = 1, nlml
-        do  k2 = 1, nf2s
-          do  k1 = 1, nf1s
-            do  l2 = 0, lmx2
-              do  l1 = 0, lmx1
-                xx = ckk(k1,k2,l1,l2,mlm,isp)
+        do  mlm = 1, nlml
+          do  k2 = 1, nf2s
+            do  k1 = 1, nf1s
+              do  l2 = 0, lmx2
+                do  l1 = 0, lmx1
+                  xx = ckk(k1,k2,l1,l2,mlm,isp)
 
-                dmatl(l1,l2,mlm,1,1,isp) = dmatl(l1,l2,mlm,1,1,isp)
+                  dmatl(l1,l2,mlm,1,1,isp) = dmatl(l1,l2,mlm,1,1,isp)
      .                             + xx * val1(l1,k1) * val2(l2,k2)
-                dmatl(l1,l2,mlm,1,2,isp) = dmatl(l1,l2,mlm,1,2,isp)
+                  dmatl(l1,l2,mlm,1,2,isp) = dmatl(l1,l2,mlm,1,2,isp)
      .                             + xx * val1(l1,k1) * slo2(l2,k2)
-                dmatl(l1,l2,mlm,2,1,isp) = dmatl(l1,l2,mlm,2,1,isp)
+                  dmatl(l1,l2,mlm,2,1,isp) = dmatl(l1,l2,mlm,2,1,isp)
      .                             + xx * slo1(l1,k1) * val2(l2,k2)
-                dmatl(l1,l2,mlm,2,2,isp) = dmatl(l1,l2,mlm,2,2,isp)
+                  dmatl(l1,l2,mlm,2,2,isp) = dmatl(l1,l2,mlm,2,2,isp)
      .                             + xx * slo1(l1,k1) * slo2(l2,k2)
 
+                enddo
               enddo
             enddo
           enddo
         enddo
-      enddo
       enddo
 
 C     call tcx('mkcfus')
@@ -1262,33 +1262,33 @@ Cdelw1 w_varlist (del), remains: (None)
 C     call tcn('mkcfus')
 
       do  isp = 1, nsp
-      do  mlm = 1, nlml
-        do  k2 = 1, nf2
-          do  k1 = 1, nf1
-            if (k1 .gt. nf1s .or. k2 .gt. nf2s) then
-            do  l2 = 0, lmx2
-              do  l1 = 0, lmx1
-                xx = ckk(k1,k2,l1,l2,mlm,isp)
+        do  mlm = 1, nlml
+          do  k2 = 1, nf2
+            do  k1 = 1, nf1
+              if (k1 .gt. nf1s .or. k2 .gt. nf2s) then
+                do  l2 = 0, lmx2
+                  do  l1 = 0, lmx1
+                    xx = ckk(k1,k2,l1,l2,mlm,isp)
 
 C               sc-sc product
-                if (k1 .gt. nf1s .and. k2 .gt. nf2s) then
-                  dmatl(l1,l2,mlm,3,3,isp) = dmatl(l1,l2,mlm,3,3,isp)+xx
+                    if (k1 .gt. nf1s .and. k2 .gt. nf2s) then
+                      dmatl(l1,l2,mlm,3,3,isp) = dmatl(l1,l2,mlm,3,3,isp)+xx
 
 C               sc-valence product
-                elseif (k1 .gt. nf1s) then
-                  dmatl(l1,l2,mlm,3,1,isp) = dmatl(l1,l2,mlm,3,1,isp)
+                    elseif (k1 .gt. nf1s) then
+                      dmatl(l1,l2,mlm,3,1,isp) = dmatl(l1,l2,mlm,3,1,isp)
      .                                     + xx * val2(l2,k2)
-                  dmatl(l1,l2,mlm,3,2,isp) = dmatl(l1,l2,mlm,3,2,isp)
+                      dmatl(l1,l2,mlm,3,2,isp) = dmatl(l1,l2,mlm,3,2,isp)
      .                                     + xx * slo2(l2,k2)
 
 C               valence-sc product
-                elseif (k2 .gt. nf2s) then
-                  dmatl(l1,l2,mlm,1,3,isp) = dmatl(l1,l2,mlm,1,3,isp)
+                    elseif (k2 .gt. nf2s) then
+                      dmatl(l1,l2,mlm,1,3,isp) = dmatl(l1,l2,mlm,1,3,isp)
      .                                     + val1(l1,k1) * xx
-                  dmatl(l1,l2,mlm,2,3,isp) = dmatl(l1,l2,mlm,2,3,isp)
+                      dmatl(l1,l2,mlm,2,3,isp) = dmatl(l1,l2,mlm,2,3,isp)
      .                                     + slo1(l1,k1) * xx
 
-                endif
+                    endif
 
 C                if (l1.eq.2.and.l2.eq.2 .and. mlm.eq.1) then
 C                  print 333, k1,k2,xx,
@@ -1296,12 +1296,12 @@ C     .              dmatl(l1,l2,mlm,1,3,isp),dmatl(l1,l2,mlm,3,1,isp)
 C  333             format(2i4,3f12.6)
 C                endif
 
-              enddo
+                  enddo
+                enddo
+              endif
             enddo
-            endif
           enddo
         enddo
-      enddo
       enddo
 
 C     call tcx('mkcfus')
@@ -1334,7 +1334,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mkcfus 
+      end subroutine mkcfus
 
 
       subroutine mkrou5(nsp,nr,nlml,nf1,nf1s,f1,lmx1,nf2,nf2s,f2,lmx2,
@@ -1378,23 +1378,23 @@ C ... Local parameters
       call tcn('mkrou5')
 
       do  isp = 1, nsp
-      do  mlm = 1, nlml
-        do  k2 = 1, nf2s
-          do  k1 = 1, nf1s
-            do  l2 = 0, lmx2
-              do  l1 = 0, lmx1
-                xx = ckk(k1,k2,l1,l2,mlm,isp)
-                if (dabs(xx) .gt. 1d-16) then
-                do  i= 1, nr
-                  rho(i,mlm,isp) = rho(i,mlm,isp)
+        do  mlm = 1, nlml
+          do  k2 = 1, nf2s
+            do  k1 = 1, nf1s
+              do  l2 = 0, lmx2
+                do  l1 = 0, lmx1
+                  xx = ckk(k1,k2,l1,l2,mlm,isp)
+                  if (dabs(xx) .gt. 1d-16) then
+                    do  i= 1, nr
+                      rho(i,mlm,isp) = rho(i,mlm,isp)
      .                           + xx*f1(i,l1,k1)*f2(i,l2,k2)
+                    enddo
+                  endif
                 enddo
-                endif
               enddo
             enddo
           enddo
         enddo
-      enddo
       enddo
 
       call tcx('mkrou5')
@@ -1402,7 +1402,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mkrou5 
+      end subroutine mkrou5
 
 
       subroutine mkrou6(rofi,rho,nr,nlml,nsp,rho0,decay,res)
@@ -1488,6 +1488,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mkrou6 
+      end subroutine mkrou6
 
 

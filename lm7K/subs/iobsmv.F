@@ -15,9 +15,9 @@ Co Outputs :position vectors are written to disk
 Cl Local variables
 Cl         :
 Cr Remarks
-Cr   
+Cr
 Cu Updates
-Cu   18 Nov 02 
+Cu   18 Nov 02
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
@@ -25,7 +25,7 @@ C ... Passed parameters
       double precision tim,T,V,alat,pos(3*nbas)
 C ... Local parameters
       integer i,jfi
-C     double precision 
+C     double precision
 
       call isanrg(mode,0,0,' iobsmv','mode',.true.)
       if (ifi .lt. 0) then
@@ -40,7 +40,7 @@ C     double precision
       endif
 
       end
-     
+
       subroutine iobsm0(mode,tim,T,V,nbas,alat,pos,ifi)
 C- Initialization for iobsmv
 C ----------------------------------------------------------------------
@@ -57,9 +57,9 @@ Co   tim   :time at last step, if file
 Cl Local variables
 Cl         :
 Cr Remarks
-Cr   
+Cr
 Cu Updates
-Cu   18 Nov 02 
+Cu   18 Nov 02
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters

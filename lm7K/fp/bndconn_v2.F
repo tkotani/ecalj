@@ -45,18 +45,18 @@ c---------
 c--------
 c      print *, ' band mode xxx4'
       do iix =1,ndimh  !; print *, ' band mode xxx5 iix=',iix
-      do iiy =1,ndimh
-c        ovv(iiy,iix) =abs( gpg(iiy,iix) 
-c     &  +sum( dconjg(cphi(1:ldim2,iiy))*cphi_p(1:ldim2,iix)) 
+        do iiy =1,ndimh
+c        ovv(iiy,iix) =abs( gpg(iiy,iix)
+c     &  +sum( dconjg(cphi(1:ldim2,iiy))*cphi_p(1:ldim2,iix))
 c     &   )**2
-c        ovv(iiy,iix) =abs( gpg(iiy,iix) 
-c     &    + sum( dconjg(cphi(1:ldim2,iiy))* 
+c        ovv(iiy,iix) =abs( gpg(iiy,iix)
+c     &    + sum( dconjg(cphi(1:ldim2,iiy))*
 c     &           matmul(ovvx,cphi_p(1:ldim2,iix)) )
 c     &                ) !**2
-        ovv(iiy,iix) =abs( gpg(iiy,iix) +coc(iiy,iix))
-      enddo
-            iyiy = maxloc( ovv(1:ndimh,iix),dim=1 )
-            write(ifdebug,'(2i3,255i4)') iix ,iyiy,
+          ovv(iiy,iix) =abs( gpg(iiy,iix) +coc(iiy,iix))
+        enddo
+        iyiy = maxloc( ovv(1:ndimh,iix),dim=1 )
+        write(ifdebug,'(2i3,255i4)') iix ,iyiy,
      &      (int(100*ovv(j,iix)),j=1,ndimh)
       enddo
       deallocate(ppovl2,gpg)
@@ -65,14 +65,14 @@ c      print *, ' band mode xxx5'
 c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxx1'
 
       ifill = 0
-      do iix = 1,ndimh 
+      do iix = 1,ndimh
 !  Denenaracy treatment
         eigdeg = -1d99
         istart = 1
         sumdeg = 0d0
 c      print *, ' band mode xxx6'
-        do iiy=1,ndimh 
-          if(iiy==ndimh) then   
+        do iiy=1,ndimh
+          if(iiy==ndimh) then
             ovv(istart:ndimh,iix) = sumdeg + ovv(iiy,iix)
           elseif(abs(eigdeg-evl(iiy))>1d-6.and.iiy/=1) then
             ovv(istart:iiy-1,iix) = sumdeg
@@ -87,12 +87,12 @@ c       print *, ' band mode xxx7'
 c            write(ifdebug,*)' xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 c            write(ifdebug,'(2i3,255i4)') iix ,iix,
 c     &      (int(100*ovv(j,iix)),j=1,ndimh)
-! Get the connection ix to iy. 
+! Get the connection ix to iy.
         do
           iyiy = maxloc( ovv(1:ndimh,iix),dim=1 )
           if( ifill(iyiy)==0 ) then
             iiyf(iix) = iyiy
-            ifill(iyiy)=1 
+            ifill(iyiy)=1
             ovv(1:iyiy-1    ,iix) = 0d0
             ovv(iyiy+1:ndimh,iix) = 0d0
             exit

@@ -5,8 +5,8 @@ Cgetarg...info...           structure ['elocp', 'site', 'ssite']
 Cgetarg...info...           structure ['elocp', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['elocp', 'm_struc_def']
       subroutine elocp(nbas,nsp,ssite,sspec,job)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Make envlope parameters for extended local orbitals
 C ----------------------------------------------------------------------
@@ -35,8 +35,8 @@ C ... Passed parameters
       integer nbas,nsp,job,n0
       parameter (n0=10)
 Cgetarg       double precision ssite(1),sspec(1)
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
       character spid*8
@@ -47,8 +47,8 @@ C ... Local parameters
       integer lh(nkap0),nkape,nkaph,idamax
 Cdelw1 do not change  [['undef', 'wref'], 'ov0', 'elocp']
 Cdelw1       integer oips,ov0
-       integer:: ov0 
-       integer ,allocatable :: iv_w_oips(:)
+      integer:: ov0
+      integer ,allocatable :: iv_w_oips(:)
 
       double precision z,a,rmt,rs3,eh3,vmtz,xx
       double precision rofi(nrmx),vseli(4,n0),vsel(4,n0,nbas),
@@ -78,42 +78,42 @@ Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
 Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
 Cgetarg         call upack('site spec pnu ov0',ssite,ib,is,pnu,ov0,0)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pnu) 
-         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
+
+        is=ssite(ib)%spec
+        i_copy_size=size(ssite(ib)%pnu)
+        call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 74
 Cdelw1 do not change ov0 because of ['undef', 'wref']
-         ov0=ssite(ib)%ov0
+        ov0=ssite(ib)%ov0
 
 Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
 Cgetarg         call upack2('site pz',ssite,ib,pnz)
-         
-         i_copy_size=size(ssite(ib)%pz) 
-         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+
+        i_copy_size=size(ssite(ib)%pz)
+        call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
 
 Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
-         do i_spacks=is,is 
-         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-         enddo
+        do i_spacks=is,is
+          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+        enddo
 
 Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-         
-         a=sspec(is)%a
-         nr=sspec(is)%nr
-         rmt=sspec(is)%rmt
+
+        a=sspec(is)%a
+        nr=sspec(is)%nr
+        rmt=sspec(is)%rmt
 
 Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
 Cgetarg         call upack('spec z lmxa lmxb',sspec,is,z,lmxa,lmxb,0)
-         
-         z=sspec(is)%z
-         lmxa=sspec(is)%lmxa
-         lmxb=sspec(is)%lmxb
+
+        z=sspec(is)%z
+        lmxa=sspec(is)%lmxa
+        lmxb=sspec(is)%lmxb
 
         if (lmxa .eq. -1) goto 10
         if (pnz(idamax(lmxb+1,pnz,1),1) .lt. 10) goto 10
@@ -133,50 +133,50 @@ Cdelw1 do not change ov0 because of ['undef', 'wref']
 
 C --- Determine shape of smooth Hankel tails for local orbitals ---
 Cdelw1       call defi(oips,nbas)
-       allocate(iv_w_oips(nbas))
+      allocate(iv_w_oips(nbas))
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oips(:)=0
 
 Cgetarg       call spackv(10,'site spec',ssite,1,nbas,w(oips))
-       i_copy_size=1; 
-       do i_spackv=1,nbas 
+      i_copy_size=1;
+      do i_spackv=1,nbas
 Cdelw1        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
         call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-     .  , i_copy_size , i_spackv + 1 - 1 , iv_w_oips ) 
+     .  , i_copy_size , i_spackv + 1 - 1 , iv_w_oips )
 
-       enddo
+      enddo
 
 C ... Loop over species containing extended local orbitals
       do  is = 1, nspec
 Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
-         do i_spacks=is,is 
-         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-         enddo
+        do i_spacks=is,is
+          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+        enddo
 
 Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
 Cgetarg         call upack('spec z lmxa lmxb',sspec,is,z,lmxa,lmxb,0)
-         
-         z=sspec(is)%z
-         lmxa=sspec(is)%lmxa
-         lmxb=sspec(is)%lmxb
+
+        z=sspec(is)%z
+        lmxa=sspec(is)%lmxa
+        lmxb=sspec(is)%lmxb
 
         if (lmxa .eq. -1) goto 20
 Cdelw1         nrspec = iabs(iclbsj(is,w(oips),-nbas,nbas))
-         nrspec = iabs ( iclbsj ( is , iv_w_oips , - nbas , nbas ) ) 
+        nrspec = iabs ( iclbsj ( is , iv_w_oips , - nbas , nbas ) )
 
         if (nrspec .eq. 0) goto 20
 Cdelw1         ib = iclbsj(is,w(oips),nbas,1)
-         ib = iclbsj ( is , iv_w_oips , nbas , 1 ) 
+        ib = iclbsj ( is , iv_w_oips , nbas , 1 )
 
 Cgetarg...info...           real(8) :: pnui(n0,2) , real(8) :: ssite%pnu 20
 Cgetarg...info...           real(8) :: pnzi(n0,2) , real(8) :: ssite%pz 20
 Cgetarg         call upack('site pnu pz',ssite,ib,pnui,pnzi,0,0)
-         
-         i_copy_size=size(ssite(ib)%pnu) 
-         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnui,1) 
-         i_copy_size=size(ssite(ib)%pz) 
-         call dcopy(i_copy_size,ssite(ib)%pz,1,pnzi,1) 
+
+        i_copy_size=size(ssite(ib)%pnu)
+        call dcopy(i_copy_size,ssite(ib)%pnu,1,pnui,1)
+        i_copy_size=size(ssite(ib)%pz)
+        call dcopy(i_copy_size,ssite(ib)%pz,1,pnzi,1)
 
         if (pnzi(idamax(lmxb+1,pnzi,1),1) .lt. 10) goto 20
 
@@ -184,13 +184,13 @@ C   ... Average over sites within this species
         call dpzero(vseli,4*n0)
         do  ibs = 1, nrspec
 Cdelw1           ib = iclbsj(is,w(oips),nbas,ibs)
-           ib = iclbsj ( is , iv_w_oips , nbas , ibs ) 
+          ib = iclbsj ( is , iv_w_oips , nbas , ibs )
 
 Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
 Cgetarg           call upack2('site pz',ssite,ib,pnz)
-           
-           i_copy_size=size(ssite(ib)%pz) 
-           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+
+          i_copy_size=size(ssite(ib)%pz)
+          call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
 
           if (pnzi(idamax(lmxb+1,pnzi,1),1) .lt. 10) goto 22
           call dpadd(vseli,vsel(1,1,ib),1,4*n0,1/dble(nrspec))
@@ -200,24 +200,24 @@ Cgetarg           call upack2('site pz',ssite,ib,pnz)
 
 C   ... Printout of input for parameters
         if (ipr .ge. 90/1) then
-        write(stdo,261) spid
-  261   format(/'  l  site    Eval        Val         Slo         K.E.',
+          write(stdo,261) spid
+  261     format(/'  l  site    Eval        Val         Slo         K.E.',
      .    5x,'species ',a)
-        do  l = 0, lmxb
-          if (pnz(l+1,1) .lt. 10) goto 24
-          do  ibs = 1, nrspec
+          do  l = 0, lmxb
+            if (pnz(l+1,1) .lt. 10) goto 24
+            do  ibs = 1, nrspec
 Cdelw1             ib = iclbsj(is,w(oips),nbas,ibs)
-             ib = iclbsj ( is , iv_w_oips , nbas , ibs ) 
+              ib = iclbsj ( is , iv_w_oips , nbas , ibs )
 
-            write (stdo,260)
+              write (stdo,260)
      .        l,ib,vsel(4,l+1,ib),(vsel(k,l+1,ib),k=2,4)
-  260       format(i3,i4,4f12.6:a)
-  262       format(i3,' avg',4f12.6)
-          enddo
-          write (stdo,262) l,vseli(4,l+1),(vseli(k,l+1),k=2,4)
+  260         format(i3,i4,4f12.6:a)
+  262         format(i3,' avg',4f12.6)
+            enddo
+            write (stdo,262) l,vseli(4,l+1),(vseli(k,l+1),k=2,4)
 
-   24     continue
-        enddo
+   24       continue
+          enddo
         endif
 
 C   ... Make parameters for this species
@@ -228,19 +228,19 @@ Cgetarg...info...           real(8) :: rs3 , real(8) :: sspec%rs3 1
 Cgetarg...info...           real(8) :: eh3 , real(8) :: sspec%eh3 1
 Cgetarg...info...           real(8) :: vmtz , real(8) :: sspec%vmtz 1
 Cgetarg         call upack('spec rs3 eh3 vmtz',sspec,is,rs3,eh3,vmtz,0)
-         
-         rs3=sspec(is)%rs3
-         eh3=sspec(is)%eh3
-         vmtz=sspec(is)%vmtz
+
+        rs3=sspec(is)%rs3
+        eh3=sspec(is)%eh3
+        vmtz=sspec(is)%vmtz
 
 Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-         
-         a=sspec(is)%a
-         nr=sspec(is)%nr
-         rmt=sspec(is)%rmt
+
+        a=sspec(is)%a
+        nr=sspec(is)%nr
+        rmt=sspec(is)%rmt
 
         call dpzero(rsml,n0*2)
         call dpzero(ehl,n0*2)
@@ -258,13 +258,13 @@ Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
       call tcx('elocp')
 
 Cgetarg       end
-Cdelw1 w_varlist remains: oips 
+Cdelw1 w_varlist remains: oips
 Cdelw1 w_varlistundel: [ov0]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [oips]
-        if (allocated(iv_w_oips)) deallocate(iv_w_oips)
+      if (allocated(iv_w_oips)) deallocate(iv_w_oips)
 
-       end subroutine elocp 
+      end subroutine elocp
 
 
 

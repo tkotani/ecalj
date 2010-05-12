@@ -25,9 +25,9 @@ C ... Passed parameters
       double precision zval,ef0,evl(ndev),dosw(2)
 C ... Local parameters
 Cdelw1       integer i,i1,stdo,lgunit,ipr,nbpw,i1mach,obmap,owk
-       integer:: i , i1 , stdo , lgunit , ipr , nbpw , i1mach 
-       integer ,allocatable :: iv_w_obmap(:)
-       real(8) ,allocatable :: rv_w_owk(:)
+      integer:: i , i1 , stdo , lgunit , ipr , nbpw , i1mach
+      integer ,allocatable :: iv_w_obmap(:)
+      real(8) ,allocatable :: rv_w_owk(:)
 
       double precision w2,xx,doso(2)
 C ... Heap
@@ -39,16 +39,16 @@ C ... Heap
       if (nsp .eq. 2) then
         nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
 Cdelw1         call defi(obmap,-(nevx*nsp/nbpw+1))
-         allocate(iv_w_obmap(abs(-(nevx*nsp/nbpw+1))))
-         if (-(nevx*nsp/nbpw+1)<0) iv_w_obmap(:)=0
+        allocate(iv_w_obmap(abs(-(nevx*nsp/nbpw+1))))
+        if (-(nevx*nsp/nbpw+1)<0) iv_w_obmap(:)=0
 
 Cdelw1         call defdr(owk, nevx*nsp)
-         allocate(rv_w_owk(nevx*nsp))
+        allocate(rv_w_owk(nevx*nsp))
 Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) rv_w_owk(:)=0.0d0
 
 Cdelw1         call ebcpl(0,ndev,nevx,nsp,nspc,1,nbpw,w(obmap),w(owk),evl)
-         call ebcpl ( 0 , ndev , nevx , nsp , nspc , 1 , nbpw , iv_w_obmap 
-     .   , rv_w_owk , evl ) 
+        call ebcpl ( 0 , ndev , nevx , nsp , nspc , 1 , nbpw , iv_w_obmap 
+     .   , rv_w_owk , evl )
 
       endif
       i = max(1,int(zval)/(3-nsp))
@@ -59,19 +59,19 @@ Cdelw1         call ebcpl(0,ndev,nevx,nsp,nspc,1,nbpw,w(obmap),w(owk),evl)
         if (ipr.ge.10) call awrit5(' Est Ef = %,3;3d < evl(%i)='//
      .    '%,3;3d ... using qval=%,1;1d, revise to %,4;4d',
      .      ' ',80,stdo,ef0,i,evl(i),zval,xx)
-          ef0 = xx
+        ef0 = xx
       endif
 
       if (nsp .eq. 2) then
 Cdelw1         call ebcpl(1,ndev,nevx,nsp,nspc,1,nbpw,w(obmap),w(owk),evl)
-         call ebcpl ( 1 , ndev , nevx , nsp , nspc , 1 , nbpw , iv_w_obmap 
-     .   , rv_w_owk , evl ) 
+        call ebcpl ( 1 , ndev , nevx , nsp , nspc , 1 , nbpw , iv_w_obmap 
+     .   , rv_w_owk , evl )
 
-Cdelw1 rlse name= obmap old_list= obmap owk 
+Cdelw1 rlse name= obmap old_list= obmap owk
 Cdelw1 rlse name= obmap new_list= (None)
 Cdelw1         call rlse(obmap)
-         if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-         if (allocated(iv_w_obmap)) deallocate(iv_w_obmap)
+        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+        if (allocated(iv_w_obmap)) deallocate(iv_w_obmap)
 
       endif
 

@@ -57,8 +57,8 @@ C ... Passed parameters
 C ... Local parameters
       integer ldiaxb,ib,grow
 Cdelw1       integer oiaxib,ontabb
-       integer ,allocatable :: iv_w_oiaxib(:)
-       integer ,allocatable :: iv_w_ontabb(:)
+      integer ,allocatable :: iv_w_oiaxib(:)
+      integer ,allocatable :: iv_w_ontabb(:)
 
 C ... Heap
       integer w(1)
@@ -72,35 +72,35 @@ C     Assume no cluster in new iax table will not exceed 8x old one
       enddo
       ldiaxb = 8*mxcsz
 Cdelw1       call defi(oiaxib,-ldiaxb*nbas*niax)
-       allocate(iv_w_oiaxib(abs(-ldiaxb*nbas*niax)))
-       if (-ldiaxb*nbas*niax<0) iv_w_oiaxib(:)=0
+      allocate(iv_w_oiaxib(abs(-ldiaxb*nbas*niax)))
+      if (-ldiaxb*nbas*niax<0) iv_w_oiaxib(:)=0
 
 Cdelw1       call defi(ontabb,nbas)
-       allocate(iv_w_ontabb(nbas))
+      allocate(iv_w_ontabb(nbas))
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_ontabb(:)=0
 
 C     call yprm('iax before copy',0,iax,0,10,10,nttab)
 Cdelw1       call iax2fd(0,nbas,ntab,iax,w(ontabb),w(oiaxib),ldiaxb)
-       call iax2fd ( 0 , nbas , ntab , iax , iv_w_ontabb , iv_w_oiaxib 
-     . , ldiaxb ) 
+      call iax2fd ( 0 , nbas , ntab , iax , iv_w_ontabb , iv_w_oiaxib 
+     . , ldiaxb )
 
 
 C ... Update the table
       if (ng .gt. 0) then
 Cdelw1       call symia0(mode,plat,nbas,pos,g,ag,ng,w(ontabb),w(oiaxib),ldiaxb,
 Cdelw1      .  grow)
-       call symia0 ( mode , plat , nbas , pos , g , ag , ng , iv_w_ontabb 
-     . , iv_w_oiaxib , ldiaxb , grow ) 
+        call symia0 ( mode , plat , nbas , pos , g , ag , ng , iv_w_ontabb 
+     . , iv_w_oiaxib , ldiaxb , grow )
 
-      ib = ntab(nbas+1)+grow
-      if (ib .gt. nttab) call rxi(
+        ib = ntab(nbas+1)+grow
+        if (ib .gt. nttab) call rxi(
      .  'symiax: not enough memory for new iax table: need dim',ib)
       endif
 
 C ... Copy iax from fixed-basis format
 Cdelw1       call iax2fd(1,nbas,ntab,iax,w(ontabb),w(oiaxib),nttab)
-       call iax2fd ( 1 , nbas , ntab , iax , iv_w_ontabb , iv_w_oiaxib 
-     . , nttab ) 
+      call iax2fd ( 1 , nbas , ntab , iax , iv_w_ontabb , iv_w_oiaxib 
+     . , nttab )
 
       mxcsz = 0
       do  ib = 1, nbas
@@ -113,11 +113,11 @@ C      call symia0(mode,plat,nbas,pos,g,ag,ng,w(ontabb),w(oiaxib),ldiaxb,
 C     .  grow)
 C      call iax2fd(1,nbas,ntab,iax,w(ontabb),w(oiaxib),nttab)
 
-Cdelw1 rlse name= oiaxib old_list= oiaxib ontabb 
+Cdelw1 rlse name= oiaxib old_list= oiaxib ontabb
 Cdelw1 rlse name= oiaxib new_list= (None)
 Cdelw1       call rlse(oiaxib)
-       if (allocated(iv_w_ontabb)) deallocate(iv_w_ontabb)
-       if (allocated(iv_w_oiaxib)) deallocate(iv_w_oiaxib)
+      if (allocated(iv_w_ontabb)) deallocate(iv_w_ontabb)
+      if (allocated(iv_w_oiaxib)) deallocate(iv_w_oiaxib)
 
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
@@ -211,62 +211,62 @@ C       Re-entry point for restart in case some change made to table
 
 C   --- For each pair in the neighbor list, do ---
         do  20  ib = 1, nbas
-        do  22  isite = 1, ntabib(ib)
+          do  22  isite = 1, ntabib(ib)
 
 C         ib = iaxib(1,ib,isite)
-          jb = iaxib(2,ib,isite)
-          if (iaxib(1,ib,isite) .eq. 0 .or. jb .eq. 0) goto 22
+            jb = iaxib(2,ib,isite)
+            if (iaxib(1,ib,isite) .eq. 0 .or. jb .eq. 0) goto 22
 
-          if (mode1 .ne. 1 .or. ig .ne. 1) then
+            if (mode1 .ne. 1 .or. ig .ne. 1) then
 C       ... Find ibp and jbp = sites that ib,jb are rotated into
 C           call gpfndx(g(1,ig),ag(1,ig),ib,ibp,pos,nbas,plat,qlat)
 C           call gpfndx(g(1,ig),ag(1,ig),jb,jbp,pos,nbas,plat,qlat)
-            call grpfnd(fuzz,g,ag,ig,pos,nbas,qlat,ib,ibp)
-            call grpfnd(fuzz,g,ag,ig,pos,nbas,qlat,jb,jbp)
-            if (jbp .eq. 0) call rx('bug in symiax')
+              call grpfnd(fuzz,g,ag,ig,pos,nbas,qlat,ib,ibp)
+              call grpfnd(fuzz,g,ag,ig,pos,nbas,qlat,jb,jbp)
+              if (jbp .eq. 0) call rx('bug in symiax')
 C       ... Original connecting vector v, and the rotated one rv
-            v(1) = dx(1,ib,isite)
-            v(2) = dx(2,ib,isite)
-            v(3) = dx(3,ib,isite)
-            call rotpnt(v,rv,g(1,ig))
+              v(1) = dx(1,ib,isite)
+              v(2) = dx(2,ib,isite)
+              v(3) = dx(3,ib,isite)
+              call rotpnt(v,rv,g(1,ig))
 C            if (ib .eq. 1 .and. isite .eq. 3) then
 C              print *, ig, sngl(v)
 C            endif
-          else
+            else
 C       ... Special case (ig=1) look for ri-rj inverse of rj-ri
-            ibp = jb
-            jbp = ib
-            v(1) = dx(1,ib,isite)
-            v(2) = dx(2,ib,isite)
-            v(3) = dx(3,ib,isite)
-            rv(1) = -v(1)
-            rv(2) = -v(2)
-            rv(3) = -v(3)
-          endif
+              ibp = jb
+              jbp = ib
+              v(1) = dx(1,ib,isite)
+              v(2) = dx(2,ib,isite)
+              v(3) = dx(3,ib,isite)
+              rv(1) = -v(1)
+              rv(2) = -v(2)
+              rv(3) = -v(3)
+            endif
 
 C     ... Find pair corresponding to ibp,jbp and rv
-          do  40  ksite = 1, ntabib(ibp)
+            do  40  ksite = 1, ntabib(ibp)
 
 C       ... This is the corresponding pair only if jb of this pair = jbp
-            if (iaxib(1,ibp,ksite) .ne. ibp) goto 40
-            if (iaxib(2,ibp,ksite) .ne. jbp) goto 40
+              if (iaxib(1,ibp,ksite) .ne. ibp) goto 40
+              if (iaxib(2,ibp,ksite) .ne. jbp) goto 40
 C       ... Also the connecting vector of ksite must be rv
-            vk(1) = dx(1,ibp,ksite)
-            vk(2) = dx(2,ibp,ksite)
-            vk(3) = dx(3,ibp,ksite)
-            if (abs(rv(1)-vk(1)) + abs(rv(2)-vk(2)) + abs(rv(3)-vk(3))
+              vk(1) = dx(1,ibp,ksite)
+              vk(2) = dx(2,ibp,ksite)
+              vk(3) = dx(3,ibp,ksite)
+              if (abs(rv(1)-vk(1)) + abs(rv(2)-vk(2)) + abs(rv(3)-vk(3))
      .          .lt. fuzz) goto 42
-   40     continue
+   40       continue
 C         No vector found.  Add a new element to the iax table
-          if (mode0 .eq. 0) then
-            do  ix = 1, 3
-              rv(ix) = rv(ix) - (pos(ix,jbp) - pos(ix,ibp))
-            enddo
-            call dgemm('T','N',3,1,3,1d0,qlat,3,rv,3,0d0,vk,3)
-            n = ntabib(ibp)+1
-            grow = grow+1
-            do  ix = 1, 3
-              i = idnint(vk(ix))
+            if (mode0 .eq. 0) then
+              do  ix = 1, 3
+                rv(ix) = rv(ix) - (pos(ix,jbp) - pos(ix,ibp))
+              enddo
+              call dgemm('T','N',3,1,3,1d0,qlat,3,rv,3,0d0,vk,3)
+              n = ntabib(ibp)+1
+              grow = grow+1
+              do  ix = 1, 3
+                i = idnint(vk(ix))
 C             if (abs(i-vk(ix)) .gt. fuzz) then
 C               call rotpnt(v,rv,g(1,ig))
 C               print *, 'oops'
@@ -274,38 +274,38 @@ C               rv(1) = rv(1) - (pos(1,jbp) - pos(1,ibp))
 C               rv(2) = rv(2) - (pos(2,jbp) - pos(2,ibp))
 C               rv(3) = rv(3) - (pos(3,jbp) - pos(3,ibp))
 C             endif
-              if (abs(i-vk(ix)) .gt. fuzz) call rx('bug in symiax')
-              iaxib(2+ix,ibp,n) = i
+                if (abs(i-vk(ix)) .gt. fuzz) call rx('bug in symiax')
+                iaxib(2+ix,ibp,n) = i
 C             call ivset(iaxib(1,n),6,10,0)
-            enddo
-            iaxib(1,ibp,n) = ibp
-            iaxib(2,ibp,n) = jbp
-            ntabib(ibp) = n
+              enddo
+              iaxib(1,ibp,n) = ibp
+              iaxib(2,ibp,n) = jbp
+              ntabib(ibp) = n
 C           debugging check
-            do  ix = 1, 3
-              rv(ix) = rv(ix) + (pos(ix,jbp) - pos(ix,ibp))
-              vk(ix) = dx(ix,ibp,n)
-              if (abs(rv(ix)-vk(ix)) .gt. fuzz) call rx('bug in symiax')
-            enddo
-            change = 1
-            call info8(70,0,0,' ig=%i isite=%i, ib,jb=%i %i add map to '
+              do  ix = 1, 3
+                rv(ix) = rv(ix) + (pos(ix,jbp) - pos(ix,ibp))
+                vk(ix) = dx(ix,ibp,n)
+                if (abs(rv(ix)-vk(ix)) .gt. fuzz) call rx('bug in symiax')
+              enddo
+              change = 1
+              call info8(70,0,0,' ig=%i isite=%i, ib,jb=%i %i add map to '
      .       //'site=%i, ibp,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
 C         No vector found.  Remove element from the iax table
-          else
-            iaxib(1,ib,isite) = 0
-            grow = grow-1
-            change = -1
-            call info8(70,0,0,' ig=%i isite=%i, ib,jb=%i %i remove: no '
+            else
+              iaxib(1,ib,isite) = 0
+              grow = grow-1
+              change = -1
+              call info8(70,0,0,' ig=%i isite=%i, ib,jb=%i %i remove: no '
      .        //'site=%i, ibp,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
-          endif
-          goto 22
+            endif
+            goto 22
 
 C     ... Connecting vector found for rotated point
-   42     continue
-          if (ipr .ge. 110)
+   42       continue
+            if (ipr .ge. 110)
      .      call info8(90,0,0,' ig=%i isite=%i, ib,jb=%i %i  maps to '//
      .      'site=%i, ibp,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
-   22   continue
+   22     continue
    20   continue
 
 C       Restart this loop if new pair added

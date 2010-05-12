@@ -380,7 +380,7 @@ c  CALLED BY SUBROUTINE CORLSD
      .     (3d0*g1*g2p-g1p*g2+g2pp-8d0*eta))*s+g1*g2+3d0*g2p
       f2 = (f21*c1+f22/div)/div
 Cgetarg       end
-       end subroutine perdew 
+      end subroutine perdew
 
       subroutine xperdew(rho,drho,ddrho,dabgrh,ex,vx1)
 
@@ -400,7 +400,7 @@ Cgetarg       end
       ex = ax*(rho)**fothr*(ff-1)
       vx1 = ax*rho**(oneth)*(fothr*(ff-1) - t/s*f1 - (u-fothr*s**3)*f2)
 Cgetarg       end
-       end subroutine xperdew 
+      end subroutine xperdew
 
 #else
       subroutine nlocxc(rhop,rhom,grho,abgrh,ggrho,grhop,grhom,
@@ -444,22 +444,22 @@ C Local parameters
       sig = dsign(1d0,grho)
 
       if (nsp .eq. 1) then
-      cutoff = dexp(-hh*(grho*grho/(rho*rho))*(rho/2)**(-twoth))
-      exc = aa*(grho*grho/(rho**fothr))*(2d0*dexp(-bigf)-sevni)
+        cutoff = dexp(-hh*(grho*grho/(rho*rho))*(rho/2)**(-twoth))
+        exc = aa*(grho*grho/(rho**fothr))*(2d0*dexp(-bigf)-sevni)
 c    .    *cutoff
-      vxc(1) = 2d0*aa*rho**(-oneth)*(sevni*(ggrho/rho-twoth*
+        vxc(1) = 2d0*aa*rho**(-oneth)*(sevni*(ggrho/rho-twoth*
      .      grho*grho/(rho*rho))-2d0*dexp(-bigf)*(ggrho*
      .      (1d0-bigf/2d0)/rho-(twoth-bigf*11d0/6d0+
      .      bigf*bigf*7d0/12d0)*grho*grho/(rho*rho)+bigf*
      .      (bigf-3d0)*sig*abgrh/(2d0*rho)))*cutoff
       else
-      polar = (rhop-rhom)/rho
-      dd = (((1d0+polar)**fivth+(1d0-polar)**fivth)/2d0)**.5d0
-      exc = aa*(-sevni/(2d0**oneth)*(grhop*grhop/(rhop**
+        polar = (rhop-rhom)/rho
+        dd = (((1d0+polar)**fivth+(1d0-polar)**fivth)/2d0)**.5d0
+        exc = aa*(-sevni/(2d0**oneth)*(grhop*grhop/(rhop**
      .   fothr)+grhom*grhom/(rhom**fothr))+2d0/dd*dexp(-bigf)*
      .   grho*grho/(rho**fothr))
-      cutof1 = dexp(-hh*(grhop*grhop/(rhop*rhop))*rhop**(-twoth))
-      vxc(1) = aa/rho**oneth*(-sevni/(2d0**oneth)*(fothr*
+        cutof1 = dexp(-hh*(grhop*grhop/(rhop*rhop))*rhop**(-twoth))
+        vxc(1) = aa/rho**oneth*(-sevni/(2d0**oneth)*(fothr*
      .      grhop*grhop/(rhop*rhop)-2d0*ggrhop/rhop)*(rho/rhop)
      .      **oneth-2d0*dexp(-bigf)/dd*((2d0-bigf)*ggrho/rho-
      .      (fothr-bigf*11d0/3d0+bigf*bigf*7d0/6d0)*grho*
@@ -468,8 +468,8 @@ c    .    *cutoff
      .      twoth-rhom**twoth)/(rho**4d0)*grho*(2d0**twoth*
      .      (1d0-bigf)*rhom*grho-2d0**twoth*(2d0-bigf)*
      .      rho*grhom)))*cutof1
-      cutof2 = dexp(-hh*(grhom*grhom/(rhom*rhom))*rhom**(-twoth))
-      vxc(2) = aa/rho**oneth*(-sevni/(2d0**oneth)*(fothr*
+        cutof2 = dexp(-hh*(grhom*grhom/(rhom*rhom))*rhom**(-twoth))
+        vxc(2) = aa/rho**oneth*(-sevni/(2d0**oneth)*(fothr*
      .      grhom*grhom/(rhom*rhom)-2d0*ggrhom/rhom)*(rho/rhom)
      .      **oneth-2d0*dexp(-bigf)/dd*((2d0-bigf)*ggrho/rho-
      .      (fothr-bigf*11d0/3d0+bigf*bigf*7d0/6d0)*grho*
@@ -480,7 +480,7 @@ c    .    *cutoff
      .      rho*grhop)))*cutof2
       endif
 Cgetarg       end
-       end subroutine nlocxc 
+      end subroutine nlocxc
 
 #endif
       subroutine radgra(a,b,nr,r,v,gradv)
@@ -528,6 +528,6 @@ C     gradv(nr)=(v(nr-2)/2d0-2d0*v(nr-1)+1.5d0*v(nr))/a
         gradv(i) = gradv(i)/(r(i)+b)
     2 continue
 Cgetarg       end
-       end subroutine radgra 
+      end subroutine radgra
 
 

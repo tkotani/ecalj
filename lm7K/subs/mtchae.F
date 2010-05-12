@@ -257,8 +257,8 @@ C       Initial value for rfalsi
         ir = 0
 C       call pshpr(min(ipr,1))
         call pshpr(ipr-10)
-      if (ipr .ge. IPRT1) write(stdo,261)
-  261 format(' l  it  ir',6x,'Rsm',9x,'Eh',7x,'slope/val',6x,'K.E.',5x,
+        if (ipr .ge. IPRT1) write(stdo,261)
+  261   format(' l  it  ir',6x,'Rsm',9x,'Eh',7x,'slope/val',6x,'K.E.',5x,
      .  'target K.E.')
 
 C   ... mode 3-specific setup: find some (rsm,eh) satisfying slope cond.

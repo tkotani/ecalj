@@ -37,15 +37,15 @@ C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       print *, 'hamfb3k: start...'
       iq1 = 0
       do  i3 = 1, nk3
-      do  i2 = 1, nk2
-      do  i1 = 1, nk1
-        iq1 = iq1+1
-        print *,'iq iq1 ipq(iq1)',iq,iq1,ipq(iq1)
-        if (ipq(iq1) .ne. iq) cycle
-        q1(1) = qk(1,i1,i2,i3)
-        q1(2) = qk(2,i1,i2,i3)
-        q1(3) = qk(3,i1,i2,i3)
-        print *,q1
+        do  i2 = 1, nk2
+          do  i1 = 1, nk1
+            iq1 = iq1+1
+            print *,'iq iq1 ipq(iq1)',iq,iq1,ipq(iq1)
+            if (ipq(iq1) .ne. iq) cycle
+            q1(1) = qk(1,i1,i2,i3)
+            q1(2) = qk(2,i1,i2,i3)
+            q1(3) = qk(3,i1,i2,i3)
+            print *,q1
 c        ig = igstar(iq1)
 c        write(6,"(a,i4)") 'symops',ig
 c        write(6,"(3f10.5)")symops(1,:,ig)
@@ -55,9 +55,9 @@ c        write(6,"(a,3f13.5)")' input          qin = ', qin
 c        write(6,"(a,3f13.5)")' target a        q1 = ', q1   ! qin = g(:,:,ig)^{-1}*q1
 c       write(6,"(a,2i3, 3f13.5)")' target b   qp = ',iq1,ig, matmul(symops(:,:,ig),qin)-q1
 c       write(6,"(a,3f13.5)")
-        call rotsig(qin,q1,ndimh,napw_in,plat,qlat,ldim,hq,gfbz(i1,i2,i3,:,:),ierr)
-      enddo
-      enddo
+            call rotsig(qin,q1,ndimh,napw_in,plat,qlat,ldim,hq,gfbz(i1,i2,i3,:,:),ierr)
+          enddo
+        enddo
       enddo
       print *, 'hamfb3k: end...'
       call tcx('hamfb3k')
@@ -141,7 +141,7 @@ Ci   hw    :work array of same dimension as hq
 Ci   hw2   :same work array as hw (used internally with diff. dim)
 Co Outputs
 Co   gfbz  :for those qp in star iq, hq stored
-Co         :NB: gfbz is ALWAYS returned in complex*16 mode, regardless  
+Co         :NB: gfbz is ALWAYS returned in complex*16 mode, regardless
 Co         :    of kxplx mode for input h,h0.
 Cu Updates
 Cu   20 Jun 02  First cut
@@ -161,9 +161,9 @@ C Passed variables
 C Local variables
 Cdelw1       integer i,i1,i2,i3,ig,iq,iq1,is,j,jj1,jj2,jj3,js,k,nl,kcplx,
 Cdelw1      .  optrot,owk,lidimx,offi
-       integer:: i , i1 , i2 , i3 , ig , iq , iq1 , is , j , jj1 , jj2 
-     . , jj3 , js , k , nl , kcplx , optrot , lidimx , offi 
-       complex(8) ,allocatable :: zv_w_owk(:)
+      integer:: i , i1 , i2 , i3 , ig , iq , iq1 , is , j , jj1 , jj2 
+     . , jj3 , js , k , nl , kcplx , optrot , lidimx , offi
+      complex(8) ,allocatable :: zv_w_owk(:)
 
       double precision q1(3),qk
 C heap:
@@ -190,7 +190,7 @@ C       roth works with kcplx=2 mode
 
 C     Temporary memory for roth
 Cdelw1       call defcc(owk,lidimx**2)
-       allocate(zv_w_owk(lidimx**2))
+      allocate(zv_w_owk(lidimx**2))
 Ctakao_ZeroClear_NotRequiered        if (lidimx**2<0) zv_w_owk(:)=0.0d0
 
 
@@ -222,35 +222,35 @@ C   ... Rotate and copy
         do  14  is = 1, nspc
         do  14  js = 1, nspc
           if (kcplx .eq. 0) then
-          if (ig .ne. 1) then
+            if (ig .ne. 1) then
 Cdelw1             call roth(optrot,nl,nbas,pos,0,offH,iprmb,istab(1,ig),
 Cdelw1      .      g(1,1,ig),ag(1,ig),q1,lidim,lidim,w(owk),hw(1,is,1,js))
-             call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+              call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
      .       ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
-     .       lidim , zv_w_owk , hw ( 1 , is , 1 , js ) ) 
+     .       lidim , zv_w_owk , hw ( 1 , is , 1 , js ) )
 
-          endif
+            endif
 
-          do  16  j  = 1, ldimb
-          do  16  i  = 1, ldima
-            gfbz(i1,i2,i3,i,is,j,js) =
+            do  16  j  = 1, ldimb
+            do  16  i  = 1, ldima
+              gfbz(i1,i2,i3,i,is,j,js) =
      .                        dcmplx(hw(i,is,j,js),hw(i+offi,is,j,js))
-   16     continue
+   16       continue
           else
-          if (ig .ne. 1) then
+            if (ig .ne. 1) then
 Cdelw1             call roth(optrot,nl,nbas,pos,0,offH,iprmb,istab(1,ig),
 Cdelw1      .      g(1,1,ig),ag(1,ig),q1,lidim,lidim,w(owk),hw2(1,1,is,1,js))
-             call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+              call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
      .       ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
-     .       lidim , zv_w_owk , hw2 ( 1 , 1 , is , 1 , js ) ) 
+     .       lidim , zv_w_owk , hw2 ( 1 , 1 , is , 1 , js ) )
 
-          endif
+            endif
 
-          do  18  j  = 1, ldimb
-          do  18  i  = 1, ldima
-            gfbz(i1,i2,i3,i,is,j,js) =
+            do  18  j  = 1, ldimb
+            do  18  i  = 1, ldima
+              gfbz(i1,i2,i3,i,is,j,js) =
      .                        dcmplx(hw2(i,1,is,j,js),hw2(i,2,is,j,js))
-   18     continue
+   18       continue
           endif
 
 C         print 357,iq,i1,i2,i3,gfbz(i1,i2,i3,2,1,2,1)
@@ -259,10 +259,10 @@ C 357     format(' hamfb3: iq=',i4,' filling i1,i2,i3=',3i4,2f12.5)
    14   continue
    12 continue
 
-Cdelw1 rlse name= owk old_list= owk 
+Cdelw1 rlse name= owk old_list= owk
 Cdelw1 rlse name= owk new_list= (None)
 Cdelw1       call rlse(owk)
-       if (allocated(zv_w_owk)) deallocate(zv_w_owk)
+      if (allocated(zv_w_owk)) deallocate(zv_w_owk)
 
 
 C     Restore hq to complex*16 storage mode

@@ -22,7 +22,7 @@ Cl         : 1..n1-1  are evaluated by power series expansion
 Cl         : n1..n2-1 are evaluated by explicit generation of l=-1,0
 Cl                    and upward recursion for higher l.
 Cl         : n2..nr   asymtotic form: sm-H has become regular H.
-Cl         : If the points are not sorted, they are grouped into 
+Cl         : If the points are not sorted, they are grouped into
 Cl         : three bins, with n1-1, n2-n1, and nr-n2+1 points in them
 Cl         : idx is a permutation index that keeps track of the grouping
 Cr Remarks
@@ -69,7 +69,8 @@ C --- Check lmx; handle case rsm=0 ---
 C --- Find cutoffs rc2 (negligible smoothing) and rc1 (power series) ---
       emin = 0
       do  10  ie = 1, nxi
-   10 emin = min(emin,exi(ie))
+        emin = min(emin,exi(ie))
+   10 continue
       akap = dsqrt(-emin)
       a = 1/rsm
       a2 = a*a
@@ -113,38 +114,38 @@ C ... Case points already sorted.  Find n1,n2.
 C ... Case points not sorted (iwk, wk(3) required now.)
       else
 C     On output, lsort is true if points already sorted.
-      lsort = .true.
-      do  12  ir = 1, nr
+        lsort = .true.
+        do  12  ir = 1, nr
 C     n1 is offset to block rc1<r<rc2,  n2 offset to block r>rc2
 C     idx is a map of original list, separating into the three groups
 C     wk(*,3) is a table of r**2 for permuted list of points
-      if (rsq(ir) .lt. rc2) then
-        if (rsq(ir) .lt. rc1) then
-          n0 = n0+1
-          wk(n0,3) = rsq(ir)
-          idx(ir,1) = n0
-        else
-          n1 = n1+1
-          idx(ir,1) = n1
-          idx(n1,2) = ir
-        endif
-      else
-        n2 = n2-1
-        wk(n2,3) = rsq(ir)
-        idx(ir,1) = n2
-      endif
-      if (ir .eq. 1) goto 12
-      if (rsq(ir) .lt. rsq(ir-1)) lsort = .false.
-   12 continue
+          if (rsq(ir) .lt. rc2) then
+            if (rsq(ir) .lt. rc1) then
+              n0 = n0+1
+              wk(n0,3) = rsq(ir)
+              idx(ir,1) = n0
+            else
+              n1 = n1+1
+              idx(ir,1) = n1
+              idx(n1,2) = ir
+            endif
+          else
+            n2 = n2-1
+            wk(n2,3) = rsq(ir)
+            idx(ir,1) = n2
+          endif
+          if (ir .eq. 1) goto 12
+          if (rsq(ir) .lt. rsq(ir-1)) lsort = .false.
+   12   continue
 C ... Now we can poke wk(*,3) for the n1 intermediate points
-      if (.not. lsort .or. .true.) then
-        do  14  j = 1, n1
-          k = idx(j,2)
-          idx(k,1) = idx(k,1)+n0
-          wk(n0+j,3) = rsq(k)
-   14   continue
-      endif
-      n1 = n0+1
+        if (.not. lsort .or. .true.) then
+          do  14  j = 1, n1
+            k = idx(j,2)
+            idx(k,1) = idx(k,1)+n0
+            wk(n0+j,3) = rsq(k)
+   14     continue
+        endif
+        n1 = n0+1
       endif
 
 C ... For debugging
@@ -156,10 +157,12 @@ c    .  ' ',120,6,lsort,dsqrt(rc1),dsqrt(rc2),nxi,nr,n1-1,n2-n1,nr-n2+1)
 C --- Setup for the energy-independent wk, points n1..n2 ---
       if (lsort) then
         do  20  ir = n1, n2-1
-   20   wk(ir,1) = y0*dexp(-rsq(ir)*a2)
+          wk(ir,1) = y0*dexp(-rsq(ir)*a2)
+   20   continue
       else
         do  22  ir = n1, n2-1
-   22   wk(ir,1) = y0*dexp(-wk(ir,3)*a2)
+          wk(ir,1) = y0*dexp(-wk(ir,3)*a2)
+   22   continue
       endif
 
 C --- Start loop over energies ---
@@ -202,9 +205,9 @@ C --- Scale by r**l if job nonzero ---
    60 continue
       if (.not. lscal) return
       do  62  ir = 1, nr
-      rl0 = dsqrt(rsq(ir))
+        rl0 = dsqrt(rsq(ir))
       do  62  ie = 1, nxi
-      rl = rl0
+        rl = rl0
       do  62  l = 1, lxi(ie)
         xi(ir,l,ie) = xi(ir,l,ie)*rl
         rl = rl*rl0
@@ -287,8 +290,8 @@ C   --- Coffs to polynomial of order nm1 ---
 C   ... Use it if it is accurate enough
         if (dabs(add*r2max) .lt. cof0(l)*tol) then
           do  51  ir = 1, nr
-          x = rsq(ir)
-          xi(ir,l) = (((((((((((((cofl(14)*x+
+            x = rsq(ir)
+            xi(ir,l) = (((((((((((((cofl(14)*x+
      .      cofl(13))*x+cofl(12))*x+cofl(11))*x+cofl(10))*x+cofl(9))*x+
      .      cofl(8))*x+cofl(7))*x+cofl(6))*x+cofl(5))*x+cofl(4))*x+
      .      cofl(3))*x+cofl(2))*x+cofl(1))*x+cofl(0)
@@ -297,38 +300,40 @@ C ---   Coffs to polynomial of order nm2 ---
 C   ... Use it if it is accurate enough
         else
           do  22  i = nm1+1, nm2
-          add = -(e*add + rhs) / ( 2*i*(2*i+(l+l+1)) )
-          cofl(i) = add
-          rhs = -rhs*a2/i
-   22   continue
-        if (dabs(add*r2max) .lt. cof0(l)*tol) then
-        do  52  ir = 1, nr
-          x = rsq(ir)
-          xi(ir,l) = (((((((((((((((((((cofl(20)*x+cofl(19))*x+
+            add = -(e*add + rhs) / ( 2*i*(2*i+(l+l+1)) )
+            cofl(i) = add
+            rhs = -rhs*a2/i
+   22     continue
+          if (dabs(add*r2max) .lt. cof0(l)*tol) then
+            do  52  ir = 1, nr
+              x = rsq(ir)
+              xi(ir,l) = (((((((((((((((((((cofl(20)*x+cofl(19))*x+
      .      cofl(18))*x+cofl(17))*x+cofl(16))*x+cofl(15))*x+cofl(14))*x+
      .      cofl(13))*x+cofl(12))*x+cofl(11))*x+cofl(10))*x+cofl(9))*x+
      .      cofl(8))*x+cofl(7))*x+cofl(6))*x+cofl(5))*x+cofl(4))*x+
      .      cofl(3))*x+cofl(2))*x+cofl(1))*x+cofl(0)
-   52   continue
-        else
+   52       continue
+          else
 C ---   Polynomial to nmaxl ---
-        do  23  i = nm2+1, nmax
-          add = -(e*add + rhs) / ( 2*i*(2*i+(l+l+1)) )
-          cofl(i) = add
-          nmaxl = i
-          if (dabs(add*r2max) .lt. cof0(l)*tol) goto 24
-          rhs = -rhs*a2/i
-   23   continue
-        print 333, tol
-  333   format(' hansr1 (warning):  not converged to tol=',1pe8.1)
-        call rx('hansr1 failed to converge')
-   24   continue
-        do  53  ir = 1, nr
-   53   xi(ir,l) = cofl(nmaxl)
-        do  54  m = nmaxl, 1, -1
-        do  54  ir = 1, nr
-   54   xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
-        endif
+            do  23  i = nm2+1, nmax
+              add = -(e*add + rhs) / ( 2*i*(2*i+(l+l+1)) )
+              cofl(i) = add
+              nmaxl = i
+              if (dabs(add*r2max) .lt. cof0(l)*tol) goto 24
+              rhs = -rhs*a2/i
+   23       continue
+            print 333, tol
+  333       format(' hansr1 (warning):  not converged to tol=',1pe8.1)
+            call rx('hansr1 failed to converge')
+   24       continue
+            do  53  ir = 1, nr
+              xi(ir,l) = cofl(nmaxl)
+   53       continue
+            do  54  m = nmaxl, 1, -1
+            do  54  ir = 1, nr
+              xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
+   54       continue
+          endif
         endif
 
         ta2l = ta2l*(2*a2)
@@ -452,9 +457,9 @@ C --- xi(ir,l) for l>1 by upward recursion ---
       do  30  l = lmin+2, lmax
         xx = 2*l-1
         do  7  ir = 1, nr
-        xi(ir,l) = (xx*xi(ir,l-1) - e*xi(ir,l-2) - wk2(ir))/rsq(ir)
-        wk2(ir) = facgl*wk2(ir)
-    7   continue                
+          xi(ir,l) = (xx*xi(ir,l-1) - e*xi(ir,l-2) - wk2(ir))/rsq(ir)
+          wk2(ir) = facgl*wk2(ir)
+    7   continue
    30 continue
       end
 

@@ -90,54 +90,54 @@ C --- Make rofi,rwgt, and possibly extended mesh ---
 
 C --- Loop over spins and l ---
       do  i = 1, nsp
-      do  l = 0, lmxa
-        k = l+1
-        lpzi = 0
-        if (pnz(k,i) .gt.  0) lpzi = 1
-        if (pnz(k,i) .ge. 10) lpzi = 2
-        if (pnz(k,i) .ge. 20) lpzi = 3
-        if (lpzi .eq. 3) call rxi('makusp: not implemented lpzi=',lpzi)
-        if (lpzi .ne. 0) then
-          call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),2,
+        do  l = 0, lmxa
+          k = l+1
+          lpzi = 0
+          if (pnz(k,i) .gt.  0) lpzi = 1
+          if (pnz(k,i) .ge. 10) lpzi = 2
+          if (pnz(k,i) .ge. 20) lpzi = 3
+          if (lpzi .eq. 3) call rxi('makusp: not implemented lpzi=',lpzi)
+          if (lpzi .ne. 0) then
+            call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),2,
      .      gzl,gp,ez,phz,dphz,phip,dphip,p)
 C         Scale extended local orbital
-          if (lpzi .gt. 1) then
-            call hansr(rsml(l),0,l,1,l,ehl(l),rmax**2,1,1,idx,wk,11,xi)
-            fac1 = gzl(nr,1)/rmax/xi(l)
-            call dscal(2*nr,1/fac1,gzl,1)
+            if (lpzi .gt. 1) then
+              call hansr(rsml(l),0,l,1,l,ehl(l),rmax**2,1,1,idx,wk,11,xi)
+              fac1 = gzl(nr,1)/rmax/xi(l)
+              call dscal(2*nr,1/fac1,gzl,1)
+            endif
           endif
-        endif
-        call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,
+          call makrwf(0,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,
      .    enu,phi,dphi,phip,dphip,p)
 
 C   ... Scale gz so that <|gz-P(g,gp)|^2> = 1
 #if SCALEGZ
-        if (lpzi) then
-          call ortrwf(0,z,l,v(1,i),nr,nr,nr,rofi,rwgt,enu,enu,ez,
+          if (lpzi) then
+            call ortrwf(0,z,l,v(1,i),nr,nr,nr,rofi,rwgt,enu,enu,ez,
      .      g,gp,gzl,D)
-          call dscal(nr*2,1/D,gzl,1)
-          phz = phz/D
-          dphz = dphz/D
-        endif
+            call dscal(nr*2,1/D,gzl,1)
+            phz = phz/D
+            dphz = dphz/D
+          endif
 #endif
 
-        call makus2(lpzi,nr,rofi,g,gp,gzl,phi,dphi,phip,dphip,
+          call makus2(lpzi,nr,rofi,g,gp,gzl,phi,dphi,phip,dphip,
      .    phz,dphz,l,enu,ez,z,v(1,i),ul(1,k,i),sl(1,k,i),
      .    ruu(1,k,1,i),rus(1,k,1,i),rss(1,k,1,i),
      .    ruu(1,k,2,i),rus(1,k,2,i),rss(1,k,2,i))
-        if (pnz(k,i) .gt. 0) call dcopy(nr,gzl,1,gz(1,k,i),1)
-      enddo
+          if (pnz(k,i) .gt. 0) call dcopy(nr,gzl,1,gz(1,k,i),1)
+        enddo
       enddo
 
 C --- If at least one semicore state, zero out missing ones ---
       if (lpz .ne. 0) then
         do  i = 1, nsp
-        do  l = 0, lmxa
-          k = l+1
-          if (pnz(k,i) .eq. 0) then
-            call dpzero(gz(1,k,i),nr)
-          endif
-        enddo
+          do  l = 0, lmxa
+            k = l+1
+            if (pnz(k,i) .eq. 0) then
+              call dpzero(gz(1,k,i),nr)
+            endif
+          enddo
         enddo
       endif
 

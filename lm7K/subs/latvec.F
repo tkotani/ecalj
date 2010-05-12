@@ -19,12 +19,12 @@ C Local parameters:
 
       latvec = .false.
       do  10  i = 1, n
-       do  20  m = 1, 3
-         vdiff = vec(1,i)*qlat(1,m) +
+        do  20  m = 1, 3
+          vdiff = vec(1,i)*qlat(1,m) +
      .           vec(2,i)*qlat(2,m) +
      .           vec(3,i)*qlat(3,m)
-         if (dabs(vdiff-dnint(vdiff)) .gt. tol) return
-   20  continue
+          if (dabs(vdiff-dnint(vdiff)) .gt. tol) return
+   20   continue
    10 continue
       latvec = .true.
       end

@@ -1,5 +1,0 @@
-#!/bin/csh
-foreach i (`ls [h-z]*.f`)
-echo $i.org $i 
-cp $i.org $i
-end

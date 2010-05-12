@@ -29,6 +29,6 @@ C     implicit none
         lx(k) = j
    10 continue
 Cgetarg       end
-       end subroutine lx2vec 
+      end subroutine lx2vec
 
 

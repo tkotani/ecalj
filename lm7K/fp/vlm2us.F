@@ -73,24 +73,24 @@ C           r22 = phi/det
             dphz = ppnl(12,l+1,i)
 
             if (phz .ne. 0) then
-            do  m1 = -l, l
-            do  m2 = -l, l
-              vzz = phz**2*vumm(m1,m2,1,i,l) +
+              do  m1 = -l, l
+                do  m2 = -l, l
+                  vzz = phz**2*vumm(m1,m2,1,i,l) +
      .              phz*dphz*(vumm(m1,m2,2,i,l)+vumm(m1,m2,3,i,l)) +
      .              dphz**2*vumm(m1,m2,4,i,l)
-              vuz = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,2,i,l)
-              vsz = - phz*vumm(m1,m2,3,i,l) - dphz*vumm(m1,m2,4,i,l)
-              vzu = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,3,i,l)
-              vzs = - phz*vumm(m1,m2,2,i,l) - dphz*vumm(m1,m2,4,i,l)
+                  vuz = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,2,i,l)
+                  vsz = - phz*vumm(m1,m2,3,i,l) - dphz*vumm(m1,m2,4,i,l)
+                  vzu = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,3,i,l)
+                  vzs = - phz*vumm(m1,m2,2,i,l) - dphz*vumm(m1,m2,4,i,l)
 
-              vumm(m1,m2,5,i,l) = vuz
-              vumm(m1,m2,6,i,l) = vsz
-              vumm(m1,m2,7,i,l) = vzz
-              vumm(m1,m2,8,i,l) = vzu
-              vumm(m1,m2,9,i,l) = vzs
+                  vumm(m1,m2,5,i,l) = vuz
+                  vumm(m1,m2,6,i,l) = vsz
+                  vumm(m1,m2,7,i,l) = vzz
+                  vumm(m1,m2,8,i,l) = vzu
+                  vumm(m1,m2,9,i,l) = vzs
 
-            enddo
-            enddo
+                enddo
+              enddo
             endif
 
 C            if (l .eq. 3) then

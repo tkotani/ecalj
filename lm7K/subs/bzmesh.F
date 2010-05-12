@@ -1,4 +1,4 @@
-       subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,
+      subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,
      .                   igstar,lpbc)
 C- Divides the reciprocal lattice into microcells
 C-----------------------------------------------------------------------
@@ -183,39 +183,39 @@ C     print 973, i1,i2,i3,igcnt
 C 973 format(5i4)
 
 C   ... Add qp to list if not flagged as symmetry-related to a prior
-        if (ipq(i1+1,i2+1,i3+1) .eq. 0) then
-          ii1 = i1*ifac(1)+is(1)
-          ii2 = i2*ifac(2)+is(2)
-          ii3 = i3*ifac(3)+is(3)
-          v(1) = ii1*qb(1,1) + ii2*qb(1,2) + ii3*qb(1,3)
-          v(2) = ii1*qb(2,1) + ii2*qb(2,2) + ii3*qb(2,3)
-          v(3) = ii1*qb(3,1) + ii2*qb(3,2) + ii3*qb(3,3)
+      if (ipq(i1+1,i2+1,i3+1) .eq. 0) then
+        ii1 = i1*ifac(1)+is(1)
+        ii2 = i2*ifac(2)+is(2)
+        ii3 = i3*ifac(3)+is(3)
+        v(1) = ii1*qb(1,1) + ii2*qb(1,2) + ii3*qb(1,3)
+        v(2) = ii1*qb(2,1) + ii2*qb(2,2) + ii3*qb(2,3)
+        v(3) = ii1*qb(3,1) + ii2*qb(3,2) + ii3*qb(3,3)
 C         call prmx('kpt',v,3,3,1)
 #if QP0
-          call dcopy(3,v,1,v1,1)
-          call daxpy(3,-1d0,q0,1,v1,1)
+        call dcopy(3,v,1,v1,1)
+        call daxpy(3,-1d0,q0,1,v1,1)
 C          print 156, ddot(3,v1,1,v1,1), v1
 C  156     format(4f15.6)
-          if (ddot(3,v1,1,v1,1) .gt. dq*dq) goto 20
+        if (ddot(3,v1,1,v1,1) .gt. dq*dq) goto 20
 #endif
 
 C     --- Mark each qp in the star of q as equivalent to this qp ---
-          iwgt = 0
-          lsgrp = .false.
-          call dcopy(3,v,1,v1,1)
-          do  25  ig = 1, max(ng,1)
-            if (ng .gt. 0) call grpop(v,v1,g,ig)
-            x1 = v1(1)*rb(1,1) + v1(2)*rb(2,1) + v1(3)*rb(3,1) - is(1)
-            x2 = v1(1)*rb(1,2) + v1(2)*rb(2,2) + v1(3)*rb(3,2) - is(2)
-            if (lpbc01 .eq. 0) then
+        iwgt = 0
+        lsgrp = .false.
+        call dcopy(3,v,1,v1,1)
+        do  25  ig = 1, max(ng,1)
+          if (ng .gt. 0) call grpop(v,v1,g,ig)
+          x1 = v1(1)*rb(1,1) + v1(2)*rb(2,1) + v1(3)*rb(3,1) - is(1)
+          x2 = v1(1)*rb(1,2) + v1(2)*rb(2,2) + v1(3)*rb(3,2) - is(2)
+          if (lpbc01 .eq. 0) then
             x3 = v1(1)*rb(1,3) + v1(2)*rb(2,3) + v1(3)*rb(3,3) - is(3)
-            else
+          else
             x3 = 0
-            endif
-            j1 = idnint(x1)
-            j2 = idnint(x2)
-            j3 = idnint(x3)
-            if (max(dabs(x1-j1),dabs(x2-j2),dabs(x3-j3)) .gt. 1d-4) then
+          endif
+          j1 = idnint(x1)
+          j2 = idnint(x2)
+          j3 = idnint(x3)
+          if (max(dabs(x1-j1),dabs(x2-j2),dabs(x3-j3)) .gt. 1d-4) then
 C              print *, 'ii1,ii2,ii3=',ii1,ii2,ii3
 C              print *, 'x1,x2,x3=',sngl(x1),sngl(x2),sngl(x3)
 C              print *, 'ig,qb,rb,v,g,v1=',ig
@@ -224,40 +224,40 @@ C              call prm('(3f12.6)',rb,3,3)
 C              call prm('(3f12.6)',v,3,1)
 C              call prm('(3f12.6)',g(9*ig-8),3,3)
 C              call prm('(3f12.6)',v1,3,1)
-              call awrit2(' qp%3:1,3;3d -> %3:1,3;3d is not'//
+            call awrit2(' qp%3:1,3;3d -> %3:1,3;3d is not'//
      .          ' on k-mesh',' ',80,stdo,v,v1)
-              call rx('BZMESH: symops incompatible with this mesh')
-            endif
+            call rx('BZMESH: symops incompatible with this mesh')
+          endif
 C           call prmx('rotated kpt',v1,3,3,1)
 C            if (ig .ne. 1 .and. ipr .ge.
 C            call awrit2(' qp%3:1,3;3d rotated from %3:1,3;3d',
 C     .        ' ',80,stdo,v1,v)
 C ..        scale shifted point or discard if shifted off mesh
-            if (lshft(1) .and. mod(abs(j1),2).eq.1) goto 25
-            if (lshft(2) .and. mod(abs(j2),2).eq.1) goto 25
-            if (lshft(3) .and. mod(abs(j3),2).eq.1) goto 25
-            if (lshft(1)) j1 = j1/2
-            if (lshft(2)) j2 = j2/2
-            if (lshft(3)) j3 = j3/2
+          if (lshft(1) .and. mod(abs(j1),2).eq.1) goto 25
+          if (lshft(2) .and. mod(abs(j2),2).eq.1) goto 25
+          if (lshft(3) .and. mod(abs(j3),2).eq.1) goto 25
+          if (lshft(1)) j1 = j1/2
+          if (lshft(2)) j2 = j2/2
+          if (lshft(3)) j3 = j3/2
 C ...       Ensure (j1,j2,j3) in first quadrant of Q
-            j1 = mod(j1+2*nn1,n1) + 1
-            j2 = mod(j2+2*nn2,n2) + 1
-            j3 = mod(j3+2*nn3,n3) + 1
-            call rxx(j1.le.0.or.j2.le.0.or.j3.le.0,'neg j in bzmesh')
+          j1 = mod(j1+2*nn1,n1) + 1
+          j2 = mod(j2+2*nn2,n2) + 1
+          j3 = mod(j3+2*nn3,n3) + 1
+          call rxx(j1.le.0.or.j2.le.0.or.j3.le.0,'neg j in bzmesh')
 
-            if (ipq(j1,j2,j3) .eq. 0) then
-              ipq(j1,j2,j3) = nq+1
-              iwgt = iwgt+1
-              if (ig .gt. nsgrp .and. nsgrp .gt. 0) lsgrp = .true.
-              igcnt = igcnt+1
-              if (lstar .eq. 2) then
-                igstar(nq+1) = j1 + ndmx*j2 + ndmx**2*j3
-              elseif (lstar .eq. -2) then
-                ii = j1 + (j2-1)*n1 + (j3-1)*n1*n2
-                igstar(ii) = ig
-              elseif (lstar .ne. 0) then
-                call rx('bzmesh: bad igstar(0)')
-              endif
+          if (ipq(j1,j2,j3) .eq. 0) then
+            ipq(j1,j2,j3) = nq+1
+            iwgt = iwgt+1
+            if (ig .gt. nsgrp .and. nsgrp .gt. 0) lsgrp = .true.
+            igcnt = igcnt+1
+            if (lstar .eq. 2) then
+              igstar(nq+1) = j1 + ndmx*j2 + ndmx**2*j3
+            elseif (lstar .eq. -2) then
+              ii = j1 + (j2-1)*n1 + (j3-1)*n1*n2
+              igstar(ii) = ig
+            elseif (lstar .ne. 0) then
+              call rx('bzmesh: bad igstar(0)')
+            endif
 C              OLD conventions
 C              if (lstar .eq. 1) then
 C                igstar(igcnt) = j1 + ndmx*j2 + ndmx**2*j3
@@ -270,25 +270,25 @@ C                ii = j1 + (j2-1)*n1 + (j3-1)*n1*n2
 C                igstar(ii) = ig
 C              endif
 #if DEBUG
-              if (ipr .ge. 80 .and. ng .gt. 0) then
-                call dpzero(ag,3)
-                call asymop(g(1,ig),ag,' ',sg)
-                call awrit6(' (%i,%i,%i)%15p%3:1,6;11D'//
+            if (ipr .ge. 80 .and. ng .gt. 0) then
+              call dpzero(ag,3)
+              call asymop(g(1,ig),ag,' ',sg)
+              call awrit6(' (%i,%i,%i)%15p%3:1,6;11D'//
      .          ' %,5i  %,3i '//sg//'%a',' ',80,stdo,j1,j2,j3,
      .          v1,ipq(j1,j2,j3),ig)
-              endif
-#endif
             endif
-            call rxx(j1.lt.0.or.j2.lt.0.or.j3.lt.0,'neg j in bzmesh')
-   25     continue
-          nq = nq+1
-          qp(1,nq) = v(1)
-          qp(2,nq) = v(2)
-          qp(3,nq) = v(3)
-          wgt(nq) = iwgt*w0
-          if (lsgrp) wgt(nq) = -iwgt*w0
-          swgt = swgt + abs(wgt(nq))
-        endif
+#endif
+          endif
+          call rxx(j1.lt.0.or.j2.lt.0.or.j3.lt.0,'neg j in bzmesh')
+   25   continue
+        nq = nq+1
+        qp(1,nq) = v(1)
+        qp(2,nq) = v(2)
+        qp(3,nq) = v(3)
+        wgt(nq) = iwgt*w0
+        if (lsgrp) wgt(nq) = -iwgt*w0
+        swgt = swgt + abs(wgt(nq))
+      endif
 
 C     End-of-loop for i1,i2,i3
 C  20 continue
@@ -324,7 +324,8 @@ C ... Done accumulating inequivalent qp
       write(ifi,333) nq, n1,n2,n3,0
   333 format(4i5,i8)
       do  70  iq = 1, nq
-   70 write(ifi,334) iq,(qp(m,iq),m=1,3), wgt(iq)
+        write(ifi,334) iq,(qp(m,iq),m=1,3), wgt(iq)
+   70 continue
   334 format(i5,1p,4d18.10)
 #else
       if (lstar .ne. 0) igstar(0) = n1 + ndmx*n2 + ndmx**2*n3
@@ -337,10 +338,11 @@ C ... Done accumulating inequivalent qp
         write(stdo,663)
   663   format(14x,'Qx',10x,'Qy',10x,'Qz',6x,'Multiplicity    Weight')
         do  51  iq = 1, nq
-        ii = 1+dsign(1d0,wgt(iq))
-        iwgt = abs(wgt(iq)/w0) + .1d0
-   51   write(stdo,661)
+          ii = 1+dsign(1d0,wgt(iq))
+          iwgt = abs(wgt(iq)/w0) + .1d0
+          write(stdo,661)
      .    iq,qp(1,iq),qp(2,iq),qp(3,iq),iwgt,chr(ii),abs(wgt(iq))
+   51   continue
   661   format(i5,2x,3f12.6,i10,1x,a,f14.6)
       endif
       end
@@ -402,7 +404,8 @@ C     implicit none
       if (iprint() .gt. 80) then
         write(stdo,351)
         do  35  k = 1, 3
-   35   write(stdo,350) (plat(m,k),m=1,3),(qlat(m,k),m=1,3)
+          write(stdo,350) (plat(m,k),m=1,3),(qlat(m,k),m=1,3)
+   35   continue
       endif
   350 format(3f10.5,5x,3f10.5)
   351 format(' BZMESH : ',5X,'Plat',31X,'Qlat')
@@ -421,8 +424,8 @@ C- Return maximum integer whose cube fits into integer word
 C  Package as a subroutine to avoid compiler bugs, e.g. result changing
 C  as compiler switches change.
 C  e.g. intel ifort v 11, for x86_64, these should produce same results:
-C  ifort -g -cm -axW -WB -c bzmesh.f 
-C  ifort -g -cm -c bzmesh.f 
+C  ifort -g -cm -axW -WB -c bzmesh.f
+C  ifort -g -cm -c bzmesh.f
 C     implicit none
       integer i1mach
 

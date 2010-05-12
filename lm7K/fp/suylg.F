@@ -29,7 +29,7 @@ C ... Make (2*pi/alat)*gv in g
         g(i,2) = tpiba*gv(i,2)
         g(i,3) = tpiba*gv(i,3)
       enddo
-      
+
 C ... Make the yl's and g2
       call ropyln(ng,g(1,1),g(1,2),g(1,3),ltop,ng,yl,g2)
 

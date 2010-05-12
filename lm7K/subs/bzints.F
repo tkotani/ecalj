@@ -56,47 +56,47 @@ C     stdl = lgunit(2)
       do  40  isp = 1, nsp
 C --- Loop over tetrahedra ---
         do  20  itet = 1, ntet
-         iq1 = idtet(1,itet)
-         iq2 = idtet(2,itet)
-         iq3 = idtet(3,itet)
-         iq4 = idtet(4,itet)
-         do  20  ib = 1, nband
+          iq1 = idtet(1,itet)
+          iq2 = idtet(2,itet)
+          iq3 = idtet(3,itet)
+          iq4 = idtet(4,itet)
+        do  20  ib = 1, nband
 C --- Set up energies at 4 corners of tetrahedron ---
-           ec(1) = ep(ib,isp,iq1)
-           ec(2) = ep(ib,isp,iq2)
-           ec(3) = ep(ib,isp,iq3)
-           ec(4) = ep(ib,isp,iq4)
-           etop = dmax1(ec(1),ec(2),ec(3),ec(4))
-           ebot = dmin1(ec(1),ec(2),ec(3),ec(4))
-           if (jjob .eq. 1) then
-             if ( ebot .lt. emax )
+          ec(1) = ep(ib,isp,iq1)
+          ec(2) = ep(ib,isp,iq2)
+          ec(3) = ep(ib,isp,iq3)
+          ec(4) = ep(ib,isp,iq4)
+          etop = dmax1(ec(1),ec(2),ec(3),ec(4))
+          ebot = dmin1(ec(1),ec(2),ec(3),ec(4))
+          if (jjob .eq. 1) then
+            if ( ebot .lt. emax )
      .       call slinz(volwgt*idtet(0,itet),ec,emin,emax,dos(1,isp),nr)
-           else
-             if ( ef .ge. ebot ) then
-               call fswgts(volwgt*idtet(0,itet),ec,ef,etop,wc)
-               sev1 = sev1 + wc(1,1)*ec(1) + wc(2,1)*ec(2) +
+          else
+            if ( ef .ge. ebot ) then
+              call fswgts(volwgt*idtet(0,itet),ec,ef,etop,wc)
+              sev1 = sev1 + wc(1,1)*ec(1) + wc(2,1)*ec(2) +
      .                       wc(3,1)*ec(3) + wc(4,1)*ec(4)
-               sev2 = sev2 + wc(1,2)*ec(1) + wc(2,2)*ec(2) +
+              sev2 = sev2 + wc(1,2)*ec(1) + wc(2,2)*ec(2) +
      .                       wc(3,2)*ec(3) + wc(4,2)*ec(4)
-               wp(ib,isp,iq1) = wp(ib,isp,iq1) + wc(1,1) + wc(1,2)
-               wp(ib,isp,iq2) = wp(ib,isp,iq2) + wc(2,1) + wc(2,2)
-               wp(ib,isp,iq3) = wp(ib,isp,iq3) + wc(3,1) + wc(3,2)
-               wp(ib,isp,iq4) = wp(ib,isp,iq4) + wc(4,1) + wc(4,2)
-             endif
-           endif
-   20    continue
-   40  continue
-       if (jjob .eq. 2) then
-         sumev = sev1 + sev2
-         sumwp = 0d0
-         do  56  isp = 1, nsp
-           sumwm = 0d0
-           do  56  ib = 1, nband
-           do  56  iq = 1, nq
-           sumwm = sumwm + wp(ib,isp,iq)
-           sumwp = sumwp + wp(ib,isp,iq)
-   56    continue
-         if ( ipr .ge. 10 ) then
+              wp(ib,isp,iq1) = wp(ib,isp,iq1) + wc(1,1) + wc(1,2)
+              wp(ib,isp,iq2) = wp(ib,isp,iq2) + wc(2,1) + wc(2,2)
+              wp(ib,isp,iq3) = wp(ib,isp,iq3) + wc(3,1) + wc(3,2)
+              wp(ib,isp,iq4) = wp(ib,isp,iq4) + wc(4,1) + wc(4,2)
+            endif
+          endif
+   20   continue
+   40 continue
+      if (jjob .eq. 2) then
+        sumev = sev1 + sev2
+        sumwp = 0d0
+        do  56  isp = 1, nsp
+          sumwm = 0d0
+        do  56  ib = 1, nband
+        do  56  iq = 1, nq
+          sumwm = sumwm + wp(ib,isp,iq)
+          sumwp = sumwp + wp(ib,isp,iq)
+   56   continue
+        if ( ipr .ge. 10 ) then
 C     ... when bands are coupled, moment from bands makes no sense
           if (nsp .eq. 1) then
             write(stdo,922) ef,sumwp,sev1+sev2,sev2

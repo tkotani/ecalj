@@ -62,7 +62,7 @@ C           print *, bhat
         do  10  isp = 1, min0(nsp2,nsp)
 c          read(ifi,101,err=15) (v(i,isp),i = 1,nr)
           read(ifi,101) (v(i,isp),i = 1,nr)
-          do  10  i = 1, nr
+        do  10  i = 1, nr
           v(i,nsp) = v(i,isp)
    10   continue
         aiopot = .true.

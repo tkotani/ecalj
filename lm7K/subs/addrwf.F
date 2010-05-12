@@ -51,33 +51,33 @@ C ... Local parameters
 
       if (mode .eq. 0) then
 
-      do  ir = 2, nr
-        r = rofi(ir)
+        do  ir = 2, nr
+          r = rofi(ir)
 
-        if (fac .ne. 0) then
-          g(ir,1) = g(ir,1) + fac*gadd(ir,1)
-          g(ir,2) = g(ir,2) + fac*gadd(ir,2)
-        endif
+          if (fac .ne. 0) then
+            g(ir,1) = g(ir,1) + fac*gadd(ir,1)
+            g(ir,2) = g(ir,2) + fac*gadd(ir,2)
+          endif
 
 C       Rest of the loop computes overlap between new g and gadd
-        vi = v(ir) - 2d0*z/r
-        tmc = cc - (vi-ev)/cc
-        gf11 = 1d0 + fllp1/(tmc*r)**2
-        tmc = cc - (vi-eadd)/cc
-        gf22 = 1d0 + fllp1/(tmc*r)**2
-        gf12 = (gf11 + gf22)/2
+          vi = v(ir) - 2d0*z/r
+          tmc = cc - (vi-ev)/cc
+          gf11 = 1d0 + fllp1/(tmc*r)**2
+          tmc = cc - (vi-eadd)/cc
+          gf22 = 1d0 + fllp1/(tmc*r)**2
+          gf12 = (gf11 + gf22)/2
 
-        s = s + rwgt(ir)*(gf12*g(ir,1)*gadd(ir,1) + g(ir,2)*gadd(ir,2))
-      enddo
+          s = s + rwgt(ir)*(gf12*g(ir,1)*gadd(ir,1) + g(ir,2)*gadd(ir,2))
+        enddo
 
       else
-      do  ir = 2, nr
-        r = rofi(ir)
-        if (fac .ne. 0) then
-          g(ir,1) = g(ir,1) + fac*gadd(ir,1)
-        endif
-        s = s + rwgt(ir)*g(ir,1)*gadd(ir,1)
-      enddo
+        do  ir = 2, nr
+          r = rofi(ir)
+          if (fac .ne. 0) then
+            g(ir,1) = g(ir,1) + fac*gadd(ir,1)
+          endif
+          s = s + rwgt(ir)*g(ir,1)*gadd(ir,1)
+        enddo
       endif
 
       if (n1 .gt. 0 .and. n1 .lt. nr) rwgt(n1) = rwgt(n1)/2

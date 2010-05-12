@@ -43,17 +43,17 @@ C   ... read pmpol
         do  10  i = 1, n
         do  10  k = 1, 3
 
-        do  12  l1 = 0, nl-1
-        do  12  l2 = 0, nl-1
+          do  12  l1 = 0, nl-1
+          do  12  l2 = 0, nl-1
 
-   16     if (.not. rdstrn(ifi,s,len(s),.false.)) goto 18
-          if (s .eq. ' ') goto 16
-          ip = 0
+   16       if (.not. rdstrn(ifi,s,len(s),.false.)) goto 18
+            if (s .eq. ' ') goto 16
+            ip = 0
 C    ...  Abort if fail to read lmxv+1 numbers
-          ip = a2vec(s,len(s),ip,4,' ',1,-2,-(lmxv+3),ix2,x2)
-          if (ip .ne. lmxv+3) call rxs('AIOMP: failed to parse ',s)
-          call dcopy(lmxv+1,x2(3),1,pmpol(l1+1,l2+1,0,k,i),nl**2)
-   12   continue
+            ip = a2vec(s,len(s),ip,4,' ',1,-2,-(lmxv+3),ix2,x2)
+            if (ip .ne. lmxv+3) call rxs('AIOMP: failed to parse ',s)
+            call dcopy(lmxv+1,x2(3),1,pmpol(l1+1,l2+1,0,k,i),nl**2)
+   12     continue
    10   continue
         aiomp = .true.
         return

@@ -1,8 +1,8 @@
 Cgetarg...info...           structure ['hsmbl', 'lat', 'slat']
 Cgetarg...info...           use_to_add ['hsmbl', 'm_struc_def']
       subroutine hsmbl(p,rsm,e,q,lmax,cy,slat,hsm,hsmp)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Bloch-sum of smooth Hankel functions and energy derivatives
 C ----------------------------------------------------------------------
@@ -29,8 +29,8 @@ C     implicit none
 C ... Passed parameters
       integer lmax
 Cgetarg       double precision rsm,e,slat(50),q(3),p(3),cy(1)
-       real(8):: rsm , e , q(3) , p(3) , cy(1) 
-       type(s_lat)::slat
+      real(8):: rsm , e , q(3) , p(3) , cy(1)
+      type(s_lat)::slat
 
       double complex hsm(1),hsmp(1)
 C ... Local parameters
@@ -47,12 +47,12 @@ Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: qlat(9) , real(8) :: slat%qlat 9
 Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
       call shorbz(p,p1,plat,qlat)
 C      print *, '!!'
@@ -65,21 +65,21 @@ Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
 Cgetarg...info...           real(8) :: tol , real(8) :: slat%tol 1
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat awald tol vol',slat,awald,tol,vol,0,0)
-       
-       awald=slat%awald
-       tol=slat%tol
-       vol=slat%vol
+
+      awald=slat%awald
+      tol=slat%tol
+      vol=slat%vol
 
 Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
 Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
 Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
 Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
 Cgetarg       call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
-       
-       nkd=slat%nkd
-       nkq=slat%nkq
-       odlv=slat%odlv
-       oqlv=slat%oqlv
+
+      nkd=slat%nkd
+      nkq=slat%nkq
+      odlv=slat%odlv
+      oqlv=slat%oqlv
 
       rwald = 1d0/awald
       asm = 1d0/rsm
@@ -95,13 +95,14 @@ C ... Multiply by phase to undo shortening
       cfac = dcmplx(0d0,1d0)*phase
       ilm = 0
       do  28  l = 0, lmax
-      cfac = cfac*dcmplx(0d0,-1d0)
+        cfac = cfac*dcmplx(0d0,-1d0)
       do  28  m = 1, 2*l+1
-      ilm = ilm+1
-      hsm(ilm)  = cfac*cy(ilm)*hsm(ilm)
-   28 hsmp(ilm) = cfac*cy(ilm)*hsmp(ilm)
+        ilm = ilm+1
+        hsm(ilm)  = cfac*cy(ilm)*hsm(ilm)
+        hsmp(ilm) = cfac*cy(ilm)*hsmp(ilm)
+   28 continue
 Cgetarg       end
-       end subroutine hsmbl 
+      end subroutine hsmbl
 
 
       subroutine hsmblq(p,e,q,a,lmax,alat,qlv,nkq,vol,dl,dlp)
@@ -143,8 +144,9 @@ C ... Local parameters
       tpiba = tpi/alat
       nlm = (lmax+1)**2
       do  10  ilm = 1, nlm
-      dl(ilm) = dcmplx(0d0,0d0)
-   10 dlp(ilm) = dcmplx(0d0,0d0)
+        dl(ilm) = dcmplx(0d0,0d0)
+        dlp(ilm) = dcmplx(0d0,0d0)
+   10 continue
       do  26  ir = 1, nkq
         r(1) = tpiba*(q(1)+qlv(1,ir))
         r(2) = tpiba*(q(2)+qlv(2,ir))
@@ -154,14 +156,16 @@ C ... Local parameters
         call sylm(r,yl,lmax,r2)
         den0 = dexp(gamma*(e-r2))/(r2-e)
         den1 = den0/(r2-e)
-        do  26  ilm = 1, nlm
+      do  26  ilm = 1, nlm
         dl(ilm)  = dl(ilm) + yl(ilm)*eiphi*den0
-   26   dlp(ilm) = dlp(ilm) + yl(ilm)*eiphi*den1
+        dlp(ilm) = dlp(ilm) + yl(ilm)*eiphi*den1
+   26 continue
       do  35  ilm = 1, nlm
-      dl(ilm)  = fpibv*dl(ilm)
-   35 dlp(ilm) = fpibv*dlp(ilm) + gamma*dl(ilm)
+        dl(ilm)  = fpibv*dl(ilm)
+        dlp(ilm) = fpibv*dlp(ilm) + gamma*dl(ilm)
+   35 continue
 Cgetarg       end
-       end subroutine hsmblq 
+      end subroutine hsmblq
 
 
       subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
@@ -208,56 +212,57 @@ C     Methfessl's 'akap' is sqrt(-e) = i kap by standard kap=sqrt(e)
       ccsm = 4d0*asm2*asm*dexp(e/(tasm*tasm))/srpi
 
       do  20  ir = 1, nkd
-      r(1) = alat*(p(1)-dlv(1,ir))
-      r(2) = alat*(p(2)-dlv(2,ir))
-      r(3) = alat*(p(3)-dlv(3,ir))
-      call sylm(r,yl,lmax,r2)
-      r1 = dsqrt(r2)
-      lzero = .false.
+        r(1) = alat*(p(1)-dlv(1,ir))
+        r(2) = alat*(p(2)-dlv(2,ir))
+        r(3) = alat*(p(3)-dlv(3,ir))
+        call sylm(r,yl,lmax,r2)
+        r1 = dsqrt(r2)
+        lzero = .false.
 
 C --- Make the xi's from -1 to lmax ---
-      if (r1 .lt. 1d-6) then
-         do  31  l = 1, lmax
-         chi1(l) = 0d0
-   31    chi2(l) = 0d0
-         if (lpos) then
+        if (r1 .lt. 1d-6) then
+          do  31  l = 1, lmax
+            chi1(l) = 0d0
+            chi2(l) = 0d0
+   31     continue
+          if (lpos) then
 C         do  l = 1, lmax
 C           zchi1(l) = 0d0
 C           zchi2(l) = 0d0
 C         enddo
-         zuplus = zerfc(zikap/ta)
-         chi1(0) = -zikap*zuplus
+            zuplus = zerfc(zikap/ta)
+            chi1(0) = -zikap*zuplus
      .    +2/dsqrt(4*datan(1d0))*a * cdexp(-(zikap/ta)**2)
-         zuplus = zerfc(zikap/tasm)
-         chi2(0) = -zikap*zuplus
+            zuplus = zerfc(zikap/tasm)
+            chi2(0) = -zikap*zuplus
      .    +2/dsqrt(4*datan(1d0))*asm * cdexp(-(zikap/tasm)**2)
-         chi1(-1) = -zerfc(-zikap/ta)/zikap
-         chi2(-1) = -zerfc(-zikap/tasm)/zikap
-         else
-         chi1(0) = ta*dexp(e/(2d0*ta2))/srpi - akap*derfc(akap/ta)
-         chi1(-1) = derfc(akap/ta)/akap
-         chi2(0) = tasm*dexp(e/(2d0*tasm2))/srpi - akap*derfc(akap/tasm)
-         chi2(-1) = derfc(akap/tasm)/akap
-         endif
-      else
-        if (lpos) then
-          expikr = exp(zikap*r1)
-          zuplus = zerfc(zikap/ta+r1*a)*expikr
-          chi1(0) = expikr/r1 - dble(zuplus)/r1
-          chi1(-1) = expikr/zikap + dimag(zuplus)/kap
+            chi1(-1) = -zerfc(-zikap/ta)/zikap
+            chi2(-1) = -zerfc(-zikap/tasm)/zikap
+          else
+            chi1(0) = ta*dexp(e/(2d0*ta2))/srpi - akap*derfc(akap/ta)
+            chi1(-1) = derfc(akap/ta)/akap
+            chi2(0) = tasm*dexp(e/(2d0*tasm2))/srpi - akap*derfc(akap/tasm)
+            chi2(-1) = derfc(akap/tasm)/akap
+          endif
+        else
+          if (lpos) then
+            expikr = exp(zikap*r1)
+            zuplus = zerfc(zikap/ta+r1*a)*expikr
+            chi1(0) = expikr/r1 - dble(zuplus)/r1
+            chi1(-1) = expikr/zikap + dimag(zuplus)/kap
 C          zchi1(0) = expikr/r1 - dble(zuplus)/r1
 C          zchi1(-1) = expikr/zikap + dimag(zuplus)/kap
-        else
+          else
 C         If large, these are -log(uplus),-log(umins); then chi->0
 Cr        If both (akap*rsm/2 -/+ r/rsm) >> 1, we have
 Cr        -log u(+/-) -> (akap*rsm/2 -/+ r/rsm)^2 -/+ akap*r
 Cr                    =  (akap*rsm/2)^2 + (r/rsm)^2 >> 1
 Cr         u(+/-)     -> exp[-(akap*rsm/2)^2 - (r/rsm)^2] -> 0
 Cr        Also if akap*r >> 1,   chi < dexp(-akap*r1) -> 0
-          emkr = dexp(-akap*r1)
-          if (.5d0*akap/a+r1*a .gt. srfmax .and.
+            emkr = dexp(-akap*r1)
+            if (.5d0*akap/a+r1*a .gt. srfmax .and.
      .        .5d0*akap/a-r1*a .gt. srfmax .or. akap*r1.gt.fmax) then
-            lzero = .true.
+              lzero = .true.
 C            uplus = derfc(.5d0*akap/a+r1*a)/emkr
 C            umins = derfc(.5d0*akap/a-r1*a)*emkr
 C            print *, 'approx',(.5d0*akap/a+r1*a)**2 - akap*r1
@@ -266,67 +271,73 @@ C            print *, 'approx', (.5d0*akap/a-r1*a)**2 + akap*r1
 C            print *, '-log um', -dlog(umins)
 C            print *, r1*a
 C            stop
-          else
-            uplus = derfc(.5d0*akap/a+r1*a)/emkr
-            umins = derfc(.5d0*akap/a-r1*a)*emkr
-            chi1(0) = 0.5d0*(umins-uplus)/r1
-            chi1(-1) = (umins+uplus)/(2.d0*akap)
+            else
+              uplus = derfc(.5d0*akap/a+r1*a)/emkr
+              umins = derfc(.5d0*akap/a-r1*a)*emkr
+              chi1(0) = 0.5d0*(umins-uplus)/r1
+              chi1(-1) = (umins+uplus)/(2.d0*akap)
+            endif
           endif
-        endif
-        if (lzero) then
+          if (lzero) then
             do  30  l = -1, lmax
-   30       chi1(l) = 0
+              chi1(l) = 0
+   30       continue
             lzero = .false.
-        else
-          gl = cc*dexp(-a2*r2)/ta2
-          do  32  l = 1, lmax
-            chi1(l) = ((2*l-1)*chi1(l-1)-e*chi1(l-2)-gl)/r2
-   32     gl = ta2*gl
-        endif
+          else
+            gl = cc*dexp(-a2*r2)/ta2
+            do  32  l = 1, lmax
+              chi1(l) = ((2*l-1)*chi1(l-1)-e*chi1(l-2)-gl)/r2
+              gl = ta2*gl
+   32       continue
+          endif
 
 C        chi2 is complex; so is chi1, but the imaginary part
 C        is the same, so the difference is real
-        if (lpos) then
-          zuplus = zerfc(zikap/tasm+r1*asm)*expikr
-          chi2(0) = expikr/r1 - dble(zuplus)/r1
-          chi2(-1) = expikr/zikap + dimag(zuplus)/kap
+          if (lpos) then
+            zuplus = zerfc(zikap/tasm+r1*asm)*expikr
+            chi2(0) = expikr/r1 - dble(zuplus)/r1
+            chi2(-1) = expikr/zikap + dimag(zuplus)/kap
 C          zchi2(0) = expikr/r1 - dble(zuplus)/r1
 C          zchi2(-1) = expikr/zikap + dimag(zuplus)/kap
-        else
-          if (.5d0*akap/asm+r1*asm .gt. srfmax .and.
-     .        .5d0*akap/asm-r1*asm .gt. srfmax .or. akap*r1.gt.fmax)then
-            lzero = .true.
           else
-            uplus = derfc(.5d0*akap/asm+r1*asm)/emkr
-            umins = derfc(.5d0*akap/asm-r1*asm)*emkr
-            chi2(0) = 0.5d0*(umins-uplus)/r1
-            chi2(-1) = (umins+uplus)/(2d0*akap)
+            if (.5d0*akap/asm+r1*asm .gt. srfmax .and.
+     .        .5d0*akap/asm-r1*asm .gt. srfmax .or. akap*r1.gt.fmax)then
+              lzero = .true.
+            else
+              uplus = derfc(.5d0*akap/asm+r1*asm)/emkr
+              umins = derfc(.5d0*akap/asm-r1*asm)*emkr
+              chi2(0) = 0.5d0*(umins-uplus)/r1
+              chi2(-1) = (umins+uplus)/(2d0*akap)
+            endif
+          endif
+          if (lzero) then
+            do  40  l = -1, lmax
+              chi2(l) = 0
+   40       continue
+            lzero = .false.
+          else
+            gl = ccsm*dexp(-asm2*r2)/tasm2
+            do  33  l = 1, lmax
+              chi2(l) = ((2*l-1)*chi2(l-1)-e*chi2(l-2)-gl)/r2
+              gl = tasm2*gl
+   33       continue
           endif
         endif
-        if (lzero) then
-            do  40  l = -1, lmax
-   40       chi2(l) = 0
-            lzero = .false.
-        else
-          gl = ccsm*dexp(-asm2*r2)/tasm2
-          do  33  l = 1, lmax
-            chi2(l) = ((2*l-1)*chi2(l-1)-e*chi2(l-2)-gl)/r2
-   33     gl = tasm2*gl
-        endif
-      endif
-      qdotr = tpi*(q(1)*dlv(1,ir)+q(2)*dlv(2,ir)+q(3)*dlv(3,ir))
-      cfac = cdexp(dcmplx(0d0,qdotr))
-      ilm = 0
-      do  38  l = 0, lmax
-      nm = 2*l+1
-      do  39  m = 1, nm
-      ilm = ilm+1
-      dl(ilm) = dl(ilm) + yl(ilm)*(chi2(l)-chi1(l))*cfac
-   39 dlp(ilm) = dlp(ilm) + yl(ilm)*0.5d0*(chi2(l-1)-chi1(l-1))*cfac
-   38 cfac = cfac*dcmplx(0d0,1d0)
+        qdotr = tpi*(q(1)*dlv(1,ir)+q(2)*dlv(2,ir)+q(3)*dlv(3,ir))
+        cfac = cdexp(dcmplx(0d0,qdotr))
+        ilm = 0
+        do  38  l = 0, lmax
+          nm = 2*l+1
+          do  39  m = 1, nm
+            ilm = ilm+1
+            dl(ilm) = dl(ilm) + yl(ilm)*(chi2(l)-chi1(l))*cfac
+            dlp(ilm) = dlp(ilm) + yl(ilm)*0.5d0*(chi2(l-1)-chi1(l-1))*cfac
+   39     continue
+          cfac = cfac*dcmplx(0d0,1d0)
+   38   continue
    20 continue
 
 Cgetarg       end
-       end subroutine hsmbld 
+      end subroutine hsmbld
 
 

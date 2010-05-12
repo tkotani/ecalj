@@ -4,7 +4,7 @@ C ----------------------------------------------------------------------
 Ci Inputs
 Ci   UH    :Hubbard U
 Ci   JH    :Hubbard J
-Ci   vrsion:LDA+U version 
+Ci   vrsion:LDA+U version
 Ci         :1 AMF; 2 FLL; see Remarks
 Ci         :4 majority and minority shifted by U
 Ci         :4 majority spin shifted by U, minority by J
@@ -80,7 +80,7 @@ C     End AMF
 C     Eq. 6, PRB 67, 153106 (2003)
 C     Note:  JH=0 => Vee(m,m2,m1,m3) = U delta(m,m1) delta(m2,m3)
       call veecomp(Vee,l,UH,JH)
-C      print *, 'vee'      
+C      print *, 'vee'
 C      do m=-l,l
 C        do m1=-l,l
 C          print *,'m,m1',m,m1
@@ -102,43 +102,43 @@ C     See Liechtenstein PRB 52, R5467 (1995) for FLL limit
 C             Case lvrs = 4:
 C             Potential shift and dmat input, not U and dmat
 C             Replace dmat with diagonal dmat4 => V diagonal, l independent
-              if (lvrs .eq. 4) then
-                if (m.ne.m1 .or. m2.ne.m3 .or. m.ne.m2) goto 10
+                if (lvrs .eq. 4) then
+                  if (m.ne.m1 .or. m2.ne.m3 .or. m.ne.m2) goto 10
 
-                dmat4 = n0(isp)/2 + n0(3-isp)/2
+                  dmat4 = n0(isp)/2 + n0(3-isp)/2
 C               Spherical average from Petukhov
 C               Vnew(m,m) = - Ueff (dmat_eff - 0.5d0)
-                Vnew(m,m1) = Vnew(m,m1) + UH 
-                Ueff = -UH/(dmat4-0.5d0)
+                  Vnew(m,m1) = Vnew(m,m1) + UH
+                  Ueff = -UH/(dmat4-0.5d0)
 C               Petukhov Eq. 3.  Factor of 1/2 comes later
-                Eldau = Eldau - Ueff*(dmat4**2 - dmat4)
+                  Eldau = Eldau - Ueff*(dmat4**2 - dmat4)
 
 C               Mimic mode 2
 C               U2 = 0
 C               if (m .eq. m3) U2 = Ueff
 C               print *, Ueff/2*(n0(isp)**2 - n0(isp))
-C               print *, 
+C               print *,
 C     .           Ueff*dmat4*dmat4 + (Ueff - U2)*dmat4*dmat4
 C               Eldau = Eldau +
 C     .           Ueff*dmat4*dmat4 + (Ueff - U2)*dmat4*dmat4
-              elseif (lvrs .eq. 5) then 
-                if (m .eq. m1) Vnew(m,m1)=UH*(isp-1.5d0)*2 
-                Eldau = 0
-              else
+                elseif (lvrs .eq. 5) then
+                  if (m .eq. m1) Vnew(m,m1)=UH*(isp-1.5d0)*2
+                  Eldau = 0
+                else
 C             First line in Eq. 5, PRB 52, R5467
 C             NB: J=0 => vtemp1 = U delta(m,m1) delta(m2,m3)
-              vtemp1 = Vee(m,m2,m1,m3)*dmatu(m2,m3,iot(isp),iblu)
+                  vtemp1 = Vee(m,m2,m1,m3)*dmatu(m2,m3,iot(isp),iblu)
 C             Second and third lines in Eq. 5, PRB 52, R5467
-              vtemp2 = (Vee(m,m2,m1,m3) - Vee(m,m2,m3,m1))*
+                  vtemp2 = (Vee(m,m2,m1,m3) - Vee(m,m2,m3,m1))*
      .                  dmatu(m2,m3,isp,iblu)
-              Vnew(m,m1) = Vnew(m,m1) + vtemp1 + vtemp2
+                  Vnew(m,m1) = Vnew(m,m1) + vtemp1 + vtemp2
 
-              Eldau = Eldau + Vee(m,m2,m1,m3)*dmatu(m,m1,isp,iblu)*
+                  Eldau = Eldau + Vee(m,m2,m1,m3)*dmatu(m,m1,isp,iblu)*
      .          dmatu(m2,m3,iot(isp),iblu) + (Vee(m,m2,m1,m3) -
      .          Vee(m,m2,m3,m1))*dmatu(m,m1,isp,iblu)*
      .          dmatu(m2,m3,isp,iblu)
-              endif
-   10         continue
+                endif
+   10           continue
               enddo
             enddo
           enddo

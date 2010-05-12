@@ -57,15 +57,15 @@ C Cludge for now ...
         j = iax(6,i)
         if (j .eq. 0) goto 10
 
-          ii = iax(8,i)
-          if (ii .eq. 0) ii = i
-          jj = iax(8,j)
-          if (jj .eq. 0) jj = j
+        ii = iax(8,i)
+        if (ii .eq. 0) ii = i
+        jj = iax(8,j)
+        if (jj .eq. 0) jj = j
 
 c         print *, i,ii,' ',j,jj,' ',sflg(ii),sflg(jj)
 C     ... Symmetrize ii,jj as (ii+jj)/2 if neither was symmetrized
-          if (sflg(ii) .eq. 0 .and. sflg(jj) .eq. 0) then
-            if (mode .eq. 0) then
+        if (sflg(ii) .eq. 0 .and. sflg(jj) .eq. 0) then
+          if (mode .eq. 0) then
             do  30  isp = 1, nsp
             do  30  lm1 = 1, nds
             do  30  lm2 = 1, nds
@@ -78,7 +78,7 @@ C              endif
               s(lm1,lm2,isp,ik,jk,ii) = tmp
               s(lm2,lm1,isp,ik,jk,jj) = tmp
    30       continue
-            else if (mode .eq. 1) then
+          else if (mode .eq. 1) then
             do  31  isp = 1, nsp
             do  31  lm1 = 1, nds
             do  31  lm2 = 1, nds
@@ -92,7 +92,7 @@ C              endif
               sc(lm1,lm2,isp,ik,jk,ii) = tmpc
               sc(lm2,lm1,isp,ik,jk,jj) = tmpc
    31       continue
-            else
+          else
             do  32  isp = 1, nsp
             do  32  lm1 = 1, nds
             do  32  lm2 = 1, nds
@@ -103,44 +103,44 @@ C              endif
               sc(lm1,lm2,isp,ik,jk,ii) = tmpc
               sc(lm2,lm1,isp,ik,jk,jj) = dconjg(tmpc)
    32       continue
-            endif
-C       ... Flag this s(ii), s(jj) as symmetrized
-            sflg(ii) = 1
-            sflg(jj) = 1
-C     ... Symmetrize ii from jj if ii not symmetrized
-          elseif (sflg(ii) .eq. 0) then
-            do  34  isp = 1, nsp
-            do  34  lm1 = 1, nds
-            do  34  lm2 = 1, nds
-              if (mode .eq. 0) then
-                s(lm1,lm2,isp,ik,jk,ii) = s(lm2,lm1,isp,ik,jk,jj)
-              else if (mode .eq. 1) then
-                sc(lm1,lm2,isp,ik,jk,ii) = sc(lm2,lm1,isp,ik,jk,jj)
-              else
-                sc(lm1,lm2,isp,ik,jk,ii) =
-     .            dconjg(sc(lm2,lm1,isp,ik,jk,jj))
-              endif
-   34       continue
-C       ... Flag this s(ii) as symmetrized
-            sflg(ii) = 1
-C     ... Symmetrize jj from ii if jj not symmetrized
-          elseif (sflg(jj) .eq. 0) then
-            do  35  isp = 1, nsp
-            do  35  lm1 = 1, nds
-            do  35  lm2 = 1, nds
-              if (mode .eq. 0) then
-                s(lm2,lm1,isp,ik,jk,jj) = s(lm1,lm2,isp,ik,jk,ii)
-              else if (mode .eq. 1) then
-                sc(lm2,lm1,isp,ik,jk,jj) = sc(lm1,lm2,isp,ik,jk,ii)
-              else
-                sc(lm2,lm1,isp,ik,jk,jj) =
-     .            dconjg(sc(lm1,lm2,isp,ik,jk,ii))
-              endif
-   35       continue
-C       ... Flag this s(jj) as symmetrized
-            sflg(jj) = 1
           endif
-          goto 10
+C       ... Flag this s(ii), s(jj) as symmetrized
+          sflg(ii) = 1
+          sflg(jj) = 1
+C     ... Symmetrize ii from jj if ii not symmetrized
+        elseif (sflg(ii) .eq. 0) then
+          do  34  isp = 1, nsp
+          do  34  lm1 = 1, nds
+          do  34  lm2 = 1, nds
+            if (mode .eq. 0) then
+              s(lm1,lm2,isp,ik,jk,ii) = s(lm2,lm1,isp,ik,jk,jj)
+            else if (mode .eq. 1) then
+              sc(lm1,lm2,isp,ik,jk,ii) = sc(lm2,lm1,isp,ik,jk,jj)
+            else
+              sc(lm1,lm2,isp,ik,jk,ii) =
+     .            dconjg(sc(lm2,lm1,isp,ik,jk,jj))
+            endif
+   34     continue
+C       ... Flag this s(ii) as symmetrized
+          sflg(ii) = 1
+C     ... Symmetrize jj from ii if jj not symmetrized
+        elseif (sflg(jj) .eq. 0) then
+          do  35  isp = 1, nsp
+          do  35  lm1 = 1, nds
+          do  35  lm2 = 1, nds
+            if (mode .eq. 0) then
+              s(lm2,lm1,isp,ik,jk,jj) = s(lm1,lm2,isp,ik,jk,ii)
+            else if (mode .eq. 1) then
+              sc(lm2,lm1,isp,ik,jk,jj) = sc(lm1,lm2,isp,ik,jk,ii)
+            else
+              sc(lm2,lm1,isp,ik,jk,jj) =
+     .            dconjg(sc(lm1,lm2,isp,ik,jk,ii))
+            endif
+   35     continue
+C       ... Flag this s(jj) as symmetrized
+          sflg(jj) = 1
+        endif
+        goto 10
    10 continue
 
 C     call info(60,0,0,' symstr: max asymmetry=%d',asym,0)

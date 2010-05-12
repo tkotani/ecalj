@@ -83,7 +83,8 @@ C ...   cos(q.dlv), sin(q.dlv) -> wk(3,4), Y0 exp(-(a dlv)**2) -> wk(2)
    22   continue
       elseif (job0 .eq. 1) then
         do  24  ir = 1, nkd
-   24   wk(ir,2) = y0*dexp(-wk(ir,1)*a2)
+          wk(ir,2) = y0*dexp(-wk(ir,1)*a2)
+   24   continue
       endif
 
       lc1 = 5
@@ -118,14 +119,14 @@ C       and cos(q.dlv) * G_kl and sin(q.dlv) * G_kl
           x2 = 2*k*(2*(k+1) + 2*l-1)
           y2 = 4*(k+1) + 2*l-1
           do  34  ir = 1, nkd
-          xx1 = ta2*((ta2*wk(ir,1)-y)*wk(ir,ik2+l) - x*ta2*wk(ir,ik1+l))
-          xx2 = ta2*((ta2*wk(ir,1)-y2)*xx1         -x2*ta2*wk(ir,ik2+l))
-          wk(ir,ik1+l) = xx1
-          wk(ir,ik2+l) = xx2
-          wk(ir,lc1) = wk(ir,3)*xx1
-          wk(ir,ls1) = wk(ir,4)*xx1
-          wk(ir,lc2) = wk(ir,3)*xx2
-          wk(ir,ls2) = wk(ir,4)*xx2
+            xx1 = ta2*((ta2*wk(ir,1)-y)*wk(ir,ik2+l) - x*ta2*wk(ir,ik1+l))
+            xx2 = ta2*((ta2*wk(ir,1)-y2)*xx1         -x2*ta2*wk(ir,ik2+l))
+            wk(ir,ik1+l) = xx1
+            wk(ir,ik2+l) = xx2
+            wk(ir,lc1) = wk(ir,3)*xx1
+            wk(ir,ls1) = wk(ir,4)*xx1
+            wk(ir,lc2) = wk(ir,3)*xx2
+            wk(ir,ls2) = wk(ir,4)*xx2
    34     continue
         endif
 
@@ -135,19 +136,19 @@ C   ... For each point, add G_kl Y_L exp(i q.dlv) into Bloch G_kL
           do  36  m = -l, l
             ilm = ilm+1
             do  38  ir = nkd, 1, -1
-            gkl(1,k,ilm) = gkl(1,k,ilm) + wk(ir,lc1)*yl(ir,ilm)
-            gkl(2,k,ilm) = gkl(2,k,ilm) + wk(ir,ls1)*yl(ir,ilm)
-            gkl(1,k+1,ilm) = gkl(1,k+1,ilm) + wk(ir,lc2)*yl(ir,ilm)
-            gkl(2,k+1,ilm) = gkl(2,k+1,ilm) + wk(ir,ls2)*yl(ir,ilm)
-   38     continue
+              gkl(1,k,ilm) = gkl(1,k,ilm) + wk(ir,lc1)*yl(ir,ilm)
+              gkl(2,k,ilm) = gkl(2,k,ilm) + wk(ir,ls1)*yl(ir,ilm)
+              gkl(1,k+1,ilm) = gkl(1,k+1,ilm) + wk(ir,lc2)*yl(ir,ilm)
+              gkl(2,k+1,ilm) = gkl(2,k+1,ilm) + wk(ir,ls2)*yl(ir,ilm)
+   38       continue
    36     continue
         else
           do  46  m = -l, l
             ilm = ilm+1
             do  48  ir = nkd, 1, -1
-            gkl(1,k,ilm) = gkl(1,k,ilm) + wk(ir,lc1)*yl(ir,ilm)
-            gkl(2,k,ilm) = gkl(2,k,ilm) + wk(ir,ls1)*yl(ir,ilm)
-   48     continue
+              gkl(1,k,ilm) = gkl(1,k,ilm) + wk(ir,lc1)*yl(ir,ilm)
+              gkl(2,k,ilm) = gkl(2,k,ilm) + wk(ir,ls1)*yl(ir,ilm)
+   48       continue
    46     continue
         endif
    30 continue

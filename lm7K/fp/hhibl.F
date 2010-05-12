@@ -51,14 +51,16 @@ C ... Local parameters
 
       if (nlm1 .eq. 0 .or. nlm2 .eq. 0) return
       do  1  m = 1, 3
-    1 dr(m) = p1(m)-p2(m)
+        dr(m) = p1(m)-p2(m)
+    1 continue
       lmx1 = ll(nlm1)
       lmx2 = ll(nlm2)
 
       do  3  k = 0, kmax
       do  3  jlm = 1, nlm2
       do  3  ilm = 1, nlm1
-    3 s(ilm,jlm,k) = dcmplx(0d0,0d0)
+        s(ilm,jlm,k) = dcmplx(0d0,0d0)
+    3 continue
 
       l1t = -1
       do  20  l1 = 0, lmx1
@@ -139,44 +141,45 @@ C ... Local parameters
 
 C ... Set up functions for connecting vector p1-p2
       if (dabs(e1-e2) .gt. 1d-5) then
-         fac1 = dexp(gam2*(e2-e1))/(e1-e2)
-         fac2 = dexp(gam1*(e1-e2))/(e2-e1)
-         call hklbl(dr,rsmx,e1,q,ktop,nlmx,ktop0,cy,slat, hkl1)
-         call hklbl(dr,rsmx,e2,q,ktop,nlmx,ktop0,cy,slat, hkl2)
-         do  4  ilm = 1, nlmx
-           do  5  k = 0, ktop
-             hkl1(k,ilm) = fac1*hkl1(k,ilm) + fac2*hkl2(k,ilm)
-    5      continue
-    4    continue
+        fac1 = dexp(gam2*(e2-e1))/(e1-e2)
+        fac2 = dexp(gam1*(e1-e2))/(e2-e1)
+        call hklbl(dr,rsmx,e1,q,ktop,nlmx,ktop0,cy,slat, hkl1)
+        call hklbl(dr,rsmx,e2,q,ktop,nlmx,ktop0,cy,slat, hkl2)
+        do  4  ilm = 1, nlmx
+          do  5  k = 0, ktop
+            hkl1(k,ilm) = fac1*hkl1(k,ilm) + fac2*hkl2(k,ilm)
+    5     continue
+    4   continue
       else
-         e = .5d0*(e1+e2)
-         call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0,cy,slat, hkl2)
-         call hsmbl(dr,rsmx,e,q,lmaxx,cy,slat, hsm,hsmp)
-         do  6  ilm = 1, nlmx
-           hkl1(0,ilm) = hsmp(ilm) - gamx*hsm(ilm)
-           do  7  k = 1, ktop
-             hkl1(k,ilm) = -e*hkl1(k-1,ilm) - hkl2(k-1,ilm)
-    7      continue
-    6    continue
+        e = .5d0*(e1+e2)
+        call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0,cy,slat, hkl2)
+        call hsmbl(dr,rsmx,e,q,lmaxx,cy,slat, hsm,hsmp)
+        do  6  ilm = 1, nlmx
+          hkl1(0,ilm) = hsmp(ilm) - gamx*hsm(ilm)
+          do  7  k = 1, ktop
+            hkl1(k,ilm) = -e*hkl1(k-1,ilm) - hkl2(k-1,ilm)
+    7     continue
+    6   continue
 
       endif
 
 C ... Combine with Clebsch-Gordan coefficients
       do  11  ilm1 = mlm1, nlm1
-      l1 = ll(ilm1)
+        l1 = ll(ilm1)
       do  11  ilm2 = mlm2, nlm2
-      l2 = ll(ilm2)
-      ii = max0(ilm1,ilm2)
-      indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
-      icg1 = indxcg(indx)
-      icg2 = indxcg(indx+1)-1
+        l2 = ll(ilm2)
+        ii = max0(ilm1,ilm2)
+        indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
+        icg1 = indxcg(indx)
+        icg2 = indxcg(indx+1)-1
       do  11  icg = icg1, icg2
-      ilm = jcg(icg)
-      lm = ll(ilm)
-      k = (l1+l2-lm)/2
-      fac = fpi*(-1d0)**l1*cg(icg)
-      do  12  ip = 0, kmax
-   12 s(ilm1,ilm2,ip) = s(ilm1,ilm2,ip) + fac*hkl1(k+ip,ilm)
+        ilm = jcg(icg)
+        lm = ll(ilm)
+        k = (l1+l2-lm)/2
+        fac = fpi*(-1d0)**l1*cg(icg)
+        do  12  ip = 0, kmax
+          s(ilm1,ilm2,ip) = s(ilm1,ilm2,ip) + fac*hkl1(k+ip,ilm)
+   12   continue
    11 continue
 
       end

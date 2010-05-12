@@ -220,27 +220,27 @@ C      endif
 
 C --- Approximate g,f by leading term near zero ----
       if (i0 .lt. 5) then
-      g0 = 1
-      if (z .lt. 0.9d0) then
-        s = l+1
-        sf = l
-        f0 = l/c
-      else
-        aa = zz/c
-        s  = dsqrt(fllp1 + 1d0 - aa*aa)
-        sf = s
-        f0 = g0*(s - 1d0)/aa
-      endif
-      g(1,1) = 0d0
-      g(1,2) = 0d0
-      do  2  ir = 2, 4
-        r = rofi(ir)
-        drdi = a*(r+b)
-        g(ir,1) = (r**s)*g0
-        g(ir,2) = (r**sf)*f0
-        d(1,ir-1) = drdi*g(ir,1)*s/r
-        d(2,ir-1) = drdi*g(ir,2)*sf/r
-    2 continue
+        g0 = 1
+        if (z .lt. 0.9d0) then
+          s = l+1
+          sf = l
+          f0 = l/c
+        else
+          aa = zz/c
+          s  = dsqrt(fllp1 + 1d0 - aa*aa)
+          sf = s
+          f0 = g0*(s - 1d0)/aa
+        endif
+        g(1,1) = 0d0
+        g(1,2) = 0d0
+        do  2  ir = 2, 4
+          r = rofi(ir)
+          drdi = a*(r+b)
+          g(ir,1) = (r**s)*g0
+          g(ir,2) = (r**sf)*f0
+          d(1,ir-1) = drdi*g(ir,1)*s/r
+          d(2,ir-1) = drdi*g(ir,2)*sf/r
+    2   continue
       endif
 
 C --- Setup to integrate over rest of points ------
@@ -256,24 +256,24 @@ C       df3 = d(2,3)
         i1 = i0
         call dpzero(d,6)
         do  3  ir = i1-3, i1-1
-        r     = rofi(ir)
-        drdi  = a*(r + b)
-        phi   = (e + zz/r - v(ir))*drdi/c
-        u     = drdi*c + phi
-        x     = -drdi/r
-        y     = -fllp1*x*x/u + phi
+          r     = rofi(ir)
+          drdi  = a*(r + b)
+          phi   = (e + zz/r - v(ir))*drdi/c
+          u     = drdi*c + phi
+          x     = -drdi/r
+          y     = -fllp1*x*x/u + phi
 C       det   = r83sq - x*x + u*y
 C       b1    = g(ir-1,1)*h83 + r1*dg1 + r2*dg2 + r3*dg3
 C       b2    = g(ir-1,2)*h83 + r1*df1 + r2*df2 + r3*df3
 C       g(ir,1) = (b1*(h83-x) + b2*u)/det
 C       g(ir,2) = (b2*(h83+x) - b1*y)/det
 C       if (g(ir,1)*g(ir-1,1) .lt. 0d0) nn = nn+1
-        dg1   = dg2
-        df1   = df2
-        dg2   = dg3
-        df2   = df3
-        dg3   = u*g(ir,2) - x*g(ir,1)
-        df3   = x*g(ir,2) - y*g(ir,1)
+          dg1   = dg2
+          df1   = df2
+          dg2   = dg3
+          df2   = df3
+          dg3   = u*g(ir,2) - x*g(ir,1)
+          df3   = x*g(ir,2) - y*g(ir,1)
     3   continue
       endif
 

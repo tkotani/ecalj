@@ -4,7 +4,7 @@ C ----------------------------------------------------------------------
 Ci Inputs:
 Ci  grp,ag :  space group rotation + translation matrix
 Ci  asep:     If first character is 'f', rot. and trans. vectors
-Ci            are not converted into small algebraic expressions.  
+Ci            are not converted into small algebraic expressions.
 Ci            If first char. is 'f', The second-* character are
 Ci            used for the separators.
 Co Outputs:
@@ -65,9 +65,9 @@ C- Decomposes a group operation into its consitutents, or vice-versa
 C ----------------------------------------------------------------------
 Ci Inputs:
 Ci   iopt  := -1 to convert (nrot,vecg,li) to grp
-Ci          =  1 to convert grp to to (nrot,vecg,li) 
+Ci          =  1 to convert grp to to (nrot,vecg,li)
 Co Inputs/Outputs:
-Cio grp   :group operation matrix 
+Cio grp   :group operation matrix
 Cio li    :if T: inversion or rotoinversion
 Cio nrot  :rotation angle = 2*pi/nrot
 Cio vecg  :rotation axis
@@ -140,7 +140,7 @@ C       sum_i grp(i,i) = sum_i (1-cos) v_i*v_i + 3*cos = 1 + 2 * cos
 C       costbn = -0.5d0
 C       call daxpy(3,0.5d0,grp(1,1),4,costbn,0)
         costbn = 0.5d0*(-1 + grp(1,1) + grp(2,2) + grp(3,3))
-        
+
         if (dabs(costbn-1d0) .lt. tiny) then
           nrot = 1
           call dpzero(vecg,3)
@@ -149,7 +149,8 @@ C     ... See Remarks
           nrot = idnint(twopi/dacos(dmax1(-1d0,costbn)))
           if (nrot .eq. 2) then
             do  10  i = 1, 3
-   10       vecg(i) = 0.5d0*(grp(i,i)+1.0d0)
+              vecg(i) = 0.5d0*(grp(i,i)+1.0d0)
+   10       continue
             j = idamax(3,vecg,1)
             if (vecg(j) .lt. 0d0)
      .        call fexit2(-1,111,' Exit -1 ASYMOP:  bad component %i'//
@@ -157,7 +158,8 @@ C     ... See Remarks
             vecg(j) = dsqrt(vecg(j))
             vfac = 0.5d0/vecg(j)
             do  12  i = 1, 3
-   12       if (i .ne. j) vecg(i) = vfac*grp(i,j)
+              if (i .ne. j) vecg(i) = vfac*grp(i,j)
+   12       continue
           else
             vecg(1) = grp(3,2)-grp(2,3)
             vecg(2) = grp(1,3)-grp(3,1)
@@ -169,10 +171,10 @@ C         to allow for abbreviations as 'D', 'X', 'Y' or 'Z'
           sinpb3 = dsqrt(.75d0)
           if (dabs((sinpb3-dabs(vecg(1)))*(sinpb3-dabs(vecg(2)))*
      .            (sinpb3-dabs(vecg(3)))) .gt. tiny) then
-           do  20  j = 3, 1,-1
-             vfac = dabs(vecg(j))
-             if(vfac .gt. tiny) call dscal(3,1.d0/vfac,vecg,1)
-   20      continue
+            do  20  j = 3, 1,-1
+              vfac = dabs(vecg(j))
+              if(vfac .gt. tiny) call dscal(3,1.d0/vfac,vecg,1)
+   20       continue
           endif
         endif
         call dscal(9,detop,grp(1,1),1)

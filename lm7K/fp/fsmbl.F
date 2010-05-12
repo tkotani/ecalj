@@ -3,9 +3,9 @@ Cgetarg...info...           structure ['fsmbl', 'site', 'ssite']
 Cgetarg...info...           use_to_add ['fsmbl', 'm_struc_def']
       subroutine fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,iprmb,
      .  numq,nevec,evl,evec,ewgt,f)
-       
-       use m_struc_def  !Cgetarg
-#if MPE 
+
+      use m_struc_def  !Cgetarg
+#if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
 C- Force from smoothed hamiltonian (constant potential) and overlap
@@ -70,10 +70,10 @@ c      include "events.ins"
 c#endif
       integer nbas,ndimh,nlmto,nevec,numq,iprmb(nlmto)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3)
-       real(8):: q(3) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: q(3)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double precision evl(ndimh),f(3,nbas,numq),ewgt(numq,nevec),vavg
       double complex evec(ndimh,ndimh)
@@ -132,11 +132,11 @@ Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
 Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
 Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
 Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-       
-       ocg=slat%ocg
-       ojcg=slat%ojcg
-       oidxcg=slat%oidxcg
-       ocy=slat%ocy
+
+      ocg=slat%ocg
+      ojcg=slat%ojcg
+      oidxcg=slat%oidxcg
+      ocy=slat%ocy
 
 
 C --- Loop over first and second site indices ---
@@ -169,10 +169,10 @@ c      do  iloop = 1, index(procid,0)
 Cgetarg...info...           integer :: is1 , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: p1(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ib1,is1,p1,0,0)
-         
-         is1=ssite(ib1)%spec
-         i_copy_size=size(ssite(ib1)%pos) 
-         call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1) 
+
+        is1=ssite(ib1)%spec
+        i_copy_size=size(ssite(ib1)%pos)
+        call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1)
 
         call uspecb(0,2,sspec,is1,is1,lh1,rsm1,e1,nkap1)
 C       Row info telling fsmbl where to poke s0 made by hhibl
@@ -183,10 +183,10 @@ C       Row info telling fsmbl where to poke s0 made by hhibl
 Cgetarg...info...           integer :: is2 , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: p2(3) , real(8) :: ssite%pos 3
 Cgetarg           call upack('site spec pos',ssite,ib2,is2,p2,0,0)
-           
-           is2=ssite(ib2)%spec
-           i_copy_size=size(ssite(ib2)%pos) 
-           call dcopy(i_copy_size,ssite(ib2)%pos,1,p2,1) 
+
+          is2=ssite(ib2)%spec
+          i_copy_size=size(ssite(ib2)%pos)
+          call dcopy(i_copy_size,ssite(ib2)%pos,1,p2,1)
 
           call uspecb(0,2,sspec,is2,is2,lh2,rsm2,e2,nkap2)
 C         Column info telling fsmbl where to poke s0 made by hhibl
@@ -208,56 +208,56 @@ C     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
 
 C     ... Loop over pairs of orbital groups, multiply bloc of gradients
           do  io2 = 1, norb2
-          if (blks2(io2) .ne. 0) then
+            if (blks2(io2) .ne. 0) then
 C           l2,ik2 = l and kaph indices, needed to locate block in s0
-            l2  = ltab2(io2)
-            ik2 = ktab2(io2)
-            nlm21 = l2**2+1
-            nlm22 = nlm21 + blks2(io2)-1
-            do  io1 = 1, norb1
-            if (blks1(io1) .ne. 0) then
+              l2  = ltab2(io2)
+              ik2 = ktab2(io2)
+              nlm21 = l2**2+1
+              nlm22 = nlm21 + blks2(io2)-1
+              do  io1 = 1, norb1
+                if (blks1(io1) .ne. 0) then
 C             l1,ik1 = l and kaph indices, needed to locate block in s0
-              l1  = ltab1(io1)
-              ik1 = ktab1(io1)
-              nlm11 = l1**2+1
-              nlm12 = nlm11 + blks1(io1)-1
+                  l1  = ltab1(io1)
+                  ik1 = ktab1(io1)
+                  nlm11 = l1**2+1
+                  nlm12 = nlm11 + blks1(io1)-1
 
 C         ... Loop over occupied eigenstates and x,y,z
-              do  ivec = 1, nevec
-              do  m = 1, 3
+                  do  ivec = 1, nevec
+                    do  m = 1, 3
 
 C           ... Loop over orbital pairs within the groups
-                sum = 0d0
+                      sum = 0d0
 C               i2 = hamiltonian offset
-                i2 = offl2(io2)
-                do  ilm2 = nlm21, nlm22
-                  i2 = i2+1
+                      i2 = offl2(io2)
+                      do  ilm2 = nlm21, nlm22
+                        i2 = i2+1
 C                 i1 = orbital index in iprmb order
-                  i1 = offl1(io1)
-                  do  ilm1 = nlm11, nlm12
-                    i1 = i1+1
-                    ccc = vavg*ds(ilm1,ilm2,0,m,ik1,ik2)
+                        i1 = offl1(io1)
+                        do  ilm1 = nlm11, nlm12
+                          i1 = i1+1
+                          ccc = vavg*ds(ilm1,ilm2,0,m,ik1,ik2)
      .                  -      ds(ilm1,ilm2,1,m,ik1,ik2)
      .                  - evl(ivec)*ds(ilm1,ilm2,0,m,ik1,ik2)
-                    sum = sum + dconjg(evec(i1,ivec))*ccc*evec(i2,ivec)
-                  enddo
-                enddo
-                do  iq = 1, numq
-                  wt = ewgt(iq,ivec)
+                          sum = sum + dconjg(evec(i1,ivec))*ccc*evec(i2,ivec)
+                        enddo
+                      enddo
+                      do  iq = 1, numq
+                        wt = ewgt(iq,ivec)
 #if MPI
-                  xf(m,ib1,iq) = xf(m,ib1,iq) - 2*wt*sum
-                  xf(m,ib2,iq) = xf(m,ib2,iq) + 2*wt*sum
+                        xf(m,ib1,iq) = xf(m,ib1,iq) - 2*wt*sum
+                        xf(m,ib2,iq) = xf(m,ib2,iq) + 2*wt*sum
 #else
-                  f(m,ib1,iq) = f(m,ib1,iq) - 2*wt*sum
-                  f(m,ib2,iq) = f(m,ib2,iq) + 2*wt*sum
+                        f(m,ib1,iq) = f(m,ib1,iq) - 2*wt*sum
+                        f(m,ib2,iq) = f(m,ib2,iq) + 2*wt*sum
 #endif
-                enddo
-              enddo
-              enddo
+                      enddo
+                    enddo
+                  enddo
 
+                endif
+              enddo
             endif
-            enddo
-          endif
           enddo
 
         enddo
@@ -302,6 +302,6 @@ C      enddo
       call tcx ('fsmbl')
 
 Cgetarg       end
-       end subroutine fsmbl 
+      end subroutine fsmbl
 
 

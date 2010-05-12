@@ -1,6 +1,0 @@
-echo --- subs-to-linuxf: LINUXF-specific ---
-
-# Leave SGI until we fix the problem with local orbitals
-
-# ccomp -uLINUXF -uBLOCK2 -uSGI -uNBAR hsibl.f hsibl.f~
-# ccomp -dLINUXF -dBLOCK2 hsibl.f~ hsibl.f

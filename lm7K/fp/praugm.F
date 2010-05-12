@@ -1,8 +1,8 @@
 Cgetarg...info...           structure ['praugm', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['praugm', 'm_struc_def']
       subroutine praugm(sspec,is)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C-  Print species information
 C ----------------------------------------------------------------------
@@ -17,7 +17,7 @@ C     implicit none
 C ... Passed parameters
       integer is
 Cgetarg       double precision sspec(1)
-       type(s_spec)::sspec(*)
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
       integer is1,is2,js,kmxt,lmxa,nglob,lgunit,stdo
@@ -35,19 +35,19 @@ C      idcode(1) = '*'
       is1 = is
       is2 = is
       if (is .le. 0) then
-         is1 = 1
-         is2 = nglob('nspec')
+        is1 = 1
+        is2 = nglob('nspec')
       endif
 
       write (stdo,501)
-  501   format(/' species data:  augmentation',27x,'density'/
+  501 format(/' species data:  augmentation',27x,'density'/
      .     ' spec       rmt   rsma lmxa kmxa',5x,
      .     ' lmxl     rg   rsmv  kmxv foca   rfoca')
       do  10  js = is1,is2
 Cgetarg         call spacks(0,'spec name',sspec,spid,js,js)
-         do i_spacks=js,js 
-         call spacks_copy('u',sspec(i_spacks)%name,js,js,spid,i_spacks)
-         enddo
+        do i_spacks=js,js
+          call spacks_copy('u',sspec(i_spacks)%name,js,js,spid,i_spacks)
+        enddo
 
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
@@ -55,29 +55,29 @@ Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: kmxt , integer(8) :: sspec%kmxt 1
 Cgetarg         call upack('spec rmt rsma lmxa kmxt',sspec,js,rmt,rsma,lmxa,
 Cgetarg      .    kmxt)
-         
-         rmt=sspec(js)%rmt
-         rsma=sspec(js)%rsma
-         lmxa=sspec(js)%lmxa
-         kmxt=sspec(js)%kmxt
+
+        rmt=sspec(js)%rmt
+        rsma=sspec(js)%rsma
+        lmxa=sspec(js)%lmxa
+        kmxt=sspec(js)%kmxt
 
 Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
 Cgetarg...info...           real(8) :: rsmv , real(8) :: sspec%rsmv 1
 Cgetarg...info...           integer :: kmxv , integer(8) :: sspec%kmxv 1
 Cgetarg         call upack('spec lmxl rg rsmv kmxv',sspec,js,lmxl,rg,rsmv,kmxv)
-         
-         lmxl=sspec(js)%lmxl
-         rg=sspec(js)%rg
-         rsmv=sspec(js)%rsmv
-         kmxv=sspec(js)%kmxv
+
+        lmxl=sspec(js)%lmxl
+        rg=sspec(js)%rg
+        rsmv=sspec(js)%rsmv
+        kmxv=sspec(js)%kmxv
 
 Cgetarg...info...           integer :: lfoca , integer(8) :: sspec%lfoca 1
 Cgetarg...info...           real(8) :: rfoca , real(8) :: sspec%rfoca 1
 Cgetarg         call upack('spec lfoca rfoca',sspec,js,lfoca,rfoca,0,0)
-         
-         lfoca=sspec(js)%lfoca
-         rfoca=sspec(js)%rfoca
+
+        lfoca=sspec(js)%lfoca
+        rfoca=sspec(js)%rfoca
 
 
 C        call upack('spec p idmod',sspec,js,pnu,idmod,0,0)
@@ -92,7 +92,7 @@ C  300   format(1x,a,f6.3,f7.3,i6,i6,2x,a)
    10 continue
 
 Cgetarg       end
-       end subroutine praugm 
+      end subroutine praugm
 
 
 

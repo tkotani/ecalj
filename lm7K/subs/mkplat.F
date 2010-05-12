@@ -78,10 +78,10 @@ Cr  has a different nsymop: 2 -> triclinic; 4 -> monoclinic;
 Cr  8 -> orthorombic; 16 -> tetragonal; 12 -> rhombohedral;
 Cr  24 -> hexagonal and 48 -> cubic.
 Cr  Possible rotation axes are linear combiations of the platcp-vectors:
-Cr  
+Cr
 Cr  rrot = n1 * platcp_1 + n2 * platcp_2 + n3 * platcp_3
 Cr
-Cr  with -3 <= n1,n2,n3 <= 3  
+Cr  with -3 <= n1,n2,n3 <= 3
 C ----------------------------------------------------------------------
 C     implicit none
 C Passed variables:
@@ -144,7 +144,7 @@ C --- set isym1 depending on number of valid symmetry operations
       do is1=1,7
         if (nsymop.eq.nsym0(is1))  isym1=is1
       enddo
-      if (iprint().ge.100) write(stdo,300) nsymop 
+      if (iprint().ge.100) write(stdo,300) nsymop
 
       if (isym1.eq.0) call rx('BRAVSY: bad nsymop')
 
@@ -175,7 +175,7 @@ Co Outputs:
 Co   platcv:lattice vectors of conventional unit cell
 Cr Remarks:
 Cr   The conventional cell is the unit cell which the chemists use
-Cr   and which may not be a primitive cell. 
+Cr   and which may not be a primitive cell.
 Cr
 Cr   For cubic, tetragonal and orthorhombic lattices, the conventional
 Cr   unit cell is the smallest unit cell having three right angles.
@@ -185,27 +185,27 @@ Cr   For monoclinic lattices, the conventional unit cell
 Cr   is the smallest unit cell having two right angles.
 Cr
 Cr
-Cr   For rhombohedral lattices the conventional unit  depends on isym3: 
-Cr   it can either be the smallest primitive unit cell, fullfilling 
+Cr   For rhombohedral lattices the conventional unit  depends on isym3:
+Cr   it can either be the smallest primitive unit cell, fullfilling
 Cr   a=b=c and alpha=beta=gamma (primitive rhombohedral cell, isym3=1)
-Cr   the space groups are then called: 
+Cr   the space groups are then called:
 Cr     P3(146), P-3(148), P32(155), P3m(160), P3c(161),
 Cr     P-3m(166) and P-3c(167).
-Cr   (this choice corresponds to 'rhombohedral axes') 
+Cr   (this choice corresponds to 'rhombohedral axes')
 Cr
-Cr   or it can be the smallest (nonprimitive) cell fullfilling: 
+Cr   or it can be the smallest (nonprimitive) cell fullfilling:
 Cr   a=b alpha=beta=90,gamma=120 (triple hexagonal cell,isym3=7).
 Cr   the space groups are then called:
 Cr      R3(146), R-3(148), R32(155), R3m(160), R3c(161),
 Cr      R-3m(166) and R-3c(167).
-Cr   (this choice corresponds to 'hexagonal axes') 
-Cr 
+Cr   (this choice corresponds to 'hexagonal axes')
+Cr
 Cr
 Cr   For hexagonal lattices, the conventional unit cell is the smallest
-Cr   primitive unit cell with angle of 90,90,120 degrees. 
+Cr   primitive unit cell with angle of 90,90,120 degrees.
 Cr
 Cr
-Cr   For triclinic lattices, the conventional unit cell should be 
+Cr   For triclinic lattices, the conventional unit cell should be
 Cr   primitive.
 Cr
 Cr
@@ -217,16 +217,16 @@ Cr   and build out of it a few number of new cells. (this is done
 Cr   by multiplying platin with a set of matices t). If the unit cell
 Cr   thus obtained fulfills the upper conditions, it will be used as
 Cr   platcv.
-Cr   If this attempt was not successful, or if lscr=.true., the 
+Cr   If this attempt was not successful, or if lscr=.true., the
 Cr   program generates a set of lattice vectors, and out of this set
 Cr   are selected those three which fulfill the upper conditions plus
 Cr   the following metric conditions:
 Cr
-Cr   triclinic   :  c < a < b , 
-Cr                  90 < alpha,beta < 120 , 
+Cr   triclinic   :  c < a < b ,
+Cr                  90 < alpha,beta < 120 ,
 Cr                  60 <  gamma     < 120 , det > 0
-Cr   monoclinic  :  c < a , 
-Cr                  b = unique axis <-> alpha = gamma = 90 
+Cr   monoclinic  :  c < a ,
+Cr                  b = unique axis <-> alpha = gamma = 90
 Cr                  90 < beta < 120   , det > 0
 Cr   orthorhombic:  c < a < b , det > 0
 Cr   tetragonal  :  a = b , det > 0
@@ -259,8 +259,8 @@ C Intrinsic functions:
 C Statement functions:
       mn(ikd,m)=(mod(ikd+(ll1/2)*ll1**(m-1),ll1**m)
      .         -mod(ikd+(ll1/2)*ll1**(m-1),ll1**(m-1)))/ll1**(m-1)-ltmax
-        pdp(i,j)=ddot(3,platcv(1,i),1,platcv(1,j),1)
-        ddd(i,j)=ddot(3,dlat  (1,i),1,dlat  (1,j),1)
+      pdp(i,j)=ddot(3,platcv(1,i),1,platcv(1,j),1)
+      ddd(i,j)=ddot(3,dlat  (1,i),1,dlat  (1,j),1)
       lra1(i,j)=dabs(pdp(i,j))        .lt.tollat
       lsl1(i,j)=dabs(pdp(i,i)-pdp(j,j)).lt.tollat
       lra2(i,j)=dabs(ddd(i,j))        .lt.tollat
@@ -313,7 +313,7 @@ C       call bsort2(platcv)
       elseif (isym1.eq.2) then
 C ----- monoclinic
         do i=1,n(2)
-          isym3=isym32(i) 
+          isym3=isym32(i)
           call dmpy(platin,3,1,t(1,isym3),3,1,platcv,3,1,3,3,3)
           if (lra1(1,2).and.lra1(2,3)) goto 8
         enddo
@@ -330,16 +330,16 @@ C ----- No standard choice  -> b-unique axis; fully reduced mesh
         call cross(dlat(1,ikd1),dlat(1,ikd2),r)
 C ----- now dlat(1) and dlat(2) are the shortest orthogonal latice vec's
         do ikd3=1,nkd
-         volcv=dabs(ddot(3,dlat(1,ikd3),1,r,1))
-         if (idnint(volcv/volin).ge.1) then
-         if(lra2(ikd3,ikd1))call dswap(3,dlat(1,ikd1),1,dlat(1,ikd2),1)
-          if(lra2(ikd2,ikd3).and.d2(ikd1)*d2(ikd2)*d2(ikd3).lt.dm3)then
-            call dcopy(3,dlat(1,ikd1),1,platcv(1,1),1)
-            call dcopy(3,dlat(1,ikd2),1,platcv(1,2),1)
-            call dcopy(3,dlat(1,ikd3),1,platcv(1,3),1)
-            dm3=d2(ikd1)*d2(ikd2)*d2(ikd3)
+          volcv=dabs(ddot(3,dlat(1,ikd3),1,r,1))
+          if (idnint(volcv/volin).ge.1) then
+            if(lra2(ikd3,ikd1))call dswap(3,dlat(1,ikd1),1,dlat(1,ikd2),1)
+            if(lra2(ikd2,ikd3).and.d2(ikd1)*d2(ikd2)*d2(ikd3).lt.dm3)then
+              call dcopy(3,dlat(1,ikd1),1,platcv(1,1),1)
+              call dcopy(3,dlat(1,ikd2),1,platcv(1,2),1)
+              call dcopy(3,dlat(1,ikd3),1,platcv(1,3),1)
+              dm3=d2(ikd1)*d2(ikd2)*d2(ikd3)
+            endif
           endif
-         endif
         enddo
         if (pdp(3,3).gt.pdp(1,1))
      .      call dswap(3,platcv(1,1),1,platcv(1,3),1)
@@ -348,24 +348,24 @@ C ----- now dlat(1) and dlat(2) are the shortest orthogonal latice vec's
       elseif (isym1.eq.3) then
 C ----- orthorhombic -> try finding shortest pair with 3 right angles
         do i=1,n(3)
-          isym3=isym33(i) 
+          isym3=isym33(i)
           call dmpy(platin,3,1,t(1,isym3),3,1,platcv,3,1,3,3,3)
           if (lra1(1,2).and.lra1(2,3).and.lra1(3,1)) goto 8
         enddo
 C ----- No standard choice of unit cell
         do ikd1=1,nkd
           do ikd2=ikd1+1,nkd
-           if (lra2(ikd1,ikd2)) then
-             do ikd3=ikd2+1,nkd
-              if(lra2(ikd2,ikd3).and.lra2(ikd3,ikd1).and.
+            if (lra2(ikd1,ikd2)) then
+              do ikd3=ikd2+1,nkd
+                if(lra2(ikd2,ikd3).and.lra2(ikd3,ikd1).and.
      .           d2(ikd1)*d2(ikd2)*d2(ikd3).lt.dm3)then
-                call dcopy(3,dlat(1,ikd1),1,platcv(1,1),1)
-                call dcopy(3,dlat(1,ikd2),1,platcv(1,2),1)
-                call dcopy(3,dlat(1,ikd3),1,platcv(1,3),1)
-                dm3=d2(ikd1)*d2(ikd2)*d2(ikd3)
-              endif
-             enddo
-           endif
+                  call dcopy(3,dlat(1,ikd1),1,platcv(1,1),1)
+                  call dcopy(3,dlat(1,ikd2),1,platcv(1,2),1)
+                  call dcopy(3,dlat(1,ikd3),1,platcv(1,3),1)
+                  dm3=d2(ikd1)*d2(ikd2)*d2(ikd3)
+                endif
+              enddo
+            endif
           enddo
         enddo
         call dvheap(3,3,platcv,iprm,0d0,11)
@@ -376,24 +376,24 @@ C       call bsort2(platcv)
       elseif (isym1.eq.4) then
 C ----- tetragonal -> try finding shortest pair with 3 right angles
         do i=1,n(4)
-          isym3=isym34(i) 
+          isym3=isym34(i)
           call dmpy(platin,3,1,t(1,isym3),3,1,platcv,3,1,3,3,3)
           if (lra1(1,2).and.lra1(2,3).and.lra1(3,1).and.lsl1(1,2))goto 8
         enddo
 C ----- No standard choice of unit cell
         do ikd1=1,nkd
           do ikd2=ikd1+1,nkd
-           if (lra2(ikd1,ikd2)) then
-             do ikd3=ikd2+1,nkd
-              if(lra2(ikd2,ikd3).and.lra2(ikd3,ikd1).and.
+            if (lra2(ikd1,ikd2)) then
+              do ikd3=ikd2+1,nkd
+                if(lra2(ikd2,ikd3).and.lra2(ikd3,ikd1).and.
      .           d2(ikd1)*d2(ikd2)*d2(ikd3).lt.dm3) then
-                call dcopy(3,dlat(1,ikd1),1,platcv(1,1),1)
-                call dcopy(3,dlat(1,ikd2),1,platcv(1,2),1)
-                call dcopy(3,dlat(1,ikd3),1,platcv(1,3),1)
-                dm3=d2(ikd1)*d2(ikd2)*d2(ikd3)
-              endif
-             enddo
-           endif
+                  call dcopy(3,dlat(1,ikd1),1,platcv(1,1),1)
+                  call dcopy(3,dlat(1,ikd2),1,platcv(1,2),1)
+                  call dcopy(3,dlat(1,ikd3),1,platcv(1,3),1)
+                  dm3=d2(ikd1)*d2(ikd2)*d2(ikd3)
+                endif
+              enddo
+            endif
           enddo
         enddo
         if (lsl1(2,3)) call dswap(3,platcv(1,1),1,platcv(1,3),1)
@@ -448,7 +448,7 @@ C ----- cubic -> find shortest pair of same length with 3 right angles
 C ----- No standard choice of unit cell
         do ikd1=1,nkd
           do ikd2=ikd1+1,nkd
-           if (lra2(ikd1,ikd2).and.lsl2(ikd1,ikd2)) then
+            if (lra2(ikd1,ikd2).and.lsl2(ikd1,ikd2)) then
               do ikd3=ikd2+1,nkd
                 if(lra2(ikd2,ikd3).and.lra2(ikd3,ikd1).and.
      .       lsl2(ikd2,ikd3).and.d2(ikd1)*d2(ikd2)*d2(ikd3).lt.dm3) then
@@ -641,7 +641,7 @@ C External calls:
 C Intrinsic functions:
       intrinsic  dabs,dacos,dcos,dmax1,dsign,dsin,dsqrt,iabs,idnint
 
-      if (iopt.eq.-1) then 
+      if (iopt.eq.-1) then
 C ----- convert (nrot,vecg,li) into symopm
         call dpzero(symopm,9)
         in = iabs(nrot)
@@ -720,10 +720,10 @@ C ------- allow for abbreviations as 'D', 'X', 'Y' or 'Z'
           sinpb3=dsqrt(.75d0)
           if (dabs((sinpb3-dabs(vecg(1)))*(sinpb3-dabs(vecg(2)))*
      .            (sinpb3-dabs(vecg(3)))).gt.tiny) then
-           do j=3,1,-1
-             vfac=dabs(vecg(j))
-             if(vfac.gt.tiny) call dscal(3,1.d0/vfac,vecg,1)
-           enddo
+            do j=3,1,-1
+              vfac=dabs(vecg(j))
+              if(vfac.gt.tiny) call dscal(3,1.d0/vfac,vecg,1)
+            enddo
           endif
         endif
         call dscal(9,detop,symopm(1,1),1)

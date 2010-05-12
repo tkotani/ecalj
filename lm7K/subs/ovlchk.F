@@ -88,13 +88,13 @@ C --- Determine which linear combination of plat is shortest ---
   351     format(i5,3x,i4,2x,a8,f12.6,3f11.6)
 
           if (ipr .ge. 41) then
-          call dgemm('T','N',3,1,3,1d0,qlat,3,pos(1,ibas),3,0d0,dd,3)
+            call dgemm('T','N',3,1,3,1d0,qlat,3,pos(1,ibas),3,0d0,dd,3)
 C          do  m = 1, 3
 C            dd(m) = pos(1,ibas)*qlat(1,m)+pos(2,ibas)*qlat(2,m)+
 C     .        pos(3,ibas)*qlat(3,m)
 C          enddo
-          write(stdo,352) dd
-  352     format(13x,'as multiples of plat:',3f11.6)
+            write(stdo,352) dd
+  352       format(13x,'as multiples of plat:',3f11.6)
           endif
         endif
         if (ibas .le. nbas) volsph = volsph + 4.188790205d0*rmax(ic)**3
@@ -124,7 +124,7 @@ C --- Check sphere overlaps ---
           call r8tos8(dclabl(ic),clabl)
           if (dclabl(1) .eq. 0d0) call awrit1('%x%,4i',clabl,8,0,ic)
         endif
-        do  30  jbas = ibas, nbasp
+      do  30  jbas = ibas, nbasp
         jc = ips(jbas)
         if (rmax(ic) .eq. 0 .and. rmax(jc) .eq. 0) then
           goto 30
@@ -138,7 +138,8 @@ C --- Check sphere overlaps ---
           call dcopy(3,dlat,1,dd,1)
         else
           do  33  m = 1, 3
-   33     dd(m) = pos(m,jbas) - pos(m,ibas)
+            dd(m) = pos(m,jbas) - pos(m,ibas)
+   33     continue
           dd1 = dsqrt(dd(1)**2 + dd(2)**2 + dd(3)**2)
           call shorps(1,plat,mode,dd,dd)
           dd2 = dsqrt(dd(1)**2 + dd(2)**2 + dd(3)**2)
@@ -149,7 +150,8 @@ C         call shorbz(dd,dd,plat,qlat)
 C         print *, dd2,dsqrt(dd(1)**2 + dd(2)**2 + dd(3)**2)
         endif
         do  34  m = 1, 3
-   34   dd(m) = dd(m)*alat
+          dd(m) = dd(m)*alat
+   34   continue
         dd1 = dsqrt(dd(1)**2 + dd(2)**2 + dd(3)**2)
         sumrs = rmax(ic) + rmax(jc)
         ovlprs = sumrs - dd1
@@ -171,7 +173,7 @@ C         print *, dd2,dsqrt(dd(1)**2 + dd(2)**2 + dd(3)**2)
         if (lrmt .and. .false.) then
           write(stdo,451) ibas,jbas,clabl,clablj,dd,dd1,
      .      sumrs,ovlprs,ctrs,summt,ovlpmt,ctmt,ch
-  451    format(2i3,2x,a4,1x,a4,3f6.2,2f7.2,f7.2,f5.1,f7.2,f7.2,f5.1,a1)
+  451     format(2i3,2x,a4,1x,a4,3f6.2,2f7.2,f7.2,f5.1,f7.2,f7.2,f5.1,a1)
         else
           write(stdo,461) ibas,jbas,clabl,clablj,dd,dd1,
      .      sumrs,ovlprs,ctrs,ch
@@ -187,6 +189,6 @@ C      if (ipr .gt. 0)
 C     .  call awrit1('%N ovlchk: fovl= %;6g',' ',80,i1mach(2),fovl)
 
 Cgetarg       end
-       end subroutine ovlchk 
+      end subroutine ovlchk
 
 

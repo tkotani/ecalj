@@ -89,14 +89,14 @@ C       call two types of vorb  and average them weighted according to aaa
         call vldau(UH,JH,1,dmatu,l,nsp,lmaxu,iblu,E1,Vorb1)
         call vldau(UH,JH,2,dmatu,l,nsp,lmaxu,iblu,E2,Vorb2)
         if (lnov .eq. 0) then
-        do  isp = 1, 2
-          do  m1 = -l, l
-            do  m2 = -l, l
-              vorb(m1,m2,isp,iblu) = (1-aaa)*Vorb1(m1,m2,isp,iblu) +
+          do  isp = 1, 2
+            do  m1 = -l, l
+              do  m2 = -l, l
+                vorb(m1,m2,isp,iblu) = (1-aaa)*Vorb1(m1,m2,isp,iblu) +
      .          aaa*Vorb2(m1,m2,isp,iblu)
+              enddo
             enddo
           enddo
-        enddo
         endif
         Eorb = (1-aaa)*E1 + aaa*E2
       else

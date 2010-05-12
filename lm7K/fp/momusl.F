@@ -80,57 +80,57 @@ C ... Local parameters
 
 C --- Moments ---
       do  isp = 1, nsp
-      do  l1 = 0, lmxa
-        do  l2 = 0, lmxa
-          lpz1 = pnz(l1+1,1) .ne. 0
-          lpz2 = pnz(l2+1,1) .ne. 0
-          do  lm = 0, lmxl
-            quu = 0d0
-            qus = 0d0
-            qss = 0d0
-            quz = 0d0
-            qsz = 0d0
-            qzz = 0d0
-            if (l1.eq.l2 .and. lm.eq.0) then
-              do  i = 2, nr
-                xx = rwgt(i)
-                quu = quu + xx * ruu(i,l1,1,isp)
-                qus = qus + xx * rus(i,l1,1,isp)
-                qss = qss + xx * rss(i,l1,1,isp)
-              enddo
-              if (lpz1) then
-              do  i = 2, nr
-                xx = rwgt(i)
-                quz = quz + xx * ruu(i,l1,2,isp)
-                qsz = qsz + xx * rus(i,l1,2,isp)
-                qzz = qzz + xx * rss(i,l1,2,isp)
-              enddo
+        do  l1 = 0, lmxa
+          do  l2 = 0, lmxa
+            lpz1 = pnz(l1+1,1) .ne. 0
+            lpz2 = pnz(l2+1,1) .ne. 0
+            do  lm = 0, lmxl
+              quu = 0d0
+              qus = 0d0
+              qss = 0d0
+              quz = 0d0
+              qsz = 0d0
+              qzz = 0d0
+              if (l1.eq.l2 .and. lm.eq.0) then
+                do  i = 2, nr
+                  xx = rwgt(i)
+                  quu = quu + xx * ruu(i,l1,1,isp)
+                  qus = qus + xx * rus(i,l1,1,isp)
+                  qss = qss + xx * rss(i,l1,1,isp)
+                enddo
+                if (lpz1) then
+                  do  i = 2, nr
+                    xx = rwgt(i)
+                    quz = quz + xx * ruu(i,l1,2,isp)
+                    qsz = qsz + xx * rus(i,l1,2,isp)
+                    qzz = qzz + xx * rss(i,l1,2,isp)
+                  enddo
+                endif
+              else
+                do  i = 2, nr
+                  xx = rwgt(i) * rofi(i)**lm
+                  quu = quu + xx * ul(i,l1,isp) * ul(i,l2,isp)
+                  qus = qus + xx * ul(i,l1,isp) * sl(i,l2,isp)
+                  qss = qss + xx * sl(i,l1,isp) * sl(i,l2,isp)
+                enddo
+                if (lpz2) then
+                  do  i = 2, nr
+                    xx = rwgt(i) * rofi(i)**lm
+                    quz = quz + xx * ul(i,l1,isp) * gz(i,l2,isp)
+                    qsz = qsz + xx * sl(i,l1,isp) * gz(i,l2,isp)
+                    qzz = qzz + xx * gz(i,l1,isp) * gz(i,l2,isp)
+                  enddo
+                endif
               endif
-            else
-              do  i = 2, nr
-                xx = rwgt(i) * rofi(i)**lm
-                quu = quu + xx * ul(i,l1,isp) * ul(i,l2,isp)
-                qus = qus + xx * ul(i,l1,isp) * sl(i,l2,isp)
-                qss = qss + xx * sl(i,l1,isp) * sl(i,l2,isp)
-              enddo
-              if (lpz2) then
-              do  i = 2, nr
-                xx = rwgt(i) * rofi(i)**lm
-                quz = quz + xx * ul(i,l1,isp) * gz(i,l2,isp)
-                qsz = qsz + xx * sl(i,l1,isp) * gz(i,l2,isp)
-                qzz = qzz + xx * gz(i,l1,isp) * gz(i,l2,isp)
-              enddo
-              endif
-            endif
-            qum(l1,l2,lm,1,isp) = quu
-            qum(l1,l2,lm,2,isp) = qus
-            qum(l1,l2,lm,3,isp) = qss
-            qum(l1,l2,lm,4,isp) = quz
-            qum(l1,l2,lm,5,isp) = qsz
-            qum(l1,l2,lm,6,isp) = qzz
+              qum(l1,l2,lm,1,isp) = quu
+              qum(l1,l2,lm,2,isp) = qus
+              qum(l1,l2,lm,3,isp) = qss
+              qum(l1,l2,lm,4,isp) = quz
+              qum(l1,l2,lm,5,isp) = qsz
+              qum(l1,l2,lm,6,isp) = qzz
+            enddo
           enddo
         enddo
-      enddo
       enddo
 
 C     These should correspond to sabs, made by potpus
@@ -142,59 +142,59 @@ C      pause
 
 C --- Integrals ul*ul*V_M, ul*sl*V_M, sl*sl*V_M ---
       do  isp = 1, nsp
-      do  mlm = 1, nlml
-        do  l1 = 0, lmxa
-          do  l2 = 0, lmxa
-            lpz1 = pnz(l1+1,1) .ne. 0
-            lpz2 = pnz(l2+1,1) .ne. 0
-            vuu = 0d0
-            vus = 0d0
-            vss = 0d0
-            vuz = 0d0
-            vsz = 0d0
-            vzz = 0d0
-            if (l1.eq.l2 .and. mlm.eq.1) then
-              do  i = 2, nr
-                vv = v1(i,mlm,isp) - srfpi*2d0*z/rofi(i)
-                vuu = vuu + (rwgt(i)*vv) * ruu(i,l1,1,isp)
-                vus = vus + (rwgt(i)*vv) * rus(i,l1,1,isp)
-                vss = vss + (rwgt(i)*vv) * rss(i,l1,1,isp)
-              enddo
-              if (lpz1) then
+        do  mlm = 1, nlml
+          do  l1 = 0, lmxa
+            do  l2 = 0, lmxa
+              lpz1 = pnz(l1+1,1) .ne. 0
+              lpz2 = pnz(l2+1,1) .ne. 0
+              vuu = 0d0
+              vus = 0d0
+              vss = 0d0
+              vuz = 0d0
+              vsz = 0d0
+              vzz = 0d0
+              if (l1.eq.l2 .and. mlm.eq.1) then
                 do  i = 2, nr
                   vv = v1(i,mlm,isp) - srfpi*2d0*z/rofi(i)
-                  vuz = vuz + (rwgt(i)*vv) * ruu(i,l1,2,isp)
-                  vsz = vsz + (rwgt(i)*vv) * rus(i,l1,2,isp)
-                  vzz = vzz + (rwgt(i)*vv) * rss(i,l1,2,isp)
+                  vuu = vuu + (rwgt(i)*vv) * ruu(i,l1,1,isp)
+                  vus = vus + (rwgt(i)*vv) * rus(i,l1,1,isp)
+                  vss = vss + (rwgt(i)*vv) * rss(i,l1,1,isp)
                 enddo
-              endif
-            else
-              do  i = 2, nr
-                vv = v1(i,mlm,isp)
-                if (mlm .eq. 1) vv = vv - srfpi*2d0*z/rofi(i)
-                vuu = vuu + (rwgt(i)*vv) * ul(i,l1,isp)*ul(i,l2,isp)
-                vus = vus + (rwgt(i)*vv) * ul(i,l1,isp)*sl(i,l2,isp)
-                vss = vss + (rwgt(i)*vv) * sl(i,l1,isp)*sl(i,l2,isp)
-              enddo
-              if (lpz2) then
+                if (lpz1) then
+                  do  i = 2, nr
+                    vv = v1(i,mlm,isp) - srfpi*2d0*z/rofi(i)
+                    vuz = vuz + (rwgt(i)*vv) * ruu(i,l1,2,isp)
+                    vsz = vsz + (rwgt(i)*vv) * rus(i,l1,2,isp)
+                    vzz = vzz + (rwgt(i)*vv) * rss(i,l1,2,isp)
+                  enddo
+                endif
+              else
                 do  i = 2, nr
                   vv = v1(i,mlm,isp)
                   if (mlm .eq. 1) vv = vv - srfpi*2d0*z/rofi(i)
-                  vuz = vuz + (rwgt(i)*vv) * ul(i,l1,isp)*gz(i,l2,isp)
-                  vsz = vsz + (rwgt(i)*vv) * sl(i,l1,isp)*gz(i,l2,isp)
-                  vzz = vzz + (rwgt(i)*vv) * gz(i,l1,isp)*gz(i,l2,isp)
+                  vuu = vuu + (rwgt(i)*vv) * ul(i,l1,isp)*ul(i,l2,isp)
+                  vus = vus + (rwgt(i)*vv) * ul(i,l1,isp)*sl(i,l2,isp)
+                  vss = vss + (rwgt(i)*vv) * sl(i,l1,isp)*sl(i,l2,isp)
                 enddo
+                if (lpz2) then
+                  do  i = 2, nr
+                    vv = v1(i,mlm,isp)
+                    if (mlm .eq. 1) vv = vv - srfpi*2d0*z/rofi(i)
+                    vuz = vuz + (rwgt(i)*vv) * ul(i,l1,isp)*gz(i,l2,isp)
+                    vsz = vsz + (rwgt(i)*vv) * sl(i,l1,isp)*gz(i,l2,isp)
+                    vzz = vzz + (rwgt(i)*vv) * gz(i,l1,isp)*gz(i,l2,isp)
+                  enddo
+                endif
               endif
-            endif
-            vum(l1,l2,mlm,1,isp) = vuu
-            vum(l1,l2,mlm,2,isp) = vus
-            vum(l1,l2,mlm,3,isp) = vss
-            vum(l1,l2,mlm,4,isp) = vuz
-            vum(l1,l2,mlm,5,isp) = vsz
-            vum(l1,l2,mlm,6,isp) = vzz
+              vum(l1,l2,mlm,1,isp) = vuu
+              vum(l1,l2,mlm,2,isp) = vus
+              vum(l1,l2,mlm,3,isp) = vss
+              vum(l1,l2,mlm,4,isp) = vuz
+              vum(l1,l2,mlm,5,isp) = vsz
+              vum(l1,l2,mlm,6,isp) = vzz
+            enddo
           enddo
         enddo
-      enddo
       enddo
 
 C     These should correspond to vabs, made by potpus

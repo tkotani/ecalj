@@ -69,10 +69,10 @@ C     open(111, file='x0qw.allqb',form='unformatted')
       write (ifi) nq,nmbas,nw,nwx,qp
       write (ifi) freq(1:nw)
       do  iq = 1, nq
-      do  iw = 1, nw
-        write(ifi) dble(x0et(1:nmbas,1:nmbas,iq,iw))
-        write(ifi) dimag(x0et(1:nmbas,1:nmbas,iq,iw))
-      enddo
+        do  iw = 1, nw
+          write(ifi) dble(x0et(1:nmbas,1:nmbas,iq,iw))
+          write(ifi) dimag(x0et(1:nmbas,1:nmbas,iq,iw))
+        enddo
       enddo
 #endif
 
@@ -111,31 +111,31 @@ C     write(stdo,"( 5x,'q',10x,'qvec' )")
       x0inv = x0et
       do  iq = 1, nq
 C     write(stdo,'( 3x,i3,3f7.3 )') iq, qp(1:3,iq)
-      do  iw = 1, nwx
-        call matcinv(nmbas,x0inv(:,:,iq,iw))
-        xinv(:,:,iq,iw) = x0inv(:,:,iq,iw)
-        do  ix = 1, nmbas
-          xinv(ix,ix,iq,iw) = x0inv(ix,ix,iq,iw) + uu(ix,iw)
-        enddo
-        cxtmp(:,:) = xinv(:,:,iq,iw)
+        do  iw = 1, nwx
+          call matcinv(nmbas,x0inv(:,:,iq,iw))
+          xinv(:,:,iq,iw) = x0inv(:,:,iq,iw)
+          do  ix = 1, nmbas
+            xinv(ix,ix,iq,iw) = x0inv(ix,ix,iq,iw) + uu(ix,iw)
+          enddo
+          cxtmp(:,:) = xinv(:,:,iq,iw)
 C       Liqin:  why is this in a do loop?
-        do  ix = 1, nmbas
-          cxtmp(:,:) = cxtmp(:,:) + img*1d-30
-        enddo
+          do  ix = 1, nmbas
+            cxtmp(:,:) = cxtmp(:,:) + img*1d-30
+          enddo
 C       Liqin: this is poor programming technique
-        call matcinv(nmbas,cxtmp(:,:)) !this is full x_+-  !Matrix inversion.
-        x2et(:,:,iq,iw) = cxtmp(:,:) ! x2et=<~e|X(w)|e~>
-        qxq(iw,iq) = sum( eiqrm(:,iq) ! <eiqr|~e><~e|X|~e><~|eiqr>
+          call matcinv(nmbas,cxtmp(:,:)) !this is full x_+-  !Matrix inversion.
+          x2et(:,:,iq,iw) = cxtmp(:,:) ! x2et=<~e|X(w)|e~>
+          qxq(iw,iq) = sum( eiqrm(:,iq) ! <eiqr|~e><~e|X|~e><~|eiqr>
      .    *matmul(x2et(:,:,iq,iw),dconjg(eiqrm(:,iq) )))
-        qxq_r(iw,iq) = dble(qxq(iw,iq) )
-        qxq_i(iw,iq) = dimag(qxq(iw,iq) )
+          qxq_r(iw,iq) = dble(qxq(iw,iq) )
+          qxq_i(iw,iq) = dimag(qxq(iw,iq) )
 
-        qxq_inv_r(iw,iq) = dble( 1d0/qxq(iw,iq) ) !for interpolation
-        qxq_inv_i(iw,iq) = dimag( 1d0/qxq(iw,iq) )
+          qxq_inv_r(iw,iq) = dble( 1d0/qxq(iw,iq) ) !for interpolation
+          qxq_inv_i(iw,iq) = dimag( 1d0/qxq(iw,iq) )
 
 c      write(stdo,"( i4, f13.5, 2d15.7 )") iw,rymev*freq(iw)
 c     .             , qxq_r(iw,iq),qxq_i(iw,iq)
-      enddo
+        enddo
       enddo
 
 C --- Interpolate <eiqr|X|eiqr> ---
@@ -150,33 +150,33 @@ C     Liqin: these should be passed as arguments
 
       allocate(qxq_intp(nw_intp,nq),e_intp(nw_intp) )
       do  iq = 1, nq
-      do  iw = 1, nw_intp
-        if (iq .eq. 1) then
-          e_intp(iw) = (emin_intp+(iw-1)*dw_intp )/(rymev)
-        endif
-        rtmp1 = polinta(e_intp(iw),freq(1:nwx),qxq_inv_r(1:nwx,iq),nwx)
-        rtmp2 = polinta(e_intp(iw),freq(1:nwx),qxq_inv_i(1:nwx,iq),nwx)
-        qxq_intp(iw,iq) = 1d0/(rtmp1 + img*rtmp2) !for interpolation
-      enddo
+        do  iw = 1, nw_intp
+          if (iq .eq. 1) then
+            e_intp(iw) = (emin_intp+(iw-1)*dw_intp )/(rymev)
+          endif
+          rtmp1 = polinta(e_intp(iw),freq(1:nwx),qxq_inv_r(1:nwx,iq),nwx)
+          rtmp2 = polinta(e_intp(iw),freq(1:nwx),qxq_inv_i(1:nwx,iq),nwx)
+          qxq_intp(iw,iq) = 1d0/(rtmp1 + img*rtmp2) !for interpolation
+        enddo
       enddo
 
       if (ipr .ge. 30) then
-      call info0(30,1,0,' Data for pole search of evl(<q|X|q>)%N'//
+        call info0(30,1,0,' Data for pole search of evl(<q|X|q>)%N'//
      .  '%5fq %13fqxq_r_max %14fqxq_r_min %14fqxq_i_max %14fqxq_i_min')
-      do  iq = 1, nq
-        jmax=maxloc(-dble(qxq_intp(1:nw_intp,iq)),dim=1)
-        jmin=minloc(-dble(qxq_intp(1:nw_intp,iq)),dim=1)
-        imax=maxloc(-dimag(qxq_intp(1:nw_intp,iq)),dim=1)
-        imin=minloc(-dimag(qxq_intp(1:nw_intp,iq)),dim=1)
-        write(stdo,101) iq,
+        do  iq = 1, nq
+          jmax=maxloc(-dble(qxq_intp(1:nw_intp,iq)),dim=1)
+          jmin=minloc(-dble(qxq_intp(1:nw_intp,iq)),dim=1)
+          imax=maxloc(-dimag(qxq_intp(1:nw_intp,iq)),dim=1)
+          imin=minloc(-dimag(qxq_intp(1:nw_intp,iq)),dim=1)
+          write(stdo,101) iq,
      .    rymev*e_intp(jmax), -dble(qxq_intp(jmax,iq)),
      .    rymev*e_intp(jmin), -dble(qxq_intp(jmin,iq)),
      .    rymev*e_intp(imax), -dimag(qxq_intp(imax,iq)),
      .    rymev*e_intp(imin), -dimag(qxq_intp(imin,iq))
-  101   format(3x,i3,1x, f7.2,'(',d15.7,')',1x
+  101     format(3x,i3,1x, f7.2,'(',d15.7,')',1x
      .    ,f7.2,'(' ,d15.7,')',1x,f7.2,'(' ,d15.7,')'
      .    ,1x,f7.2,'(' ,d15.7,')' )
-      enddo
+        enddo
       endif
 
 #if DEBUG
@@ -196,12 +196,12 @@ C ... Finished interpolation of <eiqr|X|eiqr>
 
 C --- Eigenvalue of hermitian xinvh ---
       do  iq = 1, nq
-      do  iw = 1, nwx
-        xinvh(:,:,iq,iw) = .5d0*( xinv(:,:,iq,iw)
+        do  iw = 1, nwx
+          xinvh(:,:,iq,iw) = .5d0*( xinv(:,:,iq,iw)
      .    + transpose(dconjg(xinv(:,:,iq,iw))) )
-        call zevl(nmbas,xinvh(1,1,iq,iw),eval)
-        mxevl_xinvh(iq,iw) = maxval(eval)
-      enddo
+          call zevl(nmbas,xinvh(1,1,iq,iw),eval)
+          mxevl_xinvh(iq,iw) = maxval(eval)
+        enddo
       enddo
 
 #if DEBUG
@@ -283,9 +283,9 @@ C       Coarse search: bracket freq where evl crosses zero
       call info0(20,1,0,' Results for pole search of evl(<q|X|q>)%N'//
      .  '%5fq %9fFM pole %23fAFM pole')
       do  iq = 1, nq
-         write(stdo,102) iq, rymev*epole_fm(iq), vpole_fm(iq)
+        write(stdo,102) iq, rymev*epole_fm(iq), vpole_fm(iq)
      .    ,rymev*epole_af(iq), vpole_af(iq)
- 102     format(3x,i3,3x,f8.2,3x, d15.7, 5x,f8.2,3x,d15.7)
+ 102    format(3x,i3,3x,f8.2,3x, d15.7, 5x,f8.2,3x,d15.7)
       enddo
 C ... End of pole search
 
@@ -293,22 +293,22 @@ C --- Determine meffi ---
       do  iq = 1, nq
         rtmp1 = epole_fm(iq)
         rtmp2 = epole_af(iq)
-      do  i = 1, nmbas
-      do  j = 1, nmbas
-        do  iw = 1, nwx
-          dxidw(i,j,iq,iw)  =
+        do  i = 1, nmbas
+          do  j = 1, nmbas
+            do  iw = 1, nwx
+              dxidw(i,j,iq,iw)  =
 c     .   (xinv(i,j,iq,iw+1) - xinv(i,j,iq,1))/(freq(iw+1)-freq(1))
      .      (xinvh(i,j,iq,iw+1) - xinvh(i,j,iq,1))/(freq(iw+1)-freq(1))
-          freqm(iw) = 0.5d0*(freq(iw+1) + freq(iw))
-        enddo
-        meffi(i,j,iq) =
+              freqm(iw) = 0.5d0*(freq(iw+1) + freq(iw))
+            enddo
+            meffi(i,j,iq) =
      .      polinta(rtmp1,freqm(1:8),dble(dxidw(i,j,iq,1:8)),8)
      .    + img* polinta(rtmp1,freqm(1:8),dimag(dxidw(i,j,iq,1:8)),8)
-        meffi2(i,j,iq) =
+            meffi2(i,j,iq) =
      .      polinta(rtmp2,freqm(1:8),dble(dxidw(i,j,iq,1:8)),8)
      .    + img* polinta(rtmp2,freqm(1:8),dimag(dxidw(i,j,iq,1:8)),8)
-      enddo
-      enddo
+          enddo
+        enddo
       enddo
 
 C --- Xinvh_w0  dxidw_et -> dxidw_ebar ---
@@ -334,7 +334,7 @@ C --- Xinvh_w0  dxidw_et -> dxidw_ebar ---
      .  ' = [xinvh(1,1,iw)-xinvh(1,1,iw=0)]/w%N'//
      .  '%5fq%11fiw=1%21fFM pole%18fAFM pole%17fintp FM%18fintp AF')
       do  iq = 1, nq
-         write(stdo,  "(3x,i3, 5(2d12.4,1x) )" ) iq,dxidw_eb(1,1,iq,1)
+        write(stdo,  "(3x,i3, 5(2d12.4,1x) )" ) iq,dxidw_eb(1,1,iq,1)
      .        ,dxidw_eb(1,1,iq,iwpolf),dxidw_eb(1,1,iq,iwpola)
      .        , meffi_eb(1,1,iq), meffi2_eb(1,1,iq)
       enddo

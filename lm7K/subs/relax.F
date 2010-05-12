@@ -4,19 +4,19 @@ Cgetarg...info...           structure ['relax', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['relax', 'm_struc_def']
       subroutine relax(prgnam,sctrl,ssite,sspec,it,indrlx,natrlx,nvar,f,
      .                 p,w,nelts,delta,bas,icom)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Relax atomic positions and volume using variable metric algorithm
 C ----------------------------------------------------------------------
 Ci Inputs:
 Ci   sctrl :struct for program flow parameters; see routine uctrl
 Ci     Elts read: nbas nitmv mdprm ltb
-Ci     Stored:   
+Ci     Stored:
 Ci   ssite :struct for site-specific information; see routine usite
 Ci     Elts read: spec relax
 Ci     Duplicate: spec relax relax
-Ci     Stored:   
+Ci     Stored:
 Ci   sspec :struct for species-specific information; see routine uspec
 Ci     Elts read:
 Ci     Stored:    name
@@ -57,11 +57,11 @@ C Passed Parameters
       integer indrlx(2,natrlx)
 Cgetarg       double precision sctrl(1),ssite(1),sspec(1),f(3,*),
 Cgetarg      .  w(nvar,nvar),p(nvar,6),delta(nelts,*),bas(3,*)
-       real(8):: f(3,*) , w(nvar,nvar) , p(nvar,6) , delta(nelts,*) 
-     . , bas(3,*) 
-       type(s_ctrl)::sctrl
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      real(8):: f(3,*) , w(nvar,nvar) , p(nvar,6) , delta(nelts,*) 
+     . , bas(3,*)
+      type(s_ctrl)::sctrl
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
 C Local Variables
       integer i,j,ipr,ifi,fopna,ix,lgunit,nbas,ltb,ifrlx(3),
@@ -89,12 +89,12 @@ Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
 Cgetarg...info...           integer :: ltb , integer(8) :: sctrl%ltb 1
 Cgetarg       call upack('ctrl nbas nitmv mdprm ltb',sctrl,nbas,nit,mdprm,
 Cgetarg      .  ltb,0)
-       
-       nbas=sctrl%nbas
-       nit=sctrl%nitmv
-c       i_copy_size=size(sctrl%mdprm) 
-c       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
-       call dcopy(size(sctrl%mdprm),sctrl%mdprm,1,mdprm,1) 
+
+      nbas=sctrl%nbas
+      nit=sctrl%nitmv
+c       i_copy_size=size(sctrl%mdprm)
+c       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
+      call dcopy(size(sctrl%mdprm),sctrl%mdprm,1,mdprm,1)
 c       ltb=sctrl%ltb
 
       nkill  = nint(mdprm(6))
@@ -126,19 +126,19 @@ C --- Initialization ---
 C   ... Read Hessian from disc
         if (rdhess) then
           if (procid .eq. master) then
-          ifi = fopna('HSSN',-1,4)
-          rewind ifi
+            ifi = fopna('HSSN',-1,4)
+            rewind ifi
 C     ... Hessian written in rdm-compatible format
-          if (rdm(ifi,2,nvar*nvar,' ',w,nvar,nvar) .lt. 0) then
+            if (rdm(ifi,2,nvar*nvar,' ',w,nvar,nvar) .lt. 0) then
 C       ... Attempt to read Hessian failed.  Make it unity
-            call info0(-20,0,0,
+              call info0(-20,0,0,
      .        ' RELAX: (warning) failed to read Hessian; set to unity')
-            call dcopy(nvar*nvar,0d0,0,w,1)
-            call dcopy(nvar,1d0,0,w,nvar+1)
-          else
-            call info0(-20,0,0,' RELAX: Hessian read from disc')
-          endif
-          call fclose(ifi)
+              call dcopy(nvar*nvar,0d0,0,w,1)
+              call dcopy(nvar,1d0,0,w,nvar+1)
+            else
+              call info0(-20,0,0,' RELAX: Hessian read from disc')
+            endif
+            call fclose(ifi)
           endif
           call mpibc1(w,nvar*nvar,4,.false.,'relax','hssn')
         else
@@ -163,7 +163,7 @@ C --- Relax ---
           xtoll = abs(xtol)
         endif
       endif
-C ... the user sets xtol _and_ gtol.  
+C ... the user sets xtol _and_ gtol.
       if (lrlx .eq. 4) isw = 00021 + 40
       if (lrlx .eq. 5) isw = 00121 + 40
       if (lrlx .eq. 6) isw = 00221 + 00
@@ -179,7 +179,7 @@ C ... the user sets xtol _and_ gtol.
       endif
       if ((lrlx.eq.4 .or. lrlx.eq.5) .and. ipr .ge. 20) then
         if (procid .eq. master) then
-        call awrit4(' fp rlx ln %d:  %1j'//
+          call awrit4(' fp rlx ln %d:  %1j'//
      .    '%-1j%?#n==-0#cnvg##'//
      .    '%-1j%?#n==-1#new ln##'//
      .    '%-1j%?#n==-2#brack ln##'//
@@ -190,7 +190,7 @@ C ... the user sets xtol _and_ gtol.
      .    '  dxmx=%;7F  |g|=%1;3g',' ',80,stdl,wkg(19),ir,
      .    wkg(1)*p(idamax(nvar,p(1,nd),1),nd),
      .    dsqrt(ddot(nvar,p(1,2),1,p(1,2),1)))
-        if (ipr .ge. 20) call awrit4(' RELAX line %d:  %1j'//
+          if (ipr .ge. 20) call awrit4(' RELAX line %d:  %1j'//
      .    '%-1j%?#n==-0#converged to tolerance##'//
      .    '%-1j%?#n==-1#new line minimization##'//
      .    '%-1j%?#n==-2#bracketed root this line##'//
@@ -204,11 +204,11 @@ C ... the user sets xtol _and_ gtol.
         endif
       elseif (lrlx .eq. 6) then
         if (procid .eq. master) then
-        call awrit3(' fp rlx Br '//
+          call awrit3(' fp rlx Br '//
      .    '%?#n==0#cnvg#%-1jit %i#  dxmx=%;7F  |g|=%1;3g',' ',
      .    80,stdl,-ir,p(idamax(nvar,p(1,ns),1),ns),
      .    dsqrt(ddot(nvar,p(1,2),1,p(1,2),1)))
-        if (ipr .ge. 20) call awrit4(' RELAX:  %1j'//
+          if (ipr .ge. 20) call awrit4(' RELAX:  %1j'//
      .    '%-1j%?#n==-0#converged to tolerance##'//
      .    '%-1j%?#n<0#completed Broyden iter %i#%j#'//
      .    ';  max shift=%;7F  |g|=%1;3g',' ',80,stdo,
@@ -246,12 +246,12 @@ C --- Update atom positions ---
 C --- Write Hessian to disc ---
       if (rdhess .and. (icom .eq. 1 .or. it .eq. nit) .or. .true.) then
         if (procid .eq. master) then
-        ifi = fopna('HSSN',-1,4)
+          ifi = fopna('HSSN',-1,4)
 C   ... Hessian written in rdm-compatible format
-        rewind ifi
-        write(ifi) nvar,nvar,11
-        write(ifi) w
-        call fclose(ifi)
+          rewind ifi
+          write(ifi) nvar,nvar,11
+          write(ifi) w
+          call fclose(ifi)
         endif
       endif
 
@@ -261,13 +261,13 @@ C   ... Hessian written in rdm-compatible format
 C --- Periodically remove hessian ---
       if (nkill .gt. 0) then
         if (mod(it,nkill) .eq. 0) then
-        call info(-20,0,0,
+          call info(-20,0,0,
      .    '   ...  resetting hessian : iter=%i nkill=%i',it,nkill)
-        ifi = fopna('HSSN',-1,4)
-        call dfclos(ifi)
-        call dcopy(nvar*nvar,0d0,0,w,1)
-        call dcopy(nvar,1d0,0,w,nvar+1)
-      endif
+          ifi = fopna('HSSN',-1,4)
+          call dfclos(ifi)
+          call dcopy(nvar*nvar,0d0,0,w,1)
+          call dcopy(nvar,1d0,0,w,nvar+1)
+        endif
       endif
 
 C --- Printout ---
@@ -294,21 +294,21 @@ C            call spacks(0,'spec name',sspec,clablj,is,is)
 C          endif
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg           call upack('site spec',ssite,j,is,0,0,0)
-           
-           is=ssite(j)%spec
+
+          is=ssite(j)%spec
 
 Cgetarg           call spacks(0,'spec name',sspec,clablj,is,is)
-c           do i_spacks=is,is 
+c           do i_spacks=is,is
 c           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
 c           enddo
-           call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
+          call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
 
 Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
 Cgetarg           call upack2('site relax',ssite,j,ifrlx)
-           
-c           i_copy_size=size(ssite(j)%relax) 
-c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
-           call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1) 
+
+c           i_copy_size=size(ssite(j)%relax)
+c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
+          call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
 
           write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix).eq.1,ix=1,3)
    70   continue
@@ -320,10 +320,10 @@ C ... Write new atom positions to LOG file, for use in CTRL file
         do  80  j = 1, nbas
 Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
 Cgetarg           call upack2('site relax',ssite,j,ifrlx)
-           
-c           i_copy_size=size(ssite(j)%relax) 
-c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
-          call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1) 
+
+c           i_copy_size=size(ssite(j)%relax)
+c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
+          call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
 
           if (j .eq. 2) dumstr = ' '
 C        if (prgnam(1:2) .eq. 'TB') then
@@ -334,21 +334,21 @@ C          call spacks(0,'spec name',sspec,clablj,is,is)
 C        endif
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg           call upack('site spec',ssite,j,is,0,0,0)
-           
-           is=ssite(j)%spec
+
+          is=ssite(j)%spec
 
 Cgetarg           call spacks(0,'spec name',sspec,clablj,is,is)
-c           do i_spacks=is,is 
+c           do i_spacks=is,is
 c           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
 c           enddo
-           call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
+          call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
 
 Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
 Cgetarg           call upack2('site relax',ssite,j,ifrlx)
-           
-c           i_copy_size=size(ssite(j)%relax) 
-c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1) 
-           call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1) 
+
+c           i_copy_size=size(ssite(j)%relax)
+c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
+          call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
 
           call awrit2(dumstr//'ATOM='//clablj//
      .      ' POS=%3;12,7D  RELAX=%3,2i',' ',80,lgunit(2),
@@ -370,7 +370,7 @@ c          endif
       call tcx('relax')
 
 Cgetarg       end
-       end subroutine relax 
+      end subroutine relax
 
       subroutine prelx1(mode,nm,lshr,natrlx,nvar,indrlx,p,bas)
 
@@ -388,7 +388,7 @@ Ci   bas   :basis vectors
 Ci   p     :vector of variables undergoing minimization process
 Co Outputs
 Cr Remarks
-Cr   
+Cr
 Cu Updates
 Cu   09 Mar 06 Extracted from relax.f for use by other routines
 C ----------------------------------------------------------------------
@@ -402,27 +402,27 @@ C ... Local parameters
 
 C --- Update atom positions, or vice-versa ---
       if (.not. lshr) then
-      j = 1
-      do  60  i = 1, natrlx
-        ix = indrlx(1,i)
-        iat = indrlx(2,i)
-        if (mode .gt. 0) then
-          bas(ix,iat) = p(j,nm)
-        else
-          p(j,nm) = bas(ix,iat)
-        endif
-        j = j + 1
-   60 continue
+        j = 1
+        do  60  i = 1, natrlx
+          ix = indrlx(1,i)
+          iat = indrlx(2,i)
+          if (mode .gt. 0) then
+            bas(ix,iat) = p(j,nm)
+          else
+            p(j,nm) = bas(ix,iat)
+          endif
+          j = j + 1
+   60   continue
       else
         if (mode .gt. 0) then
           call dcopy(natrlx,p(1,nm),1,bas,1)
         else
           call dcopy(natrlx,bas,1,p(1,nm),1)
         endif
-        
+
       endif
 Cgetarg       end
-       end subroutine prelx1 
+      end subroutine prelx1
 
       subroutine grdep2(i1,i2,indrlx,dstprm,dist)
 
@@ -455,6 +455,6 @@ C       4, 5, 6
       enddo
 
 Cgetarg       end
-       end subroutine grdep2 
+      end subroutine grdep2
 
 

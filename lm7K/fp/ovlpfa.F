@@ -3,8 +3,8 @@ Cgetarg...info...           structure ['ovlpfa', 'site', 'ssite']
 Cgetarg...info...           use_to_add ['ovlpfa', 'm_struc_def']
       subroutine ovlpfa(ssite,slat,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,
      .  gv,cv)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Set up Fourier coeffs to overlap the smooth part of FA densities.
 C ----------------------------------------------------------------------
@@ -40,9 +40,9 @@ C ... Passed parameters
       integer nbas,nxi(1),nxi0,ng,ngmx
 Cgetarg       double precision slat(1),ssite(1),gv(ngmx,3),rsmfa(1),exi(nxi0,1),
 Cgetarg      .  hfc(nxi0,2,1)
-       real(8):: gv(ngmx,3) , rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) 
-       type(s_lat)::slat
-       type(s_site)::ssite(*)
+      real(8):: gv(ngmx,3) , rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1)
+      type(s_lat)::slat
+      type(s_site)::ssite(*)
 
       double complex cv(ng,*)
 C ... Local parameters
@@ -70,9 +70,9 @@ C     integer ifi,fopna
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat alat vol',slat,alat,vol,0,0,0)
-       
-       alat=slat%alat
-       vol=slat%vol
+
+      alat=slat%alat
+      vol=slat%vol
 
       tpiba = 2*pi/alat
       call dpzero(cv,2*ng*nsp)
@@ -106,10 +106,10 @@ c      do  ib = 1, nbas
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ib,is,pos,0,0)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pos) 
-         call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1) 
+
+        is=ssite(ib)%spec
+        i_copy_size=size(ssite(ib)%pos)
+        call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1)
 
         nx = nxi(is)
 
@@ -142,12 +142,12 @@ C       ... Loop over reciprocal lattice vectors
      .      '  Qsmooth %,6;6d%?#n==2#  mom %,5;5d##',
      .      ' ',90,stdo,ib,is,pos,sam(1)+sam(2),nsp,sam(1)-sam(2))
           if (ipr .ge. 40) then
-          write(stdo,700) 'energy:',(exi(i,is),i=1,nx)
-          write(stdo,700) 'coeff:',(hfc(i,1,is),i=1,nx)
-          if (nsp .eq. 2) write(stdo,700) 'spin2:',(hfc(i,2,is),i=1,nx)
-          write(stdo,'(1x)')
+            write(stdo,700) 'energy:',(exi(i,is),i=1,nx)
+            write(stdo,700) 'coeff:',(hfc(i,1,is),i=1,nx)
+            if (nsp .eq. 2) write(stdo,700) 'spin2:',(hfc(i,2,is),i=1,nx)
+            write(stdo,'(1x)')
           endif
-  700   format(2x,a7,6f11.3)
+  700     format(2x,a7,6f11.3)
         endif
       enddo
 
@@ -170,6 +170,6 @@ C     call rx0('done')
 
       call tcx('ovlpfa')
 Cgetarg       end
-       end subroutine ovlpfa 
+      end subroutine ovlpfa
 
 

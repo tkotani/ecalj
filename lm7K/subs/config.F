@@ -9,8 +9,8 @@ Ci   z     :nuclear charge
 Co Outputs
 Co   konfig:estimated principal quant. no. of valence state for l>lmax
 Co         :Core orbitals are specified by:
-Co         :  1, 2, ..., konf(0)-1 for s            
-Co         :  2, 3, ..., konf(1)-1 for p            
+Co         :  1, 2, ..., konf(0)-1 for s
+Co         :  2, 3, ..., konf(1)-1 for p
 Co         :  3, 4, ..., konf(2)-1 for d, and so on.
 Co   lmaxc :largest l for which there is a core state
 Cr Remarks
@@ -37,7 +37,8 @@ C --- Calculate lmaxc ---
 
 C --- Estimate konfig ---
       do  10  l = 0, 8
-   10 konfig(l) = l+1
+        konfig(l) = l+1
+   10 continue
       if (z .ge. LI) konfig(0) = 2
       if (z .ge. NA) konfig(0) = 3
       if (z .ge.  K) konfig(0) = 4
@@ -54,6 +55,7 @@ C --- Estimate konfig ---
 
 C --- Override konfig with given pnu ---
       do  20  l = 0, lmax
-   20 konfig(l) = pnu(l)
+        konfig(l) = pnu(l)
+   20 continue
       end
 

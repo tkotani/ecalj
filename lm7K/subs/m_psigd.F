@@ -3,7 +3,7 @@ Cgetarg...info...           structure ['rdsigm', 'lat', 'slat']
 Cgetarg...info...           structure ['rdsigm', 'bz', 'sbz']
 Cgetarg...info...           use_to_add ['rdsigm', 'm_struc_def']
       module m_psigd
-      contains 
+      contains
       subroutine psigd(mode,ndimh,sig,eval,sigp,n123,sigd, q,isp,iout,iprx)
 
 c psigd is also called from hambls.F. Then I found present(iout) is alwasy T even when iout is missing.
@@ -96,7 +96,7 @@ ctakao
       integer,optional,intent(in):: iout,isp
       integer:: fopna
       integer:: ifiogw,ifiese,ispx
-      real(8),optional,intent(in):: q(3) 
+      real(8),optional,intent(in):: q(3)
       logical:: nexist
       real(8):: sigiir
       integer,optional,intent(in):: iprx
@@ -182,9 +182,9 @@ C       Calculate new diagonal sigma that satisfies constraints
 
 C       Printout
         if (mode .eq. 1) then
-        if (ipr .ge. PRTE .and. (llow.or.lhigh)) then
-          write(stdo,331) i,eval(i),dble(sigii)
-  331     format(i6,f12.6,2x,f12.6)
+          if (ipr .ge. PRTE .and. (llow.or.lhigh)) then
+            write(stdo,331) i,eval(i),dble(sigii)
+  331       format(i6,f12.6,2x,f12.6)
           endif
         else
           if (ipr .ge. PRTE .and. lhigh .and. modsgp .eq. 2) then
@@ -206,16 +206,16 @@ c        takao
         if (llow .or. lhigh) then
 c
           if(present(iout).and.iout==1) then
-           inquire(file='ESEAVR',number=ifiese)
-           rewind ifiese
-           do iii=1,3
-             read(ifiese,*) sigiir,ispx
-             sigii=sigiir
-             if(ndimh==i.and.present(iprx)) write(6,"(a,2d13.6,i3)")'ESEAVR: ',sigii,ispx
-             if(isp==ispx) goto 898
-           enddo
-           stop 'psigd: can not find ESEAVR for given isp'
- 898       continue
+            inquire(file='ESEAVR',number=ifiese)
+            rewind ifiese
+            do iii=1,3
+              read(ifiese,*) sigiir,ispx
+              sigii=sigiir
+              if(ndimh==i.and.present(iprx)) write(6,"(a,2d13.6,i3)")'ESEAVR: ',sigii,ispx
+              if(isp==ispx) goto 898
+            enddo
+            stop 'psigd: can not find ESEAVR for given isp'
+ 898        continue
           endif
 
           if (mode .eq. 0) then
@@ -246,10 +246,10 @@ c         sig(:,i) = 0d0
 c         sig(i,i) = sigii
 c       endif
       if(present(iout).and.iout==1) then
-         inquire(file='NBANDGW',number=ifiogw)
-         !print *,'ifiogw=',ifiogw
-         write(ifiogw,"(3d23.15,i3,3x,2i8)") q,isp,imin,imax
+        inquire(file='NBANDGW',number=ifiogw)
+        !print *,'ifiogw=',ifiogw
+        write(ifiogw,"(3d23.15,i3,3x,2i8)") q,isp,imin,imax
 c         print *,'xxx uuu xxx',ifio,q,isp,imin,imax
       endif
       end subroutine psigd
-      end module m_psigd 
+      end module m_psigd

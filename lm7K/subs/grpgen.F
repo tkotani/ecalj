@@ -72,7 +72,7 @@ C --- Products with more than one sandwiched sigma-factor ---
         m2 = nnow
         do  20  i = 2, 50
           do  21  n = ng+1, n2
-            do  21  m = m1, m2
+          do  21  m = m1, m2
             call grpprd(symops(1,n),symops(1,m),h)
             do  22  k = 1, nnow
               if (grpeql(symops(1,k),h)) goto 21
@@ -117,7 +117,8 @@ C     implicit none
       double precision h(9),g(9)
       integer i
       do  10  i = 1, 9
-   10 h(i) = g(i)
+        h(i) = g(i)
+   10 continue
       end
       logical function grpeql(g1,g2)
 C- Checks if G1 is equal to G2
@@ -129,7 +130,8 @@ C     implicit none
       ddif(x1,x2) = dabs(x1-x2) .gt. tol
       grpeql = .false.
       do  10  i = 1, 9
-   10 if (ddif(g1(i),g2(i))) return
+        if (ddif(g1(i),g2(i))) return
+   10 continue
       grpeql = .true.
       end
       subroutine grpprd(g1,g2,g1xg2)
@@ -140,13 +142,16 @@ C     implicit none
 
       do  10  i = 1, 3
       do  10  j = 1, 3
-      sum = 0d0
-      do  11  k = 1, 3
-   11 sum = sum + g1(i,k)*g2(k,j)
-   10 h(i,j) = sum
+        sum = 0d0
+        do  11  k = 1, 3
+          sum = sum + g1(i,k)*g2(k,j)
+   11   continue
+        h(i,j) = sum
+   10 continue
       do  12  j = 1, 3
       do  12  i = 1, 3
-   12 g1xg2(i,j) = h(i,j)
+        g1xg2(i,j) = h(i,j)
+   12 continue
 
 
       end

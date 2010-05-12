@@ -6,8 +6,8 @@ Cgetarg...info...           use_to_add ['rlocbl', 'm_struc_def']
       subroutine rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,
      .  nspc,napw,igvapw,iprmb,numq,nevec,evec,ewgt,evl,osig,otau,oppi,
      .  lcplxp,lekkl,oqkkl,oeqkkl,f)
-       use m_struc_def  !Cgetarg
-#if MPE 
+      use m_struc_def  !Cgetarg
+#if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
 C- Accumulates the local atomic densities.
@@ -123,10 +123,10 @@ c#endif
       integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)
 Cgetarg       double precision q(3),ssite(1),sspec(1),slat(1),
 Cgetarg      .  ewgt(numq,nevec),evl(ndham,isp),f(3,nbas,numq)
-       real(8):: q(3) , ewgt(numq,nevec) , evl(ndham,isp) , f(3,nbas,numq) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: q(3) , ewgt(numq,nevec) , evl(ndham,isp) , f(3,nbas,numq)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double complex evec(ndimh,nspc,nevec)
 C ... Local parameters or process-shared variables
@@ -196,11 +196,11 @@ Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
 Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
 Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
 Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-       
-       ocg=slat%ocg
-       ojcg=slat%ojcg
-       oidxcg=slat%oidxcg
-       ocy=slat%ocy
+
+      ocg=slat%ocg
+      ojcg=slat%ojcg
+      oidxcg=slat%oidxcg
+      ocy=slat%ocy
 
       call defi(o,1)
 C ... Find maximum sizes needed to allocate strux; allocate them
@@ -208,14 +208,14 @@ C ... Find maximum sizes needed to allocate strux; allocate them
       kmaxx = 0
       do  ia = 1, nbas
 Cgetarg         isa = igetss('site spec',ia,ssite)
-         isa = int(ssite(ia)%spec) 
+        isa = int(ssite(ia)%spec)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg         call upack('spec lmxa kmxt',sspec,isa,lmxa,kmax,0,0)
-         
-         lmxa=sspec(isa)%lmxa
-         kmax=sspec(isa)%kmxt
+
+        lmxa=sspec(isa)%lmxa
+        kmax=sspec(isa)%kmxt
 
         nlma = (lmxa+1)**2
         kmaxx = max(kmaxx,kmax)
@@ -226,10 +226,10 @@ C     Needed for PW part
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg       call upack('lat alat qlat',slat,alat,qlat,0,0,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
+      alat=slat%alat
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
       pi = 4d0*datan(1d0)
       tpiba = 2d0*pi/alat
@@ -287,10 +287,10 @@ C$      ip=mp_my_threadnum()+1
 Cgetarg...info...           integer :: isa , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: pa(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ia,isa,pa,0,0)
-         
-         isa=ssite(ia)%spec
-         i_copy_size=size(ssite(ia)%pos) 
-         call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1) 
+
+        isa=ssite(ia)%spec
+        i_copy_size=size(ssite(ia)%pos)
+        call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: lmxha , integer(8) :: sspec%lmxb 1
@@ -298,11 +298,11 @@ Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
 Cgetarg         call upack('spec lmxa lmxb kmxt rsma',sspec,isa,lmxa,lmxha,kmax,
 Cgetarg      .    rsma)
-         
-         lmxa=sspec(isa)%lmxa
-         lmxha=sspec(isa)%lmxb
-         kmax=sspec(isa)%kmxt
-         rsma=sspec(isa)%rsma
+
+        lmxa=sspec(isa)%lmxa
+        lmxha=sspec(isa)%lmxb
+        kmax=sspec(isa)%kmxt
+        rsma=sspec(isa)%rsma
 
         nlmha = (lmxha+1)**2
         nlma  = (lmxa+1)**2
@@ -336,10 +336,10 @@ C       Zero out strux to eliminate contributions from local orbitals
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
 Cgetarg           call upack('site spec pos',ssite,ib,is,p,0,0)
-           
-           is=ssite(ib)%spec
-           i_copy_size=size(ssite(ib)%pos) 
-           call dcopy(i_copy_size,ssite(ib)%pos,1,p,1) 
+
+          is=ssite(ib)%spec
+          i_copy_size=size(ssite(ib)%pos)
+          call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
 
 C         This line augments no local orbitals
 C         ik = 1
@@ -379,11 +379,11 @@ C       ksp = isp  in the collinear case
 C           = ispc in the noncollinear case
 C       whereas ispc is spin index in the noncoll case, but 1 for coll.
         do  ivec = 1, nevec
-        do  ispc = 1, nspc
-          ksp = max(ispc,isp)
+          do  ispc = 1, nspc
+            ksp = max(ispc,isp)
 
 C     ... Pkl expansion of eigenvector
-          call rlocb1(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),cPkL)
+            call rlocb1(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),cPkL)
 
 C      ... needed for off-diagonal density matrix ... comment out now
 C          if (nspc .eq. 2 .and. ispc .eq. 1) then
@@ -396,16 +396,16 @@ CC#endif
 C          endif
 
 C     ... Add to local density coefficients for one state
-          call prlcb3(0,kmax,nlma,ksp,cPkL,numq,ewgt(1,ivec),w,w(oqpp))
-          call prlcb2(0,ia,nkaph,iprmb,nlmha,kmax,nlma,ksp,cPkL,nlmto,
+            call prlcb3(0,kmax,nlma,ksp,cPkL,numq,ewgt(1,ivec),w,w(oqpp))
+            call prlcb2(0,ia,nkaph,iprmb,nlmha,kmax,nlma,ksp,cPkL,nlmto,
      .      evec(1,ispc,ivec),ewgt(1,ivec),numq,w,w(oqhh),w(oqhp))
-          if (lekkl .eq. 1) then
-            call prlcb3(1,kmax,nlma,ksp,cPkL,numq,ewgt(1,ivec),
+            if (lekkl .eq. 1) then
+              call prlcb3(1,kmax,nlma,ksp,cPkL,numq,ewgt(1,ivec),
      .        evl(ivec,isp),w(oeqpp))
-            call prlcb2(1,ia,nkaph,iprmb,nlmha,kmax,nlma,ksp,cPkL,nlmto,
+              call prlcb2(1,ia,nkaph,iprmb,nlmha,kmax,nlma,ksp,cPkL,nlmto,
      .        evec(1,ispc,ivec),ewgt(1,ivec),numq,evl(ivec,isp),
      .        w(oeqhh),w(oeqhp))
-          endif
+            endif
 
 C          ... needed for off-diagonal density matrix ... comment out now
 CC#ifdef F90
@@ -420,14 +420,14 @@ C          endif
 CC#endif
 
 C     ... Contribution to forces
-          if (lfrce .ne. 0) then
-            call rxx(nspc.ne.1,'forces not implemented in noncoll case')
-            call flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto,
+            if (lfrce .ne. 0) then
+              call rxx(nspc.ne.1,'forces not implemented in noncoll case')
+              call flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto,
      .        ndimh,iprmb,ksp,evl(ivec,isp),evec(1,ispc,ivec),ewgt(1,
      .        ivec),numq,cPkL,w(odb),da,wk,w(oppipp),w(oppipp),
      .        w(osigpp),w(oppihp),w(oppihp),w(osighp),lcplxp,w(oxf))
-          endif
-        enddo
+            endif
+          enddo
         enddo
    10   continue
 C ... end loop over ia
@@ -445,16 +445,16 @@ C ... end loop over ia
       do  pid = 0, numprocs-1
         do  ia = bproc(pid), bproc(pid+1)-1
 Cgetarg           is = igetss('site spec',ia,ssite)
-           is = int(ssite(ia)%spec) 
+          is = int(ssite(ia)%spec)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
 Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg           call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
-           
-           lmxa=sspec(is)%lmxa
-           lmxh=sspec(is)%lmxb
-           kmax=sspec(is)%kmxt
+
+          lmxa=sspec(is)%lmxa
+          lmxh=sspec(is)%lmxb
+          kmax=sspec(is)%kmxt
 
           nlma = (lmxa+1)**2
           nlmh = (lmxh+1)**2
@@ -524,7 +524,7 @@ Cgetarg           call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
       call tcx('rlocbl')
 
 Cgetarg       end
-       end subroutine rlocbl 
+      end subroutine rlocbl
 
 
       subroutine rlocb1(ndimh,nlma,kmax,evec,b,cPkL)
@@ -563,7 +563,7 @@ C     call zprm('b',2,b,ndimh,ndimh,nlma*(kmax+1))
 C     call zprm('cPkL',2,cPkL,kmax+1,kmax+1,nlma)
       call tcx('rlocb1')
 Cgetarg       end
-       end subroutine rlocb1 
+      end subroutine rlocb1
 
 
       subroutine prlcb2(job,ia,nkaph,iprmb,nlmha,kmax,nlma,isp,cPkL,
@@ -594,7 +594,7 @@ Co   qhp   :two-center density-matrix for PkL expansion (job=0)
 Co         :energy-weighted matrix (job=1)
 Cr Remarks
 Cu Updates
-Cu   05 Jul 08 (T. Kotani) 
+Cu   05 Jul 08 (T. Kotani)
 Cu             Option to accumulate energy-weighted output density
 Cu   27 Aug 01 Extended to local orbitals.
 C ----------------------------------------------------------------------
@@ -633,17 +633,17 @@ C       i1 = hamiltonian offset for first orbital in block
 C     ... Accumulate products H*Pkl
           do  iq = 1, numq
             if (job .eq. 0) then
-            do  k = 0, kmax
-              do  ilma = 1, nlma
-                qhp(ik1,k,ilm1,ilma,iq,isp)= qhp(ik1,k,ilm1,ilma,iq,isp)
+              do  k = 0, kmax
+                do  ilma = 1, nlma
+                  qhp(ik1,k,ilm1,ilma,iq,isp)= qhp(ik1,k,ilm1,ilma,iq,isp)
      .            + 2d0*dconjg(evec(i1))*cPkL(k,ilma)*ewgt(iq)
+                enddo
               enddo
-            enddo
             else
-            do  k = 0, kmax
-              qhp(ik1,k,ilm1,ilm1,iq,isp)= qhp(ik1,k,ilm1,ilm1,iq,isp)
+              do  k = 0, kmax
+                qhp(ik1,k,ilm1,ilm1,iq,isp)= qhp(ik1,k,ilm1,ilm1,iq,isp)
      .          + evl*2d0*dconjg(evec(i1))*cPkL(k,ilm1)*ewgt(iq)
-            enddo
+              enddo
             endif
           enddo
 
@@ -659,14 +659,14 @@ C           i2 = orbital index in iprmb order
             do  ilm2 = nlm21, nlm22
               i2 = i2+1
               if (job .eq. 0) then
-              do  iq = 1, numq
-                qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
+                do  iq = 1, numq
+                  qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
      .          qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
      .          dconjg(evec(i1))*evec(i2)*ewgt(iq)
-              enddo
+                enddo
               elseif (job .eq. 1 .and. ilm1 .eq. ilm2) then
                 do  iq = 1, numq
-                qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
+                  qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
      .          qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
      .          evl*dconjg(evec(i1))*evec(i2)*ewgt(iq)
                 enddo
@@ -679,7 +679,7 @@ C           i2 = orbital index in iprmb order
 
       call tcx('prlcb2')
 Cgetarg       end
-       end subroutine prlcb2 
+      end subroutine prlcb2
 
 
       subroutine prlcb3(job,kmax,nlma,isp,cPkL,numq,ewgt,evl,qpp)
@@ -701,7 +701,7 @@ Co   qpp   :local density matrix for PkL expansion (job=0)
 Co         :energy-weighted local density matrix (job=1)
 Cr Remarks
 Cu Updates
-Cu   05 Jul 08 (T. Kotani) 
+Cu   05 Jul 08 (T. Kotani)
 Cu             Option to accumulate energy-weighted output density
 C ----------------------------------------------------------------------
 C     implicit none
@@ -732,7 +732,7 @@ C ... Local parameters
       call tcx('prlcb3')
 
 Cgetarg       end
-       end subroutine prlcb3 
+      end subroutine prlcb3
 
 
 C  ... needed for off-diagonal density matrix ... comment out now

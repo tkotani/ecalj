@@ -42,8 +42,8 @@ C Note: range i +/-1 is not sufficient; test case of LaCuO
       npr(1) = 0
       do  100  iat2 = 1, nbas
         do  110  i = -i1-2, i1+2
-          do  110  j = -i2-2, i2+2
-          do  110  k = -i3-2, i3+2
+        do  110  j = -i2-2, i2+2
+        do  110  k = -i3-2, i3+2
           dsqr = drr2(plat,bas(1,iat1),bas(1,iat2),i,j,k,dr)
           if (dsqr .le. rmxsqr) then
             npr(0) = npr(0) + 1

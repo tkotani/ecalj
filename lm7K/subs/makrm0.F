@@ -95,10 +95,10 @@ C Local variables:
       double precision vp(npmx,0:2),xp(3,npmx),rp(npmx),
      .  vxcp(npmx),excp(npmx)
 Cdelw1       integer oexcx,oexcc,ovxcx,ovxcc
-       real(8) ,allocatable :: rv_w_oexcx(:)
-       real(8) ,allocatable :: rv_w_oexcc(:)
-       real(8) ,allocatable :: rv_w_ovxcx(:)
-       real(8) ,allocatable :: rv_w_ovxcc(:)
+      real(8) ,allocatable :: rv_w_oexcx(:)
+      real(8) ,allocatable :: rv_w_oexcc(:)
+      real(8) ,allocatable :: rv_w_ovxcx(:)
+      real(8) ,allocatable :: rv_w_ovxcc(:)
 
 C     Sets scale for neighbor table
       double precision facr,facri
@@ -252,34 +252,34 @@ C       Add vxc[superposition of densities] for each vector
         if (opt1 .eq. 1) then
           call sumsro(xp,np,ips,a,b,rho,nttab,iax,rpos,rp)
 Cdelw1           call defrr(oexcx,np)
-           allocate(rv_w_oexcx(np))
+          allocate(rv_w_oexcx(np))
 Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_oexcx(:)=0.0d0
 
 Cdelw1           call defrr(oexcc,np)
-           allocate(rv_w_oexcc(np))
+          allocate(rv_w_oexcc(np))
 Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_oexcc(:)=0.0d0
 
 Cdelw1           call defrr(ovxcx,np)
-           allocate(rv_w_ovxcx(np))
+          allocate(rv_w_ovxcx(np))
 Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_ovxcx(:)=0.0d0
 
 Cdelw1           call defrr(ovxcc,np)
-           allocate(rv_w_ovxcc(np))
+          allocate(rv_w_ovxcc(np))
 Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_ovxcc(:)=0.0d0
 
 Cdelw1           call evxcv(rp,rp,np,1,lxcfun,
 Cdelw1      .      excp,w(oexcx),w(oexcc),vxcp,w(ovxcx),w(ovxcc))
-           call evxcv ( rp , rp , np , 1 , lxcfun , excp , rv_w_oexcx , 
-     .     rv_w_oexcc , vxcp , rv_w_ovxcx , rv_w_ovxcc ) 
+          call evxcv ( rp , rp , np , 1 , lxcfun , excp , rv_w_oexcx , 
+     .     rv_w_oexcc , vxcp , rv_w_ovxcx , rv_w_ovxcc )
 
           call daxpy(np,1d0,vxcp,1,vp(1,2),1)
-Cdelw1 rlse name= oexcx old_list= oexcx oexcc ovxcx ovxcc 
+Cdelw1 rlse name= oexcx old_list= oexcx oexcc ovxcx ovxcc
 Cdelw1 rlse name= oexcx new_list= (None)
 Cdelw1           call rlse(oexcx)
-           if (allocated(rv_w_ovxcc)) deallocate(rv_w_ovxcc)
-           if (allocated(rv_w_ovxcx)) deallocate(rv_w_ovxcx)
-           if (allocated(rv_w_oexcc)) deallocate(rv_w_oexcc)
-           if (allocated(rv_w_oexcx)) deallocate(rv_w_oexcx)
+          if (allocated(rv_w_ovxcc)) deallocate(rv_w_ovxcc)
+          if (allocated(rv_w_ovxcx)) deallocate(rv_w_ovxcx)
+          if (allocated(rv_w_oexcc)) deallocate(rv_w_oexcc)
+          if (allocated(rv_w_oexcx)) deallocate(rv_w_oexcx)
 
         endif
 
@@ -337,7 +337,7 @@ C --- Copy appropriate rmti to final result, depending on opt2 ---
 C ... First loop for printout only, so can hang on to original rmt
       do  ib = 1, nbas
         is = ips(ib)
-       
+
         spid = slabl(is)
         call psymr0(-2,-is,nbas,ips,xx,xx,ipa,nrspec)
         rbar = 0
@@ -349,7 +349,7 @@ C ... First loop for printout only, so can hang on to original rmt
 C       Index where to poke rnew
         k = ib
         if (opt2 .ge. 1) k = is
-        
+
         if (ipr .ge. 30) then
           write(stdo,344) ib,is,spid,rmti(ib),rmti(ib)-rbar,
      .      rmti(ib)-rmin,rmt(k), sym(1+mod(lock(k)/2,2))
@@ -362,7 +362,7 @@ C     print *, rmt
 
       do  ib = 1, nbas
         is = ips(ib)
-       
+
         spid = slabl(is)
         call psymr0(-2,-is,nbas,ips,xx,xx,ipa,nrspec)
         rbar = 0

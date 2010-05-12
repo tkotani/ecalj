@@ -9,8 +9,8 @@ Cgetarg...info...           use_to_add ['addrbl', 'm_struc_def']
      .  lekkl,k1,k2,k3,smpot,vconst,osig,otau,oppi,lcplxp,numq,qval,
      .  evec,evl,nevl,ef0,def,esmear,emin,emax,ndos,dos,smrho,sumqv,
      .  sumev,oqkkl,oeqkkl,f)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Adds to the smooth and local output density and to eigval sum
 C ----------------------------------------------------------------------
@@ -108,12 +108,12 @@ C ... Passed parameters
 Cgetarg       double precision q(3),ssite(1),sspec(1),slat(1),sham(1),
 Cgetarg      .  wtkb(ndham,nsp,1),swtk(ndham,nsp,1),
 Cgetarg      .  dos(ndos,2,isp),evl(ndham,nsp),sumev(2,3),sumqv(3,2),f(3,*)
-       real(8):: q(3) , wtkb(ndham,nsp,1) , swtk(ndham,nsp,1) , dos(ndos,2,isp) 
-     . , evl(ndham,nsp) , sumev(2,3) , sumqv(3,2) , f(3,*) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
-       type(s_ham)::sham
+      real(8):: q(3) , wtkb(ndham,nsp,1) , swtk(ndham,nsp,1) , dos(ndos,2,isp) 
+     . , evl(ndham,nsp) , sumev(2,3) , sumqv(3,2) , f(3,*)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
+      type(s_ham)::sham
 
       integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)
       double complex evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),
@@ -149,49 +149,49 @@ C     call wkprnt(1)
       ndimhx = ndimh*nspc
 Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
 Cgetarg       call upack1('lat nabc',slat,ngabc)
-       
-       i_copy_size=size(slat%nabc) 
-       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
+      i_copy_size=size(slat%nabc)
+      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
 #if ! (F90 | AUTO_ARRAY)
       if (ndimhx.gt.ndimx) call rxi('addrbl: increase ndimx to',ndimh)
 #endif
 Cgetarg...info...           integer :: oidxsh , integer(8) :: sham%oindxo 1
 Cgetarg       call upack1('ham oindxo',sham,oidxsh)
-       
-       oidxsh=sham%oindxo
+
+      oidxsh=sham%oindxo
 
 C     Setup for PW part of basis
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg       call upack('lat alat qlat',slat,alat,qlat,0,0,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
+      alat=slat%alat
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
 C     Find largest lmxa ... should be made elsewhere
       lmxax = -1
       do  i = 1, nbas
 Cgetarg...info...           integer :: k , integer(8) :: ssite%spec 1
 Cgetarg         call upack('site spec',ssite,i,k,0,0,0)
-         
-         k=ssite(i)%spec
+
+        k=ssite(i)%spec
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg         call upack('spec lmxa',sspec,k,lmxa,0,0,0)
-         
-         lmxa=sspec(k)%lmxa
+
+        lmxa=sspec(k)%lmxa
 
         lmxax = max(lmxax,lmxa)
       enddo
       nlmax=(lmxax+1)**2
-#if F90 
+#if F90
       if (napw .gt. 0) then
         allocate(ylv(napw,nlmax),qpgv(3,napw),qpg2v(napw))
         tpiba = 2d0*4d0*datan(1d0)/alat
         do  ig = 1, napw
-          qpgv(:,ig) = tpiba * ( q + matmul(qlat,igapw(:,ig)) ) 
+          qpgv(:,ig) = tpiba * ( q + matmul(qlat,igapw(:,ig)) )
         enddo
         call ropyln(napw,qpgv(1,1:napw),qpgv(2,1:napw),qpgv(3,1:napw),
      .    lmxax,napw,ylv,qpg2v)
@@ -232,7 +232,7 @@ C ... Force from smooth analytic hamiltonian and overlap
       if (lfrce .gt. 0 .and. lrout .gt. 0) then
         call rxx(nspc.ne.1,'forces not implemented in noncoll case')
         vavg = vconst
-c        print *, '!! avg=1=smpot=1'; vavg=1; smpot=1 !; nevec=1 
+c        print *, '!! avg=1=smpot=1'; vavg=1; smpot=1 !; nevec=1
 C        print *, '!! smpot=vavg'; smpot=vavg
 C       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
 
@@ -249,8 +249,8 @@ C        enddo
         if (napw .gt. 0) then
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg           call upack1('lat vol',slat,vol)
-           
-           vol=slat%vol
+
+          vol=slat%vol
 
           call fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,w(oidxsh),numq,
      .      nevec,evl(1,isp),evec,ewgt,
@@ -298,25 +298,25 @@ C ... Weights for spin moments
           lswtk = -2
         else
 #if F90
-        allocate(evecc(ndimh,2,ndimh,2),work(ndimh,2,ndimh,2))
-        call zcopy(ndimhx**2,evec,1,evecc,1)
-        call zgetrf(nevl,nevl,evecc,ndimhx,ipiv,i)
-        if (i .ne. 0) call rx('addrbl: failed to generate overlap')
-        call zgetri(nevl,evecc,ndimhx,ipiv,work,ndimhx**2,i)
-        do  i = 1, ndimh
-        do  k = 1, ndimh
-          swtk(i,1,iq) = swtk(i,1,iq) + evecc(i,1,k,1)*evec(k,1,i,1)
+          allocate(evecc(ndimh,2,ndimh,2),work(ndimh,2,ndimh,2))
+          call zcopy(ndimhx**2,evec,1,evecc,1)
+          call zgetrf(nevl,nevl,evecc,ndimhx,ipiv,i)
+          if (i .ne. 0) call rx('addrbl: failed to generate overlap')
+          call zgetri(nevl,evecc,ndimhx,ipiv,work,ndimhx**2,i)
+          do  i = 1, ndimh
+            do  k = 1, ndimh
+              swtk(i,1,iq) = swtk(i,1,iq) + evecc(i,1,k,1)*evec(k,1,i,1)
      .                                - evecc(i,1,k,2)*evec(k,2,i,1)
-          swtk(i,2,iq) = swtk(i,2,iq) + evecc(i,2,k,1)*evec(k,1,i,2)
+              swtk(i,2,iq) = swtk(i,2,iq) + evecc(i,2,k,1)*evec(k,1,i,2)
      .                                - evecc(i,2,k,2)*evec(k,2,i,2)
-        enddo
+            enddo
 C        print 345,i,swtk(i,1,iq),swtk(i,2,iq), swtk(i,1,iq)+swtk(i,2,iq)
 C  345   format(i4,3f14.8)
-        enddo
-        deallocate(evecc,work)
+          enddo
+          deallocate(evecc,work)
         endif
 #else
-      lswtk = -2
+        lswtk = -2
 #endif
       endif
 
@@ -326,15 +326,15 @@ C  345   format(i4,3f14.8)
 
       call tcx('addrbl')
 Cgetarg       end
-       end subroutine addrbl 
+      end subroutine addrbl
 
 
       subroutine addsds(ndimh,evl,wgt,emin,emax,esmear,ndos,dos)
 
 C- Add to sampling dos
 C ----------------------------------------------------------------------
-Ci Inputs  
-Ci   ndimh :hamiltonian dimension 
+Ci Inputs
+Ci   ndimh :hamiltonian dimension
 Ci   evl   :eigenvalues
 Ci   wgt   :eigenvalue weights
 Ci   emin  :lower bound for DOS
@@ -353,7 +353,7 @@ Co   dos   :DOS accumulated for these eigenvalues
 Cl Local variables
 Cl         :
 Cr Remarks
-Cr   
+Cr
 Cu Updates
 Cu   17 Jan 05 Extension of esmear to Fermi distribution
 C ----------------------------------------------------------------------
@@ -388,6 +388,6 @@ C ... Local parameters
         enddo
       enddo
 Cgetarg       end
-       end subroutine addsds 
+      end subroutine addsds
 
 

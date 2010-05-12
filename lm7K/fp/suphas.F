@@ -81,7 +81,7 @@ C     phases in the three dimensions.
 
       subroutine suphs0(plat,ng,gv,iv)
 C- Setup for suphas: write each gv as linear combination of qlat.
-Co iv: gv as multiples of qlat 
+Co iv: gv as multiples of qlat
 C     implicit none
 C ... Passed parameters
       integer ng,iv(ng,3)

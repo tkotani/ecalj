@@ -17,7 +17,7 @@ Cio  rmt   :muffin-tin radius, in a.u.
 Cio  a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
 Cio  nr    :number of radial mesh points
 Cio  qc    :Sphere core charge
-Cio  ccof  :coefficient to core density fit by unsmoothed Hankel 
+Cio  ccof  :coefficient to core density fit by unsmoothed Hankel
 Cio  ceh   :hankel function energy to core density fit
 Cio  stc   :core kinetic energy
 Cio  rho   :valence density

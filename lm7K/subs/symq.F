@@ -2,9 +2,9 @@
 C- Make list of atoms in one class
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   lmxl  :lmxl(1..nbas) = l-cutoffs dimensioning offsets.  
+Ci   lmxl  :lmxl(1..nbas) = l-cutoffs dimensioning offsets.
 Ci         :Used in creating table offsets for table ipa, which see
-Ci         :lmxl(1) < -1 => ipa is created differently and 
+Ci         :lmxl(1) < -1 => ipa is created differently and
 Ci         :lmxl(2..) are not referenced; see description for ipa.
 Ci   ic    :abs. val of ic = class for which to make list of members
 Ci         :sign of ic<0 : flag to suppress generation of pos.
@@ -20,7 +20,7 @@ Co         :if lmxl(1)>=-1 :
 Co         : ipa = table of offsets to an array for each site in class
 Co         :       ic.  It is intended for some array A containing
 Co         :       elements for each site 1..nbas, and that offset
-Co         :       to the A for site ib+1, offs(ib+1) is 
+Co         :       to the A for site ib+1, offs(ib+1) is
 Co         :       (lmxl(ib)+1)**2 + offs(ib).
 Co   pos   :basis vectors for each member of class (made if ic>0)
 Co   nrclas:number of sites in class ic
@@ -175,17 +175,17 @@ C ... Local parameters
 
       nn = 0
       do  isp = 1, nsp
-      do  ilm = 1, nlml
-        do  jlm = 1, nlml
-          ccc = wgt*sym(ilm,jlm)
-          if (dabs(ccc) .gt. 1d-9) then
-            nn = nn+1
-            do  i = 1, nr
-              rho2(i,ilm,isp) = rho2(i,ilm,isp) + ccc*rho1(i,jlm,isp)
-            enddo
-          endif
+        do  ilm = 1, nlml
+          do  jlm = 1, nlml
+            ccc = wgt*sym(ilm,jlm)
+            if (dabs(ccc) .gt. 1d-9) then
+              nn = nn+1
+              do  i = 1, nr
+                rho2(i,ilm,isp) = rho2(i,ilm,isp) + ccc*rho1(i,jlm,isp)
+              enddo
+            endif
+          enddo
         enddo
-      enddo
       enddo
       end
 
@@ -202,17 +202,17 @@ C ... Local parameters
 
       nn = 0
       do  isp = 1, nsp
-      do  ilm = 1, nlml
-        do  jlm = 1, nlml
-          ccc = wgt*sym(jlm,ilm)
-          if (dabs(ccc) .gt. 1d-9) then
-            nn = nn+1
-            do  i = 1, nr
-              rho2(i,ilm,isp) = rho2(i,ilm,isp) + ccc*rho1(i,jlm,isp)
-            enddo
-          endif
+        do  ilm = 1, nlml
+          do  jlm = 1, nlml
+            ccc = wgt*sym(jlm,ilm)
+            if (dabs(ccc) .gt. 1d-9) then
+              nn = nn+1
+              do  i = 1, nr
+                rho2(i,ilm,isp) = rho2(i,ilm,isp) + ccc*rho1(i,jlm,isp)
+              enddo
+            endif
+          enddo
         enddo
-      enddo
       enddo
       end
 

@@ -21,10 +21,10 @@ C Passed variables:
 C Local variables:
 Cdelw1       integer i,j,i1,i2,i3,j1,j2,j3,k1,k2,k3,itet,mtet,ic,ii,ibtr(3,3),
 Cdelw1      .  kcut(3,4,6),imc(0:1,0:1,0:1),iq(4),iprint,awrite,i1mach,oiwk
-       integer:: i , j , i1 , i2 , i3 , j1 , j2 , j3 , k1 , k2 , k3 
+      integer:: i , j , i1 , i2 , i3 , j1 , j2 , j3 , k1 , k2 , k3 
      . , itet , mtet , ic , ii , ibtr(3,3) , kcut(3,4,6) , imc(0:1,0:1,0:1) 
-     . , iq(4) , iprint , awrite , i1mach 
-       integer ,allocatable :: iv_w_oiwk(:)
+     . , iq(4) , iprint , awrite , i1mach
+      integer ,allocatable :: iv_w_oiwk(:)
 
       double precision qb1(3,3)
       logical ipr
@@ -42,14 +42,14 @@ C Heap:
       ntet = 0
 C --- Start loop over microcells ----
       do  20  i3 = 1, n3
-        do  20  i2 = 1, n2
-        do  20  i1 = 1, n1
+      do  20  i2 = 1, n2
+      do  20  i1 = 1, n1
 C   ... Set up identifiers at 8 corners of microcell
         do  1  k1 = 0, 1
           j1 = mod(i1+k1-1,n1) + 1
-          do  1  k2 = 0, 1
+        do  1  k2 = 0, 1
           j2 = mod(i2+k2-1,n2) + 1
-          do  1  k3 = 0, 1
+        do  1  k3 = 0, 1
           j3 = mod(i3+k3-1,n3) + 1
           imc(k1,k2,k3) = ipq(j1,j2,j3)
     1   continue
@@ -85,16 +85,16 @@ C ... Sort it with fast ivheap unless there is not enough memory
       if (i .gt. mtet*5) then
         call ivheap(5,mtet,idtet,ipq,1)
 Cdelw1         call defi(oiwk,mtet*5)
-         allocate(iv_w_oiwk(mtet*5))
+        allocate(iv_w_oiwk(mtet*5))
 Ctakao_ZeroClear_NotRequiered          if (mtet*5<0) iv_w_oiwk(:)=0
 
 Cdelw1         call ivprm(5,mtet,idtet,w(oiwk),ipq,.true.)
-         call ivprm ( 5 , mtet , idtet , iv_w_oiwk , ipq , .true. ) 
+        call ivprm ( 5 , mtet , idtet , iv_w_oiwk , ipq , .true. )
 
-Cdelw1 rlse name= oiwk old_list= oiwk 
+Cdelw1 rlse name= oiwk old_list= oiwk
 Cdelw1 rlse name= oiwk new_list= (None)
 Cdelw1         call rlse(oiwk)
-         if (allocated(iv_w_oiwk)) deallocate(iv_w_oiwk)
+        if (allocated(iv_w_oiwk)) deallocate(iv_w_oiwk)
 
 *       call yprm('idtet',0,idtet,0,5,5,mtet)
       else

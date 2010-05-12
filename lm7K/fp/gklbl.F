@@ -2,8 +2,8 @@ Cgetarg...info...           structure ['gklbl', 'lat', 'slat']
 Cgetarg...info...           use_to_add ['gklbl', 'm_struc_def']
 #define F90 1
       subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,slat,gkl)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Bloch-sums of k,L-dependent gaussians
 C ----------------------------------------------------------------------
@@ -26,8 +26,8 @@ C     implicit none
 C ... Passed parameters
       integer k0,kmax,nlm
 Cgetarg       double precision e,rsm,slat(1),q(3),p(3),cy(1)
-       real(8):: e , rsm , q(3) , p(3) , cy(1) 
-       type(s_lat)::slat
+      real(8):: e , rsm , q(3) , p(3) , cy(1)
+      type(s_lat)::slat
 
       double complex gkl(0:k0,nlm)
 C ... Local parameters
@@ -47,30 +47,30 @@ Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: qlat(9) , real(8) :: slat%qlat 9
 Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
 Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat awald vol',slat,awald,vol,0,0,0)
-       
-       awald=slat%awald
-       vol=slat%vol
+
+      awald=slat%awald
+      vol=slat%vol
 
 Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
 Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
 Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
 Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
 Cgetarg       call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
-       
-       nkd=slat%nkd
-       nkq=slat%nkq
-       odlv=slat%odlv
-       oqlv=slat%oqlv
+
+      nkd=slat%nkd
+      nkq=slat%nkq
+      odlv=slat%odlv
+      oqlv=slat%oqlv
 
 
 C ... Shorten p, multiply by corresponding phase later
@@ -99,14 +99,15 @@ C     make the summation in reciprocal space, else in real space
       cfac = (0d0,1d0)*dexp(0.25d0*e*rsm*rsm)*phase
       ilm = 0
       do  28  l = 0, lmax
-      cfac = cfac*(0d0,-1d0)
+        cfac = cfac*(0d0,-1d0)
       do  28  m = 1, 2*l+1
-      ilm = ilm+1
+        ilm = ilm+1
       do  28  k = 0, kmax
-   28 gkl(k,ilm) = cfac*cy(ilm)*gkl(k,ilm)
+        gkl(k,ilm) = cfac*cy(ilm)*gkl(k,ilm)
+   28 continue
 
 Cgetarg       end
-       end subroutine gklbl 
+      end subroutine gklbl
 
 
       subroutine gklbld(p,rsm,q,kmax,nlm,k0,alat,dlv,nkd,wk,gkl)
@@ -146,7 +147,8 @@ C ... Local parameters
       lmax = ll(nlm)
       do  10  ilm = 1, nlm
       do  10  k = 0, kmax
-   10 gkl(k,ilm) = 0d0
+        gkl(k,ilm) = 0d0
+   10 continue
 
       do  20  ir = 1, nkd
         r(1) = alat*(p(1)-dlv(1,ir))
@@ -161,14 +163,16 @@ C ... Local parameters
         do  38  l = 0, lmax
           nm = 2*l+1
           do  39  m = 1, nm
-          ilm = ilm+1
-          do  40  k = 0, kmax
-   40     gkl(k,ilm) = gkl(k,ilm) + yl(ilm)*cfac*wk(k,l)
-   39   continue
-   38 cfac = cfac*(0d0,1d0)
+            ilm = ilm+1
+            do  40  k = 0, kmax
+              gkl(k,ilm) = gkl(k,ilm) + yl(ilm)*cfac*wk(k,l)
+   40       continue
+   39     continue
+          cfac = cfac*(0d0,1d0)
+   38   continue
    20 continue
 Cgetarg       end
-       end subroutine gklbld 
+      end subroutine gklbld
 
       subroutine gklblq(p,rsm,q,kmax,nlm,k0,alat,qlv,nkq,vol,gkl)
 
@@ -236,6 +240,6 @@ C ... Local parameters
       enddo
 
 Cgetarg       end
-       end subroutine gklblq 
+      end subroutine gklblq
 
 

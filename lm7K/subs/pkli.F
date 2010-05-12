@@ -28,11 +28,12 @@ C          sum1 = p00(k,l)*rmax**l
           rq = rmax**qq*rsm**2/2
           rv = rq/rmax**(l+3)
           do  30  m = 0, k
-          qq = qq+2
-          rq = rq*2*(rmax/rsm)**2
-          rv = rv*2*(rmax/rsm)**2
-          sumq = sumq + rq/qq*aklm(m,k,l)
-   30     sumv = sumv + rv*aklm(m,k,l)
+            qq = qq+2
+            rq = rq*2*(rmax/rsm)**2
+            rv = rv*2*(rmax/rsm)**2
+            sumq = sumq + rq/qq*aklm(m,k,l)
+            sumv = sumv + rv*aklm(m,k,l)
+   30     continue
           qmp(k,l,p) = sumq
           qval(k,l,p) = sumv
    20   continue
@@ -58,9 +59,10 @@ C --- Integrate the pkl pk'l product term by term ---
           sum = 0d0
           do  30  m1 = 0, k1
           do  30  m2 = 0, k2
-          qq = 2*(m1+m2+l)+p+3
-   30     sum = sum + (2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
+            qq = 2*(m1+m2+l)+p+3
+            sum = sum + (2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
      .      aklm(m1,k1,l)*aklm(m2,k2,l)
+   30     continue
           s(k1,k2,l,p) = sum
    20   continue
    10 continue
@@ -85,9 +87,10 @@ C --- Integrate -(-l(l+1)r**-2 pkl pk'l) r^2 ---
           sum = 0d0
           do  14  m1 = 0, k1
           do  14  m2 = 0, k2
-          qq = 2*(m1+m2+l)+1
-   14     sum = sum + l*(l+1)*(2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
+            qq = 2*(m1+m2+l)+1
+            sum = sum + l*(l+1)*(2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
      .      aklm(m1,k1,l)*aklm(m2,k2,l)
+   14     continue
           s(k1,k2,l) = sum
    12   continue
    10 continue
@@ -99,9 +102,10 @@ C --- Integrate pkl -1/r d^2(r*pk'l)/dr^2 r^2 ---
           sum = 0d0
           do  24  m1 = 0, k1
           do  24  m2 = 0, k2
-          qq = 2*(m1+m2+l)+1
-   24     sum = sum - (2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
+            qq = 2*(m1+m2+l)+1
+            sum = sum - (2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
      .      aklm(m1,k1,l)*aklm(m2,k2,l)*(2*m2+l+1)*(2*m2+l)
+   24     continue
           s(k1,k2,l) = s(k1,k2,l) + sum
    22   continue
    20 continue
@@ -134,9 +138,10 @@ C --- Integrate the pkl products term by term ---
           do  30  m1 = 0, k1
           do  30  m2 = 0, k2
           do  30  m3 = 0, k3
-          qq = 2*(m1+m2+m3)+l1+l2+l3+3
-   30     sum = sum + tar2**(m1+m2+m3)/qq*rmax**qq*
+            qq = 2*(m1+m2+m3)+l1+l2+l3+3
+            sum = sum + tar2**(m1+m2+m3)/qq*rmax**qq*
      .      aklm(m1,k1,l1)*aklm(m2,k2,l2)*aklm(m3,k3,l3)
+   30     continue
           s(k1,k2,k3,l1,l2,l3) = sum
    20   continue
    10 continue
@@ -163,9 +168,10 @@ C --- Integrate the pkl pk'l product term by term ---
           do  30  m1 = 0, k1
           do  30  m2 = 0, k2
           do  30  m3 = 0, k3
-          qq = 2*(m1+m2+m3+l)+3
-   30     sum = sum + (2d0/rsm**2)**(m1+m2+m3)/qq*rmax**qq*
+            qq = 2*(m1+m2+m3+l)+3
+            sum = sum + (2d0/rsm**2)**(m1+m2+m3)/qq*rmax**qq*
      .      aklm(m1,k1,l)*aklm(m2,k2,l)*aklm(m3,k3,0)
+   30     continue
           s(k1,k2,k3,l) = sum
    20   continue
    10 continue
@@ -196,9 +202,10 @@ C --- Integrate the pkl pk'l product term by term ---
           do  30  m1 = 0, k1
           do  30  m2 = 0, k2
           do  30  m3 = 0, k3
-          qq = 2*(m1+m2+m3+l)+3
-   30      sum = sum + (2d0/rsm**2)**(m1+m2)*(2d0/rsm3**2)**m3
+            qq = 2*(m1+m2+m3+l)+3
+            sum = sum + (2d0/rsm**2)**(m1+m2)*(2d0/rsm3**2)**m3
      .       /qq*rmax**qq*aklm(m1,k1,l)*aklm(m2,k2,l)*aklm3(m3,k3,0)
+   30     continue
           s(k1,k2,k3,l) = sum
    20   continue
    10 continue
@@ -241,21 +248,23 @@ C     implicit none
 
 C --- do explicitly for k=0,1 ---
       do  1  l = 0, lmax
-    1 aklm(0,0,l) = a**l
+        aklm(0,0,l) = a**l
+    1 continue
       if (kmax .eq. 0) return
       do  10  l = 0, lmax
-      aklm(0,1,l) = -a**l
-   10 aklm(1,1,l) = a**l/(2*l+3)
+        aklm(0,1,l) = -a**l
+        aklm(1,1,l) = a**l/(2*l+3)
+   10 continue
 
 C --- do by recursion for higher k ---
       do  20  l = 0, lmax
       do  20  k = 2, kmax
-      tk2lp1 = 2*k+2*l+1
-      do  24  m = 0, k-1
-      aklm(m,k,l) = aklm(m,k,l) - 2*(k-1)*aklm(m,k-2,l)/tk2lp1
-      aklm(m,k,l) = aklm(m,k,l) - (4*k+2*l-1)*aklm(m,k-1,l)/tk2lp1
-      aklm(m+1,k,l) = aklm(m+1,k,l) + aklm(m,k-1,l)/tk2lp1
-   24 continue
+        tk2lp1 = 2*k+2*l+1
+        do  24  m = 0, k-1
+          aklm(m,k,l) = aklm(m,k,l) - 2*(k-1)*aklm(m,k-2,l)/tk2lp1
+          aklm(m,k,l) = aklm(m,k,l) - (4*k+2*l-1)*aklm(m,k-1,l)/tk2lp1
+          aklm(m+1,k,l) = aklm(m+1,k,l) + aklm(m,k-1,l)/tk2lp1
+   24   continue
    20 continue
 
 C      do  30  l = 0, lmax
@@ -279,21 +288,23 @@ C     implicit none
 
 C --- do explicitly for k=0,1 ---
       do  1  l = 0, lmax
-    1 aklm(0,0,l) = ta2**l
+        aklm(0,0,l) = ta2**l
+    1 continue
       if (kmax .eq. 0) return
       do  10  l = 0, lmax
-      aklm(0,1,l) = -ta2**(l+1)*(2*l+3)
-   10 aklm(1,1,l) = ta2**(l+1)
+        aklm(0,1,l) = -ta2**(l+1)*(2*l+3)
+        aklm(1,1,l) = ta2**(l+1)
+   10 continue
 
 C --- do by recursion for higher k ---
       do  20  l = 0, lmax
       do  20  k = 2, kmax
-      tk2lm1 = 2*k+2*l-1
-      do  24  m = 0, k-1
-      aklm(m,k,l) = aklm(m,k,l) - 2*ta2**2*(k-1)*tk2lm1*aklm(m,k-2,l)
-      aklm(m,k,l) = aklm(m,k,l) - ta2*(4*k+2*l-1)*aklm(m,k-1,l)
-      aklm(m+1,k,l) = aklm(m+1,k,l) + ta2*aklm(m,k-1,l)
-   24 continue
+        tk2lm1 = 2*k+2*l-1
+        do  24  m = 0, k-1
+          aklm(m,k,l) = aklm(m,k,l) - 2*ta2**2*(k-1)*tk2lm1*aklm(m,k-2,l)
+          aklm(m,k,l) = aklm(m,k,l) - ta2*(4*k+2*l-1)*aklm(m,k-1,l)
+          aklm(m+1,k,l) = aklm(m+1,k,l) + ta2*aklm(m,k-1,l)
+   24   continue
    20 continue
 
       end
@@ -321,26 +332,28 @@ C --- Make f(m) = int r^(2m) exp(-a^2r^2) ---
       f(0) = srpi/(2*a)
       if (lmax+2*mmax+1 .gt. 200) call rx('p2pkl: f too small')
       do  5  m = 1, (lmax+2*mmax+1)
-    5 f(m) = (2*m-1)*f(m-1)/ta2
+        f(m) = (2*m-1)*f(m-1)/ta2
+    5 continue
 
 C --- Integrate r^(2m+l) Y_L phi_kl r^l Y_L g0 term by term ---
 C     and fold in scaling to make pkl expansion
       do  10  m = 0, mmax
-      dfac = 1d0
-      do  12  l = 0, lmax
-      fack = 1d0
-      do  20  k = 0, m
-        fac = (a**2/pi)**1.5d0/ta2
-        sum = 0
-        do  31  p = 0, k
-        fac = fac*ta2
-   31   sum = sum + fac*aklm(p,k,l)*f(l+m+p+1)
-        fac = (4*a*a)**k * a**l * fack * dfac
-        cmkl(m,k,l) = sum*(fpi/fac)
-        fack = fack*(k+1)
-   20 continue
-      dfac = dfac*(2*l+3)
-   12 continue
+        dfac = 1d0
+        do  12  l = 0, lmax
+          fack = 1d0
+          do  20  k = 0, m
+            fac = (a**2/pi)**1.5d0/ta2
+            sum = 0
+            do  31  p = 0, k
+              fac = fac*ta2
+              sum = sum + fac*aklm(p,k,l)*f(l+m+p+1)
+   31       continue
+            fac = (4*a*a)**k * a**l * fack * dfac
+            cmkl(m,k,l) = sum*(fpi/fac)
+            fack = fack*(k+1)
+   20     continue
+          dfac = dfac*(2*l+3)
+   12   continue
    10 continue
 
 C      do  30  l = 0, lmax

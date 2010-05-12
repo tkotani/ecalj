@@ -166,8 +166,9 @@ C  ...  initialization for gradzr call
         call defrr(og,n)
         ir = 0
         do  20  i = 1, nlst
-        j = ilst(i)
-   20   call dpscop(w(opos),w(op),3,3*j-2,3*i-2,1d0)
+          j = ilst(i)
+          call dpscop(w(opos),w(op),3,3*j-2,3*i-2,1d0)
+   20   continue
         xx = ovcall(n,0d0,w(op),ir)
         call pshpr(ipr-5)
    22   call gradzr(n,w(op),w,dxmn,dxmx,xtol,gtol,1.0d0,wk,isw,ir)
@@ -177,8 +178,9 @@ C  ...  initialization for gradzr call
 
 C ...   Update positions
         do  30  i = 1, nlst
-        j = ilst(i)
-   30   call dpscop(w(op),pos,3,3*i-2,3*j-2,1d0)
+          j = ilst(i)
+          call dpscop(w(op),pos,3,3*i-2,3*j-2,1d0)
+   30   continue
 
 C --- Print out updated positions and overlaps ---
         print '(/'' OVMIN:  updated site positions:'')'
@@ -194,7 +196,7 @@ C --- Print out updated positions and overlaps ---
       endif
 
 Cgetarg       end
-       end subroutine ovmin 
+      end subroutine ovmin
 
       double precision function ovcall(n,x,p,ir)
 
@@ -229,8 +231,9 @@ C ... Save pos, other initialization
       call pshpr(0)
 
       do  12  i = 1, nlst
-      j = ilst(i)
-   12 call dpscop(p,w(opos),3,3*i-2,3*j-2,1d0)
+        j = ilst(i)
+        call dpscop(p,w(opos),3,3*i-2,3*j-2,1d0)
+   12 continue
 
       call ovlchk(nbaso,nbaspo,w(opos),alato,w(ormax),0d0,0d0,
      .  w(oips),modeo,plato,fovl,xx)
@@ -251,8 +254,8 @@ C     .    alato,w(ormax),w(oz),6d0,1d0,.75d0,.5d0,xx,fovl,novl)
 
 C ... Gradient of fovl wrt pos
       do  20  i = 1, nlst
-      j = ilst(i)
-      call fovlp(j,j,w(ontabo),w(oiaxo),plato,w(opos),w(oips),
+        j = ilst(i)
+        call fovlp(j,j,w(ontabo),w(oiaxo),plato,w(opos),w(oips),
      .    alato,w(ormax),w(oz),6d0,1d0,.75d0,.5d0,xx,fov0,novl0)
       do  20  ix = 1, 3
         val = p(3*i-3+ix)
@@ -297,6 +300,6 @@ C ... restore pos
       call poppr
 
 Cgetarg       end
-       end function ovcall 
+      end function ovcall
 
 

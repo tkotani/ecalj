@@ -55,7 +55,7 @@ C   ... Make hankels for l=0 and k=0..kmax
         ktop = l2+kmax
         if(ktop .gt. ktop0) call rxi('ghios: increase ktop0, need',ktop)
         call hklos(rsmx,e,ktop,h0k)
-  
+
 C   ... Evaluate what is left of Clebsch-Gordan sum
         fac = y0*dexp(gamg*(eg-e))
         do  ilm = ilm1, ilm2

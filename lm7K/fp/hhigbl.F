@@ -47,9 +47,9 @@ C ... Passed parameters
       integer mode,jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2,k0
 Cgetarg       double precision p1(3),p2(3),q(3),cg(1),cy(1),slat(1),
 Cgetarg      .  rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*)
-       real(8):: p1(3) , p2(3) , q(3) , cg(1) , cy(1) , rsm1(0:*) , 
-     . rsm2(0:*) , e1(0:*) , e2(0:*) 
-       type(s_lat)::slat
+      real(8):: p1(3) , p2(3) , q(3) , cg(1) , cy(1) , rsm1(0:*) , 
+     . rsm2(0:*) , e1(0:*) , e2(0:*)
+      type(s_lat)::slat
 
       double complex s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
 C ... Local parameters
@@ -59,17 +59,19 @@ C ... Local parameters
       if (nlm1 .eq. 0 .or. nlm2 .eq. 0) return
 
       do  1  m = 1, 3
-    1 dr(m) = p1(m)-p2(m)
+        dr(m) = p1(m)-p2(m)
+    1 continue
       lmx1 = ll(nlm1)
       lmx2 = ll(nlm2)
 
       do  3  k = 0, kmax
       do  3  jlm = 1, nlm2
       do  3  ilm = 1, nlm1
-      s(ilm,jlm,k)    = dcmplx(0d0,0d0)
-      ds(ilm,jlm,k,1) = dcmplx(0d0,0d0)
-      ds(ilm,jlm,k,2) = dcmplx(0d0,0d0)
-    3 ds(ilm,jlm,k,3) = dcmplx(0d0,0d0)
+        s(ilm,jlm,k)    = dcmplx(0d0,0d0)
+        ds(ilm,jlm,k,1) = dcmplx(0d0,0d0)
+        ds(ilm,jlm,k,2) = dcmplx(0d0,0d0)
+        ds(ilm,jlm,k,3) = dcmplx(0d0,0d0)
+    3 continue
 
       l1t = -1
       do  20  l1 = 0, lmx1
@@ -101,12 +103,12 @@ C         l2t = l2
    22   continue
    20 continue
 Cgetarg       end
-       end subroutine hhigbl 
+      end subroutine hhigbl
 
       subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,
      .  kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy,slat,s,ds)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Integrals between smooth hankels with k-th power of Laplace operator
 C ----------------------------------------------------------------------
@@ -144,8 +146,8 @@ C     implicit none
 C ... Passed parameters
       integer jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2,k0,mlm1,mlm2
 Cgetarg       double precision q(3),cg(1),cy(1),slat(1),dr(3),rsm1,rsm2,e1,e2
-       real(8):: q(3) , cg(1) , cy(1) , dr(3) , rsm1 , rsm2 , e1 , e2 
-       type(s_lat)::slat
+      real(8):: q(3) , cg(1) , cy(1) , dr(3) , rsm1 , rsm2 , e1 , e2
+      type(s_lat)::slat
 
       double complex s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
 C ... Local parameters
@@ -159,7 +161,7 @@ C ... Local parameters
      .  ghkl(0:ktop0,nlm0,3),hsm(nlm0),hsmp(nlm0)
 
 Cgetarg       vol = dgets('lat vol',slat)
-       vol = slat%vol 
+      vol = slat%vol
 
       fpi = 16d0*datan(1.d0)
       gam1 = 0.25d0*rsm1*rsm1
@@ -232,23 +234,24 @@ C ... Make gradients using CGs for p functions
 
 C ... Combine with Clebsch-Gordan coefficients
       do  11  ilm1 = mlm1, nlm1
-      l1 = ll(ilm1)
+        l1 = ll(ilm1)
       do  11  ilm2 = mlm2, nlm2
-      l2 = ll(ilm2)
-      ii = max0(ilm1,ilm2)
-      indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
-      icg1 = indxcg(indx)
-      icg2 = indxcg(indx+1)-1
+        l2 = ll(ilm2)
+        ii = max0(ilm1,ilm2)
+        indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
+        icg1 = indxcg(indx)
+        icg2 = indxcg(indx+1)-1
       do  11  icg = icg1, icg2
-      ilm = jcg(icg)
-      lm = ll(ilm)
-      k = (l1+l2-lm)/2
-      fac = fpi*(-1d0)**l1*cg(icg)
-      do  12  ip = 0, kmax
-      s(ilm1,ilm2,ip) = s(ilm1,ilm2,ip) + fac*hkl1(k+ip,ilm)
-      ds(ilm1,ilm2,ip,1) = ds(ilm1,ilm2,ip,1) + fac*ghkl(k+ip,ilm,1)
-      ds(ilm1,ilm2,ip,2) = ds(ilm1,ilm2,ip,2) + fac*ghkl(k+ip,ilm,2)
-  12  ds(ilm1,ilm2,ip,3) = ds(ilm1,ilm2,ip,3) + fac*ghkl(k+ip,ilm,3)
+        ilm = jcg(icg)
+        lm = ll(ilm)
+        k = (l1+l2-lm)/2
+        fac = fpi*(-1d0)**l1*cg(icg)
+        do  12  ip = 0, kmax
+          s(ilm1,ilm2,ip) = s(ilm1,ilm2,ip) + fac*hkl1(k+ip,ilm)
+          ds(ilm1,ilm2,ip,1) = ds(ilm1,ilm2,ip,1) + fac*ghkl(k+ip,ilm,1)
+          ds(ilm1,ilm2,ip,2) = ds(ilm1,ilm2,ip,2) + fac*ghkl(k+ip,ilm,2)
+          ds(ilm1,ilm2,ip,3) = ds(ilm1,ilm2,ip,3) + fac*ghkl(k+ip,ilm,3)
+   12   continue
   11  continue
 
 C ... Extra term when e1 or e2 is zero (but not both)
@@ -260,6 +263,6 @@ C ... Extra term when e1 or e2 is zero (but not both)
       endif
 
 Cgetarg       end
-       end subroutine phhigb 
+      end subroutine phhigb
 
 

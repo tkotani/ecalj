@@ -2,7 +2,7 @@
 C- Smoothed hankel functions for l=0...lmax, negative e.
 C ---------------------------------------------------------------
 Co  Outputs: xi(0:lmax)
-Co   
+Co
 Cr  xi is the radial part divided by r**l.
 Cr  A solid smoothed hankel is from xi as:
 Cr  hl(ilm) = xi(l)*cy(ilm)*yl(ilm)
@@ -42,8 +42,9 @@ C  --- call bessl if exp(-a*a*r*r) is very small ---
         call bessl(e*r*r,lmax,a0,xi)
         rfac = r
         do  28  l = 0, lmax
-        rfac = rfac*(1d0/(r*r))
-   28   xi(l) = rfac*xi(l)
+          rfac = rfac*(1d0/(r*r))
+          xi(l) = rfac*xi(l)
+   28   continue
         return
       endif
 
@@ -54,10 +55,11 @@ C --- Power series for small r ---
       fac = 1d0
       al = a0(0)
       do  10  l = 1, lmax
-      al = -(e*al+rhs)/(2*l*(2*l+1))
-      rhs = -rhs*a2/l
-      fac = -2d0*fac*l
-   10 a0(l) = fac*al
+        al = -(e*al+rhs)/(2*l*(2*l+1))
+        rhs = -rhs*a2/l
+        fac = -2d0*fac*l
+        a0(l) = fac*al
+   10 continue
       ta2l = 1d0
       do  20  l = 0, lmax
         rhs = cc*ta2l

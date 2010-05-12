@@ -2,7 +2,7 @@
 C- Pack words=packingw into sstrn. Use upacks to take out the words below.
 Ci snamein: sname defined in sstrn_sname.
 Ci sstrn: long string. sstrings.
-Ci packingw 
+Ci packingw
       use m_sstrnsname
       character*(*):: snamein,sstrn,packingw
       integer:: i,lll
@@ -11,7 +11,7 @@ Ci packingw
         initialized=1
       endif
       do i=1,nsname
-        lll=len_trim(packingw) 
+        lll=len_trim(packingw)
         if(lll>nx) then
           call rxs('packs: too large packing word.'//
      &              'Need to modify code',packingw)
@@ -25,7 +25,7 @@ Ci packingw
       call rxs('packs: no sname is found in sstrn_sname. '//
      &          'bug or need to modify codes',snamein)
       end
-      
+
       subroutine upacks(snamein,init_,iend_)
 C- Return init and iend for sstring(init:iend) for given snamein. Corresponds to packs.
 Ci snamein

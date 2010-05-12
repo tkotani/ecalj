@@ -9,11 +9,11 @@ Ci   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
 Ci         :a(i) is coefficient for species i
 Ci   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
 Ci         :b(i) is coefficient for species i
-Ci   rho   :spherical density for each species 
+Ci   rho   :spherical density for each species
 Ci   nttab :total number of pairs in neighbor and iax (pairc.f)
 Ci   iax   :neighbor table containing pair information connecting
 Ci         :site i to its neighbors
-Ci   rpos  :positions of neighbors.  
+Ci   rpos  :positions of neighbors.
 Ci         :rp and rpos must be defined with respect to same origin.
 Co Outputs
 Co   rosum :sum of densities at each of np points
@@ -82,7 +82,7 @@ C           Interpolate function value by polynomial
 C       Verbose debugging printout
 C       print 333, k, iax(2,k), js, ip, dx, d, y, rosum(ip)
 C 333   format(4i4,6f8.3)
-      enddo
+        enddo
 C     Debugging printout
 C     print 334, ip, rosum(ip)
 C  334 format(i4,f12.6)

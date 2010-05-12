@@ -8,8 +8,8 @@ Cgetarg...info...           use_to_add ['locpot', 'm_struc_def']
      .  cpnvsa,rhoexc,rhoex,rhoec,rhovxc,rvepsv,rvexv,rvecv,rvvxcv,
      .  rveps,rvvxc,valvef,xcore,focexc,focex,focec,focvxc,sqloc,sqlocc,
      .  saloc,qval,qsc,job,rhobg,nlibu,lmaxu,vorb,lldau)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
@@ -129,10 +129,10 @@ C ... Passed parameters
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       parameter (n0=10,nppn=12,nab=9)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),qmom(1),vval(1)
-       real(8):: qmom(1) , vval(1) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: qmom(1) , vval(1)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double precision cpnvsa,rhoexc(2),rhoex(2),rhoec(2),rhovxc(2),
      .  focexc(2),focex(2),focec(2),focvxc(2),qval,sqloc,sqlocc,saloc,
@@ -250,41 +250,41 @@ Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
 Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
 Cgetarg...info...           integer :: ov01 , integer(8) :: ssite%ov1 1
 Cgetarg         call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov01)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pnu) 
-         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
-         ov0=ssite(ib)%ov0
-         ov01=ssite(ib)%ov1
+
+        is=ssite(ib)%spec
+        i_copy_size=size(ssite(ib)%pnu)
+        call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
+        ov0=ssite(ib)%ov0
+        ov01=ssite(ib)%ov1
 
 Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
 Cgetarg         call upack2('site pz',ssite,ib,pnz)
-         
-         i_copy_size=size(ssite(ib)%pz) 
-         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+
+        i_copy_size=size(ssite(ib)%pz)
+        call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
 
 Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
 Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
 Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
 Cgetarg         call upack('spec z qc rg',sspec,is,z,qc,rg,0)
-         
-         z=sspec(is)%z
-         qc=sspec(is)%qc
-         rg=sspec(is)%rg
+
+        z=sspec(is)%z
+        qc=sspec(is)%qc
+        rg=sspec(is)%rg
 
 Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
-         do i_spacks=is,is 
-         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-         enddo
+        do i_spacks=is,is
+          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+        enddo
 
 Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-         
-         a=sspec(is)%a
-         nr=sspec(is)%nr
-         rmt=sspec(is)%rmt
+
+        a=sspec(is)%a
+        nr=sspec(is)%nr
+        rmt=sspec(is)%rmt
 
 Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
@@ -292,27 +292,27 @@ Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
 Cgetarg         call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
 Cgetarg      .    lmxb)
-         
-         rsma=sspec(is)%rsma
-         lmxa=sspec(is)%lmxa
-         lmxl=sspec(is)%lmxl
-         lmxb=sspec(is)%lmxb
+
+        rsma=sspec(is)%rsma
+        lmxa=sspec(is)%lmxa
+        lmxl=sspec(is)%lmxl
+        lmxb=sspec(is)%lmxb
 
         zz(ib)=z
         if (lmxa .eq. -1) goto 10
 
 Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
 Cgetarg         call upack('spec idu',sspec,is,idu,0,0,0)
-         
-         i_copy_size=size(sspec(is)%idu) 
-         call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+
+        i_copy_size=size(sspec(is)%idu)
+        call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)
 
 Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg...info...           integer :: i , integer(8) :: sspec%mxcst 1
 Cgetarg         call upack('spec kmxt mxcst',sspec,is,kmax,i,0,0)
-         
-         kmax=sspec(is)%kmxt
-         i=sspec(is)%mxcst
+
+        kmax=sspec(is)%kmxt
+        i=sspec(is)%mxcst
 
 C       Float wave functions if:
 C         100's digit job > 0 set   OR:
@@ -324,9 +324,9 @@ cccccccccccccc
 cccccccccccccc
         call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
 Cgetarg         call spacks(0,'spec coreh',sspec,chole,is,is)
-         do i_spacks=is,is 
-         call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
-         enddo
+        do i_spacks=is,is
+          call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
+        enddo
 
         call gtpcor(sspec,is,kcor,lcor,qcor)
         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv,qsc0)
@@ -344,15 +344,15 @@ Cgetarg         call spacks(0,'spec coreh',sspec,chole,is,is)
         nrml = nr*nlml
 C$      j1 = iiv0(ib)+1
         if (ipr .ge. 20) then
-           write(stdo,200) ib,z,rmt,nr,a,nlml,rg,lfltwf
-  200      format(/' site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,
+          write(stdo,200) ib,z,rmt,nr,a,nlml,rg,lfltwf
+  200     format(/' site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,
      .       '   a=',f5.3,'  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)
-           if (kcor .ne. 0) then
-           if (qcor(1) .ne. 0 .or. qcor(2) .ne. 0) then
-             call info5(30,0,0,' core hole:  kcor=%i  lcor=%i'//
+          if (kcor .ne. 0) then
+            if (qcor(1) .ne. 0 .or. qcor(2) .ne. 0) then
+              call info5(30,0,0,' core hole:  kcor=%i  lcor=%i'//
      .         '  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
-           endif
-           endif
+            endif
+          endif
         endif
         call rxx(nr .gt. nrmx,  'locpot: increase nrmx')
         call rxx(nlml .gt. nlmx,'locpot: increase nlmx')
@@ -459,10 +459,10 @@ Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
 Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
 Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
 Cgetarg           call upack('lat ocg ojcg oidxcg',slat,ocg,ojcg,oidxcg,0,0)
-           
-           ocg=slat%ocg
-           ojcg=slat%ojcg
-           oidxcg=slat%oidxcg
+
+          ocg=slat%ocg
+          ojcg=slat%ojcg
+          oidxcg=slat%oidxcg
 
           call augmat(z,rmt,rsma,lmxa,pnu,pnz,kmax,nlml,a,nr,nsp,lso,
      .      rofi,rwgt,w(ocg),w(ojcg),w(oidxcg),w(ov0),v1,v2,gpotb,
@@ -487,7 +487,7 @@ C     Electric field gradient
       call tcx('locpot')
 
 Cgetarg       end
-       end subroutine locpot 
+      end subroutine locpot
 
 
       subroutine locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc,
@@ -583,7 +583,7 @@ Co         :v1(nr,1,1)-2*z/y0/rmt = v2(nr,1,1)
 Co         :See Remarks concerning boundary condition at rmt
 Co  efg    :l=2 potential at nucleus
 Cl Local variables
-Cl   rhol1 :full electron density, rho1 + rhoc 
+Cl   rhol1 :full electron density, rho1 + rhoc
 Cl   rhol2 :full smooth compensated density rho2 + gval + gcor + gnuc
 Cl   rhochs:Part of smooth core density contains Hankel tails
 Cl         :Used to make vxc[n2] and exc[n2]
@@ -748,8 +748,8 @@ C ... Combine separate spin densities for electrostatics
 
 C ... Add background density to spherical rhol1 and rhol2
       do i = 1, nr
-         rhol1(i,1,1) = rhol1(i,1,1) + srfpi*rhobg*rofi(i)**2
-         rhol2(i,1,1) = rhol2(i,1,1) + srfpi*rhobg*rofi(i)**2
+        rhol1(i,1,1) = rhol1(i,1,1) + srfpi*rhobg*rofi(i)**2
+        rhol2(i,1,1) = rhol2(i,1,1) + srfpi*rhobg*rofi(i)**2
       enddo
 
 C ... Sphere charges; also check sphere neutrality for safety
@@ -761,7 +761,7 @@ C ... Sphere charges; also check sphere neutrality for safety
       qcor2 =       ddot(nr,rwgt,1,rhocsm,1)
       qlocc = qcor1-qcor2
       if (nsp .eq. 2) then
-      alocc =        ddot(nr,rwgt,1,rhoc(1,2),1)
+        alocc =        ddot(nr,rwgt,1,rhoc(1,2),1)
       endif
       qloc  = qv1-qv2
       sum1  = srfpi*ddot(nr,rwgt,1,rhol1,1) - z
@@ -779,13 +779,13 @@ C     v1 = Ves[rho1]: true ES pot without nuclear contribution
       call poinsp(z,vval,nlml,a,b,v1,rofi,rhol1,wk,nr,rvs1,rhves1,
      .  vnucl,vsum)
       if (nlml.ge.9.and.z.gt.0.01) then
-         do ilm=5,9
-            efg(ilm-4)=v1(5,ilm,1)/rofi(5)**2
-         enddo
+        do ilm=5,9
+          efg(ilm-4)=v1(5,ilm,1)/rofi(5)**2
+        enddo
       else
-         do ilm=1,5
-            efg(ilm)=0.d0
-         enddo
+        do ilm=1,5
+          efg(ilm)=0.d0
+        enddo
       endif
 C     v2 = Ves[rhol2 = rho2+gval+gcor+gnuc] ---
       call poinsp(0d0,vval,nlml,a,b,v2,rofi,rhol2,wk,nr,rvs2,rhves2,
@@ -835,8 +835,8 @@ C ... Core plus nucleus times estatic potential
 
 C ... Subtract background before doing exchange correlation
       do i=1,nr
-         rhol1(i,1,1)=rhol1(i,1,1)-srfpi*rhobg*rofi(i)**2
-         rhol2(i,1,1)=rhol2(i,1,1)-srfpi*rhobg*rofi(i)**2
+        rhol1(i,1,1)=rhol1(i,1,1)-srfpi*rhobg*rofi(i)**2
+        rhol2(i,1,1)=rhol2(i,1,1)-srfpi*rhobg*rofi(i)**2
       enddo
 
 C ... Restore separate spin densities; copy estat pot to spin2
@@ -875,14 +875,14 @@ C --- Add xc potentials to v1 and v2 ---
       call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,
      .            0,0,0,0,0,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
       if (isw .eq. 1) then
-       call dpzero(tmp,2)
-       call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho1,fl,xi,tmp)
-       rvvxc = tmp(1) + tmp(2)
-       do  isp = 1, nsp
-         call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho1(1,1,isp),
+        call dpzero(tmp,2)
+        call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho1,fl,xi,tmp)
+        rvvxc = tmp(1) + tmp(2)
+        do  isp = 1, nsp
+          call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho1(1,1,isp),
      .     fl(1,1,3),xi,tmp(isp))
-       enddo
-       rveps = tmp(1) + tmp(2)
+        enddo
+        rveps = tmp(1) + tmp(2)
       endif
 
 C     call prrmsh('v1',rofi,v1,nr,nr,nlml)
@@ -892,15 +892,15 @@ C     If no core treatment v2 += vxc(rho2)
      .              0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
 C     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
       else if (lfoc .eq. 1) then
-       if (ipr .gt. 40) print *, 'exchange for smooth density, foca=1:'
-       do  isp = 1, nsp
-         call dpadd(rho2(1,1,isp),rhochs,1,nr,y0/nsp)
-       enddo
-       call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
+        if (ipr .gt. 40) print *, 'exchange for smooth density, foca=1:'
+        do  isp = 1, nsp
+          call dpadd(rho2(1,1,isp),rhochs,1,nr,y0/nsp)
+        enddo
+        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
      .             0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
-       do  isp = 1, nsp
-         call dpadd(rho2(1,1,isp),rhochs,1,nr,-y0/nsp)
-       enddo
+        do  isp = 1, nsp
+          call dpadd(rho2(1,1,isp),rhochs,1,nr,-y0/nsp)
+        enddo
 C     v2 += vxc(rho2) + dv; focvxc= int (rho2*dv); dv=dvxc/drho * rhochs
       else if (lfoc .eq. 2) then
         if (ipr .gt. 40) print *, 'exchange for smooth density, foca=2:'
@@ -918,13 +918,13 @@ C     v2 += vxc(rho2) + dv; focvxc= int (rho2*dv); dv=dvxc/drho * rhochs
       endif
 
       if (isw .eq. 1) then
-       call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho2,fl,xi,tmp)
-       rvvxc = rvvxc - (tmp(1) + tmp(2))
-       do  isp = 1, nsp
-         call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho2(1,1,isp),
+        call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho2,fl,xi,tmp)
+        rvvxc = rvvxc - (tmp(1) + tmp(2))
+        do  isp = 1, nsp
+          call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho2(1,1,isp),
      .     fl(1,1,3),xi,tmp(isp))
-       enddo
-       rveps = rveps - (tmp(1) + tmp(2))
+        enddo
+        rveps = rveps - (tmp(1) + tmp(2))
       endif
 
       call poppr
@@ -934,10 +934,10 @@ C     call prrmsh('v2',rofi,v2,nr,nr,nlml)
 C --- Integrals over core times effective potential ---
       vefc1 = 0d0
       do  isp = 1, nsp
-      do  i = 2, nr
-        ves1 = y0*v1(i,1,isp) - 2*z/rofi(i)
-        vefc1 = vefc1 + rwgt(i)*rhoc(i,isp)*ves1
-      enddo
+        do  i = 2, nr
+          ves1 = y0*v1(i,1,isp) - 2*z/rofi(i)
+          vefc1 = vefc1 + rwgt(i)*rhoc(i,isp)*ves1
+        enddo
       enddo
 
 C --- Integrals involving the full nonspherical potential ---
@@ -947,16 +947,16 @@ C --- Integrals involving the full nonspherical potential ---
       if (ipr .ge. 40 .and. nsp .eq. 2) write(stdo,353)
       do  ilm = 1, nlml
         do  isp = 1, nsp
-        rvtr(isp) = 0d0
-        rvsm(isp) = 0d0
-        do  i = 2, nr
-          vtr = v1(i,ilm,isp)
-          if (ilm .eq. 1) vtr = vtr - srfpi*2*z/rofi(i)
-          rvtr(isp) = rvtr(isp) + rwgt(i)*rho1(i,ilm,isp)*vtr
-          rvsm(isp) = rvsm(isp) + rwgt(i)*rho2(i,ilm,isp)*v2(i,ilm,isp)
-        enddo
-        vefv1 = vefv1 + rvtr(isp)
-        vefv2 = vefv2 + rvsm(isp)
+          rvtr(isp) = 0d0
+          rvsm(isp) = 0d0
+          do  i = 2, nr
+            vtr = v1(i,ilm,isp)
+            if (ilm .eq. 1) vtr = vtr - srfpi*2*z/rofi(i)
+            rvtr(isp) = rvtr(isp) + rwgt(i)*rho1(i,ilm,isp)*vtr
+            rvsm(isp) = rvsm(isp) + rwgt(i)*rho2(i,ilm,isp)*v2(i,ilm,isp)
+          enddo
+          vefv1 = vefv1 + rvtr(isp)
+          vefv2 = vefv2 + rvsm(isp)
         enddo
         top = dmax1(dabs(rvsm(1)),dabs(rvtr(1)))
         if (ipr.ge.40 .and. top.ge.1d-6 .and. nsp .eq. 1)
@@ -1015,7 +1015,7 @@ C --- Charges, printout ---
 
       call tcx('locpt2')
 Cgetarg       end
-       end subroutine locpt2 
+      end subroutine locpt2
 
 
       subroutine elfigr(nc,stdo,z,efg1)
@@ -1058,110 +1058,110 @@ C     remember sign:
 
 C      if (iprint() .lt. 30) return
       do  i = 1, 1
-      ifi = stdo
-      if(i .eq. 2) ifi=71
-      write(ifi,'(/," Electric Field Gradient:")')
-      write(ifi,'(" Site ",5x,"Tensor axes",5x,"esu/cm^2",2x,
+        ifi = stdo
+        if(i .eq. 2) ifi=71
+        write(ifi,'(/," Electric Field Gradient:")')
+        write(ifi,'(" Site ",5x,"Tensor axes",5x,"esu/cm^2",2x,
      .          "  V/m^2  ",4x,"eta",4x,"line splitting")')
-      write(ifi,'("      ",5x,"           ",5x," x10^13 ",2x,
+        write(ifi,'("      ",5x,"           ",5x," x10^13 ",2x,
      .          "  x10^19 ",4x,"   ",4x,"    (mm/s)")')
       enddo
 
       do  ic = 1, nc
 c      write(ifi,*) ' ic,z=',ic,z(ic)
-      if (z(ic) .gt. 0.01d0) then
-      ifesn = 1
-      if (dabs(z(ic)-26d0) .lt. 0.01d0) then
-        conv3 = conv2*1.0d19*0.5d0*Qfe/emmsfe
-      else if (dabs(z(ic)-50d0) .lt. 0.01d0) then
-        conv3 = conv2*1.0d19*0.5d0*Qsn/emmssn
-      else
-        ifesn = 0
-        conv3 = 0d0
-      endif
+        if (z(ic) .gt. 0.01d0) then
+          ifesn = 1
+          if (dabs(z(ic)-26d0) .lt. 0.01d0) then
+            conv3 = conv2*1.0d19*0.5d0*Qfe/emmsfe
+          else if (dabs(z(ic)-50d0) .lt. 0.01d0) then
+            conv3 = conv2*1.0d19*0.5d0*Qsn/emmssn
+          else
+            ifesn = 0
+            conv3 = 0d0
+          endif
 
 C      ax=efg1(1,ic)+efg2(1,ic)
 C      bx=efg1(2,ic)+efg2(2,ic)
 C      cx=efg1(3,ic)+efg2(3,ic)
 C      dx=efg1(4,ic)+efg2(4,ic)
 C      ex=efg1(5,ic)+efg2(5,ic)
-      ax = efg1(1,ic)
-      bx = efg1(2,ic)
-      cx = efg1(3,ic)
-      dx = efg1(4,ic)
-      ex = efg1(5,ic)
-      v(1,1) = 2*ex-2/s3*cx
-      v(2,2) = -2*ex-2/s3*cx
-      v(3,3) = 4/s3*cx
-      v(1,2) = 2*ax
-      v(1,3) = 2*dx
-      v(2,3) = 2*bx
-      v(2,1) = v(1,2)
-      v(3,1) = v(1,3)
-      v(3,2) = v(2,3)
-      do  i = 1, 3
-      do  j = 1, 3
-        v(i,j) = f0*v(i,j)
-        vi(i,j) = 0d0
-        tr(i,j) = 0d0
-        ti(i,j) = 0d0
-      enddo
-        tr(i,i) = 1d0
-      enddo
+          ax = efg1(1,ic)
+          bx = efg1(2,ic)
+          cx = efg1(3,ic)
+          dx = efg1(4,ic)
+          ex = efg1(5,ic)
+          v(1,1) = 2*ex-2/s3*cx
+          v(2,2) = -2*ex-2/s3*cx
+          v(3,3) = 4/s3*cx
+          v(1,2) = 2*ax
+          v(1,3) = 2*dx
+          v(2,3) = 2*bx
+          v(2,1) = v(1,2)
+          v(3,1) = v(1,3)
+          v(3,2) = v(2,3)
+          do  i = 1, 3
+            do  j = 1, 3
+              v(i,j) = f0*v(i,j)
+              vi(i,j) = 0d0
+              tr(i,j) = 0d0
+              ti(i,j) = 0d0
+            enddo
+            tr(i,i) = 1d0
+          enddo
 
-      n = 3
-      call htridi(n,n,v,vi,d,e,e2,tau)
-      call imtql2(n,n,d,e,tr,ier)
+          n = 3
+          call htridi(n,n,v,vi,d,e,e2,tau)
+          call imtql2(n,n,d,e,tr,ier)
 c      write(ifi,*) ' imtql2: ier=',ier
-      if (ier .gt. 0) call rx(' ELFIGR : IER ne 0')
-      call htribk(n,n,v,vi,tau,n,tr,ti)
+          if (ier .gt. 0) call rx(' ELFIGR : IER ne 0')
+          call htribk(n,n,v,vi,tau,n,tr,ti)
 c     write(stdo,99) ic
 c 99  format(/' EFG, class = ',I3)
-      do  i = 1, 3
-         da(i) = dabs(d(i))
-      enddo
-      dmax = 0d0
-      imax = 0
-      do  i = 1, 3
-         if (da(i) .gt. dmax) then
-             dmax = da(i)
-             imax = i
-         endif
-      enddo
+          do  i = 1, 3
+            da(i) = dabs(d(i))
+          enddo
+          dmax = 0d0
+          imax = 0
+          do  i = 1, 3
+            if (da(i) .gt. dmax) then
+              dmax = da(i)
+              imax = i
+            endif
+          enddo
 c  d(imax) is field gradient (Vzz)
-      ixx = mod(imax,3)+1
-      iyy = mod(imax+1,3)+1
-      eta = 0d0
-      if(dabs(d(imax)) .gt. 1.d-2) eta = dabs((d(ixx)-d(iyy))/d(imax))
+          ixx = mod(imax,3)+1
+          iyy = mod(imax+1,3)+1
+          eta = 0d0
+          if(dabs(d(imax)) .gt. 1.d-2) eta = dabs((d(ixx)-d(iyy))/d(imax))
 c     do  i = 1, 3
 c        write(stdo,98) conv1*d(i),conv2*d(i),(tr(j,i),j=1,3)
 c     enddo
 c     if (ifesn.eq.0) write(stdo,97) eta
-      split = conv3*da(imax)*dsqrt(1d0+eta**2/3d0)
+          split = conv3*da(imax)*dsqrt(1d0+eta**2/3d0)
 c     if (ifesn.eq.1) write(stdo,96) eta,split
 c 98  format(3X,F12.4,' 10**13 esu/cm**2',3X,F12.4,' 10**19 V/m*2',
 c    +         /,12X,3F12.6)
 c 97  format(/' eta = ',F12.4/)
 c 96  format(/' eta = ',F12.4,' line splitting = ',F12.4,' mm/s'/)
 
-      do  i = 1, 3
-      if(i .eq. 1) then
-      write(ifi,'(i4,3x,3f6.3,2x,f8.2,2x,f8.2,5x,f6.3,5x,f8.5)')
+          do  i = 1, 3
+            if(i .eq. 1) then
+              write(ifi,'(i4,3x,3f6.3,2x,f8.2,2x,f8.2,5x,f6.3,5x,f8.5)')
      .      ic,(tr(j,i),j=1,3),conv1*d(i),conv2*d(i),eta,split
 C      write(71,'(i4,3x,3f6.3,2x,f8.2,2x,f8.2,5x,f6.3,5x,f8.5)')
 C     .      ic,(tr(j,i),j=1,3),conv1*d(i),conv2*d(i),eta,split
-      else
-      write(ifi,'(4x,3x,3f6.3,2x,f8.2,2x,f8.2,5x)')
+            else
+              write(ifi,'(4x,3x,3f6.3,2x,f8.2,2x,f8.2,5x)')
      .         (tr(j,i),j=1,3),conv1*d(i),conv2*d(i)
 C      write(71,'(4x,3x,3f6.3,2x,f8.2,2x,f8.2,5x)')
 C     .         (tr(j,i),j=1,3),conv1*d(i),conv2*d(i)
-      endif
-      enddo
-      write(ifi,'(1x)')
-      endif
+            endif
+          enddo
+          write(ifi,'(1x)')
+        endif
       enddo
 
 Cgetarg       end
-       end subroutine elfigr 
+      end subroutine elfigr
 
 

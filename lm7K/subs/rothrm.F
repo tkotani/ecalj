@@ -85,21 +85,21 @@ C   ... loop over pairs of orbital blocks
 C     ... loop over pairs of m channels within this block
           if (opt .eq. 0) then
             do  j = 1, nlmi
-            do  i = 1, nlmi
-              U(i+offi,j+offi) = rYL(i+offri,j+offri)
-            enddo
+              do  i = 1, nlmi
+                U(i+offi,j+offi) = rYL(i+offri,j+offri)
+              enddo
             enddo
           elseif (opt .eq. 1) then
             do  j = 1, nlmi
-            do  i = 1, nlmi
-              Uz(i+offi,j+offi) = rYLz(i+offri,j+offri)
-            enddo
+              do  i = 1, nlmi
+                Uz(i+offi,j+offi) = rYLz(i+offri,j+offri)
+              enddo
             enddo
           else
             do  j = 1, nlmi
-            do  i = 1, nlmi
-              Uz(i+offi,j+offi) = rYL(i+offri,j+offri)
-            enddo
+              do  i = 1, nlmi
+                Uz(i+offi,j+offi) = rYL(i+offri,j+offri)
+              enddo
             enddo
           endif
 

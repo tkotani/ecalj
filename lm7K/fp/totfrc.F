@@ -7,8 +7,8 @@ Cgetarg...info...           structure ['totfrc', 'site', 'ssite']
 Cgetarg...info...           structure ['totfrc', 'lat', 'slat']
 Cgetarg...info...           use_to_add ['totfrc', 'm_struc_def']
       subroutine totfrc(nbas,ssite,slat,leks,fes1,fes2,dfhf,f)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Add together and print contributions to force
 C ----------------------------------------------------------------------
@@ -35,17 +35,17 @@ C ... Passed parameters
       integer nbas,leks
 Cgetarg       double precision ssite(*),slat(*),f(3,nbas),fes1(3,nbas),
 Cgetarg      .  fes2(3,nbas),dfhf(3,nbas)
-       real(8):: f(3,nbas) , fes1(3,nbas) , fes2(3,nbas) , dfhf(3,nbas) 
-       type(s_site)::ssite(*)
-       type(s_lat)::slat
+      real(8):: f(3,nbas) , fes1(3,nbas) , fes2(3,nbas) , dfhf(3,nbas)
+      type(s_site)::ssite(*)
+      type(s_lat)::slat
 
 C ... Local parameters
 Cdelw1 do not change  [['undef', 'wref'], 'oistab', 'totfrc']
 Cdelw1 do not change  [['undef', 'wref'], 'og', 'totfrc']
 Cdelw1       integer stdo,stdl,lgunit,ipr,ipl,ib,m,owk,ng,oistab,og,ibmx,isw
-       integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , oistab 
-     . , og , ibmx , isw 
-       real(8) ,allocatable :: rv_w_owk(:)
+      integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , oistab 
+     . , og , ibmx , isw
+      real(8) ,allocatable :: rv_w_owk(:)
 
       double precision fev1(3),fev2(3),fhar(3),fks(3),c,ddot,fmax,dfmax
 C ... Heap
@@ -96,9 +96,9 @@ Cdelw1 w_varlist (del), remains: (None)
      .      write(stdl,710) ib,(c*fhar(m),m=1,3)
 Cgetarg...info...           real(8) :: f(3,nbas) , real(8) :: ssite%force 3
 Cgetarg         call pack2('site force',ssite,ib,f(1,ib))
-         
-         i_copy_size=size(ssite(ib)%force) 
-         call dcopy(i_copy_size,f(1,ib),1,ssite(ib)%force,1) 
+
+        i_copy_size=size(ssite(ib)%force)
+        call dcopy(i_copy_size,f(1,ib),1,ssite(ib)%force,1)
 
   710   format('fp ib',i4,'  fh ',3f8.2,2x,3f8.2)
 
@@ -108,11 +108,11 @@ Cgetarg         call pack2('site force',ssite,ib,f(1,ib))
             if (leks .gt. 1) f(m,ib) = fks(m)
 Cgetarg...info...           real(8) :: fks(3) , real(8) :: ssite%force 3
 Cgetarg             if (leks .gt. 1) call pack2('site force',ssite,ib,fks)
-             if ( leks .gt. 1 ) then 
-             
-             i_copy_size=size(ssite(ib)%force) 
-             call dcopy(i_copy_size,fks,1,ssite(ib)%force,1) 
-             endif 
+            if ( leks .gt. 1 ) then
+
+              i_copy_size=size(ssite(ib)%force)
+              call dcopy(i_copy_size,fks,1,ssite(ib)%force,1)
+            endif
 
           enddo
           if (ipr .gt. 40) write(stdo,210) (c*fes2(m,ib),m=1,3),
@@ -132,19 +132,19 @@ Cgetarg...info...           integer :: ng , integer(8) :: slat%nsgrp 1
 Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
 Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
 Cgetarg       call upack('lat nsgrp oistab osymgr',slat,ng,oistab,og,0,0)
-       
-       ng=slat%nsgrp
+
+      ng=slat%nsgrp
 Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 122
 Cdelw1 do not change oistab because of ['undef', 'wref']
-       oistab=slat%oistab
+      oistab=slat%oistab
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 123
 Cdelw1 do not change og because of ['undef', 'wref']
-       og=slat%osymgr
+      og=slat%osymgr
 
       if (ng .gt. 1) then
-      call info(30,1,0,' Symmetrize forces ...',0,0)
+        call info(30,1,0,' Symmetrize forces ...',0,0)
 Cdelw1       call defdr(owk,3*nbas)
-       allocate(rv_w_owk(3*nbas))
+        allocate(rv_w_owk(3*nbas))
 Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) rv_w_owk(:)=0.0d0
 
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 128
@@ -156,13 +156,13 @@ Cdelw1 do not change og because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 128
 Cdelw1 do not change oistab because of ['undef', 'wref']
 Cdelw1       call symfor(nbas,1,w(og),ng,w(oistab),w(owk),f)
-       call symfor ( nbas , 1 , w ( og ) , ng , w ( oistab ) , rv_w_owk 
-     . , f ) 
+        call symfor ( nbas , 1 , w ( og ) , ng , w ( oistab ) , rv_w_owk 
+     . , f )
 
-Cdelw1 rlse name= owk old_list= owk 
+Cdelw1 rlse name= owk old_list= owk
 Cdelw1 rlse name= owk new_list= (None)
 Cdelw1       call rlse(owk)
-       if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
 
       endif
 
@@ -171,6 +171,6 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [og oistab]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine totfrc 
+      end subroutine totfrc
 
 

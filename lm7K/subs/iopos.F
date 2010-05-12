@@ -53,9 +53,9 @@ C     implicit none
 C Local variables
       logical parstr,a2bin
 Cdelw1       integer j1,j2,ifi,fopna,owk,j,rdm,ipr,lgunit,i,lmode,a2vec,ix(4)
-       integer:: j1 , j2 , ifi , fopna , j , rdm , ipr , lgunit , i 
-     . , lmode , a2vec , ix(4) 
-       real(8) ,allocatable :: rv_w_owk(:)
+      integer:: j1 , j2 , ifi , fopna , j , rdm , ipr , lgunit , i 
+     . , lmode , a2vec , ix(4)
+      real(8) ,allocatable :: rv_w_owk(:)
 
       double precision xv(4)
       character*100 fnam
@@ -84,118 +84,119 @@ C heap:
       if (procid .eq. master) then
 #endif
 C ... Open file
-      j1 = 1
-      fnam = filnam
-      call nword(fnam,1,j1,j2)
-      i = 1
-      if (lio) i = 2
-      ifi = fopna(fnam(j1:j2),-1,i)
-      rewind ifi
-      call getpr(ipr)
+        j1 = 1
+        fnam = filnam
+        call nword(fnam,1,j1,j2)
+        i = 1
+        if (lio) i = 2
+        ifi = fopna(fnam(j1:j2),-1,i)
+        rewind ifi
+        call getpr(ipr)
 
 C --- File write ---
-      if (lio) then
+        if (lio) then
 C   ... Write, mode=1
-        if (mode .eq. 1) then
-          write(ifi,'(''% mode=1'')')
-          do  i = 1, nbas
-            write(ifi,'(i4,3f13.7)') i,bas(1,i),bas(2,i),bas(3,i)
-          enddo
-          call fclose(ifi)
+          if (mode .eq. 1) then
+            write(ifi,'(''% mode=1'')')
+            do  i = 1, nbas
+              write(ifi,'(i4,3f13.7)') i,bas(1,i),bas(2,i),bas(3,i)
+            enddo
+            call fclose(ifi)
 
 C   ... Write, mode=0
-        elseif (mode .eq. 0) then
+          elseif (mode .eq. 0) then
 Cdelw1           call defrr(owk, 3*nbas)
-           allocate(rv_w_owk(3*nbas))
+            allocate(rv_w_owk(3*nbas))
 Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) rv_w_owk(:)=0.0d0
 
 Cdelw1           call dmcpy(bas,3,1,w(owk),1,nbas,3,nbas)
-           call dmcpy ( bas , 3 , 1 , rv_w_owk , 1 , nbas , 3 , nbas ) 
+            call dmcpy ( bas , 3 , 1 , rv_w_owk , 1 , nbas , 3 , nbas )
 
 Cdelw1           call ywrm(0,' ',1,ifi,'(3f14.8)',w(owk),1,nbas,nbas,3)
-           call ywrm ( 0 , ' ' , 1 , ifi , '(3f14.8)' , rv_w_owk , 1 , nbas 
-     .     , nbas , 3 ) 
+            call ywrm ( 0 , ' ' , 1 , ifi , '(3f14.8)' , rv_w_owk , 1 , nbas 
+     .     , nbas , 3 )
 
-          call fclose(ifi)
-        else
-          call rxi('IOPOS: not implemented, mode=',mode)
-        endif
+            call fclose(ifi)
+          else
+            call rxi('IOPOS: not implemented, mode=',mode)
+          endif
 
-        call info2(10,1,1,' iopos : write %i sites into file '//
+          call info2(10,1,1,' iopos : write %i sites into file '//
      .      fnam(j1:j2)//', mode %i',nbas,mode)
 
 C --- File read ---
-      else
+        else
 C   ... Look for mode on first line
-        nr = 0
-        call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
+          nr = 0
+          call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
      .    ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
-        backspace ifi
-        lmode = 0
-        if (recrd(1:1) .eq. '%') then
-          i = 0
-          j = 0
-          if (parstr(recrd,'mode=',len(recrd),5,'=',i,j)) then
-            i = j
-            if (.not. a2bin(recrd,lmode,2,0,' ',i,-1))
+          backspace ifi
+          lmode = 0
+          if (recrd(1:1) .eq. '%') then
+            i = 0
+            j = 0
+            if (parstr(recrd,'mode=',len(recrd),5,'=',i,j)) then
+              i = j
+              if (.not. a2bin(recrd,lmode,2,0,' ',i,-1))
      .        call rxs('IOPOS failed to parse ...',recrd(j-5:))
+            endif
           endif
-        endif
-        if (mode .ge. 0 .and. lmode .ne. mode)
+          if (mode .ge. 0 .and. lmode .ne. mode)
      .    call rxi('IOPOS: mode mismatch: need mode',mode)
 C   ... Read, mode=0
-        if (lmode .eq. 0) then
+          if (lmode .eq. 0) then
 Cdelw1           call defrr(owk, 3*nbas*2)
-           allocate(rv_w_owk(3*nbas*2))
+            allocate(rv_w_owk(3*nbas*2))
 Ctakao_ZeroClear_NotRequiered            if (3*nbas*2<0) rv_w_owk(:)=0.0d0
 
 Cdelw1           j = rdm(ifi,0,3*nbas,' ',w(owk),nbas,3)
-           j = rdm ( ifi , 0 , 3 * nbas , ' ' , rv_w_owk , nbas , 3 ) 
+            j = rdm ( ifi , 0 , 3 * nbas , ' ' , rv_w_owk , nbas , 3 )
 
-          if (j .lt. 0) call rxi(
+            if (j .lt. 0) call rxi(
      .      'IOPOS: file incompatible with nbas=',nbas)
 Cdelw1           call dmcpy(w(owk),nbas,1,bas,1,3,nbas,3)
-           call dmcpy ( rv_w_owk , nbas , 1 , bas , 1 , 3 , nbas , 3 ) 
+            call dmcpy ( rv_w_owk , nbas , 1 , bas , 1 , 3 , nbas , 3 )
 
-Cdelw1 rlse name= owk old_list= owk 
+Cdelw1 rlse name= owk old_list= owk
 Cdelw1 rlse name= owk new_list= (None)
 Cdelw1           call rlse(owk)
-           if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+            if (allocated(rv_w_owk)) deallocate(rv_w_owk)
 
-          nr = nbas
+            nr = nbas
 C   ... Read, mode=1
-        elseif (lmode .eq. 1) then
-          nr = 0
-   41     call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
+          elseif (lmode .eq. 1) then
+            nr = 0
+   41       call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
      .      ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
-          if (nr .ge. 0) then
-            if (recrd(1:1) .eq. '%') goto 41
-            i = 0
-            j = a2vec(recrd,len(recrd),i,4,', ',2,3,4,ix,xv)
-            if (j .ne. 4) call rxs(
+            if (nr .ge. 0) then
+              if (recrd(1:1) .eq. '%') goto 41
+              i = 0
+              j = a2vec(recrd,len(recrd),i,4,', ',2,3,4,ix,xv)
+              if (j .ne. 4) call rxs(
      .        'IOPOS: failed to parse line:',recrd)
-            i = nint(xv(1))
-            call dcopy(3,xv(2),1,bas(1,i),1)
-            goto 41
+              i = nint(xv(1))
+              call dcopy(3,xv(2),1,bas(1,i),1)
+              goto 41
+            endif
+            nr = -nr-1
+          else
+            call rxi('IOPOS: unkown mode',lmode)
           endif
-          nr = -nr-1
-        else
-          call rxi('IOPOS: unkown mode',lmode)
-        endif
 C     ... Show input
-        if (ipr .ge. 0) then
-          call awrit3(' iopos : read %i sites from file '//fnam(j1:j2)
+          if (ipr .ge. 0) then
+            call awrit3(' iopos : read %i sites from file '//fnam(j1:j2)
      .      //'%a, mode=%i%?#n>=40#:'//
      .      '%N  ib       x           y           z',
      .      ' ',100,lgunit(1),nr,lmode,ipr)
-          if (ipr .ge. 40) then
-            do  10  i = 1, nbas
-   10       print 310, i, bas(1,i), bas(2,i), bas(3,i)
-  310       format(i4,3f12.6)
+            if (ipr .ge. 40) then
+              do  10  i = 1, nbas
+                print 310, i, bas(1,i), bas(2,i), bas(3,i)
+   10         continue
+  310         format(i4,3f12.6)
+            endif
           endif
         endif
-      endif
-      call fclose(ifi)
+        call fclose(ifi)
 #if MPI | MPIK
       endif
       if (.not. lio) then
@@ -215,22 +216,22 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine iopos 
+      end subroutine iopos
 
       subroutine ioposs(lio,mode,filnam,nbas,ssite)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- File i/o of site positions from site structure
 C     implicit none
       logical lio
       integer mode,nbas
 Cgetarg       double precision ssite(1)
-       type(s_site)::ssite(*)
+      type(s_site)::ssite(*)
 
       character*(*) filnam
 Cdelw1       integer opos
-       real(8) ,allocatable :: rv_w_opos(:)
+      real(8) ,allocatable :: rv_w_opos(:)
 
 C heap:
       integer w(1)
@@ -238,41 +239,41 @@ C heap:
 
 C ... Unpack site positions
 Cdelw1       call defrr(opos,3*nbas)
-       allocate(rv_w_opos(3*nbas))
+      allocate(rv_w_opos(3*nbas))
 Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) rv_w_opos(:)=0.0d0
 
 Cgetarg       call spackv(10,'site pos',ssite,1,nbas,w(opos))
-       i_copy_size=size(ssite(1)%pos)
-       do i_spackv=1,nbas 
+      i_copy_size=size(ssite(1)%pos)
+      do i_spackv=1,nbas
 Cdelw1        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
         call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .  , i_copy_size , i_spackv + 1 - 1 , rv_w_opos ) 
+     .  , i_copy_size , i_spackv + 1 - 1 , rv_w_opos )
 
-       enddo
+      enddo
 
 C ... File I/O
 Cdelw1       call iopos(lio,mode,filnam,nbas,w(opos))
-       call iopos ( lio , mode , filnam , nbas , rv_w_opos ) 
+      call iopos ( lio , mode , filnam , nbas , rv_w_opos )
 
 C ... Repack site positions
 Cgetarg       call spackv(11,'site pos',ssite,1,nbas,w(opos))
-       i_copy_size=size(ssite(1)%pos)
-       do i_spackv=1,nbas 
+      i_copy_size=size(ssite(1)%pos)
+      do i_spackv=1,nbas
 Cdelw1        call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
         call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
-     .  , i_copy_size , i_spackv + 1 - 1 , rv_w_opos ) 
+     .  , i_copy_size , i_spackv + 1 - 1 , rv_w_opos )
 
-       enddo
+      enddo
 
-Cdelw1 rlse name= opos old_list= opos 
+Cdelw1 rlse name= opos old_list= opos
 Cdelw1 rlse name= opos new_list= (None)
 Cdelw1       call rlse(opos)
-       if (allocated(rv_w_opos)) deallocate(rv_w_opos)
+      if (allocated(rv_w_opos)) deallocate(rv_w_opos)
 
 Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine ioposs 
+      end subroutine ioposs
 
 

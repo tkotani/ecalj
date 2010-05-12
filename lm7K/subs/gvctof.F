@@ -61,7 +61,8 @@ C --- Get shortest mesh pts where ki .ne. 0, gmax is pi/(longest) ---
       do  20  k2 = -5, 5
       do  20  k3 = -5, 5
         do  22  m = 1, 3
-   22   g(m) = k1*plat1(m,1)+k2*plat1(m,2)+k3*plat1(m,3)
+          g(m) = k1*plat1(m,1)+k2*plat1(m,2)+k3*plat1(m,3)
+   22   continue
         gg = alat*dsqrt(g(1)**2+g(2)**2+g(3)**2)
         if (k1 .ne. 0) h1 = dmin1(h1,gg)
         if (k2 .ne. 0) h2 = dmin1(h2,gg)

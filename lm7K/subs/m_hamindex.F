@@ -14,11 +14,11 @@ c index for Hamiltonian
       real(8):: qin(3)
       if(debugmode()>0) print *,'nkt=',nkt
       do i=1, nkt
-         if(debugmode()>0) print *,i,qin, qq(:,i)
-         if(sum (abs(qin-qq(:,i)))<1d-8) then
-           getikt=i
-           return
-         endif
+        if(debugmode()>0) print *,i,qin, qq(:,i)
+        if(sum (abs(qin-qq(:,i)))<1d-8) then
+          getikt=i
+          return
+        endif
       enddo
       print *,' getikt: error qin=',qin
       call rx(' getikt can not find ikt for given q')

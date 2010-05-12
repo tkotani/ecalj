@@ -5,8 +5,8 @@ Cgetarg...info...           structure ['prrhat', 'site', 'ssite']
 Cgetarg...info...           structure ['prrhat', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['prrhat', 'm_struc_def']
       subroutine prrhat(nbas,ssite,sspec,orhoat)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Print info about the atomic charge densities
 C     implicit none
@@ -14,16 +14,16 @@ C ... Passed parameters
 Cdelw1 do not change  [['call'], 'orhoat', 'prrhat']
       integer nbas,orhoat(3,nbas)
 Cgetarg       double precision ssite(1),sspec(1)
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
 Cdelw1       integer stdo,lgunit,ib,lmxl,nr,orofi,orwgt,nlml,is,igetss,nsp,
 Cdelw1      .  nglob
-       integer:: stdo , lgunit , ib , lmxl , nr , nlml , is , igetss 
-     . , nsp , nglob 
-       real(8) ,allocatable :: rv_w_orofi(:)
-       real(8) ,allocatable :: rv_w_orwgt(:)
+      integer:: stdo , lgunit , ib , lmxl , nr , nlml , is , igetss 
+     . , nsp , nglob
+      real(8) ,allocatable :: rv_w_orofi(:)
+      real(8) ,allocatable :: rv_w_orwgt(:)
 
       double precision a,rmt
 C ... Heap
@@ -34,33 +34,33 @@ C ... Heap
       stdo = lgunit(1)
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg         call upack('spec lmxl a nr rmt',sspec,is,lmxl,a,nr,rmt)
-         
-         lmxl=sspec(is)%lmxl
-         a=sspec(is)%a
-         nr=sspec(is)%nr
-         rmt=sspec(is)%rmt
+
+        lmxl=sspec(is)%lmxl
+        a=sspec(is)%a
+        nr=sspec(is)%nr
+        rmt=sspec(is)%rmt
 
         if (lmxl .eq. -1) goto 10
 Cdelw1         call defrr(orofi, nr)
-         allocate(rv_w_orofi(nr))
+        allocate(rv_w_orofi(nr))
 Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1         call defrr(orwgt, nr)
-         allocate(rv_w_orwgt(nr))
+        allocate(rv_w_orwgt(nr))
 Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orwgt(:)=0.0d0
 
 Cdelw1         call radmsh(rmt,a,nr,w(orofi))
-         call radmsh ( rmt , a , nr , rv_w_orofi ) 
+        call radmsh ( rmt , a , nr , rv_w_orofi )
 
 Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
-         call radwgt ( rmt , a , nr , rv_w_orwgt ) 
+        call radwgt ( rmt , a , nr , rv_w_orwgt )
 
 
         nlml = (lmxl+1)**2
@@ -70,22 +70,22 @@ Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
 Cdelw1 1 is digit, dropped
 Cdelw1         call prlrho('true density',nr,nlml,nsp,w(orofi),w(orwgt),
 Cdelw1      .     w(orhoat(1,ib)))
-         call prlrho ( 'true density' , nr , nlml , nsp , rv_w_orofi , 
-     .   rv_w_orwgt , w ( orhoat ( 1 , ib ) ) ) 
+        call prlrho ( 'true density' , nr , nlml , nsp , rv_w_orofi , 
+     .   rv_w_orwgt , w ( orhoat ( 1 , ib ) ) )
 
 
 Cdelw1 2 is digit, dropped
 Cdelw1         call prlrho('smooth density',nr,nlml,nsp,w(orofi),w(orwgt),
 Cdelw1      .     w(orhoat(2,ib)))
-         call prlrho ( 'smooth density' , nr , nlml , nsp , rv_w_orofi 
-     .   , rv_w_orwgt , w ( orhoat ( 2 , ib ) ) ) 
+        call prlrho ( 'smooth density' , nr , nlml , nsp , rv_w_orofi 
+     .   , rv_w_orwgt , w ( orhoat ( 2 , ib ) ) )
 
 
-Cdelw1 rlse name= orofi old_list= orofi orwgt 
+Cdelw1 rlse name= orofi old_list= orofi orwgt
 Cdelw1 rlse name= orofi new_list= (None)
 Cdelw1         call rlse(orofi)
-         if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
-         if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+        if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+        if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
 
 
    10   continue
@@ -96,7 +96,7 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [orhoat]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine prrhat 
+      end subroutine prrhat
 
 
       subroutine prlrho(str,nr,nlm,nsp,rofi,rwgt,rho)
@@ -151,6 +151,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine prlrho 
+      end subroutine prlrho
 
 

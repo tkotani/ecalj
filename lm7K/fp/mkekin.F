@@ -5,8 +5,8 @@ Cgetarg...info...           structure ['mkekin', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['mkekin', 'm_struc_def']
       subroutine mkekin(nbas,ndimh,ssite,sspec,slat,sham,osig,otau,oppi,
      .  lcplxp,oqkkl,k1,k2,k3,vconst,smpot,smrho,sumev,sumtv)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
@@ -149,11 +149,11 @@ C ... Passed parameters
       integer oqkkl(3,nbas),oppi(3,nbas),osig(3,1),otau(3,1)
 Cgetarg       double precision sumev,sumtv,vconst,ssite(1),sspec(1),slat(1),
 Cgetarg      .  sham(1)
-       real(8):: sumev , sumtv , vconst 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
-       type(s_ham)::sham
+      real(8):: sumev , sumtv , vconst
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
+      type(s_ham)::sham
 
       double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
 C ... Local parameters
@@ -183,21 +183,21 @@ C ... Heap
 Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat nabc vol',slat,ngabc,vol,0,0,0)
-       
-       i_copy_size=size(slat%nabc) 
-       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
-       vol=slat%vol
+
+      i_copy_size=size(slat%nabc)
+      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      vol=slat%vol
 
 Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
 Cgetarg       call upack('ham oindxo',sham,oiprmb,0,0,0,0)
-       
-       oiprmb=sham%oindxo
+
+      oiprmb=sham%oindxo
 
 Cgetarg       lso =   isw(lgors('ham lncol,4',sham))
 Cgetarg      .    + 2*isw(lgors('ham lncol,32',sham))
 Cgetarg      .    + 3*isw(lgors('ham lncol,64',sham))
-       lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
-     . ) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 ) 
+      lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
+     . ) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
 
 
 C     call zprm3('sm rho-out',0,smrho,k1,k2,k3*nsp)
@@ -213,7 +213,7 @@ C     Note that it does not include the term (n0~-n0) Ves0~
       call mshint(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,qum1,qum2)
       srmesh = sum1 + vconst*qum1
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      write(6,"('vvv: mkekin :sum1 vconst*qum1 ',10d13.6)") 
+c      write(6,"('vvv: mkekin :sum1 vconst*qum1 ',10d13.6)")
 c     &  sum1,vconst*qum1
 c      write(6,"(a,12d13.5)")'rrrrs: smchk smrho 1'
 c     &  , sum(smrho(:,:,:,1)), sum(abs(smrho(:,:,:,1)))
@@ -225,16 +225,16 @@ C --- Integral rhout*veff, part from augmentation ---
       sraugm = 0d0
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
 Cgetarg         call upack('spec lmxa kmxt lmxb',sspec,is,lmxa,kmax,lmxh,0)
-         
-         lmxa=sspec(is)%lmxa
-         kmax=sspec(is)%kmxt
-         lmxh=sspec(is)%lmxb
+
+        lmxa=sspec(is)%lmxa
+        kmax=sspec(is)%kmxt
+        lmxh=sspec(is)%lmxb
 
         if (lmxa .eq. -1) goto 10
 
@@ -274,7 +274,7 @@ C       Add site augmentation contribution to rhout * (ham - ke)
   340 format(/' srhov:',3f14.6,' sumev=',f12.6,'   sumtv=',f12.6)
 
 Cgetarg       end
-       end subroutine mkekin 
+      end subroutine mkekin
 
 
       subroutine pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh,
@@ -345,9 +345,9 @@ C ... Remove SO part from potential
       if (lso .ne. 0) then
 C     io1 = nkaph*nkaph*nlmh*nlmh
 C     call zprm('ppiz+so',2,ppihhz,io1,io1,nsp*nspc)
-      call ppi2z(6,nsp,nspc,nkaph,nkaph,nlmh,nlmh,xx,ppihhz,ppihhz)
-      call ppi2z(6,nsp,nspc,nkaph,1+kmax,nlmh,nlma,xx,ppihpz,ppihpz)
-      call ppi2z(6,nsp,nspc,1+kmax,1+kmax,nlma,nlma,xx,ppippz,ppippz)
+        call ppi2z(6,nsp,nspc,nkaph,nkaph,nlmh,nlmh,xx,ppihhz,ppihhz)
+        call ppi2z(6,nsp,nspc,nkaph,1+kmax,nlmh,nlma,xx,ppihpz,ppihpz)
+        call ppi2z(6,nsp,nspc,1+kmax,1+kmax,nlma,nlma,xx,ppippz,ppippz)
       endif
 
 #if DEBUG
@@ -373,119 +373,119 @@ C      taupp = 0
 
 C ... Pkl*Pkl
       do  i = 1, nsp
-      do  k1 = 0, kmax
-      do  k2 = 0, kmax
-        if (lcplxp .eq. 0) then
-        do  ilm1 = 1, nlma
-          l1 = ll(ilm1)
-          sumt = sumt + qpp(k1,k2,ilm1,ilm1,i)*taupp(k1,k2,l1,i)
-          sumq = sumq + qpp(k1,k2,ilm1,ilm1,i)*sigpp(k1,k2,l1,i)
-          do  ilm2 = 1, nlma
-          sumh = sumh + qpp(k1,k2,ilm1,ilm2,i)*ppipp(k1,k2,ilm1,ilm2,i)
-          enddo
-        enddo
+        do  k1 = 0, kmax
+          do  k2 = 0, kmax
+            if (lcplxp .eq. 0) then
+              do  ilm1 = 1, nlma
+                l1 = ll(ilm1)
+                sumt = sumt + qpp(k1,k2,ilm1,ilm1,i)*taupp(k1,k2,l1,i)
+                sumq = sumq + qpp(k1,k2,ilm1,ilm1,i)*sigpp(k1,k2,l1,i)
+                do  ilm2 = 1, nlma
+                  sumh = sumh + qpp(k1,k2,ilm1,ilm2,i)*ppipp(k1,k2,ilm1,ilm2,i)
+                enddo
+              enddo
 
-        else
-        do  ilm1 = 1, nlma
-          l1 = ll(ilm1)
-          sumt = sumt + qpp(k1,k2,ilm1,ilm1,i)*taupp(k1,k2,l1,i)
-          sumq = sumq + qpp(k1,k2,ilm1,ilm1,i)*sigpp(k1,k2,l1,i)
-          do  ilm2 = 1, nlma
-          sumh = sumh + qpp(k1,k2,ilm1,ilm2,i)*ppippz(k1,k2,ilm1,ilm2,i)
+            else
+              do  ilm1 = 1, nlma
+                l1 = ll(ilm1)
+                sumt = sumt + qpp(k1,k2,ilm1,ilm1,i)*taupp(k1,k2,l1,i)
+                sumq = sumq + qpp(k1,k2,ilm1,ilm1,i)*sigpp(k1,k2,l1,i)
+                do  ilm2 = 1, nlma
+                  sumh = sumh + qpp(k1,k2,ilm1,ilm2,i)*ppippz(k1,k2,ilm1,ilm2,i)
+                enddo
+              enddo
+            endif
           enddo
         enddo
-        endif
-      enddo
-      enddo
 
 C ... Hsm*Hsm
-      do  io2 = 1, norb
-      if (blks(io2) .ne. 0) then
+        do  io2 = 1, norb
+          if (blks(io2) .ne. 0) then
 C       k2,l2 = k and starting l index for this block
-        l2 = ltab(io2)
-        k2 = ktab(io2)
-        nlm21 = l2**2+1
-        nlm22 = nlm21 + blks(io2)-1
-        do  io1 = 1, norb
-        if (blks(io1) .ne. 0) then
+            l2 = ltab(io2)
+            k2 = ktab(io2)
+            nlm21 = l2**2+1
+            nlm22 = nlm21 + blks(io2)-1
+            do  io1 = 1, norb
+              if (blks(io1) .ne. 0) then
 C         k1,l1 = k and starting l index for this block
-          l1 = ltab(io1)
-          k1 = ktab(io1)
-          nlm11 = l1**2+1
-          nlm12 = nlm11 + blks(io1)-1
-          if (lcplxp .eq. 0) then
-          do  ilm1 = nlm11, nlm12
-          l1 = ll(ilm1)
-          do  ilm2 = nlm21, nlm22
-            if (ilm1 .eq. ilm2) then
-              sumt = sumt + qhh(k1,k2,ilm1,ilm2,i)*tauhh(k1,k2,l1,i)
-              sumq = sumq + qhh(k1,k2,ilm1,ilm2,i)*sighh(k1,k2,l1,i)
-            endif
-            sumh = sumh+ qhh(k1,k2,ilm1,ilm2,i)*ppihh(k1,k2,ilm1,ilm2,i)
-          enddo
-          enddo
+                l1 = ltab(io1)
+                k1 = ktab(io1)
+                nlm11 = l1**2+1
+                nlm12 = nlm11 + blks(io1)-1
+                if (lcplxp .eq. 0) then
+                  do  ilm1 = nlm11, nlm12
+                    l1 = ll(ilm1)
+                    do  ilm2 = nlm21, nlm22
+                      if (ilm1 .eq. ilm2) then
+                        sumt = sumt + qhh(k1,k2,ilm1,ilm2,i)*tauhh(k1,k2,l1,i)
+                        sumq = sumq + qhh(k1,k2,ilm1,ilm2,i)*sighh(k1,k2,l1,i)
+                      endif
+                      sumh = sumh+ qhh(k1,k2,ilm1,ilm2,i)*ppihh(k1,k2,ilm1,ilm2,i)
+                    enddo
+                  enddo
 
-          else
-          do  ilm1 = nlm11, nlm12
-          l1 = ll(ilm1)
-          do  ilm2 = nlm21, nlm22
-            if (ilm1 .eq. ilm2) then
-              sumt = sumt + qhh(k1,k2,ilm1,ilm2,i)*tauhh(k1,k2,l1,i)
-              sumq = sumq + qhh(k1,k2,ilm1,ilm2,i)*sighh(k1,k2,l1,i)
-            endif
-            sumh = sumh+qhh(k1,k2,ilm1,ilm2,i)*ppihhz(k1,k2,ilm1,ilm2,i)
-          enddo
-          enddo
-          endif
+                else
+                  do  ilm1 = nlm11, nlm12
+                    l1 = ll(ilm1)
+                    do  ilm2 = nlm21, nlm22
+                      if (ilm1 .eq. ilm2) then
+                        sumt = sumt + qhh(k1,k2,ilm1,ilm2,i)*tauhh(k1,k2,l1,i)
+                        sumq = sumq + qhh(k1,k2,ilm1,ilm2,i)*sighh(k1,k2,l1,i)
+                      endif
+                      sumh = sumh+qhh(k1,k2,ilm1,ilm2,i)*ppihhz(k1,k2,ilm1,ilm2,i)
+                    enddo
+                  enddo
+                endif
 C          Needs to be checked ...
 C          if (nspc .eq. 2) then
 C            call pvgtk1(nkaph,nlmh,k1,k2,nlm11,nlm12,nlm21,nlm22,
 C     .        qhh,ppihhz,sumh)
 C          endif
 
-        endif
-        enddo
+              endif
+            enddo
 
-      endif
-      enddo
+          endif
+        enddo
 
 C ... Hsm*Pkl
-      do  io1 = 1, norb
-      if (blks(io1) .ne. 0) then
+        do  io1 = 1, norb
+          if (blks(io1) .ne. 0) then
 C       k1,l1 = k and starting l index for this block
-        l1 = ltab(io1)
-        k1 = ktab(io1)
-        nlm11 = l1**2+1
-        nlm12 = nlm11 + blks(io1)-1
-        do  k2 = 0, kmax
+            l1 = ltab(io1)
+            k1 = ktab(io1)
+            nlm11 = l1**2+1
+            nlm12 = nlm11 + blks(io1)-1
+            do  k2 = 0, kmax
 
-          if (lcplxp .eq. 0) then
-          do  ilm1 = nlm11, nlm12
-          l1 = ll(ilm1)
-          do  ilm2 = 1, nlma
-            if (ilm1 .eq. ilm2) then
-              sumt = sumt + qhp(k1,k2,ilm1,ilm2,i)*tauhp(k1,k2,l1,i)
-              sumq = sumq + qhp(k1,k2,ilm1,ilm2,i)*sighp(k1,k2,l1,i)
-            endif
-            sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihp(k1,k2,ilm1,ilm2,i)
-          enddo
-          enddo
-          else
-          do  ilm1 = nlm11, nlm12
-          l1 = ll(ilm1)
-          do  ilm2 = 1, nlma
-            if (ilm1 .eq. ilm2) then
-              sumt = sumt + qhp(k1,k2,ilm1,ilm2,i)*tauhp(k1,k2,l1,i)
-              sumq = sumq + qhp(k1,k2,ilm1,ilm2,i)*sighp(k1,k2,l1,i)
-            endif
-            sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihpz(k1,k2,ilm1,ilm2,i)
-          enddo
-          enddo
+              if (lcplxp .eq. 0) then
+                do  ilm1 = nlm11, nlm12
+                  l1 = ll(ilm1)
+                  do  ilm2 = 1, nlma
+                    if (ilm1 .eq. ilm2) then
+                      sumt = sumt + qhp(k1,k2,ilm1,ilm2,i)*tauhp(k1,k2,l1,i)
+                      sumq = sumq + qhp(k1,k2,ilm1,ilm2,i)*sighp(k1,k2,l1,i)
+                    endif
+                    sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihp(k1,k2,ilm1,ilm2,i)
+                  enddo
+                enddo
+              else
+                do  ilm1 = nlm11, nlm12
+                  l1 = ll(ilm1)
+                  do  ilm2 = 1, nlma
+                    if (ilm1 .eq. ilm2) then
+                      sumt = sumt + qhp(k1,k2,ilm1,ilm2,i)*tauhp(k1,k2,l1,i)
+                      sumq = sumq + qhp(k1,k2,ilm1,ilm2,i)*sighp(k1,k2,l1,i)
+                    endif
+                    sumh = sumh+qhp(k1,k2,ilm1,ilm2,i)*ppihpz(k1,k2,ilm1,ilm2,i)
+                  enddo
+                enddo
+              endif
+
+            enddo
           endif
-
         enddo
-      endif
-      enddo
       enddo
 
       if (lso .ne. 0) then
@@ -500,7 +500,7 @@ C       call zprm('ppiz+so',2,ppihhz,io1,io1,nsp*nspc)
 C     call info2(0,0,0,' pvgtkn sumh= %,6;6d sumt= %,6;6d ',sumh,sumt)
 
 Cgetarg       end
-       end subroutine pvgtkn 
+      end subroutine pvgtkn
 
 
 C      subroutine pvgtk1(nkaph,nlmh,k1,k2,nlm11,nlm12,nlm21,nlm22,qhh,

@@ -51,12 +51,12 @@ C     character(nrcd),allocatable,private:: rcd(1)
       integer,private:: io_show,io_help,stdo,stdl,stde
       logical,private::  debug=.false.
       interface gtv
-         module procedure
+      module procedure
      .   gtv_r8,gtv_i4,gtv_r8v,gtv_i4v,gtv_char,gtv_lg,gtv_none
       end interface
 
       interface getinput
-        module procedure
+      module procedure
      .  getinput_r8,getinput_i4,getinput_r8v,getinput_i4v,
      .  getinput_char,getinput_none
       end interface
@@ -85,7 +85,7 @@ Cl         :
 Cr Remarks
 Cr   contents of record are copied, with markers for EOL
 Cu Updates
-Cu   13 Oct 07 
+Cu   13 Oct 07
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
@@ -182,7 +182,7 @@ Ci         :nmin is supplied as one of these possibilities:
 Ci         :  not present  or  nmin=0   or   nmin>0   or   nmin<0
 Ci         :|nmin| corresponds to how many values must be returned.
 Ci         :The sign of nmin has a special meaning; see below;
-Ci         
+Ci
 Ci         :Case defaults ARE supplied:
 Ci         :1. nmin=(not present): gtv uses internally nmin=1
 Ci                         gtv fills data after last parsed entry with
@@ -195,7 +195,7 @@ Ci                         Note: nonsensical for nmin>nndef where
 Ci                         nndef = number of default values passed.
 Ci         :4. nmin<0      If a token is present, at least |nmin| values
 Ci                         must be parsed, regardless of nndef
-Ci         
+Ci
 Ci         :Case defaults ARE NOT supplied:
 Ci         :1. nmin=(not present): gtv uses internally nmin=1
 Ci                         gtv fills data after last parsed entry with NULLI
@@ -206,7 +206,7 @@ Ci         :4. nmin<0      Same as nmin>0
 Ci
 Ci         :Help mode: Pass nmin=NULLI together with io_show=1 =>
 Ci         :size of input is unknown
-Ci 
+Ci
 Ci         :Character input: nmin has different meaning.
 Ci         :1s digit: 0 => no string need be present
 Ci         :        : 1 => a nonblank string must be read
@@ -436,59 +436,59 @@ C     A string for help printout
       data opts /'opt','reqd','skip'/
 
       entry gtv_r8(name,sw,dat,def_r8,cindx,note,or,nmin,nout,Texist)
-        nndef = 0; sizez = 1; defa(1) = 0d0
-        if ( present(def_r8)  ) then
-          nndef = 1; defa(1) = def_r8
-        endif
+      nndef = 0; sizez = 1; defa(1) = 0d0
+      if ( present(def_r8)  ) then
+        nndef = 1; defa(1) = def_r8
+      endif
 C       not sure we want to do this ...
-        if (sw .ne. 2) dat = nulli
-        ig = 'r8' ;    goto 990
+      if (sw .ne. 2) dat = nulli
+      ig = 'r8' ;    goto 990
 
       entry gtv_r8v(name,sw,datv,def_r8v,cindx,note,or,nmin,nout,Texist)
-        nndef = 0; sizez = size(datv); defa(1) = 0d0
-        if ( present(def_r8v) ) then
-          nndef = min(size(def_r8v),sizez); defa= def_r8v
-        endif
-        if (sw .ne. 2) datv = nulli
-        ig = 'r8v' ;   goto 990
+      nndef = 0; sizez = size(datv); defa(1) = 0d0
+      if ( present(def_r8v) ) then
+        nndef = min(size(def_r8v),sizez); defa= def_r8v
+      endif
+      if (sw .ne. 2) datv = nulli
+      ig = 'r8v' ;   goto 990
 
       entry gtv_i4(name,sw,idat,def_i4,cindx,note,or,nmin,nout,Texist)
-        nndef = 0; sizez = 1; defa(1) = 0d0
-        if ( present(def_i4)  ) then
-          nndef = 1; defa(1) = def_i4
-        endif
-        if (sw .ne. 2) idat = nulli
-        ig = 'i4';    goto 990
+      nndef = 0; sizez = 1; defa(1) = 0d0
+      if ( present(def_i4)  ) then
+        nndef = 1; defa(1) = def_i4
+      endif
+      if (sw .ne. 2) idat = nulli
+      ig = 'i4';    goto 990
 
       entry gtv_i4v(name,sw,idatv,def_i4v,cindx,note,or,nmin,nout,
      .    Texist)
-        nndef = 0; sizez = size(idatv); defa(1) = 0d0
-        if (present(def_i4v) ) then
-          nndef = min(size(def_i4v),sizez); defa= def_i4v
-        endif
-        if (sw .ne. 2) idatv = nulli
-        ig='i4v';    goto 990
+      nndef = 0; sizez = size(idatv); defa(1) = 0d0
+      if (present(def_i4v) ) then
+        nndef = min(size(def_i4v),sizez); defa= def_i4v
+      endif
+      if (sw .ne. 2) idatv = nulli
+      ig='i4v';    goto 990
 
       entry gtv_lg(name,sw,lg,def_lg,cindx,note,or,nmin,nout,Texist)
-        sizez = 1; nndef = 0
-        if ( present(def_lg)  ) then
-          nndef = 1 ; defa(1) = isw(def_lg)
-        endif
-        ig='lg' ;    goto 990
+      sizez = 1; nndef = 0
+      if ( present(def_lg)  ) then
+        nndef = 1 ; defa(1) = isw(def_lg)
+      endif
+      ig='lg' ;    goto 990
 
       entry gtv_char(name,sw,char,cindx,note,or,nmin,nout,Texist)
-        nndef = 0
-        sizez = 1;   ig='chr';   goto 990
+      nndef = 0
+      sizez = 1;   ig='chr';   goto 990
 
       entry gtv_none(name,sw,nono,cindx,note,or,Texist)
-        nndef = 0; defa(1) = 0d0
-        sizez = 0;   ig='---';   goto 990
+      nndef = 0; defa(1) = 0d0
+      sizez = 0;   ig='---';   goto 990
 
 C --- Start of statements common to all entry routines ---
   990 continue
       if (sw .eq. 2) then
         if (ig .ne. '---') then
-        if (present(nout)) nout=-1
+          if (present(nout)) nout=-1
         endif
         if (present(Texist) ) Texist = .false.
 C        if (debug) then
@@ -509,16 +509,16 @@ C ... Local copy of nmin that always exists
       nminl = min(1,sizez)
 C     DEC fortran: nmin can exis for gtv_none, even if not in arg lst
       if (ig .ne. '---') then
-      lrqdn = .false.
-      if (present(nmin)) then
+        lrqdn = .false.
+        if (present(nmin)) then
 C       nmin<0 => nparse MUST be at least nminl
-        lrqdn = nmin .lt. 0
-        nminl = iabs(nmin)
-        if (io_help .eq. 0 .and. (ig .ne. 'chr'))
+          lrqdn = nmin .lt. 0
+          nminl = iabs(nmin)
+          if (io_help .eq. 0 .and. (ig .ne. 'chr'))
      .    call isanrg(iabs(nmin),-1,sizez,' gtv','nmin',.true.)
-      elseif (ig .eq. 'chr') then
-        nminl = 0
-      endif
+        elseif (ig .eq. 'chr') then
+          nminl = 0
+        endif
       endif
 C ... local copy of present(or)
       lor = present(or)
@@ -561,13 +561,13 @@ C       if (lgx .and. .false.) then
           call info2(1,0,0,trim(sout)//
      .      '%?!(n==1)!%50pdefault = %l',nndef,defa(1).ne.0)
         elseif (nndef .ge. 1 .and. defa(1) .eq. NULLI) then
-         if (nminl .eq. NULLI) then
-           call info0(1,0,0,trim(sout)//
+          if (nminl .eq. NULLI) then
+            call info0(1,0,0,trim(sout)//
      .       '%50psize and defaults depend on other input')
-         else
-           call info0(1,0,0,trim(sout)//
+          else
+            call info0(1,0,0,trim(sout)//
      .       '%50pdefault depends on other input')
-         endif
+          endif
         elseif (nminl .eq. NULLI .and. nndef .ge. 1) then
           call info2(1,0,0,trim(sout)//
      .      '%50pdef = %g ... size depends on other input',defa,0)
@@ -589,7 +589,7 @@ C       if (lgx .and. .false.) then
      .      ' * If token is not parsed, attempt to read the following:'
         endif
         if (ig .ne. '---') then
-        if (present(nout)) nout=0
+          if (present(nout)) nout=0
         endif
         if (present(Texist) ) Texist = .true.
         return
@@ -693,22 +693,22 @@ C ... Copy result to one of (dat,idat,datv,idatv,lg)
 
 C ... Printout
       if (io_show>0 .or. debug) then
-      if (.not. lexist .and. nndef .eq. 0) then
-        write(sout(1+len_trim(sout):),"(',   *, --')")
-      elseif (nn .eq. nparse .and. nndef .ne. 0) then
-        write(sout(1+len_trim(sout):),"(',',i4,',',i3)")nparse,nn-nparse
-      elseif (nn .eq. nparse) then
-        write(sout(1+len_trim(sout):),"(',',i4,', --')") nparse
-      elseif (.not. lexist) then
-        write(sout(1+len_trim(sout):),"(',   *,',i3)") nn-nparse
-      else
-        write(sout(1+len_trim(sout):),"(',',i4,',',i3)")nparse,nn-nparse
-      endif
-      if (nn .gt. 0 .and. lgx)
+        if (.not. lexist .and. nndef .eq. 0) then
+          write(sout(1+len_trim(sout):),"(',   *, --')")
+        elseif (nn .eq. nparse .and. nndef .ne. 0) then
+          write(sout(1+len_trim(sout):),"(',',i4,',',i3)")nparse,nn-nparse
+        elseif (nn .eq. nparse) then
+          write(sout(1+len_trim(sout):),"(',',i4,', --')") nparse
+        elseif (.not. lexist) then
+          write(sout(1+len_trim(sout):),"(',   *,',i3)") nn-nparse
+        else
+          write(sout(1+len_trim(sout):),"(',',i4,',',i3)")nparse,nn-nparse
+        endif
+        if (nn .gt. 0 .and. lgx)
      .  call awrit2('%u%55p%n:1l',sout,len(sout),0,nn,lg)
-      if (nn .gt. 0 .and. .not. lgx)
+        if (nn .gt. 0 .and. .not. lgx)
      .  call awrit2('%u%55p%n:1,1;6g',sout,len(sout),0,nn,ddat)
-      write(stdo,'(a)') trim(sout)
+        write(stdo,'(a)') trim(sout)
       endif
 
  1012 format(a,d13.5)

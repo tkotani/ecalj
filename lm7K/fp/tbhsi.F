@@ -45,50 +45,50 @@ C --- Loop over orbitals (is,io) ---
         call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
 
         do  ik = 1, nkape
-        ltop = max0(ltop,lh(ik))
+          ltop = max0(ltop,lh(ik))
 C       l2 = -1
-        do  l = 0, lh(ik)
-        if (rsmh(l+1,ik) .gt. 0) then
+          do  l = 0, lh(ik)
+            if (rsmh(l+1,ik) .gt. 0) then
 C         if (l .gt. l2) then
 C         call gtbsl(l,lh(ik),eh(1,ik),rsmh(1,ik),l2)
 
 C     ... Find eh, or add it to list
-          j = 0
-          do  k = 1, net
-            if (dcmpre(eh(l+1,ik),et(k))) then
-              j = k
-              goto 31
-            endif
-          enddo
-  31      continue
-          if (j .gt. 0) then
-            ipet(l+1,ik,is) = j
-          else
-            net = net+1
-            if (net .gt. nermx) call rx('tbhsi: nermx exceeded for et')
-            et(net) = eh(l+1,ik)
-            ipet(l+1,ik,is) = net
-          endif
+              j = 0
+              do  k = 1, net
+                if (dcmpre(eh(l+1,ik),et(k))) then
+                  j = k
+                  goto 31
+                endif
+              enddo
+  31          continue
+              if (j .gt. 0) then
+                ipet(l+1,ik,is) = j
+              else
+                net = net+1
+                if (net .gt. nermx) call rx('tbhsi: nermx exceeded for et')
+                et(net) = eh(l+1,ik)
+                ipet(l+1,ik,is) = net
+              endif
 
 C     ... Find rmsh, or add it to list
-          j = 0
-          do  k = 1, nrt
-            if (dcmpre(rsmh(l+1,ik),rt(k))) then
-              j = k
-              goto 32
+              j = 0
+              do  k = 1, nrt
+                if (dcmpre(rsmh(l+1,ik),rt(k))) then
+                  j = k
+                  goto 32
+                endif
+              enddo
+  32          continue
+              if (j .gt. 0) then
+                iprt(l+1,ik,is) = j
+              else
+                nrt = nrt+1
+                if (nrt .gt. nermx) call rx('tbhsi: nermx exceeded for rt')
+                rt(nrt) = rsmh(l+1,ik)
+                iprt(l+1,ik,is) = nrt
+              endif
             endif
           enddo
-  32      continue
-          if (j .gt. 0) then
-            iprt(l+1,ik,is) = j
-          else
-            nrt = nrt+1
-            if (nrt .gt. nermx) call rx('tbhsi: nermx exceeded for rt')
-            rt(nrt) = rsmh(l+1,ik)
-            iprt(l+1,ik,is) = nrt
-          endif
-        endif
-        enddo
         enddo
       enddo
 

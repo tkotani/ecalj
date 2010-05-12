@@ -31,8 +31,8 @@ Cr      h^s_-1(r) = (u+ + u-) / 2akap = (umins + uplus) / 2akap
 Cr
 Cr   We can a new set of functions
 Cr      U+/- = 1/2 exp(+/- i kappa r) erfc(r/rsm +/- i*kappa*rsm/2)
-Cr   It is convenient to use 
-Cr      erfc(-x^*) = 2-erfc^*(x). 
+Cr   It is convenient to use
+Cr      erfc(-x^*) = 2-erfc^*(x).
 Cr
 Cr  *For e<0, i*kappa is real and U+/- are also real:
 Cr      U+   = exp( i kappa r ) - u+/2
@@ -245,12 +245,14 @@ C     ... Make chi(r,rsm->0,l) - chi(r,rsm,l) for l=-1, 0
 C --- chi(ir,l) for l>1 by upward recursion ---
       facgl = 2*a**2
       do  31  l = 1, lmax
-   31 chi(1,l) = 0
+        chi(1,l) = 0
+   31 continue
       do  30  l = 1, lmax
         xx = 2*l-1
         do  7  ir = ir1, nr
-        chi(ir,l) = (xx*chi(ir,l-1) - e*chi(ir,l-2) + wk2(ir))/rsq(ir)
-    7   wk2(ir) = facgl*wk2(ir)
+          chi(ir,l) = (xx*chi(ir,l-1) - e*chi(ir,l-2) + wk2(ir))/rsq(ir)
+          wk2(ir) = facgl*wk2(ir)
+    7   continue
    30 continue
 
       end

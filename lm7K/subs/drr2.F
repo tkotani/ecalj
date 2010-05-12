@@ -30,6 +30,6 @@ C Local parameters
         drr2 = drr2 + dr(ix)**2
    10 continue
 Cgetarg       end
-       end function drr2 
+      end function drr2
 
 

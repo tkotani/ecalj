@@ -1,8 +1,0 @@
-echo --- subs-to-convex: ccomp to CONVEX-specific ---
-
-foreach i (trs.f trsdot.f)
-  rm -f xx.f ; ccomp -uCRAY $i xx.f
-  ccomp -dCRAY xx.f $i
-end
-
-rm -f xx.f

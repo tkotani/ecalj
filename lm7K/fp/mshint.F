@@ -31,17 +31,17 @@ C ... Local parameters
       bot1 = 1d10
       bot2 = 1d10
       do  5  i = 1, n
-      do  10  i3 = 1, n3
-        do  20  i2 = 1, n2
-          do  30  i1 = 1, n1
-            csum = csum + c(i1,i2,i3,i)
-            top1 = dmax1(top1,dble(c(i1,i2,i3,i)))
-            top2 = dmax1(top2,dimag(c(i1,i2,i3,i)))
-            bot1 = dmin1(bot1,dble(c(i1,i2,i3,i)))
-            bot2 = dmin1(bot2,dimag(c(i1,i2,i3,i)))
-   30     continue
-   20   continue
-   10 continue
+        do  10  i3 = 1, n3
+          do  20  i2 = 1, n2
+            do  30  i1 = 1, n1
+              csum = csum + c(i1,i2,i3,i)
+              top1 = dmax1(top1,dble(c(i1,i2,i3,i)))
+              top2 = dmax1(top2,dimag(c(i1,i2,i3,i)))
+              bot1 = dmin1(bot1,dble(c(i1,i2,i3,i)))
+              bot2 = dmin1(bot2,dimag(c(i1,i2,i3,i)))
+   30       continue
+   20     continue
+   10   continue
     5 continue
 
       csum = csum*vol/(n1*n2*n3)

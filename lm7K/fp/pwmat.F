@@ -8,8 +8,8 @@ Cgetarg...info...           use_to_add ['pwmat2', 'm_struc_def']
 Cgetarg...info...           use_to_add ['pwmat', 'm_struc_def']
       subroutine pwmat(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
      .  ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Matrix elements (IPW,IPW) and (IPW,envelope function)
 C ----------------------------------------------------------------------
@@ -65,7 +65,7 @@ Cu   10 Apr 02 Redimensionsed eh,rsmh to accomodate larger lmax
 Cu   09 Apr 01 Adapted from Kotani's pplmat2
 C
 Ci inn:  takao added 27 Apr2009
-c   We have  q+G(igvx; internal in pwmat) = qp + G(igapw). 
+c   We have  q+G(igvx; internal in pwmat) = qp + G(igapw).
 c   (because qp(shortedned q)  is used when w(oigv2)=igapw is generated. igapw is used in  hambls).
 c   Thus, we need to uss
 c           igv(internally in pwmat) = igapw + inn, where inn = qlatinv*(qp-q).
@@ -76,10 +76,10 @@ C ... Passed parameters
       integer ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1),
      .  napw,igapw(3,napw)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3),GcutH
-       real(8):: q(3) , GcutH 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: q(3) , GcutH
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double complex ppovl(ngp,ngp), pwhovl(ngp,ndimh)
 C ... Local parameters
@@ -109,13 +109,13 @@ Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
-       vol=slat%vol
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      vol=slat%vol
 
       pi  = 4d0*datan(1d0)
       pi4 = 4d0*pi
@@ -129,23 +129,23 @@ Cgetarg       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
       enddo
 C     Create bas,ips,rmax
 Cgetarg       call spackv(10,'site pos',ssite,1,nbas,bas)
-       i_copy_size=size(ssite(1)%pos)
-       do i_spackv=1,nbas 
-       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
-       enddo
+      i_copy_size=size(ssite(1)%pos)
+      do i_spackv=1,nbas
+        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
+      enddo
 
 Cgetarg       call spackv(10,'site spec',ssite,1,nbas,ips)
-       i_copy_size=1; 
-       do i_spackv=1,nbas 
-       call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
-       enddo
+      i_copy_size=1;
+      do i_spackv=1,nbas
+        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+      enddo
 
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg         rmax(ib) = dgetss('spec rmt',is,sspec)
-         rmax ( ib ) = (sspec(is)%rmt) 
+        rmax ( ib ) = (sspec(is)%rmt)
 
       enddo
       nlmto = ndimh-napw
@@ -186,28 +186,28 @@ C     Could be optimized, ala hsibl, but not a critical step for GW.
         do  ib = 1, nbas
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
 Cgetarg           is = igetss('site spec',ib,ssite)
-           is = int(ssite(ib)%spec) 
+          is = int(ssite(ib)%spec)
 
           call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
           call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
           call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
 
           do  io = 1, norb
-          if (blks(io) .ne. 0) then
+            if (blks(io) .ne. 0) then
 C           l,ik = l and kaph indices, needed to address eh,rsmh
-            l  = ltab(io)
-            ik = ktab(io)
+              l  = ltab(io)
+              ik = ktab(io)
 C           offh = hamiltonian offset to this block
-            offh  = offl(io)
-            denom = eh(l+1,ik) - qpg2
-            gam   = 1d0/4d0*rsmh(l+1,ik)**2
-            offh  = offl(io)
-            fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
-            do  ilm = l**2+1, (l+1)**2
-              offh = offh+1
-              pwh(ig,offh) = fach * yl(ilm)
-            enddo
-          endif
+              offh  = offl(io)
+              denom = eh(l+1,ik) - qpg2
+              gam   = 1d0/4d0*rsmh(l+1,ik)**2
+              offh  = offl(io)
+              fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
+              do  ilm = l**2+1, (l+1)**2
+                offh = offh+1
+                pwh(ig,offh) = fach * yl(ilm)
+              enddo
+            endif
           enddo
         enddo
       enddo
@@ -241,7 +241,7 @@ c takao find acml4.2.0 for gfortran gives wrong results.
         call zgemm('N','N',ngp,ndimh,ngmx,dcmplx(1d0,0d0),
      .  ppovlx,ngp,pwh,ngmx,dcmplx(0d0,0d0),pwhovl,ngp)
       else
-         stop 'pwmat: matmul_pwovl is wrong'
+        stop 'pwmat: matmul_pwovl is wrong'
       endif
 
 
@@ -252,7 +252,7 @@ C --- Cleanup ---
       deallocate(yl,igvx,pwh,kv,ppovlx)
 
 Cgetarg       end
-       end subroutine pwmat 
+      end subroutine pwmat
 
 
 
@@ -264,8 +264,8 @@ Cgetarg       end
 
       subroutine pwmat2(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
      .  ngp,nlmax,igv,ovlp,pwh)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Matrix elements (IPW,IPW); expansion coefficients of basis fns in IPWs
 C ----------------------------------------------------------------------
@@ -311,10 +311,10 @@ C ... Passed parameters
       integer ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1),
      .  napw,igapw(3,napw)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3)
-       real(8):: q(3) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: q(3)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double complex ovlp(ngp,ngp), pwh(ngp,ndimh)
 C ... Local parameters
@@ -337,13 +337,13 @@ Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
-       vol=slat%vol
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      vol=slat%vol
 
       pi  = 4d0*datan(1d0)
       pi4 = 4d0*pi
@@ -357,23 +357,23 @@ Cgetarg       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
       enddo
 C     Create bas,ips,rmax
 Cgetarg       call spackv(10,'site pos',ssite,1,nbas,bas)
-       i_copy_size=size(ssite(1)%pos)
-       do i_spackv=1,nbas 
-       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
-       enddo
+      i_copy_size=size(ssite(1)%pos)
+      do i_spackv=1,nbas
+        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
+      enddo
 
 Cgetarg       call spackv(10,'site spec',ssite,1,nbas,ips)
-       i_copy_size=1; 
-       do i_spackv=1,nbas 
-       call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
-       enddo
+      i_copy_size=1;
+      do i_spackv=1,nbas
+        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+      enddo
 
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg         rmax(ib) = dgetss('spec rmt',is,sspec)
-         rmax ( ib ) = (sspec(is)%rmt) 
+        rmax ( ib ) = (sspec(is)%rmt)
 
       enddo
       nlmto = ndimh-napw
@@ -394,28 +394,28 @@ C ... Fourier coefficients of smoothed hankels for all LMTOs
         do  ib = 1, nbas
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
 Cgetarg           is = igetss('site spec',ib,ssite)
-           is = int(ssite(ib)%spec) 
+          is = int(ssite(ib)%spec)
 
           call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
           call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
           call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
 
           do  io = 1, norb
-          if (blks(io) .ne. 0) then
+            if (blks(io) .ne. 0) then
 C           l,ik = l and kaph indices, needed to address eh,rsmh
-            l  = ltab(io)
-            ik = ktab(io)
+              l  = ltab(io)
+              ik = ktab(io)
 C           offh = hamiltonian offset to this block
-            offh  = offl(io)
-            denom = eh(l+1,ik) - qpg2
-            gam   = 1d0/4d0*rsmh(l+1,ik)**2
-            offh  = offl(io)
-            fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
-            do  ilm = l**2+1, (l+1)**2
-              offh = offh+1
-              pwh(ig,offh) = fach * yl(ilm)
-            enddo
-          endif
+              offh  = offl(io)
+              denom = eh(l+1,ik) - qpg2
+              gam   = 1d0/4d0*rsmh(l+1,ik)**2
+              offh  = offl(io)
+              fach  = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
+              do  ilm = l**2+1, (l+1)**2
+                offh = offh+1
+                pwh(ig,offh) = fach * yl(ilm)
+              enddo
+            endif
           enddo
         enddo
       enddo
@@ -434,7 +434,7 @@ C --- Cleanup ---
       deallocate(yl)
 
 Cgetarg       end
-       end subroutine pwmat2 
+      end subroutine pwmat2
 
 
       subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas,
@@ -491,27 +491,27 @@ C ... Find the range of G = G1*G2
 
 C ... For each G in set of G2*G1, integral(cell-MT spheres) G2*G1
       do  ig1 = 1, ng1
-      do  ig2 = 1, ng2
+        do  ig2 = 1, ng2
 C       nx = G2 * G1
-        nx(1:3) = igv2(1:3,ig2) - igv1(1:3,ig1)
-        if (ppox(nx(1),nx(2),nx(3)) .eq. 99999999999d0) then
-          call matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,nx,
+          nx(1:3) = igv2(1:3,ig2) - igv1(1:3,ig1)
+          if (ppox(nx(1),nx(2),nx(3)) .eq. 99999999999d0) then
+            call matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,nx,
      .      ppox(nx(1),nx(2),nx(3)))
-        endif
-      enddo
+          endif
+        enddo
       enddo
 
 C ... For each G2*G1, poke integral into ppovl
       do  ig1 = 1,ng1
-      do  ig2 = 1,ng2
-        nx(1:3) = igv2(1:3,ig2) - igv1(1:3,ig1)
-        ppovl(ig1,ig2) = ppox(nx(1),nx(2),nx(3) )
-      enddo
+        do  ig2 = 1,ng2
+          nx(1:3) = igv2(1:3,ig2) - igv1(1:3,ig1)
+          ppovl(ig1,ig2) = ppox(nx(1),nx(2),nx(3) )
+        enddo
       enddo
 
       deallocate(ppox)
 Cgetarg       end
-       end subroutine ipwovl 
+      end subroutine ipwovl
 
 
       subroutine matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,igv,ppovl)
@@ -574,6 +574,6 @@ C     Integral of exp(i G.r) = v0l * delta_(G,0)
         endif
       enddo
 Cgetarg       end
-       end subroutine matgg2 
+      end subroutine matgg2
 
 

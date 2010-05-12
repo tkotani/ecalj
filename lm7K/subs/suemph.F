@@ -2,8 +2,8 @@ Cgetarg...info...           structure ['suemph', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['suemph', 'm_struc_def']
       subroutine suemph(sspec,hamrul,ntab,iax,rtab,nbas,nttab,ips,
      .  ntype,ltype,htype,esite,isite,epair,ipair)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Assemble the coefficients to an empirical hamiltonian
 C ----------------------------------------------------------------------
@@ -97,8 +97,8 @@ C Passed parameters
       parameter (niax=10)
       integer iax(niax,1)
 Cgetarg       double precision rtab(3,1),esite(nbas),epair(nttab),sspec(1)
-       real(8):: rtab(3,1) , esite(nbas) , epair(nttab) 
-       type(s_spec)::sspec(*)
+      real(8):: rtab(3,1) , esite(nbas) , epair(nttab)
+      type(s_spec)::sspec(*)
 
       character hamrul*(*),htype(2)*5
 C Local parameters
@@ -130,30 +130,30 @@ C --- Setup ---
 
 C --- Get the sequence of expressions for next hamiltonian rule ---
     2 continue
-        iw1 = iw1+1
+      iw1 = iw1+1
 C   ... There need to be at least two more words
-        if (iw1+1 .gt. nw) goto 60
-        nrule = nrule+1
-        i1 = i2+1
-        call word(hamrul,iw1,i1,i2)
+      if (iw1+1 .gt. nw) goto 60
+      nrule = nrule+1
+      i1 = i2+1
+      call word(hamrul,iw1,i1,i2)
 C        print *, hamrul(i1:i2)
-        call tokmat(hamrul(i1:i2),htype,2,5,' ',jtypj,i,.false.)
-        jtypj = jtypj+1
+      call tokmat(hamrul(i1:i2),htype,2,5,' ',jtypj,i,.false.)
+      jtypj = jtypj+1
 C   ... Error if we don't recognize the interaction
-        if (jtypj .le. 0) then
-          outs = 'unrecognized interaction "'//hamrul(i1:i2)//'"'
-          call rx('suemph: '//outs)
-        endif
-        if (jtypj .gt. 2) then
-          outs = 'interaction "'//hamrul(i1:i2)//'" not implemented'
-          call rx('suemph: '//outs)
-        endif
+      if (jtypj .le. 0) then
+        outs = 'unrecognized interaction "'//hamrul(i1:i2)//'"'
+        call rx('suemph: '//outs)
+      endif
+      if (jtypj .gt. 2) then
+        outs = 'interaction "'//hamrul(i1:i2)//'" not implemented'
+        call rx('suemph: '//outs)
+      endif
 C   ... Find the word specifying magnitude of the interaction
-        iw1 = iw1+1
-        i1 = i2+1
-        call nword(hamrul,1,i1,i2)
-        ih1 = i1
-        ih2 = i2
+      iw1 = iw1+1
+      i1 = i2+1
+      call nword(hamrul,1,i1,i2)
+      ih1 = i1
+      ih2 = i2
 C       This generates interaction, but it may depend on z,d, etc,
 C       so we postpone evaluating until we have loaded variables
 C        j = i1-1
@@ -163,29 +163,29 @@ C          call rx(outs)
 C        endif
 
 C  ---  Find all subsequent words associated with this interaction ---
-        iw2 = 0
-        do  4  iw = 1, nw-iw1+1
-          i1 = i2+1
-          call nword(hamrul,1,i1,i2)
-          if (iw .gt. mxexpr) call rx('suemph: too many expr')
-          iwj(1,iw) = i1
-          iwj(2,iw) = i2
+      iw2 = 0
+      do  4  iw = 1, nw-iw1+1
+        i1 = i2+1
+        call nword(hamrul,1,i1,i2)
+        if (iw .gt. mxexpr) call rx('suemph: too many expr')
+        iwj(1,iw) = i1
+        iwj(2,iw) = i2
 C     ... Quit if start of new interaction
-          call tokmat(hamrul(i1:i2),htype,2,5,' ',j,i,.false.)
-          if (j .ge. 0) goto 6
-          iw2 = iw2+1
-    4   continue
-    6   continue
+        call tokmat(hamrul(i1:i2),htype,2,5,' ',j,i,.false.)
+        if (j .ge. 0) goto 6
+        iw2 = iw2+1
+    4 continue
+    6 continue
 
 C   --- On-site: assign this hamiltonian to sites matching rule ---
-        call numsyv(iv0)
-        if (jtypj .le. n1 .and. ltype(jtypj) .ne. 0) then
+      call numsyv(iv0)
+      if (jtypj .le. n1 .and. ltype(jtypj) .ne. 0) then
         do  10  ib1 = 1, nbas
 C     ... The interaction is already defined for this site
           if (isite(ib1) .ne. 0) goto 10
           is1 = ips(ib1)
 Cgetarg           zs1 = dgetss('spec z',is1,sspec)
-           zs1 = (sspec(is1)%z) 
+          zs1 = (sspec(is1)%z)
 
           call lodsyv('ib1',1,dble(ib1),ival)
           call lodsyv('is1',1,dble(is1),ival)
@@ -209,7 +209,7 @@ C     ... New interaction if any expression is nonzero
    10   continue
 
 C   --- Pairs: assign this hamiltonian to pairs matching rule ---
-        elseif (jtypj .gt. n1 .and. jtypj .le. n12
+      elseif (jtypj .gt. n1 .and. jtypj .le. n12
      .          .and. ltype(jtypj) .ne. 0) then
         do  20  i = 1, nttab
 C     ... The interaction is already defined for this pair
@@ -222,10 +222,10 @@ C     ... Load the variables table with pair-specific information
           is1 = ips(ib1)
           is2 = ips(ib2)
 Cgetarg           zs1 = dgetss('spec z',is1,sspec)
-           zs1 = (sspec(is1)%z) 
+          zs1 = (sspec(is1)%z)
 
 Cgetarg           zs2 = dgetss('spec z',is2,sspec)
-           zs2 = (sspec(is2)%z) 
+          zs2 = (sspec(is2)%z)
 
           call lodsyv('ib1',1,dble(ib1),ival)
           call lodsyv('ib2',1,dble(ib2),ival)
@@ -254,9 +254,9 @@ C     ... New interaction if any expression is nonzero
             endif
    22     continue
    20   continue
-        endif
-        call clrsyv(iv0)
-        iw1 = iw1+iw2
+      endif
+      call clrsyv(iv0)
+      iw1 = iw1+iw2
 
 C --- Look for next rule ---
       goto 2
@@ -268,7 +268,8 @@ C --- Cleanup and printout ---
       if (ltype(1) .ne. 0) then
         j1 = 0
         do  61  i = 1, nbas
-   61   if (isite(i) .eq. 0) j1=j1+1
+          if (isite(i) .eq. 0) j1=j1+1
+   61   continue
         lquit = lquit .or. j1 .gt. 0 .and. ltype(1) .lt. 0
       else
         j1 = 0
@@ -276,7 +277,8 @@ C --- Cleanup and printout ---
       if (ltype(n1+1) .ne. 0) then
         j2 = -nbas
         do  62  i = 1, nttab
-   62   if (ipair(i) .eq. 0) j2=j2+1
+          if (ipair(i) .eq. 0) j2=j2+1
+   62   continue
         lquit = lquit .or. j2 .gt. 0 .and. ltype(n1+1) .lt. 0
       else
         j2 = 0
@@ -291,84 +293,84 @@ C --- Cleanup and printout ---
       endif
 
       if (ltype(1) .ne. 0) then
-      if (ipr .ge. 40) then
-      print 331
-  331 format(/' One-center hamiltonian:'/'  site           h1')
-      do  114  ib1 = 1, nbas
+        if (ipr .ge. 40) then
+          print 331
+  331     format(/' One-center hamiltonian:'/'  site           h1')
+          do  114  ib1 = 1, nbas
 Cgetarg         call spacks(0,'spec name',sspec,alabl,ips(ib1),ips(ib1))
-         do i_spacks=ips(ib1),ips(ib1) 
-         call spacks_copy('u',sspec(i_spacks)%name,ips(ib1),ips(ib1),alabl,i_spacks)
-         enddo
+            do i_spacks=ips(ib1),ips(ib1)
+              call spacks_copy('u',sspec(i_spacks)%name,ips(ib1),ips(ib1),alabl,i_spacks)
+            enddo
 
-        call awrit3('%x%,4i('//alabl//'%a)%10p%;12,6D(%i)',
+            call awrit3('%x%,4i('//alabl//'%a)%10p%;12,6D(%i)',
      .    outs,80,0,ib1,esite(ib1),isite(ib1))
-        call locase(outs)
-        call awrit0('%a',outs,-80,-i1mach(2))
-  114 continue
-      endif
+            call locase(outs)
+            call awrit0('%a',outs,-80,-i1mach(2))
+  114     continue
+        endif
       endif
 
       if (ltype(n1+1) .ne. 0) then
-      if (ipr .ge. 40) then
-      print 332
-  332 format(/' Two-center hamiltonian:')
-      if (ipr .ge. 45) print 333
-  333 format('  pair   ib        jb          d          h2')
-      do  124  ib1 = 1, nbas
-Cgetarg         call spacks(0,'spec name',sspec,alabl,ips(ib1),ips(ib1))
-         do i_spacks=ips(ib1),ips(ib1) 
-         call spacks_copy('u',sspec(i_spacks)%name,ips(ib1),ips(ib1),alabl,i_spacks)
-         enddo
-
         if (ipr .ge. 40) then
-          j = 0
-          dshell = 0
-          nshell = 0
-          ishell = 1
-          strn = ' dist(n) ='
-          do  126  i = ntab(ib1)+2, ntab(ib1+1)
-            d   = dsqrt(rtab(1,i)**2 + rtab(2,i)**2 + rtab(3,i)**2)
-            if (dabs(d-dshell) .gt. 1d-6) then
-              nshell = nshell+1
-              if (nshell .gt. 1) call awrit2('%a %,3;3d(%i)',
+          print 332
+  332     format(/' Two-center hamiltonian:')
+          if (ipr .ge. 45) print 333
+  333     format('  pair   ib        jb          d          h2')
+          do  124  ib1 = 1, nbas
+Cgetarg         call spacks(0,'spec name',sspec,alabl,ips(ib1),ips(ib1))
+            do i_spacks=ips(ib1),ips(ib1)
+              call spacks_copy('u',sspec(i_spacks)%name,ips(ib1),ips(ib1),alabl,i_spacks)
+            enddo
+
+            if (ipr .ge. 40) then
+              j = 0
+              dshell = 0
+              nshell = 0
+              ishell = 1
+              strn = ' dist(n) ='
+              do  126  i = ntab(ib1)+2, ntab(ib1+1)
+                d   = dsqrt(rtab(1,i)**2 + rtab(2,i)**2 + rtab(3,i)**2)
+                if (dabs(d-dshell) .gt. 1d-6) then
+                  nshell = nshell+1
+                  if (nshell .gt. 1) call awrit2('%a %,3;3d(%i)',
      .          strn,len(strn),0,dshell,i-ishell)
-              ishell = i
-              dshell = d
-            endif
-            if (ipair(i) .eq. 0) j=j+1
-  126     continue
-          if (nshell .gt. 1) call awrit2('%a %,3;3d(%i)',
+                  ishell = i
+                  dshell = d
+                endif
+                if (ipair(i) .eq. 0) j=j+1
+  126         continue
+              if (nshell .gt. 1) call awrit2('%a %,3;3d(%i)',
      .      strn,len(strn),0,dshell,i-ishell)
-          call awrit5('%x site %i('//alabl//'%a)  %i pairs  %i shells'//
+              call awrit5('%x site %i('//alabl//'%a)  %i pairs  %i shells'//
      .      '%?#n# (J1 missing in %i pairs)#%j#',outs,80,0,ib1,
      .      (ntab(ib1+1)-ntab(ib1)-1),nshell,j,j)
-          call awrit0('%a',outs,-80,-i1mach(2))
-          if (ipr .gt. 40) call awrit0('%a',strn,-80,-i1mach(2))
-        endif
-        if (ipr .ge. 45) then
-          do  128  i = ntab(ib1)+1, ntab(ib1+1)
-          ib2 = iax(2,i)
+              call awrit0('%a',outs,-80,-i1mach(2))
+              if (ipr .gt. 40) call awrit0('%a',strn,-80,-i1mach(2))
+            endif
+            if (ipr .ge. 45) then
+              do  128  i = ntab(ib1)+1, ntab(ib1+1)
+                ib2 = iax(2,i)
 Cgetarg           call spacks(0,'spec name',sspec,alabl2,ips(ib2),ips(ib2))
-           do i_spacks=ips(ib2),ips(ib2) 
-           call spacks_copy('u',sspec(i_spacks)%name,ips(ib2),ips(ib2),alabl2,i_spacks)
-           enddo
+                do i_spacks=ips(ib2),ips(ib2)
+                  call spacks_copy('u',sspec(i_spacks)%name,ips(ib2),ips(ib2),alabl2,i_spacks)
+                enddo
 
-          d   = dsqrt(rtab(1,i)**2 + rtab(2,i)**2 + rtab(3,i)**2)
-          outs = ' '
-          call awrit6('%,4i%,4i('//alabl//'%a)%14p%,5i('//alabl2//
+                d   = dsqrt(rtab(1,i)**2 + rtab(2,i)**2 + rtab(3,i)**2)
+                outs = ' '
+                call awrit6('%,4i%,4i('//alabl//'%a)%14p%,5i('//alabl2//
      .      '%a)%25p%;12,6D%;12,6D(%i)',outs,80,0,i,ib1,ib2,d,epair(i),
      .      ipair(i))
-          call locase(outs)
-          call awrit0('%a',outs,-80,-i1mach(2))
-  128   continue
+                call locase(outs)
+                call awrit0('%a',outs,-80,-i1mach(2))
+  128         continue
+            endif
+  124     continue
         endif
-  124 continue
-      endif
       endif
 
       call rxx(lquit,'suemph: incomplete hamiltonian')
 
 Cgetarg       end
-       end subroutine suemph 
+      end subroutine suemph
 
 

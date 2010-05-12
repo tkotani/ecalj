@@ -8,7 +8,7 @@ Ci             and make ips0.  cg is not used.
 Ci         :1  same as mode 0, but also compress cg
 Ci         :2  use ips0 to undo compression of cg
 Ci   ng    :number of G-vectors
-Ci   n     :cg array holds n functions; 
+Ci   n     :cg array holds n functions;
 Ci   gv    :list of reciprocal lattice vectors G (gvlist.f)
 Co   ng0   :(mode=2) number of inequivalent points
 Ci   ips0  :(mode=2) permutation array.
@@ -42,7 +42,8 @@ ccccccccccccccccccccc
 C --- mode = 0,1 ---
       ng0 = 0
       do  5  i = 1, ng
-    5 ips0(i) = 0
+        ips0(i) = 0
+    5 continue
 
 C --- Main loop: look for next unclassified vector ---
       i00 = 1
@@ -60,7 +61,8 @@ C   ... Apply all point ops, find in list, add to phase sum
         ips0(i0) = ng0
         if (mode .eq. 1)  then
           do  21  m = 1, n
-   21     cg(ng0,m) = cg(i0,m)
+            cg(ng0,m) = cg(i0,m)
+   21     continue
         endif
         do  20  k = 1, 1
           v(1) = gv(i0,1)
@@ -106,6 +108,6 @@ C ... Unpack hermitian points
   220 continue
 
 Cgetarg       end
-       end subroutine lgstar 
+      end subroutine lgstar
 
 

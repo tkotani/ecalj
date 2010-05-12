@@ -4,8 +4,8 @@ Cgetarg...info...           structure ['rdsigm', 'bz', 'sbz']
 Cgetarg...info...           use_to_add ['rdsigm', 'm_struc_def']
       subroutine rdsigm(mode,nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
      .  lwsig)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Read sigm(k) from file and generate sigm(R)
 C ----------------------------------------------------------------------
@@ -167,15 +167,15 @@ Cu   10 Jan 03 Some adaptations for Sergey's interpolation
 Cu   14 Aug 02 Added option to orthogonalize sigm.
 Cu   27 Jul 02 first created
 C ------------------------------------------------------------
-      use m_psigd 
+      use m_psigd
 C     implicit none
 C ... Passed parameters
       integer mode,nbas,ifis,ndimh,lwsig
 C     integer osig(nbas),otau(nbas),oppi(nbas)
 Cgetarg       double precision slat(1),sham(1),sbz(1)
-       type(s_lat)::slat
-       type(s_ham)::sham
-       type(s_bz)::sbz
+      type(s_lat)::slat
+      type(s_ham)::sham
+      type(s_bz)::sbz
 
 C     double precision ssite(1),sspec(1)
       double precision rsrnge
@@ -275,9 +275,9 @@ C ... Command-line switches for input sigma and defaults
       endif
 #if 1
       if ( lfbzin .or. mod(lssym,2).eq.1 ) then
-      lfbzin = .true.
+        lfbzin = .true.
       else
-      lfbzin = .false.
+        lfbzin = .false.
       endif
 #else
       lfbzin = lfbzin .or. mod(lssym,2)
@@ -300,14 +300,14 @@ Cgetarg...info...           real(8) :: sigp(10) , real(8) :: sham%sigp 10
 Cgetarg...info...           real(8) :: rsstol , real(8) :: sham%rsstol 1
 Cgetarg       call upack('ham ldham ooffH oindxo sigp rsstol',sham,ldham,ooffH,
 Cgetarg      .  oiprmb,sigp,rsstol)
-       
-       i_copy_size=size(sham%ldham) 
-       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
-       ooffH=sham%ooffH
-       oiprmb=sham%oindxo
-       i_copy_size=size(sham%sigp) 
-       call dcopy(i_copy_size,sham%sigp,1,sigp,1) 
-       rsstol=sham%rsstol
+
+      i_copy_size=size(sham%ldham)
+      call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
+      ooffH=sham%ooffH
+      oiprmb=sham%oindxo
+      i_copy_size=size(sham%sigp)
+      call dcopy(i_copy_size,sham%sigp,1,sigp,1)
+      rsstol=sham%rsstol
 
       modsgp = nint(sigp(1))
       nmin   = nint(sigp(2))
@@ -349,7 +349,7 @@ Cgetarg      .  oiprmb,sigp,rsstol)
      .  'symmetrization suppressed##'//
      .  '%?#(n==1)#%N%9fFile k-mesh is offset by:%3:2g#%j#'//
      .  ' ',isw(lfbzin),isw(ddot(3,qoffi,1,qoffi,1).ne.0),qoffi,0,0)
-        endif
+      endif
 
       if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
         call info5(30,0,0,
@@ -359,18 +359,18 @@ Cgetarg      .  oiprmb,sigp,rsstol)
 
 C ... Setup for sigm transformation modes
       if (cmdopt('--wsig',6,0,outs) .or. cmdopt('-wsig',5,0,outs)) then
-      if (procid .eq. master) then
-        out2 = outs(7:)
-        if (outs(1:5) .eq. '-wsig') out2 = outs(6:)
-        dc = out2(1:1)
-        call sigflg(dc,'wsig',out2,ledit,lwsig,lrot,lfbzout,lnwmsh,
+        if (procid .eq. master) then
+          out2 = outs(7:)
+          if (outs(1:5) .eq. '-wsig') out2 = outs(6:)
+          dc = out2(1:1)
+          call sigflg(dc,'wsig',out2,ledit,lwsig,lrot,lfbzout,lnwmsh,
      .    lonesp,qoffo,rots)
-        lqoffo = isw(ddot(3,qoffo,1,qoffo,1) .ne. 0)
+          lqoffo = isw(ddot(3,qoffo,1,qoffo,1) .ne. 0)
 
 C       Setup, sigm transformation modes
-        if (lwsig .ne. 0) then
+          if (lwsig .ne. 0) then
 
-          call info5(10,0,0,
+            call info5(10,0,0,
      .      '%9ftrans=%i:%19p'//
      .      '%?#(n==-1)#transform sigm, LDA -> orbital'//
      .      ' basis (file sigm3)##%-1j'//
@@ -386,66 +386,66 @@ C       Setup, sigm transformation modes
      .      ' ',lwsig,lwsig,lqoffo,qoffo,isw(lfbzout))
 
 C     ... Transform sigm(lda)->sigm(orbital)
-          if (lwsig .eq. -1) then
+            if (lwsig .eq. -1) then
 
 C         Read dimension of hamiltonian in evec file
 C         Check that evec file contains LDA eigenvectors
-          call info0(30,0,0,'%9fchecking compatibility between '//
+              call info0(30,0,0,'%9fchecking compatibility between '//
      .        'sigm2, evec files ...')
-          ifiz = fopna('evec',-1,4)
-          rewind ifiz
-          call iosigh(2,3,i,ndimz,nk1,nk2,nk3,nqp,lshft(1),lshft(2),
+              ifiz = fopna('evec',-1,4)
+              rewind ifiz
+              call iosigh(2,3,i,ndimz,nk1,nk2,nk3,nqp,lshft(1),lshft(2),
      .      lshft(3),ifiz)
 C         Verify that sigm2 file contains sigm(LDA); read dimension
-          ifis = fopna('sigm2',-1,4)
-          call iosigh(0,nscnts,i,ndims,nk1,nk2,nk3,nqp,lshft(1),
+              ifis = fopna('sigm2',-1,4)
+              call iosigh(0,nscnts,i,ndims,nk1,nk2,nk3,nqp,lshft(1),
      .      lshft(2),lshft(3),ifis)
-          if (nscnts .ne. 1 .and. nscnts .ne. 2)
+              if (nscnts .ne. 1 .and. nscnts .ne. 2)
      .       call rx1('File sigm2 (trans=%i) does not contain '//
      .        'sigm(LDA): create with trans=1 or 2 ',nscnts)
 C         Check that evec file matches (nsp,nqp)
-          rewind ifiz
-          if (lfbzin) nqp = nk1*nk2*nk3
-          call iosigh(3,3,i,ndimz,nk1,nk2,nk3,nqp,lshft(1),lshft(2),
+              rewind ifiz
+              if (lfbzin) nqp = nk1*nk2*nk3
+              call iosigh(3,3,i,ndimz,nk1,nk2,nk3,nqp,lshft(1),lshft(2),
      .      lshft(3),ifiz)
 
-          allocate(evls(ndims),evlz(ndimz),sigii(ndimz))
-          allocate(siglda(ndims,ndims),z(ndimz,ndimz),sigo(ndimz,ndimz))
+              allocate(evls(ndims),evlz(ndimz),sigii(ndimz))
+              allocate(siglda(ndims,ndims),z(ndimz,ndimz),sigo(ndimz,ndimz))
 
 C         Write header for sigm3
-          ifis2 = fopna('sigm3',-1,4)
-          call iosigh(0,0,nsp,ndimz,nk1,nk2,nk3,nqp,
+              ifis2 = fopna('sigm3',-1,4)
+              call iosigh(0,0,nsp,ndimz,nk1,nk2,nk3,nqp,
      .      lshft(1),lshft(2),lshft(3),-ifis2)
 
 C         For each qp, rotate sigm(lda)->sigm(orb)
-          do  iq = 1, nqp
+              do  iq = 1, nqp
 C         Check that qp match
-          read(ifis) qp, eseavr !add eseavr june2009 
-          print *,' uuu1 eseavr=',iq,eseavr
-          read(ifiz) tmp
-          call daxpy(3,-1d0,qp,1,tmp,1)
-          if (ddot(3,tmp,1,tmp,1) .gt. 1d-9)
+                read(ifis) qp, eseavr !add eseavr june2009
+                print *,' uuu1 eseavr=',iq,eseavr
+                read(ifiz) tmp
+                call daxpy(3,-1d0,qp,1,tmp,1)
+                if (ddot(3,tmp,1,tmp,1) .gt. 1d-9)
      .      call rx('rdsigm : qp mismatch, files sigm and evec')
-          call dpdump(evls,ndimh,ifis)
-          call dpdump(siglda,ndims**2*2,ifis)
-          call dpdump(evlz,ndimz,ifiz)
-          call dpdump(z,ndimz**2*2,ifiz)
-          call info5(30,0,0,' rdsigm:  kpt %i of %i, k=%3:2,5;5d',
+                call dpdump(evls,ndimh,ifis)
+                call dpdump(siglda,ndims**2*2,ifis)
+                call dpdump(evlz,ndimz,ifiz)
+                call dpdump(z,ndimz**2*2,ifiz)
+                call info5(30,0,0,' rdsigm:  kpt %i of %i, k=%3:2,5;5d',
      .      iq,nqp,qp,0,0)
-          write(stdo,542)
-  542     format(8x,'Elda(evec)   Elda(sig)    diff       sig_ii',
+                write(stdo,542)
+  542           format(8x,'Elda(evec)   Elda(sig)    diff       sig_ii',
      .      '      a+b*Elda')
-          do  i = 1, ndimz
-            write(stdo,543) i, evlz(i), evls(i),  evlz(i)-evls(i),
+                do  i = 1, ndimz
+                  write(stdo,543) i, evlz(i), evls(i),  evlz(i)-evls(i),
      .        dble(siglda(i,i)),asig+bsig*evlz(i)
-  543       format(i5,5f12.6)
-          enddo
+  543             format(i5,5f12.6)
+                enddo
 
 C          print *, '!!'; sigp(2) = 2
 
 C         Determine lhigh = ndimz - ndims - lcore
 C         sigp(4) = nmax = ndimz - lhigh = ndims + lcore
-          sigp(4) = ndims + sigp(2)
+                sigp(4) = ndims + sigp(2)
 
 C          print *, '!!'; ndimz = ndimz+5
 C          deallocate(evlz,sigii)
@@ -455,28 +455,28 @@ C          evlz(1:2) = -99
 C          evlz(1+2:ndims+2) = evls(1:ndims)
 C          evlz(ndimz) = 11
 
-          call dpzero(sigii,ndimz)
-          call psigd(1,ndimz,ztmp,evlz,sigp,n123,sigii)
-          lcore = nint(sigp(2))
-          lhigh = ndimz - ndims - lcore
-          call rotevs(1,ndimz,ndims,lcore,lhigh,w,siglda,sigii,z,sigo)
-          ifis2 = fopna('sigm3',-1,4)
-          write(ifis2) qp
-          call dpdump(sigo,ndimh**2*2,-ifis2)
-          enddo
+                call dpzero(sigii,ndimz)
+                call psigd(1,ndimz,ztmp,evlz,sigp,n123,sigii)
+                lcore = nint(sigp(2))
+                lhigh = ndimz - ndims - lcore
+                call rotevs(1,ndimz,ndims,lcore,lhigh,w,siglda,sigii,z,sigo)
+                ifis2 = fopna('sigm3',-1,4)
+                write(ifis2) qp
+                call dpdump(sigo,ndimh**2*2,-ifis2)
+              enddo
 
-          deallocate(evls,evlz,sigii)
-          deallocate(siglda,z,sigo)
+              deallocate(evls,evlz,sigii)
+              deallocate(siglda,z,sigo)
 
-          call rx0('RDSIGM:  sigm(orbital basis) saved in file sigm3')
+              call rx0('RDSIGM:  sigm(orbital basis) saved in file sigm3')
 
-          endif
+            endif
 
 C         No sigma for LDA eigenvectors; early exit
-          if (lwsig .eq. 3 .or. lwsig .eq. 4) return
+            if (lwsig .eq. 3 .or. lwsig .eq. 4) return
 
+          endif
         endif
-      endif
       endif
 
       call tcn('rdsigm')
@@ -489,7 +489,7 @@ C       Require file contains sigm(orbital basis)
         call iosigh(0,nscnts,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),
      .    lshft(3),ifis)
         if (nscnts .ne. 0 .and. nscnts .ne. 5) then
-        call iosigh(2,0,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),
+          call iosigh(2,0,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),
      .    lshft(3),ifis)
         endif
       endif
@@ -526,10 +526,10 @@ C     Sanity checks
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
 Cgetarg       call upack('lat plat opos',slat,plat,opos,0,0,0)
-       
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       opos=slat%opos
+
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      opos=slat%opos
 
 Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
 Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
@@ -537,11 +537,11 @@ Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
 Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
 Cgetarg       call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
 Cgetarg      .  oag,0)
-       
-       nsgrp=slat%nsgrp
-       oistab=slat%oistab
-       og=slat%osymgr
-       oag=slat%oag
+
+      nsgrp=slat%nsgrp
+      oistab=slat%oistab
+      og=slat%osymgr
+      oag=slat%oag
 
 C     Get leading dimension of hrs
       call offsHp(w(oiprmb),1,nbas,2,0,ndimh,0,ndhrs)
@@ -555,7 +555,8 @@ C ... Number of group operations for input file sigma
       if (lfbzin) nsgrps = 1
 C ... Make is,ifac,qb,qlat,qoff
       do  8  i = 1, 3
-    8 llshft(i) = lshft(i) .ne. 0
+        llshft(i) = lshft(i) .ne. 0
+    8 continue
       call pshpr(0)
       call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
       call poppr
@@ -599,9 +600,9 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
 Cgetarg...info...           integer :: nqsig , integer(8) :: sham%nqsig 1
 Cgetarg...info...           integer :: oqsig , integer(8) :: sham%oqsig 1
 Cgetarg       call pack2('ham nqsig oqsig',sham,nqsig,oqsig)
-       
-       sham%nqsig=nqsig 
-       sham%oqsig=oqsig 
+
+      sham%nqsig=nqsig
+      sham%oqsig=oqsig
 
       call dpzero(w(owgt),mxkp)
       call info2(20,0,0,
@@ -637,60 +638,60 @@ C ... titus
 C --- Generate hrs = sigma(T) from file sigma(k) ---
 C ... Loop over spins, keeping sig in full BZ for only one spin
       if (procid .eq. master) then
-      do  isp = 1, nsp
+        do  isp = 1, nsp
 
 C     If sigma file not spin polarized, use sigma from spin 1
-      if (isp .eq. 2 .and. lsplts) then
-        call iosigh(3,0,1,ndimh,nk1,nk2,nk3,nqp,
+          if (isp .eq. 2 .and. lsplts) then
+            call iosigh(3,0,1,ndimh,nk1,nk2,nk3,nqp,
      .    lshft(1),lshft(2),lshft(3),ifis)
-      endif
+          endif
 
 C     If to mix in some other sigma file, set up ifis2
-      if (alf(2) .ne. 0) then
-      if (isp .eq. 1 .or. isp .eq. 2 .and. lsplts) then
-        ifis2 = fopna('sigm1',-1,4)
-        call iosigh(3,0,nsp,ndimh,nk1,nk2,nk3,nqp,
+          if (alf(2) .ne. 0) then
+            if (isp .eq. 1 .or. isp .eq. 2 .and. lsplts) then
+              ifis2 = fopna('sigm1',-1,4)
+              call iosigh(3,0,nsp,ndimh,nk1,nk2,nk3,nqp,
      .    lshft(1),lshft(2),lshft(3),ifis2)
-      endif
-      endif
+            endif
+          endif
 
 C ... File sigma in irr BZ -> sigma in full BZ by rotations
-      call defcc(osfz,k1*k2*k3*ndimh**2)
+          call defcc(osfz,k1*k2*k3*ndimh**2)
 C ... titus
 C      call defcc(osfz,k1*k2*k3*ndimh*nlmaa)
 C      call defcc(osfz1,k1*k2*k3*ndimh*nlmaa)
 C ... titus
-      call defcc(owk,ndimh**2)
-      nl = nglob('nl')
-      nspc = 1
-      call defcc(osigm,ndimh**2)
+          call defcc(owk,ndimh**2)
+          nl = nglob('nl')
+          nspc = 1
+          call defcc(osigm,ndimh**2)
 ccccccccccccccccccccccccc
 ctakaox
 c      call defcc(oss,ndimh**2)
 ccccccccccccccccccccccccc
-      do  iq1 = 1, nqps
-        read(ifis) qp,  eseavr !june2009  add eseavr
-        print *,' uuu2 iq1 eseavr=',iq1,eseavr
-        call dpscop(qp,tmp,3,1,1,1d0)
-        call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
-        call dpsadd(tmp,qoffi,3,1,1,-1d0)
-        if (.not. latvec(1,tolq,plat,tmp)) then
-          call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
-          if (lssym .ge. 4) then
-            call info5(20,0,0,' rdsigm (warning) qp %i : '//
+          do  iq1 = 1, nqps
+            read(ifis) qp,  eseavr !june2009  add eseavr
+            print *,' uuu2 iq1 eseavr=',iq1,eseavr
+            call dpscop(qp,tmp,3,1,1,1d0)
+            call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
+            call dpsadd(tmp,qoffi,3,1,1,-1d0)
+            if (.not. latvec(1,tolq,plat,tmp)) then
+              call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
+              if (lssym .ge. 4) then
+                call info5(20,0,0,' rdsigm (warning) qp %i : '//
      .        'expected%3;8,4D read%3;8,4D',iq1,tmp,qp,0,0)
-            call dpscop(tmp,qp,3,1,1,1d0)
-          else
-            print 456, iq1,tmp,qp
-  456     format(' rdsigm: error on reading qp no',i4/
+                call dpscop(tmp,qp,3,1,1,1d0)
+              else
+                print 456, iq1,tmp,qp
+  456           format(' rdsigm: error on reading qp no',i4/
      .           ' Expected qp=',3f12.6/
      .           '     File qp=',3f12.6)
-          call rx(' incompatible q-mesh')
-        endif
-        endif
+                call rx(' incompatible q-mesh')
+              endif
+            endif
 C       File read sigma
-        if (nscnts .eq. 5) call dpdump(tmp,1,ifis)
-        call dpdump(w(osigm),ndimh**2*2,ifis)
+            if (nscnts .eq. 5) call dpdump(tmp,1,ifis)
+            call dpdump(w(osigm),ndimh**2*2,ifis)
 C        if (isp .eq. 2) then
 C          print *, iq1,isp
 C         call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
@@ -707,34 +708,34 @@ c        print *,'read ovlmat for iq1=',iq1
 c        call divctakao(w(osigm),w(oss),ndimh)
 ccccccccccccccccccccccccccccccccccccc
 
-        if (alf(1) .ne. 1d0) then
-          call dscal(ndimh**2*2,alf(1),w(osigm),1)
-        endif
-        if (alf(2) .ne. 0d0) then
-          read(ifis2) qp
-          call dpscop(qp,tmp,3,1,1,1d0)
-          call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
-          call dpsadd(tmp,qoffi,3,1,1,-1d0)
-          if (abs(tmp(1))+abs(tmp(2))+abs(tmp(3)) .gt. tolq) then
-            call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
-            if (lssym .ge. 4) then
-              call info5(20,0,0,' rdsigm (warning) qp %i : '//
+            if (alf(1) .ne. 1d0) then
+              call dscal(ndimh**2*2,alf(1),w(osigm),1)
+            endif
+            if (alf(2) .ne. 0d0) then
+              read(ifis2) qp
+              call dpscop(qp,tmp,3,1,1,1d0)
+              call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
+              call dpsadd(tmp,qoffi,3,1,1,-1d0)
+              if (abs(tmp(1))+abs(tmp(2))+abs(tmp(3)) .gt. tolq) then
+                call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
+                if (lssym .ge. 4) then
+                  call info5(20,0,0,' rdsigm (warning) qp %i : '//
      .          'expected%3;8,4D read%3;8,4D (file sigm1)',iq1,tmp,qp,
      .          0,0)
-            else
-              call rx(' file sigm1 has incompatible irr mesh')
-            endif
-          endif
+                else
+                  call rx(' file sigm1 has incompatible irr mesh')
+                endif
+              endif
 C         call dpsadd(qp,w(oqp),3,1,3*iq1-2,1d0)
-          call defcc(osigm2,ndimh**2)
-          call dpdump(w(osigm2),ndimh**2*2,ifis2)
-          call daxpy(ndimh**2*2,alf(2),w(osigm2),1,w(osigm),1)
-          call rlse(osigm2)
-        endif
+              call defcc(osigm2,ndimh**2)
+              call dpdump(w(osigm2),ndimh**2*2,ifis2)
+              call daxpy(ndimh**2*2,alf(2),w(osigm2),1,w(osigm),1)
+              call rlse(osigm2)
+            endif
 C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
 
-        i = 100*kcplx + 00
-        if (lphase) i = i+40
+            i = 100*kcplx + 00
+            if (lphase) i = i+40
 C ... titus
 C        call hamfb2(nbas,nl,w(ooffH),w(oiprmb),ib,i,w(opos),iq1,nk1,
 C     .    nk2,nk3,k1,k2,k3,w(oipq),w(oistab),w(og),w(oag),
@@ -742,11 +743,11 @@ C     .    w(ogstar),ifac,lidim,ndimh,nlmaa,ndimh,nlmaa,nspc,qb,
 C     .    w(osigm),w(owk),
 C     .    w(owk),w(osfz),w(osfz1))
 C ... titus
-        call hamfb3(nbas,nl,w(ooffH),w(oiprmb),i,w(opos),iq1,nk1,
+            call hamfb3(nbas,nl,w(ooffH),w(oiprmb),i,w(opos),iq1,nk1,
      .    nk2,nk3,k1,k2,k3,w(oipq),w(oistab),w(og),w(oag),
      .    w(ogstar),ifac,ndimh,ndimh,ndimh,nspc,qb,w(osigm),w(owk),
      .    w(owk),w(osfz))
-      enddo
+          enddo
 
 
 cccccccccccccccccccccccccccccccccccccccccccc
@@ -763,15 +764,15 @@ C      print *, 'one element of sigma(k)'
 C      call pvtrod(w(osfz),k1,k2,k3,ndimh)
 
 C ... FT sfz and copy sfz(T) to hrs
-      i = 10*hreal + 1
-      if (ltrans) i = i + 10000
+          i = 10*hreal + 1
+          if (ltrans) i = i + 10000
 C ... titus
 C      call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,isp,nsp,nbas,w(og),w(oag)
 C     .  ,nsgrps,rsrnge,w(ooffH),ib,ib,nlmaa,ndimh,w(osfz),plat,
 C     .  w(opos),ontabs,
 C     .  oiaxs,ndhrs,w(ohrs))
 C ... titus
-      call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,isp,nsp,nbas,w(og),w(oag),
+          call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,isp,nsp,nbas,w(og),w(oag),
      .  nsgrps,rsrnge,w(ooffH),1,nbas,ndimh,ndimh,w(osfz),plat,w(opos),
      .  ontabs,oiaxs,ndhrs,w(ohrs))
 
@@ -781,8 +782,8 @@ C     .  nttabs,w(osfz),ndimh)
 C      stop
 
 C ... End loop over spins
-      call rlse(osfz)
-      enddo
+          call rlse(osfz)
+        enddo
 C ... titus
 C 100  continue
 C     exit of MPI master loop
@@ -795,11 +796,11 @@ Cgetarg...info...           integer :: oiaxs , integer(8) :: sham%oiaxs 1
 Cgetarg...info...           integer :: ohrs , integer(8) :: sham%ohrs 1
 Cgetarg       call pack5('ham ndhrs ontabs oiaxs ohrs',sham,ndhrs,ontabs,oiaxs,
 Cgetarg      .  ohrs,0)
-       
-       sham%ndhrs=ndhrs 
-       sham%ontabs=ontabs 
-       sham%oiaxs=oiaxs 
-       sham%ohrs=ohrs 
+
+      sham%ndhrs=ndhrs
+      sham%ontabs=ontabs
+      sham%oiaxs=oiaxs
+      sham%ohrs=ohrs
 
 
 C ... Check that FT replicates sigma(k) at file qp to tolerance rsstol
@@ -865,141 +866,141 @@ C        call rx0('done')
 
 C   ... Check how well symmetrized FT replicates sigma(k) at file qp
         if (procid .eq. master) then
-        rsstol = 0
-        if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
-          call info0(20,0,0,' skipping check of symmetrized sigma'//
+          rsstol = 0
+          if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
+            call info0(20,0,0,' skipping check of symmetrized sigma'//
      .    ' (sigma scaled) ')
-        else
-          call chksgr(0,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
+          else
+            call chksgr(0,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
      .      w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,i,0,
      .      nbas,0,rotm,w)
+          endif
         endif
-      endif
 
 C   ... Broadcast R.S. sigma after symmetrization
         if (hreal .eq. 1) then
           call mpibc1(w(ohrs),ndhrs**2*nttabs*nsp,4,mlog,'rdsigm','hrs')
         else
-        call mpibc1(w(ohrs),2*ndhrs**2*nttabs*nsp,4,mlog,'rdsigm','hrs')
+          call mpibc1(w(ohrs),2*ndhrs**2*nttabs*nsp,4,mlog,'rdsigm','hrs')
         endif
 
       endif
 
 C ... lwsig=0 modes that internally transform sigma, save and exit
       if (lwsig .eq. 0) then
-      if (cmdopt('--wsig',6,0,outs) .or. cmdopt('-wsig',5,0,outs)) then
-      if (procid .eq. master) then
-        ifis2 = fopna('sigm2',-1,4)
-        rsstol = 0
-        out2 = outs(7:)
-        if (outs(1:5) .eq. '-wsig') out2 = outs(6:)
-        dc = out2(1:1)
-        call sigflg(dc,'wsig',out2,ledit,lwsig,lrot,lfbzout,lnwmsh,
+        if (cmdopt('--wsig',6,0,outs) .or. cmdopt('-wsig',5,0,outs)) then
+          if (procid .eq. master) then
+            ifis2 = fopna('sigm2',-1,4)
+            rsstol = 0
+            out2 = outs(7:)
+            if (outs(1:5) .eq. '-wsig') out2 = outs(6:)
+            dc = out2(1:1)
+            call sigflg(dc,'wsig',out2,ledit,lwsig,lrot,lfbzout,lnwmsh,
      .    lonesp,qoffo,rots)
 
-        if (lonesp .eq. 1) then
-          if (nsp .eq. 1) call rx(
+            if (lonesp .eq. 1) then
+              if (nsp .eq. 1) call rx(
      .      'onesp option nonsensical unless sigma file is spin pol')
-          call siged(1,nbas,nsp,ndhrs,plat,w(opos),ndimh,w(oiprmb),
+              call siged(1,nbas,nsp,ndhrs,plat,w(opos),ndimh,w(oiprmb),
      .      hreal,w(ontabs),w(oiaxs),w(ohrs))
-        endif
+            endif
 
-        if (ledit .eq. 1) then
-          call siged(0,nbas,nsp,ndhrs,plat,w(opos),ndimh,w(oiprmb),
+            if (ledit .eq. 1) then
+              call siged(0,nbas,nsp,ndhrs,plat,w(opos),ndimh,w(oiprmb),
      .      hreal,w(ontabs),w(oiaxs),w(ohrs))
-        endif
+            endif
 
 C       Handle case q-mesh for file output differs from file input
 C       ltmp = true in cases where file symops artificially reduced
 C        ltmp = mod(lssym,2) .eq. 1 .and. lwsig .ne. 3
 C        if (lnwmsh .or. ltmp) then
-        if (lnwmsh) then
+            if (lnwmsh) then
 Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
 Cgetarg...info...           integer :: lshft(3) , integer(8) :: sbz%lshft 3
 Cgetarg...info...           integer :: nqp , integer(8) :: sbz%nkp 1
 Cgetarg...info...           integer :: oqp , integer(8) :: sbz%oqp 1
 Cgetarg           call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
-           
-           i_copy_size=size(sbz%nkabc) 
-           call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
-           i_copy_size=size(sbz%lshft) 
-           call i8icopy(i_copy_size,sbz%lshft,1,lshft,1) 
-           nqp=sbz%nkp
-           oqp=sbz%oqp
+
+              i_copy_size=size(sbz%nkabc)
+              call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
+              i_copy_size=size(sbz%lshft)
+              call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
+              nqp=sbz%nkp
+              oqp=sbz%oqp
 
 
-          mxkp = nk1*nk2*nk3
-          call defdr(oqp,3*mxkp)
-          call defi(ogstar,-mxkp-1)
-          w(ogstar) = -2
-          call defi(oipq,mxkp)
-          call defdr(owgt,-mxkp)
-          do  i = 1, 3
-            llshft(i) = lshft(i) .ne. 0
-          enddo
-          call dpzero(w(owgt),mxkp)
-          if (lfbzout) then
-            call info0(20,1,0,
+              mxkp = nk1*nk2*nk3
+              call defdr(oqp,3*mxkp)
+              call defi(ogstar,-mxkp-1)
+              w(ogstar) = -2
+              call defi(oipq,mxkp)
+              call defdr(owgt,-mxkp)
+              do  i = 1, 3
+                llshft(i) = lshft(i) .ne. 0
+              enddo
+              call dpzero(w(owgt),mxkp)
+              if (lfbzout) then
+                call info0(20,1,0,
      .        ' Creating sigma for new mesh, full BZ (file sigm2) ...')
-            call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
+                call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
      .        w(oqp),w(owgt),nqp,mxkp,0,0)
-          else
-            call info0(20,1,0,
+              else
+                call info0(20,1,0,
      .        ' Creating sigma for new mesh (file sigm2) ...')
-            call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrp,w(oipq),
+                call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrp,w(oipq),
      .        w(oqp),w(owgt),nqp,mxkp,w(ogstar),0)
 
-          endif
+              endif
 
-        elseif (lfbzout) then
-          oqp = oqsig
-          nqp = nqsig
-          call info2(20,1,0,
+            elseif (lfbzout) then
+              oqp = oqsig
+              nqp = nqsig
+              call info2(20,1,0,
      .      ' Creating sigma for full BZ, %i qp (file sigm2) ...',nqp,0)
-        else
-          call info2(20,0,0,
+            else
+              call info2(20,0,0,
      .      ' Writing sigma for irr BZ, %i qp (file sigm2) ...',nqp,0)
-        endif
+            endif
 
 C   ... Setup rotation matrix
-        if (rots .ne. ' ') then
-          call a2rotm(rots,.false.,0,rotm)
-          if (iprint() .ge. 20) then
-            call info0(20,0,0,' Rotate sigma by rotation matrix:')
-            write (stdo,350) ((rotm(i,j),j=1,3),i=1,3)
-  350       format(3f11.6)
-          endif
-          lrot = lrot + 1
-        endif
+            if (rots .ne. ' ') then
+              call a2rotm(rots,.false.,0,rotm)
+              if (iprint() .ge. 20) then
+                call info0(20,0,0,' Rotate sigma by rotation matrix:')
+                write (stdo,350) ((rotm(i,j),j=1,3),i=1,3)
+  350           format(3f11.6)
+              endif
+              lrot = lrot + 1
+            endif
 
 C   ... Setup phase matrix
-        if (lrot .ge. 2) then
-          call defrr(odelT,-3*nbas)
-          call info0(0,0,0,' Phase shift of sigma.  '//
+            if (lrot .ge. 2) then
+              call defrr(odelT,-3*nbas)
+              call info0(0,0,0,' Phase shift of sigma.  '//
      .      'Translation vectors from shorps file:')
-          call iopos(.false.,-1,'shorps',nbas,w(odelT))
-        endif
+              call iopos(.false.,-1,'shorps',nbas,w(odelT))
+            endif
 C       call prmx('q for which sigm is written',w(oqp),3,3,nqp)
 
-        call iosigh(0,nscnts,nsp,ndimh,nk1,nk2,nk3,nqp,
+            call iosigh(0,nscnts,nsp,ndimh,nk1,nk2,nk3,nqp,
      .    lshft(1),lshft(2),lshft(3),-ifis2)
-        if (lqoffo .ne. 0) then
+            if (lqoffo .ne. 0) then
 C         call prmx('qp',w(oqp),3,3,nqp)
-          do  i = 1, nqp
-            call dmsadd(w(oqp),1,qoffo,1,1,3,1,1,3*i-2,1,1d0)
-          enddo
+              do  i = 1, nqp
+                call dmsadd(w(oqp),1,qoffo,1,1,3,1,1,3*i-2,1,1d0)
+              enddo
 C         call prmx('qp',w(oqp),3,3,nqp)
-        endif
-        call chksgr(1,ltrans,kcplx,plat,nsp,ndimh,ifis2,hreal,
+            endif
+            call chksgr(1,ltrans,kcplx,plat,nsp,ndimh,ifis2,hreal,
      .    w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,nqp,
      .    w(oqp),nbas,lrot,rotm,w(odelT))
-        call fclose(ifis2)
-        call rx0('done writing sigma, file sigm2')
+            call fclose(ifis2)
+            call rx0('done writing sigma, file sigm2')
 C      elseif (lwsig .eq. 1 .or. lwsig .eq. 2) then
 C        if (lfbzout) call info0(20,0,0,' ')
 C        if (lfbzout) goto 99
-      endif
-      endif
+          endif
+        endif
       endif
 
 C     Broadcast entire sham structure (shouldn't be needed)
@@ -1012,75 +1013,75 @@ C ... Transformations done by caller: write qp list to disk
    99 continue
       if (lwsig .ne. 0) then
 
-      call info0(30,0,0,' ')
+        call info0(30,0,0,' ')
 
-      if (lnwmsh) then
+        if (lnwmsh) then
 Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
 Cgetarg...info...           integer :: lshft(3) , integer(8) :: sbz%lshft 3
 Cgetarg...info...           integer :: nqp , integer(8) :: sbz%nkp 1
 Cgetarg...info...           integer :: oqp , integer(8) :: sbz%oqp 1
 Cgetarg         call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
-         
-         i_copy_size=size(sbz%nkabc) 
-         call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
-         i_copy_size=size(sbz%lshft) 
-         call i8icopy(i_copy_size,sbz%lshft,1,lshft,1) 
-         nqp=sbz%nkp
-         oqp=sbz%oqp
 
-        call info2(20,0,0,
+          i_copy_size=size(sbz%nkabc)
+          call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
+          i_copy_size=size(sbz%lshft)
+          call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
+          nqp=sbz%nkp
+          oqp=sbz%oqp
+
+          call info2(20,0,0,
      .    ' Transform sigma on new k-mesh:  '//
      .    'nk=%3:1i  shft=%3:1l',nkxyz,lshft)
         endif
 
-      if (lfbzout) then
-        mxkp = nk1*nk2*nk3
-        call info(20,0,0,' rdsigm: use full BZ (%i q-points)...',mxkp,0)
-        call defdr(oqp,3*mxkp)
-        call defi(oipq,mxkp)
-        call defdr(owgt,-mxkp)
+        if (lfbzout) then
+          mxkp = nk1*nk2*nk3
+          call info(20,0,0,' rdsigm: use full BZ (%i q-points)...',mxkp,0)
+          call defdr(oqp,3*mxkp)
+          call defi(oipq,mxkp)
+          call defdr(owgt,-mxkp)
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg         call upack('lat plat',slat,plat,0,0,0,0)
-         
-         i_copy_size=size(slat%plat) 
-         call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
+          i_copy_size=size(slat%plat)
+          call dcopy(i_copy_size,slat%plat,1,plat,1)
 
 C   ... Make is,ifac,qb,qlat
-        do   i = 1, 3
-          llshft(i) = lshft(i) .ne. 0
-        enddo
-        call pshpr(0)
-        call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
-        call poppr
-        call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
+          do   i = 1, 3
+            llshft(i) = lshft(i) .ne. 0
+          enddo
+          call pshpr(0)
+          call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
+          call poppr
+          call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
      .    w(oqp),w(owgt),nqp,mxkp,0,0)
 C       call pack2('bz nkp oqp',sbz,nqp,oqp)
-        call rlse(owgt)
-      endif
+          call rlse(owgt)
+        endif
 
 C ... Write points to disk, shifting by qoffo
-      if (lqoffo .ne. 0) then
+        if (lqoffo .ne. 0) then
 C       call prmx('qp',w(oqp),3,3,nqp)
-        do  i = 1, nqp
-          call dmsadd(w(oqp),1,qoffo,1,1,3,1,1,3*i-2,1,1d0)
-        enddo
+          do  i = 1, nqp
+            call dmsadd(w(oqp),1,qoffo,1,1,3,1,1,3*i-2,1,1d0)
+          enddo
 C       call prmx('qp',w(oqp),3,3,nqp)
-      endif
+        endif
 
-      call info0(30,0,0,' RDSIGM: writing data to file QPTS ...')
-      ifiz = fopna('qpts',-1,0)
-      call getqp(1,-ifiz,nqp,nkxyz,lshft,0,w(oqp),w,w)
+        call info0(30,0,0,' RDSIGM: writing data to file QPTS ...')
+        ifiz = fopna('qpts',-1,0)
+        call getqp(1,-ifiz,nqp,nkxyz,lshft,0,w(oqp),w,w)
 
-      if (lfbzout) then
-        call rlse(oipq)
-      endif
+        if (lfbzout) then
+          call rlse(oipq)
+        endif
 
       endif
 
       call tcx('rdsigm')
 
 Cgetarg       end
-       end subroutine rdsigm 
+      end subroutine rdsigm
 
       subroutine iosigh(optio,mode,nsp,ndimh,nk1,nk2,nk3,nqp,
      .  lshft1,lshft2,lshft3,ifi)
@@ -1178,16 +1179,16 @@ C       Assign mode or check with file correspondence
         endif
 C       Assign header parameters or check with file correspondence
         if (mod(optio,2) .ne. 0) then
-        read(ifi,err=99,end=99) i1,i2,i3,i4,i5,i6,i7,i8,i9
-        call isanrg(i1,nsp,nsp,'iosigh:','file''s nsp',.true.)
-        call isanrg(i2,ndimh,ndimh,'iosigh:','file''s ndimh',.true.)
-        call isanrg(i3,nk1,nk1,'iosigh:','file''s nk1',.true.)
-        call isanrg(i4,nk2,nk2,'iosigh:','file''s nk2',.true.)
-        call isanrg(i5,nk3,nk3,'iosigh:','file''s nk3',.true.)
-        call isanrg(i6,nqp,nqp,'iosigh:','file''s nqp',.true.)
-        call isanrg(i7,lshft1,lshft1,'iosigh:','file''s lshft1',.true.)
-        call isanrg(i8,lshft2,lshft2,'iosigh:','file''s lshft2',.true.)
-        call isanrg(i9,lshft3,lshft3,'iosigh:','file''s lshft3',.true.)
+          read(ifi,err=99,end=99) i1,i2,i3,i4,i5,i6,i7,i8,i9
+          call isanrg(i1,nsp,nsp,'iosigh:','file''s nsp',.true.)
+          call isanrg(i2,ndimh,ndimh,'iosigh:','file''s ndimh',.true.)
+          call isanrg(i3,nk1,nk1,'iosigh:','file''s nk1',.true.)
+          call isanrg(i4,nk2,nk2,'iosigh:','file''s nk2',.true.)
+          call isanrg(i5,nk3,nk3,'iosigh:','file''s nk3',.true.)
+          call isanrg(i6,nqp,nqp,'iosigh:','file''s nqp',.true.)
+          call isanrg(i7,lshft1,lshft1,'iosigh:','file''s lshft1',.true.)
+          call isanrg(i8,lshft2,lshft2,'iosigh:','file''s lshft2',.true.)
+          call isanrg(i9,lshft3,lshft3,'iosigh:','file''s lshft3',.true.)
         else
           read(ifi,err=99,end=99)
      .    nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3
@@ -1198,7 +1199,7 @@ C       Assign header parameters or check with file correspondence
    99 continue
       call rx('iosigh: failed to read header from file')
 Cgetarg       end
-       end subroutine iosigh 
+      end subroutine iosigh
 
 
       subroutine chksgr(opt,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
@@ -1370,69 +1371,69 @@ C ... Read header data
       endif
 
       do  isp = 1, nsp
-      errmxx = 0
+        errmxx = 0
 
 C     If sigma file not spin polarized, use sigma from spin 1
-      if (isp .eq. 2 .and. lsplts) then
-        call iosigh(1,nscnts,1,ndimh,nk1,nk2,nk3,nqp,
+        if (isp .eq. 2 .and. lsplts) then
+          call iosigh(1,nscnts,1,ndimh,nk1,nk2,nk3,nqp,
      .    lshft(1),lshft(2),lshft(3),ifis)
-      endif
+        endif
 
 C ... For each q, compare Bloch sum of hrs against file's s(q)
 C     or write to file
-      do  iq1 = 1, nqp
+        do  iq1 = 1, nqp
 
 C       print *, 'starting iq=',iq1
 
-        if (opt01 .eq. 0) then
-          read(ifis) qp
-          if (opt0 .eq. 2) call dcopy(3,qplst(1,iq1),1,qp,1)
-          if (nscnts .eq. 5) call dpdump(xx,1,ifis)
-          call dpdump(sq,ndimh**2*2,ifis)
-          call ztoyy(sq,ndimh,ndimh,ndimh,ndimh,kcplx,1)
+          if (opt01 .eq. 0) then
+            read(ifis) qp
+            if (opt0 .eq. 2) call dcopy(3,qplst(1,iq1),1,qp,1)
+            if (nscnts .eq. 5) call dpdump(xx,1,ifis)
+            call dpdump(sq,ndimh**2*2,ifis)
+            call ztoyy(sq,ndimh,ndimh,ndimh,ndimh,kcplx,1)
 C          print *, iq1
 C          call zprm('sq',2,sq,ndimh,ndimh,ndimh)
-        else
-          call dcopy(3,qplst(1,iq1),1,qp,1)
-        endif
+          else
+            call dcopy(3,qplst(1,iq1),1,qp,1)
+          endif
 C       Call bloch : 104010=perm orb, transpose, c*16
-        i = 100000 + 4000 + 40*(1-hreal) + 10
-        if (.not. ltrans) i = i - 4000
-        call bloch(i,qp,nl,plat,mxorb,iprmb,1,nttabs,iaxs,
+          i = 100000 + 4000 + 40*(1-hreal) + 10
+          if (.not. ltrans) i = i - 4000
+          call bloch(i,qp,nl,plat,mxorb,iprmb,1,nttabs,iaxs,
      .    hrs,ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,sq1,w,w)
 C        print *, 'iq=',iq1,'qp=',sngl(qp)
 C        call zprm('sigm',2,sq1,ndimh,ndimh,ndimh)
-        errmx = 0
+          errmx = 0
 
 C       Compare Bloch sum of hrs against file's s(q)
-        if (opt01 .eq. 0) then
-        ii = 1
-        jj = 1
-        do  j = 1, ndimh
-          do  i = 1, ndimh
-            err = abs(sq(i,j)-sq1(i,j))
-            if (err .gt. errmx) then
-              ii = i
-              jj = j
-              if (err .gt. tols .and. tols .gt. 0) then
-                print 357, i,j, sngl(err),sq1(i,j),sq(i,j)
-  357           format(/
+          if (opt01 .eq. 0) then
+            ii = 1
+            jj = 1
+            do  j = 1, ndimh
+              do  i = 1, ndimh
+                err = abs(sq(i,j)-sq1(i,j))
+                if (err .gt. errmx) then
+                  ii = i
+                  jj = j
+                  if (err .gt. tols .and. tols .gt. 0) then
+                    print 357, i,j, sngl(err),sq1(i,j),sq(i,j)
+  357               format(/
      .            '   i   j',6x,'diff',14x,'bloch sum',16x,'file value'/
      .            2i4,f12.6,2x,2f12.6,2x,2f12.6)
-                call rx1('rdsigm: Bloch sum deviates more than'//
+                    call rx1('rdsigm: Bloch sum deviates more than'//
      .            ' allowed tolerance (tol=%g)',tols)
-            endif
-            endif
-            errmx = max(errmx,err)
-          enddo
-        enddo
-        if (ipr .ge. 45) write(stdo,332) iq1,errmx,ii,jj
-  332   format(' comparing s(iq) to interpolated sq for iq=',i4,
+                  endif
+                endif
+                errmx = max(errmx,err)
+              enddo
+            enddo
+            if (ipr .ge. 45) write(stdo,332) iq1,errmx,ii,jj
+  332       format(' comparing s(iq) to interpolated sq for iq=',i4,
      .    '  errmx=',1pe8.1:' at i,j=',2i4)
-        errmxx = max(errmxx,errmx)
+            errmxx = max(errmxx,errmx)
 
 C   ... Write to s(q)
-        else
+          else
 
 C     ...  Rotation of sigma(k) (no longer needed, because hrs(T) was rotated)
 C          if (mod(lrot,2) .ne. 0) then
@@ -1451,34 +1452,34 @@ C
 C          endif
 
 C         Additional scaling by phase shifts
-          if (lrot .ge. 2) then
+            if (lrot .ge. 2) then
 C           call zprm('unscaled S',2,sq1,ndimh,ndimh,ndimh)
-            call dgemm('T','N',3,1,3,1d0,plat,3,qp,3,0d0,qpr,3)
+              call dgemm('T','N',3,1,3,1d0,plat,3,qp,3,0d0,qpr,3)
 C           call prmx('q in units of qlat',qpr,3,3,1)
-            call rothph(02,qpr,delT,ndimh,iprmb,1,nbas,ndimh,sq1)
+              call rothph(02,qpr,delT,ndimh,iprmb,1,nbas,ndimh,sq1)
 C           call zprm('scale S by phase',2,sq1,ndimh,ndimh,ndimh)
-          endif
+            endif
 
 C         Rotate qp to new coordinate system
-          if (mod(lrot,2) .ne. 0) then
+            if (mod(lrot,2) .ne. 0) then
 
 C           In-line multiply avoids bug in DEC fort compiler
-            do  i = 1, 3
-              qpr(i) = rotm(i,1)*qp(1) +
+              do  i = 1, 3
+                qpr(i) = rotm(i,1)*qp(1) +
      .                 rotm(i,2)*qp(2) +
      .                 rotm(i,3)*qp(3)
-            enddo
-            call dcopy(3,qpr,1,qp,1)
-          endif
+              enddo
+              call dcopy(3,qpr,1,qp,1)
+            endif
 
 C         Write qp, sigm for this qp
-          write(ifis) qp
-          call dpdump(sq1,ndimh**2*2,-ifis)
+            write(ifis) qp
+            call dpdump(sq1,ndimh**2*2,-ifis)
 C         call zprm('sigm',2,sq1,ndimh,ndimh,ndimh)
-        endif
-      enddo
+          endif
+        enddo
 
-      if (opt01 .eq. 0)
+        if (opt01 .eq. 0)
      .  call info5(20,0,0,' check FT s(R) against s(q) ... '//
      .  'maximum error = %;2g%?#n>0# < tol (%;2g)#%j#%?#n==2# spin 2##',
      .  errmxx,isw(tols.ne.0),tols,isp,0)
@@ -1495,7 +1496,7 @@ C         call zprm('sigm',2,sq1,ndimh,ndimh,ndimh)
       endif
 
 Cgetarg       end
-       end subroutine chksgr 
+      end subroutine chksgr
 
 
       subroutine siged(mode,nbas,nsp,ndhrs,plat,pos,ndimh,iprmb,hreal,
@@ -1644,17 +1645,17 @@ C ... Summarize hamiltonian for this pair
      .    '                 start    range')
 
         do  iorb = 1, norb
-        if (blks(iorb) .ne. 0) then
+          if (blks(iorb) .ne. 0) then
 C         l1,ik1 = l and kaph indices, needed for sigma
-          l1  = ltab(iorb)
-          ik1 = ktab(iorb)
+            l1  = ltab(iorb)
+            ik1 = ktab(iorb)
 C         i1 = orbital index in iprmb order; ilm1 = augm. index in L order
-          i1 = offl(iorb)
-          outs = ' '
-          call awrit2('%i,%i',outs,len(outs),0,1+i1-offl(1),
+            i1 = offl(iorb)
+            outs = ' '
+            call awrit2('%i,%i',outs,len(outs),0,1+i1-offl(1),
      .                i1-offl(1)+blks(iorb))
-          print '(3i7,5x,a10,i3)', ik1, l1, 1+i1, outs(1:10), blks(iorb)
-        endif
+            print '(3i7,5x,a10,i3)', ik1, l1, 1+i1, outs(1:10), blks(iorb)
+          endif
         enddo
         if (iax(2,it1) .ne. ib) then
           ib = iax(2,it1)
@@ -1710,32 +1711,32 @@ C ... Mask subblock of hrs
         endif
 
         do  i = isub(1), isub(2)
-        do  j = isub(3), isub(4)
+          do  j = isub(3), isub(4)
 
 C         See whether (i,j) is inside any mask
-          lin = .false.
-          do  i1 = 2, nw
-            call word(outs,i1,j1,j2)
-            l1 = j1-1
-            j1 = a2vec(outs,len(outs),l1,2,', ',2,-3,4,ix,iwk)
-            if (j1 .ne. 4) then
-              print 306, outs(i1:)
-              goto 100
-            endif
-            lin = lin .or. (i .ge. iwk(1) .and. i .le. iwk(2) .and.
+            lin = .false.
+            do  i1 = 2, nw
+              call word(outs,i1,j1,j2)
+              l1 = j1-1
+              j1 = a2vec(outs,len(outs),l1,2,', ',2,-3,4,ix,iwk)
+              if (j1 .ne. 4) then
+                print 306, outs(i1:)
+                goto 100
+              endif
+              lin = lin .or. (i .ge. iwk(1) .and. i .le. iwk(2) .and.
      .                      j .ge. iwk(3) .and. j .le. iwk(4))
-          enddo
+            enddo
 
 C         If (i,j) is outside all masks, zero it out
-          if (.not. lin) then
-            hrs(1,i,j,1,it1) = 0
-            hrs(2,i,j,1,it1) = 0
-            hrs(1,i,j,nsp,it1) = 0
-            hrs(2,i,j,nsp,it1) = 0
-          endif
+            if (.not. lin) then
+              hrs(1,i,j,1,it1) = 0
+              hrs(2,i,j,1,it1) = 0
+              hrs(1,i,j,nsp,it1) = 0
+              hrs(2,i,j,nsp,it1) = 0
+            endif
 
 
-        enddo
+          enddo
         enddo
 
         goto 100
@@ -1784,7 +1785,7 @@ C ... Show sigma for range of pairs
           else
             call word(outs,i+1,j1,j2)
             l1 = j1-1
-            if (outs(1:6) .eq. 'showsd') then            
+            if (outs(1:6) .eq. 'showsd') then
               j1 = a2vec(outs,len(outs),l1,2,', ',2,-3,2,ix,iwk)
               if (j1 .ne. 2) then
                 print 306, outs(l1:)
@@ -1800,28 +1801,28 @@ C ... Show sigma for range of pairs
           endif
 
           do  it = it1, it2
-          ib = iax(1,it)
-          jb = iax(2,it)
-          rr = dsqrt(drr2(plat,pos(1,ib),pos(1,jb),
+            ib = iax(1,it)
+            jb = iax(2,it)
+            rr = dsqrt(drr2(plat,pos(1,ib),pos(1,jb),
      .      iax(3,it),iax(4,it),iax(5,it),vlat))
-          write(stdo,332)
-          write(stdo,334) iax(1,it),iax(2,it),
+            write(stdo,332)
+            write(stdo,334) iax(1,it),iax(2,it),
      .      (vlat(j),j=1,3), rr, (iax(j,it), j=3,5), it
 
-          do  isp = 1, nsp
-            if (outs(1:6) .eq. 'showsd') then
-              write(stdo,'(19f12.6)')
+            do  isp = 1, nsp
+              if (outs(1:6) .eq. 'showsd') then
+                write(stdo,'(19f12.6)')
      .          (hrs(1,j1,j1,isp,it), j1=iwk(1),iwk(2))
-              write(stdo,'(19f12.6)')
+                write(stdo,'(19f12.6)')
      .          (hrs(2,j1,j1,isp,it), j1=iwk(1),iwk(2))
-            else
-            call awrit5('rows (%i,%i) cols (%i,%i) spin %i',strn,80,0,
+              else
+                call awrit5('rows (%i,%i) cols (%i,%i) spin %i',strn,80,0,
      .        iwk(1),iwk(2),iwk(3),iwk(4),isp)
-            call ywrm(0,strn,3,stdo,'(19f12.6)',
+                call ywrm(0,strn,3,stdo,'(19f12.6)',
      .        hrs(1,iwk(1),iwk(3),isp,it),1,ndhrs,
      .        iwk(2)-iwk(1)+1,iwk(4)-iwk(3)+1)
-            endif
-          enddo
+              endif
+            enddo
           enddo
         enddo
 
@@ -1908,7 +1909,7 @@ C    .  t4,'i',t10,'to import a portion of a sigma file'/
 C ... Cleanup and exit rst editor
   199 continue
 Cgetarg       end
-       end subroutine siged 
+      end subroutine siged
 
 
       subroutine sigflg(dc,sio,strn,ledit,lwsig,lrot,lfbz,lnwmsh,lonesp,
@@ -2037,7 +2038,7 @@ C   ... Return here to resume parsing for arguments
       endif
 
 Cgetarg       end
-       end subroutine sigflg 
+      end subroutine sigflg
 
 
 C      subroutine sigfn(io,lwsig,ifi)
@@ -2117,18 +2118,18 @@ ctakaox
       print *,' sum check 1=',sum(abs(a))
       print *,' sum check 1=',sum(abs(b))
       do i=1,n
-      do j=1,n
-c        write(6,"(2i5,2x, 4d13.4,3x,2d13.5)") 
-c     &  i,j,atan(dimag(a(i,j)/dreal(a(i,j))))       if( abs(a(i,j))>1d-3 ) 
+        do j=1,n
+c        write(6,"(2i5,2x, 4d13.4,3x,2d13.5)")
+c     &  i,j,atan(dimag(a(i,j)/dreal(a(i,j))))       if( abs(a(i,j))>1d-3 )
 c     &   write(6,"(2i5,2x, 4d13.4,3x,2d13.5)")i,j,a(i,j)
 c     &   ,atan(dimag(a(i,j)/dreal(a(i,j))))
 c,b(i,j),
 c     &  a(i,j)/( b(i,j)+b(i,j)*0.01/abs(b(i,j)) )
 c        a(i,j) = a(i,j)/ ( b(i,j)+b(i,j)*0.01/abs(b(i,j)) )
 c        a(i,j)=a(i,j)/b(i,j)
-      enddo
+        enddo
       enddo
       print *,' sum check 2=',sum(abs(a))
 Cgetarg       end
-       end subroutine divctakao 
+      end subroutine divctakao
 

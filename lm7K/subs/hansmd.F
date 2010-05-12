@@ -6,7 +6,7 @@ Ci   mode  :tells hansmd what derivatives to make.
 Ci         :1s digit concerns 2nd radial derivative
 Ci         :0 make neither 1st or 2nd radial derivative.
 Ci         :>0 make 1st and second radial derivative:
-Ci         :1 ddhs = radial part of Laplacian, 1/r d^2 (r*h_l) / dr^2 
+Ci         :1 ddhs = radial part of Laplacian, 1/r d^2 (r*h_l) / dr^2
 Ci         :2 ddhs = 1/r d^2 (r*h_l) / dr^2  - l(l+1)/r^2 h_l
 Ci         :  NB: ddhs = laplacian of 3-dimensional hs_l YL
 Ci         :3 ddhs = d^2 (h_l) / dr^2
@@ -63,12 +63,12 @@ C ... Local parameters
       do  54  l = 0, lmax
         hs(l)   = xi(l)
         if (mode0 .ne. 0) then
-        dhs(l)  = xi(l)*l/r - xi(l+1)
-        if (mode0 .eq. 1)
+          dhs(l)  = xi(l)*l/r - xi(l+1)
+          if (mode0 .eq. 1)
      .  ddhs(l) = xi(l)*l*(l+1)/r**2 - (2*l+3)/r*xi(l+1) + xi(l+2)
-        if (mode0 .eq. 2)
+          if (mode0 .eq. 2)
      .  ddhs(l) =                    - (2*l+3)/r*xi(l+1) + xi(l+2)
-        if (mode0 .eq. 3)
+          if (mode0 .eq. 3)
      .  ddhs(l) = xi(l)*l*(l-1)/r**2 - (2*l+1)/r*xi(l+1) + xi(l+2)
         endif
         if (mode1 .ne. 0) then

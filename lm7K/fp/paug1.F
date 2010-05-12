@@ -98,41 +98,41 @@ C --- Matrix elements involving local orbitals ---
       do  i1 = 1, nf1
         do  i2 = 1, nf2
           if (i1 .gt. nf1s .or. i2 .gt. nf2s) then
-          nlm1 = (lx1(i1)+1)**2
-          nlm2 = (lx2(i2)+1)**2
-          do  ilm1 = 1, nlm1
-            l1 = ll(ilm1)
-            do  ilm2 = 1, nlm2
-              l2 = ll(ilm2)
-              ix = max0(ilm1,ilm2)
-              ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
-              do  icg = indxcg(ix),indxcg(ix+1)-1
-                mlm = jcg(icg)
-                if (mlm.gt.1 .and. mlm.le.nlml) then
+            nlm1 = (lx1(i1)+1)**2
+            nlm2 = (lx2(i2)+1)**2
+            do  ilm1 = 1, nlm1
+              l1 = ll(ilm1)
+              do  ilm2 = 1, nlm2
+                l2 = ll(ilm2)
+                ix = max0(ilm1,ilm2)
+                ix = (ix*(ix-1))/2 + min0(ilm1,ilm2)
+                do  icg = indxcg(ix),indxcg(ix+1)-1
+                  mlm = jcg(icg)
+                  if (mlm.gt.1 .and. mlm.le.nlml) then
 C                 <g | V | g>
-                  if (i1 .gt. nf1s .and. i2 .gt. nf2s) then
-                    add = vum(l1,l2,mlm,6)
+                    if (i1 .gt. nf1s .and. i2 .gt. nf2s) then
+                      add = vum(l1,l2,mlm,6)
 C                 <g | V | (u,s)>
-                  elseif (i1 .gt. nf1s) then
+                    elseif (i1 .gt. nf1s) then
 C                   Bug fix 27 Jun 05
-                    add = vum(l2,l1,mlm,4) * v2(l2,i2)
+                      add = vum(l2,l1,mlm,4) * v2(l2,i2)
      .                  + vum(l2,l1,mlm,5) * d2(l2,i2)
 C                   add = v2(l2,i2) * vum(l1,l2,mlm,4)
 C     .                 + d2(l2,i2) * vum(l1,l2,mlm,5)
 C                 <(u,s) | V | g>
-                  elseif (i2 .gt. nf2s) then
+                    elseif (i2 .gt. nf2s) then
 C                   Bug fix 27 Jun 05
-                    add = v1(l1,i1) * vum(l1,l2,mlm,4)
+                      add = v1(l1,i1) * vum(l1,l2,mlm,4)
      .                  + d1(l1,i1) * vum(l1,l2,mlm,5)
 C                   add = v1(l1,i1) * vum(l1,l2,mlm,4)
 C     .                 + d1(l1,i1) * vum(l2,l1,mlm,5)
-                  endif
-                  ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2)
+                    endif
+                    ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2)
      .                                 + cg(icg)*add
-                endif
+                  endif
+                enddo
               enddo
             enddo
-          enddo
           endif
         enddo
       enddo
@@ -410,42 +410,42 @@ C     call zprm('paugnl, vumm',2,vumm,ilm1,ilm1,ilm1)
 C     ... Matrix elements of vumm constructed from (u,s)
           ilm1 = 0
           do  l1 = 0, min(lx1(i1),lmaxu)
-          do  m1 = -l1, l1
-            ilm1 = ilm1+1
-            ilm2 = 0
-            do  l2 = 0, min(lx2(i2),lmaxu)
-            do  m2 = -l2, l2
-              ilm2 = ilm2+1
-              if (idu(l1+1) .ne. 0 .and. l1 .eq. l2) then
+            do  m1 = -l1, l1
+              ilm1 = ilm1+1
+              ilm2 = 0
+              do  l2 = 0, min(lx2(i2),lmaxu)
+                do  m2 = -l2, l2
+                  ilm2 = ilm2+1
+                  if (idu(l1+1) .ne. 0 .and. l1 .eq. l2) then
 
 C           ... (u,s)V(u,s)
-                if (i1 .le. nf1s .and. i2 .le. nf2s) then
-                  add = v1(l1,i1) * v2(l2,i2) * vumm(m1,m2,1,isp,l1)
+                    if (i1 .le. nf1s .and. i2 .le. nf2s) then
+                      add = v1(l1,i1) * v2(l2,i2) * vumm(m1,m2,1,isp,l1)
      .                + v1(l1,i1) * d2(l2,i2) * vumm(m1,m2,2,isp,l1)
      .                + d1(l1,i1) * v2(l2,i2) * vumm(m1,m2,3,isp,l1)
      .                + d1(l1,i1) * d2(l2,i2) * vumm(m1,m2,4,isp,l1)
 
 C           ... zVz
-                elseif (i1 .gt. nf1s .and. i2 .gt. nf2s) then
-                  add = vumm(m1,m2,7,isp,l1)
+                    elseif (i1 .gt. nf1s .and. i2 .gt. nf2s) then
+                      add = vumm(m1,m2,7,isp,l1)
 C           ... zV(u,s)
-                elseif (i1 .gt. nf1s) then
-                  add = vumm(m1,m2,8,isp,l1) * v2(l2,i2)
+                    elseif (i1 .gt. nf1s) then
+                      add = vumm(m1,m2,8,isp,l1) * v2(l2,i2)
      .                + vumm(m1,m2,9,isp,l1) * d2(l2,i2)
 C           ... (u,s)Vz
-                elseif (i2 .gt. nf2s) then
-                  add = v1(l1,i1) * vumm(m1,m2,5,isp,l1)
+                    elseif (i2 .gt. nf2s) then
+                      add = v1(l1,i1) * vumm(m1,m2,5,isp,l1)
      .                + d1(l1,i1) * vumm(m1,m2,6,isp,l1)
-                endif
+                    endif
 
-                ppiz(i1,i2,ilm1,ilm2) = ppiz(i1,i2,ilm1,ilm2) + add
-              endif
-            enddo
+                    ppiz(i1,i2,ilm1,ilm2) = ppiz(i1,i2,ilm1,ilm2) + add
+                  endif
+                enddo
+              enddo
             enddo
           enddo
-          enddo
 
-      enddo
+        enddo
       enddo
 
       end

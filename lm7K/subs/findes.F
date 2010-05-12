@@ -17,8 +17,8 @@ C     This series of subroutines was adapted from the Stuttgart package
 C     to facilitate finding empty spheres on a lattice.
       subroutine findes(sctrl,alat,dclabl,nbas,nclass,nl,
      .  nrclas,mxclas,nsymop,obas,oiclas,plat,symopm,symopv,lock,wsr,z)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Finds position and radius of possible empty spheres
 C ----------------------------------------------------------------------
@@ -44,7 +44,7 @@ Cio        :iclass of empty spheres is added
 Cio  wsr   :Wigner-Seitz sphere radius (in atomic units)
 Cio        :wsr should be dimensioned wsr(mxclas)
 Cio        :On input the first nclass values must be set
-Cio  z     :nuclear charge. 
+Cio  z     :nuclear charge.
 Cio        :z should be dimensioned z(mxclas)
 Cio        :On input the first nclass values must be set
 Cio  lock  :switches that lock sphere radii.
@@ -57,7 +57,7 @@ Cl   omax2:max. allowed overlap divided by radius  (s1+s2-d)/s1<omax2
 Cl   rmaxes:maximum radius for empty sphere (in atomic units)
 Cl   rmines:minimum radius for empty sphere (in atomic units)
 Cr Remarks:
-Cr   This subroutines searches possible positions for empty 
+Cr   This subroutines searches possible positions for empty
 Cr   (better: interstitial spheres). The algorithm is purely geometric,
 Cr   the potential is not used at all.
 Cr   Starting from a muffin-tin geometry, the program searches for
@@ -79,9 +79,9 @@ Cdelw1 do not change  [['call', 'undef', 'wref', 'redef'], 'oiclas', 'findes']
       integer obas,oiclas
 Cgetarg       double precision sctrl(1),alat,plat(3,3),
 Cgetarg      .  symopm(*),symopv(*),wsr(nclass),z(nclass)
-       real(8):: alat , plat(3,3) , symopm(*) , symopv(*) , wsr(nclass) 
-     . , z(nclass) 
-       type(s_ctrl)::sctrl
+      real(8):: alat , plat(3,3) , symopm(*) , symopv(*) , wsr(nclass) 
+     . , z(nclass)
+      type(s_ctrl)::sctrl
 
       double precision dclabl(nclass)
 C Local variables:
@@ -90,14 +90,14 @@ C Local variables:
       integer stdo,nglob,nrxyz(3),isw
 Cdelw1 do not change  [['wref'], 'obas1', 'findes']
 Cdelw1       integer obas1,oicls1,oirr,olini,ores,orirr,oiwtmp,owk
-       integer:: obas1 
-       integer ,allocatable :: iv_w_oicls1(:)
-       integer ,allocatable :: iv_w_oirr(:)
-       integer ,allocatable :: iv_w_olini(:)
-       real(8) ,allocatable :: rv_w_ores(:)
-       real(8) ,allocatable :: rv_w_orirr(:)
-       integer ,allocatable :: iv_w_oiwtmp(:)
-       real(8) ,allocatable :: rv_w_owk(:)
+      integer:: obas1
+      integer ,allocatable :: iv_w_oicls1(:)
+      integer ,allocatable :: iv_w_oirr(:)
+      integer ,allocatable :: iv_w_olini(:)
+      real(8) ,allocatable :: rv_w_ores(:)
+      real(8) ,allocatable :: rv_w_orirr(:)
+      integer ,allocatable :: iv_w_oiwtmp(:)
+      real(8) ,allocatable :: rv_w_owk(:)
 
       double precision avstep,bases(3),
      .  ratio,resmx,platcp(9),qlat(9),tiny,vol,volsph,wmax,wsres,
@@ -124,17 +124,17 @@ Cgetarg...info...           real(8) :: rmines , real(8) :: sctrl%rmines 1
 Cgetarg...info...           real(8) :: rmaxes , real(8) :: sctrl%rmaxes 1
 Cgetarg       call upack('ctrl nesabc rmines rmaxes',sctrl,nrxyz,rmines,rmaxes,
 Cgetarg      .  0,0)
-       
-       i_copy_size=size(sctrl%nesabc) 
-       call i8icopy(i_copy_size,sctrl%nesabc,1,nrxyz,1) 
-       rmines=sctrl%rmines
-       rmaxes=sctrl%rmaxes
+
+      i_copy_size=size(sctrl%nesabc)
+      call i8icopy(i_copy_size,sctrl%nesabc,1,nrxyz,1)
+      rmines=sctrl%rmines
+      rmaxes=sctrl%rmaxes
 
 Cgetarg...info...           integer :: modep(3) , integer(8) :: sctrl%modep 3
 Cgetarg       call upack('ctrl modep',sctrl,modep,0,0,0,0)
-       
-       i_copy_size=size(sctrl%modep) 
-       call i8icopy(i_copy_size,sctrl%modep,1,modep,1) 
+
+      i_copy_size=size(sctrl%modep)
+      call i8icopy(i_copy_size,sctrl%modep,1,modep,1)
 
 Cgetarg...info...           real(8) :: facvol , real(8) :: sctrl%sclwsr 1
 Cgetarg...info...           real(8) :: omax1(3) , real(8) :: sctrl%omax1 3
@@ -142,21 +142,21 @@ Cgetarg...info...           real(8) :: omax2(3) , real(8) :: sctrl%omax2 3
 Cgetarg...info...           real(8) :: wsmax , real(8) :: sctrl%wsrmax 1
 Cgetarg       call upack('ctrl sclwsr omax1 omax2 wsrmax',sctrl,facvol,omax1,
 Cgetarg      .  omax2,wsmax,0)
-       
-       facvol=sctrl%sclwsr
-       i_copy_size=size(sctrl%omax1) 
-       call dcopy(i_copy_size,sctrl%omax1,1,omax1,1) 
-       i_copy_size=size(sctrl%omax2) 
-       call dcopy(i_copy_size,sctrl%omax2,1,omax2,1) 
-       wsmax=sctrl%wsrmax
+
+      facvol=sctrl%sclwsr
+      i_copy_size=size(sctrl%omax1)
+      call dcopy(i_copy_size,sctrl%omax1,1,omax1,1)
+      i_copy_size=size(sctrl%omax2)
+      call dcopy(i_copy_size,sctrl%omax2,1,omax2,1)
+      wsmax=sctrl%wsrmax
 
       if (facvol .eq. 0) facvol = 1
       call info2(10,1,0,' --- FINDES : find new empty spheres'//
      .    '%?#n#  Constrain rmax<=%d## --- ',isw(wsmax.ne.0),wsmax)
       call info2(30,0,1,'%5fUse:  rmines = %d  rmaxes = %d  ',rmines,
      .  rmaxes)
-      do  ic = 1, nclass 
-        call r8tos8(dclabl(ic),clabl(ic))  
+      do  ic = 1, nclass
+        call r8tos8(dclabl(ic),clabl(ic))
       enddo
 
 C --- Scale by alat ---
@@ -184,49 +184,49 @@ Cdelw1    10 call defi (oiwtmp,-nirrmx)
       if (-nirrmx<0) iv_w_oiwtmp(:)=0
 
 Cdelw1       call defdr(orirr ,3*nirrmx)
-       allocate(rv_w_orirr(3*nirrmx))
+      allocate(rv_w_orirr(3*nirrmx))
 Ctakao_ZeroClear_NotRequiered        if (3*nirrmx<0) rv_w_orirr(:)=0.0d0
 
 Cdelw1       call defi (oirr  ,-nmesh)
-       allocate(iv_w_oirr(abs(-nmesh)))
-       if (-nmesh<0) iv_w_oirr(:)=0
+      allocate(iv_w_oirr(abs(-nmesh)))
+      if (-nmesh<0) iv_w_oirr(:)=0
 
 Cdelw1       call rsmesh(avstep,ierr,w(oirr),w(oiwtmp),jmax,jmin,nrxyz(1),
 Cdelw1      .            nrxyz(2),nrxyz(3),nirr,nirrmx,nsymop,platcp,qlat,
 Cdelw1      .            w(orirr),symopm,symopv)
-       call rsmesh ( avstep , ierr , iv_w_oirr , iv_w_oiwtmp , jmax 
+      call rsmesh ( avstep , ierr , iv_w_oirr , iv_w_oiwtmp , jmax 
      . , jmin , nrxyz ( 1 ) , nrxyz ( 2 ) , nrxyz ( 3 ) , nirr , nirrmx 
-     . , nsymop , platcp , qlat , rv_w_orirr , symopm , symopv ) 
+     . , nsymop , platcp , qlat , rv_w_orirr , symopm , symopv )
 
       if (ierr.ne.0) then
-Cdelw1 rlse name= oiwtmp old_list= oiwtmp orirr oirr 
+Cdelw1 rlse name= oiwtmp old_list= oiwtmp orirr oirr
 Cdelw1 rlse name= oiwtmp new_list= (None)
 Cdelw1         call rlse(oiwtmp)
-         if (allocated(iv_w_oirr)) deallocate(iv_w_oirr)
-         if (allocated(rv_w_orirr)) deallocate(rv_w_orirr)
-         if (allocated(iv_w_oiwtmp)) deallocate(iv_w_oiwtmp)
+        if (allocated(iv_w_oirr)) deallocate(iv_w_oirr)
+        if (allocated(rv_w_orirr)) deallocate(rv_w_orirr)
+        if (allocated(iv_w_oiwtmp)) deallocate(iv_w_oiwtmp)
 
         nirrmx = nirrmx + nirrmx
         goto 10
       endif
 c     write(stdo,301)avstep*alat
-     
+
 Cdelw1 rlse name= orirr old_list= (None)
 
 Cki#error ERROR, try to release name= orirr ,but list=null at linenumber= 166 list= (None)
 Cdelw1       call rlse(orirr)
 
 Cdelw1       call defrr(orirr,3*nirr)
-       allocate(rv_w_orirr(3*nirr))
+      allocate(rv_w_orirr(3*nirr))
 Ctakao_ZeroClear_NotRequiered        if (3*nirr<0) rv_w_orirr(:)=0.0d0
 
 Cdelw1       call defrr(ores,   nirr)
-       allocate(rv_w_ores(nirr))
+      allocate(rv_w_ores(nirr))
 Ctakao_ZeroClear_NotRequiered        if (nirr<0) rv_w_ores(:)=0.0d0
 
 Cdelw1       call defi (olini, -nirr)
-       allocate(iv_w_olini(abs(-nirr)))
-       if (-nirr<0) iv_w_olini(:)=0
+      allocate(iv_w_olini(abs(-nirr)))
+      if (-nirr<0) iv_w_olini(:)=0
 
 
 c      call cpustp('MESH',.true.,.true.)
@@ -234,11 +234,11 @@ c      call cpustp('MESH',.true.,.true.)
 C --- Initialize res and lini ---
 Cdelw1       call mdeses(alat,w(ores),w(olini),nirr,nsymop,platcp,qlat,
 Cdelw1      .            w(orirr),rmines-avstep,symopm,symopv)
-       call mdeses ( alat , rv_w_ores , iv_w_olini , nirr , nsymop , 
+      call mdeses ( alat , rv_w_ores , iv_w_olini , nirr , nsymop , 
      . platcp , qlat , rv_w_orirr , rmines - avstep , symopm , symopv 
-     . ) 
+     . )
 
-      ratio = volsph(nclass,nrclas,wsr)*(alat**3)/vol      
+      ratio = volsph(nclass,nrclas,wsr)*(alat**3)/vol
 
 C --- Repeat until no more ES found ---
       nb1 = 1
@@ -252,7 +252,7 @@ C --- Repeat until no more ES found ---
      .    facvol,ratio,nbas,nclass,0)
 
 C   --- Check whether the volume can be reached for given OMAX ---
-C       wsrc is only used as a work array; except contents printed last iter 
+C       wsrc is only used as a work array; except contents printed last iter
         call dpcopy(wsr,wsrc,1,nclass,alat)
 Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 192
 Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
@@ -268,7 +268,7 @@ C       Exit, if volume target met
      .      'vol = %d * cell vol',facvol,0)
           goto 20
         endif
-        
+
 C   ... Fill unit cell with potential new sites
 Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 204
 Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
@@ -281,17 +281,17 @@ Cdelw1 do not change obas because of ['call', 'undef', 'wref']
 Cdelw1         call fillat(alat,w(obas),w(oiclas),jmax,jmin,nb1,nbas,nirr,
 Cdelw1      .    nrxyz,w(olini),platcp,qlat,w(ores),w(orirr),
 Cdelw1      .    rmaxes,rmines-avstep,wsr)
-         call fillat ( alat , w ( obas ) , w ( oiclas ) , jmax , jmin 
+        call fillat ( alat , w ( obas ) , w ( oiclas ) , jmax , jmin 
      .   , nb1 , nbas , nirr , nrxyz , iv_w_olini , platcp , qlat , rv_w_ores 
-     .   , rv_w_orirr , rmaxes , rmines - avstep , wsr ) 
+     .   , rv_w_orirr , rmaxes , rmines - avstep , wsr )
 
         nb1 = nbas+1
 C   ... Find biggest empty sphere in unit cell with center on mesh-point
 Cdelw1 warning(1) , probably  oiwtmp  is not defined yet at linenumber= 209
 Cdelw1         call bigges(alat,bases,w(oiwtmp),nirr,w(olini),w(ores),resmx,
 Cdelw1      .              w(orirr))
-         call bigges ( alat , bases , iv_w_oiwtmp , nirr , iv_w_olini 
-     .   , rv_w_ores , resmx , rv_w_orirr ) 
+        call bigges ( alat , bases , iv_w_oiwtmp , nirr , iv_w_olini 
+     .   , rv_w_ores , resmx , rv_w_orirr )
 
 C   ... Move empty sphere to high-symmetry point, leave the mesh
 Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 212
@@ -335,7 +335,7 @@ C   ... Add all symmetry-related spheres
 Cdelw1 do not change obas1 because of ['wref']
         call defdr(obas1 ,3*(nbas+nsymop))
 Cdelw1         call defi (oicls1,   nbas+nsymop)
-         allocate(iv_w_oicls1(nbas+nsymop))
+        allocate(iv_w_oicls1(nbas+nsymop))
 Ctakao_ZeroClear_NotRequiered          if (nbas+nsymop<0) iv_w_oicls1(:)=0
 
 Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 248
@@ -343,7 +343,7 @@ Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
 Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 248
 Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
 Cdelw1         call icopy(nbas,w(oiclas),1,w(oicls1),1)
-         call icopy ( nbas , w ( oiclas ) , 1 , iv_w_oicls1 , 1 ) 
+        call icopy ( nbas , w ( oiclas ) , 1 , iv_w_oicls1 , 1 )
 
 Cdelw1 do not change obas1 because of ['wref']
 Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 249
@@ -353,9 +353,9 @@ Cdelw1 do not change obas1 because of ['wref']
 Cdelw1 do not change obas1 because of ['wref']
 Cdelw1         call addes2(w(obas1),bases,clabl,w(oicls1),nbas,nclass,nrclas,
 Cdelw1      .             nsymop,platcp,qlat,symopm,symopv)
-         call addes2 ( w ( obas1 ) , bases , clabl , iv_w_oicls1 , nbas 
+        call addes2 ( w ( obas1 ) , bases , clabl , iv_w_oicls1 , nbas 
      .   , nclass , nrclas , nsymop , platcp , qlat , symopm , symopv 
-     .   ) 
+     .   )
 
 Cdelw1 do not change obas1 because of ['wref']
         call redfrr(obas1,3*nbas)
@@ -368,7 +368,7 @@ Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
 Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
 Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
 Cdelw1         call icopy(nbas,w(oicls1),1,w(oiclas),1)
-         call icopy ( nbas , iv_w_oicls1 , 1 , w ( oiclas ) , 1 ) 
+        call icopy ( nbas , iv_w_oicls1 , 1 , w ( oiclas ) , 1 )
 
 
       enddo
@@ -381,17 +381,17 @@ C ... Rescale wsr,rmines,rmaxes
       call dscal(1     ,alat,rmines,1)
       call dscal(1     ,alat,rmaxes,1)
 Cdelw1       call defdr(owk,5*nbas)
-       allocate(rv_w_owk(5*nbas))
+      allocate(rv_w_owk(5*nbas))
 Ctakao_ZeroClear_NotRequiered        if (5*nbas<0) rv_w_owk(:)=0.0d0
 
 Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
 Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 267
 Cdelw1 do not change obas because of ['call', 'undef', 'wref']
       call ordbas(nbas,plat,w(obas),w(oiclas))
-Cdelw1 rlse name= owk old_list= orirr ores olini obas1 oicls1 oiclas owk 
-Cdelw1 rlse name= owk new_list= orirr ores olini obas1 oicls1 oiclas 
+Cdelw1 rlse name= owk old_list= orirr ores olini obas1 oicls1 oiclas owk
+Cdelw1 rlse name= owk new_list= orirr ores olini obas1 oicls1 oiclas
 Cdelw1       call rlse(owk)
-       if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
 
 C ... Printout
       call info0(20,0,0,' Writing new basis to file poses ...')
@@ -406,18 +406,18 @@ Cdelw1 do not change obas because of ['call', 'undef', 'wref']
   303 format(/' FINDES:  new class: ',a8,', WSR=',f7.5,', class no',i4)
 
 Cgetarg       end
-Cdelw1 w_varlist remains: orirr ores olini obas1 oicls1 oiclas 
+Cdelw1 w_varlist remains: orirr ores olini obas1 oicls1 oiclas
 Cdelw1 w_varlistundel: [oiclas obas obas1]
 Cdelw1 w_varlist (undel), remains: [obas1 oiclas]
 Cdelw1 w_varlist (del), remains: [orirr ores olini oicls1]
 Cdelw1 not deallocate oiclas because of [call undef wref redef]
 Cdelw1 not deallocate obas1 because of [wref]
-        if (allocated(iv_w_oicls1)) deallocate(iv_w_oicls1)
-        if (allocated(iv_w_olini)) deallocate(iv_w_olini)
-        if (allocated(rv_w_ores)) deallocate(rv_w_ores)
-        if (allocated(rv_w_orirr)) deallocate(rv_w_orirr)
+      if (allocated(iv_w_oicls1)) deallocate(iv_w_oicls1)
+      if (allocated(iv_w_olini)) deallocate(iv_w_olini)
+      if (allocated(rv_w_ores)) deallocate(rv_w_ores)
+      if (allocated(rv_w_orirr)) deallocate(rv_w_orirr)
 
-       end subroutine findes 
+      end subroutine findes
 
 
       subroutine symes(alat,bas,bases,clabl,iclass,nbas,nrxyz,nsymop,
@@ -592,7 +592,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine symes 
+      end subroutine symes
 
 
       subroutine getirr(j,nrxyz,qlat,r)
@@ -641,7 +641,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine getirr 
+      end subroutine getirr
 
       subroutine mdesat(alat,bas,desat,ibas,iclass,nbas,plat,r,wsr)
 
@@ -714,7 +714,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mdesat 
+      end subroutine mdesat
 
 
       subroutine distes(bases,d,dbas,isop,plat,qlat,symopm,symopv)
@@ -757,7 +757,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine distes 
+      end subroutine distes
 
 
       subroutine chkes(alat,bases,plat,qlat,wmax,wsres)
@@ -821,7 +821,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine chkes 
+      end subroutine chkes
 
 
       subroutine deflmx(lmx,wsr,z)
@@ -874,7 +874,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine deflmx 
+      end subroutine deflmx
 
 
       subroutine renam(clabl,ic,nclass,z)
@@ -940,7 +940,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine renam 
+      end subroutine renam
 
 
       subroutine zclabl(iopt,clabl,iz)
@@ -979,7 +979,7 @@ C Data statements:
      .            'Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th',
      .            'Pa','U ','Np','Pu','Am','Cm','Bk','Cf','Es','Fm'/
 
-      if (iopt.eq.-1) then     
+      if (iopt.eq.-1) then
         if (iz.lt.0.or.iz.gt.100) then
 ct          write(lunit(2),400)iz
           write(*,400)iz
@@ -989,12 +989,12 @@ Cdelw1 w_varlist (del), remains: (None)
           return
         endif
         clabl=aclabl(iz)
-      elseif (iopt.eq.1) then     
+      elseif (iopt.eq.1) then
         ccopy=clabl
         call  chcase( 1,1,ccopy(1:1))
         call  chcase(-1,1,ccopy(2:2))
         icha=ichar(ccopy(2:2))
-        if (icha.lt.97.or.icha.gt.122)ccopy(2:2)=' ' 
+        if (icha.lt.97.or.icha.gt.122)ccopy(2:2)=' '
         do iz=0,100
           if (aclabl(iz).eq.ccopy(1:2)) then
 Cdelw1 w_varlist remains: (None)
@@ -1004,7 +1004,7 @@ Cdelw1 w_varlist (del), remains: (None)
           endif
         enddo
 ct        write(lunit(2),401)clabl
-          write(*,401)clabl
+        write(*,401)clabl
         iz=-1
       else
         call errmsg(' ZCLABL: bad iopt.$',5)
@@ -1017,7 +1017,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine zclabl 
+      end subroutine zclabl
 
 
       subroutine getfmt(chr,res,nelts,icast,nwmax,ndigmx,fmt)
@@ -1106,7 +1106,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine getfmt 
+      end subroutine getfmt
 
 
       subroutine tocast(l,i,r,d,l1,i1,r1,d1,m,n,icast)
@@ -1147,7 +1147,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine tocast 
+      end subroutine tocast
 
 
       subroutine addes2(bas,bases,clabl,iclass,nbas,nclass,nrclas,
@@ -1219,8 +1219,8 @@ ct        write(lunit(1),301)(clabl(iclass(ibas)),iclass(ibas),
 ct     .                         (bas(i,ibas),i=1,3),ibas=nbas+1,nbasnw)
 ct      endif
 
-        write(*,300)nbas,nbasnw,nbasnw-nbas
-        write(*,301)(clabl(iclass(ibas)),iclass(ibas),
+      write(*,300)nbas,nbasnw,nbasnw-nbas
+      write(*,301)(clabl(iclass(ibas)),iclass(ibas),
      .                      (bas(i,ibas),i=1,3),ibas=nbas+1,nbasnw)
 ct        write(ifi,301) (clabl(iclass(ibas)),iclass(ibas),
 ct     .                      (bas(i,ibas),i=1,3),ibas=nbas+1,nbasnw)
@@ -1237,7 +1237,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine addes2 
+      end subroutine addes2
 
 
       logical function latrel(qlat,pos1,pos2)
@@ -1279,7 +1279,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end function latrel 
+      end function latrel
 
 
       subroutine prpos(nbas,nclass,clabl,iclass,pos,wsr,z)
@@ -1296,18 +1296,18 @@ C     implicit none
       end do
 
       write(ifi,*)
-      
+
       do icls = 1,nclass
         write(ifi,302) clabl(icls),z(icls),wsr(icls)
       end do
-      
-  301 format(9x,'ATOM=',a8, 1x,'POS=',3f12.7) 
-  302 format(9x,'ATOM=',a8, 1x,'Z = ',f5.1,' R = ',f6.3) 
-Cgetarg       end 
+
+  301 format(9x,'ATOM=',a8, 1x,'POS=',3f12.7)
+  302 format(9x,'ATOM=',a8, 1x,'Z = ',f5.1,' R = ',f6.3)
+Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine prpos 
+      end subroutine prpos
 
 
       subroutine bigges(alat,bases,iwtmp,nirr,lini,res,resmx,rirr)
@@ -1381,7 +1381,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine bigges 
+      end subroutine bigges
 
 
       subroutine fillat(alat,bas,iclass,jmax,jmin,nb1,nbas,nirr,nrxyz,
@@ -1488,9 +1488,9 @@ ct        write(stdo,301) ibas,ic,(bas(m,ibas),m=1,3),wsr(ic)*alat
             endif
           enddo
           do m = 1, 3
-           c(m)=bas(m,ibas)+i(1)*plat(m,1)+i(2)*plat(m,2)+i(3)*plat(m,3)
-           a(m)=f(1)*plat(m,1)+f(2)*plat(m,2)+f(3)*plat(m,3)
-           vec1(m)=c(m)-a(m)
+            c(m)=bas(m,ibas)+i(1)*plat(m,1)+i(2)*plat(m,2)+i(3)*plat(m,3)
+            a(m)=f(1)*plat(m,1)+f(2)*plat(m,2)+f(3)*plat(m,3)
+            vec1(m)=c(m)-a(m)
           enddo
 
           isi=iabs(i(1))+iabs(i(2))+iabs(i(3))
@@ -1553,7 +1553,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine fillat 
+      end subroutine fillat
 
 
       subroutine mdeses(alat,deses,lini,nirr,nsymop,plat,qlat,rirr,
@@ -1689,7 +1689,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mdeses 
+      end subroutine mdeses
 
 
       subroutine gtpmin(plat,pmin)
@@ -1733,7 +1733,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine gtpmin 
+      end subroutine gtpmin
 
 
       double precision function d3nrm2(r)
@@ -1756,7 +1756,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end function d3nrm2 
+      end function d3nrm2
 
 
       subroutine ordbas(nbas,plat,bas,iclass)
@@ -1807,7 +1807,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine ordbas 
+      end subroutine ordbas
 
 
       subroutine rsmesh(avstep,ierr,irr,iwtmp,jmax,jmin,n1,n2,n3,nirr,
@@ -1872,9 +1872,9 @@ C Intrinsic functions:
       n22=n2/2
       n32=n3/2
       n0=n1*n2*n3
-      
+
       stdo=nglob('stdo')
-      
+
 C --- Mesh-size ...
       if (iprint().ge.20) write(stdo,298)nrxyz
       do m=1,3
@@ -1887,7 +1887,7 @@ C --- Mesh-size ...
         write(messg,402)step
         call errmsg(messg,0)
       endif
-      
+
       do m = 1, 3
         jmin(m)= nrxyz(m)
         jmax(m)=-nrxyz(m)
@@ -1912,7 +1912,7 @@ C         write(*,*) 'isop=',isop
           ism(m,isop)=idnint(tmp2(m))
           diff(m)=tmp2(m)-ism(m,isop)
         enddo
-        
+
         call dmpy(qb,1,3,symopv(1,isop),3,1,tmp1,3,1,3,1,3)
 
         do m=1,3
@@ -1923,7 +1923,7 @@ C         write(*,*) 'isop=',isop
         if (.not.lcomp(isop)) then
 c        if (iprint().ge.50) write(lunit(2),400)nrxyz,qb,(symopm(k,isop),
 c     .                                    k=1,9),rb,tmp2,(tmp1(k),k=1,3)
-           write(*,296)
+          write(*,296)
           nnc=nnc+1
 C          write(*,*) 'isop=',isop
         endif
@@ -1936,7 +1936,7 @@ ct      write(*,*) nnc
       endif
       write(*,297)
 
-C --- 
+C ---
 
       nirr = 0
       do i3 = 0, n3-1
@@ -2055,7 +2055,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine rsmesh 
+      end subroutine rsmesh
 
 
       subroutine reducv(plat,qlat,vec,flag)
@@ -2151,6 +2151,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine reducv 
+      end subroutine reducv
 
 

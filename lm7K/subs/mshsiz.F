@@ -24,7 +24,7 @@ Cr Remarks
 Cb Bugs
 Cb   job not implemented.
 Cu Updates
-Cu   31 Jul 06 fmax increased 160 -> 600, a warning added 
+Cu   31 Jul 06 fmax increased 160 -> 600, a warning added
 Cu   15 Apr 05 Bug fix when ngabc(i)=2
 Cu   01 Jun 01 Redesigned with new gvlist
 C ----------------------------------------------------------------------
@@ -96,27 +96,27 @@ c        ng = ngabc(1)*ngabc(2)*ngabc(3)
         goto 18
       endif
 
-      
+
 C ... Reduce gmax slowly until at least one of n1..n3 changes
    10 continue
       do  k = 1, 99
-      gmaxn = gmaxn * facg
-      change = .false.
-      do  i = 1, 3
-        i2 = mod(i,3)+1
-        i3 = mod(i2,3)+1
-        nn = 0
-        call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmaxn,nn,
+        gmaxn = gmaxn * facg
+        change = .false.
+        do  i = 1, 3
+          i2 = mod(i,3)+1
+          i3 = mod(i2,3)+1
+          nn = 0
+          call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmaxn,nn,
      .    nmin,nmxn(i))
-        if (nmxn(i) .ne. nmx(i)) change = .true.
+          if (nmxn(i) .ne. nmx(i)) change = .true.
 C       The granularity of gvlstn may be too coarse.
 C       Don't assign, ngabcn(i) = nn but find next one smaller in mshlst
-        indx = 1
-        call hunti(mshlst(1),mshlst,ngabc(i),0,indx)
-        indx = max(indx,1)
-        ngabcn(i) = mshlst(indx)
-      enddo
-      if (change) goto 12
+          indx = 1
+          call hunti(mshlst(1),mshlst,ngabc(i),0,indx)
+          indx = max(indx,1)
+          ngabcn(i) = mshlst(indx)
+        enddo
+        if (change) goto 12
       enddo
    12 continue
 
@@ -127,7 +127,7 @@ ctakao
         ngabcn=ngabc
         gmax=1d10
         ngn=ngabcn(1)*ngabcn(2)*ngabcn(3)
-      endif  
+      endif
 
 
 C ... Count the number of G vectors for (smaller) trial n1..n3
@@ -153,9 +153,9 @@ C ... Check if fmax is too small
       i2 = ngabc(2)
       i3 = ngabc(3)
       if (max0(i1,i2,i3) .eq. fmax .and. iprint() .ge. 10) then
-        write(stdo,301) 
+        write(stdo,301)
         write(stdo,300) fmax
-        write(stdo,301) 
+        write(stdo,301)
       endif
  300  format(' WARNING!'/' At least one of the mesh divisions ',
      .  'reached its maximal value fmax = ',i4/

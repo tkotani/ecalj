@@ -9,11 +9,11 @@ c EASYPBE is a driver for the PBE subroutines, using simple inputs
 c K. Burke, May 14, 1996.
 c inputs: up=up density
 c       : agrup=|grad up|
-c       : delgrup=(grad up).(grad |grad up|) 
+c       : delgrup=(grad up).(grad |grad up|)
 c       : uplap=grad^2 up=Laplacian of up
 c       : dn,agrdn,delgrdn,dnlap=corresponding down quantities
 c       : agr=|grad rho|
-c       : delgr=(grad rho).(grad |grad rho|) 
+c       : delgr=(grad rho).(grad |grad rho|)
 c       : lcor=flag to do correlation(=0=>don't)
 c       : lpot=flag to do potential(=0=>don't)
 c outputs: exlsd=LSD exchange energy density, so that
@@ -41,7 +41,7 @@ c----------------------------------------------------------------------
 c PBE exchange
 c use  Ex[up,dn]=0.5*(Ex[2*up]+Ex[2*dn]) (i.e., exact spin-scaling)
 c do up exchange
-c fk=local Fermi wavevector for 2*up=(3 pi^2 (2up))^(1/3) 
+c fk=local Fermi wavevector for 2*up=(3 pi^2 (2up))^(1/3)
 c s=dimensionless density gradient=|grad rho|/ (2*fk*rho)_(rho=2*up)
 c u=delgrad/(rho^2*(2*fk)**3)_(rho=2*up)
 c v=Laplacian/(rho*(2*fk)**2)_(rho=2*up)
@@ -81,7 +81,7 @@ c repeat for down
         exdnpbe=0.d0
         vxdnpbe=0.d0
       endif
-10    continue 
+10    continue
 c construct total density and contribution to ex
       if(up.gt.eps.and.dn.gt.eps)then
         rho=up+dn
@@ -184,7 +184,7 @@ c       e_x[unif]=ax*rho^(4/3)  [LDA]
 c ax = -0.75*(3/pi)^(1/3)
 c       e_x[PBE]=e_x[unif]*FxPBE(s)
 c       FxPBE(s)=1+uk-uk/(1+ul*s*s)                 [a](13)
-c uk, ul defined after [a](13) 
+c uk, ul defined after [a](13)
 c----------------------------------------------------------------------
 c----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -227,7 +227,7 @@ c  Fss=d Fs/ds
       Fss=-4.d0*ul*S*Fs/P0
 c----------------------------------------------------------------------
 c----------------------------------------------------------------------
-c calculate potential from [b](24) 
+c calculate potential from [b](24)
       VX = exunif*(THRD4*FxPBE-(U-THRD4*S2*s)*FSS-V*FS)
       RETURN
       END
@@ -256,7 +256,7 @@ c        : dvcdn=nonlocal correction to vcdn
 c----------------------------------------------------------------------
 c----------------------------------------------------------------------
 c References:
-c [a] J.P.~Perdew, K.~Burke, and M.~Ernzerhof, 
+c [a] J.P.~Perdew, K.~Burke, and M.~Ernzerhof,
 c     {\sl Generalized gradient approximation made simple}, sub.
 c     to Phys. Rev.Lett. May 1996.
 c [b] J. P. Perdew, K. Burke, and Y. Wang, {\sl Real-space cutoff
@@ -273,7 +273,7 @@ c      FZZ=f''(0)= 8/(9*GAM)
 c numbers for construction of PBE
 c      gamma=(1-log(2))/pi^2
 c      bet=coefficient in gradient expansion for correlation, [a](4).
-c      eta=small number to stop d phi/ dzeta from blowing up at 
+c      eta=small number to stop d phi/ dzeta from blowing up at
 c          |zeta|=1.
       parameter(thrd=1.d0/3.d0,thrdm=-thrd,thrd2=2.d0*thrd)
       parameter(sixthm=thrdm/2.d0)
@@ -504,7 +504,7 @@ c######################################################################
 c----------------------------------------------------------------------
       SUBROUTINE CORpw91(RS,ZET,G,EC,ECRS,ECZET,T,UU,VV,WW,H,
      1                   DVCUP,DVCDN)
-C  pw91 CORRELATION, modified by K. Burke to put all arguments 
+C  pw91 CORRELATION, modified by K. Burke to put all arguments
 c  as variables in calling statement, rather than in common block
 c  May, 1996.
 C  INPUT RS: SEITZ RADIUS

@@ -9,7 +9,8 @@ C     implicit none
       ifi = fopna('out',29,0)
       call awrit2('%% rows %i cols %i real',' ',80,ifi,nr,nc)
       do  10  i = 1, nr
-   10 write(ifi,fmt) (s(i,j,1), j=1,nc)
+        write(ifi,fmt) (s(i,j,1), j=1,nc)
+   10 continue
       write(ifi,*)
 C      do  12  i = 1, nr
 C   12 write(ifi,fmt) (s(i,j,2), j=1,nc)
@@ -37,7 +38,8 @@ C      fmt = '(1p9e20.10)'
       call awrit2('%% rows %i cols %i real',' ',80,ifi,nr,nc)
 #endif
       do  10  i = 1, nr
-   10 write(ifi,fmt) (s(i,j,1), j=1,nc)
+        write(ifi,fmt) (s(i,j,1), j=1,nc)
+   10 continue
       write(ifi,*)
 C      do  12  i = 1, nr
 C   12 write(ifi,fmt) (s(i,j,2), j=1,nc)
@@ -73,7 +75,8 @@ C     implicit none
       ifi = fopna('out',29,0)
       write(ifi,*) nr, nc
       do  10  i = 1, nr
-   10 write(ifi,fmt) (s(i,j,1), j=1,nc)
+        write(ifi,fmt) (s(i,j,1), j=1,nc)
+   10 continue
       write(ifi,*)
       call fclose(ifi)
       print *, 'prm: pausing after writing data ',strn
@@ -99,7 +102,8 @@ C     implicit none
       else
         call awrit2('%% rows %i cols %i',' ',80,ifi,nr,nc)
         do  10  i = 1, nr
-   10   write(ifi,'(22i7)') (s(i,j), j=1,nc)
+          write(ifi,'(22i7)') (s(i,j), j=1,nc)
+   10   continue
       endif
 
       call fclose(ifi)
@@ -133,11 +137,13 @@ C     fmt = '(5f20.15)'
       call awrit2('%% rows %i cols %i'//outs,' ',80,ifi,nr,nc)
 #endif
       do  10  i = 1, nr
-   10 write(ifi,fmt) (s(1,i,j), j=1,nc)
+        write(ifi,fmt) (s(1,i,j), j=1,nc)
+   10 continue
       if (mod(icast,10) .gt. 1) then
-      write(ifi,*)
-      do  20  i = 1, nr
-   20 write(ifi,fmt) (s(2,i,j), j=1,nc)
+        write(ifi,*)
+        do  20  i = 1, nr
+          write(ifi,fmt) (s(2,i,j), j=1,nc)
+   20   continue
       endif
       call fclose(ifi)
 #if NOAWRITE
@@ -168,10 +174,12 @@ C     implicit none
       call awrit2('%% rows %i cols %i complex',' ',80,ifi,n1*n2,n3)
       do  10  i = 1, n1
       do  10  j = 1, n2
-   10 write(ifi,fmt) (s(1,i,j,k), k=1,n3)
+        write(ifi,fmt) (s(1,i,j,k), k=1,n3)
+   10 continue
       do  20  i = 1, n1
       do  20  j = 1, n2
-   20 write(ifi,fmt) (s(2,i,j,k), k=1,n3)
+        write(ifi,fmt) (s(2,i,j,k), k=1,n3)
+   20 continue
       call fclose(ifi)
       call awrit1(sfmt,outs,80,0,msga)
       call awrit0('%a.  Continue?',outs,80,-i1mach(2))
@@ -191,7 +199,8 @@ C     implicit none
       call awrit2('%% rows %i cols %i real',' ',80,ifi,n1*n2,n3)
       do  10  i = 1, n1
       do  10  j = 1, n2
-   10 write(ifi,fmt) (s(i,j,k), k=1,n3)
+        write(ifi,fmt) (s(i,j,k), k=1,n3)
+   10 continue
       call fclose(ifi)
       call awrit1(sfmt,outs,80,0,msga)
       call awrit0('%a.  Continue?',outs,80,-i1mach(2))
@@ -210,7 +219,8 @@ C     implicit none
      .  rx('rdm3:  file mismatch')
       do  10  i = 1, n1
       do  10  j = 1, n2
-   10 read(ifi,*) (s(i,j,k), k=1,n3)
+        read(ifi,*) (s(i,j,k), k=1,n3)
+   10 continue
 
       call fclose(ifi)
 

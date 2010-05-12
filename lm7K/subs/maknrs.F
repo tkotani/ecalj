@@ -8,7 +8,7 @@ C     implicit none
       call iinit(nrspec,nspec)
       do  ib = 1, nbas
         is = ips(ib)
-        nrspec(is) = nrspec(is) + 1 
+        nrspec(is) = nrspec(is) + 1
       enddo
 
       end

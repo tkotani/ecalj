@@ -15,7 +15,7 @@ Cr             Example: '1,4:6,11' generates a list of five numbers,
 Cr             1,4,5,6,11.
 Cr
 Cr *lstyle=2 : the list is specified according to an expression.
-Cr             The expression can involve the class index ic and 
+Cr             The expression can involve the class index ic and
 Cr             atomic number z.  Any class satisfying expression is
 Cr             included in the list.  Example:  'ic<6&z==14'
 Cr
@@ -39,12 +39,11 @@ c      common /w/ w
 
       ls = len(slist)
       nlist = 0
-      goto (10,20,30) lstyle
-      call rxi('clist: bad style',lstyle)
-      return
-
+c      goto (10,20,30) lstyle
+      select case(lstyle*10)
 C -- lstyle=1 ---
-   10 continue
+c   10 continue
+      case(10)
       call mkils0(slist,nlist,i)
 c      call defi(oilst, nlist)
       allocate(oilst(nlist))
@@ -69,7 +68,8 @@ c       call rlse(oilst)
       return
 
 C --- lstyle=2 ---
-   20 continue
+c   20 continue
+      case(20)
       call numsyv(iv0)
       nlist = 0
       do  42  ic = 1, nclass
@@ -90,7 +90,8 @@ C   ... Abort if a2bin can't parse expression
       return
 
 C --- lstyle=3 ---
-   30 continue
+c   30 continue
+      case(30)
       nlist = 0
       call skpblb(slist,ls,ls1)
       call ffnam(slist(1:ls1+1),filnam)
@@ -108,5 +109,12 @@ C --- lstyle=3 ---
           list(nlist) = ic
         endif
    44 continue
+
+      case default
+      call rxi('clist: bad style',lstyle)
+      return
+
+      end select
+
       end
 

@@ -12,18 +12,18 @@ Ci   qp       : qp(3,nq)  vector of each q
 Ci   momsite  : magnetic moment m
 Ci   mmnorm   : <m|m>
 Ci   eiqrm    : eiqrm_i = <~e_i|e^{iqr}> =  <M_i|eiqr>/sqrt(<M_i|M_i>)
-Ci   emesh    : energy w mesh 
-Ci   x0et      : <~e|X0|~e> 
+Ci   emesh    : energy w mesh
+Ci   x0et      : <~e|X0|~e>
 Co Outputs:
-Co   
-Co   
-Co   
-Co   
+Co
+Co
+Co
+Co
 Cl Local variables
 Cl   rho0    : radial part of true electron density on each mesh (xyz) = rho1/r**2
 Cl   rho0xyz : true electron density on each mesh point specified by (ir,ip)
-Cl             rho0xyz(ir,ip,isp)=Sum_{ilm}{ rho0(ir,ilm,isp)*yl(ip,ilm) } 
-Cl   vxc     : vxc(ir,ip,1:2) for spin_1 and spin_2 ; 
+Cl             rho0xyz(ir,ip,isp)=Sum_{ilm}{ rho0(ir,ilm,isp)*yl(ip,ilm) }
+Cl   vxc     : vxc(ir,ip,1:2) for spin_1 and spin_2 ;
 Cl             vxc(:,:,4) = ( vxc(:,:,1)-vxc(:,:,2) ) / 2
 Cl             vxc(:,:,3) = idol
 Cl   bom     : bom(ir,ip) = b(r)/m(r)
@@ -34,7 +34,7 @@ Cr    In ASA, m(r_) is a radial function, but not in FP.
 Cr    we need to build a spherical mesh, and sum the rho on each mesh
 Cr    point.
 Cr    Vxc generated from LMTO package is in units of Ryberg.
-Cr    Numerical spherical mesh is tabulated in wxp.chk file, which is generated in LMTO 
+Cr    Numerical spherical mesh is tabulated in wxp.chk file, which is generated in LMTO
 Cr    package ./lmfsph
 Cu Updates
 Cu    20 May 08 First created
@@ -96,7 +96,7 @@ c./lmf lsmo56 '--chimedit~new 2~read tkrs'
       open(111, file='X0pbqw.allqb')
       write(111,"( 4i4 )") nq,nmbas,nw
       do iw=1,nw
-         write(111,301)  (zxq( jb , jb,iq,iw), iq=1,nq )
+        write(111,301)  (zxq( jb , jb,iq,iw), iq=1,nq )
       enddo
  301  format(1000d23.15)
       end subroutine stonerpb

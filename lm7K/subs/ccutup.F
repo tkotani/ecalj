@@ -19,17 +19,19 @@ C ----- CHOSE CUTUP WITH SHORTEST MAX EDGE ---------
       EDGMAX = 1.D20
       EDGMIN = 0.D0
       DO  10  LX = 0, 1
-        DO  10  LY = 0, 1
+      DO  10  LY = 0, 1
         DO  12  ITET = 1, 6
-          DO  12  IC = 1, 4
-   12   CALL MXMYMZ(KCUT0(1,IC,ITET),KCUT(1,IC,ITET),LX,LY,LZ)
+        DO  12  IC = 1, 4
+          CALL MXMYMZ(KCUT0(1,IC,ITET),KCUT(1,IC,ITET),LX,LY,LZ)
+   12   continue
         EDMIN = 1D20
         EDMAX = 0D0
         DO  20  ITET = 1, 6
           DO  21  IC = 1, 4
-   21     CALL GTBVEC(KCUT(1,IC,ITET),B,SHIFT,P(1,IC))
+            CALL GTBVEC(KCUT(1,IC,ITET),B,SHIFT,P(1,IC))
+   21     continue
           DO  13  I = 1, 3
-            DO  13  J = I+1, 4
+          DO  13  J = I+1, 4
             XX = ANRM2(P(1,I)-P(1,J),P(2,I)-P(2,J),P(3,I)-P(3,J))
             EDMAX = DMAX1(EDMAX,XX)
             EDMIN = DMIN1(EDMIN,XX)
@@ -46,8 +48,9 @@ C ----- CHOSE CUTUP WITH SHORTEST MAX EDGE ---------
         ENDIF
    10 CONTINUE
       DO  22  ITET = 1, 6
-        DO  22  IC = 1, 4
-   22 CALL MXMYMZ(KCUT0(1,IC,ITET),KCUT(1,IC,ITET),LXX,LYY,LZ)
+      DO  22  IC = 1, 4
+        CALL MXMYMZ(KCUT0(1,IC,ITET),KCUT(1,IC,ITET),LXX,LYY,LZ)
+   22 continue
       if (iprint() .gt. 100)
      .  WRITE(*,783) LXX,LYY,DSQRT(EDGMIN),DSQRT(EDGMAX)
   783 FORMAT(' LXX=',I1,'   LYY=',I1,'   EDGMIN=',F10.5,

@@ -133,54 +133,54 @@ C --- Count number, get list of vectors ---
       gmax2 = (gmax0-tol)**2
       gmin2 = gmin0**2
       do i1 = n1min, n1max
-      if (job0 .ne. 0) then
-        k1 = mod(i1+n1l,n1l)+1
-      endif
-      do i2 = n2min, n2max
-      if (job0 .ne. 0) then
-        k2 = mod(i2+n2l,n2l)+1
-      endif
-      do i3 = n3min, n3max
-      if (job0 .ne. 0) then
-        k3 = mod(i3+n3l,n3l)+1
-      endif
-        do  i = 1, 3
-          qpg(i)= q(i) + qlat(i,1)*i1 + qlat(i,2)*i2 + qlat(i,3)*i3
-        enddo
+        if (job0 .ne. 0) then
+          k1 = mod(i1+n1l,n1l)+1
+        endif
+        do i2 = n2min, n2max
+          if (job0 .ne. 0) then
+            k2 = mod(i2+n2l,n2l)+1
+          endif
+          do i3 = n3min, n3max
+            if (job0 .ne. 0) then
+              k3 = mod(i3+n3l,n3l)+1
+            endif
+            do  i = 1, 3
+              qpg(i)= q(i) + qlat(i,1)*i1 + qlat(i,2)*i2 + qlat(i,3)*i3
+            enddo
 
 C        if (abs(qpg(1)+5) .lt.1d-4 .and. qpg(3).lt.-10.8) then
 C          print *, i1,i2,i3,k1,k2,k3
 C          print *, qpg
 C        endif
 
-        q2 = qpg(1)**2+qpg(2)**2+qpg(3)**2
-        if (q2 .ge. gmin2 .and. q2 .lt. gmax2) then
-          ig = ig+1
+            q2 = qpg(1)**2+qpg(2)**2+qpg(3)**2
+            if (q2 .ge. gmin2 .and. q2 .lt. gmax2) then
+              ig = ig+1
 C          print 333, ig,i1,i2,i3,qpg,qpg(1)**2+qpg(2)**2+qpg(3)**2-gmax2
 C  333     format(i6,3i4,3f15.9,1pe10.2)
-          if (job0 .ne. 0) then
-            kv(ig,1) = k1
-            kv(ig,2) = k2
-            kv(ig,3) = k3
-            if (job1 .ne. 0) then
-              igv(ig,1) = i1
-              igv(ig,2) = i2
-              igv(ig,3) = i3
+              if (job0 .ne. 0) then
+                kv(ig,1) = k1
+                kv(ig,2) = k2
+                kv(ig,3) = k3
+                if (job1 .ne. 0) then
+                  igv(ig,1) = i1
+                  igv(ig,2) = i2
+                  igv(ig,3) = i3
+                endif
+                if (job2 .ne. 0) then
+                  igv2(1,ig) = i1
+                  igv2(2,ig) = i2
+                  igv2(3,ig) = i3
+                endif
+                if (job4 .ne. 0) then
+                  gv(ig,1) = qpg(1)
+                  gv(ig,2) = qpg(2)
+                  gv(ig,3) = qpg(3)
+                endif
+              endif
             endif
-            if (job2 .ne. 0) then
-              igv2(1,ig) = i1
-              igv2(2,ig) = i2
-              igv2(3,ig) = i3
-            endif
-            if (job4 .ne. 0) then
-              gv(ig,1) = qpg(1)
-              gv(ig,2) = qpg(2)
-              gv(ig,3) = qpg(3)
-            endif
-          endif
-        endif
-      enddo
-      enddo
+          enddo
+        enddo
       enddo
       ng = ig
 
@@ -358,28 +358,28 @@ C ... Rearrange gv,kv
 
 C ... Rearrange igv
       if (job1 .ne. 0) then
-      do  30  m = 1, 3
-        do  32  ig = 1, ng
-          jg = iprm(ig)+1
-          kk(ig) = igv(jg,m)
-   32   continue
-        do  34  ig = 1, ng
-          igv(ig,m) = kk(ig)
-   34   continue
-   30 continue
+        do  30  m = 1, 3
+          do  32  ig = 1, ng
+            jg = iprm(ig)+1
+            kk(ig) = igv(jg,m)
+   32     continue
+          do  34  ig = 1, ng
+            igv(ig,m) = kk(ig)
+   34     continue
+   30   continue
       endif
 
 C ... Rearrange igv2
       if (job2 .ne. 0) then
-      do  40  m = 1, 3
-        do  42  ig = 1, ng
-          jg = iprm(ig)+1
-          kk(ig) = igv2(m,jg)
-   42   continue
-        do  44  ig = 1, ng
-          igv2(m,ig) = kk(ig)
-   44   continue
-   40 continue
+        do  40  m = 1, 3
+          do  42  ig = 1, ng
+            jg = iprm(ig)+1
+            kk(ig) = igv2(m,jg)
+   42     continue
+          do  44  ig = 1, ng
+            igv2(m,ig) = kk(ig)
+   44     continue
+   40   continue
       endif
 
 C     call prmx('gv',gv,ngmx,ng,3)

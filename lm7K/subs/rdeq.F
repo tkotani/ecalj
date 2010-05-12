@@ -115,13 +115,13 @@ cc      do imu= 1, mumax
 cc        imu = 1
 cc         mu= dble(imu - l) - 1.5d0
 
-         if (dabs(mu) .eq. (l+0.5d0)) then
-          xk1= dble(-l-1)
-          xk = xk1
-         else
-          xk1=dble(-l-1)
-          xk =dble(l)
-         endif
+      if (dabs(mu) .eq. (l+0.5d0)) then
+        xk1= dble(-l-1)
+        xk = xk1
+      else
+        xk1=dble(-l-1)
+        xk =dble(l)
+      endif
 
 C----Initial value: derived from initial conditions--
 C     r-->0, V = V0 - 2Z/r, B = const
@@ -141,8 +141,8 @@ C----------------------------------------------------
       xx2(4) = (xk1 + gamma)/hoc*(rofi(2)**(gamma-1.d0))
 
       do ir = 2, nr
-         vm(ir) = 0.5d0*(v(ir,1) + v(ir,2))
-         bm(ir) = 0.5d0*(v(ir,2) - v(ir,1))
+        vm(ir) = 0.5d0*(v(ir,1) + v(ir,2))
+        bm(ir) = 0.5d0*(v(ir,2) - v(ir,1))
 cc        vm(ir) = v(ir,1)
 cc        bm(ir) = 0.0d0
       enddo
@@ -154,7 +154,7 @@ cc        bm(ir) = 0.0d0
 
 C-----Added to take care of the abs(mu)=l+0.5 case------
       if(dabs(mu) .eq. (l+0.5d0)) then
-         up = upp
+        up = upp
       endif
 C-------------------------------------------------------
 
@@ -164,53 +164,53 @@ C-------------------------------------------------------
       f2(1) = 0.0d0
 
       do alpha = 1, 2
-       if (alpha .eq. 2) go to 100
-         g1(2) = xx1(1)
-         f1(2) = xx1(2)
-         g2(2) = xx1(3)
-         f2(2) = xx1(4)
-         go to 102
- 100     g1(2) = xx2(1)
-         f1(2) = xx2(2)
-         g2(2) = xx2(3)
-         f2(2) = xx2(4)
+        if (alpha .eq. 2) go to 100
+        g1(2) = xx1(1)
+        f1(2) = xx1(2)
+        g2(2) = xx1(3)
+        f2(2) = xx1(4)
+        go to 102
+ 100    g1(2) = xx2(1)
+        f1(2) = xx2(2)
+        g2(2) = xx2(3)
+        f2(2) = xx2(4)
 
- 102  do ie= 1, 5
-         e2= enu2 + (ie - 3)*de
-         e1= enu1 + (ie - 3)*de
+ 102    do ie= 1, 5
+          e2= enu2 + (ie - 3)*de
+          e1= enu1 + (ie - 3)*de
 cc 102     e = enu
 cc         print *, 'e-v=', e-vm(2)
 
-      do ir = 2, nr
-       nug1(ir) = 1.d0 + (1.d0/csq*(e1 + 2.d0*z/rofi(ir)
+          do ir = 2, nr
+            nug1(ir) = 1.d0 + (1.d0/csq*(e1 + 2.d0*z/rofi(ir)
      .            - vm(ir) + up*bm(ir)))
 
-       nuf1(ir) = - (e1 + 2.d0*z/rofi(ir) - vm(ir) + u*bm(ir))
+            nuf1(ir) = - (e1 + 2.d0*z/rofi(ir) - vm(ir) + u*bm(ir))
 
 C---Added to take care of the abs(mu)=l+0.5 case-----------
-       if(dabs(mu) .eq. (l+0.5d0)) then
-       nug1(ir) = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/rofi(ir)
+            if(dabs(mu) .eq. (l+0.5d0)) then
+              nug1(ir) = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/rofi(ir)
      .            - vm(ir) - upp*bm(ir)))
 
-       nuf1(ir) = - (e2 + 2.d0*z/rofi(ir) - vm(ir) - u*bm(ir))
-       endif
+              nuf1(ir) = - (e2 + 2.d0*z/rofi(ir) - vm(ir) - u*bm(ir))
+            endif
 C----------------------------------------------------------
 
-       nug2(ir) = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/rofi(ir)
+            nug2(ir) = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/rofi(ir)
      .            - vm(ir) - upp*bm(ir)))
 
-       nuf2(ir) = - (e2 + 2.d0*z/rofi(ir) - vm(ir) - u*bm(ir))
-      enddo
+            nuf2(ir) = - (e2 + 2.d0*z/rofi(ir) - vm(ir) - u*bm(ir))
+          enddo
 
-      J = a*(rofi(2) + b)
-      q = dexp(a/2.0d0)
-      r = rofi(2)
+          J = a*(rofi(2) + b)
+          q = dexp(a/2.0d0)
+          r = rofi(2)
 
-      g1s(2) = J*(cc*nug1(2)*f1(2) - xk/r*g1(2))
-      f1s(2) = J*((nuf1(2)*g1(2) - dsqrt(1.d0 - u**2)*bm(2)*g2(2))/cc
+          g1s(2) = J*(cc*nug1(2)*f1(2) - xk/r*g1(2))
+          f1s(2) = J*((nuf1(2)*g1(2) - dsqrt(1.d0 - u**2)*bm(2)*g2(2))/cc
      .  + xk/r*f1(2))
-      g2s(2) = J*(cc*nug2(2)*f2(2) - xk1/r*g2(2))
-      f2s(2) = J*((nuf2(2)*g2(2) - dsqrt(1.d0 - u**2)*bm(2)*g1(2))/cc
+          g2s(2) = J*(cc*nug2(2)*f2(2) - xk1/r*g2(2))
+          f2s(2) = J*((nuf2(2)*g2(2) - dsqrt(1.d0 - u**2)*bm(2)*g1(2))/cc
      .  + xk1/r*f2(2))
 
 C-----------Runge-Kutta for the first NKR points ------------------------------
@@ -218,257 +218,257 @@ C-----------Runge-Kutta for the first NKR points ------------------------------
 
 C-----First point--------------------------------------------------------------
 
-      n = 2
+          n = 2
 
- 2    g1c = g1(n)
-      f1c = f1(n)
-      g2c = g2(n)
-      f2c = f2(n)
+ 2        g1c = g1(n)
+          f1c = f1(n)
+          g2c = g2(n)
+          f2c = f2(n)
 
-      dg11 = dx*J*(cc*nug1(n)*f1c - xk/r*g1c)
-      df11 = dx*J*((nuf1(n)*g1c - dsqrt(1.d0 - u**2)*bm(n)*g2c)/cc
+          dg11 = dx*J*(cc*nug1(n)*f1c - xk/r*g1c)
+          df11 = dx*J*((nuf1(n)*g1c - dsqrt(1.d0 - u**2)*bm(n)*g2c)/cc
      .  + xk/r*f1c)
-      dg21 = dx*J*(cc*nug2(n)*f2c - xk1/r*g2c)
-      df21 = dx*J*((nuf2(n)*g2c - dsqrt(1.d0 - u**2)*bm(n)*g1c)/cc
+          dg21 = dx*J*(cc*nug2(n)*f2c - xk1/r*g2c)
+          df21 = dx*J*((nuf2(n)*g2c - dsqrt(1.d0 - u**2)*bm(n)*g1c)/cc
      .  + xk1/r*f2c)
 
-      g1c = g1(n) + 0.5d0*dg11
-      f1c = f1(n) + 0.5d0*df11
-      g2c = g2(n) + 0.5d0*dg21
-      f2c = f2(n) + 0.5d0*df21
+          g1c = g1(n) + 0.5d0*dg11
+          f1c = f1(n) + 0.5d0*df11
+          g2c = g2(n) + 0.5d0*dg21
+          f2c = f2(n) + 0.5d0*df21
 
-      J = J*q
-      r = J/a - b
+          J = J*q
+          r = J/a - b
 
-      vmint = (5.d0*vm(n) + 2.d0*vm(n+1) + vm(n+2))*.125d0
-      bmint = (5.d0*bm(n) + 2.d0*bm(n+1) + bm(n+2))*.125d0
+          vmint = (5.d0*vm(n) + 2.d0*vm(n+1) + vm(n+2))*.125d0
+          bmint = (5.d0*bm(n) + 2.d0*bm(n+1) + bm(n+2))*.125d0
 
 cc      vmint = (6.d0*vm(n) + 5.d0*vm(n+1) - 3.d0*vm(n-1))*.125d0
 cc      bmint = (6.d0*bm(n) + 5.d0*bm(n+1) - 3.d0*vm(n-1))*.125d0
 
 
-      nug1int = 1.d0 + (1.d0/csq*(e1  + 2.d0*z/r
+          nug1int = 1.d0 + (1.d0/csq*(e1  + 2.d0*z/r
      .          - vmint + up*bmint))
 
-      nuf1int = - (e1 + 2.d0*z/r - vmint + u*bmint)
+          nuf1int = - (e1 + 2.d0*z/r - vmint + u*bmint)
 
 C---Added to take care of the abs(mu)=l+0.5 case-----------
-       if(dabs(mu) .eq. (l+0.5d0)) then
-       nug1int = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/r
+          if(dabs(mu) .eq. (l+0.5d0)) then
+            nug1int = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/r
      .          - vmint - upp*bmint))
-       nuf1int = - (e2 + 2.d0*z/r - vmint - u*bmint)
-       endif
+            nuf1int = - (e2 + 2.d0*z/r - vmint - u*bmint)
+          endif
 C---------------------------------------------------------
 
-      nug2int = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/r
+          nug2int = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/r
      .          - vmint - upp*bmint))
-      nuf2int = - (e2 + 2.d0*z/r - vmint - u*bmint)
+          nuf2int = - (e2 + 2.d0*z/r - vmint - u*bmint)
 
 
-      dg12 = dx*J*(cc*nug1int*f1c - xk/r*g1c)
-      df12 = dx*J*((nuf1int*g1c - dsqrt(1.d0 - u**2)*bmint*g2c)/cc
+          dg12 = dx*J*(cc*nug1int*f1c - xk/r*g1c)
+          df12 = dx*J*((nuf1int*g1c - dsqrt(1.d0 - u**2)*bmint*g2c)/cc
      .  + xk/r*f1c)
-      dg22 = dx*J*(cc*nug2int*f2c - xk1/r*g2c)
-      df22 = dx*J*((nuf2int*g2c - dsqrt(1.d0 - u**2)*bmint*g1c)/cc
+          dg22 = dx*J*(cc*nug2int*f2c - xk1/r*g2c)
+          df22 = dx*J*((nuf2int*g2c - dsqrt(1.d0 - u**2)*bmint*g1c)/cc
      .  + xk1/r*f2c)
 
-      g1c = g1(n) + 0.5d0*dg12
-      f1c = f1(n) + 0.5d0*df12
-      g2c = g2(n) + 0.5d0*dg22
-      f2c = f2(n) + 0.5d0*df22
+          g1c = g1(n) + 0.5d0*dg12
+          f1c = f1(n) + 0.5d0*df12
+          g2c = g2(n) + 0.5d0*dg22
+          f2c = f2(n) + 0.5d0*df22
 
-      dg13 = dx*J*(cc*nug1int*f1c - xk/r*g1c)
-      df13 = dx*J*((nuf1int*g1c - dsqrt(1.d0 - u**2)*bmint*g2c)/cc
+          dg13 = dx*J*(cc*nug1int*f1c - xk/r*g1c)
+          df13 = dx*J*((nuf1int*g1c - dsqrt(1.d0 - u**2)*bmint*g2c)/cc
      .  + xk/r*f1c)
-      dg23 = dx*J*(cc*nug2int*f2c - xk1/r*g2c)
-      df23 = dx*J*((nuf2int*g2c - dsqrt(1.d0 - u**2)*bmint*g1c)/cc
+          dg23 = dx*J*(cc*nug2int*f2c - xk1/r*g2c)
+          df23 = dx*J*((nuf2int*g2c - dsqrt(1.d0 - u**2)*bmint*g1c)/cc
      .  + xk1/r*f2c)
 
-      g1c = g1(n) + dg13
-      f1c = f1(n) + df13
-      g2c = g2(n) + dg23
-      f2c = f2(n) + df23
+          g1c = g1(n) + dg13
+          f1c = f1(n) + df13
+          g2c = g2(n) + dg23
+          f2c = f2(n) + df23
 
-      n = n + 1
+          n = n + 1
 
-      J = J*q
-      r = J/a - b
+          J = J*q
+          r = J/a - b
 
-      dg14 = dx*J*(cc*nug1(n)*f1c - xk/r*g1c)
-      df14 = dx*J*((nuf1(n)*g1c - dsqrt(1.d0 - u**2)*bm(n)*g2c)/cc
+          dg14 = dx*J*(cc*nug1(n)*f1c - xk/r*g1c)
+          df14 = dx*J*((nuf1(n)*g1c - dsqrt(1.d0 - u**2)*bm(n)*g2c)/cc
      .  + xk/r*f1c)
-      dg24 = dx*J*(cc*nug2(n)*f2c - xk1/r*g2c)
-      df24 = dx*J*((nuf2(n)*g2c - dsqrt(1.d0 - u**2)*bm(n)*g1c)/cc
+          dg24 = dx*J*(cc*nug2(n)*f2c - xk1/r*g2c)
+          df24 = dx*J*((nuf2(n)*g2c - dsqrt(1.d0 - u**2)*bm(n)*g1c)/cc
      .  + xk1/r*f2c)
 
-      g1(n) = g1(n-1) + (dg11 + 2.d0*(dg12+dg13) + dg14)/6.d0
-      f1(n) = f1(n-1) + (df11 + 2.d0*(df12+df13) + df14)/6.d0
-      g2(n) = g2(n-1) + (dg21 + 2.d0*(dg22+dg23) + dg24)/6.d0
-      f2(n) = f2(n-1) + (df21 + 2.d0*(df22+df23) + df24)/6.d0
+          g1(n) = g1(n-1) + (dg11 + 2.d0*(dg12+dg13) + dg14)/6.d0
+          f1(n) = f1(n-1) + (df11 + 2.d0*(df12+df13) + df14)/6.d0
+          g2(n) = g2(n-1) + (dg21 + 2.d0*(dg22+dg23) + dg24)/6.d0
+          f2(n) = f2(n-1) + (df21 + 2.d0*(df22+df23) + df24)/6.d0
 
 C----Determine the derivatives dP/dx and dQ/dx----------------------------
 
-      g1s(n) = J*(cc*nug1(n)*f1(n) - xk/r*g1(n))
-      f1s(n) = J*((nuf1(n)*g1(n) - dsqrt(1.d0 - u**2)*bm(n)*g2(n))/cc
+          g1s(n) = J*(cc*nug1(n)*f1(n) - xk/r*g1(n))
+          f1s(n) = J*((nuf1(n)*g1(n) - dsqrt(1.d0 - u**2)*bm(n)*g2(n))/cc
      .  + xk/r*f1(n))
-      g2s(n) = J*(cc*nug2(n)*f2(n) - xk1/r*g2(n))
-      f2s(n) = J*((nuf2(n)*g2(n) - dsqrt(1.d0 - u**2)*bm(n)*g1(n))/cc
+          g2s(n) = J*(cc*nug2(n)*f2(n) - xk1/r*g2(n))
+          f2s(n) = J*((nuf2(n)*g2(n) - dsqrt(1.d0 - u**2)*bm(n)*g1(n))/cc
      .  + xk1/r*f2(n))
 
 C---------------------------------------------------------------------
 C     The rest of the integration is performed using Milne's method.
 C---------------------------------------------------------------------
 
-      if(n-nrk) 2,3,3
+          if(n-nrk) 2,3,3
 
- 3    if(n .eq. nrmx) goto 12
+ 3        if(n .eq. nrmx) goto 12
 
-      g1sn = g1s(n)
-      f1sn = f1s(n)
-      g1snm1 = g1s(n-1)
-      f1snm1 = f1s(n-1)
-      g1snm2 = g1s(n-2)
-      f1snm2 = f1s(n-2)
-      g1snm3 = g1s(n-3)
-      f1snm3 = f1s(n-3)
-      g1snm4 = g1s(n-4)
-      f1snm4 = f1s(n-4)
+          g1sn = g1s(n)
+          f1sn = f1s(n)
+          g1snm1 = g1s(n-1)
+          f1snm1 = f1s(n-1)
+          g1snm2 = g1s(n-2)
+          f1snm2 = f1s(n-2)
+          g1snm3 = g1s(n-3)
+          f1snm3 = f1s(n-3)
+          g1snm4 = g1s(n-4)
+          f1snm4 = f1s(n-4)
 
-      g2sn = g2s(n)
-      f2sn = f2s(n)
-      g2snm1 = g2s(n-1)
-      f2snm1 = f2s(n-1)
-      g2snm2 = g2s(n-2)
-      f2snm2 = f2s(n-2)
-      g2snm3 = g2s(n-3)
-      f2snm3 = f2s(n-3)
-      g2snm4 = g2s(n-4)
-      f2snm4 = f2s(n-4)
+          g2sn = g2s(n)
+          f2sn = f2s(n)
+          g2snm1 = g2s(n-1)
+          f2snm1 = f2s(n-1)
+          g2snm2 = g2s(n-2)
+          f2snm2 = f2s(n-2)
+          g2snm3 = g2s(n-3)
+          f2snm3 = f2s(n-3)
+          g2snm4 = g2s(n-4)
+          f2snm4 = f2s(n-4)
 
- 4    J = J*q*q
-      r = J/a - b
+ 4        J = J*q*q
+          r = J/a - b
 
-      g1p = g1(n-5) + (3.d0*dx/10.d0)*(11.d0*g1sn - 14.d0*g1snm1 +
+          g1p = g1(n-5) + (3.d0*dx/10.d0)*(11.d0*g1sn - 14.d0*g1snm1 +
      .      26.d0*g1snm2 - 14.d0*g1snm3 + 11.d0*g1snm4)
-      f1p = f1(n-5) + (3.d0*dx/10.d0)*(11.d0*f1sn - 14.d0*f1snm1 +
+          f1p = f1(n-5) + (3.d0*dx/10.d0)*(11.d0*f1sn - 14.d0*f1snm1 +
      .      26.d0*f1snm2 - 14.d0*f1snm3 + 11.d0*f1snm4)
-      g2p = g2(n-5) + (3.d0*dx/10.d0)*(11.d0*g2sn - 14.d0*g2snm1 +
+          g2p = g2(n-5) + (3.d0*dx/10.d0)*(11.d0*g2sn - 14.d0*g2snm1 +
      .      26.d0*g2snm2 - 14.d0*g2snm3 + 11.d0*g2snm4)
-      f2p = f2(n-5) + (3.d0*dx/10.d0)*(11.d0*f2sn - 14.d0*f2snm1 +
+          f2p = f2(n-5) + (3.d0*dx/10.d0)*(11.d0*f2sn - 14.d0*f2snm1 +
      .      26.d0*f2snm2 - 14.d0*f2snm3 + 11.d0*f2snm4)
 
-      nit = 0
+          nit = 0
 
- 5    g1sng1 = J*(cc*nug1(n+1)*f1p - xk/r*g1p)
-      f1snf1 = J*((nuf1(n+1)*g1p - dsqrt(1.d0 - u**2)*bm(n+1)*g2p)/cc
+ 5        g1sng1 = J*(cc*nug1(n+1)*f1p - xk/r*g1p)
+          f1snf1 = J*((nuf1(n+1)*g1p - dsqrt(1.d0 - u**2)*bm(n+1)*g2p)/cc
      .  + xk/r*f1p)
-      g2sng2 = J*(cc*nug2(n+1)*f2p - xk1/r*g2p)
-      f2snf2 = J*((nuf2(n+1)*g2p - dsqrt(1.d0 - u**2)*bm(n+1)*g1p)/cc
+          g2sng2 = J*(cc*nug2(n+1)*f2p - xk1/r*g2p)
+          f2snf2 = J*((nuf2(n+1)*g2p - dsqrt(1.d0 - u**2)*bm(n+1)*g1p)/cc
      .  + xk1/r*f2p)
 
-      g1c = g1(n-3) + (2.d0*dx/45.d0)*(7.d0*g1sng1 + 32.d0*g1sn +
+          g1c = g1(n-3) + (2.d0*dx/45.d0)*(7.d0*g1sng1 + 32.d0*g1sn +
      .      12.d0*g1snm1 + 32.d0*g1snm2 + 7.d0*g1snm3)
-      f1c = f1(n-3) + (2.d0*dx/45.d0)*(7.d0*f1snf1 + 32.d0*f1sn +
+          f1c = f1(n-3) + (2.d0*dx/45.d0)*(7.d0*f1snf1 + 32.d0*f1sn +
      .      12.d0*f1snm1 + 32.d0*f1snm2 + 7.d0*f1snm3)
-      g2c = g2(n-3) + (2.d0*dx/45.d0)*(7.d0*g2sng2 + 32.d0*g2sn +
+          g2c = g2(n-3) + (2.d0*dx/45.d0)*(7.d0*g2sng2 + 32.d0*g2sn +
      .      12.d0*g2snm1 + 32.d0*g2snm2 + 7.d0*g2snm3)
-      f2c = f2(n-3) + (2.d0*dx/45.d0)*(7.d0*f2snf2 + 32.d0*f2sn +
+          f2c = f2(n-3) + (2.d0*dx/45.d0)*(7.d0*f2snf2 + 32.d0*f2sn +
      .      12.d0*f2snm1 + 32.d0*f2snm2 + 7.d0*f2snm3)
 
-      if(dabs(g1c-g1p) - dabs(g1c)*1.d-12) 36,36,10
- 36   if(dabs(f1c-f1p) - dabs(f1c)*1.d-12) 6,6,10
- 6    if(dabs(g2c-g2p) - dabs(g2c)*1.d-12) 26,26,10
- 26   if(dabs(f2c-f2p) - dabs(f2c)*1.d-12) 11,11,10
+          if(dabs(g1c-g1p) - dabs(g1c)*1.d-12) 36,36,10
+ 36       if(dabs(f1c-f1p) - dabs(f1c)*1.d-12) 6,6,10
+ 6        if(dabs(g2c-g2p) - dabs(g2c)*1.d-12) 26,26,10
+ 26       if(dabs(f2c-f2p) - dabs(f2c)*1.d-12) 11,11,10
 
 C... Check for convergence
- 10   if(nit .gt. 100) then
-         print*,dabs(g1c-g1p)
-         print*,dabs(f1c-f1p)
-         print*,dabs(g2c-g2p)
-         print*,dabs(f2c-f2p)
-       goto 11
-       endif
+ 10       if(nit .gt. 100) then
+            print*,dabs(g1c-g1p)
+            print*,dabs(f1c-f1p)
+            print*,dabs(g2c-g2p)
+            print*,dabs(f2c-f2p)
+            goto 11
+          endif
 
-      nit = nit + 1
+          nit = nit + 1
 
-      g1p = g1c
-      f1p = f1c
-      g2p = g2c
-      f2p = f2c
+          g1p = g1c
+          f1p = f1c
+          g2p = g2c
+          f2p = f2c
 
-      goto 5
+          goto 5
 
- 11   n = n + 1
+ 11       n = n + 1
 
-      g1(n) = g1c
-      f1(n) = f1c
-      g1s(n) = g1sng1
-      f1s(n) = f1snf1
-      g1snm4 = g1snm3
-      f1snm4 = f1snm3
-      g1snm3 = g1snm2
-      f1snm3 = f1snm2
-      g1snm2 = g1snm1
-      f1snm2 = f1snm1
-      g1snm1 = g1sn
-      f1snm1 = f1sn
-      g1sn = g1sng1
-      f1sn = f1snf1
+          g1(n) = g1c
+          f1(n) = f1c
+          g1s(n) = g1sng1
+          f1s(n) = f1snf1
+          g1snm4 = g1snm3
+          f1snm4 = f1snm3
+          g1snm3 = g1snm2
+          f1snm3 = f1snm2
+          g1snm2 = g1snm1
+          f1snm2 = f1snm1
+          g1snm1 = g1sn
+          f1snm1 = f1sn
+          g1sn = g1sng1
+          f1sn = f1snf1
 
 
-      g2(n) = g2c
-      f2(n) = f2c
-      g2s(n) = g2sng2
-      f2s(n) = f2snf2
-      g2snm4 = g2snm3
-      f2snm4 = f2snm3
-      g2snm3 = g2snm2
-      f2snm3 = f2snm2
-      g2snm2 = g2snm1
-      f2snm2 = f2snm1
-      g2snm1 = g2sn
-      f2snm1 = f2sn
-      g2sn = g2sng2
-      f2sn = f2snf2
+          g2(n) = g2c
+          f2(n) = f2c
+          g2s(n) = g2sng2
+          f2s(n) = f2snf2
+          g2snm4 = g2snm3
+          f2snm4 = f2snm3
+          g2snm3 = g2snm2
+          f2snm3 = f2snm2
+          g2snm2 = g2snm1
+          f2snm2 = f2snm1
+          g2snm1 = g2sn
+          f2snm1 = f2sn
+          g2sn = g2sng2
+          f2sn = f2snf2
 
-      if(n-nrmx) 4,12,12
+          if(n-nrmx) 4,12,12
 
-   12 continue
+   12     continue
 
 C---Normalization of g and f at the MT sphere------------------
 C   and determination of the energy derivatives
 C--------------------------------------------------------------
 
-      norm = 0.0d0
+          norm = 0.0d0
 
-      do n = 2, nrmx
-         psi(1,n) = g1(n)
-         psi(2,n) = f1(n)
-         psi(3,n) = g2(n)
-         psi(4,n) = f2(n)
+          do n = 2, nrmx
+            psi(1,n) = g1(n)
+            psi(2,n) = f1(n)
+            psi(3,n) = g2(n)
+            psi(4,n) = f2(n)
 
-         ksi(1,n) = g1(n)
-         ksi(2,n) = f1(n)
-         ksi(3,n) = g2(n)
-         ksi(4,n) = f2(n)
-      enddo
+            ksi(1,n) = g1(n)
+            ksi(2,n) = f1(n)
+            ksi(3,n) = g2(n)
+            ksi(4,n) = f2(n)
+          enddo
 
-      call product2(psi,ksi,a,b,rofi,nr,e1,vm,z,xk,norm)
+          call product2(psi,ksi,a,b,rofi,nr,e1,vm,z,xk,norm)
 
 C----Normalize g, save it for calc. of small par. and orthogonalization-
 C       open(78,file='test.dat',status='unknown')
 C       print*,'l,mu,alpha=',l,mu,alpha,e,enu
-       do n = 2, nrmx
-          gn1(alpha,ie,n) = g1(n)/dsqrt(norm)
-          gn2(alpha,ie,n) = g2(n)/dsqrt(norm)
-          fn1(alpha,ie,n) = f1(n)/dsqrt(norm)
-          fn2(alpha,ie,n) = f2(n)/dsqrt(norm)
+          do n = 2, nrmx
+            gn1(alpha,ie,n) = g1(n)/dsqrt(norm)
+            gn2(alpha,ie,n) = g2(n)/dsqrt(norm)
+            fn1(alpha,ie,n) = f1(n)/dsqrt(norm)
+            fn2(alpha,ie,n) = f2(n)/dsqrt(norm)
 C         write(78,*) rofi(n),g1(n),f1(n)
-       enddo
+          enddo
 C       call zprm('test.dat',1,g1,nrmx,nrmx,1)
 C       close(78)
 C----End of the Energy loop--------------------------------------------
-      enddo
+        enddo
 
 C----End of the alpha loop---------------------------------------------
       enddo
@@ -476,34 +476,34 @@ C----End of the alpha loop---------------------------------------------
 
 C---Orthoganalization--------------------------------------------
       do ie= 1, 5
-       e1= enu1 + (ie - 3)*de
-       e2= enu2 + (ie - 3)*de
-      product = 0.0d0
+        e1= enu1 + (ie - 3)*de
+        e2= enu2 + (ie - 3)*de
+        product = 0.0d0
 
-      do n = 2, nrmx
-         psi(1,n) = gn1(1,ie,n)
-         psi(2,n) = fn1(1,ie,n)
-         psi(3,n) = gn2(1,ie,n)
-         psi(4,n) = fn2(1,ie,n)
+        do n = 2, nrmx
+          psi(1,n) = gn1(1,ie,n)
+          psi(2,n) = fn1(1,ie,n)
+          psi(3,n) = gn2(1,ie,n)
+          psi(4,n) = fn2(1,ie,n)
 
-         ksi(1,n) = gn1(2,ie,n)
-         ksi(2,n) = fn1(2,ie,n)
-         ksi(3,n) = gn2(2,ie,n)
-         ksi(4,n) = fn2(2,ie,n)
+          ksi(1,n) = gn1(2,ie,n)
+          ksi(2,n) = fn1(2,ie,n)
+          ksi(3,n) = gn2(2,ie,n)
+          ksi(4,n) = fn2(2,ie,n)
 C         if (l .eq. 1 .and. mu .eq. -0.5) then
 C           write(78,*) rofi(n),gn1(1,3,n),gn2(2,3,n)
 C         endif
-      enddo
+        enddo
 
-      call product2(psi,ksi,a,b,rofi,nr,enu1,vm,z,xk,product)
+        call product2(psi,ksi,a,b,rofi,nr,enu1,vm,z,xk,product)
 cc      write(78,*) 'before', l, product
 
-      do n = 2, nrmx
-         gn1(2,ie,n) = -product*gn1(1,ie,n) + gn1(2,ie,n)
-         gn2(2,ie,n) = -product*gn2(1,ie,n) + gn2(2,ie,n)
-         fn1(2,ie,n) = -product*fn1(1,ie,n) + fn1(2,ie,n)
-         fn2(2,ie,n) = -product*fn2(1,ie,n) + fn2(2,ie,n)
-      enddo
+        do n = 2, nrmx
+          gn1(2,ie,n) = -product*gn1(1,ie,n) + gn1(2,ie,n)
+          gn2(2,ie,n) = -product*gn2(1,ie,n) + gn2(2,ie,n)
+          fn1(2,ie,n) = -product*fn1(1,ie,n) + fn1(2,ie,n)
+          fn2(2,ie,n) = -product*fn2(1,ie,n) + fn2(2,ie,n)
+        enddo
 
 C---Test orthoganalization
 
@@ -523,12 +523,12 @@ cc      write(78,*) 'after', l, product
 C----Save the ortho-normalized g and f at the MT sphere and calc-------
 C----the energy derivative at the enu at the MT sphere          -------
 
-      do alpha = 1, 2
-       gmt0(1,alpha,ie) = gn1(alpha,ie,nr)/rofi(nr)
-       gmt0(2,alpha,ie) = gn2(alpha,ie,nr)/rofi(nr)
-       fmt0(1,alpha,ie) = fn1(alpha,ie,nr)/rofi(nr)
-       fmt0(2,alpha,ie) = fn2(alpha,ie,nr)/rofi(nr)
-      enddo
+        do alpha = 1, 2
+          gmt0(1,alpha,ie) = gn1(alpha,ie,nr)/rofi(nr)
+          gmt0(2,alpha,ie) = gn2(alpha,ie,nr)/rofi(nr)
+          fmt0(1,alpha,ie) = fn1(alpha,ie,nr)/rofi(nr)
+          fmt0(2,alpha,ie) = fn2(alpha,ie,nr)/rofi(nr)
+        enddo
 
 C---End of the orthog. energy loop-------------------------------------
       enddo
@@ -543,25 +543,25 @@ cc      endif
 C-----Save radial derivative at the MT sphere--------------------------
 
 
-       nug1(nr) = 1.d0 + (1.d0/csq*(enu1 + 2.d0*z/rofi(nr)
+      nug1(nr) = 1.d0 + (1.d0/csq*(enu1 + 2.d0*z/rofi(nr)
      .            - vm(nr) + up*bm(nr)))
 
 C---Added to take care of the abs(mu)=l+0.5 case-----------
-       if(dabs(mu) .eq. (l+0.5d0)) then
-       nug1(nr) = 1.d0 + (1.d0/csq*(enu2 + 2.d0*z/rofi(nr)
+      if(dabs(mu) .eq. (l+0.5d0)) then
+        nug1(nr) = 1.d0 + (1.d0/csq*(enu2 + 2.d0*z/rofi(nr)
      .            - vm(nr) - upp*bm(nr)))
-       endif
+      endif
 C----------------------------------------------------------
 
-       nug2(nr) = 1.d0 + (1.d0/csq*(enu2 + 2.d0*z/rofi(nr)
+      nug2(nr) = 1.d0 + (1.d0/csq*(enu2 + 2.d0*z/rofi(nr)
      .            - vm(nr) - upp*bm(nr)))
 
 
       do alpha = 1, 2
 
-       gsmt(1,alpha) = (cc*nug1(nr)*fn1(alpha,3,nr)
+        gsmt(1,alpha) = (cc*nug1(nr)*fn1(alpha,3,nr)
      .          - xk/rofi(nr)*gn1(alpha,3,nr))
-       gsmt(2,alpha) = (cc*nug2(nr)*fn2(alpha,3,nr)
+        gsmt(2,alpha) = (cc*nug2(nr)*fn2(alpha,3,nr)
      .          - xk1/rofi(nr)*gn2(alpha,3,nr))
 
       enddo
@@ -571,68 +571,68 @@ C--Save g and f at the MT sphere--------------------------------------
 
 C ... Multiply the second soltion (alpha=2) by a phase factor (-1)
       if (gmt0(1,1,3) .gt. 0d0 .and. gmt0(2,2,3) .lt. 0d0) then
-         print*,'multiplied by a phase factor'
-         do i = 1, 2
-               gmt0(i,2,3)=-gmt0(i,2,3)
-               fmt0(i,2,3)=-fmt0(i,2,3)
-         enddo
+        print*,'multiplied by a phase factor'
+        do i = 1, 2
+          gmt0(i,2,3)=-gmt0(i,2,3)
+          fmt0(i,2,3)=-fmt0(i,2,3)
+        enddo
       endif
       if (gmt0(1,1,3) .lt. 0d0 .and. gmt0(2,2,3) .gt. 0d0) then
-         do i = 1, 2
-               gmt0(i,2,3)=-gmt0(i,2,3)
-               fmt0(i,2,3)=-fmt0(i,2,3)
-         enddo
+        do i = 1, 2
+          gmt0(i,2,3)=-gmt0(i,2,3)
+          fmt0(i,2,3)=-fmt0(i,2,3)
+        enddo
       endif
 
       do i = 1, 2
-         do alpha = 1, 2
+        do alpha = 1, 2
 
-         gmt(i,alpha) = gmt0(i,alpha,3)
-         fmt(i,alpha) = fmt0(i,alpha,3)
+          gmt(i,alpha) = gmt0(i,alpha,3)
+          fmt(i,alpha) = fmt0(i,alpha,3)
 
-         enddo
+        enddo
       enddo
 
 
 C-----Calculate the energy derivatives of rg, rf at every point r -----
 
       do n= 2, nrmx
-         do alpha= 1, 2
-            gn1dot(alpha,n) = (-8.d0*(gn1(alpha,2,n) - gn1(alpha,4,n))
+        do alpha= 1, 2
+          gn1dot(alpha,n) = (-8.d0*(gn1(alpha,2,n) - gn1(alpha,4,n))
      .                      + gn1(alpha,1,n) - gn1(alpha,5,n))/12.d0/de
-            gn2dot(alpha,n) = (-8.d0*(gn2(alpha,2,n) - gn2(alpha,4,n))
+          gn2dot(alpha,n) = (-8.d0*(gn2(alpha,2,n) - gn2(alpha,4,n))
      .                      + gn2(alpha,1,n) - gn2(alpha,5,n))/12.d0/de
-            fn1dot(alpha,n) = (-8.d0*(fn1(alpha,2,n) - fn1(alpha,4,n))
+          fn1dot(alpha,n) = (-8.d0*(fn1(alpha,2,n) - fn1(alpha,4,n))
      .                      + fn1(alpha,1,n) - fn1(alpha,5,n))/12.d0/de
-            fn2dot(alpha,n) = (-8.d0*(fn2(alpha,2,n) - fn2(alpha,4,n))
+          fn2dot(alpha,n) = (-8.d0*(fn2(alpha,2,n) - fn2(alpha,4,n))
      .                      + fn2(alpha,1,n) - fn2(alpha,5,n))/12.d0/de
-         enddo
+        enddo
       enddo
 
 C--Orthogonality of <phi|phidot>------ same alpha --------------------
 
       do alpha = 1, 2
-         product = 0.0d0
-       do n = 2, nrmx
-         psi(1,n) = gn1(alpha,3,n)
-         psi(2,n) = fn1(alpha,3,n)
-         psi(3,n) = gn2(alpha,3,n)
-         psi(4,n) = fn2(alpha,3,n)
+        product = 0.0d0
+        do n = 2, nrmx
+          psi(1,n) = gn1(alpha,3,n)
+          psi(2,n) = fn1(alpha,3,n)
+          psi(3,n) = gn2(alpha,3,n)
+          psi(4,n) = fn2(alpha,3,n)
 
-         ksi(1,n) = gn1dot(alpha,n)
-         ksi(2,n) = fn1dot(alpha,n)
-         ksi(3,n) = gn2dot(alpha,n)
-         ksi(4,n) = fn2dot(alpha,n)
-       enddo
+          ksi(1,n) = gn1dot(alpha,n)
+          ksi(2,n) = fn1dot(alpha,n)
+          ksi(3,n) = gn2dot(alpha,n)
+          ksi(4,n) = fn2dot(alpha,n)
+        enddo
 
-       call product2(psi,ksi,a,b,rofi,nr,enu1,vm,z,xk,product)
+        call product2(psi,ksi,a,b,rofi,nr,enu1,vm,z,xk,product)
 
-       do n = 2, nrmx
-        gn1dot(alpha,n) = -product*gn1(alpha,3,n) + gn1dot(alpha,n)
-        gn2dot(alpha,n) = -product*gn2(alpha,3,n) + gn2dot(alpha,n)
-        fn1dot(alpha,n) = -product*fn1(alpha,3,n) + fn1dot(alpha,n)
-        fn2dot(alpha,n) = -product*fn2(alpha,3,n) + fn2dot(alpha,n)
-       enddo
+        do n = 2, nrmx
+          gn1dot(alpha,n) = -product*gn1(alpha,3,n) + gn1dot(alpha,n)
+          gn2dot(alpha,n) = -product*gn2(alpha,3,n) + gn2dot(alpha,n)
+          fn1dot(alpha,n) = -product*fn1(alpha,3,n) + fn1dot(alpha,n)
+          fn2dot(alpha,n) = -product*fn2(alpha,3,n) + fn2dot(alpha,n)
+        enddo
 
       enddo
 
@@ -642,15 +642,15 @@ C--Orthogonality of <phi|phidot>------ different alphas --------------
 
       do n = 2, nrmx
 
-         psi(1,n) = gn1(1,3,n)
-         psi(2,n) = fn1(1,3,n)
-         psi(3,n) = gn2(1,3,n)
-         psi(4,n) = fn2(1,3,n)
+        psi(1,n) = gn1(1,3,n)
+        psi(2,n) = fn1(1,3,n)
+        psi(3,n) = gn2(1,3,n)
+        psi(4,n) = fn2(1,3,n)
 
-         ksi(1,n) = gn1dot(2,n)
-         ksi(2,n) = fn1dot(2,n)
-         ksi(3,n) = gn2dot(2,n)
-         ksi(4,n) = fn2dot(2,n)
+        ksi(1,n) = gn1dot(2,n)
+        ksi(2,n) = fn1dot(2,n)
+        ksi(3,n) = gn2dot(2,n)
+        ksi(4,n) = fn2dot(2,n)
 
       enddo
 
@@ -660,67 +660,67 @@ C--Orthogonality of <phi|phidot>------ different alphas --------------
 
       do n = 2, nrmx
 
-         psi(1,n) = gn1(2,3,n)
-         psi(2,n) = fn1(2,3,n)
-         psi(3,n) = gn2(2,3,n)
-         psi(4,n) = fn2(2,3,n)
+        psi(1,n) = gn1(2,3,n)
+        psi(2,n) = fn1(2,3,n)
+        psi(3,n) = gn2(2,3,n)
+        psi(4,n) = fn2(2,3,n)
 
-         ksi(1,n) = gn1dot(1,n)
-         ksi(2,n) = fn1dot(1,n)
-         ksi(3,n) = gn2dot(1,n)
-         ksi(4,n) = fn2dot(1,n)
+        ksi(1,n) = gn1dot(1,n)
+        ksi(2,n) = fn1dot(1,n)
+        ksi(3,n) = gn2dot(1,n)
+        ksi(4,n) = fn2dot(1,n)
 
       enddo
 
       call product2(psi,ksi,a,b,rofi,nr,enu1,vm,z,xk,product1)
 cc      write(78,*) 'before', l, product1
 
-       do n = 2, nrmx
+      do n = 2, nrmx
         gn1dot(1,n) = -product1*gn1(2,3,n) + gn1dot(1,n)
         gn2dot(1,n) = -product1*gn2(2,3,n) + gn2dot(1,n)
         fn1dot(1,n) = -product1*fn1(2,3,n) + fn1dot(1,n)
         fn2dot(1,n) = -product1*fn2(2,3,n) + fn2dot(1,n)
-       enddo
+      enddo
 
-       do n = 2, nrmx
+      do n = 2, nrmx
         gn1dot(2,n) = -product*gn1(1,3,n) + gn1dot(2,n)
         gn2dot(2,n) = -product*gn2(1,3,n) + gn2dot(2,n)
         fn1dot(2,n) = -product*fn1(1,3,n) + fn1dot(2,n)
         fn2dot(2,n) = -product*fn2(1,3,n) + fn2dot(2,n)
-       enddo
+      enddo
 
-       product = 0.d0
-       product1 = 0.d0
+      product = 0.d0
+      product1 = 0.d0
 
       do n = 2, nrmx
 
-         ksi(1,n) = gn1dot(1,n)
-         ksi(2,n) = fn1dot(1,n)
-         ksi(3,n) = gn2dot(1,n)
-         ksi(4,n) = fn2dot(1,n)
+        ksi(1,n) = gn1dot(1,n)
+        ksi(2,n) = fn1dot(1,n)
+        ksi(3,n) = gn2dot(1,n)
+        ksi(4,n) = fn2dot(1,n)
 
-       enddo
+      enddo
 
-       call product2(psi,ksi,a,b,rofi,nr,enu1,vm,z,xk,product)
+      call product2(psi,ksi,a,b,rofi,nr,enu1,vm,z,xk,product)
 cc       write(78,*) 'after', l, product
 
 C----Save gdot and fdot at the MT sphere-----------------------------
 
-         do alpha = 1, 2
-            gmtde(1,alpha) = gn1dot(alpha,nr)/rofi(nr)
-            gmtde(2,alpha) = gn2dot(alpha,nr)/rofi(nr)
-            fmtde(1,alpha) = fn1dot(alpha,nr)/rofi(nr)
-            fmtde(2,alpha) = fn2dot(alpha,nr)/rofi(nr)
-         enddo
+      do alpha = 1, 2
+        gmtde(1,alpha) = gn1dot(alpha,nr)/rofi(nr)
+        gmtde(2,alpha) = gn2dot(alpha,nr)/rofi(nr)
+        fmtde(1,alpha) = fn1dot(alpha,nr)/rofi(nr)
+        fmtde(2,alpha) = fn2dot(alpha,nr)/rofi(nr)
+      enddo
 
 C-----Calculate the small parameter p=<gdot|gdot>--------------------
 C----Try Trapezium rule------------------------------------------------
 
       do alpha=1, 2
-         do i= 1, 2
-            smalpa(i,alpha) = 0.0d0
-            smalpa1(i,alpha) = 0.0d0
-         enddo
+        do i= 1, 2
+          smalpa(i,alpha) = 0.0d0
+          smalpa1(i,alpha) = 0.0d0
+        enddo
       enddo
 
       enu = 0.5d0*(enum1+enum2)
@@ -757,21 +757,21 @@ C      enddo
 C----Calculate the small parameter p=<Phi^a|Phi^a'>
 
       do alp1 = 1, 2
-       do alp2 = 1, 2
+        do alp2 = 1, 2
 
-        do n = 2, nrmx-1
+          do n = 2, nrmx-1
 
-          factor(n) = (1d0 + xk*(xk+1d0)/((cc + (enu + 2d0*z/rofi(n)
+            factor(n) = (1d0 + xk*(xk+1d0)/((cc + (enu + 2d0*z/rofi(n)
      .                - vm(n))/cc)*rofi(n))**2)
-          factor1(n) = (1d0 + xk*(xk+1d0)/((cc + (enu + 2d0*z/rofi(n+1)
+            factor1(n) = (1d0 + xk*(xk+1d0)/((cc + (enu + 2d0*z/rofi(n+1)
      .                - vm(n+1))/cc)*rofi(n+1))**2)
-      factor2(n) = (1d0 + xk1*(xk1+1d0)/((cc + (enu + 2d0*z/rofi(n)
+            factor2(n) = (1d0 + xk1*(xk1+1d0)/((cc + (enu + 2d0*z/rofi(n)
      .                - vm(n))/cc)*rofi(n))**2)
-       factor3(n) = (1d0 + xk1*(xk1+1d0)/((cc + (enu + 2d0*z/rofi(n+1)
+            factor3(n) = (1d0 + xk1*(xk1+1d0)/((cc + (enu + 2d0*z/rofi(n+1)
      .                - vm(n+1))/cc)*rofi(n+1))**2)
 
 
-       smalpa(alp1,alp2) = smalpa(alp1,alp2) + 0.5d0*(a*(rofi(n)+b)*
+            smalpa(alp1,alp2) = smalpa(alp1,alp2) + 0.5d0*(a*(rofi(n)+b)*
      .          (gn1dot(alp1,n)*gn1dot(alp2,n)*factor(n) +
      .           fn1dot(alp1,n)*fn1dot(alp2,n)) +
      .      a*(rofi(n+1)+b)*(gn1dot(alp1,n+1)*gn1dot(alp2,n+1)*
@@ -783,7 +783,7 @@ C----Calculate the small parameter p=<Phi^a|Phi^a'>
      .      factor3(n) + fn2dot(alp1,n+1)*fn2dot(alp2,n+1)))
 
 
-        enddo
+          enddo
 
 C       do n=2,nrmx-2
 C       factor(n) = (1d0 + xk*(xk+1d0)/((cc + (enu + 2d0*z/rofi(n)
@@ -816,7 +816,7 @@ C     .      factor5(n) + fn2dot(alp1,n+2)*fn2dot(alp2,n+2)))/3.d0
 
 C          enddo
 
-      enddo
+        enddo
       enddo
 
 
@@ -900,7 +900,7 @@ C         write(180,*) smalpa(i,k)
       enddo
 
 Cgetarg       end
-       end subroutine rdeq 
+      end subroutine rdeq
 
 
       subroutine fdpp(enu1,enu2,ksop,shft,gmt,fmt,gmtde,fmtde,z,rmax,
@@ -953,44 +953,44 @@ cc      mu = dble(l)+0.5d0
 
 C-------Definition of useful matrices for the subroutine-----
 
-         if (dabs(mu) .eq. (l+0.5d0)) then
-          xk1= dble(-l)
-          xk = xk1
-         else
-          xk1=dble(-l)
-          xk =dble(l+1)
-         endif
+      if (dabs(mu) .eq. (l+0.5d0)) then
+        xk1= dble(-l)
+        xk = xk1
+      else
+        xk1=dble(-l)
+        xk =dble(l+1)
+      endif
 
-         unit(1,1) = 1.d0
-         unit(2,2) = 1.d0
-         unit(1,2) = 0.0d0
-         unit(2,1) = 0.0d0
+      unit(1,1) = 1.d0
+      unit(2,2) = 1.d0
+      unit(1,2) = 0.0d0
+      unit(2,1) = 0.0d0
 
 c         print*,'-------------------------'
 c         print*, l,ksop(l,1,1,1),enu1,enu2
 
-         enum(1,1) = -0.5d0*dble((l+1))*ksop(l,1,1,1)
+      enum(1,1) = -0.5d0*dble((l+1))*ksop(l,1,1,1)
      .               + 0.5d0*(enu1 + enu2)
-         enum(2,2) = 0.5d0*dble(l)*ksop(l,1,1,1)
+      enum(2,2) = 0.5d0*dble(l)*ksop(l,1,1,1)
      .               + 0.5d0*(enu1 + enu2)
 
-         if (dabs(mu) .eq. (l+0.5d0)) enum(1,1) = enum(2,2)
+      if (dabs(mu) .eq. (l+0.5d0)) enum(1,1) = enum(2,2)
 
-         enum(1,2) = 0.0d0
-         enum(2,1) = 0.0d0
+      enum(1,2) = 0.0d0
+      enum(2,1) = 0.0d0
 
 c         print*, l,enum(1,1),enum(2,2)
 
 
-         kapa(1,1) = xk
-         kapa(2,2) = xk1
-         kapa(1,2) = 0.0d0
-         kapa(2,1) = 0.0d0
+      kapa(1,1) = xk
+      kapa(2,2) = xk1
+      kapa(1,2) = 0.0d0
+      kapa(2,1) = 0.0d0
 
-         lmatrix(1,1) = dble(l)
-         lmatrix(2,2) = dble(l)
-         lmatrix(1,2) = 0.0d0
-         lmatrix(2,1) = 0.0d0
+      lmatrix(1,1) = dble(l)
+      lmatrix(2,2) = dble(l)
+      lmatrix(1,2) = 0.0d0
+      lmatrix(2,1) = 0.0d0
 
 cc        if(l .eq. 2) then
 cc         print*, '===================='
@@ -1009,8 +1009,8 @@ C      the second formula works, if alpha numerates strokes then
 C      the first formula should be applied.
 C----------------------------------------------------
 
-       call dinv22(gmt,gmt1)
-       call dinv22(gmtde,gmtde1)
+      call dinv22(gmt,gmt1)
+      call dinv22(gmtde,gmtde1)
 
       call mul22(fmt,gmt1,fg)
       call mul22(fmtde,gmtde1,fgde)
@@ -1019,18 +1019,18 @@ C----------------------------------------------------
 
 C----Logarithmic derivative matrices-----------------
 
-       do i = 1, 2
-          do j = 1, 2
-           D(i,j) = rmax*cc*fg(i,j) - kapa(i,j)
+      do i = 1, 2
+        do j = 1, 2
+          D(i,j) = rmax*cc*fg(i,j) - kapa(i,j)
 c           D(i,j) = fg1(i,j) - unit(i,j)
-           Ddot(i,j) = rmax*cc*fgde(i,j) - kapa(i,j)
-          enddo
-       enddo
+          Ddot(i,j) = rmax*cc*fgde(i,j) - kapa(i,j)
+        enddo
+      enddo
 
 C------Symmetrize D (it is symmetric, but for numerical)
 
-       D(1,2) = (D(1,2) + D(2,1))/2.d0
-       D(2,1) = D(1,2)
+      D(1,2) = (D(1,2) + D(2,1))/2.d0
+      D(2,1) = D(1,2)
 
 C------Make corrections for diagonal D, D_dot--------
 
@@ -1062,105 +1062,105 @@ cc      endif
 
 C--Transpose gmt and Ddot -------------------------
 
-       do i = 1, 2
-          do j = 1, 2
+      do i = 1, 2
+        do j = 1, 2
 C            ftmt(i,j) = fmt(j,i)
 C            fmtdet(i,j) = fmtde(j,i)
-             gtmt(i,j) = gmt(j,i)
-             gmtdet(i,j) = gmtde(j,i)
-             Dtdot(i,j) = Ddot(j,i)
-           enddo
-       enddo
+          gtmt(i,j) = gmt(j,i)
+          gmtdet(i,j) = gmtde(j,i)
+          Dtdot(i,j) = Ddot(j,i)
+        enddo
+      enddo
 
 C---Make unscreened potential parameters-------------
 
-       do i = 1, 2
-          do j = 1, 2
-             delta(i,j) = D(i,j) - Ddot(i,j)
-             deltat(i,j) = D(i,j) - Dtdot(i,j)
-          enddo
-       enddo
+      do i = 1, 2
+        do j = 1, 2
+          delta(i,j) = D(i,j) - Ddot(i,j)
+          deltat(i,j) = D(i,j) - Dtdot(i,j)
+        enddo
+      enddo
 
-       call dinv22(delta, delta1)
-       call dinv22(deltat, deltat1)
+      call dinv22(delta, delta1)
+      call dinv22(deltat, deltat1)
 
 cc       call mul22(gmtdet,gmt,one)
 cc       call mul22(gtmt,gmtde,two)
 
-       call mul22(gmt,gmtdet,one)
-       call mul22(gmtde,gtmt,two)
-
-       do i = 1, 2
-        do j = 1, 2
-        aa(i,j) = -0.5d0*(delta1(i,j)+deltat1(i,j))
-cc        aa(i,j) = -0.5d0*rmax*(one(i,j) + two(i,j))
-        enddo
-       enddo
-
-       call dinv22(aa,aa1)
-
-       do i = 1, 2
-          do j = 1, 2
-             delta(i,j) = D(i,j) - lmatrix(i,j)
-           enddo
-       enddo
-
-       call dinv22(delta,delta1)
-
-       do i = 1, 2
-          do j = 1, 2
-             q(i,j) = delta(i,j) + aa1(i,j)
-          enddo
-       enddo
-
-       call dinv22(q,q1)
-
-       do i = 1, 2
-          do j = 1, 2
-            q(i,j) = 2*(2*l+1)*savw*((2*l+1)*q1(i,j)+unit(i,j))
-          enddo
-       enddo
-
-       call mul22(aa,delta,gam)
-
-       do i = 1, 2
-          do j = 1, 2
-             gam(i,j) = gam(i,j) + unit(i,j)
-          enddo
-       enddo
-
-       call dinv22(gam,gam1)
-cc       call mul22(gtmt,gam1,gam)
-       call mul22(gam1,gmt,gam)
-
-
-       do i = 1, 2
-          do j = 1, 2
-             gam(i,j) = dsqrt(2.d0*rmax)*dsqrt(savw)*(2*l+1)*gam(i,j)
-          enddo
-       enddo
-
-       do i = 1, 2
-          do j = 1, 2
-             gamt(i,j) = gam(j,i)
-          enddo
-       enddo
-
-       do i = 1, 2
-          do j = 1, 2
-          yv(i,j) = delta1(i,j) + aa(i,j)
-          enddo
-       enddo
-
-       call dinv22(yv,yv1)
-       call mul22(gtmt,yv1,yv)
-       call mul22(yv,gmt,vm)
+      call mul22(gmt,gmtdet,one)
+      call mul22(gmtde,gtmt,two)
 
       do i = 1, 2
-          do j = 1, 2
-             vm(i,j) = rmax*vm(i,j) + enum(i,j)
-         enddo
-       enddo
+        do j = 1, 2
+          aa(i,j) = -0.5d0*(delta1(i,j)+deltat1(i,j))
+cc        aa(i,j) = -0.5d0*rmax*(one(i,j) + two(i,j))
+        enddo
+      enddo
+
+      call dinv22(aa,aa1)
+
+      do i = 1, 2
+        do j = 1, 2
+          delta(i,j) = D(i,j) - lmatrix(i,j)
+        enddo
+      enddo
+
+      call dinv22(delta,delta1)
+
+      do i = 1, 2
+        do j = 1, 2
+          q(i,j) = delta(i,j) + aa1(i,j)
+        enddo
+      enddo
+
+      call dinv22(q,q1)
+
+      do i = 1, 2
+        do j = 1, 2
+          q(i,j) = 2*(2*l+1)*savw*((2*l+1)*q1(i,j)+unit(i,j))
+        enddo
+      enddo
+
+      call mul22(aa,delta,gam)
+
+      do i = 1, 2
+        do j = 1, 2
+          gam(i,j) = gam(i,j) + unit(i,j)
+        enddo
+      enddo
+
+      call dinv22(gam,gam1)
+cc       call mul22(gtmt,gam1,gam)
+      call mul22(gam1,gmt,gam)
+
+
+      do i = 1, 2
+        do j = 1, 2
+          gam(i,j) = dsqrt(2.d0*rmax)*dsqrt(savw)*(2*l+1)*gam(i,j)
+        enddo
+      enddo
+
+      do i = 1, 2
+        do j = 1, 2
+          gamt(i,j) = gam(j,i)
+        enddo
+      enddo
+
+      do i = 1, 2
+        do j = 1, 2
+          yv(i,j) = delta1(i,j) + aa(i,j)
+        enddo
+      enddo
+
+      call dinv22(yv,yv1)
+      call mul22(gtmt,yv1,yv)
+      call mul22(yv,gmt,vm)
+
+      do i = 1, 2
+        do j = 1, 2
+          vm(i,j) = rmax*vm(i,j) + enum(i,j)
+        enddo
+      enddo
 
 C-----------TEST----------------------------------------------------
 
@@ -1209,19 +1209,19 @@ C-----Potential parameters in the nearly orthonormalized-----
 C     representation
 C------------------------------------------------------------
 
-       call dinv22(q,gamma)
+      call dinv22(q,gamma)
 
-       do i = 1, 2
-          do j = 1, 2
-             gammat(i,j) = gamma(j,i)
-          enddo
-       enddo
+      do i = 1, 2
+        do j = 1, 2
+          gammat(i,j) = gamma(j,i)
+        enddo
+      enddo
 
 cc       call mul22(gam,gamma,delt)
 cc       call mul22(gammat,gamt,deltt)
 
-        call mul22(gamma,gam,delt)
-        call mul22(gamt,gamma,deltt)
+      call mul22(gamma,gam,delt)
+      call mul22(gamt,gamma,deltt)
 
 cc      call mul22(gam,gamma,cm)
 cc     call mul22(cm,gamt,cm1)
@@ -1229,31 +1229,31 @@ cc     call mul22(cm,gamt,cm1)
 cc       call mul22(delt,q,cm)
 cc       call mul22(cm,deltt,cm1)
 
-       call mul22(deltt,q,cm)
-       call mul22(cm,delt,cm1)
+      call mul22(deltt,q,cm)
+      call mul22(cm,delt,cm1)
 
 
-       do i = 1, 2
-          do j = 1, 2
-            cm(i,j) = vm(i,j) + cm1(i,j)
-          enddo
-          cm(i,i) = cm(i,i) + shft
-       enddo
+      do i = 1, 2
+        do j = 1, 2
+          cm(i,j) = vm(i,j) + cm1(i,j)
+        enddo
+        cm(i,i) = cm(i,i) + shft
+      enddo
 
 C       open(190,file='cm.dat',status='unknown')
 C       open(191,file='gamma.dat',status='unknown')
 C       open(192,file='delt.dat',status='unknown')
 
-       do i = 1, 2
-         do j = 1, 2
-           pprel(1,l,imu,i,j) = cm(i,j)
+      do i = 1, 2
+        do j = 1, 2
+          pprel(1,l,imu,i,j) = cm(i,j)
 C          write(190,*) cm(i,j)
-           pprel(2,l,imu,i,j) = gamma(i,j)
+          pprel(2,l,imu,i,j) = gamma(i,j)
 C          write(191,*) gamma(i,j)
-           pprel(3,l,imu,i,j) = delt(i,j)
+          pprel(3,l,imu,i,j) = delt(i,j)
 C          write(192,*) delt(i,j)
-         enddo
-       enddo
+        enddo
+      enddo
 
 C------rotate cm---------------------------------------
 
@@ -1421,27 +1421,27 @@ cc       enddo
 
 C-------End of the failed way--------------------------------------
 
- 210   return
+ 210  return
 
 Cgetarg        end
-        end subroutine fdpp 
+      end subroutine fdpp
 
 
-       subroutine mul22(a,b,c)
+      subroutine mul22(a,b,c)
 
 C      Multiplies 2x2 matrices a*b
 C      a is from the left be carefull for non commuting matrices
 C     implicit none
-       double precision a(2,2), b(2,2), c(2,2)
+      double precision a(2,2), b(2,2), c(2,2)
 
-       c(1,1) = a(1,1)*b(1,1) + a(1,2)*b(2,1)
-       c(1,2) = a(1,1)*b(1,2) + a(1,2)*b(2,2)
-       c(2,1) = a(2,1)*b(1,1) + a(2,2)*b(2,1)
-       c(2,2) = a(2,1)*b(1,2) + a(2,2)*b(2,2)
+      c(1,1) = a(1,1)*b(1,1) + a(1,2)*b(2,1)
+      c(1,2) = a(1,1)*b(1,2) + a(1,2)*b(2,2)
+      c(2,1) = a(2,1)*b(1,1) + a(2,2)*b(2,1)
+      c(2,2) = a(2,1)*b(1,2) + a(2,2)*b(2,2)
 
-       return
+      return
 Cgetarg        end
-        end subroutine mul22 
+      end subroutine mul22
 
 
 
@@ -1463,23 +1463,23 @@ C     cc = 274.072d0
       product = 0.0d0
 
       do n = 2, nr-1
-         m = n + 1
+        m = n + 1
 
 C         factor = (1d0 + xk*(xk+1d0)/((cc + (e + 2d0*z/rofi(n)
 C     .                - vm(n))/cc)*rofi(n))**2)
 C         factor1 = (1d0 + xk*(xk+1d0)/((cc + (e + 2d0*z/rofi(m)
 C     .                - vm(m))/cc)*rofi(m))**2)
 
-         product = product +  0.5d0*a*((rofi(n)+b)*
+        product = product +  0.5d0*a*((rofi(n)+b)*
      .          ((psi(1,n)*ksi(1,n) + psi(3,n)*ksi(3,n)) +
      .            psi(2,n)*ksi(2,n) + psi(4,n)*ksi(4,n)) +
      .         (rofi(m)+b)*
      .          ((psi(1,m)*ksi(1,m) + psi(3,m)*ksi(3,m)) +
      .            psi(2,m)*ksi(2,m) + psi(4,m)*ksi(4,m)))
 
-         enddo
+      enddo
 Cgetarg       end
-       end subroutine product2 
+      end subroutine product2
 
 
 C      subroutine product4(psi,ksi,a,b,rofi,nr,e,vm,z,xk,product)
@@ -1555,27 +1555,27 @@ C     double precision cl1(2,2)
       integer ms1,ms2,l,imu
 
 
-         mu= dble(imu - l) - 1.5d0
+      mu= dble(imu - l) - 1.5d0
 
-         u = mu/(dble(l)+0.5d0)
+      u = mu/(dble(l)+0.5d0)
 
-         cl(1,1) = dsqrt(0.5d0*(1.d0+u))
-         cl(2,2) = cl(1,1)
-         cl(2,1) = -dsqrt(0.5d0*(1.d0-u))
-         cl(1,2) = -cl(2,1)
+      cl(1,1) = dsqrt(0.5d0*(1.d0+u))
+      cl(2,2) = cl(1,1)
+      cl(2,1) = -dsqrt(0.5d0*(1.d0-u))
+      cl(1,2) = -cl(2,1)
 
 C         call dinv22(cl,cl1)
 
-           do ms1 = 1, 2
-            do ms2 = 1, 2
+      do ms1 = 1, 2
+        do ms2 = 1, 2
 
-                a1(ms1,ms2) =
+          a1(ms1,ms2) =
      .            cl(1,ms1)*a(1,1)*cl(1,ms2) +
      .            cl(1,ms1)*a(1,2)*cl(2,ms2) +
      .            cl(2,ms1)*a(2,1)*cl(1,ms2) +
      .            cl(2,ms1)*a(2,2)*cl(2,ms2)
-           enddo
-          enddo
+        enddo
+      enddo
 
 C       --- Test rotate back to lms rep'sn from kappa-mu rep'sn  ---
 C          do ms1 = 1, 2
@@ -1593,10 +1593,10 @@ C
 C            enddo
 C            enddo
 
-           return
+      return
 
 Cgetarg           end
-           end subroutine clebsh 
+      end subroutine clebsh
 
 
 

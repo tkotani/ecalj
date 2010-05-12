@@ -6,8 +6,8 @@ Cgetarg...info...           use_to_add ['rsibl1', 'm_struc_def']
 #define F90 1
       subroutine rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,
      .  napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
-       use m_struc_def  !Cgetarg
-#if MPE 
+      use m_struc_def  !Cgetarg
+#if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
 C- Add smooth part of output density into smrho and forces.
@@ -99,10 +99,10 @@ C Event numbers:
       integer napw,igapw(3,napw)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3),
 Cgetarg      .  ewgt(numq,nevec),f(3,nbas,numq)
-       real(8):: q(3) , ewgt(numq,nevec) , f(3,nbas,numq) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: q(3) , ewgt(numq,nevec) , f(3,nbas,numq)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double complex evec(ndimh,nspc,nevec),smrho(k1,k2,k3,numq,isp),
      .  smpot(k1,k2,k3,isp)
@@ -172,13 +172,13 @@ Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg...info...           real(8) :: gmax , real(8) :: slat%gmax 1
 Cgetarg       call upack('lat alat plat qlat gmax',slat,alat,plat,qlat,gmax,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
-       gmax=slat%gmax
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      gmax=slat%gmax
 
 Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
 Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
@@ -186,13 +186,13 @@ Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
 Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
-       
-       i_copy_size=size(slat%nabc) 
-       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
-       ng=slat%ng
-       ogv=slat%ogv
-       okv=slat%okv
-       vol=slat%vol
+
+      i_copy_size=size(slat%nabc)
+      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      ng=slat%ng
+      ogv=slat%ogv
+      okv=slat%okv
+      vol=slat%vol
 
 
 C ... Setup for q-dependent gv ... also makes kv, gv+q and iv
@@ -236,7 +236,7 @@ C --- Allocate and occupy arrays for yl, energy factors, rsm factors ---
       call defrr(ohr, ng*nrt)
       call dpzero(q0,3)
       if (nlmto .gt. 0) then
-      call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,w(ogv),w(ogq),
+        call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,w(ogv),w(ogq),
      .  w(og2),w(oyl),w(ohe),w(ohr))
       endif
 
@@ -274,7 +274,7 @@ C$OMP PARALLEL PRIVATE (psi,psir,vpsi,cosi,sini,wk,wk2,xsmrho,fr)
 #if OPENMP
       allocate(xsmrho(k1,k2,k3,numq,nspc),fr(3,nbas,numq))
       call dpzero(xsmrho,k1*k2*k3*numq*nspc*2)
-      call dpzero(fr,3*nbas*numq)      
+      call dpzero(fr,3*nbas*numq)
 #endif
 #else
       call defcc(opsi,  ng*nspc*nblk)
@@ -377,7 +377,7 @@ C   ... Add to real-space mesh, optionally make smpot*psi for forces
      .    w(ovpsi))
 
 C    --- Add to forces ---
-         if (lfrce .ne. 0) then
+        if (lfrce .ne. 0) then
           call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
      .       n3,qlat,w(ocos),w(osin),w(oyl),w(oylw),w(ohe),w(ohr),
      .       w(opsi0),w(owk2),vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
@@ -453,14 +453,14 @@ C
 C     call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
       call tcx('rsibl')
 Cgetarg       end
-       end subroutine rsibl 
+      end subroutine rsibl
 
 
       subroutine rsibl1(mode,ssite,sspec,q,nbas,iprmb,ng,gq,iv,n1,n2,n3,
      .  qlat,cosgp,singp,yl,ylw,he,hr,psi0,wk2,vol,iprt,ipet,etab,rtab,
      .  ndimh,nlmto,nspc,numq,ewgt,ivec,nvec,evec,vpsi,psi,f)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Make wave function for a block of evecs, or add contr. to forces
 C ----------------------------------------------------------------------
@@ -506,9 +506,9 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
 Cgetarg       double precision ssite(1),sspec(1),q(3)
-       real(8):: q(3) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      real(8):: q(3)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
       integer mode,nbas,ng,ndimh,nlmto,nspc,numq,ivec,nvec,iv(ng,3),
      .  n1,n2,n3,n0,nkap0,iprmb(*)
@@ -535,16 +535,16 @@ c takao
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ib,is,p,0,0)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pos) 
-         call dcopy(i_copy_size,ssite(ib)%pos,1,p,1) 
+
+        is=ssite(ib)%spec
+        i_copy_size=size(ssite(ib)%pos)
+        call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
 
 Cgetarg...info...           integer :: ncut(n0,nkap0) , integer(8) :: sspec%ngcut 30
 Cgetarg         call upack2('spec ngcut',sspec,is,ncut)
-         
-         i_copy_size=size(sspec(is)%ngcut) 
-         call i8icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1) 
+
+        i_copy_size=size(sspec(is)%ngcut)
+        call i8icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1)
 
         call suphas(q,p,ng,iv,n1,n2,n3,qlat,cosgp,singp)
 C       List of orbitals, their l- and k- indices, and ham offsets
@@ -556,25 +556,25 @@ C       Block into groups with consecutive l and common (e,rsm)
         call dpzero(psi0,ng*2*nspc*nvec)
         if (mode .eq. 1) call dpzero(psi, 2*ng*nspc*nvec)
         do  io = 1, norb
-        if (blks(io) .ne. 0) then
-          jo = ntab(io)
-          l2 = ltab(io)
-          lt = ltab(jo)
-          kp = ktab(io)
-          ie = ipet(l2+1,kp,is)
-          ir = iprt(l2+1,kp,is)
-          ioff = offl(io)
-          nlm1 = l2**2+1
-          nlm2 = nlm1 + blks(io)-1
-          rsm = rtab(ir)
-          e   = etab(ie)
+          if (blks(io) .ne. 0) then
+            jo = ntab(io)
+            l2 = ltab(io)
+            lt = ltab(jo)
+            kp = ktab(io)
+            ie = ipet(l2+1,kp,is)
+            ir = iprt(l2+1,kp,is)
+            ioff = offl(io)
+            nlm1 = l2**2+1
+            nlm2 = nlm1 + blks(io)-1
+            rsm = rtab(ir)
+            e   = etab(ie)
 c takao Apr2009
-          ncutt=ncut(lt+1,kp)
-          call ncutcorrect(ncutt,1,gq,ng)
+            ncutt=ncut(lt+1,kp)
+            call ncutcorrect(ncutt,1,gq,ng)
 c
-          call rsibl5(ie,ir,e,rsm,vol,nlm1,nlm2,ng,min(ng,ncutt)
+            call rsibl5(ie,ir,e,rsm,vol,nlm1,nlm2,ng,min(ng,ncutt)
      .      ,yl,ylw,he,hr,wk2,ioff,evec(1,1,ivec),ndimh,nspc,nvec,psi0)
-        endif
+          endif
         enddo
         call rsibl6(ng,nspc,nvec,cosgp,singp,psi0,psi)
 
@@ -597,7 +597,7 @@ C             This shouldn't be necessary
         endif
       enddo
 Cgetarg       end
-       end subroutine rsibl1 
+      end subroutine rsibl1
 
 
       subroutine rsibl2(ng,nspc,nev,psi,n1,n2,n3,k1,k2,k3,kv,numq,ewgt,
@@ -636,37 +636,37 @@ C ... Local parameters
 
       call tcn('rsibl2')
       do  ispc = 1, nspc
-      do  i = 1, nev
-      call gvputf(ng,1,kv,k1,k2,k3,psi(1,ispc,i),f)
-      call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,1)
-      do  iq = 1, numq
-        wgt1 = ewgt(iq,i)
-        do  i3 = 1, n3
-          do  i2 = 1, n2
-            do  i1 = 1, n1
-              smrho(i1,i2,i3,iq,ispc) = smrho(i1,i2,i3,iq,ispc) +
+        do  i = 1, nev
+          call gvputf(ng,1,kv,k1,k2,k3,psi(1,ispc,i),f)
+          call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,1)
+          do  iq = 1, numq
+            wgt1 = ewgt(iq,i)
+            do  i3 = 1, n3
+              do  i2 = 1, n2
+                do  i1 = 1, n1
+                  smrho(i1,i2,i3,iq,ispc) = smrho(i1,i2,i3,iq,ispc) +
      .           wgt1*dconjg(f(i1,i2,i3))*f(i1,i2,i3)
+                enddo
+              enddo
             enddo
           enddo
-        enddo
-      enddo
 
-      if (lfrce .ne. 0) then
-        do  i3 = 1, n3
-          do  i2 = 1, n2
-            do  i1 = 1, n1
-              f(i1,i2,i3) = f(i1,i2,i3)*smpot(i1,i2,i3,ispc)
+          if (lfrce .ne. 0) then
+            do  i3 = 1, n3
+              do  i2 = 1, n2
+                do  i1 = 1, n1
+                  f(i1,i2,i3) = f(i1,i2,i3)*smpot(i1,i2,i3,ispc)
+                enddo
+              enddo
             enddo
-          enddo
+            call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,-1)
+            call gvgetf(ng,1,kv,k1,k2,k3,f,vpsi(1,ispc,i))
+          endif
         enddo
-        call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,-1)
-        call gvgetf(ng,1,kv,k1,k2,k3,f,vpsi(1,ispc,i))
-      endif
-      enddo
       enddo
       call tcx('rsibl2')
 Cgetarg       end
-       end subroutine rsibl2 
+      end subroutine rsibl2
 
 
 C      subroutine rsibl3(ng,n1,n2,n3,k1,k2,k3,kv,smpot,f,vpsi)
@@ -705,7 +705,7 @@ Ci   psi   :portion of wave function associated with one site ib
 Co Outputs
 Co   f0    :2*Re( (psi_nu+) vsm grad(psi_ib,nu) ) put in f0
 Cr Remarks
-Cr   gradient operator is i*G 
+Cr   gradient operator is i*G
 Cu Updates
 Cu   23 Dec 04 Extended to noncollinear case
 C ----------------------------------------------------------------------
@@ -725,17 +725,17 @@ C     double complex cc,ovl
       sum3 = 0
 C     ovl = 0
       do  ispc = 1, nspc
-      do  ig = 1, ng
+        do  ig = 1, ng
 C        cc  = dcmplx(psi(1,ispc,ig),-psi(2,ispc,ig))
 C     .       *dcmplx(vpsi(1,ispc,ig),vpsi(2,ispc,ig)) * vol
 C        ovl = ovl + cc
 C     .      * dcmplx(0d0,1d0)*gq(ig,1)
-        xx = vpsi(2,ispc,ig)*psi(1,ispc,ig)
+          xx = vpsi(2,ispc,ig)*psi(1,ispc,ig)
      .     - vpsi(1,ispc,ig)*psi(2,ispc,ig)
-        sum1 = sum1 + gq(ig,1)*xx
-        sum2 = sum2 + gq(ig,2)*xx
-        sum3 = sum3 + gq(ig,3)*xx
-      enddo
+          sum1 = sum1 + gq(ig,1)*xx
+          sum2 = sum2 + gq(ig,2)*xx
+          sum3 = sum3 + gq(ig,3)*xx
+        enddo
       enddo
 
       f0(1) = 2*vol*sum1
@@ -747,7 +747,7 @@ C     print *, ovl
       call tcx('rsibl4')
 
 Cgetarg       end
-       end subroutine rsibl4 
+      end subroutine rsibl4
 
 
       subroutine rsibl5(ie,ir,e,rsm,vol,nlm1,nlm2,ng,ncut,yl,ylw,he,hr,
@@ -815,37 +815,37 @@ C ... Combine G-dependent energy, rsm and YL factors
         wk(i) = he(i,ie)*hr(i,ir)
       enddo
       do  ilm = nlm1, nlm2
-      do  i = 1, ncut
-        ylw(i,ilm) = wk(i)*yl(i,ilm)
-      enddo
+        do  i = 1, ncut
+          ylw(i,ilm) = wk(i)*yl(i,ilm)
+        enddo
       enddo
 
 C ... Make vector evec*phase
       do  ispc = 1, nspc
-      do  ilm = nlm1, nlm2
-        ii = ilm-nlm1+ioff+1
-        do  iv = 1, nvec
+        do  ilm = nlm1, nlm2
+          ii = ilm-nlm1+ioff+1
+          do  iv = 1, nvec
 C          cc = evec(ii,ispc,iv)*cfac(ilm)
 C          evpr(ilm,ispc,iv) = dble(cc)
 C          evpi(ilm,ispc,iv) = dimag(cc)
-          evp(ilm,ispc,iv) = evec(ii,ispc,iv)*cfac(ilm)
+            evp(ilm,ispc,iv) = evec(ii,ispc,iv)*cfac(ilm)
+          enddo
         enddo
-      enddo
 
 C ... For each orbital and evecs 1..nvec, accumulate psi
 C     ii = ilm-nlm1+ioff+1
-      do  ilm = nlm1, nlm2
-        do  iv = 1, nvec
-          do  i = 1, ncut
-            psi(i,ispc,iv) = psi(i,ispc,iv)+ylw(i,ilm)*evp(ilm,ispc,iv)
+        do  ilm = nlm1, nlm2
+          do  iv = 1, nvec
+            do  i = 1, ncut
+              psi(i,ispc,iv) = psi(i,ispc,iv)+ylw(i,ilm)*evp(ilm,ispc,iv)
+            enddo
           enddo
         enddo
-      enddo
       enddo
 
       call tcx('rsibl5')
 Cgetarg       end
-       end subroutine rsibl5 
+      end subroutine rsibl5
 
 
       subroutine rsibl6(ng,nspc,nvec,cosgp,singp,psi0,psi)
@@ -877,17 +877,17 @@ C ... Local parameters
       call tcn('rsibl6')
 
       do  iv = 1, nvec
-      do  ispc = 1, nspc
-      do  i = 1, ng
-        psi(i,ispc,iv) = psi(i,ispc,iv)
+        do  ispc = 1, nspc
+          do  i = 1, ng
+            psi(i,ispc,iv) = psi(i,ispc,iv)
      .                 + psi0(i,ispc,iv)*dcmplx(cosgp(i),singp(i))
-      enddo
-      enddo
+          enddo
+        enddo
       enddo
 
       call tcx('rsibl6')
 Cgetarg       end
-       end subroutine rsibl6 
+      end subroutine rsibl6
 
 
       subroutine rsibl7(xsmrho,k1,k2,k3,numq,smrho)
@@ -911,7 +911,7 @@ C ... Local parameters
       enddo
 
 Cgetarg       end
-       end subroutine rsibl7 
+      end subroutine rsibl7
 
 
       subroutine gvgvcomp(ng,igv,napw,igapw,ivp)
@@ -926,7 +926,7 @@ Ci   igapw :reciprocal lattice vectors for PW basis.
 Co Outputs
 Co   ivp   :if ig = ivp(jg), igv(jg) and nvec(ig) are same vector
 Cr Remarks
-Cr  This routine should be be cleaned up and ivp 
+Cr  This routine should be be cleaned up and ivp
 Cr  used by rest of program in place of igapw
 Cu Updates
 Cu   05 Jul 08 (T. Kotani) first created
@@ -954,7 +954,7 @@ C     Redesign ... inefficient.
       enddo
 #endif
 Cgetarg       end
-       end subroutine gvgvcomp 
+      end subroutine gvgvcomp
 
 
       subroutine rsiblp(ng,ndimh,nlmto,nspc,napw,ivp,nvec,sqv,evec,psi)
@@ -992,8 +992,8 @@ C     sqvol = dsqrt()
           enddo
         enddo
       enddo
-      
+
 Cgetarg       end
-       end subroutine rsiblp 
+      end subroutine rsiblp
 
 

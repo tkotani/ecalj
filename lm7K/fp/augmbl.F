@@ -21,9 +21,9 @@ c#define F90 1
       subroutine augmbl(mode,ssite,sspec,slat,isp,lcplxp,q,
      .                  osig,otau,oppi,iprmb,ndimh,
      .                  napw,igapw,h,hso,s)
-       
+
       use m_struc_def  !Cgetarg
-#if MPE 
+#if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
 C- Adds augmentation part of H and S
@@ -35,7 +35,7 @@ Ci         :  otherwise, compute overlap only.
 Ci         :  In this case, vavg is not used
 Ci         :10s digit
 Ci         :  0 do not compute hso
-Ci         :  1 compute hso.  
+Ci         :  1 compute hso.
 Ci         :    Note: only a portion of hso is computed for a
 Ci         :    particular isp.  The total hso is assembled
 Ci         :    after isp loops from 1..2.  hso should not be
@@ -128,10 +128,10 @@ Cdelw1 do not change  [['call'], 'oppi', 'augmbl']
       integer mode,lcplxp,isp,ndimh,napw,igapw(3,napw),iprmb(ndimh),
      .  osig(3,1),otau(3,1),oppi(3,1)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3)
-       real(8):: q(3) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: q(3)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double complex h(ndimh,ndimh),s(ndimh,ndimh),hso(ndimh,ndimh)
 C ... Local parameters
@@ -163,11 +163,11 @@ c#endif
 #if MPI
       integer, dimension(:), allocatable :: bproc
 Cdelw1       integer oh,ohbuf,os,osbuf,ohso
-       complex(8) ,allocatable :: zv_w_oh(:)
-       complex(8) ,allocatable :: zv_w_ohbuf(:)
-       complex(8) ,allocatable :: zv_w_os(:)
-       complex(8) ,allocatable :: zv_w_osbuf(:)
-       complex(8) ,allocatable :: zv_w_ohso(:)
+      complex(8) ,allocatable :: zv_w_oh(:)
+      complex(8) ,allocatable :: zv_w_ohbuf(:)
+      complex(8) ,allocatable :: zv_w_os(:)
+      complex(8) ,allocatable :: zv_w_osbuf(:)
+      complex(8) ,allocatable :: zv_w_ohso(:)
 
 #endif
       integer:: initbas, endbas
@@ -202,29 +202,29 @@ Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
 Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
 Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
 Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-       
+
 Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 179
 Cdelw1 do not change ocg because of ['undef', 'wref']
-       ocg=slat%ocg
+      ocg=slat%ocg
 Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 180
 Cdelw1 do not change ojcg because of ['undef', 'wref']
-       ojcg=slat%ojcg
+      ojcg=slat%ojcg
 Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 181
 Cdelw1 do not change oidxcg because of ['undef', 'wref']
-       oidxcg=slat%oidxcg
+      oidxcg=slat%oidxcg
 Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 182
 Cdelw1 do not change ocy because of ['undef', 'wref']
-       ocy=slat%ocy
+      ocy=slat%ocy
 
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat alat qlat vol',slat,alat,qlat,vol,0,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
-       vol=slat%vol
+
+      alat=slat%alat
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      vol=slat%vol
 
 C     tpiba = 2d0*4d0*datan(1d0)/alat
 
@@ -238,17 +238,17 @@ C --- Loop over augmentation sites --- ---
       ierr = MPE_LOG_EVENT(EVENT_START_AUGMBL,procid,"augmbl")
 #endif
 Cdelw1       call defcc(oh, -ndimh*ndimh)
-       allocate(zv_w_oh(abs(-ndimh*ndimh)))
-       if (-ndimh*ndimh<0) zv_w_oh(:)=0.0d0
+      allocate(zv_w_oh(abs(-ndimh*ndimh)))
+      if (-ndimh*ndimh<0) zv_w_oh(:)=0.0d0
 
 Cdelw1       call defcc(os, -ndimh*ndimh)
-       allocate(zv_w_os(abs(-ndimh*ndimh)))
-       if (-ndimh*ndimh<0) zv_w_os(:)=0.0d0
+      allocate(zv_w_os(abs(-ndimh*ndimh)))
+      if (-ndimh*ndimh<0) zv_w_os(:)=0.0d0
 
-      if (lcplxp .ne. 0) then 
+      if (lcplxp .ne. 0) then
 Cdelw1         call defcc(ohso, -ndimh*ndimh)
-         allocate(zv_w_ohso(abs(-ndimh*ndimh)))
-         if (-ndimh*ndimh<0) zv_w_ohso(:)=0.0d0
+        allocate(zv_w_ohso(abs(-ndimh*ndimh)))
+        if (-ndimh*ndimh<0) zv_w_ohso(:)=0.0d0
 
       endif
       allocate (bproc(0:numprocs), stat=ierr)
@@ -274,10 +274,10 @@ Cdelw1         call defcc(ohso, -ndimh*ndimh)
 Cgetarg...info...           integer :: isa , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: pa(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ia,isa,pa,0,0)
-         
-         isa=ssite(ia)%spec
-         i_copy_size=size(ssite(ia)%pos) 
-         call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1) 
+
+        isa=ssite(ia)%spec
+        i_copy_size=size(ssite(ia)%pos)
+        call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: lmxha , integer(8) :: sspec%lmxb 1
@@ -285,11 +285,11 @@ Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
 Cgetarg         call upack('spec lmxa lmxb kmxt rsma',sspec,isa,lmxa,lmxha,kmax,
 Cgetarg      .    rsma)
-         
-         lmxa=sspec(isa)%lmxa
-         lmxha=sspec(isa)%lmxb
-         kmax=sspec(isa)%kmxt
-         rsma=sspec(isa)%rsma
+
+        lmxa=sspec(isa)%lmxa
+        lmxha=sspec(isa)%lmxb
+        kmax=sspec(isa)%kmxt
+        rsma=sspec(isa)%rsma
 
         nlmha = (lmxha+1)**2
         nlma  = (lmxa+1)**2
@@ -318,10 +318,10 @@ C$$$        do  ib = 1, nbas
 C$$$Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 C$$$Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
 C$$$Cgetarg           call upack('site spec pos',ssite,ib,is,p,0,0)
-           
+
 C$$$           is=ssite(ib)%spec
-C$$$           i_copy_size=size(ssite(ib)%pos) 
-C$$$           call dcopy(i_copy_size,ssite(ib)%pos,1,p,1) 
+C$$$           i_copy_size=size(ssite(ib)%pos)
+C$$$           call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
 
 C$$$C         This line augments no local orbitals
 C$$$C         ik = 1
@@ -362,10 +362,10 @@ Cdelw1 2 is digit, dropped
 Cdelw1         call augq12(mode0,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,nlma,
 Cdelw1      .    w(osig(3,ia)),w(oppi(3,ia)),w(osig(2,ia)),
 Cdelw1      .    w(oppi(2,ia)),b,ndimh,nlmto,w(os),w(oh))
-         call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
+          call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
      .   , kmax , nlma , w ( osig ( 3 , ia ) ) , w ( oppi ( 3 , ia ) ) 
      .   , w ( osig ( 2 , ia ) ) , w ( oppi ( 2 , ia ) ) , b , ndimh , 
-     .   nlmto , zv_w_os , zv_w_oh ) 
+     .   nlmto , zv_w_os , zv_w_oh )
 
         else
 Cdelw1 3 is digit, dropped
@@ -375,10 +375,10 @@ Cdelw1 2 is digit, dropped
 Cdelw1         call augq2z(mode0,mode1,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
 Cdelw1      .    nlma,w(osig(3,ia)),w(oppi(3,ia)),w(osig(2,ia)),
 Cdelw1      .    w(oppi(2,ia)),b,ndimh,nlmto,w(os),w(oh),w(ohso))
-         call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
+          call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
      .   , nlmha , kmax , nlma , w ( osig ( 3 , ia ) ) , w ( oppi ( 3 
      .   , ia ) ) , w ( osig ( 2 , ia ) ) , w ( oppi ( 2 , ia ) ) , b 
-     .   , ndimh , nlmto , zv_w_os , zv_w_oh , zv_w_ohso ) 
+     .   , ndimh , nlmto , zv_w_os , zv_w_oh , zv_w_ohso )
 
         endif
 #else
@@ -407,21 +407,21 @@ C   --- Add B+ sig B to S and B+ ppi B to H ---
 #if MPI
 Cdelw1 1 is digit, dropped
 Cdelw1         call augqs3(kmax,lmxa,nlma,ndimh,isp,g,w(osig(1,ia)),b,w(os))
-         call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , w ( osig 
-     .   ( 1 , ia ) ) , b , zv_w_os ) 
+        call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , w ( osig 
+     .   ( 1 , ia ) ) , b , zv_w_os )
 
         if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
 Cdelw1 1 is digit, dropped
 Cdelw1           call augqp3(kmax,nlma,ndimh,isp,g,w(oppi(1,ia)),b,w(oh))
-           call augqp3 ( kmax , nlma , ndimh , isp , g , w ( oppi ( 1 , 
-     .     ia ) ) , b , zv_w_oh ) 
+          call augqp3 ( kmax , nlma , ndimh , isp , g , w ( oppi ( 1 , 
+     .     ia ) ) , b , zv_w_oh )
 
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
 Cdelw1 1 is digit, dropped
 Cdelw1           call augq3z(mode1,kmax,nlma,ndimh,isp,g,w(oppi(1,ia)),b,w(oh),
 Cdelw1      .   w(ohso))
-           call augq3z ( mode1 , kmax , nlma , ndimh , isp , g , w ( oppi 
-     .     ( 1 , ia ) ) , b , zv_w_oh , zv_w_ohso ) 
+          call augq3z ( mode1 , kmax , nlma , ndimh , isp , g , w ( oppi 
+     .     ( 1 , ia ) ) , b , zv_w_oh , zv_w_ohso )
 
         endif
 #else
@@ -429,7 +429,7 @@ Cdelw1 1 is digit, dropped
         call augqs3(kmax,lmxa,nlma,ndimh,isp,g,w(osig(1,ia)),b,s)
         if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
 Cdelw1 1 is digit, dropped
-         call augqp3(kmax,nlma,ndimh,isp,g,w(oppi(1,ia)),b,h)
+          call augqp3(kmax,nlma,ndimh,isp,g,w(oppi(1,ia)),b,h)
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
 Cdelw1 1 is digit, dropped
           call augq3z(mode1,kmax,nlma,ndimh,isp,g,w(oppi(1,ia)),b,h,
@@ -451,13 +451,13 @@ C ... end loop over ia
       ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
 #endif
 Cdelw1       call defcc(ohbuf, ndimh*ndimh)
-       allocate(zv_w_ohbuf(ndimh*ndimh))
+      allocate(zv_w_ohbuf(ndimh*ndimh))
 Ctakao_ZeroClear_NotRequiered        if (ndimh*ndimh<0) zv_w_ohbuf(:)=0.0d0
 
 Cdelw1       call MPI_ALLREDUCE(w(oh),w(ohbuf),2*ndimh*ndimh,
 Cdelw1      .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-       call mpi_allreduce ( zv_w_oh , zv_w_ohbuf , 2 * ndimh * ndimh 
-     . , mpi_double_precision , mpi_sum , mpi_comm_world , ierr ) 
+      call mpi_allreduce ( zv_w_oh , zv_w_ohbuf , 2 * ndimh * ndimh 
+     . , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
 
       if (mlog) then
         call gettime(datim)
@@ -467,22 +467,22 @@ Cdelw1      .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
      .        procid,numprocs,ndimh)
       endif
 Cdelw1       call daxpy(2*ndimh*ndimh,1d0,w(ohbuf),1,h,1)
-       call daxpy ( 2 * ndimh * ndimh , 1d0 , zv_w_ohbuf , 1 , h , 1 
-     . ) 
+      call daxpy ( 2 * ndimh * ndimh , 1d0 , zv_w_ohbuf , 1 , h , 1 
+     . )
 
-Cdelw1 rlse name= ohbuf old_list= oh os ohso ohbuf 
-Cdelw1 rlse name= ohbuf new_list= oh os ohso 
+Cdelw1 rlse name= ohbuf old_list= oh os ohso ohbuf
+Cdelw1 rlse name= ohbuf new_list= oh os ohso
 Cdelw1       call rlse(ohbuf)
-       if (allocated(zv_w_ohbuf)) deallocate(zv_w_ohbuf)
+      if (allocated(zv_w_ohbuf)) deallocate(zv_w_ohbuf)
 
 Cdelw1       call defcc(osbuf, ndimh*ndimh)
-       allocate(zv_w_osbuf(ndimh*ndimh))
+      allocate(zv_w_osbuf(ndimh*ndimh))
 Ctakao_ZeroClear_NotRequiered        if (ndimh*ndimh<0) zv_w_osbuf(:)=0.0d0
 
 Cdelw1       call MPI_ALLREDUCE(w(os),w(osbuf),2*ndimh*ndimh,
 Cdelw1      .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-       call mpi_allreduce ( zv_w_os , zv_w_osbuf , 2 * ndimh * ndimh 
-     . , mpi_double_precision , mpi_sum , mpi_comm_world , ierr ) 
+      call mpi_allreduce ( zv_w_os , zv_w_osbuf , 2 * ndimh * ndimh 
+     . , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
 
       if (mlog) then
         call gettime(datim)
@@ -492,15 +492,15 @@ Cdelw1      .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
      .        procid,numprocs,ndimh)
       endif
 Cdelw1       call daxpy(2*ndimh*ndimh,1d0,w(osbuf),1,s,1)
-       call daxpy ( 2 * ndimh * ndimh , 1d0 , zv_w_osbuf , 1 , s , 1 
-     . ) 
+      call daxpy ( 2 * ndimh * ndimh , 1d0 , zv_w_osbuf , 1 , s , 1 
+     . )
 
-Cdelw1 rlse name= osbuf old_list= oh os ohso osbuf 
-Cdelw1 rlse name= osbuf new_list= oh os ohso 
+Cdelw1 rlse name= osbuf old_list= oh os ohso osbuf
+Cdelw1 rlse name= osbuf new_list= oh os ohso
 Cdelw1       call rlse(osbuf)
-       if (allocated(zv_w_osbuf)) deallocate(zv_w_osbuf)
+      if (allocated(zv_w_osbuf)) deallocate(zv_w_osbuf)
 
-      if (lcplxp .ne. 0) then 
+      if (lcplxp .ne. 0) then
 Cdelw1        call defcc(osbuf, ndimh*ndimh)
         allocate(zv_w_osbuf(ndimh*ndimh))
 Ctakao_ZeroClear_NotRequiered         if (ndimh*ndimh<0) zv_w_osbuf(:)=0.0d0
@@ -508,35 +508,35 @@ Ctakao_ZeroClear_NotRequiered         if (ndimh*ndimh<0) zv_w_osbuf(:)=0.0d0
 Cdelw1        call MPI_ALLREDUCE(w(ohso),w(osbuf),2*ndimh*ndimh,
 Cdelw1      .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         call mpi_allreduce ( zv_w_ohso , zv_w_osbuf , 2 * ndimh * ndimh 
-     .  , mpi_double_precision , mpi_sum , mpi_comm_world , ierr ) 
+     .  , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
 
-       if (mlog) then
-        call gettime(datim)
-        call awrit3(' augmbl '//datim//' Process %i of %i on '
+        if (mlog) then
+          call gettime(datim)
+          call awrit3(' augmbl '//datim//' Process %i of %i on '
      .        //shortname(procid)(1:namelen(procid))//
      .        ' allreduce hso ndimh=%i',' ',256,lgunit(3),
      .        procid,numprocs,ndimh)
-       endif
+        endif
 Cdelw1        call daxpy(2*ndimh*ndimh,1d0,w(osbuf),1,hso,1)
         call daxpy ( 2 * ndimh * ndimh , 1d0 , zv_w_osbuf , 1 , hso , 
-     .  1 ) 
+     .  1 )
 
-Cdelw1 rlse name= osbuf old_list= oh os ohso osbuf 
-Cdelw1 rlse name= osbuf new_list= oh os ohso 
+Cdelw1 rlse name= osbuf old_list= oh os ohso osbuf
+Cdelw1 rlse name= osbuf new_list= oh os ohso
 Cdelw1        call rlse(osbuf)
         if (allocated(zv_w_osbuf)) deallocate(zv_w_osbuf)
 
-Cdelw1 rlse name= ohso old_list= oh os ohso 
-Cdelw1 rlse name= ohso new_list= oh os 
+Cdelw1 rlse name= ohso old_list= oh os ohso
+Cdelw1 rlse name= ohso new_list= oh os
 Cdelw1        call rlse(ohso)
         if (allocated(zv_w_ohso)) deallocate(zv_w_ohso)
 
       endif
-Cdelw1 rlse name= oh old_list= oh os 
+Cdelw1 rlse name= oh old_list= oh os
 Cdelw1 rlse name= oh new_list= (None)
 Cdelw1       call rlse(oh)
-       if (allocated(zv_w_os)) deallocate(zv_w_os)
-       if (allocated(zv_w_oh)) deallocate(zv_w_oh)
+      if (allocated(zv_w_os)) deallocate(zv_w_os)
+      if (allocated(zv_w_oh)) deallocate(zv_w_oh)
 
 Cdelw1 rlse name= os old_list= (None)
 
@@ -565,7 +565,7 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [ocg oidxcg ojcg ocy osig oppi]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine augmbl 
+      end subroutine augmbl
 
 
       subroutine augq12(mode,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
@@ -635,52 +635,52 @@ C       i1 = orbital index in iprmb order; ilm1 = augm. index in L order
 C     ... Two-center terms
 C         Loop over basis functions 1..ndimh from all sites
           if (mode .eq. 0) then
-          do  j = 1, ndimh
-            do  k = 0, kmax
-              cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
-              s(i1,j) = s(i1,j) + cadd
-              s(j,i1) = s(j,i1) + dconjg(cadd)
-              do  ilma = 1, nlma
-                cadd = ppihp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
-                h(i1,j) = h(i1,j) + cadd
-                h(j,i1) = h(j,i1) + dconjg(cadd)
+            do  j = 1, ndimh
+              do  k = 0, kmax
+                cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
+                s(i1,j) = s(i1,j) + cadd
+                s(j,i1) = s(j,i1) + dconjg(cadd)
+                do  ilma = 1, nlma
+                  cadd = ppihp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
+                  h(i1,j) = h(i1,j) + cadd
+                  h(j,i1) = h(j,i1) + dconjg(cadd)
+                enddo
               enddo
             enddo
-          enddo
 
 C     ... One-center terms
-          do  jorb = 1, norb
-            l2  = ltab(jorb)
-            ik2 = ktab(jorb)
-            i2 = offl(jorb)
-            do  ilm2 = l2**2+1, (l2+1)**2
-              i2 = i2+1
-              h(i1,i2) = h(i1,i2) + ppihh(ik1,ik2,ilm1,ilm2,isp)
-              if (ilm1 .eq. ilm2)
+            do  jorb = 1, norb
+              l2  = ltab(jorb)
+              ik2 = ktab(jorb)
+              i2 = offl(jorb)
+              do  ilm2 = l2**2+1, (l2+1)**2
+                i2 = i2+1
+                h(i1,i2) = h(i1,i2) + ppihh(ik1,ik2,ilm1,ilm2,isp)
+                if (ilm1 .eq. ilm2)
      .        s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
+              enddo
             enddo
-          enddo
           else
 
-          do  j = 1, ndimh
-            do  k = 0, kmax
-              cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
-              s(i1,j) = s(i1,j) + cadd
-              s(j,i1) = s(j,i1) + dconjg(cadd)
+            do  j = 1, ndimh
+              do  k = 0, kmax
+                cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
+                s(i1,j) = s(i1,j) + cadd
+                s(j,i1) = s(j,i1) + dconjg(cadd)
+              enddo
             enddo
-          enddo
 
 C     ... One-center terms
-          do  jorb = 1, norb
-            l2  = ltab(jorb)
-            ik2 = ktab(jorb)
-            i2 = offl(jorb)
-            do  ilm2 = l2**2+1, (l2+1)**2
-              i2 = i2+1
-              if (ilm1 .eq. ilm2)
+            do  jorb = 1, norb
+              l2  = ltab(jorb)
+              ik2 = ktab(jorb)
+              i2 = offl(jorb)
+              do  ilm2 = l2**2+1, (l2+1)**2
+                i2 = i2+1
+                if (ilm1 .eq. ilm2)
      .        s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
+              enddo
             enddo
-          enddo
           endif
 
         enddo
@@ -690,7 +690,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine augq12 
+      end subroutine augq12
 
 
       subroutine augq2z(mode,mode1,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
@@ -731,9 +731,9 @@ Cr  elements of LxSx+LySy. The ppihp(i,i,i,i,3), ppihp(i,i,i,i,4) are
 Cr  the corresponding head-tail elements.
 Cr  The 2c term has the form h_{i,j} = Sum_kL(conjg(b_{i;k,L})*p_{j;k,L})+
 Cr   Sum_kL(p_{i;k,L}*p_{j;k,L}); To get the second term for spin orbit
-Cr   we rely on the hermicity of the ppi_{LxSx+LySy} block. 
+Cr   we rely on the hermicity of the ppi_{LxSx+LySy} block.
 Cr   Symbolically:
-Cr   hso_{i,j,u,d} =  Sum_kL[p_{i,j,u,d}*b_{j} + conjg(p_{j,i,d,u}*b_{i})] 
+Cr   hso_{i,j,u,d} =  Sum_kL[p_{i,j,u,d}*b_{j} + conjg(p_{j,i,d,u}*b_{i})]
 Cr   where u = spin-up and d = spin-down.
 Cr   If the structure constants become noncollinear, additional terms have
 Cr   to be added in the matrix element above.
@@ -789,68 +789,68 @@ C       i1 = orbital index in iprmb order; ilm1 = augm. index in L order
 C     ... Two-center terms
 C         Loop over basis functions 1..ndimh from all sites
           if (mode .eq. 0) then
-          do  j = 1, ndimh
-            do  k = 0, kmax
-              cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
-              s(i1,j) = s(i1,j) + cadd
-              s(j,i1) = s(j,i1) + dconjg(cadd)
-              do  ilma = 1, nlma
-                cadd = ppihp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
+            do  j = 1, ndimh
+              do  k = 0, kmax
+                cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
+                s(i1,j) = s(i1,j) + cadd
+                s(j,i1) = s(j,i1) + dconjg(cadd)
+                do  ilma = 1, nlma
+                  cadd = ppihp(ik1,k,ilm1,ilma,isp)*b(k,ilma,j)
 C           ... Make 2c term LxSx+LySy part of SO
-                if (mode1 .eq. 1) then
-                  do  jsp = 1, 2
-                    if (isp .ne. jsp) then
-                      ksp = 2*isp + jsp - 1
-                      cadd1 = ppihp(ik1,k,ilm1,ilma,ksp)*b(k,ilma,j)
-                      tso(i1,j,isp,jsp) = tso(i1,j,isp,jsp)
+                  if (mode1 .eq. 1) then
+                    do  jsp = 1, 2
+                      if (isp .ne. jsp) then
+                        ksp = 2*isp + jsp - 1
+                        cadd1 = ppihp(ik1,k,ilm1,ilma,ksp)*b(k,ilma,j)
+                        tso(i1,j,isp,jsp) = tso(i1,j,isp,jsp)
      .                                  + 0.5d0*cadd1
-                      tso(j,i1,jsp,isp) = tso(j,i1,jsp,isp)
+                        tso(j,i1,jsp,isp) = tso(j,i1,jsp,isp)
      .                                  + 0.5d0*dconjg(cadd1)
-                    endif
-                  enddo
-                endif
-                h(i1,j) = h(i1,j) + cadd
-                h(j,i1) = h(j,i1) + dconjg(cadd)
+                      endif
+                    enddo
+                  endif
+                  h(i1,j) = h(i1,j) + cadd
+                  h(j,i1) = h(j,i1) + dconjg(cadd)
+                enddo
               enddo
             enddo
-          enddo
 
 C     ... One-center terms
-          do  jorb = 1, norb
-            l2  = ltab(jorb)
-            ik2 = ktab(jorb)
-            i2 = offl(jorb)
-            do  ilm2 = l2**2+1, (l2+1)**2
-              i2 = i2+1
-              h(i1,i2) = h(i1,i2) + ppihh(ik1,ik2,ilm1,ilm2,isp)
+            do  jorb = 1, norb
+              l2  = ltab(jorb)
+              ik2 = ktab(jorb)
+              i2 = offl(jorb)
+              do  ilm2 = l2**2+1, (l2+1)**2
+                i2 = i2+1
+                h(i1,i2) = h(i1,i2) + ppihh(ik1,ik2,ilm1,ilm2,isp)
 C        ...  Make 1c LxSx+LySy part of SO
-              if (mode1 .eq. 1 .and. isp .eq. 2) hso(i1,i2) = hso(i1,i2)
+                if (mode1 .eq. 1 .and. isp .eq. 2) hso(i1,i2) = hso(i1,i2)
      .          + 0.5d0*ppihh(ik1,ik2,ilm1,ilm2,3)
-              if (ilm1 .eq. ilm2) s(i1,i2) = s(i1,i2)
+                if (ilm1 .eq. ilm2) s(i1,i2) = s(i1,i2)
      .                                     + sighh(ik1,ik2,l1,isp)
+              enddo
             enddo
-          enddo
           else
 
-          do  j = 1, ndimh
-            do  k = 0, kmax
-              cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
-              s(i1,j) = s(i1,j) + cadd
-              s(j,i1) = s(j,i1) + dconjg(cadd)
+            do  j = 1, ndimh
+              do  k = 0, kmax
+                cadd = sighp(ik1,k,l1,isp)*b(k,ilm1,j)
+                s(i1,j) = s(i1,j) + cadd
+                s(j,i1) = s(j,i1) + dconjg(cadd)
+              enddo
             enddo
-          enddo
 
 C     ... One-center terms
-          do  jorb = 1, norb
-            l2  = ltab(jorb)
-            ik2 = ktab(jorb)
-            i2 = offl(jorb)
-            do  ilm2 = l2**2+1, (l2+1)**2
-              i2 = i2+1
-              if (ilm1 .eq. ilm2)
+            do  jorb = 1, norb
+              l2  = ltab(jorb)
+              ik2 = ktab(jorb)
+              i2 = offl(jorb)
+              do  ilm2 = l2**2+1, (l2+1)**2
+                i2 = i2+1
+                if (ilm1 .eq. ilm2)
      .        s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
+              enddo
             enddo
-          enddo
           endif
 
         enddo
@@ -867,7 +867,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine augq2z 
+      end subroutine augq2z
 
 
       subroutine augqs3(kmax,lmxa,nlma,ndimh,isp,g,sig,b,s)
@@ -932,7 +932,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine augqs3 
+      end subroutine augqs3
 
 
       subroutine augqp3(kmax,nlma,ndimh,isp,g,ppi,b,h)
@@ -995,7 +995,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine augqp3 
+      end subroutine augqp3
 
 
       subroutine augq3z(mode1,kmax,nlma,ndimh,isp,g,ppi,b,h,hso)
@@ -1053,12 +1053,12 @@ C   ... Make dot products with vectors i1
         do  i1 = 1, ndimh
 C         csum=zdotc(kjtop,b(0,1,i1),1,g,1)
           csum = (0d0,0d0)
-          if (mode1 .eq. 1 .and. isp .eq. 2) csum1 = (0d0,0d0)  
+          if (mode1 .eq. 1 .and. isp .eq. 2) csum1 = (0d0,0d0)
           do  kjlm = 0, kjtop-1
             csum = csum + dconjg(b(kjlm,1,i1))*g(kjlm,1)
 C     ...  Make LxSx+LySy part of SO
             if (mode1 .eq. 1 .and. isp .eq. 2)
-     .      csum1 = csum1 + dconjg(b(kjlm,1,i1))*gso(kjlm,1) 
+     .      csum1 = csum1 + dconjg(b(kjlm,1,i1))*gso(kjlm,1)
           enddo
           h(i1,i2) = h(i1,i2) + csum
           if (mode1 .eq. 1 .and. isp .eq. 2) 
@@ -1070,6 +1070,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine augq3z 
+      end subroutine augq3z
 
 

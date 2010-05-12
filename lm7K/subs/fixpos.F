@@ -14,7 +14,7 @@ Ci   istab: atom transformation table; see symtab
 Co Outputs:
 Co   pos:   basis vectors are adjusted.
 Cr Remarks:
-Cr   Generally atoms of the same class do not sit exactly on 
+Cr   Generally atoms of the same class do not sit exactly on
 Cr   symmetry-related positions. In this subroutine each atomic
 Cr   position is replaced by the average of the position itself and
 Cr   the generated positions of the atoms of the same class.
@@ -44,13 +44,14 @@ C Local parameters:
           jbas = istab(ibas,ig)
           call dmpy(g(1,ig),3,1,pos(1,ibas),3,1,bast,3,1,3,1,3)
           do  30  m = 1, 3
-   30     dbas(m) = bast(m) + ag(m,ig) - pos(m,jbas)
+            dbas(m) = bast(m) + ag(m,ig) - pos(m,jbas)
+   30     continue
 C         print 333, ' input basj',pos(1,jbas),pos(2,jbas),pos(3,jbas)
 C         print 333, ' input dbas',dbas
   333     format(a,3f12.6)
           call shorbz(dbas,dbas,plat,qlat)
 c         print 334, 'output dbas', dbas
-C     ... Debugging check          
+C     ... Debugging check
           sum = sum + abs(dbas(1))+abs(dbas(2))+abs(dbas(3))
           if (abs(dbas(1)) .gt. tol2 .or. abs(dbas(2)) .gt. tol2.or.
      .        abs(dbas(3)) .gt. tol2) call fexit(-1,111,

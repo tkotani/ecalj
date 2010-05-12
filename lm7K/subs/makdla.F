@@ -51,6 +51,6 @@ C     wj,wn are the amounts of Bessel and Hankel making up phi0
       rdphia = 2d0*(wn*rdfi*sigma**l  - wj*rdgi*sigma**(-l-1))
       dla    = rdphia/phia
 Cgetarg       end
-       end subroutine makdla 
+      end subroutine makdla
 
 

@@ -3,8 +3,8 @@ Cgetarg...info...           structure ['ugcomp', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['ugcomp', 'm_struc_def']
 #define F90 1
       subroutine ugcomp(nbas,ssite,sspec,slat,qmom,gpot0,hpot0,ugg,f)
-       use m_struc_def  !Cgetarg
-#if MPE 
+      use m_struc_def  !Cgetarg
+#if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
 C- Part of the smooth estatic energy from compensating G's alone.
@@ -41,7 +41,7 @@ C ... Passed parameters
 #if MPI | MPIK
 #if MPE
       include "mpef.h"
-#endif 
+#endif
       include "mpif.h"
       integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
@@ -59,14 +59,14 @@ C ... Passed parameters
 c#if MPE
 cC Event numbers:
 c      include "events.ins"
-c#endif 
+c#endif
       integer nbas
 Cgetarg       double precision ssite(1),sspec(1),qmom(1),
 Cgetarg      .  gpot0(1),slat(1),f(3,nbas),hpot0(nbas),ugg
-       real(8):: qmom(1) , gpot0(1) , f(3,nbas) , hpot0(nbas) , ugg 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: qmom(1) , gpot0(1) , f(3,nbas) , hpot0(nbas) , ugg
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
 C ... Local parameters
       integer ndim,ndim0,i,ib,ilm1,ilm2,is,iv0,jb,js,jv0,nvl,l1,l2,
@@ -153,7 +153,7 @@ C --- Loop over sites where charge lump making pot is centered ---
 #if MPI | MPIK
 #if MPE
       ierr = MPE_LOG_EVENT(EVENT_START_UGCOMP,procid,"ugcomp")
-#endif 
+#endif
       allocate (bproc(0:numprocs), stat=ierr)
       call dstrbp(nbas,numprocs,1,bproc(0))
 c      do  ib = bproc(procid), bproc(procid+1)-1
@@ -163,7 +163,7 @@ c      do  ib = bproc(procid), bproc(procid+1)-1
 c      do  ib = 1, nbas
       ibini=1
       ibend=nbas
-#endif 
+#endif
 
       do ib=ibini,ibend
 #if MPI |MPIK
@@ -175,21 +175,21 @@ c      do  ib = 1, nbas
      .        procid,numprocs,bproc(procid),bproc(procid+1)-1)
         endif
         iv0 = iiv0(ib)
-#endif   
+#endif
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: tau1(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ib,is,tau1,0,0)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pos) 
-         call dcopy(i_copy_size,ssite(ib)%pos,1,tau1,1) 
+
+        is=ssite(ib)%spec
+        i_copy_size=size(ssite(ib)%pos)
+        call dcopy(i_copy_size,ssite(ib)%pos,1,tau1,1)
 
 Cgetarg...info...           integer :: lmax1 , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           real(8) :: rg1 , real(8) :: sspec%rg 1
 Cgetarg         call upack('spec lmxl rg',sspec,is,lmax1,rg1,0,0)
-         
-         lmax1=sspec(is)%lmxl
-         rg1=sspec(is)%rg
+
+        lmax1=sspec(is)%lmxl
+        rg1=sspec(is)%rg
 
         call corprm(sspec,is,qcorg1,qcorh1,qsc1,cofg1,cofh1,ceh1,lfoc1,
      .    rh1,z1)
@@ -197,127 +197,127 @@ Cgetarg         call upack('spec lmxl rg',sspec,is,lmax1,rg1,0,0)
 
 C   ... Loop over sites where charge lump sees the potential
         if (lmax1 .gt. -1) then
-        jv0 = 0
-        do  jb = 1, nbas
+          jv0 = 0
+          do  jb = 1, nbas
 Cgetarg...info...           integer :: js , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: tau2(3) , real(8) :: ssite%pos 3
 Cgetarg           call upack('site spec pos',ssite,jb,js,tau2,0,0)
-           
-           js=ssite(jb)%spec
-           i_copy_size=size(ssite(jb)%pos) 
-           call dcopy(i_copy_size,ssite(jb)%pos,1,tau2,1) 
+
+            js=ssite(jb)%spec
+            i_copy_size=size(ssite(jb)%pos)
+            call dcopy(i_copy_size,ssite(jb)%pos,1,tau2,1)
 
 Cgetarg...info...           integer :: lmax2 , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           real(8) :: rg2 , real(8) :: sspec%rg 1
 Cgetarg           call upack('spec lmxl rg',sspec,js,lmax2,rg2,0,0)
-           
-           lmax2=sspec(js)%lmxl
-           rg2=sspec(js)%rg
 
-          if (lmax2 .gt. -1) then
-          call corprm(sspec,js,qcorg2,qcorh2,qsc2,cofg2,cofh2,ceh2,
+            lmax2=sspec(js)%lmxl
+            rg2=sspec(js)%rg
+
+            if (lmax2 .gt. -1) then
+              call corprm(sspec,js,qcorg2,qcorh2,qsc2,cofg2,cofh2,ceh2,
      .      lfoc2,rh2,z2)
-          nlm2 = (lmax2+1)**2
+              nlm2 = (lmax2+1)**2
 #if MPI | MPIK
-          jv0 = iiv0(jb)
-#endif 
-          if (nlm1 .gt. ndim) call rxi('ugcomp: ndim.lt.nlm1=',nlm1)
-          if (nlm2 .gt. ndim) call rxi('ugcomp: ndim.lt.nlm2=',nlm2)
-          call ggugbl(tau1,tau2,rg1,rg2,nlm1,nlm2,ndim,ndim,slat,s,ds)
+              jv0 = iiv0(jb)
+#endif
+              if (nlm1 .gt. ndim) call rxi('ugcomp: ndim.lt.nlm1=',nlm1)
+              if (nlm2 .gt. ndim) call rxi('ugcomp: ndim.lt.nlm2=',nlm2)
+              call ggugbl(tau1,tau2,rg1,rg2,nlm1,nlm2,ndim,ndim,slat,s,ds)
 
-          ff(1) = 0d0
-          ff(2) = 0d0
-          ff(3) = 0d0
-          do  ilm1 = 1, nlm1
-            l1 = ll(ilm1)
-            qm1 = qmom(iv0+ilm1)
-            if (ilm1 .eq. 1) qm1 = qm1 + y0*(qcorg1-z1)
-            cof1 = qm1*fpi/df(2*l1+1)
-            do  ilm2 = 1, nlm2
-              l2 = ll(ilm2)
-              qm2 = qmom(jv0+ilm2)
-              if (ilm2 .eq. 1) qm2 = qm2 + y0*(qcorg2-z2)
-              cof2 = qm2*fpi/df(2*l2+1)
-              xugg(ip) = xugg(ip) + cof1*cof2*s(ilm1,ilm2)
-              xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip)
+              ff(1) = 0d0
+              ff(2) = 0d0
+              ff(3) = 0d0
+              do  ilm1 = 1, nlm1
+                l1 = ll(ilm1)
+                qm1 = qmom(iv0+ilm1)
+                if (ilm1 .eq. 1) qm1 = qm1 + y0*(qcorg1-z1)
+                cof1 = qm1*fpi/df(2*l1+1)
+                do  ilm2 = 1, nlm2
+                  l2 = ll(ilm2)
+                  qm2 = qmom(jv0+ilm2)
+                  if (ilm2 .eq. 1) qm2 = qm2 + y0*(qcorg2-z2)
+                  cof2 = qm2*fpi/df(2*l2+1)
+                  xugg(ip) = xugg(ip) + cof1*cof2*s(ilm1,ilm2)
+                  xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip)
      .                            + s(ilm1,ilm2)*cof1*fpi/df(2*l2+1)
 C         ... Forces
-              ff(1) = ff(1) + 0.5d0*cof1*cof2*ds(ilm1,ilm2,1)
-              ff(2) = ff(2) + 0.5d0*cof1*cof2*ds(ilm1,ilm2,2)
-              ff(3) = ff(3) + 0.5d0*cof1*cof2*ds(ilm1,ilm2,3)
-            enddo
-          enddo
+                  ff(1) = ff(1) + 0.5d0*cof1*cof2*ds(ilm1,ilm2,1)
+                  ff(2) = ff(2) + 0.5d0*cof1*cof2*ds(ilm1,ilm2,2)
+                  ff(3) = ff(3) + 0.5d0*cof1*cof2*ds(ilm1,ilm2,3)
+                enddo
+              enddo
 
 C     --- Additional h*h, h*g, g*h terms for foca ---
-          if (lfoc1.gt.0 .or. lfoc2.gt.0) then
-            call hhugbl(0,tau1,tau2,rh1,rh2,ceh1,ceh2,1,1,ndim0,ndim0,
+              if (lfoc1.gt.0 .or. lfoc2.gt.0) then
+                call hhugbl(0,tau1,tau2,rh1,rh2,ceh1,ceh2,1,1,ndim0,ndim0,
      .        slat,wk,dwk,s0,ds0)
-            xugg(ip) = xugg(ip) + cofh1*s0(1,1)*cofh2
-            xhpot0(jb,ip) = xhpot0(jb,ip) + cofh1*s0(1,1)
-            ff(1) = ff(1) + 0.5d0*cofh1*cofh2*ds0(1,1,1)
-            ff(2) = ff(2) + 0.5d0*cofh1*cofh2*ds0(1,1,2)
-            ff(3) = ff(3) + 0.5d0*cofh1*cofh2*ds0(1,1,3)
+                xugg(ip) = xugg(ip) + cofh1*s0(1,1)*cofh2
+                xhpot0(jb,ip) = xhpot0(jb,ip) + cofh1*s0(1,1)
+                ff(1) = ff(1) + 0.5d0*cofh1*cofh2*ds0(1,1,1)
+                ff(2) = ff(2) + 0.5d0*cofh1*cofh2*ds0(1,1,2)
+                ff(3) = ff(3) + 0.5d0*cofh1*cofh2*ds0(1,1,3)
 
-            call hgugbl(tau1,tau2,rh1,rg2,ceh1,1,nlm2,ndim,ndim,
+                call hgugbl(tau1,tau2,rh1,rg2,ceh1,1,nlm2,ndim,ndim,
      .        slat,s,ds)
-            do  ilm2 = 1, nlm2
-              l2 = ll(ilm2)
-              qm2 = qmom(jv0+ilm2)
-              if (ilm2 .eq. 1) qm2 = qm2 + y0*(qcorg2-z2)
-              cof2 = qm2*fpi/df(2*l2+1)
-              xugg(ip) = xugg(ip) + cofh1*s(1,ilm2)*cof2
-              ff(1) = ff(1) + 0.5d0*cofh1*cof2*ds(1,ilm2,1)
-              ff(2) = ff(2) + 0.5d0*cofh1*cof2*ds(1,ilm2,2)
-              ff(3) = ff(3) + 0.5d0*cofh1*cof2*ds(1,ilm2,3)
-              xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip)
+                do  ilm2 = 1, nlm2
+                  l2 = ll(ilm2)
+                  qm2 = qmom(jv0+ilm2)
+                  if (ilm2 .eq. 1) qm2 = qm2 + y0*(qcorg2-z2)
+                  cof2 = qm2*fpi/df(2*l2+1)
+                  xugg(ip) = xugg(ip) + cofh1*s(1,ilm2)*cof2
+                  ff(1) = ff(1) + 0.5d0*cofh1*cof2*ds(1,ilm2,1)
+                  ff(2) = ff(2) + 0.5d0*cofh1*cof2*ds(1,ilm2,2)
+                  ff(3) = ff(3) + 0.5d0*cofh1*cof2*ds(1,ilm2,3)
+                  xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip)
      .                            + s(1,ilm2)*cofh1*fpi/df(2*l2+1)
-            enddo
+                enddo
 
-            call hgugbl(tau2,tau1,rh2,rg1,ceh2,1,nlm1,ndim,ndim,
+                call hgugbl(tau2,tau1,rh2,rg1,ceh2,1,nlm1,ndim,ndim,
      .         slat,s,ds)
-            do  ilm1 = 1, nlm1
-              l1 = ll(ilm1)
-              qm1 = qmom(iv0+ilm1)
-              if (ilm1 .eq. 1) qm1 = qm1 + y0*(qcorg1-z1)
-              cof1 = qm1*fpi/df(2*l1+1)
-              xugg(ip) = xugg(ip) + cof1*s(1,ilm1)*cofh2
-              ff(1) = ff(1) - 0.5d0*cof1*cofh2*ds(1,ilm1,1)
-              ff(2) = ff(2) - 0.5d0*cof1*cofh2*ds(1,ilm1,2)
-              ff(3) = ff(3) - 0.5d0*cof1*cofh2*ds(1,ilm1,3)
-              xhpot0(jb,ip) = xhpot0(jb,ip) + cof1*s(1,ilm1)
-            enddo
-          endif
+                do  ilm1 = 1, nlm1
+                  l1 = ll(ilm1)
+                  qm1 = qmom(iv0+ilm1)
+                  if (ilm1 .eq. 1) qm1 = qm1 + y0*(qcorg1-z1)
+                  cof1 = qm1*fpi/df(2*l1+1)
+                  xugg(ip) = xugg(ip) + cof1*s(1,ilm1)*cofh2
+                  ff(1) = ff(1) - 0.5d0*cof1*cofh2*ds(1,ilm1,1)
+                  ff(2) = ff(2) - 0.5d0*cof1*cofh2*ds(1,ilm1,2)
+                  ff(3) = ff(3) - 0.5d0*cof1*cofh2*ds(1,ilm1,3)
+                  xhpot0(jb,ip) = xhpot0(jb,ip) + cof1*s(1,ilm1)
+                enddo
+              endif
 
-          if (jb .ne. ib) then
-            do  m = 1, 3
-              xf(m,ib,ip) = xf(m,ib,ip) - ff(m)
-              xf(m,jb,ip) = xf(m,jb,ip) + ff(m)
-            enddo
-          endif
+              if (jb .ne. ib) then
+                do  m = 1, 3
+                  xf(m,ib,ip) = xf(m,ib,ip) - ff(m)
+                  xf(m,jb,ip) = xf(m,jb,ip) + ff(m)
+                enddo
+              endif
 
-          jv0 = jv0+nlm2
-          endif
-        enddo
-        iv0 = iv0+nlm1
+              jv0 = jv0+nlm2
+            endif
+          enddo
+          iv0 = iv0+nlm1
         endif
       enddo
 #if MPI | MPIK
       nvl = nvl0
 #else
       nvl = iv0
-#endif 
+#endif
 
 C ... Assemble data from separate threads
 #if MPI | MPIK
 #if MPE
       ierr = MPE_LOG_EVENT(EVENT_END_UGCOMP,procid,"ugcomp")
       ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-#endif 
+#endif
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
 #if MPE
       ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
       ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
-#endif 
+#endif
       allocate(buffer(1:nvl), stat=ierr)
       call MPI_ALLREDUCE(xgpot0,buffer,nvl,
      .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
@@ -368,27 +368,28 @@ C ... Assemble data from separate threads
       endif
 #if MPE
       ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
-#endif 
+#endif
       deallocate(bproc, stat=ierr)
 #else
       do  80  ip = 1, mp
-      do  82  ib = 1, nbas
+        do  82  ib = 1, nbas
           f(1,ib) = f(1,ib) + xf(1,ib,ip)
           f(2,ib) = f(2,ib) + xf(2,ib,ip)
           f(3,ib) = f(3,ib) + xf(3,ib,ip)
           hpot0(ib) = hpot0(ib) + xhpot0(ib,ip)
    82   continue
         do  84  i = 1, nvl
-   84   gpot0(i) = gpot0(i) + xgpot0(i,ip)
+          gpot0(i) = gpot0(i) + xgpot0(i,ip)
+   84   continue
         ugg = ugg + xugg(ip)
    80 continue
-#endif      
+#endif
 
       call tcx('ugcomp')
 C      print *, ugg
 C      call prmx('qmom',qmom,nvl,nvl,1)
 C      call prm('gpot0',gpot0,nvl,nvl,1)
 Cgetarg       end
-       end subroutine ugcomp 
+      end subroutine ugcomp
 
 

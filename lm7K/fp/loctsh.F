@@ -75,12 +75,12 @@ C ... Local parameters
       character spid*8,orbit(2)*4,flg(2)*1
 Cdelw1       integer ipr,iprint,i,l,info,nglob,og,ogp,oh,stdo,
 Cdelw1      .  mode0,mode1,mode2,mode3,mode4,modei,loclo,nfit,IPRT,isw
-       integer:: ipr , iprint , i , l , info , nglob , stdo , mode0 
+      integer:: ipr , iprint , i , l , info , nglob , stdo , mode0 
      . , mode1 , mode2 , mode3 , mode4 , modei , loclo , nfit , iprt 
-     . , isw 
-       real(8) ,allocatable :: rv_w_og(:)
-       real(8) ,allocatable :: rv_w_ogp(:)
-       real(8) ,allocatable :: rv_w_oh(:)
+     . , isw
+      real(8) ,allocatable :: rv_w_og(:)
+      real(8) ,allocatable :: rv_w_ogp(:)
+      real(8) ,allocatable :: rv_w_oh(:)
 
       integer nrx,nrbig,ir,lp1
       double precision dphi,dphip,eh,eval,p,phi,phip,
@@ -119,163 +119,163 @@ C     b = rmt/(dexp(a*nrmt-a)-1d0)
 
       do  i = 1, nsp
 Cdelw1       call defrr (oh,    nr)
-       allocate(rv_w_oh(nr))
+        allocate(rv_w_oh(nr))
 Ctakao_ZeroClear_NotRequiered        if (nr<0) rv_w_oh(:)=0.0d0
 
 Cdelw1       call defrr (og,    2*nr)
-       allocate(rv_w_og(2*nr))
+        allocate(rv_w_og(2*nr))
 Ctakao_ZeroClear_NotRequiered        if (2*nr<0) rv_w_og(:)=0.0d0
 
 Cdelw1       call defrr (ogp,   2*nr*4)
-       allocate(rv_w_ogp(2*nr*4))
+        allocate(rv_w_ogp(2*nr*4))
 Ctakao_ZeroClear_NotRequiered        if (2*nr*4<0) rv_w_ogp(:)=0.0d0
 
 
 C --- Loop over local orbitals ---
-      do  l = 0, lmxb
+        do  l = 0, lmxb
 
 C       itab(l+1,i) = 0
-        rsml(l+1,i) = 0
-        ehl(l+1,i) = 0
+          rsml(l+1,i) = 0
+          ehl(l+1,i) = 0
 
 C       pl(l+1,i) = pnu(l+1,i)
 C       konfig = mod(pnz(l+1,i),10d0)
 
 C       Skip all but local orbitals with tails attached
-        if (pnz(l+1,i) .lt. 10) goto 10
+          if (pnz(l+1,i) .lt. 10) goto 10
 
 C       Case local orbital deeper than valence
-        if (int(pnu(l+1,i)-1) .eq. int(mod(pnz(l+1,i),10d0))) then
-          loclo = 1
-          if (mode0 .eq. 0) goto 10
-          modei = mode0
+          if (int(pnu(l+1,i)-1) .eq. int(mod(pnz(l+1,i),10d0))) then
+            loclo = 1
+            if (mode0 .eq. 0) goto 10
+            modei = mode0
 
 C       Case local orbital higher than the valence state
-        elseif (int(pnu(l+1,i)+1) .eq. int(mod(pnz(l+1,i),10d0))) then
-          loclo = 0
-          if (mode1 .eq. 0) goto 10
-          modei = mode1
+          elseif (int(pnu(l+1,i)+1) .eq. int(mod(pnz(l+1,i),10d0))) then
+            loclo = 0
+            if (mode1 .eq. 0) goto 10
+            modei = mode1
 
 C       Local orbital neither low nor high: error
-        else
-          call fexit3(-1,111,' Exit -1 loctsh, l=%i:  sc PZ=%d '//
+          else
+            call fexit3(-1,111,' Exit -1 loctsh, l=%i:  sc PZ=%d '//
      .      'incompatible with valence P=%;3d',l,pnz(l+1,i),pnu(l+1,i))
-        endif
+          endif
 
-        pnul = mod(pnz(l+1,i),10d0)
+          pnul = mod(pnz(l+1,i),10d0)
 
 C   ... Initial printout
-        nfit = nfit + 1
-        if (nfit .eq. 1 .and. modei .gt. 1) then
-          call info2(20,1,0,
+          nfit = nfit + 1
+          if (nfit .eq. 1 .and. modei .gt. 1) then
+            call info2(20,1,0,
      .    ' Fit local orbitals to sm hankels, species '//spid//
      .    '%a, rmt=%;7g',rmt,0)
-          if (ipr .ge. IPRT) write (stdo,261)
-        endif
+            if (ipr .ge. IPRT) write (stdo,261)
+          endif
 
 C   ... Make value, slope, kinetic energy
-        if (mod(modei,2) .eq. 1) then
+          if (mod(modei,2) .eq. 1) then
 C     ... Overwrite V+, V- with (V+ + V-)/2, (V+ - V-)/2,
-          if (nsp .eq. 2 .and. mode3 .eq. 1) then
-            call dsumdf(nr,0.5d0,v,0,1,v(1,2),0,1)
-          endif
+            if (nsp .eq. 2 .and. mode3 .eq. 1) then
+              call dsumdf(nr,0.5d0,v,0,1,v(1,2),0,1)
+            endif
 
 C     ... Wave function and potential parameters at MT sphere
 Cdelw1           call makrwf(0,z,rmt,l,v(1,i),a,nrmt,rofi,pnz(1,i),4,
 Cdelw1      .      w(og),w(ogp),eval,phi,dphi,phip,dphip,p)
-           call makrwf ( 0 , z , rmt , l , v ( 1 , i ) , a , nrmt , rofi 
+            call makrwf ( 0 , z , rmt , l , v ( 1 , i ) , a , nrmt , rofi 
      .     , pnz ( 1 , i ) , 4 , rv_w_og , rv_w_ogp , eval , phi , dphi 
-     .     , phip , dphip , p ) 
+     .     , phip , dphip , p )
 
 C         call prrmsh('gz',rofi,w(og),nr,nr,2)
 
 C     ... Restore V+, V-
-          if (nsp .eq. 2 .and. mode3 .eq. 1) then
-            call dsumdf(nr,1d0,v,0,1,v(1,2),0,1)
+            if (nsp .eq. 2 .and. mode3 .eq. 1) then
+              call dsumdf(nr,1d0,v,0,1,v(1,2),0,1)
+            endif
+
+            vsel(1,l+1) = phi
+            vsel(2,l+1) = dphi
+            vmine = eval - (v(nrmt,i)-2*z/rmt)
+            vsel(3,l+1) = vmine
+            vsel(4,l+1) = eval
+
+          else
+
+            phi   = vsel(1,l+1)
+            dphi  = vsel(2,l+1)
+            vmine = vsel(3,l+1)
+            eval  = vsel(4,l+1)
+
           endif
 
-          vsel(1,l+1) = phi
-          vsel(2,l+1) = dphi
-          vmine = eval - (v(nrmt,i)-2*z/rmt)
-          vsel(3,l+1) = vmine
-          vsel(4,l+1) = eval
-
-        else
-
-          phi   = vsel(1,l+1)
-          dphi  = vsel(2,l+1)
-          vmine = vsel(3,l+1)
-          eval  = vsel(4,l+1)
-
-        endif
-
 C   ... Set conditions on envelope functions
-        if (modei .gt. 1) then
-        rsmin = rs3
-        rsmax = 5
-        if (mode2 .eq. 1) rsmax = rmt
-        if (eval .lt. emin)
+          if (modei .gt. 1) then
+            rsmin = rs3
+            rsmax = 5
+            if (mode2 .eq. 1) rsmax = rmt
+            if (eval .lt. emin)
      .    call rx1('increase emin in loctsh: eval=%;4g',eval)
 
 C   ... Match val,slo, and K.E. of Hankel to phi,dphi,vmine
-        if (modei .eq. 2 .or. modei .eq. 3) then
-          rsm = 0
-          eh = min(eval-vmtz,emax)
+            if (modei .eq. 2 .or. modei .eq. 3) then
+              rsm = 0
+              eh = min(eval-vmtz,emax)
 C         call pshpr(110-10)
-          call mtchre(103,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,
+              call mtchre(103,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,
      .      vmine,dphi,rsm,eh,ekin,info)
 C         call poppr
 
 C   ... Vary rsm to match sm Hankel to phi,dphi
-        elseif (modei .eq. 4 .or. modei .eq. 5) then
-          call rx('this branch not checked')
-          rsm = rsmin
-          call mtchre(100,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,phi,
+            elseif (modei .eq. 4 .or. modei .eq. 5) then
+              call rx('this branch not checked')
+              rsm = rsmin
+              call mtchre(100,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,phi,
      .      dphi,rsm,eh,ekin,info)
 
-        else
-          call rxi('loctsh: not implemented fitting mode=',modei)
-        endif
+            else
+              call rxi('loctsh: not implemented fitting mode=',modei)
+            endif
 
 C   ... Printout of fit functions
-        if (ipr .ge. IPRT) then
-          call radext(11,nr,nrx,2d0,a,rmt,nrbig,rbig,rofix,rwgtx)
+            if (ipr .ge. IPRT) then
+              call radext(11,nr,nrx,2d0,a,rmt,nrbig,rbig,rofix,rwgtx)
 C         make sphere charge for r>rmt for printout
-          lp1 = l+1
-          sum1 = 0
-          do  ir = 1, nr
+              lp1 = l+1
+              sum1 = 0
+              do  ir = 1, nr
 C           h = r*radial part of sm. Hankel
-            call hansmr(rofix(ir),eh,1/rsm,xi,l)
-            h = xi(l)*(rofix(ir)**lp1)
-            sum1 = sum1 + rwgtx(ir)*h**2
-          enddo
-          sum2 = 0
-          do  ir = nr, nrbig
+                call hansmr(rofix(ir),eh,1/rsm,xi,l)
+                h = xi(l)*(rofix(ir)**lp1)
+                sum1 = sum1 + rwgtx(ir)*h**2
+              enddo
+              sum2 = 0
+              do  ir = nr, nrbig
 C           h = r*radial part of sm. Hankel
-            call hansmr(rofix(ir),eh,1/rsm,xi,l)
-            h = xi(l)*(rofix(ir)**lp1)
-            sum2 = sum2 + rwgtx(ir)*h**2
-          enddo
-          qrmt = sum2/(sum1+sum2)
+                call hansmr(rofix(ir),eh,1/rsm,xi,l)
+                h = xi(l)*(rofix(ir)**lp1)
+                sum2 = sum2 + rwgtx(ir)*h**2
+              enddo
+              qrmt = sum2/(sum1+sum2)
 
-          write (stdo,260)
+              write (stdo,260)
      .    l,orbit(2-loclo),pnul,eval,vmine,rsm,eh,qrmt,ekin,
      .    flg(2-isw(dabs(ekin-vmine).gt.1d-5))
-  261   format('  l  type    Pnu      Eval        K.E.',
+  261         format('  l  type    Pnu      Eval        K.E.',
      .    7x,'Rsm       Eh      Q(r>rmt)    Fit K.E.')
-  260   format(i3,2x,a,f8.3,2f12.6,3f10.5,f12.6,a1)
-        endif
+  260         format(i3,2x,a,f8.3,2f12.6,3f10.5,f12.6,a1)
+            endif
 C       pause
 
 C       itab(l+1,i) = 1
-        rsml(l+1,i) = rsm
-        ehl(l+1,i) = eh
-        endif
+            rsml(l+1,i) = rsm
+            ehl(l+1,i) = eh
+          endif
 
 
-   10 continue
-      enddo
-      if (mode3 .ne. 0) goto 80
+   10     continue
+        enddo
+        if (mode3 .ne. 0) goto 80
       enddo
    80 continue
 
@@ -289,12 +289,12 @@ C     .     rofi,w(opsi),v,w(og),a,b,spid)
 C        call rlse(opsi)
       endif
 
-Cdelw1 rlse name= oh old_list= oh og ogp 
+Cdelw1 rlse name= oh old_list= oh og ogp
 Cdelw1 rlse name= oh new_list= (None)
 Cdelw1       call rlse (oh)
-       if (allocated(rv_w_ogp)) deallocate(rv_w_ogp)
-       if (allocated(rv_w_og)) deallocate(rv_w_og)
-       if (allocated(rv_w_oh)) deallocate(rv_w_oh)
+      if (allocated(rv_w_ogp)) deallocate(rv_w_ogp)
+      if (allocated(rv_w_og)) deallocate(rv_w_og)
+      if (allocated(rv_w_oh)) deallocate(rv_w_oh)
 
 
 Cdelw1 w_varlist remains: (None)

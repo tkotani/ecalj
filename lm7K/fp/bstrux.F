@@ -4,8 +4,8 @@ Cgetarg...info...           use_to_add ['bstrux', 'm_struc_def']
 #define F90 1
       subroutine bstrux(mode,slat,ssite,sspec,cg,indxcg,jcg,cy,iprmb,
      .  nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,b,db)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
 C ----------------------------------------------------------------------
@@ -61,16 +61,16 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
 Cgetarg       double precision ssite(1),sspec(1),slat(1),pa(3),q(3)
-       real(8):: pa(3) , q(3) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: pa(3) , q(3)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double precision cg(1),cy(1),rsma
       integer kmax,nbas,ndimh,mode,ia,nlma,napw
       integer iprmb(1),igapw(3,napw),indxcg(1),jcg(1)
       double complex b(*)  !b(0:kmax,nlma,ndimh) mode 0;
-                           !b(ndimh,nlma,0:kmax) mode 1,2
+      !b(ndimh,nlma,0:kmax) mode 1,2
       double complex db(*) !db(ndimh,nlma,0:kmax,3)
 C ... Local parameters
       integer nlmto,nlmbx,ib,is,ik,n0,nkap0,nkapi,norb,nlmh
@@ -87,11 +87,11 @@ Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat alat qlat vol',slat,alat,qlat,vol,0,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
-       vol=slat%vol
+
+      alat=slat%alat
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      vol=slat%vol
 
       srvol = dsqrt(vol)
       nlmto = ndimh-napw
@@ -104,69 +104,69 @@ C     Zero out strux to eliminate contributions from local orbitals
 
 C --- b for MTO  (Written as C_kl in LMTO book) ---
       if (nlmto .gt. 0) then
-      allocate(b0((kmax+1)*nlma*nlmbx),bos((kmax+1)*nlmbx))
-      call dpzero(b0,(kmax+1)*nlma*nlmbx*2)
-      if (mode .eq. 1) then
-        call dpzero(db,(kmax+1)*nlma*ndimh*3*2)
-        allocate(db0((kmax+1)*nlma*nlmbx*3))
-      endif
-      do  ib = 1, nbas
+        allocate(b0((kmax+1)*nlma*nlmbx),bos((kmax+1)*nlmbx))
+        call dpzero(b0,(kmax+1)*nlma*nlmbx*2)
+        if (mode .eq. 1) then
+          call dpzero(db,(kmax+1)*nlma*ndimh*3*2)
+          allocate(db0((kmax+1)*nlma*nlmbx*3))
+        endif
+        do  ib = 1, nbas
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ib,is,p,0,0)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pos) 
-         call dcopy(i_copy_size,ssite(ib)%pos,1,p,1) 
+
+          is=ssite(ib)%spec
+          i_copy_size=size(ssite(ib)%pos)
+          call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
 
 C       This line augments no local orbitals
 C       ik = 1
 C       This line augments onsite extended local orbitals only
 C       if (ia .eq. ib) ik = 2
 C       This line augments extended local orbitals all sites
-        ik = 2
-        call uspecb(0,ik,sspec,is,is,lh,rsmh,eh,nkapi)
+          ik = 2
+          call uspecb(0,ik,sspec,is,is,lh,rsmh,eh,nkapi)
 C       Position in h; l,k indices for orbitals connected w/ ib
-        call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+          call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
 C       Loop over blocks of envelope functions
-        do  ik = 1, nkapi
-          nlmh = (lh(ik)+1)**2
-          if (nlmh .gt. nlmbx) call rxi('augmbl: need nlmbx',nlmh)
-          if (nlmh .gt. nlma .and. ia.eq.ib)
+          do  ik = 1, nkapi
+            nlmh = (lh(ik)+1)**2
+            if (nlmh .gt. nlmbx) call rxi('augmbl: need nlmbx',nlmh)
+            if (nlmh .gt. nlma .and. ia.eq.ib)
      .      call rx('augmbl: nlmh.gt.nlma')
-          if (mode .eq. 0.or.mode .eq. 2) then
-            call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
+            if (mode .eq. 0.or.mode .eq. 2) then
+              call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
      .      nlma,kmax,nlma,cg,indxcg,jcg,cy,slat,b0)
-          elseif (mode .eq. 1) then
-            call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
+            elseif (mode .eq. 1) then
+              call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
      .      nlma,kmax,nlmbx,nlma,cg,indxcg,jcg,cy,slat,b0,
      .      db0)
-          else
-            call rxi('bfactor: bad mode',mode)
-          endif
+            else
+              call rxi('bfactor: bad mode',mode)
+            endif
 
 #ifndef ALL3C
-          if (ib .eq. ia) then
-            call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)
-            call paugq2(kmax,nlmh,nlma,bos,b0)
-          endif
+            if (ib .eq. ia) then
+              call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)
+              call paugq2(kmax,nlmh,nlma,bos,b0)
+            endif
 #endif
 
 C         Note: indices of b are ordered differently by mode (see Outputs)
-          if (mode .eq. 0) then
-            call paugq1(kmax,nlma,kmax,ik,norb,ltab,ktab,rsmh,offl,
+            if (mode .eq. 0) then
+              call paugq1(kmax,nlma,kmax,ik,norb,ltab,ktab,rsmh,offl,
      .        b0,b)
-          elseif (mode .eq. 1) then
-            call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
+            elseif (mode .eq. 1) then
+              call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
      .        nlma,kmax,b0,db0,b,db)
-          elseif (mode .eq. 2) then
-            call prlcb1(0,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
+            elseif (mode .eq. 2) then
+              call prlcb1(0,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
      .        nlma,kmax,b0,xx,b,xx)
-          endif
+            endif
+          enddo
         enddo
-      enddo
-      deallocate(b0,bos)
-      if (mode .eq. 1) deallocate(db0)
+        deallocate(b0,bos)
+        if (mode .eq. 1) deallocate(db0)
       endif
 
       call paugqp(mode,kmax,nlma,kmax,ndimh,napw,igapw,alat,qlat,srvol,
@@ -183,7 +183,7 @@ C       call zprm('b mode 1 or 2',2,b,ndimh,ndimh,(kmax+1)*nlma)
       call rx('bstrux requires F90')
 #endif
 Cgetarg       end
-       end subroutine bstrux 
+      end subroutine bstrux
 
 
       subroutine paugq1(kmax,nlma,k0,ik,norb,ltab,ktab,rsmh,offl,b0,b)
@@ -250,7 +250,7 @@ C         i1 = index to hamiltonian offset
       enddo
 
 Cgetarg       end
-       end subroutine paugq1 
+      end subroutine paugq1
 
 
       subroutine paugqp(mode,kmax,nlma,k0,ndimh,napw,igapw,alat,qlat,
@@ -324,60 +324,60 @@ c     fac2l(l)=(2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,344594
         srm1l = 1
 
         if (mode .eq. 0) then
-        do  l = 0, lmxa
-          do  m = 1, 2*l+1
-            ilm = ilm + 1
-            facilm = srm1l*yl(ilm)
-            fac = fac2l(l+1)/rsmal/fpi
-            qk = 1
-            do  k = 0, kmax
-              pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
-              gfourier = qk*facilm*facexp ! Eq. 5.17
-              b0(k,ilm,ig+nlmto) = gfourier/pgint/srvol*phase
-              fac = fac * 4/rsma**2
-              qk = -qpg2 * qk
+          do  l = 0, lmxa
+            do  m = 1, 2*l+1
+              ilm = ilm + 1
+              facilm = srm1l*yl(ilm)
+              fac = fac2l(l+1)/rsmal/fpi
+              qk = 1
+              do  k = 0, kmax
+                pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
+                gfourier = qk*facilm*facexp ! Eq. 5.17
+                b0(k,ilm,ig+nlmto) = gfourier/pgint/srvol*phase
+                fac = fac * 4/rsma**2
+                qk = -qpg2 * qk
+              enddo
             enddo
+            rsmal = rsmal*rsma
+            srm1l = srm1l * srm1
           enddo
-          rsmal = rsmal*rsma
-          srm1l = srm1l * srm1
-        enddo
 
         elseif (mode .eq. 1 .or. mode .eq. 2) then
-        do  l = 0, lmxa
-          do  m = 1, 2*l+1
-            ilm = ilm + 1
-            facilm = srm1l*yl(ilm)
-            fac = fac2l(l+1)/rsmal/fpi
-            qk = 1
-            if (mode .eq. 1) then
-              do  k = 0, kmax
-                pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
-                gfourier = qk*facilm*facexp ! Eq.5.17
-                b = gfourier/pgint/srvol*phase
-                b1(ig+nlmto,ilm,k) = b
-                db(ig+nlmto,ilm,k,1) = -srm1*qpg(1) * b
-                db(ig+nlmto,ilm,k,2) = -srm1*qpg(2) * b
-                db(ig+nlmto,ilm,k,3) = -srm1*qpg(3) * b
-                fac = fac * 4/rsma**2
-                qk = -qpg2 * qk
-              enddo
-            else
-              do  k = 0, kmax
-                pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
-                gfourier = qk*facilm*facexp ! Eq.5.17
-                b = gfourier/pgint/srvol*phase
-                b1(ig+nlmto,ilm,k) = b
-                fac = fac * 4/rsma**2
-                qk = -qpg2 * qk
-              enddo
-            endif
+          do  l = 0, lmxa
+            do  m = 1, 2*l+1
+              ilm = ilm + 1
+              facilm = srm1l*yl(ilm)
+              fac = fac2l(l+1)/rsmal/fpi
+              qk = 1
+              if (mode .eq. 1) then
+                do  k = 0, kmax
+                  pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
+                  gfourier = qk*facilm*facexp ! Eq.5.17
+                  b = gfourier/pgint/srvol*phase
+                  b1(ig+nlmto,ilm,k) = b
+                  db(ig+nlmto,ilm,k,1) = -srm1*qpg(1) * b
+                  db(ig+nlmto,ilm,k,2) = -srm1*qpg(2) * b
+                  db(ig+nlmto,ilm,k,3) = -srm1*qpg(3) * b
+                  fac = fac * 4/rsma**2
+                  qk = -qpg2 * qk
+                enddo
+              else
+                do  k = 0, kmax
+                  pgint =  dfac(k)*fac        ! Eq. 12.8 in JMP39 3393
+                  gfourier = qk*facilm*facexp ! Eq.5.17
+                  b = gfourier/pgint/srvol*phase
+                  b1(ig+nlmto,ilm,k) = b
+                  fac = fac * 4/rsma**2
+                  qk = -qpg2 * qk
+                enddo
+              endif
+            enddo
+            rsmal = rsmal*rsma
+            srm1l = srm1l * srm1
           enddo
-          rsmal = rsmal*rsma
-          srm1l = srm1l * srm1
-        enddo
 
         else
-        call rxi('paugqp: bad mode',mode)
+          call rxi('paugqp: bad mode',mode)
         endif
 
 
@@ -443,7 +443,7 @@ C     deallocate(fac2l,yl,bpw)
 #endif
 
 Cgetarg       end
-       end subroutine paugqp 
+      end subroutine paugqp
 
 
       subroutine paugq2(kmax,nlmh,nlma,bos,b0)
@@ -475,7 +475,7 @@ C ... Local parameters
         enddo
       enddo
 Cgetarg       end
-       end subroutine paugq2 
+      end subroutine paugq2
 
 
       subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
@@ -546,7 +546,7 @@ C     .      ' start=',i4,' stop=',i4)
             else
               do  ilma = 1, nlma
                 do  k = 0, kmax
-                   b(i1,ilma,k) =    b0(k,ilma,ilmb)
+                  b(i1,ilma,k) =    b0(k,ilma,ilmb)
                   db(i1,ilma,k,1) = db0(k,ilma,ilmb,1)
                   db(i1,ilma,k,2) = db0(k,ilma,ilmb,2)
                   db(i1,ilma,k,3) = db0(k,ilma,ilmb,3)
@@ -557,6 +557,6 @@ C     .      ' start=',i4,' stop=',i4)
         endif
       enddo
 Cgetarg       end
-       end subroutine prlcb1 
+      end subroutine prlcb1
 
 

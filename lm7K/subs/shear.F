@@ -35,21 +35,21 @@ C ... Local parameters
 
 C ... Shear plat, tau
       if (nbas .gt. 0) then
-      if (iprint() .ge. 40) then
-        write (stdo,10) plat
-        write (stdo,20)
-        write (stdo,30) ((tau(i,j),i=1,3),j=1,nbas)
-        write (stdo,40) s
-      endif
-      call dmpy(s,3,1,plat,3,1,b,3,1,3,3,3)
-      call dcopy(9,b,1,plat,1)
-      call dmpy(s,3,1,tau,3,1,t,3,1,3,nbas,3)
-      call dcopy(3*nbas,t,1,tau,1)
-      if (iprint() .ge. 40) then
-        write (stdo,10) plat
-        write (stdo,20)
-        write (stdo,30) ((tau(i,j),i=1,3),j=1,nbas)
-      endif
+        if (iprint() .ge. 40) then
+          write (stdo,10) plat
+          write (stdo,20)
+          write (stdo,30) ((tau(i,j),i=1,3),j=1,nbas)
+          write (stdo,40) s
+        endif
+        call dmpy(s,3,1,plat,3,1,b,3,1,3,3,3)
+        call dcopy(9,b,1,plat,1)
+        call dmpy(s,3,1,tau,3,1,t,3,1,3,nbas,3)
+        call dcopy(3*nbas,t,1,tau,1)
+        if (iprint() .ge. 40) then
+          write (stdo,10) plat
+          write (stdo,20)
+          write (stdo,30) ((tau(i,j),i=1,3),j=1,nbas)
+        endif
       endif
 
       call xxxse(s,e)
@@ -119,6 +119,6 @@ C     implicit none
         ind(2,n) = j
         x(n) = xx
       endif
-      end  
+      end
 
 

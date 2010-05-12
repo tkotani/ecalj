@@ -109,7 +109,7 @@ C --- Printout ---
       j = min(ng,300)
       if (iprint() .ge. 102) j = ng
       nstar = 0
-      write(stdo,252) 
+      write(stdo,252)
   252 format(//'   elt     no           vector                phase')
       do  50  i0 = 1, j
         if (ips0(i0) .eq. i0) then

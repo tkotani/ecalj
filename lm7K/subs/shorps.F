@@ -16,7 +16,7 @@ Cr Remarks
 Cr   pos = f . plat, with f = integer + fraction for each plat.
 Cr   Integer part according to mode.
 Cu Updates
-Cu   09 Jan 09 Do not change basis vectors if they exactly fall 
+Cu   09 Jan 09 Do not change basis vectors if they exactly fall
 Cu             on the cell boundary
 Cu   10 Apr 02 Patch to handle mixed boundary conditions
 C ----------------------------------------------------------------
@@ -43,23 +43,24 @@ C ... qlat = (plat^-1)^T so that qlat^T . plat = 1
 C   --- Reduce to unit cell centered at or near origin ---
         do  12  i = 1, 3
 C   ... x0 is projection of pin along plat(i)
-        x0 = pin(1,ib)*qlat(1,i)+pin(2,ib)*qlat(2,i)+pin(3,ib)*qlat(3,i)
-        if (mode(i) .le. 0) then
-          x(i) = x0
-        else
-c   ... leave basis vectors intact if |pin(i,ib)| = 0.5 
-          if (dabs(x0) .le. 0.5d0+tol) then
-            xx = 0d0
+          x0 = pin(1,ib)*qlat(1,i)+pin(2,ib)*qlat(2,i)+pin(3,ib)*qlat(3,i)
+          if (mode(i) .le. 0) then
+            x(i) = x0
           else
-            xx = idnint(x0)
-          endif
+c   ... leave basis vectors intact if |pin(i,ib)| = 0.5
+            if (dabs(x0) .le. 0.5d0+tol) then
+              xx = 0d0
+            else
+              xx = idnint(x0)
+            endif
 C     ... first octant for mode=1
-          if (mode(i) .eq. 1 .and. x0-xx .lt. -tol) xx = xx-1
-          x(i) = x0-xx
-        endif
+            if (mode(i) .eq. 1 .and. x0-xx .lt. -tol) xx = xx-1
+            x(i) = x0-xx
+          endif
    12   continue
         do  14  m = 1, 3
-   14   pout(m,ib) = x(1)*plat(m,1) + x(2)*plat(m,2) + x(3)*plat(m,3)
+          pout(m,ib) = x(1)*plat(m,1) + x(2)*plat(m,2) + x(3)*plat(m,3)
+   14   continue
 
 C   --- Try shortening by adding +/- lattice vectors ---
         j1max = 1
@@ -76,7 +77,8 @@ C   --- Try shortening by adding +/- lattice vectors ---
 
 C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
           do  17  i = 1, 3
-   17     x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
+            x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
+   17     continue
           a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
           ap = pout(1,ib)*x(1) + pout(2,ib)*x(2) + pout(3,ib)*x(3)
           if (a2+2*ap .lt. amin) then
@@ -193,7 +195,8 @@ C mc posf pos -- -t plat -t -i -x
 
       call mkqlat(plat,qlat,xx)
       do  10  i = 1, 48
-   10 call shorbz(pos(1,i),pos2(1,i),plat,qlat)
+        call shorbz(pos(1,i),pos2(1,i),plat,qlat)
+   10 continue
 
       call prmx('from shorbz',pos2,3,3,48)
       end
@@ -224,7 +227,8 @@ C Check special case in which a bug fix, mixed boundary conditions
 
       call mkqlat(plat,qlat,xx)
       do  10  i = 1, 1
-   10 call shorbz(pos(1,i),pos2(1,i),plat,qlat)
+        call shorbz(pos(1,i),pos2(1,i),plat,qlat)
+   10 continue
       dd2 = dsqrt(pos2(1,1)**2 + pos2(2,1)**2 + pos2(3,1)**2)
       print *, dd1, dd2
 

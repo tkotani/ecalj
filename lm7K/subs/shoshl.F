@@ -63,13 +63,13 @@ C Local parameters
       double precision avwsr,avw,range,xx,stdo
 Cdelw1 do not change  [['undef', 'wref'], 'olstc', 'shoshl']
 Cdelw1       integer owk,ontab,ortab,olstc,olst1,olst2,odist,omark
-       integer:: ontab , olstc 
-       real(8) ,allocatable :: rv_w_owk(:)
-       real(8) ,allocatable :: rv_w_ortab(:)
-       integer ,allocatable :: iv_w_olst1(:)
-       integer ,allocatable :: iv_w_olst2(:)
-       real(8) ,allocatable :: rv_w_odist(:)
-       real(8) ,allocatable :: rv_w_omark(:)
+      integer:: ontab , olstc
+      real(8) ,allocatable :: rv_w_owk(:)
+      real(8) ,allocatable :: rv_w_ortab(:)
+      integer ,allocatable :: iv_w_olst1(:)
+      integer ,allocatable :: iv_w_olst2(:)
+      real(8) ,allocatable :: rv_w_odist(:)
+      real(8) ,allocatable :: rv_w_omark(:)
 
 Cdelw1 do not change  [['undef', 'wref', 'redef'], 'oiax', 'shoshl']
       integer npr(2),mxnbr,ib,ic,oiax,iclbsj,j,j1,j2,lstyle,ival,
@@ -96,25 +96,25 @@ Cdelw1 do not change olstc because of ['undef', 'wref']
       nlst1 = 0
       nlst2 = 0
 Cdelw1       call defi(olst1,nbas)
-       allocate(iv_w_olst1(nbas))
+      allocate(iv_w_olst1(nbas))
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_olst1(:)=0
 
 Cdelw1       call defi(olst2,nbas)
-       allocate(iv_w_olst2(nbas))
+      allocate(iv_w_olst2(nbas))
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_olst2(:)=0
 
       lnn = 0
       ldisp = 0
 Cdelw1       call defrr(odist,nbas*3)
-       allocate(rv_w_odist(nbas*3))
+      allocate(rv_w_odist(nbas*3))
 Ctakao_ZeroClear_NotRequiered        if (nbas*3<0) rv_w_odist(:)=0.0d0
 
 Cdelw1       call defrr(omark,nbas)
-       allocate(rv_w_omark(nbas))
+      allocate(rv_w_omark(nbas))
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) rv_w_omark(:)=0.0d0
 
 Cdelw1       call dcopy(nbas*3,bas,1,w(odist),1)
-       call dcopy ( nbas * 3 , bas , 1 , rv_w_odist , 1 ) 
+      call dcopy ( nbas * 3 , bas , 1 , rv_w_odist , 1 )
 
 
       if (sopts .ne. ' ') then
@@ -151,8 +151,8 @@ C         print *, sopts(j1:j2)
 
           elseif (sopts(j1:j1+4) .eq. 'disp=')  then
 Cdelw1             call iopos(.false.,-1,sopts(j1+5:j2),nbas,w(odist))
-             call iopos ( .false. , - 1 , sopts ( j1 + 5:j2 ) , nbas , rv_w_odist 
-     .       ) 
+            call iopos ( .false. , - 1 , sopts ( j1 + 5:j2 ) , nbas , rv_w_odist 
+     .       )
 
             ldisp = 1
 
@@ -165,16 +165,16 @@ Cdelw1             call iopos(.false.,-1,sopts(j1+5:j2),nbas,w(odist))
           elseif (sopts(j1:j1+4) .eq. 'sites')  then
 Cdelw1             call baslst(0,11,sopts(j1+5:),j,ips,nbas,slabl,z,0,
 Cdelw1      .        ' ',w,nlst1,w(olst1))
-             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
-     .       , z , 0 , ' ' , w , nlst1 , iv_w_olst1 ) 
+            call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
+     .       , z , 0 , ' ' , w , nlst1 , iv_w_olst1 )
 
             j2 = j1+5+j-2
 
           elseif (sopts(j1:j1+4) .eq. 'pairs')  then
 Cdelw1             call baslst(0,11,sopts(j1+5:),j,ips,nbas,slabl,z,0,
 Cdelw1      .        ' ',w,nlst2,w(olst2))
-             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
-     .       , z , 0 , ' ' , w , nlst2 , iv_w_olst2 ) 
+            call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
+     .       , z , 0 , ' ' , w , nlst2 , iv_w_olst2 )
 
             j2 = j1+5+j-2
 
@@ -198,7 +198,7 @@ Cdelw1 do not change oiax because of ['undef', 'wref', 'redef']
      .    -1,3,-1,w,nttab,ontab,oiax,mxcsiz)
         call poppr
 Cdelw1         call defrr(ortab,3*nttab)
-         allocate(rv_w_ortab(3*nttab))
+        allocate(rv_w_ortab(3*nttab))
 Ctakao_ZeroClear_NotRequiered          if (3*nttab<0) rv_w_ortab(:)=0.0d0
 
 Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 146
@@ -206,8 +206,8 @@ Cdelw1 do not change oiax because of ['undef', 'wref', 'redef']
 Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 146
 Cdelw1 do not change oiax because of ['undef', 'wref', 'redef']
 Cdelw1         call mkrtab(000,1d0,plat,bas,w(oiax),nttab,bas,w(ortab))
-         call mkrtab ( 000 , 1d0 , plat , bas , w ( oiax ) , nttab , bas 
-     .   , rv_w_ortab ) 
+        call mkrtab ( 000 , 1d0 , plat , bas , w ( oiax ) , nttab , bas 
+     .   , rv_w_ortab )
 
 C       if (ldisp .eq. 1) ltab = 2
 Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 148
@@ -217,29 +217,29 @@ Cdelw1 do not change oiax because of ['undef', 'wref', 'redef']
 Cdelw1         call psho1(ldisp*10+ltab,lnn,w(oiax),nbas,nttab,nlst1,w(olst1),
 Cdelw1      .    nlst2,w(olst2),w(ortab),plat,bas,w(odist),w(omark),ipc,dclabl,
 Cdelw1      .    ifi)
-         call psho1 ( ldisp * 10 + ltab , lnn , w ( oiax ) , nbas , nttab 
+        call psho1 ( ldisp * 10 + ltab , lnn , w ( oiax ) , nbas , nttab 
      .   , nlst1 , iv_w_olst1 , nlst2 , iv_w_olst2 , rv_w_ortab , plat 
-     .   , bas , rv_w_odist , rv_w_omark , ipc , dclabl , ifi ) 
+     .   , bas , rv_w_odist , rv_w_omark , ipc , dclabl , ifi )
 
-Cdelw1 rlse name= ontab old_list= olst1 olst2 odist omark ortab 
+Cdelw1 rlse name= ontab old_list= olst1 olst2 odist omark ortab
 
-Cki#error ERROR, try to release name= ontab ,but list does not have  ontab at linenumber= 151 list= olst1 olst2 odist omark ortab 
+Cki#error ERROR, try to release name= ontab ,but list does not have  ontab at linenumber= 151 list= olst1 olst2 odist omark ortab
 
-Cdelw1 rlse name= ontab new_list= olst1 olst2 odist omark ortab 
+Cdelw1 rlse name= ontab new_list= olst1 olst2 odist omark ortab
 Cdelw1         call rlse(ontab)
 
 Cki#error, have return with len(w_varlist)>0 at line 152
-Cdelw1 w_varlist remains: olst1 olst2 odist omark ortab 
+Cdelw1 w_varlist remains: olst1 olst2 odist omark ortab
 Cdelw1 w_varlistundel: [oiax olstc]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [olst1 olst2 odist omark ortab]
 Cdelw1         return
-         if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
-         if (allocated(rv_w_omark)) deallocate(rv_w_omark)
-         if (allocated(rv_w_odist)) deallocate(rv_w_odist)
-         if (allocated(iv_w_olst2)) deallocate(iv_w_olst2)
-         if (allocated(iv_w_olst1)) deallocate(iv_w_olst1)
-         return 
+        if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
+        if (allocated(rv_w_omark)) deallocate(rv_w_omark)
+        if (allocated(rv_w_odist)) deallocate(rv_w_odist)
+        if (allocated(iv_w_olst2)) deallocate(iv_w_olst2)
+        if (allocated(iv_w_olst1)) deallocate(iv_w_olst1)
+        return
 
       endif
 
@@ -253,7 +253,7 @@ Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: oiax unde
 Cdelw1 do not change oiax because of ['undef', 'wref', 'redef']
       call defi(oiax,niax*mxnbr)
 Cdelw1       call defdr(owk,mxnbr)
-       allocate(rv_w_owk(mxnbr))
+      allocate(rv_w_owk(mxnbr))
 Ctakao_ZeroClear_NotRequiered        if (mxnbr<0) rv_w_owk(:)=0.0d0
 
       avw = avwsr(plat,1d0,xx,nbas)
@@ -263,18 +263,18 @@ c     call pshprt(50)
         ib = iclbsj(ic,ipc,nbas,1)
         if (nlst1 .gt. 0) then
 Cdelw1           call hunti(w(olst1),nlst1,ib,0,j)
-           call hunti ( iv_w_olst1 , nlst1 , ib , 0 , j ) 
+          call hunti ( iv_w_olst1 , nlst1 , ib , 0 , j )
 
 Cdelw1           if (ival(w(olst1),j+1) .ne. ib) goto 20
-           if ( ival ( iv_w_olst1 , j + 1 ) .ne. ib ) goto 20 
+          if ( ival ( iv_w_olst1 , j + 1 ) .ne. ib ) goto 20
 
         endif
 Cdelw1 do not change oiax because of ['undef', 'wref', 'redef']
 Cdelw1 do not change oiax because of ['undef', 'wref', 'redef']
 Cdelw1         call nghbor(nbas,plat,bas,range,range,ib,
 Cdelw1      .              mxnbr,npr,w(oiax),w(owk))
-         call nghbor ( nbas , plat , bas , range , range , ib , mxnbr 
-     .   , npr , w ( oiax ) , rv_w_owk ) 
+        call nghbor ( nbas , plat , bas , range , range , ib , mxnbr 
+     .   , npr , w ( oiax ) , rv_w_owk )
 
 Cdelw1 do not change oiax because of ['undef', 'wref', 'redef']
 Cdelw1 warning(1) , probably  olstc  is not defined yet at linenumber= 174
@@ -282,40 +282,40 @@ Cdelw1 do not change olstc because of ['undef', 'wref']
         call xxsho(npr(1),nbas,plat,bas,w(oiax),ipc,dclabl,nlstc,
      .    w(olstc),lves,ves,leula,eula,z)
    20 continue
-Cdelw1 rlse name= oiax old_list= ortab omark odist olst2 olst1 oiax owk 
-Cdelw1 rlse name= oiax new_list= ortab omark odist olst2 olst1 
+Cdelw1 rlse name= oiax old_list= ortab omark odist olst2 olst1 oiax owk
+Cdelw1 rlse name= oiax new_list= ortab omark odist olst2 olst1
 Cdelw1 not deallocate oiax because of [undef wref redef]
 Cdelw1       call rlse(oiax)
-       if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-       call rlse(oiax)
+      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+      call rlse(oiax)
 
 Cki#error, have return with len(w_varlist)>0 at line 178
-Cdelw1 w_varlist remains: ortab omark odist olst2 olst1 
+Cdelw1 w_varlist remains: ortab omark odist olst2 olst1
 Cdelw1 w_varlistundel: [oiax olstc]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [ortab omark odist olst2 olst1]
 Cdelw1       return
-       if (allocated(iv_w_olst1)) deallocate(iv_w_olst1)
-       if (allocated(iv_w_olst2)) deallocate(iv_w_olst2)
-       if (allocated(rv_w_odist)) deallocate(rv_w_odist)
-       if (allocated(rv_w_omark)) deallocate(rv_w_omark)
-       if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
-       return 
+      if (allocated(iv_w_olst1)) deallocate(iv_w_olst1)
+      if (allocated(iv_w_olst2)) deallocate(iv_w_olst2)
+      if (allocated(rv_w_odist)) deallocate(rv_w_odist)
+      if (allocated(rv_w_omark)) deallocate(rv_w_omark)
+      if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
+      return
 
 
   999 call rxs('shoshl: failed to parse ',sopts)
 Cgetarg       end
-Cdelw1 w_varlist remains: olst1 olst2 odist omark ortab 
+Cdelw1 w_varlist remains: olst1 olst2 odist omark ortab
 Cdelw1 w_varlistundel: [oiax olstc]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [olst1 olst2 odist omark ortab]
-        if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
-        if (allocated(rv_w_omark)) deallocate(rv_w_omark)
-        if (allocated(rv_w_odist)) deallocate(rv_w_odist)
-        if (allocated(iv_w_olst2)) deallocate(iv_w_olst2)
-        if (allocated(iv_w_olst1)) deallocate(iv_w_olst1)
+      if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
+      if (allocated(rv_w_omark)) deallocate(rv_w_omark)
+      if (allocated(rv_w_odist)) deallocate(rv_w_odist)
+      if (allocated(iv_w_olst2)) deallocate(iv_w_olst2)
+      if (allocated(iv_w_olst1)) deallocate(iv_w_olst1)
 
-       end subroutine shoshl 
+      end subroutine shoshl
 
       subroutine xxsho(npr,nbas,plat,bas,iax,ipc,dclabl,nlstc,lstc,lves,
      .  ves,leul,eula,z)
@@ -446,9 +446,9 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine xxsho 
+      end subroutine xxsho
 
-       subroutine shoang(sopts,nbas,bas,plat,mxnbr0,slabl,ips)
+      subroutine shoang(sopts,nbas,bas,plat,mxnbr0,slabl,ips)
 
 C- Print bond angles
 C ----------------------------------------------------------------
@@ -480,15 +480,15 @@ Cdelw1 do not change  [['wref'], 'oslist', 'shoang']
 Cdelw1       integer npr(2),mxnbr,ib,nshell,nmxshl,niax,j,j1,j2,
 Cdelw1      .  nspec,mxint,oiax,owk,onum,oang,od,nsites,oslist,nbonds,oblist,
 Cdelw1      .  ilst,parg,m,iv(10),ilast
-       integer:: npr(2) , mxnbr , ib , nshell , nmxshl , niax , j , 
+      integer:: npr(2) , mxnbr , ib , nshell , nmxshl , niax , j , 
      . j1 , j2 , nspec , mxint , nsites , oslist , nbonds , ilst , parg 
-     . , m , iv(10) , ilast 
-       integer ,allocatable :: iv_w_oiax(:)
-       real(8) ,allocatable :: rv_w_owk(:)
-       integer ,allocatable :: iv_w_onum(:)
-       real(8) ,allocatable :: rv_w_oang(:)
-       real(8) ,allocatable :: rv_w_od(:)
-       integer ,allocatable :: iv_w_oblist(:)
+     . , m , iv(10) , ilast
+      integer ,allocatable :: iv_w_oiax(:)
+      real(8) ,allocatable :: rv_w_owk(:)
+      integer ,allocatable :: iv_w_onum(:)
+      real(8) ,allocatable :: rv_w_oang(:)
+      real(8) ,allocatable :: rv_w_od(:)
+      integer ,allocatable :: iv_w_oblist(:)
 
       parameter (niax=10)
       character dc*1
@@ -506,7 +506,7 @@ C ... Setup
 Cdelw1 do not change oslist because of ['wref']
       call defi(oslist,nbas)
 Cdelw1       call defi(oblist,nbas)
-       allocate(iv_w_oblist(nbas))
+      allocate(iv_w_oblist(nbas))
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oblist(:)=0
 
 
@@ -542,8 +542,8 @@ C         Bond list
             if (sopts(j1+5:j1+5) .eq. '=') sopts(j1+5:j1+5) = dc
 Cdelw1             call baslst(0,10,sopts(j1+5:),ilast,ips,nbas,slabl,zz,0,' ',
 Cdelw1      .        xx,nbonds,w(oblist))
-             call baslst ( 0 , 10 , sopts ( j1 + 5: ) , ilast , ips , nbas 
-     .       , slabl , zz , 0 , ' ' , xx , nbonds , iv_w_oblist ) 
+            call baslst ( 0 , 10 , sopts ( j1 + 5: ) , ilast , ips , nbas 
+     .       , slabl , zz , 0 , ' ' , xx , nbonds , iv_w_oblist )
 
           endif
           goto 10
@@ -557,11 +557,11 @@ Cdelw1      .        xx,nbonds,w(oblist))
         mxnbr = mxnbr0
       endif
 Cdelw1       call defi(oiax,niax*mxnbr)
-       allocate(iv_w_oiax(niax*mxnbr))
+      allocate(iv_w_oiax(niax*mxnbr))
 Ctakao_ZeroClear_NotRequiered        if (niax*mxnbr<0) iv_w_oiax(:)=0
 
 Cdelw1       call defdr(owk,mxnbr)
-       allocate(rv_w_owk(mxnbr))
+      allocate(rv_w_owk(mxnbr))
 Ctakao_ZeroClear_NotRequiered        if (mxnbr<0) rv_w_owk(:)=0.0d0
 
       avw = avwsr(plat,1d0,xx,nbas)
@@ -579,62 +579,62 @@ C   ... Get neighbor lists
 
 Cdelw1         call nghbor(nbas,plat,bas,range*avw,range*avw,ib,
 Cdelw1      .              mxnbr,npr,w(oiax),w(owk))
-         call nghbor ( nbas , plat , bas , range * avw , range * avw , 
-     .   ib , mxnbr , npr , iv_w_oiax , rv_w_owk ) 
+        call nghbor ( nbas , plat , bas , range * avw , range * avw , 
+     .   ib , mxnbr , npr , iv_w_oiax , rv_w_owk )
 
 
 C   ... Get shell dimensions
 Cdelw1         call defi(onum,-nspec*npr(1))
-         allocate(iv_w_onum(abs(-nspec*npr(1))))
-         if (-nspec*npr(1)<0) iv_w_onum(:)=0
+        allocate(iv_w_onum(abs(-nspec*npr(1))))
+        if (-nspec*npr(1)<0) iv_w_onum(:)=0
 
 Cdelw1         call pvang1(npr(1),nbas,plat,bas,w(oiax),ips,w(onum),nshell,
 Cdelw1      .    nmxshl)
-         call pvang1 ( npr ( 1 ) , nbas , plat , bas , iv_w_oiax , ips 
-     .   , iv_w_onum , nshell , nmxshl ) 
+        call pvang1 ( npr ( 1 ) , nbas , plat , bas , iv_w_oiax , ips 
+     .   , iv_w_onum , nshell , nmxshl )
 
-Cdelw1 rlse name= onum old_list= oslist oblist oiax owk onum 
-Cdelw1 rlse name= onum new_list= oslist oblist oiax owk 
+Cdelw1 rlse name= onum old_list= oslist oblist oiax owk onum
+Cdelw1 rlse name= onum new_list= oslist oblist oiax owk
 Cdelw1         call rlse(onum)
-         if (allocated(iv_w_onum)) deallocate(iv_w_onum)
+        if (allocated(iv_w_onum)) deallocate(iv_w_onum)
 
 Cdelw1         call defi(onum, -nspec**2*nshell**2)
-         allocate(iv_w_onum(abs(-nspec**2*nshell**2)))
-         if (-nspec**2*nshell**2<0) iv_w_onum(:)=0
+        allocate(iv_w_onum(abs(-nspec**2*nshell**2)))
+        if (-nspec**2*nshell**2<0) iv_w_onum(:)=0
 
 Cdelw1         call defdr(oang, nspec**2*nshell**2*nmxshl**2)
-         allocate(rv_w_oang(nspec**2*nshell**2*nmxshl**2))
+        allocate(rv_w_oang(nspec**2*nshell**2*nmxshl**2))
 Ctakao_ZeroClear_NotRequiered          if (nspec**2*nshell**2*nmxshl**2<0) rv_w_oang(:)=0.0d0
 
 Cdelw1         call defdr(od,   nshell)
-         allocate(rv_w_od(nshell))
+        allocate(rv_w_od(nshell))
 Ctakao_ZeroClear_NotRequiered          if (nshell<0) rv_w_od(:)=0.0d0
 
 
 C   ... Print bond angles
 Cdelw1         call pvang2(npr(1),nbas,nspec,nshell,nmxshl,plat,bas,w(oiax),
 Cdelw1      .    ips,slabl,nbonds,w(oblist),w(onum),w(oang),w(od))
-         call pvang2 ( npr ( 1 ) , nbas , nspec , nshell , nmxshl , plat 
+        call pvang2 ( npr ( 1 ) , nbas , nspec , nshell , nmxshl , plat 
      .   , bas , iv_w_oiax , ips , slabl , nbonds , iv_w_oblist , iv_w_onum 
-     .   , rv_w_oang , rv_w_od ) 
+     .   , rv_w_oang , rv_w_od )
 
-Cdelw1 rlse name= onum old_list= oslist oblist oiax owk onum oang od 
-Cdelw1 rlse name= onum new_list= oslist oblist oiax owk 
+Cdelw1 rlse name= onum old_list= oslist oblist oiax owk onum oang od
+Cdelw1 rlse name= onum new_list= oslist oblist oiax owk
 Cdelw1         call rlse(onum)
-         if (allocated(rv_w_od)) deallocate(rv_w_od)
-         if (allocated(rv_w_oang)) deallocate(rv_w_oang)
-         if (allocated(iv_w_onum)) deallocate(iv_w_onum)
+        if (allocated(rv_w_od)) deallocate(rv_w_od)
+        if (allocated(rv_w_oang)) deallocate(rv_w_oang)
+        if (allocated(iv_w_onum)) deallocate(iv_w_onum)
 
    31   continue
       enddo
-Cdelw1 rlse name= oslist old_list= oslist oblist oiax owk 
+Cdelw1 rlse name= oslist old_list= oslist oblist oiax owk
 Cdelw1 rlse name= oslist new_list= (None)
 Cdelw1 not deallocate oslist because of [wref]
 Cdelw1       call rlse(oslist)
-       if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-       if (allocated(iv_w_oiax)) deallocate(iv_w_oiax)
-       if (allocated(iv_w_oblist)) deallocate(iv_w_oblist)
-       call rlse(oslist)
+      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+      if (allocated(iv_w_oiax)) deallocate(iv_w_oiax)
+      if (allocated(iv_w_oblist)) deallocate(iv_w_oblist)
+      call rlse(oslist)
 
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [oslist]
@@ -648,7 +648,7 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [oslist]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine shoang 
+      end subroutine shoang
 
 
       subroutine pvang1(npr,nbas,plat,bas,iax,ips,num,nshell,nmxshl)
@@ -699,7 +699,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine pvang1 
+      end subroutine pvang1
 
 
       subroutine pvang2(npr,nbas,nspec,nshell,nmxshl,plat,bas,iax,
@@ -818,7 +818,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine pvang2 
+      end subroutine pvang2
 
       subroutine psho1(ltab,lnn,iax,nbas,nttab,nlst1,lst1,nlst2,lst2,
      .  rtab,plat,pos,pos2,mark,ipc,dclabl,ifi)
@@ -988,7 +988,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine psho1 
+      end subroutine psho1
 
 
 

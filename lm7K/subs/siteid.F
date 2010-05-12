@@ -35,20 +35,21 @@ C     tolerance should be same as ppair4
 C --- Table of absolute positions ---
       nttab = ntab(ncl+1)
       do  10  ic = 1, ncl
-      do  12  ip = ntab(ic)+1, ntab(ic+1)
+        do  12  ip = ntab(ic)+1, ntab(ic+1)
 C       ib = iax(i,ip)
-        jb = iax(2,ip)
-        do  14  ix = 1, 3
-          pos(ix,ip) = bas(ix,jb) + plat(ix,1)*iax(3,ip) +
+          jb = iax(2,ip)
+          do  14  ix = 1, 3
+            pos(ix,ip) = bas(ix,jb) + plat(ix,1)*iax(3,ip) +
      .      plat(ix,2)*iax(4,ip) + plat(ix,3)*iax(5,ip)
-   14   continue
-   12 continue
+   14     continue
+   12   continue
    10 continue
 
 C --- Assign a unique id ---
 C     For cluster ic, iwk(ic)=index to next site in ic needing id
       do  30  ic = 1, ncl
-   30 iwk(ic) = 1
+        iwk(ic) = 1
+   30 continue
       dmatch(1) = 9d9
       dmatch(2) = 9d9
       dmatch(3) = 9d9
@@ -104,7 +105,8 @@ C   ... If no match with previous, increment new id
 
 C    .. Debugging check
       do  38  ic = 1, ncl
-   38 if (iwk(ic)-1 .ne. ntab(ic+1)-ntab(ic)) call rx('bug in siteid')
+        if (iwk(ic)-1 .ne. ntab(ic+1)-ntab(ic)) call rx('bug in siteid')
+   38 continue
 
 C ... Debugging printout
 C      call dvheap(3,nttab,pos,iwk(1),tol,1)

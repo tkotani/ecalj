@@ -170,7 +170,7 @@ C ... Local parameters
         call awrit0('%a,ehk',sout,len(sout),0)
       endif
 
-C ... Write to file list      
+C ... Write to file list
       do  i = 1, 3
         if (getdig(iflst,i-1,2) .ne. 0) then
           if (i .eq. 1) ifi = fopna('SAVE',-1,0)

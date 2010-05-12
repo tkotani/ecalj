@@ -45,24 +45,24 @@ Cr orthorhombic primitive:    (  0  , 1 ,  0  )
 Cr                            (  0  , 0 , c/b )
 Cr
 Cr                            ( a/2b , -1/2 ,  0  )
-Cr orthorhombic C-centred:    ( a/2b ,  1/2 ,  0  )                   
+Cr orthorhombic C-centred:    ( a/2b ,  1/2 ,  0  )
 Cr                            (  0   ,   0  , c/b )
 Cr
-Cr                            ( a/2b ,  0  , -c/2b )                   
+Cr                            ( a/2b ,  0  , -c/2b )
 Cr orthorhombic B-centred:    (  0   ,  1  ,   0   )
 Cr                            ( a/2b ,  0  ,  c/2b )
 Cr
-Cr                            ( a/b ,  0  ,   0   )                   
+Cr                            ( a/b ,  0  ,   0   )
 Cr orthorhombic A-centred:    (  0  , 1/2 , -c/2b )
 Cr                            (  0  , 1/2 ,  c/2c )
 Cr
-Cr                            ( -a/2b ,  1/2 ,  c/2b) 
-Cr orthorhombic body-centred: (  a/2b , -1/2 ,  c/2b) 
-Cr                            (  a/2b ,  1/2 , -c/2b) 
+Cr                            ( -a/2b ,  1/2 ,  c/2b)
+Cr orthorhombic body-centred: (  a/2b , -1/2 ,  c/2b)
+Cr                            (  a/2b ,  1/2 , -c/2b)
 Cr
-Cr                            (  0   , 1/2 , c/2b) 
-Cr orthorhombic face-centred: ( a/2b ,  0  , c/2b) 
-Cr                            ( a/2b , 1/2  , 0  ) 
+Cr                            (  0   , 1/2 , c/2b)
+Cr orthorhombic face-centred: ( a/2b ,  0  , c/2b)
+Cr                            ( a/2b , 1/2  , 0  )
 Cr
 Cr                            ( 1 , 0 , 0   )
 Cr tetragonal primitive:      ( 0 , 1 , 0   )
@@ -84,13 +84,13 @@ Cr                            ( 1 , 0 , 0 )
 Cr cubic primitive:           ( 0 , 1 , 0 )
 Cr                            ( 0 , 0 , 1 )
 Cr
-Cr                            ( -1/2 ,  1/2 ,  1/2) 
-Cr cubic body-centred:        (  1/2 , -1/2 ,  1/2) 
-Cr                            (  1/2 ,  1/2 , -1/2) 
+Cr                            ( -1/2 ,  1/2 ,  1/2)
+Cr cubic body-centred:        (  1/2 , -1/2 ,  1/2)
+Cr                            (  1/2 ,  1/2 , -1/2)
 Cr
-Cr                            (  0  , 1/2 , 1/2) 
-Cr  cubic face-centred:       ( 1/2 ,  0  , 1/2) 
-Cr                            ( 1/2 , 1/2 ,  0 ) 
+Cr                            (  0  , 1/2 , 1/2)
+Cr  cubic face-centred:       ( 1/2 ,  0  , 1/2)
+Cr                            ( 1/2 , 1/2 ,  0 )
 Cr
 C ----------------------------------------------------------------------
 C     implicit none
@@ -161,7 +161,7 @@ C --- Choose b as length unit
 
       wk=1.d0-dcos(al)**2-dcos(be)**2-dcos(ga)**2
      .   +2.d0*dcos(al)*dcos(be)*dcos(ga)
-      if (wk.le.0d0) call rx('ROPLAT: impossible angles') 
+      if (wk.le.0d0) call rx('ROPLAT: impossible angles')
       platcv(1)=a1/alat*dsqrt(wk)/dsin(al)
       platcv(2)=a1/alat*dcos(ga)
       platcv(3)=a1/alat*(dcos(be)-dcos(al)*dcos(ga))/dsin(al)
@@ -293,7 +293,7 @@ C --- Printout
      .    prn1,prn2,((platcp(m,k),m=1,3),(qlatcp(m,k),m=1,3),k=1,3)
         if (iprint().gt.50) write(stdo,303)
      .    (1.d0/dsqrt(ddot(3,qlatcp(1,m),1,qlatcp(1,m),1)),m=1,3)
-        
+
       else
         if (iprint().ge.40) write(stdo,302)
 C        if (iprint().ge.50) write(stdo,301)

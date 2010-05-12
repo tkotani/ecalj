@@ -2,8 +2,8 @@ Cgetarg...info...           structure ['fklbl', 'lat', 'slat']
 Cgetarg...info...           use_to_add ['fklbl', 'm_struc_def']
 #define F90 1
       subroutine fklbl(p,rsm,kmax,nlm,k0,cy,slat,fkl)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Bloch sum of smooth Hankels for e=0 and q=(0,0,0).
 C ----------------------------------------------------------------------
@@ -27,8 +27,8 @@ C     implicit none
 C ... Passed parameters
       integer kmax,nlm,k0
 Cgetarg       double precision slat(1),p(3),cy(1),rsm
-       real(8):: p(3) , cy(1) , rsm 
-       type(s_lat)::slat
+      real(8):: p(3) , cy(1) , rsm
+      type(s_lat)::slat
 
       double complex fkl(0:k0,nlm)
 C ... Local parameters
@@ -64,32 +64,32 @@ Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: qlat(9) , real(8) :: slat%qlat 9
 Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
 Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
 Cgetarg...info...           real(8) :: tol , real(8) :: slat%tol 1
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat awald tol vol',slat,awald,tol,vol,0,0)
-       
-       awald=slat%awald
-       tol=slat%tol
-       vol=slat%vol
+
+      awald=slat%awald
+      tol=slat%tol
+      vol=slat%vol
 
 Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
 Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
 Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
 Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
 Cgetarg       call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
-       
-       nkd=slat%nkd
-       nkq=slat%nkq
-       odlv=slat%odlv
-       oqlv=slat%oqlv
+
+      nkd=slat%nkd
+      nkq=slat%nkq
+      odlv=slat%odlv
+      oqlv=slat%oqlv
 
       call shorbz(p,p1,plat,qlat)
       nrx = max(nkd,nkq)
@@ -122,18 +122,18 @@ Cgetarg       call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
 
 C ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
       do  2  ilm = 1, nlm
-      gklsav = fkl(0,ilm)
-      fkl(0,ilm) = fsm(ilm)
+        gklsav = fkl(0,ilm)
+        fkl(0,ilm) = fsm(ilm)
       do  2  k = 1, kmax
-      gklnew = fkl(k,ilm)
-      fkl(k,ilm) = -fpi*gklsav
-      gklsav = gklnew
+        gklnew = fkl(k,ilm)
+        fkl(k,ilm) = -fpi*gklsav
+        gklsav = gklnew
   2   continue
 
 C ... Add extra term to F(k=1,l=0)
       fkl(1,1) = fkl(1,1) + fpi*y0/vol
 
 Cgetarg       end
-       end subroutine fklbl 
+      end subroutine fklbl
 
 

@@ -2,8 +2,8 @@ Cgetarg...info...           structure ['corprm', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['corprm', 'm_struc_def']
       subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,
      .  rfoc,z)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Returns parameters for smooth core+nucleus representation
 C ----------------------------------------------------------------------
@@ -59,8 +59,8 @@ C     implicit none
 C ... Passed parameters
       integer is
 Cgetarg       double precision sspec(1),qcorg,qcorh,qsc,cofg,cofh,ceh,rfoc,z
-       real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z 
-       type(s_spec)::sspec(*)
+      real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
       integer n0,lfoc,orhoca,lmxb,l
@@ -78,11 +78,11 @@ Cgetarg...info...           real(8) :: rfoc , real(8) :: sspec%rfoca 1
 Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
 Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
 Cgetarg       call upack('spec lfoca rfoca qc z',sspec,is,lfoc,rfoc,qc,z)
-       
-       lfoc=sspec(is)%lfoca
-       rfoc=sspec(is)%rfoca
-       qc=sspec(is)%qc
-       z=sspec(is)%z
+
+      lfoc=sspec(is)%lfoca
+      rfoc=sspec(is)%rfoca
+      qc=sspec(is)%qc
+      z=sspec(is)%z
 
 Cgetarg...info...           real(8) :: ccof , real(8) :: sspec%ctail 1
 Cgetarg...info...           real(8) :: ceh , real(8) :: sspec%etail 1
@@ -90,28 +90,28 @@ Cgetarg...info...           real(8) :: stc , real(8) :: sspec%stc 1
 Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
 Cgetarg       call upack('spec ctail etail stc orhoc',sspec,is,ccof,ceh,stc,
 Cgetarg      .  orhoca)
-       
-       ccof=sspec(is)%ctail
-       ceh=sspec(is)%etail
-       stc=sspec(is)%stc
-       orhoca=sspec(is)%orhoc
+
+      ccof=sspec(is)%ctail
+      ceh=sspec(is)%etail
+      stc=sspec(is)%stc
+      orhoca=sspec(is)%orhoc
 
 Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
 Cgetarg...info...           real(8) :: pnu(2*n0) , real(8) :: sspec%p 20
 Cgetarg...info...           real(8) :: pz(2*n0) , real(8) :: sspec%pz 20
 Cgetarg       call upack('spec lmxb p pz',sspec,is,lmxb,pnu,pz,0)
-       
-       lmxb=sspec(is)%lmxb
-       i_copy_size=size(sspec(is)%p) 
-       call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
-       i_copy_size=size(sspec(is)%pz) 
-       call dcopy(i_copy_size,sspec(is)%pz,1,pz,1) 
+
+      lmxb=sspec(is)%lmxb
+      i_copy_size=size(sspec(is)%p)
+      call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
+      i_copy_size=size(sspec(is)%pz)
+      call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
 
 Cgetarg       rmt = dgetss('spec rmt',is,sspec)
-       rmt = (sspec(is)%rmt) 
+      rmt = (sspec(is)%rmt)
 
 Cgetarg       if (rfoc .le. 1d-5) rfoc = dgetss('spec rg',is,sspec)
-       if ( rfoc .le. 1d-5 ) rfoc = (sspec(is)%rg) 
+      if ( rfoc .le. 1d-5 ) rfoc = (sspec(is)%rg)
 
       qsc = 0
       do  l = 0, lmxb
@@ -124,18 +124,18 @@ C ... Scale smoothed hankel coeff for exact spillout charge
 C     q1 = spillout charge in sm. Hankel
 C     q0 = spillout charge in ordinary Hankel
       if (ccof .ne. 0) then
-      call hansmr(rmt,0d0,1/rfoc,x0,1)
-      call hansmr(rmt,ceh,1/rfoc,xi,1)
-      q1 = srfpi/ceh*(-dexp(rfoc**2/4*ceh)
+        call hansmr(rmt,0d0,1/rfoc,x0,1)
+        call hansmr(rmt,ceh,1/rfoc,xi,1)
+        q1 = srfpi/ceh*(-dexp(rfoc**2/4*ceh)
      .   - rmt**3*(xi(1)-dexp(rfoc**2/4*ceh)*x0(1)))
-      rsm = 0.05d0
-      call hansmr(rmt,0d0,1/rsm,x0,1)
-      call hansmr(rmt,ceh,1/rsm,xi,1)
-      q0 = srfpi/ceh*(-dexp(rsm**2/4*ceh)
+        rsm = 0.05d0
+        call hansmr(rmt,0d0,1/rsm,x0,1)
+        call hansmr(rmt,ceh,1/rsm,xi,1)
+        q0 = srfpi/ceh*(-dexp(rsm**2/4*ceh)
      .   - rmt**3*(xi(1)-dexp(rsm**2/4*ceh)*x0(1)))
-      q0 = q0*y0
-      q1 = q1*y0
-      ccof = ccof*q0/q1
+        q0 = q0*y0
+        q1 = q1*y0
+        ccof = ccof*q0/q1
       endif
 
 C ... Set gaussian and hankel charges
@@ -154,6 +154,6 @@ c      write (6,352) is,qcorg,qcorh,cofg,cofh
 c  352 format(' spec',i3,'  qcorg,qcorh=',2f10.6,'  cofg,cofh=',2f12.4)
 
 Cgetarg       end
-       end subroutine corprm 
+      end subroutine corprm
 
 

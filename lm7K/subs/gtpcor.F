@@ -1,8 +1,8 @@
 Cgetarg...info...           structure ['gtpcor', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['gtpcor', 'm_struc_def']
       subroutine gtpcor(sspec,is,kcore,lcore,qcore)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Unpacks parameters related to partial core occpation
 C ----------------------------------------------------------------------
@@ -20,8 +20,8 @@ C     implicit none
 C ... Passed parameters
       integer is,kcore,lcore
 Cgetarg       double precision sspec(1),qcore(2)
-       real(8):: qcore(2) 
-       type(s_spec)::sspec(*)
+      real(8):: qcore(2)
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
       character*8 ch
@@ -31,16 +31,16 @@ C ... Local parameters
       qcore(1) = 0
       qcore(2) = 0
 Cgetarg       call spacks(0,'spec coreh',sspec,ch,is,is)
-       do i_spacks=is,is 
-       call spacks_copy('u',sspec(i_spacks)%coreh,is,is,ch,i_spacks)
-       enddo
+      do i_spacks=is,is
+        call spacks_copy('u',sspec(i_spacks)%coreh,is,is,ch,i_spacks)
+      enddo
 
       if (ch .eq. ' ') return
 Cgetarg...info...           real(8) :: qcore(2) , real(8) :: sspec%coreq 2
 Cgetarg       call upack2('spec coreq',sspec,is,qcore)
-       
-       i_copy_size=size(sspec(is)%coreq) 
-       call dcopy(i_copy_size,sspec(is)%coreq,1,qcore,1) 
+
+      i_copy_size=size(sspec(is)%coreq)
+      call dcopy(i_copy_size,sspec(is)%coreq,1,qcore,1)
 
       read (ch,'(i1)') kcore
       if (ch(2:2).eq.'s' .or. ch(2:2).eq.'S') lcore = 0
@@ -48,6 +48,6 @@ Cgetarg       call upack2('spec coreq',sspec,is,qcore)
       if (ch(2:2).eq.'d' .or. ch(2:2).eq.'D') lcore = 2
       if (ch(2:2).eq.'f' .or. ch(2:2).eq.'F') lcore = 3
 Cgetarg       end
-       end subroutine gtpcor 
+      end subroutine gtpcor
 
 

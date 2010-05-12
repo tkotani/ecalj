@@ -25,11 +25,11 @@ C Local variables
 C --- Spinor rotation matrices for all sites ---
       do  10  ib = 1, nbas
 C ... Assume initially Euler angles are not l-dependent
-      xxc = dcos(eula(ib,1,2)/2)
-      xxs = dsin(eula(ib,1,2)/2)
-      alpha = eula(ib,1,1)
-      gamma = eula(ib,1,3)
-      ilm = 0
+        xxc = dcos(eula(ib,1,2)/2)
+        xxs = dsin(eula(ib,1,2)/2)
+        alpha = eula(ib,1,1)
+        gamma = eula(ib,1,3)
+        ilm = 0
       do  10  il = 1, nl
 C   ... If euler angles are l dependent
         if (neul .eq. nl) then
@@ -38,7 +38,7 @@ C   ... If euler angles are l dependent
           alpha = eula(ib,il,1)
           gamma = eula(ib,il,3)
         endif
-        do  10  im = -il+1, il-1
+      do  10  im = -il+1, il-1
         ilm = ilm+1
 C   ... If euler angles are lm dependent
         if (neul .eq. nl*nl) then

@@ -14,7 +14,7 @@ Co    S_n (x): smeared heaviside function
 Co    e_n (x): entropy
 Co    ep     : de/dx (Fermi-Dirac case only)
 Cr  Remarks
-Cr    For Methfessel-Paxton (generalized gaussian) broadening 
+Cr    For Methfessel-Paxton (generalized gaussian) broadening
 Cr    (see Phys Rev B40, 3616 (1989))
 Cr      D_n (x) = exp -x^2 * sum_i=0^n A_i H_2i(x)
 Cr      S_n (x) = (1 - erf x)/2 + exp -x^2 * sum_i=1^n A_i H_{2i-1}(x)
@@ -65,15 +65,15 @@ C ... Methfessel-Paxton broadening
       d = a
       do  1  i = 1, n
         a = -a / ( 4d0*i )
-          k = k+1
-          h3 = h1
-          h1 = h2
-          h2 = 2*x*h2 - 2*k*h3
+        k = k+1
+        h3 = h1
+        h1 = h2
+        h2 = 2*x*h2 - 2*k*h3
         s = s + a*h1
-          k = k+1
-          h3 = h1
-          h1 = h2
-          h2 = 2*x*h2 - 2*k*h3
+        k = k+1
+        h3 = h1
+        h1 = h2
+        h2 = 2*x*h2 - 2*k*h3
         d = d + a*h1
     1 continue
       d = d * ex2

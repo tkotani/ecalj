@@ -1,11 +1,11 @@
 
 c-----------
-Cr   To get old result, Use 1. below.               
+Cr   To get old result, Use 1. below.
 Cr   1. newsigmasw=F and pmtsig=F : gives old result   (backword compatibility mode)
 Cr
 Cr   2. newsigmasw=F and pmtsig=T : new result               (test mode)
 Cr   3. newsigmasw=T (then pmtsig is irrelevant): new result (run mode)
-Cr    
+Cr
 Cr Note: you also need to use sigswitch=0 if you want to reproduce old results.
 
       logical function newsigmasw()
@@ -18,7 +18,7 @@ c      newsigmasw=.true.
 
       logical function pmtsig()
 Cr This switch is effective only when newsigmasw=F.
-Cr This is used in hambls.F. 
+Cr This is used in hambls.F.
 c      pmtsig=.true. !new interpolation mode.
       pmtsig=.false. !old result
       end
@@ -29,9 +29,9 @@ c-----------
 
 c
       integer function sigswitch()
-c sigma interpolation 
+c sigma interpolation
 Cr This switch is effective only when newsigmasw=F.
-Cr This is used in hambls.F. 
+Cr This is used in hambls.F.
 c
 c new interpolation mode for self-energy: Neglect asig and bsig
 c sigswitch=0: old version
@@ -55,7 +55,7 @@ c      end
 
       integer function matmul_pwhovl()
 c switch used in gwd/pwmat.F
-c  matmul_pwhovl=1 uses matmul, 
+c  matmul_pwhovl=1 uses matmul,
 c  matmul_pwhovl=2 and matmul_pwhovl=3 uses BLAS. In cases, it fails in centos(gfortran and so) in core-i7.
       matmul_pwhovl=2
       end

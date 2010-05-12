@@ -3,8 +3,8 @@ Cgetarg...info...           structure ['surho', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['surho', 'm_struc_def']
       subroutine surho(nbas,ssite,sspec,lmet,ldos,lrout,lekkl,numq,
      .  oqkkl,oeqkkl,k1,k2,k3,smrout,ndos,dos,sumev,sumqv)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Initialize output density coeffs, dos, and eigenvalue sum
 C ----------------------------------------------------------------------
@@ -52,9 +52,9 @@ C ... Passed parameters
       integer oqkkl(3,nbas),oeqkkl(3,nbas)
 Cgetarg       double precision ssite(1),sspec(1),sumev(2,3),sumqv(3,2),
 Cgetarg      .  dos(ndos,2)
-       real(8):: sumev(2,3) , sumqv(3,2) , dos(ndos,2) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      real(8):: sumev(2,3) , sumqv(3,2) , dos(ndos,2)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
       double complex smrout(k1,k2,k3,numq)
 C ... Local parameters
@@ -71,16 +71,16 @@ C ... Heap
 C ... Reset coeffs of local density
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
 Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg         call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
-         
-         lmxa=sspec(is)%lmxa
-         lmxh=sspec(is)%lmxb
-         kmax=sspec(is)%kmxt
+
+        lmxa=sspec(is)%lmxa
+        lmxh=sspec(is)%lmxb
+        kmax=sspec(is)%kmxt
 
         if (lmxa .eq. -1) goto 10
 
@@ -118,6 +118,6 @@ C ... Dos and eigenvalue sum
       if (ldos.eq.1 .or. lmet.gt.0) call dpzero(dos,2*ndos*nsp)
 
 Cgetarg       end
-       end subroutine surho 
+      end subroutine surho
 
 

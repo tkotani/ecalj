@@ -117,8 +117,8 @@ C  Local parameters
      .  zvnucl,rvh(2),rho0(2),reps(2),rmu(2),sec(2),stc(2),sev(2),dasum
 C for Anderson mixing:
 Cdelw1       integer amix,nmix,orho
-       integer:: amix , nmix 
-       real(8) ,allocatable :: rv_w_orho(:)
+      integer:: amix , nmix
+      real(8) ,allocatable :: rv_w_orho(:)
 
       double precision norm(10,10),awk(10,2),beta,beta1
       parameter (beta = 0.3d0)
@@ -142,16 +142,16 @@ C tolch is tolerance for change in the charge density, tolv for rseq
       stc(2) = 0d0
       stc(1) = 0d0
 Cdelw1       call defdr(orho,nr*nsp*2*(nmix+2))
-       allocate(rv_w_orho(nr*nsp*2*(nmix+2)))
+      allocate(rv_w_orho(nr*nsp*2*(nmix+2)))
 Ctakao_ZeroClear_NotRequiered        if (nr*nsp*2*(nmix+2)<0) rv_w_orho(:)=0.0d0
 
 
 C --- Core charge, radial mesh points and weights ---
       if (kcor .ne. 0) then
-      if (qcor(1) .ne. 0 .or. qcor(2) .ne. 0) then
-        call info5(30,0,0,'%9fAdd core hole:  kcor=%i  lcor=%i'//
+        if (qcor(1) .ne. 0 .or. qcor(2) .ne. 0) then
+          call info5(30,0,0,'%9fAdd core hole:  kcor=%i  lcor=%i'//
      .    '  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
-      endif
+        endif
       endif
       call getqvc(nsp,nl,lmax,z,pnu,qnu,0,0,kcor,lcor,qcor,qc,qtot,amgm,
      .          ec,ev)
@@ -177,12 +177,12 @@ C --- Moments printout ---
   891     format(
      .      '   l',8x,'pl',11x,'q0',11x,'q1',11x,'q2',5x,' id ',6x,'dl')
           do  11  isp = 1, nsp
-            do  11  l = 0, lmax
-              dl = dtan(pi*(.5d0 - pnu(l+1,isp)))
-              if (dabs(dl) .gt. 9999) dl = 0
-              write(stdo,100) l,pnu(l+1,isp),(qnu(ii,l+1,isp),ii=1,3),
+          do  11  l = 0, lmax
+            dl = dtan(pi*(.5d0 - pnu(l+1,isp)))
+            if (dabs(dl) .gt. 9999) dl = 0
+            write(stdo,100) l,pnu(l+1,isp),(qnu(ii,l+1,isp),ii=1,3),
      .          idmod(l),dl
-  100         format(i4,4f13.7,i4,f13.7)
+  100       format(i4,4f13.7,i4,f13.7)
    11     continue
         endif
       endif
@@ -191,15 +191,15 @@ C --- Initial charge density ---
       if (job .eq. 'pot') then
         call newrho(z,lrel,lgdd,nl,1,lmax,a,b,nr,rofi,v,rhoin,rhoc,kcor,
      .    lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tolrsq,nsp,lfrz,000)
-       if (niter .eq. 0) then
+        if (niter .eq. 0) then
           call dcopy(nr*nsp,rhoin,1,rho,1)
 Cki#error, have return with len(w_varlist)>0 at line 189
-Cdelw1 w_varlist remains: orho 
+Cdelw1 w_varlist remains: orho
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [orho]
 Cdelw1           return
-           if (allocated(rv_w_orho)) deallocate(rv_w_orho)
-           return 
+          if (allocated(rv_w_orho)) deallocate(rv_w_orho)
+          return
 
         endif
       else if (job .eq. 'gue') then
@@ -210,22 +210,25 @@ C         write(6,335) decay
 C  335   format(/' initialize exponential density with decay',f7.3)
         sum = 0d0
         do  4  ir = 1, nr
-        ro = dexp(-decay*rofi(ir,1))*rofi(ir,1)**2
-        rhoin(ir,1) = ro
-    4   sum = sum+ro*a*(rofi(ir,1)+b)
+          ro = dexp(-decay*rofi(ir,1))*rofi(ir,1)**2
+          rhoin(ir,1) = ro
+          sum = sum+ro*a*(rofi(ir,1)+b)
+    4   continue
         fac = z/(sum*nsp)
         do  5  ir = 1, nr
-    5   rhoin(ir,1) = rhoin(ir,1)*fac
+          rhoin(ir,1) = rhoin(ir,1)*fac
+    5   continue
         if (nsp .eq. 2) then
           do  6  ir = 1, nr
-    6     rhoin(ir,2) = rhoin(ir,1)
+            rhoin(ir,2) = rhoin(ir,1)
+    6     continue
         endif
       else if (job .ne. 'rho') then
         call rx('atomsc: job not pot|rho|gue')
       endif
 Cdelw1       call dpscop(rhoin,w(orho),nr*nsp,1,1+nr*nsp*(nmix+2),1d0)
-       call dpscop ( rhoin , rv_w_orho , nr * nsp , 1 , 1 + nr * nsp 
-     . * ( nmix + 2 ) , 1d0 ) 
+      call dpscop ( rhoin , rv_w_orho , nr * nsp , 1 , 1 + nr * nsp 
+     . * ( nmix + 2 ) , 1d0 )
 
 
 C --- Start self-consistency loop ---
@@ -269,25 +272,27 @@ C       Get rhrmx, exrmax
           rho0t = rho0t + rho0(isp)
           sum = sum + ddot(nr,rofi(1,2),1,rho(1,isp),1)
           do  42  ir = 1, nr
-          drdi = a*(rofi(ir,1) + b)
-   42     drho = drho + rofi(ir,2)/drdi*dabs(rho(ir,isp)-rhoin(ir,isp))
+            drdi = a*(rofi(ir,1) + b)
+            drho = drho + rofi(ir,2)/drdi*dabs(rho(ir,isp)-rhoin(ir,isp))
+   42     continue
           do  41  ir = 2, nr
-          ea = (v(ir,isp)-2*z/rofi(ir,1))
-   41     vrhoc = vrhoc + rofi(ir,2)*ea*rhoc(ir,isp)
+            ea = (v(ir,isp)-2*z/rofi(ir,1))
+            vrhoc = vrhoc + rofi(ir,2)*ea*rhoc(ir,isp)
+   41     continue
    40   continue
 C       call prrmsh('rho for atom ',rofi,rho,nr,nr,nsp)
 Cdelw1         call dcopy(nr*nsp,rho,1,w(orho),1)
-         call dcopy ( nr * nsp , rho , 1 , rv_w_orho , 1 ) 
+        call dcopy ( nr * nsp , rho , 1 , rv_w_orho , 1 )
 
 Cdelw1         jmix = amix(nr*nsp,min(jmix,nmix),nmix,0,beta1,iprint()-70,
 Cdelw1      .              .9D0,norm,awk(1,2),w(orho),awk,rmsdel)
-         jmix = amix ( nr * nsp , min ( jmix , nmix ) , nmix , 0 , beta1 
+        jmix = amix ( nr * nsp , min ( jmix , nmix ) , nmix , 0 , beta1 
      .   , iprint ( ) - 70 , .9d0 , norm , awk ( 1 , 2 ) , rv_w_orho , 
-     .   awk , rmsdel ) 
+     .   awk , rmsdel )
 
 Cdelw1         call dpscop(w(orho),rhoin,nr*nsp,1+nr*nsp*(nmix+2),1,1d0)
-         call dpscop ( rv_w_orho , rhoin , nr * nsp , 1 + nr * nsp * ( 
-     .   nmix + 2 ) , 1 , 1d0 ) 
+        call dpscop ( rv_w_orho , rhoin , nr * nsp , 1 + nr * nsp * ( 
+     .   nmix + 2 ) , 1 , 1d0 )
 
 C
         if (last) goto 90
@@ -308,10 +313,10 @@ C       Beta for next iteration
         dold = drho
    35 continue
    90 continue
-Cdelw1 rlse name= orho old_list= orho 
+Cdelw1 rlse name= orho old_list= orho
 Cdelw1 rlse name= orho new_list= (None)
 Cdelw1       call rlse(orho)
-       if (allocated(rv_w_orho)) deallocate(rv_w_orho)
+      if (allocated(rv_w_orho)) deallocate(rv_w_orho)
 
 C     End of iteration loop
       if (iprint() .ge. 30) write(stdo,'(1x)')
@@ -355,7 +360,8 @@ C ... Correction to core eigenvalues if sumec not obtained from this V
      .       /' ekin= ',f13.6,'    tcore =',f13.6,'   etot  =',f13.6)
       vrmax(1) = -2*z/rmax
       do  55  isp = 1, nsp
-   55 vrmax(1) = vrmax(1) + v(nr,isp)/nsp
+        vrmax(1) = vrmax(1) + v(nr,isp)/nsp
+   55 continue
       vrmax(2) = 0
       if (nsp .eq. 2) vrmax(2) = v(nr,1)-v(nr,2)
 
@@ -365,23 +371,23 @@ C --- write out rho if requested ---
         call prrmsh('pot for atom ',rofi,v,nr,nr,nsp)
         call prrmsh('rhoc for atom ',rofi,rhoc,nr,nr,nsp)
 Cdelw1         call defrr(orho,-nr*nl*nsp)
-         allocate(rv_w_orho(abs(-nr*nl*nsp)))
-         if (-nr*nl*nsp<0) rv_w_orho(:)=0.0d0
+        allocate(rv_w_orho(abs(-nr*nl*nsp)))
+        if (-nr*nl*nsp<0) rv_w_orho(:)=0.0d0
 
 Cdelw1         call newrho(z,lrel,lgdd,nl,nl,lmax,a,b,nr,rofi,v,w(orho),rhoc,
 Cdelw1      .    kcor,lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tl,nsp,lfrz,000)
-         call newrho ( z , lrel , lgdd , nl , nl , lmax , a , b , nr , 
+        call newrho ( z , lrel , lgdd , nl , nl , lmax , a , b , nr , 
      .   rofi , v , rv_w_orho , rhoc , kcor , lcor , qcor , pnu , qnu 
-     .   , sec , stc , sev , ec , ev , tl , nsp , lfrz , 000 ) 
+     .   , sec , stc , sev , ec , ev , tl , nsp , lfrz , 000 )
 
 Cdelw1         call prrmsh('rhol for atom ',rofi,w(orho),nr,nr,nl*nsp)
-         call prrmsh ( 'rhol for atom ' , rofi , rv_w_orho , nr , nr , 
-     .   nl * nsp ) 
+        call prrmsh ( 'rhol for atom ' , rofi , rv_w_orho , nr , nr , 
+     .   nl * nsp )
 
-Cdelw1 rlse name= orho old_list= orho 
+Cdelw1 rlse name= orho old_list= orho
 Cdelw1 rlse name= orho new_list= (None)
 Cdelw1         call rlse(orho)
-         if (allocated(rv_w_orho)) deallocate(rv_w_orho)
+        if (allocated(rv_w_orho)) deallocate(rv_w_orho)
 
       endif
 
@@ -389,7 +395,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine atomsc 
+      end subroutine atomsc
 
       subroutine addzbk(rofi,nr,nsp,rho,rhozbk,scale)
 
@@ -406,12 +412,13 @@ Cdelw1 w_varlist (del), remains: (None)
       s = 16*datan(1d0)*scale*rhozbk
       do  10  isp = 1, nsp
       do  10  ir = 2, nr
-   10 rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
+        rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
+   10 continue
 Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine addzbk 
+      end subroutine addzbk
 
       subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
 
@@ -544,7 +551,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine poiss0 
+      end subroutine poiss0
 
 
 C      subroutine fctp0(l,rofi,v,z,nr,nctp0,xrim,xmin,nsave)
@@ -701,7 +708,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine fctp0 
+      end subroutine fctp0
 
       subroutine fctp(a,b,e,l,nctp0,nr,rofi,v,z,nctp)
 
@@ -797,7 +804,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine fctp 
+      end subroutine fctp
 
 
       subroutine newrho(z,lrel,lgdd,nl,nlr,lmax,a,b,nr,rofi,v,rho,rhoc,
@@ -919,7 +926,7 @@ C --- Loop over valence states ---
       ival = 0
       do  20  isp = 1, nsp
         sumev(isp) = 0d0
-        do  20  l = 0, lmax
+      do  20  l = 0, lmax
 
         if (nlr .eq. nl) lr = l+1
         q0 = max(qnu(1,l+1,isp),0d0)
@@ -958,18 +965,18 @@ C     .                nn,gp,phi,dphi,phip,dphip,p)
         fllp1 = l*(l+1)
 C  ...  Case add q2 phi phidd rho
         if (lgdd) then
-        k = 2*nr
-        do  21  ir = 2, nre
-          jr = ir + nr
-          r = rofi(ir)
-          tmc = c - (v(ir,isp) - 2d0*z/r - eval)/c
-          gfac = 1d0 + fllp1/(tmc*r)**2
-          rho(ir,lr,isp) =  rho(ir,lr,isp) +
+          k = 2*nr
+          do  21  ir = 2, nre
+            jr = ir + nr
+            r = rofi(ir)
+            tmc = c - (v(ir,isp) - 2d0*z/r - eval)/c
+            gfac = 1d0 + fllp1/(tmc*r)**2
+            rho(ir,lr,isp) =  rho(ir,lr,isp) +
      .      q0*(gfac*g(ir)**2 + g(jr)**2) +
      .    2*q1*(gfac*g(ir)*gp(ir) + g(jr)*gp(jr)) +
      .      q2*(gfac*(gp(ir)**2 + g(ir)*gp(ir+k)) +
      .          gp(jr)**2 + g(jr)*gp(jr+k))
-  21    continue
+  21      continue
 C  ...  Case add -p q2 phi phi into rho
         else
           q00 = q0-p*q2
@@ -989,7 +996,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine newrho 
+      end subroutine newrho
 
       subroutine rhocor(isw,z,lmax,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor,
      .                  qcor,tol,ec,sumec,sumtc,rho,gcore,ipr)
@@ -1002,8 +1009,8 @@ Ci   z     :nuclear charge
 Ci   lmax  :maximum l
 Ci   nsp   :=1 for non-spin-polarized =2 for spin-polarized calculations
 Ci   konfig:core configuration. Core orbitals are specified by:
-Ci         :  1, 2, ..., konf(0)-1 for s            
-Ci         :  2, 3, ..., konf(1)-1 for p            
+Ci         :  1, 2, ..., konf(0)-1 for s
+Ci         :  2, 3, ..., konf(1)-1 for p
 Ci         :  3, 4, ..., konf(2)-1 for d, and so on.
 Ci   a     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
 Ci   b     :the mesh points are given by rofi(i) = b [e^(a(i-1)) -1]
@@ -1062,7 +1069,7 @@ C ... Heap
         if (ipr .ge. 2) write(stdo,757)
         if(ipr.ge.2 .and. nsp.eq.2)
      .    write(stdo,'('' spin'',i2,'':'')') isp
-  757 format(/' state  chg          ecor0',10x,'ecore',10x,'tcore',
+  757   format(/' state  chg          ecor0',10x,'ecore',10x,'tcore',
      .     4x,'nre',2x,'rho(rmax)')
         do  10  l = 0, lmax
         do  10  konf = l, konfig(l)-2
@@ -1083,7 +1090,8 @@ C     ... Correct core energy by using hankel bc's
           if (nre .eq. nr .and. kappa2 .lt. 0d0) then
             dlml = -1d0 - dsqrt(-kappa2)*rmax
             do  31  ll = 1, l
-   31       dlml = -kappa2*rmax*rmax/dlml - (2*ll+1)
+              dlml = -kappa2*rmax*rmax/dlml - (2*ll+1)
+   31       continue
             slo = val*(dlml+l+1)/rmax
             call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo,v(1,isp),
      .        g,sum,a,b,rofi,nr,nre)
@@ -1111,7 +1119,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine rhocor 
+      end subroutine rhocor
 
 
       subroutine xyrhsr(ecore,l,z,a,b,nr,nre,g,rofi,v,rho,deg,vrho,
@@ -1190,7 +1198,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine xyrhsr 
+      end subroutine xyrhsr
 
 
 C      subroutine phidot(z,l,v,e,a,b,rofi,nr,g,val,slo,tol,nn,
@@ -1313,17 +1321,19 @@ C     Speed of light, or infinity in nonrelativistic case
       fllp1 = l*(l+1)
       sum = 0d0
       do  10  ir = 2, nr-1, 2
-   10 sum = sum + fi(ir,rofi(ir))
+        sum = sum + fi(ir,rofi(ir))
+   10 continue
       sum = 2*sum
       do  11  ir = 3, nr-2, 2
-   11 sum = sum + fi(ir,rofi(ir))
+        sum = sum + fi(ir,rofi(ir))
+   11 continue
       sum = (2*sum + fi(nr,rofi(nr)))*a/3
 
 Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine gintsr 
+      end subroutine gintsr
 
       subroutine gintsl(g1,g2,a,b,nr,rofi,sum)
 
@@ -1353,12 +1363,14 @@ C ... Local parameters
 
       sum = 0
       do  10  ir = 2, nr-1,2
-      r = rofi(ir)
-  10  sum = sum+(r+b)*(g1(ir)*g2(ir))
+        r = rofi(ir)
+        sum = sum+(r+b)*(g1(ir)*g2(ir))
+   10 continue
       sum = sum+sum
       do  11  ir = 3, nr-2, 2
-      r = rofi(ir)
-  11  sum = sum+(r+b)*(g1(ir)*g2(ir))
+        r = rofi(ir)
+        sum = sum+(r+b)*(g1(ir)*g2(ir))
+   11 continue
       sum = sum+sum
       r = rofi(nr)
       sum = sum+(r+b)*(g1(nr)*g2(nr))
@@ -1367,7 +1379,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine gintsl 
+      end subroutine gintsl
 
       subroutine asprjq(mode,clabl,nl,nsp,eula,neul,pnu,qnu,
      .  pnuloc,qnuloc,bhat,amom)
@@ -1430,42 +1442,42 @@ C --- Construct the average magnetization (direction, amplitude) ---
       mode0 = mod(mode,10)
       mode2 = mod(mode/100,10)
       if (mode0 .ne. 0 .and. nsp .eq. 2) then
-      lwrite = .true.
-      if (mod(mode0,2) .eq. 0 .or. ipr .lt. PRT2) lwrite = .false.
-      if (neul .le. 1) lwrite = .false.
-      strn = '    l'
-      if (neul .eq. nl*nl) strn = '  ilm'
-      if (lwrite .and. mode0 .ge. 2) write(stdo,345) strn
-      if (lwrite .and. mode0 .lt. 2) write(stdo,345) strn,'mhat.bxc'
-  345 format(a,'     ql       mom',9x,'alpha     beta      gamma',
+        lwrite = .true.
+        if (mod(mode0,2) .eq. 0 .or. ipr .lt. PRT2) lwrite = .false.
+        if (neul .le. 1) lwrite = .false.
+        strn = '    l'
+        if (neul .eq. nl*nl) strn = '  ilm'
+        if (lwrite .and. mode0 .ge. 2) write(stdo,345) strn
+        if (lwrite .and. mode0 .lt. 2) write(stdo,345) strn,'mhat.bxc'
+  345   format(a,'     ql       mom',9x,'alpha     beta      gamma',
      .  19x,'mhat':17x,a)
 
-      ilm = 0
-      call dpzero(aloc,3)
-      sal = 0
-      do  l = 0, nl-1
-        do   m = -l, l
-          ilm = ilm+1
-          if (neul .eq. nl) then
-            alpha = eula(l+1,1)
-            beta  = eula(l+1,2)
-            gamma = eula(l+1,3)
-          elseif (neul .eq. nl*nl) then
-            alpha = eula(ilm,1)
-            beta  = eula(ilm,2)
-            gamma = eula(ilm,3)
-          elseif (neul .eq. 1) then
-            alpha = eula(1,1)
-            beta  = eula(1,2)
-            gamma = eula(1,3)
-          else
-            call rxi('atscpp: bad value neul=',neul)
-          endif
+        ilm = 0
+        call dpzero(aloc,3)
+        sal = 0
+        do  l = 0, nl-1
+          do   m = -l, l
+            ilm = ilm+1
+            if (neul .eq. nl) then
+              alpha = eula(l+1,1)
+              beta  = eula(l+1,2)
+              gamma = eula(l+1,3)
+            elseif (neul .eq. nl*nl) then
+              alpha = eula(ilm,1)
+              beta  = eula(ilm,2)
+              gamma = eula(ilm,3)
+            elseif (neul .eq. 1) then
+              alpha = eula(1,1)
+              beta  = eula(1,2)
+              gamma = eula(1,3)
+            else
+              call rxi('atscpp: bad value neul=',neul)
+            endif
 
 C         Charge, magnetic moments, quantization axis for these angles
-          ql = qnu(1,l+1,1)+qnu(1,l+1,2)
-          al = qnu(1,l+1,1)-qnu(1,l+1,2)
-          sal = sal + al/(2*l+1)
+            ql = qnu(1,l+1,1)+qnu(1,l+1,2)
+            al = qnu(1,l+1,1)-qnu(1,l+1,2)
+            sal = sal + al/(2*l+1)
 C         The local magnetization points along V = zhat(loc).
 C         In global coordinates V = rotm^-1 zhat(loc) because
 C         rotm*V = zhat(loc) when V points along M as
@@ -1473,57 +1485,57 @@ C         described in eua2rm.  V is then
 C         hatm(1) = dcos(alpha)*dsin(beta)
 C         hatm(2) = dsin(alpha)*dsin(beta)
 C         hatm(3) = dcos(beta)
-          call eua2rm(alpha,beta,gamma,rotm)
-          hatm(1) = rotm(3,1)
-          hatm(2) = rotm(3,2)
-          hatm(3) = rotm(3,3)
+            call eua2rm(alpha,beta,gamma,rotm)
+            hatm(1) = rotm(3,1)
+            hatm(2) = rotm(3,2)
+            hatm(3) = rotm(3,3)
 
 C         Add to total magnetization
-          call daxpy(3,al/(2*l+1),hatm,1,aloc,1)
+            call daxpy(3,al/(2*l+1),hatm,1,aloc,1)
 
 C         Printout
-          if (neul .eq. nl**2 .and. lwrite .and. mode0 .ge. 2) then
-            write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
+            if (neul .eq. nl**2 .and. lwrite .and. mode0 .ge. 2) then
+              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
      .        ilm, ql/(2*l+1), al/(2*l+1), alpha, beta, gamma, hatm
-          elseif (neul .eq. nl**2 .and. lwrite .and. mode0 .lt. 2) then
-            write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
+            elseif (neul .eq. nl**2 .and. lwrite .and. mode0 .lt. 2) then
+              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
      .        ilm, ql/(2*l+1), al/(2*l+1), alpha, beta, gamma, hatm,
      .        ddot(3,hatm,1,bhat,1)
-          elseif (neul .eq. nl .and. lwrite .and. mode0 .ge. 2) then
-            write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
+            elseif (neul .eq. nl .and. lwrite .and. mode0 .ge. 2) then
+              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
      .        l, ql, al, alpha, beta, gamma, hatm
-            lwrite = .false.
-          elseif (neul .eq. nl .and. lwrite .and. mode0 .lt. 2) then
-            write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
+              lwrite = .false.
+            elseif (neul .eq. nl .and. lwrite .and. mode0 .lt. 2) then
+              write(stdo,'(i5,2f10.6,3x,3f10.6,3x,3f10.6,3x,f10.6)')
      .        l, ql, al, alpha, beta, gamma, hatm, ddot(3,hatm,1,bhat,1)
-            lwrite = .false.
-          endif
+              lwrite = .false.
+            endif
 
+          enddo
+          lwrite = .true.
+          if (mod(mode0,2) .eq. 0 .or. ipr .lt. PRT2) lwrite = .false.
         enddo
-        lwrite = .true.
-        if (mod(mode0,2) .eq. 0 .or. ipr .lt. PRT2) lwrite = .false.
-      enddo
-      amom = dsqrt(ddot(3,aloc,1,aloc,1))
+        amom = dsqrt(ddot(3,aloc,1,aloc,1))
 
-      if (amom .ne. 0) then
+        if (amom .ne. 0) then
 C       Assign bhat to point along magnetization direction
-        if (mode0 .ge. 2) call dpcopy(aloc,bhat,1,3,1/amom)
+          if (mode0 .ge. 2) call dpcopy(aloc,bhat,1,3,1/amom)
 
 C       If sum moments < 0, optionally reverse B
-        if (sal .lt. 0 .and. mode2 .eq. 1 .and. mode0 .ge. 2) then
-          if (mode0 .ge. 2) call dpcopy(aloc,bhat,1,3,-1/amom)
-        endif
+          if (sal .lt. 0 .and. mode2 .eq. 1 .and. mode0 .ge. 2) then
+            if (mode0 .ge. 2) call dpcopy(aloc,bhat,1,3,-1/amom)
+          endif
 
 C       Printout of bhat, moment, angle
-        call info5(PRT1,0,0,' ATOM='//clabl//
+          call info5(PRT1,0,0,' ATOM='//clabl//
      .    '%a  bhat=%3;10,6D  |M|=%;6,6d  bhat.M/|M|=%;6d',bhat,
      .    amom,ddot(3,aloc,1,bhat,1)/amom,0,0)
 
-      else
-        bhat(1) = 0
-        bhat(2) = 0
-        bhat(3) = 1
-      endif
+        else
+          bhat(1) = 0
+          bhat(2) = 0
+          bhat(3) = 1
+        endif
 
 C     End of block to contruct bhat
       endif
@@ -1596,10 +1608,10 @@ C         aloc(i) = qnu(i,l+1,1) - qnu(i,l+1,2)
       if (ipr .ge. PRT2) then
         write(stdo,'(''  l isp'',19x,''qnu'',37x,''qloc'')')
         do  k = 1, 2
-        do  l = 0, nl-1
-          write(stdo,'(2i3,1x,3f13.7:1x,3f13.7)')
+          do  l = 0, nl-1
+            write(stdo,'(2i3,1x,3f13.7:1x,3f13.7)')
      .      l,k,(qnu(i,l+1,k),i=1,3),(qnuloc(i,l+1,k),i=1,3)
-        enddo
+          enddo
         enddo
       endif
 
@@ -1607,6 +1619,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine asprjq 
+      end subroutine asprjq
 
 

@@ -54,7 +54,8 @@ C ... Local parameters
       gamg = 0.25d0*rsmg*rsmg
       rsmx = 2d0*dsqrt(gamg+gamh)
       do  1  m = 1, 3
-    1 dr(m) = pg(m)-ph(m)
+        dr(m) = pg(m)-ph(m)
+    1 continue
       lmaxh = ll(nlmh)
       lmaxg = ll(nlmg)
       lmaxx = lmaxg+lmaxh
@@ -105,23 +106,24 @@ C ... Make gradients using CGs for p functions
 
 C --- Combine with Clebsch-Gordan coefficients ---
       do  11  ilg = 1, nlmg
-      lg = ll(ilg)
+        lg = ll(ilg)
       do  11  ilh = 1, nlmh
-      lh = ll(ilh)
-      ii = max0(ilg,ilh)
-      indx = (ii*(ii-1))/2 + min0(ilg,ilh)
-      icg1 = indxcg(indx)
-      icg2 = indxcg(indx+1)-1
+        lh = ll(ilh)
+        ii = max0(ilg,ilh)
+        indx = (ii*(ii-1))/2 + min0(ilg,ilh)
+        icg1 = indxcg(indx)
+        icg2 = indxcg(indx+1)-1
       do  11  icg = icg1, icg2
-      ilm = jcg(icg)
-      lm = ll(ilm)
-      k = (lg+lh-lm)/2
-      fac = (-1d0)**lg*cg(icg)
-      do  12  ip = 0, kmax
-      s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
-      ds(ilg,ilh,ip,1) = ds(ilg,ilh,ip,1)+fac*ghkl(k+ip,ilm,1)
-      ds(ilg,ilh,ip,2) = ds(ilg,ilh,ip,2)+fac*ghkl(k+ip,ilm,2)
-   12 ds(ilg,ilh,ip,3) = ds(ilg,ilh,ip,3)+fac*ghkl(k+ip,ilm,3)
+        ilm = jcg(icg)
+        lm = ll(ilm)
+        k = (lg+lh-lm)/2
+        fac = (-1d0)**lg*cg(icg)
+        do  12  ip = 0, kmax
+          s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
+          ds(ilg,ilh,ip,1) = ds(ilg,ilh,ip,1)+fac*ghkl(k+ip,ilm,1)
+          ds(ilg,ilh,ip,2) = ds(ilg,ilh,ip,2)+fac*ghkl(k+ip,ilm,2)
+          ds(ilg,ilh,ip,3) = ds(ilg,ilh,ip,3)+fac*ghkl(k+ip,ilm,3)
+   12   continue
    11 continue
 
 #if F90

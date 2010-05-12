@@ -1,13 +1,13 @@
       subroutine shortn3(pin,noutmx, nout,nlatout)
 C- Find shortest pin + nlatout \in  [ pin + any integer linear-combination of (rlat(:,1),rlat(:,2),rlat(:,3)) ].
-Cr You first have to call shorn3_initialize, then you can call shortn3 for given rlat. 
+Cr You first have to call shorn3_initialize, then you can call shortn3 for given rlat.
 C
 Cio init
 Ci pin is on the rlat coodinate.
 Cr rlat(3,i) i-th vertor for modulo
 Ci rlatp(i,j)= sum( rlat(:,i)*rlat(:,j) )
 Ci noutmax: upper limit of nlatout
-Co 
+Co
 Co nlatout
 C
 Cr  length = sum_i sum_j pin(i)*rlatp(i,j)*pin(j)
@@ -25,7 +25,7 @@ c Takao think all shorbz should be replaced by shortn3 in future.
       real(8),save:: rlatp(3,3),xmx2(3)
 c
       rmax2 = sum(pin*matmul(rlatp,pin)) + eps  ! eps is to make degeneracy safe.
-      nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix 
+      nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix
       nmax =  nrmax
 
 C we are looking for shortest vectors
@@ -34,15 +34,15 @@ C we are looking for shortest vectors
       nknknk= (2*nmax(1)+1)*(2*nmax(2)+1)*(2*nmax(3)+1)
       allocate( nlat0(3, nknknk), rnorm(nknknk) )
       do ik1=-nmax(1),nmax(1)
-      do ik2=-nmax(2),nmax(2)
-      do ik3=-nmax(3),nmax(3)
-        ik=ik+1
-        nlat0(:,ik) = (/ik1,ik2,ik3/)
-        rr= pin + nlat0(:,ik)
-        rnorm(ik) = sum(rr*matmul(rlatp,rr))
-        if(rnorm(ik)<rmin) rmin=rnorm(ik)
-      enddo
-      enddo
+        do ik2=-nmax(2),nmax(2)
+          do ik3=-nmax(3),nmax(3)
+            ik=ik+1
+            nlat0(:,ik) = (/ik1,ik2,ik3/)
+            rr= pin + nlat0(:,ik)
+            rnorm(ik) = sum(rr*matmul(rlatp,rr))
+            if(rnorm(ik)<rmin) rmin=rnorm(ik)
+          enddo
+        enddo
       enddo
       nk=ik
       !print *,'nk rmin=',nk,rmin
@@ -65,9 +65,9 @@ C we are looking for shortest vectors
       entry shortn3_initialize(rlat)
 C- Set translation vactors rlat(:,i),i=1,3
       do i=1,3
-      do j=1,3
-        rlatp(i,j) = sum(rlat(:,i)*rlat(:,j))
-      enddo
+        do j=1,3
+          rlatp(i,j) = sum(rlat(:,i)*rlat(:,j))
+        enddo
       enddo
       call ellipsoidxmax(rlatp,xmx2)
       end
@@ -127,7 +127,7 @@ c
       subroutine shorbz(p,pout,plat,qlat)
 C- Shortens vector to equivalent in first Brillouin zone.
 C ----------------------------------------------------------------
-Ci Inputs:  
+Ci Inputs:
 Ci   plat,qlat lattice vectors and inverse
 Ci   p         vector to shorten
 Co Outputs:
@@ -148,40 +148,43 @@ C     implicit none
 C --- Reduce to unit cell centered at origin ---
       do  1  i = 1, 3
 C ... x is projection of pin along plat(i), with multiples of p removed
-      x0 = p(1)*qlat(1,i)+p(2)*qlat(2,i)+p(3)*qlat(3,i)
-      xx = idnint(x0)
-    1 x(i) = x0-xx
+        x0 = p(1)*qlat(1,i)+p(2)*qlat(2,i)+p(3)*qlat(3,i)
+        xx = idnint(x0)
+        x(i) = x0-xx
+    1 continue
 C ... pout is x rotated back to Cartesian coordinates
       do  2  m = 1, 3
-    2 pout(m) = x(1)*plat(m,1)+x(2)*plat(m,2)+x(3)*plat(m,3)
+        pout(m) = x(1)*plat(m,1)+x(2)*plat(m,2)+x(3)*plat(m,3)
+    2 continue
 
 C --- Try shortening by adding +/- basis vectors ---
-   15   continue
-        do  10  j1 =  0, 1
+   15 continue
+      do  10  j1 =  0, 1
         j2min = -1
         if (j1 .eq. 0) j2min = 0
-        do  10  j2 = j2min, 1
+      do  10  j2 = j2min, 1
         j3min = -1
         if (j1 .eq. 0 .and. j2 .eq. 0) j3min = 0
-        do  10  j3 = j3min, 1
+      do  10  j3 = j3min, 1
 
 C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
 c takao think this alglorism cause problems (=wrong) for very anisotropic cases.
 c
-          do  17  i = 1, 3
-   17     x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
-          a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
-          ap = pout(1)*x(1) + pout(2)*x(2) + pout(3)*x(3)
-          j = 0
-          if (a2 + 2*ap .lt. tol) j = 1
-          if (a2 - 2*ap .lt. tol) j = -1
-          if (j .ne. 0) then
-            pout(1) = pout(1) + j*x(1)
-            pout(2) = pout(2) + j*x(2)
-            pout(3) = pout(3) + j*x(3)
-            goto 15
-          endif
-   10   continue
+        do  17  i = 1, 3
+          x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
+   17   continue
+        a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
+        ap = pout(1)*x(1) + pout(2)*x(2) + pout(3)*x(3)
+        j = 0
+        if (a2 + 2*ap .lt. tol) j = 1
+        if (a2 - 2*ap .lt. tol) j = -1
+        if (j .ne. 0) then
+          pout(1) = pout(1) + j*x(1)
+          pout(2) = pout(2) + j*x(2)
+          pout(3) = pout(3) + j*x(3)
+          goto 15
+        endif
+   10 continue
 
       end
 C      subroutine fmain
@@ -217,7 +220,7 @@ C      end
       subroutine shorbzm(flags,p,pout,plat,qlat)
 C- Shortens vector to equivalent in first Brillouin zone.
 C ----------------------------------------------------------------
-Ci Inputs:  
+Ci Inputs:
 Ci   plat,qlat lattice vectors and inverse
 Ci   p         vector to shorten
 Co Outputs:
@@ -240,44 +243,47 @@ C     implicit none
 C --- Reduce to unit cell centered at origin ---
       do  1  i = 1, 3
 C ... x is projection of pin along plat(i), with multiples of p removed
-      x0 = p(1)*qlat(1,i)+p(2)*qlat(2,i)+p(3)*qlat(3,i)
-      if (flags(i).ne.0) then
-      xx = idnint(x0-eps)
-      else
-      xx = idnint(x0)
-      endif
-    1 x(i) = x0-xx
+        x0 = p(1)*qlat(1,i)+p(2)*qlat(2,i)+p(3)*qlat(3,i)
+        if (flags(i).ne.0) then
+          xx = idnint(x0-eps)
+        else
+          xx = idnint(x0)
+        endif
+        x(i) = x0-xx
+    1 continue
 C ... pout is x rotated back to Cartesian coordinates
       do  2  m = 1, 3
-    2 pout(m) = x(1)*plat(m,1)+x(2)*plat(m,2)+x(3)*plat(m,3)
+        pout(m) = x(1)*plat(m,1)+x(2)*plat(m,2)+x(3)*plat(m,3)
+    2 continue
 
 C --- Try shortening by adding +/- basis vectors ---
-   15   continue
-        do  10  j1 =  0, 1
+   15 continue
+      do  10  j1 =  0, 1
         j2min = -1
         if (j1 .eq. 0) j2min = 0
-        do  10  j2 = j2min, 1
+      do  10  j2 = j2min, 1
         j3min = -1
         if (j1 .eq. 0 .and. j2 .eq. 0) j3min = 0
-        do  10  j3 = j3min, 1
+      do  10  j3 = j3min, 1
 
 C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
 c takao think this alglorism cause problems (=wrong) for very anisotropic cases.
 c
-          do  17  i = 1, 3
-   17     x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
-          a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
-          ap = pout(1)*x(1) + pout(2)*x(2) + pout(3)*x(3)
-          j = 0
-          if (a2 + 2*ap .lt. tol) j = 1
-          if (a2 - 2*ap .lt. tol) j = -1
-          if (j .ne. 0) then
-            pout(1) = pout(1) + j*x(1)
-            pout(2) = pout(2) + j*x(2)
-            pout(3) = pout(3) + j*x(3)
-            goto 15
-          endif
-   10   continue
+        do  17  i = 1, 3
+          x(i) = plat(i,1)*j1 + plat(i,2)*j2 + plat(i,3)*j3
+   17   continue
+        a2 = x(1)*x(1) + x(2)*x(2) + x(3)*x(3)
+        ap = pout(1)*x(1) + pout(2)*x(2) + pout(3)*x(3)
+        j = 0
+        if (a2 + 2*ap .lt. tol) j = 1
+        if (a2 - 2*ap .lt. tol) j = -1
+        if (j .ne. 0) then
+          pout(1) = pout(1) + j*x(1)
+          pout(2) = pout(2) + j*x(2)
+          pout(3) = pout(3) + j*x(3)
+          goto 15
+        endif
+   10 continue
 
       end
 

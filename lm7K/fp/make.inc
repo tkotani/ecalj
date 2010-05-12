@@ -82,7 +82,6 @@ fp_list=\
 	praugm.o \
 	prrhat.o \
 	prtev.o \
-	pzhev.o \
 	rdovfa.o \
 	rhgcmp.o \
 	rhogkl.o \

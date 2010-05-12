@@ -49,6 +49,6 @@ C Data statements:
 
   300 format(/' DEFWSR: default radius for z=',i2,': ',f8.2)
 Cgetarg       end
-       end subroutine defwsr 
+      end subroutine defwsr
 
 

@@ -82,12 +82,14 @@ C   ... hsm(e=0,r=0) = 4*a*y0
 C --- chi(ir,l) for l>0 by upward recursion ---
       facgl = 2*a**2
       do  31  l = 1, lmax
-   31 chi(1,l) = 0
+        chi(1,l) = 0
+   31 continue
       do  30  l = 1, lmax
         xx = 2*l-1
         do  7  ir = ir1, nr
-        chi(ir,l) = (xx*chi(ir,l-1) + wk2(ir))/rsq(ir)
-    7   wk2(ir) = facgl*wk2(ir)
+          chi(ir,l) = (xx*chi(ir,l-1) + wk2(ir))/rsq(ir)
+          wk2(ir) = facgl*wk2(ir)
+    7   continue
    30 continue
 
       end

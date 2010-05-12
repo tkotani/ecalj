@@ -69,7 +69,7 @@ C ... Calculate eigenvalue sum as ef*N(ef)-integral N(e)
       eband = eferm*qval - sum
       dferm = dos(i1,1,1) + x*(dos(i2,1,1)-dos(i1,1,1))
       if (nsp .eq. 2) dferm =
-     .  dferm + dos(i1,1,2) + x*(dos(i2,1,2)-dos(i1,1,2))  
+     .  dferm + dos(i1,1,2) + x*(dos(i2,1,2)-dos(i1,1,2))
 
       if (iprint() .ge. 20) then
         call awrit4(' efldos:  Ef = %,6;6d  sumev = %,6;6d  ebot = '//

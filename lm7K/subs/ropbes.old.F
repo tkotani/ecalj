@@ -19,7 +19,8 @@ C     implicit none
 
       if (lmax .lt. 0) return
       do  8  i = 1, n
-    8 y(i) = r(i)*r(i)*e
+        y(i) = r(i)*r(i)*e
+    8 continue
 C --- Power series expansion for lmax, lmax-1 ---
       call ropbs1(y,lmax,xi(1,lmax),h,n)
       if (lmax .ge. 1) call ropbs1(y,lmax-1,xi(1,lmax-1),h,n)
@@ -27,7 +28,8 @@ C --- Downward recursion ---
       do  10  l = lmax-2, 0, -1
         xx = 2*l+3
         do  1  i = 1, n
-    1   xi(i,l) = xx*xi(i,l+1) - y(i)*xi(i,l+2)
+          xi(i,l) = xx*xi(i,l+1) - y(i)*xi(i,l+2)
+    1   continue
    10 continue
       end
       subroutine ropbs1(y,l,xi,h,n)
@@ -41,24 +43,29 @@ C     implicit none
       tol = 1d-12
       df = 1d0
       do  1  k = 3, 2*l+1,2
-    1 df = df*k
+        df = df*k
+    1 continue
       do  2  i = 1, n
         xi(i) = 1d0
-    2 h(i) = 1d0
+        h(i) = 1d0
+    2 continue
       do  10  k = 1, 500
         xx = -1d0/( 2*k*(2*k+2*l+1) )
         do  3  i = 1, n
-        h(i) = xx*h(i)*y(i)
-    3   xi(i) = xi(i)+h(i)
+          h(i) = xx*h(i)*y(i)
+          xi(i) = xi(i)+h(i)
+    3   continue
         top = 0d0
         do  4  i = 1, n
-    4   top = dmax1(top,dabs(h(i)))
+          top = dmax1(top,dabs(h(i)))
+    4   continue
         if (top .le. tol) goto 11
    10 continue
       call rx('ropbes: power series failed to converge')
    11 xx = 1d0/df
       do  5  i = 1, n
-    5 xi(i) = xi(i)*xx
+        xi(i) = xi(i)*xx
+    5 continue
       end
 C testing ...
 C      subroutine fmain
@@ -72,7 +79,7 @@ C      do  10  i = 1, nr
 C   10 ri(i) = 2*dble(i)/nr
 C      e = -1.5
 C      call ropbes(ri,e,lmax,y,h,xi,nr)
-C        
+C
 C      do  20  i = 1, nr
 C        call bessl2(e*ri(i)**2,0,lmax,phi,psi)
 C        print 333, i, ri(i),(xi(i,l), l=0,lmax)

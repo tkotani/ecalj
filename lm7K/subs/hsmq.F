@@ -85,22 +85,24 @@ C ... lx(ie) = lxi(ie) + lmxa
       lmax = -1
       if (nxi .gt. 20) call rx('hsmq: increase dim of lx')
       do  5  ie = 1, nxi
-      lx(ie) = lxi(ie)+lmxa
-    5 lmax = max(lmax,lx(ie))
+        lx(ie) = lxi(ie)+lmxa
+        lmax = max(lmax,lx(ie))
+    5 continue
 C ... If all rsm are equal to 1/a, no real-space part
       a = awald
       nDx = nD
       if (nG .gt. 0 .and. a .ne. 0) then
-      if (rsm(1) .gt. faca/a) then
-        ltmp = .true.
-        do  6  ie = 1, nxi
-    6   ltmp = ltmp .and. abs(rsm(ie)-rsm(1)) .lt. 1d-12
-        ltmp = ltmp .or. job2 .eq. 1
-        if (ltmp) then
-          a = 1/rsm(1)
-          nDx = 1
+        if (rsm(1) .gt. faca/a) then
+          ltmp = .true.
+          do  6  ie = 1, nxi
+            ltmp = ltmp .and. abs(rsm(ie)-rsm(1)) .lt. 1d-12
+    6     continue
+          ltmp = ltmp .or. job2 .eq. 1
+          if (ltmp) then
+            a = 1/rsm(1)
+            nDx = 1
+          endif
         endif
-      endif
       endif
 
       if ((lmax+1)**2 .gt. nlmx) call rx('hsmq: lxi gt ll(nlmx)')
@@ -151,14 +153,16 @@ C   ... cos(q.dlv), sin(q.dlv) -> wk(3,4), Y0 exp(-(a dlv)**2) -> wk(2)
    22     continue
         else
           do  23  ir = 1, nD
-   23     wk(ir,3) = 1
+            wk(ir,3) = 1
+   23     continue
           call dpzero(wk(1,4),nD)
         endif
       endif
 C ... If we are doing Ewald sums, we need this to make H(1/a) (hansr4)
       if (nG .ne. 0) then
         do  24  ir = 1, nDx
-   24   wk(ir,6) = y0*dexp(-wk(ir,1)*a2)
+          wk(ir,6) = y0*dexp(-wk(ir,1)*a2)
+   24   continue
       endif
 
 C --- D-space part of reduced strx for each energy: chi(l)=wk(l+lc)---
@@ -197,7 +201,8 @@ C   ... chi = H(rsm) - H(1/a) = (H(0) - H(1/a)) - (H(0) - H(rsm))
         else
           do  49  l = 0, lx(ie)+1
           do  49  ir = ir1, nDx
-   49     wk(ir,l+lc) = 0
+            wk(ir,l+lc) = 0
+   49     continue
         endif
         if (.not. dcmpre(rsmi,0d0)) then
           xx = 1/rsmi**2
@@ -205,14 +210,16 @@ C     ... Remake Y0 exp(-(r/rsm)**2) if rsm has changed
           if (xx .ne. xx0) then
             xx0 = xx
             do  33  ir = 1, nDx
-   33       wk(ir,2) = y0*dexp(-wk(ir,1)*xx)
+              wk(ir,2) = y0*dexp(-wk(ir,1)*xx)
+   33       continue
           endif
           call hansr4(wk,lx(ie),nrx,nDx,exi(ie),rsmi,wk(1,2),
      .      wk(1,5),wk(1,ls))
 C         call prm('H(0) - H(rsm)',wk(1,ls),nrx,nDx,lx(ie)+2)
           do  39  l = 0, lx(ie)+1
           do  39  ir = ir1, nDx
-   39     wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
+            wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
+   39     continue
         endif
 
 C  --- Special treatment of on-site term ---
@@ -246,10 +253,11 @@ C           wk(2,lc)   = wk(2,lc) -
 C     ... Generate -hsm(p,a,l>0) by upward recursion
           xx = 4*a*y0*dexp(-(akap/a/2)**2 - (r*a)**2)
           do  31  l = 1, lx(ie)
-          wk(1,l+lc+1) = ((2*l-1)*wk(1,l+lc) -exi(ie)*wk(1,l+lc-1) + xx)
+            wk(1,l+lc+1) = ((2*l-1)*wk(1,l+lc) -exi(ie)*wk(1,l+lc-1) + xx)
      .                   /wk(1,1)
 c          print *, wk(1,l+lc+1)
-   31     xx = 2*a**2*xx
+            xx = 2*a**2*xx
+   31     continue
 C     ... debugging check
 C         call hansmr(r,exi(ie),a,xx1,lx(ie))
 C         call dpcopy(p1,xx3,1,3,alat)
@@ -262,12 +270,14 @@ C       call hansmr(0d0,exi(ie),a,xx1,lx(ie))
 C   ... Make sin(qR)*(H(rsm,r)-H(1/a,r)), cos(qR)*(H(rsm,r)-H(1/a,r))
         do  34  l = 0, lx(ie)+1
           do  35  ir = 1, nDx
-   35     wk(ir,l+ls) = wk(ir,4)*wk(ir,l+lc)
+            wk(ir,l+ls) = wk(ir,4)*wk(ir,l+lc)
+   35     continue
           do  36  ir = 1, nDx
-   36     wk(ir,l+lc) = wk(ir,3)*wk(ir,l+lc)
+            wk(ir,l+lc) = wk(ir,3)*wk(ir,l+lc)
+   36     continue
    34   continue
         do  32  l = 0, lx(ie)
-        lm = l*l
+          lm = l*l
 C     ... xx1..4 artifically m-dependent to allow unrolling of m loop
           do  38  m = 1, 2*l+1
             ilm = lm+m
@@ -452,14 +462,16 @@ C   ... cos(q.dlv), sin(q.dlv) -> wk(3,4), Y0 exp(-(a dlv)**2) -> wk(2)
    22     continue
         else
           do  23  ir = 1, nDx
-   23     wk(ir,3) = 1
+            wk(ir,3) = 1
+   23     continue
           call dpzero(wk(1,4),nDx)
         endif
       endif
 C ... If we are doing Ewald sums, we need this to make H(1/a) (hansr5)
       if (nG .ne. 0) then
         do  24  ir = 1, nDx
-   24   wk(ir,6) = y0*dexp(-wk(ir,1)*a2)
+          wk(ir,6) = y0*dexp(-wk(ir,1)*a2)
+   24   continue
       endif
 
 C --- D-space part of reduced strx for each energy: chi(l)=wk(l+lc)---
@@ -480,18 +492,21 @@ C ... chi = H(rsm) - H(1/a) = (H(0) - H(1/a)) - (H(0) - H(rsm))
       else
         do  49  l = 0, lmax+1
         do  49  ir = ir1, nDx
-   49   wk(ir,l+lc) = 0
+          wk(ir,l+lc) = 0
+   49   continue
       endif
       if (.not. dcmpre(rsm,0d0)) then
         xx = 1/rsm**2
 C   ... Make Y0 exp(-(r/rsm)**2)
         do  33  ir = 1, nDx
-   33   wk(ir,2) = y0*dexp(-wk(ir,1)*xx)
+          wk(ir,2) = y0*dexp(-wk(ir,1)*xx)
+   33   continue
         call hansr5(wk,lmax,nrx,nDx,rsm,wk(1,2),wk(1,5),wk(1,ls))
 C       call prm('H(0) - H(rsm)',wk(1,ls),nrx,nDx,lmax+1)
         do  39  l = 0, lmax
         do  39  ir = ir1, nDx
-   39   wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
+          wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
+   39   continue
       endif
 
 C --- Special treatment of on-site term ---
@@ -511,18 +526,21 @@ C   ... Generate -hsm(p,a,l>0) by upward recursion
 C  ... debugging check
 C      call hansmr(r,0d0,a,xx1,lmax)
         do  31  l = 2, lmax
-        wk(1,l+lc) = ((2*l-1)*wk(1,l+lc-1) + xx)/wk(1,1)
+          wk(1,l+lc) = ((2*l-1)*wk(1,l+lc-1) + xx)/wk(1,1)
 C       print *, wk(1,l+lc)
-   31   xx = 2*a**2*xx
+          xx = 2*a**2*xx
+   31   continue
       endif
 
 C ... Make sin(qR)*(H(rsm,r)-H(1/a,r)), cos(qR)*(H(rsm,r)-H(1/a,r))
       if (.not. lqzero) then
         do  32  l = 0, lmax
-        do  35  ir = 1, nDx
-   35   wk(ir,l+ls) = wk(ir,4)*wk(ir,l+lc)
-        do  34  ir = 1, nDx
-   34   wk(ir,l+lc) = wk(ir,3)*wk(ir,l+lc)
+          do  35  ir = 1, nDx
+            wk(ir,l+ls) = wk(ir,4)*wk(ir,l+lc)
+   35     continue
+          do  34  ir = 1, nDx
+            wk(ir,l+lc) = wk(ir,3)*wk(ir,l+lc)
+   34     continue
    32   continue
       endif
       sp = tpi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
@@ -631,78 +649,78 @@ C     ... We have a match:
 C     ... Do the even and odd l's separately
 C     ... NB c2,s2,c3,s3 m-dependent to allow m loop to be unrolled
           if (job .eq. 0) then
-          do  24  m = 1, 2*l+1
+            do  24  m = 1, 2*l+1
 c           ilm = ilm+1
-            ilm = lm+m
-            c2(ilm) = 0
-            s2(ilm) = 0
-            c3(ilm) = 0
-            s3(ilm) = 0
-            do  23  i = i1, n
-              c2(ilm) = c2(ilm) + yl(i,ilm)*cs2(i)
-              c3(ilm) = c3(ilm) + yl(i,ilm)*cs3(i)
-              s2(ilm) = s2(ilm) + yl(i,ilm)*sn2(i)
-              s3(ilm) = s3(ilm) + yl(i,ilm)*sn3(i)
-   23       continue
-            hl(1,ilm,ie)  = hl(1,ilm,ie)  + cof*c2(ilm)
-            hlp(1,ilm,ie) = hlp(1,ilm,ie) + cof*(gam*c2(ilm)-c3(ilm))
-            hl(2,ilm,ie)  = hl(2,ilm,ie)  + cof*s2(ilm)
-            hlp(2,ilm,ie) = hlp(2,ilm,ie) + cof*(gam*s2(ilm)-s3(ilm))
-   24     continue
-          else
-          do  124  m = 1, 2*l+1
-c           ilm = ilm+1
-            ilm = lm+m
-            c2(ilm) = 0
-            s2(ilm) = 0
-            do  123  i = i1, n
-              c2(ilm) = c2(ilm) + yl(i,ilm)*cs2(i)
-              s2(ilm) = s2(ilm) + yl(i,ilm)*sn2(i)
-  123       continue
-            hl(1,ilm,ie)  = hl(1,ilm,ie)  + cof*c2(ilm)
-            hl(2,ilm,ie)  = hl(2,ilm,ie)  + cof*s2(ilm)
-  124     continue
-          endif
-          if (l+1 .le. lx) then
-            lm = (l+1)*(l+1)
-            if (job .eq. 0) then
-            do  26  m = 1, 2*l+3
-c             ilm = ilm+1
               ilm = lm+m
               c2(ilm) = 0
               s2(ilm) = 0
               c3(ilm) = 0
               s3(ilm) = 0
-              do  27  i = i1, n
+              do  23  i = i1, n
                 c2(ilm) = c2(ilm) + yl(i,ilm)*cs2(i)
                 c3(ilm) = c3(ilm) + yl(i,ilm)*cs3(i)
                 s2(ilm) = s2(ilm) + yl(i,ilm)*sn2(i)
                 s3(ilm) = s3(ilm) + yl(i,ilm)*sn3(i)
-   27         continue
-              hl(1,ilm,ie)  = hl(1,ilm,ie)  + cof*s2(ilm)
-              hlp(1,ilm,ie) = hlp(1,ilm,ie) + cof*(gam*s2(ilm)-s3(ilm))
-              hl(2,ilm,ie)  = hl(2,ilm,ie)  - cof*c2(ilm)
-              hlp(2,ilm,ie) = hlp(2,ilm,ie) - cof*(gam*c2(ilm)-c3(ilm))
-   26       continue
+   23         continue
+              hl(1,ilm,ie)  = hl(1,ilm,ie)  + cof*c2(ilm)
+              hlp(1,ilm,ie) = hlp(1,ilm,ie) + cof*(gam*c2(ilm)-c3(ilm))
+              hl(2,ilm,ie)  = hl(2,ilm,ie)  + cof*s2(ilm)
+              hlp(2,ilm,ie) = hlp(2,ilm,ie) + cof*(gam*s2(ilm)-s3(ilm))
+   24       continue
           else
-            do  126  m = 1, 2*l+3
-c             ilm = ilm+1
+            do  124  m = 1, 2*l+1
+c           ilm = ilm+1
               ilm = lm+m
               c2(ilm) = 0
               s2(ilm) = 0
-              do  127  i = i1, n
+              do  123  i = i1, n
                 c2(ilm) = c2(ilm) + yl(i,ilm)*cs2(i)
                 s2(ilm) = s2(ilm) + yl(i,ilm)*sn2(i)
-  127         continue
-              hl(1,ilm,ie)  = hl(1,ilm,ie)  + cof*s2(ilm)
-              hl(2,ilm,ie)  = hl(2,ilm,ie)  - cof*c2(ilm)
-  126       continue
+  123         continue
+              hl(1,ilm,ie)  = hl(1,ilm,ie)  + cof*c2(ilm)
+              hl(2,ilm,ie)  = hl(2,ilm,ie)  + cof*s2(ilm)
+  124       continue
           endif
+          if (l+1 .le. lx) then
+            lm = (l+1)*(l+1)
+            if (job .eq. 0) then
+              do  26  m = 1, 2*l+3
+c             ilm = ilm+1
+                ilm = lm+m
+                c2(ilm) = 0
+                s2(ilm) = 0
+                c3(ilm) = 0
+                s3(ilm) = 0
+                do  27  i = i1, n
+                  c2(ilm) = c2(ilm) + yl(i,ilm)*cs2(i)
+                  c3(ilm) = c3(ilm) + yl(i,ilm)*cs3(i)
+                  s2(ilm) = s2(ilm) + yl(i,ilm)*sn2(i)
+                  s3(ilm) = s3(ilm) + yl(i,ilm)*sn3(i)
+   27           continue
+                hl(1,ilm,ie)  = hl(1,ilm,ie)  + cof*s2(ilm)
+                hlp(1,ilm,ie) = hlp(1,ilm,ie) + cof*(gam*s2(ilm)-s3(ilm))
+                hl(2,ilm,ie)  = hl(2,ilm,ie)  - cof*c2(ilm)
+                hlp(2,ilm,ie) = hlp(2,ilm,ie) - cof*(gam*c2(ilm)-c3(ilm))
+   26         continue
+            else
+              do  126  m = 1, 2*l+3
+c             ilm = ilm+1
+                ilm = lm+m
+                c2(ilm) = 0
+                s2(ilm) = 0
+                do  127  i = i1, n
+                  c2(ilm) = c2(ilm) + yl(i,ilm)*cs2(i)
+                  s2(ilm) = s2(ilm) + yl(i,ilm)*sn2(i)
+  127           continue
+                hl(1,ilm,ie)  = hl(1,ilm,ie)  + cof*s2(ilm)
+                hl(2,ilm,ie)  = hl(2,ilm,ie)  - cof*c2(ilm)
+  126         continue
+            endif
           endif
    21   continue
 
 C --- Add extra term for l=0 when e=0 and q=0 ---
-      if (dcmpre(e-qsq(1),0d0)) hl(1,1,ie) = hl(1,1,ie) -
+        if (dcmpre(e-qsq(1),0d0)) hl(1,1,ie) = hl(1,1,ie) -
      .    sqrt(4d0*pi)/vol*gam
    20 continue
       end

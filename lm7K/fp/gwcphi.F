@@ -3,8 +3,8 @@ Cgetarg...info...           structure ['gwcphi', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['gwcphi', 'm_struc_def']
       subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas,
      .  ipb,lmxax,nlindx,ndima,ppnl,aus,cphi,cphin)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Project (phi,phidot) onto MT sphere, Kotani's GW conventions
 C ----------------------------------------------------------------------
@@ -126,8 +126,8 @@ C ... Passed parameters
       integer n0,nppn
       parameter (n0=10,nppn=12)
 Cgetarg       double precision ssite(1),sspec(1)
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
       double precision ppnl(nppn,n0,nsp,*),cphin(2,nev)
       double complex aus(nlmax,ndham,3,nsp,*),cphi(ndima,nev)
@@ -142,19 +142,19 @@ C ... Local parameters
 C     ichan0 = 0
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
         ia = ipb(ib)
 Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
 Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg         call upack('spec p pz lmxa',sspec,is,pnu,pnz,lmxa,0)
-         
-         i_copy_size=size(sspec(is)%p) 
-         call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
-         i_copy_size=size(sspec(is)%pz) 
-         call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
-         lmxa=sspec(is)%lmxa
+
+        i_copy_size=size(sspec(is)%p)
+        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
+        i_copy_size=size(sspec(is)%pz)
+        call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
+        lmxa=sspec(is)%lmxa
 
         if (lmxa .eq. -1) goto 10
 
@@ -163,60 +163,60 @@ C         ichan = ichan0
           ilm = 0
           do  l = 0, lmxa
 
-          k = l+1
+            k = l+1
 
-          s00 = ppnl(2,k,isp,ib)
-          s11 = ppnl(7,k,isp,ib)
-          lmat(1,1) = sqrt(s00)
-          lmat(2,2) = sqrt(s11)
-          if (pnz(k,1) .ne. 0) then
-            szz = ppnl(8,k,isp,ib)
-            s0z = ppnl(9,k,isp,ib)
-            s1z = ppnl(10,k,isp,ib)
-            D = sqrt(szz - s0z**2/s00 - s1z**2/s11)
-            lmat(3,1) = s0z/sqrt(s00)
-            lmat(3,2) = s1z/sqrt(s11)
-            lmat(3,3) = D
-          else
-            lmat(3,1) = 0
-            lmat(3,2) = 0
-            lmat(3,3) = 0
-          endif
+            s00 = ppnl(2,k,isp,ib)
+            s11 = ppnl(7,k,isp,ib)
+            lmat(1,1) = sqrt(s00)
+            lmat(2,2) = sqrt(s11)
+            if (pnz(k,1) .ne. 0) then
+              szz = ppnl(8,k,isp,ib)
+              s0z = ppnl(9,k,isp,ib)
+              s1z = ppnl(10,k,isp,ib)
+              D = sqrt(szz - s0z**2/s00 - s1z**2/s11)
+              lmat(3,1) = s0z/sqrt(s00)
+              lmat(3,2) = s1z/sqrt(s11)
+              lmat(3,3) = D
+            else
+              lmat(3,1) = 0
+              lmat(3,2) = 0
+              lmat(3,3) = 0
+            endif
 
-          if (.not. (pnz(k,1) .eq. 0 .eqv. nlindx(3,l,ia) .eq. -1)) then
-             call rx('gwcphi: nlindx mismatch')
-           endif
+            if (.not. (pnz(k,1) .eq. 0 .eqv. nlindx(3,l,ia) .eq. -1)) then
+              call rx('gwcphi: nlindx mismatch')
+            endif
 
-          do  im = 1, 2*l+1
-            ilm = ilm+1
-            au = aus(ilm,iv,1,isp,ib)
-            as = aus(ilm,iv,2,isp,ib)
-            az = aus(ilm,iv,3,isp,ib)
+            do  im = 1, 2*l+1
+              ilm = ilm+1
+              au = aus(ilm,iv,1,isp,ib)
+              as = aus(ilm,iv,2,isp,ib)
+              az = aus(ilm,iv,3,isp,ib)
 
-            sqrsz(1) = lmat(1,1)*au + lmat(3,1)*az
-            sqrsz(2) = lmat(2,2)*as + lmat(3,2)*az
-            sqrsz(3) =                lmat(3,3)*az
-            cphin(1,iv) = cphin(1,iv) +
+              sqrsz(1) = lmat(1,1)*au + lmat(3,1)*az
+              sqrsz(2) = lmat(2,2)*as + lmat(3,2)*az
+              sqrsz(3) =                lmat(3,3)*az
+              cphin(1,iv) = cphin(1,iv) +
      .                    dconjg(sqrsz(1))*sqrsz(1) +
      .                    dconjg(sqrsz(2))*sqrsz(2) +
      .                    dconjg(sqrsz(3))*sqrsz(3)
-            cphin(2,iv) = cphin(2,iv) +
+              cphin(2,iv) = cphin(2,iv) +
      .                    dconjg(sqrsz(1))*sqrsz(1)
 
 C            cphin(2,iv) = cphin(2,iv) +
 C     .                    dconjg(lmat(1,1)*au)*lmat(1,1)*au
 
 C           ichan = ichan+1
-            ichan = nlindx(1,l,ia) + im
-            cphi(ichan,iv) = au
-            ichan = nlindx(2,l,ia) + im
-            cphi(ichan,iv) = as
-            if (nlindx(3,l,ia) .ge. 0) then
-              ichan = nlindx(3,l,ia) + im
-              cphi(ichan,iv) = az
-            endif
+              ichan = nlindx(1,l,ia) + im
+              cphi(ichan,iv) = au
+              ichan = nlindx(2,l,ia) + im
+              cphi(ichan,iv) = as
+              if (nlindx(3,l,ia) .ge. 0) then
+                ichan = nlindx(3,l,ia) + im
+                cphi(ichan,iv) = az
+              endif
 
-          enddo
+            enddo
           enddo
         enddo
 C       ichan0 = ichan
@@ -225,6 +225,6 @@ C       ichan0 = ichan
       enddo
 
 Cgetarg       end
-       end subroutine gwcphi 
+      end subroutine gwcphi
 
 

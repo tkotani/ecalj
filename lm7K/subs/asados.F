@@ -35,8 +35,8 @@ Cgetarg...info...           structure ['asados', 'site', 'ssite']
 Cgetarg...info...           structure ['asados', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['asados', 'm_struc_def']
       subroutine asados(prgnam,sbz,sctrl,sham,slat,sspec,ssite,sarray)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Partial density-of-states generator
 C ----------------------------------------------------------------------
@@ -83,7 +83,7 @@ Ci                  #=2 (diffusive) conductivity, or actually
 Ci                      grad_1 E(k) . grad_2 E(k) where directions
 Ci                      1 and 2 must be specifed by vec and vec2 below
 Ci       idos       generate energy-integrated dos
-Ci       fpdos      tells asados to run in 'fp' mode.  It only 
+Ci       fpdos      tells asados to run in 'fp' mode.  It only
 Ci                  affects printout associating dos channels with
 Ci                  site and class names
 Ci       npts=#     number of energy points.  If not specified with
@@ -108,8 +108,8 @@ Cl Local variables
 Cu Updates
 Cu   08 Jun 06  Bug fix for noncollinear case; new --mull argument
 Cu    8 Jun 05  (ATP) handles empirical TB case
-Cu   13 Sep 03  Revised printout of channels 
-Cu   18 Jan 02  Revised printout of identification of channels 
+Cu   13 Sep 03  Revised printout of channels
+Cu   18 Jan 02  Revised printout of identification of channels
 Cu              with site orbitals
 Cu   07 Feb 01 *several revisions to deal with the following cases:
 Cu              different modes for DOS-related quantities
@@ -122,13 +122,13 @@ C ... Passed parameters
       character*(*) prgnam*8
 Cgetarg       double precision sarray(1),sbz(1),sctrl(1),slat(1),sspec(1),
 Cgetarg      .  ssite(1),sham(1)
-       type(s_array)::sarray
-       type(s_bz)::sbz
-       type(s_ctrl)::sctrl
-       type(s_lat)::slat
-       type(s_spec)::sspec(*)
-       type(s_site)::ssite(*)
-       type(s_ham)::sham
+      type(s_array)::sarray
+      type(s_bz)::sbz
+      type(s_ctrl)::sctrl
+      type(s_lat)::slat
+      type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_ham)::sham
 
 C ... Local variables
       character*120 outs,sopts,dc*1,wtfn
@@ -145,21 +145,21 @@ Cdelw1 do not change  [['undef', 'wref'], 'oclabl', 'asados']
 Cdelw1       integer odos,odoswt,oeband,oew,ogstar,oics,oidtet,oipc,
 Cdelw1      .  onq,onw,oqp,ormax,ovx,ovy,owtkp,owk,ox,oy,oz,oipq,
 Cdelw1      .  oclabl,ochan
-       integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
-     . , oipq , oclabl 
-       real(8) ,allocatable :: rv_w_odos(:)
-       real(8) ,allocatable :: rv_w_odoswt(:)
-       real(8) ,allocatable :: rv_w_oeband(:)
-       real(8) ,allocatable :: rv_w_oew(:)
-       integer ,allocatable :: iv_w_onq(:)
-       integer ,allocatable :: iv_w_onw(:)
-       real(8) ,allocatable :: rv_w_ovx(:)
-       real(8) ,allocatable :: rv_w_ovy(:)
-       real(8) ,allocatable :: rv_w_owk(:)
-       real(8) ,allocatable :: rv_w_ox(:)
-       real(8) ,allocatable :: rv_w_oy(:)
-       real(8) ,allocatable :: rv_w_oz(:)
-       integer ,allocatable :: iv_w_ochan(:)
+      integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
+     . , oipq , oclabl
+      real(8) ,allocatable :: rv_w_odos(:)
+      real(8) ,allocatable :: rv_w_odoswt(:)
+      real(8) ,allocatable :: rv_w_oeband(:)
+      real(8) ,allocatable :: rv_w_oew(:)
+      integer ,allocatable :: iv_w_onq(:)
+      integer ,allocatable :: iv_w_onw(:)
+      real(8) ,allocatable :: rv_w_ovx(:)
+      real(8) ,allocatable :: rv_w_ovy(:)
+      real(8) ,allocatable :: rv_w_owk(:)
+      real(8) ,allocatable :: rv_w_ox(:)
+      real(8) ,allocatable :: rv_w_oy(:)
+      real(8) ,allocatable :: rv_w_oz(:)
+      integer ,allocatable :: iv_w_ochan(:)
 
       integer awrite,fopnn,fopno,i,iblst(1000),ichds,icond,il,imax,
      .  iprint,igets,isw,iv(10),j,j1,j2,l,nband,nbandx,ldos, !lham,
@@ -192,20 +192,20 @@ Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
 Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
 Cgetarg       call upack('ctrl nbas nclass nl nspec',sctrl,nbas,nclass,nl,
 Cgetarg      .  nspec,0)
-       
-       nbas=sctrl%nbas
-       nclass=sctrl%nclass
-       nl=sctrl%nl
-       nspec=sctrl%nspec
+
+      nbas=sctrl%nbas
+      nclass=sctrl%nclass
+      nl=sctrl%nl
+      nspec=sctrl%nspec
 
 Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
 Cgetarg...info...           integer :: lham , integer(8) :: sctrl%lham 1
 Cgetarg...info...           integer :: ldos , integer(8) :: sctrl%ldos 1
 Cgetarg       call upack('ctrl lncol lham ldos',sctrl,lncol,lham,ldos,0,0)
-       
-       lncol=sctrl%lncol
+
+      lncol=sctrl%lncol
 c       lham=sctrl%lham
-       ldos=sctrl%ldos
+      ldos=sctrl%ldos
 
 Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
 Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
@@ -213,32 +213,32 @@ Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
 Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
 Cgetarg       call upack('array nclasp oics oipc ormax',sarray,nclasp,oics,oipc,
 Cgetarg      .  ormax,0)
-       
-       nclasp=sarray%nclasp
+
+      nclasp=sarray%nclasp
 Cdelw1 warning(1) , probably  oics  is not defined yet at linenumber= 165
 Cdelw1 do not change oics because of ['undef', 'wref']
-       oics=sarray%oics
+      oics=sarray%oics
 Cdelw1 warning(1) , probably  oipc  is not defined yet at linenumber= 166
 Cdelw1 do not change oipc because of ['undef', 'wref']
-       oipc=sarray%oipc
-       ormax=sarray%ormax
+      oipc=sarray%oipc
+      ormax=sarray%ormax
 
 Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
 Cgetarg       call upack1('array oclabl',sarray,oclabl)
-       
+
 Cdelw1 warning(1) , probably  oclabl  is not defined yet at linenumber= 172
 Cdelw1 do not change oclabl because of ['undef', 'wref']
-       oclabl=sarray%oclabl
+      oclabl=sarray%oclabl
 
 Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg       call upack('lat avw alat plat',slat,avw,alat,plat,0,0)
-       
-       avw=slat%avw
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
+      avw=slat%avw
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
 
 Cgetarg...info...           integer :: norder , integer(8) :: sbz%n 1
 Cgetarg...info...           real(8) :: width , real(8) :: sbz%w 1
@@ -247,14 +247,14 @@ Cgetarg...info...           real(8) :: cvec(0:6) , real(8) :: sbz%lcond 4
 Cgetarg...info...           real(8) :: drange(2) , real(8) :: sbz%dosw 2
 Cgetarg       call upack('bz n w efmax lcond dosw',sbz,norder,width,efmax,
 Cgetarg      .  cvec,drange)
-       
-       norder=sbz%n
-       width=sbz%w
-       efmax=sbz%efmax
-       i_copy_size=size(sbz%lcond) 
-       call dcopy(i_copy_size,sbz%lcond,1,cvec,1) 
-       i_copy_size=size(sbz%dosw) 
-       call dcopy(i_copy_size,sbz%dosw,1,drange,1) 
+
+      norder=sbz%n
+      width=sbz%w
+      efmax=sbz%efmax
+      i_copy_size=size(sbz%lcond)
+      call dcopy(i_copy_size,sbz%lcond,1,cvec,1)
+      i_copy_size=size(sbz%dosw)
+      call dcopy(i_copy_size,sbz%dosw,1,drange,1)
 
       norder = isign(1,norder) * mod(iabs(norder),100)
 C     For now... until input in rdccat is patched
@@ -274,10 +274,10 @@ c      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx)
 C     call sp2cls('spec idxdn',sspec,w(oics),nl,1,nclass,oidxdn)
 C ... Other initialization
 Cgetarg       lmet = lgors('ctrl lmet,1',sctrl)
-       lmet = iand(1,int(sctrl%lmet)) .ne.0 
+      lmet = iand(1,int(sctrl%lmet)) .ne.0
 
 Cgetarg       ltet = lgors('ctrl lmet,2',sctrl)
-       ltet = iand(2,int(sctrl%lmet)) .ne.0 
+      ltet = iand(2,int(sctrl%lmet)) .ne.0
 
       icond = nint(cvec(0))
       bzmap = bittst(ldos,8)
@@ -286,7 +286,7 @@ Cgetarg       ltet = lgors('ctrl lmet,2',sctrl)
 
 C --- Check for --pdos or --mull command-line argument ---
 C     Tells lmdos that channels are oriented by site, not class.
-C     It does not affect calculation, only the identification 
+C     It does not affect calculation, only the identification
 C     of the channels printed at the end
 C     ldos is not set properly when asados is called, so make assumptions
       nsite = 0
@@ -301,19 +301,19 @@ C     ldos is not set properly when asados is called, so make assumptions
         endif
         nchmx = nbas*nl**2
 Cdelw1         call defi(ochan,nchmx)
-         allocate(iv_w_ochan(nchmx))
+        allocate(iv_w_ochan(nchmx))
 Ctakao_ZeroClear_NotRequiered          if (nchmx<0) iv_w_ochan(:)=0
 
 Cdelw1         call sumlst(lopt,nchmx,nbas,1,ssite,sspec,strn(7:),moddos,
 Cdelw1      .    nsite,lsite,lmxch,nchan,w(ochan),nll)
-         call sumlst ( lopt , nchmx , nbas , 1 , ssite , sspec , strn 
+        call sumlst ( lopt , nchmx , nbas , 1 , ssite , sspec , strn 
      .   ( 7: ) , moddos , nsite , lsite , lmxch , nchan , iv_w_ochan 
-     .   , nll ) 
+     .   , nll )
 
-Cdelw1 rlse name= ochan old_list= ochan 
+Cdelw1 rlse name= ochan old_list= ochan
 Cdelw1 rlse name= ochan new_list= (None)
 Cdelw1         call rlse(ochan)
-         if (allocated(iv_w_ochan)) deallocate(iv_w_ochan)
+        if (allocated(iv_w_ochan)) deallocate(iv_w_ochan)
 
         if (moddos .eq. 0 .or. moddos .eq. 3) ldos = 0
         if (moddos .eq. 1 .or. moddos .eq. 4) ldos = 2
@@ -347,106 +347,106 @@ C      print *, 'LCOND'
 C      LCOND = .true.
 
       if (cmdopt('--dos',5,0,sopts)) then
-      dc = sopts(6:6)
-      if (dc .ne. ' ') then
+        dc = sopts(6:6)
+        if (dc .ne. ' ') then
 C   ... Return here to resume parsing for arguments
-        j2 = 5
-   10   continue
-        j2 = j2+1
-        if (sopts(j2:j2) .eq. dc) goto 10
-        j1 = min(len(sopts),j2)
-        call nwordg(sopts,0,dc//' ',1,j1,j2)
-        if (j2 .ge. j1) then
-          if (.false.) then
-          elseif (sopts(j1:j1+4) .eq. 'wtfn=')  then
-            if (j1+5 .gt. j2) call rx('ASADOS: bad file name')
-            wtfn = sopts(j1+5:j2)
+          j2 = 5
+   10     continue
+          j2 = j2+1
+          if (sopts(j2:j2) .eq. dc) goto 10
+          j1 = min(len(sopts),j2)
+          call nwordg(sopts,0,dc//' ',1,j1,j2)
+          if (j2 .ge. j1) then
+            if (.false.) then
+            elseif (sopts(j1:j1+4) .eq. 'wtfn=')  then
+              if (j1+5 .gt. j2) call rx('ASADOS: bad file name')
+              wtfn = sopts(j1+5:j2)
 C         cls switch just sets file name to 'cls'
-          elseif (sopts(j1:j2) .eq. 'cls')  then
-            wtfn = 'CLS'
-            lfp = .true.
+            elseif (sopts(j1:j2) .eq. 'cls')  then
+              wtfn = 'CLS'
+              lfp = .true.
 C         generate integrated DOS
-          elseif (sopts(j1:j2) .eq. 'idos')  then
-            lidos = .true.
+            elseif (sopts(j1:j2) .eq. 'idos')  then
+              lidos = .true.
 C         tbdos has different dimensions in moments file
-          elseif (sopts(j1:j2) .eq. 'tbdos')  then
-            tbdos = .true.
+            elseif (sopts(j1:j2) .eq. 'tbdos')  then
+              tbdos = .true.
 C         tbdos has different dimensions in moments file
-          elseif (sopts(j1:j2) .eq. 'tbu')  then
-            tbdos = .true.
-            TBU = .true.
+            elseif (sopts(j1:j2) .eq. 'tbu')  then
+              tbdos = .true.
+              TBU = .true.
 C         fp mode has site-dependent dos channels (for printout)
-          elseif (sopts(j1:j2) .eq. 'fpdos')  then
-            lfp = .true.
+            elseif (sopts(j1:j2) .eq. 'fpdos')  then
+              lfp = .true.
 C         Calculate conductivity or some quantity other than dos
-          elseif (sopts(j1:j1+4) .eq. 'mode=')  then
-            m = 0
-            i = parg('mode=',2,sopts(j1:),m,len(sopts(j1:)),
+            elseif (sopts(j1:j1+4) .eq. 'mode=')  then
+              m = 0
+              i = parg('mode=',2,sopts(j1:),m,len(sopts(j1:)),
      .        dc//' ',1,1,iv,icond)
 Cdelw1 save w_varlist= (None)
 CDELW1 savewlist label999
-            if (i .le. 0) goto 999
-            call isanrg(icond,0,2,' ','dos mode',.true.)
+              if (i .le. 0) goto 999
+              call isanrg(icond,0,2,' ','dos mode',.true.)
 C           lcond = .true.
 C         Number of energy points
-          elseif (sopts(j1:j1+4) .eq. 'npts=')  then
-            m = 0
-            i = parg('npts=',2,sopts(j1:),m,len(sopts(j1:)),
+            elseif (sopts(j1:j1+4) .eq. 'npts=')  then
+              m = 0
+              i = parg('npts=',2,sopts(j1:),m,len(sopts(j1:)),
      .        dc//' ',1,1,iv,npts)
-            if (i .le. 0) goto 999
+              if (i .le. 0) goto 999
 C         DOS window
-          elseif (sopts(j1:j1+6) .eq. 'window=')  then
-            m = 0
-            i = parg('window=',4,sopts(j1:),m,len(sopts(j1:)),
+            elseif (sopts(j1:j1+6) .eq. 'window=')  then
+              m = 0
+              i = parg('window=',4,sopts(j1:),m,len(sopts(j1:)),
      .        ', '//dc,2,2,iv,drange)
-            if (i .le. 1) goto 999
-            lrange = .true.
+              if (i .le. 1) goto 999
+              lrange = .true.
 C         First direction vector (icond=1,2)
-          elseif (sopts(j1:j1+3) .eq. 'vec=')  then
-            m = 0
-            i = parg('vec=',4,sopts(j1:),m,len(sopts(j1:)),
+            elseif (sopts(j1:j1+3) .eq. 'vec=')  then
+              m = 0
+              i = parg('vec=',4,sopts(j1:),m,len(sopts(j1:)),
      .        ', '//dc,2,3,iv,cvec(1))
-            if (i .le. 0) goto 999
+              if (i .le. 0) goto 999
 C         Second direction vector (icond=2)
-          elseif (sopts(j1:j1+4) .eq. 'vec2=')  then
-            m = 0
-            i = parg('vec2=',4,sopts(j1:),m,len(sopts(j1:)),
+            elseif (sopts(j1:j1+4) .eq. 'vec2=')  then
+              m = 0
+              i = parg('vec2=',4,sopts(j1:),m,len(sopts(j1:)),
      .        ', '//dc,2,3,iv,cvec(4))
-            if (i .le. 0) goto 999
+              if (i .le. 0) goto 999
 C         Generate total DOS (no partial decomposition into channels)
-          elseif (sopts(j1:j2) .eq. 'totdos')  then
-            totdos = .true.
+            elseif (sopts(j1:j2) .eq. 'totdos')  then
+              totdos = .true.
 C         DOS for a prescribed list of bands only
-          elseif (sopts(j1:j1+5) .eq. 'bands=') then
-            if (j1+6 .gt. j2) call rx('ASADOS: bad list')
-            call mkils0(sopts(j1+6:j2),nblst,iblst)
-            if (nblst .gt. 100) call rx('increase size of iblst')
-            call mkilst(sopts(j1+6:j2),nblst,iblst)
+            elseif (sopts(j1:j1+5) .eq. 'bands=') then
+              if (j1+6 .gt. j2) call rx('ASADOS: bad list')
+              call mkils0(sopts(j1+6:j2),nblst,iblst)
+              if (nblst .gt. 100) call rx('increase size of iblst')
+              call mkilst(sopts(j1+6:j2),nblst,iblst)
 C         DOS for a prescribed list of classes only
-          elseif (sopts(j1:j1+6) .eq. 'classes') then
-            if (nsite .ne. 0) call rx('ASADOS: specification of class '
+            elseif (sopts(j1:j1+6) .eq. 'classes') then
+              if (nsite .ne. 0) call rx('ASADOS: specification of class '
      .        //'list not compatible with --pdos')
-            j1 = j1+7
-            m = j1
-            i = parg('style=',2,sopts,m,len(sopts),sopts(j1:j1)//' ',1,
+              j1 = j1+7
+              m = j1
+              i = parg('style=',2,sopts,m,len(sopts),sopts(j1:j1)//' ',1,
      .        1,iv,lstyle)
-            if (i .lt. 0) then
-              goto 999
-            elseif (i .eq. 0) then
-              j1 = j1+1
-            else
-              j1 = m+2
-            endif
+              if (i .lt. 0) then
+                goto 999
+              elseif (i .eq. 0) then
+                j1 = j1+1
+              else
+                j1 = m+2
+              endif
 Cdelw1 warning(1) , probably  oclabl  is not defined yet at linenumber= 367
 Cdelw1 do not change oclabl because of ['undef', 'wref']
-            call clist(lstyle,sopts(j1:j2),w(oclabl),z,nclass,nlstc,
+              call clist(lstyle,sopts(j1:j2),w(oclabl),z,nclass,nlstc,
      .        lsite)
-          else
-            goto 999
+            else
+              goto 999
+            endif
+            goto 10
           endif
-          goto 10
         endif
-      endif
 
       endif
 
@@ -463,23 +463,23 @@ Cgetarg...info...           integer :: oidtet , integer(8) :: sbz%oidtet 1
 Cgetarg...info...           integer :: owtkp , integer(8) :: sbz%owtkp 1
 Cgetarg       call upack('bz nkabc nkp ntet oidtet owtkp',sbz,nkxyz,nkp,ntet,
 Cgetarg      .  oidtet,owtkp)
-       
-       i_copy_size=size(sbz%nkabc) 
-       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
-       nkp=sbz%nkp
-       ntet=sbz%ntet
+
+      i_copy_size=size(sbz%nkabc)
+      call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
+      nkp=sbz%nkp
+      ntet=sbz%ntet
 Cdelw1 warning(1) , probably  oidtet  is not defined yet at linenumber= 396
 Cdelw1 do not change oidtet because of ['undef', 'wref']
-       oidtet=sbz%oidtet
+      oidtet=sbz%oidtet
 Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 397
 Cdelw1 do not change owtkp because of ['undef', 'wref']
-       owtkp=sbz%owtkp
+      owtkp=sbz%owtkp
 
 
 C ... bzmap setup
       if (bzmap) then
 Cgetarg         nsp = igets('ctrl nspin',sctrl)
-         nsp = int(sctrl%nspin) 
+        nsp = int(sctrl%nspin)
 
 C   ... Read in BZ plane(s) from file BZPL
         nfilqp = fopno('BZPL')
@@ -505,36 +505,36 @@ C   ... Determine number of planes and energy windows for BZ map
    98   call rxx(nkp .eq. 0,prgnam//': empty or badly formed BZPL file')
 C   ... Get BZ plane(s) and BZ sampling parameters
 Cdelw1         call defi(onw,    npln)
-         allocate(iv_w_onw(npln))
+        allocate(iv_w_onw(npln))
 Ctakao_ZeroClear_NotRequiered          if (npln<0) iv_w_onw(:)=0
 
 Cdelw1         call defi(onq,  2*npln)
-         allocate(iv_w_onq(2*npln))
+        allocate(iv_w_onq(2*npln))
 Ctakao_ZeroClear_NotRequiered          if (2*npln<0) iv_w_onq(:)=0
 
 Cdelw1         call defdr(ovx, 3*npln)
-         allocate(rv_w_ovx(3*npln))
+        allocate(rv_w_ovx(3*npln))
 Ctakao_ZeroClear_NotRequiered          if (3*npln<0) rv_w_ovx(:)=0.0d0
 
 Cdelw1         call defdr(ovy, 3*npln)
-         allocate(rv_w_ovy(3*npln))
+        allocate(rv_w_ovy(3*npln))
 Ctakao_ZeroClear_NotRequiered          if (3*npln<0) rv_w_ovy(:)=0.0d0
 
 Cdelw1         call defdr(ox,  2*npln)
-         allocate(rv_w_ox(2*npln))
+        allocate(rv_w_ox(2*npln))
 Ctakao_ZeroClear_NotRequiered          if (2*npln<0) rv_w_ox(:)=0.0d0
 
 Cdelw1         call defdr(oy,  2*npln)
-         allocate(rv_w_oy(2*npln))
+        allocate(rv_w_oy(2*npln))
 Ctakao_ZeroClear_NotRequiered          if (2*npln<0) rv_w_oy(:)=0.0d0
 
 Cdelw1         call defdr(oz,    npln)
-         allocate(rv_w_oz(npln))
+        allocate(rv_w_oz(npln))
 Ctakao_ZeroClear_NotRequiered          if (npln<0) rv_w_oz(:)=0.0d0
 
 Cdelw1         call defdr(oew,-2*npln*nwmx)
-         allocate(rv_w_oew(abs(-2*npln*nwmx)))
-         if (-2*npln*nwmx<0) rv_w_oew(:)=0.0d0
+        allocate(rv_w_oew(abs(-2*npln*nwmx)))
+        if (-2*npln*nwmx<0) rv_w_oew(:)=0.0d0
 
 Cdelw1 do not change oqp because of ['wref']
         call defdr(oqp, 3*nkp)
@@ -542,9 +542,9 @@ Cdelw1 do not change oqp because of ['wref']
 Cdelw1 do not change oqp because of ['wref']
 Cdelw1         call getbzp(nfilqp,npln,nwmx,nkp,w(onw),w(oew),w(onq),w(ovx),
 Cdelw1      .    w(ovy),w(ox),w(oy),z,w(oqp))
-         call getbzp ( nfilqp , npln , nwmx , nkp , iv_w_onw , rv_w_oew 
+        call getbzp ( nfilqp , npln , nwmx , nkp , iv_w_onw , rv_w_oew 
      .   , iv_w_onq , rv_w_ovx , rv_w_ovy , rv_w_ox , rv_w_oy , z , w 
-     .   ( oqp ) ) 
+     .   ( oqp ) )
 
         wtbzm = 2d0 / nsp
 C        if (preskp) then
@@ -581,15 +581,15 @@ C     Empirical TB stores stuff a little differently
           nsp = 2
           nspc = 1
         else
-        nband = nband*nsp
-        nsp = 1
-        nspc = 1
+          nband = nband*nsp
+          nsp = 1
+          nspc = 1
         endif
       endif
       nspx = nsp / nspc
       nbandx = nband*nspc
 Cdelw1       call defdr(oeband,nband*nsp*nkp)
-       allocate(rv_w_oeband(nband*nsp*nkp))
+      allocate(rv_w_oeband(nband*nsp*nkp))
 Ctakao_ZeroClear_NotRequiered        if (nband*nsp*nkp<0) rv_w_oeband(:)=0.0d0
 
 
@@ -619,19 +619,19 @@ C ... Read npts, emin, emax if not already available
         emin = drange(1)
         emax = drange(2)
         if (npts .eq. 0 .or. .not. lrange) then
-        if (npts .eq. 0) npts = 501
-        i = awrite(' Enter npts (def=%i), emin and emax (def='//
+          if (npts .eq. 0) npts = 501
+          i = awrite(' Enter npts (def=%i), emin and emax (def='//
      .    '%;3d,%;3d): ',outs,80,0,npts,emin,emax,0,0,0,0,0)
-        call cwrite(outs,0,i-1,0)
-        read (*,*) npts, emin, emax
+          call cwrite(outs,0,i-1,0)
+          read (*,*) npts, emin, emax
         endif
       endif
 
 C ... Allocate arrays for dos and moms if tetrahedron
       if (ltet) then
 Cdelw1         call defdr(odoswt,-nchds*nbandx*nsp*(nkp+1))
-         allocate(rv_w_odoswt(abs(-nchds*nbandx*nsp*(nkp+1))))
-         if (-nchds*nbandx*nsp*(nkp+1)<0) rv_w_odoswt(:)=0.0d0
+        allocate(rv_w_odoswt(abs(-nchds*nbandx*nsp*(nkp+1))))
+        if (-nchds*nbandx*nsp*(nkp+1)<0) rv_w_odoswt(:)=0.0d0
 
         nfstg = 11
         if (nspc .eq. 2) nfstg = 21
@@ -639,52 +639,52 @@ C       Suppress projection of unity into parts for total dos
         if (totdos) then
           nfstg = 1
 Cdelw1           call dvset(w(odoswt),1,nchds*nbandx*nsp*(nkp+1),1d0)
-           call dvset ( rv_w_odoswt , 1 , nchds * nbandx * nsp * ( nkp + 
-     .     1 ) , 1d0 ) 
+          call dvset ( rv_w_odoswt , 1 , nchds * nbandx * nsp * ( nkp + 
+     .     1 ) , 1d0 )
 
         endif
       else
 Cdelw1         call defdr(odoswt,nchds*nbandx*nspc)
-         allocate(rv_w_odoswt(nchds*nbandx*nspc))
+        allocate(rv_w_odoswt(nchds*nbandx*nspc))
 Ctakao_ZeroClear_NotRequiered          if (nchds*nbandx*nspc<0) rv_w_odoswt(:)=0.0d0
 
         nfstg = 1
       endif
       if (bzmap) then
 Cdelw1         call defdr(odos,nqmx*nsp*nchds*nwmx*npln)
-         allocate(rv_w_odos(nqmx*nsp*nchds*nwmx*npln))
+        allocate(rv_w_odos(nqmx*nsp*nchds*nwmx*npln))
 Ctakao_ZeroClear_NotRequiered          if (nqmx*nsp*nchds*nwmx*npln<0) rv_w_odos(:)=0.0d0
 
       else
 Cdelw1         call defdr(owk,npts)
-         allocate(rv_w_owk(npts))
+        allocate(rv_w_owk(npts))
 Ctakao_ZeroClear_NotRequiered          if (npts<0) rv_w_owk(:)=0.0d0
 
 Cdelw1         call defdr(odos,npts*nsp*nchds)
-         allocate(rv_w_odos(npts*nsp*nchds))
+        allocate(rv_w_odos(npts*nsp*nchds))
 Ctakao_ZeroClear_NotRequiered          if (npts*nsp*nchds<0) rv_w_odos(:)=0.0d0
 
       endif
 
 C ... Make sure missing bands are high enough
 Cdelw1       call dvset(w(oeband),1,nband*nsp*nkp,9d9)
-       call dvset ( rv_w_oeband , 1 , nband * nsp * nkp , 9d9 ) 
+      call dvset ( rv_w_oeband , 1 , nband * nsp * nkp , 9d9 )
 
 C ... Ensure nl,nsp,nspc,nkp,nband match; read in bands (& moms if tet.)
       if (nchds .eq. nchan) then
 Cdelw1         call iomomq(nfilem,32,nl,nsp,nspc,nkp,nband,nfstg,j,nband,nchan,
 Cdelw1      .    nchan,nevmx,w(oeband),w(odoswt),w(odoswt),w,efermi,vmtz)
-         call iomomq ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
+        call iomomq ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
      .   , j , nband , nchan , nchan , nevmx , rv_w_oeband , rv_w_odoswt 
-     .   , rv_w_odoswt , w , efermi , vmtz ) 
+     .   , rv_w_odoswt , w , efermi , vmtz )
 
       else
 Cdelw1         call iomomx(nfilem,32,nl,nsp,nspc,nkp,nband,nfstg,j,nband,nchan,
 Cdelw1      .    nchan2,nchds,nevmx,nlstc,lsite,w(oeband),w,w(odoswt),w,efermi,
 Cdelw1      .    vmtz)
-         call iomomx ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
+        call iomomx ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
      .   , j , nband , nchan , nchan2 , nchds , nevmx , nlstc , lsite 
-     .   , rv_w_oeband , w , rv_w_odoswt , w , efermi , vmtz ) 
+     .   , rv_w_oeband , w , rv_w_odoswt , w , efermi , vmtz )
 
       endif
 C     call dfdump(w(oeband),nband*nsp*nkp,-66)
@@ -735,17 +735,17 @@ C --- Make BZ maps (integrated DOS vs k) ---
 Cdelw1         call nosbzm(nfilem,nbandx,nsp,nspc,nchan,lmet,norder,
 Cdelw1      .    width,nkp,wtbzm,w(oeband),w(odoswt),npln,nwmx,nqmx,w(onw),
 Cdelw1      .    w(oew),w(onq),w(odos))
-         call nosbzm ( nfilem , nbandx , nsp , nspc , nchan , lmet , norder 
+        call nosbzm ( nfilem , nbandx , nsp , nspc , nchan , lmet , norder 
      .   , width , nkp , wtbzm , rv_w_oeband , rv_w_odoswt , npln , nwmx 
-     .   , nqmx , iv_w_onw , rv_w_oew , iv_w_onq , rv_w_odos ) 
+     .   , nqmx , iv_w_onw , rv_w_oew , iv_w_onq , rv_w_odos )
 
 Cdelw1         call bzmio(w(odos),nchan*nsp,npln,nwmx,nqmx,w(onw),w(oew),
 Cdelw1      .    w(onq),w(ovx),w(ovy),w(ox),w(oy),z,nkp,nspd,lmet,
 Cdelw1      .    norder,width,wtbzm,efermi,-fopnn('BZMP'))
-         call bzmio ( rv_w_odos , nchan * nsp , npln , nwmx , nqmx , iv_w_onw 
+        call bzmio ( rv_w_odos , nchan * nsp , npln , nwmx , nqmx , iv_w_onw 
      .   , rv_w_oew , iv_w_onq , rv_w_ovx , rv_w_ovy , rv_w_ox , rv_w_oy 
      .   , z , nkp , nspd , lmet , norder , width , wtbzm , efermi , - 
-     .   fopnn ( 'BZMP' ) ) 
+     .   fopnn ( 'BZMP' ) )
 
 C --- Ballistic conductivity ---
       elseif (lcond) then
@@ -753,11 +753,11 @@ C --- Ballistic conductivity ---
         if (.not. ltet) call
      .    rx('LMDOS: conductivity only with tetrahedron integration')
 C   ... To save memory, allocate dos later
-Cdelw1 rlse name= odos old_list= onw onq ovx ovy ox oy oz oew oqp oeband odoswt odos owk 
-Cdelw1 rlse name= odos new_list= onw onq ovx ovy ox oy oz oew oqp oeband odoswt 
+Cdelw1 rlse name= odos old_list= onw onq ovx ovy ox oy oz oew oqp oeband odoswt odos owk
+Cdelw1 rlse name= odos new_list= onw onq ovx ovy ox oy oz oew oqp oeband odoswt
 Cdelw1         call rlse(odos)
-         if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-         if (allocated(rv_w_odos)) deallocate(rv_w_odos)
+        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+        if (allocated(rv_w_odos)) deallocate(rv_w_odos)
 
 C   ... for debugging
 C        call upack('bz nkp oqp',sbz,nkp,oqp,0,0,0)
@@ -774,8 +774,8 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
         npgrp = 1
 Cgetarg...info...           integer :: npgrp , integer(8) :: slat%npgrp 1
 Cgetarg         call pack1('lat npgrp',slat,npgrp)
-         
-         slat%npgrp=npgrp 
+
+        slat%npgrp=npgrp
 
         call awrit2('          remake qp with %i symop%?#n>1#s##',
      .    ' ',80,stdo,npgrp,npgrp)
@@ -787,34 +787,34 @@ Cgetarg...info...           integer :: owtkp , integer(8) :: sbz%owtkp 1
 Cgetarg...info...           integer :: ogstar , integer(8) :: sbz%ostar 1
 Cgetarg         call upack('bz nkp nkabc oqp owtkp ostar',sbz,
 Cgetarg      .    nkp,nkxyz,oqp,owtkp,ogstar)
-         
-         nkp=sbz%nkp
-         i_copy_size=size(sbz%nkabc) 
-         call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
+
+        nkp=sbz%nkp
+        i_copy_size=size(sbz%nkabc)
+        call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
 Cdelw1 do not change oqp because of ['wref']
-         oqp=sbz%oqp
+        oqp=sbz%oqp
 Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 640
 Cdelw1 do not change owtkp because of ['undef', 'wref']
-         owtkp=sbz%owtkp
+        owtkp=sbz%owtkp
 Cdelw1 warning(1) , probably  ogstar  is not defined yet at linenumber= 641
 Cdelw1 do not change ogstar because of ['undef', 'wref']
-         ogstar=sbz%ostar
+        ogstar=sbz%ostar
 
 Cgetarg...info...           integer :: ntet , integer(8) :: sbz%ntet 1
 Cgetarg...info...           integer :: oidtet , integer(8) :: sbz%oidtet 1
 Cgetarg...info...           integer :: oipq , integer(8) :: sbz%oipq 1
 Cgetarg         call upack('bz ntet oidtet oipq',sbz,ntet,oidtet,oipq,0,0)
-         
-         ntet=sbz%ntet
+
+        ntet=sbz%ntet
 Cdelw1 warning(1) , probably  oidtet  is not defined yet at linenumber= 649
 Cdelw1 do not change oidtet because of ['undef', 'wref']
-         oidtet=sbz%oidtet
+        oidtet=sbz%oidtet
 Cdelw1 warning(1) , probably  oipq  is not defined yet at linenumber= 650
 Cdelw1 do not change oipq because of ['undef', 'wref']
-         oipq=sbz%oipq
+        oipq=sbz%oipq
 
 Cdelw1         call defdr(odos,npts*nsp*nchan)
-         allocate(rv_w_odos(npts*nsp*nchan))
+        allocate(rv_w_odos(npts*nsp*nchan))
 Ctakao_ZeroClear_NotRequiered          if (npts*nsp*nchan<0) rv_w_odos(:)=0.0d0
 
         if (nblst .eq. 0) nblst = nevmx
@@ -837,11 +837,11 @@ Cdelw1         call contet(icond,nbandx,nsp,nspx,nblst,nchan,nkxyz(1),nkxyz(2),
 Cdelw1      .    nkxyz(3),ntet,w(oidtet),w(oqp),w(oipq),w(ogstar),iblst,
 Cdelw1      .    w(oeband),cvec(1),w(odoswt),npts,emin,emax,lidos,w(owk),
 Cdelw1      .    w(odos))
-         call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
+        call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
      .   ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , w ( 
      .   oqp ) , w ( oipq ) , w ( ogstar ) , iblst , rv_w_oeband , cvec 
      .   ( 1 ) , rv_w_odoswt , npts , emin , emax , lidos , rv_w_owk , 
-     .   rv_w_odos ) 
+     .   rv_w_odos )
 
         del = 0d0
 C --- make DOS or NOS ---
@@ -855,10 +855,10 @@ Cdelw1 do not change oidtet because of ['undef', 'wref']
 Cdelw1           call dostet(nbandx,nsp,nspx,nevmx,nchds,nkxyz(1),
 Cdelw1      .      nkxyz(2),nkxyz(3),ntet,w(oidtet),w(oeband),
 Cdelw1      .      w(odoswt),npts,emin,emax,lidos,w(owk),w(odos))
-           call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1 
+          call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1 
      .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , rv_w_oeband 
      .     , rv_w_odoswt , npts , emin , emax , lidos , rv_w_owk , rv_w_odos 
-     .     ) 
+     .     )
 
           del = 0d0
 
@@ -873,15 +873,15 @@ Cdelw1 do not change owtkp because of ['undef', 'wref']
 Cdelw1           call dosspl(nfilem,nbandx,nsp,nspc,nchan,norder,width,nkp,
 Cdelw1      .      w(owtkp),w(oeband),w(odoswt),npts,emin,emax,lidos,w(owk),
 Cdelw1      .      w(odos))
-           call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder , 
+          call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder , 
      .     width , nkp , w ( owtkp ) , rv_w_oeband , rv_w_odoswt , npts 
-     .     , emin , emax , lidos , rv_w_owk , rv_w_odos ) 
+     .     , emin , emax , lidos , rv_w_owk , rv_w_odos )
 
           del = norder+width
         endif
 Cdelw1         if (nspd .gt. nsp) call dscal(npts*nsp*nchan,.5d0,w(odos),1)
-         if ( nspd .gt. nsp ) call dscal ( npts * nsp * nchan , .5d0 , 
-     .   rv_w_odos , 1 ) 
+        if ( nspd .gt. nsp ) call dscal ( npts * nsp * nchan , .5d0 , 
+     .   rv_w_odos , 1 )
 
       endif
       if (.not. bzmap) then
@@ -889,125 +889,125 @@ Cdelw1         if (nspd .gt. nsp) call dscal(npts*nsp*nchan,.5d0,w(odos),1)
         if (lncol .gt. 0) i = 1
 Cdelw1         call dosio(w(odos),npts*(1+nsp-i),nchds,npts,nchds,
 Cdelw1      .    emin,emax,i,efermi,del,1,-fopnn('DOS'))
-         call dosio ( rv_w_odos , npts * ( 1 + nsp - i ) , nchds , npts 
+        call dosio ( rv_w_odos , npts * ( 1 + nsp - i ) , nchds , npts 
      .   , nchds , emin , emax , i , efermi , del , 1 , - fopnn ( 'DOS' 
-     .   ) ) 
+     .   ) )
 
       endif
-Cdelw1 rlse name= odoswt old_list= onw onq ovx ovy ox oy oz oew oqp oeband odoswt odos 
-Cdelw1 rlse name= odoswt new_list= onw onq ovx ovy ox oy oz oew oqp oeband 
+Cdelw1 rlse name= odoswt old_list= onw onq ovx ovy ox oy oz oew oqp oeband odoswt odos
+Cdelw1 rlse name= odoswt new_list= onw onq ovx ovy ox oy oz oew oqp oeband
 Cdelw1       call rlse(odoswt)
-       if (allocated(rv_w_odos)) deallocate(rv_w_odos)
-       if (allocated(rv_w_odoswt)) deallocate(rv_w_odoswt)
+      if (allocated(rv_w_odos)) deallocate(rv_w_odos)
+      if (allocated(rv_w_odoswt)) deallocate(rv_w_odoswt)
 
 
 C --- List channels in DOS file ---
       if (iprint() .ge. 30 .and. .not. totdos .and.
      .    .not. cmdopt('--cls',5,0,strn)) then
-      if (nsp .eq. 1) print 332
-      if (nsp .eq. 2) print 332, 'spin-2'
-  332 format(/' Channels in dos file generated by LMDOS:'
+        if (nsp .eq. 1) print 332
+        if (nsp .eq. 2) print 332, 'spin-2'
+  332   format(/' Channels in dos file generated by LMDOS:'
      .       /' site class label   spin-1':23x,a)
-      if (nsite .ne. 0) then
-        imax = nbas
-      else
-        imax = nclass
-      endif
-
-      il = 1
-      ichds = 0
-C     Loop over all sites (or classes)
-      do  40  i = 1, imax
-        if (lsite(1) .ne. -1) then
-          if (i .ne. lsite(il)) goto 40
+        if (nsite .ne. 0) then
+          imax = nbas
+        else
+          imax = nclass
         endif
 
-        if (nsite .ne. 0) then
-          ib = i
+        il = 1
+        ichds = 0
+C     Loop over all sites (or classes)
+        do  40  i = 1, imax
+          if (lsite(1) .ne. -1) then
+            if (i .ne. lsite(il)) goto 40
+          endif
+
+          if (nsite .ne. 0) then
+            ib = i
 Cdelw1 warning(1) , probably  oipc  is not defined yet at linenumber= 708
 Cdelw1 do not change oipc because of ['undef', 'wref']
-          ic = ival(w(oipc),ib)
-        else
-          ic = i
+            ic = ival(w(oipc),ib)
+          else
+            ic = i
 Cdelw1 warning(1) , probably  oipc  is not defined yet at linenumber= 711
 Cdelw1 do not change oipc because of ['undef', 'wref']
-          ib = iclbas(i,w(oipc))
-        endif
+            ib = iclbas(i,w(oipc))
+          endif
 
 C       Make a new nlo if channels are site-dependent
-        if (lfp) then
+          if (lfp) then
 C         Global upper bound to lmax
-          nl = nll
+            nl = nll
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg           call upack('site spec',ssite,ib,is,0,0,0)
-           
-           is=ssite(ib)%spec
+
+            is=ssite(ib)%spec
 
 Cgetarg           lmax = igetss('spec lmxa',is,sspec)
-           lmax = int(sspec(is)%lmxa) 
+            lmax = int(sspec(is)%lmxa)
 
 Cgetarg           if (cmdopt('--mull',6,0,strn))
 Cgetarg      .    lmax = igetss('spec lmxb',is,sspec)
-           if ( cmdopt ( '--mull' , 6 , 0 , strn ) ) lmax = int(sspec(is)%lmxb) 
+            if ( cmdopt ( '--mull' , 6 , 0 , strn ) ) lmax = int(sspec(is)%lmxb)
 
-          nll = min(lmax+1,nl)
-          nlo = nll
-          if (ldos .eq. 0) nlo = 1
-          if (ldos .eq. 2) nlo = nll
-          if (ldos .eq. 4) nlo = nll*nll
-        endif
+            nll = min(lmax+1,nl)
+            nlo = nll
+            if (ldos .eq. 0) nlo = 1
+            if (ldos .eq. 2) nlo = nll
+            if (ldos .eq. 4) nlo = nll*nll
+          endif
 
 Cgetarg         call spacks(0,'site clabel',ssite,clabl,ib,ib)
-         do i_spacks=ib,ib 
-         call spacks_copy('u',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
-         enddo
+          do i_spacks=ib,ib
+            call spacks_copy('u',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
+          enddo
 
-        outs = ' '
-        write(outs,333) i, ic, clabl
-  333   format(2i5,3x,a8)
-        j = 0
-        do  43  l = 0, nlo-1
-          j = j+1
-          iblst(j) = ichds+nsp*l+1
-   43   continue
-        call ilst2a(iblst,j,outs(21:))
+          outs = ' '
+          write(outs,333) i, ic, clabl
+  333     format(2i5,3x,a8)
+          j = 0
+          do  43  l = 0, nlo-1
+            j = j+1
+            iblst(j) = ichds+nsp*l+1
+   43     continue
+          call ilst2a(iblst,j,outs(21:))
 C        do  44  l = 0, nlo-1
 C   44   call awrit1('%a%i,',outs(21:),80,0,ichds+nsp*l+1)
 C        call awrit0('%a%b ',outs(21:),80,0)
-        if (nsp .eq. 2) then
-          j = 0
-          do  45 l = 0, nlo-1
-            j = j+1
-            iblst(j) = ichds+nsp*l+2
-   45     continue
-          call ilst2a(iblst,j,outs(50:))
+          if (nsp .eq. 2) then
+            j = 0
+            do  45 l = 0, nlo-1
+              j = j+1
+              iblst(j) = ichds+nsp*l+2
+   45       continue
+            call ilst2a(iblst,j,outs(50:))
 C          do  46  l = 0, nlo-1
 C   46     call awrit1('%a%i,',outs(50:),80,0,ichds+nsp*l+2)
 C          call awrit0('%a%b ',outs(50:),80,0)
-        endif
-        call awrit0('%a',outs,80,-stdo)
-        il = il+1
+          endif
+          call awrit0('%a',outs,80,-stdo)
+          il = il+1
 
-        ichds = ichds + nlo*nsp
-   40 continue
+          ichds = ichds + nlo*nsp
+   40   continue
       endif
 Cki#error, have return with len(w_varlist)>0 at line 771
-Cdelw1 w_varlist remains: onw onq ovx ovy ox oy oz oew oqp oeband 
+Cdelw1 w_varlist remains: onw onq ovx ovy ox oy oz oew oqp oeband
 Cdelw1 w_varlistundel: [oics oclabl oidtet oipq ogstar owtkp oipc oqp]
 Cdelw1 w_varlist (undel), remains: [oqp]
 Cdelw1 w_varlist (del), remains: [onw onq ovx ovy ox oy oz oew oeband]
 Cdelw1 not deallocate oqp because of [wref]
 Cdelw1       return
-       if (allocated(rv_w_oeband)) deallocate(rv_w_oeband)
-       if (allocated(rv_w_oew)) deallocate(rv_w_oew)
-       if (allocated(rv_w_oz)) deallocate(rv_w_oz)
-       if (allocated(rv_w_oy)) deallocate(rv_w_oy)
-       if (allocated(rv_w_ox)) deallocate(rv_w_ox)
-       if (allocated(rv_w_ovy)) deallocate(rv_w_ovy)
-       if (allocated(rv_w_ovx)) deallocate(rv_w_ovx)
-       if (allocated(iv_w_onq)) deallocate(iv_w_onq)
-       if (allocated(iv_w_onw)) deallocate(iv_w_onw)
-       return 
+      if (allocated(rv_w_oeband)) deallocate(rv_w_oeband)
+      if (allocated(rv_w_oew)) deallocate(rv_w_oew)
+      if (allocated(rv_w_oz)) deallocate(rv_w_oz)
+      if (allocated(rv_w_oy)) deallocate(rv_w_oy)
+      if (allocated(rv_w_ox)) deallocate(rv_w_ox)
+      if (allocated(rv_w_ovy)) deallocate(rv_w_ovy)
+      if (allocated(rv_w_ovx)) deallocate(rv_w_ovx)
+      if (allocated(iv_w_onq)) deallocate(iv_w_onq)
+      if (allocated(iv_w_onw)) deallocate(iv_w_onw)
+      return
 
 
   999 continue
@@ -1019,7 +1019,7 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [oics oclabl oidtet oipq ogstar owtkp oipc oqp]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine asados 
+      end subroutine asados
 
 C      subroutine snot(qp,nkp,eband,plat)
 C      implicit none

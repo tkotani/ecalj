@@ -18,10 +18,12 @@ C --- Write branch ---
         write(-ifile,760) emin,emax,ndos,nld,nspin,eferm,del,ifmt
         if (ifmt .eq. 0) then
           do  10  ie = 1, ndos
-   10     write(-ifile,761) ie,(dos(ie,ild),ild=1,nld*nspin)
+            write(-ifile,761) ie,(dos(ie,ild),ild=1,nld*nspin)
+   10     continue
         else
           do  11  ild = 1, nld*nspin
-   11     write(-ifile,762) (dos(ie,ild),ie=1,ndos)
+            write(-ifile,762) (dos(ie,ild),ie=1,ndos)
+   11     continue
         endif
   761   format(i5,6f12.5/(5x,6f12.5))
   760   format(2f10.5,3i5,2f10.5,i5)
@@ -34,10 +36,12 @@ C --- Read branch ---
         if (nld*nspin .gt. ndmx) call rx('dosio: nld.gt.ndmx')
         if (ifmt .eq. 0) then
           do  20  ie = 1, ndos
-   20     read(ifile,761) iedum,(dos(ie,ild),ild=1,nld*nspin)
+            read(ifile,761) iedum,(dos(ie,ild),ild=1,nld*nspin)
+   20     continue
         elseif (ifmt .eq. 1) then
           do  21  ild = 1, nld*nspin
-   21     read(ifile,762) (dos(ie,ild),ie=1,ndos)
+            read(ifile,762) (dos(ie,ild),ie=1,ndos)
+   21     continue
         else
           call rx('dosio: bad fmt')
         endif

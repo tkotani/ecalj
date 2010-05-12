@@ -130,18 +130,20 @@ C     implicit none
       q2 = 50d0
       q0 = 5d0
       do  33  i = 1, 25
-      gq0 = (2d0*pi*q0)**(lmax-2)*dexp(-(pi*q0/a0)**2)*4d0*pi/v0
-      if(gq0 .gt. tol) q1 = q0
-      if(gq0 .lt. tol) q2 = q0
-   33 q0 = .5d0*(q1+q2)
+        gq0 = (2d0*pi*q0)**(lmax-2)*dexp(-(pi*q0/a0)**2)*4d0*pi/v0
+        if(gq0 .gt. tol) q1 = q0
+        if(gq0 .lt. tol) q2 = q0
+        q0 = .5d0*(q1+q2)
+   33 continue
       r1 = 0.1d0
       r2 = 50d0
       r0 = 5d0
       do  15  i = 1, 25
-      call dlmtor(r0,a0,lmax,f,g)
-      if(f(lmax) .gt. tol) r1 = r0
-      if(f(lmax) .le. tol) r2 = r0
-   15 r0 = .5d0*(r1+r2)
+        call dlmtor(r0,a0,lmax,f,g)
+        if(f(lmax) .gt. tol) r1 = r0
+        if(f(lmax) .le. tol) r2 = r0
+        r0 = .5d0*(r1+r2)
+   15 continue
 c|    try = (2d0*pi*q0)**(lmax-2)*dexp(-(pi*q0/a0)**2)*4d0*pi/v0
 c|    write(6,957) q0,try,r0,f(lmax)
 c|957 format(' lcut: q0=',f12.6,'   try=',f12.6,'   r0=',f12.6,
@@ -167,9 +169,10 @@ C     implicit none
       g = 2d0*a*emz2*fbsrpi/r
       flm2 = fbsrpi*emz2/z - erfc0
       do  10  l = 1, lmax
-      f(l) = ((l+l-1)/r)*f(l-1) + g
-      fbar(l) = ((l+l-1)/r)*fbar(l-1) - flm2
-      flm2 = f(l-1)
-   10 g = g*ta2r
+        f(l) = ((l+l-1)/r)*f(l-1) + g
+        fbar(l) = ((l+l-1)/r)*fbar(l-1) - flm2
+        flm2 = f(l-1)
+        g = g*ta2r
+   10 continue
       end
 

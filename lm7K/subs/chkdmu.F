@@ -5,8 +5,8 @@ Cgetarg...info...           structure ['chkdmu', 'ham', 'sham']
 Cgetarg...info...           use_to_add ['chkdmu', 'm_struc_def']
       subroutine chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,sham,idvsh,
      .  dmatu,dmatuo,vorb,tolu,umix,lldau,ng,g,istab)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- LDA+U total energy and mixing of lda+U density matrix
 C ----------------------------------------------------------------------
@@ -56,9 +56,9 @@ C ... Passed parameters
       integer nbas,nsp,nlibu,lmaxu,ng,idvsh
       integer lldau(nbas),istab(nbas,ng)
 Cgetarg       double precision ssite(1),sspec(1),sham(1)
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_ham)::sham
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_ham)::sham
 
       double precision tolu,umix,g(9,ng)
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
@@ -71,7 +71,7 @@ C ... Local parameters
       double precision ddmat,uh(4),jh(4),eorbi,eterms(20),eks,ddot,xx
       equivalence (eterms(2),eks)
 Cdelw1       integer odmwk
-       complex(8) ,allocatable :: zv_w_odmwk(:)
+      complex(8) ,allocatable :: zv_w_odmwk(:)
 
 C ... MPI
       integer procid,master,mpipid
@@ -108,18 +108,18 @@ C --- Symmetrize output dmatu (req. real harmonics); compare diff ---
         havesh = 0
       endif
 Cdelw1       call defcc(odmwk,-ivsiz)
-       allocate(zv_w_odmwk(abs(-ivsiz)))
-       if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
+      allocate(zv_w_odmwk(abs(-ivsiz)))
+      if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
 
 Cdelw1       call symdmu(dmatu,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
 Cdelw1      .  lldau,xx)
-       call symdmu ( dmatu , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
-     . , ssite , ng , g , istab , lldau , xx ) 
+      call symdmu ( dmatu , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
+     . , ssite , ng , g , istab , lldau , xx )
 
-Cdelw1 rlse name= odmwk old_list= odmwk 
+Cdelw1 rlse name= odmwk old_list= odmwk
 Cdelw1 rlse name= odmwk new_list= (None)
 Cdelw1       call rlse(odmwk)
-       if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
+      if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
 
       if (havesh .ne. idvsh) then
         call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
@@ -144,51 +144,51 @@ C     This block requires dmatu to be in spherical harmonics
       eorb = 0
       iblu = 0
       do  ib = 1, nbas
-      if (lldau(ib) .ne. 0) then
+        if (lldau(ib) .ne. 0) then
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+          is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
 Cgetarg...info...           real(8) :: uh(4) , real(8) :: sspec%uh 4
 Cgetarg...info...           real(8) :: jh(4) , real(8) :: sspec%jh 4
 Cgetarg         call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
-         
-         lmxa=sspec(is)%lmxa
-         i_copy_size=size(sspec(is)%idu) 
-         call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
-         i_copy_size=size(sspec(is)%uh) 
-         call dcopy(i_copy_size,sspec(is)%uh,1,uh,1) 
-         i_copy_size=size(sspec(is)%jh) 
-         call dcopy(i_copy_size,sspec(is)%jh,1,jh,1) 
 
-        do  l = 0, min(lmxa,3)
-          if (idu(l+1) .ne. 0) then
-            iblu = iblu+1
-            eorbi = 999
-            call ldau(100+idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp,
+          lmxa=sspec(is)%lmxa
+          i_copy_size=size(sspec(is)%idu)
+          call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)
+          i_copy_size=size(sspec(is)%uh)
+          call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
+          i_copy_size=size(sspec(is)%jh)
+          call dcopy(i_copy_size,sspec(is)%jh,1,jh,1)
+
+          do  l = 0, min(lmxa,3)
+            if (idu(l+1) .ne. 0) then
+              iblu = iblu+1
+              eorbi = 999
+              call ldau(100+idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp,
      .        lmaxu,vorb,eorbi)
-            eorb = eorb + eorbi
-          endif
-        enddo
-      endif
+              eorb = eorb + eorbi
+            endif
+          enddo
+        endif
       enddo
 
 C --- LDA total energy terms ---
 Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
 Cgetarg       call upack1('ham eterms',sham,eterms)
-       
-       i_copy_size=size(sham%eterms) 
-       call dcopy(i_copy_size,sham%eterms,1,eterms,1) 
+
+      i_copy_size=size(sham%eterms)
+      call dcopy(i_copy_size,sham%eterms,1,eterms,1)
 
       eks = eks + eorb
 Cgetarg...info...           real(8) :: eks , real(8) :: sham%ehk 1
 Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
 Cgetarg       call pack5('ham ehk eterms',sham,eks,eterms,0,0,0)
-       
-       sham%ehk=eks 
-       i_copy_size=size(sham%eterms) 
-       call dcopy(i_copy_size,eterms,1,sham%eterms,1) 
+
+      sham%ehk=eks
+      i_copy_size=size(sham%eterms)
+      call dcopy(i_copy_size,eterms,1,sham%eterms,1)
 
       call info5(20,0,0,'%9peks = %,6;6d  '//
      .  'e[U] = %,6;6d  Etot(LDA+U) = %,6;6d',eks-eorb,eorb,eks,0,0)
@@ -232,53 +232,53 @@ C       This block requires dmatu to be in spherical harmonics
         endif
         iblu = 0
         do  ib = 1, nbas
-        if (lldau(ib) .ne. 0) then
+          if (lldau(ib) .ne. 0) then
 Cgetarg           is = igetss('site spec',ib,ssite)
-           is = int(ssite(ib)%spec) 
+            is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
 Cgetarg...info...           real(8) :: uh(4) , real(8) :: sspec%uh 4
 Cgetarg...info...           real(8) :: jh(4) , real(8) :: sspec%jh 4
 Cgetarg           call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
-           
-           lmxa=sspec(is)%lmxa
-           i_copy_size=size(sspec(is)%idu) 
-           call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
-           i_copy_size=size(sspec(is)%uh) 
-           call dcopy(i_copy_size,sspec(is)%uh,1,uh,1) 
-           i_copy_size=size(sspec(is)%jh) 
-           call dcopy(i_copy_size,sspec(is)%jh,1,jh,1) 
 
-          do  l = 0, min(lmxa,3)
-            if (idu(l+1) .ne. 0) then
-              iblu = iblu+1
-              call pshpr(iprint()-20)
-              call ldau(idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp,
+            lmxa=sspec(is)%lmxa
+            i_copy_size=size(sspec(is)%idu)
+            call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)
+            i_copy_size=size(sspec(is)%uh)
+            call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
+            i_copy_size=size(sspec(is)%jh)
+            call dcopy(i_copy_size,sspec(is)%jh,1,jh,1)
+
+            do  l = 0, min(lmxa,3)
+              if (idu(l+1) .ne. 0) then
+                iblu = iblu+1
+                call pshpr(iprint()-20)
+                call ldau(idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp,
      .          lmaxu,vorb,eorb)
-              call poppr
-            endif
-          enddo
-        endif
+                call poppr
+              endif
+            enddo
+          endif
         enddo
 C       At this point, dmatu and vorb are in spherical harmonics
 
 C   ... Symmetrize vorb to check (symdmu requires real harmonics)
 Cdelw1         call defcc(odmwk,-ivsiz)
-         allocate(zv_w_odmwk(abs(-ivsiz)))
-         if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
+        allocate(zv_w_odmwk(abs(-ivsiz)))
+        if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
 
         call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
 Cdelw1         call symdmu(vorb,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
 Cdelw1      .    lldau,xx)
-         call symdmu ( vorb , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
-     .   , ssite , ng , g , istab , lldau , xx ) 
+        call symdmu ( vorb , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
+     .   , ssite , ng , g , istab , lldau , xx )
 
         call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
-Cdelw1 rlse name= odmwk old_list= odmwk 
+Cdelw1 rlse name= odmwk old_list= odmwk
 Cdelw1 rlse name= odmwk new_list= (None)
 Cdelw1         call rlse(odmwk)
-         if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
+        if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
 
 C       At this point, dmatu and vorb are in spherical harmonics
 
@@ -317,6 +317,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine chkdmu 
+      end subroutine chkdmu
 
 

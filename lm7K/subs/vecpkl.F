@@ -46,30 +46,34 @@ C     implicit none
 C --- Set wk = 2*a**2*r**2 ---
       xx = 2*a*a
       do  6  i = 1, nr
-    6 wk(i) = xx*r(i)**2
+        wk(i) = xx*r(i)**2
+    6 continue
 
 C --- Do explicitly for k=0,1 ---
       do  10  l = 0, lmax
-      xx = a**l
+        xx = a**l
       do  10  i = 1, nr
-   10 p(i,0,l) = xx
+        p(i,0,l) = xx
+   10 continue
 
       if (kmax .gt. 0) then
-      do  20  l = 0, lmax
-      xx = a**l
-      xx2 = 1/dble(2*l+3)
-      do  20  i = 1, nr
-   20 p(i,1,l)=xx*(wk(i)*xx2-1d0)
+        do  20  l = 0, lmax
+          xx = a**l
+          xx2 = 1/dble(2*l+3)
+        do  20  i = 1, nr
+          p(i,1,l)=xx*(wk(i)*xx2-1d0)
+   20   continue
       endif
 
 C --- Recursion for higher k ---
       do  30  k = 2, kmax
-      xx3 = 2*(k-1)
+        xx3 = 2*(k-1)
       do  30  l = 0, lmax
-      xx2 = (4*k+2*l-1)
-      xx = 1/dble(2*k+2*l+1)
+        xx2 = (4*k+2*l-1)
+        xx = 1/dble(2*k+2*l+1)
       do  30  i = 1, nr
-   30 p(i,k,l) = xx*((wk(i)-xx2)*p(i,k-1,l) - xx3*p(i,k-2,l))
+        p(i,k,l) = xx*((wk(i)-xx2)*p(i,k-1,l) - xx3*p(i,k-2,l))
+   30 continue
 
 C --- Radial derivative of p ---
       if (mod(lrl/10,10) .ne. 0) then
@@ -77,20 +81,23 @@ C --- Radial derivative of p ---
 C  ... Set wk = 2*a**2*r**2
         xx = 2*a*a
         do  16  i = 1, nr
-   16   wk(i) = xx*r(i)
+          wk(i) = xx*r(i)
+   16   continue
 
         do  40  k = 0, kmax
         do  40  l = 0, lmax-1
-        xx2 = dble(2*k+2*l+3)/(a*(2*l+3))
+          xx2 = dble(2*k+2*l+3)/(a*(2*l+3))
         do  40  i = 1, nr
-   40   gp(i,k,l) = wk(i)*(p(i,k,l) - xx2*p(i,k,l+1))
+          gp(i,k,l) = wk(i)*(p(i,k,l) - xx2*p(i,k,l+1))
+   40   continue
 
       endif
 
 C --- Scale by r^l if lrl nonzero ---
       if (mod(lrl,10) .eq. 0) return
       do  50  i = 1, nr
-   50 wk(i) = 1
+        wk(i) = 1
+   50 continue
 
       do  52  l = 1, lmax
 
@@ -98,14 +105,17 @@ C   ... gP scales as  r*l gP +  l*r^l-1 P
         if (mod(lrl/10,10) .ne. 0 .and. l .lt. lmax) then
           do  53  k = 0, kmax
           do  53  i = 1, nr
-   53     gp(i,k,l) = wk(i)*r(i)*gp(i,k,l) + l*wk(i)*p(i,k,l)
+            gp(i,k,l) = wk(i)*r(i)*gp(i,k,l) + l*wk(i)*p(i,k,l)
+   53     continue
         endif
 
         do  54  i = 1, nr
-   54   wk(i) = wk(i)*r(i)
+          wk(i) = wk(i)*r(i)
+   54   continue
         do  56  k = 0, kmax
         do  56  i = 1, nr
-   56   p(i,k,l) = p(i,k,l)*wk(i)
+          p(i,k,l) = p(i,k,l)*wk(i)
+   56   continue
 
    52 continue
 

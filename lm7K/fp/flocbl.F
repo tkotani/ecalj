@@ -77,24 +77,24 @@ C       Block orbitals into groups with consecutive l
 C   ... Grad of psi expansion coeffs from a virtual shift at site ib
         call dpzero(da, 2*(kmax+1)*nlma*3)
         do  io = 1, norb
-        if (blks(io) .ne. 0) then
+          if (blks(io) .ne. 0) then
 C         l2 = l index, needed to locate block in da,db
-          l2   = ltab(io)
-          nlm1 = l2**2+1
-          nlm2 = nlm1 + blks(io)-1
-          i    = offl(io)
+            l2   = ltab(io)
+            nlm1 = l2**2+1
+            nlm2 = nlm1 + blks(io)-1
+            i    = offl(io)
 C         i = index to head term, (ilm,k) to augmentation
-          do  ilmb = nlm1, nlm2
-            i = i+1
-            do  m = 1, 3
-              do  ilm = 1, nlma
-                do  k = 0, kmax
-                  da(k,ilm,m) = da(k,ilm,m) + evec(i)*db(i,ilm,k,m)
+            do  ilmb = nlm1, nlm2
+              i = i+1
+              do  m = 1, 3
+                do  ilm = 1, nlma
+                  do  k = 0, kmax
+                    da(k,ilm,m) = da(k,ilm,m) + evec(i)*db(i,ilm,k,m)
+                  enddo
                 enddo
               enddo
             enddo
-          enddo
-        endif
+          endif
         enddo
 
 C   --- Force term is (grad psi_kL) * (ppi-evl*sig)*evec ---
@@ -243,34 +243,34 @@ C   ... ppi contribution: loop over largest blocks possible
 
 C ... Add Pkl*Pkl block of ppi-evl*sig times cPkL
       if (lcplxp .eq. 0) then
-      do  ilm = 1, nlma
-        l = ll(ilm)
-        do  k1 = 0, kmax
-          do  jlm = 1, nlma
+        do  ilm = 1, nlma
+          l = ll(ilm)
+          do  k1 = 0, kmax
+            do  jlm = 1, nlma
+              do  k2 = 0, kmax
+                wk(k1,ilm) = wk(k1,ilm) +ppipp(k1,k2,ilm,jlm)*cPkL(k2,jlm)
+              enddo
+            enddo
             do  k2 = 0, kmax
-              wk(k1,ilm) = wk(k1,ilm) +ppipp(k1,k2,ilm,jlm)*cPkL(k2,jlm)
+              wk(k1,ilm) = wk(k1,ilm) - evl*sigpp(k1,k2,l)*cPkL(k2,ilm)
             enddo
           enddo
-          do  k2 = 0, kmax
-            wk(k1,ilm) = wk(k1,ilm) - evl*sigpp(k1,k2,l)*cPkL(k2,ilm)
-          enddo
         enddo
-      enddo
 
       else
-      do  ilm = 1, nlma
-        l = ll(ilm)
-        do  k1 = 0, kmax
-          do  jlm = 1, nlma
+        do  ilm = 1, nlma
+          l = ll(ilm)
+          do  k1 = 0, kmax
+            do  jlm = 1, nlma
+              do  k2 = 0, kmax
+                wk(k1,ilm) = wk(k1,ilm)+ppippz(k1,k2,ilm,jlm)*cPkL(k2,jlm)
+              enddo
+            enddo
             do  k2 = 0, kmax
-              wk(k1,ilm) = wk(k1,ilm)+ppippz(k1,k2,ilm,jlm)*cPkL(k2,jlm)
+              wk(k1,ilm) = wk(k1,ilm) - evl*sigpp(k1,k2,l)*cPkL(k2,ilm)
             enddo
           enddo
-          do  k2 = 0, kmax
-            wk(k1,ilm) = wk(k1,ilm) - evl*sigpp(k1,k2,l)*cPkL(k2,ilm)
-          enddo
         enddo
-      enddo
       endif
 
 

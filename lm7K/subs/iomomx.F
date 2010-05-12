@@ -69,11 +69,11 @@ C Local variables
       double precision xx
 Cdelw1       integer nlf,nspf,nspcf,nkpf,ldimf,nfstgf,iprint,i1mach,jq,iomoms,
 Cdelw1      .  nev,oeb,oaccm,odosw,nschan
-       integer:: nlf , nspf , nspcf , nkpf , ldimf , nfstgf , iprint 
-     . , i1mach , jq , iomoms , nev , nschan 
-       real(8) ,allocatable :: rv_w_oeb(:)
-       real(8) ,allocatable :: rv_w_oaccm(:)
-       real(8) ,allocatable :: rv_w_odosw(:)
+      integer:: nlf , nspf , nspcf , nkpf , ldimf , nfstgf , iprint 
+     . , i1mach , jq , iomoms , nev , nschan
+      real(8) ,allocatable :: rv_w_oeb(:)
+      real(8) ,allocatable :: rv_w_oaccm(:)
+      real(8) ,allocatable :: rv_w_odosw(:)
 
       character outs*80
 C ... Heap
@@ -129,15 +129,15 @@ C --- Read info spec'd by nfstg for each qp until error ---
       read (ifi,err=999,end=999) nlf
       nevmx = 0
 Cdelw1       call defrr(oeb,  nband)
-       allocate(rv_w_oeb(nband))
+      allocate(rv_w_oeb(nband))
 Ctakao_ZeroClear_NotRequiered        if (nband<0) rv_w_oeb(:)=0.0d0
 
 Cdelw1       call defrr(oaccm,nchan*nband*nfstg)
-       allocate(rv_w_oaccm(nchan*nband*nfstg))
+      allocate(rv_w_oaccm(nchan*nband*nfstg))
 Ctakao_ZeroClear_NotRequiered        if (nchan*nband*nfstg<0) rv_w_oaccm(:)=0.0d0
 
 Cdelw1       call defrr(odosw,nchan*nband*nfstg)
-       allocate(rv_w_odosw(nchan*nband*nfstg))
+      allocate(rv_w_odosw(nchan*nband*nfstg))
 Ctakao_ZeroClear_NotRequiered        if (nchan*nband*nfstg<0) rv_w_odosw(:)=0.0d0
 
       if (nfstg .ge. 100) call rxi('iomomx not ready for nfstg=',nfstg)
@@ -145,25 +145,25 @@ Ctakao_ZeroClear_NotRequiered        if (nchan*nband*nfstg<0) rv_w_odosw(:)=0.0d
 Cdelw1         if (iomoms(ifi,nl,nsp,nspc,nkp,ldim,nfstg,nschan,1,1,nband*nspc,
 Cdelw1      .    nband*nspc,nchan,nchan2,nev,w(oeb),w(oaccm),w(odosw),dosw2,
 Cdelw1      .    efermi,vmtz).lt. 0)goto 999
-         if ( iomoms ( ifi , nl , nsp , nspc , nkp , ldim , nfstg , nschan 
+        if ( iomoms ( ifi , nl , nsp , nspc , nkp , ldim , nfstg , nschan 
      .   , 1 , 1 , nband * nspc , nband * nspc , nchan , nchan2 , nev 
      .   , rv_w_oeb , rv_w_oaccm , rv_w_odosw , dosw2 , efermi , vmtz 
-     .   ) .lt. 0 ) goto 999 
+     .   ) .lt. 0 ) goto 999
 
 Cdelw1         call pviomx(nchan,nchds,nband*nspc,nl,nspc,listc,nlistc,nfstg,
 Cdelw1      .    nschan,jq,w(oeb),w(odosw),eb,doswt)
-         call pviomx ( nchan , nchds , nband * nspc , nl , nspc , listc 
+        call pviomx ( nchan , nchds , nband * nspc , nl , nspc , listc 
      .   , nlistc , nfstg , nschan , jq , rv_w_oeb , rv_w_odosw , eb , 
-     .   doswt ) 
+     .   doswt )
 
         nevmx = max(nev,nevmx)
    10 continue
-Cdelw1 rlse name= oeb old_list= oeb oaccm odosw 
+Cdelw1 rlse name= oeb old_list= oeb oaccm odosw
 Cdelw1 rlse name= oeb new_list= (None)
 Cdelw1       call rlse(oeb)
-       if (allocated(rv_w_odosw)) deallocate(rv_w_odosw)
-       if (allocated(rv_w_oaccm)) deallocate(rv_w_oaccm)
-       if (allocated(rv_w_oeb)) deallocate(rv_w_oeb)
+      if (allocated(rv_w_odosw)) deallocate(rv_w_odosw)
+      if (allocated(rv_w_oaccm)) deallocate(rv_w_oaccm)
+      if (allocated(rv_w_oeb)) deallocate(rv_w_oeb)
 
 
       if (mod(mode/10,10) .eq. 2 .or. iq .ne. nkp) goto 99

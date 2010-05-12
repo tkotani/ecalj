@@ -1,20 +1,20 @@
       subroutine hansrz(rsml,lmin,lmax,e,rsq,nrx,nr,job,xi,fi)
-C- Vector of smoothed Hankel functions, any e 
+C- Vector of smoothed Hankel functions, any e
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   rsml    : vector of l-dependent smoothing radii of Hankels 
+Ci   rsml    : vector of l-dependent smoothing radii of Hankels
 Ci           : EITHER must be specified for lmin..lmax
 Ci           : OR     rsmh(0) = const < 0. Implies rsmh(l) = -const for all l
 Ci   nrx,lmin: dimensions of xi and fi
 Ci   e,lmax  : energy and lmax to generate fns
 Ci   rsq,nr  : vector of points r**2, and number of points.
-Ci   job     : 1s digit nonzero, scale xi and fi by r**l  
-Ci           : 10s digit nonzero, input rsq is ordered as rsq(i-1) =< rsq(i) 
+Ci   job     : 1s digit nonzero, scale xi and fi by r**l
+Ci           : 10s digit nonzero, input rsq is ordered as rsq(i-1) =< rsq(i)
 Co Outputs
 Co   xi   : e>0 smoothed Neumann fns for: xi(1..nr, lmin..lmax)
 Co        : e<0 smoothed Hankel fns for: xi(1..nr, lmin..lmax)
-Co   fi   : e>0 proportional to unsmoothed Bessel fns: 
-Co        :     fi(1..nr, lmin..lmax) = e^{l+1/2} * j_l 
+Co   fi   : e>0 proportional to unsmoothed Bessel fns:
+Co        :     fi(1..nr, lmin..lmax) = e^{l+1/2} * j_l
 Co        : e<0 not referenced
 Co        : xi and fi are the radial part/r**l, so the solid Hankel is
 Co        : hl(ilm) = xi(l)*cy(ilm)*yl(ilm)
@@ -24,19 +24,19 @@ Cl        : 1..n1-1  are evaluated by power series expansion
 Cl        : n1..n2-1 are evaluated by explicit generation of l=-1,0
 Cl                    and upward recursion for higher l.
 Cl        : n2..nr   asymtotic form: sm-H has become regular H.
-Cl        : If the points are not sorted, they are grouped into 
+Cl        : If the points are not sorted, they are grouped into
 Cl        : three bins, with n1-1, n2-n1, and nr-n2+1 points in them
 Cl        : idx is a permutation index that keeps track of the grouping
 Cl Local auto-arrays:
 Cl   idx  : permutation index; not used if 10s digit of job set.
-Cl   wrsq : reordered rsq array: rsq(i) = wrsq(idx(i));  
+Cl   wrsq : reordered rsq array: rsq(i) = wrsq(idx(i));
 Cl        : not used if 10s digit of job set.
-Cl   gs   : gaussians for the intermediate points 
-Cl   wk   : double precision work array of length nrx (for hansr2) 
+Cl   gs   : gaussians for the intermediate points
+Cl   wk   : double precision work array of length nrx (for hansr2)
 Cr Remarks
-Cr   Unlike hansr, the program scales xi(*,-1) and fi(*,-1) in the  
-Cr   same way as it is done for other l's if mod(job,10)>0. 
-Cr   This is solely done for the sake of consistency. 
+Cr   Unlike hansr, the program scales xi(*,-1) and fi(*,-1) in the
+Cr   same way as it is done for other l's if mod(job,10)>0.
+Cr   This is solely done for the sake of consistency.
 Cr
 Cr   Points are partitioned into three length scales:
 Cr     r<rc1 are evaluated by a polynomial expansion.
@@ -48,7 +48,7 @@ Cr   in a narrow region for r~rc1 and l>6, where the precision degrades
 Cr   somewhat, worsening with higher l.  For all cases tested, the
 Cr   relative error continued to be ~<10^-13 for l<=9.
 Cu Updates
-Cu   11 May 07 (S. Lozovoi) adapted from hansr.f 
+Cu   11 May 07 (S. Lozovoi) adapted from hansr.f
 C ----------------------------------------------------------------------
 C     implicit none
       integer nrx,nr,lmin,lmax,job
@@ -92,14 +92,14 @@ C Start big loop over smoothing radii
       rsm0 = -1d0
       n2p = nr + 1
       do  ill = lmax, lmin, -1
-        rsm = rsmx(ill) 
+        rsm = rsmx(ill)
         if (dabs(rsm-rsm0) .lt. tol) goto 60
         rsm0 = rsm
         llmax = max0(ill,0)
 
 C --- Handle case rsm=0 ---
         if (rsm .lt. 1d-12) then
-          n2 = 1 
+          n2 = 1
           if (lpos) then
             do  ir = 1, nr
               rl = rsq(ir)
@@ -148,18 +148,18 @@ c    .    n1-1,n2-n1,nr-n2+1)
 
 
 C --- Setup for the energy-independent gs, points n1..n2 ---
-          if (lsort) then
-            do  ir = max0(n1,1), n2-1
-              gs(ir) = y0*dexp(-rsq(ir)*a2)
-            enddo
-          else
-            do  ir = max0(n1,1), n2-1
-              gs(ir) = y0*dexp(-wrsq(ir)*a2)
-            enddo
-          endif
+        if (lsort) then
+          do  ir = max0(n1,1), n2-1
+            gs(ir) = y0*dexp(-rsq(ir)*a2)
+          enddo
+        else
+          do  ir = max0(n1,1), n2-1
+            gs(ir) = y0*dexp(-wrsq(ir)*a2)
+          enddo
+        endif
 c       endif
 
-        jerf = 0 
+        jerf = 0
 C   ... Case calculate points in original order (already sorted)
         if (lsort) then
 C     ... Power series for points within rc1
@@ -174,8 +174,8 @@ C     ... Asymtotic case, r>>rsm
             if (lpos) then
               do  ir = n2, n2p - 1
                 rl = rsq(ir)
-                call besslr(e*rl,0,lmin,llmax,fbess(lmin),fneum(lmin))  
-C               call bessll(e*rl,lmin,llmax,fbess(lmin),fneum(lmin))  
+                call besslr(e*rl,0,lmin,llmax,fbess(lmin),fneum(lmin))
+C               call bessll(e*rl,lmin,llmax,fbess(lmin),fneum(lmin))
                 rm2 = 1.d0/rl
                 rl = dsqrt(rl)
                 if (lmin. eq. -1) then
@@ -188,18 +188,18 @@ C               call bessll(e*rl,lmin,llmax,fbess(lmin),fneum(lmin))
                   whan(ir,il) = fneum(il) * rl
                 enddo
               enddo
-            else 
+            else
               call hanr(rsq(n2),lmin,llmax,nrx,n2p-n2,e,whan(n2,lmin))
             endif
           endif
 C     ... if e > 0, make also unsmoothed bessel functions  ---
-C we have to do this only once, in addition bessels from n2 to nr already exist   
+C we have to do this only once, in addition bessels from n2 to nr already exist
           if (lpos .and. llmax .eq. lmax) then
             if (n2 .gt. 1) then
               do  ir = 1, n2-1
 C               call bessll(e*rsq(ir),lmin,llmax,
                 call besslr(e*rsq(ir),0,lmin,llmax,
-     .                    fbess(lmin),fneum(lmin))  
+     .                    fbess(lmin),fneum(lmin))
                 do il = lmin, llmax
                   fi(ir,il) = fbess(il)
                 enddo
@@ -221,8 +221,8 @@ C     ... Asymtotic case, r>>rsm
             if (lpos) then
               do  ir = n2, nr
                 rl = wrsq(ir)
-                call besslr(e*rl,0,lmin,llmax,fbess(lmin),fneum(lmin))  
-C               call bessll(e*rl,lmin,llmax,fbess(lmin),fneum(lmin))  
+                call besslr(e*rl,0,lmin,llmax,fbess(lmin),fneum(lmin))
+C               call bessll(e*rl,lmin,llmax,fbess(lmin),fneum(lmin))
                 rm2 = 1.d0/rl
                 rl = dsqrt(rl)
                 if (lmin. eq. -1) then
@@ -235,7 +235,7 @@ C               call bessll(e*rl,lmin,llmax,fbess(lmin),fneum(lmin))
                   whan(ir,il) = fneum(il) * rl
                 enddo
               enddo
-            else 
+            else
               call hanr(wrsq(n2),lmin,llmax,nrx,nr+1-n2,e,whan(n2,lmin))
             endif
           endif
@@ -243,9 +243,9 @@ C     ... if e > 0, make also unsmoothed bessel functions  ---
           if (lpos .and. llmax .eq. lmax) then
             if (n2 .gt. 1) then
               do  ir = 1, n2-1
-C               call bessll(e*wrsq(ir),lmin,llmax,  
+C               call bessll(e*wrsq(ir),lmin,llmax,
                 call besslr(e*wrsq(ir),0,lmin,llmax,  
-     .                      fbess(lmin),fneum(lmin))  
+     .                      fbess(lmin),fneum(lmin))
                 do il = lmin, llmax
                   wbes(ir,il) = fbess(il)
                 enddo
@@ -304,11 +304,11 @@ c     if (.not. lscal) return
             enddo
           endif
         enddo
-      endif 
+      endif
 
       end
       subroutine hansz1(rsq,lmin,lmax,nrx,nr,e,rsm,rmax,xi)
-C- Vector of smoothed hankel (e < 0 ) or neumann functions (e > 0) 
+C- Vector of smoothed hankel (e < 0 ) or neumann functions (e > 0)
 C- for l=lmin...lmax  by power series expansion.
 C ---------------------------------------------------------------
 Ci Inputs
@@ -326,7 +326,7 @@ Cr   This routine is intended for evaluation of smoothed hankels
 Cr   for small r (r<rsm or so).
 Cr   hansz1 tries to evaluate the polynomial in-line for a 14th order
 Cr   polynomial, and a 20th order.  Failing that, it evaluates the
-Cr   polynomial to whatever order is needed (up to nmax) to bring 
+Cr   polynomial to whatever order is needed (up to nmax) to bring
 Cr   the convergence to a relative precision of 'tol'.
 C ---------------------------------------------------------------
 C     implicit none
@@ -383,8 +383,8 @@ C   --- Coffs to polynomial of order nm1 ---
 C   ... Use it if it is accurate enough
         if (dabs(add*r2max) .lt. dabs(cof0(l))*tol) then
           do  51  ir = 1, nr
-          x = rsq(ir)
-          xi(ir,l) = (((((((((((((cofl(14)*x+
+            x = rsq(ir)
+            xi(ir,l) = (((((((((((((cofl(14)*x+
      .      cofl(13))*x+cofl(12))*x+cofl(11))*x+cofl(10))*x+cofl(9))*x+
      .      cofl(8))*x+cofl(7))*x+cofl(6))*x+cofl(5))*x+cofl(4))*x+
      .      cofl(3))*x+cofl(2))*x+cofl(1))*x+cofl(0)
@@ -393,53 +393,55 @@ C ---   Coffs to polynomial of order nm2 ---
 C   ... Use it if it is accurate enough
         else
           do  22  i = nm1+1, nm2
-          add = -(e*add + rhs) / ( 2*i*(2*i+(l+l+1)) )
-          cofl(i) = add
-          rhs = -rhs*a2/i
-   22   continue
-        if (dabs(add*r2max) .lt. dabs(cof0(l))*tol) then
-        do  52  ir = 1, nr
-          x = rsq(ir)
-          xi(ir,l) = (((((((((((((((((((cofl(20)*x+cofl(19))*x+
+            add = -(e*add + rhs) / ( 2*i*(2*i+(l+l+1)) )
+            cofl(i) = add
+            rhs = -rhs*a2/i
+   22     continue
+          if (dabs(add*r2max) .lt. dabs(cof0(l))*tol) then
+            do  52  ir = 1, nr
+              x = rsq(ir)
+              xi(ir,l) = (((((((((((((((((((cofl(20)*x+cofl(19))*x+
      .      cofl(18))*x+cofl(17))*x+cofl(16))*x+cofl(15))*x+cofl(14))*x+
      .      cofl(13))*x+cofl(12))*x+cofl(11))*x+cofl(10))*x+cofl(9))*x+
      .      cofl(8))*x+cofl(7))*x+cofl(6))*x+cofl(5))*x+cofl(4))*x+
      .      cofl(3))*x+cofl(2))*x+cofl(1))*x+cofl(0)
-   52   continue
-        else
+   52       continue
+          else
 C ---   Polynomial to nmaxl ---
-        do  23  i = nm2+1, nmax
-          add = -(e*add + rhs) / ( 2*i*(2*i+(l+l+1)) )
-          cofl(i) = add
-          nmaxl = i
-          if (dabs(add*r2max) .lt. dabs(cof0(l))*tol) goto 24
-          rhs = -rhs*a2/i
-   23   continue
+            do  23  i = nm2+1, nmax
+              add = -(e*add + rhs) / ( 2*i*(2*i+(l+l+1)) )
+              cofl(i) = add
+              nmaxl = i
+              if (dabs(add*r2max) .lt. dabs(cof0(l))*tol) goto 24
+              rhs = -rhs*a2/i
+   23       continue
 c       print 333, tol
 c 333   format(' hansz1:  not converged to tol=',1pe8.1)
-        print '(/1x,a,e8.1,a,i3)','hansz1: only ',
+            print '(/1x,a,e8.1,a,i3)','hansz1: only ',
      .  dabs(add*r2max/cof0(l)),
-     .  ' accuracy is achieved for l = ',l    
-        call rx1('hansz1: not converged to tol = %;4g',tol)
-   24   continue
-        do  53  ir = 1, nr
-   53   xi(ir,l) = cofl(nmaxl)
-        do  54  m = nmaxl, 1, -1
-        do  54  ir = 1, nr
-   54   xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
-        endif
+     .  ' accuracy is achieved for l = ',l
+            call rx1('hansz1: not converged to tol = %;4g',tol)
+   24       continue
+            do  53  ir = 1, nr
+              xi(ir,l) = cofl(nmaxl)
+   53       continue
+            do  54  m = nmaxl, 1, -1
+            do  54  ir = 1, nr
+              xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
+   54       continue
+          endif
         endif
         ta2l = ta2l*(ta*a)
    20 continue
 
       end
       subroutine hansz2(jerf,rsq,lmin,lmax,nrx,nr,e,rsm,wk,wk2,xi)
-C- Vector of smoothed hankel (e < 0) or neumann (e > 0) functions 
+C- Vector of smoothed hankel (e < 0) or neumann (e > 0) functions
 C- for l=lmin...lmax.
 C ---------------------------------------------------------------
 Ci Inputs
 Ci   jerf  : 1 - approximate erfc as a ratio of polinomials (e < 0)
-Ci           0 - calculate erfc directly  
+Ci           0 - calculate erfc directly
 Ci   rsq,nr: vector of points r**2, and number of points.
 Ci   lmin  : starting l for which to evaluate xi (must be 0 or -1).
 Ci   lmax  : highest l for which to evaluate xi (must be 0 or > 0)
@@ -454,8 +456,8 @@ Co           (can be used to generate xi to higher l)
 Cr Remarks
 Cr   xi is the radial part divided by r**l.
 Cr   xi is evaluated by upward recursion for l>lmin+2.
-Cr   um and up are u_{+} and u_{-}, respectively, from the JMP paper 
-Cr             (ie the order is opposite) 
+Cr   um and up are u_{+} and u_{-}, respectively, from the JMP paper
+Cr             (ie the order is opposite)
 C ---------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
@@ -490,9 +492,9 @@ C     Numerators and denominators are t,b respectively.
      .  b16=0.0259246506506122312604d0, b26=0.0061015346650271900230d0,
      .  b17=0.0025737049320207806669d0, b27=0.0004628727666611496482d0,
      .  b18=0.0001159960791581844571d0, b28=0.0000157743458828120915d0)
-      double precision derfc,aexp 
-      double complex zerfc,zexp,vm,vp 
-c     double precision upm 
+      double precision derfc,aexp
+      double complex zerfc,zexp,vm,vp
+c     double precision upm
       double precision rzero,facgl0,am1
       integer n1
       parameter (rzero = 1d-40)
@@ -505,15 +507,15 @@ C ... f2(w=x-2) is erfc(x) for x>1.3, if xx is y0*dexp(-x*x)
      .  w+t21)*w+t20)/((((((((b28*w+b27)*w+b26)*w+b25)*w+b24)*
      .  w+b23)*w+b22)*w+b21)*w+1)
 c ... upm(w) = u_{+}(r); upm(-w) = u_{-}(r) => h(r) = (upm(r) - upm(-r))/(2*r)
-c     upm(w) = dexp(-w*akap) * derfc(arsm-a*w) 
+c     upm(w) = dexp(-w*akap) * derfc(arsm-a*w)
 
 C --- Setup ---
       if (lmax .lt. lmin .or. nr .eq. 0) return
       if (lmin .lt. -1 .or. lmin .gt. 0) call rx('hansz2: bad lmin')
       if (lmax .lt. 0) call rx('hansz2: bad lmax')
 
-C ... energy 
-      lpos = (e .gt. 0) 
+C ... energy
+      lpos = (e .gt. 0)
       if (lpos) then
         akap = dsqrt(e)
 c       zi = dcmplx(0d0,1d0)
@@ -523,9 +525,9 @@ c       zi = dcmplx(0d0,1d0)
       if (lpos .and. jerf .eq. 1) 
      . call rx('hansz2:  can''t approximate erfc with polynomials at'//
      .         ' e > 0')
-      
+
       a = 1/rsm
-      a2 = 2*a*a 
+      a2 = 2*a*a
       arsm = akap*rsm*.5d0
 C      if (lpos) then
 C        earsm = dexp(arsm**2)*.5d0
@@ -537,10 +539,10 @@ C      endif
       facgl = facdu
       if (lmin .eq. 0) facgl = facgl * a2
 
-C ... If the mesh starts in the orygin, set xi(1) to lim xi(r -> 0)   
+C ... If the mesh starts in the orygin, set xi(1) to lim xi(r -> 0)
       n1 = 1
-      if (rsq(1) .lt. rzero) then 
-        n1 = 2 
+      if (rsq(1) .lt. rzero) then
+        n1 = 2
 c       facgl0 = facdu / dsqrt(16*datan(1d0))
         facgl0 = facdu * wk(1)
         if (lpos) then
@@ -548,17 +550,17 @@ c       facgl0 = facdu / dsqrt(16*datan(1d0))
         else
           am1 = derfc(arsm) / akap
         endif
-        if (lmin .eq. -1) xi(1,-1) = am1 
-        xi(1,0) = facgl0 + e*am1  
+        if (lmin .eq. -1) xi(1,-1) = am1
+        xi(1,0) = facgl0 + e*am1
         if (lmax .ge. 1) then
           do  il = 1, lmax
             xx = 2*il + 1
-            facgl0 = facgl0 * a2 
+            facgl0 = facgl0 * a2
             xi(1,il) = (e*xi(1,il-1) + facgl0) / xx
-          enddo 
-        endif 
+          enddo
+        endif
       endif
-        
+
 C --- xi(*,lmin), xi(*,lmin+1) ---
 c  Approximate erfc as a ratio of polynomials
       if (jerf .eq. 1) then
@@ -602,29 +604,29 @@ C   ... xi(1)
           wk2(ir) = facgl*wk(ir)
         enddo
 
-c ... up and um directly from derfc; 
-      else 
+c ... up and um directly from derfc;
+      else
         do  ir = n1, nr
           r2 = rsq(ir)
           r = dsqrt(r2)
           ra = r*a
           if (lpos) then
             zexp = cdexp(dcmplx(0d0,akap*r))
-            vm = (1d0 - zerfc(dcmplx( ra,arsm))) * zexp 
-            vp = (1d0 - zerfc(dcmplx(-ra,arsm))) / zexp 
+            vm = (1d0 - zerfc(dcmplx( ra,arsm))) * zexp
+            vp = (1d0 - zerfc(dcmplx(-ra,arsm))) / zexp
 C   ... am1 = xi(-1) = (vm + vp) * i/(2*akap)
             am1 = -dimag(vm + vp) * 0.5d0/akap
 C   ... xi(0) = (vm - vp)/(2*r)
             xi(ir,0) = dreal(vm - vp) * (0.5d0/r)
-          else  
+          else
             aexp = dexp(akap*r)
-            um = derfc(arsm-ra) / aexp 
-            up = derfc(arsm+ra) * aexp 
+            um = derfc(arsm-ra) / aexp
+            up = derfc(arsm+ra) * aexp
 C   ... am1 = xi(-1) = (um + up)/(2*akap)
             am1 = (um + up) * 0.5d0/akap
 C   ... xi(0) = (um - up)/(2*r)
             xi(ir,0) = (um - up) * (0.5d0/r)
-          endif  
+          endif
 
 C   ... xi(-1)
           if (lmin .eq. -1) then
@@ -636,18 +638,18 @@ C   ... xi(1)
           endif
           wk2(ir) = facgl*wk(ir)
         enddo
-      endif 
+      endif
 
 C --- xi(ir,l) for l>1 by upward recursion ---
       if (lmax .gt. lmin+1) then
-      facgl = a2
+        facgl = a2
         do  il = lmin+2, lmax
           xx = 2*il-1
           do  ir = n1, nr
             xi(ir,il) = (xx*xi(ir,il-1) - e*xi(ir,il-2) - 
      .                   wk2(ir)) / rsq(ir)
             wk2(ir) = facgl*wk2(ir)
-          enddo 
+          enddo
         enddo
       endif
 

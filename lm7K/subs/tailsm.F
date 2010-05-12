@@ -41,10 +41,10 @@ C ... Passed parameters
 C ... Local parameters
       logical lzero
 Cdelw1       integer lx0(20),isp,owk,oidx,oxi,ie,ir,ipr,stdo,lgunit
-       integer:: lx0(20) , isp , ie , ir , ipr , stdo , lgunit 
-       real(8) ,allocatable :: rv_w_owk(:)
-       real(8) ,allocatable :: rv_w_oidx(:)
-       real(8) ,allocatable :: rv_w_oxi(:)
+      integer:: lx0(20) , isp , ie , ir , ipr , stdo , lgunit
+      real(8) ,allocatable :: rv_w_owk(:)
+      real(8) ,allocatable :: rv_w_oidx(:)
+      real(8) ,allocatable :: rv_w_oxi(:)
 
       double precision sr,x0(0:2),xi(0:2),fpi,qout,qcst(20),qcst0(20),
      .  err,rsq(nr)
@@ -58,19 +58,21 @@ C ... Heap
 
 C --- Tabulate smoothed Hankels on a radial mesh ---
       do  10  ir = 1, nr
-   10 rsq(ir) = rofi(ir)**2
+        rsq(ir) = rofi(ir)**2
+   10 continue
       do  12  ie = 1, nxi
-   12 lx0(ie) = 0
+        lx0(ie) = 0
+   12 continue
 Cdelw1       call defrr(oxi,    nr*nxi)
-       allocate(rv_w_oxi(nr*nxi))
+      allocate(rv_w_oxi(nr*nxi))
 Ctakao_ZeroClear_NotRequiered        if (nr*nxi<0) rv_w_oxi(:)=0.0d0
 
 Cdelw1       call defrr(oidx,   nr*2)
-       allocate(rv_w_oidx(nr*2))
+      allocate(rv_w_oidx(nr*2))
 Ctakao_ZeroClear_NotRequiered        if (nr*2<0) rv_w_oidx(:)=0.0d0
 
 Cdelw1       call defrr(owk,    nr*6)
-       allocate(rv_w_owk(nr*6))
+      allocate(rv_w_owk(nr*6))
 Ctakao_ZeroClear_NotRequiered        if (nr*6<0) rv_w_owk(:)=0.0d0
 
 C     Patch to properly handle case when rsm=0
@@ -78,16 +80,16 @@ C     Patch to properly handle case when rsm=0
       if (lzero) rsq(1) = rsq(2)/100
       print *,'tailsm:xxx1'
 Cdelw1       call hansr(rsm,0,0,nxi,lx0,exi,rsq,nr,nr,w(oidx),w(owk),0,w(oxi))
-       call hansr ( rsm , 0 , 0 , nxi , lx0 , exi , rsq , nr , nr , 
-     . rv_w_oidx , rv_w_owk , 0 , rv_w_oxi ) 
+      call hansr ( rsm , 0 , 0 , nxi , lx0 , exi , rsq , nr , nr , 
+     . rv_w_oidx , rv_w_owk , 0 , rv_w_oxi )
 
       print *,'tailsm:xxx2'
       if (lzero) rsq(1) = 0
-Cdelw1 rlse name= oidx old_list= oxi oidx owk 
-Cdelw1 rlse name= oidx new_list= oxi 
+Cdelw1 rlse name= oidx old_list= oxi oidx owk
+Cdelw1 rlse name= oidx new_list= oxi
 Cdelw1       call rlse(oidx)
-       if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-       if (allocated(rv_w_oidx)) deallocate(rv_w_oidx)
+      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+      if (allocated(rv_w_oidx)) deallocate(rv_w_oidx)
 
 
 C --- Fit smoothed hankels to rho ---
@@ -116,9 +118,9 @@ C   ... Fitting constraints for smoothed Hankels
 C   ... Fit for this spin
 Cdelw1         call hnsmft(rofi,rho(1+(isp-1)*nr),nr,qout,a,b,nrmt,exi,qcst,
 Cdelw1      .    w(oxi),hfc(1,isp),nxi,err)
-         call hnsmft ( rofi , rho ( 1 + ( isp - 1 ) * nr ) , nr , qout 
+        call hnsmft ( rofi , rho ( 1 + ( isp - 1 ) * nr ) , nr , qout 
      .   , a , b , nrmt , exi , qcst , rv_w_oxi , hfc ( 1 , isp ) , nxi 
-     .   , err ) 
+     .   , err )
 
 
         if (isp .eq. 1 .and. ipr .ge. 20 .and. ipr .lt. 30)
@@ -132,9 +134,9 @@ C   ... Fit a second time for the full density in rhot
    15     continue
 Cdelw1           call hnsmft(rofi,rhot(1+(isp-1)*nr),nr,qout,a,b,nrmt,exi,qcst,
 Cdelw1      .      w(oxi),hfct(1,isp),nxi,err)
-           call hnsmft ( rofi , rhot ( 1 + ( isp - 1 ) * nr ) , nr , qout 
+          call hnsmft ( rofi , rhot ( 1 + ( isp - 1 ) * nr ) , nr , qout 
      .     , a , b , nrmt , exi , qcst , rv_w_oxi , hfct ( 1 , isp ) , nxi 
-     .     , err ) 
+     .     , err )
 
         endif
 
@@ -170,10 +172,10 @@ C
 C
 
    20 continue
-Cdelw1 rlse name= oxi old_list= oxi 
+Cdelw1 rlse name= oxi old_list= oxi
 Cdelw1 rlse name= oxi new_list= (None)
 Cdelw1       call rlse(oxi)
-       if (allocated(rv_w_oxi)) deallocate(rv_w_oxi)
+      if (allocated(rv_w_oxi)) deallocate(rv_w_oxi)
 
 
       print *,'tailsm: end'

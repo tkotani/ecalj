@@ -50,7 +50,8 @@ C --- If no atom of same spec at the rotated site, add it ---
             jc = ips(jbas)
             if (ic .eq. jc) then
               do  32  m = 1, 3
-   32         dbas(m) = bast(m)-bas(m,jbas)
+                dbas(m) = bast(m)-bas(m,jbas)
+   32         continue
               if (latvec(1,tol1,qlat,dbas)) goto 22
             endif
    30     continue
@@ -90,7 +91,8 @@ C --- Error whether atoms are sitting on same position ---
         do  50  jbas = 1, ibas-1
           jc = ips(jbas)
           do  52  m = 1, 3
-   52     dbas(m) = bas(m,ibas)-bas(m,jbas)
+            dbas(m) = bas(m,ibas)-bas(m,jbas)
+   52     continue
           if (latvec(1,tol1,qlat,dbas)) then
             write(stdo,400) ibas,clabl(ic),(bas(m,ibas),m=1,3),
      .                   jbas,clabl(jc),(bas(m,jbas),m=1,3)

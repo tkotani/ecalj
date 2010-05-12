@@ -38,73 +38,73 @@ C Local parameters
       aa = (pi/(8d0*(3d0*pi*pi)**th4))
       if (nsp .eq. 1) then
         do  10  i = 1, n
-        rho = rhop(i)
-        if (rho .gt. rmin) then
-        gro  = grhop(i)
-        ggro = ggrhop(i)
+          rho = rhop(i)
+          if (rho .gt. rmin) then
+            gro  = grhop(i)
+            ggro = ggrhop(i)
 
-        bigf = f8*gro/(rho**(7d0/6d0))
-        cutoff = dexp(-hh*(gro*gro/(rho*rho))*rho**(-th2))
-        expf = 2d0*dexp(-bigf)
-        exc(i) = exc(i) + aa*(gro*gro/(rho**sth))*(expf-sevni)
-        vxc1(i) = vxc1(i) + 2d0*aa*rho**(-th)*
+            bigf = f8*gro/(rho**(7d0/6d0))
+            cutoff = dexp(-hh*(gro*gro/(rho*rho))*rho**(-th2))
+            expf = 2d0*dexp(-bigf)
+            exc(i) = exc(i) + aa*(gro*gro/(rho**sth))*(expf-sevni)
+            vxc1(i) = vxc1(i) + 2d0*aa*rho**(-th)*
      .    (sevni*(ggro/rho-th2*gro*gro/(rho*rho)) - expf*(
      .      ggro*(1d0-bigf/2d0)/rho -
      .      (th2+bigf*(-11d0/6d0+bigf*7d0/12d0))*gro*gro/(rho*rho) +
      .      bigf*(bigf-3d0)*grggr(i)/(2*gro*rho)))*cutoff
-        endif
+          endif
    10   continue
       else
         do  20  i = 1, n
-        rho = rhop(i)+rhom(i)
-        if (rho .gt. rmin) then
-        rp   = rhop(i)
-        rm   = rhom(i)
-        if (rp .le. 0d0) then
-          if (.not. warned)
+          rho = rhop(i)+rhom(i)
+          if (rho .gt. rmin) then
+            rp   = rhop(i)
+            rm   = rhom(i)
+            if (rp .le. 0d0) then
+              if (.not. warned)
      .      print *, 'vxnloc (warning) rho+ not positive but rho is'
-          rp = rho/1000
-          warned = .true.
-        endif
-        if (rm .le. 0d0) then
-          if (.not. warned)
+              rp = rho/1000
+              warned = .true.
+            endif
+            if (rm .le. 0d0) then
+              if (.not. warned)
      .    print *, 'vxnloc (warning) rho- not positive but rho is'
-          rm = rho/1000
-          warned = .true.
-        endif
-        grp  = grhop(i)
-        grm  = grhom(i)
-        gro  = grho(i)
-        g2   = gro*gro
-        gp2  = grp*grp
-        gm2  = grm*grm
-        ggrp = ggrhop(i)
-        ggrm = ggrhom(i)
-        ggro = ggrp+ggrm
-        polar = (rp-rm)/rho
-        bigf = f8*gro/(rho**(7d0/6d0))
-        d = dsqrt(((1d0+polar)**fivth+(1d0-polar)**fivth)/2d0)
-        expf = 2d0/d*dexp(-bigf)
+              rm = rho/1000
+              warned = .true.
+            endif
+            grp  = grhop(i)
+            grm  = grhom(i)
+            gro  = grho(i)
+            g2   = gro*gro
+            gp2  = grp*grp
+            gm2  = grm*grm
+            ggrp = ggrhop(i)
+            ggrm = ggrhom(i)
+            ggro = ggrp+ggrm
+            polar = (rp-rm)/rho
+            bigf = f8*gro/(rho**(7d0/6d0))
+            d = dsqrt(((1d0+polar)**fivth+(1d0-polar)**fivth)/2d0)
+            expf = 2d0/d*dexp(-bigf)
 
-        exc(i) = exc(i) + aa/rho*(expf*g2/(rho**th4)
+            exc(i) = exc(i) + aa/rho*(expf*g2/(rho**th4)
      .   - sevni/(2d0**th)*(gp2/(rp**th4)+gm2/(rm**th4)))
-        cutof1 = dexp(-hh*(gp2/(rp*rp))*(2*rp)**(-th2))
-        xd = f9*rho**(th-4d0)/(d*d)*(rp**th2-rm**th2)
-        xx = (2d0-bigf)*ggro/rho -
+            cutof1 = dexp(-hh*(gp2/(rp*rp))*(2*rp)**(-th2))
+            xd = f9*rho**(th-4d0)/(d*d)*(rp**th2-rm**th2)
+            xx = (2d0-bigf)*ggro/rho -
      .    (th4+bigf*(-11d0/3d0+bigf*7d0/6d0))*g2/(rho*rho) +
      .    bigf*(bigf-3d0)*grggr(i)/(gro*rho)
-        vxc1(i) = vxc1(i) + aa/rho**th*(
+            vxc1(i) = vxc1(i) + aa/rho**th*(
      .   -sevni/(2d0**th)*(rho/rp)**th*(th4*gp2/(rp*rp)-2d0*ggrp/rp)
      .    -expf*(xx -
      .    xd*((1d0-bigf)*rm*g2-(2d0-bigf)*rho*(grpgrm(i)+gm2))))
      .    *cutof1
-        cutof2=dexp(-hh*(gm2/(rm*rm))*(2*rm)**(-th2))
-        vxc2(i) = vxc2(i) + aa/rho**th*(
+            cutof2=dexp(-hh*(gm2/(rm*rm))*(2*rm)**(-th2))
+            vxc2(i) = vxc2(i) + aa/rho**th*(
      .   -sevni/(2d0**th)*(rho/rm)**th*(th4*gm2/(rm*rm)-2d0*ggrm/rm)
      .    -expf*(xx +
      .    xd*((1d0-bigf)*rp*g2-(2d0-bigf)*rho*(gp2+grpgrm(i)))))
      .    *cutof2
-        endif
+          endif
    20   continue
       endif
       end
@@ -159,7 +159,8 @@ c - Work arrays and internal variables
       integer ir,i,iprint
       character*2, units
 
-      if(mode.eq.0.or.mode.eq.10) GOTO 9999 !! Do not calculate gradients
+      if(mode.eq.0.or.mode.eq.10) GOTO 9999
+      ! Do not calculate gradients
 
       call pshpr(iprint()-20)
 
@@ -167,27 +168,33 @@ C --- grad(rho), laplacian rho ---
       call radgrx(nr,nrx,nsp,rofi,rp,grh)
       call radgrx(nr,nrx,nsp,rofi,grh,ggrh)
       do  20  i  = 1, nsp
-      do  24  ir = 2, nr
-   24 ggrh(ir,i) = ggrh(ir,i) + 2d0*grh(ir,i)/rofi(ir)
-      ggrh(1,i) =(rofi(3)*ggrh(2,i)-rofi(2)*ggrh(3,i))/(rofi(3)-rofi(2))
+        do  24  ir = 2, nr
+          ggrh(ir,i) = ggrh(ir,i) + 2d0*grh(ir,i)/rofi(ir)
+   24   continue
+        ggrh(1,i) =(rofi(3)*ggrh(2,i)-rofi(2)*ggrh(3,i))/(rofi(3)-rofi(2))
 
 C --- grad rho . grad abs grad rho ---
-      do  26  ir = 1, nr
-   26 agrh(ir,i) = dabs(grh(ir,i))
-      call radgrx(nr,nrx,1,rofi,agrh(1,i),grgagr(1,i))
-      do  28  ir = 1, nr
-   28 grgagr(ir,i) = grh(ir,i)*grgagr(ir,i)
+        do  26  ir = 1, nr
+          agrh(ir,i) = dabs(grh(ir,i))
+   26   continue
+        call radgrx(nr,nrx,1,rofi,agrh(1,i),grgagr(1,i))
+        do  28  ir = 1, nr
+          grgagr(ir,i) = grh(ir,i)*grgagr(ir,i)
+   28   continue
    20 continue
 
 C --- Extra terms g(n), g(n+).g(n-), g(n).g(abs(g(n))) if spin pol ---
       if (nsp .eq. 2) then
         do  32  ir = 1, nr
-   32   agrh(ir,3) = dabs(grh(ir,1)+grh(ir,2))
+          agrh(ir,3) = dabs(grh(ir,1)+grh(ir,2))
+   32   continue
         call radgrx(nr,nrx,1,rofi,agrh(1,3),grgagr(1,3))
         do  34  ir = 1, nr
-   34   grgagr(ir,3) = (grh(ir,1)+grh(ir,2))*grgagr(ir,3)
+          grgagr(ir,3) = (grh(ir,1)+grh(ir,2))*grgagr(ir,3)
+   34   continue
         do  36  ir = 1, nr
-   36   agrh(ir,4) = grh(ir,1)*grh(ir,2)
+          agrh(ir,4) = grh(ir,1)*grh(ir,2)
+   36   continue
       endif
 
       call poppr
@@ -195,26 +202,26 @@ C --- Extra terms g(n), g(n+).g(n-), g(n).g(abs(g(n))) if spin pol ---
 C --- Call PBE subroutine for each radial point ---
  9999 continue
       do  40  ir=1,nr
-      if (mode.ne.0.and.mode.ne.10) then
-        Xagrh1  =agrh  (ir,1)
-        Xgrgagr1=grgagr(ir,1)
-        Xggrh1  =ggrh  (ir,1)
-        Xagrh2  =agrh  (ir,nsp)
-        Xgrgagr2=grgagr(ir,nsp)
-        Xggrh2  =ggrh  (ir,nsp)
-        XXagrh  =agrh  (ir,2*nsp-1)
-        XXgrgagr=grgagr(ir,2*nsp-1)
-      else
-        Xagrh1  =0d0
-        Xgrgagr1=0d0
-        Xggrh1  =0d0
-        Xagrh2  =0d0
-        Xgrgagr2=0d0
-        Xggrh2  =0d0
-        XXagrh  =0d0
-        XXgrgagr=0d0
-      endif
-      call easypbe(rp    (ir,1),   ! rho up
+        if (mode.ne.0.and.mode.ne.10) then
+          Xagrh1  =agrh  (ir,1)
+          Xgrgagr1=grgagr(ir,1)
+          Xggrh1  =ggrh  (ir,1)
+          Xagrh2  =agrh  (ir,nsp)
+          Xgrgagr2=grgagr(ir,nsp)
+          Xggrh2  =ggrh  (ir,nsp)
+          XXagrh  =agrh  (ir,2*nsp-1)
+          XXgrgagr=grgagr(ir,2*nsp-1)
+        else
+          Xagrh1  =0d0
+          Xgrgagr1=0d0
+          Xggrh1  =0d0
+          Xagrh2  =0d0
+          Xgrgagr2=0d0
+          Xggrh2  =0d0
+          XXagrh  =0d0
+          XXgrgagr=0d0
+        endif
+        call easypbe(rp    (ir,1),   ! rho up
      .             Xagrh1,         ! grad (rho_up)
      .             Xgrgagr1,       ! (grad up).(grad |grad up|)
      .             Xggrh1,         ! Laplacian of up
@@ -236,39 +243,39 @@ C --- Call PBE subroutine for each radial point ---
      .             expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe)       !PBE
 
 c-  LSDA part -- if mode >= 0 !!! Remember output in Hartree!!
-      if(mode.eq.0.or.mode.eq.10) then
-        exc(ir)=exlsd+eclsd
-        vxc(ir,1)=vXuplsd+vCuplsd
-        if(nsp.eq.2) vxc(ir,2)=vXdnlsd+vCdnlsd
-      endif
+        if(mode.eq.0.or.mode.eq.10) then
+          exc(ir)=exlsd+eclsd
+          vxc(ir,1)=vXuplsd+vCuplsd
+          if(nsp.eq.2) vxc(ir,2)=vXdnlsd+vCdnlsd
+        endif
 
 c- PW91 part
-      if(mode.eq.1) then                ! PW91 GGA
-        exc(ir)=expw91+ecpw91
-        vxc(ir,1)=vxuppw91+vcuppw91
-        if(nsp.eq.2) vxc(ir,2)=vxdnpw91+vcdnpw91
-      endif
+        if(mode.eq.1) then                ! PW91 GGA
+          exc(ir)=expw91+ecpw91
+          vxc(ir,1)=vxuppw91+vcuppw91
+          if(nsp.eq.2) vxc(ir,2)=vxdnpw91+vcdnpw91
+        endif
 
 c- PBE part
-      if (mode.eq.2) then          !PBE GGA
-        exc(ir)=expbe+ecpbe
-        vxc(ir,1)=vxuppbe+vcuppbe
-        if(nsp.eq.2) vxc(ir,2)=vxdnpbe+vcdnpbe
-      endif
+        if (mode.eq.2) then          !PBE GGA
+          exc(ir)=expbe+ecpbe
+          vxc(ir,1)=vxuppbe+vcuppbe
+          if(nsp.eq.2) vxc(ir,2)=vxdnpbe+vcdnpbe
+        endif
 
 c- PW correction
-      if (mode.eq.-1) then
-        exc(ir)=expw91+ecpw91-exlsd-eclsd
-        vxc(ir,1)=vxuppw91+vcuppw91-vXuplsd-vCuplsd
-        if(nsp.eq.2) vxc(ir,2)=vxdnpw91+vcdnpw91-vXdnlsd-vCdnlsd
-      endif
+        if (mode.eq.-1) then
+          exc(ir)=expw91+ecpw91-exlsd-eclsd
+          vxc(ir,1)=vxuppw91+vcuppw91-vXuplsd-vCuplsd
+          if(nsp.eq.2) vxc(ir,2)=vxdnpw91+vcdnpw91-vXdnlsd-vCdnlsd
+        endif
 
 c- PBE correction
-      if (mode.eq.-2) then
-        exc(ir)=expbe+ecpbe-exlsd-eclsd
-        vxc(ir,1)=vxuppbe+vcuppbe-vXuplsd-vCuplsd
-        if(nsp.eq.2) vxc(ir,2)=vxdnpbe+vcdnpbe-vXdnlsd-vCdnlsd
-      endif
+        if (mode.eq.-2) then
+          exc(ir)=expbe+ecpbe-exlsd-eclsd
+          vxc(ir,1)=vxuppbe+vcuppbe-vXuplsd-vCuplsd
+          if(nsp.eq.2) vxc(ir,2)=vxdnpbe+vcdnpbe-vXdnlsd-vCdnlsd
+        endif
 
    40 continue
 
@@ -276,13 +283,15 @@ c- PBE correction
         do  50  ir=1,nr
           exc(ir)=exc(ir)*2
           do  52  isp=1,nsp
-   52     vxc(ir,isp)=vxc(ir,isp)*2
+            vxc(ir,isp)=vxc(ir,isp)*2
+   52     continue
    50   continue
       endif
 
       if (mode.ne.10) then
         do  60  i = 1, nsp
-   60   vxc(1,i)=(vxc(2,i)*rofi(3)-vxc(3,i)*rofi(2))/(rofi(3)-rofi(2))
+          vxc(1,i)=(vxc(2,i)*rofi(3)-vxc(3,i)*rofi(2))/(rofi(3)-rofi(2))
+   60   continue
       endif
       end
 

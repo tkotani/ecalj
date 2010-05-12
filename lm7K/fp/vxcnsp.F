@@ -278,7 +278,7 @@ C ... Local parameters
 
 C     stdo = lgunit(1)
       call getpr(ipr)
-      
+
 C     for numerical differentiation
       fac = dmach(1)**(1d0/3d0)
       alfa = 2d0/3d0
@@ -422,12 +422,14 @@ C     Integrals focexc = int rc vxc, focvxc= rc * dvxc/dr * rhot
 C --- Scale yl by wp for fast multiplication --- ---
       do  12  ilm = 1, nlm
       do  12  ip = 1, np
-   12 yl(ip,ilm) = yl(ip,ilm)*wp(ip)
+        yl(ip,ilm) = yl(ip,ilm)*wp(ip)
+   12 continue
 
 C --- Add Yl-projection of vxc into vl ---
       do  30  i = 1, nsp
-   30 call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,yl,np,1d0,
+        call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,yl,np,1d0,
      .    vl(1,1,i),nr)
+   30 continue
 
 C --- Optionally make l-resolved vxc_L,exc_L ---
       if (isw .eq. 1) then
@@ -487,19 +489,22 @@ C --- Scale rho by 1/r**2 ---
       if (isgn .eq. 1) then
         do  10  i = 1, nsp
         do  10  ilm = 1, nlm
-        rl(1,ilm,i) = 0d0
+          rl(1,ilm,i) = 0d0
         do  10  ir = 2, nr
-   10   rl(ir,ilm,i) = rl(ir,ilm,i)/ri(ir)**2
+          rl(ir,ilm,i) = rl(ir,ilm,i)/ri(ir)**2
+   10   continue
 C  ...  Extrapolate rho to origin
         do  20  i = 1, nsp
-        rho2 = rl(2,1,i)
-        rho3 = rl(3,1,i)
-   20   rl(1,1,i) = (rho2*ri(3)-rho3*ri(2))/(ri(3)-ri(2))
+          rho2 = rl(2,1,i)
+          rho3 = rl(3,1,i)
+          rl(1,1,i) = (rho2*ri(3)-rho3*ri(2))/(ri(3)-ri(2))
+   20   continue
       else
         do  110  i = 1, nsp
         do  110  ilm = 1, nlm
         do  110  ir = 1, nr
-  110   rl(ir,ilm,i) = rl(ir,ilm,i)*ri(ir)**2
+          rl(ir,ilm,i) = rl(ir,ilm,i)*ri(ir)**2
+  110   continue
       endif
       end
 
@@ -555,13 +560,14 @@ C --- Integrals reps, rmu ---
         rmu(i) = 0d0
         do  22  ip = 1, np
         do  22  ir = 1, nr
-        rpneg = min(rpneg,rp(ir,ip,i))
-        weight = (ri(ir)**2*rwgt(ir))*wp(ip)
-        qs(i)  = qs(i)  + rp(ir,ip,i)*weight
-        rep(i) = rep(i) + exc(ir,ip)*rp(ir,ip,i)*weight
-        repx(i) = repx(i) + excx(ir,ip)*rp(ir,ip,i)*weight
-        repc(i) = repc(i) + excc(ir,ip)*rp(ir,ip,i)*weight
-   22   rmu(i) = rmu(i) + vxc(ir,ip,i)*rp(ir,ip,i)*weight
+          rpneg = min(rpneg,rp(ir,ip,i))
+          weight = (ri(ir)**2*rwgt(ir))*wp(ip)
+          qs(i)  = qs(i)  + rp(ir,ip,i)*weight
+          rep(i) = rep(i) + exc(ir,ip)*rp(ir,ip,i)*weight
+          repx(i) = repx(i) + excx(ir,ip)*rp(ir,ip,i)*weight
+          repc(i) = repc(i) + excc(ir,ip)*rp(ir,ip,i)*weight
+          rmu(i) = rmu(i) + vxc(ir,ip,i)*rp(ir,ip,i)*weight
+   22   continue
         if (ipr.ge.30 .and. i.eq.1) write(stdo,725) rmu(i),rep(i),qs(i)
         if (ipr.ge.30 .and. i.eq.2) write(stdo,726) rmu(i),rep(i),qs(i),
      .    rmu(1)+rmu(2),rep(1)+rep(2),qs(1)+qs(2)
@@ -607,30 +613,30 @@ C ... Local parameters
       lmax = ll(nlml)
 
       do   isp = 1, nsp
-      call dpzero(suml(0,isp),lmax+1)
-      do  ilm = 1, nlml
-        l = ll(ilm)
-        if (isw .eq. 1) then
-        suml(l,isp) = suml(l,isp) +
+        call dpzero(suml(0,isp),lmax+1)
+        do  ilm = 1, nlml
+          l = ll(ilm)
+          if (isw .eq. 1) then
+            suml(l,isp) = suml(l,isp) +
      .    dot3(nr,rl(1,ilm,isp),vl(1,ilm,isp),rwgt)
-        else
-        do  ir = 1, nr
-        suml(l,isp) = suml(l,isp) +
+          else
+            do  ir = 1, nr
+              suml(l,isp) = suml(l,isp) +
      .                rl(ir,ilm,isp)*vl(ir,ilm,isp)*ri(ir)**2*rwgt(ir)
+            enddo
+          endif
         enddo
-        endif
-      enddo
 
-      sum(isp) = dsum(lmax+1,suml(0,isp),1)
+        sum(isp) = dsum(lmax+1,suml(0,isp),1)
 
-      if (ipr .gt. 30) then
-        if (isp .eq. 1)
+        if (ipr .gt. 30) then
+          if (isp .eq. 1)
      .    write(stdo,341) strn,sum(isp),(suml(l,isp),l = 0,lmax)
-        if (isp .eq. 2)
+          if (isp .eq. 2)
      .    write(stdo,342) sum(isp),(suml(l,isp),l = 0,lmax)
-  341   format(1x,a8,f13.6,' ... by l: ',f12.6,255f10.6)
-  342   format('  spin 2:',f13.6,' ... by l: ',f12.6,255f10.6)
-      endif
+  341     format(1x,a8,f13.6,' ... by l: ',f12.6,255f10.6)
+  342     format('  spin 2:',f13.6,' ... by l: ',f12.6,255f10.6)
+        endif
 
       enddo
 

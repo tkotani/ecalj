@@ -27,7 +27,7 @@ C     implicit none
       double precision plat(3,3),g(9,1),h(9),hh(9),ag(3,1),vec(3)
       integer nt,ng,i
       logical parsvc,flgp
-
+      character*1:: leftp='('
 C --- Do until no more symbolic representation, do ---
       nt = len(t)
       ng = 0
@@ -55,7 +55,7 @@ C ... Compatibility with ::(x,y,z)
       elseif (t(i+1:i+1) .eq. ':') then
         i=i+1
       endif
-      if (t(i+1:i+1) .eq. '(') then
+      if (t(i+1:i+1) .eq. leftp) then
         if (.not. parsvc(-1,t,i,ag(1,ng)))
      .    call fexit(-1,111,' Exit -1 PSYMOP: '//
      .    'failed to parse translation, ig=%i',ng)
@@ -88,7 +88,8 @@ C- Parse string for a point group operator
         s = dsin(pi2/nrot)
         do  16  k = 1, 3
           do  15  j = 1, 3
-   15     a(k,j) = (1-c)*v(j)*v(k)
+            a(k,j) = (1-c)*v(j)*v(k)
+   15     continue
           a(k,k) = a(k,k) + c
    16   continue
         a(2,1) = a(2,1) + s*v(3)

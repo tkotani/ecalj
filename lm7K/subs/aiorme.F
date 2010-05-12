@@ -38,14 +38,16 @@ C   ... read nl and nsp ... abort if missing
      .    call rxs('AIORME: mismatch in nl or nsp, class ',alabl)
         call dpzero(radme,4*2*nl*2*nsp)
         do  10  is1 = 1, nsp
-   10   aiorme = lfdmp(radme(1,1,1,1,is1),4*2*nl*2,ifi)
+          aiorme = lfdmp(radme(1,1,1,1,is1),4*2*nl*2,ifi)
+   10   continue
         return
    18   continue
         print *, 'aiorme: (input skipped) bad syntax, class '//alabl
       else
         write(-ifi,21) alabl, nl, nsp
         do  20  is1 = 1, nsp
-   20   aiorme = lfdmp(radme(1,1,1,1,is1),4*2*nl*2,ifi)
+          aiorme = lfdmp(radme(1,1,1,1,is1),4*2*nl*2,ifi)
+   20   continue
       endif
 
    21 format('RGRAD: ',a4,'  nl=',i1,'  nsp=',i1)

@@ -16,7 +16,7 @@ Co   ndim  :dimension of hamiltonian for this site
 Cr Remarks
 Cr   Each orbital type is label by a 'l' and a 'k' index
 Cr   Each orbital corresponds to a unique radial wave function at the
-Cr   site where the orbit is centered.  There can be multiple 'k' 
+Cr   site where the orbit is centered.  There can be multiple 'k'
 Cr   indices (radial wave function shapes) for a particular l.
 Cr
 Cr   This routine returns the proper value of  'off'  only for ldim
@@ -52,19 +52,19 @@ C --- Make ltab,offl in l order, followed by k order ---
 C     lmr = mxorb*(ib-1)
       lmr = nl*nl*nkaph*(ib-1)
       do  ik = 1, nkaph
-      do  l = 0, nl-1
-        offli(norb+1) = -1
-        if (iprmb(lmr+1) .gt. ldimp .and. iprmb(lmr+1) .le. ldim) then
-          offli(norb+1) = iprmb(lmr+1) - 1
-          if (off .eq. -1) off = offli(norb+1)
-          off = min(off,offli(norb+1))
-          norb = norb+1
-          ndim = ndim + 2*l+1
-          ltabi(norb) = l
-          ktabi(norb) = ik
-        endif
-        lmr = lmr + 2*l+1
-      enddo
+        do  l = 0, nl-1
+          offli(norb+1) = -1
+          if (iprmb(lmr+1) .gt. ldimp .and. iprmb(lmr+1) .le. ldim) then
+            offli(norb+1) = iprmb(lmr+1) - 1
+            if (off .eq. -1) off = offli(norb+1)
+            off = min(off,offli(norb+1))
+            norb = norb+1
+            ndim = ndim + 2*l+1
+            ltabi(norb) = l
+            ktabi(norb) = ik
+          endif
+          lmr = lmr + 2*l+1
+        enddo
       enddo
 
 C --- Permute to downfolding order ---
@@ -226,26 +226,26 @@ C ... Fast (assume hamiltonian is ordered by site)
       else
 C      Find the first site for which an orbital exists in this block
         do  ib = ib1, ib2
-         call imxmnx(mxorb,iprmb(1+mxorb*(ib-1)),1,1+ldimp,ldim,i,k)
+          call imxmnx(mxorb,iprmb(1+mxorb*(ib-1)),1,1+ldimp,ldim,i,k)
 C        After a site found with nonzero basis, jump out of loop
-         if (lfast .eq. 1) then
-           off = i-1
-           if (i .le. ldim) goto 10
-         endif
+          if (lfast .eq. 1) then
+            off = i-1
+            if (i .le. ldim) goto 10
+          endif
 C        lfast = 2: loop over all ib1..ib2, ld = max val of k-off
-         ld = max(ld,k-i+1)
-       enddo
+          ld = max(ld,k-i+1)
+        enddo
 C      No orbitals found ; just exit
-       return
-   10  continue
+        return
+   10   continue
 C      Find the last site for which an orbital exists in this block
-       do  ib = ib2, ib1, -1
-         call imxmnx(mxorb,iprmb(1+mxorb*(ib-1)),1,1+ldimp,ldim,i,k)
-         if (i .le. ldim) then
-           ld  = k - off
-           return
-         endif
-       enddo
+        do  ib = ib2, ib1, -1
+          call imxmnx(mxorb,iprmb(1+mxorb*(ib-1)),1,1+ldimp,ldim,i,k)
+          if (i .le. ldim) then
+            ld  = k - off
+            return
+          endif
+        enddo
       endif
 
       end

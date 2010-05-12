@@ -28,8 +28,8 @@ Cgetarg...info...           use_to_add ['mcmet', 'm_struc_def']
 Cgetarg...info...           use_to_add ['mcasim', 'm_struc_def']
 Cgetarg...info...           use_to_add ['mcasm2', 'm_struc_def']
       subroutine mcasim(sctrl,sarray,sspec,slat,smove,sstrn)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Monte-Carlo simulations for alloy configurations
 C ----------------------------------------------------------------------
@@ -53,11 +53,11 @@ C ... Passed parameters
       integer mxcsiz
       character*(*) sstrn
 Cgetarg       double precision sctrl(1),sspec(1),slat(1),sarray(1),smove(1)
-       type(s_ctrl)::sctrl
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
-       type(s_array)::sarray
-       type(s_move)::smove
+      type(s_ctrl)::sctrl
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
+      type(s_array)::sarray
+      type(s_move)::smove
 
 C Local
       logical cmdopt
@@ -69,19 +69,19 @@ Cdelw1 do not change  [['undef', 'wref'], 'opos', 'mcasim']
 Cdelw1       integer i,i1,i2,igets,iosiga,j,lpbc,ltype(2),nbas,nbasp,
 Cdelw1      .  nspec,nttab,ntype(2),oepair,oesite,oiax,oipair,oiprm,oiprmi,
 Cdelw1      .  oips,oisite,ontab,opgfsl,opos,orham,ortab,osigb,osigl,osigma
-       integer:: i , i1 , i2 , igets , iosiga , j , lpbc , ltype(2) 
+      integer:: i , i1 , i2 , igets , iosiga , j , lpbc , ltype(2) 
      . , nbas , nbasp , nspec , nttab , ntype(2) , oiax , oiprm , oips 
-     . , ontab , opgfsl , opos 
-       real(8) ,allocatable :: rv_w_oepair(:)
-       real(8) ,allocatable :: rv_w_oesite(:)
-       integer ,allocatable :: iv_w_oipair(:)
-       integer ,allocatable :: iv_w_oiprmi(:)
-       integer ,allocatable :: iv_w_oisite(:)
-       real(8) ,allocatable :: rv_w_orham(:)
-       real(8) ,allocatable :: rv_w_ortab(:)
-       integer ,allocatable :: iv_w_osigb(:)
-       integer ,allocatable :: iv_w_osigl(:)
-       integer ,allocatable :: iv_w_osigma(:)
+     . , ontab , opgfsl , opos
+      real(8) ,allocatable :: rv_w_oepair(:)
+      real(8) ,allocatable :: rv_w_oesite(:)
+      integer ,allocatable :: iv_w_oipair(:)
+      integer ,allocatable :: iv_w_oiprmi(:)
+      integer ,allocatable :: iv_w_oisite(:)
+      real(8) ,allocatable :: rv_w_orham(:)
+      real(8) ,allocatable :: rv_w_ortab(:)
+      integer ,allocatable :: iv_w_osigb(:)
+      integer ,allocatable :: iv_w_osigl(:)
+      integer ,allocatable :: iv_w_osigma(:)
 
       character htype(2)*5, outs*80
       double precision alat,plat(3,3),avw
@@ -97,49 +97,49 @@ Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
 Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
 Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
 Cgetarg       call upack('ctrl nbas nbasp nspec',sctrl,nbas,nbasp,nspec,0,0)
-       
-       nbas=sctrl%nbas
-       nbasp=sctrl%nbasp
-       nspec=sctrl%nspec
+
+      nbas=sctrl%nbas
+      nbasp=sctrl%nbasp
+      nspec=sctrl%nspec
 
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: avw , real(8) :: slat%avw 1
 Cgetarg       call upack('lat alat plat avw',slat,alat,plat,avw,0,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       avw=slat%avw
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      avw=slat%avw
 
 Cgetarg...info...           integer :: opgfsl , integer(8) :: sarray%opgfsl 1
 Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
 Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
 Cgetarg       call upack('array opgfsl oips opos',sarray,opgfsl,oips,opos,0,0)
-       
+
 c       opgfsl=sarray%opgfsl
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 82
 Cdelw1 do not change oips because of ['undef', 'wref']
-       oips=sarray%oips
+      oips=sarray%oips
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 83
 Cdelw1 do not change opos because of ['undef', 'wref']
-       opos=sarray%opos
+      opos=sarray%opos
 
 Cdelw1       call defrr(orham,nspec)
-       allocate(rv_w_orham(nspec))
+      allocate(rv_w_orham(nspec))
 Ctakao_ZeroClear_NotRequiered        if (nspec<0) rv_w_orham(:)=0.0d0
 
 Cgetarg       call spackv(10,'spec rham',sspec,1,nspec,w(orham))
-       i_copy_size=1; 
-       do i_spackv=1,nspec 
+      i_copy_size=1;
+      do i_spackv=1,nspec
 Cdelw1        call spackv_array_copy_r8_r8('u',sspec(i_spackv)%rham,i_copy_size,i_spackv+1-1,w(orham))
         call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rham 
-     .  , i_copy_size , i_spackv + 1 - 1 , rv_w_orham ) 
+     .  , i_copy_size , i_spackv + 1 - 1 , rv_w_orham )
 
-       enddo
+      enddo
 
 Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
-c       lpgf = int(sctrl%lpgf(1)) 
+c       lpgf = int(sctrl%lpgf(1))
 
       lpbc = 0
 c      if (lpgf .gt. 0) lpbc = 11
@@ -175,12 +175,12 @@ Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 111
 Cdelw1 do not change ontab because of ['undef', 'wref']
 Cdelw1       call pairs(nbas,nbasp,alat,plat,w(orham),w(opos),
 Cdelw1      .  w(oips),i,j,w_dummy,nttab,ontab,oiax,mxcsiz)
-       call pairs ( nbas , nbasp , alat , plat , rv_w_orham , w ( opos 
+      call pairs ( nbas , nbasp , alat , plat , rv_w_orham , w ( opos 
      . ) , w ( oips ) , i , j , w_dummy , nttab , ontab , oiax , mxcsiz 
-     . ) 
+     . )
 
 Cdelw1       call defrr(ortab,3*nttab)
-       allocate(rv_w_ortab(3*nttab))
+      allocate(rv_w_ortab(3*nttab))
 Ctakao_ZeroClear_NotRequiered        if (3*nttab<0) rv_w_ortab(:)=0.0d0
 
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 114
@@ -192,25 +192,25 @@ Cdelw1 do not change opos because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 114
 Cdelw1 do not change oiax because of ['undef', 'wref']
 Cdelw1       call mkrtab(000,alat,plat,w(opos),w(oiax),nttab,w(opos),w(ortab))
-       call mkrtab ( 000 , alat , plat , w ( opos ) , w ( oiax ) , nttab 
-     . , w ( opos ) , rv_w_ortab ) 
+      call mkrtab ( 000 , alat , plat , w ( opos ) , w ( oiax ) , nttab 
+     . , w ( opos ) , rv_w_ortab )
 
 
 C --- Make the Hamiltonian ---
 Cdelw1       call defrr(oesite, nbasp)
-       allocate(rv_w_oesite(nbasp))
+      allocate(rv_w_oesite(nbasp))
 Ctakao_ZeroClear_NotRequiered        if (nbasp<0) rv_w_oesite(:)=0.0d0
 
 Cdelw1       call defi(oisite,  nbasp)
-       allocate(iv_w_oisite(nbasp))
+      allocate(iv_w_oisite(nbasp))
 Ctakao_ZeroClear_NotRequiered        if (nbasp<0) iv_w_oisite(:)=0
 
 Cdelw1       call defrr(oepair, nttab)
-       allocate(rv_w_oepair(nttab))
+      allocate(rv_w_oepair(nttab))
 Ctakao_ZeroClear_NotRequiered        if (nttab<0) rv_w_oepair(:)=0.0d0
 
 Cdelw1       call defi(oipair,  nttab)
-       allocate(iv_w_oipair(nttab))
+      allocate(iv_w_oipair(nttab))
 Ctakao_ZeroClear_NotRequiered        if (nttab<0) iv_w_oipair(:)=0
 
       call upacks('strn mmham',i1,i2)
@@ -233,29 +233,29 @@ Cdelw1 do not change ontab because of ['undef', 'wref']
 Cdelw1       call suemph(sspec,sstrn(i1:i2),w(ontab),w(oiax),w(ortab),nbasp,
 Cdelw1      .  nttab,w(oips),ntype,ltype,htype,w(oesite),w(oisite),w(oepair),
 Cdelw1      .  w(oipair))
-       call suemph ( sspec , sstrn ( i1:i2 ) , w ( ontab ) , w ( oiax 
+      call suemph ( sspec , sstrn ( i1:i2 ) , w ( ontab ) , w ( oiax 
      . ) , rv_w_ortab , nbasp , nttab , w ( oips ) , ntype , ltype , 
      . htype , rv_w_oesite , iv_w_oisite , rv_w_oepair , iv_w_oipair 
-     . ) 
+     . )
 
 
 C --- sigmas, permutation table from file; if missing create and exit---
 Cdelw1 do not change oiprm because of ['wref']
       call defi(oiprm, nbasp)
 Cdelw1       call defi(oiprmi,nbasp)
-       allocate(iv_w_oiprmi(nbasp))
+      allocate(iv_w_oiprmi(nbasp))
 Ctakao_ZeroClear_NotRequiered        if (nbasp<0) iv_w_oiprmi(:)=0
 
 Cdelw1       call defi(osigb,  nbasp)
-       allocate(iv_w_osigb(nbasp))
+      allocate(iv_w_osigb(nbasp))
 Ctakao_ZeroClear_NotRequiered        if (nbasp<0) iv_w_osigb(:)=0
 
 Cdelw1       call defi(osigl,  nbasp)
-       allocate(iv_w_osigl(nbasp))
+      allocate(iv_w_osigl(nbasp))
 Ctakao_ZeroClear_NotRequiered        if (nbasp<0) iv_w_osigl(:)=0
 
 Cdelw1       call defi(osigma,  nbasp)
-       allocate(iv_w_osigma(nbasp))
+      allocate(iv_w_osigma(nbasp))
 Ctakao_ZeroClear_NotRequiered        if (nbasp<0) iv_w_osigma(:)=0
 
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 136
@@ -270,28 +270,29 @@ Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1 do not change oiprm because of ['wref']
 Cdelw1       if  (iosiga(0,'sigma',nbasp,w(oips),w(osigl),w(osigb),w(oiprm),
 Cdelw1      .  w(opos)).lt. 0) then
-       if ( iosiga ( 0 , 'sigma' , nbasp , w ( oips ) , iv_w_osigl , 
-     . iv_w_osigb , w ( oiprm ) , w ( opos ) ) .lt. 0 ) then 
+      if ( iosiga ( 0 , 'sigma' , nbasp , w ( oips ) , iv_w_osigl , 
+     . iv_w_osigb , w ( oiprm ) , w ( opos ) ) .lt. 0 ) then
 
 C       Initial permutation table
         do  10  i = 1, nbasp
 Cdelw1 1 is digit, dropped
 Cdelw1 do not change oiprm because of ['wref']
-   10   w(oiprm+i-1) = i
+          w(oiprm+i-1) = i
+   10   continue
 C       Both sigb and sigl have same convention for now
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 142
 Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 142
 Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1         call mcasms(0,1,nbas,w(oips),w(osigb))
-         call mcasms ( 0 , 1 , nbas , w ( oips ) , iv_w_osigb ) 
+        call mcasms ( 0 , 1 , nbas , w ( oips ) , iv_w_osigb )
 
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 143
 Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 143
 Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1         call mcasms(0,1,nbas,w(oips),w(osigl))
-         call mcasms ( 0 , 1 , nbas , w ( oips ) , iv_w_osigl ) 
+        call mcasms ( 0 , 1 , nbas , w ( oips ) , iv_w_osigl )
 
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 144
 Cdelw1 do not change opos because of ['undef', 'wref']
@@ -305,8 +306,8 @@ Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1 do not change oiprm because of ['wref']
 Cdelw1         i = iosiga(1,'sigma',nbasp,w(oips),w(osigl),w(osigb),w(oiprm),
 Cdelw1      .    w(opos))
-         i = iosiga ( 1 , 'sigma' , nbasp , w ( oips ) , iv_w_osigl , 
-     .   iv_w_osigb , w ( oiprm ) , w ( opos ) ) 
+        i = iosiga ( 1 , 'sigma' , nbasp , w ( oips ) , iv_w_osigl , 
+     .   iv_w_osigb , w ( oiprm ) , w ( opos ) )
 
         call rx0(' wrote new sigma file')
       endif
@@ -327,31 +328,31 @@ Cdelw1 do not change ontab because of ['undef', 'wref']
 Cdelw1 do not change oiprm because of ['wref']
 Cdelw1       call mcasm2(smove,w(ontab),w(oiax),nbasp,nttab,w(oips),w(oesite),
 Cdelw1      .  w(oepair),w(osigma),w(oiprm),w(oiprmi),w(osigb),w(osigl))
-       call mcasm2 ( smove , w ( ontab ) , w ( oiax ) , nbasp , nttab 
+      call mcasm2 ( smove , w ( ontab ) , w ( oiax ) , nbasp , nttab 
      . , w ( oips ) , rv_w_oesite , rv_w_oepair , iv_w_osigma , w ( 
-     . oiprm ) , iv_w_oiprmi , iv_w_osigb , iv_w_osigl ) 
+     . oiprm ) , iv_w_oiprmi , iv_w_osigb , iv_w_osigl )
 
 
 Cki#error, have return with len(w_varlist)>0 at line 152
-Cdelw1 w_varlist remains: orham ortab oesite oisite oepair oipair oiprm oiprmi osigb osigl osigma 
+Cdelw1 w_varlist remains: orham ortab oesite oisite oepair oipair oiprm oiprmi osigb osigl osigma
 Cdelw1 w_varlistundel: [opos oips oiax ontab oiprm]
 Cdelw1 w_varlist (undel), remains: [oiprm]
 Cdelw1 w_varlist (del), remains: [orham ortab oesite oisite oepair oipair oiprmi osigb osigl osigma]
 Cdelw1 not deallocate oiprm because of [wref]
 Cdelw1       if (.not. cmdopt('-wsigma=',8,0,outs)) return
-       if ( .not. cmdopt ( '-wsigma=' , 8 , 0 , outs ) ) then 
-       if (allocated(iv_w_osigma)) deallocate(iv_w_osigma)
-       if (allocated(iv_w_osigl)) deallocate(iv_w_osigl)
-       if (allocated(iv_w_osigb)) deallocate(iv_w_osigb)
-       if (allocated(iv_w_oiprmi)) deallocate(iv_w_oiprmi)
-       if (allocated(iv_w_oipair)) deallocate(iv_w_oipair)
-       if (allocated(rv_w_oepair)) deallocate(rv_w_oepair)
-       if (allocated(iv_w_oisite)) deallocate(iv_w_oisite)
-       if (allocated(rv_w_oesite)) deallocate(rv_w_oesite)
-       if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
-       if (allocated(rv_w_orham)) deallocate(rv_w_orham)
-       return
-       endif 
+      if ( .not. cmdopt ( '-wsigma=' , 8 , 0 , outs ) ) then
+        if (allocated(iv_w_osigma)) deallocate(iv_w_osigma)
+        if (allocated(iv_w_osigl)) deallocate(iv_w_osigl)
+        if (allocated(iv_w_osigb)) deallocate(iv_w_osigb)
+        if (allocated(iv_w_oiprmi)) deallocate(iv_w_oiprmi)
+        if (allocated(iv_w_oipair)) deallocate(iv_w_oipair)
+        if (allocated(rv_w_oepair)) deallocate(rv_w_oepair)
+        if (allocated(iv_w_oisite)) deallocate(iv_w_oisite)
+        if (allocated(rv_w_oesite)) deallocate(rv_w_oesite)
+        if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
+        if (allocated(rv_w_orham)) deallocate(rv_w_orham)
+        return
+      endif
 
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 153
 Cdelw1 do not change opos because of ['undef', 'wref']
@@ -365,33 +366,33 @@ Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1 do not change oiprm because of ['wref']
 Cdelw1       i = iosiga(1,outs(9:),nbasp,w(oips),w(osigl),w(osigb),w(oiprm),
 Cdelw1      .  w(opos))
-       i = iosiga ( 1 , outs ( 9: ) , nbasp , w ( oips ) , iv_w_osigl 
-     . , iv_w_osigb , w ( oiprm ) , w ( opos ) ) 
+      i = iosiga ( 1 , outs ( 9: ) , nbasp , w ( oips ) , iv_w_osigl 
+     . , iv_w_osigb , w ( oiprm ) , w ( opos ) )
 
 
 Cgetarg       end
-Cdelw1 w_varlist remains: osigma osigl osigb oiprmi oiprm oipair oepair oisite oesite ortab orham 
+Cdelw1 w_varlist remains: osigma osigl osigb oiprmi oiprm oipair oepair oisite oesite ortab orham
 Cdelw1 w_varlistundel: [opos oips oiax ontab oiprm]
 Cdelw1 w_varlist (undel), remains: [oiprm]
 Cdelw1 w_varlist (del), remains: [osigma osigl osigb oiprmi oipair oepair oisite oesite ortab orham]
 Cdelw1 not deallocate oiprm because of [wref]
-        if (allocated(rv_w_orham)) deallocate(rv_w_orham)
-        if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
-        if (allocated(rv_w_oesite)) deallocate(rv_w_oesite)
-        if (allocated(iv_w_oisite)) deallocate(iv_w_oisite)
-        if (allocated(rv_w_oepair)) deallocate(rv_w_oepair)
-        if (allocated(iv_w_oipair)) deallocate(iv_w_oipair)
-        if (allocated(iv_w_oiprmi)) deallocate(iv_w_oiprmi)
-        if (allocated(iv_w_osigb)) deallocate(iv_w_osigb)
-        if (allocated(iv_w_osigl)) deallocate(iv_w_osigl)
-        if (allocated(iv_w_osigma)) deallocate(iv_w_osigma)
+      if (allocated(rv_w_orham)) deallocate(rv_w_orham)
+      if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
+      if (allocated(rv_w_oesite)) deallocate(rv_w_oesite)
+      if (allocated(iv_w_oisite)) deallocate(iv_w_oisite)
+      if (allocated(rv_w_oepair)) deallocate(rv_w_oepair)
+      if (allocated(iv_w_oipair)) deallocate(iv_w_oipair)
+      if (allocated(iv_w_oiprmi)) deallocate(iv_w_oiprmi)
+      if (allocated(iv_w_osigb)) deallocate(iv_w_osigb)
+      if (allocated(iv_w_osigl)) deallocate(iv_w_osigl)
+      if (allocated(iv_w_osigma)) deallocate(iv_w_osigma)
 
-       end subroutine mcasim 
+      end subroutine mcasim
 
       subroutine mcasm2(smove,ntab,iax,nbas,nttab,ips,
      .  esite,epair,sigma,iprm,iprmi,sigb,sigl)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Monte-carlo simulations of an an alloy
 C ----------------------------------------------------------------------
@@ -423,7 +424,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed parameters
 Cgetarg       double precision smove(1)
-       type(s_move)::smove
+      type(s_move)::smove
 
       integer nbas,ntab(1),niax,nttab,ips(1),sigma(1),iprm(1),iprmi(1)
       parameter (niax=10)
@@ -444,11 +445,11 @@ Cgetarg...info...           real(8) :: ts , real(8) :: smove%ts 1
 Cgetarg...info...           real(8) :: ttot , real(8) :: smove%tstot 1
 Cgetarg...info...           real(8) :: tequ , real(8) :: smove%tsequ 1
 Cgetarg       call upack('move kt ts tstot tsequ',smove,kt,ts,ttot,tequ,0)
-       
-       kt=smove%kt
-       ts=smove%ts
-       ttot=smove%tstot
-       tequ=smove%tsequ
+
+      kt=smove%kt
+      ts=smove%ts
+      ttot=smove%tstot
+      tequ=smove%tsequ
 
 C ... Initial printout
       ntot = ttot/ts
@@ -481,19 +482,19 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mcasm2 
+      end subroutine mcasm2
 
 
       subroutine mcmet(smove,ntab,iax,nbas,nttab,ips,esite,epair,
      .  sigma,iprm,iprmi,sigb,sigl)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Metropolis algorithm
 C     implicit none
 C Passed parameters
 Cgetarg       double precision smove(1)
-       type(s_move)::smove
+      type(s_move)::smove
 
       integer nbas,ntab(nbas+1),niax,nttab,ips(1),sigma(1),
      .  iprm(nbas),iprmi(nbas)
@@ -519,11 +520,11 @@ Cgetarg...info...           real(8) :: ts , real(8) :: smove%ts 1
 Cgetarg...info...           real(8) :: ttot , real(8) :: smove%tstot 1
 Cgetarg...info...           real(8) :: tequ , real(8) :: smove%tsequ 1
 Cgetarg       call upack('move kt ts tstot tsequ',smove,kt,ts,ttot,tequ,0)
-       
-       kt=smove%kt
-       ts=smove%ts
-       ttot=smove%tstot
-       tequ=smove%tsequ
+
+      kt=smove%kt
+      ts=smove%ts
+      ttot=smove%tstot
+      tequ=smove%tsequ
 
       ntot = ttot/ts
       nequ = tequ/ts
@@ -542,63 +543,63 @@ C --- For ntot time steps, do ---
    10 ntry = ntry+1
 
 C   ... Decide on first of pair of atoms to swap
-   12   continue
-        ib = nbas*ran1() + 1
+   12 continue
+      ib = nbas*ran1() + 1
 C   ... If no sigma, no contribution to hamiltonian ... skip
 C       if (sigb(ib) .eq. 0) goto 12
-        i1 = iprmi(ib)
+      i1 = iprmi(ib)
 
 C   ... Decide on second of pair of atoms to swap
 C       Require that it belong to cluster i1
-        nclus = ntab(i1+1)-ntab(i1)
-        ip = nclus*ran1() + 1 + ntab(i1)
-        i2 = iax(2,ip)
-        jb = iprm(i2)
+      nclus = ntab(i1+1)-ntab(i1)
+      ip = nclus*ran1() + 1 + ntab(i1)
+      i2 = iax(2,ip)
+      jb = iprm(i2)
 C   ... If no sigma, no contribution to hamiltonian ... skip
 C        if (sigb(jb) .eq. 0) goto 12
 C   ... If equivalent sigma, no change in  hamiltonian ... skip
-        if (sigb(jb) .eq. sigb(ib)) goto 12
+      if (sigb(jb) .eq. sigb(ib)) goto 12
 C   ... special constraints on movement
-        if (ips(ib) .gt. 2 .or. ips(jb) .gt. 2) goto 12
+      if (ips(ib) .gt. 2 .or. ips(jb) .gt. 2) goto 12
 
 C       Energy connected with the two sites before swap
-        call mcasme(ib,ib,ntab,iax,esite,epair,iprm,iprmi,
+      call mcasme(ib,ib,ntab,iax,esite,epair,iprm,iprmi,
      .    sigma,sigb,e1c,e2c,edc)
-        etot = etot - e1c - (e2c-edc)*2 - edc
-        call mcasme(jb,jb,ntab,iax,esite,epair,iprm,iprmi,
+      etot = etot - e1c - (e2c-edc)*2 - edc
+      call mcasme(jb,jb,ntab,iax,esite,epair,iprm,iprmi,
      .    sigma,sigb,e1c,e2c,edc)
-        etot = etot - e1c - (e2c-edc)*2 - edc
+      etot = etot - e1c - (e2c-edc)*2 - edc
 
 C       Swap the atoms
-        call mcasw(ib,jb,iprm,iprmi,sigb,sigl,sigma)
+      call mcasw(ib,jb,iprm,iprmi,sigb,sigl,sigma)
 
 C       Energy connected with the two sites after swap
-        call mcasme(ib,ib,ntab,iax,esite,epair,iprm,iprmi,
+      call mcasme(ib,ib,ntab,iax,esite,epair,iprm,iprmi,
      .    sigma,sigb,e1c,e2c,edc)
-        etot = etot + e1c + (e2c-edc)*2 + edc
-        call mcasme(jb,jb,ntab,iax,esite,epair,iprm,iprmi,
+      etot = etot + e1c + (e2c-edc)*2 + edc
+      call mcasme(jb,jb,ntab,iax,esite,epair,iprm,iprmi,
      .    sigma,sigb,e1c,e2c,edc)
-        etot = etot + e1c + (e2c-edc)*2 + edc
+      etot = etot + e1c + (e2c-edc)*2 + edc
 
-        de = etot - eold
+      de = etot - eold
 
 C  ...  Metropolis step : retain swap with probability exp(-de/kt)
-        lundo = .false.
-        if (de .gt. 0) then
-          if (ran1() .gt. dexp(-de/kt)) then
+      lundo = .false.
+      if (de .gt. 0) then
+        if (ran1() .gt. dexp(-de/kt)) then
 C           Undo atom swap
-            call mcasw(jb,ib,iprm,iprmi,sigb,sigl,sigma)
-            etot = eold
-            lundo = .true.
-          endif
+          call mcasw(jb,ib,iprm,iprmi,sigb,sigl,sigma)
+          etot = eold
+          lundo = .true.
         endif
-        if (.not. lundo) nswap = nswap+1
+      endif
+      if (.not. lundo) nswap = nswap+1
 
 C   ... Keep statistics
-        if (.not. lundo .and. nswap .gt. nequ) then
-          ebar = ebar + etot
-          esqr = esqr + etot**2
-        endif
+      if (.not. lundo .and. nswap .gt. nequ) then
+        ebar = ebar + etot
+        esqr = esqr + etot**2
+      endif
 
 #if DEBUG
 C       Calculate the energy, brute force
@@ -609,18 +610,18 @@ C        call awrit7('  mcmet swap i1(ib1)=%i(%i) with i2(ib2)=%i(%i)'//
 C     .  ' etot=%;4d de=%;4d undo=%l',' ',80,6,i1,ib,i2,jb,etot,de,lundo)
 C        call awrit2('  iprm=%n:1i',' ',80,6,nbas,iprm)
 #endif
-        if (ipr .le. 50 .and. ipr .gt. 30) then
-          if (mod(ntry,1000) .eq. 0)
+      if (ipr .le. 50 .and. ipr .gt. 30) then
+        if (mod(ntry,1000) .eq. 0)
      .      call awrit4(' mcmet completed %i+%i swaps in %i attempts'
      .      //' e=%d',' ',80,lgunit(1),nswap-nequ,nequ,ntry,eold)
-        endif
-        if (ipr .gt. 50 .or. ipr .ge. 50 .and. .not. lundo)  then
-          print 357, ib,jb,etot,de,lundo
-  357     format(' swap',i4,i4,' enow = ',f12.6,' de = ',f12.6,' undo=',
+      endif
+      if (ipr .gt. 50 .or. ipr .ge. 50 .and. .not. lundo)  then
+        print 357, ib,jb,etot,de,lundo
+  357   format(' swap',i4,i4,' enow = ',f12.6,' de = ',f12.6,' undo=',
      .      L1)
-        endif
+      endif
 
-        eold = etot
+      eold = etot
 
 C ... end of big loop
       if (nswap .lt. ntot) goto 10
@@ -647,7 +648,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mcmet 
+      end subroutine mcmet
 
       subroutine mcasw(ib1,ib2,iprm,iprmi,sigb,sigl,sigma)
 
@@ -694,7 +695,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mcasw 
+      end subroutine mcasw
 
 
       subroutine mcasms(mode,i1,i2,ips,sigma)
@@ -732,7 +733,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mcasms 
+      end subroutine mcasms
 
       subroutine mcasme(ib1,ib2,ntab,iax,esite,epair,iprm,iprmi,
      .  sig1,sig2,e1c,e2c,edc)
@@ -786,7 +787,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mcasme 
+      end subroutine mcasme
 
       integer function iosiga(lread,fnam,nbas,ips,sigl,sigb,iprm,pos)
 
@@ -859,7 +860,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end function iosiga 
+      end function iosiga
 
 
       subroutine mcasho(ib1,ib2,iprm,iprmi,ntab,iax,esite,epair,sig1,
@@ -903,7 +904,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mcasho 
+      end subroutine mcasho
 
       subroutine mcasan(ib1,ib2,iprm,iprmi,ntab,iax,ips,esite,epair,
      .  sigb,sigl,sig1,etot)
@@ -932,6 +933,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mcasan 
+      end subroutine mcasan
 
 

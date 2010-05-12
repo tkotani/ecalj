@@ -18,7 +18,7 @@ Cr     l=2:  6xy  3yz  3zz/2-rr/2  3xz  3(xx-yy)
 Cr   Factors cy are (F = 4*pi)
 Cr     l=0:              sqrt(1/4F)
 Cr     l=1:              sqrt(3/F)   sqrt(3/F)  sqrt(3/F)
-Cr     l=2:  sqrt(5/12F) sqrt(5/3F)  sqrt(5/F)  sqrt(5/3F) sqrt(5/12F)  
+Cr     l=2:  sqrt(5/12F) sqrt(5/3F)  sqrt(5/F)  sqrt(5/3F) sqrt(5/12F)
 Cu Updates
 Cu   18 Sep 06 Set tolerance to smaller number for gen. Ylm
 C ----------------------------------------------------------------
@@ -46,7 +46,8 @@ C Local parameters
       if (n .lt. 2) return
       if (r2 .gt. 1d-28) goto 1
       do  6  i = 2, n
-    6 yl(i) = 0.d0
+        yl(i) = 0.d0
+    6 continue
       return
     1 yl(2) = y
       yl(3) = z

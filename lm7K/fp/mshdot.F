@@ -26,13 +26,13 @@ C ... Local parameters
       stdo = lgunit(1)
       csum = 0d0
       do  i = 1, n
-      do  i3 = 1, n3
-        do  i2 = 1, n2
-          do  i1 = 1, n1
-            csum = csum + c(i1,i2,i3,i)*d(i1,i2,i3,i)
+        do  i3 = 1, n3
+          do  i2 = 1, n2
+            do  i1 = 1, n1
+              csum = csum + c(i1,i2,i3,i)*d(i1,i2,i3,i)
+            enddo
           enddo
         enddo
-      enddo
       enddo
 
       csum = csum*vol/(n1*n2*n3)

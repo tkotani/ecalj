@@ -127,12 +127,12 @@ C --- get DOS(E_F) ---
       else
         df = d2 + ((ef - e1)/(e2 - e1))*(d1 - d2)
       endif
-      
+
 C --- find e-limits by brute force and interpolation ---
       q = qf - mom/2d0
       do  1  n = nf, 0, -1
         if (zos(n) .lt. q) goto 2
-    1 continue 
+    1 continue
       if (zos(n) .gt. 0) then
         call fexit
      .    (-1,111,'GETDE: moment m=%d too large for NOS range',mom)
@@ -140,7 +140,7 @@ C --- find e-limits by brute force and interpolation ---
         call fexit
      .    (-1,111,'GETDE: moment m=%d exceeds maximum possible',mom)
       endif
-    2 continue 
+    2 continue
       n1 = n
       e1 = emin + n1*step
       e2 = e1 + step
@@ -152,10 +152,10 @@ C --- find e-limits by brute force and interpolation ---
       q = qf + mom/2d0
       do  3  n = nf+1, npts-1
         if (zos(n) .gt. q) goto 4
-    3 continue 
+    3 continue
       call fexit(-1,111,
      . 'GETDE: moment m=%d at top of band, MMAX too large.',mom)
-    4 continue 
+    4 continue
       n1 = n - 1
       n2 = n
       e1 = emin + n1*step
@@ -199,7 +199,7 @@ C     implicit none
       integer nf,i
       double precision step,sum1,sum2,qf,q1,q2,q,e1,e2,A,A1,A2,qdown,
      .                 qup,add1,add2
-      
+
 
       step = (emax - emin)/(npts - 1)
 
@@ -210,7 +210,7 @@ C --- find bin containing Fermi level ---
         ekin = 0
         return
       endif
-      
+
 C --- contribution from bin at edown ---
       e1 = emin + ndown*step
       e2 = e1 + step
@@ -228,9 +228,9 @@ C --- contribution from bin at eup ---
       q = q1 + ((eup - e1)/(e2 - e1))*(q2 - q1)
       add2 = 0.5d0*(eup - e1)*(q1 + q)
       qup = q
-      
+
 C --- contributions from bin at ef ---
-C A is area of trapezium at ef, A1(2) are contributions above(below) ef 
+C A is area of trapezium at ef, A1(2) are contributions above(below) ef
       e1 = emin + nf*step
       e2 = e1 + step
       q1 = zos(nf)

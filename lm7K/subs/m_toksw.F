@@ -12,7 +12,7 @@ Cr    call nwsadd()  ! starts list for a new program
 Cr    call tkadd(" foo::" ) ! Identifies foo as progn associated w/ this list
 Cr    call tkadd(" STRUC_PLAT") ! Append this token to the list
 Cr    call tkadd(" HAM_TOL~")   ! ~ => token can be optionally read
-Cr    call tkadd(" STRUC_PLAT SITE_ATOM_POS") ! lump several tokens in 1 call 
+Cr    call tkadd(" STRUC_PLAT SITE_ATOM_POS") ! lump several tokens in 1 call
 Cr    etc
 Cr
 Cr Examples see how routine toksw_init in m_rdctrl.f bundles the above
@@ -25,7 +25,7 @@ Cr   1 tok is sought by foo, with input required
 Cr   2 tok is is not sought by foo
 Cr
 Cr The input file reader contains commands to read the contents of all
-Cr tokens any program using this input system will seek.  
+Cr tokens any program using this input system will seek.
 Cr It calls tksw to determine whether a particular token is be read
 Cr by the given calling program.
 Cr
@@ -57,9 +57,9 @@ Cm  swtok : is initialized
 Cm  nsw   : is initialized to zero
 Cm  debug : is assigned to debug_in
 Cr Remarks
-Cr   
+Cr
 Cu Updates
-Cu   16 Jan 09 
+Cu   16 Jan 09
 C ----------------------------------------------------------------------
 C ... Passed parameters
       logical:: debug_in
@@ -97,7 +97,7 @@ Co  swtok : tok is appended to (module string) swtok(nsw)
 Cl Local variables
 Cr Remarks
 Cr   This routine builds up character array swtok for a particular
-Cr   main program. 
+Cr   main program.
 Cr
 Cr   swtok contains a set of lists of tokens, one list
 Cr   for each main program, which are read by the main program,  e.g.
@@ -279,7 +279,7 @@ Cr     '@CAT@HAM'    ' '     0    '@CAT@HAM '
 Cr     'SIG'         ' =:'   1    'SIG= [' or  'SIG: [' or 'SIG ['
 Cr     'ATOM'        '='     2    'ATOM='  or 'ATOM= ['
 Cu Updates
-Cu   07 Aug 07 Adapted from region_finder (TK) 
+Cu   07 Aug 07 Adapted from region_finder (TK)
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters

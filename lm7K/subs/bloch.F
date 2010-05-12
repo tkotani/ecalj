@@ -227,7 +227,8 @@ C       Any nonpositive site indices are excluded from sum
         TdotK = 0
         do  30  j = 1, 3
         do  30  k = 1, 3
-   30   TdotK = TdotK + twopi*qp(j)*plat(j,k)*iax(2+k,isite)
+          TdotK = TdotK + twopi*qp(j)*plat(j,k)*iax(2+k,isite)
+   30   continue
         if (mod(lblchi/100,10) .ge. 4) then
           TdotK = -TdotK
         endif
@@ -328,16 +329,16 @@ C       call snott(isite,sll,ld21,cost)
      .  call yprm('bloch: Sll',12+k,sll,ldima*ldimb,ldl,ldima,ldimb)
 
         if (idim .gt. 0) then
-        if (.not. maskil)
+          if (.not. maskil)
      .  call yprm('bloch: Sil',2+k,sil,idim*ldimb,ldi,idim,ldimb)
-        if (.not. maskii)
+          if (.not. maskii)
      .  call yprm('bloch: Sii',12+k,sii,idim*idim,ldi,idim,idim)
         endif
       endif
 
       call tcx('bloch')
 Cgetarg       end
-       end subroutine bloch 
+      end subroutine bloch
 
 
       subroutine pblch1(lblchp,mxorb,offa,offb,lds,ld2,klu,iprmb,
@@ -471,132 +472,132 @@ C       No rows, nothing to copy
       if (kcplx .eq. 0) then
 
 C --- For each basis orbital, do (complex storage mode 0) ---
-      do  10  lmb = 1, mxorb
-        offb = offb+1
-        ipb = iprmb(offb) - hdpb
-        if (ipb .le. 0 .or. ipb .gt. ndimb) goto 10
-        isb = lmb
-        if (lprmr) isb = iprmb(offb) - offrb
-        if (lbnd) ofbnd = 2*klu+1-ipb
-        if (ldiag) then
-          lma1 = lmb
-          lma2 = lmb
-        endif
-        offa = offa0 + lma1-1
+        do  10  lmb = 1, mxorb
+          offb = offb+1
+          ipb = iprmb(offb) - hdpb
+          if (ipb .le. 0 .or. ipb .gt. ndimb) goto 10
+          isb = lmb
+          if (lprmr) isb = iprmb(offb) - offrb
+          if (lbnd) ofbnd = 2*klu+1-ipb
+          if (ldiag) then
+            lma1 = lmb
+            lma2 = lmb
+          endif
+          offa = offa0 + lma1-1
 C   ... Loop over augmentation orbitals, case real-space s is complex
-        if (rcmplx) then
-          do  12  lma = lma1, lma2
-            offa = offa+1
-            ipa = iprmb(offa) - hdpa
-            if (ipa .le. 0 .or. ipa .gt. ndima) goto 12
-            isa = lma
-            if (lprmr) isa = iprmb(offa) - offra
-            sk(ipa+ofbnd,ipb,1) = sk(ipa+ofbnd,ipb,1) +
+          if (rcmplx) then
+            do  12  lma = lma1, lma2
+              offa = offa+1
+              ipa = iprmb(offa) - hdpa
+              if (ipa .le. 0 .or. ipa .gt. ndima) goto 12
+              isa = lma
+              if (lprmr) isa = iprmb(offa) - offra
+              sk(ipa+ofbnd,ipb,1) = sk(ipa+ofbnd,ipb,1) +
      .        sc(isa,1,isb)*cosT - sc(isa,2,isb)*sinT
-            sk(ipa+ofbnd,ipb,2) = sk(ipa+ofbnd,ipb,2) +
+              sk(ipa+ofbnd,ipb,2) = sk(ipa+ofbnd,ipb,2) +
      .        sc(isa,1,isb)*sinT + sc(isa,2,isb)*cosT
-   12     continue
+   12       continue
 C   ... Loop over augmentation orbitals, case real-space s is real
-        else
-          do  14  lma = lma1, lma2
-            offa = offa+1
-            ipa = iprmb(offa) - hdpa
-            if (ipa .le. 0 .or. ipa .gt. ndima) goto 14
-            isa = lma
-            if (lprmr) isa = iprmb(offa) - offra
-            sk(ipa+ofbnd,ipb,1) = sk(ipa+ofbnd,ipb,1) + s(isa,isb)*cosT
-            sk(ipa+ofbnd,ipb,2) = sk(ipa+ofbnd,ipb,2) + s(isa,isb)*sinT
-   14     continue
-        endif
-   10 continue
+          else
+            do  14  lma = lma1, lma2
+              offa = offa+1
+              ipa = iprmb(offa) - hdpa
+              if (ipa .le. 0 .or. ipa .gt. ndima) goto 14
+              isa = lma
+              if (lprmr) isa = iprmb(offa) - offra
+              sk(ipa+ofbnd,ipb,1) = sk(ipa+ofbnd,ipb,1) + s(isa,isb)*cosT
+              sk(ipa+ofbnd,ipb,2) = sk(ipa+ofbnd,ipb,2) + s(isa,isb)*sinT
+   14       continue
+          endif
+   10   continue
 
       elseif (kcplx .eq. 1) then
 
 C --- For each basis orbital, do (complex storage mode 1) ---
-      do  110  lmb = 1, mxorb
-        offb = offb+1
-        ipb = iprmb(offb) - hdpb
-        if (ipb .le. 0 .or. ipb .gt. ndimb) goto 110
-        isb = lmb
-        if (lprmr) isb = iprmb(offb) - offrb
-        if (lbnd) ofbnd = 2*klu+1-ipb
-        if (ldiag) then
-          lma1 = lmb
-          lma2 = lmb
-        endif
-        offa = offa0 + lma1-1
+        do  110  lmb = 1, mxorb
+          offb = offb+1
+          ipb = iprmb(offb) - hdpb
+          if (ipb .le. 0 .or. ipb .gt. ndimb) goto 110
+          isb = lmb
+          if (lprmr) isb = iprmb(offb) - offrb
+          if (lbnd) ofbnd = 2*klu+1-ipb
+          if (ldiag) then
+            lma1 = lmb
+            lma2 = lmb
+          endif
+          offa = offa0 + lma1-1
 C   ... Loop over augmentation orbitals, case real-space s is complex
-        if (rcmplx) then
-          do  112  lma = lma1, lma2
-            offa = offa+1
-            ipa = iprmb(offa) - hdpa
-            if (ipa .le. 0 .or. ipa .gt. ndima) goto 112
-            isa = lma
-            if (lprmr) isa = iprmb(offa) - offra
-            sk(1,ipa+ofbnd,ipb) = sk(1,ipa+ofbnd,ipb) +
+          if (rcmplx) then
+            do  112  lma = lma1, lma2
+              offa = offa+1
+              ipa = iprmb(offa) - hdpa
+              if (ipa .le. 0 .or. ipa .gt. ndima) goto 112
+              isa = lma
+              if (lprmr) isa = iprmb(offa) - offra
+              sk(1,ipa+ofbnd,ipb) = sk(1,ipa+ofbnd,ipb) +
      .        sc(isa,1,isb)*cosT - sc(isa,2,isb)*sinT
-            sk(2,ipa+ofbnd,ipb) = sk(2,ipa+ofbnd,ipb) +
+              sk(2,ipa+ofbnd,ipb) = sk(2,ipa+ofbnd,ipb) +
      .        sc(isa,1,isb)*sinT + sc(isa,2,isb)*cosT
-  112     continue
+  112       continue
 C   ... Loop over augmentation orbitals, case real-space s is real
-        else
-          do  114  lma = lma1, lma2
-            offa = offa+1
-            ipa = iprmb(offa) - hdpa
-            if (ipa .le. 0 .or. ipa .gt. ndima) goto 114
-            isa = lma
-            if (lprmr) isa = iprmb(offa) - offra
-            sk(1,ipa+ofbnd,ipb) = sk(1,ipa+ofbnd,ipb) + s(isa,isb)*cosT
-            sk(2,ipa+ofbnd,ipb) = sk(2,ipa+ofbnd,ipb) + s(isa,isb)*sinT
-  114     continue
-        endif
-  110 continue
+          else
+            do  114  lma = lma1, lma2
+              offa = offa+1
+              ipa = iprmb(offa) - hdpa
+              if (ipa .le. 0 .or. ipa .gt. ndima) goto 114
+              isa = lma
+              if (lprmr) isa = iprmb(offa) - offra
+              sk(1,ipa+ofbnd,ipb) = sk(1,ipa+ofbnd,ipb) + s(isa,isb)*cosT
+              sk(2,ipa+ofbnd,ipb) = sk(2,ipa+ofbnd,ipb) + s(isa,isb)*sinT
+  114       continue
+          endif
+  110   continue
 
       elseif (kcplx .eq. 2) then
 
 C --- For each basis orbital, do (complex storage mode 2) ---
-      do  210  lmb = 1, mxorb
-        offb = offb+1
-        ipb = iprmb(offb) - hdpb
-        if (ipb .le. 0 .or. ipb .gt. ndimb) goto 210
-        isb = lmb
-        if (lprmr) isb = iprmb(offb) - offrb
-        if (lbnd) ofbnd = 2*klu+1-ipb
-        if (ldiag) then
-          lma1 = lmb
-          lma2 = lmb
-        endif
-        offa = offa0 + lma1-1
+        do  210  lmb = 1, mxorb
+          offb = offb+1
+          ipb = iprmb(offb) - hdpb
+          if (ipb .le. 0 .or. ipb .gt. ndimb) goto 210
+          isb = lmb
+          if (lprmr) isb = iprmb(offb) - offrb
+          if (lbnd) ofbnd = 2*klu+1-ipb
+          if (ldiag) then
+            lma1 = lmb
+            lma2 = lmb
+          endif
+          offa = offa0 + lma1-1
 C   ... Loop over augmentation orbitals, case real-space s is complex
-        if (rcmplx) then
-          do  212  lma = lma1, lma2
-            offa = offa+1
-            ipa = iprmb(offa) - hdpa
-            if (ipa .le. 0 .or. ipa .gt. ndima) goto 212
-            isa = lma
-            if (lprmr) isa = iprmb(offa) - offra
-            sk(ipa+ofbnd,1,ipb) = sk(ipa+ofbnd,1,ipb) +
+          if (rcmplx) then
+            do  212  lma = lma1, lma2
+              offa = offa+1
+              ipa = iprmb(offa) - hdpa
+              if (ipa .le. 0 .or. ipa .gt. ndima) goto 212
+              isa = lma
+              if (lprmr) isa = iprmb(offa) - offra
+              sk(ipa+ofbnd,1,ipb) = sk(ipa+ofbnd,1,ipb) +
      .        sc(isa,1,isb)*cosT - sc(isa,2,isb)*sinT
-            sk(ipa+ofbnd,2,ipb) = sk(ipa+ofbnd,2,ipb) +
+              sk(ipa+ofbnd,2,ipb) = sk(ipa+ofbnd,2,ipb) +
      .        sc(isa,1,isb)*sinT + sc(isa,2,isb)*cosT
-  212     continue
+  212       continue
 C   ... Loop over augmentation orbitals, case real-space s is real
-        else
-          do  214  lma = lma1, lma2
-            offa = offa+1
-            ipa = iprmb(offa) - hdpa
-            if (ipa .le. 0 .or. ipa .gt. ndima) goto 214
-            isa = lma
-            if (lprmr) isa = iprmb(offa) - offra
-            sk(ipa+ofbnd,1,ipb) = sk(ipa+ofbnd,1,ipb) + s(isa,isb)*cosT
-            sk(ipa+ofbnd,2,ipb) = sk(ipa+ofbnd,2,ipb) + s(isa,isb)*sinT
-  214     continue
-        endif
-  210 continue
+          else
+            do  214  lma = lma1, lma2
+              offa = offa+1
+              ipa = iprmb(offa) - hdpa
+              if (ipa .le. 0 .or. ipa .gt. ndima) goto 214
+              isa = lma
+              if (lprmr) isa = iprmb(offa) - offra
+              sk(ipa+ofbnd,1,ipb) = sk(ipa+ofbnd,1,ipb) + s(isa,isb)*cosT
+              sk(ipa+ofbnd,2,ipb) = sk(ipa+ofbnd,2,ipb) + s(isa,isb)*sinT
+  214       continue
+          endif
+  210   continue
 
       endif
 
 Cgetarg       end
-       end subroutine pblch1 
+      end subroutine pblch1
 
 

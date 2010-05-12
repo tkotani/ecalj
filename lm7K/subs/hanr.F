@@ -26,14 +26,14 @@ C ... Local parameters
 
 C --- Make xi(lmin), xi(lmin+1) ---
 C ... xi(-1) for lmax=-1 only
-      if (lmin .eq. -1 .and. lmax .eq. -1) then 
+      if (lmin .eq. -1 .and. lmax .eq. -1) then
         do  1  ir = 1, nr
           r = dsqrt(rsq(ir))
           sre = akap*r
           h0 = dexp(-sre)/r
           xi(ir,-1) = -h0*sre/e
     1   continue
-      elseif (lmin .eq. -1) then 
+      elseif (lmin .eq. -1) then
         do  3  ir = 1, nr
           r = dsqrt(rsq(ir))
           sre = akap*r
@@ -42,7 +42,7 @@ C ... xi(-1) for lmax=-1 only
           xi(ir,-1) = -h0*sre/e
     3   continue
 C ... xi(0) for lmax=0 only
-      elseif (lmax .eq. 0) then 
+      elseif (lmax .eq. 0) then
         do  5  ir = 1, nr
           r2 = rsq(ir)
           r = dsqrt(r2)
@@ -62,7 +62,8 @@ C --- xi(*,lmin+2:lmax) by upward recursion ---
       do  30  l = lmin+2, lmax
         xx = 2*l-1
         do  32  ir = 1, nr
-   32   xi(ir,l) = (xx*xi(ir,l-1) - e*xi(ir,l-2))/rsq(ir)
+          xi(ir,l) = (xx*xi(ir,l-1) - e*xi(ir,l-2))/rsq(ir)
+   32   continue
    30 continue
 
       end

@@ -75,20 +75,20 @@ C --- Setup ---
 C     c = 274.071979d0
       lmin = 1
       if (mode0 .eq. 2) lmin=0
-      
+
 C --- Orthonormalize phi, phidot, neglecting small component ---
       if (mode/4 .ne. 0) then
-      if (ipr .gt. 50)
+        if (ipr .gt. 50)
      .  print '(/'' soprm: overlaps  phi*phi     phi*phidot'')'
-      do  1  is = 1, nsp
-      do  1  l = 0, lmx
-        r1 = dot3(nr,phi(1,l,is),phi(1,l,is),wi)
-        call dscal(nr,1/dsqrt(r1),phi(1,l,is),1)
-        r2 = dot3(nr,phi(1,l,is),phid(1,l,is),wi)
-        call daxpy(nr,-r2,phi(1,l,is),1,phid(1,l,is),1)
-        if (ipr .gt. 50) write(stdo,334) is,l,r1,r2
-  334   format('  spin',i2,'  l=',i1,2f13.6)
-    1 continue
+        do  1  is = 1, nsp
+        do  1  l = 0, lmx
+          r1 = dot3(nr,phi(1,l,is),phi(1,l,is),wi)
+          call dscal(nr,1/dsqrt(r1),phi(1,l,is),1)
+          r2 = dot3(nr,phi(1,l,is),phid(1,l,is),wi)
+          call daxpy(nr,-r2,phi(1,l,is),1,phid(1,l,is),1)
+          if (ipr .gt. 50) write(stdo,334) is,l,r1,r2
+  334     format('  spin',i2,'  l=',i1,2f13.6)
+    1   continue
       endif
       if (mode0 .eq. 0) return
 
@@ -106,60 +106,60 @@ C --- Matrix elements for each l ---
 C .. Initialize matrix elements for s orbitals, in case not calculated
       l = 0
       do  is2 = 1, nsp
-      do  is1 = 1, nsp
-      do is = 1, 3
-        sop(l,is1,is2,is) = 0d0
-        if (lpzi(l) .ne. 0) then
-          sopz(l,is1,is2,is) = 0d0
-        endif
-      enddo
-      enddo
+        do  is1 = 1, nsp
+          do is = 1, 3
+            sop(l,is1,is2,is) = 0d0
+            if (lpzi(l) .ne. 0) then
+              sopz(l,is1,is2,is) = 0d0
+            endif
+          enddo
+        enddo
       enddo
 
       do  l = lmin, lmx
-         eavg = (enu(l,1)+enu(l,nsp))/2
-         if (lpzi(l) .ne. 0) then
-           eavgz = (ez(l,1)+ez(l,nsp))/2
-         endif
-         do  is2 = 1, nsp
-         do  is1 = 1, nsp
-           if (mode0 .eq. 1) then
-             do  ir = 2, nr
-               r = ri(ir)
-               vavg = (v(ir,1)+v(ir,nsp))/2 - 2*z/r
-               dva  = dv(ir) + 2*z/r**2
-               xx = 1/r/(1d0+pa*(eavg-vavg)/c**2)**2
-               if (lpzi(l) .ne. 0) then
-                 xxz = 1/r/(1d0+pa*(eavgz-vavg)/c**2)**2
-                 xxavg = 0.5d0*(xx+xxz)
-                 wkz(ir,1) = phiz(ir,l,is1)*dva
-                 wkz(ir,2) = phiz(ir,l,is1)*xxz
-                 wkz(ir,3) = phi(ir,l,is2)*xxavg
-                 wkz(ir,4) = phid(ir,l,is2)*xxavg               
-               endif
-               wk(ir,1) = phi(ir,l,is1)*dva
-               wk(ir,3) = phid(ir,l,is1)*dva
-               wk(ir,2) = phi(ir,l,is2)*xx
-               wk(ir,4) = phid(ir,l,is2)*xx
-             enddo
-             sop(l,is1,is2,1) = dot3(nr,wk,wk(1,2),wi)*2d0/c**2
-             sop(l,is1,is2,2) = dot3(nr,wk,wk(1,4),wi)*2d0/c**2
-             sop(l,is1,is2,3) = dot3(nr,wk(1,3),wk(1,4),wi)*2d0/c**2
-             if (lpzi(l) .ne. 0) then
-               sopz(l,is1,is2,1) = dot3(nr,wkz,wkz(1,2),wi)*2d0/c**2
-               sopz(l,is1,is2,2) = dot3(nr,wkz,wkz(1,3),wi)*2d0/c**2
-               sopz(l,is1,is2,3) = dot3(nr,wkz,wkz(1,4),wi)*2d0/c**2
-             endif  
-           elseif (mode0 .eq. 2) then
-             sop(l,is1,is2,1) = dot3(nr,phi(1,l,is1),phi(1,l,is2),wk)
-             sop(l,is1,is2,2) = dot3(nr,phi(1,l,is1),phid(1,l,is2),wk)
-             sop(l,is1,is2,3) = dot3(nr,phid(1,l,is1),phid(1,l,is2),wk)
-           else
-             call rxi('soprm: bad mode:',mode)
-           endif
+        eavg = (enu(l,1)+enu(l,nsp))/2
+        if (lpzi(l) .ne. 0) then
+          eavgz = (ez(l,1)+ez(l,nsp))/2
+        endif
+        do  is2 = 1, nsp
+          do  is1 = 1, nsp
+            if (mode0 .eq. 1) then
+              do  ir = 2, nr
+                r = ri(ir)
+                vavg = (v(ir,1)+v(ir,nsp))/2 - 2*z/r
+                dva  = dv(ir) + 2*z/r**2
+                xx = 1/r/(1d0+pa*(eavg-vavg)/c**2)**2
+                if (lpzi(l) .ne. 0) then
+                  xxz = 1/r/(1d0+pa*(eavgz-vavg)/c**2)**2
+                  xxavg = 0.5d0*(xx+xxz)
+                  wkz(ir,1) = phiz(ir,l,is1)*dva
+                  wkz(ir,2) = phiz(ir,l,is1)*xxz
+                  wkz(ir,3) = phi(ir,l,is2)*xxavg
+                  wkz(ir,4) = phid(ir,l,is2)*xxavg
+                endif
+                wk(ir,1) = phi(ir,l,is1)*dva
+                wk(ir,3) = phid(ir,l,is1)*dva
+                wk(ir,2) = phi(ir,l,is2)*xx
+                wk(ir,4) = phid(ir,l,is2)*xx
+              enddo
+              sop(l,is1,is2,1) = dot3(nr,wk,wk(1,2),wi)*2d0/c**2
+              sop(l,is1,is2,2) = dot3(nr,wk,wk(1,4),wi)*2d0/c**2
+              sop(l,is1,is2,3) = dot3(nr,wk(1,3),wk(1,4),wi)*2d0/c**2
+              if (lpzi(l) .ne. 0) then
+                sopz(l,is1,is2,1) = dot3(nr,wkz,wkz(1,2),wi)*2d0/c**2
+                sopz(l,is1,is2,2) = dot3(nr,wkz,wkz(1,3),wi)*2d0/c**2
+                sopz(l,is1,is2,3) = dot3(nr,wkz,wkz(1,4),wi)*2d0/c**2
+              endif
+            elseif (mode0 .eq. 2) then
+              sop(l,is1,is2,1) = dot3(nr,phi(1,l,is1),phi(1,l,is2),wk)
+              sop(l,is1,is2,2) = dot3(nr,phi(1,l,is1),phid(1,l,is2),wk)
+              sop(l,is1,is2,3) = dot3(nr,phid(1,l,is1),phid(1,l,is2),wk)
+            else
+              call rxi('soprm: bad mode:',mode)
+            endif
 
-         enddo
-         enddo
+          enddo
+        enddo
       enddo
 
 C --- Printout ---
@@ -170,36 +170,36 @@ C --- Printout ---
      .  13x,'l',4x,'<phi || phi>',2x,'<dot || phi>',2x,'<dot || dot>')
       if (nsp .eq. 1) then
         do  l = lmin, lmx
-        write(stdo,333) '          ',
-     .      l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
-        if (lpzi(l) .ne. 0) then
           write(stdo,333) '          ',
+     .      l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
+          if (lpzi(l) .ne. 0) then
+            write(stdo,333) '          ',
      .      l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
-        endif
-      enddo
+          endif
+        enddo
       else
         do  l = lmin, lmx
-        write(stdo,333) 'up   up   ',
+          write(stdo,333) 'up   up   ',
      .      l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
-        write(stdo,333) 'down down ',
+          write(stdo,333) 'down down ',
      .    l,sop(l,2,2,1),sop(l,2,2,2),sop(l,2,2,3)
-        write(stdo,333) 'up   down ',
+          write(stdo,333) 'up   down ',
      .    l,sop(l,1,2,1),sop(l,1,2,2),sop(l,1,2,3)
-        write(stdo,333) 'down up   ',
+          write(stdo,333) 'down up   ',
      .    l,sop(l,2,1,1),sop(l,2,1,2),sop(l,2,1,3)
-        write(stdo,333)
-        if (lpzi(l) .ne. 0) then
-        write(stdo,335) 'up   up   ',
+          write(stdo,333)
+          if (lpzi(l) .ne. 0) then
+            write(stdo,335) 'up   up   ',
      .      l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
-        write(stdo,335) 'down down ',
+            write(stdo,335) 'down down ',
      .    l,sopz(l,2,2,1),sopz(l,2,2,2),sopz(l,2,2,3)
-        write(stdo,335) 'up   down ',
+            write(stdo,335) 'up   down ',
      .    l,sopz(l,1,2,1),sopz(l,1,2,2),sopz(l,1,2,3)
-        write(stdo,335) 'down up   ',
+            write(stdo,335) 'down up   ',
      .    l,sopz(l,2,1,1),sopz(l,2,1,2),sopz(l,2,1,3)
-        write(stdo,335)
-        endif
-      enddo
+            write(stdo,335)
+          endif
+        enddo
       endif
 C  333 format(1x,a,i3,3f20.15)
   333 format(1x,a,i3,1x, 3f14.8)

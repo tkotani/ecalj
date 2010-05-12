@@ -28,8 +28,8 @@ Cgetarg...info...           structure ['suham', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['suham', 'm_struc_def']
 Cgetarg...info...           use_to_add ['gen_hamindex', 'm_struc_def']
       subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas,iprmb,ldim,qplist,nkp,siginit) !from showbs
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
       use m_hamindex
 C- Set up m_hamiltonian. Index for Hamiltonian.  Generated index are stored into m_hamindex
@@ -40,7 +40,7 @@ C
 Cr     iprmb is hard to understand (Mark's convension).  But, in anyway,
 Cr     it is converted into clean indexing for Hamiltonian block.
 Cr As you see in subroutine rotwv, the index for Hamiltonian reads as;
-c      do iorb=1,norbt             !orbital-blocks are specified by ibas, l, and k. 
+c      do iorb=1,norbt             !orbital-blocks are specified by ibas, l, and k.
 c        ibas  = ibastab(iorb)
 c         l    = ltab(iorb)
 c         k    = ktab(iorb)        !kappa (diffent MTO index for each l)
@@ -52,11 +52,11 @@ C ----------------------------------------------------------------------
       implicit none
 C Passed parameters
 Cgetarg       double precision sspec(1),ssite(1),slat(1),sbz(1),sham(1)
-       type(s_spec)::sspec(*)
-       type(s_site)::ssite(*)
-       type(s_lat)::slat
-       type(s_bz)::sbz
-       type(s_ham)::sham
+      type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_lat)::slat
+      type(s_bz)::sbz
+      type(s_ham)::sham
 
 c      integer nkaph,iprma(*)
       integer iprmb(*),nl
@@ -92,29 +92,29 @@ Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
 Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
 Cgetarg...info...           NG:: ngrp , integer(8) :: slat%nsgrp 1
 Cgetarg       call upack('lat oag osymgr nsgrp',slat,oag,og,ngrp,0,0)
-       
+
 Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 77
 Cdelw1 do not change oag because of ['undef', 'wref']
-       oag=slat%oag
+      oag=slat%oag
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 78
 Cdelw1 do not change og because of ['undef', 'wref']
-       og=slat%osymgr
-       ngrp=slat%nsgrp
+      og=slat%osymgr
+      ngrp=slat%nsgrp
 
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg       call upack('lat plat opos qlat alat',slat,plat,opos,qlat,alat,0)
-       
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 89
 Cdelw1 do not change opos because of ['undef', 'wref']
-       opos=slat%opos
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
-       alat=slat%alat
+      opos=slat%opos
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      alat=slat%alat
 
       if(.not.siginit) goto 1011
 
@@ -130,8 +130,8 @@ C ... obtain norbt, lxx,kxx
       do  ib = 1, nbas
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
-         
-         is=ssite(ib)%spec
+
+        is=ssite(ib)%spec
 
         call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
         do iorb = 1, norb
@@ -149,20 +149,20 @@ c ... make index table
       do  ib = 1, nbas
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
-         
-         is=ssite(ib)%spec
+
+        is=ssite(ib)%spec
 
 Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
-         do i_spacks=is,is 
-         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-         enddo
+        do i_spacks=is,is
+          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+        enddo
 
         call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
         do  iorb = 1, norb
           norbt=norbt+1
           ibastab(norbt)= ib
           ltab(norbt)   = ltabx(iorb,ib)
-          ktab(norbt)   = ktabx(iorb,ib)  
+          ktab(norbt)   = ktabx(iorb,ib)
           offl(norbt)   = offlx(iorb,ib)
           nini = ndimham+ 1
           ndimham = ndimham+ 2*ltabx(iorb,ib)+1
@@ -174,13 +174,13 @@ Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
 c ... reverse maping of offset-index for hamiltonian
       allocate(offlrev(nbas,0:lxx,kxx))
       do iorb=1,norbt
-         ibas = ibastab(iorb)
-          l   = ltab(iorb)
-          k   = ktab(iorb)  
-          offlrev(ibas,l,k)= offl(iorb)
+        ibas = ibastab(iorb)
+        l   = ltab(iorb)
+        k   = ktab(iorb)
+        offlrev(ibas,l,k)= offl(iorb)
       enddo
 
-C ... symmetry operation 
+C ... symmetry operation
       allocate(symops(3,3,ngrp),ag(3,ngrp))
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 160
 Cdelw1 do not change og because of ['undef', 'wref']
@@ -193,8 +193,8 @@ Cdelw1 do not change oag because of ['undef', 'wref']
       do ib=1,nbas
 Cgetarg...info...           NG:: iclasst(ib) , integer(8) :: ssite%class 1
 Cgetarg         call upack('site class',ssite,ib,iclasst(ib),0,0,0)
-         
-         iclasst(ib)=ssite(ib)%class
+
+        iclasst(ib)=ssite(ib)%class
 
       enddo
 c ... get space group information
@@ -206,7 +206,7 @@ c ... get rotation matrix dlmm
       allocate( dlmm( -lxx:lxx, -lxx:lxx, 0:lxx, ngrp))
       call rotdlmm(symops,ngrp, lxx+1, dlmm)
       print *,' end of rotdlmm'
-      
+
 C --- APW part
  1011 continue
 C q on mesh and shortened q.
@@ -218,38 +218,38 @@ C q on mesh and shortened q.
       print *,'gen_hamindex: nkt nqbz=',nkt,nqbz
       do  iq = 1, nqbz
         read(ifiqg)  qxx  ! q, and number of G vectors for
-        read(ifiqg)  
+        read(ifiqg)
         qq(:,iq)=qxx
         call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
         write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
 c        call shorbz( qxx, qq(:,iq), qlat, plat)
-      enddo  
+      enddo
       print *
       call fclr(' ',ifiqg)
       do iq = nqbz+1, nqbz+nkp
         qq(:,iq) = qplist(:,iq-nqbz)
         call shorbz(qq(:,iq),qq(:,iq+nqbz+nkp),qlat,plat)
         write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqbz+nkp)
-      enddo  
+      enddo
 c
 Cgetarg...info...           integer :: pwmode , integer(8) :: sham%pwmode 1
 Cgetarg...info...           real(8) :: pwemin , real(8) :: sham%pwemin 1
 Cgetarg...info...           real(8) :: pwemax , real(8) :: sham%pwemax 1
 Cgetarg       call upack3('ham pwmode pwemin pwemax',sham,pwmode,pwemin,pwemax)
-       
-       pwmode=sham%pwmode
-       pwemin=sham%pwemin
-       pwemax=sham%pwemax
+
+      pwmode=sham%pwmode
+      pwemin=sham%pwemin
+      pwemax=sham%pwemax
 
       if(pwmode==0) then
-         allocate(napwk(nkt))
-         napwk=0
-         napwmx=0
+        allocate(napwk(nkt))
+        napwk=0
+        napwmx=0
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [og oag opos]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-         return
+        return
       endif
 
 c ... self-energy is on the mesh points specified by QGpsi (I think correct. takao).
@@ -278,12 +278,12 @@ C ... Get igv2(3,iapw,ikt). pwmode>=10 only
       napwmx = 0
       call pshpr(0)
       do ikt=1,nkt
-         !print *,' 111 ikt nkt=',ikt,nkt,qq(:,ikt)
-         !print *,' 111 alat plat=',alat,plat
-         !print *,' 111 qq pwgmin pwgmax =',qq(:,ikt),pwgmin,pwgmax
-         call gvlst2(alat,plat,qq(:,ikt),0,0,0,pwgmin,pwgmax,0,
+        !print *,' 111 ikt nkt=',ikt,nkt,qq(:,ikt)
+        !print *,' 111 alat plat=',alat,plat
+        !print *,' 111 qq pwgmin pwgmax =',qq(:,ikt),pwgmin,pwgmax
+        call gvlst2(alat,plat,qq(:,ikt),0,0,0,pwgmin,pwgmax,0,
      .      0,0,napwx,dum,dum,dum,dum)
-         !print *,' 111x   =',napwmx
+        !print *,' 111x   =',napwmx
         napwk(ikt) = napwx
         if(napwmx<napwx) napwmx = napwx
       enddo
@@ -307,12 +307,12 @@ C ... Reverse table of igv2 --->igv2rev
       allocate( igv2rev(-imx:imx,-imx:imx,-imx:imx,nkt) )
       igv2rev=999999
       do ikt = 1,nkt
-         print *
-      do ig  = 1,napwk( ikt )
-        nnn  = igv2(1:3, ig, ikt)
-        igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig 
-        !write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
-      enddo
+        print *
+        do ig  = 1,napwk( ikt )
+          nnn  = igv2(1:3, ig, ikt)
+          igv2rev( nnn(1), nnn(2),nnn(3), ikt) = ig
+          !write(6,"(a,3f8.3,4i4,i6,i6)")'igv2rev: ',qq(:,ikt), nnn, ig, ikt
+        enddo
       enddo
       print *,' --- nkt,napwmx = ',nkt,napwmx
 
@@ -321,13 +321,13 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [og oag opos]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine gen_hamindex 
+      end subroutine gen_hamindex
 
 
 
       subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
@@ -394,14 +394,14 @@ C     implicit none
 C ... Passed parameters
 Cgetarg       double precision sctrl(1),slat(1),sspec(1),ssite(1),sarray(1),
 Cgetarg      .  sham(1),spot(1),sbz(1)
-       type(s_ctrl)::sctrl
-       type(s_lat)::slat
-       type(s_spec)::sspec(*)
-       type(s_site)::ssite(*)
-       type(s_array)::sarray
-       type(s_ham)::sham
-       type(s_pot)::spot
-       type(s_bz)::sbz
+      type(s_ctrl)::sctrl
+      type(s_lat)::slat
+      type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_array)::sarray
+      type(s_ham)::sham
+      type(s_pot)::spot
+      type(s_bz)::sbz
 
       character*(*) sstrn
 C ... Local parameters
@@ -422,9 +422,9 @@ C ... Needed for iostr
       double precision ckbas,cksumf,kap2(10)
 Cdelw1 do not change  [['undef', 'wref', 'redef'], 'ogv', 'suham']
 Cdelw1       integer oalph,oiax,ontab,os,ng,ogv,okv,oigv2
-       integer:: oalph , oiax , ontab , os , ng , ogv 
-       integer ,allocatable :: iv_w_okv(:)
-       integer ,allocatable :: iv_w_oigv2(:)
+      integer:: oalph , oiax , ontab , os , ng , ogv
+      integer ,allocatable :: iv_w_okv(:)
+      integer ,allocatable :: iv_w_oigv2(:)
 
 Cdelw1 do not change  [['wref'], 'offh', 'suham']
 Cdelw1 do not change  [['wref'], 'oidxsh', 'suham']
@@ -446,20 +446,20 @@ C --- Setup ---
 Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
 Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
 Cgetarg       call upack('array oips oipc',sarray,oips,oipc,0,0,0)
-       
+
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 403
 Cdelw1 do not change oips because of ['undef', 'wref']
-       oips=sarray%oips
-       oipc=sarray%oipc
+      oips=sarray%oips
+      oipc=sarray%oipc
 
 Cgetarg...info...           integer :: nbasp , integer(8) :: sctrl%nbasp 1
 Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
 Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
 Cgetarg       call upack('ctrl nbasp nspec nl',sctrl,nbasp,nspec,nl,0,0)
-       
-       nbasp=sctrl%nbasp
-       nspec=sctrl%nspec
-       nl=sctrl%nl
+
+      nbasp=sctrl%nbasp
+      nspec=sctrl%nspec
+      nl=sctrl%nl
 
 Cgetarg...info...           integer :: lham , integer(8) :: sctrl%lham 1
 Cgetarg...info...           integer :: lcgf , integer(8) :: sctrl%lcgf 1
@@ -467,7 +467,7 @@ Cgetarg...info...           integer :: lgen3 , integer(8) :: sctrl%lgen3 1
 Cgetarg...info...           integer :: lfp , integer(8) :: sctrl%lfp 1
 Cgetarg       call upack('ctrl lham lcgf lgen3 lfp',sctrl,lham,lcgf,lgen3,
 Cgetarg      .  lfp,0)
-       
+
 c       lham=sctrl%lham
 c       lcgf=sctrl%lcgf
 c       lgen3=sctrl%lgen3
@@ -476,12 +476,12 @@ c       lfp=sctrl%lfp
 Cgetarg...info...           integer :: lncol , integer(8) :: sctrl%lncol 1
 Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
 Cgetarg       call upack('ctrl lncol nspin',sctrl,lncol,nsp,0,0,0)
-       
-       lncol=sctrl%lncol
-       nsp=sctrl%nspin
+
+      lncol=sctrl%lncol
+      nsp=sctrl%nspin
 
 Cgetarg       lpgf  = igets('ctrl lpgf',sctrl)
-c       lpgf = int(sctrl%lpgf(1)) 
+c       lpgf = int(sctrl%lpgf(1))
 
       nkaph = nglob('nkaph')
 Cgetarg...info...           integer :: pwmode , integer(8) :: sham%pwmode 1
@@ -490,11 +490,11 @@ Cgetarg...info...           real(8) :: pwemax , real(8) :: sham%pwemax 1
 Cgetarg...info...           integer :: npwpad , integer(8) :: sham%npwpad 1
 Cgetarg       call upack('ham pwmode pwemin pwemax npwpad',sham,pwmode,pwemin,
 Cgetarg      .  pwemax,npwpad,0)
-       
-       pwmode=sham%pwmode
-       pwemin=sham%pwemin
-       pwemax=sham%pwemax
-       npwpad=sham%npwpad
+
+      pwmode=sham%pwmode
+      pwemin=sham%pwemin
+      pwemax=sham%pwemax
+      npwpad=sham%npwpad
 
 
       nspc  = 1
@@ -519,7 +519,7 @@ C$$$C       if (lgors('ctrl lham,128',sctrl)) adnf = 0
 C$$$Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
 C$$$Cgetarg...info...           real(8) :: vmtz , real(8) :: spot%vmtz 1
 C$$$Cgetarg         call upack2('pot opp vmtz',spot,opp,vmtz)
-         
+
 C$$$         opp=spot%opp
 C$$$         vmtz=spot%vmtz
 
@@ -541,8 +541,8 @@ Cdelw1 do not change oips because of ['undef', 'wref']
 C     Default value for hamiltonian dimension
 Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ndham 1
 Cgetarg       call pack1('ham ndham',sham,ldham)
-       
-       sham%ndham=ldham(1)
+
+      sham%ndham=ldham(1)
 
 C     print *, '!!'; call pack1('ham ndham',sham,ldham+3)
 
@@ -558,14 +558,14 @@ Cgetarg...info...           integer :: oidxsh , integer(8) :: sham%oindxo 1
 Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ldham 16
 Cgetarg       call pack5('ham ndofH ooffH oindxo ldham',sham,nbasp+1,offH,
 Cgetarg      .  oidxsh,ldham,0)
-       
-       sham%ndofH=nbasp+1 
+
+      sham%ndofH=nbasp+1
 Cdelw1 do not change offh because of ['wref']
-       sham%ooffH=offH 
+      sham%ooffH=offH
 Cdelw1 do not change oidxsh because of ['wref']
-       sham%oindxo=oidxsh 
-       i_copy_size=size(sham%ldham) 
-       call ii8copy(i_copy_size,ldham,1,sham%ldham,1) 
+      sham%oindxo=oidxsh
+      i_copy_size=size(sham%ldham)
+      call ii8copy(i_copy_size,ldham,1,sham%ldham,1)
 
 
 C ------- Potential- and implementation- specific setup -------
@@ -574,69 +574,69 @@ Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg       call upack3('lat alat plat qlat',slat,alat,plat,qlat)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
 c      if (lfp .ne. 0) then
-        nvi = 0
-        nvl = 0
-        lmxax = -1
-        do  20  ib = 1, nbasp
+      nvi = 0
+      nvl = 0
+      lmxax = -1
+      do  20  ib = 1, nbasp
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg           call upack2('site spec',ssite,ib,is)
-           
-           is=ssite(ib)%spec
+
+        is=ssite(ib)%spec
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
 Cgetarg...info...           real(8) :: pz(n0,2) , real(8) :: sspec%pz 20
 Cgetarg           call upack('spec lmxa lmxl p pz',sspec,is,lmxa,lmxl,pnu,pz)
-           
-           lmxa=sspec(is)%lmxa
-           lmxl=sspec(is)%lmxl
-           i_copy_size=size(sspec(is)%p) 
-           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
-           i_copy_size=size(sspec(is)%pz) 
-           call dcopy(i_copy_size,sspec(is)%pz,1,pz,1) 
+
+        lmxa=sspec(is)%lmxa
+        lmxl=sspec(is)%lmxl
+        i_copy_size=size(sspec(is)%p)
+        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
+        i_copy_size=size(sspec(is)%pz)
+        call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
 
 cccccccccccccc
 c        print *,'suham 111 pnu=',i,pnu(1:10,1:2)
 cccccccccccccc
-          call dcopy(n0,pz,1,pz(1,2),1)
+        call dcopy(n0,pz,1,pz(1,2),1)
 C         Augmentation dimensioning parameters
-          nvi = nvi + (lmxa+1)**2
-          nvl = nvl + (lmxl+1)**2
+        nvi = nvi + (lmxa+1)**2
+        nvl = nvl + (lmxl+1)**2
 C         Poke spec starting pnu to site
 Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
 Cgetarg...info...           real(8) :: pz(n0,2) , real(8) :: ssite%pz 20
 Cgetarg           call pack5('site pnu pz',ssite,ib,pnu,pz,0,0)
-           
-           i_copy_size=size(ssite(ib)%pnu) 
-           call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1) 
-           i_copy_size=size(ssite(ib)%pz) 
-           call dcopy(i_copy_size,pz,1,ssite(ib)%pz,1) 
+
+        i_copy_size=size(ssite(ib)%pnu)
+        call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
+        i_copy_size=size(ssite(ib)%pz)
+        call dcopy(i_copy_size,pz,1,ssite(ib)%pz,1)
 
 C         Find largest lmxa
-          lmxax = max(lmxax,lmxa)
-   20   continue
+        lmxax = max(lmxax,lmxa)
+   20 continue
 Cgetarg...info...           integer :: lmxax , integer(8) :: sham%lmxax 1
 Cgetarg         call pack1('ham lmxax',sham,lmxax)
-         
-         sham%lmxax=lmxax 
+
+      sham%lmxax=lmxax
 
 Cgetarg...info...           integer :: nvi , integer(8) :: spot%nlma 1
 Cgetarg...info...           integer :: nvl , integer(8) :: spot%nlml 1
 Cgetarg         call pack2('pot nlma nlml',spot,nvi,nvl)
-         
-         spot%nlma=nvi 
-         spot%nlml=nvl 
 
-        call info5(30,0,0,' suham :  %i augmentation'//
+      spot%nlma=nvi
+      spot%nlml=nvl
+
+      call info5(30,0,0,' suham :  %i augmentation'//
      .    ' channels, %i local potential channels  Maximum lmxa=%i',
      .    nvi,nvl,lmxax,0,0)
 Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
@@ -644,133 +644,133 @@ Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: tolgv , real(8) :: slat%tolft 1
 Cgetarg         call upack('lat ng ogv alat tolft',slat,ng,ogv,alat,tolgv,0)
-         
-         ng=slat%ng
+
+      ng=slat%ng
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 592
 Cdelw1 do not change ogv because of ['undef', 'wref', 'redef']
-         ogv=slat%ogv
-         alat=slat%alat
-         tolgv=slat%tolft
+      ogv=slat%ogv
+      alat=slat%alat
+      tolgv=slat%tolft
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 596
 Cdelw1 do not change ogv because of ['undef', 'wref', 'redef']
-        call sugcut(1,nspec,sspec,alat,ng,w(ogv),tolgv)
+      call sugcut(1,nspec,sspec,alat,ng,w(ogv),tolgv)
 
 C   ... PW setup : estimate upper bound to number of G vectors
 C       to set up upper bound to hamiltonian dimension
 Cgetarg...info...           integer :: pwmode , integer(8) :: sham%pwmode 1
 Cgetarg...info...           real(8) :: pwemax , real(8) :: sham%pwemax 1
 Cgetarg         call upack2('ham pwmode pwemax',sham,pwmode,pwemax)
-         
-         pwmode=sham%pwmode
-         pwemax=sham%pwemax
 
-        if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
+      pwmode=sham%pwmode
+      pwemax=sham%pwemax
 
-          Gmin = dsqrt(pwemin)
-          Gmax = dsqrt(pwemax)
-          if (mod(pwmode/10,10) .eq. 1) then
-            call info0(70,1,0,' Estimate max size of PW basis from'//
+      if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
+
+        Gmin = dsqrt(pwemin)
+        Gmax = dsqrt(pwemax)
+        if (mod(pwmode/10,10) .eq. 1) then
+          call info0(70,1,0,' Estimate max size of PW basis from'//
      .        'combinations of recip. lattice vectors ...')
-            npwmax = -1
-            npwmin = 99999
-            do  j1 = 0, nqdiv
+          npwmax = -1
+          npwmin = 99999
+          do  j1 = 0, nqdiv
             do  j2 = 0, nqdiv
-            do  j3 = 0, nqdiv
-              do   m = 1, 3
-                q(m) = (qlat(m,1)/nqdiv)*j1 +
+              do  j3 = 0, nqdiv
+                do   m = 1, 3
+                  q(m) = (qlat(m,1)/nqdiv)*j1 +
      .                 (qlat(m,2)/nqdiv)*j2 +
      .                 (qlat(m,3)/nqdiv)*j3
-              enddo
-              call pshpr(iprint()-40)
+                enddo
+                call pshpr(iprint()-40)
 ctakao nqdiv is large but fixed... So this is safer?
 c              call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
 c     .          xx,xx,xx)
 c             write(6,"('GVLST2:goto q=',3f13.5)")q
 c             call shorbz(q,q,qlat,plat)
-             call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
+                call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
      &          xx,xx,xx)
-              call poppr
-              npwmin = min(npwmin,npw)
-              npwmax = max(npwmax,npw)
+                call poppr
+                npwmin = min(npwmin,npw)
+                npwmax = max(npwmax,npw)
+              enddo
             enddo
-            enddo
-            enddo
-            if (npwpad .lt. 0) then
-              npwpad = max(nint((npwmax-npwmin)*0.2d0),3)
-            endif
-          else
-            call dpzero(q,3)
-            call pshpr(iprint()-40)
-            call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
-     .        xx,xx,xx)
-            call poppr
-            npwmin = npw
-            npwmax = npw
-            npwpad = 0
+          enddo
+          if (npwpad .lt. 0) then
+            npwpad = max(nint((npwmax-npwmin)*0.2d0),3)
           endif
-          ndham = npwmax + npwpad
-          if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
+        else
+          call dpzero(q,3)
+          call pshpr(iprint()-40)
+          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
+     .        xx,xx,xx)
+          call poppr
+          npwmin = npw
+          npwmax = npw
+          npwpad = 0
+        endif
+        ndham = npwmax + npwpad
+        if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
 Cgetarg...info...           integer :: npwmin , integer(8) :: sham%npwmin 1
 Cgetarg...info...           integer :: npwpad , integer(8) :: sham%npwpad 1
 Cgetarg...info...           integer :: ndham , integer(8) :: sham%ndham 1
 Cgetarg           call pack3('ham npwmin npwpad ndham',sham,npwmin,npwpad,ndham)
-           
-           sham%npwmin=npwmin 
-           sham%npwpad=npwpad 
-           sham%ndham=ndham 
 
-          if (mod(pwmode/10,10) .eq. 1) then
-            call info2(20,1,0,' suham:  q-dependent PW basis with'//
+        sham%npwmin=npwmin
+        sham%npwpad=npwpad
+        sham%ndham=ndham
+
+        if (mod(pwmode/10,10) .eq. 1) then
+          call info2(20,1,0,' suham:  q-dependent PW basis with'//
      .        '  Emin = %d < E < %d.',pwemin,pwemax)
-            call info5(30,0,0,'%9fEst. min,max PW dimension = %i,%i.'//
+          call info5(30,0,0,'%9fEst. min,max PW dimension = %i,%i.'//
      .        '  Use npwpad = %i => ndham = %i',
      .        npwmin,npwmax,npwpad,ndham,0)
-          else
-            call info5(20,0,0,' suham:  PW basis with  %d < E < '//
+        else
+          call info5(20,0,0,' suham:  PW basis with  %d < E < '//
      .        '%d  =>  npw = %i,  ndham = %i',
      .        pwemin,pwemax,npw,ndham,0)
-          endif
+        endif
 
 C    ...  Printout
-          if (iprint() .ge. 40) then
-            call pshpr(0)
-            call dpzero(q,3)
-            call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
+        if (iprint() .ge. 40) then
+          call pshpr(0)
+          call dpzero(q,3)
+          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
      .        xx,xx,xx)
-            call poppr
-            call info0(40,1,-1,' G vectors at the Gamma point:')
+          call poppr
+          call info0(40,1,-1,' G vectors at the Gamma point:')
 Cdelw1             call defi(oigv2,3*npw)
-             allocate(iv_w_oigv2(3*npw))
+          allocate(iv_w_oigv2(3*npw))
 Ctakao_ZeroClear_NotRequiered              if (3*npw<0) iv_w_oigv2(:)=0
 
 Cdelw1             call defi(okv,3*npw)
-             allocate(iv_w_okv(3*npw))
+          allocate(iv_w_okv(3*npw))
 Ctakao_ZeroClear_NotRequiered              if (3*npw<0) iv_w_okv(:)=0
 
 Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: ogv undef and real(8)
 Cdelw1 do not change ogv because of ['undef', 'wref', 'redef']
-            call defrr(ogv,3*npw)
-            call pshpr(iprint())
-            if (iprint() .ge. 50) call setpr(100)
+          call defrr(ogv,3*npw)
+          call pshpr(iprint())
+          if (iprint() .ge. 50) call setpr(100)
 Cdelw1 do not change ogv because of ['undef', 'wref', 'redef']
 Cdelw1 do not change ogv because of ['undef', 'wref', 'redef']
 Cdelw1             call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,8+2,npw,npw,
 Cdelw1      .        w(okv),w(ogv),xx,w(oigv2))
-             call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , 
-     .       8 + 2 , npw , npw , iv_w_okv , w ( ogv ) , xx , iv_w_oigv2 ) 
+          call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , 
+     .       8 + 2 , npw , npw , iv_w_okv , w ( ogv ) , xx , iv_w_oigv2 )
 
-            call poppr
-Cdelw1 rlse name= oigv2 old_list= offh oidxsh oigv2 okv ogv 
-Cdelw1 rlse name= oigv2 new_list= offh oidxsh 
+          call poppr
+Cdelw1 rlse name= oigv2 old_list= offh oidxsh oigv2 okv ogv
+Cdelw1 rlse name= oigv2 new_list= offh oidxsh
 Cdelw1 not deallocate ogv because of [undef wref redef]
 Cdelw1             call rlse(oigv2)
-             if (allocated(iv_w_okv)) deallocate(iv_w_okv)
-             if (allocated(iv_w_oigv2)) deallocate(iv_w_oigv2)
-             call rlse(ogv)
+          if (allocated(iv_w_okv)) deallocate(iv_w_okv)
+          if (allocated(iv_w_oigv2)) deallocate(iv_w_oigv2)
+          call rlse(ogv)
 
-          endif
         endif
+      endif
 c      endif
 
 C ... Printout orbital positions in hamiltonian, resolved by l
@@ -830,7 +830,7 @@ C$$$          i = partok(gfopts,'p1',  ' ;',ltmp,' ',0,0,0,0)
 C$$$          if (ltmp) hord = 1
 C$$$Cgetarg...info...           integer :: hord , integer(8) :: sham%hord 1
 C$$$Cgetarg           call pack1('ham hord',sham,hord)
-C$$$           sham%hord=hord 
+C$$$           sham%hord=hord
 C$$$          if (iprint() .ge. 30) call awrit1(' SUHAM : 2nd generation'//
 C$$$     .      ' ASA; potential functions P%?#n<4#%-1j%i#(z)#',' ',
 C$$$     .      80,stdo,hord)
@@ -848,8 +848,8 @@ C$$$        call makipt(nl,nbasp,nsp,w(oipc),lihdim,w(oidxsh),w(opp),ndim,
 C$$$     .    w(opti))
 C$$$Cgetarg...info...           integer :: opti , integer(8) :: spot%opti 1
 C$$$Cgetarg         call pack1('pot opti',spot,opti)
-         
-C$$$         spot%opti=opti 
+
+C$$$         spot%opti=opti
 
 
 C$$$      endif
@@ -861,7 +861,7 @@ C$$$C       Get screening alpha's
 C$$$Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
 C$$$Cgetarg...info...           integer :: obas , integer(8) :: sarray%opos 1
 C$$$Cgetarg         call upack('array nclasp opos',sarray,nclasp,obas,0,0,0)
-         
+
 C$$$         nclasp=sarray%nclasp
 C$$$         obas=sarray%opos
 
@@ -884,12 +884,12 @@ Cgetarg...info...           integer :: neul , integer(8) :: sham%neula 1
 Cgetarg...info...           real(8) :: qss(4) , real(8) :: sham%qss 4
 Cgetarg       call upack('ham lncol oeula neula qss',sham,lncol,oeula,neul,qss,
 Cgetarg      .  0)
-       
+
 c       lncol=sham%lncol
 c       oeula=sham%oeula
 c       neul=sham%neula
-c       i_copy_size=size(sham%qss) 
-c       call dcopy(i_copy_size,sham%qss,1,qss,1) 
+c       i_copy_size=size(sham%qss)
+c       call dcopy(i_copy_size,sham%qss,1,qss,1)
 
 C$$$      if (iprint() .ge. 30 .and. lncol .ne. 0) then
 C$$$        call awrit4('%x          %?#n#Qss%3:1;6d angle %;6d.  #%2j#'//
@@ -908,7 +908,7 @@ C$$$Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
 C$$$Cgetarg...info...           integer :: omagf , integer(8) :: sham%omagf 1
 C$$$Cgetarg...info...           integer :: nbf , integer(8) :: sham%nbf 1
 C$$$Cgetarg         call upack('ham oeula omagf nbf',sham,oeula,omagf,nbf,0,0)
-         
+
 C$$$         oeula=sham%oeula
 C$$$         omagf=sham%omagf
 C$$$         nbf=sham%nbf
@@ -919,18 +919,18 @@ C$$$     .    neul,w(obs))
 C$$$      endif
 Cgetarg...info...           integer :: obs , integer(8) :: sham%obdots 1
 Cgetarg       call pack1('ham obdots',sham,obs)
-       
-c       sham%obdots=obs 
+
+c       sham%obdots=obs
 
 
 Cgetarg       end
-Cdelw1 w_varlist remains: offh oidxsh 
+Cdelw1 w_varlist remains: offh oidxsh
 Cdelw1 w_varlistundel: [oips ogv offh oidxsh]
 Cdelw1 w_varlist (undel), remains: [offh oidxsh]
 Cdelw1 w_varlist (del), remains: (None)
 Cdelw1 not deallocate oidxsh because of [wref]
 Cdelw1 not deallocate offh because of [wref]
-       end subroutine suham 
+      end subroutine suham
 
 
 
@@ -1087,7 +1087,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mptauof 
+      end subroutine mptauof
 
 
       subroutine rotdlmm(symops,ng,nl ,dlmm)
@@ -1291,7 +1291,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine rotdlmm 
+      end subroutine rotdlmm
 
 c--------------------------------------------
       double precision function igann(i)
@@ -1304,5 +1304,5 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end function igann 
+      end function igann
 

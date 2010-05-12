@@ -1,5 +1,5 @@
 C ----------------------------------------------------------------
-C   spherical Bessel function at x=r(i)*sqrt(e) divided by x**l 
+C   spherical Bessel function at x=r(i)*sqrt(e) divided by x**l
 c
 Ci Inputs
 Ci   r    list of points
@@ -16,19 +16,19 @@ c origianl: Feb. 15, 2010, Hiori Kino
 
       double precision:: e2,f(0:lmax),eps=1.0d-10,x
       double precision:: sj,sy,sjp,syp
-      integer:: i,l 
+      integer:: i,l
 
       e2=sqrt(e)
       do i=1,n
-         x=r(i)*e2
-        if (x< eps)  x=eps 
+        x=r(i)*e2
+        if (x< eps)  x=eps
         do l=0,lmax
-        call sphbes(l,x,sj,sy,sjp,syp) 
-        f(l)=sj/(x**l)
+          call sphbes(l,x,sj,sy,sjp,syp)
+          f(l)=sj/(x**l)
         enddo
         xi(i,0:lmax)= f(0:lmax)
-      enddo   
- 
+      enddo
+
       end subroutine ropbes
 c--------------------------------
 
@@ -46,8 +46,8 @@ CU    USES beschb
      *r,rjl,rjl1,rjmu,rjp1,rjpl,rjtemp,ry1,rymu,rymup,rytemp,sum,sum1,
      *temp,w,x2,xi,xi2,xmu,xmu2
       if(x.le.0..or.xnu.lt.0.) then
-         write(*,*) 'bad arguments in bessjy',x,xnu
-         stop
+        write(*,*) 'bad arguments in bessjy',x,xnu
+        stop
       endif
       if(x.lt.XMIN)then
         nl=int(xnu+.5d0)
@@ -210,8 +210,8 @@ CU    USES bessjy
       REAL(8) factor,order,rj,rjp,ry,ryp,RTPIO2
       PARAMETER (RTPIO2=1.2533141)
       if(n.lt.0.or.x.le.0.)then
-      write(*,*)  'bad arguments in sphbes'
-      stop
+        write(*,*)  'bad arguments in sphbes'
+        stop
       endif
       order=n+0.5
       call bessjy(x,order,rj,ry,rjp,ryp)

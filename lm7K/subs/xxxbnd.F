@@ -14,10 +14,10 @@ C     implicit none
         write(ifi,337) nqx,nqy
   337   format('% rows ',i5,' cols ',i5)
         do  20  ix = 1, nqx
-        write(ifi,333) (evl(ib,iy,ix), iy=1,nqy)
-  333   format(6f12.6)
-   20 continue
-      if (nbnd .ne. 1) call fclose(ifi)
+          write(ifi,333) (evl(ib,iy,ix), iy=1,nqy)
+  333     format(6f12.6)
+   20   continue
+        if (nbnd .ne. 1) call fclose(ifi)
    10 continue
       end
       double precision function sclp(v1,v2)

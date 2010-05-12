@@ -1,8 +1,8 @@
 Cgetarg...info...           structure ['iorbtm', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['iorbtm', 'm_struc_def']
       subroutine iorbtm(sspec,ics,nl,nlo,nclass,nsp,orbtm)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Printout of orbital moments
 C ----------------------------------------------------------------------
@@ -24,8 +24,8 @@ C     implicit none
 C ... Passed parameters
       integer nlo,nl,nsp,nclass,ics(*)
 Cgetarg       double precision sspec,orbtm(nlo,nsp,nclass)
-       real(8):: orbtm(nlo,nsp,nclass) 
-       type(s_spec)::sspec(*)
+      real(8):: orbtm(nlo,nsp,nclass)
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
       integer ic,isp,l,im,lm,m,l1,ipr,stdo,lgunit,is
@@ -45,33 +45,33 @@ C     totmom = 0
       do  ic = 1, nclass
         is = ics(ic)
 Cgetarg         call spacks(0,'spec name',sspec,slabl,is,is)
-         do i_spacks=is,is 
-         call spacks_copy('u',sspec(i_spacks)%name,is,is,slabl,i_spacks)
-         enddo
+        do i_spacks=is,is
+          call spacks_copy('u',sspec(i_spacks)%name,is,is,slabl,i_spacks)
+        enddo
 
         amom = 0
         do  isp = 1, nsp
           call dpzero(orbl,nl)
-           lm = 0
-           do  l = 0, nl-1
-             l1 = l+1
-             im = l
-             if (nl .eq. nlo) im = 0
-             do  m = -im, im
-               lm = lm+1
+          lm = 0
+          do  l = 0, nl-1
+            l1 = l+1
+            im = l
+            if (nl .eq. nlo) im = 0
+            do  m = -im, im
+              lm = lm+1
 C              print *, l,m,isp,ic,orbtm(lm,isp,ic)
-               orbl(l1) = orbl(l1) + orbtm(lm,isp,ic)
-               amom = amom + orbtm(lm,isp,ic)
-             enddo
-           enddo
-           write(stdo,333) ic,slabl,isp,(orbl(l1),l1=1,nl)
-  333      format(i5,4x,a8,i6,8f12.6)
-         enddo
-         write(stdo,334) ic, amom
-  334    format(' total moment for class',i4,':',f12.6)
-       enddo
+              orbl(l1) = orbl(l1) + orbtm(lm,isp,ic)
+              amom = amom + orbtm(lm,isp,ic)
+            enddo
+          enddo
+          write(stdo,333) ic,slabl,isp,(orbl(l1),l1=1,nl)
+  333     format(i5,4x,a8,i6,8f12.6)
+        enddo
+        write(stdo,334) ic, amom
+  334   format(' total moment for class',i4,':',f12.6)
+      enddo
 
 Cgetarg       end
-       end subroutine iorbtm 
+      end subroutine iorbtm
 
 

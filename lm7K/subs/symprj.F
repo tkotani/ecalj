@@ -24,9 +24,9 @@ C ... Passed parameters
      .   g(3,3,ngrp),ag(3,ngrp),pos(3,nrclas),d(3)
 C ... Local parameters
 Cdelw1       integer lmxl,ll,ormat,ig,ja,m,ia,iprint,ilm,l,jlm,jlm1,jlm2
-       integer:: lmxl , ll , ig , ja , m , ia , iprint , ilm , l , jlm 
-     . , jlm1 , jlm2 
-       real(8) ,allocatable :: rv_w_ormat(:)
+      integer:: lmxl , ll , ig , ja , m , ia , iprint , ilm , l , jlm 
+     . , jlm1 , jlm2
+      real(8) ,allocatable :: rv_w_ormat(:)
 
       double precision wgt
 C ... Heap
@@ -35,7 +35,7 @@ C ... Heap
 
       lmxl = ll(nlml)
 Cdelw1       call defrr (ormat,  nlml*nlml)
-       allocate(rv_w_ormat(nlml*nlml))
+      allocate(rv_w_ormat(nlml*nlml))
 Ctakao_ZeroClear_NotRequiered        if (nlml*nlml<0) rv_w_ormat(:)=0.0d0
 
       wgt = 1d0/ngrp
@@ -61,25 +61,25 @@ C       print *, ig,ia,ja,istab(ja,ig),istab(ia,ig)
 
 C ...   Make and add transformation matrix
 Cdelw1         call ylmrtg(nlml,g(1,1,ig),w(ormat))
-         call ylmrtg ( nlml , g ( 1 , 1 , ig ) , rv_w_ormat ) 
+        call ylmrtg ( nlml , g ( 1 , 1 , ig ) , rv_w_ormat )
 
 
 Cdelw1         call dpadd(sym(1,1,ia),w(ormat),1,nlml*nlml,wgt)
-         call dpadd ( sym ( 1 , 1 , ia ) , rv_w_ormat , 1 , nlml * nlml 
-     .   , wgt ) 
+        call dpadd ( sym ( 1 , 1 , ia ) , rv_w_ormat , 1 , nlml * nlml 
+     .   , wgt )
 
    10 continue
 
 C ... Printout
 Cki#error, have return with len(w_varlist)>0 at line 61
-Cdelw1 w_varlist remains: ormat 
+Cdelw1 w_varlist remains: ormat
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [ormat]
 Cdelw1       if(iprint() .lt. 60) return
-       if ( iprint ( ) .lt. 60 ) then 
-       if (allocated(rv_w_ormat)) deallocate(rv_w_ormat)
-       return
-       endif 
+      if ( iprint ( ) .lt. 60 ) then
+        if (allocated(rv_w_ormat)) deallocate(rv_w_ormat)
+        return
+      endif
 
       do  20  ja = 1, nrclas
         write(6,727) ja
@@ -96,10 +96,10 @@ Cdelw1       if(iprint() .lt. 60) return
    22   continue
    20 continue
 
-Cdelw1 rlse name= ormat old_list= ormat 
+Cdelw1 rlse name= ormat old_list= ormat
 Cdelw1 rlse name= ormat new_list= (None)
 Cdelw1       call rlse (ormat)
-       if (allocated(rv_w_ormat)) deallocate(rv_w_ormat)
+      if (allocated(rv_w_ormat)) deallocate(rv_w_ormat)
 
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)

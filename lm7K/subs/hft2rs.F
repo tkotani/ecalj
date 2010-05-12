@@ -169,7 +169,7 @@ C ... Local parameters
       integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,
      .  nvtot
 Cdelw1       integer oiwk
-       integer ,allocatable :: iv_w_oiwk(:)
+      integer ,allocatable :: iv_w_oiwk(:)
 
       double precision dmx(2)
 #if DEBUG
@@ -231,7 +231,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C     ... Reduce iax table to elements on mesh in common with pairc
 Cdelw1           call defi(oiwk,(niax+1)*mxcsiz)
-           allocate(iv_w_oiwk((niax+1)*mxcsiz))
+          allocate(iv_w_oiwk((niax+1)*mxcsiz))
 Ctakao_ZeroClear_NotRequiered            if ((niax+1)*mxcsiz<0) iv_w_oiwk(:)=0
 
 C         nttabs = nttab
@@ -244,14 +244,14 @@ Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
 Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 214
 Cdelw1 do not change ontab because of ['call', 'undef', 'wref']
 Cdelw1           call hft2r3(1,nbas,w(oiwk),w(ontab),w(oiax),nttab,mxcsiz)
-           call hft2r3 ( 1 , nbas , iv_w_oiwk , w ( ontab ) , w ( oiax ) 
-     .     , nttab , mxcsiz ) 
+          call hft2r3 ( 1 , nbas , iv_w_oiwk , w ( ontab ) , w ( oiax ) 
+     .     , nttab , mxcsiz )
 
 C         call hft2r3(1,nbas,w(oiwk),w(ontab),w(oiax),nttab,mxcsiz)
-Cdelw1 rlse name= oiwk old_list= oiwk 
+Cdelw1 rlse name= oiwk old_list= oiwk
 Cdelw1 rlse name= oiwk new_list= (None)
 Cdelw1           call rlse(oiwk)
-           if (allocated(iv_w_oiwk)) deallocate(iv_w_oiwk)
+          if (allocated(iv_w_oiwk)) deallocate(iv_w_oiwk)
 
         endif
 
@@ -331,42 +331,42 @@ C     .    w(oidxsh),1,nitab,w(oiax),ldim,ldim,w(oh2),w(osigr),nl**2)
   999 continue
       call tcx('hft2rs')
 
-#if DEBUG
-#error, have return with len(w_varlist)>0 at line 282
-Cdelw1 w_varlist remains: oiax 
-Cdelw1 w_varlistundel: [oiax ontab]
-Cdelw1 w_varlist (undel), remains: [oiax]
-Cdelw1 w_varlist (del), remains: (None)
-Cdelw1 not deallocate oiax because of [call undef wref redef]
-      if (mode0 .eq. 0) return
-  998 print *, 'is?'
-      read(*,*) iset
-#error, have return with len(w_varlist)>0 at line 285
-Cdelw1 w_varlist remains: oiax 
-Cdelw1 w_varlistundel: [oiax ontab]
-Cdelw1 w_varlist (undel), remains: [oiax]
-Cdelw1 w_varlist (del), remains: (None)
-Cdelw1 not deallocate oiax because of [call undef wref redef]
-      if (iset .eq. 0) return
-Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
-      call icopy(5,w(oiax-niax+niax*iset),1,iaxi,1)
-      do  i = 1, 3
-        tau(i) = pos(i,iaxi(2)) - pos(i,iaxi(1)) +
-     .    plat(i,1)*iaxi(3) + plat(i,2)*iaxi(4) + plat(i,3)*iaxi(5)
-      enddo
-      call info2(0,0,0,' iax(1:5,iset)=%5:2i %3:1,6;12D',iaxi,tau)
-      do  i = 1, min(ndhrs,9)
-        print 393, (dble(hrs(i,ipr,1,iset)), ipr=1,min(ndhrs,9))
-      enddo
-      print 393
-      do  i = 1, min(ndhrs,9)
-        print 393, (dimag(hrs(i,ipr,1,iset)), ipr=1,min(ndhrs,9))
-      enddo
-  393 format(9f12.6)
-      goto 998
-#endif
+C$$$#if DEBUG
+C$$$#error, have return with len(w_varlist)>0 at line 282
+C$$$Cdelw1 w_varlist remains: oiax
+C$$$Cdelw1 w_varlistundel: [oiax ontab]
+C$$$Cdelw1 w_varlist (undel), remains: [oiax]
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$Cdelw1 not deallocate oiax because of [call undef wref redef]
+C$$$      if (mode0 .eq. 0) return
+C$$$  998 print *, 'is?'
+C$$$      read(*,*) iset
+C$$$#error, have return with len(w_varlist)>0 at line 285
+C$$$Cdelw1 w_varlist remains: oiax
+C$$$Cdelw1 w_varlistundel: [oiax ontab]
+C$$$Cdelw1 w_varlist (undel), remains: [oiax]
+C$$$Cdelw1 w_varlist (del), remains: (None)
+C$$$Cdelw1 not deallocate oiax because of [call undef wref redef]
+C$$$      if (iset .eq. 0) return
+C$$$Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
+C$$$      call icopy(5,w(oiax-niax+niax*iset),1,iaxi,1)
+C$$$      do  i = 1, 3
+C$$$        tau(i) = pos(i,iaxi(2)) - pos(i,iaxi(1)) +
+C$$$     .    plat(i,1)*iaxi(3) + plat(i,2)*iaxi(4) + plat(i,3)*iaxi(5)
+C$$$      enddo
+C$$$      call info2(0,0,0,' iax(1:5,iset)=%5:2i %3:1,6;12D',iaxi,tau)
+C$$$      do  i = 1, min(ndhrs,9)
+C$$$        print 393, (dble(hrs(i,ipr,1,iset)), ipr=1,min(ndhrs,9))
+C$$$      enddo
+C$$$      print 393
+C$$$      do  i = 1, min(ndhrs,9)
+C$$$        print 393, (dimag(hrs(i,ipr,1,iset)), ipr=1,min(ndhrs,9))
+C$$$      enddo
+C$$$  393 format(9f12.6)
+C$$$      goto 998
+C$$$#endif
 
-Cdelw1 w_varlist remains: oiax 
+Cdelw1 w_varlist remains: oiax
 Cdelw1 w_varlistundel: [oiax ontab]
 Cdelw1 w_varlist (undel), remains: [oiax]
 Cdelw1 w_varlist (del), remains: (None)
@@ -436,10 +436,10 @@ C ... Local parameters
      .  nhit,nmiss
       double precision gmax,qlat(3,3),tau(3),dmx1(2)
 Cdelw1       integer ortab,o,ogv,okv
-       real(8) ,allocatable :: rv_w_ortab(:)
-       real(8) ,allocatable :: rv_w_o(:)
-       real(8) ,allocatable :: rv_w_ogv(:)
-       integer ,allocatable :: iv_w_okv(:)
+      real(8) ,allocatable :: rv_w_ortab(:)
+      real(8) ,allocatable :: rv_w_o(:)
+      real(8) ,allocatable :: rv_w_ogv(:)
+      integer ,allocatable :: iv_w_okv(:)
 
 C ... Heap
       integer w(1)
@@ -449,8 +449,8 @@ C ... External calls
      .         poppr,pshpr,rlse
 
 Cdelw1       call defrr(o,1)
-       allocate(rv_w_o(1))
-       if (1<0) rv_w_o(:)=0.0d0
+      allocate(rv_w_o(1))
+      if (1<0) rv_w_o(:)=0.0d0
 
       id = offH(1,1,ia2+1)-offH(1,1,ia1)
       print *,'idim id=',idim,id
@@ -464,85 +464,85 @@ Cdelw1       call defrr(o,1)
 
       offi = 0
       do  10  ia = ia1, ia2
-      offj = 0
-      do  12  ib = ib1, ib2
+        offj = 0
+        do  12  ib = ib1, ib2
 
-      is1 = ntab(ib)+1
-      is2 = ntab(ib+1)
+          is1 = ntab(ib)+1
+          is2 = ntab(ib+1)
 
-      nlma = offH(1,1,ia+1) - offH(1,1,ia)
-      nlmb = offH(1,1,ib+1) - offH(1,1,ib)
+          nlma = offH(1,1,ia+1) - offH(1,1,ia)
+          nlmb = offH(1,1,ib+1) - offH(1,1,ib)
 
 C --- Make list for a dimensionless lattice (alat=1) ---
-      call dinv33(plat,1,qlat,gmax)
-      call dpscop(pos,tau,3,3*ib-2,1,1d0)
-      call dpsadd(tau,pos,3,1,3*ia-2,-1d0)
+          call dinv33(plat,1,qlat,gmax)
+          call dpscop(pos,tau,3,3*ib-2,1,1d0)
+          call dpsadd(tau,pos,3,1,3*ia-2,-1d0)
 c     call gvctof(0,1d0,qlat,tau,n1,n2,n3,gmax,ngmx)
-      ngmx = n1*n2*n3
+          ngmx = n1*n2*n3
 Cdelw1       call defrr(ogv, ngmx*3)
-       allocate(rv_w_ogv(ngmx*3))
+          allocate(rv_w_ogv(ngmx*3))
 Ctakao_ZeroClear_NotRequiered        if (ngmx*3<0) rv_w_ogv(:)=0.0d0
 
 Cdelw1       call defi (okv, ngmx*3)
-       allocate(iv_w_okv(ngmx*3))
+          allocate(iv_w_okv(ngmx*3))
 Ctakao_ZeroClear_NotRequiered        if (ngmx*3<0) iv_w_okv(:)=0
 
 C     print *, 'ia,ib=',ia,ib
 C     call ogvlst(1d0,qlat,tau,n1,n2,n3,9d9,ngmx,ng,w(ogv),w(okv))
-      call pshpr(80*0)
-      i = 208 + 400*0
+          call pshpr(80*0)
+          i = 208 + 400*0
 Cdelw1       call gvlist(1d0,qlat,tau,n1,n2,n3,1d5,i,ngmx,ng,w(okv),w(ogv),w,w)
-       call gvlist ( 1d0 , qlat , tau , n1 , n2 , n3 , 1d5 , i , ngmx 
-     . , ng , iv_w_okv , rv_w_ogv , w , w ) 
+          call gvlist ( 1d0 , qlat , tau , n1 , n2 , n3 , 1d5 , i , ngmx 
+     . , ng , iv_w_okv , rv_w_ogv , w , w )
 
-      call poppr
+          call poppr
 
 C --- For each connecting vector, mark iax table or poke into hrs ---
 Cdelw1       call defrr(ortab,3*(is2-is1+1))
-       allocate(rv_w_ortab(3*(is2-is1+1)))
+          allocate(rv_w_ortab(3*(is2-is1+1)))
 Ctakao_ZeroClear_NotRequiered        if (3*(is2-is1+1)<0) rv_w_ortab(:)=0.0d0
 
-      if (ltrans) then
+          if (ltrans) then
 Cdelw1         call hft2r2(mode,k1,k2,k3,ia,ib,jdim,idim,iax,qoff,is1,is2,
 Cdelw1      .    ndhrs,isp,nsp,nlmb,nlma,hij(1,1,1,1+offj,1+offi),w(ogv),
 Cdelw1      .    w(okv),ng,tau,plat,pos,w(ortab),hrs,hrs,nhit,nmiss,dmx1)
-         call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , jdim , idim , iax 
+            call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , jdim , idim , iax 
      .   , qoff , is1 , is2 , ndhrs , isp , nsp , nlmb , nlma , hij ( 
      .   1 , 1 , 1 , 1 + offj , 1 + offi ) , rv_w_ogv , iv_w_okv , ng 
      .   , tau , plat , pos , rv_w_ortab , hrs , hrs , nhit , nmiss , 
-     .   dmx1 ) 
+     .   dmx1 )
 
-      else
+          else
 Cdelw1         call hft2r2(mode,k1,k2,k3,ia,ib,idim,jdim,iax,qoff,is1,is2,
 Cdelw1      .    ndhrs,isp,nsp,nlma,nlmb,hij(1,1,1,1+offi,1+offj),w(ogv),
 Cdelw1      .    w(okv),ng,tau,plat,pos,w(ortab),hrs,hrs,nhit,nmiss,dmx1)
-         call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , idim , jdim , iax 
+            call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , idim , jdim , iax 
      .   , qoff , is1 , is2 , ndhrs , isp , nsp , nlma , nlmb , hij ( 
      .   1 , 1 , 1 , 1 + offi , 1 + offj ) , rv_w_ogv , iv_w_okv , ng 
      .   , tau , plat , pos , rv_w_ortab , hrs , hrs , nhit , nmiss , 
-     .   dmx1 ) 
+     .   dmx1 )
 
-      endif
-      dmx(1) = max(dmx(1),dmx1(1))
-      dmx(2) = max(dmx(2),dmx1(2))
-      nviax = nviax + nhit
-      nvtot = nvtot + nhit + nmiss
-Cdelw1 rlse name= ogv old_list= o ogv okv ortab 
-Cdelw1 rlse name= ogv new_list= o 
+          endif
+          dmx(1) = max(dmx(1),dmx1(1))
+          dmx(2) = max(dmx(2),dmx1(2))
+          nviax = nviax + nhit
+          nvtot = nvtot + nhit + nmiss
+Cdelw1 rlse name= ogv old_list= o ogv okv ortab
+Cdelw1 rlse name= ogv new_list= o
 Cdelw1       call rlse(ogv)
-       if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
-       if (allocated(iv_w_okv)) deallocate(iv_w_okv)
-       if (allocated(rv_w_ogv)) deallocate(rv_w_ogv)
+          if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
+          if (allocated(iv_w_okv)) deallocate(iv_w_okv)
+          if (allocated(rv_w_ogv)) deallocate(rv_w_ogv)
 
-      offj = offj + offH(1,1,ib+1) - offH(1,1,ib)
-   12 continue
-      offi = offi + offH(1,1,ia+1) - offH(1,1,ia)
+          offj = offj + offH(1,1,ib+1) - offH(1,1,ib)
+   12   continue
+        offi = offi + offH(1,1,ia+1) - offH(1,1,ia)
    10 continue
 
-Cdelw1 rlse name= o old_list= o 
+Cdelw1 rlse name= o old_list= o
 Cdelw1 rlse name= o new_list= (None)
 Cdelw1       call rlse(o)
-       if (allocated(rv_w_o)) deallocate(rv_w_o)
+      if (allocated(rv_w_o)) deallocate(rv_w_o)
 
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
@@ -667,10 +667,10 @@ C   ... If a match in the iax table is found, copy hij there
         do  20  is = is1, is2
           if (ia .ne. iax(2,is)) goto 20
           if (abs(v(1)+rtab(1,is-offx)) .lt. tol) then
-          if (abs(v(2)+rtab(2,is-offx)) .lt. tol) then
-          if (abs(v(3)+rtab(3,is-offx)) .lt. tol) then
+            if (abs(v(2)+rtab(2,is-offx)) .lt. tol) then
+              if (abs(v(3)+rtab(3,is-offx)) .lt. tol) then
 
-            nhit = nhit+1
+                nhit = nhit+1
 
 C            if (iax(1,is).eq.1 .and. iax(2,is).eq.1 .and. mode0 .ne. 0)
 C     .        then
@@ -692,62 +692,63 @@ C     .        mode0.ne.0) then
 C              print 335, 'ok',is,ig,i1,i2,i3,v,dble(hij(i1,i2,i3,1,1))
 C            endif
 
-            if (mode0 .eq. 0) then
-              iax(8,is) = -1
+                if (mode0 .eq. 0) then
+                  iax(8,is) = -1
 
-            else
+                else
 
-              TdotK = 0
-              do  50  j = 1, 3
-              do  50  k = 1, 3
-   50         TdotK = TdotK - twopi*qoff(j)*plat(j,k)*iax(2+k,is)
-              phase = cdexp(dcmplx(0d0,TdotK))
+                  TdotK = 0
+                  do  50  j = 1, 3
+                  do  50  k = 1, 3
+                    TdotK = TdotK - twopi*qoff(j)*plat(j,k)*iax(2+k,is)
+   50             continue
+                  phase = cdexp(dcmplx(0d0,TdotK))
 
-              if (mode1 .eq. 0) then
-              if (ltrans) then
-                do  icol = 1, nlmb
-                  do  irow = 1, nlma
-                    hrs(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol)
+                  if (mode1 .eq. 0) then
+                    if (ltrans) then
+                      do  icol = 1, nlmb
+                        do  irow = 1, nlma
+                          hrs(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol)
      .                                      *phase
-                    dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
-                    dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
-                  enddo
-                enddo
-              else
-                do  icol = 1, nlmb
-                  do  irow = 1, nlma
-                    hrs(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol)
+                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
+                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
+                        enddo
+                      enddo
+                    else
+                      do  icol = 1, nlmb
+                        do  irow = 1, nlma
+                          hrs(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol)
      .                                      *phase
-                    dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
-                    dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
-                  enddo
-                enddo
-              endif
-              else
-              if (ltrans) then
-                do  icol = 1, nlmb
-                  do  irow = 1, nlma
-                    hrsr(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol)
+                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
+                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
+                        enddo
+                      enddo
+                    endif
+                  else
+                    if (ltrans) then
+                      do  icol = 1, nlmb
+                        do  irow = 1, nlma
+                          hrsr(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol)
      .                                      *phase
-                    dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
-                    dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
-                  enddo
-                enddo
-              else
-                do  icol = 1, nlmb
-                  do  irow = 1, nlma
-                    hrsr(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol)
+                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
+                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
+                        enddo
+                      enddo
+                    else
+                      do  icol = 1, nlmb
+                        do  irow = 1, nlma
+                          hrsr(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol)
      .                                      *phase
-                    dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
-                    dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
-                  enddo
-                enddo
-              endif
+                          dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
+                          dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
+                        enddo
+                      enddo
+                    endif
+                  endif
+                endif
+                goto 30
               endif
             endif
-            goto 30
-          endif
-          endif
           endif
    20   continue
 C       print 335, 'NO',is,ig,i1,i2,i3,v

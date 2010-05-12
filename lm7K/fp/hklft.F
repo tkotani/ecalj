@@ -40,7 +40,7 @@ C ... Local parameters
       aa = -4*pi*dexp(gam*(e-v2))/(e-v2)
       scalp = -2*pi*(tau(1)*v(1)+tau(2)*v(2)+tau(3)*v(3))
       phase = dcmplx(dcos(scalp),dsin(scalp))
-      
+
       qfac = (0d0,1d0)
       ilm = 0
       do  l = 0, lmax

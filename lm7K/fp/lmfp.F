@@ -41,8 +41,8 @@ Cgetarg...info...           use_to_add ['lmfp', 'm_struc_def']
 Cgetarg...info...           use_to_add ['cppos', 'm_struc_def']
       subroutine lmfp(prgnam,sbz,sctrl,sham,spot,slat,smix,
      .  sspec,ssite,sstr,smove,sarray,sstrn)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- LM-FP self-consistency loop
 C ----------------------------------------------------------------------
@@ -128,17 +128,17 @@ C ... Passed parameters:
       character sstrn*(*), prgnam*8
 Cgetarg       double precision sarray(1),sbz(1),sctrl(1),slat(1),smix(1),
 Cgetarg      .  sspec(1),ssite(1),sham(1),spot(1),sstr(1),smove(1)
-       type(s_array)::sarray
-       type(s_bz)::sbz
-       type(s_ctrl)::sctrl
-       type(s_lat)::slat
-       type(s_mix)::smix
-       type(s_spec)::sspec(*)
-       type(s_site)::ssite(*)
-       type(s_ham)::sham
-       type(s_pot)::spot
-       type(s_str)::sstr
-       type(s_move)::smove
+      type(s_array)::sarray
+      type(s_bz)::sbz
+      type(s_ctrl)::sctrl
+      type(s_lat)::slat
+      type(s_mix)::smix
+      type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_ham)::sham
+      type(s_pot)::spot
+      type(s_str)::sstr
+      type(s_move)::smove
 
 C ... Heap
       integer w(1)
@@ -155,13 +155,13 @@ Cdelw1 do not change  [['undef', 'wref'], 'oorhat', 'lmfp']
 Cdelw1 do not change  [['undef', 'wref', 'redef'], 'opos', 'lmfp']
 Cdelw1 do not change  [['undef', 'wref'], 'osmrho', 'lmfp']
 Cdelw1       integer oevl,ofrc,oftot,oorhat,opos,opos2,osmpot,osmrho,owk,op,o
-       integer:: oorhat , opos , osmpot , osmrho , o 
-       real(8) ,allocatable :: rv_w_oevl(:)
-       real(8) ,allocatable :: rv_w_ofrc(:)
-       real(8) ,allocatable :: rv_w_oftot(:)
-       real(8) ,allocatable :: rv_w_opos2(:)
-       real(8) ,allocatable :: rv_w_owk(:)
-       real(8) ,allocatable :: rv_w_op(:)
+      integer:: oorhat , opos , osmpot , osmrho , o
+      real(8) ,allocatable :: rv_w_oevl(:)
+      real(8) ,allocatable :: rv_w_ofrc(:)
+      real(8) ,allocatable :: rv_w_oftot(:)
+      real(8) ,allocatable :: rv_w_opos2(:)
+      real(8) ,allocatable :: rv_w_owk(:)
+      real(8) ,allocatable :: rv_w_op(:)
 
       double precision plat(3,3),qlat(3,3),qbg,xv(10),fptol,umix
       character strn*120, fileid*68, alabl*8, flg*3
@@ -183,20 +183,20 @@ C ... for relaxation
       logical xyzfrz(3),lshr,ltmp
 Cdelw1       integer icom,natrlx,nvrelx,oindrx,ow,ltb,itrlx,nm,irlxsh,
 Cdelw1      .  nitrlx,bitor,ng
-       integer:: icom , natrlx , nvrelx , ltb , itrlx , nm , irlxsh 
-     . , nitrlx , bitor , ng 
-       integer ,allocatable :: iv_w_oindrx(:)
-       real(8) ,allocatable :: rv_w_ow(:)
+      integer:: icom , natrlx , nvrelx , ltb , itrlx , nm , irlxsh 
+     . , nitrlx , bitor , ng
+      integer ,allocatable :: iv_w_oindrx(:)
+      real(8) ,allocatable :: rv_w_ow(:)
 
 cki, for rlse and allocate oindrx
-       integer,allocatable:: iv_tmp(:)
+      integer,allocatable:: iv_tmp(:)
 
 Cdelw1 do not change  [['undef', 'wref'], 'oistab', 'lmfp']
 Cdelw1 do not change  [['undef', 'wref'], 'oag', 'lmfp']
 Cdelw1 do not change  [['undef', 'wref'], 'og', 'lmfp']
 Cdelw1       integer oistab,oag,og,oshr
-       integer:: oistab , oag , og 
-       real(8) ,allocatable :: rv_w_oshr(:)
+      integer:: oistab , oag , og
+      real(8) ,allocatable :: rv_w_oshr(:)
 
       double precision mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2),
      .  plat0(9),dist0(9),dist(9)
@@ -207,8 +207,8 @@ Cdelw1 do not change  [['redef', 'wref'], 'odmatu', 'lmfp']
 Cdelw1 do not change  [['redef', 'wref'], 'ovorb', 'lmfp']
 Cdelw1 do not change  [['redef', 'wref'], 'odmato', 'lmfp']
 Cdelw1       integer odmatu,olldau,ovorb,odmato
-       integer:: odmatu , ovorb , odmato 
-       integer ,allocatable :: iv_w_olldau(:)
+      integer:: odmatu , ovorb , odmato
+      integer ,allocatable :: iv_w_olldau(:)
 
       double precision tolu
       data irlxsh /0/ dist0 /9*0d0/
@@ -220,11 +220,11 @@ c takao test
       integer:: ierr
       include "mpif.h"
 #endif
-      
+
 C     parameter (T=.true., F=.false.)
 
       call tcn('lmfp')
-     
+
 cccccccccccccc
 c       call upack('spec p ',sspec,1,pnu,0,0,0)
 c       print *,'lmfp ini pnu=',i,pnu(1:20)
@@ -258,24 +258,24 @@ ckino. Mark says nproc <= nbas should be for MPI.
 #if MPI
 Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
 Cgetarg        call upack('ctrl nbas',sctrl,nbas,0,0,0,0)
-        
-        nbas=sctrl%nbas
+
+      nbas=sctrl%nbas
 
 c   mpipic() is defined in slatsm
-       if ( nbas < nproc ) then
-         if (procid == master ) then
-          write(6,*) 
-        write(6,"(a,/,a,/,a,/,a)")
+      if ( nbas < nproc ) then
+        if (procid == master ) then
+          write(6,*)
+          write(6,"(a,/,a,/,a,/,a)")
      &   '# For lmf-MPI, process>NBAS is not allowed.',
      &   '# If you remove this sanity check, it will fail',
      &   '# at hsibl.F and smhsbl.F.',
      &   '# You may need a better MPI version for efficent use of CPUs.'
-         endif
+        endif
 c        call mpi_abort(MPI_COMM_WORLD,-1,ierr)
-         call mpi_finalize(ierr)
-         call exit(-1)
+        call mpi_finalize(ierr)
+        call exit(-1)
 c             ---------- '-1'  is the return code of the program
-         stop
+        stop
 c             ---------- may be stop is unnecessary.
       endif
 #endif
@@ -290,14 +290,14 @@ C$$$      if (cmdopt('--optbas',8,0,strn)) then
 C$$$C       call wkdbg2
 C$$$C       No self-consistency
 C$$$Cgetarg         call pack1('bz nevmx',sbz,-1)
-C$$$         sbz%nevmx=-1 
+C$$$         sbz%nevmx=-1
 C$$$C       No forces or dynamics
 C$$$        call dpzero(mdprm,6)
 C$$$Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
 C$$$Cgetarg         call pack2('ctrl lfrce mdprm',sctrl,0,mdprm)
-C$$$         sctrl%lfrce=0 
-C$$$         i_copy_size=size(sctrl%mdprm) 
-C$$$         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1) 
+C$$$         sctrl%lfrce=0
+C$$$         i_copy_size=size(sctrl%mdprm)
+C$$$         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1)
 C$$$ctakao
 C$$$c        call lmfopb(strn(9:),slat,sspec,etot(1)-dgets('ham seref',sham))
 C$$$        call lmfopb(strn(9:),slat,sspec,etot(1)-sham%seref)
@@ -310,24 +310,24 @@ C       No forces or dynamics
         call dpzero(mdprm,6)
 Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
 Cgetarg         call pack2('ctrl lfrce mdprm',sctrl,0,mdprm)
-         
-         sctrl%lfrce=0 
-         i_copy_size=size(sctrl%mdprm) 
-         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1) 
+
+        sctrl%lfrce=0
+        i_copy_size=size(sctrl%mdprm)
+        call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1)
 
 C       Suppress writing output density
 Cgetarg         call lsets('ctrl lrs',sctrl,.false.,8)
-         
-         call lsets_bitop_i8(sctrl%lrs,1,.false.,8)
+
+        call lsets_bitop_i8(sctrl%lrs,1,.false.,8)
 
 Cgetarg         call lsets('ctrl lrs',sctrl,.false.,16)
-         
-         call lsets_bitop_i8(sctrl%lrs,1,.false.,16)
+
+        call lsets_bitop_i8(sctrl%lrs,1,.false.,16)
 
 C       Exactly one iteration
 Cgetarg         call pack1('ctrl maxit',sctrl,1)
-         
-         sctrl%maxit=1 
+
+        sctrl%maxit=1
 
 C       Suppress mixing of output density
 c        call lstra('strn mix',i,j,k)
@@ -346,16 +346,16 @@ Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
 Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
 Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
 Cgetarg       call upack('ctrl nbas nl nspec nspin',sctrl,nbas,nl,nspec,nsp,0)
-       
-       nbas=sctrl%nbas
-       nl=sctrl%nl
-       nspec=sctrl%nspec
-       nsp=sctrl%nspin
+
+      nbas=sctrl%nbas
+      nl=sctrl%nl
+      nspec=sctrl%nspec
+      nsp=sctrl%nspin
 
 Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
 Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
 Cgetarg       call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
-       
+
 c       npadl=sarray%npadl
 c       npadr=sarray%npadr
 
@@ -364,29 +364,29 @@ Cgetarg...info...           integer :: lcgf , integer(8) :: sctrl%lcgf 1
 Cgetarg...info...           integer :: iscr , integer(8) :: sctrl%lscr 1
 Cgetarg...info...           integer :: lsx , integer(8) :: sctrl%lsx 1
 Cgetarg       call upack('ctrl lpgf lcgf lscr lsx',sctrl,lpgf,lcgf,iscr,lsx,0)
-       
-c       i_copy_size=size(sctrl%lpgf) 
-c       call i8icopy(i_copy_size,sctrl%lpgf,1,lpgf,1) 
+
+c       i_copy_size=size(sctrl%lpgf)
+c       call i8icopy(i_copy_size,sctrl%lpgf,1,lpgf,1)
 c       lcgf=sctrl%lcgf
-       iscr=sctrl%lscr
+      iscr=sctrl%lscr
 c       lsx=sctrl%lsx
 
 C     call upack('ctrl lncol',sctrl,lncol,0,0,0,0)
       nat = nglob('nat')
 
 Cgetarg       qbg    = dgets('ctrl zbak',sctrl)
-       qbg = sctrl%zbak(1) 
+      qbg = sctrl%zbak(1)
 
 Cgetarg       maxit  = igets('ctrl maxit',sctrl)
-       maxit = int(sctrl%maxit) 
+      maxit = int(sctrl%maxit)
 
 Cgetarg       lrel   = isw(lgors('ctrl lrel,-1',sctrl))
-c       lrel = isw ( iand(-1,int(sctrl%lrel)) .ne.0 ) 
-c nim-hrkn <nim-hrkn@foo>  2010-05-07 15:45:00  
-       lrel = isw ( int(sctrl%lrel) .ne.0 ) 
+c       lrel = isw ( iand(-1,int(sctrl%lrel)) .ne.0 )
+c nim-hrkn <nim-hrkn@foo>  2010-05-07 15:45:00
+      lrel = isw ( int(sctrl%lrel) .ne.0 )
 
 Cgetarg       lhf    = lgors('ctrl lcd,2',sctrl)
-       lhf = iand(2,int(sctrl%lcd)) .ne.0 
+      lhf = iand(2,int(sctrl%lcd)) .ne.0
 
       if (lhf) maxit = 1
 C     nbasp  = nbas +    npadl + npadr
@@ -397,24 +397,24 @@ C     stdl   = lgunit(2)
 
 Cgetarg       irs(1) =     igets('ctrl lrs,7',sctrl)
 Cgetarg      .       +     8*isw(lgors('ctrl lrs,256',sctrl))
-       irs ( 1 ) = iand(7,int(sctrl%lrs)) + 8 * isw ( iand(256,int(sctrl%lrs)) .ne.0 
-     . ) 
+      irs ( 1 ) = iand(7,int(sctrl%lrs)) + 8 * isw ( iand(256,int(sctrl%lrs)) .ne.0 
+     . )
 
 Cgetarg       irs(2) =     igets('ctrl lrs,8+16',sctrl)/8
-       irs ( 2 ) = iand(8+16,int(sctrl%lrs)) /8 
+      irs ( 2 ) = iand(8+16,int(sctrl%lrs)) /8
 
 Cgetarg       irs(3) = isw(lgors('ctrl lrs,32',sctrl))
-       irs ( 3 ) = isw ( iand(32,int(sctrl%lrs)) .ne.0 ) 
+      irs ( 3 ) = isw ( iand(32,int(sctrl%lrs)) .ne.0 )
 
 Cgetarg       irs(4) = isw(lgors('ctrl lrs,64',sctrl))
-       irs ( 4 ) = isw ( iand(64,int(sctrl%lrs)) .ne.0 ) 
+      irs ( 4 ) = isw ( iand(64,int(sctrl%lrs)) .ne.0 )
 
 Cgetarg       irs(5) = isw(lgors('ctrl lrs,128',sctrl))
-       irs ( 5 ) = isw ( iand(128,int(sctrl%lrs)) .ne.0 ) 
+      irs ( 5 ) = isw ( iand(128,int(sctrl%lrs)) .ne.0 )
 
 C ... --rs=3 => always read from atom file
 Cgetarg       if (igets('ctrl lrs,3',sctrl) .eq. 3) irs(1) = 0
-       if ( iand(3,int(sctrl%lrs)) .eq. 3 ) irs ( 1 ) = 0 
+      if ( iand(3,int(sctrl%lrs)) .eq. 3 ) irs ( 1 ) = 0
 
 C ... This shouldn't be ... for backwards compatibility
 C     if (lhf) irs(1) = 0
@@ -434,61 +434,61 @@ C       call pr_basis (sspec,0)
 
 C ... Setup for no screening transformation
 Cgetarg       if (igets('ctrl lbas,1',sctrl) .ne. 0) then
-       if ( iand(1,int(sctrl%lbas)) .ne. 0 ) then 
+      if ( iand(1,int(sctrl%lbas)) .ne. 0 ) then
 
 
 C       Shorten site positions
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
 Cgetarg         call upack2('lat plat opos',slat,plat,opos)
-         
-         i_copy_size=size(slat%plat) 
-         call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
+        i_copy_size=size(slat%plat)
+        call dcopy(i_copy_size,slat%plat,1,plat,1)
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 388
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-         opos=slat%opos
+        opos=slat%opos
 
         if (.not. cmdopt('--shorten=no',12,0,strn)) then
 C       unpack from site structure
 Cdelw1         call defrr(opos2,3*nbas)
-         allocate(rv_w_opos2(3*nbas))
+          allocate(rv_w_opos2(3*nbas))
 Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) rv_w_opos2(:)=0.0d0
 
 Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos2))
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbas 
+          i_copy_size=size(ssite(1)%pos)
+          do i_spackv=1,nbas
 Cdelw1          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
-          call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_opos2 ) 
+            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_opos2 )
 
-         enddo
+          enddo
 
-        ix(1) = 2
-        ix(2) = 2
-        ix(3) = 2
-        call info0(50,1,0,' lmfp : shortening basis vectors ... ')
+          ix(1) = 2
+          ix(2) = 2
+          ix(3) = 2
+          call info0(50,1,0,' lmfp : shortening basis vectors ... ')
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 403
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 403
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1         call shorps(nbas,plat,ix,w(opos2),w(opos))
-         call shorps ( nbas , plat , ix , rv_w_opos2 , w ( opos ) ) 
+          call shorps ( nbas , plat , ix , rv_w_opos2 , w ( opos ) )
 
 Cgetarg         call spackv(11,'site pos',ssite,1,nbaspp,w(opos))
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbaspp 
+          i_copy_size=size(ssite(1)%pos)
+          do i_spackv=1,nbaspp
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 407
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
+            call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+          enddo
 
 C       Debugging printout
 C       call prmx('starting basis vectors',w(opos2),3,3,nbas)
 C       call prmx('shortened basis vectors',w(opos),3,3,nbas)
-Cdelw1 rlse name= opos2 old_list= opos2 
+Cdelw1 rlse name= opos2 old_list= opos2
 Cdelw1 rlse name= opos2 new_list= (None)
 Cdelw1         call rlse(opos2)
-         if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
+          if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
 
         endif
       endif
@@ -500,32 +500,32 @@ Cgetarg...info...           real(8) :: dmxp(33) , real(8) :: smix%bv 1
 Cgetarg...info...           real(8) :: dmxp(33) , real(8) :: smix%w 3
 Cgetarg...info...           real(8) :: dmxp(33) , real(8) :: smix%wc 1
 Cgetarg       call upack('mix b bv w wc',smix,dmxp(2),dmxp(9),dmxp(4),dmxp(3),0)
-       
-       dmxp(2)=smix%b
-       dmxp(9)=smix%bv
-       i_copy_size=size(smix%w) 
-       call dcopy(i_copy_size,smix%w,1,dmxp(4),1) 
-       dmxp(3)=smix%wc
+
+      dmxp(2)=smix%b
+      dmxp(9)=smix%bv
+      i_copy_size=size(smix%w)
+      call dcopy(i_copy_size,smix%w,1,dmxp(4),1)
+      dmxp(3)=smix%wc
 
 Cgetarg       dmxp(6) = igets('mix nsave',smix)
-       dmxp ( 6 ) = int(smix%nsave) 
+      dmxp ( 6 ) = int(smix%nsave)
 
 Cgetarg       dmxp(7) = igets('mix mmix',smix)
-       dmxp ( 7 ) = int(smix%mmix) 
+      dmxp ( 7 ) = int(smix%mmix)
 
       call parms0(0,0,0d0,0)
 
 C ... Allocate memory for forces
 Cgetarg       lfrce = igets('ctrl lfrce',sctrl)
-       lfrce = int(sctrl%lfrce) 
+      lfrce = int(sctrl%lfrce)
 
       if (lfrce .ne. 0) then
         numq = 1
 Cgetarg         if (igets('bz lmet',sbz) .eq. 4) numq = 3
-         if ( int(sbz%lmet) .eq. 4 ) numq = 3 
+        if ( int(sbz%lmet) .eq. 4 ) numq = 3
 
 Cdelw1         call defrr(ofrc,3*nbas*numq)
-         allocate(rv_w_ofrc(3*nbas*numq))
+        allocate(rv_w_ofrc(3*nbas*numq))
 Ctakao_ZeroClear_NotRequiered          if (3*nbas*numq<0) rv_w_ofrc(:)=0.0d0
 
       endif
@@ -537,31 +537,31 @@ C     Initial shear was already folded into plat
 Cgetarg...info...           real(8) :: gam(4) , real(8) :: slat%gam 4
 Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
 Cgetarg       call upack2('lat gam opos',slat,gam,opos)
-       
-       i_copy_size=size(slat%gam) 
-       call dcopy(i_copy_size,slat%gam,1,gam,1) 
+
+      i_copy_size=size(slat%gam)
+      call dcopy(i_copy_size,slat%gam,1,gam,1)
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 461
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-       opos=slat%opos
+      opos=slat%opos
 
       gam1 = gam(4)
       gam(4) = 1
 Cgetarg...info...           real(8) :: gam(4) , real(8) :: slat%gam 4
 Cgetarg       call pack2('lat gam ldist',slat,gam,0)
-       
-       i_copy_size=size(slat%gam) 
-       call dcopy(i_copy_size,gam,1,slat%gam,1) 
-       slat%ldist=0 
+
+      i_copy_size=size(slat%gam)
+      call dcopy(i_copy_size,gam,1,slat%gam,1)
+      slat%ldist=0
 
 
 Cgetarg...info...           integer :: nitrlx , integer(8) :: sctrl%nitmv 1
 Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
 Cgetarg...info...           integer :: ltb , integer(8) :: sctrl%ltb 1
 Cgetarg       call upack('ctrl nitmv mdprm ltb',sctrl,nitrlx,mdprm,ltb,0,0)
-       
-       nitrlx=sctrl%nitmv
-       i_copy_size=size(sctrl%mdprm) 
-       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
+
+      nitrlx=sctrl%nitmv
+      i_copy_size=size(sctrl%mdprm)
+      call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
 c       ltb=sctrl%ltb
 
       lshr = nint(mdprm(1)) .gt. 100
@@ -572,17 +572,17 @@ c       ltb=sctrl%ltb
       if (nitrlx .gt. 0) then
 Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
 Cgetarg         call pack1('ctrl mdprm',sctrl,mdprm)
-         
-         i_copy_size=size(sctrl%mdprm) 
-         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1) 
+
+        i_copy_size=size(sctrl%mdprm)
+        call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1)
 
 Cgetarg...info...           integer :: bitor , integer(8) :: sctrl%ltb 1
 Cgetarg         call pack1('ctrl ltb',sctrl,bitor(ltb,16))
-         
-c         sctrl%ltb=bitor(ltb,16) 
+
+c         sctrl%ltb=bitor(ltb,16)
 
 Cdelw1         call defi(oindrx,6*nbas)
-         allocate(iv_w_oindrx(6*nbas))
+        allocate(iv_w_oindrx(6*nbas))
 Ctakao_ZeroClear_NotRequiered          if (6*nbas<0) iv_w_oindrx(:)=0
 
 C       Next lines in case lattice relaxation
@@ -591,17 +591,17 @@ C       Next lines in case lattice relaxation
      .        'use of SHEAR= incompatible w/ lattice relaxation')
 Cgetarg...info...           real(8) :: plat0(9) , real(8) :: slat%plat0 9
 Cgetarg           call upack('lat plat0',slat,plat0,0,0,0,0)
-           
-           i_copy_size=size(slat%plat0) 
-           call dcopy(i_copy_size,slat%plat0,1,plat0,1) 
+
+          i_copy_size=size(slat%plat0)
+          call dcopy(i_copy_size,slat%plat0,1,plat0,1)
 
         endif
 Cdelw1         call rlxstp(sctrl,ssite,natrlx,nvrelx,w(oindrx),xyzfrz,pdim)
-         call rlxstp ( sctrl , ssite , natrlx , nvrelx , iv_w_oindrx , 
-     .   xyzfrz , pdim ) 
+        call rlxstp ( sctrl , ssite , natrlx , nvrelx , iv_w_oindrx , 
+     .   xyzfrz , pdim )
 
-Cdelw1 rlse name= oindrx old_list= ofrc oindrx 
-Cdelw1 rlse name= oindrx new_list= ofrc 
+Cdelw1 rlse name= oindrx old_list= ofrc oindrx
+Cdelw1 rlse name= oindrx new_list= ofrc
 Cdelw1         call rlse(oindrx)
 cki         if (allocated(iv_w_oindrx)) deallocate(iv_w_oindrx)
 
@@ -609,57 +609,57 @@ cki         if (allocated(iv_w_oindrx)) deallocate(iv_w_oindrx)
         if (nvrelx .ne. 0) then
 Cdelw1           call defi(oindrx,2*natrlx)
 Cki The new iv_w_oindrx uses the content of the old iv_w_oindrx.
-           isize_iv_tmp=size(iv_w_oindrx)
-           allocate( iv_tmp(isize_iv_tmp) )
-           iv_tmp(:)= iv_w_oindrx(:) 
-           deallocate(iv_w_oindrx)
-           allocate(iv_w_oindrx(2*natrlx))
-           isize_iv_tmp=min(isize_iv_tmp,2*natrlx)
-           iv_w_oindrx(:isize_iv_tmp)=iv_tmp(:isize_iv_tmp)
-           deallocate(iv_tmp)
+          isize_iv_tmp=size(iv_w_oindrx)
+          allocate( iv_tmp(isize_iv_tmp) )
+          iv_tmp(:)= iv_w_oindrx(:)
+          deallocate(iv_w_oindrx)
+          allocate(iv_w_oindrx(2*natrlx))
+          isize_iv_tmp=min(isize_iv_tmp,2*natrlx)
+          iv_w_oindrx(:isize_iv_tmp)=iv_tmp(:isize_iv_tmp)
+          deallocate(iv_tmp)
 
 Cdelw1           call defdr(ow,nvrelx*nvrelx)
-           allocate(rv_w_ow(nvrelx*nvrelx))
+          allocate(rv_w_ow(nvrelx*nvrelx))
 Ctakao_ZeroClear_NotRequiered            if (nvrelx*nvrelx<0) rv_w_ow(:)=0.0d0
 
 Cdelw1           call defdr(op,pdim)
-           allocate(rv_w_op(pdim))
+          allocate(rv_w_op(pdim))
 Ctakao_ZeroClear_NotRequiered            if (pdim<0) rv_w_op(:)=0.0d0
 
         endif
 Cgetarg         alat = dgets('lat alat',slat)
-         alat = slat%alat 
+        alat = slat%alat
 
         if (procid .eq. master) then
-        ifi = fopna('bsmv',-1,0)
+          ifi = fopna('bsmv',-1,0)
 Cdelw1         call defrr(opos2,3*nbas)
-         allocate(rv_w_opos2(3*nbas))
+          allocate(rv_w_opos2(3*nbas))
 Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) rv_w_opos2(:)=0.0d0
 
-        j = 1
-        call ivset(ix,1,3,j)
+          j = 1
+          call ivset(ix,1,3,j)
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 528
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 528
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1         call shorps(nbas,plat,ix,w(opos),w(opos2))
-         call shorps ( nbas , plat , ix , w ( opos ) , rv_w_opos2 ) 
+          call shorps ( nbas , plat , ix , w ( opos ) , rv_w_opos2 )
 
 Cdelw1         call iobsm0(0,bstim,0d0,0d0,nbas,alat,w(opos2),ifi)
-         call iobsm0 ( 0 , bstim , 0d0 , 0d0 , nbas , alat , rv_w_opos2 
-     .   , ifi ) 
+          call iobsm0 ( 0 , bstim , 0d0 , 0d0 , nbas , alat , rv_w_opos2 
+     .   , ifi )
 
-Cdelw1 rlse name= opos2 old_list= ofrc oindrx ow op opos2 
-Cdelw1 rlse name= opos2 new_list= ofrc oindrx ow op 
+Cdelw1 rlse name= opos2 old_list= ofrc oindrx ow op opos2
+Cdelw1 rlse name= opos2 new_list= ofrc oindrx ow op
 Cdelw1         call rlse(opos2)
-         if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
+          if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
 
         endif
       endif
 
 C ... Re-entry for shear distortion
 Cdelw1       call defrr(oshr,1)
-       allocate(rv_w_oshr(1))
+      allocate(rv_w_oshr(1))
 Ctakao_ZeroClear_NotRequiered        if (1<0) rv_w_oshr(:)=0.0d0
 
     4 continue
@@ -682,7 +682,7 @@ C ... Setup of hamiltonian, augmentation
 
 C ... Quit if --quit=ham given
 Cgetarg       if (igets('ctrl quit',sctrl) .eq. 8) then
-       if ( int(sctrl%quit) .eq. 8 ) then 
+      if ( int(sctrl%quit) .eq. 8 ) then
 
         call rx0('quit = ham')
       endif
@@ -697,37 +697,37 @@ Cgetarg      .  0)
 
 ccccccccccccc
 c        print *,'eee 333=',spot%osmrho
-       
+
 Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 572
 Cdelw1 do not change oorhat because of ['undef', 'wref']
-       oorhat=spot%oorhat
+      oorhat=spot%oorhat
 Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 573
 Cdelw1 do not change osmrho because of ['undef', 'wref']
-       osmrho=spot%osmrho
-       osmpot=spot%osmpot
+      osmrho=spot%osmrho
+      osmpot=spot%osmpot
 
 Cdelw1       call defrr (oftot,   3*nbas)
-       allocate(rv_w_oftot(3*nbas))
+      allocate(rv_w_oftot(3*nbas))
 Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) rv_w_oftot(:)=0.0d0
 
 Cgetarg...info...           integer :: ndham , integer(8) :: sham%ndham 1
 Cgetarg       call upack1('ham ndham',sham,ndham)
-       
-       ndham=sham%ndham
+
+      ndham=sham%ndham
 
 Cdelw1       call defrr (oevl,    ndham*2)
-       allocate(rv_w_oevl(ndham*2))
+      allocate(rv_w_oevl(ndham*2))
 Ctakao_ZeroClear_NotRequiered        if (ndham*2<0) rv_w_oevl(:)=0.0d0
 
 
 C ... Set various switches
 C     Whether forces, and how to calculate non Helman-Feynman corr.
 Cgetarg       lfrce = igets('ctrl lfrce',sctrl)
-       lfrce = int(sctrl%lfrce) 
+      lfrce = int(sctrl%lfrce)
 
 C     Maximum number of eigenvalues
 Cgetarg       nevmx = igets('bz nevmx',sbz)
-       nevmx = int(sbz%nevmx) 
+      nevmx = int(sbz%nevmx)
 
 C     Whether to evaluate output density and/or KS energy
       lrout = 1
@@ -742,8 +742,8 @@ C     Whether to evaluate output density and/or KS energy
         leks = 0
 Cgetarg...info...           integer :: nevmx , integer(8) :: sbz%nevmx 1
 Cgetarg         call pack1('bz nevmx',sbz,nevmx)
-         
-         sbz%nevmx=nevmx 
+
+        sbz%nevmx=nevmx
 
       endif
 C     Whether to float pnu's
@@ -774,8 +774,8 @@ ccccccccccccccc
 
 C... LDA+U initialization
 Cdelw1       call defi(olldau,-nbas)
-       allocate(iv_w_olldau(abs(-nbas)))
-       if (-nbas<0) iv_w_olldau(:)=0
+      allocate(iv_w_olldau(abs(-nbas)))
+      if (-nbas<0) iv_w_olldau(:)=0
 
 Cdelw1 do not change ovorb because of ['redef', 'wref']
       call defrr(ovorb,1)
@@ -785,17 +785,17 @@ Cdelw1 do not change odmato because of ['redef', 'wref']
       call defrr(odmato,1)
 C     Check for LDA+U ... return nlibu > 0 if any U blocks
 Cdelw1       call suldau(nbas,sspec,ssite,nlibu,lmaxu,w(olldau))
-       call suldau ( nbas , sspec , ssite , nlibu , lmaxu , iv_w_olldau 
-     . ) 
+      call suldau ( nbas , sspec , ssite , nlibu , lmaxu , iv_w_olldau 
+     . )
 
       if (nlibu .gt. 0) then
-Cdelw1 rlse name= ovorb old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato 
-Cdelw1 rlse name= ovorb new_list= ofrc oindrx ow op oshr oftot oevl olldau 
+Cdelw1 rlse name= ovorb old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato
+Cdelw1 rlse name= ovorb new_list= ofrc oindrx ow op oshr oftot oevl olldau
 Cdelw1 not deallocate odmato because of [redef wref]
 Cdelw1 not deallocate odmatu because of [redef wref]
 Cdelw1 not deallocate ovorb because of [redef wref]
 Cdelw1         call rlse(ovorb)
-         call rlse(ovorb)
+        call rlse(ovorb)
 
         i = nsp*nlibu*(lmaxu*2+1)**2
 Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: ovorb real(8) and complex(8)
@@ -812,22 +812,22 @@ Cgetarg...info...           integer :: ng , integer(8) :: slat%nsgrp 1
 Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
 Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
 Cgetarg         call upack('lat nsgrp oistab osymgr',slat,ng,oistab,og,0,0)
-         
-         ng=slat%nsgrp
+
+        ng=slat%nsgrp
 Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 656
 Cdelw1 do not change oistab because of ['undef', 'wref']
-         oistab=slat%oistab
+        oistab=slat%oistab
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 657
 Cdelw1 do not change og because of ['undef', 'wref']
-         og=slat%osymgr
+        og=slat%osymgr
 
 C       defaults
 Cgetarg...info...           real(8) :: umix , real(8) :: smix%umix 1
 Cgetarg...info...           real(8) :: tolu , real(8) :: smix%tolu 1
 Cgetarg         call upack('mix umix tolu',smix,umix,tolu,0,0,0)
-         
-         umix=smix%umix
-         tolu=smix%tolu
+
+        umix=smix%umix
+        tolu=smix%tolu
 
         if (umix .eq. 0) umix = 1
 C       if (tolu .eq. 0d0) tolu = 1d-4
@@ -846,9 +846,9 @@ Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 670
 Cdelw1 do not change oistab because of ['undef', 'wref']
 Cdelw1         call sudmtu(nbas,nsp,nlibu,lmaxu,ssite,sspec,0,w(olldau),
 Cdelw1      .    ng,w(og),w(oistab),w(odmatu),w(ovorb))
-         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
+        call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
      .   , iv_w_olldau , ng , w ( og ) , w ( oistab ) , w ( odmatu ) , 
-     .   w ( ovorb ) ) 
+     .   w ( ovorb ) )
 
       endif
 C     end LDA+U  initialization section
@@ -911,11 +911,11 @@ Cdelw1 do not change oorhat because of ['undef', 'wref']
           if (.not. lbin) ifi = fopna('rsta',-1,0)
         endif
         call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
-ctakao BZ_W is 
+ctakao BZ_W is
 Cgetarg...info...           real(8) :: bz_w , real(8) :: sbz%w 1
 Cgetarg         call upack('bz w',sbz,bz_w,0,0,0,0)
-         
-         bz_w=sbz%w
+
+        bz_w=sbz%w
 
 c        print *,'yyyyyyy goto iors osmrho=',spot%osmrho
 Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 738
@@ -923,11 +923,11 @@ Cdelw1 do not change oorhat because of ['undef', 'wref']
         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,
      .    nspec,w(oorhat),w,nit1,lbin,ifi)
 c        print *,'yyyyyyyyyy end of iors'
-ctakao 
+ctakao
 Cgetarg...info...           real(8) :: bz_w , real(8) :: sbz%w 1
 Cgetarg         call pack5('bz w',sbz,bz_w,0,0,0,0)
-         
-         sbz%w=bz_w 
+
+        sbz%w=bz_w
 
         if (k .lt. 0 .and. nproc .gt. 0) then
 C         irs(1) = irs(1) - mod(irs(1),4)
@@ -941,18 +941,18 @@ C         irs(1) = irs(1) - mod(irs(1),4)
 C   ... Write positions array from site structure
 Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
 Cgetarg         call upack('lat opos',slat,opos,0,0,0,0)
-         
+
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 760
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-         opos=slat%opos
+        opos=slat%opos
 
 Cgetarg         call spackv(10,'site pos',ssite,1,nbaspp,w(opos))
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbaspp 
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=1,nbaspp
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 765
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
+          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+        enddo
 
         call mpibc1(slat,nint(slat%size),4,.false.,'lmfp','slat')
         if (k .lt. 0) then
@@ -962,13 +962,13 @@ Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
         if (mod(irs(1),8) .ge. 4) then
 C         If no force switch set, use default
 Cgetarg           k = igets('ctrl lfrce',sctrl)
-           k = int(sctrl%lfrce) 
+          k = int(sctrl%lfrce)
 
 Cgetarg           if (k .eq. 0) call pack5('ctrl lfrce',sctrl,1,0,0,0,0)
-           if ( k .eq. 0 ) then 
-           
-           sctrl%lfrce=1 
-           endif 
+          if ( k .eq. 0 ) then
+
+            sctrl%lfrce=1
+          endif
 
 Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 784
 Cdelw1 do not change oorhat because of ['undef', 'wref']
@@ -978,10 +978,10 @@ Cdelw1 do not change osmrho because of ['undef', 'wref']
 C         Restore force switch
 Cgetarg...info...           integer :: k , integer(8) :: sctrl%lfrce 1
 Cgetarg           if (k .eq. 0) call pack5('ctrl lfrce',sctrl,k,0,0,0,0)
-           if ( k .eq. 0 ) then 
-           
-           sctrl%lfrce=k 
-           endif 
+          if ( k .eq. 0 ) then
+
+            sctrl%lfrce=k
+          endif
 
         endif
         if (mod(irs(1),16) .ge. 8) then
@@ -989,13 +989,13 @@ C          call upack('lat dist',slat,xv,0,0,0,0)
 C          call pvsms2(ssite,sspec,xv,nbas,nsp,w(oorhat))
           irs(1) = irs(1)-8
 Cgetarg           i = igets('ctrl lrs',sctrl)
-           i = int(sctrl%lrs) 
+          i = int(sctrl%lrs)
 
           i = i-256
 Cgetarg...info...           integer :: i , integer(8) :: sctrl%lrs 1
 Cgetarg           call pack5('ctrl lrs',sctrl,i,0,0,0,0)
-           
-           sctrl%lrs=i 
+
+          sctrl%lrs=i
 
         endif
       endif
@@ -1010,44 +1010,44 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
 
 C ... Write positions after file read, and repack
       if (ipr .ge. 50) then
-      write(stdo,357) 'Basis, after reading restart file'
-  357 format(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x,
+        write(stdo,357) 'Basis, after reading restart file'
+  357   format(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x,
      .  'pos (multiples of plat)')
-      call dinv33(plat,1,qlat,xv)
-      do  i = 1, nbas
+        call dinv33(plat,1,qlat,xv)
+        do  i = 1, nbas
 Cgetarg...info...           integer :: j , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: xv(10) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,i,j,xv,0,0)
-         
-         j=ssite(i)%spec
-         i_copy_size=size(ssite(i)%pos) 
-         call dcopy(i_copy_size,ssite(i)%pos,1,xv,1) 
+
+          j=ssite(i)%spec
+          i_copy_size=size(ssite(i)%pos)
+          call dcopy(i_copy_size,ssite(i)%pos,1,xv,1)
 
 Cgetarg         call spacks(0,'spec name',sspec,alabl,j,j)
-         do i_spacks=j,j 
-         call spacks_copy('u',sspec(i_spacks)%name,j,j,alabl,i_spacks)
-         enddo
+          do i_spacks=j,j
+            call spacks_copy('u',sspec(i_spacks)%name,j,j,alabl,i_spacks)
+          enddo
 
-        call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
-        write(stdo,345) i, alabl, (xv(j),j=1,3), (xv(3+j),j=1,3)
-  345   format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
-      enddo
+          call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
+          write(stdo,345) i, alabl, (xv(j),j=1,3), (xv(3+j),j=1,3)
+  345     format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
+        enddo
       endif
 
 C --- Optionally re-shorten basis vectors ---
       if (cmdopt('--shorps',8,0,strn)) then
 Cdelw1         call defrr(opos2,3*nbas)
-         allocate(rv_w_opos2(3*nbas))
+        allocate(rv_w_opos2(3*nbas))
 Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) rv_w_opos2(:)=0.0d0
 
 Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos2))
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbas 
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=1,nbas
 Cdelw1          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
           call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_opos2 ) 
+     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_opos2 )
 
-         enddo
+        enddo
 
         ix(1) = 2
         ix(2) = 2
@@ -1057,7 +1057,7 @@ Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 856
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1         call shorps(-nbas,plat,ix,w(opos2),w(opos))
-         call shorps ( - nbas , plat , ix , rv_w_opos2 , w ( opos ) ) 
+        call shorps ( - nbas , plat , ix , rv_w_opos2 , w ( opos ) )
 
         call info0(20,1,-1,
      .    ' lmfp  : write shortening vectors to file shorps ...')
@@ -1069,23 +1069,23 @@ Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 860
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1         call shorps(nbas,plat,ix,w(opos2),w(opos))
-         call shorps ( nbas , plat , ix , rv_w_opos2 , w ( opos ) ) 
+        call shorps ( nbas , plat , ix , rv_w_opos2 , w ( opos ) )
 
 Cgetarg         call spackv(11,'site pos',ssite,1,nbaspp,w(opos))
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbaspp 
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=1,nbaspp
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 864
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
+          call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+        enddo
 
 C       Debugging printout
 C       call prmx('starting basis vectors',w(opos2),3,3,nbas)
 C       call prmx('shortened basis vectors',w(opos),3,3,nbas)
-Cdelw1 rlse name= opos2 old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos2 
-Cdelw1 rlse name= opos2 new_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato 
+Cdelw1 rlse name= opos2 old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos2
+Cdelw1 rlse name= opos2 new_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato
 Cdelw1         call rlse(opos2)
-         if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
+        if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
 
       endif
 
@@ -1114,10 +1114,10 @@ Cdelw1       call bndfp(nbas,nsp,nlibu,lmaxu,w(olldau),
 Cdelw1      .  ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,
 Cdelw1      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit,w(oevl),w(ofrc),
 Cdelw1      .  w(odmatu),w(ovorb),llmfgw)
-       call bndfp ( nbas , nsp , nlibu , lmaxu , iv_w_olldau , ssite 
+      call bndfp ( nbas , nsp , nlibu , lmaxu , iv_w_olldau , ssite 
      . , sspec , slat , sctrl , sham , spot , sbz , sstrn , ndham , 
      . leks , lrout , lfrce , lpnu , dmxp , iter , maxit , rv_w_oevl 
-     . , rv_w_ofrc , w ( odmatu ) , w ( ovorb ) , llmfgw ) 
+     . , rv_w_ofrc , w ( odmatu ) , w ( ovorb ) , llmfgw )
 
 
 C ... check convergence of dmatu and update it and vorb if necessary
@@ -1138,9 +1138,9 @@ Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 894
 Cdelw1 do not change oistab because of ['undef', 'wref']
 Cdelw1         call chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,sham,0,w(odmatu),
 Cdelw1      .    w(odmato),w(ovorb),tolu,umix,w(olldau),ng,w(og),w(oistab))
-         call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
+        call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
      .   , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
-     .   , iv_w_olldau , ng , w ( og ) , w ( oistab ) ) 
+     .   , iv_w_olldau , ng , w ( og ) , w ( oistab ) )
 
       endif
 
@@ -1157,46 +1157,46 @@ C$$$      endif
 
 C --- Write smoothed charge density for contour plotting ---
       if (procid .eq. master) then
-      if (cmdopt('--wden',6,0,strn)) then
+        if (cmdopt('--wden',6,0,strn)) then
 Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 912
 Cdelw1 do not change oorhat because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 912
 Cdelw1 do not change osmrho because of ['undef', 'wref']
-        call ioden(strn(7:),slat,ssite,sspec,w(oorhat),w(osmrho))
-      endif
+          call ioden(strn(7:),slat,ssite,sspec,w(oorhat),w(osmrho))
+        endif
 
 C --- Write restart file (skip if --quit=band) ---
 Cgetarg       if (igets('ctrl quit',sctrl) .ne. 4) then
-       if ( int(sctrl%quit) .ne. 4 ) then 
+        if ( int(sctrl%quit) .ne. 4 ) then
 
 C     Suppress saving rst file in the middle of a shear (irlxsh > 0)
-      if (irs(2).gt.0 .and. (lrout.gt.0 .or. maxit .eq. 0) .and.
+          if (irs(2).gt.0 .and. (lrout.gt.0 .or. maxit .eq. 0) .and.
      .    irlxsh .eq. 0) then
 C       call p_dyn_ef(s_dyn, ef0,def,esmear)
-        lbin = irs(2) .ne. 2
-        if (lbin) fileid = 'rst'
-        if (.not. lbin) fileid = 'rsta'
-        if (irs(2) .eq. 3) then
-          call word(fileid,1,i,j)
-          j = j+1
-          fileid(j:j) = '.'
-          call bin2a(' ',0,0,iter,2,0,len(fileid),fileid,j)
-          if (lbin) ifi = fopng(fileid,-1,8+4)
-          if (.not. lbin) ifi = fopng(fileid,-1,8)
-          call info0(10,1,-1,' lmfp:  writing to restart file '//fileid)
-        else
-          if (lbin) ifi = fopna(fileid,-1,4)
-          if (.not. lbin) ifi = fopna(fileid,-1,0)
-        endif
-        call upacks('strn jobid',i,j)
-        fileid = 'lmfp:  ' // sstrn(i:j)
+            lbin = irs(2) .ne. 2
+            if (lbin) fileid = 'rst'
+            if (.not. lbin) fileid = 'rsta'
+            if (irs(2) .eq. 3) then
+              call word(fileid,1,i,j)
+              j = j+1
+              fileid(j:j) = '.'
+              call bin2a(' ',0,0,iter,2,0,len(fileid),fileid,j)
+              if (lbin) ifi = fopng(fileid,-1,8+4)
+              if (.not. lbin) ifi = fopng(fileid,-1,8)
+              call info0(10,1,-1,' lmfp:  writing to restart file '//fileid)
+            else
+              if (lbin) ifi = fopna(fileid,-1,4)
+              if (.not. lbin) ifi = fopna(fileid,-1,0)
+            endif
+            call upacks('strn jobid',i,j)
+            fileid = 'lmfp:  ' // sstrn(i:j)
 Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 940
 Cdelw1 do not change oorhat because of ['undef', 'wref']
-        k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
+            k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
      .    fileid,nbas,nat,nspec,w(oorhat),w,iter,lbin,-ifi)
-        call fclose(ifi)
-      endif
-      endif
+            call fclose(ifi)
+          endif
+        endif
       endif
       if (cmdopt('--window=',9,0,strn))
      .  call rx0('lmf : early exit (--window option)')
@@ -1206,152 +1206,152 @@ C --- Add to save file; decide on next iteration ---
 Cgetarg...info...           real(8) :: etot(2) , real(8) :: sham%ehf 1
 Cgetarg...info...           real(8) :: etot(2) , real(8) :: sham%ehk 1
 Cgetarg       call upack2('ham ehf ehk',sham,etot(1),etot(2))
-       
-       etot(1)=sham%ehf
-       etot(2)=sham%ehk
+
+        etot(1)=sham%ehf
+        etot(2)=sham%ehk
 
 C ... Subtract reference energy
 Cgetarg       seref = dgets('ham seref',sham)
-       seref = sham%seref 
+        seref = sham%seref
 
-      etot(1) = etot(1) - seref
-      if (etot(2) .ne. 0) etot(2) = etot(2) - seref
+        etot(1) = etot(1) - seref
+        if (etot(2) .ne. 0) etot(2) = etot(2) - seref
 Cgetarg       amom    = dgets('ham eterms:15',sham)
-       amom = sham%eterms(15) 
+        amom = sham%eterms(15)
 
 C     The desired tolerances in q,e
 Cgetarg       qtol = dgets('ctrl tol',sctrl)
-       qtol = sctrl%tol(1) 
+        qtol = sctrl%tol(1)
 
 Cgetarg       etol = dgets('ctrl tol:3',sctrl)
-       etol = sctrl%tol(3) 
+        etol = sctrl%tol(3)
 
-      if (procid .eq. master) then
+        if (procid .eq. master) then
 Cgetarg         rhosig = dgets('ham eterms:19',sham)
-         rhosig = sham%eterms(19) 
+          rhosig = sham%eterms(19)
 
-        i = 0
-        if (rhosig .ne. -99 .and. rhosig .ne. 0) i = 10
+          i = 0
+          if (rhosig .ne. -99 .and. rhosig .ne. 0) i = 10
 Cgetarg         call nwit(igets('ctrl nvario',sctrl),iter,maxit,
 Cgetarg      .    lhf.or.irs(1).eq.0.and.iter.eq.1,leks+i,etol,qtol,qdiff,
 Cgetarg      .    'cxhi',amom,etot,lsc)
-         call nwit ( int(sctrl%nvario) , iter , maxit , lhf.or.irs ( 1 
+          call nwit ( int(sctrl%nvario) , iter , maxit , lhf.or.irs ( 1 
      .   ) .eq.0.and.iter.eq.1 , leks+i , etol , qtol , qdiff , 'cxhi' 
-     .   , amom , etot , lsc ) 
+     .   , amom , etot , lsc )
 
-      endif
-      call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
-      if (lsc .eq. 2 .and. .not. lhf .and. maxit .gt. 1) lsc = 3
-      if (lsc .eq. 1 .and. lrout .gt. 0  .or. lsc .eq. 3) then
-        call query('max it=',2,maxit)
-        if (iter .ge. maxit) lsc = 1
-        if (iter .lt. maxit) lsc = 3
-      endif
+        endif
+        call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
+        if (lsc .eq. 2 .and. .not. lhf .and. maxit .gt. 1) lsc = 3
+        if (lsc .eq. 1 .and. lrout .gt. 0  .or. lsc .eq. 3) then
+          call query('max it=',2,maxit)
+          if (iter .ge. maxit) lsc = 1
+          if (iter .lt. maxit) lsc = 3
+        endif
 Cgetarg       if (igets('ctrl quit',sctrl) .eq. 4)
 Cgetarg      .  call rx0('lmf : exit (--quit=band)')
-       if ( int(sctrl%quit) .eq. 4 ) call rx0 ( 'lmf : exit (--quit=band)' 
-     . ) 
+        if ( int(sctrl%quit) .eq. 4 ) call rx0 ( 'lmf : exit (--quit=band)' 
+     . )
 
-      iter = iter+1
+        iter = iter+1
 C     Continue iterations toward self-consistency
-      if (lsc .gt. 2) then
-        irs(1) = 3
-        goto 5
-      endif
+        if (lsc .gt. 2) then
+          irs(1) = 3
+          goto 5
+        endif
 
 C ... Reset quantities for iterations towards self-consistency
-      if (nvrelx .gt. 0 .and. nitrlx .gt. 0) then
-        iter = 1
-        dmxp(11) = 0
-      endif
+        if (nvrelx .gt. 0 .and. nitrlx .gt. 0) then
+          iter = 1
+          dmxp(11) = 0
+        endif
 
 C     call upack('lat nsgrp oistab oag osymgr',slat,ng,oistab,oag,
 C    .  og,0)
 C     call shoist(w(oistab),nbas,w(oag),w(og),ng)
 
 C --- Molecular statics ---
-      if (nitrlx .gt. 0 .and. lsc .le. 2) then
-        call cppos(1,nbas,ssite)
+        if (nitrlx .gt. 0 .and. lsc .le. 2) then
+          call cppos(1,nbas,ssite)
 C       Buglet: this eats up a little memory.  Never released.
 Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: opos undef and real(8)
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-        call defrr(opos,3*nbas)
+          call defrr(opos,3*nbas)
 Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos))
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbas 
+          i_copy_size=size(ssite(1)%pos)
+          do i_spackv=1,nbas
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
+            call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+          enddo
 
 Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
 Cgetarg         call upack1('ctrl mdprm',sctrl,mdprm)
-         
-         i_copy_size=size(sctrl%mdprm) 
-         call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1) 
 
-        if (lshr) then
+          i_copy_size=size(sctrl%mdprm)
+          call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
+
+          if (lshr) then
 Cdelw1           call grdepl(nvrelx,w(oindrx),0.01d0,etot,irlxsh,pletot,dist)
-           call grdepl ( nvrelx , iv_w_oindrx , 0.01d0 , etot , irlxsh , 
-     .     pletot , dist ) 
+            call grdepl ( nvrelx , iv_w_oindrx , 0.01d0 , etot , irlxsh , 
+     .     pletot , dist )
 
-          if (irlxsh .ne. 0) then
+            if (irlxsh .ne. 0) then
 Cdelw1             call grdep2(1,nvrelx,w(oindrx),dist0,dist)
-             call grdep2 ( 1 , nvrelx , iv_w_oindrx , dist0 , dist ) 
+              call grdep2 ( 1 , nvrelx , iv_w_oindrx , dist0 , dist )
 
-Cdelw1 save w_varlist= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos 
+Cdelw1 save w_varlist= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos
 CDELW1 savewlist label98
-            goto 98
-          else
+              goto 98
+            else
 Cdelw1             call relax(prgnam,sctrl,ssite,sspec,itrlx,w(oindrx),natrlx,
 Cdelw1      .                 nvrelx,pletot,w(op),w(ow),0,0d0,dist0,icom)
-             call relax ( prgnam , sctrl , ssite , sspec , itrlx , iv_w_oindrx 
+              call relax ( prgnam , sctrl , ssite , sspec , itrlx , iv_w_oindrx 
      .       , natrlx , nvrelx , pletot , rv_w_op , rv_w_ow , 0 , 0d0 , dist0 
-     .       , icom ) 
+     .       , icom )
 
-            call dpzero(dist,6)
+              call dpzero(dist,6)
 Cdelw1             call grdep2(1,nvrelx,w(oindrx),dist0,dist)
-             call grdep2 ( 1 , nvrelx , iv_w_oindrx , dist0 , dist ) 
+              call grdep2 ( 1 , nvrelx , iv_w_oindrx , dist0 , dist )
 
-            dist(7) = 1
-          endif
+              dist(7) = 1
+            endif
 
-        else
+          else
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1         call relax(prgnam,sctrl,ssite,sspec,itrlx,w(oindrx),natrlx,
 Cdelw1      .             nvrelx,w(ofrc),w(op),w(ow),0,0d0,w(opos),icom)
-         call relax ( prgnam , sctrl , ssite , sspec , itrlx , iv_w_oindrx 
+            call relax ( prgnam , sctrl , ssite , sspec , itrlx , iv_w_oindrx 
      .   , natrlx , nvrelx , rv_w_ofrc , rv_w_op , rv_w_ow , 0 , 0d0 , 
-     .   w ( opos ) , icom ) 
+     .   w ( opos ) , icom )
 
-        endif
+          endif
 
 C       Restore lattice symmetry to machine precision
-        if (cmdopt('--fixpos',8,0,strn)) then
+          if (cmdopt('--fixpos',8,0,strn)) then
 Cgetarg...info...           integer :: ng , integer(8) :: slat%nsgrp 1
 Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
 Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
 Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
 Cgetarg           call upack('lat nsgrp oistab oag osymgr',slat,ng,oistab,oag,
 Cgetarg      .      og,0)
-           
-           ng=slat%nsgrp
+
+            ng=slat%nsgrp
 Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 1063
 Cdelw1 do not change oistab because of ['undef', 'wref']
-           oistab=slat%oistab
+            oistab=slat%oistab
 Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 1064
 Cdelw1 do not change oag because of ['undef', 'wref']
-           oag=slat%oag
+            oag=slat%oag
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 1065
 Cdelw1 do not change og because of ['undef', 'wref']
-           og=slat%osymgr
+            og=slat%osymgr
 
 C         call shoist(w(oistab),nbas,w(oag),w(og),ng)
-          j = 8+1
-          if (strn(9:13) .eq. ':tol=') then
-            j = 13
-          endif
-          if (strn(9:9) .ne. ':' .or.
+            j = 8+1
+            if (strn(9:13) .eq. ':tol=') then
+              j = 13
+            endif
+            if (strn(9:9) .ne. ':' .or.
      .      .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 1074
@@ -1360,43 +1360,43 @@ Cdelw1 warning(1) , probably  oistab  is not defined yet at linenumber= 1074
 Cdelw1 do not change oistab because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 1074
 Cdelw1 do not change oag because of ['undef', 'wref']
-          call fixpos(w(opos),nbas,fptol,ng,plat,w(og),w(oag),w(oistab))
-        endif
+            call fixpos(w(opos),nbas,fptol,ng,plat,w(og),w(oag),w(oistab))
+          endif
 
 C       Write updated positions to bsmv file
-        if (procid .eq. master .and. .not. lshr) then
-          ifi = fopna('bsmv',-1,0)
-          call poseof(ifi)
-          bstim = bstim+1
+          if (procid .eq. master .and. .not. lshr) then
+            ifi = fopna('bsmv',-1,0)
+            call poseof(ifi)
+            bstim = bstim+1
 Cdelw1           call defrr(opos2,3*nbas)
-           allocate(rv_w_opos2(3*nbas))
+            allocate(rv_w_opos2(3*nbas))
 Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) rv_w_opos2(:)=0.0d0
 
-          j = 1
-          call ivset(ix,1,3,j)
+            j = 1
+            call ivset(ix,1,3,j)
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1           call shorps(nbas,plat,ix,w(opos),w(opos2))
-           call shorps ( nbas , plat , ix , w ( opos ) , rv_w_opos2 ) 
+            call shorps ( nbas , plat , ix , w ( opos ) , rv_w_opos2 )
 
 Cdelw1           call iobsmv(0,bstim,0d0,0d0,nbas,alat,w(opos2),-ifi)
-           call iobsmv ( 0 , bstim , 0d0 , 0d0 , nbas , alat , rv_w_opos2 
-     .     , - ifi ) 
+            call iobsmv ( 0 , bstim , 0d0 , 0d0 , nbas , alat , rv_w_opos2 
+     .     , - ifi )
 
-Cdelw1 rlse name= opos2 old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos opos2 
-Cdelw1 rlse name= opos2 new_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos 
+Cdelw1 rlse name= opos2 old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos opos2
+Cdelw1 rlse name= opos2 new_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos
 Cdelw1           call rlse(opos2)
-           if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
+            if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
 
-          call fclose(ifi)
-        endif
+            call fclose(ifi)
+          endif
 C       repack updated positions in site structure
 Cgetarg         call spackv(11,'site pos',ssite,1,nbas,w(opos))
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbas 
+          i_copy_size=size(ssite(1)%pos)
+          do i_spackv=1,nbas
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
+            call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+          enddo
 
 
 C        if (icom .eq. 1) then
@@ -1404,152 +1404,152 @@ C          print *, '!!'
 C        endif
 
 C   ... Exit when relaxation converged or maximum number of iterations
-        if (icom .eq. 1) then
-          if (procid .eq. master) then
+          if (icom .eq. 1) then
+            if (procid .eq. master) then
 Cgetarg             k = igets('ctrl nvario',sctrl)
-             k = int(sctrl%nvario) 
+              k = int(sctrl%nvario)
 
-            flg = 'C67'
-            call nwitsv(1+2,k,flg,nsp,amom,etot)
-          endif
-          call tcx('lmfp')
-          call fexit(0,111,
+              flg = 'C67'
+              call nwitsv(1+2,k,flg,nsp,amom,etot)
+            endif
+            call tcx('lmfp')
+            call fexit(0,111,
      .    ' LMFP: relaxation converged after %i iteration(s)',itrlx)
-        else
-          call query('proceed with next relaxation step',-1,0)
-        endif
+          else
+            call query('proceed with next relaxation step',-1,0)
+          endif
 
 C   ... Restore minimum gradient positions if this is last step
 C        if (itrlx .eq. nitrlx .and. icom .eq. -1) then
-        if (itrlx .eq. nitrlx) then
+          if (itrlx .eq. nitrlx) then
 
-          if (.not. lshr) then
-            call info0(20,1,0,' lmfp: restore positions for minimum g')
+            if (.not. lshr) then
+              call info0(20,1,0,' lmfp: restore positions for minimum g')
 
 C           call prmx('initial positions',w(opos),3,3,nbas)
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1             call prelx1(1,nm,lshr,natrlx,nvrelx,w(oindrx),w(op),w(opos))
-             call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , iv_w_oindrx , 
-     .       rv_w_op , w ( opos ) ) 
+              call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , iv_w_oindrx , 
+     .       rv_w_op , w ( opos ) )
 
 C           call prmx('minimum-g positions',w(opos),3,3,nbas)
-          else
+            else
 Cdelw1             call prelx1(1,nm,lshr,natrlx,nvrelx,w(oindrx),w(op),dist0)
-             call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , iv_w_oindrx , 
-     .       rv_w_op , dist0 ) 
+              call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , iv_w_oindrx , 
+     .       rv_w_op , dist0 )
 
-            call dpzero(dist,6)
+              call dpzero(dist,6)
 Cdelw1             call grdep2(1,nvrelx,w(oindrx),dist0,dist)
-             call grdep2 ( 1 , nvrelx , iv_w_oindrx , dist0 , dist ) 
+              call grdep2 ( 1 , nvrelx , iv_w_oindrx , dist0 , dist )
 
-            call info2(20,0,0,
+              call info2(20,0,0,
      .        ' lmfp : strain of minimum gradient:'//
      .        '%N   PDEF=%6;8,4D'//
      .        '%N STRAIN=%6;8,4D',
      .        dist0,dist)
-          endif
+            endif
 
 C         Repack updated positions in site structure
 Cgetarg           call spackv(11,'site pos',ssite,1,nbas,w(opos))
-           i_copy_size=size(ssite(1)%pos)
-           do i_spackv=1,nbas 
+            i_copy_size=size(ssite(1)%pos)
+            do i_spackv=1,nbas
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-           call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-           enddo
+              call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+            enddo
 
 
-        endif
+          endif
 
 C   ... New density after atom shifts
 C       If explicitly told to read from atom files after atom movmment
 Cgetarg         if (igets('ctrl lrs,3',sctrl) .eq. 3) then
-         if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then 
+          if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then
 
-          irs(1) = 0
+            irs(1) = 0
 
 C       Else, use self-consistent
-        else if (.not. lshr) then
-          irs(1) = 3
+          else if (.not. lshr) then
+            irs(1) = 3
 Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 1159
 Cdelw1 do not change oorhat because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 1159
 Cdelw1 do not change osmrho because of ['undef', 'wref']
-          call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
-        endif
+            call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
+          endif
 
 C   ... Write restart file (to include new positions)
-        if (procid .eq. master .and. .not. lshr) then
-          ifi = fopna('rst',-1,4)
-          call upacks('strn jobid',i,j)
-          fileid = 'lmfp:  ' // sstrn(i:j)
+          if (procid .eq. master .and. .not. lshr) then
+            ifi = fopna('rst',-1,4)
+            call upacks('strn jobid',i,j)
+            fileid = 'lmfp:  ' // sstrn(i:j)
 Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 1167
 Cdelw1 do not change oorhat because of ['undef', 'wref']
-          k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
+            k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
      .      fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
-          call fclose(ifi)
-        endif
+            call fclose(ifi)
+          endif
 
 C   ... Write positions to file
-        if (cmdopt('--wpos=',7,0,strn) .or.
+          if (cmdopt('--wpos=',7,0,strn) .or.
      .      cmdopt('--wpos:mode1:',13,0,strn)) then
 Cgetarg...info...           real(8) :: gam(4) , real(8) :: slat%gam 4
 Cgetarg           call upack1('lat gam',slat,gam)
-           
-           i_copy_size=size(slat%gam) 
-           call dcopy(i_copy_size,slat%gam,1,gam,1) 
+
+            i_copy_size=size(slat%gam)
+            call dcopy(i_copy_size,slat%gam,1,gam,1)
 
 Cdelw1           call defrr(owk, 3*nbas)
-           allocate(rv_w_owk(3*nbas))
+            allocate(rv_w_owk(3*nbas))
 Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) rv_w_owk(:)=0.0d0
 
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1           call rdistn(w(opos),w(owk),nbas,gam(1),gam(2),gam(3),1/gam1)
-           call rdistn ( w ( opos ) , rv_w_owk , nbas , gam ( 1 ) , gam 
-     .     ( 2 ) , gam ( 3 ) , 1 / gam1 ) 
+            call rdistn ( w ( opos ) , rv_w_owk , nbas , gam ( 1 ) , gam 
+     .     ( 2 ) , gam ( 3 ) , 1 / gam1 )
 
 Cdelw1           call iopos(.true.,0,strn(8:),nbas,w(owk))
-           call iopos ( .true. , 0 , strn ( 8: ) , nbas , rv_w_owk ) 
+            call iopos ( .true. , 0 , strn ( 8: ) , nbas , rv_w_owk )
 
 C         call fclr(strn(8:),-1)
-Cdelw1 rlse name= owk old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos owk 
-Cdelw1 rlse name= owk new_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos 
+Cdelw1 rlse name= owk old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos owk
+Cdelw1 rlse name= owk new_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos
 Cdelw1           call rlse(owk)
-           if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+            if (allocated(rv_w_owk)) deallocate(rv_w_owk)
 
-        endif
+          endif
 
 C   ... Remove mixing file
-        if (procid .eq. master) then
-          call info0(20,0,0,' Delete mixing and band weights files ...')
-        ifi = fopna('mixm',-1,4)
-        call dfclos(ifi)
-        ifi = fopna('wkp',-1,4)
-        call dfclos(ifi)
-        endif
+          if (procid .eq. master) then
+            call info0(20,0,0,' Delete mixing and band weights files ...')
+            ifi = fopna('mixm',-1,4)
+            call dfclos(ifi)
+            ifi = fopna('wkp',-1,4)
+            call dfclos(ifi)
+          endif
 C       reset mixing block
-        call parms0(0,0,0d0,0)
+          call parms0(0,0,0d0,0)
 
 C   ... Exit when maximum number of iterations encountered
-        if (itrlx .eq. nitrlx) then
-          if (procid .eq. master) then
-            call tcx('lmfp')
-            call fexit(1,111,
+          if (itrlx .eq. nitrlx) then
+            if (procid .eq. master) then
+              call tcx('lmfp')
+              call fexit(1,111,
      .    ' LMFP: relaxation incomplete after %i iteration(s)',nitrlx)
+            else
+              call tcx('lmfp')
+              call fexit(1,111,' ',0)
+            endif
+          endif
+          itrlx = itrlx+1
+
+          if (lshr) then
+            goto 98
           else
-            call tcx('lmfp')
-            call fexit(1,111,' ',0)
+            goto 5
           endif
         endif
-        itrlx = itrlx+1
-
-        if (lshr) then
-          goto 98
-        else
-          goto 5
-        endif
-      endif
       endif
 
 C ... Write positions to file
@@ -1559,52 +1559,52 @@ Cdelw1 w_varlistall_append_uniq ERROR, define again with another type: opos unde
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
         call defrr(opos,3*nbas)
 Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos))
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbas 
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=1,nbas
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
+          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+        enddo
 
 Cgetarg...info...           real(8) :: gam(4) , real(8) :: slat%gam 4
 Cgetarg         call upack1('lat gam',slat,gam)
-         
-         i_copy_size=size(slat%gam) 
-         call dcopy(i_copy_size,slat%gam,1,gam,1) 
+
+        i_copy_size=size(slat%gam)
+        call dcopy(i_copy_size,slat%gam,1,gam,1)
 
 Cdelw1         call defrr(owk, 3*nbas)
-         allocate(rv_w_owk(3*nbas))
+        allocate(rv_w_owk(3*nbas))
 Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) rv_w_owk(:)=0.0d0
 
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1         call rdistn(w(opos),w(owk),nbas,gam(1),gam(2),gam(3),1/gam1)
-         call rdistn ( w ( opos ) , rv_w_owk , nbas , gam ( 1 ) , gam 
-     .   ( 2 ) , gam ( 3 ) , 1 / gam1 ) 
+        call rdistn ( w ( opos ) , rv_w_owk , nbas , gam ( 1 ) , gam 
+     .   ( 2 ) , gam ( 3 ) , 1 / gam1 )
 
         if (cmdopt('--wpos:mode1:',13,0,strn)) then
 Cdelw1           call iopos(.true.,1,strn(14:),nbas,w(owk))
-           call iopos ( .true. , 1 , strn ( 14: ) , nbas , rv_w_owk ) 
+          call iopos ( .true. , 1 , strn ( 14: ) , nbas , rv_w_owk )
 
 C         call fclr(strn(14:),-1)
         else
 Cdelw1           call iopos(.true.,0,strn(8:),nbas,w(owk))
-           call iopos ( .true. , 0 , strn ( 8: ) , nbas , rv_w_owk ) 
+          call iopos ( .true. , 0 , strn ( 8: ) , nbas , rv_w_owk )
 
 C         call fclr(strn(8:),-1)
         endif
-Cdelw1 rlse name= opos old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos owk 
-Cdelw1 rlse name= opos new_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato 
+Cdelw1 rlse name= opos old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos owk
+Cdelw1 rlse name= opos new_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato
 Cdelw1 not deallocate opos because of [undef wref redef]
 Cdelw1         call rlse(opos)
-         if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-         call rlse(opos)
+        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+        call rlse(opos)
 
       endif
 
       call tcx('lmfp')
 C     if (maxit .eq. 0) call rx0(' zero iterations sought ... quitting')
 Cki#error, have return with len(w_varlist)>0 at line 1250
-Cdelw1 w_varlist remains: ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato 
+Cdelw1 w_varlist remains: ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato
 Cdelw1 w_varlistundel: [opos og oistab oorhat osmrho oag ovorb odmatu odmato]
 Cdelw1 w_varlist (undel), remains: [ovorb odmatu odmato]
 Cdelw1 w_varlist (del), remains: [ofrc oindrx ow op oshr oftot oevl olldau]
@@ -1612,20 +1612,20 @@ Cdelw1 not deallocate odmato because of [redef wref]
 Cdelw1 not deallocate odmatu because of [redef wref]
 Cdelw1 not deallocate ovorb because of [redef wref]
 Cdelw1       return
-       if (allocated(iv_w_olldau)) deallocate(iv_w_olldau)
-       if (allocated(rv_w_oevl)) deallocate(rv_w_oevl)
-       if (allocated(rv_w_oftot)) deallocate(rv_w_oftot)
-       if (allocated(rv_w_oshr)) deallocate(rv_w_oshr)
-       if (allocated(rv_w_op)) deallocate(rv_w_op)
-       if (allocated(rv_w_ow)) deallocate(rv_w_ow)
-       if (allocated(iv_w_oindrx)) deallocate(iv_w_oindrx)
-       if (allocated(rv_w_ofrc)) deallocate(rv_w_ofrc)
-       return 
+      if (allocated(iv_w_olldau)) deallocate(iv_w_olldau)
+      if (allocated(rv_w_oevl)) deallocate(rv_w_oevl)
+      if (allocated(rv_w_oftot)) deallocate(rv_w_oftot)
+      if (allocated(rv_w_oshr)) deallocate(rv_w_oshr)
+      if (allocated(rv_w_op)) deallocate(rv_w_op)
+      if (allocated(rv_w_ow)) deallocate(rv_w_ow)
+      if (allocated(iv_w_oindrx)) deallocate(iv_w_oindrx)
+      if (allocated(rv_w_ofrc)) deallocate(rv_w_ofrc)
+      return
 
 
 C --- Setup to start calculation at new shear ---
    98 continue
-Cdelw1 load w_varlist= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos 
+Cdelw1 load w_varlist= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos
 CDELW1 loadwlist label98
       if (procid .eq. master) then
         call info0(20,0,0,' Delete mixing and band weights files ...')
@@ -1638,7 +1638,7 @@ CDELW1 loadwlist label98
 C     Restore plat, pos to their undistorted state:
 C     undo original transformation = P P_0^-1
 Cdelw1       call defrr(opos2,3*nbas)
-       allocate(rv_w_opos2(3*nbas))
+      allocate(rv_w_opos2(3*nbas))
 Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) rv_w_opos2(:)=0.0d0
 
       call dinv33(plat,0,xv,xv(10))
@@ -1646,73 +1646,73 @@ Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1       call dgemm('N','N',3,nbas,3,1d0,xv,3,w(opos),3,0d0,w(opos2),
 Cdelw1      .  3)
-       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , w ( opos 
-     . ) , 3 , 0d0 , rv_w_opos2 , 3 ) 
+      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , w ( opos 
+     . ) , 3 , 0d0 , rv_w_opos2 , 3 )
 
 C     Simultaneously pack in lat->pos and site->pos
 Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
 Cgetarg       call upack('lat opos',slat,opos,0,0,0,0)
-       
+
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-       opos=slat%opos
+      opos=slat%opos
 
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
 Cdelw1       call dgemm('N','N',3,nbas,3,1d0,plat0,3,w(opos2),3,0d0,
 Cdelw1      .  w(opos),3)
-       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , rv_w_opos2 
-     . , 3 , 0d0 , w ( opos ) , 3 ) 
+      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , rv_w_opos2 
+     . , 3 , 0d0 , w ( opos ) , 3 )
 
 C     call prmx('positions for plat0',w(opos),3,3,nbas)
 Cgetarg       call spackv(11,'site pos',ssite,1,nbas,w(opos))
-       i_copy_size=size(ssite(1)%pos)
-       do i_spackv=1,nbas 
+      i_copy_size=size(ssite(1)%pos)
+      do i_spackv=1,nbas
 Cdelw1 do not change opos because of ['undef', 'wref', 'redef']
-       call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-       enddo
+        call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+      enddo
 
       call cppos(1,nbas,ssite)
 C     New shear
 Cgetarg...info...           real(8) :: plat0(9) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: dist(9) , real(8) :: slat%dist 9
 Cgetarg       call pack5('lat plat ldist dist',slat,plat0,3,dist,0,0)
-       
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,plat0,1,slat%plat,1) 
-       slat%ldist=3 
-       i_copy_size=size(slat%dist) 
-       call dcopy(i_copy_size,dist,1,slat%dist,1) 
+
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,plat0,1,slat%plat,1)
+      slat%ldist=3
+      i_copy_size=size(slat%dist)
+      call dcopy(i_copy_size,dist,1,slat%dist,1)
 
 C     A little memory leakage rel to 1st pass, but not so serious
-Cdelw1 rlse name= oshr old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos opos2 
-Cdelw1 rlse name= oshr new_list= ofrc oindrx ow op 
+Cdelw1 rlse name= oshr old_list= ofrc oindrx ow op oshr oftot oevl olldau ovorb odmatu odmato opos opos2
+Cdelw1 rlse name= oshr new_list= ofrc oindrx ow op
 Cdelw1 not deallocate opos because of [undef wref redef]
 Cdelw1 not deallocate odmato because of [redef wref]
 Cdelw1 not deallocate odmatu because of [redef wref]
 Cdelw1 not deallocate ovorb because of [redef wref]
 Cdelw1       call rlse(oshr)
-       if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
-       if (allocated(iv_w_olldau)) deallocate(iv_w_olldau)
-       if (allocated(rv_w_oevl)) deallocate(rv_w_oevl)
-       if (allocated(rv_w_oftot)) deallocate(rv_w_oftot)
-       if (allocated(rv_w_oshr)) deallocate(rv_w_oshr)
-       call rlse(ovorb)
+      if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
+      if (allocated(iv_w_olldau)) deallocate(iv_w_olldau)
+      if (allocated(rv_w_oevl)) deallocate(rv_w_oevl)
+      if (allocated(rv_w_oftot)) deallocate(rv_w_oftot)
+      if (allocated(rv_w_oshr)) deallocate(rv_w_oshr)
+      call rlse(ovorb)
 
       call lattic(slat,sctrl,ssite,sarray)
 Cdelw1       call defrr(oshr,1)
-       allocate(rv_w_oshr(1))
+      allocate(rv_w_oshr(1))
 Ctakao_ZeroClear_NotRequiered        if (1<0) rv_w_oshr(:)=0.0d0
 
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg       call upack('lat plat',slat,plat,0,0,0,0)
-       
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
 
 C     Remake qp
 Cgetarg       ltmp = lgors('ctrl lmet,1',sctrl) .or.
 Cgetarg      .       lgors('ctrl ldos,4+2+1',sbz)
-       ltmp = iand(1,int(sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(sctrl%ldos)) .ne.0 
+      ltmp = iand(1,int(sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(sctrl%ldos)) .ne.0
 
       call mkqp(sctrl,sbz,slat,ltmp,.false.,1,-2)
 
@@ -1730,63 +1730,63 @@ Cdelw1 do not change oorhat because of ['undef', 'wref']
 
 C     Decide on what density to use
 Cgetarg       if (igets('ctrl lrs,3',sctrl) .eq. 3) then
-       if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then 
+      if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then
 
         irs(1) = 0
 C     Else, use file density
       else
 Cgetarg         irs(1) =     igets('ctrl lrs,7',sctrl)
-         irs ( 1 ) = iand(7,int(sctrl%lrs)) 
+        irs ( 1 ) = iand(7,int(sctrl%lrs))
 
       endif
       goto 4
 
 Cgetarg       end
-Cdelw1 w_varlist remains: ofrc oindrx ow op oshr 
+Cdelw1 w_varlist remains: ofrc oindrx ow op oshr
 Cdelw1 w_varlistundel: [opos og oistab oorhat osmrho oag ovorb odmatu odmato]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [ofrc oindrx ow op oshr]
-        if (allocated(rv_w_oshr)) deallocate(rv_w_oshr)
-        if (allocated(rv_w_op)) deallocate(rv_w_op)
-        if (allocated(rv_w_ow)) deallocate(rv_w_ow)
-        if (allocated(iv_w_oindrx)) deallocate(iv_w_oindrx)
-        if (allocated(rv_w_ofrc)) deallocate(rv_w_ofrc)
+      if (allocated(rv_w_oshr)) deallocate(rv_w_oshr)
+      if (allocated(rv_w_op)) deallocate(rv_w_op)
+      if (allocated(rv_w_ow)) deallocate(rv_w_ow)
+      if (allocated(iv_w_oindrx)) deallocate(iv_w_oindrx)
+      if (allocated(rv_w_ofrc)) deallocate(rv_w_ofrc)
 
-       end subroutine lmfp 
+      end subroutine lmfp
 
 
       subroutine cppos(ib1,ib2,ssite)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Copy site positions to p0 for a range of sites
 C     implicit none
       integer ib1,ib2
 Cgetarg       double precision pos(3),ssite(1)
-       real(8):: pos(3) 
-       type(s_site)::ssite(*)
+      real(8):: pos(3)
+      type(s_site)::ssite(*)
 
       integer ib
 
       do  ib = ib1, ib2
 Cgetarg         call spackv(0,'site pos', ssite,ib,ib,pos)
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=ib,ib 
-         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,1,pos)
-         enddo
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=ib,ib
+          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,1,pos)
+        enddo
 
 Cgetarg         call spackv(1,'site pos0',ssite,ib,ib,pos)
-         i_copy_size=size(ssite(1)%pos0)
-         do i_spackv=ib,ib 
-         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos0,i_copy_size,1,pos)
-         enddo
+        i_copy_size=size(ssite(1)%pos0)
+        do i_spackv=ib,ib
+          call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos0,i_copy_size,1,pos)
+        enddo
 
       enddo
 Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine cppos 
+      end subroutine cppos
 
 
       subroutine grdepl(nvrelx,indrlx,alpha,etot,irlxsh,pletot,dist)
@@ -1847,7 +1847,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine grdepl 
+      end subroutine grdepl
 
 
 

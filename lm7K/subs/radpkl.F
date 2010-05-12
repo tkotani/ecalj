@@ -35,8 +35,9 @@ C     implicit none
 
 C --- Do explicitly for k=0,1 ---
       do  7  l = 0, lmax
-      p(0,l) = a**l
-    7 if (kmax .ge. 1) p(1,l) = (a**l)*(tar2/(2*l+3)-1d0)
+        p(0,l) = a**l
+        if (kmax .ge. 1) p(1,l) = (a**l)*(tar2/(2*l+3)-1d0)
+    7 continue
 
 C ---- Recursion for higher k ---
       do  8  k = 2, kmax

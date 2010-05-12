@@ -175,7 +175,7 @@ C ... Printout
         write(stdo,'(1x)')
       endif
 
-Cdelw1 w_varlist remains: owtkb oevl oswtk 
+Cdelw1 w_varlist remains: owtkb oevl oswtk
 Cdelw1 w_varlistundel: [oswtk oevl owtkb]
 Cdelw1 w_varlist (undel), remains: [owtkb oevl oswtk]
 Cdelw1 w_varlist (del), remains: (None)

@@ -34,24 +34,24 @@ C ... Passed parameters
       if (mode1.ne.0 .or. mode2.ne.0) call rx('pp2hvs: not implemented')
 
       do  i = 1, nsp
-      do  la = 0, lmxa
-        k = la+1
-        dlphi  = ppnl(3,k,i)/rmax
-        dlphip = ppnl(4,k,i)/rmax
-        phi    = ppnl(5,k,i)
-        phip   = ppnl(6,k,i)
-        dphi   = phi*dlphi/rmax
-        dphip  = dlphip/rmax*phip
-        det    = phi*dphip - dphi*phip
-        au = dphip/det
-        bu = -dphi/det
-        as = -phip/det
-        bs = phi/det
-        s00 = ppnl(2,k,i)
-        s11 = ppnl(7,k,i)
-        szz = ppnl(8,k,i)
-        s0z = ppnl(9,k,i)
-        s1z = ppnl(10,k,i)
+        do  la = 0, lmxa
+          k = la+1
+          dlphi  = ppnl(3,k,i)/rmax
+          dlphip = ppnl(4,k,i)/rmax
+          phi    = ppnl(5,k,i)
+          phip   = ppnl(6,k,i)
+          dphi   = phi*dlphi/rmax
+          dphip  = dlphip/rmax*phip
+          det    = phi*dphip - dphi*phip
+          au = dphip/det
+          bu = -dphi/det
+          as = -phip/det
+          bs = phi/det
+          s00 = ppnl(2,k,i)
+          s11 = ppnl(7,k,i)
+          szz = ppnl(8,k,i)
+          s0z = ppnl(9,k,i)
+          s1z = ppnl(10,k,i)
 
 C       s10 = 0d0
 C       s01 = 0d0
@@ -60,17 +60,17 @@ C       sab(2,k,i) = au*s00*as + au*s01*bs + bu*s10*as + bu*s11*bs
 C       sab(3,k,i) = as*s00*au + as*s01*bu + bs*s10*au + bs*s11*bu
 C       sab(4,k,i) = as*s00*as + as*s01*bs + bs*s10*as + bs*s11*bs
 
-        if (mode0 .eq. 1) then
-          sab(1,k,i) = au*s00*au + bu*s11*bu
-          sab(2,k,i) = au*s00*as + bu*s11*bs
-          sab(3,k,i) = as*s00*au + bs*s11*bu
-          sab(4,k,i) = as*s00*as + bs*s11*bs
-          sab(5,k,i) = szz
-          sab(6,k,i) = s0z*au + s1z*bu
-          sab(7,k,i) = s0z*as + s1z*bs
-        endif
+          if (mode0 .eq. 1) then
+            sab(1,k,i) = au*s00*au + bu*s11*bu
+            sab(2,k,i) = au*s00*as + bu*s11*bs
+            sab(3,k,i) = as*s00*au + bs*s11*bu
+            sab(4,k,i) = as*s00*as + bs*s11*bs
+            sab(5,k,i) = szz
+            sab(6,k,i) = s0z*au + s1z*bu
+            sab(7,k,i) = s0z*as + s1z*bs
+          endif
 
-      enddo
+        enddo
       enddo
 
       end

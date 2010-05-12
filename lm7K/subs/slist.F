@@ -47,12 +47,11 @@ C ... External calls
       ls = len(strlst)
       nlist = 0
 C     call iinit(list,nspec)
-      goto (10,20,30) lstyle
-      call rxi('slist: bad style',lstyle)
-      return
-
+c      goto (10,20,30) lstyle
+      select case(lstyle*10)
 C -- lstyle=1 ---
-   10 continue
+c   10 continue
+      case(10)
       call mkils0(strlst,nlist,i)
       call defi(oilst, nlist)
       call mkilst(strlst,nlist,w(oilst))
@@ -72,7 +71,8 @@ C -- lstyle=1 ---
       return
 
 C --- lstyle=2 ---
-   20 continue
+c   20 continue
+      case(20)
       call numsyv(iv0)
       nlist = 0
       do  42  is = 1, nspec
@@ -93,7 +93,8 @@ C   ... Abort if a2bin can't parse expression
       return
 
 C --- lstyle=3 ---
-   30 continue
+c   30 continue
+      case(30)
       nlist = 0
       j2 = -1
 C ... Return here to parses next species
@@ -111,10 +112,15 @@ C ... Return here to parses next species
       if (i .ge. nlist .or. list(i+1) .ne. is) then
         nlist = nlist+1
         list(nlist) = is
-        call ishell(nlist,list)        
+        call ishell(nlist,list)
       endif
 C     print *, j1,j2,alabl,is,'   ',list(1:nlist)
       goto 31
 
+      case default
+      call rxi('slist: bad style',lstyle)
+      return
+
+      end select
       end
 

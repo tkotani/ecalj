@@ -4,7 +4,7 @@ C ----------------------------------------------------------------
 Ci Inputs
 Ci   iopt: 1s digit
 Ci         0: to passed alpha
-Ci         1: to alpha = gamma.  
+Ci         1: to alpha = gamma.
 Ci         2: to alpha=0
 Ci         3: to alpha = gamma(spin1)
 Ci         4: to alpha = gamma(spin2)
@@ -54,61 +54,65 @@ C     implicit none
         do  12  isp = 1, nsp
         do  12  il = 1, nl
 
-        goto (1,2,3,4,5,6), mod(iabs(iopt),10)+1
-    1   alpnew = alpha((il-1)**2,jb)
-        goto 8
-    2   alpnew = pp(5,il,isp,jc)
-        goto 8
-    3   alpnew = 0
-        goto 8
-    4   alpnew = pp(5,il,1,jc)
-        goto 8
-    5   alpnew = pp(5,il,nsp,jc)
-        goto 8
-    6   alpnew = (pp(5,il,1,jc) + pp(5,il,nsp,jc))/2
-        goto 8
-    8   continue
-        if (iopt .lt. 0) then
-          do  9  m = 1, 2*il-1
-    9     alpha((il-1)**2+m-1,jb) = alpnew
-        endif
+c        goto (1,2,3,4,5,6), mod(iabs(iopt),10)+1
+          select case(mod(iabs(iopt),10)+1)
+          case(1)
+          alpnew = alpha((il-1)**2,jb)
+          case(2)
+          alpnew = pp(5,il,isp,jc)
+          case(3)
+          alpnew = 0
+          case(4)
+          alpnew = pp(5,il,1,jc)
+          case(5)
+          alpnew = pp(5,il,nsp,jc)
+          case(6)
+          alpnew = (pp(5,il,1,jc) + pp(5,il,nsp,jc))/2
+          end select
+
+          if (iopt .lt. 0) then
+            do  9  m = 1, 2*il-1
+              alpha((il-1)**2+m-1,jb) = alpnew
+    9       continue
+          endif
 
 C --- Calculate potential parameters in new representation from old ---
-        enu = pp(1,il,isp,jc)
-        cold = pp(2,il,isp,jc)
-        gamma = pp(5,il,isp,jc)
-        alpold = pp(6,il,isp,jc)
-        pold = pp(4,il,isp,jc)
-        srdold = pp(3,il,isp,jc)
+          enu = pp(1,il,isp,jc)
+          cold = pp(2,il,isp,jc)
+          gamma = pp(5,il,isp,jc)
+          alpold = pp(6,il,isp,jc)
+          pold = pp(4,il,isp,jc)
+          srdold = pp(3,il,isp,jc)
 
 C   ... delta=0 => no potential parameters for this l channel
-        if (alpnew .eq. alpold) goto 12
-        if (srdold .eq. 0) goto 12
+          if (alpnew .eq. alpold) goto 12
+          if (srdold .eq. 0) goto 12
 
-        xx = 1 + (cold-enu)*(alpnew-alpold)/srdold**2
-        srdnew = srdold*xx
-        cnew = enu + (cold-enu)*xx
+          xx = 1 + (cold-enu)*(alpnew-alpold)/srdold**2
+          srdnew = srdold*xx
+          cnew = enu + (cold-enu)*xx
 
-        oold(il,isp,jc) = oalpha(enu,cold,srdold**2,alpold,gamma)
-        pgam = pold - oold(il,isp,jc)**2
-        if (iabs(iopt) .ge. 10) pgam = 0
+          oold(il,isp,jc) = oalpha(enu,cold,srdold**2,alpold,gamma)
+          pgam = pold - oold(il,isp,jc)**2
+          if (iabs(iopt) .ge. 10) pgam = 0
 C        pnew = pold - oold(il,isp,jc)**2 +
 C     .         oalpha(enu,cnew,srdnew**2,alpnew,gamma)**2
-        pnew = pgam + oalpha(enu,cnew,srdnew**2,alpnew,gamma)**2
+          pnew = pgam + oalpha(enu,cnew,srdnew**2,alpnew,gamma)**2
 
-        pp(2,il,isp,jc) = cnew
-        pp(3,il,isp,jc) = srdnew
-        pp(6,il,isp,jc) = alpnew
-        pp(4,il,isp,jc) = pnew
-   12 continue
+          pp(2,il,isp,jc) = cnew
+          pp(3,il,isp,jc) = srdnew
+          pp(6,il,isp,jc) = alpnew
+          pp(4,il,isp,jc) = pnew
+   12   continue
    10 continue
 
 C --- If alpha is returned, copy alpha to all ib ---
       if (iopt .lt. 0) then
         nl2 = nl*nl
         do  20  ib = 1, nbas
-        jb = iclbas(ipc(ib),ipc)
-   20   call dpscop(alpha,alpha,nl2,nl2*(jb-1)+1,nl2*(ib-1)+1,1d0)
+          jb = iclbas(ipc(ib),ipc)
+          call dpscop(alpha,alpha,nl2,nl2*(jb-1)+1,nl2*(ib-1)+1,1d0)
+   20   continue
       endif
 
       end

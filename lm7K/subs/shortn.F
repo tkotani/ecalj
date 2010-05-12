@@ -32,7 +32,7 @@ C ... Local parameters
           dd = dlat(1,k)**2 + dlat(2,k)**2 + dlat(3,k)**2
 C         Only valid if dlat is sorted:
           if (dd .gt. p2*4d0) goto 53
-           crit = anrm2(p1(1)+dlat(1,k),p1(2)+dlat(2,k),p1(3)+dlat(3,k))
+          crit = anrm2(p1(1)+dlat(1,k),p1(2)+dlat(2,k),p1(3)+dlat(3,k))
           if (crit .lt. critk0) then
             k0 = k
             critk0 = crit

@@ -29,7 +29,8 @@ C     call prmx('f-in',f,3,3,nbas)
           jb = istab(ib,ig)
           do  16  i = 1, 3
           do  16  j = 1, 3
-   16     f(i,ib) = f(i,ib) + g(i,j,ig)*fwk(j,jb)
+            f(i,ib) = f(i,ib) + g(i,j,ig)*fwk(j,jb)
+   16     continue
    10   continue
       else
         do  20  ig = 1, ng
@@ -37,7 +38,8 @@ C     call prmx('f-in',f,3,3,nbas)
           jb = istab(ib,ig)
           do  26  i = 1, 3
           do  26  j = 1, 3
-   26     f(i,jb) = f(i,jb) + g(i,j,ig)*fwk(j,ib)
+            f(i,jb) = f(i,jb) + g(i,j,ig)*fwk(j,ib)
+   26     continue
    20   continue
       endif
 

@@ -23,12 +23,12 @@ Cr     mc -r:br:open rhoMT.1 -r:br rhoMT.1 -ccat
 Cr   To integrate the l=0 density for the sphere charge:
 Cr     mc -r:br:open rhoMT.1 -av:nr,1 rmt -a ri -r:br rhoMT.1 -a rhoin
 Cr        ri rhoin -ccat -coll 1,2 -int 0 rmt -s'sqrt(4*pi)'
-Cr   
+Cr
 Cr   A more sophisticated example: integrate rho*(v-2*z/r)
-Cr     set rfile = 
+Cr     set rfile =
 Cr     '-r:br:open rhoMT.1 -av:nr,1 rmt -a ri -r:br rhoMT.1 -a rin
 Cr      -r:br:s=2 vtrue.1 -a v'
-Cr     set v1 = 'ri v -ccat -rowl 2:nr -e1 x2-44/x1/0.282094791 
+Cr     set v1 = 'ri v -ccat -rowl 2:nr -e1 x2-44/x1/0.282094791
 Cr               -sub 0,nr,1,1 v -coll 2:nc -ccat -a v1'
 Cr     set int = "ri -tog -ccat -int 0 rmt -coll 2:nc -csum"
 Cr     mc $rfile rin $int

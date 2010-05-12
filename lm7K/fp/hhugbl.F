@@ -2,8 +2,8 @@ Cgetarg...info...           structure ['hhugbl', 'lat', 'slat']
 Cgetarg...info...           use_to_add ['hhugbl', 'm_struc_def']
       subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,
      .  ndim2,slat,wk,dwk,s,ds)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Estatic energy integrals between Bloch Hankels, and gradients.
 C ----------------------------------------------------------------------
@@ -34,9 +34,9 @@ C ... Passed parameters
       integer mode,nlm1,nlm2,ndim1,ndim2
 Cgetarg       double precision slat(1),rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*),
 Cgetarg      .  p1(3),p2(3)
-       real(8):: rsm1(0:*) , rsm2(0:*) , e1(0:*) , e2(0:*) , p1(3) , 
-     . p2(3) 
-       type(s_lat)::slat
+      real(8):: rsm1(0:*) , rsm2(0:*) , e1(0:*) , e2(0:*) , p1(3) , 
+     . p2(3)
+      type(s_lat)::slat
 
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3),
      .   wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
@@ -59,12 +59,12 @@ Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat ocg ojcg oidxcg ocy vol',slat,ocg,ojcg,oidxcg,ocy,
 Cgetarg      .  vol)
-       
-       ocg=slat%ocg
-       ojcg=slat%ojcg
-       oidxcg=slat%oidxcg
-       ocy=slat%ocy
-       vol=slat%vol
+
+      ocg=slat%ocg
+      ojcg=slat%ojcg
+      oidxcg=slat%oidxcg
+      ocy=slat%ocy
+      vol=slat%vol
 
       kmax = 0
       kdim = 0
@@ -104,6 +104,6 @@ C ... Extra term for l1=l2=0
       s(1,1) = s(1,1) + add
 
 Cgetarg       end
-       end subroutine hhugbl 
+      end subroutine hhugbl
 
 

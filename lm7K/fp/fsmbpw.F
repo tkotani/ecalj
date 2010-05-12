@@ -2,9 +2,9 @@ Cgetarg...info...           structure ['fsmbpw', 'site', 'ssite']
 Cgetarg...info...           use_to_add ['fsmbpw', 'm_struc_def']
       subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb,numq,
      .  nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
-       
-       use m_struc_def  !Cgetarg
-#if MPE 
+
+      use m_struc_def  !Cgetarg
+#if MPE
       use m_events !Event numbers: include "events.ins"
 #endif
 C- Force from smoothed hamiltonian (constant potential), PW contribution
@@ -69,9 +69,9 @@ c      include "events.ins"
 c#endif
       integer nbas,ndimh,napw,nlmax,nlmto,nevec,numq,iprmb(nlmto),lmxax
 Cgetarg       double precision ssite(1),sspec(1),ylv(napw,nlmax)
-       real(8):: ylv(napw,nlmax) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      real(8):: ylv(napw,nlmax)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
       double precision evl(ndimh),f(3,nbas,numq),ewgt(numq,nevec),vavg
       double complex evec(ndimh,ndimh)
@@ -164,10 +164,10 @@ c      do  ib1 = 1, nbas
 Cgetarg...info...           integer :: is1 , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: p1(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ib1,is1,p1,0,0)
-         
-         is1=ssite(ib1)%spec
-         i_copy_size=size(ssite(ib1)%pos) 
-         call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1) 
+
+        is1=ssite(ib1)%spec
+        i_copy_size=size(ssite(ib1)%pos)
+        call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1)
 
         call uspecb(0,2,sspec,is1,is1,lh1,rsm1,e1,nkap1)
 C       Row info telling fsmbpw where to poke s0 made by hhibl
@@ -175,7 +175,7 @@ C       Row info telling fsmbpw where to poke s0 made by hhibl
 C       For now, do not allow l blocks to be grouped.
 C       To do so will require rewriting loops below.
         call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
-        
+
 C   ... Hsm (i1) \times i(q+G)[(q+G)**2+const] PW (i2) Takao. Taken from smhsbl.f
 C       i1--> Hsm, i2--> PW
         do  ig = 1, napw
@@ -183,45 +183,45 @@ C       i1--> Hsm, i2--> PW
           qpg2 = qpg2v(ig)
           phase = exp(srm1*alat*ddot(3,qpgv(1,ig),1,p1,1))
           do  io1 = 1, norb1
-          if (blks1(io1) .ne. 0) then
+            if (blks1(io1) .ne. 0) then
 C           l1,ik1 = l and kaph indices, needed to locate block in s0
-            l1  = ltab1(io1)
-            ik1 = ktab1(io1)
-            nlm11 = l1**2+1
-            nlm12 = nlm11 + blks1(io1)-1
+              l1  = ltab1(io1)
+              ik1 = ktab1(io1)
+              nlm11 = l1**2+1
+              nlm12 = nlm11 + blks1(io1)-1
 C           Note:  using srm1l => l must be fixed in ilm loop below
-            denom = e1(l1+1,ik1) - qpg2
-            gam   = 1d0/4d0*rsm1(l1+1,ik1)**2
-            fach  = -fpi/denom * phase * srm1l(l1) * exp(gam*denom)
-            i1 = offl1(io1)
-            do  ilm1 = nlm11, nlm12
-              i1 = i1+1
+              denom = e1(l1+1,ik1) - qpg2
+              gam   = 1d0/4d0*rsm1(l1+1,ik1)**2
+              fach  = -fpi/denom * phase * srm1l(l1) * exp(gam*denom)
+              i1 = offl1(io1)
+              do  ilm1 = nlm11, nlm12
+                i1 = i1+1
 C             s(i1,i2) = ovl
 C             h(i1,i2) = (qpg2 + vavg) * ovl
-              ovl = fach * ylv(ig,ilm1)/sqv ! Eq. 9.4 in JMP39 3393
+                ovl = fach * ylv(ig,ilm1)/sqv ! Eq. 9.4 in JMP39 3393
 
 C         ... Loop over occupied eigenstates and x,y,z
-              do  m = 1, 3
-              sum = 0
-              do  ivec = 1, nevec
+                do  m = 1, 3
+                  sum = 0
+                  do  ivec = 1, nevec
 
 C             gradient PW * (H - E S)
-              ccc(m) = ovl * srm1*qpgv(m,ig) * (qpg2 + vavg - evl(ivec))
-              sum = dconjg(evec(i1,ivec))*ccc(m)*evec(i2,ivec)
+                    ccc(m) = ovl * srm1*qpgv(m,ig) * (qpg2 + vavg - evl(ivec))
+                    sum = dconjg(evec(i1,ivec))*ccc(m)*evec(i2,ivec)
 
-              do  iq = 1, numq
-                wt = ewgt(iq,ivec)
+                    do  iq = 1, numq
+                      wt = ewgt(iq,ivec)
 #if MPI
                       xf(m,ib1,iq) = xf(m,ib1,iq) - 2*wt*sum
 #else
                       f(m,ib1,iq) = f(m,ib1,iq) - 2*wt*sum
 #endif
-              enddo
+                    enddo
 
-            enddo               !ivec
-            enddo               !m
-          enddo                 !ilm1
-          endif
+                  enddo               !ivec
+                enddo               !m
+              enddo                 !ilm1
+            endif
           enddo                 !io1
         enddo                   !ig
       enddo                     !ib1
@@ -258,6 +258,6 @@ C             gradient PW * (H - E S)
 
 
 Cgetarg       end
-       end subroutine fsmbpw 
+      end subroutine fsmbpw
 
 

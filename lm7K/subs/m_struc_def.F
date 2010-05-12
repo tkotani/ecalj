@@ -1,13 +1,13 @@
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
-        module m_struc_def
-       
-        type s_ri
-         integer:: t
-         integer(8):: i
-         real(8):: r
-        end type
-       
+      module m_struc_def
+
+      type s_ri
+      integer:: t
+      integer(8):: i
+      real(8):: r
+      end type
+
 Cr --- explanation of  ubz ---
 Cr   off offe  name    purpose
 Cr    2    1   def      Uncertainty in Fermi level
@@ -51,23 +51,23 @@ Cr   48   30   zval     No. electrons to accumulate in BZ integration
 C ----------------------------------------------------------------
 C       data  /2,3,5,6,7,8,12,13,14,15,16,19,20,21,22,25,26,27,28,        29,30,31,32,33,34,35,45,46,47,48,49/
 C       data /4,4,4,4,4,4,18*2,4,4,-1,4,4,4/
-C  1   2  4        def  1 
-C  2   3  4       dosw  2 
-C  3   5  4         ef  1 
-C  4   6  4      efmax  1 
-C  5   7  4      fsmom  1 
-C  6   8  4      lcond  4 
-C  7  12  2        lio  1 
-C  8  13  2       lmet  1 
-C  9  14  2      lmull  1 
-C 10  15  2       lopt  1 
-C 11  16  2      lshft  3 
-C 12  19  2          n  1 
-C 13  20  2       ndos  1 
-C 14  21  2      nevmx  1 
-C 15  22  2      nkabc  3 
-C 16  25  2        nkp  1 
-C 17  26  2       ntet  1 
+C  1   2  4        def  1
+C  2   3  4       dosw  2
+C  3   5  4         ef  1
+C  4   6  4      efmax  1
+C  5   7  4      fsmom  1
+C  6   8  4      lcond  4
+C  7  12  2        lio  1
+C  8  13  2       lmet  1
+C  9  14  2      lmull  1
+C 10  15  2       lopt  1
+C 11  16  2      lshft  3
+C 12  19  2          n  1
+C 13  20  2       ndos  1
+C 14  21  2      nevmx  1
+C 15  22  2      nkabc  3
+C 16  25  2        nkp  1
+C 17  26  2       ntet  1
 C 18  27  2       odos  1 possible_structure
 C 19  28  2     oidtet  1 possible_structure
 C 20  29  2       oipq  1 possible_structure
@@ -75,45 +75,45 @@ C 21  30  2      opdos  1 possible_structure
 C 22  31  2        oqp  1 possible_structure
 C 23  32  2      ostar  1 possible_structure
 C 24  33  2      owtkp  1 possible_structure
-C 25  34  4      range  1 
-C 26  35  4      semsh 10 
-C 27  45 -1       size  1 
-C 28  46  4       stnr  1 
-C 29  47  4          w  1 
-C 30  48  4       zval  1 
-        type s_bz
-        real(8):: size
-        real(8) :: def 
-        real(8) :: dosw(2) 
-        real(8) :: ef 
-        real(8) :: efmax 
-        real(8) :: fsmom 
-        real(8) :: lcond(4) 
-        integer(8) :: lio 
-        integer(8) :: lmet 
-        integer(8) :: lmull 
-        integer(8) :: lopt 
-        integer(8) :: lshft(3) 
-        integer(8) :: n 
-        integer(8) :: ndos 
-        integer(8) :: nevmx 
-        integer(8) :: nkabc(3) 
-        integer(8) :: nkp 
-        integer(8) :: ntet 
-        integer(8) :: odos 
-        integer(8) :: oidtet 
-        integer(8) :: oipq 
-        integer(8) :: opdos 
-        integer(8) :: oqp 
-        integer(8) :: ostar 
-        integer(8) :: owtkp 
-        real(8) :: range 
-        real(8) :: semsh(10) 
-        real(8) :: stnr 
-        real(8) :: w 
-        real(8) :: zval 
-        end type s_bz
-       
+C 25  34  4      range  1
+C 26  35  4      semsh 10
+C 27  45 -1       size  1
+C 28  46  4       stnr  1
+C 29  47  4          w  1
+C 30  48  4       zval  1
+      type s_bz
+      real(8):: size
+      real(8) :: def
+      real(8) :: dosw(2)
+      real(8) :: ef
+      real(8) :: efmax
+      real(8) :: fsmom
+      real(8) :: lcond(4)
+      integer(8) :: lio
+      integer(8) :: lmet
+      integer(8) :: lmull
+      integer(8) :: lopt
+      integer(8) :: lshft(3)
+      integer(8) :: n
+      integer(8) :: ndos
+      integer(8) :: nevmx
+      integer(8) :: nkabc(3)
+      integer(8) :: nkp
+      integer(8) :: ntet
+      integer(8) :: odos
+      integer(8) :: oidtet
+      integer(8) :: oipq
+      integer(8) :: opdos
+      integer(8) :: oqp
+      integer(8) :: ostar
+      integer(8) :: owtkp
+      real(8) :: range
+      real(8) :: semsh(10)
+      real(8) :: stnr
+      real(8) :: w
+      real(8) :: zval
+      end type s_bz
+
 Cr --- explanation of  uarray ---
 Cr    off lsti  name    purpose
 Cr    2    1   ncl     (O-N) number of clusters
@@ -152,13 +152,13 @@ Cr   33   32   size    size of this structure
 C ----------------------------------------------------------------
 C       data  /2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,        22,23,24,25,26,27,28,29,30,31,32,33,34/
 C       data / 31*2,-1/
-C  1   2  2        ncl  1 
-C  2   3  2     nclasp  1 
-C  3   4  2      nofgl  1 
-C  4   5  2      nofgr  1 
-C  5   6  2      npadl  1 
-C  6   7  2      npadr  1 
-C  7   8  2        npl  1 
+C  1   2  2        ncl  1
+C  2   3  2     nclasp  1
+C  3   4  2      nofgl  1
+C  4   5  2      nofgr  1
+C  5   6  2      npadl  1
+C  6   7  2      npadr  1
+C  7   8  2        npl  1
 C  8   9  2     oclabl  1 possible_structure
 C  9  10  2     ocllst  1 possible_structure
 C 10  11  2       oclp  1 possible_structure
@@ -183,42 +183,42 @@ C 28  29  2      ormax  1 possible_structure
 C 29  30  2     osordn  1 possible_structure
 C 30  31  2      ostni  1 possible_structure
 C 31  32  2       ozos  1 possible_structure
-C 32  33 -1       size  1 
-        type s_array
-        real(8):: size
-        integer(8) :: ncl 
-        integer(8) :: nclasp 
-        integer(8) :: nofgl 
-        integer(8) :: nofgr 
-        integer(8) :: npadl 
-        integer(8) :: npadr 
-        integer(8) :: npl 
-        integer(8) :: oclabl 
-        integer(8) :: ocllst 
-        integer(8) :: oclp 
-        integer(8) :: oclssl 
-        integer(8) :: ogroup 
-        integer(8) :: ogrp2 
-        integer(8) :: ohave 
-        integer(8) :: oics 
-        integer(8) :: oifrlx 
-        integer(8) :: oipc 
-        integer(8) :: oipcp 
-        integer(8) :: oips 
-        integer(8) :: omxcst 
-        integer(8) :: onrc 
-        integer(8) :: onrcp 
-        integer(8) :: opgfsl 
-        integer(8) :: opgfvl 
-        integer(8) :: opgord 
-        integer(8) :: opgplp 
-        integer(8) :: opos 
-        integer(8) :: ormax 
-        integer(8) :: osordn 
-        integer(8) :: ostni 
-        integer(8) :: ozos 
-        end type s_array
-       
+C 32  33 -1       size  1
+      type s_array
+      real(8):: size
+      integer(8) :: ncl
+      integer(8) :: nclasp
+      integer(8) :: nofgl
+      integer(8) :: nofgr
+      integer(8) :: npadl
+      integer(8) :: npadr
+      integer(8) :: npl
+      integer(8) :: oclabl
+      integer(8) :: ocllst
+      integer(8) :: oclp
+      integer(8) :: oclssl
+      integer(8) :: ogroup
+      integer(8) :: ogrp2
+      integer(8) :: ohave
+      integer(8) :: oics
+      integer(8) :: oifrlx
+      integer(8) :: oipc
+      integer(8) :: oipcp
+      integer(8) :: oips
+      integer(8) :: omxcst
+      integer(8) :: onrc
+      integer(8) :: onrcp
+      integer(8) :: opgfsl
+      integer(8) :: opgfvl
+      integer(8) :: opgord
+      integer(8) :: opgplp
+      integer(8) :: opos
+      integer(8) :: ormax
+      integer(8) :: osordn
+      integer(8) :: ostni
+      integer(8) :: ozos
+      end type s_array
+
 Cr --- explanation of  uctrl ---
 Cr   off offe  name    purpose
 Cr    2    1   defm    Lines for deformation when relaxing plat
@@ -396,121 +396,121 @@ Cr                               (ASA only)
 C ----------------------------------------------------------------
 C       data  /2,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,24,25,        26,27,28,31,32,33,34,35,36,37,43,46,47,48,49,52,53,54,55,56,57,        58,59,60,63,66,67,68,69,70,71,72,77,81,82,84,87,88,90/
 C       data / 4,4,25*2,4,13*2,4,4,2,2,4,4,4,2,4,4,-1,2,4,4,4/
-C  1   2  4       defm  6 
-C  2   8  4       elin  1 
-C  3   9  2       lasa  1 
-C  4  10  2       lbas  1 
-C  5  11  2        lcd  1 
-C  6  12  2       lcgf  1 
-C  7  13  2       ldos  1 
-C  8  14  2        lfp  1 
-C  9  15  2      lfrce  1 
-C 10  16  2      lgen3  1 
-C 11  17  2       lham  1 
-C 12  18  2       lmet  1 
-C 13  19  2      lncol  1 
-C 14  20  2      loptc  1 
-C 15  21  2      lordn  1 
-C 16  22  2       lpgf  2 
-C 17  24  2        lqp  1 
-C 18  25  2       lrel  1 
-C 19  26  2        lrs  1 
-C 20  27  2       lscr  1 
-C 21  28  2     lstonr  3 
-C 22  31  2       lstr  1 
-C 23  32  2        lsx  1 
-C 24  33  2        ltb  1 
-C 25  34  2       lves  1 
-C 26  35  2       lxcf  1 
-C 27  36  2      maxit  1 
-C 28  37  4      mdprm  6 
-C 29  43  2    modep..  3 
-C 30  46  2       nbas  1 
-C 31  47  2      nbasp  1 
-C 32  48  2     nclass  1 
-C 33  49  2     nesabc  3 
-C 34  52  2      nitmv  1 
-C 35  53  2         nl  1 
-C 36  54  2       nmap  1 
-C 37  55  2        npl  1 
-C 38  56  2      nsite  1 
-C 39  57  2      nspec  1 
-C 40  58  2      nspin  1 
-C 41  59  2     nvario  1 
+C  1   2  4       defm  6
+C  2   8  4       elin  1
+C  3   9  2       lasa  1
+C  4  10  2       lbas  1
+C  5  11  2        lcd  1
+C  6  12  2       lcgf  1
+C  7  13  2       ldos  1
+C  8  14  2        lfp  1
+C  9  15  2      lfrce  1
+C 10  16  2      lgen3  1
+C 11  17  2       lham  1
+C 12  18  2       lmet  1
+C 13  19  2      lncol  1
+C 14  20  2      loptc  1
+C 15  21  2      lordn  1
+C 16  22  2       lpgf  2
+C 17  24  2        lqp  1
+C 18  25  2       lrel  1
+C 19  26  2        lrs  1
+C 20  27  2       lscr  1
+C 21  28  2     lstonr  3
+C 22  31  2       lstr  1
+C 23  32  2        lsx  1
+C 24  33  2        ltb  1
+C 25  34  2       lves  1
+C 26  35  2       lxcf  1
+C 27  36  2      maxit  1
+C 28  37  4      mdprm  6
+C 29  43  2    modep..  3
+C 30  46  2       nbas  1
+C 31  47  2      nbasp  1
+C 32  48  2     nclass  1
+C 33  49  2     nesabc  3
+C 34  52  2      nitmv  1
+C 35  53  2         nl  1
+C 36  54  2       nmap  1
+C 37  55  2        npl  1
+C 38  56  2      nsite  1
+C 39  57  2      nspec  1
+C 40  58  2      nspin  1
+C 41  59  2     nvario  1
 C 42  60  4      omax1  3 possible_structure
 C 43  63  4      omax2  3 possible_structure
-C 44  66  2     pfloat  1 
-C 45  67  2       quit  1 
-C 46  68  4     rmaxes  1 
-C 47  69  4     rmines  1 
-C 48  70  4     sclwsr  1 
-C 49  71  2      sdmod  1 
-C 50  72  4      sdprm  5 
-C 51  77  4      sdxsi  4 
-C 52  81 -1       size  1 
-C 53  82  2     smalit  2 
-C 54  84  4        tol  3 
-C 55  87  4     wsrmax  1 
-C 56  88  4       zbak  2 
-        type s_ctrl
-        real(8):: size
-        real(8) :: defm(6) 
-        real(8) :: elin 
-        integer(8) :: lasa 
-        integer(8) :: lbas 
-        integer(8) :: lcd 
-        integer(8) :: lcgf 
-        integer(8) :: ldos 
-        integer(8) :: lfp 
-        integer(8) :: lfrce 
-        integer(8) :: lgen3 
-        integer(8) :: lham 
-        integer(8) :: lmet 
-        integer(8) :: lncol 
-        integer(8) :: loptc 
-        integer(8) :: lordn 
-        integer(8) :: lpgf(2) 
-        integer(8) :: lqp 
-        integer(8) :: lrel 
-        integer(8) :: lrs 
-        integer(8) :: lscr 
-        integer(8) :: lstonr(3) 
-        integer(8) :: lstr 
-        integer(8) :: lsx 
-        integer(8) :: ltb 
-        integer(8) :: lves 
-        integer(8) :: lxcf 
-        integer(8) :: maxit 
-        real(8) :: mdprm(6) 
-        integer(8) :: modep(3) 
-        integer(8) :: nbas 
-        integer(8) :: nbasp 
-        integer(8) :: nclass 
-        integer(8) :: nesabc(3) 
-        integer(8) :: nitmv 
-        integer(8) :: nl 
-        integer(8) :: nmap 
-        integer(8) :: npl 
-        integer(8) :: nsite 
-        integer(8) :: nspec 
-        integer(8) :: nspin 
-        integer(8) :: nvario 
-        real(8) :: omax1(3) 
-        real(8) :: omax2(3) 
-        integer(8) :: pfloat 
-        integer(8) :: quit 
-        real(8) :: rmaxes 
-        real(8) :: rmines 
-        real(8) :: sclwsr 
-        integer(8) :: sdmod 
-        real(8) :: sdprm(5) 
-        real(8) :: sdxsi(4) 
-        integer(8) :: smalit(2) 
-        real(8) :: tol(3) 
-        real(8) :: wsrmax 
-        real(8) :: zbak(2) 
-        end type s_ctrl
-       
+C 44  66  2     pfloat  1
+C 45  67  2       quit  1
+C 46  68  4     rmaxes  1
+C 47  69  4     rmines  1
+C 48  70  4     sclwsr  1
+C 49  71  2      sdmod  1
+C 50  72  4      sdprm  5
+C 51  77  4      sdxsi  4
+C 52  81 -1       size  1
+C 53  82  2     smalit  2
+C 54  84  4        tol  3
+C 55  87  4     wsrmax  1
+C 56  88  4       zbak  2
+      type s_ctrl
+      real(8):: size
+      real(8) :: defm(6)
+      real(8) :: elin
+      integer(8) :: lasa
+      integer(8) :: lbas
+      integer(8) :: lcd
+      integer(8) :: lcgf
+      integer(8) :: ldos
+      integer(8) :: lfp
+      integer(8) :: lfrce
+      integer(8) :: lgen3
+      integer(8) :: lham
+      integer(8) :: lmet
+      integer(8) :: lncol
+      integer(8) :: loptc
+      integer(8) :: lordn
+      integer(8) :: lpgf(2)
+      integer(8) :: lqp
+      integer(8) :: lrel
+      integer(8) :: lrs
+      integer(8) :: lscr
+      integer(8) :: lstonr(3)
+      integer(8) :: lstr
+      integer(8) :: lsx
+      integer(8) :: ltb
+      integer(8) :: lves
+      integer(8) :: lxcf
+      integer(8) :: maxit
+      real(8) :: mdprm(6)
+      integer(8) :: modep(3)
+      integer(8) :: nbas
+      integer(8) :: nbasp
+      integer(8) :: nclass
+      integer(8) :: nesabc(3)
+      integer(8) :: nitmv
+      integer(8) :: nl
+      integer(8) :: nmap
+      integer(8) :: npl
+      integer(8) :: nsite
+      integer(8) :: nspec
+      integer(8) :: nspin
+      integer(8) :: nvario
+      real(8) :: omax1(3)
+      real(8) :: omax2(3)
+      integer(8) :: pfloat
+      integer(8) :: quit
+      real(8) :: rmaxes
+      real(8) :: rmines
+      real(8) :: sclwsr
+      integer(8) :: sdmod
+      real(8) :: sdprm(5)
+      real(8) :: sdxsi(4)
+      integer(8) :: smalit(2)
+      real(8) :: tol(3)
+      real(8) :: wsrmax
+      real(8) :: zbak(2)
+      end type s_ctrl
+
 Cr --- explanation of  ugw ---
 Cr   off offe  name    purpose
 Cr    2    1   delre   spacing on real axis for energy contour
@@ -545,47 +545,47 @@ Cr   23   19   size    size of this structure
 C -----------------------------------------------------------------------
 C       data  /2,4,5,6,7,8,9,10,11,12,13,14,15,18,19,20,21,22,23,24/
 C       data  /4,4,4,4,4,4,4,2,2,2,2,2,2,1,1,4,4,2,-1/
-C  1   2  4      delre  2 
-C  2   4  4     deltaw  1 
-C  3   5  4     deltax  1 
-C  4   6  4      ecuts  1 
-C  5   7  4      gcutb  1 
-C  6   8  4      gcutx  1 
-C  7   9  4     gsmear  1 
-C  8  10  2        lgw  1 
-C  9  11  2      lmxpb  1 
-C 10  12  2      mksig  1 
-C 11  13  2      nband  1 
-C 12  14  2       nime  1 
-C 13  15  2      nkabc  3 
-C 14  18  1        pb1  1 
-C 15  19  1        pb2  1 
-C 16  20  4      pbtol  1 
-C 17  21  4      qoffp  1 
-C 18  22  2      rdsig  1 
-C 19  23 -1       size  1 
-        type s_gw
-        real(8):: size
-        real(8) :: delre(2) 
-        real(8) :: deltaw 
-        real(8) :: deltax 
-        real(8) :: ecuts 
-        real(8) :: gcutb 
-        real(8) :: gcutx 
-        real(8) :: gsmear 
-        integer(8) :: lgw 
-        integer(8) :: lmxpb 
-        integer(8) :: mksig 
-        integer(8) :: nband 
-        integer(8) :: nime 
-        integer(8) :: nkabc(3) 
-        real(8) :: pb1 !string
-        real(8) :: pb2 !string
-        real(8) :: pbtol 
-        real(8) :: qoffp 
-        integer(8) :: rdsig 
-        end type s_gw
-       
+C  1   2  4      delre  2
+C  2   4  4     deltaw  1
+C  3   5  4     deltax  1
+C  4   6  4      ecuts  1
+C  5   7  4      gcutb  1
+C  6   8  4      gcutx  1
+C  7   9  4     gsmear  1
+C  8  10  2        lgw  1
+C  9  11  2      lmxpb  1
+C 10  12  2      mksig  1
+C 11  13  2      nband  1
+C 12  14  2       nime  1
+C 13  15  2      nkabc  3
+C 14  18  1        pb1  1
+C 15  19  1        pb2  1
+C 16  20  4      pbtol  1
+C 17  21  4      qoffp  1
+C 18  22  2      rdsig  1
+C 19  23 -1       size  1
+      type s_gw
+      real(8):: size
+      real(8) :: delre(2)
+      real(8) :: deltaw
+      real(8) :: deltax
+      real(8) :: ecuts
+      real(8) :: gcutb
+      real(8) :: gcutx
+      real(8) :: gsmear
+      integer(8) :: lgw
+      integer(8) :: lmxpb
+      integer(8) :: mksig
+      integer(8) :: nband
+      integer(8) :: nime
+      integer(8) :: nkabc(3)
+      real(8) :: pb1 !string
+      real(8) :: pb2 !string
+      real(8) :: pbtol
+      real(8) :: qoffp
+      integer(8) :: rdsig
+      end type s_gw
+
 Cr --- explanation of  uham ---
 Cr   off offe  name    purpose
 Cr    2    1   alfsi  stability factor alfsi*(S+)*S (molecules)
@@ -740,37 +740,37 @@ Cr  130   56   udiag  diagonal-only LDA+U
 C ----------------------------------------------------------------
 C       data  /2,3,4,5,8,9,10,11,31,32,38,39,55,56,57,58,59,60,61,        62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,        83,84,85,95,105,106,107,108,111,115,116,117,118,128,129,130,131/
 C       data /4,4,2,4,4,4,4,4,2,4,31*2,5*4,2,6*4,-1,4,2/
-C  1   2  4      alfsi  1 
-C  2   3  4       amgm  1 
-C  3   4  2      bandw  1 
-C  4   5  4       dabc  3 
-C  5   8  4        ehf  1 
-C  6   9  4        ehk  1 
-C  7  10  4      elind  1 
-C  8  11  4     eterms 20 
-C  9  31  2       hord  1 
-C 10  32  4       kmto  6 
-C 11  38  2       lasa  1 
-C 12  39  2      ldham 16 
-C 13  55  2      lgen3  1 
-C 14  56  2       lham  1 
-C 15  57  2      lmaxu  1 
-C 16  58  2      lmxax  1 
-C 17  59  2      lncol  1 
-C 18  60  2       lsig  1 
-C 19  61  2        ltb  1 
-C 20  62  2       lxcf  1 
-C 21  63  2        nbf  1 
-C 22  64  2      ndham  1 
-C 23  65  2      ndhrs  1 
-C 24  66  2      ndofH  1 
-C 25  67  2      neula  1 
-C 26  68  2      nkaph  1 
-C 27  69  2      nlibu  1 
-C 28  70  2       nmto  1 
-C 29  71  2     npwmin  1 
-C 30  72  2     npwpad  1 
-C 31  73  2      nqsig  1 
+C  1   2  4      alfsi  1
+C  2   3  4       amgm  1
+C  3   4  2      bandw  1
+C  4   5  4       dabc  3
+C  5   8  4        ehf  1
+C  6   9  4        ehk  1
+C  7  10  4      elind  1
+C  8  11  4     eterms 20
+C  9  31  2       hord  1
+C 10  32  4       kmto  6
+C 11  38  2       lasa  1
+C 12  39  2      ldham 16
+C 13  55  2      lgen3  1
+C 14  56  2       lham  1
+C 15  57  2      lmaxu  1
+C 16  58  2      lmxax  1
+C 17  59  2      lncol  1
+C 18  60  2       lsig  1
+C 19  61  2        ltb  1
+C 20  62  2       lxcf  1
+C 21  63  2        nbf  1
+C 22  64  2      ndham  1
+C 23  65  2      ndhrs  1
+C 24  66  2      ndofH  1
+C 25  67  2      neula  1
+C 26  68  2      nkaph  1
+C 27  69  2      nlibu  1
+C 28  70  2       nmto  1
+C 29  71  2     npwmin  1
+C 30  72  2     npwpad  1
+C 31  73  2      nqsig  1
 C 32  74  2     obdots  1 possible_structure
 C 33  75  2      oeula  1 possible_structure
 C 34  76  2       ohrs  1 possible_structure
@@ -782,79 +782,79 @@ C 39  81  2     ontabs  1 possible_structure
 C 40  82  2      ooffH  1 possible_structure
 C 41  83  2      oqsig  1 possible_structure
 C 42  84  4      oveps  1 possible_structure
-C 43  85  4       pmax 10 
-C 44  95  4       pmin 10 
-C 45 105  4     pwemax  1 
-C 46 106  4     pwemin  1 
-C 47 107  2     pwmode  1 
-C 48 108  4      qpoff  3 
-C 49 111  4        qss  4 
-C 50 115  4     rsrnge  1 
-C 51 116  4     rsstol  1 
-C 52 117  4      seref  1 
-C 53 118  4       sigp 10 
-C 54 128 -1       size  1 
-C 55 129  4      thrpv  1 
-C 56 130  2      udiag  1 
-        type s_ham
-        real(8):: size
-        real(8) :: alfsi 
-        real(8) :: amgm 
-        integer(8) :: bandw 
-        real(8) :: dabc(3) 
-        real(8) :: ehf 
-        real(8) :: ehk 
-        real(8) :: elind 
-        real(8) :: eterms(20) 
-        integer(8) :: hord 
-        real(8) :: kmto(6) 
-        integer(8) :: lasa 
-        integer(8) :: ldham(16) 
-        integer(8) :: lgen3 
-        integer(8) :: lham 
-        integer(8) :: lmaxu 
-        integer(8) :: lmxax 
-        integer(8) :: lncol 
-        integer(8) :: lsig 
-        integer(8) :: ltb 
-        integer(8) :: lxcf 
-        integer(8) :: nbf 
-        integer(8) :: ndham 
-        integer(8) :: ndhrs 
-        integer(8) :: ndofH 
-        integer(8) :: neula 
-        integer(8) :: nkaph 
-        integer(8) :: nlibu 
-        integer(8) :: nmto 
-        integer(8) :: npwmin 
-        integer(8) :: npwpad 
-        integer(8) :: nqsig 
-        integer(8) :: obdots 
-        integer(8) :: oeula 
-        integer(8) :: ohrs 
-        integer(8) :: oiaxs 
-        integer(8) :: oindxo 
-        integer(8) :: olmxa 
-        integer(8) :: omagf 
-        integer(8) :: ontabs 
-        integer(8) :: ooffH 
-        integer(8) :: oqsig 
-        real(8) :: oveps 
-        real(8) :: pmax(10) 
-        real(8) :: pmin(10) 
-        real(8) :: pwemax 
-        real(8) :: pwemin 
-        integer(8) :: pwmode 
-        real(8) :: qpoff(3) 
-        real(8) :: qss(4) 
-        real(8) :: rsrnge 
-        real(8) :: rsstol 
-        real(8) :: seref 
-        real(8) :: sigp(10) 
-        real(8) :: thrpv 
-        integer(8) :: udiag 
-        end type s_ham
-       
+C 43  85  4       pmax 10
+C 44  95  4       pmin 10
+C 45 105  4     pwemax  1
+C 46 106  4     pwemin  1
+C 47 107  2     pwmode  1
+C 48 108  4      qpoff  3
+C 49 111  4        qss  4
+C 50 115  4     rsrnge  1
+C 51 116  4     rsstol  1
+C 52 117  4      seref  1
+C 53 118  4       sigp 10
+C 54 128 -1       size  1
+C 55 129  4      thrpv  1
+C 56 130  2      udiag  1
+      type s_ham
+      real(8):: size
+      real(8) :: alfsi
+      real(8) :: amgm
+      integer(8) :: bandw
+      real(8) :: dabc(3)
+      real(8) :: ehf
+      real(8) :: ehk
+      real(8) :: elind
+      real(8) :: eterms(20)
+      integer(8) :: hord
+      real(8) :: kmto(6)
+      integer(8) :: lasa
+      integer(8) :: ldham(16)
+      integer(8) :: lgen3
+      integer(8) :: lham
+      integer(8) :: lmaxu
+      integer(8) :: lmxax
+      integer(8) :: lncol
+      integer(8) :: lsig
+      integer(8) :: ltb
+      integer(8) :: lxcf
+      integer(8) :: nbf
+      integer(8) :: ndham
+      integer(8) :: ndhrs
+      integer(8) :: ndofH
+      integer(8) :: neula
+      integer(8) :: nkaph
+      integer(8) :: nlibu
+      integer(8) :: nmto
+      integer(8) :: npwmin
+      integer(8) :: npwpad
+      integer(8) :: nqsig
+      integer(8) :: obdots
+      integer(8) :: oeula
+      integer(8) :: ohrs
+      integer(8) :: oiaxs
+      integer(8) :: oindxo
+      integer(8) :: olmxa
+      integer(8) :: omagf
+      integer(8) :: ontabs
+      integer(8) :: ooffH
+      integer(8) :: oqsig
+      real(8) :: oveps
+      real(8) :: pmax(10)
+      real(8) :: pmin(10)
+      real(8) :: pwemax
+      real(8) :: pwemin
+      integer(8) :: pwmode
+      real(8) :: qpoff(3)
+      real(8) :: qss(4)
+      real(8) :: rsrnge
+      real(8) :: rsstol
+      real(8) :: seref
+      real(8) :: sigp(10)
+      real(8) :: thrpv
+      integer(8) :: udiag
+      end type s_ham
+
 Cr --- explanation of  ulat ---
 Cr   off offe  name    purpose
 Cr    2    1    alat    lattice parameter, in a.u.
@@ -905,22 +905,22 @@ Cr  121   43    vol     cell volume
 C ----------------------------------------------------------------
 C       data  /2,3,4,5,6,15,19,20,21,24,25,26,27,28,29,30,31,32,33,        34,35,36,37,38,39,40,41,42,43,44,45,54,63,72,81,90,99,108,109,        110,119,120,121,122/
 C       data / 4,4,4,4,4,4,4,23*2,4,4,4,4,4,4,4,4,-1,4,4,4,4/
-C  1   2  4       alat  1 
-C  2   3  4         as  1 
-C  3   4  4        avw  1 
-C  4   5  4      awald  1 
-C  5   6  4       dist  9 
-C  6  15  4        gam  4 
-C  7  19  4       gmax  1 
-C  8  20  2      ldist  1 
-C  9  21  2       nabc  3 
-C 10  24  2         ng  1 
-C 11  25  2        nkd  1 
-C 12  26  2      nkdmx  1 
-C 13  27  2        nkq  1 
-C 14  28  2      nkqmx  1 
-C 15  29  2      npgrp  1 
-C 16  30  2      nsgrp  1 
+C  1   2  4       alat  1
+C  2   3  4         as  1
+C  3   4  4        avw  1
+C  4   5  4      awald  1
+C  5   6  4       dist  9
+C  6  15  4        gam  4
+C  7  19  4       gmax  1
+C  8  20  2      ldist  1
+C  9  21  2       nabc  3
+C 10  24  2         ng  1
+C 11  25  2        nkd  1
+C 12  26  2      nkdmx  1
+C 13  27  2        nkq  1
+C 14  28  2      nkqmx  1
+C 15  29  2      npgrp  1
+C 16  30  2      nsgrp  1
 C 17  31  2        oag  1 possible_structure
 C 18  32  2       obgv  1 possible_structure
 C 19  33  2        ocg  1 possible_structure
@@ -935,65 +935,65 @@ C 27  41  2        okv  1 possible_structure
 C 28  42  2       opos  1 possible_structure
 C 29  43  2       oqlv  1 possible_structure
 C 30  44  2     osymgr  1 possible_structure
-C 31  45  4     plat..  9 
-C 32  54  4    plat0..  9 
-C 33  63  4    plat2..  9 
-C 34  72  4    plate..  9 
-C 35  81  4    platl..  9 
-C 36  90  4    platr..  9 
-C 37  99  4     qlat..  9 
-C 38 108  4     rpad..  1 
-C 39 109 -1       size  1 
-C 40 110  4       slat  9 
-C 41 119  4        tol  1 
-C 42 120  4      tolft  1 
-C 43 121  4        vol  1 
-        type s_lat
-        real(8):: size
-        real(8) :: alat 
-        real(8) :: as 
-        real(8) :: avw 
-        real(8) :: awald 
-        real(8) :: dist(9) 
-        real(8) :: gam(4) 
-        real(8) :: gmax 
-        integer(8) :: ldist 
-        integer(8) :: nabc(3) 
-        integer(8) :: ng 
-        integer(8) :: nkd 
-        integer(8) :: nkdmx 
-        integer(8) :: nkq 
-        integer(8) :: nkqmx 
-        integer(8) :: npgrp 
-        integer(8) :: nsgrp 
-        integer(8) :: oag 
-        integer(8) :: obgv 
-        integer(8) :: ocg 
-        integer(8) :: ocy 
-        integer(8) :: odlv 
-        integer(8) :: ogv 
-        integer(8) :: oidxcg 
-        integer(8) :: oips0 
-        integer(8) :: oistab 
-        integer(8) :: ojcg 
-        integer(8) :: okv 
-        integer(8) :: opos 
-        integer(8) :: oqlv 
-        integer(8) :: osymgr 
-        real(8) :: plat(9) 
-        real(8) :: plat0(9) 
-        real(8) :: plat2(9) 
-        real(8) :: plate(9) 
-        real(8) :: platl(9) 
-        real(8) :: platr(9) 
-        real(8) :: qlat(9) 
-        real(8) :: rpad 
-        real(8) :: slat(9) 
-        real(8) :: tol 
-        real(8) :: tolft 
-        real(8) :: vol 
-        end type s_lat
-       
+C 31  45  4     plat..  9
+C 32  54  4    plat0..  9
+C 33  63  4    plat2..  9
+C 34  72  4    plate..  9
+C 35  81  4    platl..  9
+C 36  90  4    platr..  9
+C 37  99  4     qlat..  9
+C 38 108  4     rpad..  1
+C 39 109 -1       size  1
+C 40 110  4       slat  9
+C 41 119  4        tol  1
+C 42 120  4      tolft  1
+C 43 121  4        vol  1
+      type s_lat
+      real(8):: size
+      real(8) :: alat
+      real(8) :: as
+      real(8) :: avw
+      real(8) :: awald
+      real(8) :: dist(9)
+      real(8) :: gam(4)
+      real(8) :: gmax
+      integer(8) :: ldist
+      integer(8) :: nabc(3)
+      integer(8) :: ng
+      integer(8) :: nkd
+      integer(8) :: nkdmx
+      integer(8) :: nkq
+      integer(8) :: nkqmx
+      integer(8) :: npgrp
+      integer(8) :: nsgrp
+      integer(8) :: oag
+      integer(8) :: obgv
+      integer(8) :: ocg
+      integer(8) :: ocy
+      integer(8) :: odlv
+      integer(8) :: ogv
+      integer(8) :: oidxcg
+      integer(8) :: oips0
+      integer(8) :: oistab
+      integer(8) :: ojcg
+      integer(8) :: okv
+      integer(8) :: opos
+      integer(8) :: oqlv
+      integer(8) :: osymgr
+      real(8) :: plat(9)
+      real(8) :: plat0(9)
+      real(8) :: plat2(9)
+      real(8) :: plate(9)
+      real(8) :: platl(9)
+      real(8) :: platr(9)
+      real(8) :: qlat(9)
+      real(8) :: rpad
+      real(8) :: slat(9)
+      real(8) :: tol
+      real(8) :: tolft
+      real(8) :: vol
+      end type s_lat
+
 Cr --- explanation of  umix ---
 Cr   off offe  name    purpose
 Cr    2    1   b       mixing beta
@@ -1024,55 +1024,55 @@ Cr   37   23   wc      Broyden weight
 C ----------------------------------------------------------------
 C       data  /2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,19,20,21,22,32,        33,34,37,38/
 C       data  /4,4,4,4,1,2,2,2,2,2,2,2,2,2,1,4,4,-1,4,4,4,4,4/
-C  1   2  4          b  1 
-C  2   3  4         bl  1 
-C  3   4  4         bv  1 
-C  4   5  4      elind  1 
-C  5   6  1         fn  1 
-C  6   7  2       kill  1 
-C  7   8  2      lxpot  1 
-C  8   9  2       mmix  1 
-C  9  10  2       mode  1 
-C 10  11  2      model  1 
-C 11  12  2          n  1 
-C 12  13  2       nitu  1 
-C 13  14  2       nmix  1 
-C 14  15  2      nsave  1 
-C 15  16  1        r..  3 
-C 16  19  4       rms1  1 
-C 17  20  4       rms2  1 
-C 18  21 -1       size  1 
-C 19  22  4       tj.. 10 
-C 20  32  4       tolu  1 
-C 21  33  4       umix  1 
-C 22  34  4        w..  3 
-C 23  37  4         wc  1 
-        type s_mix
-        real(8):: size
-        real(8) :: b 
-        real(8) :: bl 
-        real(8) :: bv 
-        real(8) :: elind 
-        real(8) :: fn !string
-        integer(8) :: kill 
-        integer(8) :: lxpot 
-        integer(8) :: mmix 
-        integer(8) :: mode 
-        integer(8) :: model 
-        integer(8) :: n 
-        integer(8) :: nitu 
-        integer(8) :: nmix 
-        integer(8) :: nsave 
-        real(8) :: r(3) !string
-        real(8) :: rms1 
-        real(8) :: rms2 
-        real(8) :: tj(10) 
-        real(8) :: tolu 
-        real(8) :: umix 
-        real(8) :: w(3) 
-        real(8) :: wc 
-        end type s_mix
-       
+C  1   2  4          b  1
+C  2   3  4         bl  1
+C  3   4  4         bv  1
+C  4   5  4      elind  1
+C  5   6  1         fn  1
+C  6   7  2       kill  1
+C  7   8  2      lxpot  1
+C  8   9  2       mmix  1
+C  9  10  2       mode  1
+C 10  11  2      model  1
+C 11  12  2          n  1
+C 12  13  2       nitu  1
+C 13  14  2       nmix  1
+C 14  15  2      nsave  1
+C 15  16  1        r..  3
+C 16  19  4       rms1  1
+C 17  20  4       rms2  1
+C 18  21 -1       size  1
+C 19  22  4       tj.. 10
+C 20  32  4       tolu  1
+C 21  33  4       umix  1
+C 22  34  4        w..  3
+C 23  37  4         wc  1
+      type s_mix
+      real(8):: size
+      real(8) :: b
+      real(8) :: bl
+      real(8) :: bv
+      real(8) :: elind
+      real(8) :: fn !string
+      integer(8) :: kill
+      integer(8) :: lxpot
+      integer(8) :: mmix
+      integer(8) :: mode
+      integer(8) :: model
+      integer(8) :: n
+      integer(8) :: nitu
+      integer(8) :: nmix
+      integer(8) :: nsave
+      real(8) :: r(3) !string
+      real(8) :: rms1
+      real(8) :: rms2
+      real(8) :: tj(10)
+      real(8) :: tolu
+      real(8) :: umix
+      real(8) :: w(3)
+      real(8) :: wc
+      end type s_mix
+
 Cr --- explanation of  umove ---
 Cr   off offe  name    purpose
 Cr    2    1   ct      coefficients for global deamons thermostat
@@ -1098,31 +1098,31 @@ Cr   35   11   tstot   duration of total simulation, in units of ts
 C ----------------------------------------------------------------
 C       data  /2,5,6,7,10,11,31,32,33,34,35,36/
 C       data / 4,4,4,2,2,4,-1,4,4,4,4 /
-C  1   2  4         ct  3 
-C  2   5  4       gyro  1 
-C  3   6  4         kt  1 
-C  4   7  2       modt  3 
-C  5  10  2      nmodt  1 
-C  6  11  4     prmint 20 
-C  7  31 -1       size  1 
-C  8  32  4       tnow  1 
-C  9  33  4         ts  1 
-C 10  34  4      tsequ  1 
-C 11  35  4      tstot  1 
-        type s_move
-        real(8):: size
-        real(8) :: ct(3) 
-        real(8) :: gyro 
-        real(8) :: kt 
-        integer(8) :: modt(3) 
-        integer(8) :: nmodt 
-        real(8) :: prmint(20) 
-        real(8) :: tnow 
-        real(8) :: ts 
-        real(8) :: tsequ 
-        real(8) :: tstot 
-        end type s_move
-       
+C  1   2  4         ct  3
+C  2   5  4       gyro  1
+C  3   6  4         kt  1
+C  4   7  2       modt  3
+C  5  10  2      nmodt  1
+C  6  11  4     prmint 20
+C  7  31 -1       size  1
+C  8  32  4       tnow  1
+C  9  33  4         ts  1
+C 10  34  4      tsequ  1
+C 11  35  4      tstot  1
+      type s_move
+      real(8):: size
+      real(8) :: ct(3)
+      real(8) :: gyro
+      real(8) :: kt
+      integer(8) :: modt(3)
+      integer(8) :: nmodt
+      real(8) :: prmint(20)
+      real(8) :: tnow
+      real(8) :: ts
+      real(8) :: tsequ
+      real(8) :: tstot
+      end type s_move
+
 Cr --- explanation of  uoptic ---
 Cr   off offe  name    purpose
 Cr    2    1   axes   (abc) axes in xi^(abc) for nonlinear optics
@@ -1141,35 +1141,35 @@ Cr   33   13   window energy window for epsilon
 Cr   35   ----------- points past end of structure
 C       data  /2,20,21,22,23,24,25,26,27,28,30,31,33,35/
 C       data / 2,2,2,2,2,4,2,2,2,2,-1,2,4/
-C  1   2  2       axes 18 
-C  2  20  2        cll  1 
-C  3  21  2        cln  1 
-C  4  22  2        cls  1 
-C  5  23  2     clsite  1 
-C  6  24  4     esciss  1 
-C  7  25  2       mode  1 
-C  8  26  2      nchi2  1 
-C  9  27  2         ne  1 
+C  1   2  2       axes 18
+C  2  20  2        cll  1
+C  3  21  2        cln  1
+C  4  22  2        cls  1
+C  5  23  2     clsite  1
+C  6  24  4     esciss  1
+C  7  25  2       mode  1
+C  8  26  2      nchi2  1
+C  9  27  2         ne  1
 C 10  28  2      ocrng  2 possible_structure
-C 11  30 -1       size  1 
-C 12  31  2      unrng  2 
-C 13  33  4     window  2 
-        type s_optic
-        real(8):: size
-        integer(8) :: axes(18) 
-        integer(8) :: cll 
-        integer(8) :: cln 
-        integer(8) :: cls 
-        integer(8) :: clsite 
-        real(8) :: esciss 
-        integer(8) :: mode 
-        integer(8) :: nchi2 
-        integer(8) :: ne 
-        integer(8) :: ocrng(2) 
-        integer(8) :: unrng(2) 
-        real(8) :: window(2) 
-        end type s_optic
-       
+C 11  30 -1       size  1
+C 12  31  2      unrng  2
+C 13  33  4     window  2
+      type s_optic
+      real(8):: size
+      integer(8) :: axes(18)
+      integer(8) :: cll
+      integer(8) :: cln
+      integer(8) :: cls
+      integer(8) :: clsite
+      real(8) :: esciss
+      integer(8) :: mode
+      integer(8) :: nchi2
+      integer(8) :: ne
+      integer(8) :: ocrng(2)
+      integer(8) :: unrng(2)
+      real(8) :: window(2)
+      end type s_optic
+
 Cr --- explanation of  uordn ---
 Cr   off offe  name    purpose
 Cr    2    1   efre    effective energy at which free electrons
@@ -1190,31 +1190,31 @@ Cr   14   11   size    size of this structure
 C ----------------------------------------------------------------
 C       data  /2,3,4,5,6,7,8,9,10,11,14,15/
 C       data / 4,2,2,2,2,2,2,2,2,4,-1/
-C  1   2  4       efre  1 
-C  2   3  2       mode  1 
-C  3   4  2        ncl  1 
-C  4   5  2      ndofh  1 
+C  1   2  4       efre  1
+C  2   3  2       mode  1
+C  3   4  2        ncl  1
+C  4   5  2      ndofh  1
 C  5   6  2       oclp  1 possible_structure
 C  6   7  2     oclssl  1 possible_structure
 C  7   8  2      oiaxg  1 possible_structure
 C  8   9  2     omapgv  1 possible_structure
 C  9  10  2     ooffch  1 possible_structure
-C 10  11  4      rmaxg  3 
-C 11  14 -1       size  1 
-        type s_ordn
-        real(8):: size
-        real(8) :: efre 
-        integer(8) :: mode 
-        integer(8) :: ncl 
-        integer(8) :: ndofh 
-        integer(8) :: oclp 
-        integer(8) :: oclssl 
-        integer(8) :: oiaxg 
-        integer(8) :: omapgv 
-        integer(8) :: ooffch 
-        real(8) :: rmaxg(3) 
-        end type s_ordn
-       
+C 10  11  4      rmaxg  3
+C 11  14 -1       size  1
+      type s_ordn
+      real(8):: size
+      real(8) :: efre
+      integer(8) :: mode
+      integer(8) :: ncl
+      integer(8) :: ndofh
+      integer(8) :: oclp
+      integer(8) :: oclssl
+      integer(8) :: oiaxg
+      integer(8) :: omapgv
+      integer(8) :: ooffch
+      real(8) :: rmaxg(3)
+      end type s_ordn
+
 Cr --- explanation of  upot ---
 Cr   off offe  name    purpose
 Cr    2    1   bfield  global magnetic field direction and amplitude (4)
@@ -1286,10 +1286,10 @@ Cr   64   58   vmtz0   Input ASA muffin-tin zero
 C -----------------------------------------------------------------
 C       data  /2,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,        24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,        45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,63,64,65/
 C       data / 4,53*2,-1,3*4/
-C  1   2  4     bfield  4 
-C  2   6  2       nlma  1 
-C  3   7  2       nlml  1 
-C  4   8  2      nrhos  1 
+C  1   2  4     bfield  4
+C  2   6  2       nlma  1
+C  3   7  2       nlml  1
+C  4   8  2      nrhos  1
 C  5   9  2     oaamom  1 possible_structure
 C  6  10  2       obxc  1 possible_structure
 C  7  11  2     odddpf  1 possible_structure
@@ -1340,71 +1340,71 @@ C 51  55  2       oves  1 possible_structure
 C 52  56  2     ovintr  1 possible_structure
 C 53  57  2     ovrmax  1 possible_structure
 C 54  58  2      ovshf  1 possible_structure
-C 55  59 -1       size  1 
-C 56  60  4     vconst  3 
-C 57  63  4       vmtz  1 
-C 58  64  4      vmtz0  1 
-        type s_pot
-        real(8):: size
-        real(8) :: bfield(4) 
-        integer(8) :: nlma 
-        integer(8) :: nlml 
-        integer(8) :: nrhos 
-        integer(8) :: oaamom 
-        integer(8) :: obxc 
-        integer(8) :: odddpf 
-        integer(8) :: oddpf 
-        integer(8) :: oddpfr 
-        integer(8) :: odel 
-        integer(8) :: odpf 
-        integer(8) :: odpfr 
-        integer(8) :: ofes 
-        integer(8) :: ogma 
-        integer(8) :: ogmar 
-        integer(8) :: ogrrme 
-        integer(8) :: ohab 
-        integer(8) :: oivso 
-        integer(8) :: omad 
-        integer(8) :: oorhat 
-        integer(8) :: opalp 
-        integer(8) :: opapg 
-        integer(8) :: opdel 
-        integer(8) :: opf 
-        integer(8) :: opfnc 
-        integer(8) :: opfr 
-        integer(8) :: opmpol 
-        integer(8) :: opnu 
-        integer(8) :: opp 
-        integer(8) :: oppi 
-        integer(8) :: oppn 
-        integer(8) :: opprel 
-        integer(8) :: opti 
-        integer(8) :: oqc 
-        integer(8) :: oqmom 
-        integer(8) :: oqnu 
-        integer(8) :: oqpp 
-        integer(8) :: oqt 
-        integer(8) :: orhos 
-        integer(8) :: orhrmx 
-        integer(8) :: osab 
-        integer(8) :: osgw 
-        integer(8) :: osmpot 
-        integer(8) :: osmrho 
-        integer(8) :: osop 
-        integer(8) :: osoptc 
-        integer(8) :: osrout 
-        integer(8) :: otau 
-        integer(8) :: ovab 
-        integer(8) :: ovdif 
-        integer(8) :: oves 
-        integer(8) :: ovintr 
-        integer(8) :: ovrmax 
-        integer(8) :: ovshf 
-        real(8) :: vconst(3) 
-        real(8) :: vmtz 
-        real(8) :: vmtz0 
-        end type s_pot
-       
+C 55  59 -1       size  1
+C 56  60  4     vconst  3
+C 57  63  4       vmtz  1
+C 58  64  4      vmtz0  1
+      type s_pot
+      real(8):: size
+      real(8) :: bfield(4)
+      integer(8) :: nlma
+      integer(8) :: nlml
+      integer(8) :: nrhos
+      integer(8) :: oaamom
+      integer(8) :: obxc
+      integer(8) :: odddpf
+      integer(8) :: oddpf
+      integer(8) :: oddpfr
+      integer(8) :: odel
+      integer(8) :: odpf
+      integer(8) :: odpfr
+      integer(8) :: ofes
+      integer(8) :: ogma
+      integer(8) :: ogmar
+      integer(8) :: ogrrme
+      integer(8) :: ohab
+      integer(8) :: oivso
+      integer(8) :: omad
+      integer(8) :: oorhat
+      integer(8) :: opalp
+      integer(8) :: opapg
+      integer(8) :: opdel
+      integer(8) :: opf
+      integer(8) :: opfnc
+      integer(8) :: opfr
+      integer(8) :: opmpol
+      integer(8) :: opnu
+      integer(8) :: opp
+      integer(8) :: oppi
+      integer(8) :: oppn
+      integer(8) :: opprel
+      integer(8) :: opti
+      integer(8) :: oqc
+      integer(8) :: oqmom
+      integer(8) :: oqnu
+      integer(8) :: oqpp
+      integer(8) :: oqt
+      integer(8) :: orhos
+      integer(8) :: orhrmx
+      integer(8) :: osab
+      integer(8) :: osgw
+      integer(8) :: osmpot
+      integer(8) :: osmrho
+      integer(8) :: osop
+      integer(8) :: osoptc
+      integer(8) :: osrout
+      integer(8) :: otau
+      integer(8) :: ovab
+      integer(8) :: ovdif
+      integer(8) :: oves
+      integer(8) :: ovintr
+      integer(8) :: ovrmax
+      integer(8) :: ovshf
+      real(8) :: vconst(3)
+      real(8) :: vmtz
+      real(8) :: vmtz0
+      end type s_pot
+
 Cr --- explanation of  uspec ---
 Cr   off offe  name    purpose
 Cr   20     1  a      a for mesh
@@ -1498,157 +1498,157 @@ Cr    2    74  z      atomic number
 C ----------------------------------------------------------------
 C       data  /20,111,24,211,46,17,18,26,37,53,341,291,22,27,23,171,        39,40,161,121,321,131,333,337,329,12,14,56,25,11,31,32,13,43,49,        3,38,28,6,181,7,16,21,5,41,231,29,71,44,45,301,91,42,181,50,57,        51,36,10,35,52,4,54,9,8,15,1,30,33,34,325,55,341,2/
 C       data / 5*4,1,10*4,2,2,4,5*2,4,10*2,4,2,1,7*2,4,2,                  4,1,1,16*4,-1,7*4/
-C  1   1 -1       size  1 
-C  2   2  4          z  1 
-C  3   3  4       mass  1 
-C  4   4  4        rmt  1 
-C  5   5  2      ntorb  1 
-C  6   6  2       naug  1 
-C  7   7  2       norb  1 
-C  8   8  4      rsmfa  1 
-C  9   9  4       rsma  1 
-C 10  10  4         rg  1 
-C 11  11  2       lmxa  1 
-C 12  12  2       kmxh  1 
-C 13  13  2       lmxl  1 
-C 14  14  2       kmxt  1 
-C 15  15  4       rsmv  1 
-C 16  16  2       norp  1 
-C 17  17  1      coreh  1 
-C 18  18  4      coreq  2 
-C 19  20  4          a  1 
-C 20  21  2         nr  1 
-C 21  22  4       eref  1 
-C 22  23  4        etf  1 
-C 23  24  4       beta  1 
-C 24  25  2      lfoca  1 
-C 25  26  4      ctail  1 
-C 26  27  4      etail  1 
-C 27  28  1       name  1 
+C  1   1 -1       size  1
+C  2   2  4          z  1
+C  3   3  4       mass  1
+C  4   4  4        rmt  1
+C  5   5  2      ntorb  1
+C  6   6  2       naug  1
+C  7   7  2       norb  1
+C  8   8  4      rsmfa  1
+C  9   9  4       rsma  1
+C 10  10  4         rg  1
+C 11  11  2       lmxa  1
+C 12  12  2       kmxh  1
+C 13  13  2       lmxl  1
+C 14  14  2       kmxt  1
+C 15  15  4       rsmv  1
+C 16  16  2       norp  1
+C 17  17  1      coreh  1
+C 18  18  4      coreq  2
+C 19  20  4          a  1
+C 20  21  2         nr  1
+C 21  22  4       eref  1
+C 22  23  4        etf  1
+C 23  24  4       beta  1
+C 24  25  2      lfoca  1
+C 25  26  4      ctail  1
+C 26  27  4      etail  1
+C 27  28  1       name  1
 C 28  29  2      orhoc  1 possible_structure
-C 29  30  4        stc  1 
-C 30  31  2       lmxb  1 
-C 31  32  2       lmxf  1 
-C 32  33  4       stni  1 
-C 33  34  4       stnm  1 
-C 34  35  4       rham  1 
-C 35  36  4      rfoca  1 
-C 36  37  4         dv  1 
-C 37  38  2      mxcst  1 
-C 38  39  2      group  1 
-C 39  40  2       grp2  1 
-C 40  41  2        nxi  1 
-C 41  42  4         qc  1 
-C 42  43  2      lmxpb  1 
-C 43  44  1        pb1  1 
-C 44  45  1        pb2  1 
-C 45  46  4     colxbs  3 
-C 46  49  2        lxi  1 
-C 47  50  4     radxbs  1 
-C 48  51  4       rcut  1 
-C 49  52  4       rint  1 
-C 50  53  4        eh3  1 
-C 51  54  4        rs3  1 
-C 52  55  4       vmtz  1 
-C 53  56  2       kmxv  1 
-C 54  57  4       rcfa  2 
-C 55  71  4          p 20 
-C 56  91  4          q 20 
-C 57 111  4      alpha 10 
-C 58 121  2      idmod 10 
-C 59 131  2      idxdn 30 
-C 60 161  4        hcr 10 
-C 61 171  4        exi 10 
-C 62 181  2      ngcut 30 
-C 63 181  4       qpol 10 
-C 64 211  4       chfa 20 
+C 29  30  4        stc  1
+C 30  31  2       lmxb  1
+C 31  32  2       lmxf  1
+C 32  33  4       stni  1
+C 33  34  4       stnm  1
+C 34  35  4       rham  1
+C 35  36  4      rfoca  1
+C 36  37  4         dv  1
+C 37  38  2      mxcst  1
+C 38  39  2      group  1
+C 39  40  2       grp2  1
+C 40  41  2        nxi  1
+C 41  42  4         qc  1
+C 42  43  2      lmxpb  1
+C 43  44  1        pb1  1
+C 44  45  1        pb2  1
+C 45  46  4     colxbs  3
+C 46  49  2        lxi  1
+C 47  50  4     radxbs  1
+C 48  51  4       rcut  1
+C 49  52  4       rint  1
+C 50  53  4        eh3  1
+C 51  54  4        rs3  1
+C 52  55  4       vmtz  1
+C 53  56  2       kmxv  1
+C 54  57  4       rcfa  2
+C 55  71  4          p 20
+C 56  91  4          q 20
+C 57 111  4      alpha 10
+C 58 121  2      idmod 10
+C 59 131  2      idxdn 30
+C 60 161  4        hcr 10
+C 61 171  4        exi 10
+C 62 181  2      ngcut 30
+C 63 181  4       qpol 10
+C 64 211  4       chfa 20
 C 65 231  4       orbp 60 possible_structure
-C 66 291  4        enu 10 
-C 67 301  4         pz 20 
-C 68 321  2        idu  4 
-C 69 325  4         uh  4 
-C 70 329  4         jh  4 
-C 71 333  2        iq1  4 
-C 72 337  2       ivso  4 
-C 73 341  4       ehvl 10 
-C 74 341  4        vso  4 
-        type s_spec
-        real(8):: size
-        real(8) :: z 
-        real(8) :: mass 
-        real(8) :: rmt 
-        integer(8) :: ntorb 
-        integer(8) :: naug 
-        integer(8) :: norb 
-        real(8) :: rsmfa 
-        real(8) :: rsma 
-        real(8) :: rg 
-        integer(8) :: lmxa 
-        integer(8) :: kmxh 
-        integer(8) :: lmxl 
-        integer(8) :: kmxt 
-        real(8) :: rsmv 
-        integer(8) :: norp 
-        real(8) :: coreh !string
-        real(8) :: coreq(2) 
-        real(8) :: a 
-        integer(8) :: nr 
-        real(8) :: eref 
-        real(8) :: etf 
-        real(8) :: beta 
-        integer(8) :: lfoca 
-        real(8) :: ctail 
-        real(8) :: etail 
-        real(8) :: name !string
-        integer(8) :: orhoc 
-        real(8) :: stc 
-        integer(8) :: lmxb 
-        integer(8) :: lmxf 
-        real(8) :: stni 
-        real(8) :: stnm 
-        real(8) :: rham 
-        real(8) :: rfoca 
-        real(8) :: dv 
-        integer(8) :: mxcst 
-        integer(8) :: group 
-        integer(8) :: grp2 
-        integer(8) :: nxi 
-        real(8) :: qc 
-        integer(8) :: lmxpb 
-        real(8) :: pb1 !string
-        real(8) :: pb2 !string
-        real(8) :: colxbs(3) 
-        integer(8) :: lxi 
-        real(8) :: radxbs 
-        real(8) :: rcut 
-        real(8) :: rint 
-        real(8) :: eh3 
-        real(8) :: rs3 
-        real(8) :: vmtz 
-        integer(8) :: kmxv 
-        real(8) :: rcfa(2) 
-        real(8) :: p(20) 
-        real(8) :: q(20) 
-        real(8) :: alpha(10) 
-        integer(8) :: idmod(10) 
-        integer(8) :: idxdn(30) 
-        real(8) :: hcr(10) 
-        real(8) :: exi(10) 
-        integer(8) :: ngcut(30) 
-        real(8) :: qpol(10) 
-        real(8) :: chfa(20) 
-        real(8) :: orbp(60) 
-        real(8) :: enu(10) 
-        real(8) :: pz(20) 
-        integer(8) :: idu(4) 
-        real(8) :: uh(4) 
-        real(8) :: jh(4) 
-        integer(8) :: iq1(4) 
-        integer(8) :: ivso(4) 
-        real(8) :: ehvl(10) 
-        real(8) :: vso(4) 
-        end type s_spec
-       
+C 66 291  4        enu 10
+C 67 301  4         pz 20
+C 68 321  2        idu  4
+C 69 325  4         uh  4
+C 70 329  4         jh  4
+C 71 333  2        iq1  4
+C 72 337  2       ivso  4
+C 73 341  4       ehvl 10
+C 74 341  4        vso  4
+      type s_spec
+      real(8):: size
+      real(8) :: z
+      real(8) :: mass
+      real(8) :: rmt
+      integer(8) :: ntorb
+      integer(8) :: naug
+      integer(8) :: norb
+      real(8) :: rsmfa
+      real(8) :: rsma
+      real(8) :: rg
+      integer(8) :: lmxa
+      integer(8) :: kmxh
+      integer(8) :: lmxl
+      integer(8) :: kmxt
+      real(8) :: rsmv
+      integer(8) :: norp
+      real(8) :: coreh !string
+      real(8) :: coreq(2)
+      real(8) :: a
+      integer(8) :: nr
+      real(8) :: eref
+      real(8) :: etf
+      real(8) :: beta
+      integer(8) :: lfoca
+      real(8) :: ctail
+      real(8) :: etail
+      real(8) :: name !string
+      integer(8) :: orhoc
+      real(8) :: stc
+      integer(8) :: lmxb
+      integer(8) :: lmxf
+      real(8) :: stni
+      real(8) :: stnm
+      real(8) :: rham
+      real(8) :: rfoca
+      real(8) :: dv
+      integer(8) :: mxcst
+      integer(8) :: group
+      integer(8) :: grp2
+      integer(8) :: nxi
+      real(8) :: qc
+      integer(8) :: lmxpb
+      real(8) :: pb1 !string
+      real(8) :: pb2 !string
+      real(8) :: colxbs(3)
+      integer(8) :: lxi
+      real(8) :: radxbs
+      real(8) :: rcut
+      real(8) :: rint
+      real(8) :: eh3
+      real(8) :: rs3
+      real(8) :: vmtz
+      integer(8) :: kmxv
+      real(8) :: rcfa(2)
+      real(8) :: p(20)
+      real(8) :: q(20)
+      real(8) :: alpha(10)
+      integer(8) :: idmod(10)
+      integer(8) :: idxdn(30)
+      real(8) :: hcr(10)
+      real(8) :: exi(10)
+      integer(8) :: ngcut(30)
+      real(8) :: qpol(10)
+      real(8) :: chfa(20)
+      real(8) :: orbp(60)
+      real(8) :: enu(10)
+      real(8) :: pz(20)
+      integer(8) :: idu(4)
+      real(8) :: uh(4)
+      real(8) :: jh(4)
+      integer(8) :: iq1(4)
+      integer(8) :: ivso(4)
+      real(8) :: ehvl(10)
+      real(8) :: vso(4)
+      end type s_spec
+
 Cr --- explanation of  usite ---
 Cr   off offe  name    purpose
 Cr    2    1   bfield  site magnetic field (not used)
@@ -1681,63 +1681,63 @@ Cr   87   27   vshft   constant potential shift for this site
 C ----------------------------------------------------------------
 C       data  /2,5,6,7,8,14,17,20,23,24,25,26,27,28,29,30,31,32,52,        55,58,78,81,82,83,84,87,88/
 C       data / 4,1,2,2,5*4,8*2,4*4,2,2,-1,2,4,4/
-C  1   2  4     bfield  3 
-C  2   5  1     clabel  1 
-C  3   6  2      class  1 
-C  4   7  2        cli  1 
-C  5   8  4      delta  6 
-C  6  14  4      dpole  3 
-C  7  17  4       eula  3 
-C  8  20  4      force  3 
-C  9  23  4      mpole  1 
-C 10  24  2     ndelta  1 
-C 11  25  2       norb  1 
+C  1   2  4     bfield  3
+C  2   5  1     clabel  1
+C  3   6  2      class  1
+C  4   7  2        cli  1
+C  5   8  4      delta  6
+C  6  14  4      dpole  3
+C  7  17  4       eula  3
+C  8  20  4      force  3
+C  9  23  4      mpole  1
+C 10  24  2     ndelta  1
+C 11  25  2       norb  1
 C 12  26  2       offh  1 possible_structure
 C 13  27  2       orho  1 possible_structure
 C 14  28  2        ov0  1 possible_structure
 C 15  29  2        ov1  1 possible_structure
-C 16  30  2         pl  1 
-C 17  31  2        plv  1 
-C 18  32  4        pnu 20 
-C 19  52  4        pos  3 
-C 20  55  4       pos0  3 
-C 21  58  4         pz 20 
-C 22  78  2      relax  3 
-C 23  81  2        sid  1 
-C 24  82 -1       size  1 
-C 25  83  2       spec  1 
-C 26  84  4        vel  3 
-C 27  87  4      vshft  1 
-        type s_site
-        real(8):: size
-        real(8) :: bfield(3) 
-        real(8) :: clabel !string
-        integer(8) :: class 
-        integer(8) :: cli 
-        real(8) :: delta(6) 
-        real(8) :: dpole(3) 
-        real(8) :: eula(3) 
-        real(8) :: force(3) 
-        real(8) :: mpole 
-        integer(8) :: ndelta 
-        integer(8) :: norb 
-        integer(8) :: offh 
-        integer(8) :: orho 
-        integer(8) :: ov0 
-        integer(8) :: ov1 
-        integer(8) :: pl 
-        integer(8) :: plv 
-        real(8) :: pnu(20) 
-        real(8) :: pos(3) 
-        real(8) :: pos0(3) 
-        real(8) :: pz(20) 
-        integer(8) :: relax(3) 
-        integer(8) :: sid 
-        integer(8) :: spec 
-        real(8) :: vel(3) 
-        real(8) :: vshft 
-        end type s_site
-       
+C 16  30  2         pl  1
+C 17  31  2        plv  1
+C 18  32  4        pnu 20
+C 19  52  4        pos  3
+C 20  55  4       pos0  3
+C 21  58  4         pz 20
+C 22  78  2      relax  3
+C 23  81  2        sid  1
+C 24  82 -1       size  1
+C 25  83  2       spec  1
+C 26  84  4        vel  3
+C 27  87  4      vshft  1
+      type s_site
+      real(8):: size
+      real(8) :: bfield(3)
+      real(8) :: clabel !string
+      integer(8) :: class
+      integer(8) :: cli
+      real(8) :: delta(6)
+      real(8) :: dpole(3)
+      real(8) :: eula(3)
+      real(8) :: force(3)
+      real(8) :: mpole
+      integer(8) :: ndelta
+      integer(8) :: norb
+      integer(8) :: offh
+      integer(8) :: orho
+      integer(8) :: ov0
+      integer(8) :: ov1
+      integer(8) :: pl
+      integer(8) :: plv
+      real(8) :: pnu(20)
+      real(8) :: pos(3)
+      real(8) :: pos0(3)
+      real(8) :: pz(20)
+      integer(8) :: relax(3)
+      integer(8) :: sid
+      integer(8) :: spec
+      real(8) :: vel(3)
+      real(8) :: vshft
+      end type s_site
+
 Cr --- explanation of  ustr ---
 Cr   off offe  name    purpose
 Cr    2    1   adec    log spacing in distance for TCF fit
@@ -1791,69 +1791,69 @@ Cr   47   30   wztcf   weighting of z-points in TCF
 C ----------------------------------------------------------------
 C       data  /2,3,4,5,10,11,17,18,19,20,21,22,23,26,27,28,29,30,31,        32,33,34,35,36,37,38,39,40,41,47,48/
 C       data / 4,2,4,4,2,4,18*2,4,4,4,-1,4,4/
-C  1   2  4       adec  1 
-C  2   3  2      amode  1 
-C  3   4  4     drwats  1 
-C  4   5  4       iinv  5 
-C  5  10  2        ivl  1 
-C  6  11  4       kaps  6 
-C  7  17  2     lequiv  1 
-C  8  18  2      lmaxw  1 
-C  9  19  2       loka  1 
-C 10  20  2      lshow  1 
-C 11  21  2      mxnbr  1 
-C 12  22  2       nalf  1 
-C 13  23  2      nbisi  3 
-C 14  26  2      ncupl  1 
-C 15  27  2      ndust  1 
-C 16  28  2      nitab  1 
-C 17  29  2      nkaps  1 
-C 18  30  2      nttab  1 
+C  1   2  4       adec  1
+C  2   3  2      amode  1
+C  3   4  4     drwats  1
+C  4   5  4       iinv  5
+C  5  10  2        ivl  1
+C  6  11  4       kaps  6
+C  7  17  2     lequiv  1
+C  8  18  2      lmaxw  1
+C  9  19  2       loka  1
+C 10  20  2      lshow  1
+C 11  21  2      mxnbr  1
+C 12  22  2       nalf  1
+C 13  23  2      nbisi  3
+C 14  26  2      ncupl  1
+C 15  27  2      ndust  1
+C 16  28  2      nitab  1
+C 17  29  2      nkaps  1
+C 18  30  2      nttab  1
 C 19  31  2      oadot  1 possible_structure
 C 20  32  2       oalp  1 possible_structure
 C 21  33  2       oiax  1 possible_structure
 C 22  34  2      ontab  1 possible_structure
 C 23  35  2         os  1 possible_structure
 C 24  36  2      osdot  1 possible_structure
-C 25  37  4       rfit  1 
-C 26  38  4       rmax  1 
-C 27  39  4      rmaxg  1 
-C 28  40 -1       size  1 
-C 29  41  4      skmsh  6 
-C 30  47  4      wztcf  1 
-        type s_str
-        real(8):: size
-        real(8) :: adec 
-        integer(8) :: amode 
-        real(8) :: drwats 
-        real(8) :: iinv(5) 
-        integer(8) :: ivl 
-        real(8) :: kaps(6) 
-        integer(8) :: lequiv 
-        integer(8) :: lmaxw 
-        integer(8) :: loka 
-        integer(8) :: lshow 
-        integer(8) :: mxnbr 
-        integer(8) :: nalf 
-        integer(8) :: nbisi(3) 
-        integer(8) :: ncupl 
-        integer(8) :: ndust 
-        integer(8) :: nitab 
-        integer(8) :: nkaps 
-        integer(8) :: nttab 
-        integer(8) :: oadot 
-        integer(8) :: oalp 
-        integer(8) :: oiax 
-        integer(8) :: ontab 
-        integer(8) :: os 
-        integer(8) :: osdot 
-        real(8) :: rfit 
-        real(8) :: rmax 
-        real(8) :: rmaxg 
-        real(8) :: skmsh(6) 
-        real(8) :: wztcf 
-        end type s_str
-       
+C 25  37  4       rfit  1
+C 26  38  4       rmax  1
+C 27  39  4      rmaxg  1
+C 28  40 -1       size  1
+C 29  41  4      skmsh  6
+C 30  47  4      wztcf  1
+      type s_str
+      real(8):: size
+      real(8) :: adec
+      integer(8) :: amode
+      real(8) :: drwats
+      real(8) :: iinv(5)
+      integer(8) :: ivl
+      real(8) :: kaps(6)
+      integer(8) :: lequiv
+      integer(8) :: lmaxw
+      integer(8) :: loka
+      integer(8) :: lshow
+      integer(8) :: mxnbr
+      integer(8) :: nalf
+      integer(8) :: nbisi(3)
+      integer(8) :: ncupl
+      integer(8) :: ndust
+      integer(8) :: nitab
+      integer(8) :: nkaps
+      integer(8) :: nttab
+      integer(8) :: oadot
+      integer(8) :: oalp
+      integer(8) :: oiax
+      integer(8) :: ontab
+      integer(8) :: os
+      integer(8) :: osdot
+      real(8) :: rfit
+      real(8) :: rmax
+      real(8) :: rmaxg
+      real(8) :: skmsh(6)
+      real(8) :: wztcf
+      end type s_str
+
 Cr --- explanation of  utb ---
 Cr   off offe  name    purpose
 Cr    2    1   alam   (tbfit) lambda variable, Levenburg-Marquardt (Numerical Recipes)
@@ -1869,470 +1869,470 @@ Cr   11    7   size   size of this structure
 C ----------------------------------------------------------------
 C       data  /2,3,4,6,7,9,11,12/
 C       data  /4,4,4,2,2,4,-1/
-C  1   2  4       alam  1 
-C  2   3  4       alsc  1 
-C  3   4  4      ebfit  2 
-C  4   6  2      fmode  1 
-C  5   7  2      nbfit  2 
-C  6   9  4      rmfit  2 
-C  7  11 -1       size  1 
-        type s_tb
-        real(8):: size
-        real(8) :: alam 
-        real(8) :: alsc 
-        real(8) :: ebfit(2) 
-        integer(8) :: fmode 
-        integer(8) :: nbfit(2) 
-        real(8) :: rmfit(2) 
-        end type s_tb
-        end module m_struc_def
+C  1   2  4       alam  1
+C  2   3  4       alsc  1
+C  3   4  4      ebfit  2
+C  4   6  2      fmode  1
+C  5   7  2      nbfit  2
+C  6   9  4      rmfit  2
+C  7  11 -1       size  1
+      type s_tb
+      real(8):: size
+      real(8) :: alam
+      real(8) :: alsc
+      real(8) :: ebfit(2)
+      integer(8) :: fmode
+      integer(8) :: nbfit(2)
+      real(8) :: rmfit(2)
+      end type s_tb
+      end module m_struc_def
 
 
-      
+
 c------------------------------------------------------------------
       module m_struc_func
 
 c      interface struc_eval_io
 c      module procedure struc_eval_io_r8, struc_eval_io_i8
 c     .     , struc_eval_io_r8v, struc_eval_io_i8v
-c      end interface struc_eval_io 
+c      end interface struc_eval_io
 
       contains
 
-        integer function uarray_size()
+      integer function uarray_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_array
-        implicit none
-        type(s_array):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_array
+      implicit none
+      type(s_array):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uarray_size=n
+      uarray_size=n
 C        write(*,*) 'uarray_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 32
+      integer:: n
+      n= 32
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uarray_size=n
+      uarray_size=n
 #endif  /* MPIADDRESS*/
-        end function uarray_size
-       
-        integer function ubz_size()
+      end function uarray_size
+
+      integer function ubz_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_bz
-        implicit none
-        type(s_bz):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_bz
+      implicit none
+      type(s_bz):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        ubz_size=n
+      ubz_size=n
 C        write(*,*) 'ubz_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 47
+      integer:: n
+      n= 47
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        ubz_size=n
+      ubz_size=n
 #endif  /* MPIADDRESS*/
-        end function ubz_size
-       
-        integer function uctrl_size()
+      end function ubz_size
+
+      integer function uctrl_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_ctrl
-        implicit none
-        type(s_ctrl):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_ctrl
+      implicit none
+      type(s_ctrl):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uctrl_size=n
+      uctrl_size=n
 C        write(*,*) 'uctrl_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 88
+      integer:: n
+      n= 88
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uctrl_size=n
+      uctrl_size=n
 #endif  /* MPIADDRESS*/
-        end function uctrl_size
-       
-        integer function ugw_size()
+      end function uctrl_size
+
+      integer function ugw_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_gw
-        implicit none
-        type(s_gw):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_gw
+      implicit none
+      type(s_gw):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        ugw_size=n
+      ugw_size=n
 C        write(*,*) 'ugw_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 22
+      integer:: n
+      n= 22
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        ugw_size=n
+      ugw_size=n
 #endif  /* MPIADDRESS*/
-        end function ugw_size
-       
-        integer function uham_size()
+      end function ugw_size
+
+      integer function uham_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_ham
-        implicit none
-        type(s_ham):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_ham
+      implicit none
+      type(s_ham):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uham_size=n
+      uham_size=n
 C        write(*,*) 'uham_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 129
+      integer:: n
+      n= 129
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uham_size=n
+      uham_size=n
 #endif  /* MPIADDRESS*/
-        end function uham_size
-       
-        integer function ulat_size()
+      end function uham_size
+
+      integer function ulat_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_lat
-        implicit none
-        type(s_lat):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_lat
+      implicit none
+      type(s_lat):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        ulat_size=n
+      ulat_size=n
 C        write(*,*) 'ulat_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 120
+      integer:: n
+      n= 120
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        ulat_size=n
+      ulat_size=n
 #endif  /* MPIADDRESS*/
-        end function ulat_size
-       
-        integer function umix_size()
+      end function ulat_size
+
+      integer function umix_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_mix
-        implicit none
-        type(s_mix):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_mix
+      implicit none
+      type(s_mix):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        umix_size=n
+      umix_size=n
 C        write(*,*) 'umix_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 36
+      integer:: n
+      n= 36
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        umix_size=n
+      umix_size=n
 #endif  /* MPIADDRESS*/
-        end function umix_size
-       
-        integer function umove_size()
+      end function umix_size
+
+      integer function umove_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_move
-        implicit none
-        type(s_move):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_move
+      implicit none
+      type(s_move):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        umove_size=n
+      umove_size=n
 C        write(*,*) 'umove_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 34
+      integer:: n
+      n= 34
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        umove_size=n
+      umove_size=n
 #endif  /* MPIADDRESS*/
-        end function umove_size
-       
-        integer function uoptic_size()
+      end function umove_size
+
+      integer function uoptic_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_optic
-        implicit none
-        type(s_optic):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_optic
+      implicit none
+      type(s_optic):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uoptic_size=n
+      uoptic_size=n
 C        write(*,*) 'uoptic_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 33
+      integer:: n
+      n= 33
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uoptic_size=n
+      uoptic_size=n
 #endif  /* MPIADDRESS*/
-        end function uoptic_size
-       
-        integer function uordn_size()
+      end function uoptic_size
+
+      integer function uordn_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_ordn
-        implicit none
-        type(s_ordn):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_ordn
+      implicit none
+      type(s_ordn):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uordn_size=n
+      uordn_size=n
 C        write(*,*) 'uordn_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 13
+      integer:: n
+      n= 13
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uordn_size=n
+      uordn_size=n
 #endif  /* MPIADDRESS*/
-        end function uordn_size
-       
-        integer function upot_size()
+      end function uordn_size
+
+      integer function upot_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_pot
-        implicit none
-        type(s_pot):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_pot
+      implicit none
+      type(s_pot):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        upot_size=n
+      upot_size=n
 C        write(*,*) 'upot_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 63
+      integer:: n
+      n= 63
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        upot_size=n
+      upot_size=n
 #endif  /* MPIADDRESS*/
-        end function upot_size
-       
-        integer function usite_size()
+      end function upot_size
+
+      integer function usite_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_site
-        implicit none
-        type(s_site):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_site
+      implicit none
+      type(s_site):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        usite_size=n
+      usite_size=n
 C        write(*,*) 'usite_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 86
+      integer:: n
+      n= 86
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        usite_size=n
+      usite_size=n
 #endif  /* MPIADDRESS*/
-        end function usite_size
-       
-        integer function uspec_size()
+      end function usite_size
+
+      integer function uspec_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_spec
-        implicit none
-        type(s_spec):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_spec
+      implicit none
+      type(s_spec):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uspec_size=n
+      uspec_size=n
 C        write(*,*) 'uspec_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 352
+      integer:: n
+      n= 352
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        uspec_size=n
+      uspec_size=n
 #endif  /* MPIADDRESS*/
-        end function uspec_size
-       
-        integer function ustr_size()
+      end function uspec_size
+
+      integer function ustr_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_str
-        implicit none
-        type(s_str):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_str
+      implicit none
+      type(s_str):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        ustr_size=n
+      ustr_size=n
 C        write(*,*) 'ustr_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 46
+      integer:: n
+      n= 46
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        ustr_size=n
+      ustr_size=n
 #endif  /* MPIADDRESS*/
-        end function ustr_size
-       
-        integer function utb_size()
+      end function ustr_size
+
+      integer function utb_size()
 #if MPI|MPIK|MPIADDRESS
-        use m_struc_def, only: s_tb
-        implicit none
-        type(s_tb):: v(2)
-        integer:: iadd(2), ierr,imod,n
-        call mpi_get_address(v(1),iadd(1),ierr)
-        call mpi_get_address(v(2),iadd(2),ierr)
-        n=iadd(2)-iadd(1)
-        imod=mod(n,8)
-        n=n/8
-        if (imod.ne.0) n=n+1
+      use m_struc_def, only: s_tb
+      implicit none
+      type(s_tb):: v(2)
+      integer:: iadd(2), ierr,imod,n
+      call mpi_get_address(v(1),iadd(1),ierr)
+      call mpi_get_address(v(2),iadd(2),ierr)
+      n=iadd(2)-iadd(1)
+      imod=mod(n,8)
+      n=n/8
+      if (imod.ne.0) n=n+1
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        utb_size=n
+      utb_size=n
 C        write(*,*) 'utb_size=',n
 #else  /* MPIADDRESS*/
-        integer:: n
-        n= 10
+      integer:: n
+      n= 10
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
-        if (mod(n,2).eq.1) n=n+1
+      if (mod(n,2).eq.1) n=n+1
 #endif
-        utb_size=n
+      utb_size=n
 #endif  /* MPIADDRESS*/
-        end function utb_size
+      end function utb_size
 
       end module m_struc_func
 c------------------------------------------------------------------
@@ -2341,52 +2341,52 @@ c------------------------------------------------------------------
 
 
 c------------------------------------------------------------------
-        subroutine uarray_init(struc)
-        use m_struc_def
-        use m_struc_func
-        implicit none
-        type(s_array):: struc
-        struc%size=uarray_size()
-        struc%ncl=0
-        struc%nclasp=0
-        struc%nofgl=0
-        struc%nofgr=0
-        struc%npadl=0
-        struc%npadr=0
-        struc%npl=0
-        struc%oclabl=0
-        struc%ocllst=0
-        struc%oclp=0
-        struc%oclssl=0
-        struc%ogroup=0
-        struc%ogrp2=0
-        struc%ohave=0
-        struc%oics=0
-        struc%oifrlx=0
-        struc%oipc=0
-        struc%oipcp=0
-        struc%oips=0
-        struc%omxcst=0
-        struc%onrc=0
-        struc%onrcp=0
-        struc%opgfsl=0
-        struc%opgfvl=0
-        struc%opgord=0
-        struc%opgplp=0
-        struc%opos=0
-        struc%ormax=0
-        struc%osordn=0
-        struc%ostni=0
-        struc%ozos=0
-        end subroutine uarray_init
-       
-        subroutine uarray_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_array):: struc
-        write(*,*) struc
-        end subroutine uarray_show
-       
+      subroutine uarray_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_array):: struc
+      struc%size=uarray_size()
+      struc%ncl=0
+      struc%nclasp=0
+      struc%nofgl=0
+      struc%nofgr=0
+      struc%npadl=0
+      struc%npadr=0
+      struc%npl=0
+      struc%oclabl=0
+      struc%ocllst=0
+      struc%oclp=0
+      struc%oclssl=0
+      struc%ogroup=0
+      struc%ogrp2=0
+      struc%ohave=0
+      struc%oics=0
+      struc%oifrlx=0
+      struc%oipc=0
+      struc%oipcp=0
+      struc%oips=0
+      struc%omxcst=0
+      struc%onrc=0
+      struc%onrcp=0
+      struc%opgfsl=0
+      struc%opgfvl=0
+      struc%opgord=0
+      struc%opgplp=0
+      struc%opos=0
+      struc%ormax=0
+      struc%osordn=0
+      struc%ostni=0
+      struc%ozos=0
+      end subroutine uarray_init
+
+      subroutine uarray_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_array):: struc
+      write(*,*) struc
+      end subroutine uarray_show
+
 C$$$        subroutine uarray(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -2400,51 +2400,51 @@ C$$$          write(*,*) 'uarray offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine uarray
-       
-        subroutine ubz_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_bz):: struc
-        struc%size=ubz_size()
-        struc%def=0.0d0
-        struc%dosw(:)=0.0d0
-        struc%ef=0.0d0
-        struc%efmax=0.0d0
-        struc%fsmom=0.0d0
-        struc%lcond(:)=0.0d0
-        struc%lio=0
-        struc%lmet=0
-        struc%lmull=0
-        struc%lopt=0
-        struc%lshft(:)=0
-        struc%n=0
-        struc%ndos=0
-        struc%nevmx=0
-        struc%nkabc(:)=0
-        struc%nkp=0
-        struc%ntet=0
-        struc%odos=0
-        struc%oidtet=0
-        struc%oipq=0
-        struc%opdos=0
-        struc%oqp=0
-        struc%ostar=0
-        struc%owtkp=0
-        struc%range=0.0d0
-        struc%semsh(:)=0.0d0
-        struc%stnr=0.0d0
-        struc%w=0.0d0
-        struc%zval=0.0d0
-        end subroutine ubz_init
-       
-        subroutine ubz_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_bz):: struc
-        write(*,*) struc
-        end subroutine ubz_show
-       
+
+      subroutine ubz_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_bz):: struc
+      struc%size=ubz_size()
+      struc%def=0.0d0
+      struc%dosw(:)=0.0d0
+      struc%ef=0.0d0
+      struc%efmax=0.0d0
+      struc%fsmom=0.0d0
+      struc%lcond(:)=0.0d0
+      struc%lio=0
+      struc%lmet=0
+      struc%lmull=0
+      struc%lopt=0
+      struc%lshft(:)=0
+      struc%n=0
+      struc%ndos=0
+      struc%nevmx=0
+      struc%nkabc(:)=0
+      struc%nkp=0
+      struc%ntet=0
+      struc%odos=0
+      struc%oidtet=0
+      struc%oipq=0
+      struc%opdos=0
+      struc%oqp=0
+      struc%ostar=0
+      struc%owtkp=0
+      struc%range=0.0d0
+      struc%semsh(:)=0.0d0
+      struc%stnr=0.0d0
+      struc%w=0.0d0
+      struc%zval=0.0d0
+      end subroutine ubz_init
+
+      subroutine ubz_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_bz):: struc
+      write(*,*) struc
+      end subroutine ubz_show
+
 C$$$        subroutine ubz(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -2458,77 +2458,77 @@ C$$$          write(*,*) 'ubz offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine ubz
-       
-        subroutine uctrl_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_ctrl):: struc
-        struc%size=uctrl_size()
-        struc%defm(:)=0.0d0
-        struc%elin=0.0d0
-        struc%lasa=0
-        struc%lbas=0
-        struc%lcd=0
-        struc%lcgf=0
-        struc%ldos=0
-        struc%lfp=0
-        struc%lfrce=0
-        struc%lgen3=0
-        struc%lham=0
-        struc%lmet=0
-        struc%lncol=0
-        struc%loptc=0
-        struc%lordn=0
-        struc%lpgf(:)=0
-        struc%lqp=0
-        struc%lrel=0
-        struc%lrs=0
-        struc%lscr=0
-        struc%lstonr(:)=0
-        struc%lstr=0
-        struc%lsx=0
-        struc%ltb=0
-        struc%lves=0
-        struc%lxcf=0
-        struc%maxit=0
-        struc%mdprm(:)=0.0d0
-        struc%modep(:)=0
-        struc%nbas=0
-        struc%nbasp=0
-        struc%nclass=0
-        struc%nesabc(:)=0
-        struc%nitmv=0
-        struc%nl=0
-        struc%nmap=0
-        struc%npl=0
-        struc%nsite=0
-        struc%nspec=0
-        struc%nspin=0
-        struc%nvario=0
-        struc%omax1(:)=0.0d0
-        struc%omax2(:)=0.0d0
-        struc%pfloat=0
-        struc%quit=0
-        struc%rmaxes=0.0d0
-        struc%rmines=0.0d0
-        struc%sclwsr=0.0d0
-        struc%sdmod=0
-        struc%sdprm(:)=0.0d0
-        struc%sdxsi(:)=0.0d0
-        struc%smalit(:)=0
-        struc%tol(:)=0.0d0
-        struc%wsrmax=0.0d0
-        struc%zbak(:)=0.0d0
-        end subroutine uctrl_init
-       
-        subroutine uctrl_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_ctrl):: struc
-        write(*,*) struc
-        end subroutine uctrl_show
-       
+
+      subroutine uctrl_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_ctrl):: struc
+      struc%size=uctrl_size()
+      struc%defm(:)=0.0d0
+      struc%elin=0.0d0
+      struc%lasa=0
+      struc%lbas=0
+      struc%lcd=0
+      struc%lcgf=0
+      struc%ldos=0
+      struc%lfp=0
+      struc%lfrce=0
+      struc%lgen3=0
+      struc%lham=0
+      struc%lmet=0
+      struc%lncol=0
+      struc%loptc=0
+      struc%lordn=0
+      struc%lpgf(:)=0
+      struc%lqp=0
+      struc%lrel=0
+      struc%lrs=0
+      struc%lscr=0
+      struc%lstonr(:)=0
+      struc%lstr=0
+      struc%lsx=0
+      struc%ltb=0
+      struc%lves=0
+      struc%lxcf=0
+      struc%maxit=0
+      struc%mdprm(:)=0.0d0
+      struc%modep(:)=0
+      struc%nbas=0
+      struc%nbasp=0
+      struc%nclass=0
+      struc%nesabc(:)=0
+      struc%nitmv=0
+      struc%nl=0
+      struc%nmap=0
+      struc%npl=0
+      struc%nsite=0
+      struc%nspec=0
+      struc%nspin=0
+      struc%nvario=0
+      struc%omax1(:)=0.0d0
+      struc%omax2(:)=0.0d0
+      struc%pfloat=0
+      struc%quit=0
+      struc%rmaxes=0.0d0
+      struc%rmines=0.0d0
+      struc%sclwsr=0.0d0
+      struc%sdmod=0
+      struc%sdprm(:)=0.0d0
+      struc%sdxsi(:)=0.0d0
+      struc%smalit(:)=0
+      struc%tol(:)=0.0d0
+      struc%wsrmax=0.0d0
+      struc%zbak(:)=0.0d0
+      end subroutine uctrl_init
+
+      subroutine uctrl_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_ctrl):: struc
+      write(*,*) struc
+      end subroutine uctrl_show
+
 C$$$        subroutine uctrl(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -2542,7 +2542,7 @@ C$$$          write(*,*) 'uctrl offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine uctrl
-       
+
 C$$$        subroutine ugw_init(struc)
 C$$$        use m_struc_def
 C$$$         use m_struc_func
@@ -2568,14 +2568,14 @@ C$$$        struc%pbtol=0.0d0
 C$$$        struc%qoffp=0.0d0
 C$$$        struc%rdsig=0
 C$$$        end subroutine ugw_init
-       
+
 C$$$        subroutine ugw_show(struc)
 C$$$        use m_struc_def
 C$$$        implicit none
 C$$$        type(s_gw):: struc
 C$$$        write(*,*) struc
 C$$$        end subroutine ugw_show
-       
+
 C$$$        subroutine ugw(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -2589,77 +2589,77 @@ C$$$          write(*,*) 'ugw offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine ugw
-       
-        subroutine uham_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_ham):: struc
-        struc%size=uham_size()
-        struc%alfsi=0.0d0
-        struc%amgm=0.0d0
-        struc%bandw=0
-        struc%dabc(:)=0.0d0
-        struc%ehf=0.0d0
-        struc%ehk=0.0d0
-        struc%elind=0.0d0
-        struc%eterms(:)=0.0d0
-        struc%hord=0
-        struc%kmto(:)=0.0d0
-        struc%lasa=0
-        struc%ldham(:)=0
-        struc%lgen3=0
-        struc%lham=0
-        struc%lmaxu=0
-        struc%lmxax=0
-        struc%lncol=0
-        struc%lsig=0
-        struc%ltb=0
-        struc%lxcf=0
-        struc%nbf=0
-        struc%ndham=0
-        struc%ndhrs=0
-        struc%ndofH=0
-        struc%neula=0
-        struc%nkaph=0
-        struc%nlibu=0
-        struc%nmto=0
-        struc%npwmin=0
-        struc%npwpad=0
-        struc%nqsig=0
-        struc%obdots=0
-        struc%oeula=0
-        struc%ohrs=0
-        struc%oiaxs=0
-        struc%oindxo=0
-        struc%olmxa=0
-        struc%omagf=0
-        struc%ontabs=0
-        struc%ooffH=0
-        struc%oqsig=0
-        struc%oveps=0.0d0
-        struc%pmax(:)=0.0d0
-        struc%pmin(:)=0.0d0
-        struc%pwemax=0.0d0
-        struc%pwemin=0.0d0
-        struc%pwmode=0
-        struc%qpoff(:)=0.0d0
-        struc%qss(:)=0.0d0
-        struc%rsrnge=0.0d0
-        struc%rsstol=0.0d0
-        struc%seref=0.0d0
-        struc%sigp(:)=0.0d0
-        struc%thrpv=0.0d0
-        struc%udiag=0
-        end subroutine uham_init
-       
-        subroutine uham_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_ham):: struc
-        write(*,*) struc
-        end subroutine uham_show
-       
+
+      subroutine uham_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_ham):: struc
+      struc%size=uham_size()
+      struc%alfsi=0.0d0
+      struc%amgm=0.0d0
+      struc%bandw=0
+      struc%dabc(:)=0.0d0
+      struc%ehf=0.0d0
+      struc%ehk=0.0d0
+      struc%elind=0.0d0
+      struc%eterms(:)=0.0d0
+      struc%hord=0
+      struc%kmto(:)=0.0d0
+      struc%lasa=0
+      struc%ldham(:)=0
+      struc%lgen3=0
+      struc%lham=0
+      struc%lmaxu=0
+      struc%lmxax=0
+      struc%lncol=0
+      struc%lsig=0
+      struc%ltb=0
+      struc%lxcf=0
+      struc%nbf=0
+      struc%ndham=0
+      struc%ndhrs=0
+      struc%ndofH=0
+      struc%neula=0
+      struc%nkaph=0
+      struc%nlibu=0
+      struc%nmto=0
+      struc%npwmin=0
+      struc%npwpad=0
+      struc%nqsig=0
+      struc%obdots=0
+      struc%oeula=0
+      struc%ohrs=0
+      struc%oiaxs=0
+      struc%oindxo=0
+      struc%olmxa=0
+      struc%omagf=0
+      struc%ontabs=0
+      struc%ooffH=0
+      struc%oqsig=0
+      struc%oveps=0.0d0
+      struc%pmax(:)=0.0d0
+      struc%pmin(:)=0.0d0
+      struc%pwemax=0.0d0
+      struc%pwemin=0.0d0
+      struc%pwmode=0
+      struc%qpoff(:)=0.0d0
+      struc%qss(:)=0.0d0
+      struc%rsrnge=0.0d0
+      struc%rsstol=0.0d0
+      struc%seref=0.0d0
+      struc%sigp(:)=0.0d0
+      struc%thrpv=0.0d0
+      struc%udiag=0
+      end subroutine uham_init
+
+      subroutine uham_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_ham):: struc
+      write(*,*) struc
+      end subroutine uham_show
+
 C$$$        subroutine uham(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -2673,64 +2673,64 @@ C$$$          write(*,*) 'uham offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine uham
-       
-        subroutine ulat_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_lat):: struc
-        struc%size=ulat_size()
-        struc%alat=0.0d0
-        struc%as=0.0d0
-        struc%avw=0.0d0
-        struc%awald=0.0d0
-        struc%dist(:)=0.0d0
-        struc%gam(:)=0.0d0
-        struc%gmax=0.0d0
-        struc%ldist=0
-        struc%nabc(:)=0
-        struc%ng=0
-        struc%nkd=0
-        struc%nkdmx=0
-        struc%nkq=0
-        struc%nkqmx=0
-        struc%npgrp=0
-        struc%nsgrp=0
-        struc%oag=0
-        struc%obgv=0
-        struc%ocg=0
-        struc%ocy=0
-        struc%odlv=0
-        struc%ogv=0
-        struc%oidxcg=0
-        struc%oips0=0
-        struc%oistab=0
-        struc%ojcg=0
-        struc%okv=0
-        struc%opos=0
-        struc%oqlv=0
-        struc%osymgr=0
-        struc%plat(:)=0.0d0
-        struc%plat0(:)=0.0d0
-        struc%plat2(:)=0.0d0
-        struc%plate(:)=0.0d0
-        struc%platl(:)=0.0d0
-        struc%platr(:)=0.0d0
-        struc%qlat(:)=0.0d0
-        struc%rpad=0.0d0
-        struc%slat(:)=0.0d0
-        struc%tol=0.0d0
-        struc%tolft=0.0d0
-        struc%vol=0.0d0
-        end subroutine ulat_init
-       
-        subroutine ulat_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_lat):: struc
-        write(*,*) struc
-        end subroutine ulat_show
-       
+
+      subroutine ulat_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_lat):: struc
+      struc%size=ulat_size()
+      struc%alat=0.0d0
+      struc%as=0.0d0
+      struc%avw=0.0d0
+      struc%awald=0.0d0
+      struc%dist(:)=0.0d0
+      struc%gam(:)=0.0d0
+      struc%gmax=0.0d0
+      struc%ldist=0
+      struc%nabc(:)=0
+      struc%ng=0
+      struc%nkd=0
+      struc%nkdmx=0
+      struc%nkq=0
+      struc%nkqmx=0
+      struc%npgrp=0
+      struc%nsgrp=0
+      struc%oag=0
+      struc%obgv=0
+      struc%ocg=0
+      struc%ocy=0
+      struc%odlv=0
+      struc%ogv=0
+      struc%oidxcg=0
+      struc%oips0=0
+      struc%oistab=0
+      struc%ojcg=0
+      struc%okv=0
+      struc%opos=0
+      struc%oqlv=0
+      struc%osymgr=0
+      struc%plat(:)=0.0d0
+      struc%plat0(:)=0.0d0
+      struc%plat2(:)=0.0d0
+      struc%plate(:)=0.0d0
+      struc%platl(:)=0.0d0
+      struc%platr(:)=0.0d0
+      struc%qlat(:)=0.0d0
+      struc%rpad=0.0d0
+      struc%slat(:)=0.0d0
+      struc%tol=0.0d0
+      struc%tolft=0.0d0
+      struc%vol=0.0d0
+      end subroutine ulat_init
+
+      subroutine ulat_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_lat):: struc
+      write(*,*) struc
+      end subroutine ulat_show
+
 C$$$        subroutine ulat(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -2744,44 +2744,44 @@ C$$$          write(*,*) 'ulat offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine ulat
-       
-        subroutine umix_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_mix):: struc
-        struc%size=umix_size()
-        struc%b=0.0d0
-        struc%bl=0.0d0
-        struc%bv=0.0d0
-        struc%elind=0.0d0
-        struc%fn=0.0d0
-        struc%kill=0
-        struc%lxpot=0
-        struc%mmix=0
-        struc%mode=0
-        struc%model=0
-        struc%n=0
-        struc%nitu=0
-        struc%nmix=0
-        struc%nsave=0
-        struc%r(:)=0.0d0
-        struc%rms1=0.0d0
-        struc%rms2=0.0d0
-        struc%tj(:)=0.0d0
-        struc%tolu=0.0d0
-        struc%umix=0.0d0
-        struc%w(:)=0.0d0
-        struc%wc=0.0d0
-        end subroutine umix_init
-       
-        subroutine umix_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_mix):: struc
-        write(*,*) struc
-        end subroutine umix_show
-       
+
+      subroutine umix_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_mix):: struc
+      struc%size=umix_size()
+      struc%b=0.0d0
+      struc%bl=0.0d0
+      struc%bv=0.0d0
+      struc%elind=0.0d0
+      struc%fn=0.0d0
+      struc%kill=0
+      struc%lxpot=0
+      struc%mmix=0
+      struc%mode=0
+      struc%model=0
+      struc%n=0
+      struc%nitu=0
+      struc%nmix=0
+      struc%nsave=0
+      struc%r(:)=0.0d0
+      struc%rms1=0.0d0
+      struc%rms2=0.0d0
+      struc%tj(:)=0.0d0
+      struc%tolu=0.0d0
+      struc%umix=0.0d0
+      struc%w(:)=0.0d0
+      struc%wc=0.0d0
+      end subroutine umix_init
+
+      subroutine umix_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_mix):: struc
+      write(*,*) struc
+      end subroutine umix_show
+
 C$$$        subroutine umix(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -2795,32 +2795,32 @@ C$$$          write(*,*) 'umix offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine umix
-       
-        subroutine umove_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_move):: struc
-        struc%size=umove_size()
-        struc%ct(:)=0.0d0
-        struc%gyro=0.0d0
-        struc%kt=0.0d0
-        struc%modt(:)=0
-        struc%nmodt=0
-        struc%prmint(:)=0.0d0
-        struc%tnow=0.0d0
-        struc%ts=0.0d0
-        struc%tsequ=0.0d0
-        struc%tstot=0.0d0
-        end subroutine umove_init
-       
-        subroutine umove_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_move):: struc
-        write(*,*) struc
-        end subroutine umove_show
-       
+
+      subroutine umove_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_move):: struc
+      struc%size=umove_size()
+      struc%ct(:)=0.0d0
+      struc%gyro=0.0d0
+      struc%kt=0.0d0
+      struc%modt(:)=0
+      struc%nmodt=0
+      struc%prmint(:)=0.0d0
+      struc%tnow=0.0d0
+      struc%ts=0.0d0
+      struc%tsequ=0.0d0
+      struc%tstot=0.0d0
+      end subroutine umove_init
+
+      subroutine umove_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_move):: struc
+      write(*,*) struc
+      end subroutine umove_show
+
 C$$$        subroutine umove(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -2834,34 +2834,34 @@ C$$$          write(*,*) 'umove offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine umove
-       
-        subroutine uoptic_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_optic):: struc
-        struc%size=uoptic_size()
-        struc%axes(:)=0
-        struc%cll=0
-        struc%cln=0
-        struc%cls=0
-        struc%clsite=0
-        struc%esciss=0.0d0
-        struc%mode=0
-        struc%nchi2=0
-        struc%ne=0
-        struc%ocrng(:)=0
-        struc%unrng(:)=0
-        struc%window(:)=0.0d0
-        end subroutine uoptic_init
-       
-        subroutine uoptic_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_optic):: struc
-        write(*,*) struc
-        end subroutine uoptic_show
-       
+
+      subroutine uoptic_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_optic):: struc
+      struc%size=uoptic_size()
+      struc%axes(:)=0
+      struc%cll=0
+      struc%cln=0
+      struc%cls=0
+      struc%clsite=0
+      struc%esciss=0.0d0
+      struc%mode=0
+      struc%nchi2=0
+      struc%ne=0
+      struc%ocrng(:)=0
+      struc%unrng(:)=0
+      struc%window(:)=0.0d0
+      end subroutine uoptic_init
+
+      subroutine uoptic_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_optic):: struc
+      write(*,*) struc
+      end subroutine uoptic_show
+
 C$$$        subroutine uoptic(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -2875,32 +2875,32 @@ C$$$          write(*,*) 'uoptic offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine uoptic
-       
-        subroutine uordn_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_ordn):: struc
-        struc%size=uordn_size()
-        struc%efre=0.0d0
-        struc%mode=0
-        struc%ncl=0
-        struc%ndofh=0
-        struc%oclp=0
-        struc%oclssl=0
-        struc%oiaxg=0
-        struc%omapgv=0
-        struc%ooffch=0
-        struc%rmaxg(:)=0.0d0
-        end subroutine uordn_init
-       
-        subroutine uordn_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_ordn):: struc
-        write(*,*) struc
-        end subroutine uordn_show
-       
+
+      subroutine uordn_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_ordn):: struc
+      struc%size=uordn_size()
+      struc%efre=0.0d0
+      struc%mode=0
+      struc%ncl=0
+      struc%ndofh=0
+      struc%oclp=0
+      struc%oclssl=0
+      struc%oiaxg=0
+      struc%omapgv=0
+      struc%ooffch=0
+      struc%rmaxg(:)=0.0d0
+      end subroutine uordn_init
+
+      subroutine uordn_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_ordn):: struc
+      write(*,*) struc
+      end subroutine uordn_show
+
 C$$$        subroutine uordn(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -2914,79 +2914,79 @@ C$$$          write(*,*) 'uordn offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine uordn
-       
-        subroutine upot_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_pot):: struc
-        struc%size=upot_size()
-        struc%bfield(:)=0.0d0
-        struc%nlma=0
-        struc%nlml=0
-        struc%nrhos=0
-        struc%oaamom=0
-        struc%obxc=0
-        struc%odddpf=0
-        struc%oddpf=0
-        struc%oddpfr=0
-        struc%odel=0
-        struc%odpf=0
-        struc%odpfr=0
-        struc%ofes=0
-        struc%ogma=0
-        struc%ogmar=0
-        struc%ogrrme=0
-        struc%ohab=0
-        struc%oivso=0
-        struc%omad=0
-        struc%oorhat=0
-        struc%opalp=0
-        struc%opapg=0
-        struc%opdel=0
-        struc%opf=0
-        struc%opfnc=0
-        struc%opfr=0
-        struc%opmpol=0
-        struc%opnu=0
-        struc%opp=0
-        struc%oppi=0
-        struc%oppn=0
-        struc%opprel=0
-        struc%opti=0
-        struc%oqc=0
-        struc%oqmom=0
-        struc%oqnu=0
-        struc%oqpp=0
-        struc%oqt=0
-        struc%orhos=0
-        struc%orhrmx=0
-        struc%osab=0
-        struc%osgw=0
-        struc%osmpot=0
-        struc%osmrho=0
-        struc%osop=0
-        struc%osoptc=0
-        struc%osrout=0
-        struc%otau=0
-        struc%ovab=0
-        struc%ovdif=0
-        struc%oves=0
-        struc%ovintr=0
-        struc%ovrmax=0
-        struc%ovshf=0
-        struc%vconst(:)=0.0d0
-        struc%vmtz=0.0d0
-        struc%vmtz0=0.0d0
-        end subroutine upot_init
-       
-        subroutine upot_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_pot):: struc
-        write(*,*) struc
-        end subroutine upot_show
-       
+
+      subroutine upot_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_pot):: struc
+      struc%size=upot_size()
+      struc%bfield(:)=0.0d0
+      struc%nlma=0
+      struc%nlml=0
+      struc%nrhos=0
+      struc%oaamom=0
+      struc%obxc=0
+      struc%odddpf=0
+      struc%oddpf=0
+      struc%oddpfr=0
+      struc%odel=0
+      struc%odpf=0
+      struc%odpfr=0
+      struc%ofes=0
+      struc%ogma=0
+      struc%ogmar=0
+      struc%ogrrme=0
+      struc%ohab=0
+      struc%oivso=0
+      struc%omad=0
+      struc%oorhat=0
+      struc%opalp=0
+      struc%opapg=0
+      struc%opdel=0
+      struc%opf=0
+      struc%opfnc=0
+      struc%opfr=0
+      struc%opmpol=0
+      struc%opnu=0
+      struc%opp=0
+      struc%oppi=0
+      struc%oppn=0
+      struc%opprel=0
+      struc%opti=0
+      struc%oqc=0
+      struc%oqmom=0
+      struc%oqnu=0
+      struc%oqpp=0
+      struc%oqt=0
+      struc%orhos=0
+      struc%orhrmx=0
+      struc%osab=0
+      struc%osgw=0
+      struc%osmpot=0
+      struc%osmrho=0
+      struc%osop=0
+      struc%osoptc=0
+      struc%osrout=0
+      struc%otau=0
+      struc%ovab=0
+      struc%ovdif=0
+      struc%oves=0
+      struc%ovintr=0
+      struc%ovrmax=0
+      struc%ovshf=0
+      struc%vconst(:)=0.0d0
+      struc%vmtz=0.0d0
+      struc%vmtz0=0.0d0
+      end subroutine upot_init
+
+      subroutine upot_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_pot):: struc
+      write(*,*) struc
+      end subroutine upot_show
+
 C$$$        subroutine upot(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -3000,48 +3000,48 @@ C$$$          write(*,*) 'upot offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine upot
-       
-        subroutine usite_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_site):: struc
-        struc%size=usite_size()
-        struc%bfield(:)=0.0d0
-        struc%clabel=0.0d0
-        struc%class=0
-        struc%cli=0
-        struc%delta(:)=0.0d0
-        struc%dpole(:)=0.0d0
-        struc%eula(:)=0.0d0
-        struc%force(:)=0.0d0
-        struc%mpole=0.0d0
-        struc%ndelta=0
-        struc%norb=0
-        struc%offh=0
-        struc%orho=0
-        struc%ov0=0
-        struc%ov1=0
-        struc%pl=0
-        struc%plv=0
-        struc%pnu(:)=0.0d0
-        struc%pos(:)=0.0d0
-        struc%pos0(:)=0.0d0
-        struc%pz(:)=0.0d0
-        struc%relax(:)=0
-        struc%sid=0
-        struc%spec=0
-        struc%vel(:)=0.0d0
-        struc%vshft=0.0d0
-        end subroutine usite_init
-       
-        subroutine usite_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_site):: struc
-        write(*,*) struc
-        end subroutine usite_show
-       
+
+      subroutine usite_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_site):: struc
+      struc%size=usite_size()
+      struc%bfield(:)=0.0d0
+      struc%clabel=0.0d0
+      struc%class=0
+      struc%cli=0
+      struc%delta(:)=0.0d0
+      struc%dpole(:)=0.0d0
+      struc%eula(:)=0.0d0
+      struc%force(:)=0.0d0
+      struc%mpole=0.0d0
+      struc%ndelta=0
+      struc%norb=0
+      struc%offh=0
+      struc%orho=0
+      struc%ov0=0
+      struc%ov1=0
+      struc%pl=0
+      struc%plv=0
+      struc%pnu(:)=0.0d0
+      struc%pos(:)=0.0d0
+      struc%pos0(:)=0.0d0
+      struc%pz(:)=0.0d0
+      struc%relax(:)=0
+      struc%sid=0
+      struc%spec=0
+      struc%vel(:)=0.0d0
+      struc%vshft=0.0d0
+      end subroutine usite_init
+
+      subroutine usite_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_site):: struc
+      write(*,*) struc
+      end subroutine usite_show
+
 C$$$        subroutine usite(struc,offe,nli,is,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -3055,95 +3055,95 @@ C$$$          write(*,*) 'usite offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine usite
-       
-        subroutine uspec_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_spec):: struc
-        struc%size=uspec_size()
-        struc%z=0.0d0
-        struc%mass=0.0d0
-        struc%rmt=0.0d0
-        struc%ntorb=0
-        struc%naug=0
-        struc%norb=0
-        struc%rsmfa=0.0d0
-        struc%rsma=0.0d0
-        struc%rg=0.0d0
-        struc%lmxa=0
-        struc%kmxh=0
-        struc%lmxl=0
-        struc%kmxt=0
-        struc%rsmv=0.0d0
-        struc%norp=0
-        struc%coreh=0.0d0
-        struc%coreq(:)=0.0d0
-        struc%a=0.0d0
-        struc%nr=0
-        struc%eref=0.0d0
-        struc%etf=0.0d0
-        struc%beta=0.0d0
-        struc%lfoca=0
-        struc%ctail=0.0d0
-        struc%etail=0.0d0
-        struc%name=0.0d0
-        struc%orhoc=0
-        struc%stc=0.0d0
-        struc%lmxb=0
-        struc%lmxf=0
-        struc%stni=0.0d0
-        struc%stnm=0.0d0
-        struc%rham=0.0d0
-        struc%rfoca=0.0d0
-        struc%dv=0.0d0
-        struc%mxcst=0
-        struc%group=0
-        struc%grp2=0
-        struc%nxi=0
-        struc%qc=0.0d0
-        struc%lmxpb=0
-        struc%pb1=0.0d0
-        struc%pb2=0.0d0
-        struc%colxbs(:)=0.0d0
-        struc%lxi=0
-        struc%radxbs=0.0d0
-        struc%rcut=0.0d0
-        struc%rint=0.0d0
-        struc%eh3=0.0d0
-        struc%rs3=0.0d0
-        struc%vmtz=0.0d0
-        struc%kmxv=0
-        struc%rcfa(:)=0.0d0
-        struc%p(:)=0.0d0
-        struc%q(:)=0.0d0
-        struc%alpha(:)=0.0d0
-        struc%idmod(:)=0
-        struc%idxdn(:)=0
-        struc%hcr(:)=0.0d0
-        struc%exi(:)=0.0d0
-        struc%ngcut(:)=0
-        struc%qpol(:)=0.0d0
-        struc%chfa(:)=0.0d0
-        struc%orbp(:)=0.0d0
-        struc%enu(:)=0.0d0
-        struc%pz(:)=0.0d0
-        struc%idu(:)=0
-        struc%uh(:)=0.0d0
-        struc%jh(:)=0.0d0
-        struc%iq1(:)=0
-        struc%ivso(:)=0
-        struc%ehvl(:)=0.0d0
-        struc%vso(:)=0.0d0
-        end subroutine uspec_init
-       
-        subroutine uspec_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_spec):: struc
-        write(*,*) struc
-        end subroutine uspec_show
-       
+
+      subroutine uspec_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_spec):: struc
+      struc%size=uspec_size()
+      struc%z=0.0d0
+      struc%mass=0.0d0
+      struc%rmt=0.0d0
+      struc%ntorb=0
+      struc%naug=0
+      struc%norb=0
+      struc%rsmfa=0.0d0
+      struc%rsma=0.0d0
+      struc%rg=0.0d0
+      struc%lmxa=0
+      struc%kmxh=0
+      struc%lmxl=0
+      struc%kmxt=0
+      struc%rsmv=0.0d0
+      struc%norp=0
+      struc%coreh=0.0d0
+      struc%coreq(:)=0.0d0
+      struc%a=0.0d0
+      struc%nr=0
+      struc%eref=0.0d0
+      struc%etf=0.0d0
+      struc%beta=0.0d0
+      struc%lfoca=0
+      struc%ctail=0.0d0
+      struc%etail=0.0d0
+      struc%name=0.0d0
+      struc%orhoc=0
+      struc%stc=0.0d0
+      struc%lmxb=0
+      struc%lmxf=0
+      struc%stni=0.0d0
+      struc%stnm=0.0d0
+      struc%rham=0.0d0
+      struc%rfoca=0.0d0
+      struc%dv=0.0d0
+      struc%mxcst=0
+      struc%group=0
+      struc%grp2=0
+      struc%nxi=0
+      struc%qc=0.0d0
+      struc%lmxpb=0
+      struc%pb1=0.0d0
+      struc%pb2=0.0d0
+      struc%colxbs(:)=0.0d0
+      struc%lxi=0
+      struc%radxbs=0.0d0
+      struc%rcut=0.0d0
+      struc%rint=0.0d0
+      struc%eh3=0.0d0
+      struc%rs3=0.0d0
+      struc%vmtz=0.0d0
+      struc%kmxv=0
+      struc%rcfa(:)=0.0d0
+      struc%p(:)=0.0d0
+      struc%q(:)=0.0d0
+      struc%alpha(:)=0.0d0
+      struc%idmod(:)=0
+      struc%idxdn(:)=0
+      struc%hcr(:)=0.0d0
+      struc%exi(:)=0.0d0
+      struc%ngcut(:)=0
+      struc%qpol(:)=0.0d0
+      struc%chfa(:)=0.0d0
+      struc%orbp(:)=0.0d0
+      struc%enu(:)=0.0d0
+      struc%pz(:)=0.0d0
+      struc%idu(:)=0
+      struc%uh(:)=0.0d0
+      struc%jh(:)=0.0d0
+      struc%iq1(:)=0
+      struc%ivso(:)=0
+      struc%ehvl(:)=0.0d0
+      struc%vso(:)=0.0d0
+      end subroutine uspec_init
+
+      subroutine uspec_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_spec):: struc
+      write(*,*) struc
+      end subroutine uspec_show
+
 C$$$        subroutine uspec(struc,offe,nli,is,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -3157,51 +3157,51 @@ C$$$          write(*,*) 'uspec offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine uspec
-       
-        subroutine ustr_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_str):: struc
-        struc%size=ustr_size()
-        struc%adec=0.0d0
-        struc%amode=0
-        struc%drwats=0.0d0
-        struc%iinv(:)=0.0d0
-        struc%ivl=0
-        struc%kaps(:)=0.0d0
-        struc%lequiv=0
-        struc%lmaxw=0
-        struc%loka=0
-        struc%lshow=0
-        struc%mxnbr=0
-        struc%nalf=0
-        struc%nbisi(:)=0
-        struc%ncupl=0
-        struc%ndust=0
-        struc%nitab=0
-        struc%nkaps=0
-        struc%nttab=0
-        struc%oadot=0
-        struc%oalp=0
-        struc%oiax=0
-        struc%ontab=0
-        struc%os=0
-        struc%osdot=0
-        struc%rfit=0.0d0
-        struc%rmax=0.0d0
-        struc%rmaxg=0.0d0
-        struc%skmsh(:)=0.0d0
-        struc%wztcf=0.0d0
-        end subroutine ustr_init
-       
-        subroutine ustr_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_str):: struc
-        write(*,*) struc
-        end subroutine ustr_show
-       
+
+      subroutine ustr_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_str):: struc
+      struc%size=ustr_size()
+      struc%adec=0.0d0
+      struc%amode=0
+      struc%drwats=0.0d0
+      struc%iinv(:)=0.0d0
+      struc%ivl=0
+      struc%kaps(:)=0.0d0
+      struc%lequiv=0
+      struc%lmaxw=0
+      struc%loka=0
+      struc%lshow=0
+      struc%mxnbr=0
+      struc%nalf=0
+      struc%nbisi(:)=0
+      struc%ncupl=0
+      struc%ndust=0
+      struc%nitab=0
+      struc%nkaps=0
+      struc%nttab=0
+      struc%oadot=0
+      struc%oalp=0
+      struc%oiax=0
+      struc%ontab=0
+      struc%os=0
+      struc%osdot=0
+      struc%rfit=0.0d0
+      struc%rmax=0.0d0
+      struc%rmaxg=0.0d0
+      struc%skmsh(:)=0.0d0
+      struc%wztcf=0.0d0
+      end subroutine ustr_init
+
+      subroutine ustr_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_str):: struc
+      write(*,*) struc
+      end subroutine ustr_show
+
 C$$$        subroutine ustr(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none
@@ -3215,28 +3215,28 @@ C$$$          write(*,*) 'ustr offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine ustr
-       
-        subroutine utb_init(struc)
-        use m_struc_def
-         use m_struc_func
-        implicit none
-        type(s_tb):: struc
-        struc%size=utb_size()
-        struc%alam=0.0d0
-        struc%alsc=0.0d0
-        struc%ebfit(:)=0.0d0
-        struc%fmode=0
-        struc%nbfit(:)=0
-        struc%rmfit(:)=0.0d0
-        end subroutine utb_init
-       
-        subroutine utb_show(struc)
-        use m_struc_def
-        implicit none
-        type(s_tb):: struc
-        write(*,*) struc
-        end subroutine utb_show
-       
+
+      subroutine utb_init(struc)
+      use m_struc_def
+      use m_struc_func
+      implicit none
+      type(s_tb):: struc
+      struc%size=utb_size()
+      struc%alam=0.0d0
+      struc%alsc=0.0d0
+      struc%ebfit(:)=0.0d0
+      struc%fmode=0
+      struc%nbfit(:)=0
+      struc%rmfit(:)=0.0d0
+      end subroutine utb_init
+
+      subroutine utb_show(struc)
+      use m_struc_def
+      implicit none
+      type(s_tb):: struc
+      write(*,*) struc
+      end subroutine utb_show
+
 C$$$        subroutine utb(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
 C$$$        implicit none

@@ -9,8 +9,8 @@ Cgetarg...info...           structure ['chimedit', 'bz', 'sbz']
 Cgetarg...info...           use_to_add ['chimedit', 'm_struc_def']
       subroutine chimedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
      .  nbas,nat,nspec)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Magnetic Linear response editor
 C ----------------------------------------------------------------------
@@ -22,7 +22,7 @@ Ci         :1 transverse linear response, lmf
 Ci   sctrl :struct for program flow parameters; see routine uctrl
 Ci     Elts read: zbak lrs
 Ci     Stored:    lrs
-Ci     Passed to: 
+Ci     Passed to:
 Ci   ssite :struct for site-specific information; see routine usite
 Ci     Elts read:
 Ci     Stored:
@@ -34,15 +34,15 @@ Ci     Passed to: dcopy
 Ci   slat  :struct for lattice information; see routine ulat
 Ci     Elts read: nabc
 Ci     Stored:
-Ci     Passed to: dcopy rdovfa 
+Ci     Passed to: dcopy rdovfa
 Ci   spot  :struct for information about the potential; see routine upot
-Ci     Elts read: nlml nlma   
-Ci     Stored:    
-Ci     Passed to: dcopy rdovfa 
+Ci     Elts read: nlml nlma
+Ci     Stored:
+Ci     Passed to: dcopy rdovfa
 Ci   sbz   :struct for the Brillouin Zone; see routine ubz
 Ci     Elts read:
 Ci     Stored:
-Ci     Passed to: 
+Ci     Passed to:
 Ci   nbas  :size of basis
 Ci   nat   :number atoms in basis with augmentation sites
 Ci         :Note: if nat<nbas, there is a requirement that
@@ -75,10 +75,10 @@ Ci   nx       : cutoff number of w points in calculation, such  X0(q,w)
 Ci   cutw     : cutoff value(in meV)  of w in calculation of X(q,w)
 Ci   nbloch   : dimension of product basis
 Ci   ngbin    : dimension of mix basis
-Ci   nq       : total number of q points in calculation of X(q,w)        
-Ci   qpi      : vector of current q,   X(q,w)  
+Ci   nq       : total number of q points in calculation of X(q,w)
+Ci   qpi      : vector of current q,   X(q,w)
 Ci   qgbin    : vector of all q points,   qgbin(3,nq0i)
-Ci   imbas    : magnetic atom index   
+Ci   imbas    : magnetic atom index
 Ci   momsite  : magnetic moment m
 Ci   svec     : <B_I|m_a>  svec(nbloch,nmbas)
 Ci   mmnorm   : |m|=sqrt(<m|B> <B|m> )=norm(svec) ; this is not m.
@@ -89,20 +89,20 @@ Ci   zxq      : <B|X0|B>   chi0 matrix zxq(nbloch,nbloch,nx) denpend on (q,w)
 Ci   chi0     : <~e|X0|~e> = <m|B><B|X0|B><B|m> / norm(<m_i|m_i>) /norm(<m_j|m_j>)
 Ci            :            = <m|x0|m'>/ norm(<m_i|m_i>) /norm(<B|m_j>)
 Ci            :            = <m_a|x0|m_a'>/(sqrt(<m_i|m_i> sqrt(<m_j|m_j>)
-Ci            :     |~e_a> = |m_a>/<m_a|m_a>   
-Ci   gbvec    : <e^iqr|B+>  projection of |e^iqr> on mix basis set,  gbvec(ngbin,nq0i)        
+Ci            :     |~e_a> = |m_a>/<m_a|m_a>
+Ci   gbvec    : <e^iqr|B+>  projection of |e^iqr> on mix basis set,  gbvec(ngbin,nq0i)
 Ci   gbvec0   : <e^iqr|B>   subset(prod. bas. part) of gbvec,  gbvec0(nbloch,nq0i)
 Ci   eiqrm    : eiqrm_i = <~e_i|e^{iqr}> =  <M_i|eiqr>/sqrt(<M_i|M_i>)
 Ci            : sum( dconjg(gbvec(1:nbloch))*svec(1:nbloch,imb) )/mmnorm(imb)
 Ci   freq     : frequency w in unit of ryberg
-Ci   freq_meV : frequency w in unit of meV 
-Ci   mx2m     : <m|x|m>  from rigid spin approximation 
-Ci   mx0m     : <m|x0|m> from rigid spin approximation 
+Ci   freq_meV : frequency w in unit of meV
+Ci   mx2m     : <m|x|m>  from rigid spin approximation
+Ci   mx0m     : <m|x0|m> from rigid spin approximation
 Co Outputs:
-Co   mim      : <m|i|m>  stoner parameter from rigid spin approximation 
-Co   x0meanx  : <m|B><B|X0|B><B|m> 
-Co   mUm      : <m|B><B|U|B><B|m> 
-Co   chike    : <m|B><B|X|B><B|m> 
+Co   mim      : <m|i|m>  stoner parameter from rigid spin approximation
+Co   x0meanx  : <m|B><B|X0|B><B|m>
+Co   mUm      : <m|B><B|U|B><B|m>
+Co   chike    : <m|B><B|X|B><B|m>
 Co   iqrXiqr  : <e^{iqr}|B><B|X|B><B|e^{iqr}>
 
 
@@ -112,12 +112,12 @@ C ... Passed parameters
       integer mode,nbas,nat,nspec,ifi,n0
       parameter (n0=10)
 Cgetarg       double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
-       type(s_ctrl)::sctrl
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
-       type(s_pot)::spot
-       type(s_bz)::sbz
+      type(s_ctrl)::sctrl
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
+      type(s_pot)::spot
+      type(s_bz)::sbz
 
 C ... Local parameters
       integer nglob,fopna,fopng,a2vec,havechi0,iq,nq,nsgrp
@@ -130,9 +130,9 @@ C ... Local parameters
 Cdelw1 do not change  [['undef', 'wref'], 'opos', 'chimedit']
 Cdelw1 do not change  [['undef', 'wref'], 'og', 'chimedit']
 Cdelw1       integer opos,ogstar,owgt,oistab,og,oag
-       integer:: opos , oistab , og , oag 
-       integer ,allocatable :: iv_w_ogstar(:)
-       real(8) ,allocatable :: rv_w_owgt(:)
+      integer:: opos , oistab , og , oag
+      integer ,allocatable :: iv_w_ogstar(:)
+      real(8) ,allocatable :: rv_w_owgt(:)
 
       double precision xx,qpi(3),ddot,plat(3,3),rb(3,3),qb(3,3),
      .  pos(3,nbas)
@@ -169,12 +169,12 @@ C --- Setup ---
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
 Cgetarg       call upack('lat plat opos',slat,plat,opos,0,0,0)
-       
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
+
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 163
 Cdelw1 do not change opos because of ['undef', 'wref']
-       opos=slat%opos
+      opos=slat%opos
 
 Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
 Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
@@ -182,21 +182,21 @@ Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
 Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
 Cgetarg       call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
 Cgetarg      .  oag,0)
-       
-       nsgrp=slat%nsgrp
-       oistab=slat%oistab
+
+      nsgrp=slat%nsgrp
+      oistab=slat%oistab
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 174
 Cdelw1 do not change og because of ['undef', 'wref']
-       og=slat%osymgr
-       oag=slat%oag
+      og=slat%osymgr
+      oag=slat%oag
 
 
 C     should be from sgw?
 Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
 Cgetarg       call upack('bz nkabc',sbz,nkxyz,0,0,0,0)
-       
-       i_copy_size=size(sbz%nkabc) 
-       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1) 
+
+      i_copy_size=size(sbz%nkabc)
+      call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
 
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 185
 Cdelw1 do not change opos because of ['undef', 'wref']
@@ -287,26 +287,26 @@ C ... Number of k-points
           if (allocated(qfbz)) deallocate(qfbz)
           allocate(qfbz(3,mxkp))
 Cdelw1           call defi(ogstar,-mxkp-1)
-           allocate(iv_w_ogstar(abs(-mxkp-1)))
-           if (-mxkp-1<0) iv_w_ogstar(:)=0
+          allocate(iv_w_ogstar(abs(-mxkp-1)))
+          if (-mxkp-1<0) iv_w_ogstar(:)=0
 
 Cdelw1           w(ogstar) = -2
-           iv_w_ogstar = - 2 
+          iv_w_ogstar = - 2
 
           if (allocated(ipq)) deallocate(ipq)
           allocate(ipq(nk1,nk2,nk3))
 Cdelw1           call defdr(owgt,-mxkp)
-           allocate(rv_w_owgt(abs(-mxkp)))
-           if (-mxkp<0) rv_w_owgt(:)=0.0d0
+          allocate(rv_w_owgt(abs(-mxkp)))
+          if (-mxkp<0) rv_w_owgt(:)=0.0d0
 
           call info0(20,1,0,' q-points in full BZ ...')
 Cdelw1           call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,ipq,
 Cdelw1      .      qfbz,w(owgt),nq,mxkp,0,0)
-           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-     .     ipq , qfbz , rv_w_owgt , nq , mxkp , 0 , 0 ) 
+          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     .     ipq , qfbz , rv_w_owgt , nq , mxkp , 0 , 0 )
 
 Cdelw1           call dpzero(w(owgt),mxkp)
-           call dpzero ( rv_w_owgt , mxkp ) 
+          call dpzero ( rv_w_owgt , mxkp )
 
           call info2(20,0,0,' Irr. qp ...',0,0)
           allocate(qp(3,nq))
@@ -316,9 +316,9 @@ Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 282
 Cdelw1 do not change og because of ['undef', 'wref']
 Cdelw1           call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrp,ipq,
 Cdelw1      .      qp,w(owgt),nq,mxkp,w(ogstar),0)
-           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
      .     , nsgrp , ipq , qp , rv_w_owgt , nq , mxkp , iv_w_ogstar , 0 
-     .     ) 
+     .     )
 
           lqp = 4
           call rx('irr still in progress')
@@ -347,7 +347,7 @@ C --- Read chi0 ---
         call word(outs,2,j1,j2)
 
 C   --- Kotani style, full matrix ---
-c run  fe --pr29 '--chimedit~new 1~read tkpb'     
+c run  fe --pr29 '--chimedit~new 1~read tkpb'
         if (outs(j1:j2) .eq. 'tkpb') then
 c          call info0(0,0,0,'%6p... not ready for tkpb')
           do  iq = 1, nq
@@ -364,25 +364,25 @@ c             open(333, file='ChiPM0001.fmat',form='unformatted' )
  308        format (i4,6i8)
             if (natom.ne.nbas) call rx0('natom ne nbas')
 
-C           First qp: allocate and assign 
+C           First qp: allocate and assign
 
             nx=200
             if (iq .eq. 1) then
-               if (allocated(momsite)) deallocate(momsite)
-               if (allocated(mmnorm )) deallocate(mmnorm)
-               allocate(imbas(nmbas), momsite(nmbas), mmnorm(nmbas)
+              if (allocated(momsite)) deallocate(momsite)
+              if (allocated(mmnorm )) deallocate(mmnorm)
+              allocate(imbas(nmbas), momsite(nmbas), mmnorm(nmbas)
      &             ,nblocha(1:natom),svec(1:nbloch,1:nmbas)
      &             ,zzr(nbloch,1) )
-               allocate( zxq(nbloch,nbloch,nq,nx) )
-               allocate( emesh(nx)) 
+              allocate( zxq(nbloch,nbloch,nq,nx) )
+              allocate( emesh(nx))
             endif
 
-               read(ifi) imbas(1:nmbas),momsite(1:nmbas),mmnorm(1:nmbas)
-               read(ifi) nblocha(1:natom),svec(1:nbloch,1:nmbas)
-               read(ifi) zzr(1:nbloch,1)
+            read(ifi) imbas(1:nmbas),momsite(1:nmbas),mmnorm(1:nmbas)
+            read(ifi) nblocha(1:natom),svec(1:nbloch,1:nmbas)
+            read(ifi) zzr(1:nbloch,1)
 
             do iw=1,nx
-               read(ifi)  qpi,emesh(iw), zxq(1:nbloch,1:nbloch,iq,iw)
+              read(ifi)  qpi,emesh(iw), zxq(1:nbloch,1:nbloch,iq,iw)
             enddo
             qp(:,iq) = qpi
 
@@ -407,7 +407,7 @@ C           Make Kotani-style file name
               if (fn(j:j) .eq. ' ') fn(j:j) = '0'
             enddo
 
-C           Open file, read number and list of magnetic sites 
+C           Open file, read number and list of magnetic sites
             ifi = fopng(trim(fn),-1,1)
             rewind ifi
             read(ifi,*) nmagf       ! number of magnetic atoms, 'nmbas
@@ -444,7 +444,7 @@ C           Sanity check for subsequent qp
                 goto 10
               endif
             enddo
-              
+
 C           Get energy mesh ; put into wk
             allocate(wk(100000))
 C           Skip next 3 lines
@@ -457,10 +457,10 @@ C           Skip next 3 lines
             enddo
    30       continue
             if (iq .eq. 1) then
-               if(sum(abs(qpi(:))).ne.0d0) call rx('1st /= Gamma pnt')
+              if(sum(abs(qpi(:))).ne.0d0) call rx('1st /= Gamma pnt')
             endif
 
-C           First qp: allocate and assign 
+C           First qp: allocate and assign
             if (iq .eq. 1) then
               nmbas=nmag
               ne = j
@@ -472,7 +472,7 @@ C           First qp: allocate and assign
               allocate(chi0(nmagf,nmagf,nq,ne)
      .         ,chi0_r(nmagf,nmagf,nq,ne), chi0_i(nmagf,nmagf,nq,ne) )
 
-c              allocate( ,e1(nmagf),e2(nmagf))              
+c              allocate( ,e1(nmagf),e2(nmagf))
             endif
 C           Subsequent qp: assignments and sanity checks
             if (ne .ne. j) then
@@ -495,9 +495,9 @@ C           Read chi0
             rewind ifi
             read(ifi,*) j; read(ifi,*) j
             read(ifi,*) momsite(1:nmagf)
-            read(ifi,*) mmnorm(1:nmagf) 
-            read(ifi,*) (eiqrm_r(iy,iq),eiqrm_i(iy,iq),iy=1,nmbas) 
-            eiqrm(:,iq) = dcmplx(eiqrm_r(:,iq),eiqrm_i(:,iq) ) ! <e(iqr)|m>. 
+            read(ifi,*) mmnorm(1:nmagf)
+            read(ifi,*) (eiqrm_r(iy,iq),eiqrm_i(iy,iq),iy=1,nmbas)
+            eiqrm(:,iq) = dcmplx(eiqrm_r(:,iq),eiqrm_i(:,iq) ) ! <e(iqr)|m>.
             do j = 1, ne
               read(ifi,*,end=40,err=40) qpi,xx , ( (chi0_r(iy,iz,iq,j)
      &      ,chi0_i(iy,iz,iq,j),iy=1,nmbas),iz=1,nmbas)
@@ -510,7 +510,7 @@ C           Cleanup for this qp
             call fclr(' ',ifi)
           enddo   ! end of iq loop
 
-c     check output 
+c     check output
 c          write(6,"(255i5)") nmagf
 c          write(6,"(255i5)") magat(1:nmagf)
 c          write(6,"(255d23.15)") momsite(1:nmagf)
@@ -527,16 +527,16 @@ c             enddo
 c          enddo
 
           do i =1,nmagf
-             if (abs(momsite(i)).lt.1d-3) call rx('non-magnetic site ?')
+            if (abs(momsite(i)).lt.1d-3) call rx('non-magnetic site ?')
           enddo
 
           call stonerrsa(nq,ne,nmagf,qp,momsite,mmnorm,eiqrm,emesh,chi0)
 
-          do 45 iq = 1, nq          
+          do 45 iq = 1, nq
           do 45 j =1,ne
           do 45 i1 = 1,nmbas
           do 45 i2 = 1,nmbas
-             chi0(i1,i2,iq,j)=              !D_{i,j}=<ebar_i|X0|ebar_j>
+            chi0(i1,i2,iq,j)=              !D_{i,j}=<ebar_i|X0|ebar_j>
      .       chi0(i1,i2,iq,j)*momsite(i1)*momsite(i2)
      .                        /mmnorm(i1) /mmnorm(i2)
  45       continue
@@ -657,13 +657,13 @@ C ... help
       goto 10
 
 Cgetarg       end
-Cdelw1 w_varlist remains: ogstar owgt 
+Cdelw1 w_varlist remains: ogstar owgt
 Cdelw1 w_varlistundel: [opos og]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [ogstar owgt]
-        if (allocated(rv_w_owgt)) deallocate(rv_w_owgt)
-        if (allocated(iv_w_ogstar)) deallocate(iv_w_ogstar)
+      if (allocated(rv_w_owgt)) deallocate(rv_w_owgt)
+      if (allocated(iv_w_ogstar)) deallocate(iv_w_ogstar)
 
-       end subroutine chimedit 
+      end subroutine chimedit
 
 

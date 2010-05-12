@@ -14,8 +14,8 @@ Cgetarg...info...           use_to_add ['smves', 'm_struc_def']
       subroutine smves(mode,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,
      .  vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,
      .  vrmt,qbg)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Electrostatic potential of the smooth density.
 C ----------------------------------------------------------------------
@@ -140,11 +140,11 @@ Cr             2. makes the second term in hpot0
 Cu Updates
 Cb Bugs
 Cb   Possible to make vval(l=0) for sites with lmxl=-1, which tells
-Cb   value of ves at point.  However, vval doesn't have the 
+Cb   value of ves at point.  However, vval doesn't have the
 Cb   space allocated.  So skip for now.
 Cu Updates
-Cu   01 Jul 05 handle sites with lmxl=-1 
-Cu   19 Sep 02 (WRL) Added background term 
+Cu   01 Jul 05 handle sites with lmxl=-1
+Cu   19 Sep 02 (WRL) Added background term
 Cu   24 Aug 01 Extended to calc vval.  Altered argument list.
 Cu   20 Apr 01 Generates vrmt
 Cu   21 Jun 00 spin polarized
@@ -156,11 +156,11 @@ C ... Passed parameters
       double precision qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg
 Cgetarg       double precision slat(1),ssite(1),sspec(1),qmom(1),f(3,nbas),
 Cgetarg      .  gpot0(1),vval(1),hpot0(nbas),vrmt(nbas)
-       real(8):: qmom(1) , f(3,nbas) , gpot0(1) , vval(1) , hpot0(nbas) 
-     . , vrmt(nbas) 
-       type(s_lat)::slat
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      real(8):: qmom(1) , f(3,nbas) , gpot0(1) , vval(1) , hpot0(nbas) 
+     . , vrmt(nbas)
+      type(s_lat)::slat
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
       double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
 C ... Local parameters
@@ -170,12 +170,12 @@ Cdelw1 do not change  [['undef', 'wref'], 'okv', 'smves']
 Cdelw1       integer ib,igetss,ilm,ipr,iprint,is,iv0,lfoc,lgunit,lmxl,m,n1,n2,
 Cdelw1      .  n3,ng,ngabc(3),nglob,nlm,nsp,ocg1,ocgsum,ocv,ocy,ogv,okv,stdo,
 Cdelw1      .  j1,j2,j3
-       integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
+      integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
      . , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
-     . nlm , nsp , ocy , ogv , okv , stdo , j1 , j2 , j3 
-       complex(8) ,allocatable :: zv_w_ocg1(:)
-       complex(8) ,allocatable :: zv_w_ocgsum(:)
-       complex(8) ,allocatable :: zv_w_ocv(:)
+     . nlm , nsp , ocy , ogv , okv , stdo , j1 , j2 , j3
+      complex(8) ,allocatable :: zv_w_ocg1(:)
+      complex(8) ,allocatable :: zv_w_ocgsum(:)
+      complex(8) ,allocatable :: zv_w_ocv(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision ceh,cofg,cofh,dgetss,hsum,pi,qcorg,qcorh,qsc,
@@ -199,24 +199,24 @@ Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
 Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
-       
-       i_copy_size=size(slat%nabc) 
-       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
-       ng=slat%ng
+
+      i_copy_size=size(slat%nabc)
+      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      ng=slat%ng
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 187
 Cdelw1 do not change ogv because of ['undef', 'wref']
-       ogv=slat%ogv
+      ogv=slat%ogv
 Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 188
 Cdelw1 do not change okv because of ['undef', 'wref']
-       okv=slat%okv
-       vol=slat%vol
+      okv=slat%okv
+      vol=slat%vol
 
 Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
 Cgetarg       call upack1('lat ocy',slat,ocy)
-       
+
 Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 194
 Cdelw1 do not change ocy because of ['undef', 'wref']
-       ocy=slat%ocy
+      ocy=slat%ocy
 
 
 C     Electrostatics depend only on total spin density
@@ -225,7 +225,7 @@ C     Electrostatics depend only on total spin density
       endif
 
 Cdelw1       call defcc (ocv, ng)
-       allocate(zv_w_ocv(ng))
+      allocate(zv_w_ocv(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocv(:)=0.0d0
 
       call dpzero(f, 3*nbas)
@@ -246,17 +246,17 @@ Cdelw1 do not change ogv because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 212
 Cdelw1 do not change okv because of ['undef', 'wref']
 Cdelw1       call vesft(slat,ng,w(ogv),w(okv),w(ocv),k1,k2,k3,smrho,smpot,u00)
-       call vesft ( slat , ng , w ( ogv ) , w ( okv ) , zv_w_ocv , k1 
-     . , k2 , k3 , smrho , smpot , u00 ) 
+      call vesft ( slat , ng , w ( ogv ) , w ( okv ) , zv_w_ocv , k1 
+     . , k2 , k3 , smrho , smpot , u00 )
 
 
 C ... Add estatic potential of compensating gaussians to smpot
 Cdelw1       call defcc (ocg1,    ng)
-       allocate(zv_w_ocg1(ng))
+      allocate(zv_w_ocg1(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocg1(:)=0.0d0
 
 Cdelw1       call defcc (ocgsum,  ng)
-       allocate(zv_w_ocgsum(ng))
+      allocate(zv_w_ocgsum(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocgsum(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 217
@@ -274,10 +274,10 @@ Cdelw1 do not change ocy because of ['undef', 'wref']
 Cdelw1       call vesgcm(nbas,ssite,sspec,slat,w(ocy),qmom,ng,w(ogv),w(okv),
 Cdelw1      .  w(ocv),w(ocg1),w(ocgsum),k1,k2,k3,smpot,f,gpot0,hpot0,qsmc,zsum,
 Cdelw1      .  vrmt)
-       call vesgcm ( nbas , ssite , sspec , slat , w ( ocy ) , qmom 
+      call vesgcm ( nbas , ssite , sspec , slat , w ( ocy ) , qmom 
      . , ng , w ( ogv ) , w ( okv ) , zv_w_ocv , zv_w_ocg1 , zv_w_ocgsum 
      . , k1 , k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt 
-     . ) 
+     . )
 
       if (ipr .ge. 40) write (stdo,230) (ib,(f(m,ib),m=1,3),ib=1,nbas)
   230 format(/' after vesgcomp: forces are:'/(i4,3f12.6))
@@ -293,15 +293,15 @@ Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 224
 Cdelw1 do not change okv because of ['undef', 'wref']
 Cdelw1       call mshvmt(nbas,ssite,sspec,slat,ng,w(ogv),w(okv),
 Cdelw1      .  w(ocv),k1,k2,k3,smpot,vval)
-       call mshvmt ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
-     . w ( okv ) , zv_w_ocv , k1 , k2 , k3 , smpot , vval ) 
+      call mshvmt ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
+     . w ( okv ) , zv_w_ocv , k1 , k2 , k3 , smpot , vval )
 
       call symvvl(nbas,ssite,sspec,slat,vval,vrmt)
-Cdelw1 rlse name= ocg1 old_list= ocv ocg1 ocgsum 
-Cdelw1 rlse name= ocg1 new_list= ocv 
+Cdelw1 rlse name= ocg1 old_list= ocv ocg1 ocgsum
+Cdelw1 rlse name= ocg1 new_list= ocv
 Cdelw1       call rlse(ocg1)
-       if (allocated(zv_w_ocgsum)) deallocate(zv_w_ocgsum)
-       if (allocated(zv_w_ocg1)) deallocate(zv_w_ocg1)
+      if (allocated(zv_w_ocgsum)) deallocate(zv_w_ocgsum)
+      if (allocated(zv_w_ocg1)) deallocate(zv_w_ocg1)
 
 C     call zprm3('smpot',0,smpot,n1,n2,n3)
 
@@ -310,10 +310,10 @@ C --- Make vbar = avg v(RMT) and optionally assign to vconst ---
       sbar = 0
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg         rmt = dgetss('spec rmt',is,sspec)
-         rmt = (sspec(is)%rmt) 
+        rmt = (sspec(is)%rmt)
 
         vbar = vbar + rmt**2 * vrmt(ib)
         sbar = sbar + rmt**2
@@ -330,17 +330,17 @@ C ... Adjust vbar, vval, gpot0 by vconst
       iv0 = 0
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
-         lmxl = int(sspec(is)%lmxl) 
+        lmxl = int(sspec(is)%lmxl)
 
         if (lmxl .gt. -1) then
-        nlm = (lmxl+1)**2
-        vrmt(ib) = vrmt(ib) + vconst
-        vval(1+iv0) = vval(1+iv0) + vconst/y0
-        gpot0(1+iv0) = gpot0(1+iv0) + vconst/y0
-        iv0 = iv0 + nlm
+          nlm = (lmxl+1)**2
+          vrmt(ib) = vrmt(ib) + vconst
+          vval(1+iv0) = vval(1+iv0) + vconst/y0
+          gpot0(1+iv0) = gpot0(1+iv0) + vconst/y0
+          iv0 = iv0 + nlm
         endif
       enddo
       if (ipr .ge. 40) then
@@ -357,11 +357,11 @@ C ... Back transform of density and potential to real-space mesh
 
 C ... Add background to smrho
       do j1=1,k1
-         do j2=1,k2
-            do j3=1,k3
-               smrho(j1,j2,j3,1)=smrho(j1,j2,j3,1)+qbg/vol
-            enddo
-         enddo
+        do j2=1,k2
+          do j3=1,k3
+            smrho(j1,j2,j3,1)=smrho(j1,j2,j3,1)+qbg/vol
+          enddo
+        enddo
       enddo
 
       if (qbg .ne. 0) then
@@ -393,23 +393,23 @@ C --- Collect energy terms; make zvnuc for smooth problem ---
       iv0 = 0
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
 Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
-         lmxl = int(sspec(is)%lmxl) 
+        lmxl = int(sspec(is)%lmxl)
 
         if (lmxl .gt. -1) then
-        nlm = (lmxl+1)**2
+          nlm = (lmxl+1)**2
 C       hsum = integral of charge in sm. Hankel
-        hsum = -srfpi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
-        hpot0(ib) = hpot0(ib) + vconst*hsum
-        zvnsm = zvnsm + (qcorg-z)*y0*gpot0(iv0+1) + cofh*hpot0(ib)
-        do  ilm = 1, nlm
-          rhvsm = rhvsm + qmom(iv0+ilm)*gpot0(iv0+ilm)
-          sum = sum + qmom(iv0+ilm)*gpot0(iv0+ilm)
-        enddo
-        iv0 = iv0+nlm
+          hsum = -srfpi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
+          hpot0(ib) = hpot0(ib) + vconst*hsum
+          zvnsm = zvnsm + (qcorg-z)*y0*gpot0(iv0+1) + cofh*hpot0(ib)
+          do  ilm = 1, nlm
+            rhvsm = rhvsm + qmom(iv0+ilm)*gpot0(iv0+ilm)
+            sum = sum + qmom(iv0+ilm)*gpot0(iv0+ilm)
+          enddo
+          iv0 = iv0+nlm
         endif
       enddo
       sgp0 = sum
@@ -423,20 +423,20 @@ c|     .   /' sum over gpot0*qmom',f12.6)
       if (ipr .ge. 30) write (stdo,500) usm,smq
   500 format(/' smooth rhoves',f14.6,'   charge',f13.6)
 
-Cdelw1 rlse name= ocv old_list= ocv 
+Cdelw1 rlse name= ocv old_list= ocv
 Cdelw1 rlse name= ocv new_list= (None)
 Cdelw1       call rlse(ocv)
-       if (allocated(zv_w_ocv)) deallocate(zv_w_ocv)
+      if (allocated(zv_w_ocv)) deallocate(zv_w_ocv)
 
       call tcx('smves')
 
-C ... subtract background 
+C ... subtract background
       do j1=1,k1
-         do j2=1,k2
-            do j3=1,k3
-               smrho(j1,j2,j3,1)=smrho(j1,j2,j3,1)-qbg/vol
-            enddo
-         enddo
+        do j2=1,k2
+          do j3=1,k3
+            smrho(j1,j2,j3,1)=smrho(j1,j2,j3,1)-qbg/vol
+          enddo
+        enddo
       enddo
       smq=smq-qbg
 
@@ -451,6 +451,6 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [ogv okv ocy]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine smves 
+      end subroutine smves
 
 

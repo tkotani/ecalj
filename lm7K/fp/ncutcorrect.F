@@ -1,4 +1,4 @@
-          subroutine ncutcorrect(ncut,n,gv,ng)
+      subroutine ncutcorrect(ncut,n,gv,ng)
 C- correct ncuti because of the denereracy of gv.
 c ncuti give by lmfp-suham-sugcut(1,..) lmfp-bndfp-suham2-sugcut(2,..) (1 is for normal MTO, 2 is for lo)
 c are only at Gamma point; thus symmetry can not be kept well for other k points.

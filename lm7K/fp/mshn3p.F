@@ -3,8 +3,8 @@ Cgetarg...info...           structure ['mshn3p', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['mshn3p', 'm_struc_def']
       subroutine mshn3p(nbas,ssite,sspec,lmet,lrout,lfrce,qval,ef0,def,
      .  sumqv,sumev,n1,n2,n3,k1,k2,k3,smrho,oqkkl,f,lrep)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Interpolate the density on the three-point energy mesh for metals
 C ----------------------------------------------------------------------
@@ -60,9 +60,9 @@ C ... Passed parameters
       double precision def,ef0,qval
 Cgetarg       double precision ssite(1),sspec(1),sumev(2,3),sumqv(3,2),
 Cgetarg      .  f(3,nbas,*)
-       real(8):: sumev(2,3) , sumqv(3,2) , f(3,nbas,*) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      real(8):: sumev(2,3) , sumqv(3,2) , f(3,nbas,*)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
       double complex smrho(k1,k2,k3,3,2)
 C ... Local parameters
@@ -184,60 +184,60 @@ C ... Interpolate sumev,sumqv
 
 C --- Interpolate coeffs of local density ---
       if (lrout .gt. 0) then
-      do  ib = 1, nbas
+        do  ib = 1, nbas
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ib,is,p,0,0)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pos) 
-         call dcopy(i_copy_size,ssite(ib)%pos,1,p,1) 
+
+          is=ssite(ib)%spec
+          i_copy_size=size(ssite(ib)%pos)
+          call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
 
 Cgetarg...info...           real(8) :: rsm , real(8) :: sspec%rsma 1
 Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
 Cgetarg         call upack('spec rsma lmxl lmxb',sspec,is,rsm,lmxl,lmxh,0)
-         
-         rsm=sspec(is)%rsma
-         lmxl=sspec(is)%lmxl
-         lmxh=sspec(is)%lmxb
+
+          rsm=sspec(is)%rsma
+          lmxl=sspec(is)%lmxl
+          lmxh=sspec(is)%lmxb
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg         call upack('spec lmxa kmxt',sspec,is,lmxa,kmax,0,0)
-         
-         lmxa=sspec(is)%lmxa
-         kmax=sspec(is)%kmxt
+
+          lmxa=sspec(is)%lmxa
+          kmax=sspec(is)%kmxt
 
 C       call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
 
-        nlma = (lmxa+1)**2
-        nlmh = (lmxh+1)**2
+          nlma = (lmxa+1)**2
+          nlmh = (lmxh+1)**2
 
 C   ... Case Pkl*Pkl, P*H, H*H
-        if (lmxa .gt. -1) then
-        nelt1 = (kmax+1)*(kmax+1)*nlma*nlma
-        nelt2 = (kmax+1)*nkaph*nlma*nlmh
-        nelt3 = nkaph*nkaph*nlmh*nlmh
-        call mshn31(w1,w2,w3,nelt1,nsp,w(oqkkl(1,ib)))
-        call mshn31(w1,w2,w3,nelt2,nsp,w(oqkkl(2,ib)))
-        call mshn31(w1,w2,w3,nelt3,nsp,w(oqkkl(3,ib)))
-        endif
+          if (lmxa .gt. -1) then
+            nelt1 = (kmax+1)*(kmax+1)*nlma*nlma
+            nelt2 = (kmax+1)*nkaph*nlma*nlmh
+            nelt3 = nkaph*nkaph*nlmh*nlmh
+            call mshn31(w1,w2,w3,nelt1,nsp,w(oqkkl(1,ib)))
+            call mshn31(w1,w2,w3,nelt2,nsp,w(oqkkl(2,ib)))
+            call mshn31(w1,w2,w3,nelt3,nsp,w(oqkkl(3,ib)))
+          endif
 
-      enddo
+        enddo
 
 C --- Interpolate smooth density ---
-      call mshn32(w1,w2,w3,n1,n2,n3,k1,k2,k3,nsp,smrho)
+        call mshn32(w1,w2,w3,n1,n2,n3,k1,k2,k3,nsp,smrho)
 C     call zprm3('sm rho-out',0,smrho,k1,k2,k3*nsp)
 
 C --- Interpolate forces ---
-      if (lfrce .ne. 0) then
-        do  ib = 1, nbas
-          do  m = 1, 3
-            f(m,ib,1) = w1*f(m,ib,1) + w2*f(m,ib,2) + w3*f(m,ib,3)
+        if (lfrce .ne. 0) then
+          do  ib = 1, nbas
+            do  m = 1, 3
+              f(m,ib,1) = w1*f(m,ib,1) + w2*f(m,ib,2) + w3*f(m,ib,3)
+            enddo
           enddo
-        enddo
-      endif
+        endif
       endif
 
 C --- Choose new energy window ---
@@ -256,7 +256,7 @@ C --- Choose new energy window ---
   711 format('nf w',3f7.3,'  ef',2f8.5,'   E0',f12.6,'  -sgS',f10.6)
 
 Cgetarg       end
-       end subroutine mshn3p 
+      end subroutine mshn3p
 
 
       subroutine mshn31(w1,w2,w3,nelt,nsp,qkkl)
@@ -270,15 +270,15 @@ C ... Local parameters
       integer i,isp
 
       do  isp = 1, nsp
-      do  i = 1, nelt
-        qkkl(i,1,isp) = w1*qkkl(i,1,isp) +
+        do  i = 1, nelt
+          qkkl(i,1,isp) = w1*qkkl(i,1,isp) +
      .                  w2*qkkl(i,2,isp) +
      .                  w3*qkkl(i,3,isp)
-      enddo
+        enddo
       enddo
       if (nsp .eq. 2) call dcopy(nelt,qkkl(1,1,2),1,qkkl(1,2,1),1)
 Cgetarg       end
-       end subroutine mshn31 
+      end subroutine mshn31
 
 
       subroutine mshn32(w1,w2,w3,n1,n2,n3,k1,k2,k3,nsp,smrho)
@@ -293,19 +293,19 @@ C ... Local parameters
       integer i1,i2,i3,isp
 
       do  isp = 1, nsp
-      do  i3 = 1, n3
-        do  i2 = 1, n2
-          do  i1 = 1, n1
-            smrho(i1,i2,i3,1,isp) = w1*smrho(i1,i2,i3,1,isp)
+        do  i3 = 1, n3
+          do  i2 = 1, n2
+            do  i1 = 1, n1
+              smrho(i1,i2,i3,1,isp) = w1*smrho(i1,i2,i3,1,isp)
      .                            + w2*smrho(i1,i2,i3,2,isp)
      .                            + w3*smrho(i1,i2,i3,3,isp)
+            enddo
           enddo
         enddo
-      enddo
       enddo
       if (nsp .eq. 2)
      .  call dcopy(2*k1*k2*k3,smrho(1,1,1,1,2),1,smrho(1,1,1,2,1),1)
 Cgetarg       end
-       end subroutine mshn32 
+      end subroutine mshn32
 
 

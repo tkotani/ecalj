@@ -19,22 +19,24 @@ C     implicit none
 
 C ... Sum up coefficients for first vector in each star
       do  10  i = 1, ng
-   10 csym(i) = (0d0,0d0)
+        csym(i) = (0d0,0d0)
+   10 continue
       do  12  i = 1, ng
         j = ips0(i)
         csym(j) = csym(j) + bgv(i)*c(i)
    12 continue
-      
+
 C ... Normalize
       do  20  i0 = 1, ng
         if (ips0(i0) .eq. i0) then
           kstar = 0
           do  22  i = i0, ng
-   22     if (ips0(i) .eq. i0) kstar = kstar+1
+            if (ips0(i) .eq. i0) kstar = kstar+1
+   22     continue
           csym(i0) = csym(i0)/kstar
         endif
    20 continue
-      
+
 C ... Make all the coefficients
       do  30  i = 1, ng
         j = ips0(i)

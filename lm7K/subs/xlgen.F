@@ -4,7 +4,7 @@ C ----------------------------------------------------------------
 Ci Inputs
 Ci   plat  :dimensionless primitive lattice vectors
 Ci   rmax  :largest radius for vector
-Ci   rmax2 :if nonzero, largest radius for vector after 
+Ci   rmax2 :if nonzero, largest radius for vector after
 Ci         :multiples of plat are added
 Ci   nvmax :maximum number of vectors allowed
 Ci   opts  :1s digit:
@@ -16,7 +16,7 @@ Ci           2 return nv only (or upper limit if 1s digit of opts is 1)
 Ci           4 for padding, add a single vector and its reciprocal
 Ci             instead of replicating entire original set.
 Ci         100s digit:
-Ci           1 return in vecs the multiples of plat(j) that 
+Ci           1 return in vecs the multiples of plat(j) that
 Ci             make up the lattice vector
 Ci   mode  :vector of length 3 governing shifts along selected axes.
 Ci         :0 suppresses shifts along plat(j)
@@ -96,100 +96,100 @@ C   ... Increment nv and copy to vec(nv)
 
 C --- Add plat if ivck ne 0 ---
       if (ivck(1)+ivck(2)+ivck(3) .ne. 0) then
-      if (mod(opts/10,10) .eq. 2) then
-        nv = 3*nv
-      elseif (mod(opts/10,10) .eq. 4) then
-        do  33 i = 1, 3
-          if (ivck(i) .eq. 1) then
-            call dcopy(3,plat(1,i),1,vj,1)
-            if (mod(opts/100,10) .eq. 1) then
-              vj(1) = 0
-              vj(2) = 0
-              vj(3) = 0
-              vj(i) = ivck(i)
+        if (mod(opts/10,10) .eq. 2) then
+          nv = 3*nv
+        elseif (mod(opts/10,10) .eq. 4) then
+          do  33 i = 1, 3
+            if (ivck(i) .eq. 1) then
+              call dcopy(3,plat(1,i),1,vj,1)
+              if (mod(opts/100,10) .eq. 1) then
+                vj(1) = 0
+                vj(2) = 0
+                vj(3) = 0
+                vj(i) = ivck(i)
+              endif
+              vecs(1,nv+1) =  vj(1)
+              vecs(2,nv+1) =  vj(2)
+              vecs(3,nv+1) =  vj(3)
+              vecs(1,nv+2) = -vj(1)
+              vecs(2,nv+2) = -vj(2)
+              vecs(3,nv+2) = -vj(3)
+              nv = nv+2
             endif
-            vecs(1,nv+1) =  vj(1)
-            vecs(2,nv+1) =  vj(2)
-            vecs(3,nv+1) =  vj(3)
-            vecs(1,nv+2) = -vj(1)
-            vecs(2,nv+2) = -vj(2)
-            vecs(3,nv+2) = -vj(3)
-            nv = nv+2
-          endif
-   33 continue
-      else
-        if (iprint() .ge. 20) print 333, ivck, rmax, rmax2
-  333   format(/' xlgen: added missing plat: ivck=',3i2,
+   33     continue
+        else
+          if (iprint() .ge. 20) print 333, ivck, rmax, rmax2
+  333     format(/' xlgen: added missing plat: ivck=',3i2,
      .    '  rmax=',f8.3,'  rpad*rmax=',f8.3)
-        if (3*nv .gt. nvmax)
+          if (3*nv .gt. nvmax)
      .    call fexit(-1,111,' xlgen: too many vectors, n=%i',3*nv)
-        if (ivck(1)+ivck(2)+ivck(3) .ne. 1)
+          if (ivck(1)+ivck(2)+ivck(3) .ne. 1)
      .    call rx('lgen: more than 1 missing plat')
-        do  31  m = 1, 3
-          v2 = ivck(1)*plat(m,1)+ivck(2)*plat(m,2)+ivck(3)*plat(m,3)
-          if (mod(opts/100,10) .eq. 1) v2 = ivck(m)
-          call dcopy(nv,vecs(m,1),3,vecs(m,nv+1),3)
-          call dcopy(nv,vecs(m,1),3,vecs(m,2*nv+1),3)
-          call daxpy(nv, 1d0,v2,0,vecs(m,nv+1),3)
-          call daxpy(nv,-1d0,v2,0,vecs(m,2*nv+1),3)
-   31   continue
-        nv = 3*nv
+          do  31  m = 1, 3
+            v2 = ivck(1)*plat(m,1)+ivck(2)*plat(m,2)+ivck(3)*plat(m,3)
+            if (mod(opts/100,10) .eq. 1) v2 = ivck(m)
+            call dcopy(nv,vecs(m,1),3,vecs(m,nv+1),3)
+            call dcopy(nv,vecs(m,1),3,vecs(m,2*nv+1),3)
+            call daxpy(nv, 1d0,v2,0,vecs(m,nv+1),3)
+            call daxpy(nv,-1d0,v2,0,vecs(m,2*nv+1),3)
+   31     continue
+          nv = 3*nv
 
 C   ... Find and eliminate any replicas
-        call defi(oiwk,nv)
-        call dvshel(3,nv,vecs,w(oiwk),1)
+          call defi(oiwk,nv)
+          call dvshel(3,nv,vecs,w(oiwk),1)
 *       call awrit2('%n:1i',' ',80,6,nv,w(oiwk))
-        k = 0
+          k = 0
 C   ... Mark any replica iv by iwk(i) -> -iv
-        do  32  i = nv-1, 1, -1
-          iv = w(oiwk+i) + 1
-          jv = w(oiwk+i-1) + 1
-          v2 = (vecs(1,iv)-vecs(1,jv))**2 +
+          do  32  i = nv-1, 1, -1
+            iv = w(oiwk+i) + 1
+            jv = w(oiwk+i-1) + 1
+            v2 = (vecs(1,iv)-vecs(1,jv))**2 +
      .         (vecs(2,iv)-vecs(2,jv))**2 + 
      .         (vecs(3,iv)-vecs(3,jv))**2
-          if (v2 .lt. 1d-10) w(oiwk+i) = -iv
-   32   continue
+            if (v2 .lt. 1d-10) w(oiwk+i) = -iv
+   32     continue
 
 C   ... Flag vectors with radius > rmax2
-        if (rmax2 .gt. 0) then
-          rsqr = rmax2*rmax2
-          k = 0
-          do  37  i = 0, nv-1
-            if (w(oiwk+i) .ge. 0) then
-              iv = w(oiwk+i) + 1
-              v2 = vecs(1,iv)**2 + vecs(2,iv)**2 + vecs(3,iv)**2
-              if (v2 .gt. rsqr) then
-                if (iv .lt. 0) call rx('bug in xlgen')
-                w(oiwk+i) = -iv
-                k = k+1
+          if (rmax2 .gt. 0) then
+            rsqr = rmax2*rmax2
+            k = 0
+            do  37  i = 0, nv-1
+              if (w(oiwk+i) .ge. 0) then
+                iv = w(oiwk+i) + 1
+                v2 = vecs(1,iv)**2 + vecs(2,iv)**2 + vecs(3,iv)**2
+                if (v2 .gt. rsqr) then
+                  if (iv .lt. 0) call rx('bug in xlgen')
+                  w(oiwk+i) = -iv
+                  k = k+1
+                endif
               endif
-            endif
-   37     continue
+   37       continue
 C         print *, 'rpad reduced nv by',k
-        endif
+          endif
 C       call prmx('unsorted vecs',vecs,3,3,nv)
 
 C   ... Make a sorted list of replicas (any of iwk < 0)
-        call ishell(nv,w(oiwk))
+          call ishell(nv,w(oiwk))
 C   ... For each replica, put lastmost vec into replica's place
-        k = nv
-        do  34  i = 0, nv-1
-          iv = -w(oiwk+i)
-          if (iv .le. 0) goto 35
-          call dpcopy(vecs(1,k),vecs(1,iv),1,3,1d0)
-          k = k-1
-   34   continue
-   35   continue
-        nv = k
-        call rlse(oiwk)
-      endif
+          k = nv
+          do  34  i = 0, nv-1
+            iv = -w(oiwk+i)
+            if (iv .le. 0) goto 35
+            call dpcopy(vecs(1,k),vecs(1,iv),1,3,1d0)
+            k = k-1
+   34     continue
+   35     continue
+          nv = k
+          call rlse(oiwk)
+        endif
       endif
 C     call prmx('after purging vecs',vecs,3,3,nv)
 
 
       if (mod(opts/10,10) .eq. 2) return
 
-C --- Sort vectors by increasing length ---      
+C --- Sort vectors by increasing length ---
       if (mod(opts/10,10) .eq. 1) then
         call defi(oiwk,nv)
         call dvshel(3,nv,vecs,w(oiwk),11)

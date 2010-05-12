@@ -5,8 +5,8 @@ C ----------------------------------------------------------------------
 Ci Inputs
 Ci   mode  :1s digit specifies boundary conditions
 Ci         :0 input boundary conditions
-Ci         :1 input energy 
-Ci         :10s digit 
+Ci         :1 input energy
+Ci         :10s digit
 Ci         :1 set dphip to satisfy Wronskian condition, rather
 Ci         :  than compute numerically
 Ci   z     :nuclear charge

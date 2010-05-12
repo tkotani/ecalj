@@ -21,8 +21,8 @@ Cgetarg...info...           use_to_add ['sugw', 'm_struc_def']
      .  smpot,vconst,lcplxp,osig,otau,oppi,ppn,vrmt,
      .  spotx,osigx,otaux,oppix,
      .  jobgw)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Driver to set up GW
 C ----------------------------------------------------------------------
@@ -77,7 +77,7 @@ Co           ngvecp, ngvecc, pwz  (G vectors for psi,vcou; PW expansion of z)
 Co   gwa:  site data.
 Co        *for each site:
 Co           z, nr, a, b, rmt, lmaxa, nsp, ncore
-Co           konfig(0:lmaxa) : note 
+Co           konfig(0:lmaxa) : note
 Co           rofi
 Co          *for each l, spin isp
 Co             l, isp
@@ -161,12 +161,12 @@ C ... Passed parameters
       integer osigx(3,nbas),otaux(3,nbas),oppix(3,nbas)
 Cgetarg       real(8) ssite(1),sspec(1),slat(1),sham(1),rsml(n0),ehl(n0),
 Cgetarg      .  ppn(nppn,n0,nbas),vconst,smpot(1),spotx(1),vrmt(nbas)
-       real(8):: rsml(n0) , ehl(n0) , ppn(nppn,n0,nbas) , vconst , smpot(1) 
-     . , spotx(1) , vrmt(nbas) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
-       type(s_ham)::sham
+      real(8):: rsml(n0) , ehl(n0) , ppn(nppn,n0,nbas) , vconst , smpot(1) 
+     . , spotx(1) , vrmt(nbas)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
+      type(s_ham)::sham
 
 C ... Local parameters
       logical :: bandmode=.false.,endofline=.false.,lwvxc
@@ -185,9 +185,9 @@ Cdelw1 do not change  [['undef', 'wref'], 'og', 'sugw']
 Cdelw1 do not change  [['undef', 'wref'], 'oiprmb', 'sugw']
 Cdelw1 do not change  [['undef', 'wref'], 'ov0', 'sugw']
 Cdelw1       integer oaus,og,oiprmb,ov0,oww
-       integer:: og , oiprmb , ov0 
-       complex(8) ,allocatable :: zv_w_oaus(:)
-       real(8) ,allocatable :: rv_w_oww(:)
+      integer:: og , oiprmb , ov0
+      complex(8) ,allocatable :: zv_w_oaus(:)
+      real(8) ,allocatable :: rv_w_oww(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       equivalence (ldim,ldham(1,1))
@@ -216,8 +216,8 @@ Cdelw1       integer oaus,og,oiprmb,ov0,oww
 C ... For PW basis
 Cdelw1 do not change  [['wref'], 'oigv2', 'sugw']
 Cdelw1       integer oigv2,okv
-       integer:: oigv2 
-       integer ,allocatable :: iv_w_okv(:)
+      integer:: oigv2
+      integer ,allocatable :: iv_w_okv(:)
 
       integer pwmode,napw
       double precision pwemin,pwemax,pwgmin,pwgmax,eomin
@@ -261,30 +261,30 @@ Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
 Cgetarg       call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
-       i_copy_size=size(slat%nabc) 
-       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      i_copy_size=size(slat%nabc)
+      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
 Cgetarg...info...           real(8) :: gmax , real(8) :: slat%gmax 1
 Cgetarg       call upack1('lat gmax',slat,gmax)
-       
-       gmax=slat%gmax
+
+      gmax=slat%gmax
 
 Cgetarg...info...           integer :: npgrp , integer(8) :: slat%npgrp 1
 Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
 Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
 Cgetarg       call upack('lat npgrp nsgrp osymgr',slat,npgrp,nsgrp,og,0,0)
-       
-       npgrp=slat%npgrp
-       nsgrp=slat%nsgrp
+
+      npgrp=slat%npgrp
+      nsgrp=slat%nsgrp
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 260
 Cdelw1 do not change og because of ['undef', 'wref']
-       og=slat%osymgr
+      og=slat%osymgr
 
       call fftz30(n1,n2,n3,k1,k2,k3)
       stdo = lgunit(1)
@@ -292,7 +292,7 @@ Cdelw1 do not change og because of ['undef', 'wref']
       nsp  = nglob('nsp')
       nspc = nglob('nspc')
 Cgetarg       lrsig= igets('ham lsig',sham)
-       lrsig = int(sham%lsig) 
+      lrsig = int(sham%lsig)
 
       lwvxc = .not. cmdopt('--novxc',7,0,strn)
       lsig = 1
@@ -300,11 +300,11 @@ C     lsig = 0
 Cgetarg...info...           integer :: nqsig , integer(8) :: sham%nqsig 1
 Cgetarg...info...           integer :: oqsig , integer(8) :: sham%oqsig 1
 Cgetarg       call upack2('ham nqsig oqsig',sham,nqsig,oqsig)
-       
-       nqsig=sham%nqsig
+
+      nqsig=sham%nqsig
 Cdelw1 warning(1) , probably  oqsig  is not defined yet at linenumber= 278
 Cdelw1 do not change oqsig because of ['undef', 'wref']
-       oqsig=sham%oqsig
+      oqsig=sham%oqsig
 
 Cdelw1 warning(1) , probably  oqsig  is not defined yet at linenumber= 280
 Cdelw1 do not change oqsig because of ['undef', 'wref']
@@ -330,11 +330,11 @@ C ... Count number of atoms : exclude floating orbitals
       do  i = 1, nbas
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg         call upack('site spec',ssite,i,is,0,0,0)
-         
-         is=ssite(i)%spec
+
+        is=ssite(i)%spec
 
 Cgetarg         lmaxa = igetss('spec lmxa',is,sspec)
-         lmaxa = int(sspec(is)%lmxa) 
+        lmaxa = int(sspec(is)%lmxa)
 
         if (lmaxa .gt. -1) then
           nat = nat + 1
@@ -374,10 +374,10 @@ Cgetarg         lmaxa = igetss('spec lmxa',is,sspec)
       napw = 0
 Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
 Cgetarg       call upack('ham oindxo',sham,oiprmb,0,0,0,0)
-       
+
 Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 347
 Cdelw1 do not change oiprmb because of ['undef', 'wref']
-       oiprmb=sham%oindxo
+      oiprmb=sham%oindxo
 
 Cgetarg...info...           integer :: ldham(8,2) , integer(8) :: sham%ldham 16
 Cgetarg...info...           integer :: pwmode , integer(8) :: sham%pwmode 1
@@ -385,12 +385,12 @@ Cgetarg...info...           real(8) :: pwemin , real(8) :: sham%pwemin 1
 Cgetarg...info...           real(8) :: pwemax , real(8) :: sham%pwemax 1
 Cgetarg       call upack('ham ldham pwmode pwemin pwemax',sham,ldham,pwmode,
 Cgetarg      .  pwemin,pwemax,0)
-       
-       i_copy_size=size(sham%ldham) 
-       call i8icopy(i_copy_size,sham%ldham,1,ldham,1) 
-       pwmode=sham%pwmode
-       pwemin=sham%pwemin
-       pwemax=sham%pwemax
+
+      i_copy_size=size(sham%ldham)
+      call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
+      pwmode=sham%pwmode
+      pwemin=sham%pwemin
+      pwemax=sham%pwemax
 
       allocate(evl(ndham,nsp))
 
@@ -400,16 +400,16 @@ C ... Generate ndima
       do  ib = 1, nbas
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg         call upack2('site spec',ssite,ib,is)
-         
-         is=ssite(ib)%spec
+
+        is=ssite(ib)%spec
 
 Cgetarg...info...           integer :: lmaxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
 Cgetarg         call upack('spec lmxa pz',sspec,is,lmaxa,pnz,0,0)
-         
-         lmaxa=sspec(is)%lmxa
-         i_copy_size=size(sspec(is)%pz) 
-         call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
+
+        lmaxa=sspec(is)%lmxa
+        i_copy_size=size(sspec(is)%pz)
+        call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
 
         lmxax = max(lmxax,lmaxa)
         if (lmaxa .gt. -1) then
@@ -432,22 +432,22 @@ Cdelw1 do not change og because of ['undef', 'wref']
 C   ... Create file LATTC
         allocate(ips(nbas),lmxa(nbas),bas(3,nbas))
 Cgetarg         call spackv(10,'site spec',ssite,1,nbas,ips)
-         i_copy_size=1; 
-         do i_spackv=1,nbas 
-         call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
-         enddo
+        i_copy_size=1;
+        do i_spackv=1,nbas
+          call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+        enddo
 
         ifi = fopnx('ldima',2,2,-1)
         rewind ifi
         do  i = 1, nbas
 Cgetarg           lmxa(i) = igetss('spec lmxa',ips(i),sspec)
-           lmxa ( i ) = int(sspec(ips(i))%lmxa) 
+          lmxa ( i ) = int(sspec(ips(i))%lmxa)
 
           if (lmxa(i) .gt. -1) then
 Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 412
 Cdelw1 do not change oiprmb because of ['undef', 'wref']
-          call orbl(i,0,ldim,w(oiprmb),norb,ltab,ktab,xx,offl,i1)
-          write(ifi,"(3i10)") i1
+            call orbl(i,0,ldim,w(oiprmb),norb,ltab,ktab,xx,offl,i1)
+            write(ifi,"(3i10)") i1
           endif
         enddo
         deallocate(ips)
@@ -458,12 +458,12 @@ Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
 Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
 Cgetarg           call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
-           
-           is=ssite(i)%spec
-           i_copy_size=size(ssite(i)%pnu) 
-           call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1) 
-           i_copy_size=size(ssite(i)%pz) 
-           call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1) 
+
+          is=ssite(i)%spec
+          i_copy_size=size(ssite(i)%pnu)
+          call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1)
+          i_copy_size=size(ssite(i)%pz)
+          call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1)
 
           do  isp = 1, nsp
             do  l  = 0, lmxa(i)
@@ -486,8 +486,8 @@ C       This loop order is backwardly compatible with prior versions
           do  ib = 1, nbas
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg             call upack2('site spec',ssite,ib,is)
-             
-             is=ssite(ib)%spec
+
+            is=ssite(ib)%spec
 
 Cgetarg...info...           integer :: lmaxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
@@ -495,32 +495,32 @@ Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
 Cgetarg...info...           integer :: idxdn(n0,nkap0) , integer(8) :: sspec%idxdn 30
 Cgetarg             call upack('spec lmxa p pz idxdn',sspec,is,lmaxa,pnu,pnz,
 Cgetarg      .        idxdn)
-             
-             lmaxa=sspec(is)%lmxa
-             i_copy_size=size(sspec(is)%p) 
-             call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
-             i_copy_size=size(sspec(is)%pz) 
-             call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
-             i_copy_size=size(sspec(is)%idxdn) 
-             call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1) 
+
+            lmaxa=sspec(is)%lmxa
+            i_copy_size=size(sspec(is)%p)
+            call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
+            i_copy_size=size(sspec(is)%pz)
+            call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
+            i_copy_size=size(sspec(is)%idxdn)
+            call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
 
             if (lmaxa .gt. -1) then
-            do  l = 0, lmaxa
-              npqn = 2
-              if (pnz(l+1,1) .ne. 0) npqn = 3
-              if (ipqn .le. npqn) then
-                konf = pnu(l+1,1)
-                if (ipqn .eq. 3) konf = mod(pnz(l+1,1),10d0)
-                strn4 = dig(konf)//lsym(l)//'_'//lorb(ipqn)
-                if (idxdn(l+1,1) .eq. 1 .or. idxdn(l+1,2) .eq. 1)
+              do  l = 0, lmaxa
+                npqn = 2
+                if (pnz(l+1,1) .ne. 0) npqn = 3
+                if (ipqn .le. npqn) then
+                  konf = pnu(l+1,1)
+                  if (ipqn .eq. 3) konf = mod(pnz(l+1,1),10d0)
+                  strn4 = dig(konf)//lsym(l)//'_'//lorb(ipqn)
+                  if (idxdn(l+1,1) .eq. 1 .or. idxdn(l+1,2) .eq. 1)
      .            call chcase(0,1,strn4(2:2))
-                write(ifi,'(i6,i3,i4,i6,4x,a)')
+                  write(ifi,'(i6,i3,i4,i6,4x,a)')
      .            ipqn, l, ipb(ib), ndima, strn4
-                ndima = ndima + (2*l+1)
+                  ndima = ndima + (2*l+1)
 C             else
 C               write(ifi,'(i6,i3,i4,i6)') ipqn, l, ib, -1
-              endif
-            enddo
+                endif
+              enddo
             endif
           enddo
         enddo
@@ -531,10 +531,10 @@ C   ... Create file CLASS
         rewind ifi
         allocate(ipc(nbas),ipcx(nbas))
 Cgetarg         call spackv(10,'site class',ssite,1,nbas,ipc)
-         i_copy_size=1; 
-         do i_spackv=1,nbas 
-         call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,ipc)
-         enddo
+        i_copy_size=1;
+        do i_spackv=1,nbas
+          call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,ipc)
+        enddo
 
         call pvsug1(nbas,lmxa,ipc,ipcx)
         do  i = 1, nbas
@@ -555,12 +555,12 @@ C --- Read file NLAindx ---
 
 C ... Read QGpsi and QGcou (takao 2003 Sep)
       if (jobb .eq. 0) then
-      ifiqg  = fopnx('QGpsi',2,4,-1)
-      ifiqgc = fopnx('QGcou',2,4,-1)
+        ifiqg  = fopnx('QGpsi',2,4,-1)
+        ifiqgc = fopnx('QGcou',2,4,-1)
 C
-      read(ifiqg ) nqnum, ngpmx ,QpGcut_psi, nqbz
-      read(ifiqgc) nqnumx,ngcmx ,QpGcut_cou
-      if (nqnum .ne. nqnumx)
+        read(ifiqg ) nqnum, ngpmx ,QpGcut_psi, nqbz
+        read(ifiqgc) nqnumx,ngcmx ,QpGcut_cou
+        if (nqnum .ne. nqnumx)
      .  call rx('sugw: different nqnum in QGcou QGpsi')
       endif
 
@@ -584,25 +584,25 @@ C       write(ifi) nbas,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !takao 200
 #endif
         allocate(ips(nbas),lmxa(nat),bas(3,nat))
 Cgetarg         call spackv(10,'site spec',ssite,1,nbas,ips)
-         i_copy_size=1; 
-         do i_spackv=1,nbas 
-         call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
-         enddo
+        i_copy_size=1;
+        do i_spackv=1,nbas
+          call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+        enddo
 
 C       call spackv(10,'site pos',ssite,1,nbas,bas)
         iat = 0
         do  i = 1, nbas
 Cgetarg           lmaxa = igetss('spec lmxa',ips(i),sspec)
-           lmaxa = int(sspec(ips(i))%lmxa) 
+          lmaxa = int(sspec(ips(i))%lmxa)
 
           if (lmaxa .gt. -1) then
             iat = iat + 1
             if (iat .gt. nat) call rx('bug in sugw')
 Cgetarg...info...           real(8) :: bas(:,:) , real(8) :: ssite%pos 3
 Cgetarg             call upack('site pos',ssite,i,bas(1,iat),0,0,0)
-             
-             i_copy_size=size(ssite(i)%pos) 
-             call dcopy(i_copy_size,ssite(i)%pos,1,bas(1,iat),1) 
+
+            i_copy_size=size(ssite(i)%pos)
+            call dcopy(i_copy_size,ssite(i)%pos,1,bas(1,iat),1)
 
             lmxa(iat) = lmaxa
           endif
@@ -617,26 +617,26 @@ Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
 Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
 Cgetarg           call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
-           
-           is=ssite(i)%spec
-           i_copy_size=size(ssite(i)%pnu) 
-           call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1) 
-           i_copy_size=size(ssite(i)%pz) 
-           call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1) 
+
+          is=ssite(i)%spec
+          i_copy_size=size(ssite(i)%pnu)
+          call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1)
+          i_copy_size=size(ssite(i)%pz)
+          call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1)
 
 Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
 Cgetarg...info...           real(8) :: rmt(nbas) , real(8) :: sspec%rmt 1
 Cgetarg           call upack('spec a nr z rmt',sspec,is,a,nr,z,rmt(i))
-           
-           a=sspec(is)%a
-           nr=sspec(is)%nr
-           z=sspec(is)%z
-           rmt(i)=sspec(is)%rmt
+
+          a=sspec(is)%a
+          nr=sspec(is)%nr
+          z=sspec(is)%z
+          rmt(i)=sspec(is)%rmt
 
 Cgetarg           lmaxa = igetss('spec lmxa',is,sspec)
-           lmaxa = int(sspec(is)%lmxa) 
+          lmaxa = int(sspec(is)%lmxa)
 
           if (lmaxa .gt. -1) then
             call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(i),z,w,i1,
@@ -662,106 +662,106 @@ Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
 Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
 Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
 Cgetarg           call upack('site spec pnu pz ov0',ssite,ib,is,pnu,pnz,ov0)
-           
-           is=ssite(ib)%spec
-           i_copy_size=size(ssite(ib)%pnu) 
-           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1) 
-           i_copy_size=size(ssite(ib)%pz) 
-           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1) 
+
+          is=ssite(ib)%spec
+          i_copy_size=size(ssite(ib)%pnu)
+          call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
+          i_copy_size=size(ssite(ib)%pz)
+          call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 634
 Cdelw1 do not change ov0 because of ['undef', 'wref']
-           ov0=ssite(ib)%ov0
+          ov0=ssite(ib)%ov0
 
 Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
 Cgetarg...info...           real(8) :: rmt(nbas) , real(8) :: sspec%rmt 1
 Cgetarg           call upack('spec a nr z rmt',sspec,is,a,nr,z,rmt(ib))
-           
-           a=sspec(is)%a
-           nr=sspec(is)%nr
-           z=sspec(is)%z
-           rmt(ib)=sspec(is)%rmt
+
+          a=sspec(is)%a
+          nr=sspec(is)%nr
+          z=sspec(is)%z
+          rmt(ib)=sspec(is)%rmt
 
 Cgetarg           lmaxa = igetss('spec lmxa',is,sspec)
-           lmaxa = int(sspec(is)%lmxa) 
+          lmaxa = int(sspec(is)%lmxa)
 
           if (lmaxa .gt. -1) then
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 651
 Cdelw1 do not change ov0 because of ['undef', 'wref']
-          call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
+            call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
      .      i1,ncore,konfig,ecore,w,w)
-          allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
-          allocate(gval(nr,2,0:lmaxa,nphimx,nsp))
-          call dpzero(gval,nr*2*(1+lmaxa)*nphimx*nsp)
+            allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
+            allocate(gval(nr,2,0:lmaxa,nphimx,nsp))
+            call dpzero(gval,nr*2*(1+lmaxa)*nphimx*nsp)
 C         Create augmented wave functions for this atom
-          call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
+            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 658
 Cdelw1 do not change ov0 because of ['undef', 'wref']
-          call atwf(03,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
+            call atwf(03,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
      .      nphimx,ncore,konfig,ecore,gcore,gval)
 C         Header data for this atom
-          b = rmt(ib)/(dexp(a*nr-a)-1d0)
-          call radmsh(rmt(ib),a,nr,rofi)
-          call radwgt(rmt(ib),a,nr,rwgt)
+            b = rmt(ib)/(dexp(a*nr-a)-1d0)
+            call radmsh(rmt(ib),a,nr,rofi)
+            call radwgt(rmt(ib),a,nr,rwgt)
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c --- for band mode
-          if (bandmode .and. jobb==0)then
-          do  l = 0, lmaxa
-            nmx=2
-            if (konfig(l) >= 10) nmx=3
-            do nn1=1,nmx
-            do nn2=1,nmx
-            do isp=1,nsp
-              call gintsl(gval(1,1,l,nn1,isp),gval(1,1,l,nn2,isp),
+            if (bandmode .and. jobb==0)then
+              do  l = 0, lmaxa
+                nmx=2
+                if (konfig(l) >= 10) nmx=3
+                do nn1=1,nmx
+                  do nn2=1,nmx
+                    do isp=1,nsp
+                      call gintsl(gval(1,1,l,nn1,isp),gval(1,1,l,nn2,isp),
      .              a,b,nr,rofi,ovvpp)
-              do mx=1, 2*l+1
-                im1 = nlindx(nn1,l,ipb(ib))+mx
-                im2 = nlindx(nn2,l,ipb(ib))+mx
-                ovvx(im1,im2,isp) = ovvpp
+                      do mx=1, 2*l+1
+                        im1 = nlindx(nn1,l,ipb(ib))+mx
+                        im2 = nlindx(nn2,l,ipb(ib))+mx
+                        ovvx(im1,im2,isp) = ovvpp
+                      enddo
+                    enddo
+                  enddo
+                enddo
               enddo
-            enddo
-            enddo
-            enddo
-          enddo
-          endif
+            endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-          write(ifi) z, nr, a, b, rmt(ib), lmaxa, nsp, ncore
-          write(ifi) konfig(0:lmaxa)
-          write(ifi) rofi
+            write(ifi) z, nr, a, b, rmt(ib), lmaxa, nsp, ncore
+            write(ifi) konfig(0:lmaxa)
+            write(ifi) rofi
 C         Write orthonormalized valence wave functions for this atom
-          do  l = 0, lmaxa
-          do  i = 1, nsp
-            write(ifi) l,i
-            write(ifi) gval(1:nr,1,l,1,i)
-            write(ifi) gval(1:nr,1,l,2,i)
-            if (konfig(l) .ge. 10) write(ifi) gval(1:nr,1,l,3,i)
+            do  l = 0, lmaxa
+              do  i = 1, nsp
+                write(ifi) l,i
+                write(ifi) gval(1:nr,1,l,1,i)
+                write(ifi) gval(1:nr,1,l,2,i)
+                if (konfig(l) .ge. 10) write(ifi) gval(1:nr,1,l,3,i)
 C           print *, ib,l,i,gval(nr,1,l,1,i)
 C           print *, ib,l,i,gval(nr,1,l,2,i)
 C           if (nphimx .ge. 3) print *, ib,l,i,gval(nr,1,l,3,i)
 
-          enddo
-          enddo
-C         Core wave functions for this atom
-          icore = 0
-          vshft = vrmt(ib)
-C         As of v6.11, shift is included in v0, passed in vval to
-C         locpot, in routine mkpot.f
-          vshft = 0
-          do  l = 0, lmaxa
-            do  isp = 1, nsp
-              do  konf = l+1, mod(konfig(l),10)-1
-                icore = icore+1
-                write(ifi) icore, l, isp, konf, ecore(icore)+vshft
-                write(ifi) gcore(1:nr,1,icore)
-C               print *, icore,gcore(nr,1,icore)
               enddo
             enddo
-          enddo
+C         Core wave functions for this atom
+            icore = 0
+            vshft = vrmt(ib)
+C         As of v6.11, shift is included in v0, passed in vval to
+C         locpot, in routine mkpot.f
+            vshft = 0
+            do  l = 0, lmaxa
+              do  isp = 1, nsp
+                do  konf = l+1, mod(konfig(l),10)-1
+                  icore = icore+1
+                  write(ifi) icore, l, isp, konf, ecore(icore)+vshft
+                  write(ifi) gcore(1:nr,1,icore)
+C               print *, icore,gcore(nr,1,icore)
+                enddo
+              enddo
+            enddo
 
-          deallocate(rofi,rwgt,gcore,gval)
+            deallocate(rofi,rwgt,gcore,gval)
           endif
         enddo
         call fclr('gwa',ifi)
@@ -842,42 +842,42 @@ C     nnn = n1q*n2q*n3q  n1q,n2q,n3q no longer read in (takao sep 2003)
 C --- Evecs and matrix elements of vxc for irr qp ---
 C     Note: this routine should use only irr qp.
       if (lsig .gt. 0) then
-      if (nqnum < nnn) call rxi('sugw: nqnum < nnn, nqnum=',nqnum)
+        if (nqnum < nnn) call rxi('sugw: nqnum < nnn, nqnum=',nqnum)
 
-      ifi = fopnx('QIBZ',2,1,-1)
-      rewind ifi
-      read(ifi,*) nqibz
+        ifi = fopnx('QIBZ',2,1,-1)
+        rewind ifi
+        read(ifi,*) nqibz
 
-      if (job .eq. 1) then
+        if (job .eq. 1) then
 
-         if (.not. cmdopt('--novxc',7,0,strn)) then
-           ifi = fopna('evec',-1,4)
-           rewind ifi
-           write(ifi) ndham, nsp, nnn, nqnum
-           ifiv = fopna('vxc',-1,4)
+          if (.not. cmdopt('--novxc',7,0,strn)) then
+            ifi = fopna('evec',-1,4)
+            rewind ifi
+            write(ifi) ndham, nsp, nnn, nqnum
+            ifiv = fopna('vxc',-1,4)
 C           call iosigh(0,nscnts,nsp,ndimh,0,0,0,nnn,
 C     .       lshft(1),lshft(2),lshft(3),-ifiv)
-           rewind ifiv
-           write(ifiv) ndham, nsp, nnn
-         endif
-      elseif (job .eq. 2) then
+            rewind ifiv
+            write(ifiv) ndham, nsp, nnn
+          endif
+        elseif (job .eq. 2) then
 
 C        ifi = fopnx('ham',2,4,-1)
-         ifi = fopna('ham',-1,4)
-         rewind ifi
-         read(ifi) ndhamx, nspx, nnnx
-         call isanrg(ndhamx,ndham,ndham,'sugw:','file ndham',.true.)
-         call isanrg(nspx,nsp,nsp,'sugw:','file nsp',.true.)
-         call isanrg(nnnx,nnn,nnn,'sugw:','file nnn',.true.)
+          ifi = fopna('ham',-1,4)
+          rewind ifi
+          read(ifi) ndhamx, nspx, nnnx
+          call isanrg(ndhamx,ndham,ndham,'sugw:','file ndham',.true.)
+          call isanrg(nspx,nsp,nsp,'sugw:','file nsp',.true.)
+          call isanrg(nnnx,nnn,nnn,'sugw:','file nnn',.true.)
 C        ifiv = fopnx('v_xc',2,4,-1)
-         if (.not. cmdopt('--novxc',7,0,strn)) then
-         ifiv = fopna('vxc',-1,4)
+          if (.not. cmdopt('--novxc',7,0,strn)) then
+            ifiv = fopna('vxc',-1,4)
 C         call iosigh(0,nscnts,nsp,ndham,0,0,0,nnn,
 C     .     lshft(1),lshft(2),lshft(3),-ifiv)
-         rewind ifiv
-         write(ifiv) ndham, nsp, nnn
-         endif
-      endif
+            rewind ifiv
+            write(ifiv) ndham, nsp, nnn
+          endif
+        endif
       endif
 
 C --- Main loop for eigenfunction generation ---
@@ -905,9 +905,9 @@ C --- Main loop for eigenfunction generation ---
         endif
 
         read (ifiqg)  q,  ngp   ! q, and number of G vectors for
-                                ! eigenfunction expansion at this q
+        ! eigenfunction expansion at this q
         read (ifiqgc) qx, ngc   ! q, and number of G vectors for
-                                ! expansion of the Coulomb interaction
+        ! expansion of the Coulomb interaction
         if (abs(sum(q-qx)) .gt. 1d-10) then
           print *, q
           print *, qx
@@ -928,7 +928,7 @@ C --- Main loop for eigenfunction generation ---
 
 ccccccccccccccccccc
 ctakao test for eigenfunction.
-c  I found that eigenfunction at q=.2 -.2 .6 and .2 .2 .6 (different sign for two .2) 
+c  I found that eigenfunction at q=.2 -.2 .6 and .2 .2 .6 (different sign for two .2)
 c   gives slightly differnt eigenfunctions. tested at temp_si_gw_lmfh2. this is not related to rotater itself.
 c  This is related to some difference in the construction of H and O. (eigenvalue are in agreemnet into 4th digit.
 c        qxx1=(/.6d0,.2d0,-.2d0/)
@@ -956,7 +956,7 @@ c          call pshpr(101)
 Cdelw1 do not change oigv2 because of ['wref']
           call defi(oigv2,3*napw)
 Cdelw1           call defi(okv,3*napw)
-           allocate(iv_w_okv(3*napw))
+          allocate(iv_w_okv(3*napw))
 Ctakao_ZeroClear_NotRequiered            if (3*napw<0) iv_w_okv(:)=0
 
           call pshpr(iprint()-10)
@@ -964,13 +964,13 @@ Cdelw1 do not change oigv2 because of ['wref']
 Cdelw1 do not change oigv2 because of ['wref']
 Cdelw1           call gvlst2(alat,plat,xx,0,0,0,pwgmin,pwgmax,0,
 Cdelw1      .      2,0,napw,w(okv),dum,dum,w(oigv2))
-           call gvlst2 ( alat , plat , xx , 0 , 0 , 0 , pwgmin , pwgmax 
-     .     , 0 , 2 , 0 , napw , iv_w_okv , dum , dum , w ( oigv2 ) ) 
+          call gvlst2 ( alat , plat , xx , 0 , 0 , 0 , pwgmin , pwgmax 
+     .     , 0 , 2 , 0 , napw , iv_w_okv , dum , dum , w ( oigv2 ) )
 
-Cdelw1 rlse name= okv old_list= oigv2 okv 
-Cdelw1 rlse name= okv new_list= oigv2 
+Cdelw1 rlse name= okv old_list= oigv2 okv
+Cdelw1 rlse name= okv new_list= oigv2
 Cdelw1           call rlse(okv)
-           if (allocated(iv_w_okv)) deallocate(iv_w_okv)
+          if (allocated(iv_w_okv)) deallocate(iv_w_okv)
 
 cc          call poppr
           call poppr
@@ -1001,197 +1001,198 @@ c$$$        endif
         do  isp = 1, nsp
 
 C   --- vxc <- LDA Hamiltonian without vxc for this qp ---
-        alfa = 0
+          alfa = 0
 Cdelw1 do not change oigv2 because of ['wref']
-        call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,spotx,
+          call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,spotx,
      .    vconst,osigx,otaux,oppix,lcplxp,alfa,ndimh,napw,w(oigv2),
      .    vxc,ovl,w)
 C   --- LDA Hamiltonian and overlap matrices for this qp ---
 Cdelw1 do not change oigv2 because of ['wref']
-        call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,smpot,
+          call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,smpot,
      .    vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,w(oigv2),ham,
      .    ovl,w)
 C   --- vxc <- LDA vxc ---
-        vxc = ham - vxc
+          vxc = ham - vxc
 
 C   --- Write matrix elments of vxc to disk (Faleev May 2002) ---
-        if (lwvxc) then
-          ifiv = fopna('vxc',-1,4)
+          if (lwvxc) then
+            ifiv = fopna('vxc',-1,4)
 
 c          write(ifv_xc) ndimh !june209 takao --->why did I do so? I don't remember sep3.2009.
 c move back to original ifiv
-          write(ifiv) ndimh 
+            write(ifiv) ndimh
 
 
-          write(ifiv) q,vxc
+            write(ifiv) q,vxc
 C         call zprm('vxc',2,vxc,ndimh,ndimh,ndimh)
-        endif
+          endif
 
 C   --- LDA + sigma Hamiltonian for this qp ---
-        lpdiag = 0
-        i = lrsig*10 + 1
-        ispc = min(isp,nspc)
+          lpdiag = 0
+          i = lrsig*10 + 1
+          ispc = min(isp,nspc)
 Cdelw1 do not change oigv2 because of ['wref']
 Cdelw1 warning(1) , probably  oqsig  is not defined yet at linenumber= 975
 Cdelw1 do not change oqsig because of ['undef', 'wref']
-        call hambls(i,nbas,ssite,sspec,slat,sham,isp,ispc,qp,k1,k2,k3,
+          call hambls(i,nbas,ssite,sspec,slat,sham,isp,ispc,qp,k1,k2,k3,
      .    w(oqsig),nqsig,smpot,vconst,osig,otau,oppi,lcplxp,0,alfa,
      .    ndimh,napw,w(oigv2),ham,ovl,i2)
-        if (i .eq. -1) lpdiag = 2
+          if (i .eq. -1) lpdiag = 2
 
 C   --- Branch job = 1 : make cphi, matrix elements ---
-        if (job .eq. 1) then
+          if (job .eq. 1) then
 
 C   --- Diagonalize ---
-        if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
-        if (iprint() .ge. 30) call awrit3(
+            if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
+            if (iprint() .ge. 30) call awrit3(
      .  ' sugw:  kpt %i of %i, k=%3:2,5;5d',' ',80,stdo,iq,nqtot,qp)
-        if (lpdiag .eq. 0) then
-          if (nspc .eq. 2) then
-            call rx('diagonalization not ready for nspc=2')
+            if (lpdiag .eq. 0) then
+              if (nspc .eq. 2) then
+                call rx('diagonalization not ready for nspc=2')
 C            call defrr(oww,  ndimhx**2)
 C            call sopert(0,ndimh,nspc,w(oww),w(oh),w(oh))
 C            call sopert(0,ndimh,nspc,w(oww),w(os),w(os))
 C            call rlse(oww)
-          endif
+              endif
 C         call diagcv(ovl,ham,evec,ndimh,evl(1,isp),ndimh,1d60,nev)
 Cdelw1           call defrr(oww,  11*ndimh)
-           allocate(rv_w_oww(11*ndimh))
+              allocate(rv_w_oww(11*ndimh))
 Ctakao_ZeroClear_NotRequiered            if (11*ndimh<0) rv_w_oww(:)=0.0d0
 
 Cgetarg           epsovl = dgets('ham oveps',sham)
-           epsovl = sham%oveps 
+              epsovl = sham%oveps
 
-          if (epsovl .le. 0) then
+              if (epsovl .le. 0) then
 Cdelw1             call zhev(ndimh,ham,ovl,.true.,.true.,ndimh,1d60,nev,w(oww),
 Cdelw1      .        .false.,-1,evl(1,isp),evec)
-             call zhev ( ndimh , ham , ovl , .true. , .true. , ndimh , 1d60 
-     .       , nev , rv_w_oww , .false. , - 1 , evl ( 1 , isp ) , evec ) 
+                call zhev ( ndimh , ham , ovl , .true. , .true. , ndimh , 1d60 
+     .       , nev , rv_w_oww , .false. , - 1 , evl ( 1 , isp ) , evec )
 
-          else
-            nevl = -1
+              else
+                nevl = -1
 Cdelw1             call dvset(w(oww),1,1,99999d0)
-             call dvset ( rv_w_oww , 1 , 1 , 99999d0 ) 
+                call dvset ( rv_w_oww , 1 , 1 , 99999d0 )
 
 Cdelw1             call zhevo(ndimh,ndimh,ham,ovl,.true.,ndimh,1d60,epsovl,
 Cdelw1      .        nevl,nev,evl(1,isp),w(oww),ndimh,evec)
-             call zhevo ( ndimh , ndimh , ham , ovl , .true. , ndimh , 1d60 
+                call zhevo ( ndimh , ndimh , ham , ovl , .true. , ndimh , 1d60 
      .       , epsovl , nevl , nev , evl ( 1 , isp ) , rv_w_oww , ndimh , 
-     .       evec ) 
+     .       evec )
 
 Cdelw1             eomin = dval(w(oww),1)
-             eomin = dval ( rv_w_oww , 1 ) 
+                eomin = dval ( rv_w_oww , 1 )
 
-            call info5(30,0,0,
+                call info5(30,0,0,
      .        ' Overlap''s smallest eigenvalue: %;3g.  '//
      .        '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
      .        eomin,ndimh-nevl,ndimh,nevl,0)
-          endif
-          call prtev(evec,ndimh,evl(1,isp),ndimh,1d60,nev)
-        elseif (lpdiag .eq. 2) then
-          evec = ovl
-          call phmbls(2,ndimh,evl(1,isp),w,w,w,w,w,ham)
-          nev = ndimh
-          call prtev(evec,ndimh,evl(1,isp),ndimh,9d9,nev)
-        else
-          call rxi('sugw not ready for lpdiag=',lpdiag)
-        endif
+              endif
+              call prtev(evec,ndimh,evl(1,isp),ndimh,1d60,nev)
+            elseif (lpdiag .eq. 2) then
+              evec = ovl
+              call phmbls(2,ndimh,evl(1,isp),w,w,w,w,w,ham)
+              nev = ndimh
+              call prtev(evec,ndimh,evl(1,isp),ndimh,9d9,nev)
+            else
+              call rxi('sugw not ready for lpdiag=',lpdiag)
+            endif
 C       Pad evals between ndimh and ndham with a large positive number
 C       to avoid mixing up integration routines
-        if (ndham .gt. nev) then
-          call dvset(evl(1,isp),1+nev,ndham,99999d0)
-        endif
+            if (ndham .gt. nev) then
+              call dvset(evl(1,isp),1+nev,ndham,99999d0)
+            endif
 C       call zprm('evec',2,evec,ndimh,ndimh,ndimh)
 C       call prmx('eval',evl,ndham,ndimh,1)
-        if (bandmode .and. jobb .eq. 5) then
-          write(ifeigen) evl(1:ndham,isp)
-          if (mod(iq,10) .ne. 1) call poppr
-          cycle
-        endif
+            if (bandmode .and. jobb .eq. 5) then
+              write(ifeigen) evl(1:ndham,isp)
+              if (mod(iq,10) .ne. 1) call poppr
+              cycle
+            endif
 
-        if (mod(iq,10) .ne. 1) call poppr
-        print *,' lwvxc=',lwvxc
-        if (lwvxc) then
-          ifi = fopna('evec',-1,4)
-          write(ifi) q, evec(1:ndimh,1:ndimh)
+            if (mod(iq,10) .ne. 1) call poppr
+            print *,' lwvxc=',lwvxc
+            if (lwvxc) then
+              ifi = fopna('evec',-1,4)
+              write(ifi) q, evec(1:ndimh,1:ndimh)
 C         call zprm('z',2,evec,ndimh,ndimh,ndimh)
-        endif
+            endif
 
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ctest for takao wave function rotater si 5x5x5.
-c 
 c
-       if(.false.) then
+c
+            if(.false.) then
 c       if(iq==8) then
-         open( 1012, file='evecx' )
-         ifi=1025
-         open(ifi,file='QBZ')
-         read(ifi,*) nqzz
-         allocate(qzz(3,nqzz))
-         do i=1,nqzz
-           read(ifi,*) qzz(:,i)
-         enddo
-         
-         allocate(evecout(ndimh,ndimh))
-         do iqzz = 1,nqzz 
-           qtarget = qzz(:,iqzz)
+              open( 1012, file='evecx' )
+              ifi=1025
+              open(ifi,file='QBZ')
+              read(ifi,*) nqzz
+              allocate(qzz(3,nqzz))
+              do i=1,nqzz
+                read(ifi,*) qzz(:,i)
+              enddo
+
+              allocate(evecout(ndimh,ndimh))
+              do iqzz = 1,nqzz
+                qtarget = qzz(:,iqzz)
 c
-           call rotwv(q,qtarget,ndimh,napw,ndimh, plat,qlat,evec,evecout,ierr)
-           if(ierr/=0) cycle
+                call rotwv(q,qtarget,ndimh,napw,ndimh, plat,qlat,evec,evecout,ierr)
+                if(ierr/=0) cycle
 
-           do 
-             read(1012,*,end=1019) iiiii
-             read(1012,*) qrr, ndimh
-             print *,'qrr ndimh=',qrr,ndimh
-             allocate(evecr(ndimh,ndimh))
-             print *,'qrr ndimh xxx=',qrr,ndimh
-             do j= 1,ndimh
-             do i= 1,ndimh
-               read(1012,*) axx,bxx
-               evecr(i,j)=dcmplx(axx,bxx)
-             enddo
-             enddo
-             if(sum(abs(qrr-qtarget))<1d-8) exit
-             deallocate(evecr)
-           enddo
-           rewind 1012
+                do
+                  read(1012,*,end=1019) iiiii
+                  read(1012,*) qrr, ndimh
+                  print *,'qrr ndimh=',qrr,ndimh
+                  allocate(evecr(ndimh,ndimh))
+                  print *,'qrr ndimh xxx=',qrr,ndimh
+                  do j= 1,ndimh
+                    do i= 1,ndimh
+                      read(1012,*) axx,bxx
+                      evecr(i,j)=dcmplx(axx,bxx)
+                    enddo
+                  enddo
+                  if(sum(abs(qrr-qtarget))<1d-8) exit
+                  deallocate(evecr)
+                enddo
+                rewind 1012
 
-           call shorbz(qtarget,qxxx,qlat,plat)
+                call shorbz(qtarget,qxxx,qlat,plat)
 
-           write(1013,"(i10)") 11111
-           write(1013,"(3f8.3,i10)") qtarget,ndimh
+                write(1013,"(i10)") 11111
+                write(1013,"(3f8.3,i10)") qtarget,ndimh
 c           write(1013,"(i10,3f8.3,i10)") 11111,qout,ndimh
-           do j=1,ndimh
-           do i=1,ndimh
-           if(abs(evecout(i,j))+abs(evecr(i,j))>1d-4) then
-           write(1013,"(2i4,2d13.5,2x,2d13.5,2x,2d12.4,2x,2d12.4,3f8.3)") i,j,evecout(i,j), evecr(i,j), evecout(i,j)/evecr(i,j),
+                do j=1,ndimh
+                  do i=1,ndimh
+                    if(abs(evecout(i,j))+abs(evecr(i,j))>1d-4) then
+                      write(1013,"(2i4,2d13.5,2x,2d13.5,2x,2d12.4,2x,2d12.4,3f8.3)") 
+     &     i,j,evecout(i,j), evecr(i,j), evecout(i,j)/evecr(i,j),
      &     abs(evecout(i,j)), abs(evecr(i,j)),qxxx
-           endif
-           enddo
-           write(1013,*)
-           enddo
+                    endif
+                  enddo
+                  write(1013,*)
+                enddo
 
-           deallocate(evecr)
-         enddo
-         deallocate(evecout)
-         stop 'test end xxxxxxxx'
- 1019    continue
-         stop 'uuuuuuuuuuuuuuu'
-       endif
+                deallocate(evecr)
+              enddo
+              deallocate(evecout)
+              stop 'test end xxxxxxxx'
+ 1019         continue
+              stop 'uuuuuuuuuuuuuuu'
+            endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ctakao write eigenfunctions to file fort.1012.
-       if(.false.) then
-        write(1012,"(i10)") 11111
-        write(1012,"(3f8.3,i10)") q,ndimh
-        do j=1,ndimh
-        do i=1,ndimh
-           write(1012,"(2i4,2d13.5,2x,d13.5)") i,j,evec(i,j),abs(evec(i,j))
+            if(.false.) then
+              write(1012,"(i10)") 11111
+              write(1012,"(3f8.3,i10)") q,ndimh
+              do j=1,ndimh
+                do i=1,ndimh
+                  write(1012,"(2i4,2d13.5,2x,d13.5)") i,j,evec(i,j),abs(evec(i,j))
 c          write(1012,"(2d23.15)") evec(i,j)
-        enddo
-        enddo
-       endif
+                enddo
+              enddo
+            endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
@@ -1199,29 +1200,29 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 C   --- Project wf into augmentation spheres, Kotani conventions ---
-        nlmax = nglob('mxorb') / nglob('nkaph')
+            nlmax = nglob('mxorb') / nglob('nkaph')
 Cdelw1         call defcc(oaus,-nlmax*ndham*3*nsp*nbas)
-         allocate(zv_w_oaus(abs(-nlmax*ndham*3*nsp*nbas)))
-         if (-nlmax*ndham*3*nsp*nbas<0) zv_w_oaus(:)=0.0d0
+            allocate(zv_w_oaus(abs(-nlmax*ndham*3*nsp*nbas)))
+            if (-nlmax*ndham*3*nsp*nbas<0) zv_w_oaus(:)=0.0d0
 
 Cdelw1 do not change oigv2 because of ['wref']
 Cdelw1 do not change oigv2 because of ['wref']
 Cdelw1         call makusq(1,ssite,sspec,slat,sham,nbas,nbas,0,nlmax,ndham,
 Cdelw1      .    ndimh,napw,w(oigv2),nev,nsp,nspc,isp,1,qp,evec,ppn,w(oaus))
-         call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
+            call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
      .   0 , nlmax , ndham , ndimh , napw , w ( oigv2 ) , nev , nsp , 
-     .   nspc , isp , 1 , qp , evec , ppn , zv_w_oaus ) 
+     .   nspc , isp , 1 , qp , evec , ppn , zv_w_oaus )
 
 Cdelw1         call gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas,ipb,
 Cdelw1      .    lmxax,nlindx,ndima,ppn,w(oaus),cphi(1,1,isp),cphin(1,1,isp))
-         call gwcphi ( ssite , sspec , isp , nsp , nlmax , ndham , nev 
+            call gwcphi ( ssite , sspec , isp , nsp , nlmax , ndham , nev 
      .   , nbas , ipb , lmxax , nlindx , ndima , ppn , zv_w_oaus , cphi 
-     .   ( 1 , 1 , isp ) , cphin ( 1 , 1 , isp ) ) 
+     .   ( 1 , 1 , isp ) , cphin ( 1 , 1 , isp ) )
 
-Cdelw1 rlse name= oaus old_list= oigv2 oww oaus 
-Cdelw1 rlse name= oaus new_list= oigv2 oww 
+Cdelw1 rlse name= oaus old_list= oigv2 oww oaus
+Cdelw1 rlse name= oaus new_list= oigv2 oww
 Cdelw1         call rlse(oaus)
-         if (allocated(zv_w_oaus)) deallocate(zv_w_oaus)
+            if (allocated(zv_w_oaus)) deallocate(zv_w_oaus)
 
 
 C   --- Overlap of IPWs, PW expansion of eigenfunctions pwz ---
@@ -1250,8 +1251,8 @@ C       Overlap of IPW and eigenfunction:
 C         PZOVL_G1,n = <IPW(G1) psi_n> = sum_G2 O_G1_G2 PWZ_G2,n
 C         PZOVL = O * PWZ (matrix form) --- old
 C         Note: pzovl is only used as an intermediate construction, old branch
-        if (ngp .gt. 0) then
-          allocate(ppovl(ngp,ngp),pwz(ngp,ndimh))
+            if (ngp .gt. 0) then
+              allocate(ppovl(ngp,ngp),pwz(ngp,ndimh))
 C         Pass qx to pwmat (or pwmat2):
 C         qx = (unshortened) q if 2s digit loldpw = 0
 C         qx = (shortened)  qp if 2s digit loldpw = 1
@@ -1259,49 +1260,49 @@ c$$$          qx = q
 C$$$          if (mod(loldpw/2,2) .eq. 1) qx = qp
 C         Old convention: call pwmat
 c          if (mod(loldpw,2) .eq. 0) then
-            allocate(phovl(ngp,ndimh))
+              allocate(phovl(ngp,ndimh))
 
-ctakao 
+ctakao
 c We have  q+G(igvx; internal in pwmat) = qp + G(igv2)
 c Thus, we have
 c           igv(internally in pwmat) = igv2 + qlatinv*(qp-q)
 c            inn = qlatinv*(qp-q)
-            call dinv33(qlat,0,qlatinv,dum)
-            call rtoint(matmul(qlatinv,qp-q),inn,3)
+              call dinv33(qlat,0,qlatinv,dum)
+              call rtoint(matmul(qlatinv,qp-q),inn,3)
 c            write(6,"('goto pwmat: qlatinv*(qp-q)=',3f13.5,3i5)")
 c     &        matmul(qlatinv,qp-q),inn
 
 Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 1181
 Cdelw1 do not change oiprmb because of ['undef', 'wref']
 Cdelw1 do not change oigv2 because of ['wref']
-            call pwmat(slat,ssite,sspec,nbas,ndimh,napw,w(oigv2),
+              call pwmat(slat,ssite,sspec,nbas,ndimh,napw,w(oigv2),
 c     .        w(oiprmb),qx,ngp,nlmax,ngvecp,gmax,ppovl,phovl)
      .        w(oiprmb),q,ngp,nlmax,ngvecp,gmax,inn,ppovl,phovl)
-            if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
-            if(debug) print *,'sss: phovl=',sum(abs(phovl))
-            if(debug) print *,'sss: evec =',sum(abs(evec))
-            if(debug) print *,'sss:       '
-            call zgemm('N','N',ngp,ndimh,ndimh,(1d0,0d0),phovl,ngp,
+              if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
+              if(debug) print *,'sss: phovl=',sum(abs(phovl))
+              if(debug) print *,'sss: evec =',sum(abs(evec))
+              if(debug) print *,'sss:       '
+              call zgemm('N','N',ngp,ndimh,ndimh,(1d0,0d0),phovl,ngp,
      .        evec,ndimh,(0d0,0d0),pwz,ngp)
-            if(debug) print *,'sss: pwz =',sum(abs(pwz))
-            if(debug) print *,'sss:       '
-            deallocate(phovl)
+              if(debug) print *,'sss: pwz =',sum(abs(pwz))
+              if(debug) print *,'sss:       '
+              deallocate(phovl)
 
 C           call zprm('ppovl',2,ppovl,ngp,ngp,ngp)
 C           call zprm('pzovl = ppovl * pwz',2,pwz,ngp,ngp,ndimh)
-            if (lchk .ge. 1) then
-              allocate(pzovl(ngp,ndimh))
-              pzovl = pwz
-              allocate(ppovld(ngp)) ! extract diagonal before ppovl overwritten
-              do  i = 1, ngp
-                ppovld(i) = ppovl(i,i)
-              enddo
-            endif
-            allocate(wk(ngp,129))
-            call zqinvb('hl',ppovl,ngp,ngp,ndimh,wk,ngp,wk,pwz,ngp,
+              if (lchk .ge. 1) then
+                allocate(pzovl(ngp,ndimh))
+                pzovl = pwz
+                allocate(ppovld(ngp)) ! extract diagonal before ppovl overwritten
+                do  i = 1, ngp
+                  ppovld(i) = ppovl(i,i)
+                enddo
+              endif
+              allocate(wk(ngp,129))
+              call zqinvb('hl',ppovl,ngp,ngp,ndimh,wk,ngp,wk,pwz,ngp,
      .        ierr)
-            if (ierr .ne. 0) call rx('zqinvb failed to invert ppovl')
-            deallocate(wk)
+              if (ierr .ne. 0) call rx('zqinvb failed to invert ppovl')
+              deallocate(wk)
 C           call zprm('pwz',2,pwz,ngp,ngp,ndimh)
 
 c$$$C         New convention: call pwmat
@@ -1322,10 +1323,10 @@ c$$$                ppovld(i) = ppovl(i,i)
 c$$$              enddo
 c$$$            endif
 c$$$          endif
-        endif
+            endif
 
 C   --- File output, job=1 ---
-        ifi = fopna('gwb',-1,4)
+            ifi = fopna('gwb',-1,4)
 
 C        allocate(evec_(ndimh,ndimh),evl_(ndimh,nsp),
 C     .    cphi_(ndima,ndimh,nsp))
@@ -1359,17 +1360,17 @@ C          print *, 'oops 6'
 C        endif
 C        deallocate(evec_,evl_,cphi_,ngvecp_,ngvecc_,pwz_)
 
-        write (ifi) q, ndimh
-        write (6,"('q ndimh=',3f10.5,i10)") q, ndimh
+            write (ifi) q, ndimh
+            write (6,"('q ndimh=',3f10.5,i10)") q, ndimh
 c        print *,'uuu ndimh=',ndimh
 c takao Apr2009
 c       write (ifi) evec,evl(1:ndimh,isp),cphi(:,:,isp)
-        write (ifi) evl(1:ndimh,isp),cphi(:,:,isp)
-        write (ifi) ngp,ngc
-        write (ifi) ngvecp, ngvecc, pwz
+            write (ifi) evl(1:ndimh,isp),cphi(:,:,isp)
+            write (ifi) ngp,ngc
+            write (ifi) ngvecp, ngvecc, pwz
 
-        ifi = fopna('gw1',-1,4)
-        write(ifi) q, (evl(i,isp),i=1,ndimh)
+            ifi = fopna('gw1',-1,4)
+            write(ifi) q, (evl(i,isp),i=1,ndimh)
 C       call prmx('e(H+sigma-vxc)',evl,ndimh,ndimh,1)
 
 C   ... Overlap checking.   Define:
@@ -1378,93 +1379,93 @@ C         <psi_n||psi_n'>
 C         = sum_G1,G2 (pwz_G1,n|IPW_G1>)+  (pwz_G2,n'|IPW_G2>)
 C         = sum_G1,G2 (pwz_G1,n)+ ppovl_G1,G2 (PWZ_G2,n')
 C         = (PWZ)+ O (PWZ) = (PZOVL)+ (PWZ)  (old style)
-        if (lchk .ge. 1 .and. ngp .gt. 0) then
+            if (lchk .ge. 1 .and. ngp .gt. 0) then
 
-          allocate(testc(ndimh,ndimh),testcd(ndimh))
+              allocate(testc(ndimh,ndimh),testcd(ndimh))
 c$$$          if (mod(loldpw,2) .eq. 1) then
 c$$$            allocate(pzovl(ngp,ndimh))
 c$$$            call zgemm('N','N',ngp,ndimh,ngp,dcmplx(1d0,0d0),
 c$$$     .        ppovl,ngp,pwz,ngp,dcmplx(0d0,0d0),pzovl,ngp)
 c$$$          endif
-          call zgemm('C','N',ndimh,ndimh,ngp,(1d0,0d0),
+              call zgemm('C','N',ndimh,ndimh,ngp,(1d0,0d0),
      .      pzovl,ngp,pwz,ngp,(0d0,0d0),testc,ndimh)
-          deallocate(pzovl)
+              deallocate(pzovl)
 
 C          call zprm('(PWZ)+^-1 O_i^-1 (PWZ)',2,testc,ndimh,ndimh,
 C     .      ndimh)
 
-          do  i = 1, ndimh
-            testcd(i) = sum(dconjg(pwz(:,i))*ppovld*pwz(:,i))
-          enddo
-          deallocate(ppovld)
+              do  i = 1, ndimh
+                testcd(i) = sum(dconjg(pwz(:,i))*ppovld*pwz(:,i))
+              enddo
+              deallocate(ppovld)
 
 C         xx(1) = sum over all augmentation w.f.  cphi+ ovl cphi
 C         xx(2) = sum over augmentation phi only.
 C         xx(3) = IPW contribution to phi+ phi
 C         xx(4) = IPW contribution to phi+ phi, using diagonal part only
-          ifi = fopna('normchk',-1,0)
-          if (abs(sum(q-qp)) .gt. 1d-10) then
-            write(ifi,555) iq,q,qp
-          else
-            write(ifi,555) iq,q
-          endif
-  555     format('# iq',i5,'   q',3f12.6:'  shortened q',3f12.6)
-          do  i1 = 1, ndimh
-          xx(1) = cphin(1,i1,isp)
-          xx(2) = cphin(2,i1,isp)
-          do  i2 = 1, ndimh
+              ifi = fopna('normchk',-1,0)
+              if (abs(sum(q-qp)) .gt. 1d-10) then
+                write(ifi,555) iq,q,qp
+              else
+                write(ifi,555) iq,q
+              endif
+  555         format('# iq',i5,'   q',3f12.6:'  shortened q',3f12.6)
+              do  i1 = 1, ndimh
+                xx(1) = cphin(1,i1,isp)
+                xx(2) = cphin(2,i1,isp)
+                do  i2 = 1, ndimh
 C         xx(1) = sum(dconjg(cphi(1:ndima,i1,isp))*cphi(1:ndima,i2,isp))
 C         xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
-          xx(3) = testc(i1,i2)
-          xx(4) = testcd(i1)
-          if (i1 .eq. i2) then
-            write(ifi,'(f12.5,5f14.6)')
+                  xx(3) = testc(i1,i2)
+                  xx(4) = testcd(i1)
+                  if (i1 .eq. i2) then
+                    write(ifi,'(f12.5,5f14.6)')
      .        evl(i1,isp),xx(3),xx(4),xx(1),xx(2),xx(1)+xx(3)
 C         else
 C           write(ifi,'(5f14.6)') xx(3),xx(4),xx(1),xx(2),xx(1)+xx(3)
-          endif
-          enddo
-          enddo
-          deallocate(testc,testcd)
-          write(ifi,*)
+                  endif
+                enddo
+              enddo
+              deallocate(testc,testcd)
+              write(ifi,*)
 C         write(198,*)
 C         if (iq .eq. 4) call rx0('done')
 
 C   ... Band mode
-        if (bandmode) then
-          geig(:,:,isp)= pwz
-          if (isp .eq. 1) then
-            if (iq .eq. 1) q_p=q
-            qpos = qpos + sqrt( sum((q-q_p)**2) )
-            if (endofline) then
-              iline = iline + 1
-              endofline=.false.
-            endif
-            if (sum(abs(q-qq2(:,iline)))<1d-6) endofline = .true.
-          endif
+              if (bandmode) then
+                geig(:,:,isp)= pwz
+                if (isp .eq. 1) then
+                  if (iq .eq. 1) q_p=q
+                  qpos = qpos + sqrt( sum((q-q_p)**2) )
+                  if (endofline) then
+                    iline = iline + 1
+                    endofline=.false.
+                  endif
+                  if (sum(abs(q-qq2(:,iline)))<1d-6) endofline = .true.
+                endif
 
-          if (iq .eq. 1) then
-            do  j = 1, ndimh
-              ibidx(j,isp) = j
-            enddo
+                if (iq .eq. 1) then
+                  do  j = 1, ndimh
+                    ibidx(j,isp) = j
+                  enddo
 C           Should not be necessary, but avoids a bug in the DEC alpha compiler
-            ngp_p = ngp
-          else
-            call tcn('bndconn')
-            call bndconn_v2( alat,plat,qlat,
+                  ngp_p = ngp
+                else
+                  call tcn('bndconn')
+                  call bndconn_v2( alat,plat,qlat,
      i        nbas, rmt, bas, ndimh, ndima,
      i        evl(1,isp),  ngp, ngp_p, ngvecp,ngvecp_p,
      i        geig(1,1,isp),   geig_p(1,1,isp),
      i        cphi(1,1,isp), cphi_p(1,1,isp), ovvx(1,1,isp),
      o        iiyf,ovv)
 C           Continuous band index:
-            ibidx(1:ndimh,isp) = iiyf(ibidx(1:ndimh,isp))
-            write(96+isp,'(" ",    255i4)') iq,(j,      j=1,ndimh)
-            write(96+isp,'("     ",255i4)') (iiyf(j),j=1,ndimh)
-            write(96+isp,'("     ",255i4)')
+                  ibidx(1:ndimh,isp) = iiyf(ibidx(1:ndimh,isp))
+                  write(96+isp,'(" ",    255i4)') iq,(j,      j=1,ndimh)
+                  write(96+isp,'("     ",255i4)') (iiyf(j),j=1,ndimh)
+                  write(96+isp,'("     ",255i4)')
      .        (int(10*ovv(iiyf(iix),iix)),iix=1,ndimh)
-            call tcx('bndconn')
-          endif
+                  call tcx('bndconn')
+                endif
 c----------------
 c         write(95,"(' iline iq=',2i4 )") iline,iq
 c         do ibr=1,ndimh  !takao for plot
@@ -1473,82 +1474,82 @@ c     .     q(1:3),evl(ibidx(ibr))
 c         enddo
 c         write(95,*)
 ccccccccccccccccccccccccccccccc
-          write(995,"(i2,3f9.5,' ',f9.5,' ',255(i3,f10.5))") iline,
+                write(995,"(i2,3f9.5,' ',f9.5,' ',255(i3,f10.5))") iline,
      .      q(1:3), qpos,
      .      (ibidx(ibr,isp),evl(ibidx(ibr,isp),isp), ibr=1,ndimh)
 c         print *,'--- ndimh=',ndimh
 cccccccccccccccccccccccccccccccc
 
-          write(iflband(isp)) iline, q(1:3), qpos
+                write(iflband(isp)) iline, q(1:3), qpos
      .      ,(ibidx(ibr,isp),evl(ibidx(ibr,isp),isp),ibr=1,ndimh)
 
 c         write(996,*)'iq=',iq, ' sum ibidx=',sum(ibidx(1:ndimh))
 
 C     --- Save eigenfunctions of previous loop ---
-          if(iq/=1 .and. isp.eq.nsp) deallocate(geig_p, ngvecp_p)
-          if (isp .eq. nsp) then
-            allocate(geig_p(ngp,ndimh,nsp), ngvecp_p(3,ngp))
-            cphi_p = cphi
-            geig_p = geig
-            evl_p  = evl
-            ngvecp_p = ngvecp
-            ngp_p    = ngp
-            q_p      = q
-          endif
-        endif                   !------------- end of band mode
-        endif                   !------------- end of lchk=1
+                if(iq/=1 .and. isp.eq.nsp) deallocate(geig_p, ngvecp_p)
+                if (isp .eq. nsp) then
+                  allocate(geig_p(ngp,ndimh,nsp), ngvecp_p(3,ngp))
+                  cphi_p = cphi
+                  geig_p = geig
+                  evl_p  = evl
+                  ngvecp_p = ngvecp
+                  ngp_p    = ngp
+                  q_p      = q
+                endif
+              endif                   !------------- end of band mode
+            endif                   !------------- end of lchk=1
 
-        if (ngp .gt. 0) then
-          deallocate(ppovl,pwz)
-        endif
-        if (isp .eq. nsp) deallocate(ngvecp,ngvecc)
+            if (ngp .gt. 0) then
+              deallocate(ppovl,pwz)
+            endif
+            if (isp .eq. nsp) deallocate(ngvecp,ngvecc)
 
 C   ... Subtract <psi|vxc|psi> from starting evl=e(lda+sigma-vxc)
 C       evl should contain e(lda+sigma-vxc)
-        allocate(testc(ndimh,ndimh))
-        call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),
+            allocate(testc(ndimh,ndimh))
+            call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),
      .    evec,ndimh,vxc,ndimh,(0d0,0d0),testc,ndimh)
-        do  i1 = 1, ndimh
-          do  i2 = 1, ndimh
-            evl(i1,isp) = evl(i1,isp) - testc(i1,i2) * evec(i2,i1)
-          end do
-        end do
+            do  i1 = 1, ndimh
+              do  i2 = 1, ndimh
+                evl(i1,isp) = evl(i1,isp) - testc(i1,i2) * evec(i2,i1)
+              end do
+            end do
 C       call prmx('e(H+sigma-vxc-vxc)',evl,ndimh,ndimh,1)
 C   ... Save to file gw2 energies e(lda+sigma-vxc-vxc)
-        ifi = fopna('gw2',-1,4)
-        write(ifi) q, (evl(i,isp),i=1,ndimh)
-        deallocate(testc)
+            ifi = fopna('gw2',-1,4)
+            write(ifi) q, (evl(i,isp),i=1,ndimh)
+            deallocate(testc)
 
 C   --- Branch job = 2 : matrix elements of ham without vxc ---
-        else
+          else
 
 C   ... Diagonal matrix elements of <psi|H(lda)-vxc|psi>
-        allocate(testc(ndimh,ndimh))
+            allocate(testc(ndimh,ndimh))
 C       Read eigenvectors from gwb
-        ifi = fopna('gwb',-1,4)
-        read (ifi)
-        read (ifi) evec
-        read (ifi)
-        read (ifi)
+            ifi = fopna('gwb',-1,4)
+            read (ifi)
+            read (ifi) evec
+            read (ifi)
+            read (ifi)
 C       evl = <psi|H(no XC)|psi>
-        call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),
+            call zgemm('C','N',ndimh,ndimh,ndimh,(1d0,0d0),
      .    evec,ndimh,ham,ndimh,(0d0,0d0),testc,ndimh)
-        call dpzero(evl,ndimh)
-        do  i1 = 1, ndimh
-          do  i2 = 1, ndimh
-            evl(i1,1) = evl(i1,1) + testc(i1,i2) * evec(i2,i1)
-          end do
-        end do
+            call dpzero(evl,ndimh)
+            do  i1 = 1, ndimh
+              do  i2 = 1, ndimh
+                evl(i1,1) = evl(i1,1) + testc(i1,i2) * evec(i2,i1)
+              end do
+            end do
 C       call prmx('e(H-vxc)',evl,ndimh,ndimh,1)
 C       File write
-        ifi = fopna('gw2',-1,4)
-        write(ifi) q, (evl(i,1),i=1,ndimh)
-        deallocate(testc)
+            ifi = fopna('gw2',-1,4)
+            write(ifi) q, (evl(i,1),i=1,ndimh)
+            deallocate(testc)
 
-      endif
-      enddo ! Loop over spins
-      deallocate(ham,ovl,evec,vxc,cphi,cphin)
-      if (bandmode .and. jobb .eq. 0) deallocate(geig)
+          endif
+        enddo ! Loop over spins
+        deallocate(ham,ovl,evec,vxc,cphi,cphin)
+        if (bandmode .and. jobb .eq. 0) deallocate(geig)
       enddo ! Loop over qp
       if (jobb .ne. 5) then
         call fclr(' ',ifiqg)
@@ -1569,21 +1570,21 @@ C       File write
       call fclr('gw2',fopna('gw2',-1,4))
       call fclr('gwb',fopna('gwb',-1,4))
       if (.not. cmdopt('--novxc',7,0,strn)) then
-      if (lsig .gt. 0) then
-        call fclr('vxc',fopna('vxc',-1,4))
-        call fclr('evec',fopna('evec',-1,4))
-      endif
+        if (lsig .gt. 0) then
+          call fclr('vxc',fopna('vxc',-1,4))
+          call fclr('evec',fopna('evec',-1,4))
+        endif
       endif
 
 Cgetarg       end
-Cdelw1 w_varlist remains: oigv2 oww 
+Cdelw1 w_varlist remains: oigv2 oww
 Cdelw1 w_varlistundel: [og oiprmb ov0 oqsig oigv2]
 Cdelw1 w_varlist (undel), remains: [oigv2]
 Cdelw1 w_varlist (del), remains: [oww]
 Cdelw1 not deallocate oigv2 because of [wref]
-        if (allocated(rv_w_oww)) deallocate(rv_w_oww)
+      if (allocated(rv_w_oww)) deallocate(rv_w_oww)
 
-       end subroutine sugw 
+      end subroutine sugw
 
 
       subroutine ioaindx(npqn,lmxax,nbas,ndima,nlindx,ifi)
@@ -1626,7 +1627,7 @@ C       If passed ndima>0, check that it matches file value
           read(outs,*) ipqn,l,ib,ii
           nlindx(ipqn,l,ib) = ii
         enddo
-  101 continue
+  101   continue
 
 C --- File write ---
       else
@@ -1637,7 +1638,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine ioaindx 
+      end subroutine ioaindx
 
 
       subroutine wsymops(symops,ngrp)
@@ -1666,7 +1667,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine wsymops 
+      end subroutine wsymops
 
 
       subroutine wlattc(alat,plat,nbas,nat,ipb,lmxax,lmxa,nsp,konf)
@@ -1718,19 +1719,19 @@ C     open (ifi, file='LATTC')
       do  isp = 1, nsp
         write(ifi,"(' -- ibas lmxa konf(s) konf(p) konf(d)... '
      .          , ' isp=',2i2)")isp
-      do  ib = 1, nbas
-        if (lmxa(ib) .gt. -1) then
-          write(ifi,"('   ',99i4)")
+        do  ib = 1, nbas
+          if (lmxa(ib) .gt. -1) then
+            write(ifi,"('   ',99i4)")
      .      ipb(ib),lmxa(ib),konf(0:lmxa(ib),ib,isp)
-        endif
-      enddo
+          endif
+        enddo
       enddo
       call fclr(' ',ifi)
 Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine wlattc 
+      end subroutine wlattc
 
 
       subroutine mkppovl2(alat,plat,qlat, ng1,ngvec1,ng2,ngvec2,
@@ -1765,27 +1766,27 @@ c
       allocate( ppox(n1m:n1x,n2m:n2x,n3m:n3x) )
       ppox = 1d99
       do ig1  = 1, ng1
-      do ig2  = 1, ng2
-        nx(1:3) = ngvec2(1:3,ig2) - ngvec1(1:3,ig1) ! G2-G1
-        if( ppox(nx(1),nx(2),nx(3)) .eq. 1d99 ) then
-          call matgg2(alat,bas,rmax,nbas,voltot, tpibaqlat,
+        do ig2  = 1, ng2
+          nx(1:3) = ngvec2(1:3,ig2) - ngvec1(1:3,ig1) ! G2-G1
+          if( ppox(nx(1),nx(2),nx(3)) .eq. 1d99 ) then
+            call matgg2(alat,bas,rmax,nbas,voltot, tpibaqlat,
      i    nx(1:3), ! G2 -G1
      o    ppox( nx(1),nx(2),nx(3)))
-        endif
-      enddo
+          endif
+        enddo
       enddo
       do ig1 = 1,ng1
-      do ig2 = 1,ng2
-        nx(1:3) = ngvec2(1:3,ig2) -ngvec1(1:3,ig1) ! G2-G1
-        ppovl(ig1,ig2) = ppox( nx(1),nx(2),nx(3) )
-      enddo
+        do ig2 = 1,ng2
+          nx(1:3) = ngvec2(1:3,ig2) -ngvec1(1:3,ig1) ! G2-G1
+          ppovl(ig1,ig2) = ppox( nx(1),nx(2),nx(3) )
+        enddo
       enddo
       deallocate(ppox)
 Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mkppovl2 
+      end subroutine mkppovl2
 
 
 C      subroutine fmain
@@ -1857,6 +1858,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine pvsug1 
+      end subroutine pvsug1
 
 

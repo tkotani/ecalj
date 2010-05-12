@@ -12,7 +12,7 @@ Cr Remarks
 Cr   dl is in inverse atomic units.
 Cr
 Cr  Formally, the kappa=0 structure constants H_L
-Cr  may be evaluated as the limit as e-> 0 of 
+Cr  may be evaluated as the limit as e-> 0 of
 Cr  F_L = H_L(e,\r) - C(e)\delta(L,0), with C(e) = -4\pi/\omega Y0 1/e
 Cr  This latter term subtracts of a constant background which
 Cr  makes int_cell ( ) cell vanish.  As e->0, both terms

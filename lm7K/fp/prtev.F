@@ -39,7 +39,8 @@ c #if .not. (MPI|MPIK)
 
       if (ipr .ge. 100) then
         do  30  i = 1, min(n,nmx)
-   30   write(stdo,863) i,evl(i),(cdabs(t(j,i)),j=1,n)
+          write(stdo,863) i,evl(i),(cdabs(t(j,i)),j=1,n)
+   30   continue
   863   format(' i=',i5,'   evl=',f12.6,'  abs(z)='/(8f9.4))
         call ftflsh(stdo)
       endif

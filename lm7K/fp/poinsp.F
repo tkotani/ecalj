@@ -44,67 +44,72 @@ C ... Local parameters
       a2b4 = a*a/4d0
       rpb = b
       do  5  ir = 1, nr
-      rofi(ir) = rpb-b
-    5 rpb = rpb*ea
+        rofi(ir) = rpb-b
+        rpb = rpb*ea
+    5 continue
       rmax = rofi(nr)
 
 C --- Call poiss0 for l=0 to get good pot for small r --- ---
       do  1  ir = 1, nr
-    1 rho0(ir) = rho(ir,1)*srfpi
+        rho0(ir) = rho(ir,1)*srfpi
+    1 continue
       call poiss0(z,a,b,rofi,rho0,nr,vval(1)*y0,v,vhrho,vsum,nsp)
       rhoves = vhrho(1)
       vnucl = v(1,1)
       do  2  ir = 1, nr
-    2 v(ir,1) = v(ir,1)*srfpi
+        v(ir,1) = v(ir,1)*srfpi
+    2 continue
 
       rhves1 = 0d0
       do  80  ilm = 2, nlm
-      l = ll(ilm)
-      lp1 = l+1
-      fllp1 = l*(l+1d0)
+        l = ll(ilm)
+        lp1 = l+1
+        fllp1 = l*(l+1d0)
 
 C --- Numerov for inhomogeneous solution --- ---
-      v(1,ilm) = 0d0
-      df = 0d0
-      do  12  ir = 2, 3
-      r = rofi(ir)
-      drdi = a*(r+b)
-      srdrdi = dsqrt(drdi)
-      g = (r**lp1)/srdrdi
-      v(ir,ilm) = r**l
-      x = fllp1*drdi*drdi/(r*r) + a2b4
-      f = g*(1d0-x/12d0)
-      if (ir .eq. 2) y2 = -atepi*rho(2,ilm)*drdi*srdrdi/r
-      if (ir .eq. 3) y3 = -atepi*rho(3,ilm)*drdi*srdrdi/r
-   12 df = f-df
-      ir = 3
-   13 ir = ir+1
-      r = rofi(ir)
-      drdi = a*(r+b)
-      srdrdi = dsqrt(drdi)
-      y4 = -atepi*drdi*srdrdi*rho(ir,ilm)/r
-      df = df+g*x+(y4+10d0*y3+y2)/12d0
-      f = f+df
-      x = fllp1*drdi*drdi/(r*r) + a2b4
-      g = f/(1d0-x/12d0)
-      v(ir,ilm) = g*srdrdi/r
-      y2 = y3
-      y3 = y4
-      if (ir .lt. nr) goto 13
+        v(1,ilm) = 0d0
+        df = 0d0
+        do  12  ir = 2, 3
+          r = rofi(ir)
+          drdi = a*(r+b)
+          srdrdi = dsqrt(drdi)
+          g = (r**lp1)/srdrdi
+          v(ir,ilm) = r**l
+          x = fllp1*drdi*drdi/(r*r) + a2b4
+          f = g*(1d0-x/12d0)
+          if (ir .eq. 2) y2 = -atepi*rho(2,ilm)*drdi*srdrdi/r
+          if (ir .eq. 3) y3 = -atepi*rho(3,ilm)*drdi*srdrdi/r
+          df = f-df
+   12   continue
+        ir = 3
+   13   ir = ir+1
+        r = rofi(ir)
+        drdi = a*(r+b)
+        srdrdi = dsqrt(drdi)
+        y4 = -atepi*drdi*srdrdi*rho(ir,ilm)/r
+        df = df+g*x+(y4+10d0*y3+y2)/12d0
+        f = f+df
+        x = fllp1*drdi*drdi/(r*r) + a2b4
+        g = f/(1d0-x/12d0)
+        v(ir,ilm) = g*srdrdi/r
+        y2 = y3
+        y3 = y4
+        if (ir .lt. nr) goto 13
 
 C --- Add homogeneous solution --- ---
-      vnow = v(nr,ilm)
-      vhom = rmax**l
-      alfa = (vval(ilm)-vnow)/vhom
-      sum = 0d0
-      do  10  ir = 2, nr
-      r = rofi(ir)
-      wgt = 2*(mod(ir+1,2)+1)
-      if (ir .eq. nr) wgt = 1d0
-      v(ir,ilm) = v(ir,ilm) + alfa*(r**l)
-   10 sum = sum+wgt*(r+b)*rho(ir,ilm)*v(ir,ilm)
-      rhves1 = rhves1 + a*sum/3d0
-      v(1,ilm) = 0d0
+        vnow = v(nr,ilm)
+        vhom = rmax**l
+        alfa = (vval(ilm)-vnow)/vhom
+        sum = 0d0
+        do  10  ir = 2, nr
+          r = rofi(ir)
+          wgt = 2*(mod(ir+1,2)+1)
+          if (ir .eq. nr) wgt = 1d0
+          v(ir,ilm) = v(ir,ilm) + alfa*(r**l)
+          sum = sum+wgt*(r+b)*rho(ir,ilm)*v(ir,ilm)
+   10   continue
+        rhves1 = rhves1 + a*sum/3d0
+        v(1,ilm) = 0d0
    80 continue
       rhoves = rhoves + rhves1
 

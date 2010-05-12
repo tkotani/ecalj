@@ -202,288 +202,289 @@ C            call upack('site ndelta delta',ssite,ib,ndel,delta,0,0)
 
 C --- File read ---
       else
-      if (procid .eq. master) then
-        ib = 0
-        readin = 'header'
-        call getpr(ipr)
-        nr = 0
-        call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
-     .    ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
-        if (nr .eq. 0) goto 99
-
-C   ... Check for alternative formats
-        j1 = 0
-        if (.not. parstr(a,'vn=',len(a)-3,3,'=',j1,j2)) goto 98
-        if (a(j1:j1) .ne. ' ') goto 40
-        call nword(a,1,j1,j2)
-        i = 0
-        if (.not. parstr(a(j1+3:),'kotani',j2-j1-6,6,'=',i,j)) goto 40
-
-C   --- File read, Kotani's format : no algebraic expressions ---
-        llio345 = 15
-        read(ifi,*) alatx
-        if (bittst(lio345,1)) alat = alatx
-        if (bittst(lio12,1)) then
-          call fsanrg(alatx,alat,alat,1d-6,'iosite:','alat',.true.)
-        endif
-
-C   ... Read plat
-        read(ifi,*,err=98,end=98) plx(1),plx(2),plx(3)
-        read(ifi,*,err=98,end=98) plx(4),plx(5),plx(6)
-        read(ifi,*,err=98,end=98) plx(7),plx(8),plx(9)
-        if (bittst(lio345,2)) call dcopy(9,plx,1,plat,1)
-        if (bittst(lio12,2)) then
-          call daxpy(9,-1d0,plat,1,plx,1)
-          if (ddot(9,plx,1,plx,1) .gt. 1d-14) goto 99
-        endif
-
-C   ... Read nbas.  Find indirectly by counting lines.
-C       First char = `#' => comment line
-        if (bittst(lio345,4)) then
-C         i = 0
-          nbasl = 0
-   31     continue
-          if (rdstrn(ifi,a,recl,.false.)) then
-C           Skip comment lines
-            if (a(1:1) .eq. '#') goto 31
-C           Formatted read ibas as a float, for portability
-            call word(a,1,j1,j2)
-            read(a(j1:j2),'(E72.0)',err=98) alatx
-C           Error unless ibas is an integer
-            ib = alatx
-            if (dble(ib)-alatx .ne. 0) goto 98
-C           Keep track of largest value of ib
-C           i = max(i,ib)
-            nbasl = nbasl+1
-C           For now, sites must be ordered
-            if (ib .ne. nbasl) goto 98
-            goto 31
-          endif
-          if (bittst(lio345,4)) nbas = nbasl
-          if (bittst(lio12,4))
-     .      call isanrg(nbasl,nbas,nbas,'iosite:','file''s nbas',.true.)
-C         file pointer now at EOF.  Restore position
-          rewind ifi
+        if (procid .eq. master) then
+          ib = 0
+          readin = 'header'
+          call getpr(ipr)
           nr = 0
           call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
-     .      ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
-          do  i = 1, 4
-            ltmp = rdstrn(ifi,a,len(a),.false.)
-          enddo
-        endif
+     .    ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
+          if (nr .eq. 0) goto 99
 
-C  ...  Read site data, Kotani format
-        if (lio345 .ge. 8) then
-        do  ib = 1, nbas
-          if (.not. rdstrn(ifi,a,len(a),.false.)) goto 98
-C         First and second columns (site and class index) ignored
-          call word(a,3,j1,j2)
-C         Column 3 is species index
-          spid = ' '
-          read(a(j1:j2),'(a)',err=98,end=98) spid
-          call tokmat(spid,slabl,nspec,8,' ',is,j,.false.)
-          is = is+1
-C         Error if species not found in list
-          if (is .le. 0) goto 98
-C         Columns 4-6 are site position
-C         call pack5('site spec posl vell eulal',ssite,ib,is,posl,vell,eulal)
-C         call pack5('site pl relax vshft',ssite,ib,ipll,irlxl,vshftl,0)
-          read(a(j2+1:),*,err=98,end=98) posl
-          call dpzero(vel(1,ib),3)
-          call dpzero(eula(1,ib),3)
-          call ivset(irlx(1,ib),1,3,1)
-          ipl(ib) = 0
-          vshft(ib) = 0
-          call dcopy(3,posl,1,pos(1,ib),1)
-          ips(ib) = is
-        enddo
-        endif
-        goto 999
+C   ... Check for alternative formats
+          j1 = 0
+          if (.not. parstr(a,'vn=',len(a)-3,3,'=',j1,j2)) goto 98
+          if (a(j1:j1) .ne. ' ') goto 40
+          call nword(a,1,j1,j2)
+          i = 0
+          if (.not. parstr(a(j1+3:),'kotani',j2-j1-6,6,'=',i,j)) goto 40
 
-C   ... Read, std format.  Return here to resume parsing for arguments
-   40   continue
-C   ... Read version and check compatibility with calling program
-        i = j1+2
-        if (.not. a2bin(a,vnx,4,0,' ',i,len(a)-5)) goto 99
-        call isanrg(int(vnx),2,3,'IOSITE:',
-     .    'file''s version number',.true.)
-C   ... Read lio345
-        i = 0
-        readin = ' "io" '
-        if (.not. parstr(a,'io=',len(a)-3,3,' ',i,j)) goto 99
-        i = j-1
-        if (.not. a2bin(a,llio345,2,0,' ',i,len(a)-3)) goto 99
-C       Remake convention for llio345 if file is v2 but ask v3
-        if (vnx .lt. 3 .and. vn .ge. 3) then
-          llio345 = mod(llio345,16) + 32*(llio345/16)
-        endif
-C   ... Read nbas
-        if (bittst(lio12,4) .or. bittst(lio345,4)) then
-          i = 0
-          readin = '"nbas" '
-          if (.not. parstr(a,'nbas=',len(a)-5,5,' ',i,j)) goto 99
-          i = j-1
-          if (.not. a2bin(a,nbasl,2,0,' ',i,len(a)-5)) goto 99
-          if (bittst(lio345,4)) nbas = nbasl
-          if (bittst(lio12,4))
-     .      call isanrg(nbasl,nbas,nbas,'iosite:','file''s nbas',.true.)
-        endif
-C   ... Read alat (optional if sought), plat (reqd if sought)
-        if (bittst(lio12,1) .or. bittst(lio345,1)) then
-          i = 0
-          readin = '"alat" '
-          if (parstr(a,'alat=',len(a)-5,5,' ',i,j)) then
-          i = j-1
-          if (a2vec(a,len(a)-5,i,4,', ',2,-3,1,ix,plx) .eq. 1) then
-            if (bittst(lio345,1)) alat = plx(1)
+C   --- File read, Kotani's format : no algebraic expressions ---
+          llio345 = 15
+          read(ifi,*) alatx
+          if (bittst(lio345,1)) alat = alatx
+          if (bittst(lio12,1)) then
+            call fsanrg(alatx,alat,alat,1d-6,'iosite:','alat',.true.)
           endif
-          endif
-        endif
-        if (bittst(lio12,2) .or. bittst(lio345,2)) then
-          i = 0
-          readin = '"plat" '
-          if (.not. parstr(a,'plat=',len(a)-5,5,' ',i,j)) goto 99
-          i = j-1
-          if (a2vec(a,len(a)-5,i,4,', ',2,-3,9,ix,plx) .ne. 9) goto 99
+
+C   ... Read plat
+          read(ifi,*,err=98,end=98) plx(1),plx(2),plx(3)
+          read(ifi,*,err=98,end=98) plx(4),plx(5),plx(6)
+          read(ifi,*,err=98,end=98) plx(7),plx(8),plx(9)
           if (bittst(lio345,2)) call dcopy(9,plx,1,plat,1)
           if (bittst(lio12,2)) then
             call daxpy(9,-1d0,plat,1,plx,1)
-            if (ddot(9,plx,1,plx,1) .gt. 1d-14) then
-              call info(0,0,0,
-     .          ' IOSITE: file plat does not match passed data',0,0)
-              call rxs('IOSITE: file mismatch, file ',filnam)
+            if (ddot(9,plx,1,plx,1) .gt. 1d-14) goto 99
+          endif
+
+C   ... Read nbas.  Find indirectly by counting lines.
+C       First char = `#' => comment line
+          if (bittst(lio345,4)) then
+C         i = 0
+            nbasl = 0
+   31       continue
+            if (rdstrn(ifi,a,recl,.false.)) then
+C           Skip comment lines
+              if (a(1:1) .eq. '#') goto 31
+C           Formatted read ibas as a float, for portability
+              call word(a,1,j1,j2)
+              read(a(j1:j2),'(E72.0)',err=98) alatx
+C           Error unless ibas is an integer
+              ib = alatx
+              if (dble(ib)-alatx .ne. 0) goto 98
+C           Keep track of largest value of ib
+C           i = max(i,ib)
+              nbasl = nbasl+1
+C           For now, sites must be ordered
+              if (ib .ne. nbasl) goto 98
+              goto 31
+            endif
+            if (bittst(lio345,4)) nbas = nbasl
+            if (bittst(lio12,4))
+     .      call isanrg(nbasl,nbas,nbas,'iosite:','file''s nbas',.true.)
+C         file pointer now at EOF.  Restore position
+            rewind ifi
+            nr = 0
+            call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
+     .      ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
+            do  i = 1, 4
+              ltmp = rdstrn(ifi,a,len(a),.false.)
+            enddo
+          endif
+
+C  ...  Read site data, Kotani format
+          if (lio345 .ge. 8) then
+            do  ib = 1, nbas
+              if (.not. rdstrn(ifi,a,len(a),.false.)) goto 98
+C         First and second columns (site and class index) ignored
+              call word(a,3,j1,j2)
+C         Column 3 is species index
+              spid = ' '
+              read(a(j1:j2),'(a)',err=98,end=98) spid
+              call tokmat(spid,slabl,nspec,8,' ',is,j,.false.)
+              is = is+1
+C         Error if species not found in list
+              if (is .le. 0) goto 98
+C         Columns 4-6 are site position
+C         call pack5('site spec posl vell eulal',ssite,ib,is,posl,vell,eulal)
+C         call pack5('site pl relax vshft',ssite,ib,ipll,irlxl,vshftl,0)
+              read(a(j2+1:),*,err=98,end=98) posl
+              call dpzero(vel(1,ib),3)
+              call dpzero(eula(1,ib),3)
+              call ivset(irlx(1,ib),1,3,1)
+              ipl(ib) = 0
+              vshft(ib) = 0
+              call dcopy(3,posl,1,pos(1,ib),1)
+              ips(ib) = is
+            enddo
+          endif
+          goto 999
+
+C   ... Read, std format.  Return here to resume parsing for arguments
+   40     continue
+C   ... Read version and check compatibility with calling program
+          i = j1+2
+          if (.not. a2bin(a,vnx,4,0,' ',i,len(a)-5)) goto 99
+          call isanrg(int(vnx),2,3,'IOSITE:',
+     .    'file''s version number',.true.)
+C   ... Read lio345
+          i = 0
+          readin = ' "io" '
+          if (.not. parstr(a,'io=',len(a)-3,3,' ',i,j)) goto 99
+          i = j-1
+          if (.not. a2bin(a,llio345,2,0,' ',i,len(a)-3)) goto 99
+C       Remake convention for llio345 if file is v2 but ask v3
+          if (vnx .lt. 3 .and. vn .ge. 3) then
+            llio345 = mod(llio345,16) + 32*(llio345/16)
+          endif
+C   ... Read nbas
+          if (bittst(lio12,4) .or. bittst(lio345,4)) then
+            i = 0
+            readin = '"nbas" '
+            if (.not. parstr(a,'nbas=',len(a)-5,5,' ',i,j)) goto 99
+            i = j-1
+            if (.not. a2bin(a,nbasl,2,0,' ',i,len(a)-5)) goto 99
+            if (bittst(lio345,4)) nbas = nbasl
+            if (bittst(lio12,4))
+     .      call isanrg(nbasl,nbas,nbas,'iosite:','file''s nbas',.true.)
+          endif
+C   ... Read alat (optional if sought), plat (reqd if sought)
+          if (bittst(lio12,1) .or. bittst(lio345,1)) then
+            i = 0
+            readin = '"alat" '
+            if (parstr(a,'alat=',len(a)-5,5,' ',i,j)) then
+              i = j-1
+              if (a2vec(a,len(a)-5,i,4,', ',2,-3,1,ix,plx) .eq. 1) then
+                if (bittst(lio345,1)) alat = plx(1)
+              endif
             endif
           endif
-        endif
-C       See whether input file can be read with fortran read
-        i = 0
-        lfast = parstr(a,'fast ',len(a)-5,5,' ',i,j)
-        i = 0
-        lxpos = parstr(a,'xpos ',len(a)-5,5,' ',i,j)
-
-        readin = 'data'
-        if (lio345-bitand(lio345,16) .ge. 8) then
-C         Exit if file doesn't contain enough data
-          if (mod(lio345,16) .gt. mod(llio345,16)) goto 99
-   41     a(1:1) = ' '
-          aa(1:1) = ' '
-          if (lfast) then
-   43       ltmp = rdstrn(ifi,a,len(a),.false.)
-            nr = nr+1
-            if (ltmp .and. a(1:1) .eq. '#' .or.
-     .          a .eq. ' ' .and. ib .lt. nbas) goto 43
-            if (lio345 .ge. 64) then
-   44         ltmp = rdstrn(ifi,aa,len(aa),.false.)
-              nr = nr+1
-              if (ltmp .and. aa(1:1) .eq. '#' .or. aa .eq. ' ') goto 44
+          if (bittst(lio12,2) .or. bittst(lio345,2)) then
+            i = 0
+            readin = '"plat" '
+            if (.not. parstr(a,'plat=',len(a)-5,5,' ',i,j)) goto 99
+            i = j-1
+            if (a2vec(a,len(a)-5,i,4,', ',2,-3,9,ix,plx) .ne. 9) goto 99
+            if (bittst(lio345,2)) call dcopy(9,plx,1,plat,1)
+            if (bittst(lio12,2)) then
+              call daxpy(9,-1d0,plat,1,plx,1)
+              if (ddot(9,plx,1,plx,1) .gt. 1d-14) then
+                call info(0,0,0,
+     .          ' IOSITE: file plat does not match passed data',0,0)
+                call rxs('IOSITE: file mismatch, file ',filnam)
+              endif
             endif
-          else
-            call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
+          endif
+C       See whether input file can be read with fortran read
+          i = 0
+          lfast = parstr(a,'fast ',len(a)-5,5,' ',i,j)
+          i = 0
+          lxpos = parstr(a,'xpos ',len(a)-5,5,' ',i,j)
+
+          readin = 'data'
+          if (lio345-bitand(lio345,16) .ge. 8) then
+C         Exit if file doesn't contain enough data
+            if (mod(lio345,16) .gt. mod(llio345,16)) goto 99
+   41       a(1:1) = ' '
+            aa(1:1) = ' '
+            if (lfast) then
+   43         ltmp = rdstrn(ifi,a,len(a),.false.)
+              nr = nr+1
+              if (ltmp .and. a(1:1) .eq. '#' .or.
+     .          a .eq. ' ' .and. ib .lt. nbas) goto 43
+              if (lio345 .ge. 64) then
+   44           ltmp = rdstrn(ifi,aa,len(aa),.false.)
+                nr = nr+1
+                if (ltmp .and. aa(1:1) .eq. '#' .or. aa .eq. ' ') goto 44
+              endif
+            else
+              call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
      .        ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
-            ltmp =  nr .gt. 0
-            if (ltmp .and. lio345 .ge. 64)
+              ltmp =  nr .gt. 0
+              if (ltmp .and. lio345 .ge. 64)
      .        call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
      .        ilist,nlist,vnam,ctbl,mxchr,aa,recrd,recl,nr)
-            ltmp =  nr .gt. 0
-          endif
+              ltmp =  nr .gt. 0
+            endif
 
 C         If all sites have been read, exit
-          if (ib .ge. nbas) then
-            call info2(40,0,0,' IOSITE: read pos'//
+            if (ib .ge. nbas) then
+              call info2(40,0,0,' IOSITE: read pos'//
      .        '%?!n>15!,vel,eula,vshft,ipl,irlx!! from file unit %i',
      .        llio345,ifi)
-            goto 999
-          endif
+              goto 999
+            endif
 
-          if (.not. ltmp) then
-            if (ib .lt. nbas .and. bittst(lio12,8)) then
-              if (errh.le.ipr .or. errh.eq.0) print *,
+            if (.not. ltmp) then
+              if (ib .lt. nbas .and. bittst(lio12,8)) then
+                if (errh.le.ipr .or. errh.eq.0) print *,
      .          'IOSITE: file does not contain',nbas,' sites'
-              goto 99
+                goto 99
+              endif
+              goto 999
             endif
-            goto 999
-          endif
 C         Read data for this site
-          ltmp = .false.
-          call word(a,1,j1,j2)
-          spid = ' '
-          read(a(j1:j2),'(a)',err=98,end=98) spid
-          call tokmat(spid,slabl,nspec,8,' ',is,j,.false.)
-          is = is+1
-          if (is .le. 0) goto 98
+            ltmp = .false.
+            call word(a,1,j1,j2)
+            spid = ' '
+            read(a(j1:j2),'(a)',err=98,end=98) spid
+            call tokmat(spid,slabl,nspec,8,' ',is,j,.false.)
+            is = is+1
+            if (is .le. 0) goto 98
 C         No vel,eula,vshft,ipl,irlx available on disk
-          if (llio345 .lt. 32) then
-            call dpzero(posl,3)
-            if (lio345 .ge. 32) then  ! Default values if sought but not available
-              call dpzero(vell,3)
-              call dpzero(eulal,3)
-              vshftl = 0
-              ipll = 0
-              iirlx = 111
-            endif
-            if (lfast) then
-              read(a(j2+1:),*,err=98,end=98) posl
-            else
-              i = 0
-              if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl)
+            if (llio345 .lt. 32) then
+              call dpzero(posl,3)
+              if (lio345 .ge. 32) then  ! Default values if sought but not available
+                call dpzero(vell,3)
+                call dpzero(eulal,3)
+                vshftl = 0
+                ipll = 0
+                iirlx = 111
+              endif
+              if (lfast) then
+                read(a(j2+1:),*,err=98,end=98) posl
+              else
+                i = 0
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl)
      .            .ne. 3) goto 98
-            endif
+              endif
 C         vel,eula,vshft,ipl,irlx are available on disk
-           else
-            if (lfast) then
-             read(a(j2+1:),*,err=98,end=98)
-     .          posl,vell,eulal,vshftl,ipll,iirlx
             else
-              i = 0
-              if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl)
+              if (lfast) then
+                read(a(j2+1:),*,err=98,end=98)
+     .          posl,vell,eulal,vshftl,ipll,iirlx
+              else
+                i = 0
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl)
      .            .ne. 3) goto 98
-              if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,vell)
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,vell)
      .            .ne. 3) goto 98
-              if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,eulal)
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,eulal)
      .            .ne. 3) goto 98
-              if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,1,ix,vshftl)
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,1,ix,vshftl)
      .            .ne. 1) goto 98
-              if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,ipll)
+                if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,ipll)
      .            .ne. 1) goto 98
-              if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,iirlx)
+                if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,iirlx)
      .            .ne. 1) goto 98
+              endif
             endif
-           endif
-           if (lxpos) then
-             call dcopy(3,posl,1,plx,1)
-             call dgemm('N','N',3,1,3,1d0,plat,3,plx,3,0d0,posl,3)
-           endif
+            if (lxpos) then
+              call dcopy(3,posl,1,plx,1)
+              call dgemm('N','N',3,1,3,1d0,plat,3,plx,3,0d0,posl,3)
+            endif
 
-           ib = ib+1
-           call dcopy(3,posl,1,pos(1,ib),1)
-           ips(ib) = is
+            ib = ib+1
+            call dcopy(3,posl,1,pos(1,ib),1)
+            ips(ib) = is
 
 C          Copy vel,eula,vshft,ipl,irlx if sought
-           if (lio345 .ge. 32) then
-             do  46  i = 1, 3
-   46        irlxl(i) = getdig(iirlx,3-i,10)
-             call dcopy(3,vell,1,vel(1,ib),1)
-             call dcopy(3,eulal,1,eula(1,ib),1)
-             vshft(ib) = vshftl
-             ipl(ib) = ipll
-             call icopy(3,irlxl,1,irlx(1,ib),1)
-           endif
+            if (lio345 .ge. 32) then
+              do  46  i = 1, 3
+                irlxl(i) = getdig(iirlx,3-i,10)
+   46         continue
+              call dcopy(3,vell,1,vel(1,ib),1)
+              call dcopy(3,eulal,1,eula(1,ib),1)
+              vshft(ib) = vshftl
+              ipl(ib) = ipll
+              call icopy(3,irlxl,1,irlx(1,ib),1)
+            endif
 
-          if (lio345 .ge. 64) then
-            call word(a,1,j1,j2)
-            locnam = ' '
-            read(a(j1:j2),'(a)',err=98,end=98) locnam
-            read(aa(j2+1:),*,err=98,end=98) delta
-          endif
+            if (lio345 .ge. 64) then
+              call word(a,1,j1,j2)
+              locnam = ' '
+              read(a(j1:j2),'(a)',err=98,end=98) locnam
+              read(aa(j2+1:),*,err=98,end=98) delta
+            endif
 C         We can quit now if ib eq nbas but read one more line in case
 C         site file has comments at the end of file
 C         if (ib .lt. nbas) goto 41
-          goto 41
-        endif
+            goto 41
+          endif
 
 C   ... Exit point for read
-  999   continue
-      endif
+  999     continue
+        endif
       endif
 
       iosite = 0
@@ -505,10 +506,10 @@ C     Copy llio345
       if (bittst(lio345,16)) lio = llio345
 
       if (errh .eq. 0) then
-         print 369, ':', readin, filnam
-       elseif (errh .le. ipr) then
-         print 369, '(warning)', readin, filnam
-       endif
+        print 369, ':', readin, filnam
+      elseif (errh .le. ipr) then
+        print 369, '(warning)', readin, filnam
+      endif
   369 format(1x,'IOSITE ',a,' failed to read ',a,' from file ',a)
       if (errh .eq. 0) call rxs('IOSITE: file mismatch, file ',filnam)
 

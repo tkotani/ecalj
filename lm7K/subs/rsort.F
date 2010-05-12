@@ -1,24 +1,24 @@
       subroutine rsort(nr,rsq,rc1,rc2,lsort,n1,n2,idx,wk)
-C- Partition a mesh of points 
+C- Partition a mesh of points
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   rsq,nr  : vector of points r**2, and number of points.
-Ci   rc1,rc2 : boundaries of bins in terms of r**2 
+Ci   rc1,rc2 : boundaries of bins in terms of r**2
 Ci   lsort   : if .true. then rsq must be ordered as rsq(i-1).le.rsq(i)
 Co Outputs
-Co   n1,n2   : indecies corresponding to boundaries of the bins  
-Co   idx     : permutation indecies; not used if lsort = .true. 
-Co   wk      : an arry containing permutted rsq; not used if 
+Co   n1,n2   : indecies corresponding to boundaries of the bins
+Co   idx     : permutation indecies; not used if lsort = .true.
+Co   wk      : an arry containing permutted rsq; not used if
 Co           : lsort = .true.
-Co   lsort   : if .false. but rsq is nevertheless ordered then lsort 
-Co           : is set to .true. 
+Co   lsort   : if .false. but rsq is nevertheless ordered then lsort
+Co           : is set to .true.
 Cr Remarks
 Cr   Points are partitioned into three bins:
-Cr     r < rc1       <=> rsq(1..n1-1) 
+Cr     r < rc1       <=> rsq(1..n1-1)
 Cr     rc1 < r < rc2 <=> rsq(n1..n2-1)
 Cr     rc2 < r       <=> rsq(n2..nr)
-Cr   If rsq are not ordered (lsort = .false.) then wk plays the role 
-Cr   of rsq, whereas the info about the correspondence between points 
+Cr   If rsq are not ordered (lsort = .false.) then wk plays the role
+Cr   of rsq, whereas the info about the correspondence between points
 Cr   in rsq and wk is held in idx: rsq(i) = wk(idx(i)).
 Cr   idx2 is a work array
 C ----------------------------------------------------------------------
@@ -31,7 +31,7 @@ C Local variables
       integer ir,j,k,n0
 C Work auto-arrays
       integer idx2(nr)
-      
+
 
       n0 = 0
       n1 = 0
@@ -73,23 +73,23 @@ C     On output, lsort is true if points already sorted.
 C     n1 is offset to block rc1<r<rc2,  n2 offset to block r>rc2
 C     idx is a map of original list, separating into the three groups
 C     wk is a table of r**2 for permuted list of points
-        if (rsq(ir) .lt. rc2) then
-          if (rsq(ir) .lt. rc1) then
-            n0 = n0+1
-            wk(n0) = rsq(ir)
-            idx(ir) = n0
+          if (rsq(ir) .lt. rc2) then
+            if (rsq(ir) .lt. rc1) then
+              n0 = n0+1
+              wk(n0) = rsq(ir)
+              idx(ir) = n0
+            else
+              n1 = n1+1
+              idx(ir) = n1
+              idx2(n1) = ir
+            endif
           else
-            n1 = n1+1
-            idx(ir) = n1
-            idx2(n1) = ir
+            n2 = n2-1
+            wk(n2) = rsq(ir)
+            idx(ir) = n2
           endif
-        else
-          n2 = n2-1
-          wk(n2) = rsq(ir)
-          idx(ir) = n2
-        endif
-        if (ir .eq. 1) goto 12
-        if (rsq(ir) .lt. rsq(ir-1)) lsort = .false.
+          if (ir .eq. 1) goto 12
+          if (rsq(ir) .lt. rsq(ir-1)) lsort = .false.
    12   continue
 C ... Now we can poke wk for the n1 intermediate points
         if (.not. lsort) then

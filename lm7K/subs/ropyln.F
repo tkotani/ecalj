@@ -17,17 +17,17 @@ Co   yl    :Ylm(i,ilm) are the (real) spherical harmonics
 Co         :for l=0..lmax and point i.
 Co   rsq   :rsq(i) square of length of point i
 Cr Remarks
-Cr   yl = real harmonics (see Takao's GW note) * r^l 
+Cr   yl = real harmonics (see Takao's GW note) * r^l
 Cu Updates
 Cu  25 Jun 03 (Kino) initialize cx to zero
 C ----------------------------------------------------------------------
 C     implicit none
 Cdelw1       integer nd,n,i,m,lmax,l,kk,ocm,osm,oq,oh
-       integer:: nd , n , i , m , lmax , l , kk 
-       real(8) ,allocatable :: rv_w_ocm(:)
-       real(8) ,allocatable :: rv_w_osm(:)
-       real(8) ,allocatable :: rv_w_oq(:)
-       real(8) ,allocatable :: rv_w_oh(:)
+      integer:: nd , n , i , m , lmax , l , kk
+      real(8) ,allocatable :: rv_w_ocm(:)
+      real(8) ,allocatable :: rv_w_osm(:)
+      real(8) ,allocatable :: rv_w_oq(:)
+      real(8) ,allocatable :: rv_w_oh(:)
 
       double precision x(1),y(1),z(1),yl(nd,1),rsq(1),cx(3)
       double precision fpi,f2m
@@ -38,23 +38,24 @@ C     call tcn('ropyln')
       if (n .gt. nd) call rx('ropyln: nd too small')
       fpi = 16*datan(1d0)
 Cdelw1       call defrr(ocm,  n)
-       allocate(rv_w_ocm(n))
+      allocate(rv_w_ocm(n))
 Ctakao_ZeroClear_NotRequiered        if (n<0) rv_w_ocm(:)=0.0d0
 
 Cdelw1       call defrr(osm,  n)
-       allocate(rv_w_osm(n))
+      allocate(rv_w_osm(n))
 Ctakao_ZeroClear_NotRequiered        if (n<0) rv_w_osm(:)=0.0d0
 
 Cdelw1       call defrr(oq,   n*2)
-       allocate(rv_w_oq(n*2))
+      allocate(rv_w_oq(n*2))
 Ctakao_ZeroClear_NotRequiered        if (n*2<0) rv_w_oq(:)=0.0d0
 
 Cdelw1       call defrr(oh,   n)
-       allocate(rv_w_oh(n))
+      allocate(rv_w_oh(n))
 Ctakao_ZeroClear_NotRequiered        if (n<0) rv_w_oh(:)=0.0d0
 
       do  2  i = 1, n
-    2 rsq(i) = x(i)*x(i)+y(i)*y(i)+z(i)*z(i)
+        rsq(i) = x(i)*x(i)+y(i)*y(i)+z(i)*z(i)
+    2 continue
       cx(1) = 0
       cx(2) = 0
       cx(3) = 0
@@ -63,34 +64,34 @@ C --- Loop over m: cx are normalizations for l, l-1, l-2 ---
       f2m = 1d0
       do  10  m = 0, lmax
 Cdelw1       call ropcsm(m,n,x,y,w(oh),w(ocm),w(osm))
-       call ropcsm ( m , n , x , y , rv_w_oh , rv_w_ocm , rv_w_osm ) 
+        call ropcsm ( m , n , x , y , rv_w_oh , rv_w_ocm , rv_w_osm )
 
-      if (m .eq. 0) then
-        cx(1) = dsqrt(1/fpi)
-      else
-        f2m = f2m*2*m*(2*m-1)
-        cx(1) = dsqrt((2*m+1)*2/fpi/f2m)
-      endif
-      do  11  l = m, lmax
+        if (m .eq. 0) then
+          cx(1) = dsqrt(1/fpi)
+        else
+          f2m = f2m*2*m*(2*m-1)
+          cx(1) = dsqrt((2*m+1)*2/fpi/f2m)
+        endif
+        do  11  l = m, lmax
 Cdelw1         call ropqln(m,l,n,rsq,z,cx,w(oq),kk)
-         call ropqln ( m , l , n , rsq , z , cx , rv_w_oq , kk ) 
+          call ropqln ( m , l , n , rsq , z , cx , rv_w_oq , kk )
 
 Cdelw1         call ropynx(m,l,kk,n,w(oq),w(ocm),w(osm),nd,yl)
-         call ropynx ( m , l , kk , n , rv_w_oq , rv_w_ocm , rv_w_osm 
-     .   , nd , yl ) 
+          call ropynx ( m , l , kk , n , rv_w_oq , rv_w_ocm , rv_w_osm 
+     .   , nd , yl )
 
-        cx(3) = cx(2)
-        cx(2) = cx(1)
-        cx(1) = cx(1)*dsqrt(dble((l+1-m)*(2*l+3))/dble((l+1+m)*(2*l+1)))
-   11 continue
+          cx(3) = cx(2)
+          cx(2) = cx(1)
+          cx(1) = cx(1)*dsqrt(dble((l+1-m)*(2*l+3))/dble((l+1+m)*(2*l+1)))
+   11   continue
    10 continue
-Cdelw1 rlse name= ocm old_list= ocm osm oq oh 
+Cdelw1 rlse name= ocm old_list= ocm osm oq oh
 Cdelw1 rlse name= ocm new_list= (None)
 Cdelw1       call rlse(ocm)
-       if (allocated(rv_w_oh)) deallocate(rv_w_oh)
-       if (allocated(rv_w_oq)) deallocate(rv_w_oq)
-       if (allocated(rv_w_osm)) deallocate(rv_w_osm)
-       if (allocated(rv_w_ocm)) deallocate(rv_w_ocm)
+      if (allocated(rv_w_oh)) deallocate(rv_w_oh)
+      if (allocated(rv_w_oq)) deallocate(rv_w_oq)
+      if (allocated(rv_w_osm)) deallocate(rv_w_osm)
+      if (allocated(rv_w_ocm)) deallocate(rv_w_ocm)
 
 C     call tcx('ropyln')
 Cdelw1 w_varlist remains: (None)
@@ -196,17 +197,20 @@ C     print *, ylok(1,2)
       tops = 0
       do  10  ir = 1, nr
         do  12  l = 0, lmax
-        i1 = l*l+1
-        i2 = (l+1)**2
-   12   print 333, (ylok(ir,ii),ii=i1,i2)
+          i1 = l*l+1
+          i2 = (l+1)**2
+          print 333, (ylok(ir,ii),ii=i1,i2)
+   12   continue
   333   format(9f8.5)
         print *
         do  14  l = 0, lmax
-        i1 = l*l+1
-        i2 = (l+1)**2
-        do  16  ii = i1, i2
-   16   tops = max(tops,dabs(ylok(ir,ii)-ylv(ir,ii)))
-   14   print 333, (ylok(ir,ii)-ylv(ir,ii),ii=i1,i2)
+          i1 = l*l+1
+          i2 = (l+1)**2
+          do  16  ii = i1, i2
+            tops = max(tops,dabs(ylok(ir,ii)-ylv(ir,ii)))
+   16     continue
+          print 333, (ylok(ir,ii)-ylv(ir,ii),ii=i1,i2)
+   14   continue
         print *, '----------------'
    10 continue
 

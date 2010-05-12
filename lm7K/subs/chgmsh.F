@@ -31,7 +31,7 @@ C     implicit none
       double complex f0(l1,l2,l3,n),f(k1,k2,k3,n)
 C Local variables
       integer ng1,ng2,ngmx,iprint,lgunit
-c      integer:: ogv1 , ogv2 , okv1 , okv2 
+c      integer:: ogv1 , ogv2 , okv1 , okv2
       complex(8) ,allocatable :: cv1(:)
 c      complex(8) ,allocatable :: cv2(:)
 
@@ -81,8 +81,8 @@ C ... Lists of vectors for old and target mesh
       allocate(cv1(ng1*n))
       cv1(:)=0d0
       call fftz3(f0,m1,m2,m3,l1,l2,l3,n,0,-1)
-      call gvgetf ( ng1 , n , kv1, l1 , l2 , l3 , f0, cv1 ) 
-      call gvputf ( ng1 , n , kv2, k1 , k2 , k3 , cv1, f ) 
+      call gvgetf ( ng1 , n , kv1, l1 , l2 , l3 , f0, cv1 )
+      call gvputf ( ng1 , n , kv2, k1 , k2 , k3 , cv1, f )
       call fftz3(f,n1,n2,n3,k1,k2,k3,n,0,1)
       deallocate(cv1)
       return
@@ -107,16 +107,16 @@ C     call zprm3('initial mesh',0,f0,m1,m2,m3)
       f=0d0 !call dpzero(f,2*k1*k2*k3*n)
       do  10  i = 1, n
       do  10  i3 = 1, (m3+1)/2
-      i3m = m3+1-i3
-      j3m = 2*m3+1-i3
+        i3m = m3+1-i3
+        j3m = 2*m3+1-i3
 
         do  20  i2 = 1, (m2+1)/2
-        i2m = m2+1-i2
-        j2m = 2*m2+1-i2
+          i2m = m2+1-i2
+          j2m = 2*m2+1-i2
 
           do  30  i1 = 1, (m1+1)/2
-          i1m = m1+1-i1
-          j1m = 2*m1+1-i1
+            i1m = m1+1-i1
+            j1m = 2*m1+1-i1
 
             f(i1,i2,i3,i)   = f0(i1,i2,i3,i)
             f(i1,i2,j3m,i)  = f0(i1,i2,i3m,i)
@@ -145,12 +145,12 @@ C     call zprm3('initial mesh',0,f0,m1,1,m2)
       call dpzero(f,2*k1*k2*n)
       do  10  i = 1, n
         do  20  i2 = 1, (m2+1)/2
-        i2m = m2+1-i2
-        j2m = 2*m2+1-i2
+          i2m = m2+1-i2
+          j2m = 2*m2+1-i2
 
           do  30  i1 = 1, (m1+1)/2
-          i1m = m1+1-i1
-          j1m = 2*m1+1-i1
+            i1m = m1+1-i1
+            j1m = 2*m1+1-i1
 
             f(i1,i2,i)   = f0(i1,i2,i)
             f(i1,i2,i)   = f0(i1,i2,i)

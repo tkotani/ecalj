@@ -2,13 +2,13 @@
 C-Local xc energy and potential for PW91 or PBE
 C ----------------------------------------------------------------------
 Ci Inputs: r1, r2 charge density in a mesh of n points. If nsp=1, r1
-Ci         is total charge; if nsp=2 r1 and r2 are up and 
+Ci         is total charge; if nsp=2 r1 and r2 are up and
 Ci         down charge.
 Ci         lxcf=3 for PBE
 Co Outputs:
-Co         exc, vxcup and vxcdn local xc energy and potential. 
+Co         exc, vxcup and vxcdn local xc energy and potential.
 Co         If nsp=1, vxcup is vxc
-Cr Remarks: 
+Cr Remarks:
 Cr         If nsp=1 r2 points to an arbitrary address. NB evxcp calls
 Cr         easypbe written by K. Burke, which uses Hartree atomic units.
 Cr         This routine adapted from pbevxc in FP-LMTO and uses names
@@ -38,11 +38,11 @@ C Local Variables
         call easypbe(up,0d0,0d0,0d0,dn,0d0,0d0,0d0,0d0,0d0,1,1,
      .               exlsd,vxuplsd,vxdnlsd,eclsd,vcuplsd,vcdnlsd,
      .               expw91,vxuppw91,vxdnpw91,ecpw91,vcuppw91,vcdnpw91,
-     .               expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe) 
+     .               expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe)
 C --- times two to convert Ha to Ry
         exc(i) = (exlsd + eclsd) * 2d0
         vxcup(i) = (vxuplsd + vcuplsd) * 2d0
         if (nsp .eq. 2) vxcdn(i) = (vxdnlsd + vcdnlsd) * 2d0
-    1 continue 
+    1 continue
       end
 

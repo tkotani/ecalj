@@ -1,4 +1,5 @@
 #! /bin/sh
+# Takao. This is called from lm7K/fp/test. So, keep relative path from it.
 
 # A shell script to return the absolute path of a supplied path.
 # this is taken from the Free Software Foundation.

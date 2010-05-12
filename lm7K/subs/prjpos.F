@@ -53,17 +53,21 @@ C Local
         call dcopy(9,plat1,1,P,1)
       else
         do  2  j1 = 1, 3
-        do  3  j2 = 1, 3
-    3   P(j1,j2) = 0
-    2   P(j1,j1) = 1
+          do  3  j2 = 1, 3
+            P(j1,j2) = 0
+    3     continue
+          P(j1,j1) = 1
+    2   continue
       endif
       if (mod(mode,10) .ge. 2) then
         call dcopy(9,plat2,1,S,1)
       else
         do  4  j1 = 1, 3
-        do  5  j2 = 1, 3
-    5   S(j1,j2) = 0
-    4   S(j1,j1) = 1
+          do  5  j2 = 1, 3
+            S(j1,j2) = 0
+    5     continue
+          S(j1,j1) = 1
+    4   continue
       endif
 
 C --- Create multiples of P ---
@@ -81,7 +85,8 @@ C --- Create multiples of P ---
         do  16  j3 = -j3max, j3max
           nd = nd+1
           do  17  i = 1, 3
-   17     dlat(i,nd) = P(i,1)*j1 + P(i,2)*j2 + P(i,3)*j3
+            dlat(i,nd) = P(i,1)*j1 + P(i,2)*j2 + P(i,3)*j3
+   17     continue
    16   continue
       endif
 
@@ -112,17 +117,17 @@ C   ... Shorten by adding multiples of P
         elseif (mod(mode1,4) .eq. 2) then
    28     continue
           do  27  n = 1, nd
-          a2 = dl2(1,n)**2 + dl2(2,n)**2 + dl2(3,n)**2
-          ap = pos2(1,ib)*dl2(1,n) +
+            a2 = dl2(1,n)**2 + dl2(2,n)**2 + dl2(3,n)**2
+            ap = pos2(1,ib)*dl2(1,n) +
      .         pos2(2,ib)*dl2(2,n) +
      .         pos2(3,ib)*dl2(3,n)
-          if (a2 + 2*ap .lt. tol) then
-            pos2(1,ib) = pos2(1,ib) + dl2(1,n)
-            pos2(2,ib) = pos2(2,ib) + dl2(2,n)
-            pos2(3,ib) = pos2(3,ib) + dl2(3,n)
-            goto 28
-          endif
-   27   continue
+            if (a2 + 2*ap .lt. tol) then
+              pos2(1,ib) = pos2(1,ib) + dl2(1,n)
+              pos2(2,ib) = pos2(2,ib) + dl2(2,n)
+              pos2(3,ib) = pos2(3,ib) + dl2(3,n)
+              goto 28
+            endif
+   27     continue
         endif
         if (mode1 .ge. 4) then
           do  24  i = 1, 3
@@ -140,7 +145,7 @@ C ... Case 10s digit mode is >=4
           else
             add = int(-xx(i)) + 1
           endif
-          do  30  ib = 1, nbas
+        do  30  ib = 1, nbas
    32     pos2(i,ib) = pos2(i,ib) + add
    30   continue
       endif
@@ -149,20 +154,20 @@ C ... Case 10s digit mode is >=4
         do  50  ib = 1, nbas
    58     continue
           do  57  n = 1, nd
-          a2 = dl2(1,n)**2 + dl2(2,n)**2 + dl2(3,n)**2
-          ap = pos2(1,ib)*dl2(1,n) +
+            a2 = dl2(1,n)**2 + dl2(2,n)**2 + dl2(3,n)**2
+            ap = pos2(1,ib)*dl2(1,n) +
      .         pos2(2,ib)*dl2(2,n) +
      .         pos2(3,ib)*dl2(3,n)
-          lshrink = a2 + 2*ap .lt. tol
-          lcnst = pos2(1,ib) + dl2(1,n) .ge. 0d0
+            lshrink = a2 + 2*ap .lt. tol
+            lcnst = pos2(1,ib) + dl2(1,n) .ge. 0d0
      .      .and. pos2(2,ib) + dl2(2,n) .ge. 0d0
      .      .and. pos2(3,ib) + dl2(3,n) .ge. 0d0
-          if (lshrink .and. lcnst) then
-            pos2(1,ib) = pos2(1,ib) + dl2(1,n)
-            pos2(2,ib) = pos2(2,ib) + dl2(2,n)
-            pos2(3,ib) = pos2(3,ib) + dl2(3,n)
-            goto 58
-          endif
+            if (lshrink .and. lcnst) then
+              pos2(1,ib) = pos2(1,ib) + dl2(1,n)
+              pos2(2,ib) = pos2(2,ib) + dl2(2,n)
+              pos2(3,ib) = pos2(3,ib) + dl2(3,n)
+              goto 58
+            endif
    57     continue
    50   continue
       endif

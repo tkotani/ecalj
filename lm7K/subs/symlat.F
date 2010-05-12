@@ -19,7 +19,7 @@ Co           48     7     cubic
 Cr Remarks:
 Cr   symlat analyzes the primitive translations of the bravais
 Cr   lattice in order to supply the symmetry operations of the lattice.
-Cr   It gives the number ngrp of allowed operations as well as 
+Cr   It gives the number ngrp of allowed operations as well as
 Cr   these operations themselves.
 C ----------------------------------------------------------------------
 C     implicit none
@@ -54,11 +54,13 @@ C --- Find all possible rotation axes ---
         m3 = mm(i,3)
         lirr = .true.
         do  12  m = 2, ll1
-   12   lirr = lirr.and.(mod(m1,m).ne.0.or.mod(m2,m).ne.0.or.
-     .                   mod(m3,m).ne.0) 
+          lirr = lirr.and.(mod(m1,m).ne.0.or.mod(m2,m).ne.0.or.
+     .                   mod(m3,m).ne.0)
+   12   continue
         if (lirr) then
           do  14  m = 1, 3
-   14     vecg(m) = m1*platcp(m,1) + m2*platcp(m,2) + m3*platcp(m,3)
+            vecg(m) = m1*platcp(m,1) + m2*platcp(m,2) + m3*platcp(m,3)
+   14     continue
 
           do  16  m = 1, 4
 C       ... Matrix for this symmetry operation

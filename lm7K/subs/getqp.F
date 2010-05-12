@@ -68,8 +68,8 @@ C       Read ntet, if it is present else set to zero
         return
 
 C --- Error handling ---
-   99 continue
-      call rx('GETQP: missing or empty file')
+   99   continue
+        call rx('GETQP: missing or empty file')
 
       endif
 
@@ -110,8 +110,8 @@ C         Enables alegbraic expresions
             read (nfilqp,*) i,(idtet(i,it),i=1,5)
           enddo
         endif
-   10 format(19x,'K',16x,'Weight')
-   20 format(i4,4f10.6)
+   10   format(19x,'K',16x,'Weight')
+   20   format(i4,4f10.6)
       else
         call rx('GETQP: bad mode')
       endif

@@ -196,7 +196,7 @@ C ... set variable errmin to current value of errmin
       i = parg(',r<',4,strn,jp,lstrn,',; ',2,1,it,rmsc)
 C ... Put back the original one, or remove newly created one
       if (j .eq. k) then
-        call lodsyv('errmin',1,xx,k)        
+        call lodsyv('errmin',1,xx,k)
       else
         call clrsyv(k-1)
       endif
@@ -353,7 +353,7 @@ C --- Normal exit ---
  9999 continue
       call bin2a0(ia0)
 Cgetarg       end
-       end function parmxp 
+      end function parmxp
 
       subroutine parmx0(i1,i2,errxx)
 
@@ -382,7 +382,7 @@ C     print *, 'errmin=',errmin
         errmin = errxx
       endif
 Cgetarg       end
-       end subroutine parmx0 
+      end subroutine parmx0
 
       block data dparmx
       integer lstblk,lstitj
@@ -390,7 +390,7 @@ Cgetarg       end
       common /parmx1/ lstblk,lstitj,errmin
       data lstblk /0/ lstitj /0/ errmin /0d0/
 Cgetarg       end
-       end block data dparmx
+      end block data dparmx
 
 c ... testing parmxp
 C      subroutine fmain

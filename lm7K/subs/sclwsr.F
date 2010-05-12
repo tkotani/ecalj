@@ -85,13 +85,13 @@ C Passed variables:
       character*8 slabl(*)
 C Local variables:
 Cdelw1       integer i,k,owk,nrspec(nspec),ib,is,opt1
-       integer:: i , k , nrspec(nspec) , ib , is , opt1 
-       real(8) ,allocatable :: rv_w_owk(:)
+      integer:: i , k , nrspec(nspec) , ib , is , opt1
+      real(8) ,allocatable :: rv_w_owk(:)
 
       integer niax,mxcsiz,mxnbr,nttab,ipr,stdo,lgunit,llock(nspec)
 Cdelw1       integer ontab,oiax
-       integer ,allocatable :: iv_w_ontab(:)
-       integer ,allocatable :: iv_w_oiax(:)
+      integer ,allocatable :: iv_w_ontab(:)
+      integer ,allocatable :: iv_w_oiax(:)
 
       logical les
       double precision dovl1(3),dovl2(3),gamma,range(nbas),wsrs(nspec)
@@ -130,24 +130,24 @@ C --- Make a neighbor table and adjust llock to freeze ES sites ---
       nbasp = nbas
       mxnbr = mxcsiz*nbas
 Cdelw1       call defi(ontab, nbasp+1)
-       allocate(iv_w_ontab(nbasp+1))
+      allocate(iv_w_ontab(nbasp+1))
 Ctakao_ZeroClear_NotRequiered        if (nbasp+1<0) iv_w_ontab(:)=0
 
 Cdelw1       call defi(oiax, -niax*mxnbr)
-       allocate(iv_w_oiax(abs(-niax*mxnbr)))
-       if (-niax*mxnbr<0) iv_w_oiax(:)=0
+      allocate(iv_w_oiax(abs(-niax*mxnbr)))
+      if (-niax*mxnbr<0) iv_w_oiax(:)=0
 
 Cdelw1       call defdr(owk,  3*mxnbr)
-       allocate(rv_w_owk(3*mxnbr))
+      allocate(rv_w_owk(3*mxnbr))
 Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) rv_w_owk(:)=0.0d0
 
       nttab = mxnbr
       call pshpr(ipr-20)
 Cdelw1       call pairc(1,nbas,nbasp,modep,20,0,alat,plat,basp,basp,range,-1,1,
 Cdelw1      .  nttab,w(ontab),w(oiax),w(owk),k)
-       call pairc ( 1 , nbas , nbasp , modep , 20 , 0 , alat , plat 
+      call pairc ( 1 , nbas , nbasp , modep , 20 , 0 , alat , plat 
      . , basp , basp , range , - 1 , 1 , nttab , iv_w_ontab , iv_w_oiax 
-     . , rv_w_owk , k ) 
+     . , rv_w_owk , k )
 
       call poppr
 
@@ -173,12 +173,12 @@ C     ... Scale wsr with z=0 sites locked at wsr=0
 Cdelw1           call sclws2(nbas,nspec,alat,plat,basp,slabl,w(oiax),ips,
 Cdelw1      .      w(ontab),z,nrspec,omax1,omax2,gamma,wsmax,llock,volnes,
 Cdelw1      .      dovl1,dovl2,wsr)
-           call sclws2 ( nbas , nspec , alat , plat , basp , slabl , iv_w_oiax 
+          call sclws2 ( nbas , nspec , alat , plat , basp , slabl , iv_w_oiax 
      .     , ips , iv_w_ontab , z , nrspec , omax1 , omax2 , gamma , wsmax 
-     .     , llock , volnes , dovl1 , dovl2 , wsr ) 
+     .     , llock , volnes , dovl1 , dovl2 , wsr )
 
           if (ipr .ge. 30) then
-              call awrit2(' SCLWSR:  initial sphere packing = %;1d%%'//
+            call awrit2(' SCLWSR:  initial sphere packing = %;1d%%'//
      .        ' scaled to %;1d%% (no empty spheres)',
      .        ' ',120,stdo,100*volold,100*volnes)
           endif
@@ -204,23 +204,23 @@ C --- Scale the sphere radii (2nd pass for les) ---
       volnew = volfac
 Cdelw1       call sclws2(nbas,nspec,alat,plat,basp,slabl,w(oiax),ips,w(ontab),
 Cdelw1      .  z,nrspec,omax1,omax2,gamma,wsmax,lock,volnew,dovl1,dovl2,wsr)
-       call sclws2 ( nbas , nspec , alat , plat , basp , slabl , iv_w_oiax 
+      call sclws2 ( nbas , nspec , alat , plat , basp , slabl , iv_w_oiax 
      . , ips , iv_w_ontab , z , nrspec , omax1 , omax2 , gamma , wsmax 
-     . , lock , volnew , dovl1 , dovl2 , wsr ) 
+     . , lock , volnew , dovl1 , dovl2 , wsr )
 
 
 C --- Printout ---
 Cki#error, have return with len(w_varlist)>0 at line 183
-Cdelw1 w_varlist remains: ontab oiax owk 
+Cdelw1 w_varlist remains: ontab oiax owk
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [ontab oiax owk]
 Cdelw1       if (ipr .lt. 10) return
-       if ( ipr .lt. 10 ) then 
-       if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-       if (allocated(iv_w_oiax)) deallocate(iv_w_oiax)
-       if (allocated(iv_w_ontab)) deallocate(iv_w_ontab)
-       return
-       endif 
+      if ( ipr .lt. 10 ) then
+        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+        if (allocated(iv_w_oiax)) deallocate(iv_w_oiax)
+        if (allocated(iv_w_ontab)) deallocate(iv_w_ontab)
+        return
+      endif
 
 C      if (ipr .ge. 10) write(stdo,309)
 C     .  vol,100*volold,100*volnew
@@ -268,19 +268,19 @@ c        endif
         endif
       endif
 
-Cdelw1 rlse name= ontab old_list= owk oiax ontab 
-Cdelw1 rlse name= ontab new_list= owk oiax 
+Cdelw1 rlse name= ontab old_list= owk oiax ontab
+Cdelw1 rlse name= ontab new_list= owk oiax
 Cdelw1       call rlse(ontab)
-       if (allocated(iv_w_ontab)) deallocate(iv_w_ontab)
+      if (allocated(iv_w_ontab)) deallocate(iv_w_ontab)
 
 Cgetarg       end
-Cdelw1 w_varlist remains: owk oiax 
+Cdelw1 w_varlist remains: owk oiax
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [owk oiax]
-        if (allocated(iv_w_oiax)) deallocate(iv_w_oiax)
-        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+      if (allocated(iv_w_oiax)) deallocate(iv_w_oiax)
+      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
 
-       end subroutine sclwsr 
+      end subroutine sclwsr
 
 
       subroutine sclws2(nbas,nspec,alat,plat,bas,slabl,iax,ips,ntab,z,
@@ -402,68 +402,68 @@ C       and unlock those with radii exceeding maximum allowed.
 C     ... If overlap criterion exactly satisfied for any connecting vector,
 C         set lock for this species
           do  jb = 1, nrspec(is)
-          ib = iclbsj(is,ips,nbas,jb)
-          do  kpr = ntab(ib)+2, ntab(ib+1)
-            kb = iax(2,kpr)
-            k1 = iax(3,kpr)
-            k2 = iax(4,kpr)
-            k3 = iax(5,kpr)
-            ks = ips(kb)
+            ib = iclbsj(is,ips,nbas,jb)
+            do  kpr = ntab(ib)+2, ntab(ib+1)
+              kb = iax(2,kpr)
+              k1 = iax(3,kpr)
+              k2 = iax(4,kpr)
+              k3 = iax(5,kpr)
+              ks = ips(kb)
 C           ip selects which ommax to use (A-A, A-E, or E-E)
-            ip = 2
-            if (idnint(z(is)).ne.0 .and. idnint(z(ks)).ne.0) ip=1
-            if (idnint(z(is)).eq.0 .and. idnint(z(ks)).eq.0) ip=3
-            opo1 = 1+omax1(ip)
-            omo2 = 1-omax2(ip)
-            wsrk = wsr(ks)
-            rik = dsqrt(drr2(plat,bas(1,ib),bas(1,kb),k1,k2,k3,dr))
-            rik = rik*alat
+              ip = 2
+              if (idnint(z(is)).ne.0 .and. idnint(z(ks)).ne.0) ip=1
+              if (idnint(z(is)).eq.0 .and. idnint(z(ks)).eq.0) ip=3
+              opo1 = 1+omax1(ip)
+              omo2 = 1-omax2(ip)
+              wsrk = wsr(ks)
+              rik = dsqrt(drr2(plat,bas(1,ib),bas(1,kb),k1,k2,k3,dr))
+              rik = rik*alat
 C           Set lock if any of these conditions are met:
 C             wi + wk - rik = o1*rik
 C             wi + wk - rik = o2*wi
 C             wi + wk - rik = o2*wk
 C             wi = wsmax
-            locki = lock(is)
-            if (dabs(opo1*rik-wsri-wsrk) .lt. tiny) locki=1
-            if (dabs(rik-omo2*wsri-wsrk) .lt. tiny) locki=1
-            if (dabs(rik-wsri-omo2*wsrk) .lt. tiny) locki=1
-            if (wsmax.gt.0 .and. dabs(wsri-wsmax).lt.tiny) locki=1
-            lock(is) = max(locki,lock(is))
-          enddo
+              locki = lock(is)
+              if (dabs(opo1*rik-wsri-wsrk) .lt. tiny) locki=1
+              if (dabs(rik-omo2*wsri-wsrk) .lt. tiny) locki=1
+              if (dabs(rik-wsri-omo2*wsrk) .lt. tiny) locki=1
+              if (wsmax.gt.0 .and. dabs(wsri-wsmax).lt.tiny) locki=1
+              lock(is) = max(locki,lock(is))
+            enddo
           enddo
 C         print *,'is,lock0=',is,lock(is)
 
 C     ... If overlap criterion exceeded for any connecting vector,
 C         unset lock for this species
           if (lock(is) .ne. 2) then
-          do  jb = 1, nrspec(is)
-          ib = iclbsj(is,ips,nbas,jb)
-          do  kpr = ntab(ib)+2, ntab(ib+1)
-            kb = iax(2,kpr)
-            k1 = iax(3,kpr)
-            k2 = iax(4,kpr)
-            k3 = iax(5,kpr)
-            ks = ips(kb)
-            wsrk = wsr(ks)
-            rik = dsqrt(drr2(plat,bas(1,ib),bas(1,kb),k1,k2,k3,dr))
-            rik = rik*alat
+            do  jb = 1, nrspec(is)
+              ib = iclbsj(is,ips,nbas,jb)
+              do  kpr = ntab(ib)+2, ntab(ib+1)
+                kb = iax(2,kpr)
+                k1 = iax(3,kpr)
+                k2 = iax(4,kpr)
+                k3 = iax(5,kpr)
+                ks = ips(kb)
+                wsrk = wsr(ks)
+                rik = dsqrt(drr2(plat,bas(1,ib),bas(1,kb),k1,k2,k3,dr))
+                rik = rik*alat
 C           ip selects which ommax to use (A-A, A-E, or E-E)
-            ip = 2
-            if (idnint(z(is)).ne.0 .and. idnint(z(ks)).ne.0) ip=1
-            if (idnint(z(is)).eq.0 .and. idnint(z(ks)).eq.0) ip=3
-            opo1 = 1+omax1(ip)
-            omo2 = 1-omax2(ip)
+                ip = 2
+                if (idnint(z(is)).ne.0 .and. idnint(z(ks)).ne.0) ip=1
+                if (idnint(z(is)).eq.0 .and. idnint(z(ks)).eq.0) ip=3
+                opo1 = 1+omax1(ip)
+                omo2 = 1-omax2(ip)
 C           Unset lock if any of these conditions are exceeded
 C             wi + wk - rik < o1*rik
 C             wi + wk - rik < o2*wi
 C             wi + wk - rik < o2*wk
 C             wi > wsmax
-            if (opo1*rik-wsri-wsrk .lt. -tiny) lock(is)=0
-            if (rik-omo2*wsri-wsrk .lt. -tiny) lock(is)=0
-            if (rik-wsri-omo2*wsrk .lt. -tiny) lock(is)=0
-            if (wsmax.gt.0 .and. wsri-wsmax.gt.tiny) lock(is)=0
-          enddo
-          enddo
+                if (opo1*rik-wsri-wsrk .lt. -tiny) lock(is)=0
+                if (rik-omo2*wsri-wsrk .lt. -tiny) lock(is)=0
+                if (rik-wsri-omo2*wsrk .lt. -tiny) lock(is)=0
+                if (wsmax.gt.0 .and. wsri-wsmax.gt.tiny) lock(is)=0
+              enddo
+            enddo
           endif
         enddo
 C       print *, 'lock', (lock(is), is=1,nspec)
@@ -475,51 +475,51 @@ C  --- Find amax=largest allowed scaling for unlocked species ---
             kco = -1
             wsri = wsr(is)
             do  jb = 1, nrspec(is)
-            ib = iclbsj(is,ips,nbas,jb)
-            do  kpr = ntab(ib)+2, ntab(ib+1)
-              kb = iax(2,kpr)
-              k1 = iax(3,kpr)
-              k2 = iax(4,kpr)
-              k3 = iax(5,kpr)
-              ks = ips(kb)
-              rik = dsqrt(drr2(plat,bas(1,ib),bas(1,kb),k1,k2,k3,dr))
-              rik = rik*alat
-              ip = 2
-              if (idnint(z(is)).ne.0 .and. idnint(z(ks)).ne.0) ip=1
-              if (idnint(z(is)).eq.0 .and. idnint(z(ks)).eq.0) ip=3
-              opo1 = 1+omax1(ip)
-              omo2 = 1-omax2(ip)
-              if (dabs(rik-riko).gt.tiny .or. kco.ne.ks) then
-                wsrk = wsr(ks)
-                riko = rik
-                kco = ks
-                amax1 = 9d9
-                amax2 = 9d9
-                amax3 = 9d9
-                amax4 = 9d9
+              ib = iclbsj(is,ips,nbas,jb)
+              do  kpr = ntab(ib)+2, ntab(ib+1)
+                kb = iax(2,kpr)
+                k1 = iax(3,kpr)
+                k2 = iax(4,kpr)
+                k3 = iax(5,kpr)
+                ks = ips(kb)
+                rik = dsqrt(drr2(plat,bas(1,ib),bas(1,kb),k1,k2,k3,dr))
+                rik = rik*alat
+                ip = 2
+                if (idnint(z(is)).ne.0 .and. idnint(z(ks)).ne.0) ip=1
+                if (idnint(z(is)).eq.0 .and. idnint(z(ks)).eq.0) ip=3
+                opo1 = 1+omax1(ip)
+                omo2 = 1-omax2(ip)
+                if (dabs(rik-riko).gt.tiny .or. kco.ne.ks) then
+                  wsrk = wsr(ks)
+                  riko = rik
+                  kco = ks
+                  amax1 = 9d9
+                  amax2 = 9d9
+                  amax3 = 9d9
+                  amax4 = 9d9
 C               If second site ks is locked, can only scale site i
-                if (lock(ks) .ne. 0) then
-                  amax1 = (opo1*rik-wsrk+gw)/(wsri+gw)
-                  if (omo2 .gt. 0d0)
+                  if (lock(ks) .ne. 0) then
+                    amax1 = (opo1*rik-wsrk+gw)/(wsri+gw)
+                    if (omo2 .gt. 0d0)
      .            amax2 = (rik-wsrk+omo2*gw)/(omo2*wsri+omo2*gw)
-                  amax3 = (rik-omo2*wsrk+gw)/(wsri+gw)
+                    amax3 = (rik-omo2*wsrk+gw)/(wsri+gw)
 C               If neither site is locked, both will scale
-                else
-                  amax1 = (opo1*rik+gw+gw)/(wsri+wsrk+gw+gw)
-                  if (wsrk+omo2*wsri+(1+omo2)*gw .gt. 0d0)
+                  else
+                    amax1 = (opo1*rik+gw+gw)/(wsri+wsrk+gw+gw)
+                    if (wsrk+omo2*wsri+(1+omo2)*gw .gt. 0d0)
      .            amax2 = (rik+(1+omo2)*gw)/
      .                  (wsrk+omo2*wsri+(1+omo2)*gw)
-                  if (wsri+omo2*wsrk+(1+omo2)*gw .gt. 0d0)
+                    if (wsri+omo2*wsrk+(1+omo2)*gw .gt. 0d0)
      .            amax3 = (rik+(1+omo2)*gw)/
      .                  (wsri+omo2*wsrk+(1+omo2)*gw)
-                endif
-                if (wsmax .gt. 0) then
-                  amax4 = wsmax/wsri
-                endif
-                amax = dmin1(amax,amax1,amax2,amax3,amax4)
+                  endif
+                  if (wsmax .gt. 0) then
+                    amax4 = wsmax/wsri
+                  endif
+                  amax = dmin1(amax,amax1,amax2,amax3,amax4)
 C               print *, 'kc,kbas,kpr,amax',ks,kb,kpr,amax
-              endif
-            enddo
+                endif
+              enddo
             enddo
           endif
         enddo
@@ -627,26 +627,26 @@ C   ... Last iteration
           do  is = 1, nspec
             wsri = wsr(is)
             do  jb = 1, nrspec(is)
-            ib = iclbsj(is,ips,nbas,jb)
-            do  kpr = ntab(ib)+2, ntab(ib+1)
-              kb = iax(2,kpr)
-              k1 = iax(3,kpr)
-              k2 = iax(4,kpr)
-              k3 = iax(5,kpr)
-              ks = ips(kb)
-              ip = 2
-              if (idnint(z(is)).ne.0 .and. idnint(z(ks)).ne.0) ip=1
-              if (idnint(z(is)).eq.0 .and. idnint(z(ks)).eq.0) ip=3
-              wsrk = wsr(ks)
-              rik = dsqrt(drr2(plat,bas(1,ib),bas(1,kb),k1,k2,k3,dr))
-              rik = rik*alat
-              dovlap = wsri+wsrk-rik
-              dovl1(ip) = dmax1(dovl1(ip),dovlap/rik)
-              dovl2(ip) = dmax1(dovl2(ip),dovlap/wsri,dovlap/wsrk)
+              ib = iclbsj(is,ips,nbas,jb)
+              do  kpr = ntab(ib)+2, ntab(ib+1)
+                kb = iax(2,kpr)
+                k1 = iax(3,kpr)
+                k2 = iax(4,kpr)
+                k3 = iax(5,kpr)
+                ks = ips(kb)
+                ip = 2
+                if (idnint(z(is)).ne.0 .and. idnint(z(ks)).ne.0) ip=1
+                if (idnint(z(is)).eq.0 .and. idnint(z(ks)).eq.0) ip=3
+                wsrk = wsr(ks)
+                rik = dsqrt(drr2(plat,bas(1,ib),bas(1,kb),k1,k2,k3,dr))
+                rik = rik*alat
+                dovlap = wsri+wsrk-rik
+                dovl1(ip) = dmax1(dovl1(ip),dovlap/rik)
+                dovl2(ip) = dmax1(dovl2(ip),dovlap/wsri,dovlap/wsrk)
 C              if (dovl1(ip).gt.omax1(ip)+tiny .or.
 C     .            dovl2(ip).gt.omax2(ip)+tiny)
 C     .          write(stdo,'('' SCLWS2: warning dovl>omax'')')
-            enddo
+              enddo
             enddo
           enddo
           if (ipr .ge. 50) then
@@ -669,6 +669,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine sclws2 
+      end subroutine sclws2
 
 

@@ -77,44 +77,44 @@ C --- Setup ---
       do   isp = 1, nsp
         if (nsp .eq. 2) call info2(20,0,0,' Spin %i:',isp,0)
         do  l = 0, lmax
-        lp1 = l+1
-        konfig = pl(lp1,isp)
-        sum1(lp1,isp) = 0
-        sum2(lp1,isp) = 0
-        if (ql(lp1,isp) .lt. 1d-6) goto 20
-        call makrvl(z,l,a,b,nr,rofi,konfig,v(1,isp),ev,tol,rh1)
+          lp1 = l+1
+          konfig = pl(lp1,isp)
+          sum1(lp1,isp) = 0
+          sum2(lp1,isp) = 0
+          if (ql(lp1,isp) .lt. 1d-6) goto 20
+          call makrvl(z,l,a,b,nr,rofi,konfig,v(1,isp),ev,tol,rh1)
 C       call intrho(rh1,rofi,a,b,nr,sum1(lp1,isp))
-        sum1(lp1,isp) = ql(lp1,isp) * ddot(nr,rwgt,1,rh1,1)
-        if (irchan(lp1) .eq. 0) then
-          do  ir = 1, nr
-            r = rofi(ir)
-            fac = 1d0/(dexp((r-dabs(rc(1)))/rcw) + 1)
-            rh2(ir) = rh1(ir)*fac
-          enddo
-        else
-          call dpcopy(rh1,rh2,1,nr,1d0)
-        endif
+          sum1(lp1,isp) = ql(lp1,isp) * ddot(nr,rwgt,1,rh1,1)
+          if (irchan(lp1) .eq. 0) then
+            do  ir = 1, nr
+              r = rofi(ir)
+              fac = 1d0/(dexp((r-dabs(rc(1)))/rcw) + 1)
+              rh2(ir) = rh1(ir)*fac
+            enddo
+          else
+            call dpcopy(rh1,rh2,1,nr,1d0)
+          endif
 C       call intrho(rh2,rofi,a,b,nr,sum2(lp1,isp))
-        sum2(lp1,isp) = ql(lp1,isp) * ddot(nr,rwgt,1,rh2,1)
-        if (ql(lp1,isp) .lt. 1d-6) goto 20
-        fac = sum1(lp1,isp)/sum2(lp1,isp)
-        do  ir = 1, nr
-          rho(ir,isp) = rho(ir,isp) + ql(lp1,isp)*(fac*rh2(ir)-rh1(ir))
-        enddo
-        ltop = max(ltop,l)
-   20   continue
+          sum2(lp1,isp) = ql(lp1,isp) * ddot(nr,rwgt,1,rh2,1)
+          if (ql(lp1,isp) .lt. 1d-6) goto 20
+          fac = sum1(lp1,isp)/sum2(lp1,isp)
+          do  ir = 1, nr
+            rho(ir,isp) = rho(ir,isp) + ql(lp1,isp)*(fac*rh2(ir)-rh1(ir))
+          enddo
+          ltop = max(ltop,l)
+   20     continue
         enddo
 
 C --- Printout ---
-      if (iprint() .ge. 20) then
-        sum = ddot(nr,rwgt,1,rho(1,isp),1)
-        write(stdo,333) (sum1(lp1,isp), lp1=1,ltop+1)
-        write(stdo,334) (sum2(lp1,isp), lp1=1,ltop+1)
-        write(stdo,335) sum
-  333   format(' Ql before scaling:',8f9.5)
-  334   format(' Ql after  scaling:',8f9.5)
-  335   format(' valence q after renormalisation:',f9.5)
-      endif
+        if (iprint() .ge. 20) then
+          sum = ddot(nr,rwgt,1,rho(1,isp),1)
+          write(stdo,333) (sum1(lp1,isp), lp1=1,ltop+1)
+          write(stdo,334) (sum2(lp1,isp), lp1=1,ltop+1)
+          write(stdo,335) sum
+  333     format(' Ql before scaling:',8f9.5)
+  334     format(' Ql after  scaling:',8f9.5)
+  335     format(' valence q after renormalisation:',f9.5)
+        endif
       enddo
 
       end
@@ -183,7 +183,8 @@ C     stdo = nglob('stdo')
         call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v,g,
      .    sum,a,b,rofi,nr,nre)
         do  77  ir = 1, nre
-   77   rho(ir)= a*(rofi(ir)+b)*g(ir)**2
+          rho(ir)= a*(rofi(ir)+b)*g(ir)**2
+   77   continue
       else
         call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v,g,
      .    sum,a,b,rofi,nr,nre)
@@ -199,7 +200,8 @@ C     stdo = nglob('stdo')
    78   continue
       endif
       do  79  ir = nre+1, nr
-   79 rho(ir)= 0d0
+        rho(ir)= 0d0
+   79 continue
 
 C      print *, 'makrvl: l=',l
 C      call prrmsh('psi**2 in makrvl',rofi,rho,nre,nre,1)

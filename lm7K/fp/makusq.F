@@ -30,8 +30,8 @@ Cgetarg...info...           use_to_add ['makusq', 'm_struc_def']
       subroutine makusq(mode,ssite,sspec,slat,sham,nbas,nsites,isite,
      .  nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
      .  aus)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
 C ----------------------------------------------------------------------
@@ -74,7 +74,7 @@ Co   aus   :val,slo of w.f. at MT sphere surface added to aus; see Remarks
 Cl Local variables
 Cl   ispc  :the current spin index in the coupled spins case.
 Cl         :Some quantities have no separate address space for each
-Cl         :spin in the indepedent-spins case (evec,evl,ewgt) but do    
+Cl         :spin in the indepedent-spins case (evec,evl,ewgt) but do
 Cl         :in the coupled-spins case.  A separate loop ispc=1..nspc
 Cl         :must be added for the latter case
 Cl         :ispc is the appropriate index for objects which distinguish
@@ -82,10 +82,10 @@ Cl         :spins in the spin-coupled case only
 Cl   isp   :isp  is the appropriate index for objects which distinguish
 Cl         :spins in the spin-uncoupled case only
 Cl   ksp   :the current spin index in both independent and coupled
-Cl         :spins cases. 
-Cl         :ksp is appropriate spin index for quantities that have 
-Cl         :separate address space for each spin in every case 
-Cl         :(potential- and density-like objects).                 
+Cl         :spins cases.
+Cl         :ksp is appropriate spin index for quantities that have
+Cl         :separate address space for each spin in every case
+Cl         :(potential- and density-like objects).
 Cr Remarks
 Cr   Makes coefficients for projection of wave function onto
 Cr   augmented functions (u,s) which is valid inside the MT spheres.
@@ -120,11 +120,11 @@ C ... Passed parameters
      .  nsites,isite(nsites)
       parameter (n0=10,nppn=12)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),sham(1),q(3)
-       real(8):: q(3) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
-       type(s_ham)::sham
+      real(8):: q(3)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
+      type(s_ham)::sham
 
       double precision ppnl(nppn,n0,nsp,nbas)
       double complex evec(ndimh,nsp,nev),
@@ -137,16 +137,16 @@ C ... Local parameters
       integer igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
 Cdelw1 do not change  [['undef', 'wref'], 'oiprmb', 'makusq']
 Cdelw1       integer oiprmb,orofi,ofh,oxh,ovh,odh,ofp,oxp,ovp,odp
-       integer:: oiprmb 
-       real(8) ,allocatable :: rv_w_orofi(:)
-       real(8) ,allocatable :: rv_w_ofh(:)
-       real(8) ,allocatable :: rv_w_oxh(:)
-       real(8) ,allocatable :: rv_w_ovh(:)
-       real(8) ,allocatable :: rv_w_odh(:)
-       real(8) ,allocatable :: rv_w_ofp(:)
-       real(8) ,allocatable :: rv_w_oxp(:)
-       real(8) ,allocatable :: rv_w_ovp(:)
-       real(8) ,allocatable :: rv_w_odp(:)
+      integer:: oiprmb
+      real(8) ,allocatable :: rv_w_orofi(:)
+      real(8) ,allocatable :: rv_w_ofh(:)
+      real(8) ,allocatable :: rv_w_oxh(:)
+      real(8) ,allocatable :: rv_w_ovh(:)
+      real(8) ,allocatable :: rv_w_odh(:)
+      real(8) ,allocatable :: rv_w_ofp(:)
+      real(8) ,allocatable :: rv_w_oxp(:)
+      real(8) ,allocatable :: rv_w_ovp(:)
+      real(8) ,allocatable :: rv_w_odp(:)
 
 C ... Heap
       integer w(1)
@@ -165,14 +165,14 @@ C --- Start loop over atoms ---
           ib = isite(i)
         endif
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
 Cgetarg         call upack('ham oindxo',sham,oiprmb,0,0,0,0)
-         
+
 Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 140
 Cdelw1 do not change oiprmb because of ['undef', 'wref']
-         oiprmb=sham%oindxo
+        oiprmb=sham%oindxo
 
 Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
@@ -180,78 +180,78 @@ Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg         call upack('spec rsma lmxa lmxl kmxt',sspec,is,rsma,lmxa,lmxl,
 Cgetarg      .    kmax)
-         
-         rsma=sspec(is)%rsma
-         lmxa=sspec(is)%lmxa
-         lmxl=sspec(is)%lmxl
-         kmax=sspec(is)%kmxt
+
+        rsma=sspec(is)%rsma
+        lmxa=sspec(is)%lmxa
+        lmxl=sspec(is)%lmxl
+        kmax=sspec(is)%kmxt
 
 Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-         
-         a=sspec(is)%a
-         nr=sspec(is)%nr
-         rmt=sspec(is)%rmt
+
+        a=sspec(is)%a
+        nr=sspec(is)%nr
+        rmt=sspec(is)%rmt
 
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
 Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
 Cgetarg         call upack('spec lmxb',sspec,is,lmxh,0,0,0)
-         
-         lmxh=sspec(is)%lmxb
+
+        lmxh=sspec(is)%lmxb
 
         if (lmxa .eq. -1) goto 10
 
 C   --- Set up all radial head and tail functions, and their BC's
 Cdelw1         call defrr(orofi, nr)
-         allocate(rv_w_orofi(nr))
+        allocate(rv_w_orofi(nr))
 Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
 
 Cdelw1         call radmsh(rmt,a,nr,w(orofi))
-         call radmsh ( rmt , a , nr , rv_w_orofi ) 
+        call radmsh ( rmt , a , nr , rv_w_orofi )
 
 Cdelw1         call defrr(ofh, nr*(lmxh+1)*nkapi)
-         allocate(rv_w_ofh(nr*(lmxh+1)*nkapi))
+        allocate(rv_w_ofh(nr*(lmxh+1)*nkapi))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkapi<0) rv_w_ofh(:)=0.0d0
 
 Cdelw1         call defrr(oxh, nr*(lmxh+1)*nkapi)
-         allocate(rv_w_oxh(nr*(lmxh+1)*nkapi))
+        allocate(rv_w_oxh(nr*(lmxh+1)*nkapi))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkapi<0) rv_w_oxh(:)=0.0d0
 
 Cdelw1         call defrr(ovh, (lmxh+1)*nkapi)
-         allocate(rv_w_ovh((lmxh+1)*nkapi))
+        allocate(rv_w_ovh((lmxh+1)*nkapi))
 Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkapi<0) rv_w_ovh(:)=0.0d0
 
 Cdelw1         call defrr(odh, (lmxh+1)*nkapi)
-         allocate(rv_w_odh((lmxh+1)*nkapi))
+        allocate(rv_w_odh((lmxh+1)*nkapi))
 Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkapi<0) rv_w_odh(:)=0.0d0
 
 Cdelw1         call fradhd(nkapi,eh,rsmh,lh,lmxh,nr,w(orofi),w(ofh),
 Cdelw1      .    w(oxh),w(ovh),w(odh))
-         call fradhd ( nkapi , eh , rsmh , lh , lmxh , nr , rv_w_orofi 
-     .   , rv_w_ofh , rv_w_oxh , rv_w_ovh , rv_w_odh ) 
+        call fradhd ( nkapi , eh , rsmh , lh , lmxh , nr , rv_w_orofi 
+     .   , rv_w_ofh , rv_w_oxh , rv_w_ovh , rv_w_odh )
 
 Cdelw1         call defrr(ofp, nr*(lmxa+1)*(kmax+1))
-         allocate(rv_w_ofp(nr*(lmxa+1)*(kmax+1)))
+        allocate(rv_w_ofp(nr*(lmxa+1)*(kmax+1)))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) rv_w_ofp(:)=0.0d0
 
 Cdelw1         call defrr(oxp, nr*(lmxa+1)*(kmax+1))
-         allocate(rv_w_oxp(nr*(lmxa+1)*(kmax+1)))
+        allocate(rv_w_oxp(nr*(lmxa+1)*(kmax+1)))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) rv_w_oxp(:)=0.0d0
 
 Cdelw1         call defrr(ovp, (lmxa+1)*(kmax+1))
-         allocate(rv_w_ovp((lmxa+1)*(kmax+1)))
+        allocate(rv_w_ovp((lmxa+1)*(kmax+1)))
 Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) rv_w_ovp(:)=0.0d0
 
 Cdelw1         call defrr(odp, (lmxa+1)*(kmax+1))
-         allocate(rv_w_odp((lmxa+1)*(kmax+1)))
+        allocate(rv_w_odp((lmxa+1)*(kmax+1)))
 Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) rv_w_odp(:)=0.0d0
 
 Cdelw1         call fradpk(kmax,rsma,lmxa,nr,w(orofi),w(ofp),w(oxp),w(ovp),
 Cdelw1      .    w(odp))
-         call fradpk ( kmax , rsma , lmxa , nr , rv_w_orofi , rv_w_ofp 
-     .   , rv_w_oxp , rv_w_ovp , rv_w_odp ) 
+        call fradpk ( kmax , rsma , lmxa , nr , rv_w_orofi , rv_w_ofp 
+     .   , rv_w_oxp , rv_w_ovp , rv_w_odp )
 
 C   --- Add to the coefficient for the projection onto (u,s) for this site
 Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 187
@@ -262,25 +262,25 @@ Cdelw1         call pusq1(mode,ib,isp,nspc,w(oiprmb),nlmax,lmxh,nbas,ssite,
 Cdelw1      .    sspec,slat,q,ndham,ndimh,napw,igvapw,nev,evec,w(ovh),w(odh),
 Cdelw1      .    w(ovp),w(odp),ppnl(1,1,1,ib),
 Cdelw1      .    aus(1,1,1,1,i,iq),aus(1,1,2,1,i,iq),aus(1,1,3,1,i,iq))
-         call pusq1 ( mode , ib , isp , nspc , w ( oiprmb ) , nlmax , 
+        call pusq1 ( mode , ib , isp , nspc , w ( oiprmb ) , nlmax , 
      .   lmxh , nbas , ssite , sspec , slat , q , ndham , ndimh , napw 
      .   , igvapw , nev , evec , rv_w_ovh , rv_w_odh , rv_w_ovp , rv_w_odp 
      .   , ppnl ( 1 , 1 , 1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , 
      .   aus ( 1 , 1 , 2 , 1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq 
-     .   ) ) 
+     .   ) )
 
-Cdelw1 rlse name= orofi old_list= orofi ofh oxh ovh odh ofp oxp ovp odp 
+Cdelw1 rlse name= orofi old_list= orofi ofh oxh ovh odh ofp oxp ovp odp
 Cdelw1 rlse name= orofi new_list= (None)
 Cdelw1         call rlse(orofi)
-         if (allocated(rv_w_odp)) deallocate(rv_w_odp)
-         if (allocated(rv_w_ovp)) deallocate(rv_w_ovp)
-         if (allocated(rv_w_oxp)) deallocate(rv_w_oxp)
-         if (allocated(rv_w_ofp)) deallocate(rv_w_ofp)
-         if (allocated(rv_w_odh)) deallocate(rv_w_odh)
-         if (allocated(rv_w_ovh)) deallocate(rv_w_ovh)
-         if (allocated(rv_w_oxh)) deallocate(rv_w_oxh)
-         if (allocated(rv_w_ofh)) deallocate(rv_w_ofh)
-         if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+        if (allocated(rv_w_odp)) deallocate(rv_w_odp)
+        if (allocated(rv_w_ovp)) deallocate(rv_w_ovp)
+        if (allocated(rv_w_oxp)) deallocate(rv_w_oxp)
+        if (allocated(rv_w_ofp)) deallocate(rv_w_ofp)
+        if (allocated(rv_w_odh)) deallocate(rv_w_odh)
+        if (allocated(rv_w_ovh)) deallocate(rv_w_ovh)
+        if (allocated(rv_w_oxh)) deallocate(rv_w_oxh)
+        if (allocated(rv_w_ofh)) deallocate(rv_w_ofh)
+        if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
 
 C   --- print
 C        print *, 'isp,ib,nev,iq=',isp,ib,nev,iq
@@ -295,14 +295,14 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [oiprmb]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine makusq 
+      end subroutine makusq
 
 
       subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite,
      .  sspec,slat,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl,
      .  au,as,az)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Add to the coefficient for the projection onto (u,s) for one site
 C ----------------------------------------------------------------------
@@ -366,10 +366,10 @@ C ... Passed parameters
       double precision ppnl(nppn,n0,2)
       double precision vp(*),dp(*),vh(*),dh(*)
 Cgetarg       double precision q(3),ssite(1),sspec(1),slat(1)
-       real(8):: q(3) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: q(3)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double complex evec(ndimh,nspc,ndimh),
      .  au(nlmax,ndham*nspc,3,2),
@@ -384,9 +384,9 @@ Cdelw1 do not change  [['undef', 'wref'], 'ojcg', 'pusq1']
 Cdelw1 do not change  [['undef', 'wref'], 'oidxcg', 'pusq1']
 Cdelw1 do not change  [['undef', 'wref'], 'ocy', 'pusq1']
 Cdelw1       integer ocg,ojcg,oidxcg,ocy,ob,oa
-       integer:: ocg , ojcg , oidxcg , ocy 
-       complex(8) ,allocatable :: zv_w_ob(:)
-       complex(8) ,allocatable :: zv_w_oa(:)
+      integer:: ocg , ojcg , oidxcg , ocy
+      complex(8) ,allocatable :: zv_w_ob(:)
+      complex(8) ,allocatable :: zv_w_oa(:)
 
       integer isa,lmxa,lmxha,kmax,nlma,ivec,
      .  ilm,k,ll,nkape,ksp,ispc,nlmto
@@ -403,27 +403,27 @@ Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
 Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
 Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
 Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-       
+
 Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 302
 Cdelw1 do not change ocg because of ['undef', 'wref']
-       ocg=slat%ocg
+      ocg=slat%ocg
 Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 303
 Cdelw1 do not change ojcg because of ['undef', 'wref']
-       ojcg=slat%ojcg
+      ojcg=slat%ojcg
 Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 304
 Cdelw1 do not change oidxcg because of ['undef', 'wref']
-       oidxcg=slat%oidxcg
+      oidxcg=slat%oidxcg
 Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 305
 Cdelw1 do not change ocy because of ['undef', 'wref']
-       ocy=slat%ocy
+      ocy=slat%ocy
 
 Cgetarg...info...           integer :: isa , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: pa(3) , real(8) :: ssite%pos 3
 Cgetarg       call upack('site spec pos',ssite,ia,isa,pa,0,0)
-       
-       isa=ssite(ia)%spec
-       i_copy_size=size(ssite(ia)%pos) 
-       call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1) 
+
+      isa=ssite(ia)%spec
+      i_copy_size=size(ssite(ia)%pos)
+      call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: lmxha , integer(8) :: sspec%lmxb 1
@@ -431,16 +431,16 @@ Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
 Cgetarg       call upack('spec lmxa lmxb kmxt rsma',sspec,isa,lmxa,lmxha,kmax,
 Cgetarg      .            rsma)
-       
-       lmxa=sspec(isa)%lmxa
-       lmxha=sspec(isa)%lmxb
-       kmax=sspec(isa)%kmxt
-       rsma=sspec(isa)%rsma
+
+      lmxa=sspec(isa)%lmxa
+      lmxha=sspec(isa)%lmxb
+      kmax=sspec(isa)%kmxt
+      rsma=sspec(isa)%rsma
 
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg       call upack2('spec rmt',sspec,isa,rmt)
-       
-       rmt=sspec(isa)%rmt
+
+      rmt=sspec(isa)%rmt
 
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [ocg oidxcg ojcg ocy]
@@ -457,7 +457,7 @@ C     Count no. envelope functions connecting (phi,phidot) at site ia
 
 C --- Make strux to expand all orbitals at site ia ---
 Cdelw1       call defcc (ob,   (kmax+1)*nlma*ndimh)
-       allocate(zv_w_ob((kmax+1)*nlma*ndimh))
+      allocate(zv_w_ob((kmax+1)*nlma*ndimh))
 Ctakao_ZeroClear_NotRequiered        if ((kmax+1)*nlma*ndimh<0) zv_w_ob(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 343
@@ -478,9 +478,9 @@ Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 343
 Cdelw1 do not change ocy because of ['undef', 'wref']
 Cdelw1       call bstrux(2,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
 Cdelw1      .  iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igvapw,w(ob),w)
-       call bstrux ( 2 , slat , ssite , sspec , w ( ocg ) , w ( oidxcg 
+      call bstrux ( 2 , slat , ssite , sspec , w ( ocg ) , w ( oidxcg 
      . ) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
-     . q , kmax , nlma , ndimh , napw , igvapw , zv_w_ob , w ) 
+     . q , kmax , nlma , ndimh , napw , igvapw , zv_w_ob , w )
 
 
 C     In noncollinear case, isp=1 always => need internal ispc=1..2
@@ -489,51 +489,51 @@ C     ksp = isp  in the collinear case
 C         = ispc in the noncollinear case
 C     whereas ispc=1 for independent spins, and spin index when nspc=2
       do  ispc = 1, nspc
-      ksp = max(ispc,isp)
+        ksp = max(ispc,isp)
 
-      if (mode .eq. 1) then
-        if (nlma .gt. nlmxx) call rxi('makusq:  nlmxx.lt.nlma=',nlma)
-        do  ilm = 1, nlma
-          k = ll(ilm)+1
-          dlphi  = ppnl(3,k,ksp)/rmt
-          dlphip = ppnl(4,k,ksp)/rmt
-          phi    = ppnl(5,k,ksp)
-          phip   = ppnl(6,k,ksp)
-          dphi   = phi*dlphi/rmt
-          dphip  = dlphip/rmt*phip
-          det    = phi*dphip - dphi*phip
-          rotp(ilm,1,1) = dphip/det
-          rotp(ilm,1,2) = -dphi/det
-          rotp(ilm,2,1) = -phip/det
-          rotp(ilm,2,2) = phi/det
-        enddo
-      endif
+        if (mode .eq. 1) then
+          if (nlma .gt. nlmxx) call rxi('makusq:  nlmxx.lt.nlma=',nlma)
+          do  ilm = 1, nlma
+            k = ll(ilm)+1
+            dlphi  = ppnl(3,k,ksp)/rmt
+            dlphip = ppnl(4,k,ksp)/rmt
+            phi    = ppnl(5,k,ksp)
+            phip   = ppnl(6,k,ksp)
+            dphi   = phi*dlphi/rmt
+            dphip  = dlphip/rmt*phip
+            det    = phi*dphip - dphi*phip
+            rotp(ilm,1,1) = dphip/det
+            rotp(ilm,1,2) = -dphi/det
+            rotp(ilm,2,1) = -phip/det
+            rotp(ilm,2,2) = phi/det
+          enddo
+        endif
 
 C --- Loop over eigenstates ---
 Cdelw1       call defcc (oa,   (kmax+1)*nlma)
-       allocate(zv_w_oa((kmax+1)*nlma))
+        allocate(zv_w_oa((kmax+1)*nlma))
 Ctakao_ZeroClear_NotRequiered        if ((kmax+1)*nlma<0) zv_w_oa(:)=0.0d0
 
-      do  ivec = 1, nev
+        do  ivec = 1, nev
 C       call pusq3(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),w(oa))
 Cdelw1         call rlocb1(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),w(oa))
-         call rlocb1 ( ndimh , nlma , kmax , evec ( 1 , ispc , ivec ) 
-     .   , zv_w_ob , zv_w_oa ) 
+          call rlocb1 ( ndimh , nlma , kmax , evec ( 1 , ispc , ivec ) 
+     .   , zv_w_ob , zv_w_oa )
 
 C       call zprm('cPkL',2,w(oa),kmax+1,kmax+1,nlma)
 Cdelw1         call pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,min(nlma,nlmax),
 Cdelw1      .    iprmb,w(oa),rotp,evec(1,ispc,ivec),vh,dh,vp,dp,
 Cdelw1      .    au(1,ivec,1,ksp),as(1,ivec,1,ksp),az(1,ivec,1,ksp))
-         call pusq2 ( mode , ia , nkape , kmax , lmxa , lmxh , nlmto , 
+          call pusq2 ( mode , ia , nkape , kmax , lmxa , lmxh , nlmto , 
      .   min ( nlma , nlmax ) , iprmb , zv_w_oa , rotp , evec ( 1 , ispc 
      .   , ivec ) , vh , dh , vp , dp , au ( 1 , ivec , 1 , ksp ) , as 
-     .   ( 1 , ivec , 1 , ksp ) , az ( 1 , ivec , 1 , ksp ) ) 
+     .   ( 1 , ivec , 1 , ksp ) , az ( 1 , ivec , 1 , ksp ) )
 
-      enddo
-Cdelw1 rlse name= oa old_list= ob oa 
-Cdelw1 rlse name= oa new_list= ob 
+        enddo
+Cdelw1 rlse name= oa old_list= ob oa
+Cdelw1 rlse name= oa new_list= ob
 Cdelw1       call rlse(oa)
-       if (allocated(zv_w_oa)) deallocate(zv_w_oa)
+        if (allocated(zv_w_oa)) deallocate(zv_w_oa)
 
 
 C  --- Debugging --
@@ -545,10 +545,10 @@ C      call zprm('loc',2,az(1,1,3,ksp),nlmax,(lmxa+1)**2,nev)
 C ... end loop over noncollinear spins
       enddo
 
-Cdelw1 rlse name= ob old_list= ob 
+Cdelw1 rlse name= ob old_list= ob
 Cdelw1 rlse name= ob new_list= (None)
 Cdelw1       call rlse(ob)
-       if (allocated(zv_w_ob)) deallocate(zv_w_ob)
+      if (allocated(zv_w_ob)) deallocate(zv_w_ob)
 
       call tcx('pusq1')
 
@@ -557,7 +557,7 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [ocg oidxcg ojcg ocy]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine pusq1 
+      end subroutine pusq1
 
 
       subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,iprmb,
@@ -674,7 +674,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine pusq2 
+      end subroutine pusq2
 
 
 C      subroutine pusq3(ndimh,nlma,kmax,evec,b,a)

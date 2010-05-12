@@ -4,8 +4,8 @@ Cgetarg...info...           structure ['ovlocr', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['ovlocr', 'm_struc_def']
       subroutine ovlocr(nbas,ssite,sspec,slat,nxi0,nxi,exi,hfc,rsmfa,
      .  orhofa,orhoat,sqloc,slmom)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Makes the site densities for overlapped free atoms.
 C ----------------------------------------------------------------------
@@ -36,10 +36,10 @@ C ... Passed parameters
       integer nbas,nxi(1),nxi0,orhofa(nbas),orhoat(3,nbas)
 Cgetarg       double precision slat(1),ssite(1),sspec(1),rsmfa(1),exi(nxi0,1),
 Cgetarg      .  hfc(nxi0,2,1),sqloc,slmom
-       real(8):: rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) , sqloc , slmom 
-       type(s_lat)::slat
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      real(8):: rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) , sqloc , slmom
+      type(s_lat)::slat
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
       integer nrmx,nlmx,ktop0,stdo
@@ -82,11 +82,11 @@ Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
 Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
 Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
 Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
-       
-       ocg=slat%ocg
-       ojcg=slat%ojcg
-       oidxcg=slat%oidxcg
-       ocy=slat%ocy
+
+      ocg=slat%ocg
+      ojcg=slat%ojcg
+      oidxcg=slat%oidxcg
+      ocy=slat%ocy
 
 
 C --- Loop over sites where density is made ---
@@ -127,28 +127,28 @@ c      do  ib = 1, nbas
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: p1(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ib,is,p1,0,0)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pos) 
-         call dcopy(i_copy_size,ssite(ib)%pos,1,p1,1) 
+
+        is=ssite(ib)%spec
+        i_copy_size=size(ssite(ib)%pos)
+        call dcopy(i_copy_size,ssite(ib)%pos,1,p1,1)
 
 Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           integer :: kmxv , integer(8) :: sspec%kmxv 1
 Cgetarg...info...           real(8) :: rsmv , real(8) :: sspec%rsmv 1
 Cgetarg         call upack('spec lmxl kmxv rsmv',sspec,is,lmxl,kmxv,rsmv,0)
-         
-         lmxl=sspec(is)%lmxl
-         kmxv=sspec(is)%kmxv
-         rsmv=sspec(is)%rsmv
+
+        lmxl=sspec(is)%lmxl
+        kmxv=sspec(is)%kmxv
+        rsmv=sspec(is)%rsmv
 
 Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-         
-         a=sspec(is)%a
-         nr=sspec(is)%nr
-         rmt=sspec(is)%rmt
+
+        a=sspec(is)%a
+        nr=sspec(is)%nr
+        rmt=sspec(is)%rmt
 
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoca,rfoca,
      .    z)
@@ -169,10 +169,10 @@ C   ... Loop over other sites, add up tail expansion
 Cgetarg...info...           integer :: js , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: p2(3) , real(8) :: ssite%pos 3
 Cgetarg           call upack('site spec pos',ssite,jb,js,p2,0,0)
-           
-           js=ssite(jb)%spec
-           i_copy_size=size(ssite(jb)%pos) 
-           call dcopy(i_copy_size,ssite(jb)%pos,1,p2,1) 
+
+          js=ssite(jb)%spec
+          i_copy_size=size(ssite(jb)%pos)
+          call dcopy(i_copy_size,ssite(jb)%pos,1,p2,1)
 
           do  je = 1, nxi(js)
             rsmh = rsmfa(js)
@@ -208,15 +208,15 @@ C ... Combine sphere densities from separate threads
         do  ib = ibproc(pid), ibproc(pid+1)-1
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg           call upack('site spec',ssite,ib,is,0,0,0)
-           
-           is=ssite(ib)%spec
+
+          is=ssite(ib)%spec
 
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg           call upack('spec nr lmxl',sspec,is,nr,lmxl,0,0)
-           
-           nr=sspec(is)%nr
-           lmxl=sspec(is)%lmxl
+
+          nr=sspec(is)%nr
+          lmxl=sspec(is)%lmxl
 
           nlml = (lmxl+1)**2
           call mpibc3(w(orhoat(1,ib)),nr*nlml*nsp,4,pid,0,
@@ -250,7 +250,7 @@ C     call rx0('done')
 
       call tcx('ovlocr')
 Cgetarg       end
-       end subroutine ovlocr 
+      end subroutine ovlocr
 
 
       subroutine p1ovlc(kmxv,nlml,hfc,b,b0,a)
@@ -282,7 +282,7 @@ C ... Local parameters
         a(k,1) = a(k,1) - hfc*b0(k,1)
    10 continue
 Cgetarg       end
-       end subroutine p1ovlc 
+      end subroutine p1ovlc
 
 
       subroutine p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt,rhohd,
@@ -396,15 +396,15 @@ C --- Assemble overlapped tail density in rho2 ---
         r = rofi(i)
         call radpkl(r,rsmv,kmxv,lmxl,kmx,pkl)
         do  isp = 1, nsp
-        do  ilm = 1, nlml
-          l = ll(ilm)
-          rl = 0.d0
-          if ( r .gt. 0.d0 ) rl = r**l
-          do  k = 0, kmxv
-            rho2(i,ilm,isp) = rho2(i,ilm,isp) +
+          do  ilm = 1, nlml
+            l = ll(ilm)
+            rl = 0.d0
+            if ( r .gt. 0.d0 ) rl = r**l
+            do  k = 0, kmxv
+              rho2(i,ilm,isp) = rho2(i,ilm,isp) +
      .                        acof(k,ilm,isp)*pkl(k,l)*r*r*rl
+            enddo
           enddo
-        enddo
         enddo
       enddo
 
@@ -452,6 +452,6 @@ C ... Do some integrals
   811 format(' amom',6f12.6)
 
 Cgetarg       end
-       end subroutine p2ovlc 
+      end subroutine p2ovlc
 
 

@@ -32,7 +32,7 @@ Cu   Written by Karen Johnston
 C ----------------------------------------------------------------------
 #if MPI | MPIK
       IMPLICIT NONE
-C Passed     
+C Passed
       INTEGER :: nloop,np,nblk
       INTEGER, DIMENSION(0:np) :: index
 C Local
@@ -68,7 +68,7 @@ C Local
       DO i=0,np-1
         WRITE (*,'(3x,3i7)') i,inode(i),xnode(i)
       END DO
-#endif 
+#endif
       END SUBROUTINE dstrbp
 
 #if MPI | MPIK
@@ -179,7 +179,7 @@ C     .  ,'rem2=',rem2
       END DO
 ! Split blocks over nodes
       times = nblock/np
-      rem3 = MOD(nblock,np) 
+      rem3 = MOD(nblock,np)
       if (iprint() .gt. 40)
      .  WRITE(LGUNIT(1),*) 'nblock=',nblock,'np=',np,'times=',times
      .  ,'rem3=',rem3
@@ -261,7 +261,7 @@ C     .  ,'rem2=',rem2
       END DO
 ! Split blocks over nodes
       times = nblock/np
-      rem3 = MOD(nblock,np) 
+      rem3 = MOD(nblock,np)
       if (iprint() .gt. 40)
      .  WRITE(LGUNIT(1),*) 'nblock=',nblock,'np=',np,'times=',times
      .  ,'rem3=',rem3
@@ -294,7 +294,7 @@ C     .  ,'rem2=',rem2
       do i = 0, np-1
         index(i,0) = 0
       enddo
-      p = 0 
+      p = 0
       do  i = 0, n/2-1
         j = index(p,0) + 1
         index(p,j)   = 1 + i
@@ -342,5 +342,5 @@ C      write (*,20) nloop, np
 C   20 format ('nloop=',i5,' np=',i5)
 C      call pdstlb(nloop,np,index)
 C      end
-#endif 
+#endif
 

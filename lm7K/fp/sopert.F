@@ -48,23 +48,23 @@ C     n2 = ndimh**2
           js = mapkj(ks)
           if (is .eq. js .or. mode .eq. 0) then
             do  j = 1, ndimh
-            do  i = 1, ndimh
-              wk(i,is,j,js) = hin(i,j,ks)
-            enddo
+              do  i = 1, ndimh
+                wk(i,is,j,js) = hin(i,j,ks)
+              enddo
             enddo
             if (ks .eq. 3) then
               do  j = 1, ndimh
-              do  i = 1, ndimh
-                wk(j,js,i,is) = dconjg(hin(i,j,ks))
-              enddo
+                do  i = 1, ndimh
+                  wk(j,js,i,is) = dconjg(hin(i,j,ks))
+                enddo
               enddo
             endif
           else
             do  j = 1, ndimh
-            do  i = 1, ndimh
-              wk(i,is,j,js) = (0d0,0d0)
-              wk(i,js,j,is) = (0d0,0d0)
-            enddo
+              do  i = 1, ndimh
+                wk(i,is,j,js) = (0d0,0d0)
+                wk(i,js,j,is) = (0d0,0d0)
+              enddo
             enddo
           endif
         enddo

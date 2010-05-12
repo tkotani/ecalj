@@ -139,7 +139,7 @@ C ... Ewald
 
 C ... STR
       real(8):: str_rmax=nullr !, str_rmaxg=nullr,
-c     .  str_drwats=NULLR !,iinv_tol                     !str_kaps(6)=NULLR, 
+c     .  str_drwats=NULLR !,iinv_tol                     !str_kaps(6)=NULLR,
       integer:: str_mxnbr !,str_lmaxw=NULLI !str_mode=nulli,str_nkaps=1,
 c      integer:: iinv_nit,iinv_ncut,
 c      integer:: str_ivl=0  !tcf_nalf,
@@ -295,7 +295,7 @@ C ... Local variables
       integer:: lp1,lpzi,nlmax,nrmx=1501
       integer,parameter:: mxspec=256
       real(8):: xx
-      type (s_mix) :: vamix 
+      type (s_mix) :: vamix
       real(8)::  avwsr
       integer::izerv(n0)=(/(0,i=1,n0)/)
       real(8)::   zerov(n0)=(/(0d0,i=1,n0)/)
@@ -378,26 +378,26 @@ C --- IO ---
 
 C --- Version ---
       do  j = 1, 2
-      vsn = dble(int(vn(j)*100))/100
-      if (vsn .ne. 0d0) then
-        nm = 'VERS_'//vstrn(j)
-        outs = 'Input style'
-        if (j .eq. 2) outs='Program'
-        sw = tksw(prgn,nm)
-        if (sw .ne. 2) then
-        call gtv(trim(nm),sw,vers,note=trim(outs)//
+        vsn = dble(int(vn(j)*100))/100
+        if (vsn .ne. 0d0) then
+          nm = 'VERS_'//vstrn(j)
+          outs = 'Input style'
+          if (j .eq. 2) outs='Program'
+          sw = tksw(prgn,nm)
+          if (sw .ne. 2) then
+            call gtv(trim(nm),sw,vers,note=trim(outs)//
      .    ' version check: integer part must be at least as large as:')
-        if (io_help .eq. 1) then
-          call info2(1,0,0,'   '//trim(outs)//' version: %d',vsn,0)
-        else
-          if (io_show .ne. 0) call info2(1,0,0,'  Expected '//
+            if (io_help .eq. 1) then
+              call info2(1,0,0,'   '//trim(outs)//' version: %d',vsn,0)
+            else
+              if (io_show .ne. 0) call info2(1,0,0,'  Expected '//
      .      trim(outs)//' version: %d'//' ... found in file: %d',vsn,
      .      vers)
-          if ( vers .lt. int(vsn)) call fexit(-1,1,
+              if ( vers .lt. int(vsn)) call fexit(-1,1,
      .      '  Exit -1 RDCTRL: control file earlier than v%d',vsn)
+            endif
+          endif
         endif
-        endif
-      endif
       enddo
 
 C --- CMD ---
@@ -537,19 +537,19 @@ C     call shosyv(0,0,0,stdo)
       if (io_help == 0 .and. nspec .eq. NULLI) then
 
 C ... Count number of species in SPEC category
-      nm='SPEC_ATOM'; sw = tksw(prgn,nm)
-      if (sw .ne. 2) then
-        j = 0; nspec = 0
-        do  while (nspec .le. 0)
-          j = j+1; jj= (/1,j/)
-          if (.not. debug) call pshpr(0)
-          call gtv(trim(nm),0,nono,Texist=ltmp,cindx=jj)
-          if (.not. debug) call poppr
-          if (.not. ltmp) nspec = j-1
-        enddo
-        if (io_show>0) call info2(1,0,0,
+        nm='SPEC_ATOM'; sw = tksw(prgn,nm)
+        if (sw .ne. 2) then
+          j = 0; nspec = 0
+          do  while (nspec .le. 0)
+            j = j+1; jj= (/1,j/)
+            if (.not. debug) call pshpr(0)
+            call gtv(trim(nm),0,nono,Texist=ltmp,cindx=jj)
+            if (.not. debug) call poppr
+            if (.not. ltmp) nspec = j-1
+          enddo
+          if (io_show>0) call info2(1,0,0,
      .    ' ... found %i species in SPEC category',nspec,0)
-      endif
+        endif
       endif
 
 C     Extra site positions for e.g. point multipoles
@@ -593,7 +593,7 @@ C ... Lattice distortion or rotation
           nm='STRUC_ALPHA'; call gtv(trim(nm),1,lat_dist(7),nout=nout,
      .      note=
      .      'Amplitude of (Voigt) strain.  Only read if STRAIN input')
-        if (nout /= 0) j = 3
+          if (nout /= 0) j = 3
         endif
   880   continue
         lat_ldist = j
@@ -601,7 +601,7 @@ C ... Lattice distortion or rotation
       if (lat_gam(1) == NULLR) lat_gam=(/0d0,0d0,1d0,1d0/)
 
 C ... End of struc tokens
-   59 continue           
+   59 continue
 
 C --- Options ---
       if (tksw(prgn,'OPTIONS') == 2) goto 69
@@ -753,19 +753,19 @@ C     Fully relativistic => spin-orbit coupling
       if (lrel==2) lncol4 = T
 
       if (nsp==2 .or. io_help/=0) then
-      if (io_help /= 0) call info0(1,0,0,' * To read the magnetic '//
+        if (io_help /= 0) call info0(1,0,0,' * To read the magnetic '//
      .    'parameters below, HAM_NSPIN must be 2')
-      nm='HAM_SO'; call gtv(trim(nm),tksw(prgn,nm),
+        nm='HAM_SO'; call gtv(trim(nm),tksw(prgn,nm),
      .  lso,def_i4=0,note=
      .  'Spin-orbit coupling (for REL=1)'//
      .  '%N%3f0 : no SO coupling'//
      .  '%N%3f1 : Add L.S to hamiltonian'//
      .  '%N%3f2 : Add Lz.Sz only to hamiltonian'//
      .  '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
-      if (io_help==0) call isanrg(lso,0,3,' rdctrl:','SO',T)
-      if (lso == 1) lncol4 = T
-      if (lso == 2) lncol32= T
-      if (lso == 3) lncol64= T
+        if (io_help==0) call isanrg(lso,0,3,' rdctrl:','SO',T)
+        if (lso == 1) lncol4 = T
+        if (lso == 2) lncol32= T
+        if (lso == 3) lncol64= T
 c      nm='HAM_NONCOL'; call gtv(trim(nm),tksw(prgn,nm),lncol1,
 c     .  def_lg=F, note='Noncollinear magnetism')
 c      nm='HAM_SS'; call gtv(trim(nm),tksw(prgn,nm),ham_qss,nmin=4,nout=
@@ -960,30 +960,30 @@ C$$$     .  note='Options for screened exchange,.e.g.  SXOPTS=rssig;nit=3')
       sw = tksw(prgn,'HAM_SIGP')
 C     This call does nothing except for printout
       if (sw .ne. 2) then
-      nm='HAM_SIGP'; call gtv(trim(nm),sw,nono,Texist=ltmp,
+        nm='HAM_SIGP'; call gtv(trim(nm),sw,nono,Texist=ltmp,
      .  note= 'Parameters for replacing high (and possibly low) '//
      .  'subblocks of sigma'//
      .  '%N%3fwith a linear function of LDA eigenvalues (diagonal)')
-      nm='HAM_SIGP_MODE'; call gtv(trim(nm),sw,sigp_mode,def_i4=3,
+        nm='HAM_SIGP_MODE'; call gtv(trim(nm),sw,sigp_mode,def_i4=3,
      .  nout=nout,
      .  note= 'Specifies linear fitting function'//
      .  '%N%3f 0 sigii > a + b*e'//
      .  '%N%3f 1 sigii = a + b*e'//
      .  '%N%3f 2 sigii > a  and  sigii < b'//
      .  '%N%3f 3 sigii = a + b*e')
-      nm='HAM_SIGP_A'; call gtv(trim(nm),sw,sigp_a,def_r8=0.02d0,
+        nm='HAM_SIGP_A'; call gtv(trim(nm),sw,sigp_a,def_r8=0.02d0,
      .  note='a parameter in fit')
-      nm='HAM_SIGP_B'; call gtv(trim(nm),sw,sigp_b,def_r8=0.06d0,
+        nm='HAM_SIGP_B'; call gtv(trim(nm),sw,sigp_b,def_r8=0.06d0,
      .  note='b parameter in fit')
-      nm='HAM_SIGP_NMIN'; call gtv(trim(nm),sw,sigp_nmin,def_i4=0,
+        nm='HAM_SIGP_NMIN'; call gtv(trim(nm),sw,sigp_nmin,def_i4=0,
      . note='Replace subblock 1..nmin with fit')
-      nm='HAM_SIGP_EMIN'; call gtv(trim(nm),sw,sigp_emin,def_r8=0d0,
+        nm='HAM_SIGP_EMIN'; call gtv(trim(nm),sw,sigp_emin,def_r8=0d0,
      . note='Replace subblock elda<emin with fit (not used if nmin>=0)')
-      nm='HAM_SIGP_NMAX'; call gtv(trim(nm),sw,sigp_nmax,def_i4=0,
+        nm='HAM_SIGP_NMAX'; call gtv(trim(nm),sw,sigp_nmax,def_i4=0,
      . note='Replace subblock nmax+1.. with fit')
-      nm='HAM_SIGP_EMAX'; call gtv(trim(nm),sw,sigp_emax,def_r8=2d0,
+        nm='HAM_SIGP_EMAX'; call gtv(trim(nm),sw,sigp_emax,def_r8=2d0,
      . note='Replace subblock elda>emax with fit (not used if nmax>0)')
-      nm='HAM_SIGP_EFIT'; call gtv(trim(nm),sw,sigp_efit,def_r8=0d0,
+        nm='HAM_SIGP_EFIT'; call gtv(trim(nm),sw,sigp_efit,def_r8=0d0,
      .  note='Energy cutoff for fitting sigii '//
      .  '(not used in any calculation')
       endif
@@ -1148,7 +1148,7 @@ c      stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
       ehvl = NULLR
       do  j = 1, nspec
 cccccccccccccccccccccctakao
-      if(debug) print *,'nspec mxcst j-loop j nspec',j,nspec
+        if(debug) print *,'nspec mxcst j-loop j nspec',j,nspec
 ccccccccccccccccccccccc
         colxbs(:,j) = NULLR; radxbs(j) = NULLR
         rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
@@ -1173,33 +1173,33 @@ ccccccccccccccccccccccc
      .    cindx=jj,note='Atomic number')
 
 cccccccccccccccccccccctakao
-      if(debug) print *,'nspec aaa mxcst j-loop j nspec',j,nspec
+        if(debug) print *,'nspec aaa mxcst j-loop j nspec',j,nspec
         sw = tksw(prgn,'SPEC_ATOM_R')
         if (sw /= 2) then
           nout = 0
           nm='SPEC_ATOM_R'; call gtv(trim(nm),sw,rmt(j),cindx=jj,
      .      nout=nout,note= 'Augmentation sphere radius rmax',or=T)
           if (nout .ne. 1) then
-           nm='SPEC_ATOM_R/W';call gtv(trim(nm),sw,rmt(j),cindx=jj,
+            nm='SPEC_ATOM_R/W';call gtv(trim(nm),sw,rmt(j),cindx=jj,
      .     nout=nout,note='rmax relative to average WS radius',or=T)
-           if (nout == 1) then
+            if (nout == 1) then
               rmt(j) =rmt(j)*avw
-           else
-             nm='SPEC_ATOM_R/A';call gtv(trim(nm),sw,rmt(j),cindx=jj,
+            else
+              nm='SPEC_ATOM_R/A';call gtv(trim(nm),sw,rmt(j),cindx=jj,
      .       nout=nout,note='rmax relative to lattice constant')
-             if (nout == 1) then
-               rmt(j) =rmt(j)*alat
-             else
+              if (nout == 1) then
+                rmt(j) =rmt(j)*alat
+              else
 c takao for lmchk even when R is not given. See default of LMCHK
-              rmt(j) = 0d0
-             endif  
-           endif
+                rmt(j) = 0d0
+              endif
+            endif
           endif
         endif
 c        if (ltbe) rmt(j) = 1d0
 
 cccccccccccccccccccccctakao
-      if(debug) print *,'nspec bbb mxcst j-loop j nspec',j,nspec
+        if(debug) print *,'nspec bbb mxcst j-loop j nspec',j,nspec
 
 C   ... Radial mesh parameters: determine default value of a
         i0 = NULLI
@@ -1213,7 +1213,7 @@ C   ... Radial mesh parameters: determine default value of a
         nm='SPEC_ATOM_A'; call gtv(trim(nm),tksw(prgn,nm),spec_a(j),
      .    def_r8=xx,cindx=jj,nout=nout,
      .    note='Radial mesh point spacing parameter')
-C       Determine default NR 
+C       Determine default NR
         if (tksw(prgn,'SPEC_ATOM_NR') .ne. 2) then
           i0 = 0
           call pshpr(0)
@@ -1228,16 +1228,16 @@ C       Determine default NR
 C       Running account of maximum lmxb
         lmxbj = NULLI
         if (io_help .ne. 1) then
-        if (prgn .eq. 'LMMC') then
-          call lx2vec(lmxb(j),0,nn,ivec)
-          do  i = 1, nn
-            lmxbx = max(lmxbx,ivec(i))
-            lmxbj = max(lmxbj,ivec(i))
-          enddo
-        else
-          lmxbx = max(lmxbx,lmxb(j))
-          lmxbj = lmxb(j)
-        endif
+          if (prgn .eq. 'LMMC') then
+            call lx2vec(lmxb(j),0,nn,ivec)
+            do  i = 1, nn
+              lmxbx = max(lmxbx,ivec(i))
+              lmxbj = max(lmxbj,ivec(i))
+            enddo
+          else
+            lmxbx = max(lmxbx,lmxb(j))
+            lmxbj = lmxb(j)
+          endif
         endif
 C       nlbj = number of elements associated with lmxb
 C              0 => no elements
@@ -1252,7 +1252,7 @@ C       nlbji: ditto, but used to specify number of default values
           nlbj = 0
         endif
 cccccccccccccccccccccctakao
-      if(debug) print *,'nspec ccc mxcst j-loop j nspec',j,nspec
+        if(debug) print *,'nspec ccc mxcst j-loop j nspec',j,nspec
 
 C   ... Basis set for lmf
         nm='SPEC_ATOM_RSMH'; call gtv(trim(nm),tksw(prgn,nm),
@@ -1274,24 +1274,24 @@ C       Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
      .    rsmh2(1:nlbj,j),nmin=nlbj,def_r8v=zerov,cindx=jj,nout=nout,
      .    Texist=ltmp,note='Basis smoothing radii, second group')
         if (ltmp) then
-        nn = NULLI
-        sw = tksw(prgn,nm)
-        if (nout>0) then
-          nkaph=2
-          nn = nout
-          sw = 1
+          nn = NULLI
+          sw = tksw(prgn,nm)
+          if (nout>0) then
+            nkaph=2
+            nn = nout
+            sw = 1
 C         Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
-          do  i = 1, nlbj
-            if (rsmh2(i,j) .eq. 0) cycle
-            nn = i
-          enddo
-        endif
-        nm='SPEC_ATOM_EH2'; call gtv(trim(nm),sw,
+            do  i = 1, nlbj
+              if (rsmh2(i,j) .eq. 0) cycle
+              nn = i
+            enddo
+          endif
+          nm='SPEC_ATOM_EH2'; call gtv(trim(nm),sw,
      .    eh2(1:nlbj,j),nmin=nn,cindx=jj,
      .    note='Basis kinetic energies, second group')
         endif
 cccccccccccccccccccccctakao
-      if(debug) print *,'nspec ddd mxcst j-loop j nspec',j,nspec
+        if(debug) print *,'nspec ddd mxcst j-loop j nspec',j,nspec
 
         nm='SPEC_ATOM_EHVL'; call gtv(trim(nm),tksw(prgn,nm),
      .    ehvl(1:nlbj,j),cindx=jj,def_r8v=(/(-0.5d0,i=1,n0)/),
@@ -1300,13 +1300,13 @@ cccccccccccccccccccccctakao
 C   ... Determine lmxa: floating orbitals have no lmxa
         nm='SPEC_ATOM_LMXA'; sw = tksw(prgn,nm)
 ccccccccccccccccccc takao ccccc
-      if(debug) print *,'nspec ddd000 mxcst j rmt io_help lmxa=',j,rmt(j),io_help,lmxa(j)
+        if(debug) print *,'nspec ddd000 mxcst j rmt io_help lmxa=',j,rmt(j),io_help,lmxa(j)
 cccccccccccccccccccccccccccccc
         if (rmt(j) == 0.and.io_help/=1) then !takao iohelp/=1 added.
           lmxa(j) = -1
         elseif (sw == 2) then   !lmxa not read: look for subsitute
           if (lfp > 0) then     !Possibly replace with a formula
-                                !that depends on rmt
+            !that depends on rmt
             lmxa(j) = 4
           elseif (tksw(prgn,'SPEC_ATOM_LMX') /= 2) then
             lmxa(j) = lmxb(j)
@@ -1332,7 +1332,7 @@ C              0 => no elements
 C       nlaji: ditto, but used to specify number of default values
         nlaj = 1+lmxaj
 ccccccccccccccccccc takao ccccc
-      if(debug) print *,'nspec ddd111 mxcst j-loop j nspec nlaj lmxaj=',j,nspec,nlaj,lmxaj
+        if(debug) print *,'nspec ddd111 mxcst j-loop j nspec nlaj lmxaj=',j,nspec,nlaj,lmxaj
 cccccccccccccccccccccccccccccc
         nlaji = nlaj
         if (io_help .eq. 1) then
@@ -1375,18 +1375,18 @@ C       rsmv(j) = rmt(j)*.5d0   !Not input
         qnu(1,1,j) = NULLI      !If sought, default will be set below
 
 cccccccccccccccccccccctakao
-      if(debug) print *,'nspec ddd222 mxcst j-loop j nspec nlaj=',j,nspec,nlaj
+        if(debug) print *,'nspec ddd222 mxcst j-loop j nspec nlaj=',j,nspec,nlaj
 ccccccccccccccccccccccccccc
 
-       if (nlaj .ne. 0) then
+        if (nlaj .ne. 0) then
 
-         nm='SPEC_ATOM_LMXL'; call gtv(trim(nm),tksw(prgn,nm),lmxl(j),
+          nm='SPEC_ATOM_LMXL'; call gtv(trim(nm),tksw(prgn,nm),lmxl(j),
      .      cindx=jj,def_i4=lmxaj,note=
      .     'lmax for which to accumulate rho,V in sphere')
 
 C   ... Set up default P,Q in absence of explicit specification
-        call dpzero(pnu(1,1,j),nsp*n0)
-        call dpzero(qnu(1,1,j),nsp*n0)
+          call dpzero(pnu(1,1,j),nsp*n0)
+          call dpzero(qnu(1,1,j),nsp*n0)
 C       This branch sets defaults beforehand ... too complicated
 C        if (io_help == 0) then
 CC         Default P,Q, nsp=1
@@ -1401,10 +1401,10 @@ C        nm='SPEC_ATOM_Q'; call gtv(trim(nm),tksw(prgn,nm),
 C     .    qnu(1:nlaj,1,j),def_r8v=qnu(:,1,j),nmin=nlaji,cindx=jj,note=
 C     .    'Starting sphere charges for each l channel')
 C        call snit
-        nm='SPEC_ATOM_P'; call gtv(trim(nm),tksw(prgn,nm),
+          nm='SPEC_ATOM_P'; call gtv(trim(nm),tksw(prgn,nm),
      .    pnu(1:nlaj,1,j),cindx=jj,note=
      .    'Starting log der. parameters for each l')
-        nm='SPEC_ATOM_Q'; call gtv(trim(nm),tksw(prgn,nm),
+          nm='SPEC_ATOM_Q'; call gtv(trim(nm),tksw(prgn,nm),
      .    qnu(1:nlaj,1,j),cindx=jj,note=
      .   'Starting valence charges for each l channel.'//
      .   '%N%2f Q do not include semicore(PZ) electrons.'//
@@ -1418,80 +1418,80 @@ C        call snit
      &   '%N%2f electron to 2p channel; this trick works fine.')
 
 C       Reset default P,Q in absence of explicit specification
-        if (io_help == 0) then
-          if (io_show .ne. 0) call pshpr(50)
+          if (io_help == 0) then
+            if (io_show .ne. 0) call pshpr(50)
 C         call snit
-          call defpq(z(j),lmxaj,1,pnu(1,1,j),qnu(1,1,j))
+            call defpq(z(j),lmxaj,1,pnu(1,1,j),qnu(1,1,j))
 C         call snit
-          if (io_show .ne. 0) call poppr
-        endif
-        if (nsp .eq. 2) call dcopy(n0,pnu(1,1,j),1,pnu(1,2,j),1)
-        if (nsp .eq. 2 .or. io_help == 1) then
-          nm='SPEC_ATOM_MMOM'; call gtv(trim(nm),tksw(prgn,nm),
+            if (io_show .ne. 0) call poppr
+          endif
+          if (nsp .eq. 2) call dcopy(n0,pnu(1,1,j),1,pnu(1,2,j),1)
+          if (nsp .eq. 2 .or. io_help == 1) then
+            nm='SPEC_ATOM_MMOM'; call gtv(trim(nm),tksw(prgn,nm),
      .    qnu(1:nlaj,2,j),def_r8v=zerov,nmin=nlaji,cindx=jj,note=
      .    'Starting mag. moms for each l channel.'//
      .    '%N%2f For a chanel with PZ, this is enforced to be zero.'//
      .    '%N%2f See explanation for SPEC_ATOM_Q.')
-        endif
+          endif
 
-        nm='SPEC_ATOM_PZ'; call gtv(trim(nm),tksw(prgn,nm),
+          nm='SPEC_ATOM_PZ'; call gtv(trim(nm),tksw(prgn,nm),
      .    pz(1:nlaj,1,j),def_r8v=zerov,nmin=nlaji,cindx=jj,note=
      .    'Starting semicore log der. parameters'//
      .    '%N%10fAdd 10 to attach Hankel tail'//
      .    '%N%10fAdd 20 to include perturbatively',nout=nout)
-        if (nout>0) then
-          if (dasum(nlaj,pz(1,1,j),1) /= 0) lpzi = max(lpzi,2)
-        endif
+          if (nout>0) then
+            if (dasum(nlaj,pz(1,1,j),1) /= 0) lpzi = max(lpzi,2)
+          endif
 
-        i0 = 1
-        if (z(j) .le. 8) i0 = 0
-        if (io_help .eq. 1) i0 = NULLI
-        nm='SPEC_ATOM_LFOCA';call gtv(trim(nm),tksw(prgn,nm),lfoca(j),
+          i0 = 1
+          if (z(j) .le. 8) i0 = 0
+          if (io_help .eq. 1) i0 = NULLI
+          nm='SPEC_ATOM_LFOCA';call gtv(trim(nm),tksw(prgn,nm),lfoca(j),
      .    def_i4=i0,cindx=jj,note='FOCA switch 0, 1 or 2 (see docs)')
 C       call snot
-        nm='SPEC_ATOM_KMXA'; call gtv(trim(nm),tksw(prgn,nm),
+          nm='SPEC_ATOM_KMXA'; call gtv(trim(nm),tksw(prgn,nm),
      .    kmxt(j),def_i4=3,cindx=jj,note=
      .    'k-cutoff for projection of wave functions in sphere.')
 C       Cannot set default here: need set after rescaling of rmt
 C       xx = 0.40d0*rmt(j); if (io_help .eq. 1) xx = NULLI
-        xx = 0d0; if (io_help .eq. 1) xx = NULLI
-        nm='SPEC_ATOM_RSMA'; call gtv(trim(nm),tksw(prgn,nm),rsma(j),
+          xx = 0d0; if (io_help .eq. 1) xx = NULLI
+          nm='SPEC_ATOM_RSMA'; call gtv(trim(nm),tksw(prgn,nm),rsma(j),
      .    def_r8=xx,cindx=jj,note=
      .    'Smoothing for projection of wave functions in sphere.'//
      .    '%N%3finput<0 => choose default * -input')
 
 C       Cannot set default here: need set after rescaling of rmt
 C       xx = 0.25d0*rmt(j); if (io_help .eq. 1) xx = NULLI
-        xx = 0d0; if (io_help .eq. 1) xx = NULLI
-        nm='SPEC_ATOM_RSMG'; call gtv(trim(nm),tksw(prgn,nm),rg(j),
+          xx = 0d0; if (io_help .eq. 1) xx = NULLI
+          nm='SPEC_ATOM_RSMG'; call gtv(trim(nm),tksw(prgn,nm),rg(j),
      .    def_r8=xx,cindx=jj,note=
      .    'Smoothing for projection of charge in sphere.'//
      .    '%N%3finput<0 => choose default * -input')
 C       Cannot set default here: need set after rescaling of rmt
 C       xx = 0.40d0*rmt(j); if (io_help .eq. 1) xx = NULLI
-        xx = 0d0; if (io_help .eq. 1) xx = NULLI
-        nm='SPEC_ATOM_RFOCA'; call gtv(trim(nm),tksw(prgn,nm),rfoca(j),
+          xx = 0d0; if (io_help .eq. 1) xx = NULLI
+          nm='SPEC_ATOM_RFOCA'; call gtv(trim(nm),tksw(prgn,nm),rfoca(j),
      .    def_r8=xx,cindx=jj,note=
      .   'Smoothing for core tail.  input<0 => choose default * -input')
 C       Cannot set default here: need set after rescaling of rmt
 C       xx = 0.50d0*rmt(j); if (io_help .eq. 1) xx = NULLI
-        xx = 0d0; if (io_help .eq. 1) xx = NULLI
-        nm='SPEC_ATOM_RSMFA'; call gtv(trim(nm),tksw(prgn,nm),rsmfa(j),
+          xx = 0d0; if (io_help .eq. 1) xx = NULLI
+          nm='SPEC_ATOM_RSMFA'; call gtv(trim(nm),tksw(prgn,nm),rsmfa(j),
      .    def_r8=xx,cindx=jj,note=
      .   'Smoothing for free atom.  input<0 => choose default * -input')
-        nm='SPEC_ATOM_RCFA'; call gtv(trim(nm),tksw(prgn,nm),rcfa(1:2,j)
+          nm='SPEC_ATOM_RCFA'; call gtv(trim(nm),tksw(prgn,nm),rcfa(1:2,j)
      .    ,def_r8v=zerov,nmin=2,cindx=jj,note=
      .    'Cutoff radius for renormalization of free atom density.'//
      .    '%N%3fOptional 2nd argument = width'//
      .    '%N%3fRCFA<0 => renormalize potential instead of density')
 
 C       Negative radii: convert to actual numbers
-        if (rg(j)    .lt. 0) rg(j)    = -rg(j)*0.25d0*rmt(j)
-        if (rsma(j)  .lt. 0) rsma(j)  = -rsma(j)*0.4d0*rmt(j)
-        if (rfoca(j) .lt. 0) rfoca(j) = -rfoca(j)*0.4d0*rmt(j)
-        if (rsmfa(j) .lt. 0) rsmfa(j) = -rsmfa(j)*0.5d0*rmt(j)
+          if (rg(j)    .lt. 0) rg(j)    = -rg(j)*0.25d0*rmt(j)
+          if (rsma(j)  .lt. 0) rsma(j)  = -rsma(j)*0.4d0*rmt(j)
+          if (rfoca(j) .lt. 0) rfoca(j) = -rfoca(j)*0.4d0*rmt(j)
+          if (rsmfa(j) .lt. 0) rsmfa(j) = -rsmfa(j)*0.5d0*rmt(j)
 
-        nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgn,nm),rs3(j),
+          nm='SPEC_ATOM_RS3'; call gtv(trim(nm),tksw(prgn,nm),rs3(j),
      .    def_r8=1d0,cindx=jj,
      .    note='Minimum smoothing radius for local orbital')
 
@@ -1505,86 +1505,86 @@ cC       All other cases: default is 1
 c        else
           nn = 1
 c        endif
-        nm='SPEC_ATOM_IDXDN'; call gtv(trim(nm),tksw(prgn,nm),
+          nm='SPEC_ATOM_IDXDN'; call gtv(trim(nm),tksw(prgn,nm),
      .    idxdn(1:nlbj,j),nmin=nlbj,
      .    def_i4v=(/(nn,i=1,nlbj)/),cindx=jj,
      .    note='downfolding index: 0, auto; 1, no dnf; 2, fold down;'//
      .    ' 3, neglect')
 
 C       'Hard Core' radius entering into strux
-        nm='SPEC_ATOM_HCR'; call gtv(trim(nm),tksw(prgn,nm),
+          nm='SPEC_ATOM_HCR'; call gtv(trim(nm),tksw(prgn,nm),
      .    hcr(1:nlbj,j),nmin=nlbj,cindx=jj,nout=nout,or=T,
      .    note='Hard sphere radii for structure constants')
-        if (nout == 0) then !nout=-1 if sw=2; otherwise nout=0 unless data was read
-          nm='SPEC_ATOM_HCR/R'; call gtv(trim(nm),tksw(prgn,nm),
+          if (nout == 0) then !nout=-1 if sw=2; otherwise nout=0 unless data was read
+            nm='SPEC_ATOM_HCR/R'; call gtv(trim(nm),tksw(prgn,nm),
      .      hcr(1:nlbj,j),nmin=nlbj,cindx=jj,nout=nout,
      .      def_r8v=(/(0.7d0,I=1,n0)/),note=
      .      'Hard sphere radii for structure constants, units of R')
-          call dscal(nout,rmt(j),hcr(1,j),1)
-        endif
+            call dscal(nout,rmt(j),hcr(1,j),1)
+          endif
 
 cccccccccccccccccccccctakao
-      if(debug) print *,'nspec eee mxcst j-loop j nspec',j,nspec
+          if(debug) print *,'nspec eee mxcst j-loop j nspec',j,nspec
 
 C       ASA tight-binding alpha parameters
-        call dpzero(xv,n0)
-        lp1 = nlbj
-        nm='SPEC_ATOM_ALPHA'; sw=tksw(prgn,nm)
+          call dpzero(xv,n0)
+          lp1 = nlbj
+          nm='SPEC_ATOM_ALPHA'; sw=tksw(prgn,nm)
 C       Set default values; poke into xv
-        if (sw /= 2) then
+          if (sw /= 2) then
 C       Help mode, default -> unknown
-        if (io_help == 1) then
-          xv(1) = NULLI
-        else
+            if (io_help == 1) then
+              xv(1) = NULLI
+            else
 C         Determine effective 1+lmxb: neglected orbitals => reduce lmxb
-          if (tksw(prgn,'SPEC_ATOM_IDXDN') /= 2) then
-   75       if (lp1 .gt. 1 .and. idxdn(lp1,j) .ge. 4) then
-              lp1 = lp1-1
-              goto 75
+              if (tksw(prgn,'SPEC_ATOM_IDXDN') /= 2) then
+   75           if (lp1 .gt. 1 .and. idxdn(lp1,j) .ge. 4) then
+                  lp1 = lp1-1
+                  goto 75
+                endif
+              endif
+              call dcopy(5,tbalph(1,lp1),1,xv,1)
             endif
           endif
-          call dcopy(5,tbalph(1,lp1),1,xv,1)
-        endif
-        endif
 
-        i0 = lp1
-        if (lmxbj == NULLI) i0 = NULLI
+          i0 = lp1
+          if (lmxbj == NULLI) i0 = NULLI
 C       Copy all 5 screening parameters, to avoid division zero
-        call dcopy(5,tbalph(1,lp1),1,alpha(1,j),1)
-        call gtv(trim(nm),sw,alpha(1:lp1,j),cindx=jj,nmin=i0,
+          call dcopy(5,tbalph(1,lp1),1,alpha(1,j),1)
+          call gtv(trim(nm),sw,alpha(1:lp1,j),cindx=jj,nmin=i0,
      .   def_r8v=xv,note='Screening parameters for structure constants')
 
-        nm='SPEC_ATOM_IDMOD'; call gtv(trim(nm),tksw(prgn,nm),
+          nm='SPEC_ATOM_IDMOD'; call gtv(trim(nm),tksw(prgn,nm),
      .    idmod(1:nlaj,j),nmin=nlaji,def_i4v=(/(0,i=1,n0)/),
      .    cindx=jj,note=
      .    'idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu')
 
-        nm='SPEC_ATOM_DV'; call gtv(trim(nm),tksw(prgn,nm),dv(j),
+          nm='SPEC_ATOM_DV'; call gtv(trim(nm),tksw(prgn,nm),dv(j),
      .    def_r8=0d0,cindx=jj,note='Artificial constant potential '//
      .    'shift added to spheres belonging to this species')
 ccccccccccccccc
 c        mxcst1(j)=F
 ccccccccccccccc
-        nm='SPEC_ATOM_MIX'; call gtv(trim(nm),tksw(prgn,nm),mxcst1(j),
+          nm='SPEC_ATOM_MIX'; call gtv(trim(nm),tksw(prgn,nm),mxcst1(j),
      .    def_lg=F,cindx=jj,note='Set to suppress '//
      .    'self-consistency of classes in this spec')
 ccccccccccccccccccccccccc
-        if(debug) print *,' mxcst nspec 111 =',nspec,j,jj,mxcst1(j)
+          if(debug) print *,' mxcst nspec 111 =',nspec,j,jj,mxcst1(j)
 c        stop 'xxxxxxxxxxxx'
 ccccccccccccccccccccccccc
-        nm='SPEC_ATOM_CSTRMX'; call gtv(trim(nm),tksw(prgn,nm),
+          nm='SPEC_ATOM_CSTRMX'; call gtv(trim(nm),tksw(prgn,nm),
      .    mxcst2(j),cindx=jj,def_lg=F,note='Set to exclude this'//
      .    ' species when automatically resizing sphere radii'//
      .    ' (SCLWSR>0)')
-        if (sclwsr .eq. 0) mxcst2(j) = F
+          if (sclwsr .eq. 0) mxcst2(j) = F
 
-        nm='SPEC_ATOM_FRZWF'; call gtv(trim(nm),tksw(prgn,nm),
+          nm='SPEC_ATOM_FRZWF'; call gtv(trim(nm),tksw(prgn,nm),
      .    mxcst4(j),cindx=jj,def_lg=F,note=
      .    'Set to freeze augmentation wave functions for this species')
 
-      endif    ! end of input dependent on presence of aug sphere.
+        endif    ! end of input dependent on presence of aug sphere.
 cccccccccccccccccccccctakao
-      if(debug) print *,'nspec eee222 mxcst j-loop j nspec',j,nspec
+        if(debug) print *,'nspec eee222 mxcst j-loop j nspec',j,nspec
 
         nm='SPEC_ATOM_RHAM'; call gtv(trim(nm),tksw(prgn,nm),rham(j),
      .    cindx=jj,note='Radius delimiting range of r.s. hamiltonian')
@@ -1779,9 +1779,9 @@ C      if (io_help /= 0 .or. io_show>0) write(stdo,'(1x)')
 C      call gtv(trim(nm),sw,Texist=ltmp,note='Site-specific parameters')
 
       if (io_help .eq. 1) then
-         nbas = 1
-         nsite =2
-       endif
+        nbas = 1
+        nsite =2
+      endif
       allocate(pos(3,nsite),vel(3,nsite),eula(3,nsite),vshft(nsite),
      .  ips(nsite),ipl(nsite),plv(nsite),irlx(3,nsite),
      .  mpole(nsite),dpole(3,nsite))
@@ -1954,26 +1954,26 @@ C
 C ... Input for point multipoles
       sw = tksw(prgn,'SITE_PM')
       if (sw .lt. 2) then
-      if (io_help == 1) nbasp=nbas+1
-      if (nbasp .gt. nbas) then
-        if (io_show>0) write
+        if (io_help == 1) nbasp=nbas+1
+        if (nbasp .gt. nbas) then
+          if (io_show>0) write
      .    (stdo,'(/'' The following input is for point multipoles:'')')
-        do j = nbas+1, nbasp
+          do j = nbas+1, nbasp
 
-          jj=(/1,j-nbas/)
+            jj=(/1,j-nbas/)
 C          nm='SITE_PM_POS'; call gtv(trim(nm),tksw(prgn,nm),pos(:,j),
 C     .      nout=nout,cindx=jj,note='PM coordinates, in units of alat')
 
-          nm='SITE_PM_POS'; call gtv(trim(nm),tksw(prgn,nm),pos(:,j),
+            nm='SITE_PM_POS'; call gtv(trim(nm),tksw(prgn,nm),pos(:,j),
      .      cindx=jj,note='PM coordinates, in units of alat')
 
-          nm='SITE_PM_Q'; call gtv(trim(nm),tksw(prgn,nm),mpole(j),
+            nm='SITE_PM_Q'; call gtv(trim(nm),tksw(prgn,nm),mpole(j),
      .      def_r8=0d0,cindx=jj,note='Point monopole moment')
 
-          nm='SITE_PM_P'; call gtv(trim(nm),tksw(prgn,nm),dpole(:,j),
+            nm='SITE_PM_P'; call gtv(trim(nm),tksw(prgn,nm),dpole(:,j),
      .      def_r8v=zerov,cindx=jj,note='Point dipole moment')
-        enddo
-      endif
+          enddo
+        endif
       endif
 
    89 continue
@@ -2189,78 +2189,78 @@ C --- Ewald sums ---
 C --- Iterations (formerly MIX) ---
       vmix%b = NULLI           ! Not set
       if (tksw(prgn,'ITER')/=2) then
-      if (io_show+io_help/=0)
+        if (io_show+io_help/=0)
      .  call info0(1,1,0,' --- Parameters for iterations ---')
 C     Default values for smix (array has same same structure as lstra smix)
-      call umix_init(vmix) 
-      vmix%b = 1               ! beta
-      vmix%bv = 1               ! bv
+        call umix_init(vmix)
+        vmix%b = 1               ! beta
+        vmix%bv = 1               ! bv
 C     vmix%elind =  0              ! elind
-      call s8tor8('mixm',vmix%fn) ! file name
-      vmix%kill =  0              ! nkill
-      vmix%lxpot =  0              ! lxpot
-      vmix%mmix = -1              ! mmix
-      vmix%mode = 0              ! mode (0=Anderson)
+        call s8tor8('mixm',vmix%fn) ! file name
+        vmix%kill =  0              ! nkill
+        vmix%lxpot =  0              ! lxpot
+        vmix%mmix = -1              ! mmix
+        vmix%mode = 0              ! mode (0=Anderson)
 C     vmix%model = 0              ! model = previous mixing mode
 C     vmix%n = 0              ! n     = Number of iterations for this species
 C     vmix%nitu = 1              ! nitu  = max number of LDA+U iterations
 C     vmix%nmix = 1              ! nmix  = actual number mixed
-      vmix%nsave = 8              ! nsave = # iter to save on disk
-      call s8tor8(' ',vmix%r) ! expression for rmscst
-      vmix%tolu = 0              ! tolu
-      vmix%umix = 1              ! umix (mixing parm for LDA+U)
-      vmix%w(1) = 1              ! w(1)
-      vmix%w(2) = 1              ! w(2)
-      vmix%wc = -1             ! wc
-      smalit = NULLI
+        vmix%nsave = 8              ! nsave = # iter to save on disk
+        call s8tor8(' ',vmix%r) ! expression for rmscst
+        vmix%tolu = 0              ! tolu
+        vmix%umix = 1              ! umix (mixing parm for LDA+U)
+        vmix%w(1) = 1              ! w(1)
+        vmix%w(2) = 1              ! w(2)
+        vmix%wc = -1             ! wc
+        smalit = NULLI
 c      call dcopy(37,smix,1,samix,1)
-      vamix = vmix 
-      call s8tor8('mixa',vamix%fn) ! file name
+        vamix = vmix
+        call s8tor8('mixa',vamix%fn) ! file name
 
-      nm='ITER_NIT';call gtv(trim(nm),tksw(prgn,nm),iter_maxit,
+        nm='ITER_NIT';call gtv(trim(nm),tksw(prgn,nm),iter_maxit,
      .  def_i4=30,
      .  note='maximum number of iterations in self-consistency cycle')
 
-      nm='ITER_NRMIX'; call gtv(trim(nm),tksw(prgn,nm),smalit,
+        nm='ITER_NRMIX'; call gtv(trim(nm),tksw(prgn,nm),smalit,
      .  def_i4v=(/80,2/),note='Sphere program, (1) max iter; '//
      .  '(2) no. prior iter for Anderson mixing ')
 
-      nm='ITER_MIX'; sw=tksw(prgn,nm); call gtv(trim(nm),sw,iter_mix,
+        nm='ITER_MIX'; sw=tksw(prgn,nm); call gtv(trim(nm),sw,iter_mix,
      .nmin=10,nout=nout,note='Mixing rules for charge mixing.  Syntax:')
-      if (io_help/=0 .and. tksw(prgn,nm)/=2) print 345
-  345 format(3x,
+        if (io_help/=0 .and. tksw(prgn,nm)/=2) print 345
+  345   format(3x,
      .'A[nmix][,b=beta][,bv=betv][,n=nit][,w=w1,w2][,nam=fn][,k=nkill]',
      .  '[;...]  or'/
      .3x,'B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn]',
      .  '[,k=nkill]')
 C ... Sanity check and printout
-      if (nout==1 .and. io_help==0 .and. sw/=2) then
-        call r8tos8(vmix%fn,alabl)
-        if (io_show==0) call pshpr(0)
-        if (.not. parmxp(-1,iter_mix,len_trim(iter_mix),
+        if (nout==1 .and. io_help==0 .and. sw/=2) then
+          call r8tos8(vmix%fn,alabl)
+          if (io_show==0) call pshpr(0)
+          if (.not. parmxp(-1,iter_mix,len_trim(iter_mix),
      .    int(vmix%mode),int(vmix%nmix),vmix%w(1),vmix%b,vmix%elind,
-     .    alabl,vmix%wc,vmix%kill,vmix%bv,xx)) then 
+     .    alabl,vmix%wc,vmix%kill,vmix%bv,xx)) then
+            if (io_show==0) call poppr
+            call rx( 'RDCCAT: parse in parmxp failed 1')
+          endif
           if (io_show==0) call poppr
-          call rx( 'RDCCAT: parse in parmxp failed 1')
         endif
-        if (io_show==0) call poppr
-      endif
 
-      nm='ITER_AMIX'; sw=tksw(prgn,nm); call gtv(trim(nm),sw,iter_amix,
+        nm='ITER_AMIX'; sw=tksw(prgn,nm); call gtv(trim(nm),sw,iter_amix,
      .  nmin=10,nout=nout,note=
      .  'Mixing rules for Euler angles.  Syntax as in MIX')
 C ... Sanity check and printout
-      if (nout==1 .and. io_help==0 .and. sw/=2) then
-        call r8tos8(vamix%fn,alabl)
-        if (io_show==0) call pshpr(0)
-        if (.not. parmxp(-1,iter_amix,len_trim(iter_amix),
+        if (nout==1 .and. io_help==0 .and. sw/=2) then
+          call r8tos8(vamix%fn,alabl)
+          if (io_show==0) call pshpr(0)
+          if (.not. parmxp(-1,iter_amix,len_trim(iter_amix),
      .   int(vamix%mode),int(vamix%nmix),vamix%w(1),vamix%b,vamix%elind,
      .    alabl,vamix%wc,vamix%kill,vamix%bv,xx)) then
+            if (io_show==0) call poppr
+            call rx('READCTRL: parse in parmxp failed 2')
+          endif
           if (io_show==0) call poppr
-          call rx('READCTRL: parse in parmxp failed 2')
         endif
-        if (io_show==0) call poppr
-      endif
 
 c      if (prgn /= 'LMMC') then
         nm='ITER_CONV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(3),
@@ -2270,7 +2270,7 @@ c      if (prgn /= 'LMMC') then
      .    def_r8=1d-4,note='Tolerance in output-input charge for'//
      .    ' self-consistency')
 c      else
-cC ... CONV and CONVC are stored in the opposite order in LMMC  
+cC ... CONV and CONVC are stored in the opposite order in LMMC
 c        nm='ITER_CONV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(1),
 c     .    def_r8=1d-4,note='Tolerance in energy change from prior'//
 c     .    ' iteration for self-consistency')
@@ -2284,26 +2284,26 @@ c    .    ' for self-consistency')
 c       nm='ITER_QTOLI'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(3),
 c    .    def_r8=1d-4,note='Tolerance in interstitial charge'//
 c    .    ' for self-consistency')
-c      endif 
+c      endif
 
-      i0 = 0
-      nm='ITER_XIPMX'; call gtv(trim(nm),tksw(prgn,nm),i0,def_i4=0,
+        i0 = 0
+        nm='ITER_XIPMX'; call gtv(trim(nm),tksw(prgn,nm),i0,def_i4=0,
      .  nout=nout,note='Mix potential independently of charge:'//
      .  '%N%3fXIPMX=1: mix vin and v(qmix)'//
      .  '%N%3fXIPMX=2: mix vin and v(qout)')
-      if (nout .gt. 0) then
-        call isanrg(i0,0,3,'rdctrl','XIPMX',T)
-        if (i0 .gt. 0) lves = 1 !it was lves= .true., but this is a bug . sctrl/lves is integer(8).
-      endif
-      vmix%lxpot = i0
+        if (nout .gt. 0) then
+          call isanrg(i0,0,3,'rdctrl','XIPMX',T)
+          if (i0 .gt. 0) lves = 1 !it was lves= .true., but this is a bug . sctrl/lves is integer(8).
+        endif
+        vmix%lxpot = i0
 
-      nm='ITER_UMIX'; call gtv(trim(nm),tksw(prgn,nm),vmix%umix,
+        nm='ITER_UMIX'; call gtv(trim(nm),tksw(prgn,nm),vmix%umix,
      .  def_r8=1d0,note='Mixing parameter for densmat in LDA+U')
-      nm='ITER_TOLU'; call gtv(trim(nm),tksw(prgn,nm),vmix%tolu,
+        nm='ITER_TOLU'; call gtv(trim(nm),tksw(prgn,nm),vmix%tolu,
      .  def_r8=0d0,note='Tolerance for densmat in LDA+U')
-      nm='ITER_NITU'; call gtv(trim(nm),tksw(prgn,nm),i0,
+        nm='ITER_NITU'; call gtv(trim(nm),tksw(prgn,nm),i0,
      .  def_i4=0,note='Max number of LDA+U iterations of densmat')
-      vmix%nitu = i0
+        vmix%nitu = i0
 
       endif                     ! iterations category
 
@@ -2447,7 +2447,7 @@ C --- Dynamics ---
         nm='DYN_SSTAT_SCALE'; call gtv(trim(nm),tksw(prgn,nm),sdprm(1),
      .    def_r8=1d0,note='Scale factor amplifying magnetic forces')
         if (io_help .ne. 0 .or. mod(sdmod,10) .eq. 2) then
-        nm='DYN_SSTAT_TAU'; call gtv(trim(nm),tksw(prgn,nm),sdprm(2),
+          nm='DYN_SSTAT_TAU'; call gtv(trim(nm),tksw(prgn,nm),sdprm(2),
      .    note=
      .   'Time step (only read if Landau-Gilbert dynamics specified)')
         endif
@@ -2462,65 +2462,65 @@ c      lncol16 = sdmod .ge. 0
      .  note='Parameters for molecular statics')
       mdprm(1) = 0
       if (io_help .ne. 0 .or. ltmp) then
-      nm='DYN_MSTAT_MODE'; call gtv(trim(nm),tksw(prgn,nm),i0,
+        nm='DYN_MSTAT_MODE'; call gtv(trim(nm),tksw(prgn,nm),i0,
      .  def_i4=0,note=
      .  '0: no relaxation  '//
      .  '4: conjugate gradients  '//
      .  '5: Fletcher-Powell  '//
      .  '6: Broyden')
-      mdprm(1) = i0
-      nm='DYN_MSTAT_HESS'; call gtv(trim(nm),tksw(prgn,nm),ltmp,
+        mdprm(1) = i0
+        nm='DYN_MSTAT_HESS'; call gtv(trim(nm),tksw(prgn,nm),ltmp,
      .  def_lg=T,note='Read hessian matrix')
-      mdprm(2) = isw(ltmp)
-      nm='DYN_MSTAT_XTOL'; call gtv(trim(nm),tksw(prgn,nm),mdprm(3),
+        mdprm(2) = isw(ltmp)
+        nm='DYN_MSTAT_XTOL'; call gtv(trim(nm),tksw(prgn,nm),mdprm(3),
      .  def_r8=1d-3,note=
      .  'Convergence criterion in displacements'//
      .  '%N%3fXTOL>0: use length;  <0: use max val;  =0: do not use')
-      nm='DYN_MSTAT_GTOL'; call gtv(trim(nm),tksw(prgn,nm),mdprm(4),
+        nm='DYN_MSTAT_GTOL'; call gtv(trim(nm),tksw(prgn,nm),mdprm(4),
      .  def_r8=0d0,note=
      .  'Convergence criterion in gradients'//
      .  '%N%3fGTOL>0: use length;  <0: use max val;  =0: do not use')
-      nm='DYN_MSTAT_STEP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(5),
+        nm='DYN_MSTAT_STEP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(5),
      .  def_r8=0.015d0,note='Initial (and maximum) step length')
-      nm='DYN_MSTAT_NKILL'; call gtv(trim(nm),tksw(prgn,nm),i0,
+        nm='DYN_MSTAT_NKILL'; call gtv(trim(nm),tksw(prgn,nm),i0,
      .  def_i4=0,note='Remove hessian after NKILL iter')
-      mdprm(6) = i0
-      nm='DYN_MSTAT_PDEF'; call gtv(trim(nm),tksw(prgn,nm),lat_defm,
+        mdprm(6) = i0
+        nm='DYN_MSTAT_PDEF'; call gtv(trim(nm),tksw(prgn,nm),lat_defm,
      .  def_r8v=zerov,note='Lattice deformation modes')
       endif
 
 C --- if DYN_MSTAT_MODE < 4 then attempt to read MD ---
       if (mdprm(1) .lt. 4) then
-      nm='DYN_MD'; sw=tksw(prgn,nm)
-      call gtv(trim(nm),sw,nono,Texist=ltmp,
+        nm='DYN_MD'; sw=tksw(prgn,nm)
+        call gtv(trim(nm),sw,nono,Texist=ltmp,
      .  note='Parameters for molecular dynamics')
-      if (io_help .ne. 0 .or. ltmp) then
-      nm='DYN_MD_MODE'; call gtv(trim(nm),tksw(prgn,nm),i0,
+        if (io_help .ne. 0 .or. ltmp) then
+          nm='DYN_MD_MODE'; call gtv(trim(nm),tksw(prgn,nm),i0,
      .  def_i4=0,note=
      .  '0: no MD '//
      .  '1: NVE '//
      .  '2: NVT '//
      .  '3: NPT')
-      mdprm(1) = i0
-      nm='DYN_MD_TSTEP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(2),
+          mdprm(1) = i0
+          nm='DYN_MD_TSTEP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(2),
      .  def_r8=fs,note='Time step (a.u.)')
-      nm='DYN_MD_TEMP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(3),
+          nm='DYN_MD_TEMP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(3),
      .  def_r8=300d0*degK,note='Temperature (a.u.)')
-      nm='DYN_MD_TAUP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(4),
+          nm='DYN_MD_TAUP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(4),
      .  def_r8=10d0*fs,note='Thermostat relaxation time (a.u.)')
-      nm='DYN_MD_TIME'; call gtv(trim(nm),tksw(prgn,nm),mdprm(5),
+          nm='DYN_MD_TIME'; call gtv(trim(nm),tksw(prgn,nm),mdprm(5),
      .  def_r8=1d6*fs,note='Total MD time (a.u.)')
-      nm='DYN_MD_TAUB'; call gtv(trim(nm),tksw(prgn,nm),mdprm(6),
+          nm='DYN_MD_TAUB'; call gtv(trim(nm),tksw(prgn,nm),mdprm(6),
      .  def_r8=100d0*fs,note='Barostat relaxation time (a.u.)')
-      if (tksw(prgn,'DYN_MD') .ne. 2) call info2(10,0,0,
+          if (tksw(prgn,'DYN_MD') .ne. 2) call info2(10,0,0,
      .  ' NB: 1 deg.K = %e a.u.; 1 fs = %d a.u.',degK,fs)
-      endif
-      if (sw .ne. 2 .and. mdprm(1) .gt. 3)
+        endif
+        if (sw .ne. 2 .and. mdprm(1) .gt. 3)
      .  call rx('M_RDCTRL: illegal "MODE" parameter in token "DYN_MD"')
       endif
 
 C Content of mdprm(i)
-C   i = 1: statics/dynamics switch 
+C   i = 1: statics/dynamics switch
 C          0 do neither
 C          1-3 MD (1: NVE, 2: NVT; 3: NPT)
 C          >3 statics (4: conjugate gradients, 5: Fletcher-Powell, 6: Broyden)
@@ -2577,24 +2577,24 @@ C ... Bulirsch-Stoer integration parmaters
       nm='DYN_BSINT'; call gtv(trim(nm),tksw(prgn,nm),nono,
      .  Texist=lbsprm,note='Parameters for Bulirsch-Stoer integration')
       if (io_help .ne. 0 .or. lbsprm) then
-      nm='DYN_BSINT_NEW'; call gtv(trim(nm),tksw(prgn,nm),prmint_new,
+        nm='DYN_BSINT_NEW'; call gtv(trim(nm),tksw(prgn,nm),prmint_new,
      .  def_lg=T,note='Start new SD run, Bulirsch-Stoer integration')
-      nm='DYN_BSINT_TOL'; call gtv(trim(nm),tksw(prgn,nm),prmint_tol,
+        nm='DYN_BSINT_TOL'; call gtv(trim(nm),tksw(prgn,nm),prmint_tol,
      .  note='Tolerance in numerical integration')
-      nm='DYN_BSINT_TS0'; call gtv(trim(nm),tksw(prgn,nm),prmint_ts0,
+        nm='DYN_BSINT_TS0'; call gtv(trim(nm),tksw(prgn,nm),prmint_ts0,
      .  def_r8=0d0,note='Minimum time step in units of TS')
-      nm='DYN_BSINT_MX'; call gtv(trim(nm),tksw(prgn,nm),prmint_mx,
+        nm='DYN_BSINT_MX'; call gtv(trim(nm),tksw(prgn,nm),prmint_mx,
      . def_i4=7,note='Maximum order of rational function extrapolation')
-      nm='DYN_BSINT_MI'; call gtv(trim(nm),tksw(prgn,nm),prmint_mi,
+        nm='DYN_BSINT_MI'; call gtv(trim(nm),tksw(prgn,nm),prmint_mi,
      .  def_i4=11,note='Maximum number of midpoint rules to invoke')
-      nn = prmint_mi
-      if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
-        nn = NULLI
-      else
-        call isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
-      endif
-      if (nout .gt. 0) nn = nout
-      nm='DYN_BSINT_NSEQ'; call gtv(trim(nm),tksw(prgn,nm),
+        nn = prmint_mi
+        if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
+          nn = NULLI
+        else
+          call isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
+        endif
+        if (nout .gt. 0) nn = nout
+        nm='DYN_BSINT_NSEQ'; call gtv(trim(nm),tksw(prgn,nm),
      .  prmint_nseq(1:max(1,nn)),
      .  nmin=nn,def_i4v=(/2,4,6,8,12,16,24,32,48,64,96/),
      .  note='Sequence of number of midpoint divisions')
@@ -2687,9 +2687,9 @@ Co Outputs
 Cl Local variables
 Cl         :
 Cr Remarks
-Cr   
+Cr
 Cu Updates
-Cu   17 Oct 07 
+Cu   17 Oct 07
 C ----------------------------------------------------------------------
       use m_toksw
       use m_gtv
@@ -2760,7 +2760,7 @@ C         call info(1,0,0,' ... Site %i',j,0)
           j = 0
           cycle
         endif
-          
+
         if (io_help == 0) then
           ic = 0
           do  i = 1, nclasp
@@ -2795,21 +2795,21 @@ C       Copy to pnu, spins separately in case nlja<nl
      .    call dcopy(nlaj,xv(1+nlaj),1,pnu(1,2,ic),1)
 C         Fill in values for l>lmxa
           if (.not. cmdopt('--keepnu',8,0,nm)) then
-          call config(pnu(1,1,ic),-1,z(ic),iv,n)
-          do  i = 1, nsp
-          do  lp1 = 1, nl
-            ii = iv(lp1)
-            xx = pnu(lp1,i,ic)
+            call config(pnu(1,1,ic),-1,z(ic),iv,n)
+            do  i = 1, nsp
+              do  lp1 = 1, nl
+                ii = iv(lp1)
+                xx = pnu(lp1,i,ic)
 C           If P=0, use free-electron value
-            if (xx .eq. 0) then
-              xx = ii + 0.5d0 - datan(dble(lp1-1))/pi
+                if (xx .eq. 0) then
+                  xx = ii + 0.5d0 - datan(dble(lp1-1))/pi
 C           If fractional part only, add integer part
-            elseif (xx .lt. 1) then
-              xx = xx + ii 
-            endif
-            pnu(lp1,i,ic) = xx
-          enddo
-          enddo
+                elseif (xx .lt. 1) then
+                  xx = xx + ii
+                endif
+                pnu(lp1,i,ic) = xx
+              enddo
+            enddo
           endif
         endif
 
@@ -2910,7 +2910,7 @@ Cdelw1 w_varlist (del), remains: (None)
 
 
       subroutine toksw_init(debug)
-C- Declares program-specific tokens 
+C- Declares program-specific tokens
       use m_toksw
 C     implicit none
       character*(200):: io_sw, struc_sw
@@ -3026,7 +3026,7 @@ C      call tkadd(" DYN_PDEF~")
 
 c This call tkadd(" SPEC_ATOM_MIX~") was missing,
 c then the initialization of default values for mxcst are not supplied
-c   --->this results in a strange behevior!!  
+c   --->this results in a strange behevior!!
 c takao Sep11-tukuba 2009
       call tkadd(" SPEC_ATOM_MIX~")
 
@@ -3227,7 +3227,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" SPEC_ATOM_Z")
 c This call tkadd(" SPEC_ATOM_MIX~") was missing,
 c then the initialization of default values for mxcst are not supplied
-c   --->this results in a strange behevior!!  
+c   --->this results in a strange behevior!!
 c takao Sep11-tukuba 2009
       call tkadd(" SPEC_ATOM_MIX~")
 C ... for LMFRS

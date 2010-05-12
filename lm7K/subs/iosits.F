@@ -2,8 +2,8 @@ Cgetarg...info...           structure ['iosits', 'site', 'ssite']
 Cgetarg...info...           use_to_add ['iosits', 'm_struc_def']
       integer function iosits(lio,vn,errh,filnam,ifi,slabl,alat,plat,
      .  nbas,nspec,sspec,ssite)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- File I/O of site data into ssepc and ssite strux
 C ----------------------------------------------------------------
@@ -19,7 +19,7 @@ Ci           2    file plat must match passed array
 Ci           4    file nbas must match passed value
 Ci           8    Must read nbas data elements from file
 Ci          16    version-id must match file
-Ci         10s-100s digit: (file write) 
+Ci         10s-100s digit: (file write)
 Ci           1    write site positions as multiples of plat
 Ci        1000s to 10000s digit: bits indicate what info is read in
 Ci           1    I/O alat
@@ -134,9 +134,9 @@ C ... Passed parameters
       character*8 slabl(1)
       character*(*) filnam
 Cgetarg       double precision sspec(1),alat,plat(3,3),vn,ssite(1)
-       real(8):: alat , plat(3,3) , vn 
-       type(s_spec)::sspec(*)
-       type(s_site)::ssite(*)
+      real(8):: alat , plat(3,3) , vn
+      type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
 
 C ... Local parameters
 #if MPI | MPIK
@@ -209,24 +209,24 @@ Cgetarg...info...           real(8) :: vell(3) , real(8) :: ssite%vel 3
 Cgetarg...info...           real(8) :: eulal(3) , real(8) :: ssite%eula 3
 Cgetarg           call upack('site spec pos vel eula',ssite,ib,is,posl,vell,
 Cgetarg      .      eulal)
-           
-           is=ssite(ib)%spec
-           i_copy_size=size(ssite(ib)%pos) 
-           call dcopy(i_copy_size,ssite(ib)%pos,1,posl,1) 
-           i_copy_size=size(ssite(ib)%vel) 
-           call dcopy(i_copy_size,ssite(ib)%vel,1,vell,1) 
-           i_copy_size=size(ssite(ib)%eula) 
-           call dcopy(i_copy_size,ssite(ib)%eula,1,eulal,1) 
+
+          is=ssite(ib)%spec
+          i_copy_size=size(ssite(ib)%pos)
+          call dcopy(i_copy_size,ssite(ib)%pos,1,posl,1)
+          i_copy_size=size(ssite(ib)%vel)
+          call dcopy(i_copy_size,ssite(ib)%vel,1,vell,1)
+          i_copy_size=size(ssite(ib)%eula)
+          call dcopy(i_copy_size,ssite(ib)%eula,1,eulal,1)
 
 Cgetarg...info...           integer :: ipll , integer(8) :: ssite%pl 1
 Cgetarg...info...           integer :: irlx(3) , integer(8) :: ssite%relax 3
 Cgetarg...info...           real(8) :: vshftl , real(8) :: ssite%vshft 1
 Cgetarg           call upack('site pl relax vshft',ssite,ib,ipll,irlx,vshftl,0)
-           
-           ipll=ssite(ib)%pl
-           i_copy_size=size(ssite(ib)%relax) 
-           call i8icopy(i_copy_size,ssite(ib)%relax,1,irlx,1) 
-           vshftl=ssite(ib)%vshft
+
+          ipll=ssite(ib)%pl
+          i_copy_size=size(ssite(ib)%relax)
+          call i8icopy(i_copy_size,ssite(ib)%relax,1,irlx,1)
+          vshftl=ssite(ib)%vshft
 
           if (lxpos) then
             call dcopy(3,posl,1,plx,1)
@@ -248,10 +248,10 @@ C         Write tbe data
 Cgetarg...info...           integer :: ndel , integer(8) :: ssite%ndelta 1
 Cgetarg...info...           real(8) :: delta(6) , real(8) :: ssite%delta 6
 Cgetarg             call upack('site ndelta delta',ssite,ib,ndel,delta,0,0)
-             
-             ndel=ssite(ib)%ndelta
-             i_copy_size=size(ssite(ib)%delta) 
-             call dcopy(i_copy_size,ssite(ib)%delta,1,delta,1) 
+
+            ndel=ssite(ib)%ndelta
+            i_copy_size=size(ssite(ib)%delta)
+            call dcopy(i_copy_size,ssite(ib)%delta,1,delta,1)
 
             call awrit1(' tbe:%9p%6:1;9F',' ',80,ifi,delta)
           endif
@@ -265,247 +265,247 @@ Cgetarg             call upack('site ndelta delta',ssite,ib,ndel,delta,0,0)
 
 C --- File read ---
       else
-      if (procid .eq. master) then
-        ib = 0
-        readin = 'header'
-        call getpr(ipr)
-        nr = 0
-        call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
+        if (procid .eq. master) then
+          ib = 0
+          readin = 'header'
+          call getpr(ipr)
+          nr = 0
+          call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
      .    ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
-        if (nr .eq. 0) goto 99
+          if (nr .eq. 0) goto 99
 
 C   ... Check for alternative formats
-        j1 = 0
-        if (.not. parstr(a,'vn=',len(a)-3,3,'=',j1,j2)) goto 98
-        if (a(j1:j1) .ne. ' ') goto 40
-        call nword(a,1,j1,j2)
-        i = 0
-        if (.not. parstr(a(j1+3:),'kotani',j2-j1-6,6,'=',i,j)) goto 40
+          j1 = 0
+          if (.not. parstr(a,'vn=',len(a)-3,3,'=',j1,j2)) goto 98
+          if (a(j1:j1) .ne. ' ') goto 40
+          call nword(a,1,j1,j2)
+          i = 0
+          if (.not. parstr(a(j1+3:),'kotani',j2-j1-6,6,'=',i,j)) goto 40
 
 C   --- File read, Kotani's format : no algebraic expressions ---
-        llio345 = 15
-        read(ifi,*) alatx
-        if (bittst(lio345,1)) alat = alatx
-        if (bittst(lio12,1)) then
-          call fsanrg(alatx,alat,alat,1d-6,'iosits:','alat',.true.)
-        endif
+          llio345 = 15
+          read(ifi,*) alatx
+          if (bittst(lio345,1)) alat = alatx
+          if (bittst(lio12,1)) then
+            call fsanrg(alatx,alat,alat,1d-6,'iosits:','alat',.true.)
+          endif
 
 C   ... Read plat
-        read(ifi,*,err=98,end=98) plx(1),plx(2),plx(3)
-        read(ifi,*,err=98,end=98) plx(4),plx(5),plx(6)
-        read(ifi,*,err=98,end=98) plx(7),plx(8),plx(9)
-        if (bittst(lio345,2)) call dcopy(9,plx,1,plat,1)
-        if (bittst(lio12,2)) then
-          call daxpy(9,-1d0,plat,1,plx,1)
-          if (ddot(9,plx,1,plx,1) .gt. 1d-14) goto 99
-        endif
+          read(ifi,*,err=98,end=98) plx(1),plx(2),plx(3)
+          read(ifi,*,err=98,end=98) plx(4),plx(5),plx(6)
+          read(ifi,*,err=98,end=98) plx(7),plx(8),plx(9)
+          if (bittst(lio345,2)) call dcopy(9,plx,1,plat,1)
+          if (bittst(lio12,2)) then
+            call daxpy(9,-1d0,plat,1,plx,1)
+            if (ddot(9,plx,1,plx,1) .gt. 1d-14) goto 99
+          endif
 
 C   ... Read nbas.  Find indirectly by counting lines.
 C       First char = `#' => comment line
-        if (bittst(lio345,4)) then
+          if (bittst(lio345,4)) then
 C         i = 0
-          nbasl = 0
-   31     continue
-          if (rdstrn(ifi,a,recl,.false.)) then
+            nbasl = 0
+   31       continue
+            if (rdstrn(ifi,a,recl,.false.)) then
 C           Skip comment lines
-            if (a(1:1) .eq. '#') goto 31
+              if (a(1:1) .eq. '#') goto 31
 C           Formatted read ibas as a float, for portability
-            call word(a,1,j1,j2)
-            read(a(j1:j2),'(E72.0)',err=98) alatx
+              call word(a,1,j1,j2)
+              read(a(j1:j2),'(E72.0)',err=98) alatx
 C           Error unless ibas is an integer
-            ib = alatx
-            if (dble(ib)-alatx .ne. 0) goto 98
+              ib = alatx
+              if (dble(ib)-alatx .ne. 0) goto 98
 C           Keep track of largest value of ib
 C           i = max(i,ib)
-            nbasl = nbasl+1
+              nbasl = nbasl+1
 C           For now, sites must be ordered
-            if (ib .ne. nbasl) goto 98
-            goto 31
-          endif
-          if (bittst(lio345,4)) nbas = nbasl
-          if (bittst(lio12,4))
+              if (ib .ne. nbasl) goto 98
+              goto 31
+            endif
+            if (bittst(lio345,4)) nbas = nbasl
+            if (bittst(lio12,4))
      .      call isanrg(nbasl,nbas,nbas,'iosits:','file''s nbas',.true.)
 C         file pointer now at EOF.  Restore position
-          rewind ifi
-          nr = 0
-          call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
+            rewind ifi
+            nr = 0
+            call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
      .      ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
-          do  i = 1, 4
-            ltmp = rdstrn(ifi,a,len(a),.false.)
-          enddo
-        endif
+            do  i = 1, 4
+              ltmp = rdstrn(ifi,a,len(a),.false.)
+            enddo
+          endif
 
 C  ...  Read site data, Kotani format
-        if (lio345 .ge. 8) then
-        do  ib = 1, nbas
-          if (.not. rdstrn(ifi,a,len(a),.false.)) goto 98
+          if (lio345 .ge. 8) then
+            do  ib = 1, nbas
+              if (.not. rdstrn(ifi,a,len(a),.false.)) goto 98
 C         First and second columns (site and class index) ignored
-          call word(a,3,j1,j2)
+              call word(a,3,j1,j2)
 C         Column 3 is species index
-          spid = ' '
-          read(a(j1:j2),'(a)',err=98,end=98) spid
-          call tokmat(spid,slabl,nspec,8,' ',is,j,.false.)
-          is = is+1
+              spid = ' '
+              read(a(j1:j2),'(a)',err=98,end=98) spid
+              call tokmat(spid,slabl,nspec,8,' ',is,j,.false.)
+              is = is+1
 C         Error if species not found in list
-          if (is .le. 0) goto 98
+              if (is .le. 0) goto 98
 C         Columns 4-6 are site position
-          read(a(j2+1:),*,err=98,end=98) posl
-          call dpzero(vell,3)
-          call dpzero(eulal,3)
-          call ivset(irlx,1,3,1)
-          ipll = 0
-          vshftl = 0
+              read(a(j2+1:),*,err=98,end=98) posl
+              call dpzero(vell,3)
+              call dpzero(eulal,3)
+              call ivset(irlx,1,3,1)
+              ipll = 0
+              vshftl = 0
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: posl(3) , real(8) :: ssite%pos 3
 Cgetarg...info...           real(8) :: vell(3) , real(8) :: ssite%vel 3
 Cgetarg...info...           real(8) :: eulal(3) , real(8) :: ssite%eula 3
 Cgetarg           call pack5('site spec pos vel eula',ssite,ib,is,posl,vell,
 Cgetarg      .      eulal)
-           
-           ssite(ib)%spec=is 
-           i_copy_size=size(ssite(ib)%pos) 
-           call dcopy(i_copy_size,posl,1,ssite(ib)%pos,1) 
-           i_copy_size=size(ssite(ib)%vel) 
-           call dcopy(i_copy_size,vell,1,ssite(ib)%vel,1) 
-           i_copy_size=size(ssite(ib)%eula) 
-           call dcopy(i_copy_size,eulal,1,ssite(ib)%eula,1) 
+
+              ssite(ib)%spec=is
+              i_copy_size=size(ssite(ib)%pos)
+              call dcopy(i_copy_size,posl,1,ssite(ib)%pos,1)
+              i_copy_size=size(ssite(ib)%vel)
+              call dcopy(i_copy_size,vell,1,ssite(ib)%vel,1)
+              i_copy_size=size(ssite(ib)%eula)
+              call dcopy(i_copy_size,eulal,1,ssite(ib)%eula,1)
 
 Cgetarg...info...           integer :: ipll , integer(8) :: ssite%pl 1
 Cgetarg...info...           integer :: irlx(3) , integer(8) :: ssite%relax 3
 Cgetarg...info...           real(8) :: vshftl , real(8) :: ssite%vshft 1
 Cgetarg           call pack5('site pl relax vshft',ssite,ib,ipll,irlx,vshftl,0)
-           
-           ssite(ib)%pl=ipll 
-           i_copy_size=size(ssite(ib)%relax) 
-           call ii8copy(i_copy_size,irlx,1,ssite(ib)%relax,1) 
-           ssite(ib)%vshft=vshftl 
+
+              ssite(ib)%pl=ipll
+              i_copy_size=size(ssite(ib)%relax)
+              call ii8copy(i_copy_size,irlx,1,ssite(ib)%relax,1)
+              ssite(ib)%vshft=vshftl
 
 
-        enddo
-        endif
-        goto 999
+            enddo
+          endif
+          goto 999
 
 C   ... Read, std format.  Return here to resume parsing for arguments
-   40   continue
+   40     continue
 C   ... Read version and check compatibility with calling program
-        i = j1+2
-        if (.not. a2bin(a,vnx,4,0,' ',i,len(a)-5)) goto 99
-        call isanrg(int(vnx),2,3,'IOSITS:',
+          i = j1+2
+          if (.not. a2bin(a,vnx,4,0,' ',i,len(a)-5)) goto 99
+          call isanrg(int(vnx),2,3,'IOSITS:',
      .    'file''s version number',.true.)
 C   ... Read lio345
-        i = 0
-        readin = ' "io" '
-        if (.not. parstr(a,'io=',len(a)-3,3,' ',i,j)) goto 99
-        i = j-1
-        if (.not. a2bin(a,llio345,2,0,' ',i,len(a)-3)) goto 99
+          i = 0
+          readin = ' "io" '
+          if (.not. parstr(a,'io=',len(a)-3,3,' ',i,j)) goto 99
+          i = j-1
+          if (.not. a2bin(a,llio345,2,0,' ',i,len(a)-3)) goto 99
 C       Remake convention for llio345 if file is v2
-        if (vnx .lt. 3) then
-          llio345 = mod(llio345,16) + 32*(llio345/16)
-        endif
+          if (vnx .lt. 3) then
+            llio345 = mod(llio345,16) + 32*(llio345/16)
+          endif
 C   ... Read nbas
-        if (bittst(lio12,4) .or. bittst(lio345,4)) then
-          i = 0
-          readin = '"nbas" '
-          if (.not. parstr(a,'nbas=',len(a)-5,5,' ',i,j)) goto 99
-          i = j-1
-          if (.not. a2bin(a,nbasl,2,0,' ',i,len(a)-5)) goto 99
-          if (bittst(lio345,4)) nbas = nbasl
-          if (bittst(lio12,4))
+          if (bittst(lio12,4) .or. bittst(lio345,4)) then
+            i = 0
+            readin = '"nbas" '
+            if (.not. parstr(a,'nbas=',len(a)-5,5,' ',i,j)) goto 99
+            i = j-1
+            if (.not. a2bin(a,nbasl,2,0,' ',i,len(a)-5)) goto 99
+            if (bittst(lio345,4)) nbas = nbasl
+            if (bittst(lio12,4))
      .      call isanrg(nbasl,nbas,nbas,'iosits:','file''s nbas',.true.)
-        endif
+          endif
 C   ... Read alat (optional if sought), plat (reqd if sought)
-        if (bittst(lio12,1) .or. bittst(lio345,1)) then
-          i = 0
-          readin = '"alat" '
-          if (parstr(a,'alat=',len(a)-5,5,' ',i,j)) then
-          i = j-1
-          if (a2vec(a,len(a)-5,i,4,', ',2,-3,1,ix,plx) .eq. 1) then
-            if (bittst(lio345,1)) alat = plx(1)
+          if (bittst(lio12,1) .or. bittst(lio345,1)) then
+            i = 0
+            readin = '"alat" '
+            if (parstr(a,'alat=',len(a)-5,5,' ',i,j)) then
+              i = j-1
+              if (a2vec(a,len(a)-5,i,4,', ',2,-3,1,ix,plx) .eq. 1) then
+                if (bittst(lio345,1)) alat = plx(1)
+              endif
+            endif
           endif
-          endif
-        endif
-        if (bittst(lio12,2) .or. bittst(lio345,2)) then
-          i = 0
-          readin = '"plat" '
-          if (.not. parstr(a,'plat=',len(a)-5,5,' ',i,j)) goto 99
-          i = j-1
-          if (a2vec(a,len(a)-5,i,4,', ',2,-3,9,ix,plx) .ne. 9) goto 99
-          if (bittst(lio345,2)) call dcopy(9,plx,1,plat,1)
-          if (bittst(lio12,2)) then
-            call daxpy(9,-1d0,plat,1,plx,1)
-            if (ddot(9,plx,1,plx,1) .gt. 1d-14) then
-              call info(0,0,0,
+          if (bittst(lio12,2) .or. bittst(lio345,2)) then
+            i = 0
+            readin = '"plat" '
+            if (.not. parstr(a,'plat=',len(a)-5,5,' ',i,j)) goto 99
+            i = j-1
+            if (a2vec(a,len(a)-5,i,4,', ',2,-3,9,ix,plx) .ne. 9) goto 99
+            if (bittst(lio345,2)) call dcopy(9,plx,1,plat,1)
+            if (bittst(lio12,2)) then
+              call daxpy(9,-1d0,plat,1,plx,1)
+              if (ddot(9,plx,1,plx,1) .gt. 1d-14) then
+                call info(0,0,0,
      .          ' IOSITS: file plat does not match passed data',0,0)
-              call rxs('IOSITS: file mismatch, file ',filnam)
+                call rxs('IOSITS: file mismatch, file ',filnam)
+              endif
             endif
           endif
-        endif
 C       See whether input file can be read with fortran read
-        i = 0
-        lfast = parstr(a,'fast ',len(a)-5,5,' ',i,j)
-        i = 0
-        lxpos = parstr(a,'xpos ',len(a)-5,5,' ',i,j)
+          i = 0
+          lfast = parstr(a,'fast ',len(a)-5,5,' ',i,j)
+          i = 0
+          lxpos = parstr(a,'xpos ',len(a)-5,5,' ',i,j)
 
-        readin = 'data'
-        if (lio345-bitand(lio345,16) .ge. 8) then
+          readin = 'data'
+          if (lio345-bitand(lio345,16) .ge. 8) then
 C         Exit if file doesn't contain enough data
-          if (mod(lio345,16) .gt. mod(llio345,16)) goto 99
-   41     a(1:1) = ' '
-          aa(1:1) = ' '
-          if (lfast) then
-   43       ltmp = rdstrn(ifi,a,len(a),.false.)
-            nr = nr+1
-            if (ltmp .and. a(1:1) .eq. '#' .or.
-     .          a .eq. ' ' .and. ib .lt. nbas) goto 43
-            if (lio345 .ge. 64) then
-   44         ltmp = rdstrn(ifi,aa,len(aa),.false.)
+            if (mod(lio345,16) .gt. mod(llio345,16)) goto 99
+   41       a(1:1) = ' '
+            aa(1:1) = ' '
+            if (lfast) then
+   43         ltmp = rdstrn(ifi,a,len(a),.false.)
               nr = nr+1
-              if (ltmp .and. aa(1:1) .eq. '#' .or. aa .eq. ' ') goto 44
-            endif
-          else
-            call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
+              if (ltmp .and. a(1:1) .eq. '#' .or.
+     .          a .eq. ' ' .and. ib .lt. nbas) goto 43
+              if (lio345 .ge. 64) then
+   44           ltmp = rdstrn(ifi,aa,len(aa),.false.)
+                nr = nr+1
+                if (ltmp .and. aa(1:1) .eq. '#' .or. aa .eq. ' ') goto 44
+              endif
+            else
+              call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
      .        ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
-            ltmp =  nr .gt. 0
-            if (ltmp .and. lio345 .ge. 64)
+              ltmp =  nr .gt. 0
+              if (ltmp .and. lio345 .ge. 64)
      .        call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
      .        ilist,nlist,vnam,ctbl,mxchr,aa,recrd,recl,nr)
-            ltmp =  nr .gt. 0
-          endif
+              ltmp =  nr .gt. 0
+            endif
 
 C         If all sites have been read, exit
-          if (ib .ge. nbas) then
-            call info2(40,0,0,' IOSITS: read pos'//
+            if (ib .ge. nbas) then
+              call info2(40,0,0,' IOSITS: read pos'//
      .        '%?!n>15!,vel,eula,vshft,ipl,irlx!! from file unit %i',
      .        llio345,ifi)
-            goto 999
-          endif
+              goto 999
+            endif
 
-          if (.not. ltmp) then
-            if (ib .lt. nbas .and. bittst(lio12,8)) then
-              if (errh.le.ipr .or. errh.eq.0) print *,
+            if (.not. ltmp) then
+              if (ib .lt. nbas .and. bittst(lio12,8)) then
+                if (errh.le.ipr .or. errh.eq.0) print *,
      .          'IOSITS: file does not contain',nbas,' sites'
-              goto 99
+                goto 99
+              endif
+              goto 999
             endif
-            goto 999
-          endif
 C         Read data for this site
-          ltmp = .false.
-          call word(a,1,j1,j2)
-          spid = ' '
-          read(a(j1:j2),'(a)',err=98,end=98) spid
-          call tokmat(spid,slabl,nspec,8,' ',is,j,.false.)
-          is = is+1
-          if (is .le. 0) goto 98
+            ltmp = .false.
+            call word(a,1,j1,j2)
+            spid = ' '
+            read(a(j1:j2),'(a)',err=98,end=98) spid
+            call tokmat(spid,slabl,nspec,8,' ',is,j,.false.)
+            is = is+1
+            if (is .le. 0) goto 98
 C         No vel,eula,vshft,ipl,irlx available on disk
-          if (llio345 .lt. 32) then
-            call dpzero(posl,3)
-            if (lio345 .ge. 32) then  ! Default values if sought but not available
-              call dpzero(vell,3)
-              call dpzero(eulal,3)
-              vshftl = 0
-              ipll = 0
-              iirlx = 111
-            endif
+            if (llio345 .lt. 32) then
+              call dpzero(posl,3)
+              if (lio345 .ge. 32) then  ! Default values if sought but not available
+                call dpzero(vell,3)
+                call dpzero(eulal,3)
+                vshftl = 0
+                ipll = 0
+                iirlx = 111
+              endif
               if (lfast) then
                 read(a(j2+1:),*,err=98,end=98) posl
               else
@@ -514,94 +514,95 @@ C         No vel,eula,vshft,ipl,irlx available on disk
      .            .ne. 3) goto 98
               endif
 C          vel,eula,vshft,ipl,irlx are available on disk
-           else
-            if (lfast) then
-              read(a(j2+1:),*,err=98,end=98)
-     .          posl,vell,eulal,vshftl,ipll,iirlx
             else
-              i = 0
-              if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl)
+              if (lfast) then
+                read(a(j2+1:),*,err=98,end=98)
+     .          posl,vell,eulal,vshftl,ipll,iirlx
+              else
+                i = 0
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl)
      .            .ne. 3) goto 98
-              if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,vell)
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,vell)
      .            .ne. 3) goto 98
-              if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,eulal)
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,eulal)
      .            .ne. 3) goto 98
-              if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,1,ix,vshftl)
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,1,ix,vshftl)
      .            .ne. 1) goto 98
-              if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,ipll)
+                if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,ipll)
      .            .ne. 1) goto 98
-              if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,iirlx)
+                if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,iirlx)
      .            .ne. 1) goto 98
+              endif
             endif
-           endif
-           if (lxpos) then
-             call dcopy(3,posl,1,plx,1)
-             call dgemm('N','N',3,1,3,1d0,plat,3,plx,3,0d0,posl,3)
-           endif
+            if (lxpos) then
+              call dcopy(3,posl,1,plx,1)
+              call dgemm('N','N',3,1,3,1d0,plat,3,plx,3,0d0,posl,3)
+            endif
 
-           ib = ib+1
+            ib = ib+1
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: posl(3) , real(8) :: ssite%pos 3
 Cgetarg            call pack5('site spec pos',ssite,ib,is,posl,0,0)
-            
-            ssite(ib)%spec=is 
-            i_copy_size=size(ssite(ib)%pos) 
-            call dcopy(i_copy_size,posl,1,ssite(ib)%pos,1) 
+
+            ssite(ib)%spec=is
+            i_copy_size=size(ssite(ib)%pos)
+            call dcopy(i_copy_size,posl,1,ssite(ib)%pos,1)
 
 
 C          Copy vel,eula,vshft,ipl,irlx if sought
-           if (lio345 .ge. 32) then
-             do  46  i = 1, 3
-   46        irlx(i) = getdig(iirlx,3-i,10)
+            if (lio345 .ge. 32) then
+              do  46  i = 1, 3
+                irlx(i) = getdig(iirlx,3-i,10)
+   46         continue
 Cgetarg...info...           real(8) :: vell(3) , real(8) :: ssite%vel 3
 Cgetarg...info...           real(8) :: eulal(3) , real(8) :: ssite%eula 3
 Cgetarg              call pack5('site vel eula',ssite,ib,vell,eulal,0,0)
-              
-              i_copy_size=size(ssite(ib)%vel) 
-              call dcopy(i_copy_size,vell,1,ssite(ib)%vel,1) 
-              i_copy_size=size(ssite(ib)%eula) 
-              call dcopy(i_copy_size,eulal,1,ssite(ib)%eula,1) 
+
+              i_copy_size=size(ssite(ib)%vel)
+              call dcopy(i_copy_size,vell,1,ssite(ib)%vel,1)
+              i_copy_size=size(ssite(ib)%eula)
+              call dcopy(i_copy_size,eulal,1,ssite(ib)%eula,1)
 
 Cgetarg...info...           integer :: ipll , integer(8) :: ssite%pl 1
 Cgetarg...info...           integer :: irlx(3) , integer(8) :: ssite%relax 3
 Cgetarg...info...           real(8) :: vshftl , real(8) :: ssite%vshft 1
 Cgetarg              call pack5('site pl relax vshft',
 Cgetarg      .         ssite,ib,ipll,irlx,vshftl,0)
-              
-              ssite(ib)%pl=ipll 
-              i_copy_size=size(ssite(ib)%relax) 
-              call ii8copy(i_copy_size,irlx,1,ssite(ib)%relax,1) 
-              ssite(ib)%vshft=vshftl 
 
-          endif
+              ssite(ib)%pl=ipll
+              i_copy_size=size(ssite(ib)%relax)
+              call ii8copy(i_copy_size,irlx,1,ssite(ib)%relax,1)
+              ssite(ib)%vshft=vshftl
 
-          if (lio345 .ge. 64) then
-            call word(a,1,j1,j2)
-            locnam = ' '
-            read(a(j1:j2),'(a)',err=98,end=98) locnam
-            read(aa(j2+1:),*,err=98,end=98) delta
-          endif
+            endif
+
+            if (lio345 .ge. 64) then
+              call word(a,1,j1,j2)
+              locnam = ' '
+              read(a(j1:j2),'(a)',err=98,end=98) locnam
+              read(aa(j2+1:),*,err=98,end=98) delta
+            endif
 C         We can quit now if ib eq nbas but read one more line in case
 C         site file has comments at the end of file
 C         if (ib .lt. nbas) goto 41
-          goto 41
-        endif
+            goto 41
+          endif
 
 C   ... Exit point for read
-  999   continue
-      endif
+  999     continue
+        endif
 
 #if MPI | MPIK
-      call mpibc1(nbas,1,2,mlog,'iosits','nbas')
-      call mpibc1(alat,1,4,mlog,'iosits','alat')
-      call mpibc1(plat,9,4,mlog,'iosits','plat')
-      if (lio345 .ge. 8)  then
+        call mpibc1(nbas,1,2,mlog,'iosits','nbas')
+        call mpibc1(alat,1,4,mlog,'iosits','alat')
+        call mpibc1(plat,9,4,mlog,'iosits','plat')
+        if (lio345 .ge. 8)  then
 ctakao apr2010
 c        i = nint(ssite(1)) * nbas
 c         i = usite_size() *nbas
 c        call mpibc1(ssite,i,4,mlog,'iosits','ssite')
-        call mpibc1(ssite,ssite(i)%size,4,mlog,'iosits','ssite')
-      endif
+          call mpibc1(ssite,ssite(i)%size,4,mlog,'iosits','ssite')
+        endif
 #endif
       endif
 
@@ -624,14 +625,14 @@ C     Copy llio345
       if (bittst(lio345,16)) lio = llio345
 
       if (errh .eq. 0) then
-         print 369, ':', readin, filnam
-       elseif (errh .le. ipr) then
-         print 369, '(warning)', readin, filnam
-       endif
+        print 369, ':', readin, filnam
+      elseif (errh .le. ipr) then
+        print 369, '(warning)', readin, filnam
+      endif
   369 format(1x,'IOSITS ',a,' failed to read ',a,' from file ',a)
       if (errh .eq. 0) call rxs('IOSITS: file mismatch, file ',filnam)
 
 Cgetarg       end
-       end function iosits 
+      end function iosits
 
 

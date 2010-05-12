@@ -5,8 +5,8 @@ Cgetarg...info...           structure ['dfaugm', 'site', 'ssite']
 Cgetarg...info...           structure ['dfaugm', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['dfaugm', 'm_struc_def']
       subroutine dfaugm(nbas,lcplxp,lso,ssite,sspec,osig,otau,oppi)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Allocate augmentation matrices sigma,tau,pi for all atoms
 C ----------------------------------------------------------------------
@@ -16,11 +16,11 @@ Ci   lcplxp:if nonzero allocate space for complex ppi
 Ci   lso   :flag for SO coupling
 Ci   ssite :struct for site-specific information; see routine usite
 Ci     Elts read: spec
-Ci     Stored:   
+Ci     Stored:
 Ci     Passed to:
 Ci   sspec :struct for species-specific information; see routine uspec
 Ci     Elts read: lmxa lmxb kmxt
-Ci     Stored:   
+Ci     Stored:
 Ci     Passed to:
 Co Outputs
 Co   osig  :memory allocated
@@ -58,8 +58,8 @@ Cdelw1 do not change  [['call', 'array', 'wref'], 'otau', 'dfaugm']
 Cdelw1 do not change  [['call', 'array', 'wref'], 'oppi', 'dfaugm']
       integer nbas,lcplxp,lso,osig(3,nbas),otau(3,nbas),oppi(3,nbas)
 Cgetarg       double precision  ssite(1),sspec(1)
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
       integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh,
@@ -77,16 +77,16 @@ c      print *,'lso nspc=',lso,nspc
 C --- Loop over sites, allocating sig,tau,pi for each site ---
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
 Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg         call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
-         
-         lmxa=sspec(is)%lmxa
-         lmxh=sspec(is)%lmxb
-         kmax=sspec(is)%kmxt
+
+        lmxa=sspec(is)%lmxa
+        lmxh=sspec(is)%lmxb
+        kmax=sspec(is)%kmxt
 
 C       call upack('spec z rmt',sspec,is,z,rmt,0,0)
         nlma = (lmxa+1)**2
@@ -143,13 +143,13 @@ Cdelw1 do not change oppi because of ['call', 'array', 'wref']
       enddo
 
 Cgetarg       end
-Cdelw1 w_varlist remains: osig otau oppi 
+Cdelw1 w_varlist remains: osig otau oppi
 Cdelw1 w_varlistundel: [osig otau oppi]
 Cdelw1 w_varlist (undel), remains: [osig otau oppi]
 Cdelw1 w_varlist (del), remains: (None)
 Cdelw1 not deallocate oppi because of [call array wref]
 Cdelw1 not deallocate otau because of [call array wref]
 Cdelw1 not deallocate osig because of [call array wref]
-       end subroutine dfaugm 
+      end subroutine dfaugm
 
 

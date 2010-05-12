@@ -31,8 +31,8 @@ Cgetarg...info...           structure ['pvsym2', 'site', 'ssite']
 Cgetarg...info...           use_to_add ['mksym', 'm_struc_def']
 Cgetarg...info...           use_to_add ['pvsym2', 'm_struc_def']
       subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite,sarray)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
@@ -92,7 +92,7 @@ Cr   then G(-k) = Gtranspose(k), and the same (g,ag) information is
 Cr   needed for either rotation.
 Cu Updates
 Cu   04 Jan 06 Enabled keyword 'point' in ssymgr
-Cu             Generates extra group ops when generators create more 
+Cu             Generates extra group ops when generators create more
 Cu             than the maximum expected
 Cu   07 Oct 05 Put altered positions into site structure
 Cu   03 Nov 01 Adapted to altered gensym
@@ -103,10 +103,10 @@ C     implicit none
       character*8 slabl(1),ssymgr*(*)
       integer mode,nsgrp,npgrp
 Cgetarg       double precision sctrl(1),slat(1),ssite(1),sarray(1)
-       type(s_ctrl)::sctrl
-       type(s_lat)::slat
-       type(s_site)::ssite(*)
-       type(s_array)::sarray
+      type(s_ctrl)::sctrl
+      type(s_lat)::slat
+      type(s_site)::ssite(*)
+      type(s_array)::sarray
 
 C ... Heap
       integer w(1)
@@ -129,11 +129,11 @@ Cdelw1 do not change  [['wref'], 'oag', 'mksym']
 Cdelw1 do not change  [['wref'], 'osymgr', 'mksym']
 Cdelw1       integer oclabl,oics,oips,oistab,onrc,onrcp,
 Cdelw1      .  onrspc,opos,oipc,oipcp,oiwk,oag,osymgr,opos2,oips2,aginv
-       integer:: oclabl , oics , oips , oistab , onrc , onrcp , opos 
-     . , oipc , oipcp , oiwk , oag , osymgr , aginv 
-       integer ,allocatable :: iv_w_onrspc(:)
-       real(8) ,allocatable :: rv_w_opos2(:)
-       integer ,allocatable :: iv_w_oips2(:)
+      integer:: oclabl , oics , oips , oistab , onrc , onrcp , opos 
+     . , oipc , oipcp , oiwk , oag , osymgr , aginv
+      integer ,allocatable :: iv_w_onrspc(:)
+      real(8) ,allocatable :: rv_w_opos2(:)
+      integer ,allocatable :: iv_w_oips2(:)
 
       parameter (T=.true., F=.false., ngnmx=10)
       character*120 gens,strn*72
@@ -144,21 +144,21 @@ Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
 Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
 Cgetarg...info...           integer :: nsite , integer(8) :: sctrl%nsite 1
 Cgetarg       call upack('ctrl nbas nspec nsite',sctrl,nbas,nspec,nsite,0,0)
-       
-       nbas=sctrl%nbas
-       nspec=sctrl%nspec
-       nsite=sctrl%nsite
+
+      nbas=sctrl%nbas
+      nspec=sctrl%nspec
+      nsite=sctrl%nsite
 
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           integer :: ldist , integer(8) :: slat%ldist 1
 Cgetarg...info...           real(8) :: dist(3,3) , real(8) :: slat%dist 9
 Cgetarg       call upack('lat plat ldist dist',slat,plat,ldist,dist,0,0)
-       
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       ldist=slat%ldist
-       i_copy_size=size(slat%dist) 
-       call dcopy(i_copy_size,slat%dist,1,dist,1) 
+
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      ldist=slat%ldist
+      i_copy_size=size(slat%dist)
+      call dcopy(i_copy_size,slat%dist,1,dist,1)
 
       ngmx = 48
       stdo = nglob('stdo')
@@ -177,19 +177,19 @@ Cdelw1 do not change oipc because of ['wref']
 Cdelw1 do not change oics because of ['wref']
       call defi(oics,  nsite)
 Cdelw1       call defi(onrspc,nbas)
-       allocate(iv_w_onrspc(nbas))
+      allocate(iv_w_onrspc(nbas))
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_onrspc(:)=0
 
 Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
 Cgetarg...info...           integer :: oips , integer(8) :: sarray%oips 1
 Cgetarg       call upack('array opos oips',sarray,opos,oips,0,0,0)
-       
+
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 138
 Cdelw1 do not change opos because of ['undef', 'wref']
-       opos=sarray%opos
+      opos=sarray%opos
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 139
 Cdelw1 do not change oips because of ['undef', 'wref']
-       oips=sarray%oips
+      oips=sarray%oips
 
 C     call defi(oips,nbas)
 C     call defrr(opos,3*nbas)
@@ -235,17 +235,17 @@ C --- Generate space group ---
         fptol = 0
       endif
 
-C ... When generating the group the basis may become enlarged ... 
+C ... When generating the group the basis may become enlarged ...
 C     copy larger files relevant arrays to larger workspace
 Cdelw1 do not change oistab because of ['wref']
       call defi (oistab,(ngmx+1)*nbas)
 C     call defi (oistb2,(ngmx+1)*nbas)
 Cdelw1       call defi (oips2, ngmx*nbas)
-       allocate(iv_w_oips2(ngmx*nbas))
+      allocate(iv_w_oips2(ngmx*nbas))
 Ctakao_ZeroClear_NotRequiered        if (ngmx*nbas<0) iv_w_oips2(:)=0
 
 Cdelw1       call defdr(opos2, 3*ngmx*nbas)
-       allocate(rv_w_opos2(3*ngmx*nbas))
+      allocate(rv_w_opos2(3*ngmx*nbas))
 Ctakao_ZeroClear_NotRequiered        if (3*ngmx*nbas<0) rv_w_opos2(:)=0.0d0
 
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 191
@@ -253,14 +253,14 @@ Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  oips  is not defined yet at linenumber= 191
 Cdelw1 do not change oips because of ['undef', 'wref']
 Cdelw1       call icopy(nbas,w(oips),1,w(oips2),1)
-       call icopy ( nbas , w ( oips ) , 1 , iv_w_oips2 , 1 ) 
+      call icopy ( nbas , w ( oips ) , 1 , iv_w_oips2 , 1 )
 
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 192
 Cdelw1 do not change opos because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 192
 Cdelw1 do not change opos because of ['undef', 'wref']
 Cdelw1       call dcopy(3*nbas,w(opos),1,w(opos2),1)
-       call dcopy ( 3 * nbas , w ( opos ) , 1 , rv_w_opos2 , 1 ) 
+      call dcopy ( 3 * nbas , w ( opos ) , 1 , rv_w_opos2 , 1 )
 
 Cdelw1 do not change oag because of ['wref']
 Cdelw1 do not change osymgr because of ['wref']
@@ -271,10 +271,10 @@ Cdelw1 do not change oistab because of ['wref']
 Cdelw1       call gensym(slabl,gens,usegen,T,F,fptol,F,nbas,nspec,ngmx,plat,
 Cdelw1      .  plat,ldist,dist,w(opos2),w(oips2),w(onrspc),nsgrp,w(osymgr),
 Cdelw1      .  w(oag),ngen,gen,ssymgr,nggen,isym,w(oistab))
-       call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
+      call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
      . , nspec , ngmx , plat , plat , ldist , dist , rv_w_opos2 , iv_w_oips2 
      . , iv_w_onrspc , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen 
-     . , ssymgr , nggen , isym , w ( oistab ) ) 
+     . , ssymgr , nggen , isym , w ( oistab ) )
 
       if (nbas .gt. nbas0) call rxs('gensym: the basis was enlarged.',
      .  ' Check group operations.')
@@ -282,7 +282,7 @@ Cdelw1      .  w(oag),ngen,gen,ssymgr,nggen,isym,w(oistab))
         call info2(1,0,0,' MKSYM (warning): generators create more than'
      .    //' ngmx=%i group ops ...',ngmx,0)
         ngmx = ngmx*16
-Cdelw1 rlse name= oag old_list= oag osymgr oipc oics onrspc oistab oips2 opos2 
+Cdelw1 rlse name= oag old_list= oag osymgr oipc oics onrspc oistab oips2 opos2
 Cdelw1 rlse name= oag new_list= (None)
 Cdelw1 not deallocate oistab because of [wref]
 Cdelw1 not deallocate oics because of [wref]
@@ -290,31 +290,31 @@ Cdelw1 not deallocate oipc because of [wref]
 Cdelw1 not deallocate osymgr because of [wref]
 Cdelw1 not deallocate oag because of [wref]
 Cdelw1         call rlse(oag)
-         if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
-         if (allocated(iv_w_oips2)) deallocate(iv_w_oips2)
-         if (allocated(iv_w_onrspc)) deallocate(iv_w_onrspc)
-         call rlse(oag)
+        if (allocated(rv_w_opos2)) deallocate(rv_w_opos2)
+        if (allocated(iv_w_oips2)) deallocate(iv_w_oips2)
+        if (allocated(iv_w_onrspc)) deallocate(iv_w_onrspc)
+        call rlse(oag)
 
         goto 5
       endif
       if (fptol .ne. 0) then
 Cgetarg         call spackv(11,'site pos',ssite,1,nbas,w(opos2))
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbas 
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=1,nbas
 Cdelw1 warning(1) , probably  opos2  is not defined yet at linenumber= 209
 Cdelw1          call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos2))
           call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
-     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_opos2 ) 
+     .    , i_copy_size , i_spackv + 1 - 1 , rv_w_opos2 )
 
-         enddo
+        enddo
 
 Cgetarg         call spackv(10,'site pos',ssite,1,nbas,w(opos))
-         i_copy_size=size(ssite(1)%pos)
-         do i_spackv=1,nbas 
+        i_copy_size=size(ssite(1)%pos)
+        do i_spackv=1,nbas
 Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 215
 Cdelw1 do not change opos because of ['undef', 'wref']
-         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-         enddo
+          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+        enddo
 
       endif
 Cdelw1 rlse name= oips2 old_list= (None)
@@ -337,7 +337,7 @@ Cdelw1 warning(1) , probably  osymgr  is not defined yet at linenumber= 231
 Cdelw1 do not change osymgr because of ['wref']
         call grpgen(gen(1,ngen),1,w(osymgr),npgrp,ngmx)
         call poppr
-        incli = npgrp-nsgrp        
+        incli = npgrp-nsgrp
       endif
 C     Not necessary, because it will be remade anyway
 C     call redfi(oistab,npgrp*nbas)
@@ -348,7 +348,7 @@ C --- Printout of symmetry operations ---
      .  '%?#(n==0)# ... includes inversion##',nsgrp,npgrp-nsgrp,npgrp,
      .  incli,0)
       if (incli .eq. -1) then
-      call info0(30,0,0,'         no attempt to add inversion symmetry')
+        call info0(30,0,0,'         no attempt to add inversion symmetry')
       endif
       if (mod(mode/10,10) .eq. 0) goto 100
 
@@ -378,7 +378,7 @@ cccccccccc
 Cgetarg...info...           integer :: npadl , integer(8) :: sarray%npadl 1
 Cgetarg...info...           integer :: npadr , integer(8) :: sarray%npadr 1
 Cgetarg       call upack('array npadl npadr',sarray,npadl,npadr,0,0,0)
-       
+
 c       npadl=sarray%npadl
 c       npadr=sarray%npadr
 
@@ -388,7 +388,7 @@ c       npadr=sarray%npadr
 
 C ... (pgf) Extra classes for padding layers
 Cgetarg       lpgf = igets('ctrl lpgf',sctrl)
-C$$$       lpgf = int(sctrl%lpgf(1)) 
+C$$$       lpgf = int(sctrl%lpgf(1))
 C$$$      if (lpgf .gt. 0 .and. lpgf .lt. 10) then
 C$$$C   ... Remake ipc,ics for padding and double-padding layers
 C$$$        call pgfpp(nbas,npadl,npadr,1,1,.true.,.false.,w(oipc),w(oipc))
@@ -409,12 +409,12 @@ C$$$        call icopy(npadl+npadr,w(oipc+nbas),1,w(oipc+nbasp),1)
 C$$$      else
 C   ... Reallocate arrays as permanent arrays
 Cdelw1 do not change oics because of ['wref']
-        call redfi(oics,   nclspp)
+      call redfi(oics,   nclspp)
 Cdelw1 warning(1) , probably  oipc  is not defined yet at linenumber= 291
 Cdelw1 do not change oipc because of ['wref']
 Cdelw1 warning(1) , probably  oipcp  is not defined yet at linenumber= 291
 Cdelw1 do not change oipcp because of ['undef', 'wref']
-        oipcp = oipc
+      oipcp = oipc
 C$$$      endif
 
 C ... Remake istab
@@ -452,24 +452,24 @@ C     call shoist(w(oistb2),nbas,w(oag),w(osymgr),nsgrp)
 C     stop
 
 C   ... For each i*grpop fix translation ag to be that of grpop
-        if (mod(mode,10) .eq. 2) then
+      if (mod(mode,10) .eq. 2) then
 Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 321
 Cdelw1 do not change oag because of ['wref']
 Cdelw1 warning(1) , probably  osymgr  is not defined yet at linenumber= 321
 Cdelw1 do not change osymgr because of ['wref']
 Cdelw1 do not change oistab because of ['wref']
-          if (aginv(w(osymgr),nsgrp,npgrp,nbas,w(oag),w(oistab)) .ne. 0)
+        if (aginv(w(osymgr),nsgrp,npgrp,nbas,w(oag),w(oistab)) .ne. 0)
      .      call rx('bug in mksym')
-        endif
+      endif
 
 C ... poke ipc into ssite
 Cgetarg       call spackv(11,'site class',ssite,1,nbasp,w(oipc))
-       i_copy_size=1; 
-       do i_spackv=1,nbasp 
+      i_copy_size=1;
+      do i_spackv=1,nbasp
 Cdelw1 warning(1) , probably  oipc  is not defined yet at linenumber= 329
 Cdelw1 do not change oipc because of ['wref']
-       call spackv_array_copy_i8_i('p',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
-       enddo
+        call spackv_array_copy_i8_i('p',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
+      enddo
 
 C --- Create nrc and class labels ---
       if (mod(mode/10,10) .eq. 2 .or. mod(mode/10,10) .eq. 4) then
@@ -487,7 +487,7 @@ Cdelw1 do not change oipcp because of ['undef', 'wref']
 C$$$     if (nclasp .eq. nclass) then !we only treat nclasp=nclass case. takao Apr2010
 Cdelw1 do not change onrc because of ['wref']
 Cdelw1 do not change onrcp because of ['wref']
-          onrc = onrcp
+        onrc = onrcp
 C$$$     else
 C$$$          call defi (onrc,   nclasp)
 C$$$          call icopy(nclasp,w(onrcp),1,w(onrc),1)
@@ -509,18 +509,18 @@ C       pause
 C --- Cleanup: poke class and symmetry info into structures ---
 Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
 Cgetarg       call pack1('ctrl nclass',sctrl,nclass)
-       
-       sctrl%nclass=nclass 
+
+      sctrl%nclass=nclass
 
 Cgetarg...info...           integer :: onrcp , integer(8) :: sarray%onrcp 1
 Cgetarg...info...           integer :: oipcp , integer(8) :: sarray%oipcp 1
 Cgetarg       call pack5('array onrcp oipcp',sarray,onrcp,oipcp,0,0,0)
-       
+
 Cdelw1 do not change onrcp because of ['wref']
-       sarray%onrcp=onrcp 
+      sarray%onrcp=onrcp
 Cdelw1 warning(1) , probably  oipcp  is not defined yet at linenumber= 367
 Cdelw1 do not change oipcp because of ['undef', 'wref']
-       sarray%oipcp=oipcp 
+      sarray%oipcp=oipcp
 
 Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
 Cgetarg...info...           integer :: oipc , integer(8) :: sarray%oipc 1
@@ -529,17 +529,17 @@ Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
 Cgetarg...info...           integer :: onrc , integer(8) :: sarray%onrc 1
 Cgetarg       call pack5('array oics oipc oclabl nclasp onrc',sarray,oics,oipc,
 Cgetarg      .  oclabl,nclasp,onrc)
-       
+
 Cdelw1 do not change oics because of ['wref']
-       sarray%oics=oics 
+      sarray%oics=oics
 Cdelw1 warning(1) , probably  oipc  is not defined yet at linenumber= 378
 Cdelw1 do not change oipc because of ['wref']
-       sarray%oipc=oipc 
+      sarray%oipc=oipc
 Cdelw1 do not change oclabl because of ['wref']
-       sarray%oclabl=oclabl 
-       sarray%nclasp=nclasp 
+      sarray%oclabl=oclabl
+      sarray%nclasp=nclasp
 Cdelw1 do not change onrc because of ['wref']
-       sarray%onrc=onrc 
+      sarray%onrc=onrc
 
 c     call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
   100 continue
@@ -550,21 +550,21 @@ Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
 Cgetarg...info...           integer :: osymgr , integer(8) :: slat%osymgr 1
 Cgetarg       call pack5('lat npgrp nsgrp oistab oag osymgr',slat,npgrp,nsgrp,
 Cgetarg      .  oistab,oag,osymgr)
-       
-       slat%npgrp=npgrp 
-       slat%nsgrp=nsgrp 
+
+      slat%npgrp=npgrp
+      slat%nsgrp=nsgrp
 Cdelw1 do not change oistab because of ['wref']
-       slat%oistab=oistab 
+      slat%oistab=oistab
 Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 396
 Cdelw1 do not change oag because of ['wref']
-       slat%oag=oag 
+      slat%oag=oag
 Cdelw1 warning(1) , probably  osymgr  is not defined yet at linenumber= 397
 Cdelw1 do not change osymgr because of ['wref']
-       slat%osymgr=osymgr 
+      slat%osymgr=osymgr
 
 
 Cgetarg       end
-Cdelw1 w_varlist remains: onrc oics oistab oclabl onrcp 
+Cdelw1 w_varlist remains: onrc oics oistab oclabl onrcp
 Cdelw1 w_varlistundel: [oips opos oipcp oipc onrc onrcp oclabl oics oistab oag osymgr]
 Cdelw1 w_varlist (undel), remains: [onrc oics oistab oclabl onrcp]
 Cdelw1 w_varlist (del), remains: (None)
@@ -573,7 +573,7 @@ Cdelw1 not deallocate oclabl because of [wref]
 Cdelw1 not deallocate oistab because of [wref]
 Cdelw1 not deallocate oics because of [wref]
 Cdelw1 not deallocate onrc because of [wref]
-       end subroutine mksym 
+      end subroutine mksym
 
 C$$$      subroutine pvsym1(nbas,npad,nclass,ipc,ics)
 
@@ -622,12 +622,12 @@ C$$$C      call awrit2('%n:1i',' ',100,6,nclass,ics)
 C$$$C      pause
 
 C$$$Cgetarg       end
-C$$$       end subroutine pvsym1 
+C$$$       end subroutine pvsym1
 
       subroutine pvsym2(mode,nbas,nclass,ics,ipc,nspec,slabl,ssite,
      .  dclabl,nrc)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Create class labels from species labels (double precision format)
 C ----------------------------------------------------------------------
@@ -650,8 +650,8 @@ C ----------------------------------------------------------------------
 C     implicit none
       integer mode,nbas,nclass,nspec,ics(1),ipc(nbas),nrc(1)
 Cgetarg       double precision dclabl(nclass),ssite(1)
-       real(8):: dclabl(nclass) 
-       type(s_site)::ssite(*)
+      real(8):: dclabl(nclass)
+      type(s_site)::ssite(*)
 
       character*8 slabl(nspec)
       integer ic,iclbsj,idx,is,ib
@@ -659,24 +659,24 @@ Cgetarg       double precision dclabl(nclass),ssite(1)
 
 C --- Make class labels from species labels ---
       if (mod(mode,2) .eq. 1) then
-      do  10  is = 1, nspec
-        do  12  idx = 1, nbas
-          ic = iclbsj(is,ics,-nclass,idx)
-          if (ic .lt. 0) goto 13
-          call clabel(slabl,is,idx,clabl)
-          call s8tor8(clabl,dclabl(ic))
-   12   continue
-   13   continue
-   10 continue
+        do  10  is = 1, nspec
+          do  12  idx = 1, nbas
+            ic = iclbsj(is,ics,-nclass,idx)
+            if (ic .lt. 0) goto 13
+            call clabel(slabl,is,idx,clabl)
+            call s8tor8(clabl,dclabl(ic))
+   12     continue
+   13     continue
+   10   continue
       endif
 
       do  20  ib = 1, nbas
         ic = ipc(ib)
         call r8tos8(dclabl(ic),clabl)
 Cgetarg         call spacks(1,'site clabel',ssite,clabl,ib,ib)
-         do i_spacks=ib,ib 
-         call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
-         enddo
+        do i_spacks=ib,ib
+          call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
+        enddo
 
    20 continue
 
@@ -688,11 +688,11 @@ C      pause
 
 C --- Create nrc ---
       if (mod(mode/2,2) .eq. 1) then
-      call iinit(nrc,nclass)
-      do  30  ib = 1, nbas
-        ic = ipc(ib)
-        nrc(ic) = nrc(ic)+1
-   30 continue
+        call iinit(nrc,nclass)
+        do  30  ib = 1, nbas
+          ic = ipc(ib)
+          nrc(ic) = nrc(ic)+1
+   30   continue
       endif
 
 C ... debugging : check class labels
@@ -708,7 +708,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine pvsym2 
+      end subroutine pvsym2
 
 
       integer function aginv(g,npg,nsg,nbas,ag,istab)
@@ -778,6 +778,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end function aginv 
+      end function aginv
 
 

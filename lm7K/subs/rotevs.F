@@ -162,17 +162,17 @@ C       call zprm('sigm_LDA',2,sigm,ndims,ndims,ndims)
 C       Multiply into wk sigii(1..lc) Z^-1 if lc > 0
         if (lc .gt. 0) then
           do  i = 1, lc
-          do  j = 1, ndimz
-            wk(i,j) = wk(i,j) + sigii(i)*Z(i,j)
-          enddo
+            do  j = 1, ndimz
+              wk(i,j) = wk(i,j) + sigii(i)*Z(i,j)
+            enddo
           enddo
         endif
 C       Multiply into wk sigii(ndimz-lh..lh) Z^-1 if lh > 0
         if (lh .gt. 0) then
           do  i = ndimz-lh+1, ndimz
-          do  j = 1, ndimz
-            wk(i,j) = wk(i,j) + sigii(i)*Z(i,j)
-          enddo
+            do  j = 1, ndimz
+              wk(i,j) = wk(i,j) + sigii(i)*Z(i,j)
+            enddo
           enddo
         endif
 

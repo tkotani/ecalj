@@ -7,8 +7,8 @@ Cgetarg...info...           use_to_add ['pvhmb1', 'm_struc_def']
       subroutine hambl(mode,nbas,ssite,sspec,slat,sham,isp,q,k1,k2,k3,
      .  smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
      .  h,s,hso)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Make the LDA hamiltonian and overlap for one k-point.
 C ----------------------------------------------------------------------
@@ -72,11 +72,11 @@ C ... Passed parameters
       integer osig(3,nbas),otau(3,nbas),oppi(3,nbas)
       double precision alfa
 Cgetarg       double precision ssite(1),sspec(1),sham(1),slat(1),q(3),vconst
-       real(8):: q(3) , vconst 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_ham)::sham
-       type(s_lat)::slat
+      real(8):: q(3) , vconst
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_ham)::sham
+      type(s_lat)::slat
 
       double complex smpot(k1,k2,k3),h(ndimh,ndimh),s(ndimh,ndimh)
       double complex hso(ndimh,ndimh)
@@ -99,10 +99,10 @@ C ... Heap
       mode1 = mod(mode/10,10)
 Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
 Cgetarg       call upack('ham oindxo',sham,oiprmb,0,0,0,0)
-       
+
 Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 100
 Cdelw1 do not change oiprmb because of ['undef', 'wref']
-       oiprmb=sham%oindxo
+      oiprmb=sham%oindxo
 
 
 C ... Initialization of quantities to be computed
@@ -216,12 +216,12 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [oiprmb]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine hambl 
+      end subroutine hambl
 
 
       subroutine pvhmb1(mode,slat,k1,k2,k3,smpot,vavg)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Add subtract a constant from smooth potential
 C ----------------------------------------------------------------------
@@ -244,7 +244,7 @@ C     implicit none
 C ... Passed parameters
       integer mode,k1,k2,k3
 Cgetarg       double precision slat(1)
-       type(s_lat)::slat
+      type(s_lat)::slat
 
       double complex smpot(k1,k2,k3)
 C ... Local parameters
@@ -255,9 +255,9 @@ C ... Local parameters
       if (mode .eq. 0) then
 Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
 Cgetarg         call upack1('lat nabc',slat,ngabc)
-         
-         i_copy_size=size(slat%nabc) 
-         call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
+        i_copy_size=size(slat%nabc)
+        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
         call mshint(1d0,1,ngabc(1),ngabc(2),ngabc(3),
      .    k1,k2,k3,smpot,vavg,xx)
@@ -272,7 +272,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine pvhmb1 
+      end subroutine pvhmb1
 
 
 C      subroutine pvhmb2(ndimh,h,s)

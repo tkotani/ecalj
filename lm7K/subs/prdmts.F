@@ -3,8 +3,8 @@ Cgetarg...info...           structure ['praldm', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['praldm', 'm_struc_def']
       subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,sspec,
      .  ssite,strn,dmatu)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Writes out a site density-matrix-like object for all sites
 C ----------------------------------------------------------------------
@@ -21,11 +21,11 @@ Ci   lldau :lldau(ib)=0 => no U on this site otherwise
 Ci          U on site ib with dmat in dmats(*,lldau(ib))
 Ci   sspec :struct for species-specific information; see routine uspec
 Ci     Elts read: lmxa idu
-Ci     Stored:   
+Ci     Stored:
 Ci     Passed to:
 Ci   ssite :struct for site-specific information; see routine usite
 Ci     Elts read: spec
-Ci     Stored:   
+Ci     Stored:
 Ci     Passed to:
 Ci   strn  :string put into header
 Ci   dmatu :density matrix for LDA+U
@@ -34,7 +34,7 @@ Co   dmatu is written to file ifi
 Cl Local variables
 Cl         :
 Cr Remarks
-Cr   
+Cr
 Cu Updates
 Cu   27 Jan 06 First created
 C ----------------------------------------------------------------------
@@ -42,8 +42,8 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm
 Cgetarg       double precision sspec(1),ssite(1)
-       type(s_spec)::sspec(*)
-       type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
 
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       character strn*(*)
@@ -54,27 +54,27 @@ C ... Local parameters
       do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
 Cgetarg           is = igetss('site spec',ib,ssite)
-           is = int(ssite(ib)%spec) 
+          is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
 Cgetarg           call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
-           
-           lmxa=sspec(is)%lmxa
-           i_copy_size=size(sspec(is)%idu) 
-           call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1) 
+
+          lmxa=sspec(is)%lmxa
+          i_copy_size=size(sspec(is)%idu)
+          call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)
 
           do  l = 0, min(lmxa,3)
             if (idu(l+1) .ne. 0) then
-             iblu = iblu+1
-             call prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmatu,
+              iblu = iblu+1
+              call prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmatu,
      .         nsp,1)
             endif
           enddo
         endif
       enddo
 Cgetarg       end
-       end subroutine praldm 
+      end subroutine praldm
 
       subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats,
      .  nsp,nspc)
@@ -144,11 +144,11 @@ C    .          '%?#(n>0)#  spin %i#%j#'
         enddo
       else
         if (sharm .eq. 0) then
-        strnl = strn // ' l=%i'//
+          strnl = strn // ' l=%i'//
      .          '%?#n#%-1j  site %i##'//
      .          '%?#(n>0)#  spin %i##, real harmonics'
         else
-        strnl = strn // ' l=%i'//
+          strnl = strn // ' l=%i'//
      .          '%?#n#%-1j  site %i##'//
      .          '%?#(n>0)#  spin %i##, spherical harmonics'
         endif
@@ -170,6 +170,6 @@ C       Header: printout l, ib (if ib>0), spin (if nsp=2, ipr2>=ipr)
       endif
 
 Cgetarg       end
-       end subroutine prdmts 
+      end subroutine prdmts
 
 

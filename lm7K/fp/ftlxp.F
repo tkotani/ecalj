@@ -5,8 +5,8 @@ Cgetarg...info...           structure ['ftlxp', 'site', 'ssite']
 Cgetarg...info...           structure ['ftlxp', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['ftlxp', 'm_struc_def']
       subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Pkl expansion around all sites of a function given as Fourier series.
 C ----------------------------------------------------------------------
@@ -37,19 +37,19 @@ C     implicit none
 C ... Passed parameters
       integer k0,nbas,ng,nlm0
 Cgetarg       double precision ssite(1),sspec(1),gv(ng,3),alat
-       real(8):: gv(ng,3) , alat 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      real(8):: gv(ng,3) , alat
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
       double complex cv(ng),fkl(0:k0,nlm0,nbas)
 C ... Local parameters
 Cdelw1       integer ib,ilm,ipr,is,k,kmxv,l,lgunit,lmxl,ltop,m,nlm,ntop,og2,oh,
 Cdelw1      .  oyl,stdo,igetss
-       integer:: ib , ilm , ipr , is , k , kmxv , l , lgunit , lmxl 
-     . , ltop , m , nlm , ntop , stdo , igetss 
-       real(8) ,allocatable :: rv_w_og2(:)
-       complex(8) ,allocatable :: zv_w_oh(:)
-       real(8) ,allocatable :: rv_w_oyl(:)
+      integer:: ib , ilm , ipr , is , k , kmxv , l , lgunit , lmxl 
+     . , ltop , m , nlm , ntop , stdo , igetss
+      real(8) ,allocatable :: rv_w_og2(:)
+      complex(8) ,allocatable :: zv_w_oh(:)
+      real(8) ,allocatable :: rv_w_oyl(:)
 
       double precision a,fpi,pfac,pi,rsmv,tip,top,tpiba,df(0:20),
      .  fact(0:20),tau(3)
@@ -70,34 +70,34 @@ C ... Set up spherical harmonics for max l needed
       ltop = -1
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
-         lmxl = int(sspec(is)%lmxl) 
+        lmxl = int(sspec(is)%lmxl)
 
         ltop = max0(ltop,lmxl)
       enddo
       ntop = (ltop+1)**2
 Cdelw1       call defrr(oyl, ntop*ng)
-       allocate(rv_w_oyl(ntop*ng))
+      allocate(rv_w_oyl(ntop*ng))
 Ctakao_ZeroClear_NotRequiered        if (ntop*ng<0) rv_w_oyl(:)=0.0d0
 
 Cdelw1       call defrr(og2, ng)
-       allocate(rv_w_og2(ng))
+      allocate(rv_w_og2(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) rv_w_og2(:)=0.0d0
 
 Cdelw1       call defcc(oh,  ng)
-       allocate(zv_w_oh(ng))
+      allocate(zv_w_oh(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_oh(:)=0.0d0
 
 Cdelw1       call ropyln(ng,gv(1,1),gv(1,2),gv(1,3),ltop,ng,w(oyl),w(og2))
-       call ropyln ( ng , gv ( 1 , 1 ) , gv ( 1 , 2 ) , gv ( 1 , 3 ) 
-     . , ltop , ng , rv_w_oyl , rv_w_og2 ) 
+      call ropyln ( ng , gv ( 1 , 1 ) , gv ( 1 , 2 ) , gv ( 1 , 3 ) 
+     . , ltop , ng , rv_w_oyl , rv_w_og2 )
 
 
 C ... Scale g2 by (2pi/a)**2
 Cdelw1       call dpcopy(w(og2),w(og2),1,ng,tpiba*tpiba)
-       call dpcopy ( rv_w_og2 , rv_w_og2 , 1 , ng , tpiba * tpiba ) 
+      call dpcopy ( rv_w_og2 , rv_w_og2 , 1 , ng , tpiba * tpiba )
 
 
 C --- Start loop over atoms ---
@@ -105,19 +105,19 @@ C --- Start loop over atoms ---
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pos) 
-         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
+        is=ssite(ib)%spec
+        i_copy_size=size(ssite(ib)%pos)
+        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
 
 Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           real(8) :: rsmv , real(8) :: sspec%rsmv 1
 Cgetarg...info...           integer :: kmxv , integer(8) :: sspec%kmxv 1
 Cgetarg         call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
-         
-         lmxl=sspec(is)%lmxl
-         rsmv=sspec(is)%rsmv
-         kmxv=sspec(is)%kmxv
+
+        lmxl=sspec(is)%lmxl
+        rsmv=sspec(is)%rsmv
+        kmxv=sspec(is)%kmxv
 
         if (lmxl .eq. -1) goto 10
 
@@ -131,8 +131,8 @@ Cgetarg         call upack('spec lmxl rsmv kmxv',sspec,is,lmxl,rsmv,kmxv,0)
 
 Cdelw1         call ftlxp2(rsmv,tau,kmxv,k0,nlm,ng,gv,w(og2),w(oyl),w(oh),cv,
 Cdelw1      .    fkl(0,1,ib))
-         call ftlxp2 ( rsmv , tau , kmxv , k0 , nlm , ng , gv , rv_w_og2 
-     .   , rv_w_oyl , zv_w_oh , cv , fkl ( 0 , 1 , ib ) ) 
+        call ftlxp2 ( rsmv , tau , kmxv , k0 , nlm , ng , gv , rv_w_og2 
+     .   , rv_w_oyl , zv_w_oh , cv , fkl ( 0 , 1 , ib ) )
 
 
 C   ... Put in factors independent of G
@@ -171,19 +171,19 @@ C   ... Printout
    10   continue
       enddo
 
-Cdelw1 rlse name= oyl old_list= oyl og2 oh 
+Cdelw1 rlse name= oyl old_list= oyl og2 oh
 Cdelw1 rlse name= oyl new_list= (None)
 Cdelw1       call rlse(oyl)
-       if (allocated(zv_w_oh)) deallocate(zv_w_oh)
-       if (allocated(rv_w_og2)) deallocate(rv_w_og2)
-       if (allocated(rv_w_oyl)) deallocate(rv_w_oyl)
+      if (allocated(zv_w_oh)) deallocate(zv_w_oh)
+      if (allocated(rv_w_og2)) deallocate(rv_w_og2)
+      if (allocated(rv_w_oyl)) deallocate(rv_w_oyl)
 
 
 Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine ftlxp 
+      end subroutine ftlxp
 
 
       subroutine ftlxp2(rsmv,tau,kmxv,k0,nlm,ng,gv,g2,yl,h,cv,fkl)
@@ -227,6 +227,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine ftlxp2 
+      end subroutine ftlxp2
 
 

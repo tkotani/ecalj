@@ -7,7 +7,7 @@ Ci   job:   1s digit specifies boundary conditions
 Ci          0, boundary conditions specified val,slo,nn (see Remarks)
 Ci          1, same as 0, but also g and e assumed to be generated
 Ci          2, boundary conditions specified by energy e (see Remarks)
-Ci          10s digit 
+Ci          10s digit
 Ci          1, set dphip to satisfy Wronskian condition
 Ci   z:     nuclear charge
 Ci   l:     l quantum number for this g
@@ -101,10 +101,10 @@ C ... Setup: extract a and b
       a = log(rofi(nr)/rofi(nr-1))
       tola = 8*dmach(1)
       do   i = 1, 100
-      aold = a
-      a = log(rofi(nr)/rofi(nr-1)/(1-exp(-(nr-1)*a))*(1-exp(-(nr-2)*a)))
-      if (i .gt. 95) write(stdo,'(i4,1p,2e15.5)') i,a,a-aold
-      if (abs(a-aold) .le. tola) goto 1
+        aold = a
+        a = log(rofi(nr)/rofi(nr-1)/(1-exp(-(nr-1)*a))*(1-exp(-(nr-2)*a)))
+        if (i .gt. 95) write(stdo,'(i4,1p,2e15.5)') i,a,a-aold
+        if (abs(a-aold) .le. tola) goto 1
       enddo
       call rx('phidx failed to determine ''a'' parameter')
     1 continue
@@ -130,15 +130,15 @@ C       Adjust slope iteratively until ei(slope)-e is within tole
         eb1 = e-.1d0
         eb2 = e+.1d0
         do  i = 1, 5+5
-        call rseq(eb1,eb2,ei,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nr,nre)
-        if (iprint() .gt. 0 .and. i .gt. 5) then
-          call awrit7(' PHIDX  Z=%d  l=%i  nod=%i  bc=%;4g %;4g'//
+          call rseq(eb1,eb2,ei,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nr,nre)
+          if (iprint() .gt. 0 .and. i .gt. 5) then
+            call awrit7(' PHIDX  Z=%d  l=%i  nod=%i  bc=%;4g %;4g'//
      .      '  e(bc)=%;4g  e(bc)-e=%;4g',' ',80,stdo,z,l,nn,val(1),
      .      slo(1),ei(1),ei(1)-e)
-        endif
+          endif
 
-        if (abs(ei(1)-e) .lt. tole) goto 2
-        slo(1) = slo(1) + (ei(1)-e) * val(1) / g(nr)**2
+          if (abs(ei(1)-e) .lt. tole) goto 2
+          slo(1) = slo(1) + (ei(1)-e) * val(1) / g(nr)**2
         enddo
         call rx('phidx failed to converge')
     2   continue
@@ -150,45 +150,45 @@ C       Adjust slope iteratively until ei(slope)-e is within tole
       if (hcr .ne. 0) call makdla(e-vmtz,l,hcr,slo,val,rmax,phia,dla)
 
       if (nptdif .ne. 0) then
-      ddde = -rmax/g(nr)**2
-      ei(1) = 1
-      ei(2) = -1
-      ei(3) = 1.5d0
-      ei(4) = -1.5d0
-      eb1 = e-.1d0
-      eb2 = e+.1d0
-      do  10  i = 1, nptdif
-        sloi(i) = slo(1) + dele*ei(i)*ddde*val(1)/rmax
-        ei(i) = e + dele*ei(i)
-        call rseq(eb1,eb2,ei(i),tol,z,l,nn,val,sloi(i),v,gp(1,i),
+        ddde = -rmax/g(nr)**2
+        ei(1) = 1
+        ei(2) = -1
+        ei(3) = 1.5d0
+        ei(4) = -1.5d0
+        eb1 = e-.1d0
+        eb2 = e+.1d0
+        do  10  i = 1, nptdif
+          sloi(i) = slo(1) + dele*ei(i)*ddde*val(1)/rmax
+          ei(i) = e + dele*ei(i)
+          call rseq(eb1,eb2,ei(i),tol,z,l,nn,val,sloi(i),v,gp(1,i),
      .            sum,a,b,rofi,nr,nre)
-        vali(i) = val(1)/dsqrt(sum)
-        sloi(i) = sloi(i)/dsqrt(sum)
-        if (hcr .ne. 0) call makdla(ei(i)-vmtz,l,hcr,sloi(i),vali(i),
+          vali(i) = val(1)/dsqrt(sum)
+          sloi(i) = sloi(i)/dsqrt(sum)
+          if (hcr .ne. 0) call makdla(ei(i)-vmtz,l,hcr,sloi(i),vali(i),
      .    rmax,phiai(i),dlai(i))
 
-   10 continue
+   10   continue
 
-      de1  = (ei(1) - ei(2))/2
-      del1 = (ei(1) + ei(2))/2 - e
-      de2  = (ei(3) - ei(4))/2
-      del2 = (ei(3) + ei(4))/2 - e
+        de1  = (ei(1) - ei(2))/2
+        del1 = (ei(1) + ei(2))/2 - e
+        de2  = (ei(3) - ei(4))/2
+        del2 = (ei(3) + ei(4))/2 - e
 C     Energy derivatives of value and slope
-      call dfphi(de1,del1,de2,del2,1,val,vali,nptdif.eq.4)
-      call dfphi(de1,del1,de2,del2,1,slo,sloi,nptdif.eq.4)
+        call dfphi(de1,del1,de2,del2,1,val,vali,nptdif.eq.4)
+        call dfphi(de1,del1,de2,del2,1,slo,sloi,nptdif.eq.4)
 C     Energy derivatives of dla
-      if (hcr .ne. 0) then
-        call dfphi(de1,del1,de2,del2,1,dla,dlai,nptdif.eq.4)
-        call dfphi(de1,del1,de2,del2,1,phia,phiai,nptdif.eq.4)
-        do  12  i = 1, nptdif
-          dlap(i)  = dlai(i)
-          phiap(i) = phiai(i)
-   12   continue
-      endif
+        if (hcr .ne. 0) then
+          call dfphi(de1,del1,de2,del2,1,dla,dlai,nptdif.eq.4)
+          call dfphi(de1,del1,de2,del2,1,phia,phiai,nptdif.eq.4)
+          do  12  i = 1, nptdif
+            dlap(i)  = dlai(i)
+            phiap(i) = phiai(i)
+   12     continue
+        endif
 C     Energy derivatives of g
-      call dfphi(de1,del1,de2,del2,2*nr,g,gp,nptdif.eq.4)
+        call dfphi(de1,del1,de2,del2,2*nr,g,gp,nptdif.eq.4)
 C     p = integral <gp gp>
-      call gintsr(gp,gp,a,b,nr,z,e,l,v,rofi,p)
+        call gintsr(gp,gp,a,b,nr,z,e,l,v,rofi,p)
       endif
 
 C     phi,dphi from val,slo = (r*phi),(r*phi)' at rmax

@@ -3,8 +3,8 @@ Cgetarg...info...           structure ['dfqkkl', 'site', 'ssite']
 Cgetarg...info...           structure ['dfqkkl', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['dfqkkl', 'm_struc_def']
       subroutine dfqkkl(nbas,ssite,sspec,numq,oqkkl)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Allocates arrays to accumulate local output density
 C ----------------------------------------------------------------------
@@ -37,8 +37,8 @@ C ... Passed parameters
 Cdelw1 do not change  [['call', 'array', 'wref'], 'oqkkl', 'dfqkkl']
       integer nbas,numq,oqkkl(3,nbas)
 Cgetarg       double precision  ssite(1),sspec(1)
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
       integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nglob,nlma,nlmh,nsp,
@@ -51,16 +51,16 @@ C ... Local parameters
 C --- Loop over sites, allocating qkkl for each site ---
       do  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
 Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg         call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
-         
-         lmxa=sspec(is)%lmxa
-         lmxh=sspec(is)%lmxb
-         kmax=sspec(is)%kmxt
+
+        lmxa=sspec(is)%lmxa
+        lmxh=sspec(is)%lmxb
+        kmax=sspec(is)%kmxt
 
         if (lmxa .eq. -1) goto 10
 
@@ -88,11 +88,11 @@ c|  836   format('   nelt=',3i6)
       enddo
 
 Cgetarg       end
-Cdelw1 w_varlist remains: oqkkl 
+Cdelw1 w_varlist remains: oqkkl
 Cdelw1 w_varlistundel: [oqkkl]
 Cdelw1 w_varlist (undel), remains: [oqkkl]
 Cdelw1 w_varlist (del), remains: (None)
 Cdelw1 not deallocate oqkkl because of [call array wref]
-       end subroutine dfqkkl 
+      end subroutine dfqkkl
 
 

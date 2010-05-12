@@ -12,8 +12,8 @@ Cgetarg...info...           structure ['rhgcmp', 'spec', 'sspec']
 Cgetarg...info...           structure ['rhgcmp', 'site', 'ssite']
 Cgetarg...info...           use_to_add ['rhgcmp', 'm_struc_def']
       subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,orhat,kmax,ng,cg)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Adds density of compensating gaussians to FT list
 C ----------------------------------------------------------------------
@@ -42,7 +42,7 @@ Ci         :         The system should have net charge sum_z
 Ci         :mode=2   Exclude all core charges, i.e. gaussian (qcorg-z)
 Ci         :  and qcorh from the foca Hankel density.
 Ci         :  The system should have the valence charge.
-Ci         :3 Like 0, but include nuclear charge -Z delta(r) 
+Ci         :3 Like 0, but include nuclear charge -Z delta(r)
 Ci         :  directly in a PW expansion (Z is not smoothed).
 Ci   ssite :struct for site-specific information; see routine usite
 Ci     Elts read: spec pos
@@ -78,9 +78,9 @@ C ... Passed parameters
       integer mode,ib1,ib2,ng,kmax
       integer orhat
 Cgetarg       double precision ssite(1),sspec(1),slat(1)
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double complex cg(ng)
 C ... Local parameters
@@ -88,14 +88,14 @@ C ... Local parameters
      .  nlmtop,nspec,ngabc(3),lfoc,modgkl
 Cdelw1 do not change  [['undef', 'wref'], 'ogv', 'rhgcmp']
 Cdelw1       integer oqkl,ocs,og,og2,ogv,oiv,okv,osn,oyl,nsp
-       integer:: ogv , okv , nsp 
-       real(8) ,allocatable :: rv_w_oqkl(:)
-       real(8) ,allocatable :: rv_w_ocs(:)
-       real(8) ,allocatable :: rv_w_og(:)
-       real(8) ,allocatable :: rv_w_og2(:)
-       integer ,allocatable :: iv_w_oiv(:)
-       real(8) ,allocatable :: rv_w_osn(:)
-       real(8) ,allocatable :: rv_w_oyl(:)
+      integer:: ogv , okv , nsp
+      real(8) ,allocatable :: rv_w_oqkl(:)
+      real(8) ,allocatable :: rv_w_ocs(:)
+      real(8) ,allocatable :: rv_w_og(:)
+      real(8) ,allocatable :: rv_w_og2(:)
+      integer ,allocatable :: iv_w_oiv(:)
+      real(8) ,allocatable :: rv_w_osn(:)
+      real(8) ,allocatable :: rv_w_oyl(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg,
@@ -114,12 +114,12 @@ Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
 Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
 Cgetarg...info...           integer :: ng1 , integer(8) :: slat%ng 1
@@ -127,15 +127,15 @@ Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
 Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng1,ogv,okv,vol)
-       
-       i_copy_size=size(slat%nabc) 
-       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
-       ng1=slat%ng
+
+      i_copy_size=size(slat%nabc)
+      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      ng1=slat%ng
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 115
 Cdelw1 do not change ogv because of ['undef', 'wref']
-       ogv=slat%ogv
-       okv=slat%okv
-       vol=slat%vol
+      ogv=slat%ogv
+      okv=slat%okv
+      vol=slat%vol
 
       nspec = nglob('nspec')
       nsp   = nglob('nsp')
@@ -154,21 +154,21 @@ C --- Set up help arrays ---
       ltop = 0
       do  is = 1, nspec
 Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
-         lmxl = int(sspec(is)%lmxl) 
+        lmxl = int(sspec(is)%lmxl)
 
         ltop = max0(ltop,lmxl)
       enddo
       nlmtop = (ltop+1)**2
 Cdelw1       call defrr (oyl,  ng*nlmtop)
-       allocate(rv_w_oyl(ng*nlmtop))
+      allocate(rv_w_oyl(ng*nlmtop))
 Ctakao_ZeroClear_NotRequiered        if (ng*nlmtop<0) rv_w_oyl(:)=0.0d0
 
 Cdelw1       call defrr (og2,  ng)
-       allocate(rv_w_og2(ng))
+      allocate(rv_w_og2(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) rv_w_og2(:)=0.0d0
 
 Cdelw1       call defrr (og,   ng*3)
-       allocate(rv_w_og(ng*3))
+      allocate(rv_w_og(ng*3))
 Ctakao_ZeroClear_NotRequiered        if (ng*3<0) rv_w_og(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 144
@@ -176,17 +176,17 @@ Cdelw1 do not change ogv because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 144
 Cdelw1 do not change ogv because of ['undef', 'wref']
 Cdelw1       call suylg(ltop,alat,ng,w(ogv),w(og),w(og2),w(oyl))
-       call suylg ( ltop , alat , ng , w ( ogv ) , rv_w_og , rv_w_og2 
-     . , rv_w_oyl ) 
+      call suylg ( ltop , alat , ng , w ( ogv ) , rv_w_og , rv_w_og2 
+     . , rv_w_oyl )
 
-Cdelw1 rlse name= og old_list= oyl og2 og 
-Cdelw1 rlse name= og new_list= oyl og2 
+Cdelw1 rlse name= og old_list= oyl og2 og
+Cdelw1 rlse name= og new_list= oyl og2
 Cdelw1       call rlse (og)
-       if (allocated(rv_w_og)) deallocate(rv_w_og)
+      if (allocated(rv_w_og)) deallocate(rv_w_og)
 
 
 Cdelw1       call defi (oiv, ng*3)
-       allocate(iv_w_oiv(ng*3))
+      allocate(iv_w_oiv(ng*3))
 Ctakao_ZeroClear_NotRequiered        if (ng*3<0) iv_w_oiv(:)=0
 
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 148
@@ -194,14 +194,14 @@ Cdelw1 do not change ogv because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 148
 Cdelw1 do not change ogv because of ['undef', 'wref']
 Cdelw1       call suphs0(plat,ng,w(ogv),w(oiv))
-       call suphs0 ( plat , ng , w ( ogv ) , iv_w_oiv ) 
+      call suphs0 ( plat , ng , w ( ogv ) , iv_w_oiv )
 
 Cdelw1       call defrr (ocs, ng)
-       allocate(rv_w_ocs(ng))
+      allocate(rv_w_ocs(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) rv_w_ocs(:)=0.0d0
 
 Cdelw1       call defrr (osn, ng)
-       allocate(rv_w_osn(ng))
+      allocate(rv_w_osn(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) rv_w_osn(:)=0.0d0
 
 
@@ -211,66 +211,66 @@ C --- Loop over sites ---
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pos) 
-         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
+        is=ssite(ib)%spec
+        i_copy_size=size(ssite(ib)%pos)
+        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
 
 Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
 Cgetarg         call upack('spec lmxl rg',sspec,is,lmxl,rg,0,0)
-         
-         lmxl=sspec(is)%lmxl
-         rg=sspec(is)%rg
+
+        lmxl=sspec(is)%lmxl
+        rg=sspec(is)%rg
 
         if (lmxl .eq. -1) goto 10
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         if (mode .eq. 2) cofh = 0
         nlm = (lmxl+1)**2
 Cdelw1         call suphas(q0,tau,ng,w(oiv),n1,n2,n3,qlat,w(ocs),w(osn))
-         call suphas ( q0 , tau , ng , iv_w_oiv , n1 , n2 , n3 , qlat 
-     .   , rv_w_ocs , rv_w_osn ) 
+        call suphas ( q0 , tau , ng , iv_w_oiv , n1 , n2 , n3 , qlat 
+     .   , rv_w_ocs , rv_w_osn )
 
 
 Cdelw1         call defrr(oqkl,nlm*(kmax+1))
-         allocate(rv_w_oqkl(nlm*(kmax+1)))
+        allocate(rv_w_oqkl(nlm*(kmax+1)))
 Ctakao_ZeroClear_NotRequiered          if (nlm*(kmax+1)<0) rv_w_oqkl(:)=0.0d0
 
         call pshpr(0)
 Cdelw1         call rhogkl(ib,ib,nsp,modgkl,ssite,sspec,orhat,kmax,w(oqkl))
-         call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , orhat 
-     .   , kmax , rv_w_oqkl ) 
+        call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , orhat 
+     .   , kmax , rv_w_oqkl )
 
         call poppr
 Cdelw1         call rhgcm2(vol,rg,rfoc,ceh,cofh,kmax,
 Cdelw1      .    mod(mode/10,10).ge.2,w(oqkl),nlm,ng,
 Cdelw1      .    w(og2),w(oyl),w(ocs),w(osn),cg)
-         call rhgcm2 ( vol , rg , rfoc , ceh , cofh , kmax , mod ( mode 
+        call rhgcm2 ( vol , rg , rfoc , ceh , cofh , kmax , mod ( mode 
      .   / 10 , 10 ) .ge.2 , rv_w_oqkl , nlm , ng , rv_w_og2 , rv_w_oyl 
-     .   , rv_w_ocs , rv_w_osn , cg ) 
+     .   , rv_w_ocs , rv_w_osn , cg )
 
 Cdelw1         if (mode .ge. 200) call rhgcm3(-z,vol,ng,w(ocs),w(osn),cg)
-         if ( mode .ge. 200 ) call rhgcm3 ( - z , vol , ng , rv_w_ocs 
-     .   , rv_w_osn , cg ) 
+        if ( mode .ge. 200 ) call rhgcm3 ( - z , vol , ng , rv_w_ocs 
+     .   , rv_w_osn , cg )
 
-Cdelw1 rlse name= oqkl old_list= oyl og2 oiv ocs osn oqkl 
-Cdelw1 rlse name= oqkl new_list= oyl og2 oiv ocs osn 
+Cdelw1 rlse name= oqkl old_list= oyl og2 oiv ocs osn oqkl
+Cdelw1 rlse name= oqkl new_list= oyl og2 oiv ocs osn
 Cdelw1         call rlse(oqkl)
-         if (allocated(rv_w_oqkl)) deallocate(rv_w_oqkl)
+        if (allocated(rv_w_oqkl)) deallocate(rv_w_oqkl)
 
 
         iv0 = iv0+nlm
    10   continue
       enddo
 
-Cdelw1 rlse name= oyl old_list= oyl og2 oiv ocs osn 
+Cdelw1 rlse name= oyl old_list= oyl og2 oiv ocs osn
 Cdelw1 rlse name= oyl new_list= (None)
 Cdelw1       call rlse (oyl)
-       if (allocated(rv_w_osn)) deallocate(rv_w_osn)
-       if (allocated(rv_w_ocs)) deallocate(rv_w_ocs)
-       if (allocated(iv_w_oiv)) deallocate(iv_w_oiv)
-       if (allocated(rv_w_og2)) deallocate(rv_w_og2)
-       if (allocated(rv_w_oyl)) deallocate(rv_w_oyl)
+      if (allocated(rv_w_osn)) deallocate(rv_w_osn)
+      if (allocated(rv_w_ocs)) deallocate(rv_w_ocs)
+      if (allocated(iv_w_oiv)) deallocate(iv_w_oiv)
+      if (allocated(rv_w_og2)) deallocate(rv_w_og2)
+      if (allocated(rv_w_oyl)) deallocate(rv_w_oyl)
 
       call tcx('rhgcmp')
 Cgetarg       end
@@ -278,7 +278,7 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [ogv]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine rhgcmp 
+      end subroutine rhgcmp
 
 
       subroutine rhgcm2(vol,rg,rfoc,ceh,cofh,kmax,lcor,qkl,nlm,ng,g2,yl,
@@ -338,7 +338,7 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine rhgcm2 
+      end subroutine rhgcm2
 
       subroutine rhgcm3(z,vol,ng,cs,sn,cg)
 
@@ -355,9 +355,9 @@ Co   cg    :Clebsch Gordon coefficients, stored in condensed form (scg.f)
 Cl Local variables
 Cl         :
 Cr Remarks
-Cr   
+Cr
 Cu Updates
-Cu   26 Oct 01 
+Cu   26 Oct 01
 C ----------------------------------------------------------------------
 
 C     implicit none
@@ -378,6 +378,6 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine rhgcm3 
+      end subroutine rhgcm3
 
 

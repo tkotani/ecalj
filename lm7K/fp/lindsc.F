@@ -71,7 +71,7 @@ C ... Early exit if elind is zero => eps = 1
         elseif (job .eq. 4) then
           cn(i) = 1 / eps
         endif
-   22   continue
+   22 continue
 
       end
 

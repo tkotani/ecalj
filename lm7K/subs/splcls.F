@@ -3,7 +3,7 @@
 C- Splits species into classes
 C ----------------------------------------------------------------------
 Ci Inputs:
-Ci   nosplt:   T copy class and species 
+Ci   nosplt:   T copy class and species
 Ci   bas,nbas: dimensionless basis vectors, and number
 Ci   nspec:    number of species
 Ci   ipc:      on input, site j belongs to species ipc(j)
@@ -41,62 +41,63 @@ ccccccccccccccccccccccccccc
       call icopy(nspec,1,0,nrclas,1)
       nclass = nspec
       do  5  i = 1, nspec
-    5 ics(i) = i
+        ics(i) = i
+    5 continue
 
       if (nosplt) then
       else
 C --- For each species, split to make equivalent classes ---
-      ic = 1
-   10 if (ic .le. nclass) then
-        is = ics(ic)
-        ib = iclbsj(ic,ipc,-nbas,1)
-C   ... No sites of this class ... skip   
-        if (ib .lt. 0) goto 11
-        lyetno = .true.
+        ic = 1
+   10   if (ic .le. nclass) then
+          is = ics(ic)
+          ib = iclbsj(ic,ipc,-nbas,1)
+C   ... No sites of this class ... skip
+          if (ib .lt. 0) goto 11
+          lyetno = .true.
 C   ... For each basis atom in this class, do
-        do  20  jb = 1, nbas
+          do  20  jb = 1, nbas
 C         print *, 'jb=',ib,jb,nclass
-         if (ipc(jb) .eq. ic) then
+            if (ipc(jb) .eq. ic) then
 C      ... If there is a g mapping ib->jb, sites are equivalent
-           do  22  ig = 1, ng
-             if (istab(ib,ig) .eq. jb) goto 20
-   22      continue
+              do  22  ig = 1, ng
+                if (istab(ib,ig) .eq. jb) goto 20
+   22         continue
 C      ... If there is a g mapping jb->ib, sites are equivalent
-           do  23  ig = 1, ng
-             if (istab(jb,ig) .eq. ib) goto 20
-   23      continue
+              do  23  ig = 1, ng
+                if (istab(jb,ig) .eq. ib) goto 20
+   23         continue
 C 04 Apr 03 consider these other possibilities
 C      ... If there is a g mapping ib->kb,jb, sites are equivalent
-           do  24  ig = 1, ng
-             if (istab(istab(ib,ig),ig) .eq. jb) goto 20
-   24      continue
+              do  24  ig = 1, ng
+                if (istab(istab(ib,ig),ig) .eq. jb) goto 20
+   24         continue
 C      ... If there is a g mapping jb->kb,ib, sites are equivalent
-           do  25  ig = 1, ng
-             if (istab(istab(jb,ig),ig) .eq. ib) goto 20
-   25      continue
+              do  25  ig = 1, ng
+                if (istab(istab(jb,ig),ig) .eq. ib) goto 20
+   25         continue
 C      ... There wasn't one
-           if (ipr .ge. 70) then
-             write(stdo,400) slabl(is),ib,(bas(m,ib),m = 1,3),
+              if (ipr .ge. 70) then
+                write(stdo,400) slabl(is),ib,(bas(m,ib),m = 1,3),
      .                              jb,(bas(m,jb),m = 1,3)
-           endif
+              endif
 C      ... If the classes haven't been split yet, do so
-           if (lyetno) then
-             nclass = nclass+1
-             icn  =  nclass
-             ics(icn) = is
-             nrclas(is) = nrclas(is)+1
-             lyetno = .false.
-           endif
-           if (nclass .gt. nbas) then
-             call rx('splcls:  problem with istab')
-           endif
-           icn  =  nclass
-           ipc(jb)=  icn
-         endif
-   20   continue
-   11   ic = ic + 1
-        goto 10
-      endif
+              if (lyetno) then
+                nclass = nclass+1
+                icn  =  nclass
+                ics(icn) = is
+                nrclas(is) = nrclas(is)+1
+                lyetno = .false.
+              endif
+              if (nclass .gt. nbas) then
+                call rx('splcls:  problem with istab')
+              endif
+              icn  =  nclass
+              ipc(jb)=  icn
+            endif
+   20     continue
+   11     ic = ic + 1
+          goto 10
+        endif
       endif
 
 ccccccccccccccccccccccccc
@@ -132,7 +133,7 @@ C --- Printout ---
           endif
    42   continue
    43   continue
-   40  continue
+   40 continue
 
   400 format(' SPLCLS: species: ',a,'has inequivalent positions:'/
      .       '  IB: ',i3,',  POS=',3f10.5/

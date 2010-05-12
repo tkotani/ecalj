@@ -1,13 +1,13 @@
 Cgetarg...info...           structure ['sugcut', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['sugcut', 'm_struc_def']
       subroutine sugcut(mode,nspec,sspec,alat,ng,gv,tol)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Find max recip for each spec and orbital block, store in struct.
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   mode  :1 make cutoffs for standard envelope functions 
+Ci   mode  :1 make cutoffs for standard envelope functions
 Ci         :2 make cutoffs for extended local orbitals
 Ci         :3 combination 1+2
 Ci   nspec :number of species
@@ -33,8 +33,8 @@ C     implicit none
 C ... Passed parameters
       integer mode,nspec,ng
 Cgetarg       double precision sspec(1),alat,gv(ng,3),tol
-       real(8):: alat , gv(ng,3) , tol 
-       type(s_spec)::sspec(*)
+      real(8):: alat , gv(ng,3) , tol
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
       integer nkap0,n0
@@ -66,9 +66,9 @@ C ... Local parameters
       gg = -1
       do  is = 1, nspec
 Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
-         do i_spacks=is,is 
-         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-         enddo
+        do i_spacks=is,is
+          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+        enddo
 
         nkap1 = 1
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
@@ -81,65 +81,65 @@ Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
         call iinit(ncut,n0*nkap0)
 Cgetarg...info...           integer :: ncut(n0,nkap0) , integer(8) :: sspec%ngcut 30
 Cgetarg         if (mode .eq. 2) call upack('spec ngcut',sspec,is,ncut,0,0,0)
-         if ( mode .eq. 2 ) then 
-         
-         i_copy_size=size(sspec(is)%ngcut) 
-         call i8icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1) 
-         endif 
+        if ( mode .eq. 2 ) then
+
+          i_copy_size=size(sspec(is)%ngcut)
+          call i8icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1)
+        endif
 
         gg0 = gg
         do  ik = nkap1, nkap2
-        lcut = -1
-        do  l  = 0, lh(ik)
-          e = eh(l+1,ik)
-          rsm = rsmh(l+1,ik)
-          if (rsm .ne. 0) then
-          if (l .lt. lh(ik) .and. l .gt. lcut) then
-            lcut = l-1
-   12       lcut = lcut+1
-            if (lcut .lt. lh(ik)) then
-            if (rsmh(lcut+2,ik).eq.rsm .and. eh(lcut+2,ik).eq.e) goto 12
-            endif
-          endif
+          lcut = -1
+          do  l  = 0, lh(ik)
+            e = eh(l+1,ik)
+            rsm = rsmh(l+1,ik)
+            if (rsm .ne. 0) then
+              if (l .lt. lh(ik) .and. l .gt. lcut) then
+                lcut = l-1
+   12           lcut = lcut+1
+                if (lcut .lt. lh(ik)) then
+                  if (rsmh(lcut+2,ik).eq.rsm .and. eh(lcut+2,ik).eq.e) goto 12
+                endif
+              endif
 C     ... Get cutoff radius where exp(-gam*gmax)*gmax**l equals tol
-          gam = rsm*rsm/4d0
-          gmax = 1d0
-          do  irep = 1, 10
-            gmax = dsqrt(-dlog(tol/gmax**l)/gam)
+              gam = rsm*rsm/4d0
+              gmax = 1d0
+              do  irep = 1, 10
+                gmax = dsqrt(-dlog(tol/gmax**l)/gam)
 C           write(stdo,895) irep,gmax
 C 895       format('irep,gmax=',i5,f12.6)
-          enddo
+              enddo
 C     ... Find first longer vector, icut is one less
-          icut = 1
-          do  i = 1, ng
-            gg = tpiba2*(gv(i,1)**2+gv(i,2)**2+gv(i,3)**2)
-            if (gg .gt. gmax*gmax) goto 90
-            icut = i
-            gg0 = gg
-          enddo
-   90     continue
-          top = dexp(-gam*gg0)*dsqrt(gg0)**l
-          ccc = ' '
-          if (icut .eq. ng) ccc = '*'
-          ccl = ' '
-          if (l .lt. lcut) ccl = '*'
-          if (ipr .ge. 20) write(stdo,773) spid,l,ccl,rsm,e,gmax,
+              icut = 1
+              do  i = 1, ng
+                gg = tpiba2*(gv(i,1)**2+gv(i,2)**2+gv(i,3)**2)
+                if (gg .gt. gmax*gmax) goto 90
+                icut = i
+                gg0 = gg
+              enddo
+   90         continue
+              top = dexp(-gam*gg0)*dsqrt(gg0)**l
+              ccc = ' '
+              if (icut .eq. ng) ccc = '*'
+              ccl = ' '
+              if (l .lt. lcut) ccl = '*'
+              if (ipr .ge. 20) write(stdo,773) spid,l,ccl,rsm,e,gmax,
      .      top,icut,ccc
-  773     format(2x,a,i2,a1,f7.2,f7.2,f8.3,1p,e12.2,0p,i8,a)
-  774     format(' spec      l    rsm',4x,'eh',5x,'gmax',
+  773         format(2x,a,i2,a1,f7.2,f7.2,f8.3,1p,e12.2,0p,i8,a)
+  774         format(' spec      l    rsm',4x,'eh',5x,'gmax',
      .       4x,'last term',4x,'cutoff')
-          ncut(l+1,ik) = icut
-          endif
-        enddo
+              ncut(l+1,ik) = icut
+            endif
+          enddo
         enddo
 Cgetarg...info...           integer :: ncut(n0,nkap0) , integer(8) :: sspec%ngcut 30
 Cgetarg         call pack2('spec ngcut',sspec,is,ncut)
-         
-         i_copy_size=size(sspec(is)%ngcut) 
-         call ii8copy(i_copy_size,ncut,1,sspec(is)%ngcut,1) 
+
+        i_copy_size=size(sspec(is)%ngcut)
+        call ii8copy(i_copy_size,ncut,1,sspec(is)%ngcut,1)
 
       enddo
 Cgetarg       end
-       end subroutine sugcut 
+      end subroutine sugcut
 
 

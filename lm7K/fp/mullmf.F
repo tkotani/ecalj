@@ -4,8 +4,8 @@ Cgetarg...info...           use_to_add ['mullmf', 'm_struc_def']
 #define F90 1
       subroutine mullmf(nbas,ssite,sspec,iprmb,z,n,nspc,iq,isp,mode,
      .  nsites,lsites,lmxch,nchan,lchan,lmdim,nddos,doswt)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Make Mulliken decomposition of the norm at this k-point
 C ----------------------------------------------------------------------
@@ -46,9 +46,9 @@ C ... Passed parameters
       integer nbas,nspc,iq,isp,n,iprmb(1),mode,nsites,
      .  lsites(nsites),nchan,lchan(nchan),lmxch,lmdim,nddos
 Cgetarg       double precision ssite(1),sspec(1),doswt(nchan,nddos*nspc,nspc)
-       real(8):: doswt(nchan,nddos*nspc,nspc) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      real(8):: doswt(nchan,nddos*nspc,nspc)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
       double complex z(n,nspc,n*nspc)
 C ... Local parameters
@@ -121,13 +121,13 @@ C --- Loop over channels ---
         ib = lsites(isite)
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
-         
-         is=ssite(ib)%spec
+
+        is=ssite(ib)%spec
 
 Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
 Cgetarg         call upack('spec lmxb',sspec,is,lmxb,0,0,0)
-         
-         lmxb=sspec(is)%lmxb
+
+        lmxb=sspec(is)%lmxb
 
 C   ... Loop over all orbitals centered at this site
         call orbl(ib,0,n,iprmb,norb,ltab,ktab,xx,offl,xx)
@@ -142,33 +142,33 @@ C       ksp = isp  in the collinear case
 C           = ispc in the noncollinear case
 C       whereas ispc=1 for independent spins, and spin index when nspc=2
         do  ispc = 1, nspc
-        ksp = max(ispc,isp)
+          ksp = max(ispc,isp)
 
-        do  io = 1, norb
-          l  = ltab(io)
-          ikap  = ktab(io)
-          nlm1 = l**2+1
-          nlm2 = (l+1)**2
+          do  io = 1, norb
+            l  = ltab(io)
+            ikap  = ktab(io)
+            nlm1 = l**2+1
+            nlm2 = (l+1)**2
 C         i = orbital index in iprmb order
-          i = offl(io)
-          if (i .gt. n) call rx (' bug in mullmf: i>n')
-          if (ipr .ge. iprmin) write(stdo,3) l,nlm1,nlm2,ikap,i+1
-    3     format (33x,i1,3x,i2,5x,i2,6x,i1,3x,i5)
-          do  ilm = nlm1, nlm2
-            i = i + 1
-            if (atp) jlm = 1
-            if (lp)  jlm = l+1
-            if (lmp) jlm = ilm
-            call mchan(lmdim,0d0,0d0,0,nsites,0,isite,jlm,1,ichan,lchan)
-            if (ichan .gt. nchan) call rx(' bug in mullmf: ichan>nchan')
-            if (ipr .ge. iprmin) write(stdo,4) ilm,ichan
-    4       format (65x,i2,1x,i4)
-            do  iband = 1, nev
-              doswt(ichan,iband,ispc) = doswt(ichan,iband,ispc) +
+            i = offl(io)
+            if (i .gt. n) call rx (' bug in mullmf: i>n')
+            if (ipr .ge. iprmin) write(stdo,3) l,nlm1,nlm2,ikap,i+1
+    3       format (33x,i1,3x,i2,5x,i2,6x,i1,3x,i5)
+            do  ilm = nlm1, nlm2
+              i = i + 1
+              if (atp) jlm = 1
+              if (lp)  jlm = l+1
+              if (lmp) jlm = ilm
+              call mchan(lmdim,0d0,0d0,0,nsites,0,isite,jlm,1,ichan,lchan)
+              if (ichan .gt. nchan) call rx(' bug in mullmf: ichan>nchan')
+              if (ipr .ge. iprmin) write(stdo,4) ilm,ichan
+    4         format (65x,i2,1x,i4)
+              do  iband = 1, nev
+                doswt(ichan,iband,ispc) = doswt(ichan,iband,ispc) +
      .          dble( zt(iband,i,ispc)*z(i,ispc,iband) )
+              enddo
             enddo
           enddo
-        enddo
         enddo
 
       enddo
@@ -190,6 +190,6 @@ C      enddo
       call tcx('mullmf')
 
 Cgetarg       end
-       end subroutine mullmf 
+      end subroutine mullmf
 
 

@@ -48,67 +48,68 @@ C --- I/O through master node only (MPI) ---
       if (mpipid(1) .eq. master) then
 
 C --- Write ---
-      if (ifi .lt. 0) then
+        if (ifi .lt. 0) then
 C       rewind (-ifi)
-        if (neul .ne. 1 .and. neul .ne. nl .and. neul .ne. nl*nl)
+          if (neul .ne. 1 .and. neul .ne. nl .and. neul .ne. nl*nl)
      .    call rxi('ioeula: bad dim for eula: neula=',neul)
-        call awrit3('%% rows %i cols %i neula %i',ss,80,0,nbas*neul,3,
+          call awrit3('%% rows %i cols %i neula %i',ss,80,0,nbas*neul,3,
      .    neul)
-        nxsi = 0
-        do  11  i = 1, 3
-        if (xsi(i) .eq. 0) goto 12
-   11   nxsi = nxsi+1
-   12   continue
-        if (nxsi .gt. 0)
+          nxsi = 0
+          do  11  i = 1, 3
+            if (xsi(i) .eq. 0) goto 12
+            nxsi = nxsi+1
+   11     continue
+   12     continue
+          if (nxsi .gt. 0)
      .    call awrit3('%a nxsi=%i %n:1;6,6d',ss,80,0,nxsi,nxsi,xsi)
-        call awrit0('%a',ss,80,ifi)
-        do  10  i = 1, nbas
-          if (neul .gt. 1) call awrit1('# ib %,4i',' ',80,-ifi,i)
-          write(-ifi,'(3f16.12)') ((eula(i,j,k),k=1,3),j=1,neul)
-   10   continue
+          call awrit0('%a',ss,80,ifi)
+          do  10  i = 1, nbas
+            if (neul .gt. 1) call awrit1('# ib %,4i',' ',80,-ifi,i)
+            write(-ifi,'(3f16.12)') ((eula(i,j,k),k=1,3),j=1,neul)
+   10     continue
 C --- Read ---
-      else
-        call getpr(ipr)
-        rewind ifi
-        nr = 0
-        call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
+        else
+          call getpr(ipr)
+          rewind ifi
+          nr = 0
+          call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
      .    ilist,nlist,vnam,ctbl,mxchr,ss,recrd,recl,nr)
 C   ... No error if file is empty, but don't bother reading
-        if (nr .eq. 0) then
-          if (ipr .gt. 30) print '('' IOEULA:   empty file'')'
-          return
-        endif
-        if (ss(1:1) .eq. '%') then
-C   ... Read xsi if it is there
-        i = 0
-        if (parstr(ss,'nxsi=',len(ss)-5,5,' ',i,j)) then
-          j = j-1
-          i = j
-          if (a2bin(ss,nxsi,2,0,' ',j,len(ss)-5)) then
-            j = a2vec(ss,len(ss)-5,i,4,' #',2,2,nxsi+1,ix,tmp)
-            if (j .ne. nxsi+1) call rx('ioeula:  failed to read xsi')
-            call dcopy(nxsi,tmp(2),1,xsi,1)
+          if (nr .eq. 0) then
+            if (ipr .gt. 30) print '('' IOEULA:   empty file'')'
+            return
           endif
-        endif
-        neul = 1
-        i = 0
-        if (parstr(ss,'neula ',len(ss)-6,6,' ',i,j)) then
-          if (.not. a2bin(ss,neul,2,0,' ',j,len(ss)))
+          if (ss(1:1) .eq. '%') then
+C   ... Read xsi if it is there
+            i = 0
+            if (parstr(ss,'nxsi=',len(ss)-5,5,' ',i,j)) then
+              j = j-1
+              i = j
+              if (a2bin(ss,nxsi,2,0,' ',j,len(ss)-5)) then
+                j = a2vec(ss,len(ss)-5,i,4,' #',2,2,nxsi+1,ix,tmp)
+                if (j .ne. nxsi+1) call rx('ioeula:  failed to read xsi')
+                call dcopy(nxsi,tmp(2),1,xsi,1)
+              endif
+            endif
+            neul = 1
+            i = 0
+            if (parstr(ss,'neula ',len(ss)-6,6,' ',i,j)) then
+              if (.not. a2bin(ss,neul,2,0,' ',j,len(ss)))
      .      call rx('ioeula: failed to parse for neula')
-        endif
-        else
-          neul = 1
-          rewind ifi
-        endif
+            endif
+          else
+            neul = 1
+            rewind ifi
+          endif
 
 C   ... Expect nbas*neul*3 rows in file ... skip reading if not
-        if (neul .ne. 1 .and. neul .ne. nl .and. neul .ne. nl*nl)
+          if (neul .ne. 1 .and. neul .ne. nl .and. neul .ne. nl*nl)
      .    call rxi('ioeula: illegal dimension: neula =',neul)
-        nc = 3
-        ss2 = 'in'
-        if (neul .eq. nl) ss2 = ' '
-        if (neul .eq. nl*nl) ss2 = '%bm-'
-        if (ipr .gt. 30) call awrit1(' IOEULA:  reading l-'//ss2//
+          nc = 3
+          ss2 = 'in'
+          if (neul .eq. nl) ss2 = ' '
+          if (neul .eq. nl*nl) ss2 = '%bm-'
+          if (ipr .gt. 30) call awrit1(' IOEULA:  reading l-'//ss2//
      .      '%adependent Euler angles (file %i)',' ',80,lgunit(1),ifi)
 C        if (nr .ne. neul*nbas .or. nc .ne. 3) then
 C          if (ipr .ge. 20) call awrit3(' ioeula: input skipped --'//
@@ -116,21 +117,21 @@ C     .      ' expected %i rows (3 cols) but found %i (%i cols)',
 C     .      ' ',80,lgunit(1),neul*nbas,nr,nc)
 
 C   ... Read the data, 1 atom at a time ...
-        call dpzero(eula,nbas*neul*3)
-        do  20  i = 1, nbas
-          call rxx(rdm(ifi,0,neul*nc,' ',tmp,neul,nc).ne.1,
+          call dpzero(eula,nbas*neul*3)
+          do  20  i = 1, nbas
+            call rxx(rdm(ifi,0,neul*nc,' ',tmp,neul,nc).ne.1,
      .      'ioeula:  bad file')
-          call dmcpy(tmp,neul,1,eula(i,1,1),nbas*neul,nbas,neul,nc)
+            call dmcpy(tmp,neul,1,eula(i,1,1),nbas*neul,nbas,neul,nc)
    20     continue
           if (ipr .ge. 50) call pvioeu(1,0d0,eula,nbas,neul)
-      endif
+        endif
       endif
 Cgetarg       end
-       end subroutine ioeula 
+      end subroutine ioeula
 
       subroutine pvioeu(mode,ssite,eula,nbas,neul)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Writes the Euler angles to a file or to stdout
 C ----------------------------------------------------------------------
@@ -159,8 +160,8 @@ C     implicit none
 C ... Passed parameters
       integer mode,nbas,neul
 Cgetarg       double precision eula(nbas,neul,3),ssite(1)
-       real(8):: eula(nbas,neul,3) 
-       type(s_site)::ssite(*)
+      real(8):: eula(nbas,neul,3)
+      type(s_site)::ssite(*)
 
 C ... Local parameters
       integer i,j,k,lgunit,stdo,mode0,mode1,lbl
@@ -201,9 +202,9 @@ c     .  11x,'z axis rotated to:')
       do  21  i = 1, nbas
         if (ssite(1)%size .ne. 0) then
 Cgetarg           call spacks(0,'site clabel',ssite,clabl,i,i)
-           do i_spacks=i,i 
-           call spacks_copy('u',ssite(i_spacks)%clabel,i,i,clabl,i_spacks)
-           enddo
+          do i_spacks=i,i
+            call spacks_copy('u',ssite(i_spacks)%clabel,i,i,clabl,i_spacks)
+          enddo
 
         endif
         if (neul .gt. 1 .and. mode0 .ne. 0) then
@@ -225,6 +226,6 @@ Cgetarg           call spacks(0,'site clabel',ssite,clabl,i,i)
    21 continue
 
 Cgetarg       end
-       end subroutine pvioeu 
+      end subroutine pvioeu
 
 

@@ -16,7 +16,7 @@ Ci             diagonal blocks.
 Ci         10s digit
 Ci         :0  h is in real spherical harmonics
 Ci         :Add 2 if h is in true (complex) spherical harmonics
-Ci         :    See cb2sph.f and s2sph.f for definition of true 
+Ci         :    See cb2sph.f and s2sph.f for definition of true
 Ci         :    spherical harmonics.
 Ci         :Add 4 if phase convention phi = q * [(g R_j + a) - R_i]
 Ci         :  should be scaled by -1
@@ -521,7 +521,7 @@ Ci         :5  same as case 1, but h contains only blocks diagonal in l
 Ci         :10s digit
 Ci         :0  h is in real spherical harmonics
 Ci         :Add 2 if h is in true (complex) spherical harmonics
-Ci         :    See cb2sph.f and s2sph.f for definition of true 
+Ci         :    See cb2sph.f and s2sph.f for definition of true
 Ci         :    spherical harmonics.
 Ci         :Add 4 if phase convention phi = q * [(g R_j + a) - R_i]
 Ci         :  should be scaled by -1
@@ -625,9 +625,10 @@ C   ... Skip over diagonal site second pass
 C   ... Setup for multiplication by phase
 C       tbas = (g R_j + a) - R_i; should be a lattice vector
         do  34  i = 1, 3
-        tbas(i) = ag(i) - bas(i,ibas)
-        do  36  j = 1, 3
-   36   tbas(i) = tbas(i) + g(i,j)*bas(j,jbas)
+          tbas(i) = ag(i) - bas(i,ibas)
+          do  36  j = 1, 3
+            tbas(i) = tbas(i) + g(i,j)*bas(j,jbas)
+   36     continue
    34   continue
 C       exp(i q tbas)
         sp = twopi*(tbas(1)*q(1) + tbas(2)*q(2) + tbas(3)*q(3))
@@ -651,14 +652,14 @@ C         be repeated until all blocks are exhausted.
           k1 = offlj(korb)+1
           k2 = offlj(korb)
    16     continue
-            k2 = k2 + 2*ltab(korb)+1
-            if (korb .lt. norb) then
+          k2 = k2 + 2*ltab(korb)+1
+          if (korb .lt. norb) then
 C             If contiguous, increment korb and increase k2
-              if (offlj(korb+1) .eq. k2) then
-                korb = korb + 1
-                goto 16
-              endif
+            if (offlj(korb+1) .eq. k2) then
+              korb = korb + 1
+              goto 16
             endif
+          endif
 C         For ii (or hh) case, h, h0 consists only of ii (or hh) block
           if (opt4 .gt. 1) then
             k1 = k1-ldmpa
@@ -710,12 +711,12 @@ C         When h is in l-diagonal form,  see comment above.
           else
             do  22  k = k1, k2
             do  22  i = 1, nlmi
-            h0(i+offi,k-ofb) = 0
-            h0(i+offi+of0i,k-ofb) = 0
+              h0(i+offi,k-ofb) = 0
+              h0(i+offi+of0i,k-ofb) = 0
             do  22  j = 1, nlmi
-            h0(i+offi,k-ofb) =      h0(i+offi,k-ofb) +
+              h0(i+offi,k-ofb) =      h0(i+offi,k-ofb) +
      .                              rmat(i+offr,j+offr)*h(j+offj,k)
-            h0(i+of0i+offi,k-ofb) = h0(i+of0i+offi,k-ofb) +
+              h0(i+of0i+offi,k-ofb) = h0(i+of0i+offi,k-ofb) +
      .                              rmat(i+offr,j+offr)*h(j+offj+ofhi,k)
    22       continue
           endif
@@ -725,8 +726,9 @@ C     --- Multiply rows by phase ---
             do  24  i = 1, nlmi
 C             print 456, offi+i,cosP,sinP
 C  456        format(' phase',i4,2f15.10)
-   24       call yscal(nk,cosP,sinP,
+              call yscal(nk,cosP,sinP,
      .          h0(offi+i,k1-ofb),h0(offi+of0i+i,k1-ofb),ld0a)
+   24       continue
           endif
    20   continue
 C       Case column blocks are not contiguous
@@ -752,7 +754,7 @@ Ci         :1  rotate site-diagonal part of h
 Ci         :10s digit
 Ci         :0  h is in real spherical harmonics
 Ci         :Add 2 if h is in true (complex) spherical harmonics
-Ci         :    See cb2sph.f and s2sph.f for definition of true 
+Ci         :    See cb2sph.f and s2sph.f for definition of true
 Ci         :    spherical harmonics.
 Ci   nl2   :leading dimension of rmat
 Ci   nbas  :size of basis
@@ -842,9 +844,10 @@ C   ... Skip over diagonal site second pass
 C   ... Setup for multiplication by phase
 C       tbas = (g R_j + a) - R_i; should be a lattice vector
         do  34  i = 1, 3
-        tbas(i) = ag(i) - bas(i,ibas)
-        do  36  j = 1, 3
-   36   tbas(i) = tbas(i) + g(i,j)*bas(j,jbas)
+          tbas(i) = ag(i) - bas(i,ibas)
+          do  36  j = 1, 3
+            tbas(i) = tbas(i) + g(i,j)*bas(j,jbas)
+   36     continue
    34   continue
 C       exp(i q tbas)
         sp = twopi*(tbas(1)*q(1) + tbas(2)*q(2) + tbas(3)*q(3))
@@ -868,14 +871,14 @@ C         be repeated until all blocks are exhausted.
           k1 = offli(korb)+1
           k2 = offli(korb)
    16     continue
-            k2 = k2 + 2*ltab(korb)+1
-            if (korb .lt. norb) then
+          k2 = k2 + 2*ltab(korb)+1
+          if (korb .lt. norb) then
 C             If contiguous, increment korb and increase k2
-              if (offli(korb+1) .eq. k2) then
-                korb = korb + 1
-                goto 16
-              endif
+            if (offli(korb+1) .eq. k2) then
+              korb = korb + 1
+              goto 16
             endif
+          endif
 C         For ii (or hh) case, h, h0 consist only of ii (or hh) block
           if (opt4 .gt. 1) then
             k1 = k1-ldmpb
@@ -924,9 +927,9 @@ C         When h is in l-diagonal form,  see comment above.
             do  22  i = 1, nlmi
             do  22  j = 1, nlmi
             do  22  k = k1, k2
-            h(k,i+offi) = h(k,i+offi) +
+              h(k,i+offi) = h(k,i+offi) +
      .                    h0(k-ofa,j+offj)*rmat(i+offr,j+offr)
-            h(k+ofhi,i+offi) = h(k+ofhi,i+offi) +
+              h(k+ofhi,i+offi) = h(k+ofhi,i+offi) +
      .                    h0(k+of0i-ofa,j+offj)*rmat(i+offr,j+offr)
    22       continue
           endif
@@ -934,7 +937,8 @@ C         When h is in l-diagonal form,  see comment above.
 C     --- Multiply columns by phase ---
           if (dabs(sp) .gt. 1d-8) then
             do  24  i = 1, nlmi
-   24       call yscal(nk,cosP,-sinP,h(k1,offi+i),h(k1+ofhi,offi+i),1)
+              call yscal(nk,cosP,-sinP,h(k1,offi+i),h(k1+ofhi,offi+i),1)
+   24       continue
           endif
 
 C         Increment offi in diagonal case
@@ -1023,8 +1027,8 @@ C ... rotate entire h
         protht = 1
 C ... site-diagonal h
       elseif (opt0 .eq. 1) then
-       call pvrots(opt0,nbas,ldha,ldhb,iprmb,ldmpa,ldima,nch,nrh,ofhi,h)
-       protht = 0
+        call pvrots(opt0,nbas,ldha,ldhb,iprmb,ldmpa,ldima,nch,nrh,ofhi,h)
+        protht = 0
 C ... rows and columns connected with one site
       elseif (opt0 .eq. 3) then
         if (nlma.ne.nlmb .or. ldima.ne.ldimb .or. ofa1.ne.ofb1) return
@@ -1049,9 +1053,9 @@ C ... rows and columns connected with one site
         protht = 1
 C ... hh block
       elseif (opt0 .eq. 5) then
-       if (ibla .ne. 3 .or. iblb .ne. 3) return
-       call pvrots(opt0,nbas,ldha,ldhb,iprmb,ldmpa,ldima,nch,nrh,ofhi,h)
-       protht = 0
+        if (ibla .ne. 3 .or. iblb .ne. 3) return
+        call pvrots(opt0,nbas,ldha,ldhb,iprmb,ldmpa,ldima,nch,nrh,ofhi,h)
+        protht = 0
 
       else
         return
@@ -1066,14 +1070,14 @@ C ... hh block
       double precision wkr,wki
 
       do  i = 1, nlm
-      do  j = 1, ndim
-        wkr = sr(i,j,1)
-        wki = sr(i,j,2)
-        sr(i,j,1) = sc(j,i,1)
-        sr(i,j,2) = sc(j,i,2)
-        sc(j,i,1) = wkr
-        sc(j,i,2) = wki
-      enddo
+        do  j = 1, ndim
+          wkr = sr(i,j,1)
+          wki = sr(i,j,2)
+          sr(i,j,1) = sc(j,i,1)
+          sr(i,j,2) = sc(j,i,2)
+          sc(j,i,1) = wkr
+          sc(j,i,2) = wki
+        enddo
       enddo
       end
 
@@ -1089,18 +1093,18 @@ C Local variables
       double precision xx
 
       do  jb = 1, nbas
-      korb = 0
-      call orbl(jb,ldmpa,ldima,iprmb,norb,ltab,ktab,xx,offlj,nlm)
-      if (nlm .ne. 0) then
-   12   continue
+        korb = 0
+        call orbl(jb,ldmpa,ldima,iprmb,norb,ltab,ktab,xx,offlj,nlm)
+        if (nlm .ne. 0) then
+   12     continue
 C       We cannot assume orbitals are contiguous.  Count the number of
 C       contiguous orbitals.  korb will be index to last contiguous
 C       orbital, and k1..k2 will encompass the offsets in h.  Must
 C       be repeated until all blocks are exhausted.
-        korb = korb+1
-        k1 = offlj(korb)+1
-        k2 = offlj(korb)
-   16   continue
+          korb = korb+1
+          k1 = offlj(korb)+1
+          k2 = offlj(korb)
+   16     continue
           k2 = k2 + 2*ltab(korb)+1
 C         Look for contiguous blocks (not higher blocks)
           if (korb .lt. norb .and. opt0 .ne. 5) then
@@ -1111,21 +1115,21 @@ C         Look for contiguous blocks (not higher blocks)
           endif
 
 C       For higher blocks h consists of hh block;
-        if (opt0 .eq. 5) then
+          if (opt0 .eq. 5) then
 C         k1-ldmpa = offset rel to start of hh block
 C         k1-offlj(1) = offset for start of this atom
-          k1 = k1-offlj(1)
-          k2 = k2-offlj(1)
-          call ymtrns(0,h(k1-ldmpa+offlj(1),k1),nch,nrh,ofhi,xx,xx,xx,
+            k1 = k1-offlj(1)
+            k2 = k2-offlj(1)
+            call ymtrns(0,h(k1-ldmpa+offlj(1),k1),nch,nrh,ofhi,xx,xx,xx,
      .      xx,k1,k2,k1,k2)
-        else
-          k1 = k1-ldmpa
-          k2 = k2-ldmpa
-          call ymtrns(0,h,nch,nrh,ofhi,xx,xx,xx,xx,k1,k2,k1,k2)
-        endif
+          else
+            k1 = k1-ldmpa
+            k2 = k2-ldmpa
+            call ymtrns(0,h,nch,nrh,ofhi,xx,xx,xx,xx,k1,k2,k1,k2)
+          endif
 
-        if (korb .lt. norb) goto 12
-      endif
+          if (korb .lt. norb) goto 12
+        endif
       enddo
 
       end

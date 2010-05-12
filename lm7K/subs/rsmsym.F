@@ -193,7 +193,7 @@ c      do  ig = 2, ng
       igend = ng
 #endif
 
-      do ig=igini,igend   
+      do ig=igini,igend
 
 C   ... Rotation matrix for this ig
         call ylmrtg(nlm,g(1,ig),rmat)
@@ -256,7 +256,7 @@ C       ... Also the connecting vector of ksite must be rv
             vk(3) = dx(3,ksite)
             if (abs(rv(1)-vk(1)) + abs(rv(2)-vk(2)) + abs(rv(3)-vk(3))
      .          .lt. fuzz) goto 42
-   40     continue
+   40       continue
           enddo
 C         Case missing symmetry-equivalent sites permitted
           if (lmiss) then
@@ -265,9 +265,9 @@ C         Case missing symmetry-equivalent sites permitted
             lmissi = .true.
             ksite = isite
           else
-          call info5(10,0,0,' rsmsym (aborting) no connecting vector '//
+            call info5(10,0,0,' rsmsym (aborting) no connecting vector '//
      .      'for is,ib,jb= %i %i %i',isite,ib,jb,0,0)
-          call rx('RSMSYM: bad or incomplete neighbor table')
+            call rx('RSMSYM: bad or incomplete neighbor table')
           endif
    42     continue
 
@@ -284,23 +284,23 @@ C     --- Rotate s(isite) into syms(ksite) ---
           ks = offz(scplx,ksite)
 
           do  isp = 1, nsp
-          ksp = offz(scplx,isp)
+            ksp = offz(scplx,isp)
 
-          if (lsclr) then
-            syms(1,1,ksp,ks) = syms(1,1,ksp,ks) + s(1,1,ksp,is)
-          else
+            if (lsclr) then
+              syms(1,1,ksp,ks) = syms(1,1,ksp,ks) + s(1,1,ksp,is)
+            else
 
 C         Complex case: copy s to work array wkz1
-          if (scplx .ne. 0) then
+              if (scplx .ne. 0) then
 C            print *, 'ks is', ksite,ks
 C            call zprm('s',2,s(1,1,ksp,ks),nds,nds,nds)
-            call zmscop(0,nds,nds,nds,mxorb,0,0,0,0,s(1,1,ksp,is),wkz1)
-            if (kcplx .ne. 1) then
-              call ztoyy(wkz1,mxorb,mxorb,nds,nds,kcplx,1)
-            endif
+                call zmscop(0,nds,nds,nds,mxorb,0,0,0,0,s(1,1,ksp,is),wkz1)
+                if (kcplx .ne. 1) then
+                  call ztoyy(wkz1,mxorb,mxorb,nds,nds,kcplx,1)
+                endif
 C           call zprm('wkz1',2,wkz1,mxorb,nds,nds)
-          endif
-          if (.not. lmissi) then
+              endif
+              if (.not. lmissi) then
 C     ... For each iorb, wk(iorb) =  rmat * s(is).  Only rows mix
 C         Index jb corresponds to row (augmentation) index
 C         Index ib corresponds to col (source) index
@@ -312,33 +312,33 @@ C           ( |xxx| )     ( |                    )
 C           ( |xxx| )     ( |                    )
 C           ( |xxx| )     (_|____________________)
 C           ( |   |x)     (_|____________________)
-          if (scplx .ne. 0) call dpzero(wkz2,mxorb**2*2)
-          do  jorb = 1, norbj
-            lj = ltabj(jorb)
-            nlmj = 2*lj + 1
-            offr = lj**2
-            offj = offlj(jorb) - offrj
-            if (scplx .eq. 0) then
-            do  k = 1, ndimi
-            do  i = 1, nlmj
-            wk(i+offj,k) = 0
-            do  j = 1, nlmj
-              wk(i+offj,k) = wk(i+offj,k) +
+                if (scplx .ne. 0) call dpzero(wkz2,mxorb**2*2)
+                do  jorb = 1, norbj
+                  lj = ltabj(jorb)
+                  nlmj = 2*lj + 1
+                  offr = lj**2
+                  offj = offlj(jorb) - offrj
+                  if (scplx .eq. 0) then
+                    do  k = 1, ndimi
+                      do  i = 1, nlmj
+                        wk(i+offj,k) = 0
+                        do  j = 1, nlmj
+                          wk(i+offj,k) = wk(i+offj,k) +
      .                       rmat(i+offr,j+offr)*s(j+offj,k,ksp,is)
-            enddo
-            enddo
-            enddo
-            else
-              do  k = 1, ndimi
-              do  i = 1, nlmj
-              do  j = 1, nlmj
-              wkz2(i+offj,k) = wkz2(i+offj,k) +
+                        enddo
+                      enddo
+                    enddo
+                  else
+                    do  k = 1, ndimi
+                      do  i = 1, nlmj
+                        do  j = 1, nlmj
+                          wkz2(i+offj,k) = wkz2(i+offj,k) +
      .                         rmat(i+offr,j+offr)*wkz1(j+offj,k)
-              enddo
-              enddo
-              enddo
-            endif
-          enddo
+                        enddo
+                      enddo
+                    enddo
+                  endif
+                enddo
 
 C     ... For each iorb, syms += wk(iorb) * rmat+.  Only columns mix
 C         Index jb corresponds to row (augmentation) index
@@ -351,56 +351,56 @@ C       |     ( |                    )     ( |xxx| )
 C     ndimj   ( |                    )     ( |xxx| )
 C       |     (_|____________________)     ( |xxx| )
 C       |     (_|____________________)     ( |   |x)
-          if (scplx .ne. 0) call dpzero(wkz1,mxorb**2*2)
-          do  iorb = 1, norbi
-            li = ltabi(iorb)
-            nlmi = 2*li + 1
-            offr = li**2
-            offi = offli(iorb) - offri
-            if (scplx .eq. 0) then
-              do  i = 1, nlmi
-              do  j = 1, nlmi
-              do  k = 1, ndimj
-                syms(k,i+offi,ksp,ks) = syms(k,i+offi,ksp,ks) +
+                if (scplx .ne. 0) call dpzero(wkz1,mxorb**2*2)
+                do  iorb = 1, norbi
+                  li = ltabi(iorb)
+                  nlmi = 2*li + 1
+                  offr = li**2
+                  offi = offli(iorb) - offri
+                  if (scplx .eq. 0) then
+                    do  i = 1, nlmi
+                      do  j = 1, nlmi
+                        do  k = 1, ndimj
+                          syms(k,i+offi,ksp,ks) = syms(k,i+offi,ksp,ks) +
      .                                  wk(k,j+offi)*rmat(i+offr,j+offr)
-              enddo
-              enddo
-              enddo
-            else
-              do  i = 1, nlmi
-              do  j = 1, nlmi
-              do  k = 1, ndimj
-                wkz1(k,i+offi) = wkz1(k,i+offi) +
+                        enddo
+                      enddo
+                    enddo
+                  else
+                    do  i = 1, nlmi
+                      do  j = 1, nlmi
+                        do  k = 1, ndimj
+                          wkz1(k,i+offi) = wkz1(k,i+offi) +
      .                           wkz2(k,j+offi)*rmat(i+offr,j+offr)
-              enddo
-              enddo
-              enddo
-            endif
-          enddo
+                        enddo
+                      enddo
+                    enddo
+                  endif
+                enddo
 
 C         Case no matching vector: just add s(ksp,is) to syms(ksp,is)
 C         so norm correct when scaling by 1/ng
 
-          else if (scplx .eq. 0) then
-            call dmscop(1,nds,nds,mxorb,nds,0,0,0,0,syms(1,1,ksp,ks),
+              else if (scplx .eq. 0) then
+                call dmscop(1,nds,nds,mxorb,nds,0,0,0,0,syms(1,1,ksp,ks),
      .        syms(1,1,ksp,ks))
 
-          endif
+              endif
 
-          if (scplx .ne. 0) then
-            if (kcplx .ne. 1) then
-              call ztoyy(wkz1,mxorb,mxorb,nds,nds,1,kcplx)
-            endif
+              if (scplx .ne. 0) then
+                if (kcplx .ne. 1) then
+                  call ztoyy(wkz1,mxorb,mxorb,nds,nds,1,kcplx)
+                endif
 
 C            if (ksp .eq. 1 .and. ks .eq. 1) then
 C              print 338, isite, ig, wkz1(1,1)
 C  338         format(' adding from isite',i4,'  for ig',i4,2f12.6)
 C            endif
 
-            call zmscop(1,nds,nds,mxorb,nds,0,0,0,0,wkz1,
+                call zmscop(1,nds,nds,mxorb,nds,0,0,0,0,wkz1,
      .        syms(1,1,ksp,ks))
-          endif
-          endif
+              endif
+            endif
 
 C          i = offz(scplx,ksite)
 C          if (ksite .eq. 2)
@@ -447,7 +447,7 @@ C          call prmx('rotated',wk,nlm,nlm,nlm)
 C          call prmx('dest now',syms(1,1,ksp,ks),nlm,nlm,nlm)
 C          endif
           enddo
-   20   continue
+   20     continue
         enddo
       enddo
 

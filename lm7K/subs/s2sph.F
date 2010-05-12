@@ -126,15 +126,15 @@ C ... Overwrite wk with u*s*u+, where u is defined as in cb2wk
 
 C      call yprm('u s u+',2,wk,ndwk*ndwk,ndwk,nla**2,nlb**2)
 
-       if (mod(opt,10) .eq. 0) then
-         call ymscop(0,nla*nla,nlb*nlb,ndwk,ndss1,0,0,0,0,
+      if (mod(opt,10) .eq. 0) then
+        call ymscop(0,nla*nla,nlb*nlb,ndwk,ndss1,0,0,0,0,
      .     wk,ndwk*ndwk,sph,ndss1*ndss2)
-       elseif (mod(opt,10) .eq. 1) then
-         call rx('s2sph not ready for complex*16 format')
-       else
-         call ymscop(0,nla*nla,nlb*nlb,ndwk,ndss1*2,0,0,0,0,
+      elseif (mod(opt,10) .eq. 1) then
+        call rx('s2sph not ready for complex*16 format')
+      else
+        call ymscop(0,nla*nla,nlb*nlb,ndwk,ndss1*2,0,0,0,0,
      .     wk,ndwk*ndwk,sph,ndss1)
-       endif
+      endif
 
 C       m = 2+mod(opt,10)
 C       call yprm('u s u+ from s2sph',m,sph,ndss1**2,ndss1,nla*nla,

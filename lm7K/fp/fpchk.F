@@ -21,8 +21,8 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
 Cgetarg       double precision sspec(1),ssite(1)
-       type(s_spec)::sspec(*)
-       type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
 
 
       call info(5,2,0,
@@ -32,19 +32,19 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine fpchk 
+      end subroutine fpchk
 
 
       subroutine chkxpn(ssite,sspec)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Check accuracy of Pkl expansions of augmented functions
 C     implicit none
 C ... Passed parameters
 Cgetarg       double precision ssite(1),sspec(1)
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
 C ... Local parameters
       integer k0,nlm0,nrx,n0,nkap0,stdo,lgunit
@@ -53,10 +53,10 @@ C ... Local parameters
 Cdelw1       integer nglob,nbas,nspec,ib1,is,oips,
 Cdelw1      .  iclbsj,nr,j1,nch,lmxa,kmax,lh(nkap0),nkapi,ik,l1,l2,l,
 Cdelw1      .  lmax,nlm,k,i,ilm,ipr
-       integer:: nglob , nbas , nspec , ib1 , is , iclbsj , nr , j1 
+      integer:: nglob , nbas , nspec , ib1 , is , iclbsj , nr , j1 
      . , nch , lmxa , kmax , lh(nkap0) , nkapi , ik , l1 , l2 , l , 
-     . lmax , nlm , k , i , ilm , ipr 
-       integer ,allocatable :: iv_w_oips(:)
+     . lmax , nlm , k , i , ilm , ipr
+      integer ,allocatable :: iv_w_oips(:)
 
       double precision c(0:k0,nlm0),
      .  rofi(nrx),rwgt(nrx),pkl(0:k0,0:n0),
@@ -81,23 +81,23 @@ C ... setup
      .   /' Only column ''tail'' matters for program accuracy.')
 
 Cdelw1       call defi(oips,nbas)
-       allocate(iv_w_oips(nbas))
+      allocate(iv_w_oips(nbas))
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oips(:)=0
 
 Cgetarg       call spackv(10,'site spec',ssite,1,nbas,w(oips))
-       i_copy_size=1; 
-       do i_spackv=1,nbas 
+      i_copy_size=1;
+      do i_spackv=1,nbas
 Cdelw1        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
         call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-     .  , i_copy_size , i_spackv + 1 - 1 , iv_w_oips ) 
+     .  , i_copy_size , i_spackv + 1 - 1 , iv_w_oips )
 
-       enddo
+      enddo
 
 
 C --- Loop over species ---
       do  40  is = 1, nspec
 Cdelw1         ib1 = iclbsj(is,w(oips),-nbas,1)
-         ib1 = iclbsj ( is , iv_w_oips , - nbas , 1 ) 
+        ib1 = iclbsj ( is , iv_w_oips , - nbas , 1 )
 
         if (ib1 .lt. 0) then
           if (ipr .ge. 20) write(stdo,
@@ -107,9 +107,9 @@ Cdelw1         ib1 = iclbsj(is,w(oips),-nbas,1)
         endif
 
 Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
-         do i_spacks=is,is 
-         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-         enddo
+        do i_spacks=is,is
+          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+        enddo
 
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
@@ -117,11 +117,11 @@ Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
 Cgetarg         call upack('spec rmt rsma lmxa kmxt',sspec,is,rmt,rsma,lmxa,
 Cgetarg      .    kmax)
-         
-         rmt=sspec(is)%rmt
-         rsma=sspec(is)%rsma
-         lmxa=sspec(is)%lmxa
-         kmax=sspec(is)%kmxt
+
+        rmt=sspec(is)%rmt
+        rsma=sspec(is)%rsma
+        lmxa=sspec(is)%lmxa
+        kmax=sspec(is)%kmxt
 
 C        call u_spec_p(sspec,is,!z,lmxl,lmxa,pnu,idmod,!a0,!nr0,rmt)
 C        call u_spec_a(sspec,is,lmxa,lmxh,kmax,rsma)
@@ -141,84 +141,84 @@ C        call u_spec_a(sspec,is,lmxa,lmxh,kmax,rsma)
 C  ...  Loop over orbitals for this species
         write(stdo,948)
         do  ik = 1, nkapi
-        l2 = -1
-        do  l1  = 0, lh(ik)
-          e = eh(l1+1,ik)
-          rsm = rsmh(l1+1,ik)
-          if (rsm .ne. 0 .and. l1 .gt. l2) then
-            l2 = l1-1
-   12       l2 = l2+1
-            if (l2 .lt. lh(ik)) then
-            if (rsmh(l2+2,ik).eq.rsm .and. eh(l2+2,ik).eq.e) goto 12
-            endif
+          l2 = -1
+          do  l1  = 0, lh(ik)
+            e = eh(l1+1,ik)
+            rsm = rsmh(l1+1,ik)
+            if (rsm .ne. 0 .and. l1 .gt. l2) then
+              l2 = l1-1
+   12         l2 = l2+1
+              if (l2 .lt. lh(ik)) then
+                if (rsmh(l2+2,ik).eq.rsm .and. eh(l2+2,ik).eq.e) goto 12
+              endif
 
-          lmax = l2
-          nlm = (lmax+1)**2
+              lmax = l2
+              nlm = (lmax+1)**2
 
-          if (nlm .gt. nlm0) call rxi('chkxpn: need nlm0 ge',nlm)
-          if (kmax .gt. k0)  call rxi('chkxpn: need k0 ge',kmax)
+              if (nlm .gt. nlm0) call rxi('chkxpn: need nlm0 ge',nlm)
+              if (kmax .gt. k0)  call rxi('chkxpn: need k0 ge',kmax)
 
 C     ... Compare expanded and exact head,tail functions
-          do  l = 0, lmax
-            difh(l) = 0d0
-            sumh(l) = 0d0
-            difj(l) = 0d0
-            sumj(l) = 0d0
-          enddo
-
-          call hxpos(rsmh,rsma,eh,kmax,nlm,k0,c)
-C         call hxps(rsmh,rsma,e,kmax,nlm,k0,c)
-          call jxpos(rsma,e,kmax,lmax,k0,cj)
-          aa = 1d0/rsm
-
-          do  i = 1, nr
-            r = rofi(i)
-            call radpkl(r,rsma,kmax,lmax,k0,pkl)
-            call hansmr(r,e,aa,xi,lmax)
-            call bessl(e*r*r,lmax,phi,psi)
-            do  l = 0, lmax
-              if (l .eq. 0) then
-                rl = 1
-              else
-                rl = r**l
-              endif
-              ilm = l*l+1
-              fith = 0d0
-              fitj = 0d0
-              do  k = 0, kmax
-                fith = fith + c(k,ilm)*pkl(k,l)*rl
-                fitj = fitj + cj(k,l)*pkl(k,l)*rl
+              do  l = 0, lmax
+                difh(l) = 0d0
+                sumh(l) = 0d0
+                difj(l) = 0d0
+                sumj(l) = 0d0
               enddo
-              fcth = xi(l)*rl
-              fctj = phi(l)*rl
-              wgt = rwgt(i)*r*r*rl
-              difh(l) = difh(l) + wgt* (fith-fcth)**2
-              sumh(l) = sumh(l) + wgt* fcth**2
-              difj(l) = difj(l) + wgt* (fitj-fctj)**2
-              sumj(l) = sumj(l) + wgt* fctj**2
-            enddo
-          enddo
 
-          do  l = l1, l2
-            errh(l) = dsqrt(difh(l)/sumh(l))
-            errj(l) = dsqrt(difj(l)/sumj(l))
-            write(stdo,947) l,rsm,e,lch(l),errh(l),errj(l)
-  947       format(i4,f10.3,f9.3,2x,3x,a1,1p,6d12.2)
-  948       format(/' block    rsm        e      l',6x,
+              call hxpos(rsmh,rsma,eh,kmax,nlm,k0,c)
+C         call hxps(rsmh,rsma,e,kmax,nlm,k0,c)
+              call jxpos(rsma,e,kmax,lmax,k0,cj)
+              aa = 1d0/rsm
+
+              do  i = 1, nr
+                r = rofi(i)
+                call radpkl(r,rsma,kmax,lmax,k0,pkl)
+                call hansmr(r,e,aa,xi,lmax)
+                call bessl(e*r*r,lmax,phi,psi)
+                do  l = 0, lmax
+                  if (l .eq. 0) then
+                    rl = 1
+                  else
+                    rl = r**l
+                  endif
+                  ilm = l*l+1
+                  fith = 0d0
+                  fitj = 0d0
+                  do  k = 0, kmax
+                    fith = fith + c(k,ilm)*pkl(k,l)*rl
+                    fitj = fitj + cj(k,l)*pkl(k,l)*rl
+                  enddo
+                  fcth = xi(l)*rl
+                  fctj = phi(l)*rl
+                  wgt = rwgt(i)*r*r*rl
+                  difh(l) = difh(l) + wgt* (fith-fcth)**2
+                  sumh(l) = sumh(l) + wgt* fcth**2
+                  difj(l) = difj(l) + wgt* (fitj-fctj)**2
+                  sumj(l) = sumj(l) + wgt* fctj**2
+                enddo
+              enddo
+
+              do  l = l1, l2
+                errh(l) = dsqrt(difh(l)/sumh(l))
+                errj(l) = dsqrt(difj(l)/sumj(l))
+                write(stdo,947) l,rsm,e,lch(l),errh(l),errj(l)
+  947           format(i4,f10.3,f9.3,2x,3x,a1,1p,6d12.2)
+  948           format(/' block    rsm        e      l',6x,
      .         'head',8x,'tail')
 
 
+              enddo
+            endif
           enddo
-          endif
-        enddo
         enddo
   40  continue
 Cgetarg       end
-Cdelw1 w_varlist remains: oips 
+Cdelw1 w_varlist remains: oips
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [oips]
-        if (allocated(iv_w_oips)) deallocate(iv_w_oips)
+      if (allocated(iv_w_oips)) deallocate(iv_w_oips)
 
-       end subroutine chkxpn 
+      end subroutine chkxpn
 
 

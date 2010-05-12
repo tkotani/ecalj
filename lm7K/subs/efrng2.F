@@ -53,20 +53,20 @@ C --- Find bottom and top of each band ---
       call dvset(ebbot,1,nband*nsp,elo)
       call dvset(ebtop,1,nband*nsp,ehi)
       do  ikp = 1, nkp
-      do  isp = 1, nsp
-      do  iba = 1, nband
-        if (eband(iba,isp,ikp) .ne. enull) then
-          ebbot(iba,isp) = min(ebbot(iba,isp),eband(iba,isp,ikp))
-          ebtop(iba,isp) = max(ebtop(iba,isp),eband(iba,isp,ikp))
-        endif
-      enddo
-      enddo
+        do  isp = 1, nsp
+          do  iba = 1, nband
+            if (eband(iba,isp,ikp) .ne. enull) then
+              ebbot(iba,isp) = min(ebbot(iba,isp),eband(iba,isp,ikp))
+              ebtop(iba,isp) = max(ebtop(iba,isp),eband(iba,isp,ikp))
+            endif
+          enddo
+        enddo
       enddo
 C     Set all -enull to enull to float to top when sorted
       do  isp = 1, nsp
-      do  iba = 1, nband
-        if (ebtop(iba,isp) .eq. -enull) ebtop(iba,isp) = enull
-      enddo
+        do  iba = 1, nband
+          if (ebtop(iba,isp) .eq. -enull) ebtop(iba,isp) = enull
+        enddo
       enddo
 C     Sort bands irrespective of spin
       call dshell(nband*nsp,ebbot)

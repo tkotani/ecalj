@@ -3,8 +3,8 @@ Cgetarg...info...           structure ['mchan', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['mchan', 'm_struc_def']
       subroutine mchan(lmdim,ssite,sspec,nsp,nsites,lsites,ib,ilm,io,
      .                 ichan,lchan)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- set or get Mulliken channel for site ib and ilm index
 C ----------------------------------------------------------------------
@@ -32,8 +32,8 @@ C Passed Parameters
       integer lmdim,nsp,nsites,lsites(nsites),lchan(lmdim,nsites),
      .        ib,ilm,io,ichan
 Cgetarg       double precision ssite(1),sspec(1)
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
 
 C Local Variables
       integer i,j,lgunit,js,igetss,jb
@@ -53,18 +53,18 @@ C Local Variables
         do  j = 1, nsites
           jb = lsites(j)
 Cgetarg           js = igetss('site spec',jb,ssite)
-           js = int(ssite(jb)%spec) 
+          js = int(ssite(jb)%spec)
 
 Cgetarg           call spacks(0,'spec name',sspec,clabl,js,js)
-           do i_spacks=js,js 
-           call spacks_copy('u',sspec(i_spacks)%name,js,js,clabl,i_spacks)
-           enddo
+          do i_spacks=js,js
+            call spacks_copy('u',sspec(i_spacks)%name,js,js,clabl,i_spacks)
+          enddo
 
           write (lgunit(1),1) j, clabl, (lchan(i,j),i=1,lmdim)
         enddo
       endif
     1 format (1x,i3,5x,a8,1x,256i3)
 Cgetarg       end
-       end subroutine mchan 
+      end subroutine mchan
 
 

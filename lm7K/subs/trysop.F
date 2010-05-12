@@ -10,13 +10,15 @@ C     implicit none
       lok = 0
       do 10 kb = 1,nbas
         do 2 m = 1,3
-        d(m) = 0
+          d(m) = 0
         do 2 k = 1,3
-    2   d(m) = d(m)+g(m,k)*(tau(k,kb)-tau(k,ib))
+          d(m) = d(m)+g(m,k)*(tau(k,kb)-tau(k,ib))
+    2   continue
         kbp = 0
         do 11 kk = 1,nbas
           do 12 m = 1,3
-   12     dif(m) = d(m)-(tau(m,kk)-tau(m,jb))
+            dif(m) = d(m)-(tau(m,kk)-tau(m,jb))
+   12     continue
           call shorbz(dif,dif,rb,qb)
           if(dif(1)**2+dif(2)**2+dif(3)**2.lt.1.d-10) then
             kbp = kk
@@ -27,36 +29,39 @@ C     implicit none
           call awrit3(' trysop ib=%i:  no site analogous to'//
      .      ' site %i from site %i',' ',80,i1mach(2),ib,kb,jb)
           if (iprint() .ge. 80) then
-         call awrit1(' missing atom at: %3:1,6;6d',' ',80,i1mach(2),dif)
-          do 32 m = 1,3
-   32     dif(m) = tau(m,kb)-tau(m,ib)
-         call awrit1('    vector kb-ib: %3:1,6;6d',' ',80,i1mach(2),dif)
-          call awrit1('  after rotation: %3:1,6;6d',' ',80,i1mach(2),d)
+            call awrit1(' missing atom at: %3:1,6;6d',' ',80,i1mach(2),dif)
+            do 32 m = 1,3
+              dif(m) = tau(m,kb)-tau(m,ib)
+   32       continue
+            call awrit1('    vector kb-ib: %3:1,6;6d',' ',80,i1mach(2),dif)
+            call awrit1('  after rotation: %3:1,6;6d',' ',80,i1mach(2),d)
+          endif
         endif
-      endif
-      return
-   13 iclas1 = ipclas(kb)
-      iclas2 = ipclas(kbp)
-      if (iprint().ge.60 .and.iclas1.ne.iclas2 .or. iprint().ge.70) then
-        call awrit6(' trysop ib=%i jb=%i:  site %i class %i'//
+        return
+   13   iclas1 = ipclas(kb)
+        iclas2 = ipclas(kbp)
+        if (iprint().ge.60 .and.iclas1.ne.iclas2 .or. iprint().ge.70) then
+          call awrit6(' trysop ib=%i jb=%i:  site %i class %i'//
      .    ' maps to site %i class %i',' ',80,i1mach(2),ib,jb,
      .    kb,iclas1,kbp,iclas2)
-        if (iprint() .ge. 80) then
-          do 42 m = 1,3
-   42     dif(m) = tau(m,kb)-tau(m,ib)
-         call awrit1('    vector kb-ib: %3:1,6;6d',' ',80,i1mach(2),dif)
-         call awrit1('  after rotation: %3:1,6;6d',' ',80,i1mach(2),d)
-       endif
-      endif
+          if (iprint() .ge. 80) then
+            do 42 m = 1,3
+              dif(m) = tau(m,kb)-tau(m,ib)
+   42       continue
+            call awrit1('    vector kb-ib: %3:1,6;6d',' ',80,i1mach(2),dif)
+            call awrit1('  after rotation: %3:1,6;6d',' ',80,i1mach(2),d)
+          endif
+        endif
 
-      if (iclas1.ne.iclas2) return
+        if (iclas1.ne.iclas2) return
    10 continue
 
       lok = 1
       do 3 m = 1,3
-      trans(m) = tau(m,jb)
+        trans(m) = tau(m,jb)
       do 3 k = 1,3
-    3 trans(m) = trans(m)-g(m,k)*tau(k,ib)
+        trans(m) = trans(m)-g(m,k)*tau(k,ib)
+    3 continue
       call shorbz(trans,trans,rb,qb)
       end
 

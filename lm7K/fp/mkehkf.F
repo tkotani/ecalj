@@ -1,8 +1,8 @@
 Cgetarg...info...           structure ['mkehkf', 'ham', 'sham']
 Cgetarg...info...           use_to_add ['mkehkf', 'm_struc_def']
       subroutine mkehkf(mode,sham,sev,valmom,sumtv,etot)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Make Harris energy or Kohn-Sham energy
 C ----------------------------------------------------------------------
@@ -50,8 +50,8 @@ C     implicit none
 C ... Passed parameters
       integer mode
 Cgetarg       double precision sham(1),sev,etot,sumtv,valmom
-       real(8):: sev , etot , sumtv , valmom 
-       type(s_ham)::sham
+      real(8):: sev , etot , sumtv , valmom
+      type(s_ham)::sham
 
 C ... Local parameters
       integer stdo,stdl,ipr,ipl,nsp,nglob
@@ -85,9 +85,9 @@ C     stdl = lgunit(2)
       ipl = 1
 Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
 Cgetarg       call upack1('ham eterms',sham,eterms)
-       
-       i_copy_size=size(sham%eterms) 
-       call dcopy(i_copy_size,sham%eterms,1,eterms,1) 
+
+      i_copy_size=size(sham%eterms)
+      call dcopy(i_copy_size,sham%eterms,1,eterms,1)
 
       sumev = sev
 
@@ -115,9 +115,9 @@ ccccccccccccccc
       endif
 Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
 Cgetarg       call pack1('ham eterms',sham,eterms)
-       
-       i_copy_size=size(sham%eterms) 
-       call dcopy(i_copy_size,eterms,1,sham%eterms,1) 
+
+      i_copy_size=size(sham%eterms)
+      call dcopy(i_copy_size,eterms,1,sham%eterms,1)
 
       if (mode .eq. 0) return
 
@@ -130,46 +130,46 @@ C      print *, 'xxrhoexc=',rhoexc
 
 C --- Printout ---
       if (mode .eq. 1) then
-      if (ipr .ge. 30) then
-        write(stdo,660) sev,valvef,sumtv,sumec,xcore,ttcor,rhoexc,utot,
+        if (ipr .ge. 30) then
+          write(stdo,660) sev,valvef,sumtv,sumec,xcore,ttcor,rhoexc,utot,
      .    eh
-  660 format(/' Harris energy:'
+  660     format(/' Harris energy:'
      .       /' sumev= ',f15.6,'  val*vef=',f15.6,'   sumtv=',f15.6
      .       /' sumec= ',f15.6,'  cor*vef=',f15.6,'   ttcor=',f15.6
      .       /' rhoeps=',f15.6,'     utot=',f15.6,'    ehar=',f15.6)
 C 660 format(/' sumev= ',f17.8,'  val*vef=',f17.8,'   sumtv=',f17.8
 C    .       /' sumec= ',f17.8,'  cor*vef=',f17.8,'   ttcor=',f17.8
 C    .       /' rhoeps=',f17.8,'     utot=',f17.8,'    etot=',f17.8)
-      elseif (ipr .ge. 10) then
-        call awrit4('%N ekin=%,6;6d  rho*v=%,6;6d  sumev=%,6;6d'//
+        elseif (ipr .ge. 10) then
+          call awrit4('%N ekin=%,6;6d  rho*v=%,6;6d  sumev=%,6;6d'//
      .    ' ehf =%,6;6d',' ',80,stdo,ekin,utot+rhoexc,sev,eh)
-      endif
-      if (ipr.gt.0 .and. ipl.gt.0) write (stdl,720) utot,ekin,sev,etot
-  720 format('fp Har: U',f15.6,'  T',f15.6,'  sev',f14.6,'  EH ',f14.6)
+        endif
+        if (ipr.gt.0 .and. ipl.gt.0) write (stdl,720) utot,ekin,sev,etot
+  720   format('fp Har: U',f15.6,'  T',f15.6,'  sev',f14.6,'  EH ',f14.6)
 
       elseif (mode .eq. 2) then
-      if (ipr .ge. 30) then
-        if (rhosig .ne. -99 .and. rhosig .ne. 0) then
-          write (stdo,411) sumtv,sumtc,ekin,rhoexc,utot,rhosig,eks
-  411     format(/' Kohn-Sham energy:'
+        if (ipr .ge. 30) then
+          if (rhosig .ne. -99 .and. rhosig .ne. 0) then
+            write (stdo,411) sumtv,sumtc,ekin,rhoexc,utot,rhosig,eks
+  411       format(/' Kohn-Sham energy:'
      .           /' sumtv= ',f15.6,'  sumtc=',f17.6,'   ekin=',f16.6
      .           /' rhoep= ',f15.6,'   utot=',f17.6,' rhosig=',f16.6
      .           /'  ehks=', f16.6)
-        else
-          write (stdo,410) sumtv,sumtc,ekin,rhoexc,utot,eks
-  410     format(/' Kohn-Sham energy:'
+          else
+            write (stdo,410) sumtv,sumtc,ekin,rhoexc,utot,eks
+  410       format(/' Kohn-Sham energy:'
      .           /' sumtv= ',f15.6,'  sumtc=',f17.6,'   ekin=',f16.6
      .           /' rhoep= ',f15.6,'   utot=',f17.6,'   ehks=',f16.6)
-        endif
-        if (nsp .eq. 2) write (stdo,412) valmom,amom
-  412   format(' mag. mom=',f13.6,'  (bands)',f16.6,'  (output rho)')
+          endif
+          if (nsp .eq. 2) write (stdo,412) valmom,amom
+  412     format(' mag. mom=',f13.6,'  (bands)',f16.6,'  (output rho)')
 
-      elseif (ipr .ge. 10) then
-        call awrit4('%N ekin=%,6;6d  rho*v=%,6;6d ehf =%,6;6d'//
+        elseif (ipr .ge. 10) then
+          call awrit4('%N ekin=%,6;6d  rho*v=%,6;6d ehf =%,6;6d'//
      .    '  ehks =%,6;6d',' ',80,stdo,ekin,utot+rhoexc,eh,eks)
-      endif
-      if (ipr.gt.0 .and. ipl.gt.0) write (stdl,721) utot,ekin,rhoexc,eks
-  721 format('fp KS: U',f16.7,' T',f16.7,' Exc',f15.7,' EKS',f15.7)
+        endif
+        if (ipr.gt.0 .and. ipl.gt.0) write (stdl,721) utot,ekin,rhoexc,eks
+  721   format('fp KS: U',f16.7,' T',f16.7,' Exc',f15.7,' EKS',f15.7)
 
       endif
 
@@ -182,6 +182,6 @@ C      write(ifet,"(d23.16,a)")  ekin,   ' ! T '
 C      close(ifet)
 
 Cgetarg       end
-       end subroutine mkehkf 
+      end subroutine mkehkf
 
 

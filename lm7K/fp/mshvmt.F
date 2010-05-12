@@ -15,8 +15,8 @@ Cgetarg...info...           use_to_add ['symvvl', 'm_struc_def']
 #define F90 1
       subroutine mshvmt(nbas,ssite,sspec,slat,ng,gv,
      .  kv,cv,k1,k2,k3,smpot,vval)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Makes potential at MT surfaces given potential on a uniform mesh
 C ----------------------------------------------------------------------
@@ -39,7 +39,7 @@ Ci   gv    :list of reciprocal lattice vectors G (gvlist.f)
 Ci   kv    :indices for gather/scatter operations (gvlist.f)
 Ci   cv    :work array
 Ci   k1,k2,k3 dimensions of smrho,smpot for smooth mesh density
-Ci   smpot :estat potential 
+Ci   smpot :estat potential
 Co Outputs
 Co   vval  :coffs to YL expansion of es potential at MT boundary
 Co         :for each site, computed from the mesh density.
@@ -49,10 +49,10 @@ Cr      sum_L C_L Y_L(r) where C_L = 4 pi i^l j_l(|rq|) Y_L(q)
 Cr   Routine symvvl symmetrizes the vval generated here.
 Cb Bugs
 Cb   Possible to make ves for sites with lmxl=-1, which tells
-Cb   value of ves at point.  However, vval doesn't have the 
+Cb   value of ves at point.  However, vval doesn't have the
 Cb   space allocated.  So skip for now
 Cu Updates
-Cu   01 Jul 05 handle sites with lmxl=-1 
+Cu   01 Jul 05 handle sites with lmxl=-1
 Cu   22 Aug 01 Newly created.
 C ----------------------------------------------------------------------
 C     implicit none
@@ -60,10 +60,10 @@ C ... Passed parameters
       integer k1,k2,k3,nbas,ng,kv(ng,3)
 Cgetarg       double precision ssite(1),sspec(1),gv(ng,3),slat(1),
 Cgetarg      .  vval(1)
-       real(8):: gv(ng,3) , vval(1) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: gv(ng,3) , vval(1)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double complex smpot(k1,k2,k3),cv(ng)
 C ... Local parameters
@@ -95,12 +95,12 @@ Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
 Cgetarg       call upack('lat alat plat nabc',slat,alat,plat,ngabc,0,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%nabc) 
-       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%nabc)
+      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
       tpiba = 2*pi/alat
       call gvgetf(ng,1,kv,k1,k2,k3,smpot,cv)
@@ -118,17 +118,17 @@ C --- For each ib in nbas, do ---
 Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
 Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pos) 
-         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1) 
+
+        is=ssite(ib)%spec
+        i_copy_size=size(ssite(ib)%pos)
+        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
 
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
 Cgetarg         call upack('spec rmt lmxl',sspec,is,rmt,lmxl,0,0)
-         
-         rmt=sspec(is)%rmt
-         lmxl=sspec(is)%lmxl
+
+        rmt=sspec(is)%rmt
+        lmxl=sspec(is)%lmxl
 
         if (lmxl .eq. -1) goto 10
         nlm = (lmxl+1)**2
@@ -139,7 +139,7 @@ C       Add a negligibly small amount to rmt to handle case rmt=0
 C   --- j_l(|rmt*q|)/rmt**l for each G and l=0..lmax ---
 C       Does not evolve correctly in the correct large r limit
         call ropbes(agv,rmt**2,lmxl,cgp,sgp,phil,ng)
-C Patch for now        
+C Patch for now
 C       do  i = 1, ng
 C         call besslr(agv(i)**2*rmt**2,0,0,0,phil(i,0),yl)
 C       enddo
@@ -200,12 +200,12 @@ Cgetarg       end
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine mshvmt 
+      end subroutine mshvmt
 
 
       subroutine symvvl(nbas,ssite,sspec,slat,vval,vrmt)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Symmetrizes the potential at the MT boundary.
 C ----------------------------------------------------------------------
@@ -228,20 +228,20 @@ Cr Remarks
 Cr   This routine symmetrizes any vector of the same structure as vval.
 Cb Bugs
 Cb   Possible to make ves for sites with lmxl=-1, which tells
-Cb   value of ves at point.  However, vval doesn't have the 
+Cb   value of ves at point.  However, vval doesn't have the
 Cb   space allocated.  So skip for now
 Cu Updates
-Cu   01 Jul 05 handle sites with lmxl=-1 
+Cu   01 Jul 05 handle sites with lmxl=-1
 Cu   23 Aug 01 Newly created.
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas
 Cgetarg       double precision ssite(1),sspec(1),slat(1),vval(1),vrmt(nbas)
-       real(8):: vval(1) , vrmt(nbas) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: vval(1) , vrmt(nbas)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
 C ... Local parameters
       integer ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,stdo,iv0
@@ -250,10 +250,10 @@ C ... Local parameters
 Cdelw1 do not change  [['undef', 'wref'], 'og', 'symvvl']
 Cdelw1 do not change  [['undef', 'wref'], 'oag', 'symvvl']
 Cdelw1       integer igetss,nlml,lgunit,ipr,jpr,ngrp,og,oag,oqwk,osym,nn,iclbas
-       integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , og , oag 
-     . , nn , iclbas 
-       real(8) ,allocatable :: rv_w_oqwk(:)
-       real(8) ,allocatable :: rv_w_osym(:)
+      integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , og , oag 
+     . , nn , iclbas
+      real(8) ,allocatable :: rv_w_oqwk(:)
+      real(8) ,allocatable :: rv_w_osym(:)
 
 C ... Heap
       integer w(1)
@@ -266,39 +266,39 @@ Cgetarg...info...           integer :: ngrp , integer(8) :: slat%nsgrp 1
 Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
 Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
 Cgetarg       call upack('lat plat nsgrp osymgr oag',slat,plat,ngrp,og,oag,0)
-       
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       ngrp=slat%nsgrp
+
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      ngrp=slat%nsgrp
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 254
 Cdelw1 do not change og because of ['undef', 'wref']
-       og=slat%osymgr
+      og=slat%osymgr
 Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 255
 Cdelw1 do not change oag because of ['undef', 'wref']
-       oag=slat%oag
+      oag=slat%oag
 
 Cgetarg       call spackv(10,'site class',ssite,1,nbas,ipc)
-       i_copy_size=1; 
-       do i_spackv=1,nbas 
-       call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,ipc)
-       enddo
+      i_copy_size=1;
+      do i_spackv=1,nbas
+        call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,ipc)
+      enddo
 
 Cgetarg       call spackv(10,'site spec', ssite,1,nbas,ips)
-       i_copy_size=1; 
-       do i_spackv=1,nbas 
-       call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
-       enddo
+      i_copy_size=1;
+      do i_spackv=1,nbas
+        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+      enddo
 
 Cgetarg       call spackv(10,'site pos',ssite,1,nbas,pos)
-       i_copy_size=size(ssite(1)%pos)
-       do i_spackv=1,nbas 
-       call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,pos)
-       enddo
+      i_copy_size=size(ssite(1)%pos)
+      do i_spackv=1,nbas
+        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,pos)
+      enddo
 
       nclass = mxint(nbas,ipc)
       do  ib = 1, nbas
 Cgetarg         lmxl(ib) = igetss('spec lmxl',ips(ib),sspec)
-         lmxl ( ib ) = int(sspec(ips(ib))%lmxl) 
+        lmxl ( ib ) = int(sspec(ips(ib))%lmxl)
 
       enddo
 
@@ -307,18 +307,18 @@ Cgetarg         lmxl(ib) = igetss('spec lmxl',ips(ib),sspec)
 C   ... Make nrclas,ipa,posc
         call psymr0(lmxl,ic,nbas,ipc,pos,posc,ipa,nrclas)
         if (nrclas .gt. 0) then
-        ib = iclbas(ic,ipc)
-        if (lmxl(ib) .gt. -1) then
-        nlml = (lmxl(ib)+1)**2
-        if (ipr .ge. 50) write(stdo,800) ic,nrclas,nlml
-  800   format(' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
+          ib = iclbas(ic,ipc)
+          if (lmxl(ib) .gt. -1) then
+            nlml = (lmxl(ib)+1)**2
+            if (ipr .ge. 50) write(stdo,800) ic,nrclas,nlml
+  800       format(' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
 
 Cdelw1         call defrr(oqwk,nlml)
-         allocate(rv_w_oqwk(nlml))
+            allocate(rv_w_oqwk(nlml))
 Ctakao_ZeroClear_NotRequiered          if (nlml<0) rv_w_oqwk(:)=0.0d0
 
 Cdelw1         call defrr(osym,nlml*nlml*nrclas)
-         allocate(rv_w_osym(nlml*nlml*nrclas))
+            allocate(rv_w_osym(nlml*nlml*nrclas))
 Ctakao_ZeroClear_NotRequiered          if (nlml*nlml*nrclas<0) rv_w_osym(:)=0.0d0
 
 Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 295
@@ -331,18 +331,18 @@ Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 295
 Cdelw1 do not change oag because of ['undef', 'wref']
 Cdelw1         call symqmp(nrclas,nlml,nlml,plat,posc,ngrp,w(og),w(oag),
 Cdelw1      .    w(oqwk),ipa,w(osym),vval,nn)
-         call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , w ( 
-     .   og ) , w ( oag ) , rv_w_oqwk , ipa , rv_w_osym , vval , nn ) 
+            call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , w ( 
+     .   og ) , w ( oag ) , rv_w_oqwk , ipa , rv_w_osym , vval , nn )
 
-Cdelw1 w_varlist remains: oqwk osym 
+Cdelw1 w_varlist remains: oqwk osym
 Cdelw1 w_varlistundel: [og oag]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: [oqwk osym]
-        if (allocated(rv_w_osym)) deallocate(rv_w_osym)
-        if (allocated(rv_w_oqwk)) deallocate(rv_w_oqwk)
+            if (allocated(rv_w_osym)) deallocate(rv_w_osym)
+            if (allocated(rv_w_oqwk)) deallocate(rv_w_oqwk)
 
-       endif
-       endif
+          endif
+        endif
       enddo
 
 C ... Extract vrmt = l=0 term for each site, and printout
@@ -378,11 +378,11 @@ C   ... Printout
         endif
 
         iv0 = iv0 + nlml
-   10  continue
+   10   continue
       enddo
 
 Cgetarg       end
 
-       end subroutine symvvl 
+      end subroutine symvvl
 
 

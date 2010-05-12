@@ -32,7 +32,8 @@ C     implicit none
       integer na,ia
       double precision a1(3,na),a2(3,na),gx,gy,gz,gt
       do 10 ia = 1, na
-   10 call rdist(a1(1,ia),a2(1,ia),gx,gy,gz,gt)
+        call rdist(a1(1,ia),a2(1,ia),gx,gy,gz,gt)
+   10 continue
       end
       subroutine qdistn(a1,a2,na,gx,gy,gz,gt)
 c- distort na q-space vectors in array a1 into array a2
@@ -40,6 +41,7 @@ C     implicit none
       integer na,ia
       double precision a1(3,na),a2(3,na),gx,gy,gz,gt
       do 10 ia = 1,na
-   10 call qdist(a1(1,ia),a2(1,ia),gx,gy,gz,gt)
+        call qdist(a1(1,ia),a2(1,ia),gx,gy,gz,gt)
+   10 continue
       end
 

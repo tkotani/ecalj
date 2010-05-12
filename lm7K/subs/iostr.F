@@ -124,7 +124,7 @@ Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
      .    nkap,lmaxw,ckbas,ifi)) goto 99
 C   ... Write strux, block format
         if (getdig(lio23,1,2) .eq. 0) then
-        nblk = nitab*nkaps**2*nkapn
+          nblk = nitab*nkaps**2*nkapn
           call rxx(getdig(lio23,0,2).eq.1,'iostr not ready for complex')
 Cdelw1 warning(1) , probably  os  is not defined yet at linenumber= 115
 Cdelw1 do not change os because of ['call', 'undef', 'wref', 'redef']
@@ -161,27 +161,27 @@ C   ... Open file, and read header
 #if MASTERIO
         if (procid .eq. 0) then
 #endif
-        lior = 0
-        lerr = .not. iostr1(lior,name,itralr,nttab,nitab,nlr,nbr,
+          lior = 0
+          lerr = .not. iostr1(lior,name,itralr,nttab,nitab,nlr,nbr,
      .    nkr,lmaxwr,ckbasr,ifi)
-        if (lerr) goto 99
+          if (lerr) goto 99
 C       Copy file parameters to those in argument list
-        if (getdig(lio01,1,2) .eq. 1) then
-          nl = nlr
-          nbas = nbr
-          nkap = nkr
-          itral = itralr
-          ckbas = ckbasr
-          lmaxw = lmaxwr
-        endif
+          if (getdig(lio01,1,2) .eq. 1) then
+            nl = nlr
+            nbas = nbr
+            nkap = nkr
+            itral = itralr
+            ckbas = ckbasr
+            lmaxw = lmaxwr
+          endif
 
-        call isanrg(nlr,nl,nl,'file: IOSTR:','nl',.true.)
-        call isanrg(nbr,nbas,nbas,'file: IOSTR:','nbas',.true.)
-        call isanrg(nkr,nkap,nkap,'file: IOSTR:','nkap',.true.)
-        call fsanrg(ckbasr,ckbas,ckbas,tiny,'file: IOSTR:','cksum',
+          call isanrg(nlr,nl,nl,'file: IOSTR:','nl',.true.)
+          call isanrg(nbr,nbas,nbas,'file: IOSTR:','nbas',.true.)
+          call isanrg(nkr,nkap,nkap,'file: IOSTR:','nkap',.true.)
+          call fsanrg(ckbasr,ckbas,ckbas,tiny,'file: IOSTR:','cksum',
      .    .true.)
 C   ... This is only a warning, not fatal error
-        call isanrg(lmaxwr,lmaxw,lmaxw,'file: IOSTR:','lmaxw',.false.)
+          call isanrg(lmaxwr,lmaxw,lmaxw,'file: IOSTR:','lmaxw',.false.)
 
 #if MASTERIO
         endif
@@ -226,7 +226,7 @@ C   ... If only header is to be read, exit
         if (getdig(lio01,2,2) .eq. 1) then
           iostr = .true.
 Cki#error, have return with len(w_varlist)>0 at line 196
-Cdelw1 w_varlist remains: oalpha oiax onpr os 
+Cdelw1 w_varlist remains: oalpha oiax onpr os
 Cdelw1 w_varlistundel: [os onpr oiax oalpha]
 Cdelw1 w_varlist (undel), remains: [oalpha oiax onpr os]
 Cdelw1 w_varlist (del), remains: (None)
@@ -243,13 +243,13 @@ C   ... Read strux, block format
 #if MASTERIO
           if (procid .eq. 0) then
 #endif
-          nblk = nitab*nkap**2
-          if (nmto .eq. 1) nblk = nitab*nkap
+            nblk = nitab*nkap**2
+            if (nmto .eq. 1) nblk = nitab*nkap
 Cdelw1 do not change os because of ['call', 'undef', 'wref', 'redef']
 Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
 Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
 Cdelw1 do not change oalpha because of ['call', 'undef', 'wref', 'redef']
-          lerr = iostr2(ifi,nbas,nttab,nblk,lscoff,nds,nkap,
+            lerr = iostr2(ifi,nbas,nttab,nblk,lscoff,nds,nkap,
      .                  w(onpr),w(oiax),kap2,w(oalpha),w(os))
 #if MASTERIO
           endif
@@ -276,9 +276,9 @@ C   ... Read strux, vector format
 Cdelw1 do not change os because of ['call', 'undef', 'wref', 'redef']
 Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
 Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
-          lerr = iostr4(ifi,nbas,nttab,ncplx,nl,nkap,
+            lerr = iostr4(ifi,nbas,nttab,ncplx,nl,nkap,
      .                  w(onpr),w(oiax),kap2,w(os))
-        endif
+          endif
 #if MASTERIO
           call mpibc1(lerr,1,0,.false.,'iostr','lerr')
 Cdelw1 do not change onpr because of ['call', 'wref', 'undef', 'redef']
@@ -298,7 +298,7 @@ Cdelw1 do not change os because of ['call', 'undef', 'wref', 'redef']
       endif
       iostr = .true.
 Cki#error, have return with len(w_varlist)>0 at line 245
-Cdelw1 w_varlist remains: os onpr oiax oalpha 
+Cdelw1 w_varlist remains: os onpr oiax oalpha
 Cdelw1 w_varlistundel: [os onpr oiax oalpha]
 Cdelw1 w_varlist (undel), remains: [os onpr oiax oalpha]
 Cdelw1 w_varlist (del), remains: (None)
@@ -315,7 +315,7 @@ C ... Error handling
      .  print *, 'IOSTR (warning): failed to read file ',name
       iostr = .false.
 
-Cdelw1 w_varlist remains: oalpha oiax onpr os 
+Cdelw1 w_varlist remains: oalpha oiax onpr os
 Cdelw1 w_varlistundel: [os onpr oiax oalpha]
 Cdelw1 w_varlist (undel), remains: [oalpha oiax onpr os]
 Cdelw1 w_varlist (del), remains: (None)
@@ -376,7 +376,7 @@ C ... Local parameters
       integer i,vsn,rdvsn
       character strn*120
       parameter (vsn=2)
-      
+
       ifi = fopnx(name,100,16+8+4+0,-1)
       rewind ifi
 

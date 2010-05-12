@@ -16,7 +16,7 @@ Cio        :(i=4) <phi || phi> (i=5) <phi || dot> (i=6) <dot || dot>
 Cio        :The first three are the terms need to make SO perturbation
 Cio        :the last three are used when external field is applied.
 Cr Remarks
-Cr   
+Cr
 Cu Updates
 Cu    4 Apr 04 Extended  to include matrix elements for XC field
 Cu   07 Feb 03 Extended  to include matrix elements for applied field
@@ -96,7 +96,8 @@ C   ... read SO parms
           do  12  is2 = 1, nsp
           do  12  is1 = 1, nsp
           do  12  l = 0, nl-1
-   12     sop(l,is1,is2,j) = sop(l,1,1,j)
+            sop(l,is1,is2,j) = sop(l,1,1,j)
+   12     continue
         endif
 
         aiosop = .true.

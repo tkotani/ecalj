@@ -7,13 +7,13 @@
       real(8):: s(n*j)
       integer:: i
       if (c=='p') then
-      do i=1,n
-      v(i)=s(n*(j-1)+i)
-      enddo
+        do i=1,n
+          v(i)=s(n*(j-1)+i)
+        enddo
       else
-      do i=1,n
-      s(n*(j-1)+i)=v(i)
-      enddo
+        do i=1,n
+          s(n*(j-1)+i)=v(i)
+        enddo
       endif
       end
 
@@ -25,15 +25,15 @@
       integer:: s(n*j)
       integer:: i
       if (c=='p') then
-      do i=1,n
-      v(i)=s(n*(j-1)+i)
-      enddo
+        do i=1,n
+          v(i)=s(n*(j-1)+i)
+        enddo
       else
-      do i=1,n
-      s(n*(j-1)+i)=v(i)
-      enddo
+        do i=1,n
+          s(n*(j-1)+i)=v(i)
+        enddo
       endif
-      end 
+      end
 
 
       subroutine spacks_copy(c,struc,i1,i2,name,istr)
@@ -54,11 +54,11 @@ C     ----------------------------------------------------------------
 c      write(*,*)'spacks_copy>',c,struc,i1,i2,name,istr
 
       if (c=='p') then
-         call s8tor8(name(istr),struc)
+        call s8tor8(name(istr),struc)
       elseif (c=='u') then
-         call r8tos8(struc,name(istr))
+        call r8tos8(struc,name(istr))
       else
-         write(*,*) 'error in ',thisfunc
+        write(*,*) 'error in ',thisfunc
       endif
       end subroutine spacks_copy
 
@@ -69,7 +69,7 @@ c      write(*,*)'spacks_copy>',c,struc,i1,i2,name,istr
       integer(8):: y8(*)
       integer:: i
       do i=1,n
-         y8(1+incy*(i-1))=x(1+incx*(i-1))
+        y8(1+incy*(i-1))=x(1+incx*(i-1))
       enddo
       end subroutine ii8copy
 
@@ -80,7 +80,7 @@ c      write(*,*)'spacks_copy>',c,struc,i1,i2,name,istr
       integer:: y(*)
       integer:: i
       do i=1,n
-         y(1+incy*(i-1))=x8(1+incx*(i-1))
+        y(1+incy*(i-1))=x8(1+incx*(i-1))
       enddo
       end subroutine i8icopy
 
@@ -110,13 +110,13 @@ c      use m_struc_func
 
       do i=1,n
 
-         if (lval) then
-            newval = ior(int(v_iv(i)),lmask)
-         else
-            newval = v_iv(i) - iand(int(v_iv(i)),lmask)
-         endif
+        if (lval) then
+          newval = ior(int(v_iv(i)),lmask)
+        else
+          newval = v_iv(i) - iand(int(v_iv(i)),lmask)
+        endif
 
-         v_iv(i) = newval
+        v_iv(i) = newval
 
       enddo
 
@@ -138,5 +138,5 @@ C$$$      call spackv_array_copy_i8_i('p',v(i),1,1,-i)
 C$$$      enddo
 C$$$      write(*,*) v
 C$$$      write(*,*) s
-C$$$      end 
+C$$$      end
 C$$$#endif

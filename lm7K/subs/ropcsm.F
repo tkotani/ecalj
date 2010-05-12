@@ -7,29 +7,36 @@ C     implicit none
 C --- Case m=0 ---
       if (m .eq. 0) then
         do  1  i = 1, n
-    1   cm(i) = 1d0
+          cm(i) = 1d0
+    1   continue
         do  2  i = 1, n
-    2   sm(i) = 0d0
+          sm(i) = 0d0
+    2   continue
         return
       endif
 
 C --- Case m=1 ---
       if (m .eq. 1) then
         do  3  i = 1, n
-    3   cm(i) = x(i)
+          cm(i) = x(i)
+    3   continue
         do  4  i = 1, n
-    4   sm(i) = y(i)
+          sm(i) = y(i)
+    4   continue
         return
       endif
 
 C --- Case m ge 2 ---
       if (m .ge. 2) then
         do  5  i = 1, n
-    5   w(i) = cm(i)
+          w(i) = cm(i)
+    5   continue
         do  6  i = 1, n
-    6   cm(i) = x(i)*cm(i) - y(i)*sm(i)
+          cm(i) = x(i)*cm(i) - y(i)*sm(i)
+    6   continue
         do  7  i = 1, n
-    7   sm(i) = y(i)*w(i) + x(i)*sm(i)
+          sm(i) = y(i)*w(i) + x(i)*sm(i)
+    7   continue
         return
       endif
       end

@@ -51,7 +51,8 @@ C     integer mode(3)
 C --- Find the class with minimum number of atoms ---
       icmin = 1
       do  5  ic = 1, nclass
-    5 if (nrclas(ic).lt.nrclas(icmin) .and. nrclas(ic).gt.0) icmin = ic
+        if (nrclas(ic).lt.nrclas(icmin) .and. nrclas(ic).gt.0) icmin = ic
+    5 continue
       ibas = iclbsj(icmin,ipc,nbas,1)
 
 C --- For each group op, see whether it only shifts basis by some T ---
@@ -64,7 +65,8 @@ C   ... Rotate the basis by g
           jbas = iclbsj(icmin,ipc,nbas,nj)
 C     ... This is a candidate for translation ag
           do  22  m = 1, 3
-   22     ag(m,ng+1) = bas(m,jbas)-bast(m,ibas)
+            ag(m,ng+1) = bas(m,jbas)-bast(m,ibas)
+   22     continue
           call shorbz(ag(1,ng+1),ag(1,ng+1),plat,qlat)
 C          mode(1) = 2
 C          mode(2) = 2
@@ -76,7 +78,8 @@ C     ... See whether candidate works for all sites; also make istab
             do  12  nm = 1, nrclas(kc)
               mbas = iclbsj(kc,ipc,nbas,nm)
               do  14  m = 1,3
-   14         dbas(m) = bas(m,mbas)-bast(m,kbas)-ag(m,ng+1)
+                dbas(m) = bas(m,mbas)-bast(m,kbas)-ag(m,ng+1)
+   14         continue
               if (latvec(1,tol1,qlat,dbas)) then
                 istab(kbas,ng+1) = mbas
                 goto 10
@@ -94,11 +97,11 @@ C       ... Candidate not valid
 C     --- Valid ag found; add g to list ---
           ng = ng+1
           if (ig .gt. ng) call dcopy(9,g(1,ig),1,g(1,ng),1)
-            if (ipr .ge. 70) then
-              call asymop(g(1,ng),ag(1,ng),' ',sg)
-              call awrit1(' symcry: accepted candidate ig=%,2i  '//sg
+          if (ipr .ge. 70) then
+            call asymop(g(1,ng),ag(1,ng),' ',sg)
+            call awrit1(' symcry: accepted candidate ig=%,2i  '//sg
      .          //'%a',' ',80,stdo,ig)
-            endif
+          endif
           goto 30
    20   continue
    30 continue

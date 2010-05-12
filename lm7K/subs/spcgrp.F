@@ -2,8 +2,8 @@
 C- Sets up space group given point group generators gen
 C ----------------------------------------------------------------------
 Ci  mode   :a compound set of switches
-Ci         :1s digit add inversion to list of generators 
-Ci         :(from time-reversal symmetry); assume ag is zero. 
+Ci         :1s digit add inversion to list of generators
+Ci         :(from time-reversal symmetry); assume ag is zero.
 Ci         :THIS OPTION COMMENTED OUT
 Ci         :10s digit 0 stop if any gen is missing a translation.
 Ci         :          1 continue anyway, making the point group.
@@ -124,71 +124,71 @@ C ... Local parameters
 
 C --- For each generator, do ---
       do  80  igen = 1, ngen
-      call spgcop(gen(1,igen),agen(1,igen),sig,asig)
+        call spgcop(gen(1,igen),agen(1,igen),sig,asig)
 
 C --- Extend the group by all products with sig ----
-      do  9  ig = 1, ng
-      if (spgeql(mode0,g(1,ig),ag(1,ig),sig,asig,qb)) then
-        if (ipr .gt. 30) call awrit2(' Generator %i already in group '//
+        do  9  ig = 1, ng
+          if (spgeql(mode0,g(1,ig),ag(1,ig),sig,asig,qb)) then
+            if (ipr .gt. 30) call awrit2(' Generator %i already in group '//
      .    'as element %i',' ',80,stdo,igen,ig)
 C        write(stdo,650) igen,ig
 C  650   format(' generator',i3,'  is already in group as element',i3)
-        goto 80
-      endif
-    9 continue
+            goto 80
+          endif
+    9   continue
 
 C ... Determine order (= power of sig that restores unit operation)
-      call spgcop(sig,asig,h,ah)
-      do  1  itry = 1, 100
-        iord = itry
-        if (spgeql(mode0,h,ah,e,ae,qb)) goto 2
-        call spgprd(sig,asig,h,ah,h,ah)
+        call spgcop(sig,asig,h,ah)
+        do  1  itry = 1, 100
+          iord = itry
+          if (spgeql(mode0,h,ah,e,ae,qb)) goto 2
+          call spgprd(sig,asig,h,ah,h,ah)
     1   continue
 
 C ... Products of type  g1 sig**p g2
-    2 nnow = ng
-      if (ipr .ge. 40) call awrit2('%a  %i is %i,',sout,80,0,igen,iord)
-      do  8  j = 1, ng
-      call spgcop(g(1,j),ag(1,j),h,ah)
-      do  10  ip = 1, iord-1
-        call spgprd(sig,asig,h,ah,h,ah)
-        do  11  i = 1, ng
-          call spgprd(g(1,i),ag(1,i),h,ah,hh,ahh)
-          do  12  k = 1, nnow
-            if ( spgeql(mode0,g(1,k),ag(1,k),hh,ahh,qb) ) goto 11
-   12     continue
+    2   nnow = ng
+        if (ipr .ge. 40) call awrit2('%a  %i is %i,',sout,80,0,igen,iord)
+        do  8  j = 1, ng
+          call spgcop(g(1,j),ag(1,j),h,ah)
+          do  10  ip = 1, iord-1
+            call spgprd(sig,asig,h,ah,h,ah)
+            do  11  i = 1, ng
+              call spgprd(g(1,i),ag(1,i),h,ah,hh,ahh)
+              do  12  k = 1, nnow
+                if ( spgeql(mode0,g(1,k),ag(1,k),hh,ahh,qb) ) goto 11
+   12         continue
 C         call asymop(hh,ahh,' ',sg)
 C         write(stdo,'('' sgroup adding'',i3,2x,a)') nnow+1,sg
-          nnow = nnow+1
-          if (nnow .gt. ngmx) goto 99
-          call spgcop(hh,ahh,g(1,nnow),ag(1,nnow))
-   11   continue
-   10 continue
-      if (j .eq. 1) n2 = nnow
-    8 continue
+              nnow = nnow+1
+              if (nnow .gt. ngmx) goto 99
+              call spgcop(hh,ahh,g(1,nnow),ag(1,nnow))
+   11       continue
+   10     continue
+          if (j .eq. 1) n2 = nnow
+    8   continue
 
 C ... Products with more than one sandwiched sigma-factor
-      m1 = ng+1
-      m2 = nnow
-      do  20  is = 2, 50
-       nnew = 0
-       do 21 n = ng+1,n2
-       do  21  m = m1, m2
-       call spgprd(g(1,n),ag(1,n),g(1,m),ag(1,m),h,ah)
-       do  22  k = 1, nnow
-         if (spgeql(mode0,g(1,k),ag(1,k),h,ah,qb)) goto 21
-   22  continue
-       nnew = nnew+1
-       nnow = nnow+1
-       if (nnow .gt. ngmx) goto 99
-       call spgcop(h,ah,g(1,nnow),ag(1,nnow))
-   21 continue
-       m1 = m2+1
-       m2 = nnow
-       if (nnew .eq. 0) goto 25
-   20 continue
-   25 continue
-      ng = nnow
+        m1 = ng+1
+        m2 = nnow
+        do  20  is = 2, 50
+          nnew = 0
+          do 21 n = ng+1,n2
+          do  21  m = m1, m2
+            call spgprd(g(1,n),ag(1,n),g(1,m),ag(1,m),h,ah)
+            do  22  k = 1, nnow
+              if (spgeql(mode0,g(1,k),ag(1,k),h,ah,qb)) goto 21
+   22       continue
+            nnew = nnew+1
+            nnow = nnow+1
+            if (nnow .gt. ngmx) goto 99
+            call spgcop(h,ah,g(1,nnow),ag(1,nnow))
+   21     continue
+          m1 = m2+1
+          m2 = nnow
+          if (nnew .eq. 0) goto 25
+   20   continue
+   25   continue
+        ng = nnow
    80 continue
 
 C --- Printout ---
@@ -218,7 +218,7 @@ C     .  ' SGROUP (warning) ng greater than ngmx=%i ... exiting',ngmx,0)
 C- Determines whether space group op g1 is equal to g2
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   mode  :0 -> space group is compared     
+Ci   mode  :0 -> space group is compared
 Ci         :1 -> only point group is compared
 Ci   g1,a1 :first space group
 Ci   g2,a2 :second space group
@@ -235,22 +235,22 @@ C ... Local parameters
 
       spgeql=.true.
       do 10 m=1,9
-      if (dabs(g1(m)-g2(m)).gt.1.d-5) then
-        spgeql=.false.
-        return
-      endif
+        if (dabs(g1(m)-g2(m)).gt.1.d-5) then
+          spgeql=.false.
+          return
+        endif
   10  continue
       if (mode .eq. 1) return
       do 20 iq=1,3
-      c=(a1(1)-a2(1))*qb(1,iq)+(a1(2)-a2(2))*qb(2,iq)
+        c=(a1(1)-a2(1))*qb(1,iq)+(a1(2)-a2(2))*qb(2,iq)
      .   +(a1(3)-a2(3))*qb(3,iq)
-      ca=dabs(c)
-      iac=ca+0.5d0
-      dc=ca-iac
-      if (dabs(dc).gt.1.d-5) then
-        spgeql=.false.
-        return
-      endif
+        ca=dabs(c)
+        iac=ca+0.5d0
+        dc=ca-iac
+        if (dabs(dc).gt.1.d-5) then
+          spgeql=.false.
+          return
+        endif
   20  continue
       return
       end
@@ -261,30 +261,37 @@ C     implicit none
       integer i,j,k
       do 10 i=1,3
       do 10 j=1,3
-      sum=0d0
-      do 11 k=1,3
-  11  sum=sum+g1(i,k)*g2(k,j)
-  10  h(i,j)=sum
+        sum=0d0
+        do 11 k=1,3
+          sum=sum+g1(i,k)*g2(k,j)
+   11   continue
+        h(i,j)=sum
+   10 continue
       do 13 j=1,3
       do 13 i=1,3
-  13  g(i,j)=h(i,j)
+        g(i,j)=h(i,j)
+   13 continue
       do 12 i=1,3
-      ah(i)=a1(i)
+        ah(i)=a1(i)
       do 12 j=1,3
-  12  ah(i)=ah(i)+g1(i,j)*a2(j)
+        ah(i)=ah(i)+g1(i,j)*a2(j)
+   12 continue
       do 14 i=1,3
-  14  a(i)=ah(i)
+        a(i)=ah(i)
+   14 continue
       return
       end
       subroutine spgcop(g,ag,h,ah)
       integer i
       double precision h(9),g(9),ag(3),ah(3)
       do 10 i=1,9
-      h(i)=g(i)
-  10  if (dabs(h(i)).lt.1.d-10) h(i)=0d0
+        h(i)=g(i)
+        if (dabs(h(i)).lt.1.d-10) h(i)=0d0
+   10 continue
       do 11 i=1,3
-      ah(i)=ag(i)
-  11  if (dabs(ah(i)).lt.1.d-10) ah(i)=0d0
+        ah(i)=ag(i)
+        if (dabs(ah(i)).lt.1.d-10) ah(i)=0d0
+   11 continue
       end
       subroutine gpfndx(g,ag,ia,ja,pos,nrc,rb,qb)
 C- Finds atom ja which is transformed into ia by group operation g,ag.
@@ -299,9 +306,10 @@ C      mode(3) = 2
       ja = 0
       do  11  ka = 1, nrc
         do  2  m = 1, 3
-        d(m) = ag(m) - pos(m,ia)
+          d(m) = ag(m) - pos(m,ia)
         do  2  k = 1, 3
-    2   d(m) = d(m) + g(m,k)*pos(k,ka)
+          d(m) = d(m) + g(m,k)*pos(k,ka)
+    2   continue
         call shorbz(d,d,rb,qb)
 C       call shorps(1,rb,mode,d,d)
         if (abs(d(1))+abs(d(2))+abs(d(3)) .lt. 1d-4) then

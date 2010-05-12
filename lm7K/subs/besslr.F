@@ -171,9 +171,11 @@ C --- A table of fac2l(l)=(2l-1)!!
 c     data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
       fac2l(0) = 1d0
       do  10  l = 1, lmx+1
-   10 fac2l(l) = fac2l(l-1) * (l+l-1)
+        fac2l(l) = fac2l(l-1) * (l+l-1)
+   10 continue
       do  11  l = -1, lmin, -1
-   11 fac2l(l) = fac2l(l+1) / (l+l+1)
+        fac2l(l) = fac2l(l+1) / (l+l+1)
+   11 continue
 
 C --- Case akap=0 ---
       if (y .eq. 0) then
@@ -271,10 +273,10 @@ C --- For E<0, use Hankel functions rather than Neumann functions ---
 C --- Scaling to Andersen's 2nd generation LMTO conventions ---
   100 continue
       if (loka .eq. 1) then
-      do  68  l = lmin, lmax
-        fi(l) = fi(l)*fac2l(l)*0.5d0
-        gi(l) = gi(l)/fac2l(l)
-   68 continue
+        do  68  l = lmin, lmax
+          fi(l) = fi(l)*fac2l(l)*0.5d0
+          gi(l) = gi(l)/fac2l(l)
+   68   continue
       endif
 
       end

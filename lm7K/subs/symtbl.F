@@ -84,7 +84,8 @@ Cdelw1 do not change oiwk because of ['wref']
         do  30  ig = 1, ng
 Cdelw1 1 is digit, dropped
 Cdelw1 do not change oiwk because of ['wref']
-   30   w(oiwk+istab(ib,ig)-1) = 1
+          w(oiwk+istab(ib,ig)-1) = 1
+   30   continue
         do  40  jb = 1, nbas
 Cdelw1 1 is digit, dropped
 Cdelw1 do not change oiwk because of ['wref']
@@ -94,11 +95,11 @@ Cdelw1 do not change oiwk because of ['wref']
      .      'site ib=%i in same class as inequivalent site jb=%i',ib,jb)
    40   continue
    50 continue
-Cdelw1 rlse name= oiwk old_list= oiwk 
+Cdelw1 rlse name= oiwk old_list= oiwk
 Cdelw1 rlse name= oiwk new_list= (None)
 Cdelw1 not deallocate oiwk because of [wref]
 Cdelw1       call rlse(oiwk)
-       call rlse(oiwk)
+      call rlse(oiwk)
 
 
 Cdelw1 w_varlist remains: (None)
@@ -113,7 +114,7 @@ C     implicit none
 C Passed parameters
       integer nbas,ng
       integer istab(nbas,ng),istab2(nbas,ng)
-C Local 
+C Local
       integer ib,ig,ibp
 
       do  ig = 1, ng

@@ -117,7 +117,8 @@ C 101 format(5x,a1,':',10f12.5)
         rhot = rho(ir)/fpi/r/r
         fit = 0
         do  8  ip = 1, nf
-    8   fit = fit + f(ip)*xi(ir,ip)
+          fit = fit + f(ip)*xi(ir,ip)
+    8   continue
         fit = fit/dsqrt(fpi)
         dif = rhot - fit
         wt  = (mod(ir+1,2)+1)*fpi*r*r*(r+b)*2*a/3d0

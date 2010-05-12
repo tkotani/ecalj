@@ -17,8 +17,8 @@ Cgetarg...info...           structure ['pvsms1', 'spec', 'sspec']
 Cgetarg...info...           use_to_add ['smshft', 'm_struc_def']
 Cgetarg...info...           use_to_add ['pvsms1', 'm_struc_def']
       subroutine smshft(ssite,sspec,slat,sctrl,sham,orhoat,smrho)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Estimate the smooth density for a shift in atomic positions.
 C ----------------------------------------------------------------------
@@ -64,11 +64,11 @@ C     implicit none
 C ... Passed parameters
       integer orhoat(3,1)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),sctrl(1),sham(1)
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
-       type(s_ctrl)::sctrl
-       type(s_ham)::sham
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
+      type(s_ctrl)::sctrl
+      type(s_ham)::sham
 
       double complex smrho(*)
 C ... Local parameters
@@ -77,10 +77,10 @@ C ... Local parameters
 Cdelw1 do not change  [['undef', 'wref'], 'ogv', 'smshft']
 Cdelw1 do not change  [['undef', 'wref'], 'okv', 'smshft']
 Cdelw1       integer ocgr,ocgs,ocwk,ogv,okv
-       integer:: ogv , okv 
-       complex(8) ,allocatable :: zv_w_ocgr(:)
-       complex(8) ,allocatable :: zv_w_ocgs(:)
-       complex(8) ,allocatable :: zv_w_ocwk(:)
+      integer:: ogv , okv
+      complex(8) ,allocatable :: zv_w_ocgr(:)
+      complex(8) ,allocatable :: zv_w_ocgs(:)
+      complex(8) ,allocatable :: zv_w_ocwk(:)
 
       integer kmax,job
       parameter (n0=10)
@@ -93,7 +93,7 @@ C ... Heap
 
 C     stdo = lgunit(1)
 Cgetarg       job = igets('ctrl lfrce',sctrl)
-       job = int(sctrl%lfrce) 
+      job = int(sctrl%lfrce)
 
 Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [okv ogv]
@@ -110,12 +110,12 @@ Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
 Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
 Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
-       
-       alat=slat%alat
-       i_copy_size=size(slat%plat) 
-       call dcopy(i_copy_size,slat%plat,1,plat,1) 
-       i_copy_size=size(slat%qlat) 
-       call dcopy(i_copy_size,slat%qlat,1,qlat,1) 
+
+      alat=slat%alat
+      i_copy_size=size(slat%plat)
+      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      i_copy_size=size(slat%qlat)
+      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
 Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
 Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
@@ -123,24 +123,24 @@ Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
 Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
-       
-       i_copy_size=size(slat%nabc) 
-       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1) 
-       ng=slat%ng
+
+      i_copy_size=size(slat%nabc)
+      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      ng=slat%ng
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 111
 Cdelw1 do not change ogv because of ['undef', 'wref']
-       ogv=slat%ogv
+      ogv=slat%ogv
 Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 112
 Cdelw1 do not change okv because of ['undef', 'wref']
-       okv=slat%okv
-       vol=slat%vol
+      okv=slat%okv
+      vol=slat%vol
 
       call fftz30(n1,n2,n3,k1,k2,k3)
 C     call zprm3('input smrho',0,smrho,k1,k2,k3)
 
 C ... Hold on to original smrho (cgr)
 Cdelw1       call defcc (ocgr,  ng*nsp)
-       allocate(zv_w_ocgr(ng*nsp))
+      allocate(zv_w_ocgr(ng*nsp))
 Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) zv_w_ocgr(:)=0.0d0
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
@@ -149,17 +149,17 @@ Cdelw1 do not change okv because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 121
 Cdelw1 do not change okv because of ['undef', 'wref']
 Cdelw1       call gvgetf(ng,nsp,w(okv),k1,k2,k3,smrho,w(ocgr))
-       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smrho , zv_w_ocgr 
-     . ) 
+      call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smrho , zv_w_ocgr 
+     . )
 
 
 C --- Shift in unscreened density at the two positions ---
 Cdelw1       call defcc (ocgs, ng*nsp)
-       allocate(zv_w_ocgs(ng*nsp))
+      allocate(zv_w_ocgs(ng*nsp))
 Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) zv_w_ocgs(:)=0.0d0
 
 Cdelw1       call defcc (ocwk, ng)
-       allocate(zv_w_ocwk(ng))
+      allocate(zv_w_ocwk(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocwk(:)=0.0d0
 
       kmax = 0
@@ -169,13 +169,13 @@ Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 127
 Cdelw1 do not change ogv because of ['undef', 'wref']
 Cdelw1       call pvsms1(ssite,sspec,slat,nbas,nsp,kmax,
 Cdelw1      .  ng,w(ogv),orhoat,w(ocwk),w(ocgs),job)
-       call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
-     . w ( ogv ) , orhoat , zv_w_ocwk , zv_w_ocgs , job ) 
+      call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
+     . w ( ogv ) , orhoat , zv_w_ocwk , zv_w_ocgs , job )
 
-Cdelw1 rlse name= ocwk old_list= ocgr ocgs ocwk 
-Cdelw1 rlse name= ocwk new_list= ocgr ocgs 
+Cdelw1 rlse name= ocwk old_list= ocgr ocgs ocwk
+Cdelw1 rlse name= ocwk new_list= ocgr ocgs
 Cdelw1       call rlse(ocwk)
-       if (allocated(zv_w_ocwk)) deallocate(zv_w_ocwk)
+      if (allocated(zv_w_ocwk)) deallocate(zv_w_ocwk)
 
 
 C ... Debugging: print unscreened shift in pseudo core density
@@ -189,20 +189,20 @@ C       Compute elind if not given
         qval = 0d0
         do  12  ib = 1, nbas
 Cgetarg           is = igetss('site spec',ib,ssite)
-           is = int(ssite(ib)%spec) 
+          is = int(ssite(ib)%spec)
 
 Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
 Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
 Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg           call upack('spec z p pz lmxa',sspec,is,z,pnu,pnz,lmxa)
-           
-           z=sspec(is)%z
-           i_copy_size=size(sspec(is)%p) 
-           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
-           i_copy_size=size(sspec(is)%pz) 
-           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
-           lmxa=sspec(is)%lmxa
+
+          z=sspec(is)%z
+          i_copy_size=size(sspec(is)%p)
+          call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
+          i_copy_size=size(sspec(is)%pz)
+          call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
+          lmxa=sspec(is)%lmxa
 
           if (lmxa .eq. -1) goto 12
           call gtpcor(sspec,is,kcor,lcor,qcor)
@@ -212,12 +212,12 @@ Cgetarg           call upack('spec z p pz lmxa',sspec,is,z,pnu,pnz,lmxa)
         pi = 4d0*datan(1d0)
         tpiba = 2*pi/alat
 Cgetarg         elind = dgets('ham elind',sham)
-         elind = sham%elind 
+        elind = sham%elind
 
         if (elind .lt. 0d0) elind = -(3*pi**2*qval/vol)**.66666d0*elind
 Cdelw1         if (nsp.eq.2) call dsumdf(ng*2,1d0,w(ocgs),0,1,w(ocgs),ng*2,1)
-         if ( nsp.eq.2 ) call dsumdf ( ng * 2 , 1d0 , zv_w_ocgs , 0 , 
-     .   1 , zv_w_ocgs , ng * 2 , 1 ) 
+        if ( nsp.eq.2 ) call dsumdf ( ng * 2 , 1d0 , zv_w_ocgs , 0 , 
+     .   1 , zv_w_ocgs , ng * 2 , 1 )
 
 C        call lindxx(122,n1,n2,n3,k1,k2,k3,ng,w(okv),w(ocgs),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
@@ -226,14 +226,14 @@ Cdelw1 do not change ogv because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 171
 Cdelw1 do not change ogv because of ['undef', 'wref']
 Cdelw1         call lindsc(2,ng,w(ogv),tpiba,elind,w(ocgs))
-         call lindsc ( 2 , ng , w ( ogv ) , tpiba , elind , zv_w_ocgs 
-     .   ) 
+        call lindsc ( 2 , ng , w ( ogv ) , tpiba , elind , zv_w_ocgs 
+     .   )
 
 C        call dscal(2*ng,.001d0,w(ocgs),1)
 
 Cdelw1         if (nsp.eq.2) call dsumdf(ng*2,.5d0,w(ocgs),0,1,w(ocgs),ng*2,1)
-         if ( nsp.eq.2 ) call dsumdf ( ng * 2 , .5d0 , zv_w_ocgs , 0 , 
-     .   1 , zv_w_ocgs , ng * 2 , 1 ) 
+        if ( nsp.eq.2 ) call dsumdf ( ng * 2 , .5d0 , zv_w_ocgs , 0 , 
+     .   1 , zv_w_ocgs , ng * 2 , 1 )
 
       endif
 
@@ -243,8 +243,8 @@ Cdelw1 do not change okv because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 178
 Cdelw1 do not change okv because of ['undef', 'wref']
 Cdelw1       call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocgs),smrho)
-       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , zv_w_ocgs 
-     . , smrho ) 
+      call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , zv_w_ocgs 
+     . , smrho )
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 C      call zprm3('screened delta smrho',0,smrho,k1,k2,k3)
@@ -254,20 +254,20 @@ C      return
 C --- Add shift to smrho, ensuring no shift in <rho> ---
       do  i = 1, nsp
 Cdelw1         call dvset(w(ocgs),1+ng*(i-1),1+ng*(i-1),0d0)
-         call dvset ( zv_w_ocgs , 1 + ng * ( i - 1 ) , 1 + ng * ( i - 
-     .   1 ) , 0d0 ) 
+        call dvset ( zv_w_ocgs , 1 + ng * ( i - 1 ) , 1 + ng * ( i - 
+     .   1 ) , 0d0 )
 
       enddo
 Cdelw1       call dpadd(w(ocgr),w(ocgs),1,ng*2*nsp,1d0)
-       call dpadd ( zv_w_ocgr , zv_w_ocgs , 1 , ng * 2 * nsp , 1d0 ) 
+      call dpadd ( zv_w_ocgr , zv_w_ocgs , 1 , ng * 2 * nsp , 1d0 )
 
 Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 189
 Cdelw1 do not change okv because of ['undef', 'wref']
 Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 189
 Cdelw1 do not change okv because of ['undef', 'wref']
 Cdelw1       call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocgr),smrho)
-       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , zv_w_ocgr 
-     . , smrho ) 
+      call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , zv_w_ocgr 
+     . , smrho )
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 
@@ -277,11 +277,11 @@ C --- Symmetrize the shifted density ---
       if (iprint() .gt. 100)
      .  call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
 
-Cdelw1 rlse name= ocgr old_list= ocgr ocgs 
+Cdelw1 rlse name= ocgr old_list= ocgr ocgs
 Cdelw1 rlse name= ocgr new_list= (None)
 Cdelw1       call rlse(ocgr)
-       if (allocated(zv_w_ocgs)) deallocate(zv_w_ocgs)
-       if (allocated(zv_w_ocgr)) deallocate(zv_w_ocgr)
+      if (allocated(zv_w_ocgs)) deallocate(zv_w_ocgs)
+      if (allocated(zv_w_ocgr)) deallocate(zv_w_ocgr)
 
       call tcx('smshft')
 
@@ -290,13 +290,13 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [okv ogv]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine smshft 
+      end subroutine smshft
 
 
       subroutine pvsms1(ssite,sspec,slat,nbas,nsp,kmax,ng,
      .  gv,orhoat,cwk,cg,job)
-       
-       use m_struc_def  !Cgetarg
+
+      use m_struc_def  !Cgetarg
 
 C- Shift in smoothed density according to job.
 C ----------------------------------------------------------------------
@@ -377,10 +377,10 @@ C ... Passed parameters
 Cdelw1 do not change  [['call'], 'orhoat', 'pvsms1']
       integer nbas,nsp,ng,job,orhoat(3,1)
 Cgetarg       double precision ssite(1),sspec(1),slat(1),gv(ng,3)
-       real(8):: gv(ng,3) 
-       type(s_site)::ssite(*)
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
+      real(8):: gv(ng,3)
+      type(s_site)::ssite(*)
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
 
       double complex cg(ng,nsp),cwk(ng)
 C Local variables
@@ -403,9 +403,9 @@ C ... Setup
 Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
 Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
 Cgetarg       call upack('lat alat vol',slat,alat,vol,0,0,0)
-       
-       alat=slat%alat
-       vol=slat%vol
+
+      alat=slat%alat
+      vol=slat%vol
 
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
@@ -426,15 +426,15 @@ C --- For each site, accumulate shift in density ---
 
       do  10  ib = 1, nbas
 Cgetarg         is = igetss('site spec',ib,ssite)
-         is = int(ssite(ib)%spec) 
+        is = int(ssite(ib)%spec)
 
 Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
-         do i_spacks=is,is 
-         call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-         enddo
+        do i_spacks=is,is
+          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+        enddo
 
 Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
-         lmxl = int(sspec(is)%lmxl) 
+        lmxl = int(sspec(is)%lmxl)
 
         nlml = (lmxl+1)**2
         if (lmxl .eq. -1) goto 10
@@ -443,12 +443,12 @@ Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
 Cgetarg...info...           real(8) :: pnew(3) , real(8) :: ssite%pos 3
 Cgetarg...info...           real(8) :: pold(3) , real(8) :: ssite%pos0 3
 Cgetarg         call upack('site spec pos pos0',ssite,ib,is,pnew,pold,0)
-         
-         is=ssite(ib)%spec
-         i_copy_size=size(ssite(ib)%pos) 
-         call dcopy(i_copy_size,ssite(ib)%pos,1,pnew,1) 
-         i_copy_size=size(ssite(ib)%pos0) 
-         call dcopy(i_copy_size,ssite(ib)%pos0,1,pold,1) 
+
+        is=ssite(ib)%spec
+        i_copy_size=size(ssite(ib)%pos)
+        call dcopy(i_copy_size,ssite(ib)%pos,1,pnew,1)
+        i_copy_size=size(ssite(ib)%pos0)
+        call dcopy(i_copy_size,ssite(ib)%pos0,1,pold,1)
 
         pp = alat*dsqrt((pnew(1)-pold(1))**2 + (pnew(2)-pold(2))**2
      .                + (pnew(3)-pold(3))**2)
@@ -464,22 +464,22 @@ Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
 Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
 Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
 Cgetarg           call upack('spec z p pz lmxa',sspec,is,z,pnu,pnz,lmxa)
-           
-           z=sspec(is)%z
-           i_copy_size=size(sspec(is)%p) 
-           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1) 
-           i_copy_size=size(sspec(is)%pz) 
-           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1) 
-           lmxa=sspec(is)%lmxa
+
+          z=sspec(is)%z
+          i_copy_size=size(sspec(is)%p)
+          call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
+          i_copy_size=size(sspec(is)%pz)
+          call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
+          lmxa=sspec(is)%lmxa
 
 Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
 Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
 Cgetarg           call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
-           
-           a=sspec(is)%a
-           nr=sspec(is)%nr
-           rmt=sspec(is)%rmt
+
+          a=sspec(is)%a
+          nr=sspec(is)%nr
+          rmt=sspec(is)%rmt
 
 Cgetarg...info...           integer :: nxi , integer(8) :: sspec%nxi 1
 Cgetarg...info...           real(8) :: exi(n0) , real(8) :: sspec%exi 10
@@ -487,13 +487,13 @@ Cgetarg...info...           real(8) :: hfc(n0,2) , real(8) :: sspec%chfa 20
 Cgetarg...info...           real(8) :: rsmfa , real(8) :: sspec%rsmfa 1
 Cgetarg           call upack('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,
 Cgetarg      .      rsmfa)
-           
-           nxi=sspec(is)%nxi
-           i_copy_size=size(sspec(is)%exi) 
-           call dcopy(i_copy_size,sspec(is)%exi,1,exi,1) 
-           i_copy_size=size(sspec(is)%chfa) 
-           call dcopy(i_copy_size,sspec(is)%chfa,1,hfc,1) 
-           rsmfa=sspec(is)%rsmfa
+
+          nxi=sspec(is)%nxi
+          i_copy_size=size(sspec(is)%exi)
+          call dcopy(i_copy_size,sspec(is)%exi,1,exi,1)
+          i_copy_size=size(sspec(is)%chfa)
+          call dcopy(i_copy_size,sspec(is)%chfa,1,hfc,1)
+          rsmfa=sspec(is)%rsmfa
 
           call gtpcor(sspec,is,kcor,lcor,qcor)
           if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
@@ -517,19 +517,19 @@ C         Excess sphere charge.  See Remarks above.
 C     ... Shift in smoothed free atom density
           do  14    i = 1, nsp
           do  14  ixi = 1, nxi
-          e = exi(ixi)
-          do  15 ig = 1, ng
-            v(1) = gv(ig,1)*tpiba
-            v(2) = gv(ig,2)*tpiba
-            v(3) = gv(ig,3)*tpiba
-            v2 = v(1)**2+v(2)**2+v(3)**2
-            aa = -4d0*pi*dexp(gam*(e-v2))/(e-v2)
-            scalp = -alat*(pnew(1)*v(1)+pnew(2)*v(2)+pnew(3)*v(3))
-            phase = dcmplx(dcos(scalp),dsin(scalp))
-            scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
-            phase = phase - dcmplx(dcos(scalp),dsin(scalp))
-            cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
-   15     continue
+            e = exi(ixi)
+            do  15 ig = 1, ng
+              v(1) = gv(ig,1)*tpiba
+              v(2) = gv(ig,2)*tpiba
+              v(3) = gv(ig,3)*tpiba
+              v2 = v(1)**2+v(2)**2+v(3)**2
+              aa = -4d0*pi*dexp(gam*(e-v2))/(e-v2)
+              scalp = -alat*(pnew(1)*v(1)+pnew(2)*v(2)+pnew(3)*v(3))
+              phase = dcmplx(dcos(scalp),dsin(scalp))
+              scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
+              phase = phase - dcmplx(dcos(scalp),dsin(scalp))
+              cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
+   15       continue
    14     continue
 
 C     ... Add gaussian to conserve local charge; see Remarks
@@ -553,18 +553,18 @@ C     ... Core + valence at old position
           call dpzero(cwk,ng*2)
 Cgetarg...info...           real(8) :: pold(3) , real(8) :: ssite%pos 3
 Cgetarg           call pack2('site pos',ssite,ib,pold)
-           
-           i_copy_size=size(ssite(ib)%pos) 
-           call dcopy(i_copy_size,pold,1,ssite(ib)%pos,1) 
+
+          i_copy_size=size(ssite(ib)%pos)
+          call dcopy(i_copy_size,pold,1,ssite(ib)%pos,1)
 
           call rhgcmp(131,ib,ib,ssite,sspec,slat,orhoat,kmax,ng,cwk)
           call dscal(ng*2,-1d0,cwk,1)
 C     ... Core + valence at new position
 Cgetarg...info...           real(8) :: pnew(3) , real(8) :: ssite%pos 3
 Cgetarg           call pack2('site pos',ssite,ib,pnew)
-           
-           i_copy_size=size(ssite(ib)%pos) 
-           call dcopy(i_copy_size,pnew,1,ssite(ib)%pos,1) 
+
+          i_copy_size=size(ssite(ib)%pos)
+          call dcopy(i_copy_size,pnew,1,ssite(ib)%pos,1)
 
           call rhgcmp(131,ib,ib,ssite,sspec,slat,orhoat,kmax,ng,cwk)
 
@@ -586,6 +586,6 @@ Cdelw1 w_varlist remains: (None)
 Cdelw1 w_varlistundel: [orhoat]
 Cdelw1 w_varlist (undel), remains: (None)
 Cdelw1 w_varlist (del), remains: (None)
-       end subroutine pvsms1 
+      end subroutine pvsms1
 
 

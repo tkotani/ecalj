@@ -70,15 +70,15 @@ C ... Local parameters
       if (nlml .gt. nlm0) call rxi('pklr2o: increase nlm0, need',nlml)
 
       do  isp = 1, nsp
-      do  ilm = 1, nlml
-      do  k = 0, kmax
-        if (mode2 .eq. 0) then
-          fkl(k,ilm,isp) = fklr(k,ilm,isp,ib)
-        else
-          fkl(k,ilm,isp) = dble(fklc(k,ilm,isp,ib))
-        endif
-      enddo
-      enddo
+        do  ilm = 1, nlml
+          do  k = 0, kmax
+            if (mode2 .eq. 0) then
+              fkl(k,ilm,isp) = fklr(k,ilm,isp,ib)
+            else
+              fkl(k,ilm,isp) = dble(fklc(k,ilm,isp,ib))
+            endif
+          enddo
+        enddo
       enddo
 
       if (mode3 .eq. 1) call dpzero(rho1,nr*nlml*nsp)
@@ -112,9 +112,9 @@ C ... Local parameters
       enddo
       sum1 = 0d0
       do  isp = 1, nsp
-      do  i = 1, nr
-        sum1 = sum1 + rwgt(i)*rho1(i,1,isp)
-      enddo
+        do  i = 1, nr
+          sum1 = sum1 + rwgt(i)*rho1(i,1,isp)
+        enddo
       enddo
       qmx = sum1*srfpi
 
