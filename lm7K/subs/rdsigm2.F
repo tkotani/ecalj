@@ -1844,15 +1844,13 @@ C ... titus
 C      call defcc(osfz,k1*k2*k3*ndimh*nlmaa)
 C      call defcc(osfz1,k1*k2*k3*ndimh*nlmaa)
 C ... titus
+
 Cdelw1       call defcc(owk,ndimh**2)
           allocate(zv_w_owk(ndimh**2))
-Ctakao_ZeroClear_NotRequiered        if (ndimh**2<0) zv_w_owk(:)=0.0d0
-
           nl = nglob('nl')
           nspc = 1
 Cdelw1       call defcc(osigm,ndimh**2)
           allocate(zv_w_osigm(ndimh**2))
-Ctakao_ZeroClear_NotRequiered        if (ndimh**2<0) zv_w_osigm(:)=0.0d0
 
           do  iq1 = 1, nqps
             read(ifis) qp,  eseavr !june2009  add eseavr
@@ -1945,12 +1943,14 @@ Cdelw1         call hamfb3k(qp,iq1,nk1,nk2,nk3,k1,k2,k3,w(oipq),
 Cdelw1      &   napw_in,ndimh,ndimh,ndimh,qb,plat,qlat,ldim,ifac,w(ogstar),w(osigm),
 Cdelw1      &   sfz(1,1,1,1,1,isp))
             call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , iv_w_oipq 
-     .   , napw_in , ndimh , ndimh , ndimh , qb , plat , qlat , ldim , 
-     .   ifac , iv_w_ogstar , zv_w_osigm , sfz ( 1 , 1 , 1 , 1 , 1 , isp 
-     .   ) )
+     .      , napw_in , ndimh , ndimh , ndimh , qb , plat , qlat , ldim , 
+     .      ifac , iv_w_ogstar , zv_w_osigm , sfz ( 1 , 1 , 1 , 1 , 1 , isp 
+     .      ) )
 
             write(6,"(a,3f13.5)")'end of hamfbk3'
           enddo
+          deallocate(zv_w_osigm)
+          deallocate(zv_w_owk)
 C ... End loop over spins
         enddo
       endif ! exit of MPI master loop
@@ -1961,12 +1961,10 @@ Cdelw1 w_varlistundel: [og oqsig]
 Cdelw1 w_varlist (undel), remains: [oqsig]
 Cdelw1 w_varlist (del), remains: [oqp ogstar oipq owgt owk osigm]
 Cdelw1 not deallocate oqsig because of [wref]
-      if (allocated(zv_w_osigm)) deallocate(zv_w_osigm)
-      if (allocated(zv_w_owk)) deallocate(zv_w_owk)
       if (allocated(rv_w_owgt)) deallocate(rv_w_owgt)
       if (allocated(iv_w_oipq)) deallocate(iv_w_oipq)
-      if (allocated(iv_w_ogstar)) deallocate(iv_w_ogstar)
       if (allocated(rv_w_oqp)) deallocate(rv_w_oqp)
+      if (allocated(iv_w_ogstar)) deallocate(iv_w_ogstar)
 
       end subroutine rdsigm2
 

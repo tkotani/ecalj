@@ -1,1 +1,0 @@
-cut -b 1-6 mixrho.F |egrep '^ *[0-9]+'

@@ -176,7 +176,7 @@ Cgetarg         call upack('spec rs3 eh3 vmtz rcfa',sspec,is,rs3,eh3,vmtz,rcfa)
      .    nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .    idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,
      .    ceh,sumec,sumtc,v,etot)
-
+        print *,'end of freats: spid=',spid
 C       Repack mesh parms, in case a mesh was selected by freats
 Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
 Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
@@ -545,9 +545,8 @@ Cdelw1      .  w(opsi))
 Cdelw1 rlse name= og old_list= og opsi
 Cdelw1 rlse name= og new_list= (None)
 Cdelw1       call rlse(og)
-          if (allocated(rv_w_opsi)) deallocate(rv_w_opsi)
-          if (allocated(rv_w_og)) deallocate(rv_w_og)
-
+          deallocate(rv_w_opsi)
+          deallocate(rv_w_og)
         endif
 
 C --- Optimise smooth-Hankel basis ---
@@ -558,14 +557,13 @@ C --- Optimise smooth-Hankel basis ---
           if (cmdopt('--norscnst',10,0,strn)) i = 0
           if (z .gt. 0) then
             call optfab(i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,
-     .  rofi,spid,itab,rtab,etab)
+     .  rofi,spid,itab,rtab,etab) 
 C   ... Fit value and slope of local orbitals
             call ftfalo(i,z,a,nr,rmax,nrmt,rmt,lmxa,pnu,pz,rs3,eh3,vmtz,
      .    nsp,v,rofi,spid)
           endif
         endif
       endif
-
 C --- Print charges within/outside MT sphere ---
       if (z .gt. 0) then
         qvt = 0d0
@@ -1379,6 +1377,13 @@ Cdelw1      .    v(1,i),a,b,eval,p,phi,dphi,phip,dphip,e2,qrmt)
           etab(l+1,i) = eh
 
    10   continue
+Cdelw1 rlse name= oh old_list= oh og ogp
+Cdelw1 rlse name= oh new_list= (None)
+Cdelw1       call rlse (oh)
+ctakao moved deallocation to here
+        deallocate(rv_w_ogp)
+        deallocate(rv_w_og)
+        deallocate(rv_w_oh)
    80 continue
 
 C --- Make plot file ---
@@ -1399,16 +1404,9 @@ Cdelw1      .     rofi,w(opsi),v,w(og),a,b,spid)
 Cdelw1 rlse name= opsi old_list= oh og ogp opsi
 Cdelw1 rlse name= opsi new_list= oh og ogp
 Cdelw1         call rlse(opsi)
-        if (allocated(rv_w_opsi)) deallocate(rv_w_opsi)
+        deallocate(rv_w_opsi)
 
       endif
-
-Cdelw1 rlse name= oh old_list= oh og ogp
-Cdelw1 rlse name= oh new_list= (None)
-Cdelw1       call rlse (oh)
-      if (allocated(rv_w_ogp)) deallocate(rv_w_ogp)
-      if (allocated(rv_w_og)) deallocate(rv_w_og)
-      if (allocated(rv_w_oh)) deallocate(rv_w_oh)
 
 
 Cgetarg       end

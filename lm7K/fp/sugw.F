@@ -1046,6 +1046,7 @@ C   --- Diagonalize ---
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
             if (iprint() .ge. 30) call awrit3(
      .  ' sugw:  kpt %i of %i, k=%3:2,5;5d',' ',80,stdo,iq,nqtot,qp)
+            print *,'vvvvv lpdiag=',lpdiag
             if (lpdiag .eq. 0) then
               if (nspc .eq. 2) then
                 call rx('diagonalization not ready for nspc=2')
@@ -1077,7 +1078,7 @@ Cdelw1             call zhevo(ndimh,ndimh,ham,ovl,.true.,ndimh,1d60,epsovl,
 Cdelw1      .        nevl,nev,evl(1,isp),w(oww),ndimh,evec)
                 call zhevo ( ndimh , ndimh , ham , ovl , .true. , ndimh , 1d60 
      .       , epsovl , nevl , nev , evl ( 1 , isp ) , rv_w_oww , ndimh , 
-     .       evec )
+     .         evec )
 
 Cdelw1             eomin = dval(w(oww),1)
                 eomin = dval ( rv_w_oww , 1 )
@@ -1087,6 +1088,8 @@ Cdelw1             eomin = dval(w(oww),1)
      .        '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
      .        eomin,ndimh-nevl,ndimh,nevl,0)
               endif
+              deallocate(rv_w_oww)
+
               call prtev(evec,ndimh,evl(1,isp),ndimh,1d60,nev)
             elseif (lpdiag .eq. 2) then
               evec = ovl
@@ -1096,6 +1099,7 @@ Cdelw1             eomin = dval(w(oww),1)
             else
               call rxi('sugw not ready for lpdiag=',lpdiag)
             endif
+
 C       Pad evals between ndimh and ndham with a large positive number
 C       to avoid mixing up integration routines
             if (ndham .gt. nev) then
@@ -1582,7 +1586,7 @@ Cdelw1 w_varlistundel: [og oiprmb ov0 oqsig oigv2]
 Cdelw1 w_varlist (undel), remains: [oigv2]
 Cdelw1 w_varlist (del), remains: [oww]
 Cdelw1 not deallocate oigv2 because of [wref]
-      if (allocated(rv_w_oww)) deallocate(rv_w_oww)
+c      if (allocated(rv_w_oww)) deallocate(rv_w_oww)
 
       end subroutine sugw
 
