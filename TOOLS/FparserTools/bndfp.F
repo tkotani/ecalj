@@ -1,63 +1,3 @@
-Cdelw1 var ['oifbls', '1', 'oifbls', '-ndham*nspc*2', 'integer', 'iv_w_', 'bndfp']
-Cdelw1 var ['oqmom', '0', 'oqmom', 'nvl', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['ogpot0', '0', 'ogpot0', 'nvl', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['ovval', '0', 'ovval', 'nchan', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['ohab', '0', 'ohab', 'nab*n0*nsp*nbas', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['ovab', '0', 'ovab', 'nab*n0*nsp*nbas', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['osab', '0', 'osab', 'nab*n0*nsp*nbas', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['oppnl', '0', 'oppnl', 'nppn*n0*nsp*nbas', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['ofes1', '0', 'ofes1', '3*nbas', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['osmrho', '-1', 'undef', '0', 'undef', 'x', 'bndfp']
-Cdelw1 var ['oorhat', '-1', 'undef', '0', 'undef', 'x', 'bndfp']
-Cdelw1 var ['osmpot', '-1', 'undef', '0', 'undef', 'x', 'bndfp']
-Cdelw1 var ['oeomin', '2', 'oeomin', 'nsp*nkp', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['odos', '0', 'odos', 'ndos*2*nsp', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['osrout', '1', 'osrout', 'k1*k2*k3*numq*nsp', 'complex(8)', 'zv_w_', 'bndfp']
-Cdelw1 var ['ofh', '1', 'ofh', '3*nbas', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['ofes2', '1', 'ofes2', '3*nbas', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['oausc', '1', 'oausc', '-3*nlmax*ndham*nsites*nsp*nkp', 'complex(8)', 'zv_w_', 'bndfp']
-Cdelw1 var ['oswtk', '-1', 'undef', '0', 'undef', 'x', 'bndfp']
-Cdelw1 var ['ochan', '2', 'ochan', 'nchmx', 'integer', 'iv_w_', 'bndfp']
-Cdelw1 var ['oausp', '2', 'oausp', 'i', 'complex(8)', 'zv_w_', 'bndfp']
-Cdelw1 var ['oqp', '1', 'oqp', '3*nkp', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['oevl', '1', 'oevl', 'ndham*nsp*nkp', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['oorbtm', '1', 'oorbtm', '-nl*nsp*nbas', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['oidxsh', '-1', 'undef', '0', 'undef', 'x', 'bndfp']
-Cdelw1 var ['opos', '-1', 'undef', '0', 'undef', 'x', 'bndfp']
-Cdelw1 var ['oigv2', '4', 'oigv2', '3*napw', 'integer', 'iv_w_', 'bndfp']
-Cdelw1 var ['okv', '4', 'okv', '3*napw', 'integer', 'iv_w_', 'bndfp']
-Cdelw1 var ['oqsig', '-1', 'undef', '0', 'undef', 'x', 'bndfp']
-Cdelw1 var ['ot', '4', 'ot', 'ndimhx**2', 'complex(8)', 'zv_w_', 'bndfp']
-Cdelw1 var ['oww', '5', 'oww', 'ndimhx**2*2', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['owtkp', '-1', 'undef', '0', 'undef', 'x', 'bndfp']
-Cdelw1 var ['owtkb', '-1', 'undef', '0', 'undef', 'x', 'bndfp']
-Cdelw1 var ['oauso', '5', 'oauso', '-nlmax*ndhamx*3*nsp*nbas', 'complex(8)', 'zv_w_', 'bndfp']
-Cdelw1 var ['odoswt', '7', 'odoswt', '-nchan*nevmx*nspc', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['oiprmb', '-1', 'undef', '0', 'undef', 'x', 'bndfp']
-Cdelw1 var ['oausu', '6', 'oausu', '-2*nlmax*ndhamx*3*nsp*nbas', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['oips', '1', 'oips', 'nbas', 'integer', 'iv_w_', 'bndfp']
-Cdelw1 var ['oidtet', '-1', 'undef', '0', 'undef', 'x', 'bndfp']
-Cdelw1 var ['oqbyl', '0', 'oqbyl', 'n0*nbas*nsp', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['ohbyl', '0', 'ohbyl', 'n0*nbas*nsp', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['oqm1', '1', 'oqm1', 'nvl', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['oqm2', '1', 'oqm2', 'nvl', 'real(8)', 'rv_w_', 'bndfp']
-Cdelw1 var ['obuf', '0', 'obuf', 'ndham*nkp*nsp', 'real(8)', 'rv_w_', 'xmpbnd']
-Cdelw1 undel [['undef', 'wref'], 'osmrho', 'bndfp']
-Cdelw1 undel [['undef', 'wref'], 'oorhat', 'bndfp']
-Cdelw1 undel [['undef', 'wref'], 'osmpot', 'bndfp']
-Cdelw1 undel [['undef', 'wref'], 'oswtk', 'bndfp']
-Cdelw1 undel [['undef', 'wref'], 'oidxsh', 'bndfp']
-Cdelw1 undel [['undef', 'wref'], 'opos', 'bndfp']
-Cdelw1 undel [['undef', 'wref'], 'oqsig', 'bndfp']
-Cdelw1 undel [['undef', 'wref'], 'owtkp', 'bndfp']
-Cdelw1 undel [['undef', 'wref'], 'owtkb', 'bndfp']
-Cdelw1 undel [['undef', 'wref'], 'oiprmb', 'bndfp']
-Cdelw1 undel [['undef', 'wref'], 'oidtet', 'bndfp']
-Cdelw1 undel [['wref'], 'oigv2', 'bndfp']
-Cdelw1 undel [['call'], 'oqkkl', 'bndfp']
-Cdelw1 undel [['call'], 'oeqkkl', 'bndfp']
-Cdelw1 undel [['wref'], 'oqp', 'bndfp']
-Cdelw1 undel [['wref'], 'oevl', 'bndfp']
 Cgetarg...info...           structure ['bndfp', 'ctrl', 'sctrl']
 Cgetarg...info...           structure ['bndfp', 'ham', 'sham']
 Cgetarg...info...           structure ['bndfp', 'pot', 'spot']
@@ -69,12 +9,10 @@ Cgetarg...info...           structure ['bndfp', 'spec', 'sspec']
      .  ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit,evl,frc,
      .  dmatu,vorb,llmfgw)
-      use m_hamindex, only: 
-     &    ngrp, norbt, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
-     &    igv2,napwk,igv2rev,ibasindex,getikt
-      use m_rdctrl, only: ncutovl
-      use m_struc_def
 
+      use m_rdctrl, only: ncutovl
+      use m_hamindex
+      use m_struc_def
 #if MPI | MPIK
       use m_events !Event numbers: include "events.ins"
 #endif
@@ -264,6 +202,7 @@ C ... Passed parameters
       integer dims(2)
 #endif
 #if MPIK
+      integer oeomin
 ckino 05Feb09
       integer:: pidorigin, ndimhx_iq, nev_iq
       integer:: work_mpi(10)  ! use only 1 and 2 now
@@ -301,72 +240,23 @@ CKI      type(s_spec),allocatable:: sspecv(:)
 C ... Local parameters
       logical lgors,ltet,cmdopt,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
-Cdelw1       integer oeomin
-       real(8) ,allocatable :: rv_w_oeomin(:)
-
-Cdelw1       integer ipr,iprint,ipl,isp,jsp,ispc,isum,nglob,i,iopq,iq,isqp,
-Cdelw1      .  ismidb,nsmidb,ldos,lmet,nspc,lrep,lcplxp,lso,nkabc(3),ndos,
-Cdelw1      .  ndos0,nev,nevl,nkp,nsp,numq,n1,n2,n3,ntet,lwtkb,lswtk,nl,lgunit,
-Cdelw1      .  igets,mpsord,nevmx,nvl,odos,ngabc(3),isw,stdo,stdl,ifi,fxst,
-Cdelw1      .  fopn,fopna,lfrzw,i1,i2,plbnd,nfilem,iobzwt,lnoxc,lrsig, lwsig, 
-Cdelw1      .  jobgw,nll,lpdiag,iv(10),parg,ndhamx,nspx,nk1,nk2,nk3,lshft(3),
-Cdelw1      .  onesp,nfbn(2),mpipid,ldham(8,2),ldim,ndimh,ndimhx,lekkl
-       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
-     . , i , iopq , iq , isqp , ismidb , nsmidb , ldos , lmet , nspc 
-     . , lrep , lcplxp , lso , nkabc(3) , ndos , ndos0 , nev , nevl 
-     . , nkp , nsp , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk , nl 
-     . , lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw , stdo 
-     . , stdl , ifi , fxst , fopn , fopna , lfrzw , i1 , i2 , plbnd 
-     . , nfilem , iobzwt , lnoxc , lrsig , lwsig , jobgw , nll , lpdiag 
-     . , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
-     . , onesp , nfbn(2) , mpipid , ldham(8,2) , ldim , ndimh , ndimhx 
-     . , lekkl 
-       real(8) ,allocatable :: rv_w_odos(:)
-
-Cdelw1 do not change  [['wref'], 'oevl', 'bndfp']
-Cdelw1 do not change  [['undef', 'wref'], 'oidtet', 'bndfp']
-Cdelw1 do not change  [['undef', 'wref'], 'owtkb', 'bndfp']
-Cdelw1 do not change  [['undef', 'wref'], 'oswtk', 'bndfp']
-Cdelw1 do not change  [['undef', 'wref'], 'owtkp', 'bndfp']
-Cdelw1 do not change  [['undef', 'wref'], 'oorhat', 'bndfp']
-Cdelw1 do not change  [['undef', 'wref'], 'osmpot', 'bndfp']
-Cdelw1 do not change  [['undef', 'wref'], 'osmrho', 'bndfp']
-Cdelw1 do not change  [['wref'], 'oqp', 'bndfp']
-Cdelw1       integer oevl,ofh,ofes1,ofes2,ogpot0,ohab,ohbyl,oppnl,
-Cdelw1      .  oqbyl,oqmom,os,osab,osrout,ot,ovab,oidtet,owtkb,oswtk,owtkp,
-Cdelw1      .  oqm1,oqm2,oorhat,osoptc,osmpot,osmrho,ovval,oww,oqp,oips,oorbtm,
-Cdelw1      .  oifbls
-       integer:: oevl , os , oidtet , owtkb , oswtk , owtkp , oorhat 
-     . , osoptc , osmpot , osmrho , oqp 
-       real(8) ,allocatable :: rv_w_ofh(:)
-       real(8) ,allocatable :: rv_w_ofes1(:)
-       real(8) ,allocatable :: rv_w_ofes2(:)
-       real(8) ,allocatable :: rv_w_ogpot0(:)
-       real(8) ,allocatable :: rv_w_ohab(:)
-       real(8) ,allocatable :: rv_w_ohbyl(:)
-       real(8) ,allocatable :: rv_w_oppnl(:)
-       real(8) ,allocatable :: rv_w_oqbyl(:)
-       real(8) ,allocatable :: rv_w_oqmom(:)
-       real(8) ,allocatable :: rv_w_osab(:)
-       complex(8) ,allocatable :: zv_w_osrout(:)
-       complex(8) ,allocatable :: zv_w_ot(:)
-       real(8) ,allocatable :: rv_w_ovab(:)
-       real(8) ,allocatable :: rv_w_oqm1(:)
-       real(8) ,allocatable :: rv_w_oqm2(:)
-       real(8) ,allocatable :: rv_w_ovval(:)
-       real(8) ,allocatable :: rv_w_oww(:)
-       integer ,allocatable :: iv_w_oips(:)
-       real(8) ,allocatable :: rv_w_oorbtm(:)
-       integer ,allocatable :: iv_w_oifbls(:)
-
-Cdelw1 do not change  [['call'], 'oqkkl', 'bndfp']
-Cdelw1 do not change  [['call'], 'oeqkkl', 'bndfp']
+      integer ipr,iprint,ipl,isp,jsp,ispc,isum,nglob,i,iopq,iq,isqp,
+     .  ismidb,nsmidb,ldos,lmet,nspc,lrep,lcplxp,lso,nkabc(3),ndos,
+     .  ndos0,nev,nevl,nkp,nsp,numq,n1,n2,n3,ntet,lwtkb,lswtk,nl,lgunit,
+     .  igets,mpsord,nevmx,nvl,odos,ngabc(3),isw,stdo,stdl,ifi,fxst,
+     .  fopn,fopna,lfrzw,i1,i2,plbnd,nfilem,iobzwt,lnoxc,lrsig, lwsig, 
+     .  jobgw,nll,lpdiag,iv(10),parg,ndhamx,nspx,nk1,nk2,nk3,lshft(3),
+     .  onesp,nfbn(2),mpipid,ldham(8,2),ldim,ndimh,ndimhx,lekkl
+      integer oevl,ofh,ofes1,ofes2,ogpot0,ohab,ohbyl,oppnl,
+     .  oqbyl,oqmom,os,osab,osrout,ot,ovab,oidtet,owtkb,oswtk,owtkp,
+     .  oqm1,oqm2,oorhat,osoptc,osmpot,osmrho,ovval,oww,oqp,oips,oorbtm,
+     .  oifbls
       integer osig(3,nbx),otau(3,nbx),oppi(3,nbx),oqkkl(3,nbx),
      .  oeqkkl(3,nbx),orhat1(3,nbx)
       equivalence (ldim,ldham(1,1))
 
       logical a2bin
-      integer osigx(3,nbx),otaux(3,nbx),oppix(3,nbx),ospotx,osgw !osmrox,
+      integer osigx(3,nbx),otaux(3,nbx),oppix(3,nbx),ospotx,osmrox,osgw
 
       double precision sigp(10)
 
@@ -380,10 +270,7 @@ Cdelw1 do not change  [['call'], 'oeqkkl', 'bndfp']
       equivalence (emin,dosw(1)),(emax,dosw(2))
 
 C     For now: PW basis
-Cdelw1       integer okv
-       integer,allocatable:: igv2x(:,:)
-       integer ,allocatable :: iv_w_okv(:)
-
+      integer oigv2,okv
       integer pwmode,napw
       double precision pwemin,pwemax,pwgmin,pwgmax
 
@@ -391,37 +278,21 @@ C     real(8),allocatable :: qpe(:,:)
 
       logical T, F
 C     for spin-orbit
-Cdelw1       integer oauso
-       complex(8) ,allocatable :: zv_w_oauso(:)
-
+      integer oauso
 C     for partial dos
-Cdelw1       integer oausp
-       complex(8) ,allocatable :: zv_w_oausp(:)
-
+      integer oausp
 C     for CLS
       integer nsitmx
       parameter (nsitmx = 256)
-Cdelw1       integer nlmax,oausc,i1mach,icls,isite(nsitmx),iclsl(nsitmx),
-Cdelw1      .        iclsn(nsitmx)
-       integer:: nlmax , i1mach , icls , isite(nsitmx) , iclsl(nsitmx) 
-     . , iclsn(nsitmx) 
-       complex(8) ,allocatable :: zv_w_oausc(:)
-
+      integer nlmax,oausc,i1mach,icls,isite(nsitmx),iclsl(nsitmx),
+     .        iclsn(nsitmx)
 C     for Mulliken
-Cdelw1 do not change  [['undef', 'wref'], 'oiprmb', 'bndfp']
-Cdelw1       integer oiprmb,odoswt,moddos,nsites,lsites(nbx),nchan,ng,iomoms,
-Cdelw1      .        nchmx,lmdim,ochan,lmxch
-       integer:: oiprmb , moddos , nsites , lsites(nbx) , nchan , ng 
-     . , iomoms , nchmx , lmdim , lmxch 
-       real(8) ,allocatable :: rv_w_odoswt(:)
-       integer ,allocatable :: iv_w_ochan(:),iv_w_ochan0(:)
-
+      integer oiprmb,odoswt,moddos,nsites,lsites(nbx),nchan,ng,iomoms,
+     .        nchmx,lmdim,ochan,lmxch
 C     for pzhev
       integer nblk,nprow,npcol,nmx
 C     for LDA+U
-Cdelw1       integer oausu
-       real(8) ,allocatable :: rv_w_oausu(:)
-
+      integer oausu
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),
      .              dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
 
@@ -454,10 +325,8 @@ C #endif
 
 C For self-energy
       integer nqsig
-Cdelw1 do not change  [['undef', 'wref'], 'oqsig', 'bndfp']
       integer oqsig
 
-Cdelw1 do not change  [['undef', 'wref'], 'oidxsh', 'bndfp']
       integer oidxsh,nbasp
 
 C     Data statements
@@ -470,7 +339,6 @@ ctakao
       logical :: nexist,sigmamode,ok, newsigmasw
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2
-Cdelw1 do not change  [['undef', 'wref'], 'opos', 'bndfp']
       integer :: nhmax,nknknk,npairmx,opos,jx,nsp_dummy,ndimh_dummy
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:)
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) !,hamsom(:,:)
@@ -492,13 +360,8 @@ Cdelw1 do not change  [['undef', 'wref'], 'opos', 'bndfp']
       real(8):: qpo(3),qpx(3)
 
       integer:: iqini,iqend
-      complex(8),allocatable:: spotx(:,:,:,:)
 
 C     call wkfast(.false.)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [osmrho oorhat osmpot oswtk oidxsh opos oqsig owtkp owtkb oiprmb oidtet oqkkl oeqkkl oqp oevl]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (maxit .eq. 0) return
 
 C ... MPI setup
@@ -594,8 +457,7 @@ c      print *,'ttt fxstsigm=',fxst('sigm')
 
 
 
-      if (procid .eq. master) then
-        if (lrsig .ne. 0 .and. fxst('sigm') .ne. 1) then
+      if (procid .eq. master) then; if (lrsig .ne. 0 .and. fxst('sigm') .ne. 1) then
           call info0(1,1,0,' bndfp (warning): '//
      .    'no sigm file found ... LDA calculation only')
 Cgetarg         call pack1('ham lsig',sham,0)
@@ -631,14 +493,8 @@ Cgetarg...info...           integer :: osoptc , integer(8) :: spot%osoptc 1
 Cgetarg       call upack('pot oorhat osmrho osmpot osoptc',spot,oorhat,osmrho,
 Cgetarg      .  osmpot,osoptc,0)
 
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 498
-Cdelw1 do not change oorhat because of ['undef', 'wref']
       oorhat=spot%oorhat
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 499
-Cdelw1 do not change osmrho because of ['undef', 'wref']
       osmrho=spot%osmrho
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 500
-Cdelw1 do not change osmpot because of ['undef', 'wref']
       osmpot=spot%osmpot
 c       osoptc=spot%osoptc
 
@@ -722,8 +578,6 @@ Cgetarg      .  oidtet,lmet)
       call i8icopy(i_copy_size,sbz%nkabc,1,nkabc,1)
       nkp=sbz%nkp
       ntet=sbz%ntet
-Cdelw1 warning(1) , probably  oidtet  is not defined yet at linenumber= 583
-Cdelw1 do not change oidtet because of ['undef', 'wref']
       oidtet=sbz%oidtet
       lmet=sbz%lmet
 
@@ -763,11 +617,7 @@ Cgetarg...info...           integer :: oqp , integer(8) :: sbz%oqp 1
 Cgetarg...info...           integer :: owtkp , integer(8) :: sbz%owtkp 1
 Cgetarg       call upack('bz oqp owtkp',sbz,oqp,owtkp,0,0,0)
 
-Cdelw1 warning(1) , probably  oqp  is not defined yet at linenumber= 622
-Cdelw1 do not change oqp because of ['wref']
       oqp=sbz%oqp
-Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 623
-Cdelw1 do not change owtkp because of ['undef', 'wref']
       owtkp=sbz%owtkp
 
       ltet = ntet .gt. 0
@@ -808,10 +658,7 @@ C     Switch to plot bands at specified qp
         lfrce = 0
         nkp = 0
         numq = 1
-Cdelw1         call defi(oifbls, -ndham*nspc*2)
-         allocate(iv_w_oifbls(ndham*nspc*2))
-         iv_w_oifbls(:)=0
-
+        call defi(oifbls, -ndham*nspc*2)
       else
         plbnd = 0
       endif
@@ -824,23 +671,14 @@ C --- Define local arrays used in the generation of the potential ---
 C  10 continue
       lnoxc = 0
       if (jobgw .eq. 2) lnoxc = 1
-Cdelw1       call defrr (oqmom,  nvl)
-       allocate(rv_w_oqmom(nvl))
-Cdelw1       call defrr (ogpot0, nvl)
-       allocate(rv_w_ogpot0(nvl))
-Cdelw1       call defrr (ovval,  nchan)
-       allocate(rv_w_ovval(nchan))
-Cdelw1       call defrr (ohab,   nab*n0*nsp*nbas)
-       allocate(rv_w_ohab(nab*n0*nsp*nbas))
-Cdelw1       call defrr (ovab,   nab*n0*nsp*nbas)
-       allocate(rv_w_ovab(nab*n0*nsp*nbas))
-Cdelw1       call defrr (osab,   nab*n0*nsp*nbas)
-       allocate(rv_w_osab(nab*n0*nsp*nbas))
-Cdelw1       call defrr (oppnl,  nppn*n0*nsp*nbas)
-       allocate(rv_w_oppnl(nppn*n0*nsp*nbas))
-Cdelw1       call defrr (ofes1,  3*nbas)
-       allocate(rv_w_ofes1(3*nbas))
-
+      call defrr (oqmom,  nvl)
+      call defrr (ogpot0, nvl)
+      call defrr (ovval,  nchan)
+      call defrr (ohab,   nab*n0*nsp*nbas)
+      call defrr (ovab,   nab*n0*nsp*nbas)
+      call defrr (osab,   nab*n0*nsp*nbas)
+      call defrr (oppnl,  nppn*n0*nsp*nbas)
+      call defrr (ofes1,  3*nbas)
       call dfaugm(nbas,lcplxp,lso,ssite,sspec,osig,otau,oppi)
 
 C --- Make the potential sans XC part ---
@@ -850,33 +688,15 @@ C --- Make the potential sans XC part ---
           call togpr()
           i = 1 + 10*lfrzw + 100
           call dfaugm(nbas,lcplxp,lso,ssite,sspec,osigx,otaux,oppix)
-c          call defcc(ospotx, -k1*k2*k3*nsp)
-          allocate(spotx(k1,k2,k3,nsp))
-          spotx=0d0
-c          call defcc(osmrox, -k1*k2*k3*nsp)
-c          call dcopy(k1*k2*k3*nsp*2,w(osmrho),1,w(osmrox),1)
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 698
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 698
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 698
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 698
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1           call mkpot(nbas,ssite,sspec,slat,sham,spot,0,lcplxp,k1,k2,k3,
-Cdelw1 c     .    w(osmrho),w(oorhat),qbg,w(ospotx),w(oqmom),vconst,vrmt,osigx,
-Cdelw1      .    w(osmrho),w(oorhat),qbg,spotx,w(oqmom),vconst,vrmt,osigx,
-Cdelw1      .    otaux,oppix,w(oppnl),w(ohab),w(ovab),w(osab),qval,qsc,
-Cdelw1      .    w(ogpot0),w(ovval),w(ofes1),i,vorb,nlibu,lmaxu,lldau, 0)
-           call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 , 
-     .     lcplxp , k1 , k2 , k3 , w ( osmrho ) , w ( oorhat ) , qbg , spotx 
-     .     , rv_w_oqmom , vconst , vrmt , osigx , otaux , oppix , rv_w_oppnl 
-     .     , rv_w_ohab , rv_w_ovab , rv_w_osab , qval , qsc , rv_w_ogpot0 
-     .     , rv_w_ovval , rv_w_ofes1 , i , vorb , nlibu , lmaxu , lldau 
-     .     , 0 ) 
-
+          call defcc(ospotx, -k1*k2*k3*nsp)
+          call defcc(osmrox, -k1*k2*k3*nsp)
+          call dcopy(k1*k2*k3*nsp*2,w(osmrho),1,w(osmrox),1)
+          call mkpot(nbas,ssite,sspec,slat,sham,spot,0,lcplxp,k1,k2,k3,
+     .    w(osmrho),w(oorhat),qbg,w(ospotx),w(oqmom),vconst,vrmt,osigx,
+     .    otaux,oppix,w(oppnl),w(ohab),w(ovab),w(osab),qval,qsc,
+     .    w(ogpot0),w(ovval),w(ofes1),i,vorb,nlibu,lmaxu,lldau, 0)
           call togpr()
-c          call rlse(osmrox)
+          call rlse(osmrox)
         endif
 C --- readin job switch
         if (jobgw .eq. -999 ) then
@@ -937,29 +757,10 @@ c          stop 'xxxxxxxxxxxxxxxx'
 ccccccccccccccccccccccccc
 
       call togpr()
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 765
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 765
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 765
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 765
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 765
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 765
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1       call mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,k1,k2,k3,
-Cdelw1      .  w(osmrho),w(oorhat),qbg,w(osmpot),w(oqmom),vconst,vrmt,osig,
-Cdelw1      .  otau,oppi,w(oppnl),w(ohab),w(ovab),w(osab),qval,qsc,
-Cdelw1      .  w(ogpot0),w(ovval),w(ofes1),i,vorb,nlibu,lmaxu,lldau, 0)
-       call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
-     . , lcplxp , k1 , k2 , k3 , w ( osmrho ) , w ( oorhat ) , qbg , 
-     . w ( osmpot ) , rv_w_oqmom , vconst , vrmt , osig , otau , oppi 
-     . , rv_w_oppnl , rv_w_ohab , rv_w_ovab , rv_w_osab , qval , qsc 
-     . , rv_w_ogpot0 , rv_w_ovval , rv_w_ofes1 , i , vorb , nlibu , 
-     . lmaxu , lldau , 0 ) 
-
+      call mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,k1,k2,k3,
+     .  w(osmrho),w(oorhat),qbg,w(osmpot),w(oqmom),vconst,vrmt,osig,
+     .  otau,oppi,w(oppnl),w(ohab),w(ovab),w(osab),qval,qsc,
+     .  w(ogpot0),w(ovval),w(ofes1),i,vorb,nlibu,lmaxu,lldau, 0)
       call togpr()
 
 ccccccccccccccccccccccccc
@@ -1005,7 +806,6 @@ Cgetarg       elind = dgets('ham elind',sham)
      .  elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
       dmxp(33) = elind
 
-      call defrr(oevl, ndham*nsp*nkp)
 C --- Setup for BZ integration ---
       if (plbnd .eq. 0) then
 
@@ -1013,18 +813,9 @@ cccccccccccccccccccccc
 c         print *,'nsp,nspc,nkp,nkp=',nsp,nspc,nkp,nkp
 cccccccccccccccccccccc
 
-Cdelw1 warning(1) , probably  oswtk  is not defined yet at linenumber= 821
-Cdelw1 do not change oswtk because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oevl  is not defined yet at linenumber= 821
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 821
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-
-       call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
-c     .    nevmx,lwtkb,eferm,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
-     .    nevmx,lwtkb,eferm,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
+        call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
+     .    nevmx,lwtkb,eferm,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
      .    dabs(esmear-mpsord))
-
         if (lwtkb .eq. -1)
      .    call info(20,0,0,' Start first of two band passes ...',0,0)
         if (lwtkb .eq. 1) then
@@ -1034,9 +825,7 @@ c     .    nevmx,lwtkb,eferm,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
         endif
 #if MPIK
         if (epsovl .ne. 0) then
-Cdelw1           call defrr(oeomin,nsp*nkp)
-           allocate(rv_w_oeomin(nsp*nkp))
-
+          call defrr(oeomin,nsp*nkp)
         endif
 #endif
       else
@@ -1058,18 +847,14 @@ c$$$#endif
 C --- More k-point independent local arrays ---
       if (ldos .eq. 0 .and. lmet .eq. 0) ndos = 1
       if (ndos .lt. 0) ndos = -ndos
-Cdelw1       call defrr (odos, ndos*2*nsp)
-      allocate(rv_w_odos(ndos*2*nsp))
+      call defrr (odos, ndos*2*nsp)
       if (lrout .ne. 0) then
         call dfqkkl(nbas,ssite,sspec,numq,oqkkl)
         if (lekkl .eq. 1)
      .  call dfqkkl(nbas,ssite,sspec,numq,oeqkkl)
-Cdelw1         call defcc(osrout,  k1*k2*k3*numq*nsp)
-         allocate(zv_w_osrout(k1*k2*k3*numq*nsp))
-Cdelw1         call defrr (ofh,    3*nbas)
-         allocate(rv_w_ofh(3*nbas))
-Cdelw1         call defrr (ofes2,  3*nbas)
-         allocate(rv_w_ofes2(3*nbas))
+        call defcc(osrout,  k1*k2*k3*numq*nsp)
+        call defrr (ofh,    3*nbas)
+        call defrr (ofes2,  3*nbas)
       endif
       call suham2(sctrl,slat,sspec,ssite,sham,spot,sstrn)
       print *,'end of suham2'
@@ -1095,9 +880,7 @@ C     Allocate aus for all qp
      .              'nsistes=%i nsp=%i nkp=%i',' ',120,
      .             i1mach(2),16*3*nlmax*ndham*nsites*nsp*nkp/1000000,
      .             nlmax,ndham,nsites,nsp,nkp)
-Cdelw1         call defcc(oausc,-3*nlmax*ndham*nsites*nsp*nkp)
-         allocate(zv_w_oausc(3*nlmax*ndham*nsites*nsp*nkp))
-         zv_w_oausc(:)=0.0d0
+        call defcc(oausc,-3*nlmax*ndham*nsites*nsp*nkp)
       else
         icls = 0
       endif
@@ -1129,20 +912,10 @@ c       osgw=spot%osgw
         nchan=spot%nlma
 
 C ... Modes 0..4
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 920
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 920
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1         call sugw(ssite,sspec,slat,sham,nbas,ndham,
-Cdelw1      .  w(osmpot),vconst,lcplxp,osig,otau,oppi,w(oppnl),vrmt,
-Cdelw1 c     .  w(ospotx),osigx,otaux,oppix,jobgw)
-Cdelw1      .  spotx,osigx,otaux,oppix,jobgw)
-         call sugw ( ssite , sspec , slat , sham , nbas , ndham , w ( 
-     .   osmpot ) , vconst , lcplxp , osig , otau , oppi , rv_w_oppnl 
-     .   , vrmt , spotx , osigx , otaux , oppix , jobgw ) 
-
-        deallocate(spotx)
-c        call rlse(oqmom)
+        call sugw(ssite,sspec,slat,sham,nbas,ndham,
+     .  w(osmpot),vconst,lcplxp,osig,otau,oppi,w(oppnl),vrmt,
+     .  w(ospotx),osigx,otaux,oppix,jobgw)
+        call rlse(oqmom)
 C      if (jobgw .eq. 1) then
 C        jobgw = 2
 C        call info(20,1,0,' ... Remake potential without vxc',0,0)
@@ -1157,24 +930,16 @@ C      endif
 C --- Start loop over k points; also, re-entry for second band pass ---
    99 continue
       ebot = 1000d0
-Cdelw1       call surho(nbas,ssite,sspec,lmet,ldos,lrout,lekkl,numq,
-Cdelw1      .  oqkkl,oeqkkl,k1,k2,k3,w(osrout),ndos,w(odos),sumev,sumqv)
-       call surho ( nbas , ssite , sspec , lmet , ldos , lrout , lekkl 
-     . , numq , oqkkl , oeqkkl , k1 , k2 , k3 , zv_w_osrout , ndos , 
-     . rv_w_odos , sumev , sumqv ) 
-
+      call surho(nbas,ssite,sspec,lmet,ldos,lrout,lekkl,numq,
+     .  oqkkl,oeqkkl,k1,k2,k3,w(osrout),ndos,w(odos),sumev,sumqv)
       if (lfrce .gt. 0) then
         call dpzero(frc, 3*nbas*numq)
-Cdelw1         call dpzero(w(ofh),3*nbas)
-         call dpzero ( rv_w_ofh , 3 * nbas ) 
-
+        call dpzero(w(ofh),3*nbas)
       endif
 
       if (lswtk .eq. 1) then
         efmax = 1d3
         nevmx = ndhamx
-Cdelw1 warning(1) , probably  oswtk  is not defined yet at linenumber= 950
-Cdelw1 do not change oswtk because of ['undef', 'wref']
         call dpzero(w(oswtk),ndhamx*nkp)
       endif
 
@@ -1188,8 +953,6 @@ Cgetarg       nl = igets('ctrl nl',sctrl)
       endif
 C     if (cmdopt('--mull',6,0,strn)) nfilem = fopna('moms',-1,4)
 C     if (cmdopt('--pdos',6,0,strn)) nfilem = fopna('moms',-1,4)
-
-       if(debug) print *,'vvvvv 000aaa 22222222qqq '
       if (nfilem .gt. 0) then
         rewind nfilem
         i = 1
@@ -1204,23 +967,12 @@ Cgetarg           call upack('lat nsgrp',slat,ng,0,0,0,0)
           efmax = 1d3
           nevmx = ndhamx
           nchmx = min(1024,nbas*nl**2)
-Cdelw1           call defi(ochan,nchmx)
-           allocate(iv_w_ochan0(nchmx))
-
-Cdelw1           call sumlst(1,nchmx,nbas,ng,ssite,sspec,mulopt,moddos,
-Cdelw1      .      nsites,lsites,lmxch,nchan,w(ochan),0)
-           call sumlst ( 1 , nchmx , nbas , ng , ssite , sspec , mulopt 
-     .     , moddos , nsites , lsites , lmxch , nchan , iv_w_ochan0, 0 ) 
-
-Cdelw1           call redfi(ochan,nchan)
-           if(allocated(iv_w_ochan)) deallocate(iv_w_ochan)
-           allocate(iv_w_ochan(nchan))
-           iv_w_ochan=iv_w_ochan0(1:nchan)
-           deallocate(iv_w_ochan0)
+          call defi(ochan,nchmx)
+          call sumlst(1,nchmx,nbas,ng,ssite,sspec,mulopt,moddos,
+     .      nsites,lsites,lmxch,nchan,w(ochan),0)
+          call redfi(ochan,nchan)
           call iomomn(.true.,2,.false.,1,nspc,1,1,i)
         endif
-       if(debug) print *,'vvvvv 111aaa 22222222qqq '
-
 C   ... If switch '--pdos'; get sites, number of channels
         if (cmdopt('--pdos',6,0,strn)) then
           mulopt = strn(7:)
@@ -1230,9 +982,7 @@ Cgetarg           call upack('lat nsgrp',slat,ng,0,0,0,0)
           ng=slat%nsgrp
 
           nchmx = min(1024,nbas*nl**2)
-Cdelw1           call defi(ochan,nchmx)
-           allocate(iv_w_ochan(nchmx))
-
+          call defi(ochan,nchmx)
           nll = 0
           call sumlst(0,nchmx,nbas,ng,ssite,sspec,mulopt,moddos,
      .      nsites,lsites,lmxch,nchan,w,nll)
@@ -1241,27 +991,17 @@ Cdelw1           call defi(ochan,nchmx)
           if (16*i*nkp/1000000 .gt. 24 .and. procid .eq. master)
      .    call info(20,0,0,' PDOS: %iMb memory for aus: nlmax=%i',
      .      i/1000000,nlmax)
-Cdelw1           call defcc(oausp,i)
-c           allocate(zv_w_oausp(i))
-c           if (i<0) zv_w_oausp(:)=0.0d0
-
-Cdelw1 rlse name= oausp old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oausp 
-Cdelw1 rlse name= oausp new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan 
-Cdelw1           call rlse(oausp)
-c           if (allocated(zv_w_oausp)) deallocate(zv_w_oausp)
-
+          call defcc(oausp,i)
+          call rlse(oausp)
           if (cmdopt('--mull',6,0,strn))
      .      call rx('--pdos and --mull not allowed in conjunction')
           if (cmdopt('--cls',5,0,strn))
      .      call rx('--pdos and --cls not allowed in conjunction')
           call iomomn(.true.,2,.false.,1,nspc,1,1,i)
         endif
-       if(debug) print *,'vvvvv 22222222qqq111 '
         if (procid .eq. master) i = iomoms(-nfilem,nl,nsp,nspc,nkp,
      .    ndham,i,1,0,1,0,0,0,0,0,0d0,0d0,0d0,0d0,0d0,0d0)
-        endif
-
-       if(debug) print *,'vvvvv 22222222qqq '
+      endif
 
 C ... Case only generate bands at supplied qp: setup
       if (plbnd .ne. 0) then
@@ -1284,17 +1024,14 @@ C       suqlst in MPIK mode; returns cumulative number of k-points
 C       In parallel mode, suqlst call only serves to generate nkp
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
-        if(debug) print *,'vvvvv nkp=',nkp
+c        print *,'vvvvv nkp=',nkp
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
         if (procid .eq. master) then
-Cdelw1           call suqlst(plbopt,iopq,ndhamx,ef0,i,w,nfbn,w(oifbls),nkp,qp,
-Cdelw1      .      onesp)
-           call suqlst ( plbopt , iopq , ndhamx , ef0 , i , w , nfbn , iv_w_oifbls 
-     .     , nkp , qp , onesp ) 
-
+          call suqlst(plbopt,iopq,ndhamx,ef0,i,w,nfbn,w(oifbls),nkp,qp,
+     .      onesp)
         endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
-        if(debug) print *,'vvvvv nkp222=',nkp,iopq
+c        print *,'vvvvv nkp=',nkp,iopq
 c        stop 'xxxxxxxxxxxxxxxxxxxxxx'
 ccccccccccccccccccccccccccccccccccccccccccccccccccccc
         call mpibc1(nkp,1,2,mlog,'bndfp','nkp')
@@ -1310,13 +1047,10 @@ C MPIK: Setup to assemble all k-points into single list with qp table
 
         call suqlsm(i)
 C       Re-allocate qp and evl arrays
-Cdelw1 do not change oqp because of ['wref']
         call defrr(oqp,  3*nkp)
-Cdelw1 do not change oevl because of ['wref']
-c        call defrr(oevl, ndham*nsp*nkp)
+        call defrr(oevl, ndham*nsp*nkp)
         if (epsovl .ne. 0) then
-Cdelw1           call defrr(oeomin,nsp*nkp)
-           allocate(rv_w_oeomin(nsp*nkp))
+          call defrr(oeomin,nsp*nkp)
         endif
         call info2(20,1,1,
      .    ' bndfp:  MPIK band plotting mode %i:  %i q-points',i,nkp)
@@ -1329,22 +1063,15 @@ C       iq = running index to big qp list, i1 = index to current line
   199     continue
           i = 1
           call pshpr(0)
-Cdelw1           call suqlst(plbopt,1,ndhamx,ef0,i,w,nfbn,w(oifbls),i2,qp,
-Cdelw1      .      onesp)
-           call suqlst ( plbopt , 1 , ndhamx , ef0 , i , w , nfbn , iv_w_oifbls 
-     .     , i2 , qp , onesp ) 
-
+          call suqlst(plbopt,1,ndhamx,ef0,i,w,nfbn,w(oifbls),i2,qp,
+     .      onesp)
           call poppr
           if (i2 .gt. 0) then
             call pshpr(0)
             do  i1 = 1, i2
               iq = iq+1
-Cdelw1               call suqlst(plbopt,1,ndhamx,ef0,i,w,nfbn,w(oifbls),i2,qp,
-Cdelw1      .          onesp)
-               call suqlst ( plbopt , 1 , ndhamx , ef0 , i , w , nfbn , iv_w_oifbls 
-     .         , i2 , qp , onesp ) 
-
-Cdelw1 do not change oqp because of ['wref']
+              call suqlst(plbopt,1,ndhamx,ef0,i,w,nfbn,w(oifbls),i2,qp,
+     .          onesp)
               call dpscop(qp,w(oqp),3,1,3*iq-2,1d0)
             enddo
             call poppr
@@ -1352,7 +1079,6 @@ Cdelw1 do not change oqp because of ['wref']
             if (i .ne. 3) goto 199
           endif
         endif
-Cdelw1 do not change oqp because of ['wref']
         call mpibc1(w(oqp),3*nkp,4,.false.,'bndfp','qp')
 #endif
       endif
@@ -1366,10 +1092,7 @@ C ... Setup for spin-orbit coupling
 C        call sumlst(10,nchmx,nbas,ng,ssite,sspec,mulopt,moddos,
 C     .    nsites,lsites,lmxch,nchan,w,nll)
         nlmax = nglob('nlmax')
-Cdelw1         call defrr(oorbtm, -nl*nsp*nbas)
-         if(allocated(rv_w_oorbtm)) deallocate(rv_w_oorbtm)
-         allocate(rv_w_oorbtm(nl*nsp*nbas))
-         rv_w_oorbtm(:)=0.0d0
+        call defrr(oorbtm, -nl*nsp*nbas)
       endif
 
 C ... Setup for case sigma or evecs written to disk.
@@ -1404,13 +1127,9 @@ C --- Get qplist. This is only for no MPI mode yet...
         if (plbnd .ne. 0) then
           i = nsp
           if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-Cdelw1           call suqlst(plbopt,0,ndhamx,ef0,i,w,nfbn,w(oifbls),nkp,qp,
-Cdelw1      .      onesp) !probably suqlst it too complicated... It should be simplified.
-           call suqlst ( plbopt , 0 , ndhamx , ef0 , i , w , nfbn , iv_w_oifbls 
-     .     , nkp , qp , onesp ) 
-
+          call suqlst(plbopt,0,ndhamx,ef0,i,w,nfbn,w(oifbls),nkp,qp,
+     .      onesp) !probably suqlst it too complicated... It should be simplified.
         else
-Cdelw1 do not change oqp because of ['wref']
           call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
         endif
         qplist(:,iq)=qp
@@ -1438,13 +1157,9 @@ Cgetarg         call upack('ctrl nbasp nl',sctrl,nbasp,nl,0,0,0)
 Cgetarg...info...           integer :: oidxsh , integer(8) :: sham%oindxo 1
 Cgetarg         call upack('ham oindxo',sham,oidxsh,0,0,0,0)
 
-Cdelw1 warning(1) , probably  oidxsh  is not defined yet at linenumber= 1167
-Cdelw1 do not change oidxsh because of ['undef', 'wref']
         oidxsh=sham%oindxo
 
         print *,'goto gen_hamindex nkp=',nkp
-Cdelw1 warning(1) , probably  oidxsh  is not defined yet at linenumber= 1170
-Cdelw1 do not change oidxsh because of ['undef', 'wref']
         call gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbasp,w(oidxsh),ldim,qplist,nkp,siginit)
         write(6,*)
         write(6,*) ' --- Hamiltonian index ---'
@@ -1545,12 +1260,8 @@ c
 Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
 Cgetarg         call upack2('lat opos',slat,opos,0)
 
-Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 1270
-Cdelw1 do not change opos because of ['undef', 'wref']
         opos=slat%opos
 
-Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 1272
-Cdelw1 do not change opos because of ['undef', 'wref']
         call dcopy(nbas*3,w(opos),1,pos,1)
         npairmx=nk1*nk2*nk3*2
         do
@@ -1577,7 +1288,7 @@ C... This is needed only for hambls.F case (store ohrs)
 
 
 C --- do loop for iq and isp ---------------
-      if(debug) print *,' --- goto do loop 2010 ---'
+c      print *,' --- goto do loop 2010 ---'
 ctakao
       if(allocated(nevls)) deallocate(nevls)
       allocate(nevls(nkp,nsp))
@@ -1640,7 +1351,6 @@ c          call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
 c        endif
         qp=qplist(:,iq)
 #else
-Cdelw1 do not change oqp because of ['wref']
         call dpscop(w(oqp),qp,3,3*iq-2,1,1d0) !this should be modified as in non-MPIK mode.
 #endif
 
@@ -1661,9 +1371,8 @@ C       isp=1 generates just the 11 block
 c        call defrr(oh,-ndhamx**2*2)
 c        call defrr(os,-ndhamx**2*2)
 
-        if(debug) print *,'goto spin loop nsp=',nsp
+
         do  isp = 1, nsp
-          if(debug)  print *,'vvvvvv isp loop isp=',isp
           if (onesp .eq. 0 .or. isp .eq. onesp) then
 
 cccccccccccccc
@@ -1681,8 +1390,7 @@ c        qp=(/-1d0,0d0,0d0/)
 ccccccccccccccccccccccccc
 
 
-          if(debug)  print *,'vvvvvv xxx cccccccccc1 pwemax pwmode',pwemax,pwmode
-          if(allocated(igv2x)) deallocate(igv2x)
+
 C   ... For this qp, G vectors for PW basis and hamiltonian dimension
             if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
               pwgmin = dsqrt(pwemin)
@@ -1694,24 +1402,14 @@ C   ... For this qp, G vectors for PW basis and hamiltonian dimension
               call gvlst2(alat,plat,xv,0,0,0,pwgmin,pwgmax,0,
      .      0,0,napw,dum,dum,dum,dum)
               call poppr
-c              call defi(oigv2,3*napw)
-              allocate(igv2x(3,napw))
-Cdelw1               call defi(okv,3*napw)
-               allocate(iv_w_okv(3*napw))
-
+              call defi(oigv2,3*napw)
+              call defi(okv,3*napw)
               call pshpr(iprint()-10)
               !print *,'xxx xxx 2222'
-Cdelw1               call gvlst2(alat,plat,xv,0,0,0,pwgmin,pwgmax,0,
-Cdelw1      .      2,0,napw,w(okv),dum,dum,w(oigv2))
-               call gvlst2 ( alat , plat , xv , 0 , 0 , 0 , pwgmin , pwgmax 
-     .         , 0 , 2 , 0 , napw , iv_w_okv , dum , dum , igv2x ) 
-
+              call gvlst2(alat,plat,xv,0,0,0,pwgmin,pwgmax,0,
+     .      2,0,napw,w(okv),dum,dum,w(oigv2))
               !print *,'xxx xxx 3333'
-Cdelw1 rlse name= okv old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm okv 
-Cdelw1 rlse name= okv new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  
-Cdelw1               call rlse(okv)
-              deallocate(iv_w_okv)
-
+              call rlse(okv)
               call poppr
               ndimh = ldim + napw  !ndimh is iq-dependent.
               if (mod(pwmode,10) .eq. 2) ndimh = napw
@@ -1722,12 +1420,9 @@ Cdelw1               call rlse(okv)
               endif
             else
               ndimh = ldim
-Cdelw1 do not change igv2 because of ['wref']
-              allocate(igv2x(1,1)) !dummy
+              oigv2 = 1
             endif
             ndimhx = ndimh*nspc !this is iq-dependent.
-
-          if(debug)  print *,'vvvvvv xxx cccccccccc2222'
 
 C   ... Make Hamiltonian and overlap matrices
 Cgetarg...info...           integer :: nqsig , integer(8) :: sham%nqsig 1
@@ -1735,18 +1430,14 @@ Cgetarg...info...           integer :: oqsig , integer(8) :: sham%oqsig 1
 Cgetarg          call upack2('ham nqsig oqsig',sham,nqsig,oqsig)
 
             nqsig=sham%nqsig
-Cdelw1 warning(1) , probably  oqsig  is not defined yet at linenumber= 1440
-Cdelw1 do not change oqsig because of ['undef', 'wref']
             oqsig=sham%oqsig
 
-Cdelw1 warning(1) , probably  oqsig  is not defined yet at linenumber= 1442
-Cdelw1 do not change oqsig because of ['undef', 'wref']
             if (oqsig .eq. 0) oqsig = 1
 
             ispc = min(isp,nspc) !nspc=2 for non-colinier case
             !nspc=1
 
-            if(debug) print *,'zzzzzzzzzzzzz11111111'
+
 c ---
             if(isp==1) then
               if(allocated(hamm)) deallocate(hamm)
@@ -1761,11 +1452,11 @@ c      else
 c        allocate(hamsom(1,1)) !dummy
 c      endif
             endif
-
             if(ispc==1) then
               hamm=0d0
               ovlm=0d0
             endif
+
 
             i = lrsig*10
 C Commented by takao lwsig should be renewed.
@@ -1916,8 +1607,8 @@ c... obtain G index for eight corners of a cube. qp is in the cube.
                       iktm = getikt(qmm) !index for qmm
                       qqq = matmul(qp-qmm,plat)
 
-                      igvecc = igvecc0 + qqq + 10000 + 1d-8 ! +10000 is to make igvecc+qqq positve. and then subtract -10000
-                      igvecc = igvecc - 10000              !
+                      igvecc = igvecc0 + qqq + 10000 + 1d-8+ ! +10000 is to make igvecc+qqq positve. and then subtract -10000
+     &                 issgvecc - 10000              !takao2
 
                       igx(ig,ix1,ix2,ix3) = igv2rev(igvecc(1),igvecc(2),igvecc(3),iktm)
                       !igx at eight corners. If missing, 9999999 !see suham.F
@@ -2014,11 +1705,8 @@ ccccc     if (mod(mode,10) .eq. 0) then
               print *,' --- hambl --- sigmamode=',sigmamode
               jx = 0
               if (lso == 1) jx = 10
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 1715
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1 do not change because of ['wref']
               call hambl(jx,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,
-     .    w(osmpot),vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igv2x,
+     .    w(osmpot),vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,w(oigv2),
      .    hamm(1,1,ispc),ovlm(1,1,ispc),hamm(1,1,3))
               if(sigmamode) hamm(:,:,ispc) = hamm(:,:,ispc)+sene
               if(sigmamode) deallocate(sene)
@@ -2044,13 +1732,9 @@ c      endif
 c      if (lrsig .eq. 0) goto 999
             else
 C ... Interpolation of sene= \Sigm-Vxc at given q.
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 1742
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqsig  is not defined yet at linenumber= 1742
-Cdelw1 do not change oqsig because of ['undef', 'wref']
               call hambls(i,nbas,ssite,sspec,slat,sham,isp,ispc,qp,k1,k2,k3,
      .    w(oqsig),nqsig,w(osmpot),vconst,osig,otau,oppi,lcplxp,lso,
-     .    alfa,ndimh,napw,igv2x,hamm,ovlm,ismidb)
+     .    alfa,ndimh,napw,w(oigv2),hamm,ovlm,ismidb)
 c        nsmidb = min(nsmidb,ismidb) !????
               if(sigmamode) deallocate(sene)
               print *,' end of hambls mode=',i
@@ -2152,9 +1836,7 @@ C #endif
 
 C   ... Diagonalize and add to density
             if (lpdiag==0.or.lpdiag==2) then
-Cdelw1               call defcc(ot,ndimhx**2)
-               if (allocated(zv_w_ot)) deallocate(zv_w_ot)
-               allocate(zv_w_ot(ndimhx**2))
+              call defcc(ot,ndimhx**2)
             endif
 
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
@@ -2183,7 +1865,7 @@ c
 
 
             if(lpdiag .eq. 1) then
-            call rx('parallel diag is not yet. Need to recover followings.')
+              call rx('parallel diag is not yet. Need to recover followings.')
 C$$$          call rxx(nspc.ne.1,'parallel diag not implemented for noncol')
 C$$$#if MPE & MPI
 C$$$          ierr = MPE_LOG_EVENT(EVENT_START_PZHEV,procid,"pzhev")
@@ -2200,108 +1882,55 @@ C$$$#if MPE & MPI
 C$$$          ierr = MPE_LOG_EVENT(EVENT_END_PZHEV,procid,"pzhev")
 C$$$#endif
             elseif (lpdiag .eq. 2) then
-Cdelw1               call dcopy(ndimhx**2*2, ovlm,1, w(ot),1)
-               call dcopy ( ndimhx * * 2 * 2 , ovlm , 1 , zv_w_ot , 1 ) 
-
+              call dcopy(ndimhx**2*2, ovlm,1, w(ot),1)
               nev = ndimhx
               nmx = ndimhx
               nevl = ndimhx
               call phmbls(2,ndimhx,evl(1,jsp),w,w,w,w,w,hamm)!w(oh))
               if(debug) print *,'vvv lwtkb=',lwtkb
               if (lwtkb .ne. -1) then
-Cdelw1                 call defrr(oww,  ndimhx**2*2)
-                 allocate(rv_w_oww(ndimhx**2*2))
-
+                call defrr(oww,  ndimhx**2*2)
                 if (ldim .ne. ndham) call
      .        rx('blsig needs separate dim for wtkp,evec')
-Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 1902
-Cdelw1 do not change owtkp because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 1902
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 1902
-Cdelw1 do not change owtkp because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 1902
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1                 call blsig(1+lrsig*10,nbas,sham,isp,nsp,nspc,plat,qp,
-Cdelw1      .        lwtkb,qval-qbg,iq,w(owtkp),w(owtkb),ndimh,w(ot),w(oww))
-                 call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
-     .           , plat , qp , lwtkb , qval - qbg , iq , w ( owtkp ) , w ( owtkb 
-     .           ) , ndimh , zv_w_ot , rv_w_oww ) 
-
-Cdelw1 rlse name= oww old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  ot oww 
-Cdelw1 rlse name= oww new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  ot 
-Cdelw1                 call rlse(oww)
-                  deallocate(rv_w_oww)
-
+                call blsig(1+lrsig*10,nbas,sham,isp,nsp,nspc,plat,qp,
+     .        lwtkb,qval-qbg,iq,w(owtkp),w(owtkb),ndimh,w(ot),w(oww))
+                call rlse(oww)
               endif
               if(debug) print *,'vvv2 lwtkb=',lwtkb
             else
-              if(debug)  print *,' vvv zzzzz vvvv lpdiag else'
-
               if (nspc .eq. 2) then
-Cdelw1                 call defrr(oww,  ndimhx**2)
-c                 allocate(rv_w_oww(ndimhx**2))
-                 if(debug)  print *,' vvv zzzzz 111'
-Cdelw1                 call sopert(0,ndimh,nspc,w(oww),hamm,hamm)!w(oh),w(oh))
-c                 call sopert ( 0 , ndimh , nspc , rv_w_oww , hamm , hamm ) 
-                 call sopert2 ( 0 , ndimh , nspc, hamm , hamm ) 
-                 if(debug)  print *,' vvv zzzzz 22'
-Cdelw1                 call sopert(0,ndimh,nspc,w(oww),ovlm,ovlm)!w(os),w(os))
-c                 call sopert ( 0 , ndimh , nspc , rv_w_oww , hamm , hamm ) 
-                 call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm ) 
-                 if(debug)  print *,' vvv zzzzz 333'
-
-Cdelw1 rlse name= oww old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  ot oww 
-Cdelw1 rlse name= oww new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  ot 
-Cdelw1                 call rlse(oww)
-c                 deallocate(rv_w_oww)
-                 if(debug)  print *,' vvv zzzzz 444'
-
+                call defrr(oww,  ndimhx**2)
+                call sopert(0,ndimh,nspc,w(oww),hamm,hamm)!w(oh),w(oh))
+                call sopert(0,ndimh,nspc,w(oww),ovlm,ovlm)!w(os),w(os))
+                call rlse(oww)
               endif
-Cdelw1               call defrr(oww,  11*ndimhx)
-              if(debug)  print *,' vvv zzzzz 555'
-
-              allocate(rv_w_oww(11*ndimhx))
+              call defrr(oww,  11*ndimhx)
 c takao
 c          if (epsovl .eq. 0) then
 c
-
-             if(debug)  print *,' vvv zzzzzzzzzzzzzz bbbbbbbb'
+c          print *,' vvv no original mode'
 c          if(.false.) then
+
               if(napw == 0) then
 c            call zhev(ndimhx,w(oh),w(os),T,T,nmx,efmax,nev,w(oww),F,-1,
                 !print *,'goto zhev ndimh ndimhx=',ndimh,ndimhx
-Cdelw1                 call zhev(ndimhx,hamm,ovlm,T,T,nmx,efmax,nev,w(oww),F,-1,
-Cdelw1      .        evl(1,jsp),w(ot))
-                 call zhev ( ndimhx , hamm , ovlm , t , t , nmx , efmax , nev 
-     .           , rv_w_oww , f , - 1 , evl ( 1 , jsp ) , zv_w_ot ) 
-
+                call zhev(ndimhx,hamm,ovlm,T,T,nmx,efmax,nev,w(oww),F,-1,
+     .        evl(1,jsp),w(ot))
                 !print *,'end of zhev'
                 nevl = ndimhx
               else
                 nevl = -1
-Cdelw1                 call dvset(w(oww),1,1,99999d0)
-                 call dvset ( rv_w_oww , 1 , 1 , 99999d0 ) 
-
+                call dvset(w(oww),1,1,99999d0)
 c            call zhevo(ndimhx,ndimhx,w(oh),w(os),T,nmx,efmax,epsovl,
 c     .        nevl,nev,evl(1,jsp),w(oww),ndimhx,w(ot))
 c takao version. Not in lm-7.0beta
 c            call zhev_tk(ndimhx-napw,ndimhx,w(oh),w(os),nmx,epsovl,
-Cdelw1                 call zhev_tk(ndimhx-napw,ndimhx,hamm,ovlm,nmx,epsovl,
-Cdelw1      .        ncutovl,nevl,nev,evl(1,jsp),w(oww),ndimhx,w(ot),iq==1)
-                 call zhev_tk ( ndimhx - napw , ndimhx , hamm , ovlm , nmx , epsovl 
-     .           , ncutovl , nevl , nev , evl ( 1 , jsp ) , rv_w_oww , ndimhx 
-     .           , zv_w_ot , iq = = 1 ) 
-
+                call zhev_tk(ndimhx-napw,ndimhx,hamm,ovlm,nmx,epsovl,
+     .        ncutovl,nevl,nev,evl(1,jsp),w(oww),ndimhx,w(ot),iq==1)
                 print *,'end of zhev_tk'
-Cdelw1                 eomin = dval(w(oww),1)
-                 eomin = dval ( rv_w_oww , 1 ) 
-
+                eomin = dval(w(oww),1)
               endif
-Cdelw1 rlse name= oww old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm ot oww 
-Cdelw1 rlse name= oww new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  ot 
-Cdelw1               call rlse(oww)
-              deallocate(rv_w_oww)
+              call rlse(oww)
             endif
 
 
@@ -2324,17 +1953,11 @@ ctakao
      .      eomin,ndimhx-nevl,ndimhx,nevl,0)
             endif
             if(debug) print *,' goto print nevl nev nmx=',nevl,nev,nmx
-Cdelw1             call prtev(w(ot),nevl,evl(1,jsp),nmx,efmax,nev)
-             call prtev ( zv_w_ot , nevl , evl ( 1 , jsp ) , nmx , efmax , 
-     .       nev ) 
-
+            call prtev(w(ot),nevl,evl(1,jsp),nmx,efmax,nev)
             if(debug) print *,' end of print ev'
             if (iprint() .ge. 110) then
               call yprm('evals',1,evl(1,jsp),1,ndhamx,nevl,1)
-Cdelw1               if (nev .gt. 0) call zprm('evecs',2,w(ot),ndimhx,ndimhx,nev)
-               if ( nev .gt. 0 ) call zprm ( 'evecs' , 2 , zv_w_ot , ndimhx 
-     .         , ndimhx , nev ) 
-
+              if (nev .gt. 0) call zprm('evecs',2,w(ot),ndimhx,ndimhx,nev)
             endif
 #endif
             if (mod(iq,10) .ne. 1) call poppr
@@ -2386,7 +2009,6 @@ C           if (ef0 .ge. dum) i = 2
 #endif
 c##### !MPIK
 
-            if( debug) print *, 'tttttttttt 11111 plbnd=',plbnd
 C   ... Save data for this qp to moments file
             if (plbnd .eq. 0) then
 C   ... Copy eigenvalues into array containing ev for all qp
@@ -2394,14 +2016,9 @@ C   ... Copy eigenvalues into array containing ev for all qp
      .              1,1+ndham*(jsp-1+isqp),1d0)
 #if MPIK
               if (epsovl .ne. 0) then
-Cdelw1                 call dpscop(eomin,w(oeomin),1,1,1+(jsp-1+isqp),1d0)
-                 call dpscop ( eomin , rv_w_oeomin , 1 , 1 , 1 + ( jsp - 1 + isqp 
-     .           ) , 1d0 ) 
-
+                call dpscop(eomin,w(oeomin),1,1,1+(jsp-1+isqp),1d0)
               endif
 #endif
-
-              if( debug) print *, 'tttttttttt 22222'
 
 C        call prmx('ev',w(oevl),ndham,ndham,isqp+2)
 C        call prmx('ev',w(oevl),ndham,ndham,nkp*nsp)
@@ -2413,36 +2030,15 @@ C        call prmx('ev',w(oevl),ndham,ndham,nkp*nsp)
 C   --- Orbital magnetic moment (requires lso) ---
               if (lso .ne. 0 .and. lwtkb .ne. -1) then
                 if (lwtkb .eq. 0) call
-     .          rx('metal weights required for orb. moment calculation')
-Cdelw1                 call defcc(oauso,-nlmax*ndhamx*3*nsp*nbas)
-                allocate(zv_w_oauso(nlmax*ndhamx*3*nsp*nbas))
-                zv_w_oauso(:)=0.0d0
-
-Cdelw1                 call makusq(0,ssite,sspec,slat,sham,nbas,nbas,0,nlmax,ndham,
-Cdelw1      .      ndimh,napw,w(oigv2),nev,nsp,nspc,jsp,1,qp,w(ot),w(oppnl),
-Cdelw1      .      w(oauso))
-                 call makusq ( 0 , ssite , sspec , slat , sham , nbas , nbas , 
-     .           0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
-     .           nspc , jsp , 1 , qp , zv_w_ot , rv_w_oppnl , zv_w_oauso ) 
-
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2045
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2045
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1                 call mkorbm(ssite,sspec,jsp,nsp,nspc,nlmax,ndham,nev,w(owtkb),
-Cdelw1      .      iq,nbas,w(oppnl),w(oauso),nl,nkp,w(oorbtm))
-                 call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham 
-     .           , nev , w ( owtkb ) , iq , nbas , rv_w_oppnl , zv_w_oauso , nl 
-     .           , nkp , rv_w_oorbtm ) 
-
-Cdelw1 rlse name= oauso old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oorbtm ot oauso 
-Cdelw1 rlse name= oauso new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oorbtm  ot 
-Cdelw1                 call rlse(oauso)
-                 deallocate(zv_w_oauso)
-
+     .      rx('metal weights required for orb. moment calculation')
+                call defcc(oauso,-nlmax*ndhamx*3*nsp*nbas)
+                call makusq(0,ssite,sspec,slat,sham,nbas,nbas,0,nlmax,ndham,
+     .      ndimh,napw,w(oigv2),nev,nsp,nspc,jsp,1,qp,w(ot),w(oppnl),
+     .      w(oauso))
+                call mkorbm(ssite,sspec,jsp,nsp,nspc,nlmax,ndham,nev,w(owtkb),
+     .      iq,nbas,w(oppnl),w(oauso),nl,nkp,w(oorbtm))
+                call rlse(oauso)
               endif
-
-              if( debug) print *, 'tttttttttt 333'
 
 C   --- Mulliken analysis and partial DOS ---
               if (lwtkb .ne. -1) then
@@ -2453,101 +2049,48 @@ C   --- Mulliken analysis and partial DOS ---
 #endif
                     call rxx(nev.ne.ndimhx,'Mulliken requires all eigenvectors')
                     call rxx(nevmx.ne.ndhamx,'Mulliken requires nevmx=nhdamx')
-Cdelw1                     call defrr(odoswt,-nchan*nevmx*nspc)
-                     allocate(rv_w_odoswt(nchan*nevmx*nspc))
-                     rv_w_odoswt(:)=0.0d0
-
+                    call defrr(odoswt,-nchan*nevmx*nspc)
 Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
 Cgetarg           call upack('ham oindxo',sham,oiprmb,0,0,0,0)
 
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 2063
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
                     oiprmb=sham%oindxo
 
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 2065
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 2065
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
-Cdelw1                     call mullmf(nbas,ssite,sspec,w(oiprmb),w(ot),ndimh,nspc,
-Cdelw1      .                iq,jsp,moddos,nsites,lsites,lmxch,nchan,w(ochan),
-Cdelw1      .                lmdim,ndham,w(odoswt))
-                     call mullmf ( nbas , ssite , sspec , w ( oiprmb ) , zv_w_ot , 
-     .               ndimh , nspc , iq , jsp , moddos , nsites , lsites , lmxch , 
-     .               nchan , iv_w_ochan , lmdim , ndham , rv_w_odoswt ) 
-
+                    call mullmf(nbas,ssite,sspec,w(oiprmb),w(ot),ndimh,nspc,
+     .                iq,jsp,moddos,nsites,lsites,lmxch,nchan,w(ochan),
+     .                lmdim,ndham,w(odoswt))
                     call iomomn(.true.,2,.false.,1,nspc,1,1,i)
-Cdelw1                     i1 = iomoms(-nfilem,nl,nsp,nspc,nkp,ndimh,i,nspc,1,1,ndhamx,
-Cdelw1      .      nevmx,nchan,nchan,nev,evl(1,jsp),0d0,w(odoswt),0d0,0d0,0d0)
-                     i1 = iomoms ( - nfilem , nl , nsp , nspc , nkp , ndimh , i , 
-     .               nspc , 1 , 1 , ndhamx , nevmx , nchan , nchan , nev , evl ( 1 
-     .               , jsp ) , 0d0 , rv_w_odoswt , 0d0 , 0d0 , 0d0 ) 
-
-Cdelw1 rlse name= odoswt old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp  oorbtm ot odoswt 
-Cdelw1 rlse name= odoswt new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oorbtm ot 
-Cdelw1                     call rlse(odoswt)
-                     if (allocated(rv_w_odoswt)) deallocate(rv_w_odoswt)
-
+                    i1 = iomoms(-nfilem,nl,nsp,nspc,nkp,ndimh,i,nspc,1,1,ndhamx,
+     .      nevmx,nchan,nchan,nev,evl(1,jsp),0d0,w(odoswt),0d0,0d0,0d0)
+                    call rlse(odoswt)
                   elseif (cmdopt('--pdos',6,0,strn)) then
 #if MPIK
                     call rx('PDOS not k-parallel.')
 #endif
                     call rxx(nspc.ne.1,'pdos not implemented in noncoll case')
                     i = nlmax*ndham*3*nsp*nbas
-Cdelw1                     call defcc(oausp,-i)
-                     allocate(zv_w_oausp(i))
-                     zv_w_oausp(:)=0.0d0
-
-Cdelw1                     call makusq(1,ssite,sspec,slat,sham,nbas,nbas,0,nlmax,ndham,
-Cdelw1      .      ndimh,napw,w(oigv2),nev,nsp,nspc,jsp,1,qp,w(ot),w(oppnl),
-Cdelw1      .      w(oausp))
-                     call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
-     .               0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
-     .               nspc , jsp , 1 , qp , zv_w_ot , rv_w_oppnl , zv_w_oausp ) 
-
-Cdelw1                     call defrr(odoswt,-nchan*ndimhx*nspc)
-                     allocate(rv_w_odoswt(nchan*ndimhx*nspc))
-                     rv_w_odoswt(:)=0.0d0
-
-Cdelw1                     call mkpdos(moddos,ssite,sspec,jsp,nsp,nlmax,ndham,nev,
-Cdelw1      .      nchan,1,lsites,nsites,w(oppnl),w(oausp),w(odoswt))
-                     call mkpdos ( moddos , ssite , sspec , jsp , nsp , nlmax , ndham 
-     .               , nev , nchan , 1 , lsites , nsites , rv_w_oppnl , zv_w_oausp 
-     .               , rv_w_odoswt ) 
-
+                    call defcc(oausp,-i)
+                    call makusq(1,ssite,sspec,slat,sham,nbas,nbas,0,nlmax,ndham,
+     .      ndimh,napw,w(oigv2),nev,nsp,nspc,jsp,1,qp,w(ot),w(oppnl),
+     .      w(oausp))
+                    call defrr(odoswt,-nchan*ndimhx*nspc)
+                    call mkpdos(moddos,ssite,sspec,jsp,nsp,nlmax,ndham,nev,
+     .      nchan,1,lsites,nsites,w(oppnl),w(oausp),w(odoswt))
                     call iomomn(.true.,2,.false.,1,nspc,1,1,i)
 #if MPIK
-Cdelw1                     i1 = iomoms(-nfilem,nl,nsp,nspc,2,ndimh,1000+i,1,iq,isp,
-Cdelw1      .      ndham,ndimh,nchan,nchan,nev,evl(1,jsp),0d0,w(odoswt),0d0,
-Cdelw1      .      0d0,0d0)
-                     i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , 1000 + 
-     .               i , 1 , iq , isp , ndham , ndimh , nchan , nchan , nev , evl 
-     .               ( 1 , jsp ) , 0d0 , rv_w_odoswt , 0d0 , 0d0 , 0d0 ) 
-
+                    i1 = iomoms(-nfilem,nl,nsp,nspc,2,ndimh,1000+i,1,iq,isp,
+     .      ndham,ndimh,nchan,nchan,nev,evl(1,jsp),0d0,w(odoswt),0d0,
+     .      0d0,0d0)
 #else
-Cdelw1                     i1 = iomoms(-nfilem,nl,nsp,nspc,2,ndimh,i,1,1,1,ndham,ndimh,
-Cdelw1      .      nchan,nchan,nev,evl(1,jsp),0d0,w(odoswt),0d0,0d0,0d0)
-                     i1 = iomoms ( - nfilem , nl , nsp , nspc , 2 , ndimh , i , 1 
-     .               , 1 , 1 , ndham , ndimh , nchan , nchan , nev , evl ( 1 , jsp 
-     .               ) , 0d0 , rv_w_odoswt , 0d0 , 0d0 , 0d0 ) 
-
+                    i1 = iomoms(-nfilem,nl,nsp,nspc,2,ndimh,i,1,1,1,ndham,ndimh,
+     .      nchan,nchan,nev,evl(1,jsp),0d0,w(odoswt),0d0,0d0,0d0)
 #endif
-Cdelw1 rlse name= odoswt old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp  oorbtm  ot oausp odoswt 
-Cdelw1 rlse name= odoswt new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oorbtm ot oausp 
-Cdelw1                     call rlse(odoswt)
-                     if (allocated(rv_w_odoswt)) deallocate(rv_w_odoswt)
-
-Cdelw1 rlse name= oausp old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm ot oausp 
-Cdelw1 rlse name= oausp new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  ot 
-Cdelw1                     call rlse(oausp)
-                     if (allocated(zv_w_oausp)) deallocate(zv_w_oausp)
-
+                    call rlse(odoswt)
+                    call rlse(oausp)
                   elseif (nfilem .gt. 0) then
                     write (nfilem) 0, ndimhx
                     call dpdump(evl(1,jsp),ndimhx,-nfilem)
                   endif
                 endif
-
-            if( debug) print *, 'tttttttttt 5555'
 
 C   ... Make new density matrix dmatu for LDA+U
                 if (nlibu .gt. 0 .and. nev .gt. 0) then
@@ -2557,37 +2100,15 @@ Cgetarg           nl = igets('ctrl nl',sctrl)
                   nl = int(sctrl%nl)
 
                   nlmax = nl*nl
-Cdelw1                   call defrr(oausu,-2*nlmax*ndhamx*3*nsp*nbas)
-                   allocate(rv_w_oausu(2*nlmax*ndhamx*3*nsp*nbas))
-                   rv_w_oausu(:)=0.0d0
-
-Cdelw1                   call makusq(0,ssite,sspec,slat,sham,nbas,nbas,0,nlmax,ndham,
-Cdelw1      .      ndimh,napw,w(oigv2),nev,nsp,nspc,jsp,1,qp,w(ot),w(oppnl),
-Cdelw1      .      w(oausu))
-                   call makusq ( 0 , ssite , sspec , slat , sham , nbas , nbas , 
-     .             0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
-     .             nspc , jsp , 1 , qp , zv_w_ot , rv_w_oppnl , rv_w_oausu ) 
-
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2114
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2114
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1                   call mkdmtu(ssite,sspec,w(owtkb),jsp,iq,nsp,nspc,ndham,nlmax,
-Cdelw1      .      nbas,nev,w(oppnl),w(oausu),dmatu,nlibu,lmaxu,lldau)
-                   call mkdmtu ( ssite , sspec , w ( owtkb ) , jsp , iq , nsp , 
-     .             nspc , ndham , nlmax , nbas , nev , rv_w_oppnl , rv_w_oausu , 
-     .             dmatu , nlibu , lmaxu , lldau ) 
-
-Cdelw1 rlse name= oausu old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm ot oausu 
-Cdelw1 rlse name= oausu new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  ot 
-Cdelw1                   call rlse(oausu)
-                   if (allocated(rv_w_oausu)) deallocate(rv_w_oausu)
-
+                  call defrr(oausu,-2*nlmax*ndhamx*3*nsp*nbas)
+                  call makusq(0,ssite,sspec,slat,sham,nbas,nbas,0,nlmax,ndham,
+     .      ndimh,napw,w(oigv2),nev,nsp,nspc,jsp,1,qp,w(ot),w(oppnl),
+     .      w(oausu))
+                  call mkdmtu(ssite,sspec,w(owtkb),jsp,iq,nsp,nspc,ndham,nlmax,
+     .      nbas,nev,w(oppnl),w(oausu),dmatu,nlibu,lmaxu,lldau)
+                  call rlse(oausu)
                 endif
               endif
-
-
-            if( debug) print *, 'tttttttttt 666666'
 
 C   ... for core-level spectroscopy
               if (icls .ne. 0 .and. lwtkb .ne. -1) then
@@ -2595,49 +2116,20 @@ C   ... for core-level spectroscopy
 #if MPI
                 call rx('CLS only k-parallel')
 #endif
-Cdelw1                 call makusq(0,ssite,sspec,slat,sham,nbas,nsites,isite,nlmax,
-Cdelw1      .      ndham,ndimh,napw,w(oigv2),nev,nsp,nspc,jsp,iq,qp,w(ot),
-Cdelw1      .      w(oppnl),w(oausc))
-                 call makusq ( 0 , ssite , sspec , slat , sham , nbas , nsites 
-     .           , isite , nlmax , ndham , ndimh , napw , igv2x , nev , 
-     .           nsp , nspc , jsp , iq , qp , zv_w_ot , rv_w_oppnl , zv_w_oausc 
-     .           ) 
-
+                call makusq(0,ssite,sspec,slat,sham,nbas,nsites,isite,nlmax,
+     .      ndham,ndimh,napw,w(oigv2),nev,nsp,nspc,jsp,iq,qp,w(ot),
+     .      w(oppnl),w(oausc))
 
 C       Accumulate output density and sampling DOS
 C       Even if no output rho, still call addrbl to make DOS when lmet=4
               elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
 C         dum=frc(3,1)
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 2134
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oswtk  is not defined yet at linenumber= 2134
-Cdelw1 do not change oswtk because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 2134
-Cdelw1 do not change owtkp because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2134
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 2134
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oswtk  is not defined yet at linenumber= 2134
-Cdelw1 do not change oswtk because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 2134
-Cdelw1 do not change owtkp because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2134
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1                 call addrbl(ssite,sspec,slat,sham,jsp,nsp,nspc,qp,w(owtkp),
-Cdelw1      .      ndham,ndimh,napw,w(oigv2),lmet,lrout,lwtkb,w(owtkb),lswtk,
-Cdelw1      .      w(oswtk),iq,lfrce,ldos,lekkl,k1,k2,k3,w(osmpot),vconst,osig,
-Cdelw1      .      otau,oppi,lcplxp,numq,qval-qbg,w(ot),evl,nevl,ef0,def,
-Cdelw1      .      esmear,emin,emax,ndos,w(odos),w(osrout),sumqv,sumev,oqkkl,
-Cdelw1      .      oeqkkl,frc)
-                 call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
-     .           , qp , w ( owtkp ) , ndham , ndimh , napw , igv2x , lmet 
-     .           , lrout , lwtkb , w ( owtkb ) , lswtk , w ( oswtk ) , iq , lfrce 
-     .           , ldos , lekkl , k1 , k2 , k3 , w ( osmpot ) , vconst , osig 
-     .           , otau , oppi , lcplxp , numq , qval - qbg , zv_w_ot , evl , 
-     .           nevl , ef0 , def , esmear , emin , emax , ndos , rv_w_odos , 
-     .           zv_w_osrout , sumqv , sumev , oqkkl , oeqkkl , frc ) 
-
+                call addrbl(ssite,sspec,slat,sham,jsp,nsp,nspc,qp,w(owtkp),
+     .      ndham,ndimh,napw,w(oigv2),lmet,lrout,lwtkb,w(owtkb),lswtk,
+     .      w(oswtk),iq,lfrce,ldos,lekkl,k1,k2,k3,w(osmpot),vconst,osig,
+     .      otau,oppi,lcplxp,numq,qval-qbg,w(ot),evl,nevl,ef0,def,
+     .      esmear,emin,emax,ndos,w(odos),w(osrout),sumqv,sumev,oqkkl,
+     .      oeqkkl,frc)
 C          print 399,iq,frc(3,1),frc(3,1)-dum
 C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
               endif
@@ -2651,54 +2143,35 @@ c          call suqlsw(nevl,jsp,i,evl(1,jsp))
                 if (ndimhx .ne. nevl)
      .        call rx('color weights not implemented when '//
      .        'nevl < hamiltonian dimension')
-Cdelw1                 call suqlse(ndimhx,jsp,i,ndimhx,1,nfbn,w(oifbls),ndhamx,
-Cdelw1      .        w(ot),evl)
-                 call suqlse ( ndimhx , jsp , i , ndimhx , 1 , nfbn , iv_w_oifbls 
-     .           , ndhamx , zv_w_ot , evl ) 
-
+                call suqlse(ndimhx,jsp,i,ndimhx,1,nfbn,w(oifbls),ndhamx,
+     .        w(ot),evl)
               endif
               if (nfbn(2) .ne. 0) then
                 if (ndimhx .ne. nevl)
      .        call rx('color weights not implemented when '//
      .        'nevl < hamiltonian dimension')
-Cdelw1                 call suqlse(ndimhx,jsp,i,ndimhx,2,nfbn,w(oifbls),ndhamx,
-Cdelw1      .        w(ot),evl)
-                 call suqlse ( ndimhx , jsp , i , ndimhx , 2 , nfbn , iv_w_oifbls 
-     .           , ndhamx , zv_w_ot , evl ) 
-
+                call suqlse(ndimhx,jsp,i,ndimhx,2,nfbn,w(oifbls),ndhamx,
+     .        w(ot),evl)
               endif
 #else
 C   ... Save evals for this qp
             elseif (plbnd .ne. 0) then
-Cdelw1 do not change oevl because of ['wref']
               call dpscop(evl(1,jsp),w(oevl),ndhamx,
      .                1,1+ndham*(jsp-1+isqp),1d0)
               if (epsovl .ne. 0) then
-Cdelw1                 call dpscop(eomin,w(oeomin),1,1,1+(jsp-1+isqp),1d0)
-                 call dpscop ( eomin , rv_w_oeomin , 1 , 1 , 1 + ( jsp - 1 + isqp 
-     .           ) , 1d0 ) 
-
+                call dpscop(eomin,w(oeomin),1,1,1+(jsp-1+isqp),1d0)
               endif
 #endif
 
             endif
 
 c        if (ot .ne. os) call rlse(ot)
-Cdelw1 rlse name= ot old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot 
-Cdelw1 rlse name= ot new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
-Cdelw1             if (lpdiag==0.or.lpdiag==2) call rlse(ot)
-             if ( lpdiag = = 0.or.lpdiag = = 2 ) then 
-               if (allocated(zv_w_ot)) deallocate(zv_w_ot)
-             endif 
-
-            if( debug) print *, 'tttttttttt 9999999999999999999'
+            if (lpdiag==0.or.lpdiag==2) call rlse(ot)
 
 C end loop over isp (main loop in parallel mode)
    30       continue
-            deallocate(igv2x)
           endif
         enddo
-            if( debug) print *, 'tttttttttt 9999999999999999999 2'
 
 c        call rlse(oh)
 C end loop over iq (main loop in parallel mode)
@@ -2706,7 +2179,6 @@ c      enddo
         deallocate(hamm,ovlm)!,hamsom)
  2010 continue
 
-      if( debug) print *, 'tttttttttt 9999999999999999999 3'
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c 2011 continue
@@ -2774,19 +2246,13 @@ C     You can't do this until you have all the evals.
       sttime = MPI_WTIME()
 
 C     Share bands among all processors
-Cdelw1 do not change oevl because of ['wref']
       call xmpbnd(kpproc,ndham,nkp,nsp,w(oevl))
       if (epsovl .ne. 0) then
-Cdelw1         call xmpbnd(kpproc,1,nkp,nsp,w(oeomin))
-         call xmpbnd ( kpproc , 1 , nkp , nsp , rv_w_oeomin ) 
-
+        call xmpbnd(kpproc,1,nkp,nsp,w(oeomin))
       endif
       if (icls .ne. 0 .and. lwtkb .ne. -1) then
         call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
-Cdelw1         call xmpbnd(kpproc,nlmax*ndham*3*nsites,nkp,nsp,w(oausc))
-         call xmpbnd ( kpproc , nlmax * ndham * 3 * nsites , nkp , nsp 
-     .   , zv_w_oausc ) 
-
+        call xmpbnd(kpproc,nlmax*ndham*3*nsites,nkp,nsp,w(oausc))
       endif
 
 ctakao
@@ -2799,13 +2265,8 @@ C     Allreduce density-related quantities
       if (lrout .ne. 0) then
         call mpibc2(sumqv,6,4,mlog,'bndfp','sumqv')
         call mpibc2(sumev,6,4,mlog,'bndfp','sumev')
-Cdelw1         call mpibc2(w(osrout),k1*k2*k3*nsp*numq,6,mlog,'bndfp','smrho')
-         call mpibc2 ( zv_w_osrout , k1 * k2 * k3 * nsp * numq , 6 , mlog 
-     .   , 'bndfp' , 'smrho' ) 
-
+        call mpibc2(w(osrout),k1*k2*k3*nsp*numq,6,mlog,'bndfp','smrho')
         if (lswtk .eq. 1) then
-Cdelw1 warning(1) , probably  oswtk  is not defined yet at linenumber= 2277
-Cdelw1 do not change oswtk because of ['undef', 'wref']
           call mpibc2(w(oswtk),ndhamx*nkp,4,mlog,'bndfp','swtk')
         endif
 C     Allreduce qkkl
@@ -2840,20 +2301,14 @@ ctakao March1-2009
           endif
         enddo
 C     Allreduce DOS, forces, dmatu, orbtm
-Cdelw1         if (ndos .gt. 0)
-Cdelw1      .  call mpibc2(w(odos),ndos*2*nsp,4,mlog,'bndfp','dos')
-         if ( ndos .gt. 0 ) call mpibc2 ( rv_w_odos , ndos * 2 * nsp , 
-     .   4 , mlog , 'bndfp' , 'dos' ) 
-
+        if (ndos .gt. 0)
+     .  call mpibc2(w(odos),ndos*2*nsp,4,mlog,'bndfp','dos')
         if (lfrce .ne. 0)
      .  call mpibc2(frc,3*nbas*numq,4,mlog,'bndfp','frc')
         if (nlibu .gt. 0)
      .call mpibc2(dmatu,nsp*nlibu*(lmaxu*2+1)**2,6,mlog,'bndfp','dmatu')
-Cdelw1         if (lso .ne. 0 .and. lwtkb .ne. -1)
-Cdelw1      .  call mpibc2(w(oorbtm),nl*nsp*nbas,4,mlog,'bndfp','orbtm')
-         if ( lso .ne. 0 .and. lwtkb .ne. - 1 ) call mpibc2 ( rv_w_oorbtm 
-     .   , nl * nsp * nbas , 4 , mlog , 'bndfp' , 'orbtm' ) 
-
+        if (lso .ne. 0 .and. lwtkb .ne. -1)
+     .  call mpibc2(w(oorbtm),nl*nsp*nbas,4,mlog,'bndfp','orbtm')
       endif
       if (lpdiag .eq. 2 .and. plbnd .eq. 0) then
 Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
@@ -2901,7 +2356,6 @@ C         isp serves as a flag for the noncollinear case
               if ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) then
                 jsp = isp
                 if (ispc .eq. 2) jsp = 1
-Cdelw1 do not change oevl because of ['wref']
                 call dpscop(w(oevl),evl(1,jsp),ndhamx,
      .        1+ndham*(jsp-1+isqp),1,1d0)
                 if (mod(i1,10) .ne. 1) call pshpr(iprint()-6)
@@ -2939,14 +2393,10 @@ C       isp serves as a flag for the noncollinear case
           if ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) then
             jsp = isp
             if (ispc .eq. 2) jsp = 1
-Cdelw1 do not change oevl because of ['wref']
             call dpscop(w(oevl),evl(1,jsp),ndhamx,
      .    1+ndham*(jsp-1+isqp),1,1d0)
             if (epsovl .ne. 0) then
-Cdelw1               call dpscop(w(oeomin),eomin,1,1+(jsp-1+isqp),1,1d0)
-               call dpscop ( rv_w_oeomin , eomin , 1 , 1 + ( jsp - 1 + isqp 
-     .         ) , 1 , 1d0 ) 
-
+              call dpscop(w(oeomin),eomin,1,1+(jsp-1+isqp),1,1d0)
             endif
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
             call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d',
@@ -2976,7 +2426,6 @@ c        ---   bcast
             nev_iq = work_mpi(1)
 
             if (procid.eq.master) then
-Cdelw1 1 is digit, dropped
               call prtev(w(1),ndimhx_iq,evl(1,jsp),nevmx,efmax,nev_iq)
             endif
 ckino       call prtev(w(1),ndimhx,evl(1,jsp),nevmx,efmax,nev)
@@ -3038,36 +2487,20 @@ c###### second loop over qp (parallel k-points mode)
 
 
 
-      if( debug) print *, 'tttttttttt 9999999999999999999 4'
-
 
 
 C     For now, SO by site, not by class
       if (lwtkb .eq. 1 .and. lso .ne. 0) then
-Cdelw1         call defi(oips,nbas)
-         allocate(iv_w_oips(nbas))
-
+        call defi(oips,nbas)
 Cgetarg         call spackv(10,'site spec',ssite,1,nbas,w(oips))
         i_copy_size=1;
         do i_spackv=1,nbas
-Cdelw1           call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
-           call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-     .     , i_copy_size , i_spackv + 1 - 1 , iv_w_oips ) 
-
+          call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
         enddo
 
-Cdelw1         call iorbtm(sspec,w(oips),nl,nl,nbas,nsp,w(oorbtm))
-         call iorbtm ( sspec , iv_w_oips , nl , nl , nbas , nsp , rv_w_oorbtm 
-     .   ) 
-
-Cdelw1 rlse name= oips old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  oips 
-Cdelw1 rlse name= oips new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm 
-Cdelw1         call rlse(oips)
-         if (allocated(iv_w_oips)) deallocate(iv_w_oips)
-
+        call iorbtm(sspec,w(oips),nl,nl,nbas,nsp,w(oorbtm))
+        call rlse(oips)
       endif
-
-      if( debug) print *, 'tttttttttt 9999999999999999999 5'
 
 C ... Case generating bands: find next block of qp
       if (plbnd .ne. 0) goto 99
@@ -3082,12 +2515,8 @@ C     call zprm3('smrho after k-point loop',0,w(osrout),k1,k2,k3)
 C --- Interpolate density to Fermi energy ---
       sev = sumev(1,1)
       if (lmet .eq. 4) then
-Cdelw1         call mshn3p(nbas,ssite,sspec,lmet,lrout,lfrce,qval-qbg,ef0,def,
-Cdelw1      .    sumqv,sumev,n1,n2,n3,k1,k2,k3,w(osrout),oqkkl,frc,lrep)
-         call mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce , qval 
-     .   - qbg , ef0 , def , sumqv , sumev , n1 , n2 , n3 , k1 , k2 , 
-     .   k3 , zv_w_osrout , oqkkl , frc , lrep ) 
-
+        call mshn3p(nbas,ssite,sspec,lmet,lrout,lfrce,qval-qbg,ef0,def,
+     .    sumqv,sumev,n1,n2,n3,k1,k2,k3,w(osrout),oqkkl,frc,lrep)
 C   ... Store val q & magnetic moment in sumqv(1) and sumqv(2)
         sumqv(2,1) = sumqv(1,1) - sumqv(1,2)
         sumqv(1,1) = sumqv(1,1) + sumqv(1,2)
@@ -3097,10 +2526,7 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
         sev00 = sev
         ef00  = ef0
         if (ldos .ne. 0) then
-Cdelw1           call efldos(qval,nsp,emin,emax,ndos,w(odos),eferm,sev1)
-           call efldos ( qval , nsp , emin , emax , ndos , rv_w_odos , eferm 
-     .     , sev1 ) 
-
+          call efldos(qval,nsp,emin,emax,ndos,w(odos),eferm,sev1)
           sev   = sev1
           ef0  = eferm
         endif
@@ -3134,63 +2560,25 @@ Cgetarg         call pack5('bz ndos dosw ef def',sbz,ndos,dosw,ef0,def,0)
 C --- BZ integration for fermi level, band sum and qp weights ---
       if (lmet .ge. 0 .and. (lmet .ne. 4 .or. ltet)) then
         if (lwndow) then
-Cdelw1           call defrr(oww,ndham*nsp*nkp)
-           allocate(rv_w_oww(ndham*nsp*nkp))
-
+          call defrr(oww,ndham*nsp*nkp)
           eferm = min(dosw(1),dosw(2))
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  oidtet  is not defined yet at linenumber= 2572
-Cdelw1 do not change oidtet because of ['undef', 'wref']
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  oidtet  is not defined yet at linenumber= 2572
-Cdelw1 do not change oidtet because of ['undef', 'wref']
-Cdelw1           call bzints(nkabc(1),nkabc(2),nkabc(3),w(oevl),w(oww),nkp,
-Cdelw1      .      ndham,ndham,nsp,xv,xv,xv,1,eferm,2,ntet,w(oidtet),sev,dum)
-           call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
-     .     ) , rv_w_oww , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
-     .     eferm , 2 , ntet , w ( oidtet ) , sev , dum ) 
-
+          call bzints(nkabc(1),nkabc(2),nkabc(3),w(oevl),w(oww),nkp,
+     .      ndham,ndham,nsp,xv,xv,xv,1,eferm,2,ntet,w(oidtet),sev,dum)
 C         call prmx('w(min)',w(oww),ndham,ndham,nkp*nsp)
           eferm = max(dosw(1),dosw(2))
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2576
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oidtet  is not defined yet at linenumber= 2576
-Cdelw1 do not change oidtet because of ['undef', 'wref']
           call bzints(nkabc(1),nkabc(2),nkabc(3),w(oevl),w(owtkb),nkp,
      .      ndham,ndham,nsp,xv,xv,xv,1,eferm,2,ntet,w(oidtet),sev,dum)
 C         call prmx('w(max)',w(owtkb),ndham,ndham,nkp*nsp)
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2579
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2579
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1           call daxpy(ndham*nsp*nkp,-1d0,w(oww),1,w(owtkb),1)
-           call daxpy ( ndham * nsp * nkp , - 1d0 , rv_w_oww , 1 , w ( owtkb 
-     .     ) , 1 ) 
-
+          call daxpy(ndham*nsp*nkp,-1d0,w(oww),1,w(owtkb),1)
 C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
-Cdelw1 rlse name= oww old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  oww 
-Cdelw1 rlse name= oww new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  
-Cdelw1           call rlse(oww)
-           if (allocated(rv_w_oww)) deallocate(rv_w_oww)
-
+          call rlse(oww)
         else
           dosrng = 8
           if (mpsord .lt. 0) dosrng = 16
-Cdelw1 warning(1) , probably  oswtk  is not defined yet at linenumber= 2585
-Cdelw1 do not change oswtk because of ['undef', 'wref']
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 2585
-Cdelw1 do not change owtkp because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2585
-Cdelw1 do not change owtkb because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oidtet  is not defined yet at linenumber= 2585
-Cdelw1 do not change oidtet because of ['undef', 'wref']
           call bzwtsf(ndham,ndham,nsp,nspc,nkabc(1),nkabc(2),nkabc(3),
      .      nkp,ntet,w(oidtet),qval-qbg,fsmom,lmet.ne.0,ltet,mpsord,
      .      ndos,dabs(esmear-mpsord),dosrng,w(owtkp),w(oevl),efmax,
      .      lswtk,w(oswtk),eferm,sev,w(owtkb),sumqv(1,2),lwtkb)
-
 C         Store val charge & magnetic moment in sumqv(1..2)
           if (lmet .ne. 4) then
             sumqv(1,1) = sumqv(1,2)
@@ -3208,8 +2596,6 @@ Cgetarg         if (lmet .ne. 4) call pack1('bz ef',sbz,ef0)
         if (lmet .gt. 0) then
           if (procid .eq. master) then
             ifi = fopna('wkp',-1,4)
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2606
-Cdelw1 do not change owtkb because of ['undef', 'wref']
             i = iobzwt(0,ndhamx,nkp,nspx,eferm,w(owtkb),-ifi)
             call fclr('wkp',ifi)
           endif
@@ -3241,8 +2627,6 @@ C ... Save Fermi level, nonmetal or sampling integration
         endif
         if (procid .eq. master) then
           ifi = fopna('wkp',-1,4)
-Cdelw1 warning(1) , probably  owtkb  is not defined yet at linenumber= 2637
-Cdelw1 do not change owtkb because of ['undef', 'wref']
           i = iobzwt(1,ndham,nkp,nsp,ef0,w(owtkb),-ifi)
           call fclr('wkp',ifi)
         endif
@@ -3254,14 +2638,10 @@ C ... Cleanup asa-style moments file, print table of DOS channels
      .    ndham,ndimh,nchan,nchan,ndimh,0d0,0d0,0d0,0d0,eferm,0d0)
         call fclose(nfilem)
         if (iprint() .ge. 10 .and. cmdopt('--mull',6,0,strn)) then
-Cdelw1           call mchan(lmdim,ssite,sspec,nsp,nsites,lsites,0,0,0,0,
-Cdelw1      .               w(ochan))
-           call mchan ( lmdim , ssite , sspec , nsp , nsites , lsites , 
-     .     0 , 0 , 0 , 0 , iv_w_ochan ) 
-
+          call mchan(lmdim,ssite,sspec,nsp,nsites,lsites,0,0,0,0,
+     .               w(ochan))
         endif
       endif
-      if (allocated(iv_w_ochan)) deallocate(iv_w_ochan)
 
 C ... Average forces so net force on system is zero (APW case)
       if (lfrce .ne. 0 .and. napw .ne. 0) then
@@ -3288,89 +2668,33 @@ Cgetarg       call upack('bz ndos',sbz,ndos0,0,0,0,0)
 Cgetarg       if (lgors('ctrl ldos,1',sctrl)) then
         if ( iand(1,int(sctrl%ldos)) .ne.0 ) then
 
-Cdelw1           call defdr(odos,3*ndos)
-c          allocate(rv_w_odos(3*ndos))
-
-          if (iprint()>=30) call awrit1('%x%N ... Generating %?#n<0#'
+          call defdr(odos,3*ndos)
+          if (iprint() .ge. 30) call awrit1('%x%N ... Generating %?#n<0#'
      .    //'integrated#total# DOS',' ',80,lgunit(1),ndos0)
           if (ltet) then
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  oidtet  is not defined yet at linenumber= 2682
-Cdelw1 do not change oidtet because of ['undef', 'wref']
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  oidtet  is not defined yet at linenumber= 2682
-Cdelw1 do not change oidtet because of ['undef', 'wref']
-Cdelw1             call bzints(nkabc(1),nkabc(2),nkabc(3),w(oevl),dum,nkp,ndhamx,
-Cdelw1      .      ndhamx,nspx,dosw(1),dosw(2),w(odos),ndos,eferm,1,ntet,
-Cdelw1      .      w(oidtet),dum,dum)
-             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
-     .       ) , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw ( 
-     .       2 ) , rv_w_odos , ndos , eferm , 1 , ntet , w ( oidtet ) , dum 
-     .       , dum ) 
-
-Cdelw1             if (ndos0 .gt. 0)
-Cdelw1      .      call xxxdif(dosw(1),dosw(2),ndos,nspx,0,w(odos))
-             if ( ndos0 .gt. 0 ) call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
-     .       , nspx , 0 , rv_w_odos ) 
-
+            call bzints(nkabc(1),nkabc(2),nkabc(3),w(oevl),dum,nkp,ndhamx,
+     .      ndhamx,nspx,dosw(1),dosw(2),w(odos),ndos,eferm,1,ntet,
+     .      w(oidtet),dum,dum)
+            if (ndos0 .gt. 0)
+     .      call xxxdif(dosw(1),dosw(2),ndos,nspx,0,w(odos))
             del = 0d0
           else
             if (mpsord .ge. 100) mpsord = mod(mpsord,100)
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 2690
-Cdelw1 do not change owtkp because of ['undef', 'wref']
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 2690
-Cdelw1 do not change owtkp because of ['undef', 'wref']
-Cdelw1             if (ndos0 .gt. 0)
-Cdelw1      .      call makdos(nkp,ndhamx,ndhamx,nspx,w(owtkp),w(oevl),mpsord,
-Cdelw1      .      dabs(esmear-mpsord),-6d0,dosw(1),dosw(2),ndos,w(odos))
-             if ( ndos0 .gt. 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx 
-     .       , w ( owtkp ) , w ( oevl ) , mpsord , dabs ( esmear - mpsord 
-     .       ) , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , rv_w_odos ) 
-
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 2693
-Cdelw1 do not change owtkp because of ['undef', 'wref']
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  owtkp  is not defined yet at linenumber= 2693
-Cdelw1 do not change owtkp because of ['undef', 'wref']
-Cdelw1             if (ndos0 .lt. 0)
-Cdelw1      .      call maknos(nkp,ndhamx,ndhamx,nspx,w(owtkp),w(oevl),mpsord,
-Cdelw1      .      dabs(esmear-mpsord),-6d0,dosw(1),dosw(2),ndos,w(odos))
-             if ( ndos0 .lt. 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx 
-     .       , w ( owtkp ) , w ( oevl ) , mpsord , dabs ( esmear - mpsord 
-     .       ) , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , rv_w_odos ) 
-
+            if (ndos0 .gt. 0)
+     .      call makdos(nkp,ndhamx,ndhamx,nspx,w(owtkp),w(oevl),mpsord,
+     .      dabs(esmear-mpsord),-6d0,dosw(1),dosw(2),ndos,w(odos))
+            if (ndos0 .lt. 0)
+     .      call maknos(nkp,ndhamx,ndhamx,nspx,w(owtkp),w(oevl),mpsord,
+     .      dabs(esmear-mpsord),-6d0,dosw(1),dosw(2),ndos,w(odos))
             del = mpsord+dabs(esmear-mpsord)
           endif
-Cdelw1           if (nspc .eq. 2) call dscal(ndos,.5d0,w(odos),1)
-           if ( nspc .eq. 2 ) call dscal ( ndos , .5d0 , rv_w_odos , 1 ) 
-
-Cdelw1           call dosio(w(odos),ndos,nspx,ndos,1,dosw(1),dosw(2),nspx,
-Cdelw1      .    eferm,del,1,-fopn('DOS'))
-           call dosio ( rv_w_odos , ndos , nspx , ndos , 1 , dosw ( 1 ) 
-     .     , dosw ( 2 ) , nspx , eferm , del , 1 , - fopn ( 'DOS' ) ) 
-
+          if (nspc .eq. 2) call dscal(ndos,.5d0,w(odos),1)
+          call dosio(w(odos),ndos,nspx,ndos,1,dosw(1),dosw(2),nspx,
+     .    eferm,del,1,-fopn('DOS'))
           call fclose(fopn('DOS'))
-Cdelw1 rlse name= odos old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm  
-Cdelw1 rlse name= odos new_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin 
-Cdelw1 not deallocate  because of [wref]
-Cdelw1 not deallocate oevl because of [wref]
-Cdelw1 not deallocate oqp because of [wref]
-Cdelw1           call rlse(odos)
-           if (allocated(rv_w_oorbtm)) deallocate(rv_w_oorbtm)
-c           if (allocated(zv_w_oausc)) deallocate(zv_w_oausc)
-c           if (allocated(rv_w_ofes2)) deallocate(rv_w_ofes2)
-c           if (allocated(rv_w_ofh)) deallocate(rv_w_ofh)
-c           if (allocated(zv_w_osrout)) deallocate(zv_w_osrout)
-           if (allocated(rv_w_odos)) deallocate(rv_w_odos)
-c           call rlse(oqp) --->wrong rlse. Break some arrays
-
+          call rlse(odos)
         endif
       endif
-
-
 
 C --- Core-level spectroscopy ---
       if (icls .ne. 0) then
@@ -3380,17 +2704,8 @@ Cgetarg           call upack1('bz ef',sbz,eferm)
 
           eferm=sbz%ef
 
-Cdelw1 warning(1) , probably  oausc  is not defined yet at linenumber= 2714
-Cdelw1 warning(1) , probably  oevl  is not defined yet at linenumber= 2714
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1 warning(1) , probably  oevl  is not defined yet at linenumber= 2714
-Cdelw1 do not change oevl because of ['wref']
-Cdelw1           call vcdmel(sctrl,ssite,sspec,slat,nlmax,ndham,ndimh,nkp,nsp,
-Cdelw1      .      nspc,eferm,w(oevl),w(oausc),nsites,isite,iclsl,iclsn)
-           call vcdmel ( sctrl , ssite , sspec , slat , nlmax , ndham , 
-     .     ndimh , nkp , nsp , nspc , eferm , w ( oevl ) , zv_w_oausc , 
-     .     nsites , isite , iclsl , iclsn ) 
-
+          call vcdmel(sctrl,ssite,sspec,slat,nlmax,ndham,ndimh,nkp,nsp,
+     .      nspc,eferm,w(oevl),w(oausc),nsites,isite,iclsl,iclsn)
           call rx0('done generating core level spectra')
         else
           call fexit(0,0,' ',0)
@@ -3399,61 +2714,24 @@ Cdelw1      .      nspc,eferm,w(oevl),w(oausc),nsites,isite,iclsl,iclsn)
 
 C --- Assemble output density ---
       call dfratm(nbas,ssite,sspec,orhat1)
-Cdelw1       call defrr(oqbyl,  n0*nbas*nsp)
-       allocate(rv_w_oqbyl(n0*nbas*nsp))
-Cdelw1       call defrr(ohbyl,  n0*nbas*nsp)
-       allocate(rv_w_ohbyl(n0*nbas*nsp))
+      call defrr(oqbyl,  n0*nbas*nsp)
+      call defrr(ohbyl,  n0*nbas*nsp)
 C     --window: Put output density into orhat and smrho, and exit
       if (lwndow) then
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 2728
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 2728
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1         call mkrout(ssite,sspec,slat,sham,nbas,nsp,ldim,lekkl,oqkkl,
-Cdelw1      .    oeqkkl,w(oorhat),w(ohab),w(osab),w(oqbyl),w(ohbyl),lrout)
-         call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
-     .   , lekkl , oqkkl , oeqkkl , w ( oorhat ) , rv_w_ohab , rv_w_osab 
-     .   , rv_w_oqbyl , rv_w_ohbyl , lrout ) 
-
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 2730
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osrout  is not defined yet at linenumber= 2730
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 2730
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1         call zcopy(k1*k2*k3*nsp,w(osrout),1,w(osmrho),1)
-         call zcopy ( k1 * k2 * k3 * nsp , zv_w_osrout , 1 , w ( osmrho 
-     .   ) , 1 ) 
-
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 2731
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 2731
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 2731
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 2731
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1         call symrho(ssite,sspec,slat,lfrce,w(osmrho),w(oorhat),w(oqbyl),
-Cdelw1      .    w(ohbyl),frc)
-         call symrho ( ssite , sspec , slat , lfrce , w ( osmrho ) , w 
-     .   ( oorhat ) , rv_w_oqbyl , rv_w_ohbyl , frc ) 
-
+        call mkrout(ssite,sspec,slat,sham,nbas,nsp,ldim,lekkl,oqkkl,
+     .    oeqkkl,w(oorhat),w(ohab),w(osab),w(oqbyl),w(ohbyl),lrout)
+        call zcopy(k1*k2*k3*nsp,w(osrout),1,w(osmrho),1)
+        call symrho(ssite,sspec,slat,lfrce,w(osmrho),w(oorhat),w(oqbyl),
+     .    w(ohbyl),frc)
         goto 999
       endif
-Cdelw1       call mkrout(ssite,sspec,slat,sham,nbas,nsp,ldim,lekkl,oqkkl,
-Cdelw1      .  oeqkkl,orhat1,w(ohab),w(osab),w(oqbyl),w(ohbyl),lrout)
-       call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
-     . , lekkl , oqkkl , oeqkkl , orhat1 , rv_w_ohab , rv_w_osab , rv_w_oqbyl 
-     . , rv_w_ohbyl , lrout ) 
-
+      call mkrout(ssite,sspec,slat,sham,nbas,nsp,ldim,lekkl,oqkkl,
+     .  oeqkkl,orhat1,w(ohab),w(osab),w(oqbyl),w(ohbyl),lrout)
 C
       if (lrout .ne. 0) then
 C   ... Symmetrize output density and forces
-Cdelw1 warning(1) , probably  osrout  is not defined yet at linenumber= 2740
-Cdelw1         call symrho(ssite,sspec,slat,lfrce,w(osrout),orhat1,w(oqbyl),
-Cdelw1      .    w(ohbyl),frc)
-         call symrho ( ssite , sspec , slat , lfrce , zv_w_osrout , orhat1 
-     .   , rv_w_oqbyl , rv_w_ohbyl , frc ) 
-
+        call symrho(ssite,sspec,slat,lfrce,w(osrout),orhat1,w(oqbyl),
+     .    w(ohbyl),frc)
 
 C   ... New boundary conditions pnu for phi and phidot
 C       call pshpr(iprint()-12)
@@ -3470,11 +2748,8 @@ Cgetarg           call upack1('ham pmax',sham,xv(11))
           i_copy_size=size(sham%pmax)
           call dcopy(i_copy_size,sham%pmax,1,xv(11),1)
 
-Cdelw1           call pnunew(nbas,nsp,ssite,sspec,xv,xv(11),lfrzw,w(ohab),
-Cdelw1      .      w(osab),w(oqbyl),w(ohbyl))
-           call pnunew ( nbas , nsp , ssite , sspec , xv , xv ( 11 ) , lfrzw 
-     .     , rv_w_ohab , rv_w_osab , rv_w_oqbyl , rv_w_ohbyl ) 
-
+          call pnunew(nbas,nsp,ssite,sspec,xv,xv(11),lfrzw,w(ohab),
+     .      w(osab),w(oqbyl),w(ohbyl))
         endif
 C       call poppr
       endif
@@ -3490,39 +2765,16 @@ C --- Evaluate KS total energy, correction to Harris force ---
       if (lrout .ne. 0) then
 
 C   ... Correction to harris force
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 2775
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 2775
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osrout  is not defined yet at linenumber= 2775
-Cdelw1 warning(1) , probably  ofh  is not defined yet at linenumber= 2775
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 2775
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 2775
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1         call dfrce(ssite,sspec,slat,sctrl,k1,k2,k3,nvl,w(oorhat),orhat1,
-Cdelw1      .    elind,w(oqmom),w(osmrho),w(osrout),w(ofh))
-         call dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 , nvl 
-     .   , w ( oorhat ) , orhat1 , elind , rv_w_oqmom , w ( osmrho ) , 
-     .   zv_w_osrout , rv_w_ofh ) 
-
+        call dfrce(ssite,sspec,slat,sctrl,k1,k2,k3,nvl,w(oorhat),orhat1,
+     .    elind,w(oqmom),w(osmrho),w(osrout),w(ofh))
 
 C   ... Evaluate KS total energy and output magnetic moment
         eks = 0d0
         if (leks .ge. 1) then
           call togpr()
 c          print *,'vvv takao mkekin 000 --- oldpot x newrho'
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 2783
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osrout  is not defined yet at linenumber= 2783
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 2783
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1           call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
-Cdelw1      .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osrout),sev,sumtv)
-           call mkekin ( nbas , ldim , ssite , sspec , slat , sham , osig 
-     .     , otau , oppi , lcplxp , oqkkl , k1 , k2 , k3 , vconst , w ( 
-     .     osmpot ) , zv_w_osrout , sev , sumtv ) 
-
+          call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
+     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osrout),sev,sumtv)
 
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat
@@ -3540,24 +2792,11 @@ ccccccccccccccccccccc
 
 ctakao sep2009
 c          call pshpr(ipr-4)
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 2802
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osrout  is not defined yet at linenumber= 2802
-Cdelw1 warning(1) , probably  ofes2  is not defined yet at linenumber= 2802
-Cdelw1 warning(1) , probably  osmpot  is not defined yet at linenumber= 2802
-Cdelw1 do not change osmpot because of ['undef', 'wref']
-Cdelw1           call mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,
-Cdelw1      .      k1,k2,k3,w(osrout),orhat1,qbg,w(osmpot),w(oqmom),vconst,
-Cdelw1      .      vrmt,osig,otau,oppi,w(oppnl),w(ohab),w(ovab),w(osab),
-Cdelw1      .      qval,qsc,w(ogpot0),w(ovval),w(ofes2),0,vorb,nlibu,lmaxu,
-Cdelw1      .      lldau, 0)
-           call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
-     .     , lcplxp , k1 , k2 , k3 , zv_w_osrout , orhat1 , qbg , w ( osmpot 
-     .     ) , rv_w_oqmom , vconst , vrmt , osig , otau , oppi , rv_w_oppnl 
-     .     , rv_w_ohab , rv_w_ovab , rv_w_osab , qval , qsc , rv_w_ogpot0 
-     .     , rv_w_ovval , rv_w_ofes2 , 0 , vorb , nlibu , lmaxu , lldau 
-     .     , 0 ) 
-
+          call mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,
+     .      k1,k2,k3,w(osrout),orhat1,qbg,w(osmpot),w(oqmom),vconst,
+     .      vrmt,osig,otau,oppi,w(oppnl),w(ohab),w(ovab),w(osab),
+     .      qval,qsc,w(ogpot0),w(ovval),w(ofes2),0,vorb,nlibu,lmaxu,
+     .      lldau, 0)
 ccccccccccccccccccccccccccccccccccc
 ctakao test mkekin repeat
 c          print *,'vvv takao mkekin repeat 001x ---newpot x newrho'
@@ -3580,40 +2819,18 @@ c          print *,'vvv takao goto mkehfk mode2'
         endif
 
 C   --- Add together force terms ---
-Cdelw1 warning(1) , probably  ofh  is not defined yet at linenumber= 2829
-Cdelw1 warning(1) , probably  ofes2  is not defined yet at linenumber= 2829
-Cdelw1         if (lfrce .gt. 0)
-Cdelw1      .    call totfrc(nbas,ssite,slat,leks,w(ofes1),w(ofes2),w(ofh),frc)
-         if ( lfrce .gt. 0 ) call totfrc ( nbas , ssite , slat , leks 
-     .   , rv_w_ofes1 , rv_w_ofes2 , rv_w_ofh , frc ) 
-
+        if (lfrce .gt. 0)
+     .    call totfrc(nbas,ssite,slat,leks,w(ofes1),w(ofes2),w(ofh),frc)
 
 C   --- Mix input and output densities ---
-Cdelw1         call defrr(oqm1, nvl)
-         allocate(rv_w_oqm1(nvl))
-
-Cdelw1         call defrr(oqm2, nvl)
-         allocate(rv_w_oqm2(nvl))
-
+        call defrr(oqm1, nvl)
+        call defrr(oqm2, nvl)
         call upacks('strn mix',i1,i2)
 #if MPE
         ierr = MPE_LOG_EVENT(EVENT_START_MIXRHO,procid,"mixrho")
 #endif
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 2839
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 2839
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osrout  is not defined yet at linenumber= 2839
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 2839
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 2839
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1         call mixrho(ssite,sspec,slat,nsp,iter,sstrn(i1:i2),qval-qbg,
-Cdelw1      .    elind,orhat1,w(oorhat),k1,k2,k3,dmxp,w(osrout),w(osmrho))
-         call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2 
-     .   ) , qval - qbg , elind , orhat1 , w ( oorhat ) , k1 , k2 , k3 
-     .   , dmxp , zv_w_osrout , w ( osmrho ) ) 
-
+        call mixrho(ssite,sspec,slat,nsp,iter,sstrn(i1:i2),qval-qbg,
+     .    elind,orhat1,w(oorhat),k1,k2,k3,dmxp,w(osrout),w(osmrho))
 
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat
@@ -3639,39 +2856,14 @@ Cgetarg       call pack2('ham ehf ehk',sham,ehar,eks)
 
 
   999 continue
-Cdelw1 rlse name= oqmom old_list= oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin oqbyl ohbyl oqm1 oqm2 
-Cdelw1 rlse name= oqmom new_list= oifbls 
-Cdelw1       call rlse(oqmom)
-       if (allocated(rv_w_oqm2)) deallocate(rv_w_oqm2)
-       if (allocated(rv_w_oqm1)) deallocate(rv_w_oqm1)
-       if (allocated(rv_w_ohbyl)) deallocate(rv_w_ohbyl)
-       if (allocated(rv_w_oqbyl)) deallocate(rv_w_oqbyl)
-       if (allocated(rv_w_oeomin)) deallocate(rv_w_oeomin)
-       if (allocated(rv_w_ofes1)) deallocate(rv_w_ofes1)
-       if (allocated(rv_w_oppnl)) deallocate(rv_w_oppnl)
-       if (allocated(rv_w_osab)) deallocate(rv_w_osab)
-       if (allocated(rv_w_ovab)) deallocate(rv_w_ovab)
-       if (allocated(rv_w_ohab)) deallocate(rv_w_ohab)
-       if (allocated(rv_w_ovval)) deallocate(rv_w_ovval)
-       if (allocated(rv_w_ogpot0)) deallocate(rv_w_ogpot0)
-       if (allocated(rv_w_oqmom)) deallocate(rv_w_oqmom)
-c       call rlse(oqp) !release all the w(oxxx) array allocated within this routine.
+      call rlse(oqmom)
       call tcx('bndfp')
 ctakaox june2009
       close(ifiogw)
 Cki
       if ( ifiese>0 ) close(ifiese)
-c      call xxxbfp ! Patch to avoid PGI compiler bug on AMD processor
+      call xxxbfp ! Patch to avoid PGI compiler bug on AMD processor
 Cgetarg       end
-Cdelw1 w_varlist remains: oifbls 
-Cdelw1 w_varlistundel: [osmrho oorhat osmpot oswtk oidxsh opos oqsig owtkp owtkb oiprmb oidtet oqkkl oeqkkl oqp oevl]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [oifbls]
-       if (allocated(iv_w_oifbls)) deallocate(iv_w_oifbls)
-#if MPIK
-        call rlse(oqp)
-#endif
-      call rlse(oevl)
       end subroutine bndfp
 
 
@@ -3706,9 +2898,7 @@ C ... Local parameters
       integer procid,master
       integer numprocs, ierr
       integer, dimension(:),allocatable :: offset,length
-Cdelw1       integer obuf
-       real(8) ,allocatable :: rv_w_obuf(:)
-
+      integer obuf
 C ... Heap
       integer w(1)
       common /w/ w
@@ -3727,24 +2917,12 @@ C ... Heap
         offset(i+1) = offset(i) + length(i)
       enddo
       ista = kpproc(procid)
-Cdelw1       call defrr(obuf,ndham*nkp*nsp)
-       allocate(rv_w_obuf(ndham*nkp*nsp))
-
-Cdelw1       call MPI_ALLGATHERV(eb(1,1+nsp*(ista-1)),
-Cdelw1      ,  length(procid),MPI_DOUBLE_PRECISION,w(obuf),length,
-Cdelw1      ,  offset,MPI_DOUBLE_PRECISION,MPI_COMM_WORLD,ierr)
-       call mpi_allgatherv ( eb ( 1 , 1 + nsp * ( ista - 1 ) ) , length 
-     . ( procid ) , mpi_double_precision , rv_w_obuf , length , offset 
-     . , mpi_double_precision , mpi_comm_world , ierr ) 
-
-Cdelw1       call dcopy(ndham*nsp*nkp,w(obuf),1,eb,1)
-       call dcopy ( ndham * nsp * nkp , rv_w_obuf , 1 , eb , 1 ) 
-
-Cdelw1 rlse name= obuf old_list= obuf 
-Cdelw1 rlse name= obuf new_list= (None)
-Cdelw1       call rlse(obuf)
-       if (allocated(rv_w_obuf)) deallocate(rv_w_obuf)
-
+      call defrr(obuf,ndham*nkp*nsp)
+      call MPI_ALLGATHERV(eb(1,1+nsp*(ista-1)),
+     ,  length(procid),MPI_DOUBLE_PRECISION,w(obuf),length,
+     ,  offset,MPI_DOUBLE_PRECISION,MPI_COMM_WORLD,ierr)
+      call dcopy(ndham*nsp*nkp,w(obuf),1,eb,1)
+      call rlse(obuf)
 
       deallocate(offset, stat=ierr)
       deallocate(length, stat=ierr)
@@ -3754,18 +2932,12 @@ C        print *, procid,eb(1,1),eb(1,nsp*nkp)
 C      endif
 C      call rx('done')
 Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine xmpbnd
 
 #endif
-c      subroutine xxxbfp
-c
+      subroutine xxxbfp
+
 Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
-c      end subroutine xxxbfp
+      end subroutine xxxbfp
 
 

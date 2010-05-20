@@ -1,13 +1,23 @@
 ######################################################################################################
 # How to install. 
 # 1. Choose machine dependent $PLATFORM below.
+#
 #   ./MAKEINC/Make.inc.$PLATFORM should exist.
-#    You have to set math library and so on in the Make.inc.$PLATFORM.
+#    Then you have to set math library and so on in the Make.inc.$PLATFORM.
+#
 # 2. Need gnumake. MAKE=gmake
 #
-# 3. Type "make".
+# 3. Type 
+#    prompt>make
+#        or 
+#    prompt>make PLATFORM=gfortran_mpik
+#    or so.
+#
+#    If you write your own MAKEINC/Make.inc.$PLATFORM, please send it to us.
+#
 #    There are make options .PHONY targets.
 #
+#  * This make includes slatsm/make.inc subs/make.inc fp/make.inc. In addition,
 #  * Be careful---> you can not add any space at the end of PLATFORM.
 #  * When you switch to different platform in a machine, you have to clean up FPLOTdir/*.o *.o in advance by hand, 
 #    or use 'make clean'.

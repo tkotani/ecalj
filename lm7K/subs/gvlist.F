@@ -499,6 +499,24 @@ C     implicit none
         c0(ig,i) = c(j1,j2,j3,i)
    10 continue
       end
+      subroutine gvgetf_test(ng,n,kv,k1,k2,k3,c,c0)
+C- Gathers Fourier coefficients from 3D array c into list c0.
+C     implicit none
+      integer ng,n,k1,k2,k3,kv(ng,3)
+      double complex c0(ng,n),c(k1,k2,k3,n)
+      integer ig,i,j1,j2,j3
+
+      do  10  i = 1, n
+      do  10  ig = 1, ng
+        j1 = kv(ig,1)
+        j2 = kv(ig,2)
+        j3 = kv(ig,3)
+        print *,'vvvvvvvvvvv kv=',j1,j2,j3,i
+        c0(ig,i) = c(j1,j2,j3,i)
+        print *,'vvvvvvvvvvv xxx'
+   10 continue
+      end
+
       subroutine gvputf(ng,n,kv,k1,k2,k3,c0,c)
 C- Pokes Fourier coefficients from gathered list c0 into 3D array c.
 C     implicit none

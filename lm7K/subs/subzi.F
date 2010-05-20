@@ -5,8 +5,10 @@ Cdelw1 undel [['call', 'wref'], 'oswtk', 'subzi']
 Cdelw1 undel [['call', 'wref'], 'oevl', 'subzi']
 Cdelw1 undel [['call', 'wref'], 'owtkb', 'subzi']
 #define MPI 1
+c      subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
+c     .  lwtkb,efermi,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,esmear)
       subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
-     .  lwtkb,efermi,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,esmear)
+     .  lwtkb,efermi,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,esmear)
 C- Brillouin-integration setup
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -85,7 +87,7 @@ C ... Passed parameters
 Cdelw1 do not change  [['call', 'wref'], 'oevl', 'subzi']
 Cdelw1 do not change  [['call', 'wref'], 'owtkb', 'subzi']
 Cdelw1 do not change  [['call', 'wref'], 'oswtk', 'subzi']
-      integer oevl,owtkb,oswtk
+      integer owtkb,oswtk
       double precision zval,ef0,def,esmear,efermi
 C ... Local parameters
       integer ifi,fopna,lerr,iobzwt,iprint,stdo,lgunit,isw,n
@@ -135,8 +137,6 @@ Cdelw1 do not change owtkb because of ['call', 'wref']
           endif
         endif
       endif
-Cdelw1 do not change oevl because of ['call', 'wref']
-      call defrr(oevl, ndham*nsp*nkp)
       lswtk = -2
 Cdelw1 warning(1) , probably  oswtk  is not defined yet at linenumber= 127
 Cdelw1 do not change oswtk because of ['call', 'wref']
