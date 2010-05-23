@@ -3,10 +3,10 @@ HEADER  rocksalt ErAs
 % const asa=f nsp=2 nk=4 free=0 hf=0 ldau=t so=f
 TESTLMF lmfa eras
         lmf -vnit=1 --pr51 eras
-        lmf -vnit=30 eras
+        lmf -vnit=3 eras
 MPI version
         mpix -np=7 lmf-MPIK --rs=0 -vnit=1 --pr51 eras
-        mpix -np=7 lmf-MPIK -vnit=30 eras
+        mpix -np=7 lmf-MPIK -vnit=3 eras
 CLEAN   rm -f ctrl.eras moms.eras occnum.eras out1.eras out2.eras qpp.eras
 VERS    LMASA-6 LMF-6 LM:7 FP:7
 IO      SHOW=f HELP=f VERBOS=30 WKP=F IACTIV=F

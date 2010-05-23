@@ -76,12 +76,8 @@ class GeneralAssignment(Statement):
     <variable> = <expr>
     <pointer variable> => <expr>
     """
-#takao. if(j==1) i=3 is classified to Assignment in r58.
-# 
-#    match = re.compile(r'(?<!if)\w[^=]*\s*=\>?').match
-#    match = re.compile(r'[^i]\w[^=]*\s*=\>?').match
+
     match = re.compile(r'\w[^=]*\s*=\>?').match
-    
     item_re = re.compile(r'(?P<variable>\w[^=]*)\s*(?P<sign>=\>?)\s*(?P<expr>.*)\Z',re.I).match
     _repr_attr_names = ['variable','sign','expr'] + Statement._repr_attr_names
 
@@ -951,8 +947,7 @@ class Use(Statement):
         else:
             name_idx = name
         if name_idx in use_provides:
-            if ovar != use_provides[name_idx]:
-                self.warning("entity name '%s' is already declared in module '%s' while adding it to '%s', overriding." % (name, self.name, self.parent.name))
+            self.warning("entity name '%s' is already declared in module '%s', overriding." % (name, self.name))
         use_provides[name_idx] = ovar
 
 

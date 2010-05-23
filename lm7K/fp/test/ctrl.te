@@ -4,18 +4,18 @@ HEADER  Crystal structure of Se and Te.
         Cell built refers to clockwise upward spiral.
         Ref: Wyckoff pg. 36 (rotations here are of rotations the axis).
 CLEAN   rm -f atm.te ctrl.te log.te mixm.te moms.te out.lmf.te rst.te save.te wkp.te pos.te
-TESTLMF lmfa te -vminx=t --rs=0,1 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv --wpos=pos
-        lmf  te -vminx=t --rs=0,1 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv --wpos=pos -vles=t
+TESTLMF lmfa te -vminx=t --rs=0,1 -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv --wpos=pos
+        lmf  te -vminx=t --rs=0,1 -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv --wpos=pos -vles=t
         rm -f mixm.te
-        lmf  te -vminx=0 --rs=11,0 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1d-4 --no-iactiv -vpwmode=11
+        lmf  te -vminx=0 --rs=11,0 -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1d-4 --no-iactiv -vpwmode=11
         rm -f mixm.te
-        lmf  te -vminx=0 --rs=11,0 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv
+        lmf  te -vminx=0 --rs=11,0 -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv
 MPI version
-        mpix -np=7 lmf-MPIK te -vminx=t --rs=0,1 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv --wpos=pos -vles=t
+        mpix -np=7 lmf-MPIK te -vminx=t --rs=0,1 -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv --wpos=pos -vles=t
         rm -f mixm.te
-        mpix -np=7 lmf-MPIK te -vminx=0 --rs=11,0 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1d-4 --no-iactiv -vpwmode=11
+        mpix -np=7 lmf-MPIK te -vminx=0 --rs=11,0 -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=5 -vconv=1d-4 --no-iactiv -vpwmode=11
         rm -f mixm.te
-        mpix -np=7 lmf-MPIK te -vminx=0 --rs=11,0 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv
+        mpix -np=7 lmf-MPIK te -vminx=0 --rs=11,0 -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 --no-iactiv
 CLEAN   rm -f atm.te ctrl.te log.te mixm.te moms.te out.lmf.te rst.te save.te wkp.te pos.te
 Experiment
   Se  a=8.234 cbya=1.136 u=.217
@@ -100,7 +100,7 @@ START   NIT=nit
 CONST   sr3=sqrt(3)  ef0=.1 nk=6 nkgw=4 tet=1
         cbya={cbya} a={a} u={u} dnu=0.20
         hf=f eref={te?-13577.7553:-4853.6510}
-        rsma=.9 lmxa=4 lmxl=2 bzj=1 nit=20 beta=1 
+        rsma=.9 lmxa=4 lmxl=2 bzj=1 nit=3 beta=1 
         lmxe=1
 % ifdef te
         e1=-.1 e2=-1 rsm1=1.6 rsm2=1.4 rsm3=1.4 met=0 

@@ -31,7 +31,7 @@ is_name = re.compile(r'^[a-z_]\w*$',re.I).match
 name_re = re.compile(r'[a-z_]\w*',re.I).match
 is_entity_decl = re.compile(r'^[a-z_]\w*',re.I).match
 is_int_literal_constant = re.compile(r'^\d+(_\w+|)$').match
-module_file_extensions = ['.f', '.f90', '.f95', '.f03', '.f08']
+module_file_extensions = ['.f90', '.f95', '.f03', '.f08']
 
 def split_comma(line, item = None, comma=',', keep_empty=False):
     items = []
@@ -150,18 +150,17 @@ def get_module_file(name, directory, _cache={}):
     for ext in module_file_extensions:
         files += glob.glob(os.path.join(directory,'*'+ext))
     for fn in files:
-        if module_in_file(name, fn):
+        if _module_in_file(name, fn):
             _cache[name] = fn
             return fn
     return
 
 def module_in_file(name, filename):
-    name = name.lower()
     pattern = re.compile(r'\s*module\s+(?P<name>[a-z]\w*)', re.I).match
     f = open(filename,'r')
     for line in f:
         m = pattern(line)
-        if m and m.group('name').lower()==name:
+        if m and m.group('name')==name:
             f.close()
             return filename
     f.close()
@@ -181,19 +180,18 @@ def str2stmt(string, isfree=True, isstrict=False):
         block = block.content[0]
     return block
 
-# def get_char_bit():
-#     import numpy
-#     one = numpy.ubyte(1)
-#     two = numpy.ubyte(2)
-#     n = numpy.ubyte(2)
-#     i = 1
-#     while n>=two:
-#         n <<= one
-#         i += 1
-#     return i
-#
-# CHAR_BIT = get_char_bit()
-CHAR_BIT=8
+def get_char_bit():
+    import numpy
+    one = numpy.ubyte(1)
+    two = numpy.ubyte(2)
+    n = numpy.ubyte(2)
+    i = 1
+    while n>=two:
+        n <<= one
+        i += 1
+    return i
+
+CHAR_BIT=8 #=8
 
 def show_item_on_failure(func, _exception_depth=[0]):
     """
@@ -250,4 +248,3 @@ class classes(type):
         cls = type.__new__(metacls, name, bases, dict)
         _classes_cache[name] = cls
         return cls
-

@@ -51,8 +51,17 @@ def string_replace_map(line, lower=False,
     """
     items = []
     string_map = string_replace_dict()
+################
+#takao
+################
+
     rev_string_map = {}
     for item in splitquote(line, lower=lower)[0]:
+#########
+#takao
+#        items.append(item)
+#        continue
+#########
         if isinstance(item, String) and not _is_simple_str(item[1:-1]):
             key = rev_string_map.get(item)
             if key is None:
@@ -69,6 +78,11 @@ def string_replace_map(line, lower=False,
     items = []
     expr_keys = []
     for item in splitparen(newline):
+#########
+#takao
+#        items.append(item)
+#        continue
+#########
         if isinstance(item, ParenString) and not _is_name(item[1:-1]):
             key = rev_string_map.get(item)
             if key is None:

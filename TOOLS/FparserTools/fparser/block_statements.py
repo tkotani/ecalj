@@ -897,7 +897,6 @@ class If(BeginStatement):
         i = line.find(')')
         expr = line[1:i].strip()
         line = line[i+1:].strip()
-        #print 'qqqqqq ', line
         if line.lower()=='then':
             self.isvalid = False
             return
@@ -1076,6 +1075,7 @@ class Type(BeginStatement, HasVariables, HasAttributes, AccessSpecs):
                type_bound_procedure_part
 
     def analyze(self):
+        BeginStatement.analyze(self)
         for spec in self.specs:
             i = spec.find('(')
             if i!=-1:

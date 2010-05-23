@@ -16,7 +16,7 @@ import re
 import sys
 import copy
 from readfortran import Line, Comment
-from numpy.distutils.misc_util import yellow_text, red_text
+#from numpy.distutils.misc_util import yellow_text, red_text
 from utils import split_comma, specs_split_comma, is_int_literal_constant
 from utils import classes
 
@@ -482,7 +482,8 @@ class Statement(object):
     def torepr(self, depth=-1,incrtab=''):
         tab = incrtab + self.get_indent_tab()
         clsname = self.__class__.__name__
-        l = [tab + yellow_text(clsname)]
+        l = [tab + clsname]
+#        l = [tab + yellow_text(clsname)]
         if depth==0:
             return '\n'.join(l)
         ttab = tab + '  '
@@ -554,12 +555,16 @@ class Statement(object):
         return
 
     def error(self, message):
-        message = self.format_message('ERROR', red_text(message))
+#        message = self.format_message('ERROR', red_text(message))
+        message = self.format_message('ERROR', message)
+#        l = [tab + yellow_text(clsname)]
+        l = [tab + clsname]
         self.show_message(message)
         return
 
     def warning(self, message):
-        message = self.format_message('WARNING', yellow_text(message))
+#        message = self.format_message('WARNING', yellow_text(message))
+        message = self.format_message('WARNING', message)
         self.show_message(message)
         return
 
@@ -712,18 +717,10 @@ class BeginStatement(Statement):
             classes = self.classes
 
         # Look for statement match
-        #for cls in classes:
-        #    print 'class=',cls
-        print 'ggggggg isf77=', item.reader.isf77
-
         for cls in classes:
-            print 'BeginStatement cls loop', cls
             if cls.match(line):
-                print 'BeginStatement cls match', item.span, cls, line
                 stmt = cls(self, item)
-                print 'BeginStatement    stmt', stmt
                 if stmt.isvalid:
-                    print 'BeginStatement isvalid', stmt.isvalid
                     if not stmt.ignore:
                         self.content.append(stmt)
                     return False

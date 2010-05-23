@@ -79,7 +79,7 @@ import sys
 import tempfile
 import traceback
 from cStringIO import StringIO
-from numpy.distutils.misc_util import yellow_text, red_text, blue_text
+#from numpy.distutils.misc_util import yellow_text, red_text, blue_text
 
 from sourceinfo import get_source_info, get_source_info_str
 from splitline import String, string_replace_map, splitquote
@@ -158,7 +158,6 @@ class Line(object):
         self.reader = reader
         self.strline = None
         self.is_f2py_directive = linenospan[0] in reader.f2py_comment_lines
-        self.parse_cache = {}
 
     def has_map(self):
         return not not (hasattr(self,'strlinemap') and self.strlinemap)
@@ -233,32 +232,10 @@ class Line(object):
                     substrings.append(l2)
                     substrings.append(')')
                     line = ''.join(substrings)
-
         line, str_map = string_replace_map(line, lower=not self.reader.ispyf)
         self.strline = line
         self.strlinemap = str_map
         return line
-
-    def parse_line(self, cls, parent_cls):
-        if cls not in self.parse_cache:
-            self.parse_cache[cls] = None
-            obj = cls(self.line, parent_cls = parent_cls)
-            self.parse_cache[cls] = obj
-        else:
-            obj = self.parse_cache[cls]
-            #print self.line, cls.__name__,obj
-        return obj
-
-    def parse_block(self, reader, cls, parent_cls):
-        key = cls, tuple(parent_cls)
-        if not self.parse_cache.has_key(key):
-            #self.parse_cache[key] = None
-            obj = cls(reader, parent_cls = parent_cls)
-            self.parse_cache[key] = obj
-        else:
-            obj = self.parse_cache[key]
-            #print self.line, cls.__name__,obj
-        return obj
 
 class SyntaxErrorLine(Line, FortranReaderError):
     def __init__(self, line, linenospan, label, name, reader, message):
@@ -368,13 +345,7 @@ class FortranReaderBase(object):
         self.source_only = None
 
         self.set_mode(isfree, isstrict)
-
-        self.exit_on_error = True
-        self.restore_cache = []
         return
-
-    def __repr__(self):
-        return '%s(%r, %r, %r)' % (self.__class__.__name__, self.source, self.isfree, self.isstrict)
 
     def find_module_source_file(self, mod_name):
         from utils import get_module_file, module_in_file
@@ -530,10 +501,10 @@ class FortranReaderBase(object):
         """ Return next item.
         """
         try:
-            item = self.next(ignore_comments = True)
+            return self.next(ignore_comments = True)
         except StopIteration:
-            return
-        return item
+            pass
+        return
 
     def put_item(self, item):
         """ Insert item to FIFO item buffer.
@@ -585,14 +556,8 @@ class FortranReaderBase(object):
                 if not os.path.isfile(path): # include file does not exist
                     dirs = os.pathsep.join(include_dirs)
                     # According to Fortran standard, INCLUDE line is
-                    # not a Fortran statement.
-                    reader.warning('%r not found in %r. INLCUDE line treated as comment line.'\
-                                   % (filename, dirs), item)
-                    if ignore_comments:
-                        item = self._next(ignore_comments)
-                    return item
-                    # To keep the information, we are turning the
-                    # INCLUDE line to a comment:
+                    # not a Fortran statement. To keep the information,
+                    # we are turning the INCLUDE line to a comment:
                     reader.warning('%r not found in %r. '\
                                    'The INCLUDE line will be turned to a comment.'\
                                    % (filename, dirs), item)
@@ -610,7 +575,8 @@ class FortranReaderBase(object):
                                           self.linecount, self.linecount)
             self.show_message(message, sys.stderr)
             traceback.print_exc(file=sys.stderr)
-            self.show_message(red_text('STOPPED READING'), sys.stderr)
+#            self.show_message(red_text('STOPPED READING'), sys.stderr)
+            self.show_message('STOPPED READING', sys.stderr)
             raise StopIteration
 
     def _next(self, ignore_comments = False):
@@ -727,7 +693,8 @@ class FortranReaderBase(object):
                 else:
                     l1 = sourceline[startcolno:endcolno]
                     l2 = sourceline[endcolno:]
-                r.append('%s%s%s <== %s' % (l0,yellow_text(l1),l2,red_text(message)))
+#                r.append('%s%s%s <== %s' % (l0,yellow_text(l1),l2,red_text(message)))
+                r.append('%s%s%s <== %s' % (l0,l1,l2,message))
             else:
                 r.append(linenostr+ self.source_lines[i-1])
         return '\n'.join(r)
@@ -760,8 +727,6 @@ class FortranReaderBase(object):
         else:
             m = self.format_error_message(message, item.span[0], item.span[1])
         self.show_message(m, sys.stderr)
-        if self.exit_on_error:
-            sys.exit(1)
         return
 
     def warning(self, message, item=None):
