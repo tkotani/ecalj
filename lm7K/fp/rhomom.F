@@ -1,11 +1,3 @@
-Cdelw1 var ['orofi', '0', 'orofi', 'nrmx', 'real(8)', 'rv_w_', 'rhomom']
-Cdelw1 var ['orwgt', '0', 'orwgt', 'nrmx', 'real(8)', 'rv_w_', 'rhomom']
-Cdelw1 var ['oh', '0', 'oh', 'nrmx', 'real(8)', 'rv_w_', 'rhomom']
-Cdelw1 var ['ov', '0', 'ov', 'nrmx', 'real(8)', 'rv_w_', 'rhomom']
-Cdelw1 undel [['call'], 'orhoat', 'rhomom']
-Cgetarg...info...           structure ['rhomom', 'site', 'ssite']
-Cgetarg...info...           structure ['rhomom', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['rhomom', 'm_struc_def']
       subroutine rhomom(nbas,ssite,sspec,orhoat,qmom,vsum)
 
       use m_struc_def  !Cgetarg
@@ -34,22 +26,18 @@ Cu   22 Apr 00 Adapted from nfp rhomom.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cdelw1 do not change  [['call'], 'orhoat', 'rhomom']
       integer nbas,orhoat(3,1)
-Cgetarg       double precision ssite(1),sspec(1),qmom(1),vsum
       real(8):: qmom(1) , vsum
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
 C ... Local parameters
-Cdelw1       integer stdo,ipr,iprint,lgunit,orofi,nrmx,orwgt,oh,ov,nsp,nglob,
-Cdelw1      .  j1,ib,is,igetss,lmxl,nr,nlml,ilm,j,lfoc
       integer:: stdo , ipr , iprint , lgunit , nrmx , nsp , nglob , 
      . j1 , ib , is , igetss , lmxl , nr , nlml , ilm , j , lfoc
-      real(8) ,allocatable :: rv_w_orofi(:)
-      real(8) ,allocatable :: rv_w_orwgt(:)
-      real(8) ,allocatable :: rv_w_oh(:)
-      real(8) ,allocatable :: rv_w_ov(:)
+      real(8) ,allocatable :: rofi_rv(:)
+      real(8) ,allocatable :: rwgt_rv(:)
+      real(8) ,allocatable :: h_rv(:)
+      real(8) ,allocatable :: v_rv(:)
 
       parameter( nrmx=1501)
       double precision fpi,y0,z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
@@ -64,21 +52,17 @@ C --- Setup ---
       fpi  = 16d0*datan(1d0)
       y0   = 1d0/dsqrt(fpi)
       nsp  = nglob('nsp')
-Cdelw1       call defrr(orofi,nrmx)
-      allocate(rv_w_orofi(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_orofi(:)=0.0d0
+      allocate(rofi_rv(nrmx))
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rofi_rv(:)=0.0d0
 
-Cdelw1       call defrr(orwgt,nrmx)
-      allocate(rv_w_orwgt(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_orwgt(:)=0.0d0
+      allocate(rwgt_rv(nrmx))
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rwgt_rv(:)=0.0d0
 
-Cdelw1       call defrr(oh,   nrmx)
-      allocate(rv_w_oh(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_oh(:)=0.0d0
+      allocate(h_rv(nrmx))
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) h_rv(:)=0.0d0
 
-Cdelw1       call defrr(ov,   nrmx)
-      allocate(rv_w_ov(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_ov(:)=0.0d0
+      allocate(v_rv(nrmx))
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) v_rv(:)=0.0d0
 
       if (ipr .ge. 40) write(stdo,221)
 
@@ -86,29 +70,18 @@ C --- Loop over sites ---
       j1 = 1
       vsum = 0d0
       do  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
-Cgetarg         call upack('spec lmxl z qc',sspec,is,lmxl,z,qc,0)
 
         lmxl=sspec(is)%lmxl
         z=sspec(is)%z
         qc=sspec(is)%qc
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
 
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
 
-Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
-Cgetarg         call upack2('spec rg',sspec,is,rg)
 
         rg=sspec(is)%rg
 
@@ -116,21 +89,13 @@ Cgetarg         call upack2('spec rg',sspec,is,rg)
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         qc = qcorg+qcorh
         nlml = (lmxl+1)**2
-Cdelw1         call radmsh(rmt,a,nr,w(orofi))
-        call radmsh ( rmt , a , nr , rv_w_orofi )
+        call radmsh ( rmt , a , nr , rofi_rv )
 
-Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
-        call radwgt ( rmt , a , nr , rv_w_orwgt )
+        call radwgt ( rmt , a , nr , rwgt_rv )
 
-Cdelw1 1 is digit, dropped
-Cdelw1 2 is digit, dropped
-Cdelw1 3 is digit, dropped
-Cdelw1         call pvrhom(nlml,nr,nsp,w(orofi),w(orwgt),w(orhoat(1,ib)),
-Cdelw1      .    w(orhoat(2,ib)),w(orhoat(3,ib)),cofg,cofh,rg,ceh,rfoc,z,w(oh),
-Cdelw1      .    qmom(j1))
-        call pvrhom ( nlml , nr , nsp , rv_w_orofi , rv_w_orwgt , w ( 
+        call pvrhom ( nlml , nr , nsp , rofi_rv , rwgt_rv , w ( 
      .   orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat ( 
-     .   3 , ib ) ) , cofg , cofh , rg , ceh , rfoc , z , rv_w_oh , qmom 
+     .   3 , ib ) ) , cofg , cofh , rg , ceh , rfoc , z , h_rv , qmom 
      .   ( j1 ) )
 
         if (ipr .ge. 40) then
@@ -143,16 +108,10 @@ Cdelw1      .    qmom(j1))
   220   format(i13,i6,f12.6,f12.6,2f9.2)
   221   format(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x,
      .     'Qc',8x,'Z')
-Cdelw1 1 is digit, dropped
-Cdelw1 2 is digit, dropped
-Cdelw1 3 is digit, dropped
-Cdelw1         call pvrhm2(z,a,nr,nlml,nsp,w(orofi),w(orwgt),w(orhoat(1,ib)),
-Cdelw1      .    w(orhoat(2,ib)),w(orhoat(3,ib)),qmom(j1),cofg,cofh,
-Cdelw1      .    rg,ceh,rfoc,w(oh),w(ov),vs1,vs2)
-        call pvrhm2 ( z , a , nr , nlml , nsp , rv_w_orofi , rv_w_orwgt 
+        call pvrhm2 ( z , a , nr , nlml , nsp , rofi_rv , rwgt_rv 
      .   , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
      .   ( 3 , ib ) ) , qmom ( j1 ) , cofg , cofh , rg , ceh , rfoc , 
-     .   rv_w_oh , rv_w_ov , vs1 , vs2 )
+     .   h_rv , v_rv , vs1 , vs2 )
 
 
         vsum = vsum+vs1-vs2
@@ -161,19 +120,11 @@ Cdelw1      .    rg,ceh,rfoc,w(oh),w(ov),vs1,vs2)
    10   continue
       enddo
 
-Cdelw1 rlse name= orofi old_list= orofi orwgt oh ov
-Cdelw1 rlse name= orofi new_list= (None)
-Cdelw1       call rlse(orofi)
-      if (allocated(rv_w_ov)) deallocate(rv_w_ov)
-      if (allocated(rv_w_oh)) deallocate(rv_w_oh)
-      if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
-      if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+      if (allocated(v_rv)) deallocate(v_rv)
+      if (allocated(h_rv)) deallocate(h_rv)
+      if (allocated(rwgt_rv)) deallocate(rwgt_rv)
+      if (allocated(rofi_rv)) deallocate(rofi_rv)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [orhoat]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine rhomom
 
 
@@ -290,10 +241,6 @@ C     .   ' Core spill-out charge is',f12.6)
 C      write(stdo,821) delq
 C  821 format('delq=',f12.6)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine pvrhom
 
 
@@ -386,10 +333,6 @@ C ... Smooth density, including compensating gaussians
 
 C      write (stdo,400) q1,q2,vsum1,vsum2
 C  400 format(' qsph=',2f12.6,'   vsum=',2f12.6)
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine pvrhm2
 
 

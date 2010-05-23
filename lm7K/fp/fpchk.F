@@ -1,7 +1,3 @@
-Cdelw1 var ['oips', '0', 'oips', 'nbas', 'integer', 'iv_w_', 'chkxpn']
-Cgetarg...info...           structure ['chkxpn', 'site', 'ssite']
-Cgetarg...info...           structure ['chkxpn', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['chkxpn', 'm_struc_def']
       subroutine fpchk(sspec,ssite)
       use m_struc_def
 C- Routines to check various quantities in FP code
@@ -20,7 +16,6 @@ Cu   23 Apr 02 Added option (mode=0) to find MT radii
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cgetarg       double precision sspec(1),ssite(1)
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 
@@ -28,10 +23,6 @@ Cgetarg       double precision sspec(1),ssite(1)
       call info(5,2,0,
      .   ' ----- Check accuracy of augmentation expansion -----',0,0)
       call chkxpn(ssite,sspec)
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine fpchk
 
 
@@ -42,7 +33,6 @@ Cdelw1 w_varlist (del), remains: (None)
 C- Check accuracy of Pkl expansions of augmented functions
 C     implicit none
 C ... Passed parameters
-Cgetarg       double precision ssite(1),sspec(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -50,13 +40,10 @@ C ... Local parameters
       integer k0,nlm0,nrx,n0,nkap0,stdo,lgunit
       parameter (k0=20, nlm0=25, nrx=201)
       parameter (nkap0=3,n0=10)
-Cdelw1       integer nglob,nbas,nspec,ib1,is,oips,
-Cdelw1      .  iclbsj,nr,j1,nch,lmxa,kmax,lh(nkap0),nkapi,ik,l1,l2,l,
-Cdelw1      .  lmax,nlm,k,i,ilm,ipr
       integer:: nglob , nbas , nspec , ib1 , is , iclbsj , nr , j1 
      . , nch , lmxa , kmax , lh(nkap0) , nkapi , ik , l1 , l2 , l , 
      . lmax , nlm , k , i , ilm , ipr
-      integer ,allocatable :: iv_w_oips(:)
+      integer ,allocatable :: ips_iv(:)
 
       double precision c(0:k0,nlm0),
      .  rofi(nrx),rwgt(nrx),pkl(0:k0,0:n0),
@@ -80,24 +67,20 @@ C ... setup
   400 format(/' RMS errors in expanded head and tail functions.'
      .   /' Only column ''tail'' matters for program accuracy.')
 
-Cdelw1       call defi(oips,nbas)
-      allocate(iv_w_oips(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oips(:)=0
+      allocate(ips_iv(nbas))
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) ips_iv(:)=0
 
-Cgetarg       call spackv(10,'site spec',ssite,1,nbas,w(oips))
       i_copy_size=1;
       do i_spackv=1,nbas
-Cdelw1        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
         call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-     .  , i_copy_size , i_spackv + 1 - 1 , iv_w_oips )
+     .  , i_copy_size , i_spackv + 1 - 1 , ips_iv )
 
       enddo
 
 
 C --- Loop over species ---
       do  40  is = 1, nspec
-Cdelw1         ib1 = iclbsj(is,w(oips),-nbas,1)
-        ib1 = iclbsj ( is , iv_w_oips , - nbas , 1 )
+        ib1 = iclbsj ( is , ips_iv , - nbas , 1 )
 
         if (ib1 .lt. 0) then
           if (ipr .ge. 20) write(stdo,
@@ -106,17 +89,10 @@ Cdelw1         ib1 = iclbsj(is,w(oips),-nbas,1)
           goto 40
         endif
 
-Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
         enddo
 
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
-Cgetarg         call upack('spec rmt rsma lmxa kmxt',sspec,is,rmt,rsma,lmxa,
-Cgetarg      .    kmax)
 
         rmt=sspec(is)%rmt
         rsma=sspec(is)%rsma
@@ -213,11 +189,7 @@ C         call hxps(rsmh,rsma,e,kmax,nlm,k0,c)
           enddo
         enddo
   40  continue
-Cgetarg       end
-Cdelw1 w_varlist remains: oips
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [oips]
-      if (allocated(iv_w_oips)) deallocate(iv_w_oips)
+      if (allocated(ips_iv)) deallocate(ips_iv)
 
       end subroutine chkxpn
 

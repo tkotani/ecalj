@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['writebasis', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['writebasis', 'm_struc_def']
       subroutine writebasis(nspec,sspec,ifi)
 
 
@@ -10,7 +8,6 @@ c This is to write a basis set file mtopara.* at the end of lmfa.
 c Default setting of basis set is embedded in this.
       implicit none
       integer mode,nkapi,nspec,ifi,nkmax
-Cgetarg       double precision sspec(1)
       type(s_spec)::sspec(*)
 
 C ... Local parameters
@@ -25,15 +22,10 @@ C ... Local parameters
       integer:: i_spacks,i_copy_size
       jfi = ifi
       do  110  is = 1, nspec
-Cgetarg           call spacks(0,'spec name',sspec,spid,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
         enddo
 
-Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%orbp 60
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg...info...           real(8) :: zz , real(8) :: sspec%z 1
-Cgetarg           call upack('spec orbp lmxb z',sspec,is, orbp,lmxb,zz,0)
 
         i_copy_size=size(sspec(is)%orbp)
         call dcopy(i_copy_size,sspec(is)%orbp,1,orbp,1)
@@ -107,6 +99,5 @@ c f channel
         endif
         write(jfi,"(a)") trim(szz)
   110 continue
-Cgetarg       end
       end subroutine writebasis
 

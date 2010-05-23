@@ -1,7 +1,3 @@
-Cgetarg...info...           structure ['rlocbl', 'lat', 'slat']
-Cgetarg...info...           structure ['rlocbl', 'site', 'ssite']
-Cgetarg...info...           structure ['rlocbl', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['rlocbl', 'm_struc_def']
 #define F90 1
       subroutine rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,
      .  nspc,napw,igvapw,iprmb,numq,nevec,evec,ewgt,evl,osig,otau,oppi,
@@ -121,8 +117,6 @@ c#endif
       integer lfrce,nbas,isp,ndimh,nspc,numq,nevec,lcplxp,lekkl,
      .  iprmb(1),ndham,napw,igvapw(3,napw)
       integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)
-Cgetarg       double precision q(3),ssite(1),sspec(1),slat(1),
-Cgetarg      .  ewgt(numq,nevec),evl(ndham,isp),f(3,nbas,numq)
       real(8):: q(3) , ewgt(numq,nevec) , evl(ndham,isp) , f(3,nbas,numq)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -191,11 +185,6 @@ C ... Heap
 
 C --- Setup ---
       nkaph = nglob('nkaph')
-Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
-Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
-Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
-Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
-Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
 
       ocg=slat%ocg
       ojcg=slat%ojcg
@@ -207,12 +196,8 @@ C ... Find maximum sizes needed to allocate strux; allocate them
       nlmax = 0
       kmaxx = 0
       do  ia = 1, nbas
-Cgetarg         isa = igetss('site spec',ia,ssite)
         isa = int(ssite(ia)%spec)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
-Cgetarg         call upack('spec lmxa kmxt',sspec,isa,lmxa,kmax,0,0)
 
         lmxa=sspec(isa)%lmxa
         kmax=sspec(isa)%kmxt
@@ -223,9 +208,6 @@ Cgetarg         call upack('spec lmxa kmxt',sspec,isa,lmxa,kmax,0,0)
       enddo
       nlmto = ndimh-napw
 C     Needed for PW part
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
-Cgetarg       call upack('lat alat qlat',slat,alat,qlat,0,0,0)
 
       alat=slat%alat
       i_copy_size=size(slat%qlat)
@@ -284,20 +266,11 @@ c      do  ia = bproc(procid), bproc(procid+1)-1
 #endif
         ip=1
 C$      ip=mp_my_threadnum()+1
-Cgetarg...info...           integer :: isa , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: pa(3) , real(8) :: ssite%pos 3
-Cgetarg         call upack('site spec pos',ssite,ia,isa,pa,0,0)
 
         isa=ssite(ia)%spec
         i_copy_size=size(ssite(ia)%pos)
         call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxha , integer(8) :: sspec%lmxb 1
-Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
-Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
-Cgetarg         call upack('spec lmxa lmxb kmxt rsma',sspec,isa,lmxa,lmxha,kmax,
-Cgetarg      .    rsma)
 
         lmxa=sspec(isa)%lmxa
         lmxha=sspec(isa)%lmxb
@@ -333,9 +306,6 @@ C       Zero out strux to eliminate contributions from local orbitals
         call dpzero(w(ob),(kmax+1)*nlma*ndimh*2)
         call dpzero(w(odb),(kmax+1)*nlma*ndimh*2*3)
         do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
-Cgetarg           call upack('site spec pos',ssite,ib,is,p,0,0)
 
           is=ssite(ib)%spec
           i_copy_size=size(ssite(ib)%pos)
@@ -444,13 +414,8 @@ C ... end loop over ia
 #endif
       do  pid = 0, numprocs-1
         do  ia = bproc(pid), bproc(pid+1)-1
-Cgetarg           is = igetss('site spec',ia,ssite)
           is = int(ssite(ia)%spec)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
-Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
-Cgetarg           call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
 
           lmxa=sspec(is)%lmxa
           lmxh=sspec(is)%lmxb
@@ -523,7 +488,6 @@ Cgetarg           call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
       call rlse(o)
       call tcx('rlocbl')
 
-Cgetarg       end
       end subroutine rlocbl
 
 
@@ -562,7 +526,6 @@ C     call zprm('b',2,b,ndimh,ndimh,nlma*(kmax+1))
       enddo
 C     call zprm('cPkL',2,cPkL,kmax+1,kmax+1,nlma)
       call tcx('rlocb1')
-Cgetarg       end
       end subroutine rlocb1
 
 
@@ -678,7 +641,6 @@ C           i2 = orbital index in iprmb order
       enddo
 
       call tcx('prlcb2')
-Cgetarg       end
       end subroutine prlcb2
 
 
@@ -731,7 +693,6 @@ C ... Local parameters
       enddo
       call tcx('prlcb3')
 
-Cgetarg       end
       end subroutine prlcb3
 
 

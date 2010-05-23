@@ -1,7 +1,3 @@
-Cgetarg...info...           structure ['relax', 'ctrl', 'sctrl']
-Cgetarg...info...           structure ['relax', 'site', 'ssite']
-Cgetarg...info...           structure ['relax', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['relax', 'm_struc_def']
       subroutine relax(prgnam,sctrl,ssite,sspec,it,indrlx,natrlx,nvar,f,
      .                 p,w,nelts,delta,bas,icom)
 
@@ -55,8 +51,6 @@ C Passed Parameters
       character prgnam*8
       integer it,nit,natrlx,nvar,nelts,icom,procid,master,mpipid
       integer indrlx(2,natrlx)
-Cgetarg       double precision sctrl(1),ssite(1),sspec(1),f(3,*),
-Cgetarg      .  w(nvar,nvar),p(nvar,6),delta(nelts,*),bas(3,*)
       real(8):: f(3,*) , w(nvar,nvar) , p(nvar,6) , delta(nelts,*) 
      . , bas(3,*)
       type(s_ctrl)::sctrl
@@ -83,12 +77,6 @@ C Local Variables
       call tcn('relax')
 
 C --- Setup ---
-Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
-Cgetarg...info...           integer :: nit , integer(8) :: sctrl%nitmv 1
-Cgetarg...info...           real(8) :: mdprm(6) , real(8) :: sctrl%mdprm 6
-Cgetarg...info...           integer :: ltb , integer(8) :: sctrl%ltb 1
-Cgetarg       call upack('ctrl nbas nitmv mdprm ltb',sctrl,nbas,nit,mdprm,
-Cgetarg      .  ltb,0)
 
       nbas=sctrl%nbas
       nit=sctrl%nitmv
@@ -292,19 +280,14 @@ C          elseif (prgnam(1:3) .eq. 'LMF') then
 C            call upack('site spec',ssite,j,is,0,0,0)
 C            call spacks(0,'spec name',sspec,clablj,is,is)
 C          endif
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg           call upack('site spec',ssite,j,is,0,0,0)
 
           is=ssite(j)%spec
 
-Cgetarg           call spacks(0,'spec name',sspec,clablj,is,is)
 c           do i_spacks=is,is
 c           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
 c           enddo
           call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
 
-Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
-Cgetarg           call upack2('site relax',ssite,j,ifrlx)
 
 c           i_copy_size=size(ssite(j)%relax)
 c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
@@ -318,8 +301,6 @@ C ... Write new atom positions to LOG file, for use in CTRL file
       if (ipr .ge. 20 .and. .not. lshr) then
         dumstr = 'SITE'
         do  80  j = 1, nbas
-Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
-Cgetarg           call upack2('site relax',ssite,j,ifrlx)
 
 c           i_copy_size=size(ssite(j)%relax)
 c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
@@ -332,19 +313,14 @@ C        elseif (prgnam(1:3) .eq. 'LMF') then
 C          call upack('site spec',ssite,j,is,0,0,0)
 C          call spacks(0,'spec name',sspec,clablj,is,is)
 C        endif
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg           call upack('site spec',ssite,j,is,0,0,0)
 
           is=ssite(j)%spec
 
-Cgetarg           call spacks(0,'spec name',sspec,clablj,is,is)
 c           do i_spacks=is,is
 c           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
 c           enddo
           call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
 
-Cgetarg...info...           integer :: ifrlx(3) , integer(8) :: ssite%relax 3
-Cgetarg           call upack2('site relax',ssite,j,ifrlx)
 
 c           i_copy_size=size(ssite(j)%relax)
 c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
@@ -369,7 +345,6 @@ c          endif
 
       call tcx('relax')
 
-Cgetarg       end
       end subroutine relax
 
       subroutine prelx1(mode,nm,lshr,natrlx,nvar,indrlx,p,bas)
@@ -421,7 +396,6 @@ C --- Update atom positions, or vice-versa ---
         endif
 
       endif
-Cgetarg       end
       end subroutine prelx1
 
       subroutine grdep2(i1,i2,indrlx,dstprm,dist)
@@ -454,7 +428,6 @@ C       4, 5, 6
         endif
       enddo
 
-Cgetarg       end
       end subroutine grdep2
 
 

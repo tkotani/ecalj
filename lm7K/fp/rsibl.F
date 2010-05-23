@@ -1,8 +1,3 @@
-Cgetarg...info...           structure ['rsibl', 'lat', 'slat']
-Cgetarg...info...           structure ['rsibl1', 'site', 'ssite']
-Cgetarg...info...           structure ['rsibl1', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['rsibl', 'm_struc_def']
-Cgetarg...info...           use_to_add ['rsibl1', 'm_struc_def']
 #define F90 1
       subroutine rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,
      .  napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
@@ -97,8 +92,6 @@ C Event numbers:
       integer procid, master, nproc, mpipid
       integer lfrce,nbas,isp,k1,k2,k3,ndimh,nevec,numq,iprmb(1),iq,nspc
       integer napw,igapw(3,napw)
-Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3),
-Cgetarg      .  ewgt(numq,nevec),f(3,nbas,numq)
       real(8):: q(3) , ewgt(numq,nevec) , f(3,nbas,numq)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -167,11 +160,6 @@ C     call wkprnt(1)
       nlmto = ndimh-napw
 
 C ... First setup
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
-Cgetarg...info...           real(8) :: gmax , real(8) :: slat%gmax 1
-Cgetarg       call upack('lat alat plat qlat gmax',slat,alat,plat,qlat,gmax,0)
 
       alat=slat%alat
       i_copy_size=size(slat%plat)
@@ -180,12 +168,6 @@ Cgetarg       call upack('lat alat plat qlat gmax',slat,alat,plat,qlat,gmax,0)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
       gmax=slat%gmax
 
-Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
-Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
-Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
-Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
 
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
@@ -452,7 +434,6 @@ C
 #endif
 C     call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
       call tcx('rsibl')
-Cgetarg       end
       end subroutine rsibl
 
 
@@ -505,7 +486,6 @@ Cu Updates
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cgetarg       double precision ssite(1),sspec(1),q(3)
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -532,16 +512,11 @@ c takao
       if (nlmto .eq. 0) return
 
       do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
-Cgetarg         call upack('site spec pos',ssite,ib,is,p,0,0)
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pos)
         call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
 
-Cgetarg...info...           integer :: ncut(n0,nkap0) , integer(8) :: sspec%ngcut 30
-Cgetarg         call upack2('spec ngcut',sspec,is,ncut)
 
         i_copy_size=size(sspec(is)%ngcut)
         call i8icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1)
@@ -596,7 +571,6 @@ C             This shouldn't be necessary
           enddo
         endif
       enddo
-Cgetarg       end
       end subroutine rsibl1
 
 
@@ -665,7 +639,6 @@ C ... Local parameters
         enddo
       enddo
       call tcx('rsibl2')
-Cgetarg       end
       end subroutine rsibl2
 
 
@@ -746,7 +719,6 @@ C     print *, ovl
 
       call tcx('rsibl4')
 
-Cgetarg       end
       end subroutine rsibl4
 
 
@@ -844,7 +816,6 @@ C     ii = ilm-nlm1+ioff+1
       enddo
 
       call tcx('rsibl5')
-Cgetarg       end
       end subroutine rsibl5
 
 
@@ -886,7 +857,6 @@ C ... Local parameters
       enddo
 
       call tcx('rsibl6')
-Cgetarg       end
       end subroutine rsibl6
 
 
@@ -910,7 +880,6 @@ C ... Local parameters
         enddo
       enddo
 
-Cgetarg       end
       end subroutine rsibl7
 
 
@@ -953,7 +922,6 @@ C     Redesign ... inefficient.
      .    call rx('bug in gvgvcomp.  Cannot find ivp')
       enddo
 #endif
-Cgetarg       end
       end subroutine gvgvcomp
 
 
@@ -993,7 +961,6 @@ C     sqvol = dsqrt()
         enddo
       enddo
 
-Cgetarg       end
       end subroutine rsiblp
 
 

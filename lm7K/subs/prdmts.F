@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['praldm', 'site', 'ssite']
-Cgetarg...info...           structure ['praldm', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['praldm', 'm_struc_def']
       subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,sspec,
      .  ssite,strn,dmatu)
 
@@ -41,7 +38,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm
-Cgetarg       double precision sspec(1),ssite(1)
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 
@@ -53,12 +49,8 @@ C ... Local parameters
       iblu = 0
       do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
-Cgetarg           is = igetss('site spec',ib,ssite)
           is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
-Cgetarg           call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
 
           lmxa=sspec(is)%lmxa
           i_copy_size=size(sspec(is)%idu)
@@ -73,7 +65,6 @@ Cgetarg           call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
           enddo
         endif
       enddo
-Cgetarg       end
       end subroutine praldm
 
       subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats,
@@ -169,7 +160,6 @@ C       Header: printout l, ib (if ib>0), spin (if nsp=2, ipr2>=ipr)
 
       endif
 
-Cgetarg       end
       end subroutine prdmts
 
 

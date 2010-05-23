@@ -29,7 +29,6 @@ C Local parameters
      .           plat(ix,1)*i + plat(ix,2)*j + plat(ix,3)*k
         drr2 = drr2 + dr(ix)**2
    10 continue
-Cgetarg       end
       end function drr2
 
 

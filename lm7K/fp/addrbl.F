@@ -1,8 +1,3 @@
-Cgetarg...info...           structure ['addrbl', 'lat', 'slat']
-Cgetarg...info...           structure ['addrbl', 'ham', 'sham']
-Cgetarg...info...           structure ['addrbl', 'site', 'ssite']
-Cgetarg...info...           structure ['addrbl', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['addrbl', 'm_struc_def']
 #define F90 1
       subroutine addrbl(ssite,sspec,slat,sham,isp,nsp,nspc,q,wtkp,ndham,
      .  ndimh,napw,igapw,lmet,lrout,lwtkb,wtkb,lswtk,swtk,iq,lfrce,ldos,
@@ -105,9 +100,6 @@ C ... Passed parameters
      .  lfrce,ndham,ndimh,ndos,numq,lekkl,lcplxp,napw,igapw(3,napw)
       integer nevl
       double precision def,ef0,emax,emin,esmear,qval,vconst,wtkp(iq)
-Cgetarg       double precision q(3),ssite(1),sspec(1),slat(1),sham(1),
-Cgetarg      .  wtkb(ndham,nsp,1),swtk(ndham,nsp,1),
-Cgetarg      .  dos(ndos,2,isp),evl(ndham,nsp),sumev(2,3),sumqv(3,2),f(3,*)
       real(8):: q(3) , wtkb(ndham,nsp,1) , swtk(ndham,nsp,1) , dos(ndos,2,isp) 
      . , evl(ndham,nsp) , sumev(2,3) , sumqv(3,2) , f(3,*)
       type(s_site)::ssite(*)
@@ -147,8 +139,6 @@ C     call wkprnt(1)
       nbas = nglob('nbas')
       nlmto = ndimh-napw
       ndimhx = ndimh*nspc
-Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
-Cgetarg       call upack1('lat nabc',slat,ngabc)
 
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
@@ -156,15 +146,10 @@ Cgetarg       call upack1('lat nabc',slat,ngabc)
 #if ! (F90 | AUTO_ARRAY)
       if (ndimhx.gt.ndimx) call rxi('addrbl: increase ndimx to',ndimh)
 #endif
-Cgetarg...info...           integer :: oidxsh , integer(8) :: sham%oindxo 1
-Cgetarg       call upack1('ham oindxo',sham,oidxsh)
 
       oidxsh=sham%oindxo
 
 C     Setup for PW part of basis
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
-Cgetarg       call upack('lat alat qlat',slat,alat,qlat,0,0,0)
 
       alat=slat%alat
       i_copy_size=size(slat%qlat)
@@ -173,13 +158,9 @@ Cgetarg       call upack('lat alat qlat',slat,alat,qlat,0,0,0)
 C     Find largest lmxa ... should be made elsewhere
       lmxax = -1
       do  i = 1, nbas
-Cgetarg...info...           integer :: k , integer(8) :: ssite%spec 1
-Cgetarg         call upack('site spec',ssite,i,k,0,0,0)
 
         k=ssite(i)%spec
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg         call upack('spec lmxa',sspec,k,lmxa,0,0,0)
 
         lmxa=sspec(k)%lmxa
 
@@ -247,8 +228,6 @@ C  543     format(1p3e15.7)
 C        enddo
 
         if (napw .gt. 0) then
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg           call upack1('lat vol',slat,vol)
 
           vol=slat%vol
 
@@ -325,7 +304,6 @@ C  345   format(i4,3f14.8)
 #endif
 
       call tcx('addrbl')
-Cgetarg       end
       end subroutine addrbl
 
 
@@ -387,7 +365,6 @@ C ... Local parameters
           dos(i,2) = dos(i,2) + wgt
         enddo
       enddo
-Cgetarg       end
       end subroutine addsds
 
 

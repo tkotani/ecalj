@@ -1,9 +1,3 @@
-Cdelw1 undel [['call', 'array', 'wref'], 'osig', 'dfaugm']
-Cdelw1 undel [['call', 'array', 'wref'], 'otau', 'dfaugm']
-Cdelw1 undel [['call', 'array', 'wref'], 'oppi', 'dfaugm']
-Cgetarg...info...           structure ['dfaugm', 'site', 'ssite']
-Cgetarg...info...           structure ['dfaugm', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['dfaugm', 'm_struc_def']
       subroutine dfaugm(nbas,lcplxp,lso,ssite,sspec,osig,otau,oppi)
 
       use m_struc_def  !Cgetarg
@@ -53,11 +47,7 @@ Cu   22 Apr 00 Adapted from nfp df_augm.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cdelw1 do not change  [['call', 'array', 'wref'], 'osig', 'dfaugm']
-Cdelw1 do not change  [['call', 'array', 'wref'], 'otau', 'dfaugm']
-Cdelw1 do not change  [['call', 'array', 'wref'], 'oppi', 'dfaugm']
       integer nbas,lcplxp,lso,osig(3,nbas),otau(3,nbas),oppi(3,nbas)
-Cgetarg       double precision  ssite(1),sspec(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -76,13 +66,8 @@ c      print *,'lso nspc=',lso,nspc
 
 C --- Loop over sites, allocating sig,tau,pi for each site ---
       do  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
-Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
-Cgetarg         call upack('spec lmxa lmxb kmxt',sspec,is,lmxa,lmxh,kmax,0)
 
         lmxa=sspec(is)%lmxa
         lmxh=sspec(is)%lmxb
@@ -96,30 +81,22 @@ C       call upack('spec z rmt',sspec,is,z,rmt,0,0)
 C   ... Case Pkl*Pkl
         nelt1 = (kmax+1)*(kmax+1)*(lmxa+1)*nsp
         nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp*nspc*nso
-Cdelw1 do not change osig because of ['call', 'array', 'wref']
         call defrr(osig(1,ib), nelt1)
-Cdelw1 do not change otau because of ['call', 'array', 'wref']
         call defrr(otau(1,ib), nelt1)
         if (lcplxp .eq. 0) then
-Cdelw1 do not change oppi because of ['call', 'array', 'wref']
           call defrr(oppi(1,ib), nelt2)
         else
-Cdelw1 do not change oppi because of ['call', 'array', 'wref']
           call defrr(oppi(1,ib), nelt2*2)
         endif
 
 C   ... Case Hsm*Hsm
         nelt1 = nkaph*nkaph*(lmxh+1)*nsp
         nelt2 = nkaph*nkaph*nlmh*nlmh*nsp*nspc*nso
-Cdelw1 do not change osig because of ['call', 'array', 'wref']
         call defrr(osig(3,ib), nelt1)
-Cdelw1 do not change otau because of ['call', 'array', 'wref']
         call defrr(otau(3,ib), nelt1)
         if (lcplxp .eq. 0) then
-Cdelw1 do not change oppi because of ['call', 'array', 'wref']
           call defrr(oppi(3,ib), nelt2)
         else
-Cdelw1 do not change oppi because of ['call', 'array', 'wref']
           call defrr(oppi(3,ib), nelt2*2)
         endif
 
@@ -127,29 +104,17 @@ C   ... Case Hsm*Pkl
         if (lmxh.gt.lmxa) call rx('dfaugm: lmxh.gt.lmxa unexpected')
         nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
         nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp*nspc*nso
-Cdelw1 do not change osig because of ['call', 'array', 'wref']
         call defrr(osig(2,ib), nelt1)
-Cdelw1 do not change otau because of ['call', 'array', 'wref']
         call defrr(otau(2,ib), nelt1)
         if (lcplxp .eq. 0) then
-Cdelw1 do not change oppi because of ['call', 'array', 'wref']
           call defrr(oppi(2,ib), nelt2)
         else
-Cdelw1 do not change oppi because of ['call', 'array', 'wref']
           call defrr(oppi(2,ib), nelt2*2)
         endif
 
    10   continue
       enddo
 
-Cgetarg       end
-Cdelw1 w_varlist remains: osig otau oppi
-Cdelw1 w_varlistundel: [osig otau oppi]
-Cdelw1 w_varlist (undel), remains: [osig otau oppi]
-Cdelw1 w_varlist (del), remains: (None)
-Cdelw1 not deallocate oppi because of [call array wref]
-Cdelw1 not deallocate otau because of [call array wref]
-Cdelw1 not deallocate osig because of [call array wref]
       end subroutine dfaugm
 
 

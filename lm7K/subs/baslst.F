@@ -74,16 +74,13 @@ C --- Parse style for specifiying sites list ---
 C --- List of sites ---
       if (lstyle .gt. 1) then
         nspec = mxint(nbas,ips)
-Cdelw1 do not change olist because of ['wref']
 c        call defi(olist, nspec)
         allocate(olist(nspec))
         if (lstyle .eq. 2) j2=j2+1
-Cdelw1 do not change olist because of ['wref']
         call slist(lstyle,slst(j1:j2),slabl,z,nspec,nlists,olist)
         if (lstyle .ne. 2) j2=j2+1
         nlist = 0
         do  i = 1, nlists
-Cdelw1 1 is digit, dropped
           is = olist(i) !w(olist+i-1)
           do  j = 1, nbas
             ib = iclbsj(is,ips,-nbas,j)

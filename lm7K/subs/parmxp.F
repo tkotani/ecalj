@@ -352,7 +352,6 @@ C --- Error exit ---
 C --- Normal exit ---
  9999 continue
       call bin2a0(ia0)
-Cgetarg       end
       end function parmxp
 
       subroutine parmx0(i1,i2,errxx)
@@ -381,7 +380,6 @@ C     print *, 'errmin=',errmin
         lstitj = i2
         errmin = errxx
       endif
-Cgetarg       end
       end subroutine parmx0
 
       block data dparmx
@@ -389,7 +387,6 @@ Cgetarg       end
       double precision errmin
       common /parmx1/ lstblk,lstitj,errmin
       data lstblk /0/ lstitj /0/ errmin /0d0/
-Cgetarg       end
       end block data dparmx
 
 c ... testing parmxp

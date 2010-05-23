@@ -1,16 +1,3 @@
-Cdelw1 var ['ocv', '0', 'ocv', 'ng', 'complex(8)', 'zv_w_', 'smves']
-Cdelw1 var ['ogv', '-1', 'undef', '0', 'undef', 'x', 'smves']
-Cdelw1 var ['okv', '-1', 'undef', '0', 'undef', 'x', 'smves']
-Cdelw1 var ['ocg1', '0', 'ocg1', 'ng', 'complex(8)', 'zv_w_', 'smves']
-Cdelw1 var ['ocgsum', '0', 'ocgsum', 'ng', 'complex(8)', 'zv_w_', 'smves']
-Cdelw1 var ['ocy', '-1', 'undef', '0', 'undef', 'x', 'smves']
-Cdelw1 undel [['undef', 'wref'], 'ogv', 'smves']
-Cdelw1 undel [['undef', 'wref'], 'okv', 'smves']
-Cdelw1 undel [['undef', 'wref'], 'ocy', 'smves']
-Cgetarg...info...           structure ['smves', 'lat', 'slat']
-Cgetarg...info...           structure ['smves', 'site', 'ssite']
-Cgetarg...info...           structure ['smves', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['smves', 'm_struc_def']
       subroutine smves(mode,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,
      .  vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,
      .  vrmt,qbg)
@@ -154,8 +141,6 @@ C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,nbas,mode
       double precision qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg
-Cgetarg       double precision slat(1),ssite(1),sspec(1),qmom(1),f(3,nbas),
-Cgetarg      .  gpot0(1),vval(1),hpot0(nbas),vrmt(nbas)
       real(8):: qmom(1) , f(3,nbas) , gpot0(1) , vval(1) , hpot0(nbas) 
      . , vrmt(nbas)
       type(s_lat)::slat
@@ -164,18 +149,12 @@ Cgetarg      .  gpot0(1),vval(1),hpot0(nbas),vrmt(nbas)
 
       double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
 C ... Local parameters
-Cdelw1 do not change  [['undef', 'wref'], 'ocy', 'smves']
-Cdelw1 do not change  [['undef', 'wref'], 'ogv', 'smves']
-Cdelw1 do not change  [['undef', 'wref'], 'okv', 'smves']
-Cdelw1       integer ib,igetss,ilm,ipr,iprint,is,iv0,lfoc,lgunit,lmxl,m,n1,n2,
-Cdelw1      .  n3,ng,ngabc(3),nglob,nlm,nsp,ocg1,ocgsum,ocv,ocy,ogv,okv,stdo,
-Cdelw1      .  j1,j2,j3
       integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
      . , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
      . nlm , nsp , ocy , ogv , okv , stdo , j1 , j2 , j3
-      complex(8) ,allocatable :: zv_w_ocg1(:)
-      complex(8) ,allocatable :: zv_w_ocgsum(:)
-      complex(8) ,allocatable :: zv_w_ocv(:)
+      complex(8) ,allocatable :: cg1_zv(:)
+      complex(8) ,allocatable :: cgsum_zv(:)
+      complex(8) ,allocatable :: cv_zv(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision ceh,cofg,cofh,dgetss,hsum,pi,qcorg,qcorh,qsc,
@@ -193,29 +172,15 @@ C ... Setup
       pi    = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       y0    = 1d0/srfpi
-Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
-Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
-Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
-Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
 
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 187
-Cdelw1 do not change ogv because of ['undef', 'wref']
       ogv=slat%ogv
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 188
-Cdelw1 do not change okv because of ['undef', 'wref']
       okv=slat%okv
       vol=slat%vol
 
-Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
-Cgetarg       call upack1('lat ocy',slat,ocy)
 
-Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 194
-Cdelw1 do not change ocy because of ['undef', 'wref']
       ocy=slat%ocy
 
 
@@ -224,9 +189,8 @@ C     Electrostatics depend only on total spin density
         call daxpy(k1*k2*k3*2,1d0,smrho(1,1,1,2),1,smrho,1)
       endif
 
-Cdelw1       call defcc (ocv, ng)
-      allocate(zv_w_ocv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocv(:)=0.0d0
+      allocate(cv_zv(ng))
+Ctakao_ZeroClear_NotRequiered        if (ng<0) cv_zv(:)=0.0d0
 
       call dpzero(f, 3*nbas)
 
@@ -237,45 +201,19 @@ C     debugging ... one-center expansion of smrho
 C     call msh21c(1,ssite,sspec,slat,ng,w(ogv),w(okv),k1,k2,k3,smrho)
 
 C --- Estatic potential of smooth density without gaussians ---
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 212
-Cdelw1 do not change ogv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 212
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 212
-Cdelw1 do not change ogv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 212
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1       call vesft(slat,ng,w(ogv),w(okv),w(ocv),k1,k2,k3,smrho,smpot,u00)
-      call vesft ( slat , ng , w ( ogv ) , w ( okv ) , zv_w_ocv , k1 
+      call vesft ( slat , ng , w ( ogv ) , w ( okv ) , cv_zv , k1 
      . , k2 , k3 , smrho , smpot , u00 )
 
 
 C ... Add estatic potential of compensating gaussians to smpot
-Cdelw1       call defcc (ocg1,    ng)
-      allocate(zv_w_ocg1(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocg1(:)=0.0d0
+      allocate(cg1_zv(ng))
+Ctakao_ZeroClear_NotRequiered        if (ng<0) cg1_zv(:)=0.0d0
 
-Cdelw1       call defcc (ocgsum,  ng)
-      allocate(zv_w_ocgsum(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocgsum(:)=0.0d0
+      allocate(cgsum_zv(ng))
+Ctakao_ZeroClear_NotRequiered        if (ng<0) cgsum_zv(:)=0.0d0
 
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 217
-Cdelw1 do not change ogv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 217
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 217
-Cdelw1 do not change ocy because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 217
-Cdelw1 do not change ogv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 217
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 217
-Cdelw1 do not change ocy because of ['undef', 'wref']
-Cdelw1       call vesgcm(nbas,ssite,sspec,slat,w(ocy),qmom,ng,w(ogv),w(okv),
-Cdelw1      .  w(ocv),w(ocg1),w(ocgsum),k1,k2,k3,smpot,f,gpot0,hpot0,qsmc,zsum,
-Cdelw1      .  vrmt)
       call vesgcm ( nbas , ssite , sspec , slat , w ( ocy ) , qmom 
-     . , ng , w ( ogv ) , w ( okv ) , zv_w_ocv , zv_w_ocg1 , zv_w_ocgsum 
+     . , ng , w ( ogv ) , w ( okv ) , cv_zv , cg1_zv , cgsum_zv 
      . , k1 , k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt 
      . )
 
@@ -283,25 +221,12 @@ Cdelw1      .  vrmt)
   230 format(/' after vesgcomp: forces are:'/(i4,3f12.6))
 
 C ... Compute e.s. potential at MT boundary
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 224
-Cdelw1 do not change ogv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 224
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 224
-Cdelw1 do not change ogv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 224
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1       call mshvmt(nbas,ssite,sspec,slat,ng,w(ogv),w(okv),
-Cdelw1      .  w(ocv),k1,k2,k3,smpot,vval)
       call mshvmt ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
-     . w ( okv ) , zv_w_ocv , k1 , k2 , k3 , smpot , vval )
+     . w ( okv ) , cv_zv , k1 , k2 , k3 , smpot , vval )
 
       call symvvl(nbas,ssite,sspec,slat,vval,vrmt)
-Cdelw1 rlse name= ocg1 old_list= ocv ocg1 ocgsum
-Cdelw1 rlse name= ocg1 new_list= ocv
-Cdelw1       call rlse(ocg1)
-      if (allocated(zv_w_ocgsum)) deallocate(zv_w_ocgsum)
-      if (allocated(zv_w_ocg1)) deallocate(zv_w_ocg1)
+      if (allocated(cgsum_zv)) deallocate(cgsum_zv)
+      if (allocated(cg1_zv)) deallocate(cg1_zv)
 
 C     call zprm3('smpot',0,smpot,n1,n2,n3)
 
@@ -309,10 +234,8 @@ C --- Make vbar = avg v(RMT) and optionally assign to vconst ---
       vbar = 0
       sbar = 0
       do  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg         rmt = dgetss('spec rmt',is,sspec)
         rmt = (sspec(is)%rmt)
 
         vbar = vbar + rmt**2 * vrmt(ib)
@@ -329,10 +252,8 @@ Cgetarg         rmt = dgetss('spec rmt',is,sspec)
 C ... Adjust vbar, vval, gpot0 by vconst
       iv0 = 0
       do  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
         lmxl = int(sspec(is)%lmxl)
 
         if (lmxl .gt. -1) then
@@ -392,11 +313,9 @@ C --- Collect energy terms; make zvnuc for smooth problem ---
       sum = 0d0
       iv0 = 0
       do  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
         lmxl = int(sspec(is)%lmxl)
 
         if (lmxl .gt. -1) then
@@ -423,10 +342,7 @@ c|     .   /' sum over gpot0*qmom',f12.6)
       if (ipr .ge. 30) write (stdo,500) usm,smq
   500 format(/' smooth rhoves',f14.6,'   charge',f13.6)
 
-Cdelw1 rlse name= ocv old_list= ocv
-Cdelw1 rlse name= ocv new_list= (None)
-Cdelw1       call rlse(ocv)
-      if (allocated(zv_w_ocv)) deallocate(zv_w_ocv)
+      if (allocated(cv_zv)) deallocate(cv_zv)
 
       call tcx('smves')
 
@@ -446,11 +362,6 @@ C     Restore spin 1 density, copy potential to second spin channel
         call dcopy(k1*k2*k3*2,smpot,1,smpot(1,1,1,2),1)
       endif
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [ogv okv ocy]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine smves
 
 

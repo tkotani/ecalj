@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['symdmu', 'site', 'ssite']
-Cgetarg...info...           structure ['symdmu', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['symdmu', 'm_struc_def']
 #define F90 1
       subroutine symdmu(dmatu,dmatw,nbas,nsp,lmaxu,sspec,ssite,ng,g,
      .  istab,lldau,rms)
@@ -50,7 +47,6 @@ C ... Passed parameters
       integer nbas,lldau(nbas),ng,nsp,lmaxu,istab(nbas,ng)
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       double complex dmatw(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
-Cgetarg       double precision sspec(1),ssite(1)
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 
@@ -114,12 +110,8 @@ C --- For each site density-matrix, do ---
       iblu = 0
       do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
-Cgetarg           is = igetss('site spec',ib,ssite)
           is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
-Cgetarg           call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
 
           lmxa=sspec(is)%lmxa
           i_copy_size=size(sspec(is)%idu)
@@ -274,7 +266,6 @@ C     RMS change in dmatu
       rms = dsqrt(ddot(2*is,dmatw,1,dmatw,1)/(2*is))
       call daxpy(2*is,1d0,dmatu,1,dmatw,1)
 
-Cgetarg       end
       end subroutine symdmu
 
 

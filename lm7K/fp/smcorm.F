@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['smcorm', 'lat', 'slat']
-Cgetarg...info...           structure ['smcorm', 'site', 'ssite']
-Cgetarg...info...           use_to_add ['smcorm', 'm_struc_def']
       subroutine smcorm(nbas,ssite,sspec,slat,ng,gv,
      .  cgh1,cgh2,lfoc1,lfoc2)
 
@@ -36,7 +33,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ng,nbas,lfoc1,lfoc2
-Cgetarg       double precision ssite(1),sspec(1),gv(ng,3),slat(1)
       real(8):: gv(ng,3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -55,10 +51,6 @@ C ... Heap
       common /w/ w
 
 C     stdo = lgunit(1)
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
-Cgetarg       call upack('lat alat vol ocy',slat,alat,vol,ocy,0,0)
 
       alat=slat%alat
       vol=slat%vol
@@ -72,9 +64,6 @@ C --- Accumulate FT of smooth-Hankel foca heads ---
       lfoc1 = 0
       lfoc2 = 0
       do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
-Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pos)
@@ -111,7 +100,6 @@ C  351   format(' qc=',f12.6,'   lfoc',i2,'   qcorg,qcorh',2f12.6)
 C      write(stdo,846) cgh1(1)*vol,cgh2(1)*vol
 C  846 format(' cgh(1) times vol',4f12.6)
 
-Cgetarg       end
       end subroutine smcorm
 
 

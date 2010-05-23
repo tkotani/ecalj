@@ -28,7 +28,6 @@ C     implicit none
         endif
         lx(k) = j
    10 continue
-Cgetarg       end
       end subroutine lx2vec
 
 

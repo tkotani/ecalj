@@ -899,7 +899,6 @@ C         write(180,*) smalpa(i,k)
         enddo
       enddo
 
-Cgetarg       end
       end subroutine rdeq
 
 
@@ -1423,7 +1422,6 @@ C-------End of the failed way--------------------------------------
 
  210  return
 
-Cgetarg        end
       end subroutine fdpp
 
 
@@ -1440,7 +1438,6 @@ C     implicit none
       c(2,2) = a(2,1)*b(1,2) + a(2,2)*b(2,2)
 
       return
-Cgetarg        end
       end subroutine mul22
 
 
@@ -1478,7 +1475,6 @@ C     .                - vm(m))/cc)*rofi(m))**2)
      .            psi(2,m)*ksi(2,m) + psi(4,m)*ksi(4,m)))
 
       enddo
-Cgetarg       end
       end subroutine product2
 
 
@@ -1595,7 +1591,6 @@ C            enddo
 
       return
 
-Cgetarg           end
       end subroutine clebsh
 
 

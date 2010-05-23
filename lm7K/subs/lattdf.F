@@ -1,4 +1,3 @@
-Cdelw1 var ['obwk', '0', 'obwk', '3*nbas', 'real(8)', 'rv_w_', 'lattdf']
       subroutine lattdf(ldist,defgrd,plat,nbas,bas,ngen,gen)
 C- Rotates or deforms lattice
 C ----------------------------------------------------------------
@@ -30,8 +29,7 @@ C ... Passed parameters
 C ... Local parameters
       double precision work(3,3),rinv(3,3),det,gold(3,3)
       integer ipr,i,j,ib
-Cdelw1       integer obwk
-      real(8) ,allocatable :: rv_w_obwk(:)
+      real(8) ,allocatable :: bwk_rv(:)
 
 C ... External calls
       external dcopy,defrr,dinv33,dmpy,getpr,makrot,shear
@@ -40,26 +38,18 @@ C      integer nlx,nl2
 C      parameter (nlx=4,nl2=nlx*nlx)
 C      double precision rYL(nl2,nl2)
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (ldist .eq. 0) return
       call getpr(ipr)
-Cdelw1       call defrr(obwk,3*nbas)
-      allocate(rv_w_obwk(3*nbas))
-Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) rv_w_obwk(:)=0.0d0
+      allocate(bwk_rv(3*nbas))
+Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) bwk_rv(:)=0.0d0
 
       call dcopy(9,defgrd,1,work,1)
       if (iabs(ldist) .eq. 1) call makrot(work,defgrd)
       if (iabs(ldist) .eq. 3) then
         det = defgrd(1,3)
 Cki#error, have return with len(w_varlist)>0 at line 47
-Cdelw1 w_varlist remains: obwk
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [obwk]
-Cdelw1         if (det .eq. 0) return
         if ( det .eq. 0 ) then
-          if (allocated(rv_w_obwk)) deallocate(rv_w_obwk)
+          if (allocated(bwk_rv)) deallocate(bwk_rv)
           return
         endif
 
@@ -108,10 +98,7 @@ C ... Rotate or shear plat
      .      ((gold(j,i), i=1,3), (gen(j,i,ib), i=1,3),j=1,3)
    20   continue
       endif
-Cdelw1 w_varlist remains: obwk
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [obwk]
-      if (allocated(rv_w_obwk)) deallocate(rv_w_obwk)
+      if (allocated(bwk_rv)) deallocate(bwk_rv)
 
       end
 C      subroutine rotp(rotm,np,p,prot)

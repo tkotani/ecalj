@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['mkorbm', 'site', 'ssite']
-Cgetarg...info...           structure ['mkorbm', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['mkorbm', 'm_struc_def']
       subroutine mkorbm(ssite,sspec,isp,nsp,nspc,nlmax,ndham,nev,
      .  wtkp,iq,nbas,ppnl,aus,nl,nkp,orbtm)
 
@@ -57,7 +54,6 @@ C ... Passed parameters
       integer isp,nsp,nspc,nlmax,ndham,nbas,nev
       integer n0,nppn,nl,nkp,nab,iq
       parameter (n0=10,nppn=12,nab=9)
-Cgetarg       double precision ssite(1),sspec(1),wtkp(ndham,nsp,nkp)
       real(8):: wtkp(ndham,nsp,nkp)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -75,12 +71,8 @@ C ... Local parameters
       iot = dcmplx(0d0,1d0)
       ichan = 0
       do  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg         call upack('spec lmxa rmt',sspec,is,lmxa,rmt,0,0)
 
         lmxa=sspec(is)%lmxa
         rmt=sspec(is)%rmt
@@ -179,7 +171,6 @@ C           If (au,as) are coefficients to (u,s), use this
 C        print*, isp, ib, 'ORB.MOMNT=',orbtm(isp,ib)
    10   continue
       enddo
-Cgetarg       end
       end subroutine mkorbm
 
 

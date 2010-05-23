@@ -1,18 +1,3 @@
-Cdelw1 var ['oiwtmp', '0', 'oiwtmp', '-nirrmx', 'integer', 'iv_w_', 'findes']
-Cdelw1 var ['orirr', '0', 'orirr', '3*nirrmx', 'real(8)', 'rv_w_', 'findes']
-Cdelw1 var ['oirr', '0', 'oirr', '-nmesh', 'integer', 'iv_w_', 'findes']
-Cdelw1 var ['ores', '0', 'ores', 'nirr', 'real(8)', 'rv_w_', 'findes']
-Cdelw1 var ['olini', '0', 'olini', '-nirr', 'integer', 'iv_w_', 'findes']
-Cdelw1 var ['obas1', '1', 'obas1', '3*(nbas+nsymop)', 'real(8)', 'rv_w_', 'findes']
-Cdelw1 var ['oicls1', '1', 'oicls1', 'nbas+nsymop', 'integer', 'iv_w_', 'findes']
-Cdelw1 var ['owk', '0', 'owk', '5*nbas', 'real(8)', 'rv_w_', 'findes']
-Cdelw1 var ['oiclas', '1', 'oiclas', 'nbas', 'integer', 'iv_w_', 'findes']
-Cdelw1 var ['obas', '-1', 'undef', '0', 'undef', 'x', 'findes']
-Cdelw1 undel [['call', 'undef', 'wref', 'redef'], 'oiclas', 'findes']
-Cdelw1 undel [['call', 'undef', 'wref'], 'obas', 'findes']
-Cdelw1 undel [['wref'], 'obas1', 'findes']
-Cgetarg...info...           structure ['findes', 'ctrl', 'sctrl']
-Cgetarg...info...           use_to_add ['findes', 'm_struc_def']
 C     This series of subroutines was adapted from the Stuttgart package
 C     to facilitate finding empty spheres on a lattice.
       subroutine findes(sctrl,alat,dclabl,nbas,nclass,nl,
@@ -74,11 +59,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed variables:
       integer nbas,nclass,nl,nrclas(*),nsymop,mxclas,lock(nclass)
-Cdelw1 do not change  [['call', 'undef', 'wref'], 'obas', 'findes']
-Cdelw1 do not change  [['call', 'undef', 'wref', 'redef'], 'oiclas', 'findes']
       integer obas,oiclas
-Cgetarg       double precision sctrl(1),alat,plat(3,3),
-Cgetarg      .  symopm(*),symopv(*),wsr(nclass),z(nclass)
       real(8):: alat , plat(3,3) , symopm(*) , symopv(*) , wsr(nclass) 
      . , z(nclass)
       type(s_ctrl)::sctrl
@@ -88,16 +69,14 @@ C Local variables:
       integer ic,idamax,ierr,iprint,jmax(3),jmin(3),
      .  lmx,nb1,nirr,nirrmx,nmesh,modep(3)
       integer stdo,nglob,nrxyz(3),isw
-Cdelw1 do not change  [['wref'], 'obas1', 'findes']
-Cdelw1       integer obas1,oicls1,oirr,olini,ores,orirr,oiwtmp,owk
       integer:: obas1
-      integer ,allocatable :: iv_w_oicls1(:)
-      integer ,allocatable :: iv_w_oirr(:)
-      integer ,allocatable :: iv_w_olini(:)
-      real(8) ,allocatable :: rv_w_ores(:)
-      real(8) ,allocatable :: rv_w_orirr(:)
-      integer ,allocatable :: iv_w_oiwtmp(:)
-      real(8) ,allocatable :: rv_w_owk(:)
+      integer ,allocatable :: icls1_iv(:)
+      integer ,allocatable :: irr_iv(:)
+      integer ,allocatable :: lini_iv(:)
+      real(8) ,allocatable :: res_rv(:)
+      real(8) ,allocatable :: rirr_rv(:)
+      integer ,allocatable :: iwtmp_iv(:)
+      real(8) ,allocatable :: wk_rv(:)
 
       double precision avstep,bases(3),
      .  ratio,resmx,platcp(9),qlat(9),tiny,vol,volsph,wmax,wsres,
@@ -119,29 +98,16 @@ C      call cpusrt('FES ',.false.)
 
 C --- Setup ---
       stdo = nglob('stdo')
-Cgetarg...info...           integer :: nrxyz(3) , integer(8) :: sctrl%nesabc 3
-Cgetarg...info...           real(8) :: rmines , real(8) :: sctrl%rmines 1
-Cgetarg...info...           real(8) :: rmaxes , real(8) :: sctrl%rmaxes 1
-Cgetarg       call upack('ctrl nesabc rmines rmaxes',sctrl,nrxyz,rmines,rmaxes,
-Cgetarg      .  0,0)
 
       i_copy_size=size(sctrl%nesabc)
       call i8icopy(i_copy_size,sctrl%nesabc,1,nrxyz,1)
       rmines=sctrl%rmines
       rmaxes=sctrl%rmaxes
 
-Cgetarg...info...           integer :: modep(3) , integer(8) :: sctrl%modep 3
-Cgetarg       call upack('ctrl modep',sctrl,modep,0,0,0,0)
 
       i_copy_size=size(sctrl%modep)
       call i8icopy(i_copy_size,sctrl%modep,1,modep,1)
 
-Cgetarg...info...           real(8) :: facvol , real(8) :: sctrl%sclwsr 1
-Cgetarg...info...           real(8) :: omax1(3) , real(8) :: sctrl%omax1 3
-Cgetarg...info...           real(8) :: omax2(3) , real(8) :: sctrl%omax2 3
-Cgetarg...info...           real(8) :: wsmax , real(8) :: sctrl%wsrmax 1
-Cgetarg       call upack('ctrl sclwsr omax1 omax2 wsrmax',sctrl,facvol,omax1,
-Cgetarg      .  omax2,wsmax,0)
 
       facvol=sctrl%sclwsr
       i_copy_size=size(sctrl%omax1)
@@ -168,10 +134,6 @@ C --- Use the most compact unit cell ---
       call dcopy(9,plat(1,1),1,platcp,1)
       call dinv33(platcp,1,qlat,vol)
       vol = dabs(vol)*alat**3
-Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 146
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 146
-Cdelw1 do not change obas because of ['call', 'undef', 'wref']
       call ordbas(nbas,plat,w(obas),w(oiclas))
 
 C --- Get irreducible mesh points ---
@@ -179,63 +141,47 @@ C --- Get irreducible mesh points ---
       nirrmx = 1000 + 4*nmesh/nsymop/3
 C ... nirrmx should be nmesh but this requires to much space
       ierr=0
-Cdelw1    10 call defi (oiwtmp,-nirrmx)
- 10   allocate(iv_w_oiwtmp(abs(-nirrmx)))
-      if (-nirrmx<0) iv_w_oiwtmp(:)=0
+ 10   allocate(iwtmp_iv(abs(-nirrmx)))
+      if (-nirrmx<0) iwtmp_iv(:)=0
 
-Cdelw1       call defdr(orirr ,3*nirrmx)
-      allocate(rv_w_orirr(3*nirrmx))
-Ctakao_ZeroClear_NotRequiered        if (3*nirrmx<0) rv_w_orirr(:)=0.0d0
+      allocate(rirr_rv(3*nirrmx))
+Ctakao_ZeroClear_NotRequiered        if (3*nirrmx<0) rirr_rv(:)=0.0d0
 
-Cdelw1       call defi (oirr  ,-nmesh)
-      allocate(iv_w_oirr(abs(-nmesh)))
-      if (-nmesh<0) iv_w_oirr(:)=0
+      allocate(irr_iv(abs(-nmesh)))
+      if (-nmesh<0) irr_iv(:)=0
 
-Cdelw1       call rsmesh(avstep,ierr,w(oirr),w(oiwtmp),jmax,jmin,nrxyz(1),
-Cdelw1      .            nrxyz(2),nrxyz(3),nirr,nirrmx,nsymop,platcp,qlat,
-Cdelw1      .            w(orirr),symopm,symopv)
-      call rsmesh ( avstep , ierr , iv_w_oirr , iv_w_oiwtmp , jmax 
+      call rsmesh ( avstep , ierr , irr_iv , iwtmp_iv , jmax 
      . , jmin , nrxyz ( 1 ) , nrxyz ( 2 ) , nrxyz ( 3 ) , nirr , nirrmx 
-     . , nsymop , platcp , qlat , rv_w_orirr , symopm , symopv )
+     . , nsymop , platcp , qlat , rirr_rv , symopm , symopv )
 
       if (ierr.ne.0) then
-Cdelw1 rlse name= oiwtmp old_list= oiwtmp orirr oirr
-Cdelw1 rlse name= oiwtmp new_list= (None)
-Cdelw1         call rlse(oiwtmp)
-        if (allocated(iv_w_oirr)) deallocate(iv_w_oirr)
-        if (allocated(rv_w_orirr)) deallocate(rv_w_orirr)
-        if (allocated(iv_w_oiwtmp)) deallocate(iv_w_oiwtmp)
+        if (allocated(irr_iv)) deallocate(irr_iv)
+        if (allocated(rirr_rv)) deallocate(rirr_rv)
+        if (allocated(iwtmp_iv)) deallocate(iwtmp_iv)
 
         nirrmx = nirrmx + nirrmx
         goto 10
       endif
 c     write(stdo,301)avstep*alat
 
-Cdelw1 rlse name= orirr old_list= (None)
 
 Cki#error ERROR, try to release name= orirr ,but list=null at linenumber= 166 list= (None)
-Cdelw1       call rlse(orirr)
 
-Cdelw1       call defrr(orirr,3*nirr)
-      allocate(rv_w_orirr(3*nirr))
-Ctakao_ZeroClear_NotRequiered        if (3*nirr<0) rv_w_orirr(:)=0.0d0
+      allocate(rirr_rv(3*nirr))
+Ctakao_ZeroClear_NotRequiered        if (3*nirr<0) rirr_rv(:)=0.0d0
 
-Cdelw1       call defrr(ores,   nirr)
-      allocate(rv_w_ores(nirr))
-Ctakao_ZeroClear_NotRequiered        if (nirr<0) rv_w_ores(:)=0.0d0
+      allocate(res_rv(nirr))
+Ctakao_ZeroClear_NotRequiered        if (nirr<0) res_rv(:)=0.0d0
 
-Cdelw1       call defi (olini, -nirr)
-      allocate(iv_w_olini(abs(-nirr)))
-      if (-nirr<0) iv_w_olini(:)=0
+      allocate(lini_iv(abs(-nirr)))
+      if (-nirr<0) lini_iv(:)=0
 
 
 c      call cpustp('MESH',.true.,.true.)
 
 C --- Initialize res and lini ---
-Cdelw1       call mdeses(alat,w(ores),w(olini),nirr,nsymop,platcp,qlat,
-Cdelw1      .            w(orirr),rmines-avstep,symopm,symopv)
-      call mdeses ( alat , rv_w_ores , iv_w_olini , nirr , nsymop , 
-     . platcp , qlat , rv_w_orirr , rmines - avstep , symopm , symopv 
+      call mdeses ( alat , res_rv , lini_iv , nirr , nsymop , 
+     . platcp , qlat , rirr_rv , rmines - avstep , symopm , symopv 
      . )
 
       ratio = volsph(nclass,nrclas,wsr)*(alat**3)/vol
@@ -254,10 +200,6 @@ C --- Repeat until no more ES found ---
 C   --- Check whether the volume can be reached for given OMAX ---
 C       wsrc is only used as a work array; except contents printed last iter
         call dpcopy(wsr,wsrc,1,nclass,alat)
-Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 192
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 192
-Cdelw1 do not change obas because of ['call', 'undef', 'wref']
         call sclwsr(0,nbas,nbas,nclass,alat,plat,w(obas),w(oiclas),
      .    modep,clabl,z,lock,facvol,wsmax,omax1,omax2,wsrc)
 
@@ -270,34 +212,16 @@ C       Exit, if volume target met
         endif
 
 C   ... Fill unit cell with potential new sites
-Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 204
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 204
-Cdelw1 do not change obas because of ['call', 'undef', 'wref']
-Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 204
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 204
-Cdelw1 do not change obas because of ['call', 'undef', 'wref']
-Cdelw1         call fillat(alat,w(obas),w(oiclas),jmax,jmin,nb1,nbas,nirr,
-Cdelw1      .    nrxyz,w(olini),platcp,qlat,w(ores),w(orirr),
-Cdelw1      .    rmaxes,rmines-avstep,wsr)
         call fillat ( alat , w ( obas ) , w ( oiclas ) , jmax , jmin 
-     .   , nb1 , nbas , nirr , nrxyz , iv_w_olini , platcp , qlat , rv_w_ores 
-     .   , rv_w_orirr , rmaxes , rmines - avstep , wsr )
+     .   , nb1 , nbas , nirr , nrxyz , lini_iv , platcp , qlat , res_rv 
+     .   , rirr_rv , rmaxes , rmines - avstep , wsr )
 
         nb1 = nbas+1
 C   ... Find biggest empty sphere in unit cell with center on mesh-point
-Cdelw1 warning(1) , probably  oiwtmp  is not defined yet at linenumber= 209
-Cdelw1         call bigges(alat,bases,w(oiwtmp),nirr,w(olini),w(ores),resmx,
-Cdelw1      .              w(orirr))
-        call bigges ( alat , bases , iv_w_oiwtmp , nirr , iv_w_olini 
-     .   , rv_w_ores , resmx , rv_w_orirr )
+        call bigges ( alat , bases , iwtmp_iv , nirr , lini_iv 
+     .   , res_rv , resmx , rirr_rv )
 
 C   ... Move empty sphere to high-symmetry point, leave the mesh
-Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 212
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 212
-Cdelw1 do not change obas because of ['call', 'undef', 'wref']
         if (resmx.gt.tiny)
      .   call symes(alat,w(obas),bases,clabl,w(oiclas),nbas,nrxyz,
      .               nsymop,platcp,qlat,symopm,symopv,wsr,wsres)
@@ -332,43 +256,21 @@ C   ... Find label for new empty sphere
      .    write(stdo,303) clabl(ic),wsr(ic)*alat,nclass
 
 C   ... Add all symmetry-related spheres
-Cdelw1 do not change obas1 because of ['wref']
         call defdr(obas1 ,3*(nbas+nsymop))
-Cdelw1         call defi (oicls1,   nbas+nsymop)
-        allocate(iv_w_oicls1(nbas+nsymop))
-Ctakao_ZeroClear_NotRequiered          if (nbas+nsymop<0) iv_w_oicls1(:)=0
+        allocate(icls1_iv(nbas+nsymop))
+Ctakao_ZeroClear_NotRequiered          if (nbas+nsymop<0) icls1_iv(:)=0
 
-Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 248
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  oiclas  is not defined yet at linenumber= 248
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
-Cdelw1         call icopy(nbas,w(oiclas),1,w(oicls1),1)
-        call icopy ( nbas , w ( oiclas ) , 1 , iv_w_oicls1 , 1 )
+        call icopy ( nbas , w ( oiclas ) , 1 , icls1_iv , 1 )
 
-Cdelw1 do not change obas1 because of ['wref']
-Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 249
-Cdelw1 do not change obas because of ['call', 'undef', 'wref']
         call dcopy(3*nbas,w(obas),1,w(obas1),1)
-Cdelw1 do not change obas1 because of ['wref']
-Cdelw1 do not change obas1 because of ['wref']
-Cdelw1         call addes2(w(obas1),bases,clabl,w(oicls1),nbas,nclass,nrclas,
-Cdelw1      .             nsymop,platcp,qlat,symopm,symopv)
-        call addes2 ( w ( obas1 ) , bases , clabl , iv_w_oicls1 , nbas 
+        call addes2 ( w ( obas1 ) , bases , clabl , icls1_iv , nbas 
      .   , nclass , nrclas , nsymop , platcp , qlat , symopm , symopv 
      .   )
 
-Cdelw1 do not change obas1 because of ['wref']
         call redfrr(obas1,3*nbas)
-Cdelw1 do not change obas1 because of ['wref']
-Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 253
-Cdelw1 do not change obas because of ['call', 'undef', 'wref']
         obas = obas1
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
         call defi(oiclas,nbas)
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
-Cdelw1         call icopy(nbas,w(oicls1),1,w(oiclas),1)
-        call icopy ( nbas , iv_w_oicls1 , 1 , w ( oiclas ) , 1 )
+        call icopy ( nbas , icls1_iv , 1 , w ( oiclas ) , 1 )
 
 
       enddo
@@ -380,24 +282,14 @@ C ... Rescale wsr,rmines,rmaxes
       call dscal(nclass,alat,wsr   ,1)
       call dscal(1     ,alat,rmines,1)
       call dscal(1     ,alat,rmaxes,1)
-Cdelw1       call defdr(owk,5*nbas)
-      allocate(rv_w_owk(5*nbas))
-Ctakao_ZeroClear_NotRequiered        if (5*nbas<0) rv_w_owk(:)=0.0d0
+      allocate(wk_rv(5*nbas))
+Ctakao_ZeroClear_NotRequiered        if (5*nbas<0) wk_rv(:)=0.0d0
 
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 267
-Cdelw1 do not change obas because of ['call', 'undef', 'wref']
       call ordbas(nbas,plat,w(obas),w(oiclas))
-Cdelw1 rlse name= owk old_list= orirr ores olini obas1 oicls1 oiclas owk
-Cdelw1 rlse name= owk new_list= orirr ores olini obas1 oicls1 oiclas
-Cdelw1       call rlse(owk)
-      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+      if (allocated(wk_rv)) deallocate(wk_rv)
 
 C ... Printout
       call info0(20,0,0,' Writing new basis to file poses ...')
-Cdelw1 do not change oiclas because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  obas  is not defined yet at linenumber= 271
-Cdelw1 do not change obas because of ['call', 'undef', 'wref']
       call prpos(nbas,nclass,clabl,w(oiclas),w(obas),wsrc,z)
 
       call rx0('findes')
@@ -405,17 +297,10 @@ Cdelw1 do not change obas because of ['call', 'undef', 'wref']
   306 format(/72('='))
   303 format(/' FINDES:  new class: ',a8,', WSR=',f7.5,', class no',i4)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: orirr ores olini obas1 oicls1 oiclas
-Cdelw1 w_varlistundel: [oiclas obas obas1]
-Cdelw1 w_varlist (undel), remains: [obas1 oiclas]
-Cdelw1 w_varlist (del), remains: [orirr ores olini oicls1]
-Cdelw1 not deallocate oiclas because of [call undef wref redef]
-Cdelw1 not deallocate obas1 because of [wref]
-      if (allocated(iv_w_oicls1)) deallocate(iv_w_oicls1)
-      if (allocated(iv_w_olini)) deallocate(iv_w_olini)
-      if (allocated(rv_w_ores)) deallocate(rv_w_ores)
-      if (allocated(rv_w_orirr)) deallocate(rv_w_orirr)
+      if (allocated(icls1_iv)) deallocate(icls1_iv)
+      if (allocated(lini_iv)) deallocate(lini_iv)
+      if (allocated(res_rv)) deallocate(res_rv)
+      if (allocated(rirr_rv)) deallocate(rirr_rv)
 
       end subroutine findes
 
@@ -570,9 +455,6 @@ C ----- Now examine merged sphere, get deses,desat
       wsres=dmax1(dm1mx,dm2)*facovl
 
       call icopy(3,nrxyzz,1,nrxyz,1)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       return
 
 300   format( ' SYMES : FACMRG=',f6.4,',  FACOVL=',f6.4)
@@ -588,10 +470,6 @@ Cdelw1 w_varlist (del), remains: (None)
 307   format(' SYMES : DB=',f7.5,', TOLWSR=',f7.5,', NNZ=',i2)
 308   format( ' SYMES : STEP ',i2,':',3f10.6,'  WSR=',f8.6)
 311   format(2x,i3,3f11.6,2f10.7)
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine symes
 
 
@@ -637,10 +515,6 @@ ct     .  write(lunit(2),400)r,x,idnint(x(1)),idnint(x(2)),idnint(x(3))
 400   format(/' GETIRR: the point:',3f8.4,' not a mesh point',
      .       /'         X=',3f8.2,
      .       /'         J=',3(i5,3x))
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine getirr
 
       subroutine mdesat(alat,bas,desat,ibas,iclass,nbas,plat,r,wsr)
@@ -710,10 +584,6 @@ C Intrinsic functions:
       enddo
 300   format(' MDESAT: IBAS=',i3,', RES=',f11.6,', DESAT=',f11.6)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mdesat
 
 
@@ -753,10 +623,6 @@ C Intrinsic functions:
       call reducv(plat,qlat,dbas,2)
       d=dsqrt(d3nrm2(dbas))
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine distes
 
 
@@ -817,10 +683,6 @@ C Intrinsic functions:
      .        '|        possible overlap of empty sphere',
      .                ' with atom out of range',
      .        '|        use most compact unit cell.$')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine chkes
 
 
@@ -870,10 +732,6 @@ C Intrinsic functions:
       endif
 
 400   format(' DEFLMX: bad Wigner Seitz radius WSR=',f10.6,'$')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine deflmx
 
 
@@ -936,10 +794,6 @@ C Intrinsic functions:
         enddo
         iat=iat+1
       enddo
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine renam
 
 
@@ -983,9 +837,6 @@ C Data statements:
         if (iz.lt.0.or.iz.gt.100) then
 ct          write(lunit(2),400)iz
           write(*,400)iz
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
           return
         endif
         clabl=aclabl(iz)
@@ -997,9 +848,6 @@ Cdelw1 w_varlist (del), remains: (None)
         if (icha.lt.97.or.icha.gt.122)ccopy(2:2)=' '
         do iz=0,100
           if (aclabl(iz).eq.ccopy(1:2)) then
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
             return
           endif
         enddo
@@ -1013,10 +861,6 @@ ct        write(lunit(2),401)clabl
 400   format(/' ZCLABL: bad Z=',i5,' set to -1')
 401   format(/' ZCLABL: could not find atom ',a8,' in my list,',
      .       ' Z set to -1')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine zclabl
 
 
@@ -1102,10 +946,6 @@ C Intrinsic functions:
       endif
 300   format('(',i2,a1,i2,')')
 301   format('(',i2,a1,i2,'.',i2,')')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine getfmt
 
 
@@ -1143,10 +983,6 @@ C Passed variables:
         d1(m)=d(n)
       endif
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine tocast
 
 
@@ -1233,10 +1069,6 @@ ct     .                      (bas(i,ibas),i=1,3),ibas=nbas+1,nbasnw)
 301   format(9x,'ATOM=',a8,' ICLASS=',i3,1x,'POS=',3f9.5)
 
 400   format(' ADDES : empty sphere sits on atom ',i3,', class',i3,'$')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine addes2
 
 
@@ -1269,16 +1101,9 @@ C Intrinsic functions:
       do m=1,3
         vdiff=diff(1)*qlat(1,m)+diff(2)*qlat(2,m)+diff(3)*qlat(3,m)
         vdiff=dabs(vdiff-dnint(vdiff))
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         if (vdiff.gt.tolpos) return
       enddo
       latrel=.true.
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end function latrel
 
 
@@ -1303,10 +1128,6 @@ C     implicit none
 
   301 format(9x,'ATOM=',a8, 1x,'POS=',3f12.7)
   302 format(9x,'ATOM=',a8, 1x,'Z = ',f5.1,' R = ',f6.3)
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine prpos
 
 
@@ -1367,9 +1188,6 @@ ct        if (iprint().ge.40) write(lunit(1),300)bases,resmx*alat,iwtmp0
 ct        if (iprint().ge.40) write(lunit(1),303)resmx*alat
         if (iprint().ge.40) write(*,303)resmx*alat
       endif
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       return
 
  300  format(/' BIGGES: BASES=  ',3f10.6,'  WSR=',f8.6,' IWT=',i2)
@@ -1377,10 +1195,6 @@ Cdelw1 w_varlist (del), remains: (None)
      .       /8x,51('-'))
  302  format(7x,i6,3f10.6,2x,f7.5,1x,i4)
  303  format(/' BIGGES:  RESMX=',f8.6)
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine bigges
 
 
@@ -1549,10 +1363,6 @@ ct        write(stdo,303)ibas,ic,c,i,d12*alat,wprmx2*alat,ins
      .           'I1  I2  I3    D12 WPRMX2 INS',/,9x,63('-'))
 303   format(1x,i3,4x,i3,3x,3f7.4,3(2x,i2),2x,f6.3,1x,f5.3,2x,l1)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine fillat
 
 
@@ -1685,10 +1495,6 @@ c              write(lunit(1),304)iirr,(rirr(m,iirr),m=1,3),
      .       /10x,47('-'))
 303   format(7x,i5,2x,3f10.4,2x,'<',f9.6)
 304   format(7x,i5,2x,3f10.4,1x,f11.6)
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mdeses
 
 
@@ -1729,10 +1535,6 @@ C Intrinsic functions:
           enddo
         enddo
       enddo
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine gtpmin
 
 
@@ -1752,10 +1554,6 @@ C Passed variables:
 
       d3nrm2=r(1)*r(1)+r(2)*r(2)+r(3)*r(3)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end function d3nrm2
 
 
@@ -1803,10 +1601,6 @@ C       call shorbz(bas(1,ib),bas(1,ib),plat,qlat)
         call dcopy(3,wk(3,ibp),1,bas(1,ib),1)
       enddo
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine ordbas
 
 
@@ -1948,9 +1742,6 @@ C ---
 c                if (iprint().ge.70)
 c     .            call errmsg(' RSMESH: increase nirrmx.$',-1)
                 ierr=1
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
                 return
               endif
               jj=n0
@@ -2051,10 +1842,6 @@ C     .       /' and the last 12 values should be integer values.'/)
   402 format(' RSMESH: bad NRXYZ:',
      .       ' different step length along lattice vectors:',
      .       '|',8x,'STEP1=',f7.4,',  STEP1=',f7.4,',  STEP1=',f7.4,'$')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine rsmesh
 
 
@@ -2101,9 +1888,6 @@ C Intrinsic functions:
       vdiff(3)=vdiff(3)-dnint(vdiff(3)-d1mach(3))
       if (flag.eq.1) then
         call dcopy(3,vdiff,1,vec,1)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         return
       endif
 
@@ -2147,10 +1931,6 @@ C ----- Try shortening by adding basis vectors
           enddo
         enddo
       endif
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine reducv
 
 

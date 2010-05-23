@@ -1,9 +1,3 @@
-Cdelw1 var ['obot', '0', 'obot', 'nevx*nsp', 'real(8)', 'rv_w_', 'bzwts']
-Cdelw1 var ['otop', '0', 'otop', 'nevx*nsp', 'real(8)', 'rv_w_', 'bzwts']
-Cdelw1 var ['obmap', '1', 'obmap', '-(nevx*nsp*nkp/nbpw+1)', 'integer', 'iv_w_', 'bzwts']
-Cdelw1 var ['owk', '1', 'owk', 'nevx*nsp', 'real(8)', 'rv_w_', 'bzwts']
-Cdelw1 var ['odos', '1', 'odos', 'nspx*nptdos', 'real(8)', 'rv_w_', 'bzwts']
-Cdelw1 var ['otlst', '4', 'otlst', 'itmax', 'real(8)', 'rv_w_', 'bzwts']
       subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .  metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,sumev,
      .  wtkb,dosef,qval,ent)
@@ -66,25 +60,21 @@ C Passed parameters
       double precision zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
      .  wtkb(nevx,nsp,nkp),efmax,efermi,sumev,dosef(2),qval(2),ent
 C Local variables
-Cdelw1       integer it,itmax,odos,n,nptdos,nspx,nbmxx,nevxx,obot,otop,ib,ikp,
-Cdelw1      .  ipr,job,nbpw,obmap,owk,i1mach,nev,stdo,stdl,nglob,mkdlst,ifi,
-Cdelw1      .  fopna,i,j,lRy,procid,mpipid,master,nulli,isw
       integer:: it , itmax , n , nptdos , nspx , nbmxx , nevxx , ib 
      . , ikp , ipr , job , nbpw , i1mach , nev , stdo , stdl , nglob 
      . , mkdlst , ifi , fopna , i , j , lry , procid , mpipid , master 
      . , nulli , isw
-      real(8) ,allocatable :: rv_w_odos(:)
-      real(8) ,allocatable :: rv_w_obot(:)
-      real(8) ,allocatable :: rv_w_otop(:)
-      integer ,allocatable :: iv_w_obmap(:)
-      real(8) ,allocatable :: rv_w_owk(:)
+      real(8) ,allocatable :: dos_rv(:)
+      real(8) ,allocatable :: bot_rv(:)
+      real(8) ,allocatable :: top_rv(:)
+      integer ,allocatable :: bmap_iv(:)
+      real(8) ,allocatable :: wk_rv(:)
 
       double precision emin,emax,e1,e2,dum,tol,e,elo,ehi,sumwt,
      .  dmin,dmax,dval,egap,amom,dsum,cv,tRy
       character outs*100
       logical cmdopt,efrng2,lfill
-Cdelw1       integer otlst
-      real(8) ,allocatable :: rv_w_otlst(:)
+      real(8) ,allocatable :: tlst_rv(:)
 
       parameter (nulli=-99999)
 C Dynamic memory
@@ -102,13 +92,11 @@ C --- Locate band limits: lfill => insulator ---
       n = isign(1,norder) * mod(iabs(norder),100)
       stdo = nglob('stdo')
       stdl = nglob('stdl')
-Cdelw1       call defdr(obot,nevx*nsp)
-      allocate(rv_w_obot(nevx*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nevx*nsp<0) rv_w_obot(:)=0.0d0
+      allocate(bot_rv(nevx*nsp))
+Ctakao_ZeroClear_NotRequiered        if (nevx*nsp<0) bot_rv(:)=0.0d0
 
-Cdelw1       call defdr(otop,nevx*nsp)
-      allocate(rv_w_otop(nevx*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nevx*nsp<0) rv_w_otop(:)=0.0d0
+      allocate(top_rv(nevx*nsp))
+Ctakao_ZeroClear_NotRequiered        if (nevx*nsp<0) top_rv(:)=0.0d0
 
       nspx  = 1
       nevxx = nevx*nsp
@@ -129,44 +117,33 @@ C     job = 1 for non spin pol, -1 for spin pol
 C     Force coupled spins: find range
       if (nspx .ne. nsp .and. nspc .eq. 1) then
         nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
-Cdelw1         call defi(obmap,-(nevx*nsp*nkp/nbpw+1))
-        allocate(iv_w_obmap(abs(-(nevx*nsp*nkp/nbpw+1))))
-        if (-(nevx*nsp*nkp/nbpw+1)<0) iv_w_obmap(:)=0
+        allocate(bmap_iv(abs(-(nevx*nsp*nkp/nbpw+1))))
+        if (-(nevx*nsp*nkp/nbpw+1)<0) bmap_iv(:)=0
 
-Cdelw1         call defdr(owk, nevx*nsp)
-        allocate(rv_w_owk(nevx*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) rv_w_owk(:)=0.0d0
+        allocate(wk_rv(nevx*nsp))
+Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) wk_rv(:)=0.0d0
 
-Cdelw1         call ebcpl(0,nbmx,nevx,nsp,nspc,nkp,nbpw,w(obmap),w(owk),eb)
-        call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , iv_w_obmap 
-     .   , rv_w_owk , eb )
+        call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
+     .   , wk_rv , eb )
 
-Cdelw1         lfill = efrng2(nspx,nkp,nbmxx,nevxx,zval*2,eb,w(obot),w(otop),
-Cdelw1      .    elo,ehi,emin,emax)
         lfill = efrng2 ( nspx , nkp , nbmxx , nevxx , zval * 2 , eb , 
-     .   rv_w_obot , rv_w_otop , elo , ehi , emin , emax )
+     .   bot_rv , top_rv , elo , ehi , emin , emax )
 
-Cdelw1         call ebcpl(1,nbmx,nevx,nsp,nspc,nkp,nbpw,w(obmap),w(owk),eb)
-        call ebcpl ( 1 , nbmx , nevx , nsp , nspc , nkp , nbpw , iv_w_obmap 
-     .   , rv_w_owk , eb )
+        call ebcpl ( 1 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
+     .   , wk_rv , eb )
 
 C     Spins not coupled: find range
       else
-Cdelw1         lfill = efrng2(nspx,nkp,nbmxx,nevxx,nspc*zval,eb,w(obot),
-Cdelw1      .    w(otop),elo,ehi,emin,emax)
         lfill = efrng2 ( nspx , nkp , nbmxx , nevxx , nspc * zval , eb 
-     .   , rv_w_obot , rv_w_otop , elo , ehi , emin , emax )
+     .   , bot_rv , top_rv , elo , ehi , emin , emax )
 
       endif
 C ... Bands never filled if 100s digit norder set
       if (.not. tetra .and. iabs(norder) .ge. 100) lfill = .false.
-Cdelw1 rlse name= obot old_list= obot otop obmap owk
-Cdelw1 rlse name= obot new_list= (None)
-Cdelw1       call rlse(obot)
-      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-      if (allocated(iv_w_obmap)) deallocate(iv_w_obmap)
-      if (allocated(rv_w_otop)) deallocate(rv_w_otop)
-      if (allocated(rv_w_obot)) deallocate(rv_w_obot)
+      if (allocated(wk_rv)) deallocate(wk_rv)
+      if (allocated(bmap_iv)) deallocate(bmap_iv)
+      if (allocated(top_rv)) deallocate(top_rv)
+      if (allocated(bot_rv)) deallocate(bot_rv)
 
 C ... Case an insulator: put efermi at emin + tiny number
       if (lfill) then
@@ -179,17 +156,14 @@ C ... Do the best we can should be a metal, but assumption that it isn't
 C ... Pretend as though spin-pol bands are coupled to find E_f
       if (nsp .eq. 2 .and. nspc .eq. 1 .and. job .eq. -1) then
         nbpw = int(dlog(dble(i1mach(9))+1d0)/dlog(2d0))
-Cdelw1         call defi(obmap,-(nevx*nsp*nkp/nbpw+1))
-        allocate(iv_w_obmap(abs(-(nevx*nsp*nkp/nbpw+1))))
-        if (-(nevx*nsp*nkp/nbpw+1)<0) iv_w_obmap(:)=0
+        allocate(bmap_iv(abs(-(nevx*nsp*nkp/nbpw+1))))
+        if (-(nevx*nsp*nkp/nbpw+1)<0) bmap_iv(:)=0
 
-Cdelw1         call defdr(owk, nevx*nsp)
-        allocate(rv_w_owk(nevx*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) rv_w_owk(:)=0.0d0
+        allocate(wk_rv(nevx*nsp))
+Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) wk_rv(:)=0.0d0
 
-Cdelw1         call ebcpl(0,nbmx,nevx,nsp,nspc,nkp,nbpw,w(obmap),w(owk),eb)
-        call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , iv_w_obmap 
-     .   , rv_w_owk , eb )
+        call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
+     .   , wk_rv , eb )
 
       endif
 
@@ -237,32 +211,25 @@ C --- BZ weights, sumev and E_f by tetrahedron method (Blochl wts) ---
           goto 2
         endif
         nptdos = 101
-Cdelw1         call defdr(odos,nspx*nptdos)
-        allocate(rv_w_odos(nspx*nptdos))
-Ctakao_ZeroClear_NotRequiered          if (nspx*nptdos<0) rv_w_odos(:)=0.0d0
+        allocate(dos_rv(nspx*nptdos))
+Ctakao_ZeroClear_NotRequiered          if (nspx*nptdos<0) dos_rv(:)=0.0d0
 
         tol = 1d-6
 C       Preliminary check that dos lies within emin,emax
 C       Widen emin,emax if not
         if (.not. lfill) then
-Cdelw1           call bzints(n1,n2,n3,eb,dum,nkp,nevxx,nbmxx,nspx,
-Cdelw1      .      emin,emax,w(odos),nptdos,efermi,job,ntet,idtet,sumev,qval)
           call bzints ( n1 , n2 , n3 , eb , dum , nkp , nevxx , nbmxx , 
-     .     nspx , emin , emax , rv_w_odos , nptdos , efermi , job , ntet 
+     .     nspx , emin , emax , dos_rv , nptdos , efermi , job , ntet 
      .     , idtet , sumev , qval )
 
-Cdelw1           dmin = dval(w(odos),1)
-          dmin = dval ( rv_w_odos , 1 )
+          dmin = dval ( dos_rv , 1 )
 
-Cdelw1           if (nspx .eq. 2) dmin = dmin + dval(w(odos),nptdos+1)
-          if ( nspx .eq. 2 ) dmin = dmin + dval ( rv_w_odos , nptdos + 
+          if ( nspx .eq. 2 ) dmin = dmin + dval ( dos_rv , nptdos + 
      .     1 )
 
-Cdelw1           dmax = dval(w(odos),nptdos)
-          dmax = dval ( rv_w_odos , nptdos )
+          dmax = dval ( dos_rv , nptdos )
 
-Cdelw1           if (nspx .eq. 2) dmax = dmax + dval(w(odos),nptdos+nptdos)
-          if ( nspx .eq. 2 ) dmax = dmax + dval ( rv_w_odos , nptdos + 
+          if ( nspx .eq. 2 ) dmax = dmax + dval ( dos_rv , nptdos + 
      .     nptdos )
 
           if (dmin .gt. zval) then
@@ -282,15 +249,11 @@ Cdelw1           if (nspx .eq. 2) dmax = dmax + dval(w(odos),nptdos+nptdos)
 
         itmax = 5
         do   it = 1, itmax
-Cdelw1           call bzints(n1,n2,n3,eb,dum,nkp,nevxx,nbmxx,nspx,
-Cdelw1      .      emin,emax,w(odos),nptdos,efermi,job,ntet,idtet,sumev,qval)
           call bzints ( n1 , n2 , n3 , eb , dum , nkp , nevxx , nbmxx , 
-     .     nspx , emin , emax , rv_w_odos , nptdos , efermi , job , ntet 
+     .     nspx , emin , emax , dos_rv , nptdos , efermi , job , ntet 
      .     , idtet , sumev , qval )
 
-Cdelw1           call fermi(zval,w(odos),nptdos,emin,emax,nspx,
-Cdelw1      .      efermi,emin,emax,dosef)
-          call fermi ( zval , rv_w_odos , nptdos , emin , emax , nspx , 
+          call fermi ( zval , dos_rv , nptdos , emin , emax , nspx , 
      .     efermi , emin , emax , dosef )
 
           if (ipr .ge. 35)
@@ -302,10 +265,7 @@ Cdelw1      .      efermi,emin,emax,dosef)
      .    call awrit2(' BZWTS (warning): Fermi energy not converged: '//
      .    '%g > tol=%g',' ',80,i1mach(2),emax-emin,tol)
     1   continue
-Cdelw1 rlse name= odos old_list= obmap owk odos
-Cdelw1 rlse name= odos new_list= obmap owk
-Cdelw1         call rlse(odos)
-        if (allocated(rv_w_odos)) deallocate(rv_w_odos)
+        if (allocated(dos_rv)) deallocate(dos_rv)
 
     2   continue
         call bzints(n1,n2,n3,eb,wtkb,nkp,nevxx,nbmxx,
@@ -347,29 +307,21 @@ C   ... Find Fermi level, sampling
           enddo
           call info0(10,0,0,' BZWTS (warning): '//
      .      'cannot find E_F by bisection, using INTNOS')
-Cdelw1           call defdr(odos,nspx*npts)
-          allocate(rv_w_odos(nspx*npts))
-Ctakao_ZeroClear_NotRequiered            if (nspx*npts<0) rv_w_odos(:)=0.0d0
+          allocate(dos_rv(nspx*npts))
+Ctakao_ZeroClear_NotRequiered            if (nspx*npts<0) dos_rv(:)=0.0d0
 
           emin = elo - rnge*width/2
           emax = emax + rnge*width/2
-Cdelw1           call maknos(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,width,-rnge,
-Cdelw1      .                emin,emax,npts,w(odos))
           call maknos ( nkp , nevxx , nbmxx , nspx , wtkp , eb , n , width 
-     .     , - rnge , emin , emax , npts , rv_w_odos )
+     .     , - rnge , emin , emax , npts , dos_rv )
 
-Cdelw1           if (nspx.eq.2) call dpsadd(w(odos),w(odos),npts,1,npts+1,1d0)
-          if ( nspx.eq.2 ) call dpsadd ( rv_w_odos , rv_w_odos , npts , 
+          if ( nspx.eq.2 ) call dpsadd ( dos_rv , dos_rv , npts , 
      .     1 , npts + 1 , 1d0 )
 
-Cdelw1           call intnos(npts,w(odos),emin,emax,zval,efermi,dosef,sumev)
-          call intnos ( npts , rv_w_odos , emin , emax , zval , efermi 
+          call intnos ( npts , dos_rv , emin , emax , zval , efermi 
      .     , dosef , sumev )
 
-Cdelw1 rlse name= odos old_list= obmap owk odos
-Cdelw1 rlse name= odos new_list= obmap owk
-Cdelw1           call rlse(odos)
-          if (allocated(rv_w_odos)) deallocate(rv_w_odos)
+          if (allocated(dos_rv)) deallocate(dos_rv)
 
     3     continue
         else
@@ -396,15 +348,13 @@ C   ... (optional) Tabulate specific heat in file for list of T's
             endif
             itmax = mkdlst(outs(i:),1d-8,-1,w)
             if (itmax .gt. 0) then
-Cdelw1           call defrr(otlst,itmax)
-              allocate(rv_w_otlst(itmax))
-Ctakao_ZeroClear_NotRequiered            if (itmax<0) rv_w_otlst(:)=0.0d0
+              allocate(tlst_rv(itmax))
+Ctakao_ZeroClear_NotRequiered            if (itmax<0) tlst_rv(:)=0.0d0
 
               call word(outs,1,it,j)
               call info2(20,0,0,' Writing CV(T) to file for %i vals of T: '
      .      //outs(i:j)//' %?#(n==1)#(Ry)#(K)#',itmax,lRy)
-Cdelw1           it = mkdlst(outs(i:),1d-8,itmax+1,w(otlst))
-              it = mkdlst ( outs ( i: ) , 1d - 8 , itmax + 1 , rv_w_otlst )
+              it = mkdlst ( outs ( i: ) , 1d - 8 , itmax + 1 , tlst_rv )
 
               if (it .ne. itmax) call rx('bzwts: bug in mkdlst')
               ifi = fopna('cv',-1,0)
@@ -412,8 +362,7 @@ Cdelw1           it = mkdlst(outs(i:),1d-8,itmax+1,w(otlst))
               call awrit1('%% rows %i cols 4%N'//
      .      '#    T(K)    T(Ry)   S(k_B)   TdS/dT(k_B)',' ',80,ifi,it)
               do  it = 1, itmax
-Cdelw1             tRy = dval(w(otlst),it)
-                try = dval ( rv_w_otlst , it )
+                try = dval ( tlst_rv , it )
 
                 if (lRy .eq. 0) then
                   tRy = tRy/0.1579d6
@@ -442,21 +391,15 @@ C   ... Put back spin degeneracy if removed
 
 C ... Restore to uncoupled bands; ditto with weights
       if (nsp .eq. 2 .and. nspc .eq. 1 .and. job .eq. -1) then
-Cdelw1         call ebcpl(1,nbmx,nevx,nsp,nspc,nkp,nbpw,w(obmap),w(owk),eb)
-        call ebcpl ( 1 , nbmx , nevx , nsp , nspc , nkp , nbpw , iv_w_obmap 
-     .   , rv_w_owk , eb )
+        call ebcpl ( 1 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
+     .   , wk_rv , eb )
 
-Cdelw1         if (metal)
-Cdelw1      .  call ebcpl(1,nevx,nevx,nsp,nspc,nkp,nbpw,w(obmap),w(owk),wtkb)
         if ( metal ) call ebcpl ( 1 , nevx , nevx , nsp , nspc , nkp 
-     .   , nbpw , iv_w_obmap , rv_w_owk , wtkb )
+     .   , nbpw , bmap_iv , wk_rv , wtkb )
 
-Cdelw1 rlse name= obmap old_list= obmap owk otlst
-Cdelw1 rlse name= obmap new_list= (None)
-Cdelw1         call rlse(obmap)
-        if (allocated(rv_w_otlst)) deallocate(rv_w_otlst)
-        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-        if (allocated(iv_w_obmap)) deallocate(iv_w_obmap)
+        if (allocated(tlst_rv)) deallocate(tlst_rv)
+        if (allocated(wk_rv)) deallocate(wk_rv)
+        if (allocated(bmap_iv)) deallocate(bmap_iv)
 
       endif
 
@@ -495,9 +438,6 @@ C ... Check that efmax is above efermi ...
 
       call tcx('bzwts')
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 
       subroutine ebcpl(mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap,wk,eb)
@@ -528,9 +468,6 @@ C     implicit none
       double precision eb(nbmx,nsp,nq),wk(nbmx*nsp)
       integer ib,iq,ib1,ib2,iqb,iget
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (nsp .eq. 1 .or. nspc .eq. 2) return
 
 C --- Gather bands at each qp ---
@@ -591,9 +528,6 @@ C    .      ib1,ib2)
   110   continue
       endif
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine mark1(bitmap, nbpw, n)
 C- put a one in the nth bit of bitmap.
@@ -612,9 +546,6 @@ C Local parameters
       nbit = mod(n-1,nbpw)
       i = 2**(nbpw-nbit-1)
       bitmap(nword+1) = bitmap(nword+1) + i*(1-mod(bitmap(nword+1)/i,2))
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 
       integer function iget(bitmap, nbpw, n)
@@ -630,8 +561,5 @@ C Local parameters
       nword = (n-1)/nbpw
       nbit = mod(n-1,nbpw)
       iget = mod(bitmap(nword+1)/2**(nbpw-nbit-1),2)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 

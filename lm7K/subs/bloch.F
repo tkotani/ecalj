@@ -337,7 +337,6 @@ C       call snott(isite,sll,ld21,cost)
       endif
 
       call tcx('bloch')
-Cgetarg       end
       end subroutine bloch
 
 
@@ -597,7 +596,6 @@ C   ... Loop over augmentation orbitals, case real-space s is real
 
       endif
 
-Cgetarg       end
       end subroutine pblch1
 
 

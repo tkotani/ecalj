@@ -1,21 +1,3 @@
-Cdelw1 var ['og', '-1', 'undef', '0', 'undef', 'x', 'sugw']
-Cdelw1 var ['oiprmb', '-1', 'undef', '0', 'undef', 'x', 'sugw']
-Cdelw1 var ['ov0', '-1', 'undef', '0', 'undef', 'x', 'sugw']
-Cdelw1 var ['oigv2', '2', 'oigv2', '3*napw', 'integer', 'iv_w_', 'sugw']
-Cdelw1 var ['okv', '2', 'okv', '3*napw', 'integer', 'iv_w_', 'sugw']
-Cdelw1 var ['oqsig', '-1', 'undef', '0', 'undef', 'x', 'sugw']
-Cdelw1 var ['oww', '4', 'oww', '11*ndimh', 'real(8)', 'rv_w_', 'sugw']
-Cdelw1 var ['oaus', '3', 'oaus', '-nlmax*ndham*3*nsp*nbas', 'complex(8)', 'zv_w_', 'sugw']
-Cdelw1 undel [['undef', 'wref'], 'og', 'sugw']
-Cdelw1 undel [['undef', 'wref'], 'oiprmb', 'sugw']
-Cdelw1 undel [['undef', 'wref'], 'ov0', 'sugw']
-Cdelw1 undel [['undef', 'wref'], 'oqsig', 'sugw']
-Cdelw1 undel [['wref'], 'oigv2', 'sugw']
-Cgetarg...info...           structure ['sugw', 'lat', 'slat']
-Cgetarg...info...           structure ['sugw', 'ham', 'sham']
-Cgetarg...info...           structure ['sugw', 'site', 'ssite']
-Cgetarg...info...           structure ['sugw', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['sugw', 'm_struc_def']
 #define V2 1
       subroutine sugw(ssite,sspec,slat,sham,nbas,ndham,
      .  smpot,vconst,lcplxp,osig,otau,oppi,ppn,vrmt,
@@ -159,8 +141,6 @@ C ... Passed parameters
       parameter (n0=10, nppn=12, nkap0=3)
       integer jobgw,osig(3,nbas),otau(3,nbas),oppi(3,nbas),lh(n0)
       integer osigx(3,nbas),otaux(3,nbas),oppix(3,nbas)
-Cgetarg       real(8) ssite(1),sspec(1),slat(1),sham(1),rsml(n0),ehl(n0),
-Cgetarg      .  ppn(nppn,n0,nbas),vconst,smpot(1),spotx(1),vrmt(nbas)
       real(8):: rsml(n0) , ehl(n0) , ppn(nppn,n0,nbas) , vconst , smpot(1) 
      . , spotx(1) , vrmt(nbas)
       type(s_site)::ssite(*)
@@ -181,13 +161,9 @@ C ... Local parameters
      .  nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,nsp,nspc,
      .  stdo
 C     integer lshft(3)
-Cdelw1 do not change  [['undef', 'wref'], 'og', 'sugw']
-Cdelw1 do not change  [['undef', 'wref'], 'oiprmb', 'sugw']
-Cdelw1 do not change  [['undef', 'wref'], 'ov0', 'sugw']
-Cdelw1       integer oaus,og,oiprmb,ov0,oww
       integer:: og , oiprmb , ov0
-      complex(8) ,allocatable :: zv_w_oaus(:)
-      real(8) ,allocatable :: rv_w_oww(:)
+      complex(8) ,allocatable :: aus_zv(:)
+      real(8) ,allocatable :: ww_rv(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       equivalence (ldim,ldham(1,1))
@@ -214,17 +190,14 @@ Cdelw1       integer oaus,og,oiprmb,ov0,oww
 #endif
 
 C ... For PW basis
-Cdelw1 do not change  [['wref'], 'oigv2', 'sugw']
-Cdelw1       integer oigv2,okv
       integer:: oigv2
-      integer ,allocatable :: iv_w_okv(:)
+      integer ,allocatable :: kv_iv(:)
 
       integer pwmode,napw
       double precision pwemin,pwemax,pwgmin,pwgmax,eomin
 
 C ... for reading self-energy
       integer nqsig
-Cdelw1 do not change  [['undef', 'wref'], 'oqsig', 'sugw']
       integer oqsig
 
 C ... for band plotting
@@ -256,11 +229,6 @@ C ... Heap
 C --- Setup ---
       print *,'sugw:'
       call getpr(ipr)
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
-Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
-Cgetarg       call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
 
       alat=slat%alat
       i_copy_size=size(slat%plat)
@@ -270,20 +238,12 @@ Cgetarg       call upack('lat alat plat qlat nabc',slat,alat,plat,qlat,ngabc,0)
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
-Cgetarg...info...           real(8) :: gmax , real(8) :: slat%gmax 1
-Cgetarg       call upack1('lat gmax',slat,gmax)
 
       gmax=slat%gmax
 
-Cgetarg...info...           integer :: npgrp , integer(8) :: slat%npgrp 1
-Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
-Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
-Cgetarg       call upack('lat npgrp nsgrp osymgr',slat,npgrp,nsgrp,og,0,0)
 
       npgrp=slat%npgrp
       nsgrp=slat%nsgrp
-Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 260
-Cdelw1 do not change og because of ['undef', 'wref']
       og=slat%osymgr
 
       call fftz30(n1,n2,n3,k1,k2,k3)
@@ -291,23 +251,15 @@ Cdelw1 do not change og because of ['undef', 'wref']
       lchk = 1
       nsp  = nglob('nsp')
       nspc = nglob('nspc')
-Cgetarg       lrsig= igets('ham lsig',sham)
       lrsig = int(sham%lsig)
 
       lwvxc = .not. cmdopt('--novxc',7,0,strn)
       lsig = 1
 C     lsig = 0
-Cgetarg...info...           integer :: nqsig , integer(8) :: sham%nqsig 1
-Cgetarg...info...           integer :: oqsig , integer(8) :: sham%oqsig 1
-Cgetarg       call upack2('ham nqsig oqsig',sham,nqsig,oqsig)
 
       nqsig=sham%nqsig
-Cdelw1 warning(1) , probably  oqsig  is not defined yet at linenumber= 278
-Cdelw1 do not change oqsig because of ['undef', 'wref']
       oqsig=sham%oqsig
 
-Cdelw1 warning(1) , probably  oqsig  is not defined yet at linenumber= 280
-Cdelw1 do not change oqsig because of ['undef', 'wref']
       if (oqsig .eq. 0) oqsig = 1
 C     lshft(1) = 0
 C     lshft(2) = 0
@@ -328,12 +280,9 @@ C     for now
 C ... Count number of atoms : exclude floating orbitals
       nat = 0
       do  i = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg         call upack('site spec',ssite,i,is,0,0,0)
 
         is=ssite(i)%spec
 
-Cgetarg         lmaxa = igetss('spec lmxa',is,sspec)
         lmaxa = int(sspec(is)%lmxa)
 
         if (lmaxa .gt. -1) then
@@ -372,19 +321,9 @@ Cgetarg         lmaxa = igetss('spec lmxa',is,sspec)
       if (bandmode) lsig=0
 
       napw = 0
-Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
-Cgetarg       call upack('ham oindxo',sham,oiprmb,0,0,0,0)
 
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 347
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
       oiprmb=sham%oindxo
 
-Cgetarg...info...           integer :: ldham(8,2) , integer(8) :: sham%ldham 16
-Cgetarg...info...           integer :: pwmode , integer(8) :: sham%pwmode 1
-Cgetarg...info...           real(8) :: pwemin , real(8) :: sham%pwemin 1
-Cgetarg...info...           real(8) :: pwemax , real(8) :: sham%pwemax 1
-Cgetarg       call upack('ham ldham pwmode pwemin pwemax',sham,ldham,pwmode,
-Cgetarg      .  pwemin,pwemax,0)
 
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
@@ -398,14 +337,9 @@ C ... Generate ndima
       ndima = 0
       lmxax = -1
       do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg         call upack2('site spec',ssite,ib,is)
 
         is=ssite(ib)%spec
 
-Cgetarg...info...           integer :: lmaxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
-Cgetarg         call upack('spec lmxa pz',sspec,is,lmaxa,pnz,0,0)
 
         lmaxa=sspec(is)%lmxa
         i_copy_size=size(sspec(is)%pz)
@@ -426,12 +360,9 @@ C --- Make files SYMOPS, LATTC, CLASS, NLAindx, ldima ---
         call info(30,1,1,
      .    ' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
 C   ... Create file SYMOPS
-Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 396
-Cdelw1 do not change og because of ['undef', 'wref']
         call wsymops(w(og),nsgrp)
 C   ... Create file LATTC
         allocate(ips(nbas),lmxa(nbas),bas(3,nbas))
-Cgetarg         call spackv(10,'site spec',ssite,1,nbas,ips)
         i_copy_size=1;
         do i_spackv=1,nbas
           call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
@@ -440,12 +371,9 @@ Cgetarg         call spackv(10,'site spec',ssite,1,nbas,ips)
         ifi = fopnx('ldima',2,2,-1)
         rewind ifi
         do  i = 1, nbas
-Cgetarg           lmxa(i) = igetss('spec lmxa',ips(i),sspec)
           lmxa ( i ) = int(sspec(ips(i))%lmxa)
 
           if (lmxa(i) .gt. -1) then
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 412
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
             call orbl(i,0,ldim,w(oiprmb),norb,ltab,ktab,xx,offl,i1)
             write(ifi,"(3i10)") i1
           endif
@@ -454,10 +382,6 @@ Cdelw1 do not change oiprmb because of ['undef', 'wref']
         lmxax = mxint(nbas,lmxa)
         allocate(konft(0:lmxax,nbas,nsp))
         do  i = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
-Cgetarg           call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
 
           is=ssite(i)%spec
           i_copy_size=size(ssite(i)%pnu)
@@ -484,17 +408,9 @@ C   ... Create file NLAindx
 C       This loop order is backwardly compatible with prior versions
         do  ipqn = 1, 3
           do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg             call upack2('site spec',ssite,ib,is)
 
             is=ssite(ib)%spec
 
-Cgetarg...info...           integer :: lmaxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
-Cgetarg...info...           integer :: idxdn(n0,nkap0) , integer(8) :: sspec%idxdn 30
-Cgetarg             call upack('spec lmxa p pz idxdn',sspec,is,lmaxa,pnu,pnz,
-Cgetarg      .        idxdn)
 
             lmaxa=sspec(is)%lmxa
             i_copy_size=size(sspec(is)%p)
@@ -530,7 +446,6 @@ C   ... Create file CLASS
         ifi = fopnx('CLASS',2,2,-1)
         rewind ifi
         allocate(ipc(nbas),ipcx(nbas))
-Cgetarg         call spackv(10,'site class',ssite,1,nbas,ipc)
         i_copy_size=1;
         do i_spackv=1,nbas
           call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,ipc)
@@ -583,7 +498,6 @@ C       write(ifi) nbas,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum !takao 200
         write(ifi) nbas,nsp,nchan,ndham,alat,qlat,ef0,n1q,n2q,n3q,plat
 #endif
         allocate(ips(nbas),lmxa(nat),bas(3,nat))
-Cgetarg         call spackv(10,'site spec',ssite,1,nbas,ips)
         i_copy_size=1;
         do i_spackv=1,nbas
           call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
@@ -592,14 +506,11 @@ Cgetarg         call spackv(10,'site spec',ssite,1,nbas,ips)
 C       call spackv(10,'site pos',ssite,1,nbas,bas)
         iat = 0
         do  i = 1, nbas
-Cgetarg           lmaxa = igetss('spec lmxa',ips(i),sspec)
           lmaxa = int(sspec(ips(i))%lmxa)
 
           if (lmaxa .gt. -1) then
             iat = iat + 1
             if (iat .gt. nat) call rx('bug in sugw')
-Cgetarg...info...           real(8) :: bas(:,:) , real(8) :: ssite%pos 3
-Cgetarg             call upack('site pos',ssite,i,bas(1,iat),0,0,0)
 
             i_copy_size=size(ssite(i)%pos)
             call dcopy(i_copy_size,ssite(i)%pos,1,bas(1,iat),1)
@@ -613,10 +524,6 @@ Cgetarg             call upack('site pos',ssite,i,bas(1,iat),0,0,0)
 C   ... Determine nphimx
         nphimx = 0
         do  i = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
-Cgetarg           call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
 
           is=ssite(i)%spec
           i_copy_size=size(ssite(i)%pnu)
@@ -624,18 +531,12 @@ Cgetarg           call upack('site spec pnu pz',ssite,i,is,pnu,pnz,0)
           i_copy_size=size(ssite(i)%pz)
           call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1)
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg...info...           real(8) :: rmt(nbas) , real(8) :: sspec%rmt 1
-Cgetarg           call upack('spec a nr z rmt',sspec,is,a,nr,z,rmt(i))
 
           a=sspec(is)%a
           nr=sspec(is)%nr
           z=sspec(is)%z
           rmt(i)=sspec(is)%rmt
 
-Cgetarg           lmaxa = igetss('spec lmxa',is,sspec)
           lmaxa = int(sspec(is)%lmxa)
 
           if (lmaxa .gt. -1) then
@@ -657,38 +558,23 @@ C   ... Atom data (gwa)
         ifi = fopna('gwa',-1,4)
         rewind ifi
         do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
-Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
-Cgetarg           call upack('site spec pnu pz ov0',ssite,ib,is,pnu,pnz,ov0)
 
           is=ssite(ib)%spec
           i_copy_size=size(ssite(ib)%pnu)
           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 634
-Cdelw1 do not change ov0 because of ['undef', 'wref']
           ov0=ssite(ib)%ov0
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg...info...           real(8) :: rmt(nbas) , real(8) :: sspec%rmt 1
-Cgetarg           call upack('spec a nr z rmt',sspec,is,a,nr,z,rmt(ib))
 
           a=sspec(is)%a
           nr=sspec(is)%nr
           z=sspec(is)%z
           rmt(ib)=sspec(is)%rmt
 
-Cgetarg           lmaxa = igetss('spec lmxa',is,sspec)
           lmaxa = int(sspec(is)%lmxa)
 
           if (lmaxa .gt. -1) then
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 651
-Cdelw1 do not change ov0 because of ['undef', 'wref']
             call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
      .      i1,ncore,konfig,ecore,w,w)
             allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
@@ -696,8 +582,6 @@ Cdelw1 do not change ov0 because of ['undef', 'wref']
             call dpzero(gval,nr*2*(1+lmaxa)*nphimx*nsp)
 C         Create augmented wave functions for this atom
             call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 658
-Cdelw1 do not change ov0 because of ['undef', 'wref']
             call atwf(03,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
      .      nphimx,ncore,konfig,ecore,gcore,gval)
 C         Header data for this atom
@@ -953,24 +837,15 @@ c          call pshpr(101)
           call gvlst2(alat,plat,xx,0,0,0,pwgmin,pwgmax,0,
      .      0,0,napw,dum,dum,dum,dum)
           call poppr
-Cdelw1 do not change oigv2 because of ['wref']
           call defi(oigv2,3*napw)
-Cdelw1           call defi(okv,3*napw)
-          allocate(iv_w_okv(3*napw))
-Ctakao_ZeroClear_NotRequiered            if (3*napw<0) iv_w_okv(:)=0
+          allocate(kv_iv(3*napw))
+Ctakao_ZeroClear_NotRequiered            if (3*napw<0) kv_iv(:)=0
 
           call pshpr(iprint()-10)
-Cdelw1 do not change oigv2 because of ['wref']
-Cdelw1 do not change oigv2 because of ['wref']
-Cdelw1           call gvlst2(alat,plat,xx,0,0,0,pwgmin,pwgmax,0,
-Cdelw1      .      2,0,napw,w(okv),dum,dum,w(oigv2))
           call gvlst2 ( alat , plat , xx , 0 , 0 , 0 , pwgmin , pwgmax 
-     .     , 0 , 2 , 0 , napw , iv_w_okv , dum , dum , w ( oigv2 ) )
+     .     , 0 , 2 , 0 , napw , kv_iv , dum , dum , w ( oigv2 ) )
 
-Cdelw1 rlse name= okv old_list= oigv2 okv
-Cdelw1 rlse name= okv new_list= oigv2
-Cdelw1           call rlse(okv)
-          if (allocated(iv_w_okv)) deallocate(iv_w_okv)
+          if (allocated(kv_iv)) deallocate(kv_iv)
 
 cc          call poppr
           call poppr
@@ -983,7 +858,6 @@ cc          call poppr
           endif
         else
           ndimh = ldim
-Cdelw1 do not change oigv2 because of ['wref']
           oigv2 = 1
         endif
 
@@ -1002,12 +876,10 @@ c$$$        endif
 
 C   --- vxc <- LDA Hamiltonian without vxc for this qp ---
           alfa = 0
-Cdelw1 do not change oigv2 because of ['wref']
           call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,spotx,
      .    vconst,osigx,otaux,oppix,lcplxp,alfa,ndimh,napw,w(oigv2),
      .    vxc,ovl,w)
 C   --- LDA Hamiltonian and overlap matrices for this qp ---
-Cdelw1 do not change oigv2 because of ['wref']
           call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,smpot,
      .    vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,w(oigv2),ham,
      .    ovl,w)
@@ -1031,9 +903,6 @@ C   --- LDA + sigma Hamiltonian for this qp ---
           lpdiag = 0
           i = lrsig*10 + 1
           ispc = min(isp,nspc)
-Cdelw1 do not change oigv2 because of ['wref']
-Cdelw1 warning(1) , probably  oqsig  is not defined yet at linenumber= 975
-Cdelw1 do not change oqsig because of ['undef', 'wref']
           call hambls(i,nbas,ssite,sspec,slat,sham,isp,ispc,qp,k1,k2,k3,
      .    w(oqsig),nqsig,smpot,vconst,osig,otau,oppi,lcplxp,0,alfa,
      .    ndimh,napw,w(oigv2),ham,ovl,i2)
@@ -1056,39 +925,31 @@ C            call sopert(0,ndimh,nspc,w(oww),w(os),w(os))
 C            call rlse(oww)
               endif
 C         call diagcv(ovl,ham,evec,ndimh,evl(1,isp),ndimh,1d60,nev)
-Cdelw1           call defrr(oww,  11*ndimh)
-              allocate(rv_w_oww(11*ndimh))
-Ctakao_ZeroClear_NotRequiered            if (11*ndimh<0) rv_w_oww(:)=0.0d0
+              allocate(ww_rv(11*ndimh))
+Ctakao_ZeroClear_NotRequiered            if (11*ndimh<0) ww_rv(:)=0.0d0
 
-Cgetarg           epsovl = dgets('ham oveps',sham)
               epsovl = sham%oveps
 
               if (epsovl .le. 0) then
-Cdelw1             call zhev(ndimh,ham,ovl,.true.,.true.,ndimh,1d60,nev,w(oww),
-Cdelw1      .        .false.,-1,evl(1,isp),evec)
                 call zhev ( ndimh , ham , ovl , .true. , .true. , ndimh , 1d60 
-     .       , nev , rv_w_oww , .false. , - 1 , evl ( 1 , isp ) , evec )
+     .       , nev , ww_rv , .false. , - 1 , evl ( 1 , isp ) , evec )
 
               else
                 nevl = -1
-Cdelw1             call dvset(w(oww),1,1,99999d0)
-                call dvset ( rv_w_oww , 1 , 1 , 99999d0 )
+                call dvset ( ww_rv , 1 , 1 , 99999d0 )
 
-Cdelw1             call zhevo(ndimh,ndimh,ham,ovl,.true.,ndimh,1d60,epsovl,
-Cdelw1      .        nevl,nev,evl(1,isp),w(oww),ndimh,evec)
                 call zhevo ( ndimh , ndimh , ham , ovl , .true. , ndimh , 1d60 
-     .       , epsovl , nevl , nev , evl ( 1 , isp ) , rv_w_oww , ndimh , 
+     .       , epsovl , nevl , nev , evl ( 1 , isp ) , ww_rv , ndimh , 
      .         evec )
 
-Cdelw1             eomin = dval(w(oww),1)
-                eomin = dval ( rv_w_oww , 1 )
+                eomin = dval ( ww_rv , 1 )
 
                 call info5(30,0,0,
      .        ' Overlap''s smallest eigenvalue: %;3g.  '//
      .        '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
      .        eomin,ndimh-nevl,ndimh,nevl,0)
               endif
-              deallocate(rv_w_oww)
+              deallocate(ww_rv)
 
               call prtev(evec,ndimh,evl(1,isp),ndimh,1d60,nev)
             elseif (lpdiag .eq. 2) then
@@ -1205,28 +1066,18 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C   --- Project wf into augmentation spheres, Kotani conventions ---
             nlmax = nglob('mxorb') / nglob('nkaph')
-Cdelw1         call defcc(oaus,-nlmax*ndham*3*nsp*nbas)
-            allocate(zv_w_oaus(abs(-nlmax*ndham*3*nsp*nbas)))
-            if (-nlmax*ndham*3*nsp*nbas<0) zv_w_oaus(:)=0.0d0
+            allocate(aus_zv(abs(-nlmax*ndham*3*nsp*nbas)))
+            if (-nlmax*ndham*3*nsp*nbas<0) aus_zv(:)=0.0d0
 
-Cdelw1 do not change oigv2 because of ['wref']
-Cdelw1 do not change oigv2 because of ['wref']
-Cdelw1         call makusq(1,ssite,sspec,slat,sham,nbas,nbas,0,nlmax,ndham,
-Cdelw1      .    ndimh,napw,w(oigv2),nev,nsp,nspc,isp,1,qp,evec,ppn,w(oaus))
             call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
      .   0 , nlmax , ndham , ndimh , napw , w ( oigv2 ) , nev , nsp , 
-     .   nspc , isp , 1 , qp , evec , ppn , zv_w_oaus )
+     .   nspc , isp , 1 , qp , evec , ppn , aus_zv )
 
-Cdelw1         call gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas,ipb,
-Cdelw1      .    lmxax,nlindx,ndima,ppn,w(oaus),cphi(1,1,isp),cphin(1,1,isp))
             call gwcphi ( ssite , sspec , isp , nsp , nlmax , ndham , nev 
-     .   , nbas , ipb , lmxax , nlindx , ndima , ppn , zv_w_oaus , cphi 
+     .   , nbas , ipb , lmxax , nlindx , ndima , ppn , aus_zv , cphi 
      .   ( 1 , 1 , isp ) , cphin ( 1 , 1 , isp ) )
 
-Cdelw1 rlse name= oaus old_list= oigv2 oww oaus
-Cdelw1 rlse name= oaus new_list= oigv2 oww
-Cdelw1         call rlse(oaus)
-            if (allocated(zv_w_oaus)) deallocate(zv_w_oaus)
+            if (allocated(aus_zv)) deallocate(aus_zv)
 
 
 C   --- Overlap of IPWs, PW expansion of eigenfunctions pwz ---
@@ -1276,9 +1127,6 @@ c            inn = qlatinv*(qp-q)
 c            write(6,"('goto pwmat: qlatinv*(qp-q)=',3f13.5,3i5)")
 c     &        matmul(qlatinv,qp-q),inn
 
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 1181
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
-Cdelw1 do not change oigv2 because of ['wref']
               call pwmat(slat,ssite,sspec,nbas,ndimh,napw,w(oigv2),
 c     .        w(oiprmb),qx,ngp,nlmax,ngvecp,gmax,ppovl,phovl)
      .        w(oiprmb),q,ngp,nlmax,ngvecp,gmax,inn,ppovl,phovl)
@@ -1580,13 +1428,7 @@ C       File write
         endif
       endif
 
-Cgetarg       end
-Cdelw1 w_varlist remains: oigv2 oww
-Cdelw1 w_varlistundel: [og oiprmb ov0 oqsig oigv2]
-Cdelw1 w_varlist (undel), remains: [oigv2]
-Cdelw1 w_varlist (del), remains: [oww]
-Cdelw1 not deallocate oigv2 because of [wref]
-c      if (allocated(rv_w_oww)) deallocate(rv_w_oww)
+c      if (allocated(ww_rv)) deallocate(ww_rv)
 
       end subroutine sugw
 
@@ -1638,10 +1480,6 @@ C --- File write ---
         call rx('ioaindx: file write not implemented')
       endif
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine ioaindx
 
 
@@ -1667,10 +1505,6 @@ c        print *, ' ig=',ig
         enddo
       enddo
       call fclr(' ',ifi)
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine wsymops
 
 
@@ -1731,10 +1565,6 @@ C     open (ifi, file='LATTC')
         enddo
       enddo
       call fclr(' ',ifi)
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine wlattc
 
 
@@ -1786,10 +1616,6 @@ c
         enddo
       enddo
       deallocate(ppox)
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mkppovl2
 
 
@@ -1858,10 +1684,6 @@ C       Test whether this class should be purged
           ipcx(ip) = ic - nelim
         endif
       enddo
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine pvsug1
 
 

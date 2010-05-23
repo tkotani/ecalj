@@ -1,67 +1,31 @@
-Cdelw1 var ['ogg', '0', 'ogg', 'ngs', 'real(8)', 'rv_w_', 'gvmtch']
-Cdelw1 var ['okk', '0', 'okk', 'ngs', 'real(8)', 'rv_w_', 'gvmtch']
-Cdelw1 var ['oiwk', '0', 'oiwk', 'ngs', 'real(8)', 'rv_w_', 'gvmtch']
-Cdelw1 var ['ogvs', '-1', 'undef', '0', 'undef', 'x', 'gvmtch']
-Cdelw1 var ['ogvb', '-1', 'undef', '0', 'undef', 'x', 'gvmtch']
-Cdelw1 var ['okvb', '-1', 'undef', '0', 'undef', 'x', 'gvmtch']
-Cdelw1 undel [['call', 'undef', 'wref'], 'ogvs', 'gvmtch']
-Cdelw1 undel [['call', 'undef', 'wref'], 'ogvb', 'gvmtch']
-Cdelw1 undel [['call', 'undef', 'wref'], 'okvb', 'gvmtch']
       subroutine gvmtch(ngs,ogvs,okvs,ngb,ogvb,okvb)
 C-  Ensure lower block of big list matches lower block of small list
 C     implicit none
-Cdelw1 do not change  [['call', 'undef', 'wref'], 'ogvs', 'gvmtch']
-Cdelw1 do not change  [['call', 'undef', 'wref'], 'ogvb', 'gvmtch']
-Cdelw1 do not change  [['call', 'undef', 'wref'], 'okvb', 'gvmtch']
       integer ngs,ngb,ogvs,okvs,ogvb,okvb
-Cdelw1       integer ogg,okk,oiwk
-      real(8) ,allocatable :: rv_w_ogg(:)
-      real(8) ,allocatable :: rv_w_okk(:)
-      real(8) ,allocatable :: rv_w_oiwk(:)
+      real(8) ,allocatable :: gg_rv(:)
+      real(8) ,allocatable :: kk_rv(:)
+      real(8) ,allocatable :: iwk_rv(:)
 
       integer w(1)
       common /w/ w
 
-Cdelw1       call defrr(ogg,   ngs)
-      allocate(rv_w_ogg(ngs))
-Ctakao_ZeroClear_NotRequiered        if (ngs<0) rv_w_ogg(:)=0.0d0
+      allocate(gg_rv(ngs))
+Ctakao_ZeroClear_NotRequiered        if (ngs<0) gg_rv(:)=0.0d0
 
-Cdelw1       call defrr(okk,   ngs)
-      allocate(rv_w_okk(ngs))
-Ctakao_ZeroClear_NotRequiered        if (ngs<0) rv_w_okk(:)=0.0d0
+      allocate(kk_rv(ngs))
+Ctakao_ZeroClear_NotRequiered        if (ngs<0) kk_rv(:)=0.0d0
 
-Cdelw1       call defrr(oiwk,  ngs)
-      allocate(rv_w_oiwk(ngs))
-Ctakao_ZeroClear_NotRequiered        if (ngs<0) rv_w_oiwk(:)=0.0d0
+      allocate(iwk_rv(ngs))
+Ctakao_ZeroClear_NotRequiered        if (ngs<0) iwk_rv(:)=0.0d0
 
-Cdelw1 warning(1) , probably  ogvs  is not defined yet at linenumber= 12
-Cdelw1 do not change ogvs because of ['call', 'undef', 'wref']
-Cdelw1 warning(1) , probably  ogvb  is not defined yet at linenumber= 12
-Cdelw1 do not change ogvb because of ['call', 'undef', 'wref']
-Cdelw1 warning(1) , probably  okvb  is not defined yet at linenumber= 12
-Cdelw1 do not change okvb because of ['call', 'undef', 'wref']
-Cdelw1 warning(1) , probably  ogvs  is not defined yet at linenumber= 12
-Cdelw1 do not change ogvs because of ['call', 'undef', 'wref']
-Cdelw1 warning(1) , probably  ogvb  is not defined yet at linenumber= 12
-Cdelw1 do not change ogvb because of ['call', 'undef', 'wref']
-Cdelw1 warning(1) , probably  okvb  is not defined yet at linenumber= 12
-Cdelw1 do not change okvb because of ['call', 'undef', 'wref']
-Cdelw1       call pgvmat(w(ogg),w(okk),w(oiwk),ngs,w(ogvs),ngb,w(ogvb),w(okvb))
-      call pgvmat ( rv_w_ogg , rv_w_okk , rv_w_oiwk , ngs , w ( ogvs 
+      call pgvmat ( gg_rv , kk_rv , iwk_rv , ngs , w ( ogvs 
      . ) , ngb , w ( ogvb ) , w ( okvb ) )
 
-Cdelw1 rlse name= ogg old_list= ogg okk oiwk
-Cdelw1 rlse name= ogg new_list= (None)
-Cdelw1       call rlse(ogg)
-      if (allocated(rv_w_oiwk)) deallocate(rv_w_oiwk)
-      if (allocated(rv_w_okk)) deallocate(rv_w_okk)
-      if (allocated(rv_w_ogg)) deallocate(rv_w_ogg)
+      if (allocated(iwk_rv)) deallocate(iwk_rv)
+      if (allocated(kk_rv)) deallocate(kk_rv)
+      if (allocated(gg_rv)) deallocate(gg_rv)
 
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [ogvs ogvb okvb]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine pgvmat(gg,kk,iwk,ngs,gvs,ngb,gvb,kvb)
 C     implicit none
@@ -133,9 +97,6 @@ C ... Rearrange gvb, kvb
 
 c      call prm('gvb',gvb,ngb,ngb,3)
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 
 

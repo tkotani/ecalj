@@ -115,9 +115,9 @@ cccccccccccccc
       double precision:: gslist(3,m_gslist)
       integer:: gsflags(3)
       logical:: fullmesh
-      real(8) ,allocatable :: rv_w_ogg(:)
-      real(8) ,allocatable :: rv_w_okk(:)
-      real(8) ,allocatable :: rv_w_oiwk(:)
+      real(8) ,allocatable :: gg_rv(:)
+      real(8) ,allocatable :: kk_rv(:)
+      real(8) ,allocatable :: iwk_rv(:)
 cccccccccccccc
 
 C ... Setup
@@ -346,16 +346,16 @@ C ... Sort the list of vectors
 c      call defrr(ogg,   ng)
 c      call defrr(okk,   ng)
 c      call defrr(oiwk,  ng)
-      allocate(rv_w_ogg(ng))
-      allocate(rv_w_okk(ng))
-      allocate(rv_w_oiwk(ng))
+      allocate(gg_rv(ng))
+      allocate(kk_rv(ng))
+      allocate(iwk_rv(ng))
       if (lgpq) q=0 !call dpzero(q,3)
 c      call pvglst(w(ogg),w(okk),w(oiwk),q,ngmx,ng,ligv,ligv2,gv,kv,igv,
 c     .  igv2)
-      call pvglst ( rv_w_ogg , rv_w_okk , rv_w_oiwk , q , ngmx , ng 
+      call pvglst ( gg_rv , kk_rv , iwk_rv , q , ngmx , ng 
      . , ligv , ligv2 , gv , kv , igv , igv2 )
 c      call rlse(ogg)
-      deallocate(rv_w_ogg,rv_w_okk,rv_w_oiwk)
+      deallocate(gg_rv,kk_rv,iwk_rv)
 
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c      if(job==509) print *,'509q=',q

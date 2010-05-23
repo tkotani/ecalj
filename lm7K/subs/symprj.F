@@ -1,4 +1,3 @@
-Cdelw1 var ['ormat', '0', 'ormat', 'nlml*nlml', 'real(8)', 'rv_w_', 'symprj']
       subroutine symprj(nrclas,nlml,ngrp,nbas,istab,g,ag,plat,qlat,
      .  pos,sym)
 C- Set up symmetry projectors for one class
@@ -23,10 +22,9 @@ C ... Passed parameters
       double precision sym(nlml,nlml,nrclas),plat(3,3),qlat(3,3),
      .   g(3,3,ngrp),ag(3,ngrp),pos(3,nrclas),d(3)
 C ... Local parameters
-Cdelw1       integer lmxl,ll,ormat,ig,ja,m,ia,iprint,ilm,l,jlm,jlm1,jlm2
       integer:: lmxl , ll , ig , ja , m , ia , iprint , ilm , l , jlm 
      . , jlm1 , jlm2
-      real(8) ,allocatable :: rv_w_ormat(:)
+      real(8) ,allocatable :: rmat_rv(:)
 
       double precision wgt
 C ... Heap
@@ -34,9 +32,8 @@ C ... Heap
       common /w/ w
 
       lmxl = ll(nlml)
-Cdelw1       call defrr (ormat,  nlml*nlml)
-      allocate(rv_w_ormat(nlml*nlml))
-Ctakao_ZeroClear_NotRequiered        if (nlml*nlml<0) rv_w_ormat(:)=0.0d0
+      allocate(rmat_rv(nlml*nlml))
+Ctakao_ZeroClear_NotRequiered        if (nlml*nlml<0) rmat_rv(:)=0.0d0
 
       wgt = 1d0/ngrp
       call dpzero(sym, nlml*nlml*nrclas)
@@ -60,24 +57,18 @@ C ...   Find site mapped into first site under this operation
 C       print *, ig,ia,ja,istab(ja,ig),istab(ia,ig)
 
 C ...   Make and add transformation matrix
-Cdelw1         call ylmrtg(nlml,g(1,1,ig),w(ormat))
-        call ylmrtg ( nlml , g ( 1 , 1 , ig ) , rv_w_ormat )
+        call ylmrtg ( nlml , g ( 1 , 1 , ig ) , rmat_rv )
 
 
-Cdelw1         call dpadd(sym(1,1,ia),w(ormat),1,nlml*nlml,wgt)
-        call dpadd ( sym ( 1 , 1 , ia ) , rv_w_ormat , 1 , nlml * nlml 
+        call dpadd ( sym ( 1 , 1 , ia ) , rmat_rv , 1 , nlml * nlml 
      .   , wgt )
 
    10 continue
 
 C ... Printout
 Cki#error, have return with len(w_varlist)>0 at line 61
-Cdelw1 w_varlist remains: ormat
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [ormat]
-Cdelw1       if(iprint() .lt. 60) return
       if ( iprint ( ) .lt. 60 ) then
-        if (allocated(rv_w_ormat)) deallocate(rv_w_ormat)
+        if (allocated(rmat_rv)) deallocate(rmat_rv)
         return
       endif
 
@@ -96,13 +87,7 @@ Cdelw1       if(iprint() .lt. 60) return
    22   continue
    20 continue
 
-Cdelw1 rlse name= ormat old_list= ormat
-Cdelw1 rlse name= ormat new_list= (None)
-Cdelw1       call rlse (ormat)
-      if (allocated(rv_w_ormat)) deallocate(rv_w_ormat)
+      if (allocated(rmat_rv)) deallocate(rmat_rv)
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 

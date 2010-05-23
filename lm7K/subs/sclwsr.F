@@ -1,6 +1,3 @@
-Cdelw1 var ['ontab', '0', 'ontab', 'nbasp+1', 'integer', 'iv_w_', 'sclwsr']
-Cdelw1 var ['oiax', '0', 'oiax', '-niax*mxnbr', 'integer', 'iv_w_', 'sclwsr']
-Cdelw1 var ['owk', '0', 'owk', '3*mxnbr', 'real(8)', 'rv_w_', 'sclwsr']
       subroutine sclwsr(opt,nbas,nbasp,nspec,alat,plat,basp,ips,modep,
      .  slabl,z,lock,volfac,wsmax,omax1,omax2,wsr)
 
@@ -84,14 +81,12 @@ C Passed variables:
      .                 omax1(3),omax2(3),plat(3,3),wsr(nspec),z(nspec)
       character*8 slabl(*)
 C Local variables:
-Cdelw1       integer i,k,owk,nrspec(nspec),ib,is,opt1
       integer:: i , k , nrspec(nspec) , ib , is , opt1
-      real(8) ,allocatable :: rv_w_owk(:)
+      real(8) ,allocatable :: wk_rv(:)
 
       integer niax,mxcsiz,mxnbr,nttab,ipr,stdo,lgunit,llock(nspec)
-Cdelw1       integer ontab,oiax
-      integer ,allocatable :: iv_w_ontab(:)
-      integer ,allocatable :: iv_w_oiax(:)
+      integer ,allocatable :: ntab_iv(:)
+      integer ,allocatable :: iax_iv(:)
 
       logical les
       double precision dovl1(3),dovl2(3),gamma,range(nbas),wsrs(nspec)
@@ -129,25 +124,20 @@ C --- Make a neighbor table and adjust llock to freeze ES sites ---
       enddo
       nbasp = nbas
       mxnbr = mxcsiz*nbas
-Cdelw1       call defi(ontab, nbasp+1)
-      allocate(iv_w_ontab(nbasp+1))
-Ctakao_ZeroClear_NotRequiered        if (nbasp+1<0) iv_w_ontab(:)=0
+      allocate(ntab_iv(nbasp+1))
+Ctakao_ZeroClear_NotRequiered        if (nbasp+1<0) ntab_iv(:)=0
 
-Cdelw1       call defi(oiax, -niax*mxnbr)
-      allocate(iv_w_oiax(abs(-niax*mxnbr)))
-      if (-niax*mxnbr<0) iv_w_oiax(:)=0
+      allocate(iax_iv(abs(-niax*mxnbr)))
+      if (-niax*mxnbr<0) iax_iv(:)=0
 
-Cdelw1       call defdr(owk,  3*mxnbr)
-      allocate(rv_w_owk(3*mxnbr))
-Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) rv_w_owk(:)=0.0d0
+      allocate(wk_rv(3*mxnbr))
+Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) wk_rv(:)=0.0d0
 
       nttab = mxnbr
       call pshpr(ipr-20)
-Cdelw1       call pairc(1,nbas,nbasp,modep,20,0,alat,plat,basp,basp,range,-1,1,
-Cdelw1      .  nttab,w(ontab),w(oiax),w(owk),k)
       call pairc ( 1 , nbas , nbasp , modep , 20 , 0 , alat , plat 
-     . , basp , basp , range , - 1 , 1 , nttab , iv_w_ontab , iv_w_oiax 
-     . , rv_w_owk , k )
+     . , basp , basp , range , - 1 , 1 , nttab , ntab_iv , iax_iv 
+     . , wk_rv , k )
 
       call poppr
 
@@ -170,11 +160,8 @@ C   ... Local copy of lock and wsr, adjusting to freeze ES sites
 C     ... Scale wsr with z=0 sites locked at wsr=0
           volold = volsph(nspec,nrspec,wsr)/vol
           volnes = volfac
-Cdelw1           call sclws2(nbas,nspec,alat,plat,basp,slabl,w(oiax),ips,
-Cdelw1      .      w(ontab),z,nrspec,omax1,omax2,gamma,wsmax,llock,volnes,
-Cdelw1      .      dovl1,dovl2,wsr)
-          call sclws2 ( nbas , nspec , alat , plat , basp , slabl , iv_w_oiax 
-     .     , ips , iv_w_ontab , z , nrspec , omax1 , omax2 , gamma , wsmax 
+          call sclws2 ( nbas , nspec , alat , plat , basp , slabl , iax_iv 
+     .     , ips , ntab_iv , z , nrspec , omax1 , omax2 , gamma , wsmax 
      .     , llock , volnes , dovl1 , dovl2 , wsr )
 
           if (ipr .ge. 30) then
@@ -202,23 +189,17 @@ C   ... 10s digit opt=2 : freeze wsr(Z>0)
 C --- Scale the sphere radii (2nd pass for les) ---
       volold = volsph(nspec,nrspec,wsrs)/vol
       volnew = volfac
-Cdelw1       call sclws2(nbas,nspec,alat,plat,basp,slabl,w(oiax),ips,w(ontab),
-Cdelw1      .  z,nrspec,omax1,omax2,gamma,wsmax,lock,volnew,dovl1,dovl2,wsr)
-      call sclws2 ( nbas , nspec , alat , plat , basp , slabl , iv_w_oiax 
-     . , ips , iv_w_ontab , z , nrspec , omax1 , omax2 , gamma , wsmax 
+      call sclws2 ( nbas , nspec , alat , plat , basp , slabl , iax_iv 
+     . , ips , ntab_iv , z , nrspec , omax1 , omax2 , gamma , wsmax 
      . , lock , volnew , dovl1 , dovl2 , wsr )
 
 
 C --- Printout ---
 Cki#error, have return with len(w_varlist)>0 at line 183
-Cdelw1 w_varlist remains: ontab oiax owk
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [ontab oiax owk]
-Cdelw1       if (ipr .lt. 10) return
       if ( ipr .lt. 10 ) then
-        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-        if (allocated(iv_w_oiax)) deallocate(iv_w_oiax)
-        if (allocated(iv_w_ontab)) deallocate(iv_w_ontab)
+        if (allocated(wk_rv)) deallocate(wk_rv)
+        if (allocated(iax_iv)) deallocate(iax_iv)
+        if (allocated(ntab_iv)) deallocate(ntab_iv)
         return
       endif
 
@@ -268,17 +249,10 @@ c        endif
         endif
       endif
 
-Cdelw1 rlse name= ontab old_list= owk oiax ontab
-Cdelw1 rlse name= ontab new_list= owk oiax
-Cdelw1       call rlse(ontab)
-      if (allocated(iv_w_ontab)) deallocate(iv_w_ontab)
+      if (allocated(ntab_iv)) deallocate(ntab_iv)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: owk oiax
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [owk oiax]
-      if (allocated(iv_w_oiax)) deallocate(iv_w_oiax)
-      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+      if (allocated(iax_iv)) deallocate(iax_iv)
+      if (allocated(wk_rv)) deallocate(wk_rv)
 
       end subroutine sclwsr
 
@@ -656,19 +630,12 @@ C     .          write(stdo,'('' SCLWS2: warning dovl>omax'')')
             write(stdo,fmt) (wsr(is),is=1,nspec)
           endif
           volfac = ratio
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
           return
         endif
       enddo
       call rx('sclws2: this cannot happen')
 
   300 format(6x,a,3f13.7)
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine sclws2
 
 

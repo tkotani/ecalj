@@ -1,6 +1,3 @@
-Cdelw1 var ['oxi', '0', 'oxi', 'nr*nxi', 'real(8)', 'rv_w_', 'tailsm']
-Cdelw1 var ['oidx', '0', 'oidx', 'nr*2', 'real(8)', 'rv_w_', 'tailsm']
-Cdelw1 var ['owk', '0', 'owk', 'nr*6', 'real(8)', 'rv_w_', 'tailsm']
       subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi,
      .  rho,rhot,hfc,hfct)
 C- Fit tails of rho to smoothed Hankel functions
@@ -40,11 +37,10 @@ C ... Passed parameters
       double precision hfct(nxi0,nsp),rhot(nr)
 C ... Local parameters
       logical lzero
-Cdelw1       integer lx0(20),isp,owk,oidx,oxi,ie,ir,ipr,stdo,lgunit
       integer:: lx0(20) , isp , ie , ir , ipr , stdo , lgunit
-      real(8) ,allocatable :: rv_w_owk(:)
-      real(8) ,allocatable :: rv_w_oidx(:)
-      real(8) ,allocatable :: rv_w_oxi(:)
+      real(8) ,allocatable :: wk_rv(:)
+      real(8) ,allocatable :: idx_rv(:)
+      real(8) ,allocatable :: xi_rv(:)
 
       double precision sr,x0(0:2),xi(0:2),fpi,qout,qcst(20),qcst0(20),
      .  err,rsq(nr)
@@ -63,33 +59,26 @@ C --- Tabulate smoothed Hankels on a radial mesh ---
       do  12  ie = 1, nxi
         lx0(ie) = 0
    12 continue
-Cdelw1       call defrr(oxi,    nr*nxi)
-      allocate(rv_w_oxi(nr*nxi))
-Ctakao_ZeroClear_NotRequiered        if (nr*nxi<0) rv_w_oxi(:)=0.0d0
+      allocate(xi_rv(nr*nxi))
+Ctakao_ZeroClear_NotRequiered        if (nr*nxi<0) xi_rv(:)=0.0d0
 
-Cdelw1       call defrr(oidx,   nr*2)
-      allocate(rv_w_oidx(nr*2))
-Ctakao_ZeroClear_NotRequiered        if (nr*2<0) rv_w_oidx(:)=0.0d0
+      allocate(idx_rv(nr*2))
+Ctakao_ZeroClear_NotRequiered        if (nr*2<0) idx_rv(:)=0.0d0
 
-Cdelw1       call defrr(owk,    nr*6)
-      allocate(rv_w_owk(nr*6))
-Ctakao_ZeroClear_NotRequiered        if (nr*6<0) rv_w_owk(:)=0.0d0
+      allocate(wk_rv(nr*6))
+Ctakao_ZeroClear_NotRequiered        if (nr*6<0) wk_rv(:)=0.0d0
 
 C     Patch to properly handle case when rsm=0
       lzero = rsq(1) .eq. 0 .and. rsm .eq. 0
       if (lzero) rsq(1) = rsq(2)/100
       print *,'tailsm:xxx1'
-Cdelw1       call hansr(rsm,0,0,nxi,lx0,exi,rsq,nr,nr,w(oidx),w(owk),0,w(oxi))
       call hansr ( rsm , 0 , 0 , nxi , lx0 , exi , rsq , nr , nr , 
-     . rv_w_oidx , rv_w_owk , 0 , rv_w_oxi )
+     . idx_rv , wk_rv , 0 , xi_rv )
 
       print *,'tailsm:xxx2'
       if (lzero) rsq(1) = 0
-Cdelw1 rlse name= oidx old_list= oxi oidx owk
-Cdelw1 rlse name= oidx new_list= oxi
-Cdelw1       call rlse(oidx)
-      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-      if (allocated(rv_w_oidx)) deallocate(rv_w_oidx)
+      if (allocated(wk_rv)) deallocate(wk_rv)
+      if (allocated(idx_rv)) deallocate(idx_rv)
 
 
 C --- Fit smoothed hankels to rho ---
@@ -116,10 +105,8 @@ C   ... Fitting constraints for smoothed Hankels
    14   continue
 
 C   ... Fit for this spin
-Cdelw1         call hnsmft(rofi,rho(1+(isp-1)*nr),nr,qout,a,b,nrmt,exi,qcst,
-Cdelw1      .    w(oxi),hfc(1,isp),nxi,err)
         call hnsmft ( rofi , rho ( 1 + ( isp - 1 ) * nr ) , nr , qout 
-     .   , a , b , nrmt , exi , qcst , rv_w_oxi , hfc ( 1 , isp ) , nxi 
+     .   , a , b , nrmt , exi , qcst , xi_rv , hfc ( 1 , isp ) , nxi 
      .   , err )
 
 
@@ -132,10 +119,8 @@ C   ... Fit a second time for the full density in rhot
           do  15  ie=1,nxi
             qcst(ie)=qcst0(ie)
    15     continue
-Cdelw1           call hnsmft(rofi,rhot(1+(isp-1)*nr),nr,qout,a,b,nrmt,exi,qcst,
-Cdelw1      .      w(oxi),hfct(1,isp),nxi,err)
           call hnsmft ( rofi , rhot ( 1 + ( isp - 1 ) * nr ) , nr , qout 
-     .     , a , b , nrmt , exi , qcst , rv_w_oxi , hfct ( 1 , isp ) , nxi 
+     .     , a , b , nrmt , exi , qcst , xi_rv , hfct ( 1 , isp ) , nxi 
      .     , err )
 
         endif
@@ -172,15 +157,9 @@ C
 C
 
    20 continue
-Cdelw1 rlse name= oxi old_list= oxi
-Cdelw1 rlse name= oxi new_list= (None)
-Cdelw1       call rlse(oxi)
-      if (allocated(rv_w_oxi)) deallocate(rv_w_oxi)
+      if (allocated(xi_rv)) deallocate(xi_rv)
 
 
       print *,'tailsm: end'
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 

@@ -1,0 +1,727 @@
+indentmap
+    00008 [subroutine bndfp] 
+    00366 [return] 
+    00656 [if 1] 
+    00663     [defi oifbls] name=oifbls size=-ndham*nspc*2
+    00664 [else 1] 
+    00666 [endif 1] 
+    00676 [defrr oqmom] name=oqmom size=nvl
+    00677 [defrr ogpot0] name=ogpot0 size=nvl
+    00678 [defrr ovval] name=ovval size=nchan
+    00679 [defrr ohab] name=ohab size=nab*n0*nsp*nbas
+    00680 [defrr ovab] name=ovab size=nab*n0*nsp*nbas
+    00681 [defrr osab] name=osab size=nab*n0*nsp*nbas
+    00682 [defrr oppnl] name=oppnl size=nppn*n0*nsp*nbas
+    00683 [defrr ofes1] name=ofes1 size=3*nbas
+    00687 [if 2] 
+    00688     [if 3] 
+    00698         [wvar oqmom 0] name=oqmom
+    00698         [wvar ogpot0 0] name=ogpot0
+    00698         [wvar ovval 0] name=ovval
+    00698         [wvar ohab 0] name=ohab
+    00698         [wvar ovab 0] name=ovab
+    00698         [wvar osab 0] name=osab
+    00698         [wvar oppnl 0] name=oppnl
+    00698         [wvar ofes1 0] name=ofes1
+    00698         [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    00698         [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    00698         [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    00698         [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    00705     [endif 3] 
+    00724 [endif 2] 
+    00765 [wvar oqmom 0] name=oqmom
+    00765 [wvar ogpot0 0] name=ogpot0
+    00765 [wvar ovval 0] name=ovval
+    00765 [wvar ohab 0] name=ohab
+    00765 [wvar ovab 0] name=ovab
+    00765 [wvar osab 0] name=osab
+    00765 [wvar oppnl 0] name=oppnl
+    00765 [wvar ofes1 0] name=ofes1
+    00765 [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    00765 [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    00765 [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    00765 [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    00765 [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    00765 [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    00815 [if 4] 
+    00832     [if 5] 
+    00833         [defrr oeomin] name=oeomin size=nsp*nkp
+    00834     [endif 5] 
+    00836 [else 4] 
+    00841 [endif 4] 
+    00855 [defrr odos] name=odos size=ndos*2*nsp
+    00856 [if 6] 
+    00860     [defcc osrout] name=osrout size=k1*k2*k3*numq*nsp
+    00861     [defrr ofh] name=ofh size=3*nbas
+    00862     [defrr ofes2] name=ofes2 size=3*nbas
+    00863 [endif 6] 
+    00869 [if 7] 
+    00888     [defcc oausc] name=oausc size=-3*nlmax*ndham*nsites*nsp*nkp
+    00889 [else 7] 
+    00891 [endif 7] 
+    00910 [if 8] 
+    00920     [wvar oppnl 0] name=oppnl
+    00920     [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    00920     [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    00933 [endif 8] 
+    00938 [label 99] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc 
+    00940 [wvar odos 0] name=odos
+    00940 [wvar osrout 1] name=osrout
+    00942 [if 9] 
+    00944     [wvar ofh 1] name=ofh
+    00945 [endif 9] 
+    00947 [if 10] 
+    00950     [wref oswtk bndfp] name=oswtk
+ERROR, probably oswtk is not defined yet.
+    00951 [endif 10] 
+    00963 [if 11] 
+    00967     [if 12] 
+    00977         [defi ochan] name=ochan size=nchmx
+    00978         [wvar ochan 2] name=ochan
+    00980         [redfi ochan] name=ochan size=nchan
+    00982     [endif 12] 
+    00984     [if 13] 
+    00992         [defi ochan] name=ochan size=nchmx
+    01001         [defcc oausp] name=oausp size=i
+    01002         [rlse oausp] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oausp 
+release oausp
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan 
+    01008     [endif 13] 
+    01011 [endif 11] 
+    01014 [if 14] 
+    01036     [if 15] 
+    01037         [wvar oifbls 1] name=oifbls
+    01039     [endif 15] 
+    01057     [defrr oqp] name=oqp size=3*nkp
+    01058     [defrr oevl] name=oevl size=ndham*nsp*nkp
+    01059     [if 16] 
+    01060         [defrr oeomin] name=oeomin size=nsp*nkp
+    01061     [endif 16] 
+    01066     [if 17] 
+    01070         [label 199] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl 
+    01073         [wvar oifbls 1] name=oifbls
+    01076         [if 18] 
+    01078             [do 19 ''] 
+    01080                 [wvar oifbls 1] name=oifbls
+    01082                 [wvar oqp 1] name=oqp
+    01083             [enddo 19 ''] 
+    01086             [goto 199] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl 
+    01087         [endif 18] 
+    01088     [endif 17] 
+    01089     [wvar oqp 1] name=oqp
+    01091 [endif 14] 
+    01098 [if 20] 
+    01102     [defrr oorbtm] name=oorbtm size=-nl*nsp*nbas
+    01103 [endif 20] 
+    01133 [do 21 ''] 
+    01134     [if 22] 
+    01137         [wvar oifbls 1] name=oifbls
+    01139     [else 22] 
+    01140         [wvar oqp 1] name=oqp
+    01141     [endif 22] 
+    01143 [enddo 21 ''] 
+    01154 [if 23] 
+    01170     [wref oidxsh bndfp] name=oidxsh
+ERROR, probably oidxsh is not defined yet.
+    01197 [endif 23] 
+    01201 [if 24] 
+    01272     [wref opos bndfp] name=opos
+ERROR, probably opos is not defined yet.
+    01293 [endif 24] 
+    01334 [do 25 2010] 
+    01361     [wvar oqp 1] name=oqp
+    01382     [do 26 ''] 
+    01383         [if 27] 
+    01402             [if 28] 
+    01412                 [defi oigv2] name=oigv2 size=3*napw
+    01413                 [defi okv] name=okv size=3*napw
+    01416                 [wvar oigv2 4] name=oigv2
+    01416                 [wvar okv 4] name=okv
+    01419                 [rlse okv] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 okv 
+release okv
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    01428             [else 28] 
+    01430                 [wref oigv2 4] name=oigv2
+    01431             [endif 28] 
+    01502             [if 29] 
+    01576                 [if 30] 
+    01578                     [goto 1019] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    01579                 [endif 30] 
+    01634                 [do 31 ''] 
+    01635                     [do 32 ''] 
+    01642                         [do 33 ''] 
+    01643                             [do 34 ''] 
+    01644                                 [do 35 ''] 
+    01659                                     [goto 888] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    01660                                     [goto 888] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    01672                                 [enddo 35 ''] 
+    01673                             [enddo 34 ''] 
+    01674                         [enddo 33 ''] 
+    01678                         [label 888] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    01679                     [enddo 32 ''] 
+    01680                 [enddo 31 ''] 
+    01682                 [label 1019] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    01683             [endif 29] 
+    01711             [if 36] 
+    01715                 [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    01715                 [wref oigv2 bndfp] name=oigv2
+    01740             [else 36] 
+    01742                 [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    01742                 [wref oigv2 bndfp] name=oigv2
+    01742                 [wref oqsig bndfp] name=oqsig
+ERROR, probably oqsig is not defined yet.
+    01748             [endif 36] 
+    01807             [goto 30] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    01845             [if 37] 
+    01846                 [defcc ot] name=ot size=ndimhx**2
+    01847             [endif 37] 
+    01874             [if 38] 
+    01891                 [elseif 38] 
+    01892                 [wvar ot 4] name=ot
+    01898                 [if 39] 
+    01899                     [defrr oww] name=oww size=ndimhx**2*2
+    01902                     [wvar ot 4] name=ot
+    01902                     [wvar oww 5] name=oww
+    01902                     [wref owtkp bndfp] name=owtkp
+ERROR, probably owtkp is not defined yet.
+    01902                     [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    01902                     [wref owtkp bndfp] name=owtkp
+ERROR, probably owtkp is not defined yet.
+    01902                     [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    01904                     [rlse oww] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot oww 
+release oww
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot 
+    01905                 [endif 39] 
+    01907             [else 38] 
+    01908                 [if 40] 
+    01909                     [defrr oww] name=oww size=ndimhx**2
+    01910                     [wvar oww 5] name=oww
+    01911                     [wvar oww 5] name=oww
+    01912                     [rlse oww] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot oww 
+release oww
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot 
+    01913                 [endif 40] 
+    01914                 [defrr oww] name=oww size=11*ndimhx
+    01921                 [if 41] 
+    01924                     [wvar ot 4] name=ot
+    01924                     [wvar oww 5] name=oww
+    01928                 [else 41] 
+    01930                     [wvar oww 5] name=oww
+    01935                     [wvar ot 4] name=ot
+    01935                     [wvar oww 5] name=oww
+    01938                     [wvar oww 5] name=oww
+    01939                 [endif 41] 
+    01940                 [rlse oww] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot oww 
+release oww
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot 
+    01941             [endif 38] 
+    01963             [wvar ot 4] name=ot
+    01965             [if 42] 
+    01967                 [wvar ot 4] name=ot
+    01968             [endif 42] 
+    01979             [if 43] 
+    01985                 [if 44] 
+    01986                     [if 45] 
+    01990                         [if 46] 
+    01996                             [goto 99] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot 
+    01997                         [endif 46] 
+    01998                     [endif 45] 
+    02014                 [endif 44] 
+    02015             [endif 43] 
+    02020             [if 47] 
+    02022                 [wvar oevl 1] name=oevl
+    02025                 [if 48] 
+    02026                     [wvar oeomin 2] name=oeomin
+    02027                 [endif 48] 
+    02038                 [if 49] 
+    02041                     [defcc oauso] name=oauso size=-nlmax*ndhamx*3*nsp*nbas
+    02042                     [wvar oppnl 0] name=oppnl
+    02042                     [wref oigv2 bndfp] name=oigv2
+    02042                     [wvar ot 4] name=ot
+    02042                     [wvar oauso 5] name=oauso
+    02042                     [wref oigv2 bndfp] name=oigv2
+    02045                     [wvar oppnl 0] name=oppnl
+    02045                     [wvar oorbtm 1] name=oorbtm
+    02045                     [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02045                     [wvar oauso 5] name=oauso
+    02045                     [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02047                     [rlse oauso] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot oauso 
+release oauso
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot 
+    02048                 [endif 49] 
+    02051                 [if 50] 
+    02052                     [if 51] 
+    02053                         [if 52] 
+    02059                             [defrr odoswt] name=odoswt size=-nchan*nevmx*nspc
+    02065                             [wvar ochan 2] name=ochan
+    02065                             [wvar ot 4] name=ot
+    02065                             [wvar odoswt 7] name=odoswt
+    02065                             [wref oiprmb bndfp] name=oiprmb
+ERROR, probably oiprmb is not defined yet.
+    02065                             [wref oiprmb bndfp] name=oiprmb
+ERROR, probably oiprmb is not defined yet.
+    02069                             [wvar odoswt 7] name=odoswt
+    02071                             [rlse odoswt] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot odoswt 
+release odoswt
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot 
+    02072                             [elseif 52] 
+    02078                             [defcc oausp] name=oausp size=-i
+    02079                             [wvar oppnl 0] name=oppnl
+    02079                             [wvar oausp 2] name=oausp
+    02079                             [wref oigv2 bndfp] name=oigv2
+    02079                             [wvar ot 4] name=ot
+    02079                             [wref oigv2 bndfp] name=oigv2
+    02082                             [defrr odoswt] name=odoswt size=-nchan*ndimhx*nspc
+    02083                             [wvar oppnl 0] name=oppnl
+    02083                             [wvar oausp 2] name=oausp
+    02083                             [wvar odoswt 7] name=odoswt
+    02087                             [wvar odoswt 7] name=odoswt
+    02091                             [wvar odoswt 7] name=odoswt
+    02094                             [rlse odoswt] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot oausp odoswt 
+release odoswt
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot oausp 
+    02095                             [rlse oausp] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot oausp 
+release oausp
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot 
+    02096                             [elseif 52] 
+    02099                         [endif 52] 
+    02100                     [endif 51] 
+    02103                     [if 53] 
+    02110                         [defrr oausu] name=oausu size=-2*nlmax*ndhamx*3*nsp*nbas
+    02111                         [wvar oppnl 0] name=oppnl
+    02111                         [wref oigv2 bndfp] name=oigv2
+    02111                         [wvar ot 4] name=ot
+    02111                         [wvar oausu 6] name=oausu
+    02111                         [wref oigv2 bndfp] name=oigv2
+    02114                         [wvar oppnl 0] name=oppnl
+    02114                         [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02114                         [wvar oausu 6] name=oausu
+    02114                         [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02116                         [rlse oausu] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot oausu 
+release oausu
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot 
+    02117                     [endif 53] 
+    02118                 [endif 50] 
+    02121                 [if 54] 
+    02126                     [wvar oppnl 0] name=oppnl
+    02126                     [wvar oausc 1] name=oausc
+    02126                     [wref oigv2 bndfp] name=oigv2
+    02126                     [wvar ot 4] name=ot
+    02126                     [wref oigv2 bndfp] name=oigv2
+    02132                     [elseif 54] 
+    02134                     [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    02134                     [wvar odos 0] name=odos
+    02134                     [wvar osrout 1] name=osrout
+    02134                     [wref oswtk bndfp] name=oswtk
+ERROR, probably oswtk is not defined yet.
+    02134                     [wref oigv2 bndfp] name=oigv2
+    02134                     [wvar ot 4] name=ot
+    02134                     [wref owtkp bndfp] name=owtkp
+ERROR, probably owtkp is not defined yet.
+    02134                     [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02134                     [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    02134                     [wref oswtk bndfp] name=oswtk
+ERROR, probably oswtk is not defined yet.
+    02134                     [wref oigv2 bndfp] name=oigv2
+    02134                     [wref owtkp bndfp] name=owtkp
+ERROR, probably owtkp is not defined yet.
+    02134                     [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02142                 [endif 54] 
+    02144                 [elseif 47] 
+    02149                 [if 55] 
+    02153                     [wvar oifbls 1] name=oifbls
+    02153                     [wvar ot 4] name=ot
+    02155                 [endif 55] 
+    02156                 [if 56] 
+    02160                     [wvar oifbls 1] name=oifbls
+    02160                     [wvar ot 4] name=ot
+    02162                 [endif 56] 
+    02165                 [elseif 47] 
+    02166                 [wvar oevl 1] name=oevl
+    02168                 [if 57] 
+    02169                     [wvar oeomin 2] name=oeomin
+    02170                 [endif 57] 
+    02173             [endif 47] 
+    02176             [rlse ot] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 ot 
+release ot
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    02179             [label 30] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    02180         [endif 27] 
+    02181     [enddo 26 ''] 
+    02187 [enddo 25 2010] 
+    02256 [wvar oevl 1] name=oevl
+    02257 [if 58] 
+    02258     [wvar oeomin 2] name=oeomin
+    02259 [endif 58] 
+    02260 [if 59] 
+    02262     [wvar oausc 1] name=oausc
+    02263 [endif 59] 
+    02272 [if 60] 
+    02275     [wvar osrout 1] name=osrout
+    02276     [if 61] 
+    02277         [wref oswtk bndfp] name=oswtk
+ERROR, probably oswtk is not defined yet.
+    02278     [endif 61] 
+    02311     [wvar odos 0] name=odos
+    02317     [wvar oorbtm 1] name=oorbtm
+    02319 [endif 60] 
+    02341 [if 62] 
+    02343     [if 63] 
+    02347         [label 299] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    02352         [do 64 ''] 
+    02358             [do 65 ''] 
+    02363                 [if 66] 
+    02366                     [wvar oevl 1] name=oevl
+    02378                 [endif 66] 
+    02379             [enddo 65 ''] 
+    02380         [enddo 64 ''] 
+    02381         [goto 299] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    02382     [endif 63] 
+    02384 [endif 62] 
+    02387 [do 67 ''] 
+    02395     [do 68 ''] 
+    02400         [if 69] 
+    02403             [wvar oevl 1] name=oevl
+    02405             [if 70] 
+    02406                 [wvar oeomin 2] name=oeomin
+    02407             [endif 70] 
+    02447             [if 71] 
+    02452                 [if 72] 
+    02453                     [if 73] 
+    02457                         [if 74] 
+    02462                             [goto 99] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    02463                         [endif 74] 
+    02464                     [endif 73] 
+    02481                 [endif 72] 
+    02482             [endif 71] 
+    02484         [endif 69] 
+    02485     [enddo 68 ''] 
+    02487 [enddo 67 ''] 
+    02500 [if 75] 
+    02501     [defi oips] name=oips size=nbas
+    02504     [do 76 ''] 
+    02505         [wvar oips 1] name=oips
+    02506     [enddo 76 ''] 
+    02508     [wvar oorbtm 1] name=oorbtm
+    02508     [wvar oips 1] name=oips
+    02509     [rlse oips] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 oips 
+release oips
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    02510 [endif 75] 
+    02513 [goto 99] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    02524 [if 77] 
+    02525     [wvar osrout 1] name=osrout
+    02535     [if 78] 
+    02536         [wvar odos 0] name=odos
+    02539     [endif 78] 
+    02559     [if 79] 
+    02563         [goto 99] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    02564     [endif 79] 
+    02565 [endif 77] 
+    02568 [if 80] 
+    02569     [if 81] 
+    02570         [defrr oww] name=oww size=ndham*nsp*nkp
+    02572         [wvar oevl 1] name=oevl
+    02572         [wvar oww 5] name=oww
+    02572         [wref oidtet bndfp] name=oidtet
+ERROR, probably oidtet is not defined yet.
+    02572         [wref oidtet bndfp] name=oidtet
+ERROR, probably oidtet is not defined yet.
+    02576         [wvar oevl 1] name=oevl
+    02576         [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02576         [wref oidtet bndfp] name=oidtet
+ERROR, probably oidtet is not defined yet.
+    02576         [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02576         [wref oidtet bndfp] name=oidtet
+ERROR, probably oidtet is not defined yet.
+    02579         [wvar oww 5] name=oww
+    02579         [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02579         [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02581         [rlse oww] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 oww 
+release oww
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    02582     [else 81] 
+    02585         [wref oswtk bndfp] name=oswtk
+ERROR, probably oswtk is not defined yet.
+    02585         [wvar oevl 1] name=oevl
+    02585         [wref owtkp bndfp] name=owtkp
+ERROR, probably owtkp is not defined yet.
+    02585         [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02585         [wref oidtet bndfp] name=oidtet
+ERROR, probably oidtet is not defined yet.
+    02585         [wref oswtk bndfp] name=oswtk
+ERROR, probably oswtk is not defined yet.
+    02585         [wref owtkp bndfp] name=owtkp
+ERROR, probably owtkp is not defined yet.
+    02585         [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02585         [wref oidtet bndfp] name=oidtet
+ERROR, probably oidtet is not defined yet.
+    02594     [endif 81] 
+    02603     [if 82] 
+    02604         [if 83] 
+    02606             [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02608         [endif 83] 
+    02609     [endif 82] 
+    02610     [if 84] 
+    02614         [goto 99] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    02615     [endif 84] 
+    02616     [if 85] 
+    02618         [goto 99] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+    02619     [endif 85] 
+    02620 [endif 80] 
+    02628 [if 86] 
+    02635     [if 87] 
+    02637         [wref owtkb bndfp] name=owtkb
+ERROR, probably owtkb is not defined yet.
+    02639     [endif 87] 
+    02640 [endif 86] 
+    02643 [if 88] 
+    02647     [if 89] 
+    02648         [wvar ochan 2] name=ochan
+    02650     [endif 89] 
+    02651 [endif 88] 
+    02669 [if 90] 
+    02676     [if 91] 
+    02678         [defdr odos] name=odos size=3*ndos
+    02681         [if 92] 
+    02682             [wvar odos 0] name=odos
+    02682             [wvar oevl 1] name=oevl
+    02682             [wref oidtet bndfp] name=oidtet
+ERROR, probably oidtet is not defined yet.
+    02682             [wref oidtet bndfp] name=oidtet
+ERROR, probably oidtet is not defined yet.
+    02685             [wvar odos 0] name=odos
+    02688         [else 92] 
+    02690             [wvar odos 0] name=odos
+    02690             [wvar oevl 1] name=oevl
+    02690             [wref owtkp bndfp] name=owtkp
+ERROR, probably owtkp is not defined yet.
+    02690             [wref owtkp bndfp] name=owtkp
+ERROR, probably owtkp is not defined yet.
+    02693             [wvar odos 0] name=odos
+    02693             [wvar oevl 1] name=oevl
+    02693             [wref owtkp bndfp] name=owtkp
+ERROR, probably owtkp is not defined yet.
+    02693             [wref owtkp bndfp] name=owtkp
+ERROR, probably owtkp is not defined yet.
+    02697         [endif 92] 
+    02698         [wvar odos 0] name=odos
+    02699         [wvar odos 0] name=odos
+    02702         [rlse odos] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oqp oevl oorbtm oigv2 
+release odos
+new w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin 
+    02703     [endif 91] 
+    02704 [endif 90] 
+    02707 [if 93] 
+    02708     [if 94] 
+    02714         [wvar oausc 1] name=oausc
+ERROR, probably oausc is not defined yet.
+    02714         [wvar oevl 1] name=oevl
+ERROR, probably oevl is not defined yet.
+    02717     [else 94] 
+    02719     [endif 94] 
+    02720 [endif 93] 
+    02724 [defrr oqbyl] name=oqbyl size=n0*nbas*nsp
+    02725 [defrr ohbyl] name=ohbyl size=n0*nbas*nsp
+    02727 [if 95] 
+    02728     [wvar ohab 0] name=ohab
+    02728     [wvar osab 0] name=osab
+    02728     [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    02728     [wvar oqbyl 0] name=oqbyl
+    02728     [wvar ohbyl 0] name=ohbyl
+    02728     [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    02730     [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    02730     [wvar osrout 1] name=osrout
+ERROR, probably osrout is not defined yet.
+    02730     [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    02731     [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    02731     [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    02731     [wvar oqbyl 0] name=oqbyl
+    02731     [wvar ohbyl 0] name=ohbyl
+    02731     [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    02731     [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    02733     [goto 999] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin oqbyl ohbyl 
+    02734 [endif 95] 
+    02735 [wvar ohab 0] name=ohab
+    02735 [wvar osab 0] name=osab
+    02735 [wvar oqbyl 0] name=oqbyl
+    02735 [wvar ohbyl 0] name=ohbyl
+    02738 [if 96] 
+    02740     [wvar osrout 1] name=osrout
+ERROR, probably osrout is not defined yet.
+    02740     [wvar oqbyl 0] name=oqbyl
+    02740     [wvar ohbyl 0] name=ohbyl
+    02745     [if 97] 
+    02758         [wvar ohab 0] name=ohab
+    02758         [wvar osab 0] name=osab
+    02758         [wvar oqbyl 0] name=oqbyl
+    02758         [wvar ohbyl 0] name=ohbyl
+    02760     [endif 97] 
+    02762 [endif 96] 
+    02772 [if 98] 
+    02775     [wvar oqmom 0] name=oqmom
+    02775     [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    02775     [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    02775     [wvar osrout 1] name=osrout
+ERROR, probably osrout is not defined yet.
+    02775     [wvar ofh 1] name=ofh
+ERROR, probably ofh is not defined yet.
+    02775     [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    02775     [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    02780     [if 99] 
+    02783         [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    02783         [wvar osrout 1] name=osrout
+ERROR, probably osrout is not defined yet.
+    02783         [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    02802         [wvar oqmom 0] name=oqmom
+    02802         [wvar ogpot0 0] name=ogpot0
+    02802         [wvar ovval 0] name=ovval
+    02802         [wvar ohab 0] name=ohab
+    02802         [wvar ovab 0] name=ovab
+    02802         [wvar osab 0] name=osab
+    02802         [wvar oppnl 0] name=oppnl
+    02802         [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    02802         [wvar osrout 1] name=osrout
+ERROR, probably osrout is not defined yet.
+    02802         [wvar ofes2 1] name=ofes2
+ERROR, probably ofes2 is not defined yet.
+    02802         [wref osmpot bndfp] name=osmpot
+ERROR, probably osmpot is not defined yet.
+    02826     [endif 99] 
+    02829     [wvar ofes1 0] name=ofes1
+    02829     [wvar ofh 1] name=ofh
+ERROR, probably ofh is not defined yet.
+    02829     [wvar ofes2 1] name=ofes2
+ERROR, probably ofes2 is not defined yet.
+    02833     [defrr oqm1] name=oqm1 size=nvl
+    02834     [defrr oqm2] name=oqm2 size=nvl
+    02839     [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    02839     [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    02839     [wvar osrout 1] name=osrout
+ERROR, probably osrout is not defined yet.
+    02839     [wref osmrho bndfp] name=osmrho
+ERROR, probably osmrho is not defined yet.
+    02839     [wref oorhat bndfp] name=oorhat
+ERROR, probably oorhat is not defined yet.
+    02854 [else 98] 
+    02856 [endif 98] 
+    02865 [label 999] w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin oqbyl ohbyl oqm1 oqm2 
+    02866 [rlse oqmom] 
+old w_varlist=oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin oqbyl ohbyl oqm1 oqm2 
+release oqmom
+new w_varlist=oifbls 
+end but w_varlist remains:oifbls 
+w_varlistundel(reason) :osmrho(undef wref) oorhat(undef wref) osmpot(undef wref) oswtk(undef wref) oidxsh(undef wref) opos(undef wref) oigv2(wref) oqsig(undef wref) owtkp(undef wref) owtkb(undef wref) oiprmb(undef wref) oqkkl(call) oeqkkl(call) oidtet(undef wref) 
+
+w_varlist used (all): oifbls oqmom ogpot0 ovval ohab ovab osab oppnl ofes1 oeomin odos osrout ofh ofes2 oausc ochan oausp oqp oevl oorbtm oigv2 okv ot oww oauso odoswt oausu oips oqbyl ohbyl oqm1 oqm2 
+to deallcate all
+      if (allocated(rv_w_oqm2)) deallocate(rv_w_oqm2)
+      if (allocated(rv_w_oqm1)) deallocate(rv_w_oqm1)
+      if (allocated(rv_w_ohbyl)) deallocate(rv_w_ohbyl)
+      if (allocated(rv_w_oqbyl)) deallocate(rv_w_oqbyl)
+      if (allocated(iv_w_oips)) deallocate(iv_w_oips)
+      if (allocated(rv_w_oausu)) deallocate(rv_w_oausu)
+      if (allocated(rv_w_odoswt)) deallocate(rv_w_odoswt)
+      if (allocated(zv_w_oauso)) deallocate(zv_w_oauso)
+      if (allocated(rv_w_oww)) deallocate(rv_w_oww)
+      if (allocated(zv_w_ot)) deallocate(zv_w_ot)
+      if (allocated(iv_w_okv)) deallocate(iv_w_okv)
+      if (allocated(rv_w_oorbtm)) deallocate(rv_w_oorbtm)
+      if (allocated(rv_w_oevl)) deallocate(rv_w_oevl)
+      if (allocated(rv_w_oqp)) deallocate(rv_w_oqp)
+      if (allocated(zv_w_oausp)) deallocate(zv_w_oausp)
+      if (allocated(iv_w_ochan)) deallocate(iv_w_ochan)
+      if (allocated(zv_w_oausc)) deallocate(zv_w_oausc)
+      if (allocated(rv_w_ofes2)) deallocate(rv_w_ofes2)
+      if (allocated(rv_w_ofh)) deallocate(rv_w_ofh)
+      if (allocated(zv_w_osrout)) deallocate(zv_w_osrout)
+      if (allocated(rv_w_odos)) deallocate(rv_w_odos)
+      if (allocated(rv_w_oeomin)) deallocate(rv_w_oeomin)
+      if (allocated(rv_w_ofes1)) deallocate(rv_w_ofes1)
+      if (allocated(rv_w_oppnl)) deallocate(rv_w_oppnl)
+      if (allocated(rv_w_osab)) deallocate(rv_w_osab)
+      if (allocated(rv_w_ovab)) deallocate(rv_w_ovab)
+      if (allocated(rv_w_ohab)) deallocate(rv_w_ohab)
+      if (allocated(rv_w_ovval)) deallocate(rv_w_ovval)
+      if (allocated(rv_w_ogpot0)) deallocate(rv_w_ogpot0)
+      if (allocated(rv_w_oqmom)) deallocate(rv_w_oqmom)
+      if (allocated(iv_w_oifbls)) deallocate(iv_w_oifbls)
+
+indentmap
+    02880 [subroutine xmpbnd] 
+    02927 [defrr obuf] name=obuf size=ndham*nkp*nsp
+    02928 [wvar obuf 0] name=obuf
+    02931 [wvar obuf 0] name=obuf
+    02932 [rlse obuf] 
+old w_varlist=obuf 
+release obuf
+new w_varlist=
+
+w_varlist used (all): obuf 
+to deallcate all
+      if (allocated(rv_w_obuf)) deallocate(rv_w_obuf)
+
+
+

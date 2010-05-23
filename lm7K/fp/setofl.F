@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['setofl', 'site', 'ssite']
-Cgetarg...info...           structure ['setofl', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['setofl', 'm_struc_def']
       subroutine setofl(mode,ssite,sspec,nbas,nvl,iiv0)
 
       use m_struc_def  !Cgetarg
@@ -23,7 +20,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nbas,nvl,iiv0(nbas)
-Cgetarg       double precision ssite(1),sspec(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -33,10 +29,8 @@ C ... Local parameters
       if (mode .ne. 0) call rx('setofl: bad mode')
       iv0 = 0
       do  12  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
         lmxl = int(sspec(is)%lmxl)
 
         nlm = (lmxl+1)**2
@@ -44,7 +38,6 @@ Cgetarg         lmxl = igetss('spec lmxl',is,sspec)
         iv0 = iv0+nlm
    12 continue
       nvl = iv0
-Cgetarg       end
       end subroutine setofl
 
 

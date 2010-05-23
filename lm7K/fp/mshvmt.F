@@ -1,17 +1,3 @@
-Cdelw1 var ['oqwk', '3', 'oqwk', 'nlml', 'real(8)', 'rv_w_', 'symvvl']
-Cdelw1 var ['osym', '3', 'osym', 'nlml*nlml*nrclas', 'real(8)', 'rv_w_', 'symvvl']
-Cdelw1 var ['og', '-1', 'undef', '0', 'undef', 'x', 'symvvl']
-Cdelw1 var ['oag', '-1', 'undef', '0', 'undef', 'x', 'symvvl']
-Cdelw1 undel [['undef', 'wref'], 'og', 'symvvl']
-Cdelw1 undel [['undef', 'wref'], 'oag', 'symvvl']
-Cgetarg...info...           structure ['mshvmt', 'lat', 'slat']
-Cgetarg...info...           structure ['mshvmt', 'site', 'ssite']
-Cgetarg...info...           structure ['mshvmt', 'spec', 'sspec']
-Cgetarg...info...           structure ['symvvl', 'lat', 'slat']
-Cgetarg...info...           structure ['symvvl', 'site', 'ssite']
-Cgetarg...info...           structure ['symvvl', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['mshvmt', 'm_struc_def']
-Cgetarg...info...           use_to_add ['symvvl', 'm_struc_def']
 #define F90 1
       subroutine mshvmt(nbas,ssite,sspec,slat,ng,gv,
      .  kv,cv,k1,k2,k3,smpot,vval)
@@ -58,8 +44,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,nbas,ng,kv(ng,3)
-Cgetarg       double precision ssite(1),sspec(1),gv(ng,3),slat(1),
-Cgetarg      .  vval(1)
       real(8):: gv(ng,3) , vval(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -91,10 +75,6 @@ Cki#error have #if F90 directive
 #endif
       call getpr(ipr)
       pi = 4d0*datan(1d0)
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
-Cgetarg       call upack('lat alat plat nabc',slat,alat,plat,ngabc,0,0)
 
       alat=slat%alat
       i_copy_size=size(slat%plat)
@@ -115,17 +95,11 @@ C --- YL(G)*G**l, agv=|G| for each g ---
 C --- For each ib in nbas, do ---
       iv0 = 0
       do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
-Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pos)
         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
 
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg         call upack('spec rmt lmxl',sspec,is,rmt,lmxl,0,0)
 
         rmt=sspec(is)%rmt
         lmxl=sspec(is)%lmxl
@@ -196,10 +170,6 @@ Cki#error have #if F90 directive
       deallocate(gv2,agv,cgp,sgp)
 #endif
       call tcx('mshvmt')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mshvmt
 
 
@@ -237,7 +207,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas
-Cgetarg       double precision ssite(1),sspec(1),slat(1),vval(1),vrmt(nbas)
       real(8):: vval(1) , vrmt(nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -247,13 +216,10 @@ C ... Local parameters
       integer ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,stdo,iv0
       integer ipc(nbas),ips(nbas),lmxl(nbas)
       double precision pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
-Cdelw1 do not change  [['undef', 'wref'], 'og', 'symvvl']
-Cdelw1 do not change  [['undef', 'wref'], 'oag', 'symvvl']
-Cdelw1       integer igetss,nlml,lgunit,ipr,jpr,ngrp,og,oag,oqwk,osym,nn,iclbas
       integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , og , oag 
      . , nn , iclbas
-      real(8) ,allocatable :: rv_w_oqwk(:)
-      real(8) ,allocatable :: rv_w_osym(:)
+      real(8) ,allocatable :: qwk_rv(:)
+      real(8) ,allocatable :: sym_rv(:)
 
 C ... Heap
       integer w(1)
@@ -261,35 +227,23 @@ C ... Heap
 
       stdo = lgunit(1)
       call getpr(ipr)
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg...info...           integer :: ngrp , integer(8) :: slat%nsgrp 1
-Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
-Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
-Cgetarg       call upack('lat plat nsgrp osymgr oag',slat,plat,ngrp,og,oag,0)
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       ngrp=slat%nsgrp
-Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 254
-Cdelw1 do not change og because of ['undef', 'wref']
       og=slat%osymgr
-Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 255
-Cdelw1 do not change oag because of ['undef', 'wref']
       oag=slat%oag
 
-Cgetarg       call spackv(10,'site class',ssite,1,nbas,ipc)
       i_copy_size=1;
       do i_spackv=1,nbas
         call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,ipc)
       enddo
 
-Cgetarg       call spackv(10,'site spec', ssite,1,nbas,ips)
       i_copy_size=1;
       do i_spackv=1,nbas
         call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
       enddo
 
-Cgetarg       call spackv(10,'site pos',ssite,1,nbas,pos)
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,pos)
@@ -297,7 +251,6 @@ Cgetarg       call spackv(10,'site pos',ssite,1,nbas,pos)
 
       nclass = mxint(nbas,ipc)
       do  ib = 1, nbas
-Cgetarg         lmxl(ib) = igetss('spec lmxl',ips(ib),sspec)
         lmxl ( ib ) = int(sspec(ips(ib))%lmxl)
 
       enddo
@@ -313,33 +266,17 @@ C   ... Make nrclas,ipa,posc
             if (ipr .ge. 50) write(stdo,800) ic,nrclas,nlml
   800       format(' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
 
-Cdelw1         call defrr(oqwk,nlml)
-            allocate(rv_w_oqwk(nlml))
-Ctakao_ZeroClear_NotRequiered          if (nlml<0) rv_w_oqwk(:)=0.0d0
+            allocate(qwk_rv(nlml))
+Ctakao_ZeroClear_NotRequiered          if (nlml<0) qwk_rv(:)=0.0d0
 
-Cdelw1         call defrr(osym,nlml*nlml*nrclas)
-            allocate(rv_w_osym(nlml*nlml*nrclas))
-Ctakao_ZeroClear_NotRequiered          if (nlml*nlml*nrclas<0) rv_w_osym(:)=0.0d0
+            allocate(sym_rv(nlml*nlml*nrclas))
+Ctakao_ZeroClear_NotRequiered          if (nlml*nlml*nrclas<0) sym_rv(:)=0.0d0
 
-Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 295
-Cdelw1 do not change og because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 295
-Cdelw1 do not change oag because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 295
-Cdelw1 do not change og because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oag  is not defined yet at linenumber= 295
-Cdelw1 do not change oag because of ['undef', 'wref']
-Cdelw1         call symqmp(nrclas,nlml,nlml,plat,posc,ngrp,w(og),w(oag),
-Cdelw1      .    w(oqwk),ipa,w(osym),vval,nn)
             call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , w ( 
-     .   og ) , w ( oag ) , rv_w_oqwk , ipa , rv_w_osym , vval , nn )
+     .   og ) , w ( oag ) , qwk_rv , ipa , sym_rv , vval , nn )
 
-Cdelw1 w_varlist remains: oqwk osym
-Cdelw1 w_varlistundel: [og oag]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [oqwk osym]
-            if (allocated(rv_w_osym)) deallocate(rv_w_osym)
-            if (allocated(rv_w_oqwk)) deallocate(rv_w_oqwk)
+            if (allocated(sym_rv)) deallocate(sym_rv)
+            if (allocated(qwk_rv)) deallocate(qwk_rv)
 
           endif
         endif
@@ -381,7 +318,6 @@ C   ... Printout
    10   continue
       enddo
 
-Cgetarg       end
 
       end subroutine symvvl
 

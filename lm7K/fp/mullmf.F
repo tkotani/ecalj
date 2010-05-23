@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['mullmf', 'site', 'ssite']
-Cgetarg...info...           structure ['mullmf', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['mullmf', 'm_struc_def']
 #define F90 1
       subroutine mullmf(nbas,ssite,sspec,iprmb,z,n,nspc,iq,isp,mode,
      .  nsites,lsites,lmxch,nchan,lchan,lmdim,nddos,doswt)
@@ -45,7 +42,6 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nspc,iq,isp,n,iprmb(1),mode,nsites,
      .  lsites(nsites),nchan,lchan(nchan),lmxch,lmdim,nddos
-Cgetarg       double precision ssite(1),sspec(1),doswt(nchan,nddos*nspc,nspc)
       real(8):: doswt(nchan,nddos*nspc,nspc)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -119,13 +115,9 @@ C --- Decompose by l:
 C --- Loop over channels ---
       do  isite = 1, nsites
         ib = lsites(isite)
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
 
         is=ssite(ib)%spec
 
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg         call upack('spec lmxb',sspec,is,lmxb,0,0,0)
 
         lmxb=sspec(is)%lmxb
 
@@ -189,7 +181,6 @@ C      enddo
 #endif
       call tcx('mullmf')
 
-Cgetarg       end
       end subroutine mullmf
 
 

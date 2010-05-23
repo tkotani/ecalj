@@ -1,7 +1,3 @@
-Cdelw1 var ['oexcx', '2', 'oexcx', 'np', 'real(8)', 'rv_w_', 'makrm0']
-Cdelw1 var ['oexcc', '2', 'oexcc', 'np', 'real(8)', 'rv_w_', 'makrm0']
-Cdelw1 var ['ovxcx', '2', 'ovxcx', 'np', 'real(8)', 'rv_w_', 'makrm0']
-Cdelw1 var ['ovxcc', '2', 'ovxcc', 'np', 'real(8)', 'rv_w_', 'makrm0']
       subroutine makrm0(opt,nspec,nbas,alat,plat,pos,slabl,ips,modep,
      .  lock,z,rmt)
 C- Estimate muffin-tin radii overlapping atomic potentials
@@ -94,11 +90,10 @@ C Local variables:
      .  rhoc(nrmx,nspec+1),rofi(nrmx*2),range(nbas),rmti(nbas)
       double precision vp(npmx,0:2),xp(3,npmx),rp(npmx),
      .  vxcp(npmx),excp(npmx)
-Cdelw1       integer oexcx,oexcc,ovxcx,ovxcc
-      real(8) ,allocatable :: rv_w_oexcx(:)
-      real(8) ,allocatable :: rv_w_oexcc(:)
-      real(8) ,allocatable :: rv_w_ovxcx(:)
-      real(8) ,allocatable :: rv_w_ovxcc(:)
+      real(8) ,allocatable :: excx_rv(:)
+      real(8) ,allocatable :: excc_rv(:)
+      real(8) ,allocatable :: vxcx_rv(:)
+      real(8) ,allocatable :: vxcc_rv(:)
 
 C     Sets scale for neighbor table
       double precision facr,facri
@@ -251,35 +246,26 @@ C       Add superposition of potentials for each vector
 C       Add vxc[superposition of densities] for each vector
         if (opt1 .eq. 1) then
           call sumsro(xp,np,ips,a,b,rho,nttab,iax,rpos,rp)
-Cdelw1           call defrr(oexcx,np)
-          allocate(rv_w_oexcx(np))
-Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_oexcx(:)=0.0d0
+          allocate(excx_rv(np))
+Ctakao_ZeroClear_NotRequiered            if (np<0) excx_rv(:)=0.0d0
 
-Cdelw1           call defrr(oexcc,np)
-          allocate(rv_w_oexcc(np))
-Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_oexcc(:)=0.0d0
+          allocate(excc_rv(np))
+Ctakao_ZeroClear_NotRequiered            if (np<0) excc_rv(:)=0.0d0
 
-Cdelw1           call defrr(ovxcx,np)
-          allocate(rv_w_ovxcx(np))
-Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_ovxcx(:)=0.0d0
+          allocate(vxcx_rv(np))
+Ctakao_ZeroClear_NotRequiered            if (np<0) vxcx_rv(:)=0.0d0
 
-Cdelw1           call defrr(ovxcc,np)
-          allocate(rv_w_ovxcc(np))
-Ctakao_ZeroClear_NotRequiered            if (np<0) rv_w_ovxcc(:)=0.0d0
+          allocate(vxcc_rv(np))
+Ctakao_ZeroClear_NotRequiered            if (np<0) vxcc_rv(:)=0.0d0
 
-Cdelw1           call evxcv(rp,rp,np,1,lxcfun,
-Cdelw1      .      excp,w(oexcx),w(oexcc),vxcp,w(ovxcx),w(ovxcc))
-          call evxcv ( rp , rp , np , 1 , lxcfun , excp , rv_w_oexcx , 
-     .     rv_w_oexcc , vxcp , rv_w_ovxcx , rv_w_ovxcc )
+          call evxcv ( rp , rp , np , 1 , lxcfun , excp , excx_rv , 
+     .     excc_rv , vxcp , vxcx_rv , vxcc_rv )
 
           call daxpy(np,1d0,vxcp,1,vp(1,2),1)
-Cdelw1 rlse name= oexcx old_list= oexcx oexcc ovxcx ovxcc
-Cdelw1 rlse name= oexcx new_list= (None)
-Cdelw1           call rlse(oexcx)
-          if (allocated(rv_w_ovxcc)) deallocate(rv_w_ovxcc)
-          if (allocated(rv_w_ovxcx)) deallocate(rv_w_ovxcx)
-          if (allocated(rv_w_oexcc)) deallocate(rv_w_oexcc)
-          if (allocated(rv_w_oexcx)) deallocate(rv_w_oexcx)
+          if (allocated(vxcc_rv)) deallocate(vxcc_rv)
+          if (allocated(vxcx_rv)) deallocate(vxcx_rv)
+          if (allocated(excc_rv)) deallocate(excc_rv)
+          if (allocated(excx_rv)) deallocate(excx_rv)
 
         endif
 
@@ -385,8 +371,5 @@ C       Index where to poke rnew
 C    print *, rmt
 
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 

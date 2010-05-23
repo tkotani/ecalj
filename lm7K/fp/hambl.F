@@ -1,9 +1,3 @@
-Cdelw1 var ['oiprmb', '-1', 'undef', '0', 'undef', 'x', 'hambl']
-Cdelw1 undel [['undef', 'wref'], 'oiprmb', 'hambl']
-Cgetarg...info...           structure ['hambl', 'ham', 'sham']
-Cgetarg...info...           structure ['pvhmb1', 'lat', 'slat']
-Cgetarg...info...           use_to_add ['hambl', 'm_struc_def']
-Cgetarg...info...           use_to_add ['pvhmb1', 'm_struc_def']
       subroutine hambl(mode,nbas,ssite,sspec,slat,sham,isp,q,k1,k2,k3,
      .  smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
      .  h,s,hso)
@@ -71,7 +65,6 @@ C ... Passed parameters
       integer mode,nbas,isp,k1,k2,k3,ndimh,lcplxp,napw,igvapw(3,napw)
       integer osig(3,nbas),otau(3,nbas),oppi(3,nbas)
       double precision alfa
-Cgetarg       double precision ssite(1),sspec(1),sham(1),slat(1),q(3),vconst
       real(8):: q(3) , vconst
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -82,7 +75,6 @@ Cgetarg       double precision ssite(1),sspec(1),sham(1),slat(1),q(3),vconst
       double complex hso(ndimh,ndimh)
 C ... Local parameters
       integer mode0,mode1,ipr
-Cdelw1 do not change  [['undef', 'wref'], 'oiprmb', 'hambl']
       integer oiprmb
       double precision vavg
 C     double precision plat(3,3)
@@ -97,11 +89,7 @@ C ... Heap
       call tcn('hambl')
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
-Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
-Cgetarg       call upack('ham oindxo',sham,oiprmb,0,0,0,0)
 
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 100
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
       oiprmb=sham%oindxo
 
 
@@ -113,8 +101,6 @@ C ... Skip LDA H, S
       if (mode0 .gt. 1) goto 100
 
 C --- Augmentation part of hamiltonian and overlap ---
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 111
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
       call augmbl(mode0+10*mode1,ssite,sspec,slat,isp,lcplxp,q,
      .  osig,otau,oppi,w(oiprmb),ndimh,napw,igvapw,h,hso,s)
 
@@ -132,15 +118,11 @@ C     call pvhmb1(1,slat,k1,k2,k3,smpot,-vavg)
 C --- Smoothed hamiltonian and overlap, S and T done analytically ---
 C     print *, '!!'; s = 0
 
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 128
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
       call smhsbl(mode0,ssite,sspec,slat,vavg+vconst,q,ndimh,w(oiprmb),
      .  napw,igvapw,h,s)
 C     call zprm('s',12,s,ndimh,ndimh,ndimh)
 
       if (mode0 .eq. 1) goto 100
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 133
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
       call hsibl(ssite,sspec,slat,k1,k2,k3,smpot,isp,q,ndimh,w(oiprmb),
      .  napw,igvapw,h)
 
@@ -211,11 +193,6 @@ C     call pvhmb2(ndimh,h,s)
         if (mode1 .eq. 1) call zprm('hso',2,hso,ndimh,ndimh,ndimh)
       endif
       call tcx('hambl')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oiprmb]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine hambl
 
 
@@ -243,7 +220,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,k1,k2,k3
-Cgetarg       double precision slat(1)
       type(s_lat)::slat
 
       double complex smpot(k1,k2,k3)
@@ -253,8 +229,6 @@ C ... Local parameters
       integer ngabc(3),i
 
       if (mode .eq. 0) then
-Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
-Cgetarg         call upack1('lat nabc',slat,ngabc)
 
         i_copy_size=size(slat%nabc)
         call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
@@ -268,10 +242,6 @@ Cgetarg         call upack1('lat nabc',slat,ngabc)
       else
         call rx('pvhmb1: bad mode')
       endif
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine pvhmb1
 
 

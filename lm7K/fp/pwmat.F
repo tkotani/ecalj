@@ -1,11 +1,3 @@
-Cgetarg...info...           structure ['pwmat', 'lat', 'slat']
-Cgetarg...info...           structure ['pwmat', 'site', 'ssite']
-Cgetarg...info...           structure ['pwmat', 'spec', 'sspec']
-Cgetarg...info...           structure ['pwmat2', 'lat', 'slat']
-Cgetarg...info...           structure ['pwmat2', 'site', 'ssite']
-Cgetarg...info...           structure ['pwmat2', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['pwmat2', 'm_struc_def']
-Cgetarg...info...           use_to_add ['pwmat', 'm_struc_def']
       subroutine pwmat(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
      .  ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
 
@@ -75,7 +67,6 @@ C ----------------------------------------------------------------------
 C ... Passed parameters
       integer ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1),
      .  napw,igapw(3,napw)
-Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3),GcutH
       real(8):: q(3) , GcutH
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -104,11 +95,6 @@ C ... Local parameters
 
       integer:: i_copy_size, i_spackv, i_spacks
 C --- Setup ---
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
 
       alat=slat%alat
       i_copy_size=size(slat%plat)
@@ -128,23 +114,19 @@ Cgetarg       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
         mimgl(l) = (-img)**l
       enddo
 C     Create bas,ips,rmax
-Cgetarg       call spackv(10,'site pos',ssite,1,nbas,bas)
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
       enddo
 
-Cgetarg       call spackv(10,'site spec',ssite,1,nbas,ips)
       i_copy_size=1;
       do i_spackv=1,nbas
         call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
       enddo
 
       do  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg         rmax(ib) = dgetss('spec rmt',is,sspec)
         rmax ( ib ) = (sspec(is)%rmt)
 
       enddo
@@ -185,7 +167,6 @@ C     Could be optimized, ala hsibl, but not a critical step for GW.
         call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
         do  ib = 1, nbas
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
-Cgetarg           is = igetss('site spec',ib,ssite)
           is = int(ssite(ib)%spec)
 
           call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
@@ -251,7 +232,6 @@ C     call zprm('pwhovl',2,pwhovl,ngp,ngp,ndimh)
 C --- Cleanup ---
       deallocate(yl,igvx,pwh,kv,ppovlx)
 
-Cgetarg       end
       end subroutine pwmat
 
 
@@ -310,7 +290,6 @@ C     implicit none
 C ... Passed parameters
       integer ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1),
      .  napw,igapw(3,napw)
-Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3)
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -332,11 +311,6 @@ C ... Local parameters
       double precision,allocatable:: yl(:)
 
 C --- Setup ---
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
 
       alat=slat%alat
       i_copy_size=size(slat%plat)
@@ -356,23 +330,19 @@ Cgetarg       call upack('lat alat plat qlat vol',slat,alat,plat,qlat,vol,0)
         mimgl(l) = (-img)**l
       enddo
 C     Create bas,ips,rmax
-Cgetarg       call spackv(10,'site pos',ssite,1,nbas,bas)
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
         call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
       enddo
 
-Cgetarg       call spackv(10,'site spec',ssite,1,nbas,ips)
       i_copy_size=1;
       do i_spackv=1,nbas
         call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
       enddo
 
       do  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg         rmax(ib) = dgetss('spec rmt',is,sspec)
         rmax ( ib ) = (sspec(is)%rmt)
 
       enddo
@@ -393,7 +363,6 @@ C ... Fourier coefficients of smoothed hankels for all LMTOs
         call ropyln(1,qpg(1),qpg(2),qpg(3),lmxax,1,yl,qpg2)
         do  ib = 1, nbas
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
-Cgetarg           is = igetss('site spec',ib,ssite)
           is = int(ssite(ib)%spec)
 
           call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
@@ -433,7 +402,6 @@ C     call zprm('pwh',2,pwh,ngp,ngp,ndimh)
 C --- Cleanup ---
       deallocate(yl)
 
-Cgetarg       end
       end subroutine pwmat2
 
 
@@ -510,7 +478,6 @@ C ... For each G2*G1, poke integral into ppovl
       enddo
 
       deallocate(ppox)
-Cgetarg       end
       end subroutine ipwovl
 
 
@@ -573,7 +540,6 @@ C     Integral of exp(i G.r) = v0l * delta_(G,0)
      .      * pi4/absg**3 * ( -grmx * cos(grmx) + sin(grmx) )
         endif
       enddo
-Cgetarg       end
       end subroutine matgg2
 
 

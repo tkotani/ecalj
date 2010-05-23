@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['adbkql', 'site', 'ssite']
-Cgetarg...info...           structure ['adbkql', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['adbkql', 'm_struc_def']
       subroutine addbkgsm(smrho,k1,k2,k3,nsp,qbg,vol,fac)
 
 C- add uniform background to smooth charge density
@@ -26,7 +23,6 @@ C     implicit none
         enddo
       enddo
       return
-Cgetarg       end
       end subroutine addbkgsm
 
       subroutine adbkql(orhoat,nbas,nsp,qbg,vol,fac,sspec,ssite)
@@ -48,7 +44,6 @@ C     implicit none
       integer nrmx,nlmx,nlml,lmxl,nbas
       parameter (nrmx=1501,nlmx=64)
       integer orhoat(3,nbas),nsp
-Cgetarg       double precision qbg,sspec(1),ssite(1),fac
       real(8):: qbg , fac
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
@@ -59,22 +54,14 @@ Cgetarg       double precision qbg,sspec(1),ssite(1),fac
       common /w/ w
       rhobkg = fac*qbg/vol
       do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg        call upack2('site spec',ssite,ib,is)
 
         is=ssite(ib)%spec
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg        call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
 
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
 
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg        call upack2('spec lmxl',sspec,is,lmxl)
 
         lmxl=sspec(is)%lmxl
 
@@ -88,7 +75,6 @@ C      nrml=nr*nlml
      .   nr,nsp,rofi,nlml)
    10   continue
       enddo
-Cgetarg       end
       end subroutine adbkql
 
       subroutine addbkgl(rho1,rho2,rhobkg,nr,nsp,rofi,nlml)
@@ -109,7 +95,6 @@ C     y0 = 1d0/srfpi
           rho2(i,1,is) = rho2(i,1,is)+srfpi*rofi(i)**2*rhobkg/nsp
         enddo
       enddo
-Cgetarg       end
       end subroutine addbkgl
 
 

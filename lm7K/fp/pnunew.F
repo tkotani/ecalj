@@ -1,12 +1,3 @@
-Cdelw1 var ['og', '4', 'og', 'nr*2', 'real(8)', 'rv_w_', 'pnunew']
-Cdelw1 var ['orofi', '4', 'orofi', 'nr*2', 'real(8)', 'rv_w_', 'pnunew']
-Cdelw1 var ['ov0i', '4', 'ov0i', 'nr', 'real(8)', 'rv_w_', 'pnunew']
-Cdelw1 var ['ov0', '-1', 'undef', '0', 'undef', 'x', 'pnunew']
-Cdelw1 var ['ogp', '5', 'ogp', '8*nr', 'real(8)', 'rv_w_', 'pnunew']
-Cdelw1 undel [['undef', 'wref'], 'ov0', 'pnunew']
-Cgetarg...info...           structure ['pnunew', 'site', 'ssite']
-Cgetarg...info...           structure ['pnunew', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['pnunew', 'm_struc_def']
       subroutine pnunew(nbas,nsp,ssite,sspec,pmin,pmax,lfrzw,hab,sab,
      .  qbyl,hbyl)
 
@@ -54,9 +45,6 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nsp,lfrzw,n0,nab
       parameter(n0=10,nab=9)
-Cgetarg       double precision ssite(1),sspec(1),pmin(n0),pmax(n0),
-Cgetarg      .  qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas),
-Cgetarg      .  sab(nab,n0,nsp,nbas),hab(nab,n0,nsp,nbas)
       real(8):: pmin(n0) , pmax(n0) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) 
      . , sab(nab,n0,nsp,nbas) , hab(nab,n0,nsp,nbas)
       type(s_site)::ssite(*)
@@ -64,15 +52,12 @@ Cgetarg      .  sab(nab,n0,nsp,nbas),hab(nab,n0,nsp,nbas)
 
 C ... Local parameters
       logical lpz,lfrzv,lfrzz
-Cdelw1 do not change  [['undef', 'wref'], 'ov0', 'pnunew']
-Cdelw1       integer idmod(n0),stdo,lgunit,ipr,ib,is,lmxa,l,ipqn,m,isp,ov0,nr,
-Cdelw1      .  nn,og,ogp,orofi,ov0i,mxcst
       integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
      . l , ipqn , m , isp , ov0 , nr , nn , mxcst
-      real(8) ,allocatable :: rv_w_og(:)
-      real(8) ,allocatable :: rv_w_ogp(:)
-      real(8) ,allocatable :: rv_w_orofi(:)
-      real(8) ,allocatable :: rv_w_ov0i(:)
+      real(8) ,allocatable :: g_rv(:)
+      real(8) ,allocatable :: gp_rv(:)
+      real(8) ,allocatable :: rofi_rv(:)
+      real(8) ,allocatable :: v0i_rv(:)
 
       double precision pi,rmt,p1,ebar,a,d0l,pfree,pold,ptry,z,
      .  val(5),slo(5),dl,phi,dphi,pnu(n0,2),pnz(n0,2)
@@ -91,27 +76,14 @@ C ... Heap
 
 C --- For each site, do ---
       do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
-Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
-Cgetarg         call upack('site spec pnu pz ov0',ssite,ib,is,pnu,pnz,ov0)
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 91
-Cdelw1 do not change ov0 because of ['undef', 'wref']
         ov0=ssite(ib)%ov0
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
-Cgetarg...info...           integer :: mxcst , integer(8) :: sspec%mxcst 1
-Cgetarg         call upack('spec lmxa rmt idmod mxcst',sspec,is,lmxa,rmt,idmod,
-Cgetarg      .    mxcst)
 
         lmxa=sspec(is)%lmxa
         rmt=sspec(is)%rmt
@@ -120,7 +92,6 @@ Cgetarg      .    mxcst)
         mxcst=sspec(is)%mxcst
 
         if (lmxa .eq. -1) goto 10
-Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
         enddo
@@ -146,41 +117,26 @@ C         if (dabs(qbyl(m,isp,ib)) .gt. 1d-8 .and. .not. lpz) then
               ebar = hbyl(m,isp,ib)/qbyl(m,isp,ib)
 
 C       ... Log derivative by direct num integration
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg             call upack2('site spec',ssite,ib,is)
 
               is=ssite(ib)%spec
 
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg             call upack('spec z a nr',sspec,is,z,a,nr,0)
 
               z=sspec(is)%z
               a=sspec(is)%a
               nr=sspec(is)%nr
 
-Cdelw1             call defrr(og,nr*2)
-              allocate(rv_w_og(nr*2))
-Ctakao_ZeroClear_NotRequiered              if (nr*2<0) rv_w_og(:)=0.0d0
+              allocate(g_rv(nr*2))
+Ctakao_ZeroClear_NotRequiered              if (nr*2<0) g_rv(:)=0.0d0
 
-Cdelw1             call defrr(orofi,nr*2)
-              allocate(rv_w_orofi(nr*2))
-Ctakao_ZeroClear_NotRequiered              if (nr*2<0) rv_w_orofi(:)=0.0d0
+              allocate(rofi_rv(nr*2))
+Ctakao_ZeroClear_NotRequiered              if (nr*2<0) rofi_rv(:)=0.0d0
 
-Cdelw1             call radmsh(rmt,a,nr,w(orofi))
-              call radmsh ( rmt , a , nr , rv_w_orofi )
+              call radmsh ( rmt , a , nr , rofi_rv )
 
-Cdelw1             call defrr(ov0i,nr)
-              allocate(rv_w_ov0i(nr))
-Ctakao_ZeroClear_NotRequiered              if (nr<0) rv_w_ov0i(:)=0.0d0
+              allocate(v0i_rv(nr))
+Ctakao_ZeroClear_NotRequiered              if (nr<0) v0i_rv(:)=0.0d0
 
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 151
-Cdelw1 do not change ov0 because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 151
-Cdelw1 do not change ov0 because of ['undef', 'wref']
-Cdelw1             call dpscop(w(ov0),w(ov0i),nr,1+nr*(isp-1),1,1d0)
-              call dpscop ( w ( ov0 ) , rv_w_ov0i , nr , 1 + nr * ( isp - 1 
+              call dpscop ( w ( ov0 ) , v0i_rv , nr , 1 + nr * ( isp - 1 
      .       ) , 1 , 1d0 )
 
 
@@ -189,16 +145,12 @@ Cdelw1             call dpscop(w(ov0),w(ov0i),nr,1+nr*(isp-1),1,1d0)
                 dl = dtan(pi*(0.5d0-mod(pnu(m,isp),10d0)))
                 slo(1) = dl + 1d0
                 nn = int(mod(pnu(m,1),10d0))-l-1
-Cdelw1               call defdr(ogp,8*nr)
-                allocate(rv_w_ogp(8*nr))
-Ctakao_ZeroClear_NotRequiered                if (8*nr<0) rv_w_ogp(:)=0.0d0
+                allocate(gp_rv(8*nr))
+Ctakao_ZeroClear_NotRequiered                if (8*nr<0) gp_rv(:)=0.0d0
 
 C             xx = dval(w(ov0i),nr)
-Cdelw1               call phidx(0,z,l,w(ov0i),0d0,0d0,w(orofi),nr,2,1d-12,ebar,
-Cdelw1      .          val,slo,nn,w(og),w(ogp),phi,dphi,phip,dphip,xx,xx,xx,
-Cdelw1      .          xx,xx)
-                call phidx ( 0 , z , l , rv_w_ov0i , 0d0 , 0d0 , rv_w_orofi , 
-     .         nr , 2 , 1d - 12 , ebar , val , slo , nn , rv_w_og , rv_w_ogp 
+                call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , 
+     .         nr , 2 , 1d - 12 , ebar , val , slo , nn , g_rv , gp_rv 
      .         , phi , dphi , phip , dphip , xx , xx , xx , xx , xx )
 
 C         ... cz = estimate for energy of orbital with b.c. connecting
@@ -218,10 +170,8 @@ C             val(1) = rmt
 C             slo(1) = dl + 1d0
               endif
 
-Cdelw1             call phidx(2,z,l,w(ov0i),0d0,0d0,w(orofi),nr,0,1d-12,ebar,
-Cdelw1      .        val,slo,nn,w(og),w,phi,dphi,w,w,w,w,w,w,w)
-              call phidx ( 2 , z , l , rv_w_ov0i , 0d0 , 0d0 , rv_w_orofi , 
-     .       nr , 0 , 1d - 12 , ebar , val , slo , nn , rv_w_og , w , phi 
+              call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , 
+     .       nr , 0 , 1d - 12 , ebar , val , slo , nn , g_rv , w , phi 
      .       , dphi , w , w , w , w , w , w , w )
 
 C           dphip = (slo(2)-phip)/rmt
@@ -242,15 +192,11 @@ C       ... Estimate new pnz for semicore state
                 dnz = dtan(pi*(0.5d0-mod(pnz(m,isp),10d0)))
                 slo(1) = dnz + 1d0
                 nn = int(mod(pnz(m,1),10d0))-l-1
-Cdelw1               call defdr(ogp,8*nr)
-                allocate(rv_w_ogp(8*nr))
-Ctakao_ZeroClear_NotRequiered                if (8*nr<0) rv_w_ogp(:)=0.0d0
+                allocate(gp_rv(8*nr))
+Ctakao_ZeroClear_NotRequiered                if (8*nr<0) gp_rv(:)=0.0d0
 
-Cdelw1               call phidx(0,z,l,w(ov0i),0d0,0d0,w(orofi),nr,2,1d-12,ez,
-Cdelw1      .          val,slo,nn,w(og),w(ogp),phi,dphi,phip,dphip,xx,xx,xx,
-Cdelw1      .          xx,xx)
-                call phidx ( 0 , z , l , rv_w_ov0i , 0d0 , 0d0 , rv_w_orofi , 
-     .         nr , 2 , 1d - 12 , ez , val , slo , nn , rv_w_og , rv_w_ogp , 
+                call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , 
+     .         nr , 2 , 1d - 12 , ez , val , slo , nn , g_rv , gp_rv , 
      .         phi , dphi , phip , dphip , xx , xx , xx , xx , xx )
 
 C             dphip = (slo(2)-phip)/rmt
@@ -274,13 +220,10 @@ C             when cz -> 0,  dl -> -l-1
                 pznew = 0.5d0 - datan(dble(l))/pi
                 ez = 0
               endif
-Cdelw1 rlse name= og old_list= og orofi ov0i ogp
-Cdelw1 rlse name= og new_list= (None)
-Cdelw1             call rlse(og)
-              if (allocated(rv_w_ogp)) deallocate(rv_w_ogp)
-              if (allocated(rv_w_ov0i)) deallocate(rv_w_ov0i)
-              if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
-              if (allocated(rv_w_og)) deallocate(rv_w_og)
+              if (allocated(gp_rv)) deallocate(gp_rv)
+              if (allocated(v0i_rv)) deallocate(v0i_rv)
+              if (allocated(rofi_rv)) deallocate(rofi_rv)
+              if (allocated(g_rv)) deallocate(g_rv)
 
 
 C       ... First root of quad equation is the one we want
@@ -364,9 +307,6 @@ C         ... Permit pnu no lower than free electron value
           enddo
         enddo
 
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
-Cgetarg         call pack5('site pnu pz',ssite,ib,pnu,pnz,0,0)
 
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
@@ -376,11 +316,6 @@ Cgetarg         call pack5('site pnu pz',ssite,ib,pnu,pnz,0,0)
    10   continue
       enddo
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [ov0]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine pnunew
 
 

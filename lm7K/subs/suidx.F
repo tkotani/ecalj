@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['suidx', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['suidx', 'm_struc_def']
       subroutine suidx(nkaph,mode,nspec,sspec)
 
       use m_struc_def  !Cgetarg
@@ -88,7 +86,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nkaph,nspec
-Cgetarg       double precision sspec(1)
       type(s_spec)::sspec(*)
 
 C ... Local parameters
@@ -109,11 +106,6 @@ C     Determine whether basis has any local orbitals
       endif
 
       do  is = 1, nspec
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: idxdn(n0,nkap0) , integer(8) :: sspec%idxdn 30
-Cgetarg...info...           real(8) :: pz(n0,2) , real(8) :: sspec%pz 20
-Cgetarg       call upack('spec lmxb lmxa idxdn pz',sspec,is,lmxb,lmxa,idxdn,pz)
 
         lmxb=sspec(is)%lmxb
         lmxa=sspec(is)%lmxa
@@ -167,8 +159,6 @@ C     ... Automatic downfolding turned off ... set idxdn=0 to idxdn=1
 
 C     ... lmf-specific
           if (lmf .and. ik .le. nkaph-iloc) then
-Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%orbp 60
-Cgetarg             call upack2('spec orbp',sspec,is,orbp)
 
             i_copy_size=size(sspec(is)%orbp)
             call dcopy(i_copy_size,sspec(is)%orbp,1,orbp,1)
@@ -182,15 +172,12 @@ C             if (orbp(lp1,1,ik) .eq. 0) idxdn(lp1,ik) = max(idxdn(lp1,ik),2)
 
         enddo
 
-Cgetarg...info...           integer :: idxdn(n0,nkap0) , integer(8) :: sspec%idxdn 30
-Cgetarg         call pack2('spec idxdn',sspec,is,idxdn)
 
         i_copy_size=size(sspec(is)%idxdn)
         call ii8copy(i_copy_size,idxdn,1,sspec(is)%idxdn,1)
 
       enddo
 
-Cgetarg       end
       end subroutine suidx
 
 
@@ -253,7 +240,6 @@ C ... Local parameters
 
       if (mode .ge. 10) pz = mod(pz,10d0)
 
-Cgetarg       end
       end subroutine pz2idx
 
 

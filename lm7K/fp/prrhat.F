@@ -1,9 +1,3 @@
-Cdelw1 var ['orofi', '1', 'orofi', 'nr', 'real(8)', 'rv_w_', 'prrhat']
-Cdelw1 var ['orwgt', '1', 'orwgt', 'nr', 'real(8)', 'rv_w_', 'prrhat']
-Cdelw1 undel [['call'], 'orhoat', 'prrhat']
-Cgetarg...info...           structure ['prrhat', 'site', 'ssite']
-Cgetarg...info...           structure ['prrhat', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['prrhat', 'm_struc_def']
       subroutine prrhat(nbas,ssite,sspec,orhoat)
 
       use m_struc_def  !Cgetarg
@@ -11,19 +5,15 @@ Cgetarg...info...           use_to_add ['prrhat', 'm_struc_def']
 C- Print info about the atomic charge densities
 C     implicit none
 C ... Passed parameters
-Cdelw1 do not change  [['call'], 'orhoat', 'prrhat']
       integer nbas,orhoat(3,nbas)
-Cgetarg       double precision ssite(1),sspec(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
 C ... Local parameters
-Cdelw1       integer stdo,lgunit,ib,lmxl,nr,orofi,orwgt,nlml,is,igetss,nsp,
-Cdelw1      .  nglob
       integer:: stdo , lgunit , ib , lmxl , nr , nlml , is , igetss 
      . , nsp , nglob
-      real(8) ,allocatable :: rv_w_orofi(:)
-      real(8) ,allocatable :: rv_w_orwgt(:)
+      real(8) ,allocatable :: rofi_rv(:)
+      real(8) ,allocatable :: rwgt_rv(:)
 
       double precision a,rmt
 C ... Heap
@@ -33,14 +23,8 @@ C ... Heap
       nsp  = nglob('nsp')
       stdo = lgunit(1)
       do  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg         call upack('spec lmxl a nr rmt',sspec,is,lmxl,a,nr,rmt)
 
         lmxl=sspec(is)%lmxl
         a=sspec(is)%a
@@ -48,54 +32,36 @@ Cgetarg         call upack('spec lmxl a nr rmt',sspec,is,lmxl,a,nr,rmt)
         rmt=sspec(is)%rmt
 
         if (lmxl .eq. -1) goto 10
-Cdelw1         call defrr(orofi, nr)
-        allocate(rv_w_orofi(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
+        allocate(rofi_rv(nr))
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rofi_rv(:)=0.0d0
 
-Cdelw1         call defrr(orwgt, nr)
-        allocate(rv_w_orwgt(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orwgt(:)=0.0d0
+        allocate(rwgt_rv(nr))
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
 
-Cdelw1         call radmsh(rmt,a,nr,w(orofi))
-        call radmsh ( rmt , a , nr , rv_w_orofi )
+        call radmsh ( rmt , a , nr , rofi_rv )
 
-Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
-        call radwgt ( rmt , a , nr , rv_w_orwgt )
+        call radwgt ( rmt , a , nr , rwgt_rv )
 
 
         nlml = (lmxl+1)**2
         write(stdo,200) ib,rmt,nr,nlml
   200   format(/' Density at site',i3,'   rmt=',f8.4,
      .     '   nr=',i5,'   nlml=',i3)
-Cdelw1 1 is digit, dropped
-Cdelw1         call prlrho('true density',nr,nlml,nsp,w(orofi),w(orwgt),
-Cdelw1      .     w(orhoat(1,ib)))
-        call prlrho ( 'true density' , nr , nlml , nsp , rv_w_orofi , 
-     .   rv_w_orwgt , w ( orhoat ( 1 , ib ) ) )
+        call prlrho ( 'true density' , nr , nlml , nsp , rofi_rv , 
+     .   rwgt_rv , w ( orhoat ( 1 , ib ) ) )
 
 
-Cdelw1 2 is digit, dropped
-Cdelw1         call prlrho('smooth density',nr,nlml,nsp,w(orofi),w(orwgt),
-Cdelw1      .     w(orhoat(2,ib)))
-        call prlrho ( 'smooth density' , nr , nlml , nsp , rv_w_orofi 
-     .   , rv_w_orwgt , w ( orhoat ( 2 , ib ) ) )
+        call prlrho ( 'smooth density' , nr , nlml , nsp , rofi_rv 
+     .   , rwgt_rv , w ( orhoat ( 2 , ib ) ) )
 
 
-Cdelw1 rlse name= orofi old_list= orofi orwgt
-Cdelw1 rlse name= orofi new_list= (None)
-Cdelw1         call rlse(orofi)
-        if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
-        if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+        if (allocated(rwgt_rv)) deallocate(rwgt_rv)
+        if (allocated(rofi_rv)) deallocate(rofi_rv)
 
 
    10   continue
       enddo
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [orhoat]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine prrhat
 
 
@@ -147,10 +113,6 @@ C ... Local parameters
   601   format(/' prlrho: ',a/'  ilm',6x,'rhomin    pnt',
      .     7x,'rhomax    pnt       moment')
       enddo
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine prlrho
 
 

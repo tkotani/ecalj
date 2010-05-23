@@ -1,49 +1,3 @@
-Cdelw1 var ['oiprmb', '-1', 'undef', '0', 'undef', 'x', 'mkrout']
-Cdelw1 var ['orofi', '1', 'orofi', 'nr', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['orwgt', '1', 'orwgt', 'nr', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['ofh', '2', 'ofh', 'nr*(lmxh+1)*nkaph', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['oxh', '2', 'oxh', 'nr*(lmxh+1)*nkaph', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['ovh', '2', 'ovh', '(lmxh+1)*nkaph', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['odh', '2', 'odh', '(lmxh+1)*nkaph', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['ofp', '2', 'ofp', 'nr*(lmxa+1)*(kmax+1)', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['oxp', '2', 'oxp', 'nr*(lmxa+1)*(kmax+1)', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['ovp', '2', 'ovp', '(lmxa+1)*(kmax+1)', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['odp', '2', 'odp', '(lmxa+1)*(kmax+1)', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['oul', '2', 'oul', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['osl', '2', 'osl', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['ogz', '2', 'ogz', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['oruu', '2', 'oruu', 'nr*(lmxa+1)*2*nsp', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['orus', '2', 'orus', 'nr*(lmxa+1)*2*nsp', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['orss', '2', 'orss', 'nr*(lmxa+1)*2*nsp', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['ov0', '-1', 'undef', '0', 'undef', 'x', 'mkrout']
-Cdelw1 var ['ochh', '2', 'ochh', '-k', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['ochp', '2', 'ochp', '-k', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['ocpp', '2', 'ocpp', '-k', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['odmatl', '2', 'odmatl', '-(lmxa+1)**2*nlml*nsp*9', 'real(8)', 'rv_w_', 'mkrout']
-Cdelw1 var ['ocg', '-1', 'undef', '0', 'undef', 'x', 'mkrout']
-Cdelw1 var ['ojcg', '-1', 'undef', '0', 'undef', 'x', 'mkrout']
-Cdelw1 var ['oidxcg', '-1', 'undef', '0', 'undef', 'x', 'mkrout']
-Cdelw1 var ['oqhh', '-1', 'undef', '0', 'undef', 'x', 'mkrout']
-Cdelw1 var ['oqhp', '-1', 'undef', '0', 'undef', 'x', 'mkrout']
-Cdelw1 var ['oqpp', '-1', 'undef', '0', 'undef', 'x', 'mkrout']
-Cdelw1 var ['ov01', '-1', 'undef', '0', 'undef', 'x', 'mkrout']
-Cdelw1 var ['orhoca', '-1', 'undef', '0', 'undef', 'x', 'mkrout']
-Cdelw1 undel [['undef', 'wref'], 'oiprmb', 'mkrout']
-Cdelw1 undel [['undef', 'wref'], 'ov0', 'mkrout']
-Cdelw1 undel [['undef', 'wref'], 'ocg', 'mkrout']
-Cdelw1 undel [['undef', 'wref'], 'ojcg', 'mkrout']
-Cdelw1 undel [['undef', 'wref'], 'oidxcg', 'mkrout']
-Cdelw1 undel [['undef', 'wref'], 'oqhh', 'mkrout']
-Cdelw1 undel [['undef', 'wref'], 'oqhp', 'mkrout']
-Cdelw1 undel [['undef', 'wref'], 'oqpp', 'mkrout']
-Cdelw1 undel [['undef', 'wref'], 'ov01', 'mkrout']
-Cdelw1 undel [['undef', 'wref'], 'orhoca', 'mkrout']
-Cdelw1 undel [['call'], 'orhoat', 'mkrout']
-Cgetarg...info...           structure ['mkrout', 'lat', 'slat']
-Cgetarg...info...           structure ['mkrout', 'ham', 'sham']
-Cgetarg...info...           structure ['mkrout', 'site', 'ssite']
-Cgetarg...info...           structure ['mkrout', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['mkrout', 'm_struc_def']
       subroutine mkrout(ssite,sspec,slat,sham,nbas,nsp,nlmto,lekkl,
      .  oqkkl,oeqkkl,orhoat,hab,sab,qbyl,hbyl,lrout)
 
@@ -101,13 +55,9 @@ Cu   20 May 00 adapted from nfp mk_dens2
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cdelw1 do not change  [['call'], 'orhoat', 'mkrout']
       integer n0,nab,nbas,nsp,lekkl,nlmto,lrout,
      .  oqkkl(3,nbas),oeqkkl(3,nbas),orhoat(3,nbas)
       parameter (n0=10,nab=9)
-Cgetarg       double precision ssite(1),sspec(1),sham(1),slat(1),
-Cgetarg      .  qbyl(n0,nsp,nbas),hbyl(n0,nsp,nbas),
-Cgetarg      .  sab(nab,n0,nsp,nbas),hab(nab,n0,nsp,nbas)
       real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(nab,n0,nsp,nbas) 
      . , hab(nab,n0,nsp,nbas)
       type(s_site)::ssite(*)
@@ -116,45 +66,30 @@ Cgetarg      .  sab(nab,n0,nsp,nbas),hab(nab,n0,nsp,nbas)
       type(s_lat)::slat
 
 C ... Local parameters
-Cdelw1 do not change  [['undef', 'wref'], 'ocg', 'mkrout']
-Cdelw1 do not change  [['undef', 'wref'], 'oidxcg', 'mkrout']
-Cdelw1 do not change  [['undef', 'wref'], 'ojcg', 'mkrout']
-Cdelw1 do not change  [['undef', 'wref'], 'oqhh', 'mkrout']
-Cdelw1 do not change  [['undef', 'wref'], 'oqhp', 'mkrout']
-Cdelw1 do not change  [['undef', 'wref'], 'oqpp', 'mkrout']
-Cdelw1 do not change  [['undef', 'wref'], 'orhoca', 'mkrout']
-Cdelw1 do not change  [['undef', 'wref'], 'ov0', 'mkrout']
-Cdelw1 do not change  [['undef', 'wref'], 'ov01', 'mkrout']
-Cdelw1 do not change  [['undef', 'wref'], 'oiprmb', 'mkrout']
-Cdelw1       integer ib,ipr,iprint,is,k,kcor,kmax,lcor,lfoc,lgunit,lmxa,lmxh,
-Cdelw1      .  lmxl,nlma,nlmh,nlml,nlml1,nr,ncore,ocg,odmatl,
-Cdelw1      .  ocy,odh,odp,ofh,ofp,oidxcg,ojcg,oqhh,oqhp,oqpp,orhoca,orofi,
-Cdelw1      .  orss,orus,oruu,orwgt,osl,oul,ogz,ov0,ov01,ovh,ovp,oxh,oxp,
-Cdelw1      .  oiprmb,stdo,igetss,ochh,ochp,ocpp
       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
      . , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
      . nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
      . orhoca , ov0 , ov01 , oiprmb , stdo , igetss
-      real(8) ,allocatable :: rv_w_odmatl(:)
-      real(8) ,allocatable :: rv_w_odh(:)
-      real(8) ,allocatable :: rv_w_odp(:)
-      real(8) ,allocatable :: rv_w_ofh(:)
-      real(8) ,allocatable :: rv_w_ofp(:)
-      real(8) ,allocatable :: rv_w_orofi(:)
-      real(8) ,allocatable :: rv_w_orss(:)
-      real(8) ,allocatable :: rv_w_orus(:)
-      real(8) ,allocatable :: rv_w_oruu(:)
-      real(8) ,allocatable :: rv_w_orwgt(:)
-      real(8) ,allocatable :: rv_w_osl(:)
-      real(8) ,allocatable :: rv_w_oul(:)
-      real(8) ,allocatable :: rv_w_ogz(:)
-      real(8) ,allocatable :: rv_w_ovh(:)
-      real(8) ,allocatable :: rv_w_ovp(:)
-      real(8) ,allocatable :: rv_w_oxh(:)
-      real(8) ,allocatable :: rv_w_oxp(:)
-      real(8) ,allocatable :: rv_w_ochh(:)
-      real(8) ,allocatable :: rv_w_ochp(:)
-      real(8) ,allocatable :: rv_w_ocpp(:)
+      real(8) ,allocatable :: dmatl_rv(:)
+      real(8) ,allocatable :: dh_rv(:)
+      real(8) ,allocatable :: dp_rv(:)
+      real(8) ,allocatable :: fh_rv(:)
+      real(8) ,allocatable :: fp_rv(:)
+      real(8) ,allocatable :: rofi_rv(:)
+      real(8) ,allocatable :: rss_rv(:)
+      real(8) ,allocatable :: rus_rv(:)
+      real(8) ,allocatable :: ruu_rv(:)
+      real(8) ,allocatable :: rwgt_rv(:)
+      real(8) ,allocatable :: sl_rv(:)
+      real(8) ,allocatable :: ul_rv(:)
+      real(8) ,allocatable :: gz_rv(:)
+      real(8) ,allocatable :: vh_rv(:)
+      real(8) ,allocatable :: vp_rv(:)
+      real(8) ,allocatable :: xh_rv(:)
+      real(8) ,allocatable :: xp_rv(:)
+      real(8) ,allocatable :: chh_rv(:)
+      real(8) ,allocatable :: chp_rv(:)
+      real(8) ,allocatable :: cpp_rv(:)
 
       double precision a,ceh,pi,qcor(2),rfoc,rmt,rsma,smec,smtc,stc0,
      .  sum1,sum2,sums1,sums2,sumec,sumtc,sumt0,xx,y0,z,ddot,res,
@@ -184,29 +119,13 @@ C ... Setup
       nkaph = nglob('nkaph')
       sums1 = 0
       call tcn('mkrout')
-Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
-Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
-Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
-Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
-Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
 
-Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 116
-Cdelw1 do not change ocg because of ['undef', 'wref']
       ocg=slat%ocg
-Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 117
-Cdelw1 do not change ojcg because of ['undef', 'wref']
       ojcg=slat%ojcg
-Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 118
-Cdelw1 do not change oidxcg because of ['undef', 'wref']
       oidxcg=slat%oidxcg
       ocy=slat%ocy
 
-Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
-Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
-Cgetarg       call upack('ham oindxo eterms',sham,oiprmb,eterms,0,0,0)
 
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 125
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
       oiprmb=sham%oindxo
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,sham%eterms,1,eterms,1)
@@ -224,15 +143,8 @@ C --- Start loop over atoms ---
      .    'true mm   smooth mm    local mm')
       endif
       do  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
-Cgetarg         call upack('spec rsma lmxa lmxl kmxt',sspec,is,rsma,lmxa,lmxl,
-Cgetarg      .    kmax)
 
         rsma=sspec(is)%rsma
         lmxa=sspec(is)%lmxa
@@ -241,53 +153,30 @@ Cgetarg      .    kmax)
 
         if (lmxa .eq. -1) goto 10
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
 
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
 
-Cgetarg...info...           integer :: lmxh , integer(8) :: sspec%lmxb 1
-Cgetarg...info...           real(8) :: stc0 , real(8) :: sspec%stc 1
-Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
-Cgetarg         call upack('spec lmxb stc orhoc',sspec,is,lmxh,stc0,orhoca,0)
 
         lmxh=sspec(is)%lmxb
         stc0=sspec(is)%stc
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 175
-Cdelw1 do not change orhoca because of ['undef', 'wref']
         orhoca=sspec(is)%orhoc
 
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
 
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
-Cdelw1 warning(1) , probably  oiprmb  is not defined yet at linenumber= 181
-Cdelw1 do not change oiprmb because of ['undef', 'wref']
         call orbl(ib,0,nlmto,w(oiprmb),norb,ltab,ktab,xx,offl,xx)
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
 
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
-Cgetarg...info...           integer :: ov01 , integer(8) :: ssite%ov1 1
-Cgetarg         call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov01)
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 193
-Cdelw1 do not change ov0 because of ['undef', 'wref']
         ov0=ssite(ib)%ov0
-Cdelw1 warning(1) , probably  ov01  is not defined yet at linenumber= 194
-Cdelw1 do not change ov01 because of ['undef', 'wref']
         ov01=ssite(ib)%ov1
 
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
-Cgetarg         call upack2('site pz',ssite,ib,pnz)
 
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
@@ -296,176 +185,106 @@ Cgetarg         call upack2('site pz',ssite,ib,pnz)
         nlml = (lmxl+1)**2
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
-Cdelw1         call defrr(orofi, nr)
-        allocate(rv_w_orofi(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orofi(:)=0.0d0
+        allocate(rofi_rv(nr))
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rofi_rv(:)=0.0d0
 
-Cdelw1         call defrr(orwgt, nr)
-        allocate(rv_w_orwgt(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_orwgt(:)=0.0d0
+        allocate(rwgt_rv(nr))
+Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
 
-Cdelw1         call radmsh(rmt,a,nr,w(orofi))
-        call radmsh ( rmt , a , nr , rv_w_orofi )
+        call radmsh ( rmt , a , nr , rofi_rv )
 
-Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
-        call radwgt ( rmt , a , nr , rv_w_orwgt )
+        call radwgt ( rmt , a , nr , rwgt_rv )
 
         if (lrout .ne. 0) then
-Cdelw1 warning(1) , probably  oqhh  is not defined yet at linenumber= 211
-Cdelw1 do not change oqhh because of ['undef', 'wref']
           oqhh = oqkkl(3,ib)
-Cdelw1 warning(1) , probably  oqhp  is not defined yet at linenumber= 212
-Cdelw1 do not change oqhp because of ['undef', 'wref']
           oqhp = oqkkl(2,ib)
-Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 213
-Cdelw1 do not change oqpp because of ['undef', 'wref']
           oqpp = oqkkl(1,ib)
-Cdelw1 1 is digit, dropped
           call dpzero(w(orhoat(1,ib)),nr*nlml*nsp)
-Cdelw1 2 is digit, dropped
           call dpzero(w(orhoat(2,ib)),nr*nlml*nsp)
 
 C   --- Assemble rho1 = products of augmented functions ---
 C   ... Set up all radial head and tail envelope functions, and their bc's
-Cdelw1         call defrr(ofh,  nr*(lmxh+1)*nkaph)
-          allocate(rv_w_ofh(nr*(lmxh+1)*nkaph))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkaph<0) rv_w_ofh(:)=0.0d0
+          allocate(fh_rv(nr*(lmxh+1)*nkaph))
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkaph<0) fh_rv(:)=0.0d0
 
-Cdelw1         call defrr(oxh,  nr*(lmxh+1)*nkaph)
-          allocate(rv_w_oxh(nr*(lmxh+1)*nkaph))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkaph<0) rv_w_oxh(:)=0.0d0
+          allocate(xh_rv(nr*(lmxh+1)*nkaph))
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxh+1)*nkaph<0) xh_rv(:)=0.0d0
 
-Cdelw1         call defrr(ovh,  (lmxh+1)*nkaph)
-          allocate(rv_w_ovh((lmxh+1)*nkaph))
-Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) rv_w_ovh(:)=0.0d0
+          allocate(vh_rv((lmxh+1)*nkaph))
+Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) vh_rv(:)=0.0d0
 
-Cdelw1         call defrr(odh,  (lmxh+1)*nkaph)
-          allocate(rv_w_odh((lmxh+1)*nkaph))
-Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) rv_w_odh(:)=0.0d0
+          allocate(dh_rv((lmxh+1)*nkaph))
+Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) dh_rv(:)=0.0d0
 
-Cdelw1         call fradhd(nkaph,eh,rsmh,lh,lmxh,nr,w(orofi),w(ofh),
-Cdelw1      .    w(oxh),w(ovh),w(odh))
-          call fradhd ( nkaph , eh , rsmh , lh , lmxh , nr , rv_w_orofi 
-     .   , rv_w_ofh , rv_w_oxh , rv_w_ovh , rv_w_odh )
+          call fradhd ( nkaph , eh , rsmh , lh , lmxh , nr , rofi_rv 
+     .   , fh_rv , xh_rv , vh_rv , dh_rv )
 
-Cdelw1         call defrr(ofp,  nr*(lmxa+1)*(kmax+1))
-          allocate(rv_w_ofp(nr*(lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) rv_w_ofp(:)=0.0d0
+          allocate(fp_rv(nr*(lmxa+1)*(kmax+1)))
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) fp_rv(:)=0.0d0
 
-Cdelw1         call defrr(oxp,  nr*(lmxa+1)*(kmax+1))
-          allocate(rv_w_oxp(nr*(lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) rv_w_oxp(:)=0.0d0
+          allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) xp_rv(:)=0.0d0
 
-Cdelw1         call defrr(ovp,  (lmxa+1)*(kmax+1))
-          allocate(rv_w_ovp((lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) rv_w_ovp(:)=0.0d0
+          allocate(vp_rv((lmxa+1)*(kmax+1)))
+Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) vp_rv(:)=0.0d0
 
-Cdelw1         call defrr(odp,  (lmxa+1)*(kmax+1))
-          allocate(rv_w_odp((lmxa+1)*(kmax+1)))
-Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) rv_w_odp(:)=0.0d0
+          allocate(dp_rv((lmxa+1)*(kmax+1)))
+Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) dp_rv(:)=0.0d0
 
-Cdelw1         call fradpk(kmax,rsma,lmxa,nr,w(orofi),w(ofp),w(oxp),w(ovp),
-Cdelw1      .    w(odp))
-          call fradpk ( kmax , rsma , lmxa , nr , rv_w_orofi , rv_w_ofp 
-     .   , rv_w_oxp , rv_w_ovp , rv_w_odp )
+          call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv 
+     .   , xp_rv , vp_rv , dp_rv )
 
 
 C   ... Augmented wave functions
-Cdelw1         call defrr(oul,   nr*(lmxa+1)*nsp)
-          allocate(rv_w_oul(nr*(lmxa+1)*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) rv_w_oul(:)=0.0d0
+          allocate(ul_rv(nr*(lmxa+1)*nsp))
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) ul_rv(:)=0.0d0
 
-Cdelw1         call defrr(osl,   nr*(lmxa+1)*nsp)
-          allocate(rv_w_osl(nr*(lmxa+1)*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) rv_w_osl(:)=0.0d0
+          allocate(sl_rv(nr*(lmxa+1)*nsp))
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) sl_rv(:)=0.0d0
 
-Cdelw1         call defrr(ogz,   nr*(lmxa+1)*nsp)
-          allocate(rv_w_ogz(nr*(lmxa+1)*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) rv_w_ogz(:)=0.0d0
+          allocate(gz_rv(nr*(lmxa+1)*nsp))
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*nsp<0) gz_rv(:)=0.0d0
 
-Cdelw1         call defrr(oruu,  nr*(lmxa+1)*2*nsp)
-          allocate(rv_w_oruu(nr*(lmxa+1)*2*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rv_w_oruu(:)=0.0d0
+          allocate(ruu_rv(nr*(lmxa+1)*2*nsp))
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) ruu_rv(:)=0.0d0
 
-Cdelw1         call defrr(orus,  nr*(lmxa+1)*2*nsp)
-          allocate(rv_w_orus(nr*(lmxa+1)*2*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rv_w_orus(:)=0.0d0
+          allocate(rus_rv(nr*(lmxa+1)*2*nsp))
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rus_rv(:)=0.0d0
 
-Cdelw1         call defrr(orss,  nr*(lmxa+1)*2*nsp)
-          allocate(rv_w_orss(nr*(lmxa+1)*2*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rv_w_orss(:)=0.0d0
+          allocate(rss_rv(nr*(lmxa+1)*2*nsp))
+Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rss_rv(:)=0.0d0
 
           call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 240
-Cdelw1 do not change ov0 because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 240
-Cdelw1 do not change ov0 because of ['undef', 'wref']
-Cdelw1         call makusp(n0,z,nsp,rmt,lmxa,w(ov0),a,nr,xx,xx,pnu,pnz,rsml,
-Cdelw1      .    ehl,w(oul),w(osl),w(ogz),w(oruu),w(orus),w(orss))
           call makusp ( n0 , z , nsp , rmt , lmxa , w ( ov0 ) , a , nr 
-     .   , xx , xx , pnu , pnz , rsml , ehl , rv_w_oul , rv_w_osl , rv_w_ogz 
-     .   , rv_w_oruu , rv_w_orus , rv_w_orss )
+     .   , xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
+     .   , ruu_rv , rus_rv , rss_rv )
 
 
 C   ... Contracted density matrix as coffs to products of (u,s,gz)
           k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml*nsp
-Cdelw1         call defrr(ochh, -k)
-          allocate(rv_w_ochh(abs(-k)))
-          if (-k<0) rv_w_ochh(:)=0.0d0
+          allocate(chh_rv(abs(-k)))
+          if (-k<0) chh_rv(:)=0.0d0
 
-Cdelw1         call defrr(ochp, -k)
-          allocate(rv_w_ochp(abs(-k)))
-          if (-k<0) rv_w_ochp(:)=0.0d0
+          allocate(chp_rv(abs(-k)))
+          if (-k<0) chp_rv(:)=0.0d0
 
-Cdelw1         call defrr(ocpp, -k)
-          allocate(rv_w_ocpp(abs(-k)))
-          if (-k<0) rv_w_ocpp(:)=0.0d0
+          allocate(cpp_rv(abs(-k)))
+          if (-k<0) cpp_rv(:)=0.0d0
 
-Cdelw1         call defrr(odmatl,-(lmxa+1)**2*nlml*nsp*9)
-          allocate(rv_w_odmatl(abs(-(lmxa+1)**2*nlml*nsp*9)))
-          if (-(lmxa+1)**2*nlml*nsp*9<0) rv_w_odmatl(:)=0.0d0
+          allocate(dmatl_rv(abs(-(lmxa+1)**2*nlml*nsp*9)))
+          if (-(lmxa+1)**2*nlml*nsp*9<0) dmatl_rv(:)=0.0d0
 
-Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 249
-Cdelw1 do not change ocg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 249
-Cdelw1 do not change ojcg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 249
-Cdelw1 do not change oidxcg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqhh  is not defined yet at linenumber= 249
-Cdelw1 do not change oqhh because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqhp  is not defined yet at linenumber= 249
-Cdelw1 do not change oqhp because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 249
-Cdelw1 do not change oqpp because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 249
-Cdelw1 do not change ocg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 249
-Cdelw1 do not change ojcg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 249
-Cdelw1 do not change oidxcg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqhh  is not defined yet at linenumber= 249
-Cdelw1 do not change oqhh because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqhp  is not defined yet at linenumber= 249
-Cdelw1 do not change oqhp because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 249
-Cdelw1 do not change oqpp because of ['undef', 'wref']
-Cdelw1         call mkrou1(nsp,nlmh,nlma,nlml,kmax,w(ocg),w(ojcg),w(oidxcg),
-Cdelw1      .    nkaph,nkapi,norb,ltab,ktab,blks,w(oqhh),w(oqhp),w(oqpp),
-Cdelw1      .    w(ovh),w(odh),w(ovp),w(odp),w(ochh),w(ochp),w(ocpp),w(odmatl))
           call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , w ( ocg ) , w 
      .   ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-     .   , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , rv_w_ovh , rv_w_odh 
-     .   , rv_w_ovp , rv_w_odp , rv_w_ochh , rv_w_ochp , rv_w_ocpp , rv_w_odmatl 
+     .   , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
+     .   , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
      .   )
 
 C        call prmx('dmatl',w(odmatl),(lmxa+1)**2,(lmxa+1)**2,nlml*nsp*9)
 
 C   ... True local density for this sphere
-Cdelw1 1 is digit, dropped
-Cdelw1         call mkrou2(nsp,lmxa,nlml,pnz,w(odmatl),nr,w(oul),w(osl),w(ogz),
-Cdelw1      .    w(oruu),w(orus),w(orss),w(orhoat(1,ib)))
-          call mkrou2 ( nsp , lmxa , nlml , pnz , rv_w_odmatl , nr , rv_w_oul 
-     .   , rv_w_osl , rv_w_ogz , rv_w_oruu , rv_w_orus , rv_w_orss , w 
+          call mkrou2 ( nsp , lmxa , nlml , pnz , dmatl_rv , nr , ul_rv 
+     .   , sl_rv , gz_rv , ruu_rv , rus_rv , rss_rv , w 
      .   ( orhoat ( 1 , ib ) ) )
 
 C       call prrmsh('rout',w(orofi),w(orhoat(1,ib)),nr,nr,nlml*nsp)
@@ -476,127 +295,68 @@ C       call poppr
 
 C   --- Assemble rho2 = unaugmented products Pkl*Pk'l' ---
 C       H H product.  Include local orbitals w/ envelopes (nkapi->nkaph)
-Cdelw1 2 is digit, dropped
-Cdelw1         call mkrou5(nsp,nr,nlml,nkaph,nkaph,w(ofh),lmxh,
-Cdelw1      .    nkaph,nkaph,w(ofh),lmxh,w(ochh),w(orhoat(2,ib)))
-          call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , rv_w_ofh , lmxh 
-     .   , nkaph , nkaph , rv_w_ofh , lmxh , rv_w_ochh , w ( orhoat ( 
+          call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
+     .   , nkaph , nkaph , fh_rv , lmxh , chh_rv , w ( orhoat ( 
      .   2 , ib ) ) )
 
 C       H Pkl product
-Cdelw1 2 is digit, dropped
-Cdelw1         call mkrou5(nsp,nr,nlml,nkaph,nkaph,w(ofh),lmxh,
-Cdelw1      .    kmax+1,kmax+1,w(ofp),lmxa,w(ochp),w(orhoat(2,ib)))
-          call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , rv_w_ofh , lmxh 
-     .   , kmax + 1 , kmax + 1 , rv_w_ofp , lmxa , rv_w_ochp , w ( orhoat 
+          call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
+     .   , kmax + 1 , kmax + 1 , fp_rv , lmxa , chp_rv , w ( orhoat 
      .   ( 2 , ib ) ) )
 
 C       Pkl Pkl product
-Cdelw1 2 is digit, dropped
-Cdelw1         call mkrou5(nsp,nr,nlml,kmax+1,kmax+1,w(ofp),lmxa,
-Cdelw1      .    kmax+1,kmax+1,w(ofp),lmxa,w(ocpp),w(orhoat(2,ib)))
-          call mkrou5 ( nsp , nr , nlml , kmax + 1 , kmax + 1 , rv_w_ofp 
-     .   , lmxa , kmax + 1 , kmax + 1 , rv_w_ofp , lmxa , rv_w_ocpp , 
+          call mkrou5 ( nsp , nr , nlml , kmax + 1 , kmax + 1 , fp_rv 
+     .   , lmxa , kmax + 1 , kmax + 1 , fp_rv , lmxa , cpp_rv , 
      .   w ( orhoat ( 2 , ib ) ) )
 
 C       call prrmsh('sm rout',w(orofi),w(orhoat(2,ib)),nr,nr,nlml*nsp)
 
 C   ... Site charge and eigenvalue sum decomposed by l
-Cdelw1         call mkrou3(2,lmxa,nlml,nsp,pnz,w(odmatl),
-Cdelw1      .    hab(1,1,1,ib),sab(1,1,1,ib),qbyl(1,1,ib),hbyl(1,1,ib))
-          call mkrou3 ( 2 , lmxa , nlml , nsp , pnz , rv_w_odmatl , hab 
+          call mkrou3 ( 2 , lmxa , nlml , nsp , pnz , dmatl_rv , hab 
      .   ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 , ib ) , qbyl ( 1 , 1 , 
      .   ib ) , hbyl ( 1 , 1 , ib ) )
 
 C       Remake hbyl from energy-weighted density matrix
           if (lekkl .ne. 0) then
-Cdelw1 warning(1) , probably  oqhh  is not defined yet at linenumber= 280
-Cdelw1 do not change oqhh because of ['undef', 'wref']
             oqhh = oeqkkl(3,ib)
-Cdelw1 warning(1) , probably  oqhp  is not defined yet at linenumber= 281
-Cdelw1 do not change oqhp because of ['undef', 'wref']
             oqhp = oeqkkl(2,ib)
-Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 282
-Cdelw1 do not change oqpp because of ['undef', 'wref']
             oqpp = oeqkkl(1,ib)
             nlml1 = 1
-Cdelw1           call dpzero(w(odmatl),(lmxa+1)**2*nlml1*nsp*9)
-            call dpzero ( rv_w_odmatl , ( lmxa + 1 ) * * 2 * nlml1 * nsp 
+            call dpzero ( dmatl_rv , ( lmxa + 1 ) * * 2 * nlml1 * nsp 
      .     * 9 )
 
             k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml1*nsp
-Cdelw1           call dpzero(w(ochh),k)
-            call dpzero ( rv_w_ochh , k )
+            call dpzero ( chh_rv , k )
 
-Cdelw1           call dpzero(w(ochp),k)
-            call dpzero ( rv_w_ochp , k )
+            call dpzero ( chp_rv , k )
 
-Cdelw1           call dpzero(w(ocpp),k)
-            call dpzero ( rv_w_ocpp , k )
+            call dpzero ( cpp_rv , k )
 
-Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 289
-Cdelw1 do not change ocg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 289
-Cdelw1 do not change ojcg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 289
-Cdelw1 do not change oidxcg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqhh  is not defined yet at linenumber= 289
-Cdelw1 do not change oqhh because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqhp  is not defined yet at linenumber= 289
-Cdelw1 do not change oqhp because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 289
-Cdelw1 do not change oqpp because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 289
-Cdelw1 do not change ocg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 289
-Cdelw1 do not change ojcg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 289
-Cdelw1 do not change oidxcg because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqhh  is not defined yet at linenumber= 289
-Cdelw1 do not change oqhh because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqhp  is not defined yet at linenumber= 289
-Cdelw1 do not change oqhp because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  oqpp  is not defined yet at linenumber= 289
-Cdelw1 do not change oqpp because of ['undef', 'wref']
-Cdelw1           call mkrou1(nsp,nlmh,nlma,nlml1,kmax,w(ocg),w(ojcg),w(oidxcg),
-Cdelw1      .      nkaph,nkapi,norb,ltab,ktab,blks,w(oqhh),w(oqhp),w(oqpp),
-Cdelw1      .      w(ovh),w(odh),w(ovp),w(odp),w(ochh),w(ochp),w(ocpp),
-Cdelw1      .      w(odmatl))
             call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , w ( ocg ) , 
      .     w ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-     .     , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , rv_w_ovh , rv_w_odh 
-     .     , rv_w_ovp , rv_w_odp , rv_w_ochh , rv_w_ochp , rv_w_ocpp , rv_w_odmatl 
+     .     , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
+     .     , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
      .     )
 
-Cdelw1           call mkrou3(1,lmxa,nlml1,nsp,pnz,w(odmatl),
-Cdelw1      .      w,sab(1,1,1,ib),hbyl(1,1,ib),w)
-            call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , rv_w_odmatl , w 
+            call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , w 
      .     , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , w )
 
           endif
 
 C   --- Print charges for information ---
-Cdelw1 1 is digit, dropped
-Cdelw1         call radsum(nr,nr,nlml,nsp,w(orwgt),w(orhoat(1,ib)),sum1)
-          call radsum ( nr , nr , nlml , nsp , rv_w_orwgt , w ( orhoat 
+          call radsum ( nr , nr , nlml , nsp , rwgt_rv , w ( orhoat 
      .   ( 1 , ib ) ) , sum1 )
 
-Cdelw1 2 is digit, dropped
-Cdelw1         call radsum(nr,nr,nlml,nsp,w(orwgt),w(orhoat(2,ib)),sum2)
-          call radsum ( nr , nr , nlml , nsp , rv_w_orwgt , w ( orhoat 
+          call radsum ( nr , nr , nlml , nsp , rwgt_rv , w ( orhoat 
      .   ( 2 , ib ) ) , sum2 )
 
           sum1 = sum1/y0
           sum2 = sum2/y0
           if (nsp .eq. 2) then
-Cdelw1 1 is digit, dropped
-Cdelw1           sums1 = sum1 - 2*ddot(nr,w(orwgt),1,w(orhoat(1,ib)),1)/y0
-            sums1 = sum1 - 2 * ddot ( nr , rv_w_orwgt , 1 , w ( orhoat ( 
+            sums1 = sum1 - 2 * ddot ( nr , rwgt_rv , 1 , w ( orhoat ( 
      .     1 , ib ) ) , 1 ) / y0
 
-Cdelw1 2 is digit, dropped
-Cdelw1           sums2 = sum2 - 2*ddot(nr,w(orwgt),1,w(orhoat(2,ib)),1)/y0
-            sums2 = sum2 - 2 * ddot ( nr , rv_w_orwgt , 1 , w ( orhoat ( 
+            sums2 = sum2 - 2 * ddot ( nr , rwgt_rv , 1 , w ( orhoat ( 
      .     2 , ib ) ) , 1 ) / y0
 
           endif
@@ -609,9 +369,7 @@ Cdelw1           sums2 = sum2 - 2*ddot(nr,w(orwgt),1,w(orhoat(2,ib)),1)/y0
         endif
 
 C       Contribution to mag outsite rmt: extrapolate tail to infinity
-Cdelw1 1 is digit, dropped
-Cdelw1         call mkrou6(w(orofi),w(orhoat(1,ib)),nr,nlml,nsp,xx,xx,res)
-        call mkrou6 ( rv_w_orofi , w ( orhoat ( 1 , ib ) ) , nr , nlml 
+        call mkrou6 ( rofi_rv , w ( orhoat ( 1 , ib ) ) , nr , nlml 
      .   , nsp , xx , xx , res )
 
         if (ipr.ge.30 .and. res .ne. 0) then
@@ -623,14 +381,7 @@ Cdelw1         call mkrou6(w(orofi),w(orhoat(1,ib)),nr,nlml,nsp,xx,xx,res)
 C   --- Make new core density and core eigenvalue sum ---
         if (lfoc .eq. 0) then
           call pshpr(ipr+11)
-Cdelw1 3 is digit, dropped
-Cdelw1 warning(1) , probably  ov01  is not defined yet at linenumber= 325
-Cdelw1 do not change ov01 because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ov01  is not defined yet at linenumber= 325
-Cdelw1 do not change ov01 because of ['undef', 'wref']
-Cdelw1           call getcor(0,z,a,pnu,pnz,nr,lmxa,w(orofi),w(ov01),kcor,lcor,
-Cdelw1      .      qcor,smec,smtc,w(orhoat(3,ib)),ncore,0d0,0d0)
-          call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rv_w_orofi 
+          call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv 
      .     , w ( ov01 ) , kcor , lcor , qcor , smec , smtc , w ( orhoat 
      .     ( 3 , ib ) ) , ncore , 0d0 , 0d0 )
 
@@ -648,54 +399,41 @@ C         smec = smec+sum
   288     format(' foca..  use smtc = ',f14.6)
           sumtc = sumtc + stc0
           sumt0 = sumt0 + stc0
-Cdelw1 3 is digit, dropped
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 341
-Cdelw1 do not change orhoca because of ['undef', 'wref']
           call dpcopy(w(orhoca),w(orhoat(3,ib)),1,nr*nsp,1d0)
         endif
 
-Cdelw1 rlse name= orofi old_list= orofi orwgt ofh oxh ovh odh ofp oxp ovp odp oul osl ogz oruu orus orss ochh ochp ocpp odmatl
-Cdelw1 rlse name= orofi new_list= (None)
-Cdelw1         call rlse(orofi)
-        if (allocated(rv_w_odmatl)) deallocate(rv_w_odmatl)
-        if (allocated(rv_w_ocpp)) deallocate(rv_w_ocpp)
-        if (allocated(rv_w_ochp)) deallocate(rv_w_ochp)
-        if (allocated(rv_w_ochh)) deallocate(rv_w_ochh)
-        if (allocated(rv_w_orss)) deallocate(rv_w_orss)
-        if (allocated(rv_w_orus)) deallocate(rv_w_orus)
-        if (allocated(rv_w_oruu)) deallocate(rv_w_oruu)
-        if (allocated(rv_w_ogz)) deallocate(rv_w_ogz)
-        if (allocated(rv_w_osl)) deallocate(rv_w_osl)
-        if (allocated(rv_w_oul)) deallocate(rv_w_oul)
-        if (allocated(rv_w_odp)) deallocate(rv_w_odp)
-        if (allocated(rv_w_ovp)) deallocate(rv_w_ovp)
-        if (allocated(rv_w_oxp)) deallocate(rv_w_oxp)
-        if (allocated(rv_w_ofp)) deallocate(rv_w_ofp)
-        if (allocated(rv_w_odh)) deallocate(rv_w_odh)
-        if (allocated(rv_w_ovh)) deallocate(rv_w_ovh)
-        if (allocated(rv_w_oxh)) deallocate(rv_w_oxh)
-        if (allocated(rv_w_ofh)) deallocate(rv_w_ofh)
-        if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
-        if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+        if (allocated(dmatl_rv)) deallocate(dmatl_rv)
+        if (allocated(cpp_rv)) deallocate(cpp_rv)
+        if (allocated(chp_rv)) deallocate(chp_rv)
+        if (allocated(chh_rv)) deallocate(chh_rv)
+        if (allocated(rss_rv)) deallocate(rss_rv)
+        if (allocated(rus_rv)) deallocate(rus_rv)
+        if (allocated(ruu_rv)) deallocate(ruu_rv)
+        if (allocated(gz_rv)) deallocate(gz_rv)
+        if (allocated(sl_rv)) deallocate(sl_rv)
+        if (allocated(ul_rv)) deallocate(ul_rv)
+        if (allocated(dp_rv)) deallocate(dp_rv)
+        if (allocated(vp_rv)) deallocate(vp_rv)
+        if (allocated(xp_rv)) deallocate(xp_rv)
+        if (allocated(fp_rv)) deallocate(fp_rv)
+        if (allocated(dh_rv)) deallocate(dh_rv)
+        if (allocated(vh_rv)) deallocate(vh_rv)
+        if (allocated(xh_rv)) deallocate(xh_rv)
+        if (allocated(fh_rv)) deallocate(fh_rv)
+        if (allocated(rwgt_rv)) deallocate(rwgt_rv)
+        if (allocated(rofi_rv)) deallocate(rofi_rv)
 
 
    10   continue
       enddo
 
 C --- Put sumec,sumtc into etot struct ---
-Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
-Cgetarg       call pack1('ham eterms',sham,eterms)
 
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,eterms,1,sham%eterms,1)
 
 
       call tcx('mkrout')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oiprmb ov0 ocg ojcg oidxcg oqhh oqhp oqpp ov01 orhoca orhoat]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mkrout
 
 
@@ -819,10 +557,6 @@ C     Pkl Pkl product
      .  kmax+1,kmax+1,vp,dp,lmxa,
      .  cpp,dmatl)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mkrou1
 
 
@@ -965,10 +699,6 @@ C     return
       enddo
 
       call tcx('mkrou2')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mkrou2
 
 
@@ -1011,9 +741,6 @@ C ... Local parameters
       integer l,isp,m
       double precision pi,srfpi,qz,hz
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (mode .eq. 0) return
 C     call tcn('mkrou3')
 
@@ -1065,10 +792,6 @@ C         ... uz, sz, zu, zs, zz terms
 
 C     call tcx('mkrou3')
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mkrou3
 
 
@@ -1168,10 +891,6 @@ C           k1,l1 = k and starting l index for this block
       enddo
 
 C     call tcx('mkrou4')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mkrou4
 
 
@@ -1255,9 +974,6 @@ C     call tcn('mkcfus')
 C     call tcx('mkcfus')
 
 C --- Products involving local orbitals ---
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (nf1s .ge. nf1 .and. nf2s .ge. nf2) return
 C     call tcn('mkcfus')
 
@@ -1330,10 +1046,6 @@ C        enddo
 C      enddo
 C      pause
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mkcfus
 
 
@@ -1398,10 +1110,6 @@ C ... Local parameters
       enddo
 
       call tcx('mkrou5')
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mkrou5
 
 
@@ -1434,9 +1142,6 @@ C ... Local parameters
       double precision norm(2,2),tnorm(2,2),rhs(2),y,dy,fac,y0,r0,pi,a,b
 
       res = 0
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (nr .lt. 10 .or. nsp .eq. 1) return
       call dpzero(norm,4)
       call dpzero(rhs,2)
@@ -1445,9 +1150,6 @@ Cdelw1 w_varlist (del), remains: (None)
       do  ir = nr-5, nr
         y = fac*(rho(ir,1,1) - rho(ir,1,2))/rofi(ir)**2
 C       If the spin density changes sign, nonsensical to try and fit
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         if (y .le. 0) return
         dy = dlog(y)
 
@@ -1469,9 +1171,6 @@ Cdelw1 w_varlist (del), remains: (None)
       b = -b
 
 C     Nonsensical if density not decaying fast enough
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (b .lt. 1) return
       r0 = rofi(nr)
 
@@ -1484,10 +1183,6 @@ C     Integral a*exp(-b*r)*r*r = (2+2*b*r0+b**2*r0*2)/b**3*exp(-b*r0)
       decay = b
       rho0 = a
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine mkrou6
 
 

@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['mkdmtu', 'site', 'ssite']
-Cgetarg...info...           structure ['mkdmtu', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['mkdmtu', 'm_struc_def']
       subroutine mkdmtu(ssite,sspec,wtkb,isp,iq,nsp,nspc,ndham,nlmax,
      .  nbas,nev,ppnl,aus,dmatu,nlibu,lmaxu,lldau)
 
@@ -45,7 +42,6 @@ C     implicit none
 C ... Passed parameters
       integer isp,iq,nsp,nspc,ndham,nlmax,nbas,nev,nlibu,lmaxu,
      .  lldau(nbas)
-Cgetarg       double precision wtkb(ndham,nsp,iq),sspec(1),ssite(1)
       real(8):: wtkb(ndham,nsp,iq)
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
@@ -65,13 +61,8 @@ C ... Local parameters
       iblu = 0
       do  ib = 1, nbas
         if (lldau(ib) .eq. 0) goto 10
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg         call upack('spec lmxa idu rmt',sspec,is,lmxa,idu,rmt,0)
 
         lmxa=sspec(is)%lmxa
         i_copy_size=size(sspec(is)%idu)
@@ -152,7 +143,6 @@ C     .              'l=%i m=%i iq=%i isp=%i add=%d',l,m1,iq,ksp,add)
         enddo
    10   continue
       enddo
-Cgetarg       end
       end subroutine mkdmtu
 
 

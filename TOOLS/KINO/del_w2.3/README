@@ -1,0 +1,81 @@
+Usage:
+python delw.py < source.F > x
+mv x source.F
+
+========================================
+
+Comments:
+
+***don't change subs/xlgen.F***
+
+
+------------------------------
+fp/bndfp.F
+Only MPIK uses rv_w_oeomin
+
+
+------------------------------
+if you find #error:  have #if F90 directive
+git checkout foo.F
+
+
+------------------------------
+subs/ovmin.F
+variables are defined in common block.
+
+
+------------------------------
+fp/mshvmt.F
+old:
+do ic=...
+   alloctate(rv_w_oqwk...
+   alloctate(rv_w_osym...
+
+enddo
+   deallocate(rv_w_osym)
+   deallocate(rv_w_oqwk)
+new:
+do ic=...
+   alloctate(rv_w_oqwk...
+   alloctate(rv_w_osym...
+
+enddo
+   deallocate(rv_w_osym)
+   deallocate(rv_w_oqwk)
+
+
+------------------------------
+subs/freeat.F
+subroutine optfab
+do 80
+      call defrr (oh,    nr)
+      call defrr (og,    2*nr)
+      call defrr (ogp,   2*nr*4)
+
+...
+      call rlse(oh) <--- add a line 
+80 continue
+
+
+------------------------------
+
+fp/bndfp.F
+
+rlse(oww) then allocate it again using the old content
+
+don't change bndfp.F
+
+------------------------------
+
+fp/lmfp.F
+
+rlse(oindrx) then allocate again using the old content
+
+
+-------------------------------
+dfrce.F:Cki#error, rlse?  oicdn = ['oicdn(npmx)', 'integer']
+hsibl.F:Cki#error, rlse?  oic1 = ['oic1(npmx)', 'integer']
+mixrho.F:Cki#error, rlse?  orsm = ['orsm(4)', 'integer']
+mixrho.F:Cki#error, rlse?  orsm = ['orsm(2)', 'integer']
+
+

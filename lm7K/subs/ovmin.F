@@ -195,7 +195,6 @@ C --- Print out updated positions and overlaps ---
      .    i1mach(2),fovl/novl,(fovl/novl)**(1/6d0)*100,fovmx*100)
       endif
 
-Cgetarg       end
       end subroutine ovmin
 
       double precision function ovcall(n,x,p,ir)
@@ -299,7 +298,6 @@ C ... restore pos
       call rlse(oposb)
       call poppr
 
-Cgetarg       end
       end function ovcall
 
 

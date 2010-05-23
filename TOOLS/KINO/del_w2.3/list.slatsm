@@ -1,0 +1,11 @@
+slatsm/alloc.F
+slatsm/dinv.F
+slatsm/dsumdf.F
+slatsm/fftz3.F
+slatsm/gradzr.F
+slatsm/mpibc.F
+slatsm/pertev.F
+slatsm/yyhmpy.F
+slatsm/zgeevs.F
+slatsm/ztoy.F
+slatsm/ztoyy.F

@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['pvsms2', 'site', 'ssite']
-Cgetarg...info...           structure ['pvsms2', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['pvsms2', 'm_struc_def']
       subroutine pvsms2(ssite,sspec,rotm,nbas,nsp,orhoat)
 
       use m_struc_def  !Cgetarg
@@ -40,7 +37,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,orhoat(3,1)
-Cgetarg       double precision ssite(1),sspec(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -71,17 +67,12 @@ C --- For each site and l, rotate the m-components ---
       endif
 
       do  10  ib = 1, nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
         enddo
 
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg         call upack('spec nr lmxl',sspec,is,nr,lmxl,0,0)
 
         nr=sspec(is)%nr
         lmxl=sspec(is)%lmxl
@@ -95,7 +86,6 @@ Cgetarg         call upack('spec nr lmxl',sspec,is,nr,lmxl,0,0)
 
    10 continue
 
-Cgetarg       end
       end subroutine pvsms2
 
 
@@ -154,7 +144,6 @@ C        enddo
 
 C     call prmx('ending rho',rho,nrx,nr,nlml*nsp)
 
-Cgetarg       end
       end subroutine pvsms3
 
 

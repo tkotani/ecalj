@@ -1,7 +1,3 @@
-Cdelw1 var ['orho', '0', 'orho', 'nr*nsp*2*(nmix+2)', 'real(8)', 'rv_w_', 'atomsc']
-Cgetarg...info...           structure ['atscpp', 'ctrl', 'sctrl']
-Cgetarg...info...           structure ['atscpp', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['atscpp', 'm_struc_def']
 c#define ONE_ATOM_UNIT 1
 
       subroutine atomsc(lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a,
@@ -116,9 +112,8 @@ C  Local parameters
      .  rho0t,rhomu,rhovh,rmsdel,ro,sum,tolrsq,vhrmax,vnucl,vrhoc,vsum,
      .  zvnucl,rvh(2),rho0(2),reps(2),rmu(2),sec(2),stc(2),sev(2),dasum
 C for Anderson mixing:
-Cdelw1       integer amix,nmix,orho
       integer:: amix , nmix
-      real(8) ,allocatable :: rv_w_orho(:)
+      real(8) ,allocatable :: rho_rv(:)
 
       double precision norm(10,10),awk(10,2),beta,beta1
       parameter (beta = 0.3d0)
@@ -141,9 +136,8 @@ C tolch is tolerance for change in the charge density, tolv for rseq
       sec(1) = 0d0
       stc(2) = 0d0
       stc(1) = 0d0
-Cdelw1       call defdr(orho,nr*nsp*2*(nmix+2))
-      allocate(rv_w_orho(nr*nsp*2*(nmix+2)))
-Ctakao_ZeroClear_NotRequiered        if (nr*nsp*2*(nmix+2)<0) rv_w_orho(:)=0.0d0
+      allocate(rho_rv(nr*nsp*2*(nmix+2)))
+Ctakao_ZeroClear_NotRequiered        if (nr*nsp*2*(nmix+2)<0) rho_rv(:)=0.0d0
 
 
 C --- Core charge, radial mesh points and weights ---
@@ -194,11 +188,7 @@ C --- Initial charge density ---
         if (niter .eq. 0) then
           call dcopy(nr*nsp,rhoin,1,rho,1)
 Cki#error, have return with len(w_varlist)>0 at line 189
-Cdelw1 w_varlist remains: orho
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [orho]
-Cdelw1           return
-          if (allocated(rv_w_orho)) deallocate(rv_w_orho)
+          if (allocated(rho_rv)) deallocate(rho_rv)
           return
 
         endif
@@ -226,8 +216,7 @@ C  335   format(/' initialize exponential density with decay',f7.3)
       else if (job .ne. 'rho') then
         call rx('atomsc: job not pot|rho|gue')
       endif
-Cdelw1       call dpscop(rhoin,w(orho),nr*nsp,1,1+nr*nsp*(nmix+2),1d0)
-      call dpscop ( rhoin , rv_w_orho , nr * nsp , 1 , 1 + nr * nsp 
+      call dpscop ( rhoin , rho_rv , nr * nsp , 1 , 1 + nr * nsp 
      . * ( nmix + 2 ) , 1d0 )
 
 
@@ -281,17 +270,13 @@ C       Get rhrmx, exrmax
    41     continue
    40   continue
 C       call prrmsh('rho for atom ',rofi,rho,nr,nr,nsp)
-Cdelw1         call dcopy(nr*nsp,rho,1,w(orho),1)
-        call dcopy ( nr * nsp , rho , 1 , rv_w_orho , 1 )
+        call dcopy ( nr * nsp , rho , 1 , rho_rv , 1 )
 
-Cdelw1         jmix = amix(nr*nsp,min(jmix,nmix),nmix,0,beta1,iprint()-70,
-Cdelw1      .              .9D0,norm,awk(1,2),w(orho),awk,rmsdel)
         jmix = amix ( nr * nsp , min ( jmix , nmix ) , nmix , 0 , beta1 
-     .   , iprint ( ) - 70 , .9d0 , norm , awk ( 1 , 2 ) , rv_w_orho , 
+     .   , iprint ( ) - 70 , .9d0 , norm , awk ( 1 , 2 ) , rho_rv , 
      .   awk , rmsdel )
 
-Cdelw1         call dpscop(w(orho),rhoin,nr*nsp,1+nr*nsp*(nmix+2),1,1d0)
-        call dpscop ( rv_w_orho , rhoin , nr * nsp , 1 + nr * nsp * ( 
+        call dpscop ( rho_rv , rhoin , nr * nsp , 1 + nr * nsp * ( 
      .   nmix + 2 ) , 1 , 1d0 )
 
 C
@@ -313,10 +298,7 @@ C       Beta for next iteration
         dold = drho
    35 continue
    90 continue
-Cdelw1 rlse name= orho old_list= orho
-Cdelw1 rlse name= orho new_list= (None)
-Cdelw1       call rlse(orho)
-      if (allocated(rv_w_orho)) deallocate(rv_w_orho)
+      if (allocated(rho_rv)) deallocate(rho_rv)
 
 C     End of iteration loop
       if (iprint() .ge. 30) write(stdo,'(1x)')
@@ -370,31 +352,20 @@ C --- write out rho if requested ---
         call prrmsh('rho for atom ',rofi,rho,nr,nr,nsp)
         call prrmsh('pot for atom ',rofi,v,nr,nr,nsp)
         call prrmsh('rhoc for atom ',rofi,rhoc,nr,nr,nsp)
-Cdelw1         call defrr(orho,-nr*nl*nsp)
-        allocate(rv_w_orho(abs(-nr*nl*nsp)))
-        if (-nr*nl*nsp<0) rv_w_orho(:)=0.0d0
+        allocate(rho_rv(abs(-nr*nl*nsp)))
+        if (-nr*nl*nsp<0) rho_rv(:)=0.0d0
 
-Cdelw1         call newrho(z,lrel,lgdd,nl,nl,lmax,a,b,nr,rofi,v,w(orho),rhoc,
-Cdelw1      .    kcor,lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tl,nsp,lfrz,000)
         call newrho ( z , lrel , lgdd , nl , nl , lmax , a , b , nr , 
-     .   rofi , v , rv_w_orho , rhoc , kcor , lcor , qcor , pnu , qnu 
+     .   rofi , v , rho_rv , rhoc , kcor , lcor , qcor , pnu , qnu 
      .   , sec , stc , sev , ec , ev , tl , nsp , lfrz , 000 )
 
-Cdelw1         call prrmsh('rhol for atom ',rofi,w(orho),nr,nr,nl*nsp)
-        call prrmsh ( 'rhol for atom ' , rofi , rv_w_orho , nr , nr , 
+        call prrmsh ( 'rhol for atom ' , rofi , rho_rv , nr , nr , 
      .   nl * nsp )
 
-Cdelw1 rlse name= orho old_list= orho
-Cdelw1 rlse name= orho new_list= (None)
-Cdelw1         call rlse(orho)
-        if (allocated(rv_w_orho)) deallocate(rv_w_orho)
+        if (allocated(rho_rv)) deallocate(rho_rv)
 
       endif
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine atomsc
 
       subroutine addzbk(rofi,nr,nsp,rho,rhozbk,scale)
@@ -405,19 +376,12 @@ C     implicit none
       integer ir,isp
       double precision s
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (rhozbk .eq. 0) return
       s = 16*datan(1d0)*scale*rhozbk
       do  10  isp = 1, nsp
       do  10  ir = 2, nr
         rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
    10 continue
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine addzbk
 
       subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
@@ -540,17 +504,10 @@ C --- Integral vh and  rho * vh ---
       v(1,1) = vhat0
 
 C --- Copy to second spin channel if spin polarized ---
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (nsp .eq. 1) return
       do  84  ir = 1, nr
         v(ir,2) = v(ir,1)
    84 continue
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine poiss0
 
 
@@ -704,10 +661,6 @@ C Statement functions:
       nctp0 = ir-1
       if (veff(nctp0).ge.veff(nr)-3.d0) nctp0 = nr
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine fctp0
 
       subroutine fctp(a,b,e,l,nctp0,nr,rofi,v,z,nctp)
@@ -785,9 +738,6 @@ C         If there was a large change, check for safety
 C         Exit point
           if (nlast .eq. nctp) then
             if (nctp .eq. nctp0+1) nctp = 2
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
             return
           endif
           if (fofr .gt. 0.d0)  then
@@ -800,10 +750,6 @@ Cdelw1 w_varlist (del), remains: (None)
    10   continue
         if (nctp .eq. nctp0+1) nctp = 2
       endif
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine fctp
 
 
@@ -992,10 +938,6 @@ C  ...  Case add -p q2 phi phi into rho
    22     continue
         endif
   20  continue
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine newrho
 
       subroutine rhocor(isw,z,lmax,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor,
@@ -1115,10 +1057,6 @@ C     --- Add to rho, make integral v*rho ---
   230   format(' sum q=',f5.2,'  sum ec=',f12.5,'  sum tc=',f12.5,
      .    '  rho(rmax)',f8.5)
    80 continue
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine rhocor
 
 
@@ -1194,10 +1132,6 @@ C ... Integrate rho*v from nrmx+1 .. nre
    12 continue
       vrho = vrho*a/3
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine xyrhsr
 
 
@@ -1329,10 +1263,6 @@ C     Speed of light, or infinity in nonrelativistic case
    11 continue
       sum = (2*sum + fi(nr,rofi(nr)))*a/3
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine gintsr
 
       subroutine gintsl(g1,g2,a,b,nr,rofi,sum)
@@ -1375,10 +1305,6 @@ C ... Local parameters
       r = rofi(nr)
       sum = sum+(r+b)*(g1(nr)*g2(nr))
       sum = sum*a/3
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine gintsl
 
       subroutine asprjq(mode,clabl,nl,nsp,eula,neul,pnu,qnu,
@@ -1542,18 +1468,12 @@ C     End of block to contruct bhat
 
 C --- Rotate the qnu along projection bhat ---
       mode1 = mod(mode/10,10)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (mode1 .eq. 0) return
 
       if (nsp .eq. 1 .or. mode1 .eq. 1 .or.
      .    ddot(3,bhat,1,bhat,1) .eq. 0d0) then
         call dcopy(3*nl*nsp,qnu,1,qnuloc,1)
         call dcopy(1*nl*nsp,pnu,1,pnuloc,1)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         return
       endif
 
@@ -1615,10 +1535,6 @@ C         aloc(i) = qnu(i,l+1,1) - qnu(i,l+1,2)
         enddo
       endif
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine asprjq
 
 

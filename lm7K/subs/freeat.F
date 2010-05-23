@@ -1,17 +1,3 @@
-Cdelw1 var ['og', '2', 'og', 'nr*2', 'real(8)', 'rv_w_', 'freats']
-Cdelw1 var ['opsi', '2', 'opsi', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'freats']
-Cdelw1 var ['oh', '1', 'oh', 'nr', 'real(8)', 'rv_w_', 'optfab']
-Cdelw1 var ['og', '1', 'og', '2*nr', 'real(8)', 'rv_w_', 'optfab']
-Cdelw1 var ['ogp', '1', 'ogp', '2*nr*4', 'real(8)', 'rv_w_', 'optfab']
-Cdelw1 var ['opsi', '1', 'opsi', 'nr*lmxa', 'real(8)', 'rv_w_', 'optfab']
-Cdelw1 var ['oh', '1', 'oh', 'nr', 'real(8)', 'rv_w_', 'ftfalo']
-Cdelw1 var ['og', '1', 'og', '2*nr', 'real(8)', 'rv_w_', 'ftfalo']
-Cdelw1 var ['ogp', '1', 'ogp', '2*nr*4', 'real(8)', 'rv_w_', 'ftfalo']
-Cdelw1 var ['opsi', '1', 'opsi', 'nr*lmxa', 'real(8)', 'rv_w_', 'ftfalo']
-Cgetarg...info...           structure ['freeat', 'ctrl', 'sctrl']
-Cgetarg...info...           structure ['freeat', 'spec', 'sspec']
-Cgetarg...info...           structure ['freeat', 'ham', 'sham']
-Cgetarg...info...           use_to_add ['freeat', 'm_struc_def']
       subroutine freeat(sctrl,sspec,sham,spot)
 
       use m_struc_def  !Cgetarg
@@ -49,7 +35,6 @@ Cu   10 Jun 00 spin polarized
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-Cgetarg       double precision sctrl(1),sham(1),spot(1),sspec(1)
       type(s_ctrl)::sctrl
       type(s_ham)::sham
       type(s_pot)::spot
@@ -91,43 +76,29 @@ ctakao
       do  is = 1, nspec
 
 C       Unpack sctrl data
-Cgetarg...info...           integer :: nrmix(2) , integer(8) :: sctrl%smalit 2
-Cgetarg         call upack('ctrl smalit',sctrl,nrmix,0,0,0,0)
 
         i_copy_size=size(sctrl%smalit)
         call i8icopy(i_copy_size,sctrl%smalit,1,nrmix,1)
 
-Cgetarg         lxcfun = igets('ctrl lxcf',sctrl)
         lxcfun = int(sctrl%lxcf)
 
 
 C       Unpack species data
-Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
         enddo
 
-Cgetarg...info...           real(8) :: rsmfa , real(8) :: sspec%rsmfa 1
-Cgetarg...info...           real(8) :: rfoca , real(8) :: sspec%rfoca 1
-Cgetarg...info...           real(8) :: qcor(2) , real(8) :: sspec%coreq 2
-Cgetarg         call upack('spec rsmfa rfoca coreq',sspec,is,rsmfa,rfoca,qcor,0)
 
         rsmfa=sspec(is)%rsmfa
         rfoca=sspec(is)%rfoca
         i_copy_size=size(sspec(is)%coreq)
         call dcopy(i_copy_size,sspec(is)%coreq,1,qcor,1)
 
-Cgetarg         call spacks(0,'spec coreh',sspec,chole,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
         enddo
 
         call gtpcor(sspec,is,kcor,lcor,qcor)
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nrmt , integer(8) :: sspec%nr 1
-Cgetarg         call upack('spec z rmt a nr',sspec,is,z,rmt,a,nrmt)
 
         z=sspec(is)%z
         rmt=sspec(is)%rmt
@@ -136,11 +107,6 @@ Cgetarg         call upack('spec z rmt a nr',sspec,is,z,rmt,a,nrmt)
 
         if (z .eq. 0 .and. rmt .eq. 0) goto 10
         call dpzero(qat,n0*2)
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
-Cgetarg...info...           real(8) :: qat(n0,2) , real(8) :: sspec%q 20
-Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg         call upack('spec p q idmod lmxa',sspec,is,pnu,qat,idmod,lmxa)
 
         i_copy_size=size(sspec(is)%p)
         call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
@@ -150,20 +116,12 @@ Cgetarg         call upack('spec p q idmod lmxa',sspec,is,pnu,qat,idmod,lmxa)
         call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
         lmxa=sspec(is)%lmxa
 
-Cgetarg...info...           real(8) :: pz(n0,2) , real(8) :: sspec%pz 20
-Cgetarg         call upack2('spec pz',sspec,is,pz)
 
         i_copy_size=size(sspec(is)%pz)
         call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
 
-Cgetarg         eref = dgetss('spec eref',is,sspec)
         eref = (sspec(is)%eref)
 
-Cgetarg...info...           real(8) :: rs3 , real(8) :: sspec%rs3 1
-Cgetarg...info...           real(8) :: eh3 , real(8) :: sspec%eh3 1
-Cgetarg...info...           real(8) :: vmtz , real(8) :: sspec%vmtz 1
-Cgetarg...info...           real(8) :: rcfa(2) , real(8) :: sspec%rcfa 2
-Cgetarg         call upack('spec rs3 eh3 vmtz rcfa',sspec,is,rs3,eh3,vmtz,rcfa)
 
         rs3=sspec(is)%rs3
         eh3=sspec(is)%eh3
@@ -178,11 +136,6 @@ Cgetarg         call upack('spec rs3 eh3 vmtz rcfa',sspec,is,rs3,eh3,vmtz,rcfa)
      .    ceh,sumec,sumtc,v,etot)
         print *,'end of freats: spid=',spid
 C       Repack mesh parms, in case a mesh was selected by freats
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nrmt , integer(8) :: sspec%nr 1
-Cgetarg         call pack5('spec z rmt a nr',sspec,is,z,rmt,a,nrmt)
 
         sspec(is)%z=z
         sspec(is)%rmt=rmt
@@ -195,14 +148,10 @@ C   ... Pack the basis into sspec
 C       call upack2('spec orbp lmxb',sspec,is,orbp)
         call dcopy(n0,rtab,1,orbp(1,1,1),1)
         call dcopy(n0,etab,1,orbp(1,2,1),1)
-Cgetarg...info...           integer :: n0 , integer(8) :: sspec%ntorb 1
-Cgetarg         call pack5('spec norp ntorb',sspec,is,2,n0,0,0)
 
         sspec(is)%norp=2
         sspec(is)%ntorb=n0
 
-Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%orbp 60
-Cgetarg         call pack5('spec orbp',sspec,is,orbp,0,0,0)
 
         i_copy_size=size(sspec(is)%orbp)
         call dcopy(i_copy_size,orbp,1,sspec(is)%orbp,1)
@@ -239,17 +188,12 @@ ctakao
       endif
 
       if (iprint() .gt. 30)  then
-Cgetarg         seref = dgets('ham seref',sham)
         seref = sham%seref
 
         call awrit1('%x%N Sum of reference energies: %1;6d',' ',80,stdo,
      .    seref)
       endif
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine freeat
 
 
@@ -346,9 +290,8 @@ C     double precision qz(n0,2)
       integer fopna,i,ifi,ipr,iprint,isp,isw,l,lfrz,
      .  lgrad,lgunit,lmxa,lplfa,lrel,nglob,nitmax,nmix,nr,
      .  nsp,stdl,stdo,lplawv,irchan(n0)
-Cdelw1       integer og,opsi
-      real(8) ,allocatable :: rv_w_og(:)
-      real(8) ,allocatable :: rv_w_opsi(:)
+      real(8) ,allocatable :: g_rv(:)
+      real(8) ,allocatable :: psi_rv(:)
 
 C     Parameters for optimized free-atom wave functions
       integer itab(n0,2)
@@ -527,26 +470,19 @@ C     call prrmsh('ending total rho',rofi,rhot,nr,nr,nsp)
 C --- Print info about free-atom wavefunctions ---
       if (lwf .ne. 0) then
         if (ipr .gt. 30) then
-Cdelw1       call defrr(og,  nr*2)
-          allocate(rv_w_og(nr*2))
-Ctakao_ZeroClear_NotRequiered        if (nr*2<0) rv_w_og(:)=0.0d0
+          allocate(g_rv(nr*2))
+Ctakao_ZeroClear_NotRequiered        if (nr*2<0) g_rv(:)=0.0d0
 
-Cdelw1       call defrr(opsi, nr*(lmxa+1)*nsp)
-          allocate(rv_w_opsi(nr*(lmxa+1)*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nr*(lmxa+1)*nsp<0) rv_w_opsi(:)=0.0d0
+          allocate(psi_rv(nr*(lmxa+1)*nsp))
+Ctakao_ZeroClear_NotRequiered        if (nr*(lmxa+1)*nsp<0) psi_rv(:)=0.0d0
 
           lplawv = 0
           if (ipr .ge. 50) lplawv = 1
-Cdelw1       call pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmxa,pl,nsp,v,rofi,w(og),
-Cdelw1      .  w(opsi))
           call pratfs ( spid , lplawv , z , a , nr , rmax , nrmt , lmxa 
-     . , pl , nsp , v , rofi , rv_w_og , rv_w_opsi )
+     . , pl , nsp , v , rofi , g_rv , psi_rv )
 
-Cdelw1 rlse name= og old_list= og opsi
-Cdelw1 rlse name= og new_list= (None)
-Cdelw1       call rlse(og)
-          deallocate(rv_w_opsi)
-          deallocate(rv_w_og)
+          deallocate(psi_rv)
+          deallocate(g_rv)
         endif
 
 C --- Optimise smooth-Hankel basis ---
@@ -624,10 +560,6 @@ C       call prrmsh('rho-fa',rofi,rho,nr,nr,1)
 C --- Fit analytical expression to tail of core density ---
       call fctail(nr,nrmt,a,b,rfoca,rofi,rhoc,ccof,ceh)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine freats
 
 
@@ -759,10 +691,6 @@ C --- Write file with valence wavefunctions
         call fclr(str,ifi)
       endif
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine pratfs
 
 
@@ -829,10 +757,6 @@ C ... Find the outermost maximum
         x = -0.5d0*(rho3-rho1)/(rho1+rho3-2*rho2)
         pmax = b*(dexp(a*(ir+x))-1d0)
       endif
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine ppratf
 
 
@@ -877,15 +801,13 @@ C ... Local parameters
       character strn*80
       integer itab(n0,2)
       double precision rtab(n0,2),etab(n0,2)
-Cdelw1       integer ipr,iprint,irep,isp,istife,istifr,jpr,konfig,l,
-Cdelw1      .  lgunit,lplawv,lrel,nglob,nn,nrep,og,ogp,oh,opsi,stdo,stdl
       integer:: ipr , iprint , irep , isp , istife , istifr , jpr , 
      . konfig , l , lgunit , lplawv , lrel , nglob , nn , nrep , stdo 
      . , stdl
-      real(8) ,allocatable :: rv_w_og(:)
-      real(8) ,allocatable :: rv_w_ogp(:)
-      real(8) ,allocatable :: rv_w_oh(:)
-      real(8) ,allocatable :: rv_w_opsi(:)
+      real(8) ,allocatable :: g_rv(:)
+      real(8) ,allocatable :: gp_rv(:)
+      real(8) ,allocatable :: h_rv(:)
+      real(8) ,allocatable :: psi_rv(:)
 
       double precision b,deh,deh0,dphi,dphip,drsm,drsm0,e1,e2,e3,eadd,
      .  eaddx,eh,elim1,elim2,enew,enu,eval,p,phi,phip,pnu,qvl,radd,
@@ -906,17 +828,14 @@ C ... Heap
         if (ipr .ge. 20) call awrit2('%?#n>=30#%N##'//
      .  ' Optimise free-atom basis for species '//spid//'%a, rmt=%;7g',
      .  ' ',80,stdo,ipr,rmt)
-Cdelw1       call defrr (oh,    nr)
-        allocate(rv_w_oh(nr))
-Ctakao_ZeroClear_NotRequiered        if (nr<0) rv_w_oh(:)=0.0d0
+        allocate(h_rv(nr))
+Ctakao_ZeroClear_NotRequiered        if (nr<0) h_rv(:)=0.0d0
 
-Cdelw1       call defrr (og,    2*nr)
-        allocate(rv_w_og(2*nr))
-Ctakao_ZeroClear_NotRequiered        if (2*nr<0) rv_w_og(:)=0.0d0
+        allocate(g_rv(2*nr))
+Ctakao_ZeroClear_NotRequiered        if (2*nr<0) g_rv(:)=0.0d0
 
-Cdelw1       call defrr (ogp,   2*nr*4)
-        allocate(rv_w_ogp(2*nr*4))
-Ctakao_ZeroClear_NotRequiered        if (2*nr*4<0) rv_w_ogp(:)=0.0d0
+        allocate(gp_rv(2*nr*4))
+Ctakao_ZeroClear_NotRequiered        if (2*nr*4<0) gp_rv(:)=0.0d0
 
 
 C --- Parameters for minimisation ---
@@ -953,18 +872,14 @@ C --- Loop over bound valence states ---
           nn = konfig-l-1
           qvl = ql(1,l+1,isp)
 C   ... Get exact fa wavefunction, eigval, pnu at rmt
-Cdelw1         call popta3(0,l,z,nn,rmt,nr,nrmt,rofi,v(1,isp),a,b,
-Cdelw1      .    eval,pnu,w(og))
           call popta3 ( 0 , l , z , nn , rmt , nr , nrmt , rofi , v ( 1 
-     .   , isp ) , a , b , eval , pnu , rv_w_og )
+     .   , isp ) , a , b , eval , pnu , g_rv )
 
           if (eval .gt. 0d0) goto 10
           sume1 = sume1 + qvl*eval
 C   ... Potential parameters at MT sphere
-Cdelw1         call popta4(l,z,rmt,nrmt,rofi,v(1,isp),w(og),w(ogp),
-Cdelw1      .    a,b,pnu,enu,p,phi,dphi,phip,dphip)
-          call popta4 ( l , z , rmt , nrmt , rofi , v ( 1 , isp ) , rv_w_og 
-     .   , rv_w_ogp , a , b , pnu , enu , p , phi , dphi , phip , dphip 
+          call popta4 ( l , z , rmt , nrmt , rofi , v ( 1 , isp ) , g_rv 
+     .   , gp_rv , a , b , pnu , enu , p , phi , dphi , phip , dphip 
      .   )
 
           rsm = rmt
@@ -975,24 +890,18 @@ Cdelw1      .    a,b,pnu,enu,p,phi,dphi,phip,dphip)
           do  12  irep = 1, 50
             nrep = irep
 C     ... Get center energy
-Cdelw1           call popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
-Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e2,qrmt)
-            call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , rv_w_oh 
+            call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , h_rv 
      .     , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip , dphip 
      .     , e2 , qrmt )
 
 C     ... Vary rsm
             drsm = drsm0
-Cdelw1           call popta1(rsm+drsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
-Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e3,qrmt)
             call popta1 ( rsm + drsm , eh , l , z , rmt , nr , nrmt , rofi 
-     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
      .     , dphip , e3 , qrmt )
 
-Cdelw1           call popta1(rsm-drsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
-Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e1,qrmt)
             call popta1 ( rsm - drsm , eh , l , z , rmt , nr , nrmt , rofi 
-     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
      .     , dphip , e1 , qrmt )
 
             call popta2(l,rsm,eh,drsm,e1,e2,e3,rlim1,rlim2,raddx,rnew,
@@ -1000,16 +909,12 @@ Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e1,qrmt)
 C     ... Vary eh
             deh = deh0
 c         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
-Cdelw1           call popta1(rsm,eh+deh,l,z,rmt,nr,nrmt,rofi,w(oh),
-Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e3,qrmt)
             call popta1 ( rsm , eh + deh , l , z , rmt , nr , nrmt , rofi 
-     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
      .     , dphip , e3 , qrmt )
 
-Cdelw1           call popta1(rsm,eh-deh,l,z,rmt,nr,nrmt,rofi,w(oh),
-Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e1,qrmt)
             call popta1 ( rsm , eh - deh , l , z , rmt , nr , nrmt , rofi 
-     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
      .     , dphip , e1 , qrmt )
 
             call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew,
@@ -1054,25 +959,19 @@ ctakao
             do  112  irep = 1,50
               nrep = irep
 C     ... Get center energy
-Cdelw1           call popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
-Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e2,qrmt)
-              call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , rv_w_oh 
+              call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , h_rv 
      .     , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip , dphip 
      .     , e2 , qrmt )
 
 C     ... Vary eh
               deh = deh0
 c         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
-Cdelw1           call popta1(rsm,eh+deh,l,z,rmt,nr,nrmt,rofi,w(oh),
-Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e3,qrmt)
               call popta1 ( rsm , eh + deh , l , z , rmt , nr , nrmt , rofi 
-     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
      .     , dphip , e3 , qrmt )
 
-Cdelw1           call popta1(rsm,eh-deh,l,z,rmt,nr,nrmt,rofi,w(oh),
-Cdelw1      .       v(1,isp),a,b,enu,p,phi,dphi,phip,dphip,e1,qrmt)
               call popta1 ( rsm , eh - deh , l , z , rmt , nr , nrmt , rofi 
-     .     , rv_w_oh , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
+     .     , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
      .     , dphip , e1 , qrmt )
 
               call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew,
@@ -1105,12 +1004,9 @@ C   ... End of iteration loop
   720   format('fa op sumev',f11.5,'   opt basis',f11.5,'   err',f9.5)
 
 Cki
-Cdelw1 rlse name= oh old_list= oh og ogp
-Cdelw1 rlse name= oh new_list= (None)
-Cdelw1       call rlse(oh)
-        if (allocated(rv_w_ogp)) deallocate(rv_w_ogp)
-        if (allocated(rv_w_og)) deallocate(rv_w_og)
-        if (allocated(rv_w_oh)) deallocate(rv_w_oh)
+        if (allocated(gp_rv)) deallocate(gp_rv)
+        if (allocated(g_rv)) deallocate(g_rv)
+        if (allocated(h_rv)) deallocate(h_rv)
 
 
    80 continue
@@ -1121,34 +1017,21 @@ C     lplawv=nglob('lplawv')
       if (cmdopt('--plotwf',8,0,strn)) lplawv = 1
       if (lplawv .eq. 1) then
         if (nsp .eq. 2) call rx('optfab is not spinpol yet')
-Cdelw1         call defrr(opsi,  nr*lmxa)
-        allocate(rv_w_opsi(nr*lmxa))
-Ctakao_ZeroClear_NotRequiered          if (nr*lmxa<0) rv_w_opsi(:)=0.0d0
+        allocate(psi_rv(nr*lmxa))
+Ctakao_ZeroClear_NotRequiered          if (nr*lmxa<0) psi_rv(:)=0.0d0
 
-Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 1025
-Cdelw1         call popta5(lmxa,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,
-Cdelw1      .     rofi,w(opsi),v,w(og),a,b,spid)
         call popta5 ( lmxa , rtab , etab , itab , z , pl , rmax , rmt 
-     .   , nr , nrmt , rofi , rv_w_opsi , v , rv_w_og , a , b , spid )
+     .   , nr , nrmt , rofi , psi_rv , v , g_rv , a , b , spid )
 
-Cdelw1 rlse name= opsi old_list= opsi
-Cdelw1 rlse name= opsi new_list= (None)
-Cdelw1         call rlse(opsi)
-        if (allocated(rv_w_opsi)) deallocate(rv_w_opsi)
+        if (allocated(psi_rv)) deallocate(psi_rv)
 
       endif
 
 Cki      call rlse (oh)
-Cdelw1 rlse name= opsi old_list= (None)
 
 Cki#error ERROR, try to release name= opsi ,but list=null at linenumber= 1031 list= (None)
-Cdelw1        call rlse(opsi)
 
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine optfab
 
 
@@ -1197,16 +1080,13 @@ C ... Passed parameters
 C ... Local parameters
       logical cmdopt
       character spid*8, strn*80, flg(2)*1
-Cdelw1       integer ipr,iprint,i,konfig,l,info,lgunit,nn,og,ogp,oh,stdo,
-Cdelw1      .  lplawv,loclo,nfit,isw
       integer:: ipr , iprint , i , konfig , l , info , lgunit , nn 
      . , stdo , lplawv , loclo , nfit , isw
-      real(8) ,allocatable :: rv_w_og(:)
-      real(8) ,allocatable :: rv_w_ogp(:)
-      real(8) ,allocatable :: rv_w_oh(:)
+      real(8) ,allocatable :: g_rv(:)
+      real(8) ,allocatable :: gp_rv(:)
+      real(8) ,allocatable :: h_rv(:)
 
-Cdelw1       integer opsi
-      real(8) ,allocatable :: rv_w_opsi(:)
+      real(8) ,allocatable :: psi_rv(:)
 
       double precision b,dasum,dphi,dphip,e2,eh,eval,p,phi,phip,
      .  pnul,rsm,rsmin,rsmax,ekin
@@ -1230,23 +1110,17 @@ C     stdl = lgunit(2)
       b = rmax/(dexp(a*nr-a)-1d0)
       nfit = 0
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (dasum(lmxa+1,pz,1) .eq. 0) return
 
       do  80  i = 1, nsp
-Cdelw1       call defrr (oh,    nr)
-        allocate(rv_w_oh(nr))
-Ctakao_ZeroClear_NotRequiered        if (nr<0) rv_w_oh(:)=0.0d0
+        allocate(h_rv(nr))
+Ctakao_ZeroClear_NotRequiered        if (nr<0) h_rv(:)=0.0d0
 
-Cdelw1       call defrr (og,    2*nr)
-        allocate(rv_w_og(2*nr))
-Ctakao_ZeroClear_NotRequiered        if (2*nr<0) rv_w_og(:)=0.0d0
+        allocate(g_rv(2*nr))
+Ctakao_ZeroClear_NotRequiered        if (2*nr<0) g_rv(:)=0.0d0
 
-Cdelw1       call defrr (ogp,   2*nr*4)
-        allocate(rv_w_ogp(2*nr*4))
-Ctakao_ZeroClear_NotRequiered        if (2*nr*4<0) rv_w_ogp(:)=0.0d0
+        allocate(gp_rv(2*nr*4))
+Ctakao_ZeroClear_NotRequiered        if (2*nr*4<0) gp_rv(:)=0.0d0
 
 
 C --- Loop over local orbitals ---
@@ -1294,10 +1168,8 @@ C       Skip high-lying local orbitals unless specifically sought
 C   ... Get exact fa wavefunction, eigval, pnu_l at rmt
           if (loclo .eq. 1) then
             nn = konfig-l-1
-Cdelw1           call popta3(0,l,z,nn,rmt,nr,nrmt,rofi,v(1,i),a,b,eval,
-Cdelw1      .      pnul,w(og))
             call popta3 ( 0 , l , z , nn , rmt , nr , nrmt , rofi , v ( 1 
-     .     , i ) , a , b , eval , pnul , rv_w_og )
+     .     , i ) , a , b , eval , pnul , g_rv )
 
 C       Finish if in future, need w.f. at r>rmt
 C        else
@@ -1307,10 +1179,8 @@ C     .      pnul,w(og))
           pl(l+1,i) = pnul
 
 C   ... Potential parameters at MT sphere
-Cdelw1         call popta4(l,z,rmt,nrmt,rofi,v(1,i),w(og),w(ogp),
-Cdelw1      .    a,b,pnul,eval,p,phi,dphi,phip,dphip)
-          call popta4 ( l , z , rmt , nrmt , rofi , v ( 1 , i ) , rv_w_og 
-     .   , rv_w_ogp , a , b , pnul , eval , p , phi , dphi , phip , dphip 
+          call popta4 ( l , z , rmt , nrmt , rofi , v ( 1 , i ) , g_rv 
+     .   , gp_rv , a , b , pnul , eval , p , phi , dphi , phip , dphip 
      .   )
 
 
@@ -1357,9 +1227,7 @@ C    .      dphi,rsm,eh,ekin,info)
           endif
 
 C  ... Get energy of this wave function
-Cdelw1         call popta1(rsm,eh,l,z,rmt,nr,nrmt,rofi,w(oh),
-Cdelw1      .    v(1,i),a,b,eval,p,phi,dphi,phip,dphip,e2,qrmt)
-          call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , rv_w_oh 
+          call popta1 ( rsm , eh , l , z , rmt , nr , nrmt , rofi , h_rv 
      .   , v ( 1 , i ) , a , b , eval , p , phi , dphi , phip , dphip 
      .   , e2 , qrmt )
 
@@ -1377,13 +1245,10 @@ Cdelw1      .    v(1,i),a,b,eval,p,phi,dphi,phip,dphip,e2,qrmt)
           etab(l+1,i) = eh
 
    10   continue
-Cdelw1 rlse name= oh old_list= oh og ogp
-Cdelw1 rlse name= oh new_list= (None)
-Cdelw1       call rlse (oh)
 ctakao moved deallocation to here
-        deallocate(rv_w_ogp)
-        deallocate(rv_w_og)
-        deallocate(rv_w_oh)
+        deallocate(gp_rv)
+        deallocate(g_rv)
+        deallocate(h_rv)
    80 continue
 
 C --- Make plot file ---
@@ -1392,27 +1257,17 @@ C     lplawv=nglob('lplawv')
       if (cmdopt('--plotwf',8,0,strn)) lplawv = 1
       if (lplawv .eq. 1) then
         if (nsp .eq. 2) call rx('optfab is not spinpol yet')
-Cdelw1         call defrr(opsi,  nr*lmxa)
-        allocate(rv_w_opsi(nr*lmxa))
-Ctakao_ZeroClear_NotRequiered          if (nr*lmxa<0) rv_w_opsi(:)=0.0d0
+        allocate(psi_rv(nr*lmxa))
+Ctakao_ZeroClear_NotRequiered          if (nr*lmxa<0) psi_rv(:)=0.0d0
 
-Cdelw1         call popta5(lmxa,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,
-Cdelw1      .     rofi,w(opsi),v,w(og),a,b,spid)
         call popta5 ( lmxa , rtab , etab , itab , z , pl , rmax , rmt 
-     .   , nr , nrmt , rofi , rv_w_opsi , v , rv_w_og , a , b , spid )
+     .   , nr , nrmt , rofi , psi_rv , v , g_rv , a , b , spid )
 
-Cdelw1 rlse name= opsi old_list= oh og ogp opsi
-Cdelw1 rlse name= opsi new_list= oh og ogp
-Cdelw1         call rlse(opsi)
-        deallocate(rv_w_opsi)
+        deallocate(psi_rv)
 
       endif
 
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine ftfalo
 
 
@@ -1525,10 +1380,6 @@ C     O = alpha^2 <phi | phi> + beta^2 <phidot | phidot>
       eval = hum/sum
 
       qrmt = sum2/sum
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine popta1
 
 
@@ -1593,10 +1444,6 @@ C ... Local parameters
       if (jpr.gt.0) write (stdo,810)l,x0,y0,ee1,ee2,ee3,aa,een,xnew
   810 format(i3,f8.3,f8.3,f10.3,2f9.3,f9.1,f10.3,f8.3,a)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine popta2
 
       subroutine popta3(mode,l,z,nn,rmt,nr,nrmt,rofi,v,a,b,evl,pnu,g)
@@ -1682,10 +1529,6 @@ C ... Don't set too low..
         pnu = p0l
       endif
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine popta3
 
       subroutine popta4(l,z,rmt,nrmt,rofi,v,g,gp,a,b,pnu,enu,p,phi,dphi,
@@ -1751,10 +1594,6 @@ C     dphip = (slo(2)-phip)/rmt
 c|    write(stdo,200) l,enu,p,phi,dphi,phip,dphip
 c|200 format(' PP',i2,'  e',f10.5,'  p',f10.5,'  bc',4f10.5)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine popta4
 
 
@@ -1868,10 +1707,6 @@ C ... Write the plot file
    30 continue
       call fclose(ifi)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine popta5
 
 
@@ -1927,9 +1762,6 @@ C  339 format(/' coretail:  rho(rmt)=',f12.8,'   charge=',f12.8)
       if (dabs(q0) .lt. 1d-6) then
         c = 0d0
         eh = -1d0
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         return
       endif
 
@@ -1993,10 +1825,6 @@ c|      enddo
 c|      write(stdo,965) q
 c|  965 format(' integral over smoothed core:',f10.5)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine fctail
 
 

@@ -1,20 +1,3 @@
-Cdelw1 var ['osmrho', '0', 'osmrho', '-k1*k2*k3*nsp', 'complex(8)', 'zv_w_', 'smvxcm']
-Cdelw1 var ['ocgh1', '0', 'ocgh1', 'ng', 'complex(8)', 'zv_w_', 'smvxcm']
-Cdelw1 var ['ocgh2', '0', 'ocgh2', 'ng', 'complex(8)', 'zv_w_', 'smvxcm']
-Cdelw1 var ['ogv', '-1', 'undef', '0', 'undef', 'x', 'smvxcm']
-Cdelw1 var ['okv', '-1', 'undef', '0', 'undef', 'x', 'smvxcm']
-Cdelw1 var ['odxcv', '1', 'odxcv', 'k1*k2*k3*nsp', 'complex(8)', 'zv_w_', 'smvxcm']
-Cdelw1 var ['osmcor', '-1', 'undef', '0', 'undef', 'x', 'smvxcm']
-Cdelw1 var ['ocy', '-1', 'undef', '0', 'undef', 'x', 'smvxcm']
-Cdelw1 undel [['undef', 'wref'], 'ogv', 'smvxcm']
-Cdelw1 undel [['undef', 'wref'], 'okv', 'smvxcm']
-Cdelw1 undel [['undef', 'wref'], 'osmcor', 'smvxcm']
-Cdelw1 undel [['undef', 'wref'], 'ocy', 'smvxcm']
-Cdelw1 undel [['wref'], 'osmrho', 'smvxcm']
-Cgetarg...info...           structure ['smvxcm', 'lat', 'slat']
-Cgetarg...info...           structure ['smvxc4', 'site', 'ssite']
-Cgetarg...info...           use_to_add ['smvxcm', 'm_struc_def']
-Cgetarg...info...           use_to_add ['smvxc4', 'm_struc_def']
       subroutine smvxcm(ssite,sspec,slat,nbas,lfrce,k1,k2,k3,smrho,
      .  smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm,
      .  rvepsm,focexc,focex,focec,focvxc,f)
@@ -91,9 +74,6 @@ C     implicit none
 C ... Passed parameters
       integer nbas,lfrce,k1,k2,k3,ngabc(3)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-Cgetarg       double precision ssite(1),sspec(1),slat(1),f(3,1),
-Cgetarg      .  repsm(2),repsmx(2),repsmc(2),rmusm(2),rvmusm(2),rvepsm(2),
-Cgetarg      .  focexc(2),focex(2),focec(2),focvxc(2)
       real(8):: f(3,1) , repsm(2) , repsmx(2) , repsmc(2) , rmusm(2) 
      . , rvmusm(2) , rvepsm(2) , focexc(2) , focex(2) , focec(2) , focvxc(2)
       type(s_site)::ssite(*)
@@ -104,19 +84,12 @@ Cgetarg      .  focexc(2),focex(2),focec(2),focvxc(2)
      .  smvxc(k1,k2,k3,2),smvx(k1,k2,k3,2),smvc(k1,k2,k3,2),
      .  smexc(k1,k2,k3)
 C ... Local parameters
-Cdelw1 do not change  [['undef', 'wref'], 'ogv', 'smvxcm']
-Cdelw1 do not change  [['undef', 'wref'], 'okv', 'smvxcm']
-Cdelw1 do not change  [['undef', 'wref'], 'ocy', 'smvxcm']
-Cdelw1 do not change  [['wref'], 'osmrho', 'smvxcm']
-Cdelw1 do not change  [['undef', 'wref'], 'osmcor', 'smvxcm']
-Cdelw1       integer stdo,i,k123,n1,n2,n3,lgunit,ng,ogv,okv,ocy,osmrho,osmcor,
-Cdelw1      .  ocgh1,ocgh2,lfoc1,lfoc2,odxcv,iprint,excsan,lxcfun,nglob,nsp
       integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , ogv 
      . , okv , ocy , osmrho , osmcor , lfoc1 , lfoc2 , iprint , excsan 
      . , lxcfun , nglob , nsp
-      complex(8) ,allocatable :: zv_w_ocgh1(:)
-      complex(8) ,allocatable :: zv_w_ocgh2(:)
-      complex(8) ,allocatable :: zv_w_odxcv(:)
+      complex(8) ,allocatable :: cgh1_zv(:)
+      complex(8) ,allocatable :: cgh2_zv(:)
+      complex(8) ,allocatable :: dxcv_zv(:)
 
       double precision vol,sum1,sum2,vxcavg(2),x1,x2,alat
       character*180 outs
@@ -128,83 +101,46 @@ C ... Heap
       nsp  = nglob('nsp')
       lxcfun = nglob('lxcf')
       call tcn('smvxc')
-Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
-Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
-Cgetarg...info...           integer :: ogv , integer(8) :: slat%ogv 1
-Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg       call upack('lat nabc ng ogv okv vol',slat,ngabc,ng,ogv,okv,vol)
 
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 116
-Cdelw1 do not change ogv because of ['undef', 'wref']
       ogv=slat%ogv
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 117
-Cdelw1 do not change okv because of ['undef', 'wref']
       okv=slat%okv
       vol=slat%vol
 
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
-Cgetarg       call upack('lat alat vol ocy',slat,alat,vol,ocy,0,0)
 
       alat=slat%alat
       vol=slat%vol
-Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 127
-Cdelw1 do not change ocy because of ['undef', 'wref']
       ocy=slat%ocy
 
       if (excsan(lxcfun,0) .lt. 0) x1 = excsan(lxcfun,stdo)
 
 C ... Sum of foca hankel heads; break into direct and pert. parts
-Cdelw1 do not change osmrho because of ['wref']
       call defcc (osmrho,-k1*k2*k3*nsp)
-Cdelw1       call defcc (ocgh1,  ng)
-      allocate(zv_w_ocgh1(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocgh1(:)=0.0d0
+      allocate(cgh1_zv(ng))
+Ctakao_ZeroClear_NotRequiered        if (ng<0) cgh1_zv(:)=0.0d0
 
-Cdelw1       call defcc (ocgh2,  ng)
-      allocate(zv_w_ocgh2(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) zv_w_ocgh2(:)=0.0d0
+      allocate(cgh2_zv(ng))
+Ctakao_ZeroClear_NotRequiered        if (ng<0) cgh2_zv(:)=0.0d0
 
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 135
-Cdelw1 do not change ogv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 135
-Cdelw1 do not change ogv because of ['undef', 'wref']
-Cdelw1       call smcorm(nbas,ssite,sspec,slat,ng,w(ogv),
-Cdelw1      .  w(ocgh1),w(ocgh2),lfoc1,lfoc2)
       call smcorm ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
-     . zv_w_ocgh1 , zv_w_ocgh2 , lfoc1 , lfoc2 )
+     . cgh1_zv , cgh2_zv , lfoc1 , lfoc2 )
 
 
 C ... w(osmrho) = smrho + smoothed core from foca hankel heads
       k123 = 2*k1*k2*k3
       if (lfoc1 .eq. 1) then
-Cdelw1 do not change osmrho because of ['wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 141
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1 do not change osmrho because of ['wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 141
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1         call gvputf(ng,1,w(okv),k1,k2,k3,w(ocgh1),w(osmrho))
-        call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , zv_w_ocgh1 
+        call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh1_zv 
      .   , w ( osmrho ) )
 
-Cdelw1 do not change osmrho because of ['wref']
         call fftz3(w(osmrho),n1,n2,n3,k1,k2,k3,1,0,1)
         if (nsp .eq. 2) then
-Cdelw1 do not change osmrho because of ['wref']
           call dscal(k123,.5d0,w(osmrho),1)
-Cdelw1 do not change osmrho because of ['wref']
           call dpscop(w(osmrho),w(osmrho),k123,1,1+k123,1d0)
         endif
-Cdelw1 do not change osmrho because of ['wref']
         call dpadd(w(osmrho),smrho,1,k123*nsp,1d0)
       else
-Cdelw1 do not change osmrho because of ['wref']
         call dpcopy(smrho,w(osmrho),1,k123*nsp,1d0)
       endif
 
@@ -220,9 +156,7 @@ C      call smrpos(w(osmrho),k1,k2,k3,n1,n2,n3)
 
 C --- Direct branch (lfoc2 .eq. 0) ---
       if (lfoc2 .eq. 0) then
-Cdelw1 do not change osmrho because of ['wref']
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmrho),sum1,sum2)
-Cdelw1 do not change osmrho because of ['wref']
         call smvxc2(0,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,
      .    w(osmrho),smvxc,smvx,smvc,smexc,w,
      .    repsm,repsmx,repsmc,rmusm,vxcavg)
@@ -241,17 +175,11 @@ Cdelw1 do not change osmrho because of ['wref']
 
 C --- Perturbation branch (lfoc2 .ne. 0) ---
       if (lfoc2 .ne. 0) then
-Cdelw1         call defcc (odxcv, k1*k2*k3*nsp)
-        allocate(zv_w_odxcv(k1*k2*k3*nsp))
-Ctakao_ZeroClear_NotRequiered          if (k1*k2*k3*nsp<0) zv_w_odxcv(:)=0.0d0
+        allocate(dxcv_zv(k1*k2*k3*nsp))
+Ctakao_ZeroClear_NotRequiered          if (k1*k2*k3*nsp<0) dxcv_zv(:)=0.0d0
 
-Cdelw1 do not change osmrho because of ['wref']
-Cdelw1 do not change osmrho because of ['wref']
-Cdelw1         call smvxc2(1,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,
-Cdelw1      .   w(osmrho),smvxc,smvx,smvc,smexc,w(odxcv),
-Cdelw1      .   repsm,repsmx,repsmc,rmusm,vxcavg)
         call smvxc2 ( 1 , nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
-     .   , k3 , w ( osmrho ) , smvxc , smvx , smvc , smexc , zv_w_odxcv 
+     .   , k3 , w ( osmrho ) , smvxc , smvx , smvc , smexc , dxcv_zv 
      .   , repsm , repsmx , repsmc , rmusm , vxcavg )
 
         call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
@@ -264,44 +192,22 @@ Cdelw1      .   repsm,repsmx,repsmc,rmusm,vxcavg)
 
 C   ... Assemble core tails for linearized treatment on mesh
 C       w(osmcor) = portion of core treated perturbatively
-Cdelw1 do not change osmrho because of ['wref']
-Cdelw1 warning(1) , probably  osmcor  is not defined yet at linenumber= 197
-Cdelw1 do not change osmcor because of ['undef', 'wref']
         osmcor = osmrho
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 198
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmcor  is not defined yet at linenumber= 198
-Cdelw1 do not change osmcor because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 198
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmcor  is not defined yet at linenumber= 198
-Cdelw1 do not change osmcor because of ['undef', 'wref']
-Cdelw1         call gvputf(ng,1,w(okv),k1,k2,k3,w(ocgh2),w(osmcor))
-        call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , zv_w_ocgh2 
+        call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh2_zv 
      .   , w ( osmcor ) )
 
-Cdelw1 warning(1) , probably  osmcor  is not defined yet at linenumber= 199
-Cdelw1 do not change osmcor because of ['undef', 'wref']
         call fftz3(w(osmcor),n1,n2,n3,k1,k2,k3,1,0,1)
-Cdelw1 warning(1) , probably  osmcor  is not defined yet at linenumber= 200
-Cdelw1 do not change osmcor because of ['undef', 'wref']
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmcor),sum1,sum2)
         call dpzero(focexc,2)
         call dpzero(focex,2)
         call dpzero(focec,2)
         do  i = 1, nsp
-Cdelw1 warning(1) , probably  osmcor  is not defined yet at linenumber= 205
-Cdelw1 do not change osmcor because of ['undef', 'wref']
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvx(1,1,1,i),w(osmcor),
      .      x1,x2)
           focex(i)  = x1/nsp
-Cdelw1 warning(1) , probably  osmcor  is not defined yet at linenumber= 208
-Cdelw1 do not change osmcor because of ['undef', 'wref']
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvc(1,1,1,i),w(osmcor),
      .      x1,x2)
           focec(i)  = x1/nsp
-Cdelw1 warning(1) , probably  osmcor  is not defined yet at linenumber= 211
-Cdelw1 do not change osmcor because of ['undef', 'wref']
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),w(osmcor),
      .      x1,x2)
           focexc(i) = x1/nsp
@@ -310,14 +216,8 @@ C          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),w(osmcor),
 C     .      x1,x2)
         enddo
 C       Peturbation correction to smvxc
-Cdelw1 warning(1) , probably  osmcor  is not defined yet at linenumber= 219
-Cdelw1 do not change osmcor because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmcor  is not defined yet at linenumber= 219
-Cdelw1 do not change osmcor because of ['undef', 'wref']
-Cdelw1         call smvxc3(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,w(osmcor),
-Cdelw1      .    w(odxcv),smvxc,focvxc)
         call smvxc3 ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , smrho 
-     .   , w ( osmcor ) , zv_w_odxcv , smvxc , focvxc )
+     .   , w ( osmcor ) , dxcv_zv , smvxc , focvxc )
 
         call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
         if (iprint() .ge. 30) then
@@ -332,61 +232,33 @@ Cdelw1      .    w(odxcv),smvxc,focvxc)
         endif
       endif
 
-Cdelw1 rlse name= osmrho old_list= osmrho ocgh1 ocgh2 odxcv
-Cdelw1 rlse name= osmrho new_list= (None)
-Cdelw1 not deallocate osmrho because of [wref]
-Cdelw1       call rlse(osmrho)
-      if (allocated(zv_w_odxcv)) deallocate(zv_w_odxcv)
-      if (allocated(zv_w_ocgh2)) deallocate(zv_w_ocgh2)
-      if (allocated(zv_w_ocgh1)) deallocate(zv_w_ocgh1)
+      if (allocated(dxcv_zv)) deallocate(dxcv_zv)
+      if (allocated(cgh2_zv)) deallocate(cgh2_zv)
+      if (allocated(cgh1_zv)) deallocate(cgh1_zv)
       call rlse(osmrho)
 
 
 C --- Force from foca sm-head; cgh1 is workspace ---
       if (lfrce .ne. 0) then
-Cdelw1       call defcc (ocgh1,  ng*nsp)
-        allocate(zv_w_ocgh1(ng*nsp))
-Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) zv_w_ocgh1(:)=0.0d0
+        allocate(cgh1_zv(ng*nsp))
+Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cgh1_zv(:)=0.0d0
 
         call dpzero(f,3*nbas)
         if (lfoc1.gt.0 .or. lfoc2.gt.0) then
           call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 242
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 242
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1         call gvgetf(ng,nsp,w(okv),k1,k2,k3,smvxc,w(ocgh1))
-          call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smvxc , zv_w_ocgh1 
+          call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smvxc , cgh1_zv 
      .   )
 
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 243
-Cdelw1 do not change ogv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 243
-Cdelw1 do not change ocy because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ogv  is not defined yet at linenumber= 243
-Cdelw1 do not change ogv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ocy  is not defined yet at linenumber= 243
-Cdelw1 do not change ocy because of ['undef', 'wref']
-Cdelw1         call smvxc4(nbas,nsp,ssite,sspec,alat,vol,w(ocy),ng,w(ogv),
-Cdelw1      .     w(ocgh1),f)
           call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , w ( ocy 
-     .   ) , ng , w ( ogv ) , zv_w_ocgh1 , f )
+     .   ) , ng , w ( ogv ) , cgh1_zv , f )
 
         endif
-Cdelw1 rlse name= ocgh1 old_list= ocgh1
-Cdelw1 rlse name= ocgh1 new_list= (None)
-Cdelw1       call rlse(ocgh1)
-        if (allocated(zv_w_ocgh1)) deallocate(zv_w_ocgh1)
+        if (allocated(cgh1_zv)) deallocate(cgh1_zv)
 
       endif
 
       call tcx('smvxc')
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [ogv okv osmcor ocy osmrho]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine smvxcm
 
 
@@ -626,10 +498,6 @@ C        call zprm3('smvxc spin 2',0,smvxc(1,1,1,2),n1,n2,n3)
 C        call zprm3('dsmvxc spin 2',0,dsmvxc(1,1,1,2),n1,n2,n3)
 C      endif
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine smvxc2
 
 
@@ -681,10 +549,6 @@ C ... Local parameters
 C     write(stdo,862) csum
 C 862 format(' csum=',2f14.8)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine smvxc3
 
       subroutine smvxc4(nbas,nsp,ssite,sspec,alat,vol,cy,ng,gv,cvxc,f)
@@ -718,8 +582,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,ng
-Cgetarg       double precision ssite(1),sspec(1),gv(ng,3),alat,vol,
-Cgetarg      .   cy(1),f(3,nbas)
       real(8):: gv(ng,3) , alat , vol , cy(1) , f(3,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -740,9 +602,6 @@ C ... Local parameters
 C --- Loop over sites ---
       if (iprint() .ge. 50) write(stdo,400)
       do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: tau(3) , real(8) :: ssite%pos 3
-Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pos)
@@ -783,9 +642,5 @@ Cgetarg         call upack('site spec pos',ssite,ib,is,tau,0,0)
   340 format(i4,3f12.6)
   400 format(/' xc-force from foca:')
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine smvxc4
 

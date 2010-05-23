@@ -379,7 +379,6 @@ c  CALLED BY SUBROUTINE CORLSD
      .     8d0*g2)))*s+(g1*g2pp-g1pp*g2-9d0*eta*g1))*s+
      .     (3d0*g1*g2p-g1p*g2+g2pp-8d0*eta))*s+g1*g2+3d0*g2p
       f2 = (f21*c1+f22/div)/div
-Cgetarg       end
       end subroutine perdew
 
       subroutine xperdew(rho,drho,ddrho,dabgrh,ex,vx1)
@@ -399,7 +398,6 @@ Cgetarg       end
       call perdew(s,ff,f1,f2)
       ex = ax*(rho)**fothr*(ff-1)
       vx1 = ax*rho**(oneth)*(fothr*(ff-1) - t/s*f1 - (u-fothr*s**3)*f2)
-Cgetarg       end
       end subroutine xperdew
 
 #else
@@ -479,7 +477,6 @@ c    .    *cutoff
      .      (1d0-bigf)*rhop*grho-2d0**twoth*(2d0-bigf)*
      .      rho*grhop)))*cutof2
       endif
-Cgetarg       end
       end subroutine nlocxc
 
 #endif
@@ -527,7 +524,6 @@ C     gradv(nr)=(v(nr-2)/2d0-2d0*v(nr-1)+1.5d0*v(nr))/a
       do  2  i = 1, nr
         gradv(i) = gradv(i)/(r(i)+b)
     2 continue
-Cgetarg       end
       end subroutine radgra
 
 

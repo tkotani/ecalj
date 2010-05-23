@@ -1,8 +1,3 @@
-Cdelw1 var ['odmwk', '0', 'odmwk', '-ivsiz', 'complex(8)', 'zv_w_', 'chkdmu']
-Cgetarg...info...           structure ['chkdmu', 'site', 'ssite']
-Cgetarg...info...           structure ['chkdmu', 'spec', 'sspec']
-Cgetarg...info...           structure ['chkdmu', 'ham', 'sham']
-Cgetarg...info...           use_to_add ['chkdmu', 'm_struc_def']
       subroutine chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,sham,idvsh,
      .  dmatu,dmatuo,vorb,tolu,umix,lldau,ng,g,istab)
 
@@ -55,7 +50,6 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nsp,nlibu,lmaxu,ng,idvsh
       integer lldau(nbas),istab(nbas,ng)
-Cgetarg       double precision ssite(1),sspec(1),sham(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_ham)::sham
@@ -70,8 +64,7 @@ C ... Local parameters
       integer nglob,stdl,iprint,ipl,havesh
       double precision ddmat,uh(4),jh(4),eorbi,eterms(20),eks,ddot,xx
       equivalence (eterms(2),eks)
-Cdelw1       integer odmwk
-      complex(8) ,allocatable :: zv_w_odmwk(:)
+      complex(8) ,allocatable :: dmwk_zv(:)
 
 C ... MPI
       integer procid,master,mpipid
@@ -84,9 +77,6 @@ C     print *, 'dmatu',dmatu(-lmaxu,-lmaxu,1,1)
 C     call rx0('done')
 C     call prmx('dmatu',dmatu,2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (nlibu .eq. 0) return
 C     stdo = nglob('stdo')
       havesh = idvsh
@@ -107,19 +97,13 @@ C --- Symmetrize output dmatu (req. real harmonics); compare diff ---
         call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = 0
       endif
-Cdelw1       call defcc(odmwk,-ivsiz)
-      allocate(zv_w_odmwk(abs(-ivsiz)))
-      if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
+      allocate(dmwk_zv(abs(-ivsiz)))
+      if (-ivsiz<0) dmwk_zv(:)=0.0d0
 
-Cdelw1       call symdmu(dmatu,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
-Cdelw1      .  lldau,xx)
-      call symdmu ( dmatu , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
+      call symdmu ( dmatu , dmwk_zv , nbas , nsp , lmaxu , sspec 
      . , ssite , ng , g , istab , lldau , xx )
 
-Cdelw1 rlse name= odmwk old_list= odmwk
-Cdelw1 rlse name= odmwk new_list= (None)
-Cdelw1       call rlse(odmwk)
-      if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
+      if (allocated(dmwk_zv)) deallocate(dmwk_zv)
 
       if (havesh .ne. idvsh) then
         call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
@@ -145,14 +129,8 @@ C     This block requires dmatu to be in spherical harmonics
       iblu = 0
       do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
-Cgetarg         is = igetss('site spec',ib,ssite)
           is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
-Cgetarg...info...           real(8) :: uh(4) , real(8) :: sspec%uh 4
-Cgetarg...info...           real(8) :: jh(4) , real(8) :: sspec%jh 4
-Cgetarg         call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
 
           lmxa=sspec(is)%lmxa
           i_copy_size=size(sspec(is)%idu)
@@ -175,16 +153,11 @@ Cgetarg         call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
       enddo
 
 C --- LDA total energy terms ---
-Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
-Cgetarg       call upack1('ham eterms',sham,eterms)
 
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,sham%eterms,1,eterms,1)
 
       eks = eks + eorb
-Cgetarg...info...           real(8) :: eks , real(8) :: sham%ehk 1
-Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
-Cgetarg       call pack5('ham ehk eterms',sham,eks,eterms,0,0,0)
 
       sham%ehk=eks
       i_copy_size=size(sham%eterms)
@@ -209,9 +182,6 @@ C --- Case self-consistent within tolerance tolu ---
      .    '  RMS diff (%;3g) < tolu (%;3g)',ddmat,tolu,0,0,0)
 C       Restore dmatuo to dmatu
         call dcopy(2*ivsiz,dmatuo,1,dmatu,1)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         return
 
 C --- Case not self-consistent ---
@@ -233,14 +203,8 @@ C       This block requires dmatu to be in spherical harmonics
         iblu = 0
         do  ib = 1, nbas
           if (lldau(ib) .ne. 0) then
-Cgetarg           is = igetss('site spec',ib,ssite)
             is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
-Cgetarg...info...           real(8) :: uh(4) , real(8) :: sspec%uh 4
-Cgetarg...info...           real(8) :: jh(4) , real(8) :: sspec%jh 4
-Cgetarg           call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
 
             lmxa=sspec(is)%lmxa
             i_copy_size=size(sspec(is)%idu)
@@ -264,21 +228,15 @@ Cgetarg           call upack('spec lmxa idu uh jh',sspec,is,lmxa,idu,uh,jh)
 C       At this point, dmatu and vorb are in spherical harmonics
 
 C   ... Symmetrize vorb to check (symdmu requires real harmonics)
-Cdelw1         call defcc(odmwk,-ivsiz)
-        allocate(zv_w_odmwk(abs(-ivsiz)))
-        if (-ivsiz<0) zv_w_odmwk(:)=0.0d0
+        allocate(dmwk_zv(abs(-ivsiz)))
+        if (-ivsiz<0) dmwk_zv(:)=0.0d0
 
         call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
-Cdelw1         call symdmu(vorb,w(odmwk),nbas,nsp,lmaxu,sspec,ssite,ng,g,istab,
-Cdelw1      .    lldau,xx)
-        call symdmu ( vorb , zv_w_odmwk , nbas , nsp , lmaxu , sspec 
+        call symdmu ( vorb , dmwk_zv , nbas , nsp , lmaxu , sspec 
      .   , ssite , ng , g , istab , lldau , xx )
 
         call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
-Cdelw1 rlse name= odmwk old_list= odmwk
-Cdelw1 rlse name= odmwk new_list= (None)
-Cdelw1         call rlse(odmwk)
-        if (allocated(zv_w_odmwk)) deallocate(zv_w_odmwk)
+        if (allocated(dmwk_zv)) deallocate(dmwk_zv)
 
 C       At this point, dmatu and vorb are in spherical harmonics
 
@@ -313,10 +271,6 @@ C   ... Exit with dmatu, vorb in real harmonics, depending on idvsh
 
       endif
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine chkdmu
 
 

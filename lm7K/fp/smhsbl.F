@@ -1,7 +1,3 @@
-Cgetarg...info...           structure ['smhsbl', 'lat', 'slat']
-Cgetarg...info...           structure ['smhsbl', 'site', 'ssite']
-Cgetarg...info...           structure ['smhsbl', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['smhsbl', 'm_struc_def']
 #define F90 1
       subroutine smhsbl(mode,ssite,sspec,slat,vavg,q,ndimh,iprmb,
      . napw,igapw,h,s)
@@ -158,7 +154,6 @@ C ... Passed parameters
 #endif
       integer procid,master
       integer mode,ndimh,iprmb(1),napw,igapw(3,napw)
-Cgetarg       double precision ssite(1),sspec(1),slat(1),q(3),vavg
       real(8):: q(3) , vavg
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -224,11 +219,6 @@ C ... Heap
 C --- Setup ---
       nlmto = ndimh-napw
       nbas  = nglob('nbas')
-Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
-Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
-Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
-Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
-Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
 
       ocg=slat%ocg
       ojcg=slat%ojcg
@@ -238,10 +228,6 @@ Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
 
 C ... Setup below needed for PWs
       if (napw .gt. 0) then
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg         call upack('lat alat plat vol',slat,alat,plat,vol,0,0)
 
         alat=slat%alat
         i_copy_size=size(slat%plat)
@@ -257,13 +243,9 @@ Cgetarg         call upack('lat alat plat vol',slat,alat,plat,vol,0,0)
 C       Find largest lmxa ... should be made elsewhere
         lmxax = -1
         do  ib1 = 1, nbas
-Cgetarg...info...           integer :: is1 , integer(8) :: ssite%spec 1
-Cgetarg           call upack('site spec',ssite,ib1,is1,0,0,0)
 
           is1=ssite(ib1)%spec
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg           call upack('spec lmxa',sspec,is1,lmxa,0,0,0)
 
           lmxa=sspec(is1)%lmxa
 
@@ -343,9 +325,6 @@ ccccccccccccccccccccc
           ib1=iloop
 #endif
 
-Cgetarg...info...           integer :: is1 , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: p1(3) , real(8) :: ssite%pos 3
-Cgetarg         call upack('site spec pos',ssite,ib1,is1,p1,0,0)
 
           is1=ssite(ib1)%spec
           i_copy_size=size(ssite(ib1)%pos)
@@ -357,9 +336,6 @@ C       Row info telling smhsbl where to poke s0 made by hhibl
           call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
 
           do  ib2 = ib1, nbas
-Cgetarg...info...           integer :: is2 , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: p2(3) , real(8) :: ssite%pos 3
-Cgetarg           call upack('site spec pos',ssite,ib2,is2,p2,0,0)
 
             is2=ssite(ib2)%spec
             i_copy_size=size(ssite(ib2)%pos)
@@ -566,7 +542,6 @@ C ... Occupy second half of matrix
 
 C      call zprm('h-warp',2,h,ndimh,ndimh,ndimh)
 C      call zprm('s-warp',2,s,ndimh,ndimh,ndimh)
-Cgetarg       end
       end subroutine smhsbl
 
 

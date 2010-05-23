@@ -1,58 +1,3 @@
-Cdelw1 var ['oqmom', '0', 'oqmom', 'nvl', 'real(8)', 'rv_w_', 'rsedit']
-Cdelw1 var ['osmrh2', '2', 'osmrh2', '-k1*k2*k3*nsp', 'complex(8)', 'zv_w_', 'rsedit']
-Cdelw1 var ['oorh2', '2', 'oorh2', '3*nbask(2)', 'integer', 'iv_w_', 'rsedit']
-Cdelw1 var ['osmpt2', '2', 'osmpt2', '-k1*k2*k3*nsp', 'complex(8)', 'zv_w_', 'rsedit']
-Cdelw1 var ['oorhat', '-1', 'undef', '0', 'undef', 'x', 'rsedit']
-Cdelw1 var ['osmrho', '-1', 'undef', '0', 'undef', 'x', 'rsedit']
-Cdelw1 var ['ov01', '-1', 'undef', '0', 'undef', 'x', 'prsed1']
-Cdelw1 var ['ov02', '-1', 'undef', '0', 'undef', 'x', 'prsed1']
-Cdelw1 var ['ov11', '-1', 'undef', '0', 'undef', 'x', 'prsed1']
-Cdelw1 var ['ov12', '-1', 'undef', '0', 'undef', 'x', 'prsed1']
-Cdelw1 var ['orhoc1', '-1', 'undef', '0', 'undef', 'x', 'prsed1']
-Cdelw1 var ['orhoc2', '-1', 'undef', '0', 'undef', 'x', 'prsed1']
-Cdelw1 var ['ov0', '-1', 'undef', '0', 'undef', 'x', 'prsed4']
-Cdelw1 var ['ov1', '-1', 'undef', '0', 'undef', 'x', 'prsed4']
-Cdelw1 var ['orhoca', '-1', 'undef', '0', 'undef', 'x', 'prsed4']
-Cdelw1 undel [['undef', 'wref'], 'oorhat', 'rsedit']
-Cdelw1 undel [['undef', 'wref'], 'osmrho', 'rsedit']
-Cdelw1 undel [['undef', 'wref'], 'ov01', 'prsed1']
-Cdelw1 undel [['undef', 'wref'], 'ov02', 'prsed1']
-Cdelw1 undel [['undef', 'wref'], 'ov11', 'prsed1']
-Cdelw1 undel [['undef', 'wref'], 'ov12', 'prsed1']
-Cdelw1 undel [['undef', 'wref'], 'orhoc1', 'prsed1']
-Cdelw1 undel [['undef', 'wref'], 'orhoc2', 'prsed1']
-Cdelw1 undel [['undef', 'wref'], 'ov0', 'prsed4']
-Cdelw1 undel [['undef', 'wref'], 'ov1', 'prsed4']
-Cdelw1 undel [['undef', 'wref'], 'orhoca', 'prsed4']
-Cdelw1 undel [['wref'], 'osmrh2', 'rsedit']
-Cdelw1 undel [['wref'], 'osmpt2', 'rsedit']
-Cdelw1 undel [['call'], 'orh1', 'prsed1']
-Cdelw1 undel [['call'], 'orh2', 'prsed1']
-Cdelw1 undel [['call'], 'orhoat', 'prsed2']
-Cdelw1 undel [['call'], 'orhoat', 'prsed3']
-Cdelw1 undel [['call'], 'orhoat', 'prsed4']
-Cgetarg...info...           structure ['rsedit', 'ctrl', 'sctrl']
-Cgetarg...info...           structure ['rsedit', 'pot', 'spot']
-Cgetarg...info...           structure ['rsedit', 'lat', 'w(oslat2)']
-Cgetarg...info...           structure ['rsedit', 'pot', 'w(ospot2)']
-Cgetarg...info...           structure ['rsedit', 'site', 'w(osite2)']
-Cgetarg...info...           structure ['rsedit', 'lat', 'slat']
-Cgetarg...info...           structure ['prsed1', 'site', 'site1']
-Cgetarg...info...           structure ['prsed1', 'site', 'site2']
-Cgetarg...info...           structure ['prsed1', 'spec', 'spec1']
-Cgetarg...info...           structure ['prsed1', 'spec', 'spec2']
-Cgetarg...info...           structure ['prsed2', 'lat', 'slat']
-Cgetarg...info...           structure ['prsed2', 'site', 'ssite']
-Cgetarg...info...           structure ['prsed2', 'spec', 'sspec']
-Cgetarg...info...           structure ['prsed3', 'site', 'ssite']
-Cgetarg...info...           structure ['prsed3', 'spec', 'sspec']
-Cgetarg...info...           structure ['prsed4', 'site', 'ssite']
-Cgetarg...info...           structure ['prsed4', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['prsed1', 'm_struc_def']
-Cgetarg...info...           use_to_add ['prsed2', 'm_struc_def']
-Cgetarg...info...           use_to_add ['prsed3', 'm_struc_def']
-Cgetarg...info...           use_to_add ['prsed4', 'm_struc_def']
-Cgetarg...info...           use_to_add ['rsedit', 'm_struc_def']
 
 c---> takao modified this by hand after Kino's del_pack.
 c   python getarg.py < file.F > x
@@ -127,7 +72,6 @@ C ... Passed parameters
       character sopts*(*)
       integer mode,nbas,nat,nspec,ifi,n0
       parameter (n0=10)
-Cgetarg       double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
       type(s_ctrl)::sctrl
       type(s_site)::ssite(*),ssite1(nbas), ssite2(nbas)
       type(s_spec)::sspec(*),sspec1(nspec),sspec2(nspec)
@@ -145,14 +89,9 @@ C ... Local parameters
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 c      integer ospec1,ospec2,osite1,osite2,oslat2,ospot2,
 c     .  oorh2,osmrh2,osmpt2,osmrho,osmpot,oorhat,oqmom
-Cdelw1 do not change  [['wref'], 'osmrh2', 'rsedit']
-Cdelw1 do not change  [['wref'], 'osmpt2', 'rsedit']
-Cdelw1 do not change  [['undef', 'wref'], 'osmrho', 'rsedit']
-Cdelw1 do not change  [['undef', 'wref'], 'oorhat', 'rsedit']
-Cdelw1       integer oorh2,osmrh2,osmpt2,osmrho,osmpot,oorhat,oqmom
       integer:: osmrh2 , osmpt2 , osmrho , osmpot , oorhat
-      integer ,allocatable :: iv_w_oorh2(:)
-      real(8) ,allocatable :: rv_w_oqmom(:)
+      integer ,allocatable :: orh2_iv(:)
+      real(8) ,allocatable :: qmom_rv(:)
 
       integer nlst(2),ix(10),nbask(2),natk(2),isw
       integer ,allocatable:: ilst(:,:)
@@ -180,12 +119,8 @@ C     # spec and # sites in spec 2nd atom density
 C     true if rs data available, but not saved
       lnsave = .false.
       nsp  = nglob('nsp')
-Cgetarg       qbg    = dgets('ctrl zbak',sctrl)
       qbg = sctrl%zbak(1)
 
-Cgetarg...info...           integer :: nvl , integer(8) :: spot%nlml 1
-Cgetarg...info...           integer :: nchan , integer(8) :: spot%nlma 1
-Cgetarg       call upack2('pot nlml nlma',spot,nvl,nchan)
 
       nvl=spot%nlml
       nchan=spot%nlma
@@ -215,18 +150,9 @@ c      call dcopy(nint(spot(1)),spot,1,w(ospot2),1)
       spot2=spot
 
 C     Get pointers for density
-Cgetarg...info...           integer :: osmrho , integer(8) :: spot%osmrho 1
-Cgetarg...info...           integer :: osmpot , integer(8) :: spot%osmpot 1
-Cgetarg...info...           integer :: oorhat , integer(8) :: spot%oorhat 1
-Cgetarg       call upack('pot osmrho osmpot oorhat',spot,osmrho,osmpot,oorhat,
-Cgetarg      .  0,0)
 
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 183
-Cdelw1 do not change osmrho because of ['undef', 'wref']
       osmrho=spot%osmrho
       osmpot=spot%osmpot
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 185
-Cdelw1 do not change oorhat because of ['undef', 'wref']
       oorhat=spot%oorhat
 
 C     call upack('pot osmrho oorhat',spot,oorh2,osmrh2,0,0,0)
@@ -236,9 +162,8 @@ C      call fftz30(n1,n2,n3,k1,k2,k3)
 C      call defcc(osmrh2, -k1*k2*k3*nsp)
 C      call pack1('pot osmrho',w(ospot2),osmrh2)
 
-Cdelw1       call defrr (oqmom,  nvl)
-      allocate(rv_w_oqmom(nvl))
-Ctakao_ZeroClear_NotRequiered        if (nvl<0) rv_w_oqmom(:)=0.0d0
+      allocate(qmom_rv(nvl))
+Ctakao_ZeroClear_NotRequiered        if (nvl<0) qmom_rv(:)=0.0d0
 
 
       dc = sopts(1:1)
@@ -302,29 +227,20 @@ C ... Read 2nd density from restart file
      .        outs(1:5).eq.'read ' .or. outs(1:7).eq.'readfa ') then
         if (outs(1:7) .eq. 'readfa ') then
 C         Make space for smooth density
-Cgetarg...info...           integer :: ngabc2(3) , integer(8) :: w(oslat2)%nabc 3
-Cgetarg           call upack1('lat nabc',w(oslat2),ngabc2)
 
           i_copy_size=size(slat2%nabc)
           call i8icopy(i_copy_size,slat2%nabc,1,ngabc2,1)
 
           call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-Cdelw1 do not change osmrh2 because of ['wref']
           call defcc(osmrh2, -k1*k2*k3*nsp)
-Cgetarg...info...           integer :: osmrh2 , integer(8) :: w(ospot2)%osmrho 1
-Cgetarg           call pack1('pot osmrho',w(ospot2),osmrh2)
 
-Cdelw1 do not change osmrh2 because of ['wref']
           spot2%osmrho=osmrh2
 
-Cdelw1           call defi(oorh2,3*nbask(2))
-          allocate(iv_w_oorh2(3*nbask(2)))
-Ctakao_ZeroClear_NotRequiered            if (3*nbask(2)<0) iv_w_oorh2(:)=0
+          allocate(orh2_iv(3*nbask(2)))
+Ctakao_ZeroClear_NotRequiered            if (3*nbask(2)<0) orh2_iv(:)=0
 
-Cdelw1           call rdovfa(nbask(2),nspeck(2),ssite2,sspec2,slat2,
-Cdelw1      .      spot2,qbg,w(oorh2))
           call rdovfa ( nbask ( 2 ) , nspeck ( 2 ) , ssite2 , sspec2 , 
-     .     slat2 , spot2 , qbg , iv_w_oorh2 )
+     .     slat2 , spot2 , qbg , orh2_iv )
 
         else
           call word(outs,2,j1,j2)
@@ -347,18 +263,14 @@ Cdelw1      .      spot2,qbg,w(oorh2))
             endif
             lbin = .true.
           endif
-Cgetarg         lrssav = igets('ctrl lrs',sctrl)
           lrssav = int(sctrl%lrs)
 
-Cgetarg         call pack1('ctrl lrs',sctrl,32*0+64+128*0)
 
           sctrl%lrs=32*0+64+128*0
 
 C       Get the number of atoms and species
-Cdelw1         k = iors(-1,sctrl,w,w,slat2,spot2,sbz,
-Cdelw1      .    fileid,nbask(2),natk(2),nspeck(2),w(oorh2),w,nit(2),lbin,ifi)
           k = iors ( - 1 , sctrl , w , w , slat2 , spot2 , sbz , fileid 
-     .   , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , iv_w_oorh2 , w , 
+     .   , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv , w , 
      .   nit ( 2 ) , lbin , ifi )
 
           call info5(10,0,0,' rsedit: '//
@@ -378,22 +290,17 @@ c        call usite(w(osite2),-1,0,1,0,0,0)
           enddo
 C       call shstru('spec',w(ospec2),1,nspeck(2))
 C       call shstru('site',w(osite2),1,nbask(2))
-Cdelw1         call defi(oorh2,3*nbask(2))
-          allocate(iv_w_oorh2(3*nbask(2)))
-Ctakao_ZeroClear_NotRequiered          if (3*nbask(2)<0) iv_w_oorh2(:)=0
+          allocate(orh2_iv(3*nbask(2)))
+Ctakao_ZeroClear_NotRequiered          if (3*nbask(2)<0) orh2_iv(:)=0
 
           call pshpr(1)
-Cdelw1         k = iors(-2,sctrl,ssite2,sspec2,slat2,spot2,sbz,
-Cdelw1      .    fileid,nbask(2),natk(2),nspeck(2),w(oorh2),w,nit(2),lbin,ifi)
           k = iors ( - 2 , sctrl , ssite2 , sspec2 , slat2 , spot2 , sbz 
-     .   , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , iv_w_oorh2 
+     .   , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
      .   , w , nit ( 2 ) , lbin , ifi )
 
 C       Check for unassigned species => reduce basis
           k = 0
           do  i = 1, nbask(2)
-Cgetarg...info...           integer :: j , integer(8) :: w(osite2)%spec 1
-Cgetarg           call upack('site spec',w(osite2),i,j,0,0,0)
 
             j=ssite2(i)%spec
 
@@ -407,52 +314,35 @@ Cgetarg           call upack('site spec',w(osite2),i,j,0,0,0)
           nbask(2) = k
           call poppr
 C       Make space for smooth density
-Cgetarg...info...           integer :: ngabc2(3) , integer(8) :: w(oslat2)%nabc 3
-Cgetarg         call upack1('lat nabc',w(oslat2),ngabc2)
 
           i_copy_size=size(slat2%nabc)
           call i8icopy(i_copy_size,slat2%nabc,1,ngabc2,1)
 
           call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-Cdelw1 do not change osmrh2 because of ['wref']
           call defcc(osmrh2, -k1*k2*k3*nsp)
-Cdelw1 do not change osmpt2 because of ['wref']
           call defcc(osmpt2, -k1*k2*k3*nsp)
-Cgetarg...info...           integer :: osmrh2 , integer(8) :: w(ospot2)%osmrho 1
-Cgetarg...info...           integer :: osmpt2 , integer(8) :: w(ospot2)%osmpot 1
-Cgetarg         call pack2('pot osmrho osmpot',w(ospot2),osmrh2,osmpt2)
 
-Cdelw1 do not change osmrh2 because of ['wref']
           spot2%osmrho=osmrh2
-Cdelw1 do not change osmpt2 because of ['wref']
           spot2%osmpot=osmpt2
 
 C       Pack volume
 C       call shstru('spec',w(ospec2),1,nspeck(2))
 C       call shstru('site',w(osite2),1,nbask(2))
-Cdelw1         k = iors(1,sctrl,ssite2,sspec2,slat2,spot2,sbz,
-Cdelw1      .    fileid,nbask(2),natk(2),nspeck(2),w(oorh2),w,nit(2),lbin,ifi)
           k = iors ( 1 , sctrl , ssite2 , sspec2 , slat2 , spot2 , sbz 
-     .   , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , iv_w_oorh2 
+     .   , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
      .   , w , nit ( 2 ) , lbin , ifi )
 
           call fclose(ifi)
         endif
 
         have2s = .true.
-Cgetarg...info...           integer :: lrssav , integer(8) :: sctrl%lrs 1
-Cgetarg         call pack1('ctrl lrs',sctrl,lrssav)
 
         sctrl%lrs=lrssav
 
 
         call info0(1,1,0,' Second Density:')
         call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-Cdelw1 do not change osmrh2 because of ['wref']
-Cdelw1 do not change osmrh2 because of ['wref']
-Cdelw1         call prsed2(nbask(2),nsp,ssite2,sspec2,w(oorh2),
-Cdelw1      .    slat2,w(osmrh2),k1,k2,k3)
-        call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , iv_w_oorh2 
+        call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv 
      .   , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
 
 
@@ -462,8 +352,6 @@ C ... Read restart file
       elseif (outs(1:4).eq.'rsb ' .or. outs(1:4).eq.'rsa ' .or.
      .        outs(1:3).eq.'rs' .or. outs(1:5).eq.'rsfa ') then
         if (outs(1:5) .eq. 'rsfa ') then
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 385
-Cdelw1 do not change oorhat because of ['undef', 'wref']
           call rdovfa(nbask(1),nspeck(1),ssite1,sspec1,slat,spot,
      .      qbg,w(oorhat))
           fileid = 'rsedit overlap fa densities'
@@ -488,8 +376,6 @@ Cdelw1 do not change oorhat because of ['undef', 'wref']
           endif
           call info0(10,0,-1,
      .    ' rsedit: read restart file "'//trim(fn)//'"')
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 409
-Cdelw1 do not change oorhat because of ['undef', 'wref']
           k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
      .    nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,ifi)
 C       call shstru('spec',w(ospec2),1,nspeck(2))
@@ -501,17 +387,11 @@ C       call shstru('site',w(osite2),1,nbask(2))
         call info2(1,1,0,' Density from '//
      .    '%?#n==0#rs file:#overlapping free atoms:#',
      .    isw(outs(1:5).eq.'rsfa '),0)
-Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
-Cgetarg         call upack1('lat nabc',slat,ngabc)
 
         i_copy_size=size(slat%nabc)
         call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
         call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 427
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 427
-Cdelw1 do not change osmrho because of ['undef', 'wref']
         call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
      .    slat,w(osmrho),k1,k2,k3)
 
@@ -519,8 +399,6 @@ C ... write atomic densities to file
       elseif (outs(1:7) .eq. 'wrhoat ') then
 
         if (havers) then
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 434
-Cdelw1 do not change oorhat because of ['undef', 'wref']
           call prsed3(nbask(1),nsp,ssite1,sspec1,w(oorhat))
         else
           call info0(0,0,0,' no rst file read ... nothing writtten')
@@ -533,10 +411,6 @@ C ... show
      .      '%i sites, %i species',nbask(1),nspeck(1))
 C          call upack1('lat nabc',slat,ngabc)
           call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 446
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 446
-Cdelw1 do not change osmrho because of ['undef', 'wref']
           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
      .      slat,w(osmrho),k1,k2,k3)
         endif
@@ -546,11 +420,7 @@ Cdelw1 do not change osmrho because of ['undef', 'wref']
      .      '%i sites, %i species',nbask(2),nspeck(2))
 
           call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-Cdelw1 do not change osmrh2 because of ['wref']
-Cdelw1 do not change osmrh2 because of ['wref']
-Cdelw1           call prsed2(nbask(2),nsp,ssite2,sspec2,w(oorh2),
-Cdelw1      .      slat2,w(osmrh2),k1,k2,k3)
-          call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , iv_w_oorh2 
+          call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv 
      .     , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
 
         endif
@@ -613,10 +483,6 @@ C       Carry out operation on 1st or second density
           if (lexch .eq. 1) then
             ix(1) = nbask(1); ix(2) = nbask(1)
             if (havers) then
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 516
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 516
-Cdelw1 do not change osmrho because of ['undef', 'wref']
               call prsed1(im*10+isync,1,nlst,ix,nsp,
      .        ssite1,sspec1,w(oorhat),
      .        ssite1,sspec1,w(oorhat),
@@ -634,16 +500,8 @@ Cdelw1 do not change osmrho because of ['undef', 'wref']
           else
             ix(1) = nbask(2); ix(2) = nbask(2)
             if (have2s) then
-Cdelw1 do not change osmrh2 because of ['wref']
-Cdelw1 do not change osmrh2 because of ['wref']
-Cdelw1             call prsed1(im*10+isync,1,nlst,ix,nsp,
-Cdelw1      .        ssite2,sspec2,w(oorh2),
-Cdelw1      .        ssite2,sspec2,w(oorh2),
-Cdelw1      .        w(osmrh2),ngabc2(1),ngabc2(2),ngabc2(3),
-Cdelw1      .        w(osmrh2),ngabc2(1),ngabc2(2),ngabc2(3),
-Cdelw1      .        fac,lfail)
               call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
-     .       , sspec2 , iv_w_oorh2 , ssite2 , sspec2 , iv_w_oorh2 , w ( osmrh2 
+     .       , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , w ( osmrh2 
      .       ) , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , w ( osmrh2 ) 
      .       , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail )
 
@@ -689,10 +547,6 @@ C       Carry out operation on 1st or second density
           call word(outs,3,j1,j2)
           if (outs(j1:j2) .eq. '1') then
             if (havers) then
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 581
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 581
-Cdelw1 do not change osmrho because of ['undef', 'wref']
               call prsed4(k,nbask(1),nspeck(1),nsp,ssite1,sspec1,
      .        w(oorhat),slat,w(osmrho),k1,k2,k3)
             else
@@ -701,12 +555,8 @@ Cdelw1 do not change osmrho because of ['undef', 'wref']
             endif
           elseif (outs(j1:j2) .eq. '2') then
             if (have2s) then
-Cdelw1 do not change osmrh2 because of ['wref']
-Cdelw1 do not change osmrh2 because of ['wref']
-Cdelw1             call prsed4(k,nbask(2),nspeck(2),nsp,ssite2,
-Cdelw1      .        sspec2,w(oorh2),slat2,w(osmrh2),k1,k2,k3)
               call prsed4 ( k , nbask ( 2 ) , nspeck ( 2 ) , nsp , ssite2 , 
-     .       sspec2 , iv_w_oorh2 , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
+     .       sspec2 , orh2_iv , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
 
             else
               call info0(0,0,0,' no 2nd density... cannot do: '//
@@ -820,23 +670,8 @@ C             Check that elements in list are within range
 
 C        call upack1('lat nabc',slat,ngabc)
 C        call upack1('lat nabc',w(oslat2),ngabc2)
-Cdelw1 do not change osmrh2 because of ['wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 703
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 703
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1 do not change osmrh2 because of ['wref']
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 703
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 703
-Cdelw1 do not change osmrho because of ['undef', 'wref']
-Cdelw1         call prsed1(im*10+isync,nlst,ilst,nbask,nsp,ssite1,sspec1,
-Cdelw1      .    w(oorhat),ssite2,sspec2,w(oorh2),
-Cdelw1      .    w(osmrho),ngabc(1),ngabc(2),ngabc(3),
-Cdelw1      .    w(osmrh2),ngabc2(1),ngabc2(2),ngabc2(3),
-Cdelw1      .    fac,lfail)
         call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
-     .   , sspec1 , w ( oorhat ) , ssite2 , sspec2 , iv_w_oorh2 , w ( 
+     .   , sspec1 , w ( oorhat ) , ssite2 , sspec2 , orh2_iv , w ( 
      .   osmrho ) , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , w ( osmrh2 
      .   ) , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail 
      .   )
@@ -849,10 +684,6 @@ Cdelw1      .    fac,lfail)
 C         call upack1('lat nabc',slat,ngabc)
           call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
           call info0(1,1,0,' New density from rs file:')
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 716
-Cdelw1 do not change oorhat because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 716
-Cdelw1 do not change osmrho because of ['undef', 'wref']
           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
      .      slat,w(osmrho),k1,k2,k3)
         endif
@@ -875,8 +706,6 @@ C ... Save
         endif
         call info0(10,0,-1,
      .    ' rsedit: write restart file "'//trim(fn)//'"')
-Cdelw1 warning(1) , probably  oorhat  is not defined yet at linenumber= 738
-Cdelw1 do not change oorhat because of ['undef', 'wref']
         k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
      .    nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,-ifi)
 
@@ -994,15 +823,8 @@ C ... help
      .  ' ... nothing done')
       goto 10
 
-Cgetarg       end
-Cdelw1 w_varlist remains: oqmom osmrh2 oorh2 osmpt2
-Cdelw1 w_varlistundel: [oorhat osmrho osmrh2 osmpt2]
-Cdelw1 w_varlist (undel), remains: [osmrh2 osmpt2]
-Cdelw1 w_varlist (del), remains: [oqmom oorh2]
-Cdelw1 not deallocate osmpt2 because of [wref]
-Cdelw1 not deallocate osmrh2 because of [wref]
-      if (allocated(iv_w_oorh2)) deallocate(iv_w_oorh2)
-      if (allocated(rv_w_oqmom)) deallocate(rv_w_oqmom)
+      if (allocated(orh2_iv)) deallocate(orh2_iv)
+      if (allocated(qmom_rv)) deallocate(qmom_rv)
 
       end subroutine rsedit
 
@@ -1053,10 +875,7 @@ C     implicit none
 C ... Passed parameters
       integer mode,nlst,ilst(nlst,2),nbask(2),nsp,
      .  k11,k21,k31,k12,k22,k32
-Cdelw1 do not change  [['call'], 'orh1', 'prsed1']
-Cdelw1 do not change  [['call'], 'orh2', 'prsed1']
       integer orh1(3,*),orh2(3,*)
-Cgetarg       double precision site1(1),spec1(1),site2(1),spec2(1),fac(2)
       real(8):: fac(2)
       type(s_site)::site1(*)
       type(s_spec)::spec1(*)
@@ -1068,12 +887,6 @@ Cgetarg       double precision site1(1),spec1(1),site2(1),spec2(1),fac(2)
 C ... Local parameters
       integer il,ib,jb,is,js,lmxa,lmxl,lmxa2,lmxl2,nr1,nr2,nrmx
       integer nglob,stdo,ipr,nlml1,nlml2,isync,im,n0
-Cdelw1 do not change  [['undef', 'wref'], 'ov01', 'prsed1']
-Cdelw1 do not change  [['undef', 'wref'], 'ov11', 'prsed1']
-Cdelw1 do not change  [['undef', 'wref'], 'ov02', 'prsed1']
-Cdelw1 do not change  [['undef', 'wref'], 'ov12', 'prsed1']
-Cdelw1 do not change  [['undef', 'wref'], 'orhoc1', 'prsed1']
-Cdelw1 do not change  [['undef', 'wref'], 'orhoc2', 'prsed1']
       integer ov01,ov11,ov02,ov12,orhoc1,orhoc2
       integer ,allocatable:: flgspc(:)
       parameter (nrmx=1501,n0=10)
@@ -1121,10 +934,6 @@ C ... Heap
      .    isync,im,mod(im,4),mod(im,2),0)
         if (isync .eq. 3 .or. isync .gt. 4 .or. nlst .gt. 1) then
           call info0(0,1,0,' ... illegal parameters (aborting)')
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [ov01 ov02 ov11 ov12 orhoc1 orhoc2 orh1 orh2]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
           return
         endif
       elseif (isync .eq. 1) then
@@ -1160,58 +969,32 @@ Cdelw1 w_varlist (del), remains: (None)
         if (jb .gt. nbask(2))
      .    call rxi('illegal index for 2nd density:',jb)
 
-Cgetarg...info...           integer :: is , integer(8) :: site1%spec 1
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: site1%pnu 20
-Cgetarg...info...           integer :: ov01 , integer(8) :: site1%ov0 1
-Cgetarg...info...           integer :: ov11 , integer(8) :: site1%ov1 1
-Cgetarg         call upack('site spec pnu ov0 ov1',site1,ib,is,pnu,ov01,ov11)
 
         is=site1(ib)%spec
         i_copy_size=size(site1(ib)%pnu)
         call dcopy(i_copy_size,site1(ib)%pnu,1,pnu,1)
-Cdelw1 warning(1) , probably  ov01  is not defined yet at linenumber= 1009
-Cdelw1 do not change ov01 because of ['undef', 'wref']
         ov01=site1(ib)%ov0
-Cdelw1 warning(1) , probably  ov11  is not defined yet at linenumber= 1010
-Cdelw1 do not change ov11 because of ['undef', 'wref']
         ov11=site1(ib)%ov1
 
-Cgetarg...info...           integer :: js , integer(8) :: site2%spec 1
-Cgetarg...info...           real(8) :: pnu2(n0,2) , real(8) :: site2%pnu 20
-Cgetarg...info...           integer :: ov02 , integer(8) :: site2%ov0 1
-Cgetarg...info...           integer :: ov12 , integer(8) :: site2%ov1 1
-Cgetarg         call upack('site spec pnu ov0 ov1',site2,jb,js,pnu2,ov02,ov12)
 
         js=site2(jb)%spec
         i_copy_size=size(site2(jb)%pnu)
         call dcopy(i_copy_size,site2(jb)%pnu,1,pnu2,1)
-Cdelw1 warning(1) , probably  ov02  is not defined yet at linenumber= 1021
-Cdelw1 do not change ov02 because of ['undef', 'wref']
         ov02=site2(jb)%ov0
-Cdelw1 warning(1) , probably  ov12  is not defined yet at linenumber= 1022
-Cdelw1 do not change ov12 because of ['undef', 'wref']
         ov12=site2(jb)%ov1
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: spec1%lmxa 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: spec1%lmxl 1
-Cgetarg         call upack('spec lmxa lmxl',spec1,is,lmxa,lmxl,0,0)
 
         lmxa=spec1(is)%lmxa
         lmxl=spec1(is)%lmxl
 
-Cgetarg...info...           integer :: lmxa2 , integer(8) :: spec2%lmxa 1
-Cgetarg...info...           integer :: lmxl2 , integer(8) :: spec2%lmxl 1
-Cgetarg         call upack('spec lmxa lmxl',spec2,js,lmxa2,lmxl2,0,0)
 
         lmxa2=spec2(js)%lmxa
         lmxl2=spec2(js)%lmxl
 
-Cgetarg         call spacks(0,'spec name',spec1,spid1,is,is)
         do i_spacks=is,is
           call spacks_copy('u',spec1(i_spacks)%name,is,is,spid1,i_spacks)
         enddo
 
-Cgetarg         call spacks(0,'spec name',spec2,spid2,js,js)
         do i_spacks=js,js
           call spacks_copy('u',spec2(i_spacks)%name,js,js,spid2,i_spacks)
         enddo
@@ -1219,19 +1002,11 @@ Cgetarg         call spacks(0,'spec name',spec2,spid2,js,js)
 
         if (lmxa .eq. -1) goto 10
 
-Cgetarg...info...           real(8) :: a1 , real(8) :: spec1%a 1
-Cgetarg...info...           integer :: nr1 , integer(8) :: spec1%nr 1
-Cgetarg...info...           real(8) :: rmt1 , real(8) :: spec1%rmt 1
-Cgetarg         call upack('spec a nr rmt',spec1,is,a1,nr1,rmt1,0)
 
         a1=spec1(is)%a
         nr1=spec1(is)%nr
         rmt1=spec1(is)%rmt
 
-Cgetarg...info...           real(8) :: a2 , real(8) :: spec2%a 1
-Cgetarg...info...           integer :: nr2 , integer(8) :: spec2%nr 1
-Cgetarg...info...           real(8) :: rmt2 , real(8) :: spec2%rmt 1
-Cgetarg         call upack('spec a nr rmt',spec2,js,a2,nr2,rmt2,0)
 
         a2=spec2(js)%a
         nr2=spec2(js)%nr
@@ -1259,13 +1034,9 @@ C       Radial meshes must match
 C       True local density: modified for im=0 or im>3
         if (im .lt. 1 .or. im .ge. 4) then
           if (isync .lt. 2) then
-Cdelw1 1 is digit, dropped
-Cdelw1 1 is digit, dropped
             call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
      .        w(orh1(1,ib)),w(orh2(1,jb)))
           else
-Cdelw1 1 is digit, dropped
-Cdelw1 1 is digit, dropped
             call swrho(isync/4,nr1,nsp,1,nlml1,nlml2,
      .      w(orh1(1,ib)),w(orh2(1,jb)))
           endif
@@ -1273,12 +1044,8 @@ Cdelw1 1 is digit, dropped
 C       Smooth local density and site core density: modified if im>=4
         if (im .ge. 4) then
           if (isync .lt. 2) then
-Cdelw1 2 is digit, dropped
-Cdelw1 2 is digit, dropped
             call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
      .        w(orh1(2,ib)),w(orh2(2,jb)))
-Cdelw1 3 is digit, dropped
-Cdelw1 3 is digit, dropped
             call lcrho(nr1,nsp,1,1,fac(1),fac(2),
      .        w(orh1(3,ib)),w(orh2(3,jb)))
           else
@@ -1288,15 +1055,7 @@ Cdelw1 3 is digit, dropped
 C       Potentials v0,v1: modified if 2's bit im set
         if (mod(im,4) .ge. 2) then
           if (isync .lt. 2) then
-Cdelw1 warning(1) , probably  ov01  is not defined yet at linenumber= 1112
-Cdelw1 do not change ov01 because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ov02  is not defined yet at linenumber= 1112
-Cdelw1 do not change ov02 because of ['undef', 'wref']
             call lcrho(nr1,nsp,1,1,fac(1),fac(2),w(ov01),w(ov02))
-Cdelw1 warning(1) , probably  ov11  is not defined yet at linenumber= 1113
-Cdelw1 do not change ov11 because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  ov12  is not defined yet at linenumber= 1113
-Cdelw1 do not change ov12 because of ['undef', 'wref']
             call lcrho(nr1,nsp,1,1,fac(1),fac(2),w(ov11),w(ov12))
           else
             call rx('not ready for this swap')
@@ -1306,8 +1065,6 @@ C       Pnu modified if 1's bit im set
         if (mod(im,2) .ge. 1) then
           if (isync .lt. 2) then
             call lcrho(n0,nsp,1,1,fac(1),fac(2),pnu,pnu2)
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: site1%pnu 20
-Cgetarg             call pack2('site pnu',site1,ib,pnu)
 
             i_copy_size=size(site1(ib)%pnu)
             call dcopy(i_copy_size,pnu,1,site1(ib)%pnu,1)
@@ -1319,25 +1076,13 @@ Cgetarg             call pack2('site pnu',site1,ib,pnu)
 
 C       Species core density modified if im ge 4
         if (im .ge. 4 .and. flgspc(is) .eq. 0) then
-Cgetarg...info...           integer :: orhoc1 , integer(8) :: spec1%orhoc 1
-Cgetarg           call upack2('spec orhoc',spec1,is,orhoc1)
 
-Cdelw1 warning(1) , probably  orhoc1  is not defined yet at linenumber= 1138
-Cdelw1 do not change orhoc1 because of ['undef', 'wref']
           orhoc1=spec1(is)%orhoc
 
-Cgetarg...info...           integer :: orhoc2 , integer(8) :: spec2%orhoc 1
-Cgetarg           call upack2('spec orhoc',spec2,js,orhoc2)
 
-Cdelw1 warning(1) , probably  orhoc2  is not defined yet at linenumber= 1143
-Cdelw1 do not change orhoc2 because of ['undef', 'wref']
           orhoc2=spec2(js)%orhoc
 
           if (isync .lt. 2) then
-Cdelw1 warning(1) , probably  orhoc1  is not defined yet at linenumber= 1146
-Cdelw1 do not change orhoc1 because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  orhoc2  is not defined yet at linenumber= 1146
-Cdelw1 do not change orhoc2 because of ['undef', 'wref']
             call lcrho(nr1,nsp,1,1,fac(1),fac(2),w(orhoc1),w(orhoc2))
           else
             call rx('not ready for this swap')
@@ -1358,11 +1103,6 @@ C        call info0(0,0,0,' ... Linear combination successful')
 
       lfail = lfail .or. lfails
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [ov01 ov02 ov11 ov12 orhoc1 orhoc2 orh1 orh2]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine prsed1
 
 
@@ -1388,9 +1128,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,k1,k2,k3
-Cdelw1 do not change  [['call'], 'orhoat', 'prsed2']
       integer orhoat(3,nbas)
-Cgetarg       double precision ssite(1),sspec(1),slat(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
@@ -1417,9 +1155,6 @@ C ... Heap
       n1 = k1
       n2 = k2
       n3 = k3
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg       call upack2('lat alat plat',slat,alat,plat)
 
       alat=slat%alat
       i_copy_size=size(slat%plat)
@@ -1456,42 +1191,25 @@ C      if (nsp .eq. 2) write(stdo,201)
 
       do  ib = 1, nbas
 
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
 
         is=ssite(ib)%spec
 
 C        call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov01)
 C        call upack2('site pz',ssite,ib,pnz)
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
-Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
-Cgetarg         call upack('spec z qc rg',sspec,is,z,qc,rg,0)
 
         z=sspec(is)%z
         qc=sspec(is)%qc
         rg=sspec(is)%rg
 
-Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
         enddo
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
 
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
 
-Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg         call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
-Cgetarg      .    lmxb)
 
         rsma=sspec(is)%rsma
         lmxa=sspec(is)%lmxa
@@ -1504,23 +1222,13 @@ Cgetarg      .    lmxb)
         call radmsh(rmt,a,nr,rofi)
         call radwgt(rmt,a,nr,rwgt)
 
-Cdelw1 1 is digit, dropped
-Cdelw1 2 is digit, dropped
-Cdelw1 3 is digit, dropped
         call splrho(0,nsp,nr,nlml,
      .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
-Cdelw1 1 is digit, dropped
         qv1   = srfpi*ddot(nr,rwgt,1,w(orhoat(1,ib)),1)
-Cdelw1 2 is digit, dropped
         qv2   = srfpi*ddot(nr,rwgt,1,w(orhoat(2,ib)),1)
-Cdelw1 1 is digit, dropped
-Cdelw1 2 is digit, dropped
-Cdelw1 3 is digit, dropped
         call splrho(1,nsp,nr,nlml,
      .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
-Cdelw1 1 is digit, dropped
         am1   = 2*srfpi*ddot(nr,rwgt,1,w(orhoat(1,ib)),1) - qv1
-Cdelw1 2 is digit, dropped
         am2   = 2*srfpi*ddot(nr,rwgt,1,w(orhoat(2,ib)),1) - qv2
 
         if (nsp .eq. 1) then
@@ -1534,11 +1242,6 @@ Cdelw1 2 is digit, dropped
       enddo
 
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [orhoat]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine prsed2
 
 
@@ -1550,9 +1253,7 @@ C- Read/write atomic densities
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp
-Cdelw1 do not change  [['call'], 'orhoat', 'prsed3']
       integer orhoat(3,nbas)
-Cgetarg       double precision ssite(1),sspec(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -1569,23 +1270,14 @@ C ... Heap
 
       do  ib = 1, nbas
 
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
 
         is=ssite(ib)%spec
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg         call upack('spec lmxa lmxl',sspec,is,lmxa,lmxl,0,0)
 
         lmxa=sspec(is)%lmxa
         lmxl=sspec(is)%lmxl
 
         if (lmxa .eq. -1) goto 10
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
 
         a=sspec(is)%a
         nr=sspec(is)%nr
@@ -1594,17 +1286,11 @@ Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
         nlml = (lmxl+1)**2
         call radmsh(rmt,a,nr,rofi)
 
-Cdelw1 1 is digit, dropped
         call wrhomt('rhoMT.','density',ib,w(orhoat(1,ib)),rofi,nr,
      .    nlml,nsp)
 
    10   continue
       enddo
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [orhoat]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine prsed3
 
 
@@ -1638,9 +1324,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nbas,nspec,nsp,k1,k2,k3
-Cdelw1 do not change  [['call'], 'orhoat', 'prsed4']
       integer orhoat(3,nbas)
-Cgetarg       double precision ssite(1),sspec(1),slat(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
@@ -1652,9 +1336,6 @@ C ... Local parameters
       integer ib,is,nr,lmxa,lmxl,lmxb,nlml,ipr,nglob,stdo,im,mode0
       double precision z,qc,rg,a,rmt,rsma
       double precision pi,srfpi,y0,rofi(nrmx),rwgt(nrmx),pnu(n0,2)
-Cdelw1 do not change  [['undef', 'wref'], 'ov0', 'prsed4']
-Cdelw1 do not change  [['undef', 'wref'], 'ov1', 'prsed4']
-Cdelw1 do not change  [['undef', 'wref'], 'orhoca', 'prsed4']
       integer ov0,ov1,orhoca
       character spid*8
 C ... Heap
@@ -1668,15 +1349,7 @@ C ... Heap
       y0 = 1d0/srfpi
       mode0 = mod(mode,10)
       im  = mod(mode/10,10)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [ov0 ov1 orhoca orhoat]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (mode0 .eq. 0 .and. nsp .eq. 1) return
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [ov0 ov1 orhoca orhoat]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (mode0 .eq. 2 .and. nsp .eq. 1) return
 
       if (im .ge. 4) then
@@ -1696,57 +1369,31 @@ C     .  5x,'mtrue',5x,'q2        m2')
 
       do  ib = 1, nbas
 
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg         call upack('site spec',ssite,ib,is,0,0,0)
 
         is=ssite(ib)%spec
 
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
-Cgetarg...info...           integer :: ov1 , integer(8) :: ssite%ov1 1
-Cgetarg         call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov1)
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1481
-Cdelw1 do not change ov0 because of ['undef', 'wref']
         ov0=ssite(ib)%ov0
-Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1482
-Cdelw1 do not change ov1 because of ['undef', 'wref']
         ov1=ssite(ib)%ov1
 
 C        call upack2('site pz',ssite,ib,pnz)
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
-Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
-Cgetarg         call upack('spec z qc rg',sspec,is,z,qc,rg,0)
 
         z=sspec(is)%z
         qc=sspec(is)%qc
         rg=sspec(is)%rg
 
-Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
         enddo
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
 
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
 
-Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg         call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
-Cgetarg      .    lmxb)
 
         rsma=sspec(is)%rsma
         lmxa=sspec(is)%lmxa
@@ -1760,52 +1407,31 @@ Cgetarg      .    lmxb)
         call radwgt(rmt,a,nr,rwgt)
 
 C       Replace rho-up,rho-down with rho, up-down
-Cdelw1 1 is digit, dropped
-Cdelw1 2 is digit, dropped
-Cdelw1 3 is digit, dropped
         call splrho(0,nsp,nr,nlml,
      .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
 
 C       True local density: modified for im=0 or im>3
         if (im .lt. 1 .or. im .ge. 4) then
-Cdelw1 1 is digit, dropped
           call prsed5(mode0,w(orhoat(1,ib)),nr,nlml,nsp)
         endif
         if (im .ge. 4) then
-Cdelw1 2 is digit, dropped
           call prsed5(mode0,w(orhoat(2,ib)),nr,nlml,nsp)
-Cdelw1 3 is digit, dropped
           call prsed5(mode0,w(orhoat(3,ib)),nr,1,nsp)
         endif
 
 C       Restore rho-up,rho-down from rho, up-down
-Cdelw1 1 is digit, dropped
-Cdelw1 2 is digit, dropped
-Cdelw1 3 is digit, dropped
         call splrho(1,nsp,nr,nlml,
      .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
 
 C       Potentials v0,v1: modified if 2's bit im set
         if (mod(im,4) .ge. 2) then
 C         call prmx('v0',w(ov0),nr,nr,2)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1546
-Cdelw1 do not change ov0 because of ['undef', 'wref']
           call splrho(30,nsp,nr,1,w(ov0),w,w)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1547
-Cdelw1 do not change ov0 because of ['undef', 'wref']
           call prsed5(mode0,w(ov0),nr,1,nsp)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1548
-Cdelw1 do not change ov0 because of ['undef', 'wref']
           call splrho(31,nsp,nr,1,w(ov0),w,w)
 C         call prmx('v0',w(ov0),nr,nr,2)
-Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1550
-Cdelw1 do not change ov1 because of ['undef', 'wref']
           call splrho(30,nsp,nr,1,w(ov1),w,w)
-Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1551
-Cdelw1 do not change ov1 because of ['undef', 'wref']
           call prsed5(mode0,w(ov1),nr,1,nsp)
-Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1552
-Cdelw1 do not change ov1 because of ['undef', 'wref']
           call splrho(31,nsp,nr,1,w(ov1),w,w)
         endif
 
@@ -1815,8 +1441,6 @@ C         call prmx('pnu',pnu,n0,n0,2)
           call splrho(30,nsp,n0,1,pnu,w,w)
           call prsed5(mode0,pnu,n0,1,nsp)
           call splrho(31,nsp,n0,1,pnu,w,w)
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg           call pack2('site pnu',ssite,ib,pnu)
 
           i_copy_size=size(ssite(ib)%pnu)
           call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
@@ -1831,23 +1455,12 @@ C     Species core density modified if im ge 4
       if (im .ge. 4) then
         do  is = 1, nspec
 
-Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg           call upack3('spec orhoc nr',sspec,is,orhoca,nr)
 
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1581
-Cdelw1 do not change orhoca because of ['undef', 'wref']
           orhoca=sspec(is)%orhoc
           nr=sspec(is)%nr
 
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1584
-Cdelw1 do not change orhoca because of ['undef', 'wref']
           call splrho(30,nsp,nr,1,w(orhoca),w,w)
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1585
-Cdelw1 do not change orhoca because of ['undef', 'wref']
           call prsed5(mode0,w(orhoca),nr,1,nsp)
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1586
-Cdelw1 do not change orhoca because of ['undef', 'wref']
           call splrho(31,nsp,nr,1,w(orhoca),w,w)
 
         enddo
@@ -1855,11 +1468,6 @@ Cdelw1 do not change orhoca because of ['undef', 'wref']
 
       call info0(1,1,0,' New density:')
       call prsed2(nbas,nsp,ssite,sspec,orhoat,slat,smrho,k1,k2,k3)
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [ov0 ov1 orhoca orhoat]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine prsed4
 
       subroutine prsed5(mode,rho,nr,nlml,nsp)
@@ -1871,9 +1479,6 @@ C     implicit none
 
       if (mode .eq. 2) then
         call dscal(nr*nlml,-1d0,rho(1,1,2),1)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         return
       endif
       if (mode .eq. 0) then
@@ -1883,10 +1488,6 @@ Cdelw1 w_varlist (del), remains: (None)
       if (mode .eq. 0) then
         call dswap(nr*nlml,rho(1,1,1),1,rho(1,1,2),1)
       endif
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine prsed5
 
 

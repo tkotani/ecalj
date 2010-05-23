@@ -1,18 +1,3 @@
-Cdelw1 var ['owk', '0', 'owk', '3*mxnbr', 'real(8)', 'rv_w_', 'pairs']
-Cdelw1 var ['oiax', '0', 'oiax', '-niax*mxnbr', 'integer', 'iv_w_', 'pairs']
-Cdelw1 var ['ontab', '0', 'ontab', 'nbasp+1', 'integer', 'iv_w_', 'pairs']
-Cdelw1 var ['olat', '0', 'olat', '3*i', 'real(8)', 'rv_w_', 'pairc']
-Cdelw1 var ['opos', '0', 'opos', '3*nbasp', 'real(8)', 'rv_w_', 'pairc']
-Cdelw1 var ['octr', '0', 'octr', '3*nsite', 'real(8)', 'rv_w_', 'pairc']
-Cdelw1 var ['owk1', '1', 'owk1', '(nttab-mtab)*niax', 'real(8)', 'rv_w_', 'pairc']
-Cdelw1 var ['owk2', '1', 'owk2', '(nttab-mtab)', 'real(8)', 'rv_w_', 'pairc']
-Cdelw1 var ['owk3', '1', 'owk3', '(nttab-mtab)*3', 'real(8)', 'rv_w_', 'pairc']
-Cdelw1 var ['oiwk', '0', 'oiwk', 'nttab', 'integer', 'iv_w_', 'ppair1']
-Cdelw1 var ['opos', '0', 'opos', '3*nttab', 'real(8)', 'rv_w_', 'ppair1']
-Cdelw1 var ['owk1', '1', 'owk1', 'nttab', 'real(8)', 'rv_w_', 'ppair5']
-Cdelw1 var ['owk2', '1', 'owk2', 'nttab*3', 'real(8)', 'rv_w_', 'ppair5']
-Cdelw1 undel [['call', 'wref'], 'ontab', 'pairs']
-Cdelw1 undel [['call', 'wref'], 'oiax', 'pairs']
       subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,  nlat,qwgt)
 c find
 c
@@ -87,9 +72,6 @@ c          call shortn2(pin,nmax,rxprod,noutmx, nout,nlatout)
 c          write(6,"(3i4,' nmax=',3i4,' nout=',i3)")nd(1:3),nmax(1:3),nout
                 if(nnn+nout>npairmx) then
                   ok=.false.
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
                   return
                 endif
                 do ix=1,nout
@@ -115,9 +97,6 @@ c check write
       enddo
       qwgt=qwgt/(nk1*nk2*nk3)
       call tcx('gennlat')
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 
 
@@ -167,9 +146,6 @@ c
         enddo
         npairmx = maxval(npair)
         npair=-99999 !not the output
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         return
       elseif(job==2) then
         allocate(rr(npairmx,nbas,nbas))
@@ -218,9 +194,6 @@ c          enddo
         enddo
         deallocate(rr)
       endif
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 c--- takao's getgv2. This is in fpgw/gwsrc/.
       subroutine getgv2(alat,plat,qlat,q, QpGcut,job,
@@ -282,9 +255,6 @@ c     &      tpiba*sqrt(sum(qpg(1:3)**2)),ngvec(1:3,ig) ! check write
         enddo
       enddo
       ng = ig
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine eprod(a,b, c)
@@ -298,9 +268,6 @@ c      bnorm = sqrt(sum(b(1:3)**2))
 c      c = c/anorm/bnorm
       cnorm = sqrt(sum(c(1:3)**2))
       c = c/cnorm
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine sortea(ea,ieaord,n,isig)
 c mini-sort routine.
@@ -327,9 +294,6 @@ c sorting of ea
           exit
         enddo
       enddo
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 
 
@@ -366,15 +330,12 @@ Co   w(oiax) :iax array; see pairc, below where it is generated
 Co   mxcsiz  :size of the largest cluster encountered
 C ----------------------------------------------------------------------
 C     implicit none
-Cdelw1 do not change  [['call', 'wref'], 'ontab', 'pairs']
-Cdelw1 do not change  [['call', 'wref'], 'oiax', 'pairs']
       integer nbas,nbasp,ipsp(1),pltab(1),nttab,ontab,oiax,nd,iltab
       double precision alat,plat(9),rmax(1),baspp(3,1)
 C Local variables
       double precision avw,avwsr,vol
-Cdelw1       integer modep(3),nbaspp,owk,mxcsiz,mxnbr,i,niax,isw
       integer:: modep(3) , nbaspp , mxcsiz , mxnbr , i , niax , isw
-      real(8) ,allocatable :: rv_w_owk(:)
+      real(8) ,allocatable :: wk_rv(:)
 
       parameter (niax=10)
 C heap:
@@ -387,13 +348,10 @@ C ... Estimate an upper bound to the size of the neighbor table
       avw = avwsr(plat,alat,vol,nbas)
       mxnbr = 3*(2*rmax(1)/avw)**3*nbasp
       if (mxcsiz .gt. 0) mxnbr = mxcsiz
-Cdelw1 do not change ontab because of ['call', 'wref']
       call defi(ontab, nbasp+1)
-Cdelw1 do not change oiax because of ['call', 'wref']
       call defi(oiax, -niax*mxnbr)
-Cdelw1       call defdr(owk,  3*mxnbr)
-      allocate(rv_w_owk(3*mxnbr))
-Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) rv_w_owk(:)=0.0d0
+      allocate(wk_rv(3*mxnbr))
+Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) wk_rv(:)=0.0d0
 
       do  10  i = 1, 3
         modep(i) = 2
@@ -403,27 +361,14 @@ Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) rv_w_owk(:)=0.0d0
 C ... This makes the neighbor table
       nttab = mxnbr
       isw = 0
-Cdelw1 do not change oiax because of ['call', 'wref']
-Cdelw1 do not change ontab because of ['call', 'wref']
-Cdelw1 do not change oiax because of ['call', 'wref']
-Cdelw1 do not change ontab because of ['call', 'wref']
-Cdelw1       call pairc(1,nbasp,nbaspp,modep,isw,ipsp,alat,plat,baspp,baspp,
-Cdelw1      .  rmax,iltab,pltab,nttab,w(ontab),w(oiax),w(owk),mxcsiz)
       call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat , 
      . plat , baspp , baspp , rmax , iltab , pltab , nttab , w ( ontab 
-     . ) , w ( oiax ) , rv_w_owk , mxcsiz )
+     . ) , w ( oiax ) , wk_rv , mxcsiz )
 
 
 C ... Allocate iax to proper size
-Cdelw1 do not change oiax because of ['call', 'wref']
       call redfi(oiax, niax*nttab)
-Cdelw1 w_varlist remains: ontab oiax owk
-Cdelw1 w_varlistundel: [ontab oiax]
-Cdelw1 w_varlist (undel), remains: [ontab oiax]
-Cdelw1 w_varlist (del), remains: [owk]
-Cdelw1 not deallocate oiax because of [call wref]
-Cdelw1 not deallocate ontab because of [call wref]
-      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+      if (allocated(wk_rv)) deallocate(wk_rv)
 
       end
 
@@ -504,16 +449,14 @@ C     implicit none
       double precision alat,plat(3,3),pos(3,nbasp),ctr(3,ib2),
      .  range(1),rtab(3,1)
 C Local variables
-Cdelw1       integer ib,is,jb,mtab,i,moder,mode2(3),nlat,owk1,owk2,owk3,opos,
-Cdelw1      .  olat,mxntab,octr,nsite
       integer:: ib , is , jb , mtab , i , moder , mode2(3) , nlat , 
      . mxntab , nsite
-      real(8) ,allocatable :: rv_w_owk1(:)
-      real(8) ,allocatable :: rv_w_owk2(:)
-      real(8) ,allocatable :: rv_w_owk3(:)
-      real(8) ,allocatable :: rv_w_opos(:)
-      real(8) ,allocatable :: rv_w_olat(:)
-      real(8) ,allocatable :: rv_w_octr(:)
+      real(8) ,allocatable :: wk1_rv(:)
+      real(8) ,allocatable :: wk2_rv(:)
+      real(8) ,allocatable :: wk3_rv(:)
+      real(8) ,allocatable :: pos_rv(:)
+      real(8) ,allocatable :: lat_rv(:)
+      real(8) ,allocatable :: ctr_rv(:)
 
       double precision r1,rr,qlat(3,3),p0(3)
       integer w(1)
@@ -544,12 +487,10 @@ C ... Make r1 = 2*maximum range
       r1 = 2*r1
 C ... List of lattice vectors to add to pos(ib)-pos(jb)
       call xlgen(plat,r1/alat,0d0,0,20,mode,i,w)
-Cdelw1       call defrr(olat, 3*i)
-      allocate(rv_w_olat(3*i))
-Ctakao_ZeroClear_NotRequiered        if (3*i<0) rv_w_olat(:)=0.0d0
+      allocate(lat_rv(3*i))
+Ctakao_ZeroClear_NotRequiered        if (3*i<0) lat_rv(:)=0.0d0
 
-Cdelw1       call xlgen(plat,r1/alat,0d0,i,0,mode,nlat,w(olat))
-      call xlgen ( plat , r1 / alat , 0d0 , i , 0 , mode , nlat , rv_w_olat 
+      call xlgen ( plat , r1 / alat , 0d0 , i , 0 , mode , nlat , lat_rv 
      . )
 
 C ... qlat = (plat^-1)^T so that qlat^T . plat = 1
@@ -558,19 +499,15 @@ C ... qlat = (plat^-1)^T so that qlat^T . plat = 1
       call mkqlat(plat,qlat,rr)
 C ... Save true pos in opos
 C     and ctr in octr in case same address space used for ctr
-Cdelw1       call defrr(opos, 3*nbasp)
-      allocate(rv_w_opos(3*nbasp))
-Ctakao_ZeroClear_NotRequiered        if (3*nbasp<0) rv_w_opos(:)=0.0d0
+      allocate(pos_rv(3*nbasp))
+Ctakao_ZeroClear_NotRequiered        if (3*nbasp<0) pos_rv(:)=0.0d0
 
-Cdelw1       call dpcopy(pos,w(opos),1,3*nbasp,1d0)
-      call dpcopy ( pos , rv_w_opos , 1 , 3 * nbasp , 1d0 )
+      call dpcopy ( pos , pos_rv , 1 , 3 * nbasp , 1d0 )
 
-Cdelw1       call defrr(octr, 3*nsite)
-      allocate(rv_w_octr(3*nsite))
-Ctakao_ZeroClear_NotRequiered        if (3*nsite<0) rv_w_octr(:)=0.0d0
+      allocate(ctr_rv(3*nsite))
+Ctakao_ZeroClear_NotRequiered        if (3*nsite<0) ctr_rv(:)=0.0d0
 
-Cdelw1       call dpcopy(ctr,w(octr),1,3*nsite,1d0)
-      call dpcopy ( ctr , rv_w_octr , 1 , 3 * nsite , 1d0 )
+      call dpcopy ( ctr , ctr_rv , 1 , 3 * nsite , 1d0 )
 
 
 C --- For each ib, find all pairs for which dr < range ---
@@ -590,11 +527,9 @@ C --- For each ib, find all pairs for which dr < range ---
 
 C --- Shorten all pos relative to ctr(ib) ---
 C ... Make pos-ctr(ib)
-Cdelw1       call dpcopy(w(opos),pos,1,3*nbasp,1d0)
-        call dpcopy ( rv_w_opos , pos , 1 , 3 * nbasp , 1d0 )
+        call dpcopy ( pos_rv , pos , 1 , 3 * nbasp , 1d0 )
 
-Cdelw1       call dpcopy(w(octr),ctr,1,3*nsite,1d0)
-        call dpcopy ( rv_w_octr , ctr , 1 , 3 * nsite , 1d0 )
+        call dpcopy ( ctr_rv , ctr , 1 , 3 * nsite , 1d0 )
 
         do  12  i = 1, 3
           p0(i)  = ctr(i,ib)
@@ -611,37 +546,27 @@ C ... Undo shift -ctr(ib) to restore shortened pos to absolute pos
    16   continue
 
 C --- Find all sites in range of ctr ---
-Cdelw1       call ppair2(nbasp,iltab,pltabp,moder,alat,qlat,pos,p0,
-Cdelw1      .  range,ips,rtab,ib,r1,nlat,w(olat),w(opos),mxntab,nttab,iax)
         call ppair2 ( nbasp , iltab , pltabp , moder , alat , qlat , 
-     . pos , p0 , range , ips , rtab , ib , r1 , nlat , rv_w_olat , 
-     . rv_w_opos , mxntab , nttab , iax )
+     . pos , p0 , range , ips , rtab , ib , r1 , nlat , lat_rv , 
+     . pos_rv , mxntab , nttab , iax )
 
 
 C --- Sort table by increasing length ---
-Cdelw1       call defrr(owk1, (nttab-mtab)*niax)
-        allocate(rv_w_owk1((nttab-mtab)*niax))
-Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)*niax<0) rv_w_owk1(:)=0.0d0
+        allocate(wk1_rv((nttab-mtab)*niax))
+Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)*niax<0) wk1_rv(:)=0.0d0
 
-Cdelw1       call defrr(owk2, (nttab-mtab))
-        allocate(rv_w_owk2((nttab-mtab)))
-Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)<0) rv_w_owk2(:)=0.0d0
+        allocate(wk2_rv((nttab-mtab)))
+Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)<0) wk2_rv(:)=0.0d0
 
-Cdelw1       call defrr(owk3, (nttab-mtab)*3)
-        allocate(rv_w_owk3((nttab-mtab)*3))
-Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)*3<0) rv_w_owk3(:)=0.0d0
+        allocate(wk3_rv((nttab-mtab)*3))
+Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)*3<0) wk3_rv(:)=0.0d0
 
-Cdelw1       call ppair3(nttab-mtab,iax(1,mtab),rtab(1,mtab),w(owk1),w(owk2),
-Cdelw1      .  w(owk3))
         call ppair3 ( nttab - mtab , iax ( 1 , mtab ) , rtab ( 1 , mtab 
-     . ) , rv_w_owk1 , rv_w_owk2 , rv_w_owk3 )
+     . ) , wk1_rv , wk2_rv , wk3_rv )
 
-Cdelw1 rlse name= owk1 old_list= olat opos octr owk1 owk2 owk3
-Cdelw1 rlse name= owk1 new_list= olat opos octr
-Cdelw1       call rlse(owk1)
-        if (allocated(rv_w_owk3)) deallocate(rv_w_owk3)
-        if (allocated(rv_w_owk2)) deallocate(rv_w_owk2)
-        if (allocated(rv_w_owk1)) deallocate(rv_w_owk1)
+        if (allocated(wk3_rv)) deallocate(wk3_rv)
+        if (allocated(wk2_rv)) deallocate(wk2_rv)
+        if (allocated(wk1_rv)) deallocate(wk1_rv)
 
 
 C --- Cleanup for this ib ---
@@ -653,27 +578,19 @@ C --- Cleanup for this ib ---
 C     call awrit2('xx ntab %n:1i',' ',80,6,nbasp+1,ntab)
 
 C --- Restore original pos,ctr ---
-Cdelw1       call dpcopy(w(opos),pos,1,3*nbasp,1d0)
-      call dpcopy ( rv_w_opos , pos , 1 , 3 * nbasp , 1d0 )
+      call dpcopy ( pos_rv , pos , 1 , 3 * nbasp , 1d0 )
 
-Cdelw1       call dpcopy(w(octr),ctr,1,3*nsite,1d0)
-      call dpcopy ( rv_w_octr , ctr , 1 , 3 * nsite , 1d0 )
+      call dpcopy ( ctr_rv , ctr , 1 , 3 * nsite , 1d0 )
 
-Cdelw1 rlse name= opos old_list= olat opos octr
-Cdelw1 rlse name= opos new_list= olat
-Cdelw1       call rlse(opos)
-      if (allocated(rv_w_octr)) deallocate(rv_w_octr)
-      if (allocated(rv_w_opos)) deallocate(rv_w_opos)
+      if (allocated(ctr_rv)) deallocate(ctr_rv)
+      if (allocated(pos_rv)) deallocate(pos_rv)
 
 
 C --- Fill out iax table ---
       call ppair1(isw,ib1,ib2,nbasp,ips,alat,plat,pos,range,
      .  nttab,ntab,iax,mxcsiz)
 
-Cdelw1 w_varlist remains: olat
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [olat]
-      if (allocated(rv_w_olat)) deallocate(rv_w_olat)
+      if (allocated(lat_rv)) deallocate(lat_rv)
 
       end
       subroutine ppair1(isw,ib1,ib2,nbasp,ips,alat,plat,pos,range,
@@ -718,12 +635,10 @@ C     implicit none
       integer iax(niax,1),mxcsiz
       double precision alat,plat(3,3),pos(3,19),range(1)
 C Local variables
-Cdelw1       integer ib,is,jb,js,ipr,i,j,moder,it,jt,iprint,lgunit,stdo,opos,
-Cdelw1      .  oiwk,nsite,isw1
       integer:: ib , is , jb , js , ipr , i , j , moder , it , jt , 
      . iprint , lgunit , stdo , nsite , isw1
-      real(8) ,allocatable :: rv_w_opos(:)
-      integer ,allocatable :: iv_w_oiwk(:)
+      real(8) ,allocatable :: pos_rv(:)
+      integer ,allocatable :: iwk_iv(:)
 
       double precision r1,r2,rr,rcut,vlat(3),drr2,tol
       parameter (tol=1d-5)
@@ -770,29 +685,20 @@ C         endif
    73     continue
    70   continue
       endif
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (isw1 .eq. 4) return
 
 C ... Assign a unique id for every different site in the cluster table
-Cdelw1       call defi(oiwk,nttab)
-      allocate(iv_w_oiwk(nttab))
-Ctakao_ZeroClear_NotRequiered        if (nttab<0) iv_w_oiwk(:)=0
+      allocate(iwk_iv(nttab))
+Ctakao_ZeroClear_NotRequiered        if (nttab<0) iwk_iv(:)=0
 
-Cdelw1       call defdr(opos,3*nttab)
-      allocate(rv_w_opos(3*nttab))
-Ctakao_ZeroClear_NotRequiered        if (3*nttab<0) rv_w_opos(:)=0.0d0
+      allocate(pos_rv(3*nttab))
+Ctakao_ZeroClear_NotRequiered        if (3*nttab<0) pos_rv(:)=0.0d0
 
-Cdelw1       call siteid(iax,nsite,ntab,plat,pos,w(opos),w(oiwk),i)
-      call siteid ( iax , nsite , ntab , plat , pos , rv_w_opos , iv_w_oiwk 
+      call siteid ( iax , nsite , ntab , plat , pos , pos_rv , iwk_iv 
      . , i )
 
-Cdelw1 rlse name= oiwk old_list= oiwk opos
-Cdelw1 rlse name= oiwk new_list= (None)
-Cdelw1       call rlse(oiwk)
-      if (allocated(rv_w_opos)) deallocate(rv_w_opos)
-      if (allocated(iv_w_oiwk)) deallocate(iv_w_oiwk)
+      if (allocated(pos_rv)) deallocate(pos_rv)
+      if (allocated(iwk_iv)) deallocate(iwk_iv)
 
 
 C --- Printout ---
@@ -840,9 +746,6 @@ C --- Printout ---
 
 C     call tcx('ppair1')
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine ppair2(nbas,iltab,pltabp,moder,alat,qlat,pos,ctr,range,
      .  ips,rtab,ib,r1,nlat,lat,trupos,mxntab,nttab,iax)
@@ -915,9 +818,6 @@ C     ... iax table for this pair
 
    30   continue
    20 continue
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine ppair3(nttab,iax,rtab,iwk,iwk2,rwk)
 C- Sort neighbor table by distance
@@ -945,9 +845,6 @@ C     implicit none
           iax(k,i) = iwk(k,j)
    22   continue
    20 continue
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine ppair4(iclus,nclus,plat,pos,ctr,iwk,rtab,tol,iax)
 C- Sort cluster by increasing (x,y,z) relative to its center
@@ -1015,9 +912,6 @@ C        ic0 = ic-iclus+1
 C        print 346, ic,(rtab(jx,ic0)+pos(jx,iax(1,ic)), jx=1,3)
 C  346   format(i4,3f11.6)
 C   32 continue
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine ppair5(ib1,ib2,plat,pos,tol,ntab,iax)
 C- Sort a range of clusters according to tol
@@ -1040,10 +934,9 @@ C ... Passed parameters
       parameter (niax=10)
       integer iax(niax,1),ntab(ib2)
       double precision plat(3,3),pos(3,*),tol
-Cdelw1       integer ib,nttab,owk1,owk2
       integer:: ib , nttab
-      real(8) ,allocatable :: rv_w_owk1(:)
-      real(8) ,allocatable :: rv_w_owk2(:)
+      real(8) ,allocatable :: wk1_rv(:)
+      real(8) ,allocatable :: wk2_rv(:)
 
 C heap:
       integer w(1)
@@ -1052,29 +945,19 @@ C heap:
 C --- Set iax(7) to sort this cluster ---
       do  10  ib = ib1, ib2
         nttab = ntab(ib+1)-ntab(ib)
-Cdelw1         call defrr(owk1, nttab)
-        allocate(rv_w_owk1(nttab))
-Ctakao_ZeroClear_NotRequiered          if (nttab<0) rv_w_owk1(:)=0.0d0
+        allocate(wk1_rv(nttab))
+Ctakao_ZeroClear_NotRequiered          if (nttab<0) wk1_rv(:)=0.0d0
 
-Cdelw1         call defrr(owk2, nttab*3)
-        allocate(rv_w_owk2(nttab*3))
-Ctakao_ZeroClear_NotRequiered          if (nttab*3<0) rv_w_owk2(:)=0.0d0
+        allocate(wk2_rv(nttab*3))
+Ctakao_ZeroClear_NotRequiered          if (nttab*3<0) wk2_rv(:)=0.0d0
 
-Cdelw1         call ppair4(ntab(ib)+1,ntab(ib+1),plat,pos,pos(1,ib),
-Cdelw1      .    w(owk1),w(owk2),tol,iax)
         call ppair4 ( ntab ( ib ) + 1 , ntab ( ib + 1 ) , plat , pos 
-     .   , pos ( 1 , ib ) , rv_w_owk1 , rv_w_owk2 , tol , iax )
+     .   , pos ( 1 , ib ) , wk1_rv , wk2_rv , tol , iax )
 
-Cdelw1 rlse name= owk1 old_list= owk1 owk2
-Cdelw1 rlse name= owk1 new_list= (None)
-Cdelw1         call rlse(owk1)
-        if (allocated(rv_w_owk2)) deallocate(rv_w_owk2)
-        if (allocated(rv_w_owk1)) deallocate(rv_w_owk1)
+        if (allocated(wk2_rv)) deallocate(wk2_rv)
+        if (allocated(wk1_rv)) deallocate(wk1_rv)
 
    10 continue
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine pair3c(offi,nvec,iaxc,iaxh,ntabh,ipiaxh)
 C- Find connecting vectors within a cluster linked by a pair table
@@ -1189,8 +1072,5 @@ C          if (is .gt. 0) ipiaxh(j,i) = iaxh(6,is)
 C   50   continue
 C      endif
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 

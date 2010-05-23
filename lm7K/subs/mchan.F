@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['mchan', 'site', 'ssite']
-Cgetarg...info...           structure ['mchan', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['mchan', 'm_struc_def']
       subroutine mchan(lmdim,ssite,sspec,nsp,nsites,lsites,ib,ilm,io,
      .                 ichan,lchan)
 
@@ -31,7 +28,6 @@ C     implicit none
 C Passed Parameters
       integer lmdim,nsp,nsites,lsites(nsites),lchan(lmdim,nsites),
      .        ib,ilm,io,ichan
-Cgetarg       double precision ssite(1),sspec(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -52,10 +48,8 @@ C Local Variables
         call awrit0(' site  label          channels',' ',128,lgunit(1))
         do  j = 1, nsites
           jb = lsites(j)
-Cgetarg           js = igetss('site spec',jb,ssite)
           js = int(ssite(jb)%spec)
 
-Cgetarg           call spacks(0,'spec name',sspec,clabl,js,js)
           do i_spacks=js,js
             call spacks_copy('u',sspec(i_spacks)%name,js,js,clabl,i_spacks)
           enddo
@@ -64,7 +58,6 @@ Cgetarg           call spacks(0,'spec name',sspec,clabl,js,js)
         enddo
       endif
     1 format (1x,i3,5x,a8,1x,256i3)
-Cgetarg       end
       end subroutine mchan
 
 

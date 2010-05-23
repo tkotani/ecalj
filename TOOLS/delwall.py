@@ -3,7 +3,7 @@
 import sys,os
 thisdir= os.path.dirname(os.path.abspath(__file__))
 #pathname=thisdir+ ' '+thisdir+'/delw0419'
-delw=thisdir+"/KINO/del_w2.2/delw.py"
+delw=thisdir+"/KINO/del_w2.3/delw.py"
 #print pathname
 #sys.path.append(pathname)
 

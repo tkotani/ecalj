@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['hsmbl', 'lat', 'slat']
-Cgetarg...info...           use_to_add ['hsmbl', 'm_struc_def']
       subroutine hsmbl(p,rsm,e,q,lmax,cy,slat,hsm,hsmp)
 
       use m_struc_def  !Cgetarg
@@ -28,7 +26,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer lmax
-Cgetarg       double precision rsm,e,slat(50),q(3),p(3),cy(1)
       real(8):: rsm , e , q(3) , p(3) , cy(1)
       type(s_lat)::slat
 
@@ -43,10 +40,6 @@ C ... Heap
       common /w/ w
 
 C ... Shorten p, multiply by corresponding phase later
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
-Cgetarg...info...           real(8) :: qlat(9) , real(8) :: slat%qlat 9
-Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
 
       alat=slat%alat
       i_copy_size=size(slat%plat)
@@ -61,20 +54,11 @@ C      p1 = p
       sp = 2*pi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
       phase = dcmplx(dcos(sp),dsin(sp))
 
-Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
-Cgetarg...info...           real(8) :: tol , real(8) :: slat%tol 1
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg       call upack('lat awald tol vol',slat,awald,tol,vol,0,0)
 
       awald=slat%awald
       tol=slat%tol
       vol=slat%vol
 
-Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
-Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
-Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
-Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
-Cgetarg       call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
 
       nkd=slat%nkd
       nkq=slat%nkq
@@ -101,7 +85,6 @@ C ... Multiply by phase to undo shortening
         hsm(ilm)  = cfac*cy(ilm)*hsm(ilm)
         hsmp(ilm) = cfac*cy(ilm)*hsmp(ilm)
    28 continue
-Cgetarg       end
       end subroutine hsmbl
 
 
@@ -164,7 +147,6 @@ C ... Local parameters
         dl(ilm)  = fpibv*dl(ilm)
         dlp(ilm) = fpibv*dlp(ilm) + gamma*dl(ilm)
    35 continue
-Cgetarg       end
       end subroutine hsmblq
 
 
@@ -337,7 +319,6 @@ C          zchi2(-1) = expikr/zikap + dimag(zuplus)/kap
    38   continue
    20 continue
 
-Cgetarg       end
       end subroutine hsmbld
 
 

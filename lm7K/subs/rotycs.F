@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['rotycs', 'site', 'ssite']
-Cgetarg...info...           structure ['rotycs', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['rotycs', 'm_struc_def']
       subroutine rotycs(mode,a,nbas,nsp,lmaxu,sspec,ssite,lldau)
 
       use m_struc_def  !Cgetarg
@@ -34,7 +31,6 @@ C     implicit none
 C passed variables
       integer nbas,lldau(nbas),mode,lmaxu,nsp
       double complex a(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
-Cgetarg       double precision sspec(1),ssite(1)
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 
@@ -48,12 +44,8 @@ C local variables
       iblu = 0
       do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
-Cgetarg           is = igetss('site spec',ib,ssite)
           is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
-Cgetarg           call upack('spec lmxa idu',sspec,is,lmxa,idu,0,0)
 
           lmxa=sspec(is)%lmxa
           i_copy_size=size(sspec(is)%idu)
@@ -110,7 +102,6 @@ C place c in appropriate place
           enddo
         endif
       enddo
-Cgetarg       end
       end subroutine rotycs
 
 

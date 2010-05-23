@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['mkehkf', 'ham', 'sham']
-Cgetarg...info...           use_to_add ['mkehkf', 'm_struc_def']
       subroutine mkehkf(mode,sham,sev,valmom,sumtv,etot)
 
       use m_struc_def  !Cgetarg
@@ -49,7 +47,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode
-Cgetarg       double precision sham(1),sev,etot,sumtv,valmom
       real(8):: sev , etot , sumtv , valmom
       type(s_ham)::sham
 
@@ -83,8 +80,6 @@ C     stdl = lgunit(2)
       stdl = nglob('stdl')
       call getpr(ipr)
       ipl = 1
-Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
-Cgetarg       call upack1('ham eterms',sham,eterms)
 
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,sham%eterms,1,eterms,1)
@@ -113,8 +108,6 @@ ccccccccccccccc
 c      print *,'vvv ekin=',ekin,sumtv,sumtc
 ccccccccccccccc
       endif
-Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
-Cgetarg       call pack1('ham eterms',sham,eterms)
 
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,eterms,1,sham%eterms,1)
@@ -181,7 +174,6 @@ C      write(ifet,"(d23.16,a)")  utot,   ' ! U '
 C      write(ifet,"(d23.16,a)")  ekin,   ' ! T '
 C      close(ifet)
 
-Cgetarg       end
       end subroutine mkehkf
 
 

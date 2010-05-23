@@ -1,7 +1,3 @@
-Cgetarg...info...           structure ['locpot', 'site', 'ssite']
-Cgetarg...info...           structure ['locpot', 'spec', 'sspec']
-Cgetarg...info...           structure ['locpot', 'lat', 'slat']
-Cgetarg...info...           use_to_add ['locpot', 'm_struc_def']
 #define F90 1
       subroutine locpot(nbas,nsp,lso,lcplxp,ssite,sspec,slat,orhoat,
      .  qmom,vval,gpot0,osig,otau,oppi,ppnl,hab,vab,sab,vvesat,
@@ -128,7 +124,6 @@ C ... Passed parameters
       integer nlibu,lmaxu,lldau(nbas),iblu
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       parameter (n0=10,nppn=12,nab=9)
-Cgetarg       double precision ssite(1),sspec(1),slat(1),qmom(1),vval(1)
       real(8):: qmom(1) , vval(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -245,11 +240,6 @@ C$&            xcore,rvepsv,rvvxcv,valvef,rhovxc,rhoexc,cpnvsa,vvesat)
 C$&  MP_SCHEDTYPE=RUNTIME
       iblu = 0
       do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
-Cgetarg...info...           integer :: ov01 , integer(8) :: ssite%ov1 1
-Cgetarg         call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov01)
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
@@ -257,41 +247,24 @@ Cgetarg         call upack('site spec pnu ov0 ov1',ssite,ib,is,pnu,ov0,ov01)
         ov0=ssite(ib)%ov0
         ov01=ssite(ib)%ov1
 
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
-Cgetarg         call upack2('site pz',ssite,ib,pnz)
 
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
 
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
-Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
-Cgetarg         call upack('spec z qc rg',sspec,is,z,qc,rg,0)
 
         z=sspec(is)%z
         qc=sspec(is)%qc
         rg=sspec(is)%rg
 
-Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
         enddo
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
 
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
 
-Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg         call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
-Cgetarg      .    lmxb)
 
         rsma=sspec(is)%rsma
         lmxa=sspec(is)%lmxa
@@ -301,15 +274,10 @@ Cgetarg      .    lmxb)
         zz(ib)=z
         if (lmxa .eq. -1) goto 10
 
-Cgetarg...info...           integer :: idu(4) , integer(8) :: sspec%idu 4
-Cgetarg         call upack('spec idu',sspec,is,idu,0,0,0)
 
         i_copy_size=size(sspec(is)%idu)
         call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)
 
-Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
-Cgetarg...info...           integer :: i , integer(8) :: sspec%mxcst 1
-Cgetarg         call upack('spec kmxt mxcst',sspec,is,kmax,i,0,0)
 
         kmax=sspec(is)%kmxt
         i=sspec(is)%mxcst
@@ -323,7 +291,6 @@ cccccccccccccc
         print *,' i job kmax lfltwf=',i,job,kmax,lfltwf
 cccccccccccccc
         call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
-Cgetarg         call spacks(0,'spec coreh',sspec,chole,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
         enddo
@@ -455,10 +422,6 @@ C     ... Use effective potentials with modified xc
 
           if (ipr .ge. 20) write(stdo,467) y0*(gpot0(j1)-gpotb(1))
   467     format(' potential shift to crystal energy zero:',f12.6)
-Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
-Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
-Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
-Cgetarg           call upack('lat ocg ojcg oidxcg',slat,ocg,ojcg,oidxcg,0,0)
 
           ocg=slat%ocg
           ojcg=slat%ojcg
@@ -486,7 +449,6 @@ C     Electric field gradient
 
       call tcx('locpot')
 
-Cgetarg       end
       end subroutine locpot
 
 
@@ -1014,7 +976,6 @@ C --- Charges, printout ---
 #endif
 
       call tcx('locpt2')
-Cgetarg       end
       end subroutine locpt2
 
 
@@ -1161,7 +1122,6 @@ C     .         (tr(j,i),j=1,3),conv1*d(i),conv2*d(i)
         endif
       enddo
 
-Cgetarg       end
       end subroutine elfigr
 
 

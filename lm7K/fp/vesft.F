@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['vesft', 'lat', 'slat']
-Cgetarg...info...           use_to_add ['vesft', 'm_struc_def']
       subroutine vesft(slat,ng,gv,kv,cv,k1,k2,k3,smrho,smpot,sum)
 
       use m_struc_def  !Cgetarg
@@ -25,7 +23,6 @@ C ----------------------------------------------------------------------
 C ... Passed parameters
       integer ng
       integer kv(ng,3),k1,k2,k3
-Cgetarg       double precision slat(1),gv(ng,3),sum
       real(8):: gv(ng,3) , sum
       type(s_lat)::slat
 
@@ -36,9 +33,6 @@ C ... Local parameters
       double complex ccc
 
       call tcn('vesft')
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg       call upack2('lat alat vol',slat,alat,vol)
 
       alat=slat%alat
       vol=slat%vol
@@ -70,7 +64,6 @@ cccccccccccccc
 C ... Scatter smooth potential into array
       call gvputf(ng,1,kv,k1,k2,k3,cv,smpot)
       call tcx('vesft')
-Cgetarg       end
       end subroutine vesft
 
 

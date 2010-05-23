@@ -1,9 +1,3 @@
-Cdelw1 var ['oswtk', '1', 'oswtk', 'ndham*nsp*nkp', 'real(8)', 'rv_w_', 'subzi']
-Cdelw1 var ['oevl', '0', 'oevl', 'ndham*nsp*nkp', 'real(8)', 'rv_w_', 'subzi']
-Cdelw1 var ['owtkb', '0', 'owtkb', 'ndham*nsp*nkp', 'real(8)', 'rv_w_', 'subzi']
-Cdelw1 undel [['call', 'wref'], 'oswtk', 'subzi']
-Cdelw1 undel [['call', 'wref'], 'oevl', 'subzi']
-Cdelw1 undel [['call', 'wref'], 'owtkb', 'subzi']
 #define MPI 1
 c      subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
 c     .  lwtkb,efermi,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,esmear)
@@ -84,9 +78,6 @@ C     implicit none
 C ... Passed parameters
       logical ltet,lwt
       integer lmet,ndham,nsp,nspc,nkp,lwtkb,lswtk,numq,nevmx,mpsord
-Cdelw1 do not change  [['call', 'wref'], 'oevl', 'subzi']
-Cdelw1 do not change  [['call', 'wref'], 'owtkb', 'subzi']
-Cdelw1 do not change  [['call', 'wref'], 'oswtk', 'subzi']
       integer owtkb,oswtk
       double precision zval,ef0,def,esmear,efermi
 C ... Local parameters
@@ -106,7 +97,6 @@ C ... Heap
       numq = 1
       if (lmet .eq. 4) numq = 3
       lwtkb = 0
-Cdelw1 do not change owtkb because of ['call', 'wref']
       if (lmet .gt. 0 .and. (lmet .ne. 4 .or. ltet))
      .  call defrr(owtkb,ndham*nsp*nkp)
       if (nevmx .ge. 0) then
@@ -116,10 +106,8 @@ C     ... Attempt to use existing weights
           if (lmet .eq. 2 .and. lwt) then
             if (procid .eq. master) then
               ifi = fopna('wkp',-1,4)
-Cdelw1 do not change owtkb because of ['call', 'wref']
               if (nspc .eq. 1)
      .          lerr = iobzwt(0,ndham,nkp,nsp,efermi,w(owtkb),ifi)
-Cdelw1 do not change owtkb because of ['call', 'wref']
               if (nspc .eq. 2)
      .          lerr = iobzwt(0,ndham*2,nkp,1,efermi,w(owtkb),ifi)
               call fclose(ifi)
@@ -130,7 +118,6 @@ C           Broadcast lwtkb,efermi,wtkb
             call mpibc1(lwtkb,1,2,.false.,'subzi','lwtkb')
             if (lwtkb .eq. 1) then
               call mpibc1(efermi,1,4,.false.,'subzi','efermi')
-Cdelw1 do not change owtkb because of ['call', 'wref']
               call mpibc1(w(owtkb),ndham*nsp*nkp,4,.false.,'subzi',
      .          'wtkb')
             endif
@@ -138,12 +125,9 @@ Cdelw1 do not change owtkb because of ['call', 'wref']
         endif
       endif
       lswtk = -2
-Cdelw1 warning(1) , probably  oswtk  is not defined yet at linenumber= 127
-Cdelw1 do not change oswtk because of ['call', 'wref']
       oswtk = 1
       if (nspc .eq. 2) then
         if (lwtkb .eq. 1) lswtk = 1
-Cdelw1 do not change oswtk because of ['call', 'wref']
         call defrr(oswtk,ndham*nsp*nkp)
       endif
 
@@ -175,13 +159,6 @@ C ... Printout
         write(stdo,'(1x)')
       endif
 
-Cdelw1 w_varlist remains: owtkb oevl oswtk
-Cdelw1 w_varlistundel: [oswtk oevl owtkb]
-Cdelw1 w_varlist (undel), remains: [owtkb oevl oswtk]
-Cdelw1 w_varlist (del), remains: (None)
-Cdelw1 not deallocate oswtk because of [call wref]
-Cdelw1 not deallocate oevl because of [call wref]
-Cdelw1 not deallocate owtkb because of [call wref]
       end
       integer function iobzwt(mode,nevx,nq,nsp,efermi,wtkb,ifi)
 C- File I/O of dos weights
@@ -227,25 +204,16 @@ C ... File read
         if (mode .eq. 1) then
           call info(20,1,0,
      .      ' Read efermi from weights file : ef = %,6;6d',efermi,0)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
           return
         endif
         if (nevx .ne. nevx0 .or. nq .ne. nq0 .or. nsp .ne. nsp0) goto 80
         read(ifi) wtkb
         call info(20,1,0,' Read qp weights ...  ef=%;6d',efermi,0)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         return
    80   continue
         iobzwt = -1
         call info(20,1,0,' Incompatible or missing qp weights file ...',
      .    0,0)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         return
 
 C ... File write
@@ -259,17 +227,11 @@ C ... File write
             call awrit1('%N Saved Fermi level to weights file ... '//
      .        'ef = %,6;6d',' ',80,lgunit(1),efermi)
           endif
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
           return
         endif
         write(jfi) wtkb
         call info(20,1,0,' Saved qp weights ...',0,0)
       endif
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 
 

@@ -1,8 +1,3 @@
-Cgetarg...info...           structure ['vcdmel', 'lat', 'slat']
-Cgetarg...info...           structure ['vcdmel', 'site', 'ssite']
-Cgetarg...info...           structure ['vcdmel', 'spec', 'sspec']
-Cgetarg...info...           structure ['vcdmel', 'ctrl', 'sctrl']
-Cgetarg...info...           use_to_add ['vcdmel', 'm_struc_def']
 #define F90 1
       subroutine vcdmel(sctrl,ssite,sspec,slat,nlmax,ndham,ndimh,
      .  nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn)
@@ -46,8 +41,6 @@ C     implicit none
 C Passed Parameters
       integer nlmax,ndham,ndimh,nq,nsp,nspc,nsite
       integer isite(nsite),iclsl(nsite),iclsn(nsite)
-Cgetarg       double precision sctrl(1),ssite(1),sspec(1),slat(1),ef,
-Cgetarg      .                 evl(ndham,nsp,nq)
       real(8):: ef , evl(ndham,nsp,nq)
       type(s_ctrl)::sctrl
       type(s_site)::ssite(*)
@@ -82,11 +75,6 @@ C ... Heap
 #if ! (F90 | AUTO_ARRAY)
       if (nsite .gt. nsitmx) call rx('Increase nsitmx in vcdmel')
 #endif
-Cgetarg...info...           integer :: ocg , integer(8) :: slat%ocg 1
-Cgetarg...info...           integer :: ojcg , integer(8) :: slat%ojcg 1
-Cgetarg...info...           integer :: oidxcg , integer(8) :: slat%oidxcg 1
-Cgetarg...info...           integer :: ocy , integer(8) :: slat%ocy 1
-Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
 
       ocg=slat%ocg
       ojcg=slat%ojcg
@@ -97,43 +85,28 @@ Cgetarg       call upack('lat ocg ojcg oidxcg ocy',slat,ocg,ojcg,oidxcg,ocy,0)
         ib = isite(i)
         ncls = iclsn(i)
         lcls = iclsl(i)
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
-Cgetarg         call upack('site spec pnu ov0',ssite,ib,is,pnu,ov0,0)
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         ov0=ssite(ib)%ov0
 
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
-Cgetarg         call upack2('site pz',ssite,ib,pnz)
 
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
 
-Cgetarg         call spacks(0,'spec name',sspec,clabl,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,clabl,i_spacks)
         enddo
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg         call upack('spec a nr rmt z',sspec,is,a,nr,rmt,z)
 
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
         z=sspec(is)%z
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg         call upack('spec lmxa',sspec,is,lmxa,0,0,0)
 
         lmxa=sspec(is)%lmxa
 
@@ -163,7 +136,6 @@ C   --- Matrix elements of u,s with core
       enddo
 C --- Open CLS weights file and write first line
       call defrr(os,3*ndimh*nsite*2)
-Cgetarg       nl = igets('ctrl nl',sctrl)
       nl = int(sctrl%nl)
 
       nfstg = 11
@@ -179,11 +151,8 @@ C     iomoms-compatible format ---
           do  i = 1, nsite
             lcls = iclsl(i)
             ib = isite(i)
-Cgetarg             is = igetss('site spec',ib,ssite)
             is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg             call upack('spec lmxa',sspec,is,lmxa,0,0,0)
 
             lmxa=sspec(is)%lmxa
 
@@ -206,7 +175,6 @@ C --- Scale weights arbitrarily by 100 for plotting etc ..
       call rlse(os)
       call fclose(ifi)
       call tcx ('vcdmel')
-Cgetarg       end
       end subroutine vcdmel
 
       subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,
@@ -293,7 +261,6 @@ C --- Matrix elements < (u,s) | r | core > ---
   335     format(i4,4f12.6)
         enddo
       enddo
-Cgetarg       end
       end subroutine pvcdm1
 
       subroutine pvcdm2(isite,nsite,ndham,ndimh,nlma,nlmax,aus,ume,sme,
@@ -376,7 +343,6 @@ C     .        'as',14x,'CG',20x,'cxx')
 C  200 format (1x,i3,3i5,2x,'(',g12.5,',',g12.5,')',
 C     .  '(',g12.5,',',g12.5,')',g12.5,'(',g12.5,',',g12.5,')')
 
-Cgetarg       end
       end subroutine pvcdm2
 
 

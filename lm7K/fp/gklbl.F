@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['gklbl', 'lat', 'slat']
-Cgetarg...info...           use_to_add ['gklbl', 'm_struc_def']
 #define F90 1
       subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,slat,gkl)
 
@@ -25,7 +23,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k0,kmax,nlm
-Cgetarg       double precision e,rsm,slat(1),q(3),p(3),cy(1)
       real(8):: e , rsm , q(3) , p(3) , cy(1)
       type(s_lat)::slat
 
@@ -43,10 +40,6 @@ C ... Heap
 
       if (nlm .eq. 0) return
       pi = 4d0*datan(1d0)
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
-Cgetarg...info...           real(8) :: qlat(9) , real(8) :: slat%qlat 9
-Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
 
       alat=slat%alat
       i_copy_size=size(slat%plat)
@@ -54,18 +47,10 @@ Cgetarg       call upack('lat alat plat qlat',slat,alat,plat,qlat,0,0)
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
-Cgetarg...info...           real(8) :: awald , real(8) :: slat%awald 1
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg       call upack('lat awald vol',slat,awald,vol,0,0,0)
 
       awald=slat%awald
       vol=slat%vol
 
-Cgetarg...info...           integer :: nkd , integer(8) :: slat%nkd 1
-Cgetarg...info...           integer :: nkq , integer(8) :: slat%nkq 1
-Cgetarg...info...           integer :: odlv , integer(8) :: slat%odlv 1
-Cgetarg...info...           integer :: oqlv , integer(8) :: slat%oqlv 1
-Cgetarg       call upack('lat nkd nkq odlv oqlv',slat,nkd,nkq,odlv,oqlv,0)
 
       nkd=slat%nkd
       nkq=slat%nkq
@@ -106,7 +91,6 @@ C     make the summation in reciprocal space, else in real space
         gkl(k,ilm) = cfac*cy(ilm)*gkl(k,ilm)
    28 continue
 
-Cgetarg       end
       end subroutine gklbl
 
 
@@ -171,7 +155,6 @@ C ... Local parameters
           cfac = cfac*(0d0,1d0)
    38   continue
    20 continue
-Cgetarg       end
       end subroutine gklbld
 
       subroutine gklblq(p,rsm,q,kmax,nlm,k0,alat,qlv,nkq,vol,gkl)
@@ -239,7 +222,6 @@ C ... Local parameters
 
       enddo
 
-Cgetarg       end
       end subroutine gklblq
 
 

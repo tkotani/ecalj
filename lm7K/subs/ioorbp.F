@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['ioorbp', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['ioorbp', 'm_struc_def']
       logical function ioorbp(mode,nkapi,is1,is2,sspec,nkmax,ifi)
 
       use m_struc_def  !Cgetarg
@@ -37,7 +35,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nkapi,is1,is2,ifi,nkmax
-Cgetarg       double precision sspec(1)
       type(s_spec)::sspec(*)
 
 C ... Local parameters
@@ -71,7 +68,6 @@ C ... Local parameters
             if (sout(1:1) .eq. '#') goto 18
             call word(sout,1,j1,j2)
    16       continue
-Cgetarg           call spacks(0,'spec name',sspec,spid,ks,ks)
             do i_spacks=ks,ks
               call spacks_copy('u',sspec(i_spacks)%name,ks,ks,spid,i_spacks)
             enddo
@@ -85,16 +81,11 @@ Cgetarg           call spacks(0,'spec name',sspec,spid,ks,ks)
               goto 16
             endif
             call dpzero(orbp,n0*2*nkap0)
-Cgetarg...info...           NG:: n0*nkape , integer(8) :: sspec%ntorb 1
-Cgetarg           call pack5('spec norp ntorb',sspec,ks,2,n0*nkape,0,0)
 
             sspec(ks)%norp=2
             sspec(ks)%ntorb=n0*nkape
 
             call iinit(idxdn,n0*nkap0)
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg...info...           integer :: idxdn(n0,nkap0) , integer(8) :: sspec%idxdn 30
-Cgetarg           call upack('spec lmxb idxdn',sspec,ks,lmxb,idxdn,0,0)
 
             lmxb=sspec(ks)%lmxb
             i_copy_size=size(sspec(ks)%idxdn)
@@ -184,18 +175,12 @@ C         Reduce lmxb
             if (i .ne. 0) then
 C           lmxi = lmxb
 C           if (i .lt. 0) lmxi=-i-2
-Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%pz 20
-Cgetarg             call pack2('spec pz',sspec,ks,orbp(1,1,3))
 
               i_copy_size=size(sspec(ks)%pz)
               call dcopy(i_copy_size,orbp(1,1,3),1,sspec(ks)%pz,1)
 
               lpz = 1
             endif
-Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%orbp 60
-Cgetarg...info...           integer :: idxdn(n0,nkap0) , integer(8) :: sspec%idxdn 30
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg           call pack5('spec orbp idxdn lmxb',sspec,ks,orbp,idxdn,lmxb,0)
 
             i_copy_size=size(sspec(ks)%orbp)
             call dcopy(i_copy_size,orbp,1,sspec(ks)%orbp,1)
@@ -212,23 +197,14 @@ Cgetarg           call pack5('spec orbp idxdn lmxb',sspec,ks,orbp,idxdn,lmxb,0)
         write(jfi,'(''BASIS:'')')
         if (mode .eq. 1) then
           do  110  is = is1, is2
-Cgetarg           call spacks(0,'spec name',sspec,spid,is,is)
             do i_spacks=is,is
               call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
             enddo
 
-Cgetarg...info...           NG:: n0*nkape , integer(8) :: sspec%ntorb 1
-Cgetarg           call pack5('spec norp ntorb',sspec,is,2,n0*nkape,0,0)
 
             sspec(is)%norp=2
             sspec(is)%ntorb=n0*nkape
 
-Cgetarg...info...           integer :: norp , integer(8) :: sspec%norp 1
-Cgetarg...info...           integer :: ntorb , integer(8) :: sspec%ntorb 1
-Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%orbp 60
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg           call upack('spec norp ntorb orbp lmxb',sspec,is,norp,ntorb,
-Cgetarg      .        orbp,lmxb)
 
             norp=sspec(is)%norp
             ntorb=sspec(is)%ntorb
@@ -264,7 +240,6 @@ C         Sanity checks
   110     continue
         endif
       endif
-Cgetarg       end
       end function ioorbp
 
 

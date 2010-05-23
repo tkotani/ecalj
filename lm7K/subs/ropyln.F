@@ -1,7 +1,3 @@
-Cdelw1 var ['ocm', '0', 'ocm', 'n', 'real(8)', 'rv_w_', 'ropyln']
-Cdelw1 var ['osm', '0', 'osm', 'n', 'real(8)', 'rv_w_', 'ropyln']
-Cdelw1 var ['oq', '0', 'oq', 'n*2', 'real(8)', 'rv_w_', 'ropyln']
-Cdelw1 var ['oh', '0', 'oh', 'n', 'real(8)', 'rv_w_', 'ropyln']
       subroutine ropyln(n,x,y,z,lmax,nd,yl,rsq)
 C- Normalized spheric harmonic polynomials (vectorizes).
 C ----------------------------------------------------------------------
@@ -22,12 +18,11 @@ Cu Updates
 Cu  25 Jun 03 (Kino) initialize cx to zero
 C ----------------------------------------------------------------------
 C     implicit none
-Cdelw1       integer nd,n,i,m,lmax,l,kk,ocm,osm,oq,oh
       integer:: nd , n , i , m , lmax , l , kk
-      real(8) ,allocatable :: rv_w_ocm(:)
-      real(8) ,allocatable :: rv_w_osm(:)
-      real(8) ,allocatable :: rv_w_oq(:)
-      real(8) ,allocatable :: rv_w_oh(:)
+      real(8) ,allocatable :: cm_rv(:)
+      real(8) ,allocatable :: sm_rv(:)
+      real(8) ,allocatable :: q_rv(:)
+      real(8) ,allocatable :: h_rv(:)
 
       double precision x(1),y(1),z(1),yl(nd,1),rsq(1),cx(3)
       double precision fpi,f2m
@@ -37,21 +32,17 @@ Cdelw1       integer nd,n,i,m,lmax,l,kk,ocm,osm,oq,oh
 C     call tcn('ropyln')
       if (n .gt. nd) call rx('ropyln: nd too small')
       fpi = 16*datan(1d0)
-Cdelw1       call defrr(ocm,  n)
-      allocate(rv_w_ocm(n))
-Ctakao_ZeroClear_NotRequiered        if (n<0) rv_w_ocm(:)=0.0d0
+      allocate(cm_rv(n))
+Ctakao_ZeroClear_NotRequiered        if (n<0) cm_rv(:)=0.0d0
 
-Cdelw1       call defrr(osm,  n)
-      allocate(rv_w_osm(n))
-Ctakao_ZeroClear_NotRequiered        if (n<0) rv_w_osm(:)=0.0d0
+      allocate(sm_rv(n))
+Ctakao_ZeroClear_NotRequiered        if (n<0) sm_rv(:)=0.0d0
 
-Cdelw1       call defrr(oq,   n*2)
-      allocate(rv_w_oq(n*2))
-Ctakao_ZeroClear_NotRequiered        if (n*2<0) rv_w_oq(:)=0.0d0
+      allocate(q_rv(n*2))
+Ctakao_ZeroClear_NotRequiered        if (n*2<0) q_rv(:)=0.0d0
 
-Cdelw1       call defrr(oh,   n)
-      allocate(rv_w_oh(n))
-Ctakao_ZeroClear_NotRequiered        if (n<0) rv_w_oh(:)=0.0d0
+      allocate(h_rv(n))
+Ctakao_ZeroClear_NotRequiered        if (n<0) h_rv(:)=0.0d0
 
       do  2  i = 1, n
         rsq(i) = x(i)*x(i)+y(i)*y(i)+z(i)*z(i)
@@ -63,8 +54,7 @@ Ctakao_ZeroClear_NotRequiered        if (n<0) rv_w_oh(:)=0.0d0
 C --- Loop over m: cx are normalizations for l, l-1, l-2 ---
       f2m = 1d0
       do  10  m = 0, lmax
-Cdelw1       call ropcsm(m,n,x,y,w(oh),w(ocm),w(osm))
-        call ropcsm ( m , n , x , y , rv_w_oh , rv_w_ocm , rv_w_osm )
+        call ropcsm ( m , n , x , y , h_rv , cm_rv , sm_rv )
 
         if (m .eq. 0) then
           cx(1) = dsqrt(1/fpi)
@@ -73,11 +63,9 @@ Cdelw1       call ropcsm(m,n,x,y,w(oh),w(ocm),w(osm))
           cx(1) = dsqrt((2*m+1)*2/fpi/f2m)
         endif
         do  11  l = m, lmax
-Cdelw1         call ropqln(m,l,n,rsq,z,cx,w(oq),kk)
-          call ropqln ( m , l , n , rsq , z , cx , rv_w_oq , kk )
+          call ropqln ( m , l , n , rsq , z , cx , q_rv , kk )
 
-Cdelw1         call ropynx(m,l,kk,n,w(oq),w(ocm),w(osm),nd,yl)
-          call ropynx ( m , l , kk , n , rv_w_oq , rv_w_ocm , rv_w_osm 
+          call ropynx ( m , l , kk , n , q_rv , cm_rv , sm_rv 
      .   , nd , yl )
 
           cx(3) = cx(2)
@@ -85,18 +73,12 @@ Cdelw1         call ropynx(m,l,kk,n,w(oq),w(ocm),w(osm),nd,yl)
           cx(1) = cx(1)*dsqrt(dble((l+1-m)*(2*l+3))/dble((l+1+m)*(2*l+1)))
    11   continue
    10 continue
-Cdelw1 rlse name= ocm old_list= ocm osm oq oh
-Cdelw1 rlse name= ocm new_list= (None)
-Cdelw1       call rlse(ocm)
-      if (allocated(rv_w_oh)) deallocate(rv_w_oh)
-      if (allocated(rv_w_oq)) deallocate(rv_w_oq)
-      if (allocated(rv_w_osm)) deallocate(rv_w_osm)
-      if (allocated(rv_w_ocm)) deallocate(rv_w_ocm)
+      if (allocated(h_rv)) deallocate(h_rv)
+      if (allocated(q_rv)) deallocate(q_rv)
+      if (allocated(sm_rv)) deallocate(sm_rv)
+      if (allocated(cm_rv)) deallocate(cm_rv)
 
 C     call tcx('ropyln')
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 C     Separate subroutines below to avoid problems with some
 C     optimizing compilers.
@@ -216,9 +198,6 @@ C     print *, ylok(1,2)
 
       print 335, tops
   335 format(' max error for ylm:',1pe12.2)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine makr(rsm,nr,x,y,z)
       implicit none
@@ -236,9 +215,6 @@ Cdelw1 w_varlist (del), remains: (None)
         z(i) = (ran1()-.5d0)*5*rs
    10 continue
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 #endif
 

@@ -1918,7 +1918,7 @@ c      end interface struc_eval_io
 C        write(*,*) 'uarray_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 32
+      n=-9999 !n= 32
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -1947,7 +1947,7 @@ C         n=n+2
 C        write(*,*) 'ubz_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 47
+      n=-9999 !n= 47
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -1976,7 +1976,7 @@ C         n=n+2
 C        write(*,*) 'uctrl_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 88
+      n=-9999 !n= 88
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2005,7 +2005,7 @@ C         n=n+2
 C        write(*,*) 'ugw_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 22
+      n=-9999 !n= 22
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2034,7 +2034,7 @@ C         n=n+2
 C        write(*,*) 'uham_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 129
+      n=-9999 !n= 129
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2063,7 +2063,7 @@ C         n=n+2
 C        write(*,*) 'ulat_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 120
+      n=-9999 !n= 120
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2092,7 +2092,7 @@ C         n=n+2
 C        write(*,*) 'umix_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 36
+      n=-9999 !n= 36
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2121,7 +2121,7 @@ C         n=n+2
 C        write(*,*) 'umove_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 34
+      n=-9999 !n= 34
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2150,7 +2150,7 @@ C         n=n+2
 C        write(*,*) 'uoptic_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 33
+      n=-9999 !n= 33
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2179,7 +2179,7 @@ C         n=n+2
 C        write(*,*) 'uordn_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 13
+      n=-9999 !n= 13
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2208,7 +2208,7 @@ C         n=n+2
 C        write(*,*) 'upot_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 63
+      n=-9999 !n= 63
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2237,7 +2237,7 @@ C         n=n+2
 C        write(*,*) 'usite_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 86
+      n=-9999 !n= 86
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2266,7 +2266,7 @@ C         n=n+2
 C        write(*,*) 'uspec_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 352
+      n=-9999 !n= 352
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2295,7 +2295,7 @@ C         n=n+2
 C        write(*,*) 'ustr_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 46
+      n=-9999 !n= 46
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128
@@ -2324,7 +2324,7 @@ C         n=n+2
 C        write(*,*) 'utb_size=',n
 #else  /* MPIADDRESS*/
       integer:: n
-      n= 10
+      n=-9999 !n= 10
 C  +2 is margin
 C         n=n+2
 #ifdef ALIGNMENT128

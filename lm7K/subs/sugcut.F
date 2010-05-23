@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['sugcut', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['sugcut', 'm_struc_def']
       subroutine sugcut(mode,nspec,sspec,alat,ng,gv,tol)
 
       use m_struc_def  !Cgetarg
@@ -32,7 +30,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nspec,ng
-Cgetarg       double precision sspec(1),alat,gv(ng,3),tol
       real(8):: alat , gv(ng,3) , tol
       type(s_spec)::sspec(*)
 
@@ -65,7 +62,6 @@ C ... Local parameters
 
       gg = -1
       do  is = 1, nspec
-Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
         enddo
@@ -79,8 +75,6 @@ Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
           nkap2 = nkapi
         endif
         call iinit(ncut,n0*nkap0)
-Cgetarg...info...           integer :: ncut(n0,nkap0) , integer(8) :: sspec%ngcut 30
-Cgetarg         if (mode .eq. 2) call upack('spec ngcut',sspec,is,ncut,0,0,0)
         if ( mode .eq. 2 ) then
 
           i_copy_size=size(sspec(is)%ngcut)
@@ -132,14 +126,11 @@ C     ... Find first longer vector, icut is one less
             endif
           enddo
         enddo
-Cgetarg...info...           integer :: ncut(n0,nkap0) , integer(8) :: sspec%ngcut 30
-Cgetarg         call pack2('spec ngcut',sspec,is,ncut)
 
         i_copy_size=size(sspec(is)%ngcut)
         call ii8copy(i_copy_size,ncut,1,sspec(is)%ngcut,1)
 
       enddo
-Cgetarg       end
       end subroutine sugcut
 
 

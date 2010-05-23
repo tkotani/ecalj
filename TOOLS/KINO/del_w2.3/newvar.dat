@@ -1,0 +1,183 @@
+var oifbls 1 oifbls -ndham*nspc*2 integer iv_w_ bndfp 
+var oqmom 0 oqmom nvl real(8) rv_w_ bndfp 
+var ogpot0 0 ogpot0 nvl real(8) rv_w_ bndfp 
+var ovval 0 ovval nchan real(8) rv_w_ bndfp 
+var ohab 0 ohab nab*n0*nsp*nbas real(8) rv_w_ bndfp 
+var ovab 0 ovab nab*n0*nsp*nbas real(8) rv_w_ bndfp 
+var osab 0 osab nab*n0*nsp*nbas real(8) rv_w_ bndfp 
+var oppnl 0 oppnl nppn*n0*nsp*nbas real(8) rv_w_ bndfp 
+var ofes1 0 ofes1 3*nbas real(8) rv_w_ bndfp 
+var osmrho -1 undef 0 undef x bndfp 
+var oorhat -1 undef 0 undef x bndfp 
+var osmpot -1 undef 0 undef x bndfp 
+var oeomin 2 oeomin nsp*nkp real(8) rv_w_ bndfp 
+var odos 0 odos ndos*2*nsp real(8) rv_w_ bndfp 
+var osrout 1 osrout k1*k2*k3*numq*nsp complex(8) zv_w_ bndfp 
+var ofh 1 ofh 3*nbas real(8) rv_w_ bndfp 
+var ofes2 1 ofes2 3*nbas real(8) rv_w_ bndfp 
+var oausc 1 oausc -3*nlmax*ndham*nsites*nsp*nkp complex(8) zv_w_ bndfp 
+var oswtk -1 undef 0 undef x bndfp 
+var ochan 2 ochan nchmx integer iv_w_ bndfp 
+var oausp 2 oausp i complex(8) zv_w_ bndfp 
+var oqp 1 oqp 3*nkp real(8) rv_w_ bndfp 
+var oevl 1 oevl ndham*nsp*nkp real(8) rv_w_ bndfp 
+var oorbtm 1 oorbtm -nl*nsp*nbas real(8) rv_w_ bndfp 
+var oidxsh -1 undef 0 undef x bndfp 
+var opos -1 undef 0 undef x bndfp 
+var oigv2 4 oigv2 3*napw integer iv_w_ bndfp 
+var okv 4 okv 3*napw integer iv_w_ bndfp 
+var oqsig -1 undef 0 undef x bndfp 
+var ot 4 ot ndimhx**2 complex(8) zv_w_ bndfp 
+var oww 5 oww ndimhx**2*2 real(8) rv_w_ bndfp 
+var owtkp -1 undef 0 undef x bndfp 
+var owtkb -1 undef 0 undef x bndfp 
+var oauso 5 oauso -nlmax*ndhamx*3*nsp*nbas complex(8) zv_w_ bndfp 
+var odoswt 7 odoswt -nchan*nevmx*nspc real(8) rv_w_ bndfp 
+var oiprmb -1 undef 0 undef x bndfp 
+var oausu 6 oausu -2*nlmax*ndhamx*3*nsp*nbas real(8) rv_w_ bndfp 
+var oips 1 oips nbas integer iv_w_ bndfp 
+var oidtet -1 undef 0 undef x bndfp 
+var oqbyl 0 oqbyl n0*nbas*nsp real(8) rv_w_ bndfp 
+var ohbyl 0 ohbyl n0*nbas*nsp real(8) rv_w_ bndfp 
+var oqm1 1 oqm1 nvl real(8) rv_w_ bndfp 
+var oqm2 1 oqm2 nvl real(8) rv_w_ bndfp 
+var obuf 0 obuf ndham*nkp*nsp real(8) rv_w_ xmpbnd 
+undel osmrho bndfp undef wref
+undel oorhat bndfp undef wref
+undel osmpot bndfp undef wref
+undel oswtk bndfp undef wref
+undel oidxsh bndfp undef wref
+undel opos bndfp undef wref
+undel oqsig bndfp undef wref
+undel owtkp bndfp undef wref
+undel owtkb bndfp undef wref
+undel oiprmb bndfp undef wref
+undel oidtet bndfp undef wref
+undel oigv2 bndfp wref
+undel oqkkl bndfp call
+undel oeqkkl bndfp call
+undel oqp bndfp wref
+undel oevl bndfp wref
+change enable bndfp
+var oifbls 1 oifbls -ndham*nspc*2 integer iv_w_ bndfp 
+var oqmom 0 oqmom nvl real(8) rv_w_ bndfp 
+var ogpot0 0 ogpot0 nvl real(8) rv_w_ bndfp 
+var ovval 0 ovval nchan real(8) rv_w_ bndfp 
+var ohab 0 ohab nab*n0*nsp*nbas real(8) rv_w_ bndfp 
+var ovab 0 ovab nab*n0*nsp*nbas real(8) rv_w_ bndfp 
+var osab 0 osab nab*n0*nsp*nbas real(8) rv_w_ bndfp 
+var oppnl 0 oppnl nppn*n0*nsp*nbas real(8) rv_w_ bndfp 
+var ofes1 0 ofes1 3*nbas real(8) rv_w_ bndfp 
+var osmrho -1 undef 0 undef x bndfp 
+var oorhat -1 undef 0 undef x bndfp 
+var osmpot -1 undef 0 undef x bndfp 
+var oeomin 2 oeomin nsp*nkp real(8) rv_w_ bndfp 
+var odos 0 odos ndos*2*nsp real(8) rv_w_ bndfp 
+var osrout 1 osrout k1*k2*k3*numq*nsp complex(8) zv_w_ bndfp 
+var ofh 1 ofh 3*nbas real(8) rv_w_ bndfp 
+var ofes2 1 ofes2 3*nbas real(8) rv_w_ bndfp 
+var oausc 1 oausc -3*nlmax*ndham*nsites*nsp*nkp complex(8) zv_w_ bndfp 
+var oswtk -1 undef 0 undef x bndfp 
+var ochan 2 ochan nchmx integer iv_w_ bndfp 
+var oausp 2 oausp i complex(8) zv_w_ bndfp 
+var oqp 1 oqp 3*nkp real(8) rv_w_ bndfp 
+var oevl 1 oevl ndham*nsp*nkp real(8) rv_w_ bndfp 
+var oorbtm 1 oorbtm -nl*nsp*nbas real(8) rv_w_ bndfp 
+var oidxsh -1 undef 0 undef x bndfp 
+var opos -1 undef 0 undef x bndfp 
+var oigv2 4 oigv2 3*napw integer iv_w_ bndfp 
+var okv 4 okv 3*napw integer iv_w_ bndfp 
+var oqsig -1 undef 0 undef x bndfp 
+var ot 4 ot ndimhx**2 complex(8) zv_w_ bndfp 
+var oww 5 oww ndimhx**2*2 real(8) rv_w_ bndfp 
+var owtkp -1 undef 0 undef x bndfp 
+var owtkb -1 undef 0 undef x bndfp 
+var oauso 5 oauso -nlmax*ndhamx*3*nsp*nbas complex(8) zv_w_ bndfp 
+var odoswt 7 odoswt -nchan*nevmx*nspc real(8) rv_w_ bndfp 
+var oiprmb -1 undef 0 undef x bndfp 
+var oausu 6 oausu -2*nlmax*ndhamx*3*nsp*nbas real(8) rv_w_ bndfp 
+var oips 1 oips nbas integer iv_w_ bndfp 
+var oidtet -1 undef 0 undef x bndfp 
+var oqbyl 0 oqbyl n0*nbas*nsp real(8) rv_w_ bndfp 
+var ohbyl 0 ohbyl n0*nbas*nsp real(8) rv_w_ bndfp 
+var oqm1 1 oqm1 nvl real(8) rv_w_ bndfp 
+var oqm2 1 oqm2 nvl real(8) rv_w_ bndfp 
+var obuf 0 obuf ndham*nkp*nsp real(8) rv_w_ xmpbnd 
+undel osmrho bndfp undef wref
+undel oorhat bndfp undef wref
+undel osmpot bndfp undef wref
+undel oswtk bndfp undef wref
+undel oidxsh bndfp undef wref
+undel opos bndfp undef wref
+undel oqsig bndfp undef wref
+undel owtkp bndfp undef wref
+undel owtkb bndfp undef wref
+undel oiprmb bndfp undef wref
+undel oidtet bndfp undef wref
+undel oigv2 bndfp wref
+undel oqkkl bndfp call
+undel oeqkkl bndfp call
+undel oqp bndfp wref
+undel oevl bndfp wref
+change enable xmpbnd
+var oifbls 1 oifbls -ndham*nspc*2 integer iv_w_ bndfp 
+var oqmom 0 oqmom nvl real(8) rv_w_ bndfp 
+var ogpot0 0 ogpot0 nvl real(8) rv_w_ bndfp 
+var ovval 0 ovval nchan real(8) rv_w_ bndfp 
+var ohab 0 ohab nab*n0*nsp*nbas real(8) rv_w_ bndfp 
+var ovab 0 ovab nab*n0*nsp*nbas real(8) rv_w_ bndfp 
+var osab 0 osab nab*n0*nsp*nbas real(8) rv_w_ bndfp 
+var oppnl 0 oppnl nppn*n0*nsp*nbas real(8) rv_w_ bndfp 
+var ofes1 0 ofes1 3*nbas real(8) rv_w_ bndfp 
+var osmrho -1 undef 0 undef x bndfp 
+var oorhat -1 undef 0 undef x bndfp 
+var osmpot -1 undef 0 undef x bndfp 
+var oeomin 2 oeomin nsp*nkp real(8) rv_w_ bndfp 
+var odos 0 odos ndos*2*nsp real(8) rv_w_ bndfp 
+var osrout 1 osrout k1*k2*k3*numq*nsp complex(8) zv_w_ bndfp 
+var ofh 1 ofh 3*nbas real(8) rv_w_ bndfp 
+var ofes2 1 ofes2 3*nbas real(8) rv_w_ bndfp 
+var oausc 1 oausc -3*nlmax*ndham*nsites*nsp*nkp complex(8) zv_w_ bndfp 
+var oswtk -1 undef 0 undef x bndfp 
+var ochan 2 ochan nchmx integer iv_w_ bndfp 
+var oausp 2 oausp i complex(8) zv_w_ bndfp 
+var oqp 1 oqp 3*nkp real(8) rv_w_ bndfp 
+var oevl 1 oevl ndham*nsp*nkp real(8) rv_w_ bndfp 
+var oorbtm 1 oorbtm -nl*nsp*nbas real(8) rv_w_ bndfp 
+var oidxsh -1 undef 0 undef x bndfp 
+var opos -1 undef 0 undef x bndfp 
+var oigv2 4 oigv2 3*napw integer iv_w_ bndfp 
+var okv 4 okv 3*napw integer iv_w_ bndfp 
+var oqsig -1 undef 0 undef x bndfp 
+var ot 4 ot ndimhx**2 complex(8) zv_w_ bndfp 
+var oww 5 oww ndimhx**2*2 real(8) rv_w_ bndfp 
+var owtkp -1 undef 0 undef x bndfp 
+var owtkb -1 undef 0 undef x bndfp 
+var oauso 5 oauso -nlmax*ndhamx*3*nsp*nbas complex(8) zv_w_ bndfp 
+var odoswt 7 odoswt -nchan*nevmx*nspc real(8) rv_w_ bndfp 
+var oiprmb -1 undef 0 undef x bndfp 
+var oausu 6 oausu -2*nlmax*ndhamx*3*nsp*nbas real(8) rv_w_ bndfp 
+var oips 1 oips nbas integer iv_w_ bndfp 
+var oidtet -1 undef 0 undef x bndfp 
+var oqbyl 0 oqbyl n0*nbas*nsp real(8) rv_w_ bndfp 
+var ohbyl 0 ohbyl n0*nbas*nsp real(8) rv_w_ bndfp 
+var oqm1 1 oqm1 nvl real(8) rv_w_ bndfp 
+var oqm2 1 oqm2 nvl real(8) rv_w_ bndfp 
+var obuf 0 obuf ndham*nkp*nsp real(8) rv_w_ xmpbnd 
+undel osmrho bndfp undef wref
+undel oorhat bndfp undef wref
+undel osmpot bndfp undef wref
+undel oswtk bndfp undef wref
+undel oidxsh bndfp undef wref
+undel opos bndfp undef wref
+undel oqsig bndfp undef wref
+undel owtkp bndfp undef wref
+undel owtkb bndfp undef wref
+undel oiprmb bndfp undef wref
+undel oidtet bndfp undef wref
+undel oigv2 bndfp wref
+undel oqkkl bndfp call
+undel oeqkkl bndfp call
+undel oqp bndfp wref
+undel oevl bndfp wref
+change enable xxxbfp

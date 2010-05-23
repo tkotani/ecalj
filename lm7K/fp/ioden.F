@@ -1,16 +1,3 @@
-Cdelw1 var ['oz', '0', 'oz', 'nbas', 'real(8)', 'rv_w_', 'ioden']
-Cdelw1 var ['opos', '-1', 'undef', '0', 'undef', 'x', 'ioden']
-Cdelw1 var ['opsrho', '0', 'opsrho', 'kkk*nsp', 'complex(8)', 'zv_w_', 'ioden']
-Cdelw1 var ['ocn', '0', 'ocn', 'ng*nsp', 'complex(8)', 'zv_w_', 'ioden']
-Cdelw1 var ['okv', '-1', 'undef', '0', 'undef', 'x', 'ioden']
-Cdelw1 var ['owk', '0', 'owk', 'nwk**2*nsp', 'complex(8)', 'zv_w_', 'ioden']
-Cdelw1 undel [['undef', 'wref'], 'opos', 'ioden']
-Cdelw1 undel [['undef', 'wref'], 'okv', 'ioden']
-Cdelw1 undel [['wref'], 'oz', 'ioden']
-Cgetarg...info...           structure ['ioden', 'lat', 'slat']
-Cgetarg...info...           structure ['ioden', 'site', 'ssite']
-Cgetarg...info...           structure ['ioden', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['ioden', 'm_struc_def']
       subroutine ioden(sopts,slat,ssite,sspec,orhat,smrho)
 
       use m_struc_def  !Cgetarg
@@ -115,7 +102,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       character*(*) sopts
-Cgetarg       double precision slat(1),ssite(1),sspec(1)
       type(s_lat)::slat
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -125,14 +111,10 @@ Cgetarg       double precision slat(1),ssite(1),sspec(1)
 C ... Local parameters
       integer ngabc(3),n1,n2,n3,k1,k2,k3,kmax
       integer kkk,lgunit,ng,nglob,nsp,nwk,stdo,modrhg,nbas,i
-Cdelw1 do not change  [['undef', 'wref'], 'okv', 'ioden']
-Cdelw1 do not change  [['undef', 'wref'], 'opos', 'ioden']
-Cdelw1 do not change  [['wref'], 'oz', 'ioden']
-Cdelw1       integer ocn,okv,opsrho,owk,opos,oz
       integer:: okv , opos , oz
-      complex(8) ,allocatable :: zv_w_ocn(:)
-      complex(8) ,allocatable :: zv_w_opsrho(:)
-      complex(8) ,allocatable :: zv_w_owk(:)
+      complex(8) ,allocatable :: cn_zv(:)
+      complex(8) ,allocatable :: psrho_zv(:)
+      complex(8) ,allocatable :: wk_zv(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision vol,xx0,xx,dval,plat(3,3),alat
@@ -149,43 +131,24 @@ C ... Unpack and setup
       nsp = nglob('nsp')
       nbas = nglob('nbas')
       stdo = lgunit(1)
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
-Cgetarg...info...           integer :: ng , integer(8) :: slat%ng 1
-Cgetarg...info...           integer :: okv , integer(8) :: slat%okv 1
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg       call upack('lat plat nabc ng okv vol',slat,plat,ngabc,ng,okv,vol)
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 147
-Cdelw1 do not change okv because of ['undef', 'wref']
       okv=slat%okv
       vol=slat%vol
 
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
-Cgetarg       call upack2('lat alat opos',slat,alat,opos)
 
       alat=slat%alat
-Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 155
-Cdelw1 do not change opos because of ['undef', 'wref']
       opos=slat%opos
 
-Cdelw1 do not change oz because of ['wref']
       call defrr(oz,nbas)
       do ib = 1,nbas
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg         call upack('spec z',sspec,is,w(oz-2+ib*2),0,0,0)
 
-Cdelw1 2 is digit, dropped
-Cdelw1 2 is digit, dropped
-Cdelw1 do not change oz because of ['wref']
         w(oz-2+ib*2)=sspec(is)%z
 
       enddo
@@ -193,9 +156,6 @@ Cdelw1 do not change oz because of ['wref']
       kkk = k1*k2*k3
       kmax = 3
       modrhg = 2
-Cdelw1 do not change oz because of ['wref']
-Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 171
-Cdelw1 do not change opos because of ['undef', 'wref']
       call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),w(oz),k1,k2,k3,
      .ngabc,w,w,nwk,modrhg)
       call isanrg(modrhg,-3,2,'ioden','core option',.true.)
@@ -206,31 +166,21 @@ C ... Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
       endif
 
 C ... Put n0(G) into psrho and cn
-Cdelw1       call defcc(opsrho, kkk*nsp)
-      allocate(zv_w_opsrho(kkk*nsp))
-Ctakao_ZeroClear_NotRequiered        if (kkk*nsp<0) zv_w_opsrho(:)=0.0d0
+      allocate(psrho_zv(kkk*nsp))
+Ctakao_ZeroClear_NotRequiered        if (kkk*nsp<0) psrho_zv(:)=0.0d0
 
-Cdelw1       call defcc(ocn, ng*nsp)
-      allocate(zv_w_ocn(ng*nsp))
-Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) zv_w_ocn(:)=0.0d0
+      allocate(cn_zv(ng*nsp))
+Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cn_zv(:)=0.0d0
 
-Cdelw1       call dcopy(kkk*2*nsp,smrho,1,w(opsrho),1)
-      call dcopy ( kkk * 2 * nsp , smrho , 1 , zv_w_opsrho , 1 )
+      call dcopy ( kkk * 2 * nsp , smrho , 1 , psrho_zv , 1 )
 
-Cdelw1       call fftz3(w(opsrho),n1,n2,n3,k1,k2,k3,nsp,0,-1)
-      call fftz3 ( zv_w_opsrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
+      call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
      . , 0 , - 1 )
 
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 185
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 185
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1       call gvgetf(ng,nsp,w(okv),k1,k2,k3,w(opsrho),w(ocn))
-      call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , zv_w_opsrho 
-     . , zv_w_ocn )
+      call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , psrho_zv 
+     . , cn_zv )
 
-Cdelw1       xx0 = dval(w(ocn),1)
-      xx0 = dval ( zv_w_ocn , 1 )
+      xx0 = dval ( cn_zv , 1 )
 
 
 C ... Add sum of local gaussian densities to mesh density
@@ -241,36 +191,26 @@ C ... Add sum of local gaussian densities to mesh density
         if (modrhg .eq.  2) i =   1
         if (modrhg .eq. -2) i =   2
         if (modrhg .eq. -3) i =   3
-Cdelw1         if (i .eq. 2) call dscal(ng*nsp*2,0d0,w(ocn),1)
-        if ( i .eq. 2 ) call dscal ( ng * nsp * 2 , 0d0 , zv_w_ocn , 
+        if ( i .eq. 2 ) call dscal ( ng * nsp * 2 , 0d0 , cn_zv , 
      .   1 )
 
-Cdelw1         if (i .eq. 3) call dscal(ng*nsp*2,-1d0,w(ocn),1)
-        if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , zv_w_ocn 
+        if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
      .   , 1 )
 
-Cdelw1         call rhgcmp(i,1,nbas,ssite,sspec,slat,orhat,kmax,ng,w(ocn))
         call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , orhat , kmax 
-     .   , ng , zv_w_ocn )
+     .   , ng , cn_zv )
 
-Cdelw1         if (i .eq. 3) call dscal(ng*nsp*2,-1d0,w(ocn),1)
-        if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , zv_w_ocn 
+        if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
      .   , 1 )
 
       endif
-Cdelw1       xx = dval(w(ocn),1)
-      xx = dval ( zv_w_ocn , 1 )
+      xx = dval ( cn_zv , 1 )
 
 
 C ... FFT (n0 + gaussians) (G) to real-space mesh
       if (modrhg .ge. 0) then
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 205
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  okv  is not defined yet at linenumber= 205
-Cdelw1 do not change okv because of ['undef', 'wref']
-Cdelw1       call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocn),w(opsrho))
-        call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , zv_w_ocn 
-     . , zv_w_opsrho )
+        call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cn_zv 
+     . , psrho_zv )
 
         call awrit2('%N ioden : local densities + envelope density,'
      .  //' Qloc=%,6;6d  Q=%,6;6d',' ',80,stdo,(xx-xx0)*vol,xx*vol)
@@ -290,45 +230,25 @@ Cdelw1       call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocn),w(opsrho))
      .    ' (no local densities added) Qsm=%,6;6d',xx0*vol,0)
       endif
 
-Cdelw1       call fftz3(w(opsrho),n1,n2,n3,k1,k2,k3,nsp,0,1)
-      call fftz3 ( zv_w_opsrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
+      call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
      . , 0 , 1 )
 
 
-Cdelw1 rlse name= ocn old_list= oz opsrho ocn
-Cdelw1 rlse name= ocn new_list= oz opsrho
-Cdelw1       call rlse(ocn)
-      if (allocated(zv_w_ocn)) deallocate(zv_w_ocn)
+      if (allocated(cn_zv)) deallocate(cn_zv)
 
 
 C ... File I/O
       nwk = 12*max(k1,k2,k3)
-Cdelw1       call defcc(owk,nwk**2*nsp)
-      allocate(zv_w_owk(nwk**2*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nwk**2*nsp<0) zv_w_owk(:)=0.0d0
+      allocate(wk_zv(nwk**2*nsp))
+Ctakao_ZeroClear_NotRequiered        if (nwk**2*nsp<0) wk_zv(:)=0.0d0
 
-Cdelw1 do not change oz because of ['wref']
-Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 231
-Cdelw1 do not change opos because of ['undef', 'wref']
-Cdelw1 do not change oz because of ['wref']
-Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 231
-Cdelw1 do not change opos because of ['undef', 'wref']
-Cdelw1       call ioden2(1,sopts,nsp,plat,alat,nbas,w(opos),w(oz),k1,k2,k3,
-Cdelw1      .ngabc,w(opsrho),w(owk),nwk,modrhg)
       call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , w ( opos 
-     . ) , w ( oz ) , k1 , k2 , k3 , ngabc , zv_w_opsrho , zv_w_owk 
+     . ) , w ( oz ) , k1 , k2 , k3 , ngabc , psrho_zv , wk_zv 
      . , nwk , modrhg )
 
-Cdelw1 rlse name= opsrho old_list= oz opsrho owk
-Cdelw1 rlse name= opsrho new_list= oz
-Cdelw1       call rlse(opsrho)
-      if (allocated(zv_w_owk)) deallocate(zv_w_owk)
-      if (allocated(zv_w_opsrho)) deallocate(zv_w_opsrho)
+      if (allocated(wk_zv)) deallocate(wk_zv)
+      if (allocated(psrho_zv)) deallocate(psrho_zv)
 
-Cdelw1 rlse name= oz old_list= oz
-Cdelw1 rlse name= oz new_list= (None)
-Cdelw1 not deallocate oz because of [wref]
-Cdelw1       call rlse(oz)
       call rlse(oz)
 
 
@@ -336,11 +256,6 @@ C ... Restore smrho+, smrho-
       if (nsp .eq. 2) then
         call dsumdf(kkk*2,.5d0,smrho,0,1,smrho(1+kkk),0,1)
       endif
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [opos okv oz]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine ioden
 
 
@@ -461,9 +376,6 @@ C         call isanrg(iv,1,2,' ','iv in ioden ... bug ..',.true.)
           goto 10
         endif
       endif
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (mode .eq. 0) return
 
 C --- Printout ---
@@ -498,9 +410,6 @@ C     .     k1,k2,k3,isp)
           write(ifi,'("END_BLOCK_DATAGRID_3D")')
         enddo
         call fclose(ifi)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         return
       else
         call awrit3('         Writing smooth density to file '//fn//
@@ -577,19 +486,12 @@ C --- Write the file ---
      .    lic(4,2))
         enddo
         call fclose(ifi)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         return
       endif
 
    99 continue
       call rxs('ioden: failed to parse option ... ',sopts(j1:j2))
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine ioden2
 
 

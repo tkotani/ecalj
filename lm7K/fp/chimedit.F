@@ -1,12 +1,3 @@
-Cdelw1 var ['opos', '-1', 'undef', '0', 'undef', 'x', 'chimedit']
-Cdelw1 var ['ogstar', '2', 'ogstar', '-mxkp-1', 'integer', 'iv_w_', 'chimedit']
-Cdelw1 var ['owgt', '2', 'owgt', '-mxkp', 'real(8)', 'rv_w_', 'chimedit']
-Cdelw1 var ['og', '-1', 'undef', '0', 'undef', 'x', 'chimedit']
-Cdelw1 undel [['undef', 'wref'], 'opos', 'chimedit']
-Cdelw1 undel [['undef', 'wref'], 'og', 'chimedit']
-Cgetarg...info...           structure ['chimedit', 'lat', 'slat']
-Cgetarg...info...           structure ['chimedit', 'bz', 'sbz']
-Cgetarg...info...           use_to_add ['chimedit', 'm_struc_def']
       subroutine chimedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
      .  nbas,nat,nspec)
 
@@ -111,7 +102,6 @@ C ... Passed parameters
       character sopts*(*)
       integer mode,nbas,nat,nspec,ifi,n0
       parameter (n0=10)
-Cgetarg       double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
       type(s_ctrl)::sctrl
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -127,12 +117,9 @@ C ... Local parameters
       integer nkxyz(3),mxkp,nk1,nk2,nk3,k1,k2,k3
       equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer nmag,nmagf,magat(100),magatf(100),ix(10),nmbas
-Cdelw1 do not change  [['undef', 'wref'], 'opos', 'chimedit']
-Cdelw1 do not change  [['undef', 'wref'], 'og', 'chimedit']
-Cdelw1       integer opos,ogstar,owgt,oistab,og,oag
       integer:: opos , oistab , og , oag
-      integer ,allocatable :: iv_w_ogstar(:)
-      real(8) ,allocatable :: rv_w_owgt(:)
+      integer ,allocatable :: gstar_iv(:)
+      real(8) ,allocatable :: wgt_rv(:)
 
       double precision xx,qpi(3),ddot,plat(3,3),rb(3,3),qb(3,3),
      .  pos(3,nbas)
@@ -166,40 +153,23 @@ C ... Heap
      .  call rx('chim editor for only for magnetic systems')
 
 C --- Setup ---
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
-Cgetarg       call upack('lat plat opos',slat,plat,opos,0,0,0)
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
-Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 163
-Cdelw1 do not change opos because of ['undef', 'wref']
       opos=slat%opos
 
-Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
-Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
-Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
-Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
-Cgetarg       call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
-Cgetarg      .  oag,0)
 
       nsgrp=slat%nsgrp
       oistab=slat%oistab
-Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 174
-Cdelw1 do not change og because of ['undef', 'wref']
       og=slat%osymgr
       oag=slat%oag
 
 
 C     should be from sgw?
-Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
-Cgetarg       call upack('bz nkabc',sbz,nkxyz,0,0,0,0)
 
       i_copy_size=size(sbz%nkabc)
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
 
-Cdelw1 warning(1) , probably  opos  is not defined yet at linenumber= 185
-Cdelw1 do not change opos because of ['undef', 'wref']
       call dcopy(3*nbas,w(opos),1,pos,1)
       call pshpr(0)
       llshft = .false.
@@ -286,38 +256,26 @@ C ... Number of k-points
           mxkp = nk1*nk2*nk3
           if (allocated(qfbz)) deallocate(qfbz)
           allocate(qfbz(3,mxkp))
-Cdelw1           call defi(ogstar,-mxkp-1)
-          allocate(iv_w_ogstar(abs(-mxkp-1)))
-          if (-mxkp-1<0) iv_w_ogstar(:)=0
+          allocate(gstar_iv(abs(-mxkp-1)))
+          if (-mxkp-1<0) gstar_iv(:)=0
 
-Cdelw1           w(ogstar) = -2
-          iv_w_ogstar = - 2
+          gstar_iv = - 2
 
           if (allocated(ipq)) deallocate(ipq)
           allocate(ipq(nk1,nk2,nk3))
-Cdelw1           call defdr(owgt,-mxkp)
-          allocate(rv_w_owgt(abs(-mxkp)))
-          if (-mxkp<0) rv_w_owgt(:)=0.0d0
+          allocate(wgt_rv(abs(-mxkp)))
+          if (-mxkp<0) wgt_rv(:)=0.0d0
 
           call info0(20,1,0,' q-points in full BZ ...')
-Cdelw1           call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,ipq,
-Cdelw1      .      qfbz,w(owgt),nq,mxkp,0,0)
           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-     .     ipq , qfbz , rv_w_owgt , nq , mxkp , 0 , 0 )
+     .     ipq , qfbz , wgt_rv , nq , mxkp , 0 , 0 )
 
-Cdelw1           call dpzero(w(owgt),mxkp)
-          call dpzero ( rv_w_owgt , mxkp )
+          call dpzero ( wgt_rv , mxkp )
 
           call info2(20,0,0,' Irr. qp ...',0,0)
           allocate(qp(3,nq))
-Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 282
-Cdelw1 do not change og because of ['undef', 'wref']
-Cdelw1 warning(1) , probably  og  is not defined yet at linenumber= 282
-Cdelw1 do not change og because of ['undef', 'wref']
-Cdelw1           call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrp,ipq,
-Cdelw1      .      qp,w(owgt),nq,mxkp,w(ogstar),0)
           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
-     .     , nsgrp , ipq , qp , rv_w_owgt , nq , mxkp , iv_w_ogstar , 0 
+     .     , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 
      .     )
 
           lqp = 4
@@ -656,13 +614,8 @@ C ... help
      .  ' ... nothing done')
       goto 10
 
-Cgetarg       end
-Cdelw1 w_varlist remains: ogstar owgt
-Cdelw1 w_varlistundel: [opos og]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [ogstar owgt]
-      if (allocated(rv_w_owgt)) deallocate(rv_w_owgt)
-      if (allocated(iv_w_ogstar)) deallocate(iv_w_ogstar)
+      if (allocated(wgt_rv)) deallocate(wgt_rv)
+      if (allocated(gstar_iv)) deallocate(gstar_iv)
 
       end subroutine chimedit
 

@@ -1,7 +1,3 @@
-Cgetarg...info...           structure ['rdsigm', 'ham', 'sham']
-Cgetarg...info...           structure ['rdsigm', 'lat', 'slat']
-Cgetarg...info...           structure ['rdsigm', 'bz', 'sbz']
-Cgetarg...info...           use_to_add ['rdsigm', 'm_struc_def']
       module m_psigd
       contains
       subroutine psigd(mode,ndimh,sig,eval,sigp,n123,sigd, q,isp,iout,iprx)

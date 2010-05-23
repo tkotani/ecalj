@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['pvioeu', 'site', 'ssite']
-Cgetarg...info...           use_to_add ['pvioeu', 'm_struc_def']
       subroutine ioeula(nbas,nl,eula,neul,xsi,ifi)
 
 C- I/O of Euler angles
@@ -126,7 +124,6 @@ C   ... Read the data, 1 atom at a time ...
           if (ipr .ge. 50) call pvioeu(1,0d0,eula,nbas,neul)
         endif
       endif
-Cgetarg       end
       end subroutine ioeula
 
       subroutine pvioeu(mode,ssite,eula,nbas,neul)
@@ -159,7 +156,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nbas,neul
-Cgetarg       double precision eula(nbas,neul,3),ssite(1)
       real(8):: eula(nbas,neul,3)
       type(s_site)::ssite(*)
 
@@ -186,8 +182,9 @@ c        if (mode1 .eq. 0 .and. mode0 .ne. 0) assign 346 to lbl
      .  "11x,'z axis rotated to:')"
         lbll=formatc(lbl)
 
-        if (ssite(1)%size .eq. 0 .or. neul .gt. 1)  write(outs,trim(lbll))
-        if (ssite(1)%size .ne. 0 .and. neul .eq. 1) write(outs,trim(lbll)) 'class'
+        if ( neul .gt. 1)  write(outs,trim(lbll))
+c        if (ssite(1)%size .eq. 0 .or. neul .gt. 1)  write(outs,trim(lbll))
+c        if (ssite(1)%size .ne. 0 .and. neul .eq. 1) write(outs,trim(lbll)) 'class'
       endif
 c  344 format('   ib     alpha        beta       gamma':6x,a)
 c  345 format('   ib      bx          by          bz  ':6x,a)
@@ -200,13 +197,11 @@ c     .  11x,'z axis rotated to:')
       endif
       call awrit0(outs,' ',-len(outs),stdo)
       do  21  i = 1, nbas
-        if (ssite(1)%size .ne. 0) then
-Cgetarg           call spacks(0,'site clabel',ssite,clabl,i,i)
-          do i_spacks=i,i
-            call spacks_copy('u',ssite(i_spacks)%clabel,i,i,clabl,i_spacks)
-          enddo
-
-        endif
+c        if (ssite(1)%size .ne. 0) then
+c          do i_spacks=i,i
+c            call spacks_copy('u',ssite(i_spacks)%clabel,i,i,clabl,i_spacks)
+c          enddo
+c        endif
         if (neul .gt. 1 .and. mode0 .ne. 0) then
           if (clabl .eq. ' ') call awrit1('# site %,4i',' ',80,stdo,i)
           if (clabl .ne. ' ') call awrit1('# site %,4i  class '//clabl,
@@ -225,7 +220,6 @@ Cgetarg           call spacks(0,'site clabel',ssite,clabl,i,i)
         endif
    21 continue
 
-Cgetarg       end
       end subroutine pvioeu
 
 

@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['ovlpfa', 'lat', 'slat']
-Cgetarg...info...           structure ['ovlpfa', 'site', 'ssite']
-Cgetarg...info...           use_to_add ['ovlpfa', 'm_struc_def']
       subroutine ovlpfa(ssite,slat,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,
      .  gv,cv)
 
@@ -38,8 +35,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nxi(1),nxi0,ng,ngmx
-Cgetarg       double precision slat(1),ssite(1),gv(ngmx,3),rsmfa(1),exi(nxi0,1),
-Cgetarg      .  hfc(nxi0,2,1)
       real(8):: gv(ngmx,3) , rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1)
       type(s_lat)::slat
       type(s_site)::ssite(*)
@@ -67,9 +62,6 @@ C     integer ifi,fopna
       nsp  = nglob('nsp')
       pi   = 4d0*datan(1d0)
       y0   = 1d0/dsqrt(4*pi)
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg       call upack('lat alat vol',slat,alat,vol,0,0,0)
 
       alat=slat%alat
       vol=slat%vol
@@ -103,9 +95,6 @@ c      do  ib = 1, nbas
 #endif
 
       do ib=ibini,ibend
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos 3
-Cgetarg         call upack('site spec pos',ssite,ib,is,pos,0,0)
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pos)
@@ -169,7 +158,6 @@ C     call rx0('done')
      .  (cv(1,1)+cv(1,nsp))*vol/(3-nsp))
 
       call tcx('ovlpfa')
-Cgetarg       end
       end subroutine ovlpfa
 
 

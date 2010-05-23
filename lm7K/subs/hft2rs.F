@@ -1,12 +1,3 @@
-Cdelw1 var ['oiwk', '2', 'oiwk', '(niax+1)*mxcsiz', 'integer', 'iv_w_', 'hft2rs']
-Cdelw1 var ['o', '0', 'o', '1', 'real(8)', 'rv_w_', 'hft2r1']
-Cdelw1 var ['ogv', '2', 'ogv', 'ngmx*3', 'real(8)', 'rv_w_', 'hft2r1']
-Cdelw1 var ['okv', '2', 'okv', 'ngmx*3', 'integer', 'iv_w_', 'hft2r1']
-Cdelw1 var ['ortab', '2', 'ortab', '3*(is2-is1+1)', 'real(8)', 'rv_w_', 'hft2r1']
-Cdelw1 var ['oiax', '2', 'oiax', 'niax*nttab', 'integer', 'iv_w_', 'hft2rs']
-Cdelw1 var ['ontab', '-1', 'undef', '0', 'undef', 'x', 'hft2rs']
-Cdelw1 undel [['call', 'undef', 'wref', 'redef'], 'oiax', 'hft2rs']
-Cdelw1 undel [['call', 'undef', 'wref'], 'ontab', 'hft2rs']
       subroutine hft2rs(mode,n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
      .  nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,ontab,oiax,ndhrs,
      .  hrs)
@@ -160,16 +151,13 @@ C ... Passed parameters
       integer nkap0,n0H,niax
       parameter (nkap0=3,n0H=5,niax=10)
       integer offH(n0H,nkap0,1)
-Cdelw1 do not change  [['call', 'undef', 'wref', 'redef'], 'oiax', 'hft2rs']
-Cdelw1 do not change  [['call', 'undef', 'wref'], 'ontab', 'hft2rs']
       integer oiax,ontab
       double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*),qoff(3)
       double complex hq(k1,k2,k3,idim,jdim,nsp),hrs(ndhrs,ndhrs,nsp,1)
 C ... Local parameters
       integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,
      .  nvtot
-Cdelw1       integer oiwk
-      integer ,allocatable :: iv_w_oiwk(:)
+      integer ,allocatable :: iwk_iv(:)
 
       double precision dmx(2)
 #if DEBUG
@@ -201,10 +189,6 @@ C --- Mode 0 (setup) make and reduce iax table ---
 C   ... pair table for rs hamiltonian
         call pshpr(min(ipr-10,30))
         mxcsiz = 0
-Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 191
-Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 191
-Cdelw1 do not change ontab because of ['call', 'undef', 'wref']
         call pairs(nbas,nbas,1d0,plat,range/2,pos,
      .    -1,3,-1,w,nttab,ontab,oiax,mxcsiz)
         call poppr
@@ -215,10 +199,6 @@ C   ... Standard Bloch transform doesn't require mapping to mesh
 C     ... Mark all members in iax table with vector in sfz (for FFT)
           nviax = 0
           nvtot = 0
-Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 201
-Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 201
-Cdelw1 do not change ontab because of ['call', 'undef', 'wref']
           call hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,1,nbas,
      .      offH,idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,
      .      nviax,nvtot,dmx)
@@ -230,28 +210,15 @@ c        stop 'test end xxxxxxxxxxxxxxxxxxxxxx111222'
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C     ... Reduce iax table to elements on mesh in common with pairc
-Cdelw1           call defi(oiwk,(niax+1)*mxcsiz)
-          allocate(iv_w_oiwk((niax+1)*mxcsiz))
-Ctakao_ZeroClear_NotRequiered            if ((niax+1)*mxcsiz<0) iv_w_oiwk(:)=0
+          allocate(iwk_iv((niax+1)*mxcsiz))
+Ctakao_ZeroClear_NotRequiered            if ((niax+1)*mxcsiz<0) iwk_iv(:)=0
 
 C         nttabs = nttab
-Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 214
-Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 214
-Cdelw1 do not change ontab because of ['call', 'undef', 'wref']
-Cdelw1 warning(1) , probably  oiax  is not defined yet at linenumber= 214
-Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 214
-Cdelw1 do not change ontab because of ['call', 'undef', 'wref']
-Cdelw1           call hft2r3(1,nbas,w(oiwk),w(ontab),w(oiax),nttab,mxcsiz)
-          call hft2r3 ( 1 , nbas , iv_w_oiwk , w ( ontab ) , w ( oiax ) 
+          call hft2r3 ( 1 , nbas , iwk_iv , w ( ontab ) , w ( oiax ) 
      .     , nttab , mxcsiz )
 
 C         call hft2r3(1,nbas,w(oiwk),w(ontab),w(oiax),nttab,mxcsiz)
-Cdelw1 rlse name= oiwk old_list= oiwk
-Cdelw1 rlse name= oiwk new_list= (None)
-Cdelw1           call rlse(oiwk)
-          if (allocated(iv_w_oiwk)) deallocate(iv_w_oiwk)
+          if (allocated(iwk_iv)) deallocate(iwk_iv)
 
         endif
 
@@ -261,21 +228,14 @@ C   ... Add pairs so that any ri-rj has corresponding rj-ri
           if (mode3 .eq. 2) i = 111
 C         nttabs = nttab
           nttab = nttab*3
-Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
           call redfi(oiax,niax*nttab)
           call pshpr(ipr)
-Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 227
-Cdelw1 do not change ontab because of ['call', 'undef', 'wref']
           call symiax(i,plat,nbas,pos,g,ag,nsgrp,w(ontab),w(oiax),
      .      nttab,mxcsiz)
           call poppr
 
 C     ... Fill out iax(6,7,10)
           call pshpr(0)
-Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 233
-Cdelw1 do not change ontab because of ['call', 'undef', 'wref']
           call ppair1(0,1,nbas,nbas,-1,1d0,plat,pos,range/2,
      .      nttab,w(ontab),w(oiax),mxcsiz)
           call poppr
@@ -283,7 +243,6 @@ Cdelw1 do not change ontab because of ['call', 'undef', 'wref']
 
 
 C   ... iax is now complete ... reallocate array
-Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
         call redfi(oiax,niax*nttab)
 
 C       Printout of pairs table
@@ -291,9 +250,6 @@ C       ipr = 70
 C       call pshpr(ipr)
         if (ipr .gt. 40) then
           call pshpr(ipr-10)
-Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 247
-Cdelw1 do not change ontab because of ['call', 'undef', 'wref']
           call ppair1(20,1,nbas,nbas,-1,1d0,plat,pos,range/2,
      .    nttab,w(ontab),w(oiax),mxcsiz)
           call poppr
@@ -312,9 +268,6 @@ C       Scale by phase for offset k-mesh
 C        call hft2rp(0,lshft,n1,n2,n3,k1,k2,k3,idim,jdim,hq)
 C        call yprm('hfbz(FT)+phase',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)
 
-Cdelw1 do not change oiax because of ['call', 'undef', 'wref', 'redef']
-Cdelw1 warning(1) , probably  ontab  is not defined yet at linenumber= 265
-Cdelw1 do not change ontab because of ['call', 'undef', 'wref']
         call hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,1,nbas,offH,
      .    idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,nviax,
      .    nvtot,dmx)
@@ -366,11 +319,6 @@ C$$$  393 format(9f12.6)
 C$$$      goto 998
 C$$$#endif
 
-Cdelw1 w_varlist remains: oiax
-Cdelw1 w_varlistundel: [oiax ontab]
-Cdelw1 w_varlist (undel), remains: [oiax]
-Cdelw1 w_varlist (del), remains: (None)
-Cdelw1 not deallocate oiax because of [call undef wref redef]
       end
       subroutine hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,ib1,ib2,
      .  offH,idim,jdim,hij,plat,pos,ntab,iax,qoff,ndhrs,hrs,nviax,nvtot,
@@ -421,7 +369,7 @@ Cu   01 May 06 dmx is properly global maximum
 Cu   30 Mar 03 New switch for copying h(T) to transpose hrs
 Cu   23 Jun 02 Adapted from gfq2rs.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer mode,idim,jdim,ia1,ia2,ib1,ib2,n1,n2,n3,k1,k2,k3,isp,nsp,
      .  niax,ndhrs,nviax,nvtot
@@ -435,22 +383,20 @@ C ... Local parameters
       integer id,jd,i,ia,ib,ngmx,ng,is1,is2,nlma,nlmb,offi,offj,
      .  nhit,nmiss
       double precision gmax,qlat(3,3),tau(3),dmx1(2)
-Cdelw1       integer ortab,o,ogv,okv
-      real(8) ,allocatable :: rv_w_ortab(:)
-      real(8) ,allocatable :: rv_w_o(:)
-      real(8) ,allocatable :: rv_w_ogv(:)
-      integer ,allocatable :: iv_w_okv(:)
-
+      real(8) ,allocatable :: rtab_rv(:)
+c      real(8) ,allocatable :: _rv(:)
+      real(8) ,allocatable :: gv_rv(:)
+      integer ,allocatable :: kv_iv(:)
+      integer :: wdummy
 C ... Heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 C ... External calls
       external defi,defrr,dinv33,dpsadd,dpscop,gvlist,hft2r2,isanrg,
      .         poppr,pshpr,rlse
 
-Cdelw1       call defrr(o,1)
-      allocate(rv_w_o(1))
-      if (1<0) rv_w_o(:)=0.0d0
+c      allocate(_rv(1))
+c      if (1<0) _rv(:)=0.0d0
 
       id = offH(1,1,ia2+1)-offH(1,1,ia1)
       print *,'idim id=',idim,id
@@ -479,47 +425,37 @@ C --- Make list for a dimensionless lattice (alat=1) ---
           call dpsadd(tau,pos,3,1,3*ia-2,-1d0)
 c     call gvctof(0,1d0,qlat,tau,n1,n2,n3,gmax,ngmx)
           ngmx = n1*n2*n3
-Cdelw1       call defrr(ogv, ngmx*3)
-          allocate(rv_w_ogv(ngmx*3))
-Ctakao_ZeroClear_NotRequiered        if (ngmx*3<0) rv_w_ogv(:)=0.0d0
+          allocate(gv_rv(ngmx*3))
+Ctakao_ZeroClear_NotRequiered        if (ngmx*3<0) gv_rv(:)=0.0d0
 
-Cdelw1       call defi (okv, ngmx*3)
-          allocate(iv_w_okv(ngmx*3))
-Ctakao_ZeroClear_NotRequiered        if (ngmx*3<0) iv_w_okv(:)=0
+          allocate(kv_iv(ngmx*3))
+Ctakao_ZeroClear_NotRequiered        if (ngmx*3<0) kv_iv(:)=0
 
 C     print *, 'ia,ib=',ia,ib
 C     call ogvlst(1d0,qlat,tau,n1,n2,n3,9d9,ngmx,ng,w(ogv),w(okv))
           call pshpr(80*0)
           i = 208 + 400*0
-Cdelw1       call gvlist(1d0,qlat,tau,n1,n2,n3,1d5,i,ngmx,ng,w(okv),w(ogv),w,w)
           call gvlist ( 1d0 , qlat , tau , n1 , n2 , n3 , 1d5 , i , ngmx 
-     . , ng , iv_w_okv , rv_w_ogv , w , w )
+     . , ng , kv_iv , gv_rv , wdummy , wdummy )
 
           call poppr
 
 C --- For each connecting vector, mark iax table or poke into hrs ---
-Cdelw1       call defrr(ortab,3*(is2-is1+1))
-          allocate(rv_w_ortab(3*(is2-is1+1)))
-Ctakao_ZeroClear_NotRequiered        if (3*(is2-is1+1)<0) rv_w_ortab(:)=0.0d0
+          allocate(rtab_rv(3*(is2-is1+1)))
+Ctakao_ZeroClear_NotRequiered        if (3*(is2-is1+1)<0) rtab_rv(:)=0.0d0
 
           if (ltrans) then
-Cdelw1         call hft2r2(mode,k1,k2,k3,ia,ib,jdim,idim,iax,qoff,is1,is2,
-Cdelw1      .    ndhrs,isp,nsp,nlmb,nlma,hij(1,1,1,1+offj,1+offi),w(ogv),
-Cdelw1      .    w(okv),ng,tau,plat,pos,w(ortab),hrs,hrs,nhit,nmiss,dmx1)
             call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , jdim , idim , iax 
      .   , qoff , is1 , is2 , ndhrs , isp , nsp , nlmb , nlma , hij ( 
-     .   1 , 1 , 1 , 1 + offj , 1 + offi ) , rv_w_ogv , iv_w_okv , ng 
-     .   , tau , plat , pos , rv_w_ortab , hrs , hrs , nhit , nmiss , 
+     .   1 , 1 , 1 , 1 + offj , 1 + offi ) , gv_rv , kv_iv , ng 
+     .   , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss , 
      .   dmx1 )
 
           else
-Cdelw1         call hft2r2(mode,k1,k2,k3,ia,ib,idim,jdim,iax,qoff,is1,is2,
-Cdelw1      .    ndhrs,isp,nsp,nlma,nlmb,hij(1,1,1,1+offi,1+offj),w(ogv),
-Cdelw1      .    w(okv),ng,tau,plat,pos,w(ortab),hrs,hrs,nhit,nmiss,dmx1)
             call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , idim , jdim , iax 
      .   , qoff , is1 , is2 , ndhrs , isp , nsp , nlma , nlmb , hij ( 
-     .   1 , 1 , 1 , 1 + offi , 1 + offj ) , rv_w_ogv , iv_w_okv , ng 
-     .   , tau , plat , pos , rv_w_ortab , hrs , hrs , nhit , nmiss , 
+     .   1 , 1 , 1 , 1 + offi , 1 + offj ) , gv_rv , kv_iv , ng 
+     .   , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss , 
      .   dmx1 )
 
           endif
@@ -527,26 +463,17 @@ Cdelw1      .    w(okv),ng,tau,plat,pos,w(ortab),hrs,hrs,nhit,nmiss,dmx1)
           dmx(2) = max(dmx(2),dmx1(2))
           nviax = nviax + nhit
           nvtot = nvtot + nhit + nmiss
-Cdelw1 rlse name= ogv old_list= o ogv okv ortab
-Cdelw1 rlse name= ogv new_list= o
-Cdelw1       call rlse(ogv)
-          if (allocated(rv_w_ortab)) deallocate(rv_w_ortab)
-          if (allocated(iv_w_okv)) deallocate(iv_w_okv)
-          if (allocated(rv_w_ogv)) deallocate(rv_w_ogv)
+          if (allocated(rtab_rv)) deallocate(rtab_rv)
+          if (allocated(kv_iv)) deallocate(kv_iv)
+          if (allocated(gv_rv)) deallocate(gv_rv)
 
           offj = offj + offH(1,1,ib+1) - offH(1,1,ib)
    12   continue
         offi = offi + offH(1,1,ia+1) - offH(1,1,ia)
    10 continue
 
-Cdelw1 rlse name= o old_list= o
-Cdelw1 rlse name= o new_list= (None)
-Cdelw1       call rlse(o)
-      if (allocated(rv_w_o)) deallocate(rv_w_o)
+c      if (allocated(_rv)) deallocate(_rv)
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 
       subroutine hft2r2(mode,n1,n2,n3,ia,ib,idim,jdim,iax,qoff,is1,is2,
@@ -765,9 +692,6 @@ C  99 continue
       dmx(1) = dimx
       dmx(2) = dimy
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 
       subroutine hft2r3(ib1,ib2,iwk,ntab,iax,nttab,mxcsiz)
@@ -863,8 +787,5 @@ C     .    ntab(ib2+1)-ntab(ib1),(ntab(ib2+1)-ntab(ib1))/(ib2-ib1+1))
 C        call info(70,0,0,' ntab: %n:1i',ib2-ib1+2,ntab)
 C      endif
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 

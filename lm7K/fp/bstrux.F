@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['bstrux', 'lat', 'slat']
-Cgetarg...info...           structure ['bstrux', 'site', 'ssite']
-Cgetarg...info...           use_to_add ['bstrux', 'm_struc_def']
 #define F90 1
       subroutine bstrux(mode,slat,ssite,sspec,cg,indxcg,jcg,cy,iprmb,
      .  nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,b,db)
@@ -60,7 +57,6 @@ Cu   05 Jul 08 (T. Kotani) adapted from augmbl; new PW part.
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cgetarg       double precision ssite(1),sspec(1),slat(1),pa(3),q(3)
       real(8):: pa(3) , q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -83,10 +79,6 @@ C ... Local parameters
       complex(8),allocatable:: b0(:),db0(:),bos(:)
 
 C --- Setup ---
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: qlat(3,3) , real(8) :: slat%qlat 9
-Cgetarg...info...           real(8) :: vol , real(8) :: slat%vol 1
-Cgetarg       call upack('lat alat qlat vol',slat,alat,qlat,vol,0,0)
 
       alat=slat%alat
       i_copy_size=size(slat%qlat)
@@ -111,9 +103,6 @@ C --- b for MTO  (Written as C_kl in LMTO book) ---
           allocate(db0((kmax+1)*nlma*nlmbx*3))
         endif
         do  ib = 1, nbas
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
-Cgetarg         call upack('site spec pos',ssite,ib,is,p,0,0)
 
           is=ssite(ib)%spec
           i_copy_size=size(ssite(ib)%pos)
@@ -182,7 +171,6 @@ C       call zprm('b mode 1 or 2',2,b,ndimh,ndimh,(kmax+1)*nlma)
 #else
       call rx('bstrux requires F90')
 #endif
-Cgetarg       end
       end subroutine bstrux
 
 
@@ -249,7 +237,6 @@ C         i1 = index to hamiltonian offset
         endif
       enddo
 
-Cgetarg       end
       end subroutine paugq1
 
 
@@ -442,7 +429,6 @@ C     deallocate(fac2l,yl,bpw)
       call rx('bstrux requires F90')
 #endif
 
-Cgetarg       end
       end subroutine paugqp
 
 
@@ -474,7 +460,6 @@ C ... Local parameters
           b0(k,ilm,ilm) = b0(k,ilm,ilm)-bos(k,ilm)
         enddo
       enddo
-Cgetarg       end
       end subroutine paugq2
 
 
@@ -556,7 +541,6 @@ C     .      ' start=',i4,' stop=',i4)
           enddo
         endif
       enddo
-Cgetarg       end
       end subroutine prlcb1
 
 

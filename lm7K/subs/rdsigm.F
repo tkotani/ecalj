@@ -1,7 +1,3 @@
-Cgetarg...info...           structure ['rdsigm', 'ham', 'sham']
-Cgetarg...info...           structure ['rdsigm', 'lat', 'slat']
-Cgetarg...info...           structure ['rdsigm', 'bz', 'sbz']
-Cgetarg...info...           use_to_add ['rdsigm', 'm_struc_def']
       subroutine rdsigm(mode,nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
      .  lwsig)
 
@@ -172,7 +168,6 @@ C     implicit none
 C ... Passed parameters
       integer mode,nbas,ifis,ndimh,lwsig
 C     integer osig(nbas),otau(nbas),oppi(nbas)
-Cgetarg       double precision slat(1),sham(1),sbz(1)
       type(s_lat)::slat
       type(s_ham)::sham
       type(s_bz)::sbz
@@ -191,8 +186,18 @@ C ... Local parameters
      .  ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
       equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
-      integer og,oag,ogstar,oipq,oqp,owgt,ooffH,oiprmb,opos,ontabs,
-     .  oiaxs,ohrs,ohrss,osfz,owk,oistab,osigm,osigm2,oqsig,odelT,oistb2
+       integer:: og , oag , oqp , ooffh , oiprmb , opos , ontabs , oiaxs 
+     . , ohrs , ohrss , oistab , oqsig 
+       integer ,allocatable :: gstar_iv(:)
+       integer ,allocatable :: ipq_iv(:)
+       real(8) ,allocatable :: wgt_rv(:)
+       complex(8) ,allocatable :: sfz_zv(:)
+       complex(8) ,allocatable :: wk_zv(:)
+       complex(8) ,allocatable :: sigm_zv(:)
+       complex(8) ,allocatable :: sigm2_zv(:)
+       real(8) ,allocatable :: delt_rv(:)
+       integer ,allocatable :: istb2_iv(:)
+
       double precision tmp(3)
       double complex ztmp(3)
       real(8),allocatable:: evls(:),evlz(:),sigii(:)
@@ -293,13 +298,6 @@ C ... Command-line switches for input sigma and defaults
 
       call info(10,1,0,' RDSIGM: read file sigm and create '//
      .  '%?#n#REAL#COMPLEX# sigma(R) by FT ...',hreal,0)
-Cgetarg...info...           integer :: ldham(16) , integer(8) :: sham%ldham 16
-Cgetarg...info...           integer :: ooffH , integer(8) :: sham%ooffH 1
-Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
-Cgetarg...info...           real(8) :: sigp(10) , real(8) :: sham%sigp 10
-Cgetarg...info...           real(8) :: rsstol , real(8) :: sham%rsstol 1
-Cgetarg       call upack('ham ldham ooffH oindxo sigp rsstol',sham,ldham,ooffH,
-Cgetarg      .  oiprmb,sigp,rsstol)
 
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
@@ -523,20 +521,11 @@ C     and set file sigma file pointer past header
 C     Sanity checks
       if (lsplts) call info0(30,0,0,
      .  '%9f(warning) sigm file not spin pol .. splitting spins')
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg...info...           integer :: opos , integer(8) :: slat%opos 1
-Cgetarg       call upack('lat plat opos',slat,plat,opos,0,0,0)
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       opos=slat%opos
 
-Cgetarg...info...           integer :: nsgrp , integer(8) :: slat%nsgrp 1
-Cgetarg...info...           integer :: oistab , integer(8) :: slat%oistab 1
-Cgetarg...info...           integer :: og , integer(8) :: slat%osymgr 1
-Cgetarg...info...           integer :: oag , integer(8) :: slat%oag 1
-Cgetarg       call upack('lat nsgrp oistab osymgr oag',slat,nsgrp,oistab,og,
-Cgetarg      .  oag,0)
 
       nsgrp=slat%nsgrp
       oistab=slat%oistab
@@ -589,26 +578,34 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
       call defrr(oqsig,3*mxkp)
       call defdr(oqp,3*mxkp)
-      call defi(ogstar,-mxkp-1)
-      w(ogstar) = -2
-      call defi(oipq,mxkp)
-      call defdr(owgt,-mxkp)
+       allocate(gstar_iv(abs(-mxkp-1)))
+       if (-mxkp-1<0) gstar_iv(:)=0
+
+       gstar_iv = - 2 
+
+       allocate(ipq_iv(mxkp))
+       if (mxkp<0) ipq_iv(:)=0
+
+       allocate(wgt_rv(abs(-mxkp)))
+       if (-mxkp<0) wgt_rv(:)=0.0d0
+
       call info(20,1,0,
      .  ' q-points in full BZ where sigma calculable ...',0,0)
-      call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
-     .  w(oqsig),w(owgt),nqsig,mxkp,0,0)
-Cgetarg...info...           integer :: nqsig , integer(8) :: sham%nqsig 1
-Cgetarg...info...           integer :: oqsig , integer(8) :: sham%oqsig 1
-Cgetarg       call pack2('ham nqsig oqsig',sham,nqsig,oqsig)
+       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     . ipq_iv , w ( oqsig ) , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+
 
       sham%nqsig=nqsig
       sham%oqsig=oqsig
 
-      call dpzero(w(owgt),mxkp)
+       call dpzero ( wgt_rv , mxkp ) 
+
       call info2(20,0,0,
      .  ' Irr. qp for which sigma is calculated ...',0,0)
-      call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrps,w(oipq),
-     .  w(oqp),w(owgt),nqps,mxkp,w(ogstar),0)
+       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+     . , nsgrps , ipq_iv , w ( oqp ) , wgt_rv , nqps , mxkp , 
+     . gstar_iv , 0 ) 
+
       call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
 C     call prmx('q for which sigma is read',w(oqp),3,3,nqp)
       call info2(30,0,0,
@@ -656,15 +653,21 @@ C     If to mix in some other sigma file, set up ifis2
           endif
 
 C ... File sigma in irr BZ -> sigma in full BZ by rotations
-          call defcc(osfz,k1*k2*k3*ndimh**2)
+           allocate(sfz_zv(k1*k2*k3*ndimh**2))
+           if (k1*k2*k3*ndimh**2<0) sfz_zv(:)=0.0d0
+
 C ... titus
 C      call defcc(osfz,k1*k2*k3*ndimh*nlmaa)
 C      call defcc(osfz1,k1*k2*k3*ndimh*nlmaa)
 C ... titus
-          call defcc(owk,ndimh**2)
+           allocate(wk_zv(ndimh**2))
+           if (ndimh**2<0) wk_zv(:)=0.0d0
+
           nl = nglob('nl')
           nspc = 1
-          call defcc(osigm,ndimh**2)
+           allocate(sigm_zv(ndimh**2))
+           if (ndimh**2<0) sigm_zv(:)=0.0d0
+
 ccccccccccccccccccccccccc
 ctakaox
 c      call defcc(oss,ndimh**2)
@@ -691,7 +694,8 @@ ccccccccccccccccccccccccc
             endif
 C       File read sigma
             if (nscnts .eq. 5) call dpdump(tmp,1,ifis)
-            call dpdump(w(osigm),ndimh**2*2,ifis)
+             call dpdump ( sigm_zv , ndimh * * 2 * 2 , ifis ) 
+
 C        if (isp .eq. 2) then
 C          print *, iq1,isp
 C         call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
@@ -709,7 +713,8 @@ c        call divctakao(w(osigm),w(oss),ndimh)
 ccccccccccccccccccccccccccccccccccccc
 
             if (alf(1) .ne. 1d0) then
-              call dscal(ndimh**2*2,alf(1),w(osigm),1)
+               call dscal ( ndimh * * 2 * 2 , alf ( 1 ) , sigm_zv , 1 ) 
+
             endif
             if (alf(2) .ne. 0d0) then
               read(ifis2) qp
@@ -727,10 +732,16 @@ ccccccccccccccccccccccccccccccccccccc
                 endif
               endif
 C         call dpsadd(qp,w(oqp),3,1,3*iq1-2,1d0)
-              call defcc(osigm2,ndimh**2)
-              call dpdump(w(osigm2),ndimh**2*2,ifis2)
-              call daxpy(ndimh**2*2,alf(2),w(osigm2),1,w(osigm),1)
-              call rlse(osigm2)
+               allocate(sigm2_zv(ndimh**2))
+               if (ndimh**2<0) sigm2_zv(:)=0.0d0
+
+               call dpdump ( sigm2_zv , ndimh * * 2 * 2 , ifis2 ) 
+
+               call daxpy ( ndimh * * 2 * 2 , alf ( 2 ) , sigm2_zv , 1 , 
+     .         sigm_zv , 1 ) 
+
+               if (allocated(sigm2_zv)) deallocate(sigm2_zv)
+
             endif
 C       call zprm('sigm',2,w(osigm),ndimh,ndimh,ndimh)
 
@@ -743,10 +754,12 @@ C     .    w(ogstar),ifac,lidim,ndimh,nlmaa,ndimh,nlmaa,nspc,qb,
 C     .    w(osigm),w(owk),
 C     .    w(owk),w(osfz),w(osfz1))
 C ... titus
-            call hamfb3(nbas,nl,w(ooffH),w(oiprmb),i,w(opos),iq1,nk1,
-     .    nk2,nk3,k1,k2,k3,w(oipq),w(oistab),w(og),w(oag),
-     .    w(ogstar),ifac,ndimh,ndimh,ndimh,nspc,qb,w(osigm),w(owk),
-     .    w(owk),w(osfz))
+             call hamfb3 ( nbas , nl , w ( ooffh ) , w ( oiprmb ) , i , w 
+     .       ( opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , 
+     .       w ( oistab ) , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh 
+     .       , ndimh , ndimh , nspc , qb , sigm_zv , wk_zv , wk_zv 
+     .       , sfz_zv ) 
+
           enddo
 
 
@@ -772,9 +785,11 @@ C     .  ,nsgrps,rsrnge,w(ooffH),ib,ib,nlmaa,ndimh,w(osfz),plat,
 C     .  w(opos),ontabs,
 C     .  oiaxs,ndhrs,w(ohrs))
 C ... titus
-          call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,isp,nsp,nbas,w(og),w(oag),
-     .  nsgrps,rsrnge,w(ooffH),1,nbas,ndimh,ndimh,w(osfz),plat,w(opos),
-     .  ontabs,oiaxs,ndhrs,w(ohrs))
+           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
+     .     , nsp , nbas , w ( og ) , w ( oag ) , nsgrps , rsrnge , w ( ooffh 
+     .     ) , 1 , nbas , ndimh , ndimh , sfz_zv , plat , w ( opos ) 
+     .     , ontabs , oiaxs , ndhrs , w ( ohrs ) ) 
+
 
 C      print *, 'print out sigma(T)'
 C      call pvtrof(w(ohrs),ndhrs,nsp,nk1,nk2,nk3,w(oiaxs),1,
@@ -782,20 +797,20 @@ C     .  nttabs,w(osfz),ndimh)
 C      stop
 
 C ... End loop over spins
-          call rlse(osfz)
+           if (allocated(sigm_zv)) deallocate(sigm_zv)
+           if (allocated(wk_zv)) deallocate(wk_zv)
+           if (allocated(sfz_zv)) deallocate(sfz_zv)
+
         enddo
 C ... titus
 C 100  continue
 C     exit of MPI master loop
       endif
-      call rlse(ogstar)
+       if (allocated(wgt_rv)) deallocate(wgt_rv)
+       if (allocated(ipq_iv)) deallocate(ipq_iv)
+       if (allocated(gstar_iv)) deallocate(gstar_iv)
 
-Cgetarg...info...           integer :: ndhrs , integer(8) :: sham%ndhrs 1
-Cgetarg...info...           integer :: ontabs , integer(8) :: sham%ontabs 1
-Cgetarg...info...           integer :: oiaxs , integer(8) :: sham%oiaxs 1
-Cgetarg...info...           integer :: ohrs , integer(8) :: sham%ohrs 1
-Cgetarg       call pack5('ham ndhrs ontabs oiaxs ohrs',sham,ndhrs,ontabs,oiaxs,
-Cgetarg      .  ohrs,0)
+
 
       sham%ndhrs=ndhrs
       sham%ontabs=ontabs
@@ -821,8 +836,11 @@ C     if (alf(1) .ne. 1 .or. alf(2) .ne. 0 .or. .true.) then
         endif
       endif
 
-      if (.not. (cmdopt('--wsig',6,0,outs).or.cmdopt('-wsig',5,0,outs)))
-     .  call rlse(oqp)
+       if ( .not. ( cmdopt ( '--wsig' , 6 , 0 , outs ) .or.cmdopt ( 
+     . '-wsig' , 5 , 0 , outs ) ) ) then 
+       call rlse(oqp)
+       endif 
+
 
 C ... Broadcast R.S. sigma before symmetrization
       if (hreal .eq. 1) then
@@ -849,13 +867,20 @@ C       Allocate memory for hrs
 C       10s digit distributes ri-rj pairs to avg (ri-rj),(rj-ri) pairs
 C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         i = 1-hreal + 10*2 + 100*(1-hreal) + 100000
-        call defi(oistb2,nsgrp*nbas)
-        call istbpm(w(oistab),nbas,nsgrp,w(oistb2))
+         allocate(istb2_iv(nsgrp*nbas))
+         if (nsgrp*nbas<0) istb2_iv(:)=0
+
+         call istbpm ( w ( oistab ) , nbas , nsgrp , istb2_iv ) 
+
         nl = nglob('nl')
-        call rsmsym(i,plat,mxorb,w(oiprmb),ndimh,nbas,w(opos),nl,nsp,1,
-     .    nttabs,w(ontabs),w(oiaxs),w(og),w(oistb2),nsgrp,ndhrs,
-     .    w(ohrss),w(ohrs))
-        call rlse(ohrss)
+         call rsmsym ( i , plat , mxorb , w ( oiprmb ) , ndimh , nbas 
+     .   , w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
+     .   ) , w ( og ) , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , w 
+     .   ( ohrs ) ) 
+
+         if (allocated(istb2_iv)) deallocate(istb2_iv)
+         call rlse(ohrss)
+
 
 C        Debugging
 C        ifis2 = fopna('out',-1,0)
@@ -915,11 +940,6 @@ C       ltmp = true in cases where file symops artificially reduced
 C        ltmp = mod(lssym,2) .eq. 1 .and. lwsig .ne. 3
 C        if (lnwmsh .or. ltmp) then
             if (lnwmsh) then
-Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
-Cgetarg...info...           integer :: lshft(3) , integer(8) :: sbz%lshft 3
-Cgetarg...info...           integer :: nqp , integer(8) :: sbz%nkp 1
-Cgetarg...info...           integer :: oqp , integer(8) :: sbz%oqp 1
-Cgetarg           call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
 
               i_copy_size=size(sbz%nkabc)
               call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
@@ -931,24 +951,35 @@ Cgetarg           call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
 
               mxkp = nk1*nk2*nk3
               call defdr(oqp,3*mxkp)
-              call defi(ogstar,-mxkp-1)
-              w(ogstar) = -2
-              call defi(oipq,mxkp)
-              call defdr(owgt,-mxkp)
+               allocate(gstar_iv(abs(-mxkp-1)))
+               if (-mxkp-1<0) gstar_iv(:)=0
+
+               gstar_iv = - 2 
+
+               allocate(ipq_iv(mxkp))
+               if (mxkp<0) ipq_iv(:)=0
+
+               allocate(wgt_rv(abs(-mxkp)))
+               if (-mxkp<0) wgt_rv(:)=0.0d0
+
               do  i = 1, 3
                 llshft(i) = lshft(i) .ne. 0
               enddo
-              call dpzero(w(owgt),mxkp)
+               call dpzero ( wgt_rv , mxkp ) 
+
               if (lfbzout) then
                 call info0(20,1,0,
      .        ' Creating sigma for new mesh, full BZ (file sigm2) ...')
-                call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
-     .        w(oqp),w(owgt),nqp,mxkp,0,0)
+                 call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     .           ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , 0 , 0 ) 
+
               else
                 call info0(20,1,0,
      .        ' Creating sigma for new mesh (file sigm2) ...')
-                call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w(og),nsgrp,w(oipq),
-     .        w(oqp),w(owgt),nqp,mxkp,w(ogstar),0)
+                 call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+     .           , nsgrp , ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , gstar_iv 
+     .           , 0 ) 
+
 
               endif
 
@@ -975,10 +1006,13 @@ C   ... Setup rotation matrix
 
 C   ... Setup phase matrix
             if (lrot .ge. 2) then
-              call defrr(odelT,-3*nbas)
+               allocate(delt_rv(abs(-3*nbas)))
+               if (-3*nbas<0) delt_rv(:)=0.0d0
+
               call info0(0,0,0,' Phase shift of sigma.  '//
      .      'Translation vectors from shorps file:')
-              call iopos(.false.,-1,'shorps',nbas,w(odelT))
+               call iopos ( .false. , - 1 , 'shorps' , nbas , delt_rv ) 
+
             endif
 C       call prmx('q for which sigm is written',w(oqp),3,3,nqp)
 
@@ -991,9 +1025,11 @@ C         call prmx('qp',w(oqp),3,3,nqp)
               enddo
 C         call prmx('qp',w(oqp),3,3,nqp)
             endif
-            call chksgr(1,ltrans,kcplx,plat,nsp,ndimh,ifis2,hreal,
-     .    w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,nqp,
-     .    w(oqp),nbas,lrot,rotm,w(odelT))
+             call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
+     .       , hreal , w ( oiprmb ) , nttabs , w ( oiaxs ) , w ( ohrs ) , 
+     .       ndhrs , rsstol , nqp , w ( oqp ) , nbas , lrot , rotm , delt_rv 
+     .       ) 
+
             call fclose(ifis2)
             call rx0('done writing sigma, file sigm2')
 C      elseif (lwsig .eq. 1 .or. lwsig .eq. 2) then
@@ -1016,11 +1052,6 @@ C ... Transformations done by caller: write qp list to disk
         call info0(30,0,0,' ')
 
         if (lnwmsh) then
-Cgetarg...info...           integer :: nkxyz(3) , integer(8) :: sbz%nkabc 3
-Cgetarg...info...           integer :: lshft(3) , integer(8) :: sbz%lshft 3
-Cgetarg...info...           integer :: nqp , integer(8) :: sbz%nkp 1
-Cgetarg...info...           integer :: oqp , integer(8) :: sbz%oqp 1
-Cgetarg         call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
 
           i_copy_size=size(sbz%nkabc)
           call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
@@ -1038,10 +1069,12 @@ Cgetarg         call upack('bz nkabc lshft nkp oqp',sbz,nkxyz,lshft,nqp,oqp,0)
           mxkp = nk1*nk2*nk3
           call info(20,0,0,' rdsigm: use full BZ (%i q-points)...',mxkp,0)
           call defdr(oqp,3*mxkp)
-          call defi(oipq,mxkp)
-          call defdr(owgt,-mxkp)
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg         call upack('lat plat',slat,plat,0,0,0,0)
+           allocate(ipq_iv(mxkp))
+           if (mxkp<0) ipq_iv(:)=0
+
+           allocate(wgt_rv(abs(-mxkp)))
+           if (-mxkp<0) wgt_rv(:)=0.0d0
+
 
           i_copy_size=size(slat%plat)
           call dcopy(i_copy_size,slat%plat,1,plat,1)
@@ -1053,10 +1086,13 @@ C   ... Make is,ifac,qb,qlat
           call pshpr(0)
           call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
           call poppr
-          call bzmesh(plat,qb,nk1,nk2,nk3,llshft,w,0,w(oipq),
-     .    w(oqp),w(owgt),nqp,mxkp,0,0)
+           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     .     ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , 0 , 0 ) 
+
 C       call pack2('bz nkp oqp',sbz,nqp,oqp)
-          call rlse(owgt)
+           if (allocated(delt_rv)) deallocate(delt_rv)
+           if (allocated(wgt_rv)) deallocate(wgt_rv)
+
         endif
 
 C ... Write points to disk, shifting by qoffo
@@ -1073,14 +1109,16 @@ C       call prmx('qp',w(oqp),3,3,nqp)
         call getqp(1,-ifiz,nqp,nkxyz,lshft,0,w(oqp),w,w)
 
         if (lfbzout) then
-          call rlse(oipq)
+           if (allocated(ipq_iv)) deallocate(ipq_iv)
+
         endif
 
       endif
 
       call tcx('rdsigm')
 
-Cgetarg       end
+       if (allocated(gstar_iv)) deallocate(gstar_iv)
+
       end subroutine rdsigm
 
       subroutine iosigh(optio,mode,nsp,ndimh,nk1,nk2,nk3,nqp,
@@ -1198,7 +1236,6 @@ C       Assign header parameters or check with file correspondence
 
    99 continue
       call rx('iosigh: failed to read header from file')
-Cgetarg       end
       end subroutine iosigh
 
 
@@ -1278,12 +1315,7 @@ C     these are read by sigma header
 C     integer os
       double precision qp(3),errmxx,errmx,err,qpr(3),xx
       double complex hwk(ndhrs,ndhrs)
-#if F90
       complex(8),allocatable:: sq(:,:),sq1(:,:),uz(:,:)
-C     complex(8),allocatable:: h(:,:),s(:,:)
-#else
-      double complex sq(ndimh,ndimh),sq1(ndimh,ndimh),uz(ndimh,ndimh)
-#endif
 C ... Heap
       integer w(1)
       common /w/ w
@@ -1297,15 +1329,11 @@ C ... Heap
       opt0  = mod(opt,10)
       nscnts = 0
 
-#if F90
       allocate(sq(ndimh,ndimh),sq1(ndimh,ndimh))
-#endif
 
 C --- Rotate hrs if switch set ---
       if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
-#if F90
         allocate(uz(ndimh,ndimh))
-#endif
         call rothrm(2,0,ndimh,iprmb,rotm,1,nbas,ndimh,uz,uz)
 C       call zprm('Uz',2,uz,ndimh,ndimh,ndimh)
 C       Table of hamiltonian offsets and site dimensions
@@ -1486,16 +1514,11 @@ C         call zprm('sigm',2,sq1,ndimh,ndimh,ndimh)
 
       enddo
 
-#if F90
       deallocate(sq,sq1)
-#endif
       if (opt01 .ne. 0 .and. mod(lrot,2) .ne. 0) then
-#if F90
         deallocate(uz)
-#endif
       endif
 
-Cgetarg       end
       end subroutine chksgr
 
 
@@ -1908,7 +1931,6 @@ C    .  t4,'i',t10,'to import a portion of a sigma file'/
 
 C ... Cleanup and exit rst editor
   199 continue
-Cgetarg       end
       end subroutine siged
 
 
@@ -2037,7 +2059,6 @@ C   ... Return here to resume parsing for arguments
         endif
       endif
 
-Cgetarg       end
       end subroutine sigflg
 
 
@@ -2130,6 +2151,5 @@ c        a(i,j)=a(i,j)/b(i,j)
         enddo
       enddo
       print *,' sum check 2=',sum(abs(a))
-Cgetarg       end
       end subroutine divctakao
 

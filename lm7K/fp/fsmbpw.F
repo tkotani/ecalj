@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['fsmbpw', 'site', 'ssite']
-Cgetarg...info...           use_to_add ['fsmbpw', 'm_struc_def']
       subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb,numq,
      .  nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
 
@@ -68,7 +66,6 @@ cC Event numbers:
 c      include "events.ins"
 c#endif
       integer nbas,ndimh,napw,nlmax,nlmto,nevec,numq,iprmb(nlmto),lmxax
-Cgetarg       double precision ssite(1),sspec(1),ylv(napw,nlmax)
       real(8):: ylv(napw,nlmax)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -161,9 +158,6 @@ c      do  ib1 = 1, nbas
         ib1=iloop
 #endif
 
-Cgetarg...info...           integer :: is1 , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: p1(3) , real(8) :: ssite%pos 3
-Cgetarg         call upack('site spec pos',ssite,ib1,is1,p1,0,0)
 
         is1=ssite(ib1)%spec
         i_copy_size=size(ssite(ib1)%pos)
@@ -257,7 +251,6 @@ C             gradient PW * (H - E S)
       call tcx ('fsmbpw')
 
 
-Cgetarg       end
       end subroutine fsmbpw
 
 

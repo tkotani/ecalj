@@ -1,20 +1,3 @@
-Cdelw1 var ['oa', '1', 'oa', '-nda*(0+2)*2', 'real(8)', 'rv_w_', 'pqmix']
-Cdelw1 var ['oaa', '2', 'oaa', '-naa*(mxsav+2)*2', 'real(8)', 'rv_w_', 'pqmix']
-Cdelw1 var ['onorm', '0', 'onorm', 'mxsav**2', 'real(8)', 'rv_w_', 'pqmixa']
-Cdelw1 var ['okpvt', '0', 'okpvt', 'mxsav', 'integer', 'iv_w_', 'pqmixa']
-Cdelw1 var ['oa', '0', 'oa', 'nda*(mxsav+2)*2', 'real(8)', 'rv_w_', 'pqmixa']
-Cdelw1 var ['oxmp1', '0', 'oxmp1', 'nda', 'real(8)', 'rv_w_', 'pqmixb']
-Cdelw1 var ['of', '0', 'of', 'nda', 'real(8)', 'rv_w_', 'pqmixb']
-Cdelw1 var ['oui', '0', 'oui', 'nda', 'real(8)', 'rv_w_', 'pqmixb']
-Cdelw1 var ['ovti', '0', 'ovti', 'nda', 'real(8)', 'rv_w_', 'pqmixb']
-Cdelw1 var ['oxold', '0', 'oxold', 'nda', 'real(8)', 'rv_w_', 'pqmixb']
-Cdelw1 var ['odf', '0', 'odf', 'nda', 'real(8)', 'rv_w_', 'pqmixb']
-Cdelw1 var ['odx', '0', 'odx', 'nda', 'real(8)', 'rv_w_', 'pqmixb']
-Cdelw1 var ['owk', '0', 'owk', 'nda*2*(jmix+2)', 'real(8)', 'rv_w_', 'pqmixb']
-Cdelw1 var ['op', '0', 'op', 'nda*6', 'real(8)', 'rv_w_', 'pqmixc']
-Cdelw1 var ['odx', '0', 'odx', 'nda', 'real(8)', 'rv_w_', 'pqmixc']
-Cdelw1 undel [['wref'], 'oa', 'pqmix']
-Cdelw1 undel [['wref'], 'oaa', 'pqmix']
       subroutine pqmix(nclass,nl,lmx,nsp,nx,iter,mixmod,dmxp,cnst,
      .  pold,qold,xold,pnu,qnu,xnew)
 C- Iteration-dependent Anderson or Broyden mixing of P and Q
@@ -92,8 +75,6 @@ C Passed variables:
 C Local variables
 C mmix: max no. prior iterations available from disk.
       logical parmxp,lcnst
-Cdelw1 do not change  [['wref'], 'oa', 'pqmix']
-Cdelw1 do not change  [['wref'], 'oaa', 'pqmix']
       integer mmix,nda,ic,l,nelts,idum,fopna,j,mxsav,nmix,na,naa,
      .  nkill,awrite,lgunit,iprint,ifi,oa,oaa,npq,i1,i2
       integer mpipid,procid
@@ -126,17 +107,11 @@ C --- Count number of mixing elements; get rms err for parmxp ---
         nda = nda + nx
 C ... this call reads nothing from disk since mxsav=0
         nmix = 0
-Cdelw1 do not change oa because of ['wref']
         call defdr(oa,-nda*(0+2)*2)
-Cdelw1 do not change oa because of ['wref']
         call pqmxio(nmix,nmix,1,.true.,nclass,nl,nsp,nx,lmx,
      .  pnu,pold,qnu,qold,xnew,xold,cnst,nda,w(oa),na,rms2)
 C     if (na .ne. nda) call fexit2(-1,1,
 C    .  'Exit -1 PQMIX: na=%i but nda=%i',na,nda)
-Cdelw1 rlse name= oa old_list= oa
-Cdelw1 rlse name= oa new_list= (None)
-Cdelw1 not deallocate oa because of [wref]
-Cdelw1       call rlse(oa)
         call rlse(oa)
 
 
@@ -191,9 +166,7 @@ C --- Determine number of previous iterations available from disk ---
    30   continue
 
 C --- Copy new P,Q into work a, read prior iter from disk ---
-Cdelw1 do not change oa because of ['wref']
         call defdr(oa,-nda*(mxsav+2)*2)
-Cdelw1 do not change oa because of ['wref']
         call pqmxio(mmix,mxsav,ifi,.true.,nclass,nl,nsp,nx,lmx,
      .  pnu,pold,qnu,qold,xnew,xold,cnst,nda,w(oa),na,rms2)
 
@@ -214,7 +187,6 @@ C --- Initial printout ---
 C --- Save updated P,Q on disk ---
         rewind ifi
         write(ifi) min(mmix+1,mxsav), na
-Cdelw1 do not change oa because of ['wref']
         call pqmxio(mmix+1,mxsav,-ifi,.true.,nclass,nl,nsp,nx,lmx,
      .  pnu,pold,qnu,qold,xnew,xold,cnst,nda,w(oa),na,rms2)
         if (nkill .lt. 0) then
@@ -234,21 +206,15 @@ C --- Spin polarized case: shuffle average and delta moments ---
           if (wt(1) .ne. 0) naa = naa+npq
           if (wt(2) .ne. 0) naa = naa+npq
           if (wt(3) .ne. 0) naa = naa+nx
-Cdelw1 do not change oaa because of ['wref']
           call defdr(oaa,-naa*(mxsav+2)*2)
-Cdelw1 do not change oa because of ['wref']
-Cdelw1 do not change oaa because of ['wref']
           call pqsclf(0,nda,npq,npq*nsp,(nsp-1)*npq,nx,naa,mxsav,wt,w(oa),
      .    w(oaa),rms2f)
         else
-Cdelw1 do not change oa because of ['wref']
-Cdelw1 do not change oaa because of ['wref']
           oaa = oa
           naa = na
         endif
 
 C --- Broyden mixing, Duane Johnson's approach ---
-Cdelw1 do not change oaa because of ['wref']
         if (broy .eq. 1 .and. mmix .ne. 0)
      .  call pqmixb(naa,nmix,mmix,mxsav,beta,wc,rms2,w(oaa),dmxp(16))
 
@@ -256,7 +222,6 @@ C --- Broyden mixing, old style ---
 C      if (broy .and. mmix .ne. 0)
 C     .  call pqmixb(naa,nmix,mmix,mxsav,wc,rms2,w(oaa),dmxp(16))
 
-Cdelw1 do not change oaa because of ['wref']
         if (broy .eq. 2)
      .  call pqmixc(naa,nmix,mmix,mxsav,beta,rms2,w(oaa),dmxp(16))
 
@@ -264,21 +229,17 @@ C --- Anderson mixing ---
         beta0 = beta
         if (broy .eq. 0 .or.
      .   (broy .eq. 1 .and. (mmix .eq. 0 .or. nmix .eq. 0))) then
-Cdelw1 do not change oaa because of ['wref']
           call pqmixa(naa,nmix,mmix,mxsav,beta,rms2,w(oaa),dmxp(16))
           broy = 0
         endif
 
 C --- Spin polarized case: undo shuffle ---
         if (nsp .eq. 2 .or. nx .gt. 0) then
-Cdelw1 do not change oa because of ['wref']
-Cdelw1 do not change oaa because of ['wref']
           call pqsclb(nda,npq,npq*nsp,(nsp-1)*npq,nx,naa,mxsav,wt,w(oa),
      .    w(oaa))
         endif
 
 C --- Copy mixed P,Q from holding array into P,Q arrays ---
-Cdelw1 do not change oa because of ['wref']
         call pqmxup(na,mxsav,nclass,nl,nsp,nx,lmx,pnu,qnu,xnew,
      .  pold,qold,xold,cnst,nda,w(oa),rms2)
 
@@ -291,11 +252,6 @@ C --- Clean up and exit ---
         dmxp(14) = broy
         dmxp(15) = beta
         if (broy .eq. 1) dmxp(15) = 1
-Cdelw1 rlse name= oa old_list= oa oaa
-Cdelw1 rlse name= oa new_list= (None)
-Cdelw1 not deallocate oaa because of [wref]
-Cdelw1 not deallocate oa because of [wref]
-Cdelw1       call rlse(oa)
         call rlse(oa)
 
         dmxp(25) = 0
@@ -311,10 +267,6 @@ C --- MPI broadcast everything passed out of pqmix ---
       call mpibc1(xnew,nx,4,.false.,'pqmix','xnew')
       call mpibc1(dmxp,34,4,.false.,'pqmix','dmxp')
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oa oaa]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine pqsclf(mode,nda,npq,offx,off2,nx,na,mxsav,wt,a,a2,rms2)
 C- Split into (a+ + a-) and (a+ - a-); include extra data
@@ -400,9 +352,6 @@ C           Given (rhnew+ - rhnew-)*wt(2) ,  (rhold+ - rhold-)*wt(2)
 
       if (ja .ne. na) call rx('pqsclf: element mismatch')
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine pqsclb(nda,npq,offx,off2,nx,na,mxsav,wt,a,a2)
 C- Undo split into wt1*q and wt2*mom done by pqsclf
@@ -512,9 +461,6 @@ C --- Extra mixing data ---
         enddo
       endif
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 
       subroutine pqsclc(nda,npq,nx,mxsav,a)
@@ -548,9 +494,6 @@ C        endif
       enddo
 C     stop 'here'
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 
       subroutine pqmixa(nda,nmix,mmix,mxsav,beta,rms2,a,tj)
@@ -563,11 +506,10 @@ Co        (sign) <0, intended that caller update nmix for next call.
 C     implicit none
       integer nda,nmix,mmix,mxsav
       double precision rms2,tj(1),a(nda,0:mxsav+1,2),beta
-Cdelw1       integer im,imix,jmix,iprint,i1mach,amix,onorm,okpvt,oa
       integer:: im , imix , jmix , iprint , i1mach , amix
-      real(8) ,allocatable :: rv_w_onorm(:)
-      integer ,allocatable :: iv_w_okpvt(:)
-      real(8) ,allocatable :: rv_w_oa(:)
+      real(8) ,allocatable :: norm_rv(:)
+      integer ,allocatable :: kpvt_iv(:)
+      real(8) ,allocatable :: a_rv(:)
 
       double precision tjmax
       parameter (tjmax = 10d0)
@@ -578,25 +520,21 @@ c heap
 C ... default nmix
       if (nmix .lt. 0) nmix = 2
       nmix = min(mmix,nmix)
-Cdelw1       call defdr(onorm,mxsav**2)
-      allocate(rv_w_onorm(mxsav**2))
-Ctakao_ZeroClear_NotRequiered        if (mxsav**2<0) rv_w_onorm(:)=0.0d0
+      allocate(norm_rv(mxsav**2))
+Ctakao_ZeroClear_NotRequiered        if (mxsav**2<0) norm_rv(:)=0.0d0
 
-Cdelw1       call defi(okpvt,mxsav)
-      allocate(iv_w_okpvt(mxsav))
-Ctakao_ZeroClear_NotRequiered        if (mxsav<0) iv_w_okpvt(:)=0
+      allocate(kpvt_iv(mxsav))
+Ctakao_ZeroClear_NotRequiered        if (mxsav<0) kpvt_iv(:)=0
 
       if (beta .lt. 0) nmix = -nmix
 C ... imix is a local copy of nmix
       imix = nmix
       if (imix .lt. 0) imix = mmix
 C ... save PQ array
-Cdelw1       call defdr(oa,nda*(mxsav+2)*2)
-      allocate(rv_w_oa(nda*(mxsav+2)*2))
-Ctakao_ZeroClear_NotRequiered        if (nda*(mxsav+2)*2<0) rv_w_oa(:)=0.0d0
+      allocate(a_rv(nda*(mxsav+2)*2))
+Ctakao_ZeroClear_NotRequiered        if (nda*(mxsav+2)*2<0) a_rv(:)=0.0d0
 
-Cdelw1       call dcopy(nda*(mxsav+2)*2,a,1,w(oa),1)
-      call dcopy ( nda * ( mxsav + 2 ) * 2 , a , 1 , rv_w_oa , 1 )
+      call dcopy ( nda * ( mxsav + 2 ) * 2 , a , 1 , a_rv , 1 )
 
 
 C ... for iterations 1,2,... amix needs F-x
@@ -607,10 +545,8 @@ C ... for iterations 1,2,... amix needs F-x
 
       call query('beta',4,beta)
       jmix = min(mmix,iabs(imix))
-Cdelw1       imix = amix(nda,jmix,mxsav,0,dabs(beta),iprint(),tjmax,
-Cdelw1      .  w(onorm),w(okpvt),a,tj,rms2)
       imix = amix ( nda , jmix , mxsav , 0 , dabs ( beta ) , iprint 
-     . ( ) , tjmax , rv_w_onorm , iv_w_okpvt , a , tj , rms2 )
+     . ( ) , tjmax , norm_rv , kpvt_iv , a , tj , rms2 )
 
       im = imix
       if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
@@ -618,32 +554,23 @@ Cdelw1      .  w(onorm),w(okpvt),a,tj,rms2)
      .  call awrit1(' (warning) only %i iter available',
      .  ' ',80,i1mach(2),mmix)
       if (im .ne. imix) then
-Cdelw1         call dcopy(nda*(mxsav+2)*2,w(oa),1,a,1)
-        call dcopy ( nda * ( mxsav + 2 ) * 2 , rv_w_oa , 1 , a , 1 )
+        call dcopy ( nda * ( mxsav + 2 ) * 2 , a_rv , 1 , a , 1 )
 
         goto 1
       endif
       nmix = imix
 
 C ... Restore PQ array, updating new x
-Cdelw1       call dpscop(a,w(oa),nda,1+nda*(mxsav+2),1+nda*(mxsav+2),1d0)
-      call dpscop ( a , rv_w_oa , nda , 1 + nda * ( mxsav + 2 ) , 1 
+      call dpscop ( a , a_rv , nda , 1 + nda * ( mxsav + 2 ) , 1 
      . + nda * ( mxsav + 2 ) , 1d0 )
 
-Cdelw1       call dcopy(nda*(mxsav+2)*2,w(oa),1,a,1)
-      call dcopy ( nda * ( mxsav + 2 ) * 2 , rv_w_oa , 1 , a , 1 )
+      call dcopy ( nda * ( mxsav + 2 ) * 2 , a_rv , 1 , a , 1 )
 
-Cdelw1 rlse name= onorm old_list= onorm okpvt oa
-Cdelw1 rlse name= onorm new_list= (None)
-Cdelw1       call rlse(onorm)
-      if (allocated(rv_w_oa)) deallocate(rv_w_oa)
-      if (allocated(iv_w_okpvt)) deallocate(iv_w_okpvt)
-      if (allocated(rv_w_onorm)) deallocate(rv_w_onorm)
+      if (allocated(a_rv)) deallocate(a_rv)
+      if (allocated(kpvt_iv)) deallocate(kpvt_iv)
+      if (allocated(norm_rv)) deallocate(norm_rv)
 
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 C      subroutine pqmixb(nda,nmix,mmix,mxsav,wc,rms2,a,wctrue)
 CC- Broyden mixing of a vector, old style
@@ -805,19 +732,17 @@ C     implicit none
       integer nda,nmix,mmix,mxsav
       double precision beta,rms2,wctrue,a(nda,0:mxsav+1,2)
       double precision ddot,dval,wc
-Cdelw1       integer im,km,i,iprint,i1mach,imix,jmix,oxmp1
       integer:: im , km , i , iprint , i1mach , imix , jmix
-      real(8) ,allocatable :: rv_w_oxmp1(:)
+      real(8) ,allocatable :: xmp1_rv(:)
 
-Cdelw1       integer of,oui,ovti,oxold,odf,odx,owk,broyj
       integer:: broyj
-      real(8) ,allocatable :: rv_w_of(:)
-      real(8) ,allocatable :: rv_w_oui(:)
-      real(8) ,allocatable :: rv_w_ovti(:)
-      real(8) ,allocatable :: rv_w_oxold(:)
-      real(8) ,allocatable :: rv_w_odf(:)
-      real(8) ,allocatable :: rv_w_odx(:)
-      real(8) ,allocatable :: rv_w_owk(:)
+      real(8) ,allocatable :: f_rv(:)
+      real(8) ,allocatable :: ui_rv(:)
+      real(8) ,allocatable :: vti_rv(:)
+      real(8) ,allocatable :: xold_rv(:)
+      real(8) ,allocatable :: df_rv(:)
+      real(8) ,allocatable :: dx_rv(:)
+      real(8) ,allocatable :: wk_rv(:)
 
 
 c heap
@@ -825,33 +750,26 @@ c heap
       common /w/ w
 
 C --- Allocate some arrays ---
-Cdelw1       call defdr(oxmp1,nda)
-      allocate(rv_w_oxmp1(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_oxmp1(:)=0.0d0
+      allocate(xmp1_rv(nda))
+Ctakao_ZeroClear_NotRequiered        if (nda<0) xmp1_rv(:)=0.0d0
 
-Cdelw1       call defdr(of,nda)
-      allocate(rv_w_of(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_of(:)=0.0d0
+      allocate(f_rv(nda))
+Ctakao_ZeroClear_NotRequiered        if (nda<0) f_rv(:)=0.0d0
 
-Cdelw1       call defdr(oui,nda)
-      allocate(rv_w_oui(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_oui(:)=0.0d0
+      allocate(ui_rv(nda))
+Ctakao_ZeroClear_NotRequiered        if (nda<0) ui_rv(:)=0.0d0
 
-Cdelw1       call defdr(ovti,nda)
-      allocate(rv_w_ovti(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_ovti(:)=0.0d0
+      allocate(vti_rv(nda))
+Ctakao_ZeroClear_NotRequiered        if (nda<0) vti_rv(:)=0.0d0
 
-Cdelw1       call defdr(oxold,nda)
-      allocate(rv_w_oxold(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_oxold(:)=0.0d0
+      allocate(xold_rv(nda))
+Ctakao_ZeroClear_NotRequiered        if (nda<0) xold_rv(:)=0.0d0
 
-Cdelw1       call defdr(odf,nda)
-      allocate(rv_w_odf(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_odf(:)=0.0d0
+      allocate(df_rv(nda))
+Ctakao_ZeroClear_NotRequiered        if (nda<0) df_rv(:)=0.0d0
 
-Cdelw1       call defdr(odx,nda)
-      allocate(rv_w_odx(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_odx(:)=0.0d0
+      allocate(dx_rv(nda))
+Ctakao_ZeroClear_NotRequiered        if (nda<0) dx_rv(:)=0.0d0
 
 
 C ... imix is a local copy of nmix
@@ -860,9 +778,8 @@ C ... imix is a local copy of nmix
 
 C --- Starting from iteration mmix, build the Jacobian matrix ---
     1 jmix = min(mmix,iabs(imix))
-Cdelw1       call defdr(owk,nda*2*(jmix+2))
-      allocate(rv_w_owk(nda*2*(jmix+2)))
-Ctakao_ZeroClear_NotRequiered        if (nda*2*(jmix+2)<0) rv_w_owk(:)=0.0d0
+      allocate(wk_rv(nda*2*(jmix+2)))
+Ctakao_ZeroClear_NotRequiered        if (nda*2*(jmix+2)<0) wk_rv(:)=0.0d0
 
       do  10  km = 1, jmix
 C   ... this loops from most-distant to most-recent
@@ -870,15 +787,12 @@ C   ... this loops from most-distant to most-recent
 C   ... this loops from most-recent to most-distant
 C       im = km
 
-Cdelw1         call dcopy(nda,a(1,im-1,1),1,w(odx),1)
-        call dcopy ( nda , a ( 1 , im - 1 , 1 ) , 1 , rv_w_odx , 1 )
+        call dcopy ( nda , a ( 1 , im - 1 , 1 ) , 1 , dx_rv , 1 )
 
-Cdelw1         call daxpy(nda,-1d0,a(1,im-1,2),1,w(odx),1)
-        call daxpy ( nda , - 1d0 , a ( 1 , im - 1 , 2 ) , 1 , rv_w_odx 
+        call daxpy ( nda , - 1d0 , a ( 1 , im - 1 , 2 ) , 1 , dx_rv 
      .   , 1 )
 
-Cdelw1         rms2 = dsqrt(ddot(nda,w(odx),1,w(odx),1)/(nda-0))
-        rms2 = dsqrt ( ddot ( nda , rv_w_odx , 1 , rv_w_odx , 1 ) / ( 
+        rms2 = dsqrt ( ddot ( nda , dx_rv , 1 , dx_rv , 1 ) / ( 
      .   nda - 0 ) )
 
 
@@ -893,10 +807,8 @@ C ---   Determine wc_true if wc < 0 ---
 
         i = iprint()
         if (km .ne. jmix) i = i-20
-Cdelw1         i = broyj(nda,a(1,im-1,2),w(odx),km,0,i,beta,0d0,0d0,0d0,
-Cdelw1      .    wctrue,w(owk),nda,w(oxmp1))
-        i = broyj ( nda , a ( 1 , im - 1 , 2 ) , rv_w_odx , km , 0 , 
-     .   i , beta , 0d0 , 0d0 , 0d0 , wctrue , rv_w_owk , nda , rv_w_oxmp1 
+        i = broyj ( nda , a ( 1 , im - 1 , 2 ) , dx_rv , km , 0 , 
+     .   i , beta , 0d0 , 0d0 , 0d0 , wctrue , wk_rv , nda , xmp1_rv 
      .   )
 
    10 continue
@@ -912,19 +824,15 @@ C NB negative sign signals request for permanent change in nmix
       nmix = imix
 C ... If no prior iter allowed, give up on nmix
 Cki#error, have return with len(w_varlist)>0 at line 769
-Cdelw1 w_varlist remains: oxmp1 of oui ovti oxold odf odx owk
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [oxmp1 of oui ovti oxold odf odx owk]
-Cdelw1       if (nmix .eq. 0) return
       if ( nmix .eq. 0 ) then
-        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-        if (allocated(rv_w_odx)) deallocate(rv_w_odx)
-        if (allocated(rv_w_odf)) deallocate(rv_w_odf)
-        if (allocated(rv_w_oxold)) deallocate(rv_w_oxold)
-        if (allocated(rv_w_ovti)) deallocate(rv_w_ovti)
-        if (allocated(rv_w_oui)) deallocate(rv_w_oui)
-        if (allocated(rv_w_of)) deallocate(rv_w_of)
-        if (allocated(rv_w_oxmp1)) deallocate(rv_w_oxmp1)
+        if (allocated(wk_rv)) deallocate(wk_rv)
+        if (allocated(dx_rv)) deallocate(dx_rv)
+        if (allocated(df_rv)) deallocate(df_rv)
+        if (allocated(xold_rv)) deallocate(xold_rv)
+        if (allocated(vti_rv)) deallocate(vti_rv)
+        if (allocated(ui_rv)) deallocate(ui_rv)
+        if (allocated(f_rv)) deallocate(f_rv)
+        if (allocated(xmp1_rv)) deallocate(xmp1_rv)
         return
       endif
 
@@ -933,11 +841,9 @@ C --- Printout ---
       if (iprint().gt.60 .or. (iprint().ge.40 .and. nda.le.100)) then
         print 310
         do  12  i = 1, nda
-Cdelw1           if (dabs(a(i,0,1)-a(i,0,2)) .ge. 5d-9)  print 311, i,
-Cdelw1      .      a(i,0,2),a(i,0,1),a(i,0,1)-a(i,0,2),dval(w(oxmp1),i)
           if ( dabs ( a ( i , 0 , 1 ) - a ( i , 0 , 2 ) ) .ge. 5d - 9 ) 
      .     print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 
-     .     , 1 ) - a ( i , 0 , 2 ) , dval ( rv_w_oxmp1 , i )
+     .     , 1 ) - a ( i , 0 , 2 ) , dval ( xmp1_rv , i )
 
    12   continue
   311   format(i5,4f14.6)
@@ -945,24 +851,17 @@ Cdelw1      .      a(i,0,2),a(i,0,1),a(i,0,1)-a(i,0,2),dval(w(oxmp1),i)
       endif
 
 C --- Save x^(m+2) into a(*,0,2) and exit ---
-Cdelw1       call dcopy(nda,w(oxmp1),1,a(1,0,2),1)
-      call dcopy ( nda , rv_w_oxmp1 , 1 , a ( 1 , 0 , 2 ) , 1 )
+      call dcopy ( nda , xmp1_rv , 1 , a ( 1 , 0 , 2 ) , 1 )
 
-Cdelw1 rlse name= oxmp1 old_list= owk odx odf oxold ovti oui of oxmp1
-Cdelw1 rlse name= oxmp1 new_list= owk odx odf oxold ovti oui of
-Cdelw1       call rlse(oxmp1)
-      if (allocated(rv_w_oxmp1)) deallocate(rv_w_oxmp1)
+      if (allocated(xmp1_rv)) deallocate(xmp1_rv)
 
-Cdelw1 w_varlist remains: owk odx odf oxold ovti oui of
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: [owk odx odf oxold ovti oui of]
-      if (allocated(rv_w_of)) deallocate(rv_w_of)
-      if (allocated(rv_w_oui)) deallocate(rv_w_oui)
-      if (allocated(rv_w_ovti)) deallocate(rv_w_ovti)
-      if (allocated(rv_w_oxold)) deallocate(rv_w_oxold)
-      if (allocated(rv_w_odf)) deallocate(rv_w_odf)
-      if (allocated(rv_w_odx)) deallocate(rv_w_odx)
-      if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+      if (allocated(f_rv)) deallocate(f_rv)
+      if (allocated(ui_rv)) deallocate(ui_rv)
+      if (allocated(vti_rv)) deallocate(vti_rv)
+      if (allocated(xold_rv)) deallocate(xold_rv)
+      if (allocated(df_rv)) deallocate(df_rv)
+      if (allocated(dx_rv)) deallocate(dx_rv)
+      if (allocated(wk_rv)) deallocate(wk_rv)
 
       end
       subroutine pqmixc(nda,nmix,mmix,mxsav,beta,rms2,a,xn)
@@ -987,9 +886,8 @@ C     implicit none
 C Local variables
       double precision ddot,dval,dxmx,xtoll,grfac,wk(0:26)
       save wk
-Cdelw1       integer op,odx
-      real(8) ,allocatable :: rv_w_op(:)
-      real(8) ,allocatable :: rv_w_odx(:)
+      real(8) ,allocatable :: p_rv(:)
+      real(8) ,allocatable :: dx_rv(:)
 
       integer ir,imix,jmix,km,iprint,i1mach,i,idx,idamax
 c heap
@@ -997,13 +895,11 @@ c heap
       common /w/ w
 
 C --- Allocate some arrays ---
-Cdelw1       call defdr(op, nda*6)
-      allocate(rv_w_op(nda*6))
-Ctakao_ZeroClear_NotRequiered        if (nda*6<0) rv_w_op(:)=0.0d0
+      allocate(p_rv(nda*6))
+Ctakao_ZeroClear_NotRequiered        if (nda*6<0) p_rv(:)=0.0d0
 
-Cdelw1       call defdr(odx,nda)
-      allocate(rv_w_odx(nda))
-Ctakao_ZeroClear_NotRequiered        if (nda<0) rv_w_odx(:)=0.0d0
+      allocate(dx_rv(nda))
+Ctakao_ZeroClear_NotRequiered        if (nda<0) dx_rv(:)=0.0d0
 
 
 C ... imix is a local copy of nmix
@@ -1015,30 +911,23 @@ C --- Starting from iteration mmix, build the Jacobian matrix ---
       ir = 0
       do  10  km = jmix, 0, -1
 
-Cdelw1         call dcopy(nda,a(1,km,2),1,w(odx),1)
-        call dcopy ( nda , a ( 1 , km , 2 ) , 1 , rv_w_odx , 1 )
+        call dcopy ( nda , a ( 1 , km , 2 ) , 1 , dx_rv , 1 )
 
-Cdelw1         call daxpy(nda,-1d0,a(1,km,1),1,w(odx),1)
-        call daxpy ( nda , - 1d0 , a ( 1 , km , 1 ) , 1 , rv_w_odx , 
+        call daxpy ( nda , - 1d0 , a ( 1 , km , 1 ) , 1 , dx_rv , 
      .   1 )
 
-Cdelw1         rms2 = dsqrt(ddot(nda,w(odx),1,w(odx),1)/(nda-0))
-        rms2 = dsqrt ( ddot ( nda , rv_w_odx , 1 , rv_w_odx , 1 ) / ( 
+        rms2 = dsqrt ( ddot ( nda , dx_rv , 1 , dx_rv , 1 ) / ( 
      .   nda - 0 ) )
 
-Cdelw1         idx = idamax(nda,w(odx),1)
-        idx = idamax ( nda , rv_w_odx , 1 )
+        idx = idamax ( nda , dx_rv , 1 )
 
-Cdelw1         dxmx = beta*abs(dval(w(odx),idx))
-        dxmx = beta * abs ( dval ( rv_w_odx , idx ) )
+        dxmx = beta * abs ( dval ( dx_rv , idx ) )
 
         xtoll = dxmx/10
         grfac = min(2d0,1/beta)
         call pshpr(80)
         wk(0) = xn
-Cdelw1         call drgrzr(nda,a(1,km,2),w(odx),w(op),w,xtoll,dxmx,
-Cdelw1      .    1d-10,1d-10,grfac,wk,' ',00040,ir)
-        call drgrzr ( nda , a ( 1 , km , 2 ) , rv_w_odx , rv_w_op , w 
+        call drgrzr ( nda , a ( 1 , km , 2 ) , dx_rv , p_rv , w 
      .   , xtoll , dxmx , 1d - 10 , 1d - 10 , grfac , wk , ' ' , 00040 
      .   , ir )
 
@@ -1062,11 +951,9 @@ C --- Printout ---
       if (iprint() .gt. 40) then
         print 310
         do  12  i = 1, nda
-Cdelw1           if (dabs(a(i,0,1)-a(i,0,2)) .ge. 5d-9)  print 311, i,
-Cdelw1      .      a(i,0,2),a(i,0,1),a(i,0,1)-a(i,0,2),dval(w(op),i)
           if ( dabs ( a ( i , 0 , 1 ) - a ( i , 0 , 2 ) ) .ge. 5d - 9 ) 
      .     print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 
-     .     , 1 ) - a ( i , 0 , 2 ) , dval ( rv_w_op , i )
+     .     , 1 ) - a ( i , 0 , 2 ) , dval ( p_rv , i )
 
    12   continue
   311   format(i5,4f14.6)
@@ -1074,18 +961,11 @@ Cdelw1      .      a(i,0,2),a(i,0,1),a(i,0,1)-a(i,0,2),dval(w(op),i)
       endif
 
 C --- Save x^(m+2) into a(*,0,2) and exit ---
-Cdelw1       call dcopy(nda,w(op),1,a(1,0,2),1)
-      call dcopy ( nda , rv_w_op , 1 , a ( 1 , 0 , 2 ) , 1 )
+      call dcopy ( nda , p_rv , 1 , a ( 1 , 0 , 2 ) , 1 )
 
-Cdelw1 rlse name= op old_list= op odx
-Cdelw1 rlse name= op new_list= (None)
-Cdelw1       call rlse(op)
-      if (allocated(rv_w_odx)) deallocate(rv_w_odx)
-      if (allocated(rv_w_op)) deallocate(rv_w_op)
+      if (allocated(dx_rv)) deallocate(dx_rv)
+      if (allocated(p_rv)) deallocate(p_rv)
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine pqmxup(na,mxsav,nclass,nl,nsp,nx,lmx,
      .  pnu,qnu,xnew,pold,qold,xold,cnst,nda,a,rms2)
@@ -1124,9 +1004,6 @@ C       print *, i, qold(i,l+1,isp,ic) -  a(na+i,0,2)
      .               ddot(nx,xold,1,xold,1)
       na = na + nx
       rms2 = dsqrt(4*rms2/(na-0))
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
       subroutine pqmxio(nmix,mxsav,ifi,lbin,nclass,nl,nsp,nx,lmx,
      .  pnu,pold,qnu,qold,xnew,xold,cnst,nda,a,na,rms2)
@@ -1239,9 +1116,6 @@ C --- Save iterations to disk ---
   333     format(1p,4e20.13)
         endif
       endif
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 C testing ...
 C      subroutine fmain

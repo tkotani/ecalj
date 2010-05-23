@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['iorbtm', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['iorbtm', 'm_struc_def']
       subroutine iorbtm(sspec,ics,nl,nlo,nclass,nsp,orbtm)
 
       use m_struc_def  !Cgetarg
@@ -23,7 +21,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nlo,nl,nsp,nclass,ics(*)
-Cgetarg       double precision sspec,orbtm(nlo,nsp,nclass)
       real(8):: orbtm(nlo,nsp,nclass)
       type(s_spec)::sspec(*)
 
@@ -44,7 +41,6 @@ C ... External calls
 C     totmom = 0
       do  ic = 1, nclass
         is = ics(ic)
-Cgetarg         call spacks(0,'spec name',sspec,slabl,is,is)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,slabl,i_spacks)
         enddo
@@ -71,7 +67,6 @@ C              print *, l,m,isp,ic,orbtm(lm,isp,ic)
   334   format(' total moment for class',i4,':',f12.6)
       enddo
 
-Cgetarg       end
       end subroutine iorbtm
 
 

@@ -1,23 +1,3 @@
-Cdelw1 var ['osmrho', '4', 'osmrho', '-k1*k2*k3*nsp', 'complex(8)', 'zv_w_', 'iors']
-Cdelw1 var ['oh', '4', 'oh', '-k11*k21*k31*nsp', 'complex(8)', 'zv_w_', 'iors']
-Cdelw1 var ['ov0', '2', 'ov0', 'nr*nsp', 'real(8)', 'rv_w_', 'iors']
-Cdelw1 var ['ov1', '3', 'ov1', 'nr*nsp', 'real(8)', 'rv_w_', 'iors']
-Cdelw1 var ['oves', '-1', 'undef', '0', 'undef', 'x', 'iors']
-Cdelw1 var ['orhoca', '3', 'orhoca', 'nr*nsp', 'real(8)', 'rv_w_', 'iors']
-Cdelw1 var ['orwgt', '4', 'orwgt', 'nr', 'real(8)', 'rv_w_', 'iors']
-Cdelw1 undel [['undef', 'wref'], 'oves', 'iors']
-Cdelw1 undel [['call', 'array', 'wref'], 'orhoat', 'iors']
-Cdelw1 undel [['wref'], 'ov0', 'iors']
-Cdelw1 undel [['wref'], 'ov1', 'iors']
-Cdelw1 undel [['wref'], 'orhoca', 'iors']
-Cdelw1 undel [['wref'], 'osmrho', 'iors']
-Cgetarg...info...           structure ['iors', 'lat', 'slat']
-Cgetarg...info...           structure ['iors', 'ctrl', 'sctrl']
-Cgetarg...info...           structure ['iors', 'pot', 'spot']
-Cgetarg...info...           structure ['iors', 'bz', 'sbz']
-Cgetarg...info...           structure ['iors', 'site', 'ssite']
-Cgetarg...info...           structure ['iors', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['iors', 'm_struc_def']
 #define FP 1
       integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
      .  fid,nbas,nat,nspec,orhoat,qnu,nit,lbin,ifi)
@@ -141,10 +121,8 @@ C  ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       logical lbin
-Cdelw1 do not change  [['call', 'array', 'wref'], 'orhoat', 'iors']
       integer mode,nbas,nat,nspec,nit,ifi,orhoat(3,nbas),n0
       parameter (n0=10)
-Cgetarg       double precision sctrl(1),ssite(1),sspec(1),slat(1),spot(1),sbz(1)
       type(s_ctrl)::sctrl
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -161,17 +139,10 @@ C ... Local parameters
      .  lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel,lrel0,n11,n21,
      .  n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
      .  nxi,nat0,ibaug
-Cdelw1 do not change  [['wref'], 'orhoca', 'iors']
-Cdelw1 do not change  [['wref'], 'ov0', 'iors']
-Cdelw1 do not change  [['wref'], 'ov1', 'iors']
-Cdelw1 do not change  [['wref'], 'osmrho', 'iors']
-Cdelw1 do not change  [['undef', 'wref'], 'oves', 'iors']
-Cdelw1       integer oh,orhoca,orwgt,ov0,ov1,ngabc(3),n1,n2,n3,lgunit,stdo,
-Cdelw1      .  isw,osmrho,oves
       integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
      . , stdo , isw , osmrho , oves
-      complex(8) ,allocatable :: zv_w_oh(:)
-      real(8) ,allocatable :: rv_w_orwgt(:)
+      complex(8) ,allocatable :: h_zv(:)
+      real(8) ,allocatable :: rwgt_rv(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer idmod(n0),idmoz(n0),lrs(10),nl
@@ -201,10 +172,6 @@ C ... MPI setup
       master = 0
       mlog = cmdopt('--mlog',6,0,ignore)
 
-Cgetarg...info...           real(8) :: alat , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
-Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
-Cgetarg       call upack('lat alat plat nabc',slat,alat,plat,ngabc,0,0)
 
       alat=slat%alat
       i_copy_size=size(slat%plat)
@@ -223,13 +190,10 @@ Cgetarg       call upack('lat alat plat nabc',slat,alat,plat,ngabc,0,0)
       endif
       nsp    = nglob('nsp')
       lrel   = nglob('lrel')
-Cgetarg       lrs(1) = isw(lgors('ctrl lrs,32',sctrl))
       lrs ( 1 ) = isw ( iand(32,int(sctrl%lrs)) .ne.0 )
 
-Cgetarg       lrs(2) = isw(lgors('ctrl lrs,64',sctrl))
       lrs ( 2 ) = isw ( iand(64,int(sctrl%lrs)) .ne.0 )
 
-Cgetarg       lrs(3) = isw(lgors('ctrl lrs,128',sctrl))
       lrs ( 3 ) = isw ( iand(128,int(sctrl%lrs)) .ne.0 )
 
       if (mode .eq. -2) then
@@ -243,11 +207,7 @@ C     ndyn = igets('move size',smove)
       line = 'header'
       if (mode .eq. 1) then
         call fftz30(n1,n2,n3,k1,k2,k3)
-Cgetarg...info...           integer :: osmrho , integer(8) :: spot%osmrho 1
-Cgetarg         call upack1('pot osmrho',spot,osmrho)
 
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 225
-Cdelw1 do not change osmrho because of ['wref']
         osmrho=spot%osmrho
 
       endif
@@ -357,9 +317,6 @@ C       Abort with error message if file is missing (lfail = .true.)
             read(jfi,*) plat0
           endif
           if (mode .eq. -2) then
-Cgetarg...info...           real(8) :: alat0 , real(8) :: slat%alat 1
-Cgetarg...info...           real(8) :: plat0(9) , real(8) :: slat%plat 9
-Cgetarg           call pack2('lat alat plat',slat,alat0,plat0)
 
             slat%alat=alat0
             i_copy_size=size(slat%plat)
@@ -386,10 +343,6 @@ Cgetarg           call pack2('lat alat plat',slat,alat0,plat0)
             nbas = nbas0
             nat  = nat0
             nspec = nspec0
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oves orhoat ov0 ov1 orhoca osmrho]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
             return
           endif
 
@@ -445,21 +398,13 @@ cccccccccccccc
               n1 = n11
               n2 = n21
               n3 = n31
-Cgetarg...info...           integer :: ngabc(3) , integer(8) :: slat%nabc 3
-Cgetarg           call pack1('lat nabc',slat,ngabc)
 
               i_copy_size=size(slat%nabc)
               call ii8copy(i_copy_size,ngabc,1,slat%nabc,1)
 
               call fftz30(n1,n2,n3,k1,k2,k3)
-Cdelw1 do not change osmrho because of ['wref']
               call defcc (osmrho,-k1*k2*k3*nsp)
-Cdelw1 do not change osmrho because of ['wref']
               call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
-Cdelw1 rlse name= osmrho old_list= osmrho
-Cdelw1 rlse name= osmrho new_list= (None)
-Cdelw1 not deallocate osmrho because of [wref]
-Cdelw1           call rlse(osmrho)
               call rlse(osmrho)
 
             elseif (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
@@ -468,8 +413,6 @@ cccccccccccccccccc
 c          write(6,*)'yyyyyyyy 222111',n11,n21,n31,n1,n2,n3,k1,k2,k3
 c          write(6,*)'yyyyyyyy 222444',nsp0,lbin,jfi,osmrho
 cccccccccccccccccc
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 434
-Cdelw1 do not change osmrho because of ['wref']
               call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
               if (nsp .gt. nsp0) then
 C           call zprm3('smrho before split',0,w(osmrho),k1,k2,k3)
@@ -477,11 +420,7 @@ cccccccccccccccccc
 c          write(6,*)'yyyyyyyy 222333'
 cccccccccccccccccc
                 i = k1*k2*k3*2
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 441
-Cdelw1 do not change osmrho because of ['wref']
                 call dscal(i,0.5d0,w(osmrho),1)
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 442
-Cdelw1 do not change osmrho because of ['wref']
                 call dpscop(w(osmrho),w(osmrho),i,1,1+i,1d0)
 C           call zprm3('smrho after split',0,w(osmrho),k1,k2,k3*2)
               endif
@@ -491,41 +430,28 @@ c   ... or read and remesh
   450         format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,
      .       '    to  ',i4,'  *',i4,'  *',i4)
               call fftz30(n11,n21,n31,k11,k21,k31)
-Cdelw1           call defcc(oh, -k11*k21*k31*nsp)
-              allocate(zv_w_oh(abs(-k11*k21*k31*nsp)))
-              if (-k11*k21*k31*nsp<0) zv_w_oh(:)=0.0d0
+              allocate(h_zv(abs(-k11*k21*k31*nsp)))
+              if (-k11*k21*k31*nsp<0) h_zv(:)=0.0d0
 
-Cdelw1           call dpdftr(n11,n21,n31,k11,k21,k31,nsp0,w(oh),lbin,jfi)
-              call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , zv_w_oh 
+              call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , h_zv 
      .     , lbin , jfi )
 
               if (nsp .gt. nsp0) then
 C           call zprm3('smrho before split',0,w(oh),k1,k2,k3)
                 i = k11*k21*k31*2
-Cdelw1             call dscal(i,0.5d0,w(oh),1)
-                call dscal ( i , 0.5d0 , zv_w_oh , 1 )
+                call dscal ( i , 0.5d0 , h_zv , 1 )
 
-Cdelw1             call dpscop(w(oh),w(oh),i,1,1+i,1d0)
-                call dpscop ( zv_w_oh , zv_w_oh , i , 1 , 1 + i , 1d0 )
+                call dpscop ( h_zv , h_zv , i , 1 , 1 + i , 1d0 )
 
               endif
               call pshpr(0)
               i = 0
               if (n1 .eq. 2*n11 .and. n2 .eq. 2*n21 .and. n3 .eq. 2*n31) i=3
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 462
-Cdelw1 do not change osmrho because of ['wref']
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 462
-Cdelw1 do not change osmrho because of ['wref']
-Cdelw1           call chgmsh(i,plat,nsp,n11,n21,n31,k11,k21,k31,w(oh),
-Cdelw1      .                n1,n2,n3,k1,k2,k3,w(osmrho))
               call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , 
-     .     k31 , zv_w_oh , n1 , n2 , n3 , k1 , k2 , k3 , w ( osmrho ) )
+     .     k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , w ( osmrho ) )
 
               call poppr
-Cdelw1 rlse name= oh old_list= oh
-Cdelw1 rlse name= oh new_list= (None)
-Cdelw1           call rlse (oh)
-              if (allocated(zv_w_oh)) deallocate(zv_w_oh)
+              if (allocated(h_zv)) deallocate(h_zv)
 
             endif
 
@@ -540,13 +466,9 @@ C   ... If cell volume changed, scale smooth density to maintain charge
               if (ipr .ge. 10) write(stdo,460) vol0,vfac
   460         format(9x,'volume changed from',f8.2,
      .       ' :  scale smooth density by',f8.4)
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 479
-Cdelw1 do not change osmrho because of ['wref']
               call dpcopy(w(osmrho),w(osmrho),1,2*k1*k2*k3*nsp,vfac)
             endif
           endif
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 482
-Cdelw1 do not change osmrho because of ['wref']
           call mpibc1(w(osmrho),2*k1*k2*k3*nsp,4,mlog,'iors','smrho')
   115     continue
 #else
@@ -573,10 +495,6 @@ C       For compatibility with nfp, read record into wk
           call awrit0('%a ef window,',ignore,len(ignore),0)
         else
           call awrit0('%a ef window,',use,len(use),0)
-Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%ef 1
-Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%def 1
-Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%w 1
-Cgetarg           call pack5('bz ef def w',sbz,wk(1),wk(2),wk(3),0,0)
 
           sbz%ef=wk(1)
           sbz%def=wk(2)
@@ -615,12 +533,6 @@ C         Must be enough sites to read from rst file
             endif
           endif
           if (mode .eq. -2) then
-Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos 3
-Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos0 3
-Cgetarg...info...           real(8) :: force(3) , real(8) :: ssite%force 3
-Cgetarg...info...           real(8) :: vel(3) , real(8) :: ssite%vel 3
-Cgetarg             call pack5('site pos pos0 force vel',ssite,ib,pos,pos,force,
-Cgetarg      .      vel)
 
             i_copy_size=size(ssite(ib)%pos)
             call dcopy(i_copy_size,pos,1,ssite(ib)%pos,1)
@@ -645,20 +557,12 @@ C         rst file positions in pos0
           endif
           call dcopy(3,pos,1,pos0,1)
           if (lrs(1) .ne. 0) then
-Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos 3
-Cgetarg             call upack2('site pos',ssite,ib,pos)
 
             i_copy_size=size(ssite(ib)%pos)
             call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1)
 
             call dpzero(vel,3)
           endif
-Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos 3
-Cgetarg...info...           real(8) :: pos0(3) , real(8) :: ssite%pos0 3
-Cgetarg...info...           real(8) :: force(3) , real(8) :: ssite%force 3
-Cgetarg...info...           real(8) :: vel(3) , real(8) :: ssite%vel 3
-Cgetarg           call pack5('site pos pos0 force vel',ssite,ib,pos,pos0,force,
-Cgetarg      .      vel)
 
           i_copy_size=size(ssite(ib)%pos)
           call dcopy(i_copy_size,pos,1,ssite(ib)%pos,1)
@@ -691,9 +595,6 @@ C   --- Read information for local densities ---
         endif
         ibaug = 0
         do  ib = 1, nbas
-Cgetarg...info...           integer :: ic , integer(8) :: ssite%class 1
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg           call upack('site class spec',ssite,ib,ic,is,0,0)
 
           ic=ssite(ib)%class
           is=ssite(ib)%spec
@@ -708,7 +609,6 @@ C           If 1st entry > nspec => probably nr, not is.  Assume floating
               call info2(10,0,0,
      .          '%9f(warning) species mismatch (%i) for ib=%i ... '//
      .          'ignore and assign to species 0',is,ib)
-Cgetarg               call pack2('site spec',ssite,ib,0)
 
               ssite(ib)%spec=0
 
@@ -716,23 +616,17 @@ Cgetarg               call pack2('site spec',ssite,ib,0)
             endif
             read(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc
             backspace jfi
-Cgetarg             call spacks(1,'spec name',sspec,spid,is,is)
             do i_spacks=is,is
               call spacks_copy('p',sspec(i_spacks)%name,is,is,spid,i_spacks)
             enddo
 
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg             call pack2('site spec',ssite,ib,is)
 
             ssite(ib)%spec=is
 
-Cgetarg             call spacks(1,'site clabel',ssite,spid,ib,ib)
             do i_spacks=ib,ib
               call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,spid,i_spacks)
             enddo
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg             call pack2('spec lmxa',sspec,is,lmxa)
 
             sspec(is)%lmxa=lmxa
 
@@ -740,18 +634,13 @@ Cgetarg             call pack2('spec lmxa',sspec,is,lmxa)
             read(jfi,'(19x,a8)') spid
             read(jfi,*)
             read(jfi,*) is,lmxa,lmxl,nr
-Cgetarg             call spacks(1,'spec name',sspec,spid,is,is)
             do i_spacks=is,is
               call spacks_copy('p',sspec(i_spacks)%name,is,is,spid,i_spacks)
             enddo
 
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg             call pack2('site spec',ssite,ib,is)
 
             ssite(ib)%spec=is
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg             call pack2('spec lmxa',sspec,is,lmxa)
 
             sspec(is)%lmxa=lmxa
 
@@ -762,26 +651,16 @@ Cgetarg             call pack2('spec lmxa',sspec,is,lmxa)
 C         is = -1 -> spec struc does not have these parameters
 C         lskip = .false.
           if (is .ne. -1) then
-Cgetarg             call spacks(0,'spec name',sspec,spid,is,is)
             do i_spacks=is,is
               call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
             enddo
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg             call upack('spec a nr rmt z',sspec,is,a,nr,rmt,z)
 
             a=sspec(is)%a
             nr=sspec(is)%nr
             rmt=sspec(is)%rmt
             z=sspec(is)%z
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
-Cgetarg             call upack('spec lmxa lmxl kmxt',sspec,is,lmxa,lmxl,kmax,0)
 
             lmxa=sspec(is)%lmxa
             lmxl=sspec(is)%lmxl
@@ -828,48 +707,28 @@ c     ... read(but don't use) extra info since record is present
 C         is = -1 -> pack spec struc with file parameters
           if (is .eq. -1 .or. mode .eq. -2) then
             is = is0
-Cgetarg             call spacks(1,'spec name',sspec,spid0,is,is)
             do i_spacks=is,is
               call spacks_copy('p',sspec(i_spacks)%name,is,is,spid0,i_spacks)
             enddo
 
             spid = spid0
-Cgetarg...info...           real(8) :: a0 , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr0 , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt0 , real(8) :: sspec%rmt 1
-Cgetarg...info...           real(8) :: z0 , real(8) :: sspec%z 1
-Cgetarg             call pack5('spec a nr rmt z',sspec,is,a0,nr0,rmt0,z0)
 
             sspec(is)%a=a0
             sspec(is)%nr=nr0
             sspec(is)%rmt=rmt0
             sspec(is)%z=z0
 
-Cgetarg...info...           integer :: lmxa0 , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxl0 , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           integer :: kmax0 , integer(8) :: sspec%kmxt 1
-Cgetarg             call pack5('spec lmxa lmxl kmxt',sspec,is,lmxa0,lmxl0,kmax0,
-Cgetarg      .        0)
 
             sspec(is)%lmxa=lmxa0
             sspec(is)%lmxl=lmxl0
             sspec(is)%kmxt=kmax0
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg             call upack('spec a nr rmt z',sspec,is,a,nr,rmt,z)
 
             a=sspec(is)%a
             nr=sspec(is)%nr
             rmt=sspec(is)%rmt
             z=sspec(is)%z
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
-Cgetarg             call upack('spec lmxa lmxl kmxt',sspec,is,lmxa,lmxl,kmax,0)
 
             lmxa=sspec(is)%lmxa
             lmxl=sspec(is)%lmxl
@@ -882,9 +741,6 @@ C     ... Read augmentation data
           call dpzero(pnz,2*n0)
           call dpzero(ql,2*n0)
 C         if (lmxa0 .lt. lmxa) call defpq(z,lmxa,nsp,pnu,ql)
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
-Cgetarg           call upack('spec p pz',sspec,is,pnu,pnz,0,0)
 
           i_copy_size=size(sspec(is)%p)
           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
@@ -933,9 +789,6 @@ C         read(but don't use) site idmod for compatibility with nfp
 
 C     ... Store pnu and pz in site and spec data
 C         if (ib .le. nat) then
-Cgetarg...info...           real(8) :: pnus(n0,2) , real(8) :: sspec%p 20
-Cgetarg...info...           real(8) :: pnzs(n0,2) , real(8) :: sspec%pz 20
-Cgetarg           call upack('spec p pz',sspec,is,pnus,pnzs,0,0)
 
           i_copy_size=size(sspec(is)%p)
           call dcopy(i_copy_size,sspec(is)%p,1,pnus,1)
@@ -943,28 +796,18 @@ Cgetarg           call upack('spec p pz',sspec,is,pnus,pnzs,0,0)
           call dcopy(i_copy_size,sspec(is)%pz,1,pnzs,1)
 
           if  (lrs(3) .eq. 0 .or. mode .eq. -2) then
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
-Cgetarg             call pack5('site pnu pz',ssite,ib,pnu,pnz,0,0)
 
             i_copy_size=size(ssite(ib)%pnu)
             call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
             i_copy_size=size(ssite(ib)%pz)
             call dcopy(i_copy_size,pnz,1,ssite(ib)%pz,1)
 
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: sspec%p 20
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
-Cgetarg             call pack5('spec p pz',sspec,is,pnu,pnz,0,0)
 
             i_copy_size=size(sspec(is)%p)
             call dcopy(i_copy_size,pnu,1,sspec(is)%p,1)
             i_copy_size=size(sspec(is)%pz)
             call dcopy(i_copy_size,pnz,1,sspec(is)%pz,1)
 
-Cgetarg...info...           real(8) :: pnus(n0,2) , real(8) :: sspec%p 20
-Cgetarg...info...           real(8) :: pnzs(n0,2) , real(8) :: sspec%pz 20
-Cgetarg             if (mode .eq. -2)
-Cgetarg      .      call upack('spec p pz',sspec,is,pnus,pnzs,0,0)
             if ( mode .eq. -2 ) then
 
               i_copy_size=size(sspec(is)%p)
@@ -1039,30 +882,21 @@ C     --- Allocate and read arrays for local density and potential ---
           nlml0 = (lmxl0+1)**2
           nlml = (lmxl+1)**2
 
-Cdelw1 do not change ov0 because of ['wref']
           call defrr(ov0,           nr*nsp)
 C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
           if (mode .eq. 1 .or. mode .eq. -2) then
             if (nr .ne. nr0)
      .        call rx('iors not set up to convert radial mesh')
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call defrr(orhoat(1,ib),  nr*nlml*nsp)
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call defrr(orhoat(2,ib),  nr*nlml*nsp)
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call defrr(orhoat(3,ib),  nr*nsp)
-Cdelw1 do not change ov1 because of ['wref']
             call defrr(ov1,           nr*nsp)
 
             if (procid .eq. master) then
               if (.not. lbin) read(jfi,*)
-Cdelw1 1 is digit, dropped
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call dpdbyl(w(orhoat(1,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
      .                  jfi)
               if (.not. lbin) read(jfi,*)
-Cdelw1 2 is digit, dropped
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call dpdbyl(w(orhoat(2,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
      .                  jfi)
               if (nlml0.gt.nlml.and.ipr.ge.10)
@@ -1072,19 +906,13 @@ Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
   202         format(9x,'site',i4,', species ',a,
      .             ': ',a,' local density from nlm=',i3,' to',i3)
               if (.not. lbin) read(jfi,*)
-Cdelw1 3 is digit, dropped
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call dpdbyl(w(orhoat(3,ib)),nr0,1,1,nsp0,nsp,lbin,jfi)
               if (.not. lbin) read(jfi,*)
-Cdelw1 do not change ov0 because of ['wref']
               call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
               if (.not. lbin) read(jfi,*)
-Cdelw1 do not change ov1 because of ['wref']
               call dpdbyl(w(ov1),nr0,1,1,nsp0,nsp,lbin,jfi)
               if (nsp0 .lt. nsp) then
-Cdelw1 do not change ov0 because of ['wref']
                 call dscal(nr0*2,2d0,w(ov0),1)
-Cdelw1 do not change ov1 because of ['wref']
                 call dscal(nr0*2,2d0,w(ov1),1)
               endif
 C           call prmx('iors: v0',w(ov0),nr0,nr0,nsp)
@@ -1095,37 +923,17 @@ C              goto 20
 C           endif
 
             if (mode .eq. -2) then
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call rlse(orhoat(1,ib))
-Cdelw1 rlse name= ov0 old_list= ov0 orhoat ov1
-Cdelw1 rlse name= ov0 new_list= (None)
-Cdelw1 not deallocate ov1 because of [wref]
-Cdelw1 not deallocate orhoat because of [call array wref]
-Cdelw1 not deallocate ov0 because of [wref]
-Cdelw1               call rlse(ov0)
               call rlse(ov0)
 
             else
-Cdelw1 1 is digit, dropped
-Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1018
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call mpibc1(w(orhoat(1,ib)),nr*nlml*nsp,4,mlog,'iors',
      .          'rhoat(1)')
-Cdelw1 2 is digit, dropped
-Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1020
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call mpibc1(w(orhoat(2,ib)),nr*nlml*nsp,4,mlog,'iors',
      .          'rhoat(2)')
-Cdelw1 3 is digit, dropped
-Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1022
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call mpibc1(w(orhoat(3,ib)),nr*nlml*nsp,4,mlog,'iors',
      .          'rhoat(3)')
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1024
-Cdelw1 do not change ov0 because of ['wref']
               call mpibc1(w(ov0),nr*nsp,4,mlog,'iors','v0')
-Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1025
-Cdelw1 do not change ov1 because of ['wref']
               call mpibc1(w(ov1),nr*nsp,4,mlog,'iors','v1')
             endif
 C     ... ASA sphere densities
@@ -1139,26 +947,14 @@ C           call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
               if (vs1 .lt. -1.041d0) then
                 read(jfi,43) vrmax(1)
    43           format(12x,f11.7)
-Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
-Cgetarg               call upack('pot oves',spot,oves,0,0,0,0)
 
-Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 1041
-Cdelw1 do not change oves because of ['undef', 'wref']
                 oves=spot%oves
 
-Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 1043
-Cdelw1 do not change oves because of ['undef', 'wref']
                 call dvset(w(oves),ic,ic,vrmax)
-Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
-Cgetarg               call pack5('pot oves',spot,oves,0,0,0,0)
 
-Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 1047
-Cdelw1 do not change oves because of ['undef', 'wref']
                 spot%oves=oves
 
               endif
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg             if (lrs(3).eq.0) call pack5('site pnu',ssite,ib,pnu,0,0,0)
               if ( lrs ( 3 ) .eq.0 ) then
 
                 i_copy_size=size(ssite(ib)%pnu)
@@ -1168,38 +964,20 @@ Cgetarg             if (lrs(3).eq.0) call pack5('site pnu',ssite,ib,pnu,0,0,0)
             endif
           endif
 C     ... store data in strucs
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg           call pack5('spec a nr rmt z',sspec,is,a,nr,rmt,z)
 
           sspec(is)%a=a
           sspec(is)%nr=nr
           sspec(is)%rmt=rmt
           sspec(is)%z=z
 
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
-Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
-Cgetarg           call pack5('spec lmxa lmxl kmxt qc',sspec,is,lmxa,lmxl,kmax,
-Cgetarg      .      qc)
 
           sspec(is)%lmxa=lmxa
           sspec(is)%lmxl=lmxl
           sspec(is)%kmxt=kmax
           sspec(is)%qc=qc
 
-Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
-Cgetarg...info...           integer :: ov1 , integer(8) :: ssite%ov1 1
-Cgetarg           call pack5('site ov0 ov1',ssite,ib,ov0,ov1,0,0)
 
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1088
-Cdelw1 do not change ov0 because of ['wref']
           ssite(ib)%ov0=ov0
-Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1089
-Cdelw1 do not change ov1 because of ['wref']
           ssite(ib)%ov1=ov1
 
    20     continue
@@ -1207,11 +985,8 @@ Cdelw1 do not change ov1 because of ['wref']
         if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
 
 #if FP
-Cgetarg         if (lshear .and. lgors('ctrl lrs,256',sctrl)) then
         if ( lshear .and. iand(256,int(sctrl%lrs)) .ne.0 ) then
 
-Cgetarg...info...           real(8) :: wk(100) , real(8) :: slat%dist 9
-Cgetarg           call upack('lat dist',slat,wk,0,0,0,0)
 
           i_copy_size=size(slat%dist)
           call dcopy(i_copy_size,slat%dist,1,wk,1)
@@ -1219,8 +994,6 @@ Cgetarg           call upack('lat dist',slat,wk,0,0,0,0)
 C         call prmx('wk',wk,3,3,3)
           call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
 C         call prmx('wk',wk,3,3,3)
-Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1108
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
           call pvsms2(ssite,sspec,wk,nbas,nsp,orhoat)
         endif
 #endif
@@ -1231,10 +1004,6 @@ C   --- Read data on free-atom core states and fit to fa density ---
           if (.not. lbin) read(jfi,*,err=999,end=999)
         endif
         do  30  is = 1, nspec
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg           call upack('spec a nr lmxa',sspec,is,a,nr,lmxa,0)
 
           a=sspec(is)%a
           nr=sspec(is)%nr
@@ -1253,9 +1022,6 @@ Cgetarg           call upack('spec a nr lmxa',sspec,is,a,nr,lmxa,0)
               read(jfi,*,err=999,end=999)
               read(jfi,*,err=999,end=999) stc,rfoc0
             endif
-Cgetarg...info...           integer :: lfoc0 , integer(8) :: sspec%lfoca 1
-Cgetarg...info...           real(8) :: rfoc0 , real(8) :: sspec%rfoca 1
-Cgetarg           call pack3('spec lfoca rfoca',sspec,is,lfoc0,rfoc0)
 
             sspec(is)%lfoca=lfoc0
             sspec(is)%rfoca=rfoc0
@@ -1270,51 +1036,35 @@ Cgetarg           call pack3('spec lfoca rfoca',sspec,is,lfoc0,rfoc0)
 
 C     ... FP core densities
           if (mode .eq. 1 .or. mode .eq. -2) then
-Cdelw1 do not change orhoca because of ['wref']
             call defrr(orhoca, nr*nsp)
             if (procid .eq. master) then
               if (nr .ne. nr0)
      .        call rx('iors not set up to convert core radial mesh')
               if (lbin) then
-Cdelw1 do not change orhoca because of ['wref']
                 call dpdump(w(orhoca),nr*nsp0,jfi)
               else
-Cdelw1 do not change orhoca because of ['wref']
                 call dfdump(w(orhoca),nr*nsp0,jfi)
               endif
 C           spin-split core density
               if (nsp .gt. nsp0) then
                 i = nr
-Cdelw1 do not change orhoca because of ['wref']
                 call dscal(i,0.5d0,w(orhoca),1)
-Cdelw1 do not change orhoca because of ['wref']
                 call dpscop(w(orhoca),w(orhoca),i,1,1+i,1d0)
               endif
             endif
             if (mode .eq. 1) then
-Cdelw1 do not change orhoca because of ['wref']
               call mpibc1(w(orhoca),nr*nsp,4,mlog,'iors','rhoca')
             else
-Cdelw1 rlse name= orhoca old_list= orhoca
-Cdelw1 rlse name= orhoca new_list= (None)
-Cdelw1 not deallocate orhoca because of [wref]
-Cdelw1             call rlse(orhoca)
               call rlse(orhoca)
 
-Cgetarg...info...          check_variable ' ' not found
-Cgetarg             call spacks(1,'spec coreh',sspec,' ',is,is)
               do i_spacks=is,is
                 call spacks_copy('p',sspec(i_spacks)%coreh,is,is,' ',i_spacks)
               enddo
 
-Cgetarg...info...          check_variable ' ' not found
-Cgetarg             call spacks(1,'spec pb1',sspec,' ',is,is)
               do i_spacks=is,is
                 call spacks_copy('p',sspec(i_spacks)%pb1,is,is,' ',i_spacks)
               enddo
 
-Cgetarg...info...          check_variable ' ' not found
-Cgetarg             call spacks(1,'spec pb2',sspec,' ',is,is)
               do i_spacks=is,is
                 call spacks_copy('p',sspec(i_spacks)%pb2,is,is,' ',i_spacks)
               enddo
@@ -1347,8 +1097,6 @@ Cgetarg             call spacks(1,'spec pb2',sspec,' ',is,is)
 
 C     ... For now, mode 0 (ASA) stores no core data
           elseif (mode .eq. 0) then
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1223
-Cdelw1 do not change orhoca because of ['wref']
             orhoca = 0
             rsmfa = 0
             nxi = 0
@@ -1357,26 +1105,12 @@ Cdelw1 do not change orhoca because of ['wref']
           endif
 C         call p_spec_hfc(sspec,is,rsmfa,nxi,exi,hfc)
 C         Pack species data
-Cgetarg...info...           real(8) :: cof , real(8) :: sspec%ctail 1
-Cgetarg...info...           real(8) :: eh , real(8) :: sspec%etail 1
-Cgetarg...info...           real(8) :: stc , real(8) :: sspec%stc 1
-Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
-Cgetarg           call pack5('spec ctail etail stc orhoc',sspec,is,cof,eh,stc,
-Cgetarg      .      orhoca)
 
           sspec(is)%ctail=cof
           sspec(is)%etail=eh
           sspec(is)%stc=stc
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1241
-Cdelw1 do not change orhoca because of ['wref']
           sspec(is)%orhoc=orhoca
 
-Cgetarg...info...           integer :: nxi , integer(8) :: sspec%nxi 1
-Cgetarg...info...           real(8) :: exi(n0) , real(8) :: sspec%exi 10
-Cgetarg...info...           real(8) :: hfc(n0,2) , real(8) :: sspec%chfa 20
-Cgetarg...info...           real(8) :: rsmfa , real(8) :: sspec%rsmfa 1
-Cgetarg           call pack5('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,
-Cgetarg      .      rsmfa)
 
           sspec(is)%nxi=nxi
           i_copy_size=size(sspec(is)%exi)
@@ -1390,54 +1124,29 @@ Cgetarg      .      rsmfa)
 c   ... Copy or rescale cores, in case foca was switched on or off
         if (mode .eq. 1) then
           do  ib = 1, nbas
-Cgetarg           is = igetss('site spec',ib,ssite)
             is = int(ssite(ib)%spec)
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg           call upack('spec a nr rmt lmxa',sspec,is,a,nr,rmt,lmxa)
 
             a=sspec(is)%a
             nr=sspec(is)%nr
             rmt=sspec(is)%rmt
             lmxa=sspec(is)%lmxa
 
-Cgetarg...info...           integer :: lfoc , integer(8) :: sspec%lfoca 1
-Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
-Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
-Cgetarg           call upack('spec lfoca qc orhoc',sspec,is,lfoc,qc,orhoca,0)
 
             lfoc=sspec(is)%lfoca
             qc=sspec(is)%qc
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1283
-Cdelw1 do not change orhoca because of ['wref']
             orhoca=sspec(is)%orhoc
 
             if (lmxa .eq. -1) goto 40
             if (lfoc .gt. 0) then
-Cdelw1 3 is digit, dropped
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1287
-Cdelw1 do not change orhoca because of ['wref']
-Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1287
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call dpcopy(w(orhoca),w(orhoat(3,ib)),1,nr*nsp,1d0)
             else
-Cdelw1             call defrr(orwgt, nr)
-              allocate(rv_w_orwgt(nr))
-Ctakao_ZeroClear_NotRequiered              if (nr<0) rv_w_orwgt(:)=0.0d0
+              allocate(rwgt_rv(nr))
+Ctakao_ZeroClear_NotRequiered              if (nr<0) rwgt_rv(:)=0.0d0
 
-Cdelw1             call radwgt(rmt,a,nr,w(orwgt))
-              call radwgt ( rmt , a , nr , rv_w_orwgt )
+              call radwgt ( rmt , a , nr , rwgt_rv )
 
-Cdelw1 3 is digit, dropped
-Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1291
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
-Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1291
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
-Cdelw1             call radsum(nr,nr,1,nsp,w(orwgt),w(orhoat(3,ib)),sum)
-              call radsum ( nr , nr , 1 , nsp , rv_w_orwgt , w ( orhoat ( 3 
+              call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoat ( 3 
      .       , ib ) ) , sum )
 
               fac = 1d0
@@ -1445,15 +1154,8 @@ Cdelw1             call radsum(nr,nr,1,nsp,w(orwgt),w(orhoat(3,ib)),sum)
               if (dabs(fac-1d0).gt.1d-7 .and. ipr.ge.30)
      .         write(stdo,787) ib,qc,sum,fac
   787         format(' fix core chg: ib=',i4,'  qc,sum,fac=',3f12.6)
-Cdelw1 3 is digit, dropped
-Cdelw1 3 is digit, dropped
-Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1297
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
               call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
-Cdelw1 rlse name= orwgt old_list= orwgt
-Cdelw1 rlse name= orwgt new_list= (None)
-Cdelw1             call rlse(orwgt)
-              if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
+              if (allocated(rwgt_rv)) deallocate(rwgt_rv)
 
             endif
    40       continue
@@ -1489,10 +1191,6 @@ C --- Output ---
       else
         if (procid .ne. master) then
           iors = 0
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oves orhoat ov0 ov1 orhoca osmrho]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
           return
         endif
         jfi = -ifi
@@ -1559,17 +1257,11 @@ C   --- Write smooth charge density ---
           write(jfi,721) 'smooth density'
           write(jfi,ifmt) n1,n2,n3
         endif
-Cdelw1 warning(1) , probably  osmrho  is not defined yet at linenumber= 1399
-Cdelw1 do not change osmrho because of ['wref']
         call dpdftr(n1,n2,n3,k1,k2,k3,nsp,w(osmrho),lbin,-jfi)
 #endif
 
 C   --- Write information related to dynamics ---
         call dpzero(wk,100)
-Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%ef 1
-Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%def 1
-Cgetarg...info...           real(8) :: wk(100) , real(8) :: sbz%w 1
-Cgetarg         call upack('bz ef def w',sbz,wk(1),wk(2),wk(3),0,0)
 
         wk(1)=sbz%ef
         wk(2)=sbz%def
@@ -1582,10 +1274,6 @@ Cgetarg         call upack('bz ef def w',sbz,wk(1),wk(2),wk(3),0,0)
           call dfdump(wk,100,-jfi)
         endif
         do  110  ib = 1, nbas
-Cgetarg...info...           real(8) :: pos(3) , real(8) :: ssite%pos 3
-Cgetarg...info...           real(8) :: force(3) , real(8) :: ssite%force 3
-Cgetarg...info...           real(8) :: vel(3) , real(8) :: ssite%vel 3
-Cgetarg           call upack('site pos force vel',ssite,ib,pos,force,vel,0)
 
           i_copy_size=size(ssite(ib)%pos)
           call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1)
@@ -1610,73 +1298,42 @@ C   --- Write information for local densities ---
         if (.not. lbin) write(jfi,721) 'site densities'
         do  120  ib = 1, nbas
 
-Cgetarg...info...           integer :: ic , integer(8) :: ssite%class 1
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg           call upack('site class spec',ssite,ib,ic,is,0,0)
 
           ic=ssite(ib)%class
           is=ssite(ib)%spec
 
-Cgetarg           call spacks(0,'spec name',sspec,spid,is,is)
           do i_spacks=is,is
             call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
           enddo
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg           call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
 
           a=sspec(is)%a
           nr=sspec(is)%nr
           rmt=sspec(is)%rmt
 
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
-Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
-Cgetarg           call upack('spec z qc idmod',sspec,is,z,qc,idmod,0)
 
           z=sspec(is)%z
           qc=sspec(is)%qc
           i_copy_size=size(sspec(is)%idmod)
           call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
 
-Cgetarg...info...           real(8) :: rsma , real(8) :: sspec%rsma 1
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg           call upack('spec rsma lmxa lmxl lmxb',sspec,is,rsma,lmxa,lmxl,
-Cgetarg      .      lmxb)
 
           rsma=sspec(is)%rsma
           lmxa=sspec(is)%lmxa
           lmxl=sspec(is)%lmxl
           lmxb=sspec(is)%lmxb
 
-Cgetarg...info...           integer :: kmxv , integer(8) :: sspec%kmxv 1
-Cgetarg...info...           real(8) :: rsmv , real(8) :: sspec%rsmv 1
-Cgetarg...info...           integer :: kmax , integer(8) :: sspec%kmxt 1
-Cgetarg           call upack('spec kmxv rsmv kmxt',sspec,is,kmxv,rsmv,kmax,0)
 
           kmxv=sspec(is)%kmxv
           rsmv=sspec(is)%rsmv
           kmax=sspec(is)%kmxt
 
-Cgetarg...info...           real(8) :: pnu(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: ssite%pz 20
-Cgetarg...info...           integer :: ov0 , integer(8) :: ssite%ov0 1
-Cgetarg...info...           integer :: ov1 , integer(8) :: ssite%ov1 1
-Cgetarg           call upack('site pnu pz ov0 ov1',ssite,ib,pnu,pnz,ov0,ov1)
 
           i_copy_size=size(ssite(ib)%pnu)
           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1510
-Cdelw1 do not change ov0 because of ['wref']
           ov0=ssite(ib)%ov0
-Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1511
-Cdelw1 do not change ov1 because of ['wref']
           ov1=ssite(ib)%ov1
 
           if (lmxa .eq. -1) goto 120
@@ -1726,27 +1383,14 @@ C     ... Write arrays for local density and potential
           nlml = (lmxl+1)**2
           if (mode .eq. 1) then
             if (.not. lbin) write(jfi,'('' rho1'')')
-Cdelw1 1 is digit, dropped
-Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1560
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpdbyl(w(orhoat(1,ib)),nr,nlml,nlml,nsp,nsp,lbin,-jfi)
             if (.not. lbin) write(jfi,'('' rho2'')')
-Cdelw1 2 is digit, dropped
-Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1562
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpdbyl(w(orhoat(2,ib)),nr,nlml,nlml,nsp,nsp,lbin,-jfi)
             if (.not. lbin) write(jfi,'('' rhoc'')')
-Cdelw1 3 is digit, dropped
-Cdelw1 warning(1) , probably  orhoat  is not defined yet at linenumber= 1564
-Cdelw1 do not change orhoat because of ['call', 'array', 'wref']
             call dpdbyl(w(orhoat(3,ib)),nr,1,1,nsp,nsp,lbin,-jfi)
             if (.not. lbin) write(jfi,'('' v0'')')
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 1566
-Cdelw1 do not change ov0 because of ['wref']
             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
             if (.not. lbin) write(jfi,'('' v1'')')
-Cdelw1 warning(1) , probably  ov1  is not defined yet at linenumber= 1568
-Cdelw1 do not change ov1 because of ['wref']
             call dpdbyl(w(ov1),nr,1,1,nsp,nsp,lbin,-jfi)
           else
             if (lbin) then
@@ -1760,15 +1404,9 @@ C             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
               vrmax(2) = 0
               call aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
      .          idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
-Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
-Cgetarg               call upack('pot oves',spot,oves,0,0,0,0)
 
-Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 1584
-Cdelw1 do not change oves because of ['undef', 'wref']
               oves=spot%oves
 
-Cdelw1 warning(1) , probably  oves  is not defined yet at linenumber= 1586
-Cdelw1 do not change oves because of ['undef', 'wref']
               vrmax(1) = dval(w(oves),ic)
               write(jfi,143) vrmax(1)
   143         format('  Ves(rmax)=',f11.7)
@@ -1791,44 +1429,22 @@ C   --- Write data on free-atom core states and fit to fa density ---
         if (.not. lbin) write(jfi,721) 'species data'
 
         do  130  is = 1, nspec
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg           call upack('spec a nr qc lmxa',sspec,is,a,nr,qc,lmxa)
 
           a=sspec(is)%a
           nr=sspec(is)%nr
           qc=sspec(is)%qc
           lmxa=sspec(is)%lmxa
 
-Cgetarg...info...           integer :: lfoc , integer(8) :: sspec%lfoca 1
-Cgetarg...info...           real(8) :: rfoc , real(8) :: sspec%rfoca 1
-Cgetarg           call upack('spec lfoca rfoca',sspec,is,lfoc,rfoc,0,0)
 
           lfoc=sspec(is)%lfoca
           rfoc=sspec(is)%rfoca
 
-Cgetarg...info...           real(8) :: cof , real(8) :: sspec%ctail 1
-Cgetarg...info...           real(8) :: eh , real(8) :: sspec%etail 1
-Cgetarg...info...           real(8) :: stc , real(8) :: sspec%stc 1
-Cgetarg...info...           integer :: orhoca , integer(8) :: sspec%orhoc 1
-Cgetarg           call upack('spec ctail etail stc orhoc',sspec,is,cof,eh,stc,
-Cgetarg      .      orhoca)
 
           cof=sspec(is)%ctail
           eh=sspec(is)%etail
           stc=sspec(is)%stc
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1636
-Cdelw1 do not change orhoca because of ['wref']
           orhoca=sspec(is)%orhoc
 
-Cgetarg...info...           integer :: nxi , integer(8) :: sspec%nxi 1
-Cgetarg...info...           real(8) :: exi(n0) , real(8) :: sspec%exi 10
-Cgetarg...info...           real(8) :: hfc(n0,2) , real(8) :: sspec%chfa 20
-Cgetarg...info...           real(8) :: rsmfa , real(8) :: sspec%rsmfa 1
-Cgetarg           call upack('spec nxi exi chfa rsmfa',sspec,is,nxi,exi,hfc,
-Cgetarg      .      rsmfa)
 
           nxi=sspec(is)%nxi
           i_copy_size=size(sspec(is)%exi)
@@ -1842,7 +1458,6 @@ Cgetarg      .      rsmfa)
           if (lbin) then
             write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
           else
-Cgetarg             call spacks(0,'spec name',sspec,spid0,is,is)
             do i_spacks=is,is
               call spacks_copy('u',sspec(i_spacks)%name,is,is,spid0,i_spacks)
             enddo
@@ -1858,14 +1473,10 @@ Cgetarg             call spacks(0,'spec name',sspec,spid0,is,is)
 C     ... For now, ASA stores no core data
           if (mode .eq. 1) then
             if (lbin) then
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1673
-Cdelw1 do not change orhoca because of ['wref']
               call dpdump(w(orhoca),nr*nsp,-jfi)
               write(jfi) rsmfa,nxi
               write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
             else
-Cdelw1 warning(1) , probably  orhoca  is not defined yet at linenumber= 1677
-Cdelw1 do not change orhoca because of ['wref']
               call dfdump(w(orhoca),nr*nsp,-jfi)
               write(jfi,'('' core tail: rsmfa,n,e,cof=''/f15.10,i4)')
      .          rsmfa,nxi
@@ -1883,29 +1494,16 @@ Cdelw1 do not change orhoca because of ['wref']
   364 format(/9x,'ib:spc la ll   rmt     nr   a     pnu')
 
       iors = 0
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oves orhoat ov0 ov1 orhoca osmrho]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       return
 
 C ... Error handling
   998 if (ipr .gt. 0)
      .  write(stdo,'('' iors  : empty file ... nothing read'')')
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oves orhoat ov0 ov1 orhoca osmrho]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       return
   999 continue
       if (ipr .gt. 0)
      .  write(stdo,'('' iors  : read failed in: '',a)') line
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [oves orhoat ov0 ov1 orhoca osmrho]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end function iors
 
 

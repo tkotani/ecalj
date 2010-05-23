@@ -1,5 +1,3 @@
-Cgetarg...info...           structure ['uspecb', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['uspecb', 'm_struc_def']
       subroutine uspecb(lpack,mode,sspec,is1,is2,lh,rsmh,eh,nkape)
 
       use m_struc_def  !Cgetarg
@@ -81,8 +79,6 @@ C ... Passed parameters
       integer nkap0,n0,nkape
       parameter (nkap0=3,n0=10)
       integer lpack,mode,is1,is2,lh(nkap0,is1:is2)
-Cgetarg       double precision sspec(1),rsmh(n0,nkap0,is1:is2),
-Cgetarg      .  eh(n0,nkap0,is1:is2)
       real(8):: rsmh(n0,nkap0,is1:is2) , eh(n0,nkap0,is1:is2)
       type(s_spec)::sspec(*)
 
@@ -104,10 +100,6 @@ C ... Local parameters
         j = 0
         l = 0
         do  is = is1, is2
-Cgetarg...info...           integer :: lmxa , integer(8) :: sspec%lmxa 1
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
-Cgetarg           call upack('spec lmxa lmxb pz',sspec,is,lmxa,lmxb,pnz,0)
 
           lmxa=sspec(is)%lmxa
           lmxb=sspec(is)%lmxb
@@ -134,16 +126,11 @@ Cgetarg           call upack('spec lmxa lmxb pz',sspec,is,lmxa,lmxb,pnz,0)
           npze = 0
         endif
         do  is = is1, is2
-Cgetarg         call spacks(0,'spec name',sspec,spid,is,is)
           do i_spacks=is,is
             call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
           enddo
 
           call dpzero(orbp,n0*nkap0*2)
-Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%orbp 60
-Cgetarg...info...           integer :: lmxb , integer(8) :: sspec%lmxb 1
-Cgetarg...info...           real(8) :: pnz(n0,2) , real(8) :: sspec%pz 20
-Cgetarg         call upack('spec orbp lmxb pz',sspec,is,orbp,lmxb,pnz,0)
 
           i_copy_size=size(sspec(is)%orbp)
           call dcopy(i_copy_size,sspec(is)%orbp,1,orbp,1)
@@ -256,8 +243,6 @@ C            write(*,'(i3,''  RSMH='',4f9.4,''  EH='',4f9.4)')
 C     .        ikap,(orbp(l,1,ikap),l=1,4),(orbp(l,2,ikap),l=1,4)
 C          enddo
 
-Cgetarg...info...           real(8) :: orbp(n0,2,nkap0) , real(8) :: sspec%orbp 60
-Cgetarg           call pack5('spec orbp',sspec,is,orbp,0,0,0)
 
             i_copy_size=size(sspec(is)%orbp)
             call dcopy(i_copy_size,orbp,1,sspec(is)%orbp,1)
@@ -276,7 +261,6 @@ Cgetarg           call pack5('spec orbp',sspec,is,orbp,0,0,0)
         call rxi('uspecb: mode not implemented, mode',mode)
       endif
 
-Cgetarg       end
       end subroutine uspecb
 
 

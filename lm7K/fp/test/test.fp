@@ -94,7 +94,9 @@ while (`echo $1 | sed -e 's/\(.\).*/\1/' `  ==  "-")
       breaksw
 
     case "--all":
-      set mater_lst = (copt te zrt co cr3si6 fe cu srtio3 felz gasls gdn eras c crn)
+#takao
+#     set mater_lst = (copt te zrt co cr3si6 fe cu srtio3 felz gasls gdn eras c crn)
+      set mater_lst = (copt te zrt co cr3si6 fe felz gasls gdn eras c crn)
       set joblist
       while (`echo $1 | sed -e 's/\([0-9][0-9]*\)/-/'`  ==  "-")
         set joblist = ($joblist $1)
@@ -204,7 +206,7 @@ else if ($ext == "co") then
 #    echo '         Other checks:'
 #    echo '         spin-polarized, tetrahedron+metal=4'
   set cplst = ($testdir/{ctrl.co,syml.co})
-  set lmfargs1 = "-vmet=4 -vlmf=1 -vnk=8 -vnit=10 --pr31"
+  set lmfargs1 = "-vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31"
 # set fitbas = ' A RSMH= 2.375 2.722 1.047 EH= -0.342 -0.200 -0.236'
   set drmsqtol1  = 1e-6
   set pdostol    = 0.01
@@ -221,7 +223,7 @@ else if ($ext == "te") then
 #    echo '         There is only one symmetry-allowed degree of freedom.'
   set cplst = ($testdir/{ctrl.te})
 # set fitbas = ' X1 RSMH= 1.410 1.370 -1.000 EH= -1.028 -0.277 0.000'
-  set lmfargs2 = '-vminx=t --rs=1,1 -vnk=3 -vnit=20 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 -verefc=0 -verefa=0'
+  set lmfargs2 = '-vminx=t --rs=1,1 -vnk=3 -vnit=3 -vlf1=4 -vlmxl=4 -vnk=3 -vngd=20 -vkmx=3 -vconv=1d-4 -verefc=0 -verefa=0'
   set dfmaxntol1 = 0.002
   set drmsqtol1  = 1e-6
 else if ($ext == "srtio3") then
@@ -333,13 +335,13 @@ cat <<EOF
             For a much more stable solution, continue with
                cp $testdir/occnum2.eras occnum.eras
                rm mixm.eras wkp.eras dmats.eras
-               lmf eras -vnit=30
+               lmf eras -vnit=3
             This aligns the orbital moment antiparallel to the spin moment.
 
             For a still more stable solution, continue with
                cp $testdir/occnum3.eras occnum.eras
                rm mixm.eras wkp.eras dmats.eras
-               lmf eras -vnit=30
+               lmf eras -vnit=3
             This aligns the orbital moment parallel to the spin moment.
 
 EOF

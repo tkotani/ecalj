@@ -188,7 +188,6 @@ C         print *, dd2,dsqrt(dd(1)**2 + dd(2)**2 + dd(3)**2)
 C      if (ipr .gt. 0)
 C     .  call awrit1('%N ovlchk: fovl= %;6g',' ',80,i1mach(2),fovl)
 
-Cgetarg       end
       end subroutine ovlchk
 
 

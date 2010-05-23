@@ -1,8 +1,3 @@
-Cgetarg...info...           structure ['hambls', 'ham', 'sham']
-Cgetarg...info...           structure ['hambls', 'lat', 'slat']
-Cgetarg...info...           structure ['blsig', 'ham', 'sham']
-Cgetarg...info...           use_to_add ['blsig', 'm_struc_def']
-Cgetarg...info...           use_to_add ['hambls', 'm_struc_def']
 #define F90 1
       subroutine hambls(mode,nbas,ssite,sspec,slat,sham,isp,ispc,q,k1,
      .  k2,k3,qsig,nqsig,smpot,vconst,osig,otau,oppi,lcplxp,lso,alfa,
@@ -194,7 +189,6 @@ C ... Passed parameters
       integer napw,igvapw(3,napw)
       integer osig(3,nbas),otau(3,nbas),oppi(3,nbas)
       double precision qsig(3,nqsig),alfa
-Cgetarg       double precision ssite(1),sspec(1),sham(1),slat(1),q(3),vconst
       real(8):: q(3) , vconst
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -273,13 +267,6 @@ C ... Store LDA eigenvectors, eigenvalues in s and h and exit
 c      if (napw .gt. 0) call rx('hambls not implemented for PWs')
 
 C ... Setup for Bloch transform
-Cgetarg...info...           integer :: ndhrs , integer(8) :: sham%ndhrs 1
-Cgetarg...info...           integer :: ontabs , integer(8) :: sham%ontabs 1
-Cgetarg...info...           integer :: oiaxs , integer(8) :: sham%oiaxs 1
-Cgetarg...info...           integer :: ohrs , integer(8) :: sham%ohrs 1
-Cgetarg...info...           integer :: ooffH , integer(8) :: sham%ooffH 1
-Cgetarg       call upack('ham ndhrs ontabs oiaxs ohrs ooffH',sham,
-Cgetarg      .  ndhrs,ontabs,oiaxs,ohrs,ooffH)
 
       ndhrs=sham%ndhrs
       ontabs=sham%ontabs
@@ -295,16 +282,11 @@ C     hreal=1 -> sig(T) is real
       nttabs = ival(w(ontabs),nbas+1)
       nsp  = nglob('nsp')
       call isanrg(isp,1,nsp,'hambl:','isp',T)
-Cgetarg...info...           real(8) :: plat(3,3) , real(8) :: slat%plat 9
-Cgetarg       call upack('lat plat',slat,plat,0,0,0,0)
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
 
       call dinv33(plat,1,qlat,swt)
-Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
-Cgetarg...info...           real(8) :: sigp(10) , real(8) :: sham%sigp 10
-Cgetarg       call upack('ham oindxo sigp',sham,oiprmb,sigp,0,0,0)
 
       oiprmb=sham%oindxo
       i_copy_size=size(sham%sigp)
@@ -860,7 +842,6 @@ C     call rx0('done')
 C     For some crazy reason, the return is needed to compile using
 C     pgf90 6.0-2 on x86-64 Linux  !!
       return
-Cgetarg       end
       end subroutine hambls
 
       subroutine blsig(mode,nbas,sham,isp,nsp,nspc,plat,q,
@@ -911,8 +892,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nbas,iq,isp,ndimh,nsp,nspc,lwtkb
-Cgetarg       double precision sham(1),plat(3,3),q(3),wtkb(ndimh,nsp,1),
-Cgetarg      .  wtkp(iq),zval
       real(8):: plat(3,3) , q(3) , wtkb(ndimh,nsp,1) , wtkp(iq) , zval
       type(s_ham)::sham
 
@@ -942,13 +921,6 @@ C ... Heap
       call tcn('blsig')
 
 C ... Setup for Bloch transform
-Cgetarg...info...           integer :: ndhrs , integer(8) :: sham%ndhrs 1
-Cgetarg...info...           integer :: ontabs , integer(8) :: sham%ontabs 1
-Cgetarg...info...           integer :: oiaxs , integer(8) :: sham%oiaxs 1
-Cgetarg...info...           integer :: ohrs , integer(8) :: sham%ohrs 1
-Cgetarg...info...           integer :: oiprmb , integer(8) :: sham%oindxo 1
-Cgetarg       call upack('ham ndhrs ontabs oiaxs ohrs oindxo',sham,
-Cgetarg      .  ndhrs,ontabs,oiaxs,ohrs,oiprmb)
 
       ndhrs=sham%ndhrs
       ontabs=sham%ontabs
@@ -1019,8 +991,6 @@ C  ...  Make weights for d.c. sum
           enddo
         endif
 C  ...  Contribution to d.c. sum for this qp
-Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
-Cgetarg         call upack('ham eterms',sham,eterms,0,0,0,0)
 
         i_copy_size=size(sham%eterms)
         call dcopy(i_copy_size,sham%eterms,1,eterms,1)
@@ -1033,8 +1003,6 @@ Cgetarg         call upack('ham eterms',sham,eterms,0,0,0,0)
           swgt = swgt + ewgt(i)
           rhosig = rhosig + ewgt(i)*zsz(i)
         enddo
-Cgetarg...info...           real(8) :: eterms(20) , real(8) :: sham%eterms 20
-Cgetarg         call pack5('ham eterms',sham,eterms,0,0,0,0)
 
         i_copy_size=size(sham%eterms)
         call dcopy(i_copy_size,eterms,1,sham%eterms,1)
@@ -1048,7 +1016,6 @@ C       print *, 'iq=',iq,'swgt=',swgt,'rhosig=',rhosig
 #endif
 
       call tcx('blsig')
-Cgetarg       end
       end subroutine blsig
 
       subroutine permhk(mode,nbas,ldh,offH,h,hp,lblock)
@@ -1149,7 +1116,6 @@ C ... Local parameters
         call rxi('permhk: bad mode',mode)
       endif
 
-Cgetarg       end
       end subroutine permhk
 
       subroutine phmbls(mode,ndimh,eval,iprm,wk,h,zd,z,zhz)
@@ -1290,7 +1256,6 @@ C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
 
       endif
 
-Cgetarg       end
       end subroutine phmbls
 
 
@@ -1629,7 +1594,6 @@ C     bsig   = sigp(7)
         endif
       endif
 
-Cgetarg       end
       end subroutine phmbl3
 
 

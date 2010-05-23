@@ -1,4 +1,3 @@
-Cdelw1 var ['owk', '1', 'owk', '3*nbas', 'real(8)', 'rv_w_', 'gensym']
       subroutine gensym(slabl,gens,usegen,lcar,lfix,fptol,lsmall,nbas,
      .  nspec,ngmx,plat,platcv,ldist,dist,bas,ips,nrspec,ng,g,
      .  ag,ngen,gen,nwgens,nggen,isym,istab)
@@ -93,10 +92,9 @@ C     integer istab2(nbas,*)
       character*8  slabl(*), gens*(*), nwgens*(*)
       logical lcar,lfix
 C Local parameters:
-Cdelw1       integer i,j,ibas,ic,iprint,owk,ngnmx,igen,mxint,modes
       integer:: i , j , ibas , ic , iprint , ngnmx , igen , mxint , 
      . modes
-      real(8) ,allocatable :: rv_w_owk(:)
+      real(8) ,allocatable :: wk_rv(:)
 
       double precision qlat(3,3),vol,platt(9)
       logical lsmall,latvec
@@ -146,9 +144,6 @@ C       call dmpy(gen(1,igen),3,1,plat,3,1,platt,3,1,3,3,3)
 C ... Set up space group (g,ag,ng) given point group generators gen
       call sgroup(10+modes,gen,agen,ngen,g,ag,nggen,ngmx,qlat)
       ng = min(nggen,ngmx)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (nggen .gt. ngmx) return
 
 C --- Add new atoms to the basis according to symmetry ---
@@ -178,24 +173,15 @@ C       call rotlat(alat,bas,csym,isym,lfix,nbas,plat,qlat)
 C   ... Symmetry of lattice without basis
         call symlat(plat,ng,g,isym(1))
 C   ... Symmetry of lattice with basis
-Cdelw1         call defdr(owk,    3*nbas)
-        allocate(rv_w_owk(3*nbas))
-Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) rv_w_owk(:)=0.0d0
+        allocate(wk_rv(3*nbas))
+Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) wk_rv(:)=0.0d0
 
 C       call prmx('pos',bas,3,3,nbas)
-Cdelw1         call symcry(fptol,bas,w(owk),ips,nbas,nspec,nrspec,
-Cdelw1      .              ng,plat,qlat,g,ag,istab)
-        call symcry ( fptol , bas , rv_w_owk , ips , nbas , nspec , nrspec 
+        call symcry ( fptol , bas , wk_rv , ips , nbas , nspec , nrspec 
      .   , ng , plat , qlat , g , ag , istab )
 
-Cdelw1 rlse name= owk old_list= owk
-Cdelw1 rlse name= owk new_list= (None)
-Cdelw1         call rlse(owk)
-        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+        if (allocated(wk_rv)) deallocate(wk_rv)
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
         if (ng .gt. ngmx) return
 C       ngen = 0
         nwgens = ' '
@@ -238,8 +224,5 @@ C      call symtbl(1,nbas,w,bas,g,ag,ng,qlat,istab)
 C      call shoist(istab,nbas,ag,g,ng)
 C      stop
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 

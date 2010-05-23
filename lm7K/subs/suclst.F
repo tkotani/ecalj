@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['suclst', 'site', 'ssite']
-Cgetarg...info...           structure ['suclst', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['suclst', 'm_struc_def']
       subroutine suclst(nsitmx,nbas,nsp,ssite,sspec,clsopt,isite,iclsl,
      .                  iclsn,nsites)
 
@@ -40,7 +37,6 @@ C Passed Parameters
       integer nsitmx
       integer isite(nsitmx),iclsl(nsitmx),iclsn(nsitmx),nsites,nbas,nsp
       character*(*) clsopt
-Cgetarg       double precision ssite(1),sspec(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -145,10 +141,8 @@ C --- print table of sites, l and n
         do  i = 1, nsites
           ib = isite(i)
           if (ib .gt. nbas) call rx('suclst: ib > nbas')
-Cgetarg           is = igetss('site spec',ib,ssite)
           is = int(ssite(ib)%spec)
 
-Cgetarg           call spacks(0,'spec name',sspec,clabl,is,is)
           do i_spacks=is,is
             call spacks_copy('u',sspec(i_spacks)%name,is,is,clabl,i_spacks)
           enddo
@@ -175,7 +169,6 @@ C --- bad list ERROR
 C --- bad triple ERROR
       call fexit(-1,119,
      .       'suclst: bad triple, expecting --cls'//dc//'site,l,n',0)
-Cgetarg       end
       end subroutine suclst
 
 

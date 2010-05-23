@@ -578,227 +578,235 @@ WARNING while processing 'fp/bndfp.F' (mode='fix')..
   440:      double precision sttime,entime
   441:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
-  507:      master = 0
-  508:      mlog = cmdopt('--mlog',6,0,strn)
-  509:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  506:      master = 0
+  507:      mlog = cmdopt('--mlog',6,0,strn)
+  508:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
-  512:      call strcop(shortname(procid),name,10,'.',i)
-  513:      namelen(procid) = i-1
-  514:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  511:      call strcop(shortname(procid),name,10,'.',i)
+  512:      namelen(procid) = i-1
+  513:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
-  615:      lpdiag = isw(cmdopt('--pdiag',7,0,strn))
-  616:
-  617:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  614:      lpdiag = isw(cmdopt('--pdiag',7,0,strn))
+  615:
+  616:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
-  617:#if MPIK
-  618:      lpdiag = 0
-  619:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  616:#if MPIK
+  617:      lpdiag = 0
+  618:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
+  652:
   653:
-  654:
-  655:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  654:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
-  669:        endif
-  670:      endif
-  671:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  668:        endif
+  669:      endif
+  670:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1039:          ef0 = eferm
+ 1033:          ef0 = eferm
+ 1034:        endif
+ 1035:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+WARNING while processing 'fp/bndfp.F' (mode='fix')..
+ 1039:
  1040:        endif
- 1041:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1041:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1045:
- 1046:        endif
- 1047:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1276:        iopq = 0
+ 1277:C       suqlst in MPIK mode; returns cumulative number of k-points
+ 1278:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1282:        iopq = 0
- 1283:C       suqlst in MPIK mode; returns cumulative number of k-points
- 1284:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1278:#if MPIK
+ 1279:        iopq = 2
+ 1280:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1284:#if MPIK
- 1285:        iopq = 2
- 1286:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1304:
+ 1305:C MPIK: Setup to assemble all k-points into single list with qp table
+ 1306:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1310:
- 1311:C MPIK: Setup to assemble all k-points into single list with qp table
- 1312:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1355:Cdelw1 do not change oqp because of ['wref']
+ 1356:        call mpibc1(w(oqp),3*nkp,4,.false.,'bndfp','qp')
+ 1357:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1362:c        call mpibc1(w(oqp),3*nkp,4,.false.,'bndfp','qp')
- 1363:        call mpibc1(qp_r,3*nkp,4,.false.,'bndfp','qp')
- 1364:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1587:C     evl is dimensioned evl(ndham,2)
+ 1588:C     w(oevl), w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
+ 1589:#if MPE & MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1594:C     evl is dimensioned evl(ndham,2)
- 1595:C     w(oevl), w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
- 1596:#if MPE & MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1589:#if MPE & MPIK
+ 1590:      ierr = MPE_LOG_EVENT(EVENT_START_KLOOP,procid,"k-loop")
+ 1591:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1596:#if MPE & MPIK
- 1597:      ierr = MPE_LOG_EVENT(EVENT_START_KLOOP,procid,"k-loop")
- 1598:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1591:#endif
+ 1592:
+ 1593:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1598:#endif
- 1599:
- 1600:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1608:c          endif
+ 1609:c        endif
+ 1610:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1615:c          endif
- 1616:c        endif
- 1617:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1612:      iqini=1
+ 1613:      iqend=nkp
+ 1614:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1619:      iqini=1
- 1620:      iqend=nkp
- 1621:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1615:
+ 1616:      do 2010 iq = iqini, iqend
+ 1617:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1622:
- 1623:      do 2010 iq = iqini, iqend
- 1624:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1625:          endif
+ 1626:        endif
+ 1627:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1632:          endif
- 1633:        endif
- 1634:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1630:
+ 1631:
+ 1632:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1637:
- 1638:
- 1639:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1640:c        endif
+ 1641:        qp=qplist(:,iq)
+ 1642:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1647:c        endif
- 1648:        qp=qplist(:,iq)
- 1649:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1643:Cdelw1 do not change oqp because of ['wref']
+ 1644:        call dpscop(w(oqp),qp,3,3*iq-2,1,1d0) !this should be modified as in non-MPIK mode.
+ 1645:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 1650:Cdelw1 do not change oqp because of ['wref']
- 1651:        call dpscop(qp_r,qp,3,3*iq-2,1,1d0) !this should be modified as in non-MPIK mode.
- 1652:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2159:
+ 2160:            if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
+ 2161:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2166:
- 2167:            if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
- 2168:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2163:     .    '%?#n#   ndimh = %i##',
+ 2164:     .    iq,nkp,qp,mod(pwmode/10,10),ndimh)
+ 2165:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2170:     .    '%?#n#   ndimh = %i##',
- 2171:     .    iq,nkp,qp,mod(pwmode/10,10),ndimh)
- 2172:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2318:            if(debug) print *,'iq isp nevls=',iq,isp,nevls(iq,isp)
+ 2319:
+ 2320:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2325:            if(debug) print *,'iq isp nevls=',iq,isp,nevls(iq,isp)
- 2326:
- 2327:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2337:
+ 2338:            endif
+ 2339:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2344:
- 2345:            endif
- 2346:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2341:
+ 2342:C ...  In k-parallel mode, defer this section until all qp available
+ 2343:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2348:
- 2349:C ...  In k-parallel mode, defer this section until all qp available
- 2350:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2348:            if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
+ 2349:            if (plbnd .eq. 0) then
+ 2350:#if ! (MPI | MPIK | MPE) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2355:            if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
- 2356:            if (plbnd .eq. 0) then
- 2357:#if ! (MPI | MPIK | MPE) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2352:     .  write (stdl,712) (evl(i,jsp),i=1,nev)
+ 2353:  712         format('fp evl',8f8.4)
+ 2354:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2359:     .  write (stdl,712) (evl(i,jsp),i=1,nev)
- 2360:  712         format('fp evl',8f8.4)
- 2361:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2384:              endif
+ 2385:            endif
+ 2386:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2391:              endif
- 2392:            endif
- 2393:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2393:              call dpscop(evl(1,jsp),w(oevl),ndhamx,
+ 2394:     .              1,1+ndham*(jsp-1+isqp),1d0)
+ 2395:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2400:              call dpscop(evl(1,jsp),evl_r,ndhamx,
- 2401:     .              1,1+ndham*(jsp-1+isqp),1d0)
- 2402:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2400:
+ 2401:              endif
+ 2402:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2407:
- 2408:              endif
- 2409:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2449:                if (procid .eq. master) then
+ 2450:                  if (cmdopt('--mull',6,0,strn)) then
+ 2451:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2456:                if (procid .eq. master) then
- 2457:                  if (cmdopt('--mull',6,0,strn)) then
- 2458:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2451:#if MPIK
+ 2452:                    call rx('MULL not k-parallel.')
+ 2453:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2458:#if MPIK
- 2459:                    call rx('MULL not k-parallel.')
- 2460:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2489:
+ 2490:                  elseif (cmdopt('--pdos',6,0,strn)) then
+ 2491:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2496:
- 2497:                  elseif (cmdopt('--pdos',6,0,strn)) then
- 2498:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2491:#if MPIK
+ 2492:                    call rx('PDOS not k-parallel.')
+ 2493:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2498:#if MPIK
- 2499:                    call rx('PDOS not k-parallel.')
- 2500:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2516:
+ 2517:                    call iomomn(.true.,2,.false.,1,nspc,1,1,i)
+ 2518:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2523:
- 2524:                    call iomomn(.true.,2,.false.,1,nspc,1,1,i)
- 2525:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2524:     .               ( 1 , jsp ) , 0d0 , rv_w_odoswt , 0d0 , 0d0 , 0d0 )
+ 2525:
+ 2526:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2531:     .               ( 1 , jsp ) , 0d0 , rv_w_odoswt , 0d0 , 0d0 , 0d0 )
+ 2531:     .               ) , 0d0 , rv_w_odoswt , 0d0 , 0d0 , 0d0 )
  2532:
- 2533:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2533:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2538:     .               ) , 0d0 , rv_w_odoswt , 0d0 , 0d0 , 0d0 )
- 2539:
- 2540:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2593:              if (icls .ne. 0 .and. lwtkb .ne. -1) then
+ 2594:                call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
+ 2595:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2600:              if (icls .ne. 0 .and. lwtkb .ne. -1) then
- 2601:                call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
- 2602:#if MPI <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2595:#if MPI
+ 2596:                call rx('CLS only k-parallel')
+ 2597:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2602:#if MPI
- 2603:                call rx('CLS only k-parallel')
- 2604:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2642:C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
+ 2643:              endif
+ 2644:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2649:C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
- 2650:              endif
- 2651:#ifndef MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2668:
+ 2669:              endif
+ 2670:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2675:
- 2676:              endif
- 2677:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2680:
+ 2681:              endif
+ 2682:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2687:
- 2688:              endif
- 2689:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2764:C --- Second loop over qp, needed to make k-parallelisation possible: ---
+ 2765:C     You can't do this until you have all the evals.
+ 2766:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2771:C --- Second loop over qp, needed to make k-parallelisation possible: ---
- 2772:C     You can't do this until you have all the evals.
- 2773:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2765:C     You can't do this until you have all the evals.
+ 2766:#if MPIK
+ 2767:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2772:C     You can't do this until you have all the evals.
- 2773:#if MPIK
- 2774:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2767:#if MPE
+ 2768:      ierr = MPE_LOG_EVENT(EVENT_END_KLOOP,procid,"k-loop")
+ 2769:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 2774:#if MPE
- 2775:      ierr = MPE_LOG_EVENT(EVENT_END_KLOOP,procid,"k-loop")
- 2776:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 3032:ckino 05Feb09
+ 3033:      if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
+ 3034:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 3038:ckino 05Feb09
- 3039:      if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
- 3040:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 3597:
+ 3598:        call upacks('strn mix',i1,i2)
+ 3599:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 3603:
- 3604:        call upacks('strn mix',i1,i2)
- 3605:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 3599:#if MPE
+ 3600:        ierr = MPE_LOG_EVENT(EVENT_START_MIXRHO,procid,"mixrho")
+ 3601:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 3605:#if MPE
- 3606:        ierr = MPE_LOG_EVENT(EVENT_START_MIXRHO,procid,"mixrho")
- 3607:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 3625:ccccccccccccccccccccccccc
+ 3626:
+ 3627:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 3631:ccccccccccccccccccccccccc
- 3632:
- 3633:#if MPE <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 3627:#if MPE
+ 3628:        ierr = MPE_LOG_EVENT(EVENT_END_MIXRHO,procid,"mixrho")
+ 3629:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 3633:#if MPE
- 3634:        ierr = MPE_LOG_EVENT(EVENT_END_MIXRHO,procid,"mixrho")
- 3635:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 3669:Cdelw1 w_varlist (del), remains: [oifbls]
+ 3670:       if (allocated(iv_w_oifbls)) deallocate(iv_w_oifbls)
+ 3671:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 3685:
- 3686:
- 3687:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 3671:#if MPIK
+ 3672:        call rlse(oqp)
+ 3673:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 3705:C ----------------------------------------------------------------------
- 3706:      implicit none
- 3707:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
- 3708:C ... Passed parameters
- 3709:      integer kpproc(0:*),ndham,nkp,nsp
+ 3678:
+ 3679:
+ 3680:#if MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bndfp.F' (mode='fix')..
- 3767:      end subroutine xmpbnd
- 3768:
- 3769:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 3698:C ----------------------------------------------------------------------
+ 3699:      implicit none
+ 3700:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+ 3701:C ... Passed parameters
+ 3702:      integer kpproc(0:*),ndham,nkp,nsp
+WARNING while processing 'fp/bndfp.F' (mode='fix')..
+ 3760:      end subroutine xmpbnd
+ 3761:
+ 3762:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/bstrux.F' (mode='fix')..
     2:Cgetarg...info...           structure ['bstrux', 'site', 'ssite']
     3:Cgetarg...info...           use_to_add ['bstrux', 'm_struc_def']
@@ -1438,69 +1446,69 @@ WARNING while processing 'fp/hambls.F' (mode='fix')..
     5:Cgetarg...info...           use_to_add ['hambls', 'm_struc_def']
     6:#define F90 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
-  777:        endif
-  778:
-  779:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  774:        endif
+  775:
+  776:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
-  782:        allocate(zqi(ndimh,ndimh))
-  783:        allocate(z0(ndimh,ndimh))
-  784:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  779:        allocate(zqi(ndimh,ndimh))
+  780:        allocate(z0(ndimh,ndimh))
+  781:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
-  784:#else
-  785:        if (nsim .gt. 1) call rx('compile hambls with F90 option')
-  786:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  781:#else
+  782:        if (nsim .gt. 1) call rx('compile hambls with F90 option')
+  783:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
-  841:        enddo
-  842:
-  843:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  838:        enddo
+  839:
+  840:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
-  843:#if F90
-  844:        deallocate(hqi,sqi,zqi,z0)
-  845:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  840:#if F90
+  841:        deallocate(hqi,sqi,zqi,z0)
+  842:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
-  929:      double precision eterms(20),rhosig,swgt
-  930:      equivalence (eterms(19),rhosig)
-  931:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  926:      double precision eterms(20),rhosig,swgt
+  927:      equivalence (eterms(19),rhosig)
+  928:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
-  931:#if F90
-  932:      complex(8),allocatable:: wk(:,:,:,:)
-  933:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  928:#if F90
+  929:      complex(8),allocatable:: wk(:,:,:,:)
+  930:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
-  933:#else
-  934:      double complex wk(ndimh,nspc,ndimh,nspc)
-  935:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  930:#else
+  931:      double complex wk(ndimh,nspc,ndimh,nspc)
+  932:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
-  969:      ndimhx = ndimh*nspc
-  970:
-  971:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  966:      ndimhx = ndimh*nspc
+  967:
+  968:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
-  971:#if F90
-  972:      allocate(wk(ndimh,nspc,ndimh,nspc))
-  973:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+  968:#if F90
+  969:      allocate(wk(ndimh,nspc,ndimh,nspc))
+  970:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
- 1047:      endif
- 1048:
- 1049:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1044:      endif
+ 1045:
+ 1046:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
- 1049:#if F90
- 1050:      deallocate(wk)
- 1051:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1046:#if F90
+ 1047:      deallocate(wk)
+ 1048:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
- 1214:      parameter (zer=(0d0,0d0),one=(1d0,0d0))
- 1215:      integer i,j,k
- 1216:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1211:      parameter (zer=(0d0,0d0),one=(1d0,0d0))
+ 1212:      integer i,j,k
+ 1213:#if F90 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
- 1216:#if F90
- 1217:      integer ipiv(ndimh)
- 1218:#elif AUTO_ARRAY <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1213:#if F90
+ 1214:      integer ipiv(ndimh)
+ 1215:#elif AUTO_ARRAY <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
- 1218:#elif AUTO_ARRAY
- 1219:      integer ipiv(ndimh)
- 1220:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1215:#elif AUTO_ARRAY
+ 1216:      integer ipiv(ndimh)
+ 1217:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hambls.F' (mode='fix')..
- 1221:      integer ipiv
- 1222:      call rx('phmbls: requires compiler with allocatable arrays')
- 1223:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1218:      integer ipiv
+ 1219:      call rx('phmbls: requires compiler with allocatable arrays')
+ 1220:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/hklbl.F' (mode='fix')..
     1:Cgetarg...info...           structure ['hklbl', 'lat', 'slat']
     2:Cgetarg...info...           use_to_add ['hklbl', 'm_struc_def']
@@ -1928,54 +1936,54 @@ WARNING while processing 'fp/mixrho.F' (mode='fix')..
   866:      endif
   867:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1743:C     implicit none
- 1744:C ... Passed parameters
- 1745:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1742:C     implicit none
+ 1743:C ... Passed parameters
+ 1744:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1744:C ... Passed parameters
- 1745:#if MPI | MPIK
- 1746:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
- 1747:      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
+ 1743:C ... Passed parameters
+ 1744:#if MPI | MPIK
+ 1745:      include "mpif.h" <== 'mpif.h' not found in 'fp:.'. The INCLUDE line will be turned to a comment.
+ 1746:      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1759:      integer iunit
- 1760:      logical readerror
- 1761:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1758:      integer iunit
+ 1759:      logical readerror
+ 1760:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1788:      common /w/ w
- 1789:
- 1790:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1787:      common /w/ w
+ 1788:
+ 1789:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 1796:      master = 0
- 1797:      mlog = cmdopt('--mlog',6,0,strn)
- 1798:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 1795:      master = 0
+ 1796:      mlog = cmdopt('--mlog',6,0,strn)
+ 1797:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 2003:C   ... File I/O of previous iterations; nmixr is number actually read
- 2004:        nmixr = 0
- 2005:#if ! (MPI | MPIK) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2002:C   ... File I/O of previous iterations; nmixr is number actually read
+ 2003:        nmixr = 0
+ 2004:#if ! (MPI | MPIK) <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 2024:  130   continue
- 2025:  131   continue
- 2026:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2023:  130   continue
+ 2024:  131   continue
+ 2025:#else <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 2098:        endif
- 2099:   31   continue
- 2100:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2097:        endif
+ 2098:   31   continue
+ 2099:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 2113:C --- Save iterations on disk ---
- 2114:      else
- 2115:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2112:C --- Save iterations on disk ---
+ 2113:      else
+ 2114:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 2115:#if MPI | MPIK
- 2116:        if (procid .eq. master) then
- 2117:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2114:#if MPI | MPIK
+ 2115:        if (procid .eq. master) then
+ 2116:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 2129:          enddo
- 2130:C       call prm('a after write',a,nda*nsp,nda*nsp,(mxsav+2)*2)
- 2131:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2128:          enddo
+ 2129:C       call prm('a after write',a,nda*nsp,nda*nsp,(mxsav+2)*2)
+ 2130:#if MPI | MPIK <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mixrho.F' (mode='fix')..
- 2131:#if MPI | MPIK
- 2132:        endif
- 2133:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
+ 2130:#if MPI | MPIK
+ 2131:        endif
+ 2132:#endif <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
 WARNING while processing 'fp/mkekin.F' (mode='fix')..
   172:      integer w(1)
   173:      common /w/ w

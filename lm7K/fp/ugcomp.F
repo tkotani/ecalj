@@ -1,6 +1,3 @@
-Cgetarg...info...           structure ['ugcomp', 'site', 'ssite']
-Cgetarg...info...           structure ['ugcomp', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['ugcomp', 'm_struc_def']
 #define F90 1
       subroutine ugcomp(nbas,ssite,sspec,slat,qmom,gpot0,hpot0,ugg,f)
       use m_struc_def  !Cgetarg
@@ -61,8 +58,6 @@ cC Event numbers:
 c      include "events.ins"
 c#endif
       integer nbas
-Cgetarg       double precision ssite(1),sspec(1),qmom(1),
-Cgetarg      .  gpot0(1),slat(1),f(3,nbas),hpot0(nbas),ugg
       real(8):: qmom(1) , gpot0(1) , f(3,nbas) , hpot0(nbas) , ugg
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -176,17 +171,11 @@ c      do  ib = 1, nbas
         endif
         iv0 = iiv0(ib)
 #endif
-Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: tau1(3) , real(8) :: ssite%pos 3
-Cgetarg         call upack('site spec pos',ssite,ib,is,tau1,0,0)
 
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pos)
         call dcopy(i_copy_size,ssite(ib)%pos,1,tau1,1)
 
-Cgetarg...info...           integer :: lmax1 , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           real(8) :: rg1 , real(8) :: sspec%rg 1
-Cgetarg         call upack('spec lmxl rg',sspec,is,lmax1,rg1,0,0)
 
         lmax1=sspec(is)%lmxl
         rg1=sspec(is)%rg
@@ -199,17 +188,11 @@ C   ... Loop over sites where charge lump sees the potential
         if (lmax1 .gt. -1) then
           jv0 = 0
           do  jb = 1, nbas
-Cgetarg...info...           integer :: js , integer(8) :: ssite%spec 1
-Cgetarg...info...           real(8) :: tau2(3) , real(8) :: ssite%pos 3
-Cgetarg           call upack('site spec pos',ssite,jb,js,tau2,0,0)
 
             js=ssite(jb)%spec
             i_copy_size=size(ssite(jb)%pos)
             call dcopy(i_copy_size,ssite(jb)%pos,1,tau2,1)
 
-Cgetarg...info...           integer :: lmax2 , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           real(8) :: rg2 , real(8) :: sspec%rg 1
-Cgetarg           call upack('spec lmxl rg',sspec,js,lmax2,rg2,0,0)
 
             lmax2=sspec(js)%lmxl
             rg2=sspec(js)%rg
@@ -389,7 +372,6 @@ C ... Assemble data from separate threads
 C      print *, ugg
 C      call prmx('qmom',qmom,nvl,nvl,1)
 C      call prm('gpot0',gpot0,nvl,nvl,1)
-Cgetarg       end
       end subroutine ugcomp
 
 

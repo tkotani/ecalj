@@ -1,10 +1,3 @@
-Cdelw1 var ['orofi', '0', 'orofi', 'nrmx', 'real(8)', 'rv_w_', 'rhogkl']
-Cdelw1 var ['orwgt', '0', 'orwgt', 'nrmx', 'real(8)', 'rv_w_', 'rhogkl']
-Cdelw1 var ['oh', '1', 'oh', 'nr*(kmax+1)*(lmxl+1)', 'real(8)', 'rv_w_', 'rhogkl']
-Cdelw1 undel [['call'], 'orhoat', 'rhogkl']
-Cgetarg...info...           structure ['rhogkl', 'site', 'ssite']
-Cgetarg...info...           structure ['rhogkl', 'spec', 'sspec']
-Cgetarg...info...           use_to_add ['rhogkl', 'm_struc_def']
       subroutine rhogkl(ib1,ib2,nsp,mode,ssite,sspec,orhoat,kmax,qkl)
 
       use m_struc_def  !Cgetarg
@@ -45,21 +38,17 @@ Cu   19 Oct 01 Adapted from rhomom.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-Cdelw1 do not change  [['call'], 'orhoat', 'rhogkl']
       integer ib1,ib2,nsp,mode,orhoat(3,1),kmax
-Cgetarg       double precision ssite(1),sspec(1),qkl(0:kmax,1)
       real(8):: qkl(0:kmax,1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
 C ... Local parameters
-Cdelw1       integer stdo,ipr,iprint,lgunit,orofi,nrmx,orwgt,oh,
-Cdelw1      .  j1,ib,is,igetss,lmxl,nr,nlml,ilm,j,lfoc,k,l,m
       integer:: stdo , ipr , iprint , lgunit , nrmx , j1 , ib , is 
      . , igetss , lmxl , nr , nlml , ilm , j , lfoc , k , l , m
-      real(8) ,allocatable :: rv_w_orofi(:)
-      real(8) ,allocatable :: rv_w_orwgt(:)
-      real(8) ,allocatable :: rv_w_oh(:)
+      real(8) ,allocatable :: rofi_rv(:)
+      real(8) ,allocatable :: rwgt_rv(:)
+      real(8) ,allocatable :: h_rv(:)
 
       parameter( nrmx=1501)
       double precision z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
@@ -71,13 +60,11 @@ C ... Heap
 C --- Setup ---
       ipr  = iprint()
       stdo = lgunit(1)
-Cdelw1       call defrr(orofi,nrmx)
-      allocate(rv_w_orofi(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_orofi(:)=0.0d0
+      allocate(rofi_rv(nrmx))
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rofi_rv(:)=0.0d0
 
-Cdelw1       call defrr(orwgt,nrmx)
-      allocate(rv_w_orwgt(nrmx))
-Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_orwgt(:)=0.0d0
+      allocate(rwgt_rv(nrmx))
+Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rwgt_rv(:)=0.0d0
 
       call stdfac(20,df)
       if (ipr .ge. 40) write(stdo,221)
@@ -85,29 +72,18 @@ Ctakao_ZeroClear_NotRequiered        if (nrmx<0) rv_w_orwgt(:)=0.0d0
 C --- Loop over sites ---
       j1 = 1
       do  ib = ib1, ib2
-Cgetarg         is = igetss('site spec',ib,ssite)
         is = int(ssite(ib)%spec)
 
-Cgetarg...info...           integer :: lmxl , integer(8) :: sspec%lmxl 1
-Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
-Cgetarg...info...           real(8) :: qc , real(8) :: sspec%qc 1
-Cgetarg         call upack('spec lmxl z qc',sspec,is,lmxl,z,qc,0)
 
         lmxl=sspec(is)%lmxl
         z=sspec(is)%z
         qc=sspec(is)%qc
 
-Cgetarg...info...           real(8) :: a , real(8) :: sspec%a 1
-Cgetarg...info...           integer :: nr , integer(8) :: sspec%nr 1
-Cgetarg...info...           real(8) :: rmt , real(8) :: sspec%rmt 1
-Cgetarg         call upack('spec a nr rmt',sspec,is,a,nr,rmt,0)
 
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
 
-Cgetarg...info...           real(8) :: rg , real(8) :: sspec%rg 1
-Cgetarg         call upack2('spec rg',sspec,is,rg)
 
         rg=sspec(is)%rg
 
@@ -115,31 +91,19 @@ Cgetarg         call upack2('spec rg',sspec,is,rg)
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         qc = qcorg+qcorh
         nlml = (lmxl+1)**2
-Cdelw1         call radmsh(rmt,a,nr,w(orofi))
-        call radmsh ( rmt , a , nr , rv_w_orofi )
+        call radmsh ( rmt , a , nr , rofi_rv )
 
-Cdelw1         call radwgt(rmt,a,nr,w(orwgt))
-        call radwgt ( rmt , a , nr , rv_w_orwgt )
+        call radwgt ( rmt , a , nr , rwgt_rv )
 
-Cdelw1         call defrr(oh,   nr*(kmax+1)*(lmxl+1))
-        allocate(rv_w_oh(nr*(kmax+1)*(lmxl+1)))
-Ctakao_ZeroClear_NotRequiered          if (nr*(kmax+1)*(lmxl+1)<0) rv_w_oh(:)=0.0d0
+        allocate(h_rv(nr*(kmax+1)*(lmxl+1)))
+Ctakao_ZeroClear_NotRequiered          if (nr*(kmax+1)*(lmxl+1)<0) h_rv(:)=0.0d0
 
-Cdelw1 1 is digit, dropped
-Cdelw1 2 is digit, dropped
-Cdelw1 3 is digit, dropped
-Cdelw1         call pvrgkl(mode,kmax,nlml,nr,nsp,w(orofi),w(orwgt),
-Cdelw1      .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)),w(oh),
-Cdelw1      .    cofh,rg,ceh,rfoc,z,qkl(0,j1))
-        call pvrgkl ( mode , kmax , nlml , nr , nsp , rv_w_orofi , rv_w_orwgt 
+        call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv 
      .   , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
-     .   ( 3 , ib ) ) , rv_w_oh , cofh , rg , ceh , rfoc , z , qkl ( 0 
+     .   ( 3 , ib ) ) , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 
      .   , j1 ) )
 
-Cdelw1 rlse name= oh old_list= orofi orwgt oh
-Cdelw1 rlse name= oh new_list= orofi orwgt
-Cdelw1         call rlse(oh)
-        if (allocated(rv_w_oh)) deallocate(rv_w_oh)
+        if (allocated(h_rv)) deallocate(h_rv)
 
         if (ipr .ge. 40) then
           write(stdo,222) ib,0,1,(qkl(k,j1), k=0,kmax)
@@ -160,12 +124,7 @@ Cdelw1         call rlse(oh)
 #if DEBUG
         if (ib .eq. 1) then
           print *, 'ib=',ib
-Cdelw1 1 is digit, dropped
-Cdelw1 2 is digit, dropped
-Cdelw1 3 is digit, dropped
-Cdelw1         call prtrkl(mode,kmax,rg,nr,nlml,nsp,w(orofi),w(orhoat(1,ib)),
-Cdelw1      .    w(orhoat(2,ib)),w(orhoat(3,ib)),qkl(0,j1))
-          call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rv_w_orofi 
+          call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv 
      .   , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
      .   ( 3 , ib ) ) , qkl ( 0 , j1 ) )
 
@@ -175,17 +134,9 @@ Cdelw1      .    w(orhoat(2,ib)),w(orhoat(3,ib)),qkl(0,j1))
    10   continue
       enddo
 
-Cdelw1 rlse name= orofi old_list= orofi orwgt
-Cdelw1 rlse name= orofi new_list= (None)
-Cdelw1       call rlse(orofi)
-      if (allocated(rv_w_orwgt)) deallocate(rv_w_orwgt)
-      if (allocated(rv_w_orofi)) deallocate(rv_w_orofi)
+      if (allocated(rwgt_rv)) deallocate(rwgt_rv)
+      if (allocated(rofi_rv)) deallocate(rofi_rv)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [orhoat]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine rhogkl
 
 
@@ -345,10 +296,6 @@ C ... Scale to get coefficients of the G_kL; see radpkl
         dfact = dfact*(2*l+3)
       enddo
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine pvrgkl
 
 #if DEBUG
@@ -397,10 +344,6 @@ C       call radpkl(rofi(ir),rg,kmax,lmxl,kmax,g)
       if (mod(opt,10) .eq. 1) then
         call daxpy(nr*nlml*nsp,1d0,rho2,1,rho1,1)
       endif
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine prtrkl
 
 #endif

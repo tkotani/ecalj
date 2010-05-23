@@ -48,7 +48,6 @@ C Data statements:
       if (iprint() .ge. 120) write(lgunit(1),300) iz,wsr
 
   300 format(/' DEFWSR: default radius for z=',i2,': ',f8.2)
-Cgetarg       end
       end subroutine defwsr
 
 

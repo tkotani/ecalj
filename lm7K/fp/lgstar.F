@@ -107,7 +107,6 @@ C ... Unpack hermitian points
         if (k .gt. 0) cg(i,m) = dconjg(cg(k,m))
   220 continue
 
-Cgetarg       end
       end subroutine lgstar
 
 

@@ -1,0 +1,12 @@
+ofrc 1 ofrc 3*nbas*numq real(8) rv_w_ lmfp 
+oindrx 2 oindrx 2*natrlx integer iv_w_ lmfp 
+ow 2 ow nvrelx*nvrelx real(8) rv_w_ lmfp 
+op 2 op pdim real(8) rv_w_ lmfp 
+oshr 0 oshr 1 real(8) rv_w_ lmfp 
+oftot 0 oftot 3*nbas real(8) rv_w_ lmfp 
+oevl 0 oevl ndham*2 real(8) rv_w_ lmfp 
+olldau 0 olldau -nbas integer iv_w_ lmfp 
+ovorb 1 ovorb -i complex(8) zv_w_ lmfp 
+odmatu 1 odmatu -i complex(8) zv_w_ lmfp 
+odmato 1 odmato -i complex(8) zv_w_ lmfp 
+opos 2 opos 3*nbas real(8) rv_w_ lmfp 

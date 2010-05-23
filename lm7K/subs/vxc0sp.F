@@ -1,11 +1,3 @@
-Cdelw1 var ['oexcx', '1', 'oexcx', 'nr', 'real(8)', 'rv_w_', 'vxc0sp']
-Cdelw1 var ['oexcc', '1', 'oexcc', 'nr', 'real(8)', 'rv_w_', 'vxc0sp']
-Cdelw1 var ['ovxcx', '1', 'ovxcx', 'nr', 'real(8)', 'rv_w_', 'vxc0sp']
-Cdelw1 var ['ovxcc', '1', 'ovxcc', 'nr', 'real(8)', 'rv_w_', 'vxc0sp']
-Cdelw1 var ['ogrh', '1', 'ogrh', 'nrmx*nsp', 'real(8)', 'rv_w_', 'vxc0sp']
-Cdelw1 var ['oggrh', '1', 'oggrh', 'nrmx*nsp', 'real(8)', 'rv_w_', 'vxc0sp']
-Cdelw1 var ['oagrh', '1', 'oagrh', 'nrmx*(3*nsp-2)', 'real(8)', 'rv_w_', 'vxc0sp']
-Cdelw1 var ['ogrgag', '1', 'ogrgag', 'nrmx*(2*nsp-1)', 'real(8)', 'rv_w_', 'vxc0sp']
       subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
 
 
@@ -45,19 +37,16 @@ C ... Local parameters
       parameter (nrmx=1501)
       double precision pi,rho2,rho3,
      .  ub4pi,wgt,exc(nrmx),vxc(nrmx,2),rp(nrmx,2),repl(2),rmul(2)
-Cdelw1       integer lx,lxcf2,lxcg2,i,ir,isp,ogrh,oagrh,oggrh,ogrgag,
-Cdelw1      .  iprint,nglob
       integer:: lx , lxcf2 , lxcg2 , i , ir , isp , iprint , nglob
-      real(8) ,allocatable :: rv_w_ogrh(:)
-      real(8) ,allocatable :: rv_w_oagrh(:)
-      real(8) ,allocatable :: rv_w_oggrh(:)
-      real(8) ,allocatable :: rv_w_ogrgag(:)
+      real(8) ,allocatable :: grh_rv(:)
+      real(8) ,allocatable :: agrh_rv(:)
+      real(8) ,allocatable :: ggrh_rv(:)
+      real(8) ,allocatable :: grgag_rv(:)
 
-Cdelw1       integer oexcx,oexcc,ovxcx,ovxcc
-      real(8) ,allocatable :: rv_w_oexcx(:)
-      real(8) ,allocatable :: rv_w_oexcc(:)
-      real(8) ,allocatable :: rv_w_ovxcx(:)
-      real(8) ,allocatable :: rv_w_ovxcc(:)
+      real(8) ,allocatable :: excx_rv(:)
+      real(8) ,allocatable :: excc_rv(:)
+      real(8) ,allocatable :: vxcx_rv(:)
+      real(8) ,allocatable :: vxcc_rv(:)
 
       character *2 st
 C ... Heap
@@ -100,54 +89,38 @@ C --- Generate vxc,exc on a mesh ---
      .      (vxc(2,isp)*rofi(3)-vxc(3,isp)*rofi(2))/(rofi(3)-rofi(2))
    60   continue
       else
-Cdelw1         call defrr(oexcx,nr)
-        allocate(rv_w_oexcx(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_oexcx(:)=0.0d0
+        allocate(excx_rv(nr))
+Ctakao_ZeroClear_NotRequiered          if (nr<0) excx_rv(:)=0.0d0
 
-Cdelw1         call defrr(oexcc,nr)
-        allocate(rv_w_oexcc(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_oexcc(:)=0.0d0
+        allocate(excc_rv(nr))
+Ctakao_ZeroClear_NotRequiered          if (nr<0) excc_rv(:)=0.0d0
 
-Cdelw1         call defrr(ovxcx,nr)
-        allocate(rv_w_ovxcx(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_ovxcx(:)=0.0d0
+        allocate(vxcx_rv(nr))
+Ctakao_ZeroClear_NotRequiered          if (nr<0) vxcx_rv(:)=0.0d0
 
-Cdelw1         call defrr(ovxcc,nr)
-        allocate(rv_w_ovxcc(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rv_w_ovxcc(:)=0.0d0
+        allocate(vxcc_rv(nr))
+Ctakao_ZeroClear_NotRequiered          if (nr<0) vxcc_rv(:)=0.0d0
 
         if (nsp .eq. 1) then
-Cdelw1           call evxcv(rp,rp,nr,nsp,lxcf2,
-Cdelw1      .               exc,w(oexcx),w(oexcc),
-Cdelw1      .               vxc,w(ovxcx),w(ovxcc))
-          call evxcv ( rp , rp , nr , nsp , lxcf2 , exc , rv_w_oexcx , 
-     .     rv_w_oexcc , vxc , rv_w_ovxcx , rv_w_ovxcc )
+          call evxcv ( rp , rp , nr , nsp , lxcf2 , exc , excx_rv , 
+     .     excc_rv , vxc , vxcx_rv , vxcc_rv )
 
         else
           call dpadd(rp(1,2),rp,1,nr,1d0)
-Cdelw1           call evxcv(rp(1,2),rp,nr,2,lxcf2,
-Cdelw1      .               exc,w(oexcx),w(oexcc),
-Cdelw1      .               vxc,w(ovxcx),w(ovxcc))
-          call evxcv ( rp ( 1 , 2 ) , rp , nr , 2 , lxcf2 , exc , rv_w_oexcx 
-     .     , rv_w_oexcc , vxc , rv_w_ovxcx , rv_w_ovxcc )
+          call evxcv ( rp ( 1 , 2 ) , rp , nr , 2 , lxcf2 , exc , excx_rv 
+     .     , excc_rv , vxc , vxcx_rv , vxcc_rv )
 
           call dpadd(rp(1,2),rp,1,nr,-1d0)
           call dpadd(rp,rp(1,2),1,nr,1d0)
-Cdelw1           call evxcv(rp,rp(1,2),nr,2,lxcf2,
-Cdelw1      .               exc,w(oexcx),w(oexcc),
-Cdelw1      .               vxc(1,2),w(ovxcx),w(ovxcc))
-          call evxcv ( rp , rp ( 1 , 2 ) , nr , 2 , lxcf2 , exc , rv_w_oexcx 
-     .     , rv_w_oexcc , vxc ( 1 , 2 ) , rv_w_ovxcx , rv_w_ovxcc )
+          call evxcv ( rp , rp ( 1 , 2 ) , nr , 2 , lxcf2 , exc , excx_rv 
+     .     , excc_rv , vxc ( 1 , 2 ) , vxcx_rv , vxcc_rv )
 
           call dpadd(rp,rp(1,2),1,nr,-1d0)
         endif
-Cdelw1 rlse name= oexcx old_list= oexcx oexcc ovxcx ovxcc
-Cdelw1 rlse name= oexcx new_list= (None)
-Cdelw1         call rlse(oexcx)
-        if (allocated(rv_w_ovxcc)) deallocate(rv_w_ovxcc)
-        if (allocated(rv_w_ovxcx)) deallocate(rv_w_ovxcx)
-        if (allocated(rv_w_oexcc)) deallocate(rv_w_oexcc)
-        if (allocated(rv_w_oexcx)) deallocate(rv_w_oexcx)
+        if (allocated(vxcc_rv)) deallocate(vxcc_rv)
+        if (allocated(vxcx_rv)) deallocate(vxcx_rv)
+        if (allocated(excc_rv)) deallocate(excc_rv)
+        if (allocated(excx_rv)) deallocate(excx_rv)
 
       endif
 
@@ -170,34 +143,25 @@ C --- Integrals ---
 
 C --- Gradient correction ---
       if (lxcg2 .ne. 0) then
-Cdelw1         call defrr(ogrh , nrmx*nsp)
-        allocate(rv_w_ogrh(nrmx*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nrmx*nsp<0) rv_w_ogrh(:)=0.0d0
+        allocate(grh_rv(nrmx*nsp))
+Ctakao_ZeroClear_NotRequiered          if (nrmx*nsp<0) grh_rv(:)=0.0d0
 
-Cdelw1         call defrr(oggrh, nrmx*nsp)
-        allocate(rv_w_oggrh(nrmx*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nrmx*nsp<0) rv_w_oggrh(:)=0.0d0
+        allocate(ggrh_rv(nrmx*nsp))
+Ctakao_ZeroClear_NotRequiered          if (nrmx*nsp<0) ggrh_rv(:)=0.0d0
 
-Cdelw1         call defrr(oagrh, nrmx*(3*nsp-2))
-        allocate(rv_w_oagrh(nrmx*(3*nsp-2)))
-Ctakao_ZeroClear_NotRequiered          if (nrmx*(3*nsp-2)<0) rv_w_oagrh(:)=0.0d0
+        allocate(agrh_rv(nrmx*(3*nsp-2)))
+Ctakao_ZeroClear_NotRequiered          if (nrmx*(3*nsp-2)<0) agrh_rv(:)=0.0d0
 
-Cdelw1         call defrr(ogrgag,nrmx*(2*nsp-1))
-        allocate(rv_w_ogrgag(nrmx*(2*nsp-1)))
-Ctakao_ZeroClear_NotRequiered          if (nrmx*(2*nsp-1)<0) rv_w_ogrgag(:)=0.0d0
+        allocate(grgag_rv(nrmx*(2*nsp-1)))
+Ctakao_ZeroClear_NotRequiered          if (nrmx*(2*nsp-1)<0) grgag_rv(:)=0.0d0
 
-Cdelw1         call vxcgr2(nr,nsp,nrmx,rofi,rp,w(ogrh),w(oggrh),
-Cdelw1      .    w(oagrh),w(ogrgag),exc,vxc)
-        call vxcgr2 ( nr , nsp , nrmx , rofi , rp , rv_w_ogrh , rv_w_oggrh 
-     .   , rv_w_oagrh , rv_w_ogrgag , exc , vxc )
+        call vxcgr2 ( nr , nsp , nrmx , rofi , rp , grh_rv , ggrh_rv 
+     .   , agrh_rv , grgag_rv , exc , vxc )
 
-Cdelw1 rlse name= ogrh old_list= ogrh oggrh oagrh ogrgag
-Cdelw1 rlse name= ogrh new_list= (None)
-Cdelw1         call rlse(ogrh)
-        if (allocated(rv_w_ogrgag)) deallocate(rv_w_ogrgag)
-        if (allocated(rv_w_oagrh)) deallocate(rv_w_oagrh)
-        if (allocated(rv_w_oggrh)) deallocate(rv_w_oggrh)
-        if (allocated(rv_w_ogrh)) deallocate(rv_w_ogrh)
+        if (allocated(grgag_rv)) deallocate(grgag_rv)
+        if (allocated(agrh_rv)) deallocate(agrh_rv)
+        if (allocated(ggrh_rv)) deallocate(ggrh_rv)
+        if (allocated(grh_rv)) deallocate(grh_rv)
 
 C ...   Redo integrals, with gradient correction
         do  24  i  = 1, nsp
@@ -224,9 +188,6 @@ C --- Add to V ---
 C --- Undo background rho for purposes of calculating vxc ---
 *     call addzbk(rofi,nr,1,nsp,rho,rhobg,-1d0)
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       if (iprint() .lt. 80) return
       if (lxcg2 .eq. 0) print 333
       if (lxcg2 .ne. 0) print 334
@@ -247,10 +208,6 @@ Cdelw1 w_varlist (del), remains: (None)
      .  print 335, '  ', repl(1)+repl(2), rmul(1)+rmul(2),
      .  rep(1)+rep(2)-repl(1)-repl(2), rmu(1)+rmu(2)-rmul(1)-rmul(2)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine vxc0sp
 
 

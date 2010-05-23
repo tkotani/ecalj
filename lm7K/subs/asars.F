@@ -1,12 +1,3 @@
-Cdelw1 var ['oipc', '0', 'oipc', 'nbas', 'integer', 'iv_w_', 'asars']
-Cdelw1 var ['oipa', '0', 'oipa', 'nbas', 'integer', 'iv_w_', 'asars']
-Cdelw1 var ['oqnu', '0', 'oqnu', '-3*n0*nsp*nbas', 'real(8)', 'rv_w_', 'asars']
-Cdelw1 var ['opnu', '0', 'opnu', '-n0*nsp*nbas', 'real(8)', 'rv_w_', 'asars']
-Cdelw1 var ['oov', '0', 'oov', 'nbas', 'integer', 'iv_w_', 'asars']
-Cgetarg...info...           structure ['asars', 'site', 'ssite']
-Cgetarg...info...           structure ['asars1', 'site', 'ssite']
-Cgetarg...info...           use_to_add ['asars', 'm_struc_def']
-Cgetarg...info...           use_to_add ['asars1', 'm_struc_def']
       subroutine asars(mode,sctrl,ssite,sspec,slat,spot,sbz,
      .  pnu,qnu,lbin,ifi)
 
@@ -66,8 +57,6 @@ C     implicit none
 C ... Passed parameters
       logical lbin
       integer mode,ifi
-Cgetarg       double precision sctrl(1),ssite(1),sspec(1),slat(1),
-Cgetarg      .  spot(1),sbz(1)
       type(s_ctrl)::sctrl
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -78,15 +67,13 @@ Cgetarg      .  spot(1),sbz(1)
       double precision pnu(*),qnu(*)
 C ... Local parameters
       character*32 jobid
-Cdelw1       integer n0,nbas,nl,nsp,nglob,oov,i,iors,oipc,oipa,opnu,oqnu,nit,
-Cdelw1      .  nspec,nat
       integer:: n0 , nbas , nl , nsp , nglob , i , iors , nit , nspec 
      . , nat
-      integer ,allocatable :: iv_w_oov(:)
-      integer ,allocatable :: iv_w_oipc(:)
-      integer ,allocatable :: iv_w_oipa(:)
-      real(8) ,allocatable :: rv_w_opnu(:)
-      real(8) ,allocatable :: rv_w_oqnu(:)
+      integer ,allocatable :: ov_iv(:)
+      integer ,allocatable :: ipc_iv(:)
+      integer ,allocatable :: ipa_iv(:)
+      real(8) ,allocatable :: pnu_rv(:)
+      real(8) ,allocatable :: qnu_rv(:)
 
       parameter (n0=10)
 C ... Heap
@@ -101,78 +88,58 @@ c      common /w/ w
       nit = 1
 
 C ... Get class list
-Cdelw1       call defi(oipc,nbas)
-      allocate(iv_w_oipc(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oipc(:)=0
+      allocate(ipc_iv(nbas))
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) ipc_iv(:)=0
 
-Cdelw1       call defi(oipa,nbas)
-      allocate(iv_w_oipa(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oipa(:)=0
+      allocate(ipa_iv(nbas))
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) ipa_iv(:)=0
 
-Cgetarg       call spackv(10,'site class',ssite,1,nbas,w(oipc))
       i_copy_size=1;
       do i_spackv=1,nbas
-Cdelw1        call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
         call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %class 
-     .  , i_copy_size , i_spackv + 1 - 1 , iv_w_oipc )
+     .  , i_copy_size , i_spackv + 1 - 1 , ipc_iv )
 
       enddo
 
 
 C ... Memory for qnu, site resolved
-Cdelw1       call defrr(oqnu,-3*n0*nsp*nbas)
-      allocate(rv_w_oqnu(abs(-3*n0*nsp*nbas)))
-      if (-3*n0*nsp*nbas<0) rv_w_oqnu(:)=0.0d0
+      allocate(qnu_rv(abs(-3*n0*nsp*nbas)))
+      if (-3*n0*nsp*nbas<0) qnu_rv(:)=0.0d0
 
-Cdelw1       call defrr(opnu,-n0*nsp*nbas)
-      allocate(rv_w_opnu(abs(-n0*nsp*nbas)))
-      if (-n0*nsp*nbas<0) rv_w_opnu(:)=0.0d0
+      allocate(pnu_rv(abs(-n0*nsp*nbas)))
+      if (-n0*nsp*nbas<0) pnu_rv(:)=0.0d0
 
 
 C ... For now, just a placeholder.
-Cdelw1       call defi(oov,nbas)
-      allocate(iv_w_oov(nbas))
-Ctakao_ZeroClear_NotRequiered        if (nbas<0) iv_w_oov(:)=0
+      allocate(ov_iv(nbas))
+Ctakao_ZeroClear_NotRequiered        if (nbas<0) ov_iv(:)=0
 
 
 C ... Poke class-based P,Q into site->pnu and oqnu
-Cdelw1       if (ifi .lt. 0) call asars1(10,ssite,nbas,nsp,nl,w(oov),w(opnu),
-Cdelw1      .  w(oqnu),w(oipc),w(oipa),pnu,qnu)
       if ( ifi .lt. 0 ) call asars1 ( 10 , ssite , nbas , nsp , nl 
-     . , iv_w_oov , rv_w_opnu , rv_w_oqnu , iv_w_oipc , iv_w_oipa , 
+     . , ov_iv , pnu_rv , qnu_rv , ipc_iv , ipa_iv , 
      . pnu , qnu )
 
 
 C ... File I/O
 C     for now
       nat = nbas
-Cdelw1       i = iors(0,sctrl,ssite,sspec,slat,spot,sbz,jobid,nbas,nat,nspec,w,
-Cdelw1      .  w(oqnu),nit,lbin,ifi)
       i = iors ( 0 , sctrl , ssite , sspec , slat , spot , sbz , jobid 
-     . , nbas , nat , nspec , w , rv_w_oqnu , nit , lbin , ifi )
+     . , nbas , nat , nspec , w , qnu_rv , nit , lbin , ifi )
 
 
 C ... Poke site struc and oqnu into P,Q
-Cdelw1       if (ifi .gt. 0) call asars1(11,ssite,nbas,nsp,nl,w(oov),w(opnu),
-Cdelw1      .  w(oqnu),w(oipc),w(oipa),pnu,qnu)
       if ( ifi .gt. 0 ) call asars1 ( 11 , ssite , nbas , nsp , nl 
-     . , iv_w_oov , rv_w_opnu , rv_w_oqnu , iv_w_oipc , iv_w_oipa , 
+     . , ov_iv , pnu_rv , qnu_rv , ipc_iv , ipa_iv , 
      . pnu , qnu )
 
 
-Cdelw1 rlse name= oipc old_list= oipc oipa oqnu opnu oov
-Cdelw1 rlse name= oipc new_list= (None)
-Cdelw1       call rlse(oipc)
-      if (allocated(iv_w_oov)) deallocate(iv_w_oov)
-      if (allocated(rv_w_opnu)) deallocate(rv_w_opnu)
-      if (allocated(rv_w_oqnu)) deallocate(rv_w_oqnu)
-      if (allocated(iv_w_oipa)) deallocate(iv_w_oipa)
-      if (allocated(iv_w_oipc)) deallocate(iv_w_oipc)
+      if (allocated(ov_iv)) deallocate(ov_iv)
+      if (allocated(pnu_rv)) deallocate(pnu_rv)
+      if (allocated(qnu_rv)) deallocate(qnu_rv)
+      if (allocated(ipa_iv)) deallocate(ipa_iv)
+      if (allocated(ipc_iv)) deallocate(ipc_iv)
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine asars
 
       subroutine asars1(mode,ssite,nbas,nsp,nl,ov,pnu,qnu,ipc,ipa,pl,ql)
@@ -223,7 +190,6 @@ C     implicit none
 C ... Passed parameters
       integer nbas,mode,nl,nsp,ov(nbas),ipc(nbas),ipa(7),n0
       parameter (n0=10)
-Cgetarg       double precision ssite(1),pl(nl,nsp,*),ql(3,nl,nsp,*)
       real(8):: pl(nl,nsp,*) , ql(3,nl,nsp,*)
       type(s_site)::ssite(*)
 
@@ -246,8 +212,6 @@ C --- Create symmetrized pnu ---
 C   ... Extract site->pnu into pnu array
         if (mode1 .eq. 1) then
           do  ib = 1, nbas
-Cgetarg...info...           real(8) :: ploc(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg             call upack2('site pnu',ssite,ib,ploc)
 
             i_copy_size=size(ssite(ib)%pnu)
             call dcopy(i_copy_size,ssite(ib)%pnu,1,ploc,1)
@@ -272,8 +236,6 @@ C   ... Copy pnu to site->pnu
           call dpzero(ploc,n0*2)
           do  ib = 1, nbas
             call dcopy(n0*nsp,pnu(1,1,ib),1,ploc,1)
-Cgetarg...info...           real(8) :: ploc(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg             call pack2('site pnu',ssite,ib,ploc)
 
             i_copy_size=size(ssite(ib)%pnu)
             call dcopy(i_copy_size,ploc,1,ssite(ib)%pnu,1)
@@ -291,8 +253,6 @@ C   ... Pack pl into site->pnu and/or array pnu; and ql to qnu
           call dpzero(ploc,n0*2)
           call dcopy(nl,pl(1,1,ic),1,ploc,1)
           call dcopy(nl,pl(1,nsp,ic),1,ploc(1,nsp),1)
-Cgetarg...info...           real(8) :: ploc(n0,2) , real(8) :: ssite%pnu 20
-Cgetarg           if (mod(mode1,2) .eq. 1) call pack2('site pnu',ssite,ib,ploc)
           if ( mod ( mode1 , 2 ) .eq. 1 ) then
 
             i_copy_size=size(ssite(ib)%pnu)
@@ -325,9 +285,6 @@ C         call upack2('site pnu',ssite,ib,pnu(1,1,ib))
 
       enddo
 
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       return
 
 C ... Error exit
@@ -335,10 +292,6 @@ C  999 continue
 C      call rx('iorsa, class'//clabl//': missing',line)
 
 
-Cgetarg       end
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine asars1
 
 
