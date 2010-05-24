@@ -1172,25 +1172,3 @@ c      stop 'xxxxxxxxxxxxxxxxxxx'
       call tcx('zhev_tk')
       end
 
-
-      subroutine matcinv(n,a)
-C --- a inverse is returned.
-      implicit none
-      integer :: n, info, ipiv(n)
-      complex(8):: a(n,n)
-      complex(8),allocatable:: work(:)
-      call zgetrf(n,n,a,n,ipiv,info)
-      if(info/=0) then
-        print *,' matcinv: zegtrf info=',info
-        stop    ' matcinv: zegtrf '
-      endif
-      allocate(work(n*n))
-      call zgetri(n,a,n,ipiv,work,n*n,info)
-      deallocate(work)
-      if(info/=0) then
-        print *,'matcinv: zegtri info=',info
-        stop    'matcinv: zegtri '
-      endif
-      end
-
-

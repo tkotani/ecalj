@@ -37,11 +37,11 @@
 # $(HOME)/kit/numericallib/LAPACK/blas_core2gfortran.a \
 # $(HOME)/kit/numericallib/LAPACK/tmglib_core2gfortran.a \
 # -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
- LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
- $(HOME)/kit/numericallib/LAPACK.intel11/lapack_LinuxCore2.a \
- $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
- $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
- -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
+# LIBLOC= -L$(HOME)/kit/fftw/fftw-3.1.2/.libs/ -lfftw3 \
+# $(HOME)/kit/numericallib/LAPACK.intel11/lapack_LinuxCore2.a \
+# $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
+# $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
+# -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
 #LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
 # I had a problem in zgemm in pwmat for 4.2.0. Wrong normchk.dia
@@ -56,6 +56,9 @@
 #LIBLOC = -L/usr/lib64/atlas/ /usr/lib64/atlas/liblapack.so.3 \
 #          /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
 #          /usr/lib64/atlas/libatlas.so.3 -lfftw3
+
+LIBLOC= -lfftw3 -mkl -lifcore -lguide -pthread
+
 ############################################
 # Fortran compiler and flags, and linker 
 ############################################
@@ -73,13 +76,19 @@ FFLAGS_LESS = -132 -O2 -cm -WB  -cpp $(CPP_SW) $(module)
 FFLAGS_LESS2 = -132 -O1 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
+
+FFLAGS = -132 -O0 -cm -WB  -cpp $(CPP_SW) $(module)
+FFLAGS_LESS = -132 -O0 -cm -WB  -cpp $(CPP_SW) $(module)
+FFLAGS_LESS2 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
+FFLAGS_NONE = -132 -O0 -cm -WB   -cpp $(CPP_SW) $(module)
 #
 # safer option (debug)
-FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_LESS3 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
-FFLAGS_NONE = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS2 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS3 = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_NONE = -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################

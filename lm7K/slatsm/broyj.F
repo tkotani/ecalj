@@ -39,7 +39,7 @@ C     implicit none
       double precision beta,dxmx,wc,xin(n),gin(n),xnew(n),xtol,gtol,
      .  wk(ndw,2,0:ir)
 C Local variables
-      integer i,ip,j,k,irm1,irm2,lm,ln,nn,dinv,i1mach,isw1,isw2,isw3
+      integer i,ip,j,k,irm1,irm2,lm,ln,nn,i1mach,isw1,isw2,isw3 !dinv
 C     integer ierr
       double precision aij,cmj,dfnorm,fac1,fac2,gmi,one,zero,ddot,w0
       parameter (zero=0d0,one=1d0,nn=20)
@@ -136,9 +136,11 @@ C   ... Set up and calculate beta matrix
    50   d(lm,lm) = w0**2 + a(lm,lm)*w(lm)*w(lm)
 
 C   --- Invert to make d ---
-        if (dinv(' ',irm1,nn,d) .ne. 0) then
-          call rx('broyj: matrix singular')
-        endif
+c        if (dinv(' ',irm1,nn,d) .ne. 0) then
+c          call rx('broyj: matrix singular')
+c       endif
+        call matinv2(irm1,d(1:irm1,1:irm1),ierr)
+
 C   ... Invert with singular value decomposition
 C        call svd(nn,irm1,irm1,d,wl(1,2),.true.,u,.true.,v,ierr,wl)
 C        call dpzero(d,nn**2)
