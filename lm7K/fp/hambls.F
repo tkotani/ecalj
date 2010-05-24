@@ -713,7 +713,8 @@ C       Transpose of qpi into norm
 C       call dcopy(16,qpi,1,norm,1)
 C       call dvset(norm(1,2),1,12,1d0)
 C       call prmx('norm',norm,4,4,4)
-          j = dinv(' ',i,4,norm)
+c          j = dinv(' ',i,4,norm)
+          call matinv2(i,norm(1:i,1:i),j) !takao May2010
 C       If inversion failed, reduce the number of points
           if (j .ne. 0) goto 10
 C       If any weight exceeds 1 or swt<>1, reduce the number of points

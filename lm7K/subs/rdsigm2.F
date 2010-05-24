@@ -1116,7 +1116,7 @@ C     integer os
       equivalence (emin,sigp(3)),(emax,sigp(5))
       equivalence (asig,sigp(6)),(bsig,sigp(7)),(efit,sigp(8))
 C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
-      double precision qk
+c      double precision qk
       integer jj1,jj2,jj3,k
 C.....titus
 C      integer ib,ib1,ib2,nlmaa,lidim,ldh,osfz1,nsp1
@@ -1135,9 +1135,9 @@ C ... Heap
 ccccccccccccccccccccccccccccccc
 c      integer:: oss
 ccccccccccccccccccccccccccccccc
-      qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
-     .                    (jj2*ifac(2)-1)*qb(k,2) +
-     .                    (jj3*ifac(3)-1)*qb(k,3)
+c      qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
+c     .                    (jj2*ifac(2)-1)*qb(k,2) +
+c     .                    (jj3*ifac(3)-1)*qb(k,3)
 
 c
       print *

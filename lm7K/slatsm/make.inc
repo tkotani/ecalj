@@ -52,7 +52,6 @@ sla_list=\
 	dgefa.o \
 	dgesl.o \
 	diagno.o \
-	dinv.o \
 	dinv33.o \
 	discop.o \
 	dlnref.o \
@@ -276,6 +275,6 @@ sla_list=\
 	zsum.o \
 	ztoy.o \
 	ztoyy.o \
-	ll.o
-
+	ll.o \
+	matm.o 
 
