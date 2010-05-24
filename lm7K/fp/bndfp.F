@@ -266,6 +266,7 @@ C ... Local parameters
        real(8) ,allocatable :: qm2_rv(:)
        real(8) ,allocatable :: vval_rv(:)
        real(8) ,allocatable :: ww_rv(:)
+       complex(8) ,allocatable :: ww_zv(:)
        integer ,allocatable :: ips_iv(:)
        real(8) ,allocatable :: orbtm_rv(:)
        integer ,allocatable :: ifbls_iv(:)
@@ -1897,15 +1898,15 @@ C$$$#endif
               call phmbls(2,ndimhx,evl(1,jsp),w,w,w,w,w,hamm)!w(oh))
               if(debug) print *,'vvv lwtkb=',lwtkb
               if (lwtkb .ne. -1) then
-                 allocate(ww_rv(ndimhx**2*2))
+                 allocate(ww_zv(ndimhx**2*2))
 
                 if (ldim .ne. ndham) call
      .        rx('blsig needs separate dim for wtkp,evec')
                  call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
      .           , plat , qp , lwtkb , qval - qbg , iq , w ( owtkp ) , w ( owtkb 
-     .           ) , ndimh , t_zv , ww_rv ) 
+     .           ) , ndimh , t_zv , ww_zv ) 
 
-                  deallocate(ww_rv)
+                  deallocate(ww_zv)
 
               endif
               if(debug) print *,'vvv2 lwtkb=',lwtkb
