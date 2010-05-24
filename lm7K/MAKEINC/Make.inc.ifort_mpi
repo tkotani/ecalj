@@ -67,12 +67,19 @@ LK = mpif90
 # where is modules?
 moddir = MODDIR/$(obj_path)
 module = -module $(moddir)
-#
-FFLAGS = -132 -O3 -cm -WB  -cpp $(CPP_SW) $(module)
-FFLAGS_LESS = -132 -O2 -cm -WB  -cpp $(CPP_SW) $(module)
+#--- v11.1
+FFLAGS = -132 -O1 -cm -WB  -cpp $(CPP_SW) $(module)
+FFLAGS_LESS = -132 -O1 -cm -WB  -cpp $(CPP_SW) $(module)
 FFLAGS_LESS2 = -132 -O1 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
 FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
+#--- v10.1
+#FFLAGS = -132 -O3 -cm -WB  -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS = -132 -O2 -cm -WB  -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS2 = -132 -O1 -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_LESS3 = -132 -O0 -cm -WB -cpp $(CPP_SW) $(module)
+#FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
+
 #
 # safer option (debug)
 FFLAGS =     -132 -g -traceback -cm -WB -cpp $(CPP_SW) $(module)
