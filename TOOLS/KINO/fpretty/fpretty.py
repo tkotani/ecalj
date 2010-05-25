@@ -22,6 +22,7 @@ spc6='      '
 
 # change indentstr if you want to change indentlevel
 indentstr='  '
+indentstrcont=''
 
 class t_indentstack:
 	word=''
@@ -229,7 +230,9 @@ class Parse:
 	if isinstance(tok[0],list)==0:
 		print thisfunc,"ERROR",tok[0]
 		sys.exit(10)
-	for line in tok:
+	#for line in tok:
+	for id in range(len(tok)):
+	    line=tok[id]
             if isinstance(line[0],basestring)==1:
                 outline=line[0]
                 name=line[0]
@@ -245,6 +248,8 @@ class Parse:
 		    outline=str1
 		    for i in range(level):
 			outline=outline+indentstr
+		    if id!=0:
+			outline=outline+indentstrcont
 		    outline=outline+str2
 		    	
                 ret.append(outline)
