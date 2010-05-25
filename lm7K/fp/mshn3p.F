@@ -1,5 +1,5 @@
       subroutine mshn3p(nbas,ssite,sspec,lmet,lrout,lfrce,qval,ef0,def,
-     .  sumqv,sumev,n1,n2,n3,k1,k2,k3,smrho,oqkkl,f,lrep)
+     .sumqv,sumev,n1,n2,n3,k1,k2,k3,smrho,oqkkl,f,lrep)
 
       use m_struc_def  !Cgetarg
 
@@ -62,9 +62,9 @@ C ... Passed parameters
       double complex smrho(k1,k2,k3,3,2)
 C ... Local parameters
       integer stdo,stdl,ib,ipl,is,kmax,lmxa,lmxh,lmxl,m,nelt1,nelt2,
-     .  nelt3,nlma,nlmh,lgunit,ipr,iprint,nsp,nglob,nkaph
+     .nelt3,nlma,nlmh,lgunit,ipr,iprint,nsp,nglob,nkaph
       double precision a,b,c,def1,disc,eadd,efold,p(3),px,py,pz,
-     .  q1,q2,q3,a1,a2,a3,rsm,sen,sev,sqv,sav,w1,w2,w3,x,x1,x2,xlin
+     .q1,q2,q3,a1,a2,a3,rsm,sen,sev,sqv,sav,w1,w2,w3,x,x1,x2,xlin
       equivalence (px,p(1)),(py,p(2)),(pz,p(3))
 C ... Heap
       integer w(1)
@@ -85,7 +85,7 @@ C       smm = sumqv(1,2) - sumqv(1,2)
         sev = sumev(1,1)
         if (ipr .ge. 20) write(stdo,800) sqv,sev
   800   format(/' Semiconductor branch:  sumqv=',f12.6,
-     .     '   sumev=',f12.6)
+     .  '   sumev=',f12.6)
         return
       endif
 
@@ -98,14 +98,14 @@ C --- Metals: make weights w1,w2,w3 for the three trial Ef's ---
       a3 = sumqv(3,1) - sumqv(3,2)
       if (ipr .ge. 30) write(stdo,300) qval,ef0-def,ef0,ef0+def,q1,q2,q3
   300 format(/' Interpolate to Fermi energy for qval=',f9.3
-     .   /' trial Fermi energies: ',3f12.5
-     .   /' band occupations:     ',3f12.5)
+     ./' trial Fermi energies: ',3f12.5
+     ./' band occupations:     ',3f12.5)
       if (ipr .ge. 30 .and. nsp .eq. 2) write(stdo,301) a1,a2,a3
   301 format(' magnetic moment:      ',3f12.5)
       if (dabs(q3-q1) .lt. 1d-8) then
         if (dabs(q2-qval) .gt. 1d-8) then
           call awrit1('mshn3p: Input Fermi energy unusable, Q=%d',' ',
-     .      80,stdo,q2)
+     .    80,stdo,q2)
           sumev(1,1) = 0
           sumev(2,1) = 0
           lrep = 1
@@ -120,7 +120,7 @@ C --- Metals: make weights w1,w2,w3 for the three trial Ef's ---
         goto 90
       endif
       if ((qval.gt.q3 .or. qval .lt. q1) .and. ipr .gt. 0) call awrit0(
-     .  'mshn3p: qval outside window; extrapolating',' ',80,stdo)
+     .'mshn3p: qval outside window; extrapolating',' ',80,stdo)
       a = (q1+q3-2d0*q2)/(2d0*def*def)
       b = (q3-q1)/(2d0*def)
       c = q2-qval
@@ -158,18 +158,18 @@ C --- Metals: make weights w1,w2,w3 for the three trial Ef's ---
 
 C ... Interpolate sumev,sumqv
   90  sqv = w1*sumqv(1,1) + w2*sumqv(2,1) + w3*sumqv(3,1)
-     .    + w1*sumqv(1,2) + w2*sumqv(2,2) + w3*sumqv(3,2)
+     .+ w1*sumqv(1,2) + w2*sumqv(2,2) + w3*sumqv(3,2)
       sav = w1*sumqv(1,1) + w2*sumqv(2,1) + w3*sumqv(3,1)
-     .    - w1*sumqv(1,2) - w2*sumqv(2,2) - w3*sumqv(3,2)
+     .- w1*sumqv(1,2) - w2*sumqv(2,2) - w3*sumqv(3,2)
       sev = w1*sumev(1,1) + w2*sumev(1,2) + w3*sumev(1,3)
       sen = w1*sumev(2,1) + w2*sumev(2,2) + w3*sumev(2,3)
       if (ipr .ge. 20) write(stdo,470)
-     .  q1,q2,q3,sqv,
-     .  sumev(1,1),sumev(1,2),sumev(1,3),sev,
-     .  sumev(2,1),sumev(2,2),sumev(2,3),sen
+     .q1,q2,q3,sqv,
+     .sumev(1,1),sumev(1,2),sumev(1,3),sev,
+     .sumev(2,1),sumev(2,2),sumev(2,3),sen
   470 format(' interpolated charge:  ',3f12.5,'  ->',f11.5
-     .   /' eigenvalue sum:       ',3f12.5,'  ->',f11.5
-     .   /' entropy term:         ',3f12.5,'  ->',f11.5)
+     ./' eigenvalue sum:       ',3f12.5,'  ->',f11.5
+     ./' entropy term:         ',3f12.5,'  ->',f11.5)
       if (ipr .ge. 20 .and. nsp .eq. 2) write(stdo,471) a1,a2,a3,sav
   471 format(' interpolated moment:  ',3f12.5,'  ->',f11.5)
       sumqv(1,1) = (sqv + sav)/nsp
@@ -256,8 +256,8 @@ C ... Local parameters
       do  isp = 1, nsp
         do  i = 1, nelt
           qkkl(i,1,isp) = w1*qkkl(i,1,isp) +
-     .                  w2*qkkl(i,2,isp) +
-     .                  w3*qkkl(i,3,isp)
+     .    w2*qkkl(i,2,isp) +
+     .    w3*qkkl(i,3,isp)
         enddo
       enddo
       if (nsp .eq. 2) call dcopy(nelt,qkkl(1,1,2),1,qkkl(1,2,1),1)
@@ -280,14 +280,14 @@ C ... Local parameters
           do  i2 = 1, n2
             do  i1 = 1, n1
               smrho(i1,i2,i3,1,isp) = w1*smrho(i1,i2,i3,1,isp)
-     .                            + w2*smrho(i1,i2,i3,2,isp)
-     .                            + w3*smrho(i1,i2,i3,3,isp)
+     .        + w2*smrho(i1,i2,i3,2,isp)
+     .        + w3*smrho(i1,i2,i3,3,isp)
             enddo
           enddo
         enddo
       enddo
       if (nsp .eq. 2)
-     .  call dcopy(2*k1*k2*k3,smrho(1,1,1,1,2),1,smrho(1,1,1,2,1),1)
+     .call dcopy(2*k1*k2*k3,smrho(1,1,1,1,2),1,smrho(1,1,1,2,1),1)
       end subroutine mshn32
 
 

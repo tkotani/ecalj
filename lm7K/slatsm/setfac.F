@@ -19,7 +19,7 @@ C     implicit none
       df(0) = 1d0
       df(1) = 1d0
       do  10  i = 2, n
-   10   df(i) = i*df(i-2)
+   10 df(i) = i*df(i-2)
       end
 
 

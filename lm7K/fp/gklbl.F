@@ -85,10 +85,10 @@ C     make the summation in reciprocal space, else in real space
       ilm = 0
       do  28  l = 0, lmax
         cfac = cfac*(0d0,-1d0)
-      do  28  m = 1, 2*l+1
-        ilm = ilm+1
-      do  28  k = 0, kmax
-        gkl(k,ilm) = cfac*cy(ilm)*gkl(k,ilm)
+        do  28  m = 1, 2*l+1
+          ilm = ilm+1
+          do  28  k = 0, kmax
+            gkl(k,ilm) = cfac*cy(ilm)*gkl(k,ilm)
    28 continue
 
       end subroutine gklbl
@@ -130,8 +130,8 @@ C ... Local parameters
       tpi = 8d0*datan(1d0)
       lmax = ll(nlm)
       do  10  ilm = 1, nlm
-      do  10  k = 0, kmax
-        gkl(k,ilm) = 0d0
+        do  10  k = 0, kmax
+          gkl(k,ilm) = 0d0
    10 continue
 
       do  20  ir = 1, nkd

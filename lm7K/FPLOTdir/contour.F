@@ -52,14 +52,14 @@ C Passed parameters
       double precision z(nrz,1),zmax,dparms(*),cv(ncv),cs(0:3)
 C Local parameters
       integer i,ibkey,icur,icv,idir,iedge,iflag,ii,imax,imin,ix,
-     .        j,jcur,jj,jmax,jmin,k,ks,l,ni,nxidir,iget,iprint,jump
+     .j,jcur,jj,jmax,jmin,k,ks,l,ni,nxidir,iget,iprint,jump
       integer l1(4), l2(4), ij(2), i1(2), i2(2), i3(6)
       double precision cval,dmax,x,y,z1,z2,zz
       double precision xint(4),xy(2)
       external drwc,fill0,iget,iprint,mark1
 
       equivalence (l2(1),imax), (l2(2),jmax), (l2(3),imin),
-     *  (l2(4),jmin)
+     *(l2(4),jmin)
       equivalence (ij(1),i), (ij(2),j)
       equivalence (xy(1),x), (xy(2),y)
 c
@@ -134,13 +134,13 @@ c     the next 15 statements (or so) detect boundaries.
       if (z(ii,jj).gt.dmax) go to 90
 c      if (z(i+1,j+1).lt.dmax) go to jump, (100, 280)
       if (z(i+1,j+1).lt.dmax) then
-         if(jump==100) goto 100
-         if(jump==280) goto 280
+        if(jump==100) goto 100
+        if(jump==280) goto 280
       endif
    90 ix = ix + 2
 c      go to jump, (100, 280)
-       if(jump==100) goto 100
-       if(jump==280) goto 280
+      if(jump==100) goto 100
+      if(jump==280) goto 280
   100 if (ix.eq.3) go to 130
       if (ix+ibkey.eq.0) go to 130
 c     now determine whether the line segment is crossed by the contour.
@@ -287,7 +287,7 @@ c
         bitmap(i) = 0
    10 continue
    20 if (nblw.ne.0)
-     .  bitmap(loop+1) = mod(bitmap(loop+1),2**(nbpw-nblw))
+     .bitmap(loop+1) = mod(bitmap(loop+1),2**(nbpw-nblw))
       return
       end
       subroutine mark1(bitmap, n)
@@ -399,7 +399,7 @@ C Local parameters
       jump = mod(iflag,10)
 
       if (iprint() .ge. 80 .and. jump .ge. 2 .and. jump .le. 3)
-     .  print 333, ic, nint(lt(1,ic)),lt(2,ic),lt(3,ic)
+     .print 333, ic, nint(lt(1,ic)),lt(2,ic),lt(3,ic)
   333 format('drwc: drawing contour',i3,'  lt=',i2,2f7.3)
 
       go to (10, 20, 30, 40, 50, 60), jump
@@ -407,7 +407,7 @@ C --- Continue a contour ---
    10 continue
 C     if (iprint() .gt. 90) write (*,999) ic, xscale(x), yscale(y)
       call info8(90,0,0,' continue contour%,3i to  %,4;4g   %,4;4g',
-     .  ic,xscale(x),yscale(y),0,0,0,0,0)
+     .ic,xscale(x),yscale(y),0,0,0,0,0)
 
       call drw(xscale(x),yscale(y))
 C     Area = r cross dr/2 = (xdy - ydx)/2
@@ -417,7 +417,7 @@ C --- Start a new contour on the boundary ---
    20 continue
 C     if (iprint() .ge. 80) write (*,998) ic, xscale(x), yscale(y)
       call plntyp(nint(lt(1,ic)),nint(lt(2,ic)),lt(3,ic),lt(4,ic),
-     .  0d0,0d0)
+     .0d0,0d0)
 C     xst,yst are scaled versions of x0,y0
 C     Only keep both for historical reasons
       x0 = x
@@ -435,21 +435,21 @@ C     10s digit 0,1,2 for no wall, left wall, right wall
       if (y .eq. 1) iedgst = iedgst + 1
       if (y .eq. ny) iedgst = iedgst + 2
       call info8(80,0,0,'    start contour%,3i on the '//
-     .  '%?#(n==01)#bottom boundary,##%-1j'//
-     .  '%?#(n==02)#top boundary,   ##%-1j'//
-     .  '%?#(n==10)#left boundary,  ##%-1j'//
-     .  '%?#(n==20)#right boundary, ##'//
-     .  '  x=%,4;4g   y=%,4;4g',
-     .  ic,iedgst,xscale(x),yscale(y),Area,0,0,0)
+     .'%?#(n==01)#bottom boundary,##%-1j'//
+     .'%?#(n==02)#top boundary,   ##%-1j'//
+     .'%?#(n==10)#left boundary,  ##%-1j'//
+     .'%?#(n==20)#right boundary, ##'//
+     .'  x=%,4;4g   y=%,4;4g',
+     .ic,iedgst,xscale(x),yscale(y),Area,0,0,0)
       go to 70
 C --- Start a new contour in the interior ---
    30 continue
       call plntyp(nint(lt(1,ic)),nint(lt(2,ic)),lt(3,ic),lt(4,ic),
-     .  0d0,0d0)
+     .0d0,0d0)
 C     if (iprint() .ge. 80) write (*,997) ic, xscale(x), yscale(y)
       call info8(80,0,0,'    start contour%,3i in the interior at'//
-     .  '  x=%,4;4g   y=%,4;4g',
-     .  ic,xscale(x),yscale(y),Area,0,0,0,0)
+     .'  x=%,4;4g   y=%,4;4g',
+     .ic,xscale(x),yscale(y),Area,0,0,0,0)
 C     xst,yst are scaled versions of x0,y0
       x0 = x
       y0 = y
@@ -478,7 +478,7 @@ C ... Contour encloses a corner
         Area = Area + (x+xcur)/4*(y-ycur) - (y+ycur)/4*(x-xcur)
 C   ... STARTING x at xmin or xmax. ENDING y at ymin or ymax
         if ((dcmpre(xst,xmin) .or. dcmpre(xst,xmax)) .and.
-     .      (dcmpre(yscale(y),ymin) .or. dcmpre(yscale(y),ymax))) then
+     .  (dcmpre(yscale(y),ymin) .or. dcmpre(yscale(y),ymax))) then
 C         Move horizontally to corner
           call drwe(xst,yscale(y),cs)
 C         Add to line integral, segment from (x,y) to (x0,y) = -y dx/2
@@ -487,7 +487,7 @@ C         Add to line integral, segment from (x0,y) to (x0,y0) = x0*dy/2
           Area = Area + x0/2 * (y0-y)
 C   ... STARTING y at ymin or ymax. ENDING x at xmin or xmax.
         elseif ((dcmpre(yst,ymin) .or. dcmpre(yst,ymax)) .and.
-     .      (dcmpre(xscale(x),xmin) .or. dcmpre(xscale(x),xmax))) then
+     .  (dcmpre(xscale(x),xmin) .or. dcmpre(xscale(x),xmax))) then
 C         Move horizontally to corner
           call drwe(xscale(x),yst,cs)
 C         Add to line integral, segment from (x,y) to (x,y0) = x dy/2
@@ -513,12 +513,12 @@ C         Left or right wall.  Add -x (dy)/2 to r cross dr
       endif
       Area = dabs( Area * (xmax-xmin)/(nx-1) * (ymax-ymin)/(ny-1) )
       call info8(80,0,0,'   finish contour%,3i on the '//
-     .  '%?#(n==01)#bottom boundary,##%-1j'//
-     .  '%?#(n==02)#top boundary,   ##%-1j'//
-     .  '%?#(n==10)#left boundary,  ##%-1j'//
-     .  '%?#(n==20)#right boundary, ##'//
-     .  '  x=%,4;4g   y=%,4;4g   Area=%,4;4g',
-     .  ic,iedge,xscale(x),yscale(y),Area,0,0,0)
+     .'%?#(n==01)#bottom boundary,##%-1j'//
+     .'%?#(n==02)#top boundary,   ##%-1j'//
+     .'%?#(n==10)#left boundary,  ##%-1j'//
+     .'%?#(n==20)#right boundary, ##'//
+     .'  x=%,4;4g   y=%,4;4g   Area=%,4;4g',
+     .ic,iedge,xscale(x),yscale(y),Area,0,0,0)
       go to 70
 C --- Close a new contour in the interior ---
    50 continue
@@ -527,8 +527,8 @@ C --- Close a new contour in the interior ---
       Area = dabs( Area * (xmax-xmin)/(nx-1) * (ymax-ymin)/(ny-1) )
 C     if (iprint() .ge. 80) write (*,995) ic, xscale(x), yscale(y), Area
       call info8(80,0,0,'   finish contour%,3i in the interior at'//
-     .  '  x=%,4;4g   y=%,4;4g   Area=%,4;4g',
-     .  ic,xscale(x),yscale(y),Area,0,0,0,0)
+     .'  x=%,4;4g   y=%,4;4g   Area=%,4;4g',
+     .ic,xscale(x),yscale(y),Area,0,0,0,0)
 
       go to 70
 C --- Pen position ---

@@ -102,18 +102,18 @@
 *     .. Parameters ..
       COMPLEX*16         ONE, ZERO
       PARAMETER          ( ONE = ( 1.0D+0, 0.0D+0 ),
-     $                   ZERO = ( 0.0D+0, 0.0D+0 ) )
+     $ZERO = ( 0.0D+0, 0.0D+0 ) )
       INTEGER            NBMAX, LDWORK
       PARAMETER          ( NBMAX = 64, LDWORK = NBMAX+1 )
 *     ..
 *     .. Local Scalars ..
       INTEGER            I, I2, I3, IC, II, IP, J, J2, J3, JB, JJ, JM,
-     $                   JP, JU, K2, KM, KV, NB, NW
+     $JP, JU, K2, KM, KV, NB, NW
       COMPLEX*16         TEMP
 *     ..
 *     .. Local Arrays ..
       COMPLEX*16         WORK13( LDWORK, NBMAX ),
-     $                   WORK31( LDWORK, NBMAX )
+     $WORK31( LDWORK, NBMAX )
 *     ..
 *     .. External Functions ..
       INTEGER            ILAENV, IZAMAX
@@ -121,7 +121,7 @@
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           XERBLA, ZCOPY, ZGBTF2, ZGEMM, ZGERU, ZLASWP,
-     $                   ZSCAL, ZSWAP, ZTRSM
+     $ZSCAL, ZSWAP, ZTRSM
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX, MIN
@@ -137,27 +137,27 @@
 *
       INFO = 0
       IF( M.LT.0 ) THEN
-         INFO = -1
+      INFO = -1
       ELSE IF( N.LT.0 ) THEN
-         INFO = -2
+      INFO = -2
       ELSE IF( KL.LT.0 ) THEN
-         INFO = -3
+      INFO = -3
       ELSE IF( KU.LT.0 ) THEN
-         INFO = -4
+      INFO = -4
       ELSE IF( LDAB.LT.KL+KV+1 ) THEN
-         INFO = -6
+      INFO = -6
       END IF
       IF( INFO.NE.0 ) THEN
-         CALL XERBLA( 'Z1BTRF', -INFO )
-         RETURN
+      CALL XERBLA( 'Z1BTRF', -INFO )
+      RETURN
       END IF
 *
 *     Check pivot constraints
 *
       DO  5  IC = 1, M
-        IF (IPIVC(IC) .GE. M) GOTO 6
-        IF (IPIVC(IC) .LT. 0 .or. IPIVC(IC) .GE. IPIVC(IC+1))
-     .    CALL XERBLA( 'Z1BTRF', -8 )
+      IF (IPIVC(IC) .GE. M) GOTO 6
+      IF (IPIVC(IC) .LT. 0 .or. IPIVC(IC) .GE. IPIVC(IC+1))
+     .CALL XERBLA( 'Z1BTRF', -8 )
     5 CONTINUE
     6 CONTINUE
       IC = 1
@@ -165,7 +165,7 @@
 *     Quick return if possible
 *
       IF( M.EQ.0 .OR. N.EQ.0 )
-     $   RETURN
+     $RETURN
 *
 *     Determine the block size for this environment
 *
@@ -180,44 +180,44 @@
 *
 *        Use unblocked code
 *
-         CALL Z1BTF2( M, N, KL, KU, AB, LDAB, IPIV, IPIVC, INFO )
+      CALL Z1BTF2( M, N, KL, KU, AB, LDAB, IPIV, IPIVC, INFO )
       ELSE
 *
 *        Use blocked code
 *
 *        Zero the superdiagonal elements of the work array WORK13
 *
-         DO 20 J = 1, NB
-            DO 10 I = 1, J - 1
-               WORK13( I, J ) = ZERO
-   10       CONTINUE
-   20    CONTINUE
+      DO 20 J = 1, NB
+      DO 10 I = 1, J - 1
+      WORK13( I, J ) = ZERO
+   10 CONTINUE
+   20 CONTINUE
 *
 *        Zero the subdiagonal elements of the work array WORK31
 *
-         DO 40 J = 1, NB
-            DO 30 I = J + 1, NB
-               WORK31( I, J ) = ZERO
-   30       CONTINUE
-   40    CONTINUE
+      DO 40 J = 1, NB
+      DO 30 I = J + 1, NB
+      WORK31( I, J ) = ZERO
+   30 CONTINUE
+   40 CONTINUE
 *
 *        Gaussian elimination with partial pivoting
 *
 *        Set fill-in elements in columns KU+2 to KV to zero
 *
-         DO 60 J = KU + 2, MIN( KV, N )
-            DO 50 I = KV - J + 2, KL
-               AB( I, J ) = ZERO
-   50       CONTINUE
-   60    CONTINUE
+      DO 60 J = KU + 2, MIN( KV, N )
+      DO 50 I = KV - J + 2, KL
+      AB( I, J ) = ZERO
+   50 CONTINUE
+   60 CONTINUE
 *
 *        JU is the index of the last column affected by the current
 *        stage of the factorization
 *
-         JU = 1
+      JU = 1
 *
-         DO 180 J = 1, MIN( M, N ), NB
-            JB = MIN( NB, MIN( M, N )-J+1 )
+      DO 180 J = 1, MIN( M, N ), NB
+      JB = MIN( NB, MIN( M, N )-J+1 )
 *
 *           The active part of the matrix is partitioned
 *
@@ -231,238 +231,238 @@
 *           of columns are JB, J2, J3. The superdiagonal elements of A13
 *           and the subdiagonal elements of A31 lie outside the band.
 *
-            I2 = MIN( KL-JB, M-J-JB+1 )
-            I3 = MIN( JB, M-J-KL+1 )
+      I2 = MIN( KL-JB, M-J-JB+1 )
+      I3 = MIN( JB, M-J-KL+1 )
 *
 *           J2 and J3 are computed after JU has been updated.
 *
 *           Factorize the current block of JB columns
 *
-            DO 80 JJ = J, J + JB - 1
+      DO 80 JJ = J, J + JB - 1
 *
 *              Check for new pivot block
 *
-               IF (JJ .GT. IPIVC(IC)) IC = IC+1
+      IF (JJ .GT. IPIVC(IC)) IC = IC+1
 *
 *              Set fill-in elements in column JJ+KV to zero
 *
-               IF( JJ+KV.LE.N ) THEN
-                  DO 70 I = 1, KL
-                     AB( I, JJ+KV ) = ZERO
-   70             CONTINUE
-               END IF
+      IF( JJ+KV.LE.N ) THEN
+      DO 70 I = 1, KL
+      AB( I, JJ+KV ) = ZERO
+   70 CONTINUE
+      END IF
 *
 *              Find pivot and test for singularity. KM is the number of
 *              subdiagonal elements in the current column.
 *
-               KM = MIN( KL, M-JJ )
-               JP = IZAMAX( KM+1, AB( KV+1, JJ ), 1 )
-               JP = IZAMAX( MIN(KM,IPIVC(IC)-JJ)+1, AB( KV+1, JJ ), 1 )
-               IPIV( JJ ) = JP + JJ - J
-               IF( AB( KV+JP, JJ ).NE.ZERO ) THEN
-                  JU = MAX( JU, MIN( JJ+KU+JP-1, N ) )
-                  IF( JP.NE.1 ) THEN
+      KM = MIN( KL, M-JJ )
+      JP = IZAMAX( KM+1, AB( KV+1, JJ ), 1 )
+      JP = IZAMAX( MIN(KM,IPIVC(IC)-JJ)+1, AB( KV+1, JJ ), 1 )
+      IPIV( JJ ) = JP + JJ - J
+      IF( AB( KV+JP, JJ ).NE.ZERO ) THEN
+      JU = MAX( JU, MIN( JJ+KU+JP-1, N ) )
+      IF( JP.NE.1 ) THEN
 *
 *                    Apply interchange to columns J to J+JB-1
 *
-                     IF( JP+JJ-1.LT.J+KL ) THEN
+      IF( JP+JJ-1.LT.J+KL ) THEN
 *
-                        CALL ZSWAP( JB, AB( KV+1+JJ-J, J ), LDAB-1,
-     $                              AB( KV+JP+JJ-J, J ), LDAB-1 )
-                     ELSE
+      CALL ZSWAP( JB, AB( KV+1+JJ-J, J ), LDAB-1,
+     $AB( KV+JP+JJ-J, J ), LDAB-1 )
+      ELSE
 *
 *                       The interchange affects columns J to JJ-1 of A31
 *                       which are stored in the work array WORK31
 *
-                        CALL ZSWAP( JJ-J, AB( KV+1+JJ-J, J ), LDAB-1,
-     $                              WORK31( JP+JJ-J-KL, 1 ), LDWORK )
-                        CALL ZSWAP( J+JB-JJ, AB( KV+1, JJ ), LDAB-1,
-     $                              AB( KV+JP, JJ ), LDAB-1 )
-                     END IF
-                  END IF
+      CALL ZSWAP( JJ-J, AB( KV+1+JJ-J, J ), LDAB-1,
+     $WORK31( JP+JJ-J-KL, 1 ), LDWORK )
+      CALL ZSWAP( J+JB-JJ, AB( KV+1, JJ ), LDAB-1,
+     $AB( KV+JP, JJ ), LDAB-1 )
+      END IF
+      END IF
 *
 *                 Compute multipliers
 *
-                  CALL ZSCAL( KM, ONE / AB( KV+1, JJ ), AB( KV+2, JJ ),
-     $                        1 )
+      CALL ZSCAL( KM, ONE / AB( KV+1, JJ ), AB( KV+2, JJ ),
+     $1 )
 *
 *                 Update trailing submatrix within the band and within
 *                 the current block. JM is the index of the last column
 *                 which needs to be updated.
 *
-                  JM = MIN( JU, J+JB-1 )
-                  IF( JM.GT.JJ )
-     $               CALL ZGERU( KM, JM-JJ, -ONE, AB( KV+2, JJ ), 1,
-     $                           AB( KV, JJ+1 ), LDAB-1,
-     $                           AB( KV+1, JJ+1 ), LDAB-1 )
-               ELSE
+      JM = MIN( JU, J+JB-1 )
+      IF( JM.GT.JJ )
+     $CALL ZGERU( KM, JM-JJ, -ONE, AB( KV+2, JJ ), 1,
+     $AB( KV, JJ+1 ), LDAB-1,
+     $AB( KV+1, JJ+1 ), LDAB-1 )
+      ELSE
 *
 *                 If pivot is zero, set INFO to the index of the pivot
 *                 unless a zero pivot has already been found.
 *
-                  IF( INFO.EQ.0 )
-     $               INFO = JJ
-               END IF
+      IF( INFO.EQ.0 )
+     $INFO = JJ
+      END IF
 *
 *              Copy current column of A31 into the work array WORK31
 *
-               NW = MIN( JJ-J+1, I3 )
-               IF( NW.GT.0 )
-     $            CALL ZCOPY( NW, AB( KV+KL+1-JJ+J, JJ ), 1,
-     $                        WORK31( 1, JJ-J+1 ), 1 )
-   80       CONTINUE
-            IF( J+JB.LE.N ) THEN
+      NW = MIN( JJ-J+1, I3 )
+      IF( NW.GT.0 )
+     $CALL ZCOPY( NW, AB( KV+KL+1-JJ+J, JJ ), 1,
+     $WORK31( 1, JJ-J+1 ), 1 )
+   80 CONTINUE
+      IF( J+JB.LE.N ) THEN
 *
 *              Apply the row interchanges to the other blocks.
 *
-               J2 = MIN( JU-J+1, KV ) - JB
-               J3 = MAX( 0, JU-J-KV+1 )
+      J2 = MIN( JU-J+1, KV ) - JB
+      J3 = MAX( 0, JU-J-KV+1 )
 *
 *              Use ZLASWP to apply the row interchanges to A12, A22, and
 *              A32.
 *
-               CALL ZLASWP( J2, AB( KV+1-JB, J+JB ), LDAB-1, 1, JB,
-     $                      IPIV( J ), 1 )
+      CALL ZLASWP( J2, AB( KV+1-JB, J+JB ), LDAB-1, 1, JB,
+     $IPIV( J ), 1 )
 *
 *              Adjust the pivot indices.
 *
-               DO 90 I = J, J + JB - 1
-                  IPIV( I ) = IPIV( I ) + J - 1
-   90          CONTINUE
+      DO 90 I = J, J + JB - 1
+      IPIV( I ) = IPIV( I ) + J - 1
+   90 CONTINUE
 *
 *              Apply the row interchanges to A13, A23, and A33
 *              columnwise.
 *
-               K2 = J - 1 + JB + J2
-               DO 110 I = 1, J3
-                  JJ = K2 + I
-                  DO 100 II = J + I - 1, J + JB - 1
-                     IP = IPIV( II )
-                     IF( IP.NE.II ) THEN
-                        TEMP = AB( KV+1+II-JJ, JJ )
-                        AB( KV+1+II-JJ, JJ ) = AB( KV+1+IP-JJ, JJ )
-                        AB( KV+1+IP-JJ, JJ ) = TEMP
-                     END IF
-  100             CONTINUE
-  110          CONTINUE
+      K2 = J - 1 + JB + J2
+      DO 110 I = 1, J3
+      JJ = K2 + I
+      DO 100 II = J + I - 1, J + JB - 1
+      IP = IPIV( II )
+      IF( IP.NE.II ) THEN
+      TEMP = AB( KV+1+II-JJ, JJ )
+      AB( KV+1+II-JJ, JJ ) = AB( KV+1+IP-JJ, JJ )
+      AB( KV+1+IP-JJ, JJ ) = TEMP
+      END IF
+  100 CONTINUE
+  110 CONTINUE
 *
 *              Update the relevant part of the trailing submatrix
 *
-               IF( J2.GT.0 ) THEN
+      IF( J2.GT.0 ) THEN
 *
 *                 Update A12
 *
-                  CALL ZTRSM( 'Left', 'Lower', 'No transpose', 'Unit',
-     $                        JB, J2, ONE, AB( KV+1, J ), LDAB-1,
-     $                        AB( KV+1-JB, J+JB ), LDAB-1 )
+      CALL ZTRSM( 'Left', 'Lower', 'No transpose', 'Unit',
+     $JB, J2, ONE, AB( KV+1, J ), LDAB-1,
+     $AB( KV+1-JB, J+JB ), LDAB-1 )
 *
-                  IF( I2.GT.0 ) THEN
+      IF( I2.GT.0 ) THEN
 *
 *                    Update A22
 *
-                     CALL ZGEMM( 'No transpose', 'No transpose', I2, J2,
-     $                           JB, -ONE, AB( KV+1+JB, J ), LDAB-1,
-     $                           AB( KV+1-JB, J+JB ), LDAB-1, ONE,
-     $                           AB( KV+1, J+JB ), LDAB-1 )
-                  END IF
+      CALL ZGEMM( 'No transpose', 'No transpose', I2, J2,
+     $JB, -ONE, AB( KV+1+JB, J ), LDAB-1,
+     $AB( KV+1-JB, J+JB ), LDAB-1, ONE,
+     $AB( KV+1, J+JB ), LDAB-1 )
+      END IF
 *
-                  IF( I3.GT.0 ) THEN
+      IF( I3.GT.0 ) THEN
 *
 *                    Update A32
 *
-                     CALL ZGEMM( 'No transpose', 'No transpose', I3, J2,
-     $                           JB, -ONE, WORK31, LDWORK,
-     $                           AB( KV+1-JB, J+JB ), LDAB-1, ONE,
-     $                           AB( KV+KL+1-JB, J+JB ), LDAB-1 )
-                  END IF
-               END IF
+      CALL ZGEMM( 'No transpose', 'No transpose', I3, J2,
+     $JB, -ONE, WORK31, LDWORK,
+     $AB( KV+1-JB, J+JB ), LDAB-1, ONE,
+     $AB( KV+KL+1-JB, J+JB ), LDAB-1 )
+      END IF
+      END IF
 *
-               IF( J3.GT.0 ) THEN
+      IF( J3.GT.0 ) THEN
 *
 *                 Copy the lower triangle of A13 into the work array
 *                 WORK13
 *
-                  DO 130 JJ = 1, J3
-                     DO 120 II = JJ, JB
-                        WORK13( II, JJ ) = AB( II-JJ+1, JJ+J+KV-1 )
-  120                CONTINUE
-  130             CONTINUE
+      DO 130 JJ = 1, J3
+      DO 120 II = JJ, JB
+      WORK13( II, JJ ) = AB( II-JJ+1, JJ+J+KV-1 )
+  120 CONTINUE
+  130 CONTINUE
 *
 *                 Update A13 in the work array
 *
-                  CALL ZTRSM( 'Left', 'Lower', 'No transpose', 'Unit',
-     $                        JB, J3, ONE, AB( KV+1, J ), LDAB-1,
-     $                        WORK13, LDWORK )
+      CALL ZTRSM( 'Left', 'Lower', 'No transpose', 'Unit',
+     $JB, J3, ONE, AB( KV+1, J ), LDAB-1,
+     $WORK13, LDWORK )
 *
-                  IF( I2.GT.0 ) THEN
+      IF( I2.GT.0 ) THEN
 *
 *                    Update A23
 *
-                     CALL ZGEMM( 'No transpose', 'No transpose', I2, J3,
-     $                           JB, -ONE, AB( KV+1+JB, J ), LDAB-1,
-     $                           WORK13, LDWORK, ONE, AB( 1+JB, J+KV ),
-     $                           LDAB-1 )
-                  END IF
+      CALL ZGEMM( 'No transpose', 'No transpose', I2, J3,
+     $JB, -ONE, AB( KV+1+JB, J ), LDAB-1,
+     $WORK13, LDWORK, ONE, AB( 1+JB, J+KV ),
+     $LDAB-1 )
+      END IF
 *
-                  IF( I3.GT.0 ) THEN
+      IF( I3.GT.0 ) THEN
 *
 *                    Update A33
 *
-                     CALL ZGEMM( 'No transpose', 'No transpose', I3, J3,
-     $                           JB, -ONE, WORK31, LDWORK, WORK13,
-     $                           LDWORK, ONE, AB( 1+KL, J+KV ), LDAB-1 )
-                  END IF
+      CALL ZGEMM( 'No transpose', 'No transpose', I3, J3,
+     $JB, -ONE, WORK31, LDWORK, WORK13,
+     $LDWORK, ONE, AB( 1+KL, J+KV ), LDAB-1 )
+      END IF
 *
 *                 Copy the lower triangle of A13 back into place
 *
-                  DO 150 JJ = 1, J3
-                     DO 140 II = JJ, JB
-                        AB( II-JJ+1, JJ+J+KV-1 ) = WORK13( II, JJ )
-  140                CONTINUE
-  150             CONTINUE
-               END IF
-            ELSE
+      DO 150 JJ = 1, J3
+      DO 140 II = JJ, JB
+      AB( II-JJ+1, JJ+J+KV-1 ) = WORK13( II, JJ )
+  140 CONTINUE
+  150 CONTINUE
+      END IF
+      ELSE
 *
 *              Adjust the pivot indices.
 *
-               DO 160 I = J, J + JB - 1
-                  IPIV( I ) = IPIV( I ) + J - 1
-  160          CONTINUE
-            END IF
+      DO 160 I = J, J + JB - 1
+      IPIV( I ) = IPIV( I ) + J - 1
+  160 CONTINUE
+      END IF
 *
 *           Partially undo the interchanges in the current block to
 *           restore the upper triangular form of A31 and copy the upper
 *           triangle of A31 back into place
 *
-            DO 170 JJ = J + JB - 1, J, -1
-               JP = IPIV( JJ ) - JJ + 1
-               IF( JP.NE.1 ) THEN
+      DO 170 JJ = J + JB - 1, J, -1
+      JP = IPIV( JJ ) - JJ + 1
+      IF( JP.NE.1 ) THEN
 *
 *                 Apply interchange to columns J to JJ-1
 *
-                  IF( JP+JJ-1.LT.J+KL ) THEN
+      IF( JP+JJ-1.LT.J+KL ) THEN
 *
 *                    The interchange does not affect A31
 *
-                     CALL ZSWAP( JJ-J, AB( KV+1+JJ-J, J ), LDAB-1,
-     $                           AB( KV+JP+JJ-J, J ), LDAB-1 )
-                  ELSE
+      CALL ZSWAP( JJ-J, AB( KV+1+JJ-J, J ), LDAB-1,
+     $AB( KV+JP+JJ-J, J ), LDAB-1 )
+      ELSE
 *
 *                    The interchange does affect A31
 *
-                     CALL ZSWAP( JJ-J, AB( KV+1+JJ-J, J ), LDAB-1,
-     $                           WORK31( JP+JJ-J-KL, 1 ), LDWORK )
-                  END IF
-               END IF
+      CALL ZSWAP( JJ-J, AB( KV+1+JJ-J, J ), LDAB-1,
+     $WORK31( JP+JJ-J-KL, 1 ), LDWORK )
+      END IF
+      END IF
 *
 *              Copy the current column of A31 back into place
 *
-               NW = MIN( I3, JJ-J+1 )
-               IF( NW.GT.0 )
-     $            CALL ZCOPY( NW, WORK31( 1, JJ-J+1 ), 1,
-     $                        AB( KV+KL+1-JJ+J, JJ ), 1 )
-  170       CONTINUE
-  180    CONTINUE
+      NW = MIN( I3, JJ-J+1 )
+      IF( NW.GT.0 )
+     $CALL ZCOPY( NW, WORK31( 1, JJ-J+1 ), 1,
+     $AB( KV+KL+1-JJ+J, JJ ), 1 )
+  170 CONTINUE
+  180 CONTINUE
       END IF
 *
       RETURN

@@ -55,13 +55,13 @@ C ... Check for exceptions
       endif
 C ... Check for 'NaN or Infinity'
       if (ss(i1:ls) .eq. 'nan' .or. ss(i1:ls) .eq. 'NaN' .or.
-     .    ss(i1:ls) .eq. 'NAN' .or. ss(i1:ls) .eq. 'QNAN') then
+     .ss(i1:ls) .eq. 'NAN' .or. ss(i1:ls) .eq. 'QNAN') then
         sout(nout:nout+2) = 'NaN'
         nout = nout+2
         return
       endif
       if (ss(i1:ls) .eq. 'inf' .or. ss(i1:ls) .eq. 'Inf' .or.
-     .    ss(i1:ls) .eq. 'INF' .or. ss(i1:ls) .eq. 'Infinity') then
+     .ss(i1:ls) .eq. 'INF' .or. ss(i1:ls) .eq. 'Infinity') then
         sout(nout:nout+2) = 'Inf'
         nout = nout+2
         return
@@ -91,7 +91,7 @@ C --- Find end of mantissa; get exponent (binary in ixp) ---
         if (j .ge. 5) iex = iex-1
         if (ss(iex:iex) .eq. '+' .or. ss(iex:iex) .eq. '-') iex = iex+1
         do  10  j = iex, is 
-        k = j
+          k = j
    10   if (ss(j:j) .ne. '0') goto 12
    12   continue
         if (ss(iex-1:iex-1) .eq. '-') then
@@ -101,7 +101,7 @@ C --- Find end of mantissa; get exponent (binary in ixp) ---
         iex = k
         k = iex-1
         if (.not. a2bin(ss,ixp,2,0,' ',k,-1))
-     .    call rx('pretty: parse error')
+     .  call rx('pretty: parse error')
 *        print *, iex,is, ':', ss(1:iex-1), '|', ss(iex:is), '|', ixp
       endif
 
@@ -112,7 +112,7 @@ C --- Truncate string at precsn decimal places, possibly rounding ---
 C ...   If relative precision, k offset from first significant digit
         if (getdig(sw,0,10) .eq. 1) then
           do  14  i = i1, im
-          m = i
+            m = i
    14     if (ss(i:i) .ge. '1' .and. ss(i:i) .le. '9') goto 15
    15     continue
           k = m-1+precsn

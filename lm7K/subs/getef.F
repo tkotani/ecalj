@@ -39,9 +39,9 @@ C --- File read ---
         call pshpr(0)
 C       Extract the Fermi level from moments file
         call iomomq(ifi,0,nl,nspx,nspcx,nkp,ldim,nfstg,iq,1,1,1,nevmx,
-     .    xx,xx,xx,xx,efermi,xx)
+     .  xx,xx,xx,xx,efermi,xx)
         call iomomq(ifi,32,nl,nspx,nspcx,nkp,ldim,0,iq,ldim,1,1,nevmx,
-     .    xx,xx,xx,xx,efermi,xx)
+     .  xx,xx,xx,xx,efermi,xx)
         call poppr
         call rxx(nevmx .gt. ldim,'GETEF: file mismatch')
         rewind ifi
@@ -52,7 +52,7 @@ C --- Override Fermi level with command-line value ---
         i = 4
         if (cmdopt('-ef=',i,0,strn)) then
           if (.not. a2bin(strn,efermi,4,0,' ',i,-1)) call
-     .      rxs2('GETEF: failed to parse "',strn(1:30),'%a"')
+     .    rxs2('GETEF: failed to parse "',strn(1:30),'%a"')
           iq = 1
         endif
       endif

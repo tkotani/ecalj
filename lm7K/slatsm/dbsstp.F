@@ -1,5 +1,5 @@
       subroutine dbsstp(x,y,dydx,yerr,neq,tol,hmin,h,yscal,mx,nmpseq,
-     .  ir,wk,ipr)
+     .ir,wk,ipr)
 C- Bulirsch-Stoer integration step with monitoring of local accuracy
 C  ---------------------------------------------------
 Ci Inputs:
@@ -80,10 +80,10 @@ C  ---------------------------------------------------
 C     implicit none
       integer neq,mx,ipr,ir,nmpseq(0:1)
       double precision y(neq),dydx(neq),yscal(neq),yerr(neq),
-     .  wk((2+mx)*neq)
+     .wk((2+mx)*neq)
       double precision tol,hmin,h,x
       double precision b,b1,c,ddy,hi,swap,yy,v,h2,errmax,
-     .  hgrow,hshrnk
+     .hgrow,hshrnk
 C Local parameters
       integer mi,mi0,m
       parameter(mi0=11,hgrow=1.1d0,hshrnk=.9d0)
@@ -108,13 +108,13 @@ C --- ir-independent setup ---
 C --- ir-dependent setup ---
       if (ir .eq. 0) then
         if (ipr .ge. 30) call awrit6
-     .    (' dbsstp:  new step  neq=%i  x=%1;6g  h=%1;6g  tol=%1;6g'/
-     .    /'  mx=%i  mi=%i',' ',80,i1mach(2),neq,x,h,tol,mx,mi)
+     .  (' dbsstp:  new step  neq=%i  x=%1;6g  h=%1;6g  tol=%1;6g'/
+     .  /'  mx=%i  mi=%i',' ',80,i1mach(2),neq,x,h,tol,mx,mi)
         imp = 0
         xs = x
         ncall = 0
         do  8  j = 1, neq
-        wk(nv0+j) = dydx(j)
+          wk(nv0+j) = dydx(j)
     8   wk(nv1+j) = y(j)
       elseif (ir .eq. 1) then
 C   ... check for bad imp
@@ -132,122 +132,122 @@ C   ... check for bad imp
 
 C --- Entry point for a new Stoer-Bulirsch iteration ---
    11 continue
-        imp = imp+1
-        nseq = nseq0(imp)
-        if (nmpseq(0) .ne. 0) nseq = nmpseq(imp)
-        if (ipr .ge. 40)
-     .    call awrit3(' dbsstp:  begin mp rule %i (%i points)'//
-     .    '  ncall=%i',' ',80,i1mach(2),imp,nseq,ncall+1)
+      imp = imp+1
+      nseq = nseq0(imp)
+      if (nmpseq(0) .ne. 0) nseq = nmpseq(imp)
+      if (ipr .ge. 40)
+     .call awrit3(' dbsstp:  begin mp rule %i (%i points)'//
+     .'  ncall=%i',' ',80,i1mach(2),imp,nseq,ncall+1)
 
 C   --- Midpoint rule ---
-        hi = h/nseq
-        ip = 0
-        ip = ip+1
+      hi = h/nseq
+      ip = 0
+      ip = ip+1
 C   ... First point
-        do  111  j = 1, neq
+      do  111  j = 1, neq
         wk(nv2+j) = wk(nv1+j)
-  111   y(j) = wk(nv1+j) + hi*wk(nv0+j)
-        x = xs + hi
+  111 y(j) = wk(nv1+j) + hi*wk(nv0+j)
+      x = xs + hi
 C   ... Exit to let caller compute dydx(x,y) and jump back here (901)
-        ir = 1
-        goto 900
-  901   continue
+      ir = 1
+      goto 900
+  901 continue
 C   ... Loop over all succeeding points ip = 2 .. nseq
-  113   ip = ip+1
-          h2 = 2*hi
-          do  112  j = 1, neq
-            swap = wk(nv2+j) + h2*dydx(j)
-            wk(nv2+j) = y(j)
-            y(j) = swap
-  112     continue
-          x = x + hi
+  113 ip = ip+1
+      h2 = 2*hi
+      do  112  j = 1, neq
+        swap = wk(nv2+j) + h2*dydx(j)
+        wk(nv2+j) = y(j)
+        y(j) = swap
+  112 continue
+      x = x + hi
 C     ... Exit to let caller compute dydx(x,y) and jump back here (902)
-          ir = 1
-          goto 900
-  902     if (ip .gt. nseq) then
-            ir = -3
-            return
-          endif
+      ir = 1
+      goto 900
+  902 if (ip .gt. nseq) then
+        ir = -3
+        return
+      endif
 C   ... End of 113 loop
-        if (ip .lt. nseq) goto 113
+      if (ip .lt. nseq) goto 113
 C   ... End result of modified midpoint rule
-        do  114  j = 1, neq
-  114   dydx(j) = (y(j) + wk(nv2+j) + hi*dydx(j))/2
+      do  114  j = 1, neq
+  114 dydx(j) = (y(j) + wk(nv2+j) + hi*dydx(j))/2
 
 C --- Estimate y, error as a rational function of h*h ---
 C     (Equivalent to: call rzextr(imp,hi**2,dydx(1),y,yerr,neq,mx))
 c       write(*,'(1x,a,i4,5f14.8)') 'm',imp,(dydx(j),j=1,min(neq,5))
 C   ... First diagonal in tableau
-        if (imp .eq. 1) then
-          do  211  j = 1, neq
-            y(j) = dydx(j)
-            wk(nv3+j) = dydx(j)
-            yerr(j) = dydx(j)
-  211     continue
-        else
+      if (imp .eq. 1) then
+        do  211  j = 1, neq
+          y(j) = dydx(j)
+          wk(nv3+j) = dydx(j)
+          yerr(j) = dydx(j)
+  211   continue
+      else
 C     ... Use at most mx previous points
-          m = min(imp,mx)
+        m = min(imp,mx)
 C     ... Evaluate next diagonal in tableau
-          do  214  j = 1, neq
-            yy = dydx(j)
-            v = wk(nv3+j)
-            c = yy
-            wk(nv3+j) = yy
-            do  213  k = 2, m
-              if (v .gt. 1d10) call rx('dbsstp: bad work array')
-              nseq1 = nseq0(imp-k+1)
-              if (nmpseq(0) .ne. 0) nseq1 = nmpseq(imp-k+1)
-              b1 = v*(dble(nseq)/dble(nseq1))**2
-              b = b1 - c
-              if (b .ne. 0) then
-                b = (c-v)/b
-                ddy = c*b
-                c = b1*b
-              else
-                ddy = v
-              endif
+        do  214  j = 1, neq
+          yy = dydx(j)
+          v = wk(nv3+j)
+          c = yy
+          wk(nv3+j) = yy
+          do  213  k = 2, m
+            if (v .gt. 1d10) call rx('dbsstp: bad work array')
+            nseq1 = nseq0(imp-k+1)
+            if (nmpseq(0) .ne. 0) nseq1 = nmpseq(imp-k+1)
+            b1 = v*(dble(nseq)/dble(nseq1))**2
+            b = b1 - c
+            if (b .ne. 0) then
+              b = (c-v)/b
+              ddy = c*b
+              c = b1*b
+            else
+              ddy = v
+            endif
 C         ... for k<m, v will obtain from a previous i; not used for k=m
-              v = wk(nv3+j+(k-1)*neq)
-              wk(nv3+j+(k-1)*neq) = ddy
-              yy = yy + ddy
-  213       continue
-            yerr(j) = ddy
-            y(j) = yy
-  214     continue
-        endif
+            v = wk(nv3+j+(k-1)*neq)
+            wk(nv3+j+(k-1)*neq) = ddy
+            yy = yy + ddy
+  213     continue
+          yerr(j) = ddy
+          y(j) = yy
+  214   continue
+      endif
 c       write(*,'(a,i4,5f14.8)') 'a',imp, (y(j),j=1,min(neq,5))
 c       write(*,'(a,i4,5f14.8)') 'a',imp,(yerr(j),j=1,min(neq,5))
 
 C ---   Error estimate; check for convergence ---
-        errmax = 0
-        if (yscal(1) .gt. 0) then
-          do  12  j = 1, neq
-   12     errmax = max(errmax,dabs(yerr(j)/yscal(j)))
-        else
-          do  13  j = 1, neq
-   13     errmax = max(errmax,dabs(yerr(j)))
-        endif
+      errmax = 0
+      if (yscal(1) .gt. 0) then
+        do  12  j = 1, neq
+   12   errmax = max(errmax,dabs(yerr(j)/yscal(j)))
+      else
+        do  13  j = 1, neq
+   13   errmax = max(errmax,dabs(yerr(j)))
+      endif
 C   ... Normal exit when this step is completed
-        if (errmax .lt. abs(tol)) then
-          ir = 0
+      if (errmax .lt. abs(tol)) then
+        ir = 0
 C     ... Tune next h to make last imp come as close to mx as possible
-          if (imp .eq. mx) then
-            hfac = hshrnk
-          elseif (imp .eq. mx-1) then
-            hfac = hgrow
-          else
-            nseq1 = nseq0(mx-1)
-            if (nmpseq(0) .ne. 0) nseq1 = nmpseq(mx-1)
-            hfac = dble(nseq1)/nseq
-          endif
-          x = xs + h
-        if (ipr .ge. 20)
-     .    call awrit5(' dbsstp: completed xs=%1;5d to %1;5d (%i'
-     .      //' calls, %i mp)  hnext=%1;5d',
-     .      ' ',80,i1mach(2),xs,x,ncall,imp,h*hfac)
-          h = hfac * h
-          return
+        if (imp .eq. mx) then
+          hfac = hshrnk
+        elseif (imp .eq. mx-1) then
+          hfac = hgrow
+        else
+          nseq1 = nseq0(mx-1)
+          if (nmpseq(0) .ne. 0) nseq1 = nmpseq(mx-1)
+          hfac = dble(nseq1)/nseq
         endif
+        x = xs + h
+        if (ipr .ge. 20)
+     .  call awrit5(' dbsstp: completed xs=%1;5d to %1;5d (%i'
+     .  //' calls, %i mp)  hnext=%1;5d',
+     .  ' ',80,i1mach(2),xs,x,ncall,imp,h*hfac)
+        h = hfac * h
+        return
+      endif
       if (imp .lt. mi) goto 11
 
 C --- Step failed for this h:  reduce h and try again ---
@@ -272,10 +272,10 @@ C ... Handle case tol <= 0
       else
         xx = h/4/2**((mi-mx)/2)
         if (ipr .ge. 20)
-     .    call awrit7(
-     .    ' dbsstp: err(%1;2g)>tol(%1;2g) for x=%1;5d to %1;5d'//
-     .    ' (%i calls, %i mp) hnext=%1;3g',
-     .    ' ',80,i1mach(2),errmax,dabs(tol),xs,x,ncall,imp,xx)
+     .  call awrit7(
+     .  ' dbsstp: err(%1;2g)>tol(%1;2g) for x=%1;5d to %1;5d'//
+     .  ' (%i calls, %i mp) hnext=%1;3g',
+     .  ' ',80,i1mach(2),errmax,dabs(tol),xs,x,ncall,imp,xx)
         h = xx
         ir = -1
       endif
@@ -289,8 +289,8 @@ C --- Save internal parms for a new call ---
       wk(4) = nseq
       wk(5) = ncall+1
       if (ipr .gt. 50)
-     .  call awrit3(' dbsstp: continuing mp rule %i, point %i  x=%1;6g',
-     .  ' ',80,i1mach(2),imp,ip,x)
+     .call awrit3(' dbsstp: continuing mp rule %i, point %i  x=%1;6g',
+     .' ',80,i1mach(2),imp,ip,x)
 
       end
 

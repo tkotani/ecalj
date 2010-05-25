@@ -14,7 +14,7 @@ C Passed parameters
 C Local parameters
       integer i,i00,j,m,n,isort(4)
       double precision ex(4),w1(4),w2(4),ec(4),
-     .  a14,a21,a24,a31,a32,a34,a41,a42,df,e1,e2,e3,e4,v1,v2,v3,vw4,xxx
+     .a14,a21,a24,a31,a32,a34,a41,a42,df,e1,e2,e3,e4,v1,v2,v3,vw4,xxx
 
       vw4 = volwgt/4
       do  22  i = 1, 4
@@ -87,8 +87,8 @@ C --- Case Ef between e3,e4 ---
 C --- Bloechl correction ---
       do  40  m = 1, 4
         w2(m) = 0d0
-      do  40  n = 1, 4
-        w2(m) = w2(m) + (ec(n)-ec(m))*df/40
+        do  40  n = 1, 4
+          w2(m) = w2(m) + (ec(n)-ec(m))*df/40
    40 continue
 C ----------------------------------------------
       do  35  i = 1, 4

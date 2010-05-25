@@ -26,9 +26,9 @@ C     implicit none
       if (mod(iopt,2) .eq. 0) then
         do  10  i = 1, 3
           do  10  j = i+1, 3
-          xx = invrse(i,j)
-          invrse(i,j) = invrse(j,i)
-          invrse(j,i) = xx
+            xx = invrse(i,j)
+            invrse(i,j) = invrse(j,i)
+            invrse(j,i) = xx
    10   continue
       endif
       call dscal(9,1/det,invrse,1)

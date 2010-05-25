@@ -28,12 +28,12 @@ C     Guard against overflow, underflow. Make -1 < i0[1..4] < nr+1
 
 C --- Sort the ec ---
       do  3  i = 1, 3
-      do  3  j = 1, 4-i
-        if (ec(j) .gt. ec(j+1)) then
-          e = ec(j)
-          ec(j) = ec(j+1)
-          ec(j+1) = e
-        endif
+        do  3  j = 1, 4-i
+          if (ec(j) .gt. ec(j+1)) then
+            e = ec(j)
+            ec(j) = ec(j+1)
+            ec(j+1) = e
+          endif
     3 continue
       e1 = ec(1)
       e2 = ec(2)

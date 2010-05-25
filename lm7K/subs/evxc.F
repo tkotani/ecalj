@@ -12,9 +12,9 @@ Co    Vosko-Ceperley-Alder
 C  ---------------------------------------------------
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DATA AP,XP0,BP,CP,QP,CP1,CP2,CP3/.0621814d0,-.10498d0,3.72744d0,
-     .  12.9352d0,6.1519908d0,1.2117833d0,1.1435257d0,-.031167608d0/
+     .12.9352d0,6.1519908d0,1.2117833d0,1.1435257d0,-.031167608d0/
       DATA AF,XF0,BF,CF,QF,CF1,CF2,CF3/.0310907d0,-.32500d0,7.06042d0,
-     .  18.0578d0,4.7309269d0,2.9847935d0,2.7100059d0,-.1446006d0/
+     .18.0578d0,4.7309269d0,2.9847935d0,2.7100059d0,-.1446006d0/
 
       ec = 0d0
       uc1 = 0d0
@@ -34,9 +34,9 @@ C  ---------------------------------------------------
       ATNP = dATAN(QP/(2d0*X+BP))
       ATNF = dATAN(QF/(2d0*X+BF))
       ECP = AP*(dLOG(X*X/XPX)+CP1*ATNP
-     . -CP3*(dLOG((X-XP0)**2/XPX)+CP2*ATNP))
+     .-CP3*(dLOG((X-XP0)**2/XPX)+CP2*ATNP))
       ECF = AF*(dLOG(X*X/XFX)+CF1*ATNF
-     . -CF3*(dLOG((X-XF0)**2/XFX)+CF2*ATNF))
+     .-CF3*(dLOG((X-XF0)**2/XFX)+CF2*ATNF))
       EC = ECP+FS*(ECF-ECP)*(1d0+S4*BETA)
       TP1 = (X*X+BP*X)/XPX
       TF1 = (X*X+BF*X)/XFX
@@ -45,7 +45,7 @@ C  ---------------------------------------------------
       UC0 = UCP+(UCF-UCP)*FS
       UC10 = UC0-(ECF-ECP)*(S-1d0)*DFS
       DUC = (UCF-UCP)*BETA*S4*FS
-     . +(ECF-ECP)*(-RS/3d0)*DBETA*S4*FS
+     .+(ECF-ECP)*(-RS/3d0)*DBETA*S4*FS
       DUC1 = DUC-(ECF-ECP)*BETA*(S-1)*(4d0*S**3*FS+S4*DFS)
       UC1 = UC10+DUC1
 c     WRITE(*,101)RS,S,EC,UC1
@@ -74,8 +74,8 @@ C ... Passed parameters
       DOUBLE PRECISION RHO,RHOSP,EXC,VXC
 C ... Local parameters
       DOUBLE PRECISION AF,AP,CF,CMUXP,CP,EFMEP,EPSCF,EPSCP,EPSX0,EPSX1,
-     .  F,FOFXI,FOTHRD,FPI,FPIRO,GAMMA,MUCF,MUCP,NUCE,ONTHRD,RS,TAUCE,X,
-     .  XI
+     .F,FOFXI,FOTHRD,FPI,FPIRO,GAMMA,MUCF,MUCP,NUCE,ONTHRD,RS,TAUCE,X,
+     .XI
       DATA ONTHRD,FOTHRD,FPI/.333333333D0,1.333333333D0,12.566370614D0/
       DATA GAMMA,CMUXP/5.1297628D0,1.2217741D0/
       DATA EPSX0,EPSX1/.9163305866D0,.23817361D0/
@@ -104,13 +104,13 @@ c      FPIROS = FPI*RHOSP
       NUCE = GAMMA*EFMEP
       TAUCE = MUCF - MUCP - FOTHRD*EFMEP
       VXC = (-CMUXP/RS + NUCE)*((2D0*XI)**ONTHRD) - NUCE + MUCP
-     .   +TAUCE*FOFXI(XI)
+     .+TAUCE*FOFXI(XI)
       EXC = -EPSX0/RS + EPSCP + FOFXI(XI)*(EPSCF - EPSCP - EPSX1/RS)
       END
 #endif
 #if PERD91
       subroutine nlocxc(rho1,rho2,drho,dabgrh,ddrho,drho1,drho2,
-     .  dabgrh1,dabgrh2,ddrho1,ddrho2,nsp,vxc,exc)
+     .dabgrh1,dabgrh2,ddrho1,ddrho2,nsp,vxc,exc)
 
 C- Perdew-Wang gradient correction, version CGA91
 C---------------------------------------------------------------
@@ -131,10 +131,10 @@ C----------------------------------------------------------------
 C Passed parameters
       integer nsp
       double precision rho1,rho2,drho,dabgrh,ddrho,drho1,drho2,
-     . dabgrh1,dabgrh2, ddrho1,ddrho2,vxc(2),exc
+     .dabgrh1,dabgrh2, ddrho1,ddrho2,vxc(2),exc
 C Local parameters
       double precision pi,thrd,thrd2,d,zet,conrs,rs,fk,sk,g,y,t,uu,
-     . vv,ww,dvuaq,dvcup,h,haq,dvcdn,dvdaq
+     .vv,ww,dvuaq,dvcup,h,haq,dvcdn,dvdaq
       double precision rho, exl, ex1, ex2, vx1, vx2, polar, vx3
       data pi,thrd,thrd2/3.14159265d0,0.333333333333d0,0.666666666667d0/
 
@@ -320,11 +320,11 @@ c  OUTPUT: CORRELATION CONTRIBUTION(ALFC) TO THE SPIN STIFFNESS
       DATA THRD,THRD4/0.333333333333D0,1.333333333333D0/
       F = ((1D0+ZET)**THRD4 + (1D0-ZET)**THRD4-2D0)/GAM
       CALL GCOR(0.0310907D0,0.21370D0,7.5957D0,3.5876D0,1.6382D0,
-     .    0.49294D0,1D0,RS,EU,EURS)
+     .0.49294D0,1D0,RS,EU,EURS)
       CALL GCOR(0.01554535D0,0.20548D0,14.1189D0,6.1977D0,3.3662D0,
-     .    0.62517D0,1D0,RS,EP,EPRS)
+     .0.62517D0,1D0,RS,EP,EPRS)
       CALL GCOR(0.0168869D0,0.11125D0,10.357D0,3.6231D0,0.88026D0,
-     .    0.49671D0,1D0,RS,ALFM,ALFRSM)
+     .0.49671D0,1D0,RS,ALFM,ALFRSM)
 c  ALFM IS MINUS THE SPIN STIFFNESS ALFC
       ALFC = -ALFM
       Z4 = ZET**4
@@ -333,7 +333,7 @@ c  ENERGY DONE. NOW THE POTENTIAL:
       ECRS = EURS*(1D0-F*Z4) + EPRS*F*Z4 - ALFRSM*F*(1D0-Z4)/FZZ
       FZ = THRD4*((1D0+ZET)**THRD - (1D0-ZET)**THRD)/GAM
       ECZET = 4D0*(ZET**3)*F*(EP-EU+ALFM/FZZ) + FZ*(Z4*EP - Z4*EU
-     .        -(1D0-Z4)*ALFM/FZZ)
+     .-(1D0-Z4)*ALFM/FZZ)
       COMM = EC -RS*ECRS/3D0 - ZET*ECZET
       VCUP = COMM + ECZET
       VCDN = COMM - ECZET
@@ -360,7 +360,7 @@ c  CALLED BY SUBROUTINE CORLSD
       double precision s,ff,f1,f2,ag1,ag2,g1,g1p,g1pp,g2,g2p,g2pp,div
       double precision c1,f21,f22,beta,eta,gamma,alpha,delta
       parameter (alpha=0.19645d0, beta=7.7956d0, gamma=0.2743d0,
-     .           delta=0.1508d0, eta=0.004d0)
+     .delta=0.1508d0, eta=0.004d0)
       ag1 = dsqrt((beta*s)**2+1d0)
       ag2 = delta*dexp(-1d2*s*s)
       g1 = alpha*dlog(beta*s+ag1)
@@ -372,12 +372,12 @@ c  CALLED BY SUBROUTINE CORLSD
       div = (1d0+(g1+eta*s*s*s)*s)
       ff = (1d0+(g1+g2*s)*s)/div
       f1 = ((((((eta*g2p)*s+eta*(g1p-2d0*g2))*s-3d0*eta*g1)*s+
-     .     (g1*g2p-4d0*eta-g1p*g2))*s+(g2p+g1*g2))*s+2d0*g2)*s / div**2
+     .(g1*g2p-4d0*eta-g1p*g2))*s+(g2p+g1*g2))*s+2d0*g2)*s / div**2
       c1 = -2d0*((4d0*eta*s*s+g1p)*s+g1)
       f21 = f1/s
       f22 = ((((eta*g2pp*s+eta*(3d0*g2p+g1pp))*s+(eta*(g1p-
-     .     8d0*g2)))*s+(g1*g2pp-g1pp*g2-9d0*eta*g1))*s+
-     .     (3d0*g1*g2p-g1p*g2+g2pp-8d0*eta))*s+g1*g2+3d0*g2p
+     .8d0*g2)))*s+(g1*g2pp-g1pp*g2-9d0*eta*g1))*s+
+     .(3d0*g1*g2p-g1p*g2+g2pp-8d0*eta))*s+g1*g2+3d0*g2p
       f2 = (f21*c1+f22/div)/div
       end subroutine perdew
 
@@ -402,7 +402,7 @@ c  CALLED BY SUBROUTINE CORLSD
 
 #else
       subroutine nlocxc(rhop,rhom,grho,abgrh,ggrho,grhop,grhom,
-     .  abgrhp,abgrhm,ggrhop,ggrhom,nsp,vxc,exc)
+     .abgrhp,abgrhm,ggrhop,ggrhom,nsp,vxc,exc)
 
 C- Langreth-Mehl-Hu correction to the exc and vxc
 C ---------------------------------------------------------------
@@ -423,13 +423,13 @@ C     implicit none
 C Passed parameters
       integer nsp
       double precision rhop,rhom,grho,grhop,grhom,ggrho,ggrhop,ggrhom,
-     .  abgrh,abgrhp,abgrhm,vxc(2),exc
+     .abgrh,abgrhp,abgrhm,vxc(2),exc
 C Local parameters
       double precision pi,fivth,fothr,twoth,oneth,sevni,rho,
-     .                 bigf,aa,dd,polar,f,sig,cutoff,cutof1,
-     .                 cutof2,hh
+     .bigf,aa,dd,polar,f,sig,cutoff,cutof1,
+     .cutof2,hh
       parameter (f=0.15d0,hh=1d-3,fivth=5d0/3d0,fothr=4d0/3d0,
-     .  twoth=2d0/3d0, oneth=1d0/3d0, sevni=7d0/9d0)
+     .twoth=2d0/3d0, oneth=1d0/3d0, sevni=7d0/9d0)
 
       pi = 4d0*datan(1d0)
       vxc(1) = 0d0
@@ -446,36 +446,36 @@ C Local parameters
         exc = aa*(grho*grho/(rho**fothr))*(2d0*dexp(-bigf)-sevni)
 c    .    *cutoff
         vxc(1) = 2d0*aa*rho**(-oneth)*(sevni*(ggrho/rho-twoth*
-     .      grho*grho/(rho*rho))-2d0*dexp(-bigf)*(ggrho*
-     .      (1d0-bigf/2d0)/rho-(twoth-bigf*11d0/6d0+
-     .      bigf*bigf*7d0/12d0)*grho*grho/(rho*rho)+bigf*
-     .      (bigf-3d0)*sig*abgrh/(2d0*rho)))*cutoff
+     .  grho*grho/(rho*rho))-2d0*dexp(-bigf)*(ggrho*
+     .  (1d0-bigf/2d0)/rho-(twoth-bigf*11d0/6d0+
+     .  bigf*bigf*7d0/12d0)*grho*grho/(rho*rho)+bigf*
+     .  (bigf-3d0)*sig*abgrh/(2d0*rho)))*cutoff
       else
         polar = (rhop-rhom)/rho
         dd = (((1d0+polar)**fivth+(1d0-polar)**fivth)/2d0)**.5d0
         exc = aa*(-sevni/(2d0**oneth)*(grhop*grhop/(rhop**
-     .   fothr)+grhom*grhom/(rhom**fothr))+2d0/dd*dexp(-bigf)*
-     .   grho*grho/(rho**fothr))
+     .  fothr)+grhom*grhom/(rhom**fothr))+2d0/dd*dexp(-bigf)*
+     .  grho*grho/(rho**fothr))
         cutof1 = dexp(-hh*(grhop*grhop/(rhop*rhop))*rhop**(-twoth))
         vxc(1) = aa/rho**oneth*(-sevni/(2d0**oneth)*(fothr*
-     .      grhop*grhop/(rhop*rhop)-2d0*ggrhop/rhop)*(rho/rhop)
-     .      **oneth-2d0*dexp(-bigf)/dd*((2d0-bigf)*ggrho/rho-
-     .      (fothr-bigf*11d0/3d0+bigf*bigf*7d0/6d0)*grho*
-     .      grho/(rho*rho)+bigf*(bigf-3d0)*sig*abgrh/rho
-     .      -5d0*rho**oneth/(6d0*dd*dd)*(rhop**
-     .      twoth-rhom**twoth)/(rho**4d0)*grho*(2d0**twoth*
-     .      (1d0-bigf)*rhom*grho-2d0**twoth*(2d0-bigf)*
-     .      rho*grhom)))*cutof1
+     .  grhop*grhop/(rhop*rhop)-2d0*ggrhop/rhop)*(rho/rhop)
+     .  **oneth-2d0*dexp(-bigf)/dd*((2d0-bigf)*ggrho/rho-
+     .  (fothr-bigf*11d0/3d0+bigf*bigf*7d0/6d0)*grho*
+     .  grho/(rho*rho)+bigf*(bigf-3d0)*sig*abgrh/rho
+     .  -5d0*rho**oneth/(6d0*dd*dd)*(rhop**
+     .  twoth-rhom**twoth)/(rho**4d0)*grho*(2d0**twoth*
+     .  (1d0-bigf)*rhom*grho-2d0**twoth*(2d0-bigf)*
+     .  rho*grhom)))*cutof1
         cutof2 = dexp(-hh*(grhom*grhom/(rhom*rhom))*rhom**(-twoth))
         vxc(2) = aa/rho**oneth*(-sevni/(2d0**oneth)*(fothr*
-     .      grhom*grhom/(rhom*rhom)-2d0*ggrhom/rhom)*(rho/rhom)
-     .      **oneth-2d0*dexp(-bigf)/dd*((2d0-bigf)*ggrho/rho-
-     .      (fothr-bigf*11d0/3d0+bigf*bigf*7d0/6d0)*grho*
-     .      grho/(rho*rho)+bigf*(bigf-3d0)*sig*abgrh/rho
-     .      -5d0*rho**oneth/(6d0*dd*dd)*(rhom**
-     .      twoth-rhop**twoth)/(rho**4d0)*grho*(2d0**twoth*
-     .      (1d0-bigf)*rhop*grho-2d0**twoth*(2d0-bigf)*
-     .      rho*grhop)))*cutof2
+     .  grhom*grhom/(rhom*rhom)-2d0*ggrhom/rhom)*(rho/rhom)
+     .  **oneth-2d0*dexp(-bigf)/dd*((2d0-bigf)*ggrho/rho-
+     .  (fothr-bigf*11d0/3d0+bigf*bigf*7d0/6d0)*grho*
+     .  grho/(rho*rho)+bigf*(bigf-3d0)*sig*abgrh/rho
+     .  -5d0*rho**oneth/(6d0*dd*dd)*(rhom**
+     .  twoth-rhop**twoth)/(rho**4d0)*grho*(2d0**twoth*
+     .  (1d0-bigf)*rhop*grho-2d0**twoth*(2d0-bigf)*
+     .  rho*grhop)))*cutof2
       endif
       end subroutine nlocxc
 
@@ -502,9 +502,9 @@ C Local parameters
 
 C Forward diffs for first and second point (Handbook,25.3.9 with 25.1.1)
       gradv(1) = ((6d0*v(2)+20d0/3d0*v(4)+1.2d0*v(6))
-     . -(2.45d0*v(1)+7.5d0*v(3)+3.75d0*v(5)+1d0/6d0*v(7)))/a
+     .-(2.45d0*v(1)+7.5d0*v(3)+3.75d0*v(5)+1d0/6d0*v(7)))/a
       gradv(2) = ((6d0*v(3)+20d0/3d0*v(5)+1.2d0*v(7))
-     . -(2.45d0*v(2)+7.5d0*v(4)+3.75d0*v(6)+1d0/6d0*v(8)))/a
+     .-(2.45d0*v(2)+7.5d0*v(4)+3.75d0*v(6)+1d0/6d0*v(8)))/a
 
 C Five points formula  (25.3.6)
       nm2 = nr-2
@@ -514,9 +514,9 @@ C Five points formula  (25.3.6)
 
 C Five points formula  (25.3.6)
       gradv(nr-1) = (-1d0/12d0*v(nr-4)+0.5d0*v(nr-3)-1.5d0*v(nr-2)
-     .           +5d0/6d0*v(nr-1)+0.25d0*v(nr))/a
+     .+5d0/6d0*v(nr-1)+0.25d0*v(nr))/a
       gradv(nr) = (0.25d0*v(nr-4)-4d0/3d0*v(nr-3)+3d0*v(nr-2)
-     .         -4d0*v(nr-1)+25d0/12d0*v(nr))/a
+     .-4d0*v(nr-1)+25d0/12d0*v(nr))/a
 C Three points formula  (25.3.4)
 C     gradv(nr-1)=(v(nr)-v(nr-2))/2d0/a
 C     gradv(nr)=(v(nr-2)/2d0-2d0*v(nr-1)+1.5d0*v(nr))/a

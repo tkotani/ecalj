@@ -53,7 +53,7 @@ C ... Passed parameters
 
 C ... Local parameters
       integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh,
-     .  nsp,nspc,nkaph,nso
+     .nsp,nspc,nkaph,nso
 C     double precision z,rmt
 
       nsp = nglob('nsp')

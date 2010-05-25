@@ -1,5 +1,5 @@
       subroutine sclwsr(opt,nbas,nbasp,nspec,alat,plat,basp,ips,modep,
-     .  slabl,z,lock,volfac,wsmax,omax1,omax2,wsr)
+     .slabl,z,lock,volfac,wsmax,omax1,omax2,wsr)
 
 C- Scales sphere radii to specified volume, satisfying constraints.
 C ----------------------------------------------------------------------
@@ -78,7 +78,7 @@ C     implicit none
 C Passed variables:
       integer opt,nbas,nbasp,nspec,ips(nbas),modep(3),lock(nspec)
       double precision alat,basp(3,nbasp),volfac,wsmax,
-     .                 omax1(3),omax2(3),plat(3,3),wsr(nspec),z(nspec)
+     .omax1(3),omax2(3),plat(3,3),wsr(nspec),z(nspec)
       character*8 slabl(*)
 C Local variables:
       integer:: i , k , nrspec(nspec) , ib , is , opt1
@@ -91,7 +91,7 @@ C Local variables:
       logical les
       double precision dovl1(3),dovl2(3),gamma,range(nbas),wsrs(nspec)
       double precision facr,tiny,avw,vol,avwsr,volnew,volnes,volold,
-     .  volsph
+     .volsph
       parameter(niax=10,mxcsiz=200,facr=2d0,tiny=1d-5)
 C ... Heap
       integer w(1)
@@ -136,8 +136,8 @@ Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) wk_rv(:)=0.0d0
       nttab = mxnbr
       call pshpr(ipr-20)
       call pairc ( 1 , nbas , nbasp , modep , 20 , 0 , alat , plat 
-     . , basp , basp , range , - 1 , 1 , nttab , ntab_iv , iax_iv 
-     . , wk_rv , k )
+     ., basp , basp , range , - 1 , 1 , nttab , ntab_iv , iax_iv 
+     ., wk_rv , k )
 
       call poppr
 
@@ -161,13 +161,13 @@ C     ... Scale wsr with z=0 sites locked at wsr=0
           volold = volsph(nspec,nrspec,wsr)/vol
           volnes = volfac
           call sclws2 ( nbas , nspec , alat , plat , basp , slabl , iax_iv 
-     .     , ips , ntab_iv , z , nrspec , omax1 , omax2 , gamma , wsmax 
-     .     , llock , volnes , dovl1 , dovl2 , wsr )
+     .    , ips , ntab_iv , z , nrspec , omax1 , omax2 , gamma , wsmax 
+     .    , llock , volnes , dovl1 , dovl2 , wsr )
 
           if (ipr .ge. 30) then
             call awrit2(' SCLWSR:  initial sphere packing = %;1d%%'//
-     .        ' scaled to %;1d%% (no empty spheres)',
-     .        ' ',120,stdo,100*volold,100*volnes)
+     .      ' scaled to %;1d%% (no empty spheres)',
+     .      ' ',120,stdo,100*volold,100*volnes)
           endif
 
 C     ... Restore wsr(Z=0)
@@ -190,8 +190,8 @@ C --- Scale the sphere radii (2nd pass for les) ---
       volold = volsph(nspec,nrspec,wsrs)/vol
       volnew = volfac
       call sclws2 ( nbas , nspec , alat , plat , basp , slabl , iax_iv 
-     . , ips , ntab_iv , z , nrspec , omax1 , omax2 , gamma , wsmax 
-     . , lock , volnew , dovl1 , dovl2 , wsr )
+     ., ips , ntab_iv , z , nrspec , omax1 , omax2 , gamma , wsmax 
+     ., lock , volnew , dovl1 , dovl2 , wsr )
 
 
 C --- Printout ---
@@ -211,17 +211,17 @@ C     .  '%(initial)  ',f5.1,'%(scaled)')
 
       if (ipr .ge. 10) then
         call awrit3(' SCLWSR:  vol = %,5g a.u..%3f'//
-     .    'Initial sphere packing = %;1d%%  '//
-     .    'scaled to %;1d%%',
-     .    ' ',120,stdo,vol,100*volold,100*volnew)
+     .  'Initial sphere packing = %;1d%%  '//
+     .  'scaled to %;1d%%',
+     .  ' ',120,stdo,vol,100*volold,100*volnew)
       endif
 
       if (ipr .ge. 30) then
         write(stdo,310)
-     .    (omax1(i)*100,i=1,3),(omax2(i)*100,i=1,3),
-     .    (dovl1(i)*100,i=1,3),(dovl2(i)*100,i=1,3)
+     .  (omax1(i)*100,i=1,3),(omax2(i)*100,i=1,3),
+     .  (dovl1(i)*100,i=1,3),(dovl2(i)*100,i=1,3)
   310   format(1x,'constr omax1=',3f6.1,' %    omax2=',3f6.1,' %',
-     .        /1x, 'actual omax1=',3f6.1,' %    omax2=',3f6.1,' %')
+     .  /1x, 'actual omax1=',3f6.1,' %    omax2=',3f6.1,' %')
 c        if (ipr .gt. 30) then
         write(stdo,311)
   311   format(/' spec  name',8x,'old rmax    new rmax     ratio')
@@ -242,7 +242,7 @@ c        endif
         if (mod(opt,10) .ge. 1) then
           write(stdo,321) int(volfac*100)
   321     format(/' SCLWSR (warning): failed to reach target vol (',
-     .      i3,'% of cell vol)')
+     .    i3,'% of cell vol)')
         endif
         if (mod(opt,10) .eq. 2) then
           call rx('SCLWSR: failed to reach target VOL.  Increase omax.')
@@ -258,7 +258,7 @@ c        endif
 
 
       subroutine sclws2(nbas,nspec,alat,plat,bas,slabl,iax,ips,ntab,z,
-     .  nrspec,omax1,omax2,gamma,wsmax,lock,volfac,dovl1,dovl2,wsr)
+     .nrspec,omax1,omax2,gamma,wsmax,lock,volfac,dovl1,dovl2,wsr)
 
 C- Enlarges the spheres to reach a specified volume under constraints
 C ----------------------------------------------------------------------
@@ -323,16 +323,16 @@ C Passed variables:
       integer nbas,nspec,iax(niax,*),ntab(*),ips(nbas),nrspec(nspec)
       integer lock(nspec)
       double precision alat,bas(3,nbas),dovl1(3),dovl2(3),wsmax,
-     .  volfac,gamma,omax1(3),omax2(3),plat(3,3),wsr(nspec),z(nspec)
+     .volfac,gamma,omax1(3),omax2(3),plat(3,3),wsr(nspec),z(nspec)
       character*8 slabl(nspec)
 C Local variables:
       integer ib,jb,is,iclbsj,ip,k1,k2,k3,
-     .        kb,ks,kco,kpr,lgunit,nloop,stdo,ipr,npcol,locki
+     .kb,ks,kco,kpr,lgunit,nloop,stdo,ipr,npcol,locki
       double precision a,amax,amax1,amax2,amax3,amax4,avw,b,bmax,d,
-     .                 dm(0:3),dovlap,dscl(nspec),
-     .                 dsclmx,drr2,dr(3),fpi3,gw,opo1,omo2,p,q,r,ratio,
-     .                 rik,riko,s,t,tiny,u,v,vol,vola,volb,
-     .                 volsph,wsri,wsrk,x,avwsr,Vconst
+     .dm(0:3),dovlap,dscl(nspec),
+     .dsclmx,drr2,dr(3),fpi3,gw,opo1,omo2,p,q,r,ratio,
+     .rik,riko,s,t,tiny,u,v,vol,vola,volb,
+     .volsph,wsri,wsrk,x,avwsr,Vconst
       logical fin
       character*72 fmt
       parameter(fpi3=4.18879020478639053d0,tiny=1d-5)
@@ -475,17 +475,17 @@ C               If second site ks is locked, can only scale site i
                   if (lock(ks) .ne. 0) then
                     amax1 = (opo1*rik-wsrk+gw)/(wsri+gw)
                     if (omo2 .gt. 0d0)
-     .            amax2 = (rik-wsrk+omo2*gw)/(omo2*wsri+omo2*gw)
+     .              amax2 = (rik-wsrk+omo2*gw)/(omo2*wsri+omo2*gw)
                     amax3 = (rik-omo2*wsrk+gw)/(wsri+gw)
 C               If neither site is locked, both will scale
                   else
                     amax1 = (opo1*rik+gw+gw)/(wsri+wsrk+gw+gw)
                     if (wsrk+omo2*wsri+(1+omo2)*gw .gt. 0d0)
-     .            amax2 = (rik+(1+omo2)*gw)/
-     .                  (wsrk+omo2*wsri+(1+omo2)*gw)
+     .              amax2 = (rik+(1+omo2)*gw)/
+     .              (wsrk+omo2*wsri+(1+omo2)*gw)
                     if (wsri+omo2*wsrk+(1+omo2)*gw .gt. 0d0)
-     .            amax3 = (rik+(1+omo2)*gw)/
-     .                  (wsri+omo2*wsrk+(1+omo2)*gw)
+     .              amax3 = (rik+(1+omo2)*gw)/
+     .              (wsri+omo2*wsrk+(1+omo2)*gw)
                   endif
                   if (wsmax .gt. 0) then
                     amax4 = wsmax/wsri
@@ -538,8 +538,8 @@ C         If Vconst > Vtarget, constraint cannot be satisified
           Vconst = vola - fpi3*dm(3)
           if (Vconst .gt. vol*volfac) then
             call fexit2(-1,111,' Exit -1 : SCLWSR: constrained '//
-     .        'sphere vol (%;0d) exceeds target vol=%;0d',
-     .        Vconst,vol*volfac)
+     .      'sphere vol (%;0d) exceeds target vol=%;0d',
+     .      Vconst,vol*volfac)
           endif
           if (dabs(dm(3)) .gt. tiny) then
             r =  dm(2) / dm(3)

@@ -21,7 +21,7 @@ C     implicit none
 C ... Passed parameters
       integer kmax,lmxa,nr
       double precision rofi(nr),fp(nr,0:lmxa,0:kmax),rsma,
-     .  xp(nr,0:lmxa,0:kmax),vp(0:lmxa,0:kmax),dp(0:lmxa,0:kmax)
+     .xp(nr,0:lmxa,0:kmax),vp(0:lmxa,0:kmax),dp(0:lmxa,0:kmax)
 C ... Local parameters
       integer k0,l0,l,k,i
       parameter ( k0=30, l0=7 )
@@ -39,7 +39,7 @@ C ... Values and slopes of the pkl
           fac = (2*k+2*l+3d0)/(2*l+3d0)
           xx = pkl(k,l)
           dp(l,k) = 2*rmt**(l+1)/rsma**2*(xx-pkl(k,l+1)*fac*rsma)
-     .       + l*rmt**(l-1)*xx
+     .    + l*rmt**(l-1)*xx
           vp(l,k) = rmt**l*pkl(k,l)
         enddo
       enddo
@@ -61,7 +61,7 @@ C ... Set up the functions pkl(r) and derivative on radial mesh
 c           xp(i,l,k) = 2*r**(l+2)/rsma**2*(xx-pkl(k,l+1)*fac*rsma)
 c    .         + l*r**l*xx
             xp(i,l,k) = 2*rr2/rsma**2*(xx-pkl(k,l+1)*fac*rsma)
-     .         + l*rr*xx
+     .      + l*rr*xx
           enddo
         enddo
       enddo

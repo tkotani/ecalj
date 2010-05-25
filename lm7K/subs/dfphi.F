@@ -72,7 +72,7 @@ C     Local parameters
       integer i
       double precision gp5p,gpp5p,gppp,gpp3p,gpp32
       double precision xx1,xx2,xx3,xx4,gp3p,w01,w11,w21,w02,w12,w22,
-     .  w01d,w11d,w21d,w02d,w12d,w22d,wp1d,wp2d,gpppp
+     .w01d,w11d,w21d,w02d,w12d,w22d,wp1d,wp2d,gpppp
 
 C --- Constants common to 3-point and 5-point formulas ---
       w01 = 2*del1/(de1**2-del1**2)
@@ -109,16 +109,16 @@ C Three point formula for gp; store in temporary gp3p
 
 C Five point estimate for gp
         gp5p = (xx2*gp3p - xx1*(w02*g(i) + w12*gp(i,3) - w22*gp(i,4)))
-     .          /(xx2-xx1)
+     .  /(xx2-xx1)
 
 C Difference between five point and three point gives estimate for gppp
         gppp = -6/xx1*(gp5p - gp3p)
 
 C Three point estimates for gpp with correction for gppp
         gpp3p = w01d * g(i) + w11d * gp(i,1) + w21d*gp(i,2)
-     .         -wp1d * gppp
+     .  -wp1d * gppp
         gpp32 = w02d * g(i) + w12d * gp(i,3) + w22d*gp(i,4)
-     .         -wp2d * gppp
+     .  -wp2d * gppp
 
 C Five point estimate for gpp with correction for gppp
         gpp5p = (gpp3p*xx4 - gpp32*xx3) / (xx4 - xx3)

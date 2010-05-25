@@ -55,23 +55,23 @@ c     .......... transform the eigenvectors of the real symmetric
 c                tridiagonal matrix to those of the full symmetric
 c                tridiagonal matrix. ..........
       do 50 k = 1, n
-      do 50 j = 1, m
+        do 50 j = 1, m
    50 zr(k,j) = zr(k,j) * tau(k,1)
 
       if (n .eq. 1) return
       do 140 i = 2, n
-         l = i - 1
-         h = -tau(i,2)
-         if (h .eq. 0.0d0) go to 140
-         do 130 j = 1, m
-            s = 0.0d0
-            do 110 k = 1, l
-  110       s = s + ar(k,i) * zr(k,j)
+        l = i - 1
+        h = -tau(i,2)
+        if (h .eq. 0.0d0) go to 140
+        do 130 j = 1, m
+          s = 0.0d0
+          do 110 k = 1, l
+  110     s = s + ar(k,i) * zr(k,j)
 c     .......... double divisions avoid possible underflow ..........
-            s = (s / h) / h
-            do 120 k = 1, l
-  120       zr(k,j) = zr(k,j) - s * ar(k,i)
-  130    continue
+          s = (s / h) / h
+          do 120 k = 1, l
+  120     zr(k,j) = zr(k,j) - s * ar(k,i)
+  130   continue
   140 continue
       end
 

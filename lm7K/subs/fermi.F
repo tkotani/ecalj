@@ -32,8 +32,8 @@ C --- Check bounds of DOS ---
       q1 = (dos(1,1)+dos(1,i2))*wt
       q2 = (dos(ndos,1)+dos(ndos,i2))*wt
       if (q1.gt.qval .or. q2.lt.qval) call fexit3(-1,111,
-     .  ' Exit -1 FERMI: NOS ( %1,6;6g %1,6;6g ) does not '//
-     .  'encompass Q = %1;6g',q1,q2,qval)
+     .' Exit -1 FERMI: NOS ( %1,6;6g %1,6;6g ) does not '//
+     .'encompass Q = %1;6g',q1,q2,qval)
 
 C --- Find bin that boxes E_f ---
       de = (emax-emin)/(ndos-1)

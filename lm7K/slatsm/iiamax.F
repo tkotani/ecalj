@@ -20,10 +20,10 @@ c
       imax = iabs(idx(1))
       ix = ix + incx
       do 10 i = 2,n
-         if(iabs(idx(ix)).le.imax) go to 5
-         iiamax = i
-         imax = iabs(idx(ix))
-    5    ix = ix + incx
+        if(iabs(idx(ix)).le.imax) go to 5
+        iiamax = i
+        imax = iabs(idx(ix))
+    5   ix = ix + incx
    10 continue
       return
 c
@@ -31,9 +31,9 @@ c        code for increment equal to 1
 c
    20 imax = iabs(idx(1))
       do 30 i = 2,n
-         if(iabs(idx(i)).le.imax) go to 30
-         iiamax = i
-         imax = iabs(idx(i))
+        if(iabs(idx(i)).le.imax) go to 30
+        iiamax = i
+        imax = iabs(idx(i))
    30 continue
       return
       end

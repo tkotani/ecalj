@@ -19,7 +19,7 @@ C ... Local parameters
       integer irep,k0,k
       double precision anrm2,x,y,z,p2,critk0,dd,crit
       anrm2(x,y,z) = x*x*1.00001d0 + y*y*1.00002d0 + z*z*1.00003d0
-     .                -x*0.000004d0 - y*0.000003d0 - z*0.000002d0
+     .-x*0.000004d0 - y*0.000003d0 - z*0.000002d0
 
       p1(1) = p(1)
       p1(2) = p(2)

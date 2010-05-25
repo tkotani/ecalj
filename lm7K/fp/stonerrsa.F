@@ -1,5 +1,5 @@
       subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq,
-     .  x0et)
+     .x0et)
 C- Transverse susceptibility matrix <~e| X |e~> from X^{-1}=X0^{-1}+U
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -26,26 +26,26 @@ C ... Passed parameters
       complex(8) eiqrm(nmbas,nq),x0et(nmbas,nmbas,nq,nw)
 C ... Local parameters
       integer fopna,fopnx,i,ifi,ifi2,imax,imin,iq,iw,iwpola,iwpolf,ipr,
-     .  ix,iy,j,jmax,jmin,nglob,nw_intp,nwx,stdo
+     .ix,iy,j,jmax,jmin,nglob,nw_intp,nwx,stdo
       complex(8),allocatable :: qxq_intp(:,:),wk(:,:),
-     .  x0inv(:,:,:,:),xinv(:,:,:,:),x2et(:,:,:,:),
-     .  xinvh(:,:,:,:),dxidw(:,:,:,:),dxidw_eb(:,:,:,:)
+     .x0inv(:,:,:,:),xinv(:,:,:,:),x2et(:,:,:,:),
+     .xinvh(:,:,:,:),dxidw(:,:,:,:),dxidw_eb(:,:,:,:)
       real(8),allocatable:: mxevl_xinvh(:,:),mxevl2_xinvh(:,:),e_intp(:)
       real(8) uub(nmbas,nw),uu(nmbas,nw),eval(nmbas)
       real(8) freqm(nw),mmnorm2(nmbas)
       real(8) emin_intp,dw_intp,emax_intp
       complex(8):: cxtmp(nmbas,nmbas),img=(0d0,1d0),qxq(nw,nq),
-     .  meffi(nmbas,nmbas,nq),xinvh_w0(nmbas,nmbas,nq),
-     .  meffi_eb(nmbas,nmbas,nq),xinvh_w0eb(nmbas,nmbas,nq),
-     .  meffi2(nmbas,nmbas,nq),meffi2_eb(nmbas,nmbas,nq)
+     .meffi(nmbas,nmbas,nq),xinvh_w0(nmbas,nmbas,nq),
+     .meffi_eb(nmbas,nmbas,nq),xinvh_w0eb(nmbas,nmbas,nq),
+     .meffi2(nmbas,nmbas,nq),meffi2_eb(nmbas,nmbas,nq)
       real(8) qxq_r(nw,nq),qxq_i(nw,nq),rydberg,polinta
       real(8) qxq_inv_r(nw,nq),qxq_inv_i(nw,nq),
-     .  epole_fm(nq),epole_af(nq),vpole_fm(nq),vpole_af(nq)
+     .epole_fm(nq),epole_af(nq),vpole_fm(nq),vpole_af(nq)
       real(8) rtmp,rtmp1,rtmp2,rymev,epole
       external :: polinta
 C     For calculating JMAT:
       complex(8) oo(nmbas,nmbas),evc(nmbas,nmbas),sqm(nmbas,nmbas),
-     .  jjmat(nmbas,nmbas),jjmat2(nmbas,nmbas),mxi(nmbas,nmbas)
+     .jjmat(nmbas,nmbas),jjmat2(nmbas,nmbas),mxi(nmbas,nmbas)
       integer:: nmx,nev
       parameter (rydberg=13.6058d0)
 
@@ -55,7 +55,7 @@ C --- Setup ---
       nwx = 400
       rymev = rydberg*1d3
       if (freq(1) .ne. 0d0)
-     .  call rx1('nonzero 1st frequency, w(1) = %g',freq(1))
+     .call rx1('nonzero 1st frequency, w(1) = %g',freq(1))
       allocate(x0inv(nmbas,nmbas,nq,nwx))
       allocate(xinv(nmbas,nmbas,nq,nwx),x2et(nmbas,nmbas,nq,nwx) )
       allocate(xinvh(nmbas,nmbas,nq,nwx),mxevl_xinvh(nq,nwx) )
@@ -82,11 +82,11 @@ C --- Determine <~e|U(w)|e~> by only using boundary condition at q=0 ---
       do  iw = 1, nwx
         call matcinv(nmbas, x0inv(:,:,1,iw)) ! x0inv=<~e|x0^-1|~e>
         uub(1:nmbas,iw) =
-     .    matmul(dble(x0inv(1:nmbas,1:nmbas,1,iw)),mmnorm(1:nmbas))
+     .  matmul(dble(x0inv(1:nmbas,1:nmbas,1,iw)),mmnorm(1:nmbas))
         do  i = 1, nmbas
           if (abs(momsite(i)) .gt. 1d-3) then
             uu(i,iw) = freq(iw)*momsite(i)/mmnorm2(i)
-     .               - uub(i,iw)/mmnorm(i)
+     .      - uub(i,iw)/mmnorm(i)
           endif
         enddo
 C      write(stdo,"(i4, f13.5, d15.7)") iw,rymev*freq(iw),uu(1,iw)
@@ -98,14 +98,14 @@ C     ifi = fopnx('etUet.allw',2,2,-1)
       ifi = fopna('etUet',-1,0)
       do  iw = 1, nwx
         write(ifi,'(f21.13,3x,255d18.10)')
-     .    freq(iw),(uu(ix,iw),ix=1,nmbas)
+     .  freq(iw),(uu(ix,iw),ix=1,nmbas)
       enddo
       call fclose(ifi)
 #endif
 
 C --- x2et=<~e|X(w)|e~>  &&  <eiqr|~e><~e|X|~e><eiqr|~e> ---
       call info0(20,1,0,' STONERRSA:  calculate full Xi for each q'//
-     .  '%N Magnetic moments, by (magnetic) site:')
+     .'%N Magnetic moments, by (magnetic) site:')
       if (ipr.ge.20) write(stdo,"(1x,12f8.4)") momsite
 C     write(stdo,"( 5x,'q',10x,'qvec' )")
       x0inv = x0et
@@ -143,10 +143,10 @@ C     Liqin: these should be passed as arguments
       emin_intp = 0d0; dw_intp = 1d-2; emax_intp = 1000d0
       nw_intp = int((emax_intp-emin_intp)/dw_intp) + 1
       call info(20,0,0,' Make <q|X|q>: for %i energy points; '//
-     .  'emax = %;5,5d eV',nwx,rydberg*freq(nwx))
+     .'emax = %;5,5d eV',nwx,rydberg*freq(nwx))
       call info5(20,0,0,' Interpolate energy window with '//
-     .  'emin:dw:emax = %;4d:%;4d:%;4d meV (%i points)',emin_intp,
-     .  dw_intp,emax_intp,nw_intp,0)
+     .'emin:dw:emax = %;4d:%;4d:%;4d meV (%i points)',emin_intp,
+     .dw_intp,emax_intp,nw_intp,0)
 
       allocate(qxq_intp(nw_intp,nq),e_intp(nw_intp) )
       do  iq = 1, nq
@@ -186,9 +186,9 @@ C      open(107,file='qxqr.allq')
       ifi2 = fopna('qxqr',-1,0)
       do  iw = 1, nw_intp
         write(ifi,"( f13.5, 100d15.7)") rymev*e_intp(iw),
-     .    (-dimag(qxq_intp(iw,iq)),iq=1,nq)
+     .  (-dimag(qxq_intp(iw,iq)),iq=1,nq)
         write(ifi2,"( f13.5, 100d15.7)") rymev*e_intp(iw),
-     .    (-dble(qxq_intp(iw,iq)),iq=1,nq)
+     .  (-dble(qxq_intp(iw,iq)),iq=1,nq)
       enddo
       call fclose(ifi); call fclose(ifi2)
 #endif
@@ -208,7 +208,7 @@ C --- Eigenvalue of hermitian xinvh ---
       ifi = fopnx('evl_xh.allq',2,2,-1)
       do  iw = 1, nwx
         write(ifi,"( f13.5, 100d15.7)") rymev*freq(iw),
-     .    (mxevl_xinvh(iq,iw),iq=1,nq)
+     .  (mxevl_xinvh(iq,iw),iq=1,nq)
       enddo
       call fclose(ifi)
 #endif
@@ -224,7 +224,7 @@ C       Coarse search: bracket frequency where evl crosses zero
         do  iw = 1, nwx
           if (freq(iw) .ge. 0d0 ) then
             if (mxevl_xinvh(iq,iw) .lt. 0d0 .and.
-     .          mxevl_xinvh(iq,iw+1) .gt. 0d0 ) then
+     .      mxevl_xinvh(iq,iw+1) .gt. 0d0 ) then
               iwpolf = iw
               epole = freq(iw)
               exit
@@ -238,7 +238,7 @@ C       Coarse search: bracket frequency where evl crosses zero
           do  ! Liqin ... infinite loop is dangerous
             epole = epole + 1d-7/rydberg
             rtmp  = polinta(epole,freq(iwpolf-1:iwpolf+2),
-     .        mxevl_xinvh(iq,iwpolf-1:iwpolf+2),4)
+     .      mxevl_xinvh(iq,iwpolf-1:iwpolf+2),4)
             if (rtmp .gt. 0) exit
           enddo
         endif
@@ -255,7 +255,7 @@ C       Coarse search: bracket freq where evl crosses zero
         do  iw = 1, nwx
           if (freq(iw) .ge. 0d0 ) then
             if (mxevl_xinvh(iq,iw) .gt. 0d0 .and.
-     .          mxevl_xinvh(iq,iw+1) .lt. 0d0 ) then
+     .      mxevl_xinvh(iq,iw+1) .lt. 0d0 ) then
               iwpola = iw
               epole = freq(iw)
               exit
@@ -269,7 +269,7 @@ C       Coarse search: bracket freq where evl crosses zero
           do
             epole = epole + 1d-7/rydberg
             rtmp  = polinta(epole,freq(iwpola-1:iwpola+2),
-     .        mxevl_xinvh(iq,iwpola-1:iwpola+2),4)
+     .      mxevl_xinvh(iq,iwpola-1:iwpola+2),4)
             if (rtmp .lt. 0) exit
           enddo
         elseif (iwpola .eq. 1) then
@@ -281,10 +281,10 @@ C       Coarse search: bracket freq where evl crosses zero
       enddo
 
       call info0(20,1,0,' Results for pole search of evl(<q|X|q>)%N'//
-     .  '%5fq %9fFM pole %23fAFM pole')
+     .'%5fq %9fFM pole %23fAFM pole')
       do  iq = 1, nq
         write(stdo,102) iq, rymev*epole_fm(iq), vpole_fm(iq)
-     .    ,rymev*epole_af(iq), vpole_af(iq)
+     .  ,rymev*epole_af(iq), vpole_af(iq)
  102    format(3x,i3,3x,f8.2,3x, d15.7, 5x,f8.2,3x,d15.7)
       enddo
 C ... End of pole search
@@ -298,15 +298,15 @@ C --- Determine meffi ---
             do  iw = 1, nwx
               dxidw(i,j,iq,iw)  =
 c     .   (xinv(i,j,iq,iw+1) - xinv(i,j,iq,1))/(freq(iw+1)-freq(1))
-     .      (xinvh(i,j,iq,iw+1) - xinvh(i,j,iq,1))/(freq(iw+1)-freq(1))
+     .        (xinvh(i,j,iq,iw+1) - xinvh(i,j,iq,1))/(freq(iw+1)-freq(1))
               freqm(iw) = 0.5d0*(freq(iw+1) + freq(iw))
             enddo
             meffi(i,j,iq) =
      .      polinta(rtmp1,freqm(1:8),dble(dxidw(i,j,iq,1:8)),8)
-     .    + img* polinta(rtmp1,freqm(1:8),dimag(dxidw(i,j,iq,1:8)),8)
+     .      + img* polinta(rtmp1,freqm(1:8),dimag(dxidw(i,j,iq,1:8)),8)
             meffi2(i,j,iq) =
      .      polinta(rtmp2,freqm(1:8),dble(dxidw(i,j,iq,1:8)),8)
-     .    + img* polinta(rtmp2,freqm(1:8),dimag(dxidw(i,j,iq,1:8)),8)
+     .      + img* polinta(rtmp2,freqm(1:8),dimag(dxidw(i,j,iq,1:8)),8)
           enddo
         enddo
       enddo
@@ -317,26 +317,26 @@ C --- Xinvh_w0  dxidw_et -> dxidw_ebar ---
         do  i = 1, nmbas ! projected on |e-> instead of |e~>
           do  j = 1, nmbas
             xinvh_w0eb(i,j,iq) = xinvh_w0(i,j,iq)
-     .        * mmnorm(i)/momsite(i) * mmnorm(j)/momsite(j)
+     .      * mmnorm(i)/momsite(i) * mmnorm(j)/momsite(j)
             meffi_eb(i,j,iq) = meffi(i,j,iq)
-     .        * mmnorm(i)/momsite(i) * mmnorm(j)/momsite(j)
+     .      * mmnorm(i)/momsite(i) * mmnorm(j)/momsite(j)
             meffi2_eb(i,j,iq) = meffi2(i,j,iq)
-     .        * mmnorm(i)/momsite(i) * mmnorm(j)/momsite(j)
+     .      * mmnorm(i)/momsite(i) * mmnorm(j)/momsite(j)
             do  iw = 1, nwx
               dxidw_eb(i,j,iq,iw) = dxidw(i,j,iq,iw)
-     .          * mmnorm(i)/momsite(i) * mmnorm(j)/momsite(j)
+     .        * mmnorm(i)/momsite(i) * mmnorm(j)/momsite(j)
             enddo
           enddo
         enddo
       enddo
 
       call info0(20,1,0,' Inverse of effective mag. moment meffi(1,1)'//
-     .  ' = [xinvh(1,1,iw)-xinvh(1,1,iw=0)]/w%N'//
-     .  '%5fq%11fiw=1%21fFM pole%18fAFM pole%17fintp FM%18fintp AF')
+     .' = [xinvh(1,1,iw)-xinvh(1,1,iw=0)]/w%N'//
+     .'%5fq%11fiw=1%21fFM pole%18fAFM pole%17fintp FM%18fintp AF')
       do  iq = 1, nq
         write(stdo,  "(3x,i3, 5(2d12.4,1x) )" ) iq,dxidw_eb(1,1,iq,1)
-     .        ,dxidw_eb(1,1,iq,iwpolf),dxidw_eb(1,1,iq,iwpola)
-     .        , meffi_eb(1,1,iq), meffi2_eb(1,1,iq)
+     .  ,dxidw_eb(1,1,iq,iwpolf),dxidw_eb(1,1,iq,iwpola)
+     .  , meffi_eb(1,1,iq), meffi2_eb(1,1,iq)
       enddo
 
 #if DEBUG
@@ -345,15 +345,15 @@ C     ifi = fopna('dxidw',-1,0)
       ifi = fopnx('dxidw.allq',2,2,-1)
       do  iw = 1, nwx
         write(ifi,"(f8.2,100d15.7)") rymev*freqm(iw),
-     .    (dxidw_eb(1,1,iq,iw), iq=1,nq)
+     .  (dxidw_eb(1,1,iq,iw), iq=1,nq)
       enddo
       call fclose(ifi)
 #endif
 
 C --- Make Jmat file for FM and AFM cases ---
       call info0(20,1,0,'Writing files to disk: '//
-     .  'Jmat.allq = J(q,w=intp FM pole), and  '//
-     .  'Jmat_X2w0 = J(q,w=0)')
+     .'Jmat.allq = J(q,w=intp FM pole), and  '//
+     .'Jmat_X2w0 = J(q,w=0)')
       nmx = nmbas
       nev = nmbas
 C     open(110,file='Jmat.allq')
@@ -367,7 +367,7 @@ C         oo(i,i) = 1d0
         enddo
         allocate(wk(11,nmbas))
         call zhev(nmbas,meffi_eb(1,1,iq),wk,
-     .    .false.,.true.,nmx,1d99,nev,wk,.false.,-1,eval,evc)
+     .  .false.,.true.,nmx,1d99,nev,wk,.false.,-1,eval,evc)
         deallocate(wk)
 C       call diagcv(oo,meffi_eb(1,1,iq),evc, nmbas, eval,nmx,1d99,nev)
 
@@ -404,7 +404,7 @@ C     .     qp(:,iq), (( jjmat2(ix,iy) ,ix=1,nmbas),iy=1,nmbas)
 
 
         write(ifi,"('JJMAT: ',3d18.10,3x,255d18.10)")
-     .    qp(:,iq), ((jjmat(ix,iy), ix=1,nmbas),iy=1,nmbas)
+     .  qp(:,iq), ((jjmat(ix,iy), ix=1,nmbas),iy=1,nmbas)
         call zevl(nmbas,jjmat,eval)
 
 C         write(stdo,"('e sw  ', 3f8.4,2x,255d15.7)")
@@ -418,9 +418,9 @@ C     open(105,file='Jmat_X2w0.allq')
       ifi2 = fopnx('Jmat_X2w0.allq',2,2,-1)
       do  iq = 1, nq
         write(ifi,"('JJMAT: ',3d18.10, 3x, 255d18.10)")
-     .    qp(:,iq), (( x0inv(ix,iy,iq,1) ,ix=1,nmbas),iy=1,nmbas)
+     .  qp(:,iq), (( x0inv(ix,iy,iq,1) ,ix=1,nmbas),iy=1,nmbas)
         write(ifi2,"('xinvh_w0eb: ',3d18.10, 3x, 255d18.10)")
-     .    qp(:,iq), ((  xinvh_w0eb(:,:,iq) ,ix=1,nmbas),iy=1,nmbas)
+     .  qp(:,iq), ((  xinvh_w0eb(:,:,iq) ,ix=1,nmbas),iy=1,nmbas)
       enddo
 
       end subroutine stonerrsa

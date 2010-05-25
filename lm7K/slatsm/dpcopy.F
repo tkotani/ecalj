@@ -7,14 +7,14 @@ C     implicit none
 #if CRAY
       call scopy(n2-n1+1,afrom(n1),1,ato(n1),1)
 #elif APOLLO | HP
-        call vec_$dcopy(afrom(n1),ato(n1),n2-n1+1)
+      call vec_$dcopy(afrom(n1),ato(n1),n2-n1+1)
 #elif BLAS
       call dcopy(n2-n1+1,afrom(n1),1,ato(n1),1)
 #else
-        do  10 i = n1, n2
-   10   ato(i) = afrom(i)
+      do  10 i = n1, n2
+   10 ato(i) = afrom(i)
 #endif
-        return
+      return
 
 C --- fac not unity ---
   100 continue

@@ -57,7 +57,7 @@ C      if (iprint() .ge. 50) print 333, z,a,nr,rmax
 C  333 format(' rmesh:  Z=',f5.1,'  a=',f6.3,'  nr=',i4,
 C     .  '  rmax=',f8.5)
       if (iprint() .ge. 50)
-     .  call awrit4(' RMESH:  Z=%d  a=%1;4d  nr=%i  rmax=%1;6d',
-     .  ' ',80,i1mach(2),z,a,nr,rmax)
+     .call awrit4(' RMESH:  Z=%d  a=%1;4d  nr=%i  rmax=%1;6d',
+     .' ',80,i1mach(2),z,a,nr,rmax)
       end
 

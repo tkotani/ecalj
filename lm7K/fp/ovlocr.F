@@ -1,5 +1,5 @@
       subroutine ovlocr(nbas,ssite,sspec,slat,nxi0,nxi,exi,hfc,rsmfa,
-     .  orhofa,orhoat,sqloc,slmom)
+     .orhofa,orhoat,sqloc,slmom)
 
       use m_struc_def  !Cgetarg
 
@@ -39,11 +39,11 @@ C ... Local parameters
       integer nrmx,nlmx,ktop0,stdo
       parameter(nrmx=1501,nlmx=64,ktop0=25)
       integer ib,ipr,iprint,is,jb,je,js,kmxv,lfoca,lgunit,lmxl,nlmh,
-     .  nlml,nr,ocg,ocy,oidxcg,ojcg,nsp,nglob,i
+     .nlml,nr,ocg,ocy,oidxcg,ojcg,nsp,nglob,i
       double precision ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,
-     .  rmt,rsmh,rsmv,z,amom
+     .rmt,rsmh,rsmv,z,amom
       double precision a,rofi(nrmx),rwgt(nrmx),rhohd(nrmx*2),p1(3),
-     .  p2(3),b0(ktop0+1),acof((ktop0+1),nlmx,2),q(3)
+     .p2(3),b0(ktop0+1),acof((ktop0+1),nlmx,2),q(3)
       double complex b((ktop0+1),nlmx)
 
 #if MPI | MPIK
@@ -93,7 +93,7 @@ C$&        MP_SCHEDTYPE=RUNTIME
 #endif
 #if MPI | MPIK
       call info0(31,1,0,' ovlocr: make sphere densities from '//
-     .  'overlapping FA densities (parallel)')
+     .'overlapping FA densities (parallel)')
       allocate (ibproc(0:numprocs), stat=ierr)
       call pshpr(ipr-10)
       call dstrbp(nbas,numprocs,1,ibproc(0))
@@ -106,8 +106,8 @@ c      do ib = ibproc(procid), ibproc(procid+1)-1
 #else
       if (ipr .ge. 30) write (stdo,300)
   300 format(/' Free atom and overlapped crystal site charges:'
-     .   /'   ib    true(FA)    smooth(FA)  true(OV)',
-     .   '    smooth(OV)    local')
+     ./'   ib    true(FA)    smooth(FA)  true(OV)',
+     .'    smooth(OV)    local')
 c      do  ib = 1, nbas
       ibini= 1
       ibend= nbas
@@ -129,7 +129,7 @@ c      do  ib = 1, nbas
         rmt=sspec(is)%rmt
 
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoca,rfoca,
-     .    z)
+     .  z)
         qcsm = qcorg+qcorh
         nlml = (lmxl+1)**2
 C       if (z .eq. 0 .and. rmt .eq. 0) goto 10
@@ -154,20 +154,20 @@ C   ... Loop over other sites, add up tail expansion
             eh   = exi(je,js)
             nlmh = 1
             call hxpbl(p2,p1,q,rsmh,rsmv,eh,kmxv,nlmh,nlml,kmxv,
-     .        nlml,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b)
+     .      nlml,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b)
             call dpzero(b0,(kmxv+1)*nlmh)
             if (ib .eq. jb) call hxpos(rsmh,rsmv,eh,kmxv,nlmh,kmxv,b0)
             do  i = 1, nsp
               call p1ovlc(kmxv,nlml,hfc(je,i,js),b,b0,
-     .          acof(1+(1+kmxv)*nlml*(i-1),1,1))
+     .        acof(1+(1+kmxv)*nlml*(i-1),1,1))
             enddo
           enddo
         enddo
 
         call p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt,
-     .    rhohd,nxi0,nxi(is),exi(1,is),hfc(1,1,is),rsmfa(is),
-     .    w(orhofa(is)),w(orhoat(3,ib)),lfoca,qcsm,qloc,amom,
-     .    w(orhoat(1,ib)),w(orhoat(2,ib)))
+     .  rhohd,nxi0,nxi(is),exi(1,is),hfc(1,1,is),rsmfa(is),
+     .  w(orhofa(is)),w(orhoat(3,ib)),lfoca,qcsm,qloc,amom,
+     .  w(orhoat(1,ib)),w(orhoat(2,ib)))
 
         sqloc = sqloc + qloc
         slmom = slmom + amom
@@ -190,11 +190,11 @@ C ... Combine sphere densities from separate threads
 
           nlml = (lmxl+1)**2
           call mpibc3(w(orhoat(1,ib)),nr*nlml*nsp,4,pid,0,
-     .      'ovlocr','rhoat(1)')
+     .    'ovlocr','rhoat(1)')
           call mpibc3(w(orhoat(2,ib)),nr*nlml*nsp,4,pid,0,
-     .      'ovlocr','rhoat(1)')
+     .    'ovlocr','rhoat(1)')
           call mpibc3(w(orhoat(3,ib)),nr*nsp,4,pid,0,
-     .      'ovlocr','rhoat(1)')
+     .    'ovlocr','rhoat(1)')
 C          call MPI_BCAST(w(orhoat(1,ib)),nr*nlml*nsp,
 C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
 C          call MPI_BCAST(w(orhoat(2,ib)),nr*nlml*nsp,
@@ -254,7 +254,7 @@ C ... Local parameters
 
 
       subroutine p2ovlc(ib,nsp,rsmv,kmxv,nr,nlml,acof,rofi,rwgt,rhohd,
-     . nxi0,nxi,exi,hfc,rsmfa,rhofa,rhoc,lfoca,qcsm,qloc,amom,rho1,rho2)
+     .nxi0,nxi,exi,hfc,rsmfa,rhofa,rhoc,lfoca,qcsm,qloc,amom,rho1,rho2)
 
 C- Assemble local density from P_kl expansion for one site
 C ----------------------------------------------------------------------
@@ -293,15 +293,15 @@ C     implicit none
 C ... Passed parameters
       integer nr,nxi0,ib,nsp,kmxv,nlml,nxi,lfoca
       double precision qcsm,qloc,rhofa(nr,nsp),rho1(nr,nlml,nsp),
-     .  rho2(nr,nlml,nsp),rofi(nr),rwgt(nr),rhohd(nr,nsp),exi(1),
-     .  hfc(nxi0,nsp),rhoc(nr,nsp),acof(0:kmxv,nlml,nsp),rsmv,rsmfa,amom
+     .rho2(nr,nlml,nsp),rofi(nr),rwgt(nr),rhohd(nr,nsp),exi(1),
+     .hfc(nxi0,nsp),rhoc(nr,nsp),acof(0:kmxv,nlml,nsp),rsmv,rsmfa,amom
 C ... Local parameters
       integer kmx,lmx,stdo
       parameter (kmx=20, lmx=6)
       integer i,ie,ilm,ipr,iprint,k,l,lgunit,ll,lmax,lmxl,isp
       double precision asm,gam,pi,qall,qexa,qin,qlc,qnum,qout,qsmo,qut,
-     .  r,rl,rmt,srfpi,sum,sumfa,sumhd,sumsm,sumtr,y0,
-     .  pkl(0:kmx,0:lmx),xi(0:10),x0(0:2),ddot
+     .r,rl,rmt,srfpi,sum,sumfa,sumhd,sumsm,sumtr,y0,
+     .pkl(0:kmx,0:lmx),xi(0:10),x0(0:2),ddot
 
       ipr   = iprint()
       stdo  = lgunit(1)
@@ -343,7 +343,7 @@ C --- Assemble smooth on-site head density in rhohd ---
         call hansmr(rmt,0d0,1/rsmfa,x0,1)
         call hansmr(rmt,exi(ie),1/rsmfa,xi,1)
         qout = srfpi/exi(ie)*(-dexp(rsmfa**2/4*exi(ie))
-     .     - rmt**3*(xi(1)-dexp(rsmfa**2/4*exi(ie))*x0(1)))
+     .  - rmt**3*(xi(1)-dexp(rsmfa**2/4*exi(ie))*x0(1)))
         qin = qall-qout
         do  isp = 1, nsp
           qnum = qnum + hfc(ie,isp)*sum
@@ -370,7 +370,7 @@ C --- Assemble overlapped tail density in rho2 ---
             if ( r .gt. 0.d0 ) rl = r**l
             do  k = 0, kmxv
               rho2(i,ilm,isp) = rho2(i,ilm,isp) +
-     .                        acof(k,ilm,isp)*pkl(k,l)*r*r*rl
+     .        acof(k,ilm,isp)*pkl(k,l)*r*r*rl
             enddo
           enddo
         enddo
@@ -379,9 +379,9 @@ C --- Assemble overlapped tail density in rho2 ---
 C ... Make the true density in rho1, smooth density in rho2
       call dpcopy(rho2,rho1,1,nr*nlml*nsp,1d0)
       do  30  isp = 1, nsp
-      do  30  i = 1, nr
-        rho1(i,1,isp) = rho1(i,1,isp) + y0*rhofa(i,isp)
-        rho2(i,1,isp) = rho2(i,1,isp) + y0*rhohd(i,isp)
+        do  30  i = 1, nr
+          rho1(i,1,isp) = rho1(i,1,isp) + y0*rhofa(i,isp)
+          rho2(i,1,isp) = rho2(i,1,isp) + y0*rhohd(i,isp)
    30 continue
 
 C ... Do some integrals
@@ -391,29 +391,29 @@ C ... Do some integrals
       sumtr = 0d0
       qlc = 0d0
       do  40  isp = 1, nsp
-      do  40  i = 1, nr
-        sumfa = sumfa + rwgt(i)*rhofa(i,isp)
-        sumhd = sumhd + rwgt(i)*rhohd(i,isp)
-        sumtr = sumtr + rwgt(i)*rho1(i,1,isp)
-        sumsm = sumsm + rwgt(i)*rho2(i,1,isp)
-        qlc = qlc + rwgt(i)*rhoc(i,isp)
+        do  40  i = 1, nr
+          sumfa = sumfa + rwgt(i)*rhofa(i,isp)
+          sumhd = sumhd + rwgt(i)*rhohd(i,isp)
+          sumtr = sumtr + rwgt(i)*rho1(i,1,isp)
+          sumsm = sumsm + rwgt(i)*rho2(i,1,isp)
+          qlc = qlc + rwgt(i)*rhoc(i,isp)
    40 continue
       sumsm = sumsm*srfpi
       sumtr = sumtr*srfpi
       qloc = sumtr-sumsm
       amom = -srfpi*
-     .  (ddot(nr,rwgt,1,rho1(1,1,nsp),1)-ddot(nr,rwgt,1,rho1(1,1,1),1)
-     .  -ddot(nr,rwgt,1,rho2(1,1,nsp),1)+ddot(nr,rwgt,1,rho2(1,1,1),1))
+     .(ddot(nr,rwgt,1,rho1(1,1,nsp),1)-ddot(nr,rwgt,1,rho1(1,1,1),1)
+     .-ddot(nr,rwgt,1,rho2(1,1,nsp),1)+ddot(nr,rwgt,1,rho2(1,1,1),1))
 
       if (lfoca .eq. 0) qloc = qloc + qlc - qcsm
       if (ipr .ge. 30) then
         write(stdo,810) ib,sumfa,sumhd,sumtr,sumsm,qloc
         if (nsp .eq. 2) write(stdo,811)
-     .    ddot(nr,rwgt,1,rhofa,1)-ddot(nr,rwgt,1,rhofa(1,2),1),
-     .    ddot(nr,rwgt,1,rhohd,1)-ddot(nr,rwgt,1,rhohd(1,2),1),
-     .    srfpi*(ddot(nr,rwgt,1,rho1,1)-ddot(nr,rwgt,1,rho1(1,1,2),1)),
-     .    srfpi*(ddot(nr,rwgt,1,rho2,1)-ddot(nr,rwgt,1,rho2(1,1,2),1)),
-     .    amom
+     .  ddot(nr,rwgt,1,rhofa,1)-ddot(nr,rwgt,1,rhofa(1,2),1),
+     .  ddot(nr,rwgt,1,rhohd,1)-ddot(nr,rwgt,1,rhohd(1,2),1),
+     .  srfpi*(ddot(nr,rwgt,1,rho1,1)-ddot(nr,rwgt,1,rho1(1,1,2),1)),
+     .  srfpi*(ddot(nr,rwgt,1,rho2,1)-ddot(nr,rwgt,1,rho2(1,1,2),1)),
+     .  amom
 
       endif
   810 format(i5,6f12.6)

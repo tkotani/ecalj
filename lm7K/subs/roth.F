@@ -1,5 +1,5 @@
       integer function roth(opt,nl,nbas,bas,iat,offH,indxsh,istab,g,ag,
-     .  q,ldha,ldhb,h0,h)
+     .q,ldha,ldhb,h0,h)
 C- Transform hamiltonian h0(g^-1 q) into h(q)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -150,16 +150,16 @@ C ----------------------------------------------------------------------
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5)
       integer opt,ldha,ldhb,nl,nbas,istab(nbas),offh(n0H,nkap0,1),
-     .  iat,indxsh(1)
+     .iat,indxsh(1)
       double precision bas(3,*),g(3,3),ag(3),q(3),h0(1),h(ldha,ldhb)
 C Local variables
       integer nlx,n0
       parameter (nlx=7,n0=10)
       logical lsaveh,lunitg,lroti
       integer ibla,iblb,jb1,k1,k2,kcplx,ld01,ld02,ld0b,ib1,
-     .  ld0r,ldh1,ldh2,ldhr,ldima,ldimb,ldmpa,ldmpb,nl2,nlma,nlma1,
-     .  nlma2,nlmb,nlmb1,nlmb2,of0i,ofa,ofa1,ofa2,ofb,ofb1,ofb2,off1,
-     .  off2,ofhi,opt0,opt1,protht
+     .ld0r,ldh1,ldh2,ldhr,ldima,ldimb,ldmpa,ldmpb,nl2,nlma,nlma1,
+     .nlma2,nlmb,nlmb1,nlmb2,of0i,ofa,ofa1,ofa2,ofb,ofb1,ofb2,off1,
+     .off2,ofhi,opt0,opt1,protht
       integer norb,offli(n0*nkap0)
       double precision wk(nlx**4),rmat(nlx**4),ddot,xx
 
@@ -170,7 +170,7 @@ C     call zprm('starting h',2,h,ldha,ldha,ldhb)
       nl2 = nl*nl
       opt0 = mod(opt,10)
       if (opt0 .eq. 2)
-     .  call rx('roth: 1s digit mode 2 no longer supported')
+     .call rx('roth: 1s digit mode 2 no longer supported')
 C     lsaveh is true when h is preserved
       lsaveh = opt0 .eq. 4
       if (lsaveh) opt0 = 3
@@ -185,14 +185,14 @@ C ... Get some dimensioning parameters
       call cplxdm(kcplx,ldha,ldhb,ldh1,ldh2,ldhr,ofhi)
       opt1 = mod(mod(opt/10,10),4)
       call pvrotd(opt,offH,nbas,iat,ibla,iblb,ldmpa,ldima,ldmpb,
-     .  ldimb,ofa1,ofa2,nlma,nlma1,nlma2,ofb1,ofb2,nlmb,nlmb1,nlmb2)
+     .ldimb,ofa1,ofa2,nlma,nlma1,nlma2,ofb1,ofb2,nlmb,nlmb1,nlmb2)
 
 
 C     lunitg is true if unit rotation matrix
       lunitg = ddot(9,g,1,g,1)-3 .lt. 1d-10 .and.
-     .             abs(g(1,1)-1) .lt. 1d-10 .and.
-     .             abs(g(2,2)-1) .lt. 1d-10 .and.
-     .             abs(g(3,3)-1) .lt. 1d-10
+     .abs(g(1,1)-1) .lt. 1d-10 .and.
+     .abs(g(2,2)-1) .lt. 1d-10 .and.
+     .abs(g(3,3)-1) .lt. 1d-10
 
 C --- Hold on to rows and columns of unrotated h, to restore later ---
       if (lsaveh) then
@@ -203,15 +203,15 @@ C       Just copy to final position if unit rotation matrix
 C       Save rows of h(iat) into h0
         call cplxdm(kcplx,nlma,ldhb,ld01,ld02,ld0r,of0i)
         call ymscop(0,nlma1,ldhb,ldhr,ld0r,ofa1,0,0,0,h,ofhi,
-     .    h0(1+off1),of0i)
+     .  h0(1+off1),of0i)
         call ymscop(0,nlma2,ldhb,ldhr,ld0r,ofa2,0,nlma1,0,h,ofhi,
-     .    h0(1+off1),of0i)
+     .  h0(1+off1),of0i)
 C       Save columns of h(iat) into h0
         call cplxdm(kcplx,ldha,nlmb,ld01,ld02,ld0r,of0i)
         call ymscop(0,ldha,nlmb1,ldhr,ld0r,0,ofb1,0,0,h,ofhi,
-     .    h0(1+off2),of0i)
+     .  h0(1+off2),of0i)
         call ymscop(0,ldha,nlmb2,ldhr,ld0r,0,ofb2,0,nlmb1,h,ofhi,
-     .    h0(1+off2),of0i)
+     .  h0(1+off2),of0i)
 C       call yprm('h0 (r)',kcplx+2,h0,nlma*ldhb,nlma,nlma,ldhb)
 C       call yprm('h0 (c)',kcplx+2,h0(1+off2),ldha*nlmb,ldha,ldha,nlmb)
       endif
@@ -252,7 +252,7 @@ C     call 2: h0(ib,k) are rotated from h(jb,k) for ib=1..nbas, k in jb1
         call cplxdm(kcplx,nlma,ldhb,ld01,ld02,ld0r,of0i)
         call iprmsb(10,ib1,ib1,nbas,offH,indxsh,xx,offli,norb)
         call prothl(opt,nl2,nbas,bas,ldmpa,ldima,indxsh,istab,g,ag,q,
-     .    rmat,k1,k2,ib1,ib1,0,ld0r,offli,0,h0,of0i,ldhr,ldhb,h,ofhi)
+     .  rmat,k1,k2,ib1,ib1,0,ld0r,offli,0,h0,of0i,ldhr,ldhb,h,ofhi)
 C       call yprm('R H (r)',kcplx+2,h0,of0i,nlma,nlma,ldhb)
 
 C   ... Rotate into h0(ib,k) for ib=1..nbas, k in jb1
@@ -270,8 +270,8 @@ C       ofb is col offset in h0 so that R(h(*,jb1)) placed at h0 start
         ofb = k1-1
         call cplxdm(kcplx,ldha,ld0b,ld01,ld02,ld0r,of0i)
         call prothl(opt,nl2,nbas,bas,ldmpa,ldima,indxsh,istab,g,ag,q,
-     .    rmat,k1,k2,1,nbas,0,ld0r,-1,ofb,h0(1+off2),of0i,ldhr,
-     .    ldhb,h,ofhi)
+     .  rmat,k1,k2,1,nbas,0,ld0r,-1,ofb,h0(1+off2),of0i,ldhr,
+     .  ldhb,h,ofhi)
 C       Rotate il block, when h is composite
         if (ibla .eq. 4) then
 C         k1,k2 encompass iwaves for site jb1
@@ -282,8 +282,8 @@ C         h(*,k) -> h0(P(*),k-ofb).  ofb = first iwave col in h,
 C         + size of l-block so as to preserve contents of l-block
           ofb = k1-1 - (offH(1,1,jb1+1)-offH(1,1,jb1))
           call prothl(opt,nl2,nbas,bas,ldmpa,ldima,indxsh,istab,g,ag,
-     .      q,rmat,k1,k2,1,nbas,0,ld0r,-1,ofb,h0(1+off2),of0i,ldhr,
-     .      ldhb,h,ofhi)
+     .    q,rmat,k1,k2,1,nbas,0,ld0r,-1,ofb,h0(1+off2),of0i,ldhr,
+     .    ldhb,h,ofhi)
         endif
 C       call yprm('R H (c)',kcplx+2,h0(1+off2),ldha*ld0b,ldha,ldha,ld0b)
       else
@@ -294,7 +294,7 @@ C       call yprm('R H (c)',kcplx+2,h0(1+off2),ldha*ld0b,ldha,ldha,ld0b)
         k2 = ldimb-ldmpb
         call cplxdm(kcplx,ldha,ldhb,ld01,ld02,ld0r,of0i)
         call prothl(opt,nl2,nbas,bas,ldmpa,ldima,indxsh,istab,g,ag,q,
-     .    rmat,k1,k2,1,nbas,0,ld0r,-1,0,h0,of0i,ldhr,ldhb,h,ofhi)
+     .  rmat,k1,k2,1,nbas,0,ld0r,-1,0,h0,of0i,ldhr,ldhb,h,ofhi)
 C       call yprm('R H',kcplx+2,h0,ldha*ldhb,ldha,ldha,ldha)
 C       call yprm('R H',kcplx+2,h0,ldha*ldhb,ldha,ldha,k2-k1+1)
       endif
@@ -314,8 +314,8 @@ C       jb1 = istab(ib1)
         call cplxdm(kcplx,ldha,ld0b,ld01,ld02,ld0r,of0i)
         call iprmsb(10,ib1,ib1,nbas,offH,indxsh,xx,offli,norb)
         call prothr(opt,nl2,nbas,bas,ldmpb,ldimb,indxsh,istab,g,ag,q,
-     .    rmat,k1,k2,ib1,ib1,0,ld0r,offli,0,h0(1+off2),of0i,ldhr,ldhb,h,
-     .    ofhi)
+     .  rmat,k1,k2,ib1,ib1,0,ld0r,offli,0,h0(1+off2),of0i,ldhr,ldhb,h,
+     .  ofhi)
 
 C       call yprm('R H R^-1 (a)',kcplx+2,h,ofhi,ldha,ldhb,ldhb)
 C   ... Rotate h0 into h(k,ib) for ib=1..nbas, k = in ib1
@@ -330,8 +330,8 @@ C       k1,k2 encompass l-waves for site ib1
 C       ofa is col offset in h0 so that R(h(*,jb1)) placed at h0 start
         ofa = k1-1
         call prothr(opt,nl2,nbas,bas,ldmpb,ldimb,indxsh,istab,g,ag,q,
-     .    rmat,k1,k2,1,nbas,ib1,ld0r,-1,ofa,h0(1+off1),of0i,ldhr,ldhb,h,
-     .    ofhi)
+     .  rmat,k1,k2,1,nbas,ib1,ld0r,-1,ofa,h0(1+off1),of0i,ldhr,ldhb,h,
+     .  ofhi)
 C       Rotate il block, when h is composite
         if (ibla .eq. 4) then
 C         k1,k2 encompass iwaves for site ib1
@@ -342,15 +342,15 @@ C         h0(k-ofa,P(*)) -> h(k,*).  ofa = first iwave col in h,
 C         + size of l-block so as to preserve contents of l-block
           ofa = k1-1 - (offH(1,1,ib1+1)-offH(1,1,ib1))
           call prothr(opt,nl2,nbas,bas,ldmpb,ldimb,indxsh,istab,g,ag,
-     .      q,rmat,k1,k2,1,nbas,ib1,ld0r,-1,ofa,h0(1+off1),of0i,ldhr,
-     .      ldhb,h,ofhi)
+     .    q,rmat,k1,k2,1,nbas,ib1,ld0r,-1,ofa,h0(1+off1),of0i,ldhr,
+     .    ldhb,h,ofhi)
         endif
       else
         k1 = 1
         k2 = offH(ibla,1,nbas+1)
         call cplxdm(kcplx,ldha,ldhb,ld01,ld02,ld0r,of0i)
         call prothr(opt,nl2,nbas,bas,ldmpb,ldimb,indxsh,istab,g,ag,q,
-     .    rmat,k1,k2,1,nbas,0,ld0r,-1,0,h0,of0i,ldhr,ldhb,h,ofhi)
+     .  rmat,k1,k2,1,nbas,0,ld0r,-1,0,h0,of0i,ldhr,ldhb,h,ofhi)
       endif
 C     call yprm('R H R^-1',kcplx+2,h,ofhi,ldha,ldha,ldhb)
 
@@ -361,27 +361,27 @@ C --- Load h0 with rotated rows and columns of h; restore h ---
 C       Copy rows,columns of rotated h(iat) into h0
         call cplxdm(kcplx,nlma,ldhb,ld01,ld02,ld0r,of0i)
         call ymscop(0,nlma1,ldhb,ldhr,ld0r,ofa1,0,0,0,h,ofhi,
-     .    h0(1+off1),of0i)
+     .  h0(1+off1),of0i)
         call ymscop(0,nlma2,ldhb,ldhr,ld0r,ofa2,0,nlma1,0,h,ofhi,
-     .    h0(1+off1),of0i)
+     .  h0(1+off1),of0i)
         call cplxdm(kcplx,ldha,nlmb,ld01,ld02,ld0r,of0i)
         call ymscop(0,ldha,nlmb1,ldhr,ld0r,0,ofb1,0,0,h,ofhi,
-     .    h0(1+off2),of0i)
+     .  h0(1+off2),of0i)
         call ymscop(0,ldha,nlmb2,ldhr,ld0r,0,ofb2,0,nlmb1,h,ofhi,
-     .    h0(1+off2),of0i)
+     .  h0(1+off2),of0i)
         off1 = (nlma*ldhb + ldha*nlmb)*2
         off2 = off1 + nlma*ldhb*2
 C       Restore rows,columns of h(iat)
         call cplxdm(kcplx,nlma,ldhb,ld01,ld02,ld0r,of0i)
         call ymscop(0,nlma1,ldhb,ld0r,ldhr,0,0,ofa1,0,h0(1+off1),
-     .    of0i,h,ofhi)
+     .  of0i,h,ofhi)
         call ymscop(0,nlma2,ldhb,ld0r,ldhr,nlma1,0,ofa2,0,h0(1+off1),
-     .    of0i,h,ofhi)
+     .  of0i,h,ofhi)
         call cplxdm(kcplx,ldha,nlmb,ld01,ld02,ld0r,of0i)
         call ymscop(0,ldha,nlmb1,ld0r,ldhr,0,0,0,ofb1,h0(1+off2),
-     .    of0i,h,ofhi)
+     .  of0i,h,ofhi)
         call ymscop(0,ldha,nlmb2,ld0r,ldhr,0,nlmb1,0,ofb2,h0(1+off2),
-     .    of0i,h,ofhi)
+     .  of0i,h,ofhi)
       endif
 
 C --- Cleanup for pseudorotation (rotation + inversion) ---
@@ -408,7 +408,7 @@ C --- Cleanup for pseudorotation (rotation + inversion) ---
 C     call zprm('ending h',2,h,ldha,ldha,ldhb)
       end
       subroutine pvrotd(opt,offH,nbas,iat,ibla,iblb,ldmpa,ldima,ldmpb,
-     .  ldimb,ofa1,ofa2,nlma,nlma1,nlma2,ofb1,ofb2,nlmb,nlmb1,nlmb2)
+     .ldimb,ofa1,ofa2,nlma,nlma1,nlma2,ofb1,ofb2,nlmb,nlmb1,nlmb2)
 C- Sets up dimensions for roth.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -444,7 +444,7 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer opt,nbas,iat,ibla,iblb,ldmpa,ldima,ldmpb,ldimb,nkap0,n0H,
-     .  ofa1,ofa2,nlma,nlma1,nlma2,ofb1,ofb2,nlmb,nlmb1,nlmb2
+     .ofa1,ofa2,nlma,nlma1,nlma2,ofb1,ofb2,nlmb,nlmb1,nlmb2
       parameter (nkap0=3,n0H=5)
       integer offH(n0H,nkap0,1)
 C ... Local parameters
@@ -453,7 +453,7 @@ C ... Local parameters
       ibla = max(mod(opt/1000,10),1)
       iblb = max(mod(opt/10000,10),1)
       if (iblb .gt. 1 .and. (ibla .ne. iblb .or. iblb .gt. 3))
-     .  call rxi('roth: inconsistent opt,',opt)
+     .call rxi('roth: inconsistent opt,',opt)
 
 C ... Row dimensions and offsets
       if (ibla .lt. 4) then
@@ -509,8 +509,8 @@ C       Dimensions and offsets for site iat
       endif
       end
       subroutine prothl(opt,nl2,nbas,bas,ldmpa,ldima,indxsh,istab,g,ag,
-     .  q,rmat,k1,k2,ib1,ib2,iskip,ld0a,off0,ofb,h0,of0i,ldha,ldhb,
-     .  h,ofhi)
+     .q,rmat,k1,k2,ib1,ib2,iskip,ld0a,off0,ofb,h0,of0i,ldha,ldhb,
+     .h,ofhi)
 C- Rotate h0 <- rmat h for some block of h
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -588,16 +588,16 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer opt,ld0a,ldha,ldhb,nl2,nbas,istab(nbas),off0(1),
-     .  indxsh(1),ldmpa,ldima,iskip,k1,k2,ofb,of0i,ofhi
+     .indxsh(1),ldmpa,ldima,iskip,k1,k2,ofb,of0i,ofhi
       double precision bas(3,*),g(3,3),ag(3),q(3),
-     .  rmat(nl2,nl2),h0(ld0a,*),h(ldha,ldhb)
+     .rmat(nl2,nl2),h0(ld0a,*),h(ldha,ldhb)
 C ... Local parameters
       logical nphase
       integer n0,nkap0,i,ib1,ib2,ibas,korb,j,jbas,k,li,ncut,
-     .  nk,nlm,nlmi,norb,offh00,offr,opt0,opt1,opt4,iorb
+     .nk,nlm,nlmi,norb,offh00,offr,opt0,opt1,opt4,iorb
       parameter (n0=10,nkap0=3)
       integer offi,offj,ltab(n0*nkap0),ktab(n0*nkap0),
-     .  offli(n0*nkap0),offlj(n0*nkap0)
+     .offli(n0*nkap0),offlj(n0*nkap0)
       double precision twopi,sp,cosP,sinP,tbas(3),xx
 #if SGI
       parameter (ncut=9)
@@ -701,23 +701,23 @@ C         When h is in l-diagonal form,  see comment above.
           nk = k2-k1+1
           if (opt1 .gt. 1) then
             call yygemm('N','N',nlmi,nk,nlmi,1d0,rmat(offr+1,offr+1),
-     .        rmat(offr+1,offr+1+nl2),nl2,h(offj+1,k1),h(offj+ofhi+1,k1)
-     .        ,ldha,0d0,h0(offi+1,k1-ofb),h0(offi+of0i+1,k1-ofb),ld0a)
+     .      rmat(offr+1,offr+1+nl2),nl2,h(offj+1,k1),h(offj+ofhi+1,k1)
+     .      ,ldha,0d0,h0(offi+1,k1-ofb),h0(offi+of0i+1,k1-ofb),ld0a)
           elseif (nlmi .gt. ncut) then
             call dgemm('N','N',nlmi,nk,nlmi,1d0,rmat(offr+1,offr+1),nl2,
-     .        h(offj+1,k1),ldha,0d0,h0(offi+1,k1-ofb),ld0a)
+     .      h(offj+1,k1),ldha,0d0,h0(offi+1,k1-ofb),ld0a)
             call dgemm('N','N',nlmi,nk,nlmi,1d0,rmat(offr+1,offr+1),nl2,
-     .        h(offj+ofhi+1,k1),ldha,0d0,h0(offi+of0i+1,k1-ofb),ld0a)
+     .      h(offj+ofhi+1,k1),ldha,0d0,h0(offi+of0i+1,k1-ofb),ld0a)
           else
             do  22  k = k1, k2
-            do  22  i = 1, nlmi
-              h0(i+offi,k-ofb) = 0
-              h0(i+offi+of0i,k-ofb) = 0
-            do  22  j = 1, nlmi
-              h0(i+offi,k-ofb) =      h0(i+offi,k-ofb) +
-     .                              rmat(i+offr,j+offr)*h(j+offj,k)
-              h0(i+of0i+offi,k-ofb) = h0(i+of0i+offi,k-ofb) +
-     .                              rmat(i+offr,j+offr)*h(j+offj+ofhi,k)
+              do  22  i = 1, nlmi
+                h0(i+offi,k-ofb) = 0
+                h0(i+offi+of0i,k-ofb) = 0
+                do  22  j = 1, nlmi
+                  h0(i+offi,k-ofb) =      h0(i+offi,k-ofb) +
+     .            rmat(i+offr,j+offr)*h(j+offj,k)
+                  h0(i+of0i+offi,k-ofb) = h0(i+of0i+offi,k-ofb) +
+     .            rmat(i+offr,j+offr)*h(j+offj+ofhi,k)
    22       continue
           endif
 
@@ -727,7 +727,7 @@ C     --- Multiply rows by phase ---
 C             print 456, offi+i,cosP,sinP
 C  456        format(' phase',i4,2f15.10)
               call yscal(nk,cosP,sinP,
-     .          h0(offi+i,k1-ofb),h0(offi+of0i+i,k1-ofb),ld0a)
+     .        h0(offi+i,k1-ofb),h0(offi+of0i+i,k1-ofb),ld0a)
    24       continue
           endif
    20   continue
@@ -744,8 +744,8 @@ C     call tcx('rothl')
       end
 
       subroutine prothr(opt,nl2,nbas,bas,ldmpb,ldimb,indxsh,istab,g,ag,
-     .  q,rmat,k1,k2,ib1,ib2,iskip,ld0a,off0,ofa,h0,of0i,ldha,ldhb,
-     .  h,ofhi)
+     .q,rmat,k1,k2,ib1,ib2,iskip,ld0a,off0,ofa,h0,of0i,ldha,ldhb,
+     .h,ofhi)
 C- Rotate h <- h0 rmat for some block of h0
 C ----------------------------------------------------------------------
 Ci   opt   :1s digit:
@@ -810,16 +810,16 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer opt,ld0a,ldha,ldhb,nl2,nbas,istab(nbas),indxsh(1),ldmpb,
-     .  ldimb,iskip,k1,k2,ofa,of0i,ofhi,off0(1)
+     .ldimb,iskip,k1,k2,ofa,of0i,ofhi,off0(1)
       double precision bas(3,*),g(3,3),ag(3),q(3),rmat(nl2,nl2),
-     .  h0(ld0a,*),h(ldha,ldhb)
+     .h0(ld0a,*),h(ldha,ldhb)
 C ... Local parameters
       logical nphase
       integer i,ib1,ib2,ibas,korb,j,jbas,k,li,ncut,nk,nlm,nlmi,norb,
-     .  offi,offj,offr,opt0,opt1,opt4,iorb,n0,nkap0
+     .offi,offj,offr,opt0,opt1,opt4,iorb,n0,nkap0
       parameter (n0=10,nkap0=3)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offli(n0*nkap0),
-     .  offlj(n0*nkap0)
+     .offlj(n0*nkap0)
       double precision twopi,sp,cosP,sinP,tbas(3),xx
 #if SGI
       parameter (ncut=9)
@@ -911,26 +911,26 @@ C         When h is in l-diagonal form,  see comment above.
           nk = k2-k1+1
           if (opt1 .gt. 1) then
             call yygemm('N','C',nk,nlmi,nlmi,1d0,h0(k1-ofa,offj+1),
-     .        h0(k1+of0i-ofa,offj+1),ld0a,rmat(offr+1,offr+1),rmat(offr+
-     .        1,offr+1+nl2),nl2,0d0,h(k1,offi+1),h(k1+ofhi,offi+1),ldha)
+     .      h0(k1+of0i-ofa,offj+1),ld0a,rmat(offr+1,offr+1),rmat(offr+
+     .      1,offr+1+nl2),nl2,0d0,h(k1,offi+1),h(k1+ofhi,offi+1),ldha)
           elseif (nlmi .gt. ncut) then
             call dgemm('N','T',nk,nlmi,nlmi,1d0,h0(k1-ofa,offj+1),
-     .        ld0a,rmat(offr+1,offr+1),nl2,0d0,h(k1,offi+1),ldha)
+     .      ld0a,rmat(offr+1,offr+1),nl2,0d0,h(k1,offi+1),ldha)
             call dgemm('N','T',nk,nlmi,nlmi,1d0,h0(k1+of0i-ofa,offj+1),
-     .        ld0a,rmat(offr+1,offr+1),nl2,0d0,h(k1+ofhi,offi+1),ldha)
+     .      ld0a,rmat(offr+1,offr+1),nl2,0d0,h(k1+ofhi,offi+1),ldha)
           else
             do  21  i = 1, nlmi
-            do  21  k = k1, k2
-              h(k,i+offi) = 0
-              h(k+ofhi,i+offi) = 0
+              do  21  k = k1, k2
+                h(k,i+offi) = 0
+                h(k+ofhi,i+offi) = 0
    21       continue
             do  22  i = 1, nlmi
-            do  22  j = 1, nlmi
-            do  22  k = k1, k2
-              h(k,i+offi) = h(k,i+offi) +
-     .                    h0(k-ofa,j+offj)*rmat(i+offr,j+offr)
-              h(k+ofhi,i+offi) = h(k+ofhi,i+offi) +
-     .                    h0(k+of0i-ofa,j+offj)*rmat(i+offr,j+offr)
+              do  22  j = 1, nlmi
+                do  22  k = k1, k2
+                  h(k,i+offi) = h(k,i+offi) +
+     .            h0(k-ofa,j+offj)*rmat(i+offr,j+offr)
+                  h(k+ofhi,i+offi) = h(k+ofhi,i+offi) +
+     .            h0(k+of0i-ofa,j+offj)*rmat(i+offr,j+offr)
    22       continue
           endif
 
@@ -952,7 +952,7 @@ C     call tcx('rothr')
 
       end
       integer function protht(opt,nbas,iat,offH,iprmb,istab,ldha,ldhb,
-     .  h0,h)
+     .h0,h)
 C- Make appropriate transposes for pseudorotation, depending on mode
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1000,8 +1000,8 @@ C ----------------------------------------------------------------------
       double precision h(ldha,*),h0(1)
 C
       integer nrh,nch,ofhi,ldh1,ldh2,w,opt0,kcplx,ibla,iblb,
-     .  ldmpa,ldmpb,ofa1,ofa2,nlma,nlma1,nlma2,ofb1,ofb2,nlmb,nlmb1,
-     .  nlmb2,ldima,ldimb,off2,ndim
+     .ldmpa,ldmpb,ofa1,ofa2,nlma,nlma1,nlma2,ofb1,ofb2,nlmb,nlmb1,
+     .nlmb2,ldima,ldimb,off2,ndim
 
       protht = 0
       if (istab(1) .gt. 0) return
@@ -1010,7 +1010,7 @@ C
 C ... Get some dimensioning parameters
       opt0 = mod(opt,10)
       call pvrotd(opt,offH,nbas,iat,ibla,iblb,ldmpa,ldima,ldmpb,
-     .  ldimb,ofa1,ofa2,nlma,nlma1,nlma2,ofb1,ofb2,nlmb,nlmb1,nlmb2)
+     .ldimb,ofa1,ofa2,nlma,nlma1,nlma2,ofb1,ofb2,nlmb,nlmb1,nlmb2)
 C     protht requires rows, columns to correspond to same orbitals
       if (ibla .ne. 4 .and. iblb .ne. ibla) return
 C     if (ldima .ne. ldimb) return
@@ -1082,7 +1082,7 @@ C ... hh block
       end
 
       subroutine pvrots(opt0,nbas,ldha,ldhb,iprmb,ldmpa,ldima,nch,nrh,
-     .  ofhi,h)
+     .ofhi,h)
       implicit none
       integer nbas,opt0,ldha,ldhb,iprmb(1),ldmpa,ldima,nch,nrh,ofhi
       double precision h(ldha,ldhb)

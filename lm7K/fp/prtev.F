@@ -31,8 +31,8 @@ C     ipr = 100
 #ifndef MPI
 c #if .not. (MPI|MPIK)
         if (ipr .ge. 36 .and. nev .gt. 0) call awrit5(
-     .    ' nev, nmx, dim=  %i  %i  %i  ev(nev) = %1;5d  emx '//
-     .    '= %1;5g',' ',80,stdo,nev,nmx,n,evl(nev),emx)
+     .  ' nev, nmx, dim=  %i  %i  %i  ev(nev) = %1;5d  emx '//
+     .  '= %1;5g',' ',80,stdo,nev,nmx,n,evl(nev),emx)
         call ftflsh(stdo)
 #endif
       endif

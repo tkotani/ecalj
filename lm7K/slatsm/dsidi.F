@@ -82,23 +82,23 @@ c
       noert = mod(job,1000)/100 .eq. 0
 c
       if (nodet .and. noert) goto 140
-         if (noert) goto 10
-            inert(1) = 0
-            inert(2) = 0
-            inert(3) = 0
-   10    continue
-         if (nodet) goto 20
-            det(1) = 1.0d0
-            det(2) = 0.0d0
-            ten = 10.0d0
-   20    continue
-         t = 0.0d0
-         do  130  k = 1, n
-            d = a(k,k)
+      if (noert) goto 10
+      inert(1) = 0
+      inert(2) = 0
+      inert(3) = 0
+   10 continue
+      if (nodet) goto 20
+      det(1) = 1.0d0
+      det(2) = 0.0d0
+      ten = 10.0d0
+   20 continue
+      t = 0.0d0
+      do  130  k = 1, n
+        d = a(k,k)
 c
 c           check if 1 by 1
 c
-            if (kpvt(k) .gt. 0) goto 50
+        if (kpvt(k) .gt. 0) goto 50
 c
 c              2 by 2 block
 c              use det (d  s)  =  (d/t * c - t) * t  ,  t = dabs(s)
@@ -106,111 +106,111 @@ c                      (s  c)
 c              to avoid underflow/overflow troubles.
 c              take two passes through scaling.  use  t  for flag.
 c
-               if (t .ne. 0.0d0) goto 30
-                  t = dabs(a(k,k+1))
-                  d = (d/t)*a(k+1,k+1) - t
-               goto 40
-   30          continue
-                  d = t
-                  t = 0.0d0
-   40          continue
-   50       continue
+        if (t .ne. 0.0d0) goto 30
+        t = dabs(a(k,k+1))
+        d = (d/t)*a(k+1,k+1) - t
+        goto 40
+   30   continue
+        d = t
+        t = 0.0d0
+   40   continue
+   50   continue
 c
-            if (noert) goto 60
-               if (d .gt. 0.0d0) inert(1) = inert(1) + 1
-               if (d .lt. 0.0d0) inert(2) = inert(2) + 1
-               if (d .eq. 0.0d0) inert(3) = inert(3) + 1
-   60       continue
+        if (noert) goto 60
+        if (d .gt. 0.0d0) inert(1) = inert(1) + 1
+        if (d .lt. 0.0d0) inert(2) = inert(2) + 1
+        if (d .eq. 0.0d0) inert(3) = inert(3) + 1
+   60   continue
 c
-            if (nodet) goto 120
-               det(1) = d*det(1)
-               if (det(1) .eq. 0.0d0) goto 110
-   70             if (dabs(det(1)) .ge. 1.0d0) goto 80
-                     det(1) = ten*det(1)
-                     det(2) = det(2) - 1.0d0
-                  goto 70
-   80             continue
-   90             if (dabs(det(1)) .lt. ten) goto 100
-                     det(1) = det(1)/ten
-                     det(2) = det(2) + 1.0d0
-                  goto 90
-  100             continue
-  110          continue
-  120       continue
-  130    continue
+        if (nodet) goto 120
+        det(1) = d*det(1)
+        if (det(1) .eq. 0.0d0) goto 110
+   70   if (dabs(det(1)) .ge. 1.0d0) goto 80
+        det(1) = ten*det(1)
+        det(2) = det(2) - 1.0d0
+        goto 70
+   80   continue
+   90   if (dabs(det(1)) .lt. ten) goto 100
+        det(1) = det(1)/ten
+        det(2) = det(2) + 1.0d0
+        goto 90
+  100   continue
+  110   continue
+  120   continue
+  130 continue
   140 continue
 c
 c     compute inverse(a)
 c
       if (noinv) goto 270
-         k = 1
-  150    if (k .gt. n) goto 260
-            km1 = k - 1
-            if (kpvt(k) .lt. 0) goto 180
+      k = 1
+  150 if (k .gt. n) goto 260
+      km1 = k - 1
+      if (kpvt(k) .lt. 0) goto 180
 c
 c              1 by 1
 c
-               a(k,k) = 1.0d0/a(k,k)
-               if (km1 .lt. 1) goto 170
-                  call dcopy(km1,a(1,k),1,work,1)
-                  do  160  j = 1, km1
-                     a(j,k) = ddot(j,a(1,j),1,work,1)
-                     call daxpy(j-1,work(j),a(1,j),1,a(1,k),1)
-  160             continue
-                  a(k,k) = a(k,k) + ddot(km1,work,1,a(1,k),1)
-  170          continue
-               kstep = 1
-            goto 220
-  180       continue
+      a(k,k) = 1.0d0/a(k,k)
+      if (km1 .lt. 1) goto 170
+      call dcopy(km1,a(1,k),1,work,1)
+      do  160  j = 1, km1
+        a(j,k) = ddot(j,a(1,j),1,work,1)
+        call daxpy(j-1,work(j),a(1,j),1,a(1,k),1)
+  160 continue
+      a(k,k) = a(k,k) + ddot(km1,work,1,a(1,k),1)
+  170 continue
+      kstep = 1
+      goto 220
+  180 continue
 c
 c              2 by 2
 c
-               t = dabs(a(k,k+1))
-               ak = a(k,k)/t
-               akp1 = a(k+1,k+1)/t
-               akkp1 = a(k,k+1)/t
-               d = t*(ak*akp1 - 1.0d0)
-               a(k,k) = akp1/d
-               a(k+1,k+1) = ak/d
-               a(k,k+1) = -akkp1/d
-               if (km1 .lt. 1) goto 210
-                  call dcopy(km1,a(1,k+1),1,work,1)
-                  do  190  j = 1, km1
-                     a(j,k+1) = ddot(j,a(1,j),1,work,1)
-                     call daxpy(j-1,work(j),a(1,j),1,a(1,k+1),1)
-  190             continue
-                  a(k+1,k+1) = a(k+1,k+1) + ddot(km1,work,1,a(1,k+1),1)
-                  a(k,k+1) = a(k,k+1) + ddot(km1,a(1,k),1,a(1,k+1),1)
-                  call dcopy(km1,a(1,k),1,work,1)
-                  do  200  j = 1, km1
-                     a(j,k) = ddot(j,a(1,j),1,work,1)
-                     call daxpy(j-1,work(j),a(1,j),1,a(1,k),1)
-  200             continue
-                  a(k,k) = a(k,k) + ddot(km1,work,1,a(1,k),1)
-  210          continue
-               kstep = 2
-  220       continue
+      t = dabs(a(k,k+1))
+      ak = a(k,k)/t
+      akp1 = a(k+1,k+1)/t
+      akkp1 = a(k,k+1)/t
+      d = t*(ak*akp1 - 1.0d0)
+      a(k,k) = akp1/d
+      a(k+1,k+1) = ak/d
+      a(k,k+1) = -akkp1/d
+      if (km1 .lt. 1) goto 210
+      call dcopy(km1,a(1,k+1),1,work,1)
+      do  190  j = 1, km1
+        a(j,k+1) = ddot(j,a(1,j),1,work,1)
+        call daxpy(j-1,work(j),a(1,j),1,a(1,k+1),1)
+  190 continue
+      a(k+1,k+1) = a(k+1,k+1) + ddot(km1,work,1,a(1,k+1),1)
+      a(k,k+1) = a(k,k+1) + ddot(km1,a(1,k),1,a(1,k+1),1)
+      call dcopy(km1,a(1,k),1,work,1)
+      do  200  j = 1, km1
+        a(j,k) = ddot(j,a(1,j),1,work,1)
+        call daxpy(j-1,work(j),a(1,j),1,a(1,k),1)
+  200 continue
+      a(k,k) = a(k,k) + ddot(km1,work,1,a(1,k),1)
+  210 continue
+      kstep = 2
+  220 continue
 c
 c           swap
 c
-            ks = iabs(kpvt(k))
-            if (ks .eq. k) goto 250
-               call dswap(ks,a(1,ks),1,a(1,k),1)
-               do  230  jb = ks, k
-                  j = k + ks - jb
-                  temp = a(j,k)
-                  a(j,k) = a(ks,j)
-                  a(ks,j) = temp
-  230          continue
-               if (kstep .eq. 1) goto 240
-                  temp = a(ks,k+1)
-                  a(ks,k+1) = a(k,k+1)
-                  a(k,k+1) = temp
-  240          continue
-  250       continue
-            k = k + kstep
-         goto 150
-  260    continue
+      ks = iabs(kpvt(k))
+      if (ks .eq. k) goto 250
+      call dswap(ks,a(1,ks),1,a(1,k),1)
+      do  230  jb = ks, k
+        j = k + ks - jb
+        temp = a(j,k)
+        a(j,k) = a(ks,j)
+        a(ks,j) = temp
+  230 continue
+      if (kstep .eq. 1) goto 240
+      temp = a(ks,k+1)
+      a(ks,k+1) = a(k,k+1)
+      a(k,k+1) = temp
+  240 continue
+  250 continue
+      k = k + kstep
+      goto 150
+  260 continue
   270 continue
       return
 #endif

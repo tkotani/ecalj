@@ -1,5 +1,5 @@
       subroutine splcls(nosplt,bas,nbas,ng,istab,nspec,slabl,nclass,ipc,
-     .  ics,nrclas)
+     .ics,nrclas)
 C- Splits species into classes
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -23,7 +23,7 @@ C     implicit none
 C Passed parameters:
       logical nosplt
       integer nbas,nspec,nclass,ng,istab(nbas,ng),ipc(nbas),
-     .  ics(nspec),nrclas(nspec)
+     .ics(nspec),nrclas(nspec)
       double precision bas(3,*)
       character*8 slabl(*)
 C Local parameters:
@@ -78,7 +78,7 @@ C      ... If there is a g mapping jb->kb,ib, sites are equivalent
 C      ... There wasn't one
               if (ipr .ge. 70) then
                 write(stdo,400) slabl(is),ib,(bas(m,ib),m = 1,3),
-     .                              jb,(bas(m,jb),m = 1,3)
+     .          jb,(bas(m,jb),m = 1,3)
               endif
 C      ... If the classes haven't been split yet, do so
               if (lyetno) then
@@ -110,7 +110,7 @@ ccccccccccccccccccccccccccc
 C --- Printout ---
       if (nclass .eq. nspec .or. ipr .lt. 20) return
       call awrit2('%N SPLCLS:  %i species split into %i classes'//
-     . '%N Species  Class      Sites...',' ',80,stdo,nspec,nclass)
+     .'%N Species  Class      Sites...',' ',80,stdo,nspec,nclass)
       if (ipr .le. 30) return
       do  40  is = 1, nspec
         if (nrclas(is) .eq. 1 .and. ipr .lt. 40) goto 40
@@ -125,7 +125,7 @@ C --- Printout ---
             call awrit1('%(n>9?9:10)p%i:'//clabl,outs,80,0,ic)
             do  44  ib = 1, nbas
               if (ipc(ib) .eq. ic)
-     .          call awrit1('%a%(p>20?p:20)p %i',outs,80,0,ib)
+     .        call awrit1('%a%(p>20?p:20)p %i',outs,80,0,ib)
    44       continue
             call awrit0(outs,' ',-80,stdo)
           else
@@ -136,8 +136,8 @@ C --- Printout ---
    40 continue
 
   400 format(' SPLCLS: species: ',a,'has inequivalent positions:'/
-     .       '  IB: ',i3,',  POS=',3f10.5/
-     .       '  JB: ',i3,',  POS=',3f10.5)
+     .'  IB: ',i3,',  POS=',3f10.5/
+     .'  JB: ',i3,',  POS=',3f10.5)
 
       end
 

@@ -50,18 +50,18 @@ C ... Local parameters
 
       if (cast .eq. 1) then
         call MPI_BCAST(vec,n,MPI_LOGICAL,
-     .                 master,MPI_COMM_WORLD,ierr)
+     .  master,MPI_COMM_WORLD,ierr)
       elseif (cast .eq. 2) then
         call MPI_BCAST(vec,n,MPI_INTEGER,
-     .                 master,MPI_COMM_WORLD,ierr)
+     .  master,MPI_COMM_WORLD,ierr)
 
       elseif (cast .eq. 4) then
         call MPI_BCAST(vec,n,MPI_DOUBLE_PRECISION,
-     .                 master,MPI_COMM_WORLD,ierr)
+     .  master,MPI_COMM_WORLD,ierr)
 
       elseif (cast .eq. 6) then
         call MPI_BCAST(vec,2*n,MPI_DOUBLE_PRECISION,
-     .                 master,MPI_COMM_WORLD,ierr)
+     .  master,MPI_COMM_WORLD,ierr)
 
       else
         call rxi('mpibc1: cast not implemented',cast)
@@ -75,11 +75,11 @@ C ... Local parameters
 
         call gettime(datim)
         strn = ' '//funnam//' '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//' bcast '//label//
-     .    ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
 
         call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
-     .    cast)
+     .  cast)
       endif
 #endif
 
@@ -130,7 +130,7 @@ C ... Local parameters
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
 
       call MPI_BCAST(vec,n,MPI_CHARACTER,
-     .               master,MPI_COMM_WORLD,ierr)
+     .master,MPI_COMM_WORLD,ierr)
 
 #endif
 
@@ -186,15 +186,15 @@ C      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
 
       if (cast .eq. 2) then
         call MPI_BCAST(vec,n,MPI_INTEGER,
-     .                 pid,MPI_COMM_WORLD,ierr)
+     .  pid,MPI_COMM_WORLD,ierr)
 
       elseif (cast .eq. 4) then
         call MPI_BCAST(vec,n,MPI_DOUBLE_PRECISION,
-     .                 pid,MPI_COMM_WORLD,ierr)
+     .  pid,MPI_COMM_WORLD,ierr)
 
       elseif (cast .eq. 6) then
         call MPI_BCAST(vec,2*n,MPI_DOUBLE_PRECISION,
-     .                 pid,MPI_COMM_WORLD,ierr)
+     .  pid,MPI_COMM_WORLD,ierr)
 
       else
         call rxi('mpibc3: cast not implemented',cast)
@@ -272,13 +272,13 @@ C ... Local parameters
       if (cast .eq. 2) then
         allocate(ibuf(n), stat=ierr)
         call MPI_ALLREDUCE(vec,ibuf,n,
-     .    MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .  MPI_INTEGER,MPI_SUM,MPI_COMM_WORLD,ierr)
         call icopy(n,ibuf,1,vec,1)
         deallocate(ibuf, stat=ierr)
       elseif (cast .eq. 4) then
         allocate(dbuf(n), stat=ierr)
         call MPI_ALLREDUCE(vec,dbuf,n,
-     .    MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         call dcopy(n,dbuf,1,vec,1)
         deallocate(dbuf, stat=ierr)
 C        call defrr(obuf,n)
@@ -289,7 +289,7 @@ C        call rlse(obuf)
       elseif (cast .eq. 6) then
         allocate(dbuf(2*n), stat=ierr)
         call MPI_ALLREDUCE(vec,dbuf,2*n,
-     .    MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         call dcopy(2*n,dbuf,1,vec,1)
         deallocate(dbuf, stat=ierr)
 C        call defrr(obuf,2*n)
@@ -307,7 +307,7 @@ C        call rlse(obuf)
         namelen(procid) = ierr-1
         call gettime(datim)
         strn = ' '//funnam//' '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//' allreduce '//label
+     .  //shortname(procid)(1:namelen(procid))//' allreduce '//label
         call awrit2(strn,' ',-256,lgunit(3),procid,numprocs)
       endif
 #endif

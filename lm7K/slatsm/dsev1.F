@@ -61,7 +61,7 @@ C   ... Determine number of eigenvectors to be calculated
         do  14  j = 2, n
    14   if (j .le. nmx .and. e(j-1) .le. emx) nev = j
         call tinvit(n,n,wk(1,1),wk(1,4),wk(1,5),nev,e,wk(1,11),z,
-     .    ierr,wk(1,6),wk(1,7),wk(1,8),wk(1,9),wk(1,10))
+     .  ierr,wk(1,6),wk(1,7),wk(1,8),wk(1,9),wk(1,10))
         call rxx(ierr.ne.0,'DSEV1: tinvit cannot find all evecs') 
         call dtribx(n,n,h,wk(1,2),nev,z)
       else

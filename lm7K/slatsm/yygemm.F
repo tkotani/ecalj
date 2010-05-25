@@ -1,5 +1,5 @@
       subroutine yygemm(transa,transb,m,n,k,alpha,ar,ai,lda,br,bi,ldb,
-     .  beta,cr,ci,ldc)
+     .beta,cr,ci,ldc)
 C- Analog of zgemm, using real arithmetic
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -45,7 +45,7 @@ C Passed parameters
       integer            m, n, k, lda, ldb, ldc
       double precision   alpha, beta
       double precision   ar(lda,1), br(ldb,1), cr(ldc,1),
-     .                   ai(lda,1), bi(ldb,1), ci(ldc,1)
+     .ai(lda,1), bi(ldb,1), ci(ldc,1)
 C Local variables
       logical ls,lno3
       integer im,in,kk,mm,nn,ncut
@@ -59,7 +59,7 @@ C     call tcn('yygemm')
       trnsb = transb
 C ... Check cases where multiplication cannot be done fast way
       lno3 = beta .ne. 0 .or.
-     .       m .lt. ncut .or. n .lt. ncut .or. k .lt. ncut
+     .m .lt. ncut .or. n .lt. ncut .or. k .lt. ncut
       if (len(transa) .gt. 1) then
         lno3 = lno3 .or. transa(2:2) .eq. '4'
       endif
@@ -71,7 +71,7 @@ C ---   Real part ---
         ls = trnsa .eq. 'C' .eqv. trnsb .eq. 'C'
         if (ls .and. beta .ne. 0) then
           do  10  in = 1, n
-          do  10  im = 1, m
+            do  10  im = 1, m
    10     cr(im,in) = -cr(im,in)
         endif
 
@@ -79,7 +79,7 @@ C ---   Real part ---
 
         if (ls) then
           do  12  in = 1, n
-          do  12  im = 1, m
+            do  12  im = 1, m
    12     cr(im,in) = -cr(im,in)
         endif
         call dgemm(trnsa,trnsb,m,n,k,s,ar,lda,br,ldb,1d0,cr,ldc)
@@ -88,7 +88,7 @@ C ---   Imaginary part ---
         ls = trnsb .eq. 'C'
         if (ls .and. beta .ne. 0d0) then
           do  14  in = 1, n
-          do  14  im = 1, m
+            do  14  im = 1, m
    14     ci(im,in) = -ci(im,in)
         endif
 
@@ -96,7 +96,7 @@ C ---   Imaginary part ---
 
         if (ls .neqv. trnsa .eq. 'C') then
           do  16  in = 1, n
-          do  16  im = 1, m
+            do  16  im = 1, m
    16     ci(im,in) = -ci(im,in)
         endif
 
@@ -104,7 +104,7 @@ C ---   Imaginary part ---
 
         if (trnsa .eq. 'C') then
           do  18  in = 1, n
-          do  18  im = 1, m
+            do  18  im = 1, m
    18     ci(im,in) = -ci(im,in)
         endif
 
@@ -122,17 +122,17 @@ C ... cr = ar *  br ...
 C ... cr <- ar*br - ai*bi,  ci <- -ar*br - ai*bi  ...
       if (trnsa .eq. 'C' .eqv. trnsb .eq. 'C') then
         do  20  in = 1, n
-        do  20  im = 1, m
-          xx = cr(im,in)
-          cr(im,in) =  xx - ci(im,in)
-          ci(im,in) = -xx - ci(im,in)
+          do  20  im = 1, m
+            xx = cr(im,in)
+            cr(im,in) =  xx - ci(im,in)
+            ci(im,in) = -xx - ci(im,in)
    20   continue
       else
         do  120  in = 1, n
-        do  120  im = 1, m
-          xx = cr(im,in)
-          cr(im,in) =  xx + ci(im,in)
-          ci(im,in) = -xx + ci(im,in)
+          do  120  im = 1, m
+            xx = cr(im,in)
+            cr(im,in) =  xx + ci(im,in)
+            ci(im,in) = -xx + ci(im,in)
   120   continue
       endif
 
@@ -145,11 +145,11 @@ C ... ci += (ar+ai)(br+bi) ...
       endif
       if (trnsa .ne. 'C') then
         do  22  in = 1, kk
-        do  22  im = 1, mm
+          do  22  im = 1, mm
    22   ar(im,in) = ar(im,in) + ai(im,in)
       else
         do  122  in = 1, kk
-        do  122  im = 1, mm
+          do  122  im = 1, mm
   122   ar(im,in) = ar(im,in) - ai(im,in)
       endif
 
@@ -161,11 +161,11 @@ C ... ci += (ar+ai)(br+bi) ...
       endif
       if (trnsb .ne. 'C') then
         do  24  in = 1, nn
-        do  24  im = 1, kk
+          do  24  im = 1, kk
    24   br(im,in) = br(im,in) + bi(im,in)
       else
         do  124  in = 1, nn
-        do  124  im = 1, kk
+          do  124  im = 1, kk
   124   br(im,in) = br(im,in) - bi(im,in)
       endif
       call dgemm(trnsa,trnsb,m,n,k,s,ar,lda,br,ldb,1d0,ci,ldc)
@@ -177,11 +177,11 @@ C ... ci += (ar+ai)(br+bi) ...
       endif
       if (trnsa .ne. 'C') then
         do  26  in = 1, kk
-        do  26  im = 1, mm
+          do  26  im = 1, mm
    26   ar(im,in) = ar(im,in) - ai(im,in)
       else
         do  126  in = 1, kk
-        do  126  im = 1, mm
+          do  126  im = 1, mm
   126   ar(im,in) = ar(im,in) + ai(im,in)
       endif
       kk = k
@@ -192,11 +192,11 @@ C ... ci += (ar+ai)(br+bi) ...
       endif
       if (trnsb .ne. 'C') then
         do  28  in = 1, nn
-        do  28  im = 1, kk
+          do  28  im = 1, kk
    28   br(im,in) = br(im,in) - bi(im,in)
       else
         do  128  in = 1, nn
-        do  128  im = 1, kk
+          do  128  im = 1, kk
   128   br(im,in) = br(im,in) + bi(im,in)
       endif
 

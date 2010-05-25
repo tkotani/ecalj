@@ -32,8 +32,8 @@ C ... Passed parameters
 C Local
       logical cmdopt
       integer:: i , i1 , i2 , igets , iosiga , j , lpbc , ltype(2) 
-     . , nbas , nbasp , nspec , nttab , ntype(2) , oiax , oiprm , oips 
-     . , ontab , opgfsl , opos
+     ., nbas , nbasp , nspec , nttab , ntype(2) , oiax , oiprm , oips 
+     ., ontab , opgfsl , opos
       real(8) ,allocatable :: epair_rv(:)
       real(8) ,allocatable :: esite_rv(:)
       integer ,allocatable :: ipair_iv(:)
@@ -100,14 +100,14 @@ C --- Make iax and rtab ---
 c      call pairs(nbas,nbasp,alat,plat,w(orham),w(opos),
 c     .  w(oips),i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
       call pairs ( nbas , nbasp , alat , plat , rham_rv , w ( opos 
-     . ) , w ( oips ) , i , j , w_dummy , nttab , ontab , oiax , mxcsiz 
-     . )
+     .) , w ( oips ) , i , j , w_dummy , nttab , ontab , oiax , mxcsiz 
+     .)
 
       allocate(rtab_rv(3*nttab))
 Ctakao_ZeroClear_NotRequiered        if (3*nttab<0) rtab_rv(:)=0.0d0
 
       call mkrtab ( 000 , alat , plat , w ( opos ) , w ( oiax ) , nttab 
-     . , w ( opos ) , rtab_rv )
+     ., w ( opos ) , rtab_rv )
 
 
 C --- Make the Hamiltonian ---
@@ -129,9 +129,9 @@ Ctakao_ZeroClear_NotRequiered        if (nttab<0) ipair_iv(:)=0
       ltype(1) = 1
       ltype(2) = 1
       call suemph ( sspec , sstrn ( i1:i2 ) , w ( ontab ) , w ( oiax 
-     . ) , rtab_rv , nbasp , nttab , w ( oips ) , ntype , ltype , 
-     . htype , esite_rv , isite_iv , epair_rv , ipair_iv 
-     . )
+     .) , rtab_rv , nbasp , nttab , w ( oips ) , ntype , ltype , 
+     .htype , esite_rv , isite_iv , epair_rv , ipair_iv 
+     .)
 
 
 C --- sigmas, permutation table from file; if missing create and exit---
@@ -149,7 +149,7 @@ Ctakao_ZeroClear_NotRequiered        if (nbasp<0) sigl_iv(:)=0
 Ctakao_ZeroClear_NotRequiered        if (nbasp<0) sigma_iv(:)=0
 
       if ( iosiga ( 0 , 'sigma' , nbasp , w ( oips ) , sigl_iv , 
-     . sigb_iv , w ( oiprm ) , w ( opos ) ) .lt. 0 ) then
+     .sigb_iv , w ( oiprm ) , w ( opos ) ) .lt. 0 ) then
 
 C       Initial permutation table
         do  10  i = 1, nbasp
@@ -161,14 +161,14 @@ C       Both sigb and sigl have same convention for now
         call mcasms ( 0 , 1 , nbas , w ( oips ) , sigl_iv )
 
         i = iosiga ( 1 , 'sigma' , nbasp , w ( oips ) , sigl_iv , 
-     .   sigb_iv , w ( oiprm ) , w ( opos ) )
+     .  sigb_iv , w ( oiprm ) , w ( opos ) )
 
         call rx0(' wrote new sigma file')
       endif
 
       call mcasm2 ( smove , w ( ontab ) , w ( oiax ) , nbasp , nttab 
-     . , w ( oips ) , esite_rv , epair_rv , sigma_iv , w ( 
-     . oiprm ) , iprmi_iv , sigb_iv , sigl_iv )
+     ., w ( oips ) , esite_rv , epair_rv , sigma_iv , w ( 
+     .oiprm ) , iprmi_iv , sigb_iv , sigl_iv )
 
 
 Cki#error, have return with len(w_varlist)>0 at line 152
@@ -187,7 +187,7 @@ Cki#error, have return with len(w_varlist)>0 at line 152
       endif
 
       i = iosiga ( 1 , outs ( 9: ) , nbasp , w ( oips ) , sigl_iv 
-     . , sigb_iv , w ( oiprm ) , w ( opos ) )
+     ., sigb_iv , w ( oiprm ) , w ( opos ) )
 
 
       if (allocated(rham_rv)) deallocate(rham_rv)
@@ -204,7 +204,7 @@ Cki#error, have return with len(w_varlist)>0 at line 152
       end subroutine mcasim
 
       subroutine mcasm2(smove,ntab,iax,nbas,nttab,ips,
-     .  esite,epair,sigma,iprm,iprmi,sigb,sigl)
+     .esite,epair,sigma,iprm,iprmi,sigb,sigl)
 
       use m_struc_def  !Cgetarg
 
@@ -263,8 +263,8 @@ C ... Initial printout
       ntot = ttot/ts
       nequ = tequ/ts
       call awrit5(' mcasim:   %i mc steps (ttot=%;4d, ts=%;4d)'//
-     .  ' incl. %i equil. steps,  kT=%;4d',
-     .  outs,80,-lgunit(2),ntot,ttot,ts,nequ,kt)
+     .' incl. %i equil. steps,  kT=%;4d',
+     .outs,80,-lgunit(2),ntot,ttot,ts,nequ,kt)
       if (iprint() .ge. 20) then
         print *
         call awrit0('%a',outs,80,-lgunit(1))
@@ -279,18 +279,18 @@ C     Create inverse of iprm and initial sigma
       i = 7
       if (cmdopt('--seed=',i,0,outs)) then
         if (.not. a2bin(outs,iseed,2,0,' ',i,-1))
-     .    call rxs('mcasim failed to parse argument: ',outs)
+     .  call rxs('mcasim failed to parse argument: ',outs)
         call ran1in(iseed)
       endif
 
       call mcmet(smove,ntab,iax,nbas,nttab,ips,esite,epair,sigma,
-     .  iprm,iprmi,sigb,sigl)
+     .iprm,iprmi,sigb,sigl)
 
       end subroutine mcasm2
 
 
       subroutine mcmet(smove,ntab,iax,nbas,nttab,ips,esite,epair,
-     .  sigma,iprm,iprmi,sigb,sigl)
+     .sigma,iprm,iprmi,sigb,sigl)
 
       use m_struc_def  !Cgetarg
 
@@ -300,7 +300,7 @@ C Passed parameters
       type(s_move)::smove
 
       integer nbas,ntab(nbas+1),niax,nttab,ips(1),sigma(1),
-     .  iprm(nbas),iprmi(nbas)
+     .iprm(nbas),iprmi(nbas)
       parameter (niax=10)
       integer iax(niax,1),sigb(nbas),sigl(nbas)
       double precision esite(nbas),epair(nttab)
@@ -314,7 +314,7 @@ C Local
       call tcn('mcmet')
 
       if (ran1() .eq. 0.)
-     .  call rx('mcmet: random number generator not seeded')
+     .call rx('mcmet: random number generator not seeded')
 
 C     Inititializations
       call getpr(ipr)
@@ -327,9 +327,9 @@ C     Inititializations
       ntot = ttot/ts
       nequ = tequ/ts
       call mcasan(1,nbas,iprm,iprmi,ntab,iax,ips,esite,epair,sigb,sigl,
-     .  sigma,eold)
+     .sigma,eold)
       call mcasho(1,nbas,iprm,iprmi,ntab,iax,esite,epair,sigma,sigb,
-     .  eold)
+     .eold)
       etot = eold
       ebar = 0
       esqr = 0
@@ -362,10 +362,10 @@ C   ... special constraints on movement
 
 C       Energy connected with the two sites before swap
       call mcasme(ib,ib,ntab,iax,esite,epair,iprm,iprmi,
-     .    sigma,sigb,e1c,e2c,edc)
+     .sigma,sigb,e1c,e2c,edc)
       etot = etot - e1c - (e2c-edc)*2 - edc
       call mcasme(jb,jb,ntab,iax,esite,epair,iprm,iprmi,
-     .    sigma,sigb,e1c,e2c,edc)
+     .sigma,sigb,e1c,e2c,edc)
       etot = etot - e1c - (e2c-edc)*2 - edc
 
 C       Swap the atoms
@@ -373,10 +373,10 @@ C       Swap the atoms
 
 C       Energy connected with the two sites after swap
       call mcasme(ib,ib,ntab,iax,esite,epair,iprm,iprmi,
-     .    sigma,sigb,e1c,e2c,edc)
+     .sigma,sigb,e1c,e2c,edc)
       etot = etot + e1c + (e2c-edc)*2 + edc
       call mcasme(jb,jb,ntab,iax,esite,epair,iprm,iprmi,
-     .    sigma,sigb,e1c,e2c,edc)
+     .sigma,sigb,e1c,e2c,edc)
       etot = etot + e1c + (e2c-edc)*2 + edc
 
       de = etot - eold
@@ -410,13 +410,13 @@ C        call awrit2('  iprm=%n:1i',' ',80,6,nbas,iprm)
 #endif
       if (ipr .le. 50 .and. ipr .gt. 30) then
         if (mod(ntry,1000) .eq. 0)
-     .      call awrit4(' mcmet completed %i+%i swaps in %i attempts'
-     .      //' e=%d',' ',80,lgunit(1),nswap-nequ,nequ,ntry,eold)
+     .  call awrit4(' mcmet completed %i+%i swaps in %i attempts'
+     .  //' e=%d',' ',80,lgunit(1),nswap-nequ,nequ,ntry,eold)
       endif
       if (ipr .gt. 50 .or. ipr .ge. 50 .and. .not. lundo)  then
         print 357, ib,jb,etot,de,lundo
   357   format(' swap',i4,i4,' enow = ',f12.6,' de = ',f12.6,' undo=',
-     .      L1)
+     .  L1)
       endif
 
       eold = etot
@@ -430,16 +430,16 @@ C ... end of big loop
       if (ipr .ge. 10) then
         do  90  ip = 1, 2
           call awrit3('%N mcmet completed %i+%i swaps in %i attempts:',
-     .      ' ',80,lgunit(ip),nswap-nequ,nequ,ntry)
+     .    ' ',80,lgunit(ip),nswap-nequ,nequ,ntry)
           call awrit3(' kt = %;4d  ebar = %;4d  rms(e-ebar) = %;4d ',
-     .      ' ',80,lgunit(ip),kt,ebar,esqr)
+     .    ' ',80,lgunit(ip),kt,ebar,esqr)
    90   continue
       endif
 
       call mcasan(1,nbas,iprm,iprmi,ntab,iax,ips,esite,epair,sigb,sigl,
-     .  sigma,eold)
+     .sigma,eold)
       call mcasho(1,nbas,iprm,iprmi,ntab,iax,esite,epair,sigma,sigb,
-     .  eold)
+     .eold)
 
       call tcx('mcmet')
       end subroutine mcmet
@@ -464,7 +464,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed parameters
       integer ib1,ib2,iprm(ib2),iprmi(ib2),
-     .  sigb(ib2),sigl(ib2),sigma(ib2)
+     .sigb(ib2),sigl(ib2),sigma(ib2)
 C Local
       integer i1,i2
 
@@ -474,7 +474,7 @@ C Local
       iprmi(ib2) = i1
 #if DEBUG
       call awrit4('  ... swap i1(ib1)=%i(%i) with i2(ib2)=%i(%i)',
-     .  ' ',80,6,i1,ib1,i2,ib2)
+     .' ',80,6,i1,ib1,i2,ib2)
       if (iprm(i1) .ne. ib1) stop 'bug in mcasw'
       if (iprm(i2) .ne. ib2) stop 'bug in mcasw'
 #endif
@@ -522,7 +522,7 @@ C Local
       end subroutine mcasms
 
       subroutine mcasme(ib1,ib2,ntab,iax,esite,epair,iprm,iprmi,
-     .  sig1,sig2,e1c,e2c,edc)
+     .sig1,sig2,e1c,e2c,edc)
 
 C- Hamiltonian total energy
 C     implicit none
@@ -587,10 +587,10 @@ C ... for rdfiln
       integer recl,nr,mxchr,mxlev,lstsiz,ctlen
       parameter (mxchr=20,mxlev=4,lstsiz=200,recl=500,ctlen=120)
       character recrd*(recl),ctbl(mxchr,2)*(ctlen),a*(recl),aa*(recl),
-     .  vnam(mxlev)*16,rdarg*6
+     .vnam(mxlev)*16,rdarg*6
       logical loop0(0:mxlev),a2bin
       integer nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
-     .  nlist(0:mxlev)
+     .nlist(0:mxlev)
 
       iosiga = 0
       ifi = fopna(fnam,-1,0)
@@ -600,7 +600,7 @@ C ... for rdfiln
         nr = 0
         do  10  ib = 1, nbas
           call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
-     .                ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
+     .    ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
           if (nr .lt. 0) goto 99
 C         read(a,*,end=99,err=99) sigl(ib),sigb(ib),iprm(ib),px,py,pz
           is = ips(ib)
@@ -613,15 +613,15 @@ C         read(a,*,end=99,err=99) sigl(ib),sigb(ib),iprm(ib),px,py,pz
           if (.not. a2bin(a,py,4,0,' ',j1,-1)) goto 99
           if (.not. a2bin(a,pz,4,0,' ',j1,-1)) goto 99
           if (abs(px-pos(1,ib))+abs(py-pos(2,ib))+abs(pz-pos(3,ib))
-     .      .gt. 1d-6) goto 99
+     .    .gt. 1d-6) goto 99
    10   continue
         print *, 'iosiga:  read sigl,sigb,iprm from file ',fnam
       else
         write(ifi,
-     .    '(''#   sigl sigb  iprm              pos'',21x,''spec'')')
+     .  '(''#   sigl sigb  iprm              pos'',21x,''spec'')')
         do  20  ib = 1, nbas
           write(ifi,333) sigl(ib),sigb(ib),iprm(ib),
-     .      pos(1,ib),pos(2,ib),pos(3,ib),ips(iprm(ib))
+     .    pos(1,ib),pos(2,ib),pos(3,ib),ips(iprm(ib))
   333     format(3i6,3f12.7,i6)
    20   continue
         call word(fnam,1,j1,j2)
@@ -639,7 +639,7 @@ C --- Error exit ---
 
 
       subroutine mcasho(ib1,ib2,iprm,iprmi,ntab,iax,esite,epair,sig1,
-     .  sig2,etot)
+     .sig2,etot)
 
 C- Printout
 C ----------------------------------------------------------------------
@@ -668,17 +668,17 @@ C Local
       nskip = (ib2-ib1+ncol)/ncol
 
       call mcasme(ib1,ib2,ntab,iax,esite,epair,iprm,iprmi,
-     .  sig1,sig2,e1c,e2c,edc)
+     .sig1,sig2,e1c,e2c,edc)
       etot = e1c + e2c
       call awrit5('%N  mcasho :  sites %i..%i  e1c=%;4d  epair=%;4d'//
-     .  '  etot=%;4d',' ',80,6,ib1,ib2,e1c,e2c,e1c+e2c)
+     .'  etot=%;4d',' ',80,6,ib1,ib2,e1c,e2c,e1c+e2c)
       call arrprt('  ib site  s1  s2','%,4i%,4i%,4i%,4i','Iiii',
-     .  ib2-ib1+1,nskip,ncol,nskip,'  | ',i,iprmi,sig1,sig2,i,i,i,i)
+     .ib2-ib1+1,nskip,ncol,nskip,'  | ',i,iprmi,sig1,sig2,i,i,i,i)
 
       end subroutine mcasho
 
       subroutine mcasan(ib1,ib2,iprm,iprmi,ntab,iax,ips,esite,epair,
-     .  sigb,sigl,sig1,etot)
+     .sigb,sigl,sig1,etot)
 
 C- Sanity checking
 C     implicit none

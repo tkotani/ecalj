@@ -28,32 +28,32 @@ C     double precision sum
       do  10  ip = 2, np+1
 
 C --- Get i0,i1 = left-to-leftmost and rightmost in tableau ---
-      xmid = (x(ip)+x(ip-1))/2
-      i0 = ip-1
-      i1 = ip
-      do  2  i = 1, n-1
-        if (i0 .eq. 0) then
-          i1 = i1+1
-        elseif (i1 .eq. np) then
-          i0 = i0-1
-        elseif (dabs(x(i0)-xmid) .lt. dabs(x(i1+1)-xmid))  then
-          i0 = i0-1
-        else
-          i1 = i1+1
-        endif
-    2  continue
-       i0 = min(i0,np-n)
-       if (i0 .lt. 0) call rx('bug in poldif')
+        xmid = (x(ip)+x(ip-1))/2
+        i0 = ip-1
+        i1 = ip
+        do  2  i = 1, n-1
+          if (i0 .eq. 0) then
+            i1 = i1+1
+          elseif (i1 .eq. np) then
+            i0 = i0-1
+          elseif (dabs(x(i0)-xmid) .lt. dabs(x(i1+1)-xmid))  then
+            i0 = i0-1
+          else
+            i1 = i1+1
+          endif
+    2   continue
+        i0 = min(i0,np-n)
+        if (i0 .lt. 0) call rx('bug in poldif')
 
-       call polcof(lopt,x(ip-1),x(i0+1),y(i0+1),n,c)
+        call polcof(lopt,x(ip-1),x(i0+1),y(i0+1),n,c)
 C       errmx = max(errmx,sum*x(ip)**(n-1))
 C       sum = c(n)*(n-1)
 C       do  12  i = n-1, 2, -1
 C   12  sum = (i-1)*c(i) + sum*x(ip-1)
 C       yp(ip-1) = sum
-       yp(ip-1) = c(2)
+        yp(ip-1) = c(2)
 C  ... for now
-       errmx = 0
+        errmx = 0
 
 C       print *, i0,n,x(ip-1)
 C       print 333, (c(i), i=1,n)

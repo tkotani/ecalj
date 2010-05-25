@@ -24,7 +24,7 @@ C --- make Fermi energy ---
     1 continue
     2 continue
       if (meshpt .eq. ndos-1)
-     .        call rx('INTNOS : Fermi energy lies above emax')
+     .call rx('INTNOS : Fermi energy lies above emax')
 C E_F lies between mesh points meshpt and meshpt+1 -- interpolate :
       q1 = dos(meshpt)
       q2 = dos(meshpt+1)

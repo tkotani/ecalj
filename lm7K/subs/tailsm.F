@@ -1,5 +1,5 @@
       subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi,
-     .  rho,rhot,hfc,hfct)
+     .rho,rhot,hfc,hfct)
 C- Fit tails of rho to smoothed Hankel functions
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -43,7 +43,7 @@ C ... Local parameters
       real(8) ,allocatable :: xi_rv(:)
 
       double precision sr,x0(0:2),xi(0:2),fpi,qout,qcst(20),qcst0(20),
-     .  err,rsq(nr)
+     .err,rsq(nr)
 C ... Heap
       integer w(1)
       common /w/ w
@@ -73,7 +73,7 @@ C     Patch to properly handle case when rsm=0
       if (lzero) rsq(1) = rsq(2)/100
       print *,'tailsm:xxx1'
       call hansr ( rsm , 0 , 0 , nxi , lx0 , exi , rsq , nr , nr , 
-     . idx_rv , wk_rv , 0 , xi_rv )
+     .idx_rv , wk_rv , 0 , xi_rv )
 
       print *,'tailsm:xxx2'
       if (lzero) rsq(1) = 0
@@ -86,9 +86,9 @@ C --- Fit smoothed hankels to rho ---
 
         if (isp .eq. 1 .and. ipr .ge. 30) write(stdo,333) nxi,rmt,rsm
   333   format(/' tailsm: fit tails to',i2,' smoothed hankels, rmt=',
-     .    f8.5,', rsm=',f8.5)
+     .  f8.5,', rsm=',f8.5)
         if (isp.eq.2 .and. ipr.ge.20)
-     .    write(stdo,'(/'' tailsm: spin 2 ...'')')
+     .  write(stdo,'(/'' tailsm: spin 2 ...'')')
 
 C   ... Fitting constraints for smoothed Hankels
         do  14  ie = 1, nxi
@@ -99,20 +99,20 @@ C   ... Fitting constraints for smoothed Hankels
             call hansmr(rmt,0d0,1/rsm,x0,1)
             call hansmr(rmt,exi(ie),1/rsm,xi,1)
             qcst(ie) = dsqrt(fpi)/exi(ie)*(-dexp(rsm**2/4*exi(ie))
-     .        - rmt**3*(xi(1)-dexp(rsm**2/4*exi(ie))*x0(1)))
+     .      - rmt**3*(xi(1)-dexp(rsm**2/4*exi(ie))*x0(1)))
           endif
           qcst0(ie) = qcst(ie)
    14   continue
 
 C   ... Fit for this spin
         call hnsmft ( rofi , rho ( 1 + ( isp - 1 ) * nr ) , nr , qout 
-     .   , a , b , nrmt , exi , qcst , xi_rv , hfc ( 1 , isp ) , nxi 
-     .   , err )
+     .  , a , b , nrmt , exi , qcst , xi_rv , hfc ( 1 , isp ) , nxi 
+     .  , err )
 
 
         if (isp .eq. 1 .and. ipr .ge. 20 .and. ipr .lt. 30)
-     .    call awrit3('%N tailsm:  fit tails to %i functions with'
-     .    //' rsm=%;7g.  rms error=%;7F',' ',80,stdo,nxi,rsm,err)
+     .  call awrit3('%N tailsm:  fit tails to %i functions with'
+     .  //' rsm=%;7g.  rms error=%;7F',' ',80,stdo,nxi,rsm,err)
 
 C   ... Fit a second time for the full density in rhot
         if (lrhot .ne. 0) then
@@ -120,8 +120,8 @@ C   ... Fit a second time for the full density in rhot
             qcst(ie)=qcst0(ie)
    15     continue
           call hnsmft ( rofi , rhot ( 1 + ( isp - 1 ) * nr ) , nr , qout 
-     .     , a , b , nrmt , exi , qcst , xi_rv , hfct ( 1 , isp ) , nxi 
-     .     , err )
+     .    , a , b , nrmt , exi , qcst , xi_rv , hfct ( 1 , isp ) , nxi 
+     .    , err )
 
         endif
 

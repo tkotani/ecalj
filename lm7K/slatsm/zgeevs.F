@@ -1,6 +1,6 @@
 c takao modified this based on delw_2.2.
       subroutine zgeevs( BALANC, JOBVL, JOBVR, SENSE, N, A, LDA, W, VL,
-     .                   LDVL, VR, LDVR, ABNRM, INFO )
+     .LDVL, VR, LDVR, ABNRM, INFO )
 C- Eigenvalues, eigenvectors of a complex nonsymmetric matrix A
 C  This is a driver for LAPACK zgeevx, with the following arguments
 C  allocated internally: ILO,IHI,SCALE,RCONDE,RCONDV,RWORK,WORK.
@@ -18,7 +18,7 @@ C     implicit none
 C      COMPLEX*16         A( LDA, * ), VL( LDVL, * ), VR( LDVR, * ),
 C     $                   W( * )
       DOUBLE PRECISION    A(2, LDA, * ), VL(2, LDVL, * ),
-     .                    VR(2, LDVR, * ), W(2, * )
+     .VR(2, LDVR, * ), W(2, * )
 
       INTEGER LWORK,ILO,IHI
       DOUBLE PRECISION SCALE(N),RCONDE(N),RCONDV(N),RWORK(2*N)
@@ -30,8 +30,8 @@ C     $                   W( * )
 c      call dpzero(work,2*lwork)
       work=0d0
       CALL ZGEEVX( BALANC, JOBVL, JOBVR, SENSE, N, A, LDA, W, VL,
-     .             LDVL, VR, LDVR, ILO, IHI, SCALE, ABNRM, RCONDE,
-     .             RCONDV, WORK, LWORK, RWORK, INFO )
+     .LDVL, VR, LDVR, ILO, IHI, SCALE, ABNRM, RCONDE,
+     .RCONDV, WORK, LWORK, RWORK, INFO )
       deallocate(WORK)
       call tcx('zgeevs')
       END

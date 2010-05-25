@@ -1,5 +1,5 @@
       subroutine pwmat(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
-     .  ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
+     .ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
 
       use m_struc_def  !Cgetarg
 
@@ -66,7 +66,7 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1),
-     .  napw,igapw(3,napw)
+     .napw,igapw(3,napw)
       real(8):: q(3) , GcutH
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -75,14 +75,14 @@ C ... Passed parameters
       double complex ppovl(ngp,ngp), pwhovl(ngp,ndimh)
 C ... Local parameters
       integer ips(nbas),ib,is,igetss,ngmx,ig,lmxax,ll,iwk(3),nlmto,iga,
-     .  ifindiv2
+     .ifindiv2
       double precision alat,plat(3,3),qlat(3,3),vol,pi,pi4,tpiba,xx,
-     .  tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2,denom,gam,srvol
+     .tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2,denom,gam,srvol
       integer n0,nkap0
       parameter (n0=10, nkap0=3)
       integer lh(nkap0),nkapi
       integer norb,io,l,ik,offh,ilm,ltab(n0*nkap0),ktab(n0*nkap0),
-     .  offl(n0*nkap0),blks(n0*nkap0),ntab(n0*nkap0)
+     .offl(n0*nkap0),blks(n0*nkap0),ntab(n0*nkap0)
 
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       double complex phase,img,fach,mimgl(0:n0)
@@ -142,11 +142,11 @@ C ... G vectors for the envelope (smooth hankel) functions
 C     Find ngmx = number of G's in PW expansion of basis for this qp:
 C     ngmx dimensions igvx,pwh.
       call gvlst2(alat,plat,q,iwk(1),iwk(2),iwk(3),0d0,gcutH,0,100,1,
-     .  ngmx,xx,xx,xx,xx)
+     .ngmx,xx,xx,xx,xx)
       allocate(igvx(3,ngmx),kv(3,ngmx))
       call iinit(iwk,3)
       call gvlst2(alat,plat,q,iwk(1),iwk(2),iwk(3),0d0,gcutH,0,102,1,
-     .  ngmx,kv,xx,xx,igvx)
+     .ngmx,kv,xx,xx,igvx)
       call poppr
 
 C ... Patch: use igv for igvx
@@ -243,7 +243,7 @@ C --- Cleanup ---
 
 
       subroutine pwmat2(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
-     .  ngp,nlmax,igv,ovlp,pwh)
+     .ngp,nlmax,igv,ovlp,pwh)
 
       use m_struc_def  !Cgetarg
 
@@ -289,7 +289,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ngp,nlmax,igv(3,ngp),nbas,ndimh,iprmb(1),
-     .  napw,igapw(3,napw)
+     .napw,igapw(3,napw)
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -299,12 +299,12 @@ C ... Passed parameters
 C ... Local parameters
       integer ips(nbas),ib,is,igetss,ig,lmxax,ll,nlmto,iga,ifindiv2
       double precision alat,plat(3,3),qlat(3,3),vol,pi,pi4,tpiba,xx,
-     .  tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2,denom,gam,srvol
+     .tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2,denom,gam,srvol
       integer n0,nkap0
       parameter (n0=10, nkap0=3)
       integer lh(nkap0),nkapi
       integer norb,io,l,ik,offh,ilm,ltab(n0*nkap0),ktab(n0*nkap0),
-     .  offl(n0*nkap0),blks(n0*nkap0),ntab(n0*nkap0)
+     .offl(n0*nkap0),blks(n0*nkap0),ntab(n0*nkap0)
 
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       double complex phase,img,fach,mimgl(0:n0)
@@ -406,7 +406,7 @@ C --- Cleanup ---
 
 
       subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas,
-     .  rmax,bas,ppovl)
+     .rmax,bas,ppovl)
 
 C- Overlap matrix elements between interstitial plane waves
 C ----------------------------------------------------------------------
@@ -536,8 +536,8 @@ C     Integral of exp(i G.r) = v0l * delta_(G,0)
         else
           grmx  = absg*rmax(ibas)
           ppovl = ppovl -
-     .      exp( img * sum(ggvec*bas(1:3,ibas))*alat )
-     .      * pi4/absg**3 * ( -grmx * cos(grmx) + sin(grmx) )
+     .    exp( img * sum(ggvec*bas(1:3,ibas))*alat )
+     .    * pi4/absg**3 * ( -grmx * cos(grmx) + sin(grmx) )
         endif
       enddo
       end subroutine matgg2

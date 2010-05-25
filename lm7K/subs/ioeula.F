@@ -33,10 +33,10 @@ C ... for rdfiln
       integer recl,nr,mxchr,mxlev,lstsiz,ctlen
       parameter (mxchr=20,mxlev=4,lstsiz=200,recl=500,ctlen=120)
       character recrd*(recl),ctbl(mxchr,2)*(ctlen),a*(recl),
-     .  vnam(mxlev)*16,rdarg*6
+     .vnam(mxlev)*16,rdarg*6
       logical loop0(0:mxlev)
       integer nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
-     .  nlist(0:mxlev)
+     .nlist(0:mxlev)
       equivalence (a,ss)
       data rdarg /'#{}% c'/
 
@@ -93,7 +93,7 @@ C   ... Read xsi if it is there
             i = 0
             if (parstr(ss,'neula ',len(ss)-6,6,' ',i,j)) then
               if (.not. a2bin(ss,neul,2,0,' ',j,len(ss)))
-     .      call rx('ioeula: failed to parse for neula')
+     .        call rx('ioeula: failed to parse for neula')
             endif
           else
             neul = 1
@@ -108,7 +108,7 @@ C   ... Expect nbas*neul*3 rows in file ... skip reading if not
           if (neul .eq. nl) ss2 = ' '
           if (neul .eq. nl*nl) ss2 = '%bm-'
           if (ipr .gt. 30) call awrit1(' IOEULA:  reading l-'//ss2//
-     .      '%adependent Euler angles (file %i)',' ',80,lgunit(1),ifi)
+     .    '%adependent Euler angles (file %i)',' ',80,lgunit(1),ifi)
 C        if (nr .ne. neul*nbas .or. nc .ne. 3) then
 C          if (ipr .ge. 20) call awrit3(' ioeula: input skipped --'//
 C     .      ' expected %i rows (3 cols) but found %i (%i cols)',
@@ -205,16 +205,16 @@ c        endif
         if (neul .gt. 1 .and. mode0 .ne. 0) then
           if (clabl .eq. ' ') call awrit1('# site %,4i',' ',80,stdo,i)
           if (clabl .ne. ' ') call awrit1('# site %,4i  class '//clabl,
-     .                        ' ',80,stdo,i)
+     .    ' ',80,stdo,i)
           write(stdo,'(i5,3f12.6,i4)')
-     .      (i,(eula(i,j,k),k=1,3),j, j=1,neul)
+     .    (i,(eula(i,j,k),k=1,3),j, j=1,neul)
         elseif (neul.eq.1 .and. mode0.ne.0 .and. clabl.eq.' ') then
           write(stdo,'(i5,3f12.6)')
-     .      (i,(eula(i,j,k),k=1,3), j=1,neul)
+     .    (i,(eula(i,j,k),k=1,3), j=1,neul)
         elseif (neul .eq. 1 .and. mode0 .ne. 0) then
           call eua2rm(eula(i,1,1),eula(i,1,2),eula(i,1,3),rotm)
           write(stdo,'(i5,3f10.6,3x,a,1x,3f10.6)')
-     .      i,(eula(i,1,k),k=1,3), clabl, (rotm(3,k),k=1,3)
+     .    i,(eula(i,1,k),k=1,3), clabl, (rotm(3,k),k=1,3)
         else
           write(stdo,'(3f16.12)') ((eula(i,j,k),k=1,3),j=1,neul)
         endif

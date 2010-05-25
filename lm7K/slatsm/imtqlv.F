@@ -68,79 +68,79 @@ c
       tol = 2*d1mach(3)
 c
       do 100 i = 1, n
-         w(i) = d(i)
-         if (i .ne. 1) rv1(i-1) = e(i)
+        w(i) = d(i)
+        if (i .ne. 1) rv1(i-1) = e(i)
   100 continue
 c
       e2(1) = 0.0d0
       rv1(n) = 0.0d0
 c
       do 290 l = 1, n
-         j = 0
+        j = 0
 c     .......... look for small sub-diagonal element ..........
-  105    do 110 m = l, n
-            if (m .eq. n) go to 120
-            tst1 = dabs(w(m)) + dabs(w(m+1))
-            tst2 = tst1 + dabs(rv1(m))
-            if (dabs(tst2-tst1) .lt. tol*dabs(tst2)) go to 120
+  105   do 110 m = l, n
+          if (m .eq. n) go to 120
+          tst1 = dabs(w(m)) + dabs(w(m+1))
+          tst2 = tst1 + dabs(rv1(m))
+          if (dabs(tst2-tst1) .lt. tol*dabs(tst2)) go to 120
 c     .......... guard against underflowed element of e2 ..........
-            if (e2(m+1) .eq. 0.0d0) go to 125
-  110    continue
+          if (e2(m+1) .eq. 0.0d0) go to 125
+  110   continue
 c
-  120    if (m .le. k) go to 130
-         if (m .ne. n) e2(m+1) = 0.0d0
-  125    k = m
-         tag = tag + 1
-  130    p = w(l)
-         if (m .eq. l) go to 215
-         if (j .eq. 30) go to 1000
-         j = j + 1
+  120   if (m .le. k) go to 130
+        if (m .ne. n) e2(m+1) = 0.0d0
+  125   k = m
+        tag = tag + 1
+  130   p = w(l)
+        if (m .eq. l) go to 215
+        if (j .eq. 30) go to 1000
+        j = j + 1
 c     .......... form shift ..........
-         g = (w(l+1) - p) / (2.0d0 * rv1(l))
-         r = pythag(g,1.0d0)
-         g = w(m) - p + rv1(l) / (g + dsign(r,g))
-         s = 1.0d0
-         c = 1.0d0
-         p = 0.0d0
-         mml = m - l
+        g = (w(l+1) - p) / (2.0d0 * rv1(l))
+        r = pythag(g,1.0d0)
+        g = w(m) - p + rv1(l) / (g + dsign(r,g))
+        s = 1.0d0
+        c = 1.0d0
+        p = 0.0d0
+        mml = m - l
 c     .......... for i=m-1 step -1 until l do -- ..........
-         do 200 ii = 1, mml
-            i = m - ii
-            f = s * rv1(i)
-            b = c * rv1(i)
-            r = pythag(f,g)
-            rv1(i+1) = r
-            if (r .eq. 0.0d0) go to 210
-            s = f / r
-            c = g / r
-            g = w(i+1) - p
-            r = (w(i) - g) * s + 2.0d0 * c * b
-            p = s * r
-            w(i+1) = g + p
-            g = c * r - b
-  200    continue
+        do 200 ii = 1, mml
+          i = m - ii
+          f = s * rv1(i)
+          b = c * rv1(i)
+          r = pythag(f,g)
+          rv1(i+1) = r
+          if (r .eq. 0.0d0) go to 210
+          s = f / r
+          c = g / r
+          g = w(i+1) - p
+          r = (w(i) - g) * s + 2.0d0 * c * b
+          p = s * r
+          w(i+1) = g + p
+          g = c * r - b
+  200   continue
 c
-         w(l) = w(l) - p
-         rv1(l) = g
-         rv1(m) = 0.0d0
-         go to 105
+        w(l) = w(l) - p
+        rv1(l) = g
+        rv1(m) = 0.0d0
+        go to 105
 c     .......... recover from underflow ..........
-  210    w(i+1) = w(i+1) - p
-         rv1(m) = 0.0d0
-         go to 105
+  210   w(i+1) = w(i+1) - p
+        rv1(m) = 0.0d0
+        go to 105
 c     .......... order eigenvalues ..........
-  215    if (l .eq. 1) go to 250
+  215   if (l .eq. 1) go to 250
 c     .......... for i=l step -1 until 2 do -- ..........
-         do 230 ii = 2, l
-            i = l + 2 - ii
-            if (p .ge. w(i-1)) go to 270
-            w(i) = w(i-1)
-            ind(i) = ind(i-1)
-  230    continue
+        do 230 ii = 2, l
+          i = l + 2 - ii
+          if (p .ge. w(i-1)) go to 270
+          w(i) = w(i-1)
+          ind(i) = ind(i-1)
+  230   continue
 c
-  250    i = 1
-  270    w(i) = p
-         ind(i) = tag
+  250   i = 1
+  270   w(i) = p
+        ind(i) = tag
   290 continue
 c
       go to 1001

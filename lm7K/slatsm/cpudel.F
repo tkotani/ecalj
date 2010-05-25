@@ -28,15 +28,15 @@ C Local parameters
         timeu = 'm'
         tnew = tnew/60
         if (tnew .gt. 60) then
-        timeu = 'h'
-        tnew = tnew/60
+          timeu = 'h'
+          tnew = tnew/60
         endif
       endif
       if (unit .ge. 0 .and. tnew .gt. 0d0) then
         outs = ' '
         write(outs,333) strn
         call awrit2('%a  %1;3,3g%53ptotal:  %1,3;3g'//timeu,
-     .    outs,len(outs),-unit,delt,tnew)
+     .  outs,len(outs),-unit,delt,tnew)
       endif
 C      if (unit .ge. 0 .and. tnew .gt. 0d0)
 C     .  write(unit,333) strn,delt,tnew,timeu
@@ -64,7 +64,7 @@ C ----------------------------------------------------------------------
       if (time(2) .lt. 0) time(2) = time(2) + 65536
       if (time(3) .lt. 0) time(3) = time(3) + 65536
       cpusec = 4d-6 * 
-     .  ((dble(time(1))*65536 + dble(time(2)))*65536 + dble(time(3)))
+     .((dble(time(1))*65536 + dble(time(2)))*65536 + dble(time(3)))
 #elif AIX
       integer mclock
       cpusec = dble(mclock())/100

@@ -1,5 +1,5 @@
       subroutine yspbmm(mode,i1,i2,j1,j2,nc,a,ofai,lda,ija,offs,
-     .  x,ofxi,ldx,b,ofbi,ldb)
+     .x,ofxi,ldx,b,ofbi,ldb)
 C- Complex sparse-block-matrix dense-matrix multiply
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -55,6 +55,6 @@ C ... Passed parameters
       double precision a(lda),x(ldx),b(ldb)
 
       call yysbmm(mode,i1,i2,j1,j2,nc,a,a(1+ofai),lda,ija,offs,
-     .  x,x(1+ofxi),ldx,b,b(1+ofbi),ldb)
+     .x,x(1+ofxi),ldx,b,b(1+ofbi),ldb)
       end
 

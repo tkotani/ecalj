@@ -1,6 +1,6 @@
       subroutine stoner(nl,nbas,nclass,clabl,iclass,idxdn,ef,dr,npts,
-     .                  zos,index,stni,ammax,mnpts,io,Nbar,emag,
-     .                  mwk,amom,e)
+     .zos,index,stni,ammax,mnpts,io,Nbar,emag,
+     .mwk,amom,e)
 C- Do generalised self consistent Stoner model for the d-band
 C ----------------------------------------------------------------------
 Ci Inputs: {zos,npts,dr} is the number-of-states function from dostet
@@ -25,10 +25,10 @@ C     implicit none
 C Passed Parameters
       logical io
       integer nl,nbas,nclass,iclass(nbas),idxdn(0:nl-1,0:1),npts,mnpts,
-     .        index(0:1)
+     .index(0:1)
       double precision ef,dr(2),zos(0:npts-1,0:1),stni(0:1),
-     .                 ammax(0:1),Nbar(mnpts),emag(mnpts),
-     .                 mwk(mnpts),amom(0:nclass-1),e(0:nclass-1)
+     .ammax(0:1),Nbar(mnpts),emag(mnpts),
+     .mwk(mnpts),amom(0:nclass-1),e(0:nclass-1)
       character*8 clabl(0:nclass-1)
 C Local Variables
       integer j,ic,n1,n2,m,ifi,fopn,iprint,i1mach
@@ -44,21 +44,21 @@ C Local Variables
         I = stni(ic)
         if (io) call awrit2('%% rows %i cols %i',' ',80,ifi,mnpts,4)
         if (io) call awrit5('#class %i: '//clabl(ic)//' I=%d npts=%i,'//
-     .                      'moment=(%d,%d)',
-     .                      ' ',80,ifi,ic,I,mnpts,0d0,ammax(ic))
+     .  'moment=(%d,%d)',
+     .  ' ',80,ifi,ic,I,mnpts,0d0,ammax(ic))
         mom =  - astep
         do  1  m = 1, mnpts
           mom = mom + astep
           mwk(m) = mom
           call getde(mom,zos(0,index(ic)),npts,dr(1),dr(2),ef,n1,n2,
-     .               e1,e2,df)
+     .    e1,e2,df)
           if (dabs(e2 - e1) .lt. d1mach(3)) then
             Nbar(m) = df
             emag(m) = 0
             goto 1
           endif
           if (e2 .lt. e1) call fexit(-1,111,
-     .                    'STONER bug: e2 < e1 at mom=%d',mom)
+     .    'STONER bug: e2 < e1 at mom=%d',mom)
           Nbar(m) = mom / (e2 - e1)
           call intnb(m,mwk,Nbar,astep,ekin)
           emag(m) = ekin - I*mom**2/4
@@ -66,7 +66,7 @@ C Local Variables
     1   continue
         if (io) write (ifi,10)
         if (io) write (ifi,20) (mwk(m),Nbar(m),emag(m),
-     .                          emag(m)+I*mwk(m)**2/4,m=1,mnpts)
+     .  emag(m)+I*mwk(m)**2/4,m=1,mnpts)
 C --- find global minimum in emag and get moment ---
         e(ic) = 0
         j = 1
@@ -77,9 +77,9 @@ C --- find global minimum in emag and get moment ---
           endif
     2   continue
         if(j .eq. mnpts .and. iprint() .gt. 10) call awrit3
-     .       ('STONER ***warning*** class %i: '//clabl(ic)//
-     .        'moment(%d) = mmax(%d). Increase mmax in CTRL',' ',120,
-     .        i1mach(2),ic,mwk(j),ammax(ic))
+     .  ('STONER ***warning*** class %i: '//clabl(ic)//
+     .  'moment(%d) = mmax(%d). Increase mmax in CTRL',' ',120,
+     .  i1mach(2),ic,mwk(j),ammax(ic))
         amom(ic) = mwk(j)
         write (*,40) clabl(ic),amom(ic),e(ic),amom(ic)/Nbar(j),I
     3 continue
@@ -87,8 +87,8 @@ C --- find global minimum in emag and get moment ---
    10 format ('#',6x,'moment',9x,'N^bar',10x,'E_mag',10x,'E_kin')
    20 format (4f15.9)
    30 format ('STONER: ',
-     .        'CLASS   local moment      magnetic energy     E(+)-E(-)'
-     .        ,7x,'I')
+     .'CLASS   local moment      magnetic energy     E(+)-E(-)'
+     .,7x,'I')
    40 format (9x,a,3x,f10.6,10x,f10.6,7x,f10.6,4x,f6.3)
       end
 
@@ -135,10 +135,10 @@ C --- find e-limits by brute force and interpolation ---
     1 continue
       if (zos(n) .gt. 0) then
         call fexit
-     .    (-1,111,'GETDE: moment m=%d too large for NOS range',mom)
+     .  (-1,111,'GETDE: moment m=%d too large for NOS range',mom)
       else
         call fexit
-     .    (-1,111,'GETDE: moment m=%d exceeds maximum possible',mom)
+     .  (-1,111,'GETDE: moment m=%d exceeds maximum possible',mom)
       endif
     2 continue
       n1 = n
@@ -154,7 +154,7 @@ C --- find e-limits by brute force and interpolation ---
         if (zos(n) .gt. q) goto 4
     3 continue
       call fexit(-1,111,
-     . 'GETDE: moment m=%d at top of band, MMAX too large.',mom)
+     .'GETDE: moment m=%d at top of band, MMAX too large.',mom)
     4 continue
       n1 = n - 1
       n2 = n
@@ -198,7 +198,7 @@ C     implicit none
       double precision zos(0:npts-1),emin,emax,edown,eup,ef,ekin
       integer nf,i
       double precision step,sum1,sum2,qf,q1,q2,q,e1,e2,A,A1,A2,qdown,
-     .                 qup,add1,add2
+     .qup,add1,add2
 
 
       step = (emax - emin)/(npts - 1)

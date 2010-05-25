@@ -1,6 +1,6 @@
       subroutine smvxcm(ssite,sspec,slat,nbas,lfrce,k1,k2,k3,smrho,
-     .  smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm,
-     .  rvepsm,focexc,focex,focec,focvxc,f)
+     .smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm,
+     .rvepsm,focexc,focex,focec,focvxc,f)
 
       use m_struc_def  !Cgetarg
 
@@ -75,18 +75,18 @@ C ... Passed parameters
       integer nbas,lfrce,k1,k2,k3,ngabc(3)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       real(8):: f(3,1) , repsm(2) , repsmx(2) , repsmc(2) , rmusm(2) 
-     . , rvmusm(2) , rvepsm(2) , focexc(2) , focex(2) , focec(2) , focvxc(2)
+     ., rvmusm(2) , rvepsm(2) , focexc(2) , focex(2) , focec(2) , focvxc(2)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
 
       double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2),
-     .  smvxc(k1,k2,k3,2),smvx(k1,k2,k3,2),smvc(k1,k2,k3,2),
-     .  smexc(k1,k2,k3)
+     .smvxc(k1,k2,k3,2),smvx(k1,k2,k3,2),smvc(k1,k2,k3,2),
+     .smexc(k1,k2,k3)
 C ... Local parameters
       integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , ogv 
-     . , okv , ocy , osmrho , osmcor , lfoc1 , lfoc2 , iprint , excsan 
-     . , lxcfun , nglob , nsp
+     ., okv , ocy , osmrho , osmcor , lfoc1 , lfoc2 , iprint , excsan 
+     ., lxcfun , nglob , nsp
       complex(8) ,allocatable :: cgh1_zv(:)
       complex(8) ,allocatable :: cgh2_zv(:)
       complex(8) ,allocatable :: dxcv_zv(:)
@@ -125,14 +125,14 @@ Ctakao_ZeroClear_NotRequiered        if (ng<0) cgh1_zv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered        if (ng<0) cgh2_zv(:)=0.0d0
 
       call smcorm ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
-     . cgh1_zv , cgh2_zv , lfoc1 , lfoc2 )
+     .cgh1_zv , cgh2_zv , lfoc1 , lfoc2 )
 
 
 C ... w(osmrho) = smrho + smoothed core from foca hankel heads
       k123 = 2*k1*k2*k3
       if (lfoc1 .eq. 1) then
         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh1_zv 
-     .   , w ( osmrho ) )
+     .  , w ( osmrho ) )
 
         call fftz3(w(osmrho),n1,n2,n3,k1,k2,k3,1,0,1)
         if (nsp .eq. 2) then
@@ -158,14 +158,14 @@ C --- Direct branch (lfoc2 .eq. 0) ---
       if (lfoc2 .eq. 0) then
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmrho),sum1,sum2)
         call smvxc2(0,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,
-     .    w(osmrho),smvxc,smvx,smvc,smexc,w,
-     .    repsm,repsmx,repsmc,rmusm,vxcavg)
+     .  w(osmrho),smvxc,smvx,smvc,smexc,w,
+     .  repsm,repsmx,repsmc,rmusm,vxcavg)
         call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
         do  i = 1, nsp
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),
-     .      smrho(1,1,1,i),rvmusm(i),x2)
+     .    smrho(1,1,1,i),rvmusm(i),x2)
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),
-     .      smrho(1,1,1,i),rvepsm(i),x2)
+     .    smrho(1,1,1,i),rvepsm(i),x2)
         enddo
         focexc(1) = 0d0
         focex(1)  = 0d0
@@ -179,22 +179,22 @@ C --- Perturbation branch (lfoc2 .ne. 0) ---
 Ctakao_ZeroClear_NotRequiered          if (k1*k2*k3*nsp<0) dxcv_zv(:)=0.0d0
 
         call smvxc2 ( 1 , nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
-     .   , k3 , w ( osmrho ) , smvxc , smvx , smvc , smexc , dxcv_zv 
-     .   , repsm , repsmx , repsmc , rmusm , vxcavg )
+     .  , k3 , w ( osmrho ) , smvxc , smvx , smvc , smexc , dxcv_zv 
+     .  , repsm , repsmx , repsmc , rmusm , vxcavg )
 
         call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
         do  i = 1, nsp
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),
-     .      smrho(1,1,1,i),rvmusm(i),x2)
+     .    smrho(1,1,1,i),rvmusm(i),x2)
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),
-     .      smrho(1,1,1,i),rvepsm(i),x2)
+     .    smrho(1,1,1,i),rvepsm(i),x2)
         enddo
 
 C   ... Assemble core tails for linearized treatment on mesh
 C       w(osmcor) = portion of core treated perturbatively
         osmcor = osmrho
         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh2_zv 
-     .   , w ( osmcor ) )
+     .  , w ( osmcor ) )
 
         call fftz3(w(osmcor),n1,n2,n3,k1,k2,k3,1,0,1)
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmcor),sum1,sum2)
@@ -203,13 +203,13 @@ C       w(osmcor) = portion of core treated perturbatively
         call dpzero(focec,2)
         do  i = 1, nsp
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvx(1,1,1,i),w(osmcor),
-     .      x1,x2)
+     .    x1,x2)
           focex(i)  = x1/nsp
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvc(1,1,1,i),w(osmcor),
-     .      x1,x2)
+     .    x1,x2)
           focec(i)  = x1/nsp
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),w(osmcor),
-     .      x1,x2)
+     .    x1,x2)
           focexc(i) = x1/nsp
 C         Add this term to focexc to make focexc=pert corr to rhov*exc
 C          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),w(osmcor),
@@ -217,7 +217,7 @@ C     .      x1,x2)
         enddo
 C       Peturbation correction to smvxc
         call smvxc3 ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , smrho 
-     .   , w ( osmcor ) , dxcv_zv , smvxc , focvxc )
+     .  , w ( osmcor ) , dxcv_zv , smvxc , focvxc )
 
         call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
         if (iprint() .ge. 30) then
@@ -225,9 +225,9 @@ C       Peturbation correction to smvxc
           call awrit8('%x   foca'//
      .    ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N   foca#%2j#'//
      .    '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',
-     .      outs,len(outs),0,
-     .      focexc(1)+focexc(2),nsp,focexc,focexc(2),
-     .      focvxc(1)+focvxc(2),nsp,focvxc,focvxc(2))
+     .    outs,len(outs),0,
+     .    focexc(1)+focexc(2),nsp,focexc,focexc(2),
+     .    focvxc(1)+focvxc(2),nsp,focvxc,focvxc(2))
           call awrit1('%a  charge  =%;12,6D',outs,len(outs),-stdo,sum1)
         endif
       endif
@@ -247,10 +247,10 @@ Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cgh1_zv(:)=0.0d0
         if (lfoc1.gt.0 .or. lfoc2.gt.0) then
           call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)
           call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smvxc , cgh1_zv 
-     .   )
+     .    )
 
           call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , w ( ocy 
-     .   ) , ng , w ( ogv ) , cgh1_zv , f )
+     .    ) , ng , w ( ogv ) , cgh1_zv , f )
 
         endif
         if (allocated(cgh1_zv)) deallocate(cgh1_zv)
@@ -263,7 +263,7 @@ Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cgh1_zv(:)=0.0d0
 
 
       subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho,
-     .  smvxc,smvx,smvc,smexc,dsmvxc,rhoeps,rhoex,rhoec,rhomu,vxcavg)
+     .smvxc,smvx,smvc,smexc,dsmvxc,rhoeps,rhoex,rhoec,rhomu,vxcavg)
 
 C- Makes smooth xc potential smvxc and optionally dsmvxc/drho
 C ----------------------------------------------------------------------
@@ -308,18 +308,18 @@ C     implicit none
 C ... Passed parameters
       integer mode,nsp,k1,k2,k3,n1,n2,n3,lxcfun
       double precision rhoeps(2),rhoex(2),rhoec(2),rhomu(2),
-     .                 vxcavg(2),vol
+     .vxcavg(2),vol
       double complex smvxc(k1,k2,k3,2),smrho(k1,k2,k3,2),
-     .               smvx(k1,k2,k3,2),smvc(k1,k2,k3,2),
-     .               smexc(k1,k2,k3,2),dsmvxc(k1,k2,k3,2)
+     .smvx(k1,k2,k3,2),smvc(k1,k2,k3,2),
+     .smexc(k1,k2,k3,2),dsmvxc(k1,k2,k3,2)
 C ... Local parameters
       integer i,i1,i2,i3,lgunit,lxcf,nx,stdo,iprint,n1x
       parameter (n1x=512)
       double precision alfa,dfdr,dvdr,f,f1,f2,rrho,fac,dmach,rrmin
       double precision vxc2(n1x,2),vxc1(n1x,2),
-     .                 vx1(n1x,2),vc1(n1x,2),
-     .                 exc2(n1x),exc1(n1x),
-     .                 exc1x(n1x),exc1c(n1x)
+     .vx1(n1x,2),vc1(n1x,2),
+     .exc2(n1x),exc1(n1x),
+     .exc1x(n1x),exc1c(n1x)
       double precision rho(n1x),rhos(n1x,2)
       character*180 outs
 
@@ -371,7 +371,7 @@ C           Add rho*fac/2 into rhos+, rhos- and fac*rho into rho
 C           Exchange potential at rho+drho
             do  i = 1, nsp
               call evxcv(rho,rhos(1,i),n1,1,lxcf,
-     .          exc2,exc1x,exc1c,vxc2(1,i),vx1(1,i),vc1(1,i))
+     .        exc2,exc1x,exc1c,vxc2(1,i),vx1(1,i),vc1(1,i))
             enddo
 C           Restore rho,rhos; also add -drho to rho and -drho/2 to rhos
             call dscal(n1,1/(1+fac),rho,1)
@@ -382,7 +382,7 @@ C           Restore rho,rhos; also add -drho to rho and -drho/2 to rhos
 C           Exchange potential at rho-drho
             do  i = 1, nsp
               call evxcv(rho,rhos(1,i),n1,1,lxcf,
-     .          exc1,exc1x,exc1c,vxc1(1,i),vx1(1,i),vc1(1,i))
+     .        exc1,exc1x,exc1c,vxc1(1,i),vx1(1,i),vc1(1,i))
             enddo
 C           Restore rho,rhos
             call dscal(n1,1/(1-fac),rho,1)
@@ -428,7 +428,7 @@ c$$$cccccccccccccccccccccccccccccccccccc
 
           do  i = 1, nsp
             call evxcv(rho,rhos(1,i),n1,nsp,lxcf,exc1,
-     .                 exc1x,exc1c,vxc1(1,i),vx1(1,i),vc1(1,i))
+     .      exc1x,exc1c,vxc1(1,i),vx1(1,i),vc1(1,i))
             call dcopy(n1,vxc1(1,i),1,smvxc(1,i2,i3,i),2)
             call dcopy(n1,vx1(1,i),1,smvx(1,i2,i3,i),2)
             call dcopy(n1,vc1(1,i),1,smvc(1,i2,i3,i),2)
@@ -478,17 +478,17 @@ C     ... Add to integrals
 
 C ... Printout
       if (nx .gt. 0 .and. iprint() .ge. 20) call awrit3(
-     .  ' smvxcm (warning) mesh density negative at %i point%?#n>1#s##'
-     .  //':  rhomin=%;3g',' ',80,stdo,nx,nx,rrmin)
+     .' smvxcm (warning) mesh density negative at %i point%?#n>1#s##'
+     .//':  rhomin=%;3g',' ',80,stdo,nx,nx,rrmin)
       if (iprint() .ge. 30) then
         call awrit8('%x smooth'//
-     .    ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N%7f#%2j#'//
-     .    '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',outs,120,
-     .    0,rhoeps(1)+rhoeps(2),nsp,rhoeps,rhoeps(2),rhomu(1)+rhomu(2),
-     .    nsp,rhomu,rhomu(2))
+     .  ' rhoeps =%;12,6D %?#n==2#(%;11,6D,%;11,6D)%N%7f#%2j#'//
+     .  '  rhomu =%;12,6D %?#n==2#(%;11,6D,%;11,6D)#%2j#',outs,120,
+     .  0,rhoeps(1)+rhoeps(2),nsp,rhoeps,rhoeps(2),rhomu(1)+rhomu(2),
+     .  nsp,rhomu,rhomu(2))
         call awrit5('%a%?#n==2#%N%7f#  #'//
-     .    'avg vxc =%;12,6D %?#n==2#(%;11,6D,%;11,6D)',outs,len(outs),
-     .    -stdo,nsp,(vxcavg(1)+vxcavg(nsp))/2,nsp,vxcavg,vxcavg(2))
+     .  'avg vxc =%;12,6D %?#n==2#(%;11,6D,%;11,6D)',outs,len(outs),
+     .  -stdo,nsp,(vxcavg(1)+vxcavg(nsp))/2,nsp,vxcavg,vxcavg(2))
       endif
 
 C      call zprm3('smvxc',0,smvxc,n1,n2,n3)
@@ -502,7 +502,7 @@ C      endif
 
 
       subroutine smvxc3(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,smcor,dsmvxc,
-     .  smvxc,rmuxcc)
+     .smvxc,rmuxcc)
 
 C- Smooth core density times dvxc/drho
 C ----------------------------------------------------------------------
@@ -525,7 +525,7 @@ C ... Passed parameters
       integer nsp,k1,k2,k3,n1,n2,n3
       double precision rmuxcc(nsp),vol
       double complex smvxc(k1,k2,k3,nsp),smcor(k1,k2,k3),
-     .  dsmvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
+     .dsmvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
 C ... Local parameters
       integer i,i1,i2,i3
       double complex cadd,csum(2)
@@ -590,7 +590,7 @@ C ... Passed parameters
 C ... Local parameters
       integer stdo,k0,nlmx,lgunit,kmax,ib,is,lfoc,i,kb,iprint
       double precision tau(3),v(3),pi,tpiba,qcorg,qcorh,qsc,cofg,
-     .  cofh,ceh,rfoc,z,sum1,sum2,sum3,xx
+     .cofh,ceh,rfoc,z,sum1,sum2,sum3,xx
       parameter (k0=3, nlmx = 9)
       double complex gkl(0:k0,nlmx),ccc,cvxci
 
@@ -638,7 +638,7 @@ C --- Loop over sites ---
         endif
       enddo
       if (iprint() .ge. 50)
-     .  write(stdo,340) (ib,f(1,ib),f(2,ib),f(3,ib),ib = 1,nbas)
+     .write(stdo,340) (ib,f(1,ib),f(2,ib),f(3,ib),ib = 1,nbas)
   340 format(i4,3f12.6)
   400 format(/' xc-force from foca:')
 

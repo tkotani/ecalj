@@ -107,19 +107,19 @@ C Local variables
       character recrd*(recl), a*(recl)
       character ctbl(mxchr,2)*(ctlen)
       logical loop0(0:mxlev),a2bin,qread,ltrnsi,ltrns,pvrdm1,
-     .  lddump,lidump,lpr,lsprse
+     .lddump,lidump,lpr,lsprse
 #if CCAR
       logical cmdopt
 #endif
       integer nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
-     .  nlist(0:mxlev),i1mach,i,ip,k,nelt,ic,ir,retval,ii,ilbl,nrx,ipr,
-     .  ndir,a2vec,ix(4),sw1
+     .nlist(0:mxlev),i1mach,i,ip,k,nelt,ic,ir,retval,ii,ilbl,nrx,ipr,
+     .ndir,a2vec,ix(4),sw1
       double precision xwk(4),xx
       parameter (ndir=8)
       character vnam(mxlev)*16,dir(ndir)*7,llbl*1000,rdarg*7
       data rdarg /'#{}% ct'/
       data dir /'rows','cols','real','symm','complex','herm',
-     .  'trans','sparse'/
+     .'trans','sparse'/
 
 C --- Initialization ---
       call getpr(ipr)
@@ -190,16 +190,16 @@ C         return
           if (.not. lddump(s,nr*nc*haveC,ifi)) goto 198
         endif
         if (haveC .eq. 1 .and. wantC .eq. 2 .and. lpr) print '(a)',
-     .    '#rdm (warning): sought complex matrix but file is real'
+     .  '#rdm (warning): sought complex matrix but file is real'
         if (haveC .ge. 2 .and. wantC .eq. 1 .and. lpr) print '(a)',
-     .    '#rdm (warning): sought real matrix but file is complex'
+     .  '#rdm (warning): sought real matrix but file is complex'
         rdm = ic
         ltrnsi = ltrns
         goto 199
       endif
 
       if (sw10 .eq. 2)
-     .  call rx('rdm not ready for complex*16 s')
+     .call rx('rdm not ready for complex*16 s')
 
 C --- Determine nr,nc from % rows and % cols ---
       recrd = ' '
@@ -207,7 +207,7 @@ C --- Determine nr,nc from % rows and % cols ---
       if (cmdopt('-C',2,0,a)) rdarg(1:1) = a(3:3)
 #endif
    21 call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
-     .  ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nl)
+     .ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nl)
 C ... Empty file kosher unless nr or nc nonzero
       if (nl .le. 0 .and. nr .eq. 0 .and. nc .eq. 0) rdm = max(wantC,1)
       if (nl .le. 0) return
@@ -263,8 +263,8 @@ C --- Read next record from file ---
       if (nr .ne. 0 .and. nc .ne. 0 .and. mxelt .eq. 0) goto 98
       recrd = ' '
       if (.not. (qread .and. lsprse))
-     .  call rdfiln(ifi,'#{}%',mxlev,loop0,nlin,list,lstsiz,
-     .  ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nl)
+     .call rdfiln(ifi,'#{}%',mxlev,loop0,nlin,list,lstsiz,
+     .ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nl)
    31 continue
 
 C --- Before reading, decide whether file is real or complex ---
@@ -278,23 +278,23 @@ C --- Before reading, decide whether file is real or complex ---
           haveC = 1
         endif
         if (haveC .eq. 1 .and. wantC .eq. 2 .and. lpr) print '(a)',
-     .    '#rdm (warning): sought complex matrix but file is real'
+     .  '#rdm (warning): sought complex matrix but file is real'
         if (haveC .eq. 2 .and. wantC .eq. 1 .and. lpr) print '(a)',
-     .    '#rdm (warning): sought real matrix but file is complex'
+     .  '#rdm (warning): sought real matrix but file is complex'
         if (wantC .eq. 0 .or. haveC .eq. 0) stop 'bug in rdm'
       endif
 
 C --- nr and nc must be spec'd if lsprse ---
       if ((nr .eq. 0 .or. nc .eq. 0) .and. lsprse)
-     .  call rx('rdm not set up to read sparse matrix'//
-     .  ' without explicit nr,nc')
+     .call rx('rdm not set up to read sparse matrix'//
+     .' without explicit nr,nc')
 
 C --- if nc zero, set nc to number of expressions in 1st recrd ---
 C ... Case ltrns: nc and nr exchange roles
       k = 0
       if ((nc .eq. 0 .and. .not. ltrns .or.
-     .     nr .eq. 0 .and. ltrns .or. qread) .and.
-     .    .not. lsprse) then
+     .nr .eq. 0 .and. ltrns .or. qread) .and.
+     ..not. lsprse) then
         if (ltrns) then
           ip = nr
           nr = nc
@@ -313,9 +313,9 @@ C   ... Read into scratch unless qread (then load as if s a vector)
         if (.not. a2bin(recrd,s,4,i,' ',ip,recl)) return
         k = k+1
         goto 41
-   42 continue
+   42   continue
 C ... Restore nr, nc to proper roles
-      if (ltrns) then
+        if (ltrns) then
           ip = nr
           nr = nc
           nc = ip
@@ -342,7 +342,7 @@ C --- Quick-read: read remaining elements with unformatted read ---
 C   ... Quick-read option requires that nr,nc are known by now.
         if (nr*nc .eq. 0) then
           print
-     .      '(a)', '#rdm: quick-read set but nr or nc unspecified ...'
+     .    '(a)', '#rdm: quick-read set but nr or nc unspecified ...'
           return
         endif
         if (lsprse) then
@@ -354,7 +354,7 @@ C   ... Quick-read option requires that nr,nc are known by now.
           i = xwk(1)
           ii = xwk(2)
           if (abs(i-xwk(1))+abs(ii-xwk(2)) .ne. 0 .or.
-     .      i .gt. nr .or. ii .gt. nc) return
+     .    i .gt. nr .or. ii .gt. nc) return
           s(i+nr*(ii-1)) = xwk(3)
           if (wantC .eq. 2) s(i+nr*(ii-1)+nr*nc) = xwk(4)
           goto 55
@@ -373,70 +373,70 @@ C ... Exit if we are done reading this file
       ip = 0
    61 call skipbl(recrd,recl,ip)
 C   ... Pick up next record when this one parsed to the end
-        if (ip .ge. recl) goto 30
+      if (ip .ge. recl) goto 30
 C   ... Read into s(ir,ic) (or scratch if mxelt is zero)
-        i = max(nr,1)*ic + ir + ioff
+      i = max(nr,1)*ic + ir + ioff
 C       s(2,i,j) --- complex --- format
-        if (sw10 .eq. 4) then
-          i = 2*max(nr,1)*ic + 2*ir + ioff          
-        endif
-        if (mxelt .eq. 0) i = 0
-        if (i .gt. mxelt) goto 99
-        if (lsprse) then
-          i = 3
-          if (haveC .eq. 2) i = 4
-          if (a2vec(recrd,recl,ip,4,' ',1,2,i,ix,xwk) .ne. i) return
-          i = xwk(1)
-          ii = xwk(2)
-          if (abs(i-xwk(1))+abs(ii-xwk(2)) .ne. 0 .or.
-     .      i .gt. nr .or. ii .gt. nc) return
-          s(i+nr*(ii-1)) = xwk(3)
-          if (wantC .eq. 2) s(i+nr*(ii-1)+nr*nc) = xwk(4)
-          goto 30
-        else
-          if (.not. a2bin(recrd,s,4,i,' ',ip,recl)) return
-        endif
+      if (sw10 .eq. 4) then
+        i = 2*max(nr,1)*ic + 2*ir + ioff          
+      endif
+      if (mxelt .eq. 0) i = 0
+      if (i .gt. mxelt) goto 99
+      if (lsprse) then
+        i = 3
+        if (haveC .eq. 2) i = 4
+        if (a2vec(recrd,recl,ip,4,' ',1,2,i,ix,xwk) .ne. i) return
+        i = xwk(1)
+        ii = xwk(2)
+        if (abs(i-xwk(1))+abs(ii-xwk(2)) .ne. 0 .or.
+     .  i .gt. nr .or. ii .gt. nc) return
+        s(i+nr*(ii-1)) = xwk(3)
+        if (wantC .eq. 2) s(i+nr*(ii-1)+nr*nc) = xwk(4)
+        goto 30
+      else
+        if (.not. a2bin(recrd,s,4,i,' ',ip,recl)) return
+      endif
 C        print '('' nelt,i'',2i4,''  ir,ic,ioff='',3i4,f12.6)',
 C     .    nelt,i,ir,ic,ioff,s(i+1)
-        nelt = nelt+1
-        ic = ic+1
-        if (ltrns) then
-          ic = ic-1
-          ir = ir+1
-        endif
-        if (nc .gt. 0 .and. ltrns) then
-          if (ir .gt. nr) call rx('bug in rdm')
-          if (ir .eq. nr) then
-            ic = ic+1
+      nelt = nelt+1
+      ic = ic+1
+      if (ltrns) then
+        ic = ic-1
+        ir = ir+1
+      endif
+      if (nc .gt. 0 .and. ltrns) then
+        if (ir .gt. nr) call rx('bug in rdm')
+        if (ir .eq. nr) then
+          ic = ic+1
 C       ... patch exit for now ... need to read to EOF too!
-            if (nc .gt. 0 .and. ic .eq. nc) then
-              if (min(wantC,haveC) .eq. 1 .or. ioff .ne. 0) goto 70
-              ioff = nc*nr
-              ic = 0
-C             s(2,i,j) --- complex --- format
-              if (sw10 .eq. 4) then
-                ioff = 1
-              endif
-            endif
-            ir = 0
-          endif
-        elseif (nr .gt. 0 .and. .not. ltrns) then
-          if (ic .gt. nc) call rx('bug in rdm')
-          if (ic .eq. nc) then
-            ir = ir+1
-C       ... patch exit for now ... need to read to EOF too!
-            if (nr .gt. 0 .and. ir .eq. nr) then
-              if (min(wantC,haveC) .eq. 1 .or. ioff .ne. 0) goto 70
-              ioff = nr*nc
-              ir = 0
-C             s(2,i,j) --- complex --- format
-              if (sw10 .eq. 4) then
-                ioff = 1
-              endif
-            endif
+          if (nc .gt. 0 .and. ic .eq. nc) then
+            if (min(wantC,haveC) .eq. 1 .or. ioff .ne. 0) goto 70
+            ioff = nc*nr
             ic = 0
+C             s(2,i,j) --- complex --- format
+            if (sw10 .eq. 4) then
+              ioff = 1
+            endif
           endif
+          ir = 0
         endif
+      elseif (nr .gt. 0 .and. .not. ltrns) then
+        if (ic .gt. nc) call rx('bug in rdm')
+        if (ic .eq. nc) then
+          ir = ir+1
+C       ... patch exit for now ... need to read to EOF too!
+          if (nr .gt. 0 .and. ir .eq. nr) then
+            if (min(wantC,haveC) .eq. 1 .or. ioff .ne. 0) goto 70
+            ioff = nr*nc
+            ir = 0
+C             s(2,i,j) --- complex --- format
+            if (sw10 .eq. 4) then
+              ioff = 1
+            endif
+          endif
+          ic = 0
+        endif
+      endif
       goto 61
 
 C --- Cleanup.  If nr is zero, set nr and copy s-transpose to s ---
@@ -447,10 +447,10 @@ C --- Cleanup.  If nr is zero, set nr and copy s-transpose to s ---
         nr = nelt/nc/haveC
         ltrnsi = mxelt .ne. 0
       elseif (nelt .lt. nr*nc*haveC .and. .not. (qread .or. lsprse)
-     .    .and. lpr) then
+     ..and. lpr) then
         call awrit4('# rdm (warning) expected %i elements (%i rows,'//
-     .    ' %i cols) but read %i',' ',80,i1mach(2),nr*nc*haveC,nr,nc,
-     .    nelt)
+     .  ' %i cols) but read %i',' ',80,i1mach(2),nr*nc*haveC,nr,nc,
+     .  nelt)
       endif
       ncx = nc
       if (ltrnsi .and. wantC .eq. 2) ncx = 2*nc
@@ -459,13 +459,13 @@ C --- Cleanup.  If nr is zero, set nr and copy s-transpose to s ---
         ioff = nr*ncx
         call dcopy(nr*nc,s,1,s(1+ioff),1)
         do  71  ir = 1, nr
-        do  71  ic = 1, nc
+          do  71  ic = 1, nc
    71   s(ir+nr*(ic-1)) = s(ioff+ic+nc*(ir-1))
         if (ncx .eq. 2*nc) then
           k = nr*nc
           call dcopy(k,s(1+k),1,s(1+ioff),1)
           do  72  ir = 1, nr
-          do  72  ic = 1, nc
+            do  72  ic = 1, nc
    72     s(ir+nr*(ic-1)+k) = s(ioff+ic+nc*(ir-1))
         endif
       endif
@@ -513,18 +513,18 @@ C- Kernel to symmetrize array s
 
       nn = min(nr,nc)
       do  10  i = 1, nn
-      do  10  j = 1, i
-        xx = (s(i,j,1) + s(j,i,1))/2
-        s(i,j,1) = xx
-        s(j,i,1) = xx
+        do  10  j = 1, i
+          xx = (s(i,j,1) + s(j,i,1))/2
+          s(i,j,1) = xx
+          s(j,i,1) = xx
    10 continue
 
       if (icast .eq. 2) then
         do  20  i = 1, nn
-        do  20  j = 1, i
-          xx = (s(i,j,2) - s(j,i,2))/2
-          s(i,j,2) = xx
-          s(j,i,2) = -xx
+          do  20  j = 1, i
+            xx = (s(i,j,2) - s(j,i,2))/2
+            s(i,j,2) = xx
+            s(j,i,2) = -xx
    20   continue
       endif
 

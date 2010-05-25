@@ -1,5 +1,5 @@
       logical function iostr(lio,name,nl,nbas,nkap,kap2,itral,ckbas,
-     .  lmaxw,nitab,oalpha,oiax,onpr,os)
+     .lmaxw,nitab,oalpha,oiax,onpr,os)
 C- Real space structure constants file read or write
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -69,7 +69,7 @@ C ... Local parameters
       character locnam*8
       logical iostr1,iostr2,iostr4,lerr
       integer nlr,nbr,ifi,ipr,nkr,nttab,lgunit,itralr,lmaxwr,niax,ncplx,
-     .  lio01,lio23,lio45,getdig,nds,lscoff,nmto,lior,nblk,nkaps,nkapn
+     .lio01,lio23,lio45,getdig,nds,lscoff,nmto,lior,nblk,nkaps,nkapn
       integer mpipid,procid,vsn
       double precision tiny,ckbasr
 C     double precision sttime,entime,MPI_WTIME
@@ -107,24 +107,24 @@ C       Use nds=nl**2 for now, until nds is passed
 C   ... Write header
         nttab = w(onpr+nbas)
         if (.not. iostr1(lio,name,itral,nttab,nitab,nl,nbas,
-     .    nkap,lmaxw,ckbas,ifi)) goto 99
+     .  nkap,lmaxw,ckbas,ifi)) goto 99
 C   ... Write strux, block format
         if (getdig(lio23,1,2) .eq. 0) then
           nblk = nitab*nkaps**2*nkapn
           call rxx(getdig(lio23,0,2).eq.1,'iostr not ready for complex')
           if (.not. iostr2(-ifi,nbas,nttab,nblk,lscoff,nds,nkap,
-     .        w(onpr),w(oiax),kap2,w(oalpha),w(os))) goto 99
+     .    w(onpr),w(oiax),kap2,w(oalpha),w(os))) goto 99
 C   ... Write strux, vector format
         else
           if (.not. iostr4(-ifi,nbas,nttab,ncplx,nl,nkap,
-     .        w(onpr),w(oiax),kap2,w(os))) goto 99
+     .    w(onpr),w(oiax),kap2,w(os))) goto 99
         endif
 
         if (ipr .ge. 40) call awrit4(' IOSTR: wrote to file '
-     .    //locnam//'%a %i sites'//
-     .    '%?#n#, %i inequivalent sites#%j#'//
-     .    '%?#n>1#, %-1j%i energies##',
-     .    ' ',80,lgunit(1),nttab,nttab-nitab,nitab,nkap)
+     .  //locnam//'%a %i sites'//
+     .  '%?#n#, %i inequivalent sites#%j#'//
+     .  '%?#n>1#, %-1j%i energies##',
+     .  ' ',80,lgunit(1),nttab,nttab-nitab,nitab,nkap)
         call fclose(ifi)
 
 C --- File read ---
@@ -206,7 +206,7 @@ C   ... Read strux, block format
             nblk = nitab*nkap**2
             if (nmto .eq. 1) nblk = nitab*nkap
             lerr = iostr2(ifi,nbas,nttab,nblk,lscoff,nds,nkap,
-     .                  w(onpr),w(oiax),kap2,w(oalpha),w(os))
+     .      w(onpr),w(oiax),kap2,w(oalpha),w(os))
 #if MASTERIO
           endif
 C         sttime = MPI_WTIME()
@@ -226,7 +226,7 @@ C   ... Read strux, vector format
           if (procid .eq. 0) then
 #endif
             lerr = iostr4(ifi,nbas,nttab,ncplx,nl,nkap,
-     .                  w(onpr),w(oiax),kap2,w(os))
+     .      w(onpr),w(oiax),kap2,w(os))
           endif
 #if MASTERIO
           call mpibc1(lerr,1,0,.false.,'iostr','lerr')
@@ -234,13 +234,13 @@ C   ... Read strux, vector format
           call mpibc1(w(oiax),niax*nttab,2,.false.,'iostr','iax')
           call mpibc1(kap2,nkap,4,.false.,'iostr','kap2')
           call mpibc1(w(os),nds**2*nitab*nkap*ncplx,4,.false.,'iostr',
-     .      's')
+     .    's')
         endif
 #endif
         if (.not. lerr) goto 99
         if (ipr .ge. 100) call awrit3(' IOSTR: read %i sites'//
-     .    '%?#n#, %i inequivalent sites##',' ',80,
-     .    lgunit(1),nttab,nttab-nitab,nitab)
+     .  '%?#n#, %i inequivalent sites##',' ',80,
+     .  lgunit(1),nttab,nttab-nitab,nitab)
       endif
       iostr = .true.
 Cki#error, have return with len(w_varlist)>0 at line 245
@@ -250,12 +250,12 @@ C ... Error handling
    99 continue
       if ((lio/10) .eq. 0) call rxs('IOSTR: file mismatch, file ',name)
       if (ipr .ge. 10)
-     .  print *, 'IOSTR (warning): failed to read file ',name
+     .print *, 'IOSTR (warning): failed to read file ',name
       iostr = .false.
 
       end
       logical function iostr1(lio,name,itral,nttab,nitab,nl,nbas,
-     .  nkap,lmaxw,ckbas,ifi)
+     .nkap,lmaxw,ckbas,ifi)
 C- Low level structure constants file open and header I/O
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -330,7 +330,7 @@ C ... Check for version number.  If nonexistent, vsn=0
         endif
 
         strn = ' IOSTR : read file='//name//
-     .    '%a lio=%i nkap=%i nl=%i nttab=%i'
+     .  '%a lio=%i nkap=%i nl=%i nttab=%i'
         i = lio
 
 C ... File WRITE
@@ -345,7 +345,7 @@ C       This is version 2
         write(ifi) itral,nttab,nitab,nl,nbas,nkap,lmaxw,ckbas
 
         strn = ' IOSTR : write file='//name//
-     .    '%a lio=%i nkap=%i nl=%i nttab=%i'
+     .  '%a lio=%i nkap=%i nl=%i nttab=%i'
         i = lio-1
 
 
@@ -358,7 +358,7 @@ C       This is version 2
    99 iostr1 = .false.
       end
       logical function iostr2(ifi,nbas,nttab,nblk,lscoff,nds,nkap,
-     .  ntab,iax,kap2,scoffs,s)
+     .ntab,iax,kap2,scoffs,s)
 C- Low level structure constants I/O
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -393,7 +393,7 @@ C     implicit none
       iostr2 = .false.
       end
       logical function iostr4(ifi,nbas,nttab,ncplx,ndim,nkap,ntab,
-     .  iax,kap2,s)
+     .iax,kap2,s)
 C- Low level structure constants I/O, vector format
 C ----------------------------------------------------------------------
 Ci Inputs

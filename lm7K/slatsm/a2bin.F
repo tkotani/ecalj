@@ -90,7 +90,7 @@ C ... Local parameters
       character*(namlen) vartok,macstr*256,strn*256
       logical   oprule(0:10,0:10)
       common /a2binc/ machep,numtok,numstk,opnum,numnum,toktyp,ptktyp,
-     .                prevop,opstk,optok,parenc,oprule,vartok
+     .prevop,opstk,optok,parenc,oprule,vartok
       logical   gettok,fstpas,lerr
       integer   tj,ival,jmax,tm,k,t0,jmaxm
       save fstpas
@@ -151,7 +151,7 @@ C ... handle vector token by assigning ival to # stack
         numstk(numnum) = ival
       endif
       if ((opnum .eq. 0) .or. (.not. oprule(mod(opstk(opnum),16),
-     .                                      mod(optok,16)))) goto 56
+     .mod(optok,16)))) goto 56
       opnum = opnum-1
 C ... doop() expects the old op to already be popped, hence opnum+1
       call doop(opstk(opnum+1),lerr)
@@ -220,7 +220,7 @@ C     implicit none
       parameter (namlen=40)
       character*(namlen) vartok
       common /a2binc/ machep,numtok,numstk,opnum,numnum,toktyp,ptktyp,
-     .                prevop,opstk,optok,parenc,oprule,vartok
+     .prevop,opstk,optok,parenc,oprule,vartok
       integer   t1,t2,ival
       double precision  v0,v1,log2d,derfc
       real ran1
@@ -248,11 +248,11 @@ C ... Array element is really a binop, so decrement numnum
 
 C --- Go to appropriate operator class code
       goto (10000,10100,10200,10300,10400,10500,10600,10700,
-     .          10800,10900,11000),t2+1
+     .10800,10900,11000),t2+1
 
 C --- Go to the appropriate unary op/function code
 10000 goto (100,101,102,103,104,105,106,107,108,109,110,111,112,113,
-     .          114,115,116,117,118,119),t1+1
+     .114,115,116,117,118,119),t1+1
 C ... Arithmetic negation
   100 numstk(numnum) = -v0
       return
@@ -524,11 +524,11 @@ C --- Find end of string; exit to 20 w/ strn(j-1) = last char of num ---
         goto 10
       endif
       if (j.eq.j0 .and. (t.eq.'+' .or. t.eq.'-')) goto 10
-      if (lskp .and. (t .eq. ' ' .or. t .eq. '	')) goto 10
+      if (lskp .and. (t .eq. ' ' .or. t .eq. '        ')) goto 10
 C --- Copy strn to strn2 for FORTRAN read ---
    20 continue
       if (lskp .and. j .gt. j0 .and.
-     .   (strn(j-1).eq.' ' .or. strn(j-1).eq.'	')) then
+     .(strn(j-1).eq.' ' .or. strn(j-1).eq.'        ')) then
         j = j-1
         goto 20
       endif
@@ -646,18 +646,18 @@ C     implicit none
       character*(maxsiz) strn
       logical   oprule(0:10,0:10)
       common /a2binc/ machep,numtok,numstk,opnum,numnum,toktyp,ptktyp,
-     .                prevop,opstk,optok,parenc,oprule,vartok
+     .prevop,opstk,optok,parenc,oprule,vartok
       character*5 unop(0:nunop-1), unops(0:10), ctmp*1
       integer   i,s,t
       logical a2d,namchr
 C ... Allowed characters in a name
       namchr(ctmp) =ctmp .ge. 'a' .and. ctmp .le. 'z' .or. ctmp .eq. '_'
-     .         .or. ctmp .ge. 'A' .and. ctmp .le. 'Z'
-     .         .or. ctmp .ge. '0' .and. ctmp .le. '9'
+     ..or. ctmp .ge. 'A' .and. ctmp .le. 'Z'
+     ..or. ctmp .ge. '0' .and. ctmp .le. '9'
       data unops/'A~','^','*/%','+-','<>=','&','|','?',':','(',')'/
       data unop/'abs','exp','log','sin','asin','sinh','cos','acos',
-     .          'cosh','tan','atan','tanh','flor','ceil','erfc','sqrt',
-     .          'ran'/
+     .'cosh','tan','atan','tanh','flor','ceil','erfc','sqrt',
+     .'ran'/
 
 C --- Check for terminator or end of expression
       gettok = .false.
@@ -674,7 +674,7 @@ C     distinguish unary negation from binary subtraction
 C --- Check for variable token first, variables are a letter followed
 C     by a string of letters and digits
       if (((str(j).ge.'A') .and. (str(j).le.'Z')) .or.
-     .    ((str(j).ge.'a') .and. (str(j).le.'z'))) then
+     .((str(j).ge.'a') .and. (str(j).le.'z'))) then
         s = j
    10   j = j+1
         if (j .gt. jmax) then
@@ -716,7 +716,7 @@ C --- Check if variable is actually a function or a vector
         return
 C --- If it isn't a variable then check if it's a number
       else if ((str(j) .eq. '.') .or.
-     .         ((str(j).ge.'0')  .and. (str(j).le.'9'))) then
+     .((str(j).ge.'0')  .and. (str(j).le.'9'))) then
         if (.not. a2d(str,.false.,j,jmax,term,numtok)) goto 99
         toktyp = 2
         return
@@ -736,7 +736,7 @@ C           Valid special case unop is ')' and j=jmax+1
             if (j .gt. jmax) goto 99
 C --- See if it's unary negation
             if ((optok.eq.19) .and. (ptktyp.eq.3) .and. (prevop.ne.10))
-     .        optok = 0
+     .      optok = 0
 C --- Distinguish '=' from '==': '=' only causes a2bin=F
             if (optok.eq.36) then
               if (str(j).ne.'=') then
@@ -807,27 +807,27 @@ C     implicit none
       parameter (namlen=40)
       character*(namlen) vartok
       common /a2binc/ machep,numtok,numstk,opnum,numnum,toktyp,ptktyp,
-     .                prevop,opstk,optok,parenc,oprule,vartok
+     .prevop,opstk,optok,parenc,oprule,vartok
       data nrule/10*.false.,2*.true.,9*.false.,4*.true.,7*.false.,
-     .  5*.true.,6*.false.,6*.true.,5*.false.,7*.true.,
-     .  4*.false.,8*.true.,3*.false.,8*.true.,.false.,.true.,
-     .  .false.,8*.true.,.false.,.true.,.false.,.true.,
-     .  10*.false.,10*.true.,.false.,.true./
+     .5*.true.,6*.false.,6*.true.,5*.false.,7*.true.,
+     .4*.false.,8*.true.,3*.false.,8*.true.,.false.,.true.,
+     ..false.,8*.true.,.false.,.true.,.false.,.true.,
+     .10*.false.,10*.true.,.false.,.true./
       data orule/10*.false.,8*.true.,.false.,.true.,.false.,
-     .  8*.true.,.false.,.true.,.false.,8*.true.,.false.,.true.,
-     .  .false.,8*.true.,.false.,.true.,.false.,8*.true.,.false.,
-     .  .true.,.false.,8*.true.,.false.,.true.,.false.,8*.true.,
-     .  .false.,.true.,.false.,8*.true.,.false.,.true.,.false.,
-     .  .true.,10*.false.,10*.true.,.false.,.true./
+     .8*.true.,.false.,.true.,.false.,8*.true.,.false.,.true.,
+     ..false.,8*.true.,.false.,.true.,.false.,8*.true.,.false.,
+     ..true.,.false.,8*.true.,.false.,.true.,.false.,8*.true.,
+     ..false.,.true.,.false.,8*.true.,.false.,.true.,.false.,
+     ..true.,10*.false.,10*.true.,.false.,.true./
 
       if (style .eq. 0) then
         do  10  i = 0, 10
           do  10  j = 0, 10
-   10       oprule(i,j) = orule(i,j)
+   10   oprule(i,j) = orule(i,j)
       else
         do  20  i = 0, 10
           do  20  j = 0, 10
-   20       oprule(i,j) = nrule(i,j)
+   20   oprule(i,j) = nrule(i,j)
       endif
       return
       end
@@ -845,11 +845,11 @@ C -------------------------------------------------------------------
       character*(namlen) vartok
       logical   oprule(0:10,0:10)
       common /a2binc/ machep,numtok,numstk,opnum,numnum,toktyp,ptktyp,
-     .                prevop,opstk,optok,parenc,oprule,vartok
+     .prevop,opstk,optok,parenc,oprule,vartok
       data oprule/10*.false.,2*.true.,9*.false.,4*.true.,7*.false.,
-     .            5*.true.,6*.false.,6*.true.,5*.false.,7*.true.,
-     .            4*.false.,8*.true.,3*.false.,8*.true.,.false.,.true.,
-     .            .false.,8*.true.,.false.,.true.,.false.,.true.,
-     .            10*.false.,10*.true.,.false.,.true./
+     .5*.true.,6*.false.,6*.true.,5*.false.,7*.true.,
+     .4*.false.,8*.true.,3*.false.,8*.true.,.false.,.true.,
+     ..false.,8*.true.,.false.,.true.,.false.,.true.,
+     .10*.false.,10*.true.,.false.,.true./
       end
 

@@ -2,7 +2,7 @@
 c      subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
 c     .  lwtkb,efermi,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,esmear)
       subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
-     .  lwtkb,efermi,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,esmear)
+     .lwtkb,efermi,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,esmear)
 C- Brillouin-integration setup
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -98,7 +98,7 @@ C ... Heap
       if (lmet .eq. 4) numq = 3
       lwtkb = 0
       if (lmet .gt. 0 .and. (lmet .ne. 4 .or. ltet))
-     .  call defrr(owtkb,ndham*nsp*nkp)
+     .call defrr(owtkb,ndham*nsp*nkp)
       if (nevmx .ge. 0) then
         if (lmet .eq. 2 .or. lmet .eq. 3) then
           lwtkb = -1
@@ -107,9 +107,9 @@ C     ... Attempt to use existing weights
             if (procid .eq. master) then
               ifi = fopna('wkp',-1,4)
               if (nspc .eq. 1)
-     .          lerr = iobzwt(0,ndham,nkp,nsp,efermi,w(owtkb),ifi)
+     .        lerr = iobzwt(0,ndham,nkp,nsp,efermi,w(owtkb),ifi)
               if (nspc .eq. 2)
-     .          lerr = iobzwt(0,ndham*2,nkp,1,efermi,w(owtkb),ifi)
+     .        lerr = iobzwt(0,ndham*2,nkp,1,efermi,w(owtkb),ifi)
               call fclose(ifi)
               if (lerr .eq. 0) lwtkb = 1
               if (lerr .ne. 0) efermi = -99
@@ -119,7 +119,7 @@ C           Broadcast lwtkb,efermi,wtkb
             if (lwtkb .eq. 1) then
               call mpibc1(efermi,1,4,.false.,'subzi','efermi')
               call mpibc1(w(owtkb),ndham*nsp*nkp,4,.false.,'subzi',
-     .          'wtkb')
+     .        'wtkb')
             endif
           endif
         endif
@@ -143,15 +143,15 @@ C ... Printout
         stdo = lgunit(1)
         if (lmet .gt. 0) then
           call awrit0('%N subzi: '//strni(isw(ltet)+1)//
-     .      '%a integration of bands; '//
-     .      strni(isw(lmet.ne.4.and.ltet)+1)//
-     .      '%a integration of density',' ',80,stdo)
+     .    '%a integration of bands; '//
+     .    strni(isw(lmet.ne.4.and.ltet)+1)//
+     .    '%a integration of density',' ',80,stdo)
           if (lmet .eq. 4 .or. .not. ltet) then
             call info8(30,0,0,
-     .        '%7p sampling integration uses:  '//
-     .        '%?#(n<0)#Fermi distribution (T=%;4d)#%-1jN=%i  W=%;4d#'//
-     .        '  ef0=%;6;6d%?#(n==4)#  def=%;6d##',
-     .        n,esmear,ef0,lmet,def,0,0,0)
+     .      '%7p sampling integration uses:  '//
+     .      '%?#(n<0)#Fermi distribution (T=%;4d)#%-1jN=%i  W=%;4d#'//
+     .      '  ef0=%;6;6d%?#(n==4)#  def=%;6d##',
+     .      n,esmear,ef0,lmet,def,0,0,0)
           endif
         else
           call info(20,0,0,' subzi : nonmetal',0,0)
@@ -203,7 +203,7 @@ C ... File read
         read(ifi,end=80,err=80) nevx0,nq0,nsp0,efermi
         if (mode .eq. 1) then
           call info(20,1,0,
-     .      ' Read efermi from weights file : ef = %,6;6d',efermi,0)
+     .    ' Read efermi from weights file : ef = %,6;6d',efermi,0)
           return
         endif
         if (nevx .ne. nevx0 .or. nq .ne. nq0 .or. nsp .ne. nsp0) goto 80
@@ -213,7 +213,7 @@ C ... File read
    80   continue
         iobzwt = -1
         call info(20,1,0,' Incompatible or missing qp weights file ...',
-     .    0,0)
+     .  0,0)
         return
 
 C ... File write
@@ -225,7 +225,7 @@ C ... File write
         if (mode .eq. 1) then
           if (iprint() .ge. 20) then
             call awrit1('%N Saved Fermi level to weights file ... '//
-     .        'ef = %,6;6d',' ',80,lgunit(1),efermi)
+     .      'ef = %,6;6d',' ',80,lgunit(1),efermi)
           endif
           return
         endif

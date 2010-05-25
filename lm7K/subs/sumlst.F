@@ -1,5 +1,5 @@
       subroutine sumlst(lopt,nchmx,nbas,ng,ssite,sspec,sopts,mode,
-     .                  nsites,lsites,lmxch,nchan,lchan,nll)
+     .nsites,lsites,lmxch,nchan,lchan,nll)
 
       use m_struc_def  !Cgetarg
 
@@ -71,7 +71,7 @@ C     implicit none
 C Passed Parameters
       character*(*) sopts
       integer lopt,nchmx,nbas,ng,nsites,mode,lsites(*),nchan,lmxch,
-     .  lchan(*),nll
+     .lchan(*),nll
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -81,12 +81,12 @@ C Local Variables
       character dc*1,modstr(0:mxmode-1)*128
       integer lmax,isite,lmdim,ltop,ilm
       integer i,j,ipr,iprmin,ib,is,iprint,lgunit,stdo,igetss,isw,j2,j1,
-     .  m,iv(10),parg,lstyle,lopt0,lopt1
+     .m,iv(10),parg,lstyle,lopt0,lopt1
       double precision z
       data modstr /'all sites atom-projected',
-     .             'all sites l-projected','all sites lm-projected',
-     .             'site list atom-projected',
-     .             'site list l-projected','site list lm-projected' /
+     .'all sites l-projected','all sites lm-projected',
+     .'site list atom-projected',
+     .'site list l-projected','site list lm-projected' /
 
       lopt0 = mod(lopt,10)
       lopt1 = mod(lopt/10,10)
@@ -112,19 +112,19 @@ C         DOS mode; see Remarks
           elseif (sopts(j1:j1+4) .eq. 'mode=')  then
             m = 0
             i = parg('mode=',2,sopts(j1:),m,len(sopts(j1:)),
-     .        dc//' ',1,1,iv,mode)
+     .      dc//' ',1,1,iv,mode)
             if (i .le. 0) goto 999
             call isanrg(mode,0,5,' sumlst:','mode',.true.)
             if (ipr .ge. 10) then
               if ((mode .eq. 2 .or. mode .eq. 5) .and. ng .gt. 1)
-     .          call awrit0(' **WARNING** sumlst: '//
-     .          'for lm-decomposition suppress symops',' ',128,stdo)
+     .        call awrit0(' **WARNING** sumlst: '//
+     .        'for lm-decomposition suppress symops',' ',128,stdo)
             endif
 C         Number of energy points.  Not used now
           elseif (sopts(j1:j1+2) .eq. 'nl=')  then
             m = 0
             i = parg('nl=',2,sopts(j1:),m,len(sopts(j1:)),
-     .        dc//' ',1,1,iv,nll)
+     .      dc//' ',1,1,iv,nll)
             if (i .le. 0) goto 999
 C         Site list
           elseif (sopts(j1:j1+5) .eq. 'sites=')  then
@@ -143,7 +143,7 @@ C           We need to make slabl,z before using other lstyle
       if (mode .lt. 3) nsites = nbas
 
       if (nsites .eq. 0) call rxi
-     .  ('sumlst: --sites=list is required input for mode =',mode)
+     .('sumlst: --sites=list is required input for mode =',mode)
 
 C --- Generate lsites,lmxch ---
       lmxch = -1
@@ -209,8 +209,8 @@ C --- Printout --
       if (ipr .ge. iprmin) then
         call strip(modstr(mode),i,j)
         call awrit4(' sumlst:  %?#n#Mulliken#Partial DOS# mode %i ('//
-     .    modstr(mode)(i:j)//')  %i sites %i channels',' ',128,stdo,
-     .    lopt0,mode,nsites,nchan)
+     .  modstr(mode)(i:j)//')  %i sites %i channels',' ',128,stdo,
+     .  lopt0,mode,nsites,nchan)
       endif
       return
 

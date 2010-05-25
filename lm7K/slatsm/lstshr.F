@@ -72,7 +72,7 @@ C   ... find top
         if (i1h .le. n1 .and. i2h .le. n2) then
           lequ = lst2(i2h) .eq. lst1(i1h)
           if (mode .eq. 3) lequ = lequ .and.
-     .                            lst1(i1h) .eq. lst1(i1h-1)+1
+     .    lst1(i1h) .eq. lst1(i1h-1)+1
           if (lequ) goto 21
           lstc(3*nc) = i1h-i1l
           i1l = i1h

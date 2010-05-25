@@ -82,9 +82,9 @@ C
 *
       LOGICAL A, B, FLAG
       PARAMETER (FACTOR   = 1.12837916709551257388D0,
-     *           RXREAL = 0.5D+154,
-     *           RMXEXP  = 708.503061461606D0,
-     *           RXGONI = 3.53711887601422D+15)
+     *RXREAL = 0.5D+154,
+     *RMXEXP  = 708.503061461606D0,
+     *RXGONI = 3.53711887601422D+15)
 *
       FLAG = .FALSE.
 *
@@ -114,25 +114,25 @@ C  USING A POWER-SERIES (ABRAMOWITZ/STEGUN, EQUATION (7.1.5), P.297)
 C  N IS THE MINIMUM NUMBER OF TERMS NEEDED TO OBTAIN THE REQUIRED
 C  ACCURACY
 C
-        QRHO  = (1-0.85d0*Y)*DSQRT(QRHO)
-        N     = IDNINT(6 + 72*QRHO)
-        J     = 2*N+1
-        XSUM  = 1.0d0/J
-        YSUM  = 0.0D0
-        DO 10 I=N, 1, -1
-          J    = J - 2
-          XAUX = (XSUM*XQUAD - YSUM*YQUAD)/I
-          YSUM = (XSUM*YQUAD + YSUM*XQUAD)/I
-          XSUM = XAUX + DBLE(1)/J
- 10     CONTINUE
-        U1   = -FACTOR*(XSUM*YABS + YSUM*XABS) + DBLE(1)
-        V1   =  FACTOR*(XSUM*XABS - YSUM*YABS)
-        DAUX =  DEXP(-XQUAD)
-        U2   =  DAUX*DCOS(YQUAD)
-        V2   = -DAUX*DSIN(YQUAD)
+      QRHO  = (1-0.85d0*Y)*DSQRT(QRHO)
+      N     = IDNINT(6 + 72*QRHO)
+      J     = 2*N+1
+      XSUM  = 1.0d0/J
+      YSUM  = 0.0D0
+      DO 10 I=N, 1, -1
+      J    = J - 2
+      XAUX = (XSUM*XQUAD - YSUM*YQUAD)/I
+      YSUM = (XSUM*YQUAD + YSUM*XQUAD)/I
+      XSUM = XAUX + DBLE(1)/J
+ 10   CONTINUE
+      U1   = -FACTOR*(XSUM*YABS + YSUM*XABS) + DBLE(1)
+      V1   =  FACTOR*(XSUM*XABS - YSUM*YABS)
+      DAUX =  DEXP(-XQUAD)
+      U2   =  DAUX*DCOS(YQUAD)
+      V2   = -DAUX*DSIN(YQUAD)
 *
-        U    = U1*U2 - V1*V2
-        V    = U1*V2 + V1*U2
+      U    = U1*U2 - V1*V2
+      V    = U1*V2 + V1*U2
 *
       ELSE
 C
@@ -150,52 +150,52 @@ C  NU IS THE MINIMUM NUMBER OF TERMS OF THE CONTINUED FRACTION NEEDED
 C  TO CALCULATE THE DERIVATIVES WITH THE REQUIRED ACCURACY
 C
 *
-        IF (QRHO.GT.DBLE(1)) THEN
-          H    = DBLE(0)
-          KAPN = 0
-          QRHO = DSQRT(QRHO)
-          NU   = IDINT(3 + (1442/(26*QRHO+77)))
-        ELSE
-          QRHO = (1-Y)*DSQRT(1-QRHO)
-          H    = 1.88d0*QRHO
-          H2   = 2*H
-          KAPN = IDNINT(7  + 34*QRHO)
-          NU   = IDNINT(16 + 26*QRHO)
-        ENDIF
+      IF (QRHO.GT.DBLE(1)) THEN
+      H    = DBLE(0)
+      KAPN = 0
+      QRHO = DSQRT(QRHO)
+      NU   = IDINT(3 + (1442/(26*QRHO+77)))
+      ELSE
+      QRHO = (1-Y)*DSQRT(1-QRHO)
+      H    = 1.88d0*QRHO
+      H2   = 2*H
+      KAPN = IDNINT(7  + 34*QRHO)
+      NU   = IDNINT(16 + 26*QRHO)
+      ENDIF
 *
-        B = (H.GT.DBLE(0))
+      B = (H.GT.DBLE(0))
 *
-        IF (B) QLMBDA = H2**KAPN
+      IF (B) QLMBDA = H2**KAPN
 *
-        RX = DBLE(0)
-        RY = DBLE(0)
-        SX = DBLE(0)
-        SY = DBLE(0)
+      RX = DBLE(0)
+      RY = DBLE(0)
+      SX = DBLE(0)
+      SY = DBLE(0)
 *
-        DO 11 N=NU, 0, -1
-          NP1 = N + 1
-          TX  = YABS + H + NP1*RX
-          TY  = XABS - NP1*RY
-          C   = 0.5d0/(TX**2 + TY**2)
-          RX  = C*TX
-          RY  = C*TY
-          IF (B .AND. (N.LE.KAPN)) THEN
-            TX = QLMBDA + SX
-            SX = RX*TX - RY*SY
-            SY = RY*TX + RX*SY
-            QLMBDA = QLMBDA/H2
-          ENDIF
- 11     CONTINUE
+      DO 11 N=NU, 0, -1
+      NP1 = N + 1
+      TX  = YABS + H + NP1*RX
+      TY  = XABS - NP1*RY
+      C   = 0.5d0/(TX**2 + TY**2)
+      RX  = C*TX
+      RY  = C*TY
+      IF (B .AND. (N.LE.KAPN)) THEN
+      TX = QLMBDA + SX
+      SX = RX*TX - RY*SY
+      SY = RY*TX + RX*SY
+      QLMBDA = QLMBDA/H2
+      ENDIF
+ 11   CONTINUE
 *
-        IF (H.EQ.DBLE(0)) THEN
-          U = FACTOR*RX
-          V = FACTOR*RY
-        ELSE
-          U = FACTOR*SX
-          V = FACTOR*SY
-        END IF
+      IF (H.EQ.DBLE(0)) THEN
+      U = FACTOR*RX
+      V = FACTOR*RY
+      ELSE
+      U = FACTOR*SX
+      V = FACTOR*SY
+      END IF
 *
-        IF (YABS.EQ.DBLE(0)) U = DEXP(-XABS**2)
+      IF (YABS.EQ.DBLE(0)) U = DEXP(-XABS**2)
 *
       END IF
 *
@@ -206,29 +206,29 @@ C
 *
       IF (YI.LT.DBLE(0)) THEN
 *
-        IF (A) THEN
-          U2    = 2*U2
-          V2    = 2*V2
-        ELSE
-          XQUAD =  -XQUAD
+      IF (A) THEN
+      U2    = 2*U2
+      V2    = 2*V2
+      ELSE
+      XQUAD =  -XQUAD
 *
 C
 C         THE FOLLOWING IF-STATEMENT PROTECTS 2*EXP(-Z**2)
 C         AGAINST OVERFLOW
 C
-          IF ((YQUAD.GT.RXGONI).OR.
-     *        (XQUAD.GT.RMXEXP)) GOTO 100
+      IF ((YQUAD.GT.RXGONI).OR.
+     *(XQUAD.GT.RMXEXP)) GOTO 100
 *
-          W1 =  2*DEXP(XQUAD)
-          U2  =  W1*DCOS(YQUAD)
-          V2  = -W1*DSIN(YQUAD)
-        END IF
+      W1 =  2*DEXP(XQUAD)
+      U2  =  W1*DCOS(YQUAD)
+      V2  = -W1*DSIN(YQUAD)
+      END IF
 *
-        U = U2 - U
-        V = V2 - V
-        IF (XI.GT.DBLE(0)) V = -V
+      U = U2 - U
+      V = V2 - V
+      IF (XI.GT.DBLE(0)) V = -V
       ELSE
-        IF (XI.LT.DBLE(0)) V = -V
+      IF (XI.LT.DBLE(0)) V = -V
       END IF
 *
       RETURN

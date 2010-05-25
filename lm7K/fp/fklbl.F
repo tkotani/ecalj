@@ -80,26 +80,26 @@ C ... Alternatively, use vectorized equivalents (about 2x faster)
 #if F90
       allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
       call hsmqe0(lmax,rsm,0,q,p1,nrx,nlm,wk,yl,
-     .  awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,fsm)
+     .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,fsm)
       if (rsm .gt. faca/awald) then
         call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, fkl)
       else
         job = 2
         call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
-     .    yl,wk,job,fkl)
+     .  yl,wk,job,fkl)
       endif
       deallocate(wk,yl)
 #else
       call defrr(owk, nrx*(2*lmax+10))
       call defrr(oyl, nrx*(lmax+1)**2)
       call hsmqe0(lmax,rsm,0,q,p1,nrx,nlm,w(owk),w(oyl),
-     .  awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,fsm)
+     .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,fsm)
       if (rsm .gt. faca/awald) then
         call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, fkl)
       else
         job = 2
         call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
-     .    w(oyl),w(owk),job,fkl)
+     .  w(oyl),w(owk),job,fkl)
       endif
       call rlse(owk)
 #endif
@@ -108,10 +108,10 @@ C ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
       do  2  ilm = 1, nlm
         gklsav = fkl(0,ilm)
         fkl(0,ilm) = fsm(ilm)
-      do  2  k = 1, kmax
-        gklnew = fkl(k,ilm)
-        fkl(k,ilm) = -fpi*gklsav
-        gklsav = gklnew
+        do  2  k = 1, kmax
+          gklnew = fkl(k,ilm)
+          fkl(k,ilm) = -fpi*gklsav
+          gklsav = gklnew
   2   continue
 
 C ... Add extra term to F(k=1,l=0)

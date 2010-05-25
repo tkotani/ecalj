@@ -1,5 +1,5 @@
       logical function aiogen(alabl,z,rmax,lmx,nsp,lrel,nr,a,
-     . qc,dq,vrmax,sumec,sumev,thrpv,ekin,utot,rhoeps,etot,ifi)
+     .qc,dq,vrmax,sumec,sumev,thrpv,ekin,utot,rhoeps,etot,ifi)
 C- File I/O for atomic general data.  IFI>0 for read, <0 for write
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -33,7 +33,7 @@ C     implicit none
 C Passed parameters
       integer lmx,nsp,nr,ifi
       double precision z,rmax,a,
-     . qc,dq,vrmax(2),sumec,sumev,thrpv,ekin,utot,rhoeps,etot
+     .qc,dq,vrmax(2),sumec,sumev,thrpv,ekin,utot,rhoeps,etot
       character*8 alabl
       logical lrel
 C Local parameters
@@ -53,11 +53,11 @@ C Local parameters
         write(-ifi,102) sumec,utot,ekin,sumev,etot,thrpv
       endif
   100 format(3X,A4,'  LMX=',I1,'  NSPIN=',I1,'  RMAX=',F9.6,'  REL=',L1,
-     .       '  NR=',I4,'  A=',F5.3)
+     .'  NR=',I4,'  A=',F5.3)
   101 format(3X,'Z=',I2,  '  QC=',I2,'  QTOT=',F9.6,'  VRMAX=',2F9.6,
-     .          '  RHOEPS=',F13.7)
+     .'  RHOEPS=',F13.7)
   102 format('   SUMEC=',F15.7,'  UTOT=',F15.7,'  EKIN= ',F15.7/
-     .       '   SUMEV=',F15.7,'  ETOT=',F15.7,'  THRPV=',F15.7)
+     .'   SUMEV=',F15.7,'  ETOT=',F15.7,'  THRPV=',F15.7)
 
   200 format(3X,A4,6X,I1,8X,I1,7X,F9.6,6X,L1,5X,I4,4X,F5.3)
   201 format(3X,2X,F2.0,5X,F2.0,7X,F9.6,8X,2F9.6,9X,F12.6)

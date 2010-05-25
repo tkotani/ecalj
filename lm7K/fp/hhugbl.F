@@ -1,5 +1,5 @@
       subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,
-     .  ndim2,slat,wk,dwk,s,ds)
+     .ndim2,slat,wk,dwk,s,ds)
 
       use m_struc_def  !Cgetarg
 
@@ -31,11 +31,11 @@ C     implicit none
 C ... Passed parameters
       integer mode,nlm1,nlm2,ndim1,ndim2
       real(8):: rsm1(0:*) , rsm2(0:*) , e1(0:*) , e2(0:*) , p1(3) , 
-     . p2(3)
+     .p2(3)
       type(s_lat)::slat
 
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3),
-     .   wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
+     .wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
 C ... Local parameters
       integer ocg,ojcg,oidxcg,ocy,kmax,kdim,i2,i1,lmxx,nlmx,l,ll
       parameter (lmxx=6,nlmx=(lmxx+1)**2)
@@ -60,10 +60,10 @@ C ... Heap
       if (nlm1 .gt. nlmx) call rx('hhugbl: increase lmxx')
 
       call hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,ndim1,
-     .  ndim2,kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
+     .ndim2,kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
 
       call hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,zer,nlm1,nlm2,kmax,ndim1,
-     .  ndim2,kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,wk,dwk)
+     .ndim2,kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,wk,dwk)
 
       do  i2 = 1, nlm2
         if (mode .eq. 0) then

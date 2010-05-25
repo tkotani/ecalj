@@ -36,8 +36,8 @@ C --- Convert nr*nc strings to binary, or until a2bin false ---
           call skipbl(instr,strmax,cp)
           if (cp .ge. strmax*nrecs-1) goto 91
           if (.not. a2bin(instr,s,4,i+mr*j,' ',cp,strmax*nrecs)) goto 91
-   10   continue
-        return
+   10 continue
+      return
 
 C --- If requested, determine nr and make second pass ---
    91 if (.not. retnr) stop 'rdm: missing matrix'

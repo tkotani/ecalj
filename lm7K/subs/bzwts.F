@@ -1,6 +1,6 @@
       subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .  metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,sumev,
-     .  wtkb,dosef,qval,ent)
+     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,sumev,
+     .wtkb,dosef,qval,ent)
 C- BZ integration for fermi level, band sum and qp weights
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -56,14 +56,14 @@ C     implicit none
 C Passed parameters
       logical metal,tetra
       integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,
-     .  idtet(5,ntet)
+     .idtet(5,ntet)
       double precision zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
-     .  wtkb(nevx,nsp,nkp),efmax,efermi,sumev,dosef(2),qval(2),ent
+     .wtkb(nevx,nsp,nkp),efmax,efermi,sumev,dosef(2),qval(2),ent
 C Local variables
       integer:: it , itmax , n , nptdos , nspx , nbmxx , nevxx , ib 
-     . , ikp , ipr , job , nbpw , i1mach , nev , stdo , stdl , nglob 
-     . , mkdlst , ifi , fopna , i , j , lry , procid , mpipid , master 
-     . , nulli , isw
+     ., ikp , ipr , job , nbpw , i1mach , nev , stdo , stdl , nglob 
+     ., mkdlst , ifi , fopna , i , j , lry , procid , mpipid , master 
+     ., nulli , isw
       real(8) ,allocatable :: dos_rv(:)
       real(8) ,allocatable :: bot_rv(:)
       real(8) ,allocatable :: top_rv(:)
@@ -71,7 +71,7 @@ C Local variables
       real(8) ,allocatable :: wk_rv(:)
 
       double precision emin,emax,e1,e2,dum,tol,e,elo,ehi,sumwt,
-     .  dmin,dmax,dval,egap,amom,dsum,cv,tRy
+     .dmin,dmax,dval,egap,amom,dsum,cv,tRy
       character outs*100
       logical cmdopt,efrng2,lfill
       real(8) ,allocatable :: tlst_rv(:)
@@ -107,7 +107,7 @@ C     job = 1 for non spin pol, -1 for spin pol
       dosef(nspx) = 0
       egap = nulli
       if (nsp .eq. 2 .and. nspc .eq. 1 .and. cmdopt('--oldbz',7,0,outs))
-     .  then
+     .then
         nspx  = nsp
         nevxx = nevx
         nbmxx = nbmx
@@ -124,18 +124,18 @@ C     Force coupled spins: find range
 Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) wk_rv(:)=0.0d0
 
         call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
-     .   , wk_rv , eb )
+     .  , wk_rv , eb )
 
         lfill = efrng2 ( nspx , nkp , nbmxx , nevxx , zval * 2 , eb , 
-     .   bot_rv , top_rv , elo , ehi , emin , emax )
+     .  bot_rv , top_rv , elo , ehi , emin , emax )
 
         call ebcpl ( 1 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
-     .   , wk_rv , eb )
+     .  , wk_rv , eb )
 
 C     Spins not coupled: find range
       else
         lfill = efrng2 ( nspx , nkp , nbmxx , nevxx , nspc * zval , eb 
-     .   , bot_rv , top_rv , elo , ehi , emin , emax )
+     .  , bot_rv , top_rv , elo , ehi , emin , emax )
 
       endif
 C ... Bands never filled if 100s digit norder set
@@ -163,7 +163,7 @@ C ... Pretend as though spin-pol bands are coupled to find E_f
 Ctakao_ZeroClear_NotRequiered          if (nevx*nsp<0) wk_rv(:)=0.0d0
 
         call ebcpl ( 0 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
-     .   , wk_rv , eb )
+     .  , wk_rv , eb )
 
       endif
 
@@ -191,10 +191,10 @@ C --- BZ weights, sumev and E_f for an insulator  ---
         if (ipr .ge. 20) then
           write(stdo,'(/'' BZWTS : --- Non-metal sampling ---'')')
           call awrit3(' Fermi energy: %,6;6d;  %d electrons;  Sum '//
-     .      'occ. bands: %,6;6d',' ',80,stdo,efermi,sumwt,sumev)
+     .    'occ. bands: %,6;6d',' ',80,stdo,efermi,sumwt,sumev)
           call info5(20,0,0,' VBmax = %,6;6d  CBmin = %,6;6d  gap = '//
-     .      '%,6;6d Ry = %,5;5d eV',emin,emax,emax-emin,
-     .      (emax-emin)*13.6d0,0)
+     .    '%,6;6d Ry = %,5;5d eV',emin,emax,emax-emin,
+     .    (emax-emin)*13.6d0,0)
         endif
 
 C --- BZ weights, sumev and E_f by tetrahedron method (Blochl wts) ---
@@ -204,10 +204,10 @@ C --- BZ weights, sumev and E_f by tetrahedron method (Blochl wts) ---
         if (lfill) then
           egap = emax-emin
           call info2(10,0,0,' ... only filled or empty bands'//
-     .      ' encountered:  ev=%,6;6d  ec=%,6;6d',emin,emax)
+     .    ' encountered:  ev=%,6;6d  ec=%,6;6d',emin,emax)
           call info5(20,0,0,' VBmax = %,6;6d  CBmin = %,6;6d  gap = '//
-     .      '%,6;6d Ry = %,5;5d eV',emin,emax,emax-emin,
-     .      (emax-emin)*13.6d0,0)
+     .    '%,6;6d Ry = %,5;5d eV',emin,emax,emax-emin,
+     .    (emax-emin)*13.6d0,0)
           goto 2
         endif
         nptdos = 101
@@ -219,29 +219,29 @@ C       Preliminary check that dos lies within emin,emax
 C       Widen emin,emax if not
         if (.not. lfill) then
           call bzints ( n1 , n2 , n3 , eb , dum , nkp , nevxx , nbmxx , 
-     .     nspx , emin , emax , dos_rv , nptdos , efermi , job , ntet 
-     .     , idtet , sumev , qval )
+     .    nspx , emin , emax , dos_rv , nptdos , efermi , job , ntet 
+     .    , idtet , sumev , qval )
 
           dmin = dval ( dos_rv , 1 )
 
           if ( nspx .eq. 2 ) dmin = dmin + dval ( dos_rv , nptdos + 
-     .     1 )
+     .    1 )
 
           dmax = dval ( dos_rv , nptdos )
 
           if ( nspx .eq. 2 ) dmax = dmax + dval ( dos_rv , nptdos + 
-     .     nptdos )
+     .    nptdos )
 
           if (dmin .gt. zval) then
             emin = 3*emin-2*emax
             call info5(10,0,0,
-     .        ' (warning): initial NOS ( %1,6;6g %1,6;6g ) does'//
-     .        ' not encompass Q=%1;6g' ,dmin,dmax,zval,0,0)
+     .      ' (warning): initial NOS ( %1,6;6g %1,6;6g ) does'//
+     .      ' not encompass Q=%1;6g' ,dmin,dmax,zval,0,0)
           elseif (dmax .lt. zval) then
             emax = 3*emax-2*emin
             call info5(10,0,0,
-     .        ' (warning): initial NOS ( %1,6;6g %1,6;6g ) does'//
-     .        ' not encompass Q=%1;6g' ,dmin,dmax,zval,0,0)
+     .      ' (warning): initial NOS ( %1,6;6g %1,6;6g ) does'//
+     .      ' not encompass Q=%1;6g' ,dmin,dmax,zval,0,0)
           endif
         endif
         if (ipr .ge. 35) print 101
@@ -250,26 +250,26 @@ C       Widen emin,emax if not
         itmax = 5
         do   it = 1, itmax
           call bzints ( n1 , n2 , n3 , eb , dum , nkp , nevxx , nbmxx , 
-     .     nspx , emin , emax , dos_rv , nptdos , efermi , job , ntet 
-     .     , idtet , sumev , qval )
+     .    nspx , emin , emax , dos_rv , nptdos , efermi , job , ntet 
+     .    , idtet , sumev , qval )
 
           call fermi ( zval , dos_rv , nptdos , emin , emax , nspx , 
-     .     efermi , emin , emax , dosef )
+     .    efermi , emin , emax , dosef )
 
           if (ipr .ge. 35)
-     .      write(stdo,100) efermi,emin,emax,emax-emin,dosef(1)
+     .    write(stdo,100) efermi,emin,emax,emax-emin,dosef(1)
   100     format(7x,6(f10.6,1x))
           if (emax-emin .lt. tol) goto 1
         enddo
         if (ipr .gt. 10)
-     .    call awrit2(' BZWTS (warning): Fermi energy not converged: '//
-     .    '%g > tol=%g',' ',80,i1mach(2),emax-emin,tol)
+     .  call awrit2(' BZWTS (warning): Fermi energy not converged: '//
+     .  '%g > tol=%g',' ',80,i1mach(2),emax-emin,tol)
     1   continue
         if (allocated(dos_rv)) deallocate(dos_rv)
 
     2   continue
         call bzints(n1,n2,n3,eb,wtkb,nkp,nevxx,nbmxx,
-     .    nspx,emin,emin,emin,1,efermi,2*job,ntet,idtet,sumev,qval)
+     .  nspx,emin,emin,emin,1,efermi,2*job,ntet,idtet,sumev,qval)
       else
 
 C --- BZ weights, sumev and E_f by Methfessel-Paxton sampling ---
@@ -278,7 +278,7 @@ C       if (ipr .gt. 30) write (fopn('LOG'),102) n,width
 C  102   format(/' BZWTS : --- Brillouin Zone sampling; N =',i2,
 C     .    ', W =',f6.3:'  range =',i2,'*W ---')
         call info2(31,1,0,' BZWTS : --- Brillouin Zone sampling; '//
-     .    'N=%i, W=%10z%;4g%0z ---',n,width)
+     .  'N=%i, W=%10z%;4g%0z ---',n,width)
 C   ... Temporarily remove spin degeneracy if spins are coupled
         if (nsp .eq. 2 .and. nspx .eq. 1) call dscal(nkp,.5d0,wtkp,1)
 C   ... Find Fermi level, sampling
@@ -290,12 +290,12 @@ C   ... Find Fermi level, sampling
           do  it = 1, itmax
             call pshprt(0)
             call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,width,efermi,
-     .                  .true.,sumev,wtkb,qval,ent,dosef,cv)
+     .      .true.,sumev,wtkb,qval,ent,dosef,cv)
             call poppr
             if (dabs(zval - qval(1)) .lt. 1d-12) then
               call info5(41,0,0,
-     .         ' Fermi energy, %d found after %i bisections,'//
-     .         ' %d electrons, DOS(E_f)=%;4g',efermi,it,qval(1),dosef,0)
+     .        ' Fermi energy, %d found after %i bisections,'//
+     .        ' %d electrons, DOS(E_f)=%;4g',efermi,it,qval(1),dosef,0)
               goto 3
             endif
             if (qval(1) .gt. zval) then
@@ -306,20 +306,20 @@ C   ... Find Fermi level, sampling
             efermi = 0.5d0*(e1 + e2)
           enddo
           call info0(10,0,0,' BZWTS (warning): '//
-     .      'cannot find E_F by bisection, using INTNOS')
+     .    'cannot find E_F by bisection, using INTNOS')
           allocate(dos_rv(nspx*npts))
 Ctakao_ZeroClear_NotRequiered            if (nspx*npts<0) dos_rv(:)=0.0d0
 
           emin = elo - rnge*width/2
           emax = emax + rnge*width/2
           call maknos ( nkp , nevxx , nbmxx , nspx , wtkp , eb , n , width 
-     .     , - rnge , emin , emax , npts , dos_rv )
+     .    , - rnge , emin , emax , npts , dos_rv )
 
           if ( nspx.eq.2 ) call dpsadd ( dos_rv , dos_rv , npts , 
-     .     1 , npts + 1 , 1d0 )
+     .    1 , npts + 1 , 1d0 )
 
           call intnos ( npts , dos_rv , emin , emax , zval , efermi 
-     .     , dosef , sumev )
+     .    , dosef , sumev )
 
           if (allocated(dos_rv)) deallocate(dos_rv)
 
@@ -329,15 +329,15 @@ Ctakao_ZeroClear_NotRequiered            if (nspx*npts<0) dos_rv(:)=0.0d0
           dosef(2) = 0
           egap = emax-emin
           call info2(10,0,0,' ... only filled or empty bands'//
-     .      ' encountered:  ev=%,6;6d  ec=%,6;6d',emin,emax)
+     .    ' encountered:  ev=%,6;6d  ec=%,6;6d',emin,emax)
           call info5(20,0,0,' VBmax = %,6;6d  CBmin = %,6;6d  gap = '//
-     .      '%,6;6d Ry = %,5;5d eV',emin,emax,emax-emin,
-     .      (emax-emin)*13.6d0,0)
+     .    '%,6;6d Ry = %,5;5d eV',emin,emax,emax-emin,
+     .    (emax-emin)*13.6d0,0)
         endif
 
 C   ... (optional) Tabulate specific heat in file for list of T's
         if ((cmdopt('--cv:',5,0,outs) .or. cmdopt('--cvK:',6,0,outs))
-     .    .and. n .lt. 0 .and. metal) then
+     .  .and. n .lt. 0 .and. metal) then
           if (procid .eq. master) then
             if (cmdopt('--cvK:',6,0,outs)) then
               lRy = 0
@@ -353,14 +353,14 @@ Ctakao_ZeroClear_NotRequiered            if (itmax<0) tlst_rv(:)=0.0d0
 
               call word(outs,1,it,j)
               call info2(20,0,0,' Writing CV(T) to file for %i vals of T: '
-     .      //outs(i:j)//' %?#(n==1)#(Ry)#(K)#',itmax,lRy)
+     .        //outs(i:j)//' %?#(n==1)#(Ry)#(K)#',itmax,lRy)
               it = mkdlst ( outs ( i: ) , 1d - 8 , itmax + 1 , tlst_rv )
 
               if (it .ne. itmax) call rx('bzwts: bug in mkdlst')
               ifi = fopna('cv',-1,0)
               rewind ifi
               call awrit1('%% rows %i cols 4%N'//
-     .      '#    T(K)    T(Ry)   S(k_B)   TdS/dT(k_B)',' ',80,ifi,it)
+     .        '#    T(K)    T(Ry)   S(k_B)   TdS/dT(k_B)',' ',80,ifi,it)
               do  it = 1, itmax
                 try = dval ( tlst_rv , it )
 
@@ -369,10 +369,10 @@ Ctakao_ZeroClear_NotRequiered            if (itmax<0) tlst_rv(:)=0.0d0
                 endif
                 call pshpr(1)
                 call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,tRy,efermi,
-     .        metal,sumev,wtkb,qval,ent,dosef,cv)
+     .          metal,sumev,wtkb,qval,ent,dosef,cv)
                 call poppr
                 call awrit4('%;9,1D%;9,5D  %;9F  %;9F',' ',80,ifi,
-     .        0.1579d6*tRy,tRy,ent,cv)
+     .          0.1579d6*tRy,tRy,ent,cv)
               enddo
               call fclose(ifi)
             endif
@@ -381,8 +381,8 @@ Ctakao_ZeroClear_NotRequiered            if (itmax<0) tlst_rv(:)=0.0d0
 
 C   ... Make weights, sampling
         call splwts(nkp,nevxx,nbmxx,nspx,wtkp,eb,n,width,efermi,
-     .              (.not. lfill) .or. (metal .and. (nkp .eq. 1)),
-     .              sumev,wtkb,qval,ent,dosef,cv)
+     .  (.not. lfill) .or. (metal .and. (nkp .eq. 1)),
+     .  sumev,wtkb,qval,ent,dosef,cv)
 
 C   ... Put back spin degeneracy if removed
         if (nsp .eq. 2 .and. nspx .eq. 1) call dscal(nkp,2d0,wtkp,1)
@@ -392,10 +392,10 @@ C   ... Put back spin degeneracy if removed
 C ... Restore to uncoupled bands; ditto with weights
       if (nsp .eq. 2 .and. nspc .eq. 1 .and. job .eq. -1) then
         call ebcpl ( 1 , nbmx , nevx , nsp , nspc , nkp , nbpw , bmap_iv 
-     .   , wk_rv , eb )
+     .  , wk_rv , eb )
 
         if ( metal ) call ebcpl ( 1 , nevx , nevx , nsp , nspc , nkp 
-     .   , nbpw , bmap_iv , wk_rv , wtkb )
+     .  , nbpw , bmap_iv , wk_rv , wtkb )
 
         if (allocated(tlst_rv)) deallocate(tlst_rv)
         if (allocated(wk_rv)) deallocate(wk_rv)
@@ -408,7 +408,7 @@ C ... Magnetic moment
       if (nsp .eq. 2 .and. nspc .ne. 2 .and. metal) then
         do  ikp = 1, nkp
           amom = amom + dsum(nevx,wtkb(1,1,ikp),1) -
-     .                  dsum(nevx,wtkb(1,2,ikp),1)
+     .    dsum(nevx,wtkb(1,2,ikp),1)
         enddo
 C        if (ipr .gt. 0) write(stdo,922) amom
 C  922   format(9x,'Mag. moment:',f15.6)
@@ -434,7 +434,7 @@ C ... Check that efmax is above efermi ...
       e = efermi
       if (.not. lfill .and. .not. tetra) e = efermi + rnge*width/2
       if (e .gt. efmax) call fexit2(-1,111,' Exit -1 BZWTS: '//
-     .  'efmax=%1;6d < %1;6d',efmax,e)
+     .'efmax=%1;6d < %1;6d',efmax,e)
 
       call tcx('bzwts')
 
@@ -481,7 +481,7 @@ C   ... Gather and order +,- bands at this qp into one column
           do  20  ib = 1, nevx*nsp
             iqb = iqb+1
             if (eb(min(ib1,nevx),1,iq) .lt. eb(min(ib2,nevx),2,iq)
-     .       .and. ib1 .le. nevx .or. ib2 .gt. nevx) then
+     .      .and. ib1 .le. nevx .or. ib2 .gt. nevx) then
               wk(ib) = eb(ib1,1,iq)
               ib1 = ib1+1
             else

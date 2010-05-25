@@ -31,7 +31,7 @@ C ... Passed parameters
 
 C ... Local parameters
       integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , oistab 
-     . , og , ibmx , isw
+     ., og , ibmx , isw
       real(8) ,allocatable :: wk_rv(:)
 
       double precision fev1(3),fev2(3),fhar(3),fks(3),c,ddot,fmax,dfmax
@@ -73,10 +73,10 @@ C ... Heap
           dfmax = dsqrt(ddot(3,dfhf(1,ib),1,dfhf(1,ib),1))
         endif
         if (ipr .ge. 30) write(stdo,200) ib,(c*fes1(m,ib),m=1,3),
-     .    (c*fev1(m),m=1,3),(c*fhar(m),m=1,3)
+     .  (c*fev1(m),m=1,3),(c*fhar(m),m=1,3)
   200   format(i4,3f8.2,1x,3f8.2,1x,3f8.2)
         if (leks. eq. 0 .and. ipl .gt. 0 .and. ipr .ge. 30)
-     .      write(stdl,710) ib,(c*fhar(m),m=1,3)
+     .  write(stdl,710) ib,(c*fhar(m),m=1,3)
 
         i_copy_size=size(ssite(ib)%force)
         call dcopy(i_copy_size,f(1,ib),1,ssite(ib)%force,1)
@@ -95,16 +95,16 @@ C ... Heap
 
           enddo
           if (ipr .gt. 40) write(stdo,210) (c*fes2(m,ib),m=1,3),
-     .       (c*fev2(m),m=1,3),(c*fks(m),m=1,3)
+     .    (c*fev2(m),m=1,3),(c*fks(m),m=1,3)
   210     format('  KS',3f8.2,1x,3f8.2,1x,3f8.2)
           if (ipl .gt. 0 .and. ipr .ge.30)
-     .       write (stdl,711) ib,(c*fhar(m),m=1,3),(c*fks(m),m=1,3)
+     .    write (stdl,711) ib,(c*fhar(m),m=1,3),(c*fks(m),m=1,3)
   711     format('fp ib',i4,'  fh ',3f8.2,'   fks ',3f8.2)
         endif
       enddo
       call info5(10,0,0,' Maximum Harris force = %;3g mRy/au (site %i)'
-     .  //'%?#n#  Max eval correction = %;1d##',
-     .  c*fmax,ibmx,isw(dfmax.gt.0),c*dfmax,0)
+     .//'%?#n#  Max eval correction = %;1d##',
+     .c*fmax,ibmx,isw(dfmax.gt.0),c*dfmax,0)
 
 C     Symmetrize forces to machine precision
 
@@ -118,7 +118,7 @@ C     Symmetrize forces to machine precision
 Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) wk_rv(:)=0.0d0
 
         call symfor ( nbas , 1 , w ( og ) , ng , w ( oistab ) , wk_rv 
-     . , f )
+     .  , f )
 
         if (allocated(wk_rv)) deallocate(wk_rv)
 

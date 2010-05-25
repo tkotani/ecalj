@@ -1,5 +1,5 @@
       subroutine yysp2a(mode,i1,i2,j1,j2,apr,api,ldap,ija,offs,ar,ai,
-     .  lda)
+     .lda)
 C- Unpacks a subblock of a complex sparse matrix into standard form
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -43,7 +43,7 @@ C ----------------------------------------------------------------------
 C     implicit none
       integer mode,i1,i2,j1,j2,ldap,lda,ija(2,*),offs(i2)
       double precision apr(ldap,ldap,1),api(ldap,ldap,1),
-     .  ar(lda,1),ai(lda,1)
+     .ar(lda,1),ai(lda,1)
       integer i,j,ir,ic,pa,ofrb,ofcb,k,nra,nca,mode1
 C     integer ofr,ofc
 
@@ -59,9 +59,9 @@ C     ofc = 0
 C      do  6  j = offs(j1)-ofc+1, offs(j2+1)-ofc
 C      do  6  i = offs(i1)-ofr+1, offs(i2+1)-ofr
       do  6  j = offs(j1)+1, offs(j2+1)
-      do  6  i = offs(i1)+1, offs(i2+1)
-        ar(i,j) = 0
-        ai(i,j) = 0
+        do  6  i = offs(i1)+1, offs(i2+1)
+          ar(i,j) = 0
+          ai(i,j) = 0
     6 continue
 
 C ... Fill diagonal elements a(ir,ir). Skip if missing.
@@ -79,9 +79,9 @@ C         column offset to a for this subblock
 C         ofcb = offs(ir) - ofc
           ofcb = offs(ir)
           do  14  j = 1, nra
-          do  14  i = 1, nra
-            ar(i+ofrb,j+ofcb) = apr(i,j,pa)
-            ai(i+ofrb,j+ofcb) = api(i,j,pa)
+            do  14  i = 1, nra
+              ar(i+ofrb,j+ofcb) = apr(i,j,pa)
+              ai(i+ofrb,j+ofcb) = api(i,j,pa)
    14     continue
         endif
 
@@ -99,14 +99,14 @@ C         pointer to subblock in packed matrix
 C         a(ir,ija(k)) <- ap(pa)
           if (mode .lt. 2) then
             do  15  j = 1, nca
-            do  15  i = 1, nra
-              ar(i+ofrb,j+ofcb) = apr(i,j,pa)
+              do  15  i = 1, nra
+                ar(i+ofrb,j+ofcb) = apr(i,j,pa)
    15       continue
           else
             do  16  j = 1, nca
-            do  16  i = 1, nra
-              ar(i+ofrb,j+ofcb) = apr(i,j,pa)
-              ai(i+ofrb,j+ofcb) = api(i,j,pa)
+              do  16  i = 1, nra
+                ar(i+ofrb,j+ofcb) = apr(i,j,pa)
+                ai(i+ofrb,j+ofcb) = api(i,j,pa)
    16       continue
           endif
    11   continue

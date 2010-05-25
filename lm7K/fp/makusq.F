@@ -1,6 +1,6 @@
       subroutine makusq(mode,ssite,sspec,slat,sham,nbas,nsites,isite,
-     .  nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
-     .  aus)
+     .nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
+     .aus)
 
       use m_struc_def  !Cgetarg
 
@@ -87,8 +87,8 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nbas,nsp,nspc,isp,iq,
-     .  ndham,ndimh,napw,igvapw(3,napw),nev,nlmax,n0,nppn,
-     .  nsites,isite(nsites)
+     .ndham,ndimh,napw,igvapw(3,napw),nev,nlmax,n0,nppn,
+     .nsites,isite(nsites)
       parameter (n0=10,nppn=12)
       real(8):: q(3)
       type(s_site)::ssite(*)
@@ -98,7 +98,7 @@ C ... Passed parameters
 
       double precision ppnl(nppn,n0,nsp,nbas)
       double complex evec(ndimh,nsp,nev),
-     .  aus(nlmax,ndham*nspc,3,nsp,nsites,iq)
+     .aus(nlmax,ndham*nspc,3,nsp,nsites,iq)
 C ... Local parameters
       integer nkap0
       parameter (nkap0=3)
@@ -173,7 +173,7 @@ Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkapi<0) vh_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkapi<0) dh_rv(:)=0.0d0
 
         call fradhd ( nkapi , eh , rsmh , lh , lmxh , nr , rofi_rv 
-     .   , fh_rv , xh_rv , vh_rv , dh_rv )
+     .  , fh_rv , xh_rv , vh_rv , dh_rv )
 
         allocate(fp_rv(nr*(lmxa+1)*(kmax+1)))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) fp_rv(:)=0.0d0
@@ -188,15 +188,15 @@ Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) vp_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) dp_rv(:)=0.0d0
 
         call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv 
-     .   , xp_rv , vp_rv , dp_rv )
+     .  , xp_rv , vp_rv , dp_rv )
 
 C   --- Add to the coefficient for the projection onto (u,s) for this site
         call pusq1 ( mode , ib , isp , nspc , w ( oiprmb ) , nlmax , 
-     .   lmxh , nbas , ssite , sspec , slat , q , ndham , ndimh , napw 
-     .   , igvapw , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv 
-     .   , ppnl ( 1 , 1 , 1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , 
-     .   aus ( 1 , 1 , 2 , 1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq 
-     .   ) )
+     .  lmxh , nbas , ssite , sspec , slat , q , ndham , ndimh , napw 
+     .  , igvapw , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv 
+     .  , ppnl ( 1 , 1 , 1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , 
+     .  aus ( 1 , 1 , 2 , 1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq 
+     .  ) )
 
         if (allocated(dp_rv)) deallocate(dp_rv)
         if (allocated(vp_rv)) deallocate(vp_rv)
@@ -220,8 +220,8 @@ C        call zprm('loc',2,aus(1,1,3,isp,ib,iq),nlmax,(lmxa+1)**2,nev)
 
 
       subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite,
-     .  sspec,slat,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl,
-     .  au,as,az)
+     .sspec,slat,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl,
+     .au,as,az)
 
       use m_struc_def  !Cgetarg
 
@@ -281,7 +281,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,ia,isp,nspc,lmxh,nlmax,
-     .  nbas,ndham,ndimh,napw,igvapw(3,napw),nev,nlmbx,n0,nppn
+     .nbas,ndham,ndimh,napw,igvapw(3,napw),nev,nlmbx,n0,nppn
       parameter (nlmbx=25, n0=10, nppn=12)
       integer iprmb(ndimh)
       double precision ppnl(nppn,n0,2)
@@ -292,9 +292,9 @@ C ... Passed parameters
       type(s_lat)::slat
 
       double complex evec(ndimh,nspc,ndimh),
-     .  au(nlmax,ndham*nspc,3,2),
-     .  as(nlmax,ndham*nspc,3,2),
-     .  az(nlmax,ndham*nspc,3,2)
+     .au(nlmax,ndham*nspc,3,2),
+     .as(nlmax,ndham*nspc,3,2),
+     .az(nlmax,ndham*nspc,3,2)
 C ... Local parameters
       integer nkap0,nlmxx
       parameter (nkap0=3,nlmxx=121)
@@ -304,10 +304,10 @@ C ... Local parameters
       complex(8) ,allocatable :: a_zv(:)
 
       integer isa,lmxa,lmxha,kmax,nlma,ivec,
-     .  ilm,k,ll,nkape,ksp,ispc,nlmto
+     .ilm,k,ll,nkape,ksp,ispc,nlmto
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       double precision rsma,pa(3),rmt,
-     .  phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2)
+     .phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2)
 C ... Heap
       integer w(1)
       common /w/ w
@@ -347,8 +347,8 @@ C --- Make strux to expand all orbitals at site ia ---
 Ctakao_ZeroClear_NotRequiered        if ((kmax+1)*nlma*ndimh<0) b_zv(:)=0.0d0
 
       call bstrux ( 2 , slat , ssite , sspec , w ( ocg ) , w ( oidxcg 
-     . ) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
-     . q , kmax , nlma , ndimh , napw , igvapw , b_zv , w )
+     .) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
+     .q , kmax , nlma , ndimh , napw , igvapw , b_zv , w )
 
 
 C     In noncollinear case, isp=1 always => need internal ispc=1..2
@@ -384,13 +384,13 @@ Ctakao_ZeroClear_NotRequiered        if ((kmax+1)*nlma<0) a_zv(:)=0.0d0
         do  ivec = 1, nev
 C       call pusq3(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),w(oa))
           call rlocb1 ( ndimh , nlma , kmax , evec ( 1 , ispc , ivec ) 
-     .   , b_zv , a_zv )
+     .    , b_zv , a_zv )
 
 C       call zprm('cPkL',2,w(oa),kmax+1,kmax+1,nlma)
           call pusq2 ( mode , ia , nkape , kmax , lmxa , lmxh , nlmto , 
-     .   min ( nlma , nlmax ) , iprmb , a_zv , rotp , evec ( 1 , ispc 
-     .   , ivec ) , vh , dh , vp , dp , au ( 1 , ivec , 1 , ksp ) , as 
-     .   ( 1 , ivec , 1 , ksp ) , az ( 1 , ivec , 1 , ksp ) )
+     .    min ( nlma , nlmax ) , iprmb , a_zv , rotp , evec ( 1 , ispc 
+     .    , ivec ) , vh , dh , vp , dp , au ( 1 , ivec , 1 , ksp ) , as 
+     .    ( 1 , ivec , 1 , ksp ) , az ( 1 , ivec , 1 , ksp ) )
 
         enddo
         if (allocated(a_zv)) deallocate(a_zv)
@@ -413,7 +413,7 @@ C ... end loop over noncollinear spins
 
 
       subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,iprmb,
-     .  cPkL,r,evec,vh,dh,vp,dp,au,as,az)
+     .cPkL,r,evec,vh,dh,vp,dp,au,as,az)
 
 C- Extract projection of eigenstate onto (u,s,z) for sphere at site ia
 C ----------------------------------------------------------------------
@@ -458,7 +458,7 @@ C ... Passed parameters
       parameter (nlmxx=121)
       double precision r(nlmxx,2,2)
       double complex au(nlma),as(nlma),az(nlma),
-     .  evec(nlmto),cPkL(0:kmax,nlma)
+     .evec(nlmto),cPkL(0:kmax,nlma)
 C Local
       integer n0,nkap0,norb
       parameter (n0=10,nkap0=3)

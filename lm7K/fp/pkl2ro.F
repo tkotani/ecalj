@@ -1,5 +1,5 @@
       subroutine pkl2ro(mode,ib,rsm,kmax,nr,nlml,nsp,rofi,rwgt,k0,nlm0,
-     .  fklc,fklr,rho1,rho2,qmx)
+     .fklc,fklr,rho1,rho2,qmx)
 C- Put PkL or GkL expansion of a function on a radial mesh for one site
 C ----------------------------------------------------------------------
 Ci Inputs

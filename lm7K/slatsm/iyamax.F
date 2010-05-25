@@ -22,10 +22,10 @@ c
       smax = dabs(zxr(1)) + dabs(zxi(1))
       ix = ix + incx
       do 10 i = 2,n
-         if(dabs(zxr(ix))+dabs(zxi(ix)).le.smax) go to 5
-         iyamax = i
-         smax = dabs(zxr(ix))+dabs(zxi(ix))
-    5    ix = ix + incx
+        if(dabs(zxr(ix))+dabs(zxi(ix)).le.smax) go to 5
+        iyamax = i
+        smax = dabs(zxr(ix))+dabs(zxi(ix))
+    5   ix = ix + incx
    10 continue
       return
 c
@@ -33,9 +33,9 @@ c        code for increment equal to 1
 c
    20 smax = dabs(zxr(1)) + dabs(zxi(1))
       do 30 i = 2,n
-         if(dabs(zxr(i))+dabs(zxi(i)).le.smax) go to 30
-         iyamax = i
-         smax = dabs(zxr(i))+dabs(zxi(i))
+        if(dabs(zxr(i))+dabs(zxi(i)).le.smax) go to 30
+        iyamax = i
+        smax = dabs(zxr(i))+dabs(zxi(i))
    30 continue
       return
       end

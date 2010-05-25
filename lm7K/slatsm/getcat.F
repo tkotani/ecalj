@@ -26,11 +26,11 @@ C     implicit none
       logical lopt
       logical lsequ
       integer recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .        iend,ichoos,nchoos,optio
+     .iend,ichoos,nchoos,optio
       logical noerr
 
       common /iolib/ recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .               iend,ichoos,nchoos,noerr,optio
+     .iend,ichoos,nchoos,noerr,optio
 
 
       master = 0
@@ -49,19 +49,19 @@ C     implicit none
 C --- print message showing category sought ---
     1 continue
       if (procid .eq. master) then
-      strn = ' category  ' // cat
-      if (.not. lopt) call awrit0('%a (optional)',strn,len(strn),0)
-      strn2 = msg
-      if (msg .ne. ' ') call awrit0('%a:  '//strn2,strn,len(strn),0)
-      call awrit0(strn,' ',-len(strn),i1mach(2))
+        strn = ' category  ' // cat
+        if (.not. lopt) call awrit0('%a (optional)',strn,len(strn),0)
+        strn2 = msg
+        if (msg .ne. ' ') call awrit0('%a:  '//strn2,strn,len(strn),0)
+        call awrit0(strn,' ',-len(strn),i1mach(2))
       endif
       return
 
 C --- print out category ---
     3 continue
       if (procid .eq. master) then
-      print 11, cat
-   11 format(1x,60a)
+        print 11, cat
+   11   format(1x,60a)
       endif
       return
 
@@ -72,24 +72,24 @@ C --- find a category ---
       subsiz = 0
       irecs = nrecs
    10 continue
-        irecs = irecs-1
-        if (.not. lsequ(recrd(catbeg),cat,maxlen,term,iend)) then
-          catbeg = catbeg + reclen
-          if (irecs .eq. 0)  then
-            noerr = .false.
-            if (lopt) then
-              call msgio(strn,cat,' ',' ',3,1,.true.,i)
-              call cexit(-1,1)
-            endif
-            return
+      irecs = irecs-1
+      if (.not. lsequ(recrd(catbeg),cat,maxlen,term,iend)) then
+        catbeg = catbeg + reclen
+        if (irecs .eq. 0)  then
+          noerr = .false.
+          if (lopt) then
+            call msgio(strn,cat,' ',' ',3,1,.true.,i)
+            call cexit(-1,1)
           endif
-          goto 10
+          return
         endif
+        goto 10
+      endif
 C Found a category.  Next determine the length of the input string
       catsiz = catbeg
    20 continue
-        irecs = irecs-1
-        catsiz = catsiz + reclen
+      irecs = irecs-1
+      catsiz = catsiz + reclen
       if (recrd(catsiz) .eq. term .and. irecs .ge. 0) goto 20
 C Clean up and quit
       catsiz = catsiz - catbeg
@@ -147,10 +147,10 @@ C local variables
 
 C Common block
       integer recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .        iend,ichoos,nchoos,optio
+     .iend,ichoos,nchoos,optio
       logical noerr
       common /iolib/ recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .               iend,ichoos,nchoos,noerr,optio
+     .iend,ichoos,nchoos,noerr,optio
 
       goto (1,2,1), 1+mod(optio,10)
 
@@ -208,7 +208,7 @@ C Local parameters
       return
       end
       integer function partok(categ,token,term,result,chr,
-     .                  count,cast,istart,iopt)
+     .count,cast,istart,iopt)
 C- Reads a vector of numbers found after a token
 C ----------------------------------------------------------------
 Ci Inputs
@@ -279,7 +279,7 @@ C Local variables
       integer procid,master,mpipid
       logical ldum,last
       integer j,j0,k,idum,i1mach,nterm,iterm,ltoken,rcln0,ilen,ival,is,
-     .  i,m
+     .i,m
       parameter (rcln0=128)
       character*1 strn(rcln0),cc(5),fm*(rcln0),ss*(rcln0),ct*1,ss2*256
       equivalence (ss, strn)
@@ -288,10 +288,10 @@ C Local variables
 
 C common block
       integer recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .        iend,ichoos,nchoos,optio
+     .iend,ichoos,nchoos,optio
       logical noerr
       common /iolib/ recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .               iend,ichoos,nchoos,noerr,optio
+     .iend,ichoos,nchoos,noerr,optio
 
       data nmcast /'logical','char','integer','real','double'/
       data cc /'l',' ','i','r','g'/
@@ -316,43 +316,43 @@ C common block
 C --- Print message showing token sought, its cast and length ---
     1 continue
       if (procid .eq. master) then
-      option = ' (optional)'
-      if (lopt) option = ' '
-      if (nchoos .ne. 0 .and. ichoos .ne. nchoos) option = '    --- OR:'
-      ss = '   token  ' // token
-      if (count .ne. 0) then
-        call awrit0('%a  of cast '//nmcast(cast),ss,len(ss),0)
-        if (count .eq. -99 .or. count .eq. 99) then
-           call awrit1('%a and length *',ss,len(ss),0,iabs(count))
-         elseif (count .gt. 1) then
-           call awrit1('%a and length <= %i',ss,len(ss),0,iabs(count))
-         elseif (count .lt. -1) then
-           call awrit1('%a and length %i',ss,len(ss),0,iabs(count))
-         endif
-      endif
-      call awrit0('%a'//option,ss,len(ss),0)
-      if (chr .ne. ' ' .and. cast.ne.1) call awrit0('%a :',ss,len(ss),0)
-      call awrit0('%a',ss,len(ss),-i1mach(2))
-      if (chr .ne. ' ' .and. cast .ne. 1) then
-        ss2 = '          '//chr//'%a'
-        call awrit0(ss2,' ',-len(ss2),i1mach(2))
-      endif
+        option = ' (optional)'
+        if (lopt) option = ' '
+        if (nchoos .ne. 0 .and. ichoos .ne. nchoos) option = '    --- OR:'
+        ss = '   token  ' // token
+        if (count .ne. 0) then
+          call awrit0('%a  of cast '//nmcast(cast),ss,len(ss),0)
+          if (count .eq. -99 .or. count .eq. 99) then
+            call awrit1('%a and length *',ss,len(ss),0,iabs(count))
+          elseif (count .gt. 1) then
+            call awrit1('%a and length <= %i',ss,len(ss),0,iabs(count))
+          elseif (count .lt. -1) then
+            call awrit1('%a and length %i',ss,len(ss),0,iabs(count))
+          endif
+        endif
+        call awrit0('%a'//option,ss,len(ss),0)
+        if (chr .ne. ' ' .and. cast.ne.1) call awrit0('%a :',ss,len(ss),0)
+        call awrit0('%a',ss,len(ss),-i1mach(2))
+        if (chr .ne. ' ' .and. cast .ne. 1) then
+          ss2 = '          '//chr//'%a'
+          call awrit0(ss2,' ',-len(ss2),i1mach(2))
+        endif
       endif
       goto 42
 
 C --- Print out the contents of token ---
     3 if (nchoos .eq. 0 .or. ichoos .eq. 1 .and. count.ne.0) then
-      if (procid .eq. master) then
-        fm = ' '
-        call strcop(fm(5:),token,len(token),term(1:1),j)
-        if (cast .eq. 1) then
-          ss = chr
-          call awrit0('%a '//ss,fm,-len(fm),-i1mach(2))
-        else
-          call awrit2('%a %n:1'//cc(cast+1),fm,len(fm),-i1mach(2),
+        if (procid .eq. master) then
+          fm = ' '
+          call strcop(fm(5:),token,len(token),term(1:1),j)
+          if (cast .eq. 1) then
+            ss = chr
+            call awrit0('%a '//ss,fm,-len(fm),-i1mach(2))
+          else
+            call awrit2('%a %n:1'//cc(cast+1),fm,len(fm),-i1mach(2),
      .      iabs(count),result)
+          endif
         endif
-      endif
       endif
       goto 42
 
@@ -406,67 +406,67 @@ C ... Case count and cast both 0: put result of parse into result
 C --- Parse for vector of elements ---
       idum = -1
    10 idum = idum+1
-        if (idum .eq. iabs(count)) goto 40
-        call skipbl(categ,subsiz,j)
-        j0 = j
-        if (j .lt. subsiz) then
+      if (idum .eq. iabs(count)) goto 40
+      call skipbl(categ,subsiz,j)
+      j0 = j
+      if (j .lt. subsiz) then
 C     ... Looking for a character string
-          if (cast .eq. 1) then
-            chr = ' '
-            ct = ' '
-            is = 1
-            ilen = ival(result,1)
+        if (cast .eq. 1) then
+          chr = ' '
+          ct = ' '
+          is = 1
+          ilen = ival(result,1)
 C       ... Copy anything in quotation marks
-            if (categ(j) .eq. '"' .or. categ(j) .eq. '''') then
-              ct = categ(j)
-              j = j+1
-            endif
+          if (categ(j) .eq. '"' .or. categ(j) .eq. '''') then
+            ct = categ(j)
+            j = j+1
+          endif
 C       ... Copy up to min(result,end-of-category)
-            if (mod(iopt/100,10) .eq. 2 .and. ct .eq. ' ') then
-              call strncp(chr,categ,1,j+1,min(subsiz,ilen)-j)
-              goto 10
-            elseif (ct .ne. ' ' .or. nterm .eq. 1) then
-              call strcop(chr(is:),categ(j),min(ilen,subsiz-j),ct,k)
-              if (chr(k:k) .ne. ct .and. k .eq. subsiz-j) call rxs4(
-     .          'partok token ',token,' missing quotation "',chr(1:k),
-     .          '%a " ...')
-              if (ct .ne. ' ') chr(k:k) = ' '
-              is = k
-              j = j + k
-              goto 10
-C       ... Copy up to first, or last terminator in token
-            else
-              i = j
-   23         continue
-              call chrps2(categ,term(2:),len(term)-1,ilen,j,k)
-              last = .true.
-              if (mod(iopt/100,10) .eq. 1) last = k .eq. len(term)-1
-              j = j+1
-C         ... Compress whitespace into one character
-              m = i
-              call skipbl(categ,ilen,i)
-              if (i .gt. m) i = i-1
-              call strncp(chr,categ,is,i+1,j-i)
-              is = is+j-i
-              i = j
-C             print *, chr(1:is)
-              call skipbl(categ,ilen,j)
-              if (j .lt. ilen .and. .not. last) goto 23
-            endif
+          if (mod(iopt/100,10) .eq. 2 .and. ct .eq. ' ') then
+            call strncp(chr,categ,1,j+1,min(subsiz,ilen)-j)
             goto 10
+          elseif (ct .ne. ' ' .or. nterm .eq. 1) then
+            call strcop(chr(is:),categ(j),min(ilen,subsiz-j),ct,k)
+            if (chr(k:k) .ne. ct .and. k .eq. subsiz-j) call rxs4(
+     .      'partok token ',token,' missing quotation "',chr(1:k),
+     .      '%a " ...')
+            if (ct .ne. ' ') chr(k:k) = ' '
+            is = k
+            j = j + k
+            goto 10
+C       ... Copy up to first, or last terminator in token
           else
-            if (nterm .eq. 1) then
-              if (a2bin(categ,result,cast,idum,' ',j,-1)) goto 10
-            else
-              k = j
-              do  12  iterm = 2, nterm
-                ct = lterm(iterm:iterm)
-                j = k
-                if (a2bin(categ,result,cast,idum,ct,j,-1)) goto 10
-   12         continue
-            endif
+            i = j
+   23       continue
+            call chrps2(categ,term(2:),len(term)-1,ilen,j,k)
+            last = .true.
+            if (mod(iopt/100,10) .eq. 1) last = k .eq. len(term)-1
+            j = j+1
+C         ... Compress whitespace into one character
+            m = i
+            call skipbl(categ,ilen,i)
+            if (i .gt. m) i = i-1
+            call strncp(chr,categ,is,i+1,j-i)
+            is = is+j-i
+            i = j
+C             print *, chr(1:is)
+            call skipbl(categ,ilen,j)
+            if (j .lt. ilen .and. .not. last) goto 23
+          endif
+          goto 10
+        else
+          if (nterm .eq. 1) then
+            if (a2bin(categ,result,cast,idum,' ',j,-1)) goto 10
+          else
+            k = j
+            do  12  iterm = 2, nterm
+              ct = lterm(iterm:iterm)
+              j = k
+              if (a2bin(categ,result,cast,idum,ct,j,-1)) goto 10
+   12       continue
           endif
         endif
+      endif
 
       if (idum .lt. iabs(count) .and. errflg) then
         call msgio(strn,categ,token,lterm(1:1),2,1,.true.,k)
@@ -485,7 +485,7 @@ C             print *, chr(1:is)
       partok = idum
       end
       subroutine partk0(recoff,reclen,nrecs,
-     .  catlen,catbeg,catsiz,subsiz,optio,lget)
+     .catlen,catbeg,catsiz,subsiz,optio,lget)
 C- Initializes internal variables for partok
 C ----------------------------------------------------------------
 C     implicit none
@@ -521,10 +521,10 @@ C     implicit none
 
 C common block
       integer recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .        iend,ichoos,nchoos,optio
+     .iend,ichoos,nchoos,optio
       logical noerr
       common /iolib/ recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .               iend,ichoos,nchoos,noerr,optio
+     .iend,ichoos,nchoos,noerr,optio
       integer rectab(1)
       equivalence (rectab,recoff)
 
@@ -550,10 +550,10 @@ C ----------------------------------------------------------------
       integer i
 C For io routines ...
       integer recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .        iend,ichoos,nchoos,optio
+     .iend,ichoos,nchoos,optio
       logical noerr
       common /iolib/ recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .               iend,ichoos,nchoos,noerr,optio
+     .iend,ichoos,nchoos,noerr,optio
       if (i .gt. 0) reclen = i
       recln = reclen
       end
@@ -581,12 +581,12 @@ Cv           1 attempt to parse token and data
 Cv           2 print out results of token
 
       integer recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .        iend,ichoos,nchoos,optio
+     .iend,ichoos,nchoos,optio
       logical noerr
       common /iolib/ recoff,reclen,nrecs,maxlen,catbeg,catsiz,subsiz,
-     .               iend,ichoos,nchoos,noerr,optio
+     .iend,ichoos,nchoos,noerr,optio
 
       data recoff /0/, reclen /recl0/, maxlen /catl0/,
-     .     ichoos /0/, nchoos /0/
+     .ichoos /0/, nchoos /0/
       end
 

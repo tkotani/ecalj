@@ -1,5 +1,5 @@
       subroutine ymscop(mode,nlma,nlmb,ndas,ndad,ofas,ofbs,ofad,ofbd,
-     .  src,offsi,dest,offdi)
+     .src,offsi,dest,offdi)
 C- Copy a subblock block of a complex matrix to a destination
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -53,15 +53,15 @@ C ... Local parameters
 
       if (mode .eq. 4) then
         call dmscop(dest,ndad,src,ndas,ofas+1,ofas+nlma,ofbs+1,ofbs+
-     .    nlmb,ofad+1,ofbd+1,alpha)
+     .  nlmb,ofad+1,ofbd+1,alpha)
       else if (mode .eq. 5) then
         call dmsadd(dest,ndad,src,ndas,ofas+1,ofas+nlma,ofbs+1,ofbs+
-     .    nlmb,ofad+1,ofbd+1,alpha)
+     .  nlmb,ofad+1,ofbd+1,alpha)
       else if (mode .gt. 5) then
         call rx('ymscop: mode not implemented')
       else
         call ymsadd(nlma,nlmb,ndas,ndad,ofas,ofbs,ofad,ofbd,
-     .    alpha,beta,src,offsi,dest,offdi)
+     .  alpha,beta,src,offsi,dest,offdi)
       endif
 
       end

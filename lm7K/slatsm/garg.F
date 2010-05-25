@@ -108,7 +108,7 @@ C --- Find end of string ---
       jp = ip
       it(1) = 0
       if (itrm .le. nsep)
-     .  call chrps2(strn,sep(itrm:nsep),nsep-itrm+1,lstr,jp,it)
+     .call chrps2(strn,sep(itrm:nsep),nsep-itrm+1,lstr,jp,it)
       if (it(1) .ne. 0) then
         np = jp
       else

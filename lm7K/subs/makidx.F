@@ -1,5 +1,5 @@
       subroutine makidx(nl,nkaph,ib1,ib2,iprma,sspec,ips,offH,iprmb,
-     .  ldham)
+     .ldham)
 
       use m_struc_def  !Cgetarg
 
@@ -144,8 +144,8 @@ C Passed parameters
       integer offh(n0H,nkap0,4),iprmb(*),ldham(4)
 C Local parameters
       integer indx,iposn,l,m,iprior,j,lgunit,idxdn(n0,nkap0),is,ib,i,
-     .  ltab(n0),nd,ndim,ipr,maxp,ik,ndimi(n0H,nkap0),isum,mxorb,jb,
-     .  nglob,stdo,stdl,lmxb,lmxa,ibp1,idxpr
+     .ltab(n0),nd,ndim,ipr,maxp,ik,ndimi(n0H,nkap0),isum,mxorb,jb,
+     .nglob,stdo,stdl,lmxb,lmxa,ibp1,idxpr
       logical lx,lprmib
       character*80 outs,strn*5
       parameter (maxp=3)
@@ -172,7 +172,7 @@ C        call iinit(offH(1,1,ib),n0H*nkap0)
       nd = dlog(dble(ib2)) / dlog(10d0)
       if (ipr .ge. 50) write(stdo,333)
   333 format(/' Makidx:  basis arranged in downfolding order:'
-     .  /'  ib',5x,'low',6x,'intermed',7x,'high',8x,'.. offH ..')
+     ./'  ib',5x,'low',6x,'intermed',7x,'high',8x,'.. offH ..')
 
 C --- For each site ib = ib1 ... ib2, make offH(ib) ---
       do  jb = ib1, ib2
@@ -216,9 +216,9 @@ C   ... Assemble offH(1..maxp,1..nkaph) for this site
             if (ik .eq. nkaph) offH(iprior,1,ibp1) = ndim
           enddo
           if (isum(maxp,ndimi(1,ik),1) .ne. 0 .and. ipr .ge. 50)
-     .      call awrit4('%(n*13-11)p%j%,5i%,5i%,5i',
-     .      outs,80,-stdo,maxp+1,offH(1,ik,ib),offH(2,ik,ib),
-     .      offH(3,ik,ib))
+     .    call awrit4('%(n*13-11)p%j%,5i%,5i%,5i',
+     .    outs,80,-stdo,maxp+1,offH(1,ik,ib),offH(2,ik,ib),
+     .    offH(3,ik,ib))
 C
 C     .      call awrit4('%(n*13-11)p %,5i%,5i%,5i',
 C     .      outs,80,-stdo,maxp+1,offH(1,ik,ib),offH(2,ik,ib),
@@ -235,24 +235,24 @@ C   ... Fill out offH for kappa's between nkaph and nkap0
 C   ... Concatenate l+i and l+i+h blocks
         do  ik = 1, nkaph
           offH(maxp+1,ik,ibp1) = offH(maxp+1,1,ib)
-     .      + isum(nkaph,ndimi(1,1),n0H)
-     .      + isum(nkaph,ndimi(2,1),n0H)
-     .      + isum(ik-1,ndimi(1,1),1)
-     .      + isum(ik-1,ndimi(2,1),1)
+     .    + isum(nkaph,ndimi(1,1),n0H)
+     .    + isum(nkaph,ndimi(2,1),n0H)
+     .    + isum(ik-1,ndimi(1,1),1)
+     .    + isum(ik-1,ndimi(2,1),1)
           offH(maxp+2,ik,ibp1) = offH(maxp+2,1,ib)
-     .      + isum(nkaph,ndimi(1,1),n0H)
-     .      + isum(nkaph,ndimi(2,1),n0H)
-     .      + isum(nkaph,ndimi(3,1),n0H)
-     .      + isum(ik-1,ndimi(1,1),1)
-     .      + isum(ik-1,ndimi(2,1),1)
-     .      + isum(ik-1,ndimi(3,1),1)
+     .    + isum(nkaph,ndimi(1,1),n0H)
+     .    + isum(nkaph,ndimi(2,1),n0H)
+     .    + isum(nkaph,ndimi(3,1),n0H)
+     .    + isum(ik-1,ndimi(1,1),1)
+     .    + isum(ik-1,ndimi(2,1),1)
+     .    + isum(ik-1,ndimi(3,1),1)
         enddo
         do  ik = nkaph+1, nkap0
           do  iprior = maxp+1, maxp+2
             offH(maxp+1,ik,ib) = offH(maxp+1,nkaph,ib)
-     .        + ndimi(1,nkaph) + ndimi(2,nkaph)
+     .      + ndimi(1,nkaph) + ndimi(2,nkaph)
             offH(maxp+2,ik,ib) = offH(maxp+2,nkaph,ib)
-     .        + ndimi(1,nkaph) + ndimi(2,nkaph) + ndimi(3,nkaph)
+     .      + ndimi(1,nkaph) + ndimi(2,nkaph) + ndimi(3,nkaph)
           enddo
         enddo
       enddo
@@ -288,18 +288,18 @@ C       iposn = 0
           call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
 
           do  111 ik = 1, nkaph
-          do  111  l = 0, nl-1
-            lx = iabs(idxpr(idxdn(l+1,ik))) .eq. iprior .or.
-     .           iabs(idxpr(idxdn(l+1,ik))) .gt. iprior .and.
-     .           iprior .gt. maxp
-            do  120  m = -l, l
-              iposn = iposn+1
-              if (lx) then
-                indx = indx+1
-                iprmb(iposn) = indx
-                ndimi(iprior,ik) = ndimi(iprior,ik)+1
-              endif
-  120       continue
+            do  111  l = 0, nl-1
+              lx = iabs(idxpr(idxdn(l+1,ik))) .eq. iprior .or.
+     .        iabs(idxpr(idxdn(l+1,ik))) .gt. iprior .and.
+     .        iprior .gt. maxp
+              do  120  m = -l, l
+                iposn = iposn+1
+                if (lx) then
+                  indx = indx+1
+                  iprmb(iposn) = indx
+                  ndimi(iprior,ik) = ndimi(iprior,ik)+1
+                endif
+  120         continue
   111     continue
   110   continue
         ldham(iprior) = indx
@@ -309,31 +309,31 @@ C --- Printout ---
       if (ipr .lt. 10) return
       if (nkaph .eq. 1) then
         call awrit4('dm  L %i  I %i  H %i  N %i ',' ',80,stdl,ldham(1),
-     .    ldham(2)-ldham(1),ldham(3)-ldham(2),ldham(4)-ldham(3))
+     .  ldham(2)-ldham(1),ldham(3)-ldham(2),ldham(4)-ldham(3))
       else
         call icopy(nkaph,ndimi(1,1),n0H,ltab,1)
         call awrit3('%xdm  L %i (%n:1i )',outs,80,0,ldham(1),nkaph,
-     .    ltab)
+     .  ltab)
         call icopy(nkaph,ndimi(2,1),n0H,ltab,1)
         call awrit3('%a  I %i (%n:1i )',outs,80,0,ldham(2)-ldham(1),
-     .    nkaph,ltab)
+     .  nkaph,ltab)
         call icopy(nkaph,ndimi(3,1),n0H,ltab,1)
         call awrit4('%a  H %i (%n:1i )  N %i',outs,80,-stdl,
-     .    ldham(3)-ldham(2),nkaph,ltab,ldham(4)-ldham(3))
+     .  ldham(3)-ldham(2),nkaph,ltab,ldham(4)-ldham(3))
       endif
       if (ipr .lt. 20) return
       call awrit5('%?;(n>=30);%N;; Makidx:  hamiltonian dimensions'//
-     .  ' Low, Int, High, Negl: %i %i %i %i',' ',80,stdo,ipr,ldham(1),
-     .  ldham(2)-ldham(1),ldham(3)-ldham(2),ldham(4)-ldham(3))
+     .' Low, Int, High, Negl: %i %i %i %i',' ',80,stdo,ipr,ldham(1),
+     .ldham(2)-ldham(1),ldham(3)-ldham(2),ldham(4)-ldham(3))
       if (ipr .ge. 40 .or. (ipr .gt. 30 .and. nkaph .gt. 1)) then
         write(stdo,345)
   345   format(' kappa',3x,
-     .    'Low',3x,'Int',3x,'High',2x,'L+I',2x,'L+I+H',2x,'Neglected')
+     .  'Low',3x,'Int',3x,'High',2x,'L+I',2x,'L+I+H',2x,'Neglected')
         if (nkaph .gt. 1) then
           do  ik = 1, nkaph
             i = isum(3,ndimi(1,ik),1)
             write(stdo,346) ik, (ndimi(j,ik), j=1,3),
-     .        ndimi(1,ik)+ndimi(2,ik),i,nl**2*(ib2-ib1+1)-i
+     .      ndimi(1,ik)+ndimi(2,ik),i,nl**2*(ib2-ib1+1)-i
   346       format(i4,2x,5i6,i8)
   347       format(1x,a5,5i6,i8)
           enddo
@@ -342,8 +342,8 @@ C --- Printout ---
           strn = '  -  '
         endif
         write(stdo,347) strn, ldham(1),ldham(2)-
-     .    ldham(1),ldham(3)-ldham(2),ldham(2),ldham(3),ldham(4)-
-     .    ldham(3)
+     .  ldham(1),ldham(3)-ldham(2),ldham(2),ldham(3),ldham(4)-
+     .  ldham(3)
       endif
 
 C      do  200  ib = ib1, ib2+1
@@ -417,7 +417,7 @@ C     offH(iprior,1,ibp1) = offH(iprior,1,ibp1) + ndim
       if (ipr .ge. 50) then
         write(ostr,'(10a1)')(' ', i=norb+1,5),(onam(ltab(i)+1),i=1,norb)
         call awrit2('%a%b '//ostr(1:5)//' (%i)%(n*13+2)p%j+',
-     .    outs,80,0,ndim,iprior)
+     .  outs,80,0,ndim,iprior)
       endif
       i2 = i2-1
       goto 11

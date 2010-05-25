@@ -35,10 +35,10 @@ C ... Passed parameters
 C ... Local parameters
       logical change
       integer npfac,pfac(10),fmax,i,indx,iprint,stdo,
-     .  lgunit,i1,i2,i3,nn,nmin,nmx(3),nmxn(3),k,ngabcn(3),ngn,nginit,
-     .  PRTG
+     .lgunit,i1,i2,i3,nn,nmin,nmx(3),nmxn(3),k,ngabcn(3),ngn,nginit,
+     .PRTG
       double precision gmaxn,xx,q(3),gmax0,qlat(3,3),tpiba,facg,tolg,s1,
-     .  s2,s3,ddot
+     .s2,s3,ddot
       character*256 outs
 C     parameter (fmax=360,tolg=1d0,PRTG=30)
       parameter (fmax=600,tolg=1d0,PRTG=30)
@@ -66,7 +66,7 @@ C ... list of all allowed values of n1..n3
       call gtpfac(npfac,pfac)
       call ppfac(npfac,pfac,fmax,1,mshlst(1),mshlst)
       if (mshlst(1) .eq. 0)
-     .  call rx('mshsiz: null set of allowed mesh points')
+     .call rx('mshsiz: null set of allowed mesh points')
 
 C --- Upper bound for n1..n3 : guaranteed to hold all G<gmax ---
       do  i = 1, 3
@@ -74,7 +74,7 @@ C --- Upper bound for n1..n3 : guaranteed to hold all G<gmax ---
         i3 = mod(i2,3)+1
         nn = 0
         call gvlstn(qlat(1,i),qlat(1,i2),qlat(1,i3),q,mshlst,gmax0,nn,
-     .    nmin,nmx(i))
+     .  nmin,nmx(i))
         if (ngabc(i) .eq. 0) ngabc(i) = nn
       enddo
       gmaxn = gmax0
@@ -82,7 +82,7 @@ C --- Upper bound for n1..n3 : guaranteed to hold all G<gmax ---
 C ... Count the number of G vectors for initial n1..n3
       call pshpr(iprint()-30)
       call gvlist(alat,plat,q,ngabc(1),ngabc(2),ngabc(3),gmax,000,
-     .  0,ng,xx,xx,xx,xx)
+     .0,ng,xx,xx,xx,xx)
 C     Hold on to the upper bound to know when we fall below tolerance
       nginit = ng
 
@@ -90,7 +90,7 @@ C     Hold on to the upper bound to know when we fall below tolerance
 ctakao
       if(fullmesh()) then
         print *,
-     &   ' Full mesh mode: taka all G for charge density. n1*n2*n3'
+     &  ' Full mesh mode: taka all G for charge density. n1*n2*n3'
 c        ng = ngabc(1)*ngabc(2)*ngabc(3)
         ng = (ngabc(1)+1)*(ngabc(2)+1)*(ngabc(3)+1)
         goto 18
@@ -132,7 +132,7 @@ ctakao
 
 C ... Count the number of G vectors for (smaller) trial n1..n3
       call gvlist(alat,plat,q,ngabcn(1),ngabcn(2),ngabcn(3),gmax,000,
-     .  0,ngn,xx,xx,xx,xx)
+     .0,ngn,xx,xx,xx,xx)
 
 
 ctakao
@@ -158,8 +158,8 @@ C ... Check if fmax is too small
         write(stdo,301)
       endif
  300  format(' WARNING!'/' At least one of the mesh divisions ',
-     .  'reached its maximal value fmax = ',i4/
-     .  ' You might need to increase parameter fmax in mshsiz')
+     .'reached its maximal value fmax = ',i4/
+     .' You might need to increase parameter fmax in mshsiz')
  301  format(/1x,79('*')/)
 
 C ... Printout
@@ -168,11 +168,11 @@ C ... Printout
         s2 = alat*sqrt(ddot(3,plat(1,2),1,plat(1,2),1))/i2
         s3 = alat*sqrt(ddot(3,plat(1,3),1,plat(1,3),1))/i3
         call awrit6('%x%N MSHSIZ: mesh has %i x %i x %i'//
-     .    ' divisions; length %,3;3d, %,3;3d, %,3;3d',outs,
-     .    len(outs),0,i1,i2,i3,s1,s2,s3)
+     .  ' divisions; length %,3;3d, %,3;3d, %,3;3d',outs,
+     .  len(outs),0,i1,i2,i3,s1,s2,s3)
         call awrit4('%a%N%9fgenerated from gmax = %,1;3d'//
-     .    ' a.u. : %i vectors of %i (%i%%)',
-     .    outs,len(outs),0,gmax,ng,i1*i2*i3,(ng*100)/(i1*i2*i3))
+     .  ' a.u. : %i vectors of %i (%i%%)',
+     .  outs,len(outs),0,gmax,ng,i1*i2*i3,(ng*100)/(i1*i2*i3))
         call awrit0('%a',outs,len(outs),-stdo)
       endif
 

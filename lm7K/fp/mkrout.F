@@ -1,5 +1,5 @@
       subroutine mkrout(ssite,sspec,slat,sham,nbas,nsp,nlmto,lekkl,
-     .  oqkkl,oeqkkl,orhoat,hab,sab,qbyl,hbyl,lrout)
+     .oqkkl,oeqkkl,orhoat,hab,sab,qbyl,hbyl,lrout)
 
       use m_struc_def  !Cgetarg
 
@@ -56,10 +56,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer n0,nab,nbas,nsp,lekkl,nlmto,lrout,
-     .  oqkkl(3,nbas),oeqkkl(3,nbas),orhoat(3,nbas)
+     .oqkkl(3,nbas),oeqkkl(3,nbas),orhoat(3,nbas)
       parameter (n0=10,nab=9)
       real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(nab,n0,nsp,nbas) 
-     . , hab(nab,n0,nsp,nbas)
+     ., hab(nab,n0,nsp,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_ham)::sham
@@ -67,9 +67,9 @@ C ... Passed parameters
 
 C ... Local parameters
       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-     . , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-     . nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
-     . orhoca , ov0 , ov01 , oiprmb , stdo , igetss
+     ., lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+     .nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
+     .orhoca , ov0 , ov01 , oiprmb , stdo , igetss
       real(8) ,allocatable :: dmatl_rv(:)
       real(8) ,allocatable :: dh_rv(:)
       real(8) ,allocatable :: dp_rv(:)
@@ -92,8 +92,8 @@ C ... Local parameters
       real(8) ,allocatable :: cpp_rv(:)
 
       double precision a,ceh,pi,qcor(2),rfoc,rmt,rsma,smec,smtc,stc0,
-     .  sum1,sum2,sums1,sums2,sumec,sumtc,sumt0,xx,y0,z,ddot,res,
-     .  rsml(n0),ehl(n0)
+     .sum1,sum2,sums1,sums2,sumec,sumtc,sumt0,xx,y0,z,ddot,res,
+     .rsml(n0),ehl(n0)
 C ... For basis
       integer nkap0,nkapi,nkape,nkaph,nglob
       parameter (nkap0=3)
@@ -140,7 +140,7 @@ C --- Start loop over atoms ---
         if (nsp .eq. 2) write(stdo,202)
   201   format(/' mkrout:  Qtrue      sm,loc       local')
   202   format(/' mkrout:  Qtrue      sm,loc       local',8x,
-     .    'true mm   smooth mm    local mm')
+     .  'true mm   smooth mm    local mm')
       endif
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
@@ -217,7 +217,7 @@ Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) vh_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered          if ((lmxh+1)*nkaph<0) dh_rv(:)=0.0d0
 
           call fradhd ( nkaph , eh , rsmh , lh , lmxh , nr , rofi_rv 
-     .   , fh_rv , xh_rv , vh_rv , dh_rv )
+     .    , fh_rv , xh_rv , vh_rv , dh_rv )
 
           allocate(fp_rv(nr*(lmxa+1)*(kmax+1)))
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*(kmax+1)<0) fp_rv(:)=0.0d0
@@ -232,7 +232,7 @@ Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) vp_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) dp_rv(:)=0.0d0
 
           call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv 
-     .   , xp_rv , vp_rv , dp_rv )
+     .    , xp_rv , vp_rv , dp_rv )
 
 
 C   ... Augmented wave functions
@@ -256,8 +256,8 @@ Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rss_rv(:)=0.0d0
 
           call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
           call makusp ( n0 , z , nsp , rmt , lmxa , w ( ov0 ) , a , nr 
-     .   , xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
-     .   , ruu_rv , rus_rv , rss_rv )
+     .    , xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
+     .    , ruu_rv , rus_rv , rss_rv )
 
 
 C   ... Contracted density matrix as coffs to products of (u,s,gz)
@@ -275,17 +275,17 @@ C   ... Contracted density matrix as coffs to products of (u,s,gz)
           if (-(lmxa+1)**2*nlml*nsp*9<0) dmatl_rv(:)=0.0d0
 
           call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , w ( ocg ) , w 
-     .   ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-     .   , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
-     .   , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
-     .   )
+     .    ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
+     .    , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
+     .    , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
+     .    )
 
 C        call prmx('dmatl',w(odmatl),(lmxa+1)**2,(lmxa+1)**2,nlml*nsp*9)
 
 C   ... True local density for this sphere
           call mkrou2 ( nsp , lmxa , nlml , pnz , dmatl_rv , nr , ul_rv 
-     .   , sl_rv , gz_rv , ruu_rv , rus_rv , rss_rv , w 
-     .   ( orhoat ( 1 , ib ) ) )
+     .    , sl_rv , gz_rv , ruu_rv , rus_rv , rss_rv , w 
+     .    ( orhoat ( 1 , ib ) ) )
 
 C       call prrmsh('rout',w(orofi),w(orhoat(1,ib)),nr,nr,nlml*nsp)
 C       call pshpr(40)
@@ -296,25 +296,25 @@ C       call poppr
 C   --- Assemble rho2 = unaugmented products Pkl*Pk'l' ---
 C       H H product.  Include local orbitals w/ envelopes (nkapi->nkaph)
           call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
-     .   , nkaph , nkaph , fh_rv , lmxh , chh_rv , w ( orhoat ( 
-     .   2 , ib ) ) )
+     .    , nkaph , nkaph , fh_rv , lmxh , chh_rv , w ( orhoat ( 
+     .    2 , ib ) ) )
 
 C       H Pkl product
           call mkrou5 ( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
-     .   , kmax + 1 , kmax + 1 , fp_rv , lmxa , chp_rv , w ( orhoat 
-     .   ( 2 , ib ) ) )
+     .    , kmax + 1 , kmax + 1 , fp_rv , lmxa , chp_rv , w ( orhoat 
+     .    ( 2 , ib ) ) )
 
 C       Pkl Pkl product
           call mkrou5 ( nsp , nr , nlml , kmax + 1 , kmax + 1 , fp_rv 
-     .   , lmxa , kmax + 1 , kmax + 1 , fp_rv , lmxa , cpp_rv , 
-     .   w ( orhoat ( 2 , ib ) ) )
+     .    , lmxa , kmax + 1 , kmax + 1 , fp_rv , lmxa , cpp_rv , 
+     .    w ( orhoat ( 2 , ib ) ) )
 
 C       call prrmsh('sm rout',w(orofi),w(orhoat(2,ib)),nr,nr,nlml*nsp)
 
 C   ... Site charge and eigenvalue sum decomposed by l
           call mkrou3 ( 2 , lmxa , nlml , nsp , pnz , dmatl_rv , hab 
-     .   ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 , ib ) , qbyl ( 1 , 1 , 
-     .   ib ) , hbyl ( 1 , 1 , ib ) )
+     .    ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 , ib ) , qbyl ( 1 , 1 , 
+     .    ib ) , hbyl ( 1 , 1 , ib ) )
 
 C       Remake hbyl from energy-weighted density matrix
           if (lekkl .ne. 0) then
@@ -323,7 +323,7 @@ C       Remake hbyl from energy-weighted density matrix
             oqpp = oeqkkl(1,ib)
             nlml1 = 1
             call dpzero ( dmatl_rv , ( lmxa + 1 ) * * 2 * nlml1 * nsp 
-     .     * 9 )
+     .      * 9 )
 
             k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml1*nsp
             call dpzero ( chh_rv , k )
@@ -333,31 +333,31 @@ C       Remake hbyl from energy-weighted density matrix
             call dpzero ( cpp_rv , k )
 
             call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , w ( ocg ) , 
-     .     w ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-     .     , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
-     .     , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
-     .     )
+     .      w ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
+     .      , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
+     .      , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
+     .      )
 
             call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , w 
-     .     , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , w )
+     .      , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , w )
 
           endif
 
 C   --- Print charges for information ---
           call radsum ( nr , nr , nlml , nsp , rwgt_rv , w ( orhoat 
-     .   ( 1 , ib ) ) , sum1 )
+     .    ( 1 , ib ) ) , sum1 )
 
           call radsum ( nr , nr , nlml , nsp , rwgt_rv , w ( orhoat 
-     .   ( 2 , ib ) ) , sum2 )
+     .    ( 2 , ib ) ) , sum2 )
 
           sum1 = sum1/y0
           sum2 = sum2/y0
           if (nsp .eq. 2) then
             sums1 = sum1 - 2 * ddot ( nr , rwgt_rv , 1 , w ( orhoat ( 
-     .     1 , ib ) ) , 1 ) / y0
+     .      1 , ib ) ) , 1 ) / y0
 
             sums2 = sum2 - 2 * ddot ( nr , rwgt_rv , 1 , w ( orhoat ( 
-     .     2 , ib ) ) , 1 ) / y0
+     .      2 , ib ) ) , 1 ) / y0
 
           endif
           if (ipr.ge.30 .and. nsp .eq. 1)
@@ -370,20 +370,20 @@ C   --- Print charges for information ---
 
 C       Contribution to mag outsite rmt: extrapolate tail to infinity
         call mkrou6 ( rofi_rv , w ( orhoat ( 1 , ib ) ) , nr , nlml 
-     .   , nsp , xx , xx , res )
+     .  , nsp , xx , xx , res )
 
         if (ipr.ge.30 .and. res .ne. 0) then
           write(stdo,211) res,res-sums1
   211     format(7x,'contr. to mm extrapolated for r>rmt:',f11.6,
-     .      ' est. true mm =',f9.6)
+     .    ' est. true mm =',f9.6)
         endif
 
 C   --- Make new core density and core eigenvalue sum ---
         if (lfoc .eq. 0) then
           call pshpr(ipr+11)
           call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv 
-     .     , w ( ov01 ) , kcor , lcor , qcor , smec , smtc , w ( orhoat 
-     .     ( 3 , ib ) ) , ncore , 0d0 , 0d0 )
+     .    , w ( ov01 ) , kcor , lcor , qcor , smec , smtc , w ( orhoat 
+     .    ( 3 , ib ) ) , ncore , 0d0 , 0d0 )
 
           call poppr
 C     ... here if v0 used to make core... then effectively frozen
@@ -438,8 +438,8 @@ C --- Put sumec,sumtc into etot struct ---
 
 
       subroutine mkrou1(nsp,nlmh,nlma,nlml,kmax,cg,jcg,indxcg,
-     .  nkaph,nkapi,norb,ltab,ktab,blks,qhh,qhp,qpp,vh,dh,vp,dp,
-     .  chh,chp,cpp,dmatl)
+     .nkaph,nkapi,norb,ltab,ktab,blks,qhh,qhp,qpp,vh,dh,vp,dp,
+     .chh,chp,cpp,dmatl)
 
 C- Contracted density matrix for one site
 C ----------------------------------------------------------------------
@@ -501,7 +501,7 @@ C     chh = chh(nkaph,nkaph,0:lmxh,0:lmxh,nlml,nsp)
 C     chp = chp(nkaph,kmax+1,0:lmxh,0:lmxa,nlml,nsp)
 C     cpp = cpp(kmax+1,kmax+1,0:lmxa,0:lmxa,nlml,nsp)
       double precision dmatl(*),vh(*),dh(*),vp(*),dp(*),
-     .  chh(*),chp(*),cpp(*)
+     .chh(*),chp(*),cpp(*)
 
       double precision cg(1)
       integer ll,k,lmxa,lmxh
@@ -526,42 +526,42 @@ C     lmxl = ll(nlml)
 C ... Contracted density-matrix chh,chp,cpp from qhh,qhp,qpp
 C     H H product
       call mkrou4(nsp,nlml,cg,jcg,indxcg,
-     .  nkaph,norb,ltab,ktab,blks,lmxh,nlmh,
-     .  nkaph,norb,ltab,ktab,blks,lmxh,nlmh,
-     .  qhh,chh)
+     .nkaph,norb,ltab,ktab,blks,lmxh,nlmh,
+     .nkaph,norb,ltab,ktab,blks,lmxh,nlmh,
+     .qhh,chh)
 C     H Pkl product
       call mkrou4(nsp,nlml,cg,jcg,indxcg,
-     .  nkaph,norb,ltab,ktab,blks,lmxh,nlmh,
-     .  kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma,
-     .  qhp,chp)
+     .nkaph,norb,ltab,ktab,blks,lmxh,nlmh,
+     .kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma,
+     .qhp,chp)
 C     Pkl Pkl product
       call mkrou4(nsp,nlml,cg,jcg,indxcg,
-     .  kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma,
-     .  kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma,
-     .  qpp,cpp)
+     .kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma,
+     .kmax+1,kmax+1,ltba,ktba,blka,lmxa,nlma,
+     .qpp,cpp)
 
 C ... Contracted density matrix as coffs to products of (u,s,gz)
 C     H H product
       call mkcfus(nsp,lmxa,nlml,
-     .  nkaph,nkapi,vh,dh,lmxh,
-     .  nkaph,nkapi,vh,dh,lmxh,
-     .  chh,dmatl)
+     .nkaph,nkapi,vh,dh,lmxh,
+     .nkaph,nkapi,vh,dh,lmxh,
+     .chh,dmatl)
 C     H Pkl product
       call mkcfus(nsp,lmxa,nlml,
-     .  nkaph,nkapi,vh,dh,lmxh,
-     .  kmax+1,kmax+1,vp,dp,lmxa,
-     .  chp,dmatl)
+     .nkaph,nkapi,vh,dh,lmxh,
+     .kmax+1,kmax+1,vp,dp,lmxa,
+     .chp,dmatl)
 C     Pkl Pkl product
       call mkcfus(nsp,lmxa,nlml,
-     .  kmax+1,kmax+1,vp,dp,lmxa,
-     .  kmax+1,kmax+1,vp,dp,lmxa,
-     .  cpp,dmatl)
+     .kmax+1,kmax+1,vp,dp,lmxa,
+     .kmax+1,kmax+1,vp,dp,lmxa,
+     .cpp,dmatl)
 
       end subroutine mkrou1
 
 
       subroutine mkrou2(nsp,lmxa,nlml,pnz,dmatl,nr,ul,sl,gz,ruu,rus,rss,
-     .  rho)
+     .rho)
 
 C- Assemble true site density from product function coefficients
 C ----------------------------------------------------------------------
@@ -606,10 +606,10 @@ C ... passed parameters
       integer nsp,lmxa,nlml,nr,n0
       parameter (n0=10)
       double precision rho(nr,nlml,nsp),pnz(n0,nsp),
-     .  dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp),
-     .  ul(nr,0:lmxa,nsp),ruu(nr,0:lmxa,2,nsp),
-     .  sl(nr,0:lmxa,nsp),rus(nr,0:lmxa,2,nsp),
-     .  gz(nr,0:lmxa,nsp),rss(nr,0:lmxa,2,nsp)
+     .dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp),
+     .ul(nr,0:lmxa,nsp),ruu(nr,0:lmxa,2,nsp),
+     .sl(nr,0:lmxa,nsp),rus(nr,0:lmxa,2,nsp),
+     .gz(nr,0:lmxa,nsp),rss(nr,0:lmxa,2,nsp)
 C ... local parameters
       logical lpz1,lpz2
       integer l,i,mlm,l1,l2,isp
@@ -638,10 +638,10 @@ C 700       format(3i5,4f14.8)
 
               do  i = 1, nr
                 rho(i,mlm,isp) = rho(i,mlm,isp)
-     .           + xuu * ul(i,l1,isp) * ul(i,l2,isp)
-     .           + xsu * sl(i,l1,isp) * ul(i,l2,isp)
-     .           + xus * ul(i,l1,isp) * sl(i,l2,isp)
-     .           + xss * sl(i,l1,isp) * sl(i,l2,isp)
+     .          + xuu * ul(i,l1,isp) * ul(i,l2,isp)
+     .          + xsu * sl(i,l1,isp) * ul(i,l2,isp)
+     .          + xus * ul(i,l1,isp) * sl(i,l2,isp)
+     .          + xss * sl(i,l1,isp) * sl(i,l2,isp)
               enddo
 
               if (lpz1 .or. lpz2) then
@@ -652,14 +652,14 @@ C 700       format(3i5,4f14.8)
                 xzs = dmatl(l1,l2,mlm,3,2,isp)
                 xzz = dmatl(l1,l2,mlm,3,3,isp)
                 if (xuz.ne.0 .or. xsz.ne.0 .or. xzu.ne.0 .or.
-     .            xzs.ne.0 .or. xzz.ne.0) then
+     .          xzs.ne.0 .or. xzz.ne.0) then
                   do  i = 1, nr
                     rho(i,mlm,isp) = rho(i,mlm,isp)
-     .            + xuz * ul(i,l1,isp) * gz(i,l2,isp)
-     .            + xsz * sl(i,l1,isp) * gz(i,l2,isp)
-     .            + xzu * gz(i,l1,isp) * ul(i,l2,isp)
-     .            + xzs * gz(i,l1,isp) * sl(i,l2,isp)
-     .            + xzz * gz(i,l1,isp) * gz(i,l2,isp)
+     .              + xuz * ul(i,l1,isp) * gz(i,l2,isp)
+     .              + xsz * sl(i,l1,isp) * gz(i,l2,isp)
+     .              + xzu * gz(i,l1,isp) * ul(i,l2,isp)
+     .              + xzs * gz(i,l1,isp) * sl(i,l2,isp)
+     .              + xzz * gz(i,l1,isp) * gz(i,l2,isp)
                   enddo
                 endif
               endif
@@ -685,13 +685,13 @@ C     return
 
           do  i = 1, nr
             rho(i,1,isp) = rho(i,1,isp)
-     .       +xuu*ruu(i,l,1,isp)+xus*rus(i,l,1,isp)+xss*rss(i,l,1,isp)
+     .      +xuu*ruu(i,l,1,isp)+xus*rus(i,l,1,isp)+xss*rss(i,l,1,isp)
           enddo
 
           if (pnz(l+1,1) .ne. 0) then
             do  i = 1, nr
               rho(i,1,isp) = rho(i,1,isp)
-     .       +xuz*ruu(i,l,2,isp)+xsz*rus(i,l,2,isp)+xzz*rss(i,l,2,isp)
+     .        +xuz*ruu(i,l,2,isp)+xsz*rus(i,l,2,isp)+xzz*rss(i,l,2,isp)
             enddo
           endif
 
@@ -734,8 +734,8 @@ C ... Passed parameters
       integer mode,lmxa,n0,nab,nlml,nsp
       parameter (n0=10,nab=9)
       double precision hab(nab,n0,nsp),sab(nab,n0,nsp),
-     .  qsum(n0,nsp),hsum(n0,nsp),
-     .  dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp),pnz(n0,2)
+     .qsum(n0,nsp),hsum(n0,nsp),
+     .dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp),pnz(n0,2)
 
 C ... Local parameters
       integer l,isp,m
@@ -758,32 +758,32 @@ C     call tcn('mkrou3')
         do  l = 0, lmxa
           m = l+1
           qsum(m,isp) =
-     .       + dmatl(l,l,1,1,1,isp)*sab(1,m,isp)*srfpi
-     .       + dmatl(l,l,1,1,2,isp)*sab(2,m,isp)*srfpi
-     .       + dmatl(l,l,1,2,1,isp)*sab(3,m,isp)*srfpi
-     .       + dmatl(l,l,1,2,2,isp)*sab(4,m,isp)*srfpi
+     .    + dmatl(l,l,1,1,1,isp)*sab(1,m,isp)*srfpi
+     .    + dmatl(l,l,1,1,2,isp)*sab(2,m,isp)*srfpi
+     .    + dmatl(l,l,1,2,1,isp)*sab(3,m,isp)*srfpi
+     .    + dmatl(l,l,1,2,2,isp)*sab(4,m,isp)*srfpi
           if (mode .ge. 2) then
             hsum(m,isp) =
-     .       + dmatl(l,l,1,1,1,isp)*hab(1,m,isp)*srfpi
-     .       + dmatl(l,l,1,1,2,isp)*hab(2,m,isp)*srfpi
-     .       + dmatl(l,l,1,2,1,isp)*hab(3,m,isp)*srfpi
-     .       + dmatl(l,l,1,2,2,isp)*hab(4,m,isp)*srfpi
+     .      + dmatl(l,l,1,1,1,isp)*hab(1,m,isp)*srfpi
+     .      + dmatl(l,l,1,1,2,isp)*hab(2,m,isp)*srfpi
+     .      + dmatl(l,l,1,2,1,isp)*hab(3,m,isp)*srfpi
+     .      + dmatl(l,l,1,2,2,isp)*hab(4,m,isp)*srfpi
           endif
 C         ... uz, sz, zu, zs, zz terms
           if (pnz(m,1) .ne. 0) then
             qz =
-     .       + dmatl(l,l,1,1,3,isp)*sab(5,m,isp)*srfpi
-     .       + dmatl(l,l,1,2,3,isp)*sab(6,m,isp)*srfpi
-     .       + dmatl(l,l,1,3,1,isp)*sab(5,m,isp)*srfpi
-     .       + dmatl(l,l,1,3,2,isp)*sab(6,m,isp)*srfpi
-     .       + dmatl(l,l,1,3,3,isp)*sab(7,m,isp)*srfpi
+     .      + dmatl(l,l,1,1,3,isp)*sab(5,m,isp)*srfpi
+     .      + dmatl(l,l,1,2,3,isp)*sab(6,m,isp)*srfpi
+     .      + dmatl(l,l,1,3,1,isp)*sab(5,m,isp)*srfpi
+     .      + dmatl(l,l,1,3,2,isp)*sab(6,m,isp)*srfpi
+     .      + dmatl(l,l,1,3,3,isp)*sab(7,m,isp)*srfpi
             if (mode .ge. 2) then
               hz =
-     .       + dmatl(l,l,1,1,3,isp)*hab(5,m,isp)*srfpi
-     .       + dmatl(l,l,1,2,3,isp)*hab(6,m,isp)*srfpi
-     .       + dmatl(l,l,1,3,1,isp)*hab(5,m,isp)*srfpi
-     .       + dmatl(l,l,1,3,2,isp)*hab(6,m,isp)*srfpi
-     .       + dmatl(l,l,1,3,3,isp)*hab(7,m,isp)*srfpi
+     .        + dmatl(l,l,1,1,3,isp)*hab(5,m,isp)*srfpi
+     .        + dmatl(l,l,1,2,3,isp)*hab(6,m,isp)*srfpi
+     .        + dmatl(l,l,1,3,1,isp)*hab(5,m,isp)*srfpi
+     .        + dmatl(l,l,1,3,2,isp)*hab(6,m,isp)*srfpi
+     .        + dmatl(l,l,1,3,3,isp)*hab(7,m,isp)*srfpi
             endif
           endif
 
@@ -796,9 +796,9 @@ C     call tcx('mkrou3')
 
 
       subroutine mkrou4(nsp,nlml,cg,jcg,indxcg,
-     .  nk1,norb1,ltab1,ktab1,blks1,lmx1,ndim1,
-     .  nk2,norb2,ltab2,ktab2,blks2,lmx2,ndim2,
-     .  qkk12,ckk)
+     .nk1,norb1,ltab1,ktab1,blks1,lmx1,ndim1,
+     .nk2,norb2,ltab2,ktab2,blks2,lmx2,ndim2,
+     .qkk12,ckk)
 
 C- Assemble contracted density-matrix (in Y_lm form)
 C ----------------------------------------------------------------------
@@ -842,13 +842,13 @@ C ... Passed parameters
       integer nsp,nlml,norb1,lmx1,ndim1,norb2,lmx2,ndim2,nk1,nk2
       integer jcg(1),indxcg(1)
       integer ltab1(norb1),ktab1(norb1),blks1(norb1),
-     .        ltab2(norb2),ktab2(norb2),blks2(norb2)
+     .ltab2(norb2),ktab2(norb2),blks2(norb2)
       double precision qkk12(nk1,nk2,ndim1,ndim2,nsp),cg(1),
-     .                 ckk(nk1,nk2,0:lmx1,0:lmx2,nlml,nsp)
+     .ckk(nk1,nk2,0:lmx1,0:lmx2,nlml,nsp)
 C ... Local parameters
       integer ilm1,io1,l1,nlm11,nlm12,k1,
-     .        ilm2,io2,l2,nlm21,nlm22,k2,
-     .        icg,ll,mlm,ix,isp
+     .ilm2,io2,l2,nlm21,nlm22,k2,
+     .icg,ll,mlm,ix,isp
       double precision xx
 
 C     call tcn('mkrou4')
@@ -895,7 +895,7 @@ C     call tcx('mkrou4')
 
 
       subroutine mkcfus(nsp,lmxa,nlml,nf1,nf1s,val1,slo1,lmx1,
-     .  nf2,nf2s,val2,slo2,lmx2,ckk,dmatl)
+     .nf2,nf2s,val2,slo2,lmx2,ckk,dmatl)
 
 C- Assemble contracted density matrix as coffs to products of (u,s,gz)
 C ----------------------------------------------------------------------
@@ -938,8 +938,8 @@ C     implicit none
 C ... Passed parameters
       integer nsp,nlml,lmxa,lmx1,lmx2,nf1,nf2,nf1s,nf2s
       double precision ckk(nf1,nf2,0:lmx1,0:lmx2,nlml,nsp),
-     .  val1(0:lmx1,nf1s),slo1(0:lmx1,nf1s),
-     .  val2(0:lmx2,nf2s),slo2(0:lmx2,nf2s)
+     .val1(0:lmx1,nf1s),slo1(0:lmx1,nf1s),
+     .val2(0:lmx2,nf2s),slo2(0:lmx2,nf2s)
       double precision dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp)
 C ... Local parameters
       integer l1,k1,l2,k2,mlm,isp
@@ -956,13 +956,13 @@ C     call tcn('mkcfus')
                   xx = ckk(k1,k2,l1,l2,mlm,isp)
 
                   dmatl(l1,l2,mlm,1,1,isp) = dmatl(l1,l2,mlm,1,1,isp)
-     .                             + xx * val1(l1,k1) * val2(l2,k2)
+     .            + xx * val1(l1,k1) * val2(l2,k2)
                   dmatl(l1,l2,mlm,1,2,isp) = dmatl(l1,l2,mlm,1,2,isp)
-     .                             + xx * val1(l1,k1) * slo2(l2,k2)
+     .            + xx * val1(l1,k1) * slo2(l2,k2)
                   dmatl(l1,l2,mlm,2,1,isp) = dmatl(l1,l2,mlm,2,1,isp)
-     .                             + xx * slo1(l1,k1) * val2(l2,k2)
+     .            + xx * slo1(l1,k1) * val2(l2,k2)
                   dmatl(l1,l2,mlm,2,2,isp) = dmatl(l1,l2,mlm,2,2,isp)
-     .                             + xx * slo1(l1,k1) * slo2(l2,k2)
+     .            + xx * slo1(l1,k1) * slo2(l2,k2)
 
                 enddo
               enddo
@@ -993,16 +993,16 @@ C               sc-sc product
 C               sc-valence product
                     elseif (k1 .gt. nf1s) then
                       dmatl(l1,l2,mlm,3,1,isp) = dmatl(l1,l2,mlm,3,1,isp)
-     .                                     + xx * val2(l2,k2)
+     .                + xx * val2(l2,k2)
                       dmatl(l1,l2,mlm,3,2,isp) = dmatl(l1,l2,mlm,3,2,isp)
-     .                                     + xx * slo2(l2,k2)
+     .                + xx * slo2(l2,k2)
 
 C               valence-sc product
                     elseif (k2 .gt. nf2s) then
                       dmatl(l1,l2,mlm,1,3,isp) = dmatl(l1,l2,mlm,1,3,isp)
-     .                                     + val1(l1,k1) * xx
+     .                + val1(l1,k1) * xx
                       dmatl(l1,l2,mlm,2,3,isp) = dmatl(l1,l2,mlm,2,3,isp)
-     .                                     + slo1(l1,k1) * xx
+     .                + slo1(l1,k1) * xx
 
                     endif
 
@@ -1050,7 +1050,7 @@ C      pause
 
 
       subroutine mkrou5(nsp,nr,nlml,nf1,nf1s,f1,lmx1,nf2,nf2s,f2,lmx2,
-     .  ckk,rho)
+     .ckk,rho)
 
 C- Assemble smooth site density from contracted density matrix
 C ----------------------------------------------------------------------
@@ -1082,7 +1082,7 @@ C     implicit none
 C ... Passed parameters
       integer nsp,nr,nlml,lmx1,lmx2,nf1,nf2,nf1s,nf2s
       double precision ckk(nf1,nf2,0:lmx1,0:lmx2,nlml,nsp),
-     .  f1(nr,0:lmx1,nf1s),f2(nr,0:lmx2,nf2s),rho(nr,nlml,nsp)
+     .f1(nr,0:lmx1,nf1s),f2(nr,0:lmx2,nf2s),rho(nr,nlml,nsp)
 C ... Local parameters
       integer l1,k1,l2,k2,mlm,isp,i
       double precision xx
@@ -1099,7 +1099,7 @@ C ... Local parameters
                   if (dabs(xx) .gt. 1d-16) then
                     do  i= 1, nr
                       rho(i,mlm,isp) = rho(i,mlm,isp)
-     .                           + xx*f1(i,l1,k1)*f2(i,l2,k2)
+     .                + xx*f1(i,l1,k1)*f2(i,l2,k2)
                     enddo
                   endif
                 enddo

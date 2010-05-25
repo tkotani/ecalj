@@ -26,7 +26,7 @@ C Local parameters
       drr2 = 0.d0
       do  10  ix = 1, 3
         dr(ix) = tau2(ix) - tau1(ix) +
-     .           plat(ix,1)*i + plat(ix,2)*j + plat(ix,3)*k
+     .  plat(ix,1)*i + plat(ix,2)*j + plat(ix,3)*k
         drr2 = drr2 + dr(ix)**2
    10 continue
       end function drr2

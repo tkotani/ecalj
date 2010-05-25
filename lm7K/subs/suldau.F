@@ -53,7 +53,7 @@ C     stdo = nglob('stdo')
 
       if (nlibu .ne. 0) then
         call info2(10,1,0,
-     .    ' suldau:  %i U block(s)  lmaxu = %i',nlibu,lmaxu)
+     .  ' suldau:  %i U block(s)  lmaxu = %i',nlibu,lmaxu)
       endif
 
       end subroutine suldau

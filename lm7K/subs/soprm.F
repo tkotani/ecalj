@@ -1,5 +1,5 @@
       subroutine soprm(mode,lpzi,phi,phid,phiz,nr,nsp,lmxs,lmx,v,dv,enu,
-     .  ez,z,ri,wi,wk,sop,sopz)
+     .ez,z,ri,wi,wk,sop,sopz)
 C- Radial matrix elements between orbitals of different spin
 C ---------------------------------------------------------------------
 Ci Inputs
@@ -55,13 +55,13 @@ C     implicit none
 C ... Passed parameters
       integer lmx,mode,lpzi(0:lmx),lmxs,nr,nsp
       double precision z,
-     .  phi(nr,0:lmxs,nsp),phid(nr,0:lmxs,nsp),phiz(nr,0:lmxs,nsp),
-     .  ri(nr),sop(0:lmxs,nsp,nsp,3),v(nr,nsp),wk(nr,4),dv(nr),
-     .  wi(nr),sopz(0:lmxs,nsp,nsp,3),enu(0:8,nsp),ez(0:8,nsp)
+     .phi(nr,0:lmxs,nsp),phid(nr,0:lmxs,nsp),phiz(nr,0:lmxs,nsp),
+     .ri(nr),sop(0:lmxs,nsp,nsp,3),v(nr,nsp),wk(nr,4),dv(nr),
+     .wi(nr),sopz(0:lmxs,nsp,nsp,3),enu(0:8,nsp),ez(0:8,nsp)
 C ... Local parameters
       integer l,ir,is,is1,is2,ipr,mode0,stdo,lgunit,lmin
       double precision c,pa,r,r1,r2,dot3,vavg,eavg,eavgz,dva,xx,
-     .  xxz,xxavg,wkz(nr,4)
+     .xxz,xxavg,wkz(nr,4)
 C ... External calls
       external daxpy,dscal,getpr
 C     Speed of light, or infinity in nonrelativistic case
@@ -81,13 +81,13 @@ C --- Orthonormalize phi, phidot, neglecting small component ---
         if (ipr .gt. 50)
      .  print '(/'' soprm: overlaps  phi*phi     phi*phidot'')'
         do  1  is = 1, nsp
-        do  1  l = 0, lmx
-          r1 = dot3(nr,phi(1,l,is),phi(1,l,is),wi)
-          call dscal(nr,1/dsqrt(r1),phi(1,l,is),1)
-          r2 = dot3(nr,phi(1,l,is),phid(1,l,is),wi)
-          call daxpy(nr,-r2,phi(1,l,is),1,phid(1,l,is),1)
-          if (ipr .gt. 50) write(stdo,334) is,l,r1,r2
-  334     format('  spin',i2,'  l=',i1,2f13.6)
+          do  1  l = 0, lmx
+            r1 = dot3(nr,phi(1,l,is),phi(1,l,is),wi)
+            call dscal(nr,1/dsqrt(r1),phi(1,l,is),1)
+            r2 = dot3(nr,phi(1,l,is),phid(1,l,is),wi)
+            call daxpy(nr,-r2,phi(1,l,is),1,phid(1,l,is),1)
+            if (ipr .gt. 50) write(stdo,334) is,l,r1,r2
+  334       format('  spin',i2,'  l=',i1,2f13.6)
     1   continue
       endif
       if (mode0 .eq. 0) return
@@ -167,11 +167,11 @@ C --- Printout ---
       if (mode0 .eq. 1) write(stdo,332) 'spin-orbit coupling'
       if (mode0 .eq. 2) write(stdo,332) 'external field'
   332 format(' soprm:  matrix elements for perturbation from ',a/
-     .  13x,'l',4x,'<phi || phi>',2x,'<dot || phi>',2x,'<dot || dot>')
+     .13x,'l',4x,'<phi || phi>',2x,'<dot || phi>',2x,'<dot || dot>')
       if (nsp .eq. 1) then
         do  l = lmin, lmx
           write(stdo,333) '          ',
-     .      l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
+     .    l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
           if (lpzi(l) .ne. 0) then
             write(stdo,333) '          ',
      .      l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
@@ -180,7 +180,7 @@ C --- Printout ---
       else
         do  l = lmin, lmx
           write(stdo,333) 'up   up   ',
-     .      l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
+     .    l,sop(l,1,1,1),sop(l,1,1,2),sop(l,1,1,3)
           write(stdo,333) 'down down ',
      .    l,sop(l,2,2,1),sop(l,2,2,2),sop(l,2,2,3)
           write(stdo,333) 'up   down ',
@@ -192,11 +192,11 @@ C --- Printout ---
             write(stdo,335) 'up   up   ',
      .      l,sopz(l,1,1,1),sopz(l,1,1,2),sopz(l,1,1,3)
             write(stdo,335) 'down down ',
-     .    l,sopz(l,2,2,1),sopz(l,2,2,2),sopz(l,2,2,3)
+     .      l,sopz(l,2,2,1),sopz(l,2,2,2),sopz(l,2,2,3)
             write(stdo,335) 'up   down ',
-     .    l,sopz(l,1,2,1),sopz(l,1,2,2),sopz(l,1,2,3)
+     .      l,sopz(l,1,2,1),sopz(l,1,2,2),sopz(l,1,2,3)
             write(stdo,335) 'down up   ',
-     .    l,sopz(l,2,1,1),sopz(l,2,1,2),sopz(l,2,1,3)
+     .      l,sopz(l,2,1,1),sopz(l,2,1,2),sopz(l,2,1,3)
             write(stdo,335)
           endif
         enddo

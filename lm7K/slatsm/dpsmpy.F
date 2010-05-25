@@ -26,20 +26,20 @@ C Local parameters
       do  20  i = 1, nr
         ia = i+iofa-1
         do  20  j = 1, nc
-        sum = 0
-        offa = (ia*(ia-1))/2 + jofa-1
-        ktop = max(ia-jofa,0)
-        do  21  k = 1, ktop
+          sum = 0
+          offa = (ia*(ia-1))/2 + jofa-1
+          ktop = max(ia-jofa,0)
+          do  21  k = 1, ktop
 C         print *, i,j,k, k+offa, a(k+offa),b(k,j), '*'
-          sum = sum + a(k+offa)*b(k,j)
-   21   continue
-        offa = ((ia-1)*ia)/2 + ia
-        do  22  k = ktop+1, l
+            sum = sum + a(k+offa)*b(k,j)
+   21     continue
+          offa = ((ia-1)*ia)/2 + ia
+          do  22  k = ktop+1, l
 C         print *, i,j,k, offa, a(offa),b(k,j)
-          sum = sum + a(offa)*b(k,j)
-          offa = offa + k+jofa-1
-   22   continue
-        c(i,j) = sum
+            sum = sum + a(offa)*b(k,j)
+            offa = offa + k+jofa-1
+   22     continue
+          c(i,j) = sum
    20 continue
       end
 

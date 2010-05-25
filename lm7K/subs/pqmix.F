@@ -1,5 +1,5 @@
       subroutine pqmix(nclass,nl,lmx,nsp,nx,iter,mixmod,dmxp,cnst,
-     .  pold,qold,xold,pnu,qnu,xnew)
+     .pold,qold,xold,pnu,qnu,xnew)
 C- Iteration-dependent Anderson or Broyden mixing of P and Q
 C ------------------------------------------------------------------
 Ci Inputs:
@@ -70,13 +70,13 @@ C Passed variables:
       character*(*) mixmod
       integer nclass,nl,nsp,nx,lmx(nclass),iter,cnst(0:nclass)
       double precision dmxp(34),
-     .  pnu(nl,nsp,nclass), qnu(3,nl,nsp,nclass), xnew(nx),
-     .  pold(nl,nsp,nclass),qold(3,nl,nsp,nclass),xold(nx)
+     .pnu(nl,nsp,nclass), qnu(3,nl,nsp,nclass), xnew(nx),
+     .pold(nl,nsp,nclass),qold(3,nl,nsp,nclass),xold(nx)
 C Local variables
 C mmix: max no. prior iterations available from disk.
       logical parmxp,lcnst
       integer mmix,nda,ic,l,nelts,idum,fopna,j,mxsav,nmix,na,naa,
-     .  nkill,awrite,lgunit,iprint,ifi,oa,oaa,npq,i1,i2
+     .nkill,awrite,lgunit,iprint,ifi,oa,oaa,npq,i1,i2
       integer mpipid,procid
       character outs*80,fnam*8
       double precision wt(3),rmsdel,rms2,wc,beta,beta0,elind,rms2f
@@ -177,7 +177,7 @@ C --- Initial printout ---
           outs(j+2:len(outs)) = fnam
           call awrit1('%a.  RMS DQ=%1,3;3e',outs,80,0,rms2)
           if (rmsdel .ne. 0)
-     .  call awrit1('%a  last it=%1,3;3e',outs,80,0,rmsdel)
+     .    call awrit1('%a  last it=%1,3;3e',outs,80,0,rmsdel)
           do  15  j = 1, 2
             call awrit0('%a',outs,-len(outs),-lgunit(j))
    15     continue
@@ -228,7 +228,7 @@ C     .  call pqmixb(naa,nmix,mmix,mxsav,wc,rms2,w(oaa),dmxp(16))
 C --- Anderson mixing ---
         beta0 = beta
         if (broy .eq. 0 .or.
-     .   (broy .eq. 1 .and. (mmix .eq. 0 .or. nmix .eq. 0))) then
+     .  (broy .eq. 1 .and. (mmix .eq. 0 .or. nmix .eq. 0))) then
           call pqmixa(naa,nmix,mmix,mxsav,beta,rms2,w(oaa),dmxp(16))
           broy = 0
         endif
@@ -294,7 +294,7 @@ C ------------------------------------------------------------------
 C     implicit none
       integer mode,nda,npq,nx,mxsav,na,offx,off2
       double precision wt(3),a(nda,0:mxsav+1,2),a2(na,0:mxsav+1,2),
-     .  rms2,ddot
+     .rms2,ddot
       integer is,ia,ja
 
 C      print *, '!!'; wt(1) = 1 ; wt(2) = 1
@@ -347,8 +347,8 @@ C           Given (rhnew+ - rhnew-)*wt(2) ,  (rhold+ - rhold-)*wt(2)
       endif
 
       rms2 = dsqrt(dabs(ddot(na,a2,1,a2,1)     -
-     .           2*ddot(na,a2,1,a2(1,0,2),1) +
-     .             ddot(na,a2(1,0,2),1,a2(1,0,2),1))/(na-0))
+     .2*ddot(na,a2,1,a2(1,0,2),1) +
+     .ddot(na,a2(1,0,2),1,a2(1,0,2),1))/(na-0))
 
       if (ja .ne. na) call rx('pqsclf: element mismatch')
 
@@ -374,7 +374,7 @@ C ----------------------------------------------------------------------
 C     implicit none
       integer nda,na,npq,nx,mxsav,offx,off2
       double precision wt(3),a(nda,0:mxsav+1,2),
-     .   a2(na,0:mxsav+1,2),sum,diff
+     .a2(na,0:mxsav+1,2),sum,diff
       integer is,ia,ja
 
       if (wt(1) .eq. 0 .and. wt(2) .eq. 0) then
@@ -546,13 +546,13 @@ C ... for iterations 1,2,... amix needs F-x
       call query('beta',4,beta)
       jmix = min(mmix,iabs(imix))
       imix = amix ( nda , jmix , mxsav , 0 , dabs ( beta ) , iprint 
-     . ( ) , tjmax , norm_rv , kpvt_iv , a , tj , rms2 )
+     .( ) , tjmax , norm_rv , kpvt_iv , a , tj , rms2 )
 
       im = imix
       if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
       if (iabs(imix) .gt. mmix .and. imix .ne. im)
-     .  call awrit1(' (warning) only %i iter available',
-     .  ' ',80,i1mach(2),mmix)
+     .call awrit1(' (warning) only %i iter available',
+     .' ',80,i1mach(2),mmix)
       if (im .ne. imix) then
         call dcopy ( nda * ( mxsav + 2 ) * 2 , a_rv , 1 , a , 1 )
 
@@ -562,7 +562,7 @@ C ... for iterations 1,2,... amix needs F-x
 
 C ... Restore PQ array, updating new x
       call dpscop ( a , a_rv , nda , 1 + nda * ( mxsav + 2 ) , 1 
-     . + nda * ( mxsav + 2 ) , 1d0 )
+     .+ nda * ( mxsav + 2 ) , 1d0 )
 
       call dcopy ( nda * ( mxsav + 2 ) * 2 , a_rv , 1 , a , 1 )
 
@@ -790,10 +790,10 @@ C       im = km
         call dcopy ( nda , a ( 1 , im - 1 , 1 ) , 1 , dx_rv , 1 )
 
         call daxpy ( nda , - 1d0 , a ( 1 , im - 1 , 2 ) , 1 , dx_rv 
-     .   , 1 )
+     .  , 1 )
 
         rms2 = dsqrt ( ddot ( nda , dx_rv , 1 , dx_rv , 1 ) / ( 
-     .   nda - 0 ) )
+     .  nda - 0 ) )
 
 
 C ---   Determine wc_true if wc < 0 ---
@@ -808,8 +808,8 @@ C ---   Determine wc_true if wc < 0 ---
         i = iprint()
         if (km .ne. jmix) i = i-20
         i = broyj ( nda , a ( 1 , im - 1 , 2 ) , dx_rv , km , 0 , 
-     .   i , beta , 0d0 , 0d0 , 0d0 , wctrue , wk_rv , nda , xmp1_rv 
-     .   )
+     .  i , beta , 0d0 , 0d0 , 0d0 , wctrue , wk_rv , nda , xmp1_rv 
+     .  )
 
    10 continue
 
@@ -818,8 +818,8 @@ C NB negative sign signals request for permanent change in nmix
       im = imix
       if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
       if (iabs(imix) .gt. mmix .and. imix .ne. im)
-     .  call awrit1(' (warning) only %i iter available',
-     .  ' ',80,i1mach(2),mmix)
+     .call awrit1(' (warning) only %i iter available',
+     .' ',80,i1mach(2),mmix)
       if (im .ne. imix) goto 1
       nmix = imix
 C ... If no prior iter allowed, give up on nmix
@@ -842,8 +842,8 @@ C --- Printout ---
         print 310
         do  12  i = 1, nda
           if ( dabs ( a ( i , 0 , 1 ) - a ( i , 0 , 2 ) ) .ge. 5d - 9 ) 
-     .     print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 
-     .     , 1 ) - a ( i , 0 , 2 ) , dval ( xmp1_rv , i )
+     .    print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 
+     .    , 1 ) - a ( i , 0 , 2 ) , dval ( xmp1_rv , i )
 
    12   continue
   311   format(i5,4f14.6)
@@ -914,10 +914,10 @@ C --- Starting from iteration mmix, build the Jacobian matrix ---
         call dcopy ( nda , a ( 1 , km , 2 ) , 1 , dx_rv , 1 )
 
         call daxpy ( nda , - 1d0 , a ( 1 , km , 1 ) , 1 , dx_rv , 
-     .   1 )
+     .  1 )
 
         rms2 = dsqrt ( ddot ( nda , dx_rv , 1 , dx_rv , 1 ) / ( 
-     .   nda - 0 ) )
+     .  nda - 0 ) )
 
         idx = idamax ( nda , dx_rv , 1 )
 
@@ -928,8 +928,8 @@ C --- Starting from iteration mmix, build the Jacobian matrix ---
         call pshpr(80)
         wk(0) = xn
         call drgrzr ( nda , a ( 1 , km , 2 ) , dx_rv , p_rv , w 
-     .   , xtoll , dxmx , 1d - 10 , 1d - 10 , grfac , wk , ' ' , 00040 
-     .   , ir )
+     .  , xtoll , dxmx , 1d - 10 , 1d - 10 , grfac , wk , ' ' , 00040 
+     .  , ir )
 
         xn = wk(0)
         call poppr
@@ -942,8 +942,8 @@ C NB negative sign signals request for permanent change in nmix
       km = imix
       if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
       if (iabs(imix) .gt. mmix .and. imix .ne. km)
-     .  call awrit1(' (warning) only %i iter available',
-     .  ' ',80,i1mach(2),mmix)
+     .call awrit1(' (warning) only %i iter available',
+     .' ',80,i1mach(2),mmix)
       if (km .ne. imix) goto 1
       nmix = imix
 
@@ -952,8 +952,8 @@ C --- Printout ---
         print 310
         do  12  i = 1, nda
           if ( dabs ( a ( i , 0 , 1 ) - a ( i , 0 , 2 ) ) .ge. 5d - 9 ) 
-     .     print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 
-     .     , 1 ) - a ( i , 0 , 2 ) , dval ( p_rv , i )
+     .    print 311 , i , a ( i , 0 , 2 ) , a ( i , 0 , 1 ) , a ( i , 0 
+     .    , 1 ) - a ( i , 0 , 2 ) , dval ( p_rv , i )
 
    12   continue
   311   format(i5,4f14.6)
@@ -968,13 +968,13 @@ C --- Save x^(m+2) into a(*,0,2) and exit ---
 
       end
       subroutine pqmxup(na,mxsav,nclass,nl,nsp,nx,lmx,
-     .  pnu,qnu,xnew,pold,qold,xold,cnst,nda,a,rms2)
+     .pnu,qnu,xnew,pold,qold,xold,cnst,nda,a,rms2)
 C- Copy from holding array into P,Q
 C     implicit none
       integer nda,mxsav,nclass,nl,nsp,nx,lmx(nclass),cnst(0:1)
       double precision a(nda,0:mxsav+1,2),rms2,
-     .  pnu(nl,nsp,nclass), qnu(3,nl,nsp,nclass), xnew(nx),
-     .  pold(nl,nsp,nclass),qold(3,nl,nsp,nclass),xold(nx),ddot
+     .pnu(nl,nsp,nclass), qnu(3,nl,nsp,nclass), xnew(nx),
+     .pold(nl,nsp,nclass),qold(3,nl,nsp,nclass),xold(nx),ddot
       integer ic,isp,l,na,i
       logical lcnst
 
@@ -982,31 +982,31 @@ C     implicit none
       na = 1
       rms2 = 0
       do  11  isp = 1, nsp
-      do  11  ic = 1, nclass
-        if (lcnst) then
-          if (cnst(ic) .ne. 0) goto 11
-        endif
-        do  12  l = 0, lmx(ic)
+        do  11  ic = 1, nclass
+          if (lcnst) then
+            if (cnst(ic) .ne. 0) goto 11
+          endif
+          do  12  l = 0, lmx(ic)
 C       print *, pold(l+1,isp,ic) - a(na,0,2)
-          pnu(l+1,isp,ic) = a(na,0,2)
-          rms2 = rms2 + (qold(1,l+1,isp,ic) - a(na+1,0,2))**2
-          do  21  i = 1, 3
+            pnu(l+1,isp,ic) = a(na,0,2)
+            rms2 = rms2 + (qold(1,l+1,isp,ic) - a(na+1,0,2))**2
+            do  21  i = 1, 3
 C       print *, i, qold(i,l+1,isp,ic) -  a(na+i,0,2)
-            qnu(i,l+1,isp,ic) = a(na+i,0,2)
-   21     continue
-          na = na+4
-   12   continue
+              qnu(i,l+1,isp,ic) = a(na+i,0,2)
+   21       continue
+            na = na+4
+   12     continue
    11 continue
 
       call dcopy(nx,a(na,0,2),1,xnew,1)
       rms2 =  rms2 + ddot(nx,xnew,1,xnew,1) -
-     .             2*ddot(nx,xnew,1,xold,1) +
-     .               ddot(nx,xold,1,xold,1)
+     .2*ddot(nx,xnew,1,xold,1) +
+     .ddot(nx,xold,1,xold,1)
       na = na + nx
       rms2 = dsqrt(4*rms2/(na-0))
       end
       subroutine pqmxio(nmix,mxsav,ifi,lbin,nclass,nl,nsp,nx,lmx,
-     .  pnu,pold,qnu,qold,xnew,xold,cnst,nda,a,na,rms2)
+     .pnu,pold,qnu,qold,xnew,xold,cnst,nda,a,na,rms2)
 C- Copy P,Q into holding array, read prior P,Q from disk
 C -----------------------------------------------------------------
 Ci  nmix  number of prior iterations sought; returns no. actually read
@@ -1042,8 +1042,8 @@ C     implicit none
       logical lbin
       integer nda,nmix,mxsav,ifi,nclass,nl,nsp,lmx(nclass),nx,cnst(0:1)
       double precision a(nda,0:mxsav+1,2),rms2,
-     .  pnu(nl,nsp,nclass), qnu(3,nl,nsp,nclass), xnew(nx),
-     .  pold(nl,nsp,nclass),qold(3,nl,nsp,nclass),xold(nx)
+     .pnu(nl,nsp,nclass), qnu(3,nl,nsp,nclass), xnew(nx),
+     .pold(nl,nsp,nclass),qold(3,nl,nsp,nclass),xold(nx)
 C Local variables
       double precision ddot
       integer i1mach,ic,na,isp,i,j,k,l,iprint,mmix
@@ -1055,26 +1055,26 @@ C --- Copy p,q to a; calc. RMS error; read prior iter from ifi ---
       if (ifi .gt. 0) then
         na = 1
         do  10  isp = 1, nsp
-        do  10  ic = 1, nclass
-          if (lcnst) then
-            if (cnst(ic) .ne. 0) then
-              do  21  l = 0, lmx(ic)
-                pnu(l+1,isp,ic) = pold(l+1,isp,ic)
-              do  21  i = 1, 3
-                qnu(i,l+1,isp,ic) = qold(i,l+1,isp,ic)
-   21         continue
-              goto 10
+          do  10  ic = 1, nclass
+            if (lcnst) then
+              if (cnst(ic) .ne. 0) then
+                do  21  l = 0, lmx(ic)
+                  pnu(l+1,isp,ic) = pold(l+1,isp,ic)
+                  do  21  i = 1, 3
+                    qnu(i,l+1,isp,ic) = qold(i,l+1,isp,ic)
+   21           continue
+                goto 10
+              endif
             endif
-          endif
-          do  11  l = 0, lmx(ic)
-            a(na,0,1) = pnu(l+1,isp,ic)
-            a(na,0,2) = pold(l+1,isp,ic)
-            do  20  i = 1, 3
-              a(na+i,0,1) = qnu(i,l+1,isp,ic)
-              a(na+i,0,2) = qold(i,l+1,isp,ic)
-   20       continue
-            na = na+4
-   11     continue
+            do  11  l = 0, lmx(ic)
+              a(na,0,1) = pnu(l+1,isp,ic)
+              a(na,0,2) = pold(l+1,isp,ic)
+              do  20  i = 1, 3
+                a(na+i,0,1) = qnu(i,l+1,isp,ic)
+                a(na+i,0,2) = qold(i,l+1,isp,ic)
+   20         continue
+              na = na+4
+   11       continue
    10   continue
 
 C   ... Append extra vector to a
@@ -1082,7 +1082,7 @@ C   ... Append extra vector to a
         call dcopy(nx,xold,1,a(na,0,2),1)
         na = na + nx - 1
         rms2 =  dsqrt(dabs(ddot(na,a,1,a,1) - 2*ddot(na,a,1,a(1,0,2),1)
-     .    + ddot(na,a(1,0,2),1,a(1,0,2),1))/(na-0))
+     .  + ddot(na,a(1,0,2),1,a(1,0,2),1))/(na-0))
 C        call prmx('a1',a,na,na,1)
 C        call prmx('a2',a(1,0,2),na,na,1)
         mmix = 0
@@ -1099,8 +1099,8 @@ C        call prmx('a2',a(1,0,2),na,na,1)
         endif
         goto 32
    31   if (iprint() .ge. 30)
-     .    call awrit2(' PQMXIO:  sought %i mixing iter from disk, but'//
-     .    ' read %i',' ',80,i1mach(2),nmix,mmix)
+     .  call awrit2(' PQMXIO:  sought %i mixing iter from disk, but'//
+     .  ' read %i',' ',80,i1mach(2),nmix,mmix)
    32   continue
         nmix = mmix
 C --- Save iterations to disk ---

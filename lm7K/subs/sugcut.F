@@ -38,9 +38,9 @@ C ... Local parameters
       parameter (nkap0=3,n0=10)
       integer ncut(n0,nkap0),lh(nkap0)
       integer stdo,lgunit,ipr,iprint,is,irep,icut,i,ik,l,lcut,nkapi,
-     .  nkap1,nkap2
+     .nkap1,nkap2
       double precision rsmh(n0,nkap0),eh(n0,nkap0),tpi,tpiba2,gg0,gg,
-     .  e,rsm,gam,gmax,top
+     .e,rsm,gam,gmax,top
       character*8 spid
       character*1 ccc,ccl
 
@@ -55,9 +55,9 @@ C ... Local parameters
         if (mode .eq. 2) write(stdo,888) tol
         write(stdo,774)
   887   format(/' sugcut:  make orbital-dependent reciprocal vector',
-     .    ' cutoffs for tol=',1p,e9.2)
+     .  ' cutoffs for tol=',1p,e9.2)
   888   format(/' sugcut:  orbital-dependent cutoffs for local',
-     .    ' orbitals, tol=',1p,e9.2)
+     .  ' orbitals, tol=',1p,e9.2)
       endif
 
       gg = -1
@@ -118,10 +118,10 @@ C     ... Find first longer vector, icut is one less
               ccl = ' '
               if (l .lt. lcut) ccl = '*'
               if (ipr .ge. 20) write(stdo,773) spid,l,ccl,rsm,e,gmax,
-     .      top,icut,ccc
+     .        top,icut,ccc
   773         format(2x,a,i2,a1,f7.2,f7.2,f8.3,1p,e12.2,0p,i8,a)
   774         format(' spec      l    rsm',4x,'eh',5x,'gmax',
-     .       4x,'last term',4x,'cutoff')
+     .        4x,'last term',4x,'cutoff')
               ncut(l+1,ik) = icut
             endif
           enddo

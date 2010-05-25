@@ -56,21 +56,21 @@ Cr  1<=ik<nkaph, idxdn takes one of the following:
 Cr   value   Signifies
 Cr     0     Role of this orbital has not yet been determined
 Cr     1     Orbital is included as "active" orbitals, which means
-Cr  	     they are included in the hamiltonian and diagonalized
+Cr               they are included in the hamiltonian and diagonalized
 Cr     2     Orbital is treated as an "intermediate" orbital, which
-Cr  	     means it is downfolded and included in a perturbative way
+Cr               means it is downfolded and included in a perturbative way
 Cr     3     Orbital is treated as an "high" orbital, which means
-Cr  	     means it is included in augmentation for tails of other
-Cr  	     orbitals, but is otherwise not part of the basis.
+Cr               means it is included in augmentation for tails of other
+Cr               orbitals, but is otherwise not part of the basis.
 Cr     4     Orbital is neglected
 Cr    10     Orbital is a local orbital whose value and slope are
-Cr    	     constructed to be zero at the MT boundary.
+Cr                 constructed to be zero at the MT boundary.
 Cr           It is included in the basis.
 Cr    11     Orbital is a local orbital with a smooth Hankel tail
 Cr           and it is included in the basis.
 Cr    12     Orbital is a local orbital with a smooth Hankel tail
-Cr  	     It is incorporated perturbatively to the hamiltonian
-Cr  	     and is not assembled as part of the hamiltonian matrix
+Cr               It is incorporated perturbatively to the hamiltonian
+Cr               and is not assembled as part of the hamiltonian matrix
 Cr
 Cr   Routine makidx uses idxdn to construct the ordering  of orbitals
 Cr   in the hamiltonian matrix.  See description of

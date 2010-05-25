@@ -40,14 +40,14 @@ C ... Passed parameters
       double complex Uz(ldU,ldU)
 C ... Local parameters
       integer n0,nkap0,nlx,nl2,i,ibas,iorb,j,li,
-     .  nlm,nlmi,norb,offri,offi
+     .nlm,nlmi,norb,offri,offi
       parameter (n0=10,nkap0=3,nlx=9,nl2=nlx*nlx)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
       double precision xx,rYL(nl2,nl2)
       double complex rYLz(nl2,nl2)
 
       if (opt .ne. 0 .and. opt .ne. 2)
-     .  call rx('rothrm not ready for this opt')
+     .call rx('rothrm not ready for this opt')
 
 C ... Rotation matrix for spherical harmonics
       call ylmrtg(nl2,rotm,rYL)
@@ -80,7 +80,7 @@ C   ... loop over pairs of orbital blocks
           offi = offl(iorb) - ldmpa
           offri = li**2
           if (li+1 .gt. nlx)
-     .      call rxi('rothrm: increase nlx, need nlx=',(li+1)**2)
+     .    call rxi('rothrm: increase nlx, need nlx=',(li+1)**2)
 
 C     ... loop over pairs of m channels within this block
           if (opt .eq. 0) then

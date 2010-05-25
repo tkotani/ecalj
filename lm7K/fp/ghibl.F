@@ -1,6 +1,6 @@
 #define F90 1
       subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,
-     .  ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
+     .ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
 C- Block of integrals between smooth hankels and gaussians with some power
 C  of the laplace operator.
 C ----------------------------------------------------------------------
@@ -41,7 +41,7 @@ C ... Passed parameters
       double complex s(ndim1,ndim2,0:1)
 C ... Local parameters
       integer nlm0,ktop0,icg,icg1,icg2,ii,ilg,ilh,ilm,indx,ip,jlm,k,
-     .  ktop,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
+     .ktop,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
 #if F90
       complex(8),allocatable:: hkl(:,:)
 #else
@@ -71,9 +71,9 @@ C ... rsmh- and eh- independent setup
       if (ktop .gt. ktop0) call rxi('ghibl: increase ktop0 to',ktop)
 #endif
       do  3  k = 0, kmax
-      do  3  jlm = 1, nlmh
-      do  3  ilm = 1, nlmg
-        s(ilm,jlm,k) = dcmplx(0d0,0d0)
+        do  3  jlm = 1, nlmh
+          do  3  ilm = 1, nlmg
+            s(ilm,jlm,k) = dcmplx(0d0,0d0)
     3 continue
 
 C --- Loop over sequences of l with a common rsm,e ---
@@ -98,20 +98,20 @@ C   ... Combine with Clebsch-Gordan coefficients
         ee = dexp(gamg*(eg-e))
         do  11  ilg = 1, nlmg
           lg = ll(ilg)
-        do  11  ilh = ilm1, ilm2
-          lh = ll(ilh)
-          ii = max0(ilg,ilh)
-          indx = (ii*(ii-1))/2 + min0(ilg,ilh)
-          icg1 = indxcg(indx)
-          icg2 = indxcg(indx+1)-1
-        do  11  icg = icg1, icg2
-          ilm = jcg(icg)
-          lm = ll(ilm)
-          k = (lg+lh-lm)/2
-          fac = ee*(-1d0)**lg*cg(icg)
-          do  12  ip = 0, kmax
-            s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
-   12     continue
+          do  11  ilh = ilm1, ilm2
+            lh = ll(ilh)
+            ii = max0(ilg,ilh)
+            indx = (ii*(ii-1))/2 + min0(ilg,ilh)
+            icg1 = indxcg(indx)
+            icg2 = indxcg(indx+1)-1
+            do  11  icg = icg1, icg2
+              ilm = jcg(icg)
+              lm = ll(ilm)
+              k = (lg+lh-lm)/2
+              fac = ee*(-1d0)**lg*cg(icg)
+              do  12  ip = 0, kmax
+                s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
+   12         continue
    11   continue
    20 continue
 

@@ -18,7 +18,7 @@ C     implicit none
 C Passed parameters 
       integer n,nm
       double precision hr(nm,n),hi(nm,n),ar(nm,n),ai(nm,n),wkr(nm,n),
-     .  wki(nm,n)
+     .wki(nm,n)
 C Local parameters 
       integer i,j,mssiz
       parameter (mssiz = 48)

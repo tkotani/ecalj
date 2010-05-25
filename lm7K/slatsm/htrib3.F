@@ -53,36 +53,36 @@ c                tridiagonal matrix to those of the hermitian
 c                tridiagonal matrix. ..........
       do 50 k = 1, n
 c
-         do 50 j = 1, m
-            zi(k,j) = -zr(k,j) * tau(2,k)
-            zr(k,j) = zr(k,j) * tau(1,k)
+        do 50 j = 1, m
+          zi(k,j) = -zr(k,j) * tau(2,k)
+          zr(k,j) = zr(k,j) * tau(1,k)
    50 continue
 c
       if (n .eq. 1) go to 200
 c     .......... recover and apply the householder matrices ..........
       do 140 i = 2, n
-         l = i - 1
-         h = a(i,i)
-         if (h .eq. 0.0d0) go to 140
+        l = i - 1
+        h = a(i,i)
+        if (h .eq. 0.0d0) go to 140
 c
-         do 130 j = 1, m
-            s = 0.0d0
-            si = 0.0d0
+        do 130 j = 1, m
+          s = 0.0d0
+          si = 0.0d0
 c
-            do 110 k = 1, l
-               s = s + a(i,k) * zr(k,j) - a(k,i) * zi(k,j)
-               si = si + a(i,k) * zi(k,j) + a(k,i) * zr(k,j)
-  110       continue
+          do 110 k = 1, l
+            s = s + a(i,k) * zr(k,j) - a(k,i) * zi(k,j)
+            si = si + a(i,k) * zi(k,j) + a(k,i) * zr(k,j)
+  110     continue
 c     .......... double divisions avoid possible underflow ..........
-            s = (s / h) / h
-            si = (si / h) / h
+          s = (s / h) / h
+          si = (si / h) / h
 c
-            do 120 k = 1, l
-               zr(k,j) = zr(k,j) - s * a(i,k) - si * a(k,i)
-               zi(k,j) = zi(k,j) - si * a(i,k) + s * a(k,i)
-  120       continue
+          do 120 k = 1, l
+            zr(k,j) = zr(k,j) - s * a(i,k) - si * a(k,i)
+            zi(k,j) = zi(k,j) - si * a(i,k) + s * a(k,i)
+  120     continue
 c
-  130    continue
+  130   continue
 c
   140 continue
 c

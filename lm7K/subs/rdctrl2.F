@@ -1,9 +1,9 @@
       module m_rdctrl2_func
       contains
       subroutine rdctrl2(recrd,recln,nrecs,
-     . prgnam,vrsion,vn,vn2,
-     . pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
-     . v_sstr,v_sarry,v_smove,v_stb,sstrn)
+     .prgnam,vrsion,vn,vn2,
+     .pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
+     .v_sstr,v_sarry,v_smove,v_stb,sstrn)
 
       use m_rdctrl
       use m_gtv
@@ -175,20 +175,20 @@ C ... Local parameters
       logical lgors,cmdopt,bittst,ltmp,ioorbp,asa
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
-     .  iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lasa,lbas,lcd,lqp,
-     .  lfrzw,lgunit,lmet,lncol, !,lham
-     .  lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
-     .  nglob,nspc,nlmax,scrwid,stdo,stdl,stde,k1,k2,mpipid !nkap,lsx1,
+     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lasa,lbas,lcd,lqp,
+     .lfrzw,lgunit,lmet,lncol, !,lham
+     .lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
+     .nglob,nspc,nlmax,scrwid,stdo,stdl,stde,k1,k2,mpipid !nkap,lsx1,
       character*(8),allocatable::clabl(:)
       integer,allocatable:: ipc(:),initc(:),ics(:)
       real(8),allocatable:: pnuc(:,:,:),qnuc(:,:,:,:),
-     .    pp(:,:,:,:),ves(:),zc(:)
+     .pp(:,:,:,:),ves(:),zc(:)
       integer:: dvec1(3)=1, dvec2(3)=0
 
 C ... basis
       double precision orbp(n0,2,nkap0)
       integer o,oclabl,ohave,oics,opnu,opp,oqnu,osgw,osoptc,
-     .  oves,owk !osordn,
+     .oves,owk !osordn,
 C ... Heap
       integer w(1)
       common /w/ w
@@ -262,7 +262,7 @@ C --- Read input parameters from contents of rcd ---
       call readctrl(prgnam,vrsion(1),vn(1))
       if (io_help > 0) then
         call readctrlpq(prgnam,nclasp,nl,nsp,pnuc,qnuc,pp,zc,
-     .    ves,initc,ics,clabl)
+     .  ves,initc,ics,clabl)
         call cexit(0,1)
       endif
 
@@ -404,7 +404,7 @@ C     ctrl_lmet    1 metal  2 tetrahedron
 Cr                 4 (PGF) V-shift1 is zero
 Cr                 8 (PGF) V-shift2 is zero
       lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) 
-     .      +4*isw(ctrl_lmet4) + 8*isw(ctrl_lmet8)
+     .+4*isw(ctrl_lmet4) + 8*isw(ctrl_lmet8)
 
 
 C takao in lmf only lncol4, lncol32, lncol64 are used.
@@ -453,14 +453,14 @@ C       256 rotate local density after reading
         j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
       endif
       irs(1) = mod(mod(irs(1),10),4) + 4*getdig(irs(1),1,10)
-     .       + 8*getdig(irs(1),1,100)
+     .+ 8*getdig(irs(1),1,100)
 
 ccccccccccccccccccccccccccccccccccccccccccc
 c      print *,'xxxxxxxxxx irs(1)=',irs(1)
 ccccccccccccccccccccccccccccccccccccccccccc
 
       lrs = 1*mod(irs(1),8)+8*irs(2)+32*irs(3)+64*irs(4)+128*irs(5)
-     .    + 256*mod(irs(1)/8,2)
+     .+ 256*mod(irs(1)/8,2)
 C     lqp 1 do not add inversion 2 inverse iteration
       lqp = 1*isw(ctrl_lqp1)+2*isw(ctrl_lqp2)
 C     lscr 0 do nothing
@@ -537,7 +537,7 @@ C      Set modep
 C      Reset nl
       if (nl .ne. max(lmxbx,lmxax)+1 .and. io_help == 0) then
         call info2(20,1,0,' rdctrl: reset global max nl from %i to %i',
-     .     nl,max(lmxbx,lmxax)+1)
+     .  nl,max(lmxbx,lmxax)+1)
         nl = max(lmxbx,lmxax)+1
       endif
 C      call pack5('ctrl nbasp nclass nesabc nitmv nl',v_sctrl,
@@ -1020,151 +1020,151 @@ C        call spacks(1,'spec pb1',v_sspec,'        ',j,j)
 C        call spacks(1,'spec pb2',v_sspec,'        ',j,j)
 C        call spacks(1,'spec coreh',v_sspec,'        ',j,j)
 C      enddo
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
+      i_copy_size=1;
+      do i_spackv=1,nspec
+        call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
+      enddo
+
+      i_copy_size=1;
+      do i_spackv=1,nspec
+        call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
+      enddo
+
+      i_copy_size=1;
+      do i_spackv=1,nspec
+        call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
+      enddo
+
+      i_copy_size=1;
+      do i_spackv=1,nspec
+        call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
+      enddo
+
+      i_copy_size=1;
+      do i_spackv=1,nspec
+        call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
+      enddo
+
+
+      do  j = 1, nspec
+        slabl_(j) = slabl(j)
+        do i_spacks=j,j
+          call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
         enddo
 
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
+        do i_spacks=j,j
+          call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
         enddo
 
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
+        do i_spacks=j,j
+          call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
         enddo
 
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
-        enddo
-
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
+        do i_spacks=j,j
+          call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
         enddo
 
 
-        do  j = 1, nspec
-          slabl_(j) = slabl(j)
-          do i_spacks=j,j
-            call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
-          enddo
-
-          do i_spacks=j,j
-            call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
-          enddo
-
-          do i_spacks=j,j
-            call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
-          enddo
-
-          do i_spacks=j,j
-            call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
-          enddo
+        v_sspec(j)%a=spec_a(j)
+        v_sspec(j)%nr=nr(j)
+        i_copy_size=size(v_sspec(j)%alpha)
+        call dcopy(i_copy_size,alpha(1,j),1,v_sspec(j)%alpha,1)
+        i_copy_size=size(v_sspec(j)%coreq)
+        call dcopy(i_copy_size,coreq(1,j),1,v_sspec(j)%coreq,1)
 
 
-          v_sspec(j)%a=spec_a(j)
-          v_sspec(j)%nr=nr(j)
-          i_copy_size=size(v_sspec(j)%alpha)
-          call dcopy(i_copy_size,alpha(1,j),1,v_sspec(j)%alpha,1)
-          i_copy_size=size(v_sspec(j)%coreq)
-          call dcopy(i_copy_size,coreq(1,j),1,v_sspec(j)%coreq,1)
+        v_sspec(j)%lxi=lxi(j)
+        v_sspec(j)%nxi=nxi(j)
+        i_copy_size=size(v_sspec(j)%exi)
+        call dcopy(i_copy_size,exi(1,j),1,v_sspec(j)%exi,1)
 
 
-          v_sspec(j)%lxi=lxi(j)
-          v_sspec(j)%nxi=nxi(j)
-          i_copy_size=size(v_sspec(j)%exi)
-          call dcopy(i_copy_size,exi(1,j),1,v_sspec(j)%exi,1)
+        v_sspec(j)%group=grp(j)
+        v_sspec(j)%grp2=grp2(j)
+        i_copy_size=size(v_sspec(j)%hcr)
+        call dcopy(i_copy_size,hcr(1,j),1,v_sspec(j)%hcr,1)
+        i_copy_size=size(v_sspec(j)%idmod)
+        call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
 
 
-          v_sspec(j)%group=grp(j)
-          v_sspec(j)%grp2=grp2(j)
-          i_copy_size=size(v_sspec(j)%hcr)
-          call dcopy(i_copy_size,hcr(1,j),1,v_sspec(j)%hcr,1)
-          i_copy_size=size(v_sspec(j)%idmod)
-          call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
-
-
-          i_copy_size=size(v_sspec(j)%ehvl)
-          call dcopy(i_copy_size,ehvl(1,j),1,v_sspec(j)%ehvl,1)
+        i_copy_size=size(v_sspec(j)%ehvl)
+        call dcopy(i_copy_size,ehvl(1,j),1,v_sspec(j)%ehvl,1)
 
 C       Set idxdn
-          call ivset(ix,1,n0*nkap0,1)
-          call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
+        call ivset(ix,1,n0*nkap0,1)
+        call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
 
-          i_copy_size=size(v_sspec(j)%idxdn)
-          call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
-          i_copy_size=size(v_sspec(j)%idu)
-          call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
-          i_copy_size=size(v_sspec(j)%jh)
-          call dcopy(i_copy_size,jh(1,j),1,v_sspec(j)%jh,1)
-          i_copy_size=size(v_sspec(j)%uh)
-          call dcopy(i_copy_size,uh(1,j),1,v_sspec(j)%uh,1)
-
-
-          v_sspec(j)%kmxt=kmxt(j)
-          v_sspec(j)%kmxv=kmxv(j)
-          v_sspec(j)%lfoca=lfoca(j)
-          v_sspec(j)%rsmv=rsmv(j)
+        i_copy_size=size(v_sspec(j)%idxdn)
+        call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
+        i_copy_size=size(v_sspec(j)%idu)
+        call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
+        i_copy_size=size(v_sspec(j)%jh)
+        call dcopy(i_copy_size,jh(1,j),1,v_sspec(j)%jh,1)
+        i_copy_size=size(v_sspec(j)%uh)
+        call dcopy(i_copy_size,uh(1,j),1,v_sspec(j)%uh,1)
 
 
-          v_sspec(j)%lmxa=lmxa(j)
-          v_sspec(j)%lmxb=lmxb(j)
-          v_sspec(j)%lmxl=lmxl(j)
-          v_sspec(j)%lmxpb=lmxpb(j)
+        v_sspec(j)%kmxt=kmxt(j)
+        v_sspec(j)%kmxv=kmxv(j)
+        v_sspec(j)%lfoca=lfoca(j)
+        v_sspec(j)%rsmv=rsmv(j)
+
+
+        v_sspec(j)%lmxa=lmxa(j)
+        v_sspec(j)%lmxb=lmxb(j)
+        v_sspec(j)%lmxl=lmxl(j)
+        v_sspec(j)%lmxpb=lmxpb(j)
 
 C       pack mxcst(j)
-          i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
+        i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
 ccccccccccccccccccccccc
-          print *,' mxcst switch =',j,i,mxcst1(j),mxcst2(j),mxcst4(j)
+        print *,' mxcst switch =',j,i,mxcst1(j),mxcst2(j),mxcst4(j)
 c        i=0
 ccccccccccccccccccccccc
 C       pack orbp(j)
-          call dpzero(orbp,n0*2*nkap0)
-          call dcopy(n0,rsmh(1,j),1,orbp(1,1,1),1)
-          call dcopy(n0,eh(1,j),1,orbp(1,2,1),1)
-          call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
-          call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
+        call dpzero(orbp,n0*2*nkap0)
+        call dcopy(n0,rsmh(1,j),1,orbp(1,1,1),1)
+        call dcopy(n0,eh(1,j),1,orbp(1,2,1),1)
+        call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
+        call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
 
-          v_sspec(j)%mass=mass(j)
-          v_sspec(j)%mxcst=i
-          i_copy_size=size(v_sspec(j)%orbp)
-          call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
+        v_sspec(j)%mass=mass(j)
+        v_sspec(j)%mxcst=i
+        i_copy_size=size(v_sspec(j)%orbp)
+        call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
 
 C       Pack P,Q,PZ for both spins
-          call dpzero(orbp,n0*6)
-          call dcopy(n0*nsp,pnu(1,1,j),1,orbp(1,1,1),1)
-          call dcopy(n0*nsp,pz(1,1,j),1,orbp(1,1,2),1)
-          call dcopy(n0*nsp,qnu(1,1,j),1,orbp(1,1,3),1)
+        call dpzero(orbp,n0*6)
+        call dcopy(n0*nsp,pnu(1,1,j),1,orbp(1,1,1),1)
+        call dcopy(n0*nsp,pz(1,1,j),1,orbp(1,1,2),1)
+        call dcopy(n0*nsp,qnu(1,1,j),1,orbp(1,1,3),1)
 
-          i_copy_size=size(v_sspec(j)%p)
-          call dcopy(i_copy_size,orbp,1,v_sspec(j)%p,1)
-          i_copy_size=size(v_sspec(j)%pz)
-          call dcopy(i_copy_size,orbp(1,1,2),1,v_sspec(j)%pz,1)
-          i_copy_size=size(v_sspec(j)%q)
-          call dcopy(i_copy_size,orbp(1,1,3),1,v_sspec(j)%q,1)
-          v_sspec(j)%z=z(j)
+        i_copy_size=size(v_sspec(j)%p)
+        call dcopy(i_copy_size,orbp,1,v_sspec(j)%p,1)
+        i_copy_size=size(v_sspec(j)%pz)
+        call dcopy(i_copy_size,orbp(1,1,2),1,v_sspec(j)%pz,1)
+        i_copy_size=size(v_sspec(j)%q)
+        call dcopy(i_copy_size,orbp(1,1,3),1,v_sspec(j)%q,1)
+        v_sspec(j)%z=z(j)
 
 
-          i_copy_size=size(v_sspec(j)%colxbs)
-          call dcopy(i_copy_size,colxbs(1,j),1,v_sspec(j)%colxbs,1)
-          v_sspec(j)%radxbs=radxbs(j)
+        i_copy_size=size(v_sspec(j)%colxbs)
+        call dcopy(i_copy_size,colxbs(1,j),1,v_sspec(j)%colxbs,1)
+        v_sspec(j)%radxbs=radxbs(j)
 
 c        call pack5('spec rcfa rcut rfoca rg rham',v_sspec,j,
 
-          i_copy_size=size(v_sspec(j)%rcfa)
-          call dcopy(i_copy_size,rcfa(1,j),1,v_sspec(j)%rcfa,1)
-          v_sspec(j)%rcut=rcut(j)
-          v_sspec(j)%rfoca=rfoca(j)
-          v_sspec(j)%rg=rg(j)
+        i_copy_size=size(v_sspec(j)%rcfa)
+        call dcopy(i_copy_size,rcfa(1,j),1,v_sspec(j)%rcfa,1)
+        v_sspec(j)%rcut=rcut(j)
+        v_sspec(j)%rfoca=rfoca(j)
+        v_sspec(j)%rg=rg(j)
 
 
-          v_sspec(j)%rmt=rmt(j)
-          v_sspec(j)%rs3=rs3(j)
-          v_sspec(j)%rsma=rsma(j)
-          v_sspec(j)%rsmfa=rsmfa(j)
+        v_sspec(j)%rmt=rmt(j)
+        v_sspec(j)%rs3=rs3(j)
+        v_sspec(j)%rsma=rsma(j)
+        v_sspec(j)%rsmfa=rsmfa(j)
 
 C$$$        if (ltbe) then
 C$$$Cgetarg...info...           NG:: iq1(1,j) , integer(8) :: v_sspec%iq1 4
@@ -1204,12 +1204,12 @@ C$$$            call ii8copy(i_copy_size,dvec2,1,v_sbz%lshft,1)
 C$$$          endif
 C$$$        endif
 
-          v_sspec(j)%dv=dv(j)
-          v_sspec(j)%eref=eref(j)
-          v_sspec(j)%rham=rham(j)
-          v_sspec(j)%rint=rint(j)
+        v_sspec(j)%dv=dv(j)
+        v_sspec(j)%eref=eref(j)
+        v_sspec(j)%rham=rham(j)
+        v_sspec(j)%rint=rint(j)
 
-        enddo
+      enddo
 C     call shstru('spec',v_sspec,1,nspec);stop
 cccccccccccccc
 c       call upack('spec p ',v_sspec,1,pnux,0,0,0)
@@ -1223,40 +1223,40 @@ CKi      call defrr(v_ssite,1000)
 CKi      call usite(v_ssite,-1,0,1,0,0,0)
 CKi      call redfrr(v_ssite,nsite*nint(dval(v_ssite,1)))
 CKi      call usite(v_ssite,-1,0,nsite,0,0,0)
-        allocate(v_ssite(nsite))
-        do i=1,nsite; v_ssite(i)%size=usite_size(); enddo
+      allocate(v_ssite(nsite))
+      do i=1,nsite; v_ssite(i)%size=usite_size(); enddo
 
 C     Old defaults
 C     call ivset(ix,1,n0*nkap0,1)
 C     call spackv(1,'site relax',v_ssite,1,nsite,ix)
-          do  j = 1, nsite
+      do  j = 1, nsite
 C       Pack spec into class in case spec info is sufficient
 C       and spid into class label
 
-            v_ssite(j)%spec=ips(j)
-            v_ssite(j)%class=ips(j)
-            i_copy_size=size(v_ssite(j)%dpole)
-            call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
-            v_ssite(j)%mpole=mpole(j)
+        v_ssite(j)%spec=ips(j)
+        v_ssite(j)%class=ips(j)
+        i_copy_size=size(v_ssite(j)%dpole)
+        call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
+        v_ssite(j)%mpole=mpole(j)
 
-            do i_spacks=j,j
-              call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
-            enddo
-
-
-            v_ssite(j)%pl=ipl(j)
-            v_ssite(j)%plv=plv(j)
-            i_copy_size=size(v_ssite(j)%pos)
-            call dcopy(i_copy_size,pos(1,j),1,v_ssite(j)%pos,1)
-            i_copy_size=size(v_ssite(j)%vel)
-            call dcopy(i_copy_size,vel(1,j),1,v_ssite(j)%vel,1)
+        do i_spacks=j,j
+          call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
+        enddo
 
 
-            v_ssite(j)%vshft=vshft(j)
-            i_copy_size=size(v_ssite(j)%relax)
-            call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
-            i_copy_size=size(v_ssite(j)%eula)
-            call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
+        v_ssite(j)%pl=ipl(j)
+        v_ssite(j)%plv=plv(j)
+        i_copy_size=size(v_ssite(j)%pos)
+        call dcopy(i_copy_size,pos(1,j),1,v_ssite(j)%pos,1)
+        i_copy_size=size(v_ssite(j)%vel)
+        call dcopy(i_copy_size,vel(1,j),1,v_ssite(j)%vel,1)
+
+
+        v_ssite(j)%vshft=vshft(j)
+        i_copy_size=size(v_ssite(j)%relax)
+        call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
+        i_copy_size=size(v_ssite(j)%eula)
+        call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
 
 C$$$        if (ltbe) then
 C$$$Cgetarg...info...           NG:: ndelta(j) , integer(8) :: v_ssite%ndelta 1
@@ -1271,26 +1271,26 @@ C$$$           i_copy_size=size(v_ssite(j)%delta)
 C$$$           call dcopy(i_copy_size,delta(1,j),1,v_ssite(j)%delta,1)
 
 C$$$        endif
-          enddo
+      enddo
 
 C ... Copy string outputs to sstrn : amix, gfopt, jobid, mix, mmham, sxopt, symg
-          j = len_trim(iter_amix)          ! Euler angle mixing amix
-          if (j .gt. 0) then
+      j = len_trim(iter_amix)          ! Euler angle mixing amix
+      if (j .gt. 0) then
 c        call lstra('strn amix',i,o,k)  ! o = index amix has (see ustrn),
 c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
 c        sstrn(i:i+j-1) = iter_amix
-            call packs('strn amix',sstrn,iter_amix)
-            call upacks('strn amix',inix,iendx)
+        call packs('strn amix',sstrn,iter_amix)
+        call upacks('strn amix',inix,iendx)
 c         print *,'vvvvv ',sstrn(inix:iendx)
 c         stop 'xxxxxxxxxxxxxxx'
-          endif
-          j = len_trim(iter_mix)           ! density mixing mix
-          if (j .gt. 0) then
+      endif
+      j = len_trim(iter_mix)           ! density mixing mix
+      if (j .gt. 0) then
 c        call lstra('strn mix',i,o,k)   ! o = index mix has (see ustrn),
 c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
 c        sstrn(i:i+j-1) = iter_mix
-            call packs('strn mix',sstrn,iter_mix)
-          endif
+        call packs('strn mix',sstrn,iter_mix)
+      endif
 c      j = len_trim(mmham)              ! micromagnetics hamiltonian
 c      if (j .gt. 0) then
 c        call lstra('strn mmham',i,o,k) ! o = index mmham has (see ustrn),
@@ -1298,13 +1298,13 @@ c        call ustrn(w,-o,1,i,k,j)       ! string should be copied to sstrn(i:j)
 c        sstrn(i:i+j-1) = mmham
 c         call packs('strn mmham',sstrn,mmham)
 c      endif
-          j = len_trim(header)             ! jobid
-          if (j .gt. 0) then
+      j = len_trim(header)             ! jobid
+      if (j .gt. 0) then
 c        call lstra('strn jobid',i,o,k) ! o = index jobid has (see ustrn),
 c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
 c        sstrn(i:i+j-1) = header
-            call packs('strn jobid',sstrn,header)
-          endif
+        call packs('strn jobid',sstrn,header)
+      endif
 
 c      j = len_trim(gfopt)              ! Green's function gfopt
 c      if (j .gt. 0) then
@@ -1323,34 +1323,34 @@ c         call packs('strn sxopt',sstrn,sxopt)
 c      endif
 
 C ... Suppress symmetry operations for special circumstances
-          lstsym = 0
-          if (lncol .ne. 0) lstsym=1 !lstsym=1: noncollinear case
-          !      =2: turn off symops
+      lstsym = 0
+      if (lncol .ne. 0) lstsym=1 !lstsym=1: noncollinear case
+      !      =2: turn off symops
 C     Switches that automatically turn of all symops
-          if ((mdprm(1) .ge. 1 .and. mdprm(1) .le. 3) .or.   
-     .  cmdopt('--cls',5,0,strn) .or. cmdopt('--nosym',7,0,strn)) then
-            symg = 'e'
-            lstsym = 2               !lstsym=2: turn off symops
-          endif
+      if ((mdprm(1) .ge. 1 .and. mdprm(1) .le. 3) .or.   
+     .cmdopt('--cls',5,0,strn) .or. cmdopt('--nosym',7,0,strn)) then
+        symg = 'e'
+        lstsym = 2               !lstsym=2: turn off symops
+      endif
 C     Switches that turn off automatic finder, incl. inversion
-          if (lstsym .ne. 0) then
-            i = 1
-            do while (i .ne. 0)
-              i = index(symg,'find')
-              if (i .ne. 0) then
-                symg(i:i+3) = ' '
-              endif
-            enddo
-            if (symg .eq. ' ') symg = 'e'  ! suppress ops if none explicit
-            lqp = lqp-bitand(lqp,1)+1
+      if (lstsym .ne. 0) then
+        i = 1
+        do while (i .ne. 0)
+          i = index(symg,'find')
+          if (i .ne. 0) then
+            symg(i:i+3) = ' '
           endif
-          j = len_trim(symg)               ! Symmetry group symg
-          if (j .gt. 0) then
+        enddo
+        if (symg .eq. ' ') symg = 'e'  ! suppress ops if none explicit
+        lqp = lqp-bitand(lqp,1)+1
+      endif
+      j = len_trim(symg)               ! Symmetry group symg
+      if (j .gt. 0) then
 c        call lstra('strn symg',i,o,k)  ! o = index symg has (see ustrn),
 c        call ustrn(w,-o,1,i,k,j)       ! Copy to sstrn(i:i+j-1)
 c        sstrn(i:i+j-1) = symg
-            call packs('strn symg',sstrn,symg)
-          endif
+        call packs('strn symg',sstrn,symg)
+      endif
 C ... End of copy
 
 C$$$C --- Miscellaneous cleanup and initialization ---
@@ -1366,46 +1366,46 @@ C$$$        call gausq(nkap,xx(1),xx(2),ekap,xx(3),0,0)
 C$$$      endif
 
 C ... Read the basis from the atm file
-          if (cmdopt('--rdbasp',8,0,strn)) then
-            fileid = 'basp'
-            if (strn(9:12) .eq. ':fn=') then
-              fileid = strn(13:13+63) !tk to avoid complaint; replace fileid = strn(13:)
-            else
-            endif
+      if (cmdopt('--rdbasp',8,0,strn)) then
+        fileid = 'basp'
+        if (strn(9:12) .eq. ':fn=') then
+          fileid = strn(13:13+63) !tk to avoid complaint; replace fileid = strn(13:)
+        else
+        endif
 
 C       Number of envelope functions before modifications
-            call uspecb(0,1,v_sspec,1,nspec,xx,xx,xx,k1)
+        call uspecb(0,1,v_sspec,1,nspec,xx,xx,xx,k1)
 
 C       Read new parms; return in k2 max no. env. fns/site read
-            call strip(fileid,i,j)
-            ifi = fopna(fileid(1:j),-1,0)
-            rewind ifi
-            if (.not. ioorbp(111,2,1,nspec,v_sspec,k2,ifi))
-     .    call rxs2('lmfp: failed to find BASIS: token in file "',
-     .    fileid(1:j),'"')
-            k2 = mod(k2,10)
-            call fclr(' ',ifi)
+        call strip(fileid,i,j)
+        ifi = fopna(fileid(1:j),-1,0)
+        rewind ifi
+        if (.not. ioorbp(111,2,1,nspec,v_sspec,k2,ifi))
+     .  call rxs2('lmfp: failed to find BASIS: token in file "',
+     .  fileid(1:j),'"')
+        k2 = mod(k2,10)
+        call fclr(' ',ifi)
 
 C       File read cause number of envelope functions to increase?
 C       If so, increment nkaph by 1; keep old nkaph in k1 for later
-            if (k2 .gt. k1) then
-              k1 = nglob('nkaph')
-              xx(1) = dglob('nkaph',dble(k1+1),1)
-              k = nglob('nkaph')
-              call uspecb(0,-1,v_sspec,1,nspec,xx,xx,xx,xx)
-              nlmax = int(v_sctrl%nl) * * 2
+        if (k2 .gt. k1) then
+          k1 = nglob('nkaph')
+          xx(1) = dglob('nkaph',dble(k1+1),1)
+          k = nglob('nkaph')
+          call uspecb(0,-1,v_sspec,1,nspec,xx,xx,xx,xx)
+          nlmax = int(v_sctrl%nl) * * 2
 
-              xx(1) = dglob('mxorb',dble(k)*nlmax,1)
-            endif
-          endif
+          xx(1) = dglob('mxorb',dble(k)*nlmax,1)
+        endif
+      endif
 
 C     Add dalat to alat
 
-          v_slat%alat=(v_slat%alat)+dalat
+      v_slat%alat=(v_slat%alat)+dalat
 
 C     Replicate ctrl->lncol in ham->lncol
 
-          v_sham%lncol=lncol
+      v_sham%lncol=lncol
 
 c      lsx1 = mod(lsx,2)
 C$$$       if ( lasa32 ) then
@@ -1423,18 +1423,18 @@ c       endif
 
 
 C ... Dirac equation requires spin polarization
-          if ( nsp.eq.1 .and. int(v_sctrl%lrel) .eq.2 ) then
+      if ( nsp.eq.1 .and. int(v_sctrl%lrel) .eq.2 ) then
 
-            call rx('rdccat: Dirac equation requires NSPIN=2')
-          endif
+        call rx('rdccat: Dirac equation requires NSPIN=2')
+      endif
 
 C ... Suppress inversion when noncollinear magnetism, SX, NLO
 c      if (lncol+lsx1 .ne. 0 .or. ctrl_loptc .ge. 10 .or.
 c     .   (mod(lscr,10) .eq. 1 .and. prgnam .eq. 'LM'))
-          if (lncol .ne. 0)
-     .  lqp = lqp-bitand(lqp,1)+1
+      if (lncol .ne. 0)
+     .lqp = lqp-bitand(lqp,1)+1
 
-          v_sctrl%lqp=lqp
+      v_sctrl%lqp=lqp
 
 
 C ... Special pgf initialization
@@ -1449,94 +1449,94 @@ C$$$      endif
 C ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
 c     j = iand(4,int(v_sctrl%lham)) /4
 c     j = 2*(1-j)
-          j= 2
+      j= 2
 
 C     No screening => no downfolding; also lmxb<l<=lmxa => 'high'
 C     Probably ought to have lmxb<l<=lmxa => 'high' always
-          if ( iand(1,int(v_sctrl%lbas)) .ne.0 ) j = 3
+      if ( iand(1,int(v_sctrl%lbas)) .ne.0 ) j = 3
 
 C     nfp-style basis:
-          if ( iand(2,int(v_sctrl%lbas)) .ne.0 ) j = j+10
+      if ( iand(2,int(v_sctrl%lbas)) .ne.0 ) j = j+10
 
-          call suidx(nglob('nkaph'),j,nspec,v_sspec)
+      call suidx(nglob('nkaph'),j,nspec,v_sspec)
 
 C ... Set some global variables
-          xx(1) = dglob('nspec',dble(nspec),1)
-          xx(1) = dglob('nbas',dble(nbas),1)
-          xx(1) = dglob('nbasp',dble(nbasp),1)
-          xx(1) = dglob('nsp',dble(nsp),1)
-          xx(1) = dglob('nl',dble(nl),1)
-          xx ( 1 ) = dglob ( 'avw' , v_slat%avw , 1 )
+      xx(1) = dglob('nspec',dble(nspec),1)
+      xx(1) = dglob('nbas',dble(nbas),1)
+      xx(1) = dglob('nbasp',dble(nbasp),1)
+      xx(1) = dglob('nsp',dble(nsp),1)
+      xx(1) = dglob('nl',dble(nl),1)
+      xx ( 1 ) = dglob ( 'avw' , v_slat%avw , 1 )
 
-          xx(1) = dglob('lrel',dble(lrel),1)
-          lxcf = int(v_sctrl%lxcf)
+      xx(1) = dglob('lrel',dble(lrel),1)
+      lxcf = int(v_sctrl%lxcf)
 
-          xx(1) = dglob('lxcf',dble(lxcf),1)
-          xx(1) = dglob('stdo',dble(stdo),1)
-          xx(1) = dglob('stdl',dble(stdl),1)
-          xx(1) = dglob('stde',dble(stde),1)
-          nspc = 1
+      xx(1) = dglob('lxcf',dble(lxcf),1)
+      xx(1) = dglob('stdo',dble(stdo),1)
+      xx(1) = dglob('stdl',dble(stdl),1)
+      xx(1) = dglob('stde',dble(stde),1)
+      nspc = 1
 c      if (bitand(lncol,1+2+4) .ne. 0) nspc = 2
-          if (iand(lncol,4) .ne. 0) nspc = 2
-          xx(1) = dglob('nspc',dble(nspc),1)
+      if (iand(lncol,4) .ne. 0) nspc = 2
+      xx(1) = dglob('nspc',dble(nspc),1)
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
-          if (procid .eq. master) then
-            nat = nbas
-            do  i = 1, nbas
+      if (procid .eq. master) then
+        nat = nbas
+        do  i = 1, nbas
 
-              j=v_ssite(i)%spec
+          j=v_ssite(i)%spec
 
 
-              l=v_sspec(j)%lmxa
+          l=v_sspec(j)%lmxa
 
-              if (l .eq. -1) nat = nat-1
-            enddo
-          endif
-          call mpibc1(nat,1,2,0,'rdctrl','nat')
-          xx(1) = dglob('nat',dble(nat),1)
+          if (l .eq. -1) nat = nat-1
+        enddo
+      endif
+      call mpibc1(nat,1,2,0,'rdctrl','nat')
+      xx(1) = dglob('nat',dble(nat),1)
 
 C ... Set modep
-          ix(1) = 2
-          ix(2) = 2
-          ix(3) = 2
+      ix(1) = 2
+      ix(2) = 2
+      ix(3) = 2
 C$$$       if ( iand(-1,int(v_sctrl%lpgf(1))) .ne.0 ) ix ( 3 ) = 0
 
 
-          i_copy_size=size(v_sctrl%modep)
-          call ii8copy(i_copy_size,ix,1,v_sctrl%modep,1)
+      i_copy_size=size(v_sctrl%modep)
+      call ii8copy(i_copy_size,ix,1,v_sctrl%modep,1)
 
 
-          v_sham%lxcf=lxcf
+      v_sham%lxcf=lxcf
 
 
 C ... Count LDA+U blocks (printout only)
-          call defi(owk,-nbas)
-          call pshpr(0)
-          call suldau(nbas,v_sspec,v_ssite,nlibu,k,w(owk))
+      call defi(owk,-nbas)
+      call pshpr(0)
+      call suldau(nbas,v_sspec,v_ssite,nlibu,k,w(owk))
 
-          v_sham%nlibu=nlibu
-          v_sham%lmaxu=k
+      v_sham%nlibu=nlibu
+      v_sham%lmaxu=k
 
-          call poppr
-          call rlse(owk)
+      call poppr
+      call rlse(owk)
 
 
 C     Free arrays used to read input
-          deallocate(pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
-     .  lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
-     .  exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
-     .  rmt,alpha,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
-     .  lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv)
-          deallocate(pos,vel,eula,vshft,ips,ipl,plv,irlx,mpole,dpole)
+      deallocate(pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
+     .lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
+     .exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
+     .rmt,alpha,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
+     .lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv)
+      deallocate(pos,vel,eula,vshft,ips,ipl,plv,irlx,mpole,dpole)
 c      if (ltbe) deallocate(delta,ndelta)
 
 C      call rx0('done copying input to structures')
 
 C --- Printout ---
-          if (iprint() .ge. 20 .and. procid .eq. master) then
-            do  90  k = 1, 2
+      if (iprint() .ge. 20 .and. procid .eq. master) then
+        do  90  k = 1, 2
 
-              strn = '  '//prgnam
+          strn = '  '//prgnam
 C$$$        if (prgnam .eq. 'LMMC') then
 C$$$Cgetarg           call awrit4(
 C$$$Cgetarg      .    '%N %a:%12palat = %;5d  '//
@@ -1558,26 +1558,26 @@ C$$$     .     // '  nspec = %i' , strn , scrwid , 0 , v_slat%alat , nat , nbas-
 C$$$     .     , nbas-nsite , nsite , nspec )
 
 C$$$        endif
-              if (vn(2) .eq. 0) then
-                call awrit6('%a  vn %,2d  verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
-     .    strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,
-     .    iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
-              else
-                call awrit7('%a  vn %,2d('//trim(prgnam)//' %,1d)  '//
+          if (vn(2) .eq. 0) then
+            call awrit6('%a  vn %,2d  verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
+     .      strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,
+     .      iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
+          else
+            call awrit7('%a  vn %,2d('//trim(prgnam)//' %,1d)  '//
      .      'verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
-     .    strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,vn(2),
-     .    iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
-              endif
+     .      strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,vn(2),
+     .      iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
+          endif
 
 
-              lxcf=v_sctrl%lxcf
+          lxcf=v_sctrl%lxcf
 
 c         i = iand(256,int(v_sctrl%lham))
 
-              lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
+          lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
 
 
-              call awrit8(' special:%10p'//
+          call awrit8(' special:%10p'//
      .    '%?;n; forces,;;'//
      .    '%?;n==2; Dirac equation,;;'//
      .    '%?;n; spherical-harmonics,;;'//
@@ -1593,40 +1593,40 @@ c     .    '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,i,0, !ctrl_loptc,
 c     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
      .    '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,0,0, !ctrl_loptc,
      .    mod(lscr,10),0,pwmode,isw(oveps.ne.0))
-              if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
+          if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
 
-              ltmp = prgnam.eq.'LM'  .or. prgnam.eq.'LMMC'  .or.
-     .         prgnam.eq.'LMF' .or. prgnam.eq.'LMFGWD' .or.
-     .         prgnam.eq.'LMGF' .or. prgnam.eq.'LMPG' .or.
-     .         prgnam.eq.'LMFA' .or. prgnam.eq.'LMCHK'
-              if (ltmp) then
-                call awrit1('%x pot:%10p'//'%?;n==0; non-rel,;.;',strn,
+          ltmp = prgnam.eq.'LM'  .or. prgnam.eq.'LMMC'  .or.
+     .    prgnam.eq.'LMF' .or. prgnam.eq.'LMFGWD' .or.
+     .    prgnam.eq.'LMGF' .or. prgnam.eq.'LMPG' .or.
+     .    prgnam.eq.'LMFA' .or. prgnam.eq.'LMCHK'
+          if (ltmp) then
+            call awrit1('%x pot:%10p'//'%?;n==0; non-rel,;.;',strn,
      .      scrwid,0,lrel)
-                call awrit8('%a%?;%c==,;;%b%a%b;%-1j'//
-     .    '%?;n>1; spin-pol,;;'//
-     .    '%?;n; LDA+U,;;'//
-     .    '%?;n==1; XC:CA,;;%-1j'//
-     .    '%?;n==2; XC:BH,;;%-1j'//
-     .    '%?;n==3; XC:PW91,;;%-1j'//
-     .    '%?;n==4; XC:PBE,;;'//
-     .    '%?;n==1;%b+LMH(gga),;;%-1j'//
-     .    '%?;n==2;%b+PW91(gga),;;%-1j'//
-     .    '%?;n==3;%b+PBE(gga),;;%-1j'//
-     .    '%?;n==4;%b+Becke(gga),;;'//
-     .    '%?;n; frozen-wave-functions,;;'//
-     .    '%?;n==1; nsph-mpol,;;'//
-     .    '%?;n; read Sigma,;;'//
-     .    '%?;n; make SX,;;'//
-     .    '%b %b',
+            call awrit8('%a%?;%c==,;;%b%a%b;%-1j'//
+     .      '%?;n>1; spin-pol,;;'//
+     .      '%?;n; LDA+U,;;'//
+     .      '%?;n==1; XC:CA,;;%-1j'//
+     .      '%?;n==2; XC:BH,;;%-1j'//
+     .      '%?;n==3; XC:PW91,;;%-1j'//
+     .      '%?;n==4; XC:PBE,;;'//
+     .      '%?;n==1;%b+LMH(gga),;;%-1j'//
+     .      '%?;n==2;%b+PW91(gga),;;%-1j'//
+     .      '%?;n==3;%b+PBE(gga),;;%-1j'//
+     .      '%?;n==4;%b+Becke(gga),;;'//
+     .      '%?;n; frozen-wave-functions,;;'//
+     .      '%?;n==1; nsph-mpol,;;'//
+     .      '%?;n; read Sigma,;;'//
+     .      '%?;n; make SX,;;'//
+     .      '%b %b',
      .      strn,scrwid,0,nsp,nlibu,mod(lxcf,10),lxcf/10,lfrzw,
 c     .      isw(lasa32),lrsig,lsx)
      .      0,lrsig,0)
-                call awrit0(strn,' ',-80,lgunit(k))
-              endif
-              call isanrg(mod(lxcf,10),0,4,prgnam,'XC functional',.true.)
-              call isanrg(lxcf/10,0,4,prgnam,'GGA functional',.true.)
-              if (mod(lxcf,10) .eq. 2 .and. lxcf/10 .gt. 1 .or.
-     .      mod(lxcf,10) .ne. 2 .and. lxcf/10 .eq. 1) call info0
+            call awrit0(strn,' ',-80,lgunit(k))
+          endif
+          call isanrg(mod(lxcf,10),0,4,prgnam,'XC functional',.true.)
+          call isanrg(lxcf/10,0,4,prgnam,'GGA functional',.true.)
+          if (mod(lxcf,10) .eq. 2 .and. lxcf/10 .gt. 1 .or.
+     .    mod(lxcf,10) .ne. 2 .and. lxcf/10 .eq. 1) call info0
      .    (10,0,0,'%10f(warning) mixing incompatible functionals')
 
 C$$$        if (bitand(lncol,1+2+4+8+32+64) .ne. 0) then
@@ -1730,35 +1730,35 @@ C$$$     .      bitand(ltb,1024),bitand(ltb,2048),
 C$$$     .      bitand(lncol,4),bitand(ltb,2),bitand(ltb,4))
 C$$$        endif
 
-              if (prgnam(1:3) .eq. 'LMF') then
-                call awrit1 ( ' special:%10p' // '%?;n==1; core-level-optics,;;' 
-     .     // '%b %b' , strn , scrwid , 0 , 0 )
+          if (prgnam(1:3) .eq. 'LMF') then
+            call awrit1 ( ' special:%10p' // '%?;n==1; core-level-optics,;;' 
+     .      // '%b %b' , strn , scrwid , 0 , 0 )
 
-                if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
-              endif
-
-c       ltmp = prgnam.eq.'LM'   .or. prgnam.eq.'LMMC'  .or.
-              ltmp = prgnam.eq.'LM'   .or. 
-     .         prgnam.eq.'LMF'  .or. prgnam.eq.'LMFGWD' .or.
-     .         prgnam.eq.'LMGF' .or. prgnam.eq.'LMPG' .or. 
-     .         prgnam.eq.'LMDOS'.or. prgnam.eq.'TBE'
-
-              if ( ltmp ) call awrit7 ( ' bz:%10p' // '%?;n; metal,; nonmetal,;' 
-     .   // '%-1j%?;n>1;%b(%-1j%i),;;' // '%?;n; tetra,;;' // '%?;n; get-qp,;;' 
-     .   // '%?;n; invit,;;' // '%?;n; dens-mat,;;' // '%?;(n>0); %-1jmull=%i,;;' 
-     .   // '%?;n; fixed-spin-mom,;;%b ' , strn , scrwid , lgunit ( k 
-     .   ) , int(v_sbz%lmet) , bitand ( lmet , 2 ) , iand(1,int(v_sbz%lio))
-c    .   , iand(2,int(v_sctrl%lqp)) , iand(8,int(v_sbz%lio)) , int(v_sbz%lmull) 
-     .   , iand(2,int(v_sctrl%lqp)) , .false.                , int(v_sbz%lmull) 
-     .   , isw ( v_sbz%fsmom .ne.0 ) )
-
-
-   90       continue
+            if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
           endif
 
+c       ltmp = prgnam.eq.'LM'   .or. prgnam.eq.'LMMC'  .or.
+          ltmp = prgnam.eq.'LM'   .or. 
+     .    prgnam.eq.'LMF'  .or. prgnam.eq.'LMFGWD' .or.
+     .    prgnam.eq.'LMGF' .or. prgnam.eq.'LMPG' .or. 
+     .    prgnam.eq.'LMDOS'.or. prgnam.eq.'TBE'
+
+          if ( ltmp ) call awrit7 ( ' bz:%10p' // '%?;n; metal,; nonmetal,;' 
+     .    // '%-1j%?;n>1;%b(%-1j%i),;;' // '%?;n; tetra,;;' // '%?;n; get-qp,;;' 
+     .    // '%?;n; invit,;;' // '%?;n; dens-mat,;;' // '%?;(n>0); %-1jmull=%i,;;' 
+     .    // '%?;n; fixed-spin-mom,;;%b ' , strn , scrwid , lgunit ( k 
+     .    ) , int(v_sbz%lmet) , bitand ( lmet , 2 ) , iand(1,int(v_sbz%lio))
+c    .   , iand(2,int(v_sctrl%lqp)) , iand(8,int(v_sbz%lio)) , int(v_sbz%lmull) 
+     .    , iand(2,int(v_sctrl%lqp)) , .false.                , int(v_sbz%lmull) 
+     .    , isw ( v_sbz%fsmom .ne.0 ) )
+
+
+   90   continue
+      endif
+
 C --- Sanity checks and other initialization ---
-          if ( iand(8,int(v_sctrl%ldos)) .ne.0 .and. iand(4+2,int(v_sctrl%ldos)) .ne.0 
-     . ) call rx ( 'inconsistent DOS options' )
+      if ( iand(8,int(v_sctrl%ldos)) .ne.0 .and. iand(4+2,int(v_sctrl%ldos)) .ne.0 
+     .) call rx ( 'inconsistent DOS options' )
 
 C$$$Cgetarg       call rxx(lgors('ctrl lstonr,-1',v_sctrl) .and. nsp .eq. 2,
 C$$$Cgetarg      .  'Stoner model not compatible with nsp=2')
@@ -1773,61 +1773,61 @@ C$$$     . , 'Stoner not compatible with ADNF' )
 
 C --- takao embed contents in susite here. This is only for lmf and lmfgw.
 c      call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,v_sspec,v_ssite)
-          seref = 0d0
-          do ib = 1, nsite
-            ispec = v_ssite(ib)%spec
-            if (ispec <= 0) cycle
+      seref = 0d0
+      do ib = 1, nsite
+        ispec = v_ssite(ib)%spec
+        if (ispec <= 0) cycle
 c         call spacks_copy('u',sspec(i)%name,i,i,spid,ispec)
 c         call spacks_copy('p',v_ssite(i)%clabel,ib,ib,spid,ispec)
-            v_ssite(ispec)%clabel = v_sspec(ispec)%name
-            seref = seref +     v_sspec(ispec)%eref
-          enddo
-          v_sham%seref=seref
+        v_ssite(ispec)%clabel = v_sspec(ispec)%name
+        seref = seref +     v_sspec(ispec)%eref
+      enddo
+      v_sham%seref=seref
 c
-          call defrr(opos,3*nsite)
-          call defi(oips,nsite)
-          do i_spackv=1,nsite
-            i_copy_size=3
-            call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
-            i_copy_size=1
-            call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
-          enddo
-          v_slat%opos=opos
-          v_sarry%opos=opos
-          v_sarry%oips=oips
+      call defrr(opos,3*nsite)
+      call defi(oips,nsite)
+      do i_spackv=1,nsite
+        i_copy_size=3
+        call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+        i_copy_size=1
+        call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+      enddo
+      v_slat%opos=opos
+      v_sarry%opos=opos
+      v_sarry%oips=oips
 
 
 c       v_sham%lham=(int(v_sctrl%lham))
 
-          if (procid .eq. master) then
-            if (iprint() .ge. 20) then
-              if (lstsym .eq. 1) then
-                call upacks('strn symg',i,j)
-                write(stdo,357) sstrn(i:j)
-  357           format(/' Automatic symmetry finder turned off.  Use: ',a)
-              elseif (lstsym .eq. 2) then
-                write(stdo,358)
-  358           format(/' Symmetry operations suppressed')
-              endif
-            endif
+      if (procid .eq. master) then
+        if (iprint() .ge. 20) then
+          if (lstsym .eq. 1) then
+            call upacks('strn symg',i,j)
+            write(stdo,357) sstrn(i:j)
+  357       format(/' Automatic symmetry finder turned off.  Use: ',a)
+          elseif (lstsym .eq. 2) then
+            write(stdo,358)
+  358       format(/' Symmetry operations suppressed')
           endif
+        endif
+      endif
 C     Broadcast spec structure to fix floating orbitals case
-          call mpibc1(v_sspec,nspec*nint(dval(v_sspec,1)),4,0,
-     .  'rdctrl','sspec')
+      call mpibc1(v_sspec,nspec*nint(dval(v_sspec,1)),4,0,
+     .'rdctrl','sspec')
 
 C --- Debugging printout ---
-          if (io_help == 0 .and. io_show > 1) then
-            print *, '---------- contents of sstrn ------------'
-            call upacks('strn amix',i,j)
-            print *, 'amix:', sstrn(i:j)
-            call upacks('strn mix',i,j)
-            print *, 'mix:', sstrn(i:j)
+      if (io_help == 0 .and. io_show > 1) then
+        print *, '---------- contents of sstrn ------------'
+        call upacks('strn amix',i,j)
+        print *, 'amix:', sstrn(i:j)
+        call upacks('strn mix',i,j)
+        print *, 'mix:', sstrn(i:j)
 c        call upacks('strn gfopt',i,j)
 c        print *, 'gfopt:', sstrn(i:j)
 c        call upacks('strn mmham',i,j)
 c        print *, 'mmham:', sstrn(i:j)
-            call upacks('strn symg',i,j)
-            print *, 'symg:', sstrn(i:j)
+        call upacks('strn symg',i,j)
+        print *, 'symg:', sstrn(i:j)
 c        call upacks('strn sxopt',i,j)
 c        print *, 'sxopt:', sstrn(i:j)
 
@@ -1847,11 +1847,11 @@ C$$$        call shstru('str',v_sstr,0,0)
 C$$$        call shstru('tb',v_stb,0,0)
 C$$$        call shstru('spec',v_sspec,1,nspec)
 C$$$        call shstru('site',v_ssite,1,nsite)
-            call rx0('done show')
+        call rx0('done show')
 
-          endif
+      endif
 c      call rx0('done')
-          end subroutine rdctrl2
+      end subroutine rdctrl2
 
 C      subroutine string_replace(rcd,aaa,bbb)
 C      character*(*):: rcd,aaa,bbb
@@ -1863,4 +1863,4 @@ Cc      print *,'nrecsnrecs',ii, '!'//rcd(ii:ii+aaalen-1)//'!'
 C      rcd(ii:ii+lenaaa-1)=bbb
 C      end
 C
-          end module m_rdctrl2_func
+      end module m_rdctrl2_func

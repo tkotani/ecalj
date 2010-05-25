@@ -20,14 +20,14 @@ C Local parameters
 C Copy backwards into the upper triangle first
       ii = (na*(na+1))/2
       do  100 j = na-1, 0, -1
-      do  100 i = j, 0, -1
-      ii = ii-1
-      a(i,j) = a(ii,0)
+        do  100 i = j, 0, -1
+          ii = ii-1
+          a(i,j) = a(ii,0)
   100 continue
 
 C Copy to lower triangle
       do  200  i = 0, na-1
-      do  200  j = 0, i-1
+        do  200  j = 0, i-1
   200 a(i,j) = a(j,i)
 
 c      print *, 'exit dupack: i,j='

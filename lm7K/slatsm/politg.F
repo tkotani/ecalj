@@ -37,28 +37,28 @@ C ... Local parameters
       do  10  ip = ip1+1, ip2
 
 C --- Get i0,i1 = left-to-leftmost and rightmost in tableau ---
-      xmid = (x(ip)+x(ip-1))/2
-      i0 = ip-1
-      i1 = ip
-      do  2  i = 1, n-1
-        if (i0 .eq. 0) then
-          i1 = i1+1
-        elseif (i1 .eq. np) then
-          i0 = i0-1
-        elseif (dabs(x(i0)-xmid) .lt. dabs(x(i1+1)-xmid))  then
-          i0 = i0-1
-        else
-          i1 = i1+1
-        endif
-    2  continue
+        xmid = (x(ip)+x(ip-1))/2
+        i0 = ip-1
+        i1 = ip
+        do  2  i = 1, n-1
+          if (i0 .eq. 0) then
+            i1 = i1+1
+          elseif (i1 .eq. np) then
+            i0 = i0-1
+          elseif (dabs(x(i0)-xmid) .lt. dabs(x(i1+1)-xmid))  then
+            i0 = i0-1
+          else
+            i1 = i1+1
+          endif
+    2   continue
 
-       call polcof(lopt,x(ip-1),x(i0+1),y(i0+1),n,c)
-       sum = c(n)/n
-       errmx = errmx + sum*(x(ip)-x(ip-1))**(n+1)
-       do  12  i = n-1, 1, -1
-   12  sum = c(i)/i + sum*(x(ip)-x(ip-1))
-       sum = sum*(x(ip)-x(ip-1))
-       yp(ip) = yp(ip-1) + sum
+        call polcof(lopt,x(ip-1),x(i0+1),y(i0+1),n,c)
+        sum = c(n)/n
+        errmx = errmx + sum*(x(ip)-x(ip-1))**(n+1)
+        do  12  i = n-1, 1, -1
+   12   sum = c(i)/i + sum*(x(ip)-x(ip-1))
+        sum = sum*(x(ip)-x(ip-1))
+        yp(ip) = yp(ip-1) + sum
 
 C       print 333, (c(i), i=1,n)
 C  333  format(5f15.10)

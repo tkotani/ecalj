@@ -71,7 +71,7 @@ C --- Convert vec to t ---
       elseif (mod(iopt,4) .eq. 1 .or. mod(iopt,4) .eq. 2) then
         parsvc = .true.
         do  10  i = 1, 3
-        lveq0(i) = dabs(v(i)) .lt. tiny
+          lveq0(i) = dabs(v(i)) .lt. tiny
    10   lveq1(i) = dabs(v(i)-1) .lt. tiny
 C   ... Exclude shorthand
         if (mod(iopt,4) .eq. 1) then
@@ -90,18 +90,18 @@ C   ... Exclude shorthand
           t(ip) = '('
           do  12  i = 1, 3
             m = awrite('%x%;7d%?#n<>3#,#)#',
-     .        sout,len(sout),0,v(i),i,i,i,i,i,i,i)
+     .      sout,len(sout),0,v(i),i,i,i,i,i,i,i)
             x = v(i)
             y = v(i)*dsqrt(3d0)*4
             if (abs(x) .gt. tiny .and. dabs(dabs(x)-1) .gt. tiny
-     .          .and. iopt .le. 4) then
+     .      .and. iopt .le. 4) then
               if (abs(1/x-nint(1/x)) .lt. tiny) then
                 if (x .gt. 0) m = awrite('%x1/%d%?#n<>3#,#)#',
-     .            sout,len(sout),0,1/x,i,i,i,i,i,i,i)
+     .          sout,len(sout),0,1/x,i,i,i,i,i,i,i)
                 if (x .lt. 0) m = awrite('%x-1/%d%?#n<>3#,#)#',
-     .            sout,len(sout),0,-1/x,i,i,i,i,i,i,i)
+     .          sout,len(sout),0,-1/x,i,i,i,i,i,i,i)
               elseif (abs(y-nint(y)) .lt. tiny .and.
-     .                abs(y) .gt. .5d0) then
+     .        abs(y) .gt. .5d0) then
                 d = 12
                 iz = nint(abs(y))
                 id = 12
@@ -111,7 +111,7 @@ C   ... Exclude shorthand
                 if (iz .eq. 12) id = 1
                 y = y/(12/id)
                 m = awrite('%x%?#n==1#%j#%d*#sqrt(3)/%i%?#n<>3#,#)#',
-     .            sout,len(sout),0,nint(y),y,id,i,i,i,i,i)
+     .          sout,len(sout),0,nint(y),y,id,i,i,i,i,i)
               endif
             endif
             call strncp(t(ip+1),sout,1,1,m)

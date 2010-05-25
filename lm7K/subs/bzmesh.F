@@ -1,5 +1,5 @@
       subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,
-     .                   igstar,lpbc)
+     .igstar,lpbc)
 C- Divides the reciprocal lattice into microcells
 C-----------------------------------------------------------------------
 Ci Inputs:
@@ -106,12 +106,12 @@ C ... Passed parameters
 C ... Local parameters
       logical lsgrp
       integer i1,i2,i3,ifac(3),ig,igcnt,ii,ii1,ii2,ii3,ipr,iq,
-     .  is(3),iwgt,j1,j2,j3,lgunit,lpbc01,lpbc2,lstar,m1,m2,m3,ndmx,nn1,
-     .  nn2,nn3,stdo,nsgrp,mxxyz
+     .is(3),iwgt,j1,j2,j3,lgunit,lpbc01,lpbc2,lstar,m1,m2,m3,ndmx,nn1,
+     .nn2,nn3,stdo,nsgrp,mxxyz
       double precision w0,x1,x2,x3,swgt,v(3),v1(3),rb(3,3)
 C ... External calls
       external asymop,awrit5,awrit6,bzmsh0,dinv33,dpzero,fexit,getpr,
-     .         grpop,iinit,projql,rx,rxx
+     .grpop,iinit,projql,rx,rxx
       character*1 chr(0:2)
 #if DEBUG
       character*30 sg
@@ -139,9 +139,9 @@ C      data q0 /0.370925d0,-0.401855d0,0.370925d0/,dq/.15d0/
       if (nsgrp .ne. wgt(1)) call rx('bzmesh: invalid input wgt(1)')
 C     lpbc2 = 1
       if (lstar .ne. 0 .and. max(n1,n2,n3) .gt. ndmx)
-     .  call rx('bzmesh: too many divisions to accomodate ndmx')
+     .call rx('bzmesh: too many divisions to accomodate ndmx')
       if (min(n1,n2,n3) .lt. 1) 
-     .  call rx('bzmesh: improper specification of k-mesh')
+     .call rx('bzmesh: improper specification of k-mesh')
 
       call bzmsh0(plat,lshft,lpbc01,n1,n2,n3,is,ifac,rb,qb)
 #if DEBUG
@@ -225,7 +225,7 @@ C              call prm('(3f12.6)',v,3,1)
 C              call prm('(3f12.6)',g(9*ig-8),3,3)
 C              call prm('(3f12.6)',v1,3,1)
             call awrit2(' qp%3:1,3;3d -> %3:1,3;3d is not'//
-     .          ' on k-mesh',' ',80,stdo,v,v1)
+     .      ' on k-mesh',' ',80,stdo,v,v1)
             call rx('BZMESH: symops incompatible with this mesh')
           endif
 C           call prmx('rotated kpt',v1,3,3,1)
@@ -274,8 +274,8 @@ C              endif
               call dpzero(ag,3)
               call asymop(g(1,ig),ag,' ',sg)
               call awrit6(' (%i,%i,%i)%15p%3:1,6;11D'//
-     .          ' %,5i  %,3i '//sg//'%a',' ',80,stdo,j1,j2,j3,
-     .          v1,ipq(j1,j2,j3),ig)
+     .        ' %,5i  %,3i '//sg//'%a',' ',80,stdo,j1,j2,j3,
+     .        v1,ipq(j1,j2,j3),ig)
             endif
 #endif
           endif
@@ -312,14 +312,14 @@ C ... Done accumulating inequivalent qp
 
       if (ipr .ge. 20) then
         call awrit6(' BZMESH:  %i irreducible QP from %i'//
-     .    ' ( %i %i %i )  shift=%3:1l',' ',80,
-     .    stdo,nq,n1*n2*n3,n1,n2,n3,lshft)
+     .  ' ( %i %i %i )  shift=%3:1l',' ',80,
+     .  stdo,nq,n1*n2*n3,n1,n2,n3,lshft)
         call awrit5('bz  nq %i ( %i %i %i )  shift %3:1l',' ',80,
-     .    lgunit(2),nq,n1,n2,n3,lshft)
+     .  lgunit(2),nq,n1,n2,n3,lshft)
       endif
 #if  QP0
       call awrit3('          %i points within dq=%1;6d  swgt=%1;6d',
-     .  ' ',80,stdo,igcnt,dq,swgt)
+     .' ',80,stdo,igcnt,dq,swgt)
       ifi = fopn('QPTS')
       write(ifi,333) nq, n1,n2,n3,0
   333 format(4i5,i8)

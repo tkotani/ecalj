@@ -83,8 +83,8 @@ C --- Straight yygefa,di if n lt nmin ---
           if (ierr .ne. 0) goto 99
           call yyhidi(ar,ai,lda,n,w,xx,i,w(1,2),w(1,3),1)
           do  10  i = 1, n
-          do  10  j = 1, i
-          ar(i,j) =  ar(j,i)
+            do  10  j = 1, i
+              ar(i,j) =  ar(j,i)
    10     ai(i,j) = -ai(j,i)
         endif
 #if DEBUG
@@ -105,8 +105,8 @@ C --- R1 = a11^-1 in a11 ---
           if (ierr .ne. 0) goto 99
           call yyhidi(ar,ai,lda,m1,w,xx,i,w(1,2),w(1,3),1)
           do  12  i = 1, m1
-          do  12  j = 1, i
-          ar(i,j) =  ar(j,i)
+            do  12  j = 1, i
+              ar(i,j) =  ar(j,i)
    12     ai(i,j) = -ai(j,i)
         else
           call yygefa(ar,ai,lda,m1,w,ierr)
@@ -135,18 +135,18 @@ C --- R1 = a11^-1 in a11 ---
 
 C --- R3 = R1 a12 in w: uses w(1:m1,1:2*m2) ---
       call yygemm('N','N',m1,m2,m1,1d0,ar,ai,lda,ar(1,1+m1),ai(1,1+m1),
-     .  lda,0d0,w,w(1,1+m2),ldw)
+     .lda,0d0,w,w(1,1+m2),ldw)
 *     call yprm(.false.,'R3',2,6,fmt,w,lda,m1,m2,m2)
 
 C --- R4 = a21 R3 = a21 a11^-1 a12 in w2; uses w(1+m1:n,1:2*m2) ---
       call yygemm('N','N',m2,m2,m1,1d0,ar(1+m1,1),ai(1+m1,1),lda,
-     .  w,w(1,1+m2),ldw,0d0,w(1+m1,1),w(1+m1,1+m2),ldw)
+     .w,w(1,1+m2),ldw,0d0,w(1+m1,1),w(1+m1,1+m2),ldw)
 *     call yprm(.false.,'R4',2,6,fmt,w(1+m1,1),ldw,m2,m2,m2)
 
 C --- -R5 = a22 - R4 = a22 - a21 a11^-1 a12 in a22 ---
       do  20  j = 1, m2
-      do  20  i = 1, m2
-      ar(i+m1,j+m1) = ar(i+m1,j+m1) - w(i+m1,j)
+        do  20  i = 1, m2
+          ar(i+m1,j+m1) = ar(i+m1,j+m1) - w(i+m1,j)
    20 ai(i+m1,j+m1) = ai(i+m1,j+m1) - w(i+m1,j+m2)
 C     R4 = w2 isn't needed beyond this point
 *     call yprm(.false.,'-R5',2,6,fmt,ar(1+m1,1+m1),lda,m2,lda,m2)
@@ -159,16 +159,16 @@ C --- c22 = -R6 = -R5^-1 = (a22 - a21 a11^-1 a12)^-1 in a22 ---
           call yyhifa(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w(1+m1,1),ierr)
           if (ierr .ne. 0) goto 99
           call yyhidi(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w(1+m1,1),
-     .      xx,i,w(1+m1,2),w(1+m1,3),1)
+     .    xx,i,w(1+m1,2),w(1+m1,3),1)
           do  16  i = m1+1, n
-          do  16  j = m1+1, i
-          ar(i,j) =  ar(j,i)
+            do  16  j = m1+1, i
+              ar(i,j) =  ar(j,i)
    16     ai(i,j) = -ai(j,i)
         else
           call yygefa(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w(1+m1,1),ierr)
           if (ierr .ne. 0) goto 99
           call yygedi(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w(1+m1,1),xx,
-     .      w(1+m1,2),w(1+m1,3),1)
+     .    w(1+m1,2),w(1+m1,3),1)
         endif
 #if RECUR | F90
       else
@@ -177,12 +177,12 @@ C --- c22 = -R6 = -R5^-1 = (a22 - a21 a11^-1 a12)^-1 in a22 ---
 #endif
 #if AIX | SUN_ULTRA
         call yyqinv(cs,ar(1+m1,1+m1),ai(1+m1,1+m1),lda,
-     .    nlev-1,(m2),w(1+m1,1),ldw,ierr)
+     .  nlev-1,(m2),w(1+m1,1),ldw,ierr)
         m1 = n/2
         m2 = n-m1
 #else
         call yyqinv(cs,ar(1+m1,1+m1),ai(1+m1,1+m1),lda,
-     .    nlev-1,m2,w(1+m1,1),ldw,ierr)
+     .  nlev-1,m2,w(1+m1,1),ldw,ierr)
 #endif
 #if DEBUG
         print 333, 'recursive call exit',nlev,n,m1,m2
@@ -194,24 +194,24 @@ C --- c22 = -R6 = -R5^-1 = (a22 - a21 a11^-1 a12)^-1 in a22 ---
 
 C --- c12 = R3 * R6 = -a11^-1 a12 c22 in a12 ---
       call yygemm('N','N',m1,m2,m2,-1d0,w,w(1,1+m2),ldw,ar(1+m1,1+m1),
-     .  ai(1+m1,1+m1),lda,0d0,ar(1,1+m1),ai(1,1+m1),lda)
+     .ai(1+m1,1+m1),lda,0d0,ar(1,1+m1),ai(1,1+m1),lda)
 *     call yprm(.false.,'c12',2,6,fmt,ar(1,1+m1),lda,m1,lda,m2)
 
 C --- Hermitian case: R2 = R3+ and c21=c12+ ---
       if (cs .eq. 'h') then
         do  30  j = 1, m1
-        do  30  i = 1, m2
-        ar(i+m1,j) =  ar(j,i+m1)
+          do  30  i = 1, m2
+            ar(i+m1,j) =  ar(j,i+m1)
    30   ai(i+m1,j) = -ai(j,i+m1)
 
 C NB: do following in two steps to avoid beta=1 in yygemm call
 C   ... R7 = R3 * R6 * R2 = R3 * c21
         call yygemm('N','N',m1,m1,m2,1d0,w,w(1,1+m2),ldw,
-     .    ar(1+m1,1),ai(1+m1,1),lda,0d0,w(1+m1,1),w(1+m1,1+m2),ldw)
+     .  ar(1+m1,1),ai(1+m1,1),lda,0d0,w(1+m1,1),w(1+m1,1+m2),ldw)
 C   ... c11 = R1 - R7 = R1 - R3 * R6 * R2 = R1 - R3 * c21
         do  32  j = 1, m1
-        do  32  i = 1, j
-        ar(i,j) =  ar(i,j) - (w(i+m1,j)+w(j+m1,i))*.5d0
+          do  32  i = 1, j
+            ar(i,j) =  ar(i,j) - (w(i+m1,j)+w(j+m1,i))*.5d0
    32   ai(i,j) =  ai(i,j) - (w(i+m1,j+m2)-w(j+m1,i+m2))*.5d0
 
 C       call yygemm('N','N',m1,m1,m2,-1d0,w,w(1,1+m2),ldw,
@@ -219,8 +219,8 @@ C    .    ar(1+m1,1),ai(1+m1,1),lda,1d0,ar,ai,lda)
 
 C   ... Force hermitian explicitly
         do  34  i = 1, m1
-        do  34  j = 1, i
-        ar(i,j) =  ar(j,i)
+          do  34  j = 1, i
+            ar(i,j) =  ar(j,i)
    34   ai(i,j) = -ai(j,i)
 
 C --- Nonhermitian case ---
@@ -228,17 +228,17 @@ C --- Nonhermitian case ---
 
 C   --- R2 = a21 * R1 in w(2); uses w(1+m1:n,1:2*m1) ---
         call yygemm('N','N',m2,m1,m1,1d0,ar(1+m1,1),ai(1+m1,1),lda,
-     .    ar,ai,lda,0d0,w(1+m1,1),w(1+m1,1+m1),ldw)
+     .  ar,ai,lda,0d0,w(1+m1,1),w(1+m1,1+m1),ldw)
 *       call yprm(.false.,'R2',2,6,fmt,w(1+m1,1),ldw,m2,m2,m1)
 
 C   --- c21 = R6 * R2 = -c22 a21 a11^-1 ---
         call yygemm('N','N',m2,m1,m2,-1d0,ar(1+m1,1+m1),ai(1+m1,1+m1),
-     .   lda,w(1+m1,1),w(1+m1,1+m1),ldw,0d0,ar(1+m1,1),ai(1+m1,1),lda)
+     .  lda,w(1+m1,1),w(1+m1,1+m1),ldw,0d0,ar(1+m1,1),ai(1+m1,1),lda)
 *       call yprm(.false.,'c21',2,6,fmt,ar(1+m1,1),lda,m2,lda,m1)
 
 C   --- c11 = R1 - R3 * R6 * R2 = a11^-1 + a11^-1 a12 c22 a21 a11^-1 ---
         call yygemm('N','N',m1,m1,m2,-1d0,ar(1,1+m1),ai(1,1+m1),lda,
-     .    w(1+m1,1),w(1+m1,1+m1),ldw,1d0,ar,ai,lda)
+     .  w(1+m1,1),w(1+m1,1+m1),ldw,1d0,ar,ai,lda)
 *       call yprm(.false.,'R7',2,6,fmt,w,ldw,m1,m2,m1)
 
       endif

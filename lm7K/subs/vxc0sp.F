@@ -32,11 +32,11 @@ C     implicit none
 C ... Passed parameters
       integer nr,nsp,nrmx
       double precision a,b,rofi(nr),v(nr,nsp),rho(nr,nsp),
-     .  rep(nsp),rmu(nsp),rho0(2),qs(2),exrmx
+     .rep(nsp),rmu(nsp),rho0(2),qs(2),exrmx
 C ... Local parameters
       parameter (nrmx=1501)
       double precision pi,rho2,rho3,
-     .  ub4pi,wgt,exc(nrmx),vxc(nrmx,2),rp(nrmx,2),repl(2),rmul(2)
+     .ub4pi,wgt,exc(nrmx),vxc(nrmx,2),rp(nrmx,2),repl(2),rmul(2)
       integer:: lx , lxcf2 , lxcg2 , i , ir , isp , iprint , nglob
       real(8) ,allocatable :: grh_rv(:)
       real(8) ,allocatable :: agrh_rv(:)
@@ -77,8 +77,8 @@ C --- Extrapolate rho to origin ---
 C --- Make true rho ---
       do  20  isp = 1, nsp
         rp(1,isp) = rho0(isp)
-      do  20  ir = 2, nr
-        rp(ir,isp) = rho(ir,isp)*ub4pi/rofi(ir)**2
+        do  20  ir = 2, nr
+          rp(ir,isp) = rho(ir,isp)*ub4pi/rofi(ir)**2
    20 continue
 
 C --- Generate vxc,exc on a mesh ---
@@ -86,7 +86,7 @@ C --- Generate vxc,exc on a mesh ---
         call evxcp(rp,rp(1,2),nr,nsp,lxcf2,exc,vxc,vxc(1,2))
         do  60  isp = 1, nsp
           vxc(1,isp) =
-     .      (vxc(2,isp)*rofi(3)-vxc(3,isp)*rofi(2))/(rofi(3)-rofi(2))
+     .    (vxc(2,isp)*rofi(3)-vxc(3,isp)*rofi(2))/(rofi(3)-rofi(2))
    60   continue
       else
         allocate(excx_rv(nr))
@@ -103,17 +103,17 @@ Ctakao_ZeroClear_NotRequiered          if (nr<0) vxcc_rv(:)=0.0d0
 
         if (nsp .eq. 1) then
           call evxcv ( rp , rp , nr , nsp , lxcf2 , exc , excx_rv , 
-     .     excc_rv , vxc , vxcx_rv , vxcc_rv )
+     .    excc_rv , vxc , vxcx_rv , vxcc_rv )
 
         else
           call dpadd(rp(1,2),rp,1,nr,1d0)
           call evxcv ( rp ( 1 , 2 ) , rp , nr , 2 , lxcf2 , exc , excx_rv 
-     .     , excc_rv , vxc , vxcx_rv , vxcc_rv )
+     .    , excc_rv , vxc , vxcx_rv , vxcc_rv )
 
           call dpadd(rp(1,2),rp,1,nr,-1d0)
           call dpadd(rp,rp(1,2),1,nr,1d0)
           call evxcv ( rp , rp ( 1 , 2 ) , nr , 2 , lxcf2 , exc , excx_rv 
-     .     , excc_rv , vxc ( 1 , 2 ) , vxcx_rv , vxcc_rv )
+     .    , excc_rv , vxc ( 1 , 2 ) , vxcx_rv , vxcc_rv )
 
           call dpadd(rp,rp(1,2),1,nr,-1d0)
         endif
@@ -156,7 +156,7 @@ Ctakao_ZeroClear_NotRequiered          if (nrmx*(3*nsp-2)<0) agrh_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered          if (nrmx*(2*nsp-1)<0) grgag_rv(:)=0.0d0
 
         call vxcgr2 ( nr , nsp , nrmx , rofi , rp , grh_rv , ggrh_rv 
-     .   , agrh_rv , grgag_rv , exc , vxc )
+     .  , agrh_rv , grgag_rv , exc , vxc )
 
         if (allocated(grgag_rv)) deallocate(grgag_rv)
         if (allocated(agrh_rv)) deallocate(agrh_rv)
@@ -203,10 +203,10 @@ C --- Undo background rho for purposes of calculating vxc ---
   335   format(1x,a2,2x,4f12.6)
    30 continue
       if (nsp .eq. 2 .and. lxcg2 .eq. 0)
-     .  print 335, '  ', rep(1)+rep(2), rmu(1)+rmu(2)
+     .print 335, '  ', rep(1)+rep(2), rmu(1)+rmu(2)
       if (nsp .eq. 2 .and. lxcg2 .ne. 0)
-     .  print 335, '  ', repl(1)+repl(2), rmul(1)+rmul(2),
-     .  rep(1)+rep(2)-repl(1)-repl(2), rmu(1)+rmu(2)-rmul(1)-rmul(2)
+     .print 335, '  ', repl(1)+repl(2), rmul(1)+rmul(2),
+     .rep(1)+rep(2)-repl(1)-repl(2), rmu(1)+rmu(2)-rmul(1)-rmul(2)
 
       end subroutine vxc0sp
 

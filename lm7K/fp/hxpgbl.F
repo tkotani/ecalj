@@ -1,6 +1,6 @@
 #define F90 1
       subroutine hxpgbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndimh,
-     .  ndimg,cg,indxcg,jcg,cy,slat,c,dc)
+     .ndimg,cg,indxcg,jcg,cy,slat,c,dc)
 C- Coefficients to expand smooth bloch hankels and grads centered at ph
 C  into a sum of polynomials P_kL centered at pg.
 C ----------------------------------------------------------------------
@@ -43,7 +43,7 @@ C     implicit none
 C ... Passed parameters
       integer k0,kmax,ndimg,ndimh,nlmg,nlmh,jcg(1),indxcg(1)
       double precision eh(1),rsmg,rsmh(1),ph(3),pg(3),cg(1),cy(1),q(3),
-     .  slat(1)
+     .slat(1)
       double complex c(0:k0,ndimg,ndimh),dc(0:k0,ndimg,ndimh,3)
 C ... Local parameters
       integer ndim1,ndim2,ktop0,ilmg,ilmh,k,l,ll,lmaxg,m,nm
@@ -71,7 +71,7 @@ C     Memory allocation
 C ... Integrals of Hankels with Gaussians
       eg = 0d0
       call ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,
-     .  ktop0,cg,indxcg,jcg,cy,slat,s,ds)
+     .ktop0,cg,indxcg,jcg,cy,slat,s,ds)
 
 C ... Scale to get coefficients of the PkL
       a = 1d0/rsmg

@@ -1,9 +1,9 @@
 #define F90 1
       subroutine addrbl(ssite,sspec,slat,sham,isp,nsp,nspc,q,wtkp,ndham,
-     .  ndimh,napw,igapw,lmet,lrout,lwtkb,wtkb,lswtk,swtk,iq,lfrce,ldos,
-     .  lekkl,k1,k2,k3,smpot,vconst,osig,otau,oppi,lcplxp,numq,qval,
-     .  evec,evl,nevl,ef0,def,esmear,emin,emax,ndos,dos,smrho,sumqv,
-     .  sumev,oqkkl,oeqkkl,f)
+     .ndimh,napw,igapw,lmet,lrout,lwtkb,wtkb,lswtk,swtk,iq,lfrce,ldos,
+     .lekkl,k1,k2,k3,smpot,vconst,osig,otau,oppi,lcplxp,numq,qval,
+     .evec,evl,nevl,ef0,def,esmear,emin,emax,ndos,dos,smrho,sumqv,
+     .sumev,oqkkl,oeqkkl,f)
 
       use m_struc_def  !Cgetarg
 
@@ -97,11 +97,11 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer isp,nsp,nspc,iq,k1,k2,k3,ldos,lmet,lrout,lwtkb,lswtk,
-     .  lfrce,ndham,ndimh,ndos,numq,lekkl,lcplxp,napw,igapw(3,napw)
+     .lfrce,ndham,ndimh,ndos,numq,lekkl,lcplxp,napw,igapw(3,napw)
       integer nevl
       double precision def,ef0,emax,emin,esmear,qval,vconst,wtkp(iq)
       real(8):: q(3) , wtkb(ndham,nsp,1) , swtk(ndham,nsp,1) , dos(ndos,2,isp) 
-     . , evl(ndham,nsp) , sumev(2,3) , sumqv(3,2) , f(3,*)
+     ., evl(ndham,nsp) , sumev(2,3) , sumqv(3,2) , f(3,*)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
@@ -109,10 +109,10 @@ C ... Passed parameters
 
       integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)
       double complex evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),
-     .  smpot(k1,k2,k3,isp)
+     .smpot(k1,k2,k3,isp)
 C ... Local parameters
       integer i,k,nevec,nbas,nglob,ngabc(3),n1,n2,n3,oidxsh,ndimhx,
-     .  lmxax,lmxa,nlmax,nlmto,ig
+     .lmxax,lmxa,nlmax,nlmto,ig
       double precision vavg,wgt,alat,qlat(3,3),tpiba,vol
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 #if F90
@@ -175,7 +175,7 @@ C     Find largest lmxa ... should be made elsewhere
           qpgv(:,ig) = tpiba * ( q + matmul(qlat,igapw(:,ig)) )
         enddo
         call ropyln(napw,qpgv(1,1:napw),qpgv(2,1:napw),qpgv(3,1:napw),
-     .    lmxax,napw,ylv,qpg2v)
+     .  lmxax,napw,ylv,qpg2v)
       else
         allocate(ylv(1,1),qpgv(1,1),qpg2v(1))
       endif
@@ -191,7 +191,7 @@ C ... Case band weights not passed: make sampling weights
         call rxx(nspc.ne.1,'lwtkb=0 not implemented in noncoll case')
         wgt = abs(wtkp(iq))/nsp
         call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),ef0,def,esmear,numq,
-     .    nevec,ewgt,sumev,sumqv(1,isp))
+     .  nevec,ewgt,sumev,sumqv(1,isp))
         call dscal(nevec*numq,wgt,ewgt,1)
 
 C ... Case band weights are passed
@@ -207,7 +207,7 @@ C ... Case band weights are passed
 
 C ... Add to sampling dos
       if (ldos .eq. 1) call addsds(nevl,evl(1,isp),abs(wtkp(iq))/nsp,
-     .  emin,emax,esmear,ndos,dos(1,1,isp))
+     .emin,emax,esmear,ndos,dos(1,1,isp))
 
 C ... Force from smooth analytic hamiltonian and overlap
       if (lfrce .gt. 0 .and. lrout .gt. 0) then
@@ -219,7 +219,7 @@ C       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
 
         if (nlmto .gt. 0) then
           call fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,w(oidxsh),
-     .      numq,nevec,evl(1,isp),evec,ewgt,f)
+     .    numq,nevec,evl(1,isp),evec,ewgt,f)
         endif
 C        print *, 'after fsmbl'
 C        do  i = 1, 3
@@ -232,9 +232,9 @@ C        enddo
           vol=slat%vol
 
           call fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,w(oidxsh),numq,
-     .      nevec,evl(1,isp),evec,ewgt,
-     .      napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,dsqrt(vol),
-     .      f)
+     .    nevec,evl(1,isp),evec,ewgt,
+     .    napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,dsqrt(vol),
+     .    f)
 C        print *, 'after fsmblpw'
 C        do  i = 1, 3
 C          print 543, f(:,i)
@@ -247,7 +247,7 @@ C     print *, '!!'; call dpzero(f,9)
 C ... Add to smooth density
       if (lrout .gt. 0) then
         call rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,napw,
-     .    igapw,w(oidxsh),numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
+     .  igapw,w(oidxsh),numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
 C       call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
       endif
 C      print *, 'after rsibl'
@@ -258,8 +258,8 @@ C      enddo
 C ... Add to local density coefficients
       if (lrout .gt. 0) then
         call rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,nspc,
-     .    napw,igapw,w(oidxsh),numq,nevec,evec,ewgt,evl,osig,otau,oppi,
-     .    lcplxp,lekkl,oqkkl,oeqkkl,f)
+     .  napw,igapw,w(oidxsh),numq,nevec,evec,ewgt,evl,osig,otau,oppi,
+     .  lcplxp,lekkl,oqkkl,oeqkkl,f)
 C       call zprm3('smrho after rlocbl',0,smrho,k1,k2,k3)
       endif
 
@@ -273,7 +273,7 @@ C ... Weights for spin moments
       if (lswtk .gt. 0 .and. nspc .eq. 2) then
         if (ndimhx .ne. nevl) then
           call info0(30,0,0,' addrbl: eigenvector matrix not square'
-     .      //' ... spin weights not evaluated')
+     .    //' ... spin weights not evaluated')
           lswtk = -2
         else
 #if F90
@@ -285,9 +285,9 @@ C ... Weights for spin moments
           do  i = 1, ndimh
             do  k = 1, ndimh
               swtk(i,1,iq) = swtk(i,1,iq) + evecc(i,1,k,1)*evec(k,1,i,1)
-     .                                - evecc(i,1,k,2)*evec(k,2,i,1)
+     .        - evecc(i,1,k,2)*evec(k,2,i,1)
               swtk(i,2,iq) = swtk(i,2,iq) + evecc(i,2,k,1)*evec(k,1,i,2)
-     .                                - evecc(i,2,k,2)*evec(k,2,i,2)
+     .        - evecc(i,2,k,2)*evec(k,2,i,2)
             enddo
 C        print 345,i,swtk(i,1,iq),swtk(i,2,iq), swtk(i,1,iq)+swtk(i,2,iq)
 C  345   format(i4,3f14.8)

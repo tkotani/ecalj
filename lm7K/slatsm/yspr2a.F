@@ -1,5 +1,5 @@
       subroutine yspr2a(mode,i1,i2,j1,j2,ap,ofapi,ldap,ija,offs,a,ofai,
-     .  lda)
+     .lda)
 C- Unpacks a subblock of a complex sparse matrix into standard form
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -47,7 +47,7 @@ C     implicit none
       double precision ap(ldap),a(lda)
 
       call yysp2a(mode,i1,i2,j1,j2,ap,ap(1+ofapi),ldap,ija,offs,
-     .  a,a(1+ofai),lda)
+     .a,a(1+ofai),lda)
 
       end
 

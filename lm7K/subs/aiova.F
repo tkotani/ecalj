@@ -31,28 +31,28 @@ C   ... read nl and nsp ... abort if missing
         read(ifi,'(a120)') s
         if (.not. pars1v(s,len(s),'nl=','=',2,nl2)) goto 18
         if (lmax+1 .ne. nl2 .and. ipr .ge. 10)
-     .    print *, 'aiova (warning) mismatch in nl, class '//alabl
+     .  print *, 'aiova (warning) mismatch in nl, class '//alabl
         if (.not. pars1v(s,len(s),'nsp=','=',2,nsp2)) goto 18
         if (nsp .ne. nsp2 .and. ipr .ge. 10)
-     .    print *, 'aiova (warning) mismatch in nsp, class '//alabl
+     .  print *, 'aiova (warning) mismatch in nsp, class '//alabl
         call dpzero(vintra,nl*nl*nsp*nsp)
         lmx = min(nl,nl2)-1
 C   ... read vintra
         n = min(nsp,nsp2)
         do  10  i = 1, n
-        do  10  l = 0, lmx
-          if (.not. rdstrn(ifi,s,len(s),.false.)) goto 18
-          ip = 0
-          k = a2vec(s,len(s),ip,4,' ',1,-2,-(lmx+1)*n-1,ix2,x2)
+          do  10  l = 0, lmx
+            if (.not. rdstrn(ifi,s,len(s),.false.)) goto 18
+            ip = 0
+            k = a2vec(s,len(s),ip,4,' ',1,-2,-(lmx+1)*n-1,ix2,x2)
 C    ...  Abort if failed to read lmx+2 numbers
-          if (k .ne. (lmx+1)*n+1) call rx('AIOVA: failed to parse '//s)
-          call dcopy(lmx+1,x2(1),1,vintra(l+1,1,i,1),nl)
-          if (n.eq.2) call dcopy(lmx+1,x2(lmx+2),1,vintra(l+1,1,i,2),nl)
-          if (nsp2 .lt. nsp) then
-            call dcopy(lmx+1,x2(1),1,vintra(l+1,1,2,2),nl)
-            call dcopy(lmx+1,x2(1),1,vintra(l+1,1,1,2),nl)
-            call dcopy(lmx+1,x2(1),1,vintra(l+1,1,2,1),nl)
-          endif
+            if (k .ne. (lmx+1)*n+1) call rx('AIOVA: failed to parse '//s)
+            call dcopy(lmx+1,x2(1),1,vintra(l+1,1,i,1),nl)
+            if (n.eq.2) call dcopy(lmx+1,x2(lmx+2),1,vintra(l+1,1,i,2),nl)
+            if (nsp2 .lt. nsp) then
+              call dcopy(lmx+1,x2(1),1,vintra(l+1,1,2,2),nl)
+              call dcopy(lmx+1,x2(1),1,vintra(l+1,1,1,2),nl)
+              call dcopy(lmx+1,x2(1),1,vintra(l+1,1,2,1),nl)
+            endif
    10   continue
         aiova = .true.
         return
@@ -64,9 +64,9 @@ C --- File WRITE ---
       else
         write(-ifi,21) alabl, lmax+1, nsp
         do  20  i = 1, nsp
-        do  20  l = 0, lmax
-          write(-ifi,333) l,((vintra(l+1,k,i,i2), k=1,1+lmax), i2=1,nsp)
-  333     format(i4,8f12.6)
+          do  20  l = 0, lmax
+            write(-ifi,333) l,((vintra(l+1,k,i,i2), k=1,1+lmax), i2=1,nsp)
+  333       format(i4,8f12.6)
    20   continue
         aiova = .true.
       endif

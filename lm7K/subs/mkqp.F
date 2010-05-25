@@ -49,8 +49,8 @@ C ... Passed parameters
 C ... Local parameters
       logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
       integer fopna,mxkp,nfilqp,nkp,nkxyz(3),nsgrp,npgrp,lshft(3),
-     .  lpbc,ntet,i,oidtet,oqp,owtkp,ogstar,oipq,owk,osymgr,
-     .  iprint,igets,stdo,nglob
+     .lpbc,ntet,i,oidtet,oqp,owtkp,ogstar,oipq,owk,osymgr,
+     .iprint,igets,stdo,nglob
       double precision plat(3,3),qlat(3,3),vol
       character prgnam*4, outs*80
 
@@ -105,7 +105,7 @@ C ... Read qp from disk
         call getqp(0,nfilqp,nkp,nkxyz,lshft,ntet,w,w,w)
         if (ltet) then
           if (ntet .eq. 0)
-     .      call rx('tetrahedron method specd but no tet weights given')
+     .    call rx('tetrahedron method specd but no tet weights given')
         else
           ntet = 0
         endif
@@ -117,11 +117,11 @@ C ... Read qp from disk
           call defi(oidtet,1)
         endif
         call getqp(2,nfilqp,nkp,nkxyz,lshft,ntet,w(oqp),w(owtkp),
-     .    w(oidtet))
+     .  w(oidtet))
 
         call fclose(nfilqp)
         if (iprint() .ge. 20) call
-     .    awrit1(' MKQP:   read %i qp from disc',' ',80,stdo,nkp)
+     .  awrit1(' MKQP:   read %i qp from disc',' ',80,stdo,nkp)
         call rxx(ltet,'tet. integration with non-standard k-mesh')
         if (lgstar .ne. 0) then
           call rx('mkqp: lgstar not allowed with user supplied k-mesh')
@@ -162,8 +162,8 @@ C   ... Restrict BZ to two dimensions
         call ivset(w(ogstar),1,1,lgstar)
         call info0(20,0,0,' ')
         call bzmesh(plat,qlat,nkxyz(1),nkxyz(2),nkxyz(3),llshft,
-     .    w(osymgr),npgrp,w(oipq),w(oqp),w(owtkp),nkp,mxkp,w(ogstar),
-     .    lpbc)
+     .  w(osymgr),npgrp,w(oipq),w(oqp),w(owtkp),nkp,mxkp,w(ogstar),
+     .  lpbc)
 
 C   ... Sanity check
 c        if (lsx .and. lshft(1)+lshft(2)+lshft(3) .gt. 0) call
@@ -181,8 +181,8 @@ C   ... Remake, with exactly allocated arrays, ipq on top
         call pshpr(0)
         call ivset(w(ogstar),1,1,lgstar)
         call bzmesh(plat,qlat,nkxyz(1),nkxyz(2),nkxyz(3),llshft,
-     .    w(osymgr),npgrp,w(oipq),w(oqp),w(owtkp),nkp,mxkp,w(ogstar),
-     .    lpbc)
+     .  w(osymgr),npgrp,w(oipq),w(oqp),w(owtkp),nkp,mxkp,w(ogstar),
+     .  lpbc)
         call poppr
 
 C   ... Hang on to ipq if (a) call tetirr below or (b) lipq
@@ -202,7 +202,7 @@ C     ... Save a copy of ipq since tetirr destroys this array
             call icopy(6*mxkp,w(owk),1,w(oipq),1)
           endif
           call tetirr(qlat,nkxyz(1),nkxyz(2),nkxyz(3),w(oipq),ntet,
-     .      w(oidtet))
+     .    w(oidtet))
           call redfi(oidtet,ntet*5)
 C     ... Unless ipq still needed, throw it away
           if (lipq) then
@@ -241,7 +241,7 @@ C --- Write q-points to disc ---
 
         nfilqp = fopna('QPTS',-1,0)
         call getqp(2,-nfilqp,nkp,nkxyz,lshft,ntet,w(oqp),w(owtkp),
-     .    w(oidtet))
+     .  w(oidtet))
         call fclose(nfilqp)
       endif
 

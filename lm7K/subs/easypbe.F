@@ -1,8 +1,8 @@
       subroutine easypbe(up,agrup,delgrup,uplap,dn,agrdn,delgrdn,dnlap,
-     1           agr,delgr,lcor,lpot,
-     1           exlsd,vxuplsd,vxdnlsd,eclsd,vcuplsd,vcdnlsd,
-     1           expw91,vxuppw91,vxdnpw91,ecpw91,vcuppw91,vcdnpw91,
-     1           expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe)
+     1agr,delgr,lcor,lpot,
+     1exlsd,vxuplsd,vxdnlsd,eclsd,vcuplsd,vcdnlsd,
+     1expw91,vxuppw91,vxdnpw91,ecpw91,vcuppw91,vcdnpw91,
+     1expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe)
 c----------------------------------------------------------------------
 c----------------------------------------------------------------------
 c EASYPBE is a driver for the PBE subroutines, using simple inputs
@@ -139,7 +139,7 @@ C atp added this line ..
       vv=rholap/(rho*twoksg**2)
       ww=(agrup**2-agrdn**2-zet*agr**2)/(rho*rho*twoksg**2)
       call CORPBE(RS,ZET,T,UU,VV,WW,1,lpot,ec,vcup,vcdn,
-     1                  H,DVCUP,DVCDN)
+     1H,DVCUP,DVCDN)
       eclsd=ec
       ecpbe=ec+h
       vcuplsd=vcup
@@ -235,7 +235,7 @@ c----------------------------------------------------------------------
 c######################################################################
 c----------------------------------------------------------------------
       SUBROUTINE CORPBE(RS,ZET,T,UU,VV,WW,lgga,lpot,ec,vcup,vcdn,
-     1                  H,DVCUP,DVCDN)
+     1H,DVCUP,DVCDN)
 c----------------------------------------------------------------------
 c  Official PBE correlation code. K. Burke, May 14, 1996.
 C  INPUT: RS=SEITZ RADIUS=(3/4pi rho)^(1/3)
@@ -296,11 +296,11 @@ c F=spin-scaling factor from [c](9).
 c construct ec, using [c](8)
       rtrs=dsqrt(rs)
       CALL gcor2(0.0310907D0,0.21370D0,7.5957D0,3.5876D0,1.6382D0,
-     1    0.49294D0,rtrs,EU,EURS)
+     10.49294D0,rtrs,EU,EURS)
       CALL gcor2(0.01554535D0,0.20548D0,14.1189D0,6.1977D0,3.3662D0,
-     1    0.62517D0,rtRS,EP,EPRS)
+     10.62517D0,rtRS,EP,EPRS)
       CALL gcor2(0.0168869D0,0.11125D0,10.357D0,3.6231D0,0.88026D0,
-     1    0.49671D0,rtRS,ALFM,ALFRSM)
+     10.49671D0,rtRS,ALFM,ALFRSM)
       ALFC = -ALFM
       Z4 = ZET**4
       F=((1.D0+ZET)**THRD4+(1.D0-ZET)**THRD4-2.D0)/GAM
@@ -314,7 +314,7 @@ c FZ = dF/dzeta [c](A4)
       ECRS = EURS*(1.D0-F*Z4)+EPRS*F*Z4-ALFRSM*F*(1.D0-Z4)/FZZ
       FZ = THRD4*((1.D0+ZET)**THRD-(1.D0-ZET)**THRD)/GAM
       ECZET = 4.D0*(ZET**3)*F*(EP-EU+ALFM/FZZ)+FZ*(Z4*EP-Z4*EU
-     1        -(1.D0-Z4)*ALFM/FZZ)
+     1-(1.D0-Z4)*ALFM/FZZ)
       COMM = EC -RS*ECRS/3.D0-ZET*ECZET
       VCUP = COMM + ECZET
       VCDN = COMM - ECZET
@@ -462,11 +462,11 @@ C  OUTPUT: CORRELATION CONTRIBUTION (ALFC) TO THE SPIN STIFFNESS
       parameter(thrd=0.333333333333D0,thrd4=1.333333333333D0)
       F = ((1.D0+ZET)**THRD4+(1.D0-ZET)**THRD4-2.D0)/GAM
       CALL GCOR(0.0310907D0,0.21370D0,7.5957D0,3.5876D0,1.6382D0,
-     1    0.49294D0,1.00D0,RS,EU,EURS)
+     10.49294D0,1.00D0,RS,EU,EURS)
       CALL GCOR(0.01554535D0,0.20548D0,14.1189D0,6.1977D0,3.3662D0,
-     1    0.62517D0,1.00D0,RS,EP,EPRS)
+     10.62517D0,1.00D0,RS,EP,EPRS)
       CALL GCOR(0.0168869D0,0.11125D0,10.357D0,3.6231D0,0.88026D0,
-     1    0.49671D0,1.00D0,RS,ALFM,ALFRSM)
+     10.49671D0,1.00D0,RS,ALFM,ALFRSM)
 C  ALFM IS MINUS THE SPIN STIFFNESS ALFC
       ALFC = -ALFM
       Z4 = ZET**4
@@ -475,7 +475,7 @@ C  ENERGY DONE. NOW THE POTENTIAL:
       ECRS = EURS*(1.D0-F*Z4)+EPRS*F*Z4-ALFRSM*F*(1.D0-Z4)/FZZ
       FZ = THRD4*((1.D0+ZET)**THRD-(1.D0-ZET)**THRD)/GAM
       ECZET = 4.D0*(ZET**3)*F*(EP-EU+ALFM/FZZ)+FZ*(Z4*EP-Z4*EU
-     1        -(1.D0-Z4)*ALFM/FZZ)
+     1-(1.D0-Z4)*ALFM/FZZ)
       COMM = EC -RS*ECRS/3.D0-ZET*ECZET
       VCUP = COMM + ECZET
       VCDN = COMM - ECZET
@@ -503,7 +503,7 @@ c----------------------------------------------------------------------
 c######################################################################
 c----------------------------------------------------------------------
       SUBROUTINE CORpw91(RS,ZET,G,EC,ECRS,ECZET,T,UU,VV,WW,H,
-     1                   DVCUP,DVCDN)
+     1DVCUP,DVCDN)
 C  pw91 CORRELATION, modified by K. Burke to put all arguments
 c  as variables in calling statement, rather than in common block
 c  May, 1996.

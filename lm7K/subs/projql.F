@@ -16,7 +16,7 @@ C     implicit none
 
       do  20  i = 1, 2
         bib3 = qlat(1,i)*qlat(1,3) + qlat(2,i)*qlat(2,3)
-     .       + qlat(3,i)*qlat(3,3)
+     .  + qlat(3,i)*qlat(3,3)
         do  21  j = 1, 3
           qlat(j,i) = qlat(j,i) - qlat(j,3)*bib3/b3b3
    21   continue

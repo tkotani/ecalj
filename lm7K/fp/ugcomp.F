@@ -65,14 +65,14 @@ c#endif
 
 C ... Local parameters
       integer ndim,ndim0,i,ib,ilm1,ilm2,is,iv0,jb,js,jv0,nvl,l1,l2,
-     .  lfoc1,lfoc2,ll,lmax1,lmax2,m,nlm1,nlm2
+     .lfoc1,lfoc2,ll,lmax1,lmax2,m,nlm1,nlm2
       parameter (ndim=49, ndim0=2)
       double precision ceh1,ceh2,cof1,cof2,cofg1,cofg2,cofh1,cofh2,fpi,
-     .  pi,qcorg1,qcorg2,qcorh1,qcorh2,qsc1,qsc2,qm1,qm2,rg1,rg2,rh1,
-     .  rh2,srfpi,y0,z1,z2
+     .pi,qcorg1,qcorg2,qcorh1,qcorh2,qsc1,qsc2,qm1,qm2,rg1,rg2,rh1,
+     .rh2,srfpi,y0,z1,z2
       double precision df(0:20),ff(3),tau1(3),tau2(3)
       double complex s(ndim,ndim),ds(ndim,ndim,3),s0(ndim0,ndim0),
-     .   ds0(ndim0,ndim0,3),wk(ndim0,ndim0),dwk(ndim0,ndim0,3)
+     .ds0(ndim0,ndim0,3),wk(ndim0,ndim0),dwk(ndim0,ndim0,3)
 C ... For parallel threads
       integer nlmx,npmx,ip,mp,nbmx
 
@@ -81,10 +81,10 @@ c #ifndef SGI_PARALLEL
       parameter (nlmx=64, npmx=1, nbmx=256)
 #if F90 | AUTO_ARRAY
       double precision xf(3,nbas,npmx),xhpot0(nbas,npmx),
-     .  xgpot0(nlmx*nbas,npmx),xugg(npmx)
+     .xgpot0(nlmx*nbas,npmx),xugg(npmx)
 #else
       double precision xf(3,nbmx,npmx),xhpot0(nbmx,npmx),
-     .  xgpot0(nlmx*nbmx,npmx),xugg(npmx)
+     .xgpot0(nlmx*nbmx,npmx),xugg(npmx)
 #endif
 c #else
 c      parameter (nlmx=64, npmx=32)
@@ -165,9 +165,9 @@ c      do  ib = 1, nbas
         if (mlog .and. ib .eq. bproc(procid)) then
           call gettime(datim)
           call awrit4(' ugcomp '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' starting atoms %i to %i',' ',256,lgunit(3),
-     .        procid,numprocs,bproc(procid),bproc(procid+1)-1)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' starting atoms %i to %i',' ',256,lgunit(3),
+     .    procid,numprocs,bproc(procid),bproc(procid+1)-1)
         endif
         iv0 = iiv0(ib)
 #endif
@@ -181,7 +181,7 @@ c      do  ib = 1, nbas
         rg1=sspec(is)%rg
 
         call corprm(sspec,is,qcorg1,qcorh1,qsc1,cofg1,cofh1,ceh1,lfoc1,
-     .    rh1,z1)
+     .  rh1,z1)
         nlm1 = (lmax1+1)**2
 
 C   ... Loop over sites where charge lump sees the potential
@@ -199,7 +199,7 @@ C   ... Loop over sites where charge lump sees the potential
 
             if (lmax2 .gt. -1) then
               call corprm(sspec,js,qcorg2,qcorh2,qsc2,cofg2,cofh2,ceh2,
-     .      lfoc2,rh2,z2)
+     .        lfoc2,rh2,z2)
               nlm2 = (lmax2+1)**2
 #if MPI | MPIK
               jv0 = iiv0(jb)
@@ -223,7 +223,7 @@ C   ... Loop over sites where charge lump sees the potential
                   cof2 = qm2*fpi/df(2*l2+1)
                   xugg(ip) = xugg(ip) + cof1*cof2*s(ilm1,ilm2)
                   xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip)
-     .                            + s(ilm1,ilm2)*cof1*fpi/df(2*l2+1)
+     .            + s(ilm1,ilm2)*cof1*fpi/df(2*l2+1)
 C         ... Forces
                   ff(1) = ff(1) + 0.5d0*cof1*cof2*ds(ilm1,ilm2,1)
                   ff(2) = ff(2) + 0.5d0*cof1*cof2*ds(ilm1,ilm2,2)
@@ -234,7 +234,7 @@ C         ... Forces
 C     --- Additional h*h, h*g, g*h terms for foca ---
               if (lfoc1.gt.0 .or. lfoc2.gt.0) then
                 call hhugbl(0,tau1,tau2,rh1,rh2,ceh1,ceh2,1,1,ndim0,ndim0,
-     .        slat,wk,dwk,s0,ds0)
+     .          slat,wk,dwk,s0,ds0)
                 xugg(ip) = xugg(ip) + cofh1*s0(1,1)*cofh2
                 xhpot0(jb,ip) = xhpot0(jb,ip) + cofh1*s0(1,1)
                 ff(1) = ff(1) + 0.5d0*cofh1*cofh2*ds0(1,1,1)
@@ -242,7 +242,7 @@ C     --- Additional h*h, h*g, g*h terms for foca ---
                 ff(3) = ff(3) + 0.5d0*cofh1*cofh2*ds0(1,1,3)
 
                 call hgugbl(tau1,tau2,rh1,rg2,ceh1,1,nlm2,ndim,ndim,
-     .        slat,s,ds)
+     .          slat,s,ds)
                 do  ilm2 = 1, nlm2
                   l2 = ll(ilm2)
                   qm2 = qmom(jv0+ilm2)
@@ -253,11 +253,11 @@ C     --- Additional h*h, h*g, g*h terms for foca ---
                   ff(2) = ff(2) + 0.5d0*cofh1*cof2*ds(1,ilm2,2)
                   ff(3) = ff(3) + 0.5d0*cofh1*cof2*ds(1,ilm2,3)
                   xgpot0(jv0+ilm2,ip) = xgpot0(jv0+ilm2,ip)
-     .                            + s(1,ilm2)*cofh1*fpi/df(2*l2+1)
+     .            + s(1,ilm2)*cofh1*fpi/df(2*l2+1)
                 enddo
 
                 call hgugbl(tau2,tau1,rh2,rg1,ceh2,1,nlm1,ndim,ndim,
-     .         slat,s,ds)
+     .          slat,s,ds)
                 do  ilm1 = 1, nlm1
                   l1 = ll(ilm1)
                   qm1 = qmom(iv0+ilm1)
@@ -303,51 +303,51 @@ C ... Assemble data from separate threads
 #endif
       allocate(buffer(1:nvl), stat=ierr)
       call MPI_ALLREDUCE(xgpot0,buffer,nvl,
-     .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
         call awrit3(' ugcomp '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce gpot0 nvl=%i',' ',256,lgunit(3),
-     .        procid,numprocs,nvl)
+     .  //shortname(procid)(1:namelen(procid))//
+     .  ' allreduce gpot0 nvl=%i',' ',256,lgunit(3),
+     .  procid,numprocs,nvl)
       endif
       call daxpy(nvl,1d0,buffer,1,gpot0,1)
       deallocate(buffer, stat=ierr)
 
       allocate(buffer(1:nbas), stat=ierr)
       call MPI_ALLREDUCE(xhpot0,buffer,nbas,
-     .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
         call awrit3(' ugcomp '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce hpot0 nbas=%i',' ',256,lgunit(3),
-     .        procid,numprocs,nbas)
+     .  //shortname(procid)(1:namelen(procid))//
+     .  ' allreduce hpot0 nbas=%i',' ',256,lgunit(3),
+     .  procid,numprocs,nbas)
       endif
       call daxpy(nbas,1d0,buffer,1,hpot0,1)
       deallocate(buffer, stat=ierr)
 
       allocate(buffer(1:3*nbas), stat=ierr)
       call MPI_ALLREDUCE(xf,buffer,3*nbas,
-     .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
         call awrit3(' ugcomp '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce f 3nbas=%i',' ',256,lgunit(3),
-     .        procid,numprocs,3*nbas)
+     .  //shortname(procid)(1:namelen(procid))//
+     .  ' allreduce f 3nbas=%i',' ',256,lgunit(3),
+     .  procid,numprocs,3*nbas)
       endif
       call daxpy(3*nbas,1d0,buffer,1,f,1)
       deallocate(buffer, stat=ierr)
 
       call MPI_ALLREDUCE(xugg,ugg,1,
-     .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
         call awrit2(' ugcomp '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce ugg',' ',256,lgunit(3),
-     .        procid,numprocs)
+     .  //shortname(procid)(1:namelen(procid))//
+     .  ' allreduce ugg',' ',256,lgunit(3),
+     .  procid,numprocs)
       endif
 #if MPE
       ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")

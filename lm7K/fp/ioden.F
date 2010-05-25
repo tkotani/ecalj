@@ -124,8 +124,8 @@ C ... Heap
       common /w/ w
 C ... External calls
       external awrit2,dcopy,defcc,defrr,fclose,fftz3,fftz30,gvgetf,
-     .         gvputf,icopy,ioden2,ivset,mkils0,mkilst,nwordg,poppr,
-     .         pshpr,rhgcmp,rhomom,rx,upack,upack2
+     .gvputf,icopy,ioden2,ivset,mkils0,mkilst,nwordg,poppr,
+     .pshpr,rhgcmp,rhomom,rx,upack,upack2
 
 C ... Unpack and setup
       nsp = nglob('nsp')
@@ -175,10 +175,10 @@ Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cn_zv(:)=0.0d0
       call dcopy ( kkk * 2 * nsp , smrho , 1 , psrho_zv , 1 )
 
       call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
-     . , 0 , - 1 )
+     ., 0 , - 1 )
 
       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , psrho_zv 
-     . , cn_zv )
+     ., cn_zv )
 
       xx0 = dval ( cn_zv , 1 )
 
@@ -192,16 +192,16 @@ C ... Add sum of local gaussian densities to mesh density
         if (modrhg .eq. -2) i =   2
         if (modrhg .eq. -3) i =   3
         if ( i .eq. 2 ) call dscal ( ng * nsp * 2 , 0d0 , cn_zv , 
-     .   1 )
+     .  1 )
 
         if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
-     .   , 1 )
+     .  , 1 )
 
         call rhgcmp ( i , 1 , nbas , ssite , sspec , slat , orhat , kmax 
-     .   , ng , cn_zv )
+     .  , ng , cn_zv )
 
         if ( i .eq. 3 ) call dscal ( ng * nsp * 2 , - 1d0 , cn_zv 
-     .   , 1 )
+     .  , 1 )
 
       endif
       xx = dval ( cn_zv , 1 )
@@ -210,7 +210,7 @@ C ... Add sum of local gaussian densities to mesh density
 C ... FFT (n0 + gaussians) (G) to real-space mesh
       if (modrhg .ge. 0) then
         call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cn_zv 
-     . , psrho_zv )
+     .  , psrho_zv )
 
         call awrit2('%N ioden : local densities + envelope density,'
      .  //' Qloc=%,6;6d  Q=%,6;6d',' ',80,stdo,(xx-xx0)*vol,xx*vol)
@@ -220,18 +220,18 @@ C ... FFT (n0 + gaussians) (G) to real-space mesh
         endif
       elseif (modrhg .eq. -2) then
         call info2(0,0,0,'%N ioden : local'//
-     .    ' densities (true-smooth terms),  Qloc=%,6;6d',xx*vol,0)
+     .  ' densities (true-smooth terms),  Qloc=%,6;6d',xx*vol,0)
       elseif (modrhg .eq. -3) then
         call info2(0,0,0,'%N ioden : smooth (envelope - local)'//
-     .    ' density,  Qs=%,6;6d  Qs-Qs(loc)=%,6;6d',
-     .    xx0*vol,xx*vol)
+     .  ' density,  Qs=%,6;6d  Qs-Qs(loc)=%,6;6d',
+     .  xx0*vol,xx*vol)
       else
         call info2(0,0,0,'%N ioden : smooth density only'//
-     .    ' (no local densities added) Qsm=%,6;6d',xx0*vol,0)
+     .  ' (no local densities added) Qsm=%,6;6d',xx0*vol,0)
       endif
 
       call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
-     . , 0 , 1 )
+     ., 0 , 1 )
 
 
       if (allocated(cn_zv)) deallocate(cn_zv)
@@ -243,8 +243,8 @@ C ... File I/O
 Ctakao_ZeroClear_NotRequiered        if (nwk**2*nsp<0) wk_zv(:)=0.0d0
 
       call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , w ( opos 
-     . ) , w ( oz ) , k1 , k2 , k3 , ngabc , psrho_zv , wk_zv 
-     . , nwk , modrhg )
+     .) , w ( oz ) , k1 , k2 , k3 , ngabc , psrho_zv , wk_zv 
+     ., nwk , modrhg )
 
       if (allocated(wk_zv)) deallocate(wk_zv)
       if (allocated(psrho_zv)) deallocate(psrho_zv)
@@ -355,7 +355,7 @@ C   ... option o=#,#,#
             lic(7,1) = mod(iv(3)+ngabc(3),ngabc(3))+1
 C   ... option l[12]=#,#,#,#
           elseif (sopts(j1:j1+2) .eq. 'l1=' .or.
-     .          sopts(j1:j1+2) .eq. 'l2=')  then
+     .    sopts(j1:j1+2) .eq. 'l2=')  then
             if (j1+3 .gt. j2) goto 99
             i = 0
             call chrps2(sopts(j1+1:),'12',2,0,i,iv)
@@ -383,19 +383,19 @@ C --- Printout ---
         ifi = fopn(fn)
         rewind ifi
         call awrit3('      Writing smooth density to file'//fn//
-     .   ' %a : full 3d grid (%i,%i,%i).',' ',80,stdo,k1,k2,k3)
+     .  ' %a : full 3d grid (%i,%i,%i).',' ',80,stdo,k1,k2,k3)
         do isp = 1, nsp
 C           call awrit4('%% 3D block data %i %i %i, spin=%i',' ',80,ifi,
 C     .     k1,k2,k3,isp)
           write(ifi,'("CRYSTAL")')
           write(ifi,'("PRIMVEC")')
           write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3)
-     .                            ,i2=1,3)
+     .    ,i2=1,3)
           write(ifi,'("PRIMCOORD")')
           write(ifi,'(2i5)') nbas,1
           do i = 1, nbas
             write(ifi,'(i4,2x,3f10.5)') int(z(i)),
-     .            (pos(i2,i)*alat*0.529177208,i2=1,3)
+     .      (pos(i2,i)*alat*0.529177208,i2=1,3)
           enddo
           write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
           write(ifi,'("charge_density_spin_",i1)') isp
@@ -403,9 +403,9 @@ C     .     k1,k2,k3,isp)
           write(ifi,'(3i4)') k1,k2,k3
           write(ifi,'(3f10.5)') 0.,0.,0.
           write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3)
-     .                            ,i2=1,3)
+     .    ,i2=1,3)
           write(ifi,'(8e14.6)')  
-     .       (((dble(smrho(i1,i2,i3,isp)),i1=1,k1),i2=1,k2),i3=1,k3)
+     .    (((dble(smrho(i1,i2,i3,isp)),i1=1,k1),i2=1,k2),i3=1,k3)
           write(ifi,'("END_DATAGRID_3D_isp_",i1)') isp
           write(ifi,'("END_BLOCK_DATAGRID_3D")')
         enddo

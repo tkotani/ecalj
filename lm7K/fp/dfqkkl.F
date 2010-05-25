@@ -36,7 +36,7 @@ C ... Passed parameters
 
 C ... Local parameters
       integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nglob,nlma,nlmh,nsp,
-     .  nspc,nelt3,nelt2,nkaph
+     .nspc,nelt3,nelt2,nkaph
 
       nsp = nglob('nsp')
       nspc = nglob('nspc')

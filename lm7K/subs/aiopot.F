@@ -48,7 +48,7 @@ C Local parameters
             i = i-1
             j = a2vec(strn,len(strn),i,4,' ',1,-2,-3,ix2,bhat)
             if (j .ne. 3) call rxs(
-     .        'aiopot: failed to parse Bfield in line: ',strn)
+     .      'aiopot: failed to parse Bfield in line: ',strn)
 C           print *, bhat
           endif
         endif
@@ -58,12 +58,12 @@ C           print *, bhat
         if (a .eq. 0) a=a2
         if (rmax .eq. 0) rmax=rmax2
         if (a2 .ne. a .or. nr .ne. nr2 .or.
-     .      dabs(rmax2-rmax) .gt. .03) goto 15
+     .  dabs(rmax2-rmax) .gt. .03) goto 15
         do  10  isp = 1, min0(nsp2,nsp)
 c          read(ifi,101,err=15) (v(i,isp),i = 1,nr)
           read(ifi,101) (v(i,isp),i = 1,nr)
-        do  10  i = 1, nr
-          v(i,nsp) = v(i,isp)
+          do  10  i = 1, nr
+            v(i,nsp) = v(i,isp)
    10   continue
         aiopot = .true.
    15   continue

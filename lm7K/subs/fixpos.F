@@ -54,14 +54,14 @@ c         print 334, 'output dbas', dbas
 C     ... Debugging check
           sum = sum + abs(dbas(1))+abs(dbas(2))+abs(dbas(3))
           if (abs(dbas(1)) .gt. tol2 .or. abs(dbas(2)) .gt. tol2.or.
-     .        abs(dbas(3)) .gt. tol2) call fexit(-1,111,
-     .      'Exit -1 FIXPOS: positions incompatible with symgrp:'//
-     .      '  dpos=%d',max(dbas(1),dbas(2),dbas(3)))
+     .    abs(dbas(3)) .gt. tol2) call fexit(-1,111,
+     .    'Exit -1 FIXPOS: positions incompatible with symgrp:'//
+     .    '  dpos=%d',max(dbas(1),dbas(2),dbas(3)))
           if (abs(dbas(1)) .gt. tol .or. abs(dbas(2)) .gt. tol .or.
-     .        abs(dbas(3)) .gt. tol) call awrit4(
-     .      ' FIXPOS (warning): sites %i,%i incompatible '//
-     .      'with grp op %i:  dpos=%d',' ',80,lgunit(1),
-     .      ibas,jbas,ig,max(dbas(1),dbas(2),dbas(3)))
+     .    abs(dbas(3)) .gt. tol) call awrit4(
+     .    ' FIXPOS (warning): sites %i,%i incompatible '//
+     .    'with grp op %i:  dpos=%d',' ',80,lgunit(1),
+     .    ibas,jbas,ig,max(dbas(1),dbas(2),dbas(3)))
   334     format(a,3f18.12)
           call daxpy(3,1d0,dbas,1,sdpos(1,jbas),1)
    20   continue
@@ -69,7 +69,7 @@ C     ... Debugging check
       sum = dsqrt(ddot(3*nbas,sdpos,1,sdpos,1)/3/nbas)
       call daxpy(3*nbas,1d0/ng,sdpos,1,pos,1)
       call awrit1(' FIXPOS: shifted site positions by average %;3g',' ',
-     .  80,lgunit(1),sum/ng)
+     .80,lgunit(1),sum/ng)
 C     call prmx('pos',pos,3,3,nbas)
 C     pause
 

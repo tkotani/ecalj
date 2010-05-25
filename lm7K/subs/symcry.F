@@ -1,5 +1,5 @@
       subroutine symcry(tol,bas,bast,ipc,nbas,nclass,nrclas,
-     .                  ng,plat,qlat,g,ag,istab)
+     .ng,plat,qlat,g,ag,istab)
 C- Generates the symmetry ops of the crystal from those of the lattice
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -33,10 +33,10 @@ C     implicit none
 C Passed parameters:
       integer nbas,ng,ipc(nbas),nclass,istab(nbas,ng),nrclas(nclass)
       double precision plat(9,*),qlat(*),bas(3,*),bast(3,*),
-     .                 g(9,*),ag(3,*),tol
+     .g(9,*),ag(3,*),tol
 C Local parameters:
       integer ibas,ic,iclbsj,icmin,ig,ipr,jbas,kbas,kc,
-     .        lgunit,m,mbas,nj,nm,ng0,stdo
+     .lgunit,m,mbas,nj,nm,ng0,stdo
 C     integer mode(3)
       double precision dbas(3),tol0,tol1
       parameter (tol0=1d-5)
@@ -89,7 +89,7 @@ C       ... Candidate not valid
             if (ipr .ge. 90) then
               call asymop(g(1,ig),ag(1,ng+1),' ',sg)
               call awrit1(' symcry: excluded candidate ig=%,2i  '//sg
-     .          //'%a',' ',80,stdo,ig)
+     .        //'%a',' ',80,stdo,ig)
             endif
             goto 20
    10     continue
@@ -100,14 +100,14 @@ C     --- Valid ag found; add g to list ---
           if (ipr .ge. 70) then
             call asymop(g(1,ng),ag(1,ng),' ',sg)
             call awrit1(' symcry: accepted candidate ig=%,2i  '//sg
-     .          //'%a',' ',80,stdo,ig)
+     .      //'%a',' ',80,stdo,ig)
           endif
           goto 30
    20   continue
    30 continue
 
       if (ipr .ge. 30) call awrit2(' SYMCRY: crystal invariant under '//
-     .  '%i symmetry operations for tol=%;3g',' ',80,stdo,ng,tol1)
+     .'%i symmetry operations for tol=%;3g',' ',80,stdo,ng,tol1)
       if (ipr .ge. 60 .and. ng .gt. 1) then
         write(stdo,'('' ig  group op'')')
         do  60  ig = 1, ng

@@ -3,7 +3,7 @@
       subroutine dqinvb(cs,a,lda,nlev,n,nb,w,ldw,w2,b,ldb,ierr)
 #else
       recursive subroutine dqinvb(cs,a,lda,nlev,n,nb,w,ldw,w2,b,ldb,
-     .  ierr)
+     .ierr)
 #endif
 C- Solution of a x = b by vectorizable multiplications and inversions
 C ----------------------------------------------------------------
@@ -83,7 +83,7 @@ C     data fmt /'(8f16.10)'/
 C     call ywrm(0,'a',1,6,fmt,a,1,lda,n,n)
       print 334, 'entering dqinvb',cs,nlev,n,(n+1)/2,n-(n+1)/2
   334 format(1x,a,': cs=',a,': nlev=',i1,
-     .       '  n=',i3,'  m1=',i3,'  m2=',i3)
+     .'  n=',i3,'  m1=',i3,'  m2=',i3)
 #endif
 
       ierr = 0
@@ -125,9 +125,9 @@ C --- For n<nmin, do directly by dgefa,dgesl ---
 C       ... Do for special case n<=2: w may not be large enough!
             if (n .le. 2) then
               do  116  i = 1, n
-              ww(i) = b(j,i)
-              if (css .eq. 's') call dsisl(a,lda,n,w,ww)
-              if (css .ne. 's') call dgesl(a,lda,n,w,ww,1)
+                ww(i) = b(j,i)
+                if (css .eq. 's') call dsisl(a,lda,n,w,ww)
+                if (css .ne. 's') call dgesl(a,lda,n,w,ww,1)
   116         continue
               do  118  i = 1, n
   118         b(j,i) = ww(i)
@@ -152,45 +152,45 @@ C --- Decompose matrix ---
       if (.not. lsx) then
 
 C --- a22^-1 in a22 ---
-      call dqinv(css,a(1+m1,1+m1),lda,max(nlev-1,0),m2,w,ldw,ierr)
+        call dqinv(css,a(1+m1,1+m1),lda,max(nlev-1,0),m2,w,ldw,ierr)
 C     call ywrm(0,'a22^-1',1,6,fmt,a(1+m1,1+m1),1,lda,m2,m2)
-      if (ierr .ne. 0) return
+        if (ierr .ne. 0) return
 
-      if (.not. ltrns) then
+        if (.not. ltrns) then
 
 C   --- a12 a22^-1 in w; copy back to a12 ---
-        call dgemm('N','N',m1,m2,m2,1d0,a(1,1+m1),lda,a(1+m1,1+m1),lda,
+          call dgemm('N','N',m1,m2,m2,1d0,a(1,1+m1),lda,a(1+m1,1+m1),lda,
      .    0d0,w,ldw)
-        do  20  j = 1, m2
-        do  20  i = 1, m1
-   20   a(i,j+m1) = w(i,j)
+          do  20  j = 1, m2
+            do  20  i = 1, m1
+   20     a(i,j+m1) = w(i,j)
 
-      else
+        else
 
 C   --- a22^-1 a21 in w; copy back to a21 ---
-        call dgemm('N','N',m2,m1,m2,1d0,a(1+m1,1+m1),lda,
-     .      a(1+m1,1),lda,0d0,w,ldw)
-        do  22  j = 1, m1
-        do  22  i = 1, m2
-   22   a(i+m1,j) = w(i,j)
+          call dgemm('N','N',m2,m1,m2,1d0,a(1+m1,1+m1),lda,
+     .    a(1+m1,1),lda,0d0,w,ldw)
+          do  22  j = 1, m1
+            do  22  i = 1, m2
+   22     a(i+m1,j) = w(i,j)
 
-      endif
+        endif
 
 C --- c11^-1 = (a11 - a12 a22^-1 a21) in a11 ---
-      if (cs .eq. 's') then
-        call dsmpy(m1,m2,a(1,1+m1),lda,a(1+m1,1),lda,0d0,w,ldw)
-        do  24  j = 1, m1
-        do  24  i = 1, m1
-   24   a(i,j) = a(i,j) - w(i,j)
-      else
-        call dgemm('N','N',m1,m1,m2,-1d0,a(1,1+m1),lda,a(1+m1,1),lda,
+        if (cs .eq. 's') then
+          call dsmpy(m1,m2,a(1,1+m1),lda,a(1+m1,1),lda,0d0,w,ldw)
+          do  24  j = 1, m1
+            do  24  i = 1, m1
+   24     a(i,j) = a(i,j) - w(i,j)
+        else
+          call dgemm('N','N',m1,m1,m2,-1d0,a(1,1+m1),lda,a(1+m1,1),lda,
      .    1d0,a,lda)
-      endif
+        endif
 
 C --- c11 = (a11 - a12 a22^-1 a21)^-1 in a11 ---
-      if (.not. (lrecur .and. nlev .gt. 0 .and. m1 .ge. nmin))
+        if (.not. (lrecur .and. nlev .gt. 0 .and. m1 .ge. nmin))
      .  call dqinv(css,a,lda,max(nlev-1,0),m1,w,ldw,ierr)
-      if (ierr .ne. 0) return
+        if (ierr .ne. 0) return
 C     call yprm(.false.,'c11',1,6,fmt,a,lda,m1,lda,m1)
       endif
 C ... End of matrix decomposition
@@ -199,91 +199,91 @@ C ... End of matrix decomposition
       if (.not. ltrns) then
 
 C --- Obtain x1 = c11 (b1 - a12 a22^-1 b2) ---
-      if (lrecur .and. nlev .gt. 0 .and. m1 .ge. nmin) then
+        if (lrecur .and. nlev .gt. 0 .and. m1 .ge. nmin) then
 #if RECUR | F90
 C   ... (b1 - a12 a22^-1 b2)
-        call dgemm('N','N',m1,nb,m2,-1d0,a(1,1+m1),lda,b(1+m1,1),ldb,
+          call dgemm('N','N',m1,nb,m2,-1d0,a(1,1+m1),lda,b(1+m1,1),ldb,
      .    1d0,b,ldb)
 C   ... Solve c11^-1 x1 - (b1 - a12 a22^-1 b2)
-        call dqinvb(cs,a,lda,nlev-1,(m1),nb,w,ldw,w2,b,ldb,ierr)
+          call dqinvb(cs,a,lda,nlev-1,(m1),nb,w,ldw,w2,b,ldb,ierr)
 C       AIX and gcc require this
-        m1 = (n+1)/2
-        m2 = n-m1
+          m1 = (n+1)/2
+          m2 = n-m1
 #endif
 #if DEBUG
 C       print 333, 'recursive call exit',nlev,n,m1,m2
 #endif
-      else
+        else
 C   ... w2 <- b1 - a12 a22^-1 b2
-        call dgemm('N','N',m1,nb,m2,1d0,a(1,1+m1),lda,b(1+m1,1),ldb,
+          call dgemm('N','N',m1,nb,m2,1d0,a(1,1+m1),lda,b(1+m1,1),ldb,
      .    0d0,w2,m1)
-        jr = -m1
-        do  30  j = 1, nb
-          jr = jr+m1
-          do  32  i = 1, m1
-   32     w2(i+jr) = b(i,j) - w2(i+jr)
-   30   continue
+          jr = -m1
+          do  30  j = 1, nb
+            jr = jr+m1
+            do  32  i = 1, m1
+   32       w2(i+jr) = b(i,j) - w2(i+jr)
+   30     continue
 C       call yprm(.false.,'b1 - a12 a22^-1 b2',1,6,fmt,w2,m1,m1,nb,nb)
 
 C   ... x1 = c11 (b1 - a12 a22^-1 b2)
-        call dgemm('N','N',m1,nb,m1,1d0,a,lda,w2,m1,0d0,b,ldb)
-      endif
+          call dgemm('N','N',m1,nb,m1,1d0,a,lda,w2,m1,0d0,b,ldb)
+        endif
 
 C --- w2 <- b2 - a21 x1 ---
-      call dgemm('N','N',m2,nb,m1,1d0,a(1+m1,1),lda,b,ldb,0d0,w2,m2)
-      jr = -m2
-      do  40  j = 1, nb
-        jr = jr+m2
-        do  42  i = 1, m2
-   42   w2(i+jr) = b(i+m1,j) - w2(i+jr)
-   40 continue
+        call dgemm('N','N',m2,nb,m1,1d0,a(1+m1,1),lda,b,ldb,0d0,w2,m2)
+        jr = -m2
+        do  40  j = 1, nb
+          jr = jr+m2
+          do  42  i = 1, m2
+   42     w2(i+jr) = b(i+m1,j) - w2(i+jr)
+   40   continue
 
 C --- x2 = a22^-1 (b2 - a21 x1) ---
-      call dgemm('N','N',m2,nb,m2,1d0,a(1+m1,1+m1),lda,w2,m2,
+        call dgemm('N','N',m2,nb,m2,1d0,a(1+m1,1+m1),lda,w2,m2,
      .  0d0,b(1+m1,1),ldb)
 C     call yprm(.false.,'a^-1 b',1,6,fmt,br,ldb,n,ldb,nb)
 
       else
 
 C --- Obtain x1 = (b1 - b2 a22^-1 a21) c11 ---
-      if (lrecur .and. nlev .gt. 0 .and. m1 .ge. nmin) then
+        if (lrecur .and. nlev .gt. 0 .and. m1 .ge. nmin) then
 #if RECUR | F90
 C   ... (b1 - a12 a22^-1 b2)
-        call dgemm('N','N',nb,m1,m2,-1d0,b(1,1+m1),ldb,
+          call dgemm('N','N',nb,m1,m2,-1d0,b(1,1+m1),ldb,
      .    a(1+m1,1),lda,1d0,b,ldb)
 C   ... solve x1 c11^-1 = (b1 - b2 a22^-1 a21)
-        call dqinvb(cs,a,lda,nlev-1,(m1),nb,w,ldw,w2,b,ldb,ierr)
+          call dqinvb(cs,a,lda,nlev-1,(m1),nb,w,ldw,w2,b,ldb,ierr)
 C       AIX and gcc require the next two lines
-        m1 = (n+1)/2
-        m2 = n-m1
+          m1 = (n+1)/2
+          m2 = n-m1
 #endif
-      else
+        else
 C ... w2 <- b1 - b2 a22^-1 a21
-      call dgemm('N','N',nb,m1,m2,1d0,b(1,1+m1),ldb,
-     .  a(1+m1,1),lda,0d0,w2,nb)
-      jr = -nb
-      do  130  j = 1, m1
-        jr = jr+nb
-        do  132  i = 1, nb
-  132   w2(i+jr) = b(i,j) - w2(i+jr)
-  130 continue
+          call dgemm('N','N',nb,m1,m2,1d0,b(1,1+m1),ldb,
+     .    a(1+m1,1),lda,0d0,w2,nb)
+          jr = -nb
+          do  130  j = 1, m1
+            jr = jr+nb
+            do  132  i = 1, nb
+  132       w2(i+jr) = b(i,j) - w2(i+jr)
+  130     continue
 C ... x1 = (b1 - b2 a22^-1 a21) c11
-      call dgemm('N','N',nb,m1,m1,1d0,w2,nb,a,lda,0d0,b,ldb)
+          call dgemm('N','N',nb,m1,m1,1d0,w2,nb,a,lda,0d0,b,ldb)
 C     call yprm(.false.,'x1',1,6,fmt,br,ldb,nb,ldb,m1)
-      endif
+        endif
 
 C --- w2 <- b2 - x1 a12 ---
-      call dgemm('N','N',nb,m2,m1,1d0,b,ldb,a(1,1+m1),
+        call dgemm('N','N',nb,m2,m1,1d0,b,ldb,a(1,1+m1),
      .  lda,0d0,w2,nb)
-      jr = -nb
-      do  140  j = 1, m2
-        jr = jr+nb
-        do  142  i = 1, nb
-  142   w2(i+jr) = b(i,j+m1) - w2(i+jr)
-  140 continue
+        jr = -nb
+        do  140  j = 1, m2
+          jr = jr+nb
+          do  142  i = 1, nb
+  142     w2(i+jr) = b(i,j+m1) - w2(i+jr)
+  140   continue
 
 C --- x2 = (b2 - a21 x1) a22^-1 ---
-      call dgemm('N','N',nb,m2,m2,1d0,w2,nb,
+        call dgemm('N','N',nb,m2,m2,1d0,w2,nb,
      .  a(1+m1,1+m1),lda,0d0,b(1,1+m1),ldb)
 C     call yprm(.false.,'b a^-1',1,6,fmt,br,ldb,nb,ldb,n)
 

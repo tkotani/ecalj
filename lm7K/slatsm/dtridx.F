@@ -60,69 +60,69 @@ c
       do  100  i = 1, n
   100 d(i) = ar(i,i)
       do  300  i = n, 1, -1
-         l = i - 1
-         h = 0.0d0
-         scale = 0.0d0
-         if (l .lt. 1) go to 130
+        l = i - 1
+        h = 0.0d0
+        scale = 0.0d0
+        if (l .lt. 1) go to 130
 c     .......... scale row (algol tol then not needed) ..........
-         do  120  k = 1, l
-  120    scale = scale + dabs(ar(k,i))
-         if (scale .ne. 0.0d0) go to 140
-         tau(l,1) = 1.0d0
-  130    e(i) = 0.0d0
-         e2(i) = 0.0d0
-         go to 290
+        do  120  k = 1, l
+  120   scale = scale + dabs(ar(k,i))
+        if (scale .ne. 0.0d0) go to 140
+        tau(l,1) = 1.0d0
+  130   e(i) = 0.0d0
+        e2(i) = 0.0d0
+        go to 290
 c
-  140    do  150  k = 1, l
-            ar(k,i) = ar(k,i) / scale
-            h = h + ar(k,i)**2
-  150    continue
+  140   do  150  k = 1, l
+          ar(k,i) = ar(k,i) / scale
+          h = h + ar(k,i)**2
+  150   continue
 c
-         e2(i) = scale * scale * h
-         g = dsqrt(h)
-         e(i) = scale * g
-         f = dabs(ar(l,i))
+        e2(i) = scale * scale * h
+        g = dsqrt(h)
+        e(i) = scale * g
+        f = dabs(ar(l,i))
 c     .......... form next diagonal element of matrix t ..........
-         if (f .eq. 0.0d0) go to 160
-         tau(l,1) = ( - ar(l,i) * tau(i,1)) / f
-         h = h + f * g
-         g = 1.0d0 + g / f
-         ar(l,i) = g * ar(l,i)
-         if (l .eq. 1) go to 270
-         go to 170
-  160    tau(l,1) = -tau(i,1)
-         ar(l,i) = g
-  170    f = 0.0d0
-         do  240  j = 1, l
+        if (f .eq. 0.0d0) go to 160
+        tau(l,1) = ( - ar(l,i) * tau(i,1)) / f
+        h = h + f * g
+        g = 1.0d0 + g / f
+        ar(l,i) = g * ar(l,i)
+        if (l .eq. 1) go to 270
+        go to 170
+  160   tau(l,1) = -tau(i,1)
+        ar(l,i) = g
+  170   f = 0.0d0
+        do  240  j = 1, l
 c     .......... form element of a*u ..........
-            g = 0.d0
-            do  180  k = 1, j
-               g = g + ar(k,j) * ar(k,i)
-  180       continue
-            do  200  k = j+1, l
-               g = g + ar(j,k) * ar(k,i)
-  200       continue
+          g = 0.d0
+          do  180  k = 1, j
+            g = g + ar(k,j) * ar(k,i)
+  180     continue
+          do  200  k = j+1, l
+            g = g + ar(j,k) * ar(k,i)
+  200     continue
 c     .......... form element of p ..........
-  220       e(j) = g / h
-            f = f + e(j) * ar(j,i)
-  240    continue
+  220     e(j) = g / h
+          f = f + e(j) * ar(j,i)
+  240   continue
 c
-         hh = f / (h + h)
+        hh = f / (h + h)
 c     .......... form reduced a ..........
-         do  260  j = 1, l
-            f = ar(j,i)
-            g = e(j) - hh * f
-            e(j) = g
+        do  260  j = 1, l
+          f = ar(j,i)
+          g = e(j) - hh * f
+          e(j) = g
 c
-            do  260  k = 1, j
-               ar(k,j) = ar(k,j) - f * e(k) - g * ar(k,i)
-  260    continue
-  270    do  280  k = 1, l
-            ar(k,i) = scale * ar(k,i)
-  280    continue
-  290    hh = d(i)
-         d(i) = ar(i,i)
-         tau(i,2) = -scale * dsqrt(h)
+          do  260  k = 1, j
+            ar(k,j) = ar(k,j) - f * e(k) - g * ar(k,i)
+  260   continue
+  270   do  280  k = 1, l
+          ar(k,i) = scale * ar(k,i)
+  280   continue
+  290   hh = d(i)
+        d(i) = ar(i,i)
+        tau(i,2) = -scale * dsqrt(h)
   300 continue
       call tcx('dtridx')
       end

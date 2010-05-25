@@ -117,12 +117,12 @@ C ... Patch to handle strings of length longer than 267 on the CRAY.
 #endif
       character*(*) fmt,sout
       double precision
-     .  a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
+     .a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
 C ... Local parameters
       integer i,lfmt,ip,jp,cast,ia,iff,i2,iterm,ndec,iv(5),nblk,nx,j,
-     .  mxl,ls,icond,ivawrt,lens,nsyv,ires,fw
+     .mxl,ls,icond,ivawrt,lens,nsyv,ires,fw
       equivalence (iv(1),i2),(iv(2),nblk),(iv(3),nx),(iv(4),ndec),
-     .  (iv(5),fw)
+     .(iv(5),fw)
       logical a2bin,ltmp,lnull,lnulls
       double precision holdn,holdp,xx
       parameter (lens=1024)
@@ -154,267 +154,267 @@ C ... hold on to n,p in vars table; we need them as local variables
       ls = len(s)
       lnull = lnulls
 #if DEBUG
-       print '(''entering awrite, fmt='',a)', fmt
+      print '(''entering awrite, fmt='',a)', fmt
 #endif
 
 C --- Parse next character in fmt ---
    19 ia = ia-1
    20 iff = iff+1
 C  ...  End of fmt
-        if (iff .gt. lfmt) goto 10
+      if (iff .gt. lfmt) goto 10
 #if DEBUG
-        print *, 'now parsing #', iff, ' char=',fmt(iff:iff)
+      print *, 'now parsing #', iff, ' char=',fmt(iff:iff)
 #endif
 C  ...  Character terminating conditional string
-        if (icond .gt. 0 .and. fmt(iff:iff) .eq. ccond) then
-          if (icond .eq. 2) then
-            call chrpos(fmt,ccond,lfmt,iff)
-            iff = iff+1
-          endif
-          icond = 0
-          goto 20
+      if (icond .gt. 0 .and. fmt(iff:iff) .eq. ccond) then
+        if (icond .eq. 2) then
+          call chrpos(fmt,ccond,lfmt,iff)
+          iff = iff+1
         endif
+        icond = 0
+        goto 20
+      endif
 C  ...  Any non-% character
-        if (fmt(iff:iff) .ne. '%' .or. fmt(iff:iff+1) .eq. '%%') then
+      if (fmt(iff:iff) .ne. '%' .or. fmt(iff:iff+1) .eq. '%%') then
 *         print *, 'parsing non-%:', iff, fmt(1:iff)
-          ip = ip+1
-          if (ip .le. min(ls,mxl)) s(ip:ip) = fmt(iff:iff)
-          if (fmt(iff:iff+1) .eq. '%%') iff = iff+1
-          goto 20
+        ip = ip+1
+        if (ip .le. min(ls,mxl)) s(ip:ip) = fmt(iff:iff)
+        if (fmt(iff:iff+1) .eq. '%%') iff = iff+1
+        goto 20
 C   --- Parse % ---
-        else
+      else
 C     ... Default values for %command
 *         print *, 'now parsing %:', iff, fmt(iff:min(lfmt,iff+10))
-          nblk = 0
-          fw = 0
-          nx = 99
-          ndec = 0
-          i2 = 1
+        nblk = 0
+        fw = 0
+        nx = 99
+        ndec = 0
+        i2 = 1
+        ia = ia+1
+        iff = iff+1
+C     ... iterm flags whether cc is ':;,#', to use later
+        j = 0
+        call chrps2(fmt(iff:iff),fchr,len(fchr),0,j,iterm)
+C     ... Re-entry if to parse another argument
+   25   if (iterm .ge. 2 .and. iterm .le. 5) iff = iff+1
+        cc = fmt(iff:iff)
+C     ... ires is integer argument; set to 1 for default value
+        ires = 1
+C     ... Check for an integer expression () preceding command:
+        if (cc .eq. '(') then
+          j = 1
+          do  35  i = iff+1, lfmt
+            if (fmt(i:i) .eq. '(') j=j+1
+            if (fmt(i:i) .eq. ')') j=j-1
+            if (j .eq. 0) then
+              xx = ivawrt(ia,1,a1,a2,a3,a4,a5,a6,a7,a8)
+              call lodsyv('n',1,xx,j)
+              call lodsyv('p',1,dble(ip),j)
+              j = iff-1
+              ltmp = .not. a2bin(fmt,ires,2,0,' ',j,i-1)
+              call rxx(ltmp,'awrite: failed to parse () in format')
+              iff = i+1
+              goto 36
+            endif
+   35     continue
+          call rx('awrite: missing matching () in format')
+   36     continue
+C     ... Prior integer argument if next char 'n':
+        else if (cc .eq. 'n') then
+          ires = ivawrt(ia,1,a1,a2,a3,a4,a5,a6,a7,a8)
           ia = ia+1
           iff = iff+1
-C     ... iterm flags whether cc is ':;,#', to use later
-          j = 0
-          call chrps2(fmt(iff:iff),fchr,len(fchr),0,j,iterm)
-C     ... Re-entry if to parse another argument
-   25     if (iterm .ge. 2 .and. iterm .le. 5) iff = iff+1
-          cc = fmt(iff:iff)
-C     ... ires is integer argument; set to 1 for default value
-          ires = 1
-C     ... Check for an integer expression () preceding command:
-          if (cc .eq. '(') then
-            j = 1
-            do  35  i = iff+1, lfmt
-              if (fmt(i:i) .eq. '(') j=j+1
-              if (fmt(i:i) .eq. ')') j=j-1
-              if (j .eq. 0) then
-                xx = ivawrt(ia,1,a1,a2,a3,a4,a5,a6,a7,a8)
-                call lodsyv('n',1,xx,j)
-                call lodsyv('p',1,dble(ip),j)
-                j = iff-1
-                ltmp = .not. a2bin(fmt,ires,2,0,' ',j,i-1)
-                call rxx(ltmp,'awrite: failed to parse () in format')
-                iff = i+1
-                goto 36
-              endif
-   35       continue
-            call rx('awrite: missing matching () in format')
-   36       continue
-C     ... Prior integer argument if next char 'n':
-          else if (cc .eq. 'n') then
-            ires = ivawrt(ia,1,a1,a2,a3,a4,a5,a6,a7,a8)
-            ia = ia+1
-            iff = iff+1
 C     ... Prior integer argument if char an integer:
-          else if (cc .ge. '0' .and. cc .le. '9' .or. cc .eq. '-') then
-            do  22  i = iff, lfmt-1
-              j = i+1
-              if (fmt(j:j) .ge. '0' .and. fmt(j:j) .le. '9') goto 22
-              j = iff-1
+        else if (cc .ge. '0' .and. cc .le. '9' .or. cc .eq. '-') then
+          do  22  i = iff, lfmt-1
+            j = i+1
+            if (fmt(j:j) .ge. '0' .and. fmt(j:j) .le. '9') goto 22
+            j = iff-1
 *             call pshpr(130)
-              ltmp = .not. a2bin(fmt,ires,2,0,fmt(i+1:i+1),j,i)
-              call rxx(ltmp,'awrite: failed to parse format')
-              iff = i+1
-              goto 23
-   22       continue
-   23       continue
-          endif
+            ltmp = .not. a2bin(fmt,ires,2,0,fmt(i+1:i+1),j,i)
+            call rxx(ltmp,'awrite: failed to parse format')
+            iff = i+1
+            goto 23
+   22     continue
+   23     continue
+        endif
 *          print 335, ires,iff,fmt(1:iff)
 * 335     format('*now ires=',i2,' parsed to ',i3,': ',a)
 C     ... If this was an argument to one of ':;,#'
-          if (iterm .ge. 2 .and. iterm .le. 5) then
-            iv(iterm) = ires
+        if (iterm .ge. 2 .and. iterm .le. 5) then
+          iv(iterm) = ires
 C     ... Otherwise ires is an argument to command
-          else
-            iv(1) = ires
-          endif
-C     ... Next character is the terminator
-          cc = fmt(iff:iff)
-          j = 0
-          call chrps2(cc,fchr,len(fchr),0,j,iterm)
-C     ... If an argument, run through parse again
-          if (iterm .ge. 2 .and. iterm .le. 5) goto 25
-C     ... Otherwise a command:
-          cast = 99
-          cc = fmt(iff:iff)
-          if (cc .eq. 'l') cast=0
-          if (cc .eq. 'i') cast=2
-          if (cc .eq. 'r') cast=3
-          if (cc .eq. 'd' .or. cc .eq. 'e' .or. cc .eq. 'D' .or.
-     .        cc .eq. 'g' .or. cc .eq. 'G' .or. cc .eq. 'F')
-     .      cast=4
-          if (cc .eq. 't') then
-            call rx('awrite: use p, not t')
-          endif
-          if (cc .eq. 'z') then
-            call bin2a0(i2)
-            goto 19
-          elseif (cc .eq. 'j') then
-            ia = ia+i2
-            goto 19
-          elseif (cc .eq. 'a') then
-            call skpblb(s,ls,ip)
-            ip = ip+i2
-            goto 19
-          elseif (cc .eq. 'p') then
-            ip = i2
-            goto 19
-          elseif (cc .eq. 'f') then
-            ip = ip+i2
-            goto 19
-          elseif (cc .eq. 'b') then
-            ip = ip-i2
-            goto 19
-          elseif (cc .eq. 'N') then
-            call nlchar(1,s(ip+1:ip+1))
-            ip = ip+1
-            goto 19
-C ---     Entry point for conditional expression ---
-          elseif (cc .eq. '?') then
-            if (icond .ne. 0) call rx('awrite encountered nested "%?"')
-            icond = 1
-            call lodsyv('p',1,dble(ip),j)
-            xx = ivawrt(ia,1,a1,a2,a3,a4,a5,a6,a7,a8)
-            call lodsyv('n',1,xx,j)
-            ia = ia+1
-            iff = iff+1
-C     ...   ccond is character terminating conditional string
-            ccond = fmt(iff:iff)
-C     ...   If next char is '%', expression is of the string type:
-            if (fmt(iff+1:iff+1) .eq. '%') then
-              if (fmt(iff+1:iff+4) .eq. '%c==') then              
-                ltmp = fmt(iff+5:iff+5) .eq. s(ip:ip)
-                iff = iff+6
-              else
-                call rxs('awrite: failed to parse : ',fmt(iff:))
-              endif
-C     ...   Parse expression
-            elseif (.not. a2bin(fmt,ltmp,0,0,ccond,iff,lfmt)) then
-              call rx('awrite: failed to parse conditional expr')
-            endif
-C     ...   Use first string, or skip to second string
-            if (ltmp) then
-              icond = 2
-            else
-              icond = 3
-              call chrpos(fmt,ccond,lfmt,iff)
-              iff = iff+1
-            endif
-            goto 19
-C     ... clear string
-          elseif (cc .eq. 'x') then
-            s = ' '
-            goto 19
-C     ... toggle on 'null' option
-          elseif (cc .eq. 'u') then
-            if (i2 .lt. 0) then
-              lnull = .false.
-            elseif (i2 .eq. 0) then
-              lnulls = .false.
-              lnull = .false.
-            elseif (i2 .eq. 1) then
-              lnulls = .true.
-              lnull = .true.
-            else
-              lnull = .true.
-            endif
-            goto 19
-C ...     pad whitespace around ip
-          elseif (cc .eq. 'o') then
-            if (ip .eq. 0) ip = 1
-            ss = s(ip:ls)
-            s(ip:ip+i2-1) = ' '
-            s(ip+i2:ls) = ss
-            ip = ip+i2-1
-            goto 19
-C ...     close up whitespace around ip
-          elseif (cc .eq. 'c') then
-            do  13  j = ip, 1, -1
-              if (s(j:j) .ne. ' ' .and. s(j:j) .ne. '	') goto 14
-              ip = j
-   13       continue
-   14       continue
-            jp = ip-1
-            do  15  j = jp+1, mxl
-              if (s(j:j) .ne. ' ' .and. s(j:j) .ne. '	') goto 16
-              jp = j
-   15       continue
-   16       continue
-            if (jp-ip+1 .gt. 0) then
-              ss = s(jp+1:ls)
-              s(ip:ls) = ss
-            endif
-            goto 19
-C ...     skip to next nw
-          elseif (cc .eq. 'w') then
-            do  17  j = ip, mxl
-              if (s(j:j) .ne. ' ' .and. s(j:j) .ne. '	') goto 19
-              ip = j
-   17       continue
-C ...     skip to next whitespace
-          elseif (cc .eq. 'W') then
-            do  18  j = ip, mxl
-              if (s(j:j) .eq. ' ' .or. s(j:j) .eq. '	') goto 19
-              ip = j
-   18       continue
-          endif
+        else
+          iv(1) = ires
         endif
-        if (cast .eq. 99) call rx('awrite: unknown control: ' // cc)
+C     ... Next character is the terminator
+        cc = fmt(iff:iff)
+        j = 0
+        call chrps2(cc,fchr,len(fchr),0,j,iterm)
+C     ... If an argument, run through parse again
+        if (iterm .ge. 2 .and. iterm .le. 5) goto 25
+C     ... Otherwise a command:
+        cast = 99
+        cc = fmt(iff:iff)
+        if (cc .eq. 'l') cast=0
+        if (cc .eq. 'i') cast=2
+        if (cc .eq. 'r') cast=3
+        if (cc .eq. 'd' .or. cc .eq. 'e' .or. cc .eq. 'D' .or.
+     .  cc .eq. 'g' .or. cc .eq. 'G' .or. cc .eq. 'F')
+     .  cast=4
+        if (cc .eq. 't') then
+          call rx('awrite: use p, not t')
+        endif
+        if (cc .eq. 'z') then
+          call bin2a0(i2)
+          goto 19
+        elseif (cc .eq. 'j') then
+          ia = ia+i2
+          goto 19
+        elseif (cc .eq. 'a') then
+          call skpblb(s,ls,ip)
+          ip = ip+i2
+          goto 19
+        elseif (cc .eq. 'p') then
+          ip = i2
+          goto 19
+        elseif (cc .eq. 'f') then
+          ip = ip+i2
+          goto 19
+        elseif (cc .eq. 'b') then
+          ip = ip-i2
+          goto 19
+        elseif (cc .eq. 'N') then
+          call nlchar(1,s(ip+1:ip+1))
+          ip = ip+1
+          goto 19
+C ---     Entry point for conditional expression ---
+        elseif (cc .eq. '?') then
+          if (icond .ne. 0) call rx('awrite encountered nested "%?"')
+          icond = 1
+          call lodsyv('p',1,dble(ip),j)
+          xx = ivawrt(ia,1,a1,a2,a3,a4,a5,a6,a7,a8)
+          call lodsyv('n',1,xx,j)
+          ia = ia+1
+          iff = iff+1
+C     ...   ccond is character terminating conditional string
+          ccond = fmt(iff:iff)
+C     ...   If next char is '%', expression is of the string type:
+          if (fmt(iff+1:iff+1) .eq. '%') then
+            if (fmt(iff+1:iff+4) .eq. '%c==') then              
+              ltmp = fmt(iff+5:iff+5) .eq. s(ip:ip)
+              iff = iff+6
+            else
+              call rxs('awrite: failed to parse : ',fmt(iff:))
+            endif
+C     ...   Parse expression
+          elseif (.not. a2bin(fmt,ltmp,0,0,ccond,iff,lfmt)) then
+            call rx('awrite: failed to parse conditional expr')
+          endif
+C     ...   Use first string, or skip to second string
+          if (ltmp) then
+            icond = 2
+          else
+            icond = 3
+            call chrpos(fmt,ccond,lfmt,iff)
+            iff = iff+1
+          endif
+          goto 19
+C     ... clear string
+        elseif (cc .eq. 'x') then
+          s = ' '
+          goto 19
+C     ... toggle on 'null' option
+        elseif (cc .eq. 'u') then
+          if (i2 .lt. 0) then
+            lnull = .false.
+          elseif (i2 .eq. 0) then
+            lnulls = .false.
+            lnull = .false.
+          elseif (i2 .eq. 1) then
+            lnulls = .true.
+            lnull = .true.
+          else
+            lnull = .true.
+          endif
+          goto 19
+C ...     pad whitespace around ip
+        elseif (cc .eq. 'o') then
+          if (ip .eq. 0) ip = 1
+          ss = s(ip:ls)
+          s(ip:ip+i2-1) = ' '
+          s(ip+i2:ls) = ss
+          ip = ip+i2-1
+          goto 19
+C ...     close up whitespace around ip
+        elseif (cc .eq. 'c') then
+          do  13  j = ip, 1, -1
+            if (s(j:j) .ne. ' ' .and. s(j:j) .ne. '        ') goto 14
+            ip = j
+   13     continue
+   14     continue
+          jp = ip-1
+          do  15  j = jp+1, mxl
+            if (s(j:j) .ne. ' ' .and. s(j:j) .ne. '        ') goto 16
+            jp = j
+   15     continue
+   16     continue
+          if (jp-ip+1 .gt. 0) then
+            ss = s(jp+1:ls)
+            s(ip:ls) = ss
+          endif
+          goto 19
+C ...     skip to next nw
+        elseif (cc .eq. 'w') then
+          do  17  j = ip, mxl
+            if (s(j:j) .ne. ' ' .and. s(j:j) .ne. '        ') goto 19
+            ip = j
+   17     continue
+C ...     skip to next whitespace
+        elseif (cc .eq. 'W') then
+          do  18  j = ip, mxl
+            if (s(j:j) .eq. ' ' .or. s(j:j) .eq. '        ') goto 19
+            ip = j
+   18     continue
+        endif
+      endif
+      if (cast .eq. 99) call rx('awrite: unknown control: ' // cc)
 
 C ---   Generate format for bin2a ---
-        fm = ' '
-        if (cast .eq. 4) then
-          fm = cc
-          if (cc .eq. 'G') fm = 'g'
-          j = 1
-          if (nx .ne. 99) call bin2a(' ',0,0,nx,2,0,20,fm,j)
-          if (cc .eq. 'G') call bin2a(':20',0,0,0,1,0,20,fm,j)
-        endif
+      fm = ' '
+      if (cast .eq. 4) then
+        fm = cc
+        if (cc .eq. 'G') fm = 'g'
+        j = 1
+        if (nx .ne. 99) call bin2a(' ',0,0,nx,2,0,20,fm,j)
+        if (cc .eq. 'G') call bin2a(':20',0,0,0,1,0,20,fm,j)
+      endif
 
 C ---   Convert binary numbers ---
-        i2 = i2-1
+      i2 = i2-1
 C        fw = 0
 C        if (nblk .lt. 0) then
 C          fw = -nblk
 C          nblk = -1
 C        endif
-        if (ia.eq.1)
-     .    call bin2av(fm,fw,nblk,ndec,a1,cast,0,i2,' ',mxl,lnull,s,ip)
-        if (ia.eq.2)
-     .    call bin2av(fm,fw,nblk,ndec,a2,cast,0,i2,' ',mxl,lnull,s,ip)
-        if (ia.eq.3)
-     .    call bin2av(fm,fw,nblk,ndec,a3,cast,0,i2,' ',mxl,lnull,s,ip)
-        if (ia.eq.4)
-     .    call bin2av(fm,fw,nblk,ndec,a4,cast,0,i2,' ',mxl,lnull,s,ip)
-        if (ia.eq.5)
-     .    call bin2av(fm,fw,nblk,ndec,a5,cast,0,i2,' ',mxl,lnull,s,ip)
-        if (ia.eq.6)
-     .    call bin2av(fm,fw,nblk,ndec,a6,cast,0,i2,' ',mxl,lnull,s,ip)
-        if (ia.eq.7)
-     .    call bin2av(fm,fw,nblk,ndec,a7,cast,0,i2,' ',mxl,lnull,s,ip)
-        if (ia.eq.8)
-     .    call bin2av(fm,fw,nblk,ndec,a8,cast,0,i2,' ',mxl,lnull,s,ip)
+      if (ia.eq.1)
+     .call bin2av(fm,fw,nblk,ndec,a1,cast,0,i2,' ',mxl,lnull,s,ip)
+      if (ia.eq.2)
+     .call bin2av(fm,fw,nblk,ndec,a2,cast,0,i2,' ',mxl,lnull,s,ip)
+      if (ia.eq.3)
+     .call bin2av(fm,fw,nblk,ndec,a3,cast,0,i2,' ',mxl,lnull,s,ip)
+      if (ia.eq.4)
+     .call bin2av(fm,fw,nblk,ndec,a4,cast,0,i2,' ',mxl,lnull,s,ip)
+      if (ia.eq.5)
+     .call bin2av(fm,fw,nblk,ndec,a5,cast,0,i2,' ',mxl,lnull,s,ip)
+      if (ia.eq.6)
+     .call bin2av(fm,fw,nblk,ndec,a6,cast,0,i2,' ',mxl,lnull,s,ip)
+      if (ia.eq.7)
+     .call bin2av(fm,fw,nblk,ndec,a7,cast,0,i2,' ',mxl,lnull,s,ip)
+      if (ia.eq.8)
+     .call bin2av(fm,fw,nblk,ndec,a8,cast,0,i2,' ',mxl,lnull,s,ip)
 
-        goto 20
+      goto 20
    10 continue
 
 
@@ -451,7 +451,7 @@ C --- Restore or undo symbolic variables p,n ---
 
       end
       subroutine bin2av(fmt,w,nblk,ndec,res,cast,i1,i2,sep,mxln,lnull,
-     .  outs,ip)
+     .outs,ip)
 C- Write out a vector of of numbers using bin2a
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -517,7 +517,7 @@ C       Set flag llnul if lnull is ON and argument matches NULLI
         if (llnull) then
 C         If fixed width, leave position of null as is
           if (fmt(1:1) .eq. 'D' .or. fmt(1:1) .eq. 'F' .or.
-     .       (cast .eq. 2 .and. ndec .gt. 0)) then
+     .    (cast .eq. 2 .and. ndec .gt. 0)) then
 C         Skip if not sufficient space for leading blanks + null
           else if (ip-3 .le. 1+ip0+iabs(nblk)) then
 C         Otherwise rewrite null starting at 1+ip0+iabs(nblk)

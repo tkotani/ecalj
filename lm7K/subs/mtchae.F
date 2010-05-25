@@ -89,7 +89,7 @@ C     return log derivative in alfa, K.E. in beta
       end
 
       subroutine mtchre(mode,l,rsmin,rsmax,emin,emax,r1,r2,phi1,dphi1,
-     .  phi2,dphi2,rsm,eh,ekin,ir)
+     .phi2,dphi2,rsm,eh,ekin,ir)
 C- Finds envelope function parameters that match conditions on sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -175,10 +175,10 @@ C     implicit none
 C ... Passed parameters
       integer mode,l,ir
       double precision dphi1,dphi2,eh,phi1,phi2,r1,r2,rsm,rsmin,rsmax,
-     .  emin,emax,ekin
+     .emin,emax,ekin
 C ... Local parameters
       integer iter,stdo,lgunit,IPRT1,IPRTW,ipr,maxit,mode0,mode2,ir1,
-     .  ipass
+     .ipass
       double precision tol,eh0,dxrsm
       parameter (tol=1d-12,IPRT1=100/1,IPRTW=50/1,maxit=50,dxrsm=.05d0)
       double precision xnow,alfa,beta,xclose,bclose,eclose,tclose,wk(12)
@@ -196,13 +196,13 @@ C --- Vary rsm to match phi to h ---
       if (mode0 .eq. 0 .or. mode0 .eq. 10) then
         call info2(IPRT1,0,-1,
      .  ' mtchre: match sm H(l=%i) to phi''/phi=%,1;3d varying rsm ...',
-     .    l,dphi1/phi1)
+     .  l,dphi1/phi1)
         call mtchr2(0,l,rsmin,rsmax,(rsmin+rsmax)/2,r1,phi1,dphi1,rsm,
-     .    eh,ekin,ir)
+     .  eh,ekin,ir)
 C   ... rfalsi unable to bound the search : handle error
         if (ir .lt. 0) then
           if (ipr .ge. IPRTW) write (stdo,
-     .      '('' mtchre (warning) matching failed varying rsm'')')
+     .    '('' mtchre (warning) matching failed varying rsm'')')
           if (mode0 .eq. 10) then
             mode0 = 1
             goto 10
@@ -214,13 +214,13 @@ C   ... rfalsi unable to bound the search : handle error
 C --- Vary eh to match phi to h ---
       elseif (mode0 .eq. 1 .or. mode0 .eq. 11) then
         call info2(IPRT1,0,-1,
-     .    ' mtchre: match sm H(l=%i) to phi varying eh ...',l,0)
+     .  ' mtchre: match sm H(l=%i) to phi varying eh ...',l,0)
         call mtchr2(1,l,emin,emax,(emin+emax)/2,r1,phi1,dphi1,rsm,eh,
-     .    ekin,ir)
+     .  ekin,ir)
 C   ... rfalsi unable to bound the search : handle error
         if (ir .lt. 0) then
           if (ipr .ge. IPRTW) write (stdo,
-     .      '('' mtchre (warning) matching failed varying eh'')')
+     .    '('' mtchre (warning) matching failed varying eh'')')
           if (mode0 .eq. 10) then
             mode0 = 0
             goto 10
@@ -273,12 +273,12 @@ C         No match found for this rsm ... increment rsm
           if (ir1 .lt. 0) then
 C           No match for any rsm ... give up
             if (xnow .lt. min(rsmin,rsmax)-1d-6 .or.
-     .          xnow .gt. max(rsmin,rsmax)+1d-6 .or.
-     .          rsmin .eq. rsmax) then
+     .      xnow .gt. max(rsmin,rsmax)+1d-6 .or.
+     .      rsmin .eq. rsmax) then
               ir = -1
               if (mode2 .ge. 1) call fexit2(-1,111,
-     .          ' Exit -1 : mtchre : failed to match phi''/phi=%,1;3d'//
-     .          ' to envelope, l=%i',dphi1/phi1,l)
+     .        ' Exit -1 : mtchre : failed to match phi''/phi=%,1;3d'//
+     .        ' to envelope, l=%i',dphi1/phi1,l)
               return
             endif
             xnow = xnow + dxrsm
@@ -301,7 +301,7 @@ C         Failed to match log derivative.  Resort to best prior case
             if (iter .eq. 0) then
               ir = -1
               if (mode2 .ge. 1) call rxi('mtchre: '//
-     .          'failed to match phi to envelope, mode',mod(mode,100))
+     .        'failed to match phi to envelope, mode',mod(mode,100))
               return
             endif
 C           Flags that energy is near boundary point
@@ -336,12 +336,12 @@ C       Keep running track of closest approach in case no match found
         if (ir .gt. 1) call rxi('bug in mtchre, ir=',ir)
         iter = iter+1
         if (ipr .ge. IPRT1)
-     .    write (stdo,60) l,iter,ir,wk(1),eh,alfa,beta+phi2,phi2
+     .  write (stdo,60) l,iter,ir,wk(1),eh,alfa,beta+phi2,phi2
    60   format(i2,i4,i4,5f12.6)
 
 C   ... rfalsi unable to find K.E... Use closest point
         if (xnow .lt. min(rsmin,rsmax)-1d-6 .or.
-     .      xnow .gt. max(rsmin,rsmax)+1d-6) then
+     .  xnow .gt. max(rsmin,rsmax)+1d-6) then
           ir = -2
           goto 80
 
@@ -358,7 +358,7 @@ C   ... rfalsi either has converged or requires another iteration
 
 C ... Cleanup and exit
       if (ir .lt. 0 .and. mode2 .eq. 1) call rxi(
-     .  'mtchre: failed to match phi to envelope, mode',mod(mode,100))
+     .'mtchre: failed to match phi to envelope, mode',mod(mode,100))
       ir = 0
       if (mode0 .ne. mod(mode,100)) ir = 1
       call poppr
@@ -379,8 +379,8 @@ C      endif
 
 C ... Closest point at boundary point in rsm or eh; no further search
       if (xclose .eq. min(rsmin,rsmax) .or.
-     .    xclose.eq.max(rsmin,rsmax) .or. ipass .eq. 2
-     .   .or. .true.) then
+     .xclose.eq.max(rsmin,rsmax) .or. ipass .eq. 2
+     ..or. .true.) then
 
 C       get K.E. at closest point.  phi1 only dummy here
         rsm  = xclose
@@ -397,10 +397,10 @@ C ... Not implemented: find K.E. closest to target
       call poppr
 
       if (ir .eq. -2)
-     . call info5(IPRTW,0,0,' mtchre (warning) failed to match K.E. '//
-     .  'of sm H(l=%i):  sought %;3d; best value %;3d',l,phi2,ekin,0,0)
+     .call info5(IPRTW,0,0,' mtchre (warning) failed to match K.E. '//
+     .'of sm H(l=%i):  sought %;3d; best value %;3d',l,phi2,ekin,0,0)
       if (ir .eq. -1) call rxi(
-     .  'mtchre: failed to match phi to envelope, mode',mod(mode,100))
+     .'mtchre: failed to match phi to envelope, mode',mod(mode,100))
 
       end
 
@@ -464,7 +464,7 @@ C     Mode-indpendent setup
 
       if (ipr .ge. IPRT) write(stdo,261) mode,l,r
   261 format(' mtchr2 mode',i2,'  l =',i2,'  r =',f10.6,
-     .  /' l  it  ir',6x,'Rsm',9x,'Eh',8x,'phi''/phi     target')
+     ./' l  it  ir',6x,'Rsm',9x,'Eh',8x,'phi''/phi     target')
 
 C ... Vary rsm to match phi to h.  Do iteratively:
       if (mode .eq. 0 .or. mode .eq. 2) then
@@ -496,11 +496,11 @@ C     not ready
 
 C  ... after 2rd iteration try estimate x0, if supplied
         if (iter .eq. 2 .and. x0 .gt. min(x1,x2)
-     .      .and. x0 .lt. x2) xnow = x0
+     .  .and. x0 .lt. x2) xnow = x0
 
 C   ... rfalsi unable to bound the search : handle error
         if (xnow .lt. min(x1,x2)-1d-6 .or.
-     .      xnow .gt. max(x1,x2)+1d-6) then
+     .  xnow .gt. max(x1,x2)+1d-6) then
           info = -1
 C   ... rfalsi either has converged or requires another iteration
         else
@@ -546,11 +546,11 @@ C     .    xnow-wk(1),alfa-dphi/phi
 
 C  ... after 2rd iteration try estimate x0, if supplied
         if (iter .eq. 2 .and. x0 .gt. min(x1,x2)
-     .      .and. x0 .lt. x2) xnow = x0
+     .  .and. x0 .lt. x2) xnow = x0
 
 C   ... rfalsi unable to bound the search : handle error
         if (xnow .lt. min(x1,x2)-1d-6 .or.
-     .      xnow .gt. max(x1,x2)+1d-6) then
+     .  xnow .gt. max(x1,x2)+1d-6) then
           info = -1
 C   ... rfalsi either has converged or requires another iteration
         else

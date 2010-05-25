@@ -1,19 +1,19 @@
       subroutine bndconn_v2(alat,plat,qlat, 
-     &      nbas, rmt, bas, ndimh, ldim2,
-     &      evl,  ngp, ngp_p,  ngvecp,ngvecp_p,   geig,geig_p,   
-     &      cphi, cphi_p, ovvx, !ovvx is for non-orthogonal phi !May 2002
-     o iiyf,ovv)
+     &nbas, rmt, bas, ndimh, ldim2,
+     &evl,  ngp, ngp_p,  ngvecp,ngvecp_p,   geig,geig_p,   
+     &cphi, cphi_p, ovvx, !ovvx is for non-orthogonal phi !May 2002
+     oiiyf,ovv)
 c-Get the connenctivity of eigenfunctions along the q points.
 co iiyf: connection. idim'th band is mapped to iiyf(idim) band.
 co ovv : information of a deformed overlap matrix.
 C     implicit none
       integer:: ndimh,ldim2,nbas,ngp,ngp_p,iix,iiy,iyiy,istart,j
       integer :: iiyf(ndimh),ifdebug
-     &  ,ngvecp(3,ngp),ngvecp_p(3,ngp_p),ifill(ndimh)
+     &,ngvecp(3,ngp),ngvecp_p(3,ngp_p),ifill(ndimh)
       real(8) ::  eigdeg, sumdeg,alat,plat(3,3),qlat(3,3)
-     &           ,ovv(ndimh,ndimh),rmt(nbas),bas(3,nbas),evl(ndimh)
+     &,ovv(ndimh,ndimh),rmt(nbas),bas(3,nbas),evl(ndimh)
       complex(8):: cphi(ldim2,ndimh), cphi_p(ldim2,ndimh)
-     & ,geig(ngp, ndimh),geig_p(ngp_p, ndimh)
+     &,geig(ngp, ndimh),geig_p(ngp_p, ndimh)
       complex(8),allocatable::  gpg(:,:),ppovl2(:,:)
       real(8) :: ovvx(ldim2,ldim2)
       complex(8),allocatable:: oc(:,:),coc(:,:),cc(:,:),ovvxc(:,:)
@@ -26,10 +26,10 @@ c      print * ,' goto mkppovl2'
 c     & ,sum(abs(geig)),sum(abs(geig_p))
 c--- Get the connection. ovelap matrix of eigenfunctions
       call mkppovl2(alat,plat,qlat, 
-     &      ngp,   ngvecp,   
-     &      ngp_p, ngvecp_p, 
-     &      nbas, rmt, bas,  
-     o      ppovl2)
+     &ngp,   ngvecp,   
+     &ngp_p, ngvecp_p, 
+     &nbas, rmt, bas,  
+     oppovl2)
 c      print * ,' end of mkppovl2'
 c     & ,sum(abs(geig)),sum(abs(geig_p)),sum(abs(ppovl2))
       gpg = matmul(dconjg(transpose(geig)),matmul(ppovl2,geig_p))
@@ -37,7 +37,7 @@ c     & ,sum(abs(geig)),sum(abs(geig_p)),sum(abs(ppovl2))
 
 c---------
       allocate(oc(ldim2,ndimh),coc(ndimh,ndimh),cc(ndimh,ldim2)
-     &         ,ovvxc(ldim2,ldim2))
+     &,ovvxc(ldim2,ldim2))
       ovvxc = ovvx
       call matm(ovvxc,cphi_p,oc,ldim2,ldim2,ndimh)
       cc = transpose(dconjg(cphi))
@@ -57,7 +57,7 @@ c     &                ) !**2
         enddo
         iyiy = maxloc( ovv(1:ndimh,iix),dim=1 )
         write(ifdebug,'(2i3,255i4)') iix ,iyiy,
-     &      (int(100*ovv(j,iix)),j=1,ndimh)
+     &  (int(100*ovv(j,iix)),j=1,ndimh)
       enddo
       deallocate(ppovl2,gpg)
 
@@ -121,8 +121,8 @@ c
 c
 c      print *,"sumcheck=",sum(a),sum(b),n1,n2,n3
       call ZGEMM ( "N", "N", n1, n3, n2, (1d0,0d0), 
-     &             a, n1, 
-     &             b, n2,
-     &             (0d0,0d0), c, n1 )
+     &a, n1, 
+     &b, n2,
+     &(0d0,0d0), c, n1 )
       end
 

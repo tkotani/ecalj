@@ -45,89 +45,89 @@ c
 c     ------------------------------------------------------------------
 c
       do 100 i = 1, n
-         d(i) = a(n,i)
-         a(n,i) = a(i,i)
+        d(i) = a(n,i)
+        a(n,i) = a(i,i)
   100 continue
 c     .......... for i=n step -1 until 1 do -- ..........
       do 300 ii = 1, n
-         i = n + 1 - ii
-         l = i - 1
-         h = 0.0d0
-         scale = 0.0d0
-         if (l .lt. 1) go to 130
+        i = n + 1 - ii
+        l = i - 1
+        h = 0.0d0
+        scale = 0.0d0
+        if (l .lt. 1) go to 130
 c     .......... scale row (algol tol then not needed) ..........
-         do 120 k = 1, l
-  120    scale = scale + dabs(d(k))
+        do 120 k = 1, l
+  120   scale = scale + dabs(d(k))
 c
-         if (scale .ne. 0.0d0) go to 140
+        if (scale .ne. 0.0d0) go to 140
 c
-         do 125 j = 1, l
-            d(j) = a(l,j)
-            a(l,j) = a(i,j)
-            a(i,j) = 0.0d0
-  125    continue
+        do 125 j = 1, l
+          d(j) = a(l,j)
+          a(l,j) = a(i,j)
+          a(i,j) = 0.0d0
+  125   continue
 c
-  130    e(i) = 0.0d0
-         e2(i) = 0.0d0
-         go to 300
+  130   e(i) = 0.0d0
+        e2(i) = 0.0d0
+        go to 300
 c
-  140    do 150 k = 1, l
-            d(k) = d(k) / scale
-            h = h + d(k) * d(k)
-  150    continue
+  140   do 150 k = 1, l
+          d(k) = d(k) / scale
+          h = h + d(k) * d(k)
+  150   continue
 c
-         e2(i) = scale * scale * h
-         f = d(l)
-         g = -dsign(dsqrt(h),f)
-         e(i) = scale * g
-         h = h - f * g
-         d(l) = f - g
-         if (l .eq. 1) go to 285
+        e2(i) = scale * scale * h
+        f = d(l)
+        g = -dsign(dsqrt(h),f)
+        e(i) = scale * g
+        h = h - f * g
+        d(l) = f - g
+        if (l .eq. 1) go to 285
 c     .......... form a*u ..........
-         do 170 j = 1, l
-  170    e(j) = 0.0d0
+        do 170 j = 1, l
+  170   e(j) = 0.0d0
 c
-         do 240 j = 1, l
-            f = d(j)
-            g = e(j) + a(j,j) * f
-            jp1 = j + 1
-            if (l .lt. jp1) go to 220
+        do 240 j = 1, l
+          f = d(j)
+          g = e(j) + a(j,j) * f
+          jp1 = j + 1
+          if (l .lt. jp1) go to 220
 c
-            do 200 k = jp1, l
-               g = g + a(k,j) * d(k)
-               e(k) = e(k) + a(k,j) * f
-  200       continue
+          do 200 k = jp1, l
+            g = g + a(k,j) * d(k)
+            e(k) = e(k) + a(k,j) * f
+  200     continue
 c
-  220       e(j) = g
-  240    continue
+  220     e(j) = g
+  240   continue
 c     .......... form p ..........
-         f = 0.0d0
+        f = 0.0d0
 c
-         do 245 j = 1, l
-            e(j) = e(j) / h
-            f = f + e(j) * d(j)
-  245    continue
+        do 245 j = 1, l
+          e(j) = e(j) / h
+          f = f + e(j) * d(j)
+  245   continue
 c
-         h = f / (h + h)
+        h = f / (h + h)
 c     .......... form q ..........
-         do 250 j = 1, l
-  250    e(j) = e(j) - h * d(j)
+        do 250 j = 1, l
+  250   e(j) = e(j) - h * d(j)
 c     .......... form reduced a ..........
-         do 280 j = 1, l
-            f = d(j)
-            g = e(j)
+        do 280 j = 1, l
+          f = d(j)
+          g = e(j)
 c
-            do 260 k = j, l
-  260       a(k,j) = a(k,j) - f * e(k) - g * d(k)
+          do 260 k = j, l
+  260     a(k,j) = a(k,j) - f * e(k) - g * d(k)
 c
-  280    continue
+  280   continue
 c
-  285    do 290 j = 1, l
-            f = d(j)
-            d(j) = a(l,j)
-            a(l,j) = a(i,j)
-            a(i,j) = f * scale
-  290    continue
+  285   do 290 j = 1, l
+          f = d(j)
+          d(j) = a(l,j)
+          a(l,j) = a(i,j)
+          a(i,j) = f * scale
+  290   continue
 c
   300 continue
 c

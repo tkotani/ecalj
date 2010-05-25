@@ -1,5 +1,5 @@
       subroutine arrprt(hfmt,fmt,casts,ntab,nrr,ncol,nskk,sep,
-     .  a1,a2,a3,a4,a5,a6,a7,a8)
+     .a1,a2,a3,a4,a5,a6,a7,a8)
 C- Print out a table in multi-column format
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -84,36 +84,36 @@ C ... External calls
       if (ncol .le. 0 .or. nmemb .le. 0) return
 
       do  10  ir = 1, nrow
-      ip = 1
-      sout = ' '
-      is = ir-nrow
-      do  20  ic = 1, ncol
-      is = is + nrow
-      if (is .gt. ntab) goto 20
+        ip = 1
+        sout = ' '
+        is = ir-nrow
+        do  20  ic = 1, ncol
+          is = is + nrow
+          if (is .gt. ntab) goto 20
 
-      do  30  ia = 1, nmemb
+          do  30  ia = 1, nmemb
 C  ... 'I' prints out column index
-        if (casts(ia:ia) .eq. 'I')  then
-         call vwrt(1,1,is,a2,a3,a4,a5,a6,a7,a8,2,xx(ia),xx(ia))
+            if (casts(ia:ia) .eq. 'I')  then
+              call vwrt(1,1,is,a2,a3,a4,a5,a6,a7,a8,2,xx(ia),xx(ia))
 C  ...  this argment is of cast integer
-        elseif (casts(ia:ia) .eq. 'i')  then
-          call vwrt(ia,is,a1,a2,a3,a4,a5,a6,a7,a8,2,xx(ia),xx(ia))
+            elseif (casts(ia:ia) .eq. 'i')  then
+              call vwrt(ia,is,a1,a2,a3,a4,a5,a6,a7,a8,2,xx(ia),xx(ia))
 C  ...  this argment is of cast double
-        else
-          call vwrt(ia,is,a1,a2,a3,a4,a5,a6,a7,a8,4,xx(ia),xx(ia))
-        endif
-   30 continue
-      head(ip:) = hfmt
-      ip = ip + awrite(fmt,sout(ip:),len(sout),0,xx(1),xx(2),xx(3),
-     .  xx(4),xx(5),xx(6),xx(7),xx(8))
-      if (ic .lt. ncol) then
-        sout(ip:ip-1+len(sep)) = sep
-        ip = ip + len(sep)
-      endif
-   20 continue
+            else
+              call vwrt(ia,is,a1,a2,a3,a4,a5,a6,a7,a8,4,xx(ia),xx(ia))
+            endif
+   30     continue
+          head(ip:) = hfmt
+          ip = ip + awrite(fmt,sout(ip:),len(sout),0,xx(1),xx(2),xx(3),
+     .    xx(4),xx(5),xx(6),xx(7),xx(8))
+          if (ic .lt. ncol) then
+            sout(ip:ip-1+len(sep)) = sep
+            ip = ip + len(sep)
+          endif
+   20   continue
 
-      if (ir .eq. 1) call awrit0(head,' ',-len(head),lgunit(1))
-      call awrit0(sout,' ',-len(sout),lgunit(1))
+        if (ir .eq. 1) call awrit0(head,' ',-len(head),lgunit(1))
+        call awrit0(sout,' ',-len(sout),lgunit(1))
    10 continue
       end
 

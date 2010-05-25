@@ -4,8 +4,8 @@ C     implicit none
       integer i,j
       do 1 i=1,3
         h(i)=0.d0
-      do 1 j=1,3
-        h(i)=h(i)+g(i,j)*p(j)
+        do 1 j=1,3
+          h(i)=h(i)+g(i,j)*p(j)
     1 continue
       do 2 i=1,3
         q(i)=h(i)

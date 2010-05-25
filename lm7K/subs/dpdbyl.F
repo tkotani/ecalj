@@ -32,7 +32,7 @@ C ... Local parameters
 C --- Output ---
       if (ifi .lt. 0) then
         if (isanrg(nsp0,nsp,nsp,'dpdbyl writing rho','nsp', .true.))
-     .    stop
+     .  stop
         jfi = -ifi
         do  10  isp = 1, nsp
           do  12  ilm = 1, nlm

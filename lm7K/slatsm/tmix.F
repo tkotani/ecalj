@@ -1,5 +1,5 @@
       integer function tmix(nelts,msg,nmix,mmix,ido,beta,ipr,tm,
-     .  norm,kpvt,wk,t,rmsdel)
+     .norm,kpvt,wk,t,rmsdel)
 C- Accelerated mixing of a vector
 C ----------------------------------------------------------------
 Ci Inputs
@@ -31,7 +31,7 @@ C     implicit none
 C Passed parameters
       integer nelts,mmix,nmix,kpvt(1),ipr
       double precision norm(0:mmix+1,0:mmix+1),wk(nelts,0:mmix+1,2),
-     .  t(0:mmix+1),beta,tm,rmsdel
+     .t(0:mmix+1),beta,tm,rmsdel
       character msg*(*)
 C Local parameters
       integer i,j,nwk,inert(3),kelt,nmake,ido,iprint,is
@@ -72,21 +72,21 @@ C ... Regular branch
           do  20  j = 0, nmix
             norm(i,j) =  ddot(nelts,wk(1,i,1),1,wk(1,j,1),1)
             sumsqr = sumsqr + norm(i,j)**2
-   20     continue
-          sumsqr = dsqrt(sumsqr)/(nmix+1)
+   20   continue
+        sumsqr = dsqrt(sumsqr)/(nmix+1)
 C ... Silly branch (not implemented)
-        elseif (ido/10 .eq. 1) then
-          stop 'not implemented'
-          do  120  i = 1, nmix
-            t(i) = wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,i,1)
-            do  120  j = 1, nmix
-              norm(i,j) =
-     .          wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,j,1)
-     .        - wk(kelt,i,1)*wk(kelt,0,1) + wk(kelt,i,1)*wk(kelt,j,1)
-  120     continue
-        endif
-        t(nmix+1) = 1
-        norm(nmix+1,nmix+1) = 0
+      elseif (ido/10 .eq. 1) then
+        stop 'not implemented'
+        do  120  i = 1, nmix
+          t(i) = wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,i,1)
+          do  120  j = 1, nmix
+            norm(i,j) =
+     .      wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,j,1)
+     .      - wk(kelt,i,1)*wk(kelt,0,1) + wk(kelt,i,1)*wk(kelt,j,1)
+  120   continue
+      endif
+      t(nmix+1) = 1
+      norm(nmix+1,nmix+1) = 0
 
 C ...  Solve the simultaneous equations for tj
       call dsifa(norm,mmix+2,nmix+2,kpvt,i)
@@ -104,7 +104,7 @@ C --  Handle singular normal matrix --
         nmix = nmix-1
         if (ipr .ge. 20) print 337, sinmax, nmix
   337   format(' TMIX: condition of normal eqns >',f6.0,
-     .         ' Reducing nmix to',i2)
+     .  ' Reducing nmix to',i2)
         goto 10
       endif
 
@@ -113,7 +113,7 @@ C --  Reduce nmix if any t_j exceeds tm --
         if (dabs(t(j)) .le. dabs(tm)) goto 30
         if (ipr .ge. 20) print 338,  nmix-1, (t(i), i=1, nmix)
   338   format(' TMIX: Reducing nmix to',i3,
-     .         ': t_j exceeds tm: tj=',7(f8.5,2x))
+     .  ': t_j exceeds tm: tj=',7(f8.5,2x))
         t(nmix) = 0
         nmix = nmix-1
         goto 10
@@ -180,7 +180,7 @@ C --- Printout ---
       do  12  i = 1, nelts
         if (dabs(wk(i,0,1)) + dabs(wk(i,mmix+1,2)-wk(i,0,2)) .ge. 5.d-7)
      .  write(*,111) i,wk(i,0,2),wk(i,0,2)+wk(i,0,1),
-     .                 wk(i,0,1),wk(i,mmix+1,2)
+     .  wk(i,0,1),wk(i,mmix+1,2)
    12 continue
 
 C --  Restore  x* + beta d*  and  d*  from end of wk --

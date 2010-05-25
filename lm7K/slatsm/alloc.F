@@ -37,9 +37,9 @@ C ----------------------------------------------------------------
 C- Initialize conditions for the 'common pool' data W
 C     implicit none
       integer w(2),irnd,i,j,qqq,ndefmx,limit,nsize,ipmax,ndfdmx,ncall
-     .  ,jpr,ipfree,iprint,jprint,length,leng,jopt,i1mach,iopt,imod
-     .  ,ipname,ndefd,ixx,lrest,lused,lgunit,ipx,ipy,ipploc
-     .  ,i0,i1,i2,i3,ippplc(-1:4),ipppln(-1:4),size,nstk
+     .,jpr,ipfree,iprint,jprint,length,leng,jopt,i1mach,iopt,imod
+     .,ipname,ndefd,ixx,lrest,lused,lgunit,ipx,ipy,ipploc
+     .,i0,i1,i2,i3,ippplc(-1:4),ipppln(-1:4),size,nstk
       integer mfree,mnow,mmax
       character*(*) string
       logical lopt,lerr,lfast
@@ -130,7 +130,7 @@ C ... Check links, come back here (84); skip if lfast on
       if (lerr .and. ipfree+length+2 .gt. limit) then
         ipname = -LENGTH
         if (jpr .gt. 0)  print *,
-     .    'ALLOC: heap storage exceeded; returning -LENGTH=',-length
+     .  'ALLOC: heap storage exceeded; returning -LENGTH=',-length
         return
       endif
 C ... ipfree is start of next array, should it be allocated
@@ -145,7 +145,7 @@ C ... Save as one of the links
       ncall = ncall + 1
       if (jpr .gt. 0) write(*,100) ndefd,leng,length,ipname,ipfree-1
   100 format(' define array',I4,':   els=',i9,'   length=',i9,',',
-     .   i9,'  to',i9)
+     .i9,'  to',i9)
 C ... Check to ensure array not too big
       if (ipfree .le. limit) then
         if (iopt .ne. 0) goto (201,202,203,204,205) jopt
@@ -201,7 +201,7 @@ C   ... Exit if links messed up
       if (ndefd.lt.nstk+1) call rx('defsw: not enough arrays allocated')
 C ... Copy bottom array to temp above the top array
       if (ipfree+size(nstk) .gt. limit)
-     .  call rx('defsw: no space for swap')
+     .call rx('defsw: no space for swap')
       call icopy(size(nstk),w(1+ippplc(nstk)),1,w(1+ipppln(-1)),1)
 C ... Create list of the new link locations; shift w(i) to w(i+1)
       ipppln(nstk) = ippplc(nstk)
@@ -265,7 +265,7 @@ C ... Run through links, come back here (81)
       if (lgunit(2) .gt. 0)
      .write(lgunit(2),600) irnd(ipmax-1),irnd(limit),irnd(ncall)
   600 format(' wkinfo:  used ',i8,' K  workspace of ',i8,
-     .  ' K   in',i6,' K calls')
+     .' K   in',i6,' K calls')
       if (ipfree .eq. qqq) return
       if (jpr .gt. 0) write(*,602)
   602 FORMAT(/'    array',5X,'begin',7X,'end',6X,'length')
@@ -294,7 +294,7 @@ C --- Run through links to see if any dynamic array was overwritten ---
         if (ipx .lt. qqq .or. ipx .gt. limit) then
           write(*,888) ndefd,ipx,ipploc
   888     format(' ALLOC: link destroyed at start of array',i3,
-     .     ',  PTR=',i9,' AT',i9)
+     .    ',  PTR=',i9,' AT',i9)
           call fexit(-1,19,' ',0)
         endif
         if (ipx .eq. ipfree) goto 86

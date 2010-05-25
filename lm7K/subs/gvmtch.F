@@ -19,7 +19,7 @@ Ctakao_ZeroClear_NotRequiered        if (ngs<0) kk_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered        if (ngs<0) iwk_rv(:)=0.0d0
 
       call pgvmat ( gg_rv , kk_rv , iwk_rv , ngs , w ( ogvs 
-     . ) , ngb , w ( ogvb ) , w ( okvb ) )
+     .) , ngb , w ( ogvb ) , w ( okvb ) )
 
       if (allocated(iwk_rv)) deallocate(iwk_rv)
       if (allocated(kk_rv)) deallocate(kk_rv)

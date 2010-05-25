@@ -1,5 +1,5 @@
       subroutine ysbnvb(cs,mode,ap,ofapi,ldap,ija,offs,nlev,
-     .  nn2,nb,w,ldw,w2,a,ofai,lda,b,ofbi,ldb,ierr)
+     .nn2,nb,w,ldw,w2,a,ofai,lda,b,ofbi,ldb,ierr)
 C- Solve a x = b, with a = complex block sparse matrix
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -57,11 +57,11 @@ Cr   real and imaginary parts of arrays, which see for description
 C ----------------------------------------------------------------
 C     implicit none
       integer mode,nn2,nb,lda,ldb,ldw,ierr,nlev,ldap,ofapi,ofai,ofbi,
-     .  ija(2,*),offs(nn2)
+     .ija(2,*),offs(nn2)
       double precision a(lda),b(ldb),w(ldw,*),ap(ldap),w2(*)
       character cs*(*)
 
       call yysbib(cs,mode,ap,ap(1+ofapi),ldap,ija,offs,nlev,
-     .  nn2,nb,w,ldw,w2,a,a(1+ofai),lda,b,b(1+ofbi),ldb,ierr)
+     .nn2,nb,w,ldw,w2,a,a(1+ofai),lda,b,b(1+ofbi),ldb,ierr)
       end
 

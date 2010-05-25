@@ -1,5 +1,5 @@
       integer function iomoms(ifi,nl,nsp,nspc,nkp,ldim,nfstg,ldwt3,iq,
-     . isp,ndev,nevmx,nchan,nchan2,nev,eb,accwt,doswt,dosw2,efermi,vmtz)
+     .isp,ndev,nevmx,nchan,nchan2,nev,eb,accwt,doswt,dosw2,efermi,vmtz)
 C- File I/O for binary moments file.
 C ----------------------------------------------------------------
 Ci Inputs
@@ -69,13 +69,13 @@ C ----------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ifi,nl,nsp,nspc,nkp,ldim,nfstg,iq,ndev,nevmx,nchan,nchan2,
-     .  nev,ldwt3
+     .nev,ldwt3
       double precision eb(ndev,iq),efermi,vmtz,
-     .  accwt(nchan,nevmx,nspc,2+nspc,iq),doswt(nchan,nevmx,ldwt3,iq),
-     .  dosw2(2*nchan2*nevmx*3,iq)
+     .accwt(nchan,nevmx,nspc,2+nspc,iq),doswt(nchan,nevmx,ldwt3,iq),
+     .dosw2(2*nchan2*nevmx*3,iq)
 C ... Local parameters
       integer nlf,nspf,nspcf,nkpf,ldimf,nfstgf,iprint,nchani,j,
-     .        nschan,nschnf,isp
+     .nschan,nschnf,isp
       logical lddump
       double precision xx
       character outs*80
@@ -88,7 +88,7 @@ C   --- Read dimensions ---
         if (iq .eq. 0) then
           read (ifi,err=999,end=999) nlf,nspf,nspcf,nkpf,ldimf,nfstgf
           if (nl .ne. nlf .or. nsp .ne. nspf .or. nspc .ne. nspcf .or.
-     .      nkp .ne. nkpf .or. ldim .ne. ldimf) then
+     .    nkp .ne. nkpf .or. ldim .ne. ldimf) then
             print '(a)', '   IOMOMS:  nl nsp nspc  nkp ldim'
             print 333, ' expected ', nl, nsp, nspc, nkp, ldim
             print 333, 'but found ',nlf,nspf,nspcf,nkpf,ldimf
@@ -99,16 +99,16 @@ C   --- Read dimensions ---
             outs = ' IOMOMS: file contains:'
             if (nfstgf .eq. 0) call awrit0('%a  nothing',outs,80,0)
             if (mod(nfstgf,10) .eq. 1)
-     .        call awrit0('%a  bands',outs,80,0)
+     .      call awrit0('%a  bands',outs,80,0)
             if (mod(nfstgf/10,10) .ge. 1)
-     .        call awrit0('%a  doswts',outs,80,0)
+     .      call awrit0('%a  doswts',outs,80,0)
             if (mod(nfstgf/10,10) .ge. 3)
-     .        call awrit0('%a  moments',outs,80,0)
+     .      call awrit0('%a  moments',outs,80,0)
             if (mod(nfstgf/100,10) .ge. 1)
-     .        call awrit0('%a  spin density matrix',outs,80,0)
+     .      call awrit0('%a  spin density matrix',outs,80,0)
             call info0(30,0,0, outs//'%a')
             call info5(30,0,0,'         nl=%i  nsp=%i  nspc=%i  '//
-     .        'nkp=%i  ldim=%i',nlf,nspf,nspcf,nkpf,ldimf)
+     .      'nkp=%i  ldim=%i',nlf,nspf,nspcf,nkpf,ldimf)
           endif
 
 C   --- Read data for this qp ---
@@ -117,9 +117,9 @@ C   --- Read data for this qp ---
         elseif (iq .le. nkp*nsp .and. nfstg .ge. 0) then
           read (ifi,err=999,end=999) nchani,nev
           if (nchani .ne. nchan .and. nfstg .gt. 1)
-     .      call rx('IOMOMS: nchan mismatch')
+     .    call rx('IOMOMS: nchan mismatch')
           if (nev .gt. nevmx .and. nfstg .gt. 0)
-     .      call rx('IOMOMS: nev gt nevmx')
+     .    call rx('IOMOMS: nev gt nevmx')
 C     ... Read eb
           if (nfstg .eq. 0) then
             read (ifi,err=999,end=999) xx
@@ -130,7 +130,7 @@ C     ... Read, or read over doswt
           nschan = mod(nfstg/10,10)
           nschnf = mod(nfstgf/10,10)
           if (nschan .gt. nschnf)
-     .      call rx('IOMOMS: file has fewer doswts than required')
+     .    call rx('IOMOMS: file has fewer doswts than required')
           if (nschnf .gt. 0) then
             do  j = 1, nschnf
               if (j .le. nschan) then

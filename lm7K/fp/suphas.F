@@ -27,7 +27,7 @@ C ... Local parameters
       parameter ( nmx=1000 )
       double precision scalp,tpi
       double complex cph1(-nmx:nmx),cph2(-nmx:nmx),cph3(-nmx:nmx),
-     .   cph0,cc
+     .cph0,cc
 
       call tcn('suphas')
       tpi = 8d0*datan(1d0)

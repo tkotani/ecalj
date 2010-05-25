@@ -25,7 +25,7 @@ C Passed parameters
       logical lx
       integer lov,n,nmx,nev,linv
       double precision h(n,n,2),o(n,n,2),z(n,n,2),
-     .                 e(n),wk(n,11),emx
+     .e(n),wk(n,11),emx
 C Local variables
       integer ierr,j,n2
 
@@ -70,7 +70,7 @@ C --- Eigenvalues of O^-1/2  H  O^-1/2 ---
         call rxx(ierr.ne.0,'DIAGNO: tqlrat cannot find all evals') 
         goto 100
       else if (linv .eq. 1) then
-       call imtqlv(n,wk,wk(1,4),wk(1,5),e,wk(1,11),ierr,wk(1,6))
+        call imtqlv(n,wk,wk(1,4),wk(1,5),e,wk(1,11),ierr,wk(1,6))
         call rxx(ierr.ne.0,'diagno: imtqlv cannot find all evals') 
 C   --- Determine number of eigenvectors to be calculated ---
         nev = 1
@@ -78,7 +78,7 @@ C   --- Determine number of eigenvectors to be calculated ---
           if (j .le. nmx .and. e(j-1) .le. emx) nev = j
    14   continue
         call tinvit(n,n,wk(1,1),wk(1,4),wk(1,5),nev,e,wk(1,11),z,
-     .    ierr,wk(1,6),wk(1,7),wk(1,8),wk(1,9),wk(1,10))
+     .  ierr,wk(1,6),wk(1,7),wk(1,8),wk(1,9),wk(1,10))
         call rxx(ierr.ne.0,'DIAGNO: tinvit cannot find all evecs') 
       else
 C --- Make unit eigenvector matrix ---
@@ -108,7 +108,7 @@ C --- Get the eigenvectors of H - E O ---
             n2 = n**2
             call dcopy(n2*2,z,1,h,1)
             call yympy(o,o(1,1,2),n,1,h,h(1,1,2),n,1,z,z(1,1,2),n,1,
-     .        n,nev,n)
+     .      n,nev,n)
           else
             call yyhbak(n,n,o,o(1,1,2),nev,z,z(1,1,2),.true.)
           endif

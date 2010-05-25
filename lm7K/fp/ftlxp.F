@@ -37,13 +37,13 @@ C ... Passed parameters
       double complex cv(ng),fkl(0:k0,nlm0,nbas)
 C ... Local parameters
       integer:: ib , ilm , ipr , is , k , kmxv , l , lgunit , lmxl 
-     . , ltop , m , nlm , ntop , stdo , igetss
+     ., ltop , m , nlm , ntop , stdo , igetss
       real(8) ,allocatable :: g2_rv(:)
       complex(8) ,allocatable :: h_zv(:)
       real(8) ,allocatable :: yl_rv(:)
 
       double precision a,fpi,pfac,pi,rsmv,tip,top,tpiba,df(0:20),
-     .  fact(0:20),tau(3)
+     .fact(0:20),tau(3)
       double complex cfac
 C ... Heap
       integer w(1)
@@ -77,7 +77,7 @@ Ctakao_ZeroClear_NotRequiered        if (ng<0) g2_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered        if (ng<0) h_zv(:)=0.0d0
 
       call ropyln ( ng , gv ( 1 , 1 ) , gv ( 1 , 2 ) , gv ( 1 , 3 ) 
-     . , ltop , ng , yl_rv , g2_rv )
+     ., ltop , ng , yl_rv , g2_rv )
 
 
 C ... Scale g2 by (2pi/a)**2
@@ -103,11 +103,11 @@ C --- Start loop over atoms ---
         if (kmxv.gt.k0)  call rxi('ftlcxp: kmxv.gt.k0, need',kmxv)
         if (ipr .ge. 60) write(stdo,200) ib,is,nlm,rsmv,lmxl,kmxv,tau
   200   format(' ib=',2i3,'  nlm=',i3,'  rsmv=',f6.3,
-     .     '  lv,kv=',2i2,'  pos=',3f7.4/
-     .     ' Expansion coefficients:')
+     .  '  lv,kv=',2i2,'  pos=',3f7.4/
+     .  ' Expansion coefficients:')
 
         call ftlxp2 ( rsmv , tau , kmxv , k0 , nlm , ng , gv , g2_rv 
-     .   , yl_rv , h_zv , cv , fkl ( 0 , 1 , ib ) )
+     .  , yl_rv , h_zv , cv , fkl ( 0 , 1 , ib ) )
 
 
 C   ... Put in factors independent of G
@@ -135,9 +135,9 @@ C   ... Printout
               tip = dmax1(tip,dabs(dimag(fkl(k,ilm,ib))))
             enddo
             if (top .gt. 1d-8)
-     .         write(stdo,400) ilm,(dble(fkl(k,ilm,ib)),k = 0,kmxv)
+     .      write(stdo,400) ilm,(dble(fkl(k,ilm,ib)),k = 0,kmxv)
             if (tip .gt. 1d-8)
-     .         write(stdo,401)     (dimag(fkl(k,ilm,ib)),k = 0,kmxv)
+     .      write(stdo,401)     (dimag(fkl(k,ilm,ib)),k = 0,kmxv)
   400       format(i4,' RE',5f12.6:/(7x,5f12.6))
   401       format(4x,' IM',5f12.6:/(7x,5f12.6))
           enddo

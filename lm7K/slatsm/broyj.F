@@ -1,6 +1,6 @@
 #define AWRITE 1
       integer function broyj(n,xin,gin,ir,isw,ipr,beta,dxmx,xtol,gtol,
-     .  wc,wk,ndw,xnew)
+     .wc,wk,ndw,xnew)
 C- One Broyden step in finding gin = f[xin]-xin = 0
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -37,7 +37,7 @@ C ----------------------------------------------------------------------
 C     implicit none
       integer isw,ir,n,ipr,ndw
       double precision beta,dxmx,wc,xin(n),gin(n),xnew(n),xtol,gtol,
-     .  wk(ndw,2,0:ir)
+     .wk(ndw,2,0:ir)
 C Local variables
       integer i,ip,j,k,irm1,irm2,lm,ln,nn,i1mach,isw1,isw2,isw3 !dinv
 C     integer ierr
@@ -65,10 +65,10 @@ C --- First iteration: simple mixing ---
         if (ipr .ge. 30) then
           j = isw3
           call awrit8(' broyj:  start'//
-     .      '%?#(n==2|n==3|n==4)#  xtol=%1;2g#%j#'//
-     .      '%?#(n==1|n==3|n==4)#  gtol=%1;2g#%j#  beta=%1;2g'//
-     .      '  w0=%1;2g  isw=%i  gmax=%1;2g',' ',80,i1mach(2),
-     .      j,xtol,j,gtol,beta,w0,isw,gmax)
+     .    '%?#(n==2|n==3|n==4)#  xtol=%1;2g#%j#'//
+     .    '%?#(n==1|n==3|n==4)#  gtol=%1;2g#%j#  beta=%1;2g'//
+     .    '  w0=%1;2g  isw=%i  gmax=%1;2g',' ',80,i1mach(2),
+     .    j,xtol,j,gtol,beta,w0,isw,gmax)
         endif
 #endif
 
@@ -76,8 +76,8 @@ C --- First iteration: simple mixing ---
           betx = beta*dxmx/gmax
 #if AWRITE
           call awrit3(' broyj:  max shift = %1;3g'//
-     .      ' is larger than dxmx = %1;3g.  Scale by %1;3g',
-     .      ' ',80,i1mach(2),gmax,dxmx,dxmx/gmax)
+     .    ' is larger than dxmx = %1;3g.  Scale by %1;3g',
+     .    ' ',80,i1mach(2),gmax,dxmx,dxmx/gmax)
 #endif
         endif
         do  10  k = 1, n
@@ -106,7 +106,7 @@ C   ... Shuffle each prior u,vt to prior+1 iteration
    30   continue
 C   ... Make u,vt for this iteration
         do  32  k = 1, n
-        wk(k,1,1) = fac1*wk(k,1,ir) + fac2*wk(k,1,0)
+          wk(k,1,1) = fac1*wk(k,1,ir) + fac2*wk(k,1,0)
    32   wk(k,2,1) = fac2*wk(k,1,ir)
 
 C   --- Make  a and b = ( w0**2 I + a )^-1 (symmetric) ---
@@ -114,7 +114,7 @@ C   --- Make  a and b = ( w0**2 I + a )^-1 (symmetric) ---
           aij = zero
           cmj = zero
           do  44  k = 1, n
-          cmj = cmj + wk(k,2,ir-j)*gin(k)
+            cmj = cmj + wk(k,2,ir-j)*gin(k)
    44     aij = aij + wk(k,2,ir-j)*wk(k,2,1)
           a(irm1,j) = aij
           a(j,irm1) = aij
@@ -123,7 +123,7 @@ C   --- Make  a and b = ( w0**2 I + a )^-1 (symmetric) ---
         aij = zero
         cmj = zero
         do  46  k = 1, n
-        cmj = cmj + wk(k,2,1)*gin(k)
+          cmj = cmj + wk(k,2,1)*gin(k)
    46   aij = aij + wk(k,2,1)*wk(k,2,1)
         a(irm1,irm1) = aij
         cm(irm1) = cmj
@@ -131,8 +131,8 @@ C   --- Make  a and b = ( w0**2 I + a )^-1 (symmetric) ---
 
 C   ... Set up and calculate beta matrix
         do  50  lm = 1, irm1
-        do  52  ln = 1, irm1
-   52   d(ln,lm) = a(ln,lm)*w(ln)*w(lm)
+          do  52  ln = 1, irm1
+   52     d(ln,lm) = a(ln,lm)*w(ln)*w(lm)
    50   d(lm,lm) = w0**2 + a(lm,lm)*w(lm)*w(lm)
 
 C   --- Invert to make d ---
@@ -159,10 +159,10 @@ C   --- xnew <- vector for the new iteration ---
         do  72  k = 1, n
    72   xnew(k) = xin(k) + beta*gin(k)
         do  70  i = 1, irm1
-        gmi = zero
-        do  74  ip = 1, irm1
-   74   gmi = gmi + cm(ip)*d(ip,i)*w(ip)
-        do  70  k = 1, n
+          gmi = zero
+          do  74  ip = 1, irm1
+   74     gmi = gmi + cm(ip)*d(ip,i)*w(ip)
+          do  70  k = 1, n
    70   xnew(k) = xnew(k) - gmi*wk(k,1,ir-i)*w(i)
 
 C   ... Cap to maximum allowed shift xnew-xin
@@ -174,8 +174,8 @@ C   ... Cap to maximum allowed shift xnew-xin
             betx = dxmx/diff
 #if AWRITE
             call awrit3(' broyj:  max shift = %1;3g'//
-     .        ' is larger than dxmx = %1;3g.  Scale by %1;3g',
-     .        ' ',80,i1mach(2),diff,dxmx,dxmx/diff)
+     .      ' is larger than dxmx = %1;3g.  Scale by %1;3g',
+     .      ' ',80,i1mach(2),diff,dxmx,dxmx/diff)
 #endif
             do  82  k = 1, n
    82       xnew(k) = xin(k) + betx*(xnew(k)-xin(k))
@@ -199,18 +199,18 @@ C --- Cleanup, setup for next call ---
 
       j = ir+1
       if (isw3 .ne. 0 .and. (gmax .eq. 0 .or.
-     .  gmax .lt. gtol .and. xmax.lt.xtol .and. isw3.eq.4 .or.
-     .  gmax .lt. gtol .and. (isw3.eq.1 .or. isw3.eq.3)  .or.
-     .  xmax .lt. xtol .and. (isw3.eq.2 .or. isw3.eq.3)  .or.
-     .  gmax .lt. gtol .and. (isw3.eq.1 .or. isw3.eq.3))) j = 0
+     .gmax .lt. gtol .and. xmax.lt.xtol .and. isw3.eq.4 .or.
+     .gmax .lt. gtol .and. (isw3.eq.1 .or. isw3.eq.3)  .or.
+     .xmax .lt. xtol .and. (isw3.eq.2 .or. isw3.eq.3)  .or.
+     .gmax .lt. gtol .and. (isw3.eq.1 .or. isw3.eq.3))) j = 0
 #if AWRITE
       if (ipr .ge. 20 .and. j .eq. 0) then
         call awrit3(' broyj: converged to max dx'//
-     .    '=%1;2g, gmax=%1;2g using %i iterations',' ',80,
-     .    i1mach(2),xmax,gmax,ir)
+     .  '=%1;2g, gmax=%1;2g using %i iterations',' ',80,
+     .  i1mach(2),xmax,gmax,ir)
       elseif (ipr .ge. 30 .and. ir .ne. 1) then
         call awrit4(' broyj:  ir=%i  dxmax=%1;2g  gmax=%1;2g'//
-     .    '  wc=%1;2g',' ',80,i1mach(2),ir,xmax,gmax,wc)
+     .  '  wc=%1;2g',' ',80,i1mach(2),ir,xmax,gmax,wc)
       endif
 #endif
       broyj = j

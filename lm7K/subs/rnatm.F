@@ -1,6 +1,6 @@
 #define F90 1
       subroutine rnatm(pl,ql,n0,irchan,lmax,z,a,b,rofi,ev,
-     .                 nr,rc,nsp,v,rho)
+     .nr,rc,nsp,v,rho)
 C- Renormalise charge or potential for a free atom
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -68,7 +68,7 @@ C --- Setup ---
       tol = 1d-10
       if (lmax .gt. 8) call rx('RNATM: lmax > 8')
       call info2(20,1,0,
-     .  ' RNATM: renormalize sphere density  rc=%,1d  w=%,1d',rc,rcw)
+     .' RNATM: renormalize sphere density  rc=%,1d  w=%,1d',rc,rcw)
 
       pot = rc(1) .lt. 0
       if (pot) call rx('RNATM not set up for pot now')
@@ -181,13 +181,13 @@ C     stdo = nglob('stdo')
       lrel = nglob('lrel')
       if (lrel .eq. 0) then
         call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v,g,
-     .    sum,a,b,rofi,nr,nre)
+     .  sum,a,b,rofi,nr,nre)
         do  77  ir = 1, nre
           rho(ir)= a*(rofi(ir)+b)*g(ir)**2
    77   continue
       else
         call rseq(eb1,eb2,eval,tol,z,l,nn,val,slo,v,g,
-     .    sum,a,b,rofi,nr,nre)
+     .  sum,a,b,rofi,nr,nre)
         fllp1 = l*(l+1)
         c = 274.074d0
         rho(1) = 0

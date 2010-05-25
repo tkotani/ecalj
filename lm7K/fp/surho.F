@@ -1,5 +1,5 @@
       subroutine surho(nbas,ssite,sspec,lmet,ldos,lrout,lekkl,numq,
-     .  oqkkl,oeqkkl,k1,k2,k3,smrout,ndos,dos,sumev,sumqv)
+     .oqkkl,oeqkkl,k1,k2,k3,smrout,ndos,dos,sumev,sumqv)
 
       use m_struc_def  !Cgetarg
 

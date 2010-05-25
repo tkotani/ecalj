@@ -154,7 +154,7 @@ C Local variables:
       integer i,isn,j1,j2,k,l,lmx,lmxp1,lmxp2,nf,tlp1,ll1,ll2,nlmax
       parameter (nlmax=20)
       double precision dt,dt2,exppr,my,srmy,g1,t,tol,
-     .                 dum(nlmax*4+2),fac2l(-nlmax:nlmax*2+3)
+     .dum(nlmax*4+2),fac2l(-nlmax:nlmax*2+3)
       logical lhank
       parameter(tol=1.d-15)
       parameter(lhank = .true.)

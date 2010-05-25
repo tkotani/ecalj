@@ -42,8 +42,8 @@ C ... Local parameters
       double precision dum,dum2,v2dbl
 C ... Allowed characters in a name
       namchr(ctmp) =ctmp .ge. 'a' .and. ctmp .le. 'z' .or. ctmp .eq. '_'
-     .         .or. ctmp .ge. 'A' .and. ctmp .le. 'Z'
-     .         .or. ctmp .ge. '0' .and. ctmp .le. '9'
+     ..or. ctmp .ge. 'A' .and. ctmp .le. 'Z'
+     ..or. ctmp .ge. '0' .and. ctmp .le. '9'
       data aops/' ','=','*','/','+','-','^',' ',','/
       data aterm/' ',','/
 
@@ -63,42 +63,42 @@ C ... Check for assignment statement.  1st char must be allowed name char
       if (tj .gt. jmax) return
       j = tj
       lassgn =
-     . namchr(instr(j)) .and. (instr(j) .lt. '0' .or. instr(j) .gt. '9')
+     .namchr(instr(j)) .and. (instr(j) .lt. '0' .or. instr(j) .gt. '9')
 C     Look for first non-word character
       if (lassgn) then
-      do  12  tj = j, jmax
-      a(tj-j+1:tj-j+2) = instr(tj) // ' '
-   12 if (.not. namchr(instr(tj))) goto 14
+        do  12  tj = j, jmax
+          a(tj-j+1:tj-j+2) = instr(tj) // ' '
+   12   if (.not. namchr(instr(tj))) goto 14
 C     Reached last character; no non-word character found
-      lassgn = .false.
-   14 continue
+        lassgn = .false.
+   14   continue
 
 C ... If 1st word is a macro, statement is not an assignment
-      if (lassgn) then
-        k = 0
-        call macevl(a,' ',k)
-        if (k .gt. 0) lassgn = .false.
-        if (k .gt. 0) lmac = .true.
-      endif
+        if (lassgn) then
+          k = 0
+          call macevl(a,' ',k)
+          if (k .gt. 0) lassgn = .false.
+          if (k .gt. 0) lmac = .true.
+        endif
 
 C ... Next check for assignment statement. Inspect first non-word char
-      if (lassgn) then
-      call skipbl(instr,jmax,tj)
-      call chrps2(instr,aops,9,tj,tj,nextop)
-C     Set lassgn=.true. if some assignment operator was found
-      lassgn = .false.
-      if (tj .lt. jmax .and. nextop .gt. 1 .and. nextop .lt. 8) then
-        i0 = tj
-        lassgn = nextop .gt. 2 .and. instr(tj+1) .eq. '='
-        if (lassgn) i0 = tj+1
-        lassgn = lassgn .or. nextop .eq. 2 .and. instr(tj+1) .ne. '='
         if (lassgn) then
-          a = ' '
-          call strncp(a,instr(j),1,1,tj-j)
-          j = i0+1
+          call skipbl(instr,jmax,tj)
+          call chrps2(instr,aops,9,tj,tj,nextop)
+C     Set lassgn=.true. if some assignment operator was found
+          lassgn = .false.
+          if (tj .lt. jmax .and. nextop .gt. 1 .and. nextop .lt. 8) then
+            i0 = tj
+            lassgn = nextop .gt. 2 .and. instr(tj+1) .eq. '='
+            if (lassgn) i0 = tj+1
+            lassgn = lassgn .or. nextop .eq. 2 .and. instr(tj+1) .ne. '='
+            if (lassgn) then
+              a = ' '
+              call strncp(a,instr(j),1,1,tj-j)
+              j = i0+1
+            endif
+          endif
         endif
-      endif
-      endif
       endif
 C     End of checking for assignment statement. If true, lassgn=.true.
 C     j is updated to first character in expression

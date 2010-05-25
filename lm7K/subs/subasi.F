@@ -24,7 +24,7 @@ C ... Passed parameters
 C ... Local parameters
       double precision dglob,xx
       integer fopna,ifi,igetss,is,lmxax,nbasp,nkaph,nkmax,nlmax,
-     .  nspec,lfp
+     .nspec,lfp
 
 C     call upack('ctrl lfp nbasp nspec',sctrl,lfp,nbasp,nspec,0,0)
 

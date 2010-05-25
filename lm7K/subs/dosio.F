@@ -1,5 +1,5 @@
       subroutine dosio(dos,nemx,ndmx,ndos,nld,emin,emax,nspin,
-     .   eferm,del,ifmt,ifile)
+     .eferm,del,ifmt,ifile)
 C- I/O for dos, MSM's format
 C     implicit none
 C     nemx: leading dimension of dos array (must be >ndos)

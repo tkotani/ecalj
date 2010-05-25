@@ -47,7 +47,7 @@ C ... Heap
       kmax = 0
       kdim = 0
       call gfigbl(p1,p2,rsm1,rsm2,nlm1,nlm2,kmax,ndim1,ndim2,kdim,
-     .   w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
+     .w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
 
       do  ilm2 = 1, nlm2
         do  ilm1 = 1, nlm1

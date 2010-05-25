@@ -243,7 +243,7 @@ C     call shosyv(0,0,0,6)
 C     Error handling
   999 continue
       print *, 'parsyv: bad syntax in var def, parsing at: ',
-     .  (recrd(i), i=i0-1,min(i0+15,size)),' ...'
+     .(recrd(i), i=i0-1,min(i0+15,size)),' ...'
       call fexit(-1,9,'parsyv aborting',0)
       end
 #if TEST

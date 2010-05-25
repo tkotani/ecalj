@@ -58,63 +58,63 @@ c     d inverse to b.
 c
       k = n
    10 if (k .eq. 0) go to 80
-         if (kpvt(k) .lt. 0) go to 40
+      if (kpvt(k) .lt. 0) go to 40
 c
 c           1 x 1 pivot block.
 c
-            if (k .eq. 1) go to 30
-               kp = kpvt(k)
-               if (kp .eq. k) go to 20
+      if (k .eq. 1) go to 30
+      kp = kpvt(k)
+      if (kp .eq. k) go to 20
 c
 c                 interchange.
 c
-                  temp = b(k)
-                  b(k) = b(kp)
-                  b(kp) = temp
-   20          continue
+      temp = b(k)
+      b(k) = b(kp)
+      b(kp) = temp
+   20 continue
 c
 c              apply the transformation.
 c
-               call zaxpy(k-1,b(k),a(1,k),1,b(1),1)
-   30       continue
+      call zaxpy(k-1,b(k),a(1,k),1,b(1),1)
+   30 continue
 c
 c           apply d inverse.
 c
-            b(k) = b(k)/a(k,k)
-            k = k - 1
-         go to 70
-   40    continue
+      b(k) = b(k)/a(k,k)
+      k = k - 1
+      go to 70
+   40 continue
 c
 c           2 x 2 pivot block.
 c
-            if (k .eq. 2) go to 60
-               kp = iabs(kpvt(k))
-               if (kp .eq. k - 1) go to 50
+      if (k .eq. 2) go to 60
+      kp = iabs(kpvt(k))
+      if (kp .eq. k - 1) go to 50
 c
 c                 interchange.
 c
-                  temp = b(k-1)
-                  b(k-1) = b(kp)
-                  b(kp) = temp
-   50          continue
+      temp = b(k-1)
+      b(k-1) = b(kp)
+      b(kp) = temp
+   50 continue
 c
 c              apply the transformation.
 c
-               call zaxpy(k-2,b(k),a(1,k),1,b(1),1)
-               call zaxpy(k-2,b(k-1),a(1,k-1),1,b(1),1)
-   60       continue
+      call zaxpy(k-2,b(k),a(1,k),1,b(1),1)
+      call zaxpy(k-2,b(k-1),a(1,k-1),1,b(1),1)
+   60 continue
 c
 c           apply d inverse.
 c
-            ak = a(k,k)/dconjg(a(k-1,k))
-            akm1 = a(k-1,k-1)/a(k-1,k)
-            bk = b(k)/dconjg(a(k-1,k))
-            bkm1 = b(k-1)/a(k-1,k)
-            denom = ak*akm1 - 1.0d0
-            b(k) = (akm1*bk - bkm1)/denom
-            b(k-1) = (ak*bkm1 - bk)/denom
-            k = k - 2
-   70    continue
+      ak = a(k,k)/dconjg(a(k-1,k))
+      akm1 = a(k-1,k-1)/a(k-1,k)
+      bk = b(k)/dconjg(a(k-1,k))
+      bkm1 = b(k-1)/a(k-1,k)
+      denom = ak*akm1 - 1.0d0
+      b(k) = (akm1*bk - bkm1)/denom
+      b(k-1) = (ak*bkm1 - bk)/denom
+      k = k - 2
+   70 continue
       go to 10
    80 continue
 c
@@ -122,49 +122,49 @@ c     loop forward applying the transformations.
 c
       k = 1
    90 if (k .gt. n) go to 160
-         if (kpvt(k) .lt. 0) go to 120
+      if (kpvt(k) .lt. 0) go to 120
 c
 c           1 x 1 pivot block.
 c
-            if (k .eq. 1) go to 110
+      if (k .eq. 1) go to 110
 c
 c              apply the transformation.
 c
-               b(k) = b(k) + zdotc(k-1,a(1,k),1,b(1),1)
-               kp = kpvt(k)
-               if (kp .eq. k) go to 100
+      b(k) = b(k) + zdotc(k-1,a(1,k),1,b(1),1)
+      kp = kpvt(k)
+      if (kp .eq. k) go to 100
 c
 c                 interchange.
 c
-                  temp = b(k)
-                  b(k) = b(kp)
-                  b(kp) = temp
-  100          continue
-  110       continue
-            k = k + 1
-         go to 150
-  120    continue
+      temp = b(k)
+      b(k) = b(kp)
+      b(kp) = temp
+  100 continue
+  110 continue
+      k = k + 1
+      go to 150
+  120 continue
 c
 c           2 x 2 pivot block.
 c
-            if (k .eq. 1) go to 140
+      if (k .eq. 1) go to 140
 c
 c              apply the transformation.
 c
-               b(k) = b(k) + zdotc(k-1,a(1,k),1,b(1),1)
-               b(k+1) = b(k+1) + zdotc(k-1,a(1,k+1),1,b(1),1)
-               kp = iabs(kpvt(k))
-               if (kp .eq. k) go to 130
+      b(k) = b(k) + zdotc(k-1,a(1,k),1,b(1),1)
+      b(k+1) = b(k+1) + zdotc(k-1,a(1,k+1),1,b(1),1)
+      kp = iabs(kpvt(k))
+      if (kp .eq. k) go to 130
 c
 c                 interchange.
 c
-                  temp = b(k)
-                  b(k) = b(kp)
-                  b(kp) = temp
-  130          continue
-  140       continue
-            k = k + 2
-  150    continue
+      temp = b(k)
+      b(k) = b(kp)
+      b(kp) = temp
+  130 continue
+  140 continue
+      k = k + 2
+  150 continue
       go to 90
   160 continue
       return

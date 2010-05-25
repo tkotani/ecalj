@@ -41,7 +41,7 @@ C Local parameters
           if (a .eq. 0) a = a2
           if (rmax .eq. 0) rmax = rmax2
           if (a2 .ne. a .or. nr .ne. nr2 .or.
-     .      dabs(rmax2-rmax) .gt. 1d-5) goto 15
+     .    dabs(rmax2-rmax) .gt. 1d-5) goto 15
           do  10  isp = 1, min0(nsp2,nsp)
             read(ifi,101) (rhoc(i,isp), i=1,nr)
    10     continue

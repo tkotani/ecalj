@@ -1,5 +1,5 @@
       subroutine bloch(lbloch,qp,nl,plat,mxorb,iprmb,is1,is2,iax,s,
-     .  nds,isp,nsp,ldima,ldimb,idim,ldl,ldi,ldl2,klu,sll,sil,sii)
+     .nds,isp,nsp,ldima,ldimb,idim,ldl,ldi,ldl2,klu,sll,sil,sii)
 
 C- Bloch transform of real-space matrix
 C ----------------------------------------------------------------------
@@ -145,7 +145,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer lbloch,nds,nl,is1,is2,ldima,ldimb,idim,ldl,ldi,ldl2,niax,
-     .  klu,mxorb,iprmb(*),isp,nsp
+     .klu,mxorb,iprmb(*),isp,nsp
       parameter (niax=10)
       integer iax(niax,is2)
       double precision qp(3),plat(3,3)
@@ -159,7 +159,7 @@ C     double precision sll(ldl,2,ldl2),sil(ldi,2,ldl2),sii(ldi,2,ldi)
 C ... Local parameters
       logical bittst,maskii,maskil,maskll,onsite,ltrans,lsph
       integer ia,ib,iprint,isite,j,k,kcplx,ksite,lblchi,lblchp,ld11,
-     .  ld12,ld13,ld21,ld22,ld23,lidim,nds1,ndss,offa,offb,oi,scplx
+     .ld12,ld13,ld21,ld22,ld23,lidim,nds1,ndss,offa,offb,oi,scplx
       double precision twopi,TdotK,cosT,sinT
       double precision sc(nds,2,nds),swk(nds,2,nds)
 C     parameter (ndss=49)
@@ -221,13 +221,13 @@ C       Any nonpositive site indices are excluded from sum
         if (ia .le. 0 .or. ib .le. 0) goto 100
         if (onsite) then
           if (ia .ne. ib .or. iax(3,isite) .ne. 0 .or.
-     .      iax(4,isite) .ne. 0 .or. iax(5,isite) .ne. 0) goto 100
+     .    iax(4,isite) .ne. 0 .or. iax(5,isite) .ne. 0) goto 100
         endif
 
         TdotK = 0
         do  30  j = 1, 3
-        do  30  k = 1, 3
-          TdotK = TdotK + twopi*qp(j)*plat(j,k)*iax(2+k,isite)
+          do  30  k = 1, 3
+            TdotK = TdotK + twopi*qp(j)*plat(j,k)*iax(2+k,isite)
    30   continue
         if (mod(lblchi/100,10) .ge. 4) then
           TdotK = -TdotK
@@ -301,7 +301,7 @@ C   --- Lower-lower block ---
             offb = mxorb*(ia-1)
           endif
           call pblch1(lblchp,mxorb,offa,offb,ld11,ld21,klu,iprmb,0,
-     .      ldima,0,ldimb,s(1,1,isp,ksite),sc,nds1,cosT,sinT,sll)
+     .    ldima,0,ldimb,s(1,1,isp,ksite),sc,nds1,cosT,sinT,sll)
         endif
 
 C   --- Intermediate-lower block ---
@@ -330,9 +330,9 @@ C       call snott(isite,sll,ld21,cost)
 
         if (idim .gt. 0) then
           if (.not. maskil)
-     .  call yprm('bloch: Sil',2+k,sil,idim*ldimb,ldi,idim,ldimb)
+     .    call yprm('bloch: Sil',2+k,sil,idim*ldimb,ldi,idim,ldimb)
           if (.not. maskii)
-     .  call yprm('bloch: Sii',12+k,sii,idim*idim,ldi,idim,idim)
+     .    call yprm('bloch: Sii',12+k,sii,idim*idim,ldi,idim,idim)
         endif
       endif
 
@@ -341,7 +341,7 @@ C       call snott(isite,sll,ld21,cost)
 
 
       subroutine pblch1(lblchp,mxorb,offa,offb,lds,ld2,klu,iprmb,
-     .  hdpa,hdna,hdpb,hdnb,s,sc,nds,cosT,sinT,sk)
+     .hdpa,hdna,hdpb,hdnb,s,sc,nds,cosT,sinT,sk)
 
 C- Contribution of one pair to Bloch sum of strux
 C ----------------------------------------------------------------------
@@ -426,7 +426,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer lblchp,mxorb,lds,ld2,offa,offb,nds,klu,iprmb(*),hdpa,
-     .  hdna,hdpb,hdnb
+     .hdna,hdpb,hdnb
       double precision cosT,sinT,sk(lds,ld2,2),s(nds,1),sc(nds,2,1)
 C ... Local parameters
       logical rcmplx,lbnd,ldiag,lprmr
@@ -439,7 +439,7 @@ C ... Local parameters
       ldiag  = mod(lblchp/10000,10) .ne. 0
       lprmr  = mod(lblchp/100000,10) .ne. 0
       if (ldiag .and. lprmr)
-     .  call rx('pblch1 not ready for ldiag and lprmr')
+     .call rx('pblch1 not ready for ldiag and lprmr')
       ndimb = hdnb - hdpb
       ndima = hdna - hdpa
       offa0 = offa

@@ -137,62 +137,62 @@ C Local parameters
     5 continue
       procid = mpipid(1)
       if (procid .eq. master) then
-      i = getdig(iopt,0,10)
-      if (i .ne. 0) then
-        if (i .eq. 9) then
-          strn = ' Exit %i '//strng
-          if (iprint() .gt. 0) then
-            call strip(strn,i,i2)
-            i2 = min(i2,scrwid)
-            call awrit1(strn,' ',i2,i1mach(2),retval)
-          endif
+        i = getdig(iopt,0,10)
+        if (i .ne. 0) then
+          if (i .eq. 9) then
+            strn = ' Exit %i '//strng
+            if (iprint() .gt. 0) then
+              call strip(strn,i,i2)
+              i2 = min(i2,scrwid)
+              call awrit1(strn,' ',i2,i1mach(2),retval)
+            endif
 C          print 345, retval, strng(1:min(len(strng),scrwid-9))
 C  345     format(' Exit',i3,' ',a)
-        else
-          if (iprint() .gt. 0) then
-            call awrit3(strng,strn,-scrwid,i1mach(2),args,arg2,arg3)
-          endif
+          else
+            if (iprint() .gt. 0) then
+              call awrit3(strng,strn,-scrwid,i1mach(2),args,arg2,arg3)
+            endif
 C         strn = strng
 C         print strn, retval, (args(j), j=1,i)
-        endif
-      endif
-
-      i = getdig(iopt,1,10)
-      if (i .ne. 0 .and. iprint() .ge. 10 .and. cpusec() .ne. 0) then
-        timeu = 's'
-        tnew = cpusec()
-        if (tnew .gt. 3600) then
-          timeu = 'm'
-          tnew = tnew/60
-          if (tnew .gt. 200) then
-            timeu = 'h'
-            tnew = tnew/60
           endif
         endif
 
-        datim = ' '
-        call ftime(datim)
+        i = getdig(iopt,1,10)
+        if (i .ne. 0 .and. iprint() .ge. 10 .and. cpusec() .ne. 0) then
+          timeu = 's'
+          tnew = cpusec()
+          if (tnew .gt. 3600) then
+            timeu = 'm'
+            tnew = tnew/60
+            if (tnew .gt. 200) then
+              timeu = 'h'
+              tnew = tnew/60
+            endif
+          endif
+
+          datim = ' '
+          call ftime(datim)
 ccccccccccccc
 c        write(6,"(a,a,a)") '@@@',datim,'@@@'
 cccccccccccc
-        hostnm = ' '
-        call gtenv('HOST',hostnm)
-        call word(hostnm,1,i,i2)
-        i2 = max(i,i2)
-        write(i1mach(2),10) tnew,timeu,datim,hostnm(i:i2)
-        if (fhndl('LOG') .ge. 0)  then
-          if (isopen(fhndl('LOG'),.false.))
-     .    write (fhndl('LOG'),10) tnew,timeu,datim,hostnm(i:i2)
-   10     format(' CPU time:', f9.3,a1,5x,a26,' on ',a)
+          hostnm = ' '
+          call gtenv('HOST',hostnm)
+          call word(hostnm,1,i,i2)
+          i2 = max(i,i2)
+          write(i1mach(2),10) tnew,timeu,datim,hostnm(i:i2)
+          if (fhndl('LOG') .ge. 0)  then
+            if (isopen(fhndl('LOG'),.false.))
+     .      write (fhndl('LOG'),10) tnew,timeu,datim,hostnm(i:i2)
+   10       format(' CPU time:', f9.3,a1,5x,a26,' on ',a)
+          endif
         endif
-      endif
       endif
 
       i = fopnT('TMP' ,-1,0,2)
       if (i .ge. 0) call dfclos(i)
       if (fhndl('TMP') .ge. 0) call dfclos(fopn('TMP'))
       if (procid .eq. master) then
-      if (getdig(iopt,2,10) .gt. 0 .and. iprint() .gt. 0) call wkinfo
+        if (getdig(iopt,2,10) .gt. 0 .and. iprint() .gt. 0) call wkinfo
       endif
 
 C   11 call tclev(hostnm,i)

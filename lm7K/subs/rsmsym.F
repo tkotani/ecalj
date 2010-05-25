@@ -1,5 +1,5 @@
       subroutine rsmsym(lbloch,plat,mxorb,iprmb,ldim,nbas,pos,nl,nsp,
-     .  is1,is2,ntab,iax,g,istab,ng,nds,s,syms)
+     .is1,is2,ntab,iax,g,istab,ng,nds,s,syms)
 C- Symmetrize a real-space matrix according to given group operations
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -83,13 +83,13 @@ C Passed parameters:
       parameter (niax=10)
       integer iax(niax,1),iprmb(mxorb,*)
       double precision pos(3,*),g(9,*),plat(3,3),
-     .                 s(nds,nds,nsp,*),syms(nds,nds,nsp,*)
+     .s(nds,nds,nsp,*),syms(nds,nds,nsp,*)
 C     double precision ag(3,*)
 C     double complex symz(nds,nds,nsp,*)
 C Local variables:
       logical lmiss,lmissi,lsclr
       integer ib,jb,isite,ig,nlm,ibp,n0,nkap0,jbp,ksite,is,ks,ipr,isp,
-     .  ksp,offz,ix,i,kcplx,scplx,lsympr,lprmr,iprmbl(mxorb)
+     .ksp,offz,ix,i,kcplx,scplx,lsympr,lprmr,iprmbl(mxorb)
       integer sflg(is2)
       double precision qlat(3,3),v(3),rv(3),vk(3),dx,fuzz
       parameter (n0=10,nkap0=3)
@@ -97,16 +97,16 @@ C Local variables:
       double complex wkz1(mxorb,mxorb),wkz2(mxorb,mxorb)
 C ... for orbital permutations
       integer norbi,ltabi(n0*nkap0),ktabi(n0*nkap0),offli(n0*nkap0),
-     .  ndimi,offri
+     .ndimi,offri
       integer norbj,ltabj(n0*nkap0),ktabj(n0*nkap0),offlj(n0*nkap0),
-     .  ndimj,offrj
+     .ndimj,offrj
       integer nlmi,nlmj,iorb,jorb,li,lj,offr,offi,offj,k,j
 C ... Convert pair index to effective offset
 C     offz(i) = i if real; offz(i) = 2*i-1 if complex
       offz(scplx,i) = (scplx+1)*(i-1) + 1
 C ... ix-th component of connecting vector of pair i
       dx(ix,i) = pos(ix,iax(2,i)) - pos(ix,iax(1,i)) +
-     .  plat(ix,1)*iax(3,i) + plat(ix,2)*iax(4,i) + plat(ix,3)*iax(5,i)
+     .plat(ix,1)*iax(3,i) + plat(ix,2)*iax(4,i) + plat(ix,3)*iax(5,i)
 #if MPI | MPIK
       integer, dimension(:),allocatable :: igproc
 #endif
@@ -132,9 +132,9 @@ C --- Setup ---
       nlm = nl*nl
       call dinv33(plat,1,qlat,v)
       call info5(20,0,0,' rsmsym: symmetrizing %?#n#complex#real#'//
-     .  ' s(%i..%i) using %i group operations',scplx,is1,is2,ng,0)
+     .' s(%i..%i) using %i group operations',scplx,is1,is2,ng,0)
       if (scplx .eq. 0 .and. kcplx .ne. 0)
-     .  call rxi('rsmsym: incompatible switches in lbloch:',lbloch)
+     .call rxi('rsmsym: incompatible switches in lbloch:',lbloch)
 C ... Setup norbi,ltabi,ktabi,offri,offli,ndimi when no orbital permutation
       if (lprmr .eq. 0 .and. .not. lsclr) then
         do  i = 1, mxorb
@@ -147,10 +147,10 @@ C ... Setup norbi,ltabi,ktabi,offri,offli,ndimi when no orbital permutation
 C --- Contribution from identity symmetry operation ---
       if (procid .eq. 0) then
         call dcopy(nds*nds*(is2-is1+1)*(1+scplx)*nsp,
-     .    s(1,1,1,offz(scplx,is1)),1,syms(1,1,1,offz(scplx,is1)),1)
+     .  s(1,1,1,offz(scplx,is1)),1,syms(1,1,1,offz(scplx,is1)),1)
       else
         call dpzero(syms(1,1,1,offz(scplx,is1)),
-     .              nds*nds*(is2-is1+1)*(1+scplx)*nsp)
+     .  nds*nds*(is2-is1+1)*(1+scplx)*nsp)
       endif
 C     if (lsympr .ne. 0) then
 C       do  i = 1, is2
@@ -228,13 +228,13 @@ C     ... Case permute orbital order in s: offr[ab] = offset to orbitals
           if (lprmr .ne. 0 .and. .not. lsclr) then
 C           korb = 0
             call orbl(ib,0,ldim,iprmb,norbi,ltabi,ktabi,offri,offli,
-     .        ndimi)
+     .      ndimi)
             call orbl(jb,0,ldim,iprmb,norbj,ltabj,ktabj,offrj,offlj,
-     .        ndimj)
+     .      ndimj)
             if (ndimi .eq. 0) goto 20
             if (ndimj .eq. 0) goto 20
             if (ndimi .gt. nds .or. ndimj .gt. nds)
-     .        call rx('rsmsym: s dimension incompatible with iprmb')
+     .      call rx('rsmsym: s dimension incompatible with iprmb')
           else
           endif
 
@@ -255,13 +255,13 @@ C       ... Also the connecting vector of ksite must be rv
             vk(2) = dx(2,ksite)
             vk(3) = dx(3,ksite)
             if (abs(rv(1)-vk(1)) + abs(rv(2)-vk(2)) + abs(rv(3)-vk(3))
-     .          .lt. fuzz) goto 42
+     .      .lt. fuzz) goto 42
    40       continue
           enddo
 C         Case missing symmetry-equivalent sites permitted
           if (lmiss) then
             call info5(100,0,0,' rsmsym no connecting vector '//
-     .        'for is,ib,jb= %i %i %i',isite,ib,jb,0,0)
+     .      'for is,ib,jb= %i %i %i',isite,ib,jb,0,0)
             lmissi = .true.
             ksite = isite
           else
@@ -276,8 +276,8 @@ C     .      call info8(0,0,0,' ig=%i isite=%i, ib,jb=%i %i  maps to'
 C     .      //' site=%i, jb,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
 
           if (ipr .ge. 110 .and. .not. lmissi)
-     .      call info8(0,0,0,' rsmsym ig=%i isite=%i, ib,jb=%i %i  maps'
-     .     //' to site=%i, jb,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
+     .    call info8(0,0,0,' rsmsym ig=%i isite=%i, ib,jb=%i %i  maps'
+     .    //' to site=%i, jb,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
 
 C     --- Rotate s(isite) into syms(ksite) ---
           is = offz(scplx,isite)
@@ -324,7 +324,7 @@ C           ( |   |x)     (_|____________________)
                         wk(i+offj,k) = 0
                         do  j = 1, nlmj
                           wk(i+offj,k) = wk(i+offj,k) +
-     .                       rmat(i+offr,j+offr)*s(j+offj,k,ksp,is)
+     .                    rmat(i+offr,j+offr)*s(j+offj,k,ksp,is)
                         enddo
                       enddo
                     enddo
@@ -333,7 +333,7 @@ C           ( |   |x)     (_|____________________)
                       do  i = 1, nlmj
                         do  j = 1, nlmj
                           wkz2(i+offj,k) = wkz2(i+offj,k) +
-     .                         rmat(i+offr,j+offr)*wkz1(j+offj,k)
+     .                    rmat(i+offr,j+offr)*wkz1(j+offj,k)
                         enddo
                       enddo
                     enddo
@@ -362,7 +362,7 @@ C       |     (_|____________________)     ( |   |x)
                       do  j = 1, nlmi
                         do  k = 1, ndimj
                           syms(k,i+offi,ksp,ks) = syms(k,i+offi,ksp,ks) +
-     .                                  wk(k,j+offi)*rmat(i+offr,j+offr)
+     .                    wk(k,j+offi)*rmat(i+offr,j+offr)
                         enddo
                       enddo
                     enddo
@@ -371,7 +371,7 @@ C       |     (_|____________________)     ( |   |x)
                       do  j = 1, nlmi
                         do  k = 1, ndimj
                           wkz1(k,i+offi) = wkz1(k,i+offi) +
-     .                           wkz2(k,j+offi)*rmat(i+offr,j+offr)
+     .                    wkz2(k,j+offi)*rmat(i+offr,j+offr)
                         enddo
                       enddo
                     enddo
@@ -383,7 +383,7 @@ C         so norm correct when scaling by 1/ng
 
               else if (scplx .eq. 0) then
                 call dmscop(1,nds,nds,mxorb,nds,0,0,0,0,syms(1,1,ksp,ks),
-     .        syms(1,1,ksp,ks))
+     .          syms(1,1,ksp,ks))
 
               endif
 
@@ -398,7 +398,7 @@ C  338         format(' adding from isite',i4,'  for ig',i4,2f12.6)
 C            endif
 
                 call zmscop(1,nds,nds,mxorb,nds,0,0,0,0,wkz1,
-     .        syms(1,1,ksp,ks))
+     .          syms(1,1,ksp,ks))
               endif
             endif
 
@@ -453,11 +453,11 @@ C          endif
 
 C ... Combine contributions to syms from separate threads
       call mpibc2(syms(1,1,1,offz(scplx,is1)),
-     .  nds*nds*(is2-is1+1)*(1+scplx)*nsp,4,mlog,'rsmsym','syms')
+     .nds*nds*(is2-is1+1)*(1+scplx)*nsp,4,mlog,'rsmsym','syms')
 
 C --- Scale by 1/ng ---
       call dscal(nds*nds*(is2-is1+1)*(1+scplx)*nsp,1d0/ng,
-     .  syms(1,1,1,offz(scplx,is1)),1)
+     .syms(1,1,1,offz(scplx,is1)),1)
 
 C     Debugging printout
 C      if (procid .eq. master) then

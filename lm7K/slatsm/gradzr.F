@@ -225,16 +225,16 @@ C     implicit none
 C Passed Parameters
       integer n,ir,isw
       double precision hess(n,n),p(n,10),xtoll,dxmx,xtol,gtol,wk(0:27),
-     .  grfac
+     .grfac
 C Local Variables
       logical ltmp,cnvgx,cnvgg,nwlin
       integer i,j,bitand,ipr,npr,lminn,isw0,isw1,isw2,isw3,isw4,
-     .  isw31,idamax,iswl,itol,iswb,chkhss
+     .isw31,idamax,iswl,itol,iswb,chkhss
       integer nx,ng,nd,n1,n2,n0,nm,nhs
       double precision gg,dgg,gam,ddot,dasum,x0h,x1h,x2h,evtol,
-     .  evmin,dxmxl,dxmxlx,xtll,dxmn,xmax,gfn,grad0,g0h,g1h,g2h,
-     .  dxm,growl,gammax,xh(0:2),gh(0:2),xn,
-     .  gd1,gd2,dg,alpha,r,s,gll
+     .evmin,dxmxl,dxmxlx,xtll,dxmn,xmax,gfn,grad0,g0h,g1h,g2h,
+     .dxm,growl,gammax,xh(0:2),gh(0:2),xn,
+     .gd1,gd2,dg,alpha,r,s,gll
       equivalence (xh(0),x0h), (xh(1),x1h), (xh(2),x2h)
       equivalence (gh(0),g0h), (gh(1),g1h), (gh(2),g2h)
       parameter (nx=1,ng=2,nm=3,nd=4,n1=5,n2=6,n0=7,nhs=8, evtol=1d-10)
@@ -268,13 +268,13 @@ C --- Iteration independent setup ---
 C     Save min gradient, p(nm) using initial p and gradient
       if (ir .eq. 0) then
         call pgradz(0,n,0d0,p,p(1,ng),0d0,0d0,
-     .    dxtop,resx,gtop,resg,wk(27),cnvgx,cnvgg)
+     .  dxtop,resx,gtop,resg,wk(27),cnvgx,cnvgg)
         call dcopy(n,p(1,nx),1,p(1,nm),1)
       endif
 
 C ... Update p if gradient to minimum gradient
       call pgradz(0,n,0d0,p,p(1,ng),0d0,0d0,
-     .  dxtop,resx,gtop,resg,r,cnvgx,cnvgg)
+     .dxtop,resx,gtop,resg,r,cnvgx,cnvgg)
       if (r .lt. abs(wk(27))) then
         wk(27) = r
         call dcopy(n,p(1,nx),1,p(1,nm),1)
@@ -287,7 +287,7 @@ C ... These lines impose sanity for conditions described in Remarks
       dxm = dxmx
       j = mod(isw0,4)
       if (dxmx.gt.0 .and. j.eq.2 .or. dxmx.lt.0 .and. j.eq.1)
-     .  dxm = -dxmx
+     .dxm = -dxmx
 
 C ... Re-entry point for new line minimization
     1 continue
@@ -310,21 +310,21 @@ C   ... Congugate gradients gamma (see Numerical Recipes)
 C   ... Size of initial gradient (and direction) vector
         j = mod(isw0,4)
         ltmp = j .eq. isw0 .or.
-     .    dxm.gt.0 .and. j.eq.2 .or. dxm.lt.0 .and. j.eq.1
+     .  dxm.gt.0 .and. j.eq.2 .or. dxm.lt.0 .and. j.eq.1
         if (ipr .ge. 30 .or. ipr .ge. 20 .and. ltmp) then
           call awrit7(' gradzr: begin %?#n# xtol=|%1;3g|#%j#'
-     .      //'%?#n==2# and##%-1j%?#n==3# or##%-1j'
-     .      //'%?#n<>1# gtol=|%1;3g|#%j#'
-     .      //'%?#n==0|n>=4#  gtll=%1;3g#%j#'
-     .      //'  dxmx=%1;3g',outs,
-     .      scrwid,0,itol,xtol,itol,gtol,
-     .      isw1,pgrada(isw1,isw4),dxm)
+     .    //'%?#n==2# and##%-1j%?#n==3# or##%-1j'
+     .    //'%?#n<>1# gtol=|%1;3g|#%j#'
+     .    //'%?#n==0|n>=4#  gtll=%1;3g#%j#'
+     .    //'  dxmx=%1;3g',outs,
+     .    scrwid,0,itol,xtol,itol,gtol,
+     .    isw1,pgrada(isw1,isw4),dxm)
           call info2(-25,0,0,
-     .      outs//'%a  '//
-     .      '%?#n==0#C.G.##%-1j'//
-     .      '%?#n==1#F.P.##%-1j'//
-     .      '%?#n==2#Broy##'//
-     .      '  isw=%i',isw2,isw)
+     .    outs//'%a  '//
+     .    '%?#n==0#C.G.##%-1j'//
+     .    '%?#n==1#F.P.##%-1j'//
+     .    '%?#n==2#Broy##'//
+     .    '  isw=%i',isw2,isw)
 C     ... Sanity checks
 C          if (j .eq. isw0)
 C     .    call awrit0(' gradzr (warning) seek extremum but 4''s'
@@ -345,7 +345,7 @@ C --- Broyden minimization ---
         ir = -ir
         iswb = isw0 + 10*bitand(isw1,3) + 1000*isw3
         call brmin(n,p,p(1,ng),iswb,ipr,dxmx,xtol,gtol,dum,p(1,nd),xn,
-     .    hess,ir)
+     .  hess,ir)
         ir = -ir
         goto 999
       endif
@@ -369,11 +369,11 @@ C ... Congugate gradients
         gammax = 2
         if (resg .gt. 0) then
           call info2(-30,0,0,' gradzr encountered g.h = %;4g'
-     .      //'  ... set gam to zero',resg,0)
+     .    //'  ... set gam to zero',resg,0)
           gam = 0
         elseif (gam .gt. gammax) then
           call info2(-30,0,0,' gradzr cap gam = %;4g'//
-     .      ' to max gam = %;4g',gam,gammax)
+     .    ' to max gam = %;4g',gam,gammax)
           gam = gammax
         endif
         call dpcopy(p(1,ng),p(1,n0),1,n,-1d0)
@@ -428,8 +428,8 @@ C ... Printout of current p,g,h
         resg = dsqrt(ddot(n,p(1,ng),1,p(1,ng),1))
         gtop = p(idamax(n,p(1,ng),1),ng)
         call info5(-30,0,0,' gradzr new line %i:  g.h=%;4g'//
-     .    '  g.(h-g)=%;4g  max g=%1;3g  |grad|=%1;3g  ',
-     .    lminn,dgg,dgg+gg,gtop,resg)
+     .  '  g.(h-g)=%;4g  max g=%1;3g  |grad|=%1;3g  ',
+     .  lminn,dgg,dgg+gg,gtop,resg)
       endif
       call info2(-40,0,0,'  p=%n:;10F',npr,p(1,nx))
       call info2(-40,0,0,'  g=%n:;10F',npr,p(1,ng))
@@ -451,7 +451,7 @@ C     .  dxtop,resx,gtop,resg,r,cnvgx,cnvgg)
 C     Global convergence criteria: shift relative to start of line min
       nwlin = ir .eq. 0
       call pgradz(itol,n,xn,p(1,nd),p(1,ng),xtol,gtol,
-     .  dxtop,resx,gtop,resg,r,cnvgx,cnvgg)
+     .dxtop,resx,gtop,resg,r,cnvgx,cnvgg)
 C     Case gradzr has converged globally
       if (resg .eq. 0 .or. (cnvgg .and. cnvgx)) goto 998
 
@@ -467,7 +467,7 @@ C       Also suppress rfalsi using gtol; we do that above
         if (mod(isw1,4) .ne. 0) iswl = iswl + 10
 C       Tolerance should be less than and distinct from dxmx
         xtll = min(xtoll/dabs(p(idamax(n,p(1,nd),1),nd)),
-     .             abs(dxmxl*growl*.999999d0))
+     .  abs(dxmxl*growl*.999999d0))
 C       Minimimum step size should be less than, distinct from tolerance
         dxmn=xtll/2
         gll = abs(gfn/10)
@@ -477,7 +477,7 @@ C       Minimimum step size should be less than, distinct from tolerance
 C       Exit if 1st step of new line satisfies 'global convergence'
         if (nwlin) then
           call pgradz(itol,n,xn,p(1,nd),p(1,ng),xtol,gtol,
-     .      dxtop,resx,gtop,resg,r,cnvgx,cnvgg)
+     .    dxtop,resx,gtop,resg,r,cnvgx,cnvgg)
 C         Case gradzr has converged globally
           if (resg .eq. 0 .or. (cnvgg .and. cnvgx)) then
             xn = 0
@@ -489,7 +489,7 @@ C   ... On the first line min movement, reset dxmx to maximum allowed
 C   ... rfalsi wants to extrapolate
         if (ir .ge. -6 .and. ir .le. -4) then
 C     ... This accelerates linear extrapolation
-         if (ir .eq. -4) xn = x0h + (xn-x0h)*growl
+          if (ir .eq. -4) xn = x0h + (xn-x0h)*growl
           growl = growl * grfac
 C        elseif (ir .eq. -1) then
 C          growl = grfac
@@ -513,10 +513,10 @@ C   ... Swap points in the same way rfalsi swapped them.
           call dswap(1,gh(0),1,gh(1),1)
         endif
 C ... Handle special case ir=0, xn=0
-      if (ir .eq. 0 .and. xn .eq. 0) then
-        ir = -2
-        xn = (wk(5)*wk(1)-wk(4)*wk(2))/(wk(5)-wk(4))
-      endif
+        if (ir .eq. 0 .and. xn .eq. 0) then
+          ir = -2
+          xn = (wk(5)*wk(1)-wk(4)*wk(2))/(wk(5)-wk(4))
+        endif
       endif
 
 C ... Case line minimization not converged
@@ -524,7 +524,7 @@ C ... Case line minimization not converged
 
 C   ... After clean, replace xh with wk.  for now:
         if (x0h .ne. wk(1) .or. x1h .ne. wk(2) .and. x1h .ne. -9d9
-     .    .or. x2h .ne. wk(3) .and. x2h .ne. -9d9) then
+     .  .or. x2h .ne. wk(3) .and. x2h .ne. -9d9) then
           print *, x0h,wk(1)
           print *, x1h,wk(2)
           print *, x2h,wk(3)
@@ -542,13 +542,13 @@ C   ... preserve gradient for last two points
       elseif (ir .eq. 4) then
         xn = xmax + dxmxl
         call info2(-10,0,0,'%x gradzr: found extremum without root:'//
-     .    '  attempt new xn=%1;4g',xn,0)
+     .  '  attempt new xn=%1;4g',xn,0)
         ir = -5
         goto 991
 
       elseif (ir .ne. 0) then
         call info2(-1,0,0,' gradzr (abort) line %i encountered ir=%i '//
-     .    'from rfalsi',lminn,ir)
+     .  'from rfalsi',lminn,ir)
         goto 991
 
 C --- Line minimization has converged ---
@@ -622,17 +622,17 @@ C       Note: used by C.G. line min.
 
 C       Printout for line min convergence
         call info8(-30,0,0,'%x gradzr cvg line %i:'//
-     .      '%?#n==0#  gam=%1;3g#%j#  x=%1;8d'//
-     .      '  |g.h|=%1;3g  dxmax=%1;3g'//
-     .      '%?#n#  evmin=%1;2g#%j#',
-     .      lminn,isw2,gam,xn,gfn,dxlast,isw31,evmin)
+     .  '%?#n==0#  gam=%1;3g#%j#  x=%1;8d'//
+     .  '  |g.h|=%1;3g  dxmax=%1;3g'//
+     .  '%?#n#  evmin=%1;2g#%j#',
+     .  lminn,isw2,gam,xn,gfn,dxlast,isw31,evmin)
       endif
 
 C --- Cleanup ---
   991 continue
 C     Add direction vector to position vector
       if (ir .ge. -6 .and. ir .le. -1)
-     .  call daxpy(n,xn,p(1,nd),1,p(1,nx),1)
+     .call daxpy(n,xn,p(1,nd),1,p(1,nx),1)
       if (ir .eq. -9) goto 1
 
 C --- Restore local variables needed to preserve; exit ---
@@ -660,9 +660,9 @@ C      endif
 C --- Global convergence FP or CG ---
   998 continue
       call info5(-20,0,0,
-     .  '%x gradzr converged to dxmax=%1;3g, |dx|=%1;3g,'//
-     .  '  gmax=%1;3g, |grad|=%1;3g in %i line min',
-     .  dxtop,resx,gtop,resg,lminn)
+     .'%x gradzr converged to dxmax=%1;3g, |dx|=%1;3g,'//
+     .'  gmax=%1;3g, |grad|=%1;3g in %i line min',
+     .dxtop,resx,gtop,resg,lminn)
       call info2(-30,0,0,' p=%n:;10F',npr,p(1,nx))
       call info2(-30,0,0,' g=%n:;10F',npr,p(1,ng))
 
@@ -674,7 +674,7 @@ C     Clean up and exit
       goto 999
       end
       subroutine drgrzr(n,pnew,gnew,p,hess,xtoll,dxmx,xtol,gtol,grfac,
-     .  wk,copt,isw,ir)
+     .wk,copt,isw,ir)
 C- Driver routine for gradzr
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -734,7 +734,7 @@ C ... Passed parameters
       integer n,ir,isw
       double precision pnew(n),gnew(n)
       double precision hess(n,n),p(n,10),xtoll,dxmx,xtol,gtol,wk(0:26),
-     .  grfac
+     .grfac
 C Local variables
       integer idx,nx,ng,nd,n0,idamax,j1,j2,getdig
       double precision dhmax,hold,hmax,tol,xn
@@ -746,23 +746,23 @@ C --- Set switches based on copt ---
    10   continue
         call nword(copt,1,j1,j2)
         if (j2 .ge. j1) then
-        if (copt(j1:j2) .eq. 'cg') then
-          isw = isw + 100*(0-getdig(isw,2,10))
-        elseif (copt(j1:j2) .eq. 'fp') then
-          isw = isw + 100*(1-getdig(isw,2,10))
-        elseif (copt(j1:j2) .eq. 'br') then
-          isw = isw + 100*(2-getdig(isw,2,10))
-        elseif (copt(j1:j2) .eq. 'def') then
-          isw = 40
-        elseif (copt(j1:j2) .eq. 'min') then
-          isw = isw + 1*(1-mod(getdig(isw,0,10),4))
-        elseif (copt(j1:j2) .eq. 'max') then
-          isw = isw + 1*(2-mod(getdig(isw,0,10),4))
-        else
-          call rxs2('drgrzr:  bad option, "',copt(j1:j2),'"')
-        endif
-        j1 = j2+1
-        goto 10
+          if (copt(j1:j2) .eq. 'cg') then
+            isw = isw + 100*(0-getdig(isw,2,10))
+          elseif (copt(j1:j2) .eq. 'fp') then
+            isw = isw + 100*(1-getdig(isw,2,10))
+          elseif (copt(j1:j2) .eq. 'br') then
+            isw = isw + 100*(2-getdig(isw,2,10))
+          elseif (copt(j1:j2) .eq. 'def') then
+            isw = 40
+          elseif (copt(j1:j2) .eq. 'min') then
+            isw = isw + 1*(1-mod(getdig(isw,0,10),4))
+          elseif (copt(j1:j2) .eq. 'max') then
+            isw = isw + 1*(2-mod(getdig(isw,0,10),4))
+          else
+            call rxs2('drgrzr:  bad option, "',copt(j1:j2),'"')
+          endif
+          j1 = j2+1
+          goto 10
         endif
       endif
 
@@ -780,7 +780,7 @@ C       This destroys p(nx) but it isn't needed anymore
 C   ... Change in direction exceeds tolerance; reset ir
         if (dhmax .gt. tol*hmax) then
           call info2(-30,0,0,' gradzr: reset conjugate'//
-     .      ' direction.  dhmax = %1,3;3g  hold = %1,3;3g',dhmax,hold)
+     .    ' direction.  dhmax = %1,3;3g  hold = %1,3;3g',dhmax,hold)
 
 C     ... For ir=-10, need p(nx) = p(xn=0), p(ng) = -p(n0)
           call dcopy(n,pnew,1,p(1,nx),1)
@@ -821,7 +821,7 @@ C       If zero, use a default value
       end
 
       subroutine pgradz(itol,n,amp,p,g,xtol,gtol,dxmx,resx,dgmx,resg,
-     .  gx,cnvgx,cnvgg)
+     .gx,cnvgx,cnvgg)
 C- Evaluates convergence criteria in x and g
 C ----------------------------------------------------------------------
 Ci Inputs

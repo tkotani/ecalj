@@ -21,9 +21,9 @@ C Passed Parameters
 C Local Variables
       integer i
       double precision up, dn, exlsd, vxuplsd, vxdnlsd, eclsd,
-     .  vcuplsd, vcdnlsd, expw91, vxuppw91, vxdnpw91,
-     .  ecpw91, vcuppw91, vcdnpw91, expbe, vxuppbe,
-     .  vxdnpbe, ecpbe, vcuppbe, vcdnpbe
+     .vcuplsd, vcdnlsd, expw91, vxuppw91, vxdnpw91,
+     .ecpw91, vcuppw91, vcdnpw91, expbe, vxuppbe,
+     .vxdnpbe, ecpbe, vcuppbe, vcdnpbe
 
       if (lxcf .ne. 3 .and. lxcf .ne. 4) call rx('evxcp: bad lxcf')
 
@@ -36,9 +36,9 @@ C Local Variables
           dn = r2(i)
         endif
         call easypbe(up,0d0,0d0,0d0,dn,0d0,0d0,0d0,0d0,0d0,1,1,
-     .               exlsd,vxuplsd,vxdnlsd,eclsd,vcuplsd,vcdnlsd,
-     .               expw91,vxuppw91,vxdnpw91,ecpw91,vcuppw91,vcdnpw91,
-     .               expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe)
+     .  exlsd,vxuplsd,vxdnlsd,eclsd,vcuplsd,vcdnlsd,
+     .  expw91,vxuppw91,vxdnpw91,ecpw91,vcuppw91,vcdnpw91,
+     .  expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe)
 C --- times two to convert Ha to Ry
         exc(i) = (exlsd + eclsd) * 2d0
         vxcup(i) = (vxuplsd + vcuplsd) * 2d0

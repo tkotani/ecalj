@@ -33,7 +33,7 @@ C ... First guess for z
         do  18  iroot = 1, in
           root = z(iroot) - z(iroot)/in
           if (ipr .ge. 110)
-     .      print '('' mklagw: starting guess is'',i3,f9.5)', iroot,root
+     .    print '('' mklagw: starting guess is'',i3,f9.5)', iroot,root
           delta = 2*smachp
    10     continue
           last = dabs(delta) .lt. smachp

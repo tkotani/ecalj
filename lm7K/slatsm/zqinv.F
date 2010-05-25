@@ -65,10 +65,10 @@ C     call zprm('zqinv',2,a,lda,n,n)
           if (ierr .ne. 0) call rx('zqinv: singular matrix')
           call zhetri('L',n,a,lda,w,w(1+n,1),ierr)
           do  i = 1, n
-          do  j = i+1, n
-            a(1,i,j) = a(1,j,i)
-            a(2,i,j) =-a(2,j,i)
-          enddo
+            do  j = i+1, n
+              a(1,i,j) = a(1,j,i)
+              a(2,i,j) =-a(2,j,i)
+            enddo
           enddo
         else
           call zgetrf(n,n,a,lda,w,ierr)

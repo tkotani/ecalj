@@ -45,14 +45,14 @@ C ... Passed parameters
 
 C ... Local parameters
       integer:: stdo , ipr , iprint , lgunit , nrmx , j1 , ib , is 
-     . , igetss , lmxl , nr , nlml , ilm , j , lfoc , k , l , m
+     ., igetss , lmxl , nr , nlml , ilm , j , lfoc , k , l , m
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: rwgt_rv(:)
       real(8) ,allocatable :: h_rv(:)
 
       parameter( nrmx=1501)
       double precision z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
-     .  ceh,rfoc,df(0:20)
+     .ceh,rfoc,df(0:20)
 C ... Heap
       integer w(1)
       common /w/ w
@@ -99,9 +99,9 @@ C --- Loop over sites ---
 Ctakao_ZeroClear_NotRequiered          if (nr*(kmax+1)*(lmxl+1)<0) h_rv(:)=0.0d0
 
         call pvrgkl ( mode , kmax , nlml , nr , nsp , rofi_rv , rwgt_rv 
-     .   , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
-     .   ( 3 , ib ) ) , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 
-     .   , j1 ) )
+     .  , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
+     .  ( 3 , ib ) ) , h_rv , cofh , rg , ceh , rfoc , z , qkl ( 0 
+     .  , j1 ) )
 
         if (allocated(h_rv)) deallocate(h_rv)
 
@@ -125,8 +125,8 @@ Ctakao_ZeroClear_NotRequiered          if (nr*(kmax+1)*(lmxl+1)<0) h_rv(:)=0.0d0
         if (ib .eq. 1) then
           print *, 'ib=',ib
           call prtrkl ( mode , kmax , rg , nr , nlml , nsp , rofi_rv 
-     .   , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
-     .   ( 3 , ib ) ) , qkl ( 0 , j1 ) )
+     .    , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
+     .    ( 3 , ib ) ) , qkl ( 0 , j1 ) )
 
         endif
 #endif
@@ -141,7 +141,7 @@ Ctakao_ZeroClear_NotRequiered          if (nr*(kmax+1)*(lmxl+1)<0) h_rv(:)=0.0d0
 
 
       subroutine pvrgkl(mode,kmax,nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc,
-     .  pkl,cofh,rg,ceh,rfoc,z,qkl)
+     .pkl,cofh,rg,ceh,rfoc,z,qkl)
 
 C- Multipole moments for one site
 C ----------------------------------------------------------------------
@@ -184,13 +184,13 @@ C ... Passed parameters
       integer mode,kmax,nlml,nr,nsp
       double precision ceh,cofh,rfoc,rg,z
       double precision rofi(1),rwgt(1),qkl(0:kmax,nlml),
-     .  rhoc(nr,nsp),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),
-     .  pkl(nr,0:kmax,0:*)
+     .rhoc(nr,nsp),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),
+     .pkl(nr,0:kmax,0:*)
 C ... Local parameters
       integer n0,i,ilm,l,m,lmxl,ll,isp,k
       parameter (n0=10)
       double precision ag,fac,y0,xi(0:n0),fpi,factk,dfact,
-     .  df(0:20),wk(nr),smrch,f1,f2
+     .df(0:20),wk(nr),smrch,f1,f2
 C     double precision gkl(0:kmax,0:nlml),wk2(0:kmax,0:nlml),rl
 C     double precision sumh,samh,y0
 
@@ -307,7 +307,7 @@ C  mc out.te -e4 x1 x2 'x5*x1' 'x7*x1*x1' -int 0 2.113465
       implicit none
       integer opt,kmax,nr,nlml,nsp
       double precision rg,rofi(nr),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),
-     .  qkl(0:kmax,nlml),rhoc(nr,nsp)
+     .qkl(0:kmax,nlml),rhoc(nr,nsp)
       integer lmxx,n0
       parameter(lmxx=6)
       double precision g(0:kmax,0:lmxx)

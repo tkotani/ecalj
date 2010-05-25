@@ -1,7 +1,7 @@
 C     This series of subroutines was adapted from the Stuttgart package
 C     to facilitate finding empty spheres on a lattice.
       subroutine findes(sctrl,alat,dclabl,nbas,nclass,nl,
-     .  nrclas,mxclas,nsymop,obas,oiclas,plat,symopm,symopv,lock,wsr,z)
+     .nrclas,mxclas,nsymop,obas,oiclas,plat,symopm,symopv,lock,wsr,z)
 
       use m_struc_def  !Cgetarg
 
@@ -61,13 +61,13 @@ C Passed variables:
       integer nbas,nclass,nl,nrclas(*),nsymop,mxclas,lock(nclass)
       integer obas,oiclas
       real(8):: alat , plat(3,3) , symopm(*) , symopv(*) , wsr(nclass) 
-     . , z(nclass)
+     ., z(nclass)
       type(s_ctrl)::sctrl
 
       double precision dclabl(nclass)
 C Local variables:
       integer ic,idamax,ierr,iprint,jmax(3),jmin(3),
-     .  lmx,nb1,nirr,nirrmx,nmesh,modep(3)
+     .lmx,nb1,nirr,nirrmx,nmesh,modep(3)
       integer stdo,nglob,nrxyz(3),isw
       integer:: obas1
       integer ,allocatable :: icls1_iv(:)
@@ -79,8 +79,8 @@ C Local variables:
       real(8) ,allocatable :: wk_rv(:)
 
       double precision avstep,bases(3),
-     .  ratio,resmx,platcp(9),qlat(9),tiny,vol,volsph,wmax,wsres,
-     .  wsrc(mxclas),facvol,rmaxes,rmines,omax1(3),omax2(3),wsmax
+     .ratio,resmx,platcp(9),qlat(9),tiny,vol,volsph,wmax,wsres,
+     .wsrc(mxclas),facvol,rmaxes,rmines,omax1(3),omax2(3),wsmax
       character*8 clabl(mxclas)
       parameter(tiny=1.d-5)
 C Heap
@@ -118,9 +118,9 @@ C --- Setup ---
 
       if (facvol .eq. 0) facvol = 1
       call info2(10,1,0,' --- FINDES : find new empty spheres'//
-     .    '%?#n#  Constrain rmax<=%d## --- ',isw(wsmax.ne.0),wsmax)
+     .'%?#n#  Constrain rmax<=%d## --- ',isw(wsmax.ne.0),wsmax)
       call info2(30,0,1,'%5fUse:  rmines = %d  rmaxes = %d  ',rmines,
-     .  rmaxes)
+     .rmaxes)
       do  ic = 1, nclass
         call r8tos8(dclabl(ic),clabl(ic))
       enddo
@@ -151,8 +151,8 @@ Ctakao_ZeroClear_NotRequiered        if (3*nirrmx<0) rirr_rv(:)=0.0d0
       if (-nmesh<0) irr_iv(:)=0
 
       call rsmesh ( avstep , ierr , irr_iv , iwtmp_iv , jmax 
-     . , jmin , nrxyz ( 1 ) , nrxyz ( 2 ) , nrxyz ( 3 ) , nirr , nirrmx 
-     . , nsymop , platcp , qlat , rirr_rv , symopm , symopv )
+     ., jmin , nrxyz ( 1 ) , nrxyz ( 2 ) , nrxyz ( 3 ) , nirr , nirrmx 
+     ., nsymop , platcp , qlat , rirr_rv , symopm , symopv )
 
       if (ierr.ne.0) then
         if (allocated(irr_iv)) deallocate(irr_iv)
@@ -181,8 +181,8 @@ c      call cpustp('MESH',.true.,.true.)
 
 C --- Initialize res and lini ---
       call mdeses ( alat , res_rv , lini_iv , nirr , nsymop , 
-     . platcp , qlat , rirr_rv , rmines - avstep , symopm , symopv 
-     . )
+     .platcp , qlat , rirr_rv , rmines - avstep , symopm , symopv 
+     .)
 
       ratio = volsph(nclass,nrclas,wsr)*(alat**3)/vol
 
@@ -192,47 +192,47 @@ C --- Repeat until no more ES found ---
 
         if (iprint().ge.20) write(stdo,306)
         call info5(20,1,1,
-     .    ' FINDES:  Find next largest available ES to reach '//
-     .    'target vol frac = %d.'//
-     .    '%N%10fCurrent vol frac = %;3,3d, nbas = %i, nclass = %i',
-     .    facvol,ratio,nbas,nclass,0)
+     .  ' FINDES:  Find next largest available ES to reach '//
+     .  'target vol frac = %d.'//
+     .  '%N%10fCurrent vol frac = %;3,3d, nbas = %i, nclass = %i',
+     .  facvol,ratio,nbas,nclass,0)
 
 C   --- Check whether the volume can be reached for given OMAX ---
 C       wsrc is only used as a work array; except contents printed last iter
         call dpcopy(wsr,wsrc,1,nclass,alat)
         call sclwsr(0,nbas,nbas,nclass,alat,plat,w(obas),w(oiclas),
-     .    modep,clabl,z,lock,facvol,wsmax,omax1,omax2,wsrc)
+     .  modep,clabl,z,lock,facvol,wsmax,omax1,omax2,wsrc)
 
         ratio = volsph(nclass,nrclas,wsrc)/vol
 C       Exit, if volume target met
         if (dabs(ratio-facvol) .lt. tiny) then
           call info2(20,1,0,' FINDES: reached target, sphere '//
-     .      'vol = %d * cell vol',facvol,0)
+     .    'vol = %d * cell vol',facvol,0)
           goto 20
         endif
 
 C   ... Fill unit cell with potential new sites
         call fillat ( alat , w ( obas ) , w ( oiclas ) , jmax , jmin 
-     .   , nb1 , nbas , nirr , nrxyz , lini_iv , platcp , qlat , res_rv 
-     .   , rirr_rv , rmaxes , rmines - avstep , wsr )
+     .  , nb1 , nbas , nirr , nrxyz , lini_iv , platcp , qlat , res_rv 
+     .  , rirr_rv , rmaxes , rmines - avstep , wsr )
 
         nb1 = nbas+1
 C   ... Find biggest empty sphere in unit cell with center on mesh-point
         call bigges ( alat , bases , iwtmp_iv , nirr , lini_iv 
-     .   , res_rv , resmx , rirr_rv )
+     .  , res_rv , resmx , rirr_rv )
 
 C   ... Move empty sphere to high-symmetry point, leave the mesh
         if (resmx.gt.tiny)
-     .   call symes(alat,w(obas),bases,clabl,w(oiclas),nbas,nrxyz,
-     .               nsymop,platcp,qlat,symopm,symopv,wsr,wsres)
+     .  call symes(alat,w(obas),bases,clabl,w(oiclas),nbas,nrxyz,
+     .  nsymop,platcp,qlat,symopm,symopv,wsr,wsres)
         if (resmx.le.tiny .or. wsres.lt.rmines) then
           call info2(20,0,0,' FINDES: Largest empty sphere found '//
-     .      'smaller than rmines = %d',rmines*alat,0)
+     .    'smaller than rmines = %d',rmines*alat,0)
           goto 20
         endif
         if (nclass+1 .gt. mxclas) then
           call info2(20,0,0,' FINDES: number of classes exceeds '//
-     .      'mxclas = %i',mxclas,0)
+     .    'mxclas = %i',mxclas,0)
           goto 20
         endif
         wsres = dmin1(wsres,rmaxes)
@@ -248,12 +248,12 @@ C   ... Increase number of classes by 1
         nl = max0(nl,lmx+1)
         if (wsr(ic)*alat .lt. 0.5d0) then
           call info2(20,0,0,' FINDES (warning) new ES (class %i)'//
-     .      ' radius is very small: r = %d',nclass,wsr(ic)*alat)
+     .    ' radius is very small: r = %d',nclass,wsr(ic)*alat)
         endif
 C   ... Find label for new empty sphere
         call renam(clabl,ic,nclass,z)
         if (iprint().ge.20)
-     .    write(stdo,303) clabl(ic),wsr(ic)*alat,nclass
+     .  write(stdo,303) clabl(ic),wsr(ic)*alat,nclass
 
 C   ... Add all symmetry-related spheres
         call defdr(obas1 ,3*(nbas+nsymop))
@@ -264,8 +264,8 @@ Ctakao_ZeroClear_NotRequiered          if (nbas+nsymop<0) icls1_iv(:)=0
 
         call dcopy(3*nbas,w(obas),1,w(obas1),1)
         call addes2 ( w ( obas1 ) , bases , clabl , icls1_iv , nbas 
-     .   , nclass , nrclas , nsymop , platcp , qlat , symopm , symopv 
-     .   )
+     .  , nclass , nrclas , nsymop , platcp , qlat , symopm , symopv 
+     .  )
 
         call redfrr(obas1,3*nbas)
         obas = obas1
@@ -306,7 +306,7 @@ C ... Printout
 
 
       subroutine symes(alat,bas,bases,clabl,iclass,nbas,nrxyz,nsymop,
-     .                 plat,qlat,symopm,symopv,wsr,wsres)
+     .plat,qlat,symopm,symopv,wsr,wsres)
 
 C- Tries to move bases to a high-symmetry point
 C ----------------------------------------------------------------------
@@ -340,20 +340,20 @@ C     implicit none
 C Passed variables:
       integer iclass(*),nbas,nrxyz(3),nsymop
       double precision alat,bas(3,*),bases(3),plat(3,3),qlat(3,3),
-     .                 symopm(3,3,*),symopv(3,*),wsr(*),wsres
+     .symopm(3,3,*),symopv(3,*),wsr(*),wsres
       character*8 clabl(*)
 C Local variables:
       integer ibas,ibasm,ii,isop,iprint,j(3),k(3),ll1,ltmax,lunit,
-     .        m,mm,n,nrxyzz(3),nid,nit,nnz,nsbas
+     .m,mm,n,nrxyzz(3),nid,nit,nnz,nsbas
       double precision d,db,dbas(3),desesm,desatm,dm1,
-     .                 dm1mx,dm2,d3nrm2,desat,deses,facmrg,facovl,fmwsr,
-     .                 r(3),rb(3,3),sdbas(3),tiny,tolwsr
+     .dm1mx,dm2,d3nrm2,desat,deses,facmrg,facovl,fmwsr,
+     .r(3),rb(3,3),sdbas(3),tiny,tolwsr
       logical ldum,lready
       parameter(ltmax=1,ll1=ltmax*2+1)
       parameter(facmrg=2.d0,facovl=1.d0,tiny=.1d-5,tolwsr=.1d-2)
 C External calls:
       external  daxpy,dcopy,dpzero,distes,d3nrm2,getirr,icopy,iprint,
-     .          lunit,mdesat,mdeses,popprt,pshprt
+     .lunit,mdesat,mdeses,popprt,pshprt
 C Intrinsic functions:
       intrinsic  dmax1,dmin1,mod
 C Statement functions:
@@ -393,7 +393,7 @@ C           qb(n,m) = qlat(n,m)*nrxyz(m)
           enddo
           call mdesat(alat,bas,desat,ibas,iclass,nbas,plat,r,wsr)
           call mdeses(alat,deses,ldum,1,nsymop,plat,qlat,r,0.d0,
-     .                symopm,symopv)
+     .    symopm,symopv)
           dm1=dmin1(desat,deses)
           if (dm1.gt.desat*0.5d0) nnz=nnz+1
           if (dm1.gt.dm1mx) then
@@ -404,13 +404,13 @@ C           qb(n,m) = qlat(n,m)*nrxyz(m)
             call dcopy(3,r,1,bases,1)
           endif
           if(iprint().ge.100)
-     .      write(*,311)ii,r,desat*alat,deses*alat
+     .    write(*,311)ii,r,desat*alat,deses*alat
         enddo
         lready=db.lt.tolwsr.or.nnz.lt.3
         if (nit.eq.1.or.lready) call pshpr(iprint()+10)
         if (iprint().ge.30) write(*,308)nit,bases,dm1mx*alat
         if (iprint().ge.50)
-     .   write(*,305)desesm*alat,clabl(iclass(ibasm)),desatm*alat
+     .  write(*,305)desesm*alat,clabl(iclass(ibasm)),desatm*alat
         if (iprint().ge.60) write(*,307)db,tolwsr,nnz
         if (nit.eq.1.or.lready) call poppr
       enddo
@@ -429,7 +429,7 @@ C --- Consider symmetry-related positions
           if (d.lt.tiny) nid = nid + 1
         endif
         if (iprint().ge.50)
-     .    write(*,302)isop,dbas,d*alat,fmwsr*alat
+     .  write(*,302)isop,dbas,d*alat,fmwsr*alat
       enddo
 C --- Merge the ES
       if (nsbas/nid.ne.1) then
@@ -439,11 +439,11 @@ C --- Merge the ES
 C ----- Now examine merged sphere, get deses,desat
         call mdesat(alat,bas,desat,ibas,iclass,nbas,plat,bases,wsr)
         call mdeses(alat,deses,ldum,1,nsymop,plat,qlat,bases,0.d0,
-     .              symopm,symopv)
+     .  symopm,symopv)
         dm2=dmin1(desat,deses)
         if (iprint().ge.30) write(*,304)bases,nsbas/nid
         if (iprint().ge.40)
-     .    write(*,305)deses*alat,clabl(iclass(ibas)),desat*alat
+     .  write(*,305)deses*alat,clabl(iclass(ibas)),desat*alat
         if (dm2.lt.dm1mx) then
           call daxpy(3,+1.d0/nsbas,sdbas,1,bases,1)
           if (iprint().ge.40) write(*,306)
@@ -459,13 +459,13 @@ C ----- Now examine merged sphere, get deses,desat
 
 300   format( ' SYMES : FACMRG=',f6.4,',  FACOVL=',f6.4)
 301   format(/' SYMES :ISOP',16x,'DBAS',16x,'DIST',5x,'FMWSR',
-     .       /8x,57('-'))
+     ./8x,57('-'))
 302   format(8x,i2,3x,3f10.6,1x,2f10.6)
 303   format( ' SYMES : BEFORE: ',3f10.6,',  degeneracy: ',i2,
-     .       /9x,'Number of equivalent points in the unit cell:',i2)
+     ./9x,'Number of equivalent points in the unit cell:',i2)
 304   format( ' SYMES : AFTER:  ',3f10.6,', averaged over',i2,' points')
 305   format( ' SYMES : shortest distance to ES of same class :',f10.7,
-     .      /'       : shortest distance to another atom ',a8,':',f10.7)
+     ./'       : shortest distance to another atom ',a8,':',f10.7)
 306   format( ' SYMES : spheres not merged')
 307   format(' SYMES : DB=',f7.5,', TOLWSR=',f7.5,', NNZ=',i2)
 308   format( ' SYMES : STEP ',i2,':',3f10.6,'  WSR=',f8.6)
@@ -509,12 +509,12 @@ C Intrinsic functions:
       enddo
       if (iprint().ge.70) write(*,300)r,j
       if (namp.and.iprint().ge.50)
-     .  write(*,400)r,x,idnint(x(1)),idnint(x(2)),idnint(x(3))
+     .write(*,400)r,x,idnint(x(1)),idnint(x(2)),idnint(x(3))
 ct     .  write(lunit(2),400)r,x,idnint(x(1)),idnint(x(2)),idnint(x(3))
 300   format( ' GETIRR: VECTOR  ',3f10.6,'  -->',3i6)
 400   format(/' GETIRR: the point:',3f8.4,' not a mesh point',
-     .       /'         X=',3f8.2,
-     .       /'         J=',3(i5,3x))
+     ./'         X=',3f8.2,
+     ./'         J=',3(i5,3x))
       end subroutine getirr
 
       subroutine mdesat(alat,bas,desat,ibas,iclass,nbas,plat,r,wsr)
@@ -541,7 +541,7 @@ C Passed variables:
 C Local variables:
       integer i1,i2,i3,iprint,jbas
       double precision c01,c02,c03,c11,c12,c13,c21,c22,c23,
-     .                 d1mach,d2,dx,dy,dz,r1,r2,r3,res,rpw2,wsri
+     .d1mach,d2,dx,dy,dz,r1,r2,r3,res,rpw2,wsri
 C External calls:
       external d1mach,iprint
 C Intrinsic functions:
@@ -606,7 +606,7 @@ C     implicit none
 C Passed variables:
       integer isop
       double precision bases(*),d,dbas(*),plat(*),qlat(*),symopm(9,*),
-     .                 symopv(3,*)
+     .symopv(3,*)
 C Local variables:
       integer m
       double precision bast(3),d3nrm2
@@ -669,20 +669,20 @@ C Intrinsic functions:
       enddo
       if (wsres+wmax-dmin.gt.0.d0) then
         write(messg,400)dmin*alat,wsres*alat,wmax*alat,
-     .                     (dmin-wsres-wmax)*alat
+     .  (dmin-wsres-wmax)*alat
         call errmsg(messg,1)
       elseif (iprint().ge.50) then
         write(*,300)dmin*alat,wsres*alat,wmax*alat,
-     .                     (dmin-wsres-wmax)*alat
+     .  (dmin-wsres-wmax)*alat
       endif
 
 300   format(/' CHKES : DMIN=',f8.5,', WSR=',f8.5,', WMAX=',f8.5,
-     .       /'         DMIN-WSR-WMAX=',f8.5)
+     ./'         DMIN-WSR-WMAX=',f8.5)
 400   format( ' CHKES : DMIN=',f8.5,', WSR=',f8.5,', WMAX=',f8.5,
-     .        '|        DMIN-WSR-WMAX=',f8.5,
-     .        '|        possible overlap of empty sphere',
-     .                ' with atom out of range',
-     .        '|        use most compact unit cell.$')
+     .'|        DMIN-WSR-WMAX=',f8.5,
+     .'|        possible overlap of empty sphere',
+     .' with atom out of range',
+     .'|        use most compact unit cell.$')
       end subroutine chkes
 
 
@@ -822,16 +822,16 @@ C Intrinsic functions:
       intrinsic  ichar
 C Data statements:
       data aclabl/'E ',
-     .            'H ','He','Li','Be','B ','C ','N ','O ','F ','Ne',
-     .            'Na','Mg','Al','Si','P ','S ','Cl','Ar','K ','Ca',
-     .            'Sc','Ti','V ','Cr','Mn','Fe','Co','Ni','Cu','Zn',
-     .            'Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y ','Zr',
-     .            'Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn',
-     .            'Sb','Te','I ','Xe','Cs','Ba','La','Ce','Pr','Nd',
-     .            'Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb',
-     .            'Lu','Hf','Ta','W ','Re','Os','Ir','Pt','Au','Hg',
-     .            'Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th',
-     .            'Pa','U ','Np','Pu','Am','Cm','Bk','Cf','Es','Fm'/
+     .'H ','He','Li','Be','B ','C ','N ','O ','F ','Ne',
+     .'Na','Mg','Al','Si','P ','S ','Cl','Ar','K ','Ca',
+     .'Sc','Ti','V ','Cr','Mn','Fe','Co','Ni','Cu','Zn',
+     .'Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y ','Zr',
+     .'Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn',
+     .'Sb','Te','I ','Xe','Cs','Ba','La','Ce','Pr','Nd',
+     .'Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb',
+     .'Lu','Hf','Ta','W ','Re','Os','Ir','Pt','Au','Hg',
+     .'Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th',
+     .'Pa','U ','Np','Pu','Am','Cm','Bk','Cf','Es','Fm'/
 
       if (iopt.eq.-1) then
         if (iz.lt.0.or.iz.gt.100) then
@@ -860,7 +860,7 @@ ct        write(lunit(2),401)clabl
 
 400   format(/' ZCLABL: bad Z=',i5,' set to -1')
 401   format(/' ZCLABL: could not find atom ',a8,' in my list,',
-     .       ' Z set to -1')
+     .' Z set to -1')
       end subroutine zclabl
 
 
@@ -987,7 +987,7 @@ C Passed variables:
 
 
       subroutine addes2(bas,bases,clabl,iclass,nbas,nclass,nrclas,
-     .             nsymop,plat,qlat,symopm,symopv)
+     .nsymop,plat,qlat,symopm,symopv)
 
 C-Adds the new empty sphere basis atom and its symmetry related atoms
 C ----------------------------------------------------------------------
@@ -1013,7 +1013,7 @@ C     implicit none
 C Passed variables:
       integer iclass(*),nbas,nclass,nrclas(*),nsymop
       double precision plat(*),qlat(*),bas(3,*),bases(3),symopm(3,3,*),
-     .                 symopv(3,*)
+     .symopv(3,*)
       character*8 clabl(*)
 C Local variables:
       integer i,isop,iprint,lunit,nbasnw,ibas,jbas
@@ -1057,15 +1057,15 @@ ct      endif
 
       write(*,300)nbas,nbasnw,nbasnw-nbas
       write(*,301)(clabl(iclass(ibas)),iclass(ibas),
-     .                      (bas(i,ibas),i=1,3),ibas=nbas+1,nbasnw)
+     .(bas(i,ibas),i=1,3),ibas=nbas+1,nbasnw)
 ct        write(ifi,301) (clabl(iclass(ibas)),iclass(ibas),
 ct     .                      (bas(i,ibas),i=1,3),ibas=nbas+1,nbasnw)
       nrclas(nclass)=nbasnw-nbas
       nbas=nbasnw
 
 300   format(/' ADDES : The basis has been extended from ',i3,
-     .         ' to ',i3,' atoms.',
-     .       /9x,'The ',i2,' new positions are: ')
+     .' to ',i3,' atoms.',
+     ./9x,'The ',i2,' new positions are: ')
 301   format(9x,'ATOM=',a8,' ICLASS=',i3,1x,'POS=',3f9.5)
 
 400   format(' ADDES : empty sphere sits on atom ',i3,', class',i3,'$')
@@ -1175,7 +1175,7 @@ ct      if (iprint().ge.50) write(lunit(1),301)
           endif
           if (iprint().ge.60) then
             if (r2.ge.resmx.or.iprint().ge.65)
-     .       write(*,302)iirr,(rirr(k,iirr),k=1,3),r2*alat,iw
+     .      write(*,302)iirr,(rirr(k,iirr),k=1,3),r2*alat,iw
 ct     .       write(lunit(1),302)iirr,(rirr(k,iirr),k=1,3),r2*alat,iw
           endif
         endif
@@ -1192,14 +1192,14 @@ ct        if (iprint().ge.40) write(lunit(1),303)resmx*alat
 
  300  format(/' BIGGES: BASES=  ',3f10.6,'  WSR=',f8.6,' IWT=',i2)
  301  format(/' BIGGES: IIRR',15x,'RIRR',16x,'RES   IWTMP',
-     .       /8x,51('-'))
+     ./8x,51('-'))
  302  format(7x,i6,3f10.6,2x,f7.5,1x,i4)
  303  format(/' BIGGES:  RESMX=',f8.6)
       end subroutine bigges
 
 
       subroutine fillat(alat,bas,iclass,jmax,jmin,nb1,nbas,nirr,nrxyz,
-     .                  lini,plat,qlat,res,rirr,rmaxes,rmines,wsr)
+     .lini,plat,qlat,res,rirr,rmaxes,rmines,wsr)
 
 C- Fills the unit cell with atoms; finds the interstitial region
 C ----------------------------------------------------------------------
@@ -1253,14 +1253,14 @@ C     implicit none
 C Passed variables:
       integer iclass(*),jmax(3),jmin(3),nrxyz(*),nb1,nbas,nirr
       double precision alat,bas(3,*),plat(3,*),qlat(3,*),res(*),
-     .                 rirr(3,*),rmaxes,rmines,wsr(*)
+     .rirr(3,*),rmaxes,rmines,wsr(*)
       logical lini(*)
 C Local variables:
       integer i(3),ibas,ic,ii,iirr,inz,iprint,isi,iz,ll1,ltmax,lunit,
-     .        m,mm,stdo,nglob
+     .m,mm,stdo,nglob
       double precision a(3),c(3),c1,c2,c3,d3nrm2,d2,d12,dx,dy,dz,f(3),
-     .                 pn(3,3),qn(3,3),rpw2,vec1(3),
-     .                 vec3(3),wsri,wprmn2,wprmx2
+     .pn(3,3),qn(3,3),rpw2,vec1(3),
+     .vec3(3),wsri,wprmn2,wprmx2
       logical ins
       parameter(ltmax=1,ll1=ltmax*2+1)
 C External calls:
@@ -1288,7 +1288,7 @@ c       call reducv(plat,qlat,bas(1,ibas),2)
         wprmx2=(wsri+rmaxes)*(wsri+rmaxes)
         wprmn2=(wsri+rmines)*(wsri+rmines)
         if (iprint().ge.70.and.iprint().lt.80)
-     .    write(stdo,301) ibas,ic,(bas(m,ibas),m=1,3),wsr(ic)*alat
+     .  write(stdo,301) ibas,ic,(bas(m,ibas),m=1,3),wsr(ic)*alat
 ct        write(stdo,301) ibas,ic,(bas(m,ibas),m=1,3),wsr(ic)*alat
         do ii=0,ll1**3-1
           do m=1,3
@@ -1351,23 +1351,23 @@ C ------- volume
             enddo
           endif
           if (iprint().ge.80)
-     .      write(stdo,303)ibas,ic,c,i,d12*alat,wprmx2*alat,ins
+     .    write(stdo,303)ibas,ic,c,i,d12*alat,wprmx2*alat,ins
 ct        write(stdo,303)ibas,ic,c,i,d12*alat,wprmx2*alat,ins
         enddo
       enddo
 
 300   format(/,' FILLAT: fill unit cell:',
-     .    /,9x,'IBAS',2x,'ICLASS',12x,'BAS',13x,'WSR',/,9x,50('-'))
+     ./,9x,'IBAS',2x,'ICLASS',12x,'BAS',13x,'WSR',/,9x,50('-'))
 301   format(8x,i3,4x,i3,3x,3f8.5,3x,f8.5)
 302   format(/,' IBAS  ICLASS',12x,'BAS',9x,
-     .           'I1  I2  I3    D12 WPRMX2 INS',/,9x,63('-'))
+     .'I1  I2  I3    D12 WPRMX2 INS',/,9x,63('-'))
 303   format(1x,i3,4x,i3,3x,3f7.4,3(2x,i2),2x,f6.3,1x,f5.3,2x,l1)
 
       end subroutine fillat
 
 
       subroutine mdeses(alat,deses,lini,nirr,nsymop,plat,qlat,rirr,
-     .                  rmines,symopm,symopv)
+     .rmines,symopm,symopv)
 
 C- Initializes lini and deses, taking into account the symmetry.
 C-----------------------------------------------------------------------
@@ -1401,13 +1401,13 @@ C     implicit none
 C Passed variables:
       integer nirr,nsymop
       double precision alat,plat(9),qlat(9),deses(*),rirr(3,*),rmines,
-     .                 symopv(3,*),symopm(9,*)
+     .symopv(3,*),symopm(9,*)
       logical lini(*)
 C Local variables:
       integer iirr,isop,iprint,lunit,m,nexcl
       double precision d1,d2,d3,df2min,diff2,d3nrm2,frm2,
-     .                 p2min,pmin(3),r1,r2,r3,mat(9,48),tiny,tiny2,
-     .                 v1,v2,v3
+     .p2min,pmin(3),r1,r2,r3,mat(9,48),tiny,tiny2,
+     .v1,v2,v3
       parameter(tiny=1.d-6)
 C External calls:
       external d3nrm2,gtpmin,iprint,lunit
@@ -1483,7 +1483,7 @@ c              write(lunit(1),303)iirr,(rirr(m,iirr),m=1,3),rmines*alat
             else
 c              write(lunit(1),304)iirr,(rirr(m,iirr),m=1,3),
               write(*,304)iirr,(rirr(m,iirr),m=1,3),
-     .                           deses(iirr)*alat
+     .        deses(iirr)*alat
             endif
           enddo
         endif
@@ -1492,7 +1492,7 @@ c              write(lunit(1),304)iirr,(rirr(m,iirr),m=1,3),
 300   format(/' MDESES:',i6,' mesh points left from',i6)
 301   format(8x,' shortest lattice vector',f10.5)
 302   format(/' MDESES:  NIRR',7x,'Rx',8x,'Ry',8x,'Rz',8x,'RES0',
-     .       /10x,47('-'))
+     ./10x,47('-'))
 303   format(7x,i5,2x,3f10.4,2x,'<',f9.6)
 304   format(7x,i5,2x,3f10.4,1x,f11.6)
       end subroutine mdeses
@@ -1605,7 +1605,7 @@ C       call shorbz(bas(1,ib),bas(1,ib),plat,qlat)
 
 
       subroutine rsmesh(avstep,ierr,irr,iwtmp,jmax,jmin,n1,n2,n3,nirr,
-     .                  nirrmx,nsymop,plat,qlat,rirr,symopm,symopv)
+     .nirrmx,nsymop,plat,qlat,rirr,symopm,symopv)
 
 C-Divides the unit cell into microcells and finds irreducible part
 C-----------------------------------------------------------------------
@@ -1642,14 +1642,14 @@ C-----------------------------------------------------------------------
 C     implicit none
 C Passed variables:
       integer ierr,n1,n2,n3,irr(0:n1-1,0:n2-1,0:n3-1),iwtmp(*),jmin(3),
-     .        jmax(3),nirr,nirrmx,nsymop,stdo,nglob
+     .jmax(3),nirr,nirrmx,nsymop,stdo,nglob
       double precision avstep,plat(3,3),qlat(3,3),symopv(3,*),
-     .                 symopm(9,*),rirr(3,*)
+     .symopm(9,*),rirr(3,*)
 C Local variables:
       integer i1,i2,i3,iirr,iprint,isop,ism(9,48),isv(3,48),j1,
-     .        j2,j3,jj,k,k1,k2,k3,kk,m,n0,nnc,nrxyz(3),n12,n22,n32
+     .j2,j3,jj,k,k1,k2,k3,kk,m,n0,nnc,nrxyz(3),n12,n22,n32
       double precision dasum,diff(12),dmxdev,dnrm2,qb(3,3),rb(3,3),
-     .        step(3),tiny,toldev,tmp1(9),tmp2(9)
+     .step(3),tiny,toldev,tmp1(9),tmp2(9)
       logical lcomp(48)
       character*144 messg
       parameter(toldev=1d0,tiny=1.d-3)
@@ -1748,11 +1748,11 @@ c     .            call errmsg(' RSMESH: increase nirrmx.$',-1)
               do isop = 1, nsymop
                 if (lcomp(isop)) then
                   k1=isv(1,isop)+ism(1,isop)*i1+ism(4,isop)*i2
-     .                          +ism(7,isop)*i3
+     .            +ism(7,isop)*i3
                   k2=isv(2,isop)+ism(2,isop)*i1+ism(5,isop)*i2
-     .                          +ism(8,isop)*i3
+     .            +ism(8,isop)*i3
                   k3=isv(3,isop)+ism(3,isop)*i1+ism(6,isop)*i2
-     .                          +ism(9,isop)*i3
+     .            +ism(9,isop)*i3
                   k1 = mod(k1,n1)
                   k2 = mod(k2,n2)
                   k3 = mod(k3,n3)
@@ -1824,9 +1824,9 @@ C      enddo
 C 301 format(3i5,i8,2x,3f6.3)
   302 format( ' RSMESH: JMIN',i1,', JMAX',i1,'=',2i4)
   303 format(8x,i6,' irreducible mesh-points from',i8,
-     .  ' (',3i4,' )')
+     .' (',3i4,' )')
   304 format(/' RSMESH:  NIRR',7x,'Rx',8x,'Ry',8x,'Rz',6x,'IWTMP',
-     .  /9x,46('-'))
+     ./9x,46('-'))
   305 format(9x,i5,2x,3f10.4,5x,i2)
 
 C  400 format(' RSMESH: WARNING: NRXYZ=',3i4,
@@ -1838,10 +1838,10 @@ C     .       /24x,3f9.4,/8x,'QB^t*SYMOPM*RB=',1x,3f9.4,/24x,3f9.4/,
 C     .                  /8x,'QB^t*SYMOPV    ',1x,3f9.4/,
 C     .       /' and the last 12 values should be integer values.'/)
   401 format(' RSMESH: mesh not invariant under ',i2,
-     .       ' symmetry operations|        (from ',i2,')$')
+     .' symmetry operations|        (from ',i2,')$')
   402 format(' RSMESH: bad NRXYZ:',
-     .       ' different step length along lattice vectors:',
-     .       '|',8x,'STEP1=',f7.4,',  STEP1=',f7.4,',  STEP1=',f7.4,'$')
+     .' different step length along lattice vectors:',
+     .'|',8x,'STEP1=',f7.4,',  STEP1=',f7.4,',  STEP1=',f7.4,'$')
       end subroutine rsmesh
 
 
@@ -1873,7 +1873,7 @@ C Passed variables:
 C Local variables:
       integer i,i1,i2,i3,j,k,m,n1,n2,n3
       double precision danrm2,d1mach,tolpos,v2,vec2(3),vdiff(3),vmin,
-     .       v(3),v01,v02,v03,v11,v12,v13,v21,v22,v23,v31,v32,v33,x,y,z
+     .v(3),v01,v02,v03,v11,v12,v13,v21,v22,v23,v31,v32,v33,x,y,z
       parameter(tolpos=4.d-3)
 C External calls:
       external danrm2,d1mach,dcopy,dpzero

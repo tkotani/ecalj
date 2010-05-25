@@ -1,5 +1,5 @@
       subroutine vxtrap(mode,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrmax,
-     .  lpz,nrbig,rofi,rwgt,vbig)
+     .lpz,nrbig,rofi,rwgt,vbig)
 C- Extrapolate potential outside MT boundary
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -66,7 +66,7 @@ C     implicit none
 C ... Passed parameters
       integer mode,lmxa,nr,nrmax,nsp,lpz,nrbig
       double precision z,rmax,a,v(nr,nsp),pnz(1+lmxa),rs3,vmtz,
-     .  rofi(*),rwgt(*),vbig(nrmax,nsp)
+     .rofi(*),rwgt(*),vbig(nrmax,nsp)
 C ... Local parameters
       logical lmode0,lmode1,lmode2
       integer ir,j,k,l,idn,isp
@@ -88,7 +88,7 @@ C ... Setup
       lmode1 = mod(mode/2,2) .ne. 0
       lmode2 = mod(mode/4,2) .ne. 0
       if (lmode2 .and. (lmode0 .or. lmode1))
-     .  call rx('vxtrap: incompatible switches')
+     .call rx('vxtrap: incompatible switches')
 
 C --- Check for local orbital types ---
       if (lmode0) then
@@ -187,7 +187,7 @@ C ... Just copy potential if nr = nrbig
 
       end
       subroutine rwftai(mode,rmt,a,nrmt,nrbig,ribig,phi,dphi,tphi,l,
-     .  ehl,rsml,g)
+     .ehl,rsml,g)
 C- Extend radial wave function outside MT boundary
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -298,7 +298,7 @@ C       call prrmsh('gzbig',ribig,g,nrbig,nrbig,2)
         eh = min(ehl,-.05d0)
         call pshpr(110)
         call mtchre(104,l,rsml,rmt,0d0,0d0,rmt,rmt,phi,dphi,
-     .    tphi,dphi,rsm,eh,ekin,info)
+     .  tphi,dphi,rsm,eh,ekin,info)
         call poppr
         call mtchae(1,rsm,eh,l,rmt,phi,dphi,0d0,0d0,alfa,beta)
         do  ir = nrmt+1, nrbig

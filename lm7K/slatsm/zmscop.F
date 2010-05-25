@@ -1,5 +1,5 @@
       subroutine zmscop(mode,nlma,nlmb,ndas,ndad,ofas,ofbs,ofad,ofbd,
-     .  src,dest)
+     .src,dest)
 C- Copy a subblock block of a complex matrix to a destination
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -32,7 +32,7 @@ C ... Local parameters
       if (mode .eq. 1) beta(1) = 1
 
       call zmsadd(nlma,nlmb,ndas,ndad,ofas,ofbs,ofad,ofbd,
-     .  alpha,beta,src,dest)
+     .alpha,beta,src,dest)
 
       end
 

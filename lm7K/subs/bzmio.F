@@ -1,5 +1,5 @@
       subroutine bzmio(bzm,ndim,npln,nwmx,nqmx,nw,e,nq,vx,vy,x,y,z,
-     .  nqp,nsp,metal,n,w,wtbzm,efermi,ifile)
+     .nqp,nsp,metal,n,w,wtbzm,efermi,ifile)
 C- I/O for BZ maps
 C ----------------------------------------------------------------
 Ci Inputs/Outputs
@@ -23,7 +23,7 @@ C Passed parameters
       integer nw(npln),nq(2,npln)
       double precision w,wtbzm,efermi
       double precision bzm(nqmx,ndim,nwmx,npln),e(2,nwmx,npln),
-     .  vx(3,npln),vy(3,npln),x(2,npln),y(2,npln),z(npln)
+     .vx(3,npln),vy(3,npln),x(2,npln),y(2,npln),z(npln)
       logical metal
 
 C Local parameters
@@ -40,7 +40,7 @@ C --- Write branch ---
 C --- Loop over BZ planes, energy windows, and DOS channels ---
       do  20  ip = 1, npln
         write (-ifile,520) (nq(i,ip),i=1,2),nw(ip),(vx(i,ip),i=1,3),
-     .    (x(i,ip),i=1,2),(vy(i,ip),i=1,3),(y(i,ip),i=1,2),z(ip)
+     .  (x(i,ip),i=1,2),(vy(i,ip),i=1,3),(y(i,ip),i=1,2),z(ip)
         nq0 = nq(1,ip)*nq(2,ip)
 
         do  10  iw = 1, nw(ip)
@@ -68,7 +68,7 @@ C --- Read branch ---
 C --- Loop over BZ planes, energy windows, and DOS channels ---
       do  120  ip = 1, npln
         read (ifile,520) (nq(i,ip),i=1,2),nw(ip),(vx(i,ip),i=1,3),
-     .    (x(i,ip),i=1,2),(vy(i,ip),i=1,3),(y(i,ip),i=1,2),z(ip)
+     .  (x(i,ip),i=1,2),(vy(i,ip),i=1,3),(y(i,ip),i=1,2),z(ip)
         nq0 = nq(1,ip)*nq(2,ip)
 
         do  110  iw = 1, nw(ip)

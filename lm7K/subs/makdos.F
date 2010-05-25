@@ -1,5 +1,5 @@
       subroutine makdos(nqp,nband,nbmx,nsp,wgts,evl,n,w,tol,emin,emax,
-     .                  ndos,dos)
+     .ndos,dos)
 C- Make density of states from bands
 C-----------------------------------------------------------------------
 Ci  Input
@@ -22,7 +22,7 @@ C-----------------------------------------------------------------------
 C     implicit none
       integer nqp,nband,nbmx,nsp,n,ndos
       double precision wgts(nqp),evl(nbmx,nsp,nqp),dos(0:ndos-1,nsp),
-     .                 w,emin,emax,tol,wt,emesh
+     .w,emin,emax,tol,wt,emesh
       integer i,isp,iband,iq,meshpt,mesh1,mesh2,mrange,iprint
       double precision e,x,range,test,step,d,s,xx
       external delstp
@@ -51,23 +51,23 @@ C     implicit none
       do  7  iq = 1, nqp
         wt = abs(wgts(iq)) / nsp
         do  6  iband = 1, nband
-        do  6  isp = 1, nsp
-          e = evl(iband,isp,iq)
-          meshpt = (e - emin) / step
-          mesh1 = meshpt - mrange
-          mesh2 = meshpt + mrange
-          if (mesh2 .ge. ndos) mesh2 = ndos-1
-          if (mesh1 .lt. 0) mesh1 = 0
-          do  4  meshpt = mesh1, mesh2
-            emesh = emin + meshpt * step
-            x = (emesh - e) / w
-            call delstp(n,x,d,s,xx)
-            dos(meshpt,isp) = dos(meshpt,isp) + wt * d / w
-    4     continue
+          do  6  isp = 1, nsp
+            e = evl(iband,isp,iq)
+            meshpt = (e - emin) / step
+            mesh1 = meshpt - mrange
+            mesh2 = meshpt + mrange
+            if (mesh2 .ge. ndos) mesh2 = ndos-1
+            if (mesh1 .lt. 0) mesh1 = 0
+            do  4  meshpt = mesh1, mesh2
+              emesh = emin + meshpt * step
+              x = (emesh - e) / w
+              call delstp(n,x,d,s,xx)
+              dos(meshpt,isp) = dos(meshpt,isp) + wt * d / w
+    4       continue
     6   continue
     7 continue
   100 format(/1x,'MAKDOS :  range of gaussians is ',f5.2,
-     .       'W (',i4,' bins).'
-     .       /11x,'Error estimate in DOS : ',1pe8.2,' per state.')
+     .'W (',i4,' bins).'
+     ./11x,'Error estimate in DOS : ',1pe8.2,' per state.')
       end
 

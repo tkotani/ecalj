@@ -20,28 +20,28 @@ C Local parameters:
       parameter ( lmx=8, mmx=2*lmx+1, ndim=(lmx+1)**2 )
       integer iwk(ndim)
       double precision p(3,mmx),rp(mmx,3),rr(mmx),
-     .  yp(ndim,ndim),ylm(mmx,ndim),y(ndim,ndim)
+     .yp(ndim,ndim),ylm(mmx,ndim),y(ndim,ndim)
       integer nlmsav
       save nlmsav,y
       data nlmsav /0/
 C ... A collection of random vectors, to make rmat = yrot(p) y^-1
       data p/ 0.020,-.025,-.118,
-     .        0.419,-.538,0.513,
-     .        0.245,-.717,-.600,
-     .        -.056,0.224,-.309,
-     .        -.034,-.180,0.207,
-     .        -.351,-.614,0.950,
-     .        -.782,-.134,-.308,
-     .        0.568,0.716,-.457,
-     .        -.528,-.927,-.562,
-     .        -.856,-.443,0.267,
-     .        -.111,0.794,0.598,
-     .        -.985,-.144,-.617,
-     .        0.678,0.400,-.617,
-     .        0.730,-.207,-.101,
-     .        0.540,-.137,-.773,
-     .        -.758,-.992,-.561,
-     .        0.321,-.363,-.988/
+     .0.419,-.538,0.513,
+     .0.245,-.717,-.600,
+     .-.056,0.224,-.309,
+     .-.034,-.180,0.207,
+     .-.351,-.614,0.950,
+     .-.782,-.134,-.308,
+     .0.568,0.716,-.457,
+     .-.528,-.927,-.562,
+     .-.856,-.443,0.267,
+     .-.111,0.794,0.598,
+     .-.985,-.144,-.617,
+     .0.678,0.400,-.617,
+     .0.730,-.207,-.101,
+     .0.540,-.137,-.773,
+     .-.758,-.992,-.561,
+     .0.321,-.363,-.988/
 
 C     call tcn('ylmrtg')
 
@@ -125,7 +125,7 @@ C --- rmat = yrot * y^-1 ---
         nlmi = 2*l+1
 
         call dgemm('N','N',nlmi,nlmi,nlmi,1d0,yp(offs+1,offs+1),ndim,
-     .    y(offs+1,offs+1),ndim,0d0,rmat(offs+1,offs+1),nlm)
+     .  y(offs+1,offs+1),ndim,0d0,rmat(offs+1,offs+1),nlm)
 
    40 continue
 C      call prmx('ylmrtg: rmat',rmat,nlm,nlm,nlm)

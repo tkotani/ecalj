@@ -39,23 +39,23 @@ C Local variables
         nr = min(n-ir+1,nrow)
         nc = nr+ir-1
         if (tra) then
-           call xyhmpy( nr , l , ns , a ( 1 + ( ir - 1 ) * l ) , ca , rv_w_owk ) 
-           call zampy ( rv_w_owk , nr , 1 , l * nr , b , l , 1 , ns , c 
-     .     ( ir , 1 ) , n , 1 , n2 , nr , nc , l ) 
+          call xyhmpy( nr , l , ns , a ( 1 + ( ir - 1 ) * l ) , ca , rv_w_owk ) 
+          call zampy ( rv_w_owk , nr , 1 , l * nr , b , l , 1 , ns , c 
+     .    ( ir , 1 ) , n , 1 , n2 , nr , nc , l ) 
         else
           call zampy(a(ir),n,1,ns,b,l,1,ns,c(ir,1),n,1,n2,nr,nc,l)
         endif
    10 continue
       if ( .not. lc ) then 
-         if (allocated(rv_w_owk)) deallocate(rv_w_owk)
-         return
+        if (allocated(rv_w_owk)) deallocate(rv_w_owk)
+        return
       endif 
 
       do  12  ir = 1, n
         do  12  ic = ir+1, n
           c(ir,ic)    =  c(ic,ir)
           c(ir+n2,ic) = -c(ic+n2,ir)
-   12   continue
+   12 continue
 
       if (allocated(rv_w_owk)) deallocate(rv_w_owk)
       end

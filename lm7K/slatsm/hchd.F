@@ -24,23 +24,23 @@ C Local parameters
 
 c     .......... form l in the arrays b and dl ..........
       do 80 i = 1, n
-         im1 = i - 1
-         do 80 j = i, n
-            xr =  br(i,j)
-            xi = -bi(i,j)
-            do 20 k = 1, im1
+        im1 = i - 1
+        do 80 j = i, n
+          xr =  br(i,j)
+          xi = -bi(i,j)
+          do 20 k = 1, im1
 c             x = x - b*(i,k) * b(j,k)
-              xr = xr - (br(i,k)*br(j,k) + bi(i,k)*bi(j,k))
-              xi = xi - (br(i,k)*bi(j,k) - bi(i,k)*br(j,k))
-   20       continue
-            if (j .ne. i) go to 60
-            ierr = i
-            if (xr .le. 0.0d0) return
-            y = dsqrt(xr)
-            dl(i) = y
-            go to 80
-   60       br(j,i) = xr / y
-            bi(j,i) = xi / y
+            xr = xr - (br(i,k)*br(j,k) + bi(i,k)*bi(j,k))
+            xi = xi - (br(i,k)*bi(j,k) - bi(i,k)*br(j,k))
+   20     continue
+          if (j .ne. i) go to 60
+          ierr = i
+          if (xr .le. 0.0d0) return
+          y = dsqrt(xr)
+          dl(i) = y
+          go to 80
+   60     br(j,i) = xr / y
+          bi(j,i) = xi / y
    80 continue
       ierr = 0
       end

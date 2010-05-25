@@ -116,7 +116,7 @@ C     ... Region 2 in diagram: m = m1...n1 when m1<=n<=m2
       subroutine fmain
       implicit none
       integer lda,ldb,nr1,nc1,ir,ic,i1mach,ld1,ld2,nca,oi,
-     .  kcplxi,so,nr2,nc2,nra
+     .kcplxi,so,nr2,nc2,nra
       parameter (lda=7,ldb=8)
       double precision yy(lda,ldb,2),yy2(lda,ldb,2)
       double precision yy0(lda,ldb,2)
@@ -133,33 +133,33 @@ C     ... Region 2 in diagram: m = m1...n1 when m1<=n<=m2
       read(*,*) nr1,nr2,nc1,nc2
 
       do  10  ir = 1, lda
-      do  10  ic = 1, ldb
-        yy0(ir,ic,1) = 100*ir + ic
-        yy0(ir,ic,2) = -(100*ir + ic)
+        do  10  ic = 1, ldb
+          yy0(ir,ic,1) = 100*ir + ic
+          yy0(ir,ic,2) = -(100*ir + ic)
 
    10 continue
 
       do  30  kcplxi = 0, 0, 1
-      call cplxdm(kcplxi,lda,ldb,ld1,ld2,nca,oi)
+        call cplxdm(kcplxi,lda,ldb,ld1,ld2,nca,oi)
 
-      call dcopy(lda*ldb*2,yy0,1,yy,1)
-      call ztoyy(yy,lda,ldb,lda,ldb,0,kcplxi)
-      call dcopy(lda*ldb*2,yy,1,yy2,1)
+        call dcopy(lda*ldb*2,yy0,1,yy,1)
+        call ztoyy(yy,lda,ldb,lda,ldb,0,kcplxi)
+        call dcopy(lda*ldb*2,yy,1,yy2,1)
 
 C ... straight transpose, mode=0
-      nra = 1
-      if (kcplxi .eq. 1) nra = 2
+        nra = 1
+        if (kcplxi .eq. 1) nra = 2
 
-      call ymtrns(0,yy,nca,nra,oi,yy2,nca,nra,oi,nr1,nr2,nc1,nc2)
-      call ywrm(0,'complex copy yy',kcplxi+2,so,fm,yy,oi,lda,lda,ldb)
-      call ymtrns(0,yy,nca,nra,oi,yy2,nca,nra,oi,nr1,nr2,nc1,nc2)
-      call ztoyy(yy,lda,ldb,lda,ldb,kcplxi,0)
-      do  ir = 1, lda
-        do  ic = 1, ldb
-          if (yy(ir,ic,1) .ne. yy0(ir,ic,1)) stop 'oops'
-          if (yy(ir,ic,2) .ne. yy0(ir,ic,2)) stop 'oops'
+        call ymtrns(0,yy,nca,nra,oi,yy2,nca,nra,oi,nr1,nr2,nc1,nc2)
+        call ywrm(0,'complex copy yy',kcplxi+2,so,fm,yy,oi,lda,lda,ldb)
+        call ymtrns(0,yy,nca,nra,oi,yy2,nca,nra,oi,nr1,nr2,nc1,nc2)
+        call ztoyy(yy,lda,ldb,lda,ldb,kcplxi,0)
+        do  ir = 1, lda
+          do  ic = 1, ldb
+            if (yy(ir,ic,1) .ne. yy0(ir,ic,1)) stop 'oops'
+            if (yy(ir,ic,2) .ne. yy0(ir,ic,2)) stop 'oops'
+          enddo
         enddo
-      enddo
 
 C      call ymtrns(1,yy,nca,nra,oi,yy2,nca,nra,oi,nr1,nr2,nc1,nc2)
 C      call ywrm(0,'transpose yy2',kcplxi+2,so,fm,yy2,oi,lda,lda,ldb)

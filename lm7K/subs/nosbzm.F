@@ -1,5 +1,5 @@
       subroutine nosbzm(nfilem,nbmx,nsp,nspc,nchan,metal,n,w,nkp,wtbzm,
-     .  eband,doswt,npln,nwmx,nqmx,nw,ew,nq,bzm)
+     .eband,doswt,npln,nwmx,nqmx,nw,ew,nq,bzm)
 C- make BZ maps from DOS weights
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -27,7 +27,7 @@ C Passed parameters
       integer nw(npln),nq(2,npln)
       double precision w,wtbzm
       double precision eband(nbmx),doswt(nchan,nbmx,nspc),
-     .  ew(2,nwmx,npln),bzm(nqmx,nsp,nchan,nwmx,npln)
+     .ew(2,nwmx,npln),bzm(nqmx,nsp,nchan,nwmx,npln)
       logical metal
 
 C Local variables
@@ -56,8 +56,8 @@ C --- Get bands and weights from disc (loop over k-points and spin) ---
           do  50  isp = 1, nspx
             nfstg = 11
             if (iomoms(nfilem,i,nsp,nspc,nkp,i,nfstg,nspc,1,1,nbmx,nbmx,
-     .        nchan,nchan,nevmx,eband,doswt,doswt,doswt,xx,xx) .lt. 0)
-     .        call rx('NOSBZM: failed to read moments')
+     .      nchan,nchan,nevmx,eband,doswt,doswt,doswt,xx,xx) .lt. 0)
+     .      call rx('NOSBZM: failed to read moments')
 
 C --- Loop over energy windows ---
             do  40  iw = 1, nw(ip)

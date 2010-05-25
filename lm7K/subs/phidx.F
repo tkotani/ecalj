@@ -1,5 +1,5 @@
       subroutine phidx(job,z,l,v,hcr,vmtz,rofi,nr,nptdif,tol,
-     .  e,val,slo,nn,g,gp,phi,dphi,phip,dphip,p,phia,phiap,dla,dlap)
+     .e,val,slo,nn,g,gp,phi,dphi,phip,dphip,p,phia,phiap,dla,dlap)
 C- Generate potential parameters for a prescribed energy or b.c.
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -82,12 +82,12 @@ C     implicit none
 C Passed parameters
       integer job,l,nr,nn,nptdif
       double precision z,e,vmtz,hcr,val(*),slo(*),phi,dphi,phip,dphip,
-     .  dla,dlap(*),p,phia,phiap(*),tol,v(nr),rofi(nr),
-     .  g(2*nr),gp(2*nr,4)
+     .dla,dlap(*),p,phia,phiap(*),tol,v(nr),rofi(nr),
+     .g(2*nr),gp(2*nr,4)
 C Local variables
       integer nre,i,iprint,stdo,lgunit,job0,job1
       double precision rmax,eb1,eb2,dele,ddde,sum,a,b,aold,dmach,tola,
-     .  sloi(5),vali(5),phiai(4),dlai(4),ei(4),de1,de2,del1,del2,tole
+     .sloi(5),vali(5),phiai(4),dlai(4),ei(4),de1,de2,del1,del2,tole
       parameter (tole=1d-10)
 C External calls
       external dfphi,gintsr,iprint,makdla,rseq,rsq1,rx,lgunit
@@ -161,7 +161,7 @@ C       Adjust slope iteratively until ei(slope)-e is within tole
           sloi(i) = slo(1) + dele*ei(i)*ddde*val(1)/rmax
           ei(i) = e + dele*ei(i)
           call rseq(eb1,eb2,ei(i),tol,z,l,nn,val,sloi(i),v,gp(1,i),
-     .            sum,a,b,rofi,nr,nre)
+     .    sum,a,b,rofi,nr,nre)
           vali(i) = val(1)/dsqrt(sum)
           sloi(i) = sloi(i)/dsqrt(sum)
           if (hcr .ne. 0) call makdla(ei(i)-vmtz,l,hcr,sloi(i),vali(i),

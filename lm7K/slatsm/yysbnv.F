@@ -1,10 +1,10 @@
 #define F90 1
 #ifndef F90
       subroutine yysbnv(mode,apr,api,ldap,ija,offs,nlev,
-     .  nn1,nn2,w,ldw,ar,ai,lda,ierr)
+     .nn1,nn2,w,ldw,ar,ai,lda,ierr)
 #else
       recursive subroutine yysbnv(mode,apr,api,ldap,ija,offs,nlev,
-     .  nn1,nn2,w,ldw,ar,ai,lda,ierr)
+     .nn1,nn2,w,ldw,ar,ai,lda,ierr)
 #endif
 C- Inversion of a complex block sparse matrix using Strassen's algorithm
 C ----------------------------------------------------------------
@@ -77,7 +77,7 @@ C ----------------------------------------------------------------
 C     implicit none
       integer mode,nn1,nn2,lda,ldw,ierr,nlev,ldap,ija(2,*),offs(nn2)
       double precision ar(lda,*),ai(lda,*),w(ldw,*),
-     .  apr(ldap,ldap,*),api(ldap,ldap,*)
+     .apr(ldap,ldap,*),api(ldap,ldap,*)
       character*1 cs
       double precision xx
       integer nmin,n1,n2,nm1,nm2,m1,m2,i,j,nd,modl,mode0,mode1,nnmin
@@ -98,37 +98,37 @@ C     nmin = smallest rank below which standard inversion is used
 
 C --- Partition a into four subblocks according to 10s digit mode ---
       call psybnv(mode1,nn1,nn2,ija,offs,nmin,nm1,nm2,n1,n2,m1,m2,nd,
-     .  nnmin)
+     .nnmin)
 
 #if DEBUG
       print 334, 'entering yysbnv ',mode,nlev,nn1,nm1,nn2,m1-n1,m2
   334 format(1x,a,': mode=',i2,': nlev=',i1,
-     .       '  nn1=',i2,'  nm1=',i2,'  nn2=',i2,
-     .       '  m1=',i3,'  m2=',i3)
+     .'  nn1=',i2,'  nm1=',i2,'  nn2=',i2,
+     .'  m1=',i3,'  m2=',i3)
 #endif
 
 C --- Straight yygefa,di if n2 lt nmin ---
       if (nd .le. nmin) then
         call yysp2a(mode0,nn1,nn2,nn1,nn2,apr,api,ldap,ija,offs,
-     .    ar,ai,lda)
+     .  ar,ai,lda)
         if (cs .ne. 'h' .or. nd .eq. 1) then
           call yygefa(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,nd,w,ierr)
           if (ierr .ne. 0) return
           if (nd .eq. 1) then
             call yygedi(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,nd,w,xx,
-     .        w(1,2),xx,1)
+     .      w(1,2),xx,1)
           else
             call yygedi(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,nd,w,xx,
-     .        w(1,2),w(1,3),1)
+     .      w(1,2),w(1,3),1)
           endif
         else
           call yyhifa(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,nd,w,ierr)
           if (ierr .ne. 0) return
           call yyhidi(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,nd,w,xx,i,
-     .      w(1,2),w(1,3),1)
+     .    w(1,2),w(1,3),1)
           do  10  i = n1+1, n2
-          do  10  j = n1+1, i
-          ar(i,j) =  ar(j,i)
+            do  10  j = n1+1, i
+              ar(i,j) =  ar(j,i)
    10     ai(i,j) = -ai(j,i)
         endif
 #if DEBUG
@@ -142,30 +142,30 @@ C --- Straight yygefa,di if n2 lt nmin ---
 C --- R1 = a22^-1 in a22 ---
       if (m2 .lt. nmin) then
         call yysp2a(mode0,1+nm1,nn2,1+nm1,nn2,apr,api,ldap,ija,offs,
-     .    ar,ai,lda)
+     .  ar,ai,lda)
         if (cs .eq. 'h') then
           call yyhifa(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w,ierr)
           if (ierr .ne. 0) return
           call yyhidi(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w,
-     .      xx,i,w(1,2),w(1,3),1)
+     .    xx,i,w(1,2),w(1,3),1)
           do  12  i = m1+1, n2
-          do  12  j = m1+1, i
-          ar(i,j) =  ar(j,i)
+            do  12  j = m1+1, i
+              ar(i,j) =  ar(j,i)
    12     ai(i,j) = -ai(j,i)
         else
           call yygefa(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w,ierr)
           if (ierr .ne. 0) return
           call yygedi(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w,xx,
-     .      w(1,2),w(1,3),1)
+     .    w(1,2),w(1,3),1)
         endif
 #if RECUR | F90
       elseif (nm2 .gt. nnmin .and. nlev .gt. 0) then
         call yysbnv(mode,apr,api,ldap,ija,offs,nlev-1,
-     .    nm1+1,(nn2),w,ldw,ar,ai,lda,ierr)
+     .  nm1+1,(nn2),w,ldw,ar,ai,lda,ierr)
 #if AIX | SUN_ULTRA 
         mode1 = mod(mode/10,10)
         call psybnv(mode1,nn1,nn2,ija,offs,nmin,nm1,nm2,n1,n2,m1,m2,nd,
-     .    nnmin)
+     .  nnmin)
 #endif
 #if DEBUG
         print 333, 'recursive call exit',nlev,n2-n1,m1-n1,m2
@@ -173,9 +173,9 @@ C --- R1 = a22^-1 in a22 ---
 #endif
       else
         call yysp2a(mode0,1+nm1,nn2,1+nm1,nn2,apr,api,ldap,ija,offs,
-     .    ar,ai,lda)
+     .  ar,ai,lda)
         call yyqinv(cs,ar(1+m1,1+m1),ai(1+m1,1+m1),lda,
-     .    max(nlev-1,0),m2,w,ldw,ierr)
+     .  max(nlev-1,0),m2,w,ldw,ierr)
       endif
       if (ierr .ne. 0) return
 *     call yprm(.false.,'R1',2,6,fmt,ar(1+m1,1+m1),lda,m2,lda,m2)
@@ -186,7 +186,7 @@ C      call yygemm('N','N',m2,m1-n1,m2,1d0,ar(1+m1,1+m1),ai(1+m1,1+m1),
 C     .  lda,ar(1+m1,1+n1),ai(1+m1,1+n1),lda,0d0,
 C     .  w(1+m1,1+n1),w(1+m1,1+n1+m1),ldw)
       call yymsbm(modl,nm1+1,nn2,nn1,nm1,m2,apr,api,ldap,ija,offs,
-     .  ar(1+m1,1),ai(1+m1,1),lda,w(1+m1,1),w(1+m1,1+m1),ldw)
+     .ar(1+m1,1),ai(1+m1,1),lda,w(1+m1,1),w(1+m1,1+m1),ldw)
 *     call yprm(.false.,'R3',2,6,fmt,w(1+m1,1),ldw,m2,m1,m1)
 
 C --- R5 = (a11 - a12 a22^-1 a21) in a11 ---
@@ -196,7 +196,7 @@ C     .  ar(1+n1,1+n1),ai(1+n1,1+n1),lda)
 *      call yprm(.false.,'R5',2,6,fmt,ar,lda,m1,lda,m1)
       call yysp2a(mode0,nn1,nm1,nn1,nm1,apr,api,ldap,ija,offs,ar,ai,lda)
       call yysbmm(modl+2,nn1,nm1,nm1+1,nn2,m1-n1,apr,api,ldap,ija,offs,
-     .  w(1,1+n1),w(1,1+n1+m1),ldw,ar(1,1+n1),ai(1,1+n1),lda)
+     .w(1,1+n1),w(1,1+n1+m1),ldw,ar(1,1+n1),ai(1,1+n1),lda)
 *     call yprm(.false.,'R5',2,6,fmt,ar,lda,m1,lda,m1)
 
 C --- c11 = -R6 = -R5^-1 = (a11 - a12 a22^-1 a21)^-1 in a11 ---
@@ -205,28 +205,28 @@ C --- c11 = -R6 = -R5^-1 = (a11 - a12 a22^-1 a21)^-1 in a11 ---
           call yyhifa(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,m1-n1,w,ierr)
           if (ierr .ne. 0) return
           call yyhidi(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,m1-n1,w,xx,i,
-     .      w(1,2),w(1,3),1)
+     .    w(1,2),w(1,3),1)
           do  16  i = 1, n2
-          do  16  j = 1, i
-          ar(i,j) =  ar(j,i)
+            do  16  j = 1, i
+              ar(i,j) =  ar(j,i)
    16     ai(i,j) = -ai(j,i)
         else
           call yygefa(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,m1-n1,w,ierr)
           if (ierr .ne. 0) return
           call yygedi(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,m1-n1,w,xx,w(1,2),
-     .      w(1,3),1)
+     .    w(1,3),1)
         endif
       else
         call yyqinv(cs,ar(1+n1,1+n1),ai(1+n1,1+n1),lda,max(nlev-1,0),
-     .    m1-n1,w,ldw,ierr)
+     .  m1-n1,w,ldw,ierr)
       endif
       if (ierr .ne. 0) return
 *     call yprm(.false.,'-R6',2,6,fmt,ar,lda,m1,lda,m1)
 
 C --- c21 = R3 * R6 = -a22^-1 a21 c11 in a21 ---
       call yygemm('N','N',m2,m1-n1,m1-n1,-1d0,w(1+m1,1+n1),
-     .  w(1+m1,1+n1+m1),ldw,ar(1+n1,1+n1),ai(1+n1,1+n1),lda,0d0,
-     .  ar(1+m1,1+n1),ai(1+m1,1+n1),lda)
+     .w(1+m1,1+n1+m1),ldw,ar(1+n1,1+n1),ai(1+n1,1+n1),lda,0d0,
+     .ar(1+m1,1+n1),ai(1+m1,1+n1),lda)
 *     call yprm(.false.,'c21',2,6,fmt,ar(1+m1,1),lda,m2,lda,m1)
 
 C ... Possibly add a special branch for the hermitian case
@@ -238,19 +238,19 @@ C       call yygemm('N','N',m1-n1,m2,m2,1d0,ar(1+n1,1+m1),
 C    .    ai(1+n1,1+m1),lda,ar(1+m1,1+m1),ai(1+m1,1+m1),lda,0d0,
 C    .    w(1+n1,1),w(1+n1,1+m2),ldw)
         call yysbmm(modl,nn1,nm1,nm1+1,nn2,m2,apr,api,ldap,ija,offs,
-     .    ar(1,1+m1),ai(1,1+m1),lda,w(1,1),w(1,1+m2),ldw)
+     .  ar(1,1+m1),ai(1,1+m1),lda,w(1,1),w(1,1+m2),ldw)
 *       call yprm(.false.,'R2',2,6,fmt,w,ldw,m1,m2,m2)
 
 C   --- c12 = R6 * R2 = -c11 a12 a22^-1 ---
         call yygemm('N','N',m1-n1,m2,m1-n1,-1d0,
-     .    ar(1+n1,1+n1),ai(1+n1,1+n1),lda,w(1+n1,1),w(1+n1,1+m2),ldw,
-     .    0d0,ar(1+n1,1+m1),ai(1+n1,1+m1),lda)
+     .  ar(1+n1,1+n1),ai(1+n1,1+n1),lda,w(1+n1,1),w(1+n1,1+m2),ldw,
+     .  0d0,ar(1+n1,1+m1),ai(1+n1,1+m1),lda)
 *       call yprm(.false.,'c12',2,6,fmt,ar(1,1+m1),lda,m1,lda,m2)
 
 C   --- c22 = R1 - c21 * R2 = a22^-1 + a22^-1 a21 c11 a12 a22^-1 ---
         call yygemm('N','N',m2,m2,m1-n1,-1d0,ar(1+m1,1+n1),ai(1+m1,1+n1)
-     .    ,lda,w(1+n1,1),w(1+n1,1+m2),ldw,1d0,ar(1+m1,1+m1),ai(1+m1,1+
-     .    m1),lda)
+     .  ,lda,w(1+n1,1),w(1+n1,1+m2),ldw,1d0,ar(1+m1,1+m1),ai(1+m1,1+
+     .  m1),lda)
       endif
 
 #if DEBUG
@@ -260,7 +260,7 @@ C     call yprm(.false.,'a^-1',2,6,fmt,ar(1+n1,1+n1),lda,nd,lda,nd)
 #endif
       end
       subroutine psybnv(mode,nn1,nn2,ija,offs,nmin,nm1,nm2,n1,n2,m1,m2,
-     .  nd,nnmin)
+     .nd,nnmin)
 C- Return parameters that partition block sparse array into two parts
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -310,49 +310,49 @@ C     implicit none
       integer iblk,nblk,ir,k,ic
 
       if (nn2 .gt. nn1) then
-      if (mode .eq. 0) then
+        if (mode .eq. 0) then
 C   --- Partition into approx. equal nonzero subblocks ---
-        nblk = 0
-        do  10  ir = nn1, nn2
-          nblk = nblk + 1
-          do  11  k = ija(1,ir), ija(1,ir+1)-1
-            ic  = ija(1,k)
-            if (ic .lt. nn1 .or. ic .gt. nn2) goto 11
-            nblk = nblk+1
-   11     continue
-   10   continue
+          nblk = 0
+          do  10  ir = nn1, nn2
+            nblk = nblk + 1
+            do  11  k = ija(1,ir), ija(1,ir+1)-1
+              ic  = ija(1,k)
+              if (ic .lt. nn1 .or. ic .gt. nn2) goto 11
+              nblk = nblk+1
+   11       continue
+   10     continue
 C ...   Count to half the total number of subblocks
-        iblk = 0
-        do  20  ir = nn1, nn2
-          iblk = iblk + 1
-          do  21  k = ija(1,ir), ija(1,ir+1)-1
-            ic  = ija(1,k)
-            if (ic .lt. nn1 .or. ic .gt. nn2) goto 21
-            iblk = iblk+1
-   21     continue
-          if (2*iblk .gt. nblk) then
-            nm1 = ir-1
-            goto 22
-          endif
-   20   continue
-   22   continue
+          iblk = 0
+          do  20  ir = nn1, nn2
+            iblk = iblk + 1
+            do  21  k = ija(1,ir), ija(1,ir+1)-1
+              ic  = ija(1,k)
+              if (ic .lt. nn1 .or. ic .gt. nn2) goto 21
+              iblk = iblk+1
+   21       continue
+            if (2*iblk .gt. nblk) then
+              nm1 = ir-1
+              goto 22
+            endif
+   20     continue
+   22     continue
 
 C --- Partition into approximately equal dimensions ---
-      elseif (mode .eq. 1) then
-        nd = (offs(nn2+1) + offs(nn1))/2
-        nm1 = min((nn1+nn2)/2+1,nn2)
-   31   continue
-        if (offs(nm1) .lt. nd) then
-          nm1 = nm1+1
-          goto 31
-        endif
-   32   continue
-        if (iabs(offs(nm1)-nd) .gt. iabs(offs(nm1-1)-nd)) then
+        elseif (mode .eq. 1) then
+          nd = (offs(nn2+1) + offs(nn1))/2
+          nm1 = min((nn1+nn2)/2+1,nn2)
+   31     continue
+          if (offs(nm1) .lt. nd) then
+            nm1 = nm1+1
+            goto 31
+          endif
+   32     continue
+          if (iabs(offs(nm1)-nd) .gt. iabs(offs(nm1-1)-nd)) then
+            nm1 = nm1-1
+            if (nm1 .gt. 1) goto 32
+          endif
           nm1 = nm1-1
-          if (nm1 .gt. 1) goto 32
         endif
-        nm1 = nm1-1
-      endif
       endif
       nm1 = max(min(nm1,nn2-1),nn1)
       nm2 = nn2-nm1

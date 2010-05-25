@@ -1,5 +1,5 @@
       subroutine suemph(sspec,hamrul,ntab,iax,rtab,nbas,nttab,ips,
-     .  ntype,ltype,htype,esite,isite,epair,ipair)
+     .ntype,ltype,htype,esite,isite,epair,ipair)
 
       use m_struc_def  !Cgetarg
 
@@ -91,7 +91,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed parameters
       integer nbas,ntab(1),niax,nttab,ips(1),
-     .  isite(nbas),ipair(nttab),ltype(2),ntype(2)
+     .isite(nbas),ipair(nttab),ltype(2),ntype(2)
       parameter (niax=10)
       integer iax(niax,1)
       real(8):: rtab(3,1) , esite(nbas) , epair(nttab)
@@ -104,8 +104,8 @@ C Local parameters
       double precision d,eint
       parameter (mxexpr=10)
       integer i,i1,i1mach,i2,ib1,ib2,is1,is2,ipr,iprint,ishell,iv0,ival,
-     .  iw,iw1,iw2,iwj(2,mxexpr),j,j1,j2,jtypj,lgunit,nrule,nshell,nw,
-     .  n1,n2,n12,ih1,ih2
+     .iw,iw1,iw2,iwj(2,mxexpr),j,j1,j2,jtypj,lgunit,nrule,nshell,nw,
+     .n1,n2,n12,ih1,ih2
       double precision dshell,dgetss,zs1,zs2
       logical a2bin,lsw,lquit
 
@@ -191,7 +191,7 @@ C     ... New interaction if any expression is nonzero
           do  12  iw = 1, iw2
             j = 0
             lsw = a2bin(hamrul(iwj(1,iw):iwj(2,iw)),
-     .        ival,2,0,' ',j,iwj(2,iw)-iwj(1,iw)+1)
+     .      ival,2,0,' ',j,iwj(2,iw)-iwj(1,iw)+1)
             if (lsw .and. ival .ne. 0) then
               isite(ib1) = nrule
               j = ih1-1
@@ -206,7 +206,7 @@ C     ... New interaction if any expression is nonzero
 
 C   --- Pairs: assign this hamiltonian to pairs matching rule ---
       elseif (jtypj .gt. n1 .and. jtypj .le. n12
-     .          .and. ltype(jtypj) .ne. 0) then
+     ..and. ltype(jtypj) .ne. 0) then
         do  20  i = 1, nttab
 C     ... The interaction is already defined for this pair
           if (ipair(i) .ne. 0) goto 20
@@ -233,7 +233,7 @@ C     ... New interaction if any expression is nonzero
           do  22  iw = 1, iw2
             j = 0
             lsw = a2bin(hamrul(iwj(1,iw):iwj(2,iw)),
-     .        ival,2,0,' ',j,iwj(2,iw)-iwj(1,iw)+1)
+     .      ival,2,0,' ',j,iwj(2,iw)-iwj(1,iw)+1)
             if (lsw .and. ival .ne. 0) then
               j = ih1-1
               if (.not. a2bin(hamrul,eint,4,0,' ',j,ih2)) then
@@ -278,9 +278,9 @@ C --- Cleanup and printout ---
         j2 = 0
       endif
       call awrit5('%x suemph:  %i rule%-1j%?#n>1#s##,'//
-     .  '  %i sites%?#n# (missing h1 for %-1j%i)##,'//
-     .  '  %i pairs%?#n# (missing h2 for %-1j%i)##',
-     .  outs,80,-lgunit(2),nrule,nbas,j1,nttab-nbas,j2)
+     .'  %i sites%?#n# (missing h1 for %-1j%i)##,'//
+     .'  %i pairs%?#n# (missing h2 for %-1j%i)##',
+     .outs,80,-lgunit(2),nrule,nbas,j1,nttab-nbas,j2)
       if (ipr .ge. 20) then
         print *
         call awrit0('%a',outs,-80,-lgunit(1))
@@ -296,7 +296,7 @@ C --- Cleanup and printout ---
             enddo
 
             call awrit3('%x%,4i('//alabl//'%a)%10p%;12,6D(%i)',
-     .    outs,80,0,ib1,esite(ib1),isite(ib1))
+     .      outs,80,0,ib1,esite(ib1),isite(ib1))
             call locase(outs)
             call awrit0('%a',outs,-80,-i1mach(2))
   114     continue
@@ -325,17 +325,17 @@ C --- Cleanup and printout ---
                 if (dabs(d-dshell) .gt. 1d-6) then
                   nshell = nshell+1
                   if (nshell .gt. 1) call awrit2('%a %,3;3d(%i)',
-     .          strn,len(strn),0,dshell,i-ishell)
+     .            strn,len(strn),0,dshell,i-ishell)
                   ishell = i
                   dshell = d
                 endif
                 if (ipair(i) .eq. 0) j=j+1
   126         continue
               if (nshell .gt. 1) call awrit2('%a %,3;3d(%i)',
-     .      strn,len(strn),0,dshell,i-ishell)
+     .        strn,len(strn),0,dshell,i-ishell)
               call awrit5('%x site %i('//alabl//'%a)  %i pairs  %i shells'//
-     .      '%?#n# (J1 missing in %i pairs)#%j#',outs,80,0,ib1,
-     .      (ntab(ib1+1)-ntab(ib1)-1),nshell,j,j)
+     .        '%?#n# (J1 missing in %i pairs)#%j#',outs,80,0,ib1,
+     .        (ntab(ib1+1)-ntab(ib1)-1),nshell,j,j)
               call awrit0('%a',outs,-80,-i1mach(2))
               if (ipr .gt. 40) call awrit0('%a',strn,-80,-i1mach(2))
             endif
@@ -349,8 +349,8 @@ C --- Cleanup and printout ---
                 d   = dsqrt(rtab(1,i)**2 + rtab(2,i)**2 + rtab(3,i)**2)
                 outs = ' '
                 call awrit6('%,4i%,4i('//alabl//'%a)%14p%,5i('//alabl2//
-     .      '%a)%25p%;12,6D%;12,6D(%i)',outs,80,0,i,ib1,ib2,d,epair(i),
-     .      ipair(i))
+     .          '%a)%25p%;12,6D%;12,6D(%i)',outs,80,0,i,ib1,ib2,d,epair(i),
+     .          ipair(i))
                 call locase(outs)
                 call awrit0('%a',outs,-80,-i1mach(2))
   128         continue

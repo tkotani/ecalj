@@ -30,8 +30,8 @@ C ... Passed parameters
       integer nkaps,lh(nkaps),lmxh,nr,n0
       parameter (n0=10)
       double precision eh(n0,nkaps),rsmh(n0,nkaps),rofi(nr),
-     .  fh(nr,0:lmxh,nkaps),vh(0:lmxh,nkaps),
-     .  xh(nr,0:lmxh,nkaps),dh(0:lmxh,nkaps)
+     .fh(nr,0:lmxh,nkaps),vh(0:lmxh,nkaps),
+     .xh(nr,0:lmxh,nkaps),dh(0:lmxh,nkaps)
 C ... Local parameters
       integer ik,l,i,idx
       double precision rsm,e,rmt,r,vhh,dhh,xi(0:20),wk(2),rl

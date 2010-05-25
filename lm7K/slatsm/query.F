@@ -99,7 +99,7 @@ C --- Handle query ---
         if (cast .lt. 0) print *, 'no variable to set--continuing ...'
         if (cast .lt. 0) goto 10
         if (.not. a2bin(rdstr,var,cast,0,' ',j,-1))
-     .    print *, 'conversion error'
+     .  print *, 'conversion error'
         goto 10
       elseif (rdstr2(j) .eq. 'V' .or. rdstr2(j) .eq. 'v') then
         if (a2bin(rdstr2(j+1),ivbs,2,0,' ',i,-1))  then
@@ -133,7 +133,7 @@ C ... string not empty, but no keyword recognized.
         outstr = ' '
         if (.not. a2bin(rdstr,var,cast,0,' ',j,-1)) then
           call awrit0(' ? input "'//rdstr//'%a" not recognized',
-     .      outstr,lprmpt,i1mach(2))
+     .    outstr,lprmpt,i1mach(2))
           rdstr2(1) = '?'
           j = 1
           goto 14

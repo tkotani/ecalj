@@ -1,5 +1,5 @@
       subroutine suclst(nsitmx,nbas,nsp,ssite,sspec,clsopt,isite,iclsl,
-     .                  iclsn,nsites)
+     .iclsn,nsites)
 
       use m_struc_def  !Cgetarg
 
@@ -130,12 +130,12 @@ C --- print table of sites, l and n
       if (nsites .gt. 0 .and. iprint() .ge. iprmin) then
         if (nsp .eq. 1) then
           call awrit0('%N suclst: set up table of site, l and n for CLS'
-     .      //'%N   site   label     l  n   DOS channels',
-     .      ' ',256,lgunit(1))
+     .    //'%N   site   label     l  n   DOS channels',
+     .    ' ',256,lgunit(1))
         else
           call awrit0('%N suclst: set up table of site, l and n for CLS'
-     .      //'%N   site   label     l  n   DOS channels up(down)',
-     .      ' ',256,lgunit(1))
+     .    //'%N   site   label     l  n   DOS channels up(down)',
+     .    ' ',256,lgunit(1))
         endif
         j = 1
         do  i = 1, nsites
@@ -149,13 +149,13 @@ C --- print table of sites, l and n
 
           if (nsp .eq. 1) then
             call awrit6('%:3,3i     '//clabl//'%,2i%:1,2i%3f%i,%i,%i',
-     .           ' ',128,lgunit(1),isite(i),iclsl(i),iclsn(i),j,j+1,j+2)
+     .      ' ',128,lgunit(1),isite(i),iclsl(i),iclsn(i),j,j+1,j+2)
           else
             call awrit3('%:3,3i     '//clabl//'%,2i%:1,2i',
-     .                  outstr,128,0,isite(i),iclsl(i),iclsn(i))
+     .      outstr,128,0,isite(i),iclsl(i),iclsn(i))
             call strip(outstr,p,q)
             call awrit6(outstr(1:q)//'%3f%i(%i),%i(%i),%i(%i)',' ',128,
-     .                  lgunit(1),j,j+1,j+2,j+3,j+4,j+5)
+     .      lgunit(1),j,j+1,j+2,j+3,j+4,j+5)
           endif
           j = j + 3*nsp
         enddo
@@ -164,11 +164,11 @@ C --- print table of sites, l and n
     5 continue
 C --- bad list ERROR
       call fexit(-1,119,
-     .       'suclst: bad list, expecting --cls'//dc//'lst=list,l,n',0)
+     .'suclst: bad list, expecting --cls'//dc//'lst=list,l,n',0)
     6 continue
 C --- bad triple ERROR
       call fexit(-1,119,
-     .       'suclst: bad triple, expecting --cls'//dc//'site,l,n',0)
+     .'suclst: bad triple, expecting --cls'//dc//'site,l,n',0)
       end subroutine suclst
 
 

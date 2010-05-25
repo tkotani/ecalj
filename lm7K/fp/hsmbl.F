@@ -33,7 +33,7 @@ C ... Passed parameters
 C ... Local parameters
       integer nkd,nkq,odlv,oqlv,ilm,l,m
       double precision alat,p1(3),plat(9),qlat(9),sp,pi,rwald,awald,asm,
-     .  tol,vol
+     .tol,vol
       double complex cfac,phase
 C ... Heap
       integer w(1)
@@ -80,10 +80,10 @@ C ... Multiply by phase to undo shortening
       ilm = 0
       do  28  l = 0, lmax
         cfac = cfac*dcmplx(0d0,-1d0)
-      do  28  m = 1, 2*l+1
-        ilm = ilm+1
-        hsm(ilm)  = cfac*cy(ilm)*hsm(ilm)
-        hsmp(ilm) = cfac*cy(ilm)*hsmp(ilm)
+        do  28  m = 1, 2*l+1
+          ilm = ilm+1
+          hsm(ilm)  = cfac*cy(ilm)*hsm(ilm)
+          hsmp(ilm) = cfac*cy(ilm)*hsmp(ilm)
    28 continue
       end subroutine hsmbl
 
@@ -139,9 +139,9 @@ C ... Local parameters
         call sylm(r,yl,lmax,r2)
         den0 = dexp(gamma*(e-r2))/(r2-e)
         den1 = den0/(r2-e)
-      do  26  ilm = 1, nlm
-        dl(ilm)  = dl(ilm) + yl(ilm)*eiphi*den0
-        dlp(ilm) = dlp(ilm) + yl(ilm)*eiphi*den1
+        do  26  ilm = 1, nlm
+          dl(ilm)  = dl(ilm) + yl(ilm)*eiphi*den0
+          dlp(ilm) = dlp(ilm) + yl(ilm)*eiphi*den1
    26 continue
       do  35  ilm = 1, nlm
         dl(ilm)  = fpibv*dl(ilm)
@@ -164,7 +164,7 @@ C ... Local parameters
       logical lpos,lzero
       parameter (lmxx=11)
       double precision a,a2,akap,alat,asm,asm2,cc,ccsm,derfc,e,emkr,gl,
-     .  qdotr,r1,r2,rsm,srpi,ta,ta2,tasm,tasm2,umins,uplus,tpi,kap
+     .qdotr,r1,r2,rsm,srpi,ta,ta2,tasm,tasm2,umins,uplus,tpi,kap
       double precision yl((lmxx+1)**2),chi1(-1:10),chi2(-1:10),r(3)
 C     double complex zchi1(-1:10),zchi2(-1:10)
       double complex cfac,zikap,expikr,zuplus,zerfc
@@ -214,10 +214,10 @@ C           zchi2(l) = 0d0
 C         enddo
             zuplus = zerfc(zikap/ta)
             chi1(0) = -zikap*zuplus
-     .    +2/dsqrt(4*datan(1d0))*a * cdexp(-(zikap/ta)**2)
+     .      +2/dsqrt(4*datan(1d0))*a * cdexp(-(zikap/ta)**2)
             zuplus = zerfc(zikap/tasm)
             chi2(0) = -zikap*zuplus
-     .    +2/dsqrt(4*datan(1d0))*asm * cdexp(-(zikap/tasm)**2)
+     .      +2/dsqrt(4*datan(1d0))*asm * cdexp(-(zikap/tasm)**2)
             chi1(-1) = -zerfc(-zikap/ta)/zikap
             chi2(-1) = -zerfc(-zikap/tasm)/zikap
           else
@@ -243,7 +243,7 @@ Cr         u(+/-)     -> exp[-(akap*rsm/2)^2 - (r/rsm)^2] -> 0
 Cr        Also if akap*r >> 1,   chi < dexp(-akap*r1) -> 0
             emkr = dexp(-akap*r1)
             if (.5d0*akap/a+r1*a .gt. srfmax .and.
-     .        .5d0*akap/a-r1*a .gt. srfmax .or. akap*r1.gt.fmax) then
+     .      .5d0*akap/a-r1*a .gt. srfmax .or. akap*r1.gt.fmax) then
               lzero = .true.
 C            uplus = derfc(.5d0*akap/a+r1*a)/emkr
 C            umins = derfc(.5d0*akap/a-r1*a)*emkr
@@ -283,7 +283,7 @@ C          zchi2(0) = expikr/r1 - dble(zuplus)/r1
 C          zchi2(-1) = expikr/zikap + dimag(zuplus)/kap
           else
             if (.5d0*akap/asm+r1*asm .gt. srfmax .and.
-     .        .5d0*akap/asm-r1*asm .gt. srfmax .or. akap*r1.gt.fmax)then
+     .      .5d0*akap/asm-r1*asm .gt. srfmax .or. akap*r1.gt.fmax)then
               lzero = .true.
             else
               uplus = derfc(.5d0*akap/asm+r1*asm)/emkr

@@ -58,7 +58,7 @@ Cki#error, have return with len(w_varlist)>0 at line 47
       if (ipr .ge. 30) then
         print 333, ldist, ((defgrd(i,j), j=1,3), i=1,3)
   333   format(/' LATTDF:  deformation matrix for mode',i3,':'/
-     .    (3f12.7))
+     .  (3f12.7))
       endif
 
 C     call prmx('rotation matrix',defgrd,3,3,3)
@@ -73,7 +73,7 @@ C ... Rotate or shear plat
         if (ipr .ge. 30) then
           print 334, ((work(i,j), i=1,3), (plat(i,j), i=1,3),j=1,3)
   334     format(10x,' Lattice vectors:',25x,'Transformed to:'/
-     .      (3f12.7,2x,3f12.7))
+     .    (3f12.7,2x,3f12.7))
         endif
       endif
       if (iabs(ldist) .ge. 1 .and. iabs(ldist) .le. 3) then
@@ -84,18 +84,18 @@ C ... Rotate or shear plat
           call dcopy(3,bas(1,ib),1,work,1)
           call dmpy(defgrd,3,1,work,3,1,bas(1,ib),3,1,3,1,3)
           if (ipr .ge. 30) print '(3f12.7,2x,3f12.7)',
-     .      (work(i,1), i=1,3), (bas(i,ib), i=1,3)
+     .    (work(i,1), i=1,3), (bas(i,ib), i=1,3)
    10   continue
 
         if (ipr .ge. 30 .and. ngen .gt. 0)
-     .    print '(15x,''Group ops:'',26x,''Rotated to:'')'
+     .  print '(15x,''Group ops:'',26x,''Rotated to:'')'
         call dinv33(defgrd,0,rinv,det)
         do  20  ib = 1, ngen
           call dcopy(9,gen(1,1,ib),1,gold,1)
           call dmpy(defgrd,3,1,gen(1,1,ib),3,1,work,3,1,3,3,3)
           call dmpy(work,3,1,rinv,3,1,gen(1,1,ib),3,1,3,3,3)
           if (ipr .ge. 30) print '(/(3f12.7,2x,3f12.7))',
-     .      ((gold(j,i), i=1,3), (gen(j,i,ib), i=1,3),j=1,3)
+     .    ((gold(j,i), i=1,3), (gen(j,i,ib), i=1,3),j=1,3)
    20   continue
       endif
       if (allocated(bwk_rv)) deallocate(bwk_rv)

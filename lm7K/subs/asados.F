@@ -95,9 +95,9 @@ C ... Passed parameters
 C ... Local variables
       character*120 outs,sopts,dc*1,wtfn
       logical bittst,T,F,ltet,bzmap,lgors,lmet,cmdopt,tbdos,TBU,totdos,
-     .  lcond,lrange,lidos,lfp
+     .lcond,lrange,lidos,lfp
       integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
-     . , oipq , oclabl
+     ., oipq , oclabl
       real(8) ,allocatable :: dos_rv(:)
       real(8) ,allocatable :: doswt_rv(:)
       real(8) ,allocatable :: eband_rv(:)
@@ -113,17 +113,17 @@ C ... Local variables
       integer ,allocatable :: chan_iv(:)
 
       integer awrite,fopnn,fopno,i,iblst(1000),ichds,icond,il,imax,
-     .  iprint,igets,isw,iv(10),j,j1,j2,l,nband,nbandx,ldos, !lham,
-     .  lncol,lstyle,m,n1,n2,nbas,nblst,nchan,nchan2,nchds,nclasp,
-     .  nclass,ndum,nevmx,nfilem,nfilqp,nfstg,nkp,nkxyz(3),nl,nlf,nlo,
-     .  nlstc,norder,np0,npgrp,npln,npts,nqmx,nsp,nspc,nspd,nspec,nspx,
-     .  ntet,nwin,nwmx,parg,scrwid,stdo,moddos,nsite,nsitmx,lmxch,nll,
-     .  ib,iclbas,ic,ival,is,lmax,igetss,lopt,nchmx,nglob
+     .iprint,igets,isw,iv(10),j,j1,j2,l,nband,nbandx,ldos, !lham,
+     .lncol,lstyle,m,n1,n2,nbas,nblst,nchan,nchan2,nchds,nclasp,
+     .nclass,ndum,nevmx,nfilem,nfilqp,nfstg,nkp,nkxyz(3),nl,nlf,nlo,
+     .nlstc,norder,np0,npgrp,npln,npts,nqmx,nsp,nspc,nspd,nspec,nspx,
+     .ntet,nwin,nwmx,parg,scrwid,stdo,moddos,nsite,nsitmx,lmxch,nll,
+     .ib,iclbas,ic,ival,is,lmax,igetss,lopt,nchmx,nglob
       parameter (nsitmx = 1024)
 C     This is a site or class list
       integer lsite(nsitmx)
       double precision vmtz(2),xx,efermi(2),efmax,emin,emax,drange(2),
-     .  width,wtbzm,cvec(0:6),del,ddot,avw,alat,plat(3,3)
+     .width,wtbzm,cvec(0:6),del,ddot,avw,alat,plat(3,3)
       character*40 modstr(0:4),strn*120,strn2*120
       character*8 clabl
       parameter (T=.true., F=.false., scrwid=80)
@@ -216,8 +216,8 @@ C     ldos is not set properly when asados is called, so make assumptions
 Ctakao_ZeroClear_NotRequiered          if (nchmx<0) chan_iv(:)=0
 
         call sumlst ( lopt , nchmx , nbas , 1 , ssite , sspec , strn 
-     .   ( 7: ) , moddos , nsite , lsite , lmxch , nchan , chan_iv 
-     .   , nll )
+     .  ( 7: ) , moddos , nsite , lsite , lmxch , nchan , chan_iv 
+     .  , nll )
 
         if (allocated(chan_iv)) deallocate(chan_iv)
 
@@ -386,7 +386,7 @@ C   ... Determine number of planes and energy windows for BZ map
    96   continue
         do  97  i = 1, np0
           read (nfilqp,*,err=98,end=98) xx,xx,xx,xx,xx,n1,
-     .                                  xx,xx,xx,xx,xx,n2,xx
+     .    xx,xx,xx,xx,xx,n2,xx
           nkp = nkp + n1*n2
           npln = npln + 1
           nqmx = max(n1*n2,nqmx)
@@ -420,8 +420,8 @@ Ctakao_ZeroClear_NotRequiered          if (npln<0) z_rv(:)=0.0d0
 
         call defdr(oqp, 3*nkp)
         call getbzp ( nfilqp , npln , nwmx , nkp , nw_iv , ew_rv 
-     .   , nq_iv , vx_rv , vy_rv , x_rv , y_rv , z , w 
-     .   ( oqp ) )
+     .  , nq_iv , vx_rv , vy_rv , x_rv , y_rv , z , w 
+     .  ( oqp ) )
 
         wtbzm = 2d0 / nsp
 C        if (preskp) then
@@ -431,7 +431,7 @@ C        endif
       endif
 
       if (.not. ltet) call info2(20,1,1,' Integration by'//
-     .  ' Methfessel-Paxton sampling,  order=%i  width=%d',norder,width)
+     .' Methfessel-Paxton sampling,  order=%i  width=%d',norder,width)
 
 C ... Open file containing bands and dos weights
       if (wtfn .eq. ' ') then
@@ -439,17 +439,17 @@ C ... Open file containing bands and dos weights
         if (tbdos) wtfn = 'BAND'
       endif
       call info0(20,1,0,
-     .  ' ASADOS: reading weights from file '//wtfn//'%a')
+     .' ASADOS: reading weights from file '//wtfn//'%a')
       call info2(20,0,0,
-     .  '         expecting file to be resolved by '//
-     .  '%?#n==0#site##%-1j'//
-     .  '%?#(n==1|n==2)#l##%-1j'//
-     .  '%?#n==4#l and m##',ldos,0)
+     .'         expecting file to be resolved by '//
+     .'%?#n==0#site##%-1j'//
+     .'%?#(n==1|n==2)#l##%-1j'//
+     .'%?#n==4#l and m##',ldos,0)
       nfilem = fopno(wtfn)
 
 C ... Get dimensions (nsp,nspc,nband,nfstg); allocate memory for eband
       call iomomq(nfilem,0,nlf,nsp,nspc,ndum,nband,nfstg,j,ndum,
-     .  nchan,nchan,i,w,w,w,w,efermi,vmtz)
+     .nchan,nchan,i,w,w,w,w,efermi,vmtz)
       call isanrg(nlf,nl,nl,' asados (warning)','file nl',.false.)
       nspd = nsp
 C     Empirical TB stores stuff a little differently
@@ -474,7 +474,7 @@ C ... Determine number of DOS channels (nchan=0 -> total dos only)
       call info2(20,0,0,'         file has %i channel(s)',nchan,0)
       if (nchan .ne. 0) then
         if (mod(nfstg/10,10) .eq. 0)
-     .    call rx(prgnam//'%a:  moments file missing DOS wts')
+     .  call rx(prgnam//'%a:  moments file missing DOS wts')
       else
         totdos = .true.
       endif
@@ -514,7 +514,7 @@ C       Suppress projection of unity into parts for total dos
         if (totdos) then
           nfstg = 1
           call dvset ( doswt_rv , 1 , nchds * nbandx * nsp * ( nkp + 
-     .     1 ) , 1d0 )
+     .    1 ) , 1d0 )
 
         endif
       else
@@ -542,53 +542,53 @@ C ... Make sure missing bands are high enough
 C ... Ensure nl,nsp,nspc,nkp,nband match; read in bands (& moms if tet.)
       if (nchds .eq. nchan) then
         call iomomq ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
-     .   , j , nband , nchan , nchan , nevmx , eband_rv , doswt_rv 
-     .   , doswt_rv , w , efermi , vmtz )
+     .  , j , nband , nchan , nchan , nevmx , eband_rv , doswt_rv 
+     .  , doswt_rv , w , efermi , vmtz )
 
       else
         call iomomx ( nfilem , 32 , nl , nsp , nspc , nkp , nband , nfstg 
-     .   , j , nband , nchan , nchan2 , nchds , nevmx , nlstc , lsite 
-     .   , eband_rv , w , doswt_rv , w , efermi , vmtz )
+     .  , j , nband , nchan , nchan2 , nchds , nevmx , nlstc , lsite 
+     .  , eband_rv , w , doswt_rv , w , efermi , vmtz )
 
       endif
 C     call dfdump(w(oeband),nband*nsp*nkp,-66)
       if (j .ne. nkp) call rx(prgnam//': moments file missing qpts')
       if (efmax-.2d0 .lt. emax) call info2(10,1,0,' ASADOS'//
-     .  '%a (warning) efmax (=%;3d) is not >> emax (=%;3d)',efmax,emax)
+     .'%a (warning) efmax (=%;3d) is not >> emax (=%;3d)',efmax,emax)
 
 C ... Printout switches
       call awrit4('%N ASADOS:  make dos for %i points from %i bands in'
-     .  //' window (%;3d,%;3d)',' ',80,stdo,npts,nevmx,emin,emax)
+     .//' window (%;3d,%;3d)',' ',80,stdo,npts,nevmx,emin,emax)
       outs = ' '
       call awrit6(' options '//
-     .  '%?#n# mode: '//modstr(icond)//'%a;##'//
-     .  '%?#(n==1|n==2)#%b,v=(%3;3d);#%j#'//
-     .  '%?#n# totdos;##'//
-     .  '%?#n# idos;##'//
-     .  '%?#n# tbdos;##'//
-     .  '%b %b',outs,80,0,
-     .  icond,icond,cvec(1),isw(totdos),lidos,tbdos)
+     .'%?#n# mode: '//modstr(icond)//'%a;##'//
+     .'%?#(n==1|n==2)#%b,v=(%3;3d);#%j#'//
+     .'%?#n# totdos;##'//
+     .'%?#n# idos;##'//
+     .'%?#n# tbdos;##'//
+     .'%b %b',outs,80,0,
+     .icond,icond,cvec(1),isw(totdos),lidos,tbdos)
       if (outs .ne. ' options') call awrit0('%a',outs,-80,-stdo)
       if (nlstc .ne. 0) call awrit2('%10fclasses: %n:1i',' ',
-     .  scrwid,stdo,nlstc,lsite)
+     .scrwid,stdo,nlstc,lsite)
       if (nblst .ne. 0) call awrit2('%10fbands: %n:1i',' ',
-     .  scrwid,stdo,nblst,iblst)
+     .scrwid,stdo,nblst,iblst)
 
 C ... Sanity checks
       if (nlstc .ne. 0 .and. totdos)
-     .  call rx(' class list is incompatible with totdos')
+     .call rx(' class list is incompatible with totdos')
       do  i = 1, nblst
         if (iblst(i) .gt. nband .or. iblst(i) .le. 0)
-     .    call fexit2(-1,111,' Exit -1  band %i '
-     .    //'exceeds number of available bands (%i)',iblst(i),nband)
+     .  call fexit2(-1,111,' Exit -1  band %i '
+     .  //'exceeds number of available bands (%i)',iblst(i),nband)
       enddo
 C ... cvec(2) reverts to cvec(1) if it wasn't defined.
       if (ddot(3,cvec(4),1,cvec(4),1) .eq. 0)
-     .  call dcopy(3,cvec(1),1,cvec(4),1)
+     .call dcopy(3,cvec(1),1,cvec(4),1)
 C ... Normalize cvec(1),cvec(2)
       if (icond .eq. 1 .or. icond .eq. 2) then
         if (ddot(3,cvec(1),1,cvec(1),1) .eq. 0) call
-     .    rx(' direction vector required for this mode but not defined')
+     .  rx(' direction vector required for this mode but not defined')
         call dscal(3,1/sqrt(ddot(3,cvec(1),1,cvec(1),1)),cvec(1),1)
         call dscal(3,1/sqrt(ddot(3,cvec(4),1,cvec(4),1)),cvec(4),1)
       endif
@@ -597,19 +597,19 @@ C --- Make BZ maps (integrated DOS vs k) ---
       if (bzmap) then
         call rxx(nchds.ne.nchan,'maps not set for subchannels')
         call nosbzm ( nfilem , nbandx , nsp , nspc , nchan , lmet , norder 
-     .   , width , nkp , wtbzm , eband_rv , doswt_rv , npln , nwmx 
-     .   , nqmx , nw_iv , ew_rv , nq_iv , dos_rv )
+     .  , width , nkp , wtbzm , eband_rv , doswt_rv , npln , nwmx 
+     .  , nqmx , nw_iv , ew_rv , nq_iv , dos_rv )
 
         call bzmio ( dos_rv , nchan * nsp , npln , nwmx , nqmx , nw_iv 
-     .   , ew_rv , nq_iv , vx_rv , vy_rv , x_rv , y_rv 
-     .   , z , nkp , nspd , lmet , norder , width , wtbzm , efermi , - 
-     .   fopnn ( 'BZMP' ) )
+     .  , ew_rv , nq_iv , vx_rv , vy_rv , x_rv , y_rv 
+     .  , z , nkp , nspd , lmet , norder , width , wtbzm , efermi , - 
+     .  fopnn ( 'BZMP' ) )
 
 C --- Ballistic conductivity ---
       elseif (lcond) then
         call rxx(nchds.ne.nchan,'cond not set for subchannels')
         if (.not. ltet) call
-     .    rx('LMDOS: conductivity only with tetrahedron integration')
+     .  rx('LMDOS: conductivity only with tetrahedron integration')
 C   ... To save memory, allocate dos later
         if (allocated(wk_rv)) deallocate(wk_rv)
         if (allocated(dos_rv)) deallocate(dos_rv)
@@ -631,7 +631,7 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
         slat%npgrp=npgrp
 
         call awrit2('          remake qp with %i symop%?#n>1#s##',
-     .    ' ',80,stdo,npgrp,npgrp)
+     .  ' ',80,stdo,npgrp,npgrp)
         call mkqp(sctrl,sbz,slat,ltet,F,0,2)
 
         nkp=sbz%nkp
@@ -651,19 +651,19 @@ Ctakao_ZeroClear_NotRequiered          if (npts*nsp*nchan<0) dos_rv(:)=0.0d0
 
         if (nblst .eq. 0) nblst = nevmx
         call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
-     .   ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , w ( 
-     .   oqp ) , w ( oipq ) , w ( ogstar ) , iblst , eband_rv , cvec 
-     .   ( 1 ) , doswt_rv , npts , emin , emax , lidos , wk_rv , 
-     .   dos_rv )
+     .  ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , w ( 
+     .  oqp ) , w ( oipq ) , w ( ogstar ) , iblst , eband_rv , cvec 
+     .  ( 1 ) , doswt_rv , npts , emin , emax , lidos , wk_rv , 
+     .  dos_rv )
 
         del = 0d0
 C --- make DOS or NOS ---
       else
         if (ltet) then
           call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1 
-     .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , eband_rv 
-     .     , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv 
-     .     )
+     .    ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , eband_rv 
+     .    , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv 
+     .    )
 
           del = 0d0
 
@@ -671,21 +671,21 @@ C   ... dosspl reads bands and moms on the fly to save work space
         else
           call rxx(nchds.ne.nchan,'sampline not set for subchannels')
           call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder , 
-     .     width , nkp , w ( owtkp ) , eband_rv , doswt_rv , npts 
-     .     , emin , emax , lidos , wk_rv , dos_rv )
+     .    width , nkp , w ( owtkp ) , eband_rv , doswt_rv , npts 
+     .    , emin , emax , lidos , wk_rv , dos_rv )
 
           del = norder+width
         endif
         if ( nspd .gt. nsp ) call dscal ( npts * nsp * nchan , .5d0 , 
-     .   dos_rv , 1 )
+     .  dos_rv , 1 )
 
       endif
       if (.not. bzmap) then
         i = nsp
         if (lncol .gt. 0) i = 1
         call dosio ( dos_rv , npts * ( 1 + nsp - i ) , nchds , npts 
-     .   , nchds , emin , emax , i , efermi , del , 1 , - fopnn ( 'DOS' 
-     .   ) )
+     .  , nchds , emin , emax , i , efermi , del , 1 , - fopnn ( 'DOS' 
+     .  ) )
 
       endif
       if (allocated(dos_rv)) deallocate(dos_rv)
@@ -694,11 +694,11 @@ C   ... dosspl reads bands and moms on the fly to save work space
 
 C --- List channels in DOS file ---
       if (iprint() .ge. 30 .and. .not. totdos .and.
-     .    .not. cmdopt('--cls',5,0,strn)) then
+     ..not. cmdopt('--cls',5,0,strn)) then
         if (nsp .eq. 1) print 332
         if (nsp .eq. 2) print 332, 'spin-2'
   332   format(/' Channels in dos file generated by LMDOS:'
-     .       /' site class label   spin-1':23x,a)
+     .  /' site class label   spin-1':23x,a)
         if (nsite .ne. 0) then
           imax = nbas
         else

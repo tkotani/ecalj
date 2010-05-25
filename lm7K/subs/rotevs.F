@@ -111,7 +111,7 @@ C     double precision xx
       call getpr(ipr)
 
       if (ndims+lc+lh-ndimz .ne. 0) call
-     .  rx('ROTEVS: constraint ndims+lc+lh = ndimz not satisfied')
+     .rx('ROTEVS: constraint ndims+lc+lh = ndimz not satisfied')
 
 C     Mode 1: Rotate sigm(assumed to be stored LDA basis) to orbital basis
 C     Build with these steps:
@@ -158,7 +158,7 @@ C       call zprm('sigm_LDA',2,sigm,ndims,ndims,ndims)
         allocate(wk(ndimz,ndimz))
         call dpzero(wk,ndimz*ndimz*2)
         call zgemm('N','N',nrow,ndimz,nrow,one,sigm(is1,is1),ndims,
-     .    Z,ndimz,zer,wk,ndimz)
+     .  Z,ndimz,zer,wk,ndimz)
 C       Multiply into wk sigii(1..lc) Z^-1 if lc > 0
         if (lc .gt. 0) then
           do  i = 1, lc
@@ -178,7 +178,7 @@ C       Multiply into wk sigii(ndimz-lh..lh) Z^-1 if lh > 0
 
 C       Step 3. h <- (Z^-1)+ wk Z^-1
         call zgemm('C','N',ndimz,ndimz,ndimz,one,wk,
-     .    ndimz,Z,ndimz,zer,h,ndimz)
+     .  ndimz,Z,ndimz,zer,h,ndimz)
 
 C       call zprm('sigm_orb',2,h,ndimz,ndimz,ndimz)
 
@@ -265,12 +265,12 @@ C   ... Return here to resume parsing for arguments
           elseif (strn(j1:j1+4) .eq. 'mode=')  then
             j = 0
             if (parg('mode=',2,strn(j1:),j,len(strn(j1:)),
-     .        dc//' ',1,1,i,lwevec) .lt. 0) goto 999
+     .      dc//' ',1,1,i,lwevec) .lt. 0) goto 999
             call isanrg(lwevec,0,2,'EVCFLG:','mode',.true.)
           elseif (strn(j1:j1+5) .eq. 'shftq=')  then
             j = 0
             if (parg('shftq=',4,strn(j1:),j,len(strn(j1:)),
-     .        ', '//dc,2,3,iv,shftqp) .lt. 0) goto 999
+     .      ', '//dc,2,3,iv,shftqp) .lt. 0) goto 999
           elseif (strn(j1:j1+4) .eq. 'shftq')  then
             shftqp(1) = 1d-7
             shftqp(2) = 2d-7

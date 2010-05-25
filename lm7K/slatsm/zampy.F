@@ -92,22 +92,22 @@ C --- Test for complex*16 matrices ---
 C --- Do multiplication ---
       do  20  k = l-1, 0, -1
         do  20  i = n-1, 0, -1
-        nrci = nrc*i
+          nrci = nrc*i
 #if BLAS
-        call yyaxpy(m,a(nra*i+nca*k),a(nia+nra*i+nca*k),
+          call yyaxpy(m,a(nra*i+nca*k),a(nia+nra*i+nca*k),
      .    b(nrb*k),b(nib+nrb*k),ncb,c(nrci),c(nic+nrci),ncc,.true.)
 #else
-        ar = a(      nra*i + nca*k)
-        ai = a(nia + nra*i + nca*k)
-        nccj = -ncc
-        ncbj = -ncb + nrb*k
-        do  22  j = m-1, 0, -1 
-        nccj = nccj + ncc
-        ncbj = ncbj + ncb
-        nrcicj = nrci + nccj
-        c(nrcicj)     = c(nrcicj)     + ar*b(ncbj) - ai*b(nib+ncbj)
-        c(nic+nrcicj) = c(nic+nrcicj) + ar*b(nib+ncbj) + ai*b(ncbj)
-   22   continue
+          ar = a(      nra*i + nca*k)
+          ai = a(nia + nra*i + nca*k)
+          nccj = -ncc
+          ncbj = -ncb + nrb*k
+          do  22  j = m-1, 0, -1 
+            nccj = nccj + ncc
+            ncbj = ncbj + ncb
+            nrcicj = nrci + nccj
+            c(nrcicj)     = c(nrcicj)     + ar*b(ncbj) - ai*b(nib+ncbj)
+            c(nic+nrcicj) = c(nic+nrcicj) + ar*b(nib+ncbj) + ai*b(ncbj)
+   22     continue
 #endif
    20 continue
       end

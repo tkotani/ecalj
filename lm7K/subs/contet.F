@@ -1,6 +1,6 @@
       subroutine contet(mode,nbmx,nsp,nspx,nevmx,nchan,n1,n2,n3,ntet,
-     .  idtet,qp,ipq0,igstar,iblst,eband,cvec,doswt,npts,emin,
-     .  emax,lidos,wk,zos)
+     .idtet,qp,ipq0,igstar,iblst,eband,cvec,doswt,npts,emin,
+     .emax,lidos,wk,zos)
 C- Conductivity or DOS-related quantity by tetrahedron integration
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -57,19 +57,19 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nchan,nsp,nspx,nbmx,npts,ntet,idtet(0:4,*),n1,n2,
-     .  n3,nevmx,igstar(0:1),ipq0(n1,n2,n3),iblst(nevmx)
+     .n3,nevmx,igstar(0:1),ipq0(n1,n2,n3),iblst(nevmx)
       double precision eband(nbmx,nspx,*),emin,emax,wk(npts),
-     .  zos(npts,nsp,nchan),doswt(nchan,nbmx,nsp,*),qp(3,1),cvec(3,2)
+     .zos(npts,nsp,nchan),doswt(nchan,nbmx,nsp,*),qp(3,1),cvec(3,2)
       logical lidos
 C ... Local parameters
       integer isp,ib,i,itet,ichan,iq(4),jq(4),nspc,jsp,ksp,ndmx,mxxyz,
-     .  getdig,i1,i2,i3,ibp
+     .getdig,i1,i2,i3,ibp
       double precision bin,eigen(4),v,wt,ebot,dmin1,wc
 C ... External calls
       external dcopy,dpzero,mkcond,slinz
 
       if (npts .le. 1 .or. npts .le. 2 .and. .not. lidos) call rx1(
-     .  'contet: npts(=%i) too small for DOS : require npts>2',npts)
+     .'contet: npts(=%i) too small for DOS : require npts>2',npts)
       nspc = nsp / nspx
       call dpzero(zos,npts*nsp*nchan)
       bin = npts - 1
@@ -116,9 +116,9 @@ C       ... Accumulate no. states assuming constant wt from this tet
               do  2  ichan = 1, nchan
 C         ... This is weight for no. states
                 wt = doswt(ichan,ibp,ksp,jq(1))
-     .           + doswt(ichan,ibp,ksp,jq(2))
-     .           + doswt(ichan,ibp,ksp,jq(3))
-     .           + doswt(ichan,ibp,ksp,jq(4))
+     .          + doswt(ichan,ibp,ksp,jq(2))
+     .          + doswt(ichan,ibp,ksp,jq(3))
+     .          + doswt(ichan,ibp,ksp,jq(4))
                 wt = wt * idtet(0,itet) * v / 4d0
 C         ... Add weights from mkcond
                 wt = wt*wc
@@ -134,13 +134,13 @@ C         ... Add weights from mkcond
 C --- DOS from finite difference of NOS ---
       bin = 2d0 * bin
       do  11  isp  = 1, nsp
-      do  11  ichan = 1, nchan
-        do  10  i = 2, npts - 1
-          wk(i) = (zos(i+1,isp,ichan) - zos(i-1,isp,ichan)) / bin
-   10   continue
-        wk(1)    = wk(2)
-        wk(npts) = wk(npts-1)
-        call dcopy(npts,wk,1,zos(1,isp,ichan),1)
+        do  11  ichan = 1, nchan
+          do  10  i = 2, npts - 1
+            wk(i) = (zos(i+1,isp,ichan) - zos(i-1,isp,ichan)) / bin
+   10     continue
+          wk(1)    = wk(2)
+          wk(npts) = wk(npts-1)
+          call dcopy(npts,wk,1,zos(1,isp,ichan),1)
    11 continue
       end
 

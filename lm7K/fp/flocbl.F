@@ -1,6 +1,6 @@
       subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto,
-     .  ndimh,iprmb,isp,evl,evec,ewgt,numq,cPkL,db,da,wk,ppipp,ppippz,
-     .  sigpp,ppihp,ppihpz,sighp,lcplxp,f)
+     .ndimh,iprmb,isp,evl,evec,ewgt,numq,cPkL,db,da,wk,ppipp,ppippz,
+     .sigpp,ppihp,ppihpz,sighp,lcplxp,f)
 C- Force contribution from augmentation at site ia.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -42,13 +42,13 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ia,kmax,lmxa,nkaph,nbas,nlmto,ndimh,nlma,lmxha,lcplxp,
-     .  nlmha,numq,isp,iprmb(1)
+     .nlmha,numq,isp,iprmb(1)
       double precision evl,f(3,nbas,numq),ewgt(numq),
-     .  sigpp(0:kmax,0:kmax,0:lmxa,isp),sighp(nkaph,0:kmax,0:lmxha,isp),
-     .  ppihp(nkaph,0:kmax,nlmha,nlma,isp),
-     .  ppipp(0:kmax,0:kmax,nlma,nlma,isp)
+     .sigpp(0:kmax,0:kmax,0:lmxa,isp),sighp(nkaph,0:kmax,0:lmxha,isp),
+     .ppihp(nkaph,0:kmax,nlmha,nlma,isp),
+     .ppipp(0:kmax,0:kmax,nlma,nlma,isp)
       double complex db(ndimh,nlma,0:kmax,3),da(0:kmax,nlma,3),
-     .  evec(ndimh),cPkL(0:kmax,nlma),wk(0:kmax,nlma)
+     .evec(ndimh),cPkL(0:kmax,nlma),wk(0:kmax,nlma)
       double complex ppihpz(nkaph,0:kmax,nlmha,nlma,isp)
       double complex ppippz(0:kmax,0:kmax,nlma,nlma,isp)
 C ... Local parameters
@@ -63,9 +63,9 @@ C ... Local parameters
 
 C ... Make (ppi-evl*sig)*psi in wk
       call flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec,
-     .  ppipp(0,0,1,1,isp),ppippz(0,0,1,1,isp),sigpp(0,0,0,isp),
-     .  ppihp(1,0,1,1,isp),ppihpz(1,0,1,1,isp),sighp(1,0,0,isp),
-     .  lcplxp,cPkL,wk)
+     .ppipp(0,0,1,1,isp),ppippz(0,0,1,1,isp),sigpp(0,0,0,isp),
+     .ppihp(1,0,1,1,isp),ppihpz(1,0,1,1,isp),sighp(1,0,0,isp),
+     .lcplxp,cPkL,wk)
 
 C ... Loop over ib, virtual shift of wavefct part centered there
       do  ib = 1, nbas
@@ -148,7 +148,7 @@ C ... Force term is (grad psi_kL) * (ppi-evl*sig)*evec
       end
 
       subroutine flocb2(ia,nlmto,iprmb,kmax,nkaph,nlmha,nlma,evl,evec,
-     .  ppipp,ppippz,sigpp,ppihp,ppihpz,sighp,lcplxp,cPkL,wk)
+     .ppipp,ppippz,sigpp,ppihp,ppihpz,sighp,lcplxp,cPkL,wk)
 C- Make (ppi-evl*sig)*evec
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -180,17 +180,17 @@ C     implicit none
 C ... Passed parameters
       integer ia,kmax,lcplxp,nkaph,nlma,nlmha,nlmto,iprmb(1)
       double precision
-     .  evl,sighp(nkaph,0:kmax,0:1),ppihp(nkaph,0:kmax,nlmha,nlma),
-     .  sigpp(0:kmax,0:kmax,0:1),ppipp(0:kmax,0:kmax,nlma,nlma)
+     .evl,sighp(nkaph,0:kmax,0:1),ppihp(nkaph,0:kmax,nlmha,nlma),
+     .sigpp(0:kmax,0:kmax,0:1),ppipp(0:kmax,0:kmax,nlma,nlma)
       double complex wk(0:kmax,nlma),evec(1),cPkL(0:kmax,nlma)
       double complex ppihpz(nkaph,0:kmax,nlmha,nlma)
       double complex ppippz(0:kmax,0:kmax,nlma,nlma)
 C ... Local parameters
       integer i,ilm,ilma,ilmb,io,jlm,k,k1,k2,l,ll,nlm1,nlm2,n0,nkap0,ik,
-     .  norb
+     .norb
       parameter (n0=10,nkap0=3)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-     .  blks(n0*nkap0),ntab(n0*nkap0)
+     .blks(n0*nkap0),ntab(n0*nkap0)
       double precision xx
 
       call dpzero(wk, 2*(kmax+1)*nlma)

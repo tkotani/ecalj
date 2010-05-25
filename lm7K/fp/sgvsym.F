@@ -77,8 +77,8 @@ C     ... Find G' = g(k) G; j0 is index to G'
   81  continue
 
       if (iprint() .ge. 20) call awrit2(' SGVSYM: %i symmetry stars'//
-     .  ' found for %i reciprocal lattice vectors',
-     .  ' ',80,stdo,nstar,ng)
+     .' found for %i reciprocal lattice vectors',
+     .' ',80,stdo,nstar,ng)
 
 C --- Multiply phase sums by (star order)/(group order) ---
       ksum = 0

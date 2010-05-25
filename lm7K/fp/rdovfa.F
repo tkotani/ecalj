@@ -45,19 +45,19 @@ C ... Local parameters
       parameter ( nrmx=1501, n0=10 )
       integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
       double precision rsmfa(nspec),pnu(n0,2),exi(n0,nspec),
-     .  hfc(n0,2,nspec),hfct(n0,2,nspec)
+     .hfc(n0,2,nspec),hfct(n0,2,nspec)
       character*8 spid(nspec),spidr
       integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-     . k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
-     . , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
-     . , ov1 , ng , ogv , okv , iofa , osmrho , kcor , lcor
+     .k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
+     ., nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
+     ., ov1 , ng , ogv , okv , iofa , osmrho , kcor , lcor
       real(8) ,allocatable :: rwgt_rv(:)
       complex(8) ,allocatable :: cv_zv(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision alat,plat(3,3),a,rmt,z,rfoc,z0,rmt0,a0,qc,ccof,
-     .  ceh,stc,ztot,ctot,corm,sum,fac,sum1,sum2,sqloc,dq,vol,smom,
-     .  slmom,qcor(2)
+     .ceh,stc,ztot,ctot,corm,sum,fac,sum1,sum2,sqloc,dq,vol,smom,
+     .slmom,qcor(2)
       character msg*23, strn*120
       logical mlog,cmdopt,lfail
 C ... Heap
@@ -80,7 +80,7 @@ C     numprocs = mpipid(0)
 
       if (ipr .ge. 10) write(stdo,700)
   700 format(/' rdovfa: read and overlap free-atom densities',
-     .        ' (mesh density) ...')
+     .' (mesh density) ...')
 
       alat=slat%alat
       i_copy_size=size(slat%plat)
@@ -138,7 +138,7 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
             call rlse(orhofa(is))
           else
             lfail = 
-     .     (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
+     .      (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
      .      hfct(1,1,is),rsmfa(is),z0,rmt0,a0,nr0,qc,ccof,
      .      ceh,stc,w(orhofa(is)),w(orhoca(is)),w(ov0a(is)),ifi)
      .      .lt. 0)
@@ -164,9 +164,9 @@ C ...   Defaults
         if (procid .eq. master) then
           call strip(spid(is),i1,nch)
           if (ipr .ge. 30 .and. rmt0 .ne. 0)
-     .      write(stdo,400) spid(is)(1:nch),spidr,rmt0,nr0,a0
+     .    write(stdo,400) spid(is)(1:nch),spidr,rmt0,nr0,a0
   400     format(' rdovfa: expected ',a,',',T27,' read ',a,
-     .           ' with rmt=',f8.4,'  mesh',i6,f7.3)
+     .    ' with rmt=',f8.4,'  mesh',i6,f7.3)
         endif
         if (nr .le. 0)   nr = nr0
         if (a .le. 1d-6) a = a0
@@ -250,18 +250,18 @@ Ctakao_ZeroClear_NotRequiered            if (nr<0) rwgt_rv(:)=0.0d0
           call radwgt ( rmt , a , nr , rwgt_rv )
 
           call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoca ( is 
-     .     ) ) , sum )
+     .    ) ) , sum )
 
           call radsum ( nr , nr , 1 , 1 , rwgt_rv , w ( orhoca ( is 
-     .     ) ) , sum1 )
+     .    ) ) , sum1 )
 
           sum2 = sum - sum1
           call gtpcor(sspec,is,kcor,lcor,qcor)
 
           if (dabs(qcor(2)-(sum1-sum2)) .gt. 0.01d0) then
             call info5(10,0,0,' (warning) core moment mismatch spec %i:'
-     .        //'  input file=%;6d  atom file=%;6d',
-     .        is,qcor(2),sum1-sum2,0,0)
+     .      //'  input file=%;6d  atom file=%;6d',
+     .      is,qcor(2),sum1-sum2,0,0)
           endif
           corm = corm + qcor(2)
           if (allocated(rwgt_rv)) deallocate(rwgt_rv)
@@ -280,13 +280,13 @@ Ctakao_ZeroClear_NotRequiered              if (nr<0) rwgt_rv(:)=0.0d0
             call radwgt ( rmt , a , nr , rwgt_rv )
 
             call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoat ( 3 
-     .       , ib ) ) , sum )
+     .      , ib ) ) , sum )
 
             fac = 1d0
             if(dabs(sum) .gt. 1d-7) fac = qc/sum
             if (ipr .ge. 40) write(stdo,787) is,qc,sum,fac
   787       format(' scale foca=0 core species',i2,': qc,sum,scale=',
-     .        3f12.6,f12.6)
+     .      3f12.6,f12.6)
             call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
             if (allocated(rwgt_rv)) deallocate(rwgt_rv)
 
@@ -313,7 +313,7 @@ C --- Overlap smooth hankels to get smooth interstitial density ---
 Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cv_zv(:)=0.0d0
 
       call ovlpfa ( ssite , slat , nbas , nxi , n0 , exi , hfc , rsmfa 
-     . , ng , ng , w ( ogv ) , cv_zv )
+     ., ng , ng , w ( ogv ) , cv_zv )
 
 
 ccccccccccccccc
@@ -326,7 +326,7 @@ c        print *,' qqq: okv ocv osmrho=', okv,ocv,osmrho
 ccccccccccccccc
 
       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cv_zv 
-     . , w ( osmrho ) )
+     ., w ( osmrho ) )
 
 
 ccccccccccccccc
@@ -355,11 +355,11 @@ C --- Set up local densities using rmt from atm file ---
 
 
       call ovlocr(nbas,ssite,sspec,slat,n0,nxi,exi,hfc,rsmfa,orhofa,
-     .  orhoat,sqloc,slmom)
+     .orhoat,sqloc,slmom)
 C --- Add compensating uniform electron density to compensate background
       call adbkql(orhoat,nbas,nsp,qbg,vol,-1d0,sspec,ssite)
       if (abs(qbg) .ne. 0) call info(10,0,0,' Uniform '//
-     .  'density added to neutralize background, q=%;6,6d',qbg,0)
+     .'density added to neutralize background, q=%;6,6d',qbg,0)
 
 C --- Print charges ---
       dq = sum1+sqloc+ctot-ztot+qbg
@@ -367,34 +367,34 @@ C --- Print charges ---
         if (ipr .ge. 10)
      .  write(stdo,895) sum1,sqloc,sum1+sqloc,ctot,-ztot,qbg,dq
   895   format(/' Smooth charge on mesh:    ',f16.6
-     .     /    ' Sum of local charges:     ',f16.6
-     .     /    ' Total valence charge:     ',f16.6
-     .     /    ' Sum of core charges:      ',f16.6
-     .     /    ' Sum of nuclear charges:   ',f16.6
-     .     /    ' Homogeneous background:   ',f16.6
-     .     /    ' Deviation from neutrality:',f16.6)
+     .  /    ' Sum of local charges:     ',f16.6
+     .  /    ' Total valence charge:     ',f16.6
+     .  /    ' Sum of core charges:      ',f16.6
+     .  /    ' Sum of nuclear charges:   ',f16.6
+     .  /    ' Homogeneous background:   ',f16.6
+     .  /    ' Deviation from neutrality:',f16.6)
         if (ipr .ge. 10) write (stdl,710) sum1+sqloc,sum1,sqloc,qbg,dq
   710   format('ov qvl',f11.6,'  sm',f11.6,'  loc',f11.6,
-     .    '   bg',f10.6,'  dQ',f10.6)
+     .  '   bg',f10.6,'  dQ',f10.6)
       else
         if (ipr .ge. 10) write(stdo,896) sum1,smom,sqloc,slmom,
-     .    sum1+sqloc,smom+slmom,ctot,corm,-ztot,qbg,dq
+     .  sum1+sqloc,smom+slmom,ctot,corm,-ztot,qbg,dq
   896   format(/' Smooth charge on mesh:    ',f16.6,4x,'moment', f12.6,
-     .     /    ' Sum of local charges:     ',f16.6,4x,'moments',f11.6,
-     .     /    ' Total valence charge:     ',f16.6,4x,'moment', f12.6,
-     .     /    ' Sum of core charges:      ',f16.6,4x,'moment', f12.6,
-     .     /    ' Sum of nuclear charges:   ',f16.6
-     .     /    ' Homogeneous background:   ',f16.6
-     .     /    ' Deviation from neutrality:',f16.6)
+     .  /    ' Sum of local charges:     ',f16.6,4x,'moments',f11.6,
+     .  /    ' Total valence charge:     ',f16.6,4x,'moment', f12.6,
+     .  /    ' Sum of core charges:      ',f16.6,4x,'moment', f12.6,
+     .  /    ' Sum of nuclear charges:   ',f16.6
+     .  /    ' Homogeneous background:   ',f16.6
+     .  /    ' Deviation from neutrality:',f16.6)
         if (ipr .ge. 10)
      .  write (stdl,711) sum1+sqloc,sum1,sqloc,qbg,smom+slmom
   711   format('ov qvl',f11.6,'  sm',f11.6,'  loc',f11.6,
-     .    '   bg',f11.6,' mm',f11.6)
+     .  '   bg',f11.6,' mm',f11.6)
       endif
 
       if (dabs(dq) .gt. 1d-4 .and. ipr .gt. 0)
-     .  call awrit1(' rdovfa (warning) overlapped'
-     .  //' density not neutral'//', dq= %d',' ',80,stdo,dq)
+     .call awrit1(' rdovfa (warning) overlapped'
+     .//' density not neutral'//', dq= %d',' ',80,stdo,dq)
 
       call tcx('rdovfa')
 

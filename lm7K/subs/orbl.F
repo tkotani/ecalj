@@ -36,7 +36,7 @@ C     implicit none
       integer off,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
 C Local
       integer ik,l,lmr,ltabi(n0*nkap0),ktabi(n0*nkap0),
-     .  offli(n0*nkap0+1),iwk(n0*nkap0)
+     .offli(n0*nkap0+1),iwk(n0*nkap0)
       integer nl,nkaph,nglob
       save nl,nkaph
       data nl /-1/, nkaph /-1/
@@ -106,8 +106,8 @@ C     implicit none
       integer mode,ib1,ib2,nbas,indxsh(1),indxi(*),offh(n0H,nkap0,nbas)
       integer offl(*),norb
       integer hdimg,hdimi,horbi,idimg,idimi,iorbi,ldimg,ldimi,lhdimg,
-     .  lidimg,lmr,lorbi,mxorb,nglob,nlmr,offlm,ib,i,nlm,
-     .  offnow,norbi,iwk(n0*nkap0),ltab(n0*nkap0),ktab(n0*nkap0)
+     .lidimg,lmr,lorbi,mxorb,nglob,nlmr,offlm,ib,i,nlm,
+     .offnow,norbi,iwk(n0*nkap0),ltab(n0*nkap0),ktab(n0*nkap0)
 
       ldimg = offH(1,1,nbas+1)
       idimg = offH(2,1,nbas+1)
@@ -218,7 +218,7 @@ C ... Brute force (no assumption about site ordering)
       if (lfast .eq. 0 .or. lfast .lt. 2 .and. ib1+1 .ge. ib2) then
         if (lfast .eq. 2) return
         call imxmnx((ib2-ib1+1)*mxorb,iprmb(1+mxorb*(ib1-1)),1,1+ldimp,
-     .    ldim,i,k)
+     .  ldim,i,k)
         off = i-1
         if (i .le. ldim) ld  = k - (i-1)
 

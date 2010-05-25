@@ -31,7 +31,7 @@ C     double precision
       if (ifi .lt. 0) then
         jfi = -ifi
         call awrit4('frame t= %g T= %g V= %g T+V= %g',' ',80,jfi,
-     .    tim,T,V,T+V)
+     .  tim,T,V,T+V)
         write(jfi,100) (alat*pos(i), i=1, 3*nbas)
   100   format(3000f8.3)
         return
@@ -90,13 +90,13 @@ C     This line should have structure 'frame t= # ...'
       if (.not. a2bin(s,tim,4,0,' ',i,80)) goto 998
       call poseof(ifi)
       call info(30,0,0,
-     .  ' iobsm0: found initial time from mv file: t = %g',tim,0)
+     .' iobsm0: found initial time from mv file: t = %g',tim,0)
       return
 
 C     Improper format: position ifi to EOF and write initial pos.
   998 continue
       call info(30,0,0,
-     .  ' iobsm0: improper file format; no initial time read',0,0)
+     .' iobsm0: improper file format; no initial time read',0,0)
 
 C     Reset time; write initial positions to ifi
   999 continue
@@ -104,7 +104,7 @@ C     Reset time; write initial positions to ifi
       call poseof(ifi)
       call iobsmv(0,tim,T,V,nbas,alat,pos,-ifi)
       call info(30,0,0,
-     .  ' iobsm0: writing initial positions to mv file',0,0)
+     .' iobsm0: writing initial positions to mv file',0,0)
 
       end
 

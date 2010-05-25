@@ -1,5 +1,5 @@
       subroutine loctsh(mode,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,
-     .  rs3,eh3,vmtz,vsel,rsml,ehl)
+     .rs3,eh3,vmtz,vsel,rsml,ehl)
 C- Fit value and slope of local orbitals to smoothed Hankel
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -71,15 +71,15 @@ C ... Passed parameters
 C ... Local parameters
       character spid*8,orbit(2)*4,flg(2)*1
       integer:: ipr , iprint , i , l , info , nglob , stdo , mode0 
-     . , mode1 , mode2 , mode3 , mode4 , modei , loclo , nfit , iprt 
-     . , isw
+     ., mode1 , mode2 , mode3 , mode4 , modei , loclo , nfit , iprt 
+     ., isw
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: gp_rv(:)
       real(8) ,allocatable :: h_rv(:)
 
       integer nrx,nrbig,ir,lp1
       double precision dphi,dphip,eh,eval,p,phi,phip,
-     .  pnul,rsm,rsmin,rsmax,rmt,ekin,h,sum1,sum2,qrmt
+     .pnul,rsm,rsmin,rsmax,rmt,ekin,h,sum1,sum2,qrmt
 C     emin and emax are the maximum allowed ranges in Hankel energies
 C     for the fitting of local orbitals to Hankel tails.
       double precision emin,emax,vmine
@@ -160,8 +160,8 @@ C   ... Initial printout
           nfit = nfit + 1
           if (nfit .eq. 1 .and. modei .gt. 1) then
             call info2(20,1,0,
-     .    ' Fit local orbitals to sm hankels, species '//spid//
-     .    '%a, rmt=%;7g',rmt,0)
+     .      ' Fit local orbitals to sm hankels, species '//spid//
+     .      '%a, rmt=%;7g',rmt,0)
             if (ipr .ge. IPRT) write (stdo,261)
           endif
 
@@ -174,8 +174,8 @@ C     ... Overwrite V+, V- with (V+ + V-)/2, (V+ - V-)/2,
 
 C     ... Wave function and potential parameters at MT sphere
             call makrwf ( 0 , z , rmt , l , v ( 1 , i ) , a , nrmt , rofi 
-     .     , pnz ( 1 , i ) , 4 , g_rv , gp_rv , eval , phi , dphi 
-     .     , phip , dphip , p )
+     .      , pnz ( 1 , i ) , 4 , g_rv , gp_rv , eval , phi , dphi 
+     .      , phip , dphip , p )
 
 C         call prrmsh('gz',rofi,w(og),nr,nr,2)
 
@@ -205,7 +205,7 @@ C   ... Set conditions on envelope functions
             rsmax = 5
             if (mode2 .eq. 1) rsmax = rmt
             if (eval .lt. emin)
-     .    call rx1('increase emin in loctsh: eval=%;4g',eval)
+     .      call rx1('increase emin in loctsh: eval=%;4g',eval)
 
 C   ... Match val,slo, and K.E. of Hankel to phi,dphi,vmine
             if (modei .eq. 2 .or. modei .eq. 3) then
@@ -213,7 +213,7 @@ C   ... Match val,slo, and K.E. of Hankel to phi,dphi,vmine
               eh = min(eval-vmtz,emax)
 C         call pshpr(110-10)
               call mtchre(103,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,
-     .      vmine,dphi,rsm,eh,ekin,info)
+     .        vmine,dphi,rsm,eh,ekin,info)
 C         call poppr
 
 C   ... Vary rsm to match sm Hankel to phi,dphi
@@ -221,7 +221,7 @@ C   ... Vary rsm to match sm Hankel to phi,dphi
               call rx('this branch not checked')
               rsm = rsmin
               call mtchre(100,l,rsmin,rsmax,emin,emax,rmt,rmt,phi,dphi,phi,
-     .      dphi,rsm,eh,ekin,info)
+     .        dphi,rsm,eh,ekin,info)
 
             else
               call rxi('loctsh: not implemented fitting mode=',modei)
@@ -249,10 +249,10 @@ C           h = r*radial part of sm. Hankel
               qrmt = sum2/(sum1+sum2)
 
               write (stdo,260)
-     .    l,orbit(2-loclo),pnul,eval,vmine,rsm,eh,qrmt,ekin,
-     .    flg(2-isw(dabs(ekin-vmine).gt.1d-5))
+     .        l,orbit(2-loclo),pnul,eval,vmine,rsm,eh,qrmt,ekin,
+     .        flg(2-isw(dabs(ekin-vmine).gt.1d-5))
   261         format('  l  type    Pnu      Eval        K.E.',
-     .    7x,'Rsm       Eh      Q(r>rmt)    Fit K.E.')
+     .        7x,'Rsm       Eh      Q(r>rmt)    Fit K.E.')
   260         format(i3,2x,a,f8.3,2f12.6,3f10.5,f12.6,a1)
             endif
 C       pause

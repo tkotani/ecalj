@@ -1,5 +1,5 @@
       subroutine mkekin(nbas,ndimh,ssite,sspec,slat,sham,osig,otau,oppi,
-     .  lcplxp,oqkkl,k1,k2,k3,vconst,smpot,smrho,sumev,sumtv)
+     .lcplxp,oqkkl,k1,k2,k3,vconst,smpot,smrho,sumev,sumtv)
 
       use m_struc_def  !Cgetarg
 
@@ -151,15 +151,15 @@ C ... Passed parameters
       double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
 C ... Local parameters
       integer ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3,
-     .  ngabc(3),nglob,nkap0,nlma,nlmh,norb,nsp,nspc,stdo,lso,isw
+     .ngabc(3),nglob,nkap0,nlma,nlmh,norb,nsp,nspc,stdo,lso,isw
       integer oiprmb,oppihh,oppihp,oppipp,oqhh,oqhp,oqpp,osighh,osighp,
-     .  osigpp,otauhh,otauhp,otaupp
+     .osigpp,otauhh,otauhp,otaupp
       logical lgors
       parameter (n0=10,nkap0=3)
       integer nkaph,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-     .  ntab(n0*nkap0),blks(n0*nkap0)
+     .ntab(n0*nkap0),blks(n0*nkap0)
       double precision qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,
-     .  sumq,sumt,vol,xx
+     .sumq,sumt,vol,xx
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 C ... Heap
       integer w(1)
@@ -182,7 +182,7 @@ C ... Heap
       oiprmb=sham%oindxo
 
       lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
-     . ) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
+     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
 
 
 C     call zprm3('sm rho-out',0,smrho,k1,k2,k3*nsp)
@@ -239,10 +239,10 @@ C       Block into groups of consecutive l
         oppipp = oppi(1,ib)
 
         call pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh,nlmh,
-     .    w(otauhh),w(osighh),w(oppihh),w(oppihh),
-     .    w(otauhp),w(osighp),w(oppihp),w(oppihp),
-     .    w(otaupp),w(osigpp),w(oppipp),w(oppipp),
-     .    lcplxp,lso,w(oqhh),w(oqhp),w(oqpp),nsp,nspc,sumt,sumq,sumh)
+     .  w(otauhh),w(osighh),w(oppihh),w(oppihh),
+     .  w(otauhp),w(osighp),w(oppihp),w(oppihp),
+     .  w(otaupp),w(osigpp),w(oppipp),w(oppipp),
+     .  lcplxp,lso,w(oqhh),w(oqhp),w(oqpp),nsp,nspc,sumt,sumq,sumh)
 C       Add site augmentation contribution to rhout * (ham - ke)
         sraugm = sraugm + sumh - sumt
    10   continue
@@ -257,9 +257,9 @@ C       Add site augmentation contribution to rhout * (ham - ke)
 
 
       subroutine pvgtkn(kmax,lmxa,nlma,nkaph,norb,ltab,ktab,blks,lmxh,
-     .  nlmh,tauhh,sighh,ppihh,ppihhz,tauhp,sighp,ppihp,ppihpz,
-     .  taupp,sigpp,ppipp,ppippz,lcplxp,lso,qhh,qhp,qpp,nsp,nspc,
-     .  sumt,sumq,sumh)
+     .nlmh,tauhh,sighh,ppihh,ppihhz,tauhp,sighp,ppihp,ppihpz,
+     .taupp,sigpp,ppipp,ppippz,lcplxp,lso,qhh,qhp,qpp,nsp,nspc,
+     .sumt,sumq,sumh)
 
 C- Local contribution to kinetic energy for one site
 C ----------------------------------------------------------------------
@@ -304,16 +304,16 @@ C ... Passed parameters
       integer kmax,lmxa,nlma,lmxh,nlmh,nsp,nspc,lcplxp,lso
       integer nkaph,norb,ltab(norb),ktab(norb),blks(norb)
       double precision
-     .  tauhh(nkaph,nkaph,0:lmxh,1),sighh(nkaph,nkaph,0:lmxh,1),
-     .  tauhp(nkaph,0:kmax,0:lmxh,1),sighp(nkaph,0:kmax,0:lmxh,1),
-     .  taupp(0:kmax,0:kmax,0:lmxa,1),sigpp(0:kmax,0:kmax,0:lmxa,1),
-     .  ppihh(nkaph,nkaph,nlmh,nlmh,1),qhh(nkaph,nkaph,nlmh,nlmh,1),
-     .  ppihp(nkaph,0:kmax,nlmh,nlma,1),qhp(nkaph,0:kmax,nlmh,nlma,1),
-     .  ppipp(0:kmax,0:kmax,nlma,nlma,1),qpp(0:kmax,0:kmax,nlma,nlma,1)
+     .tauhh(nkaph,nkaph,0:lmxh,1),sighh(nkaph,nkaph,0:lmxh,1),
+     .tauhp(nkaph,0:kmax,0:lmxh,1),sighp(nkaph,0:kmax,0:lmxh,1),
+     .taupp(0:kmax,0:kmax,0:lmxa,1),sigpp(0:kmax,0:kmax,0:lmxa,1),
+     .ppihh(nkaph,nkaph,nlmh,nlmh,1),qhh(nkaph,nkaph,nlmh,nlmh,1),
+     .ppihp(nkaph,0:kmax,nlmh,nlma,1),qhp(nkaph,0:kmax,nlmh,nlma,1),
+     .ppipp(0:kmax,0:kmax,nlma,nlma,1),qpp(0:kmax,0:kmax,nlma,nlma,1)
       double complex
-     .  ppihhz(nkaph,nkaph,nlmh,nlmh,1),
-     .  ppihpz(nkaph,0:kmax,nlmh,nlma,1),
-     .  ppippz(0:kmax,0:kmax,nlma,nlma,1)
+     .ppihhz(nkaph,nkaph,nlmh,nlmh,1),
+     .ppihpz(nkaph,0:kmax,nlmh,nlma,1),
+     .ppippz(0:kmax,0:kmax,nlma,nlma,1)
 C ... Local parameters
       integer ilm1,ilm2,k1,k2,ll,nlm11,nlm12,nlm21,nlm22,i
       double precision sumt,sumq,sumh,xx

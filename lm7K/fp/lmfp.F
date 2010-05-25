@@ -1,5 +1,5 @@
       subroutine lmfp(prgnam,sbz,sctrl,sham,spot,slat,smix,
-     .  sspec,ssite,sstr,smove,sarray,sstrn)
+     .sspec,ssite,sstr,smove,sarray,sstrn)
 
       use m_struc_def  !Cgetarg
 
@@ -105,9 +105,9 @@ C ... Local variables
       logical mlog
       logical lgors,cmdopt,bittst
       integer fopna,fopng,i,ifi,igets,iors,ipr,irs(5),iscr,isw,ix(5),j,
-     .  k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,nbas,nat,
-     .  nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
-     .  stdo,pdim,lsc
+     .k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,nbas,nat,
+     .nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
+     .stdo,pdim,lsc
       integer:: oorhat , opos , osmpot , osmrho , o
       real(8) ,allocatable :: evl_rv(:)
       real(8) ,allocatable :: frc_rv(:)
@@ -135,7 +135,7 @@ C ... for iterations
 C ... for relaxation
       logical xyzfrz(3),lshr,ltmp
       integer:: icom , natrlx , nvrelx , ltb , itrlx , nm , irlxsh 
-     . , nitrlx , bitor , ng
+     ., nitrlx , bitor , ng
       integer ,allocatable :: indrx_iv(:)
       real(8) ,allocatable :: w_rv(:)
 
@@ -146,7 +146,7 @@ cki, for rlse and allocate oindrx
       real(8) ,allocatable :: shr_rv(:)
 
       double precision mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2),
-     .  plat0(9),dist0(9),dist(9)
+     .plat0(9),dist0(9),dist(9)
       parameter (nm=3)
 C ... for LDA+U
       integer nlibu,lmaxu
@@ -207,10 +207,10 @@ c   mpipic() is defined in slatsm
         if (procid == master ) then
           write(6,*)
           write(6,"(a,/,a,/,a,/,a)")
-     &   '# For lmf-MPI, process>NBAS is not allowed.',
-     &   '# If you remove this sanity check, it will fail',
-     &   '# at hsibl.F and smhsbl.F.',
-     &   '# You may need a better MPI version for efficent use of CPUs.'
+     &    '# For lmf-MPI, process>NBAS is not allowed.',
+     &    '# If you remove this sanity check, it will fail',
+     &    '# at hsibl.F and smhsbl.F.',
+     &    '# You may need a better MPI version for efficent use of CPUs.'
         endif
 c        call mpi_abort(MPI_COMM_WORLD,-1,ierr)
         call mpi_finalize(ierr)
@@ -315,7 +315,7 @@ C     stdl   = lgunit(2)
       call setcc(lrel)
 
       irs ( 1 ) = iand(7,int(sctrl%lrs)) + 8 * isw ( iand(256,int(sctrl%lrs)) .ne.0 
-     . )
+     .)
 
       irs ( 2 ) = iand(8+16,int(sctrl%lrs)) /8
 
@@ -362,7 +362,7 @@ Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) pos2_rv(:)=0.0d0
           i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbas
             call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .    , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
+     .      , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
 
           enddo
 
@@ -454,14 +454,14 @@ Ctakao_ZeroClear_NotRequiered          if (6*nbas<0) indrx_iv(:)=0
 C       Next lines in case lattice relaxation
         if (lshr) then
           if (abs(gam(4)-1) .gt. 1d-10) call rx('lmfp: '//
-     .        'use of SHEAR= incompatible w/ lattice relaxation')
+     .    'use of SHEAR= incompatible w/ lattice relaxation')
 
           i_copy_size=size(slat%plat0)
           call dcopy(i_copy_size,slat%plat0,1,plat0,1)
 
         endif
         call rlxstp ( sctrl , ssite , natrlx , nvrelx , indrx_iv , 
-     .   xyzfrz , pdim )
+     .  xyzfrz , pdim )
 
 cki         if (allocated(indrx_iv)) deallocate(indrx_iv)
 
@@ -496,7 +496,7 @@ Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) pos2_rv(:)=0.0d0
           call shorps ( nbas , plat , ix , w ( opos ) , pos2_rv )
 
           call iobsm0 ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv 
-     .   , ifi )
+     .    , ifi )
 
           if (allocated(pos2_rv)) deallocate(pos2_rv)
 
@@ -564,7 +564,7 @@ C     Whether to evaluate output density and/or KS energy
       j = 6
       if (cmdopt('-leks=',j,0,strn)) then
         if (.not. a2bin(strn,leks,2,0,' ',j,72))
-     .    call rxs('failed to parse',strn)
+     .  call rxs('failed to parse',strn)
       endif
       if (nevmx .eq. -1) then
         lrout = 0
@@ -579,7 +579,7 @@ C     Sanity checks
       if (lrout .eq. 0 .and. lfrce .ne. 0) then
         write(stdo,333) 'when forces sought'
   333   format('lmfp (fatal): output density required ',a/
-     .    '      To make output density turn off HF=t and/or NEVMX<0')
+     .  '      To make output density turn off HF=t and/or NEVMX<0')
         call rx('incompatible input')
       endif
 C     Sanity checks
@@ -589,7 +589,7 @@ C     Sanity checks
       endif
       if (lrout.eq.0 .and. maxit.gt.1 .and. ipr.ge.20) then
         call awrit1('%N lmfp (warning): %i iterations sought but no'//
-     .    ' output rho ... do 1 iteration',' ',80,stdo,maxit)
+     .  ' output rho ... do 1 iteration',' ',80,stdo,maxit)
         maxit = 1
       endif
 
@@ -608,7 +608,7 @@ C... LDA+U initialization
       call defrr(odmato,1)
 C     Check for LDA+U ... return nlibu > 0 if any U blocks
       call suldau ( nbas , sspec , ssite , nlibu , lmaxu , lldau_iv 
-     . )
+     .)
 
       if (nlibu .gt. 0) then
         call rlse(ovorb)
@@ -632,8 +632,8 @@ C       defaults
 C       if (tolu .eq. 0d0) tolu = 1d-4
 C       initialize density matrix for LDA+U
         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
-     .   , lldau_iv , ng , w ( og ) , w ( oistab ) , w ( odmatu ) , 
-     .   w ( ovorb ) )
+     .  , lldau_iv , ng , w ( og ) , w ( oistab ) , w ( odmatu ) , 
+     .  w ( ovorb ) )
 
       endif
 C     end LDA+U  initialization section
@@ -641,14 +641,14 @@ C     end LDA+U  initialization section
 C ... Invoke the restart editor
       if (cmdopt('--rsedit',8,0,strn)) then
         call rsedit(strn(9:),1,sctrl,ssite,sspec,slat,spot,sbz,
-     .    nbas,nat,nspec)
+     .  nbas,nat,nspec)
         call rx0('lmfp from rsedit')
       endif
 
 C ... Invoke the response function editor
       if (cmdopt('--chimedit',10,0,strn)) then
         call chimedit(strn(11:),1,sctrl,ssite,sspec,slat,spot,sbz,
-     .    nbas,nat,nspec)
+     .  nbas,nat,nspec)
         call rx0('lmfp from chimedit')
       endif
 
@@ -700,7 +700,7 @@ ctakao BZ_W is
 
 c        print *,'yyyyyyy goto iors osmrho=',spot%osmrho
         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,
-     .    nspec,w(oorhat),w,nit1,lbin,ifi)
+     .  nspec,w(oorhat),w,nit1,lbin,ifi)
 c        print *,'yyyyyyyyyy end of iors'
 ctakao
 
@@ -807,7 +807,7 @@ Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) pos2_rv(:)=0.0d0
         call shorps ( - nbas , plat , ix , pos2_rv , w ( opos ) )
 
         call info0(20,1,-1,
-     .    ' lmfp  : write shortening vectors to file shorps ...')
+     .  ' lmfp  : write shortening vectors to file shorps ...')
         call iopos(.true.,1,'shorps',nbas,w(opos))
         call shorps ( nbas , plat , ix , pos2_rv , w ( opos ) )
 
@@ -832,22 +832,22 @@ C     Hang on to previous site density matrix for this iteration
 
 C --- Make and diagonalize hamiltonian, make new charge density ---
       if (maxit .eq. 0) call info0(20,1,0,
-     .  ' lmfp  : zero iterations sought ... no band pass')
+     .' lmfp  : zero iterations sought ... no band pass')
 
       llmfgw=.false. !takao now just lmfgw mode by lmfgw switch.
       if(trim(prgnam)=='LMFGWD') llmfgw=.true.
 
       call bndfp ( nbas , nsp , nlibu , lmaxu , lldau_iv , ssite 
-     . , sspec , slat , sctrl , sham , spot , sbz , sstrn , ndham , 
-     . leks , lrout , lfrce , lpnu , dmxp , iter , maxit , evl_rv 
-     . , frc_rv , w ( odmatu ) , w ( ovorb ) , llmfgw )
+     ., sspec , slat , sctrl , sham , spot , sbz , sstrn , ndham , 
+     .leks , lrout , lfrce , lpnu , dmxp , iter , maxit , evl_rv 
+     ., frc_rv , w ( odmatu ) , w ( ovorb ) , llmfgw )
 
 
 C ... check convergence of dmatu and update it and vorb if necessary
       if (nlibu .gt. 0 .and. maxit .gt. 0 .and. lrout .gt. 0) then
         call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
-     .   , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
-     .   , lldau_iv , ng , w ( og ) , w ( oistab ) )
+     .  , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
+     .  , lldau_iv , ng , w ( og ) , w ( oistab ) )
 
       endif
 
@@ -893,13 +893,13 @@ C       call p_dyn_ef(s_dyn, ef0,def,esmear)
             call upacks('strn jobid',i,j)
             fileid = 'lmfp:  ' // sstrn(i:j)
             k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
-     .    fileid,nbas,nat,nspec,w(oorhat),w,iter,lbin,-ifi)
+     .      fileid,nbas,nat,nspec,w(oorhat),w,iter,lbin,-ifi)
             call fclose(ifi)
           endif
         endif
       endif
       if (cmdopt('--window=',9,0,strn))
-     .  call rx0('lmf : early exit (--window option)')
+     .call rx0('lmf : early exit (--window option)')
 
 C --- Add to save file; decide on next iteration ---
       if (maxit .gt. 0) then
@@ -925,8 +925,8 @@ C     The desired tolerances in q,e
           i = 0
           if (rhosig .ne. -99 .and. rhosig .ne. 0) i = 10
           call nwit ( int(sctrl%nvario) , iter , maxit , lhf.or.irs ( 1 
-     .   ) .eq.0.and.iter.eq.1 , leks+i , etol , qtol , qdiff , 'cxhi' 
-     .   , amom , etot , lsc )
+     .    ) .eq.0.and.iter.eq.1 , leks+i , etol , qtol , qdiff , 'cxhi' 
+     .    , amom , etot , lsc )
 
         endif
         call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
@@ -937,7 +937,7 @@ C     The desired tolerances in q,e
           if (iter .lt. maxit) lsc = 3
         endif
         if ( int(sctrl%quit) .eq. 4 ) call rx0 ( 'lmf : exit (--quit=band)' 
-     . )
+     .  )
 
         iter = iter+1
 C     Continue iterations toward self-consistency
@@ -972,7 +972,7 @@ C       Buglet: this eats up a little memory.  Never released.
 
           if (lshr) then
             call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot , irlxsh , 
-     .     pletot , dist )
+     .      pletot , dist )
 
             if (irlxsh .ne. 0) then
               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
@@ -980,8 +980,8 @@ C       Buglet: this eats up a little memory.  Never released.
               goto 98
             else
               call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv 
-     .       , natrlx , nvrelx , pletot , p_rv , w_rv , 0 , 0d0 , dist0 
-     .       , icom )
+     .        , natrlx , nvrelx , pletot , p_rv , w_rv , 0 , 0d0 , dist0 
+     .        , icom )
 
               call dpzero(dist,6)
               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
@@ -991,8 +991,8 @@ C       Buglet: this eats up a little memory.  Never released.
 
           else
             call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv 
-     .   , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , 
-     .   w ( opos ) , icom )
+     .      , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , 
+     .      w ( opos ) , icom )
 
           endif
 
@@ -1027,7 +1027,7 @@ Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) pos2_rv(:)=0.0d0
             call shorps ( nbas , plat , ix , w ( opos ) , pos2_rv )
 
             call iobsmv ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv 
-     .     , - ifi )
+     .      , - ifi )
 
             if (allocated(pos2_rv)) deallocate(pos2_rv)
 
@@ -1054,7 +1054,7 @@ C   ... Exit when relaxation converged or maximum number of iterations
             endif
             call tcx('lmfp')
             call fexit(0,111,
-     .    ' LMFP: relaxation converged after %i iteration(s)',itrlx)
+     .      ' LMFP: relaxation converged after %i iteration(s)',itrlx)
           else
             call query('proceed with next relaxation step',-1,0)
           endif
@@ -1068,12 +1068,12 @@ C        if (itrlx .eq. nitrlx .and. icom .eq. -1) then
 
 C           call prmx('initial positions',w(opos),3,3,nbas)
               call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , 
-     .       p_rv , w ( opos ) )
+     .        p_rv , w ( opos ) )
 
 C           call prmx('minimum-g positions',w(opos),3,3,nbas)
             else
               call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , 
-     .       p_rv , dist0 )
+     .        p_rv , dist0 )
 
               call dpzero(dist,6)
               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
@@ -1118,7 +1118,7 @@ C   ... Write restart file (to include new positions)
 
 C   ... Write positions to file
           if (cmdopt('--wpos=',7,0,strn) .or.
-     .      cmdopt('--wpos:mode1:',13,0,strn)) then
+     .    cmdopt('--wpos:mode1:',13,0,strn)) then
 
             i_copy_size=size(slat%gam)
             call dcopy(i_copy_size,slat%gam,1,gam,1)
@@ -1127,7 +1127,7 @@ C   ... Write positions to file
 Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) wk_rv(:)=0.0d0
 
             call rdistn ( w ( opos ) , wk_rv , nbas , gam ( 1 ) , gam 
-     .     ( 2 ) , gam ( 3 ) , 1 / gam1 )
+     .      ( 2 ) , gam ( 3 ) , 1 / gam1 )
 
             call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
 
@@ -1152,7 +1152,7 @@ C   ... Exit when maximum number of iterations encountered
             if (procid .eq. master) then
               call tcx('lmfp')
               call fexit(1,111,
-     .    ' LMFP: relaxation incomplete after %i iteration(s)',nitrlx)
+     .        ' LMFP: relaxation incomplete after %i iteration(s)',nitrlx)
             else
               call tcx('lmfp')
               call fexit(1,111,' ',0)
@@ -1170,7 +1170,7 @@ C   ... Exit when maximum number of iterations encountered
 
 C ... Write positions to file
       if (cmdopt('--wpos=',7,0,strn) .or.
-     .    cmdopt('--wpos:mode1:',13,0,strn)) then
+     .cmdopt('--wpos:mode1:',13,0,strn)) then
         call defrr(opos,3*nbas)
         i_copy_size=size(ssite(1)%pos)
         do i_spackv=1,nbas
@@ -1185,7 +1185,7 @@ C ... Write positions to file
 Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) wk_rv(:)=0.0d0
 
         call rdistn ( w ( opos ) , wk_rv , nbas , gam ( 1 ) , gam 
-     .   ( 2 ) , gam ( 3 ) , 1 / gam1 )
+     .  ( 2 ) , gam ( 3 ) , 1 / gam1 )
 
         if (cmdopt('--wpos:mode1:',13,0,strn)) then
           call iopos ( .true. , 1 , strn ( 14: ) , nbas , wk_rv )
@@ -1232,14 +1232,14 @@ Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) pos2_rv(:)=0.0d0
 
       call dinv33(plat,0,xv,xv(10))
       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , w ( opos 
-     . ) , 3 , 0d0 , pos2_rv , 3 )
+     .) , 3 , 0d0 , pos2_rv , 3 )
 
 C     Simultaneously pack in lat->pos and site->pos
 
       opos=slat%opos
 
       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv 
-     . , 3 , 0d0 , w ( opos ) , 3 )
+     ., 3 , 0d0 , w ( opos ) , 3 )
 
 C     call prmx('positions for plat0',w(opos),3,3,nbas)
       i_copy_size=size(ssite(1)%pos)
@@ -1283,7 +1283,7 @@ C ... Write restart file (to include new positions)
         call upacks('strn jobid',i,j)
         fileid = 'lmfp:  ' // sstrn(i:j)
         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
-     .    fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
+     .  fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
         call fclose(ifi)
       endif
 
@@ -1344,7 +1344,7 @@ C     implicit none
       integer iv,ipm,ipv
 
       call info5(30,1,0,' GRDEPL: point %i of %i for grad shear: '//
-     .  'etot=%d',irlxsh,2*nvrelx,etot,0,0)
+     .'etot=%d',irlxsh,2*nvrelx,etot,0,0)
 
 C   3 continue
 
@@ -1375,7 +1375,7 @@ C     Get shear index for next shear and whether + or -
       ipv = indrlx(iv)
       ipm = mod((irlxsh-1),2) + 1
       if (ipv .lt. 1 .or. ipv .gt. 6)
-     .  call rx('grdepl: something wrong with indrlx')
+     .call rx('grdepl: something wrong with indrlx')
 C     Make new shear
       call dvset(vec1,1,6,alpha)
       if (ipm .eq. 2) call dvset(vec1,1,6,-alpha)

@@ -20,7 +20,7 @@ C Local variables
       integer i,m,nmax,ns,ii,ip,i0,iipm,lerr
       parameter (nmax=50)
       double precision den,ho,hp,w,dd,t,c(nmax),d(nmax),
-     .  tiny,d1mach
+     .tiny,d1mach
 
       if (n .gt. nmax) call rx('poldvm: increase nmax')
       if (n+1 .gt. np) call rx('poldvm: n+1 gt np')
@@ -31,59 +31,59 @@ C Local variables
       do  10  ip = 1, np
 
 C --- index ns closest table entry ---
-      i0 = ip-1
-      i0 = min(max(i0-n/2,0),np-n-1)
-      ns = 0
-      do  20  i = 1, n
-        ii = i+i0
-        if (ii .le. ip) ns = i
-        if (ii .ge. ip) ii = ii+1
-        c(i) = (y(ii)-y(ip))/(x(ii)-x(ip))
-        d(i) = (y(ii)-y(ip))/(x(ii)-x(ip)) + tiny
-   20 continue
+        i0 = ip-1
+        i0 = min(max(i0-n/2,0),np-n-1)
+        ns = 0
+        do  20  i = 1, n
+          ii = i+i0
+          if (ii .le. ip) ns = i
+          if (ii .ge. ip) ii = ii+1
+          c(i) = (y(ii)-y(ip))/(x(ii)-x(ip))
+          d(i) = (y(ii)-y(ip))/(x(ii)-x(ip)) + tiny
+   20   continue
 
-      if (ns .eq. 0 .or. ii .gt. np) call rx('bug in poldvm')
+        if (ns .eq. 0 .or. ii .gt. np) call rx('bug in poldvm')
 
 C --- For each column of the Neville recursion update C and D ---
-      yp(ip) = c(ns)
-      ns = ns-1
-      do  23  m = 1, n-1
-        do  22  i = 1, n-m
-          ii = i+i0
-          iipm = i+m+i0
-          if (ii .ge. ip) ii = ii+1
-          if (iipm .ge. ip) iipm = iipm+1
-          ho = x(ii)-x(ip)
-          hp = x(iipm)-x(ip)
-          w  = c(i+1)-d(i)
-          if (lrat) then
-            t = ho*d(i)/hp
-            dd = t-c(i+1)
+        yp(ip) = c(ns)
+        ns = ns-1
+        do  23  m = 1, n-1
+          do  22  i = 1, n-m
+            ii = i+i0
+            iipm = i+m+i0
+            if (ii .ge. ip) ii = ii+1
+            if (iipm .ge. ip) iipm = iipm+1
+            ho = x(ii)-x(ip)
+            hp = x(iipm)-x(ip)
+            w  = c(i+1)-d(i)
+            if (lrat) then
+              t = ho*d(i)/hp
+              dd = t-c(i+1)
 C ... Error if pole; skip this point
-            if (dd .eq. 0) then
-              yp(ip) = 0
-              if (lerr .eq. 0) lerr = ip
-              goto 10
+              if (dd .eq. 0) then
+                yp(ip) = 0
+                if (lerr .eq. 0) lerr = ip
+                goto 10
+              endif
+              dd = w/dd
+              d(i) = c(i+1)*dd
+              c(i) = t*dd
+            else
+              den = w/(ho-hp)
+              d(i) = hp*den
+              c(i) = ho*den
             endif
-            dd = w/dd
-            d(i) = c(i+1)*dd
-            c(i) = t*dd
-          else
-            den = w/(ho-hp)
-            d(i) = hp*den
-            c(i) = ho*den
-          endif
-   22   continue
+   22     continue
 C ---   Decide which whether to accumulate correction C or D to y ---
-        if (2*ns .lt. n-m) then
-          dy = c(ns+1)
-        else
-          dy = d(ns)
-          ns = ns-1
-        endif
-        yp(ip) = yp(ip)+dy
-        if (dabs(dy) .lt. tol) goto 10
-   23 continue
+          if (2*ns .lt. n-m) then
+            dy = c(ns+1)
+          else
+            dy = d(ns)
+            ns = ns-1
+          endif
+          yp(ip) = yp(ip)+dy
+          if (dabs(dy) .lt. tol) goto 10
+   23   continue
 
    10 continue
 

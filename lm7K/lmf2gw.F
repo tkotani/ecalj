@@ -25,11 +25,11 @@ c------------------------------------------------------------------
 C     implicit none
 C     implicit real*8 (a-h,o-z)
       integer icor1,icorex,nphimx,i,i1,i2,ibas,ibasx,ibx,ic,icore,
-     .  ifichkv,ifigw0,ifigwa,ifigwb,ifigwx1,ifigwx2,ifigwx3,isp,ispx,
-     .  ispxx,ix,kkk,kkkdummy,l,ldummy,lmxa,lxx,n1q,n2q,n3q,nclassx,m,n,
-     .  ncore,ndimh,ngc,ngcmx,ngp,nnc,nq0i,nqbz,nspdummy,IKP,NR_A
+     .ifichkv,ifigw0,ifigwa,ifigwb,ifigwx1,ifigwx2,ifigwx3,isp,ispx,
+     .ispxx,ix,kkk,kkkdummy,l,ldummy,lmxa,lxx,n1q,n2q,n3q,nclassx,m,n,
+     .ncore,ndimh,ngc,ngcmx,ngp,nnc,nq0i,nqbz,nspdummy,IKP,NR_A
       real(8) qlat(3,3),ovv(20),ef0,qpgcut_phi,qpgcut_cou,z,
-     .  a_a,b_a,rofi_anr
+     .a_a,b_a,rofi_anr
       character*120  ext0*8, ext*8
       real(8):: qqq(3),plat(3,3)
       integer:: ifi,ifefclass,fopnx,fopna,fext,icors(2)
@@ -37,54 +37,54 @@ C     implicit real*8 (a-h,o-z)
       complex(8),allocatable:: cphi(:,:),cphi_d(:,:,:,:)
 
       real(8),allocatable:: evl(:)
-     &  , vvv1(:),vvv2(:),vvv3(:)       !,vxcfp(:)
-     &  ,rofi_A(:)
-     &  ,gcore_A(:,:), ec_A(:), bas(:,:)
+     &, vvv1(:),vvv2(:),vvv3(:)       !,vxcfp(:)
+     &,rofi_A(:)
+     &,gcore_A(:,:), ec_A(:), bas(:,:)
       integer,allocatable:: konf(:,:),lmxaa(:),nncx(:,:)
-     &           ,ngvecp(:,:),ngvecc(:,:)
+     &,ngvecp(:,:),ngvecc(:,:)
       real(8),allocatable :: qbze(:,:)
       real(8),parameter ::  rydberg=13.6058d0
       logical ::
-     &   nocore  ! Flag file NoCore exist or not.
-                 ! nocore is obtained by inquire(file='NoCore',exist=nocore) in the upper routine.
-                 ! If nocore exist. you have to supply
-                 !  <psi|Vxc(n_valence)|psi>  to  vxclda (nband, nqbze).
-                 ! If not, <psi|Vxc(n_total)|psi>  to  vxclda.
+     &nocore  ! Flag file NoCore exist or not.
+      ! nocore is obtained by inquire(file='NoCore',exist=nocore) in the upper routine.
+      ! If nocore exist. you have to supply
+      !  <psi|Vxc(n_valence)|psi>  to  vxclda (nband, nqbze).
+      ! If not, <psi|Vxc(n_total)|psi>  to  vxclda.
       real(8),allocatable :: wt(:),q0i(:,:)
 c----------------------------------------------
-        integer ::
-     &  nsp,      ! =1 or 2, corresponding to para or ferro.
-     &  nbas,     ! Number of atom in the primitive cell
-     &  nclass,   ! Number of atomic class (or type) for in the primitive cell
-     &  nrmx,     ! = maxval(nr(1:nclass))  Maximum number of nr
-     &  ncoremx,  ! = maxval(ncore(1:nclass))
+      integer ::
+     &nsp,      ! =1 or 2, corresponding to para or ferro.
+     &nbas,     ! Number of atom in the primitive cell
+     &nclass,   ! Number of atomic class (or type) for in the primitive cell
+     &nrmx,     ! = maxval(nr(1:nclass))  Maximum number of nr
+     &ncoremx,  ! = maxval(ncore(1:nclass))
 c
-     &  lmxamx,   ! = maxval(lmxa(1:nclass))
-     &  ngpmx,    ! Maximum number of G vector.
-     &  nband,    ! Number of bands given by GWIN0
-     &  ldim,     ! = sum ( (lmxa(1:nbas)+1)**2 )
-     &  ldim2,    ! = total number of augmentation functions nRlm
-     &  nphi,     ! = total number of augmentation functions nRl
-     &  nqbze     ! = nqbz*(1+nq0i). Number of q points given by qg4gw
-        real(8) ::
-     &  alat,    ! Lattice constant in a.u.
-     &  efermi = 1d99   ! This is dummy now .
-        integer,allocatable::
-     &  iclass(:),
-     &  lmxa_d  (:),
-     &  nr(:),
-     &  konf_d(:,:),
-     &  ncore_d(:)
+     &lmxamx,   ! = maxval(lmxa(1:nclass))
+     &ngpmx,    ! Maximum number of G vector.
+     &nband,    ! Number of bands given by GWIN0
+     &ldim,     ! = sum ( (lmxa(1:nbas)+1)**2 )
+     &ldim2,    ! = total number of augmentation functions nRlm
+     &nphi,     ! = total number of augmentation functions nRl
+     &nqbze     ! = nqbz*(1+nq0i). Number of q points given by qg4gw
+      real(8) ::
+     &alat,    ! Lattice constant in a.u.
+     &efermi = 1d99   ! This is dummy now .
+      integer,allocatable::
+     &iclass(:),
+     &lmxa_d  (:),
+     &nr(:),
+     &konf_d(:,:),
+     &ncore_d(:)
       real(8),allocatable ::
-     &  zz(:),
-     &  aa(:),bb(:),
-     &  ec_d (:,:,:),
-     &  evl_d(:,:,:),
-     &  vxclda (:,:,:),
-     &  gx_d(:,:,:,:,:),
-     &  gcore_d(:,:,:,:)
+     &zz(:),
+     &aa(:),bb(:),
+     &ec_d (:,:,:),
+     &evl_d(:,:,:),
+     &vxclda (:,:,:),
+     &gx_d(:,:,:,:,:),
+     &gcore_d(:,:,:,:)
       complex(8),allocatable::
-     &  geig_d(:,:,:,:)
+     &geig_d(:,:,:,:)
       integer,allocatable:: nindx(:),lindx(:),ibasindx(:)
 
 c      logical :: cphigeigmode=.true.
@@ -128,8 +128,8 @@ c---
       open(ifichkv,file='VXCFP.chk')
       write(ifichkv,"(a)") '### LDA exchange correlation ###'
       write(ifichkv,"(a)")
-     & '#   qvec                 ikp iband    eigen
-     &       VXC(ntotal)     VXC(nvalence)'
+     &'#   qvec                 ikp iband    eigen
+     &VXC(ntotal)     VXC(nvalence)'
 c---
 c for simplicity.
       nocore=.false.
@@ -146,7 +146,7 @@ c$$$      endif
 c---
       read (ifigwb) nbas,nsp,ldim2,ndimh,alat,qlat,ef0,
 c     &              n1q,n2q,n3q,plat(1:3,1:3)
-     &              nqbz,plat(1:3,1:3),nqbze
+     &nqbz,plat(1:3,1:3),nqbze
       allocate(lmxaa(1:nbas), bas(1:3,1:nbas))
       read (ifigwb) lmxaa(1:nbas), bas(1:3,1:nbas)
       read (ifigwb) ngpmx, ngcmx
@@ -197,22 +197,22 @@ c
       write(6,'('' File CLASS:  nclass ='',i4)') nclass
 
       allocate(
-     &  qbze(3,nqbze),
-     &  lmxa_d   (nclass),
-     &  nr     (nclass),
-     &  ncore_d(nclass) ,
-     &  konf_d(0:lmxamx,nclass),
-     &  zz(nclass),
-     &  aa(nclass),  bb(nclass)
-     & )
+     &qbze(3,nqbze),
+     &lmxa_d   (nclass),
+     &nr     (nclass),
+     &ncore_d(nclass) ,
+     &konf_d(0:lmxamx,nclass),
+     &zz(nclass),
+     &aa(nclass),  bb(nclass)
+     &)
       write(6,"(' allocation 1 end' )") 
 
 ! cphigeigmode=T stores cphi and geig into CphiGeig.
 ! This procedure can omit memory allocation of cphi and geig.
 !
 c      if(cphigeigmode) then
-        ificg=421
-        open(ificg,file='CphiGeig',form='unformatted')
+      ificg=421
+      open(ificg,file='CphiGeig',form='unformatted')
 c      else   
 c        allocate(
 c     &  cphi_d(ldim2, nband, nqbze,nsp),
@@ -220,45 +220,45 @@ c     &  geig_d(ngpmx, nband, nqbze,nsp)
 c     &  )
 c      endif
 c
-        rewind ifefclass
-        do ibas=1,nbas
-          read(ifefclass,*) ix,iclass(ibas)
+      rewind ifefclass
+      do ibas=1,nbas
+        read(ifefclass,*) ix,iclass(ibas)
         lmxa_d(iclass(ibas)) =lmxaa(ibas)
-        enddo
-        close(321)
+      enddo
+      close(321)
 
 c --- Band Part
       nbandmx = ndimh
       write(6,'(" nqbze nqpz ndimh(max)=",3i5)') nqbze,nqbz,ndimh
 c      write(6,'('' nband=ndimh (max) '',i5)') nbandmx
       allocate( evl_d (nbandmx, nqbze, nsp),
-     &  vxclda(nbandmx, nqbze, nsp),
-     &  vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),
-     &  cphi(ldim2, nbandmx), evl(nbandmx) )
+     &vxclda(nbandmx, nqbze, nsp),
+     &vvv1(nbandmx),vvv2(nbandmx),vvv3(nbandmx),
+     &cphi(ldim2, nbandmx), evl(nbandmx) )
 
       evl_d=1d20
       vxclda=1d20
       do ikp = 1,nqbze
-      do isp = 1, nsp
-        read (ifigwb) qbze(:,ikp),nband
-        write(6,"(a,3i6,3x,3f11.6,$)") 'ikp isp nband q=',
-     &  ikp,isp,nband, qbze(:,ikp)
+        do isp = 1, nsp
+          read (ifigwb) qbze(:,ikp),nband
+          write(6,"(a,3i6,3x,3f11.6,$)") 'ikp isp nband q=',
+     &    ikp,isp,nband, qbze(:,ikp)
 
 c     &  zegf(nband,nband)
 c        read (ifigwb) zegf,evl, cphi
-        evl =1d20
-        cphi=1d20 
-       read (ifigwb) evl(1:nband), cphi(:,1:nband)
+          evl =1d20
+          cphi=1d20 
+          read (ifigwb) evl(1:nband), cphi(:,1:nband)
 
 C       call zprm('zegf',2,zegf,nband,nband,nband)
 C       call prmx('evl',evl,nband,nband,1)
 C       call prmx('cphi',cphi,ldim2,ldim2,nband)
 c        if(cphigeigmode) then
-        write(ificg) cphi(1:ldim2,1:nbandmx)
+          write(ificg) cphi(1:ldim2,1:nbandmx)
 c        else
 c          cphi_d(:,:, ikp,isp) = cphi(:,1:nband)
 c        endif  
-        evl_d (1:nband, ikp,isp) = evl (1:nband)
+          evl_d (1:nband, ikp,isp) = evl (1:nband)
 
 c        do iband=1,nbandmx
 c          print *,'lll sum cphir=',iband, sum(abs(cphi(:,iband)))
@@ -266,56 +266,56 @@ c        enddo
 
 
 c --- Plane wave part
-        read (ifigwb) ngp,ngc
-        allocate( geig(ngp, nbandmx),
-     &            ngvecp(3,ngp),ngvecc(3,ngc) )
-        geig=1d20
-        read(ifigwb) ngvecp, ngvecc,geig(:,1:nband)
+          read (ifigwb) ngp,ngc
+          allocate( geig(ngp, nbandmx),
+     &    ngvecp(3,ngp),ngvecc(3,ngc) )
+          geig=1d20
+          read(ifigwb) ngvecp, ngvecc,geig(:,1:nband)
 c        if(cphigeigmode) then
           write(ificg) ngp
           write(ificg) geig(1:ngp,1:nbandmx)
 c sum check
-        write(6,'("  geig sumcheck= ",2d13.6)') sum(geig(1:ngp,1:nband))
+          write(6,'("  geig sumcheck= ",2d13.6)') sum(geig(1:ngp,1:nband))
 
 c        else
 c          geig_d(1:ngp,1:nband,ikp,isp) = geig(1:ngp,1:nband)
 c        endif
-        deallocate( geig,ngvecp,ngvecc )
+          deallocate( geig,ngvecp,ngvecc )
 
-        if(ikp>nqbz) goto 888
+          if(ikp>nqbz) goto 888
 
 
 c --- VXCFP
-        read (ifigwx1 ) qqq, (vvv1(i),i=1,nband)
-        read (ifigwx2 ) qqq, (vvv2(i),i=1,nband)
-        if(nocore) then
-          read (ifigwx3 ) qqq, (vvv3(i),i=1,nband)
-          vxclda (1:nband, ikp,isp)= vvv3(1:nband)-vvv2(1:nband)
+          read (ifigwx1 ) qqq, (vvv1(i),i=1,nband)
+          read (ifigwx2 ) qqq, (vvv2(i),i=1,nband)
+          if(nocore) then
+            read (ifigwx3 ) qqq, (vvv3(i),i=1,nband)
+            vxclda (1:nband, ikp,isp)= vvv3(1:nband)-vvv2(1:nband)
 c          write(ifvxcfpv) qqq, vvv3(1:nband)-vvv2(1:nband) !Vxc valence only vxcfp(1:nband)
-        else
-          vxclda (1:nband, ikp,isp)= vvv1(1:nband)-vvv2(1:nband)
+          else
+            vxclda (1:nband, ikp,isp)= vvv1(1:nband)-vvv2(1:nband)
 c          write(ifvxcfp ) qqq, vvv1(1:nband)-vvv2(1:nband) !Vxc              vxcfp(1:nband)
-        endif
+          endif
 
 c - check write
-       if(nocore) then
-         do ibx =1,nband
-          write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,ikp,ibx,
-     &    vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
-     &    rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),
-     &    rydberg*(vvv3(ibx)-vvv2(ibx))
-          enddo
-       else
-        vvv3=vvv2
-        do ibx =1,nband
-          write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,ikp,ibx,
-     &    vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
-     &    rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),
-     &    rydberg*(vvv3(ibx)-vvv2(ibx))
+          if(nocore) then
+            do ibx =1,nband
+              write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,ikp,ibx,
+     &        vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
+     &        rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),
+     &        rydberg*(vvv3(ibx)-vvv2(ibx))
+            enddo
+          else
+            vvv3=vvv2
+            do ibx =1,nband
+              write(ifichkv,"(3f8.4,2i3,6f16.8)") qqq,ikp,ibx,
+     &        vvv1(ibx),vvv1(ibx)-vvv2(ibx),vvv3(ibx)-vvv2(ibx),
+     &        rydberg*vvv1(ibx),rydberg*(vvv1(ibx)-vvv2(ibx)),
+     &        rydberg*(vvv3(ibx)-vvv2(ibx))
+            enddo
+          endif
+ 888      continue
         enddo
-       endif
- 888   continue
-      enddo
       enddo
       print *,' rrr: xxxxxxxxxxxxxxxxxxxx'
 c      if(cphigeigmode) 
@@ -329,17 +329,17 @@ C- GET nrxx and ncoremx ----------------------
       allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas))
       do  ibas = 1, nbas
         read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr
-     &   ,lmxa,nspdummy,ncore
+     &  ,lmxa,nspdummy,ncore
         allocate(rofi_A(nr_A),ec_A(ncore))
         read(ifigwa) konf(1:lmxa+1,ibas)
         read(ifigwa) rofi_A(1:nr_A)
         do  l = 0, lmxa
-        do  isp = 1, nsp
-          read(ifigwa) lxx,ispx  !!!ibas==ic,l,n=1
-          read(ifigwa)
-          read(ifigwa)
-          if (konf(l+1,ibas) .ge. 10) read(ifigwa)
-        enddo
+          do  isp = 1, nsp
+            read(ifigwa) lxx,ispx  !!!ibas==ic,l,n=1
+            read(ifigwa)
+            read(ifigwa)
+            if (konf(l+1,ibas) .ge. 10) read(ifigwa)
+          enddo
         enddo
         do  l = 0, lmxa
           do  isp = 1, nsp
@@ -366,9 +366,9 @@ C ... augmentation indexing information
 
       ncoremx = ncoremx/nsp
       allocate(
-     &  ec_d(ncoremx, nclass, nsp),
-     &  gx_d (nrmx, 0:lmxamx, nphimx,  nclass,nsp),
-     &  gcore_d(nrmx, ncoremx, nclass,nsp)  )
+     &ec_d(ncoremx, nclass, nsp),
+     &gx_d (nrmx, 0:lmxamx, nphimx,  nclass,nsp),
+     &gcore_d(nrmx, ncoremx, nclass,nsp)  )
       gx_d = 0
 
       rewind ifigwa
@@ -378,12 +378,12 @@ C ... augmentation indexing information
       do  ibas = 1, nbas
         read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr,lmxa,nspdummy,ncore
         allocate(rofi_A(nr_A),
-     &    gcore_A(nr_A,ncore),ec_A(ncore))
+     &  gcore_A(nr_A,ncore),ec_A(ncore))
         read(ifigwa) konf(1:lmxa+1,ibas)
         read(ifigwa) rofi_A(1:nr_A)
         write(6,369) ibas,z,rofi_A(nr_A),lmxa,konf(1:lmxa+1,ibas)
   369   format(' site',i3,'  z=',f5.1,'  rmax=',f8.5,
-     .         '  lmax=',i1,'  konf=',10i1)
+     .  '  lmax=',i1,'  konf=',10i1)
 
 c       A bit rough treatment
         ic    = iclass(ibas)
@@ -395,50 +395,50 @@ c       A bit rough treatment
         konf_d(0:lmxa,ic) = konf(1:lmxa+1,ibas)
         write(6,371)
   371   format('  l    g(rmax)    gp(rmax)',4x,'<g g>',9x,'<gp gp>',
-     .    9x,'<g gp>')
+     .  9x,'<g gp>')
 c   --- PHIU
         do  l = 0, lmxa
-        do  isp = 1, nsp
-          read(ifigwa) lxx,ispxx  !!!ibas==ic,l,n=1
-          if(lxx /= l .or. isp /=ispxx) stop 'hhbecfp:lxx or isp wrong'
-          read(ifigwa) gx_d(1:nr_A,l,1,ic,isp)
-          read(ifigwa) gx_d(1:nr_A,l,2,ic,isp)
-          if (konf_d(l,ic) .ge. 10) read(ifigwa) gx_d(1:nr_A,l,3,ic,isp)
+          do  isp = 1, nsp
+            read(ifigwa) lxx,ispxx  !!!ibas==ic,l,n=1
+            if(lxx /= l .or. isp /=ispxx) stop 'hhbecfp:lxx or isp wrong'
+            read(ifigwa) gx_d(1:nr_A,l,1,ic,isp)
+            read(ifigwa) gx_d(1:nr_A,l,2,ic,isp)
+            if (konf_d(l,ic) .ge. 10) read(ifigwa) gx_d(1:nr_A,l,3,ic,isp)
 C         gx_d (1:nr_A, l, 1, ic,isp)= gx_d(1:nr_A,l,1,ic,isp)
 C         gx_d (1:nr_A, l, 2, ic,isp)= gpx_A (1:nr_A)
 ccccccccccccccccccc
-          m = 2
-          if (konf_d(l,ic) .ge. 10) m = 3
-          n = 0
-          do  i1 = 1, m
-          do  i2 = 1, i1
-            n = n+1
-            call gintxx(gx_d(1:nr_A,l,i1,ic,isp),
-     .        gx_d(1:nr_A,l,i2,ic,isp),a_A,b_A,nr_A,ovv(n))
-          enddo
-          enddo
-          write(6,'(i3,2f11.5,2f15.10,f12.6)')
+            m = 2
+            if (konf_d(l,ic) .ge. 10) m = 3
+            n = 0
+            do  i1 = 1, m
+              do  i2 = 1, i1
+                n = n+1
+                call gintxx(gx_d(1:nr_A,l,i1,ic,isp),
+     .          gx_d(1:nr_A,l,i2,ic,isp),a_A,b_A,nr_A,ovv(n))
+              enddo
+            enddo
+            write(6,'(i3,2f11.5,2f15.10,f12.6)')
      .      l,gx_d(nr_A,l,1,ic,isp),gx_d(nr_A,l,2,ic,isp),
      .      ovv(1),ovv(3),ovv(2)
-          if (m .eq. 3) write(6,321) gx_d(nr_A,l,3,ic,isp),
+            if (m .eq. 3) write(6,321) gx_d(nr_A,l,3,ic,isp),
      .      ovv(6),ovv(4),ovv(5)
-  321     format('  gz(rmax); <gz gz> <gz g> <gz gp> = ',f8.5,
+  321       format('  gz(rmax); <gz gz> <gz g> <gz gp> = ',f8.5,
      .      f15.10,2f12.7)
 
 ccccccccccccccccccc
-        enddo
+          enddo
         enddo
 
 c --- ECORE PHICU
         if (ncore .ne. 0)
      .  write(6,
-     .    '(''  l  k isp       ecore      gc(rmax)     <gc gc>'')')
+     .  '(''  l  k isp       ecore      gc(rmax)     <gc gc>'')')
         icore = 0
         icors = 0
         do isp = 1, nsp
-        do l = 0, lmxa
-           nncx(l,ibas) = mod(konf(l+1,ibas),10)-1 -(l+1) +1
-           nnc          = max(nnc,nncx(l,ibas))
+          do l = 0, lmxa
+            nncx(l,ibas) = mod(konf(l+1,ibas),10)-1 -(l+1) +1
+            nnc          = max(nnc,nncx(l,ibas))
 c            icor1 = icor0
             do  kkk = l+1, mod(konf(l+1,ibas),10)-1
               icore = icore+1
@@ -452,10 +452,10 @@ ccccc
               ec_d(icor1, ic, isp) = ec_A(icore)
               gcore_d(1:nr_A,icor1,ic,isp)  = gcore_A(1:nr_A,icore)
               call gintxx(gcore_A(1,icore),gcore_A(1,icore),
-     .          a_A,b_A,nr_A,ovv)
+     .        a_A,b_A,nr_A,ovv)
               write(6,'(3i3,f15.6,f12.6,f15.10,3i3)')
-     .          l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),
-     &          icore,icor1
+     .        l,kkk,isp,ec_A(icore),gcore_A(nr_A,icore),ovv(1),
+     &        icore,icor1
             enddo
           enddo
         enddo
@@ -466,12 +466,12 @@ ccccc
 C#ifdef V2
       open (ifi,file='DATA4GW_V2',form='unformatted')
       call gwinput_v2x(-ifi,
-     &  nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &  lmxamx, ngpmx,  nbandmx,  ldim2,   nqbze ,
-     &  nphi,nphimx, nindx, lindx, ibasindx,
-     &  iclass,lmxa_d,nr,konf_d,ncore_d,
-     &  zz,aa,bb,bas,alat,plat,
-     &  qbze,efermi,ec_d,evl_d,vxclda,gx_d,gcore_d,cphi_d,geig_d,nocore)
+     &nsp,   nbas,   nclass, nrmx,   ncoremx,
+     &lmxamx, ngpmx,  nbandmx,  ldim2,   nqbze ,
+     &nphi,nphimx, nindx, lindx, ibasindx,
+     &iclass,lmxa_d,nr,konf_d,ncore_d,
+     &zz,aa,bb,bas,alat,plat,
+     &qbze,efermi,ec_d,evl_d,vxclda,gx_d,gcore_d,cphi_d,geig_d,nocore)
 c     &  cphigeigmode)
       close(ifi)
       stop ' OK! lmf2gw: end --- DATA4GW_V2 is written '
@@ -509,7 +509,7 @@ C!  strip(str,i1,i2) -- Returns i1,i2 so that str(i1:i2) stripped.
           i2=i
           goto 4
         endif
-  3     continue
+  3   continue
   4   continue
       end
 
@@ -535,8 +535,8 @@ C ... Local parameters
       i0 = 1
    99 do  10  i = i0, len(str)
         if(str(i:i) .ne. ' ') then
-           i1 = i
-           goto 90
+          i1 = i
+          goto 90
         endif
    10 continue
       return
@@ -546,7 +546,7 @@ C ... Local parameters
           i2 = i
           goto 91
         endif
-   20   continue
+   20 continue
       return
    91 i0 = i2
       goto 99
@@ -635,14 +635,14 @@ c takao \sum_i g(i)*g(i) drdi
       SUM = 0D0
       DRDI = (A*B)*DEXP(A)
       DO  10  IR = 2, NR-1, 2
-        SUM = SUM + G1(IR)*G2(IR)*DRDI
-        DRDI = DRDI*EA2
+      SUM = SUM + G1(IR)*G2(IR)*DRDI
+      DRDI = DRDI*EA2
   10  CONTINUE
       SUM = SUM + SUM
       DRDI = (A*B)*EA2
       DO  11  IR = 3, NR-2, 2
-        SUM = SUM + G1(IR)*G2(IR)*DRDI
-        DRDI = DRDI*EA2
+      SUM = SUM + G1(IR)*G2(IR)*DRDI
+      DRDI = DRDI*EA2
   11  CONTINUE
       RMPB = B*DEXP(A*(NR-1))
       SUM = (2*SUM+ G1(1)*G2(1)*(A*B) + G1(NR)*G2(NR)*(A*RMPB))/3d0
@@ -726,7 +726,7 @@ C Passed parameters
       integer ista,lunit
 C Local parameters
       integer fext,fextg,fopn,fopno,fopnn,fhndl,
-     .  fadd,fxst,fpath,fpathg,fopng,fopnx
+     .fadd,fxst,fpath,fpathg,fopng,fopnx
       integer mode
 C#ifndef AIX
       mode = 100 + 70*mod(ista/8,2)
@@ -958,7 +958,7 @@ C Passed Parameters
 C Local variables
       logical bittst,isopen,ldum,mod100
       integer bit,bitand,getdig,i,i1,i2,iprint,locuni,lsta,matchn,
-     .  matchu,mode1,mode10,n,IDBG,isw
+     .matchu,mode1,mode10,n,IDBG,isw
       character ftnsta*7, outs*80
 C Parameters concerning limits to string size in filenames:
 C plen: path length; extlen: ext length; maxsiz: name (including ext)
@@ -1090,7 +1090,7 @@ C --- Match pfnam with table, unless not needed ---
       matchn = matchu
       if (matchu .le. 0 .or. bittst(mode1,4)) then
         do  30  i = 1, nnam
-        matchn = i
+          matchn = i
    30   if (tabnam(i) .eq. pfnam) goto 31
         matchn = -1
    31   continue
@@ -1124,7 +1124,7 @@ C --- Add a file to internal table ---
         endif
         nnam = nnam+1
         if (nnam .gt. mxnam) call
-     .    rxi('FOPNX: too many file names.  max=',mxnam)
+     .  rxi('FOPNX: too many file names.  max=',mxnam)
         tabnam(nnam) = pfnam
         tabuni(nnam) = locuni
         tabsw(nnam)  = mod(ista,8) - mod(ista,4)
@@ -1201,7 +1201,7 @@ c      print *, 'dbg: fopn',pfnam,locuni,lsta,ftnfmt,ftnsta
         call word(pfnam,1,i1,i2)
         call chrpos(pfnam,' ',plen+maxsiz,i)
         if (iprint() .ge. IDBG) print *, 'FOPEN: opening ',ftnfmt,
-     .    ' file ''',pfnam(1:i2),''', status=',ftnsta,', unit=',locuni
+     .  ' file ''',pfnam(1:i2),''', status=',ftnsta,', unit=',locuni
 C#ifdefC PRECONNECTED_UNITS | IBM_VM
 C        open(locuni,FORM=ftnfmt,STATUS=ftnsta)
 C#else
@@ -1234,7 +1234,7 @@ C     implicit none
 
       if (iprint() .gt. 110) print 20, unit, (unitab(i), i=0, nopen-1)
    20 format(/' ISOPEN: check logical unit',i3,
-     .        ' among open units: ',15i3)
+     .' among open units: ',15i3)
 
       isopen = .true.
       do  10  i = nopen-1, 0, -1
@@ -1324,7 +1324,7 @@ C     implicit none
       if (i2 .ge. i1) dest = fnam1(i1:i2)//fnam2(j1:j2)
       if (i2-i1+j2-j1+2 .gt. len(dest) .and. iprint() .gt. 0) then
         print *, 'namcat: string "',fnam1(i1:i2),fnam2(j1:j2),
-     .    '" was truncated to "',dest,'"'
+     .  '" was truncated to "',dest,'"'
       endif
 
 C#ifdef unix
@@ -1675,12 +1675,12 @@ C       end
 c----------------------------------------------------------------------
 
       subroutine gwinput_v2x(ifi,
-     &  nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &  lmxamx,ngpmx,  nband,  ldim2,   nqbze ,
-     &  nphi,nphimx,nindx,lindx,ibasindx,
-     &  iclass,lmxa,nr,konf,ncore,
-     &  zz,aa,bb,bas,alat,plat,
-     &  qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore)
+     &nsp,   nbas,   nclass, nrmx,   ncoremx,
+     &lmxamx,ngpmx,  nband,  ldim2,   nqbze ,
+     &nphi,nphimx,nindx,lindx,ibasindx,
+     &iclass,lmxa,nr,konf,ncore,
+     &zz,aa,bb,bas,alat,plat,
+     &qbze,efermi,ec,evl,vxclda,gx,gcore,cphi,geig,nocore)
 c
 c     &  ifomit ) !If ifomit=T, omit to store cphi and geig
 c- Read and Write the informations required for GW calculations.
@@ -1703,58 +1703,58 @@ cr
 c----------------------------------------------------------------------------------------------
 C     implicit none
       integer :: ifi, !File handle. Write for ifi<0. Read for ifi>0.
-     &  nsp,      ! =1 or 2, corresponding to para or ferro.
-     &  nbas,     ! Number of atom in the primitive cell
-     &  nclass,   ! Number of atomic class (or type) for in the primitive cell
-     &  nrmx,     ! = maxval(nr(1:nclass))  Maximum number of nr
-     &  ncoremx,  ! = maxval(ncore(1:nclass))
+     &nsp,      ! =1 or 2, corresponding to para or ferro.
+     &nbas,     ! Number of atom in the primitive cell
+     &nclass,   ! Number of atomic class (or type) for in the primitive cell
+     &nrmx,     ! = maxval(nr(1:nclass))  Maximum number of nr
+     &ncoremx,  ! = maxval(ncore(1:nclass))
 c
-     &  lmxamx,   ! = maxval(lmxa(1:nclass))
-     &  ngpmx,    ! Maximum number of G vector.
-     &  nband,    ! Number of bands given by GWIN0
+     &lmxamx,   ! = maxval(lmxa(1:nclass))
+     &ngpmx,    ! Maximum number of G vector.
+     &nband,    ! Number of bands given by GWIN0
 cv2     &  ldim,     ! = sum ( (lmxa(1:nbas)+1)**2 )
-     &  nqbze,    ! = nqbz*(1+nq0i). Number of q points given by qg4gw
+     &nqbze,    ! = nqbz*(1+nq0i). Number of q points given by qg4gw
 c----
-     &  iclass(nbas),   ! class is starting from 1.
-     &  lmxa  (nclass), ! Maximum l number for each atom for augmentation.
-     &  nr(nclass),     ! Size of radial mesh.
-     &  konf(0:lmxamx,nclass),! Principle quantum numbers of valence electron.
+     &iclass(nbas),   ! class is starting from 1.
+     &lmxa  (nclass), ! Maximum l number for each atom for augmentation.
+     &nr(nclass),     ! Size of radial mesh.
+     &konf(0:lmxamx,nclass),! Principle quantum numbers of valence electron.
 c                              ! For example, 4s4p3d means konf(0)=4, konf(1)=4, konf(2)=3.
 c                              ! Core orbitals are specified by
 c                              !   1, 2,... konf(0)-1 for s
 c                              !   2, 3,... konf(1)-1 for p
 c                              !   3, 4,... konf(2)-1 for d, and so on.
 c                              !
-     &  ncore(nclass)   ! ncore = \sum_l  (konf(l)-1) - l
+     &ncore(nclass)   ! ncore = \sum_l  (konf(l)-1) - l
 c                        ! Number of different core orbitals for each atom.
 c
 cv2
       integer:: nphi,          ! number of augmentation nRl channels, as distinct from:
-     &             ldim2,         ! number of nRLm channels = 2*ldim for phi+phidot case.
-     &             nphimx,        ! Maxmum number of phi for all l ---  2 for phi+phidot case.
-     &             nindx(ldim2),  ! n    index
-     &             lindx(ldim2),  ! l    index
-     &             ibasindx(ldim2)! ibas index
+     &ldim2,         ! number of nRLm channels = 2*ldim for phi+phidot case.
+     &nphimx,        ! Maxmum number of phi for all l ---  2 for phi+phidot case.
+     &nindx(ldim2),  ! n    index
+     &lindx(ldim2),  ! l    index
+     &ibasindx(ldim2)! ibas index
 c
       real(8) ::
-     &  zz(nclass),     ! Atomic number.
-     &  aa(nclass),bb(nclass),! Radial mesh are specified by these parameters with nr.
-     &  bas(3,nbas),    ! Atomic posion in the Cartesian coordinate (alat unit),.
-     &  alat,           ! Lattice constant in a.u.
-     &  plat(3,3),      ! Primitive translation vector in the unit of alat. plat(1:3,1) is 1st vector, ans so on.
-     &  qbze(3,nqbze),  ! q points given by qg4gw
-     &  efermi,         ! Fermi energy. It should be calculated for n1 n2 n3 given by GIWN0.
+     &zz(nclass),     ! Atomic number.
+     &aa(nclass),bb(nclass),! Radial mesh are specified by these parameters with nr.
+     &bas(3,nbas),    ! Atomic posion in the Cartesian coordinate (alat unit),.
+     &alat,           ! Lattice constant in a.u.
+     &plat(3,3),      ! Primitive translation vector in the unit of alat. plat(1:3,1) is 1st vector, ans so on.
+     &qbze(3,nqbze),  ! q points given by qg4gw
+     &efermi,         ! Fermi energy. It should be calculated for n1 n2 n3 given by GIWN0.
 c----
-     &  ec(ncoremx, nclass, nsp),   ! Eigenvalues for core
-     &  evl    (nband, nqbze, nsp), ! Eigenvalues
-     &  vxclda (nband, nqbze, nsp), ! Lda XC potential <psi|Vxc(n_total)  |psi>
+     &ec(ncoremx, nclass, nsp),   ! Eigenvalues for core
+     &evl    (nband, nqbze, nsp), ! Eigenvalues
+     &vxclda (nband, nqbze, nsp), ! Lda XC potential <psi|Vxc(n_total)  |psi>
 c                                    !  or   <psi|Vxc(n_valence)|psi>. See nocore.
 c
 cv2     &  gx (nrmx, 0:lmxamx, 2,  nclass,nsp), ! Radial function. gx (nrmx, lmxamx, 1, nclass,nsp) is phi
 cv2                                          !                  gx (nrmx, lmxaxm, 2, nclass,nsp) is phidot
-     &  gx (nrmx, 0:lmxamx, nphimx, nclass,nsp), ! Radial function. gx (nrmx, lmxamx, 1, nclass,nsp) is phi
+     &gx (nrmx, 0:lmxamx, nphimx, nclass,nsp), ! Radial function. gx (nrmx, lmxamx, 1, nclass,nsp) is phi
 c                                          !                  gx (nrmx, lmxaxm, 2, nclass,nsp) is phidot
-     &  gcore(nrmx, ncoremx, nclass,nsp)  ! Core radial function.
+     &gcore(nrmx, ncoremx, nclass,nsp)  ! Core radial function.
 c
 c     These radial functions are only the major part given by the scalar relativistic calculations.
 c     gx and gcore = r \phi(r) = u(r), where \phi is the major part of the true radial functions.
@@ -1766,27 +1766,27 @@ c
 cv2     &  cphi(ldim, 2, nband, nqbze,nsp), ! Coefficients of eigenfunction
 cv2                                         ! for phi    = cphi(ldim, 1, nband, nqbze), and
 cv2                                         ! for phidot = cphi(ldim, 2, nband, nqbze).
-     &  cphi(ldim2,  nband, nqbze,nsp),     ! Coefficients of eigenfunction
+     &cphi(ldim2,  nband, nqbze,nsp),     ! Coefficients of eigenfunction
 c
-     &  geig(ngpmx,  nband, nqbze,nsp)  ! Coefficients of eigenfunction for IPW.
+     &geig(ngpmx,  nband, nqbze,nsp)  ! Coefficients of eigenfunction for IPW.
 
 
       logical ::
-     &   nocore  ! Flag file NoCore exist or not.
-                 ! nocore is obtained by inquire(file='NoCore',exist=nocore) in the upper routine.
-                 ! If nocore exist. you have to supply
-                 !  <psi|Vxc(n_valence)|psi>  to  vxclda (nband, nqbze).
-                 ! If not, <psi|Vxc(n_total)|psi>  to  vxclda.
+     &nocore  ! Flag file NoCore exist or not.
+      ! nocore is obtained by inquire(file='NoCore',exist=nocore) in the upper routine.
+      ! If nocore exist. you have to supply
+      !  <psi|Vxc(n_valence)|psi>  to  vxclda (nband, nqbze).
+      ! If not, <psi|Vxc(n_total)|psi>  to  vxclda.
 c      logical :: ifomit
 c----
       if(ifi>0) then
 c        if(ifomit) then
-          read(ifi)
-     &              iclass,lmxa,nr,konf,ncore,
-     &              zz,aa,bb,bas,alat,plat,
-     &              qbze,efermi,ec,evl,vxclda,gx,gcore,nocore !omit cphi and geig
+        read(ifi)
+     &  iclass,lmxa,nr,konf,ncore,
+     &  zz,aa,bb,bas,alat,plat,
+     &  qbze,efermi,ec,evl,vxclda,gx,gcore,nocore !omit cphi and geig
 cv2
-     &              ,nindx,lindx,ibasindx
+     &  ,nindx,lindx,ibasindx
 c        else
 c          read(ifi)
 c     &              iclass,lmxa,nr,konf,ncore,
@@ -1796,12 +1796,12 @@ ccv2
 c     &              ,nindx,lindx,ibasindx
 c        endif
 ccccccccccccccccc
-      write(6,*)'gwinput_v2x: DATA4GW_V2 readin size=',
+        write(6,*)'gwinput_v2x: DATA4GW_V2 readin size=',
      &  nsp,nbas, nclass, nrmx,ncoremx
-      write(6,*)'                 =', lmxamx,ngpmx,nband,ldim2, nqbze
-      write(6,*)'ncoremx=',ncoremx
-      write(6,*)'ecup=',ec(1:ncoremx, 1, 1)
-      if(nsp==2) write(6,*)'ecdn=',ec(1:ncoremx, 1, 2)
+        write(6,*)'                 =', lmxamx,ngpmx,nband,ldim2, nqbze
+        write(6,*)'ncoremx=',ncoremx
+        write(6,*)'ecup=',ec(1:ncoremx, 1, 1)
+        if(nsp==2) write(6,*)'ecdn=',ec(1:ncoremx, 1, 2)
 ccccccccccccccccc
 
 ccccccccccccccccccccccc
@@ -1822,10 +1822,10 @@ ccccccccccccccccccccccc
 c---------------------------
       elseif(ifi<0) then
         write(-ifi)
-     &              nsp,   nbas,   nclass, nrmx,   ncoremx,
-     &              lmxamx,ngpmx,  nband,  ldim2,   nqbze,
+     &  nsp,   nbas,   nclass, nrmx,   ncoremx,
+     &  lmxamx,ngpmx,  nband,  ldim2,   nqbze,
 cv2
-     &              nphi,nphimx
+     &  nphi,nphimx
 c
         write(6,*)
         write(6,*)' *** DATA4GW_V2 size=', nsp,nbas,nclass,nrmx,ncoremx
@@ -1833,12 +1833,12 @@ c
         write(6,*)'                 =', nphi, nphimx
 
 c        if(ifomit) then
-          write(-ifi)
-     &              iclass,lmxa,nr,konf,ncore,
-     &              zz,aa,bb,bas,alat,plat,
-     &              qbze,efermi,ec,evl,vxclda,gx,gcore,nocore !omit cphi and geig
+        write(-ifi)
+     &  iclass,lmxa,nr,konf,ncore,
+     &  zz,aa,bb,bas,alat,plat,
+     &  qbze,efermi,ec,evl,vxclda,gx,gcore,nocore !omit cphi and geig
 cv2
-     &              ,nindx,lindx,ibasindx
+     &  ,nindx,lindx,ibasindx
 c        else
 c          write(-ifi)
 c     &              iclass,lmxa,nr,konf,ncore,
@@ -1889,9 +1889,9 @@ Cu   05 Mar 02 First created
 C ----------------------------------------------------------------------
 C     implicit none
       integer ldim2,nphi,nphimx,ifi,
-     .  nindx(ldim2),           ! n    index
-     .  lindx(ldim2),           ! l    index
-     .  ibasindx(ldim2)         ! ibas index
+     .nindx(ldim2),           ! n    index
+     .lindx(ldim2),           ! l    index
+     .ibasindx(ldim2)         ! ibas index
 
       character*80 outs
       integer i,ipqn,l,ib,ii,nn,m
@@ -1903,7 +1903,7 @@ C --- File read ---
         read(ifi,*) i
 C       If passed ldim2>0, check that it matches file value
         if (ldim2 .gt. 0 .and. i .ne. ldim2)
-     .    call rx('rdibasindx: file mismatch ldim2')
+     .  call rx('rdibasindx: file mismatch ldim2')
         ldim2 = i
         nphimx = 0
 c        do  i = 1, ldim2
@@ -1920,7 +1920,7 @@ c        do  i = 1, ldim2
           nphimx = max(nphimx,ipqn)
           nphi = i
         enddo
-  101 continue
+  101   continue
 
 C --- File read ---
       else
@@ -1970,9 +1970,9 @@ C#endif
       do  10  i = 1, nr
    10 write(ifi,fmt) (s(1,i,j), j=1,nc)
       if (mod(icast,10) .gt. 1) then
-      write(ifi,*)
-      do  20  i = 1, nr
-   20 write(ifi,fmt) (s(2,i,j), j=1,nc)
+        write(ifi,*)
+        do  20  i = 1, nr
+   20   write(ifi,fmt) (s(2,i,j), j=1,nc)
       endif
       call fclose(ifi)
 C#ifdef NOAWRITE

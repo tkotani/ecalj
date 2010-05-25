@@ -1,5 +1,5 @@
       logical function efrng2(nsp,nkp,nbmax,nband,zval,eband,ebbot,
-     .  ebtop,elo,ehi,e1,e2)
+     .ebtop,elo,ehi,e1,e2)
 C- Find range of Fermi energy.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -39,7 +39,7 @@ C     implicit none
 C Passed parameters
       integer nsp,nkp,nbmax,nband
       double precision zval,e1,e2,eband(nbmax,nsp,nkp),ebbot(nband,nsp),
-     .                 ebtop(nband,nsp),elo,ehi
+     .ebtop(nband,nsp),elo,ehi
 C Local parameters
       double precision xx,d1mach,enull
       integer ikp,isp,iba,nval,nbbot,nbtop,nfound

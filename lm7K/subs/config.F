@@ -25,8 +25,8 @@ C Local parameters
       integer l
       integer LI,NA,K,RB,CS,FR,CU,AG,AU,HF
       parameter (LI=3,
-     .           NA=11, K=19, RB=37, CS=55, FR=87,
-     .           CU=29, AG=47, AU=79, HF=72)
+     .NA=11, K=19, RB=37, CS=55, FR=87,
+     .CU=29, AG=47, AU=79, HF=72)
 
 C --- Calculate lmaxc ---
       lmaxc = lmax

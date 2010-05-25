@@ -1,5 +1,5 @@
       subroutine praldm(ifi,ipr1,ipr2,sharm,nbas,nsp,lmaxu,lldau,sspec,
-     .  ssite,strn,dmatu)
+     .ssite,strn,dmatu)
 
       use m_struc_def  !Cgetarg
 
@@ -60,7 +60,7 @@ C ... Local parameters
             if (idu(l+1) .ne. 0) then
               iblu = iblu+1
               call prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmatu,
-     .         nsp,1)
+     .        nsp,1)
             endif
           enddo
         endif
@@ -68,7 +68,7 @@ C ... Local parameters
       end subroutine praldm
 
       subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats,
-     .  nsp,nspc)
+     .nsp,nspc)
 
 C- Writes out a site density-matrix-like object for a single l
 C ----------------------------------------------------------------------
@@ -114,34 +114,34 @@ C ... Local parameters
       if (ifi .ne. 0) then
         strn1 = ' '
         call awrit3('%%%% rows %i cols %i complex %?#n#s#r#harm',
-     .    strn1,len(strn1),0,nlm,nlm,sharm)
+     .  strn1,len(strn1),0,nlm,nlm,sharm)
         strnl = strn1 // ' ' // strn // ' l=%i'//
-     .          '%?#n#%-1j  site %i##'//
-     .          '%?#(n>0)#  spin %i#'
+     .  '%?#n#%-1j  site %i##'//
+     .  '%?#(n>0)#  spin %i#'
 C    .          '%?#(n>0)#  spin %i#%j#'
         do  isp = 1, nsp
           if (ipr .ge. ipr1) call awrit4(strnl,' ',len(strnl),ifi,l,
-     .      ib,(ipr-ipr2+1)*(nsp-1),isp)
+     .    ib,(ipr-ipr2+1)*(nsp-1),isp)
           if (ipr .lt. ipr2) return
           do  m1 = -l, l
             write(ifi,'(7(f12.7,2x))')
-     .        (dmats(1,m1,m2,isp,iblu),m2=-l,l)
+     .      (dmats(1,m1,m2,isp,iblu),m2=-l,l)
           enddo
           write(ifi,'(1x)')
           do  m1 = -l, l
             write(ifi,'(7(f12.7,2x))')
-     .        (dmats(2,m1,m2,isp,iblu),m2=-l,l)
+     .      (dmats(2,m1,m2,isp,iblu),m2=-l,l)
           enddo
         enddo
       else
         if (sharm .eq. 0) then
           strnl = strn // ' l=%i'//
-     .          '%?#n#%-1j  site %i##'//
-     .          '%?#(n>0)#  spin %i##, real harmonics'
+     .    '%?#n#%-1j  site %i##'//
+     .    '%?#(n>0)#  spin %i##, real harmonics'
         else
           strnl = strn // ' l=%i'//
-     .          '%?#n#%-1j  site %i##'//
-     .          '%?#(n>0)#  spin %i##, spherical harmonics'
+     .    '%?#n#%-1j  site %i##'//
+     .    '%?#(n>0)#  spin %i##, spherical harmonics'
         endif
 C       Header: printout l, ib (if ib>0), spin (if nsp=2, ipr2>=ipr)
         do  isp = 1, nsp
@@ -149,12 +149,12 @@ C       Header: printout l, ib (if ib>0), spin (if nsp=2, ipr2>=ipr)
           if (ipr .lt. ipr2) return
           do  m1 = -l, l
             write(stdo,'(7(f9.5,2x))')
-     .        (dmats(1,m1,m2,isp,iblu),m2=-l,l)
+     .      (dmats(1,m1,m2,isp,iblu),m2=-l,l)
           enddo
           write(stdo,'(1x)')
           do  m1 = -l, l
             write(stdo,'(7(f9.5,2x))')
-     .        (dmats(2,m1,m2,isp,iblu),m2=-l,l)
+     .      (dmats(2,m1,m2,isp,iblu),m2=-l,l)
           enddo
         enddo
 

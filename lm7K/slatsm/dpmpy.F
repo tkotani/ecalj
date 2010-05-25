@@ -34,20 +34,20 @@ C Local parameters
 
       do  20  i = 0, nr-1
         do  20  j = 0, nc-1
-        sum = 0
-        offa = (i*(i+1))/2
-        offb = nscb*j
-        do  21  k = 0, i-1
-          sum = sum + a(offa)*b(offb)
-          offa = offa + 1
-          offb = offb + nsrb
-   21   continue
-        do  22  k = i, l-1
-          sum = sum + a(offa)*b(offb)
-          offa = offa + k+1
-          offb = offb + nsrb
-   22   continue
-        c(i*nsrc+j*nscc) = sum
+          sum = 0
+          offa = (i*(i+1))/2
+          offb = nscb*j
+          do  21  k = 0, i-1
+            sum = sum + a(offa)*b(offb)
+            offa = offa + 1
+            offb = offb + nsrb
+   21     continue
+          do  22  k = i, l-1
+            sum = sum + a(offa)*b(offb)
+            offa = offa + k+1
+            offb = offb + nsrb
+   22     continue
+          c(i*nsrc+j*nscc) = sum
    20 continue
       end
 

@@ -61,7 +61,7 @@ C ----------------------------------------------------------------------
         dglob = it
 
       else
-         do  30  i = 1, ngv
+        do  30  i = 1, ngv
           it = i
           if (name .eq. sgv(it)) goto 31
    30   continue

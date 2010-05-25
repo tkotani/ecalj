@@ -116,9 +116,9 @@ C Compute initial points:
 C Handle case LOCMXN=0:  search for extremum in direction of root
       IF (LOCMXN .EQ. 0) THEN
 C Exit if FA and FC box root; else seek max if FA<0 or min if FA>0
-        IF (dSIGN(FA,FA) .NE. dSIGN(FA,FC)) RETURN
-        LOCMXN=1
-        IF (FA .LT. 0) LOCMXN = -1
+      IF (dSIGN(FA,FA) .NE. dSIGN(FA,FC)) RETURN
+      LOCMXN=1
+      IF (FA .LT. 0) LOCMXN = -1
       ENDIF
       BX = AX + (CX-AX)/GOLD
       call mnbrk2(bx,bx,fb,f,iter,ir)
@@ -130,12 +130,12 @@ C Exit if FA and FC box root; else seek max if FA<0 or min if FA>0
 
 C Order AX and CX s.t. FA > FC
       IF (FC .GT. FA) THEN
-        DUM=AX
-        AX=CX
-        CX=DUM
-        DUM=FC
-        FC=FA
-        FA=DUM
+      DUM=AX
+      AX=CX
+      CX=DUM
+      DUM=FC
+      FC=FA
+      FA=DUM
       ENDIF
 
 C Start of loop that continues until a minimum is bracketed
@@ -148,164 +148,164 @@ C      pause
 
 C check to see if search is outside bounds
       IF ((CX .GT. XHIGH) .OR. (CX .LT. XLOW)) THEN
-        ir = -2
-        RETURN
+      ir = -2
+      RETURN
       ENDIF
 
 C Skip this when root is bracketed
       IF ( (FB .GE. FC) .AND.
-     .     ( (MAXMIN .NE. 0) .OR.
-     .       ( (dSIGN(FB,FB) .EQ. dSIGN(FB,FC)) .AND.
-     .         (dSIGN(FB,FB) .EQ. dSIGN(FB,FA)))))   THEN
-        R = (BX-AX)*(FB-FC)
-        Q = (BX-CX)*(FB-FA)
+     .( (MAXMIN .NE. 0) .OR.
+     .( (dSIGN(FB,FB) .EQ. dSIGN(FB,FC)) .AND.
+     .(dSIGN(FB,FB) .EQ. dSIGN(FB,FA)))))   THEN
+      R = (BX-AX)*(FB-FC)
+      Q = (BX-CX)*(FB-FA)
 
 C       switch that is true when curvature is of right sign
-        lokcrv = .true.
+      lokcrv = .true.
 C       Calculate curvature (store in u as temp)
-        if (maxmin .ne. 0) then
-         u = ((cx-bx)*(fa-fb)-(ax-bx)*(fc-fb))/((ax-bx)*(cx-bx)*(ax-cx))
-         lokcrv = u*maxmin .gt. 0
-        endif
+      if (maxmin .ne. 0) then
+        u = ((cx-bx)*(fa-fb)-(ax-bx)*(fc-fb))/((ax-bx)*(cx-bx)*(ax-cx))
+        lokcrv = u*maxmin .gt. 0
+      endif
 
 C U is parabolic extrapolation to minimum
-        U =BX-((BX-CX)*Q-(BX-AX)*R)/(2*dSIGN(dMAX1(dABS(Q-R),TINY),Q-R))
-        ULIM=BX + DELMAX*(CX-BX)
-        ULIM=MIN(ULIM,XHIGH)
-        ULIM=MAX(ULIM,XLOW)
+      U =BX-((BX-CX)*Q-(BX-AX)*R)/(2*dSIGN(dMAX1(dABS(Q-R),TINY),Q-R))
+      ULIM=BX + DELMAX*(CX-BX)
+      ULIM=MIN(ULIM,XHIGH)
+      ULIM=MAX(ULIM,XLOW)
 C       write(*,*) 'u, ulim are ',u,ulim
 C parabolic fit to minimum falls between BX and CX:
-        IF ((BX-U)*(U-CX) .GT. 0.d0 .and. lokcrv) THEN
+      IF ((BX-U)*(U-CX) .GT. 0.d0 .and. lokcrv) THEN
 C         write(*,*) 'U between BX and CX'
-          call mnbrk2(u,bx,fu,f,iter,ir)
-          if (iter .eq. itmax .or. ir .eq. -1) return
-          FU = LOCMXN * FU
+      call mnbrk2(u,bx,fu,f,iter,ir)
+      if (iter .eq. itmax .or. ir .eq. -1) return
+      FU = LOCMXN * FU
 C if a minimum is found between BX and CX:
-          IF (FU .LT. FC) THEN
-            AX=BX
-            FA=FB
-            BX=U
-            FB=FU
-            GOTO 1
+      IF (FU .LT. FC) THEN
+      AX=BX
+      FA=FB
+      BX=U
+      FB=FU
+      GOTO 1
 C if a minimum is found between U and AX
-          ELSE IF (FU .GT. FB) THEN
-            CX=U
-            FC=FU
-            GOTO 1
-          ENDIF
+      ELSE IF (FU .GT. FB) THEN
+      CX=U
+      FC=FU
+      GOTO 1
+      ENDIF
 C parabolic fit did no good.  Use default magnification
-          U=CX+GOLD*(CX-BX)
-          U=MIN(U,XHIGH)
-          U=MAX(U,XLOW)
-          if (u .eq. cx) then
-            ir = -2
-            return
-          endif
-          call mnbrk2(u,bx,fu,f,iter,ir)
-          if (iter .eq. itmax .or. ir .eq. -1) return
-          FU=LOCMXN * FU
+      U=CX+GOLD*(CX-BX)
+      U=MIN(U,XHIGH)
+      U=MAX(U,XLOW)
+      if (u .eq. cx) then
+        ir = -2
+        return
+      endif
+      call mnbrk2(u,bx,fu,f,iter,ir)
+      if (iter .eq. itmax .or. ir .eq. -1) return
+      FU=LOCMXN * FU
 C
 C parabolic fit is between AX and BX:
-        ELSE IF ((AX-U)*(U-BX) .GT. 0.d0 .and. lokcrv) THEN
-          call mnbrk2(u,bx,fu,f,iter,ir)
-          if (iter .eq. itmax .or. ir .eq. -1) return
-          fu = locmxn * fu
+      ELSE IF ((AX-U)*(U-BX) .GT. 0.d0 .and. lokcrv) THEN
+      call mnbrk2(u,bx,fu,f,iter,ir)
+      if (iter .eq. itmax .or. ir .eq. -1) return
+      fu = locmxn * fu
 C         write(*,*) 'U between AX and BX ',FU
 C if a minimum is found between AX and BX:
-          IF (FU .LT. FB) THEN
-            CX=BX
-            FC=FB
-            BX=U
-            FB=FU
-            GOTO 1
-          ENDIF
+      IF (FU .LT. FB) THEN
+      CX=BX
+      FC=FB
+      BX=U
+      FB=FU
+      GOTO 1
+      ENDIF
 C parabolic fit did no good.  Use default magnification
-          U=CX+GOLD*(CX-BX)
-          U=MIN(U,XHIGH)
-          U=MAX(U,XLOW)
-          call mnbrk2(u,bx,fu,f,iter,ir)
-          if (iter .eq. itmax .or. ir .eq. -1) return
-          fu = locmxn * fu
+      U=CX+GOLD*(CX-BX)
+      U=MIN(U,XHIGH)
+      U=MAX(U,XLOW)
+      call mnbrk2(u,bx,fu,f,iter,ir)
+      if (iter .eq. itmax .or. ir .eq. -1) return
+      fu = locmxn * fu
 C
 C parabolic fit is between CX and allowed limit
-        ELSE IF ((CX-U)*(U-ULIM) .GT. 0.d0 .and. lokcrv) THEN
+      ELSE IF ((CX-U)*(U-ULIM) .GT. 0.d0 .and. lokcrv) THEN
 C       write(*,*) 'U between CX and allowed limit'
-          call mnbrk2(u,bx,fu,f,iter,ir)
-          if (iter .eq. itmax .or. ir .eq. -1) return
-          fu = locmxn * fu
-          IF (FU .LT. FC) THEN
-            BX=CX
-            CX=U
-            U=CX+GOLD*(CX-BX)
-            U=MIN(U,XHIGH)
-            U=MAX(U,XLOW)
-            if (u .eq. cx) then
-              ir = -2
-              return
-            endif
-            FB=FC
-            FC=FU
-            call mnbrk2(u,bx,fu,f,iter,ir)
-            if (iter .eq. itmax .or. ir .eq. -1) return
-            fu = locmxn * fu
-          ENDIF
+      call mnbrk2(u,bx,fu,f,iter,ir)
+      if (iter .eq. itmax .or. ir .eq. -1) return
+      fu = locmxn * fu
+      IF (FU .LT. FC) THEN
+      BX=CX
+      CX=U
+      U=CX+GOLD*(CX-BX)
+      U=MIN(U,XHIGH)
+      U=MAX(U,XLOW)
+      if (u .eq. cx) then
+        ir = -2
+        return
+      endif
+      FB=FC
+      FC=FU
+      call mnbrk2(u,bx,fu,f,iter,ir)
+      if (iter .eq. itmax .or. ir .eq. -1) return
+      fu = locmxn * fu
+      ENDIF
 
 C Extrapolate outside (ax,cx)
-        ELSE
+      ELSE
 C         Limit U to maximum allowed value
-          IF ((U-ULIM)*(ULIM-CX) .GE. 0.d0) THEN
+      IF ((U-ULIM)*(ULIM-CX) .GE. 0.d0) THEN
 C         write(*,*) 'Limit parabolic U to maximum allowed value'
-            u = ulim
+      u = ulim
 C         Reject parabolic U; use default magnification
-          ELSE
-            U=CX+GOLD*(CX-BX)
-          ENDIF
+      ELSE
+      U=CX+GOLD*(CX-BX)
+      ENDIF
 
 C Extra checks to keep extrapolated point within limits
-          if (u .ge. xhigh) then
-            if (ax .eq. xhigh .or. bx .eq. xhigh .or. cx .eq. xhigh)then
-              ir = -2
-              if (ax .eq. xhigh) then
-                cx = ax
-                fc = fa
-              endif
-              if (bx .eq. xhigh) then
-                cx = bx
-                fc = fb
-              endif
-              return
-            endif
-            u = xhigh
+      if (u .ge. xhigh) then
+        if (ax .eq. xhigh .or. bx .eq. xhigh .or. cx .eq. xhigh)then
+          ir = -2
+          if (ax .eq. xhigh) then
+            cx = ax
+            fc = fa
           endif
-          if (u .le. xlow) then
-            if (ax .eq. xlow .or. bx .eq. xlow .or. cx .eq. xlow) then
-              ir = -2
-              if (ax .eq. xlow) then
-                cx = ax
-                fc = fa
-              endif
-              if (bx .eq. xlow) then
-                cx = bx
-                fc = fb
-              endif
-              return
-            endif
-            u = xlow
+          if (bx .eq. xhigh) then
+            cx = bx
+            fc = fb
           endif
-          call mnbrk2(u,bx,fu,f,iter,ir)
-          if (iter .eq. itmax .or. ir .eq. -1) return
-          fu = locmxn * fu
+          return
+        endif
+        u = xhigh
+      endif
+      if (u .le. xlow) then
+        if (ax .eq. xlow .or. bx .eq. xlow .or. cx .eq. xlow) then
+          ir = -2
+          if (ax .eq. xlow) then
+            cx = ax
+            fc = fa
+          endif
+          if (bx .eq. xlow) then
+            cx = bx
+            fc = fb
+          endif
+          return
+        endif
+        u = xlow
+      endif
+      call mnbrk2(u,bx,fu,f,iter,ir)
+      if (iter .eq. itmax .or. ir .eq. -1) return
+      fu = locmxn * fu
 
-        ENDIF
+      ENDIF
 
 C Eliminate oldest point and continue
-        AX=BX
-        BX=CX
-        CX=U
-        FA=FB
-        FB=FC
-        FC=FU
-        GOTO 1
+      AX=BX
+      BX=CX
+      CX=U
+      FA=FB
+      FB=FC
+      FC=FU
+      GOTO 1
       ENDIF
       FA = LOCMXN * FA
       FB = LOCMXN * FB
@@ -344,14 +344,14 @@ C     implicit none
       integer maxmin,itmax,ir
       double precision ax,bx,cx,fa,fb,fc,f,tol,eps
       double precision a,b,v,w,x,e,fx,fv,fw,p,q,r,d,xm,tol1,tol2,u,
-     .  fu,etemp,cgold
+     .fu,etemp,cgold
       parameter (cgold=1.d0-0.61803398874990d0)
       integer iter,iprint,maxit
       external f
 
 C ... Return with error if root not bracketed
       if ((fa-fb)*maxmin .lt. 0 .or. (fc-fb)*maxmin .lt. 0 .or.
-     .  (ax-bx)*(bx-cx) .lt. 0) call rx('BRENT: root not bracketed')
+     .(ax-bx)*(bx-cx) .lt. 0) call rx('BRENT: root not bracketed')
 
       maxit = itmax
       if (maxit .le. 0) maxit=99999
@@ -391,8 +391,8 @@ C --- Start of main loop ---
         tol2 = 2*tol1
 C ...   Quit if done
         if ( (dabs(x-xm) .le. (tol2-(b-a)/2)) .or.
-     .       (maxmin .eq. 0  .and.  dsign(fa,fa) .ne. dsign(fa,fx))
-     .     ) goto 3
+     .  (maxmin .eq. 0  .and.  dsign(fa,fa) .ne. dsign(fa,fx))
+     .  ) goto 3
 
         if (dabs(e) .gt. tol1) then
           r = (x-w)*(fx-fv)
@@ -405,7 +405,7 @@ C ...   Quit if done
           e = d
 c ... Check for the acceptability of a parabolic fit:
           if (dabs(p) .ge. dabs(q*etemp/2) .or.
-     .        p .le. q*(a-x) .or. p .ge. q*(b-x)) goto 1
+     .    p .le. q*(a-x) .or. p .ge. q*(b-x)) goto 1
 C ... Fit is ok ...  take a parabolic step
           d = p/q
           u = x+d

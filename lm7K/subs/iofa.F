@@ -1,5 +1,5 @@
       integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,
-     .  qc,ccof,ceh,stc,rho,rhoc,v,ifi)
+     .qc,ccof,ceh,stc,rho,rhoc,v,ifi)
 C- I/O for free-atom data, one species
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -33,7 +33,7 @@ C ... Passed parameters
       integer ifi,nr,nxi,nxi0
       character spid*8
       double precision a,ccof,ceh,qc,rmt,rsm,stc,z,
-     .  hfc(nxi0,2),rho(2*nr),v(2*nr),exi(nxi0),rhoc(2*nr),hfct(nxi0,2)
+     .hfc(nxi0,2),rho(2*nr),v(2*nr),exi(nxi0),rhoc(2*nr),hfct(nxi0,2)
 C ... Local parameters
       integer i,jfi,lrel,lrel0,nglob,nsp,nsp0,ipr,iprint,stdo,lgunit
       logical isanrg
@@ -78,7 +78,7 @@ C --- Output ---
         jfi = -ifi
         write(jfi,101) spid
   101   format('-------- ',a8,' ----------'/
-     .     '     z       a      nsp lrel  nr     rmt          rsm')
+     .  '     z       a      nsp lrel  nr     rmt          rsm')
         write(jfi,102) z,a,nsp,lrel,nr,rmt,rsm
   102   format(f8.2,f9.4,3i5,2f13.7)
         write(jfi,103) nxi
@@ -105,7 +105,7 @@ C --- Output ---
 
 C ... Error handling
   998 if (ipr .gt. 0)
-     .  write(stdo,'('' iofa  : missing species id ... nothing read'')')
+     .write(stdo,'('' iofa  : missing species id ... nothing read'')')
 
       end
 

@@ -28,9 +28,9 @@ C       do  20  k = n, nmi+1, -1
 C         call yyaxpy(m,-ar(k,nmi),ai(k,nmi),zr(k,1),zi(k,1),nm,
 C    .      zr(nmi,1),zi(nmi,1),nm,sw)
         do  20  j = 1, m
-        do  20  k = n, nmi+1, -1
-          zr(nmi,j) = zr(nmi,j) - ar(k,nmi)*zr(k,j) - ai(k,nmi)*zi(k,j)
-          zi(nmi,j) = zi(nmi,j) - ar(k,nmi)*zi(k,j) + ai(k,nmi)*zr(k,j)
+          do  20  k = n, nmi+1, -1
+            zr(nmi,j) = zr(nmi,j) - ar(k,nmi)*zr(k,j) - ai(k,nmi)*zi(k,j)
+            zi(nmi,j) = zi(nmi,j) - ar(k,nmi)*zi(k,j) + ai(k,nmi)*zr(k,j)
    20   continue
         call dscal(m,1/ar(nmi,nmi),zr(nmi,1),nm)
         call dscal(m,1/ar(nmi,nmi),zi(nmi,1),nm)

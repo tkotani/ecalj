@@ -89,7 +89,7 @@ C Passed variables:
       double precision platcp(3,3)
 C Local variables:
       integer ii,iprint,is1,ltmax,ll1,lgunit,m,m1,m2,m3,mm,nrot(4),
-     .        nsym0(7),nsymop,lenvec,iwgt(4),stdo,ip
+     .nsym0(7),nsymop,lenvec,iwgt(4),stdo,ip
       parameter(ltmax=3,ll1=ltmax*2+1)
       logical latvec,lirr,lv,ltmp,parsvc
       double precision platt(3,3),qlatcp(3,3),mat(9),vecg(3),vol
@@ -113,7 +113,7 @@ C --- find all possible rotation axis
         lirr=.true.
         do m=2,ll1
           lirr=lirr.and.(mod(m1,m).ne.0.or.mod(m2,m).ne.0.or.
-     .                   mod(m3,m).ne.0)
+     .    mod(m3,m).ne.0)
         enddo
         if (lirr) then
           do m=1,3
@@ -133,7 +133,7 @@ C             call cnvvec(symops(3:),ierr,1,lenvec,vecg)
               ip = 2
               ltmp = parsvc(1,symops,ip,vecg)
               if (lv.and.iprint().ge.120) 
-     .          write(stdo,301) symops(1:lenvec+2)
+     .        write(stdo,301) symops(1:lenvec+2)
             endif
           enddo
         endif
@@ -151,11 +151,11 @@ C --- set isym1 depending on number of valid symmetry operations
   300 format(/' BRAVSY: nsymop=',i2)
   301 format( ' BRAVSY: ',a)
   401 format(' BRAVSY: Operation ',a,' is rejected (doubtful),',
-     .       '|        but maybe it should be accepted.',
-     .       '|        -> symmetry of lattice may not be recognized$')
+     .'|        but maybe it should be accepted.',
+     .'|        -> symmetry of lattice may not be recognized$')
   402 format(' BRAVSY: Operation ',a,' is accepted (doubtful),',
-     .       '|        but maybe it should be rejected.',
-     .       '|        -> symmetry of lattice may not be recognized$')
+     .'|        but maybe it should be rejected.',
+     .'|        -> symmetry of lattice may not be recognized$')
       end
 
       subroutine cvplat(isym1,isym3,lscr,platin,platcp,platcv)
@@ -244,21 +244,21 @@ C Passed variables:
       logical lscr
 C Local variables:
       integer i,j,i1,i2,ikd,ikd1,ikd2,ikd3,iprint,k,l,ll1,ltmax,lgunit,
-     .  m,mn,n(7),nkd,isym32(5),isym33(6),isym34(2),isym37(3),stdo
+     .m,mn,n(7),nkd,isym32(5),isym33(6),isym34(2),isym37(3),stdo
       parameter(ltmax=2,ll1=ltmax*2+1)
       double precision cosvec,danrm2,d1mach,d2(ll1**3),ddd,ddot,ddet33,
-     .                 dlat(3,ll1**3),dm2,dm3,pdp,qlatcv(3,3),r(3),
-     .                 platwk(3,3),tollat,volin,volcv,t(9,7),iprm(3)
+     .dlat(3,ll1**3),dm2,dm3,pdp,qlatcv(3,3),r(3),
+     .platwk(3,3),tollat,volin,volcv,t(9,7),iprm(3)
       logical lra1,lsl1,lsma1,lra2,lsl2,lsma2
       parameter(tollat=1.d-5)
 C External calls:
       external cross,dcopy,dinv33,dmpy,dscal,dswap,dvheap,dvprm,iinit,
-     .         rx,rxi
+     .rx,rxi
 C Intrinsic functions:
       intrinsic  dabs,iabs,idnint,mod
 C Statement functions:
       mn(ikd,m)=(mod(ikd+(ll1/2)*ll1**(m-1),ll1**m)
-     .         -mod(ikd+(ll1/2)*ll1**(m-1),ll1**(m-1)))/ll1**(m-1)-ltmax
+     .-mod(ikd+(ll1/2)*ll1**(m-1),ll1**(m-1)))/ll1**(m-1)-ltmax
       pdp(i,j)=ddot(3,platcv(1,i),1,platcv(1,j),1)
       ddd(i,j)=ddot(3,dlat  (1,i),1,dlat  (1,j),1)
       lra1(i,j)=dabs(pdp(i,j))        .lt.tollat
@@ -266,21 +266,21 @@ C Statement functions:
       lra2(i,j)=dabs(ddd(i,j))        .lt.tollat
       lsl2(i,j)=dabs(ddd(i,i)-ddd(j,j)).lt.tollat
       lsma1(i,k,j)=dabs(pdp(i,j)-pdp(j,k)).lt.tollat.and.
-     .             dabs(pdp(j,k)-pdp(k,i)).lt.tollat
+     .dabs(pdp(j,k)-pdp(k,i)).lt.tollat
       lsma2(ikd1,ikd2,ikd3)=
-     .          dabs(ddd(ikd1,ikd2)-ddd(ikd2,ikd3)).lt.tollat.and.
-     .          dabs(ddd(ikd2,ikd3)-ddd(ikd3,ikd1)).lt.tollat
+     .dabs(ddd(ikd1,ikd2)-ddd(ikd2,ikd3)).lt.tollat.and.
+     .dabs(ddd(ikd2,ikd3)-ddd(ikd3,ikd1)).lt.tollat
 C Data statements:
       data isym32/1,2,3,4,5/,isym33/1,2,3,4,5,6/,isym34/1,5/,
-     .     isym37/1,5,6/
+     .isym37/1,5,6/
       data n/1,5,6,2,1,1,3/
       data t/ 1.d0, 0.d0, 0.d0, 0.d0, 1.d0, 0.d0, 0.d0, 0.d0, 1.d0,
-     .        1.d0, 1.d0, 0.d0,-1.d0, 1.d0, 0.d0, 0.d0, 0.d0, 1.d0,
-     .        1.d0, 0.d0, 1.d0, 0.d0, 1.d0, 0.d0,-1.d0, 0.d0, 1.d0,
-     .        1.d0, 0.d0, 0.d0, 0.d0, 1.d0, 1.d0, 0.d0,-1.d0, 1.d0,
-     .        0.d0, 1.d0, 1.d0, 1.d0, 0.d0, 1.d0, 1.d0, 1.d0, 0.d0,
-     .       -1.d0, 1.d0, 1.d0, 1.d0,-1.d0, 1.d0, 1.d0, 1.d0,-1.d0,
-     .        1.d0,-1.d0, 0.d0, 0.d0, 1.d0,-1.d0, 1.d0, 1.d0, 1.d0/
+     .1.d0, 1.d0, 0.d0,-1.d0, 1.d0, 0.d0, 0.d0, 0.d0, 1.d0,
+     .1.d0, 0.d0, 1.d0, 0.d0, 1.d0, 0.d0,-1.d0, 0.d0, 1.d0,
+     .1.d0, 0.d0, 0.d0, 0.d0, 1.d0, 1.d0, 0.d0,-1.d0, 1.d0,
+     .0.d0, 1.d0, 1.d0, 1.d0, 0.d0, 1.d0, 1.d0, 1.d0, 0.d0,
+     .-1.d0, 1.d0, 1.d0, 1.d0,-1.d0, 1.d0, 1.d0, 1.d0,-1.d0,
+     .1.d0,-1.d0, 0.d0, 0.d0, 1.d0,-1.d0, 1.d0, 1.d0, 1.d0/
 
       stdo = lgunit(1)
       if (lscr) call iinit(n,7)
@@ -293,8 +293,8 @@ C --- generate relevant lattice vectors
       do ikd=1,nkd
         do m = 1, 3
           dlat(m,ikd)=mn(ikd,1)*platcp(m,1)
-     .               +mn(ikd,2)*platcp(m,2)
-     .               +mn(ikd,3)*platcp(m,3)
+     .    +mn(ikd,2)*platcp(m,2)
+     .    +mn(ikd,3)*platcp(m,3)
         enddo
         d2(ikd)=danrm2(dlat(1,ikd))
       enddo
@@ -342,7 +342,7 @@ C ----- now dlat(1) and dlat(2) are the shortest orthogonal latice vec's
           endif
         enddo
         if (pdp(3,3).gt.pdp(1,1))
-     .      call dswap(3,platcv(1,1),1,platcv(1,3),1)
+     .  call dswap(3,platcv(1,1),1,platcv(1,3),1)
         if (pdp(1,3).gt.0.d0)        call dscal(3,-1.d0,platcv(1,3),1)
         if (ddet33(platcv).lt.0.d0) call dscal(3,-1.d0,platcv(1,2),1)
       elseif (isym1.eq.3) then
@@ -358,7 +358,7 @@ C ----- No standard choice of unit cell
             if (lra2(ikd1,ikd2)) then
               do ikd3=ikd2+1,nkd
                 if(lra2(ikd2,ikd3).and.lra2(ikd3,ikd1).and.
-     .           d2(ikd1)*d2(ikd2)*d2(ikd3).lt.dm3)then
+     .          d2(ikd1)*d2(ikd2)*d2(ikd3).lt.dm3)then
                   call dcopy(3,dlat(1,ikd1),1,platcv(1,1),1)
                   call dcopy(3,dlat(1,ikd2),1,platcv(1,2),1)
                   call dcopy(3,dlat(1,ikd3),1,platcv(1,3),1)
@@ -386,7 +386,7 @@ C ----- No standard choice of unit cell
             if (lra2(ikd1,ikd2)) then
               do ikd3=ikd2+1,nkd
                 if(lra2(ikd2,ikd3).and.lra2(ikd3,ikd1).and.
-     .           d2(ikd1)*d2(ikd2)*d2(ikd3).lt.dm3) then
+     .          d2(ikd1)*d2(ikd2)*d2(ikd3).lt.dm3) then
                   call dcopy(3,dlat(1,ikd1),1,platcv(1,1),1)
                   call dcopy(3,dlat(1,ikd2),1,platcv(1,2),1)
                   call dcopy(3,dlat(1,ikd3),1,platcv(1,3),1)
@@ -401,7 +401,7 @@ C ----- No standard choice of unit cell
       elseif (isym1.eq.5) then
 C ----- rhombohedral
         if (isym3.ne.1.and.isym3.ne.7)
-     .    call rxi('CVPLAT: isym3 must be 1 or 7, but is',isym3)
+     .  call rxi('CVPLAT: isym3 must be 1 or 7, but is',isym3)
         call dcopy(9,platin,1,platcv,1)
         if (lsma1(1,2,3).and.lsl1(1,2).and.lsl1(1,3))goto 5
 C ----- No standard choice of unit cell
@@ -427,7 +427,7 @@ C ----- No standard choice of unit cell
         enddo
         call dswap(3,platcv(1,1),1,platcv(1,3),1)
 5       if(ddet33(platcv).lt.0.d0)
-     .    call dswap(3,platcv(1,2),1,platcv(1,3),1)
+     .  call dswap(3,platcv(1,2),1,platcv(1,3),1)
         call dcopy(9,platcv,1,platwk,1)
         call dmpy(platwk,3,1,t(1,isym3),3,1,platcv,3,1,3,3,3)
       elseif (isym1.eq.6) then
@@ -443,7 +443,7 @@ C ----- cubic -> find shortest pair of same length with 3 right angles
           isym3=isym37(i)
           call dmpy(platin,3,1,t(1,isym3),3,1,platcv,3,1,3,3,3)
           if (lra1(1,2).and.lra1(2,3).and.lra1(3,1).and.lsl1(1,2).and.
-     .        lsl1(2,3)) goto 8
+     .    lsl1(2,3)) goto 8
         enddo
 C ----- No standard choice of unit cell
         do ikd1=1,nkd
@@ -451,7 +451,7 @@ C ----- No standard choice of unit cell
             if (lra2(ikd1,ikd2).and.lsl2(ikd1,ikd2)) then
               do ikd3=ikd2+1,nkd
                 if(lra2(ikd2,ikd3).and.lra2(ikd3,ikd1).and.
-     .       lsl2(ikd2,ikd3).and.d2(ikd1)*d2(ikd2)*d2(ikd3).lt.dm3) then
+     .          lsl2(ikd2,ikd3).and.d2(ikd1)*d2(ikd2)*d2(ikd3).lt.dm3) then
                   call dcopy(3,dlat(1,ikd1),1,platcv(1,1),1)
                   call dcopy(3,dlat(1,ikd2),1,platcv(1,2),1)
                   call dcopy(3,dlat(1,ikd3),1,platcv(1,3),1)
@@ -471,16 +471,16 @@ C       call bsort2(platcv)
     8 volcv=ddet33(platcv)
       if (volcv.lt.0.d0) call dscal(3,-1.d0,platcv(1,3),1)
       if (idnint(dabs(volcv/volin)).lt.1)
-     .  call rx(' CVPLAT: could not calculate platcv')
+     .call rx(' CVPLAT: could not calculate platcv')
 
       call dinv33(platcv,1,qlatcv,volcv)
       if (iprint().ge.50) write(stdo,301)
-     .    ((platcv(m,l),m=1,3),(qlatcv(m,l),m=1,3),l=1,3)
+     .((platcv(m,l),m=1,3),(qlatcv(m,l),m=1,3),l=1,3)
       if (iprint().ge.60) write(stdo,303)
-     .  ((cosvec(platcv(1,i),platcv(1,j)),i=1,3),j=1,3)
+     .((cosvec(platcv(1,i),platcv(1,j)),i=1,3),j=1,3)
 
   301 format(/' CVPLAT: conventional unit cell:',
-     .       /17x,'Platcv',32x,'Qlatcv',3(/2x,3f11.7,5x,3f11.7))
+     ./17x,'Platcv',32x,'Qlatcv',3(/2x,3f11.7,5x,3f11.7))
   303 format(/'             cos(platcv,platcv):',3(/2x,3f11.7))
       end
 
@@ -520,7 +520,7 @@ C External calls:
       if (iprint().ge.30) write(stdo,300) a,b,c,alpha,beta,gamma
 
 300   format(/' LATPAR:     A=',f9.5,'     B=',f9.5,'      C=',f9.5,
-     .       /,9x,'ALPHA=',f9.4,'  BETA=',f9.4,'  GAMMA=',f9.4)
+     ./,9x,'ALPHA=',f9.4,'  BETA=',f9.4,'  GAMMA=',f9.4)
       end
 
       subroutine stplat(alat,isym,platcp,platcv,platst)
@@ -561,7 +561,7 @@ C Passed variables:
 C Local variables:
       integer i,isym2(7,7),isym3,iprint,k,lgunit,m,stdo
       double precision d1mach,ddet33,qlatst(3,3),qlatcp(3,3),tb(9,7),
-     .                 vol,volst
+     .vol,volst
       logical latvec
 C ... External calls
       external dinv33,dmpy,dscal
@@ -569,22 +569,22 @@ C Intrinsic functions:
       intrinsic dabs
 C Data statements:
       data tb/1.0d0, .0d0, .0d0,  .0d0, 1.0d0, .0d0,  .0d0,.0d0, 1.0d0,
-     .        0.5d0,-.5d0, .0d0,  .5d0, 0.5d0, .0d0,  .0d0,.0d0, 1.0d0,
-     .        0.5d0, .0d0,-.5d0,  .0d0, 1.0d0, .0d0,  .5d0,.0d0, 0.5d0,
-     .        1.0d0, .0d0, .0d0,  .0d0, 0.5d0,-.5d0,  .0d0,.5d0, 0.5d0,
-     .       -0.5d0, .5d0, .5d0,  .5d0,-0.5d0, .5d0,  .5d0,.5d0,-0.5d0,
-     .        0.0d0, .5d0, .5d0,  .5d0, 0.0d0, .5d0,  .5d0,.5d0, 0.0d0,
-     .        0.6666666666667d0,  0.3333333333333d0,  0.3333333333333d0,
-     .       -0.3333333333333d0,  0.3333333333333d0,  0.3333333333333d0,
-     .       -0.3333333333333d0, -0.6666666666667d0,  0.3333333333333d0/
+     .0.5d0,-.5d0, .0d0,  .5d0, 0.5d0, .0d0,  .0d0,.0d0, 1.0d0,
+     .0.5d0, .0d0,-.5d0,  .0d0, 1.0d0, .0d0,  .5d0,.0d0, 0.5d0,
+     .1.0d0, .0d0, .0d0,  .0d0, 0.5d0,-.5d0,  .0d0,.5d0, 0.5d0,
+     .-0.5d0, .5d0, .5d0,  .5d0,-0.5d0, .5d0,  .5d0,.5d0,-0.5d0,
+     .0.0d0, .5d0, .5d0,  .5d0, 0.0d0, .5d0,  .5d0,.5d0, 0.0d0,
+     .0.6666666666667d0,  0.3333333333333d0,  0.3333333333333d0,
+     .-0.3333333333333d0,  0.3333333333333d0,  0.3333333333333d0,
+     .-0.3333333333333d0, -0.6666666666667d0,  0.3333333333333d0/
       data isym2/1,0,0,0, 0, 0,0,    2,3,3,3,3,0, 0,    4,5,5,5,6,7,0,
-     .           8,0,0,0, 9, 0,0,   10,0,0,0,0,0,10,   11,0,0,0,0,0,0,
-     .          12,0,0,0,13,14,0/
+     .8,0,0,0, 9, 0,0,   10,0,0,0,0,0,10,   11,0,0,0,0,0,0,
+     .12,0,0,0,13,14,0/
 
       stdo = lgunit(1)
       if(isym(1).lt.1.or.isym(1).gt.7) call rx(' STPLAT: bad isym(1)')
       if (dabs(ddet33(platcp)).lt.d1mach(3))
-     .  call rx('STPLAT: bad platcp')
+     .call rx('STPLAT: bad platcp')
 
       call dinv33(platcp,1,qlatcp,vol)
       do isym3=7,1,-1
@@ -604,11 +604,11 @@ C Data statements:
       call dinv33(platst,1,qlatst,volst)
       if (iprint().ge.110) write(stdo,300)(isym(i),i=1,3)
       if (iprint().ge.50)  write(stdo,301)
-     .  ((platst(m,k),m=1,3),(qlatst(m,k),m=1,3),k=1,3)
+     .((platst(m,k),m=1,3),(qlatst(m,k),m=1,3),k=1,3)
 
   300 format(/' STPLAT: isym(1,2,3)=',3i3)
   301 format(/' STPLAT: standard unit cell',
-     .       /17x,'Platst',32x,'Qlatst',3(/2x,3f11.7,5x,3f11.7))
+     ./17x,'Platst',32x,'Qlatst',3(/2x,3f11.7,5x,3f11.7))
       end
 
       subroutine rotmat(iopt,li,nrot,symopm,vecg)
@@ -631,13 +631,13 @@ C Passed variables:
 C Local variables:
       integer i,idamax,in,j
       double precision costbn,detop,ddet33,ddot,omcos,
-     .                 sintbn,sinpb3,tiny,twopi,vfac
+     .sintbn,sinpb3,tiny,twopi,vfac
       character*144 messg
       parameter(twopi=6.28318530717958648d0)
       parameter(tiny=1.0d-5)
 C External calls:
       external daxpy,dcopy,ddet33,dpzero,ddot,dscal,errmsg,idamax,
-     .         nrmliz
+     .nrmliz
 C Intrinsic functions:
       intrinsic  dabs,dacos,dcos,dmax1,dsign,dsin,dsqrt,iabs,idnint
 
@@ -652,7 +652,7 @@ C ----- convert (nrot,vecg,li) into symopm
           costbn = dcos(twopi/nrot)
           omcos  = 1.d0-costbn
           if (ddot(3,vecg,1,vecg,1).lt.tiny)
-     .      call errmsg(' ROTMAT: zero rotation vector.$',4)
+     .    call errmsg(' ROTMAT: zero rotation vector.$',4)
           call nrmliz(1,vecg,vecg)
           symopm(1,1)=omcos*vecg(1)*vecg(1)+costbn
           symopm(1,2)=omcos*vecg(1)*vecg(2)-sintbn*vecg(3)
@@ -673,7 +673,7 @@ C ----- convert symopm into (nrot,vecg,li)
 C ----- First calculate determinant.
         detop=ddet33(symopm)
         if (dabs(dabs(detop)-1.0d0).gt.tiny)
-     .    call errmsg(' ROTMAT: determinant is not +/- 1$',5)
+     .  call errmsg(' ROTMAT: determinant is not +/- 1$',5)
         detop=dsign(1.d0,detop)
         li=detop.lt.0.d0
 C ----- multiply operation symopm with detop
@@ -719,7 +719,7 @@ C ------- next renormalize at least one component to 1 in order to
 C ------- allow for abbreviations as 'D', 'X', 'Y' or 'Z'
           sinpb3=dsqrt(.75d0)
           if (dabs((sinpb3-dabs(vecg(1)))*(sinpb3-dabs(vecg(2)))*
-     .            (sinpb3-dabs(vecg(3)))).gt.tiny) then
+     .    (sinpb3-dabs(vecg(3)))).gt.tiny) then
             do j=3,1,-1
               vfac=dabs(vecg(j))
               if(vfac.gt.tiny) call dscal(3,1.d0/vfac,vecg,1)
@@ -730,7 +730,7 @@ C ------- allow for abbreviations as 'D', 'X', 'Y' or 'Z'
       endif
 
 400   format(' ROTMAT: Bad component ',i1,' of operation ',
-     .       '. Diagonal element =',f9.5,'$')
+     .'. Diagonal element =',f9.5,'$')
       end
       subroutine nrmliz(n,r,rn)
 C- Normalizes a vector

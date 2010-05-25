@@ -55,7 +55,7 @@ C ... get file name
       endif
       strn = descr
       call info0(30,0,0,
-     .  ' writing sphere '//strn//'%a to file '//fnam//'%a ...')
+     .' writing sphere '//strn//'%a to file '//fnam//'%a ...')
       if (ip .ge. flen) call rxs('wrhomt : illegal file name: ',filnam)
 
 C ... dump results
