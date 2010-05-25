@@ -22,7 +22,7 @@ spc6='      '
 
 # change indentstr if you want to change indentlevel
 indentstr='  '
-indentstrcont=''
+indentstrcont='  '
 
 class t_indentstack:
 	word=''
