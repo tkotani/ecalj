@@ -29,7 +29,7 @@ C     implicit none
 C Passed parameters
       integer nr,nrmt,nf
       double precision rofi(nr),rho(nr),e(nf),f(nf),xi(nr,nf),qcst(nf),
-     .  qout
+     .qout
 C Local variables
       integer i,ip,ipr,ir,ire,irs,is,j,nfmax,info,lpr,lgunit,stdo
       parameter (nfmax = 10)
@@ -74,7 +74,7 @@ C       call awrit2('hnsmft f(%i) = %g',' ',80,stdo,i,f(i))
         do  4  j = 1, i
           is = is + 1
           call sint(xi(nrmt,i),xi(nrmt,j),nrmt,
-     .      a,b,rofi,irs,ire,s(i,j))
+     .    a,b,rofi,irs,ire,s(i,j))
           s(j,i) = s(i,j)
 C         call awrit3('hnsmft s(%i,%i) = %g',' ',80,stdo,i,j,s(is))
     4   continue
@@ -146,7 +146,7 @@ C       rho(ir) = fpi*r*r*fit
   400   format('    q(fit):',f13.6,4x,'rms diff:',f11.6)
         write (stdo,500) qof,qtf-qof,qtf,qor,qtr-qor,qtr
   500   format(4x,'fit: r>rmt',f10.6,'   r<rmt',f10.6,'   qtot',f10.6,
-     .        /4x,'rho: r>rmt',f10.6,'   r<rmt',f10.6,'   qtot',f10.6)
+     .  /4x,'rho: r>rmt',f10.6,'   r<rmt',f10.6,'   qtot',f10.6)
       endif
 
       end

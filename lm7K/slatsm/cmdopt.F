@@ -117,7 +117,7 @@ C   ... End of this argument ... start on another
 C  --- Printout of command line arguments ---      
   100 continue
       call awrit1(' acmdop:  %i file command switches:',
-     .  ' ',80,lgunit(1),nxarg)
+     .' ',80,lgunit(1),nxarg)
       do  20  i = 1, nxarg
    20 print 333, i, cmdarg(marker(i-1):marker(i)-1)
   333 format(i4,2x,'"',a,'"')

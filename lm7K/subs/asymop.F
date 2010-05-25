@@ -43,7 +43,7 @@ C --- Rotational part ---
           ip = 1
         else
           ip = awrite('%?#n#i*##r%i',sg,len(sg),0,isw(li),nrot,
-     .      0,0,0,0,0,0)
+     .    0,0,0,0,0,0)
         endif
         call rxx(.not. parsvc(2+fmtv,sg,ip,vecg),'bug in asymop')
       endif
@@ -88,7 +88,7 @@ C Passed parameters:
 C Local parameters:
       integer i,idamax,j,in
       double precision costbn,detop,ddet33,dnrm2,sinpb3,tiny,twopi,vfac,
-     .  wk(9),sintbn,omcos,ddot
+     .wk(9),sintbn,omcos,ddot
       parameter(tiny=1d-5)
 C External calls:
       external daxpy,dcopy,ddet33,dpzero,dnrm2,dscal,idamax,ddot
@@ -99,8 +99,8 @@ C --- Make grp from (nrot,vecg,li) ---
         call dpzero(grp,9)
         in = iabs(nrot)
         if (in.le.0.or.in.eq.5.or.in.gt.6)
-     .    call fexit(-1,111,'%N Exit -1 CSYMOP: '//
-     .    'abs(nrot) must 1,2,3,4 or 6, but is %i',in)
+     .  call fexit(-1,111,'%N Exit -1 CSYMOP: '//
+     .  'abs(nrot) must 1,2,3,4 or 6, but is %i',in)
         if (in .eq. 1) then
           call dcopy(3,1d0,0,grp,4)
         else
@@ -108,7 +108,7 @@ C --- Make grp from (nrot,vecg,li) ---
           costbn = dcos(twopi/nrot)
           omcos  = 1d0-costbn
           call rxx(dnrm2(3,vecg,1).lt.tiny,
-     .             'CSYMOP: zero rotation vector')
+     .    'CSYMOP: zero rotation vector')
           call dscal(3,1/sqrt(ddot(3,vecg,1,vecg,1)),vecg,1)
           grp(1,1) = omcos*vecg(1)*vecg(1) + costbn
           grp(1,2) = omcos*vecg(1)*vecg(2) - sintbn*vecg(3)
@@ -128,8 +128,8 @@ C --- Make (nrot,vecg,li) from grp ---
 C ... Require |determinant=1|
         call dinv33(grp,0,wk,detop)
         if (dabs(dabs(detop)-1.0d0) .gt. tiny)
-     .    call fexit(-1,111,'%N Exit -1 ASYMOP: '//
-     .    'determinant of group op must be +/- 1, but is %d',detop)
+     .  call fexit(-1,111,'%N Exit -1 ASYMOP: '//
+     .  'determinant of group op must be +/- 1, but is %d',detop)
         detop = dsign(1.d0,detop)
 C   ... li is T if to multiply by inversion
         li = detop .lt. 0d0
@@ -153,8 +153,8 @@ C     ... See Remarks
    10       continue
             j = idamax(3,vecg,1)
             if (vecg(j) .lt. 0d0)
-     .        call fexit2(-1,111,' Exit -1 ASYMOP:  bad component %i'//
-     .        ' of operation.  Diagonal element = %d',j,grp(j,j))
+     .      call fexit2(-1,111,' Exit -1 ASYMOP:  bad component %i'//
+     .      ' of operation.  Diagonal element = %d',j,grp(j,j))
             vecg(j) = dsqrt(vecg(j))
             vfac = 0.5d0/vecg(j)
             do  12  i = 1, 3
@@ -170,7 +170,7 @@ C     --- Renormalize at least one component to 1 ---
 C         to allow for abbreviations as 'D', 'X', 'Y' or 'Z'
           sinpb3 = dsqrt(.75d0)
           if (dabs((sinpb3-dabs(vecg(1)))*(sinpb3-dabs(vecg(2)))*
-     .            (sinpb3-dabs(vecg(3)))) .gt. tiny) then
+     .    (sinpb3-dabs(vecg(3)))) .gt. tiny) then
             do  20  j = 3, 1,-1
               vfac = dabs(vecg(j))
               if(vfac .gt. tiny) call dscal(3,1.d0/vfac,vecg,1)

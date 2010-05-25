@@ -4,7 +4,7 @@ c   python getarg.py < file.F > x
 c   mv x file.F
 
       subroutine rsedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
-     .  nbas,nat,nspec)
+     .nbas,nat,nspec)
 
       use m_struc_def  !Cgetarg
 C- Restart file editor
@@ -82,7 +82,7 @@ C ... Passed parameters
 C ... Local parameters
       integer nglob,fopna,fopng,iors,igets,a2vec
       integer i,j,k,l,im,m,n,j1,j2,js1,js2,nit(2),nspeck(2),isync,nw,
-     .  lexch
+     .lexch
       logical lnsave,lbin,lsopts,have2s,havers,lfail
       integer nsp,ngabc(3),n1,n2,n3,k1,k2,k3,lrssav,nvl,nchan
       integer ngabc2(3)
@@ -170,13 +170,13 @@ Ctakao_ZeroClear_NotRequiered        if (nvl<0) qmom_rv(:)=0.0d0
       if (dc .ne. ' ') then
         print 301
   301   format(//' Entering the restart file editor. ',
-     .    'Parsing command-line options ...')
+     .  'Parsing command-line options ...')
         lsopts = .true.
         js2 = 0
       else
         print 302
   302   format(//' Welcome to the restart file editor.  ',
-     .    'Enter ''?'' to see options.')
+     .  'Enter ''?'' to see options.')
         lsopts = .false.
       endif
       if (mode .ne. 1) call rx('rsedit not ready for mode ne 1')
@@ -219,12 +219,12 @@ c      else
       if(outs .eq. ' ') then
         print 304
   304   format(' Enter ''q'' to exit, ''a'' to abort',
-     .    ' ''?'' to see menu')
+     .  ' ''?'' to see menu')
         goto 10
 
 C ... Read 2nd density from restart file
       elseif (outs(1:6).eq.'readb ' .or. outs(1:6).eq.'reada ' .or.
-     .        outs(1:5).eq.'read ' .or. outs(1:7).eq.'readfa ') then
+     .outs(1:5).eq.'read ' .or. outs(1:7).eq.'readfa ') then
         if (outs(1:7) .eq. 'readfa ') then
 C         Make space for smooth density
 
@@ -240,7 +240,7 @@ C         Make space for smooth density
 Ctakao_ZeroClear_NotRequiered            if (3*nbask(2)<0) orh2_iv(:)=0
 
           call rdovfa ( nbask ( 2 ) , nspeck ( 2 ) , ssite2 , sspec2 , 
-     .     slat2 , spot2 , qbg , orh2_iv )
+     .    slat2 , spot2 , qbg , orh2_iv )
 
         else
           call word(outs,2,j1,j2)
@@ -270,8 +270,8 @@ Ctakao_ZeroClear_NotRequiered            if (3*nbask(2)<0) orh2_iv(:)=0
 
 C       Get the number of atoms and species
           k = iors ( - 1 , sctrl , w , w , slat2 , spot2 , sbz , fileid 
-     .   , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv , w , 
-     .   nit ( 2 ) , lbin , ifi )
+     .    , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv , w , 
+     .    nit ( 2 ) , lbin , ifi )
 
           call info5(10,0,0,' rsedit: '//
      .    'read 2nd density from file "'//trim(fn)//'" ...  '//
@@ -295,8 +295,8 @@ Ctakao_ZeroClear_NotRequiered          if (3*nbask(2)<0) orh2_iv(:)=0
 
           call pshpr(1)
           k = iors ( - 2 , sctrl , ssite2 , sspec2 , slat2 , spot2 , sbz 
-     .   , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
-     .   , w , nit ( 2 ) , lbin , ifi )
+     .    , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
+     .    , w , nit ( 2 ) , lbin , ifi )
 
 C       Check for unassigned species => reduce basis
           k = 0
@@ -329,8 +329,8 @@ C       Pack volume
 C       call shstru('spec',w(ospec2),1,nspeck(2))
 C       call shstru('site',w(osite2),1,nbask(2))
           k = iors ( 1 , sctrl , ssite2 , sspec2 , slat2 , spot2 , sbz 
-     .   , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
-     .   , w , nit ( 2 ) , lbin , ifi )
+     .    , fileid , nbask ( 2 ) , natk ( 2 ) , nspeck ( 2 ) , orh2_iv 
+     .    , w , nit ( 2 ) , lbin , ifi )
 
           call fclose(ifi)
         endif
@@ -343,17 +343,17 @@ C       call shstru('site',w(osite2),1,nbask(2))
         call info0(1,1,0,' Second Density:')
         call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
         call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv 
-     .   , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
+     .  , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
 
 
         goto 10
 
 C ... Read restart file
       elseif (outs(1:4).eq.'rsb ' .or. outs(1:4).eq.'rsa ' .or.
-     .        outs(1:3).eq.'rs' .or. outs(1:5).eq.'rsfa ') then
+     .outs(1:3).eq.'rs' .or. outs(1:5).eq.'rsfa ') then
         if (outs(1:5) .eq. 'rsfa ') then
           call rdovfa(nbask(1),nspeck(1),ssite1,sspec1,slat,spot,
-     .      qbg,w(oorhat))
+     .    qbg,w(oorhat))
           fileid = 'rsedit overlap fa densities'
         else
           call word(outs,2,j1,j2)
@@ -385,15 +385,15 @@ C       call shstru('site',w(osite2),1,nbask(2))
         havers = .true.
         lnsave = .true.
         call info2(1,1,0,' Density from '//
-     .    '%?#n==0#rs file:#overlapping free atoms:#',
-     .    isw(outs(1:5).eq.'rsfa '),0)
+     .  '%?#n==0#rs file:#overlapping free atoms:#',
+     .  isw(outs(1:5).eq.'rsfa '),0)
 
         i_copy_size=size(slat%nabc)
         call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
         call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
         call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
-     .    slat,w(osmrho),k1,k2,k3)
+     .  slat,w(osmrho),k1,k2,k3)
 
 C ... write atomic densities to file
       elseif (outs(1:7) .eq. 'wrhoat ') then
@@ -408,20 +408,20 @@ C ... show
       elseif (outs(1:5) .eq. 'show ') then
         if (havers) then
           call info2(1,1,0,' Density from rs file:  '//
-     .      '%i sites, %i species',nbask(1),nspeck(1))
+     .    '%i sites, %i species',nbask(1),nspeck(1))
 C          call upack1('lat nabc',slat,ngabc)
           call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
-     .      slat,w(osmrho),k1,k2,k3)
+     .    slat,w(osmrho),k1,k2,k3)
         endif
 
         if (have2s) then
           call info2(1,1,0,' Second Density:  '//
-     .      '%i sites, %i species',nbask(2),nspeck(2))
+     .    '%i sites, %i species',nbask(2),nspeck(2))
 
           call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
           call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv 
-     .     , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
+     .    , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
 
         endif
 
@@ -501,9 +501,9 @@ C       Carry out operation on 1st or second density
             ix(1) = nbask(2); ix(2) = nbask(2)
             if (have2s) then
               call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
-     .       , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , w ( osmrh2 
-     .       ) , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , w ( osmrh2 ) 
-     .       , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail )
+     .        , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , w ( osmrh2 
+     .        ) , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , w ( osmrh2 ) 
+     .        , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail )
 
             else
               if (lfail) then
@@ -556,7 +556,7 @@ C       Carry out operation on 1st or second density
           elseif (outs(j1:j2) .eq. '2') then
             if (have2s) then
               call prsed4 ( k , nbask ( 2 ) , nspeck ( 2 ) , nsp , ssite2 , 
-     .       sspec2 , orh2_iv , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
+     .        sspec2 , orh2_iv , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
 
             else
               call info0(0,0,0,' no 2nd density... cannot do: '//
@@ -587,7 +587,7 @@ C ... Linear combination of densities
         if (outs(j1:j2) .eq. 'ntrue') im = 0
         if (im .eq. -1) then
           call info0(0,0,0,
-     .      '     ... mode "'//outs(j1:j2)//'" not recognized')
+     .    '     ... mode "'//outs(j1:j2)//'" not recognized')
           goto 98
         endif
         call word(outs,3,j1,j2)
@@ -595,19 +595,19 @@ C ... Linear combination of densities
           isync = 0
 C         Require 3 words or 5 words
           if (im .ge. 4 .and. nw .ne. 3 .or.
-     .        im .lt. 4 .and. nw .ne. 5) goto 98
+     .    im .lt. 4 .and. nw .ne. 5) goto 98
           nw = 3
         else
           isync = 1
 C         Require 4 words or 6 words
           if (im .ge. 4 .and. nw .ne. 4 .or.
-     .        im .lt. 4 .and. nw .ne. 6) goto 98
+     .    im .lt. 4 .and. nw .ne. 6) goto 98
           j = 0
           j = a2vec(outs(j1:),len(outs(j1:)),j,4,', ',2,-3,2,ix,fac)
           if (j .ne. 2) then
             call word(outs,4,j,j2)
             call info0(0,0,0,
-     .        '     ... Could not parse arguments : '//outs(j1:j2))
+     .      '     ... Could not parse arguments : '//outs(j1:j2))
             goto 98
           endif
           nw = 4
@@ -622,7 +622,7 @@ C           call shosyv(0,0,0,6)
             call mkils0(outs(j1:j2),nlst(k),j)
             if (nlst(k) .le. 0) then
               call info0(0,0,0,
-     .          '%6p... Bad or null list : '//outs(j1:j2))
+     .        '%6p... Bad or null list : '//outs(j1:j2))
               goto 98
             endif
             if (k .eq. 1) then
@@ -635,8 +635,8 @@ C           call shosyv(0,0,0,6)
                 call ivset(ilst(1,2),2,nlst(1),ilst(1,2))
               elseif (nlst(2) .ne. nlst(1)) then
                 call info2(0,0,0,'%5p... 2nd list: '//outs(j1:j2)//
-     .            ' has %i entries when %i are needed',nlst(2),
-     .            nlst(1))
+     .          ' has %i entries when %i are needed',nlst(2),
+     .          nlst(1))
                 goto 98
               else
                 call mkilst(outs(j1:j2),nlst(2),ilst(1,2))
@@ -645,17 +645,17 @@ C             Check that elements in list are within range
               call imxmn(nlst(k),ilst(1,k),1,l,m)
             endif
             if (l .lt. 1 .or.  k.eq.1 .and. m .gt. nbask(1)
-     .        .or.  k.eq.2 .and. m .gt. nbask(2)) then
+     .      .or.  k.eq.2 .and. m .gt. nbask(2)) then
               call info0(0,0,0,
-     .          '     ... Entry in list out of range: '//outs(j1:j2))
+     .        '     ... Entry in list out of range: '//outs(j1:j2))
               goto 98
             endif
           enddo
         elseif (im .ge. 4) then
           if (nbask(1) .ne. nbask(2)) then
             call info0(0,0,0,
-     .        '%10fadda requires 1-1 correspondence between sites'//
-     .        ' in 1st and 2nd densities')
+     .      '%10fadda requires 1-1 correspondence between sites'//
+     .      ' in 1st and 2nd densities')
             goto 98
           endif
           nlst(1) = nbask(1)
@@ -671,10 +671,10 @@ C             Check that elements in list are within range
 C        call upack1('lat nabc',slat,ngabc)
 C        call upack1('lat nabc',w(oslat2),ngabc2)
         call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
-     .   , sspec1 , w ( oorhat ) , ssite2 , sspec2 , orh2_iv , w ( 
-     .   osmrho ) , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , w ( osmrh2 
-     .   ) , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail 
-     .   )
+     .  , sspec1 , w ( oorhat ) , ssite2 , sspec2 , orh2_iv , w ( 
+     .  osmrho ) , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , w ( osmrh2 
+     .  ) , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail 
+     .  )
 
         if (lfail) then
           call info0(0,0,0,' Densities failed to synchronize')
@@ -685,7 +685,7 @@ C         call upack1('lat nabc',slat,ngabc)
           call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
           call info0(1,1,0,' New density from rs file:')
           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
-     .      slat,w(osmrho),k1,k2,k3)
+     .    slat,w(osmrho),k1,k2,k3)
         endif
 
         deallocate(ilst)
@@ -705,9 +705,9 @@ C ... Save
           ifi = fopna(fn,-1,0)
         endif
         call info0(10,0,-1,
-     .    ' rsedit: write restart file "'//trim(fn)//'"')
+     .  ' rsedit: write restart file "'//trim(fn)//'"')
         k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
-     .    nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,-ifi)
+     .  nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,-ifi)
 
         lnsave = .false.
 
@@ -722,7 +722,7 @@ C ... quit
           read(*,'(a150)') outs
           call locase(outs)
           if (.not. (outs(1:1) .eq. 'y' .or. outs(1:1) .eq. 'q'))
-     .      goto 10
+     .    goto 10
         endif
         call rx0('exit rs editor')
 
@@ -734,60 +734,60 @@ C ... help
         print 313
         print 314
   310   format(
-     .    ' Select one of these options:'/
+     .  ' Select one of these options:'/
      .  t4,'rs [fn]',t15,
-     .    'read density and associated parameters from binary restart ',
-     .    'file.'/t15,'Use "fn" for file name, ',
-     .    'or "rst.ext" if "fn" is not supplied'/
+     .  'read density and associated parameters from binary restart ',
+     .  'file.'/t15,'Use "fn" for file name, ',
+     .  'or "rst.ext" if "fn" is not supplied'/
      .  t4,'rsa [fn]',t15,
-     .    'read density and associated parameters from ascii restart ',
-     .    'file.'/t15,'Use "fn" for file name, ',
-     .    'or "rst.ext" if "fn" is not supplied'/
+     .  'read density and associated parameters from ascii restart ',
+     .  'file.'/t15,'Use "fn" for file name, ',
+     .  'or "rst.ext" if "fn" is not supplied'/
      .  t4,'rsb [fn]',t15, 'same as "rs"'/
      .  t4,'rsfa [fn]',t15,
-     .    'generate density and associated parameters from atm ',
-     .    'file.'/t15,'Use "fn" for file name, ',
-     .    'or "atm.ext" if "fn" is not supplied')
+     .  'generate density and associated parameters from atm ',
+     .  'file.'/t15,'Use "fn" for file name, ',
+     .  'or "atm.ext" if "fn" is not supplied')
   311   format(/
      .  t4,'read [fn]',t15,
-     .    'read 2nd density from binary restart file.  Use "fn" for ',
-     .    'file name,'/t15,'or "rst.ext" if "fn" is not supplied'/
+     .  'read 2nd density from binary restart file.  Use "fn" for ',
+     .  'file name,'/t15,'or "rst.ext" if "fn" is not supplied'/
      .  t4,'reada [fn]',t15,
-     .    'read 2nd density from ascii restart file.  Use "fn" for ',
-     .    'file name,'/t15,'or "rst.ext" if "fn" is not supplied'/
+     .  'read 2nd density from ascii restart file.  Use "fn" for ',
+     .  'file name,'/t15,'or "rst.ext" if "fn" is not supplied'/
      .  t4,'readb [fn]',t15, 'same as "read"'//
      .  t4,'wrhoat',t15, 'Write atomic densities to rhoMT.{1..nbas}'//
      .  t4,'show',t15, 'Show summary information about densities'//
      .  t4,'...The following affect the charge or magnetic moment',
-     .    ' of a density.'/
+     .  ' of a density.'/
      .  t4,'set all|n       1|2  zers|zerq|flip'/
      .  t4,'set v|ntrue|pnu 1|2  zers|zerq|flip'/
      .  t14,'* The first argument specifies which objects are affected.'
-     .    /
+     .  /
      .  t16,'"all" applies to all quantities, "n" to the ',
      .  'three density types,'/
      .  t16,'"v" to the spherical potential, ',
-     .    '"ntrue" to the true local density,'/
+     .  '"ntrue" to the true local density,'/
      .  t16,'"pnu" to the linearization parameters'/
      .  t14,'* The second argument refers to the first or second ',
-     .    'density'/
+     .  'density'/
      .  t14,'* Third argument = zers: zeros spin part of density:   ',
-     .    'n+ - n- = 0'/
+     .  'n+ - n- = 0'/
      .  t14,'  Third argument = zerq: zeros charge part of density: ',
-     .    'n+ + n- = 0'/
+     .  'n+ + n- = 0'/
      .  t14,'  Third argument = flip: exchange n+, n- ')
 
   312   format(/
      .  t4,'...The following put a linear combination of the ',
-     .    'two densities into the first, or'/
+     .  'two densities into the first, or'/
      .  t4,'checks whether the two densities are well enough ',
-     .    'synchronized to make it possible'/
+     .  'synchronized to make it possible'/
      .  t4,'add all|n',t22,'sync'/
      .  t4,'add v|ntrue|pnu',t22,'sync lst1 lst2'/
      .  t4,'add all|n',t22,'fac1 fac2'/
      .  t4,'add v|ntrue|pnu',t22,'fac1 fac2 lst1 lst2'/
      .  t14,'* The first argument''s meaning is the same as the ',
-     .    'first argument to "set"'/
+     .  'first argument to "set"'/
      .  t14,'* Modifier "sync" checks whether the densities are ',
      .  'compatible, making no changes.'/
      .  t14,'* If "sync" is missing, the objects specified will be'/
@@ -799,17 +799,17 @@ C ... help
 
   313   format(
      .  t4,'...The following exchanges the l=0 parts of two site',
-     .    ' densities '/
+     .  ' densities '/
      .  t4,'exch 1|2',t22,'[flip] site1 site2'/
-     .    )
+     .  )
 
   314   format(
-     .    t4,'save  [fn]',t15,'saves restart data in ',
-     .    'binary restart file (name="rst" unless fn supplied)'/
-     .    t4,'savea [fn]',t15,'saves restart data in ',
-     .    'ascii restart file (name="rsta" unless fn supplied)'/
-     .    t4,'q',t15,'to quit the editor'/
-     .    t4,'a',t15,'to abort')
+     .  t4,'save  [fn]',t15,'saves restart data in ',
+     .  'binary restart file (name="rst" unless fn supplied)'/
+     .  t4,'savea [fn]',t15,'saves restart data in ',
+     .  'ascii restart file (name="rsta" unless fn supplied)'/
+     .  t4,'q',t15,'to quit the editor'/
+     .  t4,'a',t15,'to abort')
 
       else
         print '(1x,''unrecognized option: '',a)', trim(outs)
@@ -818,9 +818,9 @@ C ... help
       goto 10
 
    97 call info0(0,0,0,'%10pBoth densities must be supplied before'
-     .  //'invoking this command ')
+     .//'invoking this command ')
    98 call info0(0,0,0,' rsedit:  improper usage of '//trim(outs)//
-     .  ' ... nothing done')
+     .' ... nothing done')
       goto 10
 
       if (allocated(orh2_iv)) deallocate(orh2_iv)
@@ -830,10 +830,10 @@ C ... help
 
 
       subroutine prsed1(mode,nlst,ilst,nbask,nsp,site1,spec1,orh1,
-     .  site2,spec2,orh2,
-     .  smrho,k11,k21,k31,
-     .  smrh2,k12,k22,k32,
-     .  fac,lfail)
+     .site2,spec2,orh2,
+     .smrho,k11,k21,k31,
+     .smrh2,k12,k22,k32,
+     .fac,lfail)
 
       use m_struc_def  !Cgetarg
 
@@ -874,7 +874,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,nlst,ilst(nlst,2),nbask(2),nsp,
-     .  k11,k21,k31,k12,k22,k32
+     .k11,k21,k31,k12,k22,k32
       integer orh1(3,*),orh2(3,*)
       real(8):: fac(2)
       type(s_site)::site1(*)
@@ -905,12 +905,12 @@ C ... Heap
       lfails = .false.
       if (im .ge. 4) then
         call info0(0,1,-1,' Checking whether sm density meshes '//
-     .      'synchronize ...')
+     .  'synchronize ...')
         if (k11 .ne. k12 .or. k21 .ne. k22 .or. k31 .ne. k32) then
           write(stdo,212) k11,k21,k31,k12,k22,k32
   212     format(' mesh mismatch:'/
-     .      ' first  density n1 n2 n3 = ',3i5/
-     .      ' second density n1 n2 n3 = ',3i5)
+     .    ' first  density n1 n2 n3 = ',3i5/
+     .    ' second density n1 n2 n3 = ',3i5)
           lfails = .true.
           if (isync .eq. 1) call rx('sm density mesh mismatch')
         else
@@ -918,44 +918,44 @@ C ... Heap
         endif
         if (isync .eq. 1) then
           call info2(0,1,-1,' ... Replace smooth density n0 by linear '
-     .      //'combination %d*[n0] + %d*[2nd n0]',fac(1),fac(2))
+     .    //'combination %d*[n0] + %d*[2nd n0]',fac(1),fac(2))
           call lcrho(k11*k21*k31*2,nsp,1,1,fac(1),fac(2),smrho,smrh2)
         endif
       endif
 
       if (isync .ge. 2) then
         call info5(0,1,0,' ... Swap '//
-     .    '%?#n==4#and spin flip ##'//
-     .    '%?#n==0# true site# site #%-1j'//
-     .    '%?#n==0# density n1##%-1j'//
-     .    '%?#n>=4# densities##'//
-     .    '%?#n>=2# potentials##'//
-     .    '%?#n>=1# pnu##',
-     .    isync,im,mod(im,4),mod(im,2),0)
+     .  '%?#n==4#and spin flip ##'//
+     .  '%?#n==0# true site# site #%-1j'//
+     .  '%?#n==0# density n1##%-1j'//
+     .  '%?#n>=4# densities##'//
+     .  '%?#n>=2# potentials##'//
+     .  '%?#n>=1# pnu##',
+     .  isync,im,mod(im,4),mod(im,2),0)
         if (isync .eq. 3 .or. isync .gt. 4 .or. nlst .gt. 1) then
           call info0(0,1,0,' ... illegal parameters (aborting)')
           return
         endif
       elseif (isync .eq. 1) then
         call info5(0,1,0,' ... Replace '//
-     .    '%?#n==0# true site# site #%-1j'//
-     .    '%?#n==0# density n1##%-1j'//
-     .    '%?#n>=4# densities##'//
-     .    '%?#n>=2# potentials##'//
-     .    '%?#n>=1# pnu##'//
-     .    '  by linear combination'//
-     .    ' %d*[1st] + %d*[2nd]',im,
-     .    mod(im,4),mod(im,2),fac(1),fac(2))
+     .  '%?#n==0# true site# site #%-1j'//
+     .  '%?#n==0# density n1##%-1j'//
+     .  '%?#n>=4# densities##'//
+     .  '%?#n>=2# potentials##'//
+     .  '%?#n>=1# pnu##'//
+     .  '  by linear combination'//
+     .  ' %d*[1st] + %d*[2nd]',im,
+     .  mod(im,4),mod(im,2),fac(1),fac(2))
       elseif (isync .eq. 0) then
         call info0(0,1,0,' Checking whether radial meshes '//
-     .    'synchronize ...')
+     .  'synchronize ...')
       endif
       call info2(0,0,0,' site 1 : %n:1,3i',nlst,ilst(1,1))
       call info2(0,0,0,' site 2 : %n:1,3i',nlst,ilst(1,2))
 
   200 format(/' ... Improper synchronization between radial meshes'/
-     .  '  site1',8x,'site2',8x,'nr1  nr2',3x,'rmt1   rmt2',
-     .  4x,' a1    a2')
+     .'  site1',8x,'site2',8x,'nr1  nr2',3x,'rmt1   rmt2',
+     .4x,' a1    a2')
 
       lfail = .false.
       allocate(flgspc(nbask(1)))
@@ -964,10 +964,10 @@ C ... Heap
 
         ib = ilst(il,1)
         if (ib .gt. nbask(1))
-     .    call rxi('illegal site index for density:',ib)
+     .  call rxi('illegal site index for density:',ib)
         jb = ilst(il,2)
         if (jb .gt. nbask(2))
-     .    call rxi('illegal index for 2nd density:',jb)
+     .  call rxi('illegal index for 2nd density:',jb)
 
 
         is=site1(ib)%spec
@@ -1015,12 +1015,12 @@ C ... Heap
 
 C       Radial meshes must match
         if (abs(a1-a2).gt.1d-6 .or. nr1.ne.nr2 .or.
-     .      abs(rmt1-rmt2).gt.1d-6) then
+     .  abs(rmt1-rmt2).gt.1d-6) then
 
           if (.not. lfail) write(stdo,200)
           lfail = .true.
           write(stdo,202) ib,spid1,jb,spid2,
-     .      nr1,nr2,rmt1,rmt2,a1,a2
+     .    nr1,nr2,rmt1,rmt2,a1,a2
   202     format(i4,1x,a,i4,1x,a,2i5,1x,2f7.4,1x,2f6.3)
           if (isync .eq. 1) call rx('site density mismatch')
 
@@ -1035,7 +1035,7 @@ C       True local density: modified for im=0 or im>3
         if (im .lt. 1 .or. im .ge. 4) then
           if (isync .lt. 2) then
             call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
-     .        w(orh1(1,ib)),w(orh2(1,jb)))
+     .      w(orh1(1,ib)),w(orh2(1,jb)))
           else
             call swrho(isync/4,nr1,nsp,1,nlml1,nlml2,
      .      w(orh1(1,ib)),w(orh2(1,jb)))
@@ -1045,9 +1045,9 @@ C       Smooth local density and site core density: modified if im>=4
         if (im .ge. 4) then
           if (isync .lt. 2) then
             call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
-     .        w(orh1(2,ib)),w(orh2(2,jb)))
+     .      w(orh1(2,ib)),w(orh2(2,jb)))
             call lcrho(nr1,nsp,1,1,fac(1),fac(2),
-     .        w(orh1(3,ib)),w(orh2(3,jb)))
+     .      w(orh1(3,ib)),w(orh2(3,jb)))
           else
             call rx('not ready for this swap')
           endif
@@ -1177,17 +1177,17 @@ C      if (nsp .eq. 1) write(stdo,100)
 C      if (nsp .eq. 2) write(stdo,201)
 
       call info5(0,0,-1,' Smooth density: vol=%,2;2d  n123 = %i %i %i',
-     .  vol,k1,k2,k3,0)
+     .vol,k1,k2,k3,0)
       call info5(0,0,0,'  qsm = %,6;6d%?#n==2#  mag. mom = %,6;6d##',
-     .  smq,nsp,smag,0,0)
+     .smq,nsp,smag,0,0)
 
       if (nsp .eq. 1) write(stdo,200)
       if (nsp .eq. 2) write(stdo,201)
   200 format(/' Site parameters and charges:'/
-     .  '   site',10x,'z     rmt     nr   a  lmxl   qtrue',6x,'q2')
+     .'   site',10x,'z     rmt     nr   a  lmxl   qtrue',6x,'q2')
   201 format(/' Site parameters and charges:'/
-     .  '   site',10x,'z     rmt     nr   a  lmxl   qtrue',
-     .  5x,'mtrue',5x,'q2        m2')
+     .'   site',10x,'z     rmt     nr   a  lmxl   qtrue',
+     .5x,'mtrue',5x,'q2        m2')
 
       do  ib = 1, nbas
 
@@ -1223,11 +1223,11 @@ C        call upack2('site pz',ssite,ib,pnz)
         call radwgt(rmt,a,nr,rwgt)
 
         call splrho(0,nsp,nr,nlml,
-     .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
+     .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
         qv1   = srfpi*ddot(nr,rwgt,1,w(orhoat(1,ib)),1)
         qv2   = srfpi*ddot(nr,rwgt,1,w(orhoat(2,ib)),1)
         call splrho(1,nsp,nr,nlml,
-     .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
+     .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
         am1   = 2*srfpi*ddot(nr,rwgt,1,w(orhoat(1,ib)),1) - qv1
         am2   = 2*srfpi*ddot(nr,rwgt,1,w(orhoat(2,ib)),1) - qv2
 
@@ -1287,7 +1287,7 @@ C ... Heap
         call radmsh(rmt,a,nr,rofi)
 
         call wrhomt('rhoMT.','density',ib,w(orhoat(1,ib)),rofi,nr,
-     .    nlml,nsp)
+     .  nlml,nsp)
 
    10   continue
       enddo
@@ -1295,7 +1295,7 @@ C ... Heap
 
 
       subroutine prsed4(mode,nbas,nspec,nsp,ssite,sspec,orhoat,
-     .  slat,smrho,k1,k2,k3)
+     .slat,smrho,k1,k2,k3)
 
       use m_struc_def  !Cgetarg
 
@@ -1408,7 +1408,7 @@ C        call upack2('site pz',ssite,ib,pnz)
 
 C       Replace rho-up,rho-down with rho, up-down
         call splrho(0,nsp,nr,nlml,
-     .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
+     .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
 
 C       True local density: modified for im=0 or im>3
         if (im .lt. 1 .or. im .ge. 4) then
@@ -1421,7 +1421,7 @@ C       True local density: modified for im=0 or im>3
 
 C       Restore rho-up,rho-down from rho, up-down
         call splrho(1,nsp,nr,nlml,
-     .    w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
+     .  w(orhoat(1,ib)),w(orhoat(2,ib)),w(orhoat(3,ib)))
 
 C       Potentials v0,v1: modified if 2's bit im set
         if (mod(im,4) .ge. 2) then

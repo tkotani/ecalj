@@ -16,9 +16,9 @@ C ... Local parameters
       integer jfi,n0,parg,nkap0
       parameter (n0=10,nkap0=3)
       integer is,ks,lp1,jp,ikap,lmxb,lmxi,j1,j2,ls,i,j,lpz,
-     .  it(n0),idxdn(n0,nkap0)
+     .it(n0),idxdn(n0,nkap0)
       double precision rtab(n0,nkap0),etab(n0,nkap0),orbp(n0,2,nkap0),
-     .  dasum, zz
+     .dasum, zz
       integer:: i_spacks,i_copy_size
       jfi = ifi
       do  110  is = 1, nspec

@@ -1,5 +1,5 @@
       logical function parmxp(iter,strn,lstrn,broy,nmix,wgt,beta,
-     .  elind,mixnam,wc,nkill,betv,rmserr)
+     .elind,mixnam,wc,nkill,betv,rmserr)
 
 C- Parse strng to get mixing parameters for current iteration
 C --------------------------------------------------
@@ -110,7 +110,7 @@ C     character strn*(*),mixnam*8
       double precision wgt(3),beta,elind,wc,betv,rmserr
 C Local variables
       integer i,j,np,it(5),parg,nit,nmixj,jp,kp,killj,nitj,
-     .  iprint,i1mach,a2vec,lstblk,lstitj,iblk,nbump,k,ia0,lbroy
+     .iprint,i1mach,a2vec,lstblk,lstitj,iblk,nbump,k,ia0,lbroy
       logical lpr,lagain,cmdopt
       character outs*100,fnam*8
       double precision bet,elin,wt(3),wcj,rmsc,bv(2),errmin,xx
@@ -203,9 +203,9 @@ C ... Put back the original one, or remove newly created one
       if (i .lt. 0) goto 999
 C     if (i .gt. 0) lpr = .true.
       if (rmsc .ge. 0 .and. iter .lt. 0)
-     .  call awrit1('%a  err<%1;3g',outs,len(outs),0,rmsc)
+     .call awrit1('%a  err<%1;3g',outs,len(outs),0,rmsc)
       if (rmsc .ge. 0 .and. iter .gt. 0)
-     .  call awrit2('%a  err(%1;3g)<%1;3g',outs,len(outs),0,rmserr,rmsc)
+     .call awrit2('%a  err(%1;3g)<%1;3g',outs,len(outs),0,rmserr,rmsc)
 C ... Pick up nit
       jp = np
       i = parg(',n=',2,strn,jp,lstrn,',; ',2,1,it,nit)
@@ -217,7 +217,7 @@ C ... increment nit if rmserr>rmsc and iter>=nit+nitj
         if (iter .gt. 0) then
           call awrit2('%a  it %i of %i',outs,len(outs),0,iter,nit+nitj)
           if (iblk .ge. lstblk .and. iter .ge. nit+nitj .and.
-     .      rmserr .gt. rmsc .and. rmsc .gt. 0) then
+     .    rmserr .gt. rmsc .and. rmsc .gt. 0) then
             nbump = iter - (nit+nitj) + 1
             nit = nit + nbump
             call awrit0('%a(*)',outs,len(outs),0)
@@ -227,7 +227,7 @@ C ... increment nit if rmserr>rmsc and iter>=nit+nitj
 
 C ... ATP added this:
       if (rmserr .lt. rmsc .and. iblk .eq. lstblk .and. rmserr .ne. 0)
-     .  rmserr = -rmserr
+     .rmserr = -rmserr
 
 C      if (nit .eq. -1 .and. iter .gt. 0)
 C     .  call awrit1('%a  it %i of *',outs,len(outs),0,iter)
@@ -285,7 +285,7 @@ C...  Pick up iteration number for file kill
       if (i .lt. 0) goto 999
 C     if (i .gt. 0) lpr = .true.
       if (killj .ne. -1) call awrit1('%a  kill=%i',outs,len(outs),
-     .  0,killj)
+     .0,killj)
 C...  Pick up betv
       jp = np
       i = parg(',bv=',4,strn,jp,lstrn,',; ',2,2,it,bv)
@@ -307,7 +307,7 @@ C ... If iter < 0, printout and parse through all strings
 
 C --- If this is last pass, eg nitj <= iter <nitj+nit ---
       if (iter .gt. 0 .and. iblk .ge. lstblk .and. nitj .lt. iter
-     .  .and. (iter .le. nitj+nit .or. nit .eq. -1)) then
+     ..and. (iter .le. nitj+nit .or. nit .eq. -1)) then
         if (iprint().ge.20) call awrit0('%a',outs,-len(outs),-i1mach(2))
         broy = lbroy
         nmix = nmixj

@@ -1,6 +1,6 @@
 #define F90 1
       subroutine symdmu(dmatu,dmatw,nbas,nsp,lmaxu,sspec,ssite,ng,g,
-     .  istab,lldau,rms)
+     .istab,lldau,rms)
 
       use m_struc_def  !Cgetarg
 
@@ -53,7 +53,7 @@ C ... Passed parameters
       double precision g(9,*),rms
 C ... Local parameters
       integer is,igetss,lmxa,idu(4),m1,m2,ilm1,ilm2,ib,l,isp,m3,m4,ig,
-     .  iblu,nlibu,jb,jblu,ofjbl,lwarn
+     .iblu,nlibu,jb,jblu,ofjbl,lwarn
       double precision rmat(16,16),r(-3:3,-3:3),ddot
       double complex sdmat(-3:3,-3:3,2,2)
 C ... for spinor rotations
@@ -104,7 +104,7 @@ C   .. for now
       enddo
 
       if (lwarn .gt. 0) call info(10,0,0,
-     .  ' symdmu  (warning): %i symops rotate z axis',lwarn,0)
+     .' symdmu  (warning): %i symops rotate z axis',lwarn,0)
 
 C --- For each site density-matrix, do ---
       iblu = 0
@@ -155,7 +155,7 @@ C           ... Spatial rotation: dmatu(iblu) -> sdmat
                       do  m3 = -l, l
                         do  m4 = -l, l
                           sdmat(m1,m2,isp,isp) = sdmat(m1,m2,isp,isp)
-     .                      + r(m1,m3)*dmatu(m3,m4,isp,iblu)*r(m2,m4)
+     .                    + r(m1,m3)*dmatu(m3,m4,isp,iblu)*r(m2,m4)
                         enddo
                       enddo
                     enddo
@@ -244,7 +244,7 @@ C           ... Add sdmat/ng into dmat
                   do  m1 = -l, l
                     do  m2 = -l, l
                       dmatw(m1,m2,isp,jblu) = dmatw(m1,m2,isp,jblu) +
-     .                                        sdmat(m1,m2,isp,isp)/ng
+     .                sdmat(m1,m2,isp,isp)/ng
                     enddo
                   enddo
                 enddo

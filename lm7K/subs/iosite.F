@@ -1,6 +1,6 @@
       integer function iosite(lio,vn,errh,filnam,ifi,slabl,alat,plat,
-     .  nbas,nspec,
-     .  pos,vel,eula,vshft,ips,ipl,irlx)
+     .nbas,nspec,
+     .pos,vel,eula,vshft,ips,ipl,irlx)
 C- File i/o of site data
 C ----------------------------------------------------------------
 Ci Inputs
@@ -136,17 +136,17 @@ C ... These are for rdfiln
       integer recl,nr,mxchr,mxlev,lstsiz,ctlen
       parameter (mxchr=20,mxlev=4,lstsiz=200,recl=500,ctlen=120)
       character recrd*(recl),ctbl(mxchr,2)*(ctlen),a*(recl),aa*(recl),
-     .  vnam(mxlev)*16,rdarg*6
+     .vnam(mxlev)*16,rdarg*6
       logical loop0(0:mxlev)
       integer nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
-     .  nlist(0:mxlev)
+     .nlist(0:mxlev)
 C Local variables
       character locnam*8, spid*8, readin*6
       double precision alatx,posl(3),vell(3),eulal(3),plx(9),ddot,
-     .  vshftl,delta(6),vnx
+     .vshftl,delta(6),vnx
       logical bittst,ltmp,parstr,a2bin,lfast,lxpos,rdstrn
       integer a2vec,ipr,lio0,lio12,lio345,llio345,fopnx,ib,is,irlxl(3),
-     .  ipll,lgunit,i,j,nbasl,ix(9),ndel,iirlx,j1,j2,getdig,bitand
+     .ipll,lgunit,i,j,nbasl,ix(9),ndel,iirlx,j1,j2,getdig,bitand
       integer procid,master
       data procid /0/ master /0/
       data rdarg /'#{}% c'/
@@ -169,8 +169,8 @@ C --- File write ---
 C   ... Write header
         if (alat .gt. 0) then
           call awrit4('%% site-data vn=2.0 fast io=%i nbas=%i'//
-     .      ' alat=%;8,1d plat=%9:1;8,1d',a,len(a),ifi,lio345,nbas,alat,
-     .      plat)
+     .    ' alat=%;8,1d plat=%9:1;8,1d',a,len(a),ifi,lio345,nbas,alat,
+     .    plat)
         else
           call awrit3(
      .    '%% site-data vn=2.0 fast io=%i nbas=%i plat=%9:1;8,1d',a,
@@ -178,7 +178,7 @@ C   ... Write header
         endif
         write(ifi,344)
   344   format('#',t26,'pos',t61,'vel',t85,'eula',t103,'vshft',t111,
-     .    'PL rlx')
+     .  'PL rlx')
         do  10  ib = 1, nbas
 C          call upack('site spec posl vell eulal',ssite,ib,is,posl,vell,eulal)
 C          call upack('site pl relax vshft',ssite,ib,ipll,irlxl,vshftl,0)
@@ -188,7 +188,7 @@ C          call upack('site pl relax vshft',ssite,ib,ipll,irlxl,vshftl,0)
 C          call awrit6('%9p%3:1;10F %3:1;8F %3:1;8F  %;8F%,3i %3,1i',
 C     .      a,len(a),-ifi,posl,vell,eulal,vshftl,ipll,irlxl)
           call awrit6('%8p%3;12,7D%3:1;12,7D%3:1;12,7D %;8F%,3i %3,1i',
-     .      a,len(a),-ifi,posl,vell,eulal,vshftl,ipll,irlxl)
+     .    a,len(a),-ifi,posl,vell,eulal,vshftl,ipll,irlxl)
 C         Write tbe data
           if (bittst(lio345,64)) then
             call dpzero(delta,6)
@@ -198,7 +198,7 @@ C            call upack('site ndelta delta',ssite,ib,ndel,delta,0,0)
    10   continue
 
         if (ipr .ge. 30) call awrit1(' IOSITE: wrote to file '''//
-     .    locnam//'%a'', %i sites',' ',80,lgunit(1),nbas)
+     .  locnam//'%a'', %i sites',' ',80,lgunit(1),nbas)
 
 C --- File read ---
       else
@@ -371,7 +371,7 @@ C         Exit if file doesn't contain enough data
    43         ltmp = rdstrn(ifi,a,len(a),.false.)
               nr = nr+1
               if (ltmp .and. a(1:1) .eq. '#' .or.
-     .          a .eq. ' ' .and. ib .lt. nbas) goto 43
+     .        a .eq. ' ' .and. ib .lt. nbas) goto 43
               if (lio345 .ge. 64) then
    44           ltmp = rdstrn(ifi,aa,len(aa),.false.)
                 nr = nr+1
@@ -426,7 +426,7 @@ C         No vel,eula,vshft,ipl,irlx available on disk
               else
                 i = 0
                 if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl)
-     .            .ne. 3) goto 98
+     .          .ne. 3) goto 98
               endif
 C         vel,eula,vshft,ipl,irlx are available on disk
             else
@@ -436,17 +436,17 @@ C         vel,eula,vshft,ipl,irlx are available on disk
               else
                 i = 0
                 if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl)
-     .            .ne. 3) goto 98
+     .          .ne. 3) goto 98
                 if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,vell)
-     .            .ne. 3) goto 98
+     .          .ne. 3) goto 98
                 if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,eulal)
-     .            .ne. 3) goto 98
+     .          .ne. 3) goto 98
                 if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,1,ix,vshftl)
-     .            .ne. 1) goto 98
+     .          .ne. 1) goto 98
                 if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,ipll)
-     .            .ne. 1) goto 98
+     .          .ne. 1) goto 98
                 if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,iirlx)
-     .            .ne. 1) goto 98
+     .          .ne. 1) goto 98
               endif
             endif
             if (lxpos) then
@@ -495,7 +495,7 @@ C     Copy llio345 if sought
 C ... Error handling
    98 if (errh.le.ipr .or. errh.eq.0) then
         call awrit1(' IOSITE line %i: missing or incompatible data:',
-     .    ' ',80,lgunit(1),nr)
+     .  ' ',80,lgunit(1),nr)
         a(70:) = ' ...'
         call awrit0('%a',a,len(a),-lgunit(1))
         call rx('failed to read site data')

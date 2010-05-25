@@ -57,8 +57,8 @@ C ... Compatibility with ::(x,y,z)
       endif
       if (t(i+1:i+1) .eq. leftp) then
         if (.not. parsvc(-1,t,i,ag(1,ng)))
-     .    call fexit(-1,111,' Exit -1 PSYMOP: '//
-     .    'failed to parse translation, ig=%i',ng)
+     .  call fexit(-1,111,' Exit -1 PSYMOP: '//
+     .  'failed to parse translation, ig=%i',ng)
         if (flgp) then
           call dcopy(3,ag(1,ng),1,vec,1)
           call grpop(vec,ag(1,ng),plat,1)

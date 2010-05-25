@@ -40,8 +40,8 @@ C   ... Copy from iax to iaxib
         if (mode .eq. 0) then
           ntabib(ib) = ntab(ib+1)-ntab(ib)
           if (ntabib(ib) .gt. mxcsiz) call rxi(
-     .      'iax2fd: iaxib dimensioned too small, need mxcsiz=',
-     .      ntabib(ib))
+     .    'iax2fd: iaxib dimensioned too small, need mxcsiz=',
+     .    ntabib(ib))
           is0 = ntab(ib)
           shrink = 0
           do  is = ntab(ib)+1, ntab(ib+1)
@@ -60,7 +60,7 @@ C   ... Copy from iaxib to iax
           shrink = 0
           do  is = is0+1, is0+ntabib(ib)
             if (iaxib(1,ib,is-is0) .eq. 0 .or.
-     .          iaxib(2,ib,is-is0) .eq. 0) then
+     .      iaxib(2,ib,is-is0) .eq. 0) then
               shrink = shrink+1
             else
               call icopy(niax,iaxib(1,ib,is-is0),1,iax(1,is-shrink),1)

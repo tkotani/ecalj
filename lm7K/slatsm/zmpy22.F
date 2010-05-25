@@ -13,21 +13,21 @@ Cu   17 Mar 03 First created (from A. Chantis)
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       double complex a(2,2), b(2,2), c(2,2)
+      double complex a(2,2), b(2,2), c(2,2)
 C ... Local parameters
-       double complex cloc(2,2)
+      double complex cloc(2,2)
 
-       cloc(1,1) = a(1,1)*b(1,1) + a(1,2)*b(2,1)
-       cloc(1,2) = a(1,1)*b(1,2) + a(1,2)*b(2,2)
-       cloc(2,1) = a(2,1)*b(1,1) + a(2,2)*b(2,1)
-       cloc(2,2) = a(2,1)*b(1,2) + a(2,2)*b(2,2)
+      cloc(1,1) = a(1,1)*b(1,1) + a(1,2)*b(2,1)
+      cloc(1,2) = a(1,1)*b(1,2) + a(1,2)*b(2,2)
+      cloc(2,1) = a(2,1)*b(1,1) + a(2,2)*b(2,1)
+      cloc(2,2) = a(2,1)*b(1,2) + a(2,2)*b(2,2)
 
-       c(1,1) = cloc(1,1)
-       c(1,2) = cloc(1,2)
-       c(2,1) = cloc(2,1)
-       c(2,2) = cloc(2,2)
+      c(1,1) = cloc(1,1)
+      c(1,2) = cloc(1,2)
+      c(2,1) = cloc(2,1)
+      c(2,2) = cloc(2,2)
 
-       end
+      end
 
       subroutine zinv22(a,ainv)
 C- Inverse of a double complex 2x2 matrix
@@ -49,7 +49,7 @@ C ... Local parameters
 
       det = a(1,1)*a(2,2) - a(1,2)*a(2,1)
       if (dble(det) .eq. 0d0 .and. dimag(det) .eq. 0d0)
-     .  call rx('ZINV22: vanishing determinant')
+     .call rx('ZINV22: vanishing determinant')
 
       aloc(1,1) = a(2,2)/det
       aloc(2,2) = a(1,1)/det

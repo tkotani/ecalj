@@ -95,16 +95,16 @@ C --- mode = 2 ---
 
 C ... Unpack original points first
       do  210  m = 1, n
-      do  210  i = ng, 1, -1
-        k = ips0(i)
-        if (k .gt. 0) cg(i,m) = cg(k,m)
+        do  210  i = ng, 1, -1
+          k = ips0(i)
+          if (k .gt. 0) cg(i,m) = cg(k,m)
   210 continue
 
 C ... Unpack hermitian points
       do  220  m = 1, n
-      do  220  i = 1, ng
-        k = -ips0(i)
-        if (k .gt. 0) cg(i,m) = dconjg(cg(k,m))
+        do  220  i = 1, ng
+          k = -ips0(i)
+          if (k .gt. 0) cg(i,m) = dconjg(cg(k,m))
   220 continue
 
       end subroutine lgstar

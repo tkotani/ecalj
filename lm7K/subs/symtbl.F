@@ -44,14 +44,14 @@ C --- Make atom transformation table ---
         do  10  ib = 1, nbas
           call grpfnd(tol1,g,ag,ig,pos,nbas,qlat,ib,jb)
           if (jb .eq. 0)
-     .      call fexit2(-1,111,' Exit -1 SYMTBL: no map for atom '//
-     .      'ib=%i, ig=%i',ib,ig)
+     .    call fexit2(-1,111,' Exit -1 SYMTBL: no map for atom '//
+     .    'ib=%i, ig=%i',ib,ig)
           if (mode10 .ne. 0) then
             ic = ipc(ib)
             jc = ipc(jb)
             if (ic .ne. jc) call fexit3(-1,111,' Exit -1 SYMTBL: '//
-     .        'site %i not in same class as mapped site %i, ig=%i',
-     .        ib,jb,ig)
+     .      'site %i not in same class as mapped site %i, ig=%i',
+     .      ib,jb,ig)
           endif
           if (mode1 .eq. 0) then
             istab(ib,ig) = jb
@@ -75,7 +75,7 @@ C --- Check atom classes ---
           if (w(oiwk+jb-1) .eq. 1) goto 40
           jc = ipc(jb)
           if (ic .eq. jc) call fexit2(-1,111,' Exit -1 SYMTBL:  '//
-     .      'site ib=%i in same class as inequivalent site jb=%i',ib,jb)
+     .    'site ib=%i in same class as inequivalent site jb=%i',ib,jb)
    40   continue
    50 continue
       call rlse(oiwk)

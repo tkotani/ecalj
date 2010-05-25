@@ -1,6 +1,6 @@
 #define F90 1
       subroutine mshvmt(nbas,ssite,sspec,slat,ng,gv,
-     .  kv,cv,k1,k2,k3,smpot,vval)
+     .kv,cv,k1,k2,k3,smpot,vval)
 
       use m_struc_def  !Cgetarg
 
@@ -52,7 +52,7 @@ C ... Passed parameters
       double complex smpot(k1,k2,k3),cv(ng)
 C ... Local parameters
       integer i,ib,is,lmxx,nlmx,iv0,lmxl,nlm,ngabc(3),
-     .  n1,n2,n3,m,ilm,l,ipr
+     .n1,n2,n3,m,ilm,l,ipr
       double precision alat,pi,tpiba,tau(3),rmt,fac,plat(3,3)
 C     double precision q(3),qlat(3,3)
       double complex vvali,fprli
@@ -141,7 +141,7 @@ C       call dpzero(vval(iv0+1),nlm)
             vvali = 0
             do  i = 2, ng
               vvali = vvali + (phil(i,l)*yl(i,ilm))*
-     .                        (cv(i)*dcmplx(cgp(i),-sgp(i)))
+     .        (cv(i)*dcmplx(cgp(i),-sgp(i)))
             enddo
             vval(ilm+iv0) = fprli*vvali
           enddo
@@ -217,7 +217,7 @@ C ... Local parameters
       integer ipc(nbas),ips(nbas),lmxl(nbas)
       double precision pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
       integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , og , oag 
-     . , nn , iclbas
+     ., nn , iclbas
       real(8) ,allocatable :: qwk_rv(:)
       real(8) ,allocatable :: sym_rv(:)
 
@@ -273,7 +273,7 @@ Ctakao_ZeroClear_NotRequiered          if (nlml<0) qwk_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered          if (nlml*nlml*nrclas<0) sym_rv(:)=0.0d0
 
             call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , w ( 
-     .   og ) , w ( oag ) , qwk_rv , ipa , sym_rv , vval , nn )
+     .      og ) , w ( oag ) , qwk_rv , ipa , sym_rv , vval , nn )
 
             if (allocated(sym_rv)) deallocate(sym_rv)
             if (allocated(qwk_rv)) deallocate(qwk_rv)

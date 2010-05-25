@@ -28,29 +28,29 @@ C     implicit none
 C ... Passed parameters
       integer n,nsp,lxcf
       double precision rho(n),rhosp(n),exc(n),excx(n),excc(n),
-     .                 vxc(n),vxcx(n),vxcc(n)
+     .vxc(n),vxcx(n),vxcc(n)
 C ... Local parameters
 C --- Vosko-Ceperley-Alder ---
       double precision ap,xp0,bp,cp,qp,cp1,cp2,cp3,
-     .                 af,xf0,bf,cf,qf,cf1,cf2,cf3
+     .af,xf0,bf,cf,qf,cf1,cf2,cf3
       parameter (ap=.0621814d0,bp=3.72744d0,qp=6.1519908d0,
-     .           cp=12.9352d0,cp1=1.2117833d0,cp2=1.1435257d0,
-     .           cp3=-.031167608d0,xp0=-.10498d0)
+     .cp=12.9352d0,cp1=1.2117833d0,cp2=1.1435257d0,
+     .cp3=-.031167608d0,xp0=-.10498d0)
       parameter (af=.0310907d0,bf=7.06042d0,qf=4.7309269d0,
-     .           cf1=2.9847935d0,cf2=2.7100059d0,cf3=-.1446006d0,
-     .           cf=18.0578d0,xf0=-.32500d0)
+     .cf1=2.9847935d0,cf2=2.7100059d0,cf3=-.1446006d0,
+     .cf=18.0578d0,xf0=-.32500d0)
       integer i
       double precision atnf,atnp,beta,dbeta,dfs,duc,vxc1,exc0,excf,excp,
-     .  fs,rs,s,s4,tf1,th,th4,thx,tp1,ucf,ucp,vxc0,x,xfx,xpx,sth
+     .fs,rs,s,s4,tf1,th,th4,thx,tp1,ucf,ucp,vxc0,x,xfx,xpx,sth
       parameter (th=1d0/3d0, th4=4d0/3d0, thx=0.519842099789746d0)
 
 C --- Hedin-Lundqvist ---
       double precision mucf,mucp,nuce,unthrd,fothrd,fpi3,
-     .  cph,cfh,aph,afh,fh,fhofxi,z,xi,cmuxp,efmep,epscf,epscp,
-     .  epsx0,epsx1,gamma,tauce,rmin
+     .cph,cfh,aph,afh,fh,fhofxi,z,xi,cmuxp,efmep,epscf,epscp,
+     .epsx0,epsx1,gamma,tauce,rmin
       parameter(unthrd=1d0/3d0,fothrd=4d0/3d0,rmin=1d-21,
-     .  fpi3=12.566370614d0/3,gamma=5.1297628d0,cmuxp=1.2217741d0,
-     .  epsx0=.9163305866d0,epsx1=.23817361d0)
+     .fpi3=12.566370614d0/3,gamma=5.1297628d0,cmuxp=1.2217741d0,
+     .epsx0=.9163305866d0,epsx1=.23817361d0)
 C    .  fpi3=4.1887902d0,gamma=5.1297628d0,cmuxp=1.2217741d0,
 C ... V. Barth, Hedin parametrization ---
 C     parameter CPH=-.0504D0,CFH=-.0254D0,APH=30d0,AFH=75D0)
@@ -68,7 +68,7 @@ C --- Vosko-Ceperley-Alder, spin polarized case ---
             xpx = x*x+bp*x + cp
             atnp = datan(qp/(2d0*x+bp))
             excp = ap*(dlog(x*x/xpx) + cp1*atnp
-     .           -cp3*(dlog((x-xp0)**2/xpx) + cp2*atnp))
+     .      -cp3*(dlog((x-xp0)**2/xpx) + cp2*atnp))
             tp1  = (x*x+bp*x)/xpx
             ucp  = excp - ap/3d0*(1d0-tp1-cp3*(x/(x-xp0)-tp1-xp0*x/xpx))
 
@@ -84,13 +84,13 @@ C           sth -> (2*rhosp/rho)^1/3 as rhosp->0
             dbeta = -(.27402d0*x + .09873d0 + 1.591d0/x)*beta**2
             atnf = datan(qf/(2d0*x + bf))
             excf = af*(dlog(x*x/xfx) + cf1*atnf
-     .           -cf3*(dlog((x-xf0)**2/xfx) + cf2*atnf))
+     .      -cf3*(dlog((x-xf0)**2/xfx) + cf2*atnf))
             exc0 = excp + fs*(excf-excp)*(1d0+s4*beta)
             tf1  = (x*x+bf*x)/xfx
             ucf  = excf-af/3d0*(1d0-tf1-cf3*(x/(x-xf0)-tf1-xf0*x/xfx))
             vxc0 = (ucf-ucp)*fs - (excf-excp)*(s-1d0)*dfs
             duc  = (ucf-ucp)*beta*s4*fs +
-     .             (excf-excp)*(-rs/3d0)*dbeta*s4*fs
+     .      (excf-excp)*(-rs/3d0)*dbeta*s4*fs
             vxc1 = duc - (excf-excp)*beta*(s-1)*(4d0*s**3*fs+s4*dfs)
             vxc(i)  = ucp - 1.2217736d0/rs*sth + vxc0 + vxc1
             vxcx(i) =     - 1.2217736d0/rs*sth
@@ -115,7 +115,7 @@ C           sth -> (2*rhosp/rho)^1/3 as rhosp->0
             xpx = x*x+bp*x + cp
             atnp = datan(qp/(2d0*x+bp))
             excp = ap*(dlog(x*x/xpx) + cp1*atnp
-     .           -cp3*(dlog((x-xp0)**2/xpx) + cp2*atnp))
+     .      -cp3*(dlog((x-xp0)**2/xpx) + cp2*atnp))
             tp1  = (x*x+bp*x)/xpx
             ucp  = excp - ap/3d0*(1d0-tp1-cp3*(x/(x-xp0)-tp1-xp0*x/xpx))
             vxc(i)  = ucp - 1.2217736d0/rs
@@ -154,12 +154,12 @@ C --- Barth-Hedin ---
             tauce = mucf - mucp - fothrd*efmep
             xi = max(rhosp(i)/rho(i),0d0)
             fhofxi = (xi**fothrd + (1d0-xi)**fothrd -.79370052598d0)/
-     .        .206299474d0
+     .      .206299474d0
             vxc(i)  =  mucp + tauce*fhofxi
-     .              + (nuce - cmuxp/rs)*((2d0*xi)**unthrd) - nuce
+     .      + (nuce - cmuxp/rs)*((2d0*xi)**unthrd) - nuce
             vxcx(i) =  - cmuxp/rs*((2d0*xi)**unthrd)
             vxcc(i) =  mucp + tauce*fhofxi
-     .              +  nuce*((2d0*xi)**unthrd)             - nuce
+     .      +  nuce*((2d0*xi)**unthrd)             - nuce
             exc(i)  = epscp - epsx0/rs + fhofxi*(epscf-epscp-epsx1/rs)
             excx(i) =       - epsx0/rs
             excc(i) = epscp + fhofxi*(epscf-epscp-epsx1/rs)

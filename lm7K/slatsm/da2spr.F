@@ -53,7 +53,7 @@ C ... Assign diagonal elements first.  sa(min(n,m)+1,n) are not used.
         ija(i+1) = k+1
    13 continue
       call awrit2(' da2spr: copied %i nonzero elements out of %i',
-     .  ' ',80,6,k,n*m)
+     .' ',80,6,k,n*m)
       end
 C      subroutine fmain
 CC     Test da2spr

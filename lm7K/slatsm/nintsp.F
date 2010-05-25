@@ -25,15 +25,15 @@ C     implicit none
       call mklegw(nx,xtab,wx,0)
       i = 0
       do  10  ip = 1, np
-      do  10  ix = 1, nx
-        i = i+1
-        cost = xtab(ix)
-        phi =  (pi2*ip)/np
-        sint = dsqrt(1-cost**2)
-        x(1,i)=dcos(phi)*sint
-        x(2,i)=dsin(phi)*sint
-        x(3,i)=cost
-        w(i)  =wx(ix)*(pi2/np)
+        do  10  ix = 1, nx
+          i = i+1
+          cost = xtab(ix)
+          phi =  (pi2*ip)/np
+          sint = dsqrt(1-cost**2)
+          x(1,i)=dcos(phi)*sint
+          x(2,i)=dsin(phi)*sint
+          x(3,i)=cost
+          w(i)  =wx(ix)*(pi2/np)
    10 continue
       nxp = nx*np
       if (np .gt. 0) return

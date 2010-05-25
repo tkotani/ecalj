@@ -105,7 +105,7 @@ C     if (iprint() .ge. 20)  then
      .  'are sufficient to generate the space group:')
       else
         call info2(20,0,0,' GROUPG: %i generator(s) were added to '//
-     .    'complete the group%?#n#:',ngen-ngen0,ngen-ngen0)
+     .  'complete the group%?#n#:',ngen-ngen0,ngen-ngen0)
       endif
       sout = ' '
       sout2 = ' '
@@ -130,8 +130,8 @@ C     if (iprint() .ge. 20)  then
 C     endif
       if (ngout .gt. ng) then
         call info2(20,0,0,
-     .    '%9f(warning) %i group ops supplied but generators create'//
-     .    ' %i ops',ng,ngout)
+     .  '%9f(warning) %i group ops supplied but generators create'//
+     .  ' %i ops',ng,ngout)
       endif
 
       end

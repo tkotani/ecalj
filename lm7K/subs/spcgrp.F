@@ -24,7 +24,7 @@ C ----------------------------------------------------------------------
 C     implicit none
       integer mode,ips(1),ngmx,ngen,ng,nbas
       double precision plat(3,3),gen(9,ngen),g(9,ngmx),ag(3,ngmx),
-     .  bas(3,nbas)
+     .bas(3,nbas)
       integer lok,ig,ib,jb,i1mach,iprint
       double precision xx,qb(3,3),trans(3,50)
 C      integer awrite
@@ -39,15 +39,15 @@ C --- Find non-primitive translations for each generator ---
         do  19  ib = 1, nbas
           do  18  jb = 1, ib
             call trysop(ib,jb,gen(1,ig),nbas,ips,bas,plat,qb,lok,
-     .        trans(1,ig))
+     .      trans(1,ig))
             if (lok .eq. 1 .and. iprint() .gt. 20) call awrit2(
-     .        ' spcgrp gen %i: found trans =%3:1;6d',' ',80,i1mach(2),
-     .        ig,trans(1,ig))
+     .      ' spcgrp gen %i: found trans =%3:1;6d',' ',80,i1mach(2),
+     .      ig,trans(1,ig))
             if (lok .eq. 1) goto 20
    18     continue
    19   continue
         if (mod(mode/10,10) .eq. 0) call fexit(-1,111,
-     .    '%N  SPCGRP: no translation found for generator %i',ig)
+     .  '%N  SPCGRP: no translation found for generator %i',ig)
         call dpzero(trans(1,ig),3)
    20 continue
       call poppr
@@ -105,11 +105,11 @@ C     implicit none
 C ... Passed parameters
       integer mode,ngen,ng,ngmx
       double precision gen(9,ngen),g(9,ngmx),qb(3,3),
-     .  agen(3,ngen),ag(3,ngmx)
+     .agen(3,ngen),ag(3,ngmx)
 C ... Local parameters
       double precision h(9),hh(9),e(9),sig(9),asig(3),ah(3),ahh(3),ae(3)
       integer ipr,igen,ig,itry,iord,nnow,j,ip,i,k,n2,m1,m2,is,nnew,n,m,
-     .  stdo,nglob,mode0,mode1
+     .stdo,nglob,mode0,mode1
       logical spgeql
       character sout*80,sg*35
       data e/1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0/, ae/0d0,0d0,0d0/
@@ -130,7 +130,7 @@ C --- Extend the group by all products with sig ----
         do  9  ig = 1, ng
           if (spgeql(mode0,g(1,ig),ag(1,ig),sig,asig,qb)) then
             if (ipr .gt. 30) call awrit2(' Generator %i already in group '//
-     .    'as element %i',' ',80,stdo,igen,ig)
+     .      'as element %i',' ',80,stdo,igen,ig)
 C        write(stdo,650) igen,ig
 C  650   format(' generator',i3,'  is already in group as element',i3)
             goto 80
@@ -173,15 +173,15 @@ C ... Products with more than one sandwiched sigma-factor
         do  20  is = 2, 50
           nnew = 0
           do 21 n = ng+1,n2
-          do  21  m = m1, m2
-            call spgprd(g(1,n),ag(1,n),g(1,m),ag(1,m),h,ah)
-            do  22  k = 1, nnow
-              if (spgeql(mode0,g(1,k),ag(1,k),h,ah,qb)) goto 21
-   22       continue
-            nnew = nnew+1
-            nnow = nnow+1
-            if (nnow .gt. ngmx) goto 99
-            call spgcop(h,ah,g(1,nnow),ag(1,nnow))
+            do  21  m = m1, m2
+              call spgprd(g(1,n),ag(1,n),g(1,m),ag(1,m),h,ah)
+              do  22  k = 1, nnow
+                if (spgeql(mode0,g(1,k),ag(1,k),h,ah,qb)) goto 21
+   22         continue
+              nnew = nnew+1
+              nnow = nnow+1
+              if (nnow .gt. ngmx) goto 99
+              call spgcop(h,ah,g(1,nnow),ag(1,nnow))
    21     continue
           m1 = m2+1
           m2 = nnow
@@ -194,9 +194,9 @@ C ... Products with more than one sandwiched sigma-factor
 C --- Printout ---
       if (ipr .ge. 30) then
         if (sout .ne. ' ' .and. ipr .ge. 60) call awrit0
-     .    (' Order of generator'//sout//'%a%b',' ',80,stdo)
+     .  (' Order of generator'//sout//'%a%b',' ',80,stdo)
         call awrit2(' SGROUP: %i symmetry operations from %i '//
-     .    'generators',' ',80,stdo,ng,ngen)
+     .  'generators',' ',80,stdo,ng,ngen)
         if (ipr .ge. 60 .and. ng .gt. 1) then
           write(stdo,'('' ig  group op'')')
           do  60  ig = 1, ng
@@ -209,7 +209,7 @@ C --- Printout ---
 
    99 continue
       if (mode1 .eq. 0) call rx1(
-     . 'SGROUP: ng greater than ngmx=%i: probably bad translation',ngmx)
+     .'SGROUP: ng greater than ngmx=%i: probably bad translation',ngmx)
 C      call info2(1,0,0,
 C     .  ' SGROUP (warning) ng greater than ngmx=%i ... exiting',ngmx,0)
       ng = ngmx+1
@@ -243,7 +243,7 @@ C ... Local parameters
       if (mode .eq. 1) return
       do 20 iq=1,3
         c=(a1(1)-a2(1))*qb(1,iq)+(a1(2)-a2(2))*qb(2,iq)
-     .   +(a1(3)-a2(3))*qb(3,iq)
+     .  +(a1(3)-a2(3))*qb(3,iq)
         ca=dabs(c)
         iac=ca+0.5d0
         dc=ca-iac
@@ -257,24 +257,24 @@ C ... Local parameters
       subroutine spgprd(g1,a1,g2,a2,g,a)
 C     implicit none
       double precision
-     .  g1(3,3),g2(3,3),g(3,3),sum,a1(3),a2(3),a(3),h(3,3),ah(3)
+     .g1(3,3),g2(3,3),g(3,3),sum,a1(3),a2(3),a(3),h(3,3),ah(3)
       integer i,j,k
       do 10 i=1,3
-      do 10 j=1,3
-        sum=0d0
-        do 11 k=1,3
-          sum=sum+g1(i,k)*g2(k,j)
-   11   continue
-        h(i,j)=sum
+        do 10 j=1,3
+          sum=0d0
+          do 11 k=1,3
+            sum=sum+g1(i,k)*g2(k,j)
+   11     continue
+          h(i,j)=sum
    10 continue
       do 13 j=1,3
-      do 13 i=1,3
-        g(i,j)=h(i,j)
+        do 13 i=1,3
+          g(i,j)=h(i,j)
    13 continue
       do 12 i=1,3
         ah(i)=a1(i)
-      do 12 j=1,3
-        ah(i)=ah(i)+g1(i,j)*a2(j)
+        do 12 j=1,3
+          ah(i)=ah(i)+g1(i,j)*a2(j)
    12 continue
       do 14 i=1,3
         a(i)=ah(i)
@@ -307,8 +307,8 @@ C      mode(3) = 2
       do  11  ka = 1, nrc
         do  2  m = 1, 3
           d(m) = ag(m) - pos(m,ia)
-        do  2  k = 1, 3
-          d(m) = d(m) + g(m,k)*pos(k,ka)
+          do  2  k = 1, 3
+            d(m) = d(m) + g(m,k)*pos(k,ka)
     2   continue
         call shorbz(d,d,rb,qb)
 C       call shorps(1,rb,mode,d,d)

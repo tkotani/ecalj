@@ -42,15 +42,15 @@ C ... Local parameters
       integer ldist,lmxst,nkd,nkdmx,nkq,nkqmx,nbas,odlv,oqlv,opos
       integer nbaspp,npadl,npadr
       double precision alat,awald,awald0,gam(4),gx,gy,gz,gt,tol,vol,
-     .  xx1,xx2,dotprd,pi,rpad,
-     .  plat0(3,3),plat(3,3),qlat(3,3),dist(3,3) !platl(3,3),platr(3,3)
+     .xx1,xx2,dotprd,pi,rpad,
+     .plat0(3,3),plat(3,3),qlat(3,3),dist(3,3) !platl(3,3),platr(3,3)
       equivalence (gam(1), gx), (gam(2), gy), (gam(3), gz), (gam(4), gt)
 C ... Heap
       integer w(1)
       common /w/ w
 C ... External calls
       external daxpy,dcopy,defps2,defrr,lattc,lattdf,pack1,pack5,rdistn,
-     .         redfrr,spackv,upack,upack1,upack2
+     .redfrr,spackv,upack,upack1,upack2
 
       print *,'lattic:'
 C     call info(30,1,0,' Real and recip space lattices:',0,0)
@@ -140,7 +140,7 @@ c        endif
       call defrr(oqlv,  3*nkqmx)
       lmxst = 6
       call lattc(awald0,tol,rpad,alat,alat,plat0,gx,gy,gz,gt,plat,qlat,
-     .   lmxst,vol,awald,w(odlv),nkd,w(oqlv),nkq,nkdmx,nkqmx)
+     .lmxst,vol,awald,w(odlv),nkd,w(oqlv),nkq,nkdmx,nkqmx)
 
 c      if (nbaspp .gt. nbas) then
 c        if (cos(pi*xx1/180) .lt. 0) call rx('lattic:  '//

@@ -1,0 +1,9 @@
+Another prettry printer for fixed fortran90
+
+usage:
+python fpretty.py < file.F > x
+mv x file.F
+
+
+change indentstr in fpretty.py if you want to change indent level.
+change indentstrcont in fpretty.py if you want to change indent level of continued lines.

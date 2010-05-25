@@ -11,7 +11,7 @@ C ... Passed parameters
 
 C ... Local parameters
       integer:: stdo , lgunit , ib , lmxl , nr , nlml , is , igetss 
-     . , nsp , nglob
+     ., nsp , nglob
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: rwgt_rv(:)
 
@@ -46,13 +46,13 @@ Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
         nlml = (lmxl+1)**2
         write(stdo,200) ib,rmt,nr,nlml
   200   format(/' Density at site',i3,'   rmt=',f8.4,
-     .     '   nr=',i5,'   nlml=',i3)
+     .  '   nr=',i5,'   nlml=',i3)
         call prlrho ( 'true density' , nr , nlml , nsp , rofi_rv , 
-     .   rwgt_rv , w ( orhoat ( 1 , ib ) ) )
+     .  rwgt_rv , w ( orhoat ( 1 , ib ) ) )
 
 
         call prlrho ( 'smooth density' , nr , nlml , nsp , rofi_rv 
-     .   , rwgt_rv , w ( orhoat ( 2 , ib ) ) )
+     .  , rwgt_rv , w ( orhoat ( 2 , ib ) ) )
 
 
         if (allocated(rwgt_rv)) deallocate(rwgt_rv)
@@ -111,7 +111,7 @@ C ... Local parameters
         endif
   600   format(i4,f15.8,i5,f15.8,i5,f15.8,f12.6)
   601   format(/' prlrho: ',a/'  ilm',6x,'rhomin    pnt',
-     .     7x,'rhomax    pnt       moment')
+     .  7x,'rhomax    pnt       moment')
       enddo
       end subroutine prlrho
 

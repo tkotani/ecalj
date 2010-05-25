@@ -1,5 +1,5 @@
       subroutine rdeq(enum1,enum2,ksop,z,v,rofi,nr,nsp,a,b,l,lmx,
-     .                imu,scalede,gmt,fmt,gmtde,fmtde,gsmt,pprel)
+     .imu,scalede,gmt,fmt,gmtde,fmtde,gsmt,pprel)
 
 C-Solves radial dirac equations, in the presence of an effective magnetic field
 C ----------------------------------------------------------------------
@@ -36,36 +36,36 @@ C     implicit none
 C     Passed parameters
       integer  nr, nsp, imu, l, lmx
       double precision v(nr,nsp), enu, rofi(nr), z,
-     .  a, b, enum1, enum2, scalede
+     .a, b, enum1, enum2, scalede
 C     Local variables
       double precision xx1(4), xx2(4), dx, hoc, cc, xk, xk1, enu1, enu2,
-     .                 nug1(nr), nug2(nr), nuf1(nr), nuf2(nr),
-     .                 dg11, df11, dg21, df21, dg12, df12, dg22,
-     .                 df22, dg13, df13, dg23, df23, dg14, df14,
-     .                 dg24, df24, u, up, upp, J, q, r, bm(nr),
-     .                 vm(nr), e1,e2,vmint, bmint, g1c, f1c, g2c,
-     .                 f2c, nug1int, nuf1int, nug2int,
-     .                 nuf2int, de, gamma, csq, g1sn, f1sn,
-     .                 g1snm1, g1snm2, g1snm3, g1snm4, f1snm1,
-     .                 f1snm2, f1snm3, f1snm4, g2sn, f2sn, g2snm1,
-     .                 g2snm2, g2snm3, g2snm4, f2snm1, f2snm2,
-     .                 f2snm3, f2snm4, g1sng1, f1snf1, g2sng2, f2snf2
+     .nug1(nr), nug2(nr), nuf1(nr), nuf2(nr),
+     .dg11, df11, dg21, df21, dg12, df12, dg22,
+     .df22, dg13, df13, dg23, df23, dg14, df14,
+     .dg24, df24, u, up, upp, J, q, r, bm(nr),
+     .vm(nr), e1,e2,vmint, bmint, g1c, f1c, g2c,
+     .f2c, nug1int, nuf1int, nug2int,
+     .nuf2int, de, gamma, csq, g1sn, f1sn,
+     .g1snm1, g1snm2, g1snm3, g1snm4, f1snm1,
+     .f1snm2, f1snm3, f1snm4, g2sn, f2sn, g2snm1,
+     .g2snm2, g2snm3, g2snm4, f2snm1, f2snm2,
+     .f2snm3, f2snm4, g1sng1, f1snf1, g2sng2, f2snf2
       double precision 
-     .                 g1p, f1p, g2p, f2p, norm, gmt(2,2),
-     .                 fmt(2,2), gmt0(2,2,5), fmt0(2,2,5), gmtde(2,2),
-     .                 fmtde(2,2),smalpa(2,2),gn1(2,5,nr),gn2(2,5,nr),
-     .                 gn1dot(2,nr), gn2dot(2,nr),fn1(2,5,nr),
-     .                 fn2(2,5,nr), fn1dot(2,nr), fn2dot(2,nr),
-     .                 factor(nr), factor1(nr),  factor2(nr),
-     .                 factor3(nr), product, product1,
-     .                 gsmt(2,2), psi(4,nr), ksi(4,nr), mu,
-     .                 ksop(0:lmx,nsp,nsp,6), smalpa1(2,2)
+     .g1p, f1p, g2p, f2p, norm, gmt(2,2),
+     .fmt(2,2), gmt0(2,2,5), fmt0(2,2,5), gmtde(2,2),
+     .fmtde(2,2),smalpa(2,2),gn1(2,5,nr),gn2(2,5,nr),
+     .gn1dot(2,nr), gn2dot(2,nr),fn1(2,5,nr),
+     .fn2(2,5,nr), fn1dot(2,nr), fn2dot(2,nr),
+     .factor(nr), factor1(nr),  factor2(nr),
+     .factor3(nr), product, product1,
+     .gsmt(2,2), psi(4,nr), ksi(4,nr), mu,
+     .ksop(0:lmx,nsp,nsp,6), smalpa1(2,2)
 C     double precision factor4(nr),factor5(nr)
       integer n, ie, alpha, alp1, alp2, nrk, ir,
-     .        nit, nrmx, i, k
+     .nit, nrmx, i, k
 C     Output
       double precision g1(nr), g2(nr), f1(nr), f2(nr),
-     .                 g1s(nr), g2s(nr), f1s(nr), f2s(nr)
+     .g1s(nr), g2s(nr), f1s(nr), f2s(nr)
       double precision pprel(4,0:lmx,2*(lmx+1),2,2)
 
 C     open(78,file='test.dat',status='unknown')
@@ -89,7 +89,7 @@ c      print*, l,enu1,enu2
 cc---Test: Eliminate Spin-Orbit for non-mag. materials
 cc     mu = dble(l)+0.5d0
 
-cc	enu = enum1
+cc        enu = enum1
 cc      write(78,*) l,enum1
 cc      goto 13
 
@@ -183,21 +183,21 @@ cc         print *, 'e-v=', e-vm(2)
 
           do ir = 2, nr
             nug1(ir) = 1.d0 + (1.d0/csq*(e1 + 2.d0*z/rofi(ir)
-     .            - vm(ir) + up*bm(ir)))
+     .      - vm(ir) + up*bm(ir)))
 
             nuf1(ir) = - (e1 + 2.d0*z/rofi(ir) - vm(ir) + u*bm(ir))
 
 C---Added to take care of the abs(mu)=l+0.5 case-----------
             if(dabs(mu) .eq. (l+0.5d0)) then
               nug1(ir) = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/rofi(ir)
-     .            - vm(ir) - upp*bm(ir)))
+     .        - vm(ir) - upp*bm(ir)))
 
               nuf1(ir) = - (e2 + 2.d0*z/rofi(ir) - vm(ir) - u*bm(ir))
             endif
 C----------------------------------------------------------
 
             nug2(ir) = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/rofi(ir)
-     .            - vm(ir) - upp*bm(ir)))
+     .      - vm(ir) - upp*bm(ir)))
 
             nuf2(ir) = - (e2 + 2.d0*z/rofi(ir) - vm(ir) - u*bm(ir))
           enddo
@@ -208,10 +208,10 @@ C----------------------------------------------------------
 
           g1s(2) = J*(cc*nug1(2)*f1(2) - xk/r*g1(2))
           f1s(2) = J*((nuf1(2)*g1(2) - dsqrt(1.d0 - u**2)*bm(2)*g2(2))/cc
-     .  + xk/r*f1(2))
+     .    + xk/r*f1(2))
           g2s(2) = J*(cc*nug2(2)*f2(2) - xk1/r*g2(2))
           f2s(2) = J*((nuf2(2)*g2(2) - dsqrt(1.d0 - u**2)*bm(2)*g1(2))/cc
-     .  + xk1/r*f2(2))
+     .    + xk1/r*f2(2))
 
 C-----------Runge-Kutta for the first NKR points ------------------------------
 
@@ -227,10 +227,10 @@ C-----First point--------------------------------------------------------------
 
           dg11 = dx*J*(cc*nug1(n)*f1c - xk/r*g1c)
           df11 = dx*J*((nuf1(n)*g1c - dsqrt(1.d0 - u**2)*bm(n)*g2c)/cc
-     .  + xk/r*f1c)
+     .    + xk/r*f1c)
           dg21 = dx*J*(cc*nug2(n)*f2c - xk1/r*g2c)
           df21 = dx*J*((nuf2(n)*g2c - dsqrt(1.d0 - u**2)*bm(n)*g1c)/cc
-     .  + xk1/r*f2c)
+     .    + xk1/r*f2c)
 
           g1c = g1(n) + 0.5d0*dg11
           f1c = f1(n) + 0.5d0*df11
@@ -248,29 +248,29 @@ cc      bmint = (6.d0*bm(n) + 5.d0*bm(n+1) - 3.d0*vm(n-1))*.125d0
 
 
           nug1int = 1.d0 + (1.d0/csq*(e1  + 2.d0*z/r
-     .          - vmint + up*bmint))
+     .    - vmint + up*bmint))
 
           nuf1int = - (e1 + 2.d0*z/r - vmint + u*bmint)
 
 C---Added to take care of the abs(mu)=l+0.5 case-----------
           if(dabs(mu) .eq. (l+0.5d0)) then
             nug1int = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/r
-     .          - vmint - upp*bmint))
+     .      - vmint - upp*bmint))
             nuf1int = - (e2 + 2.d0*z/r - vmint - u*bmint)
           endif
 C---------------------------------------------------------
 
           nug2int = 1.d0 + (1.d0/csq*(e2 + 2.d0*z/r
-     .          - vmint - upp*bmint))
+     .    - vmint - upp*bmint))
           nuf2int = - (e2 + 2.d0*z/r - vmint - u*bmint)
 
 
           dg12 = dx*J*(cc*nug1int*f1c - xk/r*g1c)
           df12 = dx*J*((nuf1int*g1c - dsqrt(1.d0 - u**2)*bmint*g2c)/cc
-     .  + xk/r*f1c)
+     .    + xk/r*f1c)
           dg22 = dx*J*(cc*nug2int*f2c - xk1/r*g2c)
           df22 = dx*J*((nuf2int*g2c - dsqrt(1.d0 - u**2)*bmint*g1c)/cc
-     .  + xk1/r*f2c)
+     .    + xk1/r*f2c)
 
           g1c = g1(n) + 0.5d0*dg12
           f1c = f1(n) + 0.5d0*df12
@@ -279,10 +279,10 @@ C---------------------------------------------------------
 
           dg13 = dx*J*(cc*nug1int*f1c - xk/r*g1c)
           df13 = dx*J*((nuf1int*g1c - dsqrt(1.d0 - u**2)*bmint*g2c)/cc
-     .  + xk/r*f1c)
+     .    + xk/r*f1c)
           dg23 = dx*J*(cc*nug2int*f2c - xk1/r*g2c)
           df23 = dx*J*((nuf2int*g2c - dsqrt(1.d0 - u**2)*bmint*g1c)/cc
-     .  + xk1/r*f2c)
+     .    + xk1/r*f2c)
 
           g1c = g1(n) + dg13
           f1c = f1(n) + df13
@@ -296,10 +296,10 @@ C---------------------------------------------------------
 
           dg14 = dx*J*(cc*nug1(n)*f1c - xk/r*g1c)
           df14 = dx*J*((nuf1(n)*g1c - dsqrt(1.d0 - u**2)*bm(n)*g2c)/cc
-     .  + xk/r*f1c)
+     .    + xk/r*f1c)
           dg24 = dx*J*(cc*nug2(n)*f2c - xk1/r*g2c)
           df24 = dx*J*((nuf2(n)*g2c - dsqrt(1.d0 - u**2)*bm(n)*g1c)/cc
-     .  + xk1/r*f2c)
+     .    + xk1/r*f2c)
 
           g1(n) = g1(n-1) + (dg11 + 2.d0*(dg12+dg13) + dg14)/6.d0
           f1(n) = f1(n-1) + (df11 + 2.d0*(df12+df13) + df14)/6.d0
@@ -310,10 +310,10 @@ C----Determine the derivatives dP/dx and dQ/dx----------------------------
 
           g1s(n) = J*(cc*nug1(n)*f1(n) - xk/r*g1(n))
           f1s(n) = J*((nuf1(n)*g1(n) - dsqrt(1.d0 - u**2)*bm(n)*g2(n))/cc
-     .  + xk/r*f1(n))
+     .    + xk/r*f1(n))
           g2s(n) = J*(cc*nug2(n)*f2(n) - xk1/r*g2(n))
           f2s(n) = J*((nuf2(n)*g2(n) - dsqrt(1.d0 - u**2)*bm(n)*g1(n))/cc
-     .  + xk1/r*f2(n))
+     .    + xk1/r*f2(n))
 
 C---------------------------------------------------------------------
 C     The rest of the integration is performed using Milne's method.
@@ -349,31 +349,31 @@ C---------------------------------------------------------------------
           r = J/a - b
 
           g1p = g1(n-5) + (3.d0*dx/10.d0)*(11.d0*g1sn - 14.d0*g1snm1 +
-     .      26.d0*g1snm2 - 14.d0*g1snm3 + 11.d0*g1snm4)
+     .    26.d0*g1snm2 - 14.d0*g1snm3 + 11.d0*g1snm4)
           f1p = f1(n-5) + (3.d0*dx/10.d0)*(11.d0*f1sn - 14.d0*f1snm1 +
-     .      26.d0*f1snm2 - 14.d0*f1snm3 + 11.d0*f1snm4)
+     .    26.d0*f1snm2 - 14.d0*f1snm3 + 11.d0*f1snm4)
           g2p = g2(n-5) + (3.d0*dx/10.d0)*(11.d0*g2sn - 14.d0*g2snm1 +
-     .      26.d0*g2snm2 - 14.d0*g2snm3 + 11.d0*g2snm4)
+     .    26.d0*g2snm2 - 14.d0*g2snm3 + 11.d0*g2snm4)
           f2p = f2(n-5) + (3.d0*dx/10.d0)*(11.d0*f2sn - 14.d0*f2snm1 +
-     .      26.d0*f2snm2 - 14.d0*f2snm3 + 11.d0*f2snm4)
+     .    26.d0*f2snm2 - 14.d0*f2snm3 + 11.d0*f2snm4)
 
           nit = 0
 
  5        g1sng1 = J*(cc*nug1(n+1)*f1p - xk/r*g1p)
           f1snf1 = J*((nuf1(n+1)*g1p - dsqrt(1.d0 - u**2)*bm(n+1)*g2p)/cc
-     .  + xk/r*f1p)
+     .    + xk/r*f1p)
           g2sng2 = J*(cc*nug2(n+1)*f2p - xk1/r*g2p)
           f2snf2 = J*((nuf2(n+1)*g2p - dsqrt(1.d0 - u**2)*bm(n+1)*g1p)/cc
-     .  + xk1/r*f2p)
+     .    + xk1/r*f2p)
 
           g1c = g1(n-3) + (2.d0*dx/45.d0)*(7.d0*g1sng1 + 32.d0*g1sn +
-     .      12.d0*g1snm1 + 32.d0*g1snm2 + 7.d0*g1snm3)
+     .    12.d0*g1snm1 + 32.d0*g1snm2 + 7.d0*g1snm3)
           f1c = f1(n-3) + (2.d0*dx/45.d0)*(7.d0*f1snf1 + 32.d0*f1sn +
-     .      12.d0*f1snm1 + 32.d0*f1snm2 + 7.d0*f1snm3)
+     .    12.d0*f1snm1 + 32.d0*f1snm2 + 7.d0*f1snm3)
           g2c = g2(n-3) + (2.d0*dx/45.d0)*(7.d0*g2sng2 + 32.d0*g2sn +
-     .      12.d0*g2snm1 + 32.d0*g2snm2 + 7.d0*g2snm3)
+     .    12.d0*g2snm1 + 32.d0*g2snm2 + 7.d0*g2snm3)
           f2c = f2(n-3) + (2.d0*dx/45.d0)*(7.d0*f2snf2 + 32.d0*f2sn +
-     .      12.d0*f2snm1 + 32.d0*f2snm2 + 7.d0*f2snm3)
+     .    12.d0*f2snm1 + 32.d0*f2snm2 + 7.d0*f2snm3)
 
           if(dabs(g1c-g1p) - dabs(g1c)*1.d-12) 36,36,10
  36       if(dabs(f1c-f1p) - dabs(f1c)*1.d-12) 6,6,10
@@ -544,25 +544,25 @@ C-----Save radial derivative at the MT sphere--------------------------
 
 
       nug1(nr) = 1.d0 + (1.d0/csq*(enu1 + 2.d0*z/rofi(nr)
-     .            - vm(nr) + up*bm(nr)))
+     .- vm(nr) + up*bm(nr)))
 
 C---Added to take care of the abs(mu)=l+0.5 case-----------
       if(dabs(mu) .eq. (l+0.5d0)) then
         nug1(nr) = 1.d0 + (1.d0/csq*(enu2 + 2.d0*z/rofi(nr)
-     .            - vm(nr) - upp*bm(nr)))
+     .  - vm(nr) - upp*bm(nr)))
       endif
 C----------------------------------------------------------
 
       nug2(nr) = 1.d0 + (1.d0/csq*(enu2 + 2.d0*z/rofi(nr)
-     .            - vm(nr) - upp*bm(nr)))
+     .- vm(nr) - upp*bm(nr)))
 
 
       do alpha = 1, 2
 
         gsmt(1,alpha) = (cc*nug1(nr)*fn1(alpha,3,nr)
-     .          - xk/rofi(nr)*gn1(alpha,3,nr))
+     .  - xk/rofi(nr)*gn1(alpha,3,nr))
         gsmt(2,alpha) = (cc*nug2(nr)*fn2(alpha,3,nr)
-     .          - xk1/rofi(nr)*gn2(alpha,3,nr))
+     .  - xk1/rofi(nr)*gn2(alpha,3,nr))
 
       enddo
 
@@ -599,13 +599,13 @@ C-----Calculate the energy derivatives of rg, rf at every point r -----
       do n= 2, nrmx
         do alpha= 1, 2
           gn1dot(alpha,n) = (-8.d0*(gn1(alpha,2,n) - gn1(alpha,4,n))
-     .                      + gn1(alpha,1,n) - gn1(alpha,5,n))/12.d0/de
+     .    + gn1(alpha,1,n) - gn1(alpha,5,n))/12.d0/de
           gn2dot(alpha,n) = (-8.d0*(gn2(alpha,2,n) - gn2(alpha,4,n))
-     .                      + gn2(alpha,1,n) - gn2(alpha,5,n))/12.d0/de
+     .    + gn2(alpha,1,n) - gn2(alpha,5,n))/12.d0/de
           fn1dot(alpha,n) = (-8.d0*(fn1(alpha,2,n) - fn1(alpha,4,n))
-     .                      + fn1(alpha,1,n) - fn1(alpha,5,n))/12.d0/de
+     .    + fn1(alpha,1,n) - fn1(alpha,5,n))/12.d0/de
           fn2dot(alpha,n) = (-8.d0*(fn2(alpha,2,n) - fn2(alpha,4,n))
-     .                      + fn2(alpha,1,n) - fn2(alpha,5,n))/12.d0/de
+     .    + fn2(alpha,1,n) - fn2(alpha,5,n))/12.d0/de
         enddo
       enddo
 
@@ -762,23 +762,23 @@ C----Calculate the small parameter p=<Phi^a|Phi^a'>
           do n = 2, nrmx-1
 
             factor(n) = (1d0 + xk*(xk+1d0)/((cc + (enu + 2d0*z/rofi(n)
-     .                - vm(n))/cc)*rofi(n))**2)
+     .      - vm(n))/cc)*rofi(n))**2)
             factor1(n) = (1d0 + xk*(xk+1d0)/((cc + (enu + 2d0*z/rofi(n+1)
-     .                - vm(n+1))/cc)*rofi(n+1))**2)
+     .      - vm(n+1))/cc)*rofi(n+1))**2)
             factor2(n) = (1d0 + xk1*(xk1+1d0)/((cc + (enu + 2d0*z/rofi(n)
-     .                - vm(n))/cc)*rofi(n))**2)
+     .      - vm(n))/cc)*rofi(n))**2)
             factor3(n) = (1d0 + xk1*(xk1+1d0)/((cc + (enu + 2d0*z/rofi(n+1)
-     .                - vm(n+1))/cc)*rofi(n+1))**2)
+     .      - vm(n+1))/cc)*rofi(n+1))**2)
 
 
             smalpa(alp1,alp2) = smalpa(alp1,alp2) + 0.5d0*(a*(rofi(n)+b)*
-     .          (gn1dot(alp1,n)*gn1dot(alp2,n)*factor(n) +
-     .           fn1dot(alp1,n)*fn1dot(alp2,n)) +
+     .      (gn1dot(alp1,n)*gn1dot(alp2,n)*factor(n) +
+     .      fn1dot(alp1,n)*fn1dot(alp2,n)) +
      .      a*(rofi(n+1)+b)*(gn1dot(alp1,n+1)*gn1dot(alp2,n+1)*
      .      factor1(n) + fn1dot(alp1,n+1)*fn1dot(alp2,n+1)))
-     .     +  0.5d0*(a*(rofi(n)+b)*
-     .             (gn2dot(alp1,n)*gn2dot(alp2,n)*factor2(n) +
-     .              fn2dot(alp1,n)*fn2dot(alp2,n)) +
+     .      +  0.5d0*(a*(rofi(n)+b)*
+     .      (gn2dot(alp1,n)*gn2dot(alp2,n)*factor2(n) +
+     .      fn2dot(alp1,n)*fn2dot(alp2,n)) +
      .      a*(rofi(n+1)+b)*(gn2dot(alp1,n+1)*gn2dot(alp2,n+1)*
      .      factor3(n) + fn2dot(alp1,n+1)*fn2dot(alp2,n+1)))
 
@@ -903,9 +903,9 @@ C         write(180,*) smalpa(i,k)
 
 
       subroutine fdpp(enu1,enu2,ksop,shft,gmt,fmt,gmtde,fmtde,z,rmax,
-     .  avw,l,lmx,imu,sr1,sr2,srav1,srav2,srdot1,srdot2,sravdot1,
-     .  sravdot2,gsr1,gsr2,gsrav1,gsrav2,gsrdot1,gsrdot2,gsravdot1,
-     .  gsravdot2,pprel,gsmt)
+     .avw,l,lmx,imu,sr1,sr2,srav1,srav2,srdot1,srdot2,sravdot1,
+     .sravdot2,gsr1,gsr2,gsrav1,gsrav2,gsrdot1,gsrdot2,gsravdot1,
+     .gsravdot2,pprel,gsmt)
 
 C------------------------------------------------------------------------------
 C      Makes potential parameters
@@ -918,25 +918,25 @@ C     implicit none
 C     Input parameters
       integer l,lmx,imu
       double precision gmt(2,2), fmt(2,2), gmtde(2,2), fmtde(2,2),
-     .                 mu, rmax, avw, z, enu1, enu2, sr1, sr2, srav1,
-     .                 srav2, srdot1, srdot2, sravdot1, sravdot2,
-     .                 gsrav1, gsrav2, gsrdot1, gsrdot2, gsravdot1,
-     .                 gsravdot2, gsr1, gsr2,gsmt(2,2),shft
+     .mu, rmax, avw, z, enu1, enu2, sr1, sr2, srav1,
+     .srav2, srdot1, srdot2, sravdot1, sravdot2,
+     .gsrav1, gsrav2, gsrdot1, gsrdot2, gsravdot1,
+     .gsravdot2, gsr1, gsr2,gsmt(2,2),shft
 C     Local variables
       integer  i, j
 C     double precision ftmt(2,2),fmtdet(2,2),temp(2,2)
       double precision cc, gtmt(2,2), gmt1(2,2),
-     .                 gmtde1(2,2),fg(2,2),
-     .                 fgde(2,2), xk, xk1, kapa(2,2), D(2,2),
-     .                 Ddot(2,2), Dtdot(2,2), lmatrix(2,2),
-     .                 delta(2,2), delta1(2,2), deltat(2,2),
-     .                 deltat1(2,2), unit(2,2), q(2,2), q1(2,2),
-     .                 gam(2,2), gam1(2,2), aa(2,2), aa1(2,2),
-     .                 one(2,2), two(2,2), gmtdet(2,2), gamt(2,2),
-     .                 yv(2,2), yv1(2,2), vm(2,2), enum(2,2),
-     .                 gamma(2,2), gammat(2,2), delt(2,2),
-     .                 deltt(2,2), cm(2,2), cm1(2,2),
-     .                 fg1(2,2), savw, ksop(0:lmx,2,2,6)
+     .gmtde1(2,2),fg(2,2),
+     .fgde(2,2), xk, xk1, kapa(2,2), D(2,2),
+     .Ddot(2,2), Dtdot(2,2), lmatrix(2,2),
+     .delta(2,2), delta1(2,2), deltat(2,2),
+     .deltat1(2,2), unit(2,2), q(2,2), q1(2,2),
+     .gam(2,2), gam1(2,2), aa(2,2), aa1(2,2),
+     .one(2,2), two(2,2), gmtdet(2,2), gamt(2,2),
+     .yv(2,2), yv1(2,2), vm(2,2), enum(2,2),
+     .gamma(2,2), gammat(2,2), delt(2,2),
+     .deltt(2,2), cm(2,2), cm1(2,2),
+     .fg1(2,2), savw, ksop(0:lmx,2,2,6)
 C     double precision clebsh1(2,2), clebsh1t(2,2),clebsh(2,2), u
 C     Output
       double precision pprel(4,0:lmx,2*(lmx+1),2,2)
@@ -969,9 +969,9 @@ c         print*,'-------------------------'
 c         print*, l,ksop(l,1,1,1),enu1,enu2
 
       enum(1,1) = -0.5d0*dble((l+1))*ksop(l,1,1,1)
-     .               + 0.5d0*(enu1 + enu2)
+     .+ 0.5d0*(enu1 + enu2)
       enum(2,2) = 0.5d0*dble(l)*ksop(l,1,1,1)
-     .               + 0.5d0*(enu1 + enu2)
+     .+ 0.5d0*(enu1 + enu2)
 
       if (dabs(mu) .eq. (l+0.5d0)) enum(1,1) = enum(2,2)
 
@@ -1449,7 +1449,7 @@ C     Trapezium rule
 C     Input parameters
       integer nr
       double precision psi(4,nr), ksi(4,nr), a, b, xk, rofi(nr), e,
-     .                 vm(nr), z
+     .vm(nr), z
 C     Output
       double precision product
 C     Local
@@ -1468,11 +1468,11 @@ C         factor1 = (1d0 + xk*(xk+1d0)/((cc + (e + 2d0*z/rofi(m)
 C     .                - vm(m))/cc)*rofi(m))**2)
 
         product = product +  0.5d0*a*((rofi(n)+b)*
-     .          ((psi(1,n)*ksi(1,n) + psi(3,n)*ksi(3,n)) +
-     .            psi(2,n)*ksi(2,n) + psi(4,n)*ksi(4,n)) +
-     .         (rofi(m)+b)*
-     .          ((psi(1,m)*ksi(1,m) + psi(3,m)*ksi(3,m)) +
-     .            psi(2,m)*ksi(2,m) + psi(4,m)*ksi(4,m)))
+     .  ((psi(1,n)*ksi(1,n) + psi(3,n)*ksi(3,n)) +
+     .  psi(2,n)*ksi(2,n) + psi(4,n)*ksi(4,n)) +
+     .  (rofi(m)+b)*
+     .  ((psi(1,m)*ksi(1,m) + psi(3,m)*ksi(3,m)) +
+     .  psi(2,m)*ksi(2,m) + psi(4,m)*ksi(4,m)))
 
       enddo
       end subroutine product2
@@ -1566,10 +1566,10 @@ C         call dinv22(cl,cl1)
         do ms2 = 1, 2
 
           a1(ms1,ms2) =
-     .            cl(1,ms1)*a(1,1)*cl(1,ms2) +
-     .            cl(1,ms1)*a(1,2)*cl(2,ms2) +
-     .            cl(2,ms1)*a(2,1)*cl(1,ms2) +
-     .            cl(2,ms1)*a(2,2)*cl(2,ms2)
+     .    cl(1,ms1)*a(1,1)*cl(1,ms2) +
+     .    cl(1,ms1)*a(1,2)*cl(2,ms2) +
+     .    cl(2,ms1)*a(2,1)*cl(1,ms2) +
+     .    cl(2,ms1)*a(2,2)*cl(2,ms2)
         enddo
       enddo
 

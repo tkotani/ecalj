@@ -55,47 +55,47 @@ c     .......... transform the eigenvectors of the real symmetric
 c                tridiagonal matrix to those of the hermitian
 c                tridiagonal matrix. ..........
       do 50 k = 1, n
-         do 50 j = 1, m
-            zi(k,j) = -zr(k,j) * tau(k,2)
-            zr(k,j) = zr(k,j) * tau(k,1)
+        do 50 j = 1, m
+          zi(k,j) = -zr(k,j) * tau(k,2)
+          zr(k,j) = zr(k,j) * tau(k,1)
    50 continue
 
       if (n .eq. 1) goto 150
       do 140 i = 2, n
-         l = i - 1
-         h = -ai(i,i)
-         if (h .eq. 0.0d0) go to 140
+        l = i - 1
+        h = -ai(i,i)
+        if (h .eq. 0.0d0) go to 140
 c
 #if SGI_PARALLEL
 C$DOACROSS local(s,si,j,k)
 #endif
-         do 130 j = 1, m
-            s = 0d0
-            si = 0d0
+        do 130 j = 1, m
+          s = 0d0
+          si = 0d0
 c
 #if BLAS
-            call yydotc(l,ar(1,i),ai(1,i),1,zr(1,j),zi(1,j),1,s,si)
+          call yydotc(l,ar(1,i),ai(1,i),1,zr(1,j),zi(1,j),1,s,si)
 #else
-            do 110 k = 1, l
-               s = s + ar(k,i) * zr(k,j) + ai(k,i) * zi(k,j)
-               si = si + ar(k,i) * zi(k,j) - ai(k,i) * zr(k,j)
-  110       continue
+          do 110 k = 1, l
+            s = s + ar(k,i) * zr(k,j) + ai(k,i) * zi(k,j)
+            si = si + ar(k,i) * zi(k,j) - ai(k,i) * zr(k,j)
+  110     continue
 #endif
 c     .......... double divisions avoid possible underflow ..........
-            s = (s / h) / h
-            si = (si / h) / h
+          s = (s / h) / h
+          si = (si / h) / h
 c
 #if BLAS
-            call yyaxpy(l,-s,-si,ar(1,i),ai(1,i),1,zr(1,j),zi(1,j),1,
-     .                 .true.)
+          call yyaxpy(l,-s,-si,ar(1,i),ai(1,i),1,zr(1,j),zi(1,j),1,
+     .    .true.)
 #else
-            do 120 k = 1, l
-               zr(k,j) = zr(k,j) - s * ar(k,i) + si * ai(k,i)
-               zi(k,j) = zi(k,j) - si * ar(k,i) - s * ai(k,i)
-  120       continue
+          do 120 k = 1, l
+            zr(k,j) = zr(k,j) - s * ar(k,i) + si * ai(k,i)
+            zi(k,j) = zi(k,j) - si * ar(k,i) - s * ai(k,i)
+  120     continue
 #endif
 c
-  130    continue
+  130   continue
 c
   140 continue
 c

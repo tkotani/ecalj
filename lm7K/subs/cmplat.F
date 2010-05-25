@@ -28,13 +28,13 @@ C     implicit none
 C ... Passed parameters
       integer nbas,ips(nbas),ips2(nbas),ng
       double precision plat(3,3),plat2(3,3),pos(3,nbas),pos2(3,nbas),
-     .  g(9,ng)
+     .g(9,ng)
 C ... Local parameters
       logical latvec
       integer nspec,mxint,ipr,ks,nks,is,nrs,ns2,stdo,lgunit
       integer ipa(nbas),ipa2(nbas),iprm(nbas),ig,k,i,j
       double precision xx,posa(3,nbas),posa2(3,nbas),
-     .  qlat(3,3),trans(3),dbas(3),tol0,tol1,tol
+     .qlat(3,3),trans(3),dbas(3),tol0,tol1,tol
       parameter (tol0=1d-5)
 
       call getpr(ipr)
@@ -49,7 +49,7 @@ C ... Count the number of species; check for match
       nspec = mxint(nbas,ips)
       if (nspec .ne. mxint(nbas,ips2)) then
         call info(20,0,0,
-     .    ' ... species mismatch; lattices are not equivalent',0,0)
+     .  ' ... species mismatch; lattices are not equivalent',0,0)
         return
       endif
 C ... Check for eq. no. sites for each species;
@@ -61,7 +61,7 @@ C     Find species ks holding the fewest sites.
         call psymr0(-2,-is,nbas,ips2,xx,xx,ipa,ns2)
         if (nrs .ne. ns2) then
           call awrit1(' ... basis differ in the number of species of'//
-     .      ' type %i ... lattices inequivalent',' ',80,stdo,is)
+     .    ' type %i ... lattices inequivalent',' ',80,stdo,is)
           return
         endif
         if (nrs .lt. nks .or. nks .eq. 0) then
@@ -144,6 +144,6 @@ C       No match found; try next translation
    99 continue
       cmplat = 1
       call awrit2(' ... no match found (%i group ops,'//
-     .  ' %i translations)',' ',80,stdo,ng,nks)
+     .' %i translations)',' ',80,stdo,ng,nks)
       end
 

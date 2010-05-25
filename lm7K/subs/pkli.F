@@ -4,8 +4,8 @@ C  at rmax, p=0..pmax.
 C     implicit none
       integer k0,kmax,lmax,pmax,l,p
       double precision rmax,rsm,aklm(0:k0,0:k0,0:lmax),
-     .  qmp(0:k0,0:lmax,0:pmax),qval(0:k0,0:lmax,0:pmax),
-     .  sumv,sumq,rq,rv,qq
+     .qmp(0:k0,0:lmax,0:pmax),qval(0:k0,0:lmax,0:pmax),
+     .sumv,sumq,rq,rv,qq
       integer m,k
 
 C --- Decomposition of pkl into simple polynomials ---
@@ -13,8 +13,8 @@ C --- Decomposition of pkl into simple polynomials ---
 
 C --- Integrate the pkl term by term ---
       do  10  p = 0, pmax
-      do  10  l = 0, lmax
-        do  20  k = 0, kmax
+        do  10  l = 0, lmax
+          do  20  k = 0, kmax
 C      ... testing
 C          sum1 = 0
 C          do  31  m = 0, k
@@ -22,21 +22,21 @@ C          qq = 2*(m+l)+p+3
 c   31     sum1 = sum1 + (2d0/rsm**2)**m/qq*rmax**qq*aklm(m,k,l)
 C          call radpkl(rmax,rsm,kmax,l,10,p00)
 C          sum1 = p00(k,l)*rmax**l
-          sumq = 0
-          sumv = 0
-          qq = 2*l+p+3-2
-          rq = rmax**qq*rsm**2/2
-          rv = rq/rmax**(l+3)
-          do  30  m = 0, k
-            qq = qq+2
-            rq = rq*2*(rmax/rsm)**2
-            rv = rv*2*(rmax/rsm)**2
-            sumq = sumq + rq/qq*aklm(m,k,l)
-            sumv = sumv + rv*aklm(m,k,l)
-   30     continue
-          qmp(k,l,p) = sumq
-          qval(k,l,p) = sumv
-   20   continue
+            sumq = 0
+            sumv = 0
+            qq = 2*l+p+3-2
+            rq = rmax**qq*rsm**2/2
+            rv = rq/rmax**(l+3)
+            do  30  m = 0, k
+              qq = qq+2
+              rq = rq*2*(rmax/rsm)**2
+              rv = rv*2*(rmax/rsm)**2
+              sumq = sumq + rq/qq*aklm(m,k,l)
+              sumv = sumv + rv*aklm(m,k,l)
+   30       continue
+            qmp(k,l,p) = sumq
+            qval(k,l,p) = sumv
+   20     continue
    10 continue
       end
 
@@ -45,7 +45,7 @@ C- Integrals of pkl pk'l r^(2+2l+p) from 0 to rmax, p=0..pmax
 C     implicit none
       integer k0,kmax,lmax,pmax,l,p
       double precision rmax,rsm,aklm(0:k0,0:k0,0:lmax),
-     .  s(0:k0,0:k0,0:lmax,0:pmax),sum,qq
+     .s(0:k0,0:k0,0:lmax,0:pmax),sum,qq
       integer m1,m2,k1,k2
 
 C --- Decomposition of pkl into simple polynomials ---
@@ -53,18 +53,18 @@ C --- Decomposition of pkl into simple polynomials ---
 
 C --- Integrate the pkl pk'l product term by term ---
       do  10  p = 0, pmax
-      do  10  l = 0, lmax
-        do  20  k1 = 0, kmax
-        do  20  k2 = 0, kmax
-          sum = 0d0
-          do  30  m1 = 0, k1
-          do  30  m2 = 0, k2
-            qq = 2*(m1+m2+l)+p+3
-            sum = sum + (2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
-     .      aklm(m1,k1,l)*aklm(m2,k2,l)
-   30     continue
-          s(k1,k2,l,p) = sum
-   20   continue
+        do  10  l = 0, lmax
+          do  20  k1 = 0, kmax
+            do  20  k2 = 0, kmax
+              sum = 0d0
+              do  30  m1 = 0, k1
+                do  30  m2 = 0, k2
+                  qq = 2*(m1+m2+l)+p+3
+                  sum = sum + (2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
+     .            aklm(m1,k1,l)*aklm(m2,k2,l)
+   30         continue
+              s(k1,k2,l,p) = sum
+   20     continue
    10 continue
       end
       subroutine tpkli(rmax,rsm,k0,kmax,lmax,aklm,s)
@@ -74,7 +74,7 @@ C  from r=0 to rmax
 C     implicit none
       integer k0,kmax,lmax,l
       double precision rmax,rsm,aklm(0:k0,0:k0,0:lmax),
-     .  s(0:k0,0:k0,0:lmax),sum,qq
+     .s(0:k0,0:k0,0:lmax),sum,qq
       integer m1,m2,k1,k2
 
 C --- Decomposition of pkl into simple polynomials ---
@@ -83,30 +83,30 @@ C --- Decomposition of pkl into simple polynomials ---
 C --- Integrate -(-l(l+1)r**-2 pkl pk'l) r^2 ---
       do  10  l = 0, lmax
         do  12  k1 = 0, kmax
-        do  12  k2 = 0, kmax
-          sum = 0d0
-          do  14  m1 = 0, k1
-          do  14  m2 = 0, k2
-            qq = 2*(m1+m2+l)+1
-            sum = sum + l*(l+1)*(2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
-     .      aklm(m1,k1,l)*aklm(m2,k2,l)
-   14     continue
-          s(k1,k2,l) = sum
+          do  12  k2 = 0, kmax
+            sum = 0d0
+            do  14  m1 = 0, k1
+              do  14  m2 = 0, k2
+                qq = 2*(m1+m2+l)+1
+                sum = sum + l*(l+1)*(2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
+     .          aklm(m1,k1,l)*aklm(m2,k2,l)
+   14       continue
+            s(k1,k2,l) = sum
    12   continue
    10 continue
 
 C --- Integrate pkl -1/r d^2(r*pk'l)/dr^2 r^2 ---
       do  20  l = 0, lmax
         do  22  k1 = 0, kmax
-        do  22  k2 = 0, kmax
-          sum = 0d0
-          do  24  m1 = 0, k1
-          do  24  m2 = 0, k2
-            qq = 2*(m1+m2+l)+1
-            sum = sum - (2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
-     .      aklm(m1,k1,l)*aklm(m2,k2,l)*(2*m2+l+1)*(2*m2+l)
-   24     continue
-          s(k1,k2,l) = s(k1,k2,l) + sum
+          do  22  k2 = 0, kmax
+            sum = 0d0
+            do  24  m1 = 0, k1
+              do  24  m2 = 0, k2
+                qq = 2*(m1+m2+l)+1
+                sum = sum - (2d0/rsm**2)**(m1+m2)/qq*rmax**qq*
+     .          aklm(m1,k1,l)*aklm(m2,k2,l)*(2*m2+l+1)*(2*m2+l)
+   24       continue
+            s(k1,k2,l) = s(k1,k2,l) + sum
    22   continue
    20 continue
 
@@ -117,7 +117,7 @@ C  Returns s(k1l1,k2l2,k3l3) where 0<k_j<km_j and 0<l_j<lm_j
 C     implicit none
       integer k0,l0,km1,km2,km3,lm1,lm2,lm3
       double precision rmax,rsma,aklm(0:k0,0:k0,0:l0),
-     .  s(0:k0,0:k0,0:k0,0:l0,0:l0,0:l0),sum,qq
+     .s(0:k0,0:k0,0:k0,0:l0,0:l0,0:l0),sum,qq
       integer m1,m2,m3,k1,k2,k3,l1,l2,l3
       double precision tar2
 
@@ -129,21 +129,21 @@ C --- Decomposition of pkl into simple polynomials ---
 C --- Integrate the pkl products term by term ---
       tar2 = 2d0/rsma**2
       do  10  l1 = 0, lm1
-      do  10  l2 = 0, lm2
-      do  10  l3 = 0, lm3
-        do  20  k1 = 0, km1
-        do  20  k2 = 0, km2
-        do  20  k3 = 0, km3
-          sum = 0d0
-          do  30  m1 = 0, k1
-          do  30  m2 = 0, k2
-          do  30  m3 = 0, k3
-            qq = 2*(m1+m2+m3)+l1+l2+l3+3
-            sum = sum + tar2**(m1+m2+m3)/qq*rmax**qq*
-     .      aklm(m1,k1,l1)*aklm(m2,k2,l2)*aklm(m3,k3,l3)
-   30     continue
-          s(k1,k2,k3,l1,l2,l3) = sum
-   20   continue
+        do  10  l2 = 0, lm2
+          do  10  l3 = 0, lm3
+            do  20  k1 = 0, km1
+              do  20  k2 = 0, km2
+                do  20  k3 = 0, km3
+                  sum = 0d0
+                  do  30  m1 = 0, k1
+                    do  30  m2 = 0, k2
+                      do  30  m3 = 0, k3
+                        qq = 2*(m1+m2+m3)+l1+l2+l3+3
+                        sum = sum + tar2**(m1+m2+m3)/qq*rmax**qq*
+     .                  aklm(m1,k1,l1)*aklm(m2,k2,l2)*aklm(m3,k3,l3)
+   30             continue
+                  s(k1,k2,k3,l1,l2,l3) = sum
+   20       continue
    10 continue
       end
       subroutine s3pkl0(rmax,rsm,k0,kmax,kmax3,lmax,aklm,s)
@@ -152,7 +152,7 @@ C  Integrals are: pkl pk'l p_k3,0 r^(2+2l), 0<k3<kmax3
 C     implicit none
       integer k0,kmax,kmax3,lmax,l
       double precision rmax,rsm,aklm(0:k0,0:k0,0:lmax),
-     .  s(0:k0,0:k0,0:k0,0:1),sum,qq
+     .s(0:k0,0:k0,0:k0,0:1),sum,qq
       integer m1,m2,m3,k1,k2,k3
 
 C --- Decomposition of pkl into simple polynomials ---
@@ -162,17 +162,17 @@ C --- Decomposition of pkl into simple polynomials ---
 C --- Integrate the pkl pk'l product term by term ---
       do  10  l = 0, lmax
         do  20  k1 = 0, kmax
-        do  20  k2 = 0, kmax
-        do  20  k3 = 0, kmax3
-          sum = 0d0
-          do  30  m1 = 0, k1
-          do  30  m2 = 0, k2
-          do  30  m3 = 0, k3
-            qq = 2*(m1+m2+m3+l)+3
-            sum = sum + (2d0/rsm**2)**(m1+m2+m3)/qq*rmax**qq*
-     .      aklm(m1,k1,l)*aklm(m2,k2,l)*aklm(m3,k3,0)
-   30     continue
-          s(k1,k2,k3,l) = sum
+          do  20  k2 = 0, kmax
+            do  20  k3 = 0, kmax3
+              sum = 0d0
+              do  30  m1 = 0, k1
+                do  30  m2 = 0, k2
+                  do  30  m3 = 0, k3
+                    qq = 2*(m1+m2+m3+l)+3
+                    sum = sum + (2d0/rsm**2)**(m1+m2+m3)/qq*rmax**qq*
+     .              aklm(m1,k1,l)*aklm(m2,k2,l)*aklm(m3,k3,0)
+   30         continue
+              s(k1,k2,k3,l) = sum
    20   continue
    10 continue
       end
@@ -183,7 +183,7 @@ C  Pkl for k=1,2 defined by rsm, for k=3 defined by rsm3
 C     implicit none
       integer k0,kmax,kmax3,lmax
       double precision rmax,rsm,rsm3,aklm(0:kmax,0:kmax,0:lmax),
-     .   s(0:k0,0:k0,0:k0,0:1),aklm3(0:kmax3,0:kmax3,0:0)
+     .s(0:k0,0:k0,0:k0,0:1),aklm3(0:kmax3,0:kmax3,0:0)
       integer l,k1,k2,k3,m1,m2,m3
       double precision sum,qq
 c|    double precision p1(0:20,0:10),p2(0:20,0:10)
@@ -196,17 +196,17 @@ C --- Decomposition of pkl into simple polynomials ---
 C --- Integrate the pkl pk'l product term by term ---
       do  10  l = 0, lmax
         do  20  k1 = 0, kmax
-        do  20  k2 = 0, kmax
-        do  20  k3 = 0, kmax3
-          sum = 0d0
-          do  30  m1 = 0, k1
-          do  30  m2 = 0, k2
-          do  30  m3 = 0, k3
-            qq = 2*(m1+m2+m3+l)+3
-            sum = sum + (2d0/rsm**2)**(m1+m2)*(2d0/rsm3**2)**m3
-     .       /qq*rmax**qq*aklm(m1,k1,l)*aklm(m2,k2,l)*aklm3(m3,k3,0)
-   30     continue
-          s(k1,k2,k3,l) = sum
+          do  20  k2 = 0, kmax
+            do  20  k3 = 0, kmax3
+              sum = 0d0
+              do  30  m1 = 0, k1
+                do  30  m2 = 0, k2
+                  do  30  m3 = 0, k3
+                    qq = 2*(m1+m2+m3+l)+3
+                    sum = sum + (2d0/rsm**2)**(m1+m2)*(2d0/rsm3**2)**m3
+     .              /qq*rmax**qq*aklm(m1,k1,l)*aklm(m2,k2,l)*aklm3(m3,k3,0)
+   30         continue
+              s(k1,k2,k3,l) = sum
    20   continue
    10 continue
 
@@ -258,13 +258,13 @@ C --- do explicitly for k=0,1 ---
 
 C --- do by recursion for higher k ---
       do  20  l = 0, lmax
-      do  20  k = 2, kmax
-        tk2lp1 = 2*k+2*l+1
-        do  24  m = 0, k-1
-          aklm(m,k,l) = aklm(m,k,l) - 2*(k-1)*aklm(m,k-2,l)/tk2lp1
-          aklm(m,k,l) = aklm(m,k,l) - (4*k+2*l-1)*aklm(m,k-1,l)/tk2lp1
-          aklm(m+1,k,l) = aklm(m+1,k,l) + aklm(m,k-1,l)/tk2lp1
-   24   continue
+        do  20  k = 2, kmax
+          tk2lp1 = 2*k+2*l+1
+          do  24  m = 0, k-1
+            aklm(m,k,l) = aklm(m,k,l) - 2*(k-1)*aklm(m,k-2,l)/tk2lp1
+            aklm(m,k,l) = aklm(m,k,l) - (4*k+2*l-1)*aklm(m,k-1,l)/tk2lp1
+            aklm(m+1,k,l) = aklm(m+1,k,l) + aklm(m,k-1,l)/tk2lp1
+   24     continue
    20 continue
 
 C      do  30  l = 0, lmax
@@ -298,13 +298,13 @@ C --- do explicitly for k=0,1 ---
 
 C --- do by recursion for higher k ---
       do  20  l = 0, lmax
-      do  20  k = 2, kmax
-        tk2lm1 = 2*k+2*l-1
-        do  24  m = 0, k-1
-          aklm(m,k,l) = aklm(m,k,l) - 2*ta2**2*(k-1)*tk2lm1*aklm(m,k-2,l)
-          aklm(m,k,l) = aklm(m,k,l) - ta2*(4*k+2*l-1)*aklm(m,k-1,l)
-          aklm(m+1,k,l) = aklm(m+1,k,l) + ta2*aklm(m,k-1,l)
-   24   continue
+        do  20  k = 2, kmax
+          tk2lm1 = 2*k+2*l-1
+          do  24  m = 0, k-1
+            aklm(m,k,l) = aklm(m,k,l) - 2*ta2**2*(k-1)*tk2lm1*aklm(m,k-2,l)
+            aklm(m,k,l) = aklm(m,k,l) - ta2*(4*k+2*l-1)*aklm(m,k-1,l)
+            aklm(m+1,k,l) = aklm(m+1,k,l) + ta2*aklm(m,k-1,l)
+   24     continue
    20 continue
 
       end
@@ -315,7 +315,7 @@ C  Let F_ml = r**(2m+l)Y_L.  Then F_mL = sum_k=0..m c_pkl p_kl r^l Y_L
 C     implicit none
       integer k0,mmax,lmax,p,k,l
       double precision aklm(0:k0,0:k0,0:lmax),cmkl(0:k0,0:k0,0:lmax),
-     .  a,ta2,dfac,pi,srpi,rsm,f(0:200),fack,fac,sum,fpi
+     .a,ta2,dfac,pi,srpi,rsm,f(0:200),fack,fac,sum,fpi
       integer m
 
 C --- Decomposition of phi_kl into simple polynomials ---

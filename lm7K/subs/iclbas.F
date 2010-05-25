@@ -58,7 +58,7 @@ C Local parameters
       endif
 
       call fexit3(-1,111,' Exit -1 ICLBSJ: sought atom no. %i'//
-     .  ' in class %i but only %i atoms exist',nrbas,ic,n)
+     .' in class %i but only %i atoms exist',nrbas,ic,n)
 
       end
 

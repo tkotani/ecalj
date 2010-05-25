@@ -1,5 +1,5 @@
       subroutine invbl(lasa,lov,nbas,nl,nsp,ldim,plat,nsite,iax,
-     .                 indxsh,ik,nk,bk,strxk,hk,sk,strx,hrs,srs)
+     .indxsh,ik,nk,bk,strxk,hk,sk,strx,hrs,srs)
 C- Inverse Bloch transform to extract real space hamiltonian and overlap
 C ----------------------------------------------------------------------
 Ci Inputs:  lasa: T for lmasa, F for TBE which tranposes the strux.
@@ -15,11 +15,11 @@ C Passed Parameters
       parameter (niax=10)
       logical lasa,lov
       integer nbas,nl,ldim,nsp,nsite,
-     .        ik,nk,iax(niax,nsite),indxsh(1)
+     .ik,nk,iax(niax,nsite),indxsh(1)
       double precision bk(3),plat(3,3),strxk(ldim,ldim,2),
-     .                 hk(ldim,ldim,2),sk(ldim,ldim,2),
-     .                 strx(nl**2,nl**2,nsite),hrs(nl**2,nl**2,nsite),
-     .                 srs(nl**2,nl**2,nsite)
+     .hk(ldim,ldim,2),sk(ldim,ldim,2),
+     .strx(nl**2,nl**2,nsite),hrs(nl**2,nl**2,nsite),
+     .srs(nl**2,nl**2,nsite)
 C Local Variables
       integer i,j,k,mxorb,isite,ib,ia,offb,offa,ipb,ipa,lmb,lma
       integer ifi,fopn,iprint,nglob
@@ -38,7 +38,7 @@ C Intrinsic functions
       wt = 1d0 / nk
       ifi = fopn('RSH')
       if (bk(1) .eq. 0d0 .and. bk(2) .eq. 0d0 .and. bk(3) .eq. 0d0
-     .    .and. iprint() .ge. 30) then
+     ..and. iprint() .ge. 30) then
         call awrit0('Hamiltonian at Gamma:',' ',120,ifi)
         do  i = 1, ldim
           write (ifi,1) (hk(i,j,1),j=1,ldim)
@@ -79,14 +79,14 @@ C --- loop over all pairs ---
             ipa = indxsh(offa)
             if (ipa .le. ldim .and. ipb .le. ldim) then
               hrs(lma,lmb,isite) = hrs(lma,lmb,isite) +
-     .       (hk(ipa,ipb,1)*cosT + hk(ipa,ipb,2)*sinT) * wt
+     .        (hk(ipa,ipb,1)*cosT + hk(ipa,ipb,2)*sinT) * wt
               if (lov) then
                 srs(lma,lmb,isite) = srs(lma,lmb,isite) +
-     .         (sk(ipa,ipb,1)*cosT + sk(ipa,ipb,2)*sinT) * wt
+     .          (sk(ipa,ipb,1)*cosT + sk(ipa,ipb,2)*sinT) * wt
               endif
               if (lasa) then
                 strx(lma,lmb,isite) = strx(lma,lmb,isite) +
-     .         (strxk(ipa,ipb,1)*cosT + strxk(ipa,ipb,2)*sinT) * wt
+     .          (strxk(ipa,ipb,1)*cosT + strxk(ipa,ipb,2)*sinT) * wt
               endif
             endif
           enddo
@@ -95,8 +95,8 @@ C --- loop over all pairs ---
       end
 
       subroutine wrirsh(lasa,lov,lgamma,nl,nsp,nclass,nbas,plat,
-     .                  pos,alat,dclabl,ipc,pp,alpha,nsite,iax,srx,
-     .                  hrs,srs,h1rs,h2rs,s2rs,Don)
+     .pos,alat,dclabl,ipc,pp,alpha,nsite,iax,srx,
+     .hrs,srs,h1rs,h2rs,s2rs,Don)
 C- Write out real space H, O and strux
 C ----------------------------------------------------------------------
 Ci Inputs: lasa: std ordering of harmonics, if F empirical TB ordering
@@ -121,21 +121,21 @@ C Passed Parameters
       parameter (niax=10)
       integer nl,nsp,nclass,nbas,nsite,iax(niax,nsite),ipc(nbas)
       double precision plat(3,3),pos(3,nbas),alat,dclabl(1),
-     .       hrs(nl**2,nl**2,nsite),srs(nl**2,nl**2,nsite),
-     .       srx(nl**2,nl**2,nsite),h1rs(nl**2,nl**2,nsite),
-     .       h2rs(nl**2,nl**2,nsite),s2rs(nl**2,nl**2,nsite),
-     .       pp(6,0:nl-1,nsp,1),alpha(1),Don(nl**2,nl**2,nbas)
+     .hrs(nl**2,nl**2,nsite),srs(nl**2,nl**2,nsite),
+     .srx(nl**2,nl**2,nsite),h1rs(nl**2,nl**2,nsite),
+     .h2rs(nl**2,nl**2,nsite),s2rs(nl**2,nl**2,nsite),
+     .pp(6,0:nl-1,nsp,1),alpha(1),Don(nl**2,nl**2,nbas)
       logical lasa,lgamma,lov
 C Local Variables
       integer isite,ib,ia,icb,ica,ix,i,j,k,L,lma,lmb,ll,
-     .        ifi,pvec(3)
+     .ifi,pvec(3)
       integer fopn
       character*8 clabli,clablj,orb1(9),orb2(9)
       character*50 outs
       logical onsite
       double precision dx,vec(4),c,enu,del,p,gam,alp,ob,oa,cmenu,
-     .                 F1a,F2a,F2b,G1a,G2a,G2b,G3a,G3b,
-     .                 dsd,h1,h2,o2
+     .F1a,F2a,F2b,G1a,G2a,G2b,G3a,G3b,
+     .dsd,h1,h2,o2
 C Extrinsic functions
       double precision oalpha
 
@@ -145,7 +145,7 @@ C Extrinsic functions
 
 C Connecting vector ...
       dx(ix,ia,i,j,k) = pos(ix,ia) - pos(ix,ib) +
-     .                  plat(ix,1)*i + plat(ix,2)*j + plat(ix,3)*k
+     .plat(ix,1)*i + plat(ix,2)*j + plat(ix,3)*k
 C Potential parameters
       enu(i,L)          = pp(1,ll(L),1,i)
       c(i,L)            = pp(2,ll(L),1,i)
@@ -244,58 +244,58 @@ C .. get onsite strux
                   h1 = c(ica,lma) + dsd
                 endif
                 oa = oalpha(enu(ica,lma),c(ica,lma),del(ica,lma),
-     .                         alp(ica,lma),gam(ica,lma))
+     .          alp(ica,lma),gam(ica,lma))
                 ob = oalpha(enu(icb,lmb),c(icb,lmb),del(icb,lmb),
-     .                         alp(icb,lmb),gam(icb,lmb))
+     .          alp(icb,lmb),gam(icb,lmb))
                 F1a = 2d0*cmenu(ica,lma)*oa +
-     .                    cmenu(ica,lma)*cmenu(ica,lma)*p(ica,lma)
+     .          cmenu(ica,lma)*cmenu(ica,lma)*p(ica,lma)
 C                F1b = 2d0*cmenu(icb,lmb)*ob +
 C     .                    cmenu(icb,lmb)*cmenu(icb,lmb)*p(icb,lmb)
                 F2a = oa + p(ica,lma)*cmenu(ica,lma)
                 F2b = ob + p(icb,lmb)*cmenu(icb,lmb)
                 G1a = cmenu(ica,lma)*cmenu(ica,lma)*
-     .                (oa + p(ica,lma)*enu(ica,lma))
-     .              + 2d0*cmenu(ica,lma)*oa*enu(ica,lma)
+     .          (oa + p(ica,lma)*enu(ica,lma))
+     .          + 2d0*cmenu(ica,lma)*oa*enu(ica,lma)
 C                G1b = cmenu(icb,lmb)*cmenu(icb,lmb)*
 C     .                (ob + p(icb,lmb)*enu(icb,lmb))
 C     .              + 2d0*cmenu(icb,lmb)*ob*enu(icb,lmb)
                 G2a = oa*enu(ica,lma)
-     .              + (oa + p(ica,lma)*enu(ica,lma))*cmenu(ica,lma)
+     .          + (oa + p(ica,lma)*enu(ica,lma))*cmenu(ica,lma)
                 G2b = ob*enu(icb,lmb)
-     .              + (ob + p(icb,lmb)*enu(icb,lmb))*cmenu(icb,lmb)
+     .          + (ob + p(icb,lmb)*enu(icb,lmb))*cmenu(icb,lmb)
                 G3a = oa + p(ica,lma)*enu(ica,lma)
                 G3b = ob + p(icb,lmb)*enu(icb,lmb)
                 if (onsite) then
                   if (lma .eq. lmb) then
                     o2 = 1d0 + F1a + 2d0*dsd*F2a + dsd*dsd*p(ica,lma)
                     h2 = c(ica,lma) + dsd + G1a +
-     .                   2d0*dsd*G2a + dsd*dsd*G3a
+     .              2d0*dsd*G2a + dsd*dsd*G3a
                   else
                     o2 = 0d0
                     h2 = dsd
                   endif
                 else
                   o2 = dsd*(F2a + F2b)
-     .               + dsd*p(icb,lmb)*Don(lmb,lmb,ib)
-     .               + dsd*p(ica,lma)*Don(lma,lma,ia)
+     .            + dsd*p(icb,lmb)*Don(lmb,lmb,ib)
+     .            + dsd*p(ica,lma)*Don(lma,lma,ia)
                   h2 = dsd + dsd*(G2a + G2b)
-     .               + dsd*G3b*Don(lmb,lmb,ib)
-     .               + dsd*G3a*Don(lma,lma,ia)
+     .            + dsd*G3b*Don(lmb,lmb,ib)
+     .            + dsd*G3a*Don(lma,lma,ia)
                 endif
                 h1rs(lma,lmb,isite) = h1
                 h2rs(lma,lmb,isite) = h2
                 s2rs(lma,lmb,isite) = o2
                 write (ifi,6) ib,ia,(pvec(k),k=1,3),(vec(k),k=1,3),
-     .                vec(4),lma,lmb,hrs(lma,lmb,isite),h1,h2,
-     .                srs(lma,lmb,isite),o2,outs(1:i+1)
+     .          vec(4),lma,lmb,hrs(lma,lmb,isite),h1,h2,
+     .          srs(lma,lmb,isite),o2,outs(1:i+1)
               else
                 if (lov) then
                   write (ifi,7) ib,ia,(pvec(k),k=1,3),(vec(k),k=1,3),
-     .                vec(4),lma,lmb,hrs(lma,lmb,isite),
-     .                srs(lma,lmb,isite),outs(1:i+1)
+     .            vec(4),lma,lmb,hrs(lma,lmb,isite),
+     .            srs(lma,lmb,isite),outs(1:i+1)
                 else
                   write (ifi,8) ib,ia,(pvec(k),k=1,3),(vec(k),k=1,3),
-     .                vec(4),lma,lmb,hrs(lma,lmb,isite),outs(1:i+1)
+     .            vec(4),lma,lmb,hrs(lma,lmb,isite),outs(1:i+1)
                 endif
               endif
             endif
@@ -304,15 +304,15 @@ C     .              + 2d0*cmenu(icb,lmb)*ob*enu(icb,lmb)
       enddo
       call fclose('RSH')
     1 format ('  R   R''',2x,'-- plat --',8x,'  vector',12x,
-     .        'dist',4x,'L',1x,'L''',5x,'H',6x,'H_1(gam)',2x,
-     .        'H_2(gam)',5x,'O',6x,'O_2(gam)')
+     .'dist',4x,'L',1x,'L''',5x,'H',6x,'H_1(gam)',2x,
+     .'H_2(gam)',5x,'O',6x,'O_2(gam)')
     2 format ('  R   R''',2x,'-- plat --',8x,'  vector',12x,
-     .        'dist',4x,'L',1x,'L''',5x,'H',6x,'H_1(alp)',2x,
-     .        'H_2(alp)',5x,'O',6x,'O_2(alp)')
+     .'dist',4x,'L',1x,'L''',5x,'H',6x,'H_1(alp)',2x,
+     .'H_2(alp)',5x,'O',6x,'O_2(alp)')
     3 format ('  R   R''',2x,'-- plat --',8x,'  vector',12x,
-     .        'dist',4x,'L',1x,'L''',5x,'H',10x,'O')
+     .'dist',4x,'L',1x,'L''',5x,'H',10x,'O')
     4 format ('  R   R''',2x,'-- plat --',8x,'  vector',12x,
-     .        'dist',4x,'L',1x,'L''',5x,'H')
+     .'dist',4x,'L',1x,'L''',5x,'H')
     6 format (i3,i4,2x,3i3,1x,3f8.4,1x,f10.6,1x,2i2,1x,5f10.6,2x,a)
     7 format (i3,i4,2x,3i3,1x,3f8.4,1x,f10.6,1x,2i2,1x,2f10.6,2x,a)
     8 format (i3,i4,2x,3i3,1x,3f8.4,1x,f10.6,1x,2i2,1x,f10.6,2x,a)
@@ -372,12 +372,12 @@ C Local Variables
           d = sqd**2*dsign(1d0,sqd)
           pgam = pp(4,l,1,ic) - oalp**2
           write(ifi,2) l, (pp(k,l,1,ic), k=1,2),
-     .        d,pp(4,l,1,ic),pgam,(pp(k,l,1,ic), k=5,6), oalp
+     .    d,pp(4,l,1,ic),pgam,(pp(k,l,1,ic), k=5,6), oalp
         enddo
       enddo
       write (ifi,3)
     1 format(/'PPAR:  ',a,'  nl=',i1,/' l',5x,'e_nu',10x,'c',8x,
-     .  '+/-del',7x,'p^alp',7x,'p^gam',8x,'gam',9x,'alp',10x,'o')
+     .'+/-del',7x,'p^alp',7x,'p^gam',8x,'gam',9x,'alp',10x,'o')
     2 format(i2,3f12.8,f12.7,5f12.8)
     3 format (/)
       end

@@ -25,7 +25,7 @@ C Local variables:
       integer nlmax
       parameter(nlmax=20)
       double precision er2,fi(0:nlmax+1),gi(0:nlmax+1),wn,wj,dlr,dj,dn,
-     .                 sigma,phi,rdphia,rdfi,rdgi
+     .sigma,phi,rdphia,rdfi,rdgi
 C External calls:
       external bessl2
 

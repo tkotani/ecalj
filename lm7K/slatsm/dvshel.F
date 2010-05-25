@@ -31,77 +31,77 @@ C ... Get the largest increment
       do  2  i = 1, n
     2 iprm(i) = i-1
       if (lopt .ne. 0 .and. lopt .ne. 1 .and. lopt .ne. 11)
-     .  call rx('dvshel: bad lopt')
+     .call rx('dvshel: bad lopt')
       if (n .le. 1) return
       if (lopt .eq. 0 .and. m .gt. mmax)
-     .  call rx('dvshel increase mmax')
+     .call rx('dvshel increase mmax')
 
 C ... Loop over partial sorts
    12 continue
-        inc = inc/3
+      inc = inc/3
 C   ... Outer loop of straight insertion
-        do  11  i = inc+1, n
-          iv = iprm(i)
-          if (lopt .eq. 0) call dcopy(m,vecs(1,iv),1,sw,1)
-          j = i
+      do  11  i = inc+1, n
+        iv = iprm(i)
+        if (lopt .eq. 0) call dcopy(m,vecs(1,iv),1,sw,1)
+        j = i
 C     ... Inner loop of straight insertion
-          if (lopt .eq. 11)  then
-   20       continue
-            di = 0d0
-            dl = 0d0
-            do  24  mm = 1, m
+        if (lopt .eq. 11)  then
+   20     continue
+          di = 0d0
+          dl = 0d0
+          do  24  mm = 1, m
             dl = dl + vecs(mm,iprm(j-inc))**2
-   24       di = di + vecs(mm,iv)**2
-            if (dl .gt. di) then
+   24     di = di + vecs(mm,iv)**2
+          if (dl .gt. di) then
 c             print *, 'slip',j-inc,j,i
-              iprm(j) = iprm(j-inc)
-              j = j-inc
-              if (j .le. inc) goto 21
-              goto 20
-            endif
-   21       continue
-          elseif (lopt .eq. 1) then
-  120       continue
-            do  124  mm = 1, m
-C           cases dl.gt.di, dl.eq.di, dl.lt.di
-            if (vecs(mm,iprm(j-inc)) - vecs(mm,iv)) 121,124,138
-  124       continue
-  136       continue
-C       ... v(iv) .eq. v(iprm(j-inc)
-            goto 121
-C       ... v(iv) .gt. v(iprm(j-inc)
-  138       continue
-C           print *, 'slip',j-inc,j,i
             iprm(j) = iprm(j-inc)
             j = j-inc
-            if (j .le. inc) goto 121
-            goto 120
-  121       continue
-          elseif (lopt .eq. 0) then
-  220       continue
-            do  224  mm = 1, m
+            if (j .le. inc) goto 21
+            goto 20
+          endif
+   21     continue
+        elseif (lopt .eq. 1) then
+  120     continue
+          do  124  mm = 1, m
+C           cases dl.gt.di, dl.eq.di, dl.lt.di
+            if (vecs(mm,iprm(j-inc)) - vecs(mm,iv)) 121,124,138
+  124     continue
+  136     continue
+C       ... v(iv) .eq. v(iprm(j-inc)
+          goto 121
+C       ... v(iv) .gt. v(iprm(j-inc)
+  138     continue
+C           print *, 'slip',j-inc,j,i
+          iprm(j) = iprm(j-inc)
+          j = j-inc
+          if (j .le. inc) goto 121
+          goto 120
+  121     continue
+        elseif (lopt .eq. 0) then
+  220     continue
+          do  224  mm = 1, m
 C           cases dl.gt.di, dl.eq.di, dl.lt.di
             if (vecs(mm,iprm(j-inc)) - sw(mm)) 221,224,238
-  224       continue
-  236       continue
+  224     continue
+  236     continue
 C       ... v(iv) .eq. v(iprm(j-inc)
-            goto 221
+          goto 221
 C       ... v(iv) .gt. v(iprm(j-inc)
-  238       continue
+  238     continue
 C           print *, 'slip',j-inc,j,i
-            call dcopy(m,vecs(1,j-inc-1),1,vecs(1,j-1),1)
-            j = j-inc
-            if (j .le. inc) goto 221
-            goto 220
-  221       continue
-          endif
+          call dcopy(m,vecs(1,j-inc-1),1,vecs(1,j-1),1)
+          j = j-inc
+          if (j .le. inc) goto 221
+          goto 220
+  221     continue
+        endif
 C     ... end of straight insertion
-          if (lopt .eq. 0) then
-            call dcopy(m,sw,1,vecs(1,j-1),1)
-          else
-            iprm(j) = iv
-          endif
-   11     continue
+        if (lopt .eq. 0) then
+          call dcopy(m,sw,1,vecs(1,j-1),1)
+        else
+          iprm(j) = iv
+        endif
+   11 continue
       if (inc .gt. 1) goto 12
       end
       subroutine dvperm(m,n,vecs,wk,iprm,lopt)

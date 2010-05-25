@@ -18,7 +18,7 @@ Cr   Los Alamos Scientific Lab.
 Cr   For real*8 double precision see below
 C ----------------------------------------------------------------
       double precision x, erfcs(21), erfccs(59), erc2cs(49), sqeps,
-     .  sqrtpi, xmax, xsml, y,  d1mach, dcsevl, dexp, dlog, dsqrt
+     .sqrtpi, xmax, xsml, y,  d1mach, dcsevl, dexp, dlog, dsqrt
       external d1mach, dcsevl, initds
       save
       data erf cs(  1) / -.4904612123 4691808039 9845440333 76 d-1 /
@@ -192,15 +192,15 @@ c
 c === erfc(x) = 1.0 - erf(x)  for abs(x) .le. 1.0 ===
       if (y .lt. sqeps) derfc = 1.0d0 - 2.0d0*x/sqrtpi
       if (y .ge. sqeps) 
-     . derfc = 1.0d0 - x*(1.0d0 + dcsevl (2.d0*x*x-1.d0,erfcs, nterf))
+     .derfc = 1.0d0 - x*(1.0d0 + dcsevl (2.d0*x*x-1.d0,erfcs, nterf))
       return
 c
 c === erfc(x) = 1.0 - erf(x)  for  1.0 .lt. abs(x) .le. xmax ===
    30 y = y*y
       if (y .le. 4.d0) derfc = dexp(-y)/dabs(x) * 
-     .  (0.5d0 + dcsevl ((8.d0/y-5.d0)/3.d0, erc2cs, nterc2))
+     .(0.5d0 + dcsevl ((8.d0/y-5.d0)/3.d0, erc2cs, nterc2))
       if (y .gt. 4.d0) derfc = dexp(-y)/dabs(x) *
-     .   (0.5d0 + dcsevl (8.d0/y-1.d0, erfccs, nterfc))
+     .(0.5d0 + dcsevl (8.d0/y-1.d0, erfccs, nterfc))
       if (x .lt. 0.d0) derfc = 2.0d0 - derfc
       return
 c
@@ -337,15 +337,15 @@ c
 C --- derfc(x) = 1.0d0 - erf(x) for -1.d0 .le. x .le. 1.d0 ---
       if (y .lt. sqeps) derfc = 1.0d0 - 2.0d0*x/sqrtpi
       if (y .ge. sqeps) derfc = 1.0d0 -
-     .  x*(1.0d0 + dcsevl (2.d0*x*x-1.d0, erfcs, nterf) )
+     .x*(1.0d0 + dcsevl (2.d0*x*x-1.d0, erfcs, nterf) )
       return
 c
 C --- derfc(x) = 1.0d0 - erf(x) for 1.d0 .lt. dabs(x) .le. xmax ---
    30 y = y*y
       if (y .le. 4.d0) derfc = dexp(-y)/dabs(x) * 
-     .  (0.5d0 + dcsevl ((8.d0/y-5.d0)/3.d0, erc2cs, nterc2) )
+     .(0.5d0 + dcsevl ((8.d0/y-5.d0)/3.d0, erc2cs, nterc2) )
       if (y .gt. 4.d0) derfc = dexp(-y)/dabs(x) * 
-     .  (0.5d0 + dcsevl (8.d0/y-1.d0, erfccs, nterfc) )
+     .(0.5d0 + dcsevl (8.d0/y-1.d0, erfccs, nterfc) )
       if (x .lt. 0.d0) derfc = 2.0d0 - derfc
       return
 c

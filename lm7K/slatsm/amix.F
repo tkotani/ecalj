@@ -1,5 +1,5 @@
       integer function amix(nelts,npmix,mmix,ido,beta,ipr,tm,norm,kpvt,
-     .                      wk,t,rmsdel)
+     .wk,t,rmsdel)
 C- Anderson mixing of a vector
 C ----------------------------------------------------------------
 Ci Inputs
@@ -54,7 +54,7 @@ C     implicit none
 C Passed parameters
       integer nelts,mmix,npmix,kpvt(1),ipr
       double precision norm(mmix,mmix),wk(nelts,0:mmix+1,2),t(mmix),
-     .  beta,tm,rmsdel
+     .beta,tm,rmsdel
 C Local parameters
       integer i,j,nwk,inert(3),nmix,kelt,nmake,ido,iprint,i1mach
       double precision ddot,det(2),sumsqr,sing,sinmax
@@ -90,25 +90,25 @@ C -- Regular Anderson mixing branch --
         sumsqr = 0
         do  20  i = 1, nmix
           t(i) = ddot(nelts,wk(1,0,1),1,wk(1,0,1),1) -
-     .      ddot(nelts,wk(1,0,1),1,wk(1,i,1),1)
+     .    ddot(nelts,wk(1,0,1),1,wk(1,i,1),1)
           do  20  j = 1, nmix
             norm(i,j) =  ddot(nelts,wk(1,0,1),1,wk(1,0,1),1)
-     .        - ddot(nelts,wk(1,0,1),1,wk(1,j,1),1)
-     .        - ddot(nelts,wk(1,i,1),1,wk(1,0,1),1)
-     .        + ddot(nelts,wk(1,i,1),1,wk(1,j,1),1)
+     .      - ddot(nelts,wk(1,0,1),1,wk(1,j,1),1)
+     .      - ddot(nelts,wk(1,i,1),1,wk(1,0,1),1)
+     .      + ddot(nelts,wk(1,i,1),1,wk(1,j,1),1)
             sumsqr = sumsqr + norm(i,j)**2
-   20     continue
-          sumsqr = dsqrt(sumsqr)/(nmix+1)
+   20   continue
+        sumsqr = dsqrt(sumsqr)/(nmix+1)
 C -- Silly branch --
-        elseif (ido/10 .eq. 1) then
-          do  120  i = 1, nmix
-            t(i) = wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,i,1)
-            do  120  j = 1, nmix
-              norm(i,j) =  
-     .          wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,j,1)
-     .        - wk(kelt,i,1)*wk(kelt,0,1) + wk(kelt,i,1)*wk(kelt,j,1)
-  120     continue
-        endif
+      elseif (ido/10 .eq. 1) then
+        do  120  i = 1, nmix
+          t(i) = wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,i,1)
+          do  120  j = 1, nmix
+            norm(i,j) =  
+     .      wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,j,1)
+     .      - wk(kelt,i,1)*wk(kelt,0,1) + wk(kelt,i,1)*wk(kelt,j,1)
+  120   continue
+      endif
 
 C --  Solve the simultaneous equations for tj --
       call dsifa(norm,mmix,nmix,kpvt,i)
@@ -126,7 +126,7 @@ C --  Handle singular normal matrix --
         nmix = nmix-1
         if (ipr .ge. 20) print 337, sinmax, nmix
   337   format(' AMIX: condition of normal eqns >',f7.0,
-     .         ' Reducing nmix to',2i2)
+     .  ' Reducing nmix to',2i2)
         goto 10
       endif
 
@@ -135,7 +135,7 @@ C --  Reduce nmix if any t_j exceeds tm --
         if (dabs(t(j)) .le. dabs(tm)) goto 30
         if (ipr .ge. 20) print 338,  nmix-1, (t(i), i=1, nmix)
   338   format(' AMIX: Reducing nmix to',i3,
-     .         ': t_j exceeds tm: tj=',7(f9.5,1x))
+     .  ': t_j exceeds tm: tj=',7(f9.5,1x))
         t(nmix) = 0
         nmix = nmix-1
         goto 10
@@ -181,8 +181,8 @@ C --  Calculate rms change --
 C --- Printout ---
       if (ipr .lt. 30) goto 60
       call awrit6(' AMIX: nmix=%i mmix=%i  nelts=%i  beta=%1;6d  tm='//
-     .  '%1;6d  rmsdel=%1;3e',' ',80,i1mach(2),
-     .  nmix,mmix,nelts,beta,tm,rmsdel)
+     .'%1;6d  rmsdel=%1;3e',' ',80,i1mach(2),
+     .nmix,mmix,nelts,beta,tm,rmsdel)
 C      write(*,133) nmix,mmix,nelts,beta,tm,rmsdel
 C  133 format(' AMIX: nmix=',i1,' mmix=',i1,'  nelts=',i6,
 C     .       '  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd8.2)
@@ -194,7 +194,7 @@ C     .       '  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd8.2)
       do  12  i = 1, nelts
         if (dabs(wk(i,0,1)) + dabs(wk(i,mmix+1,2)-wk(i,0,2)) .ge. 5d-7)
      .  write(*,111) i,wk(i,0,2),wk(i,0,2)+wk(i,0,1),
-     .                 wk(i,0,1),wk(i,mmix+1,2)
+     .  wk(i,0,1),wk(i,mmix+1,2)
    12 continue
 
 C --- Restore d* and x* + beta d* from end of wk --

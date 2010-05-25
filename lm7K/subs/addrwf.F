@@ -1,5 +1,5 @@
       subroutine addrwf(mode,z,l,v,ndg,n1,nr,rofi,rwgt,eadd,ev,fac,gadd,
-     .  g,s)
+     .g,s)
 C- Add constant * radial wave function to another radial wave function
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -39,7 +39,7 @@ C     implicit none
 C ... Passed parameters
       integer l,ndg,n1,nr,mode
       double precision fac,z,rofi(nr),rwgt(nr),v(nr),ev,eadd,
-     .  gadd(ndg,2),g(ndg,2),s
+     .gadd(ndg,2),g(ndg,2),s
 C ... Local parameters
       integer ir
       double precision cc,vi,fllp1,gf11,gf22,gf12,r,tmc
@@ -84,7 +84,7 @@ C       Rest of the loop computes overlap between new g and gadd
       end
 
       subroutine wf2lo(l,a,nr,rofi,rwgt,phi,dphi,phip,dphip,phz,dphz,
-     .  phzp,dphzp,pnz,rsml,ehl,g0,g1,gz)
+     .phzp,dphzp,pnz,rsml,ehl,g0,g1,gz)
 C- Add a linear combination of two w.f. to a 3rd to make a local orbital
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -149,19 +149,19 @@ C ... Local parameters
         fac = phz*au + dphz*as
         x = 0
         call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g0(1,2),gz(1,2),
-     .    xx)
+     .  xx)
         call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g0,gz,xx)
 
         fac = phz*bu + dphz*bs
         call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g1(1,2),gz(1,2),
-     .    xx)
+     .  xx)
         call addrwf(1,x,l,x,nr,0,nr,rofi,rwgt,x,x,-fac,g1,gz,xx)
 
       elseif (lpzi .eq. 2 .or. lpzi .eq. 3) then
         call dcopy(nr,gz,1,gzbig,1)
         call dcopy(nr,gz(1,2),1,gzbig(1+nr),1)
         call rwftai(5,rofi(nr),a,nr,nr,rofi,phz,dphz,xx,l,
-     .    ehl(k),rsml(k),gzbig)
+     .  ehl(k),rsml(k),gzbig)
 C       If rwftai scales gzbig, rescale phz,gz
         if (gzbig(nr) .ne. gz(nr,1)) then
           xx = gzbig(nr)/gz(nr,1)
@@ -178,7 +178,7 @@ C     call prrmsh('local orbital',rofi,gz,nr,nr,2)
       end
 
       subroutine ortrwf(mode,z,l,v,ng,n1,nr,rofi,rwgt,e0,e1,ez,g0,g1,gz,
-     .  D)
+     .D)
 C- Orthogonalize a radial wave function gz to a pair of other functions
 C ----------------------------------------------------------------------
 Ci Inputs

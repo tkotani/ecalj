@@ -1,5 +1,5 @@
       subroutine asars(mode,sctrl,ssite,sspec,slat,spot,sbz,
-     .  pnu,qnu,lbin,ifi)
+     .pnu,qnu,lbin,ifi)
 
       use m_struc_def  !Cgetarg
 
@@ -68,7 +68,7 @@ C ... Passed parameters
 C ... Local parameters
       character*32 jobid
       integer:: n0 , nbas , nl , nsp , nglob , i , iors , nit , nspec 
-     . , nat
+     ., nat
       integer ,allocatable :: ov_iv(:)
       integer ,allocatable :: ipc_iv(:)
       integer ,allocatable :: ipa_iv(:)
@@ -117,21 +117,21 @@ Ctakao_ZeroClear_NotRequiered        if (nbas<0) ov_iv(:)=0
 
 C ... Poke class-based P,Q into site->pnu and oqnu
       if ( ifi .lt. 0 ) call asars1 ( 10 , ssite , nbas , nsp , nl 
-     . , ov_iv , pnu_rv , qnu_rv , ipc_iv , ipa_iv , 
-     . pnu , qnu )
+     ., ov_iv , pnu_rv , qnu_rv , ipc_iv , ipa_iv , 
+     .pnu , qnu )
 
 
 C ... File I/O
 C     for now
       nat = nbas
       i = iors ( 0 , sctrl , ssite , sspec , slat , spot , sbz , jobid 
-     . , nbas , nat , nspec , w , qnu_rv , nit , lbin , ifi )
+     ., nbas , nat , nspec , w , qnu_rv , nit , lbin , ifi )
 
 
 C ... Poke site struc and oqnu into P,Q
       if ( ifi .gt. 0 ) call asars1 ( 11 , ssite , nbas , nsp , nl 
-     . , ov_iv , pnu_rv , qnu_rv , ipc_iv , ipa_iv , 
-     . pnu , qnu )
+     ., ov_iv , pnu_rv , qnu_rv , ipc_iv , ipa_iv , 
+     .pnu , qnu )
 
 
       if (allocated(ov_iv)) deallocate(ov_iv)

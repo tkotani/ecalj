@@ -174,10 +174,10 @@ C   ... Case calculate points in original order (already sorted)
         if (lsort) then
 C     ... Power series for points within rc1
           call hansr1(rsq(1),lmn,lmax,nrx,n1-1,e,rsm,dsqrt(rc1),
-     .      xi(1,lmn,ie))
+     .    xi(1,lmn,ie))
 C     ... Normal evaluation of smoothed Hankels
           call hansr2(rsq(n1),lmn,lmax,nrx,n2-n1,e,rsm,wk(n1,1),
-     .      wk(n1,2),xi(n1,lmn,ie))
+     .    wk(n1,2),xi(n1,lmn,ie))
 C     ... Asymtotic case, r>>rsm
           if(n2 .le. nr)
      .    call hanr(rsq(n2),lmn,lmax,nrx,nr+1-n2,e,xi(n2,lmn,ie))
@@ -185,18 +185,18 @@ C   ... Case calculated points in sorted
         else
 C     ... Power series for points within rc1
           call hansr1(wk(1,3),lmn,lmax,nrx,n1-1,e,rsm,dsqrt(rc1),
-     .      wk(1,4))
+     .    wk(1,4))
 C     ... Normal evaluation of smoothed Hankels
           call hansr2(wk(n1,3),lmn,lmax,nrx,n2-n1,e,rsm,wk(n1,1),
-     .      wk(n1,2),wk(n1,4))
+     .    wk(n1,2),wk(n1,4))
 C     ... Asymtotic case, r>>rsm
           if(n2 .le. nr)
      .    call hanr(wk(n2,3),lmn,lmax,nrx,nr+1-n2,e,wk(n2,4))
 C     ... Poke into xi(lmn:lmax), with the original ordering of points
           do  30  l = lmn, lmax
-          do  30  ir = 1, nr
-            j = idx(ir,1)
-            xi(ir,l,ie) = wk(idx(ir,1),4+l-lmn)
+            do  30  ir = 1, nr
+              j = idx(ir,1)
+              xi(ir,l,ie) = wk(idx(ir,1),4+l-lmn)
    30     continue
         endif
    40 continue
@@ -206,11 +206,11 @@ C --- Scale by r**l if job nonzero ---
       if (.not. lscal) return
       do  62  ir = 1, nr
         rl0 = dsqrt(rsq(ir))
-      do  62  ie = 1, nxi
-        rl = rl0
-      do  62  l = 1, lxi(ie)
-        xi(ir,l,ie) = xi(ir,l,ie)*rl
-        rl = rl*rl0
+        do  62  ie = 1, nxi
+          rl = rl0
+          do  62  l = 1, lxi(ie)
+            xi(ir,l,ie) = xi(ir,l,ie)*rl
+            rl = rl*rl0
    62 continue
 
       end
@@ -308,10 +308,10 @@ C   ... Use it if it is accurate enough
             do  52  ir = 1, nr
               x = rsq(ir)
               xi(ir,l) = (((((((((((((((((((cofl(20)*x+cofl(19))*x+
-     .      cofl(18))*x+cofl(17))*x+cofl(16))*x+cofl(15))*x+cofl(14))*x+
-     .      cofl(13))*x+cofl(12))*x+cofl(11))*x+cofl(10))*x+cofl(9))*x+
-     .      cofl(8))*x+cofl(7))*x+cofl(6))*x+cofl(5))*x+cofl(4))*x+
-     .      cofl(3))*x+cofl(2))*x+cofl(1))*x+cofl(0)
+     .        cofl(18))*x+cofl(17))*x+cofl(16))*x+cofl(15))*x+cofl(14))*x+
+     .        cofl(13))*x+cofl(12))*x+cofl(11))*x+cofl(10))*x+cofl(9))*x+
+     .        cofl(8))*x+cofl(7))*x+cofl(6))*x+cofl(5))*x+cofl(4))*x+
+     .        cofl(3))*x+cofl(2))*x+cofl(1))*x+cofl(0)
    52       continue
           else
 C ---   Polynomial to nmaxl ---
@@ -330,8 +330,8 @@ C ---   Polynomial to nmaxl ---
               xi(ir,l) = cofl(nmaxl)
    53       continue
             do  54  m = nmaxl, 1, -1
-            do  54  ir = 1, nr
-              xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
+              do  54  ir = 1, nr
+                xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
    54       continue
           endif
         endif
@@ -371,33 +371,33 @@ C     to a relative precision of <10^-15 for x<5.
 C     Different polynomials are used for x<1.3 and x>1.3.
 C     Numerators and denominators are t,b respectively.
       double precision w,f1,f2,
-     .  t10,t11,t12,t13,t14,t15,t16,t17,b11,b12,b13,b14,b15,b16,b17,b18,
-     .  t20,t21,t22,t23,t24,t25,t26,t27,b21,b22,b23,b24,b25,b26,b27,b28
+     .t10,t11,t12,t13,t14,t15,t16,t17,b11,b12,b13,b14,b15,b16,b17,b18,
+     .t20,t21,t22,t23,t24,t25,t26,t27,b21,b22,b23,b24,b25,b26,b27,b28
       parameter (
-     .  t10=2.1825654430601881683921d0, t20=0.9053540999623491587309d0,
-     .  t11=3.2797163457851352620353d0, t21=1.3102485359407940304963d0,
-     .  t12=2.3678974393517268408614d0, t22=0.8466279145104747208234d0,
-     .  t13=1.0222913982946317204515d0, t23=0.3152433877065164584097d0,
-     .  t14=0.2817492708611548747612d0, t24=0.0729025653904144545406d0,
-     .  t15=0.0492163291970253213966d0, t25=0.0104619982582951874111d0,
-     .  t16=0.0050315073901668658074d0, t26=0.0008626481680894703936d0,
-     .  t17=0.0002319885125597910477d0, t27=0.0000315486913658202140d0,
-     .  b11=2.3353943034936909280688d0, b21=1.8653829878957091311190d0,
-     .  b12=2.4459635806045533260353d0, b22=1.5514862329833089585936d0,
-     .  b13=1.5026992116669133262175d0, b23=0.7521828681511442158359d0,
-     .  b14=0.5932558960613456039575d0, b24=0.2327321308351101798032d0,
-     .  b15=0.1544018948749476305338d0, b25=0.0471131656874722813102d0,
-     .  b16=0.0259246506506122312604d0, b26=0.0061015346650271900230d0,
-     .  b17=0.0025737049320207806669d0, b27=0.0004628727666611496482d0,
-     .  b18=0.0001159960791581844571d0, b28=0.0000157743458828120915d0)
+     .t10=2.1825654430601881683921d0, t20=0.9053540999623491587309d0,
+     .t11=3.2797163457851352620353d0, t21=1.3102485359407940304963d0,
+     .t12=2.3678974393517268408614d0, t22=0.8466279145104747208234d0,
+     .t13=1.0222913982946317204515d0, t23=0.3152433877065164584097d0,
+     .t14=0.2817492708611548747612d0, t24=0.0729025653904144545406d0,
+     .t15=0.0492163291970253213966d0, t25=0.0104619982582951874111d0,
+     .t16=0.0050315073901668658074d0, t26=0.0008626481680894703936d0,
+     .t17=0.0002319885125597910477d0, t27=0.0000315486913658202140d0,
+     .b11=2.3353943034936909280688d0, b21=1.8653829878957091311190d0,
+     .b12=2.4459635806045533260353d0, b22=1.5514862329833089585936d0,
+     .b13=1.5026992116669133262175d0, b23=0.7521828681511442158359d0,
+     .b14=0.5932558960613456039575d0, b24=0.2327321308351101798032d0,
+     .b15=0.1544018948749476305338d0, b25=0.0471131656874722813102d0,
+     .b16=0.0259246506506122312604d0, b26=0.0061015346650271900230d0,
+     .b17=0.0025737049320207806669d0, b27=0.0004628727666611496482d0,
+     .b18=0.0001159960791581844571d0, b28=0.0000157743458828120915d0)
 C ... f1(w=x-1/2) is erfc(x) for 0<x<1.3, if xx is y0*dexp(-x*x)
       f1(w) = xx*(((((((t17*w+t16)*w+t15)*w+t14)*w+t13)*w+t12)*
-     .  w+t11)*w+t10)/((((((((b18*w+b17)*w+b16)*w+b15)*w+b14)*
-     .  w+b13)*w+b12)*w+b11)*w+1)
+     .w+t11)*w+t10)/((((((((b18*w+b17)*w+b16)*w+b15)*w+b14)*
+     .w+b13)*w+b12)*w+b11)*w+1)
 C ... f2(w=x-2) is erfc(x) for x>1.3, if xx is y0*dexp(-x*x)
       f2(w) = xx*(((((((t27*w+t26)*w+t25)*w+t24)*w+t23)*w+t22)*
-     .  w+t21)*w+t20)/((((((((b28*w+b27)*w+b26)*w+b25)*w+b24)*
-     .  w+b23)*w+b22)*w+b21)*w+1)
+     .w+t21)*w+t20)/((((((((b28*w+b27)*w+b26)*w+b25)*w+b24)*
+     .w+b23)*w+b22)*w+b21)*w+1)
 
 C --- Setup ---
       if (lmax .lt. lmin .or. nr .eq. 0) return

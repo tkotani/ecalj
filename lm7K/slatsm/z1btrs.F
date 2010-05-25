@@ -1,5 +1,5 @@
       SUBROUTINE Z1BTRS( TRANS, N, KL, KU, NRHS, AB, LDAB, IPIV, B, LDB,
-     $                   I1, INFO )
+     $I1, INFO )
 *
 *  -- LAPACK routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
@@ -104,30 +104,30 @@
       INFO = 0
       NOTRAN = LSAME( TRANS, 'N' )
       IF( .NOT.NOTRAN .AND. .NOT.LSAME( TRANS, 'T' ) .AND. .NOT.
-     $    LSAME( TRANS, 'C' ) ) THEN
-         INFO = -1
+     $LSAME( TRANS, 'C' ) ) THEN
+      INFO = -1
       ELSE IF( N.LT.0 ) THEN
-         INFO = -2
+      INFO = -2
       ELSE IF( KL.LT.0 ) THEN
-         INFO = -3
+      INFO = -3
       ELSE IF( KU.LT.0 ) THEN
-         INFO = -4
+      INFO = -4
       ELSE IF( NRHS.LT.0 ) THEN
-         INFO = -5
+      INFO = -5
       ELSE IF( LDAB.LT.( 2*KL+KU+1 ) ) THEN
-         INFO = -7
+      INFO = -7
       ELSE IF( LDB.LT.MAX( 1, N ) ) THEN
-         INFO = -10
+      INFO = -10
       END IF
       IF( INFO.NE.0 ) THEN
-         CALL XERBLA( 'Z1BTRS', -INFO )
-         RETURN
+      CALL XERBLA( 'Z1BTRS', -INFO )
+      RETURN
       END IF
 *
 *     Quick return if possible
 *
       IF( N.EQ.0 .OR. NRHS.EQ.0 )
-     $   RETURN
+     $RETURN
 *
       KD = KU + KL + 1
       LNOTI = KL.GT.0
@@ -143,77 +143,77 @@
 *        where each transformation L(i) is a rank-one modification of
 *        the identity matrix.
 *
-         IF( LNOTI ) THEN
-            DO 10 J = 1, N - 1
-               LM = MIN( KL, N-J )
-               L = IPIV( J )
-               IF( L.NE.J )
-     $            CALL ZSWAP( NRHS, B( L, 1 ), LDB, B( J, 1 ), LDB )
-               CALL ZGERU( LM, NRHS, -ONE, AB( KD+1, J ), 1, B( J, 1 ),
-     $                     LDB, B( J+1, 1 ), LDB )
-   10       CONTINUE
-         END IF
+      IF( LNOTI ) THEN
+      DO 10 J = 1, N - 1
+      LM = MIN( KL, N-J )
+      L = IPIV( J )
+      IF( L.NE.J )
+     $CALL ZSWAP( NRHS, B( L, 1 ), LDB, B( J, 1 ), LDB )
+      CALL ZGERU( LM, NRHS, -ONE, AB( KD+1, J ), 1, B( J, 1 ),
+     $LDB, B( J+1, 1 ), LDB )
+   10 CONTINUE
+      END IF
 *
-         DO 20 I = 1, NRHS
+      DO 20 I = 1, NRHS
 *
 *           Solve U*X = B, overwriting B with X.
 *
-            CALL Z1TBSV( 'Upper', 'No transpose', 'Non-unit', N, KL+KU,
-     $                  AB, LDAB, B( 1, I ), I1, 1 )
-   20    CONTINUE
+      CALL Z1TBSV( 'Upper', 'No transpose', 'Non-unit', N, KL+KU,
+     $AB, LDAB, B( 1, I ), I1, 1 )
+   20 CONTINUE
 *
       ELSE IF( LSAME( TRANS, 'T' ) ) THEN
 *
 *        Solve A**T * X = B.
 *
-         DO 30 I = 1, NRHS
+      DO 30 I = 1, NRHS
 *
 *           Solve U**T * X = B, overwriting B with X.
 *
-            CALL Z1TBSV( 'Upper', 'Transpose', 'Non-unit', N, KL+KU, AB,
-     $                  LDAB, B( 1, I ), I1, 1 )
-   30    CONTINUE
+      CALL Z1TBSV( 'Upper', 'Transpose', 'Non-unit', N, KL+KU, AB,
+     $LDAB, B( 1, I ), I1, 1 )
+   30 CONTINUE
 *
 *        Solve L**T * X = B, overwriting B with X.
 *
-         IF( LNOTI ) THEN
-            DO 40 J = N - 1, I1, -1
-               LM = MIN( KL, N-J )
-               CALL ZGEMV( 'Transpose', LM, NRHS, -ONE, B( J+1, 1 ),
-     $                     LDB, AB( KD+1, J ), 1, ONE, B( J, 1 ), LDB )
-               L = IPIV( J )
-               IF( L.NE.J )
-     $            CALL ZSWAP( NRHS, B( L, 1 ), LDB, B( J, 1 ), LDB )
-   40       CONTINUE
-         END IF
+      IF( LNOTI ) THEN
+      DO 40 J = N - 1, I1, -1
+      LM = MIN( KL, N-J )
+      CALL ZGEMV( 'Transpose', LM, NRHS, -ONE, B( J+1, 1 ),
+     $LDB, AB( KD+1, J ), 1, ONE, B( J, 1 ), LDB )
+      L = IPIV( J )
+      IF( L.NE.J )
+     $CALL ZSWAP( NRHS, B( L, 1 ), LDB, B( J, 1 ), LDB )
+   40 CONTINUE
+      END IF
 *
       ELSE
 *
 *        Solve A**H * X = B.
 *
-         DO 50 I = 1, NRHS
+      DO 50 I = 1, NRHS
 *
 *           Solve U**H * X = B, overwriting B with X.
 *
-            CALL Z1TBSV( 'Upper', 'Conjugate transpose', 'Non-unit', N,
-     $                  KL+KU, AB, LDAB, B( 1, I ), I1, 1 )
-   50    CONTINUE
+      CALL Z1TBSV( 'Upper', 'Conjugate transpose', 'Non-unit', N,
+     $KL+KU, AB, LDAB, B( 1, I ), I1, 1 )
+   50 CONTINUE
 *
 *        Solve L**H * X = B, overwriting B with X.
 *
-         IF( LNOTI ) THEN
-            DO 60 J = N - 1, I1, -1
-               LM = MIN( KL, N-J )
-               CALL ZLACGV( NRHS, B( J, 1 ), LDB )
-               CALL ZGEMV( 'Conjugate transpose', LM, NRHS, -ONE,
-     $                     B( J+1, 1 ), LDB, AB( KD+1, J ), 1, ONE,
-     $                     B( J, 1 ), LDB )
-               CALL ZLACGV( NRHS, B( J, 1 ), LDB )
-               L = IPIV( J )
-               IF( L.NE.J )
-     $            CALL ZSWAP( NRHS, B( L, 1 ), LDB, B( J, 1 ), LDB )
-   60       CONTINUE
-         END IF
+      IF( LNOTI ) THEN
+      DO 60 J = N - 1, I1, -1
+      LM = MIN( KL, N-J )
+      CALL ZLACGV( NRHS, B( J, 1 ), LDB )
+      CALL ZGEMV( 'Conjugate transpose', LM, NRHS, -ONE,
+     $B( J+1, 1 ), LDB, AB( KD+1, J ), 1, ONE,
+     $B( J, 1 ), LDB )
+      CALL ZLACGV( NRHS, B( J, 1 ), LDB )
+      L = IPIV( J )
+      IF( L.NE.J )
+     $CALL ZSWAP( NRHS, B( L, 1 ), LDB, B( J, 1 ), LDB )
+   60 CONTINUE
+      END IF
       END IF
       RETURN
 *

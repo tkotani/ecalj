@@ -1,5 +1,5 @@
       subroutine chimedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
-     .  nbas,nat,nspec)
+     .nbas,nat,nspec)
 
       use m_struc_def  !Cgetarg
 
@@ -122,17 +122,17 @@ C ... Local parameters
       real(8) ,allocatable :: wgt_rv(:)
 
       double precision xx,qpi(3),ddot,plat(3,3),rb(3,3),qb(3,3),
-     .  pos(3,nbas)
+     .pos(3,nbas)
       character dc*1, fn*120, outs*150, strn*120
       integer,allocatable:: ipq(:,:,:)
       real(8),allocatable:: qp(:,:),qfbz(:,:),emesh(:),wk(:)
-     .     ,momsite(:), mmnorm(:)
-     .     ,chi0_r(:,:,:,:),chi0_i(:,:,:,:), eiqrm_r(:,:), eiqrm_i(:,:)
+     .,momsite(:), mmnorm(:)
+     .,chi0_r(:,:,:,:),chi0_i(:,:,:,:), eiqrm_r(:,:), eiqrm_i(:,:)
       complex(8),allocatable:: chi0(:,:,:,:), eiqrm(:,:)
       integer iy,iz, i1,i2,i3,i4
 C     Local parameters-product basis
       integer nbloch, natom,nmbas2, iqxini,iqxend,nw_i,nw2
-     .     ,ifchipm,nx, iw
+     .,ifchipm,nx, iw
       integer,allocatable :: imbas(:),nblocha(:)
       real(8),allocatable:: svec(:,:)
       complex(8),allocatable:: zzr(:,:),zxq(:,:,:,:),x0meanx(:,:)
@@ -150,7 +150,7 @@ C ... Heap
       common /w/ w
 
       if (nglob('nsp') .ne. 2)
-     .  call rx('chim editor for only for magnetic systems')
+     .call rx('chim editor for only for magnetic systems')
 
 C --- Setup ---
 
@@ -195,13 +195,13 @@ C     0=>nothing specified, 1=>nq specifed, 2=>qp specified, 4=>qp=irr
       if (dc .ne. ' ') then
         print 301
   301   format(//' Entering the magnetic response function editor. ',
-     .    'Parsing command-line options ...')
+     .  'Parsing command-line options ...')
         lsopts = .true.
         js2 = 0
       else
         print 302
   302   format(//' Welcome to the magnetic response function editor.  ',
-     .    'Enter ''?'' to see options.')
+     .  'Enter ''?'' to see options.')
         lsopts = .false.
       endif
       if (mode .ne. 1) call rx('chimedit not ready for mode ne 1')
@@ -242,7 +242,7 @@ C ... Parse and execute the next command
       elseif (outs .eq. ' ') then
         print 304
   304   format(' Enter ''q'' to exit, ''a'' to abort',
-     .    ' ''?'' to see menu')
+     .  ' ''?'' to see menu')
         goto 10
 
 C ... Number of k-points
@@ -268,15 +268,15 @@ C ... Number of k-points
 
           call info0(20,1,0,' q-points in full BZ ...')
           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-     .     ipq , qfbz , wgt_rv , nq , mxkp , 0 , 0 )
+     .    ipq , qfbz , wgt_rv , nq , mxkp , 0 , 0 )
 
           call dpzero ( wgt_rv , mxkp )
 
           call info2(20,0,0,' Irr. qp ...',0,0)
           allocate(qp(3,nq))
           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
-     .     , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 
-     .     )
+     .    , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 
+     .    )
 
           lqp = 4
           call rx('irr still in progress')
@@ -329,8 +329,8 @@ C           First qp: allocate and assign
               if (allocated(momsite)) deallocate(momsite)
               if (allocated(mmnorm )) deallocate(mmnorm)
               allocate(imbas(nmbas), momsite(nmbas), mmnorm(nmbas)
-     &             ,nblocha(1:natom),svec(1:nbloch,1:nmbas)
-     &             ,zzr(nbloch,1) )
+     &        ,nblocha(1:natom),svec(1:nbloch,1:nmbas)
+     &        ,zzr(nbloch,1) )
               allocate( zxq(nbloch,nbloch,nq,nx) )
               allocate( emesh(nx))
             endif
@@ -370,15 +370,15 @@ C           Open file, read number and list of magnetic sites
             rewind ifi
             read(ifi,*) nmagf       ! number of magnetic atoms, 'nmbas
             call info2(0,0,0,'%4p... reading file '//trim(fn)//
-     .        ', %i magnetic sites',nmagf,0)
+     .      ', %i magnetic sites',nmagf,0)
             if (nmag .gt. 100) call rx('increase size of magat')
             read(ifi,*) magatf(1:nmagf)  ! magnetic atom index  'imbas
 
 C           Sanity check
             if (nmagf .lt. nmag) then
               call info2(0,0,0,
-     .          '%8pabort: %i magnetic sites sought but file '//
-     .          'contains only %i',nmag,nmagf)
+     .        '%8pabort: %i magnetic sites sought but file '//
+     .        'contains only %i',nmag,nmagf)
               call fclr(' ',ifi)
               goto 10
             endif
@@ -390,7 +390,7 @@ C           If magnetic sites not specified, take from file
             endif
 C           Sanity check for subsequent qp
             if (isanrg(nmag,nmagf,nmagf,'        abort: ',
-     .        'nmag',.false.)) goto 10
+     .      'nmag',.false.)) goto 10
             do  j = 1, max(nmag,nmagf)
               if (magat(j) .ne. magatf(j)) then
                 call info0(0,0,0,
@@ -426,28 +426,28 @@ C           First qp: allocate and assign
               emesh(1:ne) = wk(1:ne)
               allocate( momsite(nmagf), mmnorm(nmagf) )
               allocate( eiqrm(nmagf,nq),
-     .                eiqrm_r(nmagf,nq),eiqrm_i(nmagf,nq) )
+     .        eiqrm_r(nmagf,nq),eiqrm_i(nmagf,nq) )
               allocate(chi0(nmagf,nmagf,nq,ne)
-     .         ,chi0_r(nmagf,nmagf,nq,ne), chi0_i(nmagf,nmagf,nq,ne) )
+     .        ,chi0_r(nmagf,nmagf,nq,ne), chi0_i(nmagf,nmagf,nq,ne) )
 
 c              allocate( ,e1(nmagf),e2(nmagf))
             endif
 C           Subsequent qp: assignments and sanity checks
             if (ne .ne. j) then
               call info5(0,0,0,'%8pabort, qp %i:  expected %i '//
-     .          'energy points from but read %i',iq,ne,j,0,0)
+     .        'energy points from but read %i',iq,ne,j,0,0)
               goto 10
             endif
             call daxpy(ne,-1d0,emesh,1,wk,1)
             if (ddot(ne,wk,1,wk,1) .gt. 1d-10) then
               call info2(0,0,0,'%8pabort, qp %i:  energy '//
-     .          'mesh does not match first qp',iq,0)
+     .        'mesh does not match first qp',iq,0)
               goto 10
             endif
             deallocate(wk)
             qp(:,iq) = qpi
             call info2(0,0,0,'%8pread %i energy points, qp=%3;11,6D',
-     .        ne,qpi)
+     .      ne,qpi)
 
 C           Read chi0
             rewind ifi
@@ -458,7 +458,7 @@ C           Read chi0
             eiqrm(:,iq) = dcmplx(eiqrm_r(:,iq),eiqrm_i(:,iq) ) ! <e(iqr)|m>.
             do j = 1, ne
               read(ifi,*,end=40,err=40) qpi,xx , ( (chi0_r(iy,iz,iq,j)
-     &      ,chi0_i(iy,iz,iq,j),iy=1,nmbas),iz=1,nmbas)
+     &        ,chi0_i(iy,iz,iq,j),iy=1,nmbas),iz=1,nmbas)
               chi0(:,:,iq,j)= dcmplx(chi0_r(:,:,iq,j),chi0_i(:,:,iq,j))
             enddo
 
@@ -491,12 +491,12 @@ c          enddo
           call stonerrsa(nq,ne,nmagf,qp,momsite,mmnorm,eiqrm,emesh,chi0)
 
           do 45 iq = 1, nq
-          do 45 j =1,ne
-          do 45 i1 = 1,nmbas
-          do 45 i2 = 1,nmbas
-            chi0(i1,i2,iq,j)=              !D_{i,j}=<ebar_i|X0|ebar_j>
-     .       chi0(i1,i2,iq,j)*momsite(i1)*momsite(i2)
-     .                        /mmnorm(i1) /mmnorm(i2)
+            do 45 j =1,ne
+              do 45 i1 = 1,nmbas
+                do 45 i2 = 1,nmbas
+                  chi0(i1,i2,iq,j)=              !D_{i,j}=<ebar_i|X0|ebar_j>
+     .            chi0(i1,i2,iq,j)*momsite(i1)*momsite(i2)
+     .            /mmnorm(i1) /mmnorm(i2)
  45       continue
 
 
@@ -535,14 +535,14 @@ C ... Specify list of magnetic sites
         call mkilst(outs(j1:j2),nmag,magat)
         call ilst2a(magat,nmag,strn)
         call info2(0,0,0,'%3p... %i magnetic site%-1j%?#n==1##s#:  '//
-     .    trim(strn),nmag,0)
+     .  trim(strn),nmag,0)
 C       Sanity check
         do  i = 1, nmag
           j = iinear(nmagf,magat(i),magatf,1)
           if (magat(i) .ne. magatf(j)) then
             call ilst2a(magatf,nmagf,strn)
             call info(0,0,0,'%7pabort, site %i is not among chi0 '//
-     .        'list: '//trim(strn)//' .. restore chi0 list',magat(i),0)
+     .      'list: '//trim(strn)//' .. restore chi0 list',magat(i),0)
             nmag = nmagf
             magat(1:nmagf) = magatf(1:nmagf)
             goto 10
@@ -554,13 +554,13 @@ C ... show
       elseif (outs(1:5) .eq. 'show ') then
         if (havechi0 .eq. 0) then
           call info2(0,0,0,' ... no chi0 read, '//
-     .      '%?#n==0#no k-points specified#'//
-     .      '%-1jwaiting to read %i k-points',
-     .      nq,0)
+     .    '%?#n==0#no k-points specified#'//
+     .    '%-1jwaiting to read %i k-points',
+     .    nq,0)
         elseif (havechi0 .eq. 1) then
           call info5(0,0,0,' ... chi0 read, '//
-     .      '%i site%-1j%?#n==1##s#:  nq=%i  ne=%i  emax=%;4d Ry',
-     .      nmag,nq,ne,emesh(ne),0)
+     .    '%i site%-1j%?#n==1##s#:  nq=%i  ne=%i  emax=%;4d Ry',
+     .    nmag,nq,ne,emesh(ne),0)
         else
           call rx('not ready for show')
         endif
@@ -582,7 +582,7 @@ C ... quit
           read(*,'(a150)') outs
           call locase(outs)
           if (.not. (outs(1:1) .eq. 'y' .or. outs(1:1) .eq. 'q'))
-     .      goto 10
+     .    goto 10
         endif
         call rx0('exit chi editor')
 
@@ -591,15 +591,15 @@ C ... help
         print 310
         print 311
   310   format(
-     .    ' Select one of these options:'/
+     .  ' Select one of these options:'/
      .  t4,'new nk|irr',t21,
-     .    'New chi0: specify number of k-points to read.'/t21,
-     .    'Optional irr => irreducible points'/
+     .  'New chi0: specify number of k-points to read.'/t21,
+     .  'Optional irr => irreducible points'/
      .  t4,'magsites list',t21,'specify magnetic sites in basis'//
      .  t4,'read tk|tkrs',t21,
-     .    'read chi0.  new must be input first.'/t21,
-     .    'tk   => Kotani style, full matrix'/t21,
-     .    'tkrs => Kotani style, rigid spin approximation')
+     .  'read chi0.  new must be input first.'/t21,
+     .  'tk   => Kotani style, full matrix'/t21,
+     .  'tkrs => Kotani style, rigid spin approximation')
 
   311   format(/
      .  t4,'show',t21, 'Show summary information')
@@ -611,7 +611,7 @@ C ... help
       goto 10
 
    98 call info0(0,0,0,' chimedit:  improper usage of '//trim(outs)//
-     .  ' ... nothing done')
+     .' ... nothing done')
       goto 10
 
       if (allocated(wgt_rv)) deallocate(wgt_rv)

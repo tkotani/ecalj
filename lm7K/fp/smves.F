@@ -1,6 +1,6 @@
       subroutine smves(mode,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,
-     .  vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,
-     .  vrmt,qbg)
+     .vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,
+     .vrmt,qbg)
 
       use m_struc_def  !Cgetarg
 
@@ -142,7 +142,7 @@ C ... Passed parameters
       integer k1,k2,k3,nbas,mode
       double precision qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg
       real(8):: qmom(1) , f(3,nbas) , gpot0(1) , vval(1) , hpot0(nbas) 
-     . , vrmt(nbas)
+     ., vrmt(nbas)
       type(s_lat)::slat
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -150,16 +150,16 @@ C ... Passed parameters
       double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
 C ... Local parameters
       integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
-     . , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
-     . nlm , nsp , ocy , ogv , okv , stdo , j1 , j2 , j3
+     ., lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
+     .nlm , nsp , ocy , ogv , okv , stdo , j1 , j2 , j3
       complex(8) ,allocatable :: cg1_zv(:)
       complex(8) ,allocatable :: cgsum_zv(:)
       complex(8) ,allocatable :: cv_zv(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision ceh,cofg,cofh,dgetss,hsum,pi,qcorg,qcorh,qsc,
-     .  rfoc,rmt,s1,s2,sbar,srfpi,sum,sum1,sum2,u00,u0g,ugg,usm,vbar,
-     .  vcnsto,vol,y0,z,R,eint
+     .rfoc,rmt,s1,s2,sbar,srfpi,sum,sum1,sum2,u00,u0g,ugg,usm,vbar,
+     .vcnsto,vol,y0,z,R,eint
 C ... Heap
       integer w(1)
       common /w/ w
@@ -202,7 +202,7 @@ C     call msh21c(1,ssite,sspec,slat,ng,w(ogv),w(okv),k1,k2,k3,smrho)
 
 C --- Estatic potential of smooth density without gaussians ---
       call vesft ( slat , ng , w ( ogv ) , w ( okv ) , cv_zv , k1 
-     . , k2 , k3 , smrho , smpot , u00 )
+     ., k2 , k3 , smrho , smpot , u00 )
 
 
 C ... Add estatic potential of compensating gaussians to smpot
@@ -213,16 +213,16 @@ Ctakao_ZeroClear_NotRequiered        if (ng<0) cg1_zv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered        if (ng<0) cgsum_zv(:)=0.0d0
 
       call vesgcm ( nbas , ssite , sspec , slat , w ( ocy ) , qmom 
-     . , ng , w ( ogv ) , w ( okv ) , cv_zv , cg1_zv , cgsum_zv 
-     . , k1 , k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt 
-     . )
+     ., ng , w ( ogv ) , w ( okv ) , cv_zv , cg1_zv , cgsum_zv 
+     ., k1 , k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt 
+     .)
 
       if (ipr .ge. 40) write (stdo,230) (ib,(f(m,ib),m=1,3),ib=1,nbas)
   230 format(/' after vesgcomp: forces are:'/(i4,3f12.6))
 
 C ... Compute e.s. potential at MT boundary
       call mshvmt ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
-     . w ( okv ) , cv_zv , k1 , k2 , k3 , smpot , vval )
+     .w ( okv ) , cv_zv , k1 , k2 , k3 , smpot , vval )
 
       call symvvl(nbas,ssite,sspec,slat,vval,vrmt)
       if (allocated(cgsum_zv)) deallocate(cgsum_zv)
@@ -247,7 +247,7 @@ C --- Make vbar = avg v(RMT) and optionally assign to vconst ---
 
       if (ipr .ge. 20) write (stdo,232) vbar,vcnsto,vconst
   232 format(/' avg es pot at rmt=',f9.6,
-     .  '  avg sphere pot=',f9.6,'  vconst=',f9.6)
+     .'  avg sphere pot=',f9.6,'  vconst=',f9.6)
 
 C ... Adjust vbar, vval, gpot0 by vconst
       iv0 = 0
@@ -267,9 +267,9 @@ C ... Adjust vbar, vval, gpot0 by vconst
       if (ipr .ge. 40) then
         write (stdo,233)
   233   format(' average electrostatic potential at MT boundaries',
-     .    ' after shift')
+     .  ' after shift')
         call arrprt(' Site    ves','%,4i%:-3,6;6d','Id',
-     .    nbas,0,4,0,'  | ',w,vrmt,w,w,w,w,w,w)
+     .  nbas,0,4,0,'  | ',w,vrmt,w,w,w,w,w,w)
       endif
 
 C ... Back transform of density and potential to real-space mesh
@@ -289,7 +289,7 @@ C ... Add background to smrho
         R = (3d0/pi/4d0*vol)**(1d0/3d0)
         eint = qbg*2*9d0/10d0/R
         call info(30,0,0,' cell interaction energy from homogeneous'//
-     .    ' background (q=%d) is %;6,6d',qbg,eint)
+     .  ' background (q=%d) is %;6,6d',qbg,eint)
       endif
 
 C     Integral n0

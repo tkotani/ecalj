@@ -16,7 +16,7 @@ C ----------------------------------------------------------------------
 C     implicit none
       integer ltrace,lprof
       integer i,ii,init,it,jcb,jlev,job,jt0,l,level,levx,lok,lpr,ltop,
-     .  ltr,mfree,mmax,mnow,nn,nx
+     .ltr,mfree,mmax,mnow,nn,nx
       parameter (nx = 200)
       character*20 name(nx),nam0
       character*(*) str1,str2
@@ -112,7 +112,7 @@ c ... do real operations here
           write(stdo,100) 0.001*(it-jt0),str1,mnow,mmax
         endif
   100   format(' >>',f10.2,'   enter ',a:t43,
-     .        '  mnow =',i11,'  mmax=',i11)
+     .  '  mnow =',i11,'  mmax=',i11)
 C       jt1 = it
         return
       else
@@ -128,11 +128,11 @@ C       jt1 = it
           elseif (iwk0(ii).ne.iwk1(ii)) then
             write(stdo,102) 0.001*(it-jt0),str2,tm,iwk1(ii)-iwk0(ii)
   102       format(' >>',f10.2,'   exit  ',a,t35,f8.2,
-     .         1x,i7,'K left on stack')
+     .      1x,i7,'K left on stack')
           else
             write(stdo,101) 0.001d0*(it-jt0),str2,tm
   101       format(' >>',f10.2,'   exit  ',a,t35,f8.2:
-     .        '  mnow =',i11,'  mmax=',i11)
+     .      '  mnow =',i11,'  mmax=',i11)
           endif
         endif
         return
@@ -152,7 +152,7 @@ C       jt1 = it
       iwmax = 0.001*mmax+0.5
 C     iwnow = 0.001*mnow+0.5
       if (iprint() .gt. 0)
-     .  write (ifi,700) 0,0,iwmax,1,tm,tm,'main'
+     .write (ifi,700) 0,0,iwmax,1,tm,tm,'main'
       lev(nn+1)=-1
 
       lvl=-1
@@ -178,7 +178,7 @@ C     iwnow = 0.001*mnow+0.5
           call strip(name(i),j1,j2)
           if (iprint() .gt. 0)
      .    write (ifi,700) iwk0(i),iwk2(i),iwk3(i),ncall(i),
-     .       tavg,ttot(i),(tt(l),l=0,lev(i)),name(i)(j1:j2)
+     .    tavg,ttot(i),(tt(l),l=0,lev(i)),name(i)(j1:j2)
   700     format(3i7,i9,2f11.2,3x,30a)
           lvl = lv
         endif

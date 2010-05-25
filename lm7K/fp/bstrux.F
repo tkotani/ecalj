@@ -1,6 +1,6 @@
 #define F90 1
       subroutine bstrux(mode,slat,ssite,sspec,cg,indxcg,jcg,cy,iprmb,
-     .  nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,b,db)
+     .nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,b,db)
 
       use m_struc_def  !Cgetarg
 
@@ -125,11 +125,11 @@ C       Loop over blocks of envelope functions
      .      call rx('augmbl: nlmh.gt.nlma')
             if (mode .eq. 0.or.mode .eq. 2) then
               call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
-     .      nlma,kmax,nlma,cg,indxcg,jcg,cy,slat,b0)
+     .        nlma,kmax,nlma,cg,indxcg,jcg,cy,slat,b0)
             elseif (mode .eq. 1) then
               call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
-     .      nlma,kmax,nlmbx,nlma,cg,indxcg,jcg,cy,slat,b0,
-     .      db0)
+     .        nlma,kmax,nlmbx,nlma,cg,indxcg,jcg,cy,slat,b0,
+     .        db0)
             else
               call rxi('bfactor: bad mode',mode)
             endif
@@ -159,7 +159,7 @@ C         Note: indices of b are ordered differently by mode (see Outputs)
       endif
 
       call paugqp(mode,kmax,nlma,kmax,ndimh,napw,igapw,alat,qlat,srvol,
-     .  q,pa,rsma,b,b,db)
+     .q,pa,rsma,b,b,db)
 
       if (mode .eq. 0) then
 C       call zprm('b',2,b,(kmax+1)*nlma,(kmax+1)*nlma,ndimh)
@@ -241,7 +241,7 @@ C         i1 = index to hamiltonian offset
 
 
       subroutine paugqp(mode,kmax,nlma,k0,ndimh,napw,igapw,alat,qlat,
-     .  srvol,q,pa,rsma,b0,b1,db)
+     .srvol,q,pa,rsma,b0,b1,db)
 
 C- Make PW part of strux b
 C ----------------------------------------------------------------------
@@ -273,11 +273,11 @@ C ... Passed parameters
       integer mode,kmax,nlma,k0,napw,igapw(3,napw),ndimh
       double precision rsma,alat,qlat(3,3),q(3),srvol,pa(3)
       double complex b0(0:k0,nlma,ndimh),b1(ndimh,nlma,0:k0),
-     .  db(ndimh,nlma,0:k0,3)
+     .db(ndimh,nlma,0:k0,3)
 C ... Local parameters
       integer k,lmxa,ll,l,ig,ilm,m,nlmto
       double precision gamma,qpg(3),pi,tpiba,qpg2,ddot,facexp,
-     .  rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fpi,fac !,qk
+     .rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fpi,fac !,qk
 C     complex(8),allocatable:: bpw(:,:)
       double complex srm1,srm1l,gfourier,phase,facilm,b
       parameter (srm1=(0d0,1d0))
@@ -464,7 +464,7 @@ C ... Local parameters
 
 
       subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
-     .  nlma,kmax,b0,db0,b,db)
+     .nlma,kmax,b0,db0,b,db)
 
 C- Poke strux and grads from b0,db0 to full arrays b,db
 C ----------------------------------------------------------------------
@@ -499,7 +499,7 @@ C ... Passed parameters
       integer norb,ltab(norb),ktab(norb),offl(norb)
       double precision rsmh(n0,nkap0)
       double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax),
-     .  db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
+     .db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
 C ... Local parameters
       integer i1,ik1,k,ilma,ilmb,iorb,l1,nlm1,nlm2
       integer blks(norb),ntab(norb)

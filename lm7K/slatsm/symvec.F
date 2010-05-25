@@ -40,7 +40,7 @@ C Local parameters
       double precision x1,xn
 #if F90
       type row
-        real(8), pointer :: p(:)
+      real(8), pointer :: p(:)
       end type row
       type(row) :: symptr(mxnam)
       save symptr
@@ -114,7 +114,7 @@ C  334   format(i4, 4x, a20, i4, 20g10.3)
    60 continue
 #elif POINTER
       do  60  i = max(first,1), min(last,nnam)
-      iarr = symptr(i)
+        iarr = symptr(i)
    60 write(ifi,333) i, symnam(i), size(i), arr(1), arr(size(i))
 #endif
   333 format(i4, 4x, a20, i4, 2g14.5)
@@ -132,11 +132,11 @@ C ... If iopt=0, find the index associated with this name
 #if unix
         call locase(tmpnam)
 #endif
-      do  16  i = 1, nnam
-        if (tmpnam .ne. symnam(i)) goto 16
-        ival = i
-        goto 20
-   16 continue
+        do  16  i = 1, nnam
+          if (tmpnam .ne. symnam(i)) goto 16
+          ival = i
+          goto 20
+   16   continue
       endif
 
 C --- Set/Retrieve portions of an array[index], depending on io ---

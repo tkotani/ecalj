@@ -30,7 +30,7 @@ C Local variables:
    10 continue
 
       if (lunit .ge. 0)
-     .  write(lunit,333) nzero(1),nzero(2),nzero(1)+nzero(2),n
+     .write(lunit,333) nzero(1),nzero(2),nzero(1)+nzero(2),n
   333 format(' csmaln:',i6,' +',i6,' =',i6,'  small numbers of',i6)
       end
 

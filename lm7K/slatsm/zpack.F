@@ -1,5 +1,5 @@
       subroutine zpack(mode,modes,moded,nr1,nr2,nc1,nc2,kl,ku,lds,ldd,
-     .  src,dest)
+     .src,dest)
 C- Copy and pack/unpack a double complex matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -48,29 +48,29 @@ C ... Local parameters
         nr = nr2-nr1+1
         nc = nc2-nc1+1
         call zmscop(mode,nr,nc,lds,ldd,0,0,0,0,src(nr1,nc1),
-     .              dest(nr1,nc1))
+     .  dest(nr1,nc1))
       elseif (modes .eq. 0 .and. moded .eq. 1) then
         if (ldd .lt. 2*kl+ku+1) call xerbla('ZPACK ',11)
         ofc = kl+ku+1
         do  10  j = nc1, nc2
-        do  10  i = max(nr1,j-ku), min(nr2,j+kl)
+          do  10  i = max(nr1,j-ku), min(nr2,j+kl)
    10   dest(i+ofc-j,j) = fac*dest(i+ofc-j,j) + src(i,j)
       elseif (modes .eq. 1 .and. moded .eq. 0) then
         if (lds .lt. 2*kl+ku+1) call xerbla('ZPACK ',10)
         ofc = kl+ku+1
         do  20  j = nc1, nc2
-        do  20  i = max(nr1,j-ku), min(nr2,j+kl)
+          do  20  i = max(nr1,j-ku), min(nr2,j+kl)
    20   dest(i,j) = fac*dest(i,j) + src(i+ofc-j,j)
       elseif (modes .eq. 1 .and. moded .eq. 1) then
         if (lds .lt. 2*kl+ku+1) call xerbla('ZPACK ',11)
         if (ldd .lt. 2*kl+ku+1) call xerbla('ZPACK ',10)
         ofc = kl+ku+1
         do  30  j = nc1, nc2
-        do  30  i = max(nr1,j-ku), min(nr2,j+kl)
+          do  30  i = max(nr1,j-ku), min(nr2,j+kl)
    30   dest(i+ofc-j,j) = fac*dest(i+ofc-j,j) + src(i+ofc-j,j)
       else
         call fexit2(-1,111,' Exit -1 ZPACK: '//
-     .    'modes=%i and moded=%i not implemented',modes,moded)
+     .  'modes=%i and moded=%i not implemented',modes,moded)
       endif
       end
 

@@ -1,4 +1,4 @@
-       subroutine dmx22(a,nca,nra,b,ncb,nrb,c,ncc,nrc)
+      subroutine dmx22(a,nca,nra,b,ncb,nrb,c,ncc,nrc)
 C- General multiplication of 2x2 matrices a*b
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -18,32 +18,32 @@ Cu   17 Mar 03 First created (from A. Chantis)
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       integer nca,nra,ncb,nrb,ncc,nrc
+      integer nca,nra,ncb,nrb,ncc,nrc
 C      double precision a(2,2), b(2,2), c(2,2)
       double precision a(0:*), b(0:*), c(0:*)
 C ... Local parameters
-       double precision cloc(2,2)
+      double precision cloc(2,2)
 
 C      cloc(1,1) = a(1,1)*b(1,1) + a(1,2)*b(2,1)
 C      cloc(1,2) = a(1,1)*b(1,2) + a(1,2)*b(2,2)
 C      cloc(2,1) = a(2,1)*b(1,1) + a(2,2)*b(2,1)
 C      cloc(2,2) = a(2,1)*b(1,2) + a(2,2)*b(2,2)
 
-       cloc(1,1) = a(nra*0+nca*0)*b(nrb*0+ncb*0) +
-     .             a(nra*0+nca*1)*b(nrb*1+ncb*0)
-       cloc(1,2) = a(nra*0+nca*0)*b(nrb*0+ncb*1) +
-     .             a(nra*0+nca*1)*b(nrb*1+ncb*1)
-       cloc(2,1) = a(nra*1+nca*0)*b(nrb*0+ncb*0) +
-     .             a(nra*1+nca*1)*b(nrb*1+ncb*0)
-       cloc(2,2) = a(nra*1+nca*0)*b(nrb*0+ncb*1) +
-     .             a(nra*1+nca*1)*b(nrb*1+ncb*1)
+      cloc(1,1) = a(nra*0+nca*0)*b(nrb*0+ncb*0) +
+     .a(nra*0+nca*1)*b(nrb*1+ncb*0)
+      cloc(1,2) = a(nra*0+nca*0)*b(nrb*0+ncb*1) +
+     .a(nra*0+nca*1)*b(nrb*1+ncb*1)
+      cloc(2,1) = a(nra*1+nca*0)*b(nrb*0+ncb*0) +
+     .a(nra*1+nca*1)*b(nrb*1+ncb*0)
+      cloc(2,2) = a(nra*1+nca*0)*b(nrb*0+ncb*1) +
+     .a(nra*1+nca*1)*b(nrb*1+ncb*1)
 
-       c(nrc*0+ncc*0) = cloc(1,1)
-       c(nrc*0+ncc*1) = cloc(1,2)
-       c(nrc*1+ncc*0) = cloc(2,1)
-       c(nrc*1+ncc*1) = cloc(2,2)
+      c(nrc*0+ncc*0) = cloc(1,1)
+      c(nrc*0+ncc*1) = cloc(1,2)
+      c(nrc*1+ncc*0) = cloc(2,1)
+      c(nrc*1+ncc*1) = cloc(2,2)
 
-       end
+      end
 
 C     Test
 C      subroutine fmain

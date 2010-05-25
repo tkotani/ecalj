@@ -29,17 +29,17 @@ C ... Local parameters
         nfaci = nfac
         fac(nfac) = pfac(i)
         do  k  = 1, nfaci
-        fack = fac(k)
-        do  m = 1, fmax
-          fack = fack*pfac(i)
-          if (fack .le. fmax) then
-            nfac = nfac+1
-            fac(nfac) = fack
-          else
-            goto 10
-          endif
-        enddo
-   10   continue
+          fack = fac(k)
+          do  m = 1, fmax
+            fack = fack*pfac(i)
+            if (fack .le. fmax) then
+              nfac = nfac+1
+              fac(nfac) = fack
+            else
+              goto 10
+            endif
+          enddo
+   10     continue
         enddo
       enddo
 

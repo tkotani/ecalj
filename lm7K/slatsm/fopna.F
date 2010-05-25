@@ -93,7 +93,7 @@ C Passed parameters
       integer ista,lunit
 C Local parameters
       integer fext,fextg,fopn,fopno,fopnn,fhndl,
-     .  fadd,fxst,fpath,fpathg,fopng,fopnx
+     .fadd,fxst,fpath,fpathg,fopng,fopnx
       integer mode
 #ifndef AIX
       mode = 100 + 70*mod(ista/8,2)
@@ -400,7 +400,7 @@ C Passed Parameters
 C Local variables
       logical bittst,isopen,ldum,mod100
       integer bit,bitand,getdig,i,i1,i2,iprint,locuni,lsta,matchn,
-     .  matchu,mode1,mode10,n,IDBG,isw
+     .matchu,mode1,mode10,n,IDBG,isw
       character ftnsta*7, outs*80
 C Parameters concerning limits to string size in filenames:
 C plen: path length; extlen: ext length; maxsiz: name (including ext)
@@ -444,7 +444,7 @@ C ... Change extension
       if (mode10 .eq. 2) then
         call namcat(ext,pnam,' ',mod100)
         if (iprint() .ge. IDBG) call awrit0(
-     .    ' FOPNX: set ext to "'//ext//'%a"',' ',80,lgunit(1))
+     .  ' FOPNX: set ext to "'//ext//'%a"',' ',80,lgunit(1))
         return
 C ... Copy extension into pnam
       elseif (mode10 .eq. 3) then
@@ -463,7 +463,7 @@ C          call namcat(path,pnam,'/',mod100)
           call namcat(path,pnam,' ',mod100)
         endif
         if (iprint() .ge. IDBG) call awrit0(
-     .    ' FOPNX: set path to "'//path//'%a"',' ',80,lgunit(1))
+     .  ' FOPNX: set path to "'//path//'%a"',' ',80,lgunit(1))
         return
 C ... Copy path into pnam
       elseif (mode10 .eq. 5) then
@@ -472,9 +472,9 @@ C ... Copy path into pnam
 C ... Show internal table
       elseif (mode10 .eq. 9) then
         call awrit3('%N fopen:  %i files in table.'//
-     .    '%?;n;  path='''//path//'%a'';;'//
-     .    '%?;n;  ext='''//ext//'%a'';;',' ',-80,lgunit(1),nnam,
-     .    isw(path.ne.' '),isw(ext.ne.' '))
+     .  '%?;n;  path='''//path//'%a'';;'//
+     .  '%?;n;  ext='''//ext//'%a'';;',' ',-80,lgunit(1),nnam,
+     .  isw(path.ne.' '),isw(ext.ne.' '))
         n = 0
         do  10  i = 1, nnam
           call word(tabnam(i),1,i1,i2)
@@ -485,8 +485,8 @@ C ... Show internal table
         call pshpr(0)
         do  11  i = 1, nnam
           call awrit4(' '//tabnam(i)//
-     .      '%np%,2i    %?;n==0;  fmt;unfmt;   %l',' ',80,lgunit(1),n,
-     .      tabuni(i),bitand(tabsw(i),4),isopen(tabuni(i),.false.))
+     .    '%np%,2i    %?;n==0;  fmt;unfmt;   %l',' ',80,lgunit(1),n,
+     .    tabuni(i),bitand(tabsw(i),4),isopen(tabuni(i),.false.))
    11   continue
         call poppr
         print *, ' '
@@ -533,7 +533,7 @@ C --- Match pfnam with table, unless not needed ---
       matchn = matchu
       if (matchu .le. 0 .or. bittst(mode1,4)) then
         do  30  i = 1, nnam
-        matchn = i
+          matchn = i
    30   if (tabnam(i) .eq. pfnam) goto 31
         matchn = -1
    31   continue
@@ -551,10 +551,10 @@ C        call rxs('fopnx: no unit or name specified, file ',pnam)
 
 C ... Force match between name and unit, or error
       call awrit1('%xFOPNX: file '//pfnam//'%a, unit %i, '//
-     .  'conflicts with prior use',outs,80,0,locuni)
+     .'conflicts with prior use',outs,80,0,locuni)
       if (matchu .ne. matchn .and. bittst(mode1,4)) then
         if (matchu .gt. 0)
-     .    call awrit0('%a%10b file '//tabnam(matchu),outs,80,0)
+     .  call awrit0('%a%10b file '//tabnam(matchu),outs,80,0)
         call rx(outs)
       endif
 
@@ -567,7 +567,7 @@ C --- Add a file to internal table ---
         endif
         nnam = nnam+1
         if (nnam .gt. mxnam) call
-     .    rxi('FOPNX: too many file names.  max=',mxnam)
+     .  rxi('FOPNX: too many file names.  max=',mxnam)
         tabnam(nnam) = pfnam
         tabuni(nnam) = locuni
         tabsw(nnam)  = mod(ista,8) - mod(ista,4)
@@ -646,8 +646,8 @@ c      print *, 'dbg: fopn',pfnam,locuni,lsta,ftnfmt,ftnsta
 C       if (iprint() .ge. IDBG) print *, 'FOPEN: opening ',ftnfmt,
 C    .    ' file ''',pfnam(1:i2),''', status=',ftnsta,', unit=',locuni
         if (iprint() .ge. IDBG) print '(a,a,a,a,a,a,a,i3)',
-     .    ' FOPEN: opening ',ftnfmt,' file ''',pfnam(1:i2),
-     .    ''', status=',ftnsta,', unit=',locuni
+     .  ' FOPEN: opening ',ftnfmt,' file ''',pfnam(1:i2),
+     .  ''', status=',ftnsta,', unit=',locuni
 
 #if PRECONNECTED_UNITS | IBM_VM
         open(locuni,FORM=ftnfmt,STATUS=ftnsta)
@@ -685,7 +685,7 @@ C     implicit none
 
       if (iprint() .gt. 110) print 20, unit, (unitab(i), i=0, nopen-1)
    20 format(/' ISOPEN: check logical unit',i3,
-     .        ' among open units: ',15i3)
+     .' among open units: ',15i3)
 
       isopen = .true.
       do  10  i = nopen-1, 0, -1
@@ -783,7 +783,7 @@ C     implicit none
       endif
       if (i2-i1+j2-j1+2 .gt. len(dest) .and. iprint() .gt. 0) then
         print *, 'namcat: string "',fnam1(i1:i2),fnam2(j1:j2),
-     .    '" was truncated to "',dest,'"'
+     .  '" was truncated to "',dest,'"'
       endif
 
 #if unix
@@ -821,7 +821,7 @@ C  220   format(' unit',i3,' open=',l1,'  name=',a,'  fmt=',a)
       subroutine fmain
 C      implicit none
       integer fopna,fext,fextg,fopn,fopno,fopnn,fhndl,fadd,fxst,fpath,
-     .  fopng,fopnx,fopnT
+     .fopng,fopnx,fopnT
       integer ifi,jfi,kfi,lgunit,i
       double precision s(2,4)
       character fnam*20
@@ -895,7 +895,7 @@ C      call rx('done')
       call fshow
 
       call awrit0('%N test fadd, file=abc with diff ext',' ',80,
-     .  lgunit(1))
+     .lgunit(1))
       ifi = fadd('abc',-1,0)
       call fshow
 
@@ -924,7 +924,7 @@ C      call rx('done')
       call ftflsh(6)
       call fsystm('cat abc.dat2',i)
       call awrit1('%N ... system  call ''cat abc.dat2'' returned... %i',
-     .  ' ',80,lgunit(1),i)
+     .' ',80,lgunit(1),i)
 
       call awrit0('%N restore ext to dat',' ',80,lgunit(1))
       ifi = fext('.dat')
@@ -937,7 +937,7 @@ C      call rx('done')
       call fshow
 
       call awrit0('%N test fopna (xyz) to show suppression of list',
-     .  ' ',80,lgunit(1))
+     .' ',80,lgunit(1))
       ifi = fopna('xyz',-1,8)
       write (ifi,*) 'test'
       call fclose(ifi)
@@ -947,21 +947,21 @@ C      call rx('done')
       print *, 'after opening, read from xyz: ',fnam
 
       call awrit0('%N ... test fxst (xyz) to show suppression of list',
-     .  ' ',80,lgunit(1))
+     .' ',80,lgunit(1))
       ifi = fxst('xyz')
       jfi = fxst('zzz')
       kfi = fopnx('xyz.123',172,-1,-1)
       call awrit3(' ifi for xyz is %i, for zzz is %i, for xyz.123 %i',
-     .  ' ',80,lgunit(1),ifi,jfi,kfi)
+     .' ',80,lgunit(1),ifi,jfi,kfi)
       call fshow
 
       call awrit0('%N ... show fopn works without fadd',
-     .  ' ',80,lgunit(1))
+     .' ',80,lgunit(1))
       ifi = fopn('TMP')
       call fshow
 
       call awrit0('%N ... call fopnx to test locase, "NEW","OLD"',
-     .  ' ',80,lgunit(1))
+     .' ',80,lgunit(1))
       ifi = fopnx('TMP',2,2,-1)
       call fclose(ifi)
       call fshow

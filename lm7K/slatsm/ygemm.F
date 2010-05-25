@@ -1,5 +1,5 @@
       subroutine ygemm(transa,transb,m,n,k,alpha,a,ofai,lda,b,ofbi,
-     .  ldb,beta,c,ofci,ldc)
+     .ldb,beta,c,ofci,ldc)
 C- Analog of zgemm, using real arithmetic
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -52,7 +52,7 @@ C Passed parameters
       double precision   a(lda,1), b(ldb,1), c(ldc,1)
 
       call yygemm(transa,transb,m,n,k,alpha,a,a(1+ofai,1),lda,
-     .  b,b(1+ofbi,1),ldb,beta,c,c(1+ofci,1),ldc)
+     .b,b(1+ofbi,1),ldb,beta,c,c(1+ofci,1),ldc)
 
       end
 

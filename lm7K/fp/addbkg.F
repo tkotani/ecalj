@@ -72,7 +72,7 @@ C      nrml=nr*nlml
         call rxx(nlml .gt. nlmx,'addbkgloc: increase nlmx')
         call radmsh(rmt,a,nr,rofi)
         call addbkgl(w(orhoat(1,ib)),w(orhoat(2,ib)),rhobkg,
-     .   nr,nsp,rofi,nlml)
+     .  nr,nsp,rofi,nlml)
    10   continue
       enddo
       end subroutine adbkql

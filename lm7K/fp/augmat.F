@@ -1,8 +1,8 @@
       subroutine augmat(z,rmt,rsma,lmxa,pnu,pnz,kmax,nlml,
-     .  a,nr,nsp,lso,rofi,rwgt,cg,jcg,indxcg,v0,v1,v2,gpotb,gpot0,
-     .  nkaph,nkapi,lmxh,lh,eh,rsmh,ehl,rsml,rs3,vmtz,lcplxp,
-     .  lmaxu,vorb,lldau,iblu,idu,
-     .  osig,otau,oppi,ppnl,hab,vab,sab)
+     .a,nr,nsp,lso,rofi,rwgt,cg,jcg,indxcg,v0,v1,v2,gpotb,gpot0,
+     .nkaph,nkapi,lmxh,lh,eh,rsmh,ehl,rsml,rs3,vmtz,lcplxp,
+     .lmaxu,vorb,lldau,iblu,idu,
+     .osig,otau,oppi,ppnl,hab,vab,sab)
 C- Make augmentation matrices sig,tau,pi for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -313,11 +313,11 @@ C ... Passed parameters
       double precision z,rmt,rsma,a
       integer osig(3),otau(3),oppi(3),jcg(1),indxcg(1),lh(nkap0)
       double precision rofi(nr),rwgt(nr),v0(nr,nsp),cg(1),
-     .  pnu(n0,nsp),pnz(n0,nsp),ppnl(nppn,n0,2),
-     .  v1(nr,nlml,nsp),v2(nr,nlml,nsp),gpot0(nlml),gpotb(nlml),
-     .  hab(nab,n0,nsp),vab(nab,n0,nsp),sab(nab,n0,nsp),
-     .  eh(n0,nkaph),rsmh(n0,nkaph),ehl(n0),rsml(n0),
-     .  rs3,vmtz
+     .pnu(n0,nsp),pnz(n0,nsp),ppnl(nppn,n0,2),
+     .v1(nr,nlml,nsp),v2(nr,nlml,nsp),gpot0(nlml),gpotb(nlml),
+     .hab(nab,n0,nsp),vab(nab,n0,nsp),sab(nab,n0,nsp),
+     .eh(n0,nkaph),rsmh(n0,nkaph),ehl(n0),rsml(n0),
+     .rs3,vmtz
 C ... Local parameters
       integer k,ll,lmxl,nlma,nlmh,i
       double precision pi,y0,pp(n0,2,5)
@@ -325,11 +325,11 @@ C ... Local parameters
       parameter (lmxx=25)
       integer lxa(0:kmax)
       double precision vdif(nr*nsp),sodb(nab,n0,nsp,2),
-     .  qum((lmxa+1)**2*(lmxx+1)*6*nsp),vum((lmxa+1)**2*nlml*6*nsp),
-     .  fh(nr*(lmxh+1)*nkap0),xh(nr*(lmxh+1)*nkap0),
-     .  vh((lmxh+1)*nkap0),fp(nr*(lmxa+1)*(kmax+1)),
-     .  dh((lmxh+1)*nkap0),xp(nr*(lmxa+1)*(kmax+1)),
-     .  vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1))
+     .qum((lmxa+1)**2*(lmxx+1)*6*nsp),vum((lmxa+1)**2*nlml*6*nsp),
+     .fh(nr*(lmxh+1)*nkap0),xh(nr*(lmxh+1)*nkap0),
+     .vh((lmxh+1)*nkap0),fp(nr*(lmxa+1)*(kmax+1)),
+     .dh((lmxh+1)*nkap0),xp(nr*(lmxa+1)*(kmax+1)),
+     .vp((lmxa+1)*(kmax+1)),dp((lmxa+1)*(kmax+1))
       double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
 C ... Heap
       integer w(1)
@@ -349,11 +349,11 @@ C --- Make hab,vab,sab and potential parameters pp ---
       enddo
 C     NB:rofi MUST be dimensioned rofi(1..nrx) if V is to be extrapol.
       call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml,
-     .            rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
+     .rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
 
 C --- Moments and potential integrals of ul*ul, ul*sl, sl*sl ---
       call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,
-     .  rwgt,v0,v1,qum,vum)
+     .rwgt,v0,v1,qum,vum)
 
 C --- Set up all radial head and tail functions, and their BC's ---
       do  k = 0, kmax
@@ -362,8 +362,8 @@ C --- Set up all radial head and tail functions, and their BC's ---
 C     Debugging check; see description of rsmh above
       do  k = 1, lmxh+1
         if (pnz(k,1) .ne. 0 .and. pnz(k,1) .lt. 10 .and.
-     .      rsmh(k,nkapi+1) .ne. 0)
-     .    call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
+     .  rsmh(k,nkapi+1) .ne. 0)
+     .  call rx1('augmat: illegal value for rsmh',rsmh(k,nkapi+1))
       enddo
 
       nlmh = (lmxh+1)**2
@@ -381,27 +381,27 @@ C --- Augmentation matrices for cases P*P, H*H, H*P ---
 
 C ... Hsm*Hsm
       call gaugm(nr,nsp,lso,lcplxp,rofi,rwgt,lmxa,lmxl,nlml,v2,
-     .  gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
-     .  nkaph,nkapi,lmxh,lh,fh,xh,vh,dh,
-     .  nkaph,nkapi,lmxh,lh,fh,xh,vh,dh,
-     .  lmxh,w(osig(3)),w(otau(3)),nlmh,nlmh,w(oppi(3)),
-     .  lmaxu,vumm,lldau,idu)
+     .gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
+     .nkaph,nkapi,lmxh,lh,fh,xh,vh,dh,
+     .nkaph,nkapi,lmxh,lh,fh,xh,vh,dh,
+     .lmxh,w(osig(3)),w(otau(3)),nlmh,nlmh,w(oppi(3)),
+     .lmaxu,vumm,lldau,idu)
 
 C ... Pkl*Pkl
       call gaugm(nr,nsp,lso,lcplxp,rofi,rwgt,lmxa,lmxl,nlml,v2,
-     .  gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
-     .  kmax+1,kmax+1,lmxa,lxa,fp,xp,vp,dp,
-     .  kmax+1,kmax+1,lmxa,lxa,fp,xp,vp,dp,
-     .  lmxa,w(osig(1)),w(otau(1)),nlma,nlma,w(oppi(1)),
-     .  lmaxu,vumm,lldau,idu)
+     .gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
+     .kmax+1,kmax+1,lmxa,lxa,fp,xp,vp,dp,
+     .kmax+1,kmax+1,lmxa,lxa,fp,xp,vp,dp,
+     .lmxa,w(osig(1)),w(otau(1)),nlma,nlma,w(oppi(1)),
+     .lmaxu,vumm,lldau,idu)
 
 C ... Hsm*Pkl
       call gaugm(nr,nsp,lso,lcplxp,rofi,rwgt,lmxa,lmxl,nlml,v2,
-     .  gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
-     .  nkaph,nkapi,lmxh,lh,fh,xh,vh,dh,
-     .  kmax+1,kmax+1,lmxa,lxa,fp,xp,vp,dp,
-     .  lmxh,w(osig(2)),w(otau(2)),nlmh,nlma,w(oppi(2)),
-     .  lmaxu,vumm,lldau,idu)
+     .gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
+     .nkaph,nkapi,lmxh,lh,fh,xh,vh,dh,
+     .kmax+1,kmax+1,lmxa,lxa,fp,xp,vp,dp,
+     .lmxh,w(osig(2)),w(otau(2)),nlmh,nlma,w(oppi(2)),
+     .lmaxu,vumm,lldau,idu)
 
       call tcx('augmat')
 

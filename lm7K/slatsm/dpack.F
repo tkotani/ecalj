@@ -19,9 +19,9 @@ C Local parameters
 
       ii = 0
       do  100 j = 0, na-1
-      do  100 i = 0, j
-      a(ii,0) =  a(i,j)
-      ii = ii+1
+        do  100 i = 0, j
+          a(ii,0) =  a(i,j)
+          ii = ii+1
   100 continue
       end
 

@@ -1,6 +1,6 @@
 #define MULLIKEN 1
       subroutine suqlst(sopts,iop,nband,efermi,nsp,evl,nfbn,ifblst,nq,
-     .  qp,onesp)
+     .qp,onesp)
 C- Set up a list of q-points in various modes for energy bands
 C  See also entry suqlsw(nband,jsp,nsp,evl)
 C ----------------------------------------------------------------------
@@ -159,12 +159,12 @@ C ... Local variables
       character strn*120, strn2*120, dc*1, fn*120, prfmt*40
       logical rdstrn,fmlong
       integer fopno,i,iprint,j,j1,j2,k,nglob,fopnn,rdm,
-     .  parg,a2vec,iv(7),stdo,jsp,op1
+     .parg,a2vec,iv(7),stdo,jsp,op1
       double precision xx,xx1,xx2,sclp,plndst,xxv(7)
       integer iblst(100),ifib,ifiq,iq,mode,nblst,nevn,nqx,nqy
       integer oqp,nqall,imode
       double precision x1,x2,y1,y2,evmxn,evmnn,
-     .  q1(3),q2(3),ql(3),vectx(3),vecty(3),vect3(3)
+     .q1(3),q2(3),ql(3),vectx(3),vecty(3),vect3(3)
       real(8),allocatable :: evsav(:,:,:,:)
 C ... MPI
       integer procid,master,mpipid
@@ -175,8 +175,8 @@ C ... Heap
       integer w(1)
       common /w/ w
       common /suqlsd/
-     .  q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
-     .  iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
+     .q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
+     .iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
       save evsav
 
       procid = mpipid(1)
@@ -262,21 +262,21 @@ C   ... Return here to resume parsing for arguments
         elseif (nfbn(2) .eq. 0) then
           call ilst2a(ifblst,nfbn,strn)
           call info2(20,0,0,
-     .      ' suqlst:  generate bands with color weights, mode %i.'//
-     .      ' %N%10f%i components: '//strn//'%a',mode,nfbn)
+     .    ' suqlst:  generate bands with color weights, mode %i.'//
+     .    ' %N%10f%i components: '//strn//'%a',mode,nfbn)
         else
           call ilst2a(ifblst,nfbn,strn)
           call info2(20,0,0,' suqlst:  generate bands '//
-     .      'with two color weights, mode %i.',mode,0)
+     .    'with two color weights, mode %i.',mode,0)
           call ilst2a(ifblst,nfbn,strn)
           call info2(20,0,0,
-     .      '%10f%i components, first color:  '//strn//'%a',nfbn,0)
+     .    '%10f%i components, first color:  '//strn//'%a',nfbn,0)
           call ilst2a(ifblst(1,2),nfbn(2),strn)
           call info2(20,0,0,
-     .      '%10f%i components, second color: '//strn//'%a',nfbn(2),0)
+     .    '%10f%i components, second color: '//strn//'%a',nfbn(2),0)
         endif
         if (nfbn(1) .eq. 0 .and. nfbn(2) .ne. 0) call info0(20,0,0,
-     .    ' suqlst:  (warning) col2 specified, but col not')
+     .  ' suqlst:  (warning) col2 specified, but col not')
 
 C   ... Open qp file
         if (procid .eq. master) then
@@ -340,7 +340,7 @@ C         Exit if first entry in line is zero
           i = a2vec(strn,len(strn),i,4,', ',2,3,7,iv,xxv)
           if (i .ne. 7 .and. iprint().ge.10) then
             write(stdo,
-     .        '(/'' suqlst (warning) skipping line:''/''  '',a)') strn
+     .      '(/'' suqlst (warning) skipping line:''/''  '',a)') strn
             goto 725
           endif
           nq = xxv(1)
@@ -370,12 +370,12 @@ C         Flag that prior block already completed: nq>0
           nq = 0
           j = 3
           if (rdm(ifiq,10000,0,' ',xx,j,nq) .ne. 1) call
-     .      rx('suqlst:  bad qp file')
+     .    rx('suqlst:  bad qp file')
           call defrr(oqp,3*nq)
           rewind ifiq
           j = rdm(ifiq,10000,3*nq,' ',w(oqp),j,nq)
           call awrit1('%N suqlst: read %i qp from file '//fn//
-     .      '%a',' ',80,stdo,nq)
+     .    '%a',' ',80,stdo,nq)
           if (j .ne. 1) call rx('suqlst: failed to read qp')
           i = nblst
           if (nblst .eq. 0) i = nband
@@ -387,7 +387,7 @@ C       Bands on a uniform mesh in a specified plane (contour plot)
           if (strn(1:1) .eq. '#') goto 825
           call words(strn,i)
           if (i .ne. 14) call rxi('suqlst con mode: expected 14 '//
-     .      'arguments from input file but read',i)
+     .    'arguments from input file but read',i)
           iblst(1) = -1
           nblst = 1
           backspace ifiq
@@ -405,12 +405,12 @@ C         call daxpy(3,-sclp(vectx,vecty),vectx,1,vecty,1)
           if (iprint() .ge. 10) then
             write(stdo,717) vectx,x1,x2,nqx,plndst,vecty,y1,y2,nqy,nq
   717       format(' vx=',3f9.6,'  x1,x2=',2f9.6,'  nx=',i3,'   h=',f9.6/
-     .           ' vy=',3f9.6,'  y1,y2=',2f9.6,'  ny=',i3,'  np=',i5)
+     .      ' vy=',3f9.6,'  y1,y2=',2f9.6,'  ny=',i3,'  np=',i5)
             write(strn,'('' save %i bands: %'',i2,'':1i'')') nblst
             if (strn(17:18) .eq. '% ') strn(17:18) = ' %'
             call awrit2(strn,strn,80,stdo,nblst,iblst)
             if (dabs(sclp(vectx,vecty)) .gt. 1d-6 .and. iprint().gt.20)
-     .    print *,'suqlst (warning): input plane vectors not orthogonal'
+     .      print *,'suqlst (warning): input plane vectors not orthogonal'
           endif
 
           if (iop .eq. 0) then
@@ -468,7 +468,7 @@ C --- No more qp blocks: cleanup ---
   999 continue
       nq = 0
       if (nevn .ne. 0) call awrit3(' eval no. %i:  minimum eval'//
-     .  ' = %;8F  maximum eval = %;8F',' ',80,stdo,nevn,evmnn,evmxn)
+     .' = %;8F  maximum eval = %;8F',' ',80,stdo,nevn,evmnn,evmxn)
 
       if (mode .eq. 1) then
         if (op1 .eq. 0) then
@@ -644,7 +644,7 @@ C ... Keep running tab on smallest,largest eval
       end
 
       subroutine suqlse(nband,jsp,nsp,ndimhx,ifbn,nfbn,ifblst,ndlst,
-     .  evec,wk)
+     .evec,wk)
 C- Write to file the projection of eigenvector subblock for this qp
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -682,10 +682,10 @@ C ... Local parameters
       integer iblst(100),ifib,ifiq,iq,mode,nblst,nevn,nqx,nqy
       integer oqp
       double precision x1,x2,y1,y2,evmxn,evmnn,
-     .  q1(3),q2(3),ql(3),vectx(3),vecty(3),vect3(3)
+     .q1(3),q2(3),ql(3),vectx(3),vecty(3),vect3(3)
       common /suqlsd/
-     .  q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
-     .  iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
+     .q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
+     .iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
       integer ipiv(ndimhx)
       real(8),allocatable :: evsav(:,:,:,:)
       complex(8),allocatable:: evecc(:,:),work(:,:)
@@ -704,7 +704,7 @@ C ... Local parameters
           k = ifblst(j,ifbn)
           if (k .le. 0 .or. k .gt. ndimhx) then
             call fexit2(-1,111,' Exit -1 : suqlst: component %i'//
-     .        ' outside range (1:%i)',k,ndimhx)
+     .      ' outside range (1:%i)',k,ndimhx)
           endif
 #if MULLIKEN
           wk(i) = wk(i) + evecc(i,k)*evec(k,i)
@@ -829,7 +829,7 @@ C ... Local parameters
       mode4 = mod(mode/4,2)
       if (mode4 .ne. 0) then
         call isanrg(nb2,1,min(lde,nbf),'suqlsr:','top band index',
-     .    .true.)
+     .  .true.)
         call isanrg(nb1,1,nb2,'suqlsr:','bottom band index',.true.)
       endif
 
@@ -844,7 +844,7 @@ C --- For each panel, do ---
         isp = mod(isp,2)+1
         nql = nql+1
         if (mode1 .eq. 0 .and. nql .gt. nq) call rxi(
-     .    'suqlsr: file more q-points than allocated: nqmx=',nq)
+     .  'suqlsr: file more q-points than allocated: nqmx=',nq)
         read(ifi,*,END=999,ERR=999) ql(1),ql(2),ql(3)
         if (mode2 .ne. 0) call dcopy(3,ql,1,qp(1,nql),1)
         read(ifi,*,END=999,ERR=999) (evl(i),i=1,nbf)
@@ -865,16 +865,16 @@ C     End of loop over lines
 
       if (mode1 .eq. 0) then
         call info2(30,1,0,' suqlsr: found %i qp in %i lines from file',
-     .    nql,nline)
+     .  nql,nline)
       else
         nq = nql/nsp
         call info2(30,1,0,' suqlsr: read %i qp in %i lines from file',
-     .    nql,nline)
+     .  nql,nline)
       endif
 
       if (mod(nql,2) .ne. 0 .and. nsp .eq. 2) then
         call info0(20,0,0, ' suqlsr (warning): '//
-     .    'odd number of bands encountered but nsp=2')
+     .  'odd number of bands encountered but nsp=2')
       endif
 
       return

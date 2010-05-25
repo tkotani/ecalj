@@ -1,6 +1,6 @@
       subroutine iomomx(ifi,mode,nl,nsp,nspc,nkp,ldim,nfstg,iq,
-     .  nband,nchan,nchan2,nchds,nevmx,nlistc,listc,eb,accwt,doswt,
-     .  dosw2,efermi,vmtz)
+     .nband,nchan,nchan2,nchds,nevmx,nlistc,listc,eb,accwt,doswt,
+     .dosw2,efermi,vmtz)
 C- Read selected channels of data from moments file
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -58,14 +58,14 @@ Cu             Old accwt and doswt merged into one array.
 C ----------------------------------------------------------------------
 C     implicit none
       integer ifi,mode,nl,nsp,nspc,nkp,ldim,nfstg,iq,nband,nchan,nchan2,
-     .  nchds,nevmx,nlistc,listc(nlistc)
+     .nchds,nevmx,nlistc,listc(nlistc)
       double precision eb(nband*nsp,1),doswt(nchds,nband*nspc,nspc,1),
-     .  accwt(nchds,nband*nspc,nspc,3,1),dosw2(2*nchds*nband*nspc*3,1),
-     .  efermi,vmtz
+     .accwt(nchds,nband*nspc,nspc,3,1),dosw2(2*nchds*nband*nspc*3,1),
+     .efermi,vmtz
 C Local variables
       double precision xx
       integer:: nlf , nspf , nspcf , nkpf , ldimf , nfstgf , iprint 
-     . , i1mach , jq , iomoms , nev , nschan
+     ., i1mach , jq , iomoms , nev , nschan
       real(8) ,allocatable :: eb_rv(:)
       real(8) ,allocatable :: accm_rv(:)
       real(8) ,allocatable :: dosw_rv(:)
@@ -91,16 +91,16 @@ C --- Read header, checking req'd matches and copying the rest ---
       iq = 0
       rewind ifi
       if (iomoms(ifi,nl,nsp,nspc,nkp,ldim,nfstg,1,iq,1,nevmx,nevmx,
-     .  nchan,nchan2,nevmx,eb,accwt,doswt,dosw2,efermi,vmtz) .lt. 0)
-     .  goto 999
+     .nchan,nchan2,nevmx,eb,accwt,doswt,dosw2,efermi,vmtz) .lt. 0)
+     .goto 999
       if (mod(mode/10,10) .eq. 0) return
 
 C --- Determine number of qp available ---
       iq = 0
       do  12  jq = 1, nkp*(nsp/nspc)
         if (iomoms(ifi,nl,nsp,nspc,nkp,ldim,0,1,jq,1,nband*nspc,
-     .    nband*nspc,nchan,nchan2,nev,eb,accwt,doswt,dosw2,efermi,vmtz)
-     .    .lt. 0) goto 14
+     .  nband*nspc,nchan,nchan2,nev,eb,accwt,doswt,dosw2,efermi,vmtz)
+     .  .lt. 0) goto 14
         iq = jq-1
    12 continue
 C ... If read all qp, and another record also present, let iq=nkp
@@ -129,13 +129,13 @@ Ctakao_ZeroClear_NotRequiered        if (nchan*nband*nfstg<0) dosw_rv(:)=0.0d0
       if (nfstg .ge. 100) call rxi('iomomx not ready for nfstg=',nfstg)
       do  10  jq = 1, iq*(nsp/nspc)
         if ( iomoms ( ifi , nl , nsp , nspc , nkp , ldim , nfstg , nschan 
-     .   , 1 , 1 , nband * nspc , nband * nspc , nchan , nchan2 , nev 
-     .   , eb_rv , accm_rv , dosw_rv , dosw2 , efermi , vmtz 
-     .   ) .lt. 0 ) goto 999
+     .  , 1 , 1 , nband * nspc , nband * nspc , nchan , nchan2 , nev 
+     .  , eb_rv , accm_rv , dosw_rv , dosw2 , efermi , vmtz 
+     .  ) .lt. 0 ) goto 999
 
         call pviomx ( nchan , nchds , nband * nspc , nl , nspc , listc 
-     .   , nlistc , nfstg , nschan , jq , eb_rv , dosw_rv , eb , 
-     .   doswt )
+     .  , nlistc , nfstg , nschan , jq , eb_rv , dosw_rv , eb , 
+     .  doswt )
 
         nevmx = max(nev,nevmx)
    10 continue
@@ -158,16 +158,16 @@ C --- Exit ---
 
 C --- Error exit ---
   999 if (iprint() .gt. 10)
-     .  print *, 'IOMOMX (warning): empty or bad moments file'
+     .print *, 'IOMOMX (warning): empty or bad moments file'
       iq = -1
       end
 
       subroutine pviomx(nchan,nchds,ndim,nl,nspc,listc,nlistc,nfstg,
-     .  ldwt3,iq,eb0,dosw0,eb,doswt)
+     .ldwt3,iq,eb0,dosw0,eb,doswt)
 C- Copy a subset of channels
 C     implicit none
       integer nchan,nchds,ndim,nspc,nl,ldwt3,nfstg,iq,nlistc,
-     .  listc(nlistc)
+     .listc(nlistc)
       double precision eb0(ndim),dosw0(nchan,ndim,nspc)
       double precision eb(ndim,iq),doswt(nchds,ndim,ldwt3,iq)
       integer il,ic,ichan,ichds,imax,i
@@ -185,7 +185,7 @@ C     implicit none
         if (mod(nfstg/10,10) .ge. 1) then
           do  22  i = 1, nl
             call dcopy(ndim*nspc,dosw0(ichan+i,1,1),nchan,
-     .        doswt(ichds+i,1,1,iq),nchds)
+     .      doswt(ichds+i,1,1,iq),nchds)
    22     continue
         endif
 

@@ -1,5 +1,5 @@
       subroutine clsprm(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,
-     .  sstr,sstrn)
+     .sstr,sstrn)
 
       use m_struc_def  !Cgetarg
 
@@ -71,15 +71,15 @@ C Local variables
       logical lgors,cmdopt
       character*80 strn,clabl*8
       integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
-     . , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx 
-     . , oivso , oipc , oclabl , opos , oics , ozos , ormax , opmpol 
-     . , oqpp , ogrrme , n0
+     ., orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx 
+     ., oivso , oipc , oclabl , opos , oics , ozos , ormax , opmpol 
+     ., oqpp , ogrrme , n0
 c       real(8) ,allocatable :: pprel_rv(:)
 
       parameter (n0=10)
       integer nbas,nclass,nspec,nl,nsp,nlspc,igets,nclasp,i1,i2,nmap,ic,
-     .  is,ib,iclbsj,idmod(n0),iprint,lmx,nclspp,nqpp,lnsph,isw,neula,
-     .  nbf,nrhos,nlibu
+     .is,ib,iclbsj,idmod(n0),iprint,lmx,nclspp,nqpp,lnsph,isw,neula,
+     .nbf,nrhos,nlibu
 C     integer nmto,oppn
       double precision plat(9),z,xx,dval
 C ... Heap
@@ -359,7 +359,7 @@ c       if (allocated(pprel_rv)) deallocate(pprel_rv)
 
 
       entry clsprp(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,
-     .  sstr,sstrn)
+     .sstr,sstrn)
 C- Copy class data to doubly padded case
 
 
@@ -387,9 +387,9 @@ C ... Allocate ASA arrays
         oqnu=spot%oqnu
 
         call dpscop(w(opnu),w(opnu),nl*nsp*i1,
-     .    nl*nsp*nclass+1,nl*nsp*nclasp+1,1d0)
+     .  nl*nsp*nclass+1,nl*nsp*nclasp+1,1d0)
         call dpscop(w(oqnu),w(oqnu),3*nl*nsp*i1,
-     .    3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
+     .  3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
 
 
         oves=spot%oves

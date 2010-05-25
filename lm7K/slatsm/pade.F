@@ -56,19 +56,19 @@ C     implicit none
    10 continue
       do  20  j = 2, n
 C ... Do the arithmetic with quad precision
-      do  20  i = 2, j
+        do  20  i = 2, j
 C       c(i,j) = (c(i-1,i-1)-c(i-1,j)) / ( (z(j)-z(i-1)) * c(i-1,j) )
-        zn(1) = c(1,i-1,i-1)-c(1,i-1,j)
-        zn(2) = c(2,i-1,i-1)-c(2,i-1,j)
-        xd(1) = z(1,j)-z(1,i-1)
-        xd(2) = z(2,j)-z(2,i-1)
-        yd(1) = c(1,i-1,j)
-        yd(2) = c(2,i-1,j)
-        zd(1) = xd(1)*yd(1) - xd(2)*yd(2) 
-        zd(2) = xd(1)*yd(2) + xd(2)*yd(1) 
-        if (lnz) call qdiv(zn(1),zn(2),zd(1),zd(2),zn(1),zn(2))
-        c(1,i,j) = zn(1)
-        c(2,i,j) = zn(2)
+          zn(1) = c(1,i-1,i-1)-c(1,i-1,j)
+          zn(2) = c(2,i-1,i-1)-c(2,i-1,j)
+          xd(1) = z(1,j)-z(1,i-1)
+          xd(2) = z(2,j)-z(2,i-1)
+          yd(1) = c(1,i-1,j)
+          yd(2) = c(2,i-1,j)
+          zd(1) = xd(1)*yd(1) - xd(2)*yd(2) 
+          zd(2) = xd(1)*yd(2) + xd(2)*yd(1) 
+          if (lnz) call qdiv(zn(1),zn(2),zd(1),zd(2),zn(1),zn(2))
+          c(1,i,j) = zn(1)
+          c(2,i,j) = zn(2)
    20 continue
 
       end

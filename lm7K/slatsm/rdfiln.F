@@ -1,5 +1,5 @@
       subroutine rdfiln(unit,cch,mxlev,loop0,nlin,list,lstsiz,
-     .  ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
+     .ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
 C- Read one line of a file, with variables substitution and loop parsing
 C ----------------------------------------------------------------
 Ci Inputs
@@ -469,7 +469,7 @@ Cu             {var assignment-op expression [, ...}, {char-var(:e)}
 C ----------------------------------------------------------------
       implicit none
       integer unit,recl,nr,mxchr,mxlev,lstsiz,
-     .  nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),nlist(0:mxlev)
+     .nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),nlist(0:mxlev)
       logical rdstrn,loop0(0:mxlev)
       integer ctlen
       parameter (ctlen=120)
@@ -477,8 +477,8 @@ C ----------------------------------------------------------------
       character vnam(mxlev)*16
 C Local variables
       integer i,j,nlev,ja,jr,k,lvnam,ipr,nrd,nsyv,niff,iecho,j0,i1mach,
-     .  nchr,lunit,nkeepv,nelt,ival,i1,i2,nargf,ndir,ltrace,isw,nchr0,
-     .  mxiff,fopnx
+     .nchr,lunit,nkeepv,nelt,ival,i1,i2,nargf,ndir,ltrace,isw,nchr0,
+     .mxiff,fopnx
       parameter (ndir=31,mxiff=15)
       character cc1*1,cc2*1,cex*2,dir(ndir)*7,sdir(4)*5,tab*1
 C     liff  is the conditional read truth table for each nesting level
@@ -493,29 +493,29 @@ C     as the nesting level changes.
       character fname*120,ctmp*1,aa*512,asbst*512,strn*512
       character*2 aops(6)
       integer LIF,LFDEF,LLSEID,LLSEIF,LLSE,LNDIF,LEPEAT,LND,LONST,LAR,
-     .  LHAR,LCHAR,LHOW,LCHO,LTOP,LNCLUD,LAVE,LEC,LENV,LHAR0,
-     .  LCONST,LVAR,LDEF,LNCLUO,LHILE,LRACE,LFNDEF,LFIND,LXIT,LFILE,
-     .  LACRO
+     .LHAR,LCHAR,LHOW,LCHO,LTOP,LNCLUD,LAVE,LEC,LENV,LHAR0,
+     .LCONST,LVAR,LDEF,LNCLUO,LHILE,LRACE,LFNDEF,LFIND,LXIT,LFILE,
+     .LACRO
       parameter (LIF=0,LFDEF=1,LLSEID=2,LLSEIF=3,LLSE=4,LNDIF=5,
-     .  LEPEAT=6,LND=7,LONST=8,LAR=9,LHAR=10,LCHAR=11,LHOW=12,LCHO=13,
-     .  LTOP=14,LNCLUD=15,LAVE=16,LEC=17,LENV=18,LHAR0=19,LCONST=20,
-     .  LVAR=21,LDEF=22,LNCLUO=23,LHILE=24,LRACE=25,LFNDEF=26,LFIND=27,
-     .  LXIT=28,LFILE=29,LACRO=30)
+     .LEPEAT=6,LND=7,LONST=8,LAR=9,LHAR=10,LCHAR=11,LHOW=12,LCHO=13,
+     .LTOP=14,LNCLUD=15,LAVE=16,LEC=17,LENV=18,LHAR0=19,LCONST=20,
+     .LVAR=21,LDEF=22,LNCLUO=23,LHILE=24,LRACE=25,LFNDEF=26,LFIND=27,
+     .LXIT=28,LFILE=29,LACRO=30)
 c #if CSYTLETABCHR
 c      parameter (tab='\t')
 c #else
-      parameter (tab='	')
+      parameter (tab='        ')
 c #endif
       save nchr,lshow,cc1,cc2,cex,lcc,lex,notab,nkeepv,liff,liff0,
-     .  nlev,nrd,niff,lunit,unit0,filstk,nrdstk,ltrace
+     .nlev,nrd,niff,lunit,unit0,filstk,nrdstk,ltrace
 C ... Allowed characters in a name
       namchr(ctmp) =ctmp .ge. 'a' .and. ctmp .le. 'z' .or. ctmp .eq. '_'
-     .         .or. ctmp .ge. 'A' .and. ctmp .le. 'Z'
-     .         .or. ctmp .ge. '0' .and. ctmp .le. '9'
+     ..or. ctmp .ge. 'A' .and. ctmp .le. 'Z'
+     ..or. ctmp .ge. '0' .and. ctmp .le. '9'
       data dir /'if','ifdef','elseifd','elseif','else','endif','repeat',
      .'end','const','var','char','cchar','show','echo','stop','include',
-     .  'save','vec','getenv','char0','cconst','cvar','udef','includo',
-     .  'while','trace','ifndef','vfind','exit','iffile','macro'/
+     .'save','vec','getenv','char0','cconst','cvar','udef','includo',
+     .'while','trace','ifndef','vfind','exit','iffile','macro'/
       data sdir /'stop','all','lines','vars'/ ltrace /0/
       data aops/'= ','*=','/=','+=','-=','^='/
 
@@ -613,632 +613,632 @@ C --- Entry point for new value of loop variable ---
 c      call shosyv(0,0,0,6)
 C --- Entry point for new line read ---
    10 continue
-        noskip = loop0(nlev) .and. liff(niff)
-        if (.not. rdstrn(lunit,a,recl,.false.)) goto 99
+      noskip = loop0(nlev) .and. liff(niff)
+      if (.not. rdstrn(lunit,a,recl,.false.)) goto 99
 C       12 Aug 04 Blank out remining line following comment char
-        if (cc1 .ne. ' ') then
-          ltmp = .false.
-          do  i = 2, recl
-            if (a(i) .eq. cc1) ltmp = .true.
-            if (ltmp) a(i) = ' '
-          enddo
-        endif
-        if (notab) then
-          do  i = 1, recl
-            if (a(i) .eq. tab) a(i) = ' '
-          enddo
-        endif
+      if (cc1 .ne. ' ') then
+        ltmp = .false.
+        do  i = 2, recl
+          if (a(i) .eq. cc1) ltmp = .true.
+          if (ltmp) a(i) = ' '
+        enddo
+      endif
+      if (notab) then
+        do  i = 1, recl
+          if (a(i) .eq. tab) a(i) = ' '
+        enddo
+      endif
 C       call strncp(aa,a,1,1,recl)
 C       Keep track of line number
-        iecho = 0
-        nrd = nrd+1
-        do  14  j = 0, nlev
-   14   nlin(j) = nlin(j)+1
+      iecho = 0
+      nrd = nrd+1
+      do  14  j = 0, nlev
+   14 nlin(j) = nlin(j)+1
 c       print *, 'nlev=',nlev,' nlin=',(nlin(j),j=1,nlev),
 c     .    '  a=',(a(j),j=1,recl)
-        j0 = 0
+      j0 = 0
 
 C   --- Directives to rdfiln ---
-        if (lcc .and. a(1) .eq. cc2) then
-          j = 1
-          call skipbl(a,recl,j)
-          k = j-1
-          call tokmat(a(j+1),dir,ndir,7,' ',i,j,.false.)
-          if (ltrace .gt. 0 .and. i .ge. 0) then
-            aa = ' '
-            call awrit1('#rf %i: '''//dir(i+1),aa,80,0,nrd)
-          endif
+      if (lcc .and. a(1) .eq. cc2) then
+        j = 1
+        call skipbl(a,recl,j)
+        k = j-1
+        call tokmat(a(j+1),dir,ndir,7,' ',i,j,.false.)
+        if (ltrace .gt. 0 .and. i .ge. 0) then
+          aa = ' '
+          call awrit1('#rf %i: '''//dir(i+1),aa,80,0,nrd)
+        endif
 
-          if (i .eq. LIF .or. i .eq. LFDEF .or. i .eq. LFNDEF .or.
-     .        i .eq. LFILE) then
-            niff = niff+1
-            if (niff .gt. mxiff) call rx('increase niff in rdfiln')
-            j = j+k
-            liff0(niff) = .false.
-            liff(niff) = .false.
-            if (.not. noskip .and. ltrace .gt. 2) goto 81
-            if (.not. noskip) goto 10
+        if (i .eq. LIF .or. i .eq. LFDEF .or. i .eq. LFNDEF .or.
+     .  i .eq. LFILE) then
+          niff = niff+1
+          if (niff .gt. mxiff) call rx('increase niff in rdfiln')
+          j = j+k
+          liff0(niff) = .false.
+          liff(niff) = .false.
+          if (.not. noskip .and. ltrace .gt. 2) goto 81
+          if (.not. noskip) goto 10
 C       ... make substitutions for eg % ... {}...
+          ja = 1
+          asbst = ' '
+          jr = 0
+          call pvfil1(recl,len(asbst),jr,a,cex,nchr,mxchr,ctbl,ja,
+     .    asbst,ltrace)
+C       ... Determine whether line results in T or F
+          if (i .eq. LFILE) then
+            i1 = j+1
+            call nword(asbst,1,i1,i2)
+            liff0(niff) = .false.
+            if (i2 .ge. i1) then
+              i = fopnx(asbst(i1:i2),172,-1,-1)
+              liff0(niff) = i .eq. 1
+            endif
+          else
+            call rdfilx(asbst,ja,i.eq.LIF,j,nrd,ctbl,mxchr,nchr,
+     .      liff0(niff))
+            if (i .eq. LFNDEF) liff0(niff) = .not. liff0(niff)
+          endif
+          liff(niff) = liff(niff-1) .and. liff0(niff)
+          goto 81
+        elseif (i.eq.LLSEID .or. i.eq.LLSEIF .or. i.eq.LLSE) then
+          if (niff .le. 0) call fexit(-1,1,' Exit -1 rdfiln:'//
+     .    ' else encountered with matching if, line %i',nrd)
+          if ((i .eq. LLSEID .or. i .eq. LLSEIF) .and.
+     .    .not.liff0(niff)) then
+            j = j+k
+C         ... make substitutions for eg % ... {}...
             ja = 1
             asbst = ' '
             jr = 0
             call pvfil1(recl,len(asbst),jr,a,cex,nchr,mxchr,ctbl,ja,
-     .        asbst,ltrace)
-C       ... Determine whether line results in T or F
-            if (i .eq. LFILE) then
-              i1 = j+1
-              call nword(asbst,1,i1,i2)
-              liff0(niff) = .false.
-              if (i2 .ge. i1) then
-                i = fopnx(asbst(i1:i2),172,-1,-1)
-                liff0(niff) = i .eq. 1
-              endif
-            else
-              call rdfilx(asbst,ja,i.eq.LIF,j,nrd,ctbl,mxchr,nchr,
-     .          liff0(niff))
-              if (i .eq. LFNDEF) liff0(niff) = .not. liff0(niff)
-            endif
+     .      asbst,ltrace)
+            call rdfilx(asbst,ja,i.eq.LLSEIF,j,nrd,ctbl,mxchr,nchr,
+     .      liff0(niff))
             liff(niff) = liff(niff-1) .and. liff0(niff)
-            goto 81
-          elseif (i.eq.LLSEID .or. i.eq.LLSEIF .or. i.eq.LLSE) then
-            if (niff .le. 0) call fexit(-1,1,' Exit -1 rdfiln:'//
-     .        ' else encountered with matching if, line %i',nrd)
-            if ((i .eq. LLSEID .or. i .eq. LLSEIF) .and.
-     .           .not.liff0(niff)) then
-              j = j+k
-C         ... make substitutions for eg % ... {}...
-              ja = 1
-              asbst = ' '
-              jr = 0
-              call pvfil1(recl,len(asbst),jr,a,cex,nchr,mxchr,ctbl,ja,
-     .          asbst,ltrace)
-              call rdfilx(asbst,ja,i.eq.LLSEIF,j,nrd,ctbl,mxchr,nchr,
-     .          liff0(niff))
-              liff(niff) = liff(niff-1) .and. liff0(niff)
-            else
-              liff(niff) = liff(niff-1) .and. .not. liff0(niff)
-            endif
-            goto 81
-          elseif (i .eq. LNDIF) then
-            niff = niff-1
-            if (niff .lt. 0) call rx
-     .        ('rdfiln:  endif  encountered before  if')
-            goto 81
-          elseif (i .eq. LHILE .and. liff(niff)) then
-            nlev = nlev+1
-            if (nlev .gt. mxlev) call fexit(-1,1,' Exit -1 RDFILN:  '//
-     .        'loop directives nested deeper than %i',mxlev)
+          else
+            liff(niff) = liff(niff-1) .and. .not. liff0(niff)
+          endif
+          goto 81
+        elseif (i .eq. LNDIF) then
+          niff = niff-1
+          if (niff .lt. 0) call rx
+     .    ('rdfiln:  endif  encountered before  if')
+          goto 81
+        elseif (i .eq. LHILE .and. liff(niff)) then
+          nlev = nlev+1
+          if (nlev .gt. mxlev) call fexit(-1,1,' Exit -1 RDFILN:  '//
+     .    'loop directives nested deeper than %i',mxlev)
 C       ... Make %end backspace to this %while line
-            nlin(nlev) = 1
+          nlin(nlev) = 1
 C       ... Flag the matching %end that it matches a %while construct
-            nlist(nlev) = -1
-            ilist(nlev) = 0
+          nlist(nlev) = -1
+          ilist(nlev) = 0
 C       ... skip while block if in a nested null-list
-            loop0(nlev) = .false.
-            if (.not. loop0(nlev-1)) goto 82
-            j = j+k
+          loop0(nlev) = .false.
+          if (.not. loop0(nlev-1)) goto 82
+          j = j+k
 C       ... make variable substitutions
-            ja = 1
-            asbst = ' '
-            jr = 0
-            call strncp(asbst,a,1,1,recl)
-            call pvfil1(recl,recl,jr,asbst,cex,nchr,mxchr,ctbl,ja,
-     .        a,ltrace)
+          ja = 1
+          asbst = ' '
+          jr = 0
+          call strncp(asbst,a,1,1,recl)
+          call pvfil1(recl,recl,jr,asbst,cex,nchr,mxchr,ctbl,ja,
+     .    a,ltrace)
 C       ... Come back here until next string not an assignment
-   13       call skipbl(a,recl,j)
-            if (a(j+1) .ne. cch(2:2)) then
-              j0 = j+1
+   13     call skipbl(a,recl,j)
+          if (a(j+1) .ne. cch(2:2)) then
+            j0 = j+1
 C         ... Return here until char not one belonging to 'name'
-   23         j0 = j0+1
-              if (namchr(a(j0))) goto 23
+   23       j0 = j0+1
+            if (namchr(a(j0))) goto 23
 C         ... An assignment?  If so, returns i>0, or else '='
-              call tokmat(a(j0),aops,6,2,' ',i,k,.false.)
-              if (i .gt. 0 .or. a(j0).eq.'=' .and. a(j0+1).ne.'=') then
-                call parsyv(a,recl,1,0,j)
-                call strncp(aa,a,1,1,recl)
-                goto 13
-              endif
+            call tokmat(a(j0),aops,6,2,' ',i,k,.false.)
+            if (i .gt. 0 .or. a(j0).eq.'=' .and. a(j0+1).ne.'=') then
+              call parsyv(a,recl,1,0,j)
+              call strncp(aa,a,1,1,recl)
+              goto 13
             endif
+          endif
 C       ... Done with assignments, next follows expression
-            ltmp = .false.
-            call rdfilx(a,recl,.false.,j,nrd,ctbl,mxchr,nchr,ltmp)
-            loop0(nlev) = ltmp .and. noskip
-            goto 82
-          elseif (i .eq. LEPEAT .and. liff(niff)) then
-            nlev = nlev+1
-            if (nlev .gt. mxlev) call fexit(-1,1,' Exit -1 RDFILN:  '//
-     .        'loop directives nested deeper than %i',mxlev)
-            ilist(nlev) = 0
-            nlin(nlev) = 0
-            nlist(nlev) = 0
-            loop0(nlev) = .false.
-            if (.not. loop0(nlev-1)) goto 82
-            j = j+k
+          ltmp = .false.
+          call rdfilx(a,recl,.false.,j,nrd,ctbl,mxchr,nchr,ltmp)
+          loop0(nlev) = ltmp .and. noskip
+          goto 82
+        elseif (i .eq. LEPEAT .and. liff(niff)) then
+          nlev = nlev+1
+          if (nlev .gt. mxlev) call fexit(-1,1,' Exit -1 RDFILN:  '//
+     .    'loop directives nested deeper than %i',mxlev)
+          ilist(nlev) = 0
+          nlin(nlev) = 0
+          nlist(nlev) = 0
+          loop0(nlev) = .false.
+          if (.not. loop0(nlev-1)) goto 82
+          j = j+k
 C       ... make variable substitutions
-            ja = 1
-            asbst = ' '
-            jr = 0
-            call strncp(asbst,a,1,1,recl)
-            call pvfil1(recl,recl,jr,asbst,cex,nchr,mxchr,ctbl,ja,
-     .        a,ltrace)
+          ja = 1
+          asbst = ' '
+          jr = 0
+          call strncp(asbst,a,1,1,recl)
+          call pvfil1(recl,recl,jr,asbst,cex,nchr,mxchr,ctbl,ja,
+     .    a,ltrace)
 C           Pick up variable name
-            call skipbl(a,recl,j)
-            vnam(nlev) = ' '
-            call strcop(vnam(nlev),a(j+1),16,'=',lvnam)
-            vnam(nlev)(lvnam:lvnam) = ' '
-            call strncp(strn,a,1,1,recl)
-            call mkilst(strn(j+1+lvnam:),nlist(nlev),list(1,nlev))
-            if (nlist(nlev) .gt. lstsiz)
-     .        call fexit2(-1,1,'Exit -1 rdfiln %i: list exceeded'//
-     .        ' maximum number of values allowed (%i)',nrd,lstsiz)
-            if (nlist(nlev).lt.0 .and. ipr .ge. 40) call shosyv(0,0,0,6)
-            if (nlist(nlev).lt.0) call rx('rdfiln: bad or null list')
-            loop0(nlev) = nlist(nlev) .gt. 0 .and. loop0(nlev-1)
-            lvnam = lvnam-1
-            if (ltrace .gt. 0) then
-              write (fname,348) nrd, vnam(nlev)(1:lvnam)
-  348         format(' rdfiln', i5, ': ', a,' -> ')
-              call awrit2(cc1//'%a%n:1i',fname,len(fname),
-     .          -i1mach(4),nlist(nlev),list(1,nlev))
-            endif
-            if (ltrace .gt. 0)
-     .        call awrit4('%a'' over %i values; read following lines: '
-     .        //'%?#n#yes#no#%?#n#%2b(blocked by level %i)',aa,80,
-     .        -i1mach(2),nlist(nlev),isw(loop0(nlev)),
-     .        isw(.not.loop0(nlev-1).and.nlev.gt.1),nlev-1)
-            goto 12
-          elseif (i .eq. LND .and. liff(niff)) then
+          call skipbl(a,recl,j)
+          vnam(nlev) = ' '
+          call strcop(vnam(nlev),a(j+1),16,'=',lvnam)
+          vnam(nlev)(lvnam:lvnam) = ' '
+          call strncp(strn,a,1,1,recl)
+          call mkilst(strn(j+1+lvnam:),nlist(nlev),list(1,nlev))
+          if (nlist(nlev) .gt. lstsiz)
+     .    call fexit2(-1,1,'Exit -1 rdfiln %i: list exceeded'//
+     .    ' maximum number of values allowed (%i)',nrd,lstsiz)
+          if (nlist(nlev).lt.0 .and. ipr .ge. 40) call shosyv(0,0,0,6)
+          if (nlist(nlev).lt.0) call rx('rdfiln: bad or null list')
+          loop0(nlev) = nlist(nlev) .gt. 0 .and. loop0(nlev-1)
+          lvnam = lvnam-1
+          if (ltrace .gt. 0) then
+            write (fname,348) nrd, vnam(nlev)(1:lvnam)
+  348       format(' rdfiln', i5, ': ', a,' -> ')
+            call awrit2(cc1//'%a%n:1i',fname,len(fname),
+     .      -i1mach(4),nlist(nlev),list(1,nlev))
+          endif
+          if (ltrace .gt. 0)
+     .    call awrit4('%a'' over %i values; read following lines: '
+     .    //'%?#n#yes#no#%?#n#%2b(blocked by level %i)',aa,80,
+     .    -i1mach(2),nlist(nlev),isw(loop0(nlev)),
+     .    isw(.not.loop0(nlev-1).and.nlev.gt.1),nlev-1)
+          goto 12
+        elseif (i .eq. LND .and. liff(niff)) then
 *           print *, 'nlev=',nlev,'  ','nlist=',(nlist(i),i=1,nlev)
 *           print *, 'vnam now ', vnam(nlev)
-            if (nlev .le. 0) call fexit(-1,1,' rdfiln %i (stop):'//
-     .        ' end encountered before while or repeat',nrd)
+          if (nlev .le. 0) call fexit(-1,1,' rdfiln %i (stop):'//
+     .    ' end encountered before while or repeat',nrd)
 C       ... if incomplete a repeat:end sequence or a while-end
-            if (ilist(nlev) .lt. nlist(nlev) .or.
-     .          nlist(nlev) .eq. -1 .and. loop0(nlev)) then
+          if (ilist(nlev) .lt. nlist(nlev) .or.
+     .    nlist(nlev) .eq. -1 .and. loop0(nlev)) then
 *             print *, 'nlev=',nlev,' backspacing by',nlin(nlev)
-              k = nlin(nlev)
-              do  11  i = 1, nlin(nlev)
-   11         backspace(lunit)
-              nrd = nrd-nlin(nlev)
-              call rxx(nrd.lt.0,'rdfiln: attempt to loop across files')
-              do  15  i = 0, nlev
-   15         nlin(i) = nlin(i)-nlin(nlev)
+            k = nlin(nlev)
+            do  11  i = 1, nlin(nlev)
+   11       backspace(lunit)
+            nrd = nrd-nlin(nlev)
+            call rxx(nrd.lt.0,'rdfiln: attempt to loop across files')
+            do  15  i = 0, nlev
+   15       nlin(i) = nlin(i)-nlin(nlev)
 C         ... Case while-end
-              if (nlist(nlev) .eq. -1) then
-                nlev = nlev-1
-                goto 82
+            if (nlist(nlev) .eq. -1) then
+              nlev = nlev-1
+              goto 82
 C         ... Case repeat-end
-              else
-                if (ltrace .gt. 0) call awrit2(
-     .            '%a'', repeat loop over '''//vnam(nlev)//
-     .            '%a'' with val=%i; reread %i lines',
-     .            aa,80,-i1mach(2),list(ilist(nlev),nlev),k)
-                goto 12
-              endif
+            else
+              if (ltrace .gt. 0) call awrit2(
+     .        '%a'', repeat loop over '''//vnam(nlev)//
+     .        '%a'' with val=%i; reread %i lines',
+     .        aa,80,-i1mach(2),list(ilist(nlev),nlev),k)
+              goto 12
             endif
+          endif
 C       ... Case loop has finished
 *            nlist(nlev) = 0
 *            loop0(nlev) = .true.
-            nlev = nlev-1
-            goto 82
-          elseif ((i .eq. LCONST .or. i .eq. LVAR) .and. noskip) then
-            call numsyv(nsyv)
-            j = j+k
-            ltmp = noskip
-            call rdfilx(a,recl,.false.,j,nrd,ctbl,mxchr,nchr,ltmp)
-            if (ltmp) then
+          nlev = nlev-1
+          goto 82
+        elseif ((i .eq. LCONST .or. i .eq. LVAR) .and. noskip) then
+          call numsyv(nsyv)
+          j = j+k
+          ltmp = noskip
+          call rdfilx(a,recl,.false.,j,nrd,ctbl,mxchr,nchr,ltmp)
+          if (ltmp) then
 C         ... make substitutions for eg % const a=nam{xx}
-              ja = 1
-              aa = ' '
-              call pvfil1(recl,len(aa),j,a,cex,nchr,mxchr,ctbl,ja,aa,
-     .          ltrace)
-              j = 0
-              call parsyv(aa,ja+1,999,i-LCONST,j)
-            endif
-c           call shosyv(0,0,0,6)
-            if (noskip) goto 83
-            goto 10
-          elseif ((i .eq. LONST .or. i .eq. LAR) .and. noskip) then
-            call numsyv(nsyv)
-            j = j+k
-C       ... make substitutions for eg % const a=nam{xx}
             ja = 1
             aa = ' '
             call pvfil1(recl,len(aa),j,a,cex,nchr,mxchr,ctbl,ja,aa,
-     .        ltrace)
+     .      ltrace)
             j = 0
-            call parsyv(aa,ja+1,999,i-LONST,j)
+            call parsyv(aa,ja+1,999,i-LCONST,j)
+          endif
+c           call shosyv(0,0,0,6)
+          if (noskip) goto 83
+          goto 10
+        elseif ((i .eq. LONST .or. i .eq. LAR) .and. noskip) then
+          call numsyv(nsyv)
+          j = j+k
+C       ... make substitutions for eg % const a=nam{xx}
+          ja = 1
+          aa = ' '
+          call pvfil1(recl,len(aa),j,a,cex,nchr,mxchr,ctbl,ja,aa,
+     .    ltrace)
+          j = 0
+          call parsyv(aa,ja+1,999,i-LONST,j)
 C            call shosyv(0,0,0,6)
 C            pause
-            if (noskip) goto 83
-            goto 10
-          elseif ((i .eq. LEC .or. i .eq. LFIND) .and. noskip) then
-            call numsvv(nsyv)
-            j = j+k
+          if (noskip) goto 83
+          goto 10
+        elseif ((i .eq. LEC .or. i .eq. LFIND) .and. noskip) then
+          call numsvv(nsyv)
+          j = j+k
 C       ... make substitutions for eg % vec a{xx}...
-            ja = 1
-            aa = ' '
-            jr = 0
-            call pvfil1(recl,len(aa),jr,a,cex,nchr,mxchr,ctbl,ja,aa,
-     .        ltrace)
-            call strncp(a,aa,1,1,min(ja,recl))
-            call skipbl(a,recl,j)
-            j0 = j
-            call chrps2(a,'([',2,recl,j,k)
-            if (k .lt. 1) goto 999
-            aa = ' '
-            call strcop(aa,a(j0+1),j-j0,' ',i1)
+          ja = 1
+          aa = ' '
+          jr = 0
+          call pvfil1(recl,len(aa),jr,a,cex,nchr,mxchr,ctbl,ja,aa,
+     .    ltrace)
+          call strncp(a,aa,1,1,min(ja,recl))
+          call skipbl(a,recl,j)
+          j0 = j
+          call chrps2(a,'([',2,recl,j,k)
+          if (k .lt. 1) goto 999
+          aa = ' '
+          call strcop(aa,a(j0+1),j-j0,' ',i1)
 C       ... does vector variable aa already exist?
-            call getsvv(aa,ival,0,1,1,val)
+          call getsvv(aa,ival,0,1,1,val)
 C       ... case not already declared:
-            if (ival .eq. 0) then
-              if (k .ne. 2) call fexit(-1,1,' Exit -1: rdfiln: attempt'
-     .          //' to use undeclared vector, '//'line %i',nrd)
-              j = j+1
-              if (.not. a2bin(a,nelt,2,0,']',j,recl)) goto 999
-              call addsvv(aa,nelt,ival)
-              call parsvv(a,recl,ival,nelt,1,j)
+          if (ival .eq. 0) then
+            if (k .ne. 2) call fexit(-1,1,' Exit -1: rdfiln: attempt'
+     .      //' to use undeclared vector, '//'line %i',nrd)
+            j = j+1
+            if (.not. a2bin(a,nelt,2,0,']',j,recl)) goto 999
+            call addsvv(aa,nelt,ival)
+            call parsvv(a,recl,ival,nelt,1,j)
 C       ... case already declared:
-            else
-              if (k .ne. 1) then
-                call awrit1('#rf (warning): attempt'
-     .          //' to redeclare variable '//aa//'%a, line %i',
-     .            ' ',80,i1mach(2),nrd)
-                goto 91
-                goto 10
-              endif
-C       ...   Find indices for vector subblock
-              j = j+1
-              j0 = j
-              ltmp2 = a2bin(a,i1,2,0,':',j0,recl)
-              if (ltmp2) j = j0
-              if (.not. a2bin(a,nelt,2,0,')',j,recl)) goto 999
-              if (.not. ltmp2) i1 = nelt
-              if (i .eq. LFIND) then
-                call strncp(aa,a,1,1,recl)
-                call skipbl(a,recl,j)
-                fname = ' '
-                call strcop(fname,a(j+1),ctlen,' ',k)
-                j = j+k
-                if (.not. a2bin(a,val,4,0,' ',j,recl)) goto 999
-                k = 0
-                do  45  i = i1, nelt
-                  call getsvv(' ',ival,1,i,i,xx)
-                  if (xx .eq. val) then
-                    k = i
-                    goto 46
-                  endif
-   45           continue
-   46           continue
-                call lodsyv(fname,1,dble(k),k)
-                goto 91
-              else
-                call parsvv(a,recl,ival,nelt-i1+1,i1,j)
-              endif
+          else
+            if (k .ne. 1) then
+              call awrit1('#rf (warning): attempt'
+     .        //' to redeclare variable '//aa//'%a, line %i',
+     .        ' ',80,i1mach(2),nrd)
+              goto 91
+              goto 10
             endif
-            if (noskip) goto 91
-            goto 10
-          elseif ((i .eq. LHAR .or. i .eq. LHAR0 .or. i .eq. LENV)
-     .            .and. noskip) then
-            nchr0 = nchr
-            j = j+k
-            k = 1
-            if (i .eq. LHAR0) k = 0
-            if (i .eq. LENV) k = k+10
+C       ...   Find indices for vector subblock
+            j = j+1
+            j0 = j
+            ltmp2 = a2bin(a,i1,2,0,':',j0,recl)
+            if (ltmp2) j = j0
+            if (.not. a2bin(a,nelt,2,0,')',j,recl)) goto 999
+            if (.not. ltmp2) i1 = nelt
+            if (i .eq. LFIND) then
+              call strncp(aa,a,1,1,recl)
+              call skipbl(a,recl,j)
+              fname = ' '
+              call strcop(fname,a(j+1),ctlen,' ',k)
+              j = j+k
+              if (.not. a2bin(a,val,4,0,' ',j,recl)) goto 999
+              k = 0
+              do  45  i = i1, nelt
+                call getsvv(' ',ival,1,i,i,xx)
+                if (xx .eq. val) then
+                  k = i
+                  goto 46
+                endif
+   45         continue
+   46         continue
+              call lodsyv(fname,1,dble(k),k)
+              goto 91
+            else
+              call parsvv(a,recl,ival,nelt-i1+1,i1,j)
+            endif
+          endif
+          if (noskip) goto 91
+          goto 10
+        elseif ((i .eq. LHAR .or. i .eq. LHAR0 .or. i .eq. LENV)
+     .  .and. noskip) then
+          nchr0 = nchr
+          j = j+k
+          k = 1
+          if (i .eq. LHAR0) k = 0
+          if (i .eq. LENV) k = k+10
 
 C       ... make substitutions for eg % ... {}...
-            ja = 1
-            asbst = ' '
-            jr = 0
-            call pvfil1(recl,len(asbst),jr,a,cex,nchr,mxchr,ctbl,ja,
-     .        asbst,ltrace)
-            call parchv(asbst,ja,mxchr,cex,'= ',k,nchr,ctbl,j)
-            if (noskip) goto 85
-            goto 10
-          elseif (i .eq. LCHAR .and. noskip) then
-            nchr0 = nchr
-            j0 = k+j
-            i1 = i
+          ja = 1
+          asbst = ' '
+          jr = 0
+          call pvfil1(recl,len(asbst),jr,a,cex,nchr,mxchr,ctbl,ja,
+     .    asbst,ltrace)
+          call parchv(asbst,ja,mxchr,cex,'= ',k,nchr,ctbl,j)
+          if (noskip) goto 85
+          goto 10
+        elseif (i .eq. LCHAR .and. noskip) then
+          nchr0 = nchr
+          j0 = k+j
+          i1 = i
 
-            ja = 1
-            asbst = ' '
-            jr = 0
-            call pvfil1(recl,len(asbst),jr,a,cex,nchr,mxchr,ctbl,ja,
-     .        asbst,ltrace)
+          ja = 1
+          asbst = ' '
+          jr = 0
+          call pvfil1(recl,len(asbst),jr,a,cex,nchr,mxchr,ctbl,ja,
+     .    asbst,ltrace)
 
-            call skipbl(asbst,recl,j0)
-            if (j0 .ge. recl) goto 10
-            call tokmat(asbst(j0+1:),ctbl,nchr,ctlen,' ',i1,k,.false.)
+          call skipbl(asbst,recl,j0)
+          if (j0 .ge. recl) goto 10
+          call tokmat(asbst(j0+1:),ctbl,nchr,ctlen,' ',i1,k,.false.)
 C ... Replace existing string definition
-            if (i1 .ge. 0) then
-              i1 = i1+1
+          if (i1 .ge. 0) then
+            i1 = i1+1
 C ... Create new string definition
-            else
-              i1 = nchr+1
-              ctbl(i1,1) = ' '
-              call strcop(ctbl(i1,1),asbst(j0+1:),ctlen,' ',k)
-              nchr = i1
-              if (nchr .gt. mxchr)
-     .          call rx('rdfiln: too many char variables')
-            endif
-            j0 = j0+k
+          else
+            i1 = nchr+1
+            ctbl(i1,1) = ' '
+            call strcop(ctbl(i1,1),asbst(j0+1:),ctlen,' ',k)
+            nchr = i1
+            if (nchr .gt. mxchr)
+     .      call rx('rdfiln: too many char variables')
+          endif
+          j0 = j0+k
 C ...       Loop until expression evaluates to true
-   73       call skipbl(asbst,recl,j0)
-            ltmp2 = .true.
-            ltmp = noskip
-            j = j0
-            call rdfilx(asbst,recl,.true.,j0,nrd,ctbl,mxchr,nchr,ltmp)
+   73     call skipbl(asbst,recl,j0)
+          ltmp2 = .true.
+          ltmp = noskip
+          j = j0
+          call rdfilx(asbst,recl,.true.,j0,nrd,ctbl,mxchr,nchr,ltmp)
 c           print *, aa(1:j0)
 C           Expression evaluated to false; skip over associated expr.
-            if (.not. ltmp) then
+          if (.not. ltmp) then
 C             If at end, give up
-              if (j0 .ge. recl) goto 87
+            if (j0 .ge. recl) goto 87
 C             This ensures movement past end of expression
-              call chrpos(asbst,' ',recl,j0)
-              call skipbl(asbst,recl,j0)
+            call chrpos(asbst,' ',recl,j0)
+            call skipbl(asbst,recl,j0)
 C             (chrpos works except doesn't allow spaces in string)
 C             call chrpos(asbst,' ',recl,j0)
 C             If at end, give up
-              if (j0 .ge. recl) goto 87
-              ctmp = asbst(j0+1:j0+1)
-              if (ctmp .ne. '"') ctmp = ' '
-              if (ctmp .eq. '"') j0=j0+1
-              call chrpos(asbst,ctmp,recl,j0)
-              if (ctmp .eq. '"') j0=j0+1
-c             print *, (asbst(m), m=1,j0), '|'
-C             If at end, give up
-              if (j0 .ge. recl) goto 87
-              goto 73
-            endif
-            call skipbl(asbst,recl,j0)
-C           Expression evaluates to true, but no string: set to blank
-            if (j0 .eq. recl) then
-              ctbl(i1,2) = ' '
-              if (noskip) goto 85
-              goto 10
-            endif
-c           print *, (asbst(m), m=1,j0), '|'
-C           call strcop(ctbl(i1,2),asbst(j0+1),ctlen,' ',k)
-            k = 1
+            if (j0 .ge. recl) goto 87
             ctmp = asbst(j0+1:j0+1)
             if (ctmp .ne. '"') ctmp = ' '
             if (ctmp .eq. '"') j0=j0+1
-            ja = j0
-            call chrpos(asbst,ctmp,recl,ja)
-            aa = ' '
-            call pvfil1(ja,ja,j0,asbst,cex,nchr,mxchr,ctbl,k,aa,ltrace)
-            ctbl(i1,2) = aa
-            if (ctmp .eq. '"') ja=ja+1
+            call chrpos(asbst,ctmp,recl,j0)
+            if (ctmp .eq. '"') j0=j0+1
+c             print *, (asbst(m), m=1,j0), '|'
+C             If at end, give up
+            if (j0 .ge. recl) goto 87
+            goto 73
+          endif
+          call skipbl(asbst,recl,j0)
+C           Expression evaluates to true, but no string: set to blank
+          if (j0 .eq. recl) then
+            ctbl(i1,2) = ' '
             if (noskip) goto 85
             goto 10
-          elseif (i .eq. LHOW .and. noskip) then
-            j = j+k
-            call skipbl(a,recl,j)
-            i = 2
-            if (j .ge. recl) goto 32
-            call tokmat(a(j+1),sdir,4,5,' ',i,j,.false.)
-            goto (31,32,32,34), i+1
-            call fexit(-1,1,' Exit -1: rdfiln failed to parse show, '//
-     .        'line %i',nrd)
+          endif
+c           print *, (asbst(m), m=1,j0), '|'
+C           call strcop(ctbl(i1,2),asbst(j0+1),ctlen,' ',k)
+          k = 1
+          ctmp = asbst(j0+1:j0+1)
+          if (ctmp .ne. '"') ctmp = ' '
+          if (ctmp .eq. '"') j0=j0+1
+          ja = j0
+          call chrpos(asbst,ctmp,recl,ja)
+          aa = ' '
+          call pvfil1(ja,ja,j0,asbst,cex,nchr,mxchr,ctbl,k,aa,ltrace)
+          ctbl(i1,2) = aa
+          if (ctmp .eq. '"') ja=ja+1
+          if (noskip) goto 85
+          goto 10
+        elseif (i .eq. LHOW .and. noskip) then
+          j = j+k
+          call skipbl(a,recl,j)
+          i = 2
+          if (j .ge. recl) goto 32
+          call tokmat(a(j+1),sdir,4,5,' ',i,j,.false.)
+          goto (31,32,32,34), i+1
+          call fexit(-1,1,' Exit -1: rdfiln failed to parse show, '//
+     .    'line %i',nrd)
 C      ...  'show stop'
-   31       continue
-            lshow = ipr .gt. 110
-            goto 10
+   31     continue
+          lshow = ipr .gt. 110
+          goto 10
 C      ...  'show all' or 'show lines'
-   32       continue
-            lshow = .true.
-            if (i .eq. 2) goto 10
+   32     continue
+          lshow = .true.
+          if (i .eq. 2) goto 10
 C      ...  'show vars'
-   34       continue
-            call awrit1('#rf %i:',' ',80,i1mach(2),nrd)
-            call shosyv(0,0,0,6)
-            call numsvv(ival)
-            if (ival .gt. 0) then
-              print *, '----'
-              call shosvv(1,ival,i1mach(2))
-            endif
-            if (nchr .gt. 0) print *, '---- character variables:'
-            do  35  k = 1, nchr
+   34     continue
+          call awrit1('#rf %i:',' ',80,i1mach(2),nrd)
+          call shosyv(0,0,0,6)
+          call numsvv(ival)
+          if (ival .gt. 0) then
+            print *, '----'
+            call shosvv(1,ival,i1mach(2))
+          endif
+          if (nchr .gt. 0) print *, '---- character variables:'
+          do  35  k = 1, nchr
             print '(i4,2x,a,2x,a)', k, ctbl(k,1)(1:20),ctbl(k,2)
 ccccccccccccccc
 c           call awrit1('%,4i  '//ctbl(k,1)(1:20)//ctbl(k,2)//'%a',
 c     .          ' ',ctlen+25,i1mach(2),k)
 ccccccccccccccc
-   35       continue
-            goto 10
-          elseif (i .eq. LRACE) then
-            j0 = j+k
-            ltmp = noskip
-            if (.not. ltmp) goto 10
+   35     continue
+          goto 10
+        elseif (i .eq. LRACE) then
+          j0 = j+k
+          ltmp = noskip
+          if (.not. ltmp) goto 10
 C       ... No expression, toggle trace and exit
-            call skipbl(a,recl,j0)
-            if (j0 .ge. recl) then
-              if (ltrace .le. 0) then
-                ltrace = 1
-              else
-                ltrace = 0
-              endif
+          call skipbl(a,recl,j0)
+          if (j0 .ge. recl) then
+            if (ltrace .le. 0) then
+              ltrace = 1
             else
-              j = j0
-              call rdfilx(a,recl,.true.,j0,nrd,ctbl,mxchr,nchr,ltmp)
               ltrace = 0
-              if (ltmp) ltrace = 1
+            endif
+          else
+            j = j0
+            call rdfilx(a,recl,.true.,j0,nrd,ctbl,mxchr,nchr,ltmp)
+            ltrace = 0
+            if (ltmp) ltrace = 1
 C         ... If a valid expression, set to numerical value
-              if (ltmp) then
-                ltmp2 = a2bin(a,k,2,0,' ',j,recl)
-                if (ltmp2) ltrace = k
-              endif
+            if (ltmp) then
+              ltmp2 = a2bin(a,k,2,0,' ',j,recl)
+              if (ltmp2) ltrace = k
             endif
-            call awrit3(' rdfiln %i: trace %?#n>0#set to %i'//
-     .        '#turned off#',' ',80,i1mach(2),nrd,ltrace,ltrace)
-            goto 10
-          elseif (i .eq. LCHO .and. noskip) then
-            iecho = 1
-            j0 = j+k
-          elseif ((i .eq. LXIT .or. i .eq. LTOP) .and. noskip) then
-            j0 = j+k
-            call skipbl(a,recl,j0)
-            if (j0 .ge. recl) then
-              if (i .eq. LXIT) goto 99
-              call awrit1('#rf %i: stop encountered',
-     .          ' ',80,i1mach(2),nrd)
-              call cexit(-1,1)
-            endif
-            ltmp = a2bin(a,ltmp2,0,0,' ',j0,recl)
-            j0 = j0-1
-            iecho = 4
-            if (ltmp .and. ltmp2) iecho = 3
-          elseif ((i .eq. LNCLUD .or. i .eq. LNCLUO) .and. noskip) then
-            filstk = filstk+1
-            nrdstk(filstk) = nrd
-            unit0(filstk) = lunit
-            lunit = 99-filstk
-            nrd = 0
-            j = j+k
-            call skipbl(a,recl,j)
-            ja = 1
-            fname = ' '
-            call pvfil1(recl,len(fname),j,a,cex,nchr,mxchr,ctbl,ja,
-     .        fname,ltrace)
-            call skpblb(fname,len(fname),k)
-            if (ltrace .gt. 0)
-     .        call awrit1('%x#rf %i: '''//dir(i+1)//'%a'' opening'//
-     .        ' file '''//fname//'%a''',aa,120,i1mach(2),nrdstk(filstk))
+          endif
+          call awrit3(' rdfiln %i: trace %?#n>0#set to %i'//
+     .    '#turned off#',' ',80,i1mach(2),nrd,ltrace,ltrace)
+          goto 10
+        elseif (i .eq. LCHO .and. noskip) then
+          iecho = 1
+          j0 = j+k
+        elseif ((i .eq. LXIT .or. i .eq. LTOP) .and. noskip) then
+          j0 = j+k
+          call skipbl(a,recl,j0)
+          if (j0 .ge. recl) then
+            if (i .eq. LXIT) goto 99
+            call awrit1('#rf %i: stop encountered',
+     .      ' ',80,i1mach(2),nrd)
+            call cexit(-1,1)
+          endif
+          ltmp = a2bin(a,ltmp2,0,0,' ',j0,recl)
+          j0 = j0-1
+          iecho = 4
+          if (ltmp .and. ltmp2) iecho = 3
+        elseif ((i .eq. LNCLUD .or. i .eq. LNCLUO) .and. noskip) then
+          filstk = filstk+1
+          nrdstk(filstk) = nrd
+          unit0(filstk) = lunit
+          lunit = 99-filstk
+          nrd = 0
+          j = j+k
+          call skipbl(a,recl,j)
+          ja = 1
+          fname = ' '
+          call pvfil1(recl,len(fname),j,a,cex,nchr,mxchr,ctbl,ja,
+     .    fname,ltrace)
+          call skpblb(fname,len(fname),k)
+          if (ltrace .gt. 0)
+     .    call awrit1('%x#rf %i: '''//dir(i+1)//'%a'' opening'//
+     .    ' file '''//fname//'%a''',aa,120,i1mach(2),nrdstk(filstk))
 C       ... Should we use fopna?
-            if (i .eq. LNCLUD) then
-              open(lunit,FILE=fname(1:k+1),STATUS='UNKNOWN',ERR=98)
-            elseif (i .eq. LNCLUO) then
-              open(lunit,FILE=fname(1:k+1),STATUS='OLD',ERR=98)
-            endif
+          if (i .eq. LNCLUD) then
+            open(lunit,FILE=fname(1:k+1),STATUS='UNKNOWN',ERR=98)
+          elseif (i .eq. LNCLUO) then
+            open(lunit,FILE=fname(1:k+1),STATUS='OLD',ERR=98)
+          endif
 C       ... Read new line with different logical unit
-            goto 10
+          goto 10
 C       ... Error if cannot open file
-   98       call rx('rdfiln: error opening include file "'//
-     .        fname(1:k+1)//'"')
-          elseif (i .eq. LDEF .and. noskip) then
+   98     call rx('rdfiln: error opening include file "'//
+     .    fname(1:k+1)//'"')
+        elseif (i .eq. LDEF .and. noskip) then
 C       ... For each name, swap with top and remove top variable
-            j0 = k+j
+          j0 = k+j
 
-            ja = 1
-            asbst = ' '
-            jr = 0
-            call pvfil1(recl,len(asbst),jr,a,cex,nchr,mxchr,ctbl,ja,
-     .        asbst,ltrace)
+          ja = 1
+          asbst = ' '
+          jr = 0
+          call pvfil1(recl,len(asbst),jr,a,cex,nchr,mxchr,ctbl,ja,
+     .    asbst,ltrace)
 
-            call skipbl(asbst,recl,j0)
+          call skipbl(asbst,recl,j0)
 C           set ltmp = .false. unless udef -f , then ltmp = .true.
-            ltmp = .false.
-            if (j0 .lt. recl-3) then
-              if (asbst(j0+1:j0+3) .eq. '-f ') then
-                j0 = j0+2
-                ltmp = .true.
-              endif
+          ltmp = .false.
+          if (j0 .lt. recl-3) then
+            if (asbst(j0+1:j0+3) .eq. '-f ') then
+              j0 = j0+2
+              ltmp = .true.
             endif
-   43       continue
-            call skipbl(asbst,recl,j0)
-            if (j0 .ge. recl) goto 10
-            fname = ' '
-            k = 0
-            call strcop(fname,asbst(j0+1:),ctlen,' ',k)
-            j0 = j0+k
+          endif
+   43     continue
+          call skipbl(asbst,recl,j0)
+          if (j0 .ge. recl) goto 10
+          fname = ' '
+          k = 0
+          call strcop(fname,asbst(j0+1:),ctlen,' ',k)
+          j0 = j0+k
 C       ... First try to udef a char variable
-            call tokmat(fname,ctbl,nchr,ctlen,' ',i1,k,.false.)
-            i1 = i1+1
-            if (i1 .gt. 0) then
-              do  44  k = i1+1, nchr
+          call tokmat(fname,ctbl,nchr,ctlen,' ',i1,k,.false.)
+          i1 = i1+1
+          if (i1 .gt. 0) then
+            do  44  k = i1+1, nchr
               ctbl(k-1,1) = ctbl(k,1)
-   44         ctbl(k-1,2) = ctbl(k,2)
-              nchr = nchr-1
-              goto 43
-            endif
-C       ... Otherwise, try to udef a scalar variable
-            call getsyv(fname,val,k)
-            if (k .eq. 0 .and. ltmp) goto 43
-            if (k .eq. 0) call fexit(-1,1,' Exit -1 rdfiln line %i:'//
-     .        '  no variable "'//fname//'%a" to undefine',nrd)
-            call numsyv(nsyv)
-            call togsyv(k,nsyv)
-            nsyv = nsyv-1
-            call clrsyv(nsyv)
+   44       ctbl(k-1,2) = ctbl(k,2)
+            nchr = nchr-1
             goto 43
+          endif
+C       ... Otherwise, try to udef a scalar variable
+          call getsyv(fname,val,k)
+          if (k .eq. 0 .and. ltmp) goto 43
+          if (k .eq. 0) call fexit(-1,1,' Exit -1 rdfiln line %i:'//
+     .    '  no variable "'//fname//'%a" to undefine',nrd)
+          call numsyv(nsyv)
+          call togsyv(k,nsyv)
+          nsyv = nsyv-1
+          call clrsyv(nsyv)
+          goto 43
 
-          elseif (i .eq. LAVE .and. noskip) then
+        elseif (i .eq. LAVE .and. noskip) then
 C       ... If keeping all anyway, forget this command
-            if (nkeepv .lt. 0) goto 10
-            j0 = k+j
+          if (nkeepv .lt. 0) goto 10
+          j0 = k+j
 C       ... if no arguments, save everything up to this point
-            call skipbl(a,recl,j0)
-            if (j0 .ge. recl) then
-              call numsyv(nkeepv)
-              goto 10
-            endif
-C       ... For each name, swap with name at nkeepv
-   42       continue
-            call skipbl(a,recl,j0)
-            if (j0 .ge. recl) goto 10
-            fname = ' '
-            k = 0
-            call strcop(fname,a(j0+1),ctlen,' ',k)
-            j0 = j0+k
-            call getsyv(fname,val,k)
-            if (k .eq. 0) call fexit(-1,1,' Exit -1 rdfiln line %i:'//
-     .        '  no variable "'//fname//'%a" to save',nrd)
-            if (k .le. nkeepv) goto 42
-            nkeepv = nkeepv+1
-            call togsyv(k,nkeepv)
-            goto 42
-          elseif (i .eq. LACRO .and. noskip) then
-            call strncp(aa,a,1,1,recl)
-            j = j+k
-            call macset(aa(j+1:),k)
-            if (k .lt. 0)
-     .        call rxs('rdfiln failed to parse macro',aa(j+1:))
+          call skipbl(a,recl,j0)
+          if (j0 .ge. recl) then
+            call numsyv(nkeepv)
             goto 10
           endif
+C       ... For each name, swap with name at nkeepv
+   42     continue
+          call skipbl(a,recl,j0)
+          if (j0 .ge. recl) goto 10
+          fname = ' '
+          k = 0
+          call strcop(fname,a(j0+1),ctlen,' ',k)
+          j0 = j0+k
+          call getsyv(fname,val,k)
+          if (k .eq. 0) call fexit(-1,1,' Exit -1 rdfiln line %i:'//
+     .    '  no variable "'//fname//'%a" to save',nrd)
+          if (k .le. nkeepv) goto 42
+          nkeepv = nkeepv+1
+          call togsyv(k,nkeepv)
+          goto 42
+        elseif (i .eq. LACRO .and. noskip) then
+          call strncp(aa,a,1,1,recl)
+          j = j+k
+          call macset(aa(j+1:),k)
+          if (k .lt. 0)
+     .    call rxs('rdfiln failed to parse macro',aa(j+1:))
+          goto 10
         endif
+      endif
 
 C   --- Copy this line into recrd, substituting variable names ---
-        if (a(1) .ne. cc1 .and. noskip) then
-          call strncp(recrd,a,1,1,recl)
-          if (lex) then
-            jr = j0
-            ja = 1
-            call pvfil1(recl,recl,jr,recrd,cex,nchr,mxchr,ctbl,ja,a,
-     .        ltrace)
-            do  47  i = ja, recl
-   47       a(i) = ' '
-            if (iecho .ne. 0) then
-              if (mod(iecho,2) .ne. 0) then
-                j = 1
-                call skipbl(a,recl,j)
-                call skpblb(a,recl,k)
-                write(i1mach(4),346) nrd, (a(jr+1), jr=j,k)
-  346           format('#rf', i5, ': ', 256a1)
+      if (a(1) .ne. cc1 .and. noskip) then
+        call strncp(recrd,a,1,1,recl)
+        if (lex) then
+          jr = j0
+          ja = 1
+          call pvfil1(recl,recl,jr,recrd,cex,nchr,mxchr,ctbl,ja,a,
+     .    ltrace)
+          do  47  i = ja, recl
+   47     a(i) = ' '
+          if (iecho .ne. 0) then
+            if (mod(iecho,2) .ne. 0) then
+              j = 1
+              call skipbl(a,recl,j)
+              call skpblb(a,recl,k)
+              write(i1mach(4),346) nrd, (a(jr+1), jr=j,k)
+  346         format('#rf', i5, ': ', 256a1)
 C               call cwrite(a,j,k,1)
-              endif
-              if (iecho/2 .eq. 1) then
-                call awrit1('#rf %i: stop encountered',
-     .            ' ',80,i1mach(2),nrd)
-                call cexit(-1,1)
-              endif
-              goto 10
-            else
-              call strncp(recrd,a,1,1,recl)
             endif
+            if (iecho/2 .eq. 1) then
+              call awrit1('#rf %i: stop encountered',
+     .        ' ',80,i1mach(2),nrd)
+              call cexit(-1,1)
+            endif
+            goto 10
+          else
+            call strncp(recrd,a,1,1,recl)
           endif
-          nr = nr+1
-          if (lshow) then
-            call skpblb(recrd,recl,k)
-            print '(256a1)', (recrd(jr), jr=0,k)
-          endif
-          return
         endif
+        nr = nr+1
+        if (lshow) then
+          call skpblb(recrd,recl,k)
+          print '(256a1)', (recrd(jr), jr=0,k)
+        endif
+        return
+      endif
       goto 10
 
    99 continue
       if (filstk .gt. 0) then
         if (ltrace .gt. 0) call awrit1('#rf closing include file: '
-     .    //'%i lines',' ',80,i1mach(2),nrd)
+     .  //'%i lines',' ',80,i1mach(2),nrd)
         close(lunit)
         do  54  j = 0, nlev
    54   nlin(j) = nlin(j)-nrd
@@ -1252,30 +1252,30 @@ C ...   And on our merry way, with the old unit
       nr = -nr
       if (ltrace .gt. 0 .or. ipr .le. 100) return
       call awrit1(cc1//'rdfiln generated %i records.',
-     .  fname,len(fname),i1mach(2),-nr)
+     .fname,len(fname),i1mach(2),-nr)
       return
 
 C --- Trace entry points ---
 C ... if-else-endif constructs
    81 if (ltrace .eq. 0) goto 10
       call awrit5('%a''%?#n>1# (nesting=%i)#%j#, read following lines: '
-     . //'%?#n#yes#no#%?#n#%2b(blocked by level %i)',
-     . aa,80,-i1mach(2),niff,niff,isw(liff(niff)),
-     . isw(.not.liff(max(niff,1)-1).and.niff.gt.1),niff-1)
+     .//'%?#n#yes#no#%?#n#%2b(blocked by level %i)',
+     .aa,80,-i1mach(2),niff,niff,isw(liff(niff)),
+     .isw(.not.liff(max(niff,1)-1).and.niff.gt.1),niff-1)
       goto 10
 C ... while/repeat-end constructs
    82 if (ltrace .eq. 0) goto 10
       call awrit5('%a''%?#n>1# (nesting=%i)#%j#, read following lines: '
-     .  //'%?#n#yes#no#%?#n#%2b(blocked by level %i)',
-     .  aa,80,-i1mach(2),nlev,nlev,isw(loop0(nlev)),
-     .  isw(.not.loop0(max(nlev,1)-1).and.nlev.gt.1),nlev-1)
+     .//'%?#n#yes#no#%?#n#%2b(blocked by level %i)',
+     .aa,80,-i1mach(2),nlev,nlev,isw(loop0(nlev)),
+     .isw(.not.loop0(max(nlev,1)-1).and.nlev.gt.1),nlev-1)
       goto 10
 C ... const,var directives
    83 if (ltrace .gt. 1) then
         call awrit1('%x#rf %i: '''//dir(i+1)//'%a'', added',aa,80,0,nrd)
         call numsyv(j)
         do  84  i = nsyv+1, j
-        call watsyv(fname,val,i)
+          call watsyv(fname,val,i)
    84   call awrit1('%a '//fname//'%a%?#n<0#,##',aa,80,0,i-j)
         if (nsyv .eq. j) call awrit0('%a ... no new vars',aa,80,0)
         call awrit0('%a',aa,80,-i1mach(2))
@@ -1292,7 +1292,7 @@ C ... char directives
       goto 10
 C ... cchar read failed
    87 if (ltrace .gt. 1) then
-      call awrit1('%x#rf %i: '''//dir(i+1)//'%a'', var '//ctbl(nchr,1)//
+        call awrit1('%x#rf %i: '''//dir(i+1)//'%a'', var '//ctbl(nchr,1)//
      .  '%a not changed',aa,80,-i1mach(2),nrd)
       endif
       nchr = nchr0
@@ -1302,7 +1302,7 @@ C ... vec directives
         call awrit1('%x#rf %i: '''//dir(i+1)//'%a'', added',aa,80,0,nrd)
         call numsvv(j)
         do  92  i = nsyv+1, j
-        call watsvv(fname,i)
+          call watsvv(fname,i)
    92   call awrit1('%a '//fname//'%a%?#n<0#,##',aa,80,0,i-j)
         if (nsyv .eq. j) call awrit0('%a ... no new vars',aa,80,0)
         call awrit0('%a',aa,80,-i1mach(2))
@@ -1322,12 +1322,12 @@ C- Reads entire disk file into recrd, calling rdfiln.
       character ctbl(mxchr,2)*(ctlen)
       logical loop0(0:mxlev)
       integer nlin(0:mxlev),list(lstsiz,mxlev),
-     .  ilist(mxlev),nlist(0:mxlev)
+     .ilist(mxlev),nlist(0:mxlev)
       character vnam(mxlev)*16
 
       nr = 0
    10 call rdfiln(unit,cch,mxlev,loop0,nlin,list,lstsiz,
-     .  ilist,nlist,vnam,ctbl,mxchr,a,recrd(nr*recl),recl,nr)
+     .ilist,nlist,vnam,ctbl,mxchr,a,recrd(nr*recl),recl,nr)
       if (nr .le. 0) then
         nr = -nr
         return
@@ -1470,7 +1470,7 @@ C Local variables
     5 a(ia) = ' '
       ja0 = ja
       if (.not. pvfil2(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl,ja,a))
-     .  return
+     .return
    10 continue
       aa = ' '
       do  11  ia = ja0, ja
@@ -1487,7 +1487,7 @@ C Local variables
 
       end
       logical function pvfil2(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl,
-     .  ja,a)
+     .ja,a)
 C- Kernel of rdfiln that parses string with substitutions
 C  and returns T if substitution was inside a nested block.
 C ----------------------------------------------------------------
@@ -1508,7 +1508,7 @@ C ----------------------------------------------------------------
       integer mxchr,reclr,recla,nchr,ja,jr,ctlen
       parameter (ctlen=120)
       character*1 recrd(0:reclr-1),a(recla),cex*2,ctbl(mxchr,2)*(ctlen),
-     .  aa*512,aa2*(ctlen),aa3*(ctlen),aastr*(ctlen),aasub*(ctlen)
+     .aa*512,aa2*(ctlen),aa3*(ctlen),aastr*(ctlen),aasub*(ctlen)
 C Local variables
       logical a2bin,a2bina,lqchr
       character*1 qchr,match
@@ -1518,154 +1518,154 @@ c #else
       parameter (qchr='\\')
 c #endif
       integer i,j,k,m,ival,kkk,i1,i2,ip1,ip2,
-     .  ip,ii(2),ix(2),istr1,istr2,a2vec,iaa21,iaa22,iaa2,iaa3
+     .ip,ii(2),ix(2),istr1,istr2,a2vec,iaa21,iaa22,iaa2,iaa3
       equivalence (i1,ii(1)), (i2,ii(2))
       double precision res
 
       pvfil2 = .false.
       if (cex .eq. ' ') return
    10 continue
-        if (jr .ge. reclr) return
+      if (jr .ge. reclr) return
 C   --- Parse for next expression; quote \cex literally ---
-        k = -1
-        k = k+1
-        call chrpos(recrd(jr),cex,reclr-jr,k)
+      k = -1
+      k = k+1
+      call chrpos(recrd(jr),cex,reclr-jr,k)
 C       lqchr is T if quote character literally
-        lqchr = k.ge.1 .and. recrd(jr+k-1) .eq. qchr
+      lqchr = k.ge.1 .and. recrd(jr+k-1) .eq. qchr
 C   --- Copy string up to substitution ---
-        k = min(k,recla-ja,reclr-jr-1)
-        if (k .lt. 0) return
-        do  15  i = 0, k
-   15   a(ja+i) = recrd(jr+i)
-        jr = jr+k+1
-        ja = ja+k+1
-        if (lqchr) then
-          ja = ja-1
-          a(ja-1) = a(ja)
-          goto 10
-        endif
+      k = min(k,recla-ja,reclr-jr-1)
+      if (k .lt. 0) return
+      do  15  i = 0, k
+   15 a(ja+i) = recrd(jr+i)
+      jr = jr+k+1
+      ja = ja+k+1
+      if (lqchr) then
+        ja = ja-1
+        a(ja-1) = a(ja)
+        goto 10
+      endif
 C   ... Exit if no substitution
-        if (jr .ge. reclr .or. ja .gt. recla) return
+      if (jr .ge. reclr .or. ja .gt. recla) return
 C   --- Handle 'nesting' of cex by treating outer cex as a literal ---
-        k = 0
-        call chrps2(recrd(jr),cex,2,reclr-jr-1,k,kkk)
+      k = 0
+      call chrps2(recrd(jr),cex,2,reclr-jr-1,k,kkk)
 C   ... can't find corresponding close of cex
-        if (kkk .eq. 0) then
-          call pvfil3('missing "',cex(2:2),'" in line:',recrd,1,reclr)
+      if (kkk .eq. 0) then
+        call pvfil3('missing "',cex(2:2),'" in line:',recrd,1,reclr)
 C   ... cex is nested.  This pass, quote outer cex literally
-        elseif (kkk .eq. 1) then
-          do  16  i = 0, k-1
-   16     a(ja+i) = recrd(jr+i)
-          jr = jr+k
-          ja = ja+k
+      elseif (kkk .eq. 1) then
+        do  16  i = 0, k-1
+   16   a(ja+i) = recrd(jr+i)
+        jr = jr+k
+        ja = ja+k
 C         print *, 'testing',(a(kkk), kkk=1,ja)
-          pvfil2 = .true.
-          goto 10
-        endif
+        pvfil2 = .true.
+        goto 10
+      endif
 
 C   --- Parse and replace expression ---
 C       a(ja) is 1st char after \cex
 C   ... Case expr?string1:string2
-        if (recrd(jr) .eq. '?') then
-          match = recrd(jr+1)
+      if (recrd(jr) .eq. '?') then
+        match = recrd(jr+1)
 C         Position of cex(2:2)
-          k = k+jr
+        k = k+jr
 C         Start of expression, save for error message
-          m = jr
+        m = jr
 C         Parse the expression
-          jr = jr+2
-          if (.not. a2bin(recrd,i,2,0,match,jr,reclr))
-     .      call pvfil3('could ','not ','parse:',recrd,m,reclr)
+        jr = jr+2
+        if (.not. a2bin(recrd,i,2,0,match,jr,reclr))
+     .  call pvfil3('could ','not ','parse:',recrd,m,reclr)
 C         First char after expr
-          kkk = jr
+        kkk = jr
 C         Position of matching char
-          call chrpos(recrd,match,reclr,jr)
-          if (jr .ge. reclr) call pvfil3(
-     .      'missing matching "',match,'" in line: ',recrd,m,reclr)
+        call chrpos(recrd,match,reclr,jr)
+        if (jr .ge. reclr) call pvfil3(
+     .  'missing matching "',match,'" in line: ',recrd,m,reclr)
 C         First string
-          if (i .ne. 0) then
-            m = kkk
+        if (i .ne. 0) then
+          m = kkk
 C         Second string
-          else
-            m = jr+1
-            match = cex(2:2)
-          endif
-C         Copy one string
-          call strcop(a(ja-1),recrd(m),reclr-m,match,i)
-C         Update ja,jr before resuming parsing
-          ja = ja+i-2
-          a(ja) = ' '
-          jr = k+1
-          goto 10
+        else
+          m = jr+1
+          match = cex(2:2)
         endif
+C         Copy one string
+        call strcop(a(ja-1),recrd(m),reclr-m,match,i)
+C         Update ja,jr before resuming parsing
+        ja = ja+i-2
+        a(ja) = ' '
+        jr = k+1
+        goto 10
+      endif
 
 C   ... Start of expression should be a variable name; put into aa
-        aa = ' '
-        call strcop(aa,recrd(jr),reclr-jr,cex(2:2),i)
-        match = aa(i:i)
-        aa(i:i) = ' '
-        call wordg(aa,10,'A-Za-z_0-9',1,i1,i2)
+      aa = ' '
+      call strcop(aa,recrd(jr),reclr-jr,cex(2:2),i)
+      match = aa(i:i)
+      aa(i:i) = ' '
+      call wordg(aa,10,'A-Za-z_0-9',1,i1,i2)
 C       call skipbl(aa,ctlen,i2)
-        if (i2+1 .lt. i) then
-          match = aa(i2+1:i2+1)
-          aa(i2+1:i2+1) = ' '
-        endif
+      if (i2+1 .lt. i) then
+        match = aa(i2+1:i2+1)
+        aa(i2+1:i2+1) = ' '
+      endif
 
 C   ... Case string aa matched an entry in ctbl
 C       i=index to ctbl if start of aa holds member of ctbl
-        call tokmat(aa,ctbl,nchr,ctlen,' ',i,m,.false.)
-        if (i .ge. 0) then
-          aa2 = ctbl(i+1,2)
+      call tokmat(aa,ctbl,nchr,ctlen,' ',i,m,.false.)
+      if (i .ge. 0) then
+        aa2 = ctbl(i+1,2)
 C         Simple character variable substution
-          if (match .eq. cex(2:2)) then
-            i1 = 1
-            i2 = ctlen
-            goto 20
+        if (match .eq. cex(2:2)) then
+          i1 = 1
+          i2 = ctlen
+          goto 20
 C         If not subexpression, subst does not involve a char variable
-          elseif ( match .ne. '(') then
-            i = -1
-            goto 20
-          endif
-          ip = i2+1
-          call skipbl(aa,ctlen,ip)
-          ip = ip+1
+        elseif ( match .ne. '(') then
+          i = -1
+          goto 20
+        endif
+        ip = i2+1
+        call skipbl(aa,ctlen,ip)
+        ip = ip+1
 C         Case aa = ctbl(i+1,1)(/s1/s2/[,n1,n2])
-          if (aa(ip:ip+2) .eq. ':e)') then
-            call strip(aa2,i1,i2)
-            ja = ja-2
-            call bin2a(' ',0,0,i2,2,0,recla,a,ja)
-            ja = ja+1
-            jr = jr+ip+3
-            goto 10
-          elseif (aa(ip:ip) .eq. '/') then
-            istr1 = ip+1
-            istr2 = istr1
-            call cpstr(aa,ctlen,0,'/',istr2,ip1,aastr)
-            if (istr2 .le. istr1 .or. istr2 .ge. ctlen) goto 999
-            istr2 = istr2+1
-            call cpstr(aa,ctlen,0,'/',istr2,ip2,aasub)
-            if (istr2 .le. istr1 .or. istr2 .ge. ctlen) goto 999
-            m = istr2+1
-            if (aa(m:m) .eq. ',') then
-              k = a2vec(aa,len(aa),m,2,',)',2,2,2,ix,ii)
-              if (i1 .lt. 1) call pvfil3(
-     .          'illegal',' parameter',' in',recrd,1,reclr)
-              if (k .ne. 2) goto 999
-            else
-              i1 = 1
-              i2 = 1
-            endif
-            m = m+1
-            ip1 = ip1-1
-            ip2 = ip2-1
-            ip = ctlen
-            call skpblb(aa2,ctlen,ip)
-            ip = ip+1
-            iaa21 = 1
-            iaa22 = ip-ip1+1
-            iaa3 = 0
-            aa3 = ' '
-            do  25  j = 1, i2
+        if (aa(ip:ip+2) .eq. ':e)') then
+          call strip(aa2,i1,i2)
+          ja = ja-2
+          call bin2a(' ',0,0,i2,2,0,recla,a,ja)
+          ja = ja+1
+          jr = jr+ip+3
+          goto 10
+        elseif (aa(ip:ip) .eq. '/') then
+          istr1 = ip+1
+          istr2 = istr1
+          call cpstr(aa,ctlen,0,'/',istr2,ip1,aastr)
+          if (istr2 .le. istr1 .or. istr2 .ge. ctlen) goto 999
+          istr2 = istr2+1
+          call cpstr(aa,ctlen,0,'/',istr2,ip2,aasub)
+          if (istr2 .le. istr1 .or. istr2 .ge. ctlen) goto 999
+          m = istr2+1
+          if (aa(m:m) .eq. ',') then
+            k = a2vec(aa,len(aa),m,2,',)',2,2,2,ix,ii)
+            if (i1 .lt. 1) call pvfil3(
+     .      'illegal',' parameter',' in',recrd,1,reclr)
+            if (k .ne. 2) goto 999
+          else
+            i1 = 1
+            i2 = 1
+          endif
+          m = m+1
+          ip1 = ip1-1
+          ip2 = ip2-1
+          ip = ctlen
+          call skpblb(aa2,ctlen,ip)
+          ip = ip+1
+          iaa21 = 1
+          iaa22 = ip-ip1+1
+          iaa3 = 0
+          aa3 = ' '
+          do  25  j = 1, i2
             do  24  iaa2 = iaa21, iaa22
               iaa3 = iaa3+1
               aa3(iaa3:iaa3) = aa2(iaa2:iaa2)
@@ -1683,98 +1683,98 @@ C         Case aa = ctbl(i+1,1)(/s1/s2/[,n1,n2])
               endif
    24       continue
             call pvfil3('could not find substr "',aastr(1:ip1),'" in',
-     .        recrd,1,reclr)
-   25       continue
-            aa2 = aa3
-            i1 = 1
-            i2 = ctlen
-            call skpblb(aa2,ctlen,i2)
-            i2 = i2+1
+     .      recrd,1,reclr)
+   25     continue
+          aa2 = aa3
+          i1 = 1
+          i2 = ctlen
+          call skpblb(aa2,ctlen,i2)
+          i2 = i2+1
 C         Case aa = ctbl(i+1,1)('char-list' [,n])
-          elseif (aa(ip:ip) .eq. '''' .or. (aa(ip:ip) .eq. '"')) then
-            i1 = ip+1
-            i2 = ip
+        elseif (aa(ip:ip) .eq. '''' .or. (aa(ip:ip) .eq. '"')) then
+          i1 = ip+1
+          i2 = ip
 C           call cpstr(aa,ctlen,1,aa(ip:ip),ip,ip1,aasub)
-            call eostr(aa,ctlen,21,aa(ip:ip),i2)
-            if (i2 .ge. ctlen) goto 999
-            i2 = i2-1
-            kkk = i2+2
-            if (aa(kkk:kkk) .eq. ')') then
-              k = 1
-            elseif (aa(kkk:kkk) .eq. ',') then
-              if (.not. a2bin(aa,k,2,0,')',kkk,len(aa))) goto 999
-            else
-              goto 999
-            endif
-            call wordg(ctbl(i+1,2),100,aa(i1:i2),k,i1,i2)
-            ja = ja-2
-            call bin2a(' ',0,0,i2+1,2,0,recla,a,ja)
-            ja = ja+1
-            jr = jr+kkk+1
-            goto 10
-C         Assume aa = ctbl(i+1,1)(n1,n2)
+          call eostr(aa,ctlen,21,aa(ip:ip),i2)
+          if (i2 .ge. ctlen) goto 999
+          i2 = i2-1
+          kkk = i2+2
+          if (aa(kkk:kkk) .eq. ')') then
+            k = 1
+          elseif (aa(kkk:kkk) .eq. ',') then
+            if (.not. a2bin(aa,k,2,0,')',kkk,len(aa))) goto 999
           else
-            ip1 = i2+1
-            ip = ip1
-            k = a2vec(aa,len(aa),ip,2,',)',2,2,2,ix,ii)
-            if (k .ne. 2) goto 999
-C           Add to m so that jr is incremented past (..)
-            m = m + ip-ip1+1
+            goto 999
           endif
+          call wordg(ctbl(i+1,2),100,aa(i1:i2),k,i1,i2)
+          ja = ja-2
+          call bin2a(' ',0,0,i2+1,2,0,recla,a,ja)
+          ja = ja+1
+          jr = jr+kkk+1
+          goto 10
+C         Assume aa = ctbl(i+1,1)(n1,n2)
+        else
+          ip1 = i2+1
+          ip = ip1
+          k = a2vec(aa,len(aa),ip,2,',)',2,2,2,ix,ii)
+          if (k .ne. 2) goto 999
+C           Add to m so that jr is incremented past (..)
+          m = m + ip-ip1+1
         endif
+      endif
 C   ... End of test for character variables.  If string substitution,
 C       i>0 and aa2(i1:i2) = (possibly modified) substring of ctbl
 C       and m = number of characters to advance in recrd
-   20   continue
+   20 continue
 
 C   ... Substitute a character variable
-        if (i .ge. 0) then
-          jr = jr+m
-          m = i2
-          call skpblb(aa2,ctlen,i2)
-          m = min(m,i2+1)
-          a(ja-1) = ' '
+      if (i .ge. 0) then
+        jr = jr+m
+        m = i2
+        call skpblb(aa2,ctlen,i2)
+        m = min(m,i2+1)
+        a(ja-1) = ' '
 C         print *, 'before 33',(a(kkk), kkk=1,ja-2+0)
-          do  33  k = i1, m
-   33     a(ja+k-i1-1) = aa2(k:k)
+        do  33  k = i1, m
+   33   a(ja+k-i1-1) = aa2(k:k)
 C         print *, 'after 33',k1,k2,(a(kkk), kkk=1,ja+m-i1-1)
-          ja = ja+m-i1
+        ja = ja+m-i1
 
 C   ... Numerical expression
-        elseif (a2bina(recrd,res,4,0,cex(2:2),jr,reclr)) then
-          ja = ja-2
-          if (dabs(res) .gt. 1) then
-            call bin2a('g9',0,0,res,4,0,recla,a,ja)
-          else
-            call bin2a('g9:10',0,0,res,4,0,recla,a,ja)
-          endif
-          ja = ja+1
-
+      elseif (a2bina(recrd,res,4,0,cex(2:2),jr,reclr)) then
+        ja = ja-2
+        if (dabs(res) .gt. 1) then
+          call bin2a('g9',0,0,res,4,0,recla,a,ja)
         else
-C   ... if a name for a vector, replace with ascii rep of entire vector
-          call sizsvv(aa,ival,0,k)
-          if (ival .gt. 0) then
-            ja = ja-2
-            do  35  m = 1, k
-              call getsvv(' ',ival,1,m,m,res)
-              if (dabs(res) .gt. 1) then
-                call bin2a('g9',0,0,res,4,0,recla,a,ja)
-              else
-                call bin2a('g9:10',0,0,res,4,0,recla,a,ja)
-              endif
-              ja = ja+1
-              a(ja) = ' '
-   35       continue
-            call chrpos(recrd,cex(2:2),reclr,jr)
-            jr = jr+1
-          else
-            print *, 'rdfile: bad expression in line'
-            print *, (recrd(j), j=0, jr-1), '  ...  ',
-     .        (recrd(j), j=jr, reclr-1)
-            call cexit(-1,1)
-          endif
+          call bin2a('g9:10',0,0,res,4,0,recla,a,ja)
         endif
-        goto 10
+        ja = ja+1
+
+      else
+C   ... if a name for a vector, replace with ascii rep of entire vector
+        call sizsvv(aa,ival,0,k)
+        if (ival .gt. 0) then
+          ja = ja-2
+          do  35  m = 1, k
+            call getsvv(' ',ival,1,m,m,res)
+            if (dabs(res) .gt. 1) then
+              call bin2a('g9',0,0,res,4,0,recla,a,ja)
+            else
+              call bin2a('g9:10',0,0,res,4,0,recla,a,ja)
+            endif
+            ja = ja+1
+            a(ja) = ' '
+   35     continue
+          call chrpos(recrd,cex(2:2),reclr,jr)
+          jr = jr+1
+        else
+          print *, 'rdfile: bad expression in line'
+          print *, (recrd(j), j=0, jr-1), '  ...  ',
+     .    (recrd(j), j=jr, reclr-1)
+          call cexit(-1,1)
+        endif
+      endif
+      goto 10
 
   999 continue
       call pvfil3('could',' not',' parse',recrd,1,reclr)

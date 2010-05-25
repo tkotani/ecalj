@@ -1,5 +1,5 @@
       subroutine mkpdos(mode,ssite,sspec,isp,nsp,nlmax,ndham,nev,
-     .  nchan,npd,lsite,nsite,ppnl,aus,doswt)
+     .nchan,npd,lsite,nsite,ppnl,aus,doswt)
 
       use m_struc_def  !Cgetarg
 
@@ -51,7 +51,7 @@ C ... Passed parameters
 C ... Local parameters
       integer lmxa,lmxax,lmdim,ichan,i,ib,is,igetss,iv,ilm,l,m,nlma,ll
       double precision summ(121),suml(11),s11,s22,s33,s12,s13,s23,
-     .  suma,sum,rmt
+     .suma,sum,rmt
       double complex au,as,az
 
       call isanrg(mode,0,5,' mkpdos','mode',.true.)

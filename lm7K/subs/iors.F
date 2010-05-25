@@ -1,6 +1,6 @@
 #define FP 1
       integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
-     .  fid,nbas,nat,nspec,orhoat,qnu,nit,lbin,ifi)
+     .fid,nbas,nat,nspec,orhoat,qnu,nit,lbin,ifi)
 
       use m_struc_def  !Cgetarg
 
@@ -135,12 +135,12 @@ C ... Passed parameters
 C ... Local parameters
       integer procid,master,mpipid,nproc
       integer i,i0,i1,i2,i3,i4,ib,ipr,iprint,ic,is,is0,isp,jb,k1,k2,k3,
-     .  igetss,jfi,k11,k21,k31,kmax,kmax0,kmxv,l,lfoc,lfoc0,lmxa,
-     .  lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel,lrel0,n11,n21,
-     .  n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
-     .  nxi,nat0,ibaug
+     .igetss,jfi,k11,k21,k31,kmax,kmax0,kmxv,l,lfoc,lfoc0,lmxa,
+     .lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel,lrel0,n11,n21,
+     .n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
+     .nxi,nat0,ibaug
       integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
-     . , stdo , isw , osmrho , oves
+     ., stdo , isw , osmrho , oves
       complex(8) ,allocatable :: h_zv(:)
       real(8) ,allocatable :: rwgt_rv(:)
 
@@ -148,14 +148,14 @@ C ... Local parameters
       integer idmod(n0),idmoz(n0),lrs(10),nl
       logical isanrg,lgors,lfail,ltmp1,ltmp2,latvec,lshear,cmdopt,mlog
       double precision a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt,
-     .  rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,
-     .  vol0,vs,vs1,z,z0
+     .rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,
+     .vol0,vs,vs1,z,z0
       double precision pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3),
-     .  pos0(3),force(3),vel(3),plat(9),plat0(9),qlat(9),qlat0(9),
-     .  exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2),
-     .  pnzs(n0,2),dval
+     .pos0(3),force(3),vel(3),plat(9),plat0(9),qlat(9),qlat0(9),
+     .exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2),
+     .pnzs(n0,2),dval
       character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80,
-     .  msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
+     .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
 
 C ... Heap
       integer w(1)
@@ -335,9 +335,9 @@ C       Abort with error message if file is missing (lfail = .true.)
           call strip(usernm,i,i3)
           call strip(hostnm,i,i4)
           if (ipr .ge. 40) write(stdo,710) fid(1:i1),
-     .     usernm(1:i3),hostnm(1:i4),datimp(1:i2)
+     .    usernm(1:i3),hostnm(1:i4),datimp(1:i2)
   710     format(9x,'id -  ',a
-     .        /9x,'written by -  ',a,' on ',a,' at: ',a)
+     .    /9x,'written by -  ',a,' on ',a,' at: ',a)
 
           if (mode .eq. -1) then
             nbas = nbas0
@@ -363,7 +363,7 @@ C       OK to reduce nat (e.g. E.S.); these sites will be skipped
           endif
 C       if (isanrg(nsp0,  nsp,nsp,  msg,'nsp', .true.)) goto 999
           if (nsp0 .lt. nsp) call info0(20,0,0,
-     .  '%9f(warning) rst file not spin pol .. splitting spins')
+     .    '%9f(warning) rst file not spin pol .. splitting spins')
           if (isanrg(npan0, npan,npan,msg,'npan',.true.)) goto 999
           lfail = isanrg(lrel0, lrel,lrel,msgw,'lrel',.false.)
           call fsanrg(abs(vs1),1.00d0,abs(vs),0d0,' ','file''s version',
@@ -428,13 +428,13 @@ c   ... or read and remesh
             else
               if (ipr .ge. 10) write(stdo,450) n11,n21,n31,n1,n2,n3
   450         format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,
-     .       '    to  ',i4,'  *',i4,'  *',i4)
+     .        '    to  ',i4,'  *',i4,'  *',i4)
               call fftz30(n11,n21,n31,k11,k21,k31)
               allocate(h_zv(abs(-k11*k21*k31*nsp)))
               if (-k11*k21*k31*nsp<0) h_zv(:)=0.0d0
 
               call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , h_zv 
-     .     , lbin , jfi )
+     .        , lbin , jfi )
 
               if (nsp .gt. nsp0) then
 C           call zprm3('smrho before split',0,w(oh),k1,k2,k3)
@@ -448,7 +448,7 @@ C           call zprm3('smrho before split',0,w(oh),k1,k2,k3)
               i = 0
               if (n1 .eq. 2*n11 .and. n2 .eq. 2*n21 .and. n3 .eq. 2*n31) i=3
               call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , 
-     .     k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , w ( osmrho ) )
+     .        k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , w ( osmrho ) )
 
               call poppr
               if (allocated(h_zv)) deallocate(h_zv)
@@ -465,7 +465,7 @@ C   ... If cell volume changed, scale smooth density to maintain charge
             if (dabs(vfac-1d0) .gt. 1d-8) then
               if (ipr .ge. 10) write(stdo,460) vol0,vfac
   460         format(9x,'volume changed from',f8.2,
-     .       ' :  scale smooth density by',f8.4)
+     .        ' :  scale smooth density by',f8.4)
               call dpcopy(w(osmrho),w(osmrho),1,2*k1*k2*k3*nsp,vfac)
             endif
           endif
@@ -607,8 +607,8 @@ C           If 1st entry > nspec => probably nr, not is.  Assume floating
             backspace jfi
             if (is .gt. nspec) then
               call info2(10,0,0,
-     .          '%9f(warning) species mismatch (%i) for ib=%i ... '//
-     .          'ignore and assign to species 0',is,ib)
+     .        '%9f(warning) species mismatch (%i) for ib=%i ... '//
+     .        'ignore and assign to species 0',is,ib)
 
               ssite(ib)%spec=0
 
@@ -773,7 +773,7 @@ C         if (lmxa0 .lt. lmxa) call defpq(z,lmxa,nsp,pnu,ql)
 C       ... For backwards compatibility: prior versions wrote pnu for pnz
             do  l = 0, lmxa0+1
               if (pnu(l+1,isp) .eq. mod(pnz(l+1,isp),10d0))
-     .          pnz(l+1,isp) = 0
+     .        pnz(l+1,isp) = 0
             enddo
           enddo
 C         read(but don't use) site idmod for compatibility with nfp
@@ -831,7 +831,7 @@ C     ... Verify lowest valence pnu compatible with file
               ltmp2 = ltmp2 .or.
      .        int(mod(pnz(i,1),10d0)) .ne. int(mod(pnzs(i,1),10d0))
               lfail = lfail .or. min(int(pnu(i,1)),int(vec0(1))) .ne.
-     .                         min(int(pnus(i,1)),int(vec0(2)))
+     .        min(int(pnus(i,1)),int(vec0(2)))
             enddo
             if (ltmp1 .and. ipr.ge.20)
      .      write(stdo,203) ib,spid,'file pnu',(pnu(i,1), i=1,lmxa+1)
@@ -864,12 +864,12 @@ C         if (is0 .ne. is) call xxerri('species pointer',is,is0)
 
 #if FP
               if (kmax0.ne.kmax.and.ipr.ge.10)
-     .      write(stdo,201) ib,spid,'kmax',kmax0,kmax
+     .        write(stdo,201) ib,spid,'kmax',kmax0,kmax
 #endif
               if (lmxa0.ne.lmxa.and.ipr.ge.10)
-     .      write(stdo,201) ib,spid,'lmax',lmxa0,lmxa
+     .        write(stdo,201) ib,spid,'lmax',lmxa0,lmxa
   201         format(9x,'site',i4,', species ',a,
-     .      ': augmentation ',a,' changed from',i2,' to',i2)
+     .        ': augmentation ',a,' changed from',i2,' to',i2)
             endif
 
 C         Case read but skip over this site data
@@ -886,7 +886,7 @@ C     --- Allocate and read arrays for local density and potential ---
 C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
           if (mode .eq. 1 .or. mode .eq. -2) then
             if (nr .ne. nr0)
-     .        call rx('iors not set up to convert radial mesh')
+     .      call rx('iors not set up to convert radial mesh')
             call defrr(orhoat(1,ib),  nr*nlml*nsp)
             call defrr(orhoat(2,ib),  nr*nlml*nsp)
             call defrr(orhoat(3,ib),  nr*nsp)
@@ -895,16 +895,16 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
             if (procid .eq. master) then
               if (.not. lbin) read(jfi,*)
               call dpdbyl(w(orhoat(1,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
-     .                  jfi)
+     .        jfi)
               if (.not. lbin) read(jfi,*)
               call dpdbyl(w(orhoat(2,ib)),nr0,nlml0,nlml,nsp0,nsp,lbin,
-     .                  jfi)
+     .        jfi)
               if (nlml0.gt.nlml.and.ipr.ge.10)
      .        write(stdo,202) ib,spid,'truncate',nlml0,nlml
               if (nlml0.lt.nlml.and.ipr.ge.10)
      .        write(stdo,202) ib,spid,'inflate',nlml0,nlml
   202         format(9x,'site',i4,', species ',a,
-     .             ': ',a,' local density from nlm=',i3,' to',i3)
+     .        ': ',a,' local density from nlm=',i3,' to',i3)
               if (.not. lbin) read(jfi,*)
               call dpdbyl(w(orhoat(3,ib)),nr0,1,1,nsp0,nsp,lbin,jfi)
               if (.not. lbin) read(jfi,*)
@@ -928,11 +928,11 @@ C           endif
 
             else
               call mpibc1(w(orhoat(1,ib)),nr*nlml*nsp,4,mlog,'iors',
-     .          'rhoat(1)')
+     .        'rhoat(1)')
               call mpibc1(w(orhoat(2,ib)),nr*nlml*nsp,4,mlog,'iors',
-     .          'rhoat(2)')
+     .        'rhoat(2)')
               call mpibc1(w(orhoat(3,ib)),nr*nlml*nsp,4,mlog,'iors',
-     .          'rhoat(3)')
+     .        'rhoat(3)')
               call mpibc1(w(ov0),nr*nsp,4,mlog,'iors','v0')
               call mpibc1(w(ov1),nr*nsp,4,mlog,'iors','v1')
             endif
@@ -1076,7 +1076,7 @@ C           spin-split core density
               if (lbin) then
                 read(jfi,err=999,end=999) rsmfa,nxi
                 read(jfi,err=999,end=999)
-     .        ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
+     .          ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
               else
                 read(jfi,*,err=999,end=999)
                 read(jfi,*,err=999,end=999) rsmfa,nxi
@@ -1147,12 +1147,12 @@ Ctakao_ZeroClear_NotRequiered              if (nr<0) rwgt_rv(:)=0.0d0
               call radwgt ( rmt , a , nr , rwgt_rv )
 
               call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoat ( 3 
-     .       , ib ) ) , sum )
+     .        , ib ) ) , sum )
 
               fac = 1d0
               if (dabs(sum) .gt. 1d-6) fac = qc/sum
               if (dabs(fac-1d0).gt.1d-7 .and. ipr.ge.30)
-     .         write(stdo,787) ib,qc,sum,fac
+     .        write(stdo,787) ib,qc,sum,fac
   787         format(' fix core chg: ib=',i4,'  qc,sum,fac=',3f12.6)
               call dpcopy(w(orhoat(3,ib)),w(orhoat(3,ib)),1,nr*nsp,fac)
               if (allocated(rwgt_rv)) deallocate(rwgt_rv)
@@ -1209,7 +1209,7 @@ C ...   Write header and general information
         call strip(usernm,i,i3)
         call strip(hostnm,i,i4)
         if (ipr .ge. 40) write(stdo,710) fid(1:i1),
-     .     usernm(1:i3),hostnm(1:i4),datimp(1:i2)
+     .  usernm(1:i3),hostnm(1:i4),datimp(1:i2)
 
   721   format('----------------------- ',a,' -----------------------')
         if (lbin) then
@@ -1228,7 +1228,7 @@ C ...   Write header and general information
         else
           write(jfi,721) 'header'
           write(jfi,'(1f15.10,t50,a)') vs,
-     .      '! version; id; date; name; host'
+     .    '! version; id; date; name; host'
           write(jfi,'(1x,a68)') fid0
           write(jfi,'(1x,a32)') datimp
           write(jfi,'(1x,a32)') usernm
@@ -1236,16 +1236,16 @@ C ...   Write header and general information
 C         write(jfi,'(''  nbas nsp  npan lrel nit'')')
           if (abs(vs) .le. 1.021) then
             write(jfi,'(5i5,t50,a)') nbas,nsp,npan,lrel,nit,
-     .        '! nbas nsp npan lrel nit'
+     .      '! nbas nsp npan lrel nit'
           else if (abs(vs) .le. 1.031) then
             write(jfi,'(6i5,t50,a)') nbas,nsp,npan,lrel,nit,nspec,
-     .        '! nbas nsp npan lrel nit nspec'
+     .      '! nbas nsp npan lrel nit nspec'
           else
             write(jfi,'(7i5,t50,a)') nbas,nat,nsp,npan,lrel,nit,nspec,
-     .        '! nbas nat nsp npan lrel nit nspec'
+     .      '! nbas nat nsp npan lrel nit nspec'
           endif
           write(jfi,'(f15.10,1pe20.10,t50,a)') alat,vol,
-     .      '! alat vol; plat'
+     .    '! alat vol; plat'
           write(jfi,'(3f15.10)') plat
         endif
 
@@ -1403,7 +1403,7 @@ C             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
               vrmax(1) = 0
               vrmax(2) = 0
               call aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
-     .          idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
+     .        idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
 
               oves=spot%oves
 
@@ -1417,7 +1417,7 @@ C             call aiopot(nr,nsp,a,rmt,-99d0,w(ov0),-jfi)
 
           if (ipr .ge. 50) then
             write(stdo,349) ib,spid,lmxa,lmxl,rmt,nr,a,
-     .        (pnu(l+1,1),l=0,lmxa)
+     .      (pnu(l+1,1),l=0,lmxa)
             if (nsp .eq. 2)  write(stdo,350) (pnu(l+1,2), l=0,lmxa)
 C           if (npan .eq. 2) write(stdo,350) (pz(l+1,1), l=0,lmxa)
 C            if (npan .eq. 2 .and. nsp .eq. 2)
@@ -1479,7 +1479,7 @@ C     ... For now, ASA stores no core data
             else
               call dfdump(w(orhoca),nr*nsp,-jfi)
               write(jfi,'('' core tail: rsmfa,n,e,cof=''/f15.10,i4)')
-     .          rsmfa,nxi
+     .        rsmfa,nxi
               write(jfi,ffmt) (exi(i),i=1,nxi)
               call dfdump(hfc(1,1),nxi,-jfi)
               if (nsp .eq. 2) call dfdump(hfc(1,2),nxi,-jfi)
@@ -1498,11 +1498,11 @@ C     ... For now, ASA stores no core data
 
 C ... Error handling
   998 if (ipr .gt. 0)
-     .  write(stdo,'('' iors  : empty file ... nothing read'')')
+     .write(stdo,'('' iors  : empty file ... nothing read'')')
       return
   999 continue
       if (ipr .gt. 0)
-     .  write(stdo,'('' iors  : read failed in: '',a)') line
+     .write(stdo,'('' iors  : read failed in: '',a)') line
 
       end function iors
 

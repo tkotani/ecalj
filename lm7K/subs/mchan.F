@@ -1,5 +1,5 @@
       subroutine mchan(lmdim,ssite,sspec,nsp,nsites,lsites,ib,ilm,io,
-     .                 ichan,lchan)
+     .ichan,lchan)
 
       use m_struc_def  !Cgetarg
 
@@ -27,7 +27,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed Parameters
       integer lmdim,nsp,nsites,lsites(nsites),lchan(lmdim,nsites),
-     .        ib,ilm,io,ichan
+     .ib,ilm,io,ichan
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -41,10 +41,10 @@ C Local Variables
         ichan = lchan(ilm,ib)
       else
         call awrit1('%N mchan: channel table, %i sites',
-     .    ' ',256,lgunit(1),nsites)
+     .  ' ',256,lgunit(1),nsites)
         if (nsp .eq. 2)
      .  call awrit0(' (each channel splits into two: up, down spin)',
-     .    ' ',256,lgunit(1))
+     .  ' ',256,lgunit(1))
         call awrit0(' site  label          channels',' ',128,lgunit(1))
         do  j = 1, nsites
           jb = lsites(j)

@@ -1,5 +1,5 @@
       subroutine dostet(nbmx,nsp,nspx,nevmx,nchan,n1,n2,n3,ntet,
-     .  idtet,eband,doswt,npts,emin,emax,lidos,wk,zos)
+     .idtet,eband,doswt,npts,emin,emax,lidos,wk,zos)
 C- Density of states to third order by tetrahedron method
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -20,7 +20,7 @@ C     implicit none
 C ... Passed parameters
       integer nchan,nsp,nspx,nbmx,npts,ntet,idtet(0:4,*),n1,n2,n3,nevmx
       double precision eband(nbmx,nspx,1),emin,emax,wk(npts),
-     .  zos(npts,nsp,nchan),doswt(nchan,nbmx,nsp,1)
+     .zos(npts,nsp,nchan),doswt(nchan,nbmx,nsp,1)
       logical lidos
 C ... Local parameters
       integer isp,ib,i,itet,ichan,iq1,iq2,iq3,iq4,nspc,jsp,ksp
@@ -29,7 +29,7 @@ C ... External calls
       external dcopy,dpzero,slinz
 
       if (npts .le. 1 .or. npts .le. 2 .and. .not. lidos) call rx1(
-     .  'dostet: npts(=%i) too small for DOS : require npts>2',npts)
+     .'dostet: npts(=%i) too small for DOS : require npts>2',npts)
       nspc = nsp / nspx
       call dpzero(zos,npts*nsp*nchan)
       bin = npts - 1
@@ -59,13 +59,13 @@ C       ... ksp is isp for uncoupled spins, and jsp for coupled spins
               ksp = max(jsp,isp)
 
 C       ... Accumulate no. states assuming constant wt from this tet
-            do  2  ichan = 1, nchan
-              wt = doswt(ichan,ib,ksp,iq1)
-     .           + doswt(ichan,ib,ksp,iq2)
-     .           + doswt(ichan,ib,ksp,iq3)
-     .           + doswt(ichan,ib,ksp,iq4)
-              wt = wt * idtet(0,itet) * v / 4d0
-              call slinz(wt,eigen,emin,emax,zos(1,ksp,ichan),npts)
+              do  2  ichan = 1, nchan
+                wt = doswt(ichan,ib,ksp,iq1)
+     .          + doswt(ichan,ib,ksp,iq2)
+     .          + doswt(ichan,ib,ksp,iq3)
+     .          + doswt(ichan,ib,ksp,iq4)
+                wt = wt * idtet(0,itet) * v / 4d0
+                call slinz(wt,eigen,emin,emax,zos(1,ksp,ichan),npts)
     2       continue
     3     continue
     4   continue
@@ -76,13 +76,13 @@ C       ... Accumulate no. states assuming constant wt from this tet
 C --- DOS from finite difference of NOS ---
       bin = 2d0 * bin
       do  11  isp  = 1, nsp
-      do  11  ichan = 1, nchan
-        do  10  i = 2, npts - 1
-          wk(i) = (zos(i+1,isp,ichan) - zos(i-1,isp,ichan)) / bin
-   10   continue
-        wk(1)    = wk(2)
-        wk(npts) = wk(npts-1)
-        call dcopy(npts,wk,1,zos(1,isp,ichan),1)
+        do  11  ichan = 1, nchan
+          do  10  i = 2, npts - 1
+            wk(i) = (zos(i+1,isp,ichan) - zos(i-1,isp,ichan)) / bin
+   10     continue
+          wk(1)    = wk(2)
+          wk(npts) = wk(npts-1)
+          call dcopy(npts,wk,1,zos(1,isp,ichan),1)
    11 continue
       end
 

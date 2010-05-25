@@ -17,7 +17,7 @@ C     implicit none
       integer lmax,l,n,nmax
       double precision r,e,a,xi(0:lmax)
       double precision a0(0:40),a2,add,akap,al,cc,derfc,dudr,ema2r2,fac,
-     .  gl,r2n,radd,rfac,rhs,rlim,srpi,sum,ta,ta2l,tol,u,uminus,uplus,w
+     .gl,r2n,radd,rfac,rhs,rlim,srpi,sum,ta,ta2l,tol,u,uminus,uplus,w
       parameter (nmax=1000, tol=1d-20, srpi=1.77245385090551602729817d0)
 
       if (e .gt. 0d0) call rx('hansmr: e gt 0')

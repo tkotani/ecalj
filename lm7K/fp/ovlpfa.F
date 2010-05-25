@@ -1,5 +1,5 @@
       subroutine ovlpfa(ssite,slat,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,
-     .  gv,cv)
+     .gv,cv)
 
       use m_struc_def  !Cgetarg
 
@@ -43,7 +43,7 @@ C ... Passed parameters
 C ... Local parameters
       integer stdo,ipr,iprint,lgunit,ib,is,nx,i,ixi,ig,nsp,nglob,isp
       double precision v(3),pi,y0,alat,vol,tpiba,sum(2),px,py,pz,pos(3),
-     .  sam(2),e,cof,rsm,gam,v2,aa,scalp
+     .sam(2),e,cof,rsm,gam,v2,aa,scalp
       double complex phase
       equivalence (px,pos(1)),(py,pos(2)),(pz,pos(3))
 #if MPI | MPIK
@@ -128,8 +128,8 @@ C       ... Loop over reciprocal lattice vectors
         enddo
         if (ipr .gt. 30 .and. nx .gt. 0) then
           call awrit6(' site%,4i  spec%,3i  pos%3;8,4D'//
-     .      '  Qsmooth %,6;6d%?#n==2#  mom %,5;5d##',
-     .      ' ',90,stdo,ib,is,pos,sam(1)+sam(2),nsp,sam(1)-sam(2))
+     .    '  Qsmooth %,6;6d%?#n==2#  mom %,5;5d##',
+     .    ' ',90,stdo,ib,is,pos,sam(1)+sam(2),nsp,sam(1)-sam(2))
           if (ipr .ge. 40) then
             write(stdo,700) 'energy:',(exi(i,is),i=1,nx)
             write(stdo,700) 'coeff:',(hfc(i,1,is),i=1,nx)
@@ -153,9 +153,9 @@ C     call rx0('done')
 
       ipr  = iprint()
       call info5(31,0,0,' total smooth Q = %,6;6d'//
-     .  '%?#n==2#  moment = %,5;5d#%j#%?#n>40#  FT (0,0,0) = %,6;6d',
-     .  sum(1)+sum(2),nsp,sum(1)-sum(2),ipr,
-     .  (cv(1,1)+cv(1,nsp))*vol/(3-nsp))
+     .'%?#n==2#  moment = %,5;5d#%j#%?#n>40#  FT (0,0,0) = %,6;6d',
+     .sum(1)+sum(2),nsp,sum(1)-sum(2),ipr,
+     .(cv(1,1)+cv(1,nsp))*vol/(3-nsp))
 
       call tcx('ovlpfa')
       end subroutine ovlpfa

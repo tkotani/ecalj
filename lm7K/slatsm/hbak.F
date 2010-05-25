@@ -22,15 +22,15 @@ C Local parameters
       double precision xr,xi
 
       do 100 j = 1, m
-         do 100 i = n, 1, -1
-            xr = zr(i,j)
-            xi = zi(i,j)
-            do 60 k = i+1, n
-              xr = xr - (br(k,i)*zr(k,j) + bi(k,i)*zi(k,j))
-              xi = xi - (br(k,i)*zi(k,j) - bi(k,i)*zr(k,j))
-   60       continue
-            zr(i,j) = xr/dl(i)
-            zi(i,j) = xi/dl(i)
+        do 100 i = n, 1, -1
+          xr = zr(i,j)
+          xi = zi(i,j)
+          do 60 k = i+1, n
+            xr = xr - (br(k,i)*zr(k,j) + bi(k,i)*zi(k,j))
+            xi = xi - (br(k,i)*zi(k,j) - bi(k,i)*zr(k,j))
+   60     continue
+          zr(i,j) = xr/dl(i)
+          zi(i,j) = xi/dl(i)
   100 continue
       end
 

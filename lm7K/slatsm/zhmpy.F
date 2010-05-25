@@ -1,4 +1,4 @@
-       subroutine zhmpy(a,nca,nra,nia,b,ncb,nrb,nib,c,ncc,lc,l)
+      subroutine zhmpy(a,nca,nra,nia,b,ncb,nrb,nib,c,ncc,lc,l)
 C- complex matrix multiplication: result assumed hermitian
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -31,19 +31,19 @@ C --- Do multiplication ---
       do  20  k = l-1, 0, -1
         do  20  i = ncc-1, 0, -1
 #if BLAS
-        call yyaxpy(i+1,a(nra*i+nca*k),a(nia+nra*i+nca*k),
+          call yyaxpy(i+1,a(nra*i+nca*k),a(nia+nra*i+nca*k),
      .    b(nrb*k),b(nib+nrb*k),ncb,c(i),c(nic+i),ncc,.true.)
 #else
-        ar = a(      nra*i + nca*k)
-        ai = a(nia + nra*i + nca*k)
-        nccj = -ncc
-        ncbj = -ncb + nrb*k
-        do  20  j = i, 0, -1 
-        nccj = nccj + ncc
-        ncbj = ncbj + ncb
-        nrcicj = i + nccj
-        c(nrcicj)     = c(nrcicj)     + ar*b(ncbj) - ai*b(nib+ncbj)
-        c(nic+nrcicj) = c(nic+nrcicj) + ar*b(nib+ncbj) + ai*b(ncbj)
+          ar = a(      nra*i + nca*k)
+          ai = a(nia + nra*i + nca*k)
+          nccj = -ncc
+          ncbj = -ncb + nrb*k
+          do  20  j = i, 0, -1 
+            nccj = nccj + ncc
+            ncbj = ncbj + ncb
+            nrcicj = i + nccj
+            c(nrcicj)     = c(nrcicj)     + ar*b(ncbj) - ai*b(nib+ncbj)
+            c(nic+nrcicj) = c(nic+nrcicj) + ar*b(nib+ncbj) + ai*b(ncbj)
 #endif
    20 continue
 
@@ -51,8 +51,8 @@ C --- Copy c into c+ ---
       if (.not. lc) return
       do  40  i = ncc-1, 0, -1
         do  40  j = ncc-1, i+1, -1 
-        c(i+ncc*j) = c(j+ncc*i)
-        c(nic+i+ncc*j) = -c(nic+j+ncc*i)
+          c(i+ncc*j) = c(j+ncc*i)
+          c(nic+i+ncc*j) = -c(nic+j+ncc*i)
    40 continue
 
       end

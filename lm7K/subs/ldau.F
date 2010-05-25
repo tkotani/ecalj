@@ -67,7 +67,7 @@ C of two ldau versions eq. 5
             do  m2 = -l,l
               do  ii = -l,l
                 den2(m1,m2) = den2(m1,m2) + den1(m1,ii)*
-     .            den1(m2,ii)
+     .          den1(m2,ii)
               enddo
             enddo
           enddo

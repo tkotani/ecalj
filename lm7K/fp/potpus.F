@@ -1,5 +1,5 @@
       subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz,
-     .  ehl,rsml,rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
+     .ehl,rsml,rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
 C- Potential parameters for potential and boundary condition
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -131,23 +131,23 @@ C ... Passed parameters
       integer lmxa,lso,nr,nsp,n0,nab,nppn
       parameter (nppn=12)
       double precision z,rmax,a,rofi(1),v(nr,nsp),ehl(n0),rsml(n0),
-     .  pnu(n0,nsp),pnz(n0,nsp),pp(n0,2,5),ppnl(nppn,n0,2),
-     .  hab(nab,n0,nsp),sab(nab,n0,nsp),vab(nab,n0,nsp),vdif(nr,nsp),
-     .  sodb(nab,n0,nsp,2),rs3,vmtz
+     .pnu(n0,nsp),pnz(n0,nsp),pp(n0,2,5),ppnl(nppn,n0,2),
+     .hab(nab,n0,nsp),sab(nab,n0,nsp),vab(nab,n0,nsp),vdif(nr,nsp),
+     .sodb(nab,n0,nsp,2),rs3,vmtz
 C ... Local parameters
       integer stdo,nglob,ipr,ir,i,j,k,l,awrite,lpz,lpzi(0:n0),nrbig,
-     .  lorthz,lrel
+     .lorthz,lrel
       integer nrx
       parameter (nrx=1501)
       character*80 outs
       double precision m21,m11,m22,m12,cc,d00,d10,d11,det,vi,
-     .  fllp1,gfac,gf11,gf22,gf12,h00,h01,h10,h11,
-     .  phmins,phplus,q,r,s00,s01,s10,s11,tmc,
-     .  umegam,umegap,v00,v01,v10,v11,vl,xx,xxx,yyy,zzz,
-     .  enu,c,srdel,qpar,ppar,b,ghg,ghgp,gphgp
+     .fllp1,gfac,gf11,gf22,gf12,h00,h01,h10,h11,
+     .phmins,phplus,q,r,s00,s01,s10,s11,tmc,
+     .umegam,umegap,v00,v01,v10,v11,vl,xx,xxx,yyy,zzz,
+     .enu,c,srdel,qpar,ppar,b,ghg,ghgp,gphgp
       double precision d0z,d1z,dzz,v0z,v1z,s0z,s1z,vz0,vz1,sz0,
-     .  sz1,h0z,hz0,h1z,hz1,suz,ssz,szu,szs,szz,
-     .  vuz,vsz,vzu,vzs,vzz,huz,hsz,hzu,hzs,hzz
+     .sz1,h0z,hz0,h1z,hz1,suz,ssz,szu,szs,szz,
+     .vuz,vsz,vzu,vzs,vzz,huz,hsz,hzu,hzs,hzz
       double precision g(nr,2),gp(nr,2*4),gz(nr,2)
       double precision ev,phi,dphi,phip,dphip,p, dlphi,dlphip
       double precision ez,phz,dphz,phzp,dphzp,pz,dlphz,dlphzp,phz2,dphz2
@@ -157,12 +157,12 @@ C     double precision gbig(nrx*2),gpbig(nrx*8),vbig(nrx,2)
 C     Spin-Orbit related parameters
       integer moda(0:lmxa)
       double precision vavg(nr),dv(nr),sop(0:lmxa,nsp,nsp,3),
-     .                 sopz(0:lmxa,nsp,nsp,3),
-     .                 psi(nr,0:lmxa,nsp),dpsi(nr,0:lmxa,nsp),
-     .                 pzi(nr,0:lmxa,nsp),ezum(0:8,nsp),
-     .                 enum(0:8,nsp),wrk(nr,4),m(2,2,0:lmxa,nsp),
-     .                 x21,x11,x22,x12,vx00,vx01,vx10,vx11,
-     .                 vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz
+     .sopz(0:lmxa,nsp,nsp,3),
+     .psi(nr,0:lmxa,nsp),dpsi(nr,0:lmxa,nsp),
+     .pzi(nr,0:lmxa,nsp),ezum(0:8,nsp),
+     .enum(0:8,nsp),wrk(nr,4),m(2,2,0:lmxa,nsp),
+     .x21,x11,x22,x12,vx00,vx01,vx10,vx11,
+     .vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz
       common /cc/ cc
 
 C ... Setup
@@ -175,7 +175,7 @@ C     lorthd = 0
 C      print *, '!!'
 C      ipr=60
       call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,
-     .  lpz,nrbig,rofi,rwgt,xx)
+     .lpz,nrbig,rofi,rwgt,xx)
 C      call vxtrap(4,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,
 C     .  lpz,nrbig,rofi,rwgt,vbig)
 C      call prrmsh('rofi',rofi,rofi,nrbig,nrbig,1)
@@ -229,7 +229,7 @@ C --- Loop over l ---
 C ... Semicore wf gz and its sphere boundary parameters
           if (lpzi(l) .ne. 0) then
             call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),4,
-     .    gz,gp,ez,phz,dphz,phzp,dphzp,pz)
+     .      gz,gp,ez,phz,dphz,phzp,dphzp,pz)
 
 C   ... Keep local copies of gz for SO coupling
             if (lso .ne. 0) then
@@ -242,7 +242,7 @@ C       Extend local orbital to large mesh; match gz to envelope
               call dcopy(nr,gz,1,gzbig,1)
               call dcopy(nr,gz(1,2),1,gzbig(1+nrbig),1)
               call rwftai(5,rmax,a,nr,nrbig,rofi,phz,dphz,xx,l,ehl(k),
-     .      rsml(k),gzbig)
+     .        rsml(k),gzbig)
 C         If rwftai scales gzbig, rescale phz,gz
               if (gzbig(nr) .ne. gz(nr,1)) then
                 xx = gzbig(nr)/gz(nr,1)
@@ -272,7 +272,7 @@ C     ... Recopy gz for SO coupling
 
 C ... Valence w.f. g,gp, and their sphere boundary parameters
           call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,
-     .  ev,phi,dphi,phip,dphip,p)
+     .    ev,phi,dphi,phip,dphip,p)
 C     <g H g> = e <g g> = e
 C     <g H gp> = <g (H-e) gp> + e <g gp> = <g g> = 1
 C     <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
@@ -755,7 +755,7 @@ C --- Printout ---
           if (lpz .ne. 0) then
             write(stdo,815)
   815       format(/'  l',9x,' val-sc',5x,' slo-sc',5x,' sc-sc ',
-     .    5x,'sc-val',6x,'sc-slo')
+     .      5x,'sc-val',6x,'sc-slo')
             do   l = 0, lmxa
               k  = l+1
               if (pnz(k,1) .gt. 0) then
@@ -777,7 +777,7 @@ C ... Calculate spin-orbit parameters
 c        call soprm(5,psi,dpsi,nr,nsp,lmxa,lmxa,v,dv,enum,
 c     .    z,rofi,rwgt,wrk,sop)
         call soprm(5,lpzi,psi,dpsi,pzi,nr,nsp,lmxa,lmxa,v,dv,enum,
-     .    ezum,z,rofi,rwgt,wrk,sop,sopz)
+     .  ezum,z,rofi,rwgt,wrk,sop,sopz)
 
 C   ... Make the spin diagonal radial integrals
         do i = 1, nsp
@@ -810,9 +810,9 @@ C  ...  Make the local orbitals spin diagonal integrals
               vzs = vz0*m21 + vz1*m22
               vsz = m21*v0z + m22*v1z
               vzz = vzz - phz*(vuz+vzu) - dphz*(vsz+vzs) +
-     .           phz**2*sodb(1,k,i,1) +
-     .           phz*dphz*(sodb(2,k,i,1)+sodb(3,k,i,1)) + 
-     .           dphz**2*sodb(4,k,i,1)
+     .        phz**2*sodb(1,k,i,1) +
+     .        phz*dphz*(sodb(2,k,i,1)+sodb(3,k,i,1)) + 
+     .        dphz**2*sodb(4,k,i,1)
               vuz = vuz - phz*sodb(1,k,i,1) - dphz*sodb(2,k,i,1)
               vsz = vsz - phz*sodb(3,k,i,1) - dphz*sodb(4,k,i,1)
               vzu = vzu - phz*sodb(1,k,i,1) - dphz*sodb(3,k,i,1)
@@ -857,13 +857,13 @@ C     ... up-down block
           sodb(4,k,1,2)=m21*v00*x21+m21*v01*x22+m22*vx10*x21+m22*v11*x22
 C     ... down-up block
           sodb(1,k,2,2) = x11*vx00*m11+x11*v01*m12+x12*vx10*m11
-     .                   +x12*vx11*m12
+     .    +x12*vx11*m12
           sodb(2,k,2,2) = x11*vx00*m21+x11*v01*m22+x12*vx10*m21
-     .                   +x12*vx11*m22
+     .    +x12*vx11*m22
           sodb(3,k,2,2) = x21*vx00*m11+x21*v01*m12+x22*vx10*m11
-     .                   +x22*vx11*m12
+     .    +x22*vx11*m12
           sodb(4,k,2,2) = x21*vx00*m21+x21*v01*m22+x22*vx10*m21
-     .                   +x22*vx11*m22
+     .    +x22*vx11*m22
 
 C  ...  Make the local orbitals spin off-diagonal radial integrals
           if (moda(l) .eq. 6) then

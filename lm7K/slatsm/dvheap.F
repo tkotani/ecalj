@@ -68,7 +68,7 @@ C   ... Increment j if vecs(iprm(j+1)) > vecs(iprm(j))
             di = 0d0
             dl = 0d0
             do  24  mm = 1, m
-            dl = dl + vecs(mm,iprm(j))**2
+              dl = dl + vecs(mm,iprm(j))**2
    24       di = di + vecs(mm,iprm(j+1))**2
             dl = dsqrt(dl)
             di = dsqrt(di)
@@ -77,10 +77,10 @@ C   ... Increment j if vecs(iprm(j+1)) > vecs(iprm(j))
             endif
           else
             do  26  mm = 1, m
-            if (abs(vecs(mm,iprm(j+1))-vecs(mm,iprm(j))) .le. tol)
-     .          goto 26
-            if (vecs(mm,iprm(j+1))-vecs(mm,iprm(j)) .gt. tol) j = j+1
-            goto 28
+              if (abs(vecs(mm,iprm(j+1))-vecs(mm,iprm(j))) .le. tol)
+     .        goto 26
+              if (vecs(mm,iprm(j+1))-vecs(mm,iprm(j)) .gt. tol) j = j+1
+              goto 28
    26       continue
    28       continue
           endif
@@ -91,7 +91,7 @@ C   ... Demote rra to its level
           di = 0d0
           dl = 0d0
           do  34  mm = 1, m
-          dl = dl + vecs(mm,irra)**2
+            dl = dl + vecs(mm,irra)**2
    34     di = di + vecs(mm,iprm(j))**2
           dl = dsqrt(dl)
           di = dsqrt(di)
@@ -143,7 +143,7 @@ C ... Find i1,i2 = next range of equal numbers
         di = 0d0
         dl = 0d0
         do  124  mm = 1, m
-        dl = dl + vecs(mm,iprm(i1))**2
+          dl = dl + vecs(mm,iprm(i1))**2
   124   di = di + vecs(mm,iprm(i2))**2
         dl = dsqrt(dl)
         di = dsqrt(di)
@@ -210,7 +210,7 @@ C ... Put rra into its slot
 C --- Sort vecs ---
   200 continue
       if (mod(opts,10) .eq. 0)
-     .  call dvprm(m,n,vecs,vecs(1,n+1),iprm,.true.)
+     .call dvprm(m,n,vecs,vecs(1,n+1),iprm,.true.)
 
       end
       subroutine dvprm(m,n,vecs,wk,iprm,lopt)

@@ -1,5 +1,5 @@
       subroutine makrm0(opt,nspec,nbas,alat,plat,pos,slabl,ips,modep,
-     .  lock,z,rmt)
+     .lock,z,rmt)
 C- Estimate muffin-tin radii overlapping atomic potentials
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -78,18 +78,18 @@ C Local variables:
       parameter (nrmx=1501,nxi0=10,n0=10,niax=10,mxcsiz=400,npmx=mxcsiz)
       integer nglob,nsp,nxi,nrmix(2),lxcfun,is,opt0,opt1,opt2,opt3
       integer idmod(n0),lmxa,nrmt,nr,ib,nttab,k,ir,np,ipr,stdo,lgunit,
-     .  nrspec
+     .nrspec
       integer ntab(nbas+1),iax(niax,mxcsiz),ipa(nbas)
       double precision qc,ccof,ceh,rmtl(nspec),rfoca,rsmfa,qcor(2),
-     .  sumec,sumtc,eref,fac,ddot,fpi,etot
+     .sumec,sumtc,eref,fac,ddot,fpi,etot
       double precision a(nspec),b(nspec),xx(5)
       double precision pnu(n0,2),pnz(n0,2),qat(n0,2)
       double precision hfc(nxi0,2),exi(nxi0),hfct(nxi0,2)
       double precision rtab(n0,2),etab(n0,2)
       double precision v(nrmx,nspec+1),rho(nrmx,nspec+1),
-     .  rhoc(nrmx,nspec+1),rofi(nrmx*2),range(nbas),rmti(nbas)
+     .rhoc(nrmx,nspec+1),rofi(nrmx*2),range(nbas),rmti(nbas)
       double precision vp(npmx,0:2),xp(3,npmx),rp(npmx),
-     .  vxcp(npmx),excp(npmx)
+     .vxcp(npmx),excp(npmx)
       real(8) ,allocatable :: excx_rv(:)
       real(8) ,allocatable :: excc_rv(:)
       real(8) ,allocatable :: vxcx_rv(:)
@@ -103,7 +103,7 @@ C     Relative positions
       character*1 sym(2)
 C ... External calls
       external dcopy,defpq,defwsr,dpcopy,dpzero,dscal,freats,getpr,
-     .  iinit,info,pairc,polint,poppr,pshpr,psymq0,psymr0,rx,rxi,sumsro
+     .iinit,info,pairc,polint,poppr,pshpr,psymq0,psymr0,rx,rxi,sumsro
 C ... Heap
       integer w(1)
       common /w/ w
@@ -163,9 +163,9 @@ C       nrspec(is) = iabs(iclbsj(is,ips,-nbas,nbas))
         nrmt = 0
         call pshpr(ipr-20)
         call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,0,-1,qcor,nrmix,0,
-     .    lxcfun,z(is),rmtl(is),a(is),nrmt,pnu,pnz,qat,0d0,0d0,0d0,0d0,
-     .    idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho(1,is),rhoc(1,
-     .    is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot)
+     .  lxcfun,z(is),rmtl(is),a(is),nrmt,pnu,pnz,qat,0d0,0d0,0d0,0d0,
+     .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho(1,is),rhoc(1,
+     .  is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot)
         call poppr
         b(is) = rmtl(is)/(dexp(a(is)*(nrmt-1)) - 1d0)
 C       Restore 4*pi*r**2*(total density) in array rho
@@ -176,7 +176,7 @@ C       Use estat potential: overwrite v with estat
 C         call prrmsh('vtot',rofi,v(1,is),nr,nr,1)
           vrmax = 0
           call poiss0(z(is),a(is),b(is),rofi,rho(1,is),nr,vrmax,v(1,is),
-     .      xx(2),xx(4),nsp)
+     .    xx(2),xx(4),nsp)
 C         call prrmsh('ves',rofi,v(1,is),nr,nr,1)
         endif
 
@@ -213,9 +213,9 @@ C --- For each site, find rmti = initial estimate for rmtl ---
 C   ... Neighbor table connecting sites to this one
         nttab = mxcsiz
         call pairc(ib,ib,nbas,modep,20,0,alat,plat,pos,pos,range,-1,1,
-     .    nttab,ntab,iax,rpos,k)
+     .  nttab,ntab,iax,rpos,k)
         if (nttab.gt.mxcsiz)
-     .    call rxi('makrm0 : increase mxcsiz: need',nttab)
+     .  call rxi('makrm0 : increase mxcsiz: need',nttab)
 
 C   ... Maximum in potential ( mode 1)
 C       Find first maximum along all direction vectors
@@ -223,7 +223,7 @@ C       which are proportional to rpos, excluding self (first site).
 C       As a conservative choice, choose initial radius = rmtl/4.
         np = nttab-1
         if (nttab .gt. npmx)
-     .    call rxi('makrm0 : increase npmx: need',nttab)
+     .  call rxi('makrm0 : increase npmx: need',nttab)
         call dpzero(xp,3*nttab)
         ri = rmtl(is)/4
         if (z(is) .eq. 0) then
@@ -259,7 +259,7 @@ Ctakao_ZeroClear_NotRequiered            if (np<0) vxcx_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered            if (np<0) vxcc_rv(:)=0.0d0
 
           call evxcv ( rp , rp , np , 1 , lxcfun , excp , excx_rv , 
-     .     excc_rv , vxcp , vxcx_rv , vxcc_rv )
+     .    excc_rv , vxcp , vxcx_rv , vxcc_rv )
 
           call daxpy(np,1d0,vxcp,1,vp(1,2),1)
           if (allocated(vxcc_rv)) deallocate(vxcc_rv)
@@ -277,7 +277,7 @@ C           This loop executes if a maximum is found
 C             It shouldn't happen already at the first point
               if (pass .eq. 1) then
                 call
-     .            rx('makrm0: starting r is too small.  Check geometry')
+     .          rx('makrm0: starting r is too small.  Check geometry')
               endif
               rmti(ib) = ri/dsqrt(facri)
               if (pass .gt. 1) then
@@ -300,7 +300,7 @@ C       Copy vp(*,2) to vp(*,1), and increment pass
         pass = pass+1
         ri = ri * facri
         if (ri .gt. 10d0)
-     .    call rx('makrm0: failed to find maximum in potential')
+     .  call rx('makrm0: failed to find maximum in potential')
         goto 30
 
 C       Loop exit: radius rmti(ib) has been found
@@ -316,9 +316,9 @@ C --- Copy appropriate rmti to final result, depending on opt2 ---
       if (opt1 .eq. 1) strn = 'LDA'
       if (opt1 .eq. 2) strn = 'sum-of-atomic'
       call info(30,1,0,' makrm0: initial MT radii from first '//
-     .  strn(1:20)//'%a potential maximum',0,0)
+     .strn(1:20)//'%a potential maximum',0,0)
       call info(30,0,0,'  site   spec%12frmt'//
-     .  '%7frmt-%7frmt-%7frold%3flock%N%34f<spec avg>  spec-min',0,0)
+     .'%7frmt-%7frmt-%7frold%3flock%N%34f<spec avg>  spec-min',0,0)
 
 C ... First loop for printout only, so can hang on to original rmt
       do  ib = 1, nbas
@@ -338,7 +338,7 @@ C       Index where to poke rnew
 
         if (ipr .ge. 30) then
           write(stdo,344) ib,is,spid,rmti(ib),rmti(ib)-rbar,
-     .      rmti(ib)-rmin,rmt(k), sym(1+mod(lock(k)/2,2))
+     .    rmti(ib)-rmin,rmt(k), sym(1+mod(lock(k)/2,2))
   344     format(i5,2x,i3,':',a,4f11.4,3x,a)
         endif
 

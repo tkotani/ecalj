@@ -1,6 +1,6 @@
 #define F90 1
       subroutine mullmf(nbas,ssite,sspec,iprmb,z,n,nspc,iq,isp,mode,
-     .  nsites,lsites,lmxch,nchan,lchan,lmdim,nddos,doswt)
+     .nsites,lsites,lmxch,nchan,lchan,lmdim,nddos,doswt)
 
       use m_struc_def  !Cgetarg
 
@@ -41,7 +41,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nspc,iq,isp,n,iprmb(1),mode,nsites,
-     .  lsites(nsites),nchan,lchan(nchan),lmxch,lmdim,nddos
+     .lsites(nsites),nchan,lchan(nchan),lmxch,lmdim,nddos
       real(8):: doswt(nchan,nddos*nspc,nspc)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -50,7 +50,7 @@ C ... Passed parameters
 C ... Local parameters
       logical lmp,lp,atp
       integer isite,ib,is,ichan,lmxb,iband,iprint,ipr,iprmin,lgunit,
-     .  ispc,ksp,stdo,nev,nx
+     .ispc,ksp,stdo,nev,nx
       integer n0,nkap0
       parameter (n0=10,nkap0=3)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
@@ -92,7 +92,7 @@ C      call zprm('zt',2,zt,nx,nx,nx)
       ipr = iprint()
       if (ipr .ge. iprmin) write(stdo,1)
     1 format (' mullmf:  site spec  lmax  norb  l  nlm1   nlm2  ikappa',
-     .        '  offset ilm ichan')
+     .'  offset ilm ichan')
       call dpzero(doswt,nchan*nddos*nspc)
       atp = .false.
       lp  = .false.

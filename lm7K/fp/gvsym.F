@@ -56,11 +56,11 @@ C ... Printout
             if (ips0(i) .eq. i0) then
               if (i .eq. i0) then
                 print 251, nstar,i,gv(i,1),gv(i,2),gv(i,3),
-     .             c(i),csym(i)
+     .          c(i),csym(i)
               else
                 if (ipr .ge. 60) 
-     .             print 252, i,gv(i,1),gv(i,2),gv(i,3),
-     .             c(i),csym(i)
+     .          print 252, i,gv(i,1),gv(i,2),gv(i,3),
+     .          c(i),csym(i)
               endif
   251         format(i4,i5,3f6.1,2f12.8,1x,2f12.8)
   252         format(4x,i5,3f6.1,2f12.8,1x,2f12.8)

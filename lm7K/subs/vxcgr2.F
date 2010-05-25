@@ -1,5 +1,5 @@
       subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
-     .  grh,ggrh,agrh,grgagr,exc,vxc)
+     .grh,ggrh,agrh,grgagr,exc,vxc)
 C- Gradient correction to vxc, exc for a mesh of points.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -26,7 +26,7 @@ C     implicit none
 C ... Passed parameters
       integer nr,nsp,nrx
       double precision rp(nrx,nsp),grh(nrx,2),ggrh(nrx,2),
-     .  agrh(nrx,4),grgagr(nrx,3),exc(nrx),vxc(nrx,2),rofi(nr)
+     .agrh(nrx,4),grgagr(nrx,3),exc(nrx),vxc(nrx,2),rofi(nr)
 C ... Local parameters
       integer ir,i,lxcf2,lxcg2,nglob
 
@@ -74,18 +74,18 @@ C --- Gradient term for all points ---
       if (lxcg2 .ge. 3) then
         lxcf2 = mod(nglob('lxcf'),10)
         if (lxcf2 .ne. 3 .and. lxcf2 .ne. 4) call
-     .    rx('vxcgf2: inconsistent use of local and GGA functionals')
+     .  rx('vxcgf2: inconsistent use of local and GGA functionals')
         call vxcgga(nr,nsp,rp,rp(1,nsp),agrh,agrh(1,nsp),
-     .    ggrh,ggrh(1,nsp),agrh(1,2*nsp-1),agrh(1,4),
-     .    grgagr(1,2*nsp-1),grgagr,grgagr(1,nsp),
-     .    vxc(1,1),vxc(1,nsp),exc)
+     .  ggrh,ggrh(1,nsp),agrh(1,2*nsp-1),agrh(1,4),
+     .  grgagr(1,2*nsp-1),grgagr,grgagr(1,nsp),
+     .  vxc(1,1),vxc(1,nsp),exc)
       elseif (lxcg2 .eq. 2) then
         call rx('PW91 no longer implemented')
       else
         call vxnloc(nr,nsp,rp,rp(1,nsp),agrh,agrh(1,nsp),
-     .    ggrh,ggrh(1,nsp),agrh(1,2*nsp-1),agrh(1,4),
-     .    grgagr(1,2*nsp-1),grgagr,grgagr(1,nsp),
-     .    vxc(1,1),vxc(1,nsp),exc)
+     .  ggrh,ggrh(1,nsp),agrh(1,2*nsp-1),agrh(1,4),
+     .  grgagr(1,2*nsp-1),grgagr,grgagr(1,nsp),
+     .  vxc(1,1),vxc(1,nsp),exc)
       endif
       do  66  i = 1, nsp
         vxc(1,i) = (vxc(2,i)*rofi(3)-vxc(3,i)*rofi(2))/(rofi(3)-rofi(2))
@@ -105,9 +105,9 @@ C        call prmr(nr,ri,gf,1)
         jx = 1
         call polint(ri(2),gf(2,i),nr-1,nn,ri,0d0,0,jx,gf(1,i),egf0)
         if (iprint() .ge. 50 .and. dabs(egf0/gf(1,i)) .gt. 1d-2)
-     .    print 345, gf(1,i), egf0/gf(1,i)*100
+     .  print 345, gf(1,i), egf0/gf(1,i)*100
   345   format(' radgrx (warning): expect error in gradient at origin:',
-     .    'f=',1pe10.3,' est err=',0pf7.1,'%')
+     .  'f=',1pe10.3,' est err=',0pf7.1,'%')
    10 continue
       end
 

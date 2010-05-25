@@ -1,5 +1,5 @@
       subroutine baslst(lstyld,iopt,slst,ilast,ips,nbas,slabl,z,nopt,
-     .  optlst,optarg,nlist,list)
+     .optlst,optarg,nlist,list)
 C- Generates a list of sites from a string specification
 C ----------------------------------------------------------------
 Ci Inputs
@@ -35,7 +35,7 @@ C ... Passed parameters
       double precision z(*),optarg(1)
 C ... Local parameters
       integer i,j,j1,j2,ls,m,lstyle,k1,k2,
-     .  iv,parg,nlists,mxint,nspec,ib,is,iclbsj
+     .iv,parg,nlists,mxint,nspec,ib,is,iclbsj
       character dc*1
       integer lgunit
       external awrit2,defi,ishell,mkilst,nwordg,rxs,slist,word
@@ -103,7 +103,7 @@ C        nlist = j
 C        j2=j2+1
 
       elseif (slst(j1:j1+1) .eq. 'z ' .or.
-     .        slst(j1:j1+1) .eq. 'Z ') then
+     .slst(j1:j1+1) .eq. 'Z ') then
         nlist = 0
         do  10  ib = 1, nbas
           is = ips(ib)
@@ -120,7 +120,7 @@ C        j2=j2+1
         call nwordg(slst,0,dc//' ',1,j,j2)
         call mkilst(slst(j1:j2),nlist,list)
         if (nlist .lt. 0)
-     .    call rxs('baslst: failed to parse site list ',slst(j1:))
+     .  call rxs('baslst: failed to parse site list ',slst(j1:))
         if (nlist .eq. 0 .or. mod(iopt/10,10) .eq. 0) goto 99
         call ishell(nlist,list)
         j = 1

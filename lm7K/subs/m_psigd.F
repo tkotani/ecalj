@@ -129,7 +129,7 @@ c      print *,' iout=',iout
      .  ' hambls: new diagonal sigma for:'//
      .  ' %?#(n>0)#%-1j %i DEEP states (E=%d)#%jno DEEP states# and'//
      .  ' %?#(n>0)#%-1j %i#no# HIGH states'//
-     .    ' ',nmin,emin,ndimh-nmax,0,0)
+     .  ' ',nmin,emin,ndimh-nmax,0,0)
         if (nmin .le. 0 .and. nmax .ge. ndimh) return
         call info0(PRTE,0,0,'  state    E(lda)%8fsig_ii')
         stop 'for now'
@@ -143,13 +143,13 @@ c      print *,' iout=',iout
 
 C       Require evals to be ordered
         if (eval(i) .lt. eval(max(i-1,1))-tol)
-     .    call rxi('psigd: eval %i not ordered',i)
+     .  call rxi('psigd: eval %i not ordered',i)
 
 C       Decide whether this eval is in low, middle, or high block
         llow  = (nmin .lt. 0 .and. eval(i) .lt. emin) .or.
-     .          (nmin .ge. 0 .and. i .le. nmin)
+     .  (nmin .ge. 0 .and. i .le. nmin)
         lhigh = (nmax .le. 0 .and. eval(i) .gt. emax) .or.
-     .          (nmax .gt. 0 .and. i .gt. nmax)
+     .  (nmax .gt. 0 .and. i .gt. nmax)
         if (mode .eq. 1) llow = i .le. nmin
         if (llow) n123(2) = i
         if (.not. lhigh) n123(3) = i
@@ -185,7 +185,7 @@ C       Printout
         else
           if (ipr .ge. PRTE .and. lhigh .and. modsgp .eq. 2) then
             write(stdo,332)
-     .        i,eval(i),dble(sig(i,i)),asig,bsig,dble(sigii)
+     .      i,eval(i),dble(sig(i,i)),asig,bsig,dble(sigii)
   332       format(i6,f12.6,2x,f12.6,f7.2,',',f5.2,f12.6)
           elseif (ipr .ge. PRTE .and. lhigh) then
             write(stdo,333) i,eval(i),dble(sig(i,i)),siglin,dble(sigii)

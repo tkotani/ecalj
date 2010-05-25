@@ -128,7 +128,7 @@ C     call prmx('starting rho',rho,nrx,nr,nlml*nsp)
       do  isp = 1, nsp
 
         call dgemm('N','T',nr,nlml,nlml,1d0,rho(1,1,isp),nrx,
-     .    rYL,nl2,0d0,rwk,nrx)
+     .  rYL,nl2,0d0,rwk,nrx)
         call dcopy(nrx*nlml,rwk,1,rho(1,1,isp),1)
 
 C        faster if done l-by-l

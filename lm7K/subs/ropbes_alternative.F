@@ -62,66 +62,66 @@ c                           @(#)bessel.f 9.1 97/05/08 14:47:47
       DIMENSION Q(0:50)
       IF (LMAX.GT.50) STOP '=== STOP AT BESSEL ==='
       IF(X.LT.1.0D-3) THEN
-        XN=1.0
-        F1=1.0
-        F2=3.0D0
-        F(0)=XN/F1-0.5D0*XN*X*X/F2
-        DO 4000 L=1,LMAX
-          F1=F2
-          F2=F2*(2.0D0*L+3.0D0)
-          Q(L)=XN/F1-0.5D0*XN*X*X/F2
-          F(L)=Q(L)*X
-          XN=XN*X
- 4000   CONTINUE
+      XN=1.0
+      F1=1.0
+      F2=3.0D0
+      F(0)=XN/F1-0.5D0*XN*X*X/F2
+      DO 4000 L=1,LMAX
+      F1=F2
+      F2=F2*(2.0D0*L+3.0D0)
+      Q(L)=XN/F1-0.5D0*XN*X*X/F2
+      F(L)=Q(L)*X
+      XN=XN*X
+ 4000 CONTINUE
       ELSEIF(X.LT.10.0D0) THEN
-        FVAL=1.0D-30
-        FPLUS=0.0
-        FSUM=0.0
-        DO 2000 L=LMAX+20,LMAX+2,-1
-          FMIN=FVAL*(2.0*L+1.0)/X-FPLUS
-          FSUM=FSUM+(2.0*L-1.0)*FMIN*FMIN
-          FPLUS=FVAL
-          FVAL=FMIN
-          IF(ABS(FMIN).GT.1.0D25) THEN
-            FSUM=1.0D0/SQRT(FSUM)
-            FPLUS=FPLUS*FSUM
-            FVAL=FVAL*FSUM
-            FSUM=1.0D0
-          ENDIF
- 2000   CONTINUE
-        IF(X.GT.1.0D0) THEN
-          XL=1.0D0
-        ELSE
-          XL=X**LMAX
-        ENDIF
-        FSUM=XL/SQRT(FSUM)
-        FPLUS=FPLUS*FSUM
-        FVAL=FVAL*FSUM
-        FSUM=XL*XL
-        DO 2100 L=LMAX+1,1,-1
-          FMIN=FVAL*(2.0*L+1.0)/X-FPLUS
-          FSUM=FSUM+(2.0*L-1.0)*FMIN*FMIN
-          FPLUS=FVAL
-          FVAL=FMIN
-          F(L-1)=FVAL
- 2100   CONTINUE
-        FSUM=1.0/SQRT(FSUM)
-        DO 3000 L=0,LMAX
-          F(L)=F(L)*FSUM
-          Q(L)=F(L)/X
- 3000   CONTINUE
+      FVAL=1.0D-30
+      FPLUS=0.0
+      FSUM=0.0
+      DO 2000 L=LMAX+20,LMAX+2,-1
+      FMIN=FVAL*(2.0*L+1.0)/X-FPLUS
+      FSUM=FSUM+(2.0*L-1.0)*FMIN*FMIN
+      FPLUS=FVAL
+      FVAL=FMIN
+      IF(ABS(FMIN).GT.1.0D25) THEN
+      FSUM=1.0D0/SQRT(FSUM)
+      FPLUS=FPLUS*FSUM
+      FVAL=FVAL*FSUM
+      FSUM=1.0D0
+      ENDIF
+ 2000 CONTINUE
+      IF(X.GT.1.0D0) THEN
+      XL=1.0D0
       ELSE
-        F(0)=SIN(X)/X
-        F(1)=SIN(X)/X/X-COS(X)/X
-        Q(1)=F(1)/X
-        DO 5000 L=1,LMAX-1
-          F(L+1)=(2.0D0*L+1.0D0)*F(L)/X-F(L-1)
-          Q(L+1)=F(L+1)/X
- 5000   CONTINUE
+      XL=X**LMAX
+      ENDIF
+      FSUM=XL/SQRT(FSUM)
+      FPLUS=FPLUS*FSUM
+      FVAL=FVAL*FSUM
+      FSUM=XL*XL
+      DO 2100 L=LMAX+1,1,-1
+      FMIN=FVAL*(2.0*L+1.0)/X-FPLUS
+      FSUM=FSUM+(2.0*L-1.0)*FMIN*FMIN
+      FPLUS=FVAL
+      FVAL=FMIN
+      F(L-1)=FVAL
+ 2100 CONTINUE
+      FSUM=1.0/SQRT(FSUM)
+      DO 3000 L=0,LMAX
+      F(L)=F(L)*FSUM
+      Q(L)=F(L)/X
+ 3000 CONTINUE
+      ELSE
+      F(0)=SIN(X)/X
+      F(1)=SIN(X)/X/X-COS(X)/X
+      Q(1)=F(1)/X
+      DO 5000 L=1,LMAX-1
+      F(L+1)=(2.0D0*L+1.0D0)*F(L)/X-F(L-1)
+      Q(L+1)=F(L+1)/X
+ 5000 CONTINUE
       ENDIF
       D(0)=-F(1)
       DO 4100 L=1,LMAX
-        D(L)=F(L-1)-(L+1.0D0)*Q(L)
+      D(L)=F(L-1)-(L+1.0D0)*Q(L)
  4100 CONTINUE
       RETURN
       END

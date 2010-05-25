@@ -45,7 +45,7 @@ C Local
       logical lshrink,lcnst
       integer ib,i,nd,j1max,j2max,j3max,j1,j2,j3,mode1,n
       double precision xpos(3),qlat2(3,3),vol,xx(3),add,dlat(3,27),
-     .  dl2(3,27),a2,ap,tol,P(3,3),S(3,3)
+     .dl2(3,27),a2,ap,tol,P(3,3),S(3,3)
       parameter (tol=-1d-10)
 
       mode1 = mod(mode/10,10)
@@ -81,12 +81,12 @@ C --- Create multiples of P ---
    15   continue
         nd = 0
         do  16  j1 = -j1max, j1max
-        do  16  j2 = -j2max, j2max
-        do  16  j3 = -j3max, j3max
-          nd = nd+1
-          do  17  i = 1, 3
-            dlat(i,nd) = P(i,1)*j1 + P(i,2)*j2 + P(i,3)*j3
-   17     continue
+          do  16  j2 = -j2max, j2max
+            do  16  j3 = -j3max, j3max
+              nd = nd+1
+              do  17  i = 1, 3
+                dlat(i,nd) = P(i,1)*j1 + P(i,2)*j2 + P(i,3)*j3
+   17         continue
    16   continue
       endif
 
@@ -119,8 +119,8 @@ C   ... Shorten by adding multiples of P
           do  27  n = 1, nd
             a2 = dl2(1,n)**2 + dl2(2,n)**2 + dl2(3,n)**2
             ap = pos2(1,ib)*dl2(1,n) +
-     .         pos2(2,ib)*dl2(2,n) +
-     .         pos2(3,ib)*dl2(3,n)
+     .      pos2(2,ib)*dl2(2,n) +
+     .      pos2(3,ib)*dl2(3,n)
             if (a2 + 2*ap .lt. tol) then
               pos2(1,ib) = pos2(1,ib) + dl2(1,n)
               pos2(2,ib) = pos2(2,ib) + dl2(2,n)
@@ -145,8 +145,8 @@ C ... Case 10s digit mode is >=4
           else
             add = int(-xx(i)) + 1
           endif
-        do  30  ib = 1, nbas
-   32     pos2(i,ib) = pos2(i,ib) + add
+          do  30  ib = 1, nbas
+   32       pos2(i,ib) = pos2(i,ib) + add
    30   continue
       endif
 
@@ -156,8 +156,8 @@ C ... Case 10s digit mode is >=4
           do  57  n = 1, nd
             a2 = dl2(1,n)**2 + dl2(2,n)**2 + dl2(3,n)**2
             ap = pos2(1,ib)*dl2(1,n) +
-     .         pos2(2,ib)*dl2(2,n) +
-     .         pos2(3,ib)*dl2(3,n)
+     .      pos2(2,ib)*dl2(2,n) +
+     .      pos2(3,ib)*dl2(3,n)
             lshrink = a2 + 2*ap .lt. tol
             lcnst = pos2(1,ib) + dl2(1,n) .ge. 0d0
      .      .and. pos2(2,ib) + dl2(2,n) .ge. 0d0

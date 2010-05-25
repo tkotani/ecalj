@@ -1,5 +1,5 @@
       subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb,numq,
-     .  nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
+     .nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
 
       use m_struc_def  !Cgetarg
 #if MPE
@@ -48,7 +48,7 @@ C ... Passed parameters
       include "mpef.h"
 #endif
       integer pid, procid, master, numprocs, ierr,
-     .        status(MPI_STATUS_SIZE)
+     .status(MPI_STATUS_SIZE)
       integer MAX_PROCS
       parameter (MAX_PROCS = 100)
       integer resultlen,i,lgunit
@@ -77,9 +77,9 @@ C ... Local parameters
       integer n0,nkap0
       parameter (n0=10, nkap0=3)
       integer i1,i2,ib1,ilm1,io1,iq,is1,l1,ik1,ig,ivec,nglob,
-     .  nlm11,nlm12,m
+     .nlm11,nlm12,m
       integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
-     .  blks1(n0*nkap0),ntab1(n0*nkap0),lh1(nkap0),nkap1
+     .blks1(n0*nkap0),ntab1(n0*nkap0),lh1(nkap0),nkap1
       double precision gam,denom,pi,fpi,ddot
       double precision e1(n0,nkap0),rsm1(n0,nkap0),p1(3),xx(n0),wt
       double complex phase,srm1,fach,ovl,ccc(3),sum,srm1l(0:n0)
@@ -112,9 +112,9 @@ C --- Setup ---
       if (mlog) then
         do  pid = 0, numprocs-1
           call MPI_BCAST(shortname(pid),10,MPI_CHARACTER,pid,
-     .                   MPI_COMM_WORLD,ierr)
+     .    MPI_COMM_WORLD,ierr)
           call MPI_BCAST(namelen(pid),1,MPI_INTEGER,pid,
-     .                   MPI_COMM_WORLD,ierr)
+     .    MPI_COMM_WORLD,ierr)
         enddo
       endif
 #endif
@@ -150,9 +150,9 @@ c      do  ib1 = 1, nbas
         if (mlog) then
           call gettime(datim)
           call awrit4(' fsmbpw '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' starting atom %i of %i',' ',256,lgunit(3),
-     .        procid,numprocs,ib1,index(procid,0))
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' starting atom %i of %i',' ',256,lgunit(3),
+     .    procid,numprocs,ib1,index(procid,0))
         endif
 #else
         ib1=iloop
@@ -231,13 +231,13 @@ C             gradient PW * (H - E S)
 #endif
       allocate(buffer(1:3*nbas*numq), stat=ierr)
       call MPI_ALLREDUCE(xf,buffer,3*nbas*numq,
-     .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
         call awrit3(' fsmbpw '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce f 3*nbas*numq=%i',' ',256,lgunit(3),
-     .        procid,numprocs,3*nbas*numq)
+     .  //shortname(procid)(1:namelen(procid))//
+     .  ' allreduce f 3*nbas*numq=%i',' ',256,lgunit(3),
+     .  procid,numprocs,3*nbas*numq)
       endif
       call daxpy(3*nbas*numq,1d0,buffer,1,f,1)
       deallocate(buffer, stat=ierr)

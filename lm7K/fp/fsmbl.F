@@ -1,5 +1,5 @@
       subroutine fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,iprmb,
-     .  numq,nevec,evl,evec,ewgt,f)
+     .numq,nevec,evl,evec,ewgt,f)
 
       use m_struc_def  !Cgetarg
 #if MPE
@@ -48,7 +48,7 @@ C ... Passed parameters
 #endif
       include "mpif.h"
       integer pid, procid, master, numprocs, ierr,
-     .        status(MPI_STATUS_SIZE)
+     .status(MPI_STATUS_SIZE)
       integer MAX_PROCS
       parameter (MAX_PROCS = 100)
       integer resultlen,i,lgunit
@@ -77,14 +77,14 @@ C ... Local parameters
       integer nlms,k0,n0,nkap0
       parameter (nlms=25, k0=1, n0=10, nkap0=3)
       integer i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,iq,is1,is2,l1,l2,ik1,ik2,
-     .  ivec,m,nglob,ocg,ocy,oidxcg,ojcg,nlm1,nlm2
+     .ivec,m,nglob,ocg,ocy,oidxcg,ojcg,nlm1,nlm2
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2,nlm21,nlm22,nlm11,nlm12
       integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
-     .  blks1(n0*nkap0),ntab1(n0*nkap0)
+     .blks1(n0*nkap0),ntab1(n0*nkap0)
       integer norb2,ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),
-     .  blks2(n0*nkap0),ntab2(n0*nkap0)
+     .blks2(n0*nkap0),ntab2(n0*nkap0)
       double precision e1(n0,nkap0),rsm1(n0,nkap0),p1(3),wt,
-     .                 e2(n0,nkap0),rsm2(n0,nkap0),p2(3),xx(n0)
+     .e2(n0,nkap0),rsm2(n0,nkap0),p2(3),xx(n0)
       double complex  s(nlms,nlms,0:k0,nkap0,nkap0)
       double complex ds(nlms,nlms,0:k0,3,nkap0,nkap0),ccc,sum
 #if MPI
@@ -115,9 +115,9 @@ C --- Setup ---
       if (mlog) then
         do  pid = 0, numprocs-1
           call MPI_BCAST(shortname(pid),10,MPI_CHARACTER,pid,
-     .                   MPI_COMM_WORLD,ierr)
+     .    MPI_COMM_WORLD,ierr)
           call MPI_BCAST(namelen(pid),1,MPI_INTEGER,pid,
-     .                   MPI_COMM_WORLD,ierr)
+     .    MPI_COMM_WORLD,ierr)
         enddo
       endif
 #endif
@@ -150,9 +150,9 @@ c      do  iloop = 1, index(procid,0)
         if (mlog) then
           call gettime(datim)
           call awrit4(' fsmbl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' starting atom %i of %i',' ',256,lgunit(3),
-     .        procid,numprocs,ib1,index(procid,0))
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' starting atom %i of %i',' ',256,lgunit(3),
+     .    procid,numprocs,ib1,index(procid,0))
         endif
 #else
         ib1=iloop
@@ -184,10 +184,10 @@ C     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
               nlm1 = (lh1(i1)+1)**2
               nlm2 = (lh2(i2)+1)**2
               if (nlm1 .gt. nlms .or. nlm2 .gt. nlms)
-     .          call rx('fsmbl: increase nlms')
+     .        call rx('fsmbl: increase nlms')
               call hhigbl(11,p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),
-     .          e2(1,i2),nlm1,nlm2,1,nlms,nlms,k0,w(ocg),w(oidxcg),
-     .          w(ojcg),w(ocy),slat,s(1,1,0,i1,i2),ds(1,1,0,1,i1,i2))
+     .        e2(1,i2),nlm1,nlm2,1,nlms,nlms,k0,w(ocg),w(oidxcg),
+     .        w(ojcg),w(ocy),slat,s(1,1,0,i1,i2),ds(1,1,0,1,i1,i2))
             enddo
           enddo
 
@@ -222,8 +222,8 @@ C                 i1 = orbital index in iprmb order
                         do  ilm1 = nlm11, nlm12
                           i1 = i1+1
                           ccc = vavg*ds(ilm1,ilm2,0,m,ik1,ik2)
-     .                  -      ds(ilm1,ilm2,1,m,ik1,ik2)
-     .                  - evl(ivec)*ds(ilm1,ilm2,0,m,ik1,ik2)
+     .                    -      ds(ilm1,ilm2,1,m,ik1,ik2)
+     .                    - evl(ivec)*ds(ilm1,ilm2,0,m,ik1,ik2)
                           sum = sum + dconjg(evec(i1,ivec))*ccc*evec(i2,ivec)
                         enddo
                       enddo
@@ -260,13 +260,13 @@ C                 i1 = orbital index in iprmb order
 #endif
       allocate(buffer(1:3*nbas*numq), stat=ierr)
       call MPI_ALLREDUCE(xf,buffer,3*nbas*numq,
-     .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
         call awrit3(' fsmbl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce f 3*nbas*numq=%i',' ',256,lgunit(3),
-     .        procid,numprocs,3*nbas*numq)
+     .  //shortname(procid)(1:namelen(procid))//
+     .  ' allreduce f 3*nbas*numq=%i',' ',256,lgunit(3),
+     .  procid,numprocs,3*nbas*numq)
       endif
       call daxpy(3*nbas*numq,1d0,buffer,1,f,1)
       deallocate(buffer, stat=ierr)

@@ -1,5 +1,5 @@
       subroutine vesgcm(nbas,ssite,sspec,slat,cy,qmom,ng,gv,
-     .  kv,cv,cg1,cgsum,k1,k2,k3,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
+     .kv,cv,cg1,cgsum,k1,k2,k3,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
 
       use m_struc_def  !Cgetarg
 
@@ -61,7 +61,7 @@ C ... Passed parameters
       integer k1,k2,k3,nbas,ng,kv(ng,3)
       double precision qsmc,zsum
       real(8):: qmom(1) , gv(ng,3) , cy(1) , f(3,nbas) , gpot0(1) , 
-     . hpot0(nbas) , vrmt(nbas)
+     .hpot0(nbas) , vrmt(nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
@@ -69,12 +69,12 @@ C ... Passed parameters
       double complex smpot(k1,k2,k3),cv(ng),cg1(ng),cgsum(ng)
 C ... Local parameters
       integer stdo,k0,nlmx,i,ib,ilm,iprint,is,iv0,kb,kmax,l,lgunit,ll,
-     .  lmxl,m,nlm,lfoc
+     .lmxl,m,nlm,lfoc
       parameter (k0=3, nlmx=64)
       double precision alat,ceh,cofg,cofh,g2,pi,qc,qcorg,qcorh,qsc,rfoc,
-     .  rg,sum1,sum2,sum3,tpiba,vol,xx,y0,z
+     .rg,sum1,sum2,sum3,tpiba,vol,xx,y0,z
       double precision cof(nlmx),df(0:20),tau(3),v(3),ddot,gvr,rmt,fac,
-     .  gvb
+     .gvb
       double complex gkl(0:k0,nlmx),img
 
       call tcn('vesgcm')
@@ -178,7 +178,7 @@ C   ... Force of smooth density on the compensating gaussians
 C --- Add 8pi/G**2 * (FT gaussian+Hankel density) into smpot ---
       if (iprint() .gt. 40) write(stdo,300) cgsum(1),dble(cgsum(1)*vol)
   300 format(/' vesgcm: smooth density G=0 term =',
-     .   2f11.6,'   Q = ',f12.6)
+     .2f11.6,'   Q = ',f12.6)
       cgsum(1) = (0d0,0d0)
       do  i = 2, ng
         g2 = tpiba*tpiba*(gv(i,1)**2+gv(i,2)**2+gv(i,3)**2)

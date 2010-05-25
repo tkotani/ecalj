@@ -92,8 +92,8 @@ C       call awrit2('iwk %n:1i',' ',180,6,ncl,iwk(1))
 
 C   ... If no match with previous, increment new id
         if (abs(pos(1,iminp)-dmatch(1)) .gt. tol .or.
-     .      abs(pos(2,iminp)-dmatch(2)) .gt. tol .or.
-     .      abs(pos(3,iminp)-dmatch(3)) .gt. tol) then
+     .  abs(pos(2,iminp)-dmatch(2)) .gt. tol .or.
+     .  abs(pos(3,iminp)-dmatch(3)) .gt. tol) then
           id = id+1
           dmatch(1) = pos(1,iminp)
           dmatch(2) = pos(2,iminp)

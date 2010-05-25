@@ -21,7 +21,7 @@ C-----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       double precision vnow,nosnow,dosnow,vhold(12),ztarg,
-     .  dvcap,dv
+     .dvcap,dv
 C ... Local parameters
       double precision dznow,dxmx
       integer ir

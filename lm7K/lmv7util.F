@@ -48,7 +48,7 @@ CKi     .  v_smove,v_sstr,v_stb
 C ... miscellaneous local variables
       character strn*1000,outs*20
       integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
-     .  igets,a2vec,NULLI
+     .igets,a2vec,NULLI
       double precision vn(2),vn2(2),dglob
       logical T,F,swtmp,cmdopt,ltet
       parameter (T=.true., F=.false., NULLI=-99999)
@@ -92,7 +92,7 @@ c      nproc  = mpipid(0)
 C --- Help ---
       swtmp = .false.
       if (swtmp .or. cmdopt('--h',3,0,outs))
-     .  call lmhelp(prgnam,vn(2),vn2(2),wksize)
+     .call lmhelp(prgnam,vn(2),vn2(2),wksize)
       if (cmdopt('--version',9,0,outs)) then
         write(*,'(f4.2)') vn(2)
         call cexit(0,1)
@@ -120,11 +120,11 @@ C ... Abort with error message if ctrl file is missing (swtmp = .true.)
 c      if (cmdopt('--input',6,0,strn)) then
 c        if (nproc .gt. 0) call rx('--input not allowed with MPI')
 c      else
-        if (fxst('CTRL') .ne. 1) then
-          call awrit0(' '//prgnam//'%a:%9pmissing ctrl file',' ',80,
-     .      i1mach(2))
-          swtmp = .true.
-        endif
+      if (fxst('CTRL') .ne. 1) then
+        call awrit0(' '//prgnam//'%a:%9pmissing ctrl file',' ',80,
+     .  i1mach(2))
+        swtmp = .true.
+      endif
 c      endif
 c      call mpibc1(swtmp,1,1,.false.,'lmf','error')
 c      if (swtmp) call cexit(-1,1)
@@ -175,10 +175,10 @@ c        call shosyv(0,-1,0,6)
         if (cmdopt('--show',6,0,strn)) then
           i = 1
           call info0(i,0,0,' ------------------------ End '//
-     .                     'of input file ----------------------')
+     .    'of input file ----------------------')
         endif
         call info2(i,0,1,' '//prgnam//'%a : %i lines read from'//
-     .    ' input file',nrecs,0)
+     .  ' input file',nrecs,0)
         if (cmdopt('--showp',7,0,strn)) call cexit(0,1)
       endif
 c      endif
@@ -200,8 +200,8 @@ c      v_sctrl%nmap=9999
 cccccccccccccccccc
 
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
-     .  slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     .  v_sarry,v_smove,v_stb,sstrn)
+     .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
+     .v_sarry,v_smove,v_stb,sstrn)
 
 cccccccccccccccccc
 c      print *,' uuuu000 222 nmap=',int(v_sctrl%nmap) 
@@ -220,28 +220,28 @@ C --- Generate symmetry operations; split species into classes  ---
 c#ifndef LMFGWD
 Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
 c this is equivalent to
-       if ( v_sctrl%lqp==0 ) lc = lc+2 
+      if ( v_sctrl%lqp==0 ) lc = lc+2 
 c#endif
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
 c nmap is not zero cleared ---> takao think it is zero for all cases here.
 
 C --- Allocate permanent class arrays, maps and other initialization ---
       call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
-     .  v_slat,v_sbz,v_sstr,sstrn)
+     .v_slat,v_sbz,v_sstr,sstrn)
 
 C --- Read available class parameters from file ---
 #if LMCHK
       call aiocls(.false.,0,v_sarry,v_sctrl,v_sham,v_spot,
-     .  v_sspec,v_slat,1,0)
+     .v_sspec,v_slat,1,0)
       call aiocls(.false.,17,v_sarry,v_sctrl,v_sham,v_spot,
-     .  v_sspec,v_slat,1,0)
+     .v_sspec,v_slat,1,0)
       if (lc .ge. 20)
-     .  call clsprp(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
-     .  v_slat,v_sbz,v_sstr,sstrn)
+     .call clsprp(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
+     .v_slat,v_sbz,v_sstr,sstrn)
 #endif
 
       if (cmdopt('--sfill',7,0,strn)) then
-         call rx('no --sfill option in lm7K')
+        call rx('no --sfill option in lm7K')
       endif
 
 C ... Set default values for species data
@@ -265,12 +265,12 @@ Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
 #if LMCHK
       if (cmdopt('--findes',8,0,strn)) auxmod = 128
       call lmaux(prgnam,v_sctrl,v_sham,v_spot,v_slat,v_sspec,
-     .  v_ssite,v_sstr,v_sarry,v_sbz,slabl,sstrn,auxmod,wksize)
+     .v_ssite,v_sstr,v_sarry,v_sbz,slabl,sstrn,auxmod,wksize)
 #endif
 
 #if LMDOS
       call asados(prgnam,v_sbz,v_sctrl,v_sham,v_slat,
-     .  v_sspec,v_ssite,v_sarry)
+     .v_sspec,v_ssite,v_sarry)
 #endif
 
 C -------------- End of program -------------
@@ -304,38 +304,38 @@ C ... Local parameters
 
       call locase(prgnam)
       call info0(0,0,0,' usage:  '//prgnam//
-     .  '%a [--OPTION] [-var-assign] [ext]')
+     .'%a [--OPTION] [-var-assign] [ext]')
 
       print 343
       print 344
   343 format(/' --h'/' --help',t17,'Print this message, and quit'
-     .  /' --input',t17,
-     .  'List categories, tokens, and data program expects, and quit'
-     .  /' --show',t17,
-     .  'Print control file after parsing by preprocessor,'/t17,
-     .  'and echo input data as read from the control file'
-     .  /' --showp',t17,
-     .  'Same as --show, but quit after input parsed'
-     .  /' --iactiv',t17,'(--no-iactiv) ',
-     .  'Turn on (off) interactive mode'/
-     .  t17,'This switch overrides input file setting',
-     .  /' --pr#1[,#2...]',t17,
-     .  'Set the verbosity (stack) to values #1,#2, ...'
-     .  /' --time=#1[,#2]',t17,
-     .  'Print timing info to # levels (#1=summary; #2=on-the-fly)'/
-     .  /' -vnam=expr',t17,
-     .  'Define numerical variable "nam"; set to result of ''expr'''
-     .  /' -cnam=strn',t17,
-     .  'Define character variable "nam"; set to ''strn'''
-     .  )
+     ./' --input',t17,
+     .'List categories, tokens, and data program expects, and quit'
+     ./' --show',t17,
+     .'Print control file after parsing by preprocessor,'/t17,
+     .'and echo input data as read from the control file'
+     ./' --showp',t17,
+     .'Same as --show, but quit after input parsed'
+     ./' --iactiv',t17,'(--no-iactiv) ',
+     .'Turn on (off) interactive mode'/
+     .t17,'This switch overrides input file setting',
+     ./' --pr#1[,#2...]',t17,
+     .'Set the verbosity (stack) to values #1,#2, ...'
+     ./' --time=#1[,#2]',t17,
+     .'Print timing info to # levels (#1=summary; #2=on-the-fly)'/
+     ./' -vnam=expr',t17,
+     .'Define numerical variable "nam"; set to result of ''expr'''
+     ./' -cnam=strn',t17,
+     .'Define character variable "nam"; set to ''strn'''
+     .)
 
 
   344 format(
-     .  /' --rpos=filnam',t17,
-     .  'After reading input file, read site positions from "filnam"'/
-     .  ' --fixpos[:tol=#]',
-     .  ' Adjust positions slightly, rendering them as'/
-     .  t17,'exactly as possible consistent with the symmetry group')
+     ./' --rpos=filnam',t17,
+     .'After reading input file, read site positions from "filnam"'/
+     .' --fixpos[:tol=#]',
+     .' Adjust positions slightly, rendering them as'/
+     .t17,'exactly as possible consistent with the symmetry group')
 
       if (.true.) then
         outs = '%N '//prgnam//'%a-specific options:'
@@ -344,18 +344,18 @@ C ... Local parameters
 
         if (prgnam .eq. 'lmdos') then
           call info0(0,0,0,
-     .      '%N%1f--dos:options  modifies number and kinds of dos '//
-     .      'generated;%N%16fsee documentation (doc/lmto.html)')
+     .    '%N%1f--dos:options  modifies number and kinds of dos '//
+     .    'generated;%N%16fsee documentation (doc/lmto.html)')
         endif
 
         if (prgnam .eq. 'lmchk') then
           call info0(0,0,0,
-     .  '%N%1f--shell[:v][:e][:r=#][:sites:site-list]'//
-     .  '[:pairs:pair-list]...'//
-     .  '%N%8f...[:tab[=#]][:disp=fnam][:nn][:fn=fnam]'//
-     .  '%N --mino[:dxmx=#][:xtol=#][:maxit=#][:style=#]:list'//
-     .  '%N --findes'//
-     .  '%N --wpos=fnam'//'%N --angles[=#]'//'%N --terse')
+     .    '%N%1f--shell[:v][:e][:r=#][:sites:site-list]'//
+     .    '[:pairs:pair-list]...'//
+     .    '%N%8f...[:tab[=#]][:disp=fnam][:nn][:fn=fnam]'//
+     .    '%N --mino[:dxmx=#][:xtol=#][:maxit=#][:style=#]:list'//
+     .    '%N --findes'//
+     .    '%N --wpos=fnam'//'%N --angles[=#]'//'%N --terse')
         endif
 
       endif
@@ -366,7 +366,7 @@ C ... Local parameters
         ch = ' '
       endif
       call info2(0,0,0,'%N version %,2d'//ch//'   worksize %i K',
-     .  vn-vn2/1d5,wksize/1000)
+     .vn-vn2/1d5,wksize/1000)
       call fexit(0,0,' ',0)
       end subroutine lmhelp 
 
@@ -423,7 +423,7 @@ C$$$       end subroutine sttmpd
  1010 continue
       rewind(nfilin)
 Cgetarg       end
-       end subroutine findctrlstart 
+      end subroutine findctrlstart 
 
 Cgetarg...info...           structure ['clsprm', 'ctrl', 'sctrl']
 Cgetarg...info...           structure ['clsprm', 'ham', 'sham']
@@ -434,9 +434,9 @@ Cgetarg...info...           structure ['clsprm', 'spec', 'sspec']
 Cgetarg...info...           structure ['clsprm', 'bz', 'sbz']
 Cgetarg...info...           use_to_add ['clsprm', 'm_struc_def']
       subroutine clsprm(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,
-     .  sstr,sstrn)
-       
-       use m_struc_def  !Cgetarg
+     .sstr,sstrn)
+      
+      use m_struc_def  !Cgetarg
 
 C- Allocate memory for, and try to read, class-related data
 C ----------------------------------------------------------------------
@@ -495,25 +495,25 @@ C     implicit none
       character*(*) sstrn
 Cgetarg       double precision sctrl(1),sarray(1),sham(1),spot(1),sspec(1),
 Cgetarg      .  slat(1),sbz(1),sstr(1)
-       type(s_ctrl)::sctrl
-       type(s_array)::sarray
-       type(s_ham)::sham
-       type(s_pot)::spot
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
-       type(s_bz)::sbz
-       type(s_str)::sstr
+      type(s_ctrl)::sctrl
+      type(s_array)::sarray
+      type(s_ham)::sham
+      type(s_pot)::spot
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
+      type(s_bz)::sbz
+      type(s_str)::sstr
 
 C Local variables
       logical lgors,cmdopt
       character*80 strn,clabl*8
       integer obxc,oinitc,opnu,oqnu,oqc,oqt,oves,ovdif,orhrmx,ovrmax,
-     .  orhos,osop,ogroup,ovintr,opp,opprel,oifrlx,oivso,oipc,oclabl,
-     .  opos,oics,ozos,ormax,opmpol,oqpp,ogrrme,n0
+     .orhos,osop,ogroup,ovintr,opp,opprel,oifrlx,oivso,oipc,oclabl,
+     .opos,oics,ozos,ormax,opmpol,oqpp,ogrrme,n0
       parameter (n0=10)
       integer nbas,nclass,nspec,nl,nsp,nlspc,igets,nclasp,i1,i2,nmap,ic,
-     .  is,ib,iclbsj,idmod(n0),iprint,lmx,nclspp,nqpp,lnsph,isw,neula,
-     .  nbf,nrhos,nlibu
+     .is,ib,iclbsj,idmod(n0),iprint,lmx,nclspp,nqpp,lnsph,isw,neula,
+     .nbf,nrhos,nlibu
 C     integer nmto,oppn
       double precision plat(9),z,xx,dval
 C ... Heap
@@ -529,20 +529,20 @@ Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
 Cgetarg       call upack('ctrl nbas nclass nl nspin nspec',sctrl,nbas,nclass,nl,
 Cgetarg      .  nsp,nspec)
 
-       nbas=sctrl%nbas
-       nclass=sctrl%nclass
-       nl=sctrl%nl
-       nsp=sctrl%nspin
-       nspec=sctrl%nspec
+      nbas=sctrl%nbas
+      nclass=sctrl%nclass
+      nl=sctrl%nl
+      nsp=sctrl%nspin
+      nspec=sctrl%nspec
 
 Cgetarg...info...           integer :: nlibu , integer(8) :: sham%nlibu 1
 Cgetarg       call upack('ham nlibu',sham,nlibu,0,0,0,0)
-       
-       nlibu=sham%nlibu
+      
+      nlibu=sham%nlibu
 
 Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
 Cgetarg       call upack1('array nclasp',sarray,nclasp)
-       
+      
       nclasp=sarray%nclasp
 
       nclspp = max(2*nclasp-nclass,nspec)
@@ -565,37 +565,37 @@ C ... Allocate ASA arrays
 C       call defdr(oqnu,-3*nlspc)
 Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
 Cgetarg         call upack1('array oics',sarray,oics)
-         
-         oics=sarray%oics
+        
+        oics=sarray%oics
 
 c takao sp2cls is replaced.
 c        call sp2cls('spec rmt',sspec,w(oics),1,1,nclspp,ormax)
-         allocate( ics(nclspp) )
-         call icopy(nclspp,w(oics),1,ics,1)
-         print *,' qqqqq ics=',ics
-         call defdr(ormax,nclspp)
-         call dcopy(nclspp,sspec(ics(1:nclspp))%rmt,1,w(ormax),1)
+        allocate( ics(nclspp) )
+        call icopy(nclspp,w(oics),1,ics,1)
+        print *,' qqqqq ics=',ics
+        call defdr(ormax,nclspp)
+        call dcopy(nclspp,sspec(ics(1:nclspp))%rmt,1,w(ormax),1)
 
 Cgetarg...info...           integer :: ogroup , integer(8) :: sarray%ogroup 1
 Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
 Cgetarg...info...           integer :: oinitc , integer(8) :: sarray%ohave 1
 Cgetarg         call pack5('array ogroup ormax ohave',sarray,ogroup,ormax,
 Cgetarg      .    oinitc,0,0)
-         
-         sarray%ogroup=ogroup 
-         sarray%ormax=ormax 
-         sarray%ohave=oinitc 
+        
+        sarray%ogroup=ogroup 
+        sarray%ormax=ormax 
+        sarray%ohave=oinitc 
 
 Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
 Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
 Cgetarg...info...           integer :: oqc , integer(8) :: spot%oqc 1
 Cgetarg...info...           integer :: oqt , integer(8) :: spot%oqt 1
 Cgetarg         call pack5('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
-         
-         spot%opnu=opnu 
-         spot%oqnu=oqnu 
-         spot%oqc=oqc 
-         spot%oqt=oqt 
+        
+        spot%opnu=opnu 
+        spot%oqnu=oqnu 
+        spot%oqc=oqc 
+        spot%oqt=oqt 
 
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 Cgetarg...info...           integer :: ovdif , integer(8) :: spot%ovdif 1
@@ -604,29 +604,29 @@ Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
 Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
 Cgetarg         call pack5('pot oves ovdif ovrmax orhrmx opp',spot,oves,ovdif,
 Cgetarg      .    ovrmax,orhrmx,opp)
-         
-         spot%oves=oves 
-         spot%ovdif=ovdif 
-         spot%ovrmax=ovrmax 
-         spot%orhrmx=orhrmx 
-         spot%opp=opp 
+        
+        spot%oves=oves 
+        spot%ovdif=ovdif 
+        spot%ovrmax=ovrmax 
+        spot%orhrmx=orhrmx 
+        spot%opp=opp 
 
 C       Even in collinear case, bxc might be written to
         call defdr(obxc,-3*nclasp)
 Cgetarg...info...           integer :: opprel , integer(8) :: spot%opprel 1
 Cgetarg...info...           integer :: obxc , integer(8) :: spot%obxc 1
 Cgetarg         call pack5('pot opprel obxc nrhos',spot,opprel,obxc,0,0,0)
-         
-         spot%opprel=opprel 
-         spot%obxc=obxc 
-         spot%nrhos=0 
+        
+        spot%opprel=opprel 
+        spot%obxc=obxc 
+        spot%nrhos=0 
 
 Cgetarg         if (lgors('ctrl lncol,-1',sctrl)) then
 c
 c takao Kino's bug--> his replied that iand(-1,i)=i 
 c         if ( iand(-1,int(sctrl%lncol)) .ne.0 ) then 
 
-         if ( sctrl%lncol /=0 ) then 
+        if ( sctrl%lncol /=0 ) then 
 Cgetarg...info...           integer :: neula , integer(8) :: sham%neula 1
 Cgetarg...info...           integer :: nbf , integer(8) :: sham%nbf 1
 Cgetarg           call upack2('ham neula nbf',sham,neula,nbf)
@@ -652,30 +652,30 @@ Cgetarg      .      nrhos,orhos,obxc,osop,0)
         ogrrme = 0
 Cgetarg         if (igets('ctrl loptc',sctrl) .gt. 0)
 Cgetarg      .    call defrr(ogrrme,-16*nl*nsp*nclasp)
-         if ( int(sctrl%loptc) .gt. 0 ) call defrr ( ogrrme , -16 * nl 
-     .   * nsp * nclasp ) 
+        if ( int(sctrl%loptc) .gt. 0 ) call defrr ( ogrrme , -16 * nl 
+     .  * nsp * nclasp ) 
 
 Cgetarg...info...           integer :: ogrrme , integer(8) :: spot%ogrrme 1
 Cgetarg         call pack1('pot ogrrme',spot,ogrrme)
-         
-         spot%ogrrme=ogrrme 
+        
+        spot%ogrrme=ogrrme 
 
 Cgetarg         if (lgors('ctrl lsx,3',sctrl) .or.
 Cgetarg      .      lgors('ctrl lscr,-1',sctrl)) then
-         if ( iand(3,int(sctrl%lsx)) .ne.0 .or. iand(-1,int(sctrl%lscr)) .ne.0 
-     .   ) then 
+        if ( iand(3,int(sctrl%lsx)) .ne.0 .or. iand(-1,int(sctrl%lscr)) .ne.0 
+     .  ) then 
 
           call defdr(ovintr,-nclasp*(nl*nsp)**2)
 Cgetarg...info...           integer :: ovintr , integer(8) :: spot%ovintr 1
 Cgetarg           call pack1('pot ovintr',spot,ovintr)
-           
-           spot%ovintr=ovintr 
+          
+          spot%ovintr=ovintr 
 
         endif
 Cgetarg         lnsph = isw(lgors('ctrl lasa,32',sctrl))
 c         lnsph = isw ( iand(32,int(sctrl%lasa)) .ne.0 ) 
 ctakao remove asa
-         lnsph = isw ( .false.)
+        lnsph = isw ( .false.)
 
 C   ... Allocate memory for, attempt to read qpp from file
         if (lnsph .ne. 0 .or. nlibu .ne. 0) then
@@ -687,14 +687,14 @@ C   ... Allocate memory for, attempt to read qpp from file
 Cgetarg...info...           integer :: opmpol , integer(8) :: spot%opmpol 1
 Cgetarg...info...           integer :: oqpp , integer(8) :: spot%oqpp 1
 Cgetarg           call pack2('pot opmpol oqpp',spot,opmpol,oqpp)
-           spot%opmpol=opmpol 
-           spot%oqpp=oqpp 
+          spot%opmpol=opmpol 
+          spot%oqpp=oqpp 
           call ioqpp(.false.,sctrl,spot)
         endif
 
 Cgetarg...info...           real(8) :: plat(9) , real(8) :: slat%plat 9
 Cgetarg         call upack1('lat plat',slat,plat)
-         
+        
 C$$$         i_copy_size=size(slat%plat) 
 C$$$         call dcopy(i_copy_size,slat%plat,1,plat,1) 
 
@@ -718,7 +718,7 @@ C$$$Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 
 C$$$Cgetarg...info...           integer :: opos , integer(8) :: sarray%opos 1
 C$$$Cgetarg           call upack('array oipc oclabl opos',sarray,oipc,oclabl,opos,0,
 C$$$Cgetarg      .      0)
-           
+        
 C$$$           oipc=sarray%oipc
 C$$$           oclabl=sarray%oclabl
 C$$$           opos=sarray%opos
@@ -726,7 +726,7 @@ C$$$           opos=sarray%opos
 C$$$Cgetarg...info...           integer :: ovrmax , integer(8) :: spot%ovrmax 1
 C$$$Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
 C$$$Cgetarg           call upack('pot ovrmax orhrmx',spot,ovrmax,orhrmx,0,0,0)
-           
+        
 C$$$           ovrmax=spot%ovrmax
 C$$$           orhrmx=spot%orhrmx
 
@@ -735,7 +735,7 @@ C$$$Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
 C$$$Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
 C$$$Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 C$$$Cgetarg           call upack('pot opnu oqnu opp oves',spot,opnu,oqnu,opp,oves,0)
-           
+        
 C$$$           opnu=spot%opnu
 C$$$           oqnu=spot%oqnu
 C$$$           opp=spot%opp
@@ -748,7 +748,7 @@ C$$$            is = w(oics+ic-1)
 C$$$            ib = iclbsj(ic,w(oipc),-nbas,1)
 C$$$Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
 C$$$Cgetarg             call upack('spec idmod',sspec,is,idmod,0,0,0)
-             
+        
 C$$$             i_copy_size=size(sspec(is)%idmod) 
 C$$$             call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
 
@@ -760,7 +760,7 @@ C$$$            endif
 C$$$Cgetarg...info...           real(8) :: z , real(8) :: sspec%z 1
 C$$$Cgetarg...info...           integer :: lmx , integer(8) :: sspec%lmxa 1
 C$$$Cgetarg             call upack('spec z lmxa',sspec,is,z,lmx,0,0)
-             
+        
 C$$$             z=sspec(is)%z
 C$$$             lmx=sspec(is)%lmxa
 
@@ -790,7 +790,7 @@ C$$$      if (mod(mode,10) .eq. 2) then
 C$$$        call defi(oifrlx,-4*nbas)
 C$$$Cgetarg...info...           integer :: oifrlx , integer(8) :: sarray%oifrlx 1
 C$$$Cgetarg         call pack5('array oifrlx',sarray,oifrlx,0,0,0,0)
-         
+      
 C$$$         sarray%oifrlx=oifrlx 
 
 C$$$Cgetarg         if (lgors('ctrl lncol,-1',sctrl)) then
@@ -803,7 +803,7 @@ C$$$CKi          call pack5('ham osop oivso',sham,osop,oivso,0,0,0)
 C$$$Cgetarg...info...           integer :: osop , integer(8) :: spot%osop 1
 C$$$Cgetarg...info...           integer :: oivso , integer(8) :: spot%oivso 1
 C$$$Cgetarg           call pack5('pot osop oivso',spot,osop,oivso,0,0,0)
-           
+      
 C$$$           spot%osop=osop 
 C$$$           spot%oivso=oivso 
 
@@ -820,7 +820,7 @@ C$$$         call defdr ( ozos , int(sbz%ndos) * nl * nsp * nclasp )
 
 C$$$Cgetarg...info...           integer :: ozos , integer(8) :: sarray%ozos 1
 C$$$Cgetarg         call pack5('array ozos',sarray,ozos,0,0,0,0)
-         
+      
 C$$$         sarray%ozos=ozos 
 
 C$$$      endif
@@ -841,7 +841,7 @@ C     stop
       return
 
       entry clsprp(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,
-     .  sstr,sstrn)
+     .sstr,sstrn)
 C- Copy class data to doubly padded case
 
 Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
@@ -850,16 +850,16 @@ Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
 Cgetarg...info...           integer :: nspec , integer(8) :: sctrl%nspec 1
 Cgetarg       call upack('ctrl nclass nl nspin nspec',sctrl,nclass,nl,nsp,nspec,
 Cgetarg      .  0)
-       
-       nclass=sctrl%nclass
-       nl=sctrl%nl
-       nsp=sctrl%nspin
-       nspec=sctrl%nspec
+      
+      nclass=sctrl%nclass
+      nl=sctrl%nl
+      nsp=sctrl%nspin
+      nspec=sctrl%nspec
 
 Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
 Cgetarg       call upack1('array nclasp',sarray,nclasp)
-       
-       nclasp=sarray%nclasp
+      
+      nclasp=sarray%nclasp
 
       if (nclasp .eq. nclass) return
       nclspp = max(2*nclasp-nclass,nspec)
@@ -870,14 +870,14 @@ C ... Allocate ASA arrays
 Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
 Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
 Cgetarg         call upack('pot opnu oqnu',spot,opnu,oqnu,0,0,0)
-         
-         opnu=spot%opnu
-         oqnu=spot%oqnu
+        
+        opnu=spot%opnu
+        oqnu=spot%oqnu
 
         call dpscop(w(opnu),w(opnu),nl*nsp*i1,
-     .    nl*nsp*nclass+1,nl*nsp*nclasp+1,1d0)
+     .  nl*nsp*nclass+1,nl*nsp*nclasp+1,1d0)
         call dpscop(w(oqnu),w(oqnu),3*nl*nsp*i1,
-     .    3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
+     .  3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
 
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 Cgetarg...info...           integer :: ovdif , integer(8) :: spot%ovdif 1
@@ -885,11 +885,11 @@ Cgetarg...info...           integer :: ovrmax , integer(8) :: spot%ovrmax 1
 Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
 Cgetarg         call upack('pot oves ovdif ovrmax orhrmx',spot,oves,ovdif,
 Cgetarg      .    ovrmax,orhrmx,0)
-         
-         oves=spot%oves
-         ovdif=spot%ovdif
-         ovrmax=spot%ovrmax
-         orhrmx=spot%orhrmx
+        
+        oves=spot%oves
+        ovdif=spot%ovdif
+        ovrmax=spot%ovrmax
+        orhrmx=spot%orhrmx
 
         call dpscop(w(oves),w(oves),i1,nclass+1,nclasp+1,1d0)
         call dpscop(w(ovdif),w(ovdif),i1,nclass+1,nclasp+1,1d0)
@@ -901,7 +901,7 @@ Cgetarg      .    ovrmax,orhrmx,0)
       endif
 
 Cgetarg       end
-       end subroutine clsprm 
+      end subroutine clsprm 
 
 C================================================================
 c take subs/ioqpp.F here
@@ -909,8 +909,8 @@ Cgetarg...info...           structure ['ioqpp', 'ctrl', 'sctrl']
 Cgetarg...info...           structure ['ioqpp', 'pot', 'spot']
 Cgetarg...info...           use_to_add ['ioqpp', 'm_struc_def']
       subroutine ioqpp(lio,sctrl,spot)
-       
-       use m_struc_def  !Cgetarg
+      
+      use m_struc_def  !Cgetarg
 
 C- File i/o for phi-phi, phi-dot, dot-dot products
 C ----------------------------------------------------------------------
@@ -924,8 +924,8 @@ C     implicit none
 C ... Passed parameters
       logical lio
 Cgetarg       double precision sctrl(1),spot(1)
-       type(s_ctrl)::sctrl
-       type(s_pot)::spot
+      type(s_ctrl)::sctrl
+      type(s_pot)::spot
 
 C ... Heap
       integer w(1)
@@ -938,15 +938,15 @@ Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
 Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
 Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
 Cgetarg       call upack('ctrl nbas nl nspin',sctrl,nbas,nl,nsp,0,0)
-       
-       nbas=sctrl%nbas
-       nl=sctrl%nl
-       nsp=sctrl%nspin
+      
+      nbas=sctrl%nbas
+      nl=sctrl%nl
+      nsp=sctrl%nspin
 
       i1 = nl**2*(nl**2+1)
       i2 = 4*nsp*nbas
 Cgetarg       oqpp = igets('pot oqpp',spot)
-       oqpp = int(spot%oqpp) 
+      oqpp = int(spot%oqpp) 
 
       ifi = fopna('qpp',-1,4+8)
 
@@ -965,7 +965,7 @@ Cgetarg       oqpp = igets('pot oqpp',spot)
 
       call fclose(ifi)
 Cgetarg       end
-       end subroutine ioqpp 
+      end subroutine ioqpp 
 
 
 C================================================================
@@ -1030,9 +1030,9 @@ Cgetarg...info...           structure ['aiocls', 'lat', 'slat']
 Cgetarg...info...           use_to_add ['aiocls', 'm_struc_def']
 c#define ONE_ATOM_UNIT 1
       subroutine aiocls(lio,mode,sarray,sctrl,sham,spot,sspec,slat,ic1,
-     .  ic2)
-       
-       use m_struc_def  !Cgetarg
+     .ic2)
+      
+      use m_struc_def  !Cgetarg
 
 C- File I/O atomic data for classes ic1..ic2
 C ----------------------------------------------------------------------
@@ -1088,12 +1088,12 @@ C Passed parameters
       integer mode,ic1,ic2
 Cgetarg       double precision sarray(1),sctrl(1),sspec(1),slat(1),sham(1),
 Cgetarg      .  spot(1)
-       type(s_array)::sarray
-       type(s_ctrl)::sctrl
-       type(s_spec)::sspec(*)
-       type(s_lat)::slat
-       type(s_ham)::sham
-       type(s_pot)::spot
+      type(s_array)::sarray
+      type(s_ctrl)::sctrl
+      type(s_spec)::sspec(*)
+      type(s_lat)::slat
+      type(s_ham)::sham
+      type(s_pot)::spot
 
 C heap
       integer w(1)
@@ -1101,29 +1101,29 @@ C heap
 C Local variables
       character*8 clabl,alabel, outs1*20, outs2*20, outs3*20, outs*80
       logical sw,aiomom,aiopar,aiopot,aiova,lpot,lcor,scat,lgors,
-     .  aiogen,aiosop,aiorme,aiocor,aiomp,lrell,lgen
+     .aiogen,aiosop,aiorme,aiocor,aiomp,lrell,lgen
       logical havepq,havepp,haveso,haveop,haveva,havemp,
-     .        readpq,readpp,readso,readop,readva,readmp
+     .readpq,readpp,readso,readop,readva,readmp
       integer opnu,oqnu,orhrmx,ovrmax,opp,opprel,oves,ova,omp,osop,olpp,
-     .  olppr,olsop,olgrme,olva,olmp,opot,ocor,oics,ohave,oclabl,onrc,
-     .  ogrrme,n0,nglob
+     .olppr,olsop,olgrme,olva,olmp,opot,ocor,oics,ohave,oclabl,onrc,
+     .ogrrme,n0,nglob
       parameter(n0=10)
       integer ic,is,lmx,k,nl,nsp,ifi,jfi,fopn,lmxx,nspx,nrx,nr,
-     .  idmod(n0),isw,bitand,i2,nclasp,iclbsj,icmap,jc,nbas,nclass,
-     .  nclspp,iprint,lgunit,mode0,mode00,lrel
+     .idmod(n0),isw,bitand,i2,nclasp,iclbsj,icmap,jc,nbas,nclass,
+     .nclspp,iprint,lgunit,mode0,mode00,lrel
 c      integer mpipid,procid
       double precision rhrmx,vrmax(2),ves,z,rmxx,ax,qc,dq,vrmxx(2),
-     .  sumec,sumtc,sumev,thrpv,ekin,utot,rhoeps,etot,a,rmax,dval,
-     .  zbak(2),dgets,pdf(n0,2),qdf(n0,2),pnuloc(100),qnuloc(100)
+     .sumec,sumtc,sumev,thrpv,ekin,utot,rhoeps,etot,a,rmax,dval,
+     .zbak(2),dgets,pdf(n0,2),qdf(n0,2),pnuloc(100),qnuloc(100)
 
 Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
 Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
 Cgetarg...info...           integer :: nclass , integer(8) :: sctrl%nclass 1
 Cgetarg       call upack('ctrl nl nspin nclass',sctrl,nl,nsp,nclass,0,0)
-       
-       nl=sctrl%nl
-       nsp=sctrl%nspin
-       nclass=sctrl%nclass
+      
+      nl=sctrl%nl
+      nsp=sctrl%nspin
+      nclass=sctrl%nclass
 
 Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
 Cgetarg...info...           integer :: opprel , integer(8) :: spot%opprel 1
@@ -1131,11 +1131,11 @@ Cgetarg...info...           integer :: osop , integer(8) :: spot%osop 1
 Cgetarg...info...           integer :: ogrrme , integer(8) :: spot%ogrrme 1
 Cgetarg       call upack('pot opp opprel osop ogrrme',spot,opp,opprel,osop,
 Cgetarg      .  ogrrme,0)
-       
-       opp=spot%opp
-       opprel=spot%opprel
-       osop=spot%osop
-       ogrrme=spot%ogrrme
+      
+      opp=spot%opp
+      opprel=spot%opprel
+      osop=spot%osop
+      ogrrme=spot%ogrrme
 
 Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
 Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
@@ -1143,20 +1143,20 @@ Cgetarg...info...           integer :: orhrmx , integer(8) :: spot%orhrmx 1
 Cgetarg...info...           integer :: ovrmax , integer(8) :: spot%ovrmax 1
 Cgetarg       call upack('pot opnu oqnu orhrmx ovrmax',spot,opnu,oqnu,orhrmx,
 Cgetarg      .  ovrmax,0)
-       
-       opnu=spot%opnu
-       oqnu=spot%oqnu
-       orhrmx=spot%orhrmx
-       ovrmax=spot%ovrmax
+      
+      opnu=spot%opnu
+      oqnu=spot%oqnu
+      orhrmx=spot%orhrmx
+      ovrmax=spot%ovrmax
 
 Cgetarg...info...           integer :: ova , integer(8) :: spot%ovintr 1
 Cgetarg...info...           integer :: omp , integer(8) :: spot%opmpol 1
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 Cgetarg       call upack('pot ovintr opmpol oves',spot,ova,omp,oves,0,0)
-       
-       ova=spot%ovintr
-       omp=spot%opmpol
-       oves=spot%oves
+      
+      ova=spot%ovintr
+      omp=spot%opmpol
+      oves=spot%oves
 
 Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
 Cgetarg...info...           integer :: oclabl , integer(8) :: sarray%oclabl 1
@@ -1164,11 +1164,11 @@ Cgetarg...info...           integer :: ohave , integer(8) :: sarray%ohave 1
 Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
 Cgetarg       call upack('array nclasp oclabl ohave oics',sarray,nclasp,oclabl,
 Cgetarg      .  ohave,oics,0)
-       
-       nclasp=sarray%nclasp
-       oclabl=sarray%oclabl
-       ohave=sarray%ohave
-       oics=sarray%oics
+      
+      nclasp=sarray%nclasp
+      oclabl=sarray%oclabl
+      ohave=sarray%ohave
+      oics=sarray%oics
 
       lrel = nglob('lrel')
 
@@ -1200,14 +1200,14 @@ Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10
 Cgetarg...info...           real(8) :: pdf(n0,2) , real(8) :: sspec%p 20
 Cgetarg...info...           real(8) :: qdf(n0,2) , real(8) :: sspec%q 20
 Cgetarg         call upack('spec lmxa idmod p q',sspec,is,lmx,idmod,pdf,qdf)
-         
-         lmx=sspec(is)%lmxa
-         i_copy_size=size(sspec(is)%idmod) 
-         call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
-         i_copy_size=size(sspec(is)%p) 
-         call dcopy(i_copy_size,sspec(is)%p,1,pdf,1) 
-         i_copy_size=size(sspec(is)%q) 
-         call dcopy(i_copy_size,sspec(is)%q,1,qdf,1) 
+        
+        lmx=sspec(is)%lmxa
+        i_copy_size=size(sspec(is)%idmod) 
+        call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
+        i_copy_size=size(sspec(is)%p) 
+        call dcopy(i_copy_size,sspec(is)%p,1,pdf,1) 
+        i_copy_size=size(sspec(is)%q) 
+        call dcopy(i_copy_size,sspec(is)%q,1,qdf,1) 
 
 
         call dpzero(pnuloc,100)
@@ -1296,7 +1296,7 @@ C   --- File WRITE ---
 C     ... Pick up GEN and POT, if available, to save again
           if (scat(iabs(ifi),'GEN:',':',.true.)) then
             lgen = aiogen(alabel,z,rmxx,lmxx,nspx,lrell,nrx,ax,qc,dq,
-     .        vrmxx,sumec,sumev,thrpv,ekin,utot,rhoeps,etot,ifi)
+     .      vrmxx,sumec,sumev,thrpv,ekin,utot,rhoeps,etot,ifi)
           endif
           if (scat(iabs(ifi),'POT:',':',.true.)) then
             read(ifi,102) nr,nsp,a,rmax
@@ -1308,11 +1308,11 @@ C     ... Pick up GEN and POT, if available, to save again
           rewind ifi
           jfi = -ifi
           if (lgen) sw = aiogen(clabl,z,rmxx,lmxx,nspx,lrell,nrx,ax,qc,
-     .      dq,vrmxx,sumec,sumev,thrpv,ekin,utot,rhoeps,etot,jfi)
+     .    dq,vrmxx,sumec,sumev,thrpv,ekin,utot,rhoeps,etot,jfi)
           if (havepq) sw = aiomom(clabl,pnuloc,qnuloc,idmod,
-     .      nl,lmx,nsp,rhrmx,vrmax,jfi)
+     .    nl,lmx,nsp,rhrmx,vrmax,jfi)
           if (havepp) sw = aiopar(clabl,lrel,w(olpp),w(olppr),ves,nl,
-     .      lmx,nsp,jfi)
+     .    lmx,nsp,jfi)
           if (haveva) sw = aiova(clabl,w(olva),nl,lmx,nsp,jfi)
           if (havemp) sw = aiomp(clabl,w(olmp),nl,2*nl-2,nsp,jfi)
           if (haveso) sw = aiosop(clabl,w(olsop),nl,lmx,nsp,jfi)
@@ -1327,7 +1327,7 @@ C     ... Copy whatever is available on disk to holding arrays
           if (readpq .or. mode0 .ge. 4) then
             if (readpq) rewind ifi
             if (readpq) readpq = aiomom(clabl,pnuloc,qnuloc,idmod,
-     .        nl,lmx,nsp,rhrmx,vrmax,ifi)
+     .      nl,lmx,nsp,rhrmx,vrmax,ifi)
 C           Couldn't read from atom file ; take default values
             if (readpq) call awrit0('%a pq,',outs2,len(outs2),0)
             if (mode0 .ge. 4 .and. .not. (readpq .or. havepq)) then
@@ -1341,7 +1341,7 @@ C             call dmcpy(pdf,n0,1,pnuloc,nl,1,nl,nsp)
           endif
           if (readpp) then
             readpp = aiopar(clabl,lrel,w(olpp),w(olppr),ves,nl,lmx,nsp,
-     .        ifi)
+     .      ifi)
             if (readpp) call awrit0('%a pp,',outs2,len(outs2),0)
           endif
           if (readso .and. osop .gt. 0) then
@@ -1363,12 +1363,12 @@ C             call dmcpy(pdf,n0,1,pnuloc,nl,1,nl,nsp)
 
 C     ... Update what parameters are available
           w(ohave+ic-1) = isw(haveop.or.readop)*32+
-     .                    isw(havemp.or.readmp)*16+
-     .                    isw(haveva.or.readva)*8 +
-     .                    isw(haveso.or.readso)*4 +
-     .                    isw(havepp.or.readpp)*2 +
-     .                    isw(havepq.or.readpq)*1 +
-     .                    w(ohave+ic-1) - bitand(w(ohave+ic-1),63)
+     .    isw(havemp.or.readmp)*16+
+     .    isw(haveva.or.readva)*8 +
+     .    isw(haveso.or.readso)*4 +
+     .    isw(havepp.or.readpp)*2 +
+     .    isw(havepq.or.readpq)*1 +
+     .    w(ohave+ic-1) - bitand(w(ohave+ic-1),63)
 
           k = nl*nsp
           if (havepq .or. readpq) then
@@ -1388,42 +1388,42 @@ C     ... Update what parameters are available
           endif
           k = (nl*nsp)**2
           if ((haveva .or. readva) .and. ova .gt. 0)
-     .      call dpscop(w(olva),w(ova),k,1,1+(ic-1)*k,1d0)
+     .    call dpscop(w(olva),w(ova),k,1,1+(ic-1)*k,1d0)
           k = nl**2*(2*nl-1)*3*nsp
           if ((havemp .or. readmp) .and. omp .gt. 0)
-     .      call dpscop(w(olmp),w(omp),k,1,1+(ic-1)*k,1d0)
+     .    call dpscop(w(olmp),w(omp),k,1,1+(ic-1)*k,1d0)
           k = nl*nsp*nsp*9
           if ((haveso .or. readso) .and. osop .gt. 0)
-     .      call dpscop(w(olsop),w(osop),k,1,1+(ic-1)*k,1d0)
+     .    call dpscop(w(olsop),w(osop),k,1,1+(ic-1)*k,1d0)
           k = 16*nl*nsp
           if ((haveop .or. readop) .and. ogrrme .gt. 0)
-     .      call dpscop(w(olgrme),w(ogrrme),k,1,1+(ic-1)*k,1d0)
+     .    call dpscop(w(olgrme),w(ogrrme),k,1,1+(ic-1)*k,1d0)
         endif
 
         if (mode00 .lt. 3) call fclr(clabl,ifi)
         if (iprint() .gt. 40) then
-        outs = ' '
-        if (outs1 .ne. ' ') then
-          call awrit1('%x '//clabl//'%a: copied '//outs1//'%a%b from '//
+          outs = ' '
+          if (outs1 .ne. ' ') then
+            call awrit1('%x '//clabl//'%a: copied '//outs1//'%a%b from '//
      .      'class %i',outs,len(outs),0,jc)
-        endif
-        if (outs2 .ne. ' ') then
-          call awrit0('%x '//clabl//'%a: read '//outs2//'%a%b from '//
-     .      'disk',outs,len(outs),0)
-        endif
-        if (outs3 .ne. ' ') then
-          if (outs2 .eq.  ' ') then
-            call awrit0('%x '//clabl//'%a: use defaults for: '//outs3//
-     .        '%a%b',outs,len(outs),0)
-          else
-            call awrit0('%a; use defaults for: '//outs3//'%a%b',
-     .      outs,len(outs),0)
           endif
-        endif
-        if (outs .eq. ' ')
+          if (outs2 .ne. ' ') then
+            call awrit0('%x '//clabl//'%a: read '//outs2//'%a%b from '//
+     .      'disk',outs,len(outs),0)
+          endif
+          if (outs3 .ne. ' ') then
+            if (outs2 .eq.  ' ') then
+              call awrit0('%x '//clabl//'%a: use defaults for: '//outs3//
+     .        '%a%b',outs,len(outs),0)
+            else
+              call awrit0('%a; use defaults for: '//outs3//'%a%b',
+     .        outs,len(outs),0)
+            endif
+          endif
+          if (outs .eq. ' ')
      .    call awrit0(' '//clabl//'%a: nothing read',outs,len(outs),0)
-        call awrit0(' aiocls class'//outs,' ',-len(outs),lgunit(1))
-       endif
+          call awrit0(' aiocls class'//outs,' ',-len(outs),lgunit(1))
+        endif
    10 continue
 C     call awrit2('%n:1i',' ',100,6,nclasp,w(ohave))
       call rlse(olpp)
@@ -1445,7 +1445,7 @@ C     implicit none
         ic = icmap
       endif
 Cgetarg       end
-       end subroutine pvaioc 
+      end subroutine pvaioc 
 
       subroutine paioc2(nsp,nl,n0,pat,qat,pnu,qnu)
 
@@ -1456,19 +1456,19 @@ C     implicit none
       integer i,il
 
       do  i = 1, nsp
-      do  il = 1, nl
+        do  il = 1, nl
 C       pnu(il,i) = int(pat(il,i)) + .5d0
-        pnu(il,i) = pat(il,i)
-        qnu(1,il,i) = qat(il,1)/nsp
-        if (nsp .eq. 2) then
-          if (pat(il,i) .eq. 0) pnu(il,i) = pnu(il,1)
-          qnu(1,il,i) = qat(il,1)/nsp + qat(il,2)/2*dble(3-2*i)
-        endif
-        qnu(2,il,i) = 0d0
-        qnu(3,il,i) = 0d0
-      enddo
+          pnu(il,i) = pat(il,i)
+          qnu(1,il,i) = qat(il,1)/nsp
+          if (nsp .eq. 2) then
+            if (pat(il,i) .eq. 0) pnu(il,i) = pnu(il,1)
+            qnu(1,il,i) = qat(il,1)/nsp + qat(il,2)/2*dble(3-2*i)
+          endif
+          qnu(2,il,i) = 0d0
+          qnu(3,il,i) = 0d0
+        enddo
       enddo
 Cgetarg       end
-       end subroutine paioc2 
+      end subroutine paioc2 
 
 

@@ -1,5 +1,5 @@
       subroutine yysbmm(mode,i1,i2,j1,j2,nc,ar,ai,lda,ija,offs,
-     .  xr,xi,ldx,br,bi,ldb)
+     .xr,xi,ldx,br,bi,ldb)
 C- Complex sparse-block-matrix dense-matrix multiply
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -49,7 +49,7 @@ C     implicit none
 C ... Passed parameters
       integer i1,i2,j1,j2,nc,lda,ldb,ldx,ija(2,*),offs(i2),mode
       double precision ar(lda,lda,1),ai(lda,lda,1),
-     .  xr(ldx,nc),xi(ldx,nc),br(ldb,nc),bi(ldb,nc)
+     .xr(ldx,nc),xi(ldx,nc),br(ldb,nc),bi(ldb,nc)
 C ... Local parameters
       integer ir,k,pa,ofxb,ofbb,nra,nca,ic,i,j,mode0,mode1
       double precision alp
@@ -76,9 +76,9 @@ C --- Initialize contents of b ---
       if (mode0 .eq. 0) then
 C       do  6  i = offs(i1)-ofb+1, offs(i2+1)-ofb
         do  6  j = 1, nc
-        do  6  i = offs(i1)+1, offs(i2+1)
-          br(i,j) = 0
-          bi(i,j) = 0
+          do  6  i = offs(i1)+1, offs(i2+1)
+            br(i,j) = 0
+            bi(i,j) = 0
     6   continue
       endif
 
@@ -98,8 +98,8 @@ C         offset to x for this subblock
 C         ofxb = offs(ir) - ofx
           ofxb = offs(ir)
           call yygemm('N4','N4',nra,nc,nra,alp,ar(1,1,pa),ai(1,1,pa),
-     .      lda,xr(1+ofxb,1),xi(1+ofxb,1),ldx,1d0,
-     .      br(ofbb+1,1),bi(ofbb+1,1),ldb)
+     .    lda,xr(1+ofxb,1),xi(1+ofxb,1),ldx,1d0,
+     .    br(ofbb+1,1),bi(ofbb+1,1),ldb)
         endif
 
 C  ...  b(ir) = b(ir) + a(ir,ija(k))*x(ija(k)) for nonzero blocks in a
@@ -117,13 +117,13 @@ C         pointer to subblock in a
 C         b(ir) = b(ir) + a(ir,ija(k))*x(ija(k))
           if (mode1 .eq. 1) then
             call dgemm('N','N',nra,nc,nca,alp,ar(1,1,pa),lda,
-     .        xr(1+ofxb,1),ldx,1d0,br(1+ofbb,1),ldb)
+     .      xr(1+ofxb,1),ldx,1d0,br(1+ofbb,1),ldb)
             call dgemm('N','N',nra,nc,nca,alp,ar(1,1,pa),lda,
-     .        xi(1+ofxb,1),ldx,1d0,bi(1+ofbb,1),ldb)
+     .      xi(1+ofxb,1),ldx,1d0,bi(1+ofbb,1),ldb)
           else
             call yygemm('N4','N4',nra,nc,nca,alp,ar(1,1,pa),ai(1,1,pa),
-     .        lda,xr(1+ofxb,1),xi(1+ofxb,1),ldx,1d0,
-     .        br(1+ofbb,1),bi(1+ofbb,1),ldb)
+     .      lda,xr(1+ofxb,1),xi(1+ofxb,1),ldx,1d0,
+     .      br(1+ofbb,1),bi(1+ofbb,1),ldb)
           endif
    11   continue
    10 continue
@@ -131,7 +131,7 @@ C         b(ir) = b(ir) + a(ir,ija(k))*x(ija(k))
 
       end
       subroutine yymsbm(mode,i1,i2,j1,j2,nr,ar,ai,lda,ija,offs,
-     .  xr,xi,ldx,br,bi,ldb)
+     .xr,xi,ldx,br,bi,ldb)
 C- Complex dense-matrix sparse-block-matrix multiply
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -208,9 +208,9 @@ C ... Initialize contents of b
       if (mode0 .eq. 0) then
 C       do  6  j = offs(j1)-ofb+1, offs(j2+1)-ofb
         do  6  j = offs(j1)+1, offs(j2+1)
-        do  6  i = 1, nr
-          br(i,j) = 0
-          bi(i,j) = 0
+          do  6  i = 1, nr
+            br(i,j) = 0
+            bi(i,j) = 0
     6   continue
       endif
 
@@ -230,8 +230,8 @@ C       row and column dimension of this subblock
 C   ... b(ir) <- x(ir)*a(ir).
         if (pa .ne. 0) then
           call yygemm('N4','N4',nr,nra,nra,alp,xr(1,ofxb+1),xi(1,ofxb+1)
-     .      ,ldx,ar(1,1,pa),ai(1,1,pa),lda,1d0,br(1,ofbb+1),bi(1,ofbb+1)
-     .      ,ldb)
+     .    ,ldx,ar(1,1,pa),ai(1,1,pa),lda,1d0,br(1,ofbb+1),bi(1,ofbb+1)
+     .    ,ldb)
         endif
     8 continue
 
@@ -257,14 +257,14 @@ C         pointer to subblock in a
           pa = ija(2,k)
 C         b(ija(k)) += x(ir) * a(ir,ija(k))
           if (mode1 .eq. 1) then
-          call dgemm('N','N',nr,nca,nra,alp,xr(1,1+ofxb),ldx,
+            call dgemm('N','N',nr,nca,nra,alp,xr(1,1+ofxb),ldx,
      .      ar(1,1,pa),lda,1d0,br(1,1+ofbb),ldb)
-          call dgemm('N','N',nr,nca,nra,alp,xi(1,1+ofxb),ldx,
+            call dgemm('N','N',nr,nca,nra,alp,xi(1,1+ofxb),ldx,
      .      ar(1,1,pa),lda,1d0,bi(1,1+ofbb),ldb)
           else
             call yygemm('N','N',nr,nca,nra,alp,xr(1,1+ofxb),xi(1,1+ofxb)
-     .        ,ldx,ar(1,1,pa),ai(1,1,pa),lda,1d0,br(1,1+ofbb),bi(1,1+
-     .        ofbb),ldb)
+     .      ,ldx,ar(1,1,pa),ai(1,1,pa),lda,1d0,br(1,1+ofbb),bi(1,1+
+     .      ofbb),ldb)
           endif
    11   continue
    10 continue

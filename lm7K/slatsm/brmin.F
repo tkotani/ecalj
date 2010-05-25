@@ -69,7 +69,7 @@ C     implicit none
 C ... Passed parameters
       integer n,ir,isw,ipr
       double precision diff,dxmx,xtol,gtol,x(n),g(n),hmax(n),w(n,10),
-     .  hess(n,n)
+     .hess(n,n)
 C ... Local parameters
       integer nx,ng,ns,nd,nh,nh2,nhs,itol
       parameter (nx=1,ng=2,ns=3,nd=4,nh=5,nh2=6,nhs=nd+5)
@@ -102,10 +102,10 @@ C   ... If starting Hessian is zero, set to unity.
     6   continue
 
         call info8(-25,0,0,' brmin: start'//
-     .    '%?#(n==1|n==2|n==3)#  xtol=|%1;2g|#%j#'//
-     .    '%?#(n==0|n==2|n==3)#  gtol=|%1;2g|#%j#'//
-     .    '  isw=%i  |g|=%1;3g',
-     .    isw1,xtol,isw1,gtol,isw,dsqrt(ddot(n,g,1,g,1)),0,0)
+     .  '%?#(n==1|n==2|n==3)#  xtol=|%1;2g|#%j#'//
+     .  '%?#(n==0|n==2|n==3)#  gtol=|%1;2g|#%j#'//
+     .  '  isw=%i  |g|=%1;3g',
+     .  isw1,xtol,isw1,gtol,isw,dsqrt(ddot(n,g,1,g,1)),0,0)
 
 C --- Subsequent iterations  ---
       else
@@ -115,11 +115,11 @@ C --- Subsequent iterations  ---
 C   ... Global scaling of the Hessian matrix
         if (ir .eq. 2 .and. isw32 .ne. 0) then
           do  10  i = 1, n
-          w(i,ns) = x(i) - w(i,nx)
+            w(i,ns) = x(i) - w(i,nx)
    10     w(i,nd) = g(i) - w(i,ng)
           do  12  i = 1, n
-          w(i,nh) = 0d0
-          do  12  j = 1, n
+            w(i,nh) = 0d0
+            do  12  j = 1, n
    12     w(i,nh) = w(i,nh) + hess(i,j)*w(j,nd)
           a = ddot(n,w(1,nd),1,w(1,nh),1)
           b = ddot(n,w(1,nd),1,w(1,ns),1)
@@ -148,14 +148,14 @@ C       Local copy of the original Hessian
 
 C   --- Update inverse of Hessian ---
         do  50  i = 1, n
-        do  50  j = i, n
-          hess(j,i) = hess(j,i)
+          do  50  j = i, n
+            hess(j,i) = hess(j,i)
      .      - w(j,nh)*w(i,nh)/a + w(j,ns)*w(i,ns)/b
      .      + beta*a*b*w(j,nh2)*w(i,nh2)
    50   continue
 C   ... Make it symmetric
         do  52  i = 2, n
-        do  52  j = 1, i-1
+          do  52  j = 1, i-1
    52   hess(j,i) = hess(i,j)
 
 C   --- Check that Hessian is positive definite ---
@@ -173,7 +173,7 @@ C         Keep a local copy of hessian, since dsev1 destroys it.
 
 C   --- Update x from Hessian, g ---
         do  70  i = 1, n
-        do  70  j = 1, n
+          do  70  j = 1, n
    70   x(i) = x(i) - hess(i,j)*g(j)
 
 C   ... End of subsequent Hessian update
@@ -190,7 +190,7 @@ C --- Limit the shift, depending on dxmx and hmax ---
         factor = dxmx/diff
         print 334, diff,factor
   334   format(' brmin: max shift =',f9.5,
-     .    ' is larger than dxmx.  Scale by',f8.4)
+     .  ' is larger than dxmx.  Scale by',f8.4)
         do  84  i = 1, n
           w(i,ns) = factor * w(i,ns)
           x(i) = w(i,ns) + w(i,nx)
@@ -206,7 +206,7 @@ C ... Check local shifts
             if (factor .lt. fmin) then
               fmin = factor
               print '('' Variable No.'',i3,'' is out of range'',f8.6)',
-     .          i,x(i)
+     .        i,x(i)
             endif
           endif
    85   continue
@@ -224,7 +224,7 @@ C --- Cleanup ---
       diff = 0
       gmax = 0
       do  110  i = 1, n
-      gmax = max(gmax,dabs(g(i)))
+        gmax = max(gmax,dabs(g(i)))
   110 diff = max(diff,dabs(w(i,ns)))
 
       if (scale .ne. 1) then
@@ -233,8 +233,8 @@ C --- Cleanup ---
      .  iabs(ir),diff,dsqrt(ddot(n,g,1,g,1)),gmax,scale,0,0,0)
       else
         call info8(-30,0,0,' brmin: iter %i  max shift=%1;4g  '//
-     .    '|g|=%1;4g  max g=%1;4g%?#n#  evmin=%1;2g#%j#',iabs(ir),
-     .    diff,dsqrt(ddot(n,g,1,g,1)),gmax,isw31,evmin,0,0)
+     .  '|g|=%1;4g  max g=%1;4g%?#n#  evmin=%1;2g#%j#',iabs(ir),
+     .  diff,dsqrt(ddot(n,g,1,g,1)),gmax,isw31,evmin,0,0)
       endif
       npr = min(n,8)
       call info0(-60,0,0,' Updated x: ')
@@ -245,18 +245,18 @@ C --- Cleanup ---
 C     Global convergence criteria: shift relative to start of line min
       itol = mod(isw1,4)
       call pgradz(itol,n,1d0,w(1,ns),g,xtol,gtol,
-     .  dxtop,resx,gtop,resg,dum,cnvgx,cnvgg)
+     .dxtop,resx,gtop,resg,dum,cnvgx,cnvgg)
 
 C ... Case brmin has converged globally
       if (resg .eq. 0 .or. (cnvgg .and. cnvgx)) then
         call info5(-20,0,0,
-     .    '%x brmin converged to dxmax=%1;3g, |dx|=%1;3g,'//
-     .    '  gmax=%1;3g, |grad|=%1;3g in %i iter',
-     .    dxtop,resx,gtop,resg,ir)
-          npr = min(n,6)
-          call info(-30,0,0,' p=%n:;10F',npr,x)
-          call info(-30,0,0,' g=%n:;10F',npr,g)
-          ir = 0
+     .  '%x brmin converged to dxmax=%1;3g, |dx|=%1;3g,'//
+     .  '  gmax=%1;3g, |grad|=%1;3g in %i iter',
+     .  dxtop,resx,gtop,resg,ir)
+        npr = min(n,6)
+        call info(-30,0,0,' p=%n:;10F',npr,x)
+        call info(-30,0,0,' g=%n:;10F',npr,g)
+        ir = 0
       endif
 
       call poppr

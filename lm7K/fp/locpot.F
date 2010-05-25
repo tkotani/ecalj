@@ -1,9 +1,9 @@
 #define F90 1
       subroutine locpot(nbas,nsp,lso,lcplxp,ssite,sspec,slat,orhoat,
-     .  qmom,vval,gpot0,osig,otau,oppi,ppnl,hab,vab,sab,vvesat,
-     .  cpnvsa,rhoexc,rhoex,rhoec,rhovxc,rvepsv,rvexv,rvecv,rvvxcv,
-     .  rveps,rvvxc,valvef,xcore,focexc,focex,focec,focvxc,sqloc,sqlocc,
-     .  saloc,qval,qsc,job,rhobg,nlibu,lmaxu,vorb,lldau)
+     .qmom,vval,gpot0,osig,otau,oppi,ppnl,hab,vab,sab,vvesat,
+     .cpnvsa,rhoexc,rhoex,rhoec,rhovxc,rvepsv,rvexv,rvecv,rvvxcv,
+     .rveps,rvvxc,valvef,xcore,focexc,focex,focec,focvxc,sqloc,sqlocc,
+     .saloc,qval,qsc,job,rhobg,nlibu,lmaxu,vorb,lldau)
 
       use m_struc_def  !Cgetarg
 
@@ -120,7 +120,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nbas,nsp,job,oppi(3,nbas),osig(3,nbas),otau(3,nbas),
-     .  orhoat(3,nbas),n0,nppn,nab,lso,lcplxp
+     .orhoat(3,nbas),n0,nppn,nab,lso,lcplxp
       integer nlibu,lmaxu,lldau(nbas),iblu
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       parameter (n0=10,nppn=12,nab=9)
@@ -130,10 +130,10 @@ C ... Passed parameters
       type(s_lat)::slat
 
       double precision cpnvsa,rhoexc(2),rhoex(2),rhoec(2),rhovxc(2),
-     .  focexc(2),focex(2),focec(2),focvxc(2),qval,sqloc,sqlocc,saloc,
-     .  valvef,vvesat,rvepsv,rvexv,rvecv,rvvxcv,xcore,rveps,rvvxc,
-     .  hab(nab,n0,nsp,nbas),vab(nab,n0,nsp,nbas),sab(nab,n0,nsp,nbas),
-     .  gpot0(1),ppnl(nppn,n0,nsp,nbas),rhobg
+     .focexc(2),focex(2),focec(2),focvxc(2),qval,sqloc,sqlocc,saloc,
+     .valvef,vvesat,rvepsv,rvexv,rvecv,rvvxcv,xcore,rveps,rvvxc,
+     .hab(nab,n0,nsp,nbas),vab(nab,n0,nsp,nbas),sab(nab,n0,nsp,nbas),
+     .gpot0(1),ppnl(nppn,n0,nsp,nbas),rhobg
 C ... Local parameters
       character spid*8
       integer nrmx,nlmx,nkap0
@@ -142,11 +142,11 @@ C ... Local parameters
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       double precision ehl(n0),rsml(n0)
       double precision pi,srfpi,y0,rofi(nrmx),rwgt(nrmx),pnu(n0,2),
-     .  pnz(n0,2),gpotb(81),z,a,rmt,rsma,qc,ceh,rfoc,
-     .  qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,valvs,cpnvs,
-     .  rhexc(2),rhex(2),rhec(2),rhvxc(2),qloc,qlocc,valvt,xcor,
-     .  fcexc(2),fcex(2),fcec(2),fcvxc(2),aloc,alocc,rvepvl,rvexl,
-     .  rvecl,rvvxvl,rveptl,rvvxtl
+     .pnz(n0,2),gpotb(81),z,a,rmt,rsma,qc,ceh,rfoc,
+     .qcorg,qcorh,qsc,cofg,cofh,qsca,rg,qv,valvs,cpnvs,
+     .rhexc(2),rhex(2),rhec(2),rhvxc(2),qloc,qlocc,valvt,xcor,
+     .fcexc(2),fcex(2),fcec(2),fcvxc(2),aloc,alocc,rvepvl,rvexl,
+     .rvecl,rvvxvl,rveptl,rvvxtl
 C     double precision qs(2)
 C ... for sm. Hankel tails
       integer iltab(nbas)
@@ -159,19 +159,19 @@ C ... for core hole
       double precision qcor(2),qc0,qsc0
 #if F90
       real(8),allocatable:: wk(:),rhol1(:),rhol2(:),
-     .  v1(:),v2(:),v1es(:),v2es(:),efg(:,:),zz(:)
+     .v1(:),v2(:),v1es(:),v2es(:),efg(:,:),zz(:)
 #else
       integer nbasx
       parameter (nbasx=200)
       double precision wk(nrmx*nlmx*2),
-     .  rhol1(nrmx*nlmx*2),rhol2(nrmx*nlmx*2),v1(nrmx*nlmx*2),
-     .  v2(nrmx*nlmx*2),v1es(nrmx*nlmx*2),v2es(nrmx*nlmx*2),
-     .  efg(5,nbasx),zz(nbasx)
+     .rhol1(nrmx*nlmx*2),rhol2(nrmx*nlmx*2),v1(nrmx*nlmx*2),
+     .v2(nrmx*nlmx*2),v1es(nrmx*nlmx*2),v2es(nrmx*nlmx*2),
+     .efg(5,nbasx),zz(nbasx)
 #endif
       logical lfltwf
       integer i,stdo,nglob,ipr,iprint,j1,ib,is,lmxl,
-     .  lmxa,nr,lmxb,kmax,lfoc,nrml,ov01,ov0,nlml,ocg,
-     .  ojcg,oidxcg
+     .lmxa,nr,lmxb,kmax,lfoc,nrml,ov01,ov0,nlml,ocg,
+     .ojcg,oidxcg
 C$    integer iiv0(nbas),nvl
 C ... Heap
       integer w(1)
@@ -300,9 +300,9 @@ cccccccccccccc
         if (qsc0 .ne. qsca .or. qc .ne. qc0-qsc0) then
           if (iprint() .gt. 0)
      .    call awrit5(' is=%i qsc0=%d qsca=%d qc=%d qc0=%d',' ',120,
-     .                stdo,is,qsc0,qsca,qc,qc0)
+     .    stdo,is,qsc0,qsca,qc,qc0)
           call rxs('problem in locpot -- possibly low LMXA'//
-     .      ', or orbital mismatch, species ',spid)
+     .    ', or orbital mismatch, species ',spid)
         endif
         qval = qval+qv+qsca
         qsc  = qsc+qsca
@@ -313,11 +313,11 @@ C$      j1 = iiv0(ib)+1
         if (ipr .ge. 20) then
           write(stdo,200) ib,z,rmt,nr,a,nlml,rg,lfltwf
   200     format(/' site',i3,'  z=',f5.1,'  rmt=',f8.5,'  nr=',i3,
-     .       '   a=',f5.3,'  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)
+     .    '   a=',f5.3,'  nlml=',i2,'  rg=',f5.3,'  Vfloat=',l1)
           if (kcor .ne. 0) then
             if (qcor(1) .ne. 0 .or. qcor(2) .ne. 0) then
               call info5(30,0,0,' core hole:  kcor=%i  lcor=%i'//
-     .         '  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
+     .        '  qcor=%d  amom=%d',kcor,lcor,qcor,qcor(2),0)
             endif
           endif
         endif
@@ -329,16 +329,16 @@ C$      j1 = iiv0(ib)+1
 C   ... Write true density to file rhoMT.ib
         if (mod(job/10000,10) .eq. 1 .or. mod(job/10000,10) .eq. 3) then
           call wrhomt('rhoMT.','density',ib,w(orhoat(1,ib)),rofi,nr,
-     .      nlml,nsp)
+     .    nlml,nsp)
         endif
 
 C   --- Make potential and energy terms at this site ---
         call locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc,nlml,
-     .    qmom(j1),vval(j1),rofi,rwgt,w(orhoat(1,ib)),w(orhoat(2,ib)),
-     .    w(orhoat(3,ib)),rhol1,rhol2,v1,v2,v1es,v2es,wk,valvs,cpnvs,
-     .    rhexc,rhex,rhec,rhvxc,rvepvl,rvexl,rvecl,rvvxvl,rveptl,rvvxtl,
-     .    valvt,xcor,qloc,qlocc,aloc,alocc,gpotb,fcexc,fcex,fcec,fcvxc,
-     .    rhobg,efg(1,ib))
+     .  qmom(j1),vval(j1),rofi,rwgt,w(orhoat(1,ib)),w(orhoat(2,ib)),
+     .  w(orhoat(3,ib)),rhol1,rhol2,v1,v2,v1es,v2es,wk,valvs,cpnvs,
+     .  rhexc,rhex,rhec,rhvxc,rvepvl,rvexl,rvecl,rvvxvl,rveptl,rvvxtl,
+     .  valvt,xcor,qloc,qlocc,aloc,alocc,gpotb,fcexc,fcex,fcec,fcvxc,
+     .  rhobg,efg(1,ib))
 
 C   ... Write true potential to file vtrue.ib
         if (mod(job/10000,10) .eq. 2 .or. mod(job/10000,10) .eq. 3) then
@@ -394,8 +394,8 @@ C       Check for core moment mismatch ; add to total moment
         if (kcor .ne. 0) then
           if (dabs(qcor(2)-alocc) .gt. 0.01d0) then
             call info5(10,0,0,' (warning) core moment mismatch spec %i:'
-     .        //'  input file=%;6d  core density=%;6;4d',
-     .        is,qcor(2),alocc,0,0)
+     .      //'  input file=%;6d  core density=%;6;4d',
+     .      is,qcor(2),alocc,0,0)
           endif
           saloc = saloc + qcor(2)
         endif
@@ -428,11 +428,11 @@ C     ... Use effective potentials with modified xc
           oidxcg=slat%oidxcg
 
           call augmat(z,rmt,rsma,lmxa,pnu,pnz,kmax,nlml,a,nr,nsp,lso,
-     .      rofi,rwgt,w(ocg),w(ojcg),w(oidxcg),w(ov0),v1,v2,gpotb,
-     .      gpot0(j1),nkaph,nkapi,lmxb,lh,eh,rsmh,ehl,rsml,rs3,vmtz,
-     .      lcplxp,lmaxu,vorb,lldau(ib),iblu,idu,
-     .      osig(1,ib),otau(1,ib),oppi(1,ib),ppnl(1,1,1,ib),
-     .      hab(1,1,1,ib),vab(1,1,1,ib),sab(1,1,1,ib))
+     .    rofi,rwgt,w(ocg),w(ojcg),w(oidxcg),w(ov0),v1,v2,gpotb,
+     .    gpot0(j1),nkaph,nkapi,lmxb,lh,eh,rsmh,ehl,rsml,rs3,vmtz,
+     .    lcplxp,lmaxu,vorb,lldau(ib),iblu,idu,
+     .    osig(1,ib),otau(1,ib),oppi(1,ib),ppnl(1,1,1,ib),
+     .    hab(1,1,1,ib),vab(1,1,1,ib),sab(1,1,1,ib))
         endif
 
         j1 = j1+nlml
@@ -453,10 +453,10 @@ C     Electric field gradient
 
 
       subroutine locpt2(job,z,rmt,rg,a,nr,nsp,cofg,cofh,ceh,rfoc,lfoc,
-     .  nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,rhol1,rhol2,v1,v2,v1es,
-     .  v2es,wk,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv,
-     .  rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc,
-     .  qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg)
+     .nlml,qmom,vval,rofi,rwgt,rho1,rho2,rhoc,rhol1,rhol2,v1,v2,v1es,
+     .v2es,wk,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv,
+     .rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc,
+     .qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg)
 
 C- Makes the potential at one site, and associated energy terms.
 C ----------------------------------------------------------------------
@@ -582,30 +582,30 @@ C     implicit none
 C ... Passed parameters
       integer nr,nsp,lfoc,nlml,job
       double precision z,rmt,rg,a,cofg,cofh,ceh,rfoc,xcore,qloc,qlocc,
-     .  aloc,alocc,rhoexc(2),rhoex(2),rhoec(2),rhovxc(2),focexc(2),
-     .  focex(2),focec(2),focvxc(2),valvef,vvesat,
-     .  cpnves,rvepsv,rvexv,rvecv,rvvxcv,rveps,rvvxc,rhobg
+     .aloc,alocc,rhoexc(2),rhoex(2),rhoec(2),rhovxc(2),focexc(2),
+     .focex(2),focec(2),focvxc(2),valvef,vvesat,
+     .cpnves,rvepsv,rvexv,rvecv,rvvxcv,rveps,rvvxc,rhobg
       double precision rofi(nr),rwgt(nr),
-     .  qmom(nlml),vval(nlml),gpotb(nlml),
-     .  rho1(nr,nlml,nsp),rhol1(nr,nlml,nsp),
-     .  rho2(nr,nlml,nsp),rhol2(nr,nlml,nsp),
-     .  v1(nr,nlml,nsp),v1es(nr,nlml,nsp),
-     .  v2(nr,nlml,nsp),v2es(nr,nlml,nsp),
-     .  wk(nr,nlml,nsp),rhoc(nr,nsp)
+     .qmom(nlml),vval(nlml),gpotb(nlml),
+     .rho1(nr,nlml,nsp),rhol1(nr,nlml,nsp),
+     .rho2(nr,nlml,nsp),rhol2(nr,nlml,nsp),
+     .v1(nr,nlml,nsp),v1es(nr,nlml,nsp),
+     .v2(nr,nlml,nsp),v2es(nr,nlml,nsp),
+     .wk(nr,nlml,nsp),rhoc(nr,nsp)
       double precision efg(5)
 C ... Local parameters
       integer nlmx,nrx
       parameter ( nlmx=64, nrx=1501)
       integer stdo,lgunit,ipr,iprint,ll,i,isp,ilm,l,lxcfun,nglob,nrml,
-     .  isw
+     .isw
       double precision rhochs(nrx*2),rhonsm(nrx),df(0:20),cof(nlmx),
-     .  rhocsm(nrx),xi(0:40),tmp(2)
+     .rhocsm(nrx),xi(0:40),tmp(2)
       double precision afoc,ag,b,cof0,fac,gnu,pi,qv1,qv2,qcor1,qcor2,
-     .  r,rep1(2),rep2(2),rep1x(2),rep2x(2),rep1c(2),rep2c(2),
-     .  rhves1,rhves2,rmu1(2),rmu2(2),rvs1,rvs2,
-     .  rvsm(2),rvtr(2),samh,sfac,sgpotb,srfpi,sum1,sum2,sumg,sumh,top,
-     .  ves1,vales1,vales2,vcpn1,vcpn2,vefc1,vefv1,vefv2,vesc1,vesc2,
-     .  vesn1,vesn2,vnucl,vsum,vtr,y0,ddot,a1,a2,smrhoc
+     .r,rep1(2),rep2(2),rep1x(2),rep2x(2),rep1c(2),rep2c(2),
+     .rhves1,rhves2,rmu1(2),rmu2(2),rvs1,rvs2,
+     .rvsm(2),rvtr(2),samh,sfac,sgpotb,srfpi,sum1,sum2,sumg,sumh,top,
+     .ves1,vales1,vales2,vcpn1,vcpn2,vefc1,vefv1,vefv2,vesc1,vesc2,
+     .vesn1,vesn2,vnucl,vsum,vtr,y0,ddot,a1,a2,smrhoc
       double precision qs(2)
 #if F90
       real(8), allocatable :: fl(:,:,:)
@@ -652,7 +652,7 @@ C ... Renormalize gaussian
         sumg = sumg + rwgt(i)*gnu
       enddo
       if (dabs(sumg-1d0) .gt. 1d-4) call awrit1('%N locpot (warning): '
-     .  //'large gaussian, integral=%g',' ',80,stdo,sumg)
+     .//'large gaussian, integral=%g',' ',80,stdo,sumg)
       sfac = 1d0/sumg
       fac = fac*sfac
 
@@ -676,8 +676,8 @@ C       sum1 = sum1 + rwgt(i)*rhonsm(i)
       enddo
       samh = -y0*cofh*4d0*pi*dexp(ceh*rfoc*rfoc*0.25d0)/ceh
       if (ipr.ge.20 .and. dabs(samh) .gt. 1d-6)
-     .  call awrit3(' sm core charge = %;6d (sphere) + %;6d (spillout)'
-     .  //' = %;6d',' ',80,stdo,sumh,samh-sumh,samh)
+     .call awrit3(' sm core charge = %;6d (sphere) + %;6d (spillout)'
+     .//' = %;6d',' ',80,stdo,sumh,samh-sumh,samh)
 
 C --- rhol1 = full electron density = rho1 + rhoc ---
       do  isp = 1, nsp
@@ -733,13 +733,13 @@ C ... Sphere charges; also check sphere neutrality for safety
       aloc  = a1-a2
       if (nsp .eq. 1) aloc = 0
       if (dabs(sum1-sum2) .gt. 1d-6)
-     .  call rx1('locpt2: sphere not neutral: charge = %d',sum1-sum2)
+     .call rx1('locpt2: sphere not neutral: charge = %d',sum1-sum2)
 
 C --- Solve Poisson equation for the true and smooth densities ---
 C     call dpzero(vval, nlml)
 C     v1 = Ves[rho1]: true ES pot without nuclear contribution
       call poinsp(z,vval,nlml,a,b,v1,rofi,rhol1,wk,nr,rvs1,rhves1,
-     .  vnucl,vsum)
+     .vnucl,vsum)
       if (nlml.ge.9.and.z.gt.0.01) then
         do ilm=5,9
           efg(ilm-4)=v1(5,ilm,1)/rofi(5)**2
@@ -751,7 +751,7 @@ C     v1 = Ves[rho1]: true ES pot without nuclear contribution
       endif
 C     v2 = Ves[rhol2 = rho2+gval+gcor+gnuc] ---
       call poinsp(0d0,vval,nlml,a,b,v2,rofi,rhol2,wk,nr,rvs2,rhves2,
-     .  vnucl,vsum)
+     .vnucl,vsum)
 
 C --- gpotb = integrals of compensating gaussians times smooth ves ---
       sgpotb = 0d0
@@ -817,9 +817,9 @@ C ... Generate rvepsv and rvvxcv (uses v1 as work array)
       call pshpr(ipr-31)
       lxcfun = nglob('lxcf')
       call vxcnsp(0,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,0,0,0,0,0,
-     .            rep1,rep1x,rep1c,rmu1,v1,fl,qs)
+     .rep1,rep1x,rep1c,rmu1,v1,fl,qs)
       call vxcnsp(0,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,0,0,0,0,0,
-     .            rep2,rep2x,rep2c,rmu2,v1,fl,qs)
+     .rep2,rep2x,rep2c,rmu2,v1,fl,qs)
       rvvxcv = rmu1(1) - rmu2(1) + rmu1(2) - rmu2(2)
       rvepsv = rep1(1) - rep2(1) + rep1(2) - rep2(2)
       rvexv  = rep1x(1) - rep2x(1) + rep1x(2) - rep2x(2)
@@ -835,14 +835,14 @@ C --- Add xc potentials to v1 and v2 ---
       call dpzero(focec,2)
       call dpzero(focvxc,2)
       call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,
-     .            0,0,0,0,0,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
+     .0,0,0,0,0,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
       if (isw .eq. 1) then
         call dpzero(tmp,2)
         call vxcns5(1,31,'rhov*vxc',nlml,nsp,nr,rofi,rwgt,rho1,fl,xi,tmp)
         rvvxc = tmp(1) + tmp(2)
         do  isp = 1, nsp
           call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho1(1,1,isp),
-     .     fl(1,1,3),xi,tmp(isp))
+     .    fl(1,1,3),xi,tmp(isp))
         enddo
         rveps = tmp(1) + tmp(2)
       endif
@@ -851,7 +851,7 @@ C     call prrmsh('v1',rofi,v1,nr,nr,nlml)
 C     If no core treatment v2 += vxc(rho2)
       if (lfoc .eq. 0) then
         call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
-     .              0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
+     .  0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
 C     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
       else if (lfoc .eq. 1) then
         if (ipr .gt. 40) print *, 'exchange for smooth density, foca=1:'
@@ -859,7 +859,7 @@ C     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
           call dpadd(rho2(1,1,isp),rhochs,1,nr,y0/nsp)
         enddo
         call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
-     .             0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
+     .  0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
         do  isp = 1, nsp
           call dpadd(rho2(1,1,isp),rhochs,1,nr,-y0/nsp)
         enddo
@@ -870,10 +870,10 @@ C     v2 += vxc(rho2) + dv; focvxc= int (rho2*dv); dv=dvxc/drho * rhochs
           call dcopy(nr,rhochs,1,rhochs(1+nr),1)
         endif
         call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,100+lxcfun,
-     .    rhochs,focexc,focex,focec,focvxc,rep2,rep2x,rep2c,rmu2,v2,
-     .    fl,qs)
+     .  rhochs,focexc,focex,focec,focvxc,rep2,rep2x,rep2c,rmu2,v2,
+     .  fl,qs)
         if (ipr .ge. 40)
-     .    write(stdo,941) sumh,focexc(1)+focexc(2),focvxc(1)+focvxc(2)
+     .  write(stdo,941) sumh,focexc(1)+focexc(2),focvxc(1)+focvxc(2)
   941   format(' smH core xc integrals',3f12.6)
       else
         call rxi('locpt2: cannot handle lfoc = ',lfoc)
@@ -884,7 +884,7 @@ C     v2 += vxc(rho2) + dv; focvxc= int (rho2*dv); dv=dvxc/drho * rhochs
         rvvxc = rvvxc - (tmp(1) + tmp(2))
         do  isp = 1, nsp
           call vxcns5(1,31,'rhov*exc',nlml,1,nr,rofi,rwgt,rho2(1,1,isp),
-     .     fl(1,1,3),xi,tmp(isp))
+     .    fl(1,1,3),xi,tmp(isp))
         enddo
         rveps = rveps - (tmp(1) + tmp(2))
       endif
@@ -922,15 +922,15 @@ C --- Integrals involving the full nonspherical potential ---
         enddo
         top = dmax1(dabs(rvsm(1)),dabs(rvtr(1)))
         if (ipr.ge.40 .and. top.ge.1d-6 .and. nsp .eq. 1)
-     .    write(stdo,350) ilm,rvtr(1),rvsm(1)
+     .  write(stdo,350) ilm,rvtr(1),rvsm(1)
         if (ipr.ge.40 .and. top.ge.1d-6 .and. nsp .eq. 2)
-     .    write(stdo,352) ilm,rvtr(1),rvtr(2),rvtr(1)+rvtr(2),
-     .    rvsm(1),rvsm(2),rvsm(1)+rvsm(2)
+     .  write(stdo,352) ilm,rvtr(1),rvtr(2),rvtr(1)+rvtr(2),
+     .  rvsm(1),rvsm(2),rvsm(1)+rvsm(2)
   350   format(i4,3x,2f15.6)
   352   format(i4,3x,3f12.6,2x,3f12.6,2x)
   351   format(/' ilm',09x,'rho*vtrue',07x,'rho*vsm')
   353   format(/' ilm',19x,'rho*vtrue',30x,'rho*vsm'/13x,
-     .    'spin1',7x,'spin2',7x,'tot',11x,'spin1',7x,'spin2',7x,'tot')
+     .  'spin1',7x,'spin2',7x,'tot',11x,'spin1',7x,'spin2',7x,'tot')
       enddo
 
 C ... Smooth xc potential includes foca head; undo in integral
@@ -953,11 +953,11 @@ C --- Charges, printout ---
       if (ipr .ge. 40) then
         write(stdo,251)
         write(stdo,250) rep1(1)+rep1(2),rep2(1)+rep2(2),
-     .                  rhoexc(1)+rhoexc(2),
-     .                  rmu1(1),rmu2(1),rhovxc(1)
+     .  rhoexc(1)+rhoexc(2),
+     .  rmu1(1),rmu2(1),rhovxc(1)
         if (nsp .eq. 2) write(stdo,253) rmu1(2),rmu2(2),rhovxc(2),
-     .                  rmu1(1)+rmu1(2),rmu2(1)+rmu2(2),
-     .                  rhovxc(1)+rhovxc(2)
+     .  rmu1(1)+rmu1(2),rmu2(1)+rmu2(2),
+     .  rhovxc(1)+rhovxc(2)
         write(stdo,252) vefv1,vefv2,valvef,qv1,qv2,qloc
         if (nsp .eq. 2) write(stdo,254) a1,a2,aloc,alocc
         write(stdo,255) qcor1,qcor2,qlocc
@@ -1006,7 +1006,7 @@ C ... Local parameters
       double precision v(3,3),vi(3,3),d(3),e(3),e2(3),tau(2,3)
       double precision tr(3,3),ti(3,3),da(3)
       double precision conv1,emmsfe,emmssn,Qfe,Qsn,pi,f0,s3,conv2,conv3,
-     .  ax,bx,cx,dx,ex,dmax,eta,split
+     .ax,bx,cx,dx,ex,dmax,eta,split
       data conv1 /162.1d0/
       data emmsfe,emmssn /4.8d-8,7.97d-8/
       data Qfe,Qsn /0.21d-28,-0.08d-28/
@@ -1023,9 +1023,9 @@ C      if (iprint() .lt. 30) return
         if(i .eq. 2) ifi=71
         write(ifi,'(/," Electric Field Gradient:")')
         write(ifi,'(" Site ",5x,"Tensor axes",5x,"esu/cm^2",2x,
-     .          "  V/m^2  ",4x,"eta",4x,"line splitting")')
+     .  "  V/m^2  ",4x,"eta",4x,"line splitting")')
         write(ifi,'("      ",5x,"           ",5x," x10^13 ",2x,
-     .          "  x10^19 ",4x,"   ",4x,"    (mm/s)")')
+     .  "  x10^19 ",4x,"   ",4x,"    (mm/s)")')
       enddo
 
       do  ic = 1, nc
@@ -1108,12 +1108,12 @@ c 96  format(/' eta = ',F12.4,' line splitting = ',F12.4,' mm/s'/)
           do  i = 1, 3
             if(i .eq. 1) then
               write(ifi,'(i4,3x,3f6.3,2x,f8.2,2x,f8.2,5x,f6.3,5x,f8.5)')
-     .      ic,(tr(j,i),j=1,3),conv1*d(i),conv2*d(i),eta,split
+     .        ic,(tr(j,i),j=1,3),conv1*d(i),conv2*d(i),eta,split
 C      write(71,'(i4,3x,3f6.3,2x,f8.2,2x,f8.2,5x,f6.3,5x,f8.5)')
 C     .      ic,(tr(j,i),j=1,3),conv1*d(i),conv2*d(i),eta,split
             else
               write(ifi,'(4x,3x,3f6.3,2x,f8.2,2x,f8.2,5x)')
-     .         (tr(j,i),j=1,3),conv1*d(i),conv2*d(i)
+     .        (tr(j,i),j=1,3),conv1*d(i),conv2*d(i)
 C      write(71,'(4x,3x,3f6.3,2x,f8.2,2x,f8.2,5x)')
 C     .         (tr(j,i),j=1,3),conv1*d(i),conv2*d(i)
             endif

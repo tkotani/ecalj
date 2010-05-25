@@ -68,68 +68,68 @@ c
 c        job = 0 , solve  a * x = b
 c        first solve  l*y = b
 c
-         if (nm1 .lt. 1) goto 30
-         do  20  k = 1, nm1
-            l = ipvt(k)
-            t(1) = br(l)
-            t(2) = bi(l)
-            if (l .eq. k) goto 10
-               br(l) = br(k)
-               bi(l) = bi(k)
-               br(k) = t(1)
-               bi(k) = t(2)
-   10       continue
-            call yyaxpy(n-k,t,t(2),ar(k+1,k),ai(k+1,k),1,
-     .        br(k+1),bi(k+1),1,.true.)
-   20    continue
-   30    continue
+      if (nm1 .lt. 1) goto 30
+      do  20  k = 1, nm1
+        l = ipvt(k)
+        t(1) = br(l)
+        t(2) = bi(l)
+        if (l .eq. k) goto 10
+        br(l) = br(k)
+        bi(l) = bi(k)
+        br(k) = t(1)
+        bi(k) = t(2)
+   10   continue
+        call yyaxpy(n-k,t,t(2),ar(k+1,k),ai(k+1,k),1,
+     .  br(k+1),bi(k+1),1,.true.)
+   20 continue
+   30 continue
 c
 c        now solve  u*x = y
 c
-         do  40  kb = 1, n
-            k = n + 1 - kb
+      do  40  kb = 1, n
+        k = n + 1 - kb
 C ...       b(k) = b(k)/a(k,k)
-            call cdiv(br(k),bi(k),ar(k,k),ai(k,k),br(k),bi(k))
-            t(1) = -br(k)
-            t(2) = -bi(k)
-            call yyaxpy(k-1,t,t(2),ar(1,k),ai(1,k),1,
-     .        br(1),bi(1),1,.true.)
-   40    continue
+        call cdiv(br(k),bi(k),ar(k,k),ai(k,k),br(k),bi(k))
+        t(1) = -br(k)
+        t(2) = -bi(k)
+        call yyaxpy(k-1,t,t(2),ar(1,k),ai(1,k),1,
+     .  br(1),bi(1),1,.true.)
+   40 continue
       goto 100
    50 continue
 c
 c        job = nonzero, solve  trans(a) * x = b
 c        first solve  trans(u)*y = b
 c
-         do  60  k = 1, n
-            call yydot(k-1,ar(1,k),ai(1,k),1,br(1),bi(1),1,t,t(2))
+      do  60  k = 1, n
+        call yydot(k-1,ar(1,k),ai(1,k),1,br(1),bi(1),1,t,t(2))
 C ...       b(k) = (b(k) - t)/a(k,k)
-            br(k) = (br(k) - t(1))
-            bi(k) = (bi(k) - t(2))
-            call cdiv(br(k),bi(k),ar(k,k),ai(k,k),br(k),bi(k))
-   60    continue
+        br(k) = (br(k) - t(1))
+        bi(k) = (bi(k) - t(2))
+        call cdiv(br(k),bi(k),ar(k,k),ai(k,k),br(k),bi(k))
+   60 continue
 c
 c        now solve trans(l)*x = y
 c
-         if (nm1 .lt. 1) goto 90
-         do  80  kb = 1, nm1
-            k = n - kb
+      if (nm1 .lt. 1) goto 90
+      do  80  kb = 1, nm1
+        k = n - kb
 C      ...  b(k) = b(k) + dot(n-k,a(k+1,k),1,b(k+1),1)
-            call yydot(n-k,ar(k+1,k),ai(k+1,k),1,br(k+1),bi(k+1),1,
-     .        t,t(2))
-            br(k) = br(k) + t(1)
-            bi(k) = bi(k) + t(2)
-            l = ipvt(k)
-            if (l .eq. k) goto 70
-              t(1) = br(l)
-              t(2) = bi(l)
-              br(l) = br(k)
-              bi(l) = bi(k)
-              br(k) = t(1)
-              bi(k) = t(2)
-   70       continue
-   80    continue
-   90    continue
+        call yydot(n-k,ar(k+1,k),ai(k+1,k),1,br(k+1),bi(k+1),1,
+     .  t,t(2))
+        br(k) = br(k) + t(1)
+        bi(k) = bi(k) + t(2)
+        l = ipvt(k)
+        if (l .eq. k) goto 70
+        t(1) = br(l)
+        t(2) = bi(l)
+        br(l) = br(k)
+        bi(l) = bi(k)
+        br(k) = t(1)
+        bi(k) = t(2)
+   70   continue
+   80 continue
+   90 continue
   100 continue
       end
 

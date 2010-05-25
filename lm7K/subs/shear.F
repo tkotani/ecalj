@@ -28,7 +28,7 @@ C ... Local parameters
       stdo = nglob('stdo')
       if (dabs(alpha) .lt. 1d-8) return
       if (nbas .gt. nbmx)
-     .  call fexit(-1,9,'Increase nbmx in SHEAR',0)
+     .call fexit(-1,9,'Increase nbmx in SHEAR',0)
       call dcopy(6,eps,1,e,1)
       call dscal(6,alpha,e,1)
       call xxxes(e,s,det)
@@ -59,8 +59,8 @@ C ... Shear plat, tau
         call xxxadd(i,i,n,e,ind,x)
     1 continue
       do  2  i = 1, 5
-      do  2  j = i+1, 6
-        call xxxadd(i,j,n,e,ind,x)
+        do  2  j = i+1, 6
+          call xxxadd(i,j,n,e,ind,x)
     2 continue
       if (n .eq. 0 .or. iprint() .lt. 30) return
       write (stdo,50) alpha,det-1
@@ -71,11 +71,11 @@ C ... Shear plat, tau
    30 format (8x,3f10.6)
    40 format ('       Lattice and basis sheared by'/3(8x,3f10.6/))
    50 format (/
-     .   1x,'SHEAR: distortion amplitude =',f9.6,
-     .      '  Vol. dilatation =',f9.6/
-     .   8x,'The second derivative E/vol w.r.t alpha = ',
-     .      'W'''' = sum_ij x_ij c_ij'/
-     .   8x,'has coefficients x_ij to elastic constants c_ij as shown:')
+     .1x,'SHEAR: distortion amplitude =',f9.6,
+     .'  Vol. dilatation =',f9.6/
+     .8x,'The second derivative E/vol w.r.t alpha = ',
+     .'W'''' = sum_ij x_ij c_ij'/
+     .8x,'has coefficients x_ij to elastic constants c_ij as shown:')
    60 format (6(5x,2i1,5x))
    70 format (6f12.6)
       end
@@ -92,8 +92,8 @@ C Make deformation tensor
       s(2,3) = e(4)
       s(3,2) = e(4)
       det=s(1,1)*s(2,2)*s(3,3)+s(1,2)*s(2,3)*s(3,1)
-     .   +s(1,3)*s(2,1)*s(3,2)-s(1,3)*s(2,2)*s(3,1)
-     .   -s(1,2)*s(2,1)*s(3,3)-s(1,1)*s(2,3)*s(3,2)
+     .+s(1,3)*s(2,1)*s(3,2)-s(1,3)*s(2,2)*s(3,1)
+     .-s(1,2)*s(2,1)*s(3,3)-s(1,1)*s(2,3)*s(3,2)
       end
       subroutine xxxse(s,e)
 C Make engineering strains

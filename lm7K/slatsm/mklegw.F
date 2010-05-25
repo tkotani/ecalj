@@ -27,7 +27,7 @@ C --- Find all the roots of P_n ---
         z(iroot) = dcos(pi*(2*iroot-.5d0)/(2*n+1))
         root = z(iroot)
         if (ipr .ge. 110)
-     .    print *, 'genleg: ',iroot,' starting guess is ',root
+     .  print *, 'genleg: ',iroot,' starting guess is ',root
   100   continue
         delta = -plegn(n,root)/pnp(n,root)
         if (ipr .ge. 110) write(*,*) 'delta is ',delta
@@ -39,7 +39,7 @@ C --- Find all the roots of P_n ---
 C --- Debugging:  check for identical roots ---
       do  300  in = 1, n-1
         if (dabs(z(in)-z(in+1)) .lt. machep)
-     .    stop 'genleg: identical roots'
+     .  stop 'genleg: identical roots'
   300 continue
 
 C --- Make the weights ---
@@ -99,7 +99,7 @@ C --- 10s digit of mode nonzero => shift points y to x ---
           wp(i) = x2*wp(i)/y
    20   continue
       endif
-        
+      
 C --- 1s digit of mode = n => weight points by x**n
       nn = mod(mode,10)
       if (nn .gt. 0) then

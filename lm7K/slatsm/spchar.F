@@ -13,7 +13,7 @@ C     implicit none
       character*1 sch*1,tch*1,nch*1
 
 c #if CRAY
-c      data sch /'\'/ tch /'	'/  there was nch /'^M'/
+c      data sch /'\'/ tch /'        '/  there was nch /'^M'/
 c       --> but nch=ctrl+M ---> this caused compilar error in machines.
 c #else
       data sch /'\\'/ tch /'\t'/  nch /'\n'/

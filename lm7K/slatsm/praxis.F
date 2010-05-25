@@ -1,5 +1,5 @@
       subroutine praxis(f,n,x,t,h,eps,scbd,ktm,illc,ipm,lq1,lq2,lc,v,d,
-     .                  y,z,q0,q1,tvec,fx,ir)
+     .y,z,q0,q1,tvec,fx,ir)
 C- Minimisation of a function of n variables without derivatives
 C-----------------------------------------------------------------------
 Cr Praxis is a FORTRAN translation of the ALGOL algorithm given by
@@ -90,13 +90,13 @@ C     implicit none
       integer n,ktm,ipm,ir
 C passed arguments
       double precision f,x(n),fx,t,h,eps,scbd,v(n,n),d(n),
-     .                 y(n),z(n),q0(n),q1(n),tvec(n)
+     .y(n),z(n),q0(n),q1(n),tvec(n)
       external f
       logical illc,lc,lq1,lq2
 C local
       integer nl,nf,kl,kt,i,j,k,k2,ipr,ierr,ipl,nits,is,iprint,i1mach
       double precision s,sl,dn,dmin,f1,lds,ldt,sf,df,qf1,qd0,qd1,
-     .                 m2,m4,small,vsmall,large,vlarge,ldfac,t2
+     .m2,m4,small,vsmall,large,vlarge,ldfac,t2
       double precision dsqrt,dabs,ax,cx,fa,fc,tin,hin
       real ran1
       character st*100
@@ -144,8 +144,8 @@ C     if (h .lt. 100*t .and. .not.lq2) h = 100*t
       if (iprint() .ge. 60) then 
         print *,'praxis choosing initial step length ...'
         call awrit5('small=%g,(tol,step-length) Before: (%g,%g)'//
-     .              ' Now: (%g,%g)',' ',120,i1mach(2),
-     .              small,tin,hin,t,ldt)
+     .  ' Now: (%g,%g)',' ',120,i1mach(2),
+     .  small,tin,hin,t,ldt)
       endif
       qd0 = 0
       d(1) = 0
@@ -181,7 +181,7 @@ C ---  Minimise along the first direction ---
         lq2 = .false.
       endif
       call lmin(f,n,x,fx,v,1,qd0,qd1,q0,q1,d(1),dmin,.false.,s,fx,lq2,
-     .         h,t,ldt,eps,nits,nf,nl,tvec,ir)
+     .h,t,ldt,eps,nits,nf,nl,tvec,ir)
       if (ir .eq. -1) return
       if (n .eq. 1) goto 30000
       if (s .le. 0) call dscal(n,-1d0,v,1)
@@ -213,7 +213,7 @@ C --- Minimise along "non-conjugate directions" ---
           nits = 2
           if (lq1) nits = 0
           call lmin(f,n,x,fx,v,k2,qd0,qd1,q0,q1,d(k2),dmin,.false.,s,fx,
-     .             lq2,h,t,ldt,eps,nits,nf,nl,tvec,ir)
+     .    lq2,h,t,ldt,eps,nits,nf,nl,tvec,ir)
           if (ir .eq. -1) return
           if (illc) then
             s = d(k2)*(s + z(k2))**2
@@ -231,7 +231,7 @@ c      if (.not. illc .and. (df .lt. eps)) then
         if (.not. illc .and. (df .lt. dabs(10*eps*fx))) then
           illc = .true.
           if (ipr .gt. 30)
-     .      print *, 'praxis: problem seems ill-conditioned ..'
+     .    print *, 'praxis: problem seems ill-conditioned ..'
           goto 20000
         endif
         if (k .eq. 2 .and. ipr .gt. 50) then
@@ -244,7 +244,7 @@ C --- Minimise along "conjugate" directions ---
           nits = 2
           if (lq1) nits = 0
           call lmin(f,n,x,fx,v,k2,qd0,qd1,q0,q1,d(k2),dmin,.false.,s,fx,
-     .             lq2,h,t,ldt,eps,nits,nf,nl,tvec,ir)
+     .    lq2,h,t,ldt,eps,nits,nf,nl,tvec,ir)
           if (ir .eq. -1) return
     3   continue
 C --- Get new "conjugate" direction x_n - x_0 ---
@@ -276,7 +276,7 @@ C throw away direction kl and minimise along new "conjugate" direction
           nits = 4
           if (lq1) nits = 0
           call lmin(f,n,x,fx,v,k,qd0,qd1,q0,q1,d(k),dmin,.true.,lds,f1,
-     .             lq2,h,t,ldt,eps,nits,nf,nl,tvec,ir)
+     .    lq2,h,t,ldt,eps,nits,nf,nl,tvec,ir)
           if (ir .eq. -1) return
           if (lds .lt. 0) then
             lds = -lds
@@ -302,9 +302,9 @@ C --- Check ipm switch ---
         ipl = ipl + 1
         if (ipm .gt. 0 .and. ipl .ge. ipm) then
           if (ipr .ge. 30) print*,
-     .      'praxis: given number of Powell iterations completed.'
+     .    'praxis: given number of Powell iterations completed.'
           goto 30000
-      endif
+        endif
 C .. end basic Powell procedure
    10 continue
       if (ipr .ge. 30) then
@@ -314,7 +314,7 @@ C .. end basic Powell procedure
       endif
 C --- Try quadratic extrapolation in case stuck in a curved valley ---
       call quad(f,n,x,fx,dmin,nf,nl,h,t,ldt,eps,qf1,qd0,qd1,q0,q1,tvec,
-     .          ir)
+     .ir)
       dn = 0
       do  7  i = 1, n
         d(i) = 1d0/dsqrt(d(i))
@@ -350,10 +350,10 @@ C --- Scale axes to try and reduce condition number ---
 C                                           T
 C --- Singular value decomposition of v - Golub & Reinsch (Eispack) ---
       do  14  i = 2, n
-      do  14  j = 1, i-1
-        s = v(i,j)
-        v(i,j) = v(j,i)
-        v(j,i) = s
+        do  14  j = 1, i-1
+          s = v(i,j)
+          v(i,j) = v(j,i)
+          v(j,i) = s
    14 continue
       call minfit(n,n,n,v,d,0,tvec,ierr,tvec)
       if (ierr .ne. 0) call fexit(-1,1,'minfit in praxis: ierr=%d',ierr)
@@ -417,11 +417,11 @@ C --- Sort new eigenvalues and eigenvectors ---
   100 format(10(1pg10.3))
   200 format('f(x) = ',1pg13.6)
   300 format(/'number of line minimisations :',i6
-     .       /'    number of function calls :',i6)
+     ./'    number of function calls :',i6)
   400 format( '                         f/l :',f6.2)
       end
       subroutine lmin(f,n,x,fx,v,j,qd0,qd1,q0,q1,d2,dmin,fk,x1,f1,lq,
-     .               h,t,ldt,eps,nits,nf,nl,tvec,ir)
+     .h,t,ldt,eps,nits,nf,nl,tvec,ir)
 C- Line minimisation from x along search direction.
 C-----------------------------------------------------------------------
 Ci  name of function: f;current point: x(1:n); function value at x: fx;
@@ -449,13 +449,13 @@ C-----------------------------------------------------------------------
 C     implicit none
       integer n,ir
       double precision f,x(n),v(n,n),d2,x1,f1,fx,h,t,ldt,dmin,eps,
-     .                 qd0,qd1,q0(n),q1(n),tvec(n)
+     .qd0,qd1,q0(n),q1(n),tvec(n)
       external f
       integer nf,j,nits,nl
       logical fk,lq
 C local
       double precision x2,xm,f0,f2,fm,d1,t2,s,sf1,sx1,f2q,d,m2,m4,small,
-     .                 s1,t2fs,flin
+     .s1,t2fs,flin
       double precision dabs,dsqrt
       integer i,k,iprint,i1mach
       logical dz
@@ -494,9 +494,9 @@ C find optimum step length, x1, along search direction
         print 200, (v(i,j), i = 1, n)
         print *,'lmin, choosing initial step length ...'
         call awrit7('t=%g,h=%g,ldt=%g,||x||=%g(step=%g),s=%g,small=%g',
-     .             ' ',120,i1mach(2),t,h,ldt,s1,t2fs,s,small)
+     .  ' ',120,i1mach(2),t,h,ldt,s1,t2fs,s,small)
         call awrit3('d2=%g,d=%g,step-length now:%g',' ',120,i1mach(2),
-     .              d2,d,t2)
+     .  d2,d,t2)
       endif
 C if f(x + x1) along search direction not available, then evaluate it
       if (.not. fk .or. (dabs(x1) .lt. t2)) then
@@ -507,7 +507,7 @@ C if f(x + x1) along search direction not available, then evaluate it
         endif
         if (iprint() .ge. 60) then
           call awrit1('lmin calling flin. New step length:%g',' ',
-     .      80,i1mach(2),x1)
+     .    80,i1mach(2),x1)
         endif
         f1 = flin(f,n,x,v,x1,j,qd0,qd1,q0,q1,nf,tvec,ir)
         if (ir .eq. -1) return
@@ -526,7 +526,7 @@ C evaluate f at another point, x2, and estimate 2nd derivative
         endif
         if (iprint() .ge. 60) then
           call awrit1('lmin calling flin. New step length:%g',' ',
-     .      80,i1mach(2),x2)
+     .    80,i1mach(2),x2)
         endif
         f2 = flin(f,n,x,v,x2,j,qd0,qd1,q0,q1,nf,tvec,ir)
         if (ir .eq. -1) return
@@ -563,7 +563,7 @@ C evaluate f at the predicted minimum
       if (.not. lq) then
         if (iprint() .ge. 60) then
           call awrit1('lmin calling flin. New step length:%g',' ',
-     .      80,i1mach(2),x2)
+     .    80,i1mach(2),x2)
           call awrit3('      h=%g d1=%g d2=%g',' ',70,i1mach(2),h,d1,d2)
         endif
         f2 = flin(f,n,x,v,x2,j,qd0,qd1,q0,q1,nf,tvec,ir)
@@ -602,10 +602,10 @@ C Update x from linear search
       if (j .gt. 0) call daxpy(n,x1,v(1,j),1,x,1)
   200 format(' lmin: search direction:',256f8.4)
   300 format(' Lmin: f(x_min) = ',1pg15.8,
-     .       '; quadratic estimate :',1pg15.8)
+     .'; quadratic estimate :',1pg15.8)
       end
       subroutine quad(f,n,x,fx,dmin,nf,nl,h,t,ldt,eps,qf1,qd0,qd1,q0,
-     .                q1,tvec,ir)
+     .q1,tvec,ir)
 C- Extrapolation down a long valley
 C-----------------------------------------------------------------------
 Ci f,n,x,fx,dmin,nf,nl,h,t,ldt,eps,qd0,qd1,q0,q1: see subroutine lmin
@@ -620,7 +620,7 @@ C-----------------------------------------------------------------------
 C     implicit none
       integer n,nf,nl,ir
       double precision f,x(n),fx,dmin,h,t,ldt,eps,qf1,qd0,qd1,q0(n),
-     .                 q1(n),tvec(n)
+     .q1(n),tvec(n)
       external f
 C local
       double precision qa,qb,qc,s,l,dum,dsqrt
@@ -644,7 +644,7 @@ C --- Initialise ---
       if (qd0 .gt. 0 .and. qd1 .gt. 0 .and. nl .ge. 3*n*n) then
         if (iprint() .gt. 30) print*,'quad: trying extrapolation ... '
         call lmin(f,n,x,fx,dum,0,qd0,qd1,q0,q1,s,dmin,.true.,l,qf1,
-     .           .false.,h,t,ldt,eps,2,nf,nl,tvec,ir)
+     .  .false.,h,t,ldt,eps,2,nf,nl,tvec,ir)
         if (ir .eq. -1) return
         qa = l*(l - qd1)/(qd0*(qd0 + qd1))
         qb = (l + qd0)*(qd1 - l)/(qd0*qd1)

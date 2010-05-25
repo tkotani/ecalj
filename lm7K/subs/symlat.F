@@ -37,7 +37,7 @@ C External calls:
       external dcopy,dinv33,dmpy,errmsg,iprint,latvec,lgunit
       data nrot /2,3,4,6/
       data csym1 /'indefinite','triclinic','monoclinic','orthorhombic',
-     .          'tetragonal','rhombohedral','hexagonal','cubic'/
+     .'tetragonal','rhombohedral','hexagonal','cubic'/
 
       mm(i,m) = ltmax-(mod(i,ll1**m)-mod(i,ll1**(m-1)))/ll1**(m-1)
 
@@ -55,7 +55,7 @@ C --- Find all possible rotation axes ---
         lirr = .true.
         do  12  m = 2, ll1
           lirr = lirr.and.(mod(m1,m).ne.0.or.mod(m2,m).ne.0.or.
-     .                   mod(m3,m).ne.0)
+     .    mod(m3,m).ne.0)
    12   continue
         if (lirr) then
           do  14  m = 1, 3
@@ -92,8 +92,8 @@ C       ... Add it and i*symop, if allowed
       if (ngrp .eq.48) isym=7
 
       if (iprint() .ge. 30) call awrit1(' SYMLAT: Bravais system is '
-     .  //csym1(isym)//'%a with %i symmetry operations.',' ',80,
-     .  lgunit(1),ngrp)
+     .//csym1(isym)//'%a with %i symmetry operations.',' ',80,
+     .lgunit(1),ngrp)
 
       end
 

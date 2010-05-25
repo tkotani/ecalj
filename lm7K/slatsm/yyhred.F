@@ -29,9 +29,9 @@ C       do  20  k = 1, i-1
 C         call yyaxpy(n,-ar(i,k),-ai(i,k),hr(k,1),hi(k,1),nm,
 C    .      hr(i,1),hi(i,1),nm,sw)
         do  20  j = 1, n
-        do  20  k = 1, i-1
-          hr(i,j) = hr(i,j) - ar(i,k)*hr(k,j) + ai(i,k)*hi(k,j) 
-          hi(i,j) = hi(i,j) - ai(i,k)*hr(k,j) - ar(i,k)*hi(k,j) 
+          do  20  k = 1, i-1
+            hr(i,j) = hr(i,j) - ar(i,k)*hr(k,j) + ai(i,k)*hi(k,j) 
+            hi(i,j) = hi(i,j) - ai(i,k)*hr(k,j) - ar(i,k)*hi(k,j) 
    20   continue
         call dscal(n,1/ar(i,i),hr(i,1),nm)
         if (sw) call dscal(n,1/ar(i,i),hi(i,1),nm)
@@ -43,9 +43,9 @@ C        do  40  k = 1, j-1
 C          call yyaxpy(n-j+1,-ar(j,k),ai(j,k),hr(j,k),hi(j,k),1,
 C     .      hr(j,j),hi(j,j),1,sw)
         do  40  i = j, n
-        do  40  k = 1, j-1
-          hr(i,j) = hr(i,j) - ar(j,k)*hr(i,k) - ai(j,k)*hi(i,k)
-          hi(i,j) = hi(i,j) - ar(j,k)*hi(i,k) + ai(j,k)*hr(i,k)
+          do  40  k = 1, j-1
+            hr(i,j) = hr(i,j) - ar(j,k)*hr(i,k) - ai(j,k)*hi(i,k)
+            hi(i,j) = hi(i,j) - ar(j,k)*hi(i,k) + ai(j,k)*hr(i,k)
    40   continue
         call dscal(n-j+1,1/ar(j,j),hr(j,j),1)
         if (sw) call dscal(n-j+1,1/ar(j,j),hi(j,j),1)

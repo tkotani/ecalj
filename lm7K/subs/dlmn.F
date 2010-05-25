@@ -16,8 +16,8 @@ C     implicit none
 
       do  100  i = 1, 3
         wk(i) = bas(i,iax(2))  - bas(i,iax(1))
-      do  100  j = 1, 3
-        wk(i) = wk(i) + plat(i,j)*iax(2+j)
+        do  100  j = 1, 3
+          wk(i) = wk(i) + plat(i,j)*iax(2+j)
   100 continue
       wk(0) = dsqrt(wk(1)**2 + wk(2)**2 + wk(3)**2)
       if (wk(0) .ne. 0) then

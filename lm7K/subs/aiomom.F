@@ -1,5 +1,5 @@
       logical function aiomom(alabl,pl,ql,idmod,nl,lmax,nsp,rh,vrmax,
-     .  ifi)
+     .ifi)
 C- File I/O for moments.  IFI>0 for read, <0 for write
 C ----------------------------------------------------------------
 Ci Inputs
@@ -62,7 +62,7 @@ C   ... read file nl and nsp
           if (nsp .ne. nspf) then
             if (nsp .gt. nspf) scl = dble(nspf)/dble(nsp)
             if (ipr .ge. 10)
-     .    print *, 'aiomom (warning) mismatch in nsp, class '//alabl
+     .      print *, 'aiomom (warning) mismatch in nsp, class '//alabl
           endif
           j = 0
           if (.not. parstr(s,'vrmax=',72,6,'=',j,i))
@@ -128,12 +128,12 @@ C --- File WRITE ---
      .    '  rho,vrmax=',3f10.6,' nl=',i1,' nsp=',i1)
           write(-ifi,891)
   891     format(
-     .  '   l',8x,'pl',11x,'q0',11x,'q1',11x,'q2',5x,' id ',6x,'dl')
+     .    '   l',8x,'pl',11x,'q0',11x,'q1',11x,'q2',5x,' id ',6x,'dl')
           do  11  i = 1, nsp
-          do  11  l = 0, lmax
-            dl = dtan(pi*(.5d0 - pl(l+1,i)))
-            if (dabs(dl) .gt. 9999) dl = 0
-            write(-ifi,100) l,pl(l+1,i),(ql(ii,l+1,i),ii=1,3),idmod(l),dl
+            do  11  l = 0, lmax
+              dl = dtan(pi*(.5d0 - pl(l+1,i)))
+              if (dabs(dl) .gt. 9999) dl = 0
+              write(-ifi,100) l,pl(l+1,i),(ql(ii,l+1,i),ii=1,3),idmod(l),dl
    11     continue
         endif
       endif
@@ -152,8 +152,8 @@ C --- handle read exception ---
      .  print *, 'AIOMOM, ATOM=',alabl,
      .  ':  spin 2 input missing; spin 1 moments split'
         do  40  l = 0, lmax
-        do  40  ii = 1, 3
-          ql(ii,l+1,1) = ql(ii,l+1,2)
+          do  40  ii = 1, 3
+            ql(ii,l+1,1) = ql(ii,l+1,2)
    40   continue
       else
         aiomom = .false.

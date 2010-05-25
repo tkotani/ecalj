@@ -184,7 +184,7 @@ C ... Determine whether optional or required
         ix = ix1+1
       else
         call rx('tksw, prgn '//trim(prgn)//': '//trim(name)//
-     .    ' appears in both optional and required lists')
+     .  ' appears in both optional and required lists')
       endif
       ixe = ix+len(trim(name))
       if (ix == 0) then
@@ -204,7 +204,7 @@ c      print *,'tksw: ', trim(prgn),' ',trim(name),sw
 
 
       subroutine find_region(lev,instr,token,toks,tokt,ntk,itrm,eor,
-     .  is,ie)
+     .is,ie)
 C- Finds substring corresponding to ntk-th token.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -311,7 +311,7 @@ C       No match ; exit
           is = -99999
           if (debug) write(*,333) token, instr(1:min(10,len(instr)))
   333     format(' find_region: token `',a,
-     .      ''' not found in string ',a,' ...')
+     .    ''' not found in string ',a,' ...')
           return
         endif
         is = is + i0-1 + lentok
@@ -354,7 +354,7 @@ C     litrm is either 0 or 1 after this branch
         if (itrm2 .eq. 1 .or. itrm2 .eq. 11) then
           if (cc .ne. '[') then
             if (debug) write(*,"(a)") ' find_region: missing ''['' '//
-     .        'after '//instr(is-lentok:is+1)//'...'
+     .      'after '//instr(is-lentok:is+1)//'...'
             is = -99998
             return
           else
@@ -388,7 +388,7 @@ C     Require that end-of-region correspond to ']' matching '['
           i0 = index(instr(is:ie),']')
           if (i0 .eq. 0) then
             if (debug) write(*,"(a)") ' find_region: missing '']'' '//
-     .        'after '//instr(isave-lentok:min(isave+10,ie))//'...'
+     .      'after '//instr(isave-lentok:min(isave+10,ie))//'...'
             is = -99997
             return
           endif
@@ -418,7 +418,7 @@ C         print *, instr(is:ie)
 
 C ... Printout
       if (debug)
-     .  write(*,"(' find_region: contents of ', a,' : |',a,'|')")
-     .  token, instr(is:ie)
+     .write(*,"(' find_region: contents of ', a,' : |',a,'|')")
+     .token, instr(is:ie)
       end subroutine
 

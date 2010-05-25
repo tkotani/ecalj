@@ -2,7 +2,7 @@
 c
       integer n,nm,is1,is2,ierr,matz
       double precision ar(nm,n),ai(nm,n),wr(n),wi(n),zr(nm,n),zi(nm,n),
-     x       fv1(n),fv2(n),fv3(n)
+     xfv1(n),fv2(n),fv3(n)
 c
 c     this subroutine calls the recommended sequence of
 c     subroutines from the eigensystem subroutine package (eispack)

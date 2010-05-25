@@ -26,7 +26,7 @@ C Local parameters
 
 C --- Make a strictly L^-1 ---
       do  20  i = 1, n
-      do  20 j = 1, i-1
+        do  20 j = 1, i-1
    20 ar(j,i) = 0
 
 C --- wk <-  L^-1 H ---- 

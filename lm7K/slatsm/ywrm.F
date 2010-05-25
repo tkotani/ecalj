@@ -53,14 +53,14 @@ C --- Binary write ---
           k = 1
           if (icast .gt. 1) k = 2
           if (icast .eq. 2 .and. ofi .ne. nr*nc .or.
-     .        icast .eq. 4 .and. ofi .ne. nr)
-     .      call rx('ywrm not ready for this ofi')
+     .    icast .eq. 4 .and. ofi .ne. nr)
+     .    call rx('ywrm not ready for this ofi')
           call dpdump(s,nr*nc*k,-ifi)
         endif
         return
       endif
       if (mod(icast,10) .eq. 0)
-     .  call rx('ywrm not ready for ascii write of integer')
+     .call rx('ywrm not ready for ascii write of integer')
       outs = ' '
       if (icast .eq. 1)  outs = ' real l="' //filel
       if (icast .eq. 11) outs = ' symm l="' //filel
@@ -78,8 +78,8 @@ C --- Binary write ---
 C --- Case awrite format ---
       if (fmt(2:2) .eq. '%') then
         if (icast .eq. 3 .or. icast .eq. 13 .or.
-     .      icast .eq. 4 .or. icast .eq. 14)
-     .   call rx('ywrm cannot handle %% fmt for complex*16')
+     .  icast .eq. 4 .or. icast .eq. 14)
+     .  call rx('ywrm cannot handle %% fmt for complex*16')
 
 C   ... copy to lfmt to get around SGI compiler bug
         lfmt = fmt
@@ -92,7 +92,7 @@ C   ... Find end of first expression
         if (j .gt. 2) then
           i = 2
           call rxx(.not. a2bin(lfmt,nw,2,0,' ',i,j-1),
-     .      'ywrm failed to parse format %'//lfmt(2:j+2))
+     .    'ywrm failed to parse format %'//lfmt(2:j+2))
         endif
 C   ... Loop through all rows to find col-dependent size
         nw = min(nw,100)
@@ -110,20 +110,20 @@ C   ... Write out matrix
         imm = 0
    44   continue
         do  40  ir = 1, nr
-        do  40  ic = 1, nc, nw
-          jc = min(ic+nw-1,nc)
-          k = 0
-          sout = ' '
-          ip = 0
-          do  42  i = ic, jc
-            k = k+1
-            call awrit1(outs,lfmt,len(lfmt),0,s(ir+imm*ofi,i))
-            call skpblb(lfmt,iw(k),j)
-            call awrit2('%np'//outs,sout,len(sout),0,
+          do  40  ic = 1, nc, nw
+            jc = min(ic+nw-1,nc)
+            k = 0
+            sout = ' '
+            ip = 0
+            do  42  i = ic, jc
+              k = k+1
+              call awrit1(outs,lfmt,len(lfmt),0,s(ir+imm*ofi,i))
+              call skpblb(lfmt,iw(k),j)
+              call awrit2('%np'//outs,sout,len(sout),0,
      .        ip+iw(k)-j,s(ir+imm*ofi,i))
-            ip = ip + iw(k)
-   42     continue
-          call awrit0('%a',sout,-len(sout),-ifi)
+              ip = ip + iw(k)
+   42       continue
+            call awrit0('%a',sout,-len(sout),-ifi)
    40   continue
         if (imm .eq. 0 .and. mod(icast,10) .gt. 1) then
           imm = 1

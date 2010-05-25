@@ -65,11 +65,11 @@ C ... Local parameters
         if (mode0 .ne. 0) then
           dhs(l)  = xi(l)*l/r - xi(l+1)
           if (mode0 .eq. 1)
-     .  ddhs(l) = xi(l)*l*(l+1)/r**2 - (2*l+3)/r*xi(l+1) + xi(l+2)
+     .    ddhs(l) = xi(l)*l*(l+1)/r**2 - (2*l+3)/r*xi(l+1) + xi(l+2)
           if (mode0 .eq. 2)
-     .  ddhs(l) =                    - (2*l+3)/r*xi(l+1) + xi(l+2)
+     .    ddhs(l) =                    - (2*l+3)/r*xi(l+1) + xi(l+2)
           if (mode0 .eq. 3)
-     .  ddhs(l) = xi(l)*l*(l-1)/r**2 - (2*l+1)/r*xi(l+1) + xi(l+2)
+     .    ddhs(l) = xi(l)*l*(l-1)/r**2 - (2*l+1)/r*xi(l+1) + xi(l+2)
         endif
         if (mode1 .ne. 0) then
           hsp(l)   = xi(l-1)*r/2

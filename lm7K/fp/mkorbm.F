@@ -1,5 +1,5 @@
       subroutine mkorbm(ssite,sspec,isp,nsp,nspc,nlmax,ndham,nev,
-     .  wtkp,iq,nbas,ppnl,aus,nl,nkp,orbtm)
+     .wtkp,iq,nbas,ppnl,aus,nl,nkp,orbtm)
 
       use m_struc_def  !Cgetarg
 
@@ -62,9 +62,9 @@ C ... Passed parameters
       double complex aus(nlmax,ndham*nspc,3,nsp,*)
 C ... Local parameters
       integer lmxa,lmxax,lmdim,ichan,ib,is,igetss,iv,ilm,l,m,nlma,
-     . ll,lc,em,ispc,ksp
+     .ll,lc,em,ispc,ksp
       double precision suml(11),s11,s22,s12,s33,s31,s32,s13,s23,
-     .  suma,rmt,sab(nab,n0,2)
+     .suma,rmt,sab(nab,n0,2)
       double complex au,as,az,iot
 
       lmxax = ll(nlmax)
@@ -132,18 +132,18 @@ C            else
 C    ...   -m,...,m order
                 if (m .lt. 0) then
                   au = iot*1d0/dsqrt(2d0)*aus(lc-em,iv,1,ksp,ib) + 
-     .           1d0/dsqrt(2d0)*aus(lc+em,iv,1,ksp,ib)
+     .            1d0/dsqrt(2d0)*aus(lc+em,iv,1,ksp,ib)
                   as = iot*1d0/dsqrt(2d0)*aus(lc-em,iv,2,ksp,ib) + 
-     .           1d0/dsqrt(2d0)*aus(lc+em,iv,2,ksp,ib)
+     .            1d0/dsqrt(2d0)*aus(lc+em,iv,2,ksp,ib)
                   az = iot*1d0/dsqrt(2d0)*aus(lc-em,iv,3,ksp,ib) + 
-     .           1d0/dsqrt(2d0)*aus(lc+em,iv,3,ksp,ib)
+     .            1d0/dsqrt(2d0)*aus(lc+em,iv,3,ksp,ib)
                 else if (m .gt. 0) then
                   au = -iot*(-1)**m/dsqrt(2d0)*aus(lc-m,iv,1,ksp,ib) + 
-     .           (-1)**m/dsqrt(2d0)*aus(lc+m,iv,1,ksp,ib)
+     .            (-1)**m/dsqrt(2d0)*aus(lc+m,iv,1,ksp,ib)
                   as = -iot*(-1)**m/dsqrt(2d0)*aus(lc-m,iv,2,ksp,ib) + 
-     .           (-1)**m/dsqrt(2d0)*aus(lc+m,iv,2,ksp,ib)
+     .            (-1)**m/dsqrt(2d0)*aus(lc+m,iv,2,ksp,ib)
                   az = -iot*(-1)**m/dsqrt(2d0)*aus(lc-m,iv,3,ksp,ib) + 
-     .           (-1)**m/dsqrt(2d0)*aus(lc+m,iv,3,ksp,ib)
+     .            (-1)**m/dsqrt(2d0)*aus(lc+m,iv,3,ksp,ib)
                 else
                   au = aus(ilm,iv,1,ksp,ib)
                   as = aus(ilm,iv,2,ksp,ib)
@@ -161,7 +161,7 @@ C           If (au,as) are coefficients to (u,s), use this
                 s23 = dconjg(as)*az*sab(7,l+1,ksp)
 
                 orbtm(l+1,ksp,ib)=orbtm(l+1,ksp,ib)+m*(s11+s12+s22+
-     .     s33+s32+s23+s31+s13)*wtkp(iv,isp,iq)
+     .          s33+s32+s23+s31+s13)*wtkp(iv,isp,iq)
 
               enddo
             enddo

@@ -1,5 +1,5 @@
       subroutine hhibl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,
-     .  ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
+     .ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
 C- Integrals between smooth Hankels with k-th power of Laplace operator.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -43,7 +43,7 @@ C     implicit none
 C ... Passed parameters
       integer mode,jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2
       double precision p1(3),p2(3),q(3),cg(1),cy(1),slat(1),
-     .  rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*)
+     .rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*)
       double complex s(ndim1,ndim2,0:kmax)
 C ... Local parameters
       integer m,lmx1,lmx2,ll,l1,l2,k,jlm,ilm,lm11,lm21,lm12,lm22,l1t,l2t
@@ -57,9 +57,9 @@ C ... Local parameters
       lmx2 = ll(nlm2)
 
       do  3  k = 0, kmax
-      do  3  jlm = 1, nlm2
-      do  3  ilm = 1, nlm1
-        s(ilm,jlm,k) = dcmplx(0d0,0d0)
+        do  3  jlm = 1, nlm2
+          do  3  ilm = 1, nlm1
+            s(ilm,jlm,k) = dcmplx(0d0,0d0)
     3 continue
 
       l1t = -1
@@ -80,12 +80,12 @@ C         l2t = l2
           lm22 = (l2t+1)**2
           if (mode/10.eq.1 .and. rsm1(l1)*rsm2(l2) .eq. 0) goto 22
           call phhibl(dr,q,rsm1(l1),rsm2(l2),e1(l1),e2(l2),lm11,lm12,
-     .      lm21,lm22,kmax,ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
+     .    lm21,lm22,kmax,ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
    22   continue
    20 continue
       end
       subroutine phhibl(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax,
-     .  ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
+     .ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
 C- Integrals between smooth Hankels with k-th power of Laplace operator.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -116,15 +116,15 @@ C     implicit none
 C ... Passed parameters
       integer jcg(1),indxcg(1),mlm1,nlm1,mlm2,nlm2,kmax,ndim1,ndim2
       double precision dr(3),q(3),cg(1),cy(1),slat(1),rsm1,
-     .  rsm2,e1,e2
+     .rsm2,e1,e2
       double complex s(ndim1,ndim2,0:kmax)
 C ... Local parameters
       integer nlm0,ktop0,icg,icg1,icg2,ii,ilm,ilm1,ilm2,indx,ip,k,
-     .  ktop,l1,l2,ll,lm,lmax1,lmax2,lmaxx,nlmx
+     .ktop,l1,l2,ll,lm,lmax1,lmax2,lmaxx,nlmx
       parameter( nlm0=100, ktop0=10 )
       double precision fpi,e,fac,fac1,fac2,gam1,gam2,gamx,rsmx
       double complex hkl1(0:ktop0,nlm0),hkl2(0:ktop0,nlm0),
-     .  hsm(nlm0),hsmp(nlm0)
+     .hsm(nlm0),hsmp(nlm0)
 
       fpi = 16d0*datan(1.d0)
       gam1 = 0.25d0*rsm1*rsm1
@@ -166,20 +166,20 @@ C ... Set up functions for connecting vector p1-p2
 C ... Combine with Clebsch-Gordan coefficients
       do  11  ilm1 = mlm1, nlm1
         l1 = ll(ilm1)
-      do  11  ilm2 = mlm2, nlm2
-        l2 = ll(ilm2)
-        ii = max0(ilm1,ilm2)
-        indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
-        icg1 = indxcg(indx)
-        icg2 = indxcg(indx+1)-1
-      do  11  icg = icg1, icg2
-        ilm = jcg(icg)
-        lm = ll(ilm)
-        k = (l1+l2-lm)/2
-        fac = fpi*(-1d0)**l1*cg(icg)
-        do  12  ip = 0, kmax
-          s(ilm1,ilm2,ip) = s(ilm1,ilm2,ip) + fac*hkl1(k+ip,ilm)
-   12   continue
+        do  11  ilm2 = mlm2, nlm2
+          l2 = ll(ilm2)
+          ii = max0(ilm1,ilm2)
+          indx = (ii*(ii-1))/2 + min0(ilm1,ilm2)
+          icg1 = indxcg(indx)
+          icg2 = indxcg(indx+1)-1
+          do  11  icg = icg1, icg2
+            ilm = jcg(icg)
+            lm = ll(ilm)
+            k = (l1+l2-lm)/2
+            fac = fpi*(-1d0)**l1*cg(icg)
+            do  12  ip = 0, kmax
+              s(ilm1,ilm2,ip) = s(ilm1,ilm2,ip) + fac*hkl1(k+ip,ilm)
+   12       continue
    11 continue
 
       end

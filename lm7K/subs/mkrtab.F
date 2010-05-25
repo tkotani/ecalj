@@ -56,10 +56,10 @@ C         New cluster
         jb = iaxb(2,ipp)
         do  42  ix = 1, 3
           rtabi(ix) = alat *
-     .      ( pos(ix,jb) - ctr(ix,ic)
-     .      + plat(ix,1)*iaxb(3,ipp)
-     .      + plat(ix,2)*iaxb(4,ipp)
-     .      + plat(ix,3)*iaxb(5,ipp))
+     .    ( pos(ix,jb) - ctr(ix,ic)
+     .    + plat(ix,1)*iaxb(3,ipp)
+     .    + plat(ix,2)*iaxb(4,ipp)
+     .    + plat(ix,3)*iaxb(5,ipp))
           if (.not. llen) rtab(ix,ip) = rtabi(ix)
    42   continue
         if (llen) then

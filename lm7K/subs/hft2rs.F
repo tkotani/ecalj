@@ -1,6 +1,6 @@
       subroutine hft2rs(mode,n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
-     .  nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,ontab,oiax,ndhrs,
-     .  hrs)
+     .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,ontab,oiax,ndhrs,
+     .hrs)
 C- Fourier transform of a matrix to real-space representation
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -156,7 +156,7 @@ C ... Passed parameters
       double complex hq(k1,k2,k3,idim,jdim,nsp),hrs(ndhrs,ndhrs,nsp,1)
 C ... Local parameters
       integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,
-     .  nvtot
+     .nvtot
       integer ,allocatable :: iwk_iv(:)
 
       double precision dmx(2)
@@ -169,7 +169,7 @@ C ... Heap
       common /w/ w
 C ... External calls
       external defi,fftz3,getpr,hft2r1,hft2r3,info,pairs,poppr, !fftz3s,
-     .         ppair1,pshpr,redfi,rlse,tcn,tcx
+     .ppair1,pshpr,redfi,rlse,tcn,tcx
 
       call tcn('hft2rs')
       call getpr(ipr)
@@ -184,13 +184,13 @@ C --- Mode 0 (setup) make and reduce iax table ---
       if (mode0 .eq. 0) then
 
         call info(30,0,0,' hft2rs: make neighbor table for '//
-     .    'r.s. hamiltonian using range = %;4d * alat',range,0)
+     .  'r.s. hamiltonian using range = %;4d * alat',range,0)
 
 C   ... pair table for rs hamiltonian
         call pshpr(min(ipr-10,30))
         mxcsiz = 0
         call pairs(nbas,nbas,1d0,plat,range/2,pos,
-     .    -1,3,-1,w,nttab,ontab,oiax,mxcsiz)
+     .  -1,3,-1,w,nttab,ontab,oiax,mxcsiz)
         call poppr
 
 C   ... Standard Bloch transform doesn't require mapping to mesh
@@ -200,10 +200,10 @@ C     ... Mark all members in iax table with vector in sfz (for FFT)
           nviax = 0
           nvtot = 0
           call hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,1,nbas,
-     .      offH,idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,
-     .      nviax,nvtot,dmx)
+     .    offH,idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,
+     .    nviax,nvtot,dmx)
           call info(30,0,0,' hft2rs: found %i connecting vectors out'//
-     .      ' of %i possible for FFT',nviax,nvtot)
+     .    ' of %i possible for FFT',nviax,nvtot)
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c        stop 'test end xxxxxxxxxxxxxxxxxxxxxx111222'
@@ -215,7 +215,7 @@ Ctakao_ZeroClear_NotRequiered            if ((niax+1)*mxcsiz<0) iwk_iv(:)=0
 
 C         nttabs = nttab
           call hft2r3 ( 1 , nbas , iwk_iv , w ( ontab ) , w ( oiax ) 
-     .     , nttab , mxcsiz )
+     .    , nttab , mxcsiz )
 
 C         call hft2r3(1,nbas,w(oiwk),w(ontab),w(oiax),nttab,mxcsiz)
           if (allocated(iwk_iv)) deallocate(iwk_iv)
@@ -231,13 +231,13 @@ C         nttabs = nttab
           call redfi(oiax,niax*nttab)
           call pshpr(ipr)
           call symiax(i,plat,nbas,pos,g,ag,nsgrp,w(ontab),w(oiax),
-     .      nttab,mxcsiz)
+     .    nttab,mxcsiz)
           call poppr
 
 C     ... Fill out iax(6,7,10)
           call pshpr(0)
           call ppair1(0,1,nbas,nbas,-1,1d0,plat,pos,range/2,
-     .      nttab,w(ontab),w(oiax),mxcsiz)
+     .    nttab,w(ontab),w(oiax),mxcsiz)
           call poppr
         endif
 
@@ -269,10 +269,10 @@ C        call hft2rp(0,lshft,n1,n2,n3,k1,k2,k3,idim,jdim,hq)
 C        call yprm('hfbz(FT)+phase',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)
 
         call hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,1,nbas,offH,
-     .    idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,nviax,
-     .    nvtot,dmx)
+     .  idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,nviax,
+     .  nvtot,dmx)
         call info5(30,0,0,' hft2rs created hrs:  ndhrs=%i  '//
-     .    'max Re(hrs) = %;3g  max Im(hrs) = %;3g',ndhrs,dmx,dmx(2),0,0)
+     .  'max Re(hrs) = %;3g  max Im(hrs) = %;3g',ndhrs,dmx,dmx(2),0,0)
       elseif (mode0 .eq. 1 .and. mode2 .eq. 1) then
         call rxi('hft2rs: not implemented',mode)
 C        call ibloch(11-mode1,isp,nsp,w(oqp),w(owtkp),iq,plat,w(offH),
@@ -321,8 +321,8 @@ C$$$#endif
 
       end
       subroutine hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,ib1,ib2,
-     .  offH,idim,jdim,hij,plat,pos,ntab,iax,qoff,ndhrs,hrs,nviax,nvtot,
-     .  dmx)
+     .offH,idim,jdim,hij,plat,pos,ntab,iax,qoff,ndhrs,hrs,nviax,nvtot,
+     .dmx)
 C- Copy a R.S. hamiltonian subblock on a uniform mesh of translation
 C- vectors to a representation with a neighbor list,
 C  or just mark entries in the table that correspond to mesh points
@@ -372,7 +372,7 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer mode,idim,jdim,ia1,ia2,ib1,ib2,n1,n2,n3,k1,k2,k3,isp,nsp,
-     .  niax,ndhrs,nviax,nvtot
+     .niax,ndhrs,nviax,nvtot
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5,niax=10)
       integer offH(n0H,nkap0,1),iax(niax,1),ntab(ia2)
@@ -381,7 +381,7 @@ C ... Passed parameters
 C ... Local parameters
       logical ltrans
       integer id,jd,i,ia,ib,ngmx,ng,is1,is2,nlma,nlmb,offi,offj,
-     .  nhit,nmiss
+     .nhit,nmiss
       double precision gmax,qlat(3,3),tau(3),dmx1(2)
       real(8) ,allocatable :: rtab_rv(:)
 c      real(8) ,allocatable :: _rv(:)
@@ -393,7 +393,7 @@ c      integer w(1)
 c      common /w/ w
 C ... External calls
       external defi,defrr,dinv33,dpsadd,dpscop,gvlist,hft2r2,isanrg,
-     .         poppr,pshpr,rlse
+     .poppr,pshpr,rlse
 
 c      allocate(_rv(1))
 c      if (1<0) _rv(:)=0.0d0
@@ -436,7 +436,7 @@ C     call ogvlst(1d0,qlat,tau,n1,n2,n3,9d9,ngmx,ng,w(ogv),w(okv))
           call pshpr(80*0)
           i = 208 + 400*0
           call gvlist ( 1d0 , qlat , tau , n1 , n2 , n3 , 1d5 , i , ngmx 
-     . , ng , kv_iv , gv_rv , wdummy , wdummy )
+     .    , ng , kv_iv , gv_rv , wdummy , wdummy )
 
           call poppr
 
@@ -446,17 +446,17 @@ Ctakao_ZeroClear_NotRequiered        if (3*(is2-is1+1)<0) rtab_rv(:)=0.0d0
 
           if (ltrans) then
             call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , jdim , idim , iax 
-     .   , qoff , is1 , is2 , ndhrs , isp , nsp , nlmb , nlma , hij ( 
-     .   1 , 1 , 1 , 1 + offj , 1 + offi ) , gv_rv , kv_iv , ng 
-     .   , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss , 
-     .   dmx1 )
+     .      , qoff , is1 , is2 , ndhrs , isp , nsp , nlmb , nlma , hij ( 
+     .      1 , 1 , 1 , 1 + offj , 1 + offi ) , gv_rv , kv_iv , ng 
+     .      , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss , 
+     .      dmx1 )
 
           else
             call hft2r2 ( mode , k1 , k2 , k3 , ia , ib , idim , jdim , iax 
-     .   , qoff , is1 , is2 , ndhrs , isp , nsp , nlma , nlmb , hij ( 
-     .   1 , 1 , 1 , 1 + offi , 1 + offj ) , gv_rv , kv_iv , ng 
-     .   , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss , 
-     .   dmx1 )
+     .      , qoff , is1 , is2 , ndhrs , isp , nsp , nlma , nlmb , hij ( 
+     .      1 , 1 , 1 , 1 + offi , 1 + offj ) , gv_rv , kv_iv , ng 
+     .      , tau , plat , pos , rtab_rv , hrs , hrs , nhit , nmiss , 
+     .      dmx1 )
 
           endif
           dmx(1) = max(dmx(1),dmx1(1))
@@ -477,8 +477,8 @@ c      if (allocated(_rv)) deallocate(_rv)
       end
 
       subroutine hft2r2(mode,n1,n2,n3,ia,ib,idim,jdim,iax,qoff,is1,is2,
-     .  ndhrs,isp,nsp,nlma,nlmb,hij,gv,kv,ng,tau,plat,pos,rtab,hrs,hrsr,
-     .  nhit,nmiss,dmx)
+     .ndhrs,isp,nsp,nlma,nlmb,hij,gv,kv,ng,tau,plat,pos,rtab,hrs,hrsr,
+     .nhit,nmiss,dmx)
 C- For each connecting vector in a list taken from a uniform mesh of
 C- translation vectors find corresponding place r.s neighbor table, and:
 C  either mark iax table, or copy into hrs h generated from uniform mesh
@@ -542,7 +542,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer niax,idim,jdim,ia,ib,n1,n2,n3,ndhrs,isp,nsp,nlma,nlmb,is1,
-     .  is2,mode,nhit,nmiss
+     .is2,mode,nhit,nmiss
       parameter (niax=10)
       integer ng,kv(ng,3),iax(niax,1)
       double precision tau(3),gv(ng,3),rtab(3,*),pos(3,*),plat(3,3)
@@ -569,8 +569,8 @@ C ... External calls
 C --- Make -(connecting vector) = rtab = (pos(ia=field)-pos(ib=src)) ---
 C     NB : Connecting vector is pos(src)-pos(field) = -rtab
       do  40  is = is1, is2
-      do  40  ix = 1, 3
-        rtab(ix,is-offx) = pos(ix,ia) - pos(ix,ib)
+        do  40  ix = 1, 3
+          rtab(ix,is-offx) = pos(ix,ia) - pos(ix,ib)
      .    + plat(ix,1)*iax(3,is)
      .    + plat(ix,2)*iax(4,is)
      .    + plat(ix,3)*iax(5,is)
@@ -626,8 +626,8 @@ C            endif
 
                   TdotK = 0
                   do  50  j = 1, 3
-                  do  50  k = 1, 3
-                    TdotK = TdotK - twopi*qoff(j)*plat(j,k)*iax(2+k,is)
+                    do  50  k = 1, 3
+                      TdotK = TdotK - twopi*qoff(j)*plat(j,k)*iax(2+k,is)
    50             continue
                   phase = cdexp(dcmplx(0d0,TdotK))
 
@@ -636,7 +636,7 @@ C            endif
                       do  icol = 1, nlmb
                         do  irow = 1, nlma
                           hrs(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol)
-     .                                      *phase
+     .                    *phase
                           dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
                           dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
                         enddo
@@ -645,7 +645,7 @@ C            endif
                       do  icol = 1, nlmb
                         do  irow = 1, nlma
                           hrs(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol)
-     .                                      *phase
+     .                    *phase
                           dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
                           dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
                         enddo
@@ -656,7 +656,7 @@ C            endif
                       do  icol = 1, nlmb
                         do  irow = 1, nlma
                           hrsr(icol,irow,isp,is) = hij(i1,i2,i3,irow,icol)
-     .                                      *phase
+     .                    *phase
                           dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
                           dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
                         enddo
@@ -665,7 +665,7 @@ C            endif
                       do  icol = 1, nlmb
                         do  irow = 1, nlma
                           hrsr(irow,icol,isp,is) = hij(i1,i2,i3,irow,icol)
-     .                                      *phase
+     .                    *phase
                           dimx = max(dimx,abs(dble(hij(i1,i2,i3,irow,icol))))
                           dimy = max(dimy,abs(dimag(hij(i1,i2,i3,irow,icol))))
                         enddo

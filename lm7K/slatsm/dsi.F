@@ -1,7 +1,7 @@
       double precision function dsi (x)
 c december 1980 edition, w. fullerton, bell labs.
       double precision x, sics(18), pi2, xsml, absx, f, g, cosx,
-     1  dcsevl, d1mach, dcos, dsin, dsqrt
+     1dcsevl, d1mach, dcos, dsin, dsqrt
       external d1mach, dcos, dcsevl, dsin, dsqrt, initds
 c
 c series for si   on the interval  0.00000e+00 to  1.60000e+01

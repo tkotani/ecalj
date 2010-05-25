@@ -14,7 +14,7 @@ Ci packingw
         lll=len_trim(packingw)
         if(lll>nx) then
           call rxs('packs: too large packing word.'//
-     &              'Need to modify code',packingw)
+     &    'Need to modify code',packingw)
         endif
         if(trim(sname(i))==trim(snamein)) then
           iend(i) = init(i) +lll -1
@@ -23,7 +23,7 @@ Ci packingw
         endif
       enddo
       call rxs('packs: no sname is found in sstrn_sname. '//
-     &          'bug or need to modify codes',snamein)
+     &'bug or need to modify codes',snamein)
       end
 
       subroutine upacks(snamein,init_,iend_)
@@ -46,5 +46,5 @@ Co iend_
         endif
       enddo
       call rxs('upacks: no sname is found for snamein. '//
-     &          'bug or need to modify codes',snamein)
+     &'bug or need to modify codes',snamein)
       end

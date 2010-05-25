@@ -1,5 +1,5 @@
       subroutine zmsadd(nlma,nlmb,ndas,ndad,ofas,ofbs,ofad,ofbd,
-     .  alpha,beta,src,dest)
+     .alpha,beta,src,dest)
 C- Add a subblock block of a double complex matrix to a destination
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -29,17 +29,17 @@ C ... Local parameters
       if (beta(1) .eq. 0 .and. beta(2) .eq. 0) then
         if (alpha(1) .eq. 1 .and. alpha(2) .eq. 0) then
           do  10  ib = 1, nlmb
-          do  10  ia = 1, nlma
-            dest(1,ia+ofad,ib+ofbd) = src(1,ia+ofas,ib+ofbs)
-            dest(2,ia+ofad,ib+ofbd) = src(2,ia+ofas,ib+ofbs)
+            do  10  ia = 1, nlma
+              dest(1,ia+ofad,ib+ofbd) = src(1,ia+ofas,ib+ofbs)
+              dest(2,ia+ofad,ib+ofbd) = src(2,ia+ofas,ib+ofbs)
    10     continue
         else
           do  12  ib = 1, nlmb
-          do  12  ia = 1, nlma
-            dest(1,ia+ofad,ib+ofbd) =
+            do  12  ia = 1, nlma
+              dest(1,ia+ofad,ib+ofbd) =
      .        alpha(1)*src(1,ia+ofas,ib+ofbs) -
      .        alpha(2)*src(2,ia+ofas,ib+ofbs)
-            dest(2,ia+ofad,ib+ofbd) =
+              dest(2,ia+ofad,ib+ofbd) =
      .        alpha(1)*src(2,ia+ofas,ib+ofbs) +
      .        alpha(2)*src(1,ia+ofas,ib+ofbs)
    12     continue
@@ -47,37 +47,37 @@ C ... Local parameters
       elseif (beta(1) .eq. 1 .and. beta(2) .eq. 0) then
         if (alpha(1) .eq. 1 .and. alpha(2) .eq. 0) then
           do  20  ib = 1, nlmb
-          do  20  ia = 1, nlma
-            dest(1,ia+ofad,ib+ofbd) = dest(1,ia+ofad,ib+ofbd) +
-     .                                 src(1,ia+ofas,ib+ofbs)
-            dest(2,ia+ofad,ib+ofbd) = dest(2,ia+ofad,ib+ofbd) +
-     .                                 src(2,ia+ofas,ib+ofbs)
+            do  20  ia = 1, nlma
+              dest(1,ia+ofad,ib+ofbd) = dest(1,ia+ofad,ib+ofbd) +
+     .        src(1,ia+ofas,ib+ofbs)
+              dest(2,ia+ofad,ib+ofbd) = dest(2,ia+ofad,ib+ofbd) +
+     .        src(2,ia+ofas,ib+ofbs)
    20     continue
         else
           do  22  ib = 1, nlmb
-          do  22  ia = 1, nlma
-            dest(1,ia+ofad,ib+ofbd) = dest(1,ia+ofad,ib+ofbd) +
+            do  22  ia = 1, nlma
+              dest(1,ia+ofad,ib+ofbd) = dest(1,ia+ofad,ib+ofbd) +
      .        alpha(1)*src(1,ia+ofas,ib+ofbs) -
      .        alpha(2)*src(2,ia+ofas,ib+ofbs)
-            dest(2,ia+ofad,ib+ofbd) = dest(2,ia+ofad,ib+ofbd) +
+              dest(2,ia+ofad,ib+ofbd) = dest(2,ia+ofad,ib+ofbd) +
      .        alpha(1)*src(2,ia+ofas,ib+ofbs) +
      .        alpha(2)*src(1,ia+ofas,ib+ofbs)
    22     continue
         endif
       else
         do  30  ib = 1, nlmb
-        do  30  ia = 1, nlma
-          dest(1,ia+ofad,ib+ofbd) =
+          do  30  ia = 1, nlma
+            dest(1,ia+ofad,ib+ofbd) =
      .      beta(1)*dest(1,ia+ofad,ib+ofbd) -
      .      beta(2)*dest(2,ia+ofad,ib+ofbd) +
      .      alpha(1)*src(1,ia+ofas,ib+ofbs) -
      .      alpha(2)*src(2,ia+ofas,ib+ofbs)
-          dest(2,ia+ofad,ib+ofbd) =
+            dest(2,ia+ofad,ib+ofbd) =
      .      beta(1)*dest(2,ia+ofad,ib+ofbd) +
      .      beta(2)*dest(1,ia+ofad,ib+ofbd) +
      .      alpha(1)*src(2,ia+ofas,ib+ofbs) +
      .      alpha(2)*src(1,ia+ofas,ib+ofbs)
-   30 continue
+   30   continue
       endif
       end
 

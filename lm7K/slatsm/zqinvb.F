@@ -137,7 +137,7 @@ C       call yyprm('a in zqinvb',2,a,lda,2*lda,n,n)
 C       if (cs(1:1).ne.'t') call yyprm('b in zqinvb',2,b,ldb,2*ldb,n,nb)
 C       if (cs(1:1).eq.'t') call yyprm('t in zqinvb',2,b,ldb,2*ldb,nb,n)
         call yyqnvb(cs,a,a(1+lda),2*lda,n,nb,w,ldw,w2,b,b(1+ldb),2*ldb,
-     .    ierr)
+     .  ierr)
 C       if (cs(1:1).ne.'t') call yyprm('a^-1 b',2,b,ldb,2*ldb,n,nb)
 C       if (cs(1:1).eq.'t') call yyprm('b a^-1',2,b,ldb,2*ldb,nb,n)
         if (ierr .ne. 0) return

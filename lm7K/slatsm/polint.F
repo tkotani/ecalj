@@ -101,40 +101,40 @@ C ---   Decide which whether to accumulate correction C or D to y ---
       NS=1
       HH=dABS(X-XA(1))
       DO 11 I=1,N
-        H=dABS(X-XA(I))
-        IF (H.EQ.0.d0)THEN
-          Y=YA(I)
-          DY=0.0d0
-          RETURN
-        ELSE IF (H.LT.HH) THEN
-          NS=I
-          HH=H
-        ENDIF
-        C(I)=YA(I)
-        D(I)=YA(I)+TINY
+      H=dABS(X-XA(I))
+      IF (H.EQ.0.d0)THEN
+      Y=YA(I)
+      DY=0.0d0
+      RETURN
+      ELSE IF (H.LT.HH) THEN
+      NS=I
+      HH=H
+      ENDIF
+      C(I)=YA(I)
+      D(I)=YA(I)+TINY
    11 CONTINUE
       Y=YA(NS)
       NS=NS-1
       DO 13 M=1,N-1
-        DO 12 I=1,N-M
-          W=C(I+1)-D(I)
-          H=XA(I+M)-X
-          T=(XA(I)-X)*D(I)/H
-          DD=T-C(I+1)
+      DO 12 I=1,N-M
+      W=C(I+1)-D(I)
+      H=XA(I+M)-X
+      T=(XA(I)-X)*D(I)/H
+      DD=T-C(I+1)
 ctakao
 c          IF(DD.EQ.0.d0)PAUSE
-          IF(DD.EQ.0.d0) read(5,*) xx
-          DD=W/DD
-          D(I)=C(I+1)*DD
-          C(I)=T*DD
-   12   CONTINUE
-        IF (2*NS.LT.N-M)THEN
-          DY=C(NS+1)
-        ELSE
-          DY=D(NS)
-          NS=NS-1
-        ENDIF
-        Y=Y+DY
+      IF(DD.EQ.0.d0) read(5,*) xx
+      DD=W/DD
+      D(I)=C(I+1)*DD
+      C(I)=T*DD
+   12 CONTINUE
+      IF (2*NS.LT.N-M)THEN
+      DY=C(NS+1)
+      ELSE
+      DY=D(NS)
+      NS=NS-1
+      ENDIF
+      Y=Y+DY
    13 CONTINUE
       END
       subroutine hunty(xa,n,m,x,ix,low)
@@ -199,7 +199,7 @@ C --- Given ix, ix+1 that bracket root, find low ---
       do  12  jm = 2, m
         if (low .gt. 1) then
           if (dabs(xa(max(low-1,1))-x) .lt. dabs(xa(min(jhi+1,n))-x)
-     .        .or. jhi .eq. n) then
+     .    .or. jhi .eq. n) then
             low = low-1
           else
             jhi = jhi+1
@@ -222,37 +222,37 @@ C --- Given ix, ix+1 that bracket root, find low ---
       read(*,*) dymx,nn
       n = 10
       DO 14 NFUNC=1,2
-        jx = 1
-        IF (NFUNC.EQ.1) THEN
-          WRITE(*,*) 'sine function from 0 to pi'
-          DO 11 I=1,N
-            XA(I)=I*PI/N
-            YA(I)=dSIN(XA(I))
-   11     CONTINUE
-        ELSE IF (NFUNC.EQ.2) THEN
-          WRITE(*,*) 'exponential function from 0 to 1'
-          DO 12 I=1,N
-            XA(I)=I*1.0d0/N
-            YA(I)=dEXP(XA(I))
-   12     CONTINUE
-        ELSE
-          STOP
-        ENDIF
-        WRITE(*,'(T10,A1,T20,A4,T28,A12,T46,A5,T58,A15)')
-     *    'x','f(x)','interpolated','error','error est    jx'
-        jx = 0
-        DO 13 I=1,10
-          IF (NFUNC.EQ.1) THEN
-            X=(-0.05d0+I/10.0d0)*PI
-            F=dSIN(X)
-          ELSE IF (NFUNC.EQ.2) THEN
-            X=(-0.05d0+I/10.0d0)
-            F=dEXP(X)
-          ENDIF
-          call polint(xa,ya,n,nn,x,dymx,0,jx,y,dy)
-          WRITE(*,'(1x,3f12.6,2e15.4,i5)') x,f,y,f-y,dy,jx
-   13   CONTINUE
-        pause
+      jx = 1
+      IF (NFUNC.EQ.1) THEN
+      WRITE(*,*) 'sine function from 0 to pi'
+      DO 11 I=1,N
+      XA(I)=I*PI/N
+      YA(I)=dSIN(XA(I))
+   11 CONTINUE
+      ELSE IF (NFUNC.EQ.2) THEN
+      WRITE(*,*) 'exponential function from 0 to 1'
+      DO 12 I=1,N
+      XA(I)=I*1.0d0/N
+      YA(I)=dEXP(XA(I))
+   12 CONTINUE
+      ELSE
+      STOP
+      ENDIF
+      WRITE(*,'(T10,A1,T20,A4,T28,A12,T46,A5,T58,A15)')
+     *'x','f(x)','interpolated','error','error est    jx'
+      jx = 0
+      DO 13 I=1,10
+      IF (NFUNC.EQ.1) THEN
+      X=(-0.05d0+I/10.0d0)*PI
+      F=dSIN(X)
+      ELSE IF (NFUNC.EQ.2) THEN
+      X=(-0.05d0+I/10.0d0)
+      F=dEXP(X)
+      ENDIF
+      call polint(xa,ya,n,nn,x,dymx,0,jx,y,dy)
+      WRITE(*,'(1x,3f12.6,2e15.4,i5)') x,f,y,f-y,dy,jx
+   13 CONTINUE
+      pause
    14 CONTINUE
       END
 #endif
@@ -263,18 +263,18 @@ C --- Given ix, ix+1 that bracket root, find low ---
       double precision X(NPT),Y(NPT)
       F(X)=X*dEXP(-X)/((X-1.0d0)**2+EPSSQ)
       DO 11 I=1,NPT
-        X(I)=I*2.0d0/NPT
-        Y(I)=F(X(I))
+      X(I)=I*2.0d0/NPT
+      Y(I)=F(X(I))
    11 CONTINUE
       WRITE(*,'(/1X,A/)') 'Diagonal rational function interpolation'
       WRITE(*,'(1X,T6,A,T13,A,T26,A,T40,A,T53,A)')
-     *  'x','interp.','est err ','actual','true err'
+     *'x','interp.','est err ','actual','true err'
       DO 12 I=1,10
-        XX=0.2d0*I
-        CALL RATINT(X,Y,NPT,XX,YY,DYY)
-        YEXP=F(XX)
-        WRITE(*,'(1X,F6.2,F12.6,E15.4,F12.6,E15.4,)')
-     .    XX,YY,DYY,YEXP,yexp-yy
+      XX=0.2d0*I
+      CALL RATINT(X,Y,NPT,XX,YY,DYY)
+      YEXP=F(XX)
+      WRITE(*,'(1X,F6.2,F12.6,E15.4,F12.6,E15.4,)')
+     .XX,YY,DYY,YEXP,yexp-yy
    12 CONTINUE
       END
 #endif

@@ -49,7 +49,7 @@ C     implicit none
 C Local variables
       logical parstr,a2bin
       integer:: j1 , j2 , ifi , fopna , j , rdm , ipr , lgunit , i 
-     . , lmode , a2vec , ix(4)
+     ., lmode , a2vec , ix(4)
       real(8) ,allocatable :: wk_rv(:)
 
       double precision xv(4)
@@ -58,10 +58,10 @@ C ... for rdfiln
       integer recl,nr,mxchr,mxlev,lstsiz,ctlen
       parameter (mxchr=20,mxlev=4,lstsiz=200,recl=500,ctlen=120)
       character recrd*(recl),ctbl(mxchr,2)*(ctlen),a*(recl),
-     .  vnam(mxlev)*16,rdarg*6
+     .vnam(mxlev)*16,rdarg*6
       logical loop0(0:mxlev)
       integer nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
-     .  nlist(0:mxlev)
+     .nlist(0:mxlev)
 C heap:
       integer w(1)
       common /w/ w
@@ -106,7 +106,7 @@ Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) wk_rv(:)=0.0d0
             call dmcpy ( bas , 3 , 1 , wk_rv , 1 , nbas , 3 , nbas )
 
             call ywrm ( 0 , ' ' , 1 , ifi , '(3f14.8)' , wk_rv , 1 , nbas 
-     .     , nbas , 3 )
+     .      , nbas , 3 )
 
             call fclose(ifi)
           else
@@ -114,7 +114,7 @@ Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) wk_rv(:)=0.0d0
           endif
 
           call info2(10,1,1,' iopos : write %i sites into file '//
-     .      fnam(j1:j2)//', mode %i',nbas,mode)
+     .    fnam(j1:j2)//', mode %i',nbas,mode)
 
 C --- File read ---
         else
@@ -187,13 +187,13 @@ C     ... Show input
       endif
       if (.not. lio) then
         call MPI_BCAST(bas,3*nbas,MPI_DOUBLE_PRECISION,master,
-     .                 MPI_COMM_WORLD,ierr)
+     .  MPI_COMM_WORLD,ierr)
         if (mlog) then
           call gettime(datim)
           call awrit3(' iopos '//datim//' Process %i of %i on '
-     .      //shortname(procid)(1:namelen(procid))//
-     .      ' bcast bas, %i d.p. numbers',' ',
-     .      256,lgunit(3),procid,numprocs,3*nbas)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' bcast bas, %i d.p. numbers',' ',
+     .    256,lgunit(3),procid,numprocs,3*nbas)
         endif
       endif
 #endif

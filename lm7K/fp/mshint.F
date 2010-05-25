@@ -50,7 +50,7 @@ C ... Local parameters
 
       if (iprint().ge.50) write(stdo,724) bot1,top1,sum1,bot2,top2,sum2
   724 format(/' mshint: real part: min,max',2f10.6,'    integral',f12.6
-     .  /'         imag part: min,max',2f10.6,'    integral',f12.6)
+     ./'         imag part: min,max',2f10.6,'    integral',f12.6)
 
 
       end

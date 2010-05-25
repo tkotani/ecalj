@@ -1,7 +1,7 @@
 c#define F90 1
       subroutine augmbl(mode,ssite,sspec,slat,isp,lcplxp,q,
-     .                  osig,otau,oppi,iprmb,ndimh,
-     .                  napw,igapw,h,hso,s)
+     .osig,otau,oppi,iprmb,ndimh,
+     .napw,igapw,h,hso,s)
 
       use m_struc_def  !Cgetarg
 #if MPE
@@ -105,7 +105,7 @@ C ... Passed parameters
 #endif
 
       integer mode,lcplxp,isp,ndimh,napw,igapw(3,napw),iprmb(ndimh),
-     .  osig(3,1),otau(3,1),oppi(3,1)
+     .osig(3,1),otau(3,1),oppi(3,1)
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -122,7 +122,7 @@ c      double complex b(lofb*ndimh),b0(lofb*nlmbx),bos(lofb)
 c#endif
       double complex g(lofb)
       integer ia,isa,kmax,lmxa,lmxha,nbas,nglob,nlma,
-     .  nlmha,nkaph,ocg,ocy,oidxcg,ojcg,mode1,nlmto
+     .nlmha,nkaph,ocg,ocy,oidxcg,ojcg,mode1,nlmto
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
 c#ifndef F90
 c      integer ib,is,ik,nlmh
@@ -218,9 +218,9 @@ C --- Loop over augmentation sites --- ---
         if (mlog .and. ia .eq. bproc(procid)) then
           call gettime(datim)
           call awrit4(' augmbl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' starting atoms %i to %i',' ',256,lgunit(3),
-     .        procid,numprocs,bproc(procid),bproc(procid+1)-1)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' starting atoms %i to %i',' ',256,lgunit(3),
+     .    procid,numprocs,bproc(procid),bproc(procid+1)-1)
         endif
 #endif
 
@@ -245,8 +245,8 @@ c#if F90
 C Check ...
 C        allocate (b(0:kmax,nlma,ndimh))
         call bstrux(0,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
-     .    iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,
-     .    napw,igapw,b,xx)
+     .  iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,
+     .  napw,igapw,b,xx)
 C$$$#else
 C$$$C       Zero out strux to eliminate contributions from local orbitals
 C$$$        call dpzero(b,(kmax+1)*nlma*ndimh*2)
@@ -292,27 +292,27 @@ C   --- Add 1-center and 2-center terms ---
 #if MPI
         if (lcplxp .eq. 0) then
           call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
-     .   , kmax , nlma , w ( osig ( 3 , ia ) ) , w ( oppi ( 3 , ia ) ) 
-     .   , w ( osig ( 2 , ia ) ) , w ( oppi ( 2 , ia ) ) , b , ndimh , 
-     .   nlmto , s_zv , h_zv )
+     .    , kmax , nlma , w ( osig ( 3 , ia ) ) , w ( oppi ( 3 , ia ) ) 
+     .    , w ( osig ( 2 , ia ) ) , w ( oppi ( 2 , ia ) ) , b , ndimh , 
+     .    nlmto , s_zv , h_zv )
 
         else
           call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
-     .   , nlmha , kmax , nlma , w ( osig ( 3 , ia ) ) , w ( oppi ( 3 
-     .   , ia ) ) , w ( osig ( 2 , ia ) ) , w ( oppi ( 2 , ia ) ) , b 
-     .   , ndimh , nlmto , s_zv , h_zv , hso_zv )
+     .    , nlmha , kmax , nlma , w ( osig ( 3 , ia ) ) , w ( oppi ( 3 
+     .    , ia ) ) , w ( osig ( 2 , ia ) ) , w ( oppi ( 2 , ia ) ) , b 
+     .    , ndimh , nlmto , s_zv , h_zv , hso_zv )
 
         endif
 #else
 #ifndef ALL3C
         if (lcplxp .eq. 0) then
           call augq12(mode0,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,nlma,
-     .      w(osig(3,ia)),w(oppi(3,ia)),w(osig(2,ia)),
-     .      w(oppi(2,ia)),b,ndimh,nlmto,s,h)
+     .    w(osig(3,ia)),w(oppi(3,ia)),w(osig(2,ia)),
+     .    w(oppi(2,ia)),b,ndimh,nlmto,s,h)
         else
           call augq2z(mode0,mode1,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
-     .      nlma,w(osig(3,ia)),w(oppi(3,ia)),w(osig(2,ia)),
-     .      w(oppi(2,ia)),b,ndimh,nlmto,s,h,hso)
+     .    nlma,w(osig(3,ia)),w(oppi(3,ia)),w(osig(2,ia)),
+     .    w(oppi(2,ia)),b,ndimh,nlmto,s,h,hso)
         endif
 #endif
 #endif
@@ -320,15 +320,15 @@ C   --- Add 1-center and 2-center terms ---
 C   --- Add B+ sig B to S and B+ ppi B to H ---
 #if MPI
         call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , w ( osig 
-     .   ( 1 , ia ) ) , b , s_zv )
+     .  ( 1 , ia ) ) , b , s_zv )
 
         if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
           call augqp3 ( kmax , nlma , ndimh , isp , g , w ( oppi ( 1 , 
-     .     ia ) ) , b , h_zv )
+     .    ia ) ) , b , h_zv )
 
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
           call augq3z ( mode1 , kmax , nlma , ndimh , isp , g , w ( oppi 
-     .     ( 1 , ia ) ) , b , h_zv , hso_zv )
+     .    ( 1 , ia ) ) , b , h_zv , hso_zv )
 
         endif
 #else
@@ -337,7 +337,7 @@ C   --- Add B+ sig B to S and B+ ppi B to H ---
           call augqp3(kmax,nlma,ndimh,isp,g,w(oppi(1,ia)),b,h)
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
           call augq3z(mode1,kmax,nlma,ndimh,isp,g,w(oppi(1,ia)),b,h,
-     .                hso)
+     .    hso)
         endif
 #endif
 
@@ -358,17 +358,17 @@ C ... end loop over ia
 Ctakao_ZeroClear_NotRequiered        if (ndimh*ndimh<0) hbuf_zv(:)=0.0d0
 
       call mpi_allreduce ( h_zv , hbuf_zv , 2 * ndimh * ndimh 
-     . , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
+     ., mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
 
       if (mlog) then
         call gettime(datim)
         call awrit3(' augmbl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce h ndimh=%i',' ',256,lgunit(3),
-     .        procid,numprocs,ndimh)
+     .  //shortname(procid)(1:namelen(procid))//
+     .  ' allreduce h ndimh=%i',' ',256,lgunit(3),
+     .  procid,numprocs,ndimh)
       endif
       call daxpy ( 2 * ndimh * ndimh , 1d0 , hbuf_zv , 1 , h , 1 
-     . )
+     .)
 
       if (allocated(hbuf_zv)) deallocate(hbuf_zv)
 
@@ -376,17 +376,17 @@ Ctakao_ZeroClear_NotRequiered        if (ndimh*ndimh<0) hbuf_zv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered        if (ndimh*ndimh<0) sbuf_zv(:)=0.0d0
 
       call mpi_allreduce ( s_zv , sbuf_zv , 2 * ndimh * ndimh 
-     . , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
+     ., mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
 
       if (mlog) then
         call gettime(datim)
         call awrit3(' augmbl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce s ndimh=%i',' ',256,lgunit(3),
-     .        procid,numprocs,ndimh)
+     .  //shortname(procid)(1:namelen(procid))//
+     .  ' allreduce s ndimh=%i',' ',256,lgunit(3),
+     .  procid,numprocs,ndimh)
       endif
       call daxpy ( 2 * ndimh * ndimh , 1d0 , sbuf_zv , 1 , s , 1 
-     . )
+     .)
 
       if (allocated(sbuf_zv)) deallocate(sbuf_zv)
 
@@ -400,9 +400,9 @@ Ctakao_ZeroClear_NotRequiered         if (ndimh*ndimh<0) sbuf_zv(:)=0.0d0
         if (mlog) then
           call gettime(datim)
           call awrit3(' augmbl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce hso ndimh=%i',' ',256,lgunit(3),
-     .        procid,numprocs,ndimh)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' allreduce hso ndimh=%i',' ',256,lgunit(3),
+     .    procid,numprocs,ndimh)
         endif
         call daxpy ( 2 * ndimh * ndimh , 1d0 , sbuf_zv , 1 , hso , 
      .  1 )
@@ -439,7 +439,7 @@ c#endif
 
 
       subroutine augq12(mode,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
-     .  nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h)
+     .nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h)
 
 C- Add one and two-center terms to hamiltonian and overlap matrix
 C ----------------------------------------------------------------------
@@ -479,8 +479,8 @@ C ... Passed parameters
       integer mode,ia,isp,kmax,nkaph,ndimh,nlma,lmxha,nlmha,iprmb(1)
       integer nlmto
       double precision
-     .  sighh(nkaph,nkaph,0:lmxha,1), ppihh(nkaph,nkaph,nlmha,nlmha,1),
-     .  sighp(nkaph,0:kmax,0:lmxha,1),ppihp(nkaph,0:kmax,nlmha,nlma,1)
+     .sighh(nkaph,nkaph,0:lmxha,1), ppihh(nkaph,nkaph,nlmha,nlmha,1),
+     .sighp(nkaph,0:kmax,0:lmxha,1),ppihp(nkaph,0:kmax,nlmha,nlma,1)
       double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),h(ndimh,ndimh)
 C ... Local parameters
       integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2
@@ -527,7 +527,7 @@ C     ... One-center terms
                 i2 = i2+1
                 h(i1,i2) = h(i1,i2) + ppihh(ik1,ik2,ilm1,ilm2,isp)
                 if (ilm1 .eq. ilm2)
-     .        s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
+     .          s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
               enddo
             enddo
           else
@@ -548,7 +548,7 @@ C     ... One-center terms
               do  ilm2 = l2**2+1, (l2+1)**2
                 i2 = i2+1
                 if (ilm1 .eq. ilm2)
-     .        s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
+     .          s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
               enddo
             enddo
           endif
@@ -560,7 +560,7 @@ C     ... One-center terms
 
 
       subroutine augq2z(mode,mode1,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
-     .  nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h,hso)
+     .nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h,hso)
 
 C- Add one and two-center terms to h,s for complex potential
 C ----------------------------------------------------------------------
@@ -612,17 +612,17 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer mode,mode1,ia,isp,kmax,nkaph,nlma,lmxha,nlmha,iprmb(1),
-     .  ndimh,nlmto
+     .ndimh,nlmto
       double precision
-     . sighh(nkaph,nkaph,0:lmxha,1),sighp(nkaph,0:kmax,0:lmxha,1)
+     .sighh(nkaph,nkaph,0:lmxha,1),sighp(nkaph,0:kmax,0:lmxha,1)
       double complex
-     . ppihh(nkaph,nkaph,nlmha,nlmha,isp+2*mode1),
-     . ppihp(nkaph,0:kmax,nlmha,nlma,isp+2*mode1)
+     .ppihh(nkaph,nkaph,nlmha,nlmha,isp+2*mode1),
+     .ppihp(nkaph,0:kmax,nlmha,nlma,isp+2*mode1)
       double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),
-     . h(ndimh,ndimh),hso(ndimh,ndimh)
+     .h(ndimh,ndimh),hso(ndimh,ndimh)
 C ... Local parameters
       integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2,
-     .  jsp,ksp
+     .jsp,ksp
       parameter (n0=10,nkap0=3)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
       double precision xx
@@ -669,9 +669,9 @@ C           ... Make 2c term LxSx+LySy part of SO
                         ksp = 2*isp + jsp - 1
                         cadd1 = ppihp(ik1,k,ilm1,ilma,ksp)*b(k,ilma,j)
                         tso(i1,j,isp,jsp) = tso(i1,j,isp,jsp)
-     .                                  + 0.5d0*cadd1
+     .                  + 0.5d0*cadd1
                         tso(j,i1,jsp,isp) = tso(j,i1,jsp,isp)
-     .                                  + 0.5d0*dconjg(cadd1)
+     .                  + 0.5d0*dconjg(cadd1)
                       endif
                     enddo
                   endif
@@ -693,7 +693,7 @@ C        ...  Make 1c LxSx+LySy part of SO
                 if (mode1 .eq. 1 .and. isp .eq. 2) hso(i1,i2) = hso(i1,i2)
      .          + 0.5d0*ppihh(ik1,ik2,ilm1,ilm2,3)
                 if (ilm1 .eq. ilm2) s(i1,i2) = s(i1,i2)
-     .                                     + sighh(ik1,ik2,l1,isp)
+     .          + sighh(ik1,ik2,l1,isp)
               enddo
             enddo
           else
@@ -714,7 +714,7 @@ C     ... One-center terms
               do  ilm2 = l2**2+1, (l2+1)**2
                 i2 = i2+1
                 if (ilm1 .eq. ilm2)
-     .        s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
+     .          s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
               enddo
             enddo
           endif
@@ -755,7 +755,7 @@ C ... Passed parameters
       integer kmax,lmxa,nlma,ndimh,isp
       double precision sig(0:kmax,0:kmax,0:lmxa,isp)
       double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),
-     .  g(0:kmax,nlma),csum
+     .g(0:kmax,nlma),csum
 C ... Local parameters
       integer nlmax
       parameter (nlmax=49)
@@ -817,7 +817,7 @@ C ... Passed parameters
       integer kmax,nlma,ndimh,isp
       double precision ppi(0:kmax,0:kmax,nlma,nlma,isp)
       double complex b(0:kmax,nlma,ndimh),h(ndimh,ndimh),
-     .  g(0:kmax,nlma),csum
+     .g(0:kmax,nlma),csum
 C ... Local parameters
       integer i1,i2,jlm1,jlm2,k1,k2,kjtop,kjlm
 
@@ -832,7 +832,7 @@ C   ... g <- ppi*b
             do  k2 = 0, kmax
               do  k1 = 0, kmax
                 g(k1,jlm1) = g(k1,jlm1) +
-     .                       ppi(k1,k2,jlm1,jlm2,isp)*b(k2,jlm2,i2)
+     .          ppi(k1,k2,jlm1,jlm2,isp)*b(k2,jlm2,i2)
               enddo
             enddo
           enddo
@@ -878,7 +878,7 @@ C ... Passed parameters
       integer kmax,nlma,ndimh,isp,mode1
       double complex ppi(0:kmax,0:kmax,nlma,nlma,isp+2*mode1)
       double complex b(0:kmax,nlma,ndimh),h(ndimh,ndimh),
-     .  g(0:kmax,nlma),csum,gso(0:kmax,nlma),csum1,hso(ndimh,ndimh)
+     .g(0:kmax,nlma),csum,gso(0:kmax,nlma),csum1,hso(ndimh,ndimh)
 C ... Local parameters
       integer i1,i2,jlm1,jlm2,k1,k2,kjtop,kjlm
 
@@ -893,11 +893,11 @@ C   ... g <- ppi*b
             do  k2 = 0, kmax
               do  k1 = 0, kmax
                 g(k1,jlm1) = g(k1,jlm1) +
-     .                       ppi(k1,k2,jlm1,jlm2,isp)*b(k2,jlm2,i2)
+     .          ppi(k1,k2,jlm1,jlm2,isp)*b(k2,jlm2,i2)
 C     ...  Make LxSx+LySy part of SO
                 if (mode1 .eq. 1 .and. isp .eq. 2)
      .          gso(k1,jlm1) = gso(k1,jlm1) + 
-     .               ppi(k1,k2,jlm1,jlm2,3)*b(k2,jlm2,i2)
+     .          ppi(k1,k2,jlm1,jlm2,3)*b(k2,jlm2,i2)
               enddo
             enddo
           enddo

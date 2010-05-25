@@ -72,16 +72,16 @@ C --- Printout ---
       if (nbasnw .gt. nbas) then
         if (ipr .ge. 10) then
           call awrit2('%N ADDBAS: The basis was enlarged from %i'//
-     .      ' to %i sites%N         The additional sites are: %N',
-     .      ' ',120,stdo,nbas,nbasnw)
+     .    ' to %i sites%N         The additional sites are: %N',
+     .    ' ',120,stdo,nbas,nbasnw)
           write(stdo,301) (clabl(ips(ibas)),(bas(i,ibas),i=1,3),
-     .                  ibas=nbas+1,nbasnw)
+     .    ibas=nbas+1,nbasnw)
           write(stdo,'(a)') ' '
         endif
         nbas = nbasnw
       else
         if (ipr .gt. 40) write(stdo,
-     .   '('' ADDBAS: basis is already complete --- no sites added'')')
+     .  '('' ADDBAS: basis is already complete --- no sites added'')')
       endif
 
 C --- Error whether atoms are sitting on same position ---
@@ -95,19 +95,19 @@ C --- Error whether atoms are sitting on same position ---
    52     continue
           if (latvec(1,tol1,qlat,dbas)) then
             write(stdo,400) ibas,clabl(ic),(bas(m,ibas),m=1,3),
-     .                   jbas,clabl(jc),(bas(m,jbas),m=1,3)
+     .      jbas,clabl(jc),(bas(m,jbas),m=1,3)
             novlp = novlp+1
           endif
    50   continue
    40 continue
       if (novlp .gt. 0) call fexit(-1,111,' Exit -1 ADDBAS: '//
-     .  'basis has %i overlapping site(s)',novlp)
+     .'basis has %i overlapping site(s)',novlp)
 
 301   format(8x,'ATOM=',a4,1x,'POS=',3f12.7)
 303   format(10x,a4,2x,i3,2x,'-> ',i3,3x,5x,a)
 304   format(/' ADDBAS: Spec   Atom  New_atom     Operation'/9x,35('-'))
 400   format(/' ADDBAS: atom ',i3,', SPEC ',a4,' POS=',3f9.5, 
-     .       /'     and atom ',i3,', SPEC ',a4,' POS=',3f9.5,
-     .       /'     are at the same positions. '/)
+     ./'     and atom ',i3,', SPEC ',a4,' POS=',3f9.5,
+     ./'     are at the same positions. '/)
       end
 

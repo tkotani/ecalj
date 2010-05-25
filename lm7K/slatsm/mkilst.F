@@ -46,13 +46,13 @@ C ... Case iv => a single number
 C ... Case iv => n1:n2:n3
       elseif (it(i+1) .eq. 2) then
         do  12  j = iv(i), iv(i+1), iv(i+2)
-        nlist = nlist+1
+          nlist = nlist+1
    12   list(nlist) = j
         i = i+2
 C ... Case iv => n1:n2
       else
         do  17  j = iv(i), iv(i+1)
-        nlist = nlist+1
+          nlist = nlist+1
    17   list(nlist) = j
         i = i+1
       endif
@@ -98,7 +98,7 @@ C ... Local parameters
 
       call mkilst(slst,nlist,list)
       if (nlist .lt. 0 .and. (iopt/10 .gt. 0))
-     .  call rxs('mkilss: failed to parse site list ',slst)
+     .call rxs('mkilss: failed to parse site list ',slst)
       if (nlist .lt. 0) return
       if (mod(iopt,10) .eq. 0) return
 
@@ -181,44 +181,44 @@ C     data iilst /1,3,5,2,4,6,8,10,99/
       i1 = 1
       i = 0
    10 continue
-        i = i+1
-        if (i .gt. nlist) then
-          return
-        endif
-        if (ip .gt. 1) then
-          strn(ip:ip) = ','
-          ip = ip+1
-        endif
+      i = i+1
+      if (i .gt. nlist) then
+        return
+      endif
+      if (ip .gt. 1) then
+        strn(ip:ip) = ','
+        ip = ip+1
+      endif
 
 C   ... Near the end of list --- no sequences to check
-        if (i .gt. nlist-2) then
-          ip = ip+awrite('%i',strn(ip:),ls,0,list(i),0,0,0,0,0,0,0)
-          goto 10
-        endif
-
-C   ... Case linear sequence of at least three
-        if (list(i+1)-list(i) .eq. list(i+2)-list(i+1)) then
-          i1 = i
-          j = list(i+1)-list(i)
-   20     continue
-          if (i .le. nlist-2) then
-            i = i+1
-            if (j .eq. list(i+2)-list(i+1)) goto 20
-          endif
-          if (j .eq. 1) then
-            ip = ip+awrite('%i:%i',strn(ip:),ls,0,
-     .        list(i1),list(i+1),j,0,0,0,0,0)
-          else
-            ip = ip+awrite('%i:%i:%i',strn(ip:),ls,0,
-     .        list(i1),list(i+1),j,0,0,0,0,0)
-          endif
-          i = i+1
-          goto 10
-        endif
-
-C   ... Case no linear sequence ... just append single element
+      if (i .gt. nlist-2) then
         ip = ip+awrite('%i',strn(ip:),ls,0,list(i),0,0,0,0,0,0,0)
         goto 10
+      endif
+
+C   ... Case linear sequence of at least three
+      if (list(i+1)-list(i) .eq. list(i+2)-list(i+1)) then
+        i1 = i
+        j = list(i+1)-list(i)
+   20   continue
+        if (i .le. nlist-2) then
+          i = i+1
+          if (j .eq. list(i+2)-list(i+1)) goto 20
+        endif
+        if (j .eq. 1) then
+          ip = ip+awrite('%i:%i',strn(ip:),ls,0,
+     .    list(i1),list(i+1),j,0,0,0,0,0)
+        else
+          ip = ip+awrite('%i:%i:%i',strn(ip:),ls,0,
+     .    list(i1),list(i+1),j,0,0,0,0,0)
+        endif
+        i = i+1
+        goto 10
+      endif
+
+C   ... Case no linear sequence ... just append single element
+      ip = ip+awrite('%i',strn(ip:),ls,0,list(i),0,0,0,0,0,0,0)
+      goto 10
       end
 
 #if TEST

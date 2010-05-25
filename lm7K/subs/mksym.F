@@ -81,10 +81,10 @@ C ... Heap
 C Local variables
       logical T,F,cmdopt,a2bin,ltmp
       integer idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
-     .  nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
-     .  ldist,nggen,ngmx,stdo,nglob,incli !npadl,npadr,
+     .nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
+     .ldist,nggen,ngmx,stdo,nglob,incli !npadl,npadr,
       integer:: oclabl , oics , oips , oistab , onrc , onrcp , opos 
-     . , oipc , oipcp , oiwk , oag , osymgr , aginv
+     ., oipc , oipcp , oiwk , oag , osymgr , aginv
       integer ,allocatable :: nrspc_iv(:)
       real(8) ,allocatable :: pos2_rv(:)
       integer ,allocatable :: ips2_iv(:)
@@ -92,7 +92,7 @@ C Local variables
       parameter (T=.true., F=.false., ngnmx=10)
       character*120 gens,strn*72
       double precision gen(9,ngnmx),plat(3,3),dist(3,3),qlat(3,3),xx,
-     .  fptol
+     .fptol
 
 
       nbas=sctrl%nbas
@@ -164,7 +164,7 @@ C --- Generate space group ---
           j1 = 13
         endif
         if (strn(9:9) .ne. ':' .or.
-     .    .not. a2bin(strn,fptol,4,0,' ',j1,len(strn))) fptol = 1d-5
+     .  .not. a2bin(strn,fptol,4,0,' ',j1,len(strn))) fptol = 1d-5
       else
         fptol = 0
       endif
@@ -184,15 +184,15 @@ Ctakao_ZeroClear_NotRequiered        if (3*ngmx*nbas<0) pos2_rv(:)=0.0d0
       call dcopy ( 3 * nbas , w ( opos ) , 1 , pos2_rv , 1 )
 
       call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
-     . , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
-     . , nrspc_iv , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen 
-     . , ssymgr , nggen , isym , w ( oistab ) )
+     ., nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
+     ., nrspc_iv , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen 
+     ., ssymgr , nggen , isym , w ( oistab ) )
 
       if (nbas .gt. nbas0) call rxs('gensym: the basis was enlarged.',
-     .  ' Check group operations.')
+     .' Check group operations.')
       if (nggen .gt. nsgrp) then
         call info2(1,0,0,' MKSYM (warning): generators create more than'
-     .    //' ngmx=%i group ops ...',ngmx,0)
+     .  //' ngmx=%i group ops ...',ngmx,0)
         ngmx = ngmx*16
         if (allocated(pos2_rv)) deallocate(pos2_rv)
         if (allocated(ips2_iv)) deallocate(ips2_iv)
@@ -238,9 +238,9 @@ C     call redfi(oistab,npgrp*nbas)
 
 C --- Printout of symmetry operations ---
       call info5(20,0,0,' MKSYM:  found %i space group operations'//
-     .  '%?#n#; adding inversion generated %i ops#%j#'//
-     .  '%?#(n==0)# ... includes inversion##',nsgrp,npgrp-nsgrp,npgrp,
-     .  incli,0)
+     .'%?#n#; adding inversion generated %i ops#%j#'//
+     .'%?#(n==0)# ... includes inversion##',nsgrp,npgrp-nsgrp,npgrp,
+     .incli,0)
       if (incli .eq. -1) then
         call info0(30,0,0,'         no attempt to add inversion symmetry')
       endif
@@ -251,7 +251,7 @@ C --- Split species into classes ---
       call icopy(nsite,w(oips),1,w(oipc),1)
 
       call splcls(mod(mode/10,10).eq.4,w(opos),nbas,nsgrp,w(oistab),
-     .  nspec,slabl,nclass,w(oipc),w(oics),w(onrc))
+     .nspec,slabl,nclass,w(oipc),w(oics),w(onrc))
 ccccccccccc
       print *,'zzz nclass=',nclass
 cccccccccc
@@ -303,7 +303,7 @@ C      call symtbl(0,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
 C     .  w(oistab))
 C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
       call symtbl(1,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
-     .  w(oistab))
+     .w(oistab))
 C     Debugging check
 C     call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
 C     call symtbl(0,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
@@ -316,7 +316,7 @@ C     stop
 C   ... For each i*grpop fix translation ag to be that of grpop
       if (mod(mode,10) .eq. 2) then
         if (aginv(w(osymgr),nsgrp,npgrp,nbas,w(oag),w(oistab)) .ne. 0)
-     .      call rx('bug in mksym')
+     .  call rx('bug in mksym')
       endif
 
 C ... poke ipc into ssite
@@ -330,7 +330,7 @@ C --- Create nrc and class labels ---
         call defrr(oclabl, nclspp)
         call defi (onrcp,  nclspp)
         call pvsym2(3,2*nbasp-nbas,nclspp,w(oics),w(oipcp),nspec,slabl,
-     .    ssite,w(oclabl),w(onrcp))
+     .  ssite,w(oclabl),w(onrcp))
 C$$$     if (nclasp .eq. nclass) then !we only treat nclasp=nclass case. takao Apr2010
         onrc = onrcp
 C$$$     else
@@ -426,7 +426,7 @@ C$$$Cgetarg       end
 C$$$       end subroutine pvsym1
 
       subroutine pvsym2(mode,nbas,nclass,ics,ipc,nspec,slabl,ssite,
-     .  dclabl,nrc)
+     .dclabl,nrc)
 
       use m_struc_def  !Cgetarg
 

@@ -39,23 +39,23 @@ C     implicit none
       do  10  irhs = 1, nrhs
 
 C --- wk = w^-1 u+ b ---
-      do  12  j = 1, n
-        s = 0d0
-        if (w(j) .ne. 0d0) then
-          do  11  i = 1, m
-   11     s = s + u(i,j)*b(i,irhs)
-          s = s/w(j)
-        endif
-        wk(j) = s
-   12 continue
+        do  12  j = 1, n
+          s = 0d0
+          if (w(j) .ne. 0d0) then
+            do  11  i = 1, m
+   11       s = s + u(i,j)*b(i,irhs)
+            s = s/w(j)
+          endif
+          wk(j) = s
+   12   continue
 
 C --- x = v (w^-1 u+ b) ---
-      do  14  j = 1, n
-        s = 0d0
-        do  13  jj = 1, n
-   13   s = s + v(j,jj)*wk(jj)
-        x(j,irhs) = s
-   14 continue
+        do  14  j = 1, n
+          s = 0d0
+          do  13  jj = 1, n
+   13     s = s + v(j,jj)*wk(jj)
+          x(j,irhs) = s
+   14   continue
 
    10 continue
 

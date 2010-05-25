@@ -85,7 +85,7 @@ C ... Passed parameters
 C ... Local parameters
       character spid*8
       integer is,lmxb,ikap,kkap,nkaph,nglob,nkapi,i,j,k,l,npzi,lpzi,
-     .  lpzl,npze,lmxa
+     .lpzl,npze,lmxa
       double precision orbp(n0,2,nkap0),dasum,pnz(n0,2)
       save nkaph
       data nkaph /-1/
@@ -199,7 +199,7 @@ C     ... unpack rsmh,eh; make lh
                   if (rsmh(l+1,kkap,is) .gt. 0) then
                     lh(kkap,is) = l
                     if (eh(l+1,kkap,is) .ge. 0) call rxi('species '//spid//
-     .            '%a has positive Hankel energy for l=',l)
+     .              '%a has positive Hankel energy for l=',l)
                     goto 116
                   endif
                 enddo

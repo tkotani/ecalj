@@ -74,8 +74,8 @@ c
 c
       do 100 i = 1, m
 c
-         do 100 j = 1, n
-            u(i,j) = a(i,j)
+        do 100 j = 1, n
+          u(i,j) = a(i,j)
   100 continue
 c     .......... householder reduction to bidiagonal form ..........
       g = 0.0d0
@@ -83,115 +83,115 @@ c     .......... householder reduction to bidiagonal form ..........
       x = 0.0d0
 c
       do 300 i = 1, n
-         l = i + 1
-         rv1(i) = scale * g
-         g = 0.0d0
-         s = 0.0d0
-         scale = 0.0d0
-         if (i .gt. m) go to 210
+        l = i + 1
+        rv1(i) = scale * g
+        g = 0.0d0
+        s = 0.0d0
+        scale = 0.0d0
+        if (i .gt. m) go to 210
 c
-         do 120 k = i, m
-  120    scale = scale + dabs(u(k,i))
+        do 120 k = i, m
+  120   scale = scale + dabs(u(k,i))
 c
-         if (scale .eq. 0.0d0) go to 210
+        if (scale .eq. 0.0d0) go to 210
 c
-         do 130 k = i, m
-            u(k,i) = u(k,i) / scale
-            s = s + u(k,i)**2
-  130    continue
+        do 130 k = i, m
+          u(k,i) = u(k,i) / scale
+          s = s + u(k,i)**2
+  130   continue
 c
-         f = u(i,i)
-         g = -dsign(dsqrt(s),f)
-         h = f * g - s
-         u(i,i) = f - g
-         if (i .eq. n) go to 190
+        f = u(i,i)
+        g = -dsign(dsqrt(s),f)
+        h = f * g - s
+        u(i,i) = f - g
+        if (i .eq. n) go to 190
 c
-         do 150 j = l, n
-            s = 0.0d0
+        do 150 j = l, n
+          s = 0.0d0
 c
-            do 140 k = i, m
-  140       s = s + u(k,i) * u(k,j)
+          do 140 k = i, m
+  140     s = s + u(k,i) * u(k,j)
 c
-            f = s / h
+          f = s / h
 c
-            do 150 k = i, m
-               u(k,j) = u(k,j) + f * u(k,i)
-  150    continue
+          do 150 k = i, m
+            u(k,j) = u(k,j) + f * u(k,i)
+  150   continue
 c
-  190    do 200 k = i, m
-  200    u(k,i) = scale * u(k,i)
+  190   do 200 k = i, m
+  200   u(k,i) = scale * u(k,i)
 c
-  210    w(i) = scale * g
-         g = 0.0d0
-         s = 0.0d0
-         scale = 0.0d0
-         if (i .gt. m .or. i .eq. n) go to 290
+  210   w(i) = scale * g
+        g = 0.0d0
+        s = 0.0d0
+        scale = 0.0d0
+        if (i .gt. m .or. i .eq. n) go to 290
 c
-         do 220 k = l, n
-  220    scale = scale + dabs(u(i,k))
+        do 220 k = l, n
+  220   scale = scale + dabs(u(i,k))
 c
-         if (scale .eq. 0.0d0) go to 290
+        if (scale .eq. 0.0d0) go to 290
 c
-         do 230 k = l, n
-            u(i,k) = u(i,k) / scale
-            s = s + u(i,k)**2
-  230    continue
+        do 230 k = l, n
+          u(i,k) = u(i,k) / scale
+          s = s + u(i,k)**2
+  230   continue
 c
-         f = u(i,l)
-         g = -dsign(dsqrt(s),f)
-         h = f * g - s
-         u(i,l) = f - g
+        f = u(i,l)
+        g = -dsign(dsqrt(s),f)
+        h = f * g - s
+        u(i,l) = f - g
 c
-         do 240 k = l, n
-  240    rv1(k) = u(i,k) / h
+        do 240 k = l, n
+  240   rv1(k) = u(i,k) / h
 c
-         if (i .eq. m) go to 270
+        if (i .eq. m) go to 270
 c
-         do 260 j = l, m
-            s = 0.0d0
+        do 260 j = l, m
+          s = 0.0d0
 c
-            do 250 k = l, n
-  250       s = s + u(j,k) * u(i,k)
+          do 250 k = l, n
+  250     s = s + u(j,k) * u(i,k)
 c
-            do 260 k = l, n
-               u(j,k) = u(j,k) + s * rv1(k)
-  260    continue
+          do 260 k = l, n
+            u(j,k) = u(j,k) + s * rv1(k)
+  260   continue
 c
-  270    do 280 k = l, n
-  280    u(i,k) = scale * u(i,k)
+  270   do 280 k = l, n
+  280   u(i,k) = scale * u(i,k)
 c
-  290    x = dmax1(x,dabs(w(i))+dabs(rv1(i)))
+  290   x = dmax1(x,dabs(w(i))+dabs(rv1(i)))
   300 continue
 c     .......... accumulation of right-hand transformations ..........
       if (.not. matv) go to 410
 c     .......... for i=n step -1 until 1 do -- ..........
       do 400 ii = 1, n
-         i = n + 1 - ii
-         if (i .eq. n) go to 390
-         if (g .eq. 0.0d0) go to 360
+        i = n + 1 - ii
+        if (i .eq. n) go to 390
+        if (g .eq. 0.0d0) go to 360
 c
-         do 320 j = l, n
+        do 320 j = l, n
 c     .......... double division avoids possible underflow ..........
-  320    v(j,i) = (u(i,j) / u(i,l)) / g
+  320   v(j,i) = (u(i,j) / u(i,l)) / g
 c
-         do 350 j = l, n
-            s = 0.0d0
+        do 350 j = l, n
+          s = 0.0d0
 c
-            do 340 k = l, n
-  340       s = s + u(i,k) * v(k,j)
+          do 340 k = l, n
+  340     s = s + u(i,k) * v(k,j)
 c
-            do 350 k = l, n
-               v(k,j) = v(k,j) + s * v(k,i)
-  350    continue
+          do 350 k = l, n
+            v(k,j) = v(k,j) + s * v(k,i)
+  350   continue
 c
-  360    do 380 j = l, n
-            v(i,j) = 0.0d0
-            v(j,i) = 0.0d0
-  380    continue
+  360   do 380 j = l, n
+          v(i,j) = 0.0d0
+          v(j,i) = 0.0d0
+  380   continue
 c
-  390    v(i,i) = 1.0d0
-         g = rv1(i)
-         l = i
+  390   v(i,i) = 1.0d0
+        g = rv1(i)
+        l = i
   400 continue
 c     .......... accumulation of left-hand transformations ..........
   410 if (.not. matu) go to 510
@@ -200,153 +200,153 @@ c     ..........for i=min(m,n) step -1 until 1 do -- ..........
       if (m .lt. n) mn = m
 c
       do 500 ii = 1, mn
-         i = mn + 1 - ii
-         l = i + 1
-         g = w(i)
-         if (i .eq. n) go to 430
+        i = mn + 1 - ii
+        l = i + 1
+        g = w(i)
+        if (i .eq. n) go to 430
 c
-         do 420 j = l, n
-  420    u(i,j) = 0.0d0
+        do 420 j = l, n
+  420   u(i,j) = 0.0d0
 c
-  430    if (g .eq. 0.0d0) go to 475
-         if (i .eq. mn) go to 460
+  430   if (g .eq. 0.0d0) go to 475
+        if (i .eq. mn) go to 460
 c
-         do 450 j = l, n
-            s = 0.0d0
+        do 450 j = l, n
+          s = 0.0d0
 c
-            do 440 k = l, m
-  440       s = s + u(k,i) * u(k,j)
+          do 440 k = l, m
+  440     s = s + u(k,i) * u(k,j)
 c     .......... double division avoids possible underflow ..........
-            f = (s / u(i,i)) / g
+          f = (s / u(i,i)) / g
 c
-            do 450 k = i, m
-               u(k,j) = u(k,j) + f * u(k,i)
-  450    continue
+          do 450 k = i, m
+            u(k,j) = u(k,j) + f * u(k,i)
+  450   continue
 c
-  460    do 470 j = i, m
-  470    u(j,i) = u(j,i) / g
+  460   do 470 j = i, m
+  470   u(j,i) = u(j,i) / g
 c
-         go to 490
+        go to 490
 c
-  475    do 480 j = i, m
-  480    u(j,i) = 0.0d0
+  475   do 480 j = i, m
+  480   u(j,i) = 0.0d0
 c
-  490    u(i,i) = u(i,i) + 1.0d0
+  490   u(i,i) = u(i,i) + 1.0d0
   500 continue
 c     .......... diagonalization of the bidiagonal form ..........
   510 tst1 = x
 c     .......... for k=n step -1 until 1 do -- ..........
       do 700 kk = 1, n
-         k1 = n - kk
-         k = k1 + 1
-         its = 0
+        k1 = n - kk
+        k = k1 + 1
+        its = 0
 c     .......... test for splitting.
 c                for l=k step -1 until 1 do -- ..........
-  520    do 530 ll = 1, k
-            l1 = k - ll
-            l = l1 + 1
-            tst2 = tst1 + dabs(rv1(l))
-            if (tst2 .eq. tst1) go to 565
+  520   do 530 ll = 1, k
+          l1 = k - ll
+          l = l1 + 1
+          tst2 = tst1 + dabs(rv1(l))
+          if (tst2 .eq. tst1) go to 565
 c     .......... rv1(1) is always zero, so there is no exit
 c                through the bottom of the loop ..........
-            tst2 = tst1 + dabs(w(l1))
-            if (tst2 .eq. tst1) go to 540
-  530    continue
+          tst2 = tst1 + dabs(w(l1))
+          if (tst2 .eq. tst1) go to 540
+  530   continue
 c     .......... cancellation of rv1(l) if l greater than 1 ..........
-  540    c = 0.0d0
-         s = 1.0d0
+  540   c = 0.0d0
+        s = 1.0d0
 c
-         do 560 i = l, k
-            f = s * rv1(i)
-            rv1(i) = c * rv1(i)
-            tst2 = tst1 + dabs(f)
-            if (tst2 .eq. tst1) go to 565
-            g = w(i)
-            h = pythag(f,g)
-            w(i) = h
-            c = g / h
-            s = -f / h
-            if (.not. matu) go to 560
+        do 560 i = l, k
+          f = s * rv1(i)
+          rv1(i) = c * rv1(i)
+          tst2 = tst1 + dabs(f)
+          if (tst2 .eq. tst1) go to 565
+          g = w(i)
+          h = pythag(f,g)
+          w(i) = h
+          c = g / h
+          s = -f / h
+          if (.not. matu) go to 560
 c
-            do 550 j = 1, m
-               y = u(j,l1)
-               z = u(j,i)
-               u(j,l1) = y * c + z * s
-               u(j,i) = -y * s + z * c
-  550       continue
+          do 550 j = 1, m
+            y = u(j,l1)
+            z = u(j,i)
+            u(j,l1) = y * c + z * s
+            u(j,i) = -y * s + z * c
+  550     continue
 c
-  560    continue
+  560   continue
 c     .......... test for convergence ..........
-  565    z = w(k)
-         if (l .eq. k) go to 650
+  565   z = w(k)
+        if (l .eq. k) go to 650
 c     .......... shift from bottom 2 by 2 minor ..........
-         if (its .eq. 30) go to 1000
-         its = its + 1
-         x = w(l)
-         y = w(k1)
-         g = rv1(k1)
-         h = rv1(k)
-         f = 0.5d0 * (((g + z) / h) * ((g - z) / y) + y / h - h / y)
-         g = pythag(f,1.0d0)
-         f = x - (z / x) * z + (h / x) * (y / (f + dsign(g,f)) - h)
+        if (its .eq. 30) go to 1000
+        its = its + 1
+        x = w(l)
+        y = w(k1)
+        g = rv1(k1)
+        h = rv1(k)
+        f = 0.5d0 * (((g + z) / h) * ((g - z) / y) + y / h - h / y)
+        g = pythag(f,1.0d0)
+        f = x - (z / x) * z + (h / x) * (y / (f + dsign(g,f)) - h)
 c     .......... next qr transformation ..........
-         c = 1.0d0
-         s = 1.0d0
+        c = 1.0d0
+        s = 1.0d0
 c
-         do 600 i1 = l, k1
-            i = i1 + 1
-            g = rv1(i)
-            y = w(i)
-            h = s * g
-            g = c * g
-            z = pythag(f,h)
-            rv1(i1) = z
-            c = f / z
-            s = h / z
-            f = x * c + g * s
-            g = -x * s + g * c
-            h = y * s
-            y = y * c
-            if (.not. matv) go to 575
+        do 600 i1 = l, k1
+          i = i1 + 1
+          g = rv1(i)
+          y = w(i)
+          h = s * g
+          g = c * g
+          z = pythag(f,h)
+          rv1(i1) = z
+          c = f / z
+          s = h / z
+          f = x * c + g * s
+          g = -x * s + g * c
+          h = y * s
+          y = y * c
+          if (.not. matv) go to 575
 c
-            do 570 j = 1, n
-               x = v(j,i1)
-               z = v(j,i)
-               v(j,i1) = x * c + z * s
-               v(j,i) = -x * s + z * c
-  570       continue
+          do 570 j = 1, n
+            x = v(j,i1)
+            z = v(j,i)
+            v(j,i1) = x * c + z * s
+            v(j,i) = -x * s + z * c
+  570     continue
 c
-  575       z = pythag(f,h)
-            w(i1) = z
+  575     z = pythag(f,h)
+          w(i1) = z
 c     .......... rotation can be arbitrary if z is zero ..........
-            if (z .eq. 0.0d0) go to 580
-            c = f / z
-            s = h / z
-  580       f = c * g + s * y
-            x = -s * g + c * y
-            if (.not. matu) go to 600
+          if (z .eq. 0.0d0) go to 580
+          c = f / z
+          s = h / z
+  580     f = c * g + s * y
+          x = -s * g + c * y
+          if (.not. matu) go to 600
 c
-            do 590 j = 1, m
-               y = u(j,i1)
-               z = u(j,i)
-               u(j,i1) = y * c + z * s
-               u(j,i) = -y * s + z * c
-  590       continue
+          do 590 j = 1, m
+            y = u(j,i1)
+            z = u(j,i)
+            u(j,i1) = y * c + z * s
+            u(j,i) = -y * s + z * c
+  590     continue
 c
-  600    continue
+  600   continue
 c
-         rv1(l) = 0.0d0
-         rv1(k) = f
-         w(k) = x
-         go to 520
+        rv1(l) = 0.0d0
+        rv1(k) = f
+        w(k) = x
+        go to 520
 c     .......... convergence ..........
-  650    if (z .ge. 0.0d0) go to 700
+  650   if (z .ge. 0.0d0) go to 700
 c     .......... w(k) is made non-negative ..........
-         w(k) = -z
-         if (.not. matv) go to 700
+        w(k) = -z
+        if (.not. matv) go to 700
 c
-         do 690 j = 1, n
-  690    v(j,k) = -v(j,k)
+        do 690 j = 1, n
+  690   v(j,k) = -v(j,k)
 c
   700 continue
 c

@@ -1,6 +1,6 @@
 #define F90 1
       subroutine rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,
-     .  napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
+     .napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
       use m_struc_def  !Cgetarg
 #if MPE
       use m_events !Event numbers: include "events.ins"
@@ -98,12 +98,12 @@ C Event numbers:
       type(s_lat)::slat
 
       double complex evec(ndimh,nspc,nevec),smrho(k1,k2,k3,numq,isp),
-     .  smpot(k1,k2,k3,isp)
+     .smpot(k1,k2,k3,isp)
 C ... Local parameters
       integer n0,nkap0,nermx,npmx,nblk,nlmto
       parameter (n0=10,nkap0=3,nermx=100,npmx=128)
       integer nspec,ngabc(3),n1,n2,n3,nrt,net,ng,nglob,ltop,
-     .  nlmtop,ogv,ogq,og2,ohe,ohr,oyl,oylw,oiv,okv,iprint
+     .nlmtop,ogv,ogq,og2,ohe,ohr,oyl,oylw,oiv,okv,iprint
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx)
       double precision alat,qlat(3,3),plat(3,3),q0(3),gmax,xx
@@ -115,7 +115,7 @@ C     Local for parallel threads
 #if F90
       integer,allocatable:: ivp(:)
       complex(8),allocatable::psi(:,:,:),psir(:,:,:),vpsi(:,:,:),
-     .  wk(:,:,:)
+     .wk(:,:,:)
       real(8),allocatable:: cosi(:),sini(:),wk2(:)
 #else
       integer ivp(napw)
@@ -189,7 +189,7 @@ C     call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1000,0,ng,xx,xx,xx,xx)
 C      call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1009,ng,ng,w(okv),
 C     .  w(ogv),w(oiv),w(oiv))
       call gvlist(alat,plat,q,n1,n2,n3,gmax,509,ng,ng,w(okv),w(ogv),
-     .  w(oiv),w(oiv))
+     .w(oiv),w(oiv))
       call poppr
       call tcx('gvlist')
 
@@ -235,7 +235,7 @@ C     call suphs0(plat,ng,w(ogv),w(oiv))
       call dstrbp(nevec,nproc,nblk,vproc(0))
       if (mlog .and. iq .eq. 1) then
         call awrit3(' RSIBL: nevec=%i, np=%i, nblk=%i%N  proc   index',
-     .    ' ',256,lgunit(1),nevec,nproc,nblk)
+     .  ' ',256,lgunit(1),nevec,nproc,nblk)
         write(lgunit(1),1) (i,vproc(i),i=0,nproc-1)
     1   format (3x,i3,3x,i5)
       endif
@@ -296,15 +296,15 @@ c        nvec = min(nblk, nevec-ivec+1)
         if (mlog .and. ivec .eq. vproc(procid)) then
           call gettime(datim)
           call awrit5(' rsibl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' starting evecs %i to %i nblk=%i',' ',256,lgunit(3),
-     .        procid,nproc,vproc(procid),vproc(procid+1)-1,nblk)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' starting evecs %i to %i nblk=%i',' ',256,lgunit(3),
+     .    procid,nproc,vproc(procid),vproc(procid+1)-1,nblk)
         endif
         nvec = min(nblk, vproc(procid+1)-ivec)
         if (mlog)
      .  call awrit5(' procid=%i,vproc(procid)=%i,vproc(procid+1)-1=%i'//
-     .        ',ivec=%i,nvec=%i',' ',256,lgunit(3),procid,vproc(procid),
-     .        vproc(procid+1)-1,ivec,nvec)
+     .  ',ivec=%i,nvec=%i',' ',256,lgunit(3),procid,vproc(procid),
+     .  vproc(procid+1)-1,ivec,nvec)
 #else
         nvec = min(nblk, nevec-ivec+1)
 #endif
@@ -313,57 +313,57 @@ c        nvec = min(nblk, nevec-ivec+1)
 #if F90
 C   ... Add together total smooth wavefunction
         call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-     .    n3,qlat,cosi,sini,w(oyl),w(oylw),w(ohe),w(ohr),wk,
-     .    wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,numq,
-     .    ewgt,ivec,nvec,evec,w,psi,w)
+     .  n3,qlat,cosi,sini,w(oyl),w(oylw),w(ohe),w(ohr),wk,
+     .  wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,numq,
+     .  ewgt,ivec,nvec,evec,w,psi,w)
         call rsiblp(ng,ndimh,nlmto,nspc,napw,ivp,nvec,dsqrt(vol),
-     .    evec(1,1,ivec),psi)
+     .  evec(1,1,ivec),psi)
 
 C   ... Add to real-space mesh, optionally make smpot*psi for forces
 #if MPI | OPENMP
         call rsibl2(ng,nspc,nvec,psi,n1,n2,n3,k1,k2,k3,w(okv),numq,
-     .    ewgt(1,ivec),lfrce,smpot(1,1,1,isp),psir,xsmrho,vpsi)
+     .  ewgt(1,ivec),lfrce,smpot(1,1,1,isp),psir,xsmrho,vpsi)
 #else
         call rsibl2(ng,nspc,nvec,psi,n1,n2,n3,k1,k2,k3,w(okv),numq,
-     .    ewgt(1,ivec),lfrce,smpot(1,1,1,isp),psir,smrho(1,1,1,1,isp),
-     .    vpsi)
+     .  ewgt(1,ivec),lfrce,smpot(1,1,1,isp),psir,smrho(1,1,1,1,isp),
+     .  vpsi)
 #endif
 
 C    --- Add to forces ---
         if (lfrce .ne. 0) then
 #if MPI | OPENMP
           call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-     .       n3,qlat,cosi,sini,w(oyl),w(oylw),w(ohe),w(ohr),
-     .       wk,wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
-     .       numq,ewgt,ivec,nvec,evec,vpsi,psi,fr)
+     .    n3,qlat,cosi,sini,w(oyl),w(oylw),w(ohe),w(ohr),
+     .    wk,wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
+     .    numq,ewgt,ivec,nvec,evec,vpsi,psi,fr)
 #else
           call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-     .       n3,qlat,cosi,sini,w(oyl),w(oylw),w(ohe),w(ohr),
-     .       wk,wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
-     .       numq,ewgt,ivec,nvec,evec,vpsi,psi,f)
+     .    n3,qlat,cosi,sini,w(oyl),w(oylw),w(ohe),w(ohr),
+     .    wk,wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
+     .    numq,ewgt,ivec,nvec,evec,vpsi,psi,f)
 #endif
         endif
 
 #else
 C   ... Add together total smooth wavefunction
         call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-     .    n3,qlat,w(ocos),w(osin),w(oyl),w(oylw),w(ohe),w(ohr),w(opsi0),
-     .    w(owk2),vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,numq,
-     .    ewgt,ivec,nvec,evec,w,w(opsi),w)
+     .  n3,qlat,w(ocos),w(osin),w(oyl),w(oylw),w(ohe),w(ohr),w(opsi0),
+     .  w(owk2),vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,numq,
+     .  ewgt,ivec,nvec,evec,w,w(opsi),w)
         call rsiblp(ng,ndimh,nlmto,nspc,napw,ivp,nvec,dsqrt(vol),
-     .    evec(1,1,ivec),w(opsi))
+     .  evec(1,1,ivec),w(opsi))
 
 C   ... Add to real-space mesh, optionally make smpot*psi for forces
         call rsibl2(ng,nspc,nvec,w(opsi),n1,n2,n3,k1,k2,k3,w(okv),numq,
-     .    ewgt(1,ivec),lfrce,smpot(1,1,1,isp),w(of),smrho(1,1,1,1,isp),
-     .    w(ovpsi))
+     .  ewgt(1,ivec),lfrce,smpot(1,1,1,isp),w(of),smrho(1,1,1,1,isp),
+     .  w(ovpsi))
 
 C    --- Add to forces ---
         if (lfrce .ne. 0) then
           call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-     .       n3,qlat,w(ocos),w(osin),w(oyl),w(oylw),w(ohe),w(ohr),
-     .       w(opsi0),w(owk2),vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
-     .       numq,ewgt,ivec,nvec,evec,w(ovpsi),w(opsi),f)
+     .    n3,qlat,w(ocos),w(osin),w(oyl),w(oylw),w(ohe),w(ohr),
+     .    w(opsi0),w(owk2),vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
+     .    numq,ewgt,ivec,nvec,evec,w(ovpsi),w(opsi),f)
         endif
 #endif
 
@@ -393,27 +393,27 @@ C$OMP END PARALLEL
 #endif
       call defcc(osmbuf, k1*k2*k3*numq*nspc)
       call MPI_ALLREDUCE(xsmrho,w(osmbuf),2*k1*k2*k3*numq*nspc,
-     .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
         call awrit2(' rsibl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce smrho',' ',256,lgunit(3),
-     .        procid,nproc)
+     .  //shortname(procid)(1:namelen(procid))//
+     .  ' allreduce smrho',' ',256,lgunit(3),
+     .  procid,nproc)
       endif
       call daxpy(2*k1*k2*k3*numq*nspc,1d0,w(osmbuf),1,
-     .           smrho(1,1,1,1,isp),1)
+     .smrho(1,1,1,1,isp),1)
       call rlse(osmbuf)
       if (lfrce .ne. 0) then
         call defrr(ofrbuf, 3*nbas*numq)
         call MPI_ALLREDUCE(fr,w(ofrbuf),3*nbas*numq,
-     .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         if (mlog) then
           call gettime(datim)
           call awrit2(' rsibl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce f',' ',256,lgunit(3),
-     .        procid,nproc)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' allreduce f',' ',256,lgunit(3),
+     .    procid,nproc)
         endif
         call daxpy(3*nbas*numq,1d0,w(ofrbuf),1,f,1)
         call rlse(ofrbuf)
@@ -438,8 +438,8 @@ C     call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
 
 
       subroutine rsibl1(mode,ssite,sspec,q,nbas,iprmb,ng,gq,iv,n1,n2,n3,
-     .  qlat,cosgp,singp,yl,ylw,he,hr,psi0,wk2,vol,iprt,ipet,etab,rtab,
-     .  ndimh,nlmto,nspc,numq,ewgt,ivec,nvec,evec,vpsi,psi,f)
+     .qlat,cosgp,singp,yl,ylw,he,hr,psi0,wk2,vol,iprt,ipet,etab,rtab,
+     .ndimh,nlmto,nspc,numq,ewgt,ivec,nvec,evec,vpsi,psi,f)
 
       use m_struc_def  !Cgetarg
 
@@ -491,17 +491,17 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
 
       integer mode,nbas,ng,ndimh,nlmto,nspc,numq,ivec,nvec,iv(ng,3),
-     .  n1,n2,n3,n0,nkap0,iprmb(*)
+     .n1,n2,n3,n0,nkap0,iprmb(*)
       parameter (n0=10,nkap0=3)
       integer iprt(n0,nkap0,*),ipet(n0,nkap0,*)
       double precision vol,yl(ng,*),ylw(ng,*),he(ng,*),hr(ng,*),
-     .  psi0(ng,2,nspc,nvec),wk2(ng),cosgp(ng),singp(ng),etab(*),
-     .  rtab(*),gq(ng,3),f(3,nbas,numq),ewgt(numq,ivec),qlat(3,3)
+     .psi0(ng,2,nspc,nvec),wk2(ng),cosgp(ng),singp(ng),etab(*),
+     .rtab(*),gq(ng,3),f(3,nbas,numq),ewgt(numq,ivec),qlat(3,3)
       double complex
-     .  psi(ng,nspc,nvec),evec(ndimh,nspc,ivec),vpsi(ng,nspc,nvec)
+     .psi(ng,nspc,nvec),evec(ndimh,nspc,ivec),vpsi(ng,nspc,nvec)
 C ... Local parameters
       integer norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-     .  blks(n0*nkap0),ntab(n0*nkap0),ncut(n0,nkap0),lh(nkap0),nkapi
+     .blks(n0*nkap0),ntab(n0*nkap0),ncut(n0,nkap0),lh(nkap0),nkapi
       double precision e,rsm,eh(n0,nkap0),rsmh(n0,nkap0),f0(3)
       double precision xx(n0),wt,p(3)
       integer ib,is,io,jo,l2,kp,ie,ir,ioff,nlm1,nlm2,iq,kb,lt,i
@@ -575,7 +575,7 @@ C             This shouldn't be necessary
 
 
       subroutine rsibl2(ng,nspc,nev,psi,n1,n2,n3,k1,k2,k3,kv,numq,ewgt,
-     .  lfrce,smpot,f,smrho,vpsi)
+     .lfrce,smpot,f,smrho,vpsi)
 
 C- FT wave function to real space and add square into mesh density
 C  and optionally make smpot * psi
@@ -619,7 +619,7 @@ C ... Local parameters
               do  i2 = 1, n2
                 do  i1 = 1, n1
                   smrho(i1,i2,i3,iq,ispc) = smrho(i1,i2,i3,iq,ispc) +
-     .           wgt1*dconjg(f(i1,i2,i3))*f(i1,i2,i3)
+     .            wgt1*dconjg(f(i1,i2,i3))*f(i1,i2,i3)
                 enddo
               enddo
             enddo
@@ -704,7 +704,7 @@ C     .       *dcmplx(vpsi(1,ispc,ig),vpsi(2,ispc,ig)) * vol
 C        ovl = ovl + cc
 C     .      * dcmplx(0d0,1d0)*gq(ig,1)
           xx = vpsi(2,ispc,ig)*psi(1,ispc,ig)
-     .     - vpsi(1,ispc,ig)*psi(2,ispc,ig)
+     .    - vpsi(1,ispc,ig)*psi(2,ispc,ig)
           sum1 = sum1 + gq(ig,1)*xx
           sum2 = sum2 + gq(ig,2)*xx
           sum3 = sum3 + gq(ig,3)*xx
@@ -723,7 +723,7 @@ C     print *, ovl
 
 
       subroutine rsibl5(ie,ir,e,rsm,vol,nlm1,nlm2,ng,ncut,yl,ylw,he,hr,
-     .  wk,ioff,evec,ndimh,nspc,nvec,psi)
+     .wk,ioff,evec,ndimh,nspc,nvec,psi)
 
 C- Add contribution to wave function from one block of orbitals
 C ----------------------------------------------------------------------
@@ -757,7 +757,7 @@ C     implicit none
 C ... Passed parameters
       integer ie,ioff,ir,ncut,ng,nlm1,nlm2,ndimh,nspc,nvec
       double precision e,rsm,vol,yl(ng,*),ylw(ng,*),he(ng,*),hr(ng,*),
-     .  wk(ncut)
+     .wk(ncut)
       double complex evec(ndimh,nspc,nvec),psi(ng,nspc,nvec)
 C ... Local parameters
       integer i,ii,ilm,l,ll,lmax,m,iv,nlmx,ispc
@@ -851,7 +851,7 @@ C ... Local parameters
         do  ispc = 1, nspc
           do  i = 1, ng
             psi(i,ispc,iv) = psi(i,ispc,iv)
-     .                 + psi0(i,ispc,iv)*dcmplx(cosgp(i),singp(i))
+     .      + psi0(i,ispc,iv)*dcmplx(cosgp(i),singp(i))
           enddo
         enddo
       enddo
@@ -874,7 +874,7 @@ C ... Local parameters
           do  ik2 = 1, k2
             do  ik1 = 1, k1
               smrho(ik1,ik2,ik3,iq) = smrho(ik1,ik2,ik3,iq) +
-     .                               xsmrho(ik1,ik2,ik3,iq)
+     .        xsmrho(ik1,ik2,ik3,iq)
             enddo
           enddo
         enddo
@@ -919,7 +919,7 @@ C     Redesign ... inefficient.
         call rx('gvgvcomp wrong 111! maybe enlarge GMAX or so')
   333   continue
         if( sum(abs( igapw(:,ig)-igv(ivp(ig),:) )) /=0) 
-     .    call rx('bug in gvgvcomp.  Cannot find ivp')
+     .  call rx('bug in gvgvcomp.  Cannot find ivp')
       enddo
 #endif
       end subroutine gvgvcomp
@@ -956,7 +956,7 @@ C     sqvol = dsqrt()
         do  i = 1, nvec
           do  igv = 1, napw
             psi(ivp(igv),ispc,i) = psi(ivp(igv),ispc,i)
-     .        + evec(nlmto+igv,ispc,i)/sqv
+     .      + evec(nlmto+igv,ispc,i)/sqv
           enddo
         enddo
       enddo

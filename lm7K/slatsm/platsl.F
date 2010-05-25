@@ -15,7 +15,7 @@ C --- npt 4 or 8 ---
         do  410  i = 1, 12
   410   r(i,1) = cx
         do  411  i = 1, 3
-        r(i,i) = -cx
+          r(i,i) = -cx
   411   r(i,4) = -cx
         if (npt .eq. 8) then
           do  810  i = 1, 12
@@ -29,13 +29,13 @@ C --- npt 6 ---
         do  610  i = 1, 18
   610   r(i,1) = 0
         do  611  i = 1, 3
-        r(i,i) = 1
+          r(i,i) = 1
   611   r(i,i+3) = -1
         return
       endif
 
       if (npt .ne. 12 .and. npt .ne. 20 .and. npt .ne. 30 .and.
-     .    npt .ne. 60) call rx('platsl: bad npt')
+     .npt .ne. 60) call rx('platsl: bad npt')
       pi = 4*datan(1d0)
       cp = dcos(2*pi/5)
       sp = dsqrt(1-cp**2)

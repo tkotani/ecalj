@@ -1,5 +1,5 @@
       subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,
-     .  rofi,rwgt,v0,v1,qum,vum)
+     .rofi,rwgt,v0,v1,qum,vum)
 C- Moments of ul*ul, ul*sl, sl*sl and their integrals with true pot.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -59,24 +59,24 @@ C ... Passed parameters
       integer lmxa,lmxl,nlml,nr,nsp,n0
       parameter (n0=10)
       double precision rmt,a,z,rofi(nr),rwgt(nr),rsml(n0),ehl(n0),
-     .  v0(nr,nsp),v1(nr,nlml,nsp),pnu(n0,nsp),pnz(n0,nsp),
-     .  qum(0:lmxa,0:lmxa,0:lmxl,6,nsp),
-     .  vum(0:lmxa,0:lmxa,nlml,6,nsp)
+     .v0(nr,nsp),v1(nr,nlml,nsp),pnu(n0,nsp),pnz(n0,nsp),
+     .qum(0:lmxa,0:lmxa,0:lmxl,6,nsp),
+     .vum(0:lmxa,0:lmxa,nlml,6,nsp)
 C ... Local parameters
       logical lpz1,lpz2
       integer l1,l2,lm,i,mlm,isp
       double precision pi,srfpi,xx,
-     .  quu,qus,qss,quz,qsz,qzz,vuu,vus,vss,vv,vuz,vsz,vzz,
-     .  ul(nr,0:lmxa,nsp),ruu(nr,0:lmxa,2,nsp),
-     .  sl(nr,0:lmxa,nsp),rus(nr,0:lmxa,2,nsp),
-     .  gz(nr,0:lmxa,nsp),rss(nr,0:lmxa,2,nsp)
+     .quu,qus,qss,quz,qsz,qzz,vuu,vus,vss,vv,vuz,vsz,vzz,
+     .ul(nr,0:lmxa,nsp),ruu(nr,0:lmxa,2,nsp),
+     .sl(nr,0:lmxa,nsp),rus(nr,0:lmxa,2,nsp),
+     .gz(nr,0:lmxa,nsp),rss(nr,0:lmxa,2,nsp)
 
       call tcn('momusl')
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       call dpzero(gz,nr*(lmxa+1)*nsp)
       call makusp(n0,z,nsp,rmt,lmxa,v0,a,nr,xx,xx,pnu,pnz,rsml,ehl,
-     .  ul,sl,gz,ruu,rus,rss)
+     .ul,sl,gz,ruu,rus,rss)
 
 C --- Moments ---
       do  isp = 1, nsp

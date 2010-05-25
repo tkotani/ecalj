@@ -45,7 +45,7 @@ C ... Find interval containing fermi energy
       i1 = i2-1
       if (i1 .lt. 0) then
         call awrit0('efldos (warning): fermi energy lies below emin',
-     .    ' ',80,stdo)
+     .  ' ',80,stdo)
         eferm = 0
         eband = 0
         return
@@ -59,7 +59,7 @@ C ... Linear interpolation of i-dos to find fermi energy
 
 C ... Calculate eigenvalue sum as ef*N(ef)-integral N(e)
       if (dabs(dossp(1)) .ge. 1d-6) call rx1(
-     .  'efldos: DOS nonzero at first energy point: DOS=%g',dossp(1))
+     .'efldos: DOS nonzero at first energy point: DOS=%g',dossp(1))
 
       sum = 0d0
       do  i = 1, i1-1
@@ -69,11 +69,11 @@ C ... Calculate eigenvalue sum as ef*N(ef)-integral N(e)
       eband = eferm*qval - sum
       dferm = dos(i1,1,1) + x*(dos(i2,1,1)-dos(i1,1,1))
       if (nsp .eq. 2) dferm =
-     .  dferm + dos(i1,1,2) + x*(dos(i2,1,2)-dos(i1,1,2))
+     .dferm + dos(i1,1,2) + x*(dos(i2,1,2)-dos(i1,1,2))
 
       if (iprint() .ge. 20) then
         call awrit4(' efldos:  Ef = %,6;6d  sumev = %,6;6d  ebot = '//
-     .    '%,6;6d  DOS(Ef) = %;4g',' ',80,stdo,eferm,eband,ebot,dferm)
+     .  '%,6;6d  DOS(Ef) = %;4g',' ',80,stdo,eferm,eband,ebot,dferm)
       endif
 C      write(stdo,729) eferm,ebot,dferm,eband
 C  729 format(/' From DOS: fermi energy=',f10.5,
@@ -82,7 +82,7 @@ C     .   /' dos at fermi energy=  ',f11.5,'    eband=',f11.5)
 
       if (ipl .gt. 0) write(stdl,771) eferm,ebot,dferm,eband
   771 format('nf dos ef',f9.5,'  ebot',f7.3,'  d(ef)',f9.2,
-     .   '  ebn',f11.6)
+     .'  ebn',f11.6)
 
       end
 

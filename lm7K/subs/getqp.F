@@ -47,7 +47,7 @@ C       Read nkabc, if it is present ; else error
         i = 0
         i = parg('nkp=',2,outs,i,len(outs),', ;',3,1,iv,nqp)
         if (i .le. 0)
-     .    call rx('GETQP: failed to parse header for "nkp=expr"')
+     .  call rx('GETQP: failed to parse header for "nkp=expr"')
 C       Read nkabc, if it is present ; else set to zero
         i = 0
         i = parg('nkabc=',2,outs,i,len(outs),', ;',3,3,iv,nkabc)
@@ -61,10 +61,10 @@ C       Read ntet, if it is present else set to zero
         i = parg('ntet=',2,outs,i,len(outs),', ;',3,1,iv,ntet)
         if (i .le. 0) ntet = 0
         call info5(30,0,0,
-     .    ' GETQP:  disc file contains %i k-points'//
-     .    '%?#(n>0)#%-1j  nkabc =%3:1i  lshft =%3:1i#%j#'//
-     .    '%?#(n>0)#%-1j  ntet = %i##'//
-     .    ' ',nqp,nkabc,lshft,ntet,0)
+     .  ' GETQP:  disc file contains %i k-points'//
+     .  '%?#(n>0)#%-1j  nkabc =%3:1i  lshft =%3:1i#%j#'//
+     .  '%?#(n>0)#%-1j  ntet = %i##'//
+     .  ' ',nqp,nkabc,lshft,ntet,0)
         return
 
 C --- Error handling ---
@@ -125,15 +125,15 @@ C --- Write branch ---
       i = ntet
       if (mode .lt. 2) i = 0
       call info5(30,0,0,
-     .  ' PUTQP:  writing %i k-points to disc file'//
-     .  '%?#(n>0)#%-1j  nkabc =%3:1i  lshft =%3:1i#%j#'//
-     .  '%?#(n>0)#%-1j  ntet = %i##'//
-     .  ' ',nqp,nkabc,lshft,i,0)
+     .' PUTQP:  writing %i k-points to disc file'//
+     .'%?#(n>0)#%-1j  nkabc =%3:1i  lshft =%3:1i#%j#'//
+     .'%?#(n>0)#%-1j  ntet = %i##'//
+     .' ',nqp,nkabc,lshft,i,0)
 
       call awrit4('%x   nkp=%i '//
-     .    '%?#(n>0)#%-1j  nkabc=%3:1i  lshft=%3:1i#%j#'//
-     .    '%?#(n>0)#%-1j  ntet= %i##'//
-     .    ' ',outs,len(outs),-nfilqp,nqp,nkabc,lshft,i)
+     .'%?#(n>0)#%-1j  nkabc=%3:1i  lshft=%3:1i#%j#'//
+     .'%?#(n>0)#%-1j  ntet= %i##'//
+     .' ',outs,len(outs),-nfilqp,nqp,nkabc,lshft,i)
 
       if (mode .eq. 1) then
         do  iqp = 1, nqp

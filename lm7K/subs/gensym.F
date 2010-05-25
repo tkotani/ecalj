@@ -1,6 +1,6 @@
       subroutine gensym(slabl,gens,usegen,lcar,lfix,fptol,lsmall,nbas,
-     .  nspec,ngmx,plat,platcv,ldist,dist,bas,ips,nrspec,ng,g,
-     .  ag,ngen,gen,nwgens,nggen,isym,istab)
+     .nspec,ngmx,plat,platcv,ldist,dist,bas,ips,nrspec,ng,g,
+     .ag,ngen,gen,nwgens,nggen,isym,istab)
 C- Generate the space group
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -85,15 +85,15 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed parameters:
       integer nbas,isym(*),istab(nbas,*),nspec,ngen,ngmx,
-     .        ng,nrspec(nspec),usegen,ldist,ips(nbas),nggen
+     .ng,nrspec(nspec),usegen,ldist,ips(nbas),nggen
 C     integer istab2(nbas,*)
       double precision plat(9),platcv(9),g(9,*),ag(3,*),dist(3,3),
-     .  bas(3,nbas),fptol
+     .bas(3,nbas),fptol
       character*8  slabl(*), gens*(*), nwgens*(*)
       logical lcar,lfix
 C Local parameters:
       integer:: i , j , ibas , ic , iprint , ngnmx , igen , mxint , 
-     . modes
+     .modes
       real(8) ,allocatable :: wk_rv(:)
 
       double precision qlat(3,3),vol,platt(9)
@@ -105,8 +105,8 @@ C heap:
       common /w/ w
 C External calls:
       external  addbas,dcopy,defdr,defi,dinv33,
-     .          icopy,iprint,rlse,spcgrp,
-     .          symcry,symlat
+     .icopy,iprint,rlse,spcgrp,
+     .symcry,symlat
 
       call rxx(.not. lcar, 'gensym not implemented lcar')
       call rxx(lfix,  'gensym not implemented lfix')
@@ -137,8 +137,8 @@ C ... Rotate the generators
         call grpprd(gen(1,igen),plat,platt)
 C       call dmpy(gen(1,igen),3,1,plat,3,1,platt,3,1,3,3,3)
         if (.not. latvec(3,1d-5,qlat,platt))
-     .    call fexit(-1,111,' Exit -1 GENSYM: '//
-     .    'generator %i imcompatible with underlying lattice',igen)
+     .  call fexit(-1,111,' Exit -1 GENSYM: '//
+     .  'generator %i imcompatible with underlying lattice',igen)
    10 continue
 
 C ... Set up space group (g,ag,ng) given point group generators gen
@@ -153,9 +153,9 @@ C --- Add new atoms to the basis according to symmetry ---
 C ... Make nrspec ... i should be nspec
       i = mxint(nbas,ips)
       if (i .ne. nspec .and. iprint() .gt. 0)
-     .  call awrit2(' GENSYM (warning) %i species supplied but only '//
-     .  '%i spec used ...%N%8fpossible errors in class data',' ',120,6,
-     .  nspec,i)
+     .call awrit2(' GENSYM (warning) %i species supplied but only '//
+     .'%i spec used ...%N%8fpossible errors in class data',' ',120,6,
+     .nspec,i)
       nspec = i
       call iinit(nrspec,nspec)
       do  22  ibas = 1, nbas
@@ -178,7 +178,7 @@ Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) wk_rv(:)=0.0d0
 
 C       call prmx('pos',bas,3,3,nbas)
         call symcry ( fptol , bas , wk_rv , ips , nbas , nspec , nrspec 
-     .   , ng , plat , qlat , g , ag , istab )
+     .  , ng , plat , qlat , g , ag , istab )
 
         if (allocated(wk_rv)) deallocate(wk_rv)
 
@@ -201,7 +201,7 @@ C      enddo
 
       if (iprint() .ge. 80 .and. ng .gt. 1) then
         call info0(0,0,0,
-     .    ' GENSYM: site permutation table for group operations ...')
+     .  ' GENSYM: site permutation table for group operations ...')
         call shoist(istab,nbas,ag,g,ng)
 C       call shoist(istab2,nbas,ag,g,ng)
       endif

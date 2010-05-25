@@ -105,18 +105,18 @@ C --- Printout ---
       if (iprint() .ge. 30) then
         if (lrlx .eq. 4) then
           call info(0,1,0,
-     .        ' RLXSTP: Molecular statics (conjugate gradients) ..',0,0)
+     .    ' RLXSTP: Molecular statics (conjugate gradients) ..',0,0)
         elseif (lrlx .eq. 5) then
           call info(0,1,0,
-     .        ' RLXSTP: Molecular statics (Fletcher-Powell) ..',0,0)
+     .    ' RLXSTP: Molecular statics (Fletcher-Powell) ..',0,0)
         else
           call info(0,1,0,
-     .        ' RLXSTP: Molecular statics (Broyden) ..',0,0)
+     .    ' RLXSTP: Molecular statics (Broyden) ..',0,0)
         endif
         call info2(0,0,0,
-     .      '         relaxing %i variables, %i iterations',nvar,nitrlx)
+     .  '         relaxing %i variables, %i iterations',nvar,nitrlx)
         call awrit4('         x-tol=%d, g-tol=%d, step=%d (pdim=%i)',
-     .              ' ',120,i1mach(2),mdprm(3),mdprm(4),mdprm(5),pdim)
+     .  ' ',120,i1mach(2),mdprm(3),mdprm(4),mdprm(5),pdim)
       endif
 
       end subroutine rlxstp

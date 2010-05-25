@@ -1,5 +1,5 @@
       subroutine mkdmtu(ssite,sspec,wtkb,isp,iq,nsp,nspc,ndham,nlmax,
-     .  nbas,nev,ppnl,aus,dmatu,nlibu,lmaxu,lldau)
+     .nbas,nev,ppnl,aus,dmatu,nlibu,lmaxu,lldau)
 
       use m_struc_def  !Cgetarg
 
@@ -41,7 +41,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer isp,iq,nsp,nspc,ndham,nlmax,nbas,nev,nlibu,lmaxu,
-     .  lldau(nbas)
+     .lldau(nbas)
       real(8):: wtkb(ndham,nsp,iq)
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
@@ -54,9 +54,9 @@ C ... Passed parameters
 C ... Local parameters
       double complex add,au,as,az,ap1,ap2
       double precision dlphi,rmt,dlphip,phi,phip,dphi,dphip,r(2,2),det,
-     .  phz,dphz
+     .phz,dphz
       integer lmxa,ilm1,ilm2,l,iv,m1,m2,ib,is,idu(4),igetss,iblu,ispc,
-     .  ksp
+     .ksp
 
       iblu = 0
       do  ib = 1, nbas

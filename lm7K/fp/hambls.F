@@ -1,7 +1,7 @@
 #define F90 1
       subroutine hambls(mode,nbas,ssite,sspec,slat,sham,isp,ispc,q,k1,
-     .  k2,k3,qsig,nqsig,smpot,vconst,osig,otau,oppi,lcplxp,lso,alfa,
-     .  ndimh,napw,igvapw,h,s,ismidb)
+     .k2,k3,qsig,nqsig,smpot,vconst,osig,otau,oppi,lcplxp,lso,alfa,
+     .ndimh,napw,igvapw,h,s,ismidb)
 
       use m_struc_def  !Cgetarg
 
@@ -199,13 +199,13 @@ C ... Passed parameters
       double complex h(ndimh,ndimh,ispc),s(ndimh,ndimh,ispc)
 C ... Local parameters
       double precision qpi(3,4),tol,ddot,plat(3,3),qlat(3,3),norm(4,4),
-     .  wt(4),swt,dq,emin,emax,fasig,fbsig,asig,bsig,xx,sigp(10)
+     .wt(4),swt,dq,emin,emax,fasig,fbsig,asig,bsig,xx,sigp(10)
       equivalence (emin,sigp(3)),(emax,sigp(5))
       equivalence (asig,sigp(6)),(bsig,sigp(7))
       integer oiprmb,ontabs,oiaxs,ohrs,ooffH
       integer i,j,lrsig,ipr,iprm(nqsig),ipiv(ndimh),dinv,nev,ndim1
       integer hreal,nl,nglob,mxorb,nttabs,ival,nsp,ndhrs,nsim,moditp,
-     .  mxitrp,n123(4),off1,nspc,ndimhx,lwsig
+     .mxitrp,n123(4),off1,nspc,ndimhx,lwsig
       logical T,F
       parameter (T=.true.,F=.false.,tol=1d-7)
 C     for permutation of H
@@ -241,8 +241,8 @@ C --- LDA hamiltonian ---
         j = 0
         if (lso .eq. 1) j = 10
         call hambl(j,nbas,ssite,sspec,slat,sham,isp,q,k1,k2,k3,
-     .    smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
-     .    h(1,1,ispc),s(1,1,ispc),h(1,1,3))
+     .  smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
+     .  h(1,1,ispc),s(1,1,ispc),h(1,1,3))
       endif
       lrsig = mod(mode/10,10)
       lwsig = mod(mode/1000,10)
@@ -255,7 +255,7 @@ C ... Store LDA eigenvectors, eigenvalues in s and h and exit
         allocate(z0(ndimh,ndimh))
         allocate(e(ndimh))
         call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
-     .    z0,F,e,ndimh,zqi)
+     .  z0,F,e,ndimh,zqi)
         call dcopy(ndimh**2*2,zqi,1,s(1,1,ispc),1)
         call dcopy(ndimh,e,1,h,1)
         deallocate(z0,zqi,e)
@@ -305,8 +305,8 @@ C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
         call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-     .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
-     .    ss(1,1),w,w)
+     .  w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
+     .  ss(1,1),w,w)
         h(:,:,ispc) = h(:,:,ispc) + ss
 C         call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
 C      .    z0,F,e,ndimh,zqi)
@@ -368,7 +368,7 @@ ctakaox
 c        ss(:,:,ispc) = s(:,:,ispc)
 cccccccccccccccccccccccccc
         call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
-     .    z0,F,e,ndimh,zqi)
+     .  z0,F,e,ndimh,zqi)
 
 C       call zprm('evecs, LDA',2,zqi,ndimh,ndimh,ndimh)
 C       i = fopna('out',-1,0)
@@ -380,8 +380,8 @@ C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
         call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-     .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
-     .    s(1,1,ispc),w,w)
+     .  w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
+     .  s(1,1,ispc),w,w)
 
 ccccccccccccccccccc
 ctakaox
@@ -466,7 +466,7 @@ C       Middle block has range (off1+1:off1+ndim1,off1+1:off1+ndim1)
         off1  = n123(2)
         ndim1 = n123(3)-n123(2)
         call zhevx(ndim1,ndimh,s(1+off1,1+off1,ispc),xx,0,T,ndim1,9d9,i,
-     .    sigq,F,e0(1+off1),ndimh,z0)
+     .  sigq,F,e0(1+off1),ndimh,z0)
 
 ccccccccccccccccccccc
 c        do i=1,ndimh
@@ -485,7 +485,7 @@ C       Then elda = zqi+  Hlda zqi  =>  e = z0+ zqi+ (Hlda+sig) zqi z0
 C       Initialize with entire Z.lda; overwrite evecs off1+1..off1+ndim1
         call zcopy(ndimh**2,zqi,1,s(1,1,ispc),1)
         call zgemm('N','N',ndimh,ndim1,ndim1,one,zqi(1,off1+1),
-     .    ndimh,z0,ndimh,zer,s(1,off1+1,ispc),ndimh)
+     .  ndimh,z0,ndimh,zer,s(1,off1+1,ispc),ndimh)
 C       call zprm('evecs of h+sig, orbital basis',2,s,ndimh,ndimh,ndimh)
 
 
@@ -524,7 +524,7 @@ C         Effective hamiltonian of h+sig, orbital basis
 *         call zprm('z11',2,s(1,1,1),ndimh,ndimh,ndimh)
 *         call zprm('z22',2,s(1,1,2),ndimh,ndimh,ndimh)
           call phmbls(1,ndimh,e0,xx,z0,
-     .      h(1,1,3),s(1,1,1),s(1,1,2),h(1,1,3))
+     .    h(1,1,3),s(1,1,1),s(1,1,2),h(1,1,3))
 *         call zprm('S.O, evec repsn',2,h(1,1,3),ndimh,ndimh,ndimh)
 
           deallocate(z0,zqi,e0)
@@ -537,7 +537,7 @@ C         h <- full hamiltonian in zqi basis, spin-coupled form
 *         call zprm('h+sig+SO, evec repsn',2,h,ndimhx,ndimhx,ndimhx)
 C         Diagonalize h in this representation
           call zhevx(ndimhx,ndimhx,h,xx,0,T,ndimhx,9d9,
-     .      i,s,F,e0,ndimhx,z0)
+     .    i,s,F,e0,ndimhx,z0)
 *         call yprm('evals',1,e0,1,ndimhx,ndimhx,1)
 *         call zprm('evecs',2,z0,ndimhx,ndimhx,ndimhx)
 
@@ -750,10 +750,10 @@ C     Assign weights to each qp; compute sum-of-weights as check
         nsim = j
         if (abs(swt-1) .gt. tol) then
           call info5(0,0,0,' hambls failed for q=%3:1,5;5d, '//
-     .  'wt=%n:1,5;5d',q,nsim,wt,0,0)
+     .    'wt=%n:1,5;5d',q,nsim,wt,0,0)
 C       goto 99
           call rx1('hambls:  interpol. weights'//
-     .  ' should sum to 1; actual sum=%d',swt)
+     .    ' should sum to 1; actual sum=%d',swt)
         endif
 
 #if F90
@@ -846,7 +846,7 @@ C     pgf90 6.0-2 on x86-64 Linux  !!
       end subroutine hambls
 
       subroutine blsig(mode,nbas,sham,isp,nsp,nspc,plat,q,
-     .  lwtkb,zval,iq,wtkp,wtkb,ndimh,zq,sig)
+     .lwtkb,zval,iq,wtkp,wtkb,ndimh,zq,sig)
 
       use m_struc_def  !Cgetarg
 
@@ -1198,9 +1198,9 @@ C       call zprm('z^-1',2,z,ndimh,ndimh,ndimh)
 C ... zhz <- zd+ * h * z
       if (mod(mode,2) .eq. 1) then
         call zgemm('C','N',ndimh,ndimh,ndimh,one,zd,ndimh,h,ndimh,
-     .    zer,wk,ndimh)
+     .  zer,wk,ndimh)
         call zgemm('N','N',ndimh,ndimh,ndimh,one,wk,ndimh,z,ndimh,
-     .    zer,zhz,ndimh)
+     .  zer,zhz,ndimh)
 C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
       endif
 
@@ -1252,7 +1252,7 @@ C ... zhz <- zd+ * e * z ... usu. used in conjunction w/ mode=32
         enddo
 C       call zprm('e * z',2,wk,ndimh,ndimh,ndimh)
         call zgemm('C','N',ndimh,ndimh,ndimh,one,zd,ndimh,wk,ndimh,
-     .    zer,zhz,ndimh)
+     .  zer,zhz,ndimh)
 C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
 
       endif
@@ -1513,7 +1513,7 @@ C ... Local parameters
       logical lhigh,lfit
       integer i,nmin,nmax,modsgp,fopna,ifi,lwrite
       double precision norm(2,2),rhs(2),tnorm(2,2),emin,emax,elo,ehi,
-     .  efit
+     .efit
       save norm,rhs,elo,ehi
       data norm /4*0d0/,rhs/2*0d0/,elo/9d0/,ehi/-9d0/
 
@@ -1540,7 +1540,7 @@ C     bsig   = sigp(7)
         endif
         do  i = 1, ndimh
           lhigh = (nmax .le. 0 .and. e(i) .gt. emax) .or.
-     .            (nmax .gt. 0 .and. i .gt. nmax)
+     .    (nmax .gt. 0 .and. i .gt. nmax)
           if (modsgp .eq. 3) then
             lfit = e(i) .gt. efit .and. .not. lhigh
           else
@@ -1569,12 +1569,12 @@ C     bsig   = sigp(7)
       endif
 
       if (mod(mode/8,2) .eq. 1 .or. mod(mode/4,2) .eq. 1)
-     .  call info0(30,0,0,' ')
+     .call info0(30,0,0,' ')
 
 
       if (mod(mode/8,2) .eq. 1) then
         call info2(30,0,0,' hambls: smallest nmax encountered for '//
-     .    'sigm middle block = %i',nsmidb,0)
+     .  'sigm middle block = %i',nsmidb,0)
       endif
 
       if (mod(mode/4,2) .eq. 1) then
@@ -1583,14 +1583,14 @@ C     bsig   = sigp(7)
           a = tnorm(1,1)*rhs(1) + tnorm(1,2)*rhs(2)
           b = tnorm(2,1)*rhs(1) + tnorm(2,2)*rhs(2)
           call info5(30,0,0,' hambls: sig(low,high) = %,4;4d,%,4;4d'//
-     .      '  fit : %,4;4d + %,4;4d * E(lda) (%i points)',
-     .      elo,ehi,a,b,nint(norm(1,1)))
+     .    '  fit : %,4;4d + %,4;4d * E(lda) (%i points)',
+     .    elo,ehi,a,b,nint(norm(1,1)))
           if (lwrite .eq. 1) then
             ifi = fopna('sigii',-1,0)
             write(ifi,345) modsgp,nmin,emin,nmax,emax,a,b,efit
   345       format('# mode nmin    emin   nmax    emax',8x,
-     .        'asig      bsig',8x,'efit'/2i5,f10.4,i5,f10.4,2x,2f10.4,
-     .        2x,f10.4)
+     .      'asig      bsig',8x,'efit'/2i5,f10.4,i5,f10.4,2x,2f10.4,
+     .      2x,f10.4)
           endif
         endif
       endif

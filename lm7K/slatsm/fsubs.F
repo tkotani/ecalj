@@ -7,191 +7,191 @@
       integer:: status,ierr
       if (ps.ne.0) then
 #if MPI|MPIK
-         if (pv.eq.0) then
-         call MPI_finalized(status,ierr)
-         if (status.eq.0) then
-         call MPI_finalize(ierr)
-         endif
-         endif
+        if (pv.eq.0) then
+          call MPI_finalized(status,ierr)
+          if (status.eq.0) then
+            call MPI_finalize(ierr)
+          endif
+        endif
 #endif
-         call exit(pv)
+        call exit(pv)
       endif
       
       end subroutine cexit
 
 
-         
+      
 
-        subroutine fsystm(ps,res)
-        character(*) ps
-        integer res
-        res = system(ps)
-        end subroutine fsystm
+      subroutine fsystm(ps,res)
+      character(*) ps
+      integer res
+      res = system(ps)
+      end subroutine fsystm
 
-        subroutine cwrite(ps,i1,i2,newln)
-        character(*) ps
-        integer:: i1,i2,newln
-        integer,save:: iii
-        if (newln.ne.0) then
-          write(*,'(a,$)') ps(i1+1:i2+1)
-        else
-          write(*,'(a)')   ps(i1+1:i2+1)
-        endif
-        end subroutine cwrite
+      subroutine cwrite(ps,i1,i2,newln)
+      character(*) ps
+      integer:: i1,i2,newln
+      integer,save:: iii
+      if (newln.ne.0) then
+        write(*,'(a,$)') ps(i1+1:i2+1)
+      else
+        write(*,'(a)')   ps(i1+1:i2+1)
+      endif
+      end subroutine cwrite
 
-        subroutine flushs(iout)
-        integer iout
-        if (i>=0) then
-           call flush(6)
-        else
-           write(*,*) 'flushs(',iout,
-     .   ') is called, but not executed in flushs()'
-        endif
+      subroutine flushs(iout)
+      integer iout
+      if (i>=0) then
+        call flush(6)
+      else
+        write(*,*) 'flushs(',iout,
+     .  ') is called, but not executed in flushs()'
+      endif
 c       another option is  comitqq()
-        end subroutine flushs
+      end subroutine flushs
 
-        integer function  bitor(i1,i2)
-        bitor= ior(i1,i2)
-        end function  bitor
+      integer function  bitor(i1,i2)
+      bitor= ior(i1,i2)
+      end function  bitor
 
-        integer function bitand(i1,i2)
-        bitand= iand(i1,i2)
-        end function bitand 
+      integer function bitand(i1,i2)
+      bitand= iand(i1,i2)
+      end function bitand 
 
-        subroutine nlchar(ich,ps)
-        integer ich
+      subroutine nlchar(ich,ps)
+      integer ich
 #if 1
-        character(*) ps
+      character(*) ps
 c   '\n'=10 
-        if (ich==1) then
-            ps(1:1) =  char(10) 
-        endif
+      if (ich==1) then
+        ps(1:1) =  char(10) 
+      endif
 #else
 c  may be
-        character ps
+      character ps
 c   '\n'=10
-        if (ich==1) then
-            ps =  char(10)
-        endif
+      if (ich==1) then
+        ps =  char(10)
+      endif
 #endif
 c        intel ifort accepts both
 
-        end subroutine nlchar
+      end subroutine nlchar
 
 
-        subroutine locase(ps)
-        character(*) ps
-        integer::i,n,shift
-        n=len_trim(ps)
-        shift=-ichar('A')+ichar('a') 
-        do i=1,n
-           if ( ichar(ps(i:i)) >= ichar('A')
-     .      .and. ichar(ps(i:i)) <= ichar('Z') ) then
-                ps(i:i) = char( ichar(ps(i:i))+ shift )
-           endif
-        enddo
-        end subroutine locase
+      subroutine locase(ps)
+      character(*) ps
+      integer::i,n,shift
+      n=len_trim(ps)
+      shift=-ichar('A')+ichar('a') 
+      do i=1,n
+        if ( ichar(ps(i:i)) >= ichar('A')
+     .  .and. ichar(ps(i:i)) <= ichar('Z') ) then
+          ps(i:i) = char( ichar(ps(i:i))+ shift )
+        endif
+      enddo
+      end subroutine locase
 
 
-        subroutine sectim(tsec, tusec)
+      subroutine sectim(tsec, tusec)
 #ifdef HASIFPORT
-        use ifport
+      use ifport
 #endif
-        integer tsec,tusec
-        integer:: ierr
+      integer tsec,tusec
+      integer:: ierr
 #if HASGETTIMEOFDAY
 c ------ intel fortran
-        integer(4):: v(2)
+      integer(4):: v(2)
 c            ---- not integer:: v(2) 
-        call gettimeofday(v,ierr)
-        tsec= v(1)
-        tusec=v(2)
+      call gettimeofday(v,ierr)
+      tsec= v(1)
+      tusec=v(2)
 #elif HASCPUTIME
 c ------- gfortran
-        real:: x
-        call cpu_time( x)
-        tsec = int(x)
-        tusec = int((x-tsec)*1000000.0)
+      real:: x
+      call cpu_time( x)
+      tsec = int(x)
+      tusec = int((x-tsec)*1000000.0)
 #else
 c#error "needs subroutine to get cpu time"
-        tsec=0.0
-        tusec=0.0
+      tsec=0.0
+      tusec=0.0
 #endif
 
-        end subroutine sectim
+      end subroutine sectim
 
-        subroutine gtenv(pnam,pval)
+      subroutine gtenv(pnam,pval)
 #ifdef HASIFPORT
-        use ifport
+      use ifport
 #endif
-        character(*) pnam, pval
-        integer:: ret
+      character(*) pnam, pval
+      integer:: ret
 #ifdef HASGETENVQQ
 c      ----- intel fortran
-        ret = getenvqq(pnam,pval)
+      ret = getenvqq(pnam,pval)
 #elif HASGETENVIRONMENTVARIABLE
 c     ----- fortran2003std
-        call get_environment_variable(pnam,pval) 
+      call get_environment_variable(pnam,pval) 
 #elif HASGETENV
-       call getenv(pnam,pval) 
+      call getenv(pnam,pval) 
 #else
 #error "needs subroutine to get environment variable"
 #endif
-        end subroutine gtenv
+      end subroutine gtenv
 
 
-        subroutine ptenv(pnam)
+      subroutine ptenv(pnam)
 #ifdef HASIFPORT
-        use ifport
+      use ifport
 #endif
-        character(*) pnam
-        integer ret
+      character(*) pnam
+      integer ret
 #ifdef HASSETENVQQ
 c --- intel fortran
-        ret=  setenvqq(pnam)
-        write(*,*) 'ptenv() is called with ',pnam
-        write(*,*) 'ptenv() is supported.'
+      ret=  setenvqq(pnam)
+      write(*,*) 'ptenv() is called with ',pnam
+      write(*,*) 'ptenv() is supported.'
 #else
-        write(*,*) 'ptenv() is called with ',pnam
-        write(*,*) 'ptenv() not supported, but continue.'
+      write(*,*) 'ptenv() is called with ',pnam
+      write(*,*) 'ptenv() not supported, but continue.'
 #endif
-        end subroutine ptenv 
+      end subroutine ptenv 
 
 
 
-        subroutine mkdcon(dmach,d1mach)
-        implicit none
-        real(8) :: dmach(0:2), d1mach(0:4)
-        real(8) eps,ubt,bubt
-        real(8):: t,b,l,u
+      subroutine mkdcon(dmach,d1mach)
+      implicit none
+      real(8) :: dmach(0:2), d1mach(0:4)
+      real(8) eps,ubt,bubt
+      real(8):: t,b,l,u
 
-        real(8):: dlamch
+      real(8):: dlamch
 c machine constant from lapack routine
 c base
-        b = dlamch('b')
+      b = dlamch('b')
 c eps*base
-        eps = dlamch('p')
+      eps = dlamch('p')
 c emin
-        l = dlamch('m')
+      l = dlamch('m')
 c emax
-        u = dlamch('l')
+      u = dlamch('l')
 c        write(*,*) b,eps,l,u
 
-         t = int(1.0-(log(eps)/log(b)))
+      t = int(1.0-(log(eps)/log(b)))
 c         write(*,*) 't=',t
 
-         dmach(0) = b**(1.-t)
-         dmach(1) = 100.*b**(l+t)
-         dmach(2) = (b**(u-t))/100.0
+      dmach(0) = b**(1.-t)
+      dmach(1) = 100.*b**(l+t)
+      dmach(2) = (b**(u-t))/100.0
 
-         d1mach(0) = (b**(l-1.))
-         ubt = u*(1.0-(b**(-t)))
-         bubt = b*b**(ubt-1.0)
-         d1mach(1) = bubt
-         d1mach(2) = (b**(-t))
-         d1mach(3) = (b**(1.0-t))
-         d1mach(4) = log(b)/log(10.0)
-        end subroutine mkdcon
+      d1mach(0) = (b**(l-1.))
+      ubt = u*(1.0-(b**(-t)))
+      bubt = b*b**(ubt-1.0)
+      d1mach(1) = bubt
+      d1mach(2) = (b**(-t))
+      d1mach(3) = (b**(1.0-t))
+      d1mach(4) = log(b)/log(10.0)
+      end subroutine mkdcon
 
 
 

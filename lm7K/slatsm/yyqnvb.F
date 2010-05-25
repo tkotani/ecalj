@@ -65,7 +65,7 @@ C     implicit none
       integer n,lda,ldw,ldb,ierr,nb
       character cs*(*)
       double precision ar(lda,1),ai(lda,1),br(ldb,1),bi(ldb,1),
-     .  w(ldw,*),w2(nb*(n+1))
+     .w(ldw,*),w2(nb*(n+1))
 C Local variables
       logical lsx,ltrns
       integer nmin,m1,m2,i,j,jr,ji
@@ -107,27 +107,27 @@ C --- For n<nmin, do directly by yygefa,yygesl ---
         endif
         do  12  j = 1, nb
           if (cs(1:1) .ne. 't') then
-          call yygesl(ar,ai,lda,n,w,br(1,j),bi(1,j),0)
+            call yygesl(ar,ai,lda,n,w,br(1,j),bi(1,j),0)
           else
 C       ... Do for special case n<=2: w may not be large enough!
             if (n .le. 2) then
-            do  116  i = 1, n
-            ww(i,1) = br(j,i)
-  116       ww(i,2) = bi(j,i)
-            call yygesl(ar,ai,lda,n,w,ww(1,1),ww(1,2),1)
-            do  118  i = 1, n
-            br(j,i) = ww(i,1)
-            bi(j,i) = ww(i,2)
-  118       continue
+              do  116  i = 1, n
+                ww(i,1) = br(j,i)
+  116         ww(i,2) = bi(j,i)
+              call yygesl(ar,ai,lda,n,w,ww(1,1),ww(1,2),1)
+              do  118  i = 1, n
+                br(j,i) = ww(i,1)
+                bi(j,i) = ww(i,2)
+  118         continue
             else
-            do  16  i = 1, n
-            w(i,2) = br(j,i)
-   16       w(i,3) = bi(j,i)
-            call yygesl(ar,ai,lda,n,w,w(1,2),w(1,3),1)
-            do  18  i = 1, n
-            br(j,i) = w(i,2)
-            bi(j,i) = w(i,3)
-   18       continue
+              do  16  i = 1, n
+                w(i,2) = br(j,i)
+   16         w(i,3) = bi(j,i)
+              call yygesl(ar,ai,lda,n,w,w(1,2),w(1,3),1)
+              do  18  i = 1, n
+                br(j,i) = w(i,2)
+                bi(j,i) = w(i,3)
+   18         continue
             endif
           endif
    12   continue
@@ -142,38 +142,38 @@ C --- Decompose matrix ---
       if (.not. lsx) then
 
 C --- a22^-1 in a22 ---
-      call yyqinv(css,ar(1+m1,1+m1),ai(1+m1,1+m1),lda,2,m2,
+        call yyqinv(css,ar(1+m1,1+m1),ai(1+m1,1+m1),lda,2,m2,
      .  w,ldw,ierr)
 C     call yprm(.false.,'a22^-1',2,6,fmt,ar(1+m1,1+m1),lda,m2,lda,m2)
-      if (ierr .ne. 0) return
+        if (ierr .ne. 0) return
 
-      if (.not. ltrns) then
+        if (.not. ltrns) then
 
 C   --- a12 a22^-1 in w; copy back to a12 ---
-        call yygemm('N','N',m1,m2,m2,1d0,ar(1,1+m1),ai(1,1+m1),lda,
+          call yygemm('N','N',m1,m2,m2,1d0,ar(1,1+m1),ai(1,1+m1),lda,
      .    ar(1+m1,1+m1),ai(1+m1,1+m1),lda,0d0,w,w(1,1+m1),ldw)
-        do  20  j = 1, m2
-        do  20  i = 1, m1
-        ar(i,j+m1) = w(i,j)
-   20   ai(i,j+m1) = w(i,j+m1)
+          do  20  j = 1, m2
+            do  20  i = 1, m1
+              ar(i,j+m1) = w(i,j)
+   20     ai(i,j+m1) = w(i,j+m1)
 
-      else
+        else
 
 C   --- a22^-1 a21 in w; copy back to a21 ---
-        call yygemm('N','N',m2,m1,m2,1d0,ar(1+m1,1+m1),ai(1+m1,1+m1),
+          call yygemm('N','N',m2,m1,m2,1d0,ar(1+m1,1+m1),ai(1+m1,1+m1),
      .    lda,ar(1+m1,1),ai(1+m1,1),lda,0d0,w,w(1+m2,1),ldw)
-        do  22  j = 1, m1
-        do  22  i = 1, m2
-        ar(i+m1,j) = w(i,j)
-   22   ai(i+m1,j) = w(i+m2,j)
+          do  22  j = 1, m1
+            do  22  i = 1, m2
+              ar(i+m1,j) = w(i,j)
+   22     ai(i+m1,j) = w(i+m2,j)
 
-      endif
+        endif
 
 C --- c11 = (a11 - a12 a22^-1 a21)^-1 in a11 ---
-      call yygemm('N','N',m1,m1,m2,-1d0,ar(1,1+m1),ai(1,1+m1),lda,
+        call yygemm('N','N',m1,m1,m2,-1d0,ar(1,1+m1),ai(1,1+m1),lda,
      .  ar(1+m1,1),ai(1+m1,1),lda,1d0,ar,ai,lda)
-      call yyqinv(css,ar,ai,lda,2,m1,w,ldw,ierr)
-      if (ierr .ne. 0) return
+        call yyqinv(css,ar,ai,lda,2,m1,w,ldw,ierr)
+        if (ierr .ne. 0) return
 C     call yprm(.false.,'c11',2,6,fmt,ar,lda,m1,lda,m1)
       endif
 C ... End of matrix decomposition
@@ -182,76 +182,76 @@ C ... End of matrix decomposition
       if (.not. ltrns) then
 
 C --- w2 <- b1 - a12 a22^-1 b2 ---
-      call yygemm(cm,cm,m1,nb,m2,1d0,ar(1,1+m1),ai(1,1+m1),lda,
+        call yygemm(cm,cm,m1,nb,m2,1d0,ar(1,1+m1),ai(1,1+m1),lda,
      .  br(1+m1,1),bi(1+m1,1),ldb,0d0,w2,w2(1+m1*nb),m1)
-      jr = -m1
-      ji = m1*nb - m1
-      do  30  j = 1, nb
-        jr = jr+m1
-        ji = ji+m1
-        do  32  i = 1, m1
-        w2(i+jr) = br(i,j) - w2(i+jr)
-   32   w2(i+ji) = bi(i,j) - w2(i+ji)
-   30 continue
+        jr = -m1
+        ji = m1*nb - m1
+        do  30  j = 1, nb
+          jr = jr+m1
+          ji = ji+m1
+          do  32  i = 1, m1
+            w2(i+jr) = br(i,j) - w2(i+jr)
+   32     w2(i+ji) = bi(i,j) - w2(i+ji)
+   30   continue
 C     call yprm(.false.,'b1 - a12 a22^-1 b2',2,6,fmt,w2,m1,m1,nb,nb)
 
 C --- x1 = c11 (b1 - a12 a22^-1 b2) ---
-      call yygemm(cm,cm,m1,nb,m1,1d0,ar,ai,lda,w2,w2(1+m1*nb),m1,0d0,
+        call yygemm(cm,cm,m1,nb,m1,1d0,ar,ai,lda,w2,w2(1+m1*nb),m1,0d0,
      .  br,bi,ldb)
 
 C --- w2 <- b2 - a21 x1 ---
-      call yygemm(cm,cm,m2,nb,m1,1d0,ar(1+m1,1),ai(1+m1,1),lda,
+        call yygemm(cm,cm,m2,nb,m1,1d0,ar(1+m1,1),ai(1+m1,1),lda,
      .  br,bi,ldb,0d0,w2,w2(1+m2*nb),m2)
-      jr = -m2
-      ji = m2*nb - m2
-      do  40  j = 1, nb
-        jr = jr+m2
-        ji = ji+m2
-        do  42  i = 1, m2
-        w2(i+jr) = br(i+m1,j) - w2(i+jr)
-   42   w2(i+ji) = bi(i+m1,j) - w2(i+ji)
-   40 continue
+        jr = -m2
+        ji = m2*nb - m2
+        do  40  j = 1, nb
+          jr = jr+m2
+          ji = ji+m2
+          do  42  i = 1, m2
+            w2(i+jr) = br(i+m1,j) - w2(i+jr)
+   42     w2(i+ji) = bi(i+m1,j) - w2(i+ji)
+   40   continue
 
 C --- x2 = a22^-1 (b2 - a21 x1) ---
-      call yygemm(cm,cm,m2,nb,m2,1d0,ar(1+m1,1+m1),ai(1+m1,1+m1),lda,
+        call yygemm(cm,cm,m2,nb,m2,1d0,ar(1+m1,1+m1),ai(1+m1,1+m1),lda,
      .  w2,w2(1+m2*nb),m2,0d0,br(1+m1,1),bi(1+m1,1),ldb)
 C     call yprm(.false.,'a^-1 b',2,6,fmt,br,ldb,n,ldb,nb)
 
       else
 
 C --- w2 <- b1 - b2 a22^-1 a21 ---
-      call yygemm(cm,cm,nb,m1,m2,1d0,br(1,1+m1),bi(1,1+m1),ldb,
+        call yygemm(cm,cm,nb,m1,m2,1d0,br(1,1+m1),bi(1,1+m1),ldb,
      .  ar(1+m1,1),ai(1+m1,1),lda,0d0,w2,w2(1+nb*m1),nb)
-      jr = -nb
-      ji = nb*m1 - nb
-      do  130  j = 1, m1
-        jr = jr+nb
-        ji = ji+nb
-        do  132  i = 1, nb
-        w2(i+jr) = br(i,j) - w2(i+jr)
-  132   w2(i+ji) = bi(i,j) - w2(i+ji)
-  130 continue
+        jr = -nb
+        ji = nb*m1 - nb
+        do  130  j = 1, m1
+          jr = jr+nb
+          ji = ji+nb
+          do  132  i = 1, nb
+            w2(i+jr) = br(i,j) - w2(i+jr)
+  132     w2(i+ji) = bi(i,j) - w2(i+ji)
+  130   continue
 
 C --- x1 = R1 c11 ---
-      call yygemm(cm,cm,nb,m1,m1,1d0,w2,w2(1+nb*m1),nb,
+        call yygemm(cm,cm,nb,m1,m1,1d0,w2,w2(1+nb*m1),nb,
      .  ar,ai,lda,0d0,br,bi,ldb)
 C     call yprm(.false.,'x1',2,6,fmt,br,ldb,nb,ldb,m1)
 
 C --- w2 <- b2 - x1 a12 ---
-      call yygemm(cm,cm,nb,m2,m1,1d0,br,bi,ldb,ar(1,1+m1),ai(1,1+m1),
+        call yygemm(cm,cm,nb,m2,m1,1d0,br,bi,ldb,ar(1,1+m1),ai(1,1+m1),
      .  lda,0d0,w2,w2(1+nb*m2),nb)
-      jr = -nb
-      ji = nb*m2 - nb
-      do  140  j = 1, m2
-        jr = jr+nb
-        ji = ji+nb
-        do  142  i = 1, nb
-        w2(i+jr) = br(i,j+m1) - w2(i+jr)
-  142   w2(i+ji) = bi(i,j+m1) - w2(i+ji)
-  140 continue
+        jr = -nb
+        ji = nb*m2 - nb
+        do  140  j = 1, m2
+          jr = jr+nb
+          ji = ji+nb
+          do  142  i = 1, nb
+            w2(i+jr) = br(i,j+m1) - w2(i+jr)
+  142     w2(i+ji) = bi(i,j+m1) - w2(i+ji)
+  140   continue
 
 C --- x2 = (b2 - a21 x1) a22^-1 ---
-      call yygemm(cm,cm,nb,m2,m2,1d0,w2,w2(1+nb*m2),nb,
+        call yygemm(cm,cm,nb,m2,m2,1d0,w2,w2(1+nb*m2),nb,
      .  ar(1+m1,1+m1),ai(1+m1,1+m1),lda,0d0,br(1,1+m1),bi(1,1+m1),ldb)
 C     call yprm(.false.,'b a^-1',2,6,fmt,br,ldb,nb,ldb,n)
 

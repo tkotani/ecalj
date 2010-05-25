@@ -161,15 +161,15 @@ C --- macro substitution ---
 C         Also next character cann be part of a word
           call wordg(strn(j+nchar(i,1)-1:),10,'A-Za-z_0-9',1,i1,i2)
           if (i2 .le. i1) then
-          strn2(1:ls) = strn
-          strn(j:j+nchar(i,2)-1) = argsub(i)
-          ls = ls + nchar(i,2)-nchar(i,1)
-          strn(j+nchar(i,2):ls) = strn2(j+nchar(i,1):)
-          if (nchar(i,2)-nchar(i,1) .lt. 0) then
-            strn(ls+1:ls+1) = ' '
-          endif
-          j = j + nchar(i,2)-1
-          goto 35
+            strn2(1:ls) = strn
+            strn(j:j+nchar(i,2)-1) = argsub(i)
+            ls = ls + nchar(i,2)-nchar(i,1)
+            strn(j+nchar(i,2):ls) = strn2(j+nchar(i,1):)
+            if (nchar(i,2)-nchar(i,1) .lt. 0) then
+              strn(ls+1:ls+1) = ' '
+            endif
+            j = j + nchar(i,2)-1
+            goto 35
           endif
         endif
       enddo

@@ -1,4 +1,4 @@
-       subroutine dmpy22(a,b,c)
+      subroutine dmpy22(a,b,c)
 C- Multiplies 2x2 matrices a*b
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -13,23 +13,23 @@ Cu   17 Mar 03 First created (from A. Chantis)
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-       double precision a(2,2), b(2,2), c(2,2)
+      double precision a(2,2), b(2,2), c(2,2)
 C ... Local parameters
-       double precision cloc(2,2)
+      double precision cloc(2,2)
 
-       cloc(1,1) = a(1,1)*b(1,1) + a(1,2)*b(2,1)
-       cloc(1,2) = a(1,1)*b(1,2) + a(1,2)*b(2,2)
-       cloc(2,1) = a(2,1)*b(1,1) + a(2,2)*b(2,1)
-       cloc(2,2) = a(2,1)*b(1,2) + a(2,2)*b(2,2)
+      cloc(1,1) = a(1,1)*b(1,1) + a(1,2)*b(2,1)
+      cloc(1,2) = a(1,1)*b(1,2) + a(1,2)*b(2,2)
+      cloc(2,1) = a(2,1)*b(1,1) + a(2,2)*b(2,1)
+      cloc(2,2) = a(2,1)*b(1,2) + a(2,2)*b(2,2)
 
-       c(1,1) = cloc(1,1)
-       c(1,2) = cloc(1,2)
-       c(2,1) = cloc(2,1)
-       c(2,2) = cloc(2,2)
+      c(1,1) = cloc(1,1)
+      c(1,2) = cloc(1,2)
+      c(2,1) = cloc(2,1)
+      c(2,2) = cloc(2,2)
 
-       end
+      end
 
-       subroutine dinv22(a,ainv)
+      subroutine dinv22(a,ainv)
 C- Inverse of a real 2x2 matrix
 C ----------------------------------------------------------------------
 Ci Inputs

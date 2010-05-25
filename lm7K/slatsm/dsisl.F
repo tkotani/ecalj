@@ -61,63 +61,63 @@ c
 #else
       k = n
    10 if (k .eq. 0) goto 80
-         if (kpvt(k) .lt. 0) goto 40
+      if (kpvt(k) .lt. 0) goto 40
 c
 c           1 x 1 pivot block.
 c
-            if (k .eq. 1) goto 30
-               kp = kpvt(k)
-               if (kp .eq. k) goto 20
+      if (k .eq. 1) goto 30
+      kp = kpvt(k)
+      if (kp .eq. k) goto 20
 c
 c                 interchange.
 c
-                  temp = b(k)
-                  b(k) = b(kp)
-                  b(kp) = temp
-   20          continue
+      temp = b(k)
+      b(k) = b(kp)
+      b(kp) = temp
+   20 continue
 c
 c              apply the transformation.
 c
-               call daxpy(k-1,b(k),a(1,k),1,b(1),1)
-   30       continue
+      call daxpy(k-1,b(k),a(1,k),1,b(1),1)
+   30 continue
 c
 c           apply d inverse.
 c
-            b(k) = b(k)/a(k,k)
-            k = k - 1
-         goto 70
-   40    continue
+      b(k) = b(k)/a(k,k)
+      k = k - 1
+      goto 70
+   40 continue
 c
 c           2 x 2 pivot block.
 c
-            if (k .eq. 2) goto 60
-               kp = iabs(kpvt(k))
-               if (kp .eq. k - 1) goto 50
+      if (k .eq. 2) goto 60
+      kp = iabs(kpvt(k))
+      if (kp .eq. k - 1) goto 50
 c
 c                 interchange.
 c
-                  temp = b(k-1)
-                  b(k-1) = b(kp)
-                  b(kp) = temp
-   50          continue
+      temp = b(k-1)
+      b(k-1) = b(kp)
+      b(kp) = temp
+   50 continue
 c
 c              apply the transformation.
 c
-               call daxpy(k-2,b(k),a(1,k),1,b(1),1)
-               call daxpy(k-2,b(k-1),a(1,k-1),1,b(1),1)
-   60       continue
+      call daxpy(k-2,b(k),a(1,k),1,b(1),1)
+      call daxpy(k-2,b(k-1),a(1,k-1),1,b(1),1)
+   60 continue
 c
 c           apply d inverse.
 c
-            ak = a(k,k)/a(k-1,k)
-            akm1 = a(k-1,k-1)/a(k-1,k)
-            bk = b(k)/a(k-1,k)
-            bkm1 = b(k-1)/a(k-1,k)
-            denom = ak*akm1 - 1.0d0
-            b(k) = (akm1*bk - bkm1)/denom
-            b(k-1) = (ak*bkm1 - bk)/denom
-            k = k - 2
-   70    continue
+      ak = a(k,k)/a(k-1,k)
+      akm1 = a(k-1,k-1)/a(k-1,k)
+      bk = b(k)/a(k-1,k)
+      bkm1 = b(k-1)/a(k-1,k)
+      denom = ak*akm1 - 1.0d0
+      b(k) = (akm1*bk - bkm1)/denom
+      b(k-1) = (ak*bkm1 - bk)/denom
+      k = k - 2
+   70 continue
       goto 10
    80 continue
 c
@@ -125,49 +125,49 @@ c     loop forward applying the transformations.
 c
       k = 1
    90 if (k .gt. n) goto 160
-         if (kpvt(k) .lt. 0) goto 120
+      if (kpvt(k) .lt. 0) goto 120
 c
 c           1 x 1 pivot block.
 c
-            if (k .eq. 1) goto 110
+      if (k .eq. 1) goto 110
 c
 c              apply the transformation.
 c
-               b(k) = b(k) + ddot(k-1,a(1,k),1,b(1),1)
-               kp = kpvt(k)
-               if (kp .eq. k) goto 100
+      b(k) = b(k) + ddot(k-1,a(1,k),1,b(1),1)
+      kp = kpvt(k)
+      if (kp .eq. k) goto 100
 c
 c                 interchange.
 c
-                  temp = b(k)
-                  b(k) = b(kp)
-                  b(kp) = temp
-  100          continue
-  110       continue
-            k = k + 1
-         goto 150
-  120    continue
+      temp = b(k)
+      b(k) = b(kp)
+      b(kp) = temp
+  100 continue
+  110 continue
+      k = k + 1
+      goto 150
+  120 continue
 c
 c           2 x 2 pivot block.
 c
-            if (k .eq. 1) goto 140
+      if (k .eq. 1) goto 140
 c
 c              apply the transformation.
 c
-               b(k) = b(k) + ddot(k-1,a(1,k),1,b(1),1)
-               b(k+1) = b(k+1) + ddot(k-1,a(1,k+1),1,b(1),1)
-               kp = iabs(kpvt(k))
-               if (kp .eq. k) goto 130
+      b(k) = b(k) + ddot(k-1,a(1,k),1,b(1),1)
+      b(k+1) = b(k+1) + ddot(k-1,a(1,k+1),1,b(1),1)
+      kp = iabs(kpvt(k))
+      if (kp .eq. k) goto 130
 c
 c                 interchange.
 c
-                  temp = b(k)
-                  b(k) = b(kp)
-                  b(kp) = temp
-  130          continue
-  140       continue
-            k = k + 2
-  150    continue
+      temp = b(k)
+      b(k) = b(kp)
+      b(kp) = temp
+  130 continue
+  140 continue
+      k = k + 2
+  150 continue
       goto 90
   160 continue
       return

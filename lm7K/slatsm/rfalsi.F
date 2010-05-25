@@ -92,7 +92,7 @@ C Local Variables
       parameter (scrwid=100)
       character*(scrwid) outs
       double precision f2x,xtl,x0,f0,f0x,x1,f1,x2,f2,f1x,xmin,xmax,
-     .  x(0:2),f(0:2),fx(0:2),dum,dx2,dx1,df2,df1,fpp,fp,den,dirdx,xtoll
+     .x(0:2),f(0:2),fx(0:2),dum,dx2,dx1,df2,df1,fpp,fp,den,dirdx,xtoll
       equivalence (x0,x(0)),(x1,x(1)),(x2,x(2))
       equivalence (f0,f(0)),(f1,f(1)),(f2,f(2))
       equivalence (f0x,fx(0)),(f1x,fx(1)),(f2x,fx(2))
@@ -118,15 +118,15 @@ C     ipr = 55
       if (ic .eq. 2) ic = -1
       xtl = max(xtol,dxmn)
       if (ipr .gt. 40 .and. ir .eq. 0)
-     .  call awrit8('  rfalsi: new start%?#n#  (c)##'//
-     .  '%?#n# xtol=%1;3g#%j#%?#n==2# and##%-1j%?#n==3# or##'//
-     .  '%?#n# ftol=%1;3g#%j#  dxmn=%1;3g  dxmx=%1;3g',
-     .  ' ',scrwid,stdo,ic,itol,xtl,itol,itol-1,ftol,dxmn,dxmx)
+     .call awrit8('  rfalsi: new start%?#n#  (c)##'//
+     .'%?#n# xtol=%1;3g#%j#%?#n==2# and##%-1j%?#n==3# or##'//
+     .'%?#n# ftol=%1;3g#%j#  dxmn=%1;3g  dxmx=%1;3g',
+     .' ',scrwid,stdo,ic,itol,xtl,itol,itol-1,ftol,dxmn,dxmx)
       if (ftol .le. 0 .and. itol .eq. 0 .or.
-     .    xtl .le. 0 .and. itol .eq. 1 .or.
-     .    (ftol .le. 0 .or. xtl .le. 0) .and. itol .eq. 2 .or.
-     .    (ftol .le. 0 .and. xtl .le. 0) .and. itol .eq. 3 .or.
-     .    mod(mod(isw,10),4) .eq. 3) then
+     .xtl .le. 0 .and. itol .eq. 1 .or.
+     .(ftol .le. 0 .or. xtl .le. 0) .and. itol .eq. 2 .or.
+     .(ftol .le. 0 .and. xtl .le. 0) .and. itol .eq. 3 .or.
+     .mod(mod(isw,10),4) .eq. 3) then
         ir = 2
         goto 999
       endif
@@ -139,8 +139,8 @@ C     .  ' ',scrwid,stdo,ir,xn,fn)
 C     (x1,f1) -> (x2,f2); (x0,f0) -> (x1,f1); (xn,fn) -> (x0,f0)
       lqua = 0
       do  12  i = 1, 0, -1
-      fx(i+1) = fx(i)
-      f(i+1) = f(i)
+        fx(i+1) = fx(i)
+        f(i+1) = f(i)
    12 x(i+1) = x(i)
       fx(0) = fn
       f(0) = fn
@@ -154,7 +154,7 @@ C ... Special treatments
       if (fn .eq. 0) then
         ir = 1
         call info2(31,0,0,
-     .    ' rfalsi:  fn=0 at xn=%1,8;8g; return ir=%i',xn,ir)
+     .  ' rfalsi:  fn=0 at xn=%1,8;8g; return ir=%i',xn,ir)
         goto 999
       elseif (ir .eq. 0) then
         ir = -1
@@ -184,8 +184,8 @@ C ... if only 1 cst satisfied, x0 must be in the middle
       root2 = fn*f2 .lt. 0 .and. cst2
 C ... Swap x1,x2 if (x0,x2) a closer fit
       if ((.not. root1 .and. abs(f0) .lt. abs(f1) .or. root2)
-     .  .and. abs(x1-x0) .gt. abs(x2-x0) .or.
-     .  .not. root1 .and. root2 .or. .not. cst1 .and. cst2) then
+     ..and. abs(x1-x0) .gt. abs(x2-x0) .or.
+     ..not. root1 .and. root2 .or. .not. cst1 .and. cst2) then
         dum = x2
         x2 = x1
         x1 = dum
@@ -218,7 +218,7 @@ C ... T if local extremum bracketed
       if (lextr .and. .not. (root1 .or. root2) .and. ipr .ge. 30) then
         write (stdo,*) 'rfalsi: local extremum bracketed without root:'
         call awrit6('  x0,x1,x2 = %1;6g %1;6g %1;6g  f0,f1,f2 = '//
-     .    '%1;6g %1;6g %1;6g',' ',scrwid,stdo,x0,x1,x2,f0,f1,f2)
+     .  '%1;6g %1;6g %1;6g',' ',scrwid,stdo,x0,x1,x2,f0,f1,f2)
       endif
 
 C --- CASE I: root bracketed with possible constraint satisfied ---
@@ -231,7 +231,7 @@ C ... If conditions allow, improve estimate for x.  Conditions:
 C     a sufficiently distinct third point exists; f1<=f1x*2;
 C     corrected slope of same sign; new x still within bracket.
         if (dabs(x2-x0) .gt. dxmn .and.
-     .      dabs(x2-x1) .gt. dxmn .and. abs(f1) .le. abs(f1x*2)) then
+     .  dabs(x2-x1) .gt. dxmn .and. abs(f1) .le. abs(f1x*2)) then
 
           if (fp*df1/dx1 .gt. 0) then
 C       ... Estimate for quadratic correction
@@ -259,14 +259,14 @@ C   ... Ask for another point, or if set ir if converged to within tol
         if (wk(12) .eq. 4) cnvgx = abs(x2-x0) .lt. xtol
         cnvgf = abs(fn) .le. ftol
         if (itol .eq. 0 .and. cnvgf .or. itol .eq. 1 .and. cnvgx .or.
-     .      itol .eq. 2 .and. (cnvgf .and. cnvgx) .or.
-     .      itol .eq. 3 .and. (cnvgf .or. cnvgx)) ir = 0
+     .  itol .eq. 2 .and. (cnvgf .and. cnvgx) .or.
+     .  itol .eq. 3 .and. (cnvgf .or. cnvgx)) ir = 0
 
 C   ... If xn near machine precision of x0 or x1:
 C       call dswap(1,x0,1,x1,1)
         xtoll = 256*d1mach(3)
         if (abs(xn-x0) .le. abs(xn)*xtoll
-     .      .and. (ir.eq.-2.or.ir.eq.-3)) then
+     .  .and. (ir.eq.-2.or.ir.eq.-3)) then
 C          print *, '1',xn-x0, xn-x1 !, sign(x0*xtoll,x1-x0)
           xn = x0 + sign(x0*xtoll,x1-x0)
           if (abs(xn-x0) .gt. 0.9d0*abs(x1-x0)) then
@@ -279,7 +279,7 @@ C          print *, '1a',xn-x0, xn-x1, (xn-x0)*(xn-x1).gt.0
 C         pause
           ir = -2
         elseif (abs(xn-x1) .le. abs(xn)*xtoll
-     .          .and. (ir.eq.-2.or.ir.eq.-3)) then
+     .  .and. (ir.eq.-2.or.ir.eq.-3)) then
 C         print *, '2',xn-x1, xn-x0   !, sign(x1*xtoll,x0-x1)
           xn = x1 + sign(x1*xtoll,x0-x1)
           if (abs(xn-x1) .gt. 0.9d0*abs(x0-x1)) then
@@ -339,9 +339,9 @@ C --- CASE V: no root bracketed: try linear extrapolation ---
         if (f0 .eq. f1) goto 80
         xn = x0 - f0*(x1-x0)/(f1-f0)
         if (xn .lt. min(x0,x1) .and. dabs(xn-min(x0,x1)) .lt. dxmn)
-     .    xn = min(x0,x1) - dxmn
+     .  xn = min(x0,x1) - dxmn
         if (xn .gt. max(x0,x1) .and. dabs(xn-max(x0,x1)) .lt. dxmn)
-     .    xn = max(x0,x1) + dxmn
+     .  xn = max(x0,x1) + dxmn
 C   ... do not allow step lengths exceeding dxmx
         xn = max(min(x0,x1)-abs(dxmx),xn)
         xn = min(max(x0,x1)+abs(dxmx),xn)
@@ -379,11 +379,11 @@ C ... Get a new point
   998 continue
       if (ir0 .eq. 0 .and. ipr .gt. 30) then
         call awrit2('  rfalsi ir=%,2i: seek xn=%1,8;8g',' ',
-     .    scrwid,stdo,ir,xn)
+     .  scrwid,stdo,ir,xn)
       elseif (ipr .gt. 30 .or. ipr .ge. 30 .and. ir .ge. 0) then
         i = awrite('%x  rfalsi ir=%,2i x1=%1;4g f1=%1;4g x2=%1;4g'//
-     .    ' f2=%1;4g: %?#n#seek#est#',outs,scrwid,0,
-     .    ir,x0,f0,x1,f1,ir,0,0)
+     .  ' f2=%1;4g: %?#n#seek#est#',outs,scrwid,0,
+     .  ir,x0,f0,x1,f1,ir,0,0)
         i = min(12,scrwid-3-i)
         call awrit2('%a x=%;nF',outs,scrwid,-stdo,i,xn)
 C       continue

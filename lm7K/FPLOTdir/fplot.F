@@ -64,17 +64,17 @@ C iargsh: index to argument starting new frame
       parameter (imx=750)
       integer garg,partok,a2vec,fopng,fopnx,mkdlst,rdm,parg
       integer it(50),isp(imx),wsp(imx),iarg0,iargsh,n,i,j,
-     .  k,j1,j2,ifi,i1mach,iprint,ipr,ip,ixv(imx),nargf,lxbrk,
-     .  lclip,nxargs,rdops
+     .k,j1,j2,ifi,i1mach,iprint,ipr,ip,ixv(imx),nargf,lxbrk,
+     .lclip,nxargs,rdops
       logical nxtarg,lsequ,a2bin,ltmp,setuu,ldisp,noclos
       double precision xxv(imx),xxpl(5),wk(imx),vsn,plu(6)
       logical flgnx,flgny,cmdopt,logx,logy,nlogx,nlogy
       equivalence (f2,first)
       double precision bound(6),xxmin,xxmax,yymin,yymax,zzmin,zzmax,
-     .  xmin,xmax,ymin,ymax,zmin,zmax,pad,d1mach,big
+     .xmin,xmax,ymin,ymax,zmin,zmax,pad,d1mach,big
       equivalence (bound(1),xxmin),(bound(2),xxmax),
-     .            (bound(3),yymin),(bound(4),yymax),
-     .            (bound(5),zzmin),(bound(6),zzmax)
+     .(bound(3),yymin),(bound(4),yymax),
+     .(bound(5),zzmin),(bound(6),zzmax)
 C for work and data arrays
       integer nr,np,nc,ndpi,nr0,nc0
       integer odat,oxp,oyp,ozp,owp,owp2,ofxp,owk,owk2
@@ -122,9 +122,9 @@ C __cs(4) specifies the symbol bold (used in cymcs only for now)
 C         cs(4)<0 => take value from -lt specification
       integer symtyp,lintyp,ltbld,lntypD,ltbldD
       double precision syma(10),symcs(0:4),crvcs(0:7),crvcsw(0:3,3),
-     .  ltypn(10),ltypa,ltypb,ltypc,ltypd
+     .ltypn(10),ltypa,ltypb,ltypc,ltypd
       equivalence (ltypa,ltypn(1)),(ltypb,ltypn(2)),
-     .            (ltypc,ltypn(3)),(ltypd,ltypn(4))
+     .(ltypc,ltypn(3)),(ltypd,ltypn(4))
 C Plot labels
       character*20 xnfmt,ynfmt,znfmt
       character*120 xlabel, ylabel, zlabel, title
@@ -139,7 +139,7 @@ C For column mapping
       integer ssvdef,ncolsy
       parameter (ssvdef=256)
       character*(ssvdef) sxdef,sfxdef,sydef,scolsy,scolsw(3),
-     .  sincl,sexcl,filel,strn,strn2,pntlst
+     .sincl,sexcl,filel,strn,strn2,pntlst
 C For latex postprocessing
       integer ntxstr,lbbox
       character*(ssvdef) texstr(2,100)
@@ -373,7 +373,7 @@ C --- Read next argument ---
       if (.not. nxtarg(first)) goto 99
 
       if (ipr .gt. 50)
-     .  call awrit0(' fplot: parsing '//first,outs,-80,i1mach(2))
+     .call awrit0(' fplot: parsing '//first,outs,-80,i1mach(2))
 
 C --- Case -frme: new frame ---
 C ... If first pass, start second pass on this frame
@@ -389,30 +389,30 @@ C       nofdef = .false.
         dc = first(6:6)
         if (dc .ne. ' ') then
 C   ... Return here to resume parsing for arguments
-        j2 = 6-1
-   10   continue
-        j2 = j2+1
-        if (first(j2:j2) .eq. dc) goto 10
-        j1 = min(len(first),j2)
-        call nwordg(first,0,dc//' ',1,j1,j2)
-        if (j2 .ge. j1) then
-          if (.false.) then
-          elseif (first(j1:j1+5) .eq. 'theta=')  then
-            i = j1+5
-            j = a2vec(first,j2,i,4,dc//' ',2,2,1,ixv,theta)
-            if (j .ne. 1) goto 21
-          elseif (first(j1:j2) .eq. 'lx')  then
-            nlogx = .true.
-          elseif (first(j1:j2) .eq. 'ly')  then
-            nlogy = .true.
-          elseif (first(j1:j2) .eq. 'lxy')  then
-            nlogx = .true.
-            nlogy = .true.
-          else
-            goto 21
+          j2 = 6-1
+   10     continue
+          j2 = j2+1
+          if (first(j2:j2) .eq. dc) goto 10
+          j1 = min(len(first),j2)
+          call nwordg(first,0,dc//' ',1,j1,j2)
+          if (j2 .ge. j1) then
+            if (.false.) then
+            elseif (first(j1:j1+5) .eq. 'theta=')  then
+              i = j1+5
+              j = a2vec(first,j2,i,4,dc//' ',2,2,1,ixv,theta)
+              if (j .ne. 1) goto 21
+            elseif (first(j1:j2) .eq. 'lx')  then
+              nlogx = .true.
+            elseif (first(j1:j2) .eq. 'ly')  then
+              nlogy = .true.
+            elseif (first(j1:j2) .eq. 'lxy')  then
+              nlogx = .true.
+              nlogy = .true.
+            else
+              goto 21
+            endif
+            goto 10
           endif
-          goto 10
-        endif
         endif
         if (garg(' ',0,4,', ',2,4,i,it,clin) .ne. 4) goto 22
 C       set current cmd argument index to one after '-frme'
@@ -512,10 +512,10 @@ C     .        k .eq. 2 .and. .not. logy .or. k .gt. 2) goto 22
         if (.not. nxtarg(second)) goto 22
         k = 0
         if (parg('col=',4,second,k,len(second),', ',2,3,it,fcs(1))
-     .      .lt. 0) goto 22
+     .  .lt. 0) goto 22
         k = 0
         if (parg('th=',2,second,k,len(second),', ',2,3,it,ltfrme)
-     .      .lt. 0) goto 22
+     .  .lt. 0) goto 22
         if (ltfrme(1) .eq. -1) flagf = .false.
       elseif (garg('-p',-1,4,' ',1,1,i,it,pad) .ne. 0) then
         if (i .lt. 0) goto 21
@@ -542,7 +542,7 @@ C   ... Pick up centering info
         k = 0
         rots = 0
         if (parg('rot=',4,ppstr,k,len(ppstr),', ',2,3,it(2),rots)
-     .    .lt. 0) goto 22
+     .  .lt. 0) goto 22
         do  19  i = 1, j
           if (it(1) .eq. 4) then
             xxv(2) = wk(i)
@@ -551,7 +551,7 @@ C   ... Pick up centering info
           endif
           if (.not. nxtarg(string)) goto 22
           if (.not. pass1) call pstr(xxv(1),xxv(2),rots,string,
-     .      0d0,0d0,0d0,ppstr,units,nint(xxv(3)))
+     .    0d0,0d0,0d0,ppstr,units,nint(xxv(3)))
           if (ppstr(1:2) .eq. 'tx') then
             if (pass1) then
               ntxstr = ntxstr+1
@@ -679,40 +679,40 @@ C   ... Return here to resume parsing for arguments
         if (it(i) .eq. 1) then
           if (second(ip+1:ip+4) .eq. 'col=') then
             i = parg('col=',4,second,ip,len(second),term//', ',3,3,it,
-     .        crvcs(1))
+     .      crvcs(1))
             if (i .lt. 0) goto 22
             crvcs(0) = 10
             if (i .lt. 3) call dcopy(3-i,crvcs(1),1,crvcs(i+1),1)
             call awrit1('%a col=%3:1;4d',strn,80,0,crvcs(1))
           elseif (second(ip+1:ip+5) .eq. 'colw=') then
             i = parg('colw=',4,second,ip,len(second),term//', ',3,3,it,
-     .        crvcsw(1,1))
+     .      crvcsw(1,1))
             if (i .lt. 0) goto 22
             crvcsw(0,1) = 10
             if (i .lt. 3) call dcopy(3-i,crvcsw(1,1),1,crvcsw(i+1,1),1)
             call awrit1('%a colw2=%3:1;4d',strn,80,0,crvcsw(1,1))
           elseif (second(ip+1:ip+6) .eq. 'colw2=') then
             i = parg('colw2=',4,second,ip,len(second),term//', ',3,3,it,
-     .        crvcsw(1,2))
+     .      crvcsw(1,2))
             if (i .lt. 0) goto 22
             crvcsw(0,2) = 10
             if (i .lt. 3) call dcopy(3-i,crvcsw(1,2),1,crvcsw(i+1,2),1)
             call awrit1('%a colw=%3:1;4d',strn,80,0,crvcsw(1,2))
           elseif (second(ip+1:ip+6) .eq. 'colw3=') then
             i = parg('colw3=',4,second,ip,len(second),term//', ',3,3,it,
-     .        crvcsw(1,3))
+     .      crvcsw(1,3))
             if (i .lt. 0) goto 22
             crvcsw(0,3) = 10
             if (i .lt. 3) call dcopy(3-i,crvcsw(1,3),1,crvcsw(i+1,3),1)
             call awrit1('%a colw=%3:1;4d',strn,80,0,crvcsw(1,3))
           elseif (second(ip+1:ip+5) .eq. 'clip=') then
             i = parg('clip=',2,second,ip,len(second),term//' ',2,1,it,
-     .        lclip)
+     .      lclip)
             if (i .lt. 0) goto 22
             call awrit1('%a clip %i',strn,80,0,lclip)
           elseif (second(ip+1:ip+4) .eq. 'brk=') then
             i = parg('brk=',2,second,ip,len(second),term//' ',2,1,it,
-     .        lxbrk)
+     .      lxbrk)
             if (i .lt. 0) goto 22
             call awrit1('%a brk %i',strn,80,0,lxbrk)
           elseif (second(ip+1:ip+5) .eq. 'fill=') then
@@ -724,7 +724,7 @@ C   ... Return here to resume parsing for arguments
             if (k .eq. 1) crvcs(0) = 10
           elseif (second(ip+1:ip+5) .eq. 'bold=') then
             i =parg('bold=',2,second,ip,len(second),term//' ',2,1,it,
-     .        ltbld)
+     .      ltbld)
             if (i .lt. 0) goto 22
             call awrit1('%a bold %i',strn,80,0,ltbld)
           else
@@ -761,35 +761,35 @@ C   ... Return here to resume parsing for arguments
         i = j+1
         call nwordg(second,0,term//' ',1,i,j)
         if (j .ge. i) then
-        if (second(i:i+4) .eq. 'fill=') then
-          j = j+1
-          k = i-1
-          k = parg('fill=',4,second,k,len(second),', '//term,2,1,it,
+          if (second(i:i+4) .eq. 'fill=') then
+            j = j+1
+            k = i-1
+            k = parg('fill=',4,second,k,len(second),', '//term,2,1,it,
      .      symcs(0))
-          if (k .lt. 0 .or. symcs(0) .gt. 2 ) goto 22
-          symcs(0) = symcs(0)+1
-          goto 51
-        elseif (second(i:i+4) .eq. 'bold=') then
-          j = j+1
-          k = i-1
-          k = parg('bold=',4,second,k,len(second),', '//term,2,1,it,
+            if (k .lt. 0 .or. symcs(0) .gt. 2 ) goto 22
+            symcs(0) = symcs(0)+1
+            goto 51
+          elseif (second(i:i+4) .eq. 'bold=') then
+            j = j+1
+            k = i-1
+            k = parg('bold=',4,second,k,len(second),', '//term,2,1,it,
      .      symcs(4))
-          if (k .lt. 0 .or. symcs(4) .gt. 9 ) goto 22
-          goto 51
-        elseif (second(i:i+3) .eq. 'col=') then
-         j = j+1
-         k = i-1
-         k = parg('col=',4,second,k,len(second),', '//term,2,3,it,
-     .     symcs(1))
-         if (k .ne. 0) then
-           if (k .lt. 0) goto 22
-           if (k .eq. 1) call dvset(symcs(1),2,3,symcs(1))
-           goto 51
-         endif
-        endif
-         k = i-1
-         i = parg(' ',4,second,k,len(second),', ',2,8,it,syma)
-         if (i .lt. 0) goto 22
+            if (k .lt. 0 .or. symcs(4) .gt. 9 ) goto 22
+            goto 51
+          elseif (second(i:i+3) .eq. 'col=') then
+            j = j+1
+            k = i-1
+            k = parg('col=',4,second,k,len(second),', '//term,2,3,it,
+     .      symcs(1))
+            if (k .ne. 0) then
+              if (k .lt. 0) goto 22
+              if (k .eq. 1) call dvset(symcs(1),2,3,symcs(1))
+              goto 51
+            endif
+          endif
+          k = i-1
+          i = parg(' ',4,second,k,len(second),', ',2,8,it,syma)
+          if (i .lt. 0) goto 22
         endif
       else if (first(1:4) .eq. '-con') then
         j = 4
@@ -804,7 +804,7 @@ C   ... Return here to resume parsing for arguments
             j = j+1
             k = i-1
             k = parg('dup=',2,first,k,len(first),', '//term,2,2,it,
-     .        dupctr)
+     .      dupctr)
             if (k .lt. 0) goto 22
             goto 47
           else
@@ -856,7 +856,7 @@ C       decrement argument index, to look at it again
       else if (first(1:3) .eq. '-1p') then
         if (pass1) then
           call awrit0(' fplot: start second pass this frame',' ',80,
-     .      i1mach(2))
+     .    i1mach(2))
           goto 99
         endif
       else if (first(1:3) .eq. '-nx') then
@@ -906,7 +906,7 @@ C --- End of switches ---
       call awrit1(' fplot file "'//first,strn,80,0,1)
       call awrit1('%a"  pass %i',strn,80,0,i)
       if (errbar .and. .not. pass1)
-     .  call awrit1('%a (error bars, col %i)',strn,80,0,ix(3))
+     .call awrit1('%a (error bars, col %i)',strn,80,0,ix(3))
       fstplt = nfile .eq. 1
 
 C --- Read data from disk, single column -> second col ---
@@ -939,7 +939,7 @@ C ... Open the file
           call word(first,1,j1,j2)
           if (ifi .eq. 0) then
             print *, 'Exit -1 fplot: '//
-     .        'attempt to open nonexistent file "'//first(j1:j2)//'"'
+     .      'attempt to open nonexistent file "'//first(j1:j2)//'"'
             call cexit(-1,1)
           endif
           ifi = fopng(first,-1,i)
@@ -968,10 +968,10 @@ C          if (ltmp) icast(ns) = 100
         i = rdm(ifi,1000+rdops,i,filel,w(odat),nr,nc)
         strn2 = ' '
         if (filel .ne. ' ' .and. pass1)
-     .    call awrit0(' fplot label '''//first//'%a'': "'//filel//
-     .    '%a"',strn2,len(strn2),-i1mach(2))
+     .  call awrit0(' fplot label '''//first//'%a'': "'//filel//
+     .  '%a"',strn2,len(strn2),-i1mach(2))
         if (i .lt. 0)
-     .    call fexit(-1,9,'fplot failed to parse file '//first,0)
+     .  call fexit(-1,9,'fplot failed to parse file '//first,0)
         call rlse(odat)
         call defdr(odat, nr*max(nc,2))
         if (dupctr(1,1) .ne. 0 .or. dupctr(2,1) .ne. 0) then
@@ -986,13 +986,13 @@ C          if (ltmp) icast(ns) = 100
           call defdr(odat,nr*dupctr(1,1)*nc*dupctr(2,1))
           call defdr(owk, nr*nc)
           i = rdm(ifi,1000+rdops,nr*dupctr(1,1)*nc*dupctr(2,1),
-     .      filel,w(owk),nr,nc)
+     .    filel,w(owk),nr,nc)
           if (i .lt. 0)
-     .      call fexit(-1,9,'fplot failed to parse file '//first,0)
+     .    call fexit(-1,9,'fplot failed to parse file '//first,0)
           i = nr + (nr-dupctr(1,2))*(dupctr(1,1)-1)
           j = nc + (nc-dupctr(2,2))*(dupctr(2,1)-1)
           call dupdat(nr,nc,i,j,dupctr(1,1),dupctr(2,1),
-     .      dupctr(1,2),dupctr(2,2),w(owk),w(odat))
+     .    dupctr(1,2),dupctr(2,2),w(owk),w(odat))
           call rlse(owk)
           nr = i
           nc = j
@@ -1087,14 +1087,14 @@ C
           call lodsyv('xmax',1,xxmax,j)
         endif
         call mapdat(w(odat),nr,np,nc,ix,ix(min(2,nc)),ix(min(3,nc)),
-     .    ix(min(4,nc)),min(ix(5),nc),sxdef,sydef,sfxdef,sincl,sexcl,
-     .    flgnx,flgny,pntlst,lsort,xxpl,logx,logy,w(owk),w(owk2),w(oxp),
-     .    w(oyp),w(ozp),w(owp),w(owp2),w(ofxp))
+     .  ix(min(4,nc)),min(ix(5),nc),sxdef,sydef,sfxdef,sincl,sexcl,
+     .  flgnx,flgny,pntlst,lsort,xxpl,logx,logy,w(owk),w(owk2),w(oxp),
+     .  w(oyp),w(ozp),w(owp),w(owp2),w(ofxp))
       else
         call map3d(w(odat),nr,np,nc,parm3d,sxdef,sydef,sincl,sexcl,
-     .    isp,wsp,w(owk),w(owk2),w(oxp),w(oyp),w(ozp),
-     .    xxmin,xxmax,yymin,yymax,zzmin,zzmax,
-     .    xmin,xmax,ymin,ymax,zmin,zmax,frm3d,rotm)
+     .  isp,wsp,w(owk),w(owk2),w(oxp),w(oyp),w(ozp),
+     .  xxmin,xxmax,yymin,yymax,zzmin,zzmax,
+     .  xmin,xmax,ymin,ymax,zmin,zmax,frm3d,rotm)
         if (pass1 .and. symtyp .ne. 0) frm3d(5) = frm3d(5) + np
       endif
 
@@ -1138,7 +1138,7 @@ C   ... For contour plots, set plot boundaries
 C   ... Case to set or seset user's units
         if (ltmp) then
           ltmp =
-     .      setuu(xmin,xmax,ymin,ymax,big,logx,logy,pad,plu,uuytox)
+     .    setuu(xmin,xmax,ymin,ymax,big,logx,logy,pad,plu,uuytox)
           if (ltmp) then
             call pltstu(plu(1),plu(2),plu(3),plu(4),uuytox)
           else
@@ -1147,44 +1147,44 @@ C   ... Case to set or seset user's units
         endif
 
         if (flagf .and. fstplt) call frme(
-     .   tcp(1),ts(1,1),mt(1),rmt(1),rmnt(1),modxy(1),xnum,xnfmt,xlabel,
-     .   tcp(2),ts(1,2),mt(2),rmt(2),rmnt(2),modxy(2),ynum,ynfmt,ylabel,
-     .   sfxdef,np,w(oxp),w(ofxp),title,ltfrme,fcs)
+     .  tcp(1),ts(1,1),mt(1),rmt(1),rmnt(1),modxy(1),xnum,xnfmt,xlabel,
+     .  tcp(2),ts(1,2),mt(2),rmt(2),rmnt(2),modxy(2),ynum,ynfmt,ylabel,
+     .  sfxdef,np,w(oxp),w(ofxp),title,ltfrme,fcs)
         if (lkey .and. legend .ne. ' ') then
           if (xkey(3) .eq. 0d0) xkey(3) = plu(6)/15
           if (xkey(4) .lt. 0) xkey(4) = plu(5)/8
           call key(nint(xkey(6)),xkey(1),xkey(2),xkey(4),xmin,xmax,ymin,
-     .      ymax,symtyp,syma,symcs,crvcs,legend,nint(xkey(5)))
+     .    ymax,symtyp,syma,symcs,crvcs,legend,nint(xkey(5)))
           if (.not. logy) xkey(2) = xkey(2) - xkey(3)
           if (      logy) xkey(2) = xkey(2)/dexp(xkey(3))
         endif
         if (flagcp) then
           call drwcin(nr,plu(1),plu(2),nc,plu(3),plu(4))
           call gcontr(w(odat),nr,nr,nc,cval,ncval,d1mach(2),
-     .      crvcs,w(owk),drwc,lntypc)
+     .    crvcs,w(owk),drwc,lntypc)
         else
           call plcrv(w(oxp),w(oyp),w(ozp),w(owp),w(owp2),np,xmin,xmax,
-     .      ymin,ymax,lxbrk+10*lclip,crvcs,crvcsw,11)
+     .    ymin,ymax,lxbrk+10*lclip,crvcs,crvcsw,11)
           if (errbar) call plsym(w(oxp),w(oyp),w(ozp),np,8,werrby,symcs)
           call plsym(w(oxp),w(oyp),w(ozp),np,symtyp,syma,symcs)
         endif
       elseif (.not. pass1 .and. flg3d) then
         if (logx .or. logy)
-     .    call rx('fplot:  3D plots not implemented with log scale')
+     .  call rx('fplot:  3D plots not implemented with log scale')
         if (flagcp) call rx('fplot:  3D contour plots not implemented')
         call plntyp(lintyp, ltbld, ltypa, ltypb, ltypc, ltypd)
         if (fstplt)
-     .    call pltstu(frm3d(1),frm3d(2),frm3d(3),frm3d(4),uuytox)
+     .  call pltstu(frm3d(1),frm3d(2),frm3d(3),frm3d(4),uuytox)
         if (flagf .and. fstplt)
      .  call frme3d(tcp(1),ts(1,1),mt(1),ntx,rmt(1),xnum,xnfmt,xlabel,
-     .              tcp(2),ts(1,2),mt(2),nty,rmt(2),ynum,ynfmt,ylabel,
-     .              tcp(3),ts(1,3),mt(3),ntz,rmt(3),znum,znfmt,zlabel,
-     .              xmin,xmax,ymin,ymax,zmin,zmax,parm3d,rotm,
-     .              title,ltfrme,fcs)
+     .  tcp(2),ts(1,2),mt(2),nty,rmt(2),ynum,ynfmt,ylabel,
+     .  tcp(3),ts(1,3),mt(3),ntz,rmt(3),znum,znfmt,zlabel,
+     .  xmin,xmax,ymin,ymax,zmin,zmax,parm3d,rotm,
+     .  title,ltfrme,fcs)
 C       call plcrv(w(oxp),w(oyp),np,frm3d(1),frm3d(2),frm3d(3),frm3d(4),
 C    .    lxbrk+10*lclip,crvcs,11)
         call pls3da(w(oxp),w(oyp),w(ozp),np,w(odat),np,4,symtyp,
-     .    syma,symcs,bsrad,bslist,nint(frm3d(5)),w(osym),w(osyma),nsymc)
+     .  syma,symcs,bsrad,bslist,nint(frm3d(5)),w(osym),w(osyma),nsymc)
       else
         if (symtyp .ge. 0) nsymc = nsymc+1
         if (symtyp .lt. 0) nsymc = nsymc+np
@@ -1206,7 +1206,7 @@ C --- End of first or second pass ---
           call defi(oiwk, 2*nint(frm3d(5)+1))
           call defi(otabpr, 3*nint(frm3d(5)+1)**2)
           call pls3dp(nint(frm3d(5)),w(osym),w(osyma),
-     .      bslist,w(otabpr),w(oiwk),rotm,parm3d)
+     .    bslist,w(otabpr),w(oiwk),rotm,parm3d)
         endif
         if (.not. pass1) call rlse(osym)
       endif
@@ -1220,9 +1220,9 @@ C ... Close of first  pass ... get plot boundaries
         if (yymin .ne. big) ymin = yymin
         if (yymax .ne. big) ymax = yymax
         ltmp = setuu(xmin,xmax,ymin,ymax,big,logx,logy,pad,plu,
-     .    uuytox)
+     .  uuytox)
         if (ltmp .and. .not. flg3d)
-     .    call pltstu(plu(1),plu(2),plu(3),plu(4),uuytox)
+     .  call pltstu(plu(1),plu(2),plu(3),plu(4),uuytox)
       endif
       if (.not. pass1) goto 3
 
@@ -1250,14 +1250,14 @@ C ... Below assumes a postscript file ...
       if (lbbox .ne. 0) then
         call spchar(1,bkslsh)
         strn = 'awk -vbbox="`echo quit|gs -sDEVICE=bbox -dNOPAUSE '//
-     .    'ps.dat 2>&1|grep BoundingBox:|head -1`" '//
-     .    '''{print ; if (NR == 1) '//
-     .    'printf "%s'//bkslsh//'n", bbox;}'' ps.dat >ps.ps'
+     .  'ps.dat 2>&1|grep BoundingBox:|head -1`" '//
+     .  '''{print ; if (NR == 1) '//
+     .  'printf "%s'//bkslsh//'n", bbox;}'' ps.dat >ps.ps'
         call strip(strn,j1,j2)
         write(*,454)  strn(j1:j2)
   454   format(/' File ps.dat created ...',
-     .          ' remake Bounding Box (file ps.ps) with system call:':/
-     .          1x,a)
+     .  ' remake Bounding Box (file ps.ps) with system call:':/
+     .  1x,a)
         call fsystm(strn(j1:j2),j)
         if (j .ne. 0) call rxi('oops: shell returned value',j)
       endif
@@ -1265,27 +1265,27 @@ C ... Below assumes a postscript file ...
         call psfrag(ntxstr,texstr)
         print 455
   455   format(/
-     .    ' File psfrag.tex was created ... '/
-     .    ' Do the following to make TeX substitutions: (file ps.dat)'/
-     .    ' latex psfrag.tex'/' dvips -E -f psfrag.dvi > ps.dat'
-     .    )
+     .  ' File psfrag.tex was created ... '/
+     .  ' Do the following to make TeX substitutions: (file ps.dat)'/
+     .  ' latex psfrag.tex'/' dvips -E -f psfrag.dvi > ps.dat'
+     .  )
   555   format(a)
       endif
       if (ldisp) then
 
         if (ntxstr .ne. 0) then
-        print 456
-  456   format(/' ... invoking latex with system call')
-        call fsystm('latex psfrag.tex',j)
-        if (j .ne. 0) call rxi('oops: shell returned value',j)
-        print 457
-  457   format(/' ... invoking dvips with system call')
-        call fsystm('dvips -E -f psfrag.dvi > ps.dat',j)
-        if (j .ne. 0) call rxi('oops: shell returned value',j)
+          print 456
+  456     format(/' ... invoking latex with system call')
+          call fsystm('latex psfrag.tex',j)
+          if (j .ne. 0) call rxi('oops: shell returned value',j)
+          print 457
+  457     format(/' ... invoking dvips with system call')
+          call fsystm('dvips -E -f psfrag.dvi > ps.dat',j)
+          if (j .ne. 0) call rxi('oops: shell returned value',j)
 
-        write(*,454) strn(j1:j2)
-        call fsystm(strn(j1:j2),j)
-        if (j .ne. 0) call rxi('oops: shell returned value',j)
+          write(*,454) strn(j1:j2)
+          call fsystm(strn(j1:j2),j)
+          if (j .ne. 0) call rxi('oops: shell returned value',j)
 
         endif
 
@@ -1326,34 +1326,34 @@ C ... Create head
       ifi = fopng('psfrag.tex',-1,0)
       rewind ifi
       write(ifi,333)
-     .  bkslsh,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh
-     .  ,bkslsh,bkslsh
-     .  ,bkslsh,bkslsh
-     .  ,bkslsh,bkslsh
-     .  ,bkslsh,bkslsh
-     .  ,bkslsh,bkslsh,bkslsh
-     .  ,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh
-     .  ,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh
+     .bkslsh,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh
+     .,bkslsh,bkslsh
+     .,bkslsh,bkslsh
+     .,bkslsh,bkslsh
+     .,bkslsh,bkslsh
+     .,bkslsh,bkslsh,bkslsh
+     .,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh
+     .,bkslsh,bkslsh,bkslsh,bkslsh,bkslsh
   333 format(
-     . a1,'documentclass{slides}'/
-     . a1,'usepackage{graphicx}'/
-     . a1,'usepackage{psfrag}'/
-     . a1,'usepackage{latexsym}'/
-     . a1,'usepackage{amsmath}'/
-     . a1,'pagestyle{empty}'/
-     . a1,'begin{document}'//
-     . a1,'fontfamily{ptm}',a1,'selectfont'/
-     . '%',a1,'fontfamily{cmr}',a1,'selectfont'/
-     . '%',a1,'fontfamily{phv}',a1,'selectfont'//
-     . '%',a1,'fontseries{sb}',a1,'selectfont'//
-     . '% Customize fonts ',
-     . 'within text: e.g. {',a1,'Huge',a1,'textsl{',a1,'textsf{end}}}'/
-     . '%',a1,'small'/'%',a1,'normalsize'/'%',a1,'large'/'%',a1,'Large'/
-     .    ,a1,'LARGE            % A sensible global average'/
-     . '%',a1,'huge'/'%',a1,'Huge'//
-     . '%',a1,'textrm'/'%',a1,'textsf'/'%',a1,'textbf'/
-     . '%',a1,'textsl'/'%',a1,'textit'/
-     .  )
+     .a1,'documentclass{slides}'/
+     .a1,'usepackage{graphicx}'/
+     .a1,'usepackage{psfrag}'/
+     .a1,'usepackage{latexsym}'/
+     .a1,'usepackage{amsmath}'/
+     .a1,'pagestyle{empty}'/
+     .a1,'begin{document}'//
+     .a1,'fontfamily{ptm}',a1,'selectfont'/
+     .'%',a1,'fontfamily{cmr}',a1,'selectfont'/
+     .'%',a1,'fontfamily{phv}',a1,'selectfont'//
+     .'%',a1,'fontseries{sb}',a1,'selectfont'//
+     .'% Customize fonts ',
+     .'within text: e.g. {',a1,'Huge',a1,'textsl{',a1,'textsf{end}}}'/
+     .'%',a1,'small'/'%',a1,'normalsize'/'%',a1,'large'/'%',a1,'Large'/
+     .,a1,'LARGE            % A sensible global average'/
+     .'%',a1,'huge'/'%',a1,'Huge'//
+     .'%',a1,'textrm'/'%',a1,'textsf'/'%',a1,'textbf'/
+     .'%',a1,'textsl'/'%',a1,'textit'/
+     .)
       write(ifi,433)
   433 format(/'% --- psfrag substitutions ---')
       do  i = 1, ntxstr
@@ -1364,9 +1364,9 @@ C ... Create head
       enddo
       write(ifi,335) bkslsh,bkslsh,bkslsh
   335 format(/
-     .  a1,'includegraphics[width=1.0',a1,'textwidth,clip]{ps.ps}'//
-     .  a1,'end{document}'
-     .  )
+     .a1,'includegraphics[width=1.0',a1,'textwidth,clip]{ps.ps}'//
+     .a1,'end{document}'
+     .)
 
       call fclose(ifi)
 

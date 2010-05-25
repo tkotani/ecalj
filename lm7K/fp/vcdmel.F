@@ -1,6 +1,6 @@
 #define F90 1
       subroutine vcdmel(sctrl,ssite,sspec,slat,nlmax,ndham,ndimh,
-     .  nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn)
+     .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn)
 
       use m_struc_def  !Cgetarg
 
@@ -52,10 +52,10 @@ C Local Variables
       integer n0,lmxax
       parameter (n0=10,lmxax=10)
       integer ifi,fopna,isp,ib,is,lcls,ncls,nl,i,j,iomoms,
-     .        nr,lmxa,iq,nlma,igets,igetss,i1mach,nfstg,nchan
+     .nr,lmxa,iq,nlma,igets,igetss,i1mach,nfstg,nchan
       integer lh(10)
       integer ocg,ojcg,oidxcg,ocy,ov0,orofi,oul,osl,ogz,oruu,orus,orss,
-     .  og,os
+     .og,os
       double precision pnu(n0,2),pnz(n0,2),a,rmt,z,xx,rsml(n0),ehl(n0)
 #if F90 | AUTO_ARRAY
       double precision ume(0:lmxax,nsp,nsite),sme(0:lmxax,nsp,nsite)
@@ -123,14 +123,14 @@ C   --- Augmented wave functions u,s
         call defrr(orss,  nr*(lmxa+1)*2*nsp)
         call uspecb(0,4,sspec,is,is,lh,rsml,ehl,j)
         call makusp(n0,z,nsp,rmt,lmxa,w(ov0),a,nr,xx,xx,pnu,pnz,rsml,
-     .    ehl,w(oul),w(osl),w(ogz),w(oruu),w(orus),w(orss))
+     .  ehl,w(oul),w(osl),w(ogz),w(oruu),w(orus),w(orss))
 C   --- Matrix elements of u,s with core
         call skpblb(clabl,8,j)
         call awrit3('%N CLS atom %i ('//clabl(1:j+1)//') n=%i l=%i',
-     .              ' ',120,i1mach(2),ib,ncls,lcls)
+     .  ' ',120,i1mach(2),ib,ncls,lcls)
         call defrr(og,   nr*2)
         call pvcdm1(ncls,lcls,w(og),z,lmxa,w(ov0),a,nr,w(orofi),
-     .              w(oul),w(osl),nsp,lmxax,ume(0,1,i),sme(0,1,i))
+     .  w(oul),w(osl),nsp,lmxax,ume(0,1,i),sme(0,1,i))
         call rlse (orofi)
    10   continue
       enddo
@@ -142,7 +142,7 @@ C --- Open CLS weights file and write first line
       nchan = 3*nsite
       ifi = fopna('cls',-1,4)
       j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,0,1,0,0,0,0,0,
-     .           0d0,0d0,0d0,0d0,0d0,0d0)
+     .0d0,0d0,0d0,0d0,0d0,0d0)
 C --- For each qp, make <nk|x,y,z|core> at each site and save to disk in
 C     iomoms-compatible format ---
       do   iq = 1, nq
@@ -159,37 +159,37 @@ C     iomoms-compatible format ---
             nlma = (lmxa+1)**2
             if (lmxa .gt. -1) then
               call pvcdm2(i,nsite,ndham,ndimh,nlma,nlmax,
-     .                  aus(1,1,1,isp,i,iq),ume(0,isp,i),sme(0,isp,i),
-     .                  lcls,w(ocg),w(ojcg),w(oidxcg),w(os))
+     .        aus(1,1,1,isp,i,iq),ume(0,isp,i),sme(0,isp,i),
+     .        lcls,w(ocg),w(ojcg),w(oidxcg),w(os))
             endif
           enddo
 C --- Scale weights arbitrarily by 100 for plotting etc ..
           call dscal(3*ndimh*nsite*2,1d2,w(os),1)
           j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,1,1,ndimh,ndimh,
-     .      nchan,nchan,ndimh,evl(1,isp,iq),0d0,w(os),0d0,0d0,0d0)
+     .    nchan,nchan,ndimh,evl(1,isp,iq),0d0,w(os),0d0,0d0,0d0)
         enddo
       enddo
       iq = nq*nsp + 1
       j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,iq,1,ndimh,ndimh,
-     .  nchan,nchan,ndimh,0d0,0d0,0d0,0d0,ef,0d0)
+     .nchan,nchan,ndimh,0d0,0d0,0d0,0d0,ef,0d0)
       call rlse(os)
       call fclose(ifi)
       call tcx ('vcdmel')
       end subroutine vcdmel
 
       subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,
-     .                  lmxax,ume,sme)
+     .lmxax,ume,sme)
 
 C- Radial matrix elements < (u,s) | r | core >
 C     implicit none
       integer ncls,lcls,lmxa,nr,nsp,lmxax
       double precision a,z,gcore(nr,2),rofi(1),v(nr,nsp),
-     .  ul(nr,0:lmxa,nsp),sl(nr,0:lmxa,nsp),ume(0:lmxax,nsp),
-     .  sme(0:lmxax,nsp)
+     .ul(nr,0:lmxa,nsp),sl(nr,0:lmxa,nsp),ume(0:lmxax,nsp),
+     .sme(0:lmxax,nsp)
 C Local
       integer nodes,l,nre,isp,ll,ir,i1mach
       double precision e1,e2,slo,val,rmax,b,ecore,tol,yyy,dlml,slo1,
-     .  r,wgt,uc,sc,ecor0,sum
+     .r,wgt,uc,sc,ecor0,sum
 
       do  isp = 1, nsp
         if (nsp .eq. 2) then
@@ -207,7 +207,7 @@ C   --- gcore <- core level wave function * r ---
         nodes = ncls - (l+1)
         ecore = (e1+e2)/2
         call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo,v(1,isp),gcore,sum,
-     .            a,b,rofi,nr,nre)
+     .  a,b,rofi,nr,nre)
         ecor0 = ecore
 C   ... Correct core energy by using hankel bc's
         yyy = ecore - v(nr,isp) + 2*z/rmax
@@ -218,11 +218,11 @@ C   ... Correct core energy by using hankel bc's
           enddo
           slo1 = val*(dlml+l+1)/rmax
           call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo1,v(1,isp),gcore,
-     .              sum,a,b,rofi,nr,nre)
+     .    sum,a,b,rofi,nr,nre)
         endif
         call awrit2(' vcdmel: ecor0=%,8d ecore=%,8d%N'
-     .            //' (not including electrostatic potential shift)',
-     .              ' ',120,i1mach(2),ecor0,ecore)
+     .  //' (not including electrostatic potential shift)',
+     .  ' ',120,i1mach(2),ecor0,ecore)
 C      call prrmsh('gcore',rofi,gcore,nr,nr,1)
 C      call prrmsh('ul',rofi,ul,nr,nr,1+lmxa)
 C      call prrmsh('sl',rofi,sl,nr,nr,1+lmxa)
@@ -230,7 +230,7 @@ C      call prrmsh('sl',rofi,sl,nr,nr,1+lmxa)
 C --- Matrix elements < (u,s) | r | core > ---
         print 332
   332   format( '   l',3x,'<u|core>',5x,'<s|core>',4x,
-     .    '<u|r|core>',2x,'<s|r|core>')
+     .  '<u|r|core>',2x,'<s|r|core>')
         do  l = 0, lmxa
           ume(l,isp) = 0
           sme(l,isp) = 0
@@ -242,9 +242,9 @@ C --- Matrix elements < (u,s) | r | core > ---
             uc     = uc + wgt * ul(ir,l,isp) * gcore(ir,1)
             sc     = sc + wgt * sl(ir,l,isp) * gcore(ir,1)
             ume(l,isp) = ume(l,isp)
-     .                 + wgt * ul(ir,l,isp) * r * gcore(ir,1)
+     .      + wgt * ul(ir,l,isp) * r * gcore(ir,1)
             sme(l,isp) = sme(l,isp)
-     .                 + wgt * sl(ir,l,isp) * r * gcore(ir,1)
+     .      + wgt * sl(ir,l,isp) * r * gcore(ir,1)
           enddo
           ir = nre
           r = rofi(ir)
@@ -264,7 +264,7 @@ C --- Matrix elements < (u,s) | r | core > ---
       end subroutine pvcdm1
 
       subroutine pvcdm2(isite,nsite,ndham,ndimh,nlma,nlmax,aus,ume,sme,
-     .                  lcls,cg,jcg,indxcg,s)
+     .lcls,cg,jcg,indxcg,s)
 
 C- Kernel called by vcmdel
 C ----------------------------------------------------------------------
@@ -318,14 +318,14 @@ C             lm of core
               if (ll(llm) .eq. lcls) then
                 do  10  ib = 1, ndimh
                   cxx =  cg(icg)*
-     .              (dconjg(aus(mlm,ib,1))*ume(lm) +
-     .               dconjg(aus(mlm,ib,2))*sme(lm))
+     .            (dconjg(aus(mlm,ib,1))*ume(lm) +
+     .            dconjg(aus(mlm,ib,2))*sme(lm))
 C                  write (*,200) kk(klm),mlm,klm,llm,aus(mlm,ib,1),
 C     .              aus(mlm,ib,2),cg(icg),cxx
                   s(kk(klm),isite,ib,1) = s(kk(klm),isite,ib,1)
-     .                                  + dble(cxx)
+     .            + dble(cxx)
                   s(kk(klm),isite,ib,2) = s(kk(klm),isite,ib,2)
-     .                                  + dimag(cxx)
+     .            + dimag(cxx)
    10           continue
               endif
    15       continue
@@ -334,9 +334,9 @@ C     .              aus(mlm,ib,2),cg(icg),cxx
    11 continue
 
       do  20  k = 1, 3
-      do  20  ib = 1, ndimh
-        s(k,isite,ib,1) = s(k,isite,ib,1)*s(k,isite,ib,1)
-     .                  + s(k,isite,ib,2)*s(k,isite,ib,2)
+        do  20  ib = 1, ndimh
+          s(k,isite,ib,1) = s(k,isite,ib,1)*s(k,isite,ib,1)
+     .    + s(k,isite,ib,2)*s(k,isite,ib,2)
    20 continue
 C  100 format (2x,'n',2x,'L(val)',1x,'L(r)',1x,'L(core)',11x,'au',25x,
 C     .        'as',14x,'CG',20x,'cxx')

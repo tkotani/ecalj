@@ -71,7 +71,7 @@ C ... Passed parameters
       double complex cg(ng)
 C ... Local parameters
       integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nglob,nlm,
-     .  nlmtop,nspec,ngabc(3),lfoc,modgkl
+     .nlmtop,nspec,ngabc(3),lfoc,modgkl
       integer:: ogv , okv , nsp
       real(8) ,allocatable :: qkl_rv(:)
       real(8) ,allocatable :: cs_rv(:)
@@ -83,10 +83,10 @@ C ... Local parameters
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg,
-     .  vol,z,q0(3),df(0:20),plat(3,3),qlat(3,3),tau(3)
+     .vol,z,q0(3),df(0:20),plat(3,3),qlat(3,3),tau(3)
 C ... External calls
       external corprm,defi,defrr,poppr,pshpr,rhgcm2,rhogkl,rlse,stdfac,
-     .         suphas,suphs0,suylg,tcn,tcx,upack
+     .suphas,suphs0,suylg,tcn,tcx,upack
 C ... Heap
       integer w(1)
       common /w/ w
@@ -140,7 +140,7 @@ Ctakao_ZeroClear_NotRequiered        if (ng<0) g2_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered        if (ng*3<0) g_rv(:)=0.0d0
 
       call suylg ( ltop , alat , ng , w ( ogv ) , g_rv , g2_rv 
-     . , yl_rv )
+     ., yl_rv )
 
       if (allocated(g_rv)) deallocate(g_rv)
 
@@ -174,7 +174,7 @@ C --- Loop over sites ---
         if (mode .eq. 2) cofh = 0
         nlm = (lmxl+1)**2
         call suphas ( q0 , tau , ng , iv_iv , n1 , n2 , n3 , qlat 
-     .   , cs_rv , sn_rv )
+     .  , cs_rv , sn_rv )
 
 
         allocate(qkl_rv(nlm*(kmax+1)))
@@ -182,15 +182,15 @@ Ctakao_ZeroClear_NotRequiered          if (nlm*(kmax+1)<0) qkl_rv(:)=0.0d0
 
         call pshpr(0)
         call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , orhat 
-     .   , kmax , qkl_rv )
+     .  , kmax , qkl_rv )
 
         call poppr
         call rhgcm2 ( vol , rg , rfoc , ceh , cofh , kmax , mod ( mode 
-     .   / 10 , 10 ) .ge.2 , qkl_rv , nlm , ng , g2_rv , yl_rv 
-     .   , cs_rv , sn_rv , cg )
+     .  / 10 , 10 ) .ge.2 , qkl_rv , nlm , ng , g2_rv , yl_rv 
+     .  , cs_rv , sn_rv , cg )
 
         if ( mode .ge. 200 ) call rhgcm3 ( - z , vol , ng , cs_rv 
-     .   , sn_rv , cg )
+     .  , sn_rv , cg )
 
         if (allocated(qkl_rv)) deallocate(qkl_rv)
 
@@ -210,7 +210,7 @@ Ctakao_ZeroClear_NotRequiered          if (nlm*(kmax+1)<0) qkl_rv(:)=0.0d0
 
 
       subroutine rhgcm2(vol,rg,rfoc,ceh,cofh,kmax,lcor,qkl,nlm,ng,g2,yl,
-     .  cs,sn,cg)
+     .cs,sn,cg)
 
 C- Convert G_kL expansion of function centered at a site to PW's
 C     implicit none

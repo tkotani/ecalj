@@ -1,5 +1,5 @@
       subroutine atwf(mode,a,lmxa,nr,nsp,pnu,pnz,rsml,ehl,rmt,z,v0,
-     .  nphimx,ncore,konfig,ecore,gcore,gval)
+     .nphimx,ncore,konfig,ecore,gcore,gval)
 C- Make properties related to core for one sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -56,8 +56,8 @@ C ... Passed parameters
       integer mode,nr,nsp,lmxa,ncore,konfig(1+lmxa),n0,nrmx,nphimx
       parameter (n0=10,nrmx=1501)
       double precision rmt,z,a,v0(nr,nsp),pnu(n0,nsp),pnz(n0,nsp),
-     .  gval(nr*2,0:lmxa,nphimx,nsp),ecore(*),gcore(nr,2,*),
-     .  rsml(n0),ehl(n0)
+     .gval(nr*2,0:lmxa,nphimx,nsp),ecore(*),gcore(nr,2,*),
+     .rsml(n0),ehl(n0)
 C ... Local parameters
       logical lpz
       integer l,isp,konf,konfz,k,mode0,mode1
@@ -125,7 +125,7 @@ C         Copy 1st derivative to passed array
             call dcopy(2*nr,gp,1,gval(1,l,2,isp),1)
 C         phi,phidot already orthogonal if mode1=1
             if (mode1 .eq. 2)
-     .     call ortrwf(10*(mode1-1)+2,z,l,v0(1,isp),nr,nr,nr,rofi,rwgt,
+     .      call ortrwf(10*(mode1-1)+2,z,l,v0(1,isp),nr,nr,nr,rofi,rwgt,
      .      e,e,ez,gval(1,l,1,isp),gval(1,l,2,isp),gval(1,l,3,isp),xx)
 
 C     ... Make local orbital
@@ -165,7 +165,7 @@ C       call prrmsh('gval',rofi,gval,nr,nr,2*(1+lmxa))
 C --- Core eigenfunctions and eigenvalues ---
       if (mode0 .ge. 2) then
         call getcor(1,z,a,pnu,pnz,nr,lmxa,rofi,v0,0,0,0d0,sumec,sumtc,
-     .    rhoc,ncore,ecore,gcore)
+     .  rhoc,ncore,ecore,gcore)
       endif
 
       end

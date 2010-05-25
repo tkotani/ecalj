@@ -76,13 +76,13 @@ Ctakao_ZeroClear_NotRequiered        if (nbas<0) ntabb_iv(:)=0
 
 C     call yprm('iax before copy',0,iax,0,10,10,nttab)
       call iax2fd ( 0 , nbas , ntab , iax , ntabb_iv , iaxib_iv 
-     . , ldiaxb )
+     ., ldiaxb )
 
 
 C ... Update the table
       if (ng .gt. 0) then
         call symia0 ( mode , plat , nbas , pos , g , ag , ng , ntabb_iv 
-     . , iaxib_iv , ldiaxb , grow )
+     .  , iaxib_iv , ldiaxb , grow )
 
         ib = ntab(nbas+1)+grow
         if (ib .gt. nttab) call rxi(
@@ -91,7 +91,7 @@ C ... Update the table
 
 C ... Copy iax from fixed-basis format
       call iax2fd ( 1 , nbas , ntab , iax , ntabb_iv , iaxib_iv 
-     . , nttab )
+     ., nttab )
 
       mxcsz = 0
       do  ib = 1, nbas
@@ -110,7 +110,7 @@ C      call iax2fd(1,nbas,ntab,iax,w(ontabb),w(oiaxib),nttab)
       end
 
       subroutine symia0(mode,plat,nbas,pos,g,ag,ng,ntabib,iaxib,ldiaxb,
-     .  grow)
+     .grow)
 C- Kernel for symiax. (Same as symiax but uses fixed-basis form for iax)
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -158,13 +158,13 @@ C Passed parameters:
       double precision pos(3,*),g(9,*),ag(3,*),plat(3,3)
 C Local variables:
       integer ib,jb,ibas,isite,ig,ibp,jbp,ksite,ipr,ix,i,n,
-     .  change,nttab,nttabn,isum,mode0,mode1,mode2
+     .change,nttab,nttabn,isum,mode0,mode1,mode2
       double precision qlat(3,3),v(3),rv(3),vk(3),dx,fuzz
 C ... ix-th component of connecting vector of pair i
       dx(ix,ibas,i) = pos(ix,iaxib(2,ibas,i)) - pos(ix,iaxib(1,ibas,i))
-     .  + plat(ix,1)*iaxib(3,ibas,i)
-     .  + plat(ix,2)*iaxib(4,ibas,i)
-     .  + plat(ix,3)*iaxib(5,ibas,i)
+     .+ plat(ix,1)*iaxib(3,ibas,i)
+     .+ plat(ix,2)*iaxib(4,ibas,i)
+     .+ plat(ix,3)*iaxib(5,ibas,i)
 
 C --- Setup ---
       if (ng .le. 0) return
@@ -237,7 +237,7 @@ C       ... Also the connecting vector of ksite must be rv
               vk(2) = dx(2,ibp,ksite)
               vk(3) = dx(3,ibp,ksite)
               if (abs(rv(1)-vk(1)) + abs(rv(2)-vk(2)) + abs(rv(3)-vk(3))
-     .          .lt. fuzz) goto 42
+     .        .lt. fuzz) goto 42
    40       continue
 C         No vector found.  Add a new element to the iax table
             if (mode0 .eq. 0) then
@@ -271,7 +271,7 @@ C           debugging check
               enddo
               change = 1
               call info8(70,0,0,' ig=%i isite=%i, ib,jb=%i %i add map to '
-     .       //'site=%i, ibp,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
+     .        //'site=%i, ibp,jbp=%i %i',ig,isite,ib,jb,ksite,ibp,jbp,0)
 C         No vector found.  Remove element from the iax table
             else
               iaxib(1,ib,isite) = 0
@@ -298,10 +298,10 @@ C       Restart this loop if new pair added
       if (grow .lt. 0) nttabn = nttabn + grow
       if (nttabn .gt. nttab) then
         call info5(30,0,0,' symiax: enlarged neighbor table from %i'//
-     .    ' to %i pairs (%i symops)',nttab,nttabn,ng,0,0)
+     .  ' to %i pairs (%i symops)',nttab,nttabn,ng,0,0)
       elseif (nttabn .lt. nttab) then
         call info5(30,0,0,' symiax: reduced neighbor table from %i'//
-     .    ' to %i pairs (%i symops)',nttab,nttabn,ng,0,0)
+     .  ' to %i pairs (%i symops)',nttab,nttabn,ng,0,0)
       else
         call info(30,0,0,' symiax: '
      .  //'neighbor table is compatible with symops',0,0)
@@ -309,7 +309,7 @@ C       Restart this loop if new pair added
 
 C ... Sort enlarged table by increasing length
       if (grow .gt. 0 .and. mode2 .ne. 0)
-     .  call symia1(plat,nbas,pos,ntabib,iaxib,ldiaxb)
+     .call symia1(plat,nbas,pos,ntabib,iaxib,ldiaxb)
 C     call tcx('symiax')
 
       end
@@ -345,9 +345,9 @@ C Local variables:
 
 C ... ix-th component of connecting vector of pair i
       dx(ix,ibas,i) = pos(ix,iaxib(2,ibas,i)) - pos(ix,iaxib(1,ibas,i))
-     .  + plat(ix,1)*iaxib(3,ibas,i)
-     .  + plat(ix,2)*iaxib(4,ibas,i)
-     .  + plat(ix,3)*iaxib(5,ibas,i)
+     .+ plat(ix,1)*iaxib(3,ibas,i)
+     .+ plat(ix,2)*iaxib(4,ibas,i)
+     .+ plat(ix,3)*iaxib(5,ibas,i)
 
       do  ib = 1, nbas
         do  is = 1, ntabib(ib)

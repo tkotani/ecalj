@@ -30,7 +30,7 @@ C --- For each ncol columns, do ---
 C  ...  Matrix subblock (1..ibar , ic..mcol)
         if (ic .gt. 0) then
           call dgemm('N','N',ibar,mcol,k,1d0,a,lda,
-     .      b(1,ic),ldb,beta,c(1,ic),ldc)
+     .    b(1,ic),ldb,beta,c(1,ic),ldc)
         endif
 
 C  ...  Matrix triangle (i1,i2)
@@ -39,13 +39,13 @@ C  ...  Matrix triangle (i1,i2)
 
         if (beta .eq. 0d0) then
           do  11  j = i1, i2
-          do  11  i = j, i2
-            c(i,j) = 0
+            do  11  i = j, i2
+              c(i,j) = 0
    11     continue
         elseif (beta .ne. 1d0) then
           do  15  j = i1, i2
-          do  15  i = j, i2
-            c(i,j) = beta*c(i,j)
+            do  15  i = j, i2
+              c(i,j) = beta*c(i,j)
    15     continue
         endif
 
@@ -58,16 +58,16 @@ C  ...  Matrix triangle (i1,i2)
    12   continue
 
         do  22  j = i1, i2
-        do  22  i = j, i2
-          c(j,i) = c(i,j)
+          do  22  i = j, i2
+            c(j,i) = c(i,j)
    22   continue
 
    10 continue
 
 C...  Fill in lower half of triangle
       do  20  j = 1, n
-      do  20  i = 1, j-1
-        c(j,i) = c(i,j)
+        do  20  i = 1, j-1
+          c(j,i) = c(i,j)
    20 continue
 
       end

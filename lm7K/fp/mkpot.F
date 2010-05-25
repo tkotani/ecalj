@@ -1,7 +1,7 @@
       subroutine mkpot(nbas,ssite,sspec,slat,sham,spot,lfrce,lcplxp,
-     .  k1,k2,k3,smrho,orhoat,qbg,smpot,qmom,vconst,vesrmt,osig,otau,
-     .  oppi,ppn,hab,vab,sab,qval,qsc,gpot0,vval,fes,job,
-     .  vorb,nlibu,lmaxu,lldau,  itest)
+     .k1,k2,k3,smrho,orhoat,qbg,smpot,qmom,vconst,vesrmt,osig,otau,
+     .oppi,ppn,hab,vab,sab,qval,qsc,gpot0,vval,fes,job,
+     .vorb,nlibu,lmaxu,lldau,  itest)
 
       use m_struc_def  !Cgetarg
 
@@ -171,7 +171,7 @@ C ... Passed parameters
       double precision qbg,qval,qsc,vconst,vesrmt(nbas)
       integer osig(nbas),otau(nbas),oppi(nbas),orhoat(3,nbas)
       real(8):: qmom(1) , fes(3,1) , gpot0(1) , vval(1) , ppn(nppn,n0,nbas) 
-     . , hab(nab,n0,nbas) , sab(nab,n0,nbas) , vab(nab,n0,nbas)
+     ., hab(nab,n0,nbas) , sab(nab,n0,nbas) , vab(nab,n0,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
@@ -184,7 +184,7 @@ C ... Local parameters
       logical cmdopt,lgors
       character*80 outs
       integer i,lgunit,nglob,ipl,ipr,iprint,n1,n2,n3,ngabc(3),stdo,
-     .  stdl,lxcfun,lso,isw,nsp,isum
+     .stdl,lxcfun,lso,isw,nsp,isum
       real(8) ,allocatable :: fxc_rv(:)
       real(8) ,allocatable :: hpot0_rv(:)
       complex(8) ,allocatable :: smvxc_zv(:)
@@ -193,14 +193,14 @@ C ... Local parameters
       complex(8) ,allocatable :: smexc_zv(:)
 
       double precision amom,cpnvsa,cpnves,dq,eh,eks,focexc,
-     .  focvxc,qsmc,smq,smag,sum2,rhoexc,rhoex,rhoec,rhovxc,rhvsm,sgp0,
-     .  sqloc,sqlocc,saloc,sumec,sumtc,uat,usm,utot,valfsm,valftr,
-     .  rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,valvfa,vvesat,valvef,
-     .  valves,vol,vsum,xcore,zsum,zvnsm,rvepsv(2),rvexv(2),rvecv(2),
-     .  rvvxcv(2),fcexc0(2),rveps(2),rvvxc(2),fcex0(2),fcec0(2),
-     .  fcexca(2),fcexa(2),fceca(2),rvmusm(2),rvepsm(2),rmusm(2),
-     .  vxcavg(2),fcvxc0(2),fcvxca(2),repat(2),repatx(2),repatc(2),
-     .  rmuat(2),repsm(2),repsmx(2),repsmc(2),rhobg,pi
+     .focvxc,qsmc,smq,smag,sum2,rhoexc,rhoex,rhoec,rhovxc,rhvsm,sgp0,
+     .sqloc,sqlocc,saloc,sumec,sumtc,uat,usm,utot,valfsm,valftr,
+     .rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,valvfa,vvesat,valvef,
+     .valves,vol,vsum,xcore,zsum,zvnsm,rvepsv(2),rvexv(2),rvecv(2),
+     .rvvxcv(2),fcexc0(2),rveps(2),rvvxc(2),fcex0(2),fcec0(2),
+     .fcexca(2),fcexa(2),fceca(2),rvmusm(2),rvepsm(2),rmusm(2),
+     .vxcavg(2),fcvxc0(2),fcvxca(2),repat(2),repatx(2),repatc(2),
+     .rmuat(2),repsm(2),repsmx(2),repsmc(2),rhobg,pi
 C     double precision tmp(2)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 
@@ -254,12 +254,12 @@ ccccccccccccccccccccccccccccccccc
       ipr = iprint()
       ipl = ipr
       lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
-     . ) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
+     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
 
       if (lso .ne. 0 .and. lcplxp .eq. 0)
-     .  call rx('mkpot: incompatible lso,lcplxp')
+     .call rx('mkpot: incompatible lso,lcplxp')
       if (isum(nbas,lldau,1) .ne. 0 .and. lcplxp .eq. 0)
-     .  call rx('mkpot: incompatible ldau,lcplxp')
+     .call rx('mkpot: incompatible ldau,lcplxp')
       stdo = lgunit(1)
       stdl = lgunit(2)
       nsp  = nglob('nsp')
@@ -291,8 +291,8 @@ C --- Printout for smooth background charge ---
       if (qbg .ne. 0) then
         rhobg = (3d0/4d0/pi*vol)**(1d0/3d0)
         call info5(20,1,0,' Energy for background charge'//
-     .    ' q=%d, radius r=%;3d :  E = 9/5*q*q/r = %;4d',
-     .    qbg,rhobg,1.8d0*qbg*qbg/rhobg,0,0)
+     .  ' q=%d, radius r=%;3d :  E = 9/5*q*q/r = %;4d',
+     .  qbg,rhobg,1.8d0*qbg*qbg/rhobg,0,0)
       endif
 
 C --- Smooth electrostatic potential ---
@@ -314,8 +314,8 @@ c      smpotbk=smpot(:,:,:,1)
 ccccccccccccccccccccc
 
       call smves ( i , nbas , ssite , sspec , slat , k1 , k2 , k3 , 
-     . qmom , gpot0 , vval , hpot0_rv , sgp0 , smrho , smpot , vconst 
-     . , smq , qsmc , fes , rhvsm , zvnsm , zsum , vesrmt , qbg )
+     .qmom , gpot0 , vval , hpot0_rv , sgp0 , smrho , smpot , vconst 
+     ., smq , qsmc , fes , rhvsm , zvnsm , zsum , vesrmt , qbg )
 
 
 cccccccccccccccccc
@@ -377,8 +377,8 @@ C --- Add smooth exchange-correlation potential ---
 C   ... Compute int smrho*exc(smrho) and int smrho*vxc(smrho)
         call pshpr(ipr-30)
         call smvxc2 ( 0 , nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
-     .   , k3 , smrho , smvxc_zv , smvx_zv , smvc_zv , smexc_zv 
-     .   , w , rvepsv , rvexv , rvecv , rvvxcv , vxcavg )
+     .  , k3 , smrho , smvxc_zv , smvx_zv , smvc_zv , smexc_zv 
+     .  , w , rvepsv , rvexv , rvecv , rvvxcv , vxcavg )
 
 C        call mshdot(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,w(osmvxc),
 C     .    tmp,tmp(2))
@@ -411,9 +411,9 @@ c      smpotbkx=smpot(:,:,:,1)
 cccccccccccccccccc
 
         call smvxcm ( ssite , sspec , slat , nbas , lfrce , k1 , k2 , 
-     .   k3 , smrho , smpot , smvxc_zv , smvx_zv , smvc_zv , 
-     .   smexc_zv , repsm , repsmx , repsmc , rmusm , rvmusm , rvepsm 
-     .   , fcexc0 , fcex0 , fcec0 , fcvxc0 , fxc_rv )
+     .  k3 , smrho , smpot , smvxc_zv , smvx_zv , smvc_zv , 
+     .  smexc_zv , repsm , repsmx , repsmc , rmusm , rvmusm , rvepsm 
+     .  , fcexc0 , fcex0 , fcec0 , fcvxc0 , fxc_rv )
 
 
 
@@ -440,7 +440,7 @@ c        print *,'vvv sum smrho=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1)))
 c        print *,'vvv repsm=',repsm
 cccccccccccc
         if ( lfrce .ne. 0 ) call dpadd ( fes , fxc_rv , 1 , 3 * nbas 
-     .   , 1d0 )
+     .  , 1d0 )
 
         if (allocated(fxc_rv)) deallocate(fxc_rv)
         if (allocated(smexc_zv)) deallocate(smexc_zv)
@@ -466,10 +466,10 @@ C --- Make parameters for extended local orbitals ---
 C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol
       call locpot(nbas,nsp,lso,lcplxp,ssite,sspec,slat,orhoat,qmom,vval,
-     .  gpot0,osig,otau,oppi,ppn,hab,vab,sab,vvesat,cpnvsa,repat,
-     .  repatx,repatc,rmuat,rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,
-     .  valvfa,xcore,fcexca,fcexa,fceca,fcvxca,sqloc,sqlocc,saloc,qval,
-     .  qsc,job,rhobg,nlibu,lmaxu,vorb,lldau)
+     .gpot0,osig,otau,oppi,ppn,hab,vab,sab,vvesat,cpnvsa,repat,
+     .repatx,repatc,rmuat,rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,
+     .valvfa,xcore,fcexca,fcexa,fceca,fcvxca,sqloc,sqlocc,saloc,qval,
+     .qsc,job,rhobg,nlibu,lmaxu,vorb,lldau)
 
 C ... Combine spin-up and spin-down integrals
       repsm(1)  = repsm(1) + repsm(2)
@@ -534,7 +534,7 @@ C     focex  = fcex0(1)  - fcexa(1)
 C     focec  = fcec0(1)  - fceca(1)
       focvxc = fcvxc0(1) - fcvxca(1)
       if (ipr.ge.30 .and. dabs(focexc).gt.1d-6)
-     .  write (stdo,850) focexc,focvxc
+     .write (stdo,850) focexc,focvxc
   850 format(' foca xc integrals for spillout charge:',2f12.6)
 
       repsm(1) = repsm(1) + fcexc0(1)
@@ -563,12 +563,12 @@ C --- Printout ---
       if (ipr .ge. 30) then
         write (stdo,681)
         write (stdo,680) 'rhoval*vef ',valfsm,valftr,valvef,
-     .                   'rhoval*ves ',rhvsm,vvesat,valves,
-     .                   'psnuc*ves  ',zvnsm,cpnvsa,cpnves,
-     .                   'utot       ',usm,uat,utot,
-     .                   'rho*exc    ',repsm(1),repat(1),rhoexc,
-     .                   'rho*vxc    ',rmusm(1),rmuat(1),rhovxc,
-     .                   'valence chg',smq,sqloc,smq+sqloc
+     .  'rhoval*ves ',rhvsm,vvesat,valves,
+     .  'psnuc*ves  ',zvnsm,cpnvsa,cpnves,
+     .  'utot       ',usm,uat,utot,
+     .  'rho*exc    ',repsm(1),repat(1),rhoexc,
+     .  'rho*vxc    ',rmusm(1),rmuat(1),rhovxc,
+     .  'valence chg',smq,sqloc,smq+sqloc
         if (nsp .eq. 2)
      .  write (stdo,680) 'valence mag',smag,saloc,amom
         write (stdo,680) 'core charge',qsmc,sqlocc,qsmc+sqlocc
@@ -577,8 +577,8 @@ C --- Printout ---
   680 format(3x,a,4x,3f17.6)
   681 format(' Energy terms:',13x,'smooth',11x,'local',11x,'total')
   670 format(/' Charges:  valence',f12.5,'   cores',f12.5,
-     .   '   nucleii',f12.5/'    hom background',f12.5,
-     .   '   deviation from neutrality: ',f12.5)
+     .'   nucleii',f12.5/'    hom background',f12.5,
+     .'   deviation from neutrality: ',f12.5)
 
 ccccccccccccccccccc takao sep2009
 c      print *,'vvvvvv ipl=',ipl
@@ -588,7 +588,7 @@ ccccccccccccccccccc
 c         print *,'stdl=',stdl
         write (stdl,710) smq+sqloc,smq,sqloc,qbg,dq
   710   format('fp qvl',f11.6,'  sm',f11.6,'  loc',f11.6,
-     .         '  qbg',f11.6,' dQ',f11.6)
+     .  '  qbg',f11.6,' dQ',f11.6)
         if (nsp .eq. 2) write (stdl,711) smag+saloc,smag,saloc
   711   format('fp mag',f11.5,'  sm',f11.5,'  loc',f11.5)
         write (stdl,720) rhovxc,rhoexc,utot
@@ -613,7 +613,7 @@ c------------------
 
       endif
       if (dabs(dq) .gt. 1d-3 .and. iprint() .gt. 0) call awrit1(
-     .  ' (warning) system not neutral, dq=%d',' ',80,lgunit(1),dq)
+     .' (warning) system not neutral, dq=%d',' ',80,lgunit(1),dq)
 
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,eterms,1,sham%eterms,1)

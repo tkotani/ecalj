@@ -68,64 +68,64 @@ c
       call sgedi(a,lda,n,ipvt,det,work,job)
 #else
       if (job/10 .eq. 0) goto 70
-         det(1) = 1.0d0
-         det(2) = 0.0d0
-         ten = 10.0d0
-         do  50  i = 1, n
-            if (ipvt(i) .ne. i) det(1) = -det(1)
-            det(1) = a(i,i)*det(1)
+      det(1) = 1.0d0
+      det(2) = 0.0d0
+      ten = 10.0d0
+      do  50  i = 1, n
+        if (ipvt(i) .ne. i) det(1) = -det(1)
+        det(1) = a(i,i)*det(1)
 c        ...exit
-            if (det(1) .eq. 0.0d0) goto 60
-   10       if (dabs(det(1)) .ge. 1.0d0) goto 20
-               det(1) = ten*det(1)
-               det(2) = det(2) - 1.0d0
-            goto 10
-   20       continue
-   30       if (dabs(det(1)) .lt. ten) goto 40
-               det(1) = det(1)/ten
-               det(2) = det(2) + 1.0d0
-            goto 30
-   40       continue
-   50    continue
-   60    continue
+        if (det(1) .eq. 0.0d0) goto 60
+   10   if (dabs(det(1)) .ge. 1.0d0) goto 20
+        det(1) = ten*det(1)
+        det(2) = det(2) - 1.0d0
+        goto 10
+   20   continue
+   30   if (dabs(det(1)) .lt. ten) goto 40
+        det(1) = det(1)/ten
+        det(2) = det(2) + 1.0d0
+        goto 30
+   40   continue
+   50 continue
+   60 continue
    70 continue
 c
 c     compute inverse(u)
 c
       if (mod(job,10) .eq. 0) goto 150
-         do  100  k = 1, n
-            a(k,k) = 1.0d0/a(k,k)
-            t = -a(k,k)
-            call dscal(k-1,t,a(1,k),1)
-            kp1 = k + 1
-            if (n .lt. kp1) goto 90
-            do  80  j = kp1, n
-               t = a(k,j)
-               a(k,j) = 0.0d0
-               call daxpy(k,t,a(1,k),1,a(1,j),1)
-   80       continue
-   90       continue
-  100    continue
+      do  100  k = 1, n
+        a(k,k) = 1.0d0/a(k,k)
+        t = -a(k,k)
+        call dscal(k-1,t,a(1,k),1)
+        kp1 = k + 1
+        if (n .lt. kp1) goto 90
+        do  80  j = kp1, n
+          t = a(k,j)
+          a(k,j) = 0.0d0
+          call daxpy(k,t,a(1,k),1,a(1,j),1)
+   80   continue
+   90   continue
+  100 continue
 c
 c        form inverse(u)*inverse(l)
 c
-         nm1 = n - 1
-         if (nm1 .lt. 1) goto 140
-         do  130  kb = 1, nm1
-            k = n - kb
-            kp1 = k + 1
-            do  110  i = kp1, n
-               work(i) = a(i,k)
-               a(i,k) = 0.0d0
-  110       continue
-            do  120  j = kp1, n
-               t = work(j)
-               call daxpy(n,t,a(1,j),1,a(1,k),1)
-  120       continue
-            l = ipvt(k)
-            if (l .ne. k) call dswap(n,a(1,k),1,a(1,l),1)
-  130    continue
-  140    continue
+      nm1 = n - 1
+      if (nm1 .lt. 1) goto 140
+      do  130  kb = 1, nm1
+        k = n - kb
+        kp1 = k + 1
+        do  110  i = kp1, n
+          work(i) = a(i,k)
+          a(i,k) = 0.0d0
+  110   continue
+        do  120  j = kp1, n
+          t = work(j)
+          call daxpy(n,t,a(1,j),1,a(1,k),1)
+  120   continue
+        l = ipvt(k)
+        if (l .ne. k) call dswap(n,a(1,k),1,a(1,l),1)
+  130 continue
+  140 continue
   150 continue
       return
 #endif

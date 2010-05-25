@@ -15,11 +15,11 @@ C Local parameters
       DIMENSION B(3,3),IBTR(3,3),B0(3,3)
 c     logical print
       DO  8  I = 1, 3
-        DO  7  J = 1, 3
-          B(J,I) = B0(J,I)
-          IBTR(J,I) = 0
-    7   continue
-        IBTR(I,I) = 1
+      DO  7  J = 1, 3
+      B(J,I) = B0(J,I)
+      IBTR(J,I) = 0
+    7 continue
+      IBTR(I,I) = 1
     8 continue
 
 c THE SHEARING TRICK DOES NOT WORK ...

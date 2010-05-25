@@ -52,13 +52,13 @@ C     character(nrcd),allocatable,private:: rcd(1)
       logical,private::  debug=.false.
       interface gtv
       module procedure
-     .   gtv_r8,gtv_i4,gtv_r8v,gtv_i4v,gtv_char,gtv_lg,gtv_none
+     .gtv_r8,gtv_i4,gtv_r8v,gtv_i4v,gtv_char,gtv_lg,gtv_none
       end interface
 
       interface getinput
       module procedure
-     .  getinput_r8,getinput_i4,getinput_r8v,getinput_i4v,
-     .  getinput_char,getinput_none
+     .getinput_r8,getinput_i4,getinput_r8v,getinput_i4v,
+     .getinput_char,getinput_none
       end interface
 
       contains
@@ -133,7 +133,7 @@ C     print *, cpusec()
 C     print *, ioff2; stop
       ioff2 = ioff2+9
       if (ioff2 > nrcd)
-     .  call rxi('m_gtv: increase size of rcd; need at least',ioff2)
+     .call rxi('m_gtv: increase size of rcd; need at least',ioff2)
 
       end subroutine
 
@@ -461,7 +461,7 @@ C       not sure we want to do this ...
       ig = 'i4';    goto 990
 
       entry gtv_i4v(name,sw,idatv,def_i4v,cindx,note,or,nmin,nout,
-     .    Texist)
+     .Texist)
       nndef = 0; sizez = size(idatv); defa(1) = 0d0
       if (present(def_i4v) ) then
         nndef = min(size(def_i4v),sizez); defa= def_i4v
@@ -532,19 +532,19 @@ C        call info2(0,0,0,' gtv:  name='//name//'; cast='//ig//
 C     .    ' ... help mode',0,0)
       elseif (debug) then
         call info2(0,0,0,' gtv:  name='//name//'; cast='//ig//
-     .    '%?!n>0!; contents from occurence #%-1j%i of token !!'//
-     .    '%?!n>1!; attempt to read %-1j%i elements',
-     .    cindx2,sizez)
+     .  '%?!n>0!; contents from occurence #%-1j%i of token !!'//
+     .  '%?!n>1!; attempt to read %-1j%i elements',
+     .  cindx2,sizez)
       endif
       if (-nminl .eq. NULLI) then
         write(sout,
-     .    "(1x,a,t20,a,3x,a,21x,'size depends on other input')")
-     .    name,opts(sw+1),ig
+     .  "(1x,a,t20,a,3x,a,21x,'size depends on other input')")
+     .  name,opts(sw+1),ig
       elseif (sizez .eq. 0) then
         write(sout,"(1x,a,t20,a,3x,a)") name,opts(sw+1),ig
       else
         write(sout,"(1x,a,t20,a,3x,a,i7,',',i3)")
-     .    name,opts(sw+1),ig,sizez,mod(nminl,10)
+     .  name,opts(sw+1),ig,sizez,mod(nminl,10)
       endif
 
 C ... Logical case: treat locally as integer
@@ -559,21 +559,21 @@ C  --- Help mode ---
 C       if (lgx .and. .false.) then
         if (lgx) then
           call info2(1,0,0,trim(sout)//
-     .      '%?!(n==1)!%50pdefault = %l',nndef,defa(1).ne.0)
+     .    '%?!(n==1)!%50pdefault = %l',nndef,defa(1).ne.0)
         elseif (nndef .ge. 1 .and. defa(1) .eq. NULLI) then
           if (nminl .eq. NULLI) then
             call info0(1,0,0,trim(sout)//
-     .       '%50psize and defaults depend on other input')
+     .      '%50psize and defaults depend on other input')
           else
             call info0(1,0,0,trim(sout)//
-     .       '%50pdefault depends on other input')
+     .      '%50pdefault depends on other input')
           endif
         elseif (nminl .eq. NULLI .and. nndef .ge. 1) then
           call info2(1,0,0,trim(sout)//
-     .      '%50pdef = %g ... size depends on other input',defa,0)
+     .    '%50pdef = %g ... size depends on other input',defa,0)
         elseif (nminl .eq. NULLI) then
           call info0(1,0,0,trim(sout)//
-     .      '%50psize depends on other input')
+     .    '%50psize depends on other input')
         elseif (nndef .ge. 1 .and .nndef .le. 4) then
           call info2(1,0,0,trim(sout)//'%50pdefault =%n:1g',nndef,defa)
         elseif (nndef .ge. 1) then
@@ -586,7 +586,7 @@ C       if (lgx .and. .false.) then
         endif
         if ( lor ) then
           write(stdo,"(a)")
-     .      ' * If token is not parsed, attempt to read the following:'
+     .    ' * If token is not parsed, attempt to read the following:'
         endif
         if (ig .ne. '---') then
           if (present(nout)) nout=0
@@ -654,7 +654,7 @@ C ... Case fewer values read than sought
       if ( nparse < nminl ) then
 C       No error, if defaults are available to fill nparse+1 ... nmin
         if (nndef .ge. nminl .and. (sw.eq.0.or.lexist) .and.
-     .      .not. lrqdn) then
+     .  .not. lrqdn) then
           nn = nndef
           ddat(nparse+1:nn) = defa(nparse+1:nn)
 C       No error if token's presence not required
@@ -668,12 +668,12 @@ C       Otherwise, error exit
             sout = ' gtv (abort): no expression read for token '//name
           else
             call info(0,0,0,' gtv: parsed %i%-1j elements: %n:1g',nn,
-     .        ddat)
+     .      ddat)
             write(opts(1),"(i4)") nn
             write(opts(2),"(i4)") nminl
             sout = ' gtv (abort): only '// trim(adjustl(opts(1))) //
-     .        ' expressions(s) read for ' // name //
-     .        ' when ' // trim(adjustl(opts(2))) // ' required'
+     .      ' expressions(s) read for ' // name //
+     .      ' when ' // trim(adjustl(opts(2))) // ' required'
           endif
           call rx(sout)
         endif
@@ -765,7 +765,7 @@ C ... Passed parameters
 C ... Local parameters
       character(1024) :: nameb
       integer :: i1,iend,spoint,i,ilev,iix,iex,itrm,
-     . mxlev,ie,ii0,ii
+     .mxlev,ie,ii0,ii
       external :: spoint
       integer ::  n
       character(3) :: ig
@@ -810,8 +810,8 @@ C --- Split token=string1[_string2[_string3...]]; -> tokencut(1..mxlev) ---
         if (mxlev/=0) exit
       enddo
       if (debug)
-     .  write(stdo,"(10a)") ' getinput: ',name,' partitioned into: ',
-     .  (trim(tokencut(i))//'->',i=1,mxlev-1), trim(tokencut(mxlev))
+     .write(stdo,"(10a)") ' getinput: ',name,' partitioned into: ',
+     .(trim(tokencut(i))//'->',i=1,mxlev-1), trim(tokencut(mxlev))
 
 C --- Find region of token's contents ---
 C     Start from top-level token in tree structure to define
@@ -828,23 +828,23 @@ C     in the region of the prior level.
 C       Categories: Terminator=' '  eor=head
         if (ilev .eq. 1) then
           call find_region(ilev,rcd(i1:ie),trim(tokencut(ilev)),' ',
-     .      ' ',1,itrm,head,iix,iex)
+     .    ' ',1,itrm,head,iix,iex)
         elseif (ilev .eq. 2 .and. cindx2 .gt. 0) then
           call find_region(ilev,rcd(i1:ie),trim(tokencut(ilev)),' ',
-     .      ':=',cindx2,1000+itrm,trim(tokencut(ilev)),iix,iex)
+     .    ':=',cindx2,1000+itrm,trim(tokencut(ilev)),iix,iex)
 C       If below highest nesting level, terminator '[' is required
         elseif (ilev .lt. mxlev) then
           call find_region(ilev,rcd(i1:ie),trim(tokencut(ilev)),' ',
-     .      ' ',1,1011,head,iix,iex)
+     .    ' ',1,1011,head,iix,iex)
 C       All other tokens: eor=head and Terminator=':='
         else
           call find_region(ilev,rcd(i1:ie),trim(tokencut(ilev)),' ',
-     .      ':=',1,1000+itrm,head,iix,iex)
+     .    ':=',1,1000+itrm,head,iix,iex)
         endif
         if (debug) call poppr
 C       Error exit if token//'[' found has no matching ']'
         if (iix .eq. -99997) call rx('getinput: token '//
-     .    trim(tokencut(ilev))//'[ missing its corresponding '']''')
+     .  trim(tokencut(ilev))//'[ missing its corresponding '']''')
 C       Exit if token not found
         if (iix .lt. -99990) then
           if (present(nout) ) nout = 0
@@ -861,7 +861,7 @@ C       Narrow region rcd(i1:ie)
 C --- Token has no arguments ---
       if ( ig == '---' ) then
         if (debug) call info0(0,0,0,
-     .    ' getinput: found token '//trim(name))
+     .  ' getinput: found token '//trim(name))
         return
       endif
 
@@ -913,8 +913,8 @@ C --- ASCII-numerical conversion ---
       n = a2vec(rcd(i1:ie),ie-i1+1,ii,4,', ',2,-3,nin,iarr,arr)
       if (n .lt. 0) n = -n-1
       if (debug) call info(0,0,0,
-     .  ' getinput: sought %i numbers, read %i from '//trim(name),
-     .  nin,n)
+     .' getinput: sought %i numbers, read %i from '//trim(name),
+     .nin,n)
 
       if (present(nout) ) nout = n
 C --- Copy array to data ---

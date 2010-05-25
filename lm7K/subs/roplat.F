@@ -100,20 +100,20 @@ C Passed variables:
 C Local variables:
       integer isym1,iprint,isym3,k,lgunit,m,stdo
       double precision a1,b1,c1,al,be,ga,facdeg,pi,qlatro(3,3),
-     .                 tb(9,7),parm,vol,wk
+     .tb(9,7),parm,vol,wk
       parameter(pi=3.14159265358979324d0,facdeg=180.d0/pi,parm=1.d-4)
 C External calls:
       external dmpy,iprint,lgunit,query
 C Data statements:
       data tb/1.0d0, .0d0, .0d0,  .0d0, 1.0d0, .0d0,  .0d0,.0d0, 1.0d0,
-     .        0.5d0,-.5d0, .0d0,  .5d0, 0.5d0, .0d0,  .0d0,.0d0, 1.0d0,
-     .        0.5d0, .0d0,-.5d0,  .0d0, 1.0d0, .0d0,  .5d0,.0d0, 0.5d0,
-     .        1.0d0, .0d0, .0d0,  .0d0, 0.5d0,-.5d0,  .0d0,.5d0, 0.5d0,
-     .       -0.5d0, .5d0, .5d0,  .5d0,-0.5d0, .5d0,  .5d0,.5d0,-0.5d0,
-     .        0.0d0, .5d0, .5d0,  .5d0, 0.0d0, .5d0,  .5d0,.5d0, 0.0d0,
-     .        0.6666666666667d0,  0.3333333333333d0,  0.3333333333333d0,
-     .       -0.3333333333333d0,  0.3333333333333d0,  0.3333333333333d0,
-     .       -0.3333333333333d0, -0.6666666666667d0,  0.3333333333333d0/
+     .0.5d0,-.5d0, .0d0,  .5d0, 0.5d0, .0d0,  .0d0,.0d0, 1.0d0,
+     .0.5d0, .0d0,-.5d0,  .0d0, 1.0d0, .0d0,  .5d0,.0d0, 0.5d0,
+     .1.0d0, .0d0, .0d0,  .0d0, 0.5d0,-.5d0,  .0d0,.5d0, 0.5d0,
+     .-0.5d0, .5d0, .5d0,  .5d0,-0.5d0, .5d0,  .5d0,.5d0,-0.5d0,
+     .0.0d0, .5d0, .5d0,  .5d0, 0.0d0, .5d0,  .5d0,.5d0, 0.0d0,
+     .0.6666666666667d0,  0.3333333333333d0,  0.3333333333333d0,
+     .-0.3333333333333d0,  0.3333333333333d0,  0.3333333333333d0,
+     .-0.3333333333333d0, -0.6666666666667d0,  0.3333333333333d0/
 
       stdo = lgunit(1)
       isym1=isym(1)
@@ -155,12 +155,12 @@ C --- Choose b as length unit
       if (isym1.eq.5) alat=alat/dsqrt(3.d0)
 
       if (a1.lt.parm.or.b1.lt.parm.or.c1.lt.parm.or.
-     .    dabs(dsin(al)).lt.parm.or.dabs(dsin(be)).lt.parm.or.
-     .    dabs(dsin(ga)).lt.parm)
-     .  call rx('LATPAR: bad lattice parameters')
+     .dabs(dsin(al)).lt.parm.or.dabs(dsin(be)).lt.parm.or.
+     .dabs(dsin(ga)).lt.parm)
+     .call rx('LATPAR: bad lattice parameters')
 
       wk=1.d0-dcos(al)**2-dcos(be)**2-dcos(ga)**2
-     .   +2.d0*dcos(al)*dcos(be)*dcos(ga)
+     .+2.d0*dcos(al)*dcos(be)*dcos(ga)
       if (wk.le.0d0) call rx('ROPLAT: impossible angles')
       platcv(1)=a1/alat*dsqrt(wk)/dsin(al)
       platcv(2)=a1/alat*dcos(ga)
@@ -178,14 +178,14 @@ C ----take rhombohedral primitive cell  not hexagonal triple cell
 
       call dinv33(platro,1,qlatro,vol)
       if (iprint().ge.50) write(stdo,302)alat,
-     .    ((platro(m,k),m=1,3),(qlatro(m,k),m=1,3),k=1,3)
+     .((platro(m,k),m=1,3),(qlatro(m,k),m=1,3),k=1,3)
       if (iprint().ge.60) write(stdo,304) (platcv(m),m=1,9)
 
   300 format(/' ROPLAT: isym1,isym3=',2i3)
   301 format(/' ROPLAT:      a=',f8.5,' ,   b=',f8.5,' ,    c=',f8.5,
-     .       /'          alpha=',f8.4,' ,beta=',f8.4,' ,gamma=',f8.4)
+     ./'          alpha=',f8.4,' ,beta=',f8.4,' ,gamma=',f8.4)
   302 format(/' ROPLAT: rotated standard unit cell: alat=',f10.6,
-     .       /17x,'Platro',32x,'Qlatro',3(/2x,3f11.7,5x,3f11.7))
+     ./17x,'Platro',32x,'Qlatro',3(/2x,3f11.7,5x,3f11.7))
   304 format(17x,'Platcv'/3(2x,3f11.7/))
       end
       subroutine cpplat(platin,platcp)
@@ -207,24 +207,24 @@ C Passed variables:
       double precision platin(3,*)
 C Local variables:
       integer ikd,ikd1,ikd2,ikd3,iprint,k,ll1,ltmax,lgunit,m,mn,nkd,
-     .  nplat,stdo
+     .nplat,stdo
       parameter(ltmax=1,nplat=3,ll1=ltmax*2+1)
       double precision d1cd2(3),d1mach,d2,d2min,danrm2,ddot,
-     .                dlat(3,ll1**nplat),plat(3,3),platcp(3,3),
-     .                pr1,pr2,prn1,prn2,pro1,pro2,qlat(3,3),
-     .                qlatcp(3,3),qlatin(3,3),tollat,vol,voln
+     .dlat(3,ll1**nplat),plat(3,3),platcp(3,3),
+     .pr1,pr2,prn1,prn2,pro1,pro2,qlat(3,3),
+     .qlatcp(3,3),qlatin(3,3),tollat,vol,voln
       logical change,lmorec
       character*72 messg
       parameter(tollat=1.d-5)
 C External calls:
       external  cross,d1mach,danrm2,dcopy,ddot,dinv33,
-     .          iprint,lgunit,prodln
+     .iprint,lgunit,prodln
 C Intrinsic functions:
       intrinsic  dabs,dsqrt,idnint,mod
 C Statement functions:
       mn(ikd,m)=(mod(ikd+(ll1/2)*ll1**(m-1),ll1**m)
-     .          -mod(ikd+(ll1/2)*ll1**(m-1),ll1**(m-1)))
-     .          /ll1**(m-1)-ltmax
+     .-mod(ikd+(ll1/2)*ll1**(m-1),ll1**(m-1)))
+     ./ll1**(m-1)-ltmax
 
       call dcopy(9,platin,1,platcp,1)
       call dinv33(platin,1,qlatin,vol)
@@ -238,9 +238,9 @@ C Statement functions:
       stdo = lgunit(1)
 
       if (iprint().ge.40) write(stdo,300)
-     .    pro1,pro2,((platin(m,k),m=1,3),(qlatin(m,k),m=1,3),k=1,3)
+     .pro1,pro2,((platin(m,k),m=1,3),(qlatin(m,k),m=1,3),k=1,3)
       if (iprint().gt.50) write(stdo,303)
-     .  (1.d0/dsqrt(ddot(3,qlatin(1,m),1,qlatin(1,m),1)),m=1,3)
+     .(1.d0/dsqrt(ddot(3,qlatin(1,m),1,qlatin(1,m),1)),m=1,3)
 
 C --- generate relevant lattice vectors
       do while (change)
@@ -290,9 +290,9 @@ C --- Printout
       if (lmorec) then
         write(messg,400)
         if (iprint().ge.40) write(stdo,301)
-     .    prn1,prn2,((platcp(m,k),m=1,3),(qlatcp(m,k),m=1,3),k=1,3)
+     .  prn1,prn2,((platcp(m,k),m=1,3),(qlatcp(m,k),m=1,3),k=1,3)
         if (iprint().gt.50) write(stdo,303)
-     .    (1.d0/dsqrt(ddot(3,qlatcp(1,m),1,qlatcp(1,m),1)),m=1,3)
+     .  (1.d0/dsqrt(ddot(3,qlatcp(1,m),1,qlatcp(1,m),1)),m=1,3)
 
       else
         if (iprint().ge.40) write(stdo,302)
@@ -301,9 +301,9 @@ C     .    prn1,prn2,((platcp(m,k),m=1,3),(qlatcp(m,k),m=1,3),k=1,3)
       endif
 
   300 format(/' CPPLAT:   P1*P2*P3/vol=',f8.5,9x,'Q1*Q2*Q3*vol=',f8.5,
-     .       /17x,'Platin',32x,'Qlatin ',3(/2x,3f11.7,5x,3f11.7))
+     ./17x,'Platin',32x,'Qlatin ',3(/2x,3f11.7,5x,3f11.7))
   301 format( '           P1*P2*P3/VOL=',f8.5,9x,'Q1*Q2*Q3*VOL=',f8.5,
-     .       /17x,'Platcp',32x,'Qlatcp',3(/2x,3f11.7,5x,3f11.7))
+     ./17x,'Platcp',32x,'Qlatcp',3(/2x,3f11.7,5x,3f11.7))
   302 format( '    The supplied unit cell is the most compact one.')
   303 format( '    Plane distances:',3f10.5)
   400 format(' CPPLAT: A more compact unit cell exists.$')
@@ -362,8 +362,8 @@ C Local variables:
       z=r(3)
       d2=x*x+y*y+z*z
       anis=(30.34d0*x-4.23d0*dabs(x))*x+
-     .     (60.45d0*y-2.12d0*dabs(y))*y+
-     .     (90.56d0*z-1.01d0*dabs(z))*z
+     .(60.45d0*y-2.12d0*dabs(y))*y+
+     .(90.56d0*z-1.01d0*dabs(z))*z
       danrm2=d2+anis*tiny
 
       end

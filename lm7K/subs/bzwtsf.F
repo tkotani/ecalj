@@ -1,6 +1,6 @@
       subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .  fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
-     .  swtk,efermi,sumev,wtkb,qval,lwtkb)
+     .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
+     .swtk,efermi,sumev,wtkb,qval,lwtkb)
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -50,9 +50,9 @@ C     implicit none
 C Passed parameters
       logical metal,tetra
       integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,
-     .  idtet(5,ntet),lswtk,lwtkb
+     .idtet(5,ntet),lswtk,lwtkb
       double precision zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
-     .  wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efmax,efermi,sumev,qval(2)
+     .wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efmax,efermi,sumev,qval(2)
 C Local variables
       integer ikp,ib,stdo,nglob,ipr,itmax,iter,iprint
       double precision amom,dosef(2),vhold(12),vnow,dvcap,dv,ef0,ent
@@ -60,8 +60,8 @@ C Local variables
 
 C --- Fermi level without spin constraint ---
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .  metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
-     .  sumev,wtkb,dosef,qval,ent)
+     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
+     .sumev,wtkb,dosef,qval,ent)
       if (nsp .eq. 1) return
 
       call getpr(ipr)
@@ -76,7 +76,7 @@ C --- Make and print out magnetic moment ---
         qval(2) = amom
       else
         call info0(20,0,0,
-     .    '%9fspin weights not available ... no spin moment calculated')
+     .  '%9fspin weights not available ... no spin moment calculated')
         return
       endif
 
@@ -96,28 +96,28 @@ C     iterate to itmax times.  iter<0 => last iteration
 C ... Magnetic moment
       call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
       if (ipr .ge. 41) call awrit5(' dv=%;10,6D  yields '//
-     .  'ef=%;10,6D  amom=%;10,6D;  seeking %;10,6D',' ',160,
-     .  stdo,vnow,efermi,amom,fmom,vnow)
+     .'ef=%;10,6D  amom=%;10,6D;  seeking %;10,6D',' ',160,
+     .stdo,vnow,efermi,amom,fmom,vnow)
       call dvdos(vnow,amom,dosef,vhold,fmom,dvcap,dv)
       if (abs(dv) .lt. 1d-6) then
 C       A root was found
         if (vhold(12) .eq. -2 .or. vhold(12) .eq. -3 .or.
-     .      vhold(12) .eq.  0 .or. vhold(12) .eq.  1) then
+     .  vhold(12) .eq.  0 .or. vhold(12) .eq.  1) then
           if (ipr .ge. 10)
-     .      call awrit5('%N BZWTSF: potential shift bracketed.'//
-     .      '  Unconstrained efermi=%,6;6d.'//
-     .      '%N constraint fmom=%,6;6d  actual mmom=%,6;6d'//
-     .      '  ef=%,6;6d  dv=%,6;6d',' ',160,stdo,ef0,
-     .      fmom,amom,efermi,vnow)
+     .    call awrit5('%N BZWTSF: potential shift bracketed.'//
+     .    '  Unconstrained efermi=%,6;6d.'//
+     .    '%N constraint fmom=%,6;6d  actual mmom=%,6;6d'//
+     .    '  ef=%,6;6d  dv=%,6;6d',' ',160,stdo,ef0,
+     .    fmom,amom,efermi,vnow)
           iter = -iter
         endif
       else if (iter .eq. itmax) then
         if (ipr .ge. 10)
-     .    call awrit5('%N BZWTSF: failed to converge potential shift'//
-     .    ' after %i iterations.'//
-     .    '%N constraint fmom=%,6;6d  actual amom=%,6;6d'//
-     .    '  ef=%,6;6d  dv=%,6;6d',' ',160,stdo,iter,fmom,amom,efermi,
-     .    vnow)
+     .  call awrit5('%N BZWTSF: failed to converge potential shift'//
+     .  ' after %i iterations.'//
+     .  '%N constraint fmom=%,6;6d  actual amom=%,6;6d'//
+     .  '  ef=%,6;6d  dv=%,6;6d',' ',160,stdo,iter,fmom,amom,efermi,
+     .  vnow)
         iter = -iter
       endif
 
@@ -137,11 +137,11 @@ C ... Potential shift
 C ... Fermi level with dv shift
       if (iter .gt. 0) call pshpr(ipr-50)
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .  metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
-     .  sumev,wtkb,dosef,qval,ent)
+     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
+     .sumev,wtkb,dosef,qval,ent)
       if (iprint() .ge. 20) then
         call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,
-     .    amom)
+     .  amom)
         write(stdo,922) amom
       endif
       if (iter .gt. 0) call poppr
@@ -204,14 +204,14 @@ C      if (lswtk .eq. 1 .and. nspc .eq. 2) then
         do  ikp = 1, nkp
           do  k = 1, nevx
             amom = amom + wtkb(k,1,ikp)*swtk(k,1,ikp)
-     .                  + wtkb(k,2,ikp)*swtk(k,2,ikp)
+     .      + wtkb(k,2,ikp)*swtk(k,2,ikp)
           enddo
         enddo
       else
         amom = 0
         do  ikp = 1, nkp
           amom = amom + dsum(nevx,wtkb(1,1,ikp),1) -
-     .                  dsum(nevx,wtkb(1,2,ikp),1)
+     .    dsum(nevx,wtkb(1,2,ikp),1)
         enddo
       endif
       end

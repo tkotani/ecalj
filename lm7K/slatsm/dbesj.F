@@ -56,7 +56,7 @@ C --- Bessel functions for larger n ---
 c july 1977 edition.  w. fullerton, c3, los alamos scientific lab.
 C NB: a bug for x<=4 !!! (errors ~10-3)
       double precision x, bj0cs(19), ampl, theta, xsml, y,
-     1  d1mach, dcsevl, dcos, dsqrt
+     1d1mach, dcsevl, dcos, dsqrt
       external d1mach,  dcsevl, initds
 c
 c series for bj0        on the interval  0.          to  1.60000e+01
@@ -107,7 +107,7 @@ c
 c sept 1983 edition.  w. fullerton, c3, los alamos scientific lab.
 c apr 1991  bug fix by boisvert@cam.nist.gov
       double precision x, bj1cs(19), ampl, theta, xsml, xmin, y,
-     1  d1mach, dcsevl, dcos, dsqrt
+     1d1mach, dcsevl, dcos, dsqrt
       external d1mach, dcsevl, initds
 c
 c series for bj1        on the interval  0.          to  1.60000e+01
@@ -153,7 +153,7 @@ c
       if (y.le.xmin) call errmsg('DBESJ1:  x so small j1 underflows',0)
       if (y.gt.xmin) dbesj1 = 0.5d0*x
       if (y.gt.xsml) dbesj1 = x*(.25d0 + dcsevl (.125d0*y*y-1.d0,
-     1  bj1cs, ntj1) )
+     1bj1cs, ntj1) )
       return
 c
  20   call d9b1mp (y, ampl, theta)
@@ -167,8 +167,8 @@ c
 c evaluate the modulus and phase for the bessel j0 and y0 functions.
 c
       double precision x, ampl, theta, bm0cs(37), bt02cs(39),
-     1  bm02cs(40), bth0cs(44), xmax, pi4, z, d1mach, dcsevl,
-     2  dsqrt
+     1bm02cs(40), bth0cs(44), xmax, pi4, z, d1mach, dcsevl,
+     2dsqrt
       external d1mach, dcsevl, initds
 c
 c series for bm0        on the interval  1.56250e-02 to  6.25000e-02
@@ -381,7 +381,7 @@ c
       return
 c
    20 if (x.gt.xmax)
-     .  call errmsg('D9B0MP:  no precision because x is big',2)
+     .call errmsg('D9B0MP:  no precision because x is big',2)
 
 c
       z = 128.d0/(x*x) - 1.d0
@@ -396,8 +396,8 @@ c
 c evaluate the modulus and phase for the bessel j1 and y1 functions.
 c
       double precision x, ampl, theta, bm1cs(37), bt12cs(39),
-     1  bm12cs(40), bth1cs(44), xmax, pi4, z, d1mach, dcsevl,
-     2  dsqrt
+     1bm12cs(40), bth1cs(44), xmax, pi4, z, d1mach, dcsevl,
+     2dsqrt
       external d1mach, dcsevl, initds
 c
 c series for bm1        on the interval  1.56250e-02 to  6.25000e-02

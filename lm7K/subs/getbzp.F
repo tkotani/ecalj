@@ -45,7 +45,7 @@ C Passed parameters
       integer nfilqp,npln,nwmx,nqp
       integer nw(npln),nq(2,npln)
       double precision e(2,nwmx,npln),vx(3,npln),vy(3,npln),x(2,npln),
-     .  y(2,npln),z(npln),q(3,nqp)
+     .y(2,npln),z(npln),q(3,nqp)
 C Local variables
       integer i,iprint,ip,nptot,nqtot,nwin,np0,iw,nq0,iq,ix,iy
       double precision rx,ry,dp,ddot,dqx,dqy,qx,qy
@@ -74,10 +74,10 @@ C --- Begin loop over BZ planes in this set ---
       do  80  ip = nptot+1, nptot+np0
         nw(ip) = nwin
         if (ip .gt. nptot+1)
-     .    call dcopy(2*nwin,e(1,1,nptot+1),1,e(1,1,ip),1)
+     .  call dcopy(2*nwin,e(1,1,nptot+1),1,e(1,1,ip),1)
         read (nfilqp,*,err=999,end=999)
-     .    (vx(i,ip),i=1,3),(x(i,ip),i=1,2),nq(1,ip),
-     .    (vy(i,ip),i=1,3),(y(i,ip),i=1,2),nq(2,ip),z(ip)
+     .  (vx(i,ip),i=1,3),(x(i,ip),i=1,2),nq(1,ip),
+     .  (vy(i,ip),i=1,3),(y(i,ip),i=1,2),nq(2,ip),z(ip)
         call rxx(nq(1,ip) .lt. 2,'GETBZP: bad n1')
         call rxx(nq(2,ip) .lt. 2,'GETBZP: bad n2')
         nq0 = nq(1,ip)*nq(2,ip)
@@ -105,13 +105,13 @@ C --- Orthonormalize axes, construct normal vector ---
         call cross(vx0,vy0,vn)
 
         if (iprint() .ge. 40)
-     .    write (*,500) ip,nq0,vx0,(x(i,ip),i=1,2),nq(1,ip),
-     .                         vy0,(y(i,ip),i=1,2),nq(2,ip),vn,z(ip)
+     .  write (*,500) ip,nq0,vx0,(x(i,ip),i=1,2),nq(1,ip),
+     .  vy0,(y(i,ip),i=1,2),nq(2,ip),vn,z(ip)
         if (iprint() .gt. 50) write(*,510)
   500   format(/' Plane ',i2,'.',i7,' k-points:'/
-     .          ' VX= (',3f10.5,' )  X1,X2=',2f10.5,'  NX=',i5/
-     .          ' VY= (',3f10.5,' )  Y1,Y2=',2f10.5,'  NY=',i5/
-     .          ' VN= (',3f10.5,' )      Z=',f10.5)
+     .  ' VX= (',3f10.5,' )  X1,X2=',2f10.5,'  NX=',i5/
+     .  ' VY= (',3f10.5,' )  Y1,Y2=',2f10.5,'  NY=',i5/
+     .  ' VN= (',3f10.5,' )      Z=',f10.5)
   510   format(/19x,'K')
 
 C --- Construct q-points ---

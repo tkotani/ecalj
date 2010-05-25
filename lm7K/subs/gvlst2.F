@@ -1,6 +1,6 @@
 #define F90 1
       subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx,
-     .  ng,kv,gv,igv,igv2)
+     .ng,kv,gv,igv,igv2)
 C- Set up a list of recip vectors within cutoff |q+G| < gmax
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -76,13 +76,13 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer n1,n2,n3,job,ng,ngmx,kv(ngmx,3),igv(ngmx,3),igv2(3,*),
-     .  mshlst(0:*)
+     .mshlst(0:*)
       double precision alat,gmin,gmax,gv(ngmx,3),plat(3,3),q(3)
 C ... Local parameters
       integer ig,n1max,n1min,n2max,n2min,n3max,n3min,i1,i2,i3,nn,i
       integer n1l,n2l,n3l
       integer PRTG,PRTG2,iset(3),stdo,ipr,lgunit,job0,job1,job2,job4,
-     .  job8,k1,k2,k3
+     .job8,k1,k2,k3
       double precision qlat(3,3),vol,pi,tpiba,qpg(3),q2
       double precision gmin0,gmax0,gmin2,gmax2,h1,h2,h3,ddot,tol
       character*256 outs
@@ -114,17 +114,17 @@ C     Save n1..n3 for printout
 C --- Compute range n1min,n1max for each direction vector n1,n2,n3 ---
       nn = n1
       call gvlstn(qlat(1,1),qlat(1,2),qlat(1,3),q,mshlst,gmax0,nn,
-     .  n1min,n1max)
+     .n1min,n1max)
       n1l = nn
       if (mod(job,1000) .ge. 100) n1 = nn
       nn = n2
       call gvlstn(qlat(1,2),qlat(1,3),qlat(1,1),q,mshlst,gmax0,nn,
-     .  n2min,n2max)
+     .n2min,n2max)
       n2l = nn
       if (mod(job,1000) .ge. 100) n2 = nn
       nn = n3
       call gvlstn(qlat(1,3),qlat(1,1),qlat(1,2),q,mshlst,gmax0,nn,
-     .  n3min,n3max)
+     .n3min,n3max)
       n3l = nn
       if (mod(job,1000) .ge. 100) n3 = nn
 
@@ -187,23 +187,23 @@ C  333     format(i6,3i4,3f15.9,1pe10.2)
 C --- Printout ---
       if (ipr .ge. PRTG .and. n1l*n2l*n3l .eq. 0) then
         call awrit2('%x%N GVLST2: gmax = %,1;3d a.u. created %i'//
-     .    ' recip. lattice vectors',outs,len(outs),stdo,gmax0*tpiba,ng)
+     .  ' recip. lattice vectors',outs,len(outs),stdo,gmax0*tpiba,ng)
       elseif (ipr .ge. PRTG) then
         h1 = alat*sqrt(ddot(3,plat(1,1),1,plat(1,1),1))/n1l
         h2 = alat*sqrt(ddot(3,plat(1,2),1,plat(1,2),1))/n2l
         h3 = alat*sqrt(ddot(3,plat(1,3),1,plat(1,3),1))/n3l
         call awrit4('%x%N GVLST2: gmax = %,1;3d'//
-     .    ' a.u. created %i vectors of %i (%i%%)',
-     .    outs,len(outs),0,gmax,ng,n1l*n2l*n3l,(ng*100)/(n1l*n2l*n3l))
+     .  ' a.u. created %i vectors of %i (%i%%)',
+     .  outs,len(outs),0,gmax,ng,n1l*n2l*n3l,(ng*100)/(n1l*n2l*n3l))
         i = iset(1)*iset(2)*iset(3)
         call awrit7('%a%N%9f%?#n#(input) ##mesh has %i x %i x %i'//
-     .    ' divisions; length %,3;3d, %,3;3d, %,3;3d',outs,
-     .    len(outs),0,i,n1l,n2l,n3l,h1,h2,h3)
+     .  ' divisions; length %,3;3d, %,3;3d, %,3;3d',outs,
+     .  len(outs),0,i,n1l,n2l,n3l,h1,h2,h3)
         if (i .eq. 0 .and. iset(1)**2+iset(2)**2+iset(3)**2 .ne. 0) then
           call awrit3('%a%N%9fgenerated from input mesh with ('//
-     .      '%?#n#%-1j%i#*#,%?#n#%-1j%i#*#,'//
-     .      '%?#n#%-1j%i#*#) divisions',
-     .      outs,len(outs),0,iset(1),iset(2),iset(3))
+     .    '%?#n#%-1j%i#*#,%?#n#%-1j%i#*#,'//
+     .    '%?#n#%-1j%i#*#) divisions',
+     .    outs,len(outs),0,iset(1),iset(2),iset(3))
         endif
         call awrit0('%a',outs,len(outs),-stdo)
       endif
@@ -221,7 +221,7 @@ C        endif
       if (ipr.ge.PRTG2 .and. ng.gt.0 .and. job1+job2.ne.0) then
         write(stdo,333)
   333   format(' G vectors (multiples of reciprocal lattice vectors)'/
-     .     '   ig    G1   G2   G3     E')
+     .  '   ig    G1   G2   G3     E')
         do  ig = 1, ng
           if (job1 .ne. 0) then
             i1 = igv(ig,1)

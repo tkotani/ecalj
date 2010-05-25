@@ -19,12 +19,12 @@ C ----------------------------------------------------------------------
       double precision xq(0:nqmx),eq(nqmx)
       real(8),allocatable:: eb(:,:),ebw(:,:,:),eb2(:),ebw2(:,:)
       double precision dq,emin,ebot,ebotb,etopb,emax,htcm,
-     .  etik,xmin,xmax,ql1,ql2,ql3,e,h,x,q1,q2,q3,eferm,efermm,widcm,
-     .  etop,xq0,efnew,scl,syma(4),clip(4),fgs(0:3),sgs(0:4),qm1,qm2,
-     .  qm3,csw(12)
+     .etik,xmin,xmax,ql1,ql2,ql3,e,h,x,q1,q2,q3,eferm,efermm,widcm,
+     .etop,xq0,efnew,scl,syma(4),clip(4),fgs(0:3),sgs(0:4),qm1,qm2,
+     .qm3,csw(12)
       integer ib,jb,kb,lb,nb,nbf,nbfil,nbm,iq,nq,nlab,iq1,nq1,i,ifi,ifm,
-     .  ifw,iline,nline,i1mach,isw,nql(maxlin),ib1,ib2,j,ltfrme(3),psym,
-     .  nargf,fxst,iouts,iiouts,ipr,icolwt,ncolwt
+     .ifw,iline,nline,i1mach,isw,nql(maxlin),ib1,ib2,j,ltfrme(3),psym,
+     .nargf,fxst,iouts,iiouts,ipr,icolwt,ncolwt
       integer NULLI
       parameter (NULLI=-99999)
 C Heap allocation
@@ -35,8 +35,8 @@ C Heap allocation
 
       logical cmdopt,a2bin,ls1,ls2,lpad,rdstrn,lcol3
       character title*120,xlabel*120,ylabel*120,font*12,ltype*120,
-     .  ll*120,s*80,outs(nouts)*(louts),prmed*40,ss*80,smerge*120,
-     .  xnfmt*20,ynfmt*20,datnam*10,scol3*512,fncol3*80
+     .ll*120,s*80,outs(nouts)*(louts),prmed*40,ss*80,smerge*120,
+     .xnfmt*20,ynfmt*20,datnam*10,scol3*512,fncol3*80
       character*10 lab(maxlin)
       integer fontsz
       integer fopna,fopnx,lgcmd,fopng,lenf,awrite
@@ -113,7 +113,7 @@ C     Else check whether extension exists
           call strip(s,i,j)
           print 345, s(i:j), s(i:j)
   345     format(' plbnds: failed to open file "',
-     .      a,'" or file "bnds.',a,'".')
+     .    a,'" or file "bnds.',a,'".')
           goto 999
         endif
         ifi = fopna('bnds',-1,0)
@@ -130,7 +130,7 @@ C     First check whether name exists
           smerge = ss
         endif
         if (smerge .eq. s)
-     .      call rx('merge and original file of same name')
+     .  call rx('merge and original file of same name')
         s = smerge
         j = fopnx(s,172,-1,-1)
         if (j .ne. 0) then
@@ -198,7 +198,7 @@ C       For color weights, icolwt must be a positive integer
 
       if (icolwt .eq. 2) then
         call info0(0,0,0,
-     .    ' plbnds : bands file contains two sets of color weights')
+     .  ' plbnds : bands file contains two sets of color weights')
       elseif (icolwt .ne. 0) then
         call info0(0,0,0,' plbnds : bands file contains color weights')
       endif
@@ -226,15 +226,15 @@ C#endif
       if (ifm .ne. 0) then
         read(ifm,*,end=999,err=999) nbm,efermm
         if (nbm .ne. nbf)
-     .   call info2(0,0,0,' plbnds (warning) : original file has %i '//
-     .    'bands while merged file has %i bands',nbf,nbm)
+     .  call info2(0,0,0,' plbnds (warning) : original file has %i '//
+     .  'bands while merged file has %i bands',nbf,nbm)
         nb = min(nbm,nbf)
         if (lpad) nb = max(nbm,nbf)
         if (eferm .ne. efermm)
-     .   call info2(0,0,0,' plbnds (warning) : original file has ef='//
-     .    '%d while merged file has ef=%d',eferm,efermm)
+     .  call info2(0,0,0,' plbnds (warning) : original file has ef='//
+     .  '%d while merged file has ef=%d',eferm,efermm)
         if (ls1 .or. ls2)
-     .    call rx('-merge not compatible with -spin1 or -spin2')
+     .  call rx('-merge not compatible with -spin1 or -spin2')
       endif
       if (ifw .ne. 0) then
         write(ifw,'(i5,f10.5,i5)') nb,eferm,0
@@ -251,19 +251,19 @@ C#endif
       if (cmdopt('-ef=',4,0,s)) then
         j = 4
         call rxx(.not.a2bin(s,efnew,4,0,' ',j,len(s)),
-     .    'failed to parse '//s)
+     .  'failed to parse '//s)
       endif
       if (cmdopt('-scl=',5,0,s)) then
         j = 5
         call rxx(.not.a2bin(s,scl,4,0,' ',j,len(s)),
-     .    'failed to parse '//s)
+     .  'failed to parse '//s)
       endif
       call awrit2(' plbnds: %i bands  fermi=%;6d',
-     .  s,80,0,nb,eferm)
+     .s,80,0,nb,eferm)
       if (scl .ne. 1)
-     .  call awrit1('%a  scaled by %;6d',s,80,0,scl)
+     .call awrit1('%a  scaled by %;6d',s,80,0,scl)
       if (efnew .ne. eferm)
-     .  call awrit1('%a  shifted to %;6d',s,80,0,efnew)
+     .call awrit1('%a  shifted to %;6d',s,80,0,efnew)
       call awrit0('%a',s,80,-i1mach(2))
 C#ifndefC F90
 C      call rxx(nb.gt.nbmx,'nb gt nbmx')
@@ -278,8 +278,8 @@ C     Check for line match with merge file, if one is to be read
       if (ifm .ne. 0) then
         read(ifm,*) j
         if (nq1 .ne. j) 
-     .   call info5(0,0,0,' plbnds (fatal) : mismatch panel %i: file'//
-     .    ' has %i qp while merged file has %i qp',nline+1,nq1,j,0,0)
+     .  call info5(0,0,0,' plbnds (fatal) : mismatch panel %i: file'//
+     .  ' has %i qp while merged file has %i qp',nline+1,nq1,j,0,0)
         if (nq1 .ne. j) goto 995        
         nq1 = nq1*2
       endif
@@ -373,7 +373,7 @@ C       Find upper and lower bounds (global and for this panel)
         endif
         if (ipr .gt. 40)
      .  call awrit7(' panel %i iq=%i  dq=%;6d (%;6d %;6d %;6d) xq=%;6d',
-     .   ' ',80,i1mach(2),nline,nq,dq,(q1-ql1),(q2-ql2),(q3-ql3),xq(nq))
+     .  ' ',80,i1mach(2),nline,nq,dq,(q1-ql1),(q2-ql2),(q3-ql3),xq(nq))
         ql1 = q1
         ql2 = q2
         ql3 = q3
@@ -383,8 +383,8 @@ C       Find upper and lower bounds (global and for this panel)
       nql(nline) = nq1
       xline(nline) = xq(nq)
       call awrit5(' panel %i  nq=%i  ebot=%1;6d  etop=%1;6d'//
-     .  '  delta q=%1;6d',' ',80,i1mach(2),nline,nq1,ebotb,etopb,
-     .  xq(nq)-xq0)
+     .'  delta q=%1;6d',' ',80,i1mach(2),nline,nq1,ebotb,etopb,
+     .xq(nq)-xq0)
       xq0 = xq(nq)
       goto 91
 
@@ -394,8 +394,8 @@ C --- Get dimensions for plot ---
       xmin = xq(1)
       xmax = xq(nq)
       call awrit6(' nq=%i  npan=%i  emin=%1;6d  '//
-     .  'ef=%1;6d  emax=%1;6d  sum dq=%1;6d',
-     .  ' ',80,i1mach(2),nq,nline,ebot,efnew,etop,xmax-xmin)
+     .'ef=%1;6d  emax=%1;6d  sum dq=%1;6d',
+     .' ',80,i1mach(2),nq,nline,ebot,efnew,etop,xmax-xmin)
       emin = ebot
       emax = etop
 C     gtoxcm = 5
@@ -404,7 +404,7 @@ C     gtoxcm = 5
       read(5,*)  emin,emax,widcm,htcm
       if (widcm+2d0 .gt. 25d0) then
         call awrit1(' Total width (%1;1dcm) cannot exceed 23cm',
-     .    ' ',80,i1mach(2),widcm)
+     .  ' ',80,i1mach(2),widcm)
         goto 93
       endif
       call dcopy(4,0d0,0,clip,1)
@@ -413,7 +413,7 @@ C     gtoxcm = 5
 
       nlab = 0
       if (prmed .ne. '-ascii' .and.
-     .    (cmdopt('-lbl',4,0,s) .or. cmdopt('-tl',3,0,s))) then
+     .(cmdopt('-lbl',4,0,s) .or. cmdopt('-tl',3,0,s))) then
         if (cmdopt('-tl=',4,0,s)) then
           title = s(5:)
         elseif (.not. cmdopt('-lbl=',5,0,s)) then
@@ -424,14 +424,14 @@ C     gtoxcm = 5
         if (cmdopt('-lbl=',5,0,s)) then
           call wrdsg(s(6:len(s)),0,',',nlab)
           do  46  j = 1, nlab
-          call wordg(s(6:len(s)),0,',',j,ib1,ib2)
+            call wordg(s(6:len(s)),0,',',j,ib1,ib2)
    46     lab(j) = s(5+ib1:5+ib2)
         elseif (cmdopt('-lbl',4,0,s)) then
           call cwrite(' Symmetry labels ? ',0,28,0)
           read(*,'(a80)') s
           call words(s,nlab)
           do  45  j = 1, nlab
-          call word(s,j,ib1,ib2)
+            call word(s,j,ib1,ib2)
    45     lab(j) = s(ib1:ib2)
         endif
       endif
@@ -441,17 +441,17 @@ C --- Make data files in format suitable for fplot ---
         lgcmd = fopng('plot.plbnds',-1,0)
 C   ... Assign line type to character variable
         if (ltype .ne. ' ') then
-        write(lgcmd,'(''%char0 ltb="'',a,''"'')') trim(ltype(5:))
-        ltype(5:) = '{ltb}'
+          write(lgcmd,'(''%char0 ltb="'',a,''"'')') trim(ltype(5:))
+          ltype(5:) = '{ltb}'
         endif
         outs(1) = 'fplot '
         nq1 = 0
         do  40  iline = 1, nline+1
           call awrit5('%a'//
-     .      '%?#n==1#%N%% var ymin=%;3d ymax=%;3d%N#%2j#'//
-     .      ' -frme %;3d,%;3d,0,1 -p0 -x 0,1 -y {ymin},{ymax}'//
-     .      ' -noxn -1p',outs(iouts),louts,0,iline,emin,emax,
-     .      xline(iline-1)/(xmax-xmin),xline(iline)/(xmax-xmin))
+     .    '%?#n==1#%N%% var ymin=%;3d ymax=%;3d%N#%2j#'//
+     .    ' -frme %;3d,%;3d,0,1 -p0 -x 0,1 -y {ymin},{ymax}'//
+     .    ' -noxn -1p',outs(iouts),louts,0,iline,emin,emax,
+     .    xline(iline-1)/(xmax-xmin),xline(iline)/(xmax-xmin))
           if (title .ne. ' ') then
             call strip(outs(1),ib1,ib2)
             outs(1)(ib2+1:) = ' -tl "' // title
@@ -466,8 +466,8 @@ C         make ib1,ib2 = indices to lowest, highest band for this panel
             ebotb = 1d10
             etopb = -1d10
             do  20  iq = 1+nq1, nql(iline)+nq1
-            ebotb = dmin1(ebotb,eb(ib,iq))
-            etopb = dmax1(etopb,eb(ib,iq))
+              ebotb = dmin1(ebotb,eb(ib,iq))
+              etopb = dmax1(etopb,eb(ib,iq))
    20       continue
             if (ebotb .lt. emax .and. etopb .gt. emin) then
               ib1 = min(ib1,ib)
@@ -477,9 +477,9 @@ C         make ib1,ib2 = indices to lowest, highest band for this panel
 
 C         Open band file for this panel
           call awrit3(' write file bnd%i.'//datnam//'%a, bands %i - %i',
-     .      ' ',80,i1mach(2),iline,ib1,ib2)
+     .    ' ',80,i1mach(2),iline,ib1,ib2)
           lenf = awrite('bnd%i.'//datnam//'%a',s,len(s),0,iline,0,0,0,0,
-     .      0,0,0)
+     .    0,0,0)
           open(10, file=s(1:lenf), status='UNKNOWN', err=99)
 
           if (lcol3) then
@@ -495,14 +495,14 @@ C         Open band file for this panel
 C         Two distinct spin channels: write them both out
           if (cmdopt('-fplot:s',8,0,ss)) then
             if (mod(nql(iline),2) .ne. 0)
-     .        call rx('spin pol bands should have even nq')
+     .      call rx('spin pol bands should have even nq')
             j = 2*(ib2-ib1+1)
             if (ncolwt .ne. 0) j = j*(ncolwt+1)
             call awrit2('%% rows %i cols %i',' ',80,10,nql(iline)/2,1+j)
             do  36  iq = 1+nq1, nql(iline)+nq1,2
               write(10,333)
-     .          (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
-     .          (eb(ib,iq),eb(ib,iq+1),ib=ib1,ib2)
+     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .        (eb(ib,iq),eb(ib,iq+1),ib=ib1,ib2)
               if (ncolwt .ne. 0) then
                 do  j = 1, ncolwt
                   write(10,334) (ebw(ib,iq,j),ebw(ib,iq+1,j),ib=ib1,ib2)
@@ -517,8 +517,8 @@ C         Write out bands and optional weights
             call awrit2('%% rows %i cols %i',' ',80,10,nql(iline),1+j)
             do  35  iq = 1+nq1, nql(iline)+nq1
               write(10,333)
-     .          (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
-     .          (eb(ib,iq),ib=ib1,ib2)
+     .        (xq(iq)-xq(1+nq1))/(xq(nql(iline)+nq1)-xq(1+nq1)),
+     .        (eb(ib,iq),ib=ib1,ib2)
               if (ncolwt .ne. 0) then
                 do  j = 1, ncolwt
                   write(10,334) (ebw(ib,iq,j),ib=ib1,ib2)
@@ -532,8 +532,8 @@ C         Build up mc command for color merge
 C           if (ncolwt .ne. 0) j = j*(ncolwt+1)
 c            print *, '-qr', s(1:lenf), ' -qr ' 'tmp/'//s(1:lenf)
             call awrit2('%a -qr '//s(1:lenf)//' -qr '//trim(fncol3)//
-     .        ' -sub 1,nr,%i,%i -ccat -w '//s(1:lenf),scol3,len(scol3),
-     .        0,2+j,1+2*j)
+     .      ' -sub 1,nr,%i,%i -ccat -w '//s(1:lenf),scol3,len(scol3),
+     .      0,2+j,1+2*j)
           endif
 
   333     format(f8.5,9f9.4:/(8x,9f9.4))
@@ -552,49 +552,49 @@ c            print *, '-qr', s(1:lenf), ' -qr ' 'tmp/'//s(1:lenf)
           if (cmdopt('-fplot:s',lenf,0,ss)) kb = 1+6*(ib2-ib1+1)
 
           call awrit2('%a -lt 2,bold=3,col=0,0,0,1,.5,.3,.5 '//
-     .      '-tp 2~0,%1;4d,1,%1;4d -lt 1',
-     .      outs(iouts),louts,0,efnew,efnew)
+     .    '-tp 2~0,%1;4d,1,%1;4d -lt 1',
+     .    outs(iouts),louts,0,efnew,efnew)
           iouts = iiouts(outs,iouts,louts+90)
           if (iouts .gt. nouts) call rx('plbnd output string too long')
           if (ncolwt .eq. 2 .and. lcol3) then
             call awrit8('%a -colsy 2:%i'//
-     .        ' -colsw %i:%i -colsw2 %i:%i -colsw3 %i:%i '//ltype//
-     .        '%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,
-     .        0,ib,ib+1,jb,jb+1,kb,kb+1,lb,iline)
+     .      ' -colsw %i:%i -colsw2 %i:%i -colsw3 %i:%i '//ltype//
+     .      '%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,
+     .      0,ib,ib+1,jb,jb+1,kb,kb+1,lb,iline)
           elseif (ncolwt .eq. 2) then
             call awrit6('%a -colsy 2:%i'//
-     .        ' -colsw %i:%i -colsw2 %i:%i '//ltype//
-     .        '%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,
-     .        0,ib,ib+1,jb,jb+1,kb,iline)
+     .      ' -colsw %i:%i -colsw2 %i:%i '//ltype//
+     .      '%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,
+     .      0,ib,ib+1,jb,jb+1,kb,iline)
           elseif (ncolwt .ne. 0) then
             call awrit4('%a -colsy 2:%i'//
-     .        ' -colsw %i:%i '//ltype//'%a -qr bnd%i.'//datnam//'%a',
-     .        outs(iouts),louts,0,ib,ib+1,jb,iline)
+     .      ' -colsw %i:%i '//ltype//'%a -qr bnd%i.'//datnam//'%a',
+     .      outs(iouts),louts,0,ib,ib+1,jb,iline)
           else
             call awrit2('%a -colsy 2:%i '//
-     .        ltype//'%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,0,
-     .        ib,iline)
+     .      ltype//'%a -qr bnd%i.'//datnam//'%a',outs(iouts),louts,0,
+     .      ib,iline)
           endif
 
 C     ... Symmetry label, if there is one
           if (iline .le. nlab) then
             iouts = iiouts(outs,iouts,louts+30)
             call awrit3('%a -font %?#n#s#t#24'//
-     .        ' -lblu %;2d,{ymin-(ymax-ymin)/60} cd '//
-     .        lab(iline),outs(iouts),louts,0,isw(lab(iline).eq.'G'),
-     .        0d0,emin-(emax-emin)/60)
+     .      ' -lblu %;2d,{ymin-(ymax-ymin)/60} cd '//
+     .      lab(iline),outs(iouts),louts,0,isw(lab(iline).eq.'G'),
+     .      0d0,emin-(emax-emin)/60)
           endif
           iouts = iiouts(outs,iouts,louts+10)
           if (iouts .gt. nouts) call rx('plbnd output string too long')
    40   continue
 C   ... Last symmetry label, if there is one
-          if (nline+2 .le. nlab) then
-            iouts = iiouts(outs,iouts,louts+30)
-            call awrit3('%a -font %?#n#s#t#24'//
-     .        ' -lblu %;2d,{ymin-(ymax-ymin)/60} cd '//
-     .        lab(nline+2),outs(iouts),louts,0,isw(lab(nline+2).eq.'G'),
-     .        1d0,emin-(emax-emin)/60)
-          endif
+        if (nline+2 .le. nlab) then
+          iouts = iiouts(outs,iouts,louts+30)
+          call awrit3('%a -font %?#n#s#t#24'//
+     .    ' -lblu %;2d,{ymin-(ymax-ymin)/60} cd '//
+     .    lab(nline+2),outs(iouts),louts,0,isw(lab(nline+2).eq.'G'),
+     .    1d0,emin-(emax-emin)/60)
+        endif
         do  25  ib = 1, iouts
           call skpblb(outs(ib),louts,i)
 C         call cwrite(outs(ib),0,i,1)
@@ -621,8 +621,8 @@ C --- Plot frame ---
       if (dabs(emax-emin) .gt. 20d0) etik = 2d0
       call setfnt(font,fontsz)
       call frme(-1d30,xmax-xmin,1,0d0,   .6d0,0,0,xnfmt,xlabel,
-     .          -1d30,etik,     2,.025d0,.6d0,0,1,ynfmt,ylabel,
-     .          ' ',xdum,xdum,xdum,title,ltfrme, fgs)
+     .-1d30,etik,     2,.025d0,.6d0,0,1,ynfmt,ylabel,
+     .' ',xdum,xdum,xdum,title,ltfrme, fgs)
       do  4  iline = 1, nline
         call mve(xline(iline),emax)
         call drw(xline(iline),emin)
@@ -651,7 +651,7 @@ C       call pslabl('a',0,0d0,ll,'h','f',1,0d0)
 C --- Plot points ---
       do  7  ib = 1, nb
         if (mod(ib,10) .eq. 1)
-     .    call awrit1(' Plotting band %i',' ',80,i1mach(2),ib)
+     .  call awrit1(' Plotting band %i',' ',80,i1mach(2),ib)
         do  8  iq = 1, nq
     8   eq(iq) = eb(ib,iq)
         if (cmdopt('-fast',5,0,s)) then
@@ -674,7 +674,7 @@ C --- Draw in Fermi energy ---
         ydum(2) = efnew
         call plntyp(2,3,2d0,1d0,0d0,0d0)
         call plcrv(xdum,ydum,xdum,xdum,xdum,2,xdum(1),xdum(2),
-     .    ydum(1)-0.1d0,ydum(2)+0.1d0,0,-2d0,csw,11)
+     .  ydum(1)-0.1d0,ydum(2)+0.1d0,0,-2d0,csw,11)
       endif
       call pltdmp(0)
       call cexit(0,1)
@@ -682,9 +682,9 @@ C --- Draw in Fermi energy ---
 C --- Error exit ---
   999 continue
       print '(a,a)',
-     .           ' usage: plbnds [-switches] filename'
+     .' usage: plbnds [-switches] filename'
       print 998, 'Last arg can be true file name or "ext" with'//
-     .           ' filename = bnds.ext'
+     .' filename = bnds.ext'
       print 998, 'Switches:'
       print 998, '-ef=#     shifts fermi energy to #'
       print 998, '-scl=#    scales bands by #'
@@ -692,22 +692,22 @@ C --- Error exit ---
       print 998, '-spin2    plots only spin-1 bands'
       print 998, '-fast     '
       print 998, '-lbl      plbnds prompts for symmetry labels'//
-     .           ' and title'
+     .' and title'
       print 998, '-lbl=CCC.. supply labels through this switch'
       print 998, '-tl=string supply title through this switch'
       print 998, '-fplot[:s] generates an fplot command and files'//
-     .           ' to use with fplot'
+     .' to use with fplot'
       print 998, '          use optional :s if file contains two spins'
       print 998, '-lt=...   (with fplot) uses specified fplot line type'
       print 998, '-col3[:dir] (with fplot) flag to merge separate '//
-     .  ' bnds file with extra color'
+     .' bnds file with extra color'
       print 998, '-dat=name (with fplot) writes data files bnd*.name'
       print 998, '-merge=file2[,file3]'
       print 998, '-mergep=file2[,file3]'
       print 998, '          reads two input files, one for each spin'//
-     .           ' (spin-pol case)'
+     .' (spin-pol case)'
       print 998, '          Optional file3 causes plbnds to write'//
-     .           ' merged file to file3'
+     .' merged file to file3'
       print 998, '          -mergep pads channel with fewer bands'
   998 format(15x,a:a)
       call cexit(-1,1)
@@ -762,7 +762,7 @@ C     Check whether format contains number of bands to read
           nbfil = nint(fac(4))
           if (nbfil .ne. nint(fac(4))) then
             call rx('plbnds:  expected integer for 4th '//
-     .        'argument, line: '//trim(strn))
+     .      'argument, line: '//trim(strn))
           endif
         endif
       endif
@@ -778,6 +778,6 @@ C     Check whether format contains number of bands to read
       return
    99 continue
       call rx('plbnds:  failed to read qp from file, line:  '//
-     .  trim(strn))
+     .trim(strn))
       
       end

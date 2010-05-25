@@ -1,5 +1,5 @@
       subroutine rseq(eb1,eb2,e,tol,z,l,nod,val,slo,v,g,q,a,b,rofi,nr,
-     .  nre)
+     .nre)
 C- Solves radial wave equation for given BCs and number of nodes
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -35,11 +35,11 @@ C     implicit none
 C ... Passed parameters
       integer l,nod,nr,nre
       double precision eb1,eb2,e,tol,z,val,slo,v(nr),g(nr,2),q,rofi(nr),
-     .  a,b
+     .a,b
 C ... Local parameters
       integer ipr,k,k2,kc,nctp,nctp0,nit,nitmax,nod1,nod2,node
       double precision c,de,e1,e2,fac,fllp1,r,ratio,re,rhok,slo1,slo2,
-     .  slop,tmcr,val1,val2,valu,wgt
+     .slop,tmcr,val1,val2,valu,wgt
 C ... Speed of light, or infinity in nonrelativistic case
       common /cc/ c
 C     double complex gc(nr,2),ec,valc,sloc
@@ -48,13 +48,13 @@ C     double complex gc(nr,2),ec,valc,sloc
       nitmax = 80
       if (ipr .ge. 110) write(*,815) z,l,nod,val,slo,eb1,eb2
   815 format(' RSEQ:  Z=',f5.1,'  l=',i1,'  nod=',i1,'  bc=',2f7.3,
-     .   '  e1,e2=',2f8.2)
+     .'  e1,e2=',2f8.2)
       e1 = eb1
       e2 = eb2
       call fctp0(l,nr,rofi,v,z,nctp0)
       if (ipr .ge. 120) print 301
   301 format(' nit l node nod nre kr',
-     . '        e1            e              e2            de')
+     .'        e1            e              e2            de')
 C --- Start iterations to find energy ---
       do  1  nit = 1, nitmax
         if (e .le. e1 .or. e .ge. e2) e = (e1 + e2)/2
@@ -73,7 +73,7 @@ C       call fctp(e,nctp,nctp0,xrim,xmin,nsave,l,rofi,v,z,nr,a,b)
         if (valu*slop .gt. 0d0 .and. nod .eq. 0) k2 = nre - 10
 C       Integrate the scalar relativistic eqn inward from nre to kc
         call rsq2(e,l,z,v,nre,k2,valu,slop,g,val2,slo2,nod2,kc,
-     .              a,b,rofi,nr)
+     .  a,b,rofi,nr)
 C       Integrate the scalar relativistic eqn outward from origin to kc
         call rsq1(0,e,l,z,v,kc,g,val1,slo1,nod1,a,b,rofi,nr)
 
@@ -102,7 +102,7 @@ C       de = estimated correction to eigenvalue
         de = -val2*(slo2 - ratio*slo1)/q
 
         if (ipr .ge. 120 .or. nit .ge. nitmax-5)
-     .    write(*,101) nit,l,node,nod,nre,kc,e1,e,e2,de
+     .  write(*,101) nit,l,node,nod,nre,kc,e1,e,e2,de
         if (de .gt. 0d0) e1 = e
         if (de .lt. 0d0) e2 = e
         e = e + de
@@ -144,19 +144,19 @@ C --- Normalize g ---
 C --- Possible warning or error exit ---
    99 continue
       if (ipr .ge. 110 .or. nit .ge. nitmax)
-     .  write(*,701) e,q,nr,nre,kc,de
+     .write(*,701) e,q,nr,nre,kc,de
   701 format(' e=',f13.5,'  q=',f10.5,'   nr/nre/kc=',3i4,
-     .  '   de=',1p,d10.2)
+     .'   de=',1p,d10.2)
       if (nit .gt. nitmax) then
         if (nod .ne. node) then
           write(*,814) nitmax,l,nod,node,e
   814     format(' RSEQ : nit gt',i3,' and bad nodes for l=',i1,
-     .      '.  Sought',i2,' but found',i2,'.  e=',1pd11.4)
+     .    '.  Sought',i2,' but found',i2,'.  e=',1pd11.4)
           call rx('RSEQ: bad nodes')
         else
           write(*,816) l,nod,abs(de),e
   816     format(' RSEQ (warning) eval for l=',i1,' node=',i1,
-     .      ' did not converge: de=',1pd8.2,' e=',1pd11.4)
+     .    ' did not converge: de=',1pd8.2,' e=',1pd11.4)
         endif
       endif
 
@@ -196,9 +196,9 @@ C Passed parameters:
 C Local parameters:
       integer ir,i1
       double precision d(2,3),zz,c,fllp1,r83sq,r1,r2,r3,h83,g0,s,sf,aa,
-     .    f0,dg1,dg2,dg3,df1,df2,df3,r,drdi,phi,u,x,y,det,b1,b2
+     .f0,dg1,dg2,dg3,df1,df2,df3,r,drdi,phi,u,x,y,det,b1,b2
       equivalence (dg1,d(1,1)),(dg2,d(1,2)),(dg3,d(1,3)),
-     .            (df1,d(2,1)),(df2,d(2,2)),(df3,d(2,3))
+     .(df1,d(2,1)),(df2,d(2,2)),(df3,d(2,3))
 C     Speed of light, or infinity in nonrelativistic case
       common /cc/ c
 
@@ -304,7 +304,7 @@ C --- Integrate over rest of points ------
 C     call prrmsh('g',rofi,g,nr,kr,2)
       end
       subroutine rsq2(e,l,z,v,nre,ncmin,val1,slo1,g,val,slo,nn,nc,
-     .  a,b,rofi,nr)
+     .a,b,rofi,nr)
 C- Integrate the scalar relativistic eqn inward from nre to nc
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -342,8 +342,8 @@ C Passed parameters:
 C Local parameters:
       integer i,ir,irp1,i2,i1,ifac
       double precision d(2,3),zz,c,fllp1,r83sq,r1,r2,r3,h83,ea,rpb,
-     .      q,ag1,ag2,ag3,af1,af2,af3,gg,ff,vb,drdi,r,phi,u,x,y,
-     .      dg1,dg2,dg3,df1,df2,df3,det,b1,b2
+     .q,ag1,ag2,ag3,af1,af2,af3,gg,ff,vb,drdi,r,phi,u,x,y,
+     .dg1,dg2,dg3,df1,df2,df3,det,b1,b2
 C Speed of light in common to  relativity
       common /cc/ c
 
@@ -368,7 +368,7 @@ C      endif
       ifac = -1
 C     if (ncmin .gt. nre) ifac = 1
       if (ncmin .gt. nre)
-     .  call rx('rsq2 not implemented for outward integration')
+     .call rx('rsq2 not implemented for outward integration')
 
 C --- First point ------
       r      = rofi(nre)
@@ -471,7 +471,7 @@ C        print *, drdi - a*(r + b)
         dg3  = u*g(ir,2) - x*g(ir,1)
         df3  = x*g(ir,2) - y*g(ir,1)
         if (ifac .eq. -1 .and. mod(ir,2) .ne. 0 .and.
-     .     (ir.le.ncmin .or. g(ir,1)*dg3.ge.0d0)) goto 3
+     .  (ir.le.ncmin .or. g(ir,1)*dg3.ge.0d0)) goto 3
     2 continue
 
 C --- Integration done, clean up ---

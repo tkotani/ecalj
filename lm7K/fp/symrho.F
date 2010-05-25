@@ -108,8 +108,8 @@ C ... Passed parameters
 
 C ... Local parameters
       integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
-     . , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , oag , ocg 
-     . , ocy , og , oidxcg , ojcg , igetss , mxint , oistab , ival
+     ., lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , oag , ocg 
+     ., ocy , og , oidxcg , ojcg , igetss , mxint , oistab , ival
       integer ,allocatable :: ipa_iv(:)
       integer ,allocatable :: ipc_iv(:)
       integer ,allocatable :: ips_iv(:)
@@ -189,7 +189,7 @@ Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) pos_rv(:)=0.0d0
 
       do  ic = 1, nclass
         call psymr0 ( - 2 , ic , nbas , ipc_iv , pos0_rv , pos_rv 
-     .   , ipa_iv , nrclas )
+     .  , ipa_iv , nrclas )
 
         if (nrclas .gt. 0) then
           ib0 = ival ( ipa_iv , 1 )
@@ -211,7 +211,7 @@ C   ... Make the projectors; make to at least to l=1 for forces
 Ctakao_ZeroClear_NotRequiered          if (nlmx*nlmx*nrclas<0) sym_rv(:)=0.0d0
 
           call symprj ( nrclas , nlmx , ngrp , nbas , w ( oistab ) , w 
-     .   ( og ) , w ( oag ) , plat , qlat , pos_rv , sym_rv )
+     .    ( og ) , w ( oag ) , plat , qlat , pos_rv , sym_rv )
 
 
 C   ... Apply the projectors to rhoat
@@ -220,10 +220,10 @@ C   ... Apply the projectors to rhoat
 Ctakao_ZeroClear_NotRequiered          if (nr*nlml*nsp<0) rho_rv(:)=0.0d0
 
             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
-     .   , rho_rv , orhoat , 1 )
+     .      , rho_rv , orhoat , 1 )
 
             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
-     .   , rho_rv , orhoat , 2 )
+     .      , rho_rv , orhoat , 2 )
 
 
 C   ... Symmetrize site charges and eigval sum
@@ -233,7 +233,7 @@ C   ... Symmetrize site charges and eigval sum
 
 C   ... Symmetrize the forces
           if ( lf .ne. 0 ) call psymrf ( nrclas , ipa_iv , nlmx , sym_rv 
-     .   , f )
+     .    , f )
 
 
           if (allocated(rho_rv)) deallocate(rho_rv)
@@ -313,9 +313,9 @@ C ... Local parameters
         write(stdo,770) (ipa(ia),ia = 1,nrclas)
   770   format(' symmetrized qbyl,hbyl for class containing ib=',20i3)
         if (nsp .eq. 1) write(stdo,780)
-     .    (l,qsum(l+1,1),hsum(l+1,1), l=0,lmxa)
+     .  (l,qsum(l+1,1),hsum(l+1,1), l=0,lmxa)
         if (nsp .eq. 2) write(stdo,781)
-     .    (l,(qsum(l+1,isp),hsum(l+1,isp),isp=1,nsp), l=0,lmxa)
+     .  (l,(qsum(l+1,isp),hsum(l+1,isp),isp=1,nsp), l=0,lmxa)
   780   format(i5,2f12.6)
   781   format(i5,2f12.6,'   spin 2',2f12.6)
       endif
@@ -354,7 +354,7 @@ C ... Accumulate symmetrized true density on first site
       do  ia = 1, nrclas
         ib = ipa(ia)
         call pxsmr1(1d0,nr,nlml,nsp,sym(1,1,ia),w(orhoat(icmp,ib)),rho,
-     .    nn)
+     .  nn)
       enddo
 
 C ... Copy to all sites in class
@@ -384,7 +384,7 @@ C ... Passed parameters
       double complex smrho(k1,k2,k3,nsp)
 C ... Local parameters
       integer:: n1 , n2 , n3 , ng , ngrp , obgv , ogv , oips0 , okv 
-     . , ngabc(3) , isp
+     ., ngabc(3) , isp
       complex(8) ,allocatable :: csym_zv(:)
       complex(8) ,allocatable :: cv_zv(:)
 
@@ -418,15 +418,15 @@ Ctakao_ZeroClear_NotRequiered          if (ng<0) csym_zv(:)=0.0d0
 C       call zprm3('smrho before poke',smrho,k1,k2,k3)
         do  isp = 1, nsp
           call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smrho ( 1 , 
-     .     1 , 1 , isp ) , cv_zv )
+     .    1 , 1 , isp ) , cv_zv )
 
           call gvsym ( ng , w ( ogv ) , w ( oips0 ) , w ( obgv ) , cv_zv 
-     .     , csym_zv )
+     .    , csym_zv )
 
           call dpadd ( csym_zv , cv_zv , 1 , ng * 2 , - 1d0 )
 
           call gvaddf ( ng , w ( okv ) , k1 , k2 , k3 , csym_zv , smrho 
-     .     ( 1 , 1 , 1 , isp ) )
+     .    ( 1 , 1 , 1 , isp ) )
 
 C         call zprm3('smrho after poke',smrho,k1,k2,k3)
         enddo
@@ -465,20 +465,20 @@ C ... Local parameters
       nneg = 0
       rmin = 999
       do  10  i3 = 1, n3
-      do  10  i2 = 1, n2
-      do  10  i1 = 1, n1
-        xx = dble(smrho(i1,i2,i3))
-        rmin = min(rmin,xx)
-        if (xx .lt. 0) then
-          nneg = nneg+1
-          xx = 1d-8
-        endif
-        smrho(i1,i2,i3) = xx
+        do  10  i2 = 1, n2
+          do  10  i1 = 1, n1
+            xx = dble(smrho(i1,i2,i3))
+            rmin = min(rmin,xx)
+            if (xx .lt. 0) then
+              nneg = nneg+1
+              xx = 1d-8
+            endif
+            smrho(i1,i2,i3) = xx
    10 continue
 
       if (nneg .gt. 0) write(stdo,333) nneg,rmin
   333 format(' rhopos (warning): mesh density negative at',i6,
-     .  ' points.  min=',f13.8)
+     .' points.  min=',f13.8)
 
       end subroutine rhopos
 

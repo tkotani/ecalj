@@ -49,33 +49,33 @@ c
       if (igh .eq. low) go to 120
 c
       do 110 i = low, igh
-         s = scale(i)
+        s = scale(i)
 c     .......... left hand eigenvectors are back transformed
 c                if the foregoing statement is replaced by
 c                s=1.0d0/scale(i). ..........
-         do 100 j = 1, m
-            zr(i,j) = zr(i,j) * s
-            zi(i,j) = zi(i,j) * s
-  100    continue
+        do 100 j = 1, m
+          zr(i,j) = zr(i,j) * s
+          zi(i,j) = zi(i,j) * s
+  100   continue
 c
   110 continue
 c     .......... for i=low-1 step -1 until 1,
 c                igh+1 step 1 until n do -- ..........
   120 do 140 ii = 1, n
-         i = ii
-         if (i .ge. low .and. i .le. igh) go to 140
-         if (i .lt. low) i = low - ii
-         k = scale(i)
-         if (k .eq. i) go to 140
+        i = ii
+        if (i .ge. low .and. i .le. igh) go to 140
+        if (i .lt. low) i = low - ii
+        k = scale(i)
+        if (k .eq. i) go to 140
 c
-         do 130 j = 1, m
-            s = zr(i,j)
-            zr(i,j) = zr(k,j)
-            zr(k,j) = s
-            s = zi(i,j)
-            zi(i,j) = zi(k,j)
-            zi(k,j) = s
-  130    continue
+        do 130 j = 1, m
+          s = zr(i,j)
+          zr(i,j) = zr(k,j)
+          zr(k,j) = s
+          s = zi(i,j)
+          zi(i,j) = zi(k,j)
+          zi(k,j) = s
+  130   continue
 c
   140 continue
 c

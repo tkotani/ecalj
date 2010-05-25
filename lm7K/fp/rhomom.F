@@ -33,7 +33,7 @@ C ... Passed parameters
 
 C ... Local parameters
       integer:: stdo , ipr , iprint , lgunit , nrmx , nsp , nglob , 
-     . j1 , ib , is , igetss , lmxl , nr , nlml , ilm , j , lfoc
+     .j1 , ib , is , igetss , lmxl , nr , nlml , ilm , j , lfoc
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: rwgt_rv(:)
       real(8) ,allocatable :: h_rv(:)
@@ -41,7 +41,7 @@ C ... Local parameters
 
       parameter( nrmx=1501)
       double precision fpi,y0,z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
-     .  ceh,rfoc,vs1,vs2
+     .ceh,rfoc,vs1,vs2
 C ... Heap
       integer w(1)
       common /w/ w
@@ -94,9 +94,9 @@ C --- Loop over sites ---
         call radwgt ( rmt , a , nr , rwgt_rv )
 
         call pvrhom ( nlml , nr , nsp , rofi_rv , rwgt_rv , w ( 
-     .   orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat ( 
-     .   3 , ib ) ) , cofg , cofh , rg , ceh , rfoc , z , h_rv , qmom 
-     .   ( j1 ) )
+     .  orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat ( 
+     .  3 , ib ) ) , cofg , cofh , rg , ceh , rfoc , z , h_rv , qmom 
+     .  ( j1 ) )
 
         if (ipr .ge. 40) then
           write(stdo,220) ib,1,qmom(j1),qmom(j1)/y0,qc,z
@@ -107,11 +107,11 @@ C --- Loop over sites ---
         endif
   220   format(i13,i6,f12.6,f12.6,2f9.2)
   221   format(/' rhomom:   ib   ilm      qmom',8x,'Qval',7x,
-     .     'Qc',8x,'Z')
+     .  'Qc',8x,'Z')
         call pvrhm2 ( z , a , nr , nlml , nsp , rofi_rv , rwgt_rv 
-     .   , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
-     .   ( 3 , ib ) ) , qmom ( j1 ) , cofg , cofh , rg , ceh , rfoc , 
-     .   h_rv , v_rv , vs1 , vs2 )
+     .  , w ( orhoat ( 1 , ib ) ) , w ( orhoat ( 2 , ib ) ) , w ( orhoat 
+     .  ( 3 , ib ) ) , qmom ( j1 ) , cofg , cofh , rg , ceh , rfoc , 
+     .  h_rv , v_rv , vs1 , vs2 )
 
 
         vsum = vsum+vs1-vs2
@@ -129,7 +129,7 @@ C --- Loop over sites ---
 
 
       subroutine pvrhom(nlml,nr,nsp,rofi,rwgt,rho1,rho2,rhoc,
-     .  cofg,cofh,rg,ceh,rfoc,z,h,qmom)
+     .cofg,cofh,rg,ceh,rfoc,z,h,qmom)
 
 C- Multipole moments for one site
 C ----------------------------------------------------------------------
@@ -161,12 +161,12 @@ C ... Passed parameters
       integer nlml,nr,nsp
       double precision ceh,cofg,cofh,rfoc,rg,z
       double precision rofi(1),rwgt(1),h(1),qmom(nlml),rhoc(nr,nsp),
-     .  rho1(nr,nlml,nsp),rho2(nr,nlml,nsp)
+     .rho1(nr,nlml,nsp),rho2(nr,nlml,nsp)
 C ... Local parameters
       integer n0,i,ilm,l,m,lmxl,ll,isp
       parameter (n0=10)
       double precision ag,delq,fac,gnu,pi,qcor1,qcor2,qnuc2,r,
-     .  rhochs,rhocsm,rhonsm,srfpi,sum,sumg,xi(0:n0),qcor1s
+     .rhochs,rhocsm,rhonsm,srfpi,sum,sumg,xi(0:n0),qcor1s
 C     double precision sumh,samh,y0
 
       pi = 4d0*datan(1d0)
@@ -245,7 +245,7 @@ C  821 format('delq=',f12.6)
 
 
       subroutine pvrhm2(z,a,nr,nlml,nsp,rofi,rwgt,rho1,rho2,rhoc,qmom,
-     .  cofg,cofh,rg,ceh,rfoc,h,v,vsum1,vsum2)
+     .cofg,cofh,rg,ceh,rfoc,h,v,vsum1,vsum2)
 
 C- Integral over electrostatic potential, to fix energy origin
 C ----------------------------------------------------------------------
@@ -280,13 +280,13 @@ C     implicit none
 C ... Passed parameters
       integer nr,nlml,nsp
       double precision a,ceh,cofg,cofh,rfoc,rg,vsum1,vsum2,z,rofi(1),
-     .  rwgt(1),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),h(1),v(nr),qmom(1),
-     .  rhoc(nr,nsp)
+     .rwgt(1),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),h(1),v(nr),qmom(1),
+     .rhoc(nr,nsp)
 C ... Local parameters
       integer n0,i
       parameter (n0=10)
       double precision af,ag,b,cg,fac,facs,fpi,gnu,pi,q1,q2,r,srfpi,
-     .  vhrho,vsum,y0,xi(0:n0)
+     .vhrho,vsum,y0,xi(0:n0)
 
       pi = 4d0*datan(1d0)
       fpi = 4d0*pi
@@ -299,7 +299,7 @@ C ... True density
       facs = 1d0/(3-nsp)
       do  i = 1, nr
         h(i) = facs*(srfpi*(rho1(i,1,1)+rho1(i,1,nsp))
-     .                    + rhoc(i,1) + rhoc(i,nsp))
+     .  + rhoc(i,1) + rhoc(i,nsp))
         q1 = q1 + rwgt(i)*h(i)
       enddo
       call poiss0(z,a,b,rofi,h,nr,0d0,v,vhrho,vsum,1)
@@ -321,7 +321,7 @@ C ... Smooth density, including compensating gaussians
         gnu = fac* r*r * dexp(-ag*ag*r*r)
         call hansmr(r,ceh,af,xi,1)
         h(i) = srfpi*(facs*(rho2(i,1,1)+rho2(i,1,nsp))
-     .                + cg*gnu + cofh*xi(0)*r*r)
+     .  + cg*gnu + cofh*xi(0)*r*r)
         q2 = q2 + rwgt(i)*h(i)
       enddo
       call poiss0(0d0,a,b,rofi,h,nr,0d0,v,vhrho,vsum,1)

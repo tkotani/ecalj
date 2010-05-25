@@ -1,6 +1,6 @@
 #define F90 1
       subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim,
-     .  cg,indxcg,jcg,cy,slat,s,ds)
+     .cg,indxcg,jcg,cy,slat,s,ds)
 C- Integrals between smooth hankels(eh=0,q=0) and gaussians
 C  with some power of the laplace operator, and their gradients.
 C ----------------------------------------------------------------------
@@ -39,8 +39,8 @@ C ... Passed parameters
       double complex s(ndim1,ndim2,0:kdim),ds(ndim1,ndim2,0:kdim,3)
 C ... Local parameters
       integer nlm0,ktop0,m,lmaxh,ll,lmaxg,lmaxx,nlmx,nlmxp1,ktop,ktopp1,
-     .  ilm,kz,kx1,kx2,ky1,ky2,k,jlm,ilg,lg,ilh,lh,ii,indx,icg1,icg2,
-     .  icg,lm,ip,nlmxx
+     .ilm,kz,kx1,kx2,ky1,ky2,k,jlm,ilg,lg,ilh,lh,ii,indx,icg1,icg2,
+     .icg,lm,ip,nlmxx
       double precision dr(3),gamh,gamg,rsmx,cz,cx1,cx2,cy1,cy2,fac
 #if F90
       complex(8),allocatable:: hkl(:,:),ghkl(:,:,:)
@@ -96,34 +96,34 @@ C ... Make gradients using CGs for p functions
       enddo
 
       do  3  k = 0, kmax
-      do  3  jlm = 1, nlmh
-      do  3  ilm = 1, nlmg
-        s(ilm,jlm,k)    = dcmplx(0d0,0d0)
-        ds(ilm,jlm,k,1) = dcmplx(0d0,0d0)
-        ds(ilm,jlm,k,2) = dcmplx(0d0,0d0)
-        ds(ilm,jlm,k,3) = dcmplx(0d0,0d0)
+        do  3  jlm = 1, nlmh
+          do  3  ilm = 1, nlmg
+            s(ilm,jlm,k)    = dcmplx(0d0,0d0)
+            ds(ilm,jlm,k,1) = dcmplx(0d0,0d0)
+            ds(ilm,jlm,k,2) = dcmplx(0d0,0d0)
+            ds(ilm,jlm,k,3) = dcmplx(0d0,0d0)
     3 continue
 
 C --- Combine with Clebsch-Gordan coefficients ---
       do  11  ilg = 1, nlmg
         lg = ll(ilg)
-      do  11  ilh = 1, nlmh
-        lh = ll(ilh)
-        ii = max0(ilg,ilh)
-        indx = (ii*(ii-1))/2 + min0(ilg,ilh)
-        icg1 = indxcg(indx)
-        icg2 = indxcg(indx+1)-1
-      do  11  icg = icg1, icg2
-        ilm = jcg(icg)
-        lm = ll(ilm)
-        k = (lg+lh-lm)/2
-        fac = (-1d0)**lg*cg(icg)
-        do  12  ip = 0, kmax
-          s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
-          ds(ilg,ilh,ip,1) = ds(ilg,ilh,ip,1)+fac*ghkl(k+ip,ilm,1)
-          ds(ilg,ilh,ip,2) = ds(ilg,ilh,ip,2)+fac*ghkl(k+ip,ilm,2)
-          ds(ilg,ilh,ip,3) = ds(ilg,ilh,ip,3)+fac*ghkl(k+ip,ilm,3)
-   12   continue
+        do  11  ilh = 1, nlmh
+          lh = ll(ilh)
+          ii = max0(ilg,ilh)
+          indx = (ii*(ii-1))/2 + min0(ilg,ilh)
+          icg1 = indxcg(indx)
+          icg2 = indxcg(indx+1)-1
+          do  11  icg = icg1, icg2
+            ilm = jcg(icg)
+            lm = ll(ilm)
+            k = (lg+lh-lm)/2
+            fac = (-1d0)**lg*cg(icg)
+            do  12  ip = 0, kmax
+              s(ilg,ilh,ip) = s(ilg,ilh,ip) + fac*hkl(k+ip,ilm)
+              ds(ilg,ilh,ip,1) = ds(ilg,ilh,ip,1)+fac*ghkl(k+ip,ilm,1)
+              ds(ilg,ilh,ip,2) = ds(ilg,ilh,ip,2)+fac*ghkl(k+ip,ilm,2)
+              ds(ilg,ilh,ip,3) = ds(ilg,ilh,ip,3)+fac*ghkl(k+ip,ilm,3)
+   12       continue
    11 continue
 
 #if F90

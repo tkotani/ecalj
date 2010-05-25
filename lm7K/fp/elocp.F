@@ -35,7 +35,7 @@ C ... Local parameters
       character spid*8
       logical eloc
       integer ib,ibs,iclbsj,ipr,iprint,is,k,l,lmxa,lmxb,nglob,nkap0,
-     .  nr,nrmx,nrspec,nspec,stdo
+     .nr,nrmx,nrspec,nspec,stdo
       parameter (nrmx=1501, nkap0=3)
       integer lh(nkap0),nkape,nkaph,idamax
       integer:: ov0
@@ -43,8 +43,8 @@ C ... Local parameters
 
       double precision z,a,rmt,rs3,eh3,vmtz,xx
       double precision rofi(nrmx),vseli(4,n0),vsel(4,n0,nbas),
-     .  pnu(n0,2),pnz(n0,2),eh(n0,nkap0),rsmh(n0,nkap0),
-     .  pnui(n0,2),pnzi(n0,2),ehl(n0,nkap0),rsml(n0,nkap0)
+     .pnu(n0,2),pnz(n0,2),eh(n0,nkap0),rsmh(n0,nkap0),
+     .pnui(n0,2),pnzi(n0,2),ehl(n0,nkap0),rsml(n0,nkap0)
 C ... Heap
       integer w(1)
       common /w/ w
@@ -91,7 +91,7 @@ C --- Find val, slo, K.E. for all sites ---
 
         call radmsh(rmt,a,nr,rofi)
         call loctsh(1101,spid,z,a,nr,nr,nsp,lmxa,rofi,w(ov0),
-     .    pnu,pnz,xx,xx,vmtz,vsel(1,1,ib),rsml,ehl)
+     .  pnu,pnz,xx,xx,vmtz,vsel(1,1,ib),rsml,ehl)
    10   continue
       enddo
 
@@ -189,7 +189,7 @@ C   ... Make parameters for this species
         call dpzero(ehl,n0*2)
         call radmsh(rmt,a,nr,rofi)
         call loctsh(1102,spid,xx,a,nr,nr,nsp,lmxa,rofi,w,
-     .    pnui,pnzi,rs3,eh3,vmtz,vseli,rsml,ehl)
+     .  pnui,pnzi,rs3,eh3,vmtz,vseli,rsml,ehl)
         call dcopy(n0,rsml,1,rsmh(1,nkaph),1)
         call dcopy(n0,ehl, 1,eh(1,nkaph),1)
         call uspecb(1,1,sspec,is,is,lh,rsmh,eh,nkaph)

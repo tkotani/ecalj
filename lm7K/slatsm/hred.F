@@ -24,40 +24,40 @@ C Local parameters
 c     .......... form the transpose of the upper triangle of inv(l)*a
 c                in the lower triangle of the array a ..........
       do 200 i = 1, n
-         im1 = i - 1
-         y = dl(i)
+        im1 = i - 1
+        y = dl(i)
 c
 C  (l^-1 * a)_ij  =  (a_ij - sum_k<i  l_ik * (l^-1)_kj) / l_ii
-         do 200 j = i, n
-            xr = ar(i,j)
-            xi = ai(i,j)
-            do 160 k = 1, im1
-              xr = xr - (br(i,k)*ar(j,k) - bi(i,k)*ai(j,k))
-              xi = xi - (br(i,k)*ai(j,k) + bi(i,k)*ar(j,k))
-  160       continue
-            ar(j,i) = xr / y
-            ai(j,i) = xi / y
+        do 200 j = i, n
+          xr = ar(i,j)
+          xi = ai(i,j)
+          do 160 k = 1, im1
+            xr = xr - (br(i,k)*ar(j,k) - bi(i,k)*ai(j,k))
+            xi = xi - (br(i,k)*ai(j,k) + bi(i,k)*ar(j,k))
+  160     continue
+          ar(j,i) = xr / y
+          ai(j,i) = xi / y
   200 continue
 c     .......... pre-multiply by inv(l) and overwrite ..........
       do 300 j = 1, n
-         j1 = j - 1
+        j1 = j - 1
 c
-         do 300 i = j, n
-            xr =  ar(i,j)
-            xi = -ai(i,j)
-            im1 = i - 1
-            do 220 k = j, im1
+        do 300 i = j, n
+          xr =  ar(i,j)
+          xi = -ai(i,j)
+          im1 = i - 1
+          do 220 k = j, im1
 c             x = x - a(k,j) * b(i,k)
-              xr = xr - (ar(k,j)*br(i,k) - ai(k,j)*bi(i,k))
-              xi = xi - (ar(k,j)*bi(i,k) + ai(k,j)*br(i,k))
-  220       continue
-            do 260 k = 1, j1
+            xr = xr - (ar(k,j)*br(i,k) - ai(k,j)*bi(i,k))
+            xi = xi - (ar(k,j)*bi(i,k) + ai(k,j)*br(i,k))
+  220     continue
+          do 260 k = 1, j1
 c             x = x - a*(j,k) * b(i,k)
-              xr = xr - (ar(j,k)*br(i,k) + ai(j,k)*bi(i,k))
-              xi = xi - (ar(j,k)*bi(i,k) - ai(j,k)*br(i,k))
-  260       continue
-            ar(i,j) = xr / dl(i)
-            ai(i,j) = xi / dl(i)
+            xr = xr - (ar(j,k)*br(i,k) + ai(j,k)*bi(i,k))
+            xi = xi - (ar(j,k)*bi(i,k) - ai(j,k)*br(i,k))
+  260     continue
+          ar(i,j) = xr / dl(i)
+          ai(i,j) = xi / dl(i)
   300 continue
       end
 

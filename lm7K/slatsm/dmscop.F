@@ -1,5 +1,5 @@
       subroutine dmscop(dest,ldd,src,lds,n1rs,n2rs,n1cs,n2cs,
-     .  n1rd,n1cd,fac)
+     .n1rd,n1cd,fac)
 C- Shift and copy a matrix
 C  Inputs: 
 Ci   dest,ldd  destination matrix and leading dimension
@@ -14,7 +14,7 @@ Co             is copied from fac * src(n1rs:n2rs,n1cs:n2cs)
 C ----------------------------------------------------------------
 C     implicit none
       integer ldd,lds,n1rs,n2rs,n1cs,n2cs,
-     .  n1rd,n1cd
+     .n1rd,n1cd
       double precision dest(ldd,1),src(lds,1),fac
 C Local variables
       integer i,j,offr,offc
@@ -23,11 +23,11 @@ C Local variables
       offc = n1cd-n1cs
       if (fac .eq. 1d0) then
         do  10  j = n1cs, n2cs
-        do  10  i = n1rs, n2rs
+          do  10  i = n1rs, n2rs
    10   dest(i+offr,j+offc) = src(i,j)
       else
         do  20  j = n1cs, n2cs
-        do  20  i = n1rs, n2rs
+          do  20  i = n1rs, n2rs
    20   dest(i+offr,j+offc) = fac*src(i,j)
       endif
       end

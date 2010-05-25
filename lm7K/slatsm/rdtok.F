@@ -1,5 +1,5 @@
       integer function rdtok(token,instr,descr,sep0,sep,cast,swt,
-     .  n1,count,resn,resc)
+     .n1,count,resn,resc)
 C- Seek a token within a string and read associated data into array
 C ----------------------------------------------------------------
 Ci Inputs
@@ -94,7 +94,7 @@ C ... Passed parameters
 C ... Local parameters
       logical logval,parstr,l1,l2,lhelp,lshow,lread
       integer a2vec,awrite,i,ifipr,ifmt,io,ip,is,isave,it(99),ival,k,ks,
-     .  linstr,rdtk2,recl,retval,ltok,quswt,lfixl,lopt,lmult,lio
+     .linstr,rdtk2,recl,retval,ltok,quswt,lfixl,lopt,lmult,lio
       parameter (recl=500)
       character   aa*(recl),prs*(recl)
       character*8 nmcast(0:4),fmt*20
@@ -140,24 +140,24 @@ C         Strip off first parts, if either exists
         is= ltok
         if (count .eq. 0) then
           aa = fmt(1:ks) // ' *token  ' // token(1:is) //
-     .      '%a (no arguments; %?#(n==0)#optional#required#)'
+     .    '%a (no arguments; %?#(n==0)#optional#required#)'
           call awrit1(aa,' ',72,ifipr,lopt)
         elseif (count .eq. 1) then
           aa = fmt(1:ks) // ' *token  ' // token(1:is) //
-     .      '%a takes 1 argument of cast '//nmcast(cast)//
-     .      '%a %?#(n==0)#(optional)##%-1j'//
-     .      '%a %?#(n==1)#(required)##%-1j'//
-     .      '%a %?#(n==2)#%N'//fmt(1:ks)//
-     .      '   (choose either this token or the next one)##'
+     .    '%a takes 1 argument of cast '//nmcast(cast)//
+     .    '%a %?#(n==0)#(optional)##%-1j'//
+     .    '%a %?#(n==1)#(required)##%-1j'//
+     .    '%a %?#(n==2)#%N'//fmt(1:ks)//
+     .    '   (choose either this token or the next one)##'
           call awrit1(aa,' ',128,ifipr,lopt)
         else
           aa = fmt(1:ks) // ' *token  ' // token(1:is) //
-     .      '%a takes %?#(n==0)#up to ##'//
-     .      '%i arguments of cast '//nmcast(cast)//
-     .      '%a %?#(n==0)#(optional)##%-1j'//
-     .      '%a %?#(n==1)#(required)##%-1j'//
-     .      '%a %?#(n==2)#%N'//fmt(1:ks)//
-     .      '   (choose either this token or the next one)##'
+     .    '%a takes %?#(n==0)#up to ##'//
+     .    '%i arguments of cast '//nmcast(cast)//
+     .    '%a %?#(n==0)#(optional)##%-1j'//
+     .    '%a %?#(n==1)#(required)##%-1j'//
+     .    '%a %?#(n==2)#%N'//fmt(1:ks)//
+     .    '   (choose either this token or the next one)##'
           call awrit3(aa,' ',128,ifipr,lfixl,count,lopt)
         endif
         if (descr .ne. ' ') then
@@ -220,11 +220,11 @@ C         End-of-category encountered before loop over count exhausted
             if (lfixl .ne. 0) then
               if (count .eq. 1) then
                 aa = 'Exit -1 rdtok: no string after token '//
-     .            token(1:ltok)
+     .          token(1:ltok)
                 call fexit(-1,1,aa,0)
               else
-              aa = 'Exit -1 rdtok: failed to parse %i strings, token'
-              call strncp(aa,instr,53,isave,min(recl-53,linstr-isave)-1)
+                aa = 'Exit -1 rdtok: failed to parse %i strings, token'
+                call strncp(aa,instr,53,isave,min(recl-53,linstr-isave)-1)
               endif
               call fexit(-1,1,aa,count)
             endif
@@ -246,7 +246,7 @@ C ... Parse for vector of numerical arguments
       swt(7) = is
       is = is-1
       k = a2vec(instr,linstr,is,cast,sep,len(sep),-99,-count,it,
-     .  resn(n1))
+     .resn(n1))
       retval = k
 
 C ... a2vec encountered an illegitimate expression
@@ -311,32 +311,32 @@ C     Write the elements
       do  i = 1, k
         if (cast .eq. 1) then
           ip = ip + awrite(resc(n1+i-1),prs(ip+1:),128,
-     .      0,0,0,0,0,0,0,0,0)
+     .    0,0,0,0,0,0,0,0,0)
           call skpblb(prs,ip,ip)
           ip = ip+1
           if (fmt .ne. ' ')
-     .      ip = awrite(fmt(1:ifmt),prs,128,0,0,0,0,0,0,0,0,0)
+     .    ip = awrite(fmt(1:ifmt),prs,128,0,0,0,0,0,0,0,0,0)
         elseif (cast .eq. 0) then
           if (fmt .eq. ' ') then
             fmt = '%l'
             ifmt = 2
           endif
           ip = ip + awrite(fmt(1:ifmt),prs(ip+1:),128,0,
-     .      logval(resn,n1+i-1),0,0,0,0,0,0,0)
+     .    logval(resn,n1+i-1),0,0,0,0,0,0,0)
         elseif (cast .eq. 2) then
           if (fmt .eq. ' ') then
             fmt = '%i'
             ifmt = 2
           endif
           ip = ip + awrite(fmt(1:ifmt),prs(ip+1:),128,0,
-     .      ival(resn,n1+i-1),0,0,0,0,0,0,0)
+     .    ival(resn,n1+i-1),0,0,0,0,0,0,0)
         elseif (cast .eq. 4) then
           if (fmt .eq. ' ') then
             fmt = '%;10F'
             ifmt = 5
           endif
           ip = ip + awrite(fmt(1:ifmt),prs(ip+1:),128,0,resn(n1+i-1),
-     .      0,0,0,0,0,0,0)
+     .    0,0,0,0,0,0,0)
         endif
 C       ip = ip+2
         if (i .lt. k) then

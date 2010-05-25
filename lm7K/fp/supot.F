@@ -30,8 +30,8 @@ C ... Passed parameters
 
 C ... Local parameters
       integer nbas,nbasp,nbaspp,nsp,omad,opos,nkd,nkq,odlv,oqlv,igets,
-     .  ngabc(3),n1,n2,n3,k1,k2,k3,ngmx,ogv,okv,ng,osmrho,osmpot,oorhat,
-     .  oips0,obgv,ngrp,og,oag,iprint
+     .ngabc(3),n1,n2,n3,k1,k2,k3,ngmx,ogv,okv,ng,osmrho,osmpot,oorhat,
+     .oips0,obgv,ngrp,og,oag,iprint
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision awald,alat,vol,plat(9),gmax,xx
 C ... Heap
@@ -63,7 +63,7 @@ C --- Monopole Madelung matrix ---
       if (mod(mode,10) .eq. 1) then
         call defdr(omad,nbaspp**2)
         call madmat(nbaspp,w(opos),awald,alat,vol,w(odlv),nkd,
-     .    w(oqlv),nkq,w(omad))
+     .  w(oqlv),nkq,w(omad))
 
         spot%omad=omad
 
@@ -91,7 +91,7 @@ C   ... Make list of lattice vectors within cutoff
         call defrr(ogv, ngmx*3)
         call defi (okv, ngmx*3)
         call gvlist(alat,plat,w,n1,n2,n3,gmax,8,ngmx,ng,w(okv),
-     .    w(ogv),xx,xx)
+     .  w(ogv),xx,xx)
         if (ng .ne. ngmx) call rx('supot: bug in gvlist')
 
 

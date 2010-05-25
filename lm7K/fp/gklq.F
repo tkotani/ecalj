@@ -1,5 +1,5 @@
       subroutine gklq(lmax,rsm,q,p,e,kmax,k0,alat,dlv,nkd,nrx,yl,wk,job,
-     .  gkl)
+     .gkl)
 C- Bloch sum of k,L-dependent gaussians (vectorizes)
 C ---------------------------------------------------------------
 Ci Inputs:
@@ -42,7 +42,7 @@ C     implicit none
 C Local variables
       integer ilm,ir,k,l,m,nlm,ik1,ik2,lc1,ls1,lc2,ls2,job0,job1
       double precision qdotr,pi,tpi,y0,ta2,x,y,a2,g0fac,xx1,xx2,x1,x2,
-     .  y2,p1(3),sp,cosp,sinp
+     .y2,p1(3),sp,cosp,sinp
 
 C --- Setup ---
       if (kmax .lt. 0 .or. lmax .lt. 0 .or. rsm .eq. 0d0) return
@@ -55,9 +55,9 @@ C --- Setup ---
       a2  = 1/rsm**2
       ta2 = 2*a2
       do  10  ilm = 1, nlm
-      do  10  k = 0, kmax
-        gkl(1,k,ilm) = 0d0
-        gkl(2,k,ilm) = 0d0
+        do  10  k = 0, kmax
+          gkl(1,k,ilm) = 0d0
+          gkl(2,k,ilm) = 0d0
    10 continue
 C ... Shorten connecting vector; need to adjust phase later
       if (job1 .eq. 1 .or. job1 .eq. 3) then
@@ -96,61 +96,61 @@ C ...   cos(q.dlv), sin(q.dlv) -> wk(3,4), Y0 exp(-(a dlv)**2) -> wk(2)
 
 C --- Outer loop over k (in blocks of 2), and over l ---
       do  30  k = 0, kmax, 2
-      do  30  l = 0, lmax
-        g0fac = 1/rsm*ta2**(l+1)/pi * dexp(e*rsm*rsm/4)
+        do  30  l = 0, lmax
+          g0fac = 1/rsm*ta2**(l+1)/pi * dexp(e*rsm*rsm/4)
 
 C   ... Make radial part of the G_kl(1..nkd) for k= 0, 1
-        if (k .eq. 0) then
-          do  32  ir = 1, nkd
-            xx1 = g0fac*wk(ir,2)
-            xx2 = (ta2*wk(ir,1)-3-2*l)* ta2 * xx1
-            wk(ir,ik1+l) = xx1
-            wk(ir,ik2+l) = xx2
-            wk(ir,lc1) = wk(ir,3)*xx1
-            wk(ir,ls1) = wk(ir,4)*xx1
-            wk(ir,lc2) = wk(ir,3)*xx2
-            wk(ir,ls2) = wk(ir,4)*xx2
-   32     continue
+          if (k .eq. 0) then
+            do  32  ir = 1, nkd
+              xx1 = g0fac*wk(ir,2)
+              xx2 = (ta2*wk(ir,1)-3-2*l)* ta2 * xx1
+              wk(ir,ik1+l) = xx1
+              wk(ir,ik2+l) = xx2
+              wk(ir,lc1) = wk(ir,3)*xx1
+              wk(ir,ls1) = wk(ir,4)*xx1
+              wk(ir,lc2) = wk(ir,3)*xx2
+              wk(ir,ls2) = wk(ir,4)*xx2
+   32       continue
 C   ... Make radial part of the G_kl(1..nkd) for k, k+1 from k-1, k-2
 C       and cos(q.dlv) * G_kl and sin(q.dlv) * G_kl
-        else
-          x = 2*(k-1)*(2*k + 2*l-1)
-          y = 4*k + 2*l-1
-          x2 = 2*k*(2*(k+1) + 2*l-1)
-          y2 = 4*(k+1) + 2*l-1
-          do  34  ir = 1, nkd
-            xx1 = ta2*((ta2*wk(ir,1)-y)*wk(ir,ik2+l) - x*ta2*wk(ir,ik1+l))
-            xx2 = ta2*((ta2*wk(ir,1)-y2)*xx1         -x2*ta2*wk(ir,ik2+l))
-            wk(ir,ik1+l) = xx1
-            wk(ir,ik2+l) = xx2
-            wk(ir,lc1) = wk(ir,3)*xx1
-            wk(ir,ls1) = wk(ir,4)*xx1
-            wk(ir,lc2) = wk(ir,3)*xx2
-            wk(ir,ls2) = wk(ir,4)*xx2
-   34     continue
-        endif
+          else
+            x = 2*(k-1)*(2*k + 2*l-1)
+            y = 4*k + 2*l-1
+            x2 = 2*k*(2*(k+1) + 2*l-1)
+            y2 = 4*(k+1) + 2*l-1
+            do  34  ir = 1, nkd
+              xx1 = ta2*((ta2*wk(ir,1)-y)*wk(ir,ik2+l) - x*ta2*wk(ir,ik1+l))
+              xx2 = ta2*((ta2*wk(ir,1)-y2)*xx1         -x2*ta2*wk(ir,ik2+l))
+              wk(ir,ik1+l) = xx1
+              wk(ir,ik2+l) = xx2
+              wk(ir,lc1) = wk(ir,3)*xx1
+              wk(ir,ls1) = wk(ir,4)*xx1
+              wk(ir,lc2) = wk(ir,3)*xx2
+              wk(ir,ls2) = wk(ir,4)*xx2
+   34       continue
+          endif
 
 C   ... For each point, add G_kl Y_L exp(i q.dlv) into Bloch G_kL
-        ilm = l*l
-        if (k .lt. kmax) then
-          do  36  m = -l, l
-            ilm = ilm+1
-            do  38  ir = nkd, 1, -1
-              gkl(1,k,ilm) = gkl(1,k,ilm) + wk(ir,lc1)*yl(ir,ilm)
-              gkl(2,k,ilm) = gkl(2,k,ilm) + wk(ir,ls1)*yl(ir,ilm)
-              gkl(1,k+1,ilm) = gkl(1,k+1,ilm) + wk(ir,lc2)*yl(ir,ilm)
-              gkl(2,k+1,ilm) = gkl(2,k+1,ilm) + wk(ir,ls2)*yl(ir,ilm)
-   38       continue
-   36     continue
-        else
-          do  46  m = -l, l
-            ilm = ilm+1
-            do  48  ir = nkd, 1, -1
-              gkl(1,k,ilm) = gkl(1,k,ilm) + wk(ir,lc1)*yl(ir,ilm)
-              gkl(2,k,ilm) = gkl(2,k,ilm) + wk(ir,ls1)*yl(ir,ilm)
-   48       continue
-   46     continue
-        endif
+          ilm = l*l
+          if (k .lt. kmax) then
+            do  36  m = -l, l
+              ilm = ilm+1
+              do  38  ir = nkd, 1, -1
+                gkl(1,k,ilm) = gkl(1,k,ilm) + wk(ir,lc1)*yl(ir,ilm)
+                gkl(2,k,ilm) = gkl(2,k,ilm) + wk(ir,ls1)*yl(ir,ilm)
+                gkl(1,k+1,ilm) = gkl(1,k+1,ilm) + wk(ir,lc2)*yl(ir,ilm)
+                gkl(2,k+1,ilm) = gkl(2,k+1,ilm) + wk(ir,ls2)*yl(ir,ilm)
+   38         continue
+   36       continue
+          else
+            do  46  m = -l, l
+              ilm = ilm+1
+              do  48  ir = nkd, 1, -1
+                gkl(1,k,ilm) = gkl(1,k,ilm) + wk(ir,lc1)*yl(ir,ilm)
+                gkl(2,k,ilm) = gkl(2,k,ilm) + wk(ir,ls1)*yl(ir,ilm)
+   48         continue
+   46       continue
+          endif
    30 continue
 
 C ... Put in phase to undo shortening, or different phase convention
@@ -160,11 +160,11 @@ C ... Put in phase to undo shortening, or different phase convention
         cosp = dcos(sp)
         sinp = dsin(sp)
         do  40  ilm = 1, nlm
-        do  40  k   = 0, kmax
-          x1 = gkl(1,k,ilm)
-          x2 = gkl(2,k,ilm)
-          gkl(1,k,ilm) = x1*cosp - x2*sinp
-          gkl(2,k,ilm) = x2*cosp + x1*sinp
+          do  40  k   = 0, kmax
+            x1 = gkl(1,k,ilm)
+            x2 = gkl(2,k,ilm)
+            gkl(1,k,ilm) = x1*cosp - x2*sinp
+            gkl(2,k,ilm) = x2*cosp + x1*sinp
    40   continue
       endif
 

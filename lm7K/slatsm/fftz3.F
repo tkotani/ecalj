@@ -46,27 +46,27 @@ C ... End of include file fftw_f77.i that comes with the fftw package
       if (isig .eq. -1) jsig = FFTW_FORWARD
       if (isig .eq.  1) jsig = FFTW_BACKWARD
       do  10  ifft = 1, nfft
-      if (n2 .eq. 1 .and. n3 .eq. 1) then
-        call dfftw_plan_dft_1d(plan,n1,c(1,1,1,ifft),c(1,1,1,ifft),
+        if (n2 .eq. 1 .and. n3 .eq. 1) then
+          call dfftw_plan_dft_1d(plan,n1,c(1,1,1,ifft),c(1,1,1,ifft),
      .    jsig,FFTW_ESTIMATE)
-      elseif (n3 .eq. 1) then
-        call dfftw_plan_dft_2d(plan,n1,n2,c(1,1,1,ifft),c(1,1,1,ifft),
+        elseif (n3 .eq. 1) then
+          call dfftw_plan_dft_2d(plan,n1,n2,c(1,1,1,ifft),c(1,1,1,ifft),
      .    jsig,FFTW_ESTIMATE)
-      else
-        call dfftw_plan_dft_3d(plan,n1,n2,n3,c(1,1,1,ifft),c(1,1,1,ifft)
+        else
+          call dfftw_plan_dft_3d(plan,n1,n2,n3,c(1,1,1,ifft),c(1,1,1,ifft)
      .    ,jsig,FFTW_ESTIMATE)
-      endif
-      call dfftw_execute(plan)
-      call dfftw_destroy_plan(plan)
+        endif
+        call dfftw_execute(plan)
+        call dfftw_destroy_plan(plan)
    10 continue
 
 C ... Renormalize forward transform
       if (isig .gt. 0 .or. isig .lt. -10) goto 99
       scale = 1/dble(n1*n2*n3)
       do  20  ifft = 1, nfft
-      do  20  i3 = 1, n3
-      do  20  i2 = 1, n2
-      do  20  i1 = 1, n1
+        do  20  i3 = 1, n3
+          do  20  i2 = 1, n2
+            do  20  i1 = 1, n1
    20 c(i1,i2,i3,ifft) = scale*c(i1,i2,i3,ifft)
 C     call zprm3('c',0,c,n1,n2,n3)
    99 call tcx('fftz3')

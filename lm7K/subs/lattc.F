@@ -1,6 +1,6 @@
 #define F90 1
       subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,
-     .  qlat,lmax,vol,awald,dlat,nkd,glat,nkg,nkdmx,nkgmx)
+     .qlat,lmax,vol,awald,dlat,nkd,glat,nkg,nkdmx,nkgmx)
 C- Sets up the real and reciprocal space lattice vectors for Ewald
 C ----------------------------------------------------------------
 Ci Inputs
@@ -39,7 +39,7 @@ C     implicit none
 C Passed parameters
       integer lmax,nkd,nkg,nkdmx,nkgmx
       double precision as,tol,alat,g1,g2,g3,gt,vol,awald,alat0,rpad,
-     . glat(3,nkgmx),dlat(3,nkdmx),platin(3,3),plat(3,3),qlat(3,3)
+     .glat(3,nkgmx),dlat(3,nkdmx),platin(3,3),plat(3,3),qlat(3,3)
 C Local parameters
       integer k,iprint,m,i1mach,modeg(3),isw,stdo,lgunit
       double precision qlat0(3,3),vol0,plat0(3,3),radd,qadd
@@ -60,7 +60,7 @@ C     qlat = (plat+)^-1
   350 format(3f11.6,5x,3f11.6)
       if (dabs(gt-1d0) .gt. 1.d-5) then
         call awrit4(' Distorted with gx,y,z= %d %d %d  gt=%d:',
-     .    ' ',80,i1mach(2),g1,g2,g3,gt)
+     .  ' ',80,i1mach(2),g1,g2,g3,gt)
         write(stdo,350) ((plat(m,k),m=1,3),(qlat(m,k),m=1,3),k=1,3)
         call dpzero(one,9)
         one(1,1) = 1
@@ -71,8 +71,8 @@ C     qlat = (plat+)^-1
   352   format(t14,'shear matrix'/(3f11.7))
       endif
       call awrit3('  Cell vol= %1,6;6d'//
-     .  '%?#n# (undistorted vol=%1,6;6d)#%j#',' ',80,i1mach(2),
-     .  vol,isw(dabs(vol-vol0*(alat**3)).gt.1d-9),vol0*(alat**3))
+     .'%?#n# (undistorted vol=%1,6;6d)#%j#',' ',80,i1mach(2),
+     .vol,isw(dabs(vol-vol0*(alat**3)).gt.1d-9),vol0*(alat**3))
    20 continue
 
 C --- Set up real and reciprocal vectors ---
@@ -101,10 +101,10 @@ C --- Printout ---
       write (stdo,340) as,tol,alat,awald
       write (stdo,342) r0+radd,nkd,q0+qadd,nkg
   340 format(/' LATTC:  as=',f6.3,'   tol=',1p,e8.2,
-     .        '   alat=',0p,f8.5,'   awald=',f6.3)
+     .'   alat=',0p,f8.5,'   awald=',f6.3)
   342 format(9x,'r1=',f7.3,'   nkd=',i4,'      q1=',f7.3,'   nkg=',i4)
    60 if(dabs(alat0/alat-1d0) .gt. 0.04d0)
-     .  call rx('lattc: alat and alat0 deviate by more than 4 %')
+     .call rx('lattc: alat and alat0 deviate by more than 4 %')
 
       end
       subroutine lctoff(a0,v0,lmax,tol,r0,q0)
@@ -155,7 +155,7 @@ C     implicit none
       integer l,lmax
       double precision a,f(0:lmax),fbar(0:lmax),r
       double precision derfc,emz2,erfc0,erfc1,erfc2,fbsrpi,
-     .  flm2,g,ta2r,z
+     .flm2,g,ta2r,z
 
       fbsrpi = 0.564189835d0
       z = a*r

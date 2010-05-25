@@ -1,7 +1,7 @@
       double precision function dci (x)
 c december 1980 edition, w. fullerton, bell labs.
       double precision x, cics(19), xsml, y, f, g, sinx, dcsevl,
-     1  d1mach, dcos, dlog, dsin, dsqrt
+     1d1mach, dcos, dlog, dsin, dsqrt
       external d1mach, dcos, dcsevl, dlog, dsin, dsqrt, initds
 c
 c series for ci   on the interval  0.00000e+00 to  1.60000e+01

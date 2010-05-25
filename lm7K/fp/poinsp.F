@@ -1,5 +1,5 @@
       subroutine poinsp(z,vval,nlm,a,b,v,rofi,rho,rho0,nr,rhoves,rhves1,
-     .  vnucl,vsum)
+     .vnucl,vsum)
 C- Solves poisson Equation inside sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -29,11 +29,11 @@ C ... Passed parameters
       integer nlm,nr
       double precision z,a,b,rhoves,rhves1,vnucl,vsum
       double precision rho(nr,nlm),vval(nlm),v(nr,nlm),rofi(nr),
-     .  vhrho(2),rho0(nr)
+     .vhrho(2),rho0(nr)
 C ... Local parameters
       integer nsp,ir,ilm,l,ll,lp1
       double precision fpi,srfpi,y0,atepi,ea,a2b4,rpb,rmax,fllp1,df,r,
-     .  drdi,srdrdi,g,x,f,y2,y3,y4,vnow,vhom,alfa,sum,wgt
+     .drdi,srdrdi,g,x,f,y2,y3,y4,vnow,vhom,alfa,sum,wgt
 
       nsp = 1
       fpi = 16d0*datan(1d0)

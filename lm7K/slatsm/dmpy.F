@@ -82,7 +82,7 @@ C Local parameters
 #elif APOLLO | HP
       do  200  i = n-1, 0, -1
         do  200  j = m-1, 0, -1
-        c(i*nrc+j*ncc) = vec_$ddot_i(a(nra*i),nca,b(ncb*j),nrb,l)
+          c(i*nrc+j*ncc) = vec_$ddot_i(a(nra*i),nca,b(ncb*j),nrb,l)
 C The equivalent in-line code ...
 c        double precision sum
 c        sum = 0
@@ -101,28 +101,28 @@ C --- Initialize array to zero ---
         nrci = nrc*i
         nccj = -ncc
         do  10  j = m-1, 0, -1
-        nccj = nccj + ncc
-        nrcicj = nrci + nccj
-        c(nrcicj) = 0
+          nccj = nccj + ncc
+          nrcicj = nrci + nccj
+          c(nrcicj) = 0
    10 continue
 
 C --- Do multiplication ---
       do  20  k = l-1, 0, -1
         do  20  i = n-1, 0, -1
-        ar = a(nra*i + nca*k)
-        if (ar .eq. 0) goto 20
+          ar = a(nra*i + nca*k)
+          if (ar .eq. 0) goto 20
 #if BLAS
-        call daxpy(m,ar,b(nrb*k),ncb,c(nrc*i),ncc)
+          call daxpy(m,ar,b(nrb*k),ncb,c(nrc*i),ncc)
 #else
-        nrci = nrc*i
-        nccj = -ncc
-        ncbj = -ncb + nrb*k
-        do  15  j = m-1, 0, -1
-          nccj = nccj + ncc
-          ncbj = ncbj + ncb
-          nrcicj = nrci + nccj
-          c(nrcicj) = c(nrcicj) + ar*b(ncbj)
-   15   continue
+          nrci = nrc*i
+          nccj = -ncc
+          ncbj = -ncb + nrb*k
+          do  15  j = m-1, 0, -1
+            nccj = nccj + ncc
+            ncbj = ncbj + ncb
+            nrcicj = nrci + nccj
+            c(nrcicj) = c(nrcicj) + ar*b(ncbj)
+   15     continue
 #endif
    20 continue
 #endif

@@ -16,9 +16,9 @@ c
         doti = vec_$ddot(dx,dyi,n) + vec_$ddot(dxi,dy,n)
       else
         dotr = vec_$ddot_i(dx,incx,dy,incy,n)
-     .        -vec_$ddot_i(dxi,incx,dyi,incy,n)
+     .  -vec_$ddot_i(dxi,incx,dyi,incy,n)
         doti = vec_$ddot_i(dx,incx,dyi,incy,n)
-     .        +vec_$ddot_i(dxi,incx,dy,incy,n)
+     .  +vec_$ddot_i(dxi,incx,dy,incy,n)
       endif
 #else
       dotr = 0d0

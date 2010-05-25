@@ -11,8 +11,8 @@ C     implicit none
       do 10 kb = 1,nbas
         do 2 m = 1,3
           d(m) = 0
-        do 2 k = 1,3
-          d(m) = d(m)+g(m,k)*(tau(k,kb)-tau(k,ib))
+          do 2 k = 1,3
+            d(m) = d(m)+g(m,k)*(tau(k,kb)-tau(k,ib))
     2   continue
         kbp = 0
         do 11 kk = 1,nbas
@@ -27,7 +27,7 @@ C     implicit none
    11   continue
         if (iprint() .ge. 60) then
           call awrit3(' trysop ib=%i:  no site analogous to'//
-     .      ' site %i from site %i',' ',80,i1mach(2),ib,kb,jb)
+     .    ' site %i from site %i',' ',80,i1mach(2),ib,kb,jb)
           if (iprint() .ge. 80) then
             call awrit1(' missing atom at: %3:1,6;6d',' ',80,i1mach(2),dif)
             do 32 m = 1,3
@@ -59,8 +59,8 @@ C     implicit none
       lok = 1
       do 3 m = 1,3
         trans(m) = tau(m,jb)
-      do 3 k = 1,3
-        trans(m) = trans(m)-g(m,k)*tau(k,ib)
+        do 3 k = 1,3
+          trans(m) = trans(m)-g(m,k)*tau(k,ib)
     3 continue
       call shorbz(trans,trans,rb,qb)
       end

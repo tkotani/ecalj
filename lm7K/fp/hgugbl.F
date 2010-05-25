@@ -1,5 +1,5 @@
       subroutine hgugbl(p1,p2,rsm1,rsm2,e1,nlm1,nlm2,ndim1,ndim2,slat,
-     .  s,ds)
+     .s,ds)
 
       use m_struc_def  !Cgetarg
 
@@ -52,7 +52,7 @@ C ... Heap
       e2 = 0d0
 
       call hhigbl(0,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,ndim1,ndim2,
-     .   kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
+     .kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
 
       do  ilm2 = 1, nlm2
         do  ilm1 = 1, nlm1

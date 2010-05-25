@@ -20,8 +20,8 @@ C     implicit none
 C  Passed variables:
       integer namx
       double precision jac(namx,namx), beta(namx,namx),
-     .                 gamma(namx,namx),df(namx),dx(namx),
-     .                 bx(namx),btx(namx),wc
+     .gamma(namx,namx),df(namx),dx(namx),
+     .bx(namx),btx(namx),wc
 
 C  Local variables
       integer i,j,iprint
@@ -49,9 +49,9 @@ C --- Calculate the norm of x^(m+1)-x^(m) ---
 C ---   Update gamma (eq A15), beta (implicit inverse) (eq. A14,A16) ---
 C       NB: beta is beta inverse
         do  20   i = 1, namx
-        do  20  j = 1, namx
-          gamma(i,j) = gamma(i,j) - wc*df(i)*dx(j)/xn
-          beta (i,j) = beta (i,j) - sigma*bx(i)*btx(j)
+          do  20  j = 1, namx
+            gamma(i,j) = gamma(i,j) - wc*df(i)*dx(j)/xn
+            beta (i,j) = beta (i,j) - sigma*bx(i)*btx(j)
    20   continue
       endif
 

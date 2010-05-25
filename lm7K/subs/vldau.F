@@ -130,13 +130,13 @@ C             NB: J=0 => vtemp1 = U delta(m,m1) delta(m2,m3)
                   vtemp1 = Vee(m,m2,m1,m3)*dmatu(m2,m3,iot(isp),iblu)
 C             Second and third lines in Eq. 5, PRB 52, R5467
                   vtemp2 = (Vee(m,m2,m1,m3) - Vee(m,m2,m3,m1))*
-     .                  dmatu(m2,m3,isp,iblu)
+     .            dmatu(m2,m3,isp,iblu)
                   Vnew(m,m1) = Vnew(m,m1) + vtemp1 + vtemp2
 
                   Eldau = Eldau + Vee(m,m2,m1,m3)*dmatu(m,m1,isp,iblu)*
-     .          dmatu(m2,m3,iot(isp),iblu) + (Vee(m,m2,m1,m3) -
-     .          Vee(m,m2,m3,m1))*dmatu(m,m1,isp,iblu)*
-     .          dmatu(m2,m3,isp,iblu)
+     .            dmatu(m2,m3,iot(isp),iblu) + (Vee(m,m2,m1,m3) -
+     .            Vee(m,m2,m3,m1))*dmatu(m,m1,isp,iblu)*
+     .            dmatu(m2,m3,isp,iblu)
                 endif
    10           continue
               enddo
@@ -146,7 +146,7 @@ C             Second and third lines in Eq. 5, PRB 52, R5467
 C         FLL: see last line, Eq. 5, PRB 52, R5467
           if (lvrs .eq. 2) then
             Vnew(m,m) = Vnew(m,m) -
-     .                  UH*(ttrace-0.5d0) + JH*(trace(isp)-0.5d0)
+     .      UH*(ttrace-0.5d0) + JH*(trace(isp)-0.5d0)
 c            print *, vnew(m,m)
           endif
 C         End FLL
@@ -166,15 +166,15 @@ C         End FLL
       Edc = 0d0
       if (lvrs .eq. 2) then
         Edc = 0.5d0*UH*ttrace*(ttrace-1d0) - 0.5d0*JH*
-     .    (trace(1)*(trace(1)-1d0) + trace(2)*(trace(2)-1d0))
+     .  (trace(1)*(trace(1)-1d0) + trace(2)*(trace(2)-1d0))
       endif
       Eorb = Eldau - Edc
       if (lvrs .eq. 4) then
         call info5(20,0,0,' vldau:  Eldau = %,6;6d  '//
-     .    'Ueff = %,6;6d  Eorb = %,6;6d  ',Eldau,Ueff,Eorb,0,0)
+     .  'Ueff = %,6;6d  Eorb = %,6;6d  ',Eldau,Ueff,Eorb,0,0)
       else
         call info5(20,0,0,' vldau:  Eldau = %,6;6d  '//
-     .    'Edc = %,6;6d  Eorb = %,6;6d  ',Eldau,Edc,Eorb,0,0)
+     .  'Edc = %,6;6d  Eorb = %,6;6d  ',Eldau,Edc,Eorb,0,0)
       endif
 
 C      if (l .eq. 2)  then

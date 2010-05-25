@@ -28,14 +28,14 @@ Cu   13 Jun 02 Added -ef= and -escl= command-line arguments
       integer nemx,ndinmx,ndmx,maxnum
       parameter(ndmx=25, maxnum=300)
       integer fopng,fopnx,i,j,k,j1,j2,id,idtop,ie,ifmt,is,ist,istart,
-     .  is1,is2,i1mach,awrite,ifi,ifr,md,nd,ne,ne1,ne2,nnum,num1,num2,
-     .  nrnde,nspin,npdif,lerr,iouts,iiouts,iarg,nargf,lgcmd,ner,mdi,
-     .  nchan,iscale
+     .is1,is2,i1mach,awrite,ifi,ifr,md,nd,ne,ne1,ne2,nnum,num1,num2,
+     .nrnde,nspin,npdif,lerr,iouts,iiouts,iarg,nargf,lgcmd,ner,mdi,
+     .nchan,iscale
       integer num(maxnum),fontsz,ix(maxnum),a2vec,ltfrme(3)
       double precision cmhgt,dcm,dssum,dbot,dtop,dtopmx,
-     .  dxtik,dy,dytik,dytk,e1,e2,eferm,emax,
-     .  emin,estart,top,xmax,ymax,ypos1,ypos2,emun,
-     .  emux,efurm,dul,fgs(0:3),de,eshift,escl,eminr,emaxr,csw(0:11)
+     .dxtik,dy,dytik,dytk,e1,e2,eferm,emax,
+     .emin,estart,top,xmax,ymax,ypos1,ypos2,emun,
+     .emux,efurm,dul,fgs(0:3),de,eshift,escl,eminr,emaxr,csw(0:11)
       double precision dmx(ndmx+1),xd(2),yd(2),xxv(10),wgt(maxnum)
       character*12 font,dc*1
       integer xnum,ynum
@@ -100,7 +100,7 @@ C ... Generates an fplot command and appropriate files
           dc = strn(5:5)
           if (dc .eq. ' ') then
             call info0(0,0,0,
-     .        ' pldos needs file name to accompany '//strn//'%a')
+     .      ' pldos needs file name to accompany '//strn//'%a')
             goto 199
           endif
           datnam = strn(6:)
@@ -131,7 +131,7 @@ C --- Case using reference dos.  Integer flags this option ---
         dc = strn(5:5)
         if (dc .eq. ' ') then
           call info0(0,0,0,
-     .      ' pldos needs file name to accompany '//strn//'%a')
+     .    ' pldos needs file name to accompany '//strn//'%a')
           goto 199
         endif
 C   ... Return here to resume parsing for arguments
@@ -161,13 +161,13 @@ C   ... Return here to resume parsing for arguments
             iscale = 1
           else
             call rxs('pldos: fail to recognize argument ',
-     .        strn(j1:j2))
+     .      strn(j1:j2))
           endif
           goto 10
         endif
         if (ifr .eq. 0) then
           call info0(0,0,0,
-     .      ' pldos: -ref option requires a file be specified')
+     .    ' pldos: -ref option requires a file be specified')
           goto 199
         endif
         if (nchan .eq. 0) then
@@ -183,14 +183,14 @@ C#ifdef F90
         allocate(dref(nemx),din(nemx,ndinmx))
 C#endif
         call dosio(din,nemx,ndinmx,ner,nd,eminr,emaxr,nspin,
-     .    efurm,dul,ifmt,ifr)
+     .  efurm,dul,ifmt,ifr)
 C       Assemble reference DOS
         call dpzero(dref,ner)
         do  i = 1, nchan
           k = ix(i)
           if (k .gt. nd*nspin) call rxi(
-     .      'pldos: reference channel outside file''s range 1 ..',
-     .      nd*nspin)
+     .    'pldos: reference channel outside file''s range 1 ..',
+     .    nd*nspin)
           call daxpy(ner,1d0,din(1,k),1,dref,1)
         enddo
 C#ifdef F90
@@ -209,18 +209,18 @@ C#ifdef F90
       allocate(e(nemx),dtot(nemx),din(nemx,ndinmx),d(nemx,2,ndmx))
 C#endif
       call dosio(din,nemx,ndinmx,ne,nd,emun,emux,nspin,
-     .   efurm,dul,ifmt,ifi)
+     .efurm,dul,ifmt,ifi)
       call fclose(ifi)
       nd = nd*nspin
 
       if (ifr .ne. 0) then
         call info0(20,0,1,' pldos: '//
-     .    ' verifying reference and dos files have equivalent mesh ...')
+     .  ' verifying reference and dos files have equivalent mesh ...')
         call isanrg(ner,ne,ne,' ','ne in reference file',.true.)
         call fsanrg(eminr,emun,emun,0d-9,' ','emin in reference file',
-     .    .true.)
+     .  .true.)
         call fsanrg(emaxr,emux,emux,0d-9,' ','emax in reference file',
-     .    .true.)
+     .  .true.)
       endif
 
       ltdos = '1,bold=3,col=0,0,0'
@@ -231,12 +231,12 @@ C#endif
       if (cmdopt('-ef=',4,0,strn)) then
         ie = 4
         if (.not. a2bin(strn,eshift,4,0,' ',ie,-1))
-     .    call rxs('fplot: failed to parse argument  ',strn)
+     .  call rxs('fplot: failed to parse argument  ',strn)
         eshift = efurm-eshift
       elseif (cmdopt('-shiftef=',9,0,strn)) then
         ie = 9
         if (.not. a2bin(strn,eshift,4,0,' ',ie,-1))
-     .    call rxs('fplot: failed to parse argument  ',strn)
+     .  call rxs('fplot: failed to parse argument  ',strn)
       endif
       emin = emun-eshift
       emax = emux-eshift
@@ -245,14 +245,14 @@ C#endif
       if (cmdopt('-escl=',6,0,strn)) then
         ie = 6
         if (.not. a2bin(strn,escl,4,0,' ',ie,-1))
-     .    call rxs('fplot: failed to parse argument  ',strn)
+     .  call rxs('fplot: failed to parse argument  ',strn)
         emin = emin*13.6
         emax = emax*13.6
         eferm = eferm*13.6
       endif
 
       call awrit5(' pldos:  %i dos read  ef=%d  emin=%d  emax=%d  ne=%i'
-     .  ,' ',80,i1mach(2),nd,eferm,emin,emax,ne)
+     .,' ',80,i1mach(2),nd,eferm,emin,emax,ne)
       if (ne .gt. nemx) stop '**** DIMENSION NEMX TOO SMALL'
       if (nd .gt. ndinmx) stop '**** DIMENSION NDINMX TOO SMALL'
       do  1  ie = 1, ne
@@ -272,129 +272,129 @@ C ... Reference case: dref becomes the first DOS
       endif
 
    90 continue
-        print *, ' '
-        call awrit1(' dos %i:  Enter list of dos to be added:',strn,80,
-     .    0,md+1)
+      print *, ' '
+      call awrit1(' dos %i:  Enter list of dos to be added:',strn,80,
+     .0,md+1)
 
-        if (cmdopt('-lst=',5,0,strn)) then
-          call wordg(strn,1,'; ',md+1,is1,is2)
-          doslst = ' '
-          is1 = max(is1,6)
-          if (is2 .ge. is1) doslst = strn(is1:is2)
-        else
-          call skpblb(strn,len(strn),i)
-          call cwrite(strn,0,i+1,0)
-          read(*,'(a512)') doslst
-        endif
-        if (cmdopt('-lst2=',6,0,strn)) then
-          call wordg(strn,1,'; ',md+1,is1,is2)
-          dosls2 = ' '
-          is1 = max(is1,7)
-          if (is2 .ge. is1) dosls2 = strn(is1:is2)
-        elseif (cmdopt('-lst2',5,0,strn)) then
-          dosls2 = '*'
-        else
-          dosls2 = ' '
-        endif
+      if (cmdopt('-lst=',5,0,strn)) then
+        call wordg(strn,1,'; ',md+1,is1,is2)
+        doslst = ' '
+        is1 = max(is1,6)
+        if (is2 .ge. is1) doslst = strn(is1:is2)
+      else
+        call skpblb(strn,len(strn),i)
+        call cwrite(strn,0,i+1,0)
+        read(*,'(a512)') doslst
+      endif
+      if (cmdopt('-lst2=',6,0,strn)) then
+        call wordg(strn,1,'; ',md+1,is1,is2)
+        dosls2 = ' '
+        is1 = max(is1,7)
+        if (is2 .ge. is1) dosls2 = strn(is1:is2)
+      elseif (cmdopt('-lst2',5,0,strn)) then
+        dosls2 = '*'
+      else
+        dosls2 = ' '
+      endif
 
-        is = 0
-        nnum = 0
-        num2 = 0
-        call skipbl(doslst,512,is)
-        if (is .ge. 512) goto 32
-        call mkilst(doslst,nnum,num)
-   32   continue
-        if (dosls2 .eq. '*') then
-          if (nnum .eq. 0) goto 33
-          num2 = nnum
-          do  i = 1, nnum
-            num(nnum+i) = num(i)+1
-          enddo
-          nnum = 2*nnum
-          l2chan = .true.
-          goto 33
-        endif
-        call skipbl(dosls2,512,is)
-        if (is .ge. 512) goto 33
-        call mkilst(dosls2,num2,num(1+nnum))
-        nnum = nnum + num2
-        if (num2 .gt. 0) l2chan = .true.
-   33   continue
+      is = 0
+      nnum = 0
+      num2 = 0
+      call skipbl(doslst,512,is)
+      if (is .ge. 512) goto 32
+      call mkilst(doslst,nnum,num)
+   32 continue
+      if (dosls2 .eq. '*') then
+        if (nnum .eq. 0) goto 33
+        num2 = nnum
+        do  i = 1, nnum
+          num(nnum+i) = num(i)+1
+        enddo
+        nnum = 2*nnum
+        l2chan = .true.
+        goto 33
+      endif
+      call skipbl(dosls2,512,is)
+      if (is .ge. 512) goto 33
+      call mkilst(dosls2,num2,num(1+nnum))
+      nnum = nnum + num2
+      if (num2 .gt. 0) l2chan = .true.
+   33 continue
 
-        if (num2 .ne. 0 .and. ifr .ne. 0)
-     .    call rx('pldos: -ref not set up for 2nd channel')
-        num1 = nnum - num2
-        if (cmdopt('-fplot',6,0,strn) .and. num2 .gt. 0) then
-          ifi = fopng('dosp2.'//datnam,11,0)
-        endif
-        if (nnum .eq. 0) goto 98
-        do  40  i = 1, nnum
-          if (num(i) .gt. nd) call fexit2(-1,1,' pldos (abort) dos %i '/
-     .      /'exceeds number read (%i)',num(i),nd)
-   40   wgt(i) = 1d0
-        if (cmdopt('-lst=',5,0,strn)) then
-          call awrit3(
-     .      ' combining %i dos: %n:1i',' ',80,i1mach(2),nnum,nnum,num)
-          strn = ' '
-        else
-          i = awrite(' Weights for dos:%n:1i?',strn,80,0,
-     .      nnum,num,0,0,0,0,0,0)
-          call cwrite(strn,0,i+1,0)
-          read(*,'(a512)') strn
-        endif
-        if (strn .eq. ' ' .or. strn .eq. '/') goto 42
-        is = 0
-        ist = a2vec(strn,len(strn),is,4,', ',2,3,nnum,ix,wgt)
-        if (ist .le. 0) then
-          print *, 'bad weights, try again'
-          goto 90
-        endif
-        if (ist .lt. nnum)
-     .    call awrit2('w=%n:1d',' ',80,i1mach(2),nnum,wgt)
-   42   continue
+      if (num2 .ne. 0 .and. ifr .ne. 0)
+     .call rx('pldos: -ref not set up for 2nd channel')
+      num1 = nnum - num2
+      if (cmdopt('-fplot',6,0,strn) .and. num2 .gt. 0) then
+        ifi = fopng('dosp2.'//datnam,11,0)
+      endif
+      if (nnum .eq. 0) goto 98
+      do  40  i = 1, nnum
+        if (num(i) .gt. nd) call fexit2(-1,1,' pldos (abort) dos %i '/
+     .  /'exceeds number read (%i)',num(i),nd)
+   40 wgt(i) = 1d0
+      if (cmdopt('-lst=',5,0,strn)) then
+        call awrit3(
+     .  ' combining %i dos: %n:1i',' ',80,i1mach(2),nnum,nnum,num)
+        strn = ' '
+      else
+        i = awrite(' Weights for dos:%n:1i?',strn,80,0,
+     .  nnum,num,0,0,0,0,0,0)
+        call cwrite(strn,0,i+1,0)
+        read(*,'(a512)') strn
+      endif
+      if (strn .eq. ' ' .or. strn .eq. '/') goto 42
+      is = 0
+      ist = a2vec(strn,len(strn),is,4,', ',2,3,nnum,ix,wgt)
+      if (ist .le. 0) then
+        print *, 'bad weights, try again'
+        goto 90
+      endif
+      if (ist .lt. nnum)
+     .call awrit2('w=%n:1d',' ',80,i1mach(2),nnum,wgt)
+   42 continue
 C       call awrit1('%Nsum w = %d',' ',80,i1mach(2),dsum(nnum,wgt,1))
-        md = md+1
-        if (md .gt. ndmx) call fexit(-1,1,
-     .    ' Exit -1:  no. dos exceeds ndmx=%i',ndmx)
+      md = md+1
+      if (md .gt. ndmx) call fexit(-1,1,
+     .' Exit -1:  no. dos exceeds ndmx=%i',ndmx)
 C   ... Accumulate the linear combination of dos
-        call dpzero(d(1,1,md+ifr),ne)
-        call dpzero(d(1,2,md+ifr),ne)
-        do  44  i = 1, num1
-   44   call daxpy(ne,wgt(i),din(1,num(i)),1,d(1,1,md+ifr),1)
-        do  45  i = num1+1, nnum
-   45   call daxpy(ne,-wgt(i),din(1,num(i)),1,d(1,2,md+ifr),1)
+      call dpzero(d(1,1,md+ifr),ne)
+      call dpzero(d(1,2,md+ifr),ne)
+      do  44  i = 1, num1
+   44 call daxpy(ne,wgt(i),din(1,num(i)),1,d(1,1,md+ifr),1)
+      do  45  i = num1+1, nnum
+   45 call daxpy(ne,-wgt(i),din(1,num(i)),1,d(1,2,md+ifr),1)
 
-        if (cmdopt('-dif',4,0,strn)) then
-          if (num2 .ne. 0) call rx('pldos: -dif not set up for num2')
-          npdif = 2
-          lrat = .false.
-          if (strn(5:5) .eq. ':') then
-            is = 5
-            ist = a2vec(strn,len(strn),is,4,', ',2,2,2,ix,xxv)
-            if (ist .lt. 0) goto 199
-            npdif = nint(xxv(1))
-            if (ist .gt. 1 .and. xxv(2) .gt. 0) lrat = .true.
-          endif
-          call dcopy(ne,d(1,1,md+ifr),1,dtot,1)
-          call poldvm(e,dtot,ne,npdif,lrat,1d-6,lerr,d(1,1,md+ifr))
-          if (lerr.ne.0) call rx('pldos: error in rational poly interp')
-C   ... Integration by the trapezoidal rule
-        elseif (cmdopt('-int',4,0,strn)) then
-          if (num2 .ne. 0) call rx('pldos: -int not set up for num2')
-          if (ifr .ne. 0) call rx('pldos: -int not set up for ifr')
-          call dcopy(ne,d(1,1,md+ifr),1,dtot,1)
-          d(1,1,md+ifr) = 0d0
-          de = e(2) - e(1)
-          do  47  ie = 2, ne
-            d(ie,1,md+ifr) = d(ie-1,1,md+ifr) +
-     .                       (dtot(ie)+dtot(ie-1))*de/2
-   47     continue
+      if (cmdopt('-dif',4,0,strn)) then
+        if (num2 .ne. 0) call rx('pldos: -dif not set up for num2')
+        npdif = 2
+        lrat = .false.
+        if (strn(5:5) .eq. ':') then
+          is = 5
+          ist = a2vec(strn,len(strn),is,4,', ',2,2,2,ix,xxv)
+          if (ist .lt. 0) goto 199
+          npdif = nint(xxv(1))
+          if (ist .gt. 1 .and. xxv(2) .gt. 0) lrat = .true.
         endif
-        dmx(md+ifr) = 0d0
-        do  46  ie = 1, ne
-   46   dmx(md+ifr) =
-     .      dmax1(dmx(md+ifr),abs(d(ie,1,md+ifr)),abs(d(ie,2,md+ifr)))
-        dssum = dssum+dmx(md+ifr)
+        call dcopy(ne,d(1,1,md+ifr),1,dtot,1)
+        call poldvm(e,dtot,ne,npdif,lrat,1d-6,lerr,d(1,1,md+ifr))
+        if (lerr.ne.0) call rx('pldos: error in rational poly interp')
+C   ... Integration by the trapezoidal rule
+      elseif (cmdopt('-int',4,0,strn)) then
+        if (num2 .ne. 0) call rx('pldos: -int not set up for num2')
+        if (ifr .ne. 0) call rx('pldos: -int not set up for ifr')
+        call dcopy(ne,d(1,1,md+ifr),1,dtot,1)
+        d(1,1,md+ifr) = 0d0
+        de = e(2) - e(1)
+        do  47  ie = 2, ne
+          d(ie,1,md+ifr) = d(ie-1,1,md+ifr) +
+     .    (dtot(ie)+dtot(ie-1))*de/2
+   47   continue
+      endif
+      dmx(md+ifr) = 0d0
+      do  46  ie = 1, ne
+   46 dmx(md+ifr) =
+     .dmax1(dmx(md+ifr),abs(d(ie,1,md+ifr)),abs(d(ie,2,md+ifr)))
+      dssum = dssum+dmx(md+ifr)
       goto 90
 
 C --- Find the first nonzero dos ---
@@ -402,20 +402,20 @@ C --- Find the first nonzero dos ---
       mdi = md+ifr
       if (mdi .eq. 0) call rx('pldos: no dos to plot')
       do  80  ie = 1, ne
-      istart = ie
-      top = 0d0
-      do  81  id = 1, mdi
-   81 top = dmax1(top,d(ie,1,id))
-      if (top .gt. 1d-5) goto 82
+        istart = ie
+        top = 0d0
+        do  81  id = 1, mdi
+   81   top = dmax1(top,d(ie,1,id))
+        if (top .gt. 1d-5) goto 82
    80 continue
    82 estart = emin + (istart-1)*(emax-emin)/(ne-1d0)
 
 C --- Do the plotting ---
       print *, ' '
       call awrit5(' %i plots:  emin=%d  estart=%d  emax=%d  ef=%d',
-     .  strn,72,i1mach(2),mdi,emin,estart,emax,eferm)
+     .strn,72,i1mach(2),mdi,emin,estart,emax,eferm)
       call awrit3(' dmx=%n:1,2;2d  sum=%,2;2d',' ',80,
-     .  i1mach(2),mdi,dmx,dssum)
+     .i1mach(2),mdi,dmx,dssum)
       dtopmx = 0d0
       do  87  id = 1, mdi
    87 dtopmx = dmax1(dtopmx,dmx(id))
@@ -429,11 +429,11 @@ C 335 format(1x,a)
       ne1 = max0(nint((e1-emin)*ne/(emax-emin)+1),1)
       ne2 = min0(nint((e2-emin)*ne/(emax-emin)),ne)
       do  58  id = 1, mdi
-      dmx(id) = 0d0
-      do  58  ie = ne1, ne2
+        dmx(id) = 0d0
+        do  58  ie = ne1, ne2
    58 dmx(id) = dmax1(dmx(id),abs(d(ie,1,id)),abs(d(ie,2,id)))
       if (e1 .ne. emin .or. e2 .ne. emax) call awrit4(
-     .  'dmx[%;3d,%;3d] =%n:1,2;2d',' ',80,i1mach(2),e1,e2,mdi,dmx)
+     .'dmx[%;3d,%;3d] =%n:1,2;2d',' ',80,i1mach(2),e1,e2,mdi,dmx)
       print *, ' '
 
       ypos1 = 0.97d0
@@ -481,98 +481,98 @@ C       Scale columns 2...md+ifr
       if (cmdopt('-fplot',6,0,strn)) then
         lgcmd = fopng('plot.dos',-1,0)
         if (ltdos .ne. ' ')
-     .    write(lgcmd,'(''%char0 ltdos="'',a,''"''/)') trim(ltdos)
+     .  write(lgcmd,'(''%char0 ltdos="'',a,''"''/)') trim(ltdos)
 
         call awrit0('fplot',' ',-80,lgcmd)
       endif
       if (iscale .ne. 0) mdi = 1
       do  20  id = 1, mdi
 C     Round off dtop to a multiple of nrnde
-      idtop = int(dmx(id)*1.05d0/nrnde + 1d0)
-      dtop = idtop*nrnde
-      dtop = dmin1(dmax1(dtop,5d0),dtopmx)
-      dbot = 0
-      if (l2chan) dbot = -dtop
-      dcm = dtop*cmhgt/dtopmx
-      dy = dcm/ymax
-      ypos2 = ypos1
-      ypos1 = ypos2-dy
-      if (ypos1 .lt. 0)
+        idtop = int(dmx(id)*1.05d0/nrnde + 1d0)
+        dtop = idtop*nrnde
+        dtop = dmin1(dmax1(dtop,5d0),dtopmx)
+        dbot = 0
+        if (l2chan) dbot = -dtop
+        dcm = dtop*cmhgt/dtopmx
+        dy = dcm/ymax
+        ypos2 = ypos1
+        ypos1 = ypos2-dy
+        if (ypos1 .lt. 0)
      .  print *, 'pldos (warning): frame past bottom of page ...'
-      call awrit6(' plot %i  dmx=%1,3;3d  dtop=%1,3;3d  dy=%1,3;3d'//
+        call awrit6(' plot %i  dmx=%1,3;3d  dtop=%1,3;3d  dy=%1,3;3d'//
      .  '  y=%1,3;3d %1,3;3d',' ',80,i1mach(2),
      .  id,dmx(id),dtop,dy,ypos1,ypos2)
-      if (cmdopt('-fplot',6,0,strn)) then
+        if (cmdopt('-fplot',6,0,strn)) then
 C       First frame: set up variables
-        if (iouts .eq. 1) then
-          iouts = iouts+1
-          call awrit5('%% var ymax=%1;3d dy=%1;3d dw=.00 ymax+=dy '//
+          if (iouts .eq. 1) then
+            iouts = iouts+1
+            call awrit5('%% var ymax=%1;3d dy=%1;3d dw=.00 ymax+=dy '//
      .      'emin=%1;3d emax=%1;3d ef=%d',
      .      outs(iouts),80,0,ypos2,ypos2-ypos1,e1,e2,eferm)
-          iouts = iouts+1
-        endif
+            iouts = iouts+1
+          endif
 C        call skpblb(outs(iouts),80,i)
 C        if (i .ge. 0) iouts = iouts+1
-        iouts = iouts+1
-        call awrit3('%% var ymax-=dy+dw dy=%1;3d dmin=%1;3d dmax=%1;3d',
+          iouts = iouts+1
+          call awrit3('%% var ymax-=dy+dw dy=%1;3d dmin=%1;3d dmax=%1;3d',
      .    outs(iouts),80,0,ypos2-ypos1,dbot,dtop)
-        iouts = iouts+1
-        call awrit1('%a -frme 0,1,{ymax-dy},{ymax} -p0 -x {emin},{emax}'
+          iouts = iouts+1
+          call awrit1('%a -frme 0,1,{ymax-dy},{ymax} -p0 -x {emin},{emax}'
      .    //' -y {dmin},{dmax} -1p%?#n# -noxn##',outs(iouts),80,0,id-md)
-        iouts = iiouts(outs,iouts,72)
-        if (iscale .ne. 0) then
-          call awrit1('%a -colsy %i -colsw 3'//' -lt {ltdos} -qr dosp.'
-     .      //trim(datnam),outs(iouts),250,0,id+1)
-        else
-          call awrit1('%a -colsy %i -lt {ltdos} -qr dosp.'//
-     .      trim(datnam),outs(iouts),250,0,id+1)
-        endif
-        iouts = iiouts(outs,iouts,72)
-        if (iouts .gt. 58-1) call rx('pldos output string too long')
-        if (l2chan) then
-        call awrit1('%a -colsy %i -lt {ltdos} -qr dosp2.'//
-     .      trim(datnam),outs(iouts),250,0,id+1)
-        iouts = iiouts(outs,iouts,72)
-        if (iouts .gt. 58-1) call rx('pldos output string too long')
-        endif
-        if (eferm .lt. e2 .and. eferm .gt. e1) then
-          call awrit0('%a -lt 2,bold=3,col=0,0,0,2,.5,.05,.5 '//
-     .      '-tp 2~{ef},{dmin},{ef},{dmax}',outs(iouts),250,0)
           iouts = iiouts(outs,iouts,72)
-        endif
-      else
-        call pltstp(5d-2,0.98d0,ypos1,ypos2)
-        call pltstu(e1,e2,0d0,dtop,0d0)
-        dytk = dytik
-        if (dtop .lt. 10.01d0) dytk = 1d0
-        if (dtop .gt. 200d0) dytk = 50d0
-        xnum = 0
-        ynum = 0
-        if (id .eq. mdi) then
-          xnum = 1
-          ynum = 1
-        endif
-        xlab = ' '
-        ylab = ' '
-        title = ' '
-        call frme(-1d30,dxtik,1,.025d0,.6d0,0,xnum,xnfmt,xlab,
-     .            -1d30,dytk ,1,.025d0,.6d0,0,ynum,ynfmt,ylab,
-     .             ' ',xxv,xxv,xxv,title,ltfrme,fgs)
-        call plntyp(1,3,2d0,0.5d0,0d0,0d0)
-        call plcrv(e(ne1),d(ne1,1,id),e,e,e,ne2-ne1+1,e1,e2,0d0,dtop,0,
+          if (iscale .ne. 0) then
+            call awrit1('%a -colsy %i -colsw 3'//' -lt {ltdos} -qr dosp.'
+     .      //trim(datnam),outs(iouts),250,0,id+1)
+          else
+            call awrit1('%a -colsy %i -lt {ltdos} -qr dosp.'//
+     .      trim(datnam),outs(iouts),250,0,id+1)
+          endif
+          iouts = iiouts(outs,iouts,72)
+          if (iouts .gt. 58-1) call rx('pldos output string too long')
+          if (l2chan) then
+            call awrit1('%a -colsy %i -lt {ltdos} -qr dosp2.'//
+     .      trim(datnam),outs(iouts),250,0,id+1)
+            iouts = iiouts(outs,iouts,72)
+            if (iouts .gt. 58-1) call rx('pldos output string too long')
+          endif
+          if (eferm .lt. e2 .and. eferm .gt. e1) then
+            call awrit0('%a -lt 2,bold=3,col=0,0,0,2,.5,.05,.5 '//
+     .      '-tp 2~{ef},{dmin},{ef},{dmax}',outs(iouts),250,0)
+            iouts = iiouts(outs,iouts,72)
+          endif
+        else
+          call pltstp(5d-2,0.98d0,ypos1,ypos2)
+          call pltstu(e1,e2,0d0,dtop,0d0)
+          dytk = dytik
+          if (dtop .lt. 10.01d0) dytk = 1d0
+          if (dtop .gt. 200d0) dytk = 50d0
+          xnum = 0
+          ynum = 0
+          if (id .eq. mdi) then
+            xnum = 1
+            ynum = 1
+          endif
+          xlab = ' '
+          ylab = ' '
+          title = ' '
+          call frme(-1d30,dxtik,1,.025d0,.6d0,0,xnum,xnfmt,xlab,
+     .    -1d30,dytk ,1,.025d0,.6d0,0,ynum,ynfmt,ylab,
+     .    ' ',xxv,xxv,xxv,title,ltfrme,fgs)
+          call plntyp(1,3,2d0,0.5d0,0d0,0d0)
+          call plcrv(e(ne1),d(ne1,1,id),e,e,e,ne2-ne1+1,e1,e2,0d0,dtop,0,
      .    -2d0,csw,11)
-        if (eferm .lt. e2 .and. eferm .gt. e1) then
-          xd(1) = eferm
-          xd(2) = eferm
-          yd(1) = 0
-          yd(2) = dtop
-          call plntyp(2,3,2d0,1d0,0d0,0d0)
-          call plcrv(xd,yd,xd,xd,xd,2,xd(1)-0.1d0,xd(2)+0.1d0,yd(1),
+          if (eferm .lt. e2 .and. eferm .gt. e1) then
+            xd(1) = eferm
+            xd(2) = eferm
+            yd(1) = 0
+            yd(2) = dtop
+            call plntyp(2,3,2d0,1d0,0d0,0d0)
+            call plcrv(xd,yd,xd,xd,xd,2,xd(1)-0.1d0,xd(2)+0.1d0,yd(1),
      .      yd(2),0,-2d0,csw,11)
+          endif
+          print *, ' '
         endif
-        print *, ' '
-      endif
-      if (iscale .ne. 0) goto 21
+        if (iscale .ne. 0) goto 21
    20 continue
    21 continue
       if (cmdopt('-fplot',6,0,strn)) then
@@ -597,9 +597,9 @@ C#endif
    99 continue
       call rx('pldos encountered error in attempting to open file')
   199 print *, 'usage:  pldos ',
-     .  '[-fplot] [-lst=list] [-lst2|-lst2=list] [-dif:#[,rat]]'
+     .'[-fplot] [-lst=list] [-lst2|-lst2=list] [-dif:#[,rat]]'
       print *,
-     .  '              [-ref:fn=filename[:chan=ref-channel][:scale]]'
+     .'              [-ref:fn=filename[:chan=ref-channel][:scale]]'
       print *, '              [-ext=fplot-data-file-extension]'
       print *, '              [-ef=#|-shiftef=#] [-escl=#] [-int] fname'
       call cexit(-1,1)
@@ -617,7 +617,7 @@ C       outs(iln)(i+2:i+2) = '\\'
       iiouts = iln
       end
       subroutine dosio(dos,nemx,ndmx,ndos,nld,emin,emax,nspin,
-     .   eferm,del,ifmt,ifile)
+     .eferm,del,ifmt,ifile)
 C- I/O for dos, MSM's format
       implicit none
 C Passed parameters

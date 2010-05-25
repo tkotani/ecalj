@@ -1,5 +1,5 @@
       subroutine mkewgt(lmet,wgt,qval,ndimh,evl,ef0,def,esmear,
-     .  numq,nevec,ewgt,sumev,sumqv)
+     .numq,nevec,ewgt,sumev,sumqv)
 C- State-dependent weights for sampling BZ integration.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -51,8 +51,8 @@ C ... Local parameters
 
       stdo = lgunit(1)
       if (qval/2 .gt. ndimh) call fexit2(-1,111,'%N Exit -1 : MKEWGT: '
-     .  //'Basis with ndimh=%i is insufficient to carry q/2=%d states',
-     .  ndimh,qval/2)
+     .//'Basis with ndimh=%i is insufficient to carry q/2=%d states',
+     .ndimh,qval/2)
 
 C --- Nonmetal case ---
       if (lmet .eq. 0) then
@@ -61,7 +61,7 @@ C --- Nonmetal case ---
         nevec = fevec + 0.500001d0
         wtop = fevec-(nevec-1)
         if (dabs(wtop-1d0) .gt. 1d-6) call awrit1(' mkewgt (warning):'//
-     .    ' uneven occupation for nonmet, top wgt=%d',' ',80,stdo,wtop)
+     .  ' uneven occupation for nonmet, top wgt=%d',' ',80,stdo,wtop)
         do  i = 1, nevec
           ewgt(1,i) = 1d0
           if (i .eq. nevec) ewgt(1,i) = wtop

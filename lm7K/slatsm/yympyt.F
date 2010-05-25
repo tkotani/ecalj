@@ -16,7 +16,7 @@ C ----------------------------------------------------------------
 C     implicit none
       integer n,m,lda,ldb,ldc,nrow,case
       double precision ar(lda,1),ai(lda,1),br(ldb,1),bi(ldb,1),
-     .  cr(ldc,1),ci(ldc,1)
+     .cr(ldc,1),ci(ldc,1)
       integer ic,ncol,nc,lc,ir,lr,nr,k
       logical lherm
       character*1 ta,tb
@@ -32,15 +32,15 @@ C --- Case rhs is upper triangular ---
       ncol = nrow
       k = n
       do  10  ic = 1, m, ncol
-       nc = min(m-ic+1,ncol)
-       lc = nc+ic-1
-       if (lherm) k = lc
+        nc = min(m-ic+1,ncol)
+        lc = nc+ic-1
+        if (lherm) k = lc
 #if BLAS3
-       call yygemm(ta,tb,k,nc,lc,1d0,ar,ai,lda,br(1,ic),bi(1,ic),ldb,
-     .   0d0,cr(1,ic),ci(1,ic),ldc)
+        call yygemm(ta,tb,k,nc,lc,1d0,ar,ai,lda,br(1,ic),bi(1,ic),ldb,
+     .  0d0,cr(1,ic),ci(1,ic),ldc)
 #else
-       call yympy(ar,ai,lda,1,br(1,ic),bi(1,ic),ldb,1,
-     .   cr(1,ic),ci(1,ic),ldc,1,k,nc,lc)
+        call yympy(ar,ai,lda,1,br(1,ic),bi(1,ic),ldb,1,
+     .  cr(1,ic),ci(1,ic),ldc,1,k,nc,lc)
 #endif
 
    10 continue
@@ -57,15 +57,15 @@ C --- Case lhs is lower triangular ---
     2 continue
       k = m
       do  20  ir = 1, n, nrow
-       nr = min(n-ir+1,nrow)
-       lr = nr+ir-1
-       if (lherm) k = lr
+        nr = min(n-ir+1,nrow)
+        lr = nr+ir-1
+        if (lherm) k = lr
 #if BLAS3
-       call yygemm(ta,tb,nr,k,lr,1d0,ar(ir,1),ai(ir,1),lda,br,bi,ldb,
-     .   0d0,cr(ir,1),ci(ir,1),ldc)
+        call yygemm(ta,tb,nr,k,lr,1d0,ar(ir,1),ai(ir,1),lda,br,bi,ldb,
+     .  0d0,cr(ir,1),ci(ir,1),ldc)
 #else
-       call yympy(ar(ir,1),ai(ir,1),lda,1,br,bi,ldb,1,
-     .   cr(ir,1),ci(ir,1),ldc,1,nr,k,lr)
+        call yympy(ar(ir,1),ai(ir,1),lda,1,br,bi,ldb,1,
+     .  cr(ir,1),ci(ir,1),ldc,1,nr,k,lr)
 #endif
    20 continue
 

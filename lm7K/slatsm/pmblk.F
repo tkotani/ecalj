@@ -1,5 +1,5 @@
       subroutine pmblk(nblk,ipm,ioffo,ioffn,lds,SRC,mode,alfa,nlma,ldd,
-     .  DST,nmax)
+     .DST,nmax)
 C- Clips and optionally permutes subblocks of a double precision array
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -88,11 +88,11 @@ C ----------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nblk,lds,ldd,nlma,mode,ioffn(nblk),ioffo(nblk),
-     .  ipm(nblk),nmax
+     .ipm(nblk),nmax
       double precision dst(ldd,1),src(lds,1),alfa(1)
 C ... Local parameters
       integer ilma,ib,iofo,ilm,iofn,nlmi,ipn,ipo,offo0,offn0,
-     .  nn,no,mode1,mode2,mode3,mode4,jb,jofo,jlm,jofn,nlmj,jpn,jpo
+     .nn,no,mode1,mode2,mode3,mode4,jb,jofo,jlm,jofn,nlmj,jpn,jpo
 
       mode1 = mod(mode,10)
       mode2 = mod(mode/10,10)
@@ -108,11 +108,11 @@ C     call awrit2('pm iofn %n,3i',' ',80,6,nblk+1,ioffn)
       if (mod(mode1,2) .eq. 1) offo0 = ioffo(1)
       if (mod(mode2,2) .eq. 1) offn0 = ioffn(1)
       if (mode1.ge.2 .and. mode2.ge.2)
-     .  call rx('pmblk: must permute one of SRC or DST')
+     .call rx('pmblk: must permute one of SRC or DST')
       if (mode1.ge.2 .and. mode3.eq.1)
-     .  call rxi('pmblk: imcompatible switches, mode=',mode)
+     .call rxi('pmblk: imcompatible switches, mode=',mode)
       if (mode2.ge.2 .and. mode3.eq.2)
-     .  call rxi('pmblk: imcompatible switches, mode=',mode)
+     .call rxi('pmblk: imcompatible switches, mode=',mode)
       call isanrg(mode3,0,2,'pmblk:','100s digit mode', .true.)
 
       nmax = -1
@@ -144,40 +144,40 @@ C         sizes and offsets to SRC and DST blocks
 
           if (mode4 .eq. 0) then
             do  20  ilm = 1, nlmi
-            do  20  ilma = 1, nlma
+              do  20  ilma = 1, nlma
    20       dst(ilma,ilm+iofn) = src(ilma,ilm+iofo)
           elseif (mode4 .eq. 1) then
             do  25  ilm = 1, nlmi
-            do  25  ilma = 1, nlma
+              do  25  ilma = 1, nlma
    25       dst(ilma,ilm+iofn) = dst(ilma,ilm+iofn)
-     .                         + src(ilma,ilm+iofo)
+     .      + src(ilma,ilm+iofo)
           elseif (mode4 .eq. 2) then
             do  30  ilm = 1, nlmi
-            do  30  ilma = 1, nlma
+              do  30  ilma = 1, nlma
    30       dst(ilma,ilm+iofn) = src(ilma,ilm+iofo)*alfa(ilm+iofn)
           elseif (mode4 .eq. 3) then
             do  35  ilm = 1, nlmi
-            do  35  ilma = 1, nlma
+              do  35  ilma = 1, nlma
    35       dst(ilma,ilm+iofn) = dst(ilma,ilm+iofn)
-     .                         + src(ilma,ilm+iofo)*alfa(ilm+iofn)
+     .      + src(ilma,ilm+iofo)*alfa(ilm+iofn)
           elseif (mode4 .eq. 4) then
             do  40  ilma = 1, nlma
-            do  40  ilm = 1, nlmi
+              do  40  ilm = 1, nlmi
    40       dst(ilm+iofn,ilma) = src(ilm+iofo,ilma)
           elseif (mode4 .eq. 5) then
             do  45  ilma = 1, nlma
-            do  45  ilm = 1, nlmi
+              do  45  ilm = 1, nlmi
    45       dst(ilm+iofn,ilma) = dst(ilm+iofn,ilma)
-     .                         + src(ilm+iofo,ilma)
+     .      + src(ilm+iofo,ilma)
           elseif (mode4 .eq. 6) then
             do  50  ilma = 1, nlma
-            do  50  ilm = 1, nlmi
+              do  50  ilm = 1, nlmi
    50       dst(ilm+iofn,ilma) = src(ilm+iofo,ilma)*alfa(ilm+iofn)
           else
             do  55  ilma = 1, nlma
-            do  55  ilm = 1, nlmi
+              do  55  ilm = 1, nlmi
    55       dst(ilm+iofn,ilma) = dst(ilm+iofn,ilma)
-     .                         + src(ilm+iofo,ilma)*alfa(ilm+iofn)
+     .      + src(ilm+iofo,ilma)*alfa(ilm+iofn)
           endif
           nmax = max(nn+iofn,nmax)
    10   continue
@@ -229,13 +229,13 @@ C           sizes and offsets to SRC and DST blocks, row index
             endif
             if (mode4 .eq. 8) then
               do  120  jlm = 1, nlmj
-              do  120  ilm = 1, nlmi
+                do  120  ilm = 1, nlmi
   120         dst(ilm+iofn,jlm+jofn) = src(ilm+iofo,jlm+jofo)
             else
               do  125  jlm = 1, nlmj
-              do  125  ilm = 1, nlmi
+                do  125  ilm = 1, nlmi
   125         dst(ilm+iofn,jlm+jofn) = dst(ilm+iofn,jlm+jofn) +
-     .                                 src(ilm+iofo,jlm+jofo)
+     .        src(ilm+iofo,jlm+jofo)
             endif
   110     continue
           nmax = max(nn+iofn,nmax)

@@ -36,7 +36,7 @@ C ... External calls
       stdo = lgunit(1)
       write(stdo,332)
   332 format(/' IORBTM:  orbital moments :'/
-     .  ' Class  Spec        spin   Moment decomposed by l ...')
+     .' Class  Spec        spin   Moment decomposed by l ...')
 
 C     totmom = 0
       do  ic = 1, nclass

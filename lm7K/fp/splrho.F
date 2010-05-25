@@ -29,9 +29,9 @@ C     implicit none
 
       call dsumdf(nr*nlml,fac,rho1,0,1,rho1(1,1,2),0,1)
       if (mod(mod(mode/10,10),2) .eq. 0)
-     .  call dsumdf(nr*nlml,fac,rho2,0,1,rho2(1,1,2),0,1)
+     .call dsumdf(nr*nlml,fac,rho2,0,1,rho2(1,1,2),0,1)
       if (mod(mod(mode/10,10)/2,2) .eq. 0)
-     .  call dsumdf(nr,fac,rhoc,0,1,rhoc(1,2),0,1)
+     .call dsumdf(nr,fac,rhoc,0,1,rhoc(1,2),0,1)
       end
 
       subroutine lcrho(nr,nsp,nlml1,nlml2,fac1,fac2,rho1,rho2)

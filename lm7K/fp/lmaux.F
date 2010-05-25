@@ -1,5 +1,5 @@
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite,sstr,
-     .  sarray,sbz,slabl,sstrn,mode,wksize)
+     .sarray,sbz,slabl,sstrn,mode,wksize)
 
       use m_struc_def  !Cgetarg
 
@@ -90,15 +90,15 @@ C ... Local parameters
       logical cmdopt,T,F,swtmp
       parameter (T=.true., F=.false., NULLI=-99999)
       integer fopn,getdig,i,ip,j,k,m,ifi,iprint,lpbc,lgunit,lncol,
-     .  nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),mxnbr,parg,nbasp,
-     .  nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, !npadl,npadr,
-     .  iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,
-     .  ngmx,nsgrp
+     .nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),mxnbr,parg,nbasp,
+     .nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, !npadl,npadr,
+     .iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,
+     .ngmx,nsgrp
       integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-     . , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
-     . , owk , owk2 , oclabl , opos , oqlv , odlv , orham , oamsh , 
-     . onrmsh , oalpha , oaamom , onpr , os , ormx , oip , oips , opgfsl 
-     . , ontab , oiax , og , oag , mxclas , oics
+     ., opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
+     ., owk , owk2 , oclabl , opos , oqlv , odlv , orham , oamsh , 
+     .onrmsh , oalpha , oaamom , onpr , os , ormx , oip , oips , opgfsl 
+     ., ontab , oiax , og , oag , mxclas , oics
       real(8) ,allocatable :: pos2_rv(:)
       real(8) ,allocatable :: rmt_rv(:)
       integer ,allocatable :: lock_iv(:)
@@ -110,8 +110,8 @@ C ... Local parameters
       real(8) ,allocatable :: rmtc_rv(:)
 
       double precision xv(10),xx,alat,plat(3,3),facrmx,facrng, !,plat2(9)
-     .  dval,avw,ekap(2),enu,rmaxs,qss(4),ckbas,cksumf,ehterm(4),
-     .  qlat(9),emad,trumad,vmtz(2),omax1(3),omax2(3),wsrmax
+     .dval,avw,ekap(2),enu,rmaxs,qss(4),ckbas,cksumf,ehterm(4),
+     .qlat(9),emad,trumad,vmtz(2),omax1(3),omax2(3),wsrmax
       parameter (ngmx=48,mxclas=1000)
 
       integer:: i_copy_size, i_spackv, i_spacks
@@ -228,7 +228,7 @@ C ... Read from restart file
         if (irs(1) .gt. 0) then
           ifi = fopna('rsta',-1,0)
           call asars(0,sctrl,ssite,sspec,slat,spot,sbz,
-     .      w(opnu),w(oqnu),.false.,ifi)
+     .    w(opnu),w(oqnu),.false.,ifi)
           call fclr('rsta',ifi)
 C         call shoctl(sctrl,sspec,spot,sarray,F,stdo)
 C         call rx('done')
@@ -269,7 +269,7 @@ C --- Print out a few superlattice vectors ---
         if (cmdopt('--slat',j-1,0,outs)) then
           if (iprint() .ge. 10) then
             call info0(10,1,0,' LMCHK:  print multiples of plat%N'//
-     .    '  i1  i2  i3%7fx%11fy%11fz%11flen')
+     .      '  i1  i2  i3%7fx%11fy%11fz%11flen')
             do  i = -2, 2
               do  j = -2, 2
                 do  k = -2, 2
@@ -301,7 +301,7 @@ Ctakao_ZeroClear_NotRequiered          if (nspec<0) zz_rv(:)=0.0d0
           i_copy_size=1;
           do i_spackv=1,nspec
             call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %z , 
-     .    i_copy_size , i_spackv + 1 - 1 , zz_rv )
+     .      i_copy_size , i_spackv + 1 - 1 , zz_rv )
 
           enddo
 
@@ -311,7 +311,7 @@ Ctakao_ZeroClear_NotRequiered          if (nspec<0) rmt_rv(:)=0.0d0
           i_copy_size=1;
           do i_spackv=1,nspec
             call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rmt 
-     .    , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
+     .      , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
 
           enddo
 
@@ -320,7 +320,7 @@ Ctakao_ZeroClear_NotRequiered          if (nspec<0) rmt_rv(:)=0.0d0
 
           do  i = 1, nspec
             call ivset ( lock_iv , i , i , bitand ( int ( sspec ( i ) 
-     .    %mxcst ) , 2 ) )
+     .      %mxcst ) , 2 ) )
 
 
           enddo
@@ -332,8 +332,8 @@ Ctakao_ZeroClear_NotRequiered          if (nspec<0) rmt_rv(:)=0.0d0
             call rx('LMAUX: not implemented for lpbc>1')
           endif
           call makrm0 ( 101 , nspec , nbas , alat , plat , w ( opos ) , 
-     .   slabl , w ( oips ) , modep , lock_iv , zz_rv , rmt_rv 
-     .   )
+     .    slabl , w ( oips ) , modep , lock_iv , zz_rv , rmt_rv 
+     .    )
 
 C   ... Scale sphere radii satisfying constraints
 
@@ -344,13 +344,13 @@ C   ... Scale sphere radii satisfying constraints
           wsrmax=sctrl%wsrmax
 
           call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , w ( opos 
-     .   ) , w ( oips ) , modep , slabl , zz_rv , lock_iv , 1d0 
-     .   , wsrmax , omax1 , omax2 , rmt_rv )
+     .    ) , w ( oips ) , modep , slabl , zz_rv , lock_iv , 1d0 
+     .    , wsrmax , omax1 , omax2 , rmt_rv )
 
           i_copy_size=1;
           do i_spackv=1,nspec
             call spackv_array_copy_r8_r8 ( 'p' , sspec ( i_spackv ) %rmt 
-     .    , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
+     .      , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
 
           enddo
 
@@ -410,14 +410,14 @@ Ctakao_ZeroClear_NotRequiered          if (nbas<0) ips2_iv(:)=0
           i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbas
             call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .    , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
+     .      , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
 
           enddo
 
           i_copy_size=1;
           do i_spackv=1,nbas
             call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-     .    , i_copy_size , i_spackv + 1 - 1 , ips2_iv )
+     .      , i_copy_size , i_spackv + 1 - 1 , ips2_iv )
 
           enddo
 
@@ -425,7 +425,7 @@ Ctakao_ZeroClear_NotRequiered          if (nbas<0) ips2_iv(:)=0
           call defrr(og,   9*ngmx)
           call symlat(plat,ngrp,w(og),j)
           j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , w ( oips 
-     .   ) , w ( opos ) , ips2_iv , pos2_rv )
+     .    ) , w ( opos ) , ips2_iv , pos2_rv )
 
           call fexit(j,1,' Exit %i lmchk --basis= ...',j)
         endif
@@ -434,7 +434,7 @@ C ... Write positions in Cartesian coordinates and as multiples plat
         if (iprint() .ge. 50) then
           write(stdo,357)
   357     format(/' site spec',8x,'pos (Cartesian coordinates)',9x,
-     .  'pos (multiples of plat)')
+     .    'pos (multiples of plat)')
 C     qlat = (plat+)^-1
           call dinv33(plat,1,qlat,xx)
           do  i = 1, nbas
@@ -684,11 +684,11 @@ Ctakao_ZeroClear_NotRequiered          if (mxclas<0) lockc_rv(:)=0.0d0
 
         if (nclass .ge. mxclas) call rx('lmaux: increase mxclas')
         call spec2c ( nspec , nclass , ics , rmt_rv , rmtc_rv , 
-     .   z , zc_rv , lock_iv , lockc_rv )
+     .  z , zc_rv , lock_iv , lockc_rv )
 
         call findes ( sctrl , alat , w ( oclabl ) , nbas , nclass , nl 
-     .   , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-     .   , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
+     .  , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+     .  , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
 
 
       endif

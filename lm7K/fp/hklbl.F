@@ -34,7 +34,7 @@ C ... Local parameters
       integer nlm0,ilm,job,k,ll,lmax,nkd,nkq,nrx,odlv,oqlv,owk,oyl
       parameter (nlm0=144)
       double precision alat,awald,fpi,pi,sp,tol,vol,plat(3,3),
-     .  qlat(3,3),p1(3)
+     .qlat(3,3),p1(3)
       double complex hsm(nlm0),hsmp(nlm0),phase,gklsav,gklnew
 C     double complex hsmx(nlm0),hsmpx(nlm0)
 C ... Heap
@@ -88,26 +88,26 @@ c      print *,'hklbl:aaa'
       allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
 c      print *,'hklbl:bbb'
       call hsmq(1,0,ll(nlm),e,rsm,0000,q,p1,nrx,nlm,wk,yl,
-     .  awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,hsm,hsmp)
+     .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,hsm,hsmp)
       if (rsm .gt. faca/awald) then
         call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, hkl)
       else
         job = 2
         call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
-     .    yl,wk,job,hkl)
+     .  yl,wk,job,hkl)
       endif
       deallocate(wk,yl)
 #else
       call defrr(owk, nrx*(2*lmax+10))
       call defrr(oyl, nrx*(lmax+1)**2)
       call hsmq(1,0,ll(nlm),e,rsm,0000,q,p1,nrx,nlm,w(owk),w(oyl),
-     .  awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,hsm,hsmp)
+     .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,hsm,hsmp)
       if (rsm .gt. faca/awald) then
         call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, hkl)
       else
         job = 2
         call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
-     .    w(oyl),w(owk),job,hkl)
+     .  w(oyl),w(owk),job,hkl)
       endif
       call rlse(owk)
 #endif
@@ -131,10 +131,10 @@ C --- H_kL by recursion ---
       do  2  ilm = 1, nlm
         gklsav = hkl(0,ilm)
         hkl(0,ilm) = hsm(ilm)
-      do  2  k = 1, kmax
-        gklnew = hkl(k,ilm)
-        hkl(k,ilm) = -e*hkl(k-1,ilm) - fpi*gklsav
-        gklsav = gklnew
+        do  2  k = 1, kmax
+          gklnew = hkl(k,ilm)
+          hkl(k,ilm) = -e*hkl(k-1,ilm) - fpi*gklsav
+          gklsav = gklnew
     2 continue
 
 C ... Put in phase to undo shortening

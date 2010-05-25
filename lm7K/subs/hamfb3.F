@@ -1,7 +1,7 @@
       subroutine hamfb3k(qin,iq,nk1,nk2,nk3,
-     i  k1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,plat,qlat,ldim,ifac,igstar,
-     i  hq,
-     o  gfbz)
+     ik1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,plat,qlat,ldim,ifac,igstar,
+     ihq,
+     ogfbz)
       use m_hamindex
 C- Generate gfbz (full BZ) from hq (1st BZ).
 Ci q iq: q and index for q
@@ -30,8 +30,8 @@ C ----------------------------------------------------------------------
       real(8):: q1(3),qk
 C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
-     .                    (jj2*ifac(2)-1)*qb(k,2) +
-     .                    (jj3*ifac(3)-1)*qb(k,3)
+     .(jj2*ifac(2)-1)*qb(k,2) +
+     .(jj3*ifac(3)-1)*qb(k,3)
       call tcn('hamfb3k')
       print *, 'hamfb3k: start...'
       iq1 = 0
@@ -82,8 +82,8 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
 
 
       subroutine hamfb3(nbas,nl,offH,iprmb,opt,pos,iq,nk1,nk2,nk3,
-     .  k1,k2,k3,ipq,istab,g,ag,igstar,ifac,lidim,ldima,ldimb,nspc,
-     .  qb,hq,hw,hw2,gfbz)
+     .k1,k2,k3,ipq,istab,g,ag,igstar,ifac,lidim,ldima,ldimb,nspc,
+     .qb,hq,hw,hw2,gfbz)
 C- Kernel called by hamfbz: contr. to entire gf in full BZ from 1 qp.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -148,7 +148,7 @@ C Passed variables
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5)
       integer nbas,nk1,nk2,nk3,k1,k2,k3,istab(nbas,1),
-     .  ipq(1),igstar(0:1),ifac(3),offH(n0H,nkap0,nbas),iprmb(ldima)
+     .ipq(1),igstar(0:1),ifac(3),offH(n0H,nkap0,nbas),iprmb(ldima)
       double precision hq(lidim,nspc,lidim,nspc)
       double precision hw(lidim,nspc,lidim,nspc)
       double precision hw2(lidim,2,nspc,lidim,nspc)
@@ -156,7 +156,7 @@ C Passed variables
       double complex gfbz(k1,k2,k3,ldima,nspc,ldimb,nspc)
 C Local variables
       integer:: i , i1 , i2 , i3 , ig , iq , iq1 , is , j , jj1 , jj2 
-     . , jj3 , js , k , nl , kcplx , optrot , lidimx , offi
+     ., jj3 , js , k , nl , kcplx , optrot , lidimx , offi
       complex(8) ,allocatable :: wk_zv(:)
 
       double precision q1(3),qk
@@ -165,8 +165,8 @@ C heap:
       common /w/ w
 C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       qk(k,jj1,jj2,jj3) = (jj1*ifac(1)-1)*qb(k,1) +
-     .                    (jj2*ifac(2)-1)*qb(k,2) +
-     .                    (jj3*ifac(3)-1)*qb(k,3)
+     .(jj2*ifac(2)-1)*qb(k,2) +
+     .(jj3*ifac(3)-1)*qb(k,3)
 
       call tcn('hamfb3')
 
@@ -190,62 +190,62 @@ Ctakao_ZeroClear_NotRequiered        if (lidimx**2<0) wk_zv(:)=0.0d0
 C --- Copy gf for each qp in star of qp(iq) ---
       iq1 = 0
       do  12  i3 = 1, nk3
-      do  12  i2 = 1, nk2
-      do  12  i1 = 1, nk1
+        do  12  i2 = 1, nk2
+          do  12  i1 = 1, nk1
 
-        iq1 = iq1+1
+            iq1 = iq1+1
 C   ... skip this qp unless it is related to iq
-        if (ipq(iq1) .ne. iq) goto 12
+            if (ipq(iq1) .ne. iq) goto 12
 
 C   ... Make g by rotation of g(iq): symop relating iq1 to iq
-        ig = igstar(iq1)
+            ig = igstar(iq1)
 
 C   ... q into which h is rotated
-        q1(1) = qk(1,i1,i2,i3)
-        q1(2) = qk(2,i1,i2,i3)
-        q1(3) = qk(3,i1,i2,i3)
+            q1(1) = qk(1,i1,i2,i3)
+            q1(2) = qk(2,i1,i2,i3)
+            q1(3) = qk(3,i1,i2,i3)
 
-        if (nspc .ne. 1) call rx('hamfb3: check offsets for nspc')
+            if (nspc .ne. 1) call rx('hamfb3: check offsets for nspc')
 C   ... Copy hq into hw to preserve gii; use hw
-        call dcopy(2*lidimx**2,hq,1,hw,1)
-        offi = lidimx**2
-        if (kcplx .ne. 0) offi = lidimx
+            call dcopy(2*lidimx**2,hq,1,hw,1)
+            offi = lidimx**2
+            if (kcplx .ne. 0) offi = lidimx
 
 C   ... Rotate and copy
-        do  14  is = 1, nspc
-        do  14  js = 1, nspc
-          if (kcplx .eq. 0) then
-            if (ig .ne. 1) then
-              call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
-     .       ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
-     .       lidim , wk_zv , hw ( 1 , is , 1 , js ) )
+            do  14  is = 1, nspc
+              do  14  js = 1, nspc
+                if (kcplx .eq. 0) then
+                  if (ig .ne. 1) then
+                    call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+     .              ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
+     .              lidim , wk_zv , hw ( 1 , is , 1 , js ) )
 
-            endif
+                  endif
 
-            do  16  j  = 1, ldimb
-            do  16  i  = 1, ldima
-              gfbz(i1,i2,i3,i,is,j,js) =
-     .                        dcmplx(hw(i,is,j,js),hw(i+offi,is,j,js))
-   16       continue
-          else
-            if (ig .ne. 1) then
-              call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
-     .       ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
-     .       lidim , wk_zv , hw2 ( 1 , 1 , is , 1 , js ) )
+                  do  16  j  = 1, ldimb
+                    do  16  i  = 1, ldima
+                      gfbz(i1,i2,i3,i,is,j,js) =
+     .                dcmplx(hw(i,is,j,js),hw(i+offi,is,j,js))
+   16             continue
+                else
+                  if (ig .ne. 1) then
+                    call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab 
+     .              ( 1 , ig ) , g ( 1 , 1 , ig ) , ag ( 1 , ig ) , q1 , lidim , 
+     .              lidim , wk_zv , hw2 ( 1 , 1 , is , 1 , js ) )
 
-            endif
+                  endif
 
-            do  18  j  = 1, ldimb
-            do  18  i  = 1, ldima
-              gfbz(i1,i2,i3,i,is,j,js) =
-     .                        dcmplx(hw2(i,1,is,j,js),hw2(i,2,is,j,js))
-   18       continue
-          endif
+                  do  18  j  = 1, ldimb
+                    do  18  i  = 1, ldima
+                      gfbz(i1,i2,i3,i,is,j,js) =
+     .                dcmplx(hw2(i,1,is,j,js),hw2(i,2,is,j,js))
+   18             continue
+                endif
 
 C         print 357,iq,i1,i2,i3,gfbz(i1,i2,i3,2,1,2,1)
 C 357     format(' hamfb3: iq=',i4,' filling i1,i2,i3=',3i4,2f12.5)
 
-   14   continue
+   14       continue
    12 continue
 
       if (allocated(wk_zv)) deallocate(wk_zv)

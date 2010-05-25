@@ -29,10 +29,10 @@ C     implicit none
       integer i,j,ia,ib
       if (nra .eq. 1 .and. nrb .eq. 1) then
         do  10  j = 0, m-1
-        ia = j*nca
-        ib = j*ncb
-        do  10  i = 0, n-1
-          b(i+ib) = a(i+ia)
+          ia = j*nca
+          ib = j*ncb
+          do  10  i = 0, n-1
+            b(i+ib) = a(i+ia)
    10   continue
         return
       endif
@@ -40,9 +40,9 @@ C     implicit none
         ia = i*nra+m*nca
         ib = i*nrb+m*ncb
         do  20  j = m-1, 0, -1 
-        ia = ia-nca
-        ib = ib-ncb
-        b(ib) = a(ia)
+          ia = ia-nca
+          ib = ib-ncb
+          b(ib) = a(ia)
    20 continue
       end
 C      subroutine dvcpy(a,nca,b,ncb,n)

@@ -39,19 +39,19 @@ C     mxorb = nglob('mxorb')
         lmark = .false.
         lmri = nl*nl*nkaph*(ib-1)
         do  2  ik = 1, nkaph
-        do  2  li = 0, nl-1
-          lmri = lmri + 2*li+1
-          if (iprmb(lmri) .gt. ndim) goto 2
-          if (mode0 .eq. 0) then
-            nnrli = nnrli + 2*li+1
-          elseif (mode0 .eq. 1) then
-            nnrli = nnrli + 1
-          else
-            if (.not. lmark) then
+          do  2  li = 0, nl-1
+            lmri = lmri + 2*li+1
+            if (iprmb(lmri) .gt. ndim) goto 2
+            if (mode0 .eq. 0) then
+              nnrli = nnrli + 2*li+1
+            elseif (mode0 .eq. 1) then
               nnrli = nnrli + 1
-              lmark = .true.
+            else
+              if (.not. lmark) then
+                nnrli = nnrli + 1
+                lmark = .true.
+              endif
             endif
-          endif
     2   continue
         if (mode .ge. 10) then
           nnrlx = max(nnrlx,nnrli)

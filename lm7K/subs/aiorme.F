@@ -35,7 +35,7 @@ C   ... read nl and nsp ... abort if missing
         if (.not. pars1v(s,len(s),'nl=','=',2,nl2)) goto 18
         if (.not. pars1v(s,len(s),'nsp=','=',2,nsp2)) goto 18
         if (nl .ne. nl2 .or. nsp .ne. nsp2)
-     .    call rxs('AIORME: mismatch in nl or nsp, class ',alabl)
+     .  call rxs('AIORME: mismatch in nl or nsp, class ',alabl)
         call dpzero(radme,4*2*nl*2*nsp)
         do  10  is1 = 1, nsp
           aiorme = lfdmp(radme(1,1,1,1,is1),4*2*nl*2,ifi)

@@ -38,8 +38,8 @@ C      idcode(1) = '*'
 
       write (stdo,501)
   501 format(/' species data:  augmentation',27x,'density'/
-     .     ' spec       rmt   rsma lmxa kmxa',5x,
-     .     ' lmxl     rg   rsmv  kmxv foca   rfoca')
+     .' spec       rmt   rsma lmxa kmxa',5x,
+     .' lmxl     rg   rsmv  kmxv foca   rfoca')
       do  10  js = is1,is2
         do i_spacks=js,js
           call spacks_copy('u',sspec(i_spacks)%name,js,js,spid,i_spacks)
@@ -68,7 +68,7 @@ C  102   format(10(f5.2,a1))
 C        write (stdo,300) spid,rmt,rsma,lmxa,kmxt,s2(1:36)
 C  300   format(1x,a,f6.3,f7.3,i6,i6,2x,a)
         write (stdo,500) spid,rmt,rsma,lmxa,kmxt,
-     .                   lmxl,rg,rsmv,kmxv,lfoca,rfoca
+     .  lmxl,rg,rsmv,kmxv,lfoca,rfoca
   500   format(1x,a,f6.3,f7.3,2i5,6x,i4,2f7.3,i6,i5,f8.3)
 
    10 continue

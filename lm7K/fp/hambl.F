@@ -1,6 +1,6 @@
       subroutine hambl(mode,nbas,ssite,sspec,slat,sham,isp,q,k1,k2,k3,
-     .  smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
-     .  h,s,hso)
+     .smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
+     .h,s,hso)
 
       use m_struc_def  !Cgetarg
 
@@ -102,13 +102,13 @@ C ... Skip LDA H, S
 
 C --- Augmentation part of hamiltonian and overlap ---
       call augmbl(mode0+10*mode1,ssite,sspec,slat,isp,lcplxp,q,
-     .  osig,otau,oppi,w(oiprmb),ndimh,napw,igvapw,h,hso,s)
+     .osig,otau,oppi,w(oiprmb),ndimh,napw,igvapw,h,hso,s)
 
 C --- Add alfa S+ S ---
       if (dabs(alfa) .gt. 1d-10 .and. mode0 .eq. 0)  then
         call z2herm('U',ndimh,ndimh,s)
         call zgemm('C','N',ndimh,ndimh,ndimh,dcmplx(alfa,0d0),
-     .    s,ndimh,s,ndimh,dcmplx(1d0,0d0),h,ndimh)
+     .  s,ndimh,s,ndimh,dcmplx(1d0,0d0),h,ndimh)
       endif
 
 C ... Optionally set average istl potential to zero
@@ -119,12 +119,12 @@ C --- Smoothed hamiltonian and overlap, S and T done analytically ---
 C     print *, '!!'; s = 0
 
       call smhsbl(mode0,ssite,sspec,slat,vavg+vconst,q,ndimh,w(oiprmb),
-     .  napw,igvapw,h,s)
+     .napw,igvapw,h,s)
 C     call zprm('s',12,s,ndimh,ndimh,ndimh)
 
       if (mode0 .eq. 1) goto 100
       call hsibl(ssite,sspec,slat,k1,k2,k3,smpot,isp,q,ndimh,w(oiprmb),
-     .  napw,igvapw,h)
+     .napw,igvapw,h)
 
 C ... Restore istl potential
 C      call pvhmb1(1,slat,k1,k2,k3,smpot,vavg)
@@ -234,7 +234,7 @@ C ... Local parameters
         call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
         call mshint(1d0,1,ngabc(1),ngabc(2),ngabc(3),
-     .    k1,k2,k3,smpot,vavg,xx)
+     .  k1,k2,k3,smpot,vavg,xx)
       elseif (mode .eq. 1) then
         do i = 1, k1*k2*k3
           smpot(i,1,1) = smpot(i,1,1) + vavg

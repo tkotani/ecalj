@@ -124,14 +124,14 @@ C --- read and print file ---
       nr = 0
       call getpr(ipr)
    10 call rdfiln(ifi,rdparm,mxlev,loop0,nlin,list,100,ilist,nlist,
-     .  vnam,ctbl,mxchr,a,recrd,recl,nr)
+     .vnam,ctbl,mxchr,a,recrd,recl,nr)
       if (nr .le. 0) goto 30
 C     We are using lines within a category
       if (incat .eq. 0) then
         if (recrd(cn1:cn2+1) .eq. catnam(cn1:cn2+1)) incat = 1
         if (incat .eq. 0) then
           if (ipr .ge. 100/1)
-     .      call awrit0('%a','>> skipping: '//recrd,recl+13,-stdo)
+     .    call awrit0('%a','>> skipping: '//recrd,recl+13,-stdo)
           goto 10
         else
           recrd(cn1:cn2) = ' '
@@ -179,13 +179,13 @@ C     call wkchk('testing')
    99 continue
       print 333
   333 format('usage: rdcmd [--pr#] [--noerr] [--n] [--s]',
-     .  ' [-f:string] [-cat:name]'/
-     .  t13,' [-cnam=strn] [-vvar=# ...] filename'/
-     .  t7,'Switches:'/
-     .  t7,'--noerr',t17,'Abort when nozero exit status encountered'/
-     .  t7,'--n',t17,'Print commands that would be executed, ',
-     .               'but do not execute them'/
-     .  t7,'--s',t17,'Use brackets [] to demarcate string substitution'/
-     .  t7,'-cat:name',t17,'Execute commands within category "name"'/
-     .  t7,'-f:string',t17,'Set format string for command printout')
+     .' [-f:string] [-cat:name]'/
+     .t13,' [-cnam=strn] [-vvar=# ...] filename'/
+     .t7,'Switches:'/
+     .t7,'--noerr',t17,'Abort when nozero exit status encountered'/
+     .t7,'--n',t17,'Print commands that would be executed, ',
+     .'but do not execute them'/
+     .t7,'--s',t17,'Use brackets [] to demarcate string substitution'/
+     .t7,'-cat:name',t17,'Execute commands within category "name"'/
+     .t7,'-f:string',t17,'Set format string for command printout')
       end

@@ -15,7 +15,7 @@ C     implicit none
       character*(*) strn, rchr*7, ss*80
       double precision rotm(3,3)
       double precision alpha,beta,gamma,rotj(3,3),r2(3,3),angle,
-     .  r(3),pi,ddot,fuzz,ct,theta,phi
+     .r(3),pi,ddot,fuzz,ct,theta,phi
 
       integer ls,itrm,ich,a2vec,ix(3),i,j,irot,ipr,i1mach
       parameter (fuzz = 1d-12)
@@ -65,8 +65,8 @@ C ... rotm <- rotj*rotm
       if (ipr .gt. 40) then
         call rm2eua(rotm,alpha,beta,gamma)
         call awrit4(' a2rotm:  rotation %i, alpha = %1;6d  '//
-     .    'beta = %1;6d  gamma = %1;6d',' ',80,i1mach(2),
-     .    irot,alpha,beta,gamma)
+     .  'beta = %1;6d  gamma = %1;6d',' ',80,i1mach(2),
+     .  irot,alpha,beta,gamma)
         print 335, ((rotm(i,j),j=1,3),i=1,3)
   335   format((3f15.9))
 
@@ -123,13 +123,13 @@ C --- Pick up another rotation matrix, or quit if done ---
       if (linv) then
         call dpcopy(rotm,r2,1,9,1d0)
         do  20  i = 1, 3
-        do  20  j = 1, 3
+          do  20  j = 1, 3
    20   rotm(i,j) = r2(j,i)
         if (ipr .ge. 50) then
           call rm2eua(rotm,alpha,beta,gamma)
           call awrit3(' a2rotm:  inverse, alpha = %1;6d  '//
-     .      'beta = %1;6d  gamma = %1;6d',' ',80,i1mach(2),
-     .      alpha,beta,gamma)
+     .    'beta = %1;6d  gamma = %1;6d',' ',80,i1mach(2),
+     .    alpha,beta,gamma)
           print 335, ((rotm(i,j),j=1,3),i=1,3)
         endif
       endif
@@ -196,7 +196,7 @@ C --- Handle case beta is near zero or pi ---
         beta = dacos(cb)
       endif
       if (dsqrt(r(3,2)**2 + r(3,1)**2) .lt. fuzz .or.
-     .    dsqrt(r(2,3)**2 + r(1,3)**2) .lt. fuzz) then
+     .dsqrt(r(2,3)**2 + r(1,3)**2) .lt. fuzz) then
         if (cb .gt. 0) then
           apg = datan2(r(1,2),r(2,2))
           if (r(3,1)**2+r(3,2)**2 .ne. 0d0) then
@@ -250,16 +250,16 @@ C     .    dabs(r(3,1)-(ca*sb)) .gt. fuzz*10 ,
 C     .    dabs(r(3,2)-(sa*sb)) .gt. fuzz*10 ,
 C     .    dabs(r(3,3)-cb) .gt. fuzz*10
       if (dabs(r(1,1)-(ca*cb*cg-sa*sg)) .gt. fuzz*10 .or.
-     .    dabs(r(1,2)-(sa*cb*cg+ca*sg)) .gt. fuzz*10 .or.
-     .    dabs(r(1,3)-(-sb*cg)) .gt. fuzz*10 .or.
-     .    dabs(r(2,1)-(-ca*cb*sg-sa*cg)) .gt. fuzz*10 .or.
-     .    dabs(r(2,2)-(-sa*cb*sg+ca*cg)) .gt. fuzz*10 .or.
-     .    dabs(r(2,3)-(sb*sg)) .gt. fuzz*10 .or.
-     .    dabs(r(3,1)-(ca*sb)) .gt. fuzz*10 .or.
-     .    dabs(r(3,2)-(sa*sb)) .gt. fuzz*10 .or.
-     .    dabs(r(3,3)-cb) .gt. fuzz*10) then
+     .dabs(r(1,2)-(sa*cb*cg+ca*sg)) .gt. fuzz*10 .or.
+     .dabs(r(1,3)-(-sb*cg)) .gt. fuzz*10 .or.
+     .dabs(r(2,1)-(-ca*cb*sg-sa*cg)) .gt. fuzz*10 .or.
+     .dabs(r(2,2)-(-sa*cb*sg+ca*cg)) .gt. fuzz*10 .or.
+     .dabs(r(2,3)-(sb*sg)) .gt. fuzz*10 .or.
+     .dabs(r(3,1)-(ca*sb)) .gt. fuzz*10 .or.
+     .dabs(r(3,2)-(sa*sb)) .gt. fuzz*10 .or.
+     .dabs(r(3,3)-cb) .gt. fuzz*10) then
         call awrit3(' rm2eua found alpha=%1;9d  beta=%1;9d'//
-     .    '  gamma=%1;9d from rot:',' ',80,i1mach(2),alpha,beta,gamma)
+     .  '  gamma=%1;9d from rot:',' ',80,i1mach(2),alpha,beta,gamma)
         print 335, ((r(i,j),j=1,3),i=1,3)
   335   format((3f20.15))
         call rx('rm2eua: matrix not consistent with Euler angles')

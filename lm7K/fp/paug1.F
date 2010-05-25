@@ -1,5 +1,5 @@
       subroutine paug1(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,
-     .  lmxa,nlml,cg,jcg,indxcg,vum,nlx1,nlx2,ppi)
+     .lmxa,nlml,cg,jcg,indxcg,vum,nlx1,nlx2,ppi)
 C- Add to ppi constribution from true pot, true wave functions
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -56,9 +56,9 @@ C ... Passed parameters
       integer lmx1,lmx2,lmxa,nf1,nf1s,nf2,nf2s,nlml,nlx1,nlx2
       integer lx1(nf1),lx2(nf2),jcg(1),indxcg(1)
       double precision vum(0:lmxa,0:lmxa,nlml,6),
-     .  v1(0:lmx1,nf1),d1(0:lmx1,nf1),
-     .  v2(0:lmx2,nf2),d2(0:lmx2,nf2),
-     .  ppi(nf1,nf2,nlx1,nlx2),cg(1)
+     .v1(0:lmx1,nf1),d1(0:lmx1,nf1),
+     .v2(0:lmx2,nf2),d2(0:lmx2,nf2),
+     .ppi(nf1,nf2,nlx1,nlx2),cg(1)
 C ... Local parameters
       integer i1,i2,icg,ilm1,ilm2,ix,l1,l2,ll,mlm,nlm1,nlm2
       double precision add
@@ -79,11 +79,11 @@ C ... Combine with CG coefficents
                 if (mlm.gt.1 .and. mlm.le.nlml) then
 
                   add = v1(l1,i1) * v2(l2,i2) * vum(l1,l2,mlm,1)
-     .                + v1(l1,i1) * d2(l2,i2) * vum(l1,l2,mlm,2)
-     .                + d1(l1,i1) * v2(l2,i2) * vum(l2,l1,mlm,2)
-     .                + d1(l1,i1) * d2(l2,i2) * vum(l1,l2,mlm,3)
+     .            + v1(l1,i1) * d2(l2,i2) * vum(l1,l2,mlm,2)
+     .            + d1(l1,i1) * v2(l2,i2) * vum(l2,l1,mlm,2)
+     .            + d1(l1,i1) * d2(l2,i2) * vum(l1,l2,mlm,3)
                   ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2)
-     .                                 + cg(icg)*add
+     .            + cg(icg)*add
 
                 endif
               enddo
@@ -116,19 +116,19 @@ C                 <g | V | (u,s)>
                     elseif (i1 .gt. nf1s) then
 C                   Bug fix 27 Jun 05
                       add = vum(l2,l1,mlm,4) * v2(l2,i2)
-     .                  + vum(l2,l1,mlm,5) * d2(l2,i2)
+     .                + vum(l2,l1,mlm,5) * d2(l2,i2)
 C                   add = v2(l2,i2) * vum(l1,l2,mlm,4)
 C     .                 + d2(l2,i2) * vum(l1,l2,mlm,5)
 C                 <(u,s) | V | g>
                     elseif (i2 .gt. nf2s) then
 C                   Bug fix 27 Jun 05
                       add = v1(l1,i1) * vum(l1,l2,mlm,4)
-     .                  + d1(l1,i1) * vum(l1,l2,mlm,5)
+     .                + d1(l1,i1) * vum(l1,l2,mlm,5)
 C                   add = v1(l1,i1) * vum(l1,l2,mlm,4)
 C     .                 + d1(l1,i1) * vum(l2,l1,mlm,5)
                     endif
                     ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2)
-     .                                 + cg(icg)*add
+     .              + cg(icg)*add
                   endif
                 enddo
               enddo
@@ -140,7 +140,7 @@ C     .                 + d1(l1,i1) * vum(l2,l1,mlm,5)
       end
 
       subroutine paug2(nr,nlml,v2,rwgt,cg,jcg,indxcg,
-     .  nf1,nf1s,lmx1,lx1,f1,nf2,nf2s,lmx2,lx2,f2,sum,nlx1,nlx2,ppi)
+     .nf1,nf1s,lmx1,lx1,f1,nf2,nf2s,lmx2,lx2,f2,sum,nlx1,nlx2,ppi)
 C- Put in ppi constribution from smooth pot, smooth wave functions
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -182,8 +182,8 @@ C ... Passed parameters
       integer lmx1,lmx2,nf1,nf2,nf1s,nf2s,nlml,nlx1,nlx2,nr
       integer lx1(nf1),lx2(nf2),jcg(1),indxcg(1)
       double precision v2(nr,nlml),rwgt(nr),
-     .  ppi(nf1,nf2,nlx1,nlx2),f1(nr,0:lmx1,nf1s),f2(nr,0:lmx2,nf2s),
-     .  cg(1),sum(0:lmx1,0:lmx2,nlml)
+     .ppi(nf1,nf2,nlx1,nlx2),f1(nr,0:lmx1,nf1s),f2(nr,0:lmx2,nf2s),
+     .cg(1),sum(0:lmx1,0:lmx2,nlml)
 C ... Local parameters
       integer i1,i2,icg,ilm1,ilm2,ix,l1,l2,ll,mlm,nlm1,nlm2
       double precision sam
@@ -217,13 +217,13 @@ C         Set flag for all integrals --- integral not yet calculated
                 if (mlm.gt.1 .and. mlm.le.nlml) then
                   if (sum(l1,l2,mlm) .gt. 1d10) then
                     call paug4(lmx1,f1,lmx2,f2,i1,i2,l1,l2,mlm,
-     .                         nr,rwgt,v2,sam)
+     .              nr,rwgt,v2,sam)
                     sum(l1,l2,mlm) = sam
 C                   if (sam .ne. 0) write(*,500) i1,i2,ilm1,ilm2,sam
 C 500               format(2i4,2x,2i4,f14.8)
                   endif
                   ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2)
-     .                                 - cg(icg)*sum(l1,l2,mlm)
+     .            - cg(icg)*sum(l1,l2,mlm)
                 endif
               enddo
             enddo
@@ -234,7 +234,7 @@ C 500               format(2i4,2x,2i4,f14.8)
       end
 
       subroutine paug3(nf1,lmx1,lx1,nf2,lmx2,lx2,lmxl,nlml,
-     .  cg,jcg,indxcg,qm,gpotb,gpot0,lmux,ppi0,nlx1,nlx2,ppi)
+     .cg,jcg,indxcg,qm,gpotb,gpot0,lmux,ppi0,nlx1,nlx2,ppi)
 C- Assemble the final potential augmentation matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -281,7 +281,7 @@ C ... Passed parameters
       integer lmux,lmx1,lmx2,lmxl,nf1,nf2,nlml,nlx1,nlx2
       integer lx1(nf1),lx2(nf2),jcg(1),indxcg(1)
       double precision ppi0(nf1,nf2,0:lmux),ppi(nf1,nf2,nlx1,nlx2),
-     .  cg(1),gpotb(nlml),gpot0(nlml),qm(nf1,nf2,0:lmx1,0:lmx2,0:lmxl)
+     .cg(1),gpotb(nlml),gpot0(nlml),qm(nf1,nf2,0:lmx1,0:lmx2,0:lmxl)
 C ... Local parameters
       integer i1,i2,nlm1,nlm2,ilm1,ilm2,l1,l2,ll,ix,icg,mlm,lm
 
@@ -311,7 +311,7 @@ C           if (i1 .le. nf1s .and. i2 .le. nf2s) then
                 if (mlm .le. nlml) then
                   lm = ll(mlm)
                   ppi(i1,i2,ilm1,ilm2) = ppi(i1,i2,ilm1,ilm2) +
-     .               cg(icg)*qm(i1,i2,l1,l2,lm)*(gpot0(mlm)-gpotb(mlm))
+     .            cg(icg)*qm(i1,i2,l1,l2,lm)*(gpot0(mlm)-gpotb(mlm))
                 endif
               enddo
             enddo
@@ -330,7 +330,7 @@ C     implicit none
 C ... Passed parameters
       integer i1,i2,l1,l2,lmx1,lmx2,mlm,nr
       double precision sam,v2(nr,1),rwgt(nr),
-     .  f1(nr,0:lmx1,1),f2(nr,0:lmx2,1)
+     .f1(nr,0:lmx1,1),f2(nr,0:lmx2,1)
 C ... Local parameters
       integer i
 
@@ -341,7 +341,7 @@ C ... Local parameters
 
       end
       subroutine paugnl(nf1,nf1s,lmx1,lx1,v1,d1,nf2,nf2s,lmx2,lx2,v2,d2,
-     .                  lmaxu,vumm,nlx1,nlx2,ppiz,isp,idu)
+     .lmaxu,vumm,nlx1,nlx2,ppiz,isp,idu)
 C- Add to ppi contribution from non local part of pot (LDA+U)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -392,8 +392,8 @@ C ... Passed parameters
       integer lx1(nf1),lx2(nf2),isp,idu(4),nab
       parameter (nab=9)
       double precision
-     .  v1(0:lmx1,nf1),d1(0:lmx1,nf1),
-     .  v2(0:lmx2,nf2),d2(0:lmx2,nf2)
+     .v1(0:lmx1,nf1),d1(0:lmx1,nf1),
+     .v2(0:lmx2,nf2),d2(0:lmx2,nf2)
       double complex ppiz(nf1,nf2,nlx1,nlx2)
       double complex vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
 C ... Local parameters

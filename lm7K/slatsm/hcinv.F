@@ -37,9 +37,9 @@ C  (l^-1)_ij  =  (del_ij - sum_k<i  l_ik * (l^-1)_kj) / l_ii
             xi = 0
           else
             xr = - ddot(i-j,br(i,j),nm,br(j,j),nm)
-     .           + ddot(i-j,bi(i,j),nm,bi(j,j),nm)
+     .      + ddot(i-j,bi(i,j),nm,bi(j,j),nm)
             xi = - ddot(i-j,br(i,j),nm,bi(j,j),nm)
-     .           - ddot(i-j,bi(i,j),nm,br(j,j),nm)
+     .      - ddot(i-j,bi(i,j),nm,br(j,j),nm)
           endif
 #else
           xr = 0
@@ -57,30 +57,30 @@ C  (l^-1)_ij  =  (del_ij - sum_k<i  l_ik * (l^-1)_kj) / l_ii
 c
 c     .......... pre-multiply by inv(l) and overwrite ..........
       do 300 i = 1, n
-         do 300 j = i, n
+        do 300 j = i, n
 C           x = x - l^dag_ik * l_kj; here i <= j <= k
 #if BLAS
-           br(i,j) = ddot(n+1-j,br(i,j),nm,br(j,j),nm) +
-     .               ddot(n+1-j,bi(i,j),nm,bi(j,j),nm)
-           bi(i,j) = ddot(n+1-j,br(i,j),nm,bi(j,j),nm) -
-     .               ddot(n+1-j,bi(i,j),nm,br(j,j),nm)
+          br(i,j) = ddot(n+1-j,br(i,j),nm,br(j,j),nm) +
+     .    ddot(n+1-j,bi(i,j),nm,bi(j,j),nm)
+          bi(i,j) = ddot(n+1-j,br(i,j),nm,bi(j,j),nm) -
+     .    ddot(n+1-j,bi(i,j),nm,br(j,j),nm)
 #else
-            xr = 0
-            xi = 0
-            do 260 k = j, n
-              xr = xr + (br(i,k)*br(j,k) + bi(i,k)*bi(j,k))
-              xi = xi + (br(i,k)*bi(j,k) - bi(i,k)*br(j,k))
-  260       continue
-            br(i,j) = xr
-            bi(i,j) = xi
+          xr = 0
+          xi = 0
+          do 260 k = j, n
+            xr = xr + (br(i,k)*br(j,k) + bi(i,k)*bi(j,k))
+            xi = xi + (br(i,k)*bi(j,k) - bi(i,k)*br(j,k))
+  260     continue
+          br(i,j) = xr
+          bi(i,j) = xi
 #endif
   300 continue
 
       if (.not. lopt) return
       do  400  i = 1, n
-       do  400  j = i+1, n
-         br(j,i) =  br(i,j)
-         bi(j,i) = -bi(i,j)
+        do  400  j = i+1, n
+          br(j,i) =  br(i,j)
+          bi(j,i) = -bi(i,j)
   400 continue
       end
 

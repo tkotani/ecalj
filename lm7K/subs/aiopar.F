@@ -67,7 +67,7 @@ C   ... read ppar
               k = a2vec(s,len(s),ip,4,' ',1,-2,-7,ix2,x2)
 C    ...  Abort if failed to read 7 numbers
               if (k .ne. 7)
-     .      call rx('AIOPAR, class'//alabl//'%a: failed to parse '//s)
+     .        call rx('AIOPAR, class'//alabl//'%a: failed to parse '//s)
               ll = x2(0)
 C     ... no error if file has extra l's
               if (ll .gt. l) goto 16
@@ -77,7 +77,7 @@ C Map delta into sqrt(delta), preserving sign and 1/sqrt(p) into p
               x2(3) = dsign(1.d0,x2(3))*dsqrt(dabs(x2(3)))
               if (x2(4) .eq. 0) then
                 if (iprint() .gt. 40)
-     .        print *, 'aiopar: encountered 1/p=0 ... set p to 0'
+     .          print *, 'aiopar: encountered 1/p=0 ... set p to 0'
               else
                 x2(4) = 1/x2(4)**2
               endif
@@ -145,19 +145,19 @@ C     call mpibc1(ves,1,4,.false.,'aiopar','ves')
       else
         write(-ifi,21) alabl, lmax+1, nsp, ves
         do  11  i = 1, nsp
-        do  11  l = 0, lmax
-          xx = pp(3,l+1,i)
-          if (pp(4,l+1,i) .eq. 0) then
-            write(-ifi,20) l, (pp(k,l+1,i), k=1,2), xx**2*dsign(1d0,xx),
+          do  11  l = 0, lmax
+            xx = pp(3,l+1,i)
+            if (pp(4,l+1,i) .eq. 0) then
+              write(-ifi,20) l, (pp(k,l+1,i), k=1,2), xx**2*dsign(1d0,xx),
      .        0d0, (pp(k,l+1,i), k=5,6)
-            sw = .true.
-          else
-            write(-ifi,20) l, (pp(k,l+1,i), k=1,2), xx**2*dsign(1d0,xx),
+              sw = .true.
+            else
+              write(-ifi,20) l, (pp(k,l+1,i), k=1,2), xx**2*dsign(1d0,xx),
      .        1/dsqrt(pp(4,l+1,i)), (pp(k,l+1,i), k=5,6)
-          endif
+            endif
    11   continue
         if (iprint() .ge. 30  .and. sw)
-     .    write(i1mach(2),*) 'aiopar: encountered p=0 ... wrote 1/p=0'
+     .  write(i1mach(2),*) 'aiopar: encountered p=0 ... wrote 1/p=0'
         aiopar = .true.
 
 C       Write relativistic ppar's
@@ -190,9 +190,9 @@ C       Write relativistic ppar's
    20 format(i2,3f12.8,f12.7,3f12.8)
    23 format(i3,f5.1,2i4,4f13.8)
    21 format('PPAR:  ',a,'  nl=',i1,'  nsp=',i1,'  ves=',f12.8/' l',5x,
-     .  'e_nu',10x,'C',8x,'+/-del',5x,'1/sqrt(p)',6x,'gam',9x,'alp')
+     .'e_nu',10x,'C',8x,'+/-del',5x,'1/sqrt(p)',6x,'gam',9x,'alp')
    22 format('PPREL:  ',a,'  nl=',i1,'  nsp=',i1,'  ves=',f12.8/
-     .  '  l  mu   ms1 ms2',5x,'C',12x,'W',12x,'gam',10x,'p')
+     .'  l  mu   ms1 ms2',5x,'C',12x,'W',12x,'gam',10x,'p')
 
       end
 

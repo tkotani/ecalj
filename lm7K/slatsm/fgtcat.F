@@ -1,5 +1,5 @@
       integer function fgtcat(ifi,cat,descr,swt,lrewnd,mxrec,recln,
-     .  instr)
+     .instr)
 C- Read a category from a file
 C ----------------------------------------------------------------
 Ci Inputs
@@ -61,14 +61,14 @@ c     The following are specific to rdfiln
       integer recl,nr,mxchr,mxlev,lstsiz,ctlen
       parameter (mxchr=20,mxlev=4,lstsiz=200,recl=500,ctlen=120)
       character ctbl(mxchr,2)*(ctlen),a*(recl),aa*(recl),
-     .  vnam(mxlev)*16,rdarg*7
+     .vnam(mxlev)*16,rdarg*7
       logical loop0(0:mxlev)
       integer nlin(0:mxlev),list(lstsiz,mxlev),ilist(mxlev),
-     .  nlist(0:mxlev)
+     .nlist(0:mxlev)
 
 #if ANSI | FIXEDLENGTH
       if (recln .ne. recl0) call
-     .  rxi('fgtcat: recompile with recl0=',recln)
+     .rxi('fgtcat: recompile with recl0=',recln)
 #endif
       lio   = quswt('io',swt)
       lopt  = quswt('token,opt',swt)
@@ -79,7 +79,7 @@ c     The following are specific to rdfiln
 C --- Show what category would have been sought ---
       if (lio .eq. 0) then
         aa = '%N category  ' // cat //
-     .    '%a %?#(n==0)#(optional)#(required)#'
+     .  '%a %?#(n==0)#(optional)#(required)#'
         call awrit1(aa,' ',72,ifipr,lopt)
 
         if (descr .ne. ' ') then
@@ -109,7 +109,7 @@ C --- Find category and read it in ---
       rdarg = '#{}% ct'
    10 continue
       call rdfiln(ifi,rdarg,mxlev,loop0,nlin,list,lstsiz,
-     .  ilist,nlist,vnam,ctbl,mxchr,a,aa,recl,nr)
+     .ilist,nlist,vnam,ctbl,mxchr,a,aa,recl,nr)
 
 C ... End-of-file
       if (nr .le. 0) then
@@ -137,8 +137,8 @@ C ... Append current line to the category
 C       Maximum number of records exceeded
         if (nrec .gt. mxrec) then
           if (lmxrec .ne. 0) call rxi(
-     .      'fgtcat : category larger than allowed maximum no lines='
-     .      ,mxrec)
+     .    'fgtcat : category larger than allowed maximum no lines='
+     .    ,mxrec)
 C         swt(2) = (nrec-1)*recln
           call stswt('stop',(nrec-1)*recln,swt)
           goto 999
@@ -297,7 +297,7 @@ C ... Parse for new word
         endif
 
       elseif (instr(j1:j1+4) .eq. 'token' .or.
-     .        instr(j1:j1+2) .eq. 'cat') then
+     .instr(j1:j1+2) .eq. 'cat') then
         k = 3
 C        if (instr(j1:j1+2) .eq. 'cat') k = 4
         i0 = mod(swt(k),4)
@@ -472,7 +472,7 @@ C ... Local parameters
         endif
 
       elseif (instr(j1:j1+4) .eq. 'token' .or.
-     .        instr(j1:j1+2) .eq. 'cat') then
+     .instr(j1:j1+2) .eq. 'cat') then
         k = 3
 C       if (instr(j1:j1+2) .eq. 'cat') k = 4
         i0 = mod(swt(k),4)

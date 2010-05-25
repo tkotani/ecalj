@@ -1,7 +1,7 @@
 #define F90 1
       subroutine rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,
-     .  nspc,napw,igvapw,iprmb,numq,nevec,evec,ewgt,evl,osig,otau,oppi,
-     .  lcplxp,lekkl,oqkkl,oeqkkl,f)
+     .nspc,napw,igvapw,iprmb,numq,nevec,evec,ewgt,evl,osig,otau,oppi,
+     .lcplxp,lekkl,oqkkl,oeqkkl,f)
       use m_struc_def  !Cgetarg
 #if MPE
       use m_events !Event numbers: include "events.ins"
@@ -115,7 +115,7 @@ cC Event numbers:
 c      include "events.ins"
 c#endif
       integer lfrce,nbas,isp,ndimh,nspc,numq,nevec,lcplxp,lekkl,
-     .  iprmb(1),ndham,napw,igvapw(3,napw)
+     .iprmb(1),ndham,napw,igvapw(3,napw)
       integer oqkkl(3,1),oeqkkl(3,1),osig(3,1),otau(3,1),oppi(3,1)
       real(8):: q(3) , ewgt(numq,nevec) , evl(ndham,isp) , f(3,nbas,numq)
       type(s_site)::ssite(*)
@@ -138,9 +138,9 @@ C ... Local parameters or process-shared variables
       double precision alat,qlat(3,3)
 C ... Local process-specific variables
       integer ia,isa,ivec,kmax,lmxa,nlma,ip,oxf,
-     .        lmxha,nlmha,nkaph,ispc,ksp
+     .lmxha,nlmha,nkaph,ispc,ksp
       integer ob,odb,oppihp,oppipp,osighp,osigpp,
-     .  oqhh,oqhp,oqpp,oeqhh,oeqhp,oeqpp
+     .oqhh,oqhp,oqpp,oeqhh,oeqhp,oeqpp
       double precision pa(3),rsma,pi,tpiba
 #if F90
       complex(8),allocatable:: cPkL(:),da(:),wk(:)
@@ -149,8 +149,8 @@ C ... Local process-specific variables
       double precision p(3),xx
       parameter (nlmx=49,ktop0=10)
       double complex cPkL((ktop0+1)*nlmx),da((ktop0+1)*nlmx*3),
-     .  b0((ktop0+1)*nlmx*nlmbx),db0((ktop0+1)*nlmx*nlmbx*3),
-     .  wk((ktop0+1)*nlmx),bos((ktop0+1)*nlmbx)
+     .b0((ktop0+1)*nlmx*nlmbx),db0((ktop0+1)*nlmx*nlmbx*3),
+     .wk((ktop0+1)*nlmx),bos((ktop0+1)*nlmbx)
       integer norb,nkapi
       integer lh(nkap0),ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
@@ -173,9 +173,9 @@ C ... Heap
       if (mlog) then
         do  pid = 0, numprocs-1
           call MPI_BCAST(shortname(pid),10,MPI_CHARACTER,pid,
-     .                   MPI_COMM_WORLD,ierr)
+     .    MPI_COMM_WORLD,ierr)
           call MPI_BCAST(namelen(pid),1,MPI_INTEGER,pid,
-     .                   MPI_COMM_WORLD,ierr)
+     .    MPI_COMM_WORLD,ierr)
         enddo
       endif
 #endif
@@ -221,7 +221,7 @@ C ... Allocate workspace for augmentation arrays
       nlmx  = nlmax
       ktop0 = kmaxx
       allocate(cPkL((ktop0+1)*nlmx),da((ktop0+1)*nlmx*3),
-     .  wk((ktop0+1)*nlmx))
+     .wk((ktop0+1)*nlmx))
 C      allocate(cPkL((ktop0+1)*nlmx),da((ktop0+1)*nlmx*3),
 C     .  b0((ktop0+1)*nlmx*nlmbx),db0((ktop0+1)*nlmx*nlmbx*3),
 C     .  wk((ktop0+1)*nlmx),bos((ktop0+1)*nlmbx))
@@ -259,9 +259,9 @@ c      do  ia = bproc(procid), bproc(procid+1)-1
         if (mlog .and. ia .eq. bproc(procid)) then
           call gettime(datim)
           call awrit4(' rlocbl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' starting atoms %i to %i',' ',256,lgunit(3),
-     .        procid,numprocs,bproc(procid),bproc(procid+1)-1)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' starting atoms %i to %i',' ',256,lgunit(3),
+     .    procid,numprocs,bproc(procid),bproc(procid+1)-1)
         endif
 #endif
         ip=1
@@ -299,8 +299,8 @@ C   --- Strux to expand all orbitals and their gradients at site ia ---
 
 #if F90
         call bstrux(1,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
-     .    iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igvapw,w(ob),
-     .    w(odb))
+     .  iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igvapw,w(ob),
+     .  w(odb))
 #else
 C       Zero out strux to eliminate contributions from local orbitals
         call dpzero(w(ob),(kmax+1)*nlma*ndimh*2)
@@ -327,17 +327,17 @@ C         Loop over blocks of envelope functions
             nlmhb = (lh(ik)+1)**2
             if (nlmhb .gt. nlmbx) call rxi('rlocbl: need nlmbx',nlmhb)
             if (nlmhb .gt. nlma .and. ia.eq.ib)
-     .        call rx('rlocbl: nlmh .gt. nlma')
+     .      call rx('rlocbl: nlmh .gt. nlma')
 
             call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmhb,nlma,
-     .        kmax,nlmbx,nlma,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b0,
-     .        db0)
+     .      kmax,nlmbx,nlma,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b0,
+     .      db0)
             if (ib .eq. ia) then
               call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmhb,kmax,bos)
               call paugq2(kmax,nlmhb,nlma,bos,b0)
             endif
             call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,nlma,
-     .        kmax,b0,db0,w(ob),w(odb))
+     .      kmax,b0,db0,w(ob),w(odb))
           enddo
         enddo
 #endif
@@ -428,20 +428,20 @@ C ... end loop over ia
           nelt(3) = nkaph*nkaph*nlmh*nlmh
           do  i = 1, 3
             call MPI_BCAST(w(oqkkl(i,ia)),nelt(i)*numq*nsp*nspc,
-     .         MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
+     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
             if (mlog) then
               call gettime(datim)
               call awrit6(' rlocbl '//datim//' Process %i of %i on '
-     .          //shortname(procid)(1:namelen(procid))//
-     .          ' bcast w(oqkkl(%i,%i)) %i d.p. numbers'//
-     .          ' from process %i on '
-     .          //shortname(pid)(1:namelen(pid)),' ',
-     .          256,lgunit(3),procid,numprocs,i,ia,
-     .          nelt(i)*numq*nsp*nspc,pid)
+     .        //shortname(procid)(1:namelen(procid))//
+     .        ' bcast w(oqkkl(%i,%i)) %i d.p. numbers'//
+     .        ' from process %i on '
+     .        //shortname(pid)(1:namelen(pid)),' ',
+     .        256,lgunit(3),procid,numprocs,i,ia,
+     .        nelt(i)*numq*nsp*nspc,pid)
             endif
             if (lekkl .eq. 1) then
               call MPI_BCAST(w(oeqkkl(i,ia)),nelt(i)*numq*nsp*nspc,
-     .                MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
+     .        MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
               if (mlog) then
                 call gettime(datim)
                 call awrit6(' rlocbl '//datim//' Process %i of %i on '
@@ -459,13 +459,13 @@ C ... end loop over ia
       if (lfrce .ne. 0) then
         allocate(buffer(3*nbas*numq), stat=ierr)
         call MPI_ALLREDUCE(w(oixf(1)),buffer,3*nbas*numq,
-     .       MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         if (mlog) then
           call gettime(datim)
           call awrit2(' rlocbl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce forces',' ',256,lgunit(3),
-     .        procid,numprocs)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' allreduce forces',' ',256,lgunit(3),
+     .    procid,numprocs)
         endif
         call daxpy(3*nbas*numq,1d0,buffer,1,f,1)
         deallocate(buffer, stat=ierr)
@@ -530,7 +530,7 @@ C     call zprm('cPkL',2,cPkL,kmax+1,kmax+1,nlma)
 
 
       subroutine prlcb2(job,ia,nkaph,iprmb,nlmha,kmax,nlma,isp,cPkL,
-     .  nlmto,evec,ewgt,numq,evl,qhh,qhp)
+     .nlmto,evec,ewgt,numq,evl,qhh,qhp)
 
 C- Add one and two-center terms to density coeffs
 C ----------------------------------------------------------------------
@@ -565,14 +565,14 @@ C     implicit none
 C ... Passed parameters
       integer job,ia,kmax,nkaph,isp,nlmto,nlma,nlmha,numq,iprmb(1)
       double precision qhh(nkaph,nkaph,nlmha,nlmha,numq,isp),
-     .  qhp(nkaph,0:kmax,nlmha,nlma,numq,isp),ewgt(numq),evl
+     .qhp(nkaph,0:kmax,nlmha,nlma,numq,isp),ewgt(numq),evl
       double complex evec(nlmto),cPkL(0:kmax,nlma)
 C ... Local parameters
       integer i1,i2,ilm1,ilm2,ilma,io1,io2,iq,k,ik1,ik2,
-     .  l1,l2,n0,nkap0,nlm11,nlm12,nlm21,nlm22
+     .l1,l2,n0,nkap0,nlm11,nlm12,nlm21,nlm22
       parameter (n0=10,nkap0=3)
       integer norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-     .  blks(n0*nkap0),ntab(n0*nkap0)
+     .blks(n0*nkap0),ntab(n0*nkap0)
       double precision xx
 
       if (nlmto .eq. 0) return
@@ -624,14 +624,14 @@ C           i2 = orbital index in iprmb order
               if (job .eq. 0) then
                 do  iq = 1, numq
                   qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
-     .          qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
-     .          dconjg(evec(i1))*evec(i2)*ewgt(iq)
+     .            qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
+     .            dconjg(evec(i1))*evec(i2)*ewgt(iq)
                 enddo
               elseif (job .eq. 1 .and. ilm1 .eq. ilm2) then
                 do  iq = 1, numq
                   qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
-     .          qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
-     .          evl*dconjg(evec(i1))*evec(i2)*ewgt(iq)
+     .            qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
+     .            evl*dconjg(evec(i1))*evec(i2)*ewgt(iq)
                 enddo
               endif
             enddo
@@ -671,7 +671,7 @@ C ... Passed parameters
       integer job,kmax,nlma,isp,numq
       double complex cPkL(0:kmax,nlma)
       double precision qpp(0:kmax,0:kmax,nlma,nlma,numq,isp),ewgt(numq),
-     .  evl
+     .evl
 C ... Local parameters
       double precision fac
       integer iq,ilm2,ilm1,k1,k2
@@ -685,7 +685,7 @@ C ... Local parameters
             do  k1 = 0, kmax
               do  k2 = 0, kmax
                 qpp(k1,k2,ilm1,ilm2,iq,isp)= qpp(k1,k2,ilm1,ilm2,iq,isp)
-     .            + fac*dconjg(cPkL(k1,ilm1))*cPkL(k2,ilm2)
+     .          + fac*dconjg(cPkL(k1,ilm1))*cPkL(k2,ilm2)
               enddo
             enddo
           enddo

@@ -1,5 +1,5 @@
       subroutine iomomq(ifi,mode,nl,nsp,nspc,nkp,ldim,nfstg,iq,
-     .  nband,nchan,nchan2,nevmx,eb,accwt,doswt,dosw2,efermi,vmtz)
+     .nband,nchan,nchan2,nevmx,eb,accwt,doswt,dosw2,efermi,vmtz)
 C- Read data from moments file, depending on mode and nfstg
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -49,10 +49,10 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ifi,mode,nl,nsp,nspc,nkp,ldim,nfstg,iq,nband,nchan,nchan2,
-     .  nevmx
+     .nevmx
       double precision eb(nband*nsp,1),dosw2(2*nchan2*nband*nspc*3,1),
-     .  doswt(nchan,nband*nspc,nspc,1),efermi,vmtz,
-     .  accwt(nchan,nband*nspc,nspc,2+nspc,1)
+     .doswt(nchan,nband*nspc,nspc,1),efermi,vmtz,
+     .accwt(nchan,nband*nspc,nspc,2+nspc,1)
 C ... Local parameters
       double precision xx
       integer nlf,nspf,nspcf,nkpf,ldimf,nfstgf,jq,iomoms,nev,nschan
@@ -74,16 +74,16 @@ C --- Read header, checking req'd matches and copying the rest ---
       iq = 0
       rewind ifi
       if (iomoms(ifi,nl,nsp,nspc,nkp,ldim,nfstg,1,iq,1,nevmx,nevmx,
-     .  nchan,nchan2,nevmx,eb,accwt,doswt,dosw2,efermi,vmtz) .lt. 0)
-     .  goto 999
+     .nchan,nchan2,nevmx,eb,accwt,doswt,dosw2,efermi,vmtz) .lt. 0)
+     .goto 999
       if (mod(mode/10,10) .eq. 0) return
 
 C --- Determine number of qp available ---
       iq = 0
       do  12  jq = 1, nkp*(nsp/nspc)
         if (iomoms(ifi,nl,nsp,nspc,nkp,ldim,0,1,jq,1,nband*nspc,
-     .    nband*nspc,nchan,nchan2,nev,eb,accwt,doswt,dosw2,efermi,vmtz)
-     .    .lt.0) goto 14
+     .  nband*nspc,nchan,nchan2,nev,eb,accwt,doswt,dosw2,efermi,vmtz)
+     .  .lt.0) goto 14
         iq = jq-1
    12 continue
 C ... If read all qp, and another record also present, let iq=nkp
@@ -102,8 +102,8 @@ C --- Read info spec'd by nfstg for each qp until error ---
       nevmx = 0
       do  10  jq = 1, iq*(nsp/nspc)
         if (iomoms(ifi,nl,nsp,nspc,nkp,ldim,nfstg,nschan,jq,1,
-     .    nband*nspc,nband*nspc,nchan,nchan2,nev,eb,accwt,doswt,dosw2,
-     .    efermi,vmtz).lt. 0) goto 999
+     .  nband*nspc,nband*nspc,nchan,nchan2,nev,eb,accwt,doswt,dosw2,
+     .  efermi,vmtz).lt. 0) goto 999
         nevmx = max(nev,nevmx)
    10 continue
 

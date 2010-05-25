@@ -27,7 +27,7 @@ C     implicit none
 C ... Passed parameters
       integer nl,nsp,nc,lmx(nc),ics(nc)
       double precision pnu(nl,nsp,nc),qnu(3,nl,nsp,nc),
-     .                 qc(nc),qt(nc),dq(nc),z(nc),sspec(1)
+     .qc(nc),qt(nc),dq(nc),z(nc),sspec(1)
 C ... Local parameters
       integer ic,kcor,lcor,is
       double precision qcor(2)
@@ -41,12 +41,12 @@ C ... Local parameters
           call gtpcor(sspec,is,kcor,lcor,qcor)
         endif
         call getqvc(nsp,nl,lmx(ic),z(ic),pnu(1,1,ic),qnu(1,1,1,ic),0,0,
-     .    kcor,lcor,qcor,qc(ic),qt(ic),dq(ic),0d0,0d0)
+     .  kcor,lcor,qcor,qc(ic),qt(ic),dq(ic),0d0,0d0)
       enddo
 
       end
       subroutine getqvc(nsp,nl,lmx,z,pnu,qnu,ncmx,nvmx,
-     .                  kcor,lcor,qcor,qc,qt,dq,ec,ev)
+     .kcor,lcor,qcor,qc,qt,dq,ec,ev)
 C- Gets the charge and related parameters within an atom
 C ----------------------------------------------------------------
 Ci Inputs
@@ -76,7 +76,7 @@ C     implicit none
 C ... Passed parameters
       integer nl,nsp,lmx,ncmx,nvmx,kcor,lcor
       double precision pnu(nl,nsp),qnu(3,nl,nsp),qcor(2),
-     .                 qc,qt,dq,z,ec(1),ev(1)
+     .qc,qt,dq,z,ec(1),ev(1)
 C ... Local parameters
       integer l,k,konf,konfig,konfg(0:10),isp,lmaxc,ncore,nval
       integer iprint
@@ -129,7 +129,7 @@ C ... Local parameters
       enddo
 
       if (ncore .gt. ncmx .or. nval .gt. nvmx)
-     .  call rx('GETQVC: too many orbitals')
+     .call rx('GETQVC: too many orbitals')
 
       qt = qc + qt - z
       end

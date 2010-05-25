@@ -37,7 +37,7 @@ C --- Cholesky decomposition of a into L(L+) (lower triangle only) ---
         do  20  k = 1, j-1
 #if BLAS
           call yyaxpy(n-j+1,-ar(j,k),ai(j,k),ar(j,k),ai(j,k),1,
-     .      ar(j,j),ai(j,j),1,sw)
+     .    ar(j,j),ai(j,j),1,sw)
 #else
           xr = ar(j,k)
           xi = ai(j,k)
@@ -78,9 +78,9 @@ C$DOACROSS local(xr,xi,i,k)
 
 C --- Swap to lower triangle ---
       do  25  j = 1, n
-      do  25  i = j+1, n
-        ar(i,j) =  ar(j,i)
-        ai(i,j) = -ai(j,i)
+        do  25  i = j+1, n
+          ar(i,j) =  ar(j,i)
+          ai(i,j) = -ai(j,i)
    25 continue
 #endif
 
@@ -102,7 +102,7 @@ C$DOACROSS local(xr,xi,k,i)
         do  50  k = 1, j-1
 #if BLAS
           call yyaxpy(n-j+1,-ar(j-1,k),-ai(j-1,k),wk,wk(1,2),1,
-     .      ar(j,k),ai(j,k),1,sw)
+     .    ar(j,k),ai(j,k),1,sw)
 #else
           xr = ar(j-1,k)
           xi = ai(j-1,k)

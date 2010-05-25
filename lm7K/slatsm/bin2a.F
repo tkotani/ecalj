@@ -81,7 +81,7 @@ C Passed Parameters
 C Local Variables
       logical lD,lS,lF,lnull,llnull,parstr
       integer i,j,k,iprint,lsmx,n1,n2,np,precsn,fw,
-     .  ix(4),iv(4),a2vec,p,isw,isw0,getdig,m,ndig,ndige
+     .ix(4),iv(4),a2vec,p,isw,isw0,getdig,m,ndig,ndige
       parameter (lsmx=80)
       character*20 lfmt*20, fm*20, strn*(lsmx), strn2*(lsmx), ss*(lsmx)
       real rval
@@ -122,10 +122,10 @@ C     If a field width specified, overwrite spillover with '*'
       call skpblb(strn,lsmx,n1)
       n1 = n1+1
       if (lnull .and. fmt .ne. ' ') then
-      i = 0
-      if (parstr(fmt,':n',len(fmt)-1,2,'n',i,j)) then
-        llnull = .true.
-      endif
+        i = 0
+        if (parstr(fmt,':n',len(fmt)-1,2,'n',i,j)) then
+          llnull = .true.
+        endif
       endif
       goto 50
 
@@ -262,7 +262,7 @@ C       ... Generate string for F format here.
           elseif (.not. lD .or. (lD .and. fw .eq. -1)) then
             fw = max(p+3,5) + precsn
             if (getdig(isw,0,10) .eq. 1)
-     .        fw = max(p+3,3) + max(precsn-p-1,0)
+     .      fw = max(p+3,3) + max(precsn-p-1,0)
             fw = max(fw,10)
             if (fw .gt. min(lsmx-2,99)) then
               strn = ' '
@@ -295,7 +295,7 @@ C         decimals can't exceed field width - 1
             if (nblk .le. 0) then
             elseif (ss(1:nblk) .ne. ' ') then
               ss(1:k) =
-     .          '*****************************************************'
+     .        '*****************************************************'
               ss(1:nblk) = ' '
             endif
             strn = ss
@@ -354,7 +354,7 @@ C     ... Sometimes the '.' is suppressed; make fw right
 *        if (i .eq. 3)
 *     .    print *, n1,n2,'compare |', strn(1:n1), '|', strn2(1:n2), '|'
         if (i .eq. 2 .or. i .eq. 3 .and.
-     .    (n2 .lt. n1 .or. strn(nblk+1:nblk+1) .eq. '*')) then
+     .  (n2 .lt. n1 .or. strn(nblk+1:nblk+1) .eq. '*')) then
           strn = strn2
           n1 = n2
         endif

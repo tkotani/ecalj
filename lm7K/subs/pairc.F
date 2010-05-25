@@ -76,7 +76,7 @@ c          write(6,"(3i4,' nmax=',3i4,' nout=',i3)")nd(1:3),nmax(1:3),nout
                 endif
                 do ix=1,nout
                   nlat(:,nnn+ix,ib1,ib2)=
-     &        nd + (/nk1*nlatout(1,ix),nk2*nlatout(2,ix),nk3*nlatout(3,ix)/)
+     &            nd + (/nk1*nlatout(1,ix),nk2*nlatout(2,ix),nk3*nlatout(3,ix)/)
                   qwgt(nnn+ix,ib1,ib2)= 1d0/nout
                 enddo
                 nnn = nnn+nout
@@ -132,11 +132,11 @@ c
             do
               rangex= rangex+.2d0 !We will improve this to give some better guess.
               call getgv2( 2d0*pi,qlat,plat,pos(:,ib1)-pos(:,ib2), rangex,job,
-     o                npair(ib1,ib2), nlat(:,:,ib1,ib2) )
+     o        npair(ib1,ib2), nlat(:,:,ib1,ib2) )
               if(npair(ib1,ib2)>=nk) then
                 rangex= rangex+.1d0 !We will improve this to give some better guess.
                 call getgv2( 2d0*pi,qlat,plat,pos(:,ib1)-pos(:,ib2), rangex,job,
-     o                    npair(ib1,ib2), nlat(:,:,ib1,ib2) )
+     o          npair(ib1,ib2), nlat(:,:,ib1,ib2) )
                 range(ib1,ib2)=rangex ! rangex + 0.01d0 is to make degeneracy safe.
                 print *,' ib1 ib2 rangex nk npair',ib1,ib2,rangex,nk,npair(ib1,ib2)
                 exit
@@ -152,7 +152,7 @@ c
         do ib1=1,nbas
           do ib2=1,nbas
             call getgv2( 2d0*pi,qlat,plat,pos(:,ib1)-pos(:,ib2), range(ib1,ib2),job,
-     o                npair(ib1,ib2), nlat(:,:,ib1,ib2) )
+     o      npair(ib1,ib2), nlat(:,:,ib1,ib2) )
             nnn = npair(ib1,ib2)
             do ni=1,nnn
               rr(ni,ib1,ib2)= sqrt(sum((pos(:,ib1)-pos(:,ib2)+ matmul(plat, nlat(:,ni,ib1,ib2)))**2))
@@ -197,7 +197,7 @@ c          enddo
       end
 c--- takao's getgv2. This is in fpgw/gwsrc/.
       subroutine getgv2(alat,plat,qlat,q, QpGcut,job,
-     o                 ng, ngvec)
+     ong, ngvec)
 C-  Set up a list of recip vectors within cutoff |Q+G| < QpGcut a.u.
 c takao
 c job==1 -> return ng (number of G ) only
@@ -208,10 +208,10 @@ c
       implicit none
       integer(4) :: ng
       real(8):: s_lat(1),q(3),plat(3,3),qlat(3,3),qpg(3),enor(3)
-     & ,pi,alat,tpiba,QpGmax,QpGmax2,QpGcut,Qenor
+     &,pi,alat,tpiba,QpGmax,QpGmax2,QpGcut,Qenor
       integer(4) ::  
-     &    n1max,n1min,n2max,n2min,n3max,n3min,
-     &    i1,i2,i3,ig,job
+     &n1max,n1min,n2max,n2min,n3max,n3min,
+     &i1,i2,i3,ig,job
       integer(4),optional ::  ngvec(3,ng)
       pi=4d0*datan(1d0)
 c      call u_lat_vecs(s_lat,alat,plat,qlat)
@@ -244,7 +244,7 @@ c      do i1 = n1min-3, n1max+3
 c      do i2 = n2min-3, n2max+3
 c      do i3 = n3min-3, n3max+3
             qpg(1:3)= q(1:3) + 
-     &    qlat(1:3,1)*i1 +qlat(1:3,2)*i2 +qlat(1:3,3)*i3
+     &      qlat(1:3,1)*i1 +qlat(1:3,2)*i2 +qlat(1:3,3)*i3
             if( sum(qpg(1:3)**2) < QpGmax2) then
               ig = ig+1
               if(job==2) ngvec(1:3,ig) = (/i1,i2,i3/)
@@ -298,7 +298,7 @@ c sorting of ea
 
 
       subroutine pairs(nbas,nbasp,alat,plat,rmax,baspp,ipsp,nd,iltab,
-     .  pltab,nttab,ontab,oiax,mxcsiz)
+     .pltab,nttab,ontab,oiax,mxcsiz)
 C- Allocate memory for and create neighbor table for a crystal
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -362,8 +362,8 @@ C ... This makes the neighbor table
       nttab = mxnbr
       isw = 0
       call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat , 
-     . plat , baspp , baspp , rmax , iltab , pltab , nttab , w ( ontab 
-     . ) , w ( oiax ) , wk_rv , mxcsiz )
+     .plat , baspp , baspp , rmax , iltab , pltab , nttab , w ( ontab 
+     .) , w ( oiax ) , wk_rv , mxcsiz )
 
 
 C ... Allocate iax to proper size
@@ -373,7 +373,7 @@ C ... Allocate iax to proper size
       end
 
       subroutine pairc(ib1,ib2,nbasp,mode,isw,ips,alat,plat,pos,ctr,
-     .  range,iltab,pltabp,nttab,ntab,iax,rtab,mxcsiz)
+     .range,iltab,pltabp,nttab,ntab,iax,rtab,mxcsiz)
 C- Make a neighbor table (crystal version)
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -443,14 +443,14 @@ Cu   23 Apr 02 added option to make only iax(1..5) (isw=20)
 C ----------------------------------------------------------------
 C     implicit none
       integer ib1,ib2,nbasp,mode(3),isw,nttab,niax,ips(nbasp),
-     .  ntab(ib1:ib2+1),iltab,pltabp(nbasp),mxcsiz
+     .ntab(ib1:ib2+1),iltab,pltabp(nbasp),mxcsiz
       parameter (niax=10)
       integer iax(niax,1)
       double precision alat,plat(3,3),pos(3,nbasp),ctr(3,ib2),
-     .  range(1),rtab(3,1)
+     .range(1),rtab(3,1)
 C Local variables
       integer:: ib , is , jb , mtab , i , moder , mode2(3) , nlat , 
-     . mxntab , nsite
+     .mxntab , nsite
       real(8) ,allocatable :: wk1_rv(:)
       real(8) ,allocatable :: wk2_rv(:)
       real(8) ,allocatable :: wk3_rv(:)
@@ -491,7 +491,7 @@ C ... List of lattice vectors to add to pos(ib)-pos(jb)
 Ctakao_ZeroClear_NotRequiered        if (3*i<0) lat_rv(:)=0.0d0
 
       call xlgen ( plat , r1 / alat , 0d0 , i , 0 , mode , nlat , lat_rv 
-     . )
+     .)
 
 C ... qlat = (plat^-1)^T so that qlat^T . plat = 1
 *     call prmx('plat',plat,3,3,3)
@@ -541,14 +541,14 @@ C ... Shorten pos-ctr(ib)
         call shorps(nbasp,plat,mode2,pos,pos)
 C ... Undo shift -ctr(ib) to restore shortened pos to absolute pos
         do  16  jb = 1, nbasp
-        do  16  i = 1, 3
-          pos(i,jb) = pos(i,jb) + p0(i)
+          do  16  i = 1, 3
+            pos(i,jb) = pos(i,jb) + p0(i)
    16   continue
 
 C --- Find all sites in range of ctr ---
         call ppair2 ( nbasp , iltab , pltabp , moder , alat , qlat , 
-     . pos , p0 , range , ips , rtab , ib , r1 , nlat , lat_rv , 
-     . pos_rv , mxntab , nttab , iax )
+     .  pos , p0 , range , ips , rtab , ib , r1 , nlat , lat_rv , 
+     .  pos_rv , mxntab , nttab , iax )
 
 
 C --- Sort table by increasing length ---
@@ -562,7 +562,7 @@ Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)<0) wk2_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered        if ((nttab-mtab)*3<0) wk3_rv(:)=0.0d0
 
         call ppair3 ( nttab - mtab , iax ( 1 , mtab ) , rtab ( 1 , mtab 
-     . ) , wk1_rv , wk2_rv , wk3_rv )
+     .  ) , wk1_rv , wk2_rv , wk3_rv )
 
         if (allocated(wk3_rv)) deallocate(wk3_rv)
         if (allocated(wk2_rv)) deallocate(wk2_rv)
@@ -588,13 +588,13 @@ C --- Restore original pos,ctr ---
 
 C --- Fill out iax table ---
       call ppair1(isw,ib1,ib2,nbasp,ips,alat,plat,pos,range,
-     .  nttab,ntab,iax,mxcsiz)
+     .nttab,ntab,iax,mxcsiz)
 
       if (allocated(lat_rv)) deallocate(lat_rv)
 
       end
       subroutine ppair1(isw,ib1,ib2,nbasp,ips,alat,plat,pos,range,
-     .  nttab,ntab,iax,mxcsiz)
+     .nttab,ntab,iax,mxcsiz)
 C- Fill out parts of the aix table
 C ----------------------------------------------------------------
 Ci  Inputs
@@ -636,7 +636,7 @@ C     implicit none
       double precision alat,plat(3,3),pos(3,19),range(1)
 C Local variables
       integer:: ib , is , jb , js , ipr , i , j , moder , it , jt , 
-     . iprint , lgunit , stdo , nsite , isw1
+     .iprint , lgunit , stdo , nsite , isw1
       real(8) ,allocatable :: pos_rv(:)
       integer ,allocatable :: iwk_iv(:)
 
@@ -663,26 +663,26 @@ C --- For each pair, find matching pair, store in iax(6) ---
    74 continue
       if (mod(isw1,2) .eq. 0) then
         do  70  ib = ib1, ib2
-        do  70  it = ntab(ib)+1, ntab(ib+1)
-          if (iax(6,it) .ne. 0) goto 70
-          jb = iax(2,it)
+          do  70  it = ntab(ib)+1, ntab(ib+1)
+            if (iax(6,it) .ne. 0) goto 70
+            jb = iax(2,it)
 C   ... No matching pair for padded sites
-          if (jb .lt. ib1 .or. jb .gt. ib2) goto 70
-          do  72  jt = ntab(jb)+1, ntab(jb+1)
+            if (jb .lt. ib1 .or. jb .gt. ib2) goto 70
+            do  72  jt = ntab(jb)+1, ntab(jb+1)
 C         if (iax(2,jt) .eq. ib) then
 C         endif
-            if (iax(2,jt) .eq. ib .and.
-     .      iax(3,it) .eq. -iax(3,jt) .and.
-     .      iax(4,it) .eq. -iax(4,jt) .and.
-     .      iax(5,it) .eq. -iax(5,jt))  then
-              iax(6,it) = jt
-              iax(6,jt) = it
-              goto 73
-            endif
-   72     continue
-          call fexit3(-1,1,' Exit -1 pairc: cannot find pair'//
-     .    ' matching sites (%i,%i), pair %i',ib,jb,it-ntab(ib))
-   73     continue
+              if (iax(2,jt) .eq. ib .and.
+     .        iax(3,it) .eq. -iax(3,jt) .and.
+     .        iax(4,it) .eq. -iax(4,jt) .and.
+     .        iax(5,it) .eq. -iax(5,jt))  then
+                iax(6,it) = jt
+                iax(6,jt) = it
+                goto 73
+              endif
+   72       continue
+            call fexit3(-1,1,' Exit -1 pairc: cannot find pair'//
+     .      ' matching sites (%i,%i), pair %i',ib,jb,it-ntab(ib))
+   73       continue
    70   continue
       endif
       if (isw1 .eq. 4) return
@@ -695,7 +695,7 @@ Ctakao_ZeroClear_NotRequiered        if (nttab<0) iwk_iv(:)=0
 Ctakao_ZeroClear_NotRequiered        if (3*nttab<0) pos_rv(:)=0.0d0
 
       call siteid ( iax , nsite , ntab , plat , pos , pos_rv , iwk_iv 
-     . , i )
+     ., i )
 
       if (allocated(pos_rv)) deallocate(pos_rv)
       if (allocated(iwk_iv)) deallocate(iwk_iv)
@@ -706,13 +706,13 @@ C --- Printout ---
       if (ipr .le. 40) write(stdo,'(1x)')
       if (ipr .gt. 40) write(stdo,332)
   332 format(/'  ib  jb',9x,'--- r(jb)-r(ib) ---',10x,
-     .  'd       -x-plat-  map ord  id')
+     .'d       -x-plat-  map ord  id')
       i = 0
       do  90  it = 1, nttab
         ib = iax(1,it)
         jb = iax(2,it)
         rr = dsqrt(drr2(plat,pos(1,ib),pos(1,jb),
-     .    iax(3,it),iax(4,it),iax(5,it),vlat))
+     .  iax(3,it),iax(4,it),iax(5,it),vlat))
         r1 = range(1)
         r2 = range(1)
         if (ips(1) .ge. 0) then
@@ -731,28 +731,28 @@ C --- Printout ---
         if (moder .eq. 1) rcut = r1
         if (ib .ne. i) then
           if (alat .ne. 1)
-     .      write(stdo,345) ib,ntab(ib+1)-ntab(ib),rcut/alat,rcut
+     .    write(stdo,345) ib,ntab(ib+1)-ntab(ib),rcut/alat,rcut
           if (alat .eq. 1) write(stdo,345) ib,ntab(ib+1)-ntab(ib),rcut
   345     format(' pairc, ib=',i3,':',i4,' neighbors in range',2f7.3)
         endif
         i = ib
         if (ipr .gt. 40) write(stdo,334) iax(1,it),iax(2,it),
-     .    (vlat(j),j=1,3), rr, (iax(j,it), j=3,7),iax(10,it)
+     .  (vlat(j),j=1,3), rr, (iax(j,it), j=3,7),iax(10,it)
   334   format(i4,i4,3f11.6,f9.4,3x,3i3,i5,2i4)
    90 continue
    91 if (ipr .ge. 20) write(stdo,
-     .  '('' pairc:'',i7,'' pairs total'',i5,'' is max cluster size'')')
-     .  nttab, mxcsiz
+     .'('' pairc:'',i7,'' pairs total'',i5,'' is max cluster size'')')
+     .nttab, mxcsiz
 
 C     call tcx('ppair1')
 
       end
       subroutine ppair2(nbas,iltab,pltabp,moder,alat,qlat,pos,ctr,range,
-     .  ips,rtab,ib,r1,nlat,lat,trupos,mxntab,nttab,iax)
+     .ips,rtab,ib,r1,nlat,lat,trupos,mxntab,nttab,iax)
 C- Kernel of pairc to find all sites in range of ctr
 C     implicit none
       integer nbas,ib,iltab,ips(nbas),pltabp(nbas),niax,nlat,moder,
-     .  mxntab,nttab
+     .mxntab,nttab
       parameter (niax=10)
       integer iax(niax,1)
       double precision alat,ctr(3),pos(3,nbas),range(nbas),rtab(3,1)
@@ -784,7 +784,7 @@ C   --- For each (ib,jb,ilat), do ---
         do  30  ilat = 1, nlat
 
           if (nttab .gt. mxntab) call rxi(
-     .      'pairc: table exceeds input maximum size,',mxntab)
+     .    'pairc: table exceeds input maximum size,',mxntab)
 
 C ...   Add to list if connecting vector within range
           rtab(1,nttab) = dpos(1) + lat(1,ilat)
@@ -878,7 +878,7 @@ C Local variables
 C     integer jx
 C     double precision wk2(3,nclus*3)
       dx(ia2,i,j,k) = pos(ix,ia2) +
-     .                plat(ix,1)*i + plat(ix,2)*j + plat(ix,3)*k
+     .plat(ix,1)*i + plat(ix,2)*j + plat(ix,3)*k
 
       ic0 = 0
       do  12  ic = iclus, nclus
@@ -952,7 +952,7 @@ Ctakao_ZeroClear_NotRequiered          if (nttab<0) wk1_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered          if (nttab*3<0) wk2_rv(:)=0.0d0
 
         call ppair4 ( ntab ( ib ) + 1 , ntab ( ib + 1 ) , plat , pos 
-     .   , pos ( 1 , ib ) , wk1_rv , wk2_rv , tol , iax )
+     .  , pos ( 1 , ib ) , wk1_rv , wk2_rv , tol , iax )
 
         if (allocated(wk2_rv)) deallocate(wk2_rv)
         if (allocated(wk1_rv)) deallocate(wk1_rv)

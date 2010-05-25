@@ -1,5 +1,5 @@
       subroutine relax(prgnam,sctrl,ssite,sspec,it,indrlx,natrlx,nvar,f,
-     .                 p,w,nelts,delta,bas,icom)
+     .p,w,nelts,delta,bas,icom)
 
       use m_struc_def  !Cgetarg
 
@@ -52,18 +52,18 @@ C Passed Parameters
       integer it,nit,natrlx,nvar,nelts,icom,procid,master,mpipid
       integer indrlx(2,natrlx)
       real(8):: f(3,*) , w(nvar,nvar) , p(nvar,6) , delta(nelts,*) 
-     . , bas(3,*)
+     ., bas(3,*)
       type(s_ctrl)::sctrl
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
 C Local Variables
       integer i,j,ipr,ifi,fopna,ix,lgunit,nbas,ltb,ifrlx(3),
-     .  ir,iprint,isw,rdm,lrlx,is,idamax,stdo,stdl,nd,ns,nkill
+     .ir,iprint,isw,rdm,lrlx,is,idamax,stdo,stdl,nd,ns,nkill
       parameter (nd=4,ns=6)
       logical rdhess,bittst,lpp,cmdopt,a2bin,lshr !U,
       double precision mdprm(6),step,xtol,gtol,xtoll,grfac,wkg(28),ddot,
-     .  xv(10)
+     .xv(10)
       equivalence (step,mdprm(5)), (xtol,mdprm(3)), (gtol,mdprm(4))
       character clablj*8,dumstr*6,strn*128
       save ir,wkg
@@ -157,7 +157,7 @@ C ... the user sets xtol _and_ gtol.
       if (lrlx .eq. 6) isw = 00221 + 00
       if (lrlx.eq.4 .or. lrlx.eq.5 .or. lrlx.eq.6) then
         if (xtol .eq. 0 .and. gtol .eq. 0)
-     .    call rx('RELAX: both xtol and gtol are zero')
+     .  call rx('RELAX: both xtol and gtol are zero')
         if (gtol .eq. 0) isw = isw-10
         if (xtol .eq. 0) isw = isw-20
       endif
@@ -261,14 +261,14 @@ C --- Periodically remove hessian ---
 C --- Printout ---
       ifi = lgunit(2)
       lpp = (icom .eq. 1 .or. it .eq. nit) .and. ipr .ge. 30 .or.
-     .      ipr .ge. 31
+     .ipr .ge. 31
       if (natrlx .gt. 0 .and. lpp .and. lshr) then
         call dpzero(xv,6)
         call grdep2(1,nvar,indrlx,bas,xv)
         call info2(-20,0,0,
-     .        ' Update shear'//
-     .        '%N   PDEF=%6;8,4D'//
-     .        '%N STRAIN=%6;8,4D',bas,xv)
+     .  ' Update shear'//
+     .  '%N   PDEF=%6;8,4D'//
+     .  '%N STRAIN=%6;8,4D',bas,xv)
 
       elseif (natrlx .gt. 0 .and. lpp) then
         print 120
@@ -327,8 +327,8 @@ c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
           call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
 
           call awrit2(dumstr//'ATOM='//clablj//
-     .      ' POS=%3;12,7D  RELAX=%3,2i',' ',80,lgunit(2),
-     .      bas(1,j),ifrlx)
+     .    ' POS=%3;12,7D  RELAX=%3,2i',' ',80,lgunit(2),
+     .    bas(1,j),ifrlx)
 c          if (prgnam(1:2) .eq. 'TB') then
 c            if (U) write(ifi,160) (delta(i,j),i=1,nelts)
 c          endif

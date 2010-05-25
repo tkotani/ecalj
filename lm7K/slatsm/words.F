@@ -20,8 +20,8 @@ C ... Local parameters
       i0 = 1
    99 do  10  i = i0, len(str)
         if(str(i:i) .ne. ' ') then
-           i1 = i
-           goto 90
+          i1 = i
+          goto 90
         endif
    10 continue
       return
@@ -31,7 +31,7 @@ C ... Local parameters
           i2 = i
           goto 91
         endif
-   20   continue
+   20 continue
       return
    91 i0 = i2
       goto 99

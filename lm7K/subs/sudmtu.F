@@ -1,5 +1,5 @@
       subroutine sudmtu(nbas,nsp,nlibu,lmaxu,ssite,sspec,idvsh,lldau,
-     .  ng,g,istab,dmatu,vorb)
+     .ng,g,istab,dmatu,vorb)
 
       use m_struc_def  !Cgetarg
 
@@ -111,13 +111,13 @@ C --- Read in dmatu if file  dmats.ext  exists ---
                   nlmu = 2*lmaxu+1
                   do  isp = 1, 2
                     if (rdm(idmat,40,2*nlm**2,' ',tmp,nlm,nlm) .ne. 2)
-     .          call rxi('sudmtu failed to read dmats for site',ib)
+     .              call rxi('sudmtu failed to read dmats for site',ib)
 C              print *, 'dmat for ib=',ib,' spin',isp
 C              call zprm('sudmtu, dmatu',2,tmp,nlm,nlm,nlm)
 C              call dmscop(dmatu(-l,-l,isp,iblu),
 C     .          nlmu,tmp,nlm,1,nlm,1,nlm,1,1,1d0)
                     call zmscop(0,nlm,nlm,nlm,nlmu,0,0,0,0,tmp,
-     .          dmatu(-l,-l,isp,iblu))
+     .              dmatu(-l,-l,isp,iblu))
                   enddo
                 endif
               enddo
@@ -127,7 +127,7 @@ C     .          nlmu,tmp,nlm,1,nlm,1,nlm,1,1,1d0)
 C --- Otherwise read in occnumbers and construct diagonal dmatu ---
         else
           call info0(20,1,0,
-     .  ' sudmtu:  initial (diagonal) density-matrix from occ numbers')
+     .    ' sudmtu:  initial (diagonal) density-matrix from occ numbers')
           foccn = fopna('occnum',-1,1)
           rewind foccn
           havesh = 1
@@ -162,8 +162,8 @@ C             Skip comment lines
                     if (m .lt. 0) goto 99
                   enddo
                   call info8(20,0,0,' occ numbers, site %i l=%i:  '//
-     .        '%n:1d (spin 1)  %n:1d (spin 2)',
-     .        ib,l,2*l+1,nocc(-l,1),2*l+1,nocc(-l,2),0,0)
+     .            '%n:1d (spin 1)  %n:1d (spin 2)',
+     .            ib,l,2*l+1,nocc(-l,1),2*l+1,nocc(-l,2),0,0)
                   do  isp = 1, 2
                     do  m = -l, l
                       do  m2 = -l, l
@@ -181,7 +181,7 @@ C             Skip comment lines
       endif
 C ... Initial printout
       call praldm(0,51,51,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
-     .  ' dmats read from disk',dmatu)
+     .' dmats read from disk',dmatu)
 
       ivsiz = nsp*nlibu*(lmaxu*2+1)**2
       call mpibc1(dmatu,2*ivsiz,4,mlog,'sudmtu','dmatu')
@@ -202,12 +202,12 @@ C ... Symmetrize dmatu (symdmu requires real harmonics)
         havesh = 0
       endif
       call symdmu ( dmatu , dmwk_zv , nbas , nsp , lmaxu , sspec 
-     . , ssite , ng , g , istab , lldau , xx )
+     ., ssite , ng , g , istab , lldau , xx )
 
       if (havesh .ne. idvsh) then
         call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
         call rotycs ( 2 * idvsh - 1 , dmwk_zv , nbas , nsp , lmaxu 
-     .   , sspec , ssite , lldau )
+     .  , sspec , ssite , lldau )
 
         havesh = idvsh
       endif
@@ -220,7 +220,7 @@ C ... Symmetrize dmatu (symdmu requires real harmonics)
 
         call info0(60,0,0,' change in dmat wrought by symmetrization')
         call praldm ( 0 , 60 , 60 , 0 , nbas , nsp , lmaxu , lldau , 
-     . sspec , ssite , ' ' , dmwk_zv )
+     .  sspec , ssite , ' ' , dmwk_zv )
 
         if (allocated(dmwk_zv)) deallocate(dmwk_zv)
 
@@ -234,23 +234,23 @@ C     Print dmats in specified harmonics
 
       if (havesh .ne. idvsh) then
         call rotycs ( 2 * idvsh - 1 , dmwk_zv , nbas , nsp , lmaxu 
-     .   , sspec , ssite , lldau )
+     .  , sspec , ssite , lldau )
 
       endif
       call info0(30,0,0,' ')
       call praldm ( 0 , 30 , 30 , idvsh , nbas , nsp , lmaxu , lldau 
-     . , sspec , ssite , ' Symmetrized dmats' , dmwk_zv )
+     ., sspec , ssite , ' Symmetrized dmats' , dmwk_zv )
 
 
 C     Print dmats in complementary harmonics
       if (ipr.ge.45 .or. ipr.ge.40 .and. idvsh.eq.0) then
         i = 1-idvsh
         call rotycs ( 2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu , sspec 
-     .   , ssite , lldau )
+     .  , ssite , lldau )
 
         call info0(30,0,0,' ')
         call praldm ( 0 , 30 , 30 , i , nbas , nsp , lmaxu , lldau , 
-     .   sspec , ssite , ' Symmetrized dmats' , dmwk_zv )
+     .  sspec , ssite , ' Symmetrized dmats' , dmwk_zv )
 
       endif
       if (allocated(dmwk_zv)) deallocate(dmwk_zv)
@@ -281,13 +281,13 @@ C ... Make Vorb (ldau requires spherical harmonics)
 
         i = min(lmxa,3)
         call info8(30,1,0,' Species '//spid//
-     .    '%a: mode=%n:1i    U=%n:1d    J=%n:1d',
-     .    i+1,idu,i+1,uh,i+1,jh,0,0)
+     .  '%a: mode=%n:1i    U=%n:1d    J=%n:1d',
+     .  i+1,idu,i+1,uh,i+1,jh,0,0)
         do  22  l = 0, i
           if (idu(l+1) .ne. 0) then
             iblu = iblu+1
             call ldau(idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp,
-     .                lmaxu,vorb,eorb)
+     .      lmaxu,vorb,eorb)
 C            call prdmts(0,30,30,0,' sudmtu:  Vorb in spherical harm',ib,
 C     .        l,lmaxu,iblu,vorb,nsp,1)
 
@@ -295,7 +295,7 @@ C     .        l,lmaxu,iblu,vorb,nsp,1)
    22   continue
    20 continue
       call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
-     .  ' Unsymmetrized vorb',vorb)
+     .' Unsymmetrized vorb',vorb)
 C     At this point, dmatu and vorb are in spherical harmonics
 
 C ... Symmetrize vorb to check (symdmu requires real harmonics)
@@ -304,7 +304,7 @@ C ... Symmetrize vorb to check (symdmu requires real harmonics)
 
       call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
       call symdmu ( vorb , dmwk_zv , nbas , nsp , lmaxu , sspec 
-     . , ssite , ng , g , istab , lldau , xx )
+     ., ssite , ng , g , istab , lldau , xx )
 
       if (allocated(dmwk_zv)) deallocate(dmwk_zv)
 
@@ -327,7 +327,7 @@ C     EITHER: vorb =>  spherical harmonics OR dmatu => real harmonics
 
 C     Print vorb in specified harmonics
       call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
-     .  ' Symmetrized vorb',vorb)
+     .' Symmetrized vorb',vorb)
 
 C     Print vorb in complementary harmonics
       if (ipr.ge.45 .or. ipr.ge.40 .and. idvsh.eq.0) then
@@ -342,11 +342,11 @@ C     .    ' dmats',w(odmwk))
         call dcopy ( ivsiz * 2 , vorb , 1 , dmwk_zv , 1 )
 
         call rotycs ( 2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu , sspec 
-     .   , ssite , lldau )
+     .  , ssite , lldau )
 
         call info0(30,0,0,' ')
         call praldm ( 0 , 30 , 30 , i , nbas , nsp , lmaxu , lldau , 
-     .   sspec , ssite , ' Vorb' , dmwk_zv )
+     .  sspec , ssite , ' Vorb' , dmwk_zv )
 
         if (allocated(dmwk_zv)) deallocate(dmwk_zv)
 

@@ -1,6 +1,6 @@
 #define SGI 1
       subroutine hsibl(ssite,sspec,slat,k1,k2,k3,vsm,isp,q,ndimh,iprmb,
-     .  napw,igapw,h)
+     .napw,igapw,h)
       use m_struc_def  !Cgetarg
 #if MPE
       use m_events !Event numbers: include "events.ins"
@@ -93,10 +93,10 @@ C ... Local parameters
       parameter (n0=10,nkap0=3,nkape=2,nermx=100)
       parameter (npmx=128,nhblk=60)
       integer oic1(npmx),oic2(npmx),oicos1(npmx),oicos2(npmx),
-     .        oicf1(npmx),oicf2(npmx),
-     .        oisin1(npmx),oisin2(npmx),oiwk(npmx),oif(npmx)
+     .oicf1(npmx),oicf2(npmx),
+     .oisin1(npmx),oisin2(npmx),oiwk(npmx),oif(npmx)
       integer:: ltop , nbas , n1 , n2 , n3 , net , ng , nglob , nlmtop 
-     . , nrt , ndimx , nnrl , ncuti(nhblk) , iprint
+     ., nrt , ndimx , nnrl , ncuti(nhblk) , iprint
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: g2_rv(:)
       real(8) ,allocatable :: gv_rv(:)
@@ -110,18 +110,18 @@ C ... Local parameters
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 C     Shared variables
       integer:: i , ib1 , ib2 , ie , ofh1 , ofh2 , ip , ir , is1 , 
-     . is2 , j , mp , nlm1 , nlm2 , ik1 , ik2 , l1 , iorb1 , l2 , l2t 
-     . , iorb2 , jorb2 , osin1 , osin2 , oc1 , ocf1 , oc2 , ocf2 , ocos1 
-     . , ocos2 , of , owk , ndim1 , ndim2 , nkap1 , nkap2
+     .is2 , j , mp , nlm1 , nlm2 , ik1 , ik2 , l1 , iorb1 , l2 , l2t 
+     ., iorb2 , jorb2 , osin1 , osin2 , oc1 , ocf1 , oc2 , ocf2 , ocos1 
+     ., ocos2 , of , owk , ndim1 , ndim2 , nkap1 , nkap2
       integer ,allocatable :: iv_iv(:)
       complex(8) ,allocatable :: wk2_zv(:)
 
       integer iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx),
-     .        ncut(n0,nkap0),lh(nkap0)
+     .ncut(n0,nkap0),lh(nkap0)
       integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
-     .  blks1(n0*nkap0),ntab1(n0*nkap0)
+     .blks1(n0*nkap0),ntab1(n0*nkap0)
       integer norb2,ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),
-     .  blks2(n0*nkap0),ntab2(n0*nkap0)
+     .blks2(n0*nkap0),ntab2(n0*nkap0)
       double precision eh1(n0,nkap0),rsmh1(n0,nkap0)
       double precision eh2(n0,nkap0),rsmh2(n0,nkap0)
       double precision xx(n0),p1(3),p2(3)
@@ -195,7 +195,7 @@ Ctakao_ZeroClear_NotRequiered        if (ng*3<0) iv_iv(:)=0
 C      call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1009,ng,ng,w(okv),
 C     .  w(ogv),w(oiv),w(oiv))
         call gvlist ( alat , plat , q , n1 , n2 , n3 , gmax , 509 , ng 
-     . , ng , kv_iv , gv_rv , iv_iv , iv_iv )
+     .  , ng , kv_iv , gv_rv , iv_iv , iv_iv )
 
         call poppr
         call tcx('gvlist')
@@ -225,8 +225,8 @@ Ctakao_ZeroClear_NotRequiered        if (ng*nrt<0) hr_rv(:)=0.0d0
 C     gv has q already added ...
         call dpzero(q0,3)
         call hsibl1 ( net , etab , nrt , rtab , ltop , alat , q0 , ng 
-     . , gv_rv , g_rv , g2_rv , yl_rv , he_rv , hr_rv 
-     . )
+     .  , gv_rv , g_rv , g2_rv , yl_rv , he_rv , hr_rv 
+     .  )
 
 
 C ... Allocate local arrays; setup for fast phase factors
@@ -288,9 +288,9 @@ c      do  ib1 = 1, nbas
           if (mlog) then
             call gettime(datim)
             call awrit4(' hsibl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' starting atom %i of %i',' ',256,lgunit(3),
-     .        procid,numprocs,ib1,index(procid,0))
+     .      //shortname(procid)(1:namelen(procid))//
+     .      ' starting atom %i of %i',' ',256,lgunit(3),
+     .      procid,numprocs,ib1,index(procid,0))
           endif
 #else
           ib1=iloop
@@ -316,7 +316,7 @@ C$      ip = mp_my_threadnum()+1
           call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1)
 
           call suphas ( q , p1 , ng , iv_iv , n1 , n2 , n3 , qlat , 
-     .   w ( ocos1 ) , w ( osin1 ) )
+     .    w ( ocos1 ) , w ( osin1 ) )
 
 C       List of orbitals, their l- and k- indices, and ham offsets
           call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
@@ -333,8 +333,8 @@ C       Block routines into groups with common (e,rsm)
               ie   = ipet(l1+1,ik1,is1)
               ir   = iprt(l1+1,ik1,is1)
               call hsibl3 ( ie , ir , etab , rtab , vol , nlm1 , nlm2 , ndim1 
-     .     , ng , yl_rv , he_rv , hr_rv , w ( ocos1 ) , w ( osin1 
-     .     ) , w ( owk ) , w ( oc1 ) , w ( ocf1 ) )
+     .        , ng , yl_rv , he_rv , hr_rv , w ( ocos1 ) , w ( osin1 
+     .        ) , w ( owk ) , w ( oc1 ) , w ( ocf1 ) )
 
               ndim1 = ndim1 + max(nlm2-nlm1+1,0)
             endif
@@ -342,7 +342,7 @@ C       Block routines into groups with common (e,rsm)
 
 C   ... Multiply potential into wave functions for orbitals in ib1
           call hsibl4 ( n1 , n2 , n3 , k1 , k2 , k3 , vsm ( 1 , 1 , 1 , 
-     .   isp ) , w ( of ) , ng , kv_iv , ndim1 , w ( oc1 ) )
+     .    isp ) , w ( of ) , ng , kv_iv , ndim1 , w ( oc1 ) )
 
 
 C   ... Loop over second of (ib1,ib2) site pairs
@@ -359,7 +359,7 @@ C   ... Loop over second of (ib1,ib2) site pairs
             call i8icopy(i_copy_size,sspec(is2)%ngcut,1,ncut,1)
 
             call suphas ( q , p2 , ng , iv_iv , n1 , n2 , n3 , qlat , 
-     .     w ( ocos2 ) , w ( osin2 ) )
+     .      w ( ocos2 ) , w ( osin2 ) )
 
 C         List of orbitals, their l- and k- indices, and ham offsets
             call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
@@ -378,11 +378,11 @@ C         Block into groups with consecutive l and common (e,rsm)
                 ie   = ipet(l2+1,ik2,is2)
                 ir   = iprt(l2+1,ik2,is2)
                 if (ndim2+nlm2-nlm1+1 .gt. nhblk) call rxi(
-     .        'increase nhblk in hsibl; need',ndim2+nlm2-nlm1+1)
+     .          'increase nhblk in hsibl; need',ndim2+nlm2-nlm1+1)
 C           Assemble hkl(G+q)
                 call hsibl3 ( ie , ir , etab , rtab , vol , nlm1 , nlm2 , ndim2 
-     .       , ng , yl_rv , he_rv , hr_rv , w ( ocos2 ) , w ( osin2 
-     .       ) , w ( owk ) , w ( oc2 ) , w ( ocf2 ) )
+     .          , ng , yl_rv , he_rv , hr_rv , w ( ocos2 ) , w ( osin2 
+     .          ) , w ( owk ) , w ( oc2 ) , w ( ocf2 ) )
 
                 call ivset(ncuti,ndim2+1,ndim2+nlm2-nlm1+1,ncut(l2t+1,ik2))
                 ndim2 = ndim2 + max(nlm2-nlm1+1,0)
@@ -402,18 +402,18 @@ c are only at Gamma point; thus symmetry can not be kept well for other k points
 c
 
             call hsibl2 ( ndim1 , ndim2 , ng , ncuti , w ( oc1 ) , w ( ocf1 
-     .     ) , w ( oc2 ) , w ( ocf2 ) , ndim1 , 0 , 0 , wk2_zv )
+     .      ) , w ( oc2 ) , w ( ocf2 ) , ndim1 , 0 , 0 , wk2_zv )
 
 
 C     ... Add to hamiltonian
 #if MPI
             call hsibl5 ( norb1 , blks1 , offl1 , ndim1 , norb2 , blks2 , 
-     .     offl2 , ndim2 , ndimh , wk2_zv , h_zv )
+     .      offl2 , ndim2 , ndimh , wk2_zv , h_zv )
 
 #else
 C         print *, ib1,ib2
             call hsibl5 ( norb1 , blks1 , offl1 , ndim1 , norb2 , blks2 , 
-     .     offl2 , ndim2 , ndimh , wk2_zv , h )
+     .      offl2 , ndim2 , ndimh , wk2_zv , h )
 
 #endif
 
@@ -425,11 +425,11 @@ C       Ends loop over ib2
 C   ... Matrix elements <Hsm| Vsm |PW>
 #if MPI
           call hsibl6 ( ndimh , nlmto , norb1 , blks1 , offl1 , ng , iv_iv 
-     .   , napw , igapw , w ( oc1 ) , w ( ocf1 ) , h_zv )
+     .    , napw , igapw , w ( oc1 ) , w ( ocf1 ) , h_zv )
 
 #else
           call hsibl6 ( ndimh , nlmto , norb1 , blks1 , offl1 , ng , iv_iv 
-     .   , napw , igapw , w ( oc1 ) , w ( ocf1 ) , h )
+     .    , napw , igapw , w ( oc1 ) , w ( ocf1 ) , h )
 
 #endif
 
@@ -450,17 +450,17 @@ C     Ends loop over ib1
 Ctakao_ZeroClear_NotRequiered        if (ndimh*ndimh<0) hbuf_zv(:)=0.0d0
 
         call mpi_allreduce ( h_zv , hbuf_zv , 2 * ndimh * ndimh 
-     . , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
+     .  , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
 
         if (mlog) then
           call gettime(datim)
           call awrit3(' hsibl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce h ndimh=%i',' ',256,lgunit(3),
-     .        procid,numprocs,ndimh)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' allreduce h ndimh=%i',' ',256,lgunit(3),
+     .    procid,numprocs,ndimh)
         endif
         call daxpy ( 2 * ndimh * ndimh , 1d0 , hbuf_zv , 1 , h , 1 
-     . )
+     .  )
 
         if (allocated(hbuf_zv)) deallocate(hbuf_zv)
         if (allocated(h_zv)) deallocate(h_zv)
@@ -538,7 +538,7 @@ C     implicit none
 C ... Passed parameters
       integer ltop,net,ng,nrt
       double precision alat,q(3),gv(ng,3),g(ng,3),yl(ng,1),he(ng,net),
-     .  hr(ng,nrt),g2(ng),et(net),rt(nrt)
+     .hr(ng,nrt),g2(ng),et(net),rt(nrt)
 C ... Local parameters
       integer i,ie,ir
       double precision pi,tpiba,gam
@@ -624,7 +624,7 @@ C     nbar = xx**(1.d0/dble(n2))
         nbar = min(nbar,min(ng,ncut2(i)))
       enddo
       call zgemm('C','N',n1,n2,nbar,dcmplx(1d0,0d0),c1,ng,c2,ng,
-     .  dcmplx(0d0,0d0),wk,n1)
+     .dcmplx(0d0,0d0),wk,n1)
       do  i2 = 1, n2
         ncut = min(ng,ncut2(i2))
         do  i1 = 1, n1
@@ -675,7 +675,7 @@ C         This reduces accuracy, but makes exactly compatible
 
 
       subroutine hsibl3(ie,ir,etab,rtab,vol,nlm1,nlm2,offlm,ng,yl,he,hr,
-     .  cosgp,singp,wk,c,cfac)
+     .cosgp,singp,wk,c,cfac)
 
 C- FT of smooth Hankels, without constant factors
 C ----------------------------------------------------------------------
@@ -707,7 +707,7 @@ C     implicit none
 C ... Passed parameters
       integer ie,ir,nlm1,nlm2,offlm,ng
       double precision yl(ng,1),he(ng,1),hr(ng,1),cosgp(1),singp(1),
-     .  wk(ng),etab(ie),rtab(ir),vol
+     .wk(ng),etab(ie),rtab(ir),vol
       double complex c(ng,nlm2),cfac(nlm2)
 C ... Local parameters
       integer i,ilm,offi,lmax,ll,l,m
@@ -794,7 +794,7 @@ c       call zprm3('v*psir',0,f,n1,n2,n3)
       end subroutine hsibl4
 
       subroutine hsibl5(norb1,blks1,offl1,ndim1,norb2,blks2,offl2,ndim2,
-     .                  ndimh,hwk,h)
+     .ndimh,hwk,h)
 
 C- Adds a subblock of matrix elements into the hamiltonian
 C ----------------------------------------------------------------------
@@ -847,7 +847,7 @@ C     .      ofw1+1,ofw2+1,blks1(io1),blks2(io2)
               do  i1 = 1, nlm1
                 do  i2 = 1, nlm2
                   h(ofh1+i1,ofh2+i2) = h(ofh1+i1,ofh2+i2) +
-     .                             hwk(ofw1+i1,ofw2+i2)
+     .            hwk(ofw1+i1,ofw2+i2)
                 enddo
               enddo
 
@@ -863,7 +863,7 @@ C     .      ofw1+1,ofw2+1,blks1(io1),blks2(io2)
 
 
       subroutine hsibl6(ndimh,nlmto,norb1,blks1,offl1,ng,igv,napw,igapw,
-     .  c1,cf1,h)
+     .c1,cf1,h)
 
 C- Make matrix elements <Hsm | V | PW>
 C ----------------------------------------------------------------------

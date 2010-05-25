@@ -1,5 +1,5 @@
       subroutine pnunew(nbas,nsp,ssite,sspec,pmin,pmax,lfrzw,hab,sab,
-     .  qbyl,hbyl)
+     .qbyl,hbyl)
 
       use m_struc_def  !Cgetarg
 
@@ -46,21 +46,21 @@ C ... Passed parameters
       integer nbas,nsp,lfrzw,n0,nab
       parameter(n0=10,nab=9)
       real(8):: pmin(n0) , pmax(n0) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) 
-     . , sab(nab,n0,nsp,nbas) , hab(nab,n0,nsp,nbas)
+     ., sab(nab,n0,nsp,nbas) , hab(nab,n0,nsp,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
 C ... Local parameters
       logical lpz,lfrzv,lfrzz
       integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
-     . l , ipqn , m , isp , ov0 , nr , nn , mxcst
+     .l , ipqn , m , isp , ov0 , nr , nn , mxcst
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: gp_rv(:)
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: v0i_rv(:)
 
       double precision pi,rmt,p1,ebar,a,d0l,pfree,pold,ptry,z,
-     .  val(5),slo(5),dl,phi,dphi,pnu(n0,2),pnz(n0,2)
+     .val(5),slo(5),dl,phi,dphi,pnu(n0,2),pnz(n0,2)
       double precision ez,umegam,phip,dphip,dlphi,dlphip,cz
       double precision pznew,fi(0:10),gi(0:10),xx,dnz
       character spid*8
@@ -69,7 +69,7 @@ C ... Heap
       common /w/ w
 
       call info(30,1,0,' Make new boundary conditions for phi,phidot..',
-     .  0,0)
+     .0,0)
       stdo = lgunit(1)
       call getpr(ipr)
       pi = 4d0*datan(1d0)
@@ -108,7 +108,7 @@ C --- For each site, do ---
             pznew = 2d10
 C         Initially set lfrzv,lfrzz to external constraints.
             lfrzv = (mod(idmod(m),10).ne.0 .and. mod(idmod(m),10).ne.3)
-     .            .or. lfrzw .ne. 0
+     .      .or. lfrzw .ne. 0
             lfrzz = lfrzv
             lpz = pnz(m,1) .ne. 0
 
@@ -137,7 +137,7 @@ Ctakao_ZeroClear_NotRequiered              if (nr*2<0) rofi_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered              if (nr<0) v0i_rv(:)=0.0d0
 
               call dpscop ( w ( ov0 ) , v0i_rv , nr , 1 + nr * ( isp - 1 
-     .       ) , 1 , 1d0 )
+     .        ) , 1 , 1d0 )
 
 
               if (mod(idmod(m),10) .eq. 3) then
@@ -150,8 +150,8 @@ Ctakao_ZeroClear_NotRequiered                if (8*nr<0) gp_rv(:)=0.0d0
 
 C             xx = dval(w(ov0i),nr)
                 call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , 
-     .         nr , 2 , 1d - 12 , ebar , val , slo , nn , g_rv , gp_rv 
-     .         , phi , dphi , phip , dphip , xx , xx , xx , xx , xx )
+     .          nr , 2 , 1d - 12 , ebar , val , slo , nn , g_rv , gp_rv 
+     .          , phi , dphi , phip , dphip , xx , xx , xx , xx , xx )
 
 C         ... cz = estimate for energy of orbital with b.c. connecting
 C             to Hankel of energy 0
@@ -171,8 +171,8 @@ C             slo(1) = dl + 1d0
               endif
 
               call phidx ( 2 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , 
-     .       nr , 0 , 1d - 12 , ebar , val , slo , nn , g_rv , w , phi 
-     .       , dphi , w , w , w , w , w , w , w )
+     .        nr , 0 , 1d - 12 , ebar , val , slo , nn , g_rv , w , phi 
+     .        , dphi , w , w , w , w , w , w , w )
 
 C           dphip = (slo(2)-phip)/rmt
               if (nn .eq. int(pnu(m,1))-l-1) then
@@ -196,8 +196,8 @@ C       ... Estimate new pnz for semicore state
 Ctakao_ZeroClear_NotRequiered                if (8*nr<0) gp_rv(:)=0.0d0
 
                 call phidx ( 0 , z , l , v0i_rv , 0d0 , 0d0 , rofi_rv , 
-     .         nr , 2 , 1d - 12 , ez , val , slo , nn , g_rv , gp_rv , 
-     .         phi , dphi , phip , dphip , xx , xx , xx , xx , xx )
+     .          nr , 2 , 1d - 12 , ez , val , slo , nn , g_rv , gp_rv , 
+     .          phi , dphi , phip , dphip , xx , xx , xx , xx , xx )
 
 C             dphip = (slo(2)-phip)/rmt
                 dlphi = rmt*dphi/phi
@@ -277,7 +277,7 @@ C       ... Permit pnu no higher than pmax
   310       format(i2,i6,6f12.6,l)
   410       format(' spn 2',i2,6f12.6,l)
   311       format(' l  idmod     ql',9x,'ebar',7x,' pold',8x,
-     .       'ptry',8x,'pfree',8x,'pnew',8x)
+     .      'ptry',8x,'pfree',8x,'pnew',8x)
 
 C     --- Set the new pnz ---
             if (lpz) then

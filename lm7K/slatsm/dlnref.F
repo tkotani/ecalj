@@ -1,5 +1,5 @@
       subroutine dlnref(lqinv,mode,nu,nv,nlma,Ai,ldi,A,lda,b,nb,cs,wk,
-     .  x,dx,dxmx)
+     .x,dx,dxmx)
 C- Refine of a subblock in a solution of linear equations
 C ----------------------------------------------------------------------
 Ci Inputs  (see Remarks)
@@ -79,17 +79,17 @@ C --- Set up rhs = A x - 1; store in dx ---
       i2 = nv
       if (i2 .ge. i1) then
         call dgemm('N','N',nu,nlma,i2-i1+1,1d0,A(1,i1),lda,
-     .    x(i1,1),lda,0d0,dx,lda)
+     .  x(i1,1),lda,0d0,dx,lda)
       else
         do  10  j = 1, nlma
-        do  10  i = 1, nu
-          dx(i,j) = 0
+          do  10  i = 1, nu
+            dx(i,j) = 0
    10   continue
       endif
       ii = min(nb,nu)
       do  12  j = 1, nlma
-      do  12  i = 1, ii
-        dx(i,j) = dx(i,j) - b(i,j)
+        do  12  i = 1, ii
+          dx(i,j) = dx(i,j) - b(i,j)
    12 continue
 
 C --- Solve A dx = rhs ---
@@ -102,14 +102,14 @@ C --- Solve A dx = rhs ---
         else
           call word(cs,1,i,j)
           if (cs(j:j) .ne. 'b')
-     .      call rx('dlnref: bad input, cs missing ''b''')
+     .    call rx('dlnref: bad input, cs missing ''b''')
           call dqinvb(cs,Ai,ldi,0,nu,nlma,wk,nu,wk,dx,lda,ndef)
         endif
         omadd = 1-add
         do  20  j = 1, nlma
-        do  20  i = 1, nu
-          dxmx = max(dxmx,abs(omadd*x(i,j)+dx(i,j)))
-          x(i,j) = add*x(i,j) - dx(i,j)
+          do  20  i = 1, nu
+            dxmx = max(dxmx,abs(omadd*x(i,j)+dx(i,j)))
+            x(i,j) = add*x(i,j) - dx(i,j)
    20   continue
       elseif (lqinv .eq. 2) then
         call dgemm('N','N',nu,nlma,nu,-1d0,Ai,ldi,dx,lda,add,x,lda)

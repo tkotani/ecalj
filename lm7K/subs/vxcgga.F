@@ -1,5 +1,5 @@
       subroutine vxcgga(n,nsp,rhop,rhom,grhop,grhom,ggrhop,ggrhom,
-     .                  grho,grpgrm,grggr,grggrp,grggrm,vxc1,vxc2,exc)
+     .grho,grpgrm,grggr,grggrp,grggrm,vxc1,vxc2,exc)
 C- PW91 and PBE gradient corrections to exc and vxc for a set of points
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -31,16 +31,16 @@ C     implicit none
 C Passed parameters
       integer nsp,n
       double precision rhop(1),rhom(1),grhop(1),grhom(1),grho(1),
-     .  ggrhop(1),ggrhom(1),grggr(1),grggrp(1),grggrm(1),grpgrm(1),
-     .  vxc1(1),vxc2(1),exc(1)
+     .ggrhop(1),ggrhom(1),grggr(1),grggrp(1),grggrm(1),grpgrm(1),
+     .vxc1(1),vxc2(1),exc(1)
 C Local Variables
       integer i,lxcf,lxcg,nglob
       double precision up,dn,agrup,delgrup,uplap,agrdn,delgrdn,dnlap,
-     .  agr,delgr
+     .agr,delgr
       double precision exlsd,vxuplsd,vxdnlsd,eclsd,
-     .  vcuplsd,vcdnlsd,expw91,vxuppw91,vxdnpw91,
-     .  ecpw91,vcuppw91,vcdnpw91,expbe,vxuppbe,
-     .  vxdnpbe,ecpbe,vcuppbe,vcdnpbe
+     .vcuplsd,vcdnlsd,expw91,vxuppw91,vxdnpw91,
+     .ecpw91,vcuppw91,vcdnpw91,expbe,vxuppbe,
+     .vxdnpbe,ecpbe,vcuppbe,vcdnpbe
 
       lxcf = mod(nglob('lxcf'),10)
       lxcg = nglob('lxcf')/10
@@ -71,22 +71,22 @@ C Local Variables
           delgr = grggr(i)
         endif
         call easypbe(up,agrup,delgrup,uplap,
-     .               dn,agrdn,delgrdn,dnlap,agr,delgr,1,1,
-     .               exlsd,vxuplsd,vxdnlsd,eclsd,vcuplsd,vcdnlsd,
-     .               expw91,vxuppw91,vxdnpw91,ecpw91,vcuppw91,vcdnpw91,
-     .               expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe)
+     .  dn,agrdn,delgrdn,dnlap,agr,delgr,1,1,
+     .  exlsd,vxuplsd,vxdnlsd,eclsd,vcuplsd,vcdnlsd,
+     .  expw91,vxuppw91,vxdnpw91,ecpw91,vcuppw91,vcdnpw91,
+     .  expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe)
         if (lxcg .eq. 2) then
           exc(i) = exc(i) + (expw91 + ecpw91 - exlsd - eclsd) * 2d0
           vxc1(i) = vxc1(i) +
-     .              (vxuppw91 + vcuppw91 - vxuplsd - vcuplsd) * 2d0
+     .    (vxuppw91 + vcuppw91 - vxuplsd - vcuplsd) * 2d0
           if (nsp .eq. 2) vxc2(i) = vxc2(i) +
-     .              (vxdnpw91 + vcdnpw91 - vxdnlsd - vcdnlsd) * 2d0
+     .    (vxdnpw91 + vcdnpw91 - vxdnlsd - vcdnlsd) * 2d0
         else
           exc(i) = exc(i) + (expbe + ecpbe - exlsd - eclsd) * 2d0
           vxc1(i) = vxc1(i) +
-     .              (vxuppbe + vcuppbe - vxuplsd - vcuplsd) * 2d0
+     .    (vxuppbe + vcuppbe - vxuplsd - vcuplsd) * 2d0
           if (nsp .eq. 2) vxc2(i) = vxc2(i) +
-     .              (vxdnpbe + vcdnpbe - vxdnlsd - vcdnlsd) * 2d0
+     .    (vxdnpbe + vcdnpbe - vxdnlsd - vcdnlsd) * 2d0
         endif
     1 continue
       end

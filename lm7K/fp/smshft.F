@@ -54,7 +54,7 @@ C ... Passed parameters
       double complex smrho(*)
 C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
-     .  n2,n3,nbas,ng,ngabc(3),nglob,nsp
+     .n2,n3,nbas,ng,ngabc(3),nglob,nsp
       integer:: ogv , okv
       complex(8) ,allocatable :: cgr_zv(:)
       complex(8) ,allocatable :: cgs_zv(:)
@@ -64,7 +64,7 @@ C ... Local parameters
       parameter (n0=10)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision alat,dgets,elind,pi,qc,qsc,qcor(2),plat(3,3),
-     .  qlat(3,3),qv,qval,tpiba,vol,z,pnu(n0,2),pnz(n0,2)
+     .qlat(3,3),qv,qval,tpiba,vol,z,pnu(n0,2),pnz(n0,2)
 C ... Heap
       integer w(1)
       common /w/ w
@@ -103,7 +103,7 @@ Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cgr_zv(:)=0.0d0
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smrho , cgr_zv 
-     . )
+     .)
 
 
 C --- Shift in unscreened density at the two positions ---
@@ -115,7 +115,7 @@ Ctakao_ZeroClear_NotRequiered        if (ng<0) cwk_zv(:)=0.0d0
 
       kmax = 0
       call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
-     . w ( ogv ) , orhoat , cwk_zv , cgs_zv , job )
+     .w ( ogv ) , orhoat , cwk_zv , cgs_zv , job )
 
       if (allocated(cwk_zv)) deallocate(cwk_zv)
 
@@ -151,23 +151,23 @@ C       Compute elind if not given
 
         if (elind .lt. 0d0) elind = -(3*pi**2*qval/vol)**.66666d0*elind
         if ( nsp.eq.2 ) call dsumdf ( ng * 2 , 1d0 , cgs_zv , 0 , 
-     .   1 , cgs_zv , ng * 2 , 1 )
+     .  1 , cgs_zv , ng * 2 , 1 )
 
 C        call lindxx(122,n1,n2,n3,k1,k2,k3,ng,w(okv),w(ocgs),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
         call lindsc ( 2 , ng , w ( ogv ) , tpiba , elind , cgs_zv 
-     .   )
+     .  )
 
 C        call dscal(2*ng,.001d0,w(ocgs),1)
 
         if ( nsp.eq.2 ) call dsumdf ( ng * 2 , .5d0 , cgs_zv , 0 , 
-     .   1 , cgs_zv , ng * 2 , 1 )
+     .  1 , cgs_zv , ng * 2 , 1 )
 
       endif
 
 C ... Debugging: show delta smrho
       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cgs_zv 
-     . , smrho )
+     ., smrho )
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 C      call zprm3('screened delta smrho',0,smrho,k1,k2,k3)
@@ -177,13 +177,13 @@ C      return
 C --- Add shift to smrho, ensuring no shift in <rho> ---
       do  i = 1, nsp
         call dvset ( cgs_zv , 1 + ng * ( i - 1 ) , 1 + ng * ( i - 
-     .   1 ) , 0d0 )
+     .  1 ) , 0d0 )
 
       enddo
       call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
 
       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cgr_zv 
-     . , smrho )
+     ., smrho )
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 
@@ -191,7 +191,7 @@ C --- Symmetrize the shifted density ---
       call symsmr(slat,nsp,k1,k2,k3,smrho)
 
       if (iprint() .gt. 100)
-     .  call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
+     .call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
 
       if (allocated(cgs_zv)) deallocate(cgs_zv)
       if (allocated(cgr_zv)) deallocate(cgr_zv)
@@ -202,7 +202,7 @@ C --- Symmetrize the shifted density ---
 
 
       subroutine pvsms1(ssite,sspec,slat,nbas,nsp,kmax,ng,
-     .  gv,orhoat,cwk,cg,job)
+     .gv,orhoat,cwk,cg,job)
 
       use m_struc_def  !Cgetarg
 
@@ -291,12 +291,12 @@ C ... Passed parameters
       double complex cg(ng,nsp),cwk(ng)
 C Local variables
       integer ib,i,is,iv0,kmax,lmxl,igetss,lmxa,nr,nrmx,n0,
-     .  nlml,nxi,ie,ixi,ig,ipr,iprint,kcor,lcor,stdo,lgunit
+     .nlml,nxi,ie,ixi,ig,ipr,iprint,kcor,lcor,stdo,lgunit
       parameter (nrmx=1501, n0=10)
       double precision a,aa,alat,df(0:20),e,
-     .  exi(n0),gam,hfc(n0,2),pi,pnew(3),pnu(n0,2),pnz(n0,2),pold(3),
-     .  pp,qall,qc,qcor(2),qsc,qfat,qg,qloc,qval,rmt,
-     .  rsmfa,rwgt(nrmx),scalp,sum,tpiba,v(3),v2,vol,volsp,y0,z
+     .exi(n0),gam,hfc(n0,2),pi,pnew(3),pnu(n0,2),pnz(n0,2),pold(3),
+     .pp,qall,qc,qcor(2),qsc,qfat,qg,qloc,qval,rmt,
+     .rsmfa,rwgt(nrmx),scalp,sum,tpiba,v(3),v2,vol,volsp,y0,z
       character*35 strn,spid*8
       double complex phase
 C ... Heap
@@ -325,7 +325,7 @@ C --- For each site, accumulate shift in density ---
       if (job .eq. 12) strn = 'screened core+multipole densities'
       if (ipr .ge. 30) write(stdo,339) strn
   339 format(/' smshft:  add shifted ',a/'   site',16x,'old pos',22x,
-     .  'new pos',14x,'shift')
+     .'new pos',14x,'shift')
 
       do  10  ib = 1, nbas
         is = int(ssite(ib)%spec)
@@ -347,7 +347,7 @@ C --- For each site, accumulate shift in density ---
         call dcopy(i_copy_size,ssite(ib)%pos0,1,pold,1)
 
         pp = alat*dsqrt((pnew(1)-pold(1))**2 + (pnew(2)-pold(2))**2
-     .                + (pnew(3)-pold(3))**2)
+     .  + (pnew(3)-pold(3))**2)
         if (ipr .ge. 30) write(stdo,340) ib,spid,pold,pnew,pp/alat
   340   format(i4,':',a,f8.5,2f9.5,2x,3f9.5,2x,f9.6)
 C       Skip this site if shift is negligible
@@ -384,10 +384,10 @@ C   --- Shift in mesh density, job 1 ---
           qloc = (qloc-sum)/y0
           qfat = 0d0
           do  12  i  = 1, nsp
-          do  12  ie = 1, nxi
-            gam  = 0.25d0*rsmfa**2
-            qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
-            qfat = qfat + hfc(ie,i)*qall
+            do  12  ie = 1, nxi
+              gam  = 0.25d0*rsmfa**2
+              qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
+              qfat = qfat + hfc(ie,i)*qall
    12     continue
           call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
 C         Excess sphere charge.  See Remarks above.
@@ -395,34 +395,34 @@ C         Excess sphere charge.  See Remarks above.
 
 C     ... Shift in smoothed free atom density
           do  14    i = 1, nsp
-          do  14  ixi = 1, nxi
-            e = exi(ixi)
-            do  15 ig = 1, ng
-              v(1) = gv(ig,1)*tpiba
-              v(2) = gv(ig,2)*tpiba
-              v(3) = gv(ig,3)*tpiba
-              v2 = v(1)**2+v(2)**2+v(3)**2
-              aa = -4d0*pi*dexp(gam*(e-v2))/(e-v2)
-              scalp = -alat*(pnew(1)*v(1)+pnew(2)*v(2)+pnew(3)*v(3))
-              phase = dcmplx(dcos(scalp),dsin(scalp))
-              scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
-              phase = phase - dcmplx(dcos(scalp),dsin(scalp))
-              cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
-   15       continue
+            do  14  ixi = 1, nxi
+              e = exi(ixi)
+              do  15 ig = 1, ng
+                v(1) = gv(ig,1)*tpiba
+                v(2) = gv(ig,2)*tpiba
+                v(3) = gv(ig,3)*tpiba
+                v2 = v(1)**2+v(2)**2+v(3)**2
+                aa = -4d0*pi*dexp(gam*(e-v2))/(e-v2)
+                scalp = -alat*(pnew(1)*v(1)+pnew(2)*v(2)+pnew(3)*v(3))
+                phase = dcmplx(dcos(scalp),dsin(scalp))
+                scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
+                phase = phase - dcmplx(dcos(scalp),dsin(scalp))
+                cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
+   15         continue
    14     continue
 
 C     ... Add gaussian to conserve local charge; see Remarks
           do  16   i = 1, nsp
-          do  16  ig = 1, ng
-            v(1) = gv(ig,1)*tpiba
-            v(2) = gv(ig,2)*tpiba
-            v(3) = gv(ig,3)*tpiba
-            v2 = v(1)**2+v(2)**2+v(3)**2
-            scalp = -alat*(pnew(1)*v(1)+pnew(2)*v(2)+pnew(3)*v(3))
-            phase = dcmplx(dcos(scalp),dsin(scalp))
-            scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
-            phase = phase - dcmplx(dcos(scalp),dsin(scalp))
-            cg(ig,i) = cg(ig,i) + qg*phase*dexp(-gam*v2)/volsp
+            do  16  ig = 1, ng
+              v(1) = gv(ig,1)*tpiba
+              v(2) = gv(ig,2)*tpiba
+              v(3) = gv(ig,3)*tpiba
+              v2 = v(1)**2+v(2)**2+v(3)**2
+              scalp = -alat*(pnew(1)*v(1)+pnew(2)*v(2)+pnew(3)*v(3))
+              phase = dcmplx(dcos(scalp),dsin(scalp))
+              scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
+              phase = phase - dcmplx(dcos(scalp),dsin(scalp))
+              cg(ig,i) = cg(ig,i) + qg*phase*dexp(-gam*v2)/volsp
    16     continue
 
 C   --- Shift in mesh density, job 12 ---

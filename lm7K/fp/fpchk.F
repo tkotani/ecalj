@@ -21,7 +21,7 @@ C ... Passed parameters
 
 
       call info(5,2,0,
-     .   ' ----- Check accuracy of augmentation expansion -----',0,0)
+     .' ----- Check accuracy of augmentation expansion -----',0,0)
       call chkxpn(ssite,sspec)
       end subroutine fpchk
 
@@ -41,16 +41,16 @@ C ... Local parameters
       parameter (k0=20, nlm0=25, nrx=201)
       parameter (nkap0=3,n0=10)
       integer:: nglob , nbas , nspec , ib1 , is , iclbsj , nr , j1 
-     . , nch , lmxa , kmax , lh(nkap0) , nkapi , ik , l1 , l2 , l , 
-     . lmax , nlm , k , i , ilm , ipr
+     ., nch , lmxa , kmax , lh(nkap0) , nkapi , ik , l1 , l2 , l , 
+     .lmax , nlm , k , i , ilm , ipr
       integer ,allocatable :: ips_iv(:)
 
       double precision c(0:k0,nlm0),
-     .  rofi(nrx),rwgt(nrx),pkl(0:k0,0:n0),
-     .  xi(0:n0),sumh(0:n0),difh(0:n0),errh(0:n0),errj(0:n0),
-     .  cj(0:k0,0:n0),phi(0:n0),psi(0:n0),difj(0:n0),sumj(0:n0),
-     .  rsmh(n0,nkap0),eh(n0,nkap0),
-     .  a,rmt,rsma,e,rsm,aa,r,rl,fith,fitj,fcth,fctj,wgt
+     .rofi(nrx),rwgt(nrx),pkl(0:k0,0:n0),
+     .xi(0:n0),sumh(0:n0),difh(0:n0),errh(0:n0),errj(0:n0),
+     .cj(0:k0,0:n0),phi(0:n0),psi(0:n0),difj(0:n0),sumj(0:n0),
+     .rsmh(n0,nkap0),eh(n0,nkap0),
+     .a,rmt,rsma,e,rsm,aa,r,rl,fith,fitj,fcth,fctj,wgt
       character*8 spid
       character lch(0:4)
 C ... Heap
@@ -65,7 +65,7 @@ C ... setup
       call getpr(ipr)
       write(stdo,400)
   400 format(/' RMS errors in expanded head and tail functions.'
-     .   /' Only column ''tail'' matters for program accuracy.')
+     ./' Only column ''tail'' matters for program accuracy.')
 
       allocate(ips_iv(nbas))
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) ips_iv(:)=0
@@ -84,8 +84,8 @@ C --- Loop over species ---
 
         if (ib1 .lt. 0) then
           if (ipr .ge. 20) write(stdo,
-     .   '('' chkxpn (warning) no sites corresponding to species'',i3)')
-     .      is
+     .    '('' chkxpn (warning) no sites corresponding to species'',i3)')
+     .    is
           goto 40
         endif
 
@@ -107,7 +107,7 @@ C        call u_spec_a(sspec,is,lmxa,lmxh,kmax,rsma)
         call word(spid,1,j1,nch)
         write(stdo,600) spid(1:nch),rmt,rsma,lmxa,kmax
   600   format(/' Species ',a,':   rmt=',f7.4,'   rsma=',f7.4
-     .     /' augment to  lmax=',i2,'   kmax=',i3)
+     .  /' augment to  lmax=',i2,'   kmax=',i3)
 
         if (nr .gt. nrx) call rxi('chkxpn: need nrx ge',nr)
         call radmsh(rmt,a,nr,rofi)
@@ -181,7 +181,7 @@ C         call hxps(rsmh,rsma,e,kmax,nlm,k0,c)
                 write(stdo,947) l,rsm,e,lch(l),errh(l),errj(l)
   947           format(i4,f10.3,f9.3,2x,3x,a1,1p,6d12.2)
   948           format(/' block    rsm        e      l',6x,
-     .         'head',8x,'tail')
+     .          'head',8x,'tail')
 
 
               enddo

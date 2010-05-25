@@ -85,26 +85,26 @@ C     .  call rx('dmpy: bad integer argument')
 #if APOLLO | HP
       do  200  i = n-1, 0, -1
         do  200  j = m-1, 0, -1
-        c(i*nrc+j*ncc) = c(i*nrc+j*ncc)
-     .      + vec_$ddot_i(a(nra*i),nca,b(ncb*j),nrb,l)
+          c(i*nrc+j*ncc) = c(i*nrc+j*ncc)
+     .    + vec_$ddot_i(a(nra*i),nca,b(ncb*j),nrb,l)
   200 continue
 #else
 
 C --- Do multiplication ---
       do  20  k = l-1, 0, -1
         do  20  i = n-1, 0, -1
-        ar = a(nra*i + nca*k)
-        if (ar .eq. 0) goto 20
+          ar = a(nra*i + nca*k)
+          if (ar .eq. 0) goto 20
 #if BLAS
-       call daxpy(m,ar,b(nrb*k),ncb,c(nrc*i),ncc)
+          call daxpy(m,ar,b(nrb*k),ncb,c(nrc*i),ncc)
 #else
-        nccj = -ncc + nrc*i
-        ncbj = -ncb + nrb*k
-        do  25  j = m-1, 0, -1
-          nccj = nccj + ncc
-          ncbj = ncbj + ncb
-          c(nccj) = c(nccj) + ar*b(ncbj)
-   25   continue
+          nccj = -ncc + nrc*i
+          ncbj = -ncb + nrb*k
+          do  25  j = m-1, 0, -1
+            nccj = nccj + ncc
+            ncbj = ncbj + ncb
+            c(nccj) = c(nccj) + ar*b(ncbj)
+   25     continue
 #endif
    20 continue
 #endif

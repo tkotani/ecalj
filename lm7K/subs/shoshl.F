@@ -1,5 +1,5 @@
       subroutine shoshl(sopts,nbas,bas,plat,mxnbr0,z,slabl,dclabl,ips,
-     .  ipc,ves,eula,nclass)
+     .ipc,ves,eula,nclass)
 
 C- Print nearest-neighbor shells
 C ----------------------------------------------------------------
@@ -36,7 +36,7 @@ C     implicit none
 C Passed parameters
       integer nbas,nclass,mxnbr0,ips(nbas),ipc(nbas),nttab
       double precision bas(3,nbas),plat(3,3),dclabl(nclass),ves(1),
-     .  eula(1),z(1)
+     .eula(1),z(1)
       character sopts*(*),slabl(nbas)*8
 C Local parameters
       integer niax
@@ -52,8 +52,8 @@ C Local parameters
       real(8) ,allocatable :: mark_rv(:)
 
       integer npr(2),mxnbr,ib,ic,oiax,iclbsj,j,j1,j2,lstyle,ival,
-     .  scrwid,ltab,nlstc,nlst1,nlst2,mxcsiz,iprint,ifi,fopn,lgunit,
-     .  ldisp,lnn
+     .scrwid,ltab,nlstc,nlst1,nlst2,mxcsiz,iprint,ifi,fopn,lgunit,
+     .ldisp,lnn
       character*8  dc*1
       parameter (scrwid=120)
 C heap:
@@ -111,7 +111,7 @@ C         print *, sopts(j1:j2)
           elseif (sopts(j1:j1+1) .eq. 'r=') then
             j = 0
             if (.not. a2bin(sopts(j1+2:),range,4,0,' ',j,j2-j1-2))
-     .        goto 999
+     .      goto 999
 
           elseif (sopts(j1:j1+2) .eq. 'fn=')  then
             if (j1+3 .le. j2) ifi = fopn(sopts(j1+3:j2))
@@ -119,11 +119,11 @@ C         print *, sopts(j1:j2)
           elseif (sopts(j1:j1+3) .eq. 'tab=')  then
             j = 0
             if (.not. a2bin(sopts(j1+4:),ltab,2,0,' ',j,j2-j1-4))
-     .        goto 999
+     .      goto 999
 
           elseif (sopts(j1:j1+4) .eq. 'disp=')  then
             call iopos ( .false. , - 1 , sopts ( j1 + 5:j2 ) , nbas , dist_rv 
-     .       )
+     .      )
 
             ldisp = 1
 
@@ -135,19 +135,19 @@ C         print *, sopts(j1:j2)
 
           elseif (sopts(j1:j1+4) .eq. 'sites')  then
             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
-     .       , z , 0 , ' ' , w , nlst1 , lst1_iv )
+     .      , z , 0 , ' ' , w , nlst1 , lst1_iv )
 
             j2 = j1+5+j-2
 
           elseif (sopts(j1:j1+4) .eq. 'pairs')  then
             call baslst ( 0 , 11 , sopts ( j1 + 5: ) , j , ips , nbas , slabl 
-     .       , z , 0 , ' ' , w , nlst2 , lst2_iv )
+     .      , z , 0 , ' ' , w , nlst2 , lst2_iv )
 
             j2 = j1+5+j-2
 
           else
             call rxs('shoshl: failed to parse --shell switch: ',
-     .        sopts(j1:j2))
+     .      sopts(j1:j2))
             goto 999
           endif
           j1 = j2+2
@@ -160,18 +160,18 @@ C --- Print neighbor table for each site ---
         mxcsiz = 0
         call pshpr(iprint()-20)
         call pairs(nbas,nbas,1d0,plat,range/2*(1+1d-6),bas,
-     .    -1,3,-1,w,nttab,ontab,oiax,mxcsiz)
+     .  -1,3,-1,w,nttab,ontab,oiax,mxcsiz)
         call poppr
         allocate(rtab_rv(3*nttab))
 Ctakao_ZeroClear_NotRequiered          if (3*nttab<0) rtab_rv(:)=0.0d0
 
         call mkrtab ( 000 , 1d0 , plat , bas , w ( oiax ) , nttab , bas 
-     .   , rtab_rv )
+     .  , rtab_rv )
 
 C       if (ldisp .eq. 1) ltab = 2
         call psho1 ( ldisp * 10 + ltab , lnn , w ( oiax ) , nbas , nttab 
-     .   , nlst1 , lst1_iv , nlst2 , lst2_iv , rtab_rv , plat 
-     .   , bas , dist_rv , mark_rv , ipc , dclabl , ifi )
+     .  , nlst1 , lst1_iv , nlst2 , lst2_iv , rtab_rv , plat 
+     .  , bas , dist_rv , mark_rv , ipc , dclabl , ifi )
 
 
 Cki#error ERROR, try to release name= ontab ,but list does not have  ontab at linenumber= 151 list= olst1 olst2 odist omark ortab
@@ -209,10 +209,10 @@ c     call pshprt(50)
 
         endif
         call nghbor ( nbas , plat , bas , range , range , ib , mxnbr 
-     .   , npr , w ( oiax ) , wk_rv )
+     .  , npr , w ( oiax ) , wk_rv )
 
         call xxsho(npr(1),nbas,plat,bas,w(oiax),ipc,dclabl,nlstc,
-     .    w(olstc),lves,ves,leula,eula,z)
+     .  w(olstc),lves,ves,leula,eula,z)
    20 continue
       if (allocated(wk_rv)) deallocate(wk_rv)
       call rlse(oiax)
@@ -236,7 +236,7 @@ Cki#error, have return with len(w_varlist)>0 at line 178
       end subroutine shoshl
 
       subroutine xxsho(npr,nbas,plat,bas,iax,ipc,dclabl,nlstc,lstc,lves,
-     .  ves,leul,eula,z)
+     .ves,leul,eula,z)
 
 C- Kernel called by shoshl
 C  nlstc,lstc:  a list of classes to include as pairs (nlstc>0)
@@ -246,15 +246,15 @@ C     implicit none
       parameter (niax=10)
       integer iax(niax,1)
       double precision plat(3,3),bas(3,1),dclabl(1),ves(1),eula(nbas,3),
-     .  z(32)
+     .z(32)
       integer ih(2,120),scrwid
       parameter (scrwid=120)
       integer i,l,ishell,nshell,j,k,ii,kk,ic,jc,i1,lgunit,awrite,iclbsj,
-     .  ib
+     .ib
       double precision dr(3),d,drr2,dshell,fuzz,z1(3),z2(3),alfa,beta,
-     .  angle,pi,ddot
+     .angle,pi,ddot
       character*8 clabl,outs1*25,outs2*(scrwid),outsv*(scrwid),
-     .  outse*(scrwid)
+     .outse*(scrwid)
 
       pi = 4*datan(1d0)
       fuzz = 1d-3
@@ -272,12 +272,12 @@ C     implicit none
       call r8tos8(dclabl(ic),clabl)
       print 302, clabl, ic, nint(z(ic))
   302 format(/' Shell decomposition for class ',a,
-     .        '  class',i4,'  z=',i2/
-     .        ' shell   d     nsh csiz  class ...')
+     .'  class',i4,'  z=',i2/
+     .' shell   d     nsh csiz  class ...')
 
       do  10  i = 1, npr
         d = dsqrt(drr2(plat,bas(1,iax(1,i)),bas(1,iax(2,i)),
-     .    iax(3,i),iax(4,i),iax(5,i),dr))
+     .  iax(3,i),iax(4,i),iax(5,i),dr))
 C   ... new shell, or close of last shell
         if (dabs(d-dshell) .gt. fuzz .or. i .eq. npr) then
           i1 = i-1
@@ -325,10 +325,10 @@ C     ... Setup for printout
             kk = kk+1
             call r8tos8(dclabl(ih(2,k)),clabl)
             l = awrite('%a  %np%i:'//clabl//
-     .        '%a%?;n>1;(%i);%j;',outs2,len(outs2),0,
-     .        (kk-1)*14,ih(2,k),ih(1,k),ih(1,k),0,0,0,0)
+     .      '%a%?;n>1;(%i);%j;',outs2,len(outs2),0,
+     .      (kk-1)*14,ih(2,k),ih(1,k),ih(1,k),0,0,0,0)
             if (lves) call awrit2('%np%d',outsv,len(outsv),0,
-     .        (kk-1)*14,ves(ih(2,k)))
+     .      (kk-1)*14,ves(ih(2,k)))
             ib = iclbsj(ih(2,k),ipc,-nbas,1)
             if (leul .and. ib .gt. 0) then
               alfa = eula(ib,1)
@@ -391,8 +391,8 @@ C ... Passed parameters
 C ... Local parameters
       double precision avwsr,avw,range,xx,zz
       integer:: npr(2) , mxnbr , ib , nshell , nmxshl , niax , j , 
-     . j1 , j2 , nspec , mxint , nsites , oslist , nbonds , ilst , parg 
-     . , m , iv(10) , ilast
+     .j1 , j2 , nspec , mxint , nsites , oslist , nbonds , ilst , parg 
+     ., m , iv(10) , ilast
       integer ,allocatable :: iax_iv(:)
       real(8) ,allocatable :: wk_rv(:)
       integer ,allocatable :: num_iv(:)
@@ -435,20 +435,20 @@ C         range
           elseif (sopts(j1:j1+1) .eq. 'r=')  then
             m = 0
             j = parg('r=',4,sopts(j1:),m,len(sopts(j1:)),
-     .        dc//' ',1,1,iv,range)
+     .      dc//' ',1,1,iv,range)
             if (j .le. 0) goto 999
 
 C         Site list
           elseif (sopts(j1:j1+4) .eq. 'sites') then
             if (sopts(j1+5:j1+5) .eq. '=') sopts(j1+5:j1+5) = dc
             call baslst(0,10,sopts(j1+5:),ilast,ips,nbas,slabl,zz,0,' ',
-     .        xx,nsites,w(oslist))
+     .      xx,nsites,w(oslist))
 
 C         Bond list
           elseif (sopts(j1:j1+4) .eq. 'bonds') then
             if (sopts(j1+5:j1+5) .eq. '=') sopts(j1+5:j1+5) = dc
             call baslst ( 0 , 10 , sopts ( j1 + 5: ) , ilast , ips , nbas 
-     .       , slabl , zz , 0 , ' ' , xx , nbonds , blist_iv )
+     .      , slabl , zz , 0 , ' ' , xx , nbonds , blist_iv )
 
           endif
           goto 10
@@ -480,7 +480,7 @@ C --- For every site in list, generate tables of bond angles ---
 C   ... Get neighbor lists
 
         call nghbor ( nbas , plat , bas , range * avw , range * avw , 
-     .   ib , mxnbr , npr , iax_iv , wk_rv )
+     .  ib , mxnbr , npr , iax_iv , wk_rv )
 
 
 C   ... Get shell dimensions
@@ -488,7 +488,7 @@ C   ... Get shell dimensions
         if (-nspec*npr(1)<0) num_iv(:)=0
 
         call pvang1 ( npr ( 1 ) , nbas , plat , bas , iax_iv , ips 
-     .   , num_iv , nshell , nmxshl )
+     .  , num_iv , nshell , nmxshl )
 
         if (allocated(num_iv)) deallocate(num_iv)
 
@@ -504,8 +504,8 @@ Ctakao_ZeroClear_NotRequiered          if (nshell<0) d_rv(:)=0.0d0
 
 C   ... Print bond angles
         call pvang2 ( npr ( 1 ) , nbas , nspec , nshell , nmxshl , plat 
-     .   , bas , iax_iv , ips , slabl , nbonds , blist_iv , num_iv 
-     .   , ang_rv , d_rv )
+     .  , bas , iax_iv , ips , slabl , nbonds , blist_iv , num_iv 
+     .  , ang_rv , d_rv )
 
         if (allocated(d_rv)) deallocate(d_rv)
         if (allocated(ang_rv)) deallocate(ang_rv)
@@ -572,7 +572,7 @@ C       distance changed by more than tol ... new shell
 
 
       subroutine pvang2(npr,nbas,nspec,nshell,nmxshl,plat,bas,iax,
-     .  ips,slabl,nbonds,blist,num,ang,d)
+     .ips,slabl,nbonds,blist,num,ang,d)
 
 C- Kernel called by shoang
 C ----------------------------------------------------------------------
@@ -598,13 +598,13 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer npr,nbas,nspec,nshell,nmxshl,niax,ips(1),
-     .  num(nspec,nspec,nshell,nshell),nbonds,blist(nbonds)
+     .num(nspec,nspec,nshell,nshell),nbonds,blist(nbonds)
       parameter (niax=10)
       integer iax(niax,1)
       character*8 slabl(*)
 C ... Local parameters
       double precision plat(3,3),bas(3,1),d(nshell),
-     .  ang(nmxshl**2,nspec,nspec,nshell,nshell)
+     .ang(nmxshl**2,nspec,nspec,nshell,nshell)
       integer i,j,n,is,js,nsh1,nsh2,nmx2,k
       double precision rdtodg,d1,d2,dp,ddot,wk1(0:3),wk2(0:3)
 C ... External calls
@@ -665,7 +665,7 @@ C --- Accumulate bond angles by shell and class ---
 C --- Printout ---
       print 400, iax(1,1), slabl(ips(iax(1,1)))
   400 format(/' Bond angles for site',i4,', species ',a/
-     .  ' shl1    d1    shl2    d2     cl1      cl2       angle(s) ...')
+     .' shl1    d1    shl2    d2     cl1      cl2       angle(s) ...')
 
       do  60  nsh1 = 1, nshell
         do  50  nsh2 = nsh1, nshell
@@ -674,7 +674,7 @@ C --- Printout ---
               n = num(is,js,nsh1,nsh2)
               if (n .ne. 0) then
                 print 401, nsh1, d(nsh1), nsh2, d(nsh2), slabl(is),
-     .            slabl(js), (ang(i,is,js,nsh1,nsh2), i = 1, n)
+     .          slabl(js), (ang(i,is,js,nsh1,nsh2), i = 1, n)
               endif
    30       continue
    40     continue
@@ -686,7 +686,7 @@ C --- Printout ---
       end subroutine pvang2
 
       subroutine psho1(ltab,lnn,iax,nbas,nttab,nlst1,lst1,nlst2,lst2,
-     .  rtab,plat,pos,pos2,mark,ipc,dclabl,ifi)
+     .rtab,plat,pos,pos2,mark,ipc,dclabl,ifi)
 
 C- Kernel called by supcel to displace pairs radially
 C ----------------------------------------------------------------------
@@ -736,7 +736,7 @@ C ... Passed parameters
       integer iax(niax,1)
 C ... Local parameters
       integer iat,low1,low2,i1,i2,ipr,stdo,lgunit,i,oldi1,oldiat,
-     .  ic,jc
+     .ic,jc
       character clabl*8, clabl2*8
       double precision d,ddot,dsqrt,dpos(3),qlat(9),tol
 C     logical latvec
@@ -747,10 +747,10 @@ C     logical latvec
       call mkqlat(plat,qlat,d)
 
       call info5(20,1,1,' ... shoshl: making neighbor list for'//
-     .  ' %?#n#%-1j%i%j#%i# atom(s), style %i',nlst1,nbas,ltab,0,0)
+     .' %?#n#%-1j%i%j#%i# atom(s), style %i',nlst1,nbas,ltab,0,0)
 
       if (ltab .eq. 3)
-     .  call awrit1('%% rows 3 cols %i sparse',' ',80,ifi,nbas)
+     .call awrit1('%% rows 3 cols %i sparse',' ',80,ifi,nbas)
 
       call getpr(ipr)
       ipr = 100
@@ -758,9 +758,9 @@ C     logical latvec
       call isanrg(mod(ltab,10),1,3,' shoshl:','tab',.true.)
 
       if (ltab .eq. 3)
-     .  call awrit1('%% rows 3 cols %i sparse',' ',80,ifi,nbas)
+     .call awrit1('%% rows 3 cols %i sparse',' ',80,ifi,nbas)
       if (ltab .eq. 13)
-     .  call awrit1('%% rows 6 cols %i sparse',' ',80,ifi,nbas)
+     .call awrit1('%% rows 6 cols %i sparse',' ',80,ifi,nbas)
 
       low1 = 0
       low2 = 0
@@ -784,7 +784,7 @@ C   ... New shell
           ic = ipc(i1)
           call r8tos8(dclabl(ic),clabl)
           call awrit1('# neighbor list for site %i, class '//clabl,
-     .      ' ',80,ifi,i1)
+     .    ' ',80,ifi,i1)
 C         Don't print out on-site entry
 C         goto 10
         endif
@@ -812,7 +812,7 @@ C   ... If i2 already marked, skip this pair
 C           Only print out if displacement nonzero
             if (ddot(3,dpos,1,dpos,1) .ne. 0) then
               write(ifi,1331) i1,i2,(rtab(i,iat),i=1,3),
-     .          (dpos(i),i=1,3),d,clabl,clabl2
+     .        (dpos(i),i=1,3),d,clabl,clabl2
               mark(i2) = lnn
             endif
           endif
@@ -831,7 +831,7 @@ C         Only print out if displacement nonzero
           if (ddot(3,dpos,1,dpos,1) .gt. tol*tol) then
 C         if (.not. latvec(1,tol,qlat,dpos)) then
             write(ifi,1332)
-     .        (rtab(i,iat),i=1,3),(dpos(i),i=1,3)
+     .      (rtab(i,iat),i=1,3),(dpos(i),i=1,3)
             mark(i2) = lnn
           endif
  1332     format(1x,3f12.7,2x,3f12.7)

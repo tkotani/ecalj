@@ -1,5 +1,5 @@
       subroutine smcorm(nbas,ssite,sspec,slat,ng,gv,
-     .  cgh1,cgh2,lfoc1,lfoc2)
+     .cgh1,cgh2,lfoc1,lfoc2)
 
       use m_struc_def  !Cgetarg
 
@@ -42,7 +42,7 @@ C ... Passed parameters
 C ... Local parameters
       integer k0,nlmx,kmax,ib,is,lfoc,i,ocy
       double precision tau(3),v(3),alat,vol,qcorg,qcorh,qsc,cofg,cofh,
-     .  ceh,rfoc,z
+     .ceh,rfoc,z
 C     integer stdo,iprint,lgunit
       parameter (k0=3, nlmx=25)
       double complex gkl(0:k0,nlmx)

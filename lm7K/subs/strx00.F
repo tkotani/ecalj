@@ -68,7 +68,7 @@ C --- Reciprocal space sums, backwards to sum small numbers first ---
       do  26  ir = nkg, 2, -1
         r2 = tpiba2*(glat(1,ir)**2 + glat(2,ir)**2 + glat(3,ir)**2)
         dl = dl + dexp(-gamma*r2)/r2*dcos(tpi*
-     .       (glat(1,ir)*tau(1)+ glat(2,ir)*tau(2)+ glat(3,ir)*tau(3)))
+     .  (glat(1,ir)*tau(1)+ glat(2,ir)*tau(2)+ glat(3,ir)*tau(3)))
    26 continue
       dl = dl*4*pi/vol
 
@@ -81,8 +81,8 @@ C --- Real space sums, backwards to sum small numbers first  ---
       endif
       do  20  ir = nkd, ir1, -1
         r1 = alat*dsqrt((tau(1)-dlat(1,ir))**2 +
-     .                  (tau(2)-dlat(2,ir))**2 +
-     .                  (tau(3)-dlat(3,ir))**2)
+     .  (tau(2)-dlat(2,ir))**2 +
+     .  (tau(3)-dlat(3,ir))**2)
         dl = dl + derfc(awald*r1)/r1
    20 continue
       end

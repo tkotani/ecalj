@@ -34,7 +34,7 @@ C ... Passed parameters
       parameter (n0=10,nppn=12,nab=9)
       double precision ppnl(nppn,n0,2)
       double complex Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,*),
-     .               vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
+     .vumm(-lmaxu:lmaxu,-lmaxu:lmaxu,nab,2,0:lmaxu)
 C ... Local parameters
       integer m1,m2,l,i
       double precision phi,dlphi,phip,dlphip,dphi,dphip
@@ -76,8 +76,8 @@ C           r22 = phi/det
               do  m1 = -l, l
                 do  m2 = -l, l
                   vzz = phz**2*vumm(m1,m2,1,i,l) +
-     .              phz*dphz*(vumm(m1,m2,2,i,l)+vumm(m1,m2,3,i,l)) +
-     .              dphz**2*vumm(m1,m2,4,i,l)
+     .            phz*dphz*(vumm(m1,m2,2,i,l)+vumm(m1,m2,3,i,l)) +
+     .            dphz**2*vumm(m1,m2,4,i,l)
                   vuz = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,2,i,l)
                   vsz = - phz*vumm(m1,m2,3,i,l) - dphz*vumm(m1,m2,4,i,l)
                   vzu = - phz*vumm(m1,m2,1,i,l) - dphz*vumm(m1,m2,3,i,l)

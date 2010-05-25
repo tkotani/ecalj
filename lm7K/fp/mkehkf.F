@@ -53,7 +53,7 @@ C ... Passed parameters
 C ... Local parameters
       integer stdo,stdl,ipr,ipl,nsp,nglob
       double precision eh,eks,rhoexc,sumec,utot,valvef,xcore,
-     .  ttcor,sumt0,sumev,sumtc,ekin,rhosig,amom
+     .ttcor,sumt0,sumev,sumtc,ekin,rhosig,amom
 C     double precision cpnves,rhovxc,sumtc,valves
 C     This ordering must match sham->eterms; see uham
       double precision eterms(20)
@@ -127,9 +127,9 @@ C --- Printout ---
           write(stdo,660) sev,valvef,sumtv,sumec,xcore,ttcor,rhoexc,utot,
      .    eh
   660     format(/' Harris energy:'
-     .       /' sumev= ',f15.6,'  val*vef=',f15.6,'   sumtv=',f15.6
-     .       /' sumec= ',f15.6,'  cor*vef=',f15.6,'   ttcor=',f15.6
-     .       /' rhoeps=',f15.6,'     utot=',f15.6,'    ehar=',f15.6)
+     .    /' sumev= ',f15.6,'  val*vef=',f15.6,'   sumtv=',f15.6
+     .    /' sumec= ',f15.6,'  cor*vef=',f15.6,'   ttcor=',f15.6
+     .    /' rhoeps=',f15.6,'     utot=',f15.6,'    ehar=',f15.6)
 C 660 format(/' sumev= ',f17.8,'  val*vef=',f17.8,'   sumtv=',f17.8
 C    .       /' sumec= ',f17.8,'  cor*vef=',f17.8,'   ttcor=',f17.8
 C    .       /' rhoeps=',f17.8,'     utot=',f17.8,'    etot=',f17.8)
@@ -145,14 +145,14 @@ C    .       /' rhoeps=',f17.8,'     utot=',f17.8,'    etot=',f17.8)
           if (rhosig .ne. -99 .and. rhosig .ne. 0) then
             write (stdo,411) sumtv,sumtc,ekin,rhoexc,utot,rhosig,eks
   411       format(/' Kohn-Sham energy:'
-     .           /' sumtv= ',f15.6,'  sumtc=',f17.6,'   ekin=',f16.6
-     .           /' rhoep= ',f15.6,'   utot=',f17.6,' rhosig=',f16.6
-     .           /'  ehks=', f16.6)
+     .      /' sumtv= ',f15.6,'  sumtc=',f17.6,'   ekin=',f16.6
+     .      /' rhoep= ',f15.6,'   utot=',f17.6,' rhosig=',f16.6
+     .      /'  ehks=', f16.6)
           else
             write (stdo,410) sumtv,sumtc,ekin,rhoexc,utot,eks
   410       format(/' Kohn-Sham energy:'
-     .           /' sumtv= ',f15.6,'  sumtc=',f17.6,'   ekin=',f16.6
-     .           /' rhoep= ',f15.6,'   utot=',f17.6,'   ehks=',f16.6)
+     .      /' sumtv= ',f15.6,'  sumtc=',f17.6,'   ekin=',f16.6
+     .      /' rhoep= ',f15.6,'   utot=',f17.6,'   ehks=',f16.6)
           endif
           if (nsp .eq. 2) write (stdo,412) valmom,amom
   412     format(' mag. mom=',f13.6,'  (bands)',f16.6,'  (output rho)')

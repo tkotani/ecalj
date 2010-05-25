@@ -152,20 +152,20 @@ C Passed parameters
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local parameters
       integer nnames,fopna,idum,i1mach,isw
@@ -331,8 +331,8 @@ C         call shosyv(0,0,0,i1mach(2))
           endif
    10   continue
         if (lxst .and. iprint() .ge. 0) call awrit4(
-     .      ' plstmv:  plml=%d  plmb=%d  plmr=%d  plmt=%d',
-     .      ' ',80,i1mach(2),plml,plmb,plmr,plmt)
+     .  ' plstmv:  plml=%d  plmb=%d  plmr=%d  plmt=%d',
+     .  ' ',80,i1mach(2),plml,plmb,plmr,plmt)
       else
         ls = len(s)
 C        print *, s
@@ -376,20 +376,20 @@ C Passed parameters
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local parameters
       integer iprint,i1mach
@@ -418,13 +418,13 @@ C and offset by centering both graphics units in medium units.
 
       if (iprint() .ge. 50)
      .call awrit4(' pltstg: medium corners (GU): lb = (%d %d)'//
-     .  '  rt = (%d %d)',' ',80,i1mach(2),plgl,plgb,plgr,plgt)
+     .'  rt = (%d %d)',' ',80,i1mach(2),plgl,plgb,plgr,plgt)
       if (iprint() .gt. 100)
-     .  call awrit4('         scal(x,y)g = %d %d  off(x,y)g = '//
-     .  '(%d %d)',' ',80,i1mach(2),scalxg,scalyg,offxg,offyg)
+     .call awrit4('         scal(x,y)g = %d %d  off(x,y)g = '//
+     .'(%d %d)',' ',80,i1mach(2),scalxg,scalyg,offxg,offyg)
       if (iprint() .gt. 100)
-     .  call awrit4(' pltstg: medium corners (MU): lb = (%d %d)'//
-     .  '  rt = (%d %d)',' ',80,i1mach(2),plml,plmb,plmr,plmt)
+     .call awrit4(' pltstg: medium corners (MU): lb = (%d %d)'//
+     .'  rt = (%d %d)',' ',80,i1mach(2),plml,plmb,plmr,plmt)
 
       end
       subroutine pltstu(l,r,b,t,uuytox)
@@ -447,20 +447,20 @@ C Passed parameters
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local parameters
       integer iprint,i1mach,is,scrwid
@@ -494,7 +494,7 @@ C --- Set initial frame to max size if uuytox spec'd and noclip ---
       if (uuytox .ne. 0 .and. noclip) then
         if (iprint() .ge. 50) then
           call awrit1(' pltstu: resizing frame in x to satisfy '//
-     .   'dy/dx(UU) = %1;4g*dy/dx(MU).',' ',80,i1mach(2),uuytox)
+     .    'dy/dx(UU) = %1;4g*dy/dx(MU).',' ',80,i1mach(2),uuytox)
           print '(10x,''Frame initially set at ...'')'
         endif
         if (.not. noclip) call pltstp(plpl,plpr,plpb,plpt)
@@ -572,20 +572,20 @@ C Passed parameters
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
       integer iprint,i1mach
 
       call lodsyv('gl',1,l,i)
@@ -628,20 +628,20 @@ C Passed parameters
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
       integer iprint,i1mach
 
       if (io .eq. 0) then
@@ -649,9 +649,9 @@ C Plot parameters block
         logy = plogy
         if (iprint() .ge. 30) then
           call awrit2(' pltsts:  set  logx=%l  logy=%l',
-     .      ' ',80,i1mach(2),logx,logy)
+     .    ' ',80,i1mach(2),logx,logy)
           if (medium .eq. 3) call awrit2('%% pltsts:  set  logx=%l'//
-     .      '  logy=%l',' ',80,stream,logx,logy)
+     .    '  logy=%l',' ',80,stream,logx,logy)
         endif
       else
         plogx = logx
@@ -677,20 +677,20 @@ C Passed parameters
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 
       cosa = cos(alpha)
@@ -719,20 +719,20 @@ C Passed parameters
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local variables
       integer iprint,is
@@ -752,7 +752,7 @@ C --- Draw all line types, Postscript ---
         if (pstat .eq. 0) then
           call pbbox(xcm,ycm)
           call awrit4('newpath %1;nd %1;nd moveto',s,100,0,
-     .      ndwrt,xcm,ndwrt,ycm)
+     .    ndwrt,xcm,ndwrt,ycm)
 C          call bin2a('newpath',0,0,0,1,0,80,s,is)
 C          call bin2a('(f8.1)',1,0,xcm,4,0,100,s,is)
 C          call bin2a('(f8.1)',1,0,ycm,4,0,100,s,is)
@@ -793,7 +793,7 @@ C --- Line type 1 Draw, ASCII  ---
           write(stream,110) x+xb*sint, y-yb*cost
           write(stream,310) x, y
         endif
-  110 format('PA ',2f14.5)
+  110   format('PA ',2f14.5)
       else
         call rx('PLTAM: unknown medium')
       endif
@@ -876,9 +876,9 @@ C --- Exit ---
 
     6 continue
       if (iprint() .ge. 120)
-     .  print 333, x, y, opt, lintyp,linl1,linl2,linl3,linl4
+     .print 333, x, y, opt, lintyp,linl1,linl2,linl3,linl4
   333 format(' Pltam: x,y=', 2f10.3, '  opt=',i1,
-     .  '  lintyp=',i2,4f7.3)
+     .'  lintyp=',i2,4f7.3)
 
       end
       subroutine mve(x,y)
@@ -914,20 +914,20 @@ C Passed parameters
       double precision x,y,cs0(0:3)
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local variables
       integer io,iprint,i1mach
@@ -981,22 +981,22 @@ C Local variables
       xs = xcu
       if (logx) then
         if (xcu .le. 0)
-     .    call rx1('x=%g encountered, but log x scale',xcu)
+     .  call rx1('x=%g encountered, but log x scale',xcu)
         xs = dlog(xcu)
       endif
       ys = ycu
       if (logy) then
         if (ycu .le. 0)
-     .    call rx1('y=%g encountered, but log y scale',ycu)
+     .  call rx1('y=%g encountered, but log y scale',ycu)
         ys = dlog(ycu)
       endif
 C  ... Nonorthogonal transformation
-       xs = (offxu+xs)*scalxu + cosa*(offyu+ys)*scalyu
-       ys = sina*(offyu+ys)*scalyu
+      xs = (offxu+xs)*scalxu + cosa*(offyu+ys)*scalyu
+      ys = sina*(offyu+ys)*scalyu
 
       if (iprint() .ge. 110) then
         call awrit5(' mve (opt=%i): %1;4g %1;4g(UU)  %d %d(MU)',
-     .    ' ',80,i1mach(2),io,xcu,ycu,xs,ys)
+     .  ' ',80,i1mach(2),io,xcu,ycu,xs,ys)
       endif
 
       call pltam(xs,ys,io,cs)
@@ -1031,20 +1031,20 @@ C Passed parameters
       double precision x,y
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local variables
       integer io
@@ -1083,20 +1083,20 @@ C Passed parameters
       double precision x,y
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 C- Return current pen position by scaling from the medium's units
       x = xcm/scalxg - offxg
       y = ycm/scalyg - offyg
@@ -1212,9 +1212,9 @@ C ... Local parameters
       double precision x,y,fuzz,alpha,beta,xx
       parameter (fuzz=1d-7)
       inside(x,y) = x+fuzz.ge.box(1) .and. x-fuzz.le.box(3) .and.
-     .              y+fuzz.ge.box(2) .and. y-fuzz.le.box(4)
+     .y+fuzz.ge.box(2) .and. y-fuzz.le.box(4)
       betw(x,alpha,beta) =
-     .  x .ge. min(alpha,beta) .and. x .le. max(alpha,beta)
+     .x .ge. min(alpha,beta) .and. x .le. max(alpha,beta)
 
 C     Sanity check
       if (box(3) .le. box(1)) call rx('gtxeff: bad box')
@@ -1281,8 +1281,8 @@ C ... Local parameters
       isec(sloi,xa,dy) = xa + dy*sloi
 C     betw => x between alpha and beta and between xmin and xmax
       betw(x,alpha,beta,xmin,xmax) =
-     .  x .ge. min(alpha,beta) .and. x .le. max(alpha,beta) .and.
-     .  x .ge. xmin .and. x .le. xmax
+     .x .ge. min(alpha,beta) .and. x .le. max(alpha,beta) .and.
+     .x .ge. xmin .and. x .le. xmax
 
       k = 0
       kb = 0
@@ -1294,13 +1294,13 @@ C     Intersection of two horizontals with line segment
           xe = isec((x2-x1)/(y2-y1),x1,ye-y1)
           if (betw(xe,x1,x2,box(1),box(3))) then
 C         Exclude points coincident with (x1,y1) or (x2,y2)
-          if (min(dabs(xe-x1)+dabs(ye-y1),dabs(xe-x2)+dabs(ye-y2))
-     .        .gt. fuzz) then
-            k = k+1
-            if (k .eq. n) return
-          else
-            kb = kb+1
-          endif
+            if (min(dabs(xe-x1)+dabs(ye-y1),dabs(xe-x2)+dabs(ye-y2))
+     .      .gt. fuzz) then
+              k = k+1
+              if (k .eq. n) return
+            else
+              kb = kb+1
+            endif
           endif
         enddo
       endif
@@ -1312,13 +1312,13 @@ C     Intersection of two verticals with line segment
           ye = isec((y2-y1)/(x2-x1),y1,xe-x1)
           if (betw(ye,y1,y2,box(2),box(4))) then
 C         Exclude points coincident with (x1,y1) or (x2,y2)
-          if (min(dabs(xe-x1)+dabs(ye-y1),dabs(xe-x2)+dabs(ye-y2))
-     .        .gt. fuzz) then
-            k = k+1
-            if (k .eq. n) return
-          else
-            kb = kb+1
-          endif
+            if (min(dabs(xe-x1)+dabs(ye-y1),dabs(xe-x2)+dabs(ye-y2))
+     .      .gt. fuzz) then
+              k = k+1
+              if (k .eq. n) return
+            else
+              kb = kb+1
+            endif
           endif
         enddo
       endif
@@ -1338,28 +1338,28 @@ C Local
       logical rdstrn
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
       if (mode .eq. 1) then
         ifi = fopng(string,-1,1)
         s(1:60) = string
         if (iprint() .ge. 40) call awrit0(' plwstr:  '//
-     .    'inserting file "'//s(1:60)//'%a"',' ',80,i1mach(2))
+     .  'inserting file "'//s(1:60)//'%a"',' ',80,i1mach(2))
         call awrit0('%N%% --- plwstr:  inserting file "'//
-     .    s(1:60)//'%a"',' ',80,stream)
+     .  s(1:60)//'%a"',' ',80,stream)
    10   if (rdstrn(ifi,s,len(s),.false.)) then
           call skpblb(s,len(s),i)
           write (stream,'(a)') s(1:i+1)
@@ -1369,9 +1369,9 @@ C Plot parameters block
       else
         s(1:60) = string
         if (iprint() .ge. 40) call awrit0(' plwstr:  '//
-     .    'inserting string "'//s(1:60)//'%a"',' ',80,i1mach(2))
+     .  'inserting string "'//s(1:60)//'%a"',' ',80,i1mach(2))
         call awrit0('%N%% --- plwstr:  inserting string "'//
-     .    s(1:60)//'%a"',' ',80,stream)
+     .  s(1:60)//'%a"',' ',80,stream)
         write (stream,'(a)') string
       endif
 
@@ -1392,25 +1392,25 @@ C ----------------------------------------------------------------
       integer io
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
       if (medium .eq. 1) then
       elseif (medium .eq. 2) then
       elseif (medium .eq. 3) then
         call awrit4('%%%%BoundingBox: %;1d %;1d %;1d %;1d',' ',
-     .    80,stream,bbox(1),bbox(3),bbox(2),bbox(4))
+     .  80,stream,bbox(1),bbox(3),bbox(2),bbox(4))
         write (stream,10)
    10   format('showpage')
       endif
@@ -1433,20 +1433,20 @@ C Passed parameters
       integer color
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
       pcol = color
       end
@@ -1456,20 +1456,20 @@ C- Set number of dots-per-inch
       integer n
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 
       ndpi = n
@@ -1502,20 +1502,20 @@ C Passed parameters
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local parameters
       logical err
@@ -1594,7 +1594,7 @@ C- Restores saved line type
 
       end
       subroutine ticset(llog,mode,mt0,bot,top,ts0,tx0,ch,lmode,
-     .  tic,mt,mt1,itic,s)
+     .tic,mt,mt1,itic,s)
 C- Set a tic pattern
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1711,7 +1711,7 @@ C --- ts, tic and mt1 for mode=0 ---
         itic = 1
 C ...   For printout
         call awrit3('%10z%a  '//ch//'t1=%1;4g ts'//ch//'=%1;4g mt'//
-     .    ch//'=%i',s,len(s),0,tic,ts,mt)
+     .  ch//'=%i',s,len(s),0,tic,ts,mt)
         ts0(1) = ts
         return
       endif
@@ -1738,7 +1738,7 @@ C ...   Determine mt1 by finding point closest to tx0
    22   continue
         mt1 = mod(k-1,mt)
         call awrit5('%10z%a  '//ch//'t1=%1;4g mode=%i(%i tics) mt'//
-     .    ch//'=%i:%i',s,len(s),0,tic,5,lmode-10,mt,mt1)
+     .  ch//'=%i:%i',s,len(s),0,tic,5,lmode-10,mt,mt1)
         return
       endif
 
@@ -1751,7 +1751,7 @@ C --- ts, tic, mt1 and itic for mode=1,2,3 ---
         if (tic .lt. botl) call ticnxt(lmode,tic,topl,0d0,itic)
         mt1 = mod(mt-itic+1,mt)
         call awrit3('%10z%a  '//ch//'t1=%1;4g mode=%i mt'//
-     .    ch//'=%i',s,len(s),0,tic,lmode,mt)
+     .  ch//'=%i',s,len(s),0,tic,lmode,mt)
         return
       endif
 
@@ -1771,9 +1771,9 @@ Co inew,tic: next tic, and index to next tic.
       double precision tx(11,3),scale,ss,err
       save scale
       data tx /1d0,2d0,3d0,4d0,5d0,6d0,7d0,8d0,9d0,10d0,11d0,
-     .         1d0,2d0,5d0,10d0,20d0,0d0,0d0,0d0,0d0,0d0,0d0,
-     .         1d0,10d0,100d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0/,
-     .  nx /10,4,2/
+     .1d0,2d0,5d0,10d0,20d0,0d0,0d0,0d0,0d0,0d0,0d0,
+     .1d0,10d0,100d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0,0d0/,
+     .nx /10,4,2/
 
       if (mode .eq. 0) then
         tic = tic + ts0(1)
@@ -1858,8 +1858,8 @@ C tmp is the width scaled to a number between 1 and 10
       ticspc = int(tmp + .00001d0)/scale
       end
       subroutine frme(tx0,tsx,mtx,rmtx,rmntx,modx,xnum,xnfmt,xlabel,
-     .                ty0,tsy,mty,rmty,rmnty,mody,ynum,ynfmt,ylabel,
-     .                sfxdef,np,xp,fxdef,title,lt,cs)
+     .ty0,tsy,mty,rmty,rmnty,mody,ynum,ynfmt,ylabel,
+     .sfxdef,np,xp,fxdef,title,lt,cs)
 C- draw a frame around the plot and either tic marks or grid lines.
 C ----------------------------------------------------------------
 Ci Inputs
@@ -1907,26 +1907,26 @@ C ----------------------------------------------------------------
 C Passed parameters
       integer mtx,mty,lt(3),modx,mody,np
       double precision tx0,tsx(1),rmtx,rmntx,ty0,tsy(1),rmty,rmnty,
-     .  cs(0:3),xp(np),fxdef(np)
+     .cs(0:3),xp(np),fxdef(np)
       character*(*) xlabel,ylabel,title,sfxdef
       integer xnum,ynum
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local parameters
       integer i,mt,it,i1mach,ipr,lmode,mt1,side,jx,lgunit,stdo
@@ -1958,10 +1958,10 @@ C --- Setup ---
         if (logy) call awrit1('%a (log)',s,len(s),0,l)
         call awrit1('%a  bold=%i',s,len(s),0,lt)
         if (lt(2)+lt(3) .gt. 0)
-     .    call awrit4('%a: no axes for: '//
-     .    '%?#n>0&n<>2# top,##%?#n>1# bottom,##'//
-     .    '%?#n>0&n<>2# right,##%?#n>1# left,##%b',
-     .    s,len(s),0,lt(2),lt(2),lt(3),lt(3))
+     .  call awrit4('%a: no axes for: '//
+     .  '%?#n>0&n<>2# top,##%?#n>1# bottom,##'//
+     .  '%?#n>0&n<>2# right,##%?#n>1# left,##%b',
+     .  s,len(s),0,lt(2),lt(2),lt(3),lt(3))
         call awrit0('%a',s,len(s),-i1mach(2))
         s2 = '% ---'//s
         if (medium .eq. 3) call awrit0('%a',s2,len(s),-stream)
@@ -2007,51 +2007,51 @@ C ... tic marks for each side
       s = ' '
       do  10  side = 1, 2
 C ... Tic mark setup
-      s2 = ' '
-      call ticset(logx,modx,mtx,l,r,tsx,tx0,'x',lmode,xtic,mt,mt1,it,s2)
-      if (side .eq. 1) s(6:len(s)) = s2
-      maktic = (lt(2) .eq. 0 .or. lt(2) .eq. side) .and. lmode .ne. 10
-      if (.not. maktic) goto 16
+        s2 = ' '
+        call ticset(logx,modx,mtx,l,r,tsx,tx0,'x',lmode,xtic,mt,mt1,it,s2)
+        if (side .eq. 1) s(6:len(s)) = s2
+        maktic = (lt(2) .eq. 0 .or. lt(2) .eq. side) .and. lmode .ne. 10
+        if (.not. maktic) goto 16
 C ... for each tic do (mt1 is zero at major tics)
-      do  15  i = 1, 999
+        do  15  i = 1, 999
 C   ... for now
-        xxtic = xtic
-        if (sfxdef(1:1) .ne. ' ') then
           xxtic = xtic
-          call polint(fxdef,xp,np,4,xxtic,0d0,0,jx,xtic,dxtic)
-          if (ipr .ge. 50) then
-            call awrit2(' plsym: abscissa %1:-1,4;4g mapped'//
+          if (sfxdef(1:1) .ne. ' ') then
+            xxtic = xtic
+            call polint(fxdef,xp,np,4,xxtic,0d0,0,jx,xtic,dxtic)
+            if (ipr .ge. 50) then
+              call awrit2(' plsym: abscissa %1:-1,4;4g mapped'//
      .        ' to %1:-1,4;4g',' ',80,stdo,xxtic,xtic)
-          endif
-        endif
-        call mve(xtic, ytic)
-        if (mt1 .eq. 0) then
-          call drwre(0d0, ticlen, -2d0)
-          if (ytic .eq. b .and. xnum .gt. 0) then
-            if (medium .eq. 3) then
-              call mve(xtic,ytic)
-              call pslabl('a',xnfmt,xxtic,' ','l',' ',1,0d0)
             endif
           endif
-          if (ytic .eq. t .and. xnum .lt. 0) then
-            if (medium .eq. 3) then
-              call mve(xtic,ytic)
-              call pslabl('A',xnfmt,xxtic,' ','l',' ',1,0d0)
+          call mve(xtic, ytic)
+          if (mt1 .eq. 0) then
+            call drwre(0d0, ticlen, -2d0)
+            if (ytic .eq. b .and. xnum .gt. 0) then
+              if (medium .eq. 3) then
+                call mve(xtic,ytic)
+                call pslabl('a',xnfmt,xxtic,' ','l',' ',1,0d0)
+              endif
             endif
+            if (ytic .eq. t .and. xnum .lt. 0) then
+              if (medium .eq. 3) then
+                call mve(xtic,ytic)
+                call pslabl('A',xnfmt,xxtic,' ','l',' ',1,0d0)
+              endif
+            endif
+            mt1 = mt
+          else
+            call drwre(0d0, rmntx*ticlen, -2d0)
           endif
-          mt1 = mt
-        else
-          call drwre(0d0, rmntx*ticlen, -2d0)
-        endif
-   14   continue
-        mt1 = mt1-1
-        call ticnxt(lmode,xtic,r,tsx,it)
-        if (it .eq. 0) goto 16
-   15 continue
-      call rx('FRME:  too many tics in x')
-   16 continue
-      ytic = t
-      ticlen = -ticlen
+   14     continue
+          mt1 = mt1-1
+          call ticnxt(lmode,xtic,r,tsx,it)
+          if (it .eq. 0) goto 16
+   15   continue
+        call rx('FRME:  too many tics in x')
+   16   continue
+        ytic = t
+        ticlen = -ticlen
    10 continue
 
 c --- Draw and label tic marks, y axis ---
@@ -2061,41 +2061,41 @@ C ... tic marks for each side
       if (logx) ticlen = rmty*dlog(r/l)
       do  20  side = 1, 2
 C ... Tic mark setup
-      s2 = ' '
-      if (side .eq. 2) s2 = s
-      call ticset(logy,mody,mty,b,t,tsy,ty0,'y',lmode,ytic,mt,mt1,it,s2)
-      maktic = (lt(3) .eq. 0 .or. lt(3) .eq. side) .and. lmode .ne. 10
-      if (.not. maktic) goto 26
+        s2 = ' '
+        if (side .eq. 2) s2 = s
+        call ticset(logy,mody,mty,b,t,tsy,ty0,'y',lmode,ytic,mt,mt1,it,s2)
+        maktic = (lt(3) .eq. 0 .or. lt(3) .eq. side) .and. lmode .ne. 10
+        if (.not. maktic) goto 26
 C ... for each tic do (mt1 is zero at major tics)
-      do  25  i = 1, 999
-        call mve(xtic, ytic)
-        if (mt1 .eq. 0) then
-          call drwre(ticlen, 0d0, -2d0)
-          if (xtic .eq. l .and. ynum .gt. 0) then
-            if (medium .eq. 3) then
-              call mve(xtic,ytic)
-              call pslabl('o',ynfmt,ytic,' ','l',' ',1,0d0)
+        do  25  i = 1, 999
+          call mve(xtic, ytic)
+          if (mt1 .eq. 0) then
+            call drwre(ticlen, 0d0, -2d0)
+            if (xtic .eq. l .and. ynum .gt. 0) then
+              if (medium .eq. 3) then
+                call mve(xtic,ytic)
+                call pslabl('o',ynfmt,ytic,' ','l',' ',1,0d0)
+              endif
             endif
-          endif
-          if (xtic .eq. r .and. ynum .lt. 0) then
-            if (medium .eq. 3) then
-              call mve(xtic,ytic)
-              call pslabl('O',ynfmt,ytic,' ','l',' ',1,0d0)
+            if (xtic .eq. r .and. ynum .lt. 0) then
+              if (medium .eq. 3) then
+                call mve(xtic,ytic)
+                call pslabl('O',ynfmt,ytic,' ','l',' ',1,0d0)
+              endif
             endif
+            mt1 = mt
+          else
+            call drwre(rmnty*ticlen, 0d0, -2d0)
           endif
-          mt1 = mt
-        else
-          call drwre(rmnty*ticlen, 0d0, -2d0)
-        endif
-   24   continue
-        mt1 = mt1-1
-        call ticnxt(lmode,ytic,t,tsy,it)
-        if (it .eq. 0) goto 26
-   25 continue
-      call rx('FRME:  too many tics in y')
-   26 continue
-      xtic = r
-      ticlen = -ticlen
+   24     continue
+          mt1 = mt1-1
+          call ticnxt(lmode,ytic,t,tsy,it)
+          if (it .eq. 0) goto 26
+   25   continue
+        call rx('FRME:  too many tics in y')
+   26   continue
+        xtic = r
+        ticlen = -ticlen
    20 continue
 
       if (ipr .ge. 30) call awrit0('%a',s2,-len(s),-i1mach(2))
@@ -2113,14 +2113,14 @@ C ... abcissa
       write (stream,130) (offxu+xl)*scalxu,(offyu+yl)*scalyu
       call pslabl('0',' ',0d0,xlabel,'h','f',1,0d0)
       if (xlabel .ne. ' ')
-     .  call pbbox((offxu+xl)*scalxu,(offyu+yl)*scalyu-3*fsiz)
+     .call pbbox((offxu+xl)*scalxu,(offyu+yl)*scalyu-3*fsiz)
 C ... ordinate
       xl = plul
       yl = 0.5d0*(plut + plub)
       write (stream,230) (offxu+xl)*scalxu,(offyu+yl)*scalyu
       call pslabl('0',' ',0d0,ylabel,'v','r',1,0d0)
       if (ylabel .ne. ' ')
-     .  call pbbox((offxu+xl)*scalxu-3*fsiz,(offyu+yl)*scalyu)
+     .call pbbox((offxu+xl)*scalxu-3*fsiz,(offyu+yl)*scalyu)
 
 C --- Add title ---
       write (stream,*) '% FRME: adding title ...'
@@ -2129,14 +2129,14 @@ C --- Add title ---
       write (stream,330) (offxu+xl)*scalxu,(offyu+yl)*scalyu
       call pslabl('4',' ',0d0,title,'h','r',1,0d0)
       if (title  .ne. ' ')
-     .  call pbbox((offxu+xl)*scalxu,(offyu+yl)*scalyu+fsiz)
+     .call pbbox((offxu+xl)*scalxu,(offyu+yl)*scalyu+fsiz)
 
   130 format(2f8.1,' moveto 0 h 3 mul neg rmoveto')
   230 format(2f8.1,' moveto h 2 mul max add neg 0 rmoveto')
   330 format(2f8.1,' moveto 0 h 0.5 mul rmoveto')
       end
       subroutine plcrv(xp,yp,wp,wp2,wp3,np,xmin,xmax,ymin,ymax,opts,cs,
-     .  csw,iclos)
+     .csw,iclos)
 C- Draws or continues a smooth curve
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -2167,23 +2167,23 @@ C ----------------------------------------------------------------------
 C Passed Parameters
       integer np,iclos,opts
       double precision xp(np),yp(np),wp(np),wp2(np),wp3(np),xmin,xmax,
-     .  ymin,ymax,xi,yi,cs(0:3),csw(0:3,3)
+     .ymin,ymax,xi,yi,cs(0:3),csw(0:3,3)
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 C Local Variables
       logical lclip,lxbrk
       integer ip,ipr,getdig,i1,is,i1mach
@@ -2219,18 +2219,18 @@ C ... Close curve if requested
         call pposu(xold,yold)
       endif
       call awrit3('%a curve, %i pts lt %i bold %i',s,120,0,np,lintyp,
-     .  ltbld)
+     .ltbld)
       if (cs(0) .gt. -2d0) call awrit1('%a col=%3:1d',s,120,0,cs(1))
       if (csw(0,1) .gt. 0d0)
-     .  call awrit1('%a colw=%3:1d',s,120,0,csw(1,1))
+     .call awrit1('%a colw=%3:1d',s,120,0,csw(1,1))
       if (csw(0,2) .gt. 0d0)
-     .  call awrit1('%a colw2=%3:1d',s,120,0,csw(1,2))
+     .call awrit1('%a colw2=%3:1d',s,120,0,csw(1,2))
       if (csw(0,3) .gt. 0d0)
-     .  call awrit1('%a colw3=%3:1d',s,120,0,csw(1,3))
+     .call awrit1('%a colw3=%3:1d',s,120,0,csw(1,3))
       if (lintyp .eq. 2 .and. linl3 .eq. 0)
-     .  call awrit2('%a len=(%d %d)',s,120,0,linl1,linl2)
+     .call awrit2('%a len=(%d %d)',s,120,0,linl1,linl2)
       if (lintyp .eq. 2 .and. linl3 .ne. 0) call
-     .  awrit4('%a len=(%d %d %d %d)',s,120,0,linl1,linl2,linl3,linl4)
+     .awrit4('%a len=(%d %d %d %d)',s,120,0,linl1,linl2,linl3,linl4)
       if (ipr .ge. 40) call awrit1('%a',s,120,-i1mach(2),1)
 
 C --------------- Postscript -----------------
@@ -2254,11 +2254,11 @@ C...  Clip beyond plot limits
         call pbbox(xsmax,ysmax)
         call pbbox(xsmin,ysmin)
         call awrit8('gsave newpath %1;nd %1;nd moveto %1;nd %1;nd '//
-     .    'lineto',' ',120,stream,ndwrt,xsmin,ndwrt,ysmin,ndwrt,xsmin,
-     .    ndwrt,ysmax)
+     .  'lineto',' ',120,stream,ndwrt,xsmin,ndwrt,ysmin,ndwrt,xsmin,
+     .  ndwrt,ysmax)
         call awrit8('              %1;nd %1;nd lineto %1;nd %1;nd '//
-     .    'lineto closepath clip',' ',120,stream,ndwrt,xsmax,
-     .    ndwrt,ysmax,ndwrt,xsmax,ndwrt,ysmin)
+     .  'lineto closepath clip',' ',120,stream,ndwrt,xsmax,
+     .  ndwrt,ysmax,ndwrt,xsmax,ndwrt,ysmin)
 C        call awrit8('gsave newpath %1;1d %1;1d moveto %1;1d %1;1d '//
 C     .   'lineto %1;1d %1;1d lineto %1;1d %1;1d lineto closepath clip',
 C     .   ' ',120,stream,xsmin,ysmin,xsmin,ysmax,xsmax,ysmax,xsmax,ysmin)
@@ -2272,7 +2272,7 @@ C          endif
 C          call awrit1('%3:1;4d setrgbcolor',' ',80,stream,cspt(1))
 C        endif
         if (cs(0) .ge. 10) call awrit1('%3:1;4d setrgbcolor',' ',80,
-     .    stream,cs(1))
+     .  stream,cs(1))
         call mve(xp(1),yp(1))
       endif
 
@@ -2287,18 +2287,18 @@ C --- Draw the curve ---
       if (lxbrk) then
         if (csw(1,1) .ne. 0) call rx('not ready for lxbrk and colw')
         do  1  ip = i1, np
-        if (ip .gt. i1) then
-          if (xp(ip) .gt. xp(ip-1)) then
-            call drw(xp(ip),yp(ip))
-          else
-            if (ipr .ge. 4) call awrit1(
+          if (ip .gt. i1) then
+            if (xp(ip) .gt. xp(ip-1)) then
+              call drw(xp(ip),yp(ip))
+            else
+              if (ipr .ge. 4) call awrit1(
      .        '    ... break at point %i',' ',80,i1mach(2),ip)
-            call mve(xp(ip),yp(ip))
-          endif
-        else
-          call drw(xp(ip),yp(ip))
+              call mve(xp(ip),yp(ip))
+            endif
+          else
+            call drw(xp(ip),yp(ip))
 c         write(stream,fmt)  (offxu+xp(ip))*scalxu,(offyu+yp(ip))*scalyu
-        endif
+          endif
     1   continue
       else
         cspt(0) = 0
@@ -2377,7 +2377,7 @@ C In this case, end does not matter
       xi = xp(1)
       yi = yp(1)
       if (ipr .ge. 40) call awrit2('    ... start line %1,6;6d %1,6;6d',
-     .  ' ',80,i1mach(2),xi,yi)
+     .' ',80,i1mach(2),xi,yi)
       call mve(xi,yi)
 C      if (xi .ge. xmin .and. xi .le. xmax .and.
 C     .    yi .ge. ymin .and. yi .le. ymax) then
@@ -2390,14 +2390,14 @@ C cludge for now...
         xi = xp(ip)
         yi = yp(ip)
         if (xi .ge. xmin .and. xi .le. xmax .and.
-     .      yi .ge. ymin .and. yi .le. ymax) then
+     .  yi .ge. ymin .and. yi .le. ymax) then
 
           if (lxbrk) then
             if (xp(ip) .gt. xp(ip-1)) then
               call drw(xp(ip),yp(ip))
             else
               if (ipr .ge. 40) call awrit1(
-     .          '    ... break at point %i',' ',80,i1mach(2),ip)
+     .        '    ... break at point %i',' ',80,i1mach(2),ip)
               call mve(xp(ip),yp(ip))
             endif
           else
@@ -2467,20 +2467,20 @@ C Passed parameters
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local parameters
       double precision x,y,xold,yold
@@ -2491,7 +2491,7 @@ C Local parameters
       character*80 s
       character*7 synam(nsym),nam*(*)
       data synam /'x','square','diamond','+','polygon','circle',
-     .  'arrow','errbar','timelin','hist'/
+     .'arrow','errbar','timelin','hist'/
       data nsyma /1,1,1,1,2,1,5,2,3,2/
       data tpi /6.283185307179586d0/
 
@@ -2515,12 +2515,12 @@ C --- Setup ---
       call plcrve(medium,pstat,-2d0,s,is)
       if (is .gt. 0) write(stream,*) s(1:is)
       call awrit5('plsym: '//synam(typex)//' %i pts  gs=%1;5d  attr=%'
-     .  //char(ichar('0')+nsyma(typex))//':1;5d  x,y(1)=%1;4g %1;4g',
-     .  s,80,0,np,symcs(1),syma,xp,yp)
+     .//char(ichar('0')+nsyma(typex))//':1;5d  x,y(1)=%1;4g %1;4g',
+     .s,80,0,np,symcs(1),syma,xp,yp)
       call skpblb(s,79,is)
       if (ipr .ge. 40) print *, s(1:is+1)
       if (medium .eq. 3)
-     .  write (stream,'(/a)') '% --- '//s(1:is+1)//' ---'
+     .write (stream,'(/a)') '% --- '//s(1:is+1)//' ---'
 
       call plntys
       if (symcs(4) .ge. 0) ltbld = nint(symcs(4))
@@ -2618,12 +2618,12 @@ C ...   Position of three arrow points, UU. phi0 is arrow direction.
         d = dsqrt(dx**2+dy**2)
         radx = phi0 + tpi*syma(4)/360
         call drw(d*syma(3)*dcos(radx)/scalxu + xp(ip),
-     .           d*syma(3)*dsin(radx)/scalyu + yp(ip))
+     .  d*syma(3)*dsin(radx)/scalyu + yp(ip))
         call drw(d*syma(5)*dcos(phi0)/scalxu + xp(ip),
-     .           d*syma(5)*dsin(phi0)/scalyu + yp(ip))
+     .  d*syma(5)*dsin(phi0)/scalyu + yp(ip))
         radx = phi0 - tpi*syma(4)/360
         call drw(d*syma(3)*dcos(radx)/scalxu + xp(ip),
-     .           d*syma(3)*dsin(radx)/scalyu + yp(ip))
+     .  d*syma(3)*dsin(radx)/scalyu + yp(ip))
         call drw(xp(ip),yp(ip))
         goto 5
 
@@ -2726,37 +2726,37 @@ C        endif
         if (cs0 .ge. 7) then
           ls = len(s)
           call awrit1(' %3:1;4d setrgbcolor closepath',
-     .      s(is+1:ls),ls-is,0,cs(1))
+     .    s(is+1:ls),ls-is,0,cs(1))
           call skpblb(s,ls,is)
           is = is+1
         elseif (cs0 .ge. 6) then
           ls = len(s)
           call awrit1(' %1;4d setgray closepath',
-     .      s(is+1:ls),ls-is,0,cs(1))
+     .    s(is+1:ls),ls-is,0,cs(1))
           call skpblb(s,ls,is)
           is = is+1
         elseif (cs0 .ge. 5) then
           ls = len(s)
           call awrit1(' %3:1;4d setrgbcolor ',
-     .      s(is+1:ls),ls-is,0,cs(1))
+     .    s(is+1:ls),ls-is,0,cs(1))
           call skpblb(s,ls,is)
           is = is+1
         elseif (cs0 .ge. 4) then
           ls = len(s)
           call awrit1(' %1;4d setgray ',
-     .      s(is+1:ls),ls-is,0,cs(1))
+     .    s(is+1:ls),ls-is,0,cs(1))
           call skpblb(s,ls,is)
           is = is+1
         elseif (cs0 .ge. 3) then
           ls = len(s)
           call awrit1(' closepath gsave%3:1;4d setrgbcolor '//
-     .      'fill grestore',s(is+1:ls),ls-is,0,cs(1))
+     .    'fill grestore',s(is+1:ls),ls-is,0,cs(1))
           call skpblb(s,ls,is)
           is = is+1
         elseif (cs0 .ge. 2) then
           ls = len(s)
           call awrit1(' closepath gsave %1;4d setgray fill grestore',
-     .      s(is+1:ls),ls-is,0,cs(1))
+     .    s(is+1:ls),ls-is,0,cs(1))
           call skpblb(s,ls,is)
           is = is+1
         elseif (cs0 .ge. 1) then
@@ -2767,7 +2767,7 @@ C        endif
       pstat = 0
       end
       subroutine key(style,xk,yk,xlen,xmin,xmax,ymin,ymax,
-     .  symtyp,syma,symcs,crvcs,legend,blank)
+     .symtyp,syma,symcs,crvcs,legend,blank)
 C- Draw the key's legend at (xk,yk)
 C ----------------------------------------------------------------------
 Ci Inputs: xk,yk (user units), xlen: length of line to draw, syma,b,typ:
@@ -2788,20 +2788,20 @@ C Passed Parameters
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local Parameters
       double precision x(2),y(2),xmax,xmin,ymax,ymin
@@ -2816,7 +2816,7 @@ C Local Parameters
 
       s = ' '
       call awrit5(' key:  x,y=%1;4g,%1;4g(UU)  lt %i  sym %i  len=%1;4g'
-     .  ,s,80,0,xk,yk,lintyp,symtyp,xlen)
+     .,s,80,0,xk,yk,lintyp,symtyp,xlen)
       call awrit1('%a  legend='//legend,s,80,0,xk)
       call awrit1('%a',s,80,-i1mach(2),xk)
       if (medium .eq. 3) call awrit1(' %% KEY%a',s,80,-stream,xk)
@@ -2845,7 +2845,7 @@ C      endif
         call mve(x(2),y(2))
         call pltam(xm,ym,-1,1d0)
         call awrit3(' %1;1d %1;1d moveto h %?#n#.8#.5# mul h .5 mul neg'
-     .    //' rmoveto',' ',120,stream,xm,ym,isw(x(2).eq.x(1)))
+     .  //' rmoveto',' ',120,stream,xm,ym,isw(x(2).eq.x(1)))
 C       write (stream,030) xm,ym
         call pslabl('1',' ',0d0,legend,'h','f',blank,0d0)
       endif
@@ -2893,28 +2893,28 @@ C Passed Paramters
       double precision val,rots
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C local parameters
       integer maxlen,maxlns,isw,i1,i2
       parameter (maxlns=10,maxlen=120)
       character*(maxlen) label,show*6,newl*9,s,ss,line(maxlns),strn2,
-     .  bs*1
+     .bs*1
       integer lbrk(maxlns),nlines,ich,count,il,ip,ilen,l1,l2,l3,
-     .        icop,llen(maxlns),iprint,i1mach
+     .icop,llen(maxlns),iprint,i1mach
       logical cmdopt
 
       call spchar(1,bs)
@@ -2950,29 +2950,29 @@ C         Shorten 1.10^... to 10^...
           if (shift .eq. 'a'.or. shift .eq. 'A') then
             write (stream,030) xcm,ycm
             call fwrite(stream,blank,'h',0d0,'showcD','newlinevf',
-     .        ss(i1:i2),i2-i1+1,label)
+     .      ss(i1:i2),i2-i1+1,label)
           else if (shift .eq. 'o' .or. shift .eq. 'O') then
             write (stream,030) xcm,ycm,' h hshift mul neg 0 rmoveto'
             call fwrite(stream,blank,'h',0d0,'showlc','newlinevf',
-     .        ss(i1:i2),i2-i1+1,label)
+     .      ss(i1:i2),i2-i1+1,label)
           endif
           write (stream,300)
   300     format ('grestore')
 C  ...  Just use standard awrite
         else
-        call skpblb(label,maxlen,ilen)
-        ilen = ilen + 1
-        if (iprint() .gt. 50) call awrit2(
+          call skpblb(label,maxlen,ilen)
+          ilen = ilen + 1
+          if (iprint() .gt. 50) call awrit2(
      .    ' pslabl: label "'//label(1:ilen)//'" at %1;2d,%1;2d (MU)',
      .    s,maxlen,i1mach(2),xcm,ycm)
-        call pbbox(xcm,ycm)
-        write (ss,031) xcm,ycm,label(1:ilen),show
-        call awrit3('%xgsave blank-%a%?#n#on#off#%?#n# %d rotate#%j#',
+          call pbbox(xcm,ycm)
+          write (ss,031) xcm,ycm,label(1:ilen),show
+          call awrit3('%xgsave blank-%a%?#n#on#off#%?#n# %d rotate#%j#',
      .    s,maxlen,0,isw(blank.ne.0),isw(rots.ne.0),rots)
 C       s = 'gsave blank-on'
 C       if (blank .eq. 0) s = 'gsave blank-off'
-        call awrit1('%a '//ss,s,maxlen,0,1)
-        call awrit1('%a',s,maxlen,-stream,1)
+          call awrit1('%a '//ss,s,maxlen,0,1)
+          call awrit1('%a',s,maxlen,-stream,1)
         endif
       else
         if (hvl .eq. 'v') then
@@ -3025,9 +3025,9 @@ C         call strcop(line(il),strn(ip),icop,'\\',ich)
         do  4  il = l1, l2, l3
           s = 'gsave blank-'
           call awrit3('%a%?#n#on#off#%?#n# %d rotate#%j#',s,maxlen,0,
-     .      blank.ne.0,isw(rots.ne.0),rots)
+     .    blank.ne.0,isw(rots.ne.0),rots)
           if (cmdopt('-plaintext ',11,0,strn2) .or.
-     .        shift(1:2) .eq. 'tx') then
+     .    shift(1:2) .eq. 'tx') then
             if (hvl .eq. 'h') then
 C             write (stream,130) line(il)(1:llen(il)),show,newl
               write (ss,131) line(il)(1:llen(il)),show,newl
@@ -3039,7 +3039,7 @@ C             write (stream,230) line(il)(1:llen(il)),show,newl
             call awrit1('%a',s,maxlen,-stream,1)
           else
             call fwrite(stream,blank,hvl,rots,show,newl,
-     .                  line(il)(1:llen(il)),llen(il),strn2)
+     .      line(il)(1:llen(il)),llen(il),strn2)
           endif
     4   continue
       endif
@@ -3094,7 +3094,7 @@ C --- strip line of its control chars to determine true stringwidth ---
       do  i = 1, ilen
         c = line(i:i)
         if (c .ne. '^' .and. c .ne. '_' .and. c .ne. '~' .and.
-     .      c .ne. '{' .and. c .ne. '}') then
+     .  c .ne. '{' .and. c .ne. '}') then
           tlen = tlen + 1
           ss(tlen:tlen) = c
         endif
@@ -3150,8 +3150,8 @@ C --- generalised write ---
         cn = ' '
         if (i .lt. ilen) cn = line(i+1:i+1)
         if ((c .eq. '^' .and. cn .eq. '{') .or.
-     .      (c .eq. '_' .and. cn .eq. '{') .or.
-     .      (c .eq. '~' .and. cn .eq. '{')) then
+     .  (c .eq. '_' .and. cn .eq. '{') .or.
+     .  (c .eq. '~' .and. cn .eq. '{')) then
 C         Flush internal buffer
           if (iw .gt. 0) then
             write (stream,130) cw(1:iw)
@@ -3203,9 +3203,9 @@ C     Flush internal buffer
   101 format (f6.1,' rotate')
   102 format ('/w (',a,') stringwidth pop def')
   103 format ('savecurrentpoint gsave w /x exch def'/
-     .        'newpath xbak ybak h tails mul sub moveto'/
-     .        'x 0 rlineto 0 h 1.1 mul h tails mul add rlineto x',
-     .        ' neg 0 rlineto'/'closepath 1 setgray fill grestore')
+     .'newpath xbak ybak h tails mul sub moveto'/
+     .'x 0 rlineto 0 h 1.1 mul h tails mul add rlineto x',
+     .' neg 0 rlineto'/'closepath 1 setgray fill grestore')
   104 format ('w 2 div neg 0 rmoveto')
   105 format ('w neg 0 rmoveto')
   106 format ('0 h 2 div neg rmoveto')
@@ -3217,18 +3217,18 @@ C     Flush internal buffer
   112 format ('w 2 div neg h 1.7 mul neg rmoveto')
   121 format ('/fntsiznow fontsize def /accshift 0 def /frac 1 def')
   122 format ('/fntsiznow fntsiznow smaller mul def'/
-     .        'fntsiznow font choosefont'/
-     .        '/accshift accshift h shift mul frac mul add def'/
-     .        '0 h shift mul frac mul rmoveto'/
-     .        '/frac frac 0.7 mul def')
+     .'fntsiznow font choosefont'/
+     .'/accshift accshift h shift mul frac mul add def'/
+     .'0 h shift mul frac mul rmoveto'/
+     .'/frac frac 0.7 mul def')
   123 format ('/fntsiznow fntsiznow smaller mul def'/
-     .        'fntsiznow font choosefont'/
-     .        '/accshift accshift h shift mul frac mul sub def'/
-     .        '0 h shift mul frac mul neg rmoveto'/
-     .        '/frac frac 0.7 mul def')
+     .'fntsiznow font choosefont'/
+     .'/accshift accshift h shift mul frac mul sub def'/
+     .'0 h shift mul frac mul neg rmoveto'/
+     .'/frac frac 0.7 mul def')
   124 format ('fontsize /Symbol choosefont')
   125 format ('/fntsiznow fontsize def fontsize font choosefont'/
-     .        '0 accshift neg rmoveto /accshift 0 def /frac 1 def')
+     .'0 accshift neg rmoveto /accshift 0 def /frac 1 def')
   129 format ('(',a1,a,') show')
   130 format ('(',a,') show')
 
@@ -3264,20 +3264,20 @@ C Passed Parameters
       integer optio
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
       integer iprint,i1mach,isw,blank,maxlen,ifmt
       parameter (maxlen=120)
       character*(maxlen) s, strn
@@ -3297,7 +3297,7 @@ C --- Postscript label ---
         call rxi('pstr: bad formatting switch',ifmt)
       endif
       call awrit3(' pstr: '//pos//': '//'%?#n#rot=%d #%j#'//
-     .  'blk=%l  "'//strn,s,80,0,isw(rots.ne.0),rots,blank.ne.0)
+     .'blk=%l  "'//strn,s,80,0,isw(rots.ne.0),rots,blank.ne.0)
       if (mod(optio/100,10) .eq. 0) then
         call awrit0('%a" at',s,80,0)
         xx = x
@@ -3337,20 +3337,20 @@ C Passed Parameters
       double precision x,y
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C      if (x .lt. bbox(1) .or. x .gt. bbox(2) .or.
 C     .    y .lt. bbox(3) .or. y .gt. bbox(4)) then
@@ -3376,28 +3376,28 @@ C ----------------------------------------------------------------------
       integer fontsz,i
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
       fsiz = fontsz
       if (medium .eq. 3) write (stream,130) font,fontsz
       call lodsyv('ch',1,.6d0*fontsz,i)
   130 format(' % FONT: set font and fontsize ..'/
-     .       '/font ',a12,' def /fontsize ',i3,' def'/
-     .       '/h fontsize 0.6 mul def % h is about char height'/
-     .       'fontsize font choosefont')
+     .'/font ',a12,' def /fontsize ',i3,' def'/
+     .'/h fontsize 0.6 mul def % h is about char height'/
+     .'fontsize font choosefont')
       end
       subroutine psinit(stream,irot,transx,transy,scale)
 C- Initialise PostScript file with defs and defaults
@@ -3420,8 +3420,8 @@ C Passed Parameters
       write(stream,030)
 C --- translation, scaling, rotating ---
       call awrit4('/inch{72 mul}def /cm{72 mul 2.54 div}def' //
-     . ' %1;1d %1;1d translate  %1;1d %1;1d scale',
-     .  ' ',90,stream,transx, transy, scale, scale)
+     .' %1;1d %1;1d translate  %1;1d %1;1d scale',
+     .' ',90,stream,transx, transy, scale, scale)
       if (irot .ne. 0) write(stream,031)
 C --- fontsize and definitions ---
       write (stream,230)
@@ -3434,53 +3434,53 @@ C --- fontsize and definitions ---
   031 format(' 90 rotate 0 -612 translate')
   130 format(2f8.1,' translate ',2f8.1,' scale')
   230 format(
-     . '/tails 0.4 def % set to 0 for blanking chars without tails'/
-     . '/lto{lineto}def % shorthand for lineto'/
-     . '/blank-on{/b 1 def}def /blank-off{/b 0 def}def blank-on'/
-     . '/smaller 0.67 def % sub/superscripts are this much smaller'/
-     . '/shift   0.33 def % and are shifted by this much of the char ',
-     . 'height'/
-     . '/hshift  0.10 def % horizontal space, fraction of char ',
-     . 'height'/'% push size then font onto stack to select font'/
-     . '/choosefont {findfont exch scalefont setfont} def'/
-     . '% paint object on top of stack at current position')
+     .'/tails 0.4 def % set to 0 for blanking chars without tails'/
+     .'/lto{lineto}def % shorthand for lineto'/
+     .'/blank-on{/b 1 def}def /blank-off{/b 0 def}def blank-on'/
+     .'/smaller 0.67 def % sub/superscripts are this much smaller'/
+     .'/shift   0.33 def % and are shifted by this much of the char ',
+     .'height'/
+     .'/hshift  0.10 def % horizontal space, fraction of char ',
+     .'height'/'% push size then font onto stack to select font'/
+     .'/choosefont {findfont exch scalefont setfont} def'/
+     .'% paint object on top of stack at current position')
   231 format(
-     . '/debug {dup /str 30 string def str cvs show} def'/
-     . '% finding width of longest ordinate label (current width on ',
-     . 'stack) ...'/'/max 0 def /mxw{/w exch def w max gt {/max w ',
-     . 'def} if}def'/'% string centring, justification in the four ',
-     . 'quadrants'/'% and absicca and ordinate label centring ...'/
-     . '/showru{show}def'/'/showcu{dup stringwidth pop 2 div neg ',
-     . '0 rmoveto show}def'/'/showlu{dup stringwidth pop neg 0 ',
-     . 'rmoveto show}def'/'/showrc{0 h 2 div neg rmoveto show}def'/
-     . '/showcc{dup stringwidth pop 2 div neg h 2 div neg rmoveto ',
-     . 'show}def'/'/showlc{dup stringwidth pop neg h 2 div neg ',
-     . 'rmoveto show}def'/'/showrd{0 h neg rmoveto show}def')
+     .'/debug {dup /str 30 string def str cvs show} def'/
+     .'% finding width of longest ordinate label (current width on ',
+     .'stack) ...'/'/max 0 def /mxw{/w exch def w max gt {/max w ',
+     .'def} if}def'/'% string centring, justification in the four ',
+     .'quadrants'/'% and absicca and ordinate label centring ...'/
+     .'/showru{show}def'/'/showcu{dup stringwidth pop 2 div neg ',
+     .'0 rmoveto show}def'/'/showlu{dup stringwidth pop neg 0 ',
+     .'rmoveto show}def'/'/showrc{0 h 2 div neg rmoveto show}def'/
+     .'/showcc{dup stringwidth pop 2 div neg h 2 div neg rmoveto ',
+     .'show}def'/'/showlc{dup stringwidth pop neg h 2 div neg ',
+     .'rmoveto show}def'/'/showrd{0 h neg rmoveto show}def')
   240 format(
-     . '/showld{dup stringwidth pop neg h neg rmoveto show}def'/
-     . '/showcd{dup stringwidth pop 2 div neg h neg rmoveto show}def'/
-     . '/showa{gsave fontsize /Symbol choosefont'/
-     . '       dup stringwidth pop 2 div neg h 1.5 mul neg rmoveto ',
-     . 'show grestore}def'/
-     . '/showA{gsave fontsize /Symbol choosefont'/
-     . '       dup stringwidth pop 2 div neg h 0.5 mul rmoveto ',
-     . 'show grestore}def'/
-     .  '/showo{gsave fontsize /Symbol choosefont'/
-     . '       dup stringwidth pop dup mxw h 2 div add neg h 2 div ',
-     . 'neg rmoveto show grestore}def'/
-     .  '/showO{gsave fontsize /Symbol choosefont'/
-     . '       dup h 2 div h 2 div neg rmoveto show grestore}def'/
-     .  '% aliases for pslabl ...'/
-     . '/show0{showcc}def /show1{show}def /show2{showrd}def ',
-     . '/show3{showld}def'/'/show4{showlu}def')
+     .'/showld{dup stringwidth pop neg h neg rmoveto show}def'/
+     .'/showcd{dup stringwidth pop 2 div neg h neg rmoveto show}def'/
+     .'/showa{gsave fontsize /Symbol choosefont'/
+     .'       dup stringwidth pop 2 div neg h 1.5 mul neg rmoveto ',
+     .'show grestore}def'/
+     .'/showA{gsave fontsize /Symbol choosefont'/
+     .'       dup stringwidth pop 2 div neg h 0.5 mul rmoveto ',
+     .'show grestore}def'/
+     .'/showo{gsave fontsize /Symbol choosefont'/
+     .'       dup stringwidth pop dup mxw h 2 div add neg h 2 div ',
+     .'neg rmoveto show grestore}def'/
+     .'/showO{gsave fontsize /Symbol choosefont'/
+     .'       dup h 2 div h 2 div neg rmoveto show grestore}def'/
+     .'% aliases for pslabl ...'/
+     .'/show0{showcc}def /show1{show}def /show2{showrd}def ',
+     .'/show3{showld}def'/'/show4{showlu}def')
   241 format('% newline macros for ',
-     . 'horizontal and vertical labelling ...'/
-     . '/newlinehf{currentpoint fontsize sub moveto}def'/
-     . '/newlinevf{currentpoint exch fontsize add exch moveto}def'/
-     . '/newlinehr{currentpoint fontsize add moveto}def'/
-     . '/newlinevr{currentpoint exch fontsize sub exch moveto}def'/
-     . '/savecurrentpoint {currentpoint /ybak exch def /xbak exch ',
-     . 'def} def')
+     .'horizontal and vertical labelling ...'/
+     .'/newlinehf{currentpoint fontsize sub moveto}def'/
+     .'/newlinevf{currentpoint exch fontsize add exch moveto}def'/
+     .'/newlinehr{currentpoint fontsize add moveto}def'/
+     .'/newlinevr{currentpoint exch fontsize sub exch moveto}def'/
+     .'/savecurrentpoint {currentpoint /ybak exch def /xbak exch ',
+     .'def} def')
   250 format('% end preamble ...'/)
 
       end
@@ -3499,20 +3499,20 @@ C xcu,ycu:    current pen position in user's units.
 C pcol:       current pen color
 C stream:     stream where to send plot output (hardware dependent)
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
       data cosa /0d0/, sina /1d0/
       data plml /0d0/, plmr /1d0/, plmb /0d0/, plmt /1d0/

@@ -43,13 +43,13 @@ C ... Local parameters
       integer jfi,n0,parg,norp,ntorb,nkap0,nkape
       parameter (n0=10,nkap0=3,nkape=2)
       integer is,ks,lp1,jp,ikap,lmxb,lmxi,j1,j2,ls,i,j,lpz,
-     .  it(n0),idxdn(n0,nkap0)
+     .it(n0),idxdn(n0,nkap0)
       double precision rtab(n0,nkap0),etab(n0,nkap0),orbp(n0,2,nkap0),
-     .  dasum
+     .dasum
 
       if (mod(mode,10) .ne. 1 .or. mod(mode/10,10) .gt. 1 .or.
-     .  mod(mode/100,10) .gt. 1)
-     .  call rxi('unexpected value for mode, mode=',mode)
+     .mod(mode/100,10) .gt. 1)
+     .call rxi('unexpected value for mode, mode=',mode)
 
       lpz = 0
       ioorbp = .true.
@@ -149,7 +149,7 @@ C           lmxi = true lmxb for this rsmh,eh
                 do  lp1 = 1, lmxi+1
 C             if rsm > 0 and idxdn "undetermined", idxdn => low
                   if (orbp(lp1,1,2) .gt. 0 .and. idxdn(lp1,2) .eq. 0)
-     .          idxdn(lp1,2) = 1
+     .            idxdn(lp1,2) = 1
 C             if rsm < 0, idxdn -> high
                   if (orbp(lp1,1,2) .lt. 0) idxdn(lp1,2) = 4
 C             if rsm = 0, idxdn -> high
@@ -224,10 +224,10 @@ C         Sanity checks
               call dcopy(n0,orbp(1,2,ikap),1,etab(1,ikap),1)
               if (dasum(n0,orbp(1,1,ikap),1) .ne. 0) then
                 call awrit6(
-     .        '%a RSMH%?#n==2#2##=%n:1;3d EH%?#n==2#2##=%n:1;3d',
-     .        sout,ls,0,
-     .        ikap,lmxb+1,rtab(1,ikap),
-     .        ikap,lmxb+1,etab(1,ikap))
+     .          '%a RSMH%?#n==2#2##=%n:1;3d EH%?#n==2#2##=%n:1;3d',
+     .          sout,ls,0,
+     .          ikap,lmxb+1,rtab(1,ikap),
+     .          ikap,lmxb+1,etab(1,ikap))
               endif
   112       continue
             lpz = 0

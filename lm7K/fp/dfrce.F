@@ -1,5 +1,5 @@
       subroutine dfrce(ssite,sspec,slat,sctrl,k1,k2,k3,nvl,
-     .  orhoat,orhat1,elind,qmom,smrho,smrout,dfh)
+     .orhoat,orhat1,elind,qmom,smrho,smrout,dfh)
       use m_struc_def  !Cgetarg
 #if MPE
       use m_events !Event numbers: include "events.ins"
@@ -80,7 +80,7 @@ C ... Passed parameters
       double complex smrho(k1,k2,k3,*),smrout(k1,k2,k3,*)
 C Local variables
       integer nbas,job,n1,n2,n3,ng,iprint,nsp,nglob,ib,is,lmxl,iv0,nlm,
-     .  ip,m,i,ngabc(3),ltop,nspec,nlmtop,igets,igetss,nn,lgunit,stdo
+     .ip,m,i,ngabc(3),ltop,nspec,nlmtop,igets,igetss,nn,lgunit,stdo
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer:: ogv , okv , ocdv , ocdn , ocdn0 , ocs , osn
       complex(8) ,allocatable :: ceps_zv(:)
@@ -101,7 +101,7 @@ C Local variables
       complex(8) ,allocatable :: wk3_zv(:)
 
       double precision vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind,
-     .  fes1(3),fes2(3),fxc(3),c,avgdf(3)
+     .fes1(3),fes2(3),fxc(3),c,avgdf(3)
       integer npmx,mp
       parameter (npmx=32)
       integer oicdn(npmx),oicdn0(npmx),oicdv(npmx),oics(npmx),oisn(npmx)
@@ -136,9 +136,9 @@ C ... Heap
       if (mlog) then
         do  pid = 0, numprocs-1
           call MPI_BCAST(shortname(pid),10,MPI_CHARACTER,pid,
-     .                   MPI_COMM_WORLD,ierr)
+     .    MPI_COMM_WORLD,ierr)
           call MPI_BCAST(namelen(pid),1,MPI_INTEGER,pid,
-     .                   MPI_COMM_WORLD,ierr)
+     .    MPI_COMM_WORLD,ierr)
         enddo
       endif
 #endif
@@ -198,7 +198,7 @@ Ctakao_ZeroClear_NotRequiered        if (ng<0) g2_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered        if (ng*3<0) g_rv(:)=0.0d0
 
       call suylg ( ltop , alat , ng , w ( ogv ) , g_rv , g2_rv 
-     . , yl_rv )
+     ., yl_rv )
 
       if (allocated(g_rv)) deallocate(g_rv)
 
@@ -217,16 +217,16 @@ Ctakao_ZeroClear_NotRequiered        if (nn<0) smro_zv(:)=0.0d0
       call dpcopy ( smrho , smro_zv , 1 , 2 * nn , 1d0 )
 
       if ( nsp.eq.2 ) call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , 
-     . 2 ) , 1 , 2 * nn , 1d0 )
+     .2 ) , 1 , 2 * nn , 1d0 )
 
       call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 
-     . , - 1 )
+     ., - 1 )
 
       call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smro_zv 
-     . , cvin_zv )
+     ., cvin_zv )
 
       call pvdf4 ( ssite , sspec , slat , qmom , ng , g2_rv , yl_rv 
-     . , w ( ocs ) , w ( osn ) , iv_iv , qlat , cvin_zv )
+     ., w ( ocs ) , w ( osn ) , iv_iv , qlat , cvin_zv )
 
 C     call gvputf(ng,1,w(okv),k1,k2,k3,w(ocvin),w(osmro))
 C     call zprm3('ves(input rho)',0,w(osmro),k1,k2,k3)
@@ -259,8 +259,8 @@ Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) wk3_zv(:)=0.0d0
       call dpcopy ( smrho , smro_zv , 1 , 2 * nn * nsp , 1d0 )
 
       call pvdf2 ( nbas , nsp , ssite , sspec , slat , n1 , n2 , n3 
-     . , k1 , k2 , k3 , smro_zv , vxcp_zv , vxcm_zv , wk1_zv 
-     . , wk2_zv , wk3_zv , dvxc_zv )
+     ., k1 , k2 , k3 , smro_zv , vxcp_zv , vxcm_zv , wk1_zv 
+     ., wk2_zv , wk3_zv , dvxc_zv )
 
       if (allocated(wk3_zv)) deallocate(wk3_zv)
       if (allocated(wk2_zv)) deallocate(wk2_zv)
@@ -275,30 +275,30 @@ C     Use total n0_out-n0_in but keep vxc spin polarized
 
       do  i = 1, nsp
         call dpadd ( smro_zv , smrout ( 1 , 1 , 1 , i ) , 1 , 2 * 
-     .   nn , 1d0 )
+     .  nn , 1d0 )
 
         call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , i ) , 1 , 2 * nn 
-     .   , - 1d0 )
+     .  , - 1d0 )
 
       enddo
 C     call zprm3('drho',0,w(osmro),k1,k2,k3)
       call pvdf3 ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , smro_zv , 
-     . dvxc_zv )
+     .dvxc_zv )
 
       call fftz3 ( dvxc_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp , 
-     . 0 , - 1 )
+     .0 , - 1 )
 
       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , dvxc_zv 
-     . , cdvx_zv )
+     ., cdvx_zv )
 
 
 C --- Cnomi = (n0_out(q) - n0_in(q)) ---
       call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 
-     . , - 1 )
+     ., - 1 )
 
 c     call zprm3('FFT smrout-smrin',w(osmro),k1,k2,k3*nsp)
       call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smro_zv 
-     . , cnomi_zv )
+     ., cnomi_zv )
 
 C     dqsmo = vol*dval(w(ocnomi),1)
 
@@ -319,7 +319,7 @@ Ctakao_ZeroClear_NotRequiered        if (nvl<0) qmout_rv(:)=0.0d0
 
       call pshpr(0)
       call rhomom ( nbas , ssite , sspec , orhat1 , qmout_rv , vsum 
-     . )
+     .)
 
       call poppr
       call dpadd ( qmout_rv , qmom , 1 , nvl , - 1d0 )
@@ -332,7 +332,7 @@ C --- Lindhard dielectric function ---
 C        call lindxx(123,n1,n2,n3,k1,k2,k3,ng,w(okv),w(oceps),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
         call lindsc ( 3 , ng , w ( ogv ) , tpiba , elind , ceps_zv 
-     .   )
+     .  )
 
       endif
 
@@ -346,7 +346,7 @@ C --- For each site, get correction to force ---
       endif
 #endif
   201 format(/' Harris correction to forces: ',a/
-     .  '  ib',9x,'delta-n dVes',13x,'delta-n dVxc',15x,'total')
+     .'  ib',9x,'delta-n dVes',13x,'delta-n dVxc',15x,'total')
 C  201   format(/' Harris correction to forces:'/
 C     .    '  ib',11x,'dn0 dVes',15x,'dnloc dVes',15x,
 C     .    'dn0 dVxc',15x,'total')
@@ -410,9 +410,9 @@ C$&        MP_SCHEDTYPE=RUNTIME
         if (mlog .and. ib .eq. bproc(procid)) then
           call gettime(datim)
           call awrit4(' dfrce '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' starting atoms %i to %i',' ',256,lgunit(3),
-     .        procid,numprocs,bproc(procid),bproc(procid+1)-1)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' starting atoms %i to %i',' ',256,lgunit(3),
+     .    procid,numprocs,bproc(procid),bproc(procid+1)-1)
         endif
         iv0 = iiv0(ib)
 #endif
@@ -433,10 +433,10 @@ C$      ip  = mp_my_threadnum()+1
         ocdv = oicdv(ip)
 
         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
-     .   , qmout_rv , ng , w ( ogv ) , g2_rv , yl_rv , w ( ocs 
-     .   ) , w ( osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv 
-     .   , w ( ocdn0 ) , w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv 
-     .   , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
+     .  , qmout_rv , ng , w ( ogv ) , g2_rv , yl_rv , w ( ocs 
+     .  ) , w ( osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv 
+     .  , w ( ocdn0 ) , w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv 
+     .  , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
 
 
 C        call gvputf(ng,1,w(okv),k1,k2,k3,w(ocdn),smpot)
@@ -449,8 +449,8 @@ C
 
 #if ! (MPI | MPIK)
         if (iprint() .ge. 30)
-     .    write(stdo,200) ib,(c*(fes1(m)+fes2(m)),m=1,3),
-     .    (c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
+     .  write(stdo,200) ib,(c*(fes1(m)+fes2(m)),m=1,3),
+     .  (c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
   200   format(i4,3f8.2,1x,3f8.2,1x,3f8.2:1x,3f8.2)
 #endif
 
@@ -471,16 +471,16 @@ C
         ib = bproc(pid)
         jb = bproc(pid+1) - ib
         call MPI_BCAST(dfh(1,ib),3*jb,MPI_DOUBLE_PRECISION,pid,
-     .                 MPI_COMM_WORLD,ierr)
+     .  MPI_COMM_WORLD,ierr)
         if (mlog) then
           call gettime(datim)
           call awrit6(' dfrce '//datim//' Process %i of %i on '
-     .          //shortname(procid)(1:namelen(procid))//
-     .          ' bcast dfh(1-3,%i-%i) %i d.p. numbers'//
-     .          ' from process %i on '
-     .          //shortname(pid)(1:namelen(pid)),' ',
-     .          256,lgunit(3),procid,numprocs,bproc(pid),bproc(pid+1)-1,
-     .          3*jb,pid)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' bcast dfh(1-3,%i-%i) %i d.p. numbers'//
+     .    ' from process %i on '
+     .    //shortname(pid)(1:namelen(pid)),' ',
+     .    256,lgunit(3),procid,numprocs,bproc(pid),bproc(pid+1)-1,
+     .    3*jb,pid)
         endif
       enddo
       deallocate (bproc, stat=ierr)
@@ -491,8 +491,8 @@ C
 #endif
       call dpzero(avgdf,3)
       do  23  ib = 1, nbas
-      do  23  i = 1, 3
-        avgdf(i) = avgdf(i) + dfh(i,ib)/nbas
+        do  23  i = 1, 3
+          avgdf(i) = avgdf(i) + dfh(i,ib)/nbas
    23 continue
 
 C ... MPI printout
@@ -511,8 +511,8 @@ C ... MPI printout
 
 C ... Shift all forces to make avg correction zero
       do  24  ib = 1, nbas
-      do  24  i = 1, 3
-        dfh(i,ib) = dfh(i,ib) - avgdf(i)
+        do  24  i = 1, 3
+          dfh(i,ib) = dfh(i,ib) - avgdf(i)
    24 continue
       if (iprint() .ge. 30) write(stdo,331) (c*avgdf(m),m=1,3)
   331 format(' shift forces to make zero average correction:',8x,3f8.2)
@@ -531,8 +531,8 @@ C ... Shift all forces to make avg correction zero
 
 
       subroutine pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,qmout,ng,gv,
-     .  g2,yl,cs,sn,iv,qlat,kmax,cnomin,ceps,cdn0,cdn,cdv,cdvxc,cvin,
-     .  orhoat,fes1,fes2,fxc)
+     .g2,yl,cs,sn,iv,qlat,kmax,cnomin,ceps,cdn0,cdn,cdv,cdvxc,cvin,
+     .orhoat,fes1,fes2,fxc)
 
       use m_struc_def  !Cgetarg
 
@@ -568,24 +568,24 @@ C     implicit none
 C ... Passed parameters
       integer ng,nsp,iv0,kmax,ib,job,orhoat(3),iv(ng,3)
       real(8):: qmom(1) , qmout(1) , gv(ng,3) , tau(3) , fes1(3) , 
-     . fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
+     .fes2(3) , fxc(3) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
 
       double complex cdn0(ng,nsp),cdn(ng),cdv(ng),ceps(ng),
-     .  cnomin(ng),cdvxc(ng,nsp),cvin(ng)
+     .cnomin(ng),cdvxc(ng,nsp),cvin(ng)
 C ... Local parameters
       integer ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,nbas,nglob,js,ll,n0,
-     .  nrmx
+     .nrmx
       parameter (nlmx=64, nrmx=1501, n0=10)
       integer lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i,
-     .  ngabc(3),n1,n2,n3,nlml
+     .ngabc(3),n1,n2,n3,nlml
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision pi,alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg,
-     .  vol,y0,z,v(3),df(0:20),feso(3),qcor(2),gpot0(nlmx,3),fesdn(3),
-     .  fesgg(3),pnu(n0,2),pnz(n0,2),a,rmt,qloc,rsmfa,exi(n0),hfc(n0,2),
-     .  qfat,gam,qall,qc,qval,qg,e,aa,q0(3),sum
+     .vol,y0,z,v(3),df(0:20),feso(3),qcor(2),gpot0(nlmx,3),fesdn(3),
+     .fesgg(3),pnu(n0,2),pnz(n0,2),a,rmt,qloc,rsmfa,exi(n0),hfc(n0,2),
+     .qfat,gam,qall,qc,qval,qg,e,aa,q0(3),sum
       double precision rwgt(nrmx),cc,gamf,cfoc,cvol
 C     parameter (k0=3)
 C     double complex gkl(0:k0,nlmx)
@@ -659,17 +659,17 @@ c        call upack('spec z p pz lmxa lmxl',sspec,is,z,pnu,pnz,lmxa)
         qloc = (qloc-sum)/y0
         qfat = 0d0
         do  12  i  = 1, nsp
-        do  12  ie = 1, nxi
-          gam  = 0.25d0*rsmfa**2
-          qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
-          qfat = qfat + hfc(ie,i)*qall
+          do  12  ie = 1, nxi
+            gam  = 0.25d0*rsmfa**2
+            qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
+            qfat = qfat + hfc(ie,i)*qall
    12   continue
         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
         qg = qval+qsc-qfat-qloc
 C   ... Shift in free atom density
         do  14    i = 1, nsp
-        do  14  ixi = 1, nxi
-          e = exi(ixi)
+          do  14  ixi = 1, nxi
+            e = exi(ixi)
 C       do  14  ig = 1, ng
 C         v(1) = gv(ig,1)*tpiba
 C         v(2) = gv(ig,2)*tpiba
@@ -680,11 +680,11 @@ C         scalp = -alat*(tau(1)*v(1)+tau(2)*v(2)+tau(3)*v(3))
 C         phase = dcmplx(dcos(scalp),dsin(scalp))
 C         cdn0(ig) = cdn0(ig) + hfc(ixi,i)*aa*phase*y0/vol
 C     ... Vectorized version
-          cc = -4d0*pi*hfc(ixi,i)*y0/vol
-          do  15  ig = 1, ng
-            aa = cc*dexp(gam*(e-g2(ig)))/(e-g2(ig))
-            cdn0(ig,i) = cdn0(ig,i) + aa*dcmplx(cs(ig),sn(ig))
-   15     continue
+            cc = -4d0*pi*hfc(ixi,i)*y0/vol
+            do  15  ig = 1, ng
+              aa = cc*dexp(gam*(e-g2(ig)))/(e-g2(ig))
+              cdn0(ig,i) = cdn0(ig,i) + aa*dcmplx(cs(ig),sn(ig))
+   15       continue
    14   continue
 
 C   ... Add gaussian to conserve local charge
@@ -703,8 +703,8 @@ C  16   continue
 C   ... Vectorized version
         cc = qg/vol/nsp
         do  16  i = 1, nsp
-        do  16  ig = 1, ng
-          cdn0(ig,i)=cdn0(ig,i)+cc*dcmplx(cs(ig),sn(ig))*dexp(-gam*g2(ig))
+          do  16  ig = 1, ng
+            cdn0(ig,i)=cdn0(ig,i)+cc*dcmplx(cs(ig),sn(ig))*dexp(-gam*g2(ig))
    16   continue
       endif
 
@@ -820,12 +820,12 @@ C     fesdn(k)  = fesdn(k)*vol
 C --- Integral of grad g (output-input local charge) ves~ ---
       call dpzero(fesgg,3)
       do  39  k = 1, 3
-      do  39  ilm = 1, nlm
-        l = ll(ilm)
-        gpot0(ilm,k) = gpot0(ilm,k)*4*pi/df(2*l+1)
+        do  39  ilm = 1, nlm
+          l = ll(ilm)
+          gpot0(ilm,k) = gpot0(ilm,k)*4*pi/df(2*l+1)
 
 C       fesgg(k) = fesgg(k) + qmom(iv0+ilm)*gpot0(ilm,k)
-        fesgg(k) = fesgg(k) + qmout(iv0+ilm)*gpot0(ilm,k)
+          fesgg(k) = fesgg(k) + qmout(iv0+ilm)*gpot0(ilm,k)
    39 continue
 
 C      print 339, 'n0(out-in) * g dves ',fes1
@@ -868,7 +868,7 @@ C   55     gpot0(ilm,k) = gpot0(ilm,k) + dble(dconjg(cxx)*gkl(0,ilm))
 C ... This is the vectorized version
           aa = dexp(-gam*g2(ig))
           gc0 = dcmplx(0d0,1d0)*aa*
-     .          dconjg(tpia*cdv(ig))*dcmplx(cs(ig),sn(ig))
+     .    dconjg(tpia*cdv(ig))*dcmplx(cs(ig),sn(ig))
           ilm = 0
           do  55  l = 0, lmxl
             gc0 = gc0*dcmplx(0d0,-1d0)
@@ -912,7 +912,7 @@ C      print 339, 'qmom(out-in) dv     ',fes2
 
 
       subroutine pvdf2(nbas,nsp,ssite,sspec,slat,n1,n2,n3,k1,k2,k3,
-     .  smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
+     .smrho,vxcp,vxcm,wk1,wk2,wk3,dvxc)
       use m_struc_def
 C- Makes derivative of smoothed xc potential wrt density.
 C     implicit none
@@ -923,14 +923,14 @@ C ... Passed parameters
       type(s_lat)::slat
 
       double complex vxcp(k1,k2,k3,nsp),vxcm(k1,k2,k3,nsp),
-     .               dvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp),
-     .               wk1(k1,k2,k3,nsp),wk2(k1,k2,k3,nsp),
-     .               wk3(k1,k2,k3,nsp)
+     .dvxc(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp),
+     .wk1(k1,k2,k3,nsp),wk2(k1,k2,k3,nsp),
+     .wk3(k1,k2,k3,nsp)
 C ... Local parameters
       integer i1,i2,i3,i,nn
       double precision fac,dmach,f1,f2,f,alfa,dfdr,rrho,dvdr,
-     .  rmusm(2),rvmusm(2),rvepsm(2),repsm(2),repsmx(2),repsmc(2),
-     .  fcexc0(2),fcex0(2),fcec0(2),fcvxc0(2)
+     .rmusm(2),rvmusm(2),rvepsm(2),repsm(2),repsmx(2),repsmc(2),
+     .fcexc0(2),fcex0(2),fcec0(2),fcvxc0(2)
 
       fac = dmach(1)**(1d0/3d0)
       alfa = 2d0/3d0
@@ -959,8 +959,8 @@ C ... vxcp = vxc (smrho+drho)
       call dpzero(wk2, nn*2*nsp)
       call dpzero(wk3, nn*2)
       call smvxcm(ssite,sspec,slat,nbas,0,k1,k2,k3,smrho,
-     .  vxcp,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm,
-     .  rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,f)
+     .vxcp,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm,
+     .rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,f)
 
 C ... Replace fac*rho with -fac*rho
       if (nsp .eq. 1) then
@@ -980,8 +980,8 @@ C ... Replace fac*rho with -fac*rho
 C ... vxcm = vxc (smrho-drho)
       call dpzero(vxcm, nn*2*nsp)
       call smvxcm(ssite,sspec,slat,nbas,0,k1,k2,k3,smrho,
-     .  vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm,
-     .  rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,f)
+     .vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm,
+     .rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,f)
 
 C ... Restore rho+, rho-
       if (nsp .eq. 1) then
@@ -1016,8 +1016,8 @@ C ... Overwrite vxcp with df/drho
 C ... vxcm = vxc (smrho)
       call dpzero(vxcm, nn*2*nsp)
       call smvxcm(ssite,sspec,slat,nbas,0,k1,k2,k3,smrho,
-     .  vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm,
-     .  rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,f)
+     .vxcm,dvxc,wk1,wk2,wk3,repsm,repsmx,repsmc,rmusm,
+     .rvmusm,rvepsm,fcexc0,fcex0,fcec0,fcvxc0,f)
 
 C ... dvxc/drho into dvxc
       do  i = 1, nsp
@@ -1050,10 +1050,10 @@ C ... Local parameters
       integer i1,i2,i3,i
 
       do  10  i  = 1, nsp
-      do  10  i3 = 1, n3
-      do  10  i2 = 1, n2
-      do  10  i1 = 1, n1
-        dvxc(i1,i2,i3,i) = dvxc(i1,i2,i3,i)*deln0(i1,i2,i3)
+        do  10  i3 = 1, n3
+          do  10  i2 = 1, n2
+            do  10  i1 = 1, n1
+              dvxc(i1,i2,i3,i) = dvxc(i1,i2,i3,i)*deln0(i1,i2,i3)
    10 continue
 
 C     call zprm3('dvxc/dn * (nout-nin)',0,dvxc,k1,k2,k3*nsp)
@@ -1112,11 +1112,11 @@ C ... Passed parameters
       double complex cv(ng)
 C ... Local parameters
       integer ig,ib,ilm,is,iv0,l,lmxl,m,nbas,nlm,nlmx,nglob,n1,n2,n3,
-     .  ngabc(3),lfoc
+     .ngabc(3),lfoc
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       parameter (nlmx=64)
       double precision tau(3),df(0:20),pi,y0,vol,rg,qcorg,qcorh,qsc,
-     .  cofg,cofh,ceh,rfoc,z,q0(3),gam,gamf,cfoc,cvol,aa
+     .cofg,cofh,ceh,rfoc,z,q0(3),gam,gamf,cfoc,cvol,aa
       double complex cof(nlmx),cfac,phase
 C      parameter (k0=3)
 C      double precision gv(ng,3),v(3)

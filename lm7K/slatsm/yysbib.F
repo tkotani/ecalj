@@ -1,5 +1,5 @@
       subroutine yysbib(cs,mode,apr,api,ldap,ija,offs,nlev,
-     .  nn2,nb,w,ldw,w2,ar,ai,lda,br,bi,ldb,ierr)
+     .nn2,nb,w,ldw,w2,ar,ai,lda,br,bi,ldb,ierr)
 C- Solve a x = b, with a = complex block sparse matrix
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -92,9 +92,9 @@ Cb   nor handle it efficiently.
 C ----------------------------------------------------------------
 C     implicit none
       integer mode,nn2,nb,lda,ldb,ldw,ierr,nlev,ldap,
-     .  ija(2,*),offs(nn2)
+     .ija(2,*),offs(nn2)
       double precision ar(lda,*),ai(lda,*),br(ldb,1),bi(ldb,1),
-     .  w(ldw,*),apr(ldap,ldap,*),api(ldap,ldap,*),w2(*)
+     .w(ldw,*),apr(ldap,ldap,*),api(ldap,ldap,*),w2(*)
       character cs*(*)
       integer nmin,n1,n2,nm1,nm2,m1,m2,i,j,nd,modl,mode0,mode1,jr,ji,nnm
       logical lsx,lsx1,lsx2,ltrns
@@ -140,13 +140,13 @@ C --- Partition a into four subblocks according to 10s digit mode ---
 #if DEBUG
       print 334, 'entering yysbib',mode,nlev,nm1,nn2,m1,m2
   334 format(1x,a,': mode=',i2,': nlev=',i1,
-     .       '  nm1=',i2,'  nn2=',i2,'  m1=',i3,'  m2=',i3)
+     .'  nm1=',i2,'  nn2=',i2,'  m1=',i3,'  m2=',i3)
 #endif
 
 C --- Straight inversion if n2 lt nmin ---
       if (nd .le. nmin) then
         if (.not. lsx) call yysp2a(mode0,1,nn2,1,nn2,apr,api,ldap,ija,
-     .    offs,ar,ai,lda)
+     .  offs,ar,ai,lda)
         if (nb .eq. 0) return
         call yyqnvb(cs,ar,ai,lda,nd,nb,w,ldw,w2,br,bi,ldb,ierr)
         return
@@ -159,55 +159,55 @@ C --- Generate a22^-1 and (a11 - a12 a22^-1 a21) ---
 
 C --- R1 = a22^-1 in a22 ---
         call yysbnv(mode,apr,api,ldap,ija,offs,max(nlev-1,0),
-     .    nm1+1,nn2,w,ldw,ar,ai,lda,ierr)
+     .  nm1+1,nn2,w,ldw,ar,ai,lda,ierr)
         if (ierr .ne. 0) return
 C       call yprm(.false.,'R1',2,6,fmt,ar(1+m1,1+m1),lda,m2,lda,m2)
 
-      if (.not. ltrns) then
+        if (.not. ltrns) then
 
 C   --- a12 a22^-1 in w (uses w(1:m1+m2,1:m1)); copy back to a12 ---
 C       call yygemm('N','N',m1,m2,m2,1d0,ar(1,1+m1),ai(1,1+m1),lda,
 C    .    ar(1+m1,1+m1),ai(1+m1,1+m1),lda,0d0,w,w(1,1+m2),ldw)
-        call yysbmm(modl,1,nm1,nm1+1,nn2,m2,apr,api,ldap,ija,offs,
+          call yysbmm(modl,1,nm1,nm1+1,nn2,m2,apr,api,ldap,ija,offs,
      .    ar(1,1+m1),ai(1,1+m1),lda,w(1,1),w(1,1+m2),ldw)
-        do  20  j = 1, m2
-        do  20  i = 1, m1
-        ar(i,j+m1) = w(i,j)
-        ai(i,j+m1) = w(i,j+m2)
-   20   continue
+          do  20  j = 1, m2
+            do  20  i = 1, m1
+              ar(i,j+m1) = w(i,j)
+              ai(i,j+m1) = w(i,j+m2)
+   20     continue
 
 C   --- (a11 - a12 a22^-1 a21) in a11 ---
-        call yysp2a(mode0,1,nm1,1,nm1,apr,api,ldap,ija,offs,ar,ai,lda)
+          call yysp2a(mode0,1,nm1,1,nm1,apr,api,ldap,ija,offs,ar,ai,lda)
 C       call yygemm('N','N',m1,m1,m2,-1d0,ar(1,1+m1),ai(1,1+m1),lda,
 C    .    ar(1+m1,1),ai(1+m1,1),lda,1d0,ar,ai,lda)
-        call yymsbm(modl+2,nm1+1,nn2,1,nm1,m1,apr,api,ldap,ija,offs,
+          call yymsbm(modl+2,nm1+1,nn2,1,nm1,m1,apr,api,ldap,ija,offs,
      .    ar,ai,lda,ar,ai,lda)
 
-      else
+        else
 
 C   --- a22^-1 a21 in w (uses w(1:m2,1:2m1)); copy back to a21
 C        call yygemm('N','N',m2,m1,m2,1d0,ar(1+m1,1+m1),ai(1+m1,1+m1),
 C     .    lda,ar(1+m1,1),ai(1+m1,1),lda,0d0,w,w(1,1+m1),ldw)
-        call yymsbm(modl,nm1+1,nn2,1,nm1,m2,apr,api,ldap,ija,offs,
+          call yymsbm(modl,nm1+1,nn2,1,nm1,m2,apr,api,ldap,ija,offs,
      .    ar(1+m1,1),ai(1+m1,1),lda,w,w(1,1+m1),ldw)
-        do  22  j = 1, m1
-        do  22  i = 1, m2
-          ar(i+m1,j) = w(i,j)
-          ai(i+m1,j) = w(i,j+m1)
-   22   continue
+          do  22  j = 1, m1
+            do  22  i = 1, m2
+              ar(i+m1,j) = w(i,j)
+              ai(i+m1,j) = w(i,j+m1)
+   22     continue
 
 C   --- (a11 - a12 a22^-1 a21) in a11 ---
-        call yysp2a(mode0,1,nm1,1,nm1,apr,api,ldap,ija,offs,ar,ai,lda)
-        call yysbmm(modl+2,1,nm1,nm1+1,nn2,m1,apr,api,ldap,ija,offs,
+          call yysp2a(mode0,1,nm1,1,nm1,apr,api,ldap,ija,offs,ar,ai,lda)
+          call yysbmm(modl+2,1,nm1,nm1+1,nn2,m1,apr,api,ldap,ija,offs,
      .    ar,ai,lda,ar,ai,lda)
-      endif
+        endif
       endif
 
       if (.not. ltrns) then
 
 C   --- b1 <- b1 - a12 a22^-1 b2 ---
         call yygemm(cm,cm,m1,nb,m2,-1d0,ar(1,1+m1),ai(1,1+m1),lda,
-     .    br(1+m1,1),bi(1+m1,1),ldb,1d0,br,bi,ldb)
+     .  br(1+m1,1),bi(1+m1,1),ldb,1d0,br,bi,ldb)
 C       call yprm(.false.,'b1 - a12 a22^-1 b2',2,6,fmt,br,ldb,m1,ldb,nb)
 
 C   --- x1 = c11 (b1 - a12 a22^-1 b2) ---
@@ -218,26 +218,26 @@ C   --- w2 <- b2 - a21 x1 ---
 C       call yygemm(cm,cm,m2,nb,m1,1d0,ar(1+m1,1),ai(1+m1,1),lda,
 C    .    br,bi,ldb,0d0,w2,w2(1+m2*nb),m2)
         call yysbmm(modl,nm1+1,nn2,1,nm1,nb,apr,api,ldap,ija,offs,
-     .    br,bi,lda,w2(1-m1),w2(1+nb*m2-m1),m2)
+     .  br,bi,lda,w2(1-m1),w2(1+nb*m2-m1),m2)
         jr = -m2
         ji = m2*nb - m2
         do  40  j = 1, nb
           jr = jr+m2
           ji = ji+m2
           do  42  i = 1, m2
-          w2(i+jr) = br(i+m1,j) - w2(i+jr)
+            w2(i+jr) = br(i+m1,j) - w2(i+jr)
    42     w2(i+ji) = bi(i+m1,j) - w2(i+ji)
    40   continue
         if (lsx2) return
 
 C   --- x2 = a22^-1 (b2 - a21 x1) ---
         call yygemm(cm,cm,m2,nb,m2,1d0,ar(1+m1,1+m1),ai(1+m1,1+m1),lda,
-     .    w2,w2(1+m2*nb),m2,0d0,br(1+m1,1),bi(1+m1,1),ldb)
+     .  w2,w2(1+m2*nb),m2,0d0,br(1+m1,1),bi(1+m1,1),ldb)
       else
 
 C   --- b1 <- b1 - b2 a22^-1 a21 ---
         call yygemm(cm,cm,nb,m1,m2,-1d0,br(1,1+m1),bi(1,1+m1),ldb,
-     .    ar(1+m1,1),ai(1+m1,1),lda,1d0,br,bi,ldb)
+     .  ar(1+m1,1),ai(1+m1,1),lda,1d0,br,bi,ldb)
 
 C   --- x1 = c11 (b1 - b2 a22^-1 a21) ---
         call yyqnvb(cs,ar,ai,lda,m1,nb,w,ldw,w2,br,bi,ldb,ierr)
@@ -247,21 +247,21 @@ C   --- w2 <- b2 - x1 a12 ---
 C       call yygemm(cm,cm,nb,m2,m1,1d0,br,bi,ldb,ar(1,1+m1),ai(1,1+m1),
 C    .    lda,0d0,w2,w2(1+nb*m2),nb)
         call yymsbm(modl,1,nm1,nm1+1,nn2,nb,apr,api,ldap,ija,offs,
-     .    br,bi,lda,w2(1-nb*m1),w2(1+nb*(m2-m1)),nb)
+     .  br,bi,lda,w2(1-nb*m1),w2(1+nb*(m2-m1)),nb)
         jr = -nb
         ji = nb*m2 - nb
         do  140  j = 1, m2
           jr = jr+nb
           ji = ji+nb
           do  142  i = 1, nb
-          w2(i+jr) = br(i,j+m1) - w2(i+jr)
+            w2(i+jr) = br(i,j+m1) - w2(i+jr)
   142     w2(i+ji) = bi(i,j+m1) - w2(i+ji)
   140   continue
         if (lsx2) return
 
 C   --- x2 = (b2 - a21 x1) a22^-1 ---
         call yygemm(cm,cm,nb,m2,m2,1d0,w2,w2(1+nb*m2),nb,
-     .    ar(1+m1,1+m1),ai(1+m1,1+m1),lda,0d0,br(1,1+m1),bi(1,1+m1),ldb)
+     .  ar(1+m1,1+m1),ai(1+m1,1+m1),lda,0d0,br(1,1+m1),bi(1,1+m1),ldb)
 
       endif
 

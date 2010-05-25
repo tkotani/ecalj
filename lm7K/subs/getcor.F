@@ -1,5 +1,5 @@
       subroutine getcor(mode,z,a,pnu,pnz,nr,lmax,rofi,v0,kcor,lcor,qcor,
-     .  sumec,sumtc,rhoc,ncore,ecore,gcore)
+     .sumec,sumtc,rhoc,ncore,ecore,gcore)
 C- Generate the core density for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -42,9 +42,9 @@ C ... Passed parameters
       double precision v0(nr),rhoc(nr),rofi(nr),pnu(n0,2),pnz(n0,2)
 C ... Local parameters
       integer stdo,nglob,ipr,isp,jpr,k,kkk,l,lgunit,nsp,nsc,
-     .  konf(n0),konfsc(n0),isc(n0)
+     .konf(n0),konfsc(n0),isc(n0)
       double precision deg,qcore,qsc,tol,g(2*nrmx),ec(100),b,smec(2),
-     .  smtc(2)
+     .smtc(2)
       character ch*2
       data ch/' *'/
 
@@ -61,7 +61,7 @@ C ... Local parameters
           konfsc(l+1) = pnu(l+1,isp)
           konf(l+1)   = mod(pnz(l+1,isp),10d0)
           if (konf(l+1).eq.0 .or. konf(l+1).gt.konfsc(l+1))
-     .      konf(l+1)= konfsc(l+1)
+     .    konf(l+1)= konfsc(l+1)
           do  kkk = l+1, konf(l+1)-1
             ncore = ncore+1
             if (mode .ne. 2) then
@@ -78,7 +78,7 @@ C ... Local parameters
       enddo
 
       if (ipr .ge. 40) write(stdo,850) qcore,qsc,
-     .  (konf(k),ch(isc(k):isc(k)), k=1,lmax+1)
+     .(konf(k),ch(isc(k):isc(k)), k=1,lmax+1)
   850 format(' getcor:  qcore=',f6.2,'  qsc=',f6.2,'  konf =',10(i2,a1))
 
       if (mode .eq. 2) then
@@ -93,7 +93,7 @@ C ... Local parameters
       call dpzero(rhoc,   nr*nsp)
       b = rofi(nr)/(dexp(a*(nr-1))-1)
       call rhocor(mode,z,lmax,nsp,konf,a,b,nr,rofi,v0,g,kcor,lcor,
-     .  qcor,tol,ec,smec,smtc,rhoc,gcore,jpr)
+     .qcor,tol,ec,smec,smtc,rhoc,gcore,jpr)
       if (mode .eq. 1) call dcopy(ncore,ec,1,ecore,1)
 
       sumec = smec(1)

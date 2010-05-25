@@ -66,7 +66,7 @@ C --- Loop over m: cx are normalizations for l, l-1, l-2 ---
           call ropqln ( m , l , n , rsq , z , cx , q_rv , kk )
 
           call ropynx ( m , l , kk , n , q_rv , cm_rv , sm_rv 
-     .   , nd , yl )
+     .    , nd , yl )
 
           cx(3) = cx(2)
           cx(2) = cx(1)
@@ -145,7 +145,7 @@ C Test program to check ropyln
       integer nrx,nlmx,nr,lmax,nlm1,ir,ii,l,ilm,i1,i2,nsize
       parameter (nrx=20,nlmx=49,nsize=100000)
       double precision cy(16**2),x(nrx),y(nrx),z(nrx),r2(nrx),
-     .  ylv(nrx,nlmx),ylok(nrx,nlmx),dr(3),tops,ylm(nlmx)
+     .ylv(nrx,nlmx),ylok(nrx,nlmx),dr(3),tops,ylm(nlmx)
       integer w(1)
       common /w/ w
 

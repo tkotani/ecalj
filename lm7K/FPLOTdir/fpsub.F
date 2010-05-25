@@ -15,22 +15,22 @@ C      call prmx('dat',dat,nr,nr,nc)
       do  idr = 1, ndup1
 
 C     print *, '!!', idr, iaddr
-      do  ir = 1, nr
+        do  ir = 1, nr
 C       print *, ir, ir + iaddr
 
-        iaddc = 0
-        do  idc = 1, ndup2
+          iaddc = 0
+          do  idc = 1, ndup2
 C       print *, '!!', idc, iaddc
-        do  ic = 1, nc
-          dupd(ir+iaddr,ic+iaddc) = dat(ir,ic)
+            do  ic = 1, nc
+              dupd(ir+iaddr,ic+iaddc) = dat(ir,ic)
 C         print *, ir, ir+iaddr, ic, ic+iaddc
-        enddo
-        iaddc = iaddc + nc-nx2
-        enddo
+            enddo
+            iaddc = iaddc + nc-nx2
+          enddo
 
 
-      enddo
-      iaddr = iaddr + nr-nx1
+        enddo
+        iaddr = iaddr + nr-nx1
       enddo
 
 C     call prmx('dup',dupd,nrd,nrd,ncd)
@@ -96,9 +96,9 @@ C --- Quit if last: rearrange points according to ir,nc ---
       if (it(i) .eq. 4) then
         nr = ir
         if (ipr .ge. 40) call awrit1(' expand:  %i points generated',
-     .    ' ',80,i1mach(2),nr)
+     .  ' ',80,i1mach(2),nr)
         if (nc0 .ne. 1 .and. mod(nr,nc0) .ne. 0)
-     .    call rx('expand:  nr not a multiple of nc')
+     .  call rx('expand:  nr not a multiple of nc')
         nr = nr/nc0
         nc = nc0
         if (it(1) .ne. 3 .or. nc0 .eq. 0) then
@@ -126,12 +126,12 @@ C- Swaps around rows and columns
       double precision d1(nc,nr), d2(nr,nc)
 
       do  10  ir = 1, nr
-      do  10  ic = 1, nc
+        do  10  ic = 1, nc
    10 d2(ir,ic) = d1(ic,ir)
       end
       subroutine mapdat(dat,nr,np,nc,ix,iy,ie,iw,iw2,sxdef,sydef,sfxdef,
-     .  sincl,sexcl,nx,ny,pntlst,lsort,xxpl,logx,logy,itp,wk,xp,yp,ep,
-     .  wp,wp2,fxp)
+     .sincl,sexcl,nx,ny,pntlst,lsort,xxpl,logx,logy,itp,wk,xp,yp,ep,
+     .wp,wp2,fxp)
 C- Maps data into (x,y) pair
 C ----------------------------------------------------------------------
 Ci   dat   :input data
@@ -177,7 +177,7 @@ C Passed Parameters
       logical nx,ny,lsort,logx,logy
       character*(*) sxdef,sydef,sfxdef,sincl,sexcl,pntlst
       double precision dat(nr,*),xp(np),yp(np),ep(np),wp(np),wp2(np),
-     .  fxp(np),wk(1),xxpl(5)
+     .fxp(np),wk(1),xxpl(5)
 C Local variables
       integer ip,ipr,iv0,ival,j,np0,i1mach
       character*4 xn, outs*80
@@ -205,7 +205,7 @@ C --- Make index for map, if a map exists, else index maps i->i ---
       else
         call mkils0(pntlst,np0,itp)
         if (np0 .gt. np)
-     .    call rx('mapdat: number of points exceeds data size')
+     .  call rx('mapdat: number of points exceeds data size')
         call mkilst(pntlst,np0,itp)
       endif
 
@@ -223,14 +223,14 @@ C --- Using index, map dat into (x,y) ---
    14 continue
       if (ii .ne. np0 .and. ipr .gt. 30) then
         call awrit2(' mapdat (warning): only %i allowed points in map'//
-     .    ' of %i  expected',' ',80,i1mach(2),ii,np0)
+     .  ' of %i  expected',' ',80,i1mach(2),ii,np0)
       endif
       np0 = ii
       np = np0
 
 C --- Map expressions redefining ordinate or abscissa ---
       if (sxdef .ne. ' ' .or. sydef .ne. ' ' .or. sincl .ne. ' ' .or.
-     .   sfxdef .ne. ' ') then
+     .sfxdef .ne. ' ') then
         call numsyv(iv0)
         jp = 0
         do  20  ip = 1, np
@@ -254,19 +254,19 @@ C     --- Change x if sought ---
           if (sxdef(1:1) .ne. ' ') then
             j = 0
             if (.not. a2bin(sxdef,xp(ip),4,0,' ',j,-1))
-     .        call rx('mapdat:  error parsing x')
+     .      call rx('mapdat:  error parsing x')
           endif
 C     --- Change y if sought ---
           if (sydef(1:1) .ne. ' ') then
             j = 0
             if (.not. a2bin(sydef,yp(ip),4,0,' ',j,-1))
-     .        call rx('mapdat:  error parsing y')
+     .      call rx('mapdat:  error parsing y')
           endif
 C     --- map abscissa to function of abscissa
           if (sfxdef(1:1) .ne. ' ') then
             j = 0
             if (.not. a2bin(sfxdef,fxp(ip),4,0,' ',j,-1))
-     .        call rx('mapdat:  error parsing y')
+     .      call rx('mapdat:  error parsing y')
           endif
 C     --- Exclude points if not satisfied expressions sincl and sexcl ---
           log1 = .false.
@@ -282,13 +282,13 @@ C ...     this resets the variable table for altered xp and yp
             j = 0
 C           call shosyv(0,0,0,i1mach(2))
             if (.not. a2bin(sincl,log1,0,0,' ',j,-1))
-     .        call rx('mapdat:  error parsing sincl')
+     .      call rx('mapdat:  error parsing sincl')
             log1 = .not. log1
           endif
           if (sexcl .ne. ' ') then
             j = 0
             if (.not. a2bin(sexcl,log2,0,0,' ',j,-1))
-     .        call rx('mapdat:  error parsing sexcl')
+     .      call rx('mapdat:  error parsing sexcl')
           endif
           if (log1 .or. log2) then
             if (ipr .ge. 60) print 346, ip, xp(ip), yp(ip)
@@ -318,7 +318,7 @@ C --- Normalize abscissas to (0,1) if nx set ---
         xmin = d1mach(2)/4
         xmax = -xmin
         do  30  ip = 1, np
-        xmax = max(xmax,xp(ip))
+          xmax = max(xmax,xp(ip))
    30   xmin = min(xmin,xp(ip))
         if (ipr .ge. 40) print 333, xmin, xmax, 'abscissa'
   333   format(' mapdat: renormalize limits',2f12.5,' to (0,1)--',a)
@@ -331,7 +331,7 @@ C --- Normalize ordinates to (0,1) if ny set ---
         ymin = d1mach(2)/4
         ymax = -ymin
         do  40  ip = 1, np
-        ymax = max(ymax,yp(ip))
+          ymax = max(ymax,yp(ip))
    40   ymin = min(ymin,yp(ip))
         if (ipr .ge. 40) print 333, ymin, ymax, 'ordinate'
         do  43  ip = 1, np
@@ -354,7 +354,7 @@ C --- Sort mapped data points by increasing abscissa ---
         do  54  ip = 1, np
    54   wp(ip) = wk(itp(ip)+1)
         if (ipr .ge. 50)
-     .    call awrit1(' mapdat: sorted %i points',' ',80,i1mach(2),np)
+     .  call awrit1(' mapdat: sorted %i points',' ',80,i1mach(2),np)
 C        do 55 ip = 1, np
 C   55   print 346, ip, xp(ip), yp(ip)
 C  346   format(' mapda:  ip=',i4,'  xp,yp=',2f12.6)
@@ -362,7 +362,7 @@ C  346   format(' mapda:  ip=',i4,'  xp,yp=',2f12.6)
 
       call awrit1(' mapdat: %i points',outs,80,0,np)
       if (nxclud .ne. 0)
-     .  call awrit1('%a data, %i excluded',outs,80,0,nxclud)
+     .call awrit1('%a data, %i excluded',outs,80,0,nxclud)
 
 C --- Map into smoothed data by polynomial interpolation ---
       if (xxpl(3) .ne. 0) then
@@ -400,7 +400,7 @@ C           Solution: pick midway between enclosing points,
 C           so change of interpolation occurs at points.
             call hunty(xp,np,2,xx,jx,j1)
             if (min(xp(j1),xp(j1+1)) .lt. xx .and.
-     .          max(xp(j1),xp(j1+1)) .gt. xx) then
+     .      max(xp(j1),xp(j1+1)) .gt. xx) then
               call hunty(xp,np,nitrp,xp(j1)/2+xp(j1+1)/2,jx,j1)
             else
               call hunty(xp,np,nitrp,xx,jx,j1)
@@ -428,7 +428,7 @@ c   60   continue
 
         if (ipr .ge. 30) then
           call awrit4('%a: interpolate to mesh%3:1;4g (%i pts)'//
-     .      ' order=%i rat=%l',outs,80,0,xxpl,np0,nitrp,lrat)
+     .    ' order=%i rat=%l',outs,80,0,xxpl,np0,nitrp,lrat)
           call awrit0('%a',outs,80,-i1mach(2))
           if (ipr .ge. 50) print '(a)', ' points:'
         endif
@@ -447,7 +447,7 @@ c   64   continue
         np = np0
       else
         if (ipr .ge. 40) call awrit1('%a%?;n>=50;:;;',
-     .    outs,80,-i1mach(2),ipr)
+     .  outs,80,-i1mach(2),ipr)
         if (ipr .ge. 50) then
           do  68  ip = 1, np
    68     print 347, xp(ip), yp(ip)
@@ -512,8 +512,8 @@ C --- Quit if last: rearrange points according to ip,nc ---
       goto 10
       end
       subroutine map3d(dat,nr,np,nc,p3d,sxdef,sydef,sincl,sexcl,it,ixv,
-     .  itp,wk,xp,yp,zp,xxmin,xxmax,yymin,yymax,zzmin,zzmax,
-     .  xmin,xmax,ymin,ymax,zmin,zmax,frm3d,rotm)
+     .itp,wk,xp,yp,zp,xxmin,xxmax,yymin,yymax,zzmin,zzmax,
+     .xmin,xmax,ymin,ymax,zmin,zmax,frm3d,rotm)
 C- Maps data into (x,y,z) triplet
 C  itp and wk are work arrays of length at least np
 C: pi/2,th,-pi/2 rotates by th around y
@@ -523,9 +523,9 @@ C Passed Parameters
       integer nr,np,nc,ix,iy,iz,ixv(4),it(4),itp(1)
       character*(*) sxdef,sydef,sincl,sexcl
       double precision dat(nr,1),xp(np),yp(np),zp(np),wk(1),p3d(6),
-     .  frm3d(4)
+     .frm3d(4)
       double precision xmin,xmax,ymin,ymax,zmin,zmax,rotm(3,3),
-     .    xxmin,xxmax,yymin,yymax,zzmin,zzmax
+     .xxmin,xxmax,yymin,yymax,zzmin,zzmax
 C Local variables
       integer ip,ipr,iv0,ival,np0,i1mach
       character*4 xn, outs*80
@@ -533,7 +533,7 @@ C Local variables
       double precision d1mach
       integer jp,nxclud,ii,i,j,k
       double precision xprj,zprj,yprj,xr,yr,zr,
-     .  abg(3),big
+     .abg(3),big
 
       call getpr(ipr)
       big = sqrt(d1mach(2))/100
@@ -563,7 +563,7 @@ C --- Using index, map dat into (x,y) ---
    14 continue
       if (ii .ne. np0 .and. ipr .gt. 30) then
         call awrit2(' map3d (warning): only %i allowed points in map'//
-     .    ' of %i  expected',' ',80,i1mach(2),ii,np0)
+     .  ' of %i  expected',' ',80,i1mach(2),ii,np0)
       endif
       np0 = ii
       np = np0
@@ -589,13 +589,13 @@ C ---   Change x if sought ---
           if (sxdef(1:1) .ne. ' ') then
             j = 0
             if (.not. a2bin(sxdef,xp(ip),4,0,' ',j,-1))
-     .        call rx('mapdat:  error parsing x')
+     .      call rx('mapdat:  error parsing x')
           endif
 C ---   Change y if sought ---
           if (sydef(1:1) .ne. ' ') then
             j = 0
             if (.not. a2bin(sydef,yp(ip),4,0,' ',j,-1))
-     .        call rx('mapdat:  error parsing y')
+     .      call rx('mapdat:  error parsing y')
           endif
 C ---   Exclude points if not satisfied expressions sincl and sexcl ---
           log1 = .false.
@@ -609,13 +609,13 @@ C ...     this resets the variable table for altered xp and yp
             j = 0
 C           call shosyv(0,0,0,i1mach(2))
             if (.not. a2bin(sincl,log1,0,0,' ',j,-1))
-     .        call rx('mapdat:  error parsing sincl')
+     .      call rx('mapdat:  error parsing sincl')
             log1 = .not. log1
           endif
           if (sexcl .ne. ' ') then
             j = 0
             if (.not. a2bin(sexcl,log2,0,0,' ',j,-1))
-     .        call rx('mapdat:  error parsing sexcl')
+     .      call rx('mapdat:  error parsing sexcl')
           endif
           if (log1 .or. log2) then
             if (ipr .ge. 60) print 346, ip, xp(ip), yp(ip)
@@ -641,14 +641,14 @@ c            endif
 
       call awrit1(' map3d: %i points',outs,80,0,np)
       if (nxclud .ne. 0)
-     .  call awrit1('%a data, %i excluded',outs,80,0,nxclud)
+     .call awrit1('%a data, %i excluded',outs,80,0,nxclud)
       if (ipr .ge. 40) call awrit0('%a',outs,80,-i1mach(2))
 
 C --- Rotate and shift data, get plot bounds ---
       if (ipr .ge. 10) then
         call rm2eua(rotm,abg(1),abg(2),abg(3))
         call awrit2(' map3d: shift y,x,z = (%3:1;5d )  Euler angles'//
-     .    ' = (%3:1;5d)',' ',80,i1mach(2),p3d,abg)
+     .  ' = (%3:1;5d)',' ',80,i1mach(2),p3d,abg)
         if (ipr .ge. 50) print 335, ((rotm(i,j),j=1,3),i=1,3)
   335   format(' Rotation matrix:'/(3f15.9))
       endif
@@ -668,9 +668,9 @@ C --- Rotate and shift data, get plot bounds ---
         if (zzmin .ne. big) zmin = zzmin
         if (zzmax .ne. big) zmax = zzmax
         call prj3dp(xp(ip),yp(ip),zp(ip),.true.,rotm,p3d,
-     .    xr,yr,zr,xprj,yprj,zprj)
+     .  xr,yr,zr,xprj,yprj,zprj)
         if (ipr .ge. 40) print '(6f12.6)',
-     .    xp(ip), zp(ip), yp(ip), xr, zr, yr
+     .  xp(ip), zp(ip), yp(ip), xr, zr, yr
         frm3d(1) = min(frm3d(1),xprj)
         frm3d(2) = max(frm3d(2),xprj)
         frm3d(3) = min(frm3d(3),zprj)
@@ -681,37 +681,37 @@ C --- Rotate and shift data, get plot bounds ---
    30 continue
 C --- Use 2D projections for edges from xmin,xmax etc if all known ---
       if (xxmin .ne. big .and. xxmax .ne. big .and.
-     .    yymin .ne. big .and. yymax .ne. big .and.
-     .    zzmin .ne. big .and. zzmax .ne. big) then
+     .yymin .ne. big .and. yymax .ne. big .and.
+     .zzmin .ne. big .and. zzmax .ne. big) then
         frm3d(2) = -big
         frm3d(4) = frm3d(2)
         frm3d(1) =  big
         frm3d(3) = frm3d(1)
         abg(1) = xxmin
         do  32  i = 1, 2
-        abg(2) = yymin
-        do  33  j = 1, 2
-        abg(3) = zzmin
-        do  34  k = 1, 2
-          call prj3dp(abg(1),abg(2),abg(3),.true.,rotm,p3d,
-     .    xr,yr,zr,xprj,yprj,zprj)
-          frm3d(1) = min(frm3d(1),xprj)
-          frm3d(2) = max(frm3d(2),xprj)
-          frm3d(3) = min(frm3d(3),zprj)
-          frm3d(4) = max(frm3d(4),zprj)
-          abg(3) = zzmax
-   34   continue
-        abg(2) = yymax
-   33   continue
-        abg(1) = xxmax
+          abg(2) = yymin
+          do  33  j = 1, 2
+            abg(3) = zzmin
+            do  34  k = 1, 2
+              call prj3dp(abg(1),abg(2),abg(3),.true.,rotm,p3d,
+     .        xr,yr,zr,xprj,yprj,zprj)
+              frm3d(1) = min(frm3d(1),xprj)
+              frm3d(2) = max(frm3d(2),xprj)
+              frm3d(3) = min(frm3d(3),zprj)
+              frm3d(4) = max(frm3d(4),zprj)
+              abg(3) = zzmax
+   34       continue
+            abg(2) = yymax
+   33     continue
+          abg(1) = xxmax
    32   continue
       endif
       end
       subroutine frme3d(tx0,tsx,mtx,ntx,rmtx,xnum,xnfmt,xlabel,
-     .                  ty0,tsy,mty,nty,rmty,ynum,ynfmt,ylabel,
-     .                  tz0,tsz,mtz,ntz,rmtz,znum,znfmt,zlabel,
-     .                  xmn,xmx,ymn,ymx,zmn,zmx,p3d,rotm,
-     .                  title,lt,cs)
+     .ty0,tsy,mty,nty,rmty,ynum,ynfmt,ylabel,
+     .tz0,tsz,mtz,ntz,rmtz,znum,znfmt,zlabel,
+     .xmn,xmx,ymn,ymx,zmn,zmx,p3d,rotm,
+     .title,lt,cs)
 C- 3D frame around the plot and either tic marks or grid lines.
 C ----------------------------------------------------------------
 Ci Inputs
@@ -734,27 +734,27 @@ C ----------------------------------------------------------------
 C Passed parameters
       integer ntx,nty,ntz,mtx,mty,mtz,lt(2)
       double precision tx0,tsx,rmtx,ty0,tsy,rmty,tz0,tsz,rmtz,
-     .  xmn,xmx,ymn,ymx,zmn,zmx,p3d(3),rotm(3,3),cs(0:3)
+     .xmn,xmx,ymn,ymx,zmn,zmx,p3d(3),rotm(3,3),cs(0:3)
       character*20 xnfmt,ynfmt,znfmt
       character*60 xlabel,ylabel,zlabel,title
       integer xnum,ynum,znum
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local parameters
       integer i1mach,ipr
@@ -777,10 +777,10 @@ C      if (sz .le. 0) sz = ticspc(dabs(zmx-zmn)/10,1)
 
 C --- Setup ---
       call awrit6(' FRME3D: x=%1;4g %1;4g y=%1;4g %1;4g z=%1;4g %1;4g',
-     .  s,80,i1mach(2),xmn,xmx,ymn,ymx,zmn,zmx)
+     .s,80,i1mach(2),xmn,xmx,ymn,ymx,zmn,zmx)
       if (medium .eq. 3)
      .call awrit6('%%FRME3D: x=%1;4g %1;4g y=%1;4g %1;4g z=%1;4g %1;4g',
-     .  s,80,stream,xmn,xmx,ymn,ymx,zmn,zmx)
+     .s,80,stream,xmn,xmx,ymn,ymx,zmn,zmx)
       if (medium .eq. 3) write (stream, 333)
   333 format('/max 0 def ')
 
@@ -855,26 +855,26 @@ C Passed parameters
 
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local parameters
       character*7 synam(8),s*100
       integer is,ipr,nsyma(8),i1mach,awrite,i
       double precision tpi,tpix,rloc(3,3),vprj(3),dx,dy,dz,
-     .  phi0,th0,d,ephi(2),dphi,chngy,xx,cs(0:3)
+     .phi0,th0,d,ephi(2),dphi,chngy,xx,cs(0:3)
 
       data tpi /6.283185307179586d0/
       data synam /'farrow','cone',' ',' ',' ',' ',' ',' '/
@@ -883,7 +883,7 @@ C Local parameters
 C --- Setup ---
       if (type .eq. 0) return
       if (type .gt. 2) call fexit(-1,1,
-     .  'Exit -1 plsy3: type %i not defined',type)
+     .'Exit -1 plsy3: type %i not defined',type)
       call getpr(ipr)
 C      is = 0
 C      s = ' '
@@ -894,8 +894,8 @@ C ... For white-out
 
       s = '%'
       call awrit6(' plsy3: '//synam(type)//'gs=%3:1;5d  attr=%'//
-     .  'n:1;5d  x,y,z=%1;4g %1;4g %1;4g',
-     .  s(2:),len(s)-1,0,symcs(1),nsyma(type),syma,xp,yp,zp)
+     .'n:1;5d  x,y,z=%1;4g %1;4g %1;4g',
+     .s(2:),len(s)-1,0,symcs(1),nsyma(type),syma,xp,yp,zp)
       if (ipr .ge. 40) call awrit0('%a',s(2:),-len(s)-1,-i1mach(2))
       if (medium .eq. 3) call awrit0('%a',s,-len(s),-stream)
 
@@ -926,12 +926,12 @@ C     along a line (phi,theta) = (syma(6),syma(7)) .
       call eua2rm(phi0,th0,0d0,rloc)
 C ... Arrowhead corner, rotate from local coords w/ shaft parallel to z
       call arcdrw(d*syma(4),tpix*syma(6),0d0,tpix*syma(7),rloc,-1,
-     .  xp,yp,zp,rotm,shft)
+     .xp,yp,zp,rotm,shft)
 C ... Arrowhead middle, global coordinates
       call drw3d(xp+dx*syma(5),yp+dy*syma(5),zp+dz*syma(5),rotm,shft)
 C ... Second arrowhead corner
       call arcdrw(d*syma(4),tpix*(syma(6)+180),0d0,tpix*syma(7),rloc,-1,
-     .  xp,yp,zp,rotm,shft)
+     .xp,yp,zp,rotm,shft)
 C ... Back to tip
       call drw3d(xp,yp,zp,rotm,shft)
       goto 5
@@ -961,7 +961,7 @@ C ... Extremal value of phi
       call ephi3d(xp,yp,zp,rotm,shft,tpix*syma(7),rloc,ephi)
       xx = chngy(xp,yp,zp,syma(1),syma(2),syma(3),rotm,shft)
       if (ipr .ge. 50) call awrit2(' plsy3: yproj = %1;6d  '//
-     .  'ephi =%2:1;6d',' ',80,i1mach(2),xx,ephi)
+     .'ephi =%2:1;6d',' ',80,i1mach(2),xx,ephi)
 C ... Case tip pointing away from viewer:
       if (xx .lt. 0) then
 C   ... Draw entire arc and white out
@@ -978,7 +978,7 @@ C ... Case tip pointing toward viewer:
 C   ... Case partial arc showing ... draw the back side of the arc
         if (ephi(1) .ne. 0 .or. ephi(2) .ne. 0) then
           call arcdrw(d,ephi,ephi(2),tpix*syma(7),rloc,
-     .      nint(tpi*dabs(ephi(1)-ephi(2))),xp,yp,zp,rotm,shft)
+     .    nint(tpi*dabs(ephi(1)-ephi(2))),xp,yp,zp,rotm,shft)
 C     ... Set flag to draw tip-forward_arc-tip
           i = 1
 C   ... Case whole arc showing ... draw and color entire arc
@@ -999,7 +999,7 @@ C ... Draw tip-forward_arc-tip, if flag set
         endif
         call mve3d(xp,yp,zp,rotm,shft)
         call arcdrw(d,ephi,ephi(2),tpix*syma(7),rloc,
-     .    -nint(tpi*dabs(ephi(1)-ephi(2))),xp,yp,zp,rotm,shft)
+     .  -nint(tpi*dabs(ephi(1)-ephi(2))),xp,yp,zp,rotm,shft)
         call drw3d(xp,yp,zp,rotm,shft)
         call drwre(0d0,0d0,symcs)
       endif
@@ -1014,7 +1014,7 @@ c        do  24  dphi = ephi(1), ephi(2), xx
           dphi = dphi + xx
           call mve3d(xp,yp,zp,rotm,shft)
           call arcdrw(d,dphi,0d0,tpix*syma(7),rloc,-1,
-     .      xp,yp,zp,rotm,shft)
+     .    xp,yp,zp,rotm,shft)
 c   24   continue
         enddo
       endif
@@ -1026,7 +1026,7 @@ C --- Cleanup for this point ---
       s = ' '
       if (medium .eq. 3) then
         is = awrite(' closepath gsave %1;4d setgray fill grestore',
-     .    s,len(s),0,symcs(1),0,0,0,0,0,0,0)
+     .  s,len(s),0,symcs(1),0,0,0,0,0,0,0)
       endif
       call plcrve(medium,pstat,-2d0,s,is)
       if (is .gt. 0) write(stream,*) s(1:is)
@@ -1053,7 +1053,7 @@ Ci    -1: draw to ph1;    <-1 draw arc, drawing to starting point
       implicit none
       integer np
       double precision d,ph1,ph2,theta,xp,yp,zp,
-     .  rloc(3,3),rotm(3,3),shft(3)
+     .rloc(3,3),rotm(3,3),shft(3)
       integer mp
       double precision vloc(3),vglob(3),phi
 
@@ -1092,7 +1092,7 @@ C- Determines extremal angles on x-z plane wrt rotation about const. th.
       double precision r(3,3),pi,A,B
 *     double precision C,rhs
       double precision vglob(3),dy,phibar,xpr0,ypr0,zpr0,
-     .  xpr(-1:1),ypr(-1:1),zpr(-1:1),xr,yr,zr,ph,dph,phi
+     .xpr(-1:1),ypr(-1:1),zpr(-1:1),xr,yr,zr,ph,dph,phi
       integer i,j
       pi = 4*datan(1d0)
       call dgemm('N','T',3,3,3,1d0,rotm,3,rloc,3,0d0,r,3)
@@ -1126,14 +1126,14 @@ ctakao
 c      do  10  ph = 0, 2*pi+1d-10, dph
       ph = 0d0 - dph
       do while ( ph< 2*pi+1d-10 )
-          ph = ph + dph
+        ph = ph + dph
 
         do  12  i = -1, 1
           phi = ph + i*dph
           if (ph .eq. 0 .or. i .eq. 1) then
             call rotpos(1d0,phi,theta,rloc,vglob)
             call prj3dp(xp+vglob(1),yp+vglob(2),zp+vglob(3),.true.,
-     .        rotm,shf,xr,yr,zr,xpr(i),ypr(i),zpr(i))
+     .      rotm,shf,xr,yr,zr,xpr(i),ypr(i),zpr(i))
             xpr(i) = xpr(i) - xpr0
             ypr(i) = ypr(i) - ypr0
             zpr(i) = zpr(i) - zpr0
@@ -1155,7 +1155,7 @@ C         print *, a,b
           phibar = ph - dph/2*(a+b)/(a-b)
           if (j .ge. 1 .and. dabs(phibar-2*pi-ephi(1)) .lt. 1d-4) cycle !goto 10
           if (j .ge. 2) call fexit2(-1,1,' Exit -1 EPHI: '//
-     .      'too many ephi:%2:1;6d %1;6d',ephi,ph-dph/2*(a+b)/(a-b))
+     .    'too many ephi:%2:1;6d %1;6d',ephi,ph-dph/2*(a+b)/(a-b))
           j = j+1
           ephi(j) = ph - dph/2*(a+b)/(a-b)
 C         print *, ph - dph/2*(a+b)/(a-b),
@@ -1172,7 +1172,7 @@ c   10 continue
       if (j .eq. 2) then
         phibar = (ephi(1)+ephi(2))/2
         dy = (r(2,1)*dcos(phibar)    + r(2,2)*dsin(phibar)
-     .    -r(2,1)*dcos(phibar+pi) - r(2,2)*dsin(phibar+pi))*dsin(theta)
+     .  -r(2,1)*dcos(phibar+pi) - r(2,2)*dsin(phibar+pi))*dsin(theta)
         if (dy .lt. 0) ephi(2) = ephi(2) - 2*pi
       endif
 C     print *, 'ephi=',ephi
@@ -1248,7 +1248,7 @@ Co xprj,yprj,zprj
 C     print '(6f12.6)', p(1,1),p(2,1),p(3,1),th,xprj,zprj
       end
       subroutine pls3da(xp,yp,zp,np,syp,ndsyp,n1syp,type,syma,symcs,
-     .  bsrad,bslist,ntp,tp,symat,nsymc)
+     .bsrad,bslist,ntp,tp,symat,nsymc)
 C- Accumulates points symbol printing at projection of (x,y,z)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1274,24 +1274,24 @@ C ----------------------------------------------------------------------
 C Passed parameters
       integer type,np,ntp,nsymc,ndsyp,n1syp
       double precision syma(2),symcs(0:3),bsrad,xp(np),yp(np),zp(np),
-     .  tp(ntp,*),symat(16,5),syp(ndsyp,1)
+     .tp(ntp,*),symat(16,5),syp(ndsyp,1)
       character*40 bslist(0:30)
 C Plot parameters block
       double precision plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .     plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .     plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .       cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
-     .     xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
-     .     linl1,linl2,linl3,linl4,lnprd,lnused
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox(4),scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,strtch,xcu,ycu,xcc,ycc,xb,yb,
+     .linl1,linl2,linl3,linl4,lnprd,lnused
       integer stream,pcol,lintyp,ltbld,medium,pstat,ndpi,ndwrt,fsiz
       logical lrot,noclip,logx,logy
       common /pltdat/ plml,plmr,plmb,plmt,plpl,plpr,plpb,plpt,
-     .                plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
-     .                plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
-     .                     cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
-     .                xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
-     .                lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
-     .                medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
+     .plul,plur,plub,plut,scalxu,scalyu,offxu,offyu,
+     .plgl,plgr,plgb,plgt,scalxg,scalyg,offxg,offyg,
+     .cosa,sina,bbox,scalxc,scalyc,offxc,offyc,
+     .xcm,ycm,xcu,ycu,xcc,ycc,strtch,pcol,stream,xb,yb,
+     .lintyp,ltbld,linl1,linl2,linl3,linl4,lnprd,lnused,
+     .medium,lrot,noclip,logx,logy,pstat,ndpi,ndwrt,fsiz
 
 C Local parameters
       logical err
@@ -1327,7 +1327,7 @@ C Symbol type
 C Symbol color
           call dcopy(3,symcs(1),1,symat(12,nsymc),1)
           if (dasum(3,syp(i,n1syp+1),ndsyp) .gt. 0)
-     .      call dcopy(3,syp(i,n1syp+1),ndsyp,symat(12,nsymc),1)
+     .    call dcopy(3,syp(i,n1syp+1),ndsyp,symat(12,nsymc),1)
 C Symbol bold,bsrad
           symat(15,nsymc) = ibold
           symat(16,nsymc) = bsrad
@@ -1335,8 +1335,8 @@ C Symbol bold,bsrad
           if (ich .le. 40) bslist(nsymc) = bslist(0)(ich:40)
    10   continue
         if (iprint() .ge. 40)
-     .    call awrit1(' pls3da: symbols read from data file, '//
-     .    '%i points.',s,len(s),i1mach(2),np)
+     .  call awrit1(' pls3da: symbols read from data file, '//
+     .  '%i points.',s,len(s),i1mach(2),np)
       endif
       ipt = ipt+np
       if (type .lt. 0) return
@@ -1356,9 +1356,9 @@ C --- Accumulate symbol table for type>0 ---
       bslist(nsymc) = ' '
       if (ich .le. 40) bslist(nsymc) = bslist(0)(ich:40)
       if (iprint() .ge. 40)
-     .  call awrit3(' pls3da: '//synam(type)//' %i points  '//
-     .  'gs=%3:1;5d  attr=%'//char(ichar('0')+nsyma(type))//':1;5d  ',
-     .  s,len(s),i1mach(2),np,symcs(1),syma)
+     .call awrit3(' pls3da: '//synam(type)//' %i points  '//
+     .'gs=%3:1;5d  attr=%'//char(ichar('0')+nsyma(type))//':1;5d  ',
+     .s,len(s),i1mach(2),np,symcs(1),syma)
       end
 
       subroutine pls3dp(ntp,tp,symat,bslist,tabpr,iwk,rotm,shf)
@@ -1386,7 +1386,7 @@ C Passed parameters
 C Local parameters
       integer itype,ibold,iprint,i1mach,ip,ipp,ips,i1,ipr,npr,jp,nbslst
       double precision dum1(9),dum2,dum3,dum4,xprj,yprj,zprj,bsrad,
-     .  cs(0:4)
+     .cs(0:4)
       character*100 s
 
       call getpr(ipr)
@@ -1396,11 +1396,11 @@ C Local parameters
       call dvshel(1,ntp,tp(1,2),iwk,1)
       call plntyr(i1,ibold,dum1,dum2,dum3,dum4,err)
       if (iprint() .ge. 30) call awrit1(' pls3dp: generating '//
-     .  'symbols for %i points',s,len(s),i1mach(2),ntp)
+     .'symbols for %i points',s,len(s),i1mach(2),ntp)
       call pshpr(iprint()-10)
-        if (ipr .ge. 50) print 333
-  333   format(' indx',4x,'xrot',8x,'zrot',8x,'yrot',8x,
-     .    'xprj',8x,'zprj',8x,'yprj',4x,'npr')
+      if (ipr .ge. 50) print 333
+  333 format(' indx',4x,'xrot',8x,'zrot',8x,'yrot',8x,
+     .'xprj',8x,'zprj',8x,'yprj',4x,'npr')
       do  10  ip = ntp, 1, -1
         ipp = iwk(ip,1)+1
         ips = nint(tp(ipp,4))
@@ -1420,10 +1420,10 @@ C ...   Draw lines connecting all pairs ...
           call plntyp(1,3,0d0,0d0,0d0,0d0)
           do  20  jp = 1, npr
             call prj3dp(tp(ipp,1),tp(ipp,2),tp(ipp,3),.false.,
-     .        dum1,dum1,dum1,dum1,dum1,xprj,yprj,zprj)
+     .      dum1,dum1,dum1,dum1,dum1,xprj,yprj,zprj)
             call mve(xprj,zprj)
             call prj3dp(tabpr(1,jp),tabpr(2,jp),tabpr(3,jp),.false.,
-     .        dum1,dum1,dum1,dum1,dum1,xprj,yprj,zprj)
+     .      dum1,dum1,dum1,dum1,dum1,xprj,yprj,zprj)
             call drw(xprj,zprj)
    20     continue
           call plntyg
@@ -1431,9 +1431,9 @@ C ...   Draw lines connecting all pairs ...
 C ...   Draw this symbol
         call plntyp(i1,ibold,dum1,dum2,dum3,dum4)
         call prj3dp(tp(ipp,1),tp(ipp,2),tp(ipp,3),.false.,
-     .    dum1,dum1,dum1,dum1,dum1,xprj,yprj,zprj)
+     .  dum1,dum1,dum1,dum1,dum1,xprj,yprj,zprj)
         if (ipr .ge. 50) print '(i3,6f12.6,i4)', ips,
-     .    tp(ipp,1),tp(ipp,3),tp(ipp,2),xprj,zprj,yprj,npr
+     .  tp(ipp,1),tp(ipp,3),tp(ipp,2),xprj,zprj,yprj,npr
         if (yprj .lt. 0) goto 10
         if (itype .gt. 0)  then
           symat(1,ips) = symat(1,ips)/yprj
@@ -1448,7 +1448,7 @@ C ...     Undo rotation!
           call dgemm('T','N',3,1,3,1d0,rotm,3,dum1,3,0d0,dum1(4),3)
           call dcopy(3,symat(12,ips),1,cs(1),1)
           call plsy3(dum1(4),dum1(5),dum1(6),rotm,shf,
-     .      -itype,symat(1,ips),cs)
+     .    -itype,symat(1,ips),cs)
         endif
    10 continue
       call poppr
@@ -1486,7 +1486,7 @@ C ...   Add to list if connecting vector < r1+r2
 C        if (rr .lt. r1+r2 .and. rtab(2,npr) .le. 0) then
         if (rr .lt. r1+r2) then
           call prj3dp(rtab(1,npr),rtab(2,npr),rtab(3,npr),.false.,
-     .      dum1,dum1,dum1,dum1,dum1,xprj,yprj,zprj)
+     .    dum1,dum1,dum1,dum1,dum1,xprj,yprj,zprj)
           if (yprj .lt. 0) then
             if (ipr .gt. 50)
      .      print '('' pairs: ip,jp ='',2i3,''  vec ='',6f12.6)',
@@ -1501,7 +1501,7 @@ C        if (rr .lt. r1+r2 .and. rtab(2,npr) .le. 0) then
       npr = npr-1
       end
       logical function setuu(xmin,xmax,ymin,ymax,big,logx,logy,pad,plu,
-     .  uuytox)
+     .uuytox)
 C- Set user's units
 Co plu
       implicit none
@@ -1567,16 +1567,16 @@ C      print 321
 C      print 330
   300 format(
      .' usage: fplot [-plm=l,b,r,t] [-global switches] [-file switches]'
-     .  ,' file ...'/
-     .  '               --h prints a short list of switches')
+     .,' file ...'/
+     .'               --h prints a short list of switches')
 
       print 1,'GLOBAL switches'
       print 4,
-     .  '-frme[:lx|:ly|:lxy][:theta=#] l,r,b,t','starts a new frame,'//
-     .  ' in box l,r,b,t(GU)'
+     .'-frme[:lx|:ly|:lxy][:theta=#] l,r,b,t','starts a new frame,'//
+     .' in box l,r,b,t(GU)'
       print 3,':lx | :ly | :lxy for log scales in x,y, or both'
       print 3,':theta=#  angle between abscissa and'//
-     .  ' ordinate (radians)'
+     .' ordinate (radians)'
       print 1,'-rot ','rotates frame 90 degrees'
       print 1,'-disp[:lus] ','displays picture in a subshell'
       print 1,'-plaintext ','strings have no super or subscripts'
@@ -1584,62 +1584,62 @@ C      print 330
 
 
       print 4,'-tmx (-tmy) spacing[:mt][,pos][;rmt][~rmnt][@mode]',
-     .  'tic mark specification and attributes.'
+     .'tic mark specification and attributes.'
       print 5,'spacing ','spacing between tics (see mode)'
       print 5,'mt ','no. tics per major tic'
       print 5,'pos ','position and size of major tic'
       print 5,'rmt ','size of major tic'
       print 5,'rmnt ','size of minor tic, relative to major tic'
       print 5,'mode ','1,2,3 for log;  mode=5 => caller specifies tics,'
-     .  ,'eg @5,1,4,6 puts tic marks at 1,4,6'
+     .,'eg @5,1,4,6 puts tic marks at 1,4,6'
 
       print 4,'-frmt  [col=#,#,#,][th=#1[,#2,#3]]','frame parameters'
       print 5,'th=#1[,#2,#3]] ','line specifications'
       print 3,'  #1 line thickness (default=3; -1 makes no frame)'
       print 3,'  #2 one of 0,1,2,3 to draw bottom and top axis, ',
-     .             '     or one only, or neither'
+     .'     or one only, or neither'
       print 3,'  #3 one of 0,1,2,3 to draw left and right axis, ',
-     .             '     or one only, or neither'
+     .'     or one only, or neither'
       print 1,'-p# ','pads frame boundary (as fraction of frame)'
       print 1,'-1p ','skip parsing of remaining args for first pass'
       print 1,'-ndpi=# ',
-     .  'specifies resolution of medium (dots per inch)'
+     .'specifies resolution of medium (dots per inch)'
       print 1,'-nx (-ny) ','normalizes each column of abscissas and'//
-     .             '(ordinates) to (0,1)'
+     .'(ordinates) to (0,1)'
 
       print *,
-     .     ' ... The following address numbering and labels:'
+     .' ... The following address numbering and labels:'
       print 4,'-lbl[um] x,y[:blk] cc[,rot=#] str [tex-string]',
      .'label and attributes.'
       print 3,'puts `str'' at (x,y),  centered at cc, in'//
-     .             ' user (medium) units.'
+     .' user (medium) units.'
       print 3,'cc: one of chars l,c,r followed by one of '//
-     .             'u,c,d, eg `ld'''
+     .'u,c,d, eg `ld'''
       print 3,'OR: cc is `tx.'' This flags ps file will be run through'
       print 3,'latex with string substitutions.  In which case:'
       print 3,'  `tex-string'' is the actual (TeX) string and'//
-     .        ' is required;'
+     .' is required;'
       print 3,'  `str'' is merely a tag needed for latex processing'
       print 4,'-lblx xlst y[:blk] cc str1 str2 ...'//
-     .             '   or -lbly ylst x[:blk] cc str1 str2 ...',
-     .  'puts labels (strings) at list of x-points (y-points)'
+     .'   or -lbly ylst x[:blk] cc str1 str2 ...',
+     .'puts labels (strings) at list of x-points (y-points)'
 
       print 1,'-xl ',
-     .  'str (-yl str) (-tl str) for x (y) axis or title labels'
+     .'str (-yl str) (-tl str) for x (y) axis or title labels'
       print 1,'-font ','t# (h#) changes Times (Helvetica) font and size'
       print 4,'-k x,y[:len][,spacing][;style]','specifies key '//
-     .  'position (and length, spacing or style)'
+     .'position (and length, spacing or style)'
       print 6,'-fmtnx:string (-fmtny:) ','awrite format for axis label'
       print 6,'-xn:0 | -noxn (-yn:0 | -noyn) ','no x (y) axis numbering'
       print 1,'-xn:t (-yn:r) ',
-     .  'place x (y) axis numbering on top (right)'
+     .'place x (y) axis numbering on top (right)'
       print 1,'-pr# ','sets the verbosity to #'
 
 
       print 1,'-aspect # ',
-     .  'resizes frame to make dy/dx(UU) / dy/dx(MU) = #'
+     .'resizes frame to make dy/dx(UU) / dy/dx(MU) = #'
       print 6,'-3d shy[,shx,shz] ',
-     .  'for 3-d perspective drawing.'
+     .'for 3-d perspective drawing.'
       print 3,'Points are shifted by shy (shx,shz).'
       print 3,'Projection is x to right, z up, y normal to paper.'
 
@@ -1651,8 +1651,8 @@ C      print 330
 
       print 1,'FILE switches'
       print 4,'-lt n[:bold=#][:col=#,#,#][:colw=#,#,#]'//
-     .        '[:fill=#][:brk=#][:la[,lb]]',
-     .  'line type specification and attributes.'
+     .'[:fill=#][:brk=#][:la[,lb]]',
+     .'line type specification and attributes.'
       print 5,'n','line type (0=none, 1=solid, 2=dashed, 3=dotted)'
       print 5,'bold','line thickness (use 0-9; default=3)'
       print 5,'col=#,#,#','line color (rgb)'
@@ -1661,21 +1661,21 @@ C      print 330
       print 5,'brk=1','starts new line if x_i > x_i-1'
       print 5,'la,lb','(dashed lines) lengths of dash and space'
       print 4,'-s S[:col=#,#,#][bold=#][:fill=#]:syma[,symb ..] for'//
-     .        ' symbol S',
-     .        'symbol specification and attributes.'
+     .' symbol S',
+     .'symbol specification and attributes.'
       print 5,'S is one of',
-     .        'x square diamond + polygon circle arrow errbar'
+     .'x square diamond + polygon circle arrow errbar'
       print 5,'         or','an index 1-8'
       print 5,'         or','-1 to read symbol parameters from data'//
-     .  ' file.','In that case, columns must hold:',
-     .  '4: symbol type  (1=>arrow 2=>cone)  5-7: color  '//
-     .         '8-*, symbol attributes'
+     .' file.','In that case, columns must hold:',
+     .'4: symbol type  (1=>arrow 2=>cone)  5-7: color  '//
+     .'8-*, symbol attributes'
       print 3,'fill=#, #=  0 do not fill symbol; 1 fill with gray;'//
-     .        ' 2 fill with color'
+     .' 2 fill with color'
       print 5,'bold=#',
-     .  'bold for symbol contour. 0 => no contour (just fill symbol)'
+     .'bold for symbol contour. 0 => no contour (just fill symbol)'
       print 5,'syma,symb,..','attributes that alter size '//
-     .        'and shape of symbol'
+     .'and shape of symbol'
       print 1,'-l[0] legend for key (option 0 suppresses blanking)'
       print 1,'-tp [nc~]xlist','generates a table of points:'
       print 3,'nc=0  (default) maps points to 2 cols: xi=point, yi=0'
@@ -1683,37 +1683,37 @@ C      print 330
       print 3,'nc=n  orders points as dat(1,1:nc); dat(2,1:nc)...'
       print 3,'nc=-n orders points as dat(1:nr,1); dat(1:nr,2)...'
       print 4,'-map [-i expr] list',
-     .  'maps original data array to another set of points'//
-     .  ' defined by "list"'
+     .'maps original data array to another set of points'//
+     .' defined by "list"'
       print 3,'-i includes only points satisfying logical expr'
       print 1,'-itrp x1,x2,dx','maps data to interpolated polynomial'
       print 3,'Optional args x1,x2,dx,ifrat,nord also specifies '
       print 3,'rational function interpolation and polynomial order'
       print 1,'-ins[f] string','insert string (or file named by string)'
-     .      //' directly into output file'
+     .//' directly into output file'
       print 1,'-sort','sorts data in ascending order (after mapping)'
       print 4,'-bs radius[;file-list]',
-     .  '(3D only) connects points within radius and file-list'
+     .'(3D only) connects points within radius and file-list'
 
 
       print 1, '-con list','special mode for x-y contour plots.'
       print 3, 'File data must consists of function values f tabulated'
       print 3, 'on a uniform mesh of points in x and y.'
       print 3, 'Lines of constant f=# are interpolated'//
-     .  ' For each number # in ''list''.'
+     .' For each number # in ''list''.'
       print 3, 'Horizontal (vertical) axis corresponds to'//
-     .  ' columns (rows):  thus'
+     .' columns (rows):  thus'
       print 3,'top and bottom (left and right) edges of frame'//
-     .  ' correspond'
+     .' correspond'
       print 3,'to first and last rows (columns) of data'
 C      print 1, '-nc=# (nr=#)','stipulate that next matrix read'
 C     .             //' has # cols (rows)'
       print 1, '-nc=#','stipulate that next matrix read'
-     .             //' has # cols'
+     .//' has # cols'
 
 
       print 1, '-r:switches','switches for file reading'
-     .            //' separated by '':''.  switches are'
+     .//' separated by '':''.  switches are'
       print 3, 'qr        read with fortran read (fast, no algebra)'
       print 3, 'br        read from binary file'
       print 3, 's=#       skips # records before reading'
@@ -1724,16 +1724,16 @@ C     .         ' are supplied'
       print 1,'-qr','same function as -r:qr'
       print 1,'-br','same function as -r:br'
       print 1,'-ab  expr','uses expression "expr" for the abscissa.  '//
-     .        'Expression'
+     .'Expression'
       print 3,'can contain variables x# where #'//
-     .        ' signifies value of column j'
+     .' signifies value of column j'
       print 1,'-abf expr','maps tic marks on absissa to expr'
       print 1,'-ord expr','substitutes expression for the ordinate'
       print 1,'-col cx,cy[,cw]',
-     .        'plots cols cx and cy as abscissa and ordinate'
+     .'plots cols cx and cy as abscissa and ordinate'
       print 1,'-colsy list','makes series of plots for columns in list'
       print 1,'-colsw list','corresponding list of columns'//
-     .        ' for (color) weights'
+     .' for (color) weights'
       print 1,'-ey #[,dx,shfty]','error bars in y using data from col #'
 
 C OLD

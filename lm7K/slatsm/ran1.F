@@ -84,7 +84,7 @@ C     Calculates pi statistically using volume of unit n-sphere
       parameter(pi=3.1415926)
       dimension iy(3),yprob(3)
       fnc(x1,x2,x3,x4) = sngl(dsqrt(
-     .  dble(x1)**2+dble(x2)**2+dble(x3)**2+dble(x4)**2))
+     .dble(x1)**2+dble(x2)**2+dble(x3)**2+dble(x4)**2))
 
       call ran1in(-1)
       do  11  i = 1, 3
@@ -92,7 +92,7 @@ C     Calculates pi statistically using volume of unit n-sphere
    11 continue
       write(*,'(1x,/,t15,a)') 'Volume of unit n-sphere, n=2,3,4'
       write(*,'(1x,/,t3,a,t17,a,t26,a,t37,a)')
-     .  '# points','pi','(4/3)*pi','(1/2)*pi^2'
+     .'# points','pi','(4/3)*pi','(1/2)*pi^2'
       do  14  j = 1, 15
         do  12  k=2**(j-1),2**j
           x1 = ran1()

@@ -1,5 +1,5 @@
       subroutine makrwf(mode,z,rmax,l,v,a,nr,rofi,pnu,nptdif,g,gp,
-     .  enu,phi,dphi,phip,dphip,p)
+     .enu,phi,dphi,phip,dphip,p)
 C- Radial wave functions and energy derivative
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -40,7 +40,7 @@ C     implicit none
 C ... Passed parameters
       integer mode,l,nr,nptdif
       double precision a,rmax,z,rofi(1),v(nr,1),pnu(1:l+1),
-     .  g(nr,2),gp(nr,2,4),phi,phip,dphi,dphip,p
+     .g(nr,2),gp(nr,2,4),phi,phip,dphi,dphip,p
 C ... Local parameters
       integer konf,nn,nre,modep
       double precision b,dnu,eb1,eb2,enu,pi,slo(5),sum,tol,val(5)
@@ -61,7 +61,7 @@ C     for now, rmax must match to rofi(nr)
         if (z .eq. 1 .and. l .gt. 2) eb2 = 100
         enu = -0.5d0
         call rseq(eb1,eb2,enu,tol,z,l,nn,val,slo,v,g,sum,a,b,rofi,nr,
-     .    nre)
+     .  nre)
         val(1) = val(1)/dsqrt(sum)
         slo(1) = slo(1)/dsqrt(sum)
 C        call phidot(z,l,v,enu,a,b,rofi,nr,g,val,slo,tol,nn,
@@ -75,7 +75,7 @@ C     .    gp,phi,dphi,phip,dphip,p)
 C     if (mode .ge. 10) modep = modep+10
 
       call phidx(modep,z,l,v,0d0,0d0,rofi,nr,nptdif,tol,enu,val,slo,
-     .  nn,g,gp,phi,dphi,phip,dphip,p,0d0,0d0,0d0,0d0)
+     .nn,g,gp,phi,dphi,phip,dphip,p,0d0,0d0,0d0,0d0)
 C     dphip = (sloi(2)-phip)/rmax
 
 C     call prrmsh('ul',rofi,ul,nr,nr,1+lmxa)

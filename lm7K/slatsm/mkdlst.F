@@ -83,8 +83,8 @@ C --- Entry for np = npmax
 C  20 continue
       mkdlst = np
       if (iprint() .gt. 100 .and. npmx .gt. 0) call
-     .  awrit3(' MKDLST: %i points:%n:1g',' ',100,i1mach(2),np,np,xp)
-        
+     .awrit3(' MKDLST: %i points:%n:1g',' ',100,i1mach(2),np,np,xp)
+      
       end
 C --- Test of mkdlst ---
 C      subroutine fmain

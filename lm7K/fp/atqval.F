@@ -33,7 +33,7 @@ C ... Local parameters
       do  l = 0, lmxa
         deg = 2*(2*l+1)
         if (pnz(l) .ne. 0 .and. mod(int(pnz(l)),10) .lt. int(pnu(l)))
-     .    qsc = qsc + deg
+     .  qsc = qsc + deg
         konfig = pnu(l)
         do  konf = l+1, konfig-1
           if (konf.eq.kcor .and. l.eq.lcor) deg = deg + qcor(1)

@@ -20,7 +20,7 @@ C ... Local parameters
       integer l,ir
 
       if (lmin .ne. 0 .and. lmin .ne. -1)
-     .  call rx('hanr: input lmin must be -1 or 0')
+     .call rx('hanr: input lmin must be -1 or 0')
       if (lmax .lt. lmin .or. nr .le. 0) return
       akap = dsqrt(-e)
 

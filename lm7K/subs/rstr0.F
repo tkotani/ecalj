@@ -21,7 +21,7 @@ C     implicit none
 C ... Passed parameters
       integer np,nxi,lxi(nxi,np),lmxa,nlmx,iop
       double precision hl(nlmx,nxi,np),hd(nlmx,nxi,np),
-     .  exi(nxi),x(np),y(np),z(np)
+     .exi(nxi),x(np),y(np),z(np)
 C ... Local parameters
       integer:: ie , ip , lmax , ilm , l , m , lmxx , lmxy
       real(8) ,allocatable :: ylm_rv(:)
@@ -29,7 +29,7 @@ C ... Local parameters
 
       parameter (lmxx=20)
       double precision psi(-1:lmxx),phi(-1:lmxx),yl((lmxx+1)**2),r2,
-     .  rfac,xxx,fac2l(0:lmxx),psid,psil
+     .rfac,xxx,fac2l(0:lmxx),psid,psil
 C ... Heap
       integer w(1)
       common /w/ w
@@ -37,8 +37,8 @@ C ... Heap
 C --- Make ylm for all points, up to lmxy, which find ---
       lmxy = -1
       do  1  ip = 1, np
-      do  1  ie = 1, nxi
-        lmxy = max(lmxy,lxi(ie,ip))
+        do  1  ie = 1, nxi
+          lmxy = max(lmxy,lxi(ie,ip))
     1 continue
       lmxy = lmxy+lmxa
       fac2l(0) = 1
@@ -53,13 +53,13 @@ Ctakao_ZeroClear_NotRequiered        if ((lmxy+1)**2*np<0) ylm_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered        if (np<0) r2_rv(:)=0.0d0
 
       call ropyln ( np , x , y , z , lmxy , np , ylm_rv , r2_rv 
-     . )
+     .)
 
 
 C --- For each point, do ---
       do  5  ip = 1, np
         call pvstr0 ( lmxy , ip , np , ylm_rv , r2_rv , yl , r2 
-     . )
+     .  )
 
         if (r2 .lt. 1d-10) then
           call dpzero(hl(1,1,ip),nlmx*nxi)
@@ -82,9 +82,9 @@ c         call bessl2(exi(ie)*r2,0,lmax,phi(0),psi(0))
 C     ... undo fac2l scaling, to recover standard MSM IV-43.
 C         psil = rfac * psi(l) * fac2l(l)
               psil = rfac * psi(l)
-            do  20  m = -l, l
-              ilm = ilm+1
-              hl(ilm,ie,ip) = psil*yl(ilm)
+              do  20  m = -l, l
+                ilm = ilm+1
+                hl(ilm,ie,ip) = psil*yl(ilm)
    20       continue
    10     continue
         else
@@ -101,10 +101,10 @@ C         psil = rfac * psi(l) * fac2l(l)
 C         psid = rfac * psi(l-1)*r2/(4*l-2) * fac2l(l)
               psil = rfac * psi(l)
               psid = rfac * psi(l-1)*r2/2
-            do  120  m = -l, l
-              ilm = ilm+1
-              hl(ilm,ie,ip) = psil*yl(ilm)
-              hd(ilm,ie,ip) = psid*yl(ilm)
+              do  120  m = -l, l
+                ilm = ilm+1
+                hl(ilm,ie,ip) = psil*yl(ilm)
+                hd(ilm,ie,ip) = psid*yl(ilm)
   120       continue
   110     continue
         endif

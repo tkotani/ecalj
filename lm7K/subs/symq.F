@@ -103,7 +103,7 @@ C ... Local parameters
       end
 
       subroutine symqmp(nrclas,nlml,nlmx,plat,posc,ngrp,g,ag,qwk,
-     .  ipa,sym,qmp,nn)
+     .ipa,sym,qmp,nn)
 C- Symmetrize multipole moments for a single class
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -168,7 +168,7 @@ C     implicit none
 C ... Passed parameters
       integer nr,nlml,nsp,nn
       double precision sym(nlml,nlml),rho1(nr,nlml,nsp),
-     .  rho2(nr,nlml,nsp),wgt
+     .rho2(nr,nlml,nsp),wgt
 C ... Local parameters
       integer ilm,jlm,i,isp
       double precision ccc
@@ -195,7 +195,7 @@ C     implicit none
 C ... Passed parameters
       integer nr,nlml,nsp,nn
       double precision sym(nlml,nlml),rho1(nr,nlml,nsp),
-     .  rho2(nr,nlml,nsp),wgt
+     .rho2(nr,nlml,nsp),wgt
 C ... Local parameters
       integer i,ilm,jlm,isp
       double precision ccc

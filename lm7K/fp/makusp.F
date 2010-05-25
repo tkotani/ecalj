@@ -1,5 +1,5 @@
       subroutine makusp(n0,z,nsp,rmax,lmxa,v,a,nr,rs3,vmtz,pnu,pnz,
-     .  rsml,ehl,ul,sl,gz,ruu,rus,rss)
+     .rsml,ehl,ul,sl,gz,ruu,rus,rss)
 C- Augmentation fcts of pure val,slo (times r) from spherical V and b.c.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -71,21 +71,21 @@ C     implicit none
 C ... Passed parameters
       integer lmxa,nr,nsp,n0
       double precision a,rmax,z,rs3,vmtz,rsml(0:lmxa),ehl(0:lmxa),
-     .  v(nr,1),pnu(n0,2),pnz(n0,2),
-     .  ul(nr,lmxa+1,1),sl(nr,lmxa+1,1),gz(nr,lmxa+1,1),
-     .  ruu(nr,lmxa+1,2,1),rus(nr,lmxa+1,2,1),rss(nr,lmxa+1,2,1)
+     .v(nr,1),pnu(n0,2),pnz(n0,2),
+     .ul(nr,lmxa+1,1),sl(nr,lmxa+1,1),gz(nr,lmxa+1,1),
+     .ruu(nr,lmxa+1,2,1),rus(nr,lmxa+1,2,1),rss(nr,lmxa+1,2,1)
 C ... Local parameters
       integer i,l,k,nrx,lpz,lpzi,nrbig,idx
       parameter (nrx=1501)
       double precision dphi,dphip,enu,ez,p,phi,phip,
-     .  g(nrx,2),gp(nrx,8),gzl(nrx,2),phz,dphz
+     .g(nrx,2),gp(nrx,8),gzl(nrx,2),phz,dphz
       double precision rofi(nrx),rwgt(nrx),vbig(nrx,2)
       double precision xi(0:n0),wk(2),fac1
 
 
 C --- Make rofi,rwgt, and possibly extended mesh ---
       call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,
-     .  lpz,nrbig,rofi,rwgt,vbig)
+     .lpz,nrbig,rofi,rwgt,vbig)
       call isanrg(nrbig,nr,nrx,'makusp:','nrbig',.true.)
 
 C --- Loop over spins and l ---
@@ -151,7 +151,7 @@ C      endif
 
       end
       subroutine makus2(lpz,nr,rofi,g,gp,gz,phi,dphi,phip,dphip,phz,
-     .  dphz,l,e,ez,z,v,ul,sl,ruu,rus,rss,ruz,rsz,rzz)
+     .dphz,l,e,ez,z,v,ul,sl,ruu,rus,rss,ruz,rsz,rzz)
 C- Kernel to make u and s from g and gp, for one l
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -202,11 +202,11 @@ C ... Passed parameters
       integer l,nr,lpz
       double precision dphi,dphip,e,ez,phi,phip,phz,dphz,z
       double precision g(nr*2),gp(nr*2),gz(nr*2),rofi(nr),v(nr),ul(nr),
-     .  sl(nr),ruu(nr),rus(nr),rss(nr),ruz(nr),rsz(nr),rzz(nr)
+     .sl(nr),ruu(nr),rus(nr),rss(nr),ruz(nr),rsz(nr),rzz(nr)
 C ... Local parameters
       integer ir,jr
       double precision as,au,bs,bu,det,fllp1,gfac,gf11,gf12,gf22,r,sx,
-     .  tmcr,ux,c,phzl,dphzl
+     .tmcr,ux,c,phzl,dphzl
       common /cc/ c
 
       fllp1 = l*(l+1)

@@ -1,5 +1,5 @@
       subroutine mstmin(n,w,g1,g2,del,wrk,dspmax,tol,alpha,atol,icom,
-     .                  gd1,alpha1,alpha2,alphau,alphal,nsrch,iprint)
+     .gd1,alpha1,alpha2,alphau,alphal,nsrch,iprint)
       implicit double precision (a-h,o-z)
 C- Fletcher-Powell minimisation of a function of n coordinate variables.
 C  M.J.Norgett & R.Fletcher, J.Phys.C, 3, L190 (1972)
@@ -46,18 +46,18 @@ C --- First iteration ---
 C     if (iprint.gt.0) write(iprint,100)
 C 100 format(/6x,'minimisation set-up.')
       if (iprint.gt.0)
-     .  call awrit2(' mstmin: start  xtol=%1;2g  |grad|=%1;3g',' ',80,
-     .  i1mach(2),tol,dsqrt(ddot(n,g1,1,g1,1)))
+     .call awrit2(' mstmin: start  xtol=%1;2g  |grad|=%1;3g',' ',80,
+     .i1mach(2),tol,dsqrt(ddot(n,g1,1,g1,1)))
       gd1 = zero
       gd2 = zero
       delmax = zero
       do 2 i = 1,n
-      del(i) = zero
-      do 1 j = 1,n
-      del(i) = del(i) - w(i,j) * g1(j)
-    1 continue
-      delmax = dmax1(delmax,dabs(del(i)))
-      gd1 = gd1 + g1(i) * del(i)
+        del(i) = zero
+        do 1 j = 1,n
+          del(i) = del(i) - w(i,j) * g1(j)
+    1   continue
+        delmax = dmax1(delmax,dabs(del(i)))
+        gd1 = gd1 + g1(i) * del(i)
     2 continue
       if (iprint.gt.0) write(iprint,101) gd1,gd2
   101 format(6x,'gd1 = ',f10.5,6x,'gd2 = ',f10.5)
@@ -67,7 +67,7 @@ C 100 format(/6x,'minimisation set-up.')
       if (gd1.gt.zero) factor = - factor
       gd1 = factor * gd1
       do 3 i = 1,n
-      del(i) = factor * del(i)
+        del(i) = factor * del(i)
     3 continue
       if (iprint.gt.0) write(iprint,101) gd1,gd2
       alpha = one
@@ -75,7 +75,7 @@ C 100 format(/6x,'minimisation set-up.')
       alpha2 = one
       if (iprint.gt.0) write(iprint,102) alpha,alpha1,alpha2
   102 format(6x,'alpha = ',f10.5,6x,'alpha1= ',f10.5,6x,'alpha2 = ',
-     .     f10.5)
+     .f10.5)
       if(delmax.lt.tol) goto 61
       icom = 2
       nsrch = 1
@@ -85,7 +85,7 @@ C --- Entry point for subsequent iterations ---
    10 continue
       gd2 = zero
       do 11 i = 1,n
-      gd2 = gd2 + g2(i) * del(i)
+        gd2 = gd2 + g2(i) * del(i)
    11 continue
       if (iprint.gt.0) write(iprint,101) gd1,gd2
 
@@ -99,38 +99,38 @@ C --- New direction ---
       alpha = alpha2 - alpha1
       dg = alpha * (gd2 - gd1)
       do 21 i = 1,n
-      g1(i) = g2(i) - g1(i)
-      del(i) = alpha * del(i)
+        g1(i) = g2(i) - g1(i)
+        del(i) = alpha * del(i)
    21 continue
 
 C ... Update Hessian
       gwg = zero
       do 23 i = 1,n
-      wrk(i) = zero
-      do 22 j = 1,n
-      wrk(i) = wrk(i) + w(i,j) * g1(j)
-   22 continue
-      gwg = gwg + g1(i) * wrk(i)
+        wrk(i) = zero
+        do 22 j = 1,n
+          wrk(i) = wrk(i) + w(i,j) * g1(j)
+   22   continue
+        gwg = gwg + g1(i) * wrk(i)
    23 continue
 
       do 24 i = 1,n
-      g1(i) = g2(i)
-      g2(i) = del(i)
-      del(i) = zero
+        g1(i) = g2(i)
+        g2(i) = del(i)
+        del(i) = zero
    24 continue
 
       q = one + gwg/dg
       gd1 = zero
       delmax = zero
       do 26 i = 1,n
-      r = - g2(i)/dg
-      s = (-wrk(i) + q * g2(i))/dg
-      do 25 j = 1,n
-      w(i,j) = w(i,j) + r * wrk(j) + s * g2(j)
-      del(i) = del(i) - w(i,j) * g1(j)
-   25 continue
-      delmax = dmax1(delmax,dabs(del(i)))
-      gd1 = gd1 + g1(i) * del(i)
+        r = - g2(i)/dg
+        s = (-wrk(i) + q * g2(i))/dg
+        do 25 j = 1,n
+          w(i,j) = w(i,j) + r * wrk(j) + s * g2(j)
+          del(i) = del(i) - w(i,j) * g1(j)
+   25   continue
+        delmax = dmax1(delmax,dabs(del(i)))
+        gd1 = gd1 + g1(i) * del(i)
    26 continue
       gd2 = zero
       if (iprint.gt.0) write(iprint,101) gd1,gd2
@@ -142,7 +142,7 @@ C     This code the same as setup for first iteration; see do 3 above
       if (gd1.gt.zero) factor = - factor
       gd1 = factor * gd1
       do 27 i = 1,n
-      del(i) = factor * del(i)
+        del(i) = factor * del(i)
    27 continue
       if (iprint.gt.0) write(iprint,101) gd1,gd2
       alpha = one
@@ -167,7 +167,7 @@ C ... Jump if the curvature is reduced
 
       gd1 = gd2
       do 32 i = 1,n
-      g1(i) = g2(i)
+        g1(i) = g2(i)
    32 continue
       if (iprint.gt.0) write(iprint,101) gd1,gd2
 
@@ -193,7 +193,7 @@ C ... Extremum still not bracketed
 
       gd1 = gd2
       do 42 i = 1,n
-      g1(i) = g2(i)
+        g1(i) = g2(i)
    42 continue
       if (iprint.gt.0) write(iprint,101) gd1,gd2
       if (iprint.gt.0) write(iprint,102) alpha,alpha1,alpha2
@@ -230,7 +230,7 @@ C ... Interpolate for new alpha
       alpha1 = alpha2
       gd1 = gd2
       do 56 i = 1,n
-      g1(i) = g2(i)
+        g1(i) = g2(i)
    56 continue
    57 continue
       alpha2 = alpha0
@@ -250,6 +250,6 @@ C --- Exit: Curvature is of the wrong sign ---
       icom = 1
       write(*,111)
   111 format(/6x,'**** invalid minimisation - persistent positive',1x,
-     .     'curvature ****')
+     .'curvature ****')
       end
 

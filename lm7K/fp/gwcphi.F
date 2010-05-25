@@ -1,5 +1,5 @@
       subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas,
-     .  ipb,lmxax,nlindx,ndima,ppnl,aus,cphi,cphin)
+     .ipb,lmxax,nlindx,ndima,ppnl,aus,cphi,cphin)
 
       use m_struc_def  !Cgetarg
 
@@ -119,7 +119,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer isp,nsp,nlmax,ndham,nbas,nev,lmxax,ndima,ipb(nbas),
-     .  nlindx(3,0:lmxax,nbas)
+     .nlindx(3,0:lmxax,nbas)
       integer n0,nppn
       parameter (n0=10,nppn=12)
       type(s_site)::ssite(*)
@@ -188,11 +188,11 @@ C         ichan = ichan0
               sqrsz(2) = lmat(2,2)*as + lmat(3,2)*az
               sqrsz(3) =                lmat(3,3)*az
               cphin(1,iv) = cphin(1,iv) +
-     .                    dconjg(sqrsz(1))*sqrsz(1) +
-     .                    dconjg(sqrsz(2))*sqrsz(2) +
-     .                    dconjg(sqrsz(3))*sqrsz(3)
+     .        dconjg(sqrsz(1))*sqrsz(1) +
+     .        dconjg(sqrsz(2))*sqrsz(2) +
+     .        dconjg(sqrsz(3))*sqrsz(3)
               cphin(2,iv) = cphin(2,iv) +
-     .                    dconjg(sqrsz(1))*sqrsz(1)
+     .        dconjg(sqrsz(1))*sqrsz(1)
 
 C            cphin(2,iv) = cphin(2,iv) +
 C     .                    dconjg(lmat(1,1)*au)*lmat(1,1)*au

@@ -77,7 +77,7 @@ CKi     .  v_smove,v_sstr,v_stb
 C ... miscellaneous local variables
       character strn*1000,outs*20
       integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
-     .  igets,a2vec,NULLI
+     .igets,a2vec,NULLI
       double precision vn(2),vn2(2),dglob
       logical T,F,swtmp,cmdopt,ltet
       parameter (T=.true., F=.false., NULLI=-99999)
@@ -149,7 +149,7 @@ C --- Version ---
 C --- Help ---
       swtmp = .false.
       if (swtmp .or. cmdopt('--h',3,0,outs))
-     .  call lmhelp(prgnam,vn(2),vn2(2),wksize)
+     .call lmhelp(prgnam,vn(2),vn2(2),wksize)
       if (cmdopt('--version',9,0,outs)) then
         write(*,'(f4.2)') vn(2)
         call cexit(0,1)
@@ -208,43 +208,43 @@ C --- Dynamic memory allocation and other initialization ---
       if (procid .eq. master) then
 #if MPE
         ierr = MPE_DESCRIBE_STATE(EVENT_START_RDCTRL,EVENT_END_RDCTRL,
-     .                            "rdctrl","pink")
+     .  "rdctrl","pink")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_UGCOMP,EVENT_END_UGCOMP,
-     .                            "ugcomp","maroon")
+     .  "ugcomp","maroon")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_FSMBL,EVENT_END_FSMBL,
-     .                            "fsmbl","aquamarine")
+     .  "fsmbl","aquamarine")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_PZHEV,EVENT_END_PZHEV,
-     .                            "pzhev","brown")
+     .  "pzhev","brown")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_KLOOP,EVENT_END_KLOOP,
-     .                            "k-loop","brown")
+     .  "k-loop","brown")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_MIXRHO,EVENT_END_MIXRHO,
-     .                            "mixrho","orange")
+     .  "mixrho","orange")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_SMHSBL,EVENT_END_SMHSBL,
-     .                            "smhsbl","blue")
+     .  "smhsbl","blue")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_AUGMBL,EVENT_END_AUGMBL,
-     .                            "augmbl","cyan")
+     .  "augmbl","cyan")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_HSIBL,EVENT_END_HSIBL,
-     .                            "hsibl","gray")
+     .  "hsibl","gray")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_RSIBL,EVENT_END_RSIBL,
-     .                            "rsibl","red")
+     .  "rsibl","red")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_RLOCBL,EVENT_END_RLOCBL,
-     .                            "rlocbl","green")
+     .  "rlocbl","green")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_DFRCE,EVENT_END_DFRCE,
-     .                            "dfrce","magenta")
+     .  "dfrce","magenta")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_BCAST,EVENT_END_BCAST,
-     .                            "broadcast","coral")
+     .  "broadcast","coral")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_ALLRED,EVENT_END_ALLRED,
-     .                            "allreduce","purple")
+     .  "allreduce","purple")
         ierr = MPE_DESCRIBE_STATE(EVENT_START_BARRIER,EVENT_END_BARRIER,
-     .                            "barrier","yellow")
+     .  "barrier","yellow")
 #endif
         call gettime(datim)
         if (mlog) i = fopn('MLOG')
         call poseof(fopn('LOG'))
         if (mlog) then
           call awrit2(' lmf '//datim//' Process %i of %i on '
-     .      //shortname(procid)(1:namelen(procid))//' is master',' ',
-     .      256,lgunit(3),procid,nproc)
+     .    //shortname(procid)(1:namelen(procid))//' is master',' ',
+     .    256,lgunit(3),procid,nproc)
         endif
       else
         call strcat(ext,20,' ','_',1,' ',i)
@@ -255,9 +255,9 @@ C --- Dynamic memory allocation and other initialization ---
         call gettime(datim)
         if (mlog) then
           call awrit2(' lmf '//datim//' Process %i of %i on '
-     .      //shortname(procid)(1:namelen(procid))//
-     .      ' file extension is '//ext(2:i+1),' ',
-     .      256,lgunit(3),procid,nproc)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' file extension is '//ext(2:i+1),' ',
+     .    256,lgunit(3),procid,nproc)
         endif
       endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
@@ -286,15 +286,15 @@ C ... Abort with error message if ctrl file is missing (swtmp = .true.)
 #if MPI | MPIK
       if (procid .eq. master) then
 #endif
-      if (cmdopt('--input',6,0,strn)) then
-        if (nproc .gt. 0) call rx('--input not allowed with MPI')
-      else
-        if (fxst('CTRL') .ne. 1) then
-          call awrit0(' '//prgnam//'%a:%9pmissing ctrl file',' ',80,
+        if (cmdopt('--input',6,0,strn)) then
+          if (nproc .gt. 0) call rx('--input not allowed with MPI')
+        else
+          if (fxst('CTRL') .ne. 1) then
+            call awrit0(' '//prgnam//'%a:%9pmissing ctrl file',' ',80,
      .      i1mach(2))
-          swtmp = .true.
+            swtmp = .true.
+          endif
         endif
-      endif
 #if MPI | MPIK
       endif
 #endif
@@ -323,32 +323,32 @@ C     recrd, nrecs are obtained.
       nrecs  = 0
 Cki      allocate( recrd( 0:mxrecs*recln0-1 ) )
       if (procid .eq. master) then
-      if (.not.cmdopt('--input',7,0,strn)) then
-        nfilin = fopna('CTRL',-1,1)
+        if (.not.cmdopt('--input',7,0,strn)) then
+          nfilin = fopna('CTRL',-1,1)
 ctakao
-        call findctrlstart(nfilin)
+          call findctrlstart(nfilin)
 
-        alabl = '#{}% ct '
-        if (cmdopt('--show',6,0,strn)) alabl = '#{}% ctp'
-        call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln0,nrecs)
+          alabl = '#{}% ct '
+          if (cmdopt('--show',6,0,strn)) alabl = '#{}% ctp'
+          call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln0,nrecs)
 c To show variables.
 c        call shosyv(0,-1,0,6)
 
-        i = 60
-        if (cmdopt('--show',6,0,strn)) then
-          i = 1
-          call info0(i,0,0,' ------------------------ End '//
-     .                     'of input file ----------------------')
-        endif
-        call info2(i,0,1,' '//prgnam//'%a : %i lines read from'//
+          i = 60
+          if (cmdopt('--show',6,0,strn)) then
+            i = 1
+            call info0(i,0,0,' ------------------------ End '//
+     .      'of input file ----------------------')
+          endif
+          call info2(i,0,1,' '//prgnam//'%a : %i lines read from'//
      .    ' input file',nrecs,0)
-        if (cmdopt('--showp',7,0,strn)) call cexit(0,1)
-      endif
+          if (cmdopt('--showp',7,0,strn)) call cexit(0,1)
+        endif
       endif
 #if MPI | MPIK
       call mpibc1(nrecs,1,2,mlog,'main','nrecs')
       call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,
-     .  master,MPI_COMM_WORLD,ierr)
+     .master,MPI_COMM_WORLD,ierr)
 #endif
 
 C      write(stdo,*)' === TEST out recrd === '
@@ -368,8 +368,8 @@ c      v_sctrl%nmap=9999
 cccccccccccccccccc
 
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
-     .  slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     .  v_sarry,v_smove,v_stb,sstrn)
+     .slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
+     .v_sarry,v_smove,v_stb,sstrn)
 
 #if MPI | MPIK
 #if MPE
@@ -397,14 +397,14 @@ C --- Generate symmetry operations; split species into classes  ---
 
 #ifndef LMFGWD
 Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
-       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2 
+      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2 
 c this is equivalent to
 c       if ( v_sctrl%lqp==0 ) lc = lc+2 
 #endif
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
 
       if (cmdopt('--sfill',7,0,strn)) then
-         call rx('no --sfill option in lm7K')
+        call rx('no --sfill option in lm7K')
       endif
 
 C ... Set default values for species data
@@ -422,7 +422,7 @@ Cgetarg      .       lgors('ctrl ldos,4+2+1',v_sbz)
 
 C ... quit after SHOW
 Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
-       if ( int(v_sctrl%quit) .eq. 1 ) then 
+      if ( int(v_sctrl%quit) .eq. 1 ) then 
 
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
@@ -430,7 +430,7 @@ Cgetarg       if (igets('ctrl quit',v_sctrl) .eq. 1) then
 
 #if LMF
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
-     .  v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
+     .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
 #endif
 
 
@@ -485,38 +485,38 @@ C ... Local parameters
 
       call locase(prgnam)
       call info0(0,0,0,' usage:  '//prgnam//
-     .  '%a [--OPTION] [-var-assign] [ext]')
+     .'%a [--OPTION] [-var-assign] [ext]')
 
       print 343
       print 344
   343 format(/' --h'/' --help',t17,'Print this message, and quit'
-     .  /' --input',t17,
-     .  'List categories, tokens, and data program expects, and quit'
-     .  /' --show',t17,
-     .  'Print control file after parsing by preprocessor,'/t17,
-     .  'and echo input data as read from the control file'
-     .  /' --showp',t17,
-     .  'Same as --show, but quit after input parsed'
-     .  /' --iactiv',t17,'(--no-iactiv) ',
-     .  'Turn on (off) interactive mode'/
-     .  t17,'This switch overrides input file setting',
-     .  /' --pr#1[,#2...]',t17,
-     .  'Set the verbosity (stack) to values #1,#2, ...'
-     .  /' --time=#1[,#2]',t17,
-     .  'Print timing info to # levels (#1=summary; #2=on-the-fly)'/
-     .  /' -vnam=expr',t17,
-     .  'Define numerical variable "nam"; set to result of ''expr'''
-     .  /' -cnam=strn',t17,
-     .  'Define character variable "nam"; set to ''strn'''
-     .  )
+     ./' --input',t17,
+     .'List categories, tokens, and data program expects, and quit'
+     ./' --show',t17,
+     .'Print control file after parsing by preprocessor,'/t17,
+     .'and echo input data as read from the control file'
+     ./' --showp',t17,
+     .'Same as --show, but quit after input parsed'
+     ./' --iactiv',t17,'(--no-iactiv) ',
+     .'Turn on (off) interactive mode'/
+     .t17,'This switch overrides input file setting',
+     ./' --pr#1[,#2...]',t17,
+     .'Set the verbosity (stack) to values #1,#2, ...'
+     ./' --time=#1[,#2]',t17,
+     .'Print timing info to # levels (#1=summary; #2=on-the-fly)'/
+     ./' -vnam=expr',t17,
+     .'Define numerical variable "nam"; set to result of ''expr'''
+     ./' -cnam=strn',t17,
+     .'Define character variable "nam"; set to ''strn'''
+     .)
 
 
   344 format(
-     .  /' --rpos=filnam',t17,
-     .  'After reading input file, read site positions from "filnam"'/
-     .  ' --fixpos[:tol=#]',
-     .  ' Adjust positions slightly, rendering them as'/
-     .  t17,'exactly as possible consistent with the symmetry group')
+     ./' --rpos=filnam',t17,
+     .'After reading input file, read site positions from "filnam"'/
+     .' --fixpos[:tol=#]',
+     .' Adjust positions slightly, rendering them as'/
+     .t17,'exactly as possible consistent with the symmetry group')
 
       if (.true.) then
         outs = '%N '//prgnam//'%a-specific options:'
@@ -525,20 +525,20 @@ C ... Local parameters
 
         if (prgnam .eq. 'lmfgwd') then
           call info0(0,0,0,
-     .      '%N%1f ')
+     .    '%N%1f ')
         endif
 
         if (prgnam .eq. 'lmf') then
           call info0(0,0,0,
-     .      '%N%1f--rs=#1,#2,#3,#4,#5'//
-     .      '%N%6f#1=0 start from atm file; 1 from rst file;'//
-     .      ' 2 from rsta file'//
-     .      '%N%11fadd 10 to shift sm-rho 1st iter'//
-     .      '%N%11fadd 100 to rotate local rho 1st iter'//
-     .      '%N%6f#2=1 save rst file'//
-     .      '%N%6f(#3,#4,#5)=0 read (pos,E_f,pnu) from rst file'//
-     .      '%N%N --band --wden --rdbasp --optbas --etot'//
-     .      ' (see documentation)')
+     .    '%N%1f--rs=#1,#2,#3,#4,#5'//
+     .    '%N%6f#1=0 start from atm file; 1 from rst file;'//
+     .    ' 2 from rsta file'//
+     .    '%N%11fadd 10 to shift sm-rho 1st iter'//
+     .    '%N%11fadd 100 to rotate local rho 1st iter'//
+     .    '%N%6f#2=1 save rst file'//
+     .    '%N%6f(#3,#4,#5)=0 read (pos,E_f,pnu) from rst file'//
+     .    '%N%N --band --wden --rdbasp --optbas --etot'//
+     .    ' (see documentation)')
         endif
 
       endif
@@ -549,7 +549,7 @@ C ... Local parameters
         ch = ' '
       endif
       call info2(0,0,0,'%N version %,2d'//ch//'   worksize %i K',
-     .  vn-vn2/1d5,wksize/1000)
+     .vn-vn2/1d5,wksize/1000)
       call fexit(0,0,' ',0)
       end subroutine lmhelp 
 
@@ -593,7 +593,7 @@ C      print *, ifi
 C      write(ifi,*) 'test'
 C      call rx('done')
 Cgetarg       end
-       end subroutine sttmpd 
+      end subroutine sttmpd 
 
 
 

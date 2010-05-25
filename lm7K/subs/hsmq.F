@@ -1,5 +1,5 @@
       subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,
-     .  awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp)
+     .awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp)
 C- Bloch-sum of smooth Hankel functions and energy derivatives at p
 C  by Ewald summation, for nxi groups of parameters (lxi,exi,rsm).
 C ---------------------------------------------------------------
@@ -52,15 +52,15 @@ C ---------------------------------------------------------------
 C     implicit none
       integer nxi,lmxa,lmax,nG,nD,nlmx,nrx,lxi(nxi),job
       double precision alat,awald,vol,exi(nxi),rsm(nxi),p(3),q(3),
-     .  wk(nrx,10),yl(nrx,1),qlv(3,1),dlv(3,1),
-     .  hsm(2,nlmx,1),hsmp(2,nlmx,1)
+     .wk(nrx,10),yl(nrx,1),qlv(3,1),dlv(3,1),
+     .hsm(2,nlmx,1),hsmp(2,nlmx,1)
 C Local variables
       integer ie,ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx,
-     .  lx(20),ndx
+     .lx(20),ndx
       parameter (nlmxx=(16+1)**2)
       double precision qdotr,y0,a2,pi,sp,gam,tpiba,tpi,rsmi,
-     .  x1,x2,xx,xx0,xx1(nlmxx),xx2(nlmxx),xx3(nlmxx),xx4(nlmxx),
-     .  r,akap,kappa,h0,h0d,a,faca,p1(3),cosp,sinp
+     .x1,x2,xx,xx0,xx1(nlmxx),xx2(nlmxx),xx3(nlmxx),xx4(nlmxx),
+     .r,akap,kappa,h0,h0d,a,faca,p1(3),cosp,sinp
       parameter (faca=1d0)
       double complex xxc
       logical dcmpre,ltmp
@@ -132,7 +132,7 @@ C --- Energy-independent setup for Q-space part ---
 
 C   ... Q-space part of reduced strx for all energies
         call pvhsmq(0,nxi,lmxa,lx,exi,a,vol,nG,wk,nrx,yl,nlmx,
-     .    wk(1,2),wk(1,3),wk(1,4),wk(1,5),wk(1,6),wk(1,7),hsm,hsmp)
+     .  wk(1,2),wk(1,3),wk(1,4),wk(1,5),wk(1,6),wk(1,7),hsm,hsmp)
       endif
 
 C --- Energy-independent setup for direct-space part ---
@@ -179,7 +179,7 @@ C   ... Case connecting vector p=0
         if (dcmpre(wk(1,1),0d0)) then
           if (job1 .eq. 1) ir1 = 2
           if (job1 .eq. 0 .and. dcmpre(rsmi,0d0))
-     .        call rx('hsmq: 10s digit job=0 and rsm=0 not allowed')
+     .    call rx('hsmq: 10s digit job=0 and rsm=0 not allowed')
         endif
         if (job1 .gt. 1) ir1 = 2
         if (lx(ie) .gt. lmax) call rx('hsmq: lxi > lmax')
@@ -197,11 +197,11 @@ C        endif
 C   ... chi = H(rsm) - H(1/a) = (H(0) - H(1/a)) - (H(0) - H(rsm))
         if (nG .gt. 0) then
           call hansr4(wk,lx(ie),nrx,nDx,exi(ie),1/a,wk(1,6),
-     .      wk(1,5),wk(1,lc))
+     .    wk(1,5),wk(1,lc))
         else
           do  49  l = 0, lx(ie)+1
-          do  49  ir = ir1, nDx
-            wk(ir,l+lc) = 0
+            do  49  ir = ir1, nDx
+              wk(ir,l+lc) = 0
    49     continue
         endif
         if (.not. dcmpre(rsmi,0d0)) then
@@ -214,11 +214,11 @@ C     ... Remake Y0 exp(-(r/rsm)**2) if rsm has changed
    33       continue
           endif
           call hansr4(wk,lx(ie),nrx,nDx,exi(ie),rsmi,wk(1,2),
-     .      wk(1,5),wk(1,ls))
+     .    wk(1,5),wk(1,ls))
 C         call prm('H(0) - H(rsm)',wk(1,ls),nrx,nDx,lx(ie)+2)
           do  39  l = 0, lx(ie)+1
-          do  39  ir = ir1, nDx
-            wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
+            do  39  ir = ir1, nDx
+              wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
    39     continue
         endif
 
@@ -254,7 +254,7 @@ C     ... Generate -hsm(p,a,l>0) by upward recursion
           xx = 4*a*y0*dexp(-(akap/a/2)**2 - (r*a)**2)
           do  31  l = 1, lx(ie)
             wk(1,l+lc+1) = ((2*l-1)*wk(1,l+lc) -exi(ie)*wk(1,l+lc-1) + xx)
-     .                   /wk(1,1)
+     .      /wk(1,1)
 c          print *, wk(1,l+lc+1)
             xx = 2*a**2*xx
    31     continue
@@ -321,7 +321,7 @@ C   ... Put in phase to undo shortening, or different phase convention
 
       end
       subroutine hsmqe0(lmax,rsm,job,q,p,nrx,nlmx,wk,yl,
-     .  awald,alat,qlv,nG,dlv,nD,vol,hsm)
+     .awald,alat,qlv,nG,dlv,nD,vol,hsm)
 C- Bloch-sum of smooth Hankel functions for energy 0
 C ---------------------------------------------------------------
 Ci Inputs:
@@ -371,13 +371,13 @@ C ---------------------------------------------------------------
 C     implicit none
       integer lmax,nG,nD,nlmx,nrx,job
       double precision alat,awald,vol,rsm,p(3),q(3),
-     .  wk(nrx,10),yl(nrx,1),qlv(3,1),dlv(3,1),hsm(2,nlmx)
+     .wk(nrx,10),yl(nrx,1),qlv(3,1),dlv(3,1),hsm(2,nlmx)
 C Local variables
       integer ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx,nDx,
-     .  lx1(1)
+     .lx1(1)
       parameter (nlmxx=(16+1)**2)
       double precision qdotr,y0,a2,pi,sp,gam,tpiba,tpi,p1(3),ex1(1),
-     .  x1,x2,xx,xx1(nlmxx),xx2(nlmxx),r,h0,q0(3),a,faca,cosp,sinp
+     .x1,x2,xx,xx1(nlmxx),xx2(nlmxx),r,h0,q0(3),a,faca,cosp,sinp
       parameter (faca=1d0)
       double complex xxc
       logical dcmpre,lqzero
@@ -441,7 +441,7 @@ C   ... bug fix: copy scalars to arrays for call (Kino)
         lx1(1) = lmax
         ex1(1) = 0d0
         call pvhsmq(1,1,lmax,lx1,ex1,a,vol,nG,wk,nrx,yl,nlmx,
-     .    wk(1,2),wk(1,3),wk(1,4),wk(1,5),wk(1,6),wk(1,7),hsm,hsm)
+     .  wk(1,2),wk(1,3),wk(1,4),wk(1,5),wk(1,6),wk(1,7),hsm,hsm)
       endif
 
 C --- Energy-independent setup for direct-space part ---
@@ -480,7 +480,7 @@ C ... Case connecting vector p=0
       if (dcmpre(wk(1,1),0d0)) then
         if (job1 .eq. 1) ir1 = 2
         if (job1 .eq. 0 .and. dcmpre(rsm,0d0))
-     .    call rx('hsmqe0: job=0 and rsm=0 not allowed')
+     .  call rx('hsmqe0: job=0 and rsm=0 not allowed')
       endif
       if (job1 .gt. 1) ir1 = 2
       lc = 7
@@ -491,8 +491,8 @@ C ... chi = H(rsm) - H(1/a) = (H(0) - H(1/a)) - (H(0) - H(rsm))
         call hansr5(wk,lmax,nrx,nDx,1/a,wk(1,6),wk(1,5),wk(1,lc))
       else
         do  49  l = 0, lmax+1
-        do  49  ir = ir1, nDx
-          wk(ir,l+lc) = 0
+          do  49  ir = ir1, nDx
+            wk(ir,l+lc) = 0
    49   continue
       endif
       if (.not. dcmpre(rsm,0d0)) then
@@ -504,8 +504,8 @@ C   ... Make Y0 exp(-(r/rsm)**2)
         call hansr5(wk,lmax,nrx,nDx,rsm,wk(1,2),wk(1,5),wk(1,ls))
 C       call prm('H(0) - H(rsm)',wk(1,ls),nrx,nDx,lmax+1)
         do  39  l = 0, lmax
-        do  39  ir = ir1, nDx
-          wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
+          do  39  ir = ir1, nDx
+            wk(ir,l+lc) = wk(ir,l+lc) - wk(ir,l+ls)
    39   continue
       endif
 
@@ -593,7 +593,7 @@ C --- Add extra term for l=0 when e=0 and q=0 ---
 
       end
       subroutine pvhsmq(job,nx,lmxa,lxi,exi,a,vol,n,qsq,nyl,yl,nlmx,
-     .  cs,sn,cs2,sn2,cs3,sn3,hl,hlp)
+     .cs,sn,cs2,sn2,cs3,sn3,hl,hlp)
 C- Makes H_L(1/a,e,r) by summation over reciprocal lattice vectors.
 C  job=1 : make hl but not hlp
 C  Skips any ie for which lxi(ie)<lmxa.
@@ -602,7 +602,7 @@ C     implicit none
       integer n,nx,lmxa,lxi(nx),nlmx,job,nyl
       double precision cof,e,gam,pi,vol
       double precision cs(n),sn(n),cs2(n),sn2(n),cs3(n),sn3(n),
-     .  a,exi(1),qsq(n),yl(nyl,1),hl(2,nlmx,1),hlp(2,nlmx,1)
+     .a,exi(1),qsq(n),yl(nyl,1),hl(2,nlmx,1),hlp(2,nlmx,1)
 C Local variables
       integer i,i1,ie,ilm,l,lx,m,je,lm,nlmxx
       parameter (nlmxx=(16+1)**2)
@@ -721,7 +721,7 @@ c             ilm = ilm+1
 
 C --- Add extra term for l=0 when e=0 and q=0 ---
         if (dcmpre(e-qsq(1),0d0)) hl(1,1,ie) = hl(1,1,ie) -
-     .    sqrt(4d0*pi)/vol*gam
+     .  sqrt(4d0*pi)/vol*gam
    20 continue
       end
 

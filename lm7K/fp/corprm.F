@@ -1,5 +1,5 @@
       subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,
-     .  rfoc,z)
+     .rfoc,z)
 
       use m_struc_def  !Cgetarg
 
@@ -63,7 +63,7 @@ C ... Local parameters
       integer n0,lfoc,orhoca,lmxb,l
       parameter (n0=10)
       double precision ccof,fpi,q0,q1,qc,rmt,rsm,srfpi,stc,y0,x0(0:n0),
-     .  xi(0:n0),dgetss,pnu(2*n0),pz(2*n0)
+     .xi(0:n0),dgetss,pnu(2*n0),pz(2*n0)
 
       fpi = 16d0*datan(1d0)
       srfpi = dsqrt(fpi)
@@ -107,12 +107,12 @@ C     q0 = spillout charge in ordinary Hankel
         call hansmr(rmt,0d0,1/rfoc,x0,1)
         call hansmr(rmt,ceh,1/rfoc,xi,1)
         q1 = srfpi/ceh*(-dexp(rfoc**2/4*ceh)
-     .   - rmt**3*(xi(1)-dexp(rfoc**2/4*ceh)*x0(1)))
+     .  - rmt**3*(xi(1)-dexp(rfoc**2/4*ceh)*x0(1)))
         rsm = 0.05d0
         call hansmr(rmt,0d0,1/rsm,x0,1)
         call hansmr(rmt,ceh,1/rsm,xi,1)
         q0 = srfpi/ceh*(-dexp(rsm**2/4*ceh)
-     .   - rmt**3*(xi(1)-dexp(rsm**2/4*ceh)*x0(1)))
+     .  - rmt**3*(xi(1)-dexp(rsm**2/4*ceh)*x0(1)))
         q0 = q0*y0
         q1 = q1*y0
         ccof = ccof*q0/q1

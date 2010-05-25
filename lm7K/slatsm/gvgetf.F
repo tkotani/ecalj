@@ -6,11 +6,11 @@ C     implicit none
       integer ig,i,j1,j2,j3
 
       do  10  i = 1, n
-      do  10  ig = 1, ng
-        j1 = kv(ig,1)
-        j2 = kv(ig,2)
-        j3 = kv(ig,3)
-        c0(ig,i) = c(j1,j2,j3,i)
+        do  10  ig = 1, ng
+          j1 = kv(ig,1)
+          j2 = kv(ig,2)
+          j3 = kv(ig,3)
+          c0(ig,i) = c(j1,j2,j3,i)
    10 continue
       end
       subroutine gvputf(ng,n,kv,k1,k2,k3,c0,c)
@@ -22,11 +22,11 @@ C     implicit none
 
       call dpzero(c,2*k1*k2*k3*n)
       do  10  i = 1, n
-      do  10  ig = 1, ng
-        j1 = kv(ig,1)
-        j2 = kv(ig,2)
-        j3 = kv(ig,3)
-        c(j1,j2,j3,i) = c0(ig,i)
+        do  10  ig = 1, ng
+          j1 = kv(ig,1)
+          j2 = kv(ig,2)
+          j3 = kv(ig,3)
+          c(j1,j2,j3,i) = c0(ig,i)
    10 continue
       end
       subroutine gvaddf(ng,kv,k1,k2,k3,c0,c)

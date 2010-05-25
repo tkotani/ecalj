@@ -1,5 +1,5 @@
       subroutine gengrp(csym,dorig,gens,instr,iopt,iorig,isym,ngen,
-     .                  plat,qlat)
+     .plat,qlat)
 C- Supplies information about the space-group
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -40,7 +40,7 @@ C Passed variables:
       character*72 gens
 C Local variables:
       integer idum,nelts,isym1(0:230),isym2(7,7),isym3,isym4(0:7),
-     .  isym5(0:32),isym6(0:230),isym7,isym8,iprint,lgunit,stdo
+     .isym5(0:32),isym6(0:230),isym7,isym8,iprint,lgunit,stdo
       logical a2bin
       parameter(nelts=499)
       character*1  csym3(0:7),corig
@@ -53,16 +53,16 @@ C ... External calls
       external chcase,gtcsym,isanrg,query,rx,rxs,words
 C Data statements:
       data isym1/0,2*1,13*2,59*3,68*4,3*6,1*5,1*6,1*5,6*6,1*5,4*6,2*5,
-     .           4*6,2*5,27*6,36*7/
+     .4*6,2*5,27*6,36*7/
       data isym2/1,0,0,0, 0, 0,0,    2,3,3,3,3,0, 0,    4,5,5,5,6,7,0,
-     .           8,0,0,0, 9, 0,0,   10,0,0,0,0,0,10,   11,0,0,0,0,0,0,
-     .          12,0,0,0,13,14,0/
+     .8,0,0,0, 9, 0,0,   10,0,0,0,0,0,10,   11,0,0,0,0,0,0,
+     .12,0,0,0,13,14,0/
       data csym3/' ','P','C','B','A','I','F','R'/
       data isym4/0,1,2,3,4,2*5,6/
       data isym5/0,2*1,3*2,3*3,7*4,5*5,7*6,5*7/
       data isym6/0,1*1,1*2,3*3,4*4,6*5,9*6,22*7,28*8,6*9,2*10,6*11,
-     .          10*12,12*13,12*14,20*15,4*16,2*17,7*18,6*19,6*20,6*21,
-     .          1*22,2*23,6*24,4*25,4*26,4*27,5*28,7*29,8*30,6*31,10*32/
+     .10*12,12*13,12*14,20*15,4*16,2*17,7*18,6*19,6*20,6*21,
+     .1*22,2*23,6*24,4*25,4*26,4*27,5*28,7*29,8*30,6*31,10*32/
 
       c(  1)='  1 P1         E'
       c(  2)='  2 P-1        I'
@@ -259,19 +259,19 @@ c     c(119)=' 30 P2na       MY::(0,1/2,1/2) MZ::(0,1/2,1/2)'
       c(191)=' 46 I2cm       MY::(0,0,1/2) MZ::(0,0,1/2)'
       c(192)=' 47 Pmmm       I MX MY'
       c(193)=' 481Pnnn       I::(1/2,1/2,1/2) MX::(1/2,1/2,1/2) '//
-     .                      'MY::(1/2,1/2,1/2)'
+     .'MY::(1/2,1/2,1/2)'
       c(194)=' 482Pnnn       I MX::(0,1/2,1/2) MY::(1/2,0,1/2)'
       c(195)=' 49 Pccm       I MX::(0,0,1/2) MY::(0,0,1/2)'
       c(196)=' 49 Pmaa       I MX MY::(1/2,0,0)'
       c(197)=' 49 Pbmb       I MX::(0,1/2,0) MY'
       c(198)=' 501Pban       I::(1/2,1/2,0) MX::(1/2,1/2,0) '//
-     .                      'MY::(1/2,1/2,0)'
+     .'MY::(1/2,1/2,0)'
       c(199)=' 502Pban       I MX::(0,1/2,0) MY::(1/2,0,0)'
       c(200)=' 501Pncb       I::(0,1/2,1/2) MX::(0,1/2,1/2) '//
-     .                      'MY::(0,1/2,1/2)'
+     .'MY::(0,1/2,1/2)'
       c(201)=' 502Pncb       I MX::(0,1/2,1/2) MY::(0,0,1/2)'
       c(202)=' 501Pcna       I::(1/2,0,1/2) MX::(1/2,0,1/2) '//
-     .                      'MY::(1/2,0,1/2)'
+     .'MY::(1/2,0,1/2)'
       c(203)=' 502Pcna       I MX::(0,0,1/2) MY::(1/2,0,1/2)'
       c(204)=' 51 Pmma       I MX::(1/2,0,0) MY'
       c(205)=' 51 Pmmb       I MX MY::(0,1/2,0)'
@@ -357,26 +357,26 @@ c     c(119)=' 30 P2na       MY::(0,1/2,1/2) MZ::(0,1/2,1/2)'
       c(285)=' 67 Bmcm       I MX::(1/2,0,0) MY::(1/2,0,0)'
       c(286)=' 67 Bmam       I MX MY::(1/2,0,0)'
       c(287)=' 681Ccca       I::(1/2,0,1/2) MX::(1/2,0,1/2) '//
-     .                      'MY::(1/2,0,1/2)'
+     .'MY::(1/2,0,1/2)'
       c(288)=' 682Ccca       I MX::(1/2,0,1/2) MY::(0,0,1/2)'
       c(289)=' 681Cccb       I::(1/2,0,1/2) MX::(1/2,0,1/2) '//
-     .                      'MY::(1/2,0,1/2)'
+     .'MY::(1/2,0,1/2)'
       c(290)=' 682Cccb       I MX::(0,0,1/2) MY::(1/2,0,1/2)'
       c(291)=' 681Abaa       I::(1/2,1/2,0) MX::(1/2,1/2,0) '//
-     .                      'MY::(1/2,1/2,0)'
+     .'MY::(1/2,1/2,0)'
       c(292)=' 682Abaa       I MX::(0,1/2,0) MY::(1/2,1/2,0)'
       c(293)=' 681Acaa       I::(1/2,1/2,0) MX::(1/2,1/2,0) '//
-     .                      'MY::(1/2,1/2,0)'
+     .'MY::(1/2,1/2,0)'
       c(294)=' 682Acaa       I MX::(0,1/2,0) MY::(1/2,0,0)'
       c(295)=' 681Bbcb       I::(1/2,1/2,0) MX::(1/2,1/2,0) '//
-     .                      'MY::(1/2,1/2,0)'
+     .'MY::(1/2,1/2,0)'
       c(296)=' 682Bbcb       I MX::(0,1/2,0) MY::(1/2,0,0)'
       c(297)=' 681Bbab       I::(1/2,1/2,0) MX::(1/2,1/2,0) '//
-     .                      'MY::(1/2,1/2,0)'
+     .'MY::(1/2,1/2,0)'
       c(298)=' 682Bbab       I MX::(1/2,1/2,0) MY::(1/2,0,0)'
       c(299)=' 69 Fmmm       I MX MY'
       c(300)=' 701Fddd       I::(1/4,1/4,1/4) MX::(1/4,1/4,1/4) '//
-     .                      'MY::(1/4,1/4,1/4)'
+     .'MY::(1/4,1/4,1/4)'
       c(301)=' 702Fddd       I MX::(0,1/4,1/4) MY::(1/4,0,1/4)'
       c(302)=' 71 Immm       I MX MY'
       c(303)=' 72 Ibam       I MX::(0,0,1/2) MY::(0,0,1/2)'
@@ -452,29 +452,29 @@ c     c(119)=' 30 P2na       MY::(0,1/2,1/2) MZ::(0,1/2,1/2)'
       c(373)='1291P4/nmm     I::(1/2,1/2,0) R4Z::(1/2,1/2,0) MX'
       c(374)='1292P4/nmm     I R4Z::(1/2,0,0) MX::(1/2,0,0)'
       c(375)='1301P4/ncc     I::(1/2,1/2,0) R4Z::(1/2,1/2,0) '//
-     .                      'MX::(0,0,1/2)'
+     .'MX::(0,0,1/2)'
       c(376)='1302P4/ncc     I R4Z::(1/2,0,0) MX::(1/2,0,1/2)'
       c(377)='131 P4_2/mmc   I R4Z::(0,0,1/2) MX'
       c(378)='132 P4_2/mcm   I R4Z::(0,0,1/2) MX::(0,0,1/2)'
       c(379)='1331P4_2/nbc   I::(1/2,1/2,1/2) R4Z::(1/2,1/2,1/2) '//
-     .                      'MX::(1/2,1/2,0)'
+     .'MX::(1/2,1/2,0)'
       c(380)='1332P4_2/nbc   I R4Z::(1/2,0,1/2) MX::(0,1/2,0)'
       c(381)='1341P4_2/nnm   I::(1/2,1/2,1/2) R4Z::(1/2,1/2,1/2) '//
-     .                      'MX::(1/2,1/2,1/2)'
+     .'MX::(1/2,1/2,1/2)'
       c(382)='1342P4_2/nnm   I R4Z::(1/2,0,1/2) MX::(0,1/2,1/2)'
       c(383)='135 P4_2/mbc   I R4Z::(0,0,1/2) MX::(1/2,1/2,0)'
       c(384)='136 P4_2/mnm   I R4Z::(1/2,1/2,1/2) MX::(1/2,1/2,1/2)'
       c(385)='1371P4_2/nmc   I::(1/2,1/2,1/2) R4Z::(1/2,1/2,1/2) MX'
       c(386)='1372P4_2/nmc   I R4Z::(1/2,0,1/2) MX::(1/2,0,0)'
       c(387)='1381P4_2/ncm   I::(1/2,1/2,1/2) R4Z::(1/2,1/2,1/2) '//
-     .                      'MX::(0,0,1/2)'
+     .'MX::(0,0,1/2)'
       c(388)='1382P4_2/ncm   I R4Z::(1/2,0,1/2) MX::(1/2,0,1/2)'
       c(389)='139 I4/mmm     I R4Z MX'
       c(390)='140 I4/mcm     I R4Z MX::(0,0,1/2)'
       c(391)='1411I4_1/amd   I::(1/2,0,-1/4) R4Z::(1/2,0,-1/4) MX'
       c(392)='1412I4_1/amd   I R4Z::(1/4,-1/4,1/4) MX'
       c(393)='1421I4_1/acd   I::(1/2,0,-1/4) R4Z::(1/2,0,-1/4) '//
-     .                      'MX::(0,0,1/2)'
+     .'MX::(0,0,1/2)'
       c(394)='1422I4_1/acd   I R4Z::(1/4,-1/4,1/4) MX::(0,0,1/2)'
       c(395)='143 P3         R3Z'
       c(396)='143 P311       R3Z'
@@ -655,8 +655,8 @@ C --- Determine space group number ---
         do  isym8 = 1, nelts
           read(c(isym8),200) isym(7),corig,csym(7),symgrp
           if(isym(6).eq.isym6(isym(7)) .and.
-     .       isym(1).eq.isym1(isym(7)) .and.
-     .       csym(3).eq.csym(7)(1:1)) then
+     .    isym(1).eq.isym1(isym(7)) .and.
+     .    csym(3).eq.csym(7)(1:1)) then
             iorig = 1
             if (corig .eq. '2') iorig = 2
             if (iprint() .ge. 110) write(stdo,306) symgrp
@@ -672,7 +672,7 @@ C            if (info .eq. 0) return
   200 format(i3,a1,a10,1x,a53)
 
   300 format(5x,'Space group: ',a10, ' No.:',i3,
-     .      /5x,'Crystal system: ',a)
+     ./5x,'Crystal system: ',a)
   301 format(5x,'GENGRP: no such space group, ',a)
   302 format(5x,'Generators: ',a53)
   303 format(5x,'Bravais system: rhombohedral; rhombohedral axes')
@@ -706,24 +706,24 @@ C Local variables:
 C Data statements:
       data n/7,14,7,6,7,32/
       data csym1/'undefinite','triclinic','monoclinic','orthorhombic',
-     .          'tetragonal','rhombohedral','hexagonal','cubic'/
+     .'tetragonal','rhombohedral','hexagonal','cubic'/
       data csym2/'undefinite','triclinic','monoclinic primitive',
-     .          'monoclinic base-centred','orthorhombic primitive',
-     .          'orthorhombic base-centred','orthorhombic body-centred',
-     .          'orthorhombic face-centred','tetragonal primitive',
-     .          'tetragonal body-centred','rhombohedral','hexagonal',
-     .          'cubic primitive','cubic body-centred',
-     .          'cubic face-centred'/
+     .'monoclinic base-centred','orthorhombic primitive',
+     .'orthorhombic base-centred','orthorhombic body-centred',
+     .'orthorhombic face-centred','tetragonal primitive',
+     .'tetragonal body-centred','rhombohedral','hexagonal',
+     .'cubic primitive','cubic body-centred',
+     .'cubic face-centred'/
       data csym3/' ','P','C','B','A','I','F','R'/
       data csym4/'undefinite','triclinic','monoclinic','orthorhombic',
-     .           'tetragonal','hexagonal','cubic'/
+     .'tetragonal','hexagonal','cubic'/
       data csym5/'undefinite','triclinic','monoclinic','orthorhombic',
-     .           'tetragonal','trigonal','hexagonal','cubic'/
+     .'tetragonal','trigonal','hexagonal','cubic'/
       data csym6/'undef','1','-1','2','m','2/m','222','mm2','mmm',
-     .           '4','-4','4/m','422','4mm','-42m','4/mmm',
-     .           '3','-3','32','3m','-3m',
-     .           '6','-6','6/m','622','6mm','-62m','6/mmm',
-     .           '23','m-3','432','-432','m-3m'/
+     .'4','-4','4/m','422','4mm','-42m','4/mmm',
+     .'3','-3','32','3m','-3m',
+     .'6','-6','6/m','622','6mm','-62m','6/mmm',
+     .'23','m-3','432','-432','m-3m'/
 
       do  i = 1, 6
         if (isym(i).gt.n(i) .or. isym(i).lt.0) isym(i)=0

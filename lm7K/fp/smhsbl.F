@@ -1,6 +1,6 @@
 #define F90 1
       subroutine smhsbl(mode,ssite,sspec,slat,vavg,q,ndimh,iprmb,
-     . napw,igapw,h,s)
+     .napw,igapw,h,s)
       use m_struc_def  !Cgetarg
 #if MPE
       use m_events !Event numbers: include "events.ins"
@@ -168,18 +168,18 @@ C ... Local parameters
       integer i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2
       integer ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),norb1,ik1,
-     .        blks1(n0*nkap0),ntab1(n0*nkap0)
+     .blks1(n0*nkap0),ntab1(n0*nkap0)
       integer ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),norb2,ik2,
-     .        blks2(n0*nkap0),ntab2(n0*nkap0)
+     .blks2(n0*nkap0),ntab2(n0*nkap0)
       double precision e1(n0,nkap0),rsm1(n0,nkap0),p1(3),
-     .                 e2(n0,nkap0),rsm2(n0,nkap0),p2(3),xx
+     .e2(n0,nkap0),rsm2(n0,nkap0),p2(3),xx
       double complex s0(nlms,nlms,0:kdim,nkap0,nkap0)
 C     Debugging
 C     double complex ds(nlms,nlms,0:6)
 C ... for PW part
       integer lmxax,lmxa,nlmax
       double precision qpg2,alat,plat(3,3),qlat(3,3),vol,srvol,tpiba,pi,
-     .  denom,gam,fpi,ddot
+     .denom,gam,fpi,ddot
 #if F90
       real(8),allocatable:: yl(:),ylv(:,:),qpgv(:,:),qpg2v(:)
       complex(8),allocatable:: srm1l(:)
@@ -259,7 +259,7 @@ C       Note: rearrange order
           qpgv(:,ig) = tpiba * (q + matmul(qlat, igapw(:,ig)))
         enddo
         call ropyln(napw,qpgv(1,1:napw),qpgv(2,1:napw),qpgv(3,1:napw),
-     .    lmxax,napw,ylv,qpg2v)
+     .  lmxax,napw,ylv,qpg2v)
         allocate(srm1l(0:lmxax))
         srm1l(0) = 1d0
         do  l1 = 1, lmxax
@@ -317,9 +317,9 @@ ccccccccccccccccccccc
           if (mlog) then
             call gettime(datim)
             call awrit4(' smhsbl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' starting atom %i of %i',' ',256,lgunit(3),
-     .        procid,numprocs,ib1,index(procid,0))
+     .      //shortname(procid)(1:namelen(procid))//
+     .      ' starting atom %i of %i',' ',256,lgunit(3),
+     .      procid,numprocs,ib1,index(procid,0))
           endif
 #else
           ib1=iloop
@@ -391,11 +391,11 @@ C               i1 = orbital index in iprmb order
 #if MPI
                           sbuf(i1,i2) = sbuf(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
                           hbuf(i1,i2) = hbuf(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2)
-     .              + vavg*s0(ilm1,ilm2,0,ik1,ik2)
+     .                    + vavg*s0(ilm1,ilm2,0,ik1,ik2)
 #else
                           s(i1,i2) = s(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
                           h(i1,i2) = h(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2)
-     .              + vavg*s0(ilm1,ilm2,0,ik1,ik2)
+     .                    + vavg*s0(ilm1,ilm2,0,ik1,ik2)
 #endif
                         enddo
                       endif
@@ -477,24 +477,24 @@ C ... end loop over ib1
           call defcc(obuff, ndimh*ndimh)
 
           call MPI_ALLREDUCE(hbuf,w(obuff),2*ndimh*ndimh,
-     .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .    MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
           if (mlog) then
             call gettime(datim)
             call awrit3(' smhsbl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce h ndimh=%i',' ',256,lgunit(3),
-     .        procid,numprocs,ndimh)
+     .      //shortname(procid)(1:namelen(procid))//
+     .      ' allreduce h ndimh=%i',' ',256,lgunit(3),
+     .      procid,numprocs,ndimh)
           endif
           call daxpy(2*ndimh*ndimh,1d0,w(obuff),1,h,1)
         endif
         call MPI_ALLREDUCE(sbuf,w(obuff),2*ndimh*ndimh,
-     .     MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
+     .  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         if (mlog) then
           call gettime(datim)
           call awrit3(' smhsbl '//datim//' Process %i of %i on '
-     .        //shortname(procid)(1:namelen(procid))//
-     .        ' allreduce s ndimh=%i',' ',256,lgunit(3),
-     .        procid,numprocs,ndimh)
+     .    //shortname(procid)(1:namelen(procid))//
+     .    ' allreduce s ndimh=%i',' ',256,lgunit(3),
+     .    procid,numprocs,ndimh)
         endif
         call daxpy(2*ndimh*ndimh,1d0,w(obuff),1,s,1)
         call rlse(obuff)

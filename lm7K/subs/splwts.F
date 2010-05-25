@@ -1,5 +1,5 @@
       subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi,
-     .                  metal,sumev,bndwts,wtot,entrpy,dosef,cv)
+     .metal,sumev,bndwts,wtot,entrpy,dosef,cv)
 C- make sampling weights for integrals under the Fermi surface
 C-----------------------------------------------------------------------
 Ci  Input
@@ -36,7 +36,7 @@ C ... Passed parameters
       integer nqp,nband,nbmx,nsp,n
       logical metal
       double precision wgts(nqp),evl(nbmx,nsp,nqp),w,efermi,sumev,
-     .                 bndwts(nband,nsp,nqp),wtot,entrpy,dosef,cv
+     .bndwts(nband,nsp,nqp),wtot,entrpy,dosef,cv
 C ... Local parameters
       integer iqp,iband,isp,iprint,i1mach,stdo,nglob
       double precision e,s,d,wt,x,xx,dsdt,tdsdt
@@ -99,7 +99,7 @@ C ... Print out band weights, if only 1 kp
       if (iprint() .gt. 30 .and. nqp .eq. 1) then
         do  isp = 1, nsp
           call info2(30,0,0,' SPLWTS: band weights .. '//
-     .      '%?;(n==2);Spin %i;;%N       eval      weight',nsp,isp)
+     .    '%?;(n==2);Spin %i;;%N       eval      weight',nsp,isp)
           do  iband = 1, nband
             write (stdo,20) evl(iband,isp,1),bndwts(iband,isp,1)
    20       format (4x,2f10.6)
@@ -110,15 +110,15 @@ C ... Print out various k-point integrations
       if (iprint() .ge. 10) then
         if (n .ge. 0) then
           call awrit6(' N=%i, W=%d, E_F=%d, sumev=%d, entropy term:'
-     .                //' %d, %d electrons',' ',256,i1mach(2),
-     .                n,w,efermi,sumev,entrpy,wtot)
+     .    //' %d, %d electrons',' ',256,i1mach(2),
+     .    n,w,efermi,sumev,entrpy,wtot)
         else
           call awrit5(' T=%dK, E_F=%d, sumev=%d, TS=%;3g,'
-     .                 //' %d electrons',' ',256,i1mach(2),
-     .                 0.1579d6*w,efermi,sumev,entrpy,wtot)
+     .    //' %d electrons',' ',256,i1mach(2),
+     .    0.1579d6*w,efermi,sumev,entrpy,wtot)
           call info5(30,0,0,
-     .      '%fEntropy S=%;6d k_B,  specific heat TdS/dT=%;6d k_B'//
-     .      ' (%?;n<0;Fermi-Dirac;sampling;)',entrpy/w,tdsdt,n,0,0)
+     .    '%fEntropy S=%;6d k_B,  specific heat TdS/dT=%;6d k_B'//
+     .    ' (%?;n<0;Fermi-Dirac;sampling;)',entrpy/w,tdsdt,n,0,0)
         endif
 C      call info5(10,0,0,' SPLWTS: Fermi energy:%;6d;'//
 C     .  '  band energy=%;6d;  %;6d electrons  DOS(E_f)=%;4g',

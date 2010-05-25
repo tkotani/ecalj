@@ -13,14 +13,14 @@ C For rdfiln
       character ctbl(mxchr,2)*(ctlen)
       logical loop0(0:mxlev)
       integer nlin(0:mxlev),list(lstsiz,mxlev),
-     .  ilist(mxlev),nlist(0:mxlev)
+     .ilist(mxlev),nlist(0:mxlev)
       character vnam(mxlev)*16
 
       call word(catnam,1,i,lc)
       afcmd = .false.
       nr = 0
    10 call rdfiln(ifi,'#{}% c',mxlev,loop0,nlin,list,lstsiz,
-     .  ilist,nlist,vnam,ctbl,mxchr, outs,s,len(s),nr)
+     .ilist,nlist,vnam,ctbl,mxchr, outs,s,len(s),nr)
 C  10 call rdfile(ifi,'#{}% c',s,1,outs,len(s),nr)
 c     if (nr .eq. 0) return
       if (nr .le. 0) call rx('afcmd: no category')
@@ -32,7 +32,7 @@ C ... We found start of category.  Now load acmdop until end is found
 C ... For all subsequent lines, start at first
       lc = 0
       call rdfiln(ifi,'#{}% c',mxlev,loop0,nlin,list,lstsiz,
-     .  ilist,nlist,vnam,ctbl,mxchr, outs,s,len(s),nr)
+     .ilist,nlist,vnam,ctbl,mxchr, outs,s,len(s),nr)
 C ... end of file ... we are done
       if (nr .le. 0) return
 C ... end of category ... we are done

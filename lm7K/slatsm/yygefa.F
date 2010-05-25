@@ -66,51 +66,51 @@ C     call tcn('yygefa')
       nm1 = n - 1
       if (nm1 .lt. 1) go to 70
       do 60 k = 1, nm1
-         kp1 = k + 1
+        kp1 = k + 1
 c
 c        find l = pivot index
 c
-         l = iyamax(n-k+1,ar(k,k),ai(k,k),1) + k - 1
-         ipvt(k) = l
+        l = iyamax(n-k+1,ar(k,k),ai(k,k),1) + k - 1
+        ipvt(k) = l
 c
 c        zero pivot implies this column already triangularized
 c
-         if (dabs(ar(l,k))+dabs(ai(l,k)) .eq. zero) go to 40
+        if (dabs(ar(l,k))+dabs(ai(l,k)) .eq. zero) go to 40
 c
 c           interchange if necessary
 c
-            if (l .eq. k) go to 10
-               tmp = ar(l,k)
-               ar(l,k) = ar(k,k)
-               ar(k,k) = tmp
-               tmp = ai(l,k)
-               ai(l,k) = ai(k,k)
-               ai(k,k) = tmp
-   10       continue
+        if (l .eq. k) go to 10
+        tmp = ar(l,k)
+        ar(l,k) = ar(k,k)
+        ar(k,k) = tmp
+        tmp = ai(l,k)
+        ai(l,k) = ai(k,k)
+        ai(k,k) = tmp
+   10   continue
 c
 c           compute multipliers
 c
-            call cdiv(-one,zero,ar(k,k),ai(k,k),t(1),t(2))
-            call yscal(n-k,t(1),t(2),ar(k+1,k),ai(k+1,k),1)
+        call cdiv(-one,zero,ar(k,k),ai(k,k),t(1),t(2))
+        call yscal(n-k,t(1),t(2),ar(k+1,k),ai(k+1,k),1)
 c
 c           row elimination with column indexing
 c
-            do 30 j = kp1, n
-               t(1) = ar(l,j)
-               t(2) = ai(l,j)
-               if (l .eq. k) go to 20
-                  ar(l,j) = ar(k,j)
-                  ai(l,j) = ai(k,j)
-                  ar(k,j) = t(1)
-                  ai(k,j) = t(2)
-   20          continue
-               call yyaxpy(n-k,t(1),t(2),ar(k+1,k),ai(k+1,k),
-     .           1,ar(k+1,j),ai(k+1,j),1,.true.)
-   30       continue
-         go to 50
-   40    continue
-            info = k
-   50    continue
+        do 30 j = kp1, n
+          t(1) = ar(l,j)
+          t(2) = ai(l,j)
+          if (l .eq. k) go to 20
+          ar(l,j) = ar(k,j)
+          ai(l,j) = ai(k,j)
+          ar(k,j) = t(1)
+          ai(k,j) = t(2)
+   20     continue
+          call yyaxpy(n-k,t(1),t(2),ar(k+1,k),ai(k+1,k),
+     .    1,ar(k+1,j),ai(k+1,j),1,.true.)
+   30   continue
+        go to 50
+   40   continue
+        info = k
+   50   continue
    60 continue
    70 continue
       ipvt(n) = n
@@ -187,79 +187,79 @@ c     compute determinant
 c
 C     call tcn('yygedi')
       if (job/10 .eq. 0) go to 70
-         det(1,1) = 1
-         det(2,1) = 0
-         det(1,2) = 0
-         det(2,2) = 0
-         do 50 i = 1, n
-            if (ipvt(i) .ne. i) det(1,1) = -det(1,1)
-            if (ipvt(i) .ne. i) det(2,1) = -det(2,1)
-            call cpy(ar(i,i),ai(i,i),det,det(2,1),det,det(2,1))
+      det(1,1) = 1
+      det(2,1) = 0
+      det(1,2) = 0
+      det(2,2) = 0
+      do 50 i = 1, n
+        if (ipvt(i) .ne. i) det(1,1) = -det(1,1)
+        if (ipvt(i) .ne. i) det(2,1) = -det(2,1)
+        call cpy(ar(i,i),ai(i,i),det,det(2,1),det,det(2,1))
 c        ...exit
-            if (dabs(det(1,1))+dabs(det(2,1)) .eq. zero) go to 60
-   10       if (dabs(det(1,1))+dabs(det(2,1)) .ge. one) go to 20
+        if (dabs(det(1,1))+dabs(det(2,1)) .eq. zero) go to 60
+   10   if (dabs(det(1,1))+dabs(det(2,1)) .ge. one) go to 20
 c        ...   det(1) = dcmplx(ten,zero)*det(1)
-               call cpy(ten,zero,det(1,1),det(2,1),det(1,1),det(2,1))
-               det(1,2) = det(1,2) - 1
-            go to 10
-   20       continue
-   30       if (dabs(det(1,1))+dabs(det(2,1)) .lt. ten) go to 40
+        call cpy(ten,zero,det(1,1),det(2,1),det(1,1),det(2,1))
+        det(1,2) = det(1,2) - 1
+        go to 10
+   20   continue
+   30   if (dabs(det(1,1))+dabs(det(2,1)) .lt. ten) go to 40
 c        ... complex divide ... det(1) = det(1)/dcmplx(ten,zero)
-               call cdiv(det(1,1),det(2,1),ten,zero,det(1,1),det(2,1))
-               det(1,2) = det(1,2) + 1
-            go to 30
-   40       continue
-   50    continue
-   60    continue
+        call cdiv(det(1,1),det(2,1),ten,zero,det(1,1),det(2,1))
+        det(1,2) = det(1,2) + 1
+        go to 30
+   40   continue
+   50 continue
+   60 continue
    70 continue
 c
 c     compute inverse(u)
 c
       if (mod(job,10) .eq. 0) go to 150
-         do 100 k = 1, n
-            call cdiv(one,zero,ar(k,k),ai(k,k),ar(k,k),ai(k,k))
-            t(1) = -ar(k,k)
-            t(2) = -ai(k,k)
-            call yscal(k-1,t(1),t(2),ar(1,k),ai(1,k),1)
-            kp1 = k + 1
-            if (n .lt. kp1) go to 90
-            do 80 j = kp1, n
-               t(1) = ar(k,j)
-               t(2) = ai(k,j)
-               ar(k,j) = 0
-               ai(k,j) = 0
-               call yyaxpy(k,t(1),t(2),ar(1,k),ai(1,k),1,
-     .           ar(1,j),ai(1,j),1,.true.)
-   80       continue
-   90       continue
-  100    continue
+      do 100 k = 1, n
+        call cdiv(one,zero,ar(k,k),ai(k,k),ar(k,k),ai(k,k))
+        t(1) = -ar(k,k)
+        t(2) = -ai(k,k)
+        call yscal(k-1,t(1),t(2),ar(1,k),ai(1,k),1)
+        kp1 = k + 1
+        if (n .lt. kp1) go to 90
+        do 80 j = kp1, n
+          t(1) = ar(k,j)
+          t(2) = ai(k,j)
+          ar(k,j) = 0
+          ai(k,j) = 0
+          call yyaxpy(k,t(1),t(2),ar(1,k),ai(1,k),1,
+     .    ar(1,j),ai(1,j),1,.true.)
+   80   continue
+   90   continue
+  100 continue
 c
 c        form inverse(u)*inverse(l)
 c
-         nm1 = n - 1
-         if (nm1 .lt. 1) go to 140
-         do 130 kb = 1, nm1
-            k = n - kb
-            kp1 = k + 1
-            do 110 i = kp1, n
-               wkr(i) = ar(i,k)
-               wki(i) = ai(i,k)
-               ar(i,k) = 0
-               ai(i,k) = 0
-  110       continue
-            do 120 j = kp1, n
-               t(1) = wkr(j)
-               t(2) = wki(j)
-               call yyaxpy(n,t(1),t(2),ar(1,j),ai(1,j),1,
-     .           ar(1,k),ai(1,k),1,.true.)
-  120       continue
-            l = ipvt(k)
-            if (l .ne. k) then
-              call dswap(n,ar(1,k),1,ar(1,l),1)
-              call dswap(n,ai(1,k),1,ai(1,l),1)
-            endif
-  130    continue
-  140    continue
+      nm1 = n - 1
+      if (nm1 .lt. 1) go to 140
+      do 130 kb = 1, nm1
+        k = n - kb
+        kp1 = k + 1
+        do 110 i = kp1, n
+          wkr(i) = ar(i,k)
+          wki(i) = ai(i,k)
+          ar(i,k) = 0
+          ai(i,k) = 0
+  110   continue
+        do 120 j = kp1, n
+          t(1) = wkr(j)
+          t(2) = wki(j)
+          call yyaxpy(n,t(1),t(2),ar(1,j),ai(1,j),1,
+     .    ar(1,k),ai(1,k),1,.true.)
+  120   continue
+        l = ipvt(k)
+        if (l .ne. k) then
+          call dswap(n,ar(1,k),1,ar(1,l),1)
+          call dswap(n,ai(1,k),1,ai(1,l),1)
+        endif
+  130 continue
+  140 continue
   150 continue
 C     call tcx('yygedi')
       end

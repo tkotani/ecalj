@@ -87,12 +87,12 @@ C Local parameters
 
 C --- Take care of n=1 case ---
       if (n .eq. 1) then
-         e(1) = h(1)
-         if (lov .gt. 0) e(1) = h(1)/s(1)
-         if (1 .gt. nev .or. e(1) .gt. emx) return
-         z(1) = 1
-         z(2) = 0
-         return
+        e(1) = h(1)
+        if (lov .gt. 0) e(1) = h(1)/s(1)
+        if (1 .gt. nev .or. e(1) .gt. emx) return
+        z(1) = 1
+        z(2) = 0
+        return
       endif
 
 C --- Separate real and imaginary parts ---
@@ -164,7 +164,7 @@ C   --- Determine number of eigenvectors to be calculated ---
           if (j .le. nmx .and. e(j-1) .le. emx) nev = j
    14   continue
         call tinvit(2*lz,n,wk(k1),wk(k2),wk(k3),nev,e,wk(k9),z,ier,
-     .    wk(k4),wk(k5),wk(k6),wk(k7),wk(k8))
+     .  wk(k4),wk(k5),wk(k6),wk(k7),wk(k8))
         call rxx(ier.ne.0,'ZHEV: tinvit cannot find all evecs')
       else
         do  17  j = 1, n
@@ -199,7 +199,7 @@ C --- Get the eigenvectors of H - E O ---
           if (lx) then
             call ymcpy(z,2*lz,1,lz,h,mdim,1,lh,n,n)
             call yympy(s,s(lh+1),mdim,1,h,h(lh+1),mdim,1,z,z(lz+1),2*lz,
-     .        1,n,nev,n)
+     .      1,n,nev,n)
           else
             call yyhbak(mdim,n,s,s(lh+1),nev,z,z(lz+1),.true.)
           endif
@@ -291,12 +291,12 @@ C     call prm('(5f20.15)',s,n,n)
 
 C --- Take care of n=1 case ---
       if (n .eq. 1) then
-         e(1) = h(1)
-         if (lov) e(1) = h(1)/s(1)
-         if (1 .gt. nev .or. e(1) .gt. emx) return
-         z(1) = 1
-         z(2) = 0
-         return
+        e(1) = h(1)
+        if (lov) e(1) = h(1)/s(1)
+        if (1 .gt. nev .or. e(1) .gt. emx) return
+        z(1) = 1
+        z(2) = 0
+        return
       endif
 
 CC --- Use diagno if lx ---
@@ -392,7 +392,7 @@ C   --- Determine number of eigenvectors to be calculated ---
           if (j .le. nmx .and. e(j-1) .le. emx) nev = j
    14   continue
         call tinvit(mdim,n,wk(k1),wk(k2),wk(k3),nev,e,wk(k9),z,ier,
-     .    wk(k4),wk(k5),wk(k6),wk(k7),wk(k8))
+     .  wk(k4),wk(k5),wk(k6),wk(k7),wk(k8))
         call rxx(ier.ne.0,'ZHEV: tinvit cannot find all evecs')
       else
         do  17  j = 1, n
@@ -424,7 +424,7 @@ C --- Get the eigenvectors of H - E O ---
           if (lx) then
             call dcopy(n2*2,z,1,h,1)
             call yympy(s,s(n+1),mdim,1,h,h(n+1),mdim,1,z,z(n+1),mdim,1,
-     .        n,nev,n)
+     .      n,nev,n)
           else
             call yyhbak(mdim,n,s,s(n+1),nev,z,z(n+1),.true.)
           endif
@@ -605,7 +605,7 @@ C Passed parameters
       double complex h(n,n),s(n,n),z(n,n)
 C Local parameters
 #if F90
-       real(8),allocatable:: e(:),wk(:)
+      real(8),allocatable:: e(:),wk(:)
 #else
       double precision e(n),wk(11*n)
 #endif
@@ -626,9 +626,9 @@ C Local parameters
 C --- Eigenvectors and eigenvalues of s ---
       if (mod(mode,2) .ne. 0) then
 #if F90
-      allocate(e(n),wk(11*n))
+        allocate(e(n),wk(11*n))
 #endif
-      call zhev(n,s,s,.false.,lx,n,9d9,i,wk,.false.,0,e,z)
+        call zhev(n,s,s,.false.,lx,n,9d9,i,wk,.false.,0,e,z)
 C      if (lmode .eq. 2) then
 C      do  i = 1, n
 C        do  j = 1, n
@@ -644,9 +644,9 @@ C        enddo
 C      enddo
 C      endif
 #if F90
-      deallocate(e,wk)
+        deallocate(e,wk)
 #endif
-      lmode = mode-1
+        lmode = mode-1
       endif
 
 C --- do nothing to h ---
@@ -805,7 +805,7 @@ C       call zprm3('z',2,z,lz,n,nev)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C we assume LAPACK and F90
       subroutine zhev_tk(nlmto,n,h,s,nmx, epsovl,ncut,
-     &   nevl,nev,e,eo,lz,z,ipr)
+     &nevl,nev,e,eo,lz,z,ipr)
 C- Eigenvalues and/or some eigenvectors of a Hermitian matrix (throw away poor linear dependency)
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -848,8 +848,8 @@ C Passed parameters
       double precision e(n),wk(1),emx,eee
       complex(8):: h(n,n),s(n,n),z(lz,n)
       complex(8),allocatable:: omat(:,:),imat(:,:),wk11(:),
-     & zz(:,:),hh(:,:),omat2(:,:),pmat(:,:),omat2i(:,:),oo(:,:),
-     & hhm(:,:),zzz(:)
+     &zz(:,:),hh(:,:),omat2(:,:),pmat(:,:),omat2i(:,:),oo(:,:),
+     &hhm(:,:),zzz(:)
       integer:: i,j,nlmto,ni,nm,ik,ik2
       real(8):: omax_mto, omax_g,ex ,  ddd2,ddd,epsovl
       real(8),allocatable:: scale(:),rwork(:)
@@ -884,11 +884,11 @@ c This scaling is to keep the Hilbert space of MTO.
       scale(1:nlmto)=scale(1:nlmto)*100d0
 
       do i=1,n
-      do j=1,n
+        do j=1,n
 c        omat(i,j)=scale(i)*scale(j)*omat(i,j) !this is based on  1d0/scale*|basis>
-        s(i,j)= scale(i)*scale(j)*s(i,j)
-        h(i,j)= scale(i)*scale(j)*h(i,j) !this is to isolate the degenerated space.
-      enddo
+          s(i,j)= scale(i)*scale(j)*s(i,j)
+          h(i,j)= scale(i)*scale(j)*h(i,j) !this is to isolate the degenerated space.
+        enddo
       enddo
       allocate(omat(n,n))
       omat = s !reserved
@@ -972,10 +972,10 @@ ccccccccccccccccccccccc
 ! We solve  (z* h z -  epsilon z* o z) a =0
       if(ncut==0) then
         do ix= 1,n
-        if(eo(ix)>epsovl) then
-           ni = ix ! take i = ni...n
-           exit
-        endif
+          if(eo(ix)>epsovl) then
+            ni = ix ! take i = ni...n
+            exit
+          endif
         enddo
       else
         write(6,"(a,i3)")' zhev_tk: ncut=',ncut
@@ -1030,9 +1030,9 @@ C ... diagonalize
         deallocate(wk11,rwork)
         z=1d99
         do i=1,min(nmx,nm)
-        do j=1,n
-           z(j,i) = scale(j) *sum(zz(j,:)*hh(:,i))  !this is eigenfunction for original problem.
-        enddo
+          do j=1,n
+            z(j,i) = scale(j) *sum(zz(j,:)*hh(:,i))  !this is eigenfunction for original problem.
+          enddo
         enddo
         nev = min(nmx,nm)
       endif
@@ -1097,9 +1097,9 @@ c         omat(i,i) = s(nlmto+i,nlmto+i)
 c        print *,'qqq',i,omat(i,i)
 c      enddo                
 ! <PW'|PW'> matrix. PW' = |PW> - |chi_i> O^(-1)_ij <chi_j|PW>
-       omat = s(nlmto+1:n,nlmto+1:n)  ! n=nlmto+ngv
-     .      -  matmul( dconjg(transpose( s(1:nlmto,nlmto+1:n))) ,
-     .                   matmul( omat2i, s(1:nlmto,nlmto+1:n))   )
+      omat = s(nlmto+1:n,nlmto+1:n)  ! n=nlmto+ngv
+     .-  matmul( dconjg(transpose( s(1:nlmto,nlmto+1:n))) ,
+     .matmul( omat2i, s(1:nlmto,nlmto+1:n))   )
 C ... eigenvalue of <PW'|PW'>
       jobz = 'V'
       lwork = ngv*ngv
@@ -1111,8 +1111,8 @@ C ... eigenvalue of <PW'|PW'>
 ! skip low  eigenvalue
       do ix= 1,ngv
         if(eo(ix)>epsovl) then
-           ni = ix ! we use i = ni...n. Skip 1...ni-1
-           exit
+          ni = ix ! we use i = ni...n. Skip 1...ni-1
+          exit
         endif
       enddo
       nm = ngv-ni+1  +nlmto      ! this is the dimension.
@@ -1121,15 +1121,15 @@ C ... We solve solution in the Hilbert space spanned by zz (dimension = nm)
       allocate(zz(n,nm))
       zz=0d0
       do ix=1,nlmto
-         zz(ix,ix) = 1d0
+        zz(ix,ix) = 1d0
       enddo
       do ix= 1, nm-nlmto
 c        zz(ix+nlmto,ix+nlmto) = omat(ix,ix) /sqrt(eo(ix))
 c        print *,' ppp omat',ix,zz(ix,ix)
         zz(nlmto+1:n,ix+nlmto) = omat(:,ix) /sqrt(eo(ix))
         zz(1:nlmto,  ix+nlmto) = 
-     &    - matmul(omat2i, matmul(s(1:nlmto,nlmto+1:n),omat(:,ix))) 
-     &    /sqrt(eo(ix))
+     &  - matmul(omat2i, matmul(s(1:nlmto,nlmto+1:n),omat(:,ix))) 
+     &  /sqrt(eo(ix))
       enddo
 C ... Hamiltonian  <zz|H|zz>  <zz|Ozz>
       allocate(hh(nm,nm),oo(nm,nm))
@@ -1150,9 +1150,9 @@ C ... diagonalize
         call zhegv(1,jobz,'U',nm,hh,nm,oo,nm,e,wk11,lwork,rwork,ier)
         z=1d99
         do i=1,min(nmx,nm)
-        do j=1,n
-           z(j,i) = sum(zz(j,:)*hh(:,i))  !this is eigenfunction for original problem.
-        enddo
+          do j=1,n
+            z(j,i) = sum(zz(j,:)*hh(:,i))  !this is eigenfunction for original problem.
+          enddo
         enddo
         nev = min(nmx,nm)
       endif

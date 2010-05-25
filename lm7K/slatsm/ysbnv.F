@@ -1,5 +1,5 @@
       subroutine ysbnv(mode,ap,ofapi,ldap,ija,offs,nlev,
-     .  nn1,nn2,w,ldw,a,ofai,lda,ierr)
+     .nn1,nn2,w,ldw,a,ofai,lda,ierr)
 C- Inversion of a complex block sparse matrix using Strassen's algorithm
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -75,7 +75,7 @@ C     implicit none
       double precision a(lda),w(ldw,*),ap(ldap)
 
       call yysbnv(mode,ap,ap(1+ofapi),ldap,ija,offs,nlev,
-     .  nn1,nn2,w,ldw,a,a(1+ofai),lda,ierr)
+     .nn1,nn2,w,ldw,a,a(1+ofai),lda,ierr)
 
       end
 
