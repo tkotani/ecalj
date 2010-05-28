@@ -4017,7 +4017,7 @@ WARNING while processing 'subs/rdeq.F' (mode='fix')..
    59:     .factor(nr), factor1(nr),  factor2(nr),
    60:     .factor3(nr), product, product1,
    61:     .gsmt(2,2), psi(4,nr), ksi(4,nr), mu,
-   62:     .ksop(0:lmx,nsp,nsp,6), smalpa1(2,2) <== no parse pattern found for "double precisiong1p, f1p, g2p, f2p, norm, gmt(F2PY_EXPR_TUPLE_36693),fmt(F2PY_EXPR_TUPLE_36694), gmt0(F2PY_EXPR_TUPLE_36695), fmt0(F2PY_EXPR_TUPLE_36696), gmtde(F2PY_EXPR_TUPLE_36697),fmtde(F2PY_EXPR_TUPLE_36698),smalpa(F2PY_EXPR_TUPLE_36699),gn1(F2PY_EXPR_TUPLE_36700),gn2(F2PY_EXPR_TUPLE_36701),gn1dot(F2PY_EXPR_TUPLE_36702), gn2dot(F2PY_EXPR_TUPLE_36703),fn1(F2PY_EXPR_TUPLE_36704),fn2(F2PY_EXPR_TUPLE_36705), fn1dot(F2PY_EXPR_TUPLE_36706), fn2dot(F2PY_EXPR_TUPLE_36707),factor(nr), factor1(nr),  factor2(nr),factor3(nr), product, product1,gsmt(F2PY_EXPR_TUPLE_36708), psi(F2PY_EXPR_TUPLE_36709), ksi(F2PY_EXPR_TUPLE_36710), mu,ksop(F2PY_EXPR_TUPLE_36711), smalpa1(F2PY_EXPR_TUPLE_36712)" in 'Subroutine' block.
+   62:     .ksop(0:lmx,nsp,nsp,6), smalpa1(2,2) <== no parse pattern found for "double precisiong1p, f1p, g2p, f2p, norm, gmt(F2PY_EXPR_TUPLE_36692),fmt(F2PY_EXPR_TUPLE_36693), gmt0(F2PY_EXPR_TUPLE_36694), fmt0(F2PY_EXPR_TUPLE_36695), gmtde(F2PY_EXPR_TUPLE_36696),fmtde(F2PY_EXPR_TUPLE_36697),smalpa(F2PY_EXPR_TUPLE_36698),gn1(F2PY_EXPR_TUPLE_36699),gn2(F2PY_EXPR_TUPLE_36700),gn1dot(F2PY_EXPR_TUPLE_36701), gn2dot(F2PY_EXPR_TUPLE_36702),fn1(F2PY_EXPR_TUPLE_36703),fn2(F2PY_EXPR_TUPLE_36704), fn1dot(F2PY_EXPR_TUPLE_36705), fn2dot(F2PY_EXPR_TUPLE_36706),factor(nr), factor1(nr),  factor2(nr),factor3(nr), product, product1,gsmt(F2PY_EXPR_TUPLE_36707), psi(F2PY_EXPR_TUPLE_36708), ksi(F2PY_EXPR_TUPLE_36709), mu,ksop(F2PY_EXPR_TUPLE_36710), smalpa1(F2PY_EXPR_TUPLE_36711)" in 'Subroutine' block.
    63:C     double precision factor4(nr),factor5(nr)
    64:      integer n, ie, alpha, alp1, alp2, nrk, ir,
 WARNING while processing 'subs/rdsigm.F' (mode='fix')..
@@ -4098,7 +4098,7 @@ WARNING while processing 'subs/rotevs.F' (mode='fix')..
   111:      call getpr(ipr)
   112:
   113:      if (ndims+lc+lh-ndimz .ne. 0) call
-  114:     .rx('ROTEVS: constraint ndims+lc+lh = ndimz not satisfied') <== no parse pattern found for "if (F2PY_EXPR_TUPLE_39260) callrx(F2PY_EXPR_TUPLE_39261)" in 'Subroutine' block.
+  114:     .rx('ROTEVS: constraint ndims+lc+lh = ndimz not satisfied') <== no parse pattern found for "if (F2PY_EXPR_TUPLE_39259) callrx(F2PY_EXPR_TUPLE_39260)" in 'Subroutine' block.
   115:
   116:C     Mode 1: Rotate sigm(assumed to be stored LDA basis) to orbital basis
 WARNING while processing 'subs/roth.F' (mode='fix')..
@@ -4173,7 +4173,7 @@ WARNING while processing 'subs/spcgrp.F' (mode='fix')..
   257:      subroutine spgprd(g1,a1,g2,a2,g,a)
   258:C     implicit none
   259:      double precision
-  260:     .g1(3,3),g2(3,3),g(3,3),sum,a1(3),a2(3),a(3),h(3,3),ah(3) <== no parse pattern found for "double precisiong1(F2PY_EXPR_TUPLE_42046),g2(F2PY_EXPR_TUPLE_42047),g(F2PY_EXPR_TUPLE_42048),sum,a1(3),a2(3),a(3),h(F2PY_EXPR_TUPLE_42049),ah(3)" in 'Subroutine' block.
+  260:     .g1(3,3),g2(3,3),g(3,3),sum,a1(3),a2(3),a(3),h(3,3),ah(3) <== no parse pattern found for "double precisiong1(F2PY_EXPR_TUPLE_42045),g2(F2PY_EXPR_TUPLE_42046),g(F2PY_EXPR_TUPLE_42047),sum,a1(3),a2(3),a(3),h(F2PY_EXPR_TUPLE_42048),ah(3)" in 'Subroutine' block.
   261:      integer i,j,k
 WARNING while processing 'subs/subzi.F' (mode='fix')..
     1:#define MPI 1 <== non-space/digit char '#' found in column 1 of fixed Fortran code, interpreting line as comment line
