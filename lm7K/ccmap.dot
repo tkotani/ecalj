@@ -1003,7 +1003,6 @@ pvdf4->suphas;
 pvgtkn->ppi2z;
 pvhmb1->i8icopy;
 pvhmb1->mshint;
-pvioeu->spacks_copy;
 pvmix3->pkl2ro;
 pvmix3->pvmix4;
 pvmix3->pvmix9;

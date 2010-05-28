@@ -1,6 +1,4 @@
       subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
-
-
 C- Adds xc part to spherical potential, makes integrals rmu and rep
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -90,17 +88,9 @@ C --- Generate vxc,exc on a mesh ---
    60   continue
       else
         allocate(excx_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) excx_rv(:)=0.0d0
-
         allocate(excc_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) excc_rv(:)=0.0d0
-
         allocate(vxcx_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) vxcx_rv(:)=0.0d0
-
         allocate(vxcc_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) vxcc_rv(:)=0.0d0
-
         if (nsp .eq. 1) then
           call evxcv ( rp , rp , nr , nsp , lxcf2 , exc , excx_rv , 
      .    excc_rv , vxc , vxcx_rv , vxcc_rv )

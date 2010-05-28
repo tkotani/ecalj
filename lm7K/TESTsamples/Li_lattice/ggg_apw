@@ -1,0 +1,6 @@
+#!/usr/bin/gnuplot -persist
+set xrange [-0.15: 0.15]
+plot  "Li_apwmtopapdat"  using ($6):($14) with lp
+set term postscript enhanced color
+set output "pl.eps"
+replot

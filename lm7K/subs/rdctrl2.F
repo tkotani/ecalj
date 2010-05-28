@@ -1401,7 +1401,8 @@ C       If so, increment nkaph by 1; keep old nkaph in k1 for later
 
 C     Add dalat to alat
 
-      v_slat%alat=(v_slat%alat)+dalat
+CXX  v_slat%alat=(v_slat%alat)+dalat !this is a bug; this should be commented out. This 
+CXX  is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
 
 C     Replicate ctrl->lncol in ham->lncol
 
