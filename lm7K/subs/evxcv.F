@@ -255,3 +255,34 @@ C      write(ifi,'(a)') sout(1:i2)
 C
 C      end
 
+c for older version of smvxcm.F
+      integer function excsan(lxcfun,ifi)
+C- Sanity checks for a specified xc switch, optional printout
+C     implicit none
+      integer lxcfun,ifi
+      integer ltype,lgrad,k,i1,i2
+      character *80 sout
+
+      ltype = mod(mod(lxcfun,10),3)
+      lgrad = lxcfun/10
+
+      k = 0
+      if (ltype .lt. 1 .or. ltype .gt. 2) k = -1
+      if (lgrad .ne. 0) k = k - 10
+      excsan = k
+      if (ifi .le. 0) return
+
+      if (k .lt. 0) call rxi('evxcv: unknown XC code:',lxcfun)
+      if (ltype .eq. 1) write(sout,101)
+      if (ltype .eq. 2) write(sout,102)
+  101 format(' XC potential is Ceperly-Alder/Vosko')
+  102 format(' XC potential is Barth-Hedin')
+      call strip(sout,i1,i2)
+      if (lgrad .eq. 0) write(sout(i2+1:),201) 'no'
+      if (lgrad .gt. 0) write(sout(i2+1:),201) 'with'
+  201 format(' (',a,' gradient corrections)')
+      call strip(sout,i1,i2)
+      write(ifi,'(a)') sout(1:i2)
+
+      end
+

@@ -113,17 +113,17 @@ Cdelw1 do not change oidxcg because of ['undef', 'wvar', 'wref']
         is = ssite(ib)%spec
         !i_copy_size=size(ssite(ib)%pnu)
         !call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-        pnu(1:n0,1:2)= ssite(ib)%pnu(1:n0,1:2)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 79
-Cdelw1 do not change ov0 because of ['undef', 'wvar', 'wref']
+        !pnu(1:n0,1:2)= ssite(ib)%pnu(1:n0,1:2)
+        call dcopy(n0*2,ssite(ib)%pnu,1,pnu,1)
         ov0=ssite(ib)%ov0
         !i_copy_size=size(ssite(ib)%pz)
         !call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-        pnz(1:n0,1:2)= ssite(ib)%pz(1:n0,1:2)
+        !pnz(1:n0,1:2)= ssite(ib)%pz(1:n0,1:2)
         !do i_spacks=is,is
         !  call spacks_copy('u',sspec(i_spacks)%name,is,is,clabl,i_spacks)
         !enddo
-        call r8tos8(sspec(i_spacks)%name,clabl)
+        call dcopy(n0*2,ssite(ib)%pz,1,pnz,1)
+        call r8tos8(sspec(is)%name,clabl)
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt

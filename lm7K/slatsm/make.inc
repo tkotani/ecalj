@@ -276,5 +276,7 @@ sla_list=\
 	ztoy.o \
 	ztoyy.o \
 	ll.o \
-	matm.o 
+	matm.o \
+	gradfl.o \
+	ropylg.o
 

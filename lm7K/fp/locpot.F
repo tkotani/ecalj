@@ -1,4 +1,3 @@
-#define F90 1
       subroutine locpot(nbas,nsp,lso,lcplxp,ssite,sspec,slat,orhoat,
      .qmom,vval,gpot0,osig,otau,oppi,ppnl,hab,vab,sab,vvesat,
      .cpnvsa,rhoexc,rhoex,rhoec,rhovxc,rvepsv,rvexv,rvecv,rvvxcv,
@@ -157,17 +156,8 @@ C ... for core hole
       character chole*8
       integer kcor,lcor
       double precision qcor(2),qc0,qsc0
-#if F90
       real(8),allocatable:: wk(:),rhol1(:),rhol2(:),
      .v1(:),v2(:),v1es(:),v2es(:),efg(:,:),zz(:)
-#else
-      integer nbasx
-      parameter (nbasx=200)
-      double precision wk(nrmx*nlmx*2),
-     .rhol1(nrmx*nlmx*2),rhol2(nrmx*nlmx*2),v1(nrmx*nlmx*2),
-     .v2(nrmx*nlmx*2),v1es(nrmx*nlmx*2),v2es(nrmx*nlmx*2),
-     .efg(5,nbasx),zz(nbasx)
-#endif
       logical lfltwf
       integer i,stdo,nglob,ipr,iprint,j1,ib,is,lmxl,
      .lmxa,nr,lmxb,kmax,lfoc,nrml,ov01,ov0,nlml,ocg,
@@ -185,11 +175,9 @@ C --- Setup ---
       srfpi = dsqrt(4d0*pi)
       y0 = 1d0/srfpi
       nkaph = nglob('nkaph')
-#if F90
       k = nrmx*nlmx*2
       allocate(wk(k),rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k))
       allocate(efg(5,nbas),zz(nbas))
-#endif
 
       if (ipr .ge. 30) write(stdo,199)
   199 format(/' locpot:')
@@ -442,11 +430,8 @@ C     Electric field gradient
       if (ipr .gt. 40) then
         call elfigr(nbas,stdo,zz,efg)
       endif
-#if F90
       deallocate(efg,zz)
       deallocate(wk,rhol1,rhol2,v1,v2,v1es,v2es)
-#endif
-
       call tcx('locpot')
 
       end subroutine locpot
@@ -597,7 +582,7 @@ C ... Local parameters
       integer nlmx,nrx
       parameter ( nlmx=64, nrx=1501)
       integer stdo,lgunit,ipr,iprint,ll,i,isp,ilm,l,lxcfun,nglob,nrml,
-     .isw
+     .isw,isw2
       double precision rhochs(nrx*2),rhonsm(nrx),df(0:20),cof(nlmx),
      .rhocsm(nrx),xi(0:40),tmp(2)
       double precision afoc,ag,b,cof0,fac,gnu,pi,qv1,qv2,qcor1,qcor2,
@@ -607,11 +592,7 @@ C ... Local parameters
      .ves1,vales1,vales2,vcpn1,vcpn2,vefc1,vefv1,vefv2,vesc1,vesc2,
      .vesn1,vesn2,vnucl,vsum,vtr,y0,ddot,a1,a2,smrhoc
       double precision qs(2)
-#if F90
       real(8), allocatable :: fl(:,:,:)
-#elif AUTO_ARRAY
-      double precision fl(nr,nlml,nsp+1)
-#endif
 
 
 C     print *, 'zero vval'
@@ -621,16 +602,15 @@ C     call dpzero(vval,nlml)
       stdo = lgunit(1)
       ipr = iprint()
       isw = mod(job/1000,10)
+      isw2 = mod(job/100000,10)*10
       rveps = 0
       rvvxc = 0
       alocc = 0
-#if F90
       if (isw .ne. 0) then
         allocate (fl(nr,nlml,nsp+1))
       else
         allocate (fl(1,1,1))
       endif
-#endif
       if (nr .gt. nrx) call rxi('locpt2: need nrx at least',nr)
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4*pi)
@@ -869,7 +849,9 @@ C     v2 += vxc(rho2) + dv; focvxc= int (rho2*dv); dv=dvxc/drho * rhochs
         if (nsp .eq. 2) then
           call dcopy(nr,rhochs,1,rhochs(1+nr),1)
         endif
-        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,100+lxcfun,
+c        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,100+lxcfun,
+!lm72 changed meanings of lxcfun switch.
+        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,10000+lxcfun, 
      .  rhochs,focexc,focex,focec,focvxc,rep2,rep2x,rep2c,rmu2,v2,
      .  fl,qs)
         if (ipr .ge. 40)
@@ -970,11 +952,7 @@ C --- Charges, printout ---
   255   format(' core chg:',3f15.6)
 
       endif
-
-#if F90
       deallocate (fl)
-#endif
-
       call tcx('locpt2')
       end subroutine locpt2
 

@@ -44,7 +44,7 @@ C ... Local parameters
       real(8) ,allocatable :: excx_rv(:)
       real(8) ,allocatable :: excc_rv(:)
       real(8) ,allocatable :: vxcx_rv(:)
-      real(8) ,allocatable :: vxcc_rv(:)
+      real(8) ,allocatable :: vxcc_rv(:),vx2(:),vc2(:)
 
       character *2 st
 C ... Heap
@@ -71,6 +71,7 @@ C --- Extrapolate rho to origin ---
         rho3 = rho(3,isp)/rofi(3)**2
         rho0(isp) = ub4pi*(rho2*rofi(3)-rho3*rofi(2))/(rofi(3)-rofi(2))
    10 continue
+      print *,'end of do 10'
 
 C --- Make true rho ---
       do  20  isp = 1, nsp
@@ -78,22 +79,29 @@ C --- Make true rho ---
         do  20  ir = 2, nr
           rp(ir,isp) = rho(ir,isp)*ub4pi/rofi(ir)**2
    20 continue
-
+      print *,'end of do 20'
 C --- Generate vxc,exc on a mesh ---
+      allocate(excx_rv(nr))
+      allocate(excc_rv(nr))
+      allocate(vxcx_rv(nr))
+      allocate(vxcc_rv(nr))
+      print *,'end of do 20 xxxx lxcf2=',lxcf2
       if (lxcf2 .gt. 2) then
-        call evxcp(rp,rp(1,2),nr,nsp,lxcf2,exc,vxc,vxc(1,2))
+        allocate(vx2(nr),vc2(nr))
+c        call evxcp(rp,rp(1,2),nr,nsp,lxcf2,exc,vxc,vxc(1,2))
+         call evxcp(rp,rp(1,2),nr,nsp,lxcf2,excx_rv,excc_rv,exc, !w(oex),w(oec),exc,
+c     .    w(ovx),w(ovx2),w(ovc),w(ovc2),vxc,vxc(1,2))
+     .    vxcx_rv,vx2, vxcc_rv,vc2,vxc,vxc(1,2))
+        deallocate(vx2,vc2)
         do  60  isp = 1, nsp
           vxc(1,isp) =
      .    (vxc(2,isp)*rofi(3)-vxc(3,isp)*rofi(2))/(rofi(3)-rofi(2))
    60   continue
       else
-        allocate(excx_rv(nr))
-        allocate(excc_rv(nr))
-        allocate(vxcx_rv(nr))
-        allocate(vxcc_rv(nr))
         if (nsp .eq. 1) then
-          call evxcv ( rp , rp , nr , nsp , lxcf2 , exc , excx_rv , 
-     .    excc_rv , vxc , vxcx_rv , vxcc_rv )
+          call evxcv ( rp , rp , nr , nsp , lxcf2 , 
+     .    exc , excx_rv , excc_rv , 
+     .    vxc , vxcx_rv , vxcc_rv )
 
         else
           call dpadd(rp(1,2),rp,1,nr,1d0)
@@ -107,12 +115,9 @@ C --- Generate vxc,exc on a mesh ---
 
           call dpadd(rp,rp(1,2),1,nr,-1d0)
         endif
-        if (allocated(vxcc_rv)) deallocate(vxcc_rv)
-        if (allocated(vxcx_rv)) deallocate(vxcx_rv)
-        if (allocated(excc_rv)) deallocate(excc_rv)
-        if (allocated(excx_rv)) deallocate(excx_rv)
 
       endif
+      deallocate(vxcc_rv,vxcx_rv,excc_rv,excx_rv)
 
 C --- Integrals ---
       do  14  i  = 1, nsp

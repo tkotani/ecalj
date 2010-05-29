@@ -514,13 +514,15 @@ C      1 for Ceperly-Alder
 C      2 for Barth-Hedin (ASW fit)
 C      3 for PW91
 C      4 for PBE
-C      10s digit for GGAs
+cC      10s digit for GGAs !old
+C      100s digit for GGAs !this assignment is from lm72 
 C      0 for LSDA
 C      1 for LMH
 C      2 for PW91
 C      3 for PBE
 C      4 for PBE with Becke exchange
-      i = ham_lxcf + 10*gga
+c      i = ham_lxcf + 10*gga
+      i = ham_lxcf + 100*gga !corrected for lm72 May2010takao
 C      Set modep
       ix(1:3) = 2
       if (prgnam == 'LMPG') ix(3) = 0
@@ -1619,15 +1621,23 @@ c     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
      .      '%?;n; read Sigma,;;'//
      .      '%?;n; make SX,;;'//
      .      '%b %b',
-     .      strn,scrwid,0,nsp,nlibu,mod(lxcf,10),lxcf/10,lfrzw,
+clm72
+     .      strn,scrwid,0,nsp,nlibu,mod(lxcf,100),lxcf/100,lfrzw, !lm72
+c     .      strn,scrwid,0,nsp,nlibu,mod(lxcf,10),lxcf/10,lfrzw,
 c     .      isw(lasa32),lrsig,lsx)
      .      0,lrsig,0)
             call awrit0(strn,' ',-80,lgunit(k))
           endif
-          call isanrg(mod(lxcf,10),0,4,prgnam,'XC functional',.true.)
-          call isanrg(lxcf/10,0,4,prgnam,'GGA functional',.true.)
-          if (mod(lxcf,10) .eq. 2 .and. lxcf/10 .gt. 1 .or.
-     .    mod(lxcf,10) .ne. 2 .and. lxcf/10 .eq. 1) call info0
+c          call isanrg(mod(lxcf,10),0,4,prgnam,'XC functional',.true.)
+c          call isanrg(lxcf/10,0,4,prgnam,'GGA functional',.true.)
+c          if (mod(lxcf,10) .eq. 2 .and. lxcf/10 .gt. 1 .or.
+c     .    mod(lxcf,10) .ne. 2 .and. lxcf/10 .eq. 1) call info0
+c     .    (10,0,0,'%10f(warning) mixing incompatible functionals')
+clm72
+        call isanrg(mod(lxcf,100),0,4,prgnam,'XC functional',.true.)
+        call isanrg(lxcf/100,0,4,prgnam,'GGA functional',.true.)
+        if (mod(lxcf,100) .eq. 2 .and. lxcf/100 .gt. 1 .or.
+     .      mod(lxcf,100) .ne. 2 .and. lxcf/100 .eq. 1) call info0
      .    (10,0,0,'%10f(warning) mixing incompatible functionals')
 
 C$$$        if (bitand(lncol,1+2+4+8+32+64) .ne. 0) then

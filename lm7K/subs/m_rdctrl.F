@@ -817,7 +817,7 @@ c      endif
      .nout=nout, def_i4=0, note='Specifies GGA functional:'//
      .'%N%3f0 for LSDA%N%3f1 for Langreth-Mehl%N%3f2 for PW91'//
      .'%N%3f3 for PBE%N%3f4 for PBE with Becke exchange')
-      if (nout/=0) ham_lxcf= ham_lxcf
+c      if (nout/=0) ham_lxcf= ham_lxcf
 c      nm='HAM_EBAS'; call gtv(trim(nm),tksw(prgn,nm),
 c     .  kmto,nout=nmto,note='LMTO envelope kinetic energies')
 C      if (nmto>0) then
