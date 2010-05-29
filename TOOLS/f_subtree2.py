@@ -25,17 +25,27 @@ argset= sys.argv[1:]
 lineall=''
 routine=set(argset)
 routinex=set([])
+routineall=set(argset)
 l=1
 while l>0:
-    #print 'iiiiiiii ',routine
+    print 'iiiiiiii ',routine
     routinex,lineall = getcaller(oxx,routine,lineall)
-    #print 'eeeeeeee ',routinex,len(routinex)
+    print 'eeeeeeee ',routinex,len(routinex)
+    routineall= routineall | routinex
     #print
     l=len(routinex)
     routine = copy.deepcopy(routinex)
 title='_'.join([x for x in argset])
 aaa='digraph '+ title + ' {\n'+ lineall+'}\n'
 
+print 'xxxxxxxxxxxxxxxxxxxxx'
+for i in routineall:
+    #print i
+    ccc='grep '+ i + ' callcaller.dat |grep def |cut -f 1 -d"-" '
+    #print ccc
+    os.system(ccc)
+
+sys.exit()
 ######################
 open(title+".dotdata",'wt').write(aaa)
 ccc ='dot -Tgif '+ title + ".dotdata -o " + title+ ".gif" 

@@ -247,12 +247,12 @@ subs_list:=\
 	m_toksw.o \
 	writebasis.o \
 	spackv_array_copy.o \
-        struc_strn.o \
-        switch.o \
-        rdsigm.o\
-        rdsigm2.o\
-        rotwv.o \
-        dpdbyl.o \
+	struc_strn.o \
+	switch.o \
+	rdsigm.o\
+	rdsigm2.o\
+	rotwv.o \
+	dpdbyl.o \
 	dpdftr.o \
 	pvsms2.o \
 	getcor.o \

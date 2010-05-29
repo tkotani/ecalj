@@ -18,7 +18,7 @@ Co   exc   :gradient contribution to energy added to exc
 Co   vxc   :gradient contribution to potential added to vxc
 Cl Local variables
 Cr Remarks
-Cr
+Cr   
 Cu Updates
 Cu   18 Jun 04 Bug fix
 C ----------------------------------------------------------------------
@@ -28,9 +28,9 @@ C ... Passed parameters
       double precision rp(nrx,nsp),grh(nrx,2),ggrh(nrx,2),
      .agrh(nrx,4),grgagr(nrx,3),exc(nrx),vxc(nrx,2),rofi(nr)
 C ... Local parameters
-      integer ir,i,lxcf2,lxcg2,nglob
+      integer ir,i,lxcf,lxcg,nglob
 
-      lxcg2 = mod(nglob('lxcf')/10,10)
+      lxcg = mod(nglob('lxcf')/100,100)
 C      integer iprint
 C      if (iprint() .ge. 80) then
 C        call prmr(20,rofi,rp(2,1),1)
@@ -42,44 +42,38 @@ C --- grad(rho), laplacian rho ---
       call radgrx(nr,nrx,nsp,rofi,grh,ggrh)
       do  20  i  = 1, nsp
         do  24  ir = 2, nr
-          ggrh(ir,i) = ggrh(ir,i) + 2d0*grh(ir,i)/rofi(ir)
-   24   continue
+   24   ggrh(ir,i) = ggrh(ir,i) + 2d0*grh(ir,i)/rofi(ir)
         ggrh(1,i) =(rofi(3)*ggrh(2,i)-rofi(2)*ggrh(3,i))/(rofi(3)-rofi(2))
 
 C --- grad rho . grad abs grad rho ---
         do  26  ir = 1, nr
-          agrh(ir,i) = dabs(grh(ir,i))
-   26   continue
+   26   agrh(ir,i) = dabs(grh(ir,i))
         call radgrx(nr,nrx,1,rofi,agrh(1,i),grgagr(1,i))
         do  28  ir = 1, nr
-          grgagr(ir,i) = grh(ir,i)*grgagr(ir,i)
-   28   continue
+   28   grgagr(ir,i) = grh(ir,i)*grgagr(ir,i)
    20 continue
 
 C --- Extra terms g(n), g(n+).g(n-), g(n).g(abs(g(n))) if spin pol ---
       if (nsp .eq. 2) then
         do  32  ir = 1, nr
-          agrh(ir,3) = dabs(grh(ir,1)+grh(ir,2))
-   32   continue
+   32   agrh(ir,3) = dabs(grh(ir,1)+grh(ir,2))
         call radgrx(nr,nrx,1,rofi,agrh(1,3),grgagr(1,3))
         do  34  ir = 1, nr
-          grgagr(ir,3) = (grh(ir,1)+grh(ir,2))*grgagr(ir,3)
-   34   continue
+   34   grgagr(ir,3) = (grh(ir,1)+grh(ir,2))*grgagr(ir,3)
         do  36  ir = 1, nr
-          agrh(ir,4) = grh(ir,1)*grh(ir,2)
-   36   continue
+   36   agrh(ir,4) = grh(ir,1)*grh(ir,2)
       endif
 
 C --- Gradient term for all points ---
-      if (lxcg2 .ge. 3) then
-        lxcf2 = mod(nglob('lxcf'),10)
-        if (lxcf2 .ne. 3 .and. lxcf2 .ne. 4) call
+      if (lxcg .ge. 3) then
+        lxcf = mod(nglob('lxcf'),100)
+        if (lxcf .ne. 3 .and. lxcf .ne. 4) call
      .  rx('vxcgf2: inconsistent use of local and GGA functionals')
-        call vxcgga(nr,nsp,rp,rp(1,nsp),agrh,agrh(1,nsp),
+        call vxcgga(lxcg,nr,nsp,rp,rp(1,nsp),agrh,agrh(1,nsp),
      .  ggrh,ggrh(1,nsp),agrh(1,2*nsp-1),agrh(1,4),
      .  grgagr(1,2*nsp-1),grgagr,grgagr(1,nsp),
      .  vxc(1,1),vxc(1,nsp),exc)
-      elseif (lxcg2 .eq. 2) then
+      elseif (lxcg .eq. 2) then
         call rx('PW91 no longer implemented')
       else
         call vxnloc(nr,nsp,rp,rp(1,nsp),agrh,agrh(1,nsp),
@@ -88,8 +82,7 @@ C --- Gradient term for all points ---
      .  vxc(1,1),vxc(1,nsp),exc)
       endif
       do  66  i = 1, nsp
-        vxc(1,i) = (vxc(2,i)*rofi(3)-vxc(3,i)*rofi(2))/(rofi(3)-rofi(2))
-   66 continue
+   66 vxc(1,i) = (vxc(2,i)*rofi(3)-vxc(3,i)*rofi(2))/(rofi(3)-rofi(2))
 
       end
       subroutine radgrx(nr,nrx,nsp,ri,f,gf)

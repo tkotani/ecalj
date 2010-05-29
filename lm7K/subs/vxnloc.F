@@ -3,9 +3,17 @@
 C- Langreth-Mehl-Hu gradient correction to exc and vxc
 C ---------------------------------------------------------------
 Ci Inputs:
-Ci   rhop,rhom, grhop,grhom, ggrhop,ggrhom (rho, grad and Laplacian rho)
-Ci   grggr,grggrp,grggrm (grad rho . grad abs grad rho)
-Ci   (nsp=2) grho: grad total rho, grpgrm: grad rho+ . grad rho-
+Ci   rhop  :spin up density if nsp=2; otherwise total density
+Ci   rhom  :spin down density if nsp=2; otherwise not used
+Ci   grhop :|grad rhop| or |grad rho| if nsp=1
+Ci   grhom :|grad rhom| (nsp=2)
+Ci   grho  :|grad total rho| if nsp=2; otherwise not used
+Ci   ggrhop:Laplacian of rhop
+Ci   ggrhom:Laplacian of rhom
+Ci   grggr :(grad rho).(grad |grad rho|)
+Ci   grggrp:(grad up).(grad |grad up|) (not used here)
+Ci   grggrm:(grad dn).(grad |grad dn|) (not used here)
+Ci   grpgrm: grad rho+ . grad rho- (nsp=2)
 Co Outputs:
 Co   vxc, exc
 Cr Remarks:
@@ -159,8 +167,7 @@ c - Work arrays and internal variables
       integer ir,i,iprint
       character*2, units
 
-      if(mode.eq.0.or.mode.eq.10) GOTO 9999
-      ! Do not calculate gradients
+      if(mode.eq.0.or.mode.eq.10) GOTO 9999 !! Do not calculate gradients
 
       call pshpr(iprint()-20)
 
@@ -169,32 +176,26 @@ C --- grad(rho), laplacian rho ---
       call radgrx(nr,nrx,nsp,rofi,grh,ggrh)
       do  20  i  = 1, nsp
         do  24  ir = 2, nr
-          ggrh(ir,i) = ggrh(ir,i) + 2d0*grh(ir,i)/rofi(ir)
-   24   continue
+   24   ggrh(ir,i) = ggrh(ir,i) + 2d0*grh(ir,i)/rofi(ir)
         ggrh(1,i) =(rofi(3)*ggrh(2,i)-rofi(2)*ggrh(3,i))/(rofi(3)-rofi(2))
 
 C --- grad rho . grad abs grad rho ---
         do  26  ir = 1, nr
-          agrh(ir,i) = dabs(grh(ir,i))
-   26   continue
+   26   agrh(ir,i) = dabs(grh(ir,i))
         call radgrx(nr,nrx,1,rofi,agrh(1,i),grgagr(1,i))
         do  28  ir = 1, nr
-          grgagr(ir,i) = grh(ir,i)*grgagr(ir,i)
-   28   continue
+   28   grgagr(ir,i) = grh(ir,i)*grgagr(ir,i)
    20 continue
 
 C --- Extra terms g(n), g(n+).g(n-), g(n).g(abs(g(n))) if spin pol ---
       if (nsp .eq. 2) then
         do  32  ir = 1, nr
-          agrh(ir,3) = dabs(grh(ir,1)+grh(ir,2))
-   32   continue
+   32   agrh(ir,3) = dabs(grh(ir,1)+grh(ir,2))
         call radgrx(nr,nrx,1,rofi,agrh(1,3),grgagr(1,3))
         do  34  ir = 1, nr
-          grgagr(ir,3) = (grh(ir,1)+grh(ir,2))*grgagr(ir,3)
-   34   continue
+   34   grgagr(ir,3) = (grh(ir,1)+grh(ir,2))*grgagr(ir,3)
         do  36  ir = 1, nr
-          agrh(ir,4) = grh(ir,1)*grh(ir,2)
-   36   continue
+   36   agrh(ir,4) = grh(ir,1)*grh(ir,2)
       endif
 
       call poppr
@@ -233,6 +234,7 @@ C --- Call PBE subroutine for each radial point ---
      .  XXgrgagr,       ! (grad rho).(grad |grad rho|)
      .  1,                ! do correlations
      .  1,                ! do potential
+     .  0,                ! Never do Becke exchange
      .  exlsd,  ! LSD exchange energy density
      .  vxuplsd,! up LSD exchange potential
      .  vxdnlsd,! down LSD exchange potential
@@ -283,15 +285,13 @@ c- PBE correction
         do  50  ir=1,nr
           exc(ir)=exc(ir)*2
           do  52  isp=1,nsp
-            vxc(ir,isp)=vxc(ir,isp)*2
-   52     continue
+   52     vxc(ir,isp)=vxc(ir,isp)*2
    50   continue
       endif
 
       if (mode.ne.10) then
         do  60  i = 1, nsp
-          vxc(1,i)=(vxc(2,i)*rofi(3)-vxc(3,i)*rofi(2))/(rofi(3)-rofi(2))
-   60   continue
+   60   vxc(1,i)=(vxc(2,i)*rofi(3)-vxc(3,i)*rofi(2))/(rofi(3)-rofi(2))
       endif
       end
 

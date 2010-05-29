@@ -74,7 +74,7 @@ C     implicit none
 C ... Passed parameters
       integer nbas,lfrce,k1,k2,k3,ngabc(3)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      real(8):: f(3,1) , repsm(2) , repsmx(2) , repsmc(2) , rmusm(2) 
+      real(8):: f(3,nbas) , repsm(2) , repsmx(2) , repsmc(2) , rmusm(2) 
      ., rvmusm(2) , rvepsm(2) , focexc(2) , focex(2) , focec(2) , focvxc(2)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -85,7 +85,7 @@ C ... Passed parameters
      .smexc(k1,k2,k3)
 C ... Local parameters
       integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , ogv 
-     ., okv , ocy , osmrho , osmcor , lfoc1 , lfoc2 , iprint , excsan 
+     ., okv , ocy , lfoc1 , lfoc2 , iprint , excsan 
      ., lxcfun , nglob , nsp
       complex(8) ,allocatable :: cgh1_zv(:)
       complex(8) ,allocatable :: cgh2_zv(:)
@@ -96,20 +96,20 @@ C ... Local parameters
 C ... Heap
       integer w(1)
       common /w/ w
+      complex(8),allocatable ::smrho_w(:), smcor_w(:) 
 
       stdo = lgunit(1)
       nsp  = nglob('nsp')
       lxcfun = nglob('lxcf')
       call tcn('smvxc')
 
-      i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+c      i_copy_size=size(slat%nabc)
+c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      ngabc=slat%nabc
       ng=slat%ng
       ogv=slat%ogv
       okv=slat%okv
       vol=slat%vol
-
-
       alat=slat%alat
       vol=slat%vol
       ocy=slat%ocy
@@ -117,48 +117,42 @@ C ... Heap
       if (excsan(lxcfun,0) .lt. 0) x1 = excsan(lxcfun,stdo)
 
 C ... Sum of foca hankel heads; break into direct and pert. parts
-      call defcc (osmrho,-k1*k2*k3*nsp)
-      allocate(cgh1_zv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) cgh1_zv(:)=0.0d0
-
-      allocate(cgh2_zv(ng))
-Ctakao_ZeroClear_NotRequiered        if (ng<0) cgh2_zv(:)=0.0d0
-
+c      call defcc (osmrho,-k1*k2*k3*nsp)
+      allocate(smrho_w(k1*k2*k3*nsp))
+      smrho_w=0d0
+      allocate(cgh1_zv(ng), cgh2_zv(ng))
       call smcorm ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
      .cgh1_zv , cgh2_zv , lfoc1 , lfoc2 )
 
-
-C ... w(osmrho) = smrho + smoothed core from foca hankel heads
+C ... smrho_w = smrho + smoothed core from foca hankel heads
       k123 = 2*k1*k2*k3
       if (lfoc1 .eq. 1) then
         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh1_zv 
-     .  , w ( osmrho ) )
-
-        call fftz3(w(osmrho),n1,n2,n3,k1,k2,k3,1,0,1)
+     .  , smrho_w ) !w ( osmrho ) )
+        call fftz3(smrho_w,n1,n2,n3,k1,k2,k3,1,0,1)
         if (nsp .eq. 2) then
-          call dscal(k123,.5d0,w(osmrho),1)
-          call dpscop(w(osmrho),w(osmrho),k123,1,1+k123,1d0)
+          call dscal(k123,.5d0,smrho_w,1)
+          call dpscop(smrho_w,smrho_w,k123,1,1+k123,1d0)
         endif
-        call dpadd(w(osmrho),smrho,1,k123*nsp,1d0)
+        call dpadd(smrho_w,smrho,1,k123*nsp,1d0)
       else
-        call dpcopy(smrho,w(osmrho),1,k123*nsp,1d0)
+        call dpcopy(smrho,smrho_w,1,k123*nsp,1d0)
       endif
 
 C ... Force density strictly positive definite
 C      print *, 'density strictly pos def?'
 C      call smrpos(w(osmrho),k1,k2,k3,n1,n2,n3)
-
-      rvmusm(2) = 0
-      focexc(2) = 0
-      focex(2)  = 0
-      focec(2)  = 0
-      focvxc(2) = 0
+      rvmusm(2) = 0d0
+      focexc(2) = 0d0
+      focex(2)  = 0d0
+      focec(2)  = 0d0
+      focvxc(2) = 0d0
 
 C --- Direct branch (lfoc2 .eq. 0) ---
       if (lfoc2 .eq. 0) then
-        call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmrho),sum1,sum2)
+        call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho_w,sum1,sum2)
         call smvxc2(0,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,
-     .  w(osmrho),smvxc,smvx,smvc,smexc,w,
+     .  smrho_w,smvxc,smvx,smvc,smexc,w,
      .  repsm,repsmx,repsmc,rmusm,vxcavg)
         call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
         do  i = 1, nsp
@@ -176,12 +170,9 @@ C --- Direct branch (lfoc2 .eq. 0) ---
 C --- Perturbation branch (lfoc2 .ne. 0) ---
       if (lfoc2 .ne. 0) then
         allocate(dxcv_zv(k1*k2*k3*nsp))
-Ctakao_ZeroClear_NotRequiered          if (k1*k2*k3*nsp<0) dxcv_zv(:)=0.0d0
-
         call smvxc2 ( 1 , nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
-     .  , k3 , w ( osmrho ) , smvxc , smvx , smvc , smexc , dxcv_zv 
+     .  , k3 , smrho_w , smvxc , smvx , smvc , smexc , dxcv_zv 
      .  , repsm , repsmx , repsmc , rmusm , vxcavg )
-
         call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
         do  i = 1, nsp
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),
@@ -189,26 +180,27 @@ Ctakao_ZeroClear_NotRequiered          if (k1*k2*k3*nsp<0) dxcv_zv(:)=0.0d0
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smexc(1,1,1),
      .    smrho(1,1,1,i),rvepsm(i),x2)
         enddo
-
+        deallocate(smrho_w)
 C   ... Assemble core tails for linearized treatment on mesh
 C       w(osmcor) = portion of core treated perturbatively
-        osmcor = osmrho
+c        osmcor = osmrho
+        allocate(smcor_w(k1*k2*k3*nsp))
         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh2_zv 
-     .  , w ( osmcor ) )
+     .  , smcor_w) !w ( osmcor ) )
 
-        call fftz3(w(osmcor),n1,n2,n3,k1,k2,k3,1,0,1)
-        call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmcor),sum1,sum2)
+        call fftz3(smcor_w,n1,n2,n3,k1,k2,k3,1,0,1)
+        call mshint(vol,1,n1,n2,n3,k1,k2,k3,smcor_w,sum1,sum2)
         call dpzero(focexc,2)
         call dpzero(focex,2)
         call dpzero(focec,2)
         do  i = 1, nsp
-          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvx(1,1,1,i),w(osmcor),
+          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvx(1,1,1,i),smcor_w,
      .    x1,x2)
           focex(i)  = x1/nsp
-          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvc(1,1,1,i),w(osmcor),
+          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvc(1,1,1,i),smcor_w,
      .    x1,x2)
           focec(i)  = x1/nsp
-          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),w(osmcor),
+          call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),smcor_w,
      .    x1,x2)
           focexc(i) = x1/nsp
 C         Add this term to focexc to make focexc=pert corr to rhov*exc
@@ -217,7 +209,7 @@ C     .      x1,x2)
         enddo
 C       Peturbation correction to smvxc
         call smvxc3 ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , smrho 
-     .  , w ( osmcor ) , dxcv_zv , smvxc , focvxc )
+     .  , smcor_w , dxcv_zv , smvxc , focvxc )
 
         call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
         if (iprint() .ge. 30) then
@@ -230,19 +222,14 @@ C       Peturbation correction to smvxc
      .    focvxc(1)+focvxc(2),nsp,focvxc,focvxc(2))
           call awrit1('%a  charge  =%;12,6D',outs,len(outs),-stdo,sum1)
         endif
+        deallocate(smcor_w,dxcv_zv)
       endif
-
-      if (allocated(dxcv_zv)) deallocate(dxcv_zv)
-      if (allocated(cgh2_zv)) deallocate(cgh2_zv)
-      if (allocated(cgh1_zv)) deallocate(cgh1_zv)
-      call rlse(osmrho)
-
+      deallocate(cgh2_zv,cgh1_zv)
+c      call rlse(osmrho)
 
 C --- Force from foca sm-head; cgh1 is workspace ---
       if (lfrce .ne. 0) then
         allocate(cgh1_zv(ng*nsp))
-Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cgh1_zv(:)=0.0d0
-
         call dpzero(f,3*nbas)
         if (lfoc1.gt.0 .or. lfoc2.gt.0) then
           call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)

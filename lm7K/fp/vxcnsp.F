@@ -1,20 +1,32 @@
-#define F90 1
       subroutine vxcnsp(isw,ri,nr,rwgt,nlm,nsp,rl,lxcfun,rc,
      .focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,vl,fl,qs)
 C- Add vxc to potential in sphere and make integrals rho*vxc,rho*exc
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   isw   :1, make fl, otherwise not
+Ci   isw   :1s digit
+Ci         : 1, make fl, otherwise not
+Ci         :10s digit
+Ci         : 0 calculated LDA for density as is.
+Ci         : 1 reset points of negative density to positive density
+Ci         : 2 for any point where rho<0 or rho_isp<0, zero potential
 Ci   ri    :radial mesh points
 Ci   nr    :number of radial mesh points
 Ci   rwgt  :radial mesh weights
 Ci   nlm   :L-cutoff for density expansion
 Ci   nsp   :2 for spin-polarized case, otherwise 1
 Ci   rl    :full charge density * r**2
-Ci   lxcfun:local exchange-correlation functional index
-Ci         :1s digit sets local xc functional (evxcv)
-Ci         :10s digit sets gradient corrections
-Ci         :100s digit sets flag to treat core in perturbation th.
+Ci   lxcfun:specifies exchange-correlation functional
+Ci         :1s digit sets local xc functional
+Ci         :  1    Ceperly-Alder
+Ci         :  2    Barth-Hedin (ASW fit)
+Ci         :  3,4  LD part of PW91 and PBE
+Ci         :100s digit sets gradient corrections
+Ci         :  0    LSDA
+Ci         :  1    Langreth-Mehl
+Ci         :  2    PW91
+Ci         :  3    PBE
+Ci         :  4    PBE with Becke exchange
+Ci         :10000s digit sets flag to treat core in perturbation th.
 Ci   rc    :l=0 charge density*4*pi*ri**2 to be added in pert. theory
 Ci         :Not used unless 100s digit of lxcfun is set.
 Co Outputs
@@ -34,7 +46,7 @@ Co         :fl is made only if isw is nonzero
 Co   qs    :spin-resolved charge
 Cl Local variables
 Cl   yl    :YL(rp)
-Cl   lxcf  :index to local part of lxcfun
+Cl   lxcf  :LD part of LDA+GGA functional
 Cr Remarks
 Cr   Perturbation treatment:
 Cr     vxc[rho + rc] = vxc[rho] + rc * (dvxc/drho)
@@ -45,9 +57,8 @@ Cr   Correction to int rho * exc:
 Cr     Corr = int rho * rc * (dexc/drho) = int rho * rc * (vxc-exc)/rho
 Cr          = int rc * (vxc-exc) = focexc - int rc exc
 Cr     Second term is not retained.
-Cb Bugs
-Cb   Need a non-F90 version
 Cu Updates
+Cu   06 Apr 09 Routine calls vxcnls to handle some GGA potentials
 Cu   14 Mar 04 Optionally Makes fl.  New argument list
 Cu   14 Jun 02 repsx and repsc (T. Miyake)
 Cu    8 Feb 02 focex and focec (T. Miyake)
@@ -65,21 +76,25 @@ C ... Local parameters
       integer nnn,nlmx
       parameter(nnn=122,nlmx=64)
       logical lpert
-      integer stdo,lgunit,ipr,ll,lmax,np,nph,nth,nxl(0:7),lxcf,lgrd
+      integer stdo,lgunit,ipr,ll,lmax,np,nph,nth,nxl(0:7),lxcf,lxcg
       double precision p(3,nnn),wp(nnn),p2(nnn*3),r2(nnn),fpi
-      double precision yl(nnn*nlmx)
+C     double precision yl(nnn*nlmx)
+      real(8), allocatable :: ylwp(:)
+      real(8), allocatable :: yl(:),rp(:,:,:),gyl(:,:),grp(:,:),agrp(:),
+     .ggrp(:),agrl(:),vxcnl(:),excnl(:)
+
       data nxl /-12,-20,-32,-32,-62,-92,-122,-122/
 
       stdo = lgunit(1)
       call getpr(ipr)
-      lxcf = mod(lxcfun,10)
-      lgrd = mod(lxcfun/10,10)
-      lpert = lxcfun .ge. 100
+      lxcf = mod(lxcfun,100)
+      lxcg = mod(lxcfun/100,100)
+      lpert = lxcfun .ge. 10000
       fpi = 16d0*datan(1d0)
 
 C ... Create angular integration mesh
       lmax = ll(nlm)
-      if (lgrd .ne. 0) lmax = lmax+1
+C     if (lxcg .ne. 0) lmax = lmax+1
       if (lmax .gt. 6) then
         nth = 2*lmax+2
         nph = 0
@@ -99,9 +114,6 @@ C ... Create angular integration mesh
       repsx(2) = 0
       repsc(2) = 0
 
-      call dmcpy(p,1,3,p2,np,1,np,3)
-      call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax+1,np,yl,r2)
-
 C ... Scale rl to true density
       call vxcns3(nr,nlm,nsp,ri,rl,1)
       if (lpert) then
@@ -109,104 +121,77 @@ C ... Scale rl to true density
         call dscal(nr,1/fpi,rc,1)
       endif
 
-C     Generate the local exchange-correlation potential
-      call vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf,
+C ... Spherical harmonic polynomials ... to be overwritten by Yl * wp
+      call dmcpy(p,1,3,p2,np,1,np,3)
+C     GGA case:  Need both yl*wp and YL to lmax+1 to make grad YL
+      if (lxcg .ne. 0) then
+        allocate (yl(np*(lmax+2)**2),ylwp(np*(lmax+2)**2))
+        call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax+1,np,yl,r2)
+        call dcopy(np*nlm,yl,1,ylwp,1)
+      else
+        allocate (ylwp(np*nlm))
+        call ropyln(np,p2,p2(1+np),p2(1+2*np),lmax,np,ylwp,r2)
+      endif
+
+C ... Generate the local exchange-correlation potential
+C     On output, yl is overwritten by YL * wp
+      call vxcns2(isw,ri,nr,rwgt,np,wp,ylwp,nlm,nsp,rl,rc,lxcf,
      .lpert,focexc,focex,focec,focvxc,reps,repsx,repsc,rmu,
      .vl,fl,qs)
 
-C --- Gradient correction ---
-      if (lgrd .ne. 0 .or. lxcfun. lt. 0 ) then
-        call rx('grad corr not implemented')
-C
-C        if(lxcfun.lt.0 .and. nsp.eq.1) then
-C          nsp0=2
-C        else
-C          nsp0=nsp
-C        endif
-C
-C        call defrr(ogyl,     nlm*np*3)
-C        call ropylg(1,lmax,nlm,np,np,w(oxp),w(oyp),w(ozp),w(or2),
-C     .    w(oyl),w(ogyl))
-Cc ...   shuffle memory since r2,(xyz)p,exc,vxc no longer needed
-C        call dcopy(nlm*np*3,w(ogyl),1,w(oexc),1)
-C        ogyl = oexc
-C        call rlse(ogyl)
-C        call defrr(ogyl,     nlm*np*3)
-Cc ... get a heavy block to see whether enough space left
-Cc       call wkprnt(1)
-C        call defrr(ogrp,     nr*np*nsp0*5)
-C        call rlse(ogrp)
-C        call defrr(ogrp,     nr*np*nsp0*3)
-C        call defrr(oagrp,    nr*np*nsp0)
-C        call defrr(oggrp,    nr*np*nsp0)
-C        call defrr(owk1,     nr*nsp0)
-C        call defrr(owk2,     nr*nsp0)
-C        call defrr(oagrl,    nr*nlm*nsp0)
-C        call defrr(ovxcl,    nr*nlm*nsp0)
-C        call defrr(oexcl,    nr*nlm*nsp0)
-C
-C        if (lxcfun .lt. 0) then
-C          call defrr(orptmp, nr*np*nsp0)
-C          call defrr(orltmp, nr*nlm*nsp0)
-C          call defrr(ovltmp, nr*nlm*nsp0)
-C          if (nsp .eq. 2) then
-C            call dpcopy(w(orp),w(orptmp),1,nr*np*nsp,1.d0)
-C            call dpcopy(w(orhol),w(orltmp),1,nr*nlm*nsp,1.d0)
-C            call dpcopy(w(ovl),w(ovltmp),1,nr*nlm*nsp,1.d0)
-C          else
-C            call dpcopy(w(orp),w(orptmp),1,nr*np,0.5d0)
-C            call dpcopy(w(orp),w(orptmp+nr*np*i1mach(18)),1,nr*np,0.5d0)
-C            call dpcopy(w(orhol),w(orltmp),1,nr*nlm,0.5d0)
-C            call dpcopy(w(orhol),w(orltmp+nr*nlm*i1mach(18)),
-C     .        1,nr*nlm,.5d0)
-C            call dpcopy(w(ovl),w(ovltmp),1,nr*nlm,1d0)
-C            call dpcopy(w(ovl),w(ovltmp+nr*nlm*i1mach(18)),1,
-C     .        nr*nlm,1d0)
-C          endif
-C          call pbenls(w(orofi),a,b,nr,np,nlm,nsp0,w(orptmp),w(ogrp),
-C     .      w(oggrp),w(oagrp),w(oyl),w(ogyl),w(oylwp),w(ovxcl),w(oexcl),
-C     .      w(orwgt),wp,w(orltmp),w(oagrl),w(owk1),w(owk2),
-C     .      lxcfun,w(ovltmp),reps,rmu,w(orv),w(ors))
-C          call dpcopy(w(ovltmp),w(ovl),1,nr*nlm*nsp,1.d0)
-C          call rlse(orptmp)
-C        else if(lxcfun/4.gt.0) then
-C          call vxcnls(w(orofi),a,b,nr,np,nlm,nsp,w(orp),w(ogrp),
-C     .      w(oggrp),w(oagrp),w(oyl),w(ogyl),w(oylwp),w(ovxcl),w(oexcl),
-C     .      w(orwgt),wp,w(orhol),w(oagrl),w(owk1),w(owk2),
-C     .      lxcfun,w(ovl),reps,rmu,w(orv),w(ors))
-C        else
-C          call fexit(-1,111,' Exit -1 FPSPC: lxcfun=%i invalid',lxcfun)
-C        endif
+C --- Gradient correction to LD potential ---
+      if (lxcg .ne. 0) then
+
+        allocate (gyl(np*nlm,3))
+        call ropylg(1,lmax,nlm,np,np,p2,p2(1+np),p2(1+2*np),r2,yl,gyl)
+        allocate(grp(nr*np*nsp,3),agrp(nr*np*nsp),ggrp(nr*np*nsp))
+        allocate(rp(nr,np,nsp))
+        allocate(agrl(nr*nlm*nsp),vxcnl(nr*nlm*nsp),excnl(nr*nlm*nsp))
+        call vxcnls(ri,0,nr,np,nlm,nsp,rp,grp,ggrp,agrp,yl,gyl,ylwp,
+     .  rwgt,wp,rl,agrl,lxcg,vxcnl,excnl,vl,reps,rmu)
+        deallocate(yl,gyl,grp,agrp,ggrp,agrl,vxcnl,excnl,rp)
+
       endif
 
-C     Undo the rl scaling
+C ... Undo the rl scaling
       call vxcns3(nr,nlm,nsp,ri,rl,0)
       if (lpert) then
         call vxcns3(nr,1,1,ri,rc,0)
         call dscal(nr,fpi,rc,1)
       endif
 
+      deallocate(ylwp)
+
       end
 
       subroutine vxcns2(isw,ri,nr,rwgt,np,wp,yl,nlm,nsp,rl,rc,lxcf,
      .lpert,focexc,focex,focec,focvxc,rep,repx,repc,rmu,vl,fl,qs)
-C- Make vxc, rep and rmu in sphere.
+C- Make vxc, rep and rmu in sphere, for local XC functional.
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   isw   :1, make fl, otherwise not
+Ci   isw   :1s digit
+Ci         : 1, make fl, otherwise not
+Ci         :10s digit
+Ci         : 0 calculated LDA for density as is.
+Ci         : 1 reset points of negative density to positive density
+Ci         : 2 for any point where rho<0 or rho_isp<0, zero potential
 Ci   ri    :radial mesh points
 Ci   nr    :number of radial mesh points
 Ci   rwgt  :radial mesh weights
 Ci   np    :number of spherical mesh points
 Ci   wp    :spherical mesh weights
-Ci   yl    :YL(rp)
-Ci         :yl is OVERWRITTEN by wl * wp on output
 Ci   nlm   :L-cutoff for density expansion
 Ci   nsp   :2 for spin-polarized case, otherwise 1
 Ci   rl    :charge density
 Ci   rc    :l=0 charge density*4*pi*ri**2 to be added in pert. theory
-Ci   lxcf  :local exchange-correlation functional marker (evxcv.f)
+Ci   lxcf  :specifies exchange-correlation functional
+Ci         :  1    Ceperly-Alder
+Ci         :  2    Barth-Hedin (ASW fit)
+Ci         :  3,4  LD part of PW91 and PBE
 Ci   lpert :Make perturbation integrals focexc and focvxc
+Cio Inputs/Outputs
+Cio  yl    :Spherical harmonics YL(rp)
+Cio        :yl is OVERWRITTEN by YL * wp on output
 Co Outputs
 Co   focexc:(lpert only): integral rc * vxc
 Co   focex :(lpert only): integral rc * vx
@@ -219,7 +204,7 @@ Co   rmu   :integral rl*vxc
 Co   vl    :local exchange-correlation potential added to vl
 Co   fl    :fl(:,:,1:nsp) = vxc by L
 Co         :fl(:,:,1+nsp) = exc by L
-Co         :fl is only made if isw is nonzero
+Co         :fl is only made if 1s digit isw is nonzero
 Co   qs    :spin-resolved charge
 Cl Local variables
 Cl   rp    :list of points on the spherical mesh
@@ -235,6 +220,8 @@ Cr   spin polarized.  Thus to calc. vxc(rho+drho, m+dm) - vxc(rho,m)
 Cr   we use dm=0 and thus drho1 = drho2 = drho/2; thus
 Cr     dvxc = lim_drho->0  vxc(rho+drho,rho1+drho/2) - vxc(rho,rho1)
 Cu Updates
+Cu   20 Nov 09 New 20s digit for isw
+Cu   02 Apr 09 New option (10's digit isw)
 Cu   14 Jun 02 repx and repc (T. Miyake)
 Cu    8 Feb 02 focex and focec (T. Miyake)
 Cu   13 Jun 00 spin polarized
@@ -249,52 +236,68 @@ C ... Passed parameters
      .rmu(2),rwgt(nr),focexc(2),focex(2),focec(2),focvxc(2),
      .rl(nr,nlm,nsp),vl(nr,nlm,nsp),fl(nr,nlm,nsp+1),rc(nr)
 C ... Local parameters
-      integer ilm,ip,ipr,ir,i,n1
+      integer ilm,ip,ipr,ir,i,n1,ineg(2),isw1
       double precision weight,suml(0:40),fac,dmach,alfa,sum(2)
       double precision rhot,f1,f2,dfdr,dvdr,f
-      double precision qs(2)
-#if F90
+      double precision qs(2),tol
       real(8), allocatable :: rp(:,:),rps(:,:,:),exc(:,:),
      .excx(:,:),excc(:,:)
-      real(8), allocatable :: vxc(:,:,:),vxcx(:,:,:),
-     .vxcc(:,:,:),vxc2(:,:,:),vxc2x(:,:,:),vxc2c(:,:,:)
-#elif AUTO_ARRAY
-      double precision rp(nr,np),rps(nr,np,nsp),exc(nr,np),
-     .excx(nr,np),excc(nr,np)
-      double precision vxc(nr,np,nsp),vxcx(nr,np,nsp),vxcc(nr,np,nsp),
-     .vxc2(nr,np,nsp),vxc2x(nr,np,nsp),vxc2c(nr,np,nsp)
-#endif
-
-#if ! (F90 | AUTO_ARRAY)
-      call rx('vxcnsp only implemented for automatic arrays')
-#endif
-
-#if F90
+      real(8), allocatable :: vxc(:,:,:),vx(:,:,:),
+     .vc(:,:,:),vxc2(:,:,:),vx2(:,:,:),vc2(:,:,:)
       allocate (rp(nr,np),rps(nr,np,nsp),exc(nr,np),
      .excx(nr,np),excc(nr,np))
-      allocate (vxc(nr,np,nsp),vxcx(nr,np,nsp),vxcc(nr,np,nsp),
-     .vxc2(nr,np,nsp),vxc2x(nr,np,nsp),vxc2c(nr,np,nsp))
-#endif
+      allocate (vxc(nr,np,nsp),vx(nr,np,nsp),vc(nr,np,nsp),
+     .vxc2(nr,np,nsp),vx2(nr,np,nsp),vc2(nr,np,nsp))
 
 C     stdo = lgunit(1)
       call getpr(ipr)
+
+C     'small' density
+      tol = 1d-15
+      isw1 = mod(isw/10,10)
 
 C     for numerical differentiation
       fac = dmach(1)**(1d0/3d0)
       alfa = 2d0/3d0
       n1 = nr*np
-c     call prrmsh('rl',rl,rl,nr,nr,nlm*2)
+C     call prrmsh('rl',rl,rl,nr,nr,nlm*2)
 
 C --- Generate density point-wise through sphere ---
       call dpzero(rp,n1)
+      ineg(1) = 0
+      ineg(2) = 0
       do  i = 1, nsp
         call dgemm('N','T',nr,np,nlm,1d0,rl(1,1,i),nr,yl,np,0d0,
      .  rps(1,1,i),nr)
+
+C   ... Counts number of points with negative density; reset to pos.
+        if (isw1 .eq. 1) then
+          do  ip = 1, np
+            do  ir = 1, nr
+              if (rps(ir,ip,i) .lt. 0d0) then
+                ineg(i) = ineg(i) + 1
+                rps(ir,ip,i) = tol
+              endif
+            enddo
+          enddo
+        endif
+
         call daxpy(n1,1d0,rps(1,1,i),1,rp,1)
       enddo
 
+      if (ineg(1)+ineg(2) .ne. 0) then
+        call info5(5,0,0,' vxcns2 (warning):  negative density,'
+     .  //' %i points %?#n==2#(spin 1) %i points (spin 2)##',
+     .  ineg(1),nsp,ineg(2),0,0)
+      endif
+
 C --- Perturbation treatment: df/dr in vxc2 ---
       if (lpert) then
+
+C --- Stop if GGA ---
+        if (lxcf .gt. 2)
+     .  call rx('vxcnsp: Perturbation treatment'//
+     .  ' is not implemented for GGA')
 
 C       Add rp*fac/2 into rp+, rp- and fac*rp into rp
         if (nsp .eq. 2) then
@@ -306,7 +309,7 @@ C       Add rp*fac/2 into rp+, rp- and fac*rp into rp
 C       Exchange potential at rp+drho
         do  i = 1, nsp
           call evxcv(rp,rps(1,1,i),n1,1,lxcf,
-     .    exc,excx,excc,vxc2(1,1,i),vxc2x(1,1,i),vxc2c(1,1,i))
+     .    exc,excx,excc,vxc2(1,1,i),vx2(1,1,i),vc2(1,1,i))
         enddo
 C       Restore rp,rps; also add -drho to rp and -drho/2 to rps
         call dscal(n1,1/(1+fac),rp,1)
@@ -319,7 +322,7 @@ C       Restore rp,rps; also add -drho to rp and -drho/2 to rps
 C       Exchange potential at rp-drho
         do  i = 1, nsp
           call evxcv(rp,rps(1,1,i),n1,1,lxcf,
-     .    exc,excx,excc,vxc(1,1,i),vxcx(1,1,i),vxcc(1,1,i))
+     .    exc,excx,excc,vxc(1,1,i),vx(1,1,i),vc(1,1,i))
         enddo
 C       Restore rp,rps
         call dscal(n1,1/(1-fac),rp,1)
@@ -350,12 +353,28 @@ C       Restore rp,rps
       endif
 
 C --- vxc, exc for unperturbed density ---
+C     print *, '!!'; lxcf=1
       if (lxcf .gt. 2) then
-        call evxcp(rp,rps(1,1,2),nr*np,nsp,lxcf,exc,vxc,vxc(1,1,2))
+        call evxcp(rps,rps(1,1,nsp),n1,nsp,lxcf,excx,excc,exc,
+     .  vx(1,1,1),vx(1,1,2),vc(1,1,1),vc(1,1,2),
+     .  vxc,vxc(1,1,nsp))
       else
         do  i = 1, nsp
           call evxcv(rp,rps(1,1,i),n1,nsp,lxcf,
-     .    exc,excx,excc,vxc(1,1,i),vxcx(1,1,i),vxcc(1,1,i))
+     .    exc,excx,excc,vxc(1,1,i),vx(1,1,i),vc(1,1,i))
+        enddo
+      endif
+      if (isw1 .eq. 2) then
+        do  i = 1, nsp
+          do  ip = 1, np
+            do  ir = 1, nr
+              if (rp(ir,ip) .le. 0 .or. rps(ir,ip,i) .le. 0) then
+                vxc(ir,ip,i) = 0
+                vx(ir,ip,i) = 0
+                vc(ir,ip,i) = 0
+              endif
+            enddo
+          enddo
         enddo
       endif
 
@@ -385,7 +404,7 @@ C     .         '  total:         ',f11.6,'      ',f11.6,'      ',f10.6)
 C   24 continue
 C      if (rpneg .lt. 0 .and. ipr .ge. 20) write(stdo,727) rpneg
 C  727 format(' vxcnsp (warning): negative rho: min val = ',1pe10.2)
-      call vxcns4(ri,nr,rwgt,np,wp,nsp,rps,exc,excx,excc,vxc,
+      call vxcns4(0,ri,nr,rwgt,np,wp,nsp,rps,exc,excx,excc,vxc,
      .rep,repx,repc,rmu,qs)
 
 C --- Add perturbation to vxc ---
@@ -402,16 +421,26 @@ C     Integrals focexc = int rc vxc, focvxc= rc * dvxc/dr * rhot
         do  i  = 1, nsp
           do  ip = 1, np
             do  ir = 1, nr
-              if (rps(ir,ip,i) .gt. 0) then
-                rhot = rp(ir,ip)
+              rhot = rp(ir,ip)
+              if (rhot .le. 0 .or. rps(ir,ip,i) .le. 0) then
+                vxc2(ir,ip,i) = 0
+              endif
+C             Debugging
+C              if (rps(ir,ip,i) .lt. 0 .or. rhot .lt. 0) then
+C                if (vxc(ir,ip,i) .ne. 0 .or. vxc2(ir,ip,i) .ne. 0) then
+C                  print *, vxc(ir,ip,i), vxc2(ir,ip,i)
+C                  stop 'oops'
+C                endif
+C              endif
+              if (rps(ir,ip,i) .gt. 0 .and. rhot .gt. 0) then
                 f  = vxc(ir,ip,i)*rhot**alfa
                 dfdr = vxc2(ir,ip,i)
                 dvdr = (dfdr - alfa*f/rhot) / rhot**alfa
                 weight = (ri(ir)**2*rwgt(ir))*wp(ip) * rc(ir)
                 focvxc(i) = focvxc(i) + weight*dvdr*rps(ir,ip,i)
                 focexc(i) = focexc(i) + weight*vxc(ir,ip,i)/nsp
-                focex(i)  = focex(i)  + weight*vxcx(ir,ip,i)/nsp
-                focec(i)  = focec(i)  + weight*vxcc(ir,ip,i)/nsp
+                focex(i)  = focex(i)  + weight*vx(ir,ip,i)/nsp
+                focec(i)  = focec(i)  + weight*vc(ir,ip,i)/nsp
                 vxc(ir,ip,i) = vxc(ir,ip,i) + dvdr*rc(ir)
               endif
             enddo
@@ -422,17 +451,15 @@ C     Integrals focexc = int rc vxc, focvxc= rc * dvxc/dr * rhot
 C --- Scale yl by wp for fast multiplication --- ---
       do  12  ilm = 1, nlm
         do  12  ip = 1, np
-          yl(ip,ilm) = yl(ip,ilm)*wp(ip)
-   12 continue
+   12 yl(ip,ilm) = yl(ip,ilm)*wp(ip)
 
 C --- Add Yl-projection of vxc into vl ---
       do  30  i = 1, nsp
-        call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,yl,np,1d0,
-     .  vl(1,1,i),nr)
-   30 continue
+   30 call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,yl,np,1d0,
+     .vl(1,1,i),nr)
 
 C --- Optionally make l-resolved vxc_L,exc_L ---
-      if (isw .eq. 1) then
+      if (mod(isw,10) .eq. 1) then
         do  i = 1, nsp
           call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,yl,np,0d0,
      .    fl(1,1,i),nr)
@@ -458,14 +485,10 @@ C  341 format(' rho*vxc by l: ',f13.6,4f10.6:/(18x,4f10.6))
 C  342 format('       spin 2: ',f13.6,4f10.6:/(18x,4f10.6))
 C   42 continue
       endif
-
-#if F90
       deallocate (rp,rps,exc,excx,excc)
-      deallocate (vxc,vxcx,vxcc,vxc2,vxc2x,vxc2c)
-#endif
-
-
+      deallocate (vxc,vx,vc,vxc2,vx2,vc2)
       end
+
       subroutine vxcns3(nr,nlm,nsp,ri,rl,isgn)
 C- Scales rho by r**2, or undoes scaling
 C ----------------------------------------------------------------------
@@ -491,28 +514,26 @@ C --- Scale rho by 1/r**2 ---
           do  10  ilm = 1, nlm
             rl(1,ilm,i) = 0d0
             do  10  ir = 2, nr
-              rl(ir,ilm,i) = rl(ir,ilm,i)/ri(ir)**2
-   10   continue
+   10   rl(ir,ilm,i) = rl(ir,ilm,i)/ri(ir)**2
 C  ...  Extrapolate rho to origin
         do  20  i = 1, nsp
           rho2 = rl(2,1,i)
           rho3 = rl(3,1,i)
-          rl(1,1,i) = (rho2*ri(3)-rho3*ri(2))/(ri(3)-ri(2))
-   20   continue
+   20   rl(1,1,i) = (rho2*ri(3)-rho3*ri(2))/(ri(3)-ri(2))
       else
         do  110  i = 1, nsp
           do  110  ilm = 1, nlm
             do  110  ir = 1, nr
-              rl(ir,ilm,i) = rl(ir,ilm,i)*ri(ir)**2
-  110   continue
+  110   rl(ir,ilm,i) = rl(ir,ilm,i)*ri(ir)**2
       endif
       end
 
-      subroutine vxcns4(ri,nr,rwgt,np,wp,nsp,rp,exc,excx,excc,vxc,
+      subroutine vxcns4(isw,ri,nr,rwgt,np,wp,nsp,rp,exc,excx,excc,vxc,
      .rep,repx,repc,rmu,qs)
 C- Integrals of vxc, reps and rmu in sphere.
 C ----------------------------------------------------------------------
 Ci Inputs
+Ci   isw
 Ci   ri    :radial mesh points
 Ci   nr    :number of radial mesh points
 Ci   rwgt  :radial mesh weights
@@ -539,16 +560,17 @@ Cu   12 Mar 04 created from vxcns2
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer nr,nsp,np
+      integer nr,nsp,np,isw
       double precision ri(1),wp(np),rep(2),repx(2),repc(2),rmu(2),
      .rwgt(nr),rp(nr,np,nsp),exc(nr,np),excx(nr,np),excc(nr,np),
      .vxc(nr,np,nsp)
 C ... Local parameters
-      integer ip,ipr,ir,i,stdo,lgunit
+      integer ip,ipr,ir,i,stdo,lgunit,isw1
       double precision weight,rpneg,qs(2)
 
       stdo = lgunit(1)
       call getpr(ipr)
+      isw1 = mod(isw/10,10)
 
 C --- Integrals reps, rmu ---
       rpneg = 0
@@ -558,16 +580,32 @@ C --- Integrals reps, rmu ---
         repx(i) = 0d0
         repc(i) = 0d0
         rmu(i) = 0d0
-        do  22  ip = 1, np
-          do  22  ir = 1, nr
+        do  ip = 1, np
+          do  ir = 1, nr
             rpneg = min(rpneg,rp(ir,ip,i))
             weight = (ri(ir)**2*rwgt(ir))*wp(ip)
             qs(i)  = qs(i)  + rp(ir,ip,i)*weight
+            if (isw1 .eq. 2) then
+              if (rp(ir,ip,1)+rp(ir,ip,nsp).le.0 .or. rp(ir,ip,i).lt.0) then
+                exc(ir,ip) = 0
+                excx(ir,ip) = 0
+                excc(ir,ip) = 0
+                vxc(ir,ip,i) = 0
+              endif
+            endif
+C         Debugging
+C          if (rp(ir,ip,1) .lt. 0 .or. rp(ir,ip,nsp) .lt. 0) then
+C            if (vxc(ir,ip,i) .ne. 0) then
+C              print *, vxc(ir,ip,i)
+C              stop 'oops'
+C            endif
+C          endif
             rep(i) = rep(i) + exc(ir,ip)*rp(ir,ip,i)*weight
             repx(i) = repx(i) + excx(ir,ip)*rp(ir,ip,i)*weight
             repc(i) = repc(i) + excc(ir,ip)*rp(ir,ip,i)*weight
             rmu(i) = rmu(i) + vxc(ir,ip,i)*rp(ir,ip,i)*weight
-   22   continue
+          enddo
+        enddo
         if (ipr.ge.30 .and. i.eq.1) write(stdo,725) rmu(i),rep(i),qs(i)
         if (ipr.ge.30 .and. i.eq.2) write(stdo,726) rmu(i),rep(i),qs(i),
      .  rmu(1)+rmu(2),rep(1)+rep(2),qs(1)+qs(2)
@@ -575,7 +613,7 @@ C --- Integrals reps, rmu ---
   726   format(' spin 2:         ',f11.6,'      ',f11.6,'      ',f10.6/
      .  '  total:         ',f11.6,'      ',f11.6,'      ',f10.6)
    24 continue
-      if (rpneg .lt. 0 .and. ipr .ge. 20) write(stdo,727) rpneg
+      if (rpneg .lt. 0 .and. ipr .ge. 10) write(stdo,727) rpneg
   727 format(' vxcnsp (warning): negative rho: min val = ',1pe10.2)
 
       end
@@ -634,8 +672,9 @@ C ... Local parameters
      .    write(stdo,341) strn,sum(isp),(suml(l,isp),l = 0,lmax)
           if (isp .eq. 2)
      .    write(stdo,342) sum(isp),(suml(l,isp),l = 0,lmax)
-  341     format(1x,a8,f13.6,' ... by l: ',f12.6,255f10.6)
-  342     format('  spin 2:',f13.6,' ... by l: ',f12.6,255f10.6)
+  341     format(1x,a8,f13.6,' ... by l: ',f12.6,4f10.6:/(18x,4f10.6))
+  342     format('  spin 2:',f13.6,' ... by l: ',f12.6,
+     .    4f10.6:/(18x,4f10.6))
         endif
 
       enddo

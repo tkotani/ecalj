@@ -1,4 +1,4 @@
-      subroutine vxcgga(n,nsp,rhop,rhom,grhop,grhom,ggrhop,ggrhom,
+      subroutine vxcgga(lxcg,n,nsp,rhop,rhom,grhop,grhom,ggrhop,ggrhom,
      .grho,grpgrm,grggr,grggrp,grggrm,vxc1,vxc2,exc)
 C- PW91 and PBE gradient corrections to exc and vxc for a set of points
 C ----------------------------------------------------------------------
@@ -7,8 +7,8 @@ Ci   n     :number of points
 Ci   nsp   :2 for spin-polarized case, otherwise 1
 Ci   rhop  :spin up density if nsp=2; otherwise total density
 Ci   rhom  :spin down density if nsp=2; otherwise not used
-Ci   grhop :|grad rhop|
-Ci   grhom :|grad rhom|
+Ci   grhop :|grad rhop| or |grad rho| if nsp=1
+Ci   grhom :|grad rhom| (nsp=2)
 Ci   ggrhop:Laplacian of rhop
 Ci   ggrhom:Laplacian of rhom
 Ci   grho  :|grad total rho| if nsp=2; otherwise not used
@@ -23,18 +23,17 @@ Co    exc  :GGA contr. to exc
 Cl Local variables
 Cl   symbols match easypbe
 Cb Bugs
-Cb   lxcf should be passed, not treated as a global variable.
 Cr Remarks
 Cu Updates
 C-----------------------------------------------------------------------
 C     implicit none
 C Passed parameters
-      integer nsp,n
+      integer nsp,n,lxcg
       double precision rhop(1),rhom(1),grhop(1),grhom(1),grho(1),
      .ggrhop(1),ggrhom(1),grggr(1),grggrp(1),grggrm(1),grpgrm(1),
      .vxc1(1),vxc2(1),exc(1)
 C Local Variables
-      integer i,lxcf,lxcg,nglob
+      integer i,isw
       double precision up,dn,agrup,delgrup,uplap,agrdn,delgrdn,dnlap,
      .agr,delgr
       double precision exlsd,vxuplsd,vxdnlsd,eclsd,
@@ -42,11 +41,9 @@ C Local Variables
      .ecpw91,vcuppw91,vcdnpw91,expbe,vxuppbe,
      .vxdnpbe,ecpbe,vcuppbe,vcdnpbe
 
-      lxcf = mod(nglob('lxcf'),10)
-      lxcg = nglob('lxcf')/10
-      if (lxcf .ne. 3 .and. lxcf .ne. 4) call rx('evxcp: bad lxcf')
+      if (lxcg .ne. 3 .and. lxcg .ne. 4) call rx('evxcp: bad lxcg')
 
-      do 1 i = 1, n
+      do  i = 1, n
         if (nsp .eq. 1) then
           up = rhop(i) / 2
           dn = up
@@ -72,6 +69,7 @@ C Local Variables
         endif
         call easypbe(up,agrup,delgrup,uplap,
      .  dn,agrdn,delgrdn,dnlap,agr,delgr,1,1,
+     .  isw(lxcg.eq.4),
      .  exlsd,vxuplsd,vxdnlsd,eclsd,vcuplsd,vcdnlsd,
      .  expw91,vxuppw91,vxdnpw91,ecpw91,vcuppw91,vcdnpw91,
      .  expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe)
@@ -88,7 +86,7 @@ C Local Variables
           if (nsp .eq. 2) vxc2(i) = vxc2(i) +
      .    (vxdnpbe + vcdnpbe - vxdnlsd - vcdnlsd) * 2d0
         endif
-    1 continue
+      enddo
       end
 
 

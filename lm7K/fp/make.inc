@@ -123,4 +123,8 @@ fp_list=\
 	pwmat.o \
 	sugw.o \
 	smshft.o \
-	m_events.o
+	m_events.o \
+	grfmsh.o \
+	vxc0gc.o \
+	vxcnlm.o \
+	vxnlcc.o

@@ -1,21 +1,22 @@
       subroutine easypbe(up,agrup,delgrup,uplap,dn,agrdn,delgrdn,dnlap,
-     1agr,delgr,lcor,lpot,
-     1exlsd,vxuplsd,vxdnlsd,eclsd,vcuplsd,vcdnlsd,
-     1expw91,vxuppw91,vxdnpw91,ecpw91,vcuppw91,vcdnpw91,
-     1expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe)
+     1           agr,delgr,lcor,lpot,lbecke,
+     1           exlsd,vxuplsd,vxdnlsd,eclsd,vcuplsd,vcdnlsd,
+     1           expw91,vxuppw91,vxdnpw91,ecpw91,vcuppw91,vcdnpw91,
+     1           expbe,vxuppbe,vxdnpbe,ecpbe,vcuppbe,vcdnpbe)
 c----------------------------------------------------------------------
 c----------------------------------------------------------------------
 c EASYPBE is a driver for the PBE subroutines, using simple inputs
 c K. Burke, May 14, 1996.
 c inputs: up=up density
 c       : agrup=|grad up|
-c       : delgrup=(grad up).(grad |grad up|)
+c       : delgrup=(grad up).(grad |grad up|) 
 c       : uplap=grad^2 up=Laplacian of up
 c       : dn,agrdn,delgrdn,dnlap=corresponding down quantities
 c       : agr=|grad rho|
-c       : delgr=(grad rho).(grad |grad rho|)
+c       : delgr=(grad rho).(grad |grad rho|) 
 c       : lcor=flag to do correlation(=0=>don't)
 c       : lpot=flag to do potential(=0=>don't)
+c       : lbecke=flag to return Becke exchange instead of PW91 (MvS)
 c outputs: exlsd=LSD exchange energy density, so that
 c               ExLSD=int d^3r rho(r) exlsd(r)
 c        : vxuplsd=up LSD exchange potential
@@ -25,7 +26,8 @@ c        : vxcuplsd=up LSD exchange-correlation potential
 c        : vxcdnlsd=down LSD exchange-correlation potential
 c        : expw91,vxuppw91,vxdnpw91,ecpw91,etc.=PW91 quantities
 c        : expbe,vxuppbe,vxdnpbe,ecpbe,etc.=PBE quantities
-Cr DLN and ATP have made a few trivial changes (see below)
+Cr DLN,ATP,MvS have made a few trivial changes (see below)
+Cr NB: in the absence of gradient corrections, LSD=PW91=PBE
 c----------------------------------------------------------------------
 c----------------------------------------------------------------------
 c needed constants:
@@ -41,7 +43,7 @@ c----------------------------------------------------------------------
 c PBE exchange
 c use  Ex[up,dn]=0.5*(Ex[2*up]+Ex[2*dn]) (i.e., exact spin-scaling)
 c do up exchange
-c fk=local Fermi wavevector for 2*up=(3 pi^2 (2up))^(1/3)
+c fk=local Fermi wavevector for 2*up=(3 pi^2 (2up))^(1/3) 
 c s=dimensionless density gradient=|grad rho|/ (2*fk*rho)_(rho=2*up)
 c u=delgrad/(rho^2*(2*fk)**3)_(rho=2*up)
 c v=Laplacian/(rho*(2*fk)**2)_(rho=2*up)
@@ -53,7 +55,7 @@ c v=Laplacian/(rho*(2*fk)**2)_(rho=2*up)
         u=4.d0*delgrup/(rho2*rho2*(2.d0*fk)**3)
         v=2.d0*uplap/(rho2*(2.d0*fk)**2)
         call exchpbe(rho2,s,u,v,0,lpot,exuplsd,vxuplsd)
-        call exchpw91(rho2,s,u,v,exuppw91,vxuppw91)
+        call exchpw91(lbecke,rho2,s,u,v,exuppw91,vxuppw91)
         call exchpbe(rho2,s,u,v,1,lpot,exuppbe,vxuppbe)
       else
         exuplsd=0.d0
@@ -71,7 +73,7 @@ c repeat for down
         u=4.d0*delgrdn/(rho2*rho2*(2.d0*fk)**3)
         v=2.d0*dnlap/(rho2*(2.d0*fk)**2)
         call exchpbe(rho2,s,u,v,0,lpot,exdnlsd,vxdnlsd)
-        call exchpw91(rho2,s,u,v,exdnpw91,vxdnpw91)
+        call exchpw91(lbecke,rho2,s,u,v,exdnpw91,vxdnpw91)
         call exchpbe(rho2,s,u,v,1,lpot,exdnpbe,vxdnpbe)
       else
         exdnlsd=0.d0
@@ -81,7 +83,7 @@ c repeat for down
         exdnpbe=0.d0
         vxdnpbe=0.d0
       endif
-10    continue
+10    continue 
 c construct total density and contribution to ex
       if(up.gt.eps.and.dn.gt.eps)then
         rho=up+dn
@@ -115,7 +117,8 @@ c dvcup=gradient correction to up correlation potential
 c dvcdn=gradient correction to down correlation potential
 C atp added this line ..
       rho = up + dn
-      if(rho.lt.eps) then
+C mvs added check that both up and dn must be > eps
+      if(rho.lt.eps .or. up.lt.eps .or. dn.lt.eps) then
         eclsd = 0
         vcuplsd = 0
         vcdnlsd = 0
@@ -139,7 +142,7 @@ C atp added this line ..
       vv=rholap/(rho*twoksg**2)
       ww=(agrup**2-agrdn**2-zet*agr**2)/(rho*rho*twoksg**2)
       call CORPBE(RS,ZET,T,UU,VV,WW,1,lpot,ec,vcup,vcdn,
-     1H,DVCUP,DVCDN)
+     1                  H,DVCUP,DVCDN)
       eclsd=ec
       ecpbe=ec+h
       vcuplsd=vcup
@@ -184,7 +187,7 @@ c       e_x[unif]=ax*rho^(4/3)  [LDA]
 c ax = -0.75*(3/pi)^(1/3)
 c       e_x[PBE]=e_x[unif]*FxPBE(s)
 c       FxPBE(s)=1+uk-uk/(1+ul*s*s)                 [a](13)
-c uk, ul defined after [a](13)
+c uk, ul defined after [a](13) 
 c----------------------------------------------------------------------
 c----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -227,7 +230,7 @@ c  Fss=d Fs/ds
       Fss=-4.d0*ul*S*Fs/P0
 c----------------------------------------------------------------------
 c----------------------------------------------------------------------
-c calculate potential from [b](24)
+c calculate potential from [b](24) 
       VX = exunif*(THRD4*FxPBE-(U-THRD4*S2*s)*FSS-V*FS)
       RETURN
       END
@@ -235,7 +238,7 @@ c----------------------------------------------------------------------
 c######################################################################
 c----------------------------------------------------------------------
       SUBROUTINE CORPBE(RS,ZET,T,UU,VV,WW,lgga,lpot,ec,vcup,vcdn,
-     1H,DVCUP,DVCDN)
+     1                  H,DVCUP,DVCDN)
 c----------------------------------------------------------------------
 c  Official PBE correlation code. K. Burke, May 14, 1996.
 C  INPUT: RS=SEITZ RADIUS=(3/4pi rho)^(1/3)
@@ -256,7 +259,7 @@ c        : dvcdn=nonlocal correction to vcdn
 c----------------------------------------------------------------------
 c----------------------------------------------------------------------
 c References:
-c [a] J.P.~Perdew, K.~Burke, and M.~Ernzerhof,
+c [a] J.P.~Perdew, K.~Burke, and M.~Ernzerhof, 
 c     {\sl Generalized gradient approximation made simple}, sub.
 c     to Phys. Rev.Lett. May 1996.
 c [b] J. P. Perdew, K. Burke, and Y. Wang, {\sl Real-space cutoff
@@ -273,7 +276,7 @@ c      FZZ=f''(0)= 8/(9*GAM)
 c numbers for construction of PBE
 c      gamma=(1-log(2))/pi^2
 c      bet=coefficient in gradient expansion for correlation, [a](4).
-c      eta=small number to stop d phi/ dzeta from blowing up at
+c      eta=small number to stop d phi/ dzeta from blowing up at 
 c          |zeta|=1.
       parameter(thrd=1.d0/3.d0,thrdm=-thrd,thrd2=2.d0*thrd)
       parameter(sixthm=thrdm/2.d0)
@@ -296,11 +299,11 @@ c F=spin-scaling factor from [c](9).
 c construct ec, using [c](8)
       rtrs=dsqrt(rs)
       CALL gcor2(0.0310907D0,0.21370D0,7.5957D0,3.5876D0,1.6382D0,
-     10.49294D0,rtrs,EU,EURS)
+     1    0.49294D0,rtrs,EU,EURS)
       CALL gcor2(0.01554535D0,0.20548D0,14.1189D0,6.1977D0,3.3662D0,
-     10.62517D0,rtRS,EP,EPRS)
+     1    0.62517D0,rtRS,EP,EPRS)
       CALL gcor2(0.0168869D0,0.11125D0,10.357D0,3.6231D0,0.88026D0,
-     10.49671D0,rtRS,ALFM,ALFRSM)
+     1    0.49671D0,rtRS,ALFM,ALFRSM)
       ALFC = -ALFM
       Z4 = ZET**4
       F=((1.D0+ZET)**THRD4+(1.D0-ZET)**THRD4-2.D0)/GAM
@@ -314,7 +317,7 @@ c FZ = dF/dzeta [c](A4)
       ECRS = EURS*(1.D0-F*Z4)+EPRS*F*Z4-ALFRSM*F*(1.D0-Z4)/FZZ
       FZ = THRD4*((1.D0+ZET)**THRD-(1.D0-ZET)**THRD)/GAM
       ECZET = 4.D0*(ZET**3)*F*(EP-EU+ALFM/FZZ)+FZ*(Z4*EP-Z4*EU
-     1-(1.D0-Z4)*ALFM/FZZ)
+     1        -(1.D0-Z4)*ALFM/FZZ)
       COMM = EC -RS*ECRS/3.D0-ZET*ECZET
       VCUP = COMM + ECZET
       VCDN = COMM - ECZET
@@ -391,8 +394,9 @@ c K. Burke, May 11, 1996.
 c----------------------------------------------------------------------
 c######################################################################
 c----------------------------------------------------------------------
-      SUBROUTINE EXCHPW91(D,S,U,V,EX,VX)
+      SUBROUTINE EXCHPW91(lbecke,D,S,U,V,EX,VX)
 C  GGA91 EXCHANGE FOR A SPIN-UNPOLARIZED ELECTRONIC SYSTEM
+C  INPUT lbecke : use Becke exchange instead of PW91
 C  INPUT D : DENSITY
 C  INPUT S:  ABS(GRAD D)/(2*KF*D)
 C  INPUT U:  (GRAD D)*GRAD(ABS(GRAD D))/(D**2 * (2*KF)**3)
@@ -415,8 +419,7 @@ C      parameter(thrd=0.333333333333D0,thrd4=1.33333333333D0)
       parameter(thrd=1.d0/3.d0,thrd4=4.d0/3.d0)
       data a3/0.15084D0/ b1/0.004d0/
 C for Becke exchange, set a3=b1=0
-      lxcg2 = nglob('lxcf')/10
-      if (lxcg2 .eq. 4) then
+      if (lbecke .eq. 1) then
         a3 = 0d0
         b1 = 0d0
       endif
@@ -462,11 +465,11 @@ C  OUTPUT: CORRELATION CONTRIBUTION (ALFC) TO THE SPIN STIFFNESS
       parameter(thrd=0.333333333333D0,thrd4=1.333333333333D0)
       F = ((1.D0+ZET)**THRD4+(1.D0-ZET)**THRD4-2.D0)/GAM
       CALL GCOR(0.0310907D0,0.21370D0,7.5957D0,3.5876D0,1.6382D0,
-     10.49294D0,1.00D0,RS,EU,EURS)
+     1    0.49294D0,1.00D0,RS,EU,EURS)
       CALL GCOR(0.01554535D0,0.20548D0,14.1189D0,6.1977D0,3.3662D0,
-     10.62517D0,1.00D0,RS,EP,EPRS)
+     1    0.62517D0,1.00D0,RS,EP,EPRS)
       CALL GCOR(0.0168869D0,0.11125D0,10.357D0,3.6231D0,0.88026D0,
-     10.49671D0,1.00D0,RS,ALFM,ALFRSM)
+     1    0.49671D0,1.00D0,RS,ALFM,ALFRSM)
 C  ALFM IS MINUS THE SPIN STIFFNESS ALFC
       ALFC = -ALFM
       Z4 = ZET**4
@@ -475,7 +478,7 @@ C  ENERGY DONE. NOW THE POTENTIAL:
       ECRS = EURS*(1.D0-F*Z4)+EPRS*F*Z4-ALFRSM*F*(1.D0-Z4)/FZZ
       FZ = THRD4*((1.D0+ZET)**THRD-(1.D0-ZET)**THRD)/GAM
       ECZET = 4.D0*(ZET**3)*F*(EP-EU+ALFM/FZZ)+FZ*(Z4*EP-Z4*EU
-     1-(1.D0-Z4)*ALFM/FZZ)
+     1        -(1.D0-Z4)*ALFM/FZZ)
       COMM = EC -RS*ECRS/3.D0-ZET*ECZET
       VCUP = COMM + ECZET
       VCDN = COMM - ECZET
@@ -503,8 +506,8 @@ c----------------------------------------------------------------------
 c######################################################################
 c----------------------------------------------------------------------
       SUBROUTINE CORpw91(RS,ZET,G,EC,ECRS,ECZET,T,UU,VV,WW,H,
-     1DVCUP,DVCDN)
-C  pw91 CORRELATION, modified by K. Burke to put all arguments
+     1                   DVCUP,DVCDN)
+C  pw91 CORRELATION, modified by K. Burke to put all arguments 
 c  as variables in calling statement, rather than in common block
 c  May, 1996.
 C  INPUT RS: SEITZ RADIUS
