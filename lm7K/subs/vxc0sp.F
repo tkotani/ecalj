@@ -26,16 +26,16 @@ Cr Remarks
 Cu Updates
 Cu   18 Jun 04 lxcfun is no longer used and should be deleted from cmd-line
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nr,nsp,nrmx
+      integer nr,nsp,nrmx,stdo
       double precision a,b,rofi(nr),v(nr,nsp),rho(nr,nsp),
      .rep(nsp),rmu(nsp),rho0(2),qs(2),exrmx
 C ... Local parameters
       parameter (nrmx=1501)
       double precision pi,rho2,rho3,
      .ub4pi,wgt,exc(nrmx),vxc(nrmx,2),rp(nrmx,2),repl(2),rmul(2)
-      integer:: lx , lxcf2 , lxcg2 , i , ir , isp , iprint , nglob
+      integer:: lx , lxcf , lxcg , i , ir , isp , iprint , nglob, lxcfun
       real(8) ,allocatable :: grh_rv(:)
       real(8) ,allocatable :: agrh_rv(:)
       real(8) ,allocatable :: ggrh_rv(:)
@@ -48,12 +48,20 @@ C ... Local parameters
 
       character *2 st
 C ... Heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 
-      lx    = nglob('lxcf')
-      lxcf2 = mod(lx,10)
-      lxcg2 = lx/10
+      stdo = nglob('stdo')
+
+c old version before lm72
+c      lx    = nglob('lxcf')
+c      lxcf2 = mod(lx,10)
+c      lxcg = lx/10
+clm72
+      lxcfun = nglob('lxcf')
+      lxcf = mod(lxcfun,100)
+      lxcg = lxcfun/100
+
       if (nr .gt. nrmx) call rx('vxc0sp: nr > nrmx')
       pi = 4d0*datan(1d0)
       ub4pi = 1d0/(4d0*pi)
@@ -71,7 +79,7 @@ C --- Extrapolate rho to origin ---
         rho3 = rho(3,isp)/rofi(3)**2
         rho0(isp) = ub4pi*(rho2*rofi(3)-rho3*rofi(2))/(rofi(3)-rofi(2))
    10 continue
-      print *,'end of do 10'
+c      print *,'end of do 10'
 
 C --- Make true rho ---
       do  20  isp = 1, nsp
@@ -79,17 +87,17 @@ C --- Make true rho ---
         do  20  ir = 2, nr
           rp(ir,isp) = rho(ir,isp)*ub4pi/rofi(ir)**2
    20 continue
-      print *,'end of do 20'
+c      print *,'end of do 20'
 C --- Generate vxc,exc on a mesh ---
       allocate(excx_rv(nr))
       allocate(excc_rv(nr))
       allocate(vxcx_rv(nr))
       allocate(vxcc_rv(nr))
-      print *,'end of do 20 xxxx lxcf2=',lxcf2
-      if (lxcf2 .gt. 2) then
+c      print *,'end of do 20 xxxx lxcf2=',lxcf2
+      if (lxcf > 2) then
         allocate(vx2(nr),vc2(nr))
 c        call evxcp(rp,rp(1,2),nr,nsp,lxcf2,exc,vxc,vxc(1,2))
-         call evxcp(rp,rp(1,2),nr,nsp,lxcf2,excx_rv,excc_rv,exc, !w(oex),w(oec),exc,
+         call evxcp(rp,rp(1,2),nr,nsp,lxcf,excx_rv,excc_rv,exc, !w(oex),w(oec),exc,
 c     .    w(ovx),w(ovx2),w(ovc),w(ovc2),vxc,vxc(1,2))
      .    vxcx_rv,vx2, vxcc_rv,vc2,vxc,vxc(1,2))
         deallocate(vx2,vc2)
@@ -99,18 +107,17 @@ c     .    w(ovx),w(ovx2),w(ovc),w(ovc2),vxc,vxc(1,2))
    60   continue
       else
         if (nsp .eq. 1) then
-          call evxcv ( rp , rp , nr , nsp , lxcf2 , 
+          call evxcv ( rp , rp , nr , nsp , lxcf, 
      .    exc , excx_rv , excc_rv , 
      .    vxc , vxcx_rv , vxcc_rv )
 
         else
           call dpadd(rp(1,2),rp,1,nr,1d0)
-          call evxcv ( rp ( 1 , 2 ) , rp , nr , 2 , lxcf2 , exc , excx_rv 
+          call evxcv ( rp ( 1 , 2 ) , rp , nr , 2 , lxcf, exc , excx_rv 
      .    , excc_rv , vxc , vxcx_rv , vxcc_rv )
-
           call dpadd(rp(1,2),rp,1,nr,-1d0)
           call dpadd(rp,rp(1,2),1,nr,1d0)
-          call evxcv ( rp , rp ( 1 , 2 ) , nr , 2 , lxcf2 , exc , excx_rv 
+          call evxcv ( rp , rp ( 1 , 2 ) , nr , 2 , lxcf, exc , excx_rv 
      .    , excc_rv , vxc ( 1 , 2 ) , vxcx_rv , vxcc_rv )
 
           call dpadd(rp,rp(1,2),1,nr,-1d0)
@@ -137,26 +144,14 @@ C --- Integrals ---
    14 continue
 
 C --- Gradient correction ---
-      if (lxcg2 .ne. 0) then
+      if (lxcg /= 0) then
         allocate(grh_rv(nrmx*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nrmx*nsp<0) grh_rv(:)=0.0d0
-
         allocate(ggrh_rv(nrmx*nsp))
-Ctakao_ZeroClear_NotRequiered          if (nrmx*nsp<0) ggrh_rv(:)=0.0d0
-
         allocate(agrh_rv(nrmx*(3*nsp-2)))
-Ctakao_ZeroClear_NotRequiered          if (nrmx*(3*nsp-2)<0) agrh_rv(:)=0.0d0
-
         allocate(grgag_rv(nrmx*(2*nsp-1)))
-Ctakao_ZeroClear_NotRequiered          if (nrmx*(2*nsp-1)<0) grgag_rv(:)=0.0d0
-
         call vxcgr2 ( nr , nsp , nrmx , rofi , rp , grh_rv , ggrh_rv 
      .  , agrh_rv , grgag_rv , exc , vxc )
-
-        if (allocated(grgag_rv)) deallocate(grgag_rv)
-        if (allocated(agrh_rv)) deallocate(agrh_rv)
-        if (allocated(ggrh_rv)) deallocate(ggrh_rv)
-        if (allocated(grh_rv)) deallocate(grh_rv)
+        deallocate(grgag_rv,agrh_rv,ggrh_rv,grh_rv)
 
 C ...   Redo integrals, with gradient correction
         do  24  i  = 1, nsp
@@ -182,27 +177,43 @@ C --- Add to V ---
 
 C --- Undo background rho for purposes of calculating vxc ---
 *     call addzbk(rofi,nr,1,nsp,rho,rhobg,-1d0)
-
       if (iprint() .lt. 80) return
-      if (lxcg2 .eq. 0) print 333
-      if (lxcg2 .ne. 0) print 334
+      if (lxcg .eq. 0) write(stdo,333)
+      if (lxcg .ne. 0) write(stdo,334)
   333 format(/' vxc0sp: reps(l)     rmu(l)')
   334 format(/' vxc0sp: reps(l)     rmu(l)      reps(nl)    rmu(nl)')
       do  30  i = 1, nsp
-        st = ' '
-        if (i .lt. nsp) st = 'up'
-        if (i .eq. 2)   st = 'dn'
-        if (lxcg2 .eq. 0) print 335, st, rep(i),  rmu(i)
-        if (lxcg2 .ne. 0) print 335, st, repl(i), rmul(i),
+      st = ' '
+      if (i .lt. nsp) st = 'up'
+      if (i .eq. 2)   st = 'dn'
+      if (lxcg .eq. 0) write(stdo,335) st, rep(i),  rmu(i)
+      if (lxcg .ne. 0) write(stdo,335) st, repl(i), rmul(i),
      .  rep(i)-repl(i), rmu(i)-rmul(i)
-  335   format(1x,a2,2x,4f12.6)
+  335 format(1x,a2,2x,4f12.6)
    30 continue
-      if (nsp .eq. 2 .and. lxcg2 .eq. 0)
-     .print 335, '  ', rep(1)+rep(2), rmu(1)+rmu(2)
-      if (nsp .eq. 2 .and. lxcg2 .ne. 0)
-     .print 335, '  ', repl(1)+repl(2), rmul(1)+rmul(2),
+      if (nsp .eq. 2 .and. lxcg .eq. 0)
+     .write(stdo,335) '  ', rep(1)+rep(2), rmu(1)+rmu(2)
+      if (nsp .eq. 2 .and. lxcg .ne. 0)
+     .write(stdo,335) '  ', repl(1)+repl(2), rmul(1)+rmul(2),
      .rep(1)+rep(2)-repl(1)-repl(2), rmu(1)+rmu(2)-rmul(1)-rmul(2)
-
+C$$$      if (lxcg .eq. 0) print 333
+C$$$      if (lxcg .ne. 0) print 334
+C$$$  333 format(/' vxc0sp: reps(l)     rmu(l)')
+C$$$  334 format(/' vxc0sp: reps(l)     rmu(l)      reps(nl)    rmu(nl)')
+C$$$      do  30  i = 1, nsp
+C$$$        st = ' '
+C$$$        if (i .lt. nsp) st = 'up'
+C$$$        if (i .eq. 2)   st = 'dn'
+C$$$        if (lxcg .eq. 0) print 335, st, rep(i),  rmu(i)
+C$$$        if (lxcg .ne. 0) print 335, st, repl(i), rmul(i),
+C$$$     .  rep(i)-repl(i), rmu(i)-rmul(i)
+C$$$  335   format(1x,a2,2x,4f12.6)
+C$$$   30 continue
+C$$$      if (nsp .eq. 2 .and. lxcg .eq. 0)
+C$$$     .print 335, '  ', rep(1)+rep(2), rmu(1)+rmu(2)
+C$$$      if (nsp .eq. 2 .and. lxcg .ne. 0)
+C$$$     .print 335, '  ', repl(1)+repl(2), rmul(1)+rmul(2),
+C$$$     .rep(1)+rep(2)-repl(1)-repl(2), rmu(1)+rmu(2)-rmul(1)-rmul(2)
       end subroutine vxc0sp
 
 

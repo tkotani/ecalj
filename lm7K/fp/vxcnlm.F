@@ -1,5 +1,6 @@
       subroutine vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,
      .repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
+      use m_struc_def, only:s_lat
 C- Gradient correction to smoothed rho(q) tabulated on a mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -42,7 +43,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer lxcg,k1,k2,k3,nsp
-      double precision slat(1),repnl(2),rmunl(2),vavgnl(2)
+      double precision repnl(2),rmunl(2),vavgnl(2) !slat(1),
       double complex   smrho(k1,k2,k3,nsp),vxcnl(k1,k2,k3,nsp)
       double complex   vxnl(k1,k2,k3,nsp),vcnl(k1,k2,k3,nsp)
 C ... Local parameters
@@ -53,6 +54,10 @@ C ... Local parameters
       real(8),allocatable :: ggr(:,:),agr(:,:),gagr(:,:),rho(:,:)
       real(8),allocatable :: enl(:,:,:),vnl(:,:,:,:)
       complex(8),allocatable:: zgrho(:,:,:),gzgrho(:,:,:),zggrho(:,:)
+c
+      type(s_lat)::  slat
+
+
 C     Heap
       integer w(1)
       common /w/ w
@@ -60,8 +65,15 @@ C     Heap
 C --- Setup and memory allocation ---
       call tcn('vxcnlm')
       call getpr(ipr)
-      call upack('lat nabc ng ogv okv',slat,ngabc,ng,ogv,okv,0)
-      call upack('lat alat vol',slat,alat,vol,0,0,0)
+c      call upack('lat nabc ng ogv okv',slat,ngabc,ng,ogv,okv,0)
+c      call upack('lat alat vol',slat,alat,vol,0,0,0)
+      ngabc =slat%nabc
+      ng    =slat%ng
+      ogv   =slat%ogv
+      okv   =slat%okv
+      alat  =slat%alat
+      vol   =slat%vol
+
       np = k1*k2*k3
       allocate(agr(np,3*nsp-2),gagr(np,2*nsp-1),ggr(np,nsp))
       allocate(zgrho(np,3,nsp),gzgrho(np,3,2*nsp-1),zggrho(np,nsp))

@@ -247,26 +247,16 @@ C       Add vxc[superposition of densities] for each vector
         if (opt1 .eq. 1) then
           call sumsro(xp,np,ips,a,b,rho,nttab,iax,rpos,rp)
           allocate(excx_rv(np))
-Ctakao_ZeroClear_NotRequiered            if (np<0) excx_rv(:)=0.0d0
-
           allocate(excc_rv(np))
-Ctakao_ZeroClear_NotRequiered            if (np<0) excc_rv(:)=0.0d0
-
           allocate(vxcx_rv(np))
-Ctakao_ZeroClear_NotRequiered            if (np<0) vxcx_rv(:)=0.0d0
-
           allocate(vxcc_rv(np))
-Ctakao_ZeroClear_NotRequiered            if (np<0) vxcc_rv(:)=0.0d0
-
           call evxcv ( rp , rp , np , 1 , lxcfun , excp , excx_rv , 
      .    excc_rv , vxcp , vxcx_rv , vxcc_rv )
-
           call daxpy(np,1d0,vxcp,1,vp(1,2),1)
-          if (allocated(vxcc_rv)) deallocate(vxcc_rv)
-          if (allocated(vxcx_rv)) deallocate(vxcx_rv)
-          if (allocated(excc_rv)) deallocate(excc_rv)
-          if (allocated(excx_rv)) deallocate(excx_rv)
-
+          deallocate(vxcc_rv)
+          deallocate(vxcx_rv)
+          deallocate(excc_rv)
+          deallocate(excx_rv)
         endif
 
 C       Check against prior point.  Skip if nothing yet to compare
