@@ -114,7 +114,7 @@ c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       vol=slat%vol
       ocy=slat%ocy
 
-      if (excsan(lxcfun,0) .lt. 0) x1 = excsan(lxcfun,stdo)
+c      if (excsan(lxcfun,0) .lt. 0) x1 = excsan(lxcfun,stdo)
 
 C ... Sum of foca hankel heads; break into direct and pert. parts
 c      call defcc (osmrho,-k1*k2*k3*nsp)
