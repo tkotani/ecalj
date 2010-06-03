@@ -2917,8 +2917,8 @@ C local parameters
      .icop,llen(maxlns),iprint,i1mach
       logical cmdopt
 
-      call spchar(1,bs)
-
+c      call spchar(1,bs)
+      bs='\'
       show = 'show'//shift
       if (shift(1:2) .eq. 'tx') show = 'show'
       newl = 'newline'//hvl//fr
@@ -3087,8 +3087,8 @@ C ... Local parameters
       character c*1,cp*1,cn*1,cw*(maxlen)
       character bkslsh*1
 
-      call spchar(1,bkslsh)
-
+c      call spchar(1,bkslsh)
+      bkslsh="\"
 C --- strip line of its control chars to determine true stringwidth ---
       tlen = 0
       do  i = 1, ilen

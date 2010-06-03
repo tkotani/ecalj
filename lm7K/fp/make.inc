@@ -94,7 +94,6 @@ fp_list=\
 	smcorm.o \
 	smhsbl.o \
 	smves.o \
-	smvxcm.o \
 	sopert.o \
 	splrho.o \
 	suphas.o \
@@ -109,7 +108,6 @@ fp_list=\
 	vesft.o \
 	vesgcm.o \
 	vlm2us.o \
-	vxcnsp.o \
 	vxtrap.o \
 	wrhomt.o \
 	ncutcorrect.o \
@@ -125,7 +123,9 @@ fp_list=\
 	smshft.o \
 	m_events.o \
 	grfmsh.o \
+	smvxcm.o \
+	vxcnsp.o \
 	vxc0gc.o \
 	vxcnlm.o \
-	vxnlcc.o \
 	vxcnls.o
+	

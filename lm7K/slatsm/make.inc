@@ -197,7 +197,6 @@ sla_list=\
 	rs.o \
 	s8tor8.o \
 	setfac.o \
-	spchar.o \
 	stkops.o \
 	strings.o \
 	strip.o \

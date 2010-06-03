@@ -1248,7 +1248,8 @@ C --- Normal exit ---
 
 C ... Below assumes a postscript file ...
       if (lbbox .ne. 0) then
-        call spchar(1,bkslsh)
+c        call spchar(1,bkslsh)
+        bkslsh='\'
         strn = 'awk -vbbox="`echo quit|gs -sDEVICE=bbox -dNOPAUSE '//
      .  'ps.dat 2>&1|grep BoundingBox:|head -1`" '//
      .  '''{print ; if (NR == 1) '//
@@ -1320,7 +1321,8 @@ C- For latex postprocessing
       character bkslsh*1
 
 C     Generic call for backslash character
-      call spchar(1,bkslsh)
+c      call spchar(1,bkslsh)
+      bkslsh='\'
 
 C ... Create head
       ifi = fopng('psfrag.tex',-1,0)

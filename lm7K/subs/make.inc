@@ -54,9 +54,6 @@ subs_list:=\
 	dvdos.o \
 	easypbe.o \
 	efrng2.o \
-	evxc.o \
-	evxcp.o \
-	evxcv.o \
 	f100.o \
 	f102.o \
 	fermi.o \
@@ -235,9 +232,7 @@ subs_list:=\
 	vldau.o \
 	volsph.o \
 	vxc0sp.o \
-	vxcgga.o \
 	vxcgr2.o \
-	vxnloc.o \
 	xlgen.o \
 	xxxbnd.o \
 	xxxdif.o \
@@ -256,4 +251,6 @@ subs_list:=\
 	dpdftr.o \
 	pvsms2.o \
 	getcor.o \
-	pqmix.o
+	pqmix.o \
+        radgra.o \
+ 	xcfunc.o
