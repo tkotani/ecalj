@@ -127,6 +127,7 @@ C ... External calls
      .gvputf,icopy,ioden2,ivset,mkils0,mkilst,nwordg,poppr,
      .pshpr,rhgcmp,rhomom,rx,upack,upack2
 
+      real(8),allocatable:: zz(:)
 C ... Unpack and setup
       nsp = nglob('nsp')
       nbas = nglob('nbas')
@@ -140,6 +141,14 @@ C ... Unpack and setup
       okv=slat%okv
       vol=slat%vol
 
+ccccccccccccccccccccccccccccc
+c      allocate(zz(nbas))
+c      zz=sspec(1:nbas)%z
+c      print *,' zz1=',zz
+c      print *,' zz2=',sspec(1:nbas)%z
+c      stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+ccccccccccccccccccccccccccccc
+
 
       alat=slat%alat
       opos=slat%opos
@@ -147,16 +156,16 @@ C ... Unpack and setup
       call defrr(oz,nbas)
       do ib = 1,nbas
         is = int(ssite(ib)%spec)
-
-
-        w(oz-2+ib*2)=sspec(is)%z
-
+c        w(oz-2+ib*2)=sspec(is)%z !but Kino's email on 5June2010.
+        call dcopy(1,sspec(is)%z,1,w(oz-2+ib*2),1)
       enddo
       call fftz30(n1,n2,n3,k1,k2,k3)
       kkk = k1*k2*k3
       kmax = 3
       modrhg = 2
-      call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),w(oz),k1,k2,k3,
+c      call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),w(oz),k1,k2,k3,
+c     .ngabc,w,w,nwk,modrhg)
+      call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),sspec(ssite(1:nbas)%spec)%z,k1,k2,k3,
      .ngabc,w,w,nwk,modrhg)
       call isanrg(modrhg,-3,2,'ioden','core option',.true.)
 
@@ -243,7 +252,7 @@ C ... File I/O
 Ctakao_ZeroClear_NotRequiered        if (nwk**2*nsp<0) wk_zv(:)=0.0d0
 
       call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , w ( opos 
-     .) , w ( oz ) , k1 , k2 , k3 , ngabc , psrho_zv , wk_zv 
+     .) , sspec(ssite(1:nbas)%spec)%z , k1 , k2 , k3 , ngabc , psrho_zv , wk_zv 
      ., nwk , modrhg )
 
       if (allocated(wk_zv)) deallocate(wk_zv)
@@ -313,6 +322,11 @@ C ... Local parameters
       character*120 dc*1, fn, prfmt*40, sout
       logical lg3d
       integer i1,i2,i3
+
+ccccccccccccccccccccccccccccc
+c      print *,' zzxxx=',z
+c      stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+ccccccccccccccccccccccccccccc
 
       stdo = lgunit(1)
       dc = sopts(1:1)

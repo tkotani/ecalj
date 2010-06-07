@@ -9,8 +9,8 @@ C
 C Two kinds of evxcv is included. One is evxcv_new (lmf7.2), the other is evxcv_old (lmf7.1).
 C They caused a little idfferences.
 C===================================================================
-      subroutine evxcv_new(rho,rhosp,n,nsp,lxcf,exc,ex,ec,vxc,vx,vc)
 c      subroutine evxcv(rho,rhosp,n,nsp,lxcf,exc,ex,ec,vxc,vx,vc)
+      subroutine evxcv_new(rho,rhosp,n,nsp,lxcf,exc,ex,ec,vxc,vx,vc)
 C- XC energy density and potential for a vector of points.
 C ----------------------------------------------------------------------
 Ci Inputs

@@ -390,9 +390,10 @@ C ... Setup for charge mixing
 
       dmxp(2)=smix%b
       dmxp(9)=smix%bv
-      i_copy_size=size(smix%w)
-      call dcopy(i_copy_size,smix%w,1,dmxp(4),1)
-      dmxp(3)=smix%wc
+c      i_copy_size=size(smix%w)
+c      call dcopy(i_copy_size,smix%w,1,dmxp(4),1)
+      dmxp(4:5)= smix%w(1:2)
+      dmxp(3)= smix%wc
 
       dmxp ( 6 ) = int(smix%nsave)
 

@@ -270,6 +270,17 @@ C --- Generate density point-wise through sphere ---
         call dgemm('N','T',nr,np,nlm,1d0,rl(1,1,i),nr,yl,np,0d0,
      .  rps(1,1,i),nr)
 
+cccccccccccccccccccccccccccc
+          do  ip = 1, np
+            do  ir = 1, nr
+              if (rps(ir,ip,i) .lt. 0d0) then
+c                print *,'xxx vvv', ir,ip,rps(ir,ip,i)
+                ineg(i) = ineg(i) + 1
+              endif
+            enddo
+          enddo
+cccccccccccccccccccccccccccc
+
 C   ... Counts number of points with negative density; reset to pos.
         if (isw1 .eq. 1) then
           do  ip = 1, np
@@ -285,10 +296,13 @@ C   ... Counts number of points with negative density; reset to pos.
         call daxpy(n1,1d0,rps(1,1,i),1,rp,1)
       enddo
 
+
       if (ineg(1)+ineg(2) .ne. 0) then
-        call info5(5,0,0,' vxcns2 (warning):  negative density,'
-     .  //' %i points %?#n==2#(spin 1) %i points (spin 2)##',
-     .  ineg(1),nsp,ineg(2),0,0)
+        write(6,"(a,i10,a,2i10)") ' vxcns2 (warning): nr*np=',nr*np,
+     &  "  negative density # of points=", ineg(1:nsp)
+c        call info5(5,0,0,' vxcns2 (warning):  negative density,'
+c     .  //' %i points %?#n==2#(spin 1) %i points (spin 2)##',
+c     .  ineg(1),nsp,ineg(2),0,0)
       endif
 
 C --- Perturbation treatment: df/dr in vxc2 ---

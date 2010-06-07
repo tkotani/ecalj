@@ -796,8 +796,15 @@ C ... Preserve potentials without exchange-correlation
 C ... Generate rvepsv and rvvxcv (uses v1 as work array)
       call pshpr(ipr-31)
       lxcfun = nglob('lxcf')
+
+ccccccccccccccccc
+      print *,'vvv val rho1'
+ccccccccccccccccc
       call vxcnsp(0,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,0,0,0,0,0,
      .rep1,rep1x,rep1c,rmu1,v1,fl,qs)
+ccccccccccccccccc
+      print *,'vvv val rho2'
+ccccccccccccccccc
       call vxcnsp(0,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,0,0,0,0,0,
      .rep2,rep2x,rep2c,rmu2,v1,fl,qs)
       rvvxcv = rmu1(1) - rmu2(1) + rmu1(2) - rmu2(2)
@@ -806,6 +813,9 @@ C ... Generate rvepsv and rvvxcv (uses v1 as work array)
       rvecv  = rep1c(1) - rep2c(1) + rep1c(2) - rep2c(2)
       call dcopy(nrml*nsp,v1es,1,v1,1)
       call poppr
+ccccccccccccccccc
+      print *,'vvv val end'
+ccccccccccccccccc
 
 C --- Add xc potentials to v1 and v2 ---
       call pshpr(ipr-11)

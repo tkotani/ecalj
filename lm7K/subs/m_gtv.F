@@ -72,6 +72,14 @@ C- Set io_show and io_help for m_gtv
       io_help = io_help_in
       end subroutine
 
+      subroutine replacetab2space( recrd,recln )
+      integer:: i,recln
+      character*(*):: recrd
+      do i = 1, recln
+         if(recrd(i:i)=='	') recrd(i:i)=' '
+      enddo
+      end subroutine
+
       subroutine gtv_setrcd(recrd,nrecs,recln)
 C- Copy contents of fixed-length input file to local rcd
 C ----------------------------------------------------------------------
@@ -100,6 +108,10 @@ C     print *, cpusec()
       ioff2 = 1
       do  i = 1, nrecs
         ioff = (i-1)*recln + 1
+
+Ctakao replace tab to space. 7thJune2010.
+        call replacetab2space(recrd(ioff:i*recln),recln)
+
 C       Blank line; skip
         if (recrd(ioff:ioff)=='#' .or. recrd(ioff:ioff)=='!') then
 C       No character in 1st column
@@ -129,6 +141,10 @@ C         Replace CLASS with SPEC
 C       write(*,"(i4,a)") ioff, rcd(1:ioff2)
       enddo
       rcd(ioff2:) = ' @CAT@EOF'
+ccccccccccccccccccccccccc
+      print *,'rrrrrrrrrrrrrrrrrrrrrrrrcd=',trim(rcd)
+cccccccccccccccccccccccccc
+      
 C     print *, cpusec()
 C     print *, ioff2; stop
       ioff2 = ioff2+9
