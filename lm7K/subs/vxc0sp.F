@@ -15,12 +15,12 @@ Co   rep   :integral rho * exc.
 Co   rmu   :integral rho * vxc.
 Co   exrmx :exchange energy density at rmax
 Cl Local variables
-Cl  lx     :type of local xc potential
+Cl  lxcfun     :type of local xc potential
 Cl           1's digit specifies local potential (evxcv)
 Cl           1: Ceperly Alder, 2: Hedin-Lundqvist
 Cl           3: Perdew-Wang '91, 3: Burke, Perdew and Ernzerhof
-Cl         10's  digit specifies gradient corrections
-Cl           1: Langreth-Mehl-Hu 2: PW91,
+Cl         100's  digit specifies gradient corrections
+Cl           1: Langreth-Mehl-Hu 2: PW91,      
 Cl           3: PBE, 4: PBE with Becke exchange
 Cr Remarks
 Cu Updates

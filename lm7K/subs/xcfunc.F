@@ -9,8 +9,8 @@ C
 C Two kinds of evxcv is included. One is evxcv_new (lmf7.2), the other is evxcv_old (lmf7.1).
 C They caused a little idfferences.
 C===================================================================
-c      subroutine evxcv(rho,rhosp,n,nsp,lxcf,exc,ex,ec,vxc,vx,vc)
-      subroutine evxcv_new(rho,rhosp,n,nsp,lxcf,exc,ex,ec,vxc,vx,vc)
+      subroutine evxcv(rho,rhosp,n,nsp,lxcf,exc,ex,ec,vxc,vx,vc)
+c      subroutine evxcv_new(rho,rhosp,n,nsp,lxcf,exc,ex,ec,vxc,vx,vc)
 C- XC energy density and potential for a vector of points.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -268,8 +268,8 @@ C      end
 
 
 c for older version of smvxcm.F ==============================
-      subroutine evxcv(rho,rhosp,n,nsp,lxcf,exc,excx,excc,vxc,vxcx,vxcc)
-c      subroutine evxcv_old(rho,rhosp,n,nsp,lxcf,exc,excx,excc,vxc,vxcx,vxcc)
+c      subroutine evxcv(rho,rhosp,n,nsp,lxcf,exc,excx,excc,vxc,vxcx,vxcc)
+      subroutine evxcv_old(rho,rhosp,n,nsp,lxcf,exc,excx,excc,vxc,vxcx,vxcc)
 C- XC energy density and potential for a vector of points.
 C ----------------------------------------------------------------------
 C!!! This routine has a bug when rho>0 and rhosp=0  for XCFUN=2
