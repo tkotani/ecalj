@@ -76,7 +76,7 @@ C- Set io_show and io_help for m_gtv
       integer:: i,recln
       character*(*):: recrd
       do i = 1, recln
-         if(recrd(i:i)=='	') recrd(i:i)=' '
+         if(recrd(i:i)==char(9)) recrd(i:i)=' '
       enddo
       end subroutine
 
