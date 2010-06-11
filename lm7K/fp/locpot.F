@@ -40,6 +40,8 @@ Ci         :1000s digit
 Ci         :1 Make rveps and rvvxc
 Ci         :10000s digit
 Ci         :1 write sphere density for site ib to file rhoMT.ib
+Ci         :100000s digit
+Ci         :1 write sphere density for site ib to file rhoMT.ib
 Ci  rhobg  :compensating background density
 Ci  lso    :if nonzero, calculate LzSz matrix elements
 Ci  lcplxp :0 if ppi is real; 1 if ppi is complex
@@ -235,7 +237,6 @@ C$&  MP_SCHEDTYPE=RUNTIME
         ov0=ssite(ib)%ov0
         ov01=ssite(ib)%ov1
 
-
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
 
@@ -244,9 +245,10 @@ C$&  MP_SCHEDTYPE=RUNTIME
         qc=sspec(is)%qc
         rg=sspec(is)%rg
 
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-        enddo
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c        enddo
+        call r8tos8(sspec(is)%name,spid)
 
 
         a=sspec(is)%a
@@ -279,9 +281,10 @@ cccccccccccccc
         print *,' i job kmax lfltwf=',i,job,kmax,lfltwf
 cccccccccccccc
         call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
-        enddo
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
+c        enddo
+        call r8tos8(sspec(is)%coreh,chole)
 
         call gtpcor(sspec,is,kcor,lcor,qcor)
         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv,qsc0)
@@ -793,19 +796,15 @@ C ... Preserve potentials without exchange-correlation
       call dcopy(nrml*nsp,v1,1,v1es,1)
       call dcopy(nrml*nsp,v2,1,v2es,1)
 
-C ... Generate rvepsv and rvvxcv (uses v1 as work array)
-      call pshpr(ipr-31)
+C ... Generate valence-only rvepsv and rvvxcv (uses v1 as work array)
+C     call pshpr(ipr-31)
+      call pshpr(max(ipr-31,min(ipr,10)))
       lxcfun = nglob('lxcf')
 
-ccccccccccccccccc
-      print *,'vvv val rho1'
-ccccccccccccccccc
-      call vxcnsp(0,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,0,0,0,0,0,
+      call vxcnsp(isw2,rofi,nr,rwgt,nlml,nsp,rho1,lxcfun,0,0,0,0,0,
      .rep1,rep1x,rep1c,rmu1,v1,fl,qs)
-ccccccccccccccccc
-      print *,'vvv val rho2'
-ccccccccccccccccc
-      call vxcnsp(0,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,0,0,0,0,0,
+
+      call vxcnsp(isw2,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,0,0,0,0,0,
      .rep2,rep2x,rep2c,rmu2,v1,fl,qs)
       rvvxcv = rmu1(1) - rmu2(1) + rmu1(2) - rmu2(2)
       rvepsv = rep1(1) - rep2(1) + rep1(2) - rep2(2)
@@ -813,18 +812,17 @@ ccccccccccccccccc
       rvecv  = rep1c(1) - rep2c(1) + rep1c(2) - rep2c(2)
       call dcopy(nrml*nsp,v1es,1,v1,1)
       call poppr
-ccccccccccccccccc
-      print *,'vvv val end'
-ccccccccccccccccc
 
 C --- Add xc potentials to v1 and v2 ---
-      call pshpr(ipr-11)
+C     call pshpr(ipr-11)
+      call pshpr(max(ipr-11,min(ipr,10)))
       lxcfun = nglob('lxcf')
       call dpzero(focexc,2)
       call dpzero(focex,2)
       call dpzero(focec,2)
       call dpzero(focvxc,2)
-      call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,
+      call info0(30,0,0,' Exchange for true density:')
+      call vxcnsp(isw+isw2,rofi,nr,rwgt,nlml,nsp,rhol1,lxcfun,
      .0,0,0,0,0,rep1,rep1x,rep1c,rmu1,v1,fl,qs)
       if (isw .eq. 1) then
         call dpzero(tmp,2)
@@ -840,7 +838,7 @@ C --- Add xc potentials to v1 and v2 ---
 C     call prrmsh('v1',rofi,v1,nr,nr,nlml)
 C     If no core treatment v2 += vxc(rho2)
       if (lfoc .eq. 0) then
-        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
+        call vxcnsp(isw+isw2,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
      .  0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
 C     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
       else if (lfoc .eq. 1) then
@@ -848,7 +846,7 @@ C     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
         do  isp = 1, nsp
           call dpadd(rho2(1,1,isp),rhochs,1,nr,y0/nsp)
         enddo
-        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
+        call vxcnsp(isw+isw2,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
      .  0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
         do  isp = 1, nsp
           call dpadd(rho2(1,1,isp),rhochs,1,nr,-y0/nsp)
@@ -861,7 +859,7 @@ C     v2 += vxc(rho2) + dv; focvxc= int (rho2*dv); dv=dvxc/drho * rhochs
         endif
 c        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,100+lxcfun,
 !lm72 changed meanings of lxcfun switch.
-        call vxcnsp(isw,rofi,nr,rwgt,nlml,nsp,rho2,10000+lxcfun, 
+        call vxcnsp(isw+isw2,rofi,nr,rwgt,nlml,nsp,rho2,10000+lxcfun, 
      .  rhochs,focexc,focex,focec,focvxc,rep2,rep2x,rep2c,rmu2,v2,
      .  fl,qs)
         if (ipr .ge. 40)

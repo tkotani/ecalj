@@ -48,16 +48,13 @@ C ... Passed parameters
       double complex   vxnl(k1,k2,k3,nsp),vcnl(k1,k2,k3,nsp)
 C ... Local parameters
       integer ip,i,i1,i2,i3,lcut,ng,np,ipr,n1,n2,n3,ngabc(3)
-      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+c      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer ogv,okv
       double precision alat,vol,xx
       real(8),allocatable :: ggr(:,:),agr(:,:),gagr(:,:),rho(:,:)
       real(8),allocatable :: enl(:,:,:),vnl(:,:,:,:)
       complex(8),allocatable:: zgrho(:,:,:),gzgrho(:,:,:),zggrho(:,:)
-c
       type(s_lat)::  slat
-
-
 C     Heap
       integer w(1)
       common /w/ w
@@ -68,12 +65,14 @@ C --- Setup and memory allocation ---
 c      call upack('lat nabc ng ogv okv',slat,ngabc,ng,ogv,okv,0)
 c      call upack('lat alat vol',slat,alat,vol,0,0,0)
       ngabc =slat%nabc
+      n1= ngabc(1)
+      n2= ngabc(2)
+      n3= ngabc(3)
       ng    =slat%ng
       ogv   =slat%ogv
       okv   =slat%okv
       alat  =slat%alat
       vol   =slat%vol
-
       np = k1*k2*k3
       allocate(agr(np,3*nsp-2),gagr(np,2*nsp-1),ggr(np,nsp))
       allocate(zgrho(np,3,nsp),gzgrho(np,3,2*nsp-1),zggrho(np,nsp))
@@ -84,6 +83,8 @@ C      call defrr(oggr,   np*nsp)
 C      call defrr(oexc,   np*nsp)
 
 C --- Grad rho_i and Laplacian rho_i (complex) ---
+c      print *,'vxcnlm xxx 000000',slat%nabc
+c      print *,'vxcnlm xxx 000111',n1,n2,n3,k1,k2,k3
       do  i = 1, nsp
 C       call zprm3('smrho(isp=%i)',i,smrho(1,1,1,i),n1,n2,n3)
         call grfmsh(601,alat,ng,w(ogv),w(okv),k1,k2,k3,n1,n2,n3,

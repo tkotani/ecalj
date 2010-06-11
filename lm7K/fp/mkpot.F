@@ -225,7 +225,7 @@ C ... Heap
       common /w/ w
 
 ccccccccccccccccccccc
-      integer:: itest
+      integer:: itest,wdummy
       complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
 cccccccccccccccccccccc
 
@@ -348,7 +348,6 @@ ccccccccccccccccc
       endif
       if (allocated(hpot0_rv)) deallocate(hpot0_rv)
 
-C     print *, k1,k2,k3
 C     call zprm('smves',2,smpot,k1,k1,k2)
 
 C --- Add smooth exchange-correlation potential ---
@@ -359,37 +358,28 @@ C --- Add smooth exchange-correlation potential ---
       call dpzero(rvecv,2)
       call dpzero(rvvxcv,2)
       if (mod(job,1000) .lt. 100) then
-        allocate(smvxc_zv(abs(-k1*k2*k3*nsp)))
-        if (-k1*k2*k3*nsp<0) smvxc_zv(:)=0.0d0
-
-        allocate(smvx_zv(abs(-k1*k2*k3*nsp)))
-        if (-k1*k2*k3*nsp<0) smvx_zv(:)=0.0d0
-
-        allocate(smvc_zv(abs(-k1*k2*k3*nsp)))
-        if (-k1*k2*k3*nsp<0) smvc_zv(:)=0.0d0
-
-        allocate(smexc_zv(abs(-k1*k2*k3)))
-        if (-k1*k2*k3<0) smexc_zv(:)=0.0d0
-
-        allocate(fxc_rv(abs(-3*nbas)))
-        if (-3*nbas<0) fxc_rv(:)=0.0d0
-
+        allocate(smvxc_zv(k1*k2*k3*nsp),smvx_zv(k1*k2*k3*nsp),
+     &  smvc_zv(k1*k2*k3*nsp),smexc_zv(k1*k2*k3), fxc_rv(3*nbas))
+        smvxc_zv(:)=0d0
+        smvx_zv(:) =0d0
+        smvc_zv(:) =0d0
+        smexc_zv(:)=0d0
+        fxc_rv(:)  =0d0
 C   ... Compute int smrho*exc(smrho) and int smrho*vxc(smrho)
-        call pshpr(ipr-30)
-        call smvxc2 ( 0 , nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
+c        call pshpr(ipr-30)
+        call smvxc2 ( 0 ,slat, nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2 
      .  , k3 , smrho , smvxc_zv , smvx_zv , smvc_zv , smexc_zv 
-     .  , w , rvepsv , rvexv , rvecv , rvvxcv , vxcavg )
-
+     .  , wdummy , rvepsv , rvexv , rvecv , rvvxcv , vxcavg )
 C        call mshdot(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,w(osmvxc),
 C     .    tmp,tmp(2))
-        call poppr
+c        call poppr
         rvepsv(1) = rvepsv(1) + rvepsv(2)
         rvvxcv(1) = rvvxcv(1) + rvvxcv(2)
 C   ... Smooth exchange-correlation potential
-        call dpzero ( smvxc_zv , k1 * k2 * k3 * nsp )
-
-        call dpzero ( smexc_zv , k1 * k2 * k3 )
-
+c        call dpzero ( smvxc_zv , k1 * k2 * k3 * nsp )
+c        call dpzero ( smexc_zv , k1 * k2 * k3 )
+        smvxc_zv=0d0 
+        smexc_zv=0d0 
 
 
 cccccccccccccccccccccccc

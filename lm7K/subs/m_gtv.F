@@ -142,7 +142,7 @@ C       write(*,"(i4,a)") ioff, rcd(1:ioff2)
       enddo
       rcd(ioff2:) = ' @CAT@EOF'
 ccccccccccccccccccccccccc
-      print *,'rrrrrrrrrrrrrrrrrrrrrrrrcd=',trim(rcd)
+c      print *,'rrrrrrrrrrrrrrrrrrrrrrrrcd=',trim(rcd)
 cccccccccccccccccccccccccc
       
 C     print *, cpusec()

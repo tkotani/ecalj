@@ -4,7 +4,6 @@ C     implicit none
       integer ng,n,k1,k2,k3,kv(ng,3)
       double complex c0(ng,n),c(k1,k2,k3,n)
       integer ig,i,j1,j2,j3
-
       do  10  i = 1, n
         do  10  ig = 1, ng
           j1 = kv(ig,1)
@@ -19,7 +18,6 @@ C     implicit none
       integer ng,n,k1,k2,k3,kv(ng,3)
       double complex c0(ng,n),c(k1,k2,k3,n)
       integer ig,i,j1,j2,j3
-
       call dpzero(c,2*k1*k2*k3*n)
       do  10  i = 1, n
         do  10  ig = 1, ng
