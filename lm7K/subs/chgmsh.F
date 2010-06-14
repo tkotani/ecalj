@@ -45,6 +45,7 @@ c      common /w/ w
       real(8),allocatable:: gv1(:),gv2(:)
       integer,allocatable:: kv1(:),kv2(:)
       integer:: wdummy
+      print *,' chgmsh: iopt=',iopt
 
       tau=0d0 !call dpzero(tau,3)
       if (iopt .eq. 3) then
@@ -53,13 +54,8 @@ c      common /w/ w
         n3 = 2*m3
         if (m3 .eq. 1) n3 = 1
       endif
-c#if AWRITE
-c      if (iprint() .ge. 30) then
-c        call awrit7('%N CHGMSH: remake f (%i * %i * %i)  to '//
-c     .    'f (%i * %i * %i),  opt=%i',' ',80,
-c     .    lgunit(1),m1,m2,m3,n1,n2,n3,iopt)
-c      endif
-c#endif
+      if (iprint() >= 30)
+     &write(6,"('CHGMSH: remake from ',3i4,' to ',3i4, ' iopt=',i3)") m1,m2,m3,n1,n2,n3,iopt
 
       if (iopt .eq. 3) goto 100
 
@@ -71,20 +67,24 @@ C ... Lists of vectors for old and target mesh
       ngmx = min0(ng1,ng2)
 
       allocate(gv1(ngmx*3), gv2(ngmx*3),kv1(ngmx*3),kv2(ngmx*3))
-      call gvlist(1d0,plat,w,m1,m2,m3,gmax,8,ngmx,ng1,kv1,gv1,
+      call gvlist(1d0,plat,wdummy,m1,m2,m3,gmax,8,ngmx,ng1,kv1,gv1,
      .wdummy,wdummy)
-      call gvlist(1d0,plat,w,n1,n2,n3,gmax,8,ngmx,ng2,kv2,gv2,
+      call gvlist(1d0,plat,wdummy,n1,n2,n3,gmax,8,ngmx,ng2,kv2,gv2,
      .wdummy,wdummy)
       if (ng1.ne.ng2) call rx('chgmsh: ng1.ne.ng2')
-      call gvmtch(ng1,gv1,kv1,ng2,gv2,kv2)
+
+c      call gvmtch(ng1,gv1,kv1,ng2,gv2,kv2)  <--- bug. I had to pass ogv1 and so on in original code. Bug fix on 12Jun2010.
+      call pgvmat2 (ng1,gv1, ng2,gv2,kv2 )
+
       call poppr
-      allocate(cv1(ng1*n))
+      allocate(cv1(ng1*n))!,cv2(ng1*n))
       cv1(:)=0d0
+c      cv2(:)=0d0
       call fftz3(f0,m1,m2,m3,l1,l2,l3,n,0,-1)
       call gvgetf ( ng1 , n , kv1, l1 , l2 , l3 , f0, cv1 )
       call gvputf ( ng1 , n , kv2, k1 , k2 , k3 , cv1, f )
       call fftz3(f,n1,n2,n3,k1,k2,k3,n,0,1)
-      deallocate(cv1)
+      deallocate(cv1,gv1,gv2,kv1,kv2)
       return
 
   100 continue

@@ -378,9 +378,6 @@ C   --- Read smooth charge density ---
         if (mode .eq. 0) then
 C   ... FP mesh density
         elseif (mode .eq. 1 .or. mode .eq. -2) then
-cccccccccccccc
-c           print *, 'yyyyyyyy iors 11111'
-cccccccccccccc
 #if FP
           line = 'smoothed density'
           if (procid .eq. master) then
@@ -390,9 +387,6 @@ cccccccccccccc
               read(jfi,*,err=999,end=999)
               read(jfi,*,err=999,end=999) n11,n21,n31
             endif
-cccccccccccccc
-c           print *, 'yyyyyyyy iors 2222'
-cccccccccccccc
 
             if (mode .eq. -2) then
               n1 = n11
@@ -432,10 +426,8 @@ c   ... or read and remesh
               call fftz30(n11,n21,n31,k11,k21,k31)
               allocate(h_zv(abs(-k11*k21*k31*nsp)))
               if (-k11*k21*k31*nsp<0) h_zv(:)=0.0d0
-
               call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , h_zv 
      .        , lbin , jfi )
-
               if (nsp .gt. nsp0) then
 C           call zprm3('smrho before split',0,w(oh),k1,k2,k3)
                 i = k11*k21*k31*2
@@ -444,21 +436,15 @@ C           call zprm3('smrho before split',0,w(oh),k1,k2,k3)
                 call dpscop ( h_zv , h_zv , i , 1 , 1 + i , 1d0 )
 
               endif
-              call pshpr(0)
+              call pshpr(50)
               i = 0
               if (n1 .eq. 2*n11 .and. n2 .eq. 2*n21 .and. n3 .eq. 2*n31) i=3
               call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , 
      .        k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , w ( osmrho ) )
-
               call poppr
               if (allocated(h_zv)) deallocate(h_zv)
 
             endif
-
-cccccccccccccc
-c           print *, 'yyyyyyyy iors 33333'
-cccccccccccccc
-
             if (mode .eq. -2) goto 115
 C   ... If cell volume changed, scale smooth density to maintain charge
             vfac = vol0/vol
@@ -475,10 +461,6 @@ C   ... If cell volume changed, scale smooth density to maintain charge
           call rx('smooth density not implemented')
 #endif
         endif
-
-cccccccccccccc
-c           print *, 'yyyyyyyy iors 44444'
-cccccccccccccc
 
 C   --- Read information related to dynamics ---
 C       For compatibility with nfp, read record into wk
@@ -501,10 +483,6 @@ C       For compatibility with nfp, read record into wk
           sbz%w=wk(3)
 
         endif
-
-cccccccccccccc
-c           print *, 'yyyyyyyy iors 55555'
-cccccccccccccc
 
 C   --- Read atomic positions,forces,velocities ---
         line = 'site data'
@@ -575,10 +553,6 @@ C         rst file positions in pos0
 
    10     continue
         enddo
-
-cccccccccccccc
-c           print *, 'yyyyyyyy iors 66666'
-cccccccccccccc
 
 C   --- Read information for local densities ---
         if (lrs(3) .ne. 0) then

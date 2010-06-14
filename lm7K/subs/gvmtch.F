@@ -27,6 +27,17 @@ Ctakao_ZeroClear_NotRequiered        if (ngs<0) iwk_rv(:)=0.0d0
 
 
       end
+      subroutine pgvmat2 (ng1,gv1, ng2,gv2,kv2 )
+      integer:: ng1,ng2,kv2(1)
+      real(8):: gv1(1),gv2(1)
+      real(8) ,allocatable :: gg_rv(:)
+      real(8) ,allocatable :: kk_rv(:)
+      real(8) ,allocatable :: iwk_rv(:)
+      allocate( gg_rv(ng1),kk_rv(ng1),iwk_rv(ng1) )
+      call pgvmat ( gg_rv , kk_rv , iwk_rv , ng1,gv1, ng2,gv2,kv2 )
+      deallocate(iwk_rv,kk_rv,gg_rv)
+      end
+
       subroutine pgvmat(gg,kk,iwk,ngs,gvs,ngb,gvb,kvb)
 C     implicit none
       integer ngs,ngb
