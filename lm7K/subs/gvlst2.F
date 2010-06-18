@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx,
      .ng,kv,gv,igv,igv2)
 C- Set up a list of recip vectors within cutoff |q+G| < gmax
@@ -323,16 +323,16 @@ C     implicit none
       double precision gv(ngmx,3)
 C Local variables
       integer ig,m,jg
-#if F90 | AUTO_ARRAY
+CSFCPP#if F90 | AUTO_ARRAY
       integer kk(ngmx),iprm(ngmx)
       double precision gg(ngmx)
-#else
-      integer ngmxx
-      parameter (ngmxx=20000)
-      integer kk(ngmxx),iprm(ngmxx)
-      double precision gg(ngmxx)
-      if (ng .gt. ngmxx) call rxi('gvlst2: increase ngmx, need',ng)
-#endif
+CSFCPP#else
+CSFCPP      integer ngmxx
+CSFCPP      parameter (ngmxx=20000)
+CSFCPP      integer kk(ngmxx),iprm(ngmxx)
+CSFCPP      double precision gg(ngmxx)
+CSFCPP      if (ng .gt. ngmxx) call rxi('gvlst2: increase ngmx, need',ng)
+CSFCPP#endif
 
       do  ig = 1, ng
         gg(ig) = gv(ig,1)**2 + gv(ig,2)**2 + gv(ig,3)**2

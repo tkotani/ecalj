@@ -83,7 +83,7 @@ c repeat for down
         exdnpbe=0.d0
         vxdnpbe=0.d0
       endif
-10    continue 
+   10 continue 
 c construct total density and contribution to ex
       if(up.gt.eps.and.dn.gt.eps)then
         rho=up+dn

@@ -169,7 +169,7 @@ C --- First call to function evaluation ---
       if (ir .eq. -1) return
       qf1 = fx
 C --- begin main loop ---
-10000 continue
+ 1000 continue
       sf = d(1)
       s = 0
       d(1) = 0
@@ -183,7 +183,7 @@ C ---  Minimise along the first direction ---
       call lmin(f,n,x,fx,v,1,qd0,qd1,q0,q1,d(1),dmin,.false.,s,fx,lq2,
      .h,t,ldt,eps,nits,nf,nl,tvec,ir)
       if (ir .eq. -1) return
-      if (n .eq. 1) goto 30000
+      if (n .eq. 1) goto  3000
       if (s .le. 0) call dscal(n,-1d0,v,1)
       if (sf.le.0.9*d(1).or.0.9*sf.ge.d(1)) call dcopy(n-1,0d0,0,d(2),1)
 C --- Do n basic Powell procedures ---
@@ -191,7 +191,7 @@ C --- Do n basic Powell procedures ---
         call dcopy(n,x,1,y,1)
         sf = fx
         illc = illc .or. (kt .gt. 0)
-20000   continue
+ 2000   continue
         kl = k
         df = 0
         if (illc) then
@@ -232,7 +232,7 @@ c      if (.not. illc .and. (df .lt. eps)) then
           illc = .true.
           if (ipr .gt. 30)
      .    print *, 'praxis: problem seems ill-conditioned ..'
-          goto 20000
+          goto  2000
         endif
         if (k .eq. 2 .and. ipr .gt. 50) then
           print *,'praxis: new vector of second derivatives:'
@@ -297,13 +297,13 @@ C --- See if step length exceeds half the tolerance ---
         else
           kt = kt + 1
         endif
-        if (kt .gt. ktm) goto 30000
+        if (kt .gt. ktm) goto  3000
 C --- Check ipm switch ---
         ipl = ipl + 1
         if (ipm .gt. 0 .and. ipl .ge. ipm) then
           if (ipr .ge. 30) print*,
      .    'praxis: given number of Powell iterations completed.'
-          goto 30000
+          goto  3000
         endif
 C .. end basic Powell procedure
    10 continue
@@ -404,8 +404,8 @@ C --- Sort new eigenvalues and eigenvectors ---
           write (*,100) (v(i,j), i = 1, n)
    20   continue
       endif
-      goto 10000
-30000 continue
+      goto  1000
+ 3000 continue
       if (ipr .ge. 20) then
         print *,'praxis exiting:'
         print *,'x = '
@@ -516,7 +516,7 @@ C if f(x + x1) along search direction not available, then evaluate it
         xm = x1
         fm = f1
       endif
-10000 continue
+ 1000 continue
       if (dz) then
 C evaluate f at another point, x2, and estimate 2nd derivative
         if (f0 .lt. f1) then
@@ -557,7 +557,7 @@ C here, Brent has if (d2 .le. small) then
           x2 = -h
         endif
       endif
-20000 continue
+ 2000 continue
 C evaluate f at the predicted minimum
       f2q = f0 + d1*x2 + d2*x2*x2
       if (.not. lq) then
@@ -571,9 +571,9 @@ C evaluate f at the predicted minimum
         if ((k .lt. nits) .and. (f2 .gt. f0)) then
 C no success so try again ..
           k = k + 1
-          if ((f0 .lt. f1) .and. (x1*x2 .gt. 0)) goto 10000
+          if ((f0 .lt. f1) .and. (x1*x2 .gt. 0)) goto  1000
           x2 = 0.5d0*x2
-          goto 20000
+          goto  2000
         endif
         if (iprint() .gt. 50) write (*,300) f2,f2q
       endif

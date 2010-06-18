@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
 #define unix 1
       subroutine addsvv(nam,nelt,ival)
 C- Add a symbolic vector to list
@@ -38,18 +38,18 @@ C Local parameters
       integer size(mxnam)
       integer nnam,i,io,i1,i2,i2x
       double precision x1,xn
-#if F90
+CSFCPP#if F90
       type row
       real(8), pointer :: p(:)
       end type row
       type(row) :: symptr(mxnam)
       save symptr
-#elif POINTER
-      double precision arr(20)
-      pointer (iarr, arr)
-      integer symptr(mxnam)
-      save symptr
-#endif
+CSFCPP#elif POINTER
+CSFCPP      double precision arr(20)
+CSFCPP      pointer (iarr, arr)
+CSFCPP      integer symptr(mxnam)
+CSFCPP      save symptr
+CSFCPP#endif
       save symnam, size, nnam
       data nnam /0/
 
@@ -61,15 +61,15 @@ C --- Start of addsvv ---
 #if unix
       call locase(symnam(nnam))
 #endif
-#if F90
+CSFCPP#if F90
       allocate (symptr(nnam)%p(1:nelt))
       call dvset(symptr(nnam)%p,1,nelt,0d0)
       size(nnam) = nelt
-#elif POINTER
-      call faloc(iarr,4,nelt)
-      symptr(nnam) = iarr
-      size(nnam) = nelt
-#endif
+CSFCPP#elif POINTER
+CSFCPP      call faloc(iarr,4,nelt)
+CSFCPP      symptr(nnam) = iarr
+CSFCPP      size(nnam) = nelt
+CSFCPP#endif
       return
 
 C --- lodsvv, getsvv ---
@@ -103,7 +103,7 @@ C --- Print out table ---
       entry shosvv(first,last,ifi)
       write(ifi,332)
   332 format('  Vec       Name            Size   Val[1..n]')
-#if F90
+CSFCPP#if F90
       do  60  i = max(first,1), min(last,nnam)
 C       should extract element from symptr directly; don't know how
         call dpscop(symptr(i)%p,x1,1,1,1,1d0)
@@ -112,11 +112,11 @@ C       should extract element from symptr directly; don't know how
 C        write(ifi,334) i, symnam(i), size(i), symptr(i)%p
 C  334   format(i4, 4x, a20, i4, 20g10.3)
    60 continue
-#elif POINTER
-      do  60  i = max(first,1), min(last,nnam)
-        iarr = symptr(i)
-   60 write(ifi,333) i, symnam(i), size(i), arr(1), arr(size(i))
-#endif
+CSFCPP#elif POINTER
+CSFCPP      do  60  i = max(first,1), min(last,nnam)
+CSFCPP        iarr = symptr(i)
+CSFCPP   60 write(ifi,333) i, symnam(i), size(i), arr(1), arr(size(i))
+CSFCPP#endif
   333 format(i4, 4x, a20, i4, 2g14.5)
       return
 
@@ -125,9 +125,9 @@ C --- Find an index associated with a name ---
 C ... If iopt=0, find the index associated with this name
       if (iopt .eq. 0) then
         ival = 0
-#if ! (F90 | POINTER)
-        return
-#endif
+CSFCPP#if ! (F90 | POINTER)
+CSFCPP        return
+CSFCPP#endif
         tmpnam = nam
 #if unix
         call locase(tmpnam)
@@ -149,18 +149,18 @@ C --- Set/Retrieve portions of an array[index], depending on io ---
 
 C ... Return unless ival in range
       if (ival .le. 0 .or. ival .gt. nnam) return
-#if F90
+CSFCPP#if F90
       i2x = min(i2,size(ival))
       if (i2x .lt. i1) return
       if (io .eq. -1) call dpscop(vec,symptr(ival)%p,i2x-i1+1,1,i1,1d0)
       if (io .eq.  1) call dpscop(symptr(ival)%p,vec,i2x-i1+1,i1,1,1d0)
-#elif POINTER
-      iarr = symptr(ival)
-      i2x = min(i2,size(ival))
-      if (i2x .lt. i1) return
-      if (io .eq. -1) call dpscop(vec,arr,i2x-i1+1,1,i1,1d0)
-      if (io .eq.  1) call dpscop(arr,vec,i2x-i1+1,i1,1,1d0)
-#endif
+CSFCPP#elif POINTER
+CSFCPP      iarr = symptr(ival)
+CSFCPP      i2x = min(i2,size(ival))
+CSFCPP      if (i2x .lt. i1) return
+CSFCPP      if (io .eq. -1) call dpscop(vec,arr,i2x-i1+1,1,i1,1d0)
+CSFCPP      if (io .eq.  1) call dpscop(arr,vec,i2x-i1+1,i1,1,1d0)
+CSFCPP#endif
 
 C      do  i = 1, nnam
 C        call xxx(i,symptr(i)%p,size(i))

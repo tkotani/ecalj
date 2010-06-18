@@ -97,7 +97,8 @@ C ... Local parameters
       integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
      ., opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
      ., owk , owk2 , oclabl , opos , oqlv , odlv , orham , oamsh , 
-     .onrmsh , oalpha , oaamom , onpr , os , ormx , oip , oips , opgfsl 
+cki     .onrmsh , oalpha , oaamom , onpr , os , ormx , oip , oips , opgfsl 
+     .onrmsh , oalpha  , onpr , os , ormx , oip , oips , opgfsl 
      ., ontab , oiax , og , oag , mxclas , oics
       real(8) ,allocatable :: pos2_rv(:)
       real(8) ,allocatable :: rmt_rv(:)
@@ -178,7 +179,7 @@ c       call dcopy(i_copy_size,sham%qss,1,qss,1)
       oqt=spot%oqt
 
 
-      oaamom=spot%oaamom
+cki      oaamom=spot%oaamom
       orhrmx=spot%orhrmx
       oves=spot%oves
       ovrmax=spot%ovrmax

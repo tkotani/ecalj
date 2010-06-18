@@ -426,7 +426,7 @@ C ----- No standard choice of unit cell
           enddo
         enddo
         call dswap(3,platcv(1,1),1,platcv(1,3),1)
-5       if(ddet33(platcv).lt.0.d0)
+    5   if(ddet33(platcv).lt.0.d0)
      .  call dswap(3,platcv(1,2),1,platcv(1,3),1)
         call dcopy(9,platcv,1,platwk,1)
         call dmpy(platwk,3,1,t(1,isym3),3,1,platcv,3,1,3,3,3)
@@ -519,7 +519,7 @@ C External calls:
 
       if (iprint().ge.30) write(stdo,300) a,b,c,alpha,beta,gamma
 
-300   format(/' LATPAR:     A=',f9.5,'     B=',f9.5,'      C=',f9.5,
+  300 format(/' LATPAR:     A=',f9.5,'     B=',f9.5,'      C=',f9.5,
      ./,9x,'ALPHA=',f9.4,'  BETA=',f9.4,'  GAMMA=',f9.4)
       end
 
@@ -729,7 +729,7 @@ C ------- allow for abbreviations as 'D', 'X', 'Y' or 'Z'
         call dscal(9,detop,symopm(1,1),1)
       endif
 
-400   format(' ROTMAT: Bad component ',i1,' of operation ',
+  400 format(' ROTMAT: Bad component ',i1,' of operation ',
      .'. Diagonal element =',f9.5,'$')
       end
       subroutine nrmliz(n,r,rn)

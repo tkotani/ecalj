@@ -1,11 +1,11 @@
-#define F90 1
-#ifndef F90
-      subroutine yysbnv(mode,apr,api,ldap,ija,offs,nlev,
-     .nn1,nn2,w,ldw,ar,ai,lda,ierr)
-#else
+CSFCPP#define F90 1
+CSFCPP#ifndef F90
+CSFCPP      subroutine yysbnv(mode,apr,api,ldap,ija,offs,nlev,
+CSFCPP     .nn1,nn2,w,ldw,ar,ai,lda,ierr)
+CSFCPP#else
       recursive subroutine yysbnv(mode,apr,api,ldap,ija,offs,nlev,
      .nn1,nn2,w,ldw,ar,ai,lda,ierr)
-#endif
+CSFCPP#endif
 C- Inversion of a complex block sparse matrix using Strassen's algorithm
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -158,7 +158,7 @@ C --- R1 = a22^-1 in a22 ---
           call yygedi(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w,xx,
      .    w(1,2),w(1,3),1)
         endif
-#if RECUR | F90
+CSFCPP#if RECUR | F90
       elseif (nm2 .gt. nnmin .and. nlev .gt. 0) then
         call yysbnv(mode,apr,api,ldap,ija,offs,nlev-1,
      .  nm1+1,(nn2),w,ldw,ar,ai,lda,ierr)
@@ -170,7 +170,7 @@ C --- R1 = a22^-1 in a22 ---
 #if DEBUG
         print 333, 'recursive call exit',nlev,n2-n1,m1-n1,m2
 #endif
-#endif
+CSFCPP#endif
       else
         call yysp2a(mode0,1+nm1,nn2,1+nm1,nn2,apr,api,ldap,ija,offs,
      .  ar,ai,lda)

@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine rnatm(pl,ql,n0,irchan,lmax,z,a,b,rofi,ev,
      .nr,rc,nsp,v,rho)
 C- Renormalise charge or potential for a free atom
@@ -42,22 +42,22 @@ C ... Local parameters
       logical pot
       integer l,isp,lp1,konfig,ir,iprint,stdo,nglob,ltop
       double precision sum1(10,2),sum2(10,2),tol,r,fac,sum,rmax,rcw
-#if F90 | AUTO_ARRAY
+CSFCPP#if F90 | AUTO_ARRAY
       double precision rh1(nr),rh2(nr),rwgt(nr),ddot
-#else
-      integer nrmax
-      parameter (nrmax=1501)
-      double precision rh1(nrmax),rh2(nrmax),rwgt(nrmax)
-#endif
+CSFCPP#else
+CSFCPP      integer nrmax
+CSFCPP      parameter (nrmax=1501)
+CSFCPP      double precision rh1(nrmax),rh2(nrmax),rwgt(nrmax)
+CSFCPP#endif
 C ... External calls
       external dpcopy,info2,makrvl,radwgt,rseq,rx
 
 C     call prrmsh('input rho',rofi,rho,nr,nr,nsp)
 
       if (rc(1) .eq. 0) return
-#if ! (F90 | AUTO_ARRAY)
-      if (nr .gt. nrmax) call rx('RNATM: nr > nrmax')
-#endif
+CSFCPP#if ! (F90 | AUTO_ARRAY)
+CSFCPP      if (nr .gt. nrmax) call rx('RNATM: nr > nrmax')
+CSFCPP#endif
 
 C --- Setup ---
       stdo = nglob('stdo')

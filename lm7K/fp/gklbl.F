@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,slat,gkl)
 
       use m_struc_def  !Cgetarg
@@ -31,9 +31,9 @@ C ... Local parameters
       double complex cfac,phase
       integer ilm,k,ll,lmax,nkd,nkq,odlv,oqlv,owk,l,m
       double precision alat,awald,pi,sp,vol,plat(9),qlat(9),p1(3),rwald
-#if F90
+CSFCPP#if F90
       real(8),allocatable:: wk(:)
-#endif
+CSFCPP#endif
 C ... Heap
       integer w(1)
       common /w/ w
@@ -70,15 +70,15 @@ C     make the summation in reciprocal space, else in real space
       if (rsm .ge. rwald) then
         call gklblq(p1,rsm,q,kmax,nlm,k0,alat,w(oqlv),nkq,vol,gkl)
       else
-#if F90
+CSFCPP#if F90
         allocate(wk((kmax+1)*(lmax+1)))
         call gklbld(p1,rsm,q,kmax,nlm,k0,alat,w(odlv),nkd,wk,gkl)
         deallocate(wk)
-#else
-        call defrr(owk, (kmax+1)*(lmax+1))
-        call gklbld(p1,rsm,q,kmax,nlm,k0,alat,w(odlv),nkd,w(owk),gkl)
-        call rlse(owk)
-#endif
+CSFCPP#else
+CSFCPP        call defrr(owk, (kmax+1)*(lmax+1))
+CSFCPP        call gklbld(p1,rsm,q,kmax,nlm,k0,alat,w(odlv),nkd,w(owk),gkl)
+CSFCPP        call rlse(owk)
+CSFCPP#endif
       endif
 
       cfac = (0d0,1d0)*dexp(0.25d0*e*rsm*rsm)*phase

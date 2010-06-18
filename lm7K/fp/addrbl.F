@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine addrbl(ssite,sspec,slat,sham,isp,nsp,nspc,q,wtkp,ndham,
      .ndimh,napw,igapw,lmet,lrout,lwtkb,wtkb,lswtk,swtk,iq,lfrce,ldos,
      .lekkl,k1,k2,k3,smpot,vconst,osig,otau,oppi,lcplxp,numq,qval,
@@ -115,20 +115,20 @@ C ... Local parameters
      .lmxax,lmxa,nlmax,nlmto,ig
       double precision vavg,wgt,alat,qlat(3,3),tpiba,vol
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-#if F90
+CSFCPP#if F90
       integer ipiv(ndimh*2)
       complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
       real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
-#else
-      double precision qpgv,qpg2v,ylv
-#endif
-#if F90 | AUTO_ARRAY
+CSFCPP#else
+CSFCPP      double precision qpgv,qpg2v,ylv
+CSFCPP#endif
+CSFCPP#if F90 | AUTO_ARRAY
       double precision ewgt(ndimh*nspc*numq)
-#else
-      integer ndimx
-      parameter(ndimx=1000)
-      double precision ewgt(3,ndimx)
-#endif
+CSFCPP#else
+CSFCPP      integer ndimx
+CSFCPP      parameter(ndimx=1000)
+CSFCPP      double precision ewgt(3,ndimx)
+CSFCPP#endif
 C ... Heap
       integer w(1)
       common /w/ w
@@ -143,9 +143,9 @@ C     call wkprnt(1)
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
-#if ! (F90 | AUTO_ARRAY)
-      if (ndimhx.gt.ndimx) call rxi('addrbl: increase ndimx to',ndimh)
-#endif
+CSFCPP#if ! (F90 | AUTO_ARRAY)
+CSFCPP      if (ndimhx.gt.ndimx) call rxi('addrbl: increase ndimx to',ndimh)
+CSFCPP#endif
 
       oidxsh=sham%oindxo
 
@@ -167,7 +167,7 @@ C     Find largest lmxa ... should be made elsewhere
         lmxax = max(lmxax,lmxa)
       enddo
       nlmax=(lmxax+1)**2
-#if F90
+CSFCPP#if F90
       if (napw .gt. 0) then
         allocate(ylv(napw,nlmax),qpgv(3,napw),qpg2v(napw))
         tpiba = 2d0*4d0*datan(1d0)/alat
@@ -179,11 +179,11 @@ C     Find largest lmxa ... should be made elsewhere
       else
         allocate(ylv(1,1),qpgv(1,1),qpg2v(1))
       endif
-#else
-      if (napw .gt. 0) then
-        call rx('require F90 for PW code')
-      endif
-#endif
+CSFCPP#else
+CSFCPP      if (napw .gt. 0) then
+CSFCPP        call rx('require F90 for PW code')
+CSFCPP      endif
+CSFCPP#endif
 
 C --- Decide how many states to include and make their weights ---
 C ... Case band weights not passed: make sampling weights
@@ -276,7 +276,7 @@ C ... Weights for spin moments
      .    //' ... spin weights not evaluated')
           lswtk = -2
         else
-#if F90
+CSFCPP#if F90
           allocate(evecc(ndimh,2,ndimh,2),work(ndimh,2,ndimh,2))
           call zcopy(ndimhx**2,evec,1,evecc,1)
           call zgetrf(nevl,nevl,evecc,ndimhx,ipiv,i)
@@ -294,14 +294,14 @@ C  345   format(i4,3f14.8)
           enddo
           deallocate(evecc,work)
         endif
-#else
-        lswtk = -2
-#endif
+CSFCPP#else
+CSFCPP        lswtk = -2
+CSFCPP#endif
       endif
 
-#if F90
+CSFCPP#if F90
       deallocate(qpgv,qpg2v,ylv)
-#endif
+CSFCPP#endif
 
       call tcx('addrbl')
       end subroutine addrbl

@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine mullmf(nbas,ssite,sspec,iprmb,z,n,nspc,iq,isp,mode,
      .nsites,lsites,lmxch,nchan,lchan,lmdim,nddos,doswt)
 
@@ -57,18 +57,18 @@ C ... Local parameters
       integer blks(n0*nkap0),ntab(n0*nkap0)
       integer io,ikap,l,nlm1,nlm2,ilm,jlm,i,j,norb
       double precision xx
-#if F90
+CSFCPP#if F90
       integer ipiv(n*nspc)
       complex(8),allocatable:: zt(:,:,:),work(:,:,:)
       allocate(zt(n*nspc,n,nspc),work(n*nspc,n,nspc))
-#elif AUTO_ARRAY
-      integer ipiv(n*nspc)
-      double complex zt(n*nspc,n,nspc),work(n*nspc,n,nspc)
-#else
-      integer ipiv(1)
-      double complex zt(1,1,1),work(1,1,1)
-      call rx('mullmf only implemented for automatic arrays')
-#endif
+CSFCPP#elif AUTO_ARRAY
+CSFCPP      integer ipiv(n*nspc)
+CSFCPP      double complex zt(n*nspc,n,nspc),work(n*nspc,n,nspc)
+CSFCPP#else
+CSFCPP      integer ipiv(1)
+CSFCPP      double complex zt(1,1,1),work(1,1,1)
+CSFCPP      call rx('mullmf only implemented for automatic arrays')
+CSFCPP#endif
 
 C ... Setup
       stdo = lgunit(1)
@@ -176,9 +176,9 @@ C        enddo
 C        print *, iband, sngl(xx)
 C      enddo
 
-#if F90
+CSFCPP#if F90
       deallocate(zt,work)
-#endif
+CSFCPP#endif
       call tcx('mullmf')
 
       end subroutine mullmf

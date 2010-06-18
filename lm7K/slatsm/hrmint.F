@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine hrmint(xi,yi,ypi,n,nyi,nypi,x,y,yp)
 C- Hermite interpolation of tabulated data at a specified point
 C ----------------------------------------------------------------
@@ -27,16 +27,16 @@ C Passed parameters
       double precision x,y,yp,xi(n),yi(n),ypi(n)
 C Local variables
       integer j
-#if AUTO_ARRAY | F90
+CSFCPP#if AUTO_ARRAY | F90
       double precision xx(n)
       integer iprm(n)
-#else
-      integer nmax
-      parameter (nmax=1000)
-      double precision xx(nmax)
-      integer iprm(nmax)
-      if (n .gt. nmax) call rxi('hrmint: increase nmax, need',n)
-#endif
+CSFCPP#else
+CSFCPP      integer nmax
+CSFCPP      parameter (nmax=1000)
+CSFCPP      double precision xx(nmax)
+CSFCPP      integer iprm(nmax)
+CSFCPP      if (n .gt. nmax) call rxi('hrmint: increase nmax, need',n)
+CSFCPP#endif
 
 C     Order points by increasing distance from x
       do  j = 1, n
@@ -88,12 +88,12 @@ C Local variables
       integer nn,nnx,n2
       parameter (nnx=100)
       double precision b,c
-#if AUTO_ARRAY | F90
+CSFCPP#if AUTO_ARRAY | F90
       double precision Pm(N),Pn(N),Pmp(N),Pnp(N),a(N)
-#else
-      double precision Pm(nnx),Pn(nnx),Pmp(nnx),Pnp(nnx),a(nnx)
-      if (N .gt. nnx) call rxi('hrminx: increase nnx; need',N)
-#endif
+CSFCPP#else
+CSFCPP      double precision Pm(nnx),Pn(nnx),Pmp(nnx),Pnp(nnx),a(nnx)
+CSFCPP      if (N .gt. nnx) call rxi('hrminx: increase nnx; need',N)
+CSFCPP#endif
 
 C ... Switch whether to permute xi
       lprm = iprm(1) .ne. 0

@@ -235,9 +235,9 @@ C --- Get operator class and number ---
       t2 = mod(op,16)
 C ... Make sure that there enough numbers on the number stack to do
 C ... the operation
-      if ((t2.eq.0).and.(numnum.eq.0)) goto 10900
-      if ((t2.eq.8).and.(numnum.lt.3)) goto 10900
-      if ((t2.gt.0) .and. (t2.lt.7) .and. (numnum.lt.2)) goto 10900
+      if ((t2.eq.0).and.(numnum.eq.0)) goto  1090
+      if ((t2.eq.8).and.(numnum.lt.3)) goto  1090
+      if ((t2.gt.0) .and. (t2.lt.7) .and. (numnum.lt.2)) goto  1090
 C ... Load the top 2 numbers into v0 and v1 to speed things up
       v0 = numstk(numnum)
       if (numnum .ne. 1) v1 = numstk(numnum-1)
@@ -247,11 +247,11 @@ C ... Array element is really a binop, so decrement numnum
       if ((t2.eq.0) .and. (t1.eq.19)) numnum=numnum-1
 
 C --- Go to appropriate operator class code
-      goto (10000,10100,10200,10300,10400,10500,10600,10700,
-     .10800,10900,11000),t2+1
+      goto ( 1000, 1010, 1020, 1030, 1040, 1050, 1060, 1070,
+     . 1080, 1090, 1100),t2+1
 
 C --- Go to the appropriate unary op/function code
-10000 goto (100,101,102,103,104,105,106,107,108,109,110,111,112,113,
+ 1000 goto (100,101,102,103,104,105,106,107,108,109,110,111,112,113,
      .114,115,116,117,118,119),t1+1
 C ... Arithmetic negation
   100 numstk(numnum) = -v0
@@ -348,10 +348,10 @@ C      call getsvv(' ',ii1,1,ii2,ii2,numstk(numnum))
 
 C --- Binary operators ---
 C ... exponentiation
-10100 numstk(numnum) = v1**v0
+ 1010 numstk(numnum) = v1**v0
       return
 C ... *, /, and %
-10200 goto (200,201,202),t1+1
+ 1020 goto (200,201,202),t1+1
   200 numstk(numnum) = v1*v0
       return
   201 numstk(numnum) = v1/v0
@@ -359,7 +359,7 @@ C ... *, /, and %
   202 numstk(numnum) = mod(v1,v0)
       return
 C ... + and - (binary subtraction)
-10300 continue
+ 1030 continue
       if (t1 .eq. 0) then
         numstk(numnum) = v1+v0
       else
@@ -367,7 +367,7 @@ C ... + and - (binary subtraction)
       endif
       return
 C ... Conditional operators
-10400 if (machep .lt. 0D0) then
+ 1040 if (machep .lt. 0D0) then
         call getsyv('machep',machep,ival)
         if (ival .eq. 0) machep = 1d-10
       endif
@@ -389,22 +389,22 @@ C ... Conditional operators
   405 numstk(numnum) = log2d(abs(v1-v0).gt.machep)
       return
 C ... Logical and
-10500 numstk(numnum) = v1*v0
+ 1050 numstk(numnum) = v1*v0
       return
 C ... Logical or
-10600 numstk(numnum) = abs(v0)+abs(v1)
+ 1060 numstk(numnum) = abs(v0)+abs(v1)
       return
 C ... '?' or '(' mean syntax error in expression
-10700 continue
-10900 continue
+ 1070 continue
+ 1090 continue
       stop 'A2BIN: expression syntax.'
 C ... ')', pop the associated '(' and do nothing else
-11000 continue
+ 1100 continue
       lerr = ((opnum .eq. 0) .or. (opstk(opnum) .ne. 9))
       opnum = opnum-1
       return
 C ... Conditional expr: pop v1 and load either v0 or v1 onto the stack
-10800 numnum = numnum-1
+ 1080 numnum = numnum-1
       if (numstk(numnum) .eq. 0D0) then
         numstk(numnum) = v0
       else

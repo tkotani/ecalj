@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,
      .napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
       use m_struc_def  !Cgetarg
@@ -112,15 +112,15 @@ C     Shared variables (openmp)
       double precision etab(nermx),rtab(nermx)
       integer ivec,nvec
 C     Local for parallel threads
-#if F90
+CSFCPP#if F90
       integer,allocatable:: ivp(:)
       complex(8),allocatable::psi(:,:,:),psir(:,:,:),vpsi(:,:,:),
      .wk(:,:,:)
       real(8),allocatable:: cosi(:),sini(:),wk2(:)
-#else
-      integer ivp(napw)
-      integer ocos,of,opsi,osin,ovpsi,opsi0,owk2
-#endif
+CSFCPP#else
+CSFCPP      integer ivp(napw)
+CSFCPP      integer ocos,of,opsi,osin,ovpsi,opsi0,owk2
+CSFCPP#endif
 
 #if MPI
       integer, dimension(:), allocatable :: vproc
@@ -195,14 +195,14 @@ C     .  w(ogv),w(oiv),w(oiv))
 
 C     For PW basis ... for now.
       if (napw .gt. 0) then
-#if F90
+CSFCPP#if F90
         allocate(ivp(napw))
-#endif
+CSFCPP#endif
         call gvgvcomp(ng,w(oiv),napw,igapw,ivp)
       else
-#if F90
+CSFCPP#if F90
         allocate(ivp(1))
-#endif
+CSFCPP#endif
       endif
 
 C --- Tables of energies, rsm, indices to them ---
@@ -249,7 +249,7 @@ C     call suphs0(plat,ng,w(ogv),w(oiv))
 #endif
 
 C  --- Loop over eigenstates ---
-#if F90
+CSFCPP#if F90
 C$OMP PARALLEL PRIVATE (psi,psir,vpsi,cosi,sini,wk,wk2,xsmrho,fr)
       allocate(psi(ng,nspc,nblk),vpsi(ng,nspc,nblk),wk(ng,nspc,nblk))
       allocate(psir(k1,k2,k3),cosi(ng),sini(ng),wk2(ng))
@@ -258,15 +258,15 @@ C$OMP PARALLEL PRIVATE (psi,psir,vpsi,cosi,sini,wk,wk2,xsmrho,fr)
       call dpzero(xsmrho,k1*k2*k3*numq*nspc*2)
       call dpzero(fr,3*nbas*numq)
 #endif
-#else
-      call defcc(opsi,  ng*nspc*nblk)
-      call defrr(ocos,  ng)
-      call defrr(osin,  ng)
-      call defcc(opsi0, ng*nspc*nblk)
-      call defrr(owk2,  ng)
-      call defcc(ovpsi, ng*nspc*nblk)
-      call defcc(of,    k1*k2*k3)
-#endif
+CSFCPP#else
+CSFCPP      call defcc(opsi,  ng*nspc*nblk)
+CSFCPP      call defrr(ocos,  ng)
+CSFCPP      call defrr(osin,  ng)
+CSFCPP      call defcc(opsi0, ng*nspc*nblk)
+CSFCPP      call defrr(owk2,  ng)
+CSFCPP      call defcc(ovpsi, ng*nspc*nblk)
+CSFCPP      call defcc(of,    k1*k2*k3)
+CSFCPP#endif
 
 
 #if MPI
@@ -310,7 +310,7 @@ c        nvec = min(nblk, nevec-ivec+1)
 #endif
 
 
-#if F90
+CSFCPP#if F90
 C   ... Add together total smooth wavefunction
         call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
      .  n3,qlat,cosi,sini,w(oyl),w(oylw),w(ohe),w(ohr),wk,
@@ -344,32 +344,32 @@ C    --- Add to forces ---
 #endif
         endif
 
-#else
-C   ... Add together total smooth wavefunction
-        call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-     .  n3,qlat,w(ocos),w(osin),w(oyl),w(oylw),w(ohe),w(ohr),w(opsi0),
-     .  w(owk2),vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,numq,
-     .  ewgt,ivec,nvec,evec,w,w(opsi),w)
-        call rsiblp(ng,ndimh,nlmto,nspc,napw,ivp,nvec,dsqrt(vol),
-     .  evec(1,1,ivec),w(opsi))
-
-C   ... Add to real-space mesh, optionally make smpot*psi for forces
-        call rsibl2(ng,nspc,nvec,w(opsi),n1,n2,n3,k1,k2,k3,w(okv),numq,
-     .  ewgt(1,ivec),lfrce,smpot(1,1,1,isp),w(of),smrho(1,1,1,1,isp),
-     .  w(ovpsi))
-
-C    --- Add to forces ---
-        if (lfrce .ne. 0) then
-          call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-     .    n3,qlat,w(ocos),w(osin),w(oyl),w(oylw),w(ohe),w(ohr),
-     .    w(opsi0),w(owk2),vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
-     .    numq,ewgt,ivec,nvec,evec,w(ovpsi),w(opsi),f)
-        endif
-#endif
+CSFCPP#else
+CSFCPPC   ... Add together total smooth wavefunction
+CSFCPP        call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
+CSFCPP     .  n3,qlat,w(ocos),w(osin),w(oyl),w(oylw),w(ohe),w(ohr),w(opsi0),
+CSFCPP     .  w(owk2),vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,numq,
+CSFCPP     .  ewgt,ivec,nvec,evec,w,w(opsi),w)
+CSFCPP        call rsiblp(ng,ndimh,nlmto,nspc,napw,ivp,nvec,dsqrt(vol),
+CSFCPP     .  evec(1,1,ivec),w(opsi))
+CSFCPP
+CSFCPPC   ... Add to real-space mesh, optionally make smpot*psi for forces
+CSFCPP        call rsibl2(ng,nspc,nvec,w(opsi),n1,n2,n3,k1,k2,k3,w(okv),numq,
+CSFCPP     .  ewgt(1,ivec),lfrce,smpot(1,1,1,isp),w(of),smrho(1,1,1,1,isp),
+CSFCPP     .  w(ovpsi))
+CSFCPP
+CSFCPPC    --- Add to forces ---
+CSFCPP        if (lfrce .ne. 0) then
+CSFCPP          call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
+CSFCPP     .    n3,qlat,w(ocos),w(osin),w(oyl),w(oylw),w(ohe),w(ohr),
+CSFCPP     .    w(opsi0),w(owk2),vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
+CSFCPP     .    numq,ewgt,ivec,nvec,evec,w(ovpsi),w(opsi),f)
+CSFCPP        endif
+CSFCPP#endif
 
       enddo
 C$OMP END DO
-#if F90
+CSFCPP#if F90
       deallocate(psi,vpsi,wk,psir,cosi,sini,wk2)
 #if OPENMP
 CC kino's fix at feb27-2009
@@ -378,8 +378,8 @@ CC      deallocate(xsmrho,fr)
       if (allocated(fr)) deallocate(fr)
 #endif
 C$OMP END PARALLEL
-#else
-#endif
+CSFCPP#else
+CSFCPP#endif
 
 #if MPI
 #if MPE
@@ -429,9 +429,9 @@ C
 #endif
 #endif
       call rlse(ogv)
-#if F90
+CSFCPP#if F90
       deallocate(ivp)
-#endif
+CSFCPP#endif
 C     call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
       call tcx('rsibl')
       end subroutine rsibl
@@ -907,7 +907,7 @@ C ... Local parameters
       integer jg,ig
 
 C     Redesign ... inefficient.
-#if F90
+CSFCPP#if F90
       do  ig = 1, napw
         do  jg = 1, ng
           if(sum(abs(igv(jg,:)-igapw(:,ig))) == 0) then
@@ -921,7 +921,7 @@ C     Redesign ... inefficient.
         if( sum(abs( igapw(:,ig)-igv(ivp(ig),:) )) /=0) 
      .  call rx('bug in gvgvcomp.  Cannot find ivp')
       enddo
-#endif
+CSFCPP#endif
       end subroutine gvgvcomp
 
 

@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine zhevx(n,lh,h,s,lov,lx,nmx,emx,nev,wk,linv,e,lz,z)
 C- Eigenvalues and/or some eigenvectors of a Hermitian matrix
 C ----------------------------------------------------------------
@@ -604,11 +604,11 @@ C Passed parameters
       integer mode,n
       double complex h(n,n),s(n,n),z(n,n)
 C Local parameters
-#if F90
+CSFCPP#if F90
       real(8),allocatable:: e(:),wk(:)
-#else
-      double precision e(n),wk(11*n)
-#endif
+CSFCPP#else
+CSFCPP      double precision e(n),wk(11*n)
+CSFCPP#endif
       logical lx
       integer i,lmode
       double complex zer,one
@@ -625,9 +625,9 @@ C Local parameters
 
 C --- Eigenvectors and eigenvalues of s ---
       if (mod(mode,2) .ne. 0) then
-#if F90
+CSFCPP#if F90
         allocate(e(n),wk(11*n))
-#endif
+CSFCPP#endif
         call zhev(n,s,s,.false.,lx,n,9d9,i,wk,.false.,0,e,z)
 C      if (lmode .eq. 2) then
 C      do  i = 1, n
@@ -643,9 +643,9 @@ C          z(i,j) = sqrt(e(i)) * z(i,j)
 C        enddo
 C      enddo
 C      endif
-#if F90
+CSFCPP#if F90
         deallocate(e,wk)
-#endif
+CSFCPP#endif
         lmode = mode-1
       endif
 
@@ -713,7 +713,7 @@ C Passed parameters
       integer n,nevl,nev,nmx
       double complex h(lh,n),s(lh,n),z(lz,n)
       double precision e(n),eo(n),emx,epsovl
-#if F90
+CSFCPP#if F90
 C Local parameters
       integer ier,lwork,i,ni
       character jobz
@@ -792,9 +792,9 @@ C       call zprm3('z',2,z,lz,n,nev)
 
       call tcx('zhevo')
 
-#else
-      call rx('zhevo only implemented with F90')
-#endif
+CSFCPP#else
+CSFCPP      call rx('zhevo only implemented with F90')
+CSFCPP#endif
 
       end
 

@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,
      .nspc,napw,igvapw,iprmb,numq,nevec,evec,ewgt,evl,osig,otau,oppi,
      .lcplxp,lekkl,oqkkl,oeqkkl,f)
@@ -142,19 +142,19 @@ C ... Local process-specific variables
       integer ob,odb,oppihp,oppipp,osighp,osigpp,
      .oqhh,oqhp,oqpp,oeqhh,oeqhp,oeqpp
       double precision pa(3),rsma,pi,tpiba
-#if F90
+CSFCPP#if F90
       complex(8),allocatable:: cPkL(:),da(:),wk(:)
-#else
-      integer ib,nlmhb,ik
-      double precision p(3),xx
-      parameter (nlmx=49,ktop0=10)
-      double complex cPkL((ktop0+1)*nlmx),da((ktop0+1)*nlmx*3),
-     .b0((ktop0+1)*nlmx*nlmbx),db0((ktop0+1)*nlmx*nlmbx*3),
-     .wk((ktop0+1)*nlmx),bos((ktop0+1)*nlmbx)
-      integer norb,nkapi
-      integer lh(nkap0),ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
-      double precision eh(n0,nkap0),rsmh(n0,nkap0)
-#endif
+CSFCPP#else
+CSFCPP      integer ib,nlmhb,ik
+CSFCPP      double precision p(3),xx
+CSFCPP      parameter (nlmx=49,ktop0=10)
+CSFCPP      double complex cPkL((ktop0+1)*nlmx),da((ktop0+1)*nlmx*3),
+CSFCPP     .b0((ktop0+1)*nlmx*nlmbx),db0((ktop0+1)*nlmx*nlmbx*3),
+CSFCPP     .wk((ktop0+1)*nlmx),bos((ktop0+1)*nlmbx)
+CSFCPP      integer norb,nkapi
+CSFCPP      integer lh(nkap0),ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
+CSFCPP      double precision eh(n0,nkap0),rsmh(n0,nkap0)
+CSFCPP#endif
 C$    integer mp_numthreads,mp_my_threadnum
 C ... Heap
       integer w(1)
@@ -216,7 +216,7 @@ C     Needed for PW part
       pi = 4d0*datan(1d0)
       tpiba = 2d0*pi/alat
 
-#if F90
+CSFCPP#if F90
 C ... Allocate workspace for augmentation arrays
       nlmx  = nlmax
       ktop0 = kmaxx
@@ -225,9 +225,9 @@ C ... Allocate workspace for augmentation arrays
 C      allocate(cPkL((ktop0+1)*nlmx),da((ktop0+1)*nlmx*3),
 C     .  b0((ktop0+1)*nlmx*nlmbx),db0((ktop0+1)*nlmx*nlmbx*3),
 C     .  wk((ktop0+1)*nlmx),bos((ktop0+1)*nlmbx))
-#else
-      if (napw .gt. 0) call rx('rlocbl: PWs require F90 compiler')
-#endif
+CSFCPP#else
+CSFCPP      if (napw .gt. 0) call rx('rlocbl: PWs require F90 compiler')
+CSFCPP#endif
       if (nlmax .gt. nlmx) call rxi('rlocbl: nlmx.lt.nlma=',nlmax)
       if (kmaxx .gt. ktop0) call rxi('rlocbl: ktop0.lt.kmax=',kmax)
 
@@ -297,50 +297,50 @@ C   --- Strux to expand all orbitals and their gradients at site ia ---
         odb = oidb(ip)
         oxf = oixf(ip)
 
-#if F90
+CSFCPP#if F90
         call bstrux(1,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
      .  iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igvapw,w(ob),
      .  w(odb))
-#else
-C       Zero out strux to eliminate contributions from local orbitals
-        call dpzero(w(ob),(kmax+1)*nlma*ndimh*2)
-        call dpzero(w(odb),(kmax+1)*nlma*ndimh*2*3)
-        do  ib = 1, nbas
-
-          is=ssite(ib)%spec
-          i_copy_size=size(ssite(ib)%pos)
-          call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
-
-C         This line augments no local orbitals
-C         ik = 1
-C         This line augments onsite extended local orbitals only
-C         if (ia .eq. ib) ik = 2
-C         This line augments extended local orbitals all sites
-          ik = 2
-          call uspecb(0,ik,sspec,is,is,lh,rsmh,eh,nkapi)
-C         Position in h; l,k indices for orbitals connected w/ ib
-          call orbl(ib,0,ndimh,iprmb,norb,ltab,ktab,xx,offl,xx)
-C         Get list of blocks with envelope functions
-C         call gtbsl1(8+16,norb,ltab,ktab,xx,xx,ntab,blks)
-C         Loop over blocks of envelope functions
-          do  ik = 1, nkapi
-            nlmhb = (lh(ik)+1)**2
-            if (nlmhb .gt. nlmbx) call rxi('rlocbl: need nlmbx',nlmhb)
-            if (nlmhb .gt. nlma .and. ia.eq.ib)
-     .      call rx('rlocbl: nlmh .gt. nlma')
-
-            call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmhb,nlma,
-     .      kmax,nlmbx,nlma,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b0,
-     .      db0)
-            if (ib .eq. ia) then
-              call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmhb,kmax,bos)
-              call paugq2(kmax,nlmhb,nlma,bos,b0)
-            endif
-            call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,nlma,
-     .      kmax,b0,db0,w(ob),w(odb))
-          enddo
-        enddo
-#endif
+CSFCPP#else
+CSFCPPC       Zero out strux to eliminate contributions from local orbitals
+CSFCPP        call dpzero(w(ob),(kmax+1)*nlma*ndimh*2)
+CSFCPP        call dpzero(w(odb),(kmax+1)*nlma*ndimh*2*3)
+CSFCPP        do  ib = 1, nbas
+CSFCPP
+CSFCPP          is=ssite(ib)%spec
+CSFCPP          i_copy_size=size(ssite(ib)%pos)
+CSFCPP          call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
+CSFCPP
+CSFCPPC         This line augments no local orbitals
+CSFCPPC         ik = 1
+CSFCPPC         This line augments onsite extended local orbitals only
+CSFCPPC         if (ia .eq. ib) ik = 2
+CSFCPPC         This line augments extended local orbitals all sites
+CSFCPP          ik = 2
+CSFCPP          call uspecb(0,ik,sspec,is,is,lh,rsmh,eh,nkapi)
+CSFCPPC         Position in h; l,k indices for orbitals connected w/ ib
+CSFCPP          call orbl(ib,0,ndimh,iprmb,norb,ltab,ktab,xx,offl,xx)
+CSFCPPC         Get list of blocks with envelope functions
+CSFCPPC         call gtbsl1(8+16,norb,ltab,ktab,xx,xx,ntab,blks)
+CSFCPPC         Loop over blocks of envelope functions
+CSFCPP          do  ik = 1, nkapi
+CSFCPP            nlmhb = (lh(ik)+1)**2
+CSFCPP            if (nlmhb .gt. nlmbx) call rxi('rlocbl: need nlmbx',nlmhb)
+CSFCPP            if (nlmhb .gt. nlma .and. ia.eq.ib)
+CSFCPP     .      call rx('rlocbl: nlmh .gt. nlma')
+CSFCPP
+CSFCPP            call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmhb,nlma,
+CSFCPP     .      kmax,nlmbx,nlma,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b0,
+CSFCPP     .      db0)
+CSFCPP            if (ib .eq. ia) then
+CSFCPP              call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmhb,kmax,bos)
+CSFCPP              call paugq2(kmax,nlmhb,nlma,bos,b0)
+CSFCPP            endif
+CSFCPP            call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,nlma,
+CSFCPP     .      kmax,b0,db0,w(ob),w(odb))
+CSFCPP          enddo
+CSFCPP        enddo
+CSFCPP#endif
 
 C   --- Loop over eigenstates ---
 C       In noncollinear case, isp=1 always => need internal ispc=1..2
@@ -482,9 +482,9 @@ C ... end loop over ia
       endif
 #endif
 
-#if F90
+CSFCPP#if F90
       deallocate(cPkL,da,wk)
-#endif
+CSFCPP#endif
       call rlse(o)
       call tcx('rlocbl')
 

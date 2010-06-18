@@ -457,19 +457,19 @@ C ----- Now examine merged sphere, get deses,desat
       call icopy(3,nrxyzz,1,nrxyz,1)
       return
 
-300   format( ' SYMES : FACMRG=',f6.4,',  FACOVL=',f6.4)
-301   format(/' SYMES :ISOP',16x,'DBAS',16x,'DIST',5x,'FMWSR',
+  300 format( ' SYMES : FACMRG=',f6.4,',  FACOVL=',f6.4)
+  301 format(/' SYMES :ISOP',16x,'DBAS',16x,'DIST',5x,'FMWSR',
      ./8x,57('-'))
-302   format(8x,i2,3x,3f10.6,1x,2f10.6)
-303   format( ' SYMES : BEFORE: ',3f10.6,',  degeneracy: ',i2,
+  302 format(8x,i2,3x,3f10.6,1x,2f10.6)
+  303 format( ' SYMES : BEFORE: ',3f10.6,',  degeneracy: ',i2,
      ./9x,'Number of equivalent points in the unit cell:',i2)
-304   format( ' SYMES : AFTER:  ',3f10.6,', averaged over',i2,' points')
-305   format( ' SYMES : shortest distance to ES of same class :',f10.7,
+  304 format( ' SYMES : AFTER:  ',3f10.6,', averaged over',i2,' points')
+  305 format( ' SYMES : shortest distance to ES of same class :',f10.7,
      ./'       : shortest distance to another atom ',a8,':',f10.7)
-306   format( ' SYMES : spheres not merged')
-307   format(' SYMES : DB=',f7.5,', TOLWSR=',f7.5,', NNZ=',i2)
-308   format( ' SYMES : STEP ',i2,':',3f10.6,'  WSR=',f8.6)
-311   format(2x,i3,3f11.6,2f10.7)
+  306 format( ' SYMES : spheres not merged')
+  307 format(' SYMES : DB=',f7.5,', TOLWSR=',f7.5,', NNZ=',i2)
+  308 format( ' SYMES : STEP ',i2,':',3f10.6,'  WSR=',f8.6)
+  311 format(2x,i3,3f11.6,2f10.7)
       end subroutine symes
 
 
@@ -511,8 +511,8 @@ C Intrinsic functions:
       if (namp.and.iprint().ge.50)
      .write(*,400)r,x,idnint(x(1)),idnint(x(2)),idnint(x(3))
 ct     .  write(lunit(2),400)r,x,idnint(x(1)),idnint(x(2)),idnint(x(3))
-300   format( ' GETIRR: VECTOR  ',3f10.6,'  -->',3i6)
-400   format(/' GETIRR: the point:',3f8.4,' not a mesh point',
+  300 format( ' GETIRR: VECTOR  ',3f10.6,'  -->',3i6)
+  400 format(/' GETIRR: the point:',3f8.4,' not a mesh point',
      ./'         X=',3f8.2,
      ./'         J=',3(i5,3x))
       end subroutine getirr
@@ -582,7 +582,7 @@ C Intrinsic functions:
         desat=dmin1(desat,res)
         if (iprint().ge.70) write(*,300) ibas,res*alat,desat*alat
       enddo
-300   format(' MDESAT: IBAS=',i3,', RES=',f11.6,', DESAT=',f11.6)
+  300 format(' MDESAT: IBAS=',i3,', RES=',f11.6,', DESAT=',f11.6)
 
       end subroutine mdesat
 
@@ -676,9 +676,9 @@ C Intrinsic functions:
      .  (dmin-wsres-wmax)*alat
       endif
 
-300   format(/' CHKES : DMIN=',f8.5,', WSR=',f8.5,', WMAX=',f8.5,
+  300 format(/' CHKES : DMIN=',f8.5,', WSR=',f8.5,', WMAX=',f8.5,
      ./'         DMIN-WSR-WMAX=',f8.5)
-400   format( ' CHKES : DMIN=',f8.5,', WSR=',f8.5,', WMAX=',f8.5,
+  400 format( ' CHKES : DMIN=',f8.5,', WSR=',f8.5,', WMAX=',f8.5,
      .'|        DMIN-WSR-WMAX=',f8.5,
      .'|        possible overlap of empty sphere',
      .' with atom out of range',
@@ -731,7 +731,7 @@ C Intrinsic functions:
         lmx=max0(2,lmx)
       endif
 
-400   format(' DEFLMX: bad Wigner Seitz radius WSR=',f10.6,'$')
+  400 format(' DEFLMX: bad Wigner Seitz radius WSR=',f10.6,'$')
       end subroutine deflmx
 
 
@@ -858,8 +858,8 @@ ct        write(lunit(2),401)clabl
         call errmsg(' ZCLABL: bad iopt.$',5)
       endif
 
-400   format(/' ZCLABL: bad Z=',i5,' set to -1')
-401   format(/' ZCLABL: could not find atom ',a8,' in my list,',
+  400 format(/' ZCLABL: bad Z=',i5,' set to -1')
+  401 format(/' ZCLABL: could not find atom ',a8,' in my list,',
      .' Z set to -1')
       end subroutine zclabl
 
@@ -944,8 +944,8 @@ C Intrinsic functions:
       elseif(icast.eq.4) then
         write(fmt,301) nw,'f',n+nrdig+1,nrdig
       endif
-300   format('(',i2,a1,i2,')')
-301   format('(',i2,a1,i2,'.',i2,')')
+  300 format('(',i2,a1,i2,')')
+  301 format('(',i2,a1,i2,'.',i2,')')
       end subroutine getfmt
 
 
@@ -1063,12 +1063,12 @@ ct     .                      (bas(i,ibas),i=1,3),ibas=nbas+1,nbasnw)
       nrclas(nclass)=nbasnw-nbas
       nbas=nbasnw
 
-300   format(/' ADDES : The basis has been extended from ',i3,
+  300 format(/' ADDES : The basis has been extended from ',i3,
      .' to ',i3,' atoms.',
      ./9x,'The ',i2,' new positions are: ')
-301   format(9x,'ATOM=',a8,' ICLASS=',i3,1x,'POS=',3f9.5)
+  301 format(9x,'ATOM=',a8,' ICLASS=',i3,1x,'POS=',3f9.5)
 
-400   format(' ADDES : empty sphere sits on atom ',i3,', class',i3,'$')
+  400 format(' ADDES : empty sphere sits on atom ',i3,', class',i3,'$')
       end subroutine addes2
 
 
@@ -1356,12 +1356,12 @@ ct        write(stdo,303)ibas,ic,c,i,d12*alat,wprmx2*alat,ins
         enddo
       enddo
 
-300   format(/,' FILLAT: fill unit cell:',
+  300 format(/,' FILLAT: fill unit cell:',
      ./,9x,'IBAS',2x,'ICLASS',12x,'BAS',13x,'WSR',/,9x,50('-'))
-301   format(8x,i3,4x,i3,3x,3f8.5,3x,f8.5)
-302   format(/,' IBAS  ICLASS',12x,'BAS',9x,
+  301 format(8x,i3,4x,i3,3x,3f8.5,3x,f8.5)
+  302 format(/,' IBAS  ICLASS',12x,'BAS',9x,
      .'I1  I2  I3    D12 WPRMX2 INS',/,9x,63('-'))
-303   format(1x,i3,4x,i3,3x,3f7.4,3(2x,i2),2x,f6.3,1x,f5.3,2x,l1)
+  303 format(1x,i3,4x,i3,3x,3f7.4,3(2x,i2),2x,f6.3,1x,f5.3,2x,l1)
 
       end subroutine fillat
 
@@ -1464,7 +1464,7 @@ C ------- to rrot (minus eventually some lattice vectors)
           endif
         enddo
         deses(iirr)=dsqrt(df2min)*0.5d0
-10      continue
+   10   continue
       enddo
 
 C --- Printout
@@ -1489,12 +1489,12 @@ c              write(lunit(1),304)iirr,(rirr(m,iirr),m=1,3),
         endif
       endif
 
-300   format(/' MDESES:',i6,' mesh points left from',i6)
-301   format(8x,' shortest lattice vector',f10.5)
-302   format(/' MDESES:  NIRR',7x,'Rx',8x,'Ry',8x,'Rz',8x,'RES0',
+  300 format(/' MDESES:',i6,' mesh points left from',i6)
+  301 format(8x,' shortest lattice vector',f10.5)
+  302 format(/' MDESES:  NIRR',7x,'Rx',8x,'Ry',8x,'Rz',8x,'RES0',
      ./10x,47('-'))
-303   format(7x,i5,2x,3f10.4,2x,'<',f9.6)
-304   format(7x,i5,2x,3f10.4,1x,f11.6)
+  303 format(7x,i5,2x,3f10.4,2x,'<',f9.6)
+  304 format(7x,i5,2x,3f10.4,1x,f11.6)
       end subroutine mdeses
 
 

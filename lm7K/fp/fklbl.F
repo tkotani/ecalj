@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine fklbl(p,rsm,kmax,nlm,k0,cy,slat,fkl)
 
       use m_struc_def  !Cgetarg
@@ -35,9 +35,9 @@ C ... Local parameters
       double precision faca,fpi,y0,e,vol,awald,tol
       double complex fsm(nlm0),gklsav,gklnew
       parameter (faca=1d0)
-#if F90
+CSFCPP#if F90
       real(8),allocatable:: wk(:),yl(:)
-#endif
+CSFCPP#endif
 C ... Heap
       integer w(1)
       common /w/ w
@@ -77,7 +77,7 @@ C ... Alternatively, use vectorized equivalents (about 2x faster)
 
       call shorbz(p,p1,plat,qlat)
       nrx = max(nkd,nkq)
-#if F90
+CSFCPP#if F90
       allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
       call hsmqe0(lmax,rsm,0,q,p1,nrx,nlm,wk,yl,
      .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,fsm)
@@ -89,20 +89,20 @@ C ... Alternatively, use vectorized equivalents (about 2x faster)
      .  yl,wk,job,fkl)
       endif
       deallocate(wk,yl)
-#else
-      call defrr(owk, nrx*(2*lmax+10))
-      call defrr(oyl, nrx*(lmax+1)**2)
-      call hsmqe0(lmax,rsm,0,q,p1,nrx,nlm,w(owk),w(oyl),
-     .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,fsm)
-      if (rsm .gt. faca/awald) then
-        call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, fkl)
-      else
-        job = 2
-        call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
-     .  w(oyl),w(owk),job,fkl)
-      endif
-      call rlse(owk)
-#endif
+CSFCPP#else
+CSFCPP      call defrr(owk, nrx*(2*lmax+10))
+CSFCPP      call defrr(oyl, nrx*(lmax+1)**2)
+CSFCPP      call hsmqe0(lmax,rsm,0,q,p1,nrx,nlm,w(owk),w(oyl),
+CSFCPP     .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,fsm)
+CSFCPP      if (rsm .gt. faca/awald) then
+CSFCPP        call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, fkl)
+CSFCPP      else
+CSFCPP        job = 2
+CSFCPP        call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
+CSFCPP     .  w(oyl),w(owk),job,fkl)
+CSFCPP      endif
+CSFCPP      call rlse(owk)
+CSFCPP#endif
 
 C ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
       do  2  ilm = 1, nlm

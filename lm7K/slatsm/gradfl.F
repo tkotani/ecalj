@@ -1,6 +1,6 @@
 #define VANILLA 1
 #define NOQUAD 1
-#define F90 1
+CSFCPP#define F90 1
 #define FFTW 1
 #define IN_PLACE 1
       subroutine gradfl(lmax,nd,nr,np,ir0,ir1,lgg,lx,nn,ri,yl,gyl,fl,

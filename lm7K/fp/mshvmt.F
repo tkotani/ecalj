@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine mshvmt(nbas,ssite,sspec,slat,ng,gv,
      .kv,cv,k1,k2,k3,smpot,vval)
 
@@ -59,20 +59,20 @@ C     double precision q(3),qlat(3,3)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       parameter (lmxx=6, nlmx=(lmxx+1)**2)
 Cki#error have #if F90 directive
-#if F90
+CSFCPP#if F90
       double precision,allocatable:: phil(:,:),yl(:,:)
       double precision,allocatable:: gv2(:,:),agv(:),cgp(:),sgp(:)
-#else
-      double precision phil(ng,0:lmxx),yl(ng,nlmx)
-      double precision gv2(ng,3),agv(ng),cgp(ng),sgp(ng)
-#endif
+CSFCPP#else
+CSFCPP      double precision phil(ng,0:lmxx),yl(ng,nlmx)
+CSFCPP      double precision gv2(ng,3),agv(ng),cgp(ng),sgp(ng)
+CSFCPP#endif
 
       call tcn('mshvmt')
 Cki#error have #if F90 directive
-#if F90
+CSFCPP#if F90
       allocate(phil(ng,0:lmxx),yl(ng,nlmx))
       allocate(gv2(ng,3),agv(ng),cgp(ng),sgp(ng))
-#endif
+CSFCPP#endif
       call getpr(ipr)
       pi = 4d0*datan(1d0)
 
@@ -165,10 +165,10 @@ C        endif
    10   continue
       enddo
 Cki#error have #if F90 directive
-#if F90
+CSFCPP#if F90
       deallocate(phil,yl)
       deallocate(gv2,agv,cgp,sgp)
-#endif
+CSFCPP#endif
       call tcx('mshvmt')
       end subroutine mshvmt
 

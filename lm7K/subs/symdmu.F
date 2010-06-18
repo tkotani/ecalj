@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine symdmu(dmatu,dmatw,nbas,nsp,lmaxu,sspec,ssite,ng,g,
      .istab,lldau,rms)
 
@@ -59,15 +59,15 @@ C ... Local parameters
 C ... for spinor rotations
       logical cmdopt
       double precision eula(3),ddet33,xx
-#if F90 | AUTO_ARRAY
+CSFCPP#if F90 | AUTO_ARRAY
 C      integer i,j
       double complex u(2,2,ng)
 C     double complex s11,s12,s21,s22,su(2,2),usu(2,2)
-#else
-      integer ngmx
-      parameter(ngmx=48)
-      double complex u(2,2,ngmx)
-#endif
+CSFCPP#else
+CSFCPP      integer ngmx
+CSFCPP      parameter(ngmx=48)
+CSFCPP      double complex u(2,2,ngmx)
+CSFCPP#endif
       character *40 str
 
       rms = 0

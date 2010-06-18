@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine hambls(mode,nbas,ssite,sspec,slat,sham,isp,ispc,q,k1,
      .k2,k3,qsig,nqsig,smpot,vconst,osig,otau,oppi,lcplxp,lso,alfa,
      .ndimh,napw,igvapw,h,s,ismidb)
@@ -756,14 +756,14 @@ C       goto 99
      .    ' should sum to 1; actual sum=%d',swt)
         endif
 
-#if F90
+CSFCPP#if F90
         allocate(hqi(ndimh,ndimh,nsim))
         allocate(sqi(ndimh,ndimh,nsim))
         allocate(zqi(ndimh,ndimh))
         allocate(z0(ndimh,ndimh))
-#else
-        if (nsim .gt. 1) call rx('compile hambls with F90 option')
-#endif
+CSFCPP#else
+CSFCPP        if (nsim .gt. 1) call rx('compile hambls with F90 option')
+CSFCPP#endif
 
 C ... Inverse z0^-1, where z0 = eigenvectors at desired q
         call zcopy(ndimh**2,h(1,1,ispc),1,hqi,1)
@@ -820,9 +820,9 @@ C       Add wt(qpi) sigma(translated from qpi) to hamiltonian
 
         enddo
 
-#if F90
+CSFCPP#if F90
         deallocate(hqi,sqi,zqi,z0)
-#endif
+CSFCPP#endif
       else
         call rxi('unknown interpolation mode %i',moditp)
       endif
@@ -905,11 +905,11 @@ C ... Local parameters
       parameter (T=.true.,F=.false.)
       double precision eterms(20),rhosig,swgt
       equivalence (eterms(19),rhosig)
-#if F90
+CSFCPP#if F90
       complex(8),allocatable:: wk(:,:,:,:)
-#else
-      double complex wk(ndimh,nspc,ndimh,nspc)
-#endif
+CSFCPP#else
+CSFCPP      double complex wk(ndimh,nspc,ndimh,nspc)
+CSFCPP#endif
       double precision zsz(ndimh*nspc),ewgt(ndimh*nspc)
 
 C ... Heap
@@ -938,9 +938,9 @@ C     hreal=1 -> sig(T) is real
       call isanrg(isp,1,nsp,'blsig:','isp',T)
       ndimhx = ndimh*nspc
 
-#if F90
+CSFCPP#if F90
       allocate(wk(ndimh,nspc,ndimh,nspc))
-#endif
+CSFCPP#endif
 
 C --- Bloch sum sigma-vxc, orbital basis ---
 C     Call to bloch : 104110=perm orb, transpose, no add, c*16
@@ -1012,9 +1012,9 @@ C  ...  Sanity check
 C       print *, 'iq=',iq,'swgt=',swgt,'rhosig=',rhosig
       endif
 
-#if F90
+CSFCPP#if F90
       deallocate(wk)
-#endif
+CSFCPP#endif
 
       call tcx('blsig')
       end subroutine blsig
@@ -1177,14 +1177,14 @@ C ... Local parameters
       double complex zer,one
       parameter (zer=(0d0,0d0),one=(1d0,0d0))
       integer i,j,k
-#if F90
+CSFCPP#if F90
       integer ipiv(ndimh)
-#elif AUTO_ARRAY
-      integer ipiv(ndimh)
-#else
-      integer ipiv
-      call rx('phmbls: requires compiler with allocatable arrays')
-#endif
+CSFCPP#elif AUTO_ARRAY
+CSFCPP      integer ipiv(ndimh)
+CSFCPP#else
+CSFCPP      integer ipiv
+CSFCPP      call rx('phmbls: requires compiler with allocatable arrays')
+CSFCPP#endif
 
       if (mode .eq. 0) return
 

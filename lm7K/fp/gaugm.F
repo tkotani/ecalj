@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine gaugm(nr,nsp,lso,lcplxp,rofi,rwgt,lmxa,lmxl,nlml,vsm,
      .gpotb,gpot0,hab,vab,sab,sodb,qum,vum,cg,jcg,indxcg,
      .nf1,nf1s,lmx1,lx1,f1,x1,v1,d1,
@@ -218,12 +218,12 @@ C ... Local parameters
       double precision vsms(nr),ppi0(nf1*nf2*(lmux+1)),
      .qm(nf1*nf2*(lmx1+1)*(lmx2+1)*(lmxl+1)),
      .sum((lmx1+1)*(lmx2+1)*nlml)
-#if F90
+CSFCPP#if F90
       complex(8),allocatable:: hso(:,:,:,:,:,:),ppiz(:,:,:,:,:,:)
-#else
-      double complex hso(nf1,nf2,nlx1,nlx2,2,2)
-      double complex ppiz(nf1,nf2,nlx1,nlx2,2,2)
-#endif
+CSFCPP#else
+CSFCPP      double complex hso(nf1,nf2,nlx1,nlx2,2,2)
+CSFCPP      double complex ppiz(nf1,nf2,nlx1,nlx2,2,2)
+CSFCPP#endif
 #if DEBUG
       integer fopna
       integer kount
@@ -237,9 +237,9 @@ C ... Local parameters
       y0 = 1d0/dsqrt(4d0*pi)
       nspc = nglob('nspc')
 
-#if F90
+CSFCPP#if F90
       allocate(hso(nf1,nf2,nlx1,nlx2,2,2),ppiz(nf1,nf2,nlx1,nlx2,2,2))
-#endif
+CSFCPP#endif
 C     for now, ppi is complex only if S.O coupling
       if ((lso .ne. 0 .or. lldau .ne. 0) .and. lcplxp .eq. 0)
      .call rx('gaugm: incompatible lso,lcplxp')
@@ -407,9 +407,9 @@ C       call zprm('ppiz',2,ppi,nf1*nf2,nf1*nf2,nlx1*nlx2*nsp*nspc)
 C     call poppr
 C     pause
 
-#if F90
+CSFCPP#if F90
       deallocate(hso,ppiz)
-#endif
+CSFCPP#endif
 
       end
 

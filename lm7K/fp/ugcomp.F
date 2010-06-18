@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine ugcomp(nbas,ssite,sspec,slat,qmom,gpot0,hpot0,ugg,f)
       use m_struc_def  !Cgetarg
 #if MPE
@@ -79,13 +79,13 @@ C ... For parallel threads
 
 c #ifndef SGI_PARALLEL
       parameter (nlmx=64, npmx=1, nbmx=256)
-#if F90 | AUTO_ARRAY
+CSFCPP#if F90 | AUTO_ARRAY
       double precision xf(3,nbas,npmx),xhpot0(nbas,npmx),
      .xgpot0(nlmx*nbas,npmx),xugg(npmx)
-#else
-      double precision xf(3,nbmx,npmx),xhpot0(nbmx,npmx),
-     .xgpot0(nlmx*nbmx,npmx),xugg(npmx)
-#endif
+CSFCPP#else
+CSFCPP      double precision xf(3,nbmx,npmx),xhpot0(nbmx,npmx),
+CSFCPP     .xgpot0(nlmx*nbmx,npmx),xugg(npmx)
+CSFCPP#endif
 c #else
 c      parameter (nlmx=64, npmx=32)
 c      double precision xf(3,nbas,npmx),xhpot0(nbas,npmx),
@@ -123,9 +123,9 @@ C ... Heap
       srfpi = dsqrt(fpi)
       y0 = 1d0/srfpi
 c #if ! (F90 | AUTO_ARRAY | SGI_PARALLEL)
-#if ! (F90 | AUTO_ARRAY)
-      if (nbas .gt. nbmx) call rx('ugcomp: increase nbkmx')
-#endif
+CSFCPP#if ! (F90 | AUTO_ARRAY)
+CSFCPP      if (nbas .gt. nbmx) call rx('ugcomp: increase nbkmx')
+CSFCPP#endif
 
 C ... Setup array iiv0 = (vector of iv0 for parallel); allocate work arrays
       mp = 1

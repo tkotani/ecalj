@@ -1,10 +1,10 @@
-#define F90 1
-#ifndef F90
-      subroutine dqinvb(cs,a,lda,nlev,n,nb,w,ldw,w2,b,ldb,ierr)
-#else
+CSFCPP#define F90 1
+CSFCPP#ifndef F90
+CSFCPP      subroutine dqinvb(cs,a,lda,nlev,n,nb,w,ldw,w2,b,ldb,ierr)
+CSFCPP#else
       recursive subroutine dqinvb(cs,a,lda,nlev,n,nb,w,ldw,w2,b,ldb,
      .ierr)
-#endif
+CSFCPP#endif
 C- Solution of a x = b by vectorizable multiplications and inversions
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -105,9 +105,9 @@ C     call ywrm(0,'a',1,6,fmt,a,1,lda,n,n)
           call rxs('dqinvb: bad input cs',cs)
         endif
     2 continue
-#if ! (RECUR | F90)
-      lrecur = .false.
-#endif
+CSFCPP#if ! (RECUR | F90)
+CSFCPP      lrecur = .false.
+CSFCPP#endif
 
 C --- For n<nmin, do directly by dgefa,dgesl ---
       if (n .lt. nmin) then
@@ -200,7 +200,7 @@ C ... End of matrix decomposition
 
 C --- Obtain x1 = c11 (b1 - a12 a22^-1 b2) ---
         if (lrecur .and. nlev .gt. 0 .and. m1 .ge. nmin) then
-#if RECUR | F90
+CSFCPP#if RECUR | F90
 C   ... (b1 - a12 a22^-1 b2)
           call dgemm('N','N',m1,nb,m2,-1d0,a(1,1+m1),lda,b(1+m1,1),ldb,
      .    1d0,b,ldb)
@@ -209,7 +209,7 @@ C   ... Solve c11^-1 x1 - (b1 - a12 a22^-1 b2)
 C       AIX and gcc require this
           m1 = (n+1)/2
           m2 = n-m1
-#endif
+CSFCPP#endif
 #if DEBUG
 C       print 333, 'recursive call exit',nlev,n,m1,m2
 #endif
@@ -247,7 +247,7 @@ C     call yprm(.false.,'a^-1 b',1,6,fmt,br,ldb,n,ldb,nb)
 
 C --- Obtain x1 = (b1 - b2 a22^-1 a21) c11 ---
         if (lrecur .and. nlev .gt. 0 .and. m1 .ge. nmin) then
-#if RECUR | F90
+CSFCPP#if RECUR | F90
 C   ... (b1 - a12 a22^-1 b2)
           call dgemm('N','N',nb,m1,m2,-1d0,b(1,1+m1),ldb,
      .    a(1+m1,1),lda,1d0,b,ldb)
@@ -256,7 +256,7 @@ C   ... solve x1 c11^-1 = (b1 - b2 a22^-1 a21)
 C       AIX and gcc require the next two lines
           m1 = (n+1)/2
           m2 = n-m1
-#endif
+CSFCPP#endif
         else
 C ... w2 <- b1 - b2 a22^-1 a21
           call dgemm('N','N',nb,m1,m2,1d0,b(1,1+m1),ldb,

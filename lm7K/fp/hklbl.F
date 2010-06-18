@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,slat,hkl)
 
       use m_struc_def  !Cgetarg
@@ -41,9 +41,9 @@ C ... Heap
       integer w(1)
       common /w/ w
 
-#if F90
+CSFCPP#if F90
       real(8),allocatable:: wk(:),yl(:)
-#endif
+CSFCPP#endif
       double precision faca
       parameter (faca=1d0)
 
@@ -83,7 +83,7 @@ C ... Alternatively, use vectorized equivalents (about 2x faster)
       oqlv=slat%oqlv
 
       nrx = max(nkd,nkq)
-#if F90
+CSFCPP#if F90
 c      print *,'hklbl:aaa'
       allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
 c      print *,'hklbl:bbb'
@@ -97,20 +97,20 @@ c      print *,'hklbl:bbb'
      .  yl,wk,job,hkl)
       endif
       deallocate(wk,yl)
-#else
-      call defrr(owk, nrx*(2*lmax+10))
-      call defrr(oyl, nrx*(lmax+1)**2)
-      call hsmq(1,0,ll(nlm),e,rsm,0000,q,p1,nrx,nlm,w(owk),w(oyl),
-     .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,hsm,hsmp)
-      if (rsm .gt. faca/awald) then
-        call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, hkl)
-      else
-        job = 2
-        call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
-     .  w(oyl),w(owk),job,hkl)
-      endif
-      call rlse(owk)
-#endif
+CSFCPP#else
+CSFCPP      call defrr(owk, nrx*(2*lmax+10))
+CSFCPP      call defrr(oyl, nrx*(lmax+1)**2)
+CSFCPP      call hsmq(1,0,ll(nlm),e,rsm,0000,q,p1,nrx,nlm,w(owk),w(oyl),
+CSFCPP     .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,hsm,hsmp)
+CSFCPP      if (rsm .gt. faca/awald) then
+CSFCPP        call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, hkl)
+CSFCPP      else
+CSFCPP        job = 2
+CSFCPP        call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
+CSFCPP     .  w(oyl),w(owk),job,hkl)
+CSFCPP      endif
+CSFCPP      call rlse(owk)
+CSFCPP#endif
 
 C  ... for debugging
 C      do  10  ilm = 1, nlm

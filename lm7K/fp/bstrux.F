@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine bstrux(mode,slat,ssite,sspec,cg,indxcg,jcg,cy,iprmb,
      .nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,b,db)
 
@@ -75,7 +75,7 @@ C ... Local parameters
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
       double precision p(3),xx,alat,qlat(3,3),vol,srvol
-#if F90
+CSFCPP#if F90
       complex(8),allocatable:: b0(:),db0(:),bos(:)
 
 C --- Setup ---
@@ -168,9 +168,9 @@ C       call zprm('b',2,b,(kmax+1)*nlma,(kmax+1)*nlma,ndimh)
 C       call zprm('b mode 1 or 2',2,b,ndimh,ndimh,(kmax+1)*nlma)
       endif
 
-#else
-      call rx('bstrux requires F90')
-#endif
+CSFCPP#else
+CSFCPP      call rx('bstrux requires F90')
+CSFCPP#endif
       end subroutine bstrux
 
 
@@ -284,7 +284,7 @@ C     complex(8),allocatable:: bpw(:,:)
 
       if (napw .eq. 0) return
 
-#if F90
+CSFCPP#if F90
       nlmto = ndimh - napw
       pi = 4d0*datan(1d0)
       fpi = 4*pi
@@ -425,9 +425,9 @@ C        endif
       enddo
 C     deallocate(fac2l,yl,bpw)
 
-#else
-      call rx('bstrux requires F90')
-#endif
+CSFCPP#else
+CSFCPP      call rx('bstrux requires F90')
+CSFCPP#endif
 
       end subroutine paugqp
 

@@ -1,9 +1,9 @@
-#define F90 1
-#ifndef F90
-      subroutine yyqinv(cs,ar,ai,lda,nlev,n,w,ldw,ierr)
-#else
+CSFCPP#define F90 1
+CSFCPP#ifndef F90
+CSFCPP      subroutine yyqinv(cs,ar,ai,lda,nlev,n,w,ldw,ierr)
+CSFCPP#else
       recursive subroutine yyqinv(cs,ar,ai,lda,nlev,n,w,ldw,ierr)
-#endif
+CSFCPP#endif
 C- Inversion of a complex matrix using Strassen's algorithm
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -97,9 +97,9 @@ C --- Straight yygefa,di if n lt nmin ---
       if (ldw .lt. n) call rx('yyqinv: ldw lt n')
 
 C --- R1 = a11^-1 in a11 ---
-#if RECUR | F90
+CSFCPP#if RECUR | F90
       if (m1 .lt. nmin .or. nlev .eq. 0) then
-#endif
+CSFCPP#endif
         if (cs .eq. 'h') then
           call yyhifa(ar,ai,lda,m1,w,ierr)
           if (ierr .ne. 0) goto 99
@@ -113,7 +113,7 @@ C --- R1 = a11^-1 in a11 ---
           if (ierr .ne. 0) goto 99
           call yygedi(ar,ai,lda,m1,w,xx,w(1,2),w(1,3),1)
         endif
-#if RECUR | F90
+CSFCPP#if RECUR | F90
       else
 #if DEBUG
         print *, 'recursive call to yyqinv n,m1,m2=',n,m1,m2
@@ -130,7 +130,7 @@ C --- R1 = a11^-1 in a11 ---
 #endif
         if (ierr .ne. 0) goto 99
       endif
-#endif
+CSFCPP#endif
 *     call yprm(.false.,'R1',2,6,fmt,ar,lda,m1,lda,m1)
 
 C --- R3 = R1 a12 in w: uses w(1:m1,1:2*m2) ---
@@ -152,9 +152,9 @@ C     R4 = w2 isn't needed beyond this point
 *     call yprm(.false.,'-R5',2,6,fmt,ar(1+m1,1+m1),lda,m2,lda,m2)
 
 C --- c22 = -R6 = -R5^-1 = (a22 - a21 a11^-1 a12)^-1 in a22 ---
-#if RECUR | F90
+CSFCPP#if RECUR | F90
       if (m2 .lt. nmin .or. nlev .eq. 0) then
-#endif
+CSFCPP#endif
         if (cs .eq. 'h') then
           call yyhifa(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w(1+m1,1),ierr)
           if (ierr .ne. 0) goto 99
@@ -170,7 +170,7 @@ C --- c22 = -R6 = -R5^-1 = (a22 - a21 a11^-1 a12)^-1 in a22 ---
           call yygedi(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w(1+m1,1),xx,
      .    w(1+m1,2),w(1+m1,3),1)
         endif
-#if RECUR | F90
+CSFCPP#if RECUR | F90
       else
 #if DEBUG
         print *, 'recursive call to yyqinv n,m1,m2=',n,m1,m2
@@ -189,7 +189,7 @@ C --- c22 = -R6 = -R5^-1 = (a22 - a21 a11^-1 a12)^-1 in a22 ---
 #endif
         if (ierr .ne. 0) goto 99
       endif
-#endif
+CSFCPP#endif
 *     call yprm(.false.,'-R6',2,6,fmt,ar(1+m1,1+m1),lda,m2,lda,m2)
 
 C --- c12 = R3 * R6 = -a11^-1 a12 c22 in a12 ---

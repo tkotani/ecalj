@@ -76,10 +76,10 @@ CU    USES beschb
         h=del*h
         if(d.lt.0.d0)isign=-isign
         if(abs(del-1.d0).lt.EPS)goto 1
-11    continue
+   11 continue
       write(*,*) 'x too large in bessjy; try asymptotic expansion'
       stop
-1     continue
+    1 continue
       rjl=isign*FPMIN
       rjpl=h*rjl
       rjl1=rjl
@@ -90,7 +90,7 @@ CU    USES beschb
         fact=fact-xi
         rjpl=fact*rjtemp-rjl
         rjl=rjtemp
-12    continue
+   12 continue
       if(rjl.eq.0.d0)rjl=EPS
       f=rjpl/rjl
       if(x.lt.XMIN) then
@@ -134,10 +134,10 @@ CU    USES beschb
           del1=c*p-i*del
           sum1=sum1+del1
           if(abs(del).lt.(1.d0+abs(sum))*EPS)goto 2
-13      continue
+   13   continue
         write(*,*) 'bessy series failed to converge'
         stop
-2       continue
+    2   continue
         rymu=-sum
         ry1=-sum1*xi2
         rymup=xmu*xi*rymu-ry1
@@ -178,10 +178,10 @@ CU    USES beschb
           q=p*dli+q*dlr
           p=temp
           if(abs(dlr-1.d0)+abs(dli).lt.EPS)goto 3
-14      continue
+   14   continue
         write(*,*) 'cf2 failed in bessjy'
         stop
-3       continue
+    3   continue
         gam=(p-f)/q
         rjmu=sqrt(w/((p-f)*gam+q))
         rjmu=sign(rjmu,rjl)
@@ -196,7 +196,7 @@ CU    USES beschb
         rytemp=(xmu+i)*xi2*ry1-rymu
         rymu=ry1
         ry1=rytemp
-15    continue
+   15 continue
       ry=rymu
       ryp=xnu*xi*rymu-ry1
       return
@@ -259,7 +259,7 @@ C  (C) Copr. 1986-92 Numerical Recipes Software v%1jw#<0(9p#3.
         sv=d
         d=y2*d-dd+c(j)
         dd=sv
-11    continue
+   11 continue
       chebev=y*d-dd+0.5*c(1)
       return
       END

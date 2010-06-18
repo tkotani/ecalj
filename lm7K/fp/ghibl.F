@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,
      .ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
 C- Block of integrals between smooth hankels and gaussians with some power
@@ -42,12 +42,12 @@ C ... Passed parameters
 C ... Local parameters
       integer nlm0,ktop0,icg,icg1,icg2,ii,ilg,ilh,ilm,indx,ip,jlm,k,
      .ktop,lg,lh,ll,lm,lmaxg,lmaxh,lmaxx,m,nlmx,l1,l2,ilm1,ilm2
-#if F90
+CSFCPP#if F90
       complex(8),allocatable:: hkl(:,:)
-#else
-      parameter (nlm0=144, ktop0=21)
-      double complex hkl(0:ktop0,nlm0)
-#endif
+CSFCPP#else
+CSFCPP      parameter (nlm0=144, ktop0=21)
+CSFCPP      double complex hkl(0:ktop0,nlm0)
+CSFCPP#endif
       double precision ee,fac,gamg,gamh,rsmx,dr(3),e,rsm
 
       if (nlmh .eq. 0 .or. nlmg .eq. 0) return
@@ -62,14 +62,14 @@ C ... rsmh- and eh- independent setup
       nlmx = (lmaxx+1)**2
       ktop = max0(lmaxg,lmaxh)+kmax
 
-#if F90
+CSFCPP#if F90
       ktop0 = ktop
       nlm0  = nlmx
       allocate( hkl(0:ktop0,nlm0))
-#else
-      if (nlmx .gt. nlm0)  call rxi('ghibl: increase nlm0 to',nlmx)
-      if (ktop .gt. ktop0) call rxi('ghibl: increase ktop0 to',ktop)
-#endif
+CSFCPP#else
+CSFCPP      if (nlmx .gt. nlm0)  call rxi('ghibl: increase nlm0 to',nlmx)
+CSFCPP      if (ktop .gt. ktop0) call rxi('ghibl: increase ktop0 to',ktop)
+CSFCPP#endif
       do  3  k = 0, kmax
         do  3  jlm = 1, nlmh
           do  3  ilm = 1, nlmg
@@ -115,9 +115,9 @@ C   ... Combine with Clebsch-Gordan coefficients
    11   continue
    20 continue
 
-#if F90
+CSFCPP#if F90
       deallocate(hkl)
-#endif
+CSFCPP#endif
 
       end
 

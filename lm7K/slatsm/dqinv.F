@@ -1,9 +1,9 @@
-#define F90 1
-#ifndef F90
-      subroutine dqinv(cs,a,lda,nlev,n,w,ldw,ierr)
-#else
+CSFCPP#define F90 1
+CSFCPP#ifndef F90
+CSFCPP      subroutine dqinv(cs,a,lda,nlev,n,w,ldw,ierr)
+CSFCPP#else
       recursive subroutine dqinv(cs,a,lda,nlev,n,w,ldw,ierr)
-#endif
+CSFCPP#endif
 C- Inversion of a real matrix using Strassen's algorithm
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -78,9 +78,9 @@ C --- Straight dgefa,di if n lt nmin ---
       if (lda .lt. n) call rx('dqinv: lda lt n')
 
 C --- R1 = a11^-1 in a11 ---
-#if RECUR | F90
+CSFCPP#if RECUR | F90
       if (m1 .lt. nmin .or. nlev .eq. 0) then
-#endif
+CSFCPP#endif
         if (cs .eq. 's') then
           call dsifa(a,lda,m1,w,ierr)
           if (ierr .ne. 0) return
@@ -93,7 +93,7 @@ C --- R1 = a11^-1 in a11 ---
           if (ierr .ne. 0) return
           call dgedi(a,lda,m1,w,xx,w(1,2),1)
         endif
-#if RECUR | F90
+CSFCPP#if RECUR | F90
       else
 #if DEBUG
         print *, 'recursive call to dqinv n,m1,m2=',n,m1,m2
@@ -110,7 +110,7 @@ C --- R1 = a11^-1 in a11 ---
 #endif
         if (ierr .ne. 0) return
       endif
-#endif
+CSFCPP#endif
 *     call ywrm(0,'R1',1,6,fmt,a,1,lda,m1,m1)
 
 C --- R3 = R1 a12 in w  ---
@@ -134,9 +134,9 @@ C --- -R5 = a22 - R4 = a22 - a21 a11^-1 a12 in a22 ---
 *     call ywrm(0,'-R5',1,6,fmt,a(1+m1,1+m1),1,lda,m2,m2)
 
 C --- c22 = -R6 = -R5^-1 = (a22 - a21 a11^-1 a12)^-1 in a22 ---
-#if RECUR | F90
+CSFCPP#if RECUR | F90
       if (m2 .lt. nmin .or. nlev .eq. 0) then
-#endif
+CSFCPP#endif
         if (cs .eq. 's') then
           call dsifa(a(1+m1,1+m1),lda,m2,w(1+m1,1),ierr)
           if (ierr .ne. 0) return
@@ -149,7 +149,7 @@ C --- c22 = -R6 = -R5^-1 = (a22 - a21 a11^-1 a12)^-1 in a22 ---
           if (ierr .ne. 0) return
           call dgedi(a(1+m1,1+m1),lda,m2,w(1+m1,1),xx,w(1+m1,2),1)
         endif
-#if RECUR | F90
+CSFCPP#if RECUR | F90
       else
 #if DEBUG
         print *, 'recursive call to dqinv n,m1,m2=',n,m1,m2
@@ -166,7 +166,7 @@ C --- c22 = -R6 = -R5^-1 = (a22 - a21 a11^-1 a12)^-1 in a22 ---
 #endif
         if (ierr .ne. 0) return
       endif
-#endif
+CSFCPP#endif
 *     call ywrm(0,'-R6',1,6,fmt,a(1+m1,1+m1),1,lda,m2,m2)
 
 C --- c12 = R3 * R6 = -a11^-1 a12 c22 in a12 ---

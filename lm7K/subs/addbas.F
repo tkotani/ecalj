@@ -103,10 +103,10 @@ C --- Error whether atoms are sitting on same position ---
       if (novlp .gt. 0) call fexit(-1,111,' Exit -1 ADDBAS: '//
      .'basis has %i overlapping site(s)',novlp)
 
-301   format(8x,'ATOM=',a4,1x,'POS=',3f12.7)
-303   format(10x,a4,2x,i3,2x,'-> ',i3,3x,5x,a)
-304   format(/' ADDBAS: Spec   Atom  New_atom     Operation'/9x,35('-'))
-400   format(/' ADDBAS: atom ',i3,', SPEC ',a4,' POS=',3f9.5, 
+  301 format(8x,'ATOM=',a4,1x,'POS=',3f12.7)
+  303 format(10x,a4,2x,i3,2x,'-> ',i3,3x,5x,a)
+  304 format(/' ADDBAS: Spec   Atom  New_atom     Operation'/9x,35('-'))
+  400 format(/' ADDBAS: atom ',i3,', SPEC ',a4,' POS=',3f9.5, 
      ./'     and atom ',i3,', SPEC ',a4,' POS=',3f9.5,
      ./'     are at the same positions. '/)
       end

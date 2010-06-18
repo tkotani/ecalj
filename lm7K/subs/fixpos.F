@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine fixpos(pos,nbas,tol,ng,plat,g,ag,istab)
 C- Adjusts site positions to agree with given symmmetry
 C  to machine precision
@@ -26,14 +26,14 @@ C Passed parameters:
 C Local parameters:
       integer ibas,jbas,m,ig,lgunit
       double precision dbas(3),bast(3),sum,tol2,qlat(3,3),vol,ddot
-#if F90 | AUTO_ARRAY
+CSFCPP#if F90 | AUTO_ARRAY
       double precision sdpos(3,nbas)
-#else
-      integer nbmx
-      parameter (nbmx=2000)
-      double precision sdpos(3,nbmx)
-      if (nbas .gt. nbmx) call rx('fixpos: increase nbmx')
-#endif
+CSFCPP#else
+CSFCPP      integer nbmx
+CSFCPP      parameter (nbmx=2000)
+CSFCPP      double precision sdpos(3,nbmx)
+CSFCPP      if (nbas .gt. nbmx) call rx('fixpos: increase nbmx')
+CSFCPP#endif
 
       tol2 = 2*tol
       call dpzero(sdpos,3*nbas)

@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine smhsbl(mode,ssite,sspec,slat,vavg,q,ndimh,iprmb,
      .napw,igapw,h,s)
       use m_struc_def  !Cgetarg
@@ -180,12 +180,12 @@ C ... for PW part
       integer lmxax,lmxa,nlmax
       double precision qpg2,alat,plat(3,3),qlat(3,3),vol,srvol,tpiba,pi,
      .denom,gam,fpi,ddot
-#if F90
+CSFCPP#if F90
       real(8),allocatable:: yl(:),ylv(:,:),qpgv(:,:),qpg2v(:)
       complex(8),allocatable:: srm1l(:)
       complex(8):: ovl,srm1,phase,fach
       parameter (srm1=(0d0,1d0))
-#endif
+CSFCPP#endif
 #if MPI
       double complex, dimension(:,:), allocatable :: hbuf, sbuf
       integer, dimension(:,:), allocatable :: index
@@ -252,7 +252,7 @@ C       Find largest lmxa ... should be made elsewhere
           lmxax = max(lmxax,lmxa)
         enddo
         nlmax=(lmxax+1)**2
-#if F90
+CSFCPP#if F90
         allocate(ylv(napw,nlmax),yl(nlmax),qpgv(3,napw),qpg2v(napw))
 C       Note: rearrange order
         do  ig = 1, napw
@@ -265,9 +265,9 @@ C       Note: rearrange order
         do  l1 = 1, lmxax
           srm1l(l1) = (srm1)**l1
         enddo
-#else
-        call rx('PW branch requires F90')
-#endif
+CSFCPP#else
+CSFCPP        call rx('PW branch requires F90')
+CSFCPP#endif
       endif
 
 C --- Loop over first and second site indices ---
@@ -426,7 +426,7 @@ C               i1 = orbital index in iprmb order
 C ... end loop over ib2
           enddo
 C   ... Hsm (i1) \times PW (i2)  Takao. Similar logic in fsmbl
-#if F90
+CSFCPP#if F90
           do  ig = 1, napw
             i2 = ig + nlmto
             qpg2 = qpg2v(ig)
@@ -458,7 +458,7 @@ C             ovl = srm1*qpgv(1,ig) * ovl
               enddo
             enddo
           enddo
-#endif
+CSFCPP#endif
 
 C ... end loop over ib1
         enddo
@@ -516,11 +516,11 @@ C ... PW x PW part (diagonal matrix)
         h(i2,i2) = h(i2,i2) + qpg2v(ig) + vavg
       enddo
 
-#if F90
+CSFCPP#if F90
       if (napw .gt. 0) then
         deallocate(yl,ylv,qpgv,qpg2v,srm1l)
       endif
-#endif
+CSFCPP#endif
 
 C ... Occupy second half of matrix
       if (mode .eq. 0) then

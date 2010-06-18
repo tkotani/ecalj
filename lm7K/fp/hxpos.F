@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine hxpos(rsmh,rsmg,eh,kmax,nlmh,k0,c)
 C- Coefficients to expand smooth hankels at (0,0,0) into P_kl's.
 C ----------------------------------------------------------------------
@@ -34,24 +34,24 @@ C ... Passed parameters
 C ... Local parameters
       integer ndim,ktop0,ilm,k,l,ll,lmax,m,nm
       double precision a,dfact,eg,fac,factk,fpi,sig
-#if F90
+CSFCPP#if F90
       real(8),allocatable:: s(:,:)
-#else
-      parameter ( ndim=25, ktop0=25 )
-      double precision s(ndim,0:ktop0)
-#endif
+CSFCPP#else
+CSFCPP      parameter ( ndim=25, ktop0=25 )
+CSFCPP      double precision s(ndim,0:ktop0)
+CSFCPP#endif
 
       if (nlmh .eq. 0) return
       fpi = 16d0*datan(1d0)
 
-#if F90
+CSFCPP#if F90
       ktop0 = kmax
       ndim  = nlmh
       allocate(s(ndim,0:ktop0))
-#else
-      if (kmax .gt. ktop0) call rxi('hxpos: increase ktop0, need',kmax)
-      if (nlmh .gt. ndim)   call rxi('hxpos: increase ndim, need', nlmh)
-#endif
+CSFCPP#else
+CSFCPP      if (kmax .gt. ktop0) call rxi('hxpos: increase ktop0, need',kmax)
+CSFCPP      if (nlmh .gt. ndim)   call rxi('hxpos: increase ndim, need', nlmh)
+CSFCPP#endif
 
 C ... Make integrals with gaussians G_kL
       eg = 0d0
@@ -83,9 +83,9 @@ C ... Scale integrals to get coefficients of the P_kL
         dfact = dfact*(2*l+3)
       enddo
 
-#if F90
+CSFCPP#if F90
       deallocate(s)
-#endif
+CSFCPP#endif
 
       end
 

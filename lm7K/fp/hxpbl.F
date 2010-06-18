@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine hxpbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndim,
      .cg,indxcg,jcg,cy,slat,c)
 C- Coefficients to expand smooth bloch hankels centered at ph
@@ -49,22 +49,22 @@ C ... Passed parameters
 C ... Local parameters
       integer ndim1,ndim2,ktop0,ilmg,ilmh,k,l,ll,lmaxg,m,nm
       double precision a,dfact,eg,fac,factk,fpi
-#if F90
+CSFCPP#if F90
       complex(8),allocatable:: s(:,:,:)
-#else
-      parameter (ndim1=49, ndim2=36, ktop0=20)
-      double complex s(ndim1,ndim2,0:ktop0)
-#endif
+CSFCPP#else
+CSFCPP      parameter (ndim1=49, ndim2=36, ktop0=20)
+CSFCPP      double complex s(ndim1,ndim2,0:ktop0)
+CSFCPP#endif
 
       if (nlmg .eq. 0 .or. nlmh .eq. 0) return
       fpi = 16d0*datan(1d0)
 C     Memory allocation
-#if F90
+CSFCPP#if F90
       ndim1 = nlmg
       ndim2 = nlmh
       ktop0 = kmax
       allocate(s(ndim1,ndim2,0:ktop0))
-#endif
+CSFCPP#endif
 
       if (kmax .gt. ktop0) call rxi('hxpbl: increase ktop0, need',kmax)
       if (nlmg .gt. ndim1) call rxi('hxpbl: increase ndim1, need',nlmg)
@@ -98,8 +98,8 @@ C ... Scale to get coefficients of the P_kL
         dfact = dfact*(2*l+3)
   1   continue
 
-#if F90
+CSFCPP#if F90
       deallocate(s)
-#endif
+CSFCPP#endif
       end
 

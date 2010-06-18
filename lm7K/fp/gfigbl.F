@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim,
      .cg,indxcg,jcg,cy,slat,s,ds)
 C- Integrals between smooth hankels(eh=0,q=0) and gaussians
@@ -42,12 +42,12 @@ C ... Local parameters
      .ilm,kz,kx1,kx2,ky1,ky2,k,jlm,ilg,lg,ilh,lh,ii,indx,icg1,icg2,
      .icg,lm,ip,nlmxx
       double precision dr(3),gamh,gamg,rsmx,cz,cx1,cx2,cy1,cy2,fac
-#if F90
+CSFCPP#if F90
       complex(8),allocatable:: hkl(:,:),ghkl(:,:,:)
-#else
-      parameter (nlm0=196, ktop0=7)
-      double complex hkl(0:ktop0,nlm0),ghkl(0:ktop0,nlm0,3)
-#endif
+CSFCPP#else
+CSFCPP      parameter (nlm0=196, ktop0=7)
+CSFCPP      double complex hkl(0:ktop0,nlm0),ghkl(0:ktop0,nlm0,3)
+CSFCPP#endif
 
       if (nlmh .eq. 0 .or. nlmg .eq. 0) return
       gamh = 0.25d0*rsmh*rsmh
@@ -65,11 +65,11 @@ C ... Local parameters
       ktopp1 = ktop+1
 
 C     Memory allocation
-#if F90
+CSFCPP#if F90
       nlm0 = nlmxp1
       ktop0 = ktopp1
       allocate(hkl(0:ktop0,nlm0),ghkl(0:ktop0,nlm0,3))
-#endif
+CSFCPP#endif
       if (nlmxp1 .gt. nlm0)  call rxi('gfigbl: need nlm0 ge',nlmxp1)
       if (ktopp1 .gt. ktop0) call rxi('gfigbl: need ktop0 ge',ktopp1)
 
@@ -126,9 +126,9 @@ C --- Combine with Clebsch-Gordan coefficients ---
    12       continue
    11 continue
 
-#if F90
+CSFCPP#if F90
       deallocate(hkl,ghkl)
-#endif
+CSFCPP#endif
 
       end
 

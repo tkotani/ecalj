@@ -1,4 +1,4 @@
-#define F90 1
+CSFCPP#define F90 1
       subroutine lattc(as,tol,rpad,alat,alat0,platin,g1,g2,g3,gt,plat,
      .qlat,lmax,vol,awald,dlat,nkd,glat,nkg,nkdmx,nkgmx)
 C- Sets up the real and reciprocal space lattice vectors for Ewald
@@ -116,11 +116,11 @@ C     implicit none
       integer lmax,i
       double precision a0,q0,r0,tol,v0
       double precision gq0,gq1,pi,q1,q2,r1,r2
-#if F90 | AUTO_ARRAY
+CSFCPP#if F90 | AUTO_ARRAY
       double precision f(0:lmax),g(0:lmax)
-#else
-      double precision f(0:40),g(0:40)
-#endif
+CSFCPP#else
+CSFCPP      double precision f(0:40),g(0:40)
+CSFCPP#endif
 
       pi = 4d0*datan(1d0)
       q1 = 0.001d0

@@ -1,11 +1,12 @@
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
       module m_struc_def
 
       type s_ri
-      integer:: t
-      integer(8):: i
-      real(8):: r
+      integer ::  t
+      integer(8) ::  i
+      real(8) ::  r
       end type
 
 Cr --- explanation of  ubz ---
@@ -82,36 +83,36 @@ C 28  46  4       stnr  1
 C 29  47  4          w  1
 C 30  48  4       zval  1
       type s_bz
-      real(8):: size
-      real(8) :: def
-      real(8) :: dosw(2)
-      real(8) :: ef
-      real(8) :: efmax
-      real(8) :: fsmom
-      real(8) :: lcond(4)
-      integer(8) :: lio
-      integer(8) :: lmet
-      integer(8) :: lmull
-      integer(8) :: lopt
-      integer(8) :: lshft(3)
-      integer(8) :: n
-      integer(8) :: ndos
-      integer(8) :: nevmx
-      integer(8) :: nkabc(3)
-      integer(8) :: nkp
-      integer(8) :: ntet
-      integer(8) :: odos
-      integer(8) :: oidtet
-      integer(8) :: oipq
-      integer(8) :: opdos
-      integer(8) :: oqp
-      integer(8) :: ostar
-      integer(8) :: owtkp
-      real(8) :: range
-      real(8) :: semsh(10)
-      real(8) :: stnr
-      real(8) :: w
-      real(8) :: zval
+      real(8) ::  size
+      real(8)  ::  def
+      real(8)  ::  dosw(2)
+      real(8)  ::  ef
+      real(8)  ::  efmax
+      real(8)  ::  fsmom
+      real(8)  ::  lcond(4)
+      integer(8)  ::  lio
+      integer(8)  ::  lmet
+      integer(8)  ::  lmull
+      integer(8)  ::  lopt
+      integer(8)  ::  lshft(3)
+      integer(8)  ::  n
+      integer(8)  ::  ndos
+      integer(8)  ::  nevmx
+      integer(8)  ::  nkabc(3)
+      integer(8)  ::  nkp
+      integer(8)  ::  ntet
+CCHSTRUC       integer(8)  ::  odos ! not used because of undef
+      integer(8)  ::  oidtet
+      integer(8)  ::  oipq
+CCHSTRUC       integer(8)  ::  opdos ! not used because of undef
+      integer(8)  ::  oqp
+      integer(8)  ::  ostar
+      integer(8)  ::  owtkp
+      real(8)  ::  range
+      real(8)  ::  semsh(10)
+      real(8)  ::  stnr
+      real(8)  ::  w
+      real(8)  ::  zval
       end type s_bz
 
 Cr --- explanation of  uarray ---
@@ -185,38 +186,38 @@ C 30  31  2      ostni  1 possible_structure
 C 31  32  2       ozos  1 possible_structure
 C 32  33 -1       size  1
       type s_array
-      real(8):: size
-      integer(8) :: ncl
-      integer(8) :: nclasp
-      integer(8) :: nofgl
-      integer(8) :: nofgr
-      integer(8) :: npadl
-      integer(8) :: npadr
-      integer(8) :: npl
-      integer(8) :: oclabl
-      integer(8) :: ocllst
-      integer(8) :: oclp
-      integer(8) :: oclssl
-      integer(8) :: ogroup
-      integer(8) :: ogrp2
-      integer(8) :: ohave
-      integer(8) :: oics
-      integer(8) :: oifrlx
-      integer(8) :: oipc
-      integer(8) :: oipcp
-      integer(8) :: oips
-      integer(8) :: omxcst
-      integer(8) :: onrc
-      integer(8) :: onrcp
-      integer(8) :: opgfsl
-      integer(8) :: opgfvl
-      integer(8) :: opgord
-      integer(8) :: opgplp
-      integer(8) :: opos
-      integer(8) :: ormax
-      integer(8) :: osordn
-      integer(8) :: ostni
-      integer(8) :: ozos
+      real(8) ::  size
+      integer(8)  ::  ncl
+      integer(8)  ::  nclasp
+      integer(8)  ::  nofgl
+      integer(8)  ::  nofgr
+      integer(8)  ::  npadl
+      integer(8)  ::  npadr
+      integer(8)  ::  npl
+      integer(8)  ::  oclabl
+CCHSTRUC       integer(8)  ::  ocllst ! not used because of undef
+CCHSTRUC       integer(8)  ::  oclp ! not used because of undef
+CCHSTRUC       integer(8)  ::  oclssl ! not used because of undef
+      integer(8)  ::  ogroup
+CCHSTRUC       integer(8)  ::  ogrp2 ! not used because of undef
+      integer(8)  ::  ohave
+      integer(8)  ::  oics
+CCHSTRUC       integer(8)  ::  oifrlx ! not used because of undef
+      integer(8)  ::  oipc
+      integer(8)  ::  oipcp
+      integer(8)  ::  oips
+CCHSTRUC       integer(8)  ::  omxcst ! not used because of undef
+      integer(8)  ::  onrc
+      integer(8)  ::  onrcp
+CCHSTRUC       integer(8)  ::  opgfsl ! not used because of undef
+CCHSTRUC       integer(8)  ::  opgfvl ! not used because of undef
+CCHSTRUC       integer(8)  ::  opgord ! not used because of undef
+CCHSTRUC       integer(8)  ::  opgplp ! not used because of undef
+      integer(8)  ::  opos
+      integer(8)  ::  ormax
+CCHSTRUC       integer(8)  ::  osordn ! not used because of undef
+CCHSTRUC       integer(8)  ::  ostni ! not used because of undef
+CCHSTRUC       integer(8)  ::  ozos ! not used because of undef
       end type s_array
 
 Cr --- explanation of  uctrl ---
@@ -453,62 +454,62 @@ C 54  84  4        tol  3
 C 55  87  4     wsrmax  1
 C 56  88  4       zbak  2
       type s_ctrl
-      real(8):: size
-      real(8) :: defm(6)
-      real(8) :: elin
-      integer(8) :: lasa
-      integer(8) :: lbas
-      integer(8) :: lcd
-      integer(8) :: lcgf
-      integer(8) :: ldos
-      integer(8) :: lfp
-      integer(8) :: lfrce
-      integer(8) :: lgen3
-      integer(8) :: lham
-      integer(8) :: lmet
-      integer(8) :: lncol
-      integer(8) :: loptc
-      integer(8) :: lordn
-      integer(8) :: lpgf(2)
-      integer(8) :: lqp
-      integer(8) :: lrel
-      integer(8) :: lrs
-      integer(8) :: lscr
-      integer(8) :: lstonr(3)
-      integer(8) :: lstr
-      integer(8) :: lsx
-      integer(8) :: ltb
-      integer(8) :: lves
-      integer(8) :: lxcf
-      integer(8) :: maxit
-      real(8) :: mdprm(6)
-      integer(8) :: modep(3)
-      integer(8) :: nbas
-      integer(8) :: nbasp
-      integer(8) :: nclass
-      integer(8) :: nesabc(3)
-      integer(8) :: nitmv
-      integer(8) :: nl
-      integer(8) :: nmap
-      integer(8) :: npl
-      integer(8) :: nsite
-      integer(8) :: nspec
-      integer(8) :: nspin
-      integer(8) :: nvario
-      real(8) :: omax1(3)
-      real(8) :: omax2(3)
-      integer(8) :: pfloat
-      integer(8) :: quit
-      real(8) :: rmaxes
-      real(8) :: rmines
-      real(8) :: sclwsr
-      integer(8) :: sdmod
-      real(8) :: sdprm(5)
-      real(8) :: sdxsi(4)
-      integer(8) :: smalit(2)
-      real(8) :: tol(3)
-      real(8) :: wsrmax
-      real(8) :: zbak(2)
+      real(8) ::  size
+      real(8)  ::  defm(6)
+      real(8)  ::  elin
+      integer(8)  ::  lasa
+      integer(8)  ::  lbas
+      integer(8)  ::  lcd
+      integer(8)  ::  lcgf
+      integer(8)  ::  ldos
+      integer(8)  ::  lfp
+      integer(8)  ::  lfrce
+      integer(8)  ::  lgen3
+      integer(8)  ::  lham
+      integer(8)  ::  lmet
+      integer(8)  ::  lncol
+      integer(8)  ::  loptc
+      integer(8)  ::  lordn
+      integer(8)  ::  lpgf(2)
+      integer(8)  ::  lqp
+      integer(8)  ::  lrel
+      integer(8)  ::  lrs
+      integer(8)  ::  lscr
+      integer(8)  ::  lstonr(3)
+      integer(8)  ::  lstr
+      integer(8)  ::  lsx
+      integer(8)  ::  ltb
+      integer(8)  ::  lves
+      integer(8)  ::  lxcf
+      integer(8)  ::  maxit
+      real(8)  ::  mdprm(6)
+      integer(8)  ::  modep(3)
+      integer(8)  ::  nbas
+      integer(8)  ::  nbasp
+      integer(8)  ::  nclass
+      integer(8)  ::  nesabc(3)
+      integer(8)  ::  nitmv
+      integer(8)  ::  nl
+      integer(8)  ::  nmap
+      integer(8)  ::  npl
+      integer(8)  ::  nsite
+      integer(8)  ::  nspec
+      integer(8)  ::  nspin
+      integer(8)  ::  nvario
+      real(8)  ::  omax1(3)
+      real(8)  ::  omax2(3)
+      integer(8)  ::  pfloat
+      integer(8)  ::  quit
+      real(8)  ::  rmaxes
+      real(8)  ::  rmines
+      real(8)  ::  sclwsr
+      integer(8)  ::  sdmod
+      real(8)  ::  sdprm(5)
+      real(8)  ::  sdxsi(4)
+      integer(8)  ::  smalit(2)
+      real(8)  ::  tol(3)
+      real(8)  ::  wsrmax
+      real(8)  ::  zbak(2)
       end type s_ctrl
 
 Cr --- explanation of  ugw ---
@@ -565,25 +566,25 @@ C 17  21  4      qoffp  1
 C 18  22  2      rdsig  1
 C 19  23 -1       size  1
       type s_gw
-      real(8):: size
-      real(8) :: delre(2)
-      real(8) :: deltaw
-      real(8) :: deltax
-      real(8) :: ecuts
-      real(8) :: gcutb
-      real(8) :: gcutx
-      real(8) :: gsmear
-      integer(8) :: lgw
-      integer(8) :: lmxpb
-      integer(8) :: mksig
-      integer(8) :: nband
-      integer(8) :: nime
-      integer(8) :: nkabc(3)
-      real(8) :: pb1 !string
-      real(8) :: pb2 !string
-      real(8) :: pbtol
-      real(8) :: qoffp
-      integer(8) :: rdsig
+      real(8) ::  size
+      real(8)  ::  delre(2)
+      real(8)  ::  deltaw
+      real(8)  ::  deltax
+      real(8)  ::  ecuts
+      real(8)  ::  gcutb
+      real(8)  ::  gcutx
+      real(8)  ::  gsmear
+      integer(8)  ::  lgw
+      integer(8)  ::  lmxpb
+      integer(8)  ::  mksig
+      integer(8)  ::  nband
+      integer(8)  ::  nime
+      integer(8)  ::  nkabc(3)
+      real(8)  ::  pb1 !string
+      real(8)  ::  pb2 !string
+      real(8)  ::  pbtol
+      real(8)  ::  qoffp
+      integer(8)  ::  rdsig
       end type s_gw
 
 Cr --- explanation of  uham ---
@@ -797,62 +798,62 @@ C 54 128 -1       size  1
 C 55 129  4      thrpv  1
 C 56 130  2      udiag  1
       type s_ham
-      real(8):: size
-      real(8) :: alfsi
-      real(8) :: amgm
-      integer(8) :: bandw
-      real(8) :: dabc(3)
-      real(8) :: ehf
-      real(8) :: ehk
-      real(8) :: elind
-      real(8) :: eterms(20)
-      integer(8) :: hord
-      real(8) :: kmto(6)
-      integer(8) :: lasa
-      integer(8) :: ldham(16)
-      integer(8) :: lgen3
-      integer(8) :: lham
-      integer(8) :: lmaxu
-      integer(8) :: lmxax
-      integer(8) :: lncol
-      integer(8) :: lsig
-      integer(8) :: ltb
-      integer(8) :: lxcf
-      integer(8) :: nbf
-      integer(8) :: ndham
-      integer(8) :: ndhrs
-      integer(8) :: ndofH
-      integer(8) :: neula
-      integer(8) :: nkaph
-      integer(8) :: nlibu
-      integer(8) :: nmto
-      integer(8) :: npwmin
-      integer(8) :: npwpad
-      integer(8) :: nqsig
-      integer(8) :: obdots
-      integer(8) :: oeula
-      integer(8) :: ohrs
-      integer(8) :: oiaxs
-      integer(8) :: oindxo
-      integer(8) :: olmxa
-      integer(8) :: omagf
-      integer(8) :: ontabs
-      integer(8) :: ooffH
-      integer(8) :: oqsig
-      real(8) :: oveps
-      real(8) :: pmax(10)
-      real(8) :: pmin(10)
-      real(8) :: pwemax
-      real(8) :: pwemin
-      integer(8) :: pwmode
-      real(8) :: qpoff(3)
-      real(8) :: qss(4)
-      real(8) :: rsrnge
-      real(8) :: rsstol
-      real(8) :: seref
-      real(8) :: sigp(10)
-      real(8) :: thrpv
-      integer(8) :: udiag
+      real(8) ::  size
+      real(8)  ::  alfsi
+      real(8)  ::  amgm
+      integer(8)  ::  bandw
+      real(8)  ::  dabc(3)
+      real(8)  ::  ehf
+      real(8)  ::  ehk
+      real(8)  ::  elind
+      real(8)  ::  eterms(20)
+      integer(8)  ::  hord
+      real(8)  ::  kmto(6)
+      integer(8)  ::  lasa
+      integer(8)  ::  ldham(16)
+      integer(8)  ::  lgen3
+      integer(8)  ::  lham
+      integer(8)  ::  lmaxu
+      integer(8)  ::  lmxax
+      integer(8)  ::  lncol
+      integer(8)  ::  lsig
+      integer(8)  ::  ltb
+      integer(8)  ::  lxcf
+      integer(8)  ::  nbf
+      integer(8)  ::  ndham
+      integer(8)  ::  ndhrs
+      integer(8)  ::  ndofH
+      integer(8)  ::  neula
+      integer(8)  ::  nkaph
+      integer(8)  ::  nlibu
+      integer(8)  ::  nmto
+      integer(8)  ::  npwmin
+      integer(8)  ::  npwpad
+      integer(8)  ::  nqsig
+CCHSTRUC       integer(8)  ::  obdots ! not used because of undef
+CCHSTRUC       integer(8)  ::  oeula ! not used because of undef
+      integer(8)  ::  ohrs
+      integer(8)  ::  oiaxs
+      integer(8)  ::  oindxo
+CCHSTRUC       integer(8)  ::  olmxa ! not used because of undef
+CCHSTRUC       integer(8)  ::  omagf ! not used because of undef
+      integer(8)  ::  ontabs
+      integer(8)  ::  ooffH
+      integer(8)  ::  oqsig
+      real(8)  ::  oveps
+      real(8)  ::  pmax(10)
+      real(8)  ::  pmin(10)
+      real(8)  ::  pwemax
+      real(8)  ::  pwemin
+      integer(8)  ::  pwmode
+      real(8)  ::  qpoff(3)
+      real(8)  ::  qss(4)
+      real(8)  ::  rsrnge
+      real(8)  ::  rsstol
+      real(8)  ::  seref
+      real(8)  ::  sigp(10)
+      real(8)  ::  thrpv
+      integer(8)  ::  udiag
       end type s_ham
 
 Cr --- explanation of  ulat ---
@@ -949,49 +950,49 @@ C 41 119  4        tol  1
 C 42 120  4      tolft  1
 C 43 121  4        vol  1
       type s_lat
-      real(8):: size
-      real(8) :: alat
-      real(8) :: as
-      real(8) :: avw
-      real(8) :: awald
-      real(8) :: dist(9)
-      real(8) :: gam(4)
-      real(8) :: gmax
-      integer(8) :: ldist
-      integer(8) :: nabc(3)
-      integer(8) :: ng
-      integer(8) :: nkd
-      integer(8) :: nkdmx
-      integer(8) :: nkq
-      integer(8) :: nkqmx
-      integer(8) :: npgrp
-      integer(8) :: nsgrp
-      integer(8) :: oag
-      integer(8) :: obgv
-      integer(8) :: ocg
-      integer(8) :: ocy
-      integer(8) :: odlv
-      integer(8) :: ogv
-      integer(8) :: oidxcg
-      integer(8) :: oips0
-      integer(8) :: oistab
-      integer(8) :: ojcg
-      integer(8) :: okv
-      integer(8) :: opos
-      integer(8) :: oqlv
-      integer(8) :: osymgr
-      real(8) :: plat(9)
-      real(8) :: plat0(9)
-      real(8) :: plat2(9)
-      real(8) :: plate(9)
-      real(8) :: platl(9)
-      real(8) :: platr(9)
-      real(8) :: qlat(9)
-      real(8) :: rpad
-      real(8) :: slat(9)
-      real(8) :: tol
-      real(8) :: tolft
-      real(8) :: vol
+      real(8) ::  size
+      real(8)  ::  alat
+      real(8)  ::  as
+      real(8)  ::  avw
+      real(8)  ::  awald
+      real(8)  ::  dist(9)
+      real(8)  ::  gam(4)
+      real(8)  ::  gmax
+      integer(8)  ::  ldist
+      integer(8)  ::  nabc(3)
+      integer(8)  ::  ng
+      integer(8)  ::  nkd
+      integer(8)  ::  nkdmx
+      integer(8)  ::  nkq
+      integer(8)  ::  nkqmx
+      integer(8)  ::  npgrp
+      integer(8)  ::  nsgrp
+      integer(8)  ::  oag
+      integer(8)  ::  obgv
+      integer(8)  ::  ocg
+      integer(8)  ::  ocy
+      integer(8)  ::  odlv
+      integer(8)  ::  ogv
+      integer(8)  ::  oidxcg
+      integer(8)  ::  oips0
+      integer(8)  ::  oistab
+      integer(8)  ::  ojcg
+      integer(8)  ::  okv
+      integer(8)  ::  opos
+      integer(8)  ::  oqlv
+      integer(8)  ::  osymgr
+      real(8)  ::  plat(9)
+      real(8)  ::  plat0(9)
+      real(8)  ::  plat2(9)
+      real(8)  ::  plate(9)
+      real(8)  ::  platl(9)
+      real(8)  ::  platr(9)
+      real(8)  ::  qlat(9)
+      real(8)  ::  rpad
+      real(8)  ::  slat(9)
+      real(8)  ::  tol
+      real(8)  ::  tolft
+      real(8)  ::  vol
       end type s_lat
 
 Cr --- explanation of  umix ---
@@ -1048,29 +1049,29 @@ C 21  33  4       umix  1
 C 22  34  4        w..  3
 C 23  37  4         wc  1
       type s_mix
-      real(8):: size
-      real(8) :: b
-      real(8) :: bl
-      real(8) :: bv
-      real(8) :: elind
-      real(8) :: fn !string
-      integer(8) :: kill
-      integer(8) :: lxpot
-      integer(8) :: mmix
-      integer(8) :: mode
-      integer(8) :: model
-      integer(8) :: n
-      integer(8) :: nitu
-      integer(8) :: nmix
-      integer(8) :: nsave
-      real(8) :: r(3) !string
-      real(8) :: rms1
-      real(8) :: rms2
-      real(8) :: tj(10)
-      real(8) :: tolu
-      real(8) :: umix
-      real(8) :: w(3)
-      real(8) :: wc
+      real(8) ::  size
+      real(8)  ::  b
+      real(8)  ::  bl
+      real(8)  ::  bv
+      real(8)  ::  elind
+      real(8)  ::  fn !string
+      integer(8)  ::  kill
+      integer(8)  ::  lxpot
+      integer(8)  ::  mmix
+      integer(8)  ::  mode
+      integer(8)  ::  model
+      integer(8)  ::  n
+      integer(8)  ::  nitu
+      integer(8)  ::  nmix
+      integer(8)  ::  nsave
+      real(8)  ::  r(3) !string
+      real(8)  ::  rms1
+      real(8)  ::  rms2
+      real(8)  ::  tj(10)
+      real(8)  ::  tolu
+      real(8)  ::  umix
+      real(8)  ::  w(3)
+      real(8)  ::  wc
       end type s_mix
 
 Cr --- explanation of  umove ---
@@ -1110,17 +1111,17 @@ C  9  33  4         ts  1
 C 10  34  4      tsequ  1
 C 11  35  4      tstot  1
       type s_move
-      real(8):: size
-      real(8) :: ct(3)
-      real(8) :: gyro
-      real(8) :: kt
-      integer(8) :: modt(3)
-      integer(8) :: nmodt
-      real(8) :: prmint(20)
-      real(8) :: tnow
-      real(8) :: ts
-      real(8) :: tsequ
-      real(8) :: tstot
+      real(8) ::  size
+      real(8)  ::  ct(3)
+      real(8)  ::  gyro
+      real(8)  ::  kt
+      integer(8)  ::  modt(3)
+      integer(8)  ::  nmodt
+      real(8)  ::  prmint(20)
+      real(8)  ::  tnow
+      real(8)  ::  ts
+      real(8)  ::  tsequ
+      real(8)  ::  tstot
       end type s_move
 
 Cr --- explanation of  uoptic ---
@@ -1155,19 +1156,19 @@ C 11  30 -1       size  1
 C 12  31  2      unrng  2
 C 13  33  4     window  2
       type s_optic
-      real(8):: size
-      integer(8) :: axes(18)
-      integer(8) :: cll
-      integer(8) :: cln
-      integer(8) :: cls
-      integer(8) :: clsite
-      real(8) :: esciss
-      integer(8) :: mode
-      integer(8) :: nchi2
-      integer(8) :: ne
-      integer(8) :: ocrng(2)
-      integer(8) :: unrng(2)
-      real(8) :: window(2)
+      real(8) ::  size
+      integer(8)  ::  axes(18)
+      integer(8)  ::  cll
+      integer(8)  ::  cln
+      integer(8)  ::  cls
+      integer(8)  ::  clsite
+      real(8)  ::  esciss
+      integer(8)  ::  mode
+      integer(8)  ::  nchi2
+      integer(8)  ::  ne
+      integer(8)  ::  ocrng(2)
+      integer(8)  ::  unrng(2)
+      real(8)  ::  window(2)
       end type s_optic
 
 Cr --- explanation of  uordn ---
@@ -1202,17 +1203,17 @@ C  9  10  2     ooffch  1 possible_structure
 C 10  11  4      rmaxg  3
 C 11  14 -1       size  1
       type s_ordn
-      real(8):: size
-      real(8) :: efre
-      integer(8) :: mode
-      integer(8) :: ncl
-      integer(8) :: ndofh
-      integer(8) :: oclp
-      integer(8) :: oclssl
-      integer(8) :: oiaxg
-      integer(8) :: omapgv
-      integer(8) :: ooffch
-      real(8) :: rmaxg(3)
+      real(8) ::  size
+      real(8)  ::  efre
+      integer(8)  ::  mode
+      integer(8)  ::  ncl
+      integer(8)  ::  ndofh
+CCHSTRUC       integer(8)  ::  oclp ! not used because of undef
+CCHSTRUC       integer(8)  ::  oclssl ! not used because of undef
+CCHSTRUC       integer(8)  ::  oiaxg ! not used because of undef
+CCHSTRUC       integer(8)  ::  omapgv ! not used because of undef
+CCHSTRUC       integer(8)  ::  ooffch ! not used because of undef
+      real(8)  ::  rmaxg(3)
       end type s_ordn
 
 Cr --- explanation of  upot ---
@@ -1345,64 +1346,64 @@ C 56  60  4     vconst  3
 C 57  63  4       vmtz  1
 C 58  64  4      vmtz0  1
       type s_pot
-      real(8):: size
-      real(8) :: bfield(4)
-      integer(8) :: nlma
-      integer(8) :: nlml
-      integer(8) :: nrhos
-      integer(8) :: oaamom
-      integer(8) :: obxc
-      integer(8) :: odddpf
-      integer(8) :: oddpf
-      integer(8) :: oddpfr
-      integer(8) :: odel
-      integer(8) :: odpf
-      integer(8) :: odpfr
-      integer(8) :: ofes
-      integer(8) :: ogma
-      integer(8) :: ogmar
-      integer(8) :: ogrrme
-      integer(8) :: ohab
-      integer(8) :: oivso
-      integer(8) :: omad
-      integer(8) :: oorhat
-      integer(8) :: opalp
-      integer(8) :: opapg
-      integer(8) :: opdel
-      integer(8) :: opf
-      integer(8) :: opfnc
-      integer(8) :: opfr
-      integer(8) :: opmpol
-      integer(8) :: opnu
-      integer(8) :: opp
-      integer(8) :: oppi
-      integer(8) :: oppn
-      integer(8) :: opprel
-      integer(8) :: opti
-      integer(8) :: oqc
-      integer(8) :: oqmom
-      integer(8) :: oqnu
-      integer(8) :: oqpp
-      integer(8) :: oqt
-      integer(8) :: orhos
-      integer(8) :: orhrmx
-      integer(8) :: osab
-      integer(8) :: osgw
-      integer(8) :: osmpot
-      integer(8) :: osmrho
-      integer(8) :: osop
-      integer(8) :: osoptc
-      integer(8) :: osrout
-      integer(8) :: otau
-      integer(8) :: ovab
-      integer(8) :: ovdif
-      integer(8) :: oves
-      integer(8) :: ovintr
-      integer(8) :: ovrmax
-      integer(8) :: ovshf
-      real(8) :: vconst(3)
-      real(8) :: vmtz
-      real(8) :: vmtz0
+      real(8) ::  size
+      real(8)  ::  bfield(4)
+      integer(8)  ::  nlma
+      integer(8)  ::  nlml
+      integer(8)  ::  nrhos
+CCHSTRUC       integer(8)  ::  oaamom ! not used because of undef
+      integer(8)  ::  obxc
+CCHSTRUC       integer(8)  ::  odddpf ! not used because of undef
+CCHSTRUC       integer(8)  ::  oddpf ! not used because of undef
+CCHSTRUC       integer(8)  ::  oddpfr ! not used because of undef
+CCHSTRUC       integer(8)  ::  odel ! not used because of undef
+CCHSTRUC       integer(8)  ::  odpf ! not used because of undef
+CCHSTRUC       integer(8)  ::  odpfr ! not used because of undef
+CCHSTRUC       integer(8)  ::  ofes ! not used because of undef
+CCHSTRUC       integer(8)  ::  ogma ! not used because of undef
+CCHSTRUC       integer(8)  ::  ogmar ! not used because of undef
+      integer(8)  ::  ogrrme
+CCHSTRUC       integer(8)  ::  ohab ! not used because of undef
+CCHSTRUC       integer(8)  ::  oivso ! not used because of undef
+      integer(8)  ::  omad
+      integer(8)  ::  oorhat
+CCHSTRUC       integer(8)  ::  opalp ! not used because of undef
+CCHSTRUC       integer(8)  ::  opapg ! not used because of undef
+CCHSTRUC       integer(8)  ::  opdel ! not used because of undef
+CCHSTRUC       integer(8)  ::  opf ! not used because of undef
+CCHSTRUC       integer(8)  ::  opfnc ! not used because of undef
+CCHSTRUC       integer(8)  ::  opfr ! not used because of undef
+      integer(8)  ::  opmpol
+      integer(8)  ::  opnu
+      integer(8)  ::  opp
+CCHSTRUC       integer(8)  ::  oppi ! not used because of undef
+CCHSTRUC       integer(8)  ::  oppn ! not used because of undef
+      integer(8)  ::  opprel
+CCHSTRUC       integer(8)  ::  opti ! not used because of undef
+      integer(8)  ::  oqc
+CCHSTRUC       integer(8)  ::  oqmom ! not used because of undef
+      integer(8)  ::  oqnu
+      integer(8)  ::  oqpp
+      integer(8)  ::  oqt
+      integer(8)  ::  orhos
+      integer(8)  ::  orhrmx
+CCHSTRUC       integer(8)  ::  osab ! not used because of undef
+CCHSTRUC       integer(8)  ::  osgw ! not used because of undef
+      integer(8)  ::  osmpot
+      integer(8)  ::  osmrho
+      integer(8)  ::  osop
+CCHSTRUC       integer(8)  ::  osoptc ! not used because of undef
+CCHSTRUC       integer(8)  ::  osrout ! not used because of undef
+CCHSTRUC       integer(8)  ::  otau ! not used because of undef
+CCHSTRUC       integer(8)  ::  ovab ! not used because of undef
+      integer(8)  ::  ovdif
+      integer(8)  ::  oves
+      integer(8)  ::  ovintr
+      integer(8)  ::  ovrmax
+CCHSTRUC       integer(8)  ::  ovshf ! not used because of undef
+      real(8)  ::  vconst(3)
+      real(8)  ::  vmtz
+      real(8)  ::  vmtz0
       end type s_pot
 
 Cr --- explanation of  uspec ---
@@ -1573,80 +1574,80 @@ C 72 337  2       ivso  4
 C 73 341  4       ehvl 10
 C 74 341  4        vso  4
       type s_spec
-      real(8):: size
-      real(8) :: z
-      real(8) :: mass
-      real(8) :: rmt
-      integer(8) :: ntorb
-      integer(8) :: naug
-      integer(8) :: norb
-      real(8) :: rsmfa
-      real(8) :: rsma
-      real(8) :: rg
-      integer(8) :: lmxa
-      integer(8) :: kmxh
-      integer(8) :: lmxl
-      integer(8) :: kmxt
-      real(8) :: rsmv
-      integer(8) :: norp
-      real(8) :: coreh !string
-      real(8) :: coreq(2)
-      real(8) :: a
-      integer(8) :: nr
-      real(8) :: eref
-      real(8) :: etf
-      real(8) :: beta
-      integer(8) :: lfoca
-      real(8) :: ctail
-      real(8) :: etail
-      real(8) :: name !string
-      integer(8) :: orhoc
-      real(8) :: stc
-      integer(8) :: lmxb
-      integer(8) :: lmxf
-      real(8) :: stni
-      real(8) :: stnm
-      real(8) :: rham
-      real(8) :: rfoca
-      real(8) :: dv
-      integer(8) :: mxcst
-      integer(8) :: group
-      integer(8) :: grp2
-      integer(8) :: nxi
-      real(8) :: qc
-      integer(8) :: lmxpb
-      real(8) :: pb1 !string
-      real(8) :: pb2 !string
-      real(8) :: colxbs(3)
-      integer(8) :: lxi
-      real(8) :: radxbs
-      real(8) :: rcut
-      real(8) :: rint
-      real(8) :: eh3
-      real(8) :: rs3
-      real(8) :: vmtz
-      integer(8) :: kmxv
-      real(8) :: rcfa(2)
-      real(8) :: p(20)
-      real(8) :: q(20)
-      real(8) :: alpha(10)
-      integer(8) :: idmod(10)
-      integer(8) :: idxdn(30)
-      real(8) :: hcr(10)
-      real(8) :: exi(10)
-      integer(8) :: ngcut(30)
-      real(8) :: qpol(10)
-      real(8) :: chfa(20)
-      real(8) :: orbp(60)
-      real(8) :: enu(10)
-      real(8) :: pz(20)
-      integer(8) :: idu(4)
-      real(8) :: uh(4)
-      real(8) :: jh(4)
-      integer(8) :: iq1(4)
-      integer(8) :: ivso(4)
-      real(8) :: ehvl(10)
-      real(8) :: vso(4)
+      real(8) ::  size
+      real(8)  ::  z
+      real(8)  ::  mass
+      real(8)  ::  rmt
+      integer(8)  ::  ntorb
+      integer(8)  ::  naug
+      integer(8)  ::  norb
+      real(8)  ::  rsmfa
+      real(8)  ::  rsma
+      real(8)  ::  rg
+      integer(8)  ::  lmxa
+      integer(8)  ::  kmxh
+      integer(8)  ::  lmxl
+      integer(8)  ::  kmxt
+      real(8)  ::  rsmv
+      integer(8)  ::  norp
+      real(8)  ::  coreh !string
+      real(8)  ::  coreq(2)
+      real(8)  ::  a
+      integer(8)  ::  nr
+      real(8)  ::  eref
+      real(8)  ::  etf
+      real(8)  ::  beta
+      integer(8)  ::  lfoca
+      real(8)  ::  ctail
+      real(8)  ::  etail
+      real(8)  ::  name !string
+      integer(8)  ::  orhoc
+      real(8)  ::  stc
+      integer(8)  ::  lmxb
+      integer(8)  ::  lmxf
+      real(8)  ::  stni
+      real(8)  ::  stnm
+      real(8)  ::  rham
+      real(8)  ::  rfoca
+      real(8)  ::  dv
+      integer(8)  ::  mxcst
+      integer(8)  ::  group
+      integer(8)  ::  grp2
+      integer(8)  ::  nxi
+      real(8)  ::  qc
+      integer(8)  ::  lmxpb
+      real(8)  ::  pb1 !string
+      real(8)  ::  pb2 !string
+      real(8)  ::  colxbs(3)
+      integer(8)  ::  lxi
+      real(8)  ::  radxbs
+      real(8)  ::  rcut
+      real(8)  ::  rint
+      real(8)  ::  eh3
+      real(8)  ::  rs3
+      real(8)  ::  vmtz
+      integer(8)  ::  kmxv
+      real(8)  ::  rcfa(2)
+      real(8)  ::  p(20)
+      real(8)  ::  q(20)
+      real(8)  ::  alpha(10)
+      integer(8)  ::  idmod(10)
+      integer(8)  ::  idxdn(30)
+      real(8)  ::  hcr(10)
+      real(8)  ::  exi(10)
+      integer(8)  ::  ngcut(30)
+      real(8)  ::  qpol(10)
+      real(8)  ::  chfa(20)
+      real(8)  ::  orbp(60)
+      real(8)  ::  enu(10)
+      real(8)  ::  pz(20)
+      integer(8)  ::  idu(4)
+      real(8)  ::  uh(4)
+      real(8)  ::  jh(4)
+      integer(8)  ::  iq1(4)
+      integer(8)  ::  ivso(4)
+      real(8)  ::  ehvl(10)
+      real(8)  ::  vso(4)
       end type s_spec
 
 Cr --- explanation of  usite ---
@@ -1709,33 +1710,33 @@ C 25  83  2       spec  1
 C 26  84  4        vel  3
 C 27  87  4      vshft  1
       type s_site
-      real(8):: size
-      real(8) :: bfield(3)
-      real(8) :: clabel !string
-      integer(8) :: class
-      integer(8) :: cli
-      real(8) :: delta(6)
-      real(8) :: dpole(3)
-      real(8) :: eula(3)
-      real(8) :: force(3)
-      real(8) :: mpole
-      integer(8) :: ndelta
-      integer(8) :: norb
-      integer(8) :: offh
-      integer(8) :: orho
-      integer(8) :: ov0
-      integer(8) :: ov1
-      integer(8) :: pl
-      integer(8) :: plv
-      real(8) :: pnu(20)
-      real(8) :: pos(3)
-      real(8) :: pos0(3)
-      real(8) :: pz(20)
-      integer(8) :: relax(3)
-      integer(8) :: sid
-      integer(8) :: spec
-      real(8) :: vel(3)
-      real(8) :: vshft
+      real(8) ::  size
+      real(8)  ::  bfield(3)
+      real(8)  ::  clabel !string
+      integer(8)  ::  class
+      integer(8)  ::  cli
+      real(8)  ::  delta(6)
+      real(8)  ::  dpole(3)
+      real(8)  ::  eula(3)
+      real(8)  ::  force(3)
+      real(8)  ::  mpole
+      integer(8)  ::  ndelta
+      integer(8)  ::  norb
+CCHSTRUC       integer(8)  ::  offh ! not used because of undef
+CCHSTRUC       integer(8)  ::  orho ! not used because of undef
+      integer(8)  ::  ov0
+      integer(8)  ::  ov1
+      integer(8)  ::  pl
+      integer(8)  ::  plv
+      real(8)  ::  pnu(20)
+      real(8)  ::  pos(3)
+      real(8)  ::  pos0(3)
+      real(8)  ::  pz(20)
+      integer(8)  ::  relax(3)
+      integer(8)  ::  sid
+      integer(8)  ::  spec
+      real(8)  ::  vel(3)
+      real(8)  ::  vshft
       end type s_site
 
 Cr --- explanation of  ustr ---
@@ -1822,36 +1823,36 @@ C 28  40 -1       size  1
 C 29  41  4      skmsh  6
 C 30  47  4      wztcf  1
       type s_str
-      real(8):: size
-      real(8) :: adec
-      integer(8) :: amode
-      real(8) :: drwats
-      real(8) :: iinv(5)
-      integer(8) :: ivl
-      real(8) :: kaps(6)
-      integer(8) :: lequiv
-      integer(8) :: lmaxw
-      integer(8) :: loka
-      integer(8) :: lshow
-      integer(8) :: mxnbr
-      integer(8) :: nalf
-      integer(8) :: nbisi(3)
-      integer(8) :: ncupl
-      integer(8) :: ndust
-      integer(8) :: nitab
-      integer(8) :: nkaps
-      integer(8) :: nttab
-      integer(8) :: oadot
-      integer(8) :: oalp
-      integer(8) :: oiax
-      integer(8) :: ontab
-      integer(8) :: os
-      integer(8) :: osdot
-      real(8) :: rfit
-      real(8) :: rmax
-      real(8) :: rmaxg
-      real(8) :: skmsh(6)
-      real(8) :: wztcf
+      real(8) ::  size
+      real(8)  ::  adec
+      integer(8)  ::  amode
+      real(8)  ::  drwats
+      real(8)  ::  iinv(5)
+      integer(8)  ::  ivl
+      real(8)  ::  kaps(6)
+      integer(8)  ::  lequiv
+      integer(8)  ::  lmaxw
+      integer(8)  ::  loka
+      integer(8)  ::  lshow
+      integer(8)  ::  mxnbr
+      integer(8)  ::  nalf
+      integer(8)  ::  nbisi(3)
+      integer(8)  ::  ncupl
+      integer(8)  ::  ndust
+      integer(8)  ::  nitab
+      integer(8)  ::  nkaps
+      integer(8)  ::  nttab
+CCHSTRUC       integer(8)  ::  oadot ! not used because of undef
+CCHSTRUC       integer(8)  ::  oalp ! not used because of undef
+CCHSTRUC       integer(8)  ::  oiax ! not used because of undef
+CCHSTRUC       integer(8)  ::  ontab ! not used because of undef
+CCHSTRUC       integer(8)  ::  os ! not used because of undef
+CCHSTRUC       integer(8)  ::  osdot ! not used because of undef
+      real(8)  ::  rfit
+      real(8)  ::  rmax
+      real(8)  ::  rmaxg
+      real(8)  ::  skmsh(6)
+      real(8)  ::  wztcf
       end type s_str
 
 Cr --- explanation of  utb ---
@@ -1877,13 +1878,13 @@ C  5   7  2      nbfit  2
 C  6   9  4      rmfit  2
 C  7  11 -1       size  1
       type s_tb
-      real(8):: size
-      real(8) :: alam
-      real(8) :: alsc
-      real(8) :: ebfit(2)
-      integer(8) :: fmode
-      integer(8) :: nbfit(2)
-      real(8) :: rmfit(2)
+      real(8) ::  size
+      real(8)  ::  alam
+      real(8)  ::  alsc
+      real(8)  ::  ebfit(2)
+      integer(8)  ::  fmode
+      integer(8)  ::  nbfit(2)
+      real(8)  ::  rmfit(2)
       end type s_tb
       end module m_struc_def
 
@@ -2334,6 +2335,1636 @@ C         n=n+2
 #endif  /* MPIADDRESS*/
       end function utb_size
 
+       subroutine mpibc1_s_ri(struc,mlog,funnam,label)
+       use m_struc_def, only: s_ri
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_ri):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%t, 1,MPI_INTEGER
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%i, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%r, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_ri
+
+       subroutine mpibc1_s_bz(struc,mlog,funnam,label)
+       use m_struc_def, only: s_bz
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_bz):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%def, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%dosw) ! dosw(2)
+       call mpi_bcast(struc%dosw, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ef, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%efmax, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%fsmom, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%lcond) ! lcond(4)
+       call mpi_bcast(struc%lcond, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lio, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmet, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmull, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lopt, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%lshft) ! lshft(3)
+       call mpi_bcast(struc%lshft, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%n, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ndos, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nevmx, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%nkabc) ! nkabc(3)
+       call mpi_bcast(struc%nkabc, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nkp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ntet, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oidtet, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oipq, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oqp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ostar, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%owtkp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%range, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%semsh) ! semsh(10)
+       call mpi_bcast(struc%semsh, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%stnr, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%w, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%zval, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_bz
+
+       subroutine mpibc1_s_array(struc,mlog,funnam,label)
+       use m_struc_def, only: s_array
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_array):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ncl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nclasp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nofgl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nofgr, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%npadl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%npadr, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%npl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oclabl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ogroup, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ohave, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oics, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oipc, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oipcp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oips, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%onrc, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%onrcp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%opos, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ormax, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_array
+
+       subroutine mpibc1_s_ctrl(struc,mlog,funnam,label)
+       use m_struc_def, only: s_ctrl
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_ctrl):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%defm) ! defm(6)
+       call mpi_bcast(struc%defm, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%elin, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lasa, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lbas, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lcd, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lcgf, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ldos, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lfp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lfrce, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lgen3, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lham, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmet, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lncol, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%loptc, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lordn, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%lpgf) ! lpgf(2)
+       call mpi_bcast(struc%lpgf, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lqp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lrel, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lrs, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lscr, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%lstonr) ! lstonr(3)
+       call mpi_bcast(struc%lstonr, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lstr, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lsx, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ltb, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lves, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lxcf, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%maxit, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%mdprm) ! mdprm(6)
+       call mpi_bcast(struc%mdprm, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%modep) ! modep(3)
+       call mpi_bcast(struc%modep, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nbas, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nbasp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nclass, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%nesabc) ! nesabc(3)
+       call mpi_bcast(struc%nesabc, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nitmv, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nmap, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%npl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nsite, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nspec, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nspin, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nvario, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%omax1) ! omax1(3)
+       call mpi_bcast(struc%omax1, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%omax2) ! omax2(3)
+       call mpi_bcast(struc%omax2, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%pfloat, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%quit, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rmaxes, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rmines, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%sclwsr, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%sdmod, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%sdprm) ! sdprm(5)
+       call mpi_bcast(struc%sdprm, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%sdxsi) ! sdxsi(4)
+       call mpi_bcast(struc%sdxsi, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%smalit) ! smalit(2)
+       call mpi_bcast(struc%smalit, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%tol) ! tol(3)
+       call mpi_bcast(struc%tol, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%wsrmax, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%zbak) ! zbak(2)
+       call mpi_bcast(struc%zbak, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_ctrl
+
+       subroutine mpibc1_s_gw(struc,mlog,funnam,label)
+       use m_struc_def, only: s_gw
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_gw):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%delre) ! delre(2)
+       call mpi_bcast(struc%delre, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%deltaw, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%deltax, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ecuts, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%gcutb, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%gcutx, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%gsmear, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lgw, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmxpb, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%mksig, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nband, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nime, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%nkabc) ! nkabc(3)
+       call mpi_bcast(struc%nkabc, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%pb1, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%pb2, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%pbtol, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%qoffp, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rdsig, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_gw
+
+       subroutine mpibc1_s_ham(struc,mlog,funnam,label)
+       use m_struc_def, only: s_ham
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_ham):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%alfsi, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%amgm, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%bandw, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%dabc) ! dabc(3)
+       call mpi_bcast(struc%dabc, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ehf, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ehk, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%elind, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%eterms) ! eterms(20)
+       call mpi_bcast(struc%eterms, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%hord, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%kmto) ! kmto(6)
+       call mpi_bcast(struc%kmto, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lasa, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%ldham) ! ldham(16)
+       call mpi_bcast(struc%ldham, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lgen3, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lham, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmaxu, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmxax, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lncol, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lsig, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ltb, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lxcf, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nbf, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ndham, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ndhrs, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ndofH, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%neula, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nkaph, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nlibu, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nmto, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%npwmin, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%npwpad, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nqsig, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ohrs, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oiaxs, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oindxo, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ontabs, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ooffH, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oqsig, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oveps, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%pmax) ! pmax(10)
+       call mpi_bcast(struc%pmax, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%pmin) ! pmin(10)
+       call mpi_bcast(struc%pmin, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%pwemax, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%pwemin, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%pwmode, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%qpoff) ! qpoff(3)
+       call mpi_bcast(struc%qpoff, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%qss) ! qss(4)
+       call mpi_bcast(struc%qss, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rsrnge, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rsstol, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%seref, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%sigp) ! sigp(10)
+       call mpi_bcast(struc%sigp, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%thrpv, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%udiag, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_ham
+
+       subroutine mpibc1_s_lat(struc,mlog,funnam,label)
+       use m_struc_def, only: s_lat
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_lat):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%alat, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%as, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%avw, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%awald, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%dist) ! dist(9)
+       call mpi_bcast(struc%dist, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%gam) ! gam(4)
+       call mpi_bcast(struc%gam, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%gmax, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ldist, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%nabc) ! nabc(3)
+       call mpi_bcast(struc%nabc, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ng, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nkd, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nkdmx, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nkq, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nkqmx, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%npgrp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nsgrp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oag, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%obgv, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ocg, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ocy, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%odlv, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ogv, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oidxcg, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oips0, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oistab, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ojcg, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%okv, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%opos, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oqlv, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%osymgr, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%plat) ! plat(9)
+       call mpi_bcast(struc%plat, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%plat0) ! plat0(9)
+       call mpi_bcast(struc%plat0, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%plat2) ! plat2(9)
+       call mpi_bcast(struc%plat2, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%plate) ! plate(9)
+       call mpi_bcast(struc%plate, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%platl) ! platl(9)
+       call mpi_bcast(struc%platl, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%platr) ! platr(9)
+       call mpi_bcast(struc%platr, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%qlat) ! qlat(9)
+       call mpi_bcast(struc%qlat, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rpad, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%slat) ! slat(9)
+       call mpi_bcast(struc%slat, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%tol, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%tolft, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%vol, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_lat
+
+       subroutine mpibc1_s_mix(struc,mlog,funnam,label)
+       use m_struc_def, only: s_mix
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_mix):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%b, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%bl, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%bv, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%elind, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%fn, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%kill, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lxpot, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%mmix, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%mode, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%model, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%n, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nitu, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nmix, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nsave, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%r) ! r(3)
+       call mpi_bcast(struc%r, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rms1, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rms2, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%tj) ! tj(10)
+       call mpi_bcast(struc%tj, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%tolu, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%umix, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%w) ! w(3)
+       call mpi_bcast(struc%w, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%wc, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_mix
+
+       subroutine mpibc1_s_move(struc,mlog,funnam,label)
+       use m_struc_def, only: s_move
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_move):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%ct) ! ct(3)
+       call mpi_bcast(struc%ct, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%gyro, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%kt, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%modt) ! modt(3)
+       call mpi_bcast(struc%modt, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nmodt, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%prmint) ! prmint(20)
+       call mpi_bcast(struc%prmint, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%tnow, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ts, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%tsequ, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%tstot, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_move
+
+       subroutine mpibc1_s_optic(struc,mlog,funnam,label)
+       use m_struc_def, only: s_optic
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_optic):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%axes) ! axes(18)
+       call mpi_bcast(struc%axes, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%cll, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%cln, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%cls, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%clsite, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%esciss, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%mode, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nchi2, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ne, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%ocrng) ! ocrng(2)
+       call mpi_bcast(struc%ocrng, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%unrng) ! unrng(2)
+       call mpi_bcast(struc%unrng, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%window) ! window(2)
+       call mpi_bcast(struc%window, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_optic
+
+       subroutine mpibc1_s_ordn(struc,mlog,funnam,label)
+       use m_struc_def, only: s_ordn
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_ordn):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%efre, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%mode, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ncl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ndofh, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%rmaxg) ! rmaxg(3)
+       call mpi_bcast(struc%rmaxg, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_ordn
+
+       subroutine mpibc1_s_pot(struc,mlog,funnam,label)
+       use m_struc_def, only: s_pot
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_pot):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%bfield) ! bfield(4)
+       call mpi_bcast(struc%bfield, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nlma, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nlml, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nrhos, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%obxc, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ogrrme, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%omad, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oorhat, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%opmpol, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%opnu, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%opp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%opprel, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oqc, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oqnu, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oqpp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oqt, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%orhos, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%orhrmx, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%osmpot, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%osmrho, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%osop, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ovdif, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%oves, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ovintr, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ovrmax, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%vconst) ! vconst(3)
+       call mpi_bcast(struc%vconst, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%vmtz, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%vmtz0, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_pot
+
+       subroutine mpibc1_s_spec(struc,mlog,funnam,label)
+       use m_struc_def, only: s_spec
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_spec):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%z, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%mass, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rmt, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ntorb, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%naug, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%norb, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rsmfa, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rsma, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rg, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmxa, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%kmxh, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmxl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%kmxt, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rsmv, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%norp, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%coreh, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%coreq) ! coreq(2)
+       call mpi_bcast(struc%coreq, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%a, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nr, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%eref, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%etf, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%beta, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lfoca, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ctail, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%etail, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%name, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%orhoc, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%stc, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmxb, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmxf, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%stni, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%stnm, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rham, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rfoca, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%dv, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%mxcst, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%group, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%grp2, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nxi, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%qc, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmxpb, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%pb1, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%pb2, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%colxbs) ! colxbs(3)
+       call mpi_bcast(struc%colxbs, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lxi, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%radxbs, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rcut, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rint, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%eh3, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rs3, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%vmtz, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%kmxv, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%rcfa) ! rcfa(2)
+       call mpi_bcast(struc%rcfa, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%p) ! p(20)
+       call mpi_bcast(struc%p, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%q) ! q(20)
+       call mpi_bcast(struc%q, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%alpha) ! alpha(10)
+       call mpi_bcast(struc%alpha, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%idmod) ! idmod(10)
+       call mpi_bcast(struc%idmod, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%idxdn) ! idxdn(30)
+       call mpi_bcast(struc%idxdn, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%hcr) ! hcr(10)
+       call mpi_bcast(struc%hcr, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%exi) ! exi(10)
+       call mpi_bcast(struc%exi, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%ngcut) ! ngcut(30)
+       call mpi_bcast(struc%ngcut, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%qpol) ! qpol(10)
+       call mpi_bcast(struc%qpol, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%chfa) ! chfa(20)
+       call mpi_bcast(struc%chfa, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%orbp) ! orbp(60)
+       call mpi_bcast(struc%orbp, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%enu) ! enu(10)
+       call mpi_bcast(struc%enu, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%pz) ! pz(20)
+       call mpi_bcast(struc%pz, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%idu) ! idu(4)
+       call mpi_bcast(struc%idu, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%uh) ! uh(4)
+       call mpi_bcast(struc%uh, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%jh) ! jh(4)
+       call mpi_bcast(struc%jh, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%iq1) ! iq1(4)
+       call mpi_bcast(struc%iq1, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%ivso) ! ivso(4)
+       call mpi_bcast(struc%ivso, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%ehvl) ! ehvl(10)
+       call mpi_bcast(struc%ehvl, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%vso) ! vso(4)
+       call mpi_bcast(struc%vso, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_spec
+
+       subroutine mpibc1_s_site(struc,mlog,funnam,label)
+       use m_struc_def, only: s_site
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_site):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%bfield) ! bfield(3)
+       call mpi_bcast(struc%bfield, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%clabel, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%class, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%cli, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%delta) ! delta(6)
+       call mpi_bcast(struc%delta, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%dpole) ! dpole(3)
+       call mpi_bcast(struc%dpole, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%eula) ! eula(3)
+       call mpi_bcast(struc%eula, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%force) ! force(3)
+       call mpi_bcast(struc%force, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%mpole, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ndelta, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%norb, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ov0, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ov1, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%pl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%plv, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%pnu) ! pnu(20)
+       call mpi_bcast(struc%pnu, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%pos) ! pos(3)
+       call mpi_bcast(struc%pos, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%pos0) ! pos0(3)
+       call mpi_bcast(struc%pos0, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%pz) ! pz(20)
+       call mpi_bcast(struc%pz, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%relax) ! relax(3)
+       call mpi_bcast(struc%relax, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%sid, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%spec, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%vel) ! vel(3)
+       call mpi_bcast(struc%vel, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%vshft, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_site
+
+       subroutine mpibc1_s_str(struc,mlog,funnam,label)
+       use m_struc_def, only: s_str
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_str):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%adec, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%amode, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%drwats, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%iinv) ! iinv(5)
+       call mpi_bcast(struc%iinv, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ivl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%kaps) ! kaps(6)
+       call mpi_bcast(struc%kaps, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lequiv, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lmaxw, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%loka, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%lshow, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%mxnbr, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nalf, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%nbisi) ! nbisi(3)
+       call mpi_bcast(struc%nbisi, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ncupl, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%ndust, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nitab, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nkaps, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%nttab, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rfit, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rmax, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%rmaxg, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%skmsh) ! skmsh(6)
+       call mpi_bcast(struc%skmsh, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%wztcf, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_str
+
+       subroutine mpibc1_s_tb(struc,mlog,funnam,label)
+       use m_struc_def, only: s_tb
+       implicit none
+#if MPI|MPIK
+      include 'mpif.h'
+      integer numprocs, ierr
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      character*256 strn
+      logical lgunit
+      integer procid,master,i_data_size
+      integer:: n=0, cast=4
+C use i_data_size in order to cast an address to integer
+#endif
+C ... Passed parameters
+      logical mlog
+       type(s_tb):: struc
+      character funnam*(*), label*(*)
+#if MPI|MPIK
+       master=0
+       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+       call mpi_bcast(struc%size, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%alam, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%alsc, 1,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%ebfit) ! ebfit(2)
+       call mpi_bcast(struc%ebfit, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+       call mpi_bcast(struc%fmode, 1,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%nbfit) ! nbfit(2)
+       call mpi_bcast(struc%nbfit, i_data_size,MPI_INTEGER8
+     , , master, MPI_COMM_WORLD,ierr)
+       i_data_size=size(struc%rmfit) ! rmfit(2)
+       call mpi_bcast(struc%rmfit, i_data_size,MPI_REAL8
+     , , master, MPI_COMM_WORLD,ierr)
+
+      if (mlog) then
+        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+        call strcop(shortname(procid),name,10,'.',ierr)
+        namelen(procid) = ierr-1
+        call gettime(datim)
+        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+     .  cast)
+      endif
+#endif
+      end subroutine mpibc1_s_tb
+
       end module m_struc_func
 c------------------------------------------------------------------
 
@@ -2341,51 +3972,7 @@ c------------------------------------------------------------------
 
 
 c------------------------------------------------------------------
-      subroutine uarray_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_array):: struc
-      struc%size=uarray_size()
-      struc%ncl=0
-      struc%nclasp=0
-      struc%nofgl=0
-      struc%nofgr=0
-      struc%npadl=0
-      struc%npadr=0
-      struc%npl=0
-      struc%oclabl=0
-      struc%ocllst=0
-      struc%oclp=0
-      struc%oclssl=0
-      struc%ogroup=0
-      struc%ogrp2=0
-      struc%ohave=0
-      struc%oics=0
-      struc%oifrlx=0
-      struc%oipc=0
-      struc%oipcp=0
-      struc%oips=0
-      struc%omxcst=0
-      struc%onrc=0
-      struc%onrcp=0
-      struc%opgfsl=0
-      struc%opgfvl=0
-      struc%opgord=0
-      struc%opgplp=0
-      struc%opos=0
-      struc%ormax=0
-      struc%osordn=0
-      struc%ostni=0
-      struc%ozos=0
-      end subroutine uarray_init
 
-      subroutine uarray_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_array):: struc
-      write(*,*) struc
-      end subroutine uarray_show
 
 C$$$        subroutine uarray(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -2401,49 +3988,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine uarray
 
-      subroutine ubz_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_bz):: struc
-      struc%size=ubz_size()
-      struc%def=0.0d0
-      struc%dosw(:)=0.0d0
-      struc%ef=0.0d0
-      struc%efmax=0.0d0
-      struc%fsmom=0.0d0
-      struc%lcond(:)=0.0d0
-      struc%lio=0
-      struc%lmet=0
-      struc%lmull=0
-      struc%lopt=0
-      struc%lshft(:)=0
-      struc%n=0
-      struc%ndos=0
-      struc%nevmx=0
-      struc%nkabc(:)=0
-      struc%nkp=0
-      struc%ntet=0
-      struc%odos=0
-      struc%oidtet=0
-      struc%oipq=0
-      struc%opdos=0
-      struc%oqp=0
-      struc%ostar=0
-      struc%owtkp=0
-      struc%range=0.0d0
-      struc%semsh(:)=0.0d0
-      struc%stnr=0.0d0
-      struc%w=0.0d0
-      struc%zval=0.0d0
-      end subroutine ubz_init
 
-      subroutine ubz_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_bz):: struc
-      write(*,*) struc
-      end subroutine ubz_show
 
 C$$$        subroutine ubz(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -2459,75 +4004,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine ubz
 
-      subroutine uctrl_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_ctrl):: struc
-      struc%size=uctrl_size()
-      struc%defm(:)=0.0d0
-      struc%elin=0.0d0
-      struc%lasa=0
-      struc%lbas=0
-      struc%lcd=0
-      struc%lcgf=0
-      struc%ldos=0
-      struc%lfp=0
-      struc%lfrce=0
-      struc%lgen3=0
-      struc%lham=0
-      struc%lmet=0
-      struc%lncol=0
-      struc%loptc=0
-      struc%lordn=0
-      struc%lpgf(:)=0
-      struc%lqp=0
-      struc%lrel=0
-      struc%lrs=0
-      struc%lscr=0
-      struc%lstonr(:)=0
-      struc%lstr=0
-      struc%lsx=0
-      struc%ltb=0
-      struc%lves=0
-      struc%lxcf=0
-      struc%maxit=0
-      struc%mdprm(:)=0.0d0
-      struc%modep(:)=0
-      struc%nbas=0
-      struc%nbasp=0
-      struc%nclass=0
-      struc%nesabc(:)=0
-      struc%nitmv=0
-      struc%nl=0
-      struc%nmap=0
-      struc%npl=0
-      struc%nsite=0
-      struc%nspec=0
-      struc%nspin=0
-      struc%nvario=0
-      struc%omax1(:)=0.0d0
-      struc%omax2(:)=0.0d0
-      struc%pfloat=0
-      struc%quit=0
-      struc%rmaxes=0.0d0
-      struc%rmines=0.0d0
-      struc%sclwsr=0.0d0
-      struc%sdmod=0
-      struc%sdprm(:)=0.0d0
-      struc%sdxsi(:)=0.0d0
-      struc%smalit(:)=0
-      struc%tol(:)=0.0d0
-      struc%wsrmax=0.0d0
-      struc%zbak(:)=0.0d0
-      end subroutine uctrl_init
 
-      subroutine uctrl_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_ctrl):: struc
-      write(*,*) struc
-      end subroutine uctrl_show
 
 C$$$        subroutine uctrl(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -2590,75 +4067,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine ugw
 
-      subroutine uham_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_ham):: struc
-      struc%size=uham_size()
-      struc%alfsi=0.0d0
-      struc%amgm=0.0d0
-      struc%bandw=0
-      struc%dabc(:)=0.0d0
-      struc%ehf=0.0d0
-      struc%ehk=0.0d0
-      struc%elind=0.0d0
-      struc%eterms(:)=0.0d0
-      struc%hord=0
-      struc%kmto(:)=0.0d0
-      struc%lasa=0
-      struc%ldham(:)=0
-      struc%lgen3=0
-      struc%lham=0
-      struc%lmaxu=0
-      struc%lmxax=0
-      struc%lncol=0
-      struc%lsig=0
-      struc%ltb=0
-      struc%lxcf=0
-      struc%nbf=0
-      struc%ndham=0
-      struc%ndhrs=0
-      struc%ndofH=0
-      struc%neula=0
-      struc%nkaph=0
-      struc%nlibu=0
-      struc%nmto=0
-      struc%npwmin=0
-      struc%npwpad=0
-      struc%nqsig=0
-      struc%obdots=0
-      struc%oeula=0
-      struc%ohrs=0
-      struc%oiaxs=0
-      struc%oindxo=0
-      struc%olmxa=0
-      struc%omagf=0
-      struc%ontabs=0
-      struc%ooffH=0
-      struc%oqsig=0
-      struc%oveps=0.0d0
-      struc%pmax(:)=0.0d0
-      struc%pmin(:)=0.0d0
-      struc%pwemax=0.0d0
-      struc%pwemin=0.0d0
-      struc%pwmode=0
-      struc%qpoff(:)=0.0d0
-      struc%qss(:)=0.0d0
-      struc%rsrnge=0.0d0
-      struc%rsstol=0.0d0
-      struc%seref=0.0d0
-      struc%sigp(:)=0.0d0
-      struc%thrpv=0.0d0
-      struc%udiag=0
-      end subroutine uham_init
 
-      subroutine uham_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_ham):: struc
-      write(*,*) struc
-      end subroutine uham_show
 
 C$$$        subroutine uham(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -2674,62 +4083,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine uham
 
-      subroutine ulat_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_lat):: struc
-      struc%size=ulat_size()
-      struc%alat=0.0d0
-      struc%as=0.0d0
-      struc%avw=0.0d0
-      struc%awald=0.0d0
-      struc%dist(:)=0.0d0
-      struc%gam(:)=0.0d0
-      struc%gmax=0.0d0
-      struc%ldist=0
-      struc%nabc(:)=0
-      struc%ng=0
-      struc%nkd=0
-      struc%nkdmx=0
-      struc%nkq=0
-      struc%nkqmx=0
-      struc%npgrp=0
-      struc%nsgrp=0
-      struc%oag=0
-      struc%obgv=0
-      struc%ocg=0
-      struc%ocy=0
-      struc%odlv=0
-      struc%ogv=0
-      struc%oidxcg=0
-      struc%oips0=0
-      struc%oistab=0
-      struc%ojcg=0
-      struc%okv=0
-      struc%opos=0
-      struc%oqlv=0
-      struc%osymgr=0
-      struc%plat(:)=0.0d0
-      struc%plat0(:)=0.0d0
-      struc%plat2(:)=0.0d0
-      struc%plate(:)=0.0d0
-      struc%platl(:)=0.0d0
-      struc%platr(:)=0.0d0
-      struc%qlat(:)=0.0d0
-      struc%rpad=0.0d0
-      struc%slat(:)=0.0d0
-      struc%tol=0.0d0
-      struc%tolft=0.0d0
-      struc%vol=0.0d0
-      end subroutine ulat_init
 
-      subroutine ulat_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_lat):: struc
-      write(*,*) struc
-      end subroutine ulat_show
 
 C$$$        subroutine ulat(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -2745,42 +4099,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine ulat
 
-      subroutine umix_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_mix):: struc
-      struc%size=umix_size()
-      struc%b=0.0d0
-      struc%bl=0.0d0
-      struc%bv=0.0d0
-      struc%elind=0.0d0
-      struc%fn=0.0d0
-      struc%kill=0
-      struc%lxpot=0
-      struc%mmix=0
-      struc%mode=0
-      struc%model=0
-      struc%n=0
-      struc%nitu=0
-      struc%nmix=0
-      struc%nsave=0
-      struc%r(:)=0.0d0
-      struc%rms1=0.0d0
-      struc%rms2=0.0d0
-      struc%tj(:)=0.0d0
-      struc%tolu=0.0d0
-      struc%umix=0.0d0
-      struc%w(:)=0.0d0
-      struc%wc=0.0d0
-      end subroutine umix_init
 
-      subroutine umix_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_mix):: struc
-      write(*,*) struc
-      end subroutine umix_show
 
 C$$$        subroutine umix(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -2796,30 +4115,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine umix
 
-      subroutine umove_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_move):: struc
-      struc%size=umove_size()
-      struc%ct(:)=0.0d0
-      struc%gyro=0.0d0
-      struc%kt=0.0d0
-      struc%modt(:)=0
-      struc%nmodt=0
-      struc%prmint(:)=0.0d0
-      struc%tnow=0.0d0
-      struc%ts=0.0d0
-      struc%tsequ=0.0d0
-      struc%tstot=0.0d0
-      end subroutine umove_init
 
-      subroutine umove_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_move):: struc
-      write(*,*) struc
-      end subroutine umove_show
 
 C$$$        subroutine umove(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -2835,32 +4131,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine umove
 
-      subroutine uoptic_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_optic):: struc
-      struc%size=uoptic_size()
-      struc%axes(:)=0
-      struc%cll=0
-      struc%cln=0
-      struc%cls=0
-      struc%clsite=0
-      struc%esciss=0.0d0
-      struc%mode=0
-      struc%nchi2=0
-      struc%ne=0
-      struc%ocrng(:)=0
-      struc%unrng(:)=0
-      struc%window(:)=0.0d0
-      end subroutine uoptic_init
 
-      subroutine uoptic_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_optic):: struc
-      write(*,*) struc
-      end subroutine uoptic_show
 
 C$$$        subroutine uoptic(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -2876,30 +4147,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine uoptic
 
-      subroutine uordn_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_ordn):: struc
-      struc%size=uordn_size()
-      struc%efre=0.0d0
-      struc%mode=0
-      struc%ncl=0
-      struc%ndofh=0
-      struc%oclp=0
-      struc%oclssl=0
-      struc%oiaxg=0
-      struc%omapgv=0
-      struc%ooffch=0
-      struc%rmaxg(:)=0.0d0
-      end subroutine uordn_init
 
-      subroutine uordn_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_ordn):: struc
-      write(*,*) struc
-      end subroutine uordn_show
 
 C$$$        subroutine uordn(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -2915,77 +4163,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine uordn
 
-      subroutine upot_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_pot):: struc
-      struc%size=upot_size()
-      struc%bfield(:)=0.0d0
-      struc%nlma=0
-      struc%nlml=0
-      struc%nrhos=0
-      struc%oaamom=0
-      struc%obxc=0
-      struc%odddpf=0
-      struc%oddpf=0
-      struc%oddpfr=0
-      struc%odel=0
-      struc%odpf=0
-      struc%odpfr=0
-      struc%ofes=0
-      struc%ogma=0
-      struc%ogmar=0
-      struc%ogrrme=0
-      struc%ohab=0
-      struc%oivso=0
-      struc%omad=0
-      struc%oorhat=0
-      struc%opalp=0
-      struc%opapg=0
-      struc%opdel=0
-      struc%opf=0
-      struc%opfnc=0
-      struc%opfr=0
-      struc%opmpol=0
-      struc%opnu=0
-      struc%opp=0
-      struc%oppi=0
-      struc%oppn=0
-      struc%opprel=0
-      struc%opti=0
-      struc%oqc=0
-      struc%oqmom=0
-      struc%oqnu=0
-      struc%oqpp=0
-      struc%oqt=0
-      struc%orhos=0
-      struc%orhrmx=0
-      struc%osab=0
-      struc%osgw=0
-      struc%osmpot=0
-      struc%osmrho=0
-      struc%osop=0
-      struc%osoptc=0
-      struc%osrout=0
-      struc%otau=0
-      struc%ovab=0
-      struc%ovdif=0
-      struc%oves=0
-      struc%ovintr=0
-      struc%ovrmax=0
-      struc%ovshf=0
-      struc%vconst(:)=0.0d0
-      struc%vmtz=0.0d0
-      struc%vmtz0=0.0d0
-      end subroutine upot_init
 
-      subroutine upot_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_pot):: struc
-      write(*,*) struc
-      end subroutine upot_show
 
 C$$$        subroutine upot(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -3001,46 +4179,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine upot
 
-      subroutine usite_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_site):: struc
-      struc%size=usite_size()
-      struc%bfield(:)=0.0d0
-      struc%clabel=0.0d0
-      struc%class=0
-      struc%cli=0
-      struc%delta(:)=0.0d0
-      struc%dpole(:)=0.0d0
-      struc%eula(:)=0.0d0
-      struc%force(:)=0.0d0
-      struc%mpole=0.0d0
-      struc%ndelta=0
-      struc%norb=0
-      struc%offh=0
-      struc%orho=0
-      struc%ov0=0
-      struc%ov1=0
-      struc%pl=0
-      struc%plv=0
-      struc%pnu(:)=0.0d0
-      struc%pos(:)=0.0d0
-      struc%pos0(:)=0.0d0
-      struc%pz(:)=0.0d0
-      struc%relax(:)=0
-      struc%sid=0
-      struc%spec=0
-      struc%vel(:)=0.0d0
-      struc%vshft=0.0d0
-      end subroutine usite_init
 
-      subroutine usite_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_site):: struc
-      write(*,*) struc
-      end subroutine usite_show
 
 C$$$        subroutine usite(struc,offe,nli,is,off,cast,nelt)
 C$$$        use m_struc_def
@@ -3056,93 +4195,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine usite
 
-      subroutine uspec_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_spec):: struc
-      struc%size=uspec_size()
-      struc%z=0.0d0
-      struc%mass=0.0d0
-      struc%rmt=0.0d0
-      struc%ntorb=0
-      struc%naug=0
-      struc%norb=0
-      struc%rsmfa=0.0d0
-      struc%rsma=0.0d0
-      struc%rg=0.0d0
-      struc%lmxa=0
-      struc%kmxh=0
-      struc%lmxl=0
-      struc%kmxt=0
-      struc%rsmv=0.0d0
-      struc%norp=0
-      struc%coreh=0.0d0
-      struc%coreq(:)=0.0d0
-      struc%a=0.0d0
-      struc%nr=0
-      struc%eref=0.0d0
-      struc%etf=0.0d0
-      struc%beta=0.0d0
-      struc%lfoca=0
-      struc%ctail=0.0d0
-      struc%etail=0.0d0
-      struc%name=0.0d0
-      struc%orhoc=0
-      struc%stc=0.0d0
-      struc%lmxb=0
-      struc%lmxf=0
-      struc%stni=0.0d0
-      struc%stnm=0.0d0
-      struc%rham=0.0d0
-      struc%rfoca=0.0d0
-      struc%dv=0.0d0
-      struc%mxcst=0
-      struc%group=0
-      struc%grp2=0
-      struc%nxi=0
-      struc%qc=0.0d0
-      struc%lmxpb=0
-      struc%pb1=0.0d0
-      struc%pb2=0.0d0
-      struc%colxbs(:)=0.0d0
-      struc%lxi=0
-      struc%radxbs=0.0d0
-      struc%rcut=0.0d0
-      struc%rint=0.0d0
-      struc%eh3=0.0d0
-      struc%rs3=0.0d0
-      struc%vmtz=0.0d0
-      struc%kmxv=0
-      struc%rcfa(:)=0.0d0
-      struc%p(:)=0.0d0
-      struc%q(:)=0.0d0
-      struc%alpha(:)=0.0d0
-      struc%idmod(:)=0
-      struc%idxdn(:)=0
-      struc%hcr(:)=0.0d0
-      struc%exi(:)=0.0d0
-      struc%ngcut(:)=0
-      struc%qpol(:)=0.0d0
-      struc%chfa(:)=0.0d0
-      struc%orbp(:)=0.0d0
-      struc%enu(:)=0.0d0
-      struc%pz(:)=0.0d0
-      struc%idu(:)=0
-      struc%uh(:)=0.0d0
-      struc%jh(:)=0.0d0
-      struc%iq1(:)=0
-      struc%ivso(:)=0
-      struc%ehvl(:)=0.0d0
-      struc%vso(:)=0.0d0
-      end subroutine uspec_init
 
-      subroutine uspec_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_spec):: struc
-      write(*,*) struc
-      end subroutine uspec_show
 
 C$$$        subroutine uspec(struc,offe,nli,is,off,cast,nelt)
 C$$$        use m_struc_def
@@ -3158,49 +4211,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine uspec
 
-      subroutine ustr_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_str):: struc
-      struc%size=ustr_size()
-      struc%adec=0.0d0
-      struc%amode=0
-      struc%drwats=0.0d0
-      struc%iinv(:)=0.0d0
-      struc%ivl=0
-      struc%kaps(:)=0.0d0
-      struc%lequiv=0
-      struc%lmaxw=0
-      struc%loka=0
-      struc%lshow=0
-      struc%mxnbr=0
-      struc%nalf=0
-      struc%nbisi(:)=0
-      struc%ncupl=0
-      struc%ndust=0
-      struc%nitab=0
-      struc%nkaps=0
-      struc%nttab=0
-      struc%oadot=0
-      struc%oalp=0
-      struc%oiax=0
-      struc%ontab=0
-      struc%os=0
-      struc%osdot=0
-      struc%rfit=0.0d0
-      struc%rmax=0.0d0
-      struc%rmaxg=0.0d0
-      struc%skmsh(:)=0.0d0
-      struc%wztcf=0.0d0
-      end subroutine ustr_init
 
-      subroutine ustr_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_str):: struc
-      write(*,*) struc
-      end subroutine ustr_show
 
 C$$$        subroutine ustr(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -3216,26 +4227,7 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine ustr
 
-      subroutine utb_init(struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_tb):: struc
-      struc%size=utb_size()
-      struc%alam=0.0d0
-      struc%alsc=0.0d0
-      struc%ebfit(:)=0.0d0
-      struc%fmode=0
-      struc%nbfit(:)=0
-      struc%rmfit(:)=0.0d0
-      end subroutine utb_init
 
-      subroutine utb_show(struc)
-      use m_struc_def
-      implicit none
-      type(s_tb):: struc
-      write(*,*) struc
-      end subroutine utb_show
 
 C$$$        subroutine utb(struc,offe,nli,off,cast,nelt)
 C$$$        use m_struc_def
@@ -3250,3 +4242,548 @@ C$$$          write(*,*) 'utb offe=',offe(1),' not suppoted'
 C$$$          stop
 C$$$        endif
 C$$$        end subroutine utb
+
+       subroutine uri_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_ri):: struc
+       struc%t=0
+       struc%i=0
+       struc%r=0.0d0
+       end subroutine uri_init
+
+       subroutine ubz_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_bz):: struc
+       struc%size= ubz_size()
+       struc%def=0.0d0
+       struc%dosw=0.0d0
+       struc%ef=0.0d0
+       struc%efmax=0.0d0
+       struc%fsmom=0.0d0
+       struc%lcond=0.0d0
+       struc%lio=0
+       struc%lmet=0
+       struc%lmull=0
+       struc%lopt=0
+       struc%lshft=0
+       struc%n=0
+       struc%ndos=0
+       struc%nevmx=0
+       struc%nkabc=0
+       struc%nkp=0
+       struc%ntet=0
+       struc%oidtet=0
+       struc%oipq=0
+       struc%oqp=0
+       struc%ostar=0
+       struc%owtkp=0
+       struc%range=0.0d0
+       struc%semsh=0.0d0
+       struc%stnr=0.0d0
+       struc%w=0.0d0
+       struc%zval=0.0d0
+       end subroutine ubz_init
+
+       subroutine uarray_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_array):: struc
+       struc%size= uarray_size()
+       struc%ncl=0
+       struc%nclasp=0
+       struc%nofgl=0
+       struc%nofgr=0
+       struc%npadl=0
+       struc%npadr=0
+       struc%npl=0
+       struc%oclabl=0
+       struc%ogroup=0
+       struc%ohave=0
+       struc%oics=0
+       struc%oipc=0
+       struc%oipcp=0
+       struc%oips=0
+       struc%onrc=0
+       struc%onrcp=0
+       struc%opos=0
+       struc%ormax=0
+       end subroutine uarray_init
+
+       subroutine uctrl_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_ctrl):: struc
+       struc%size= uctrl_size()
+       struc%defm=0.0d0
+       struc%elin=0.0d0
+       struc%lasa=0
+       struc%lbas=0
+       struc%lcd=0
+       struc%lcgf=0
+       struc%ldos=0
+       struc%lfp=0
+       struc%lfrce=0
+       struc%lgen3=0
+       struc%lham=0
+       struc%lmet=0
+       struc%lncol=0
+       struc%loptc=0
+       struc%lordn=0
+       struc%lpgf=0
+       struc%lqp=0
+       struc%lrel=0
+       struc%lrs=0
+       struc%lscr=0
+       struc%lstonr=0
+       struc%lstr=0
+       struc%lsx=0
+       struc%ltb=0
+       struc%lves=0
+       struc%lxcf=0
+       struc%maxit=0
+       struc%mdprm=0.0d0
+       struc%modep=0
+       struc%nbas=0
+       struc%nbasp=0
+       struc%nclass=0
+       struc%nesabc=0
+       struc%nitmv=0
+       struc%nl=0
+       struc%nmap=0
+       struc%npl=0
+       struc%nsite=0
+       struc%nspec=0
+       struc%nspin=0
+       struc%nvario=0
+       struc%omax1=0.0d0
+       struc%omax2=0.0d0
+       struc%pfloat=0
+       struc%quit=0
+       struc%rmaxes=0.0d0
+       struc%rmines=0.0d0
+       struc%sclwsr=0.0d0
+       struc%sdmod=0
+       struc%sdprm=0.0d0
+       struc%sdxsi=0.0d0
+       struc%smalit=0
+       struc%tol=0.0d0
+       struc%wsrmax=0.0d0
+       struc%zbak=0.0d0
+       end subroutine uctrl_init
+
+       subroutine ugw_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_gw):: struc
+       struc%size= ugw_size()
+       struc%delre=0.0d0
+       struc%deltaw=0.0d0
+       struc%deltax=0.0d0
+       struc%ecuts=0.0d0
+       struc%gcutb=0.0d0
+       struc%gcutx=0.0d0
+       struc%gsmear=0.0d0
+       struc%lgw=0
+       struc%lmxpb=0
+       struc%mksig=0
+       struc%nband=0
+       struc%nime=0
+       struc%nkabc=0
+       struc%pb1=0.0d0
+       struc%pb2=0.0d0
+       struc%pbtol=0.0d0
+       struc%qoffp=0.0d0
+       struc%rdsig=0
+       end subroutine ugw_init
+
+       subroutine uham_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_ham):: struc
+       struc%size= uham_size()
+       struc%alfsi=0.0d0
+       struc%amgm=0.0d0
+       struc%bandw=0
+       struc%dabc=0.0d0
+       struc%ehf=0.0d0
+       struc%ehk=0.0d0
+       struc%elind=0.0d0
+       struc%eterms=0.0d0
+       struc%hord=0
+       struc%kmto=0.0d0
+       struc%lasa=0
+       struc%ldham=0
+       struc%lgen3=0
+       struc%lham=0
+       struc%lmaxu=0
+       struc%lmxax=0
+       struc%lncol=0
+       struc%lsig=0
+       struc%ltb=0
+       struc%lxcf=0
+       struc%nbf=0
+       struc%ndham=0
+       struc%ndhrs=0
+       struc%ndofH=0
+       struc%neula=0
+       struc%nkaph=0
+       struc%nlibu=0
+       struc%nmto=0
+       struc%npwmin=0
+       struc%npwpad=0
+       struc%nqsig=0
+       struc%ohrs=0
+       struc%oiaxs=0
+       struc%oindxo=0
+       struc%ontabs=0
+       struc%ooffH=0
+       struc%oqsig=0
+       struc%oveps=0.0d0
+       struc%pmax=0.0d0
+       struc%pmin=0.0d0
+       struc%pwemax=0.0d0
+       struc%pwemin=0.0d0
+       struc%pwmode=0
+       struc%qpoff=0.0d0
+       struc%qss=0.0d0
+       struc%rsrnge=0.0d0
+       struc%rsstol=0.0d0
+       struc%seref=0.0d0
+       struc%sigp=0.0d0
+       struc%thrpv=0.0d0
+       struc%udiag=0
+       end subroutine uham_init
+
+       subroutine ulat_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_lat):: struc
+       struc%size= ulat_size()
+       struc%alat=0.0d0
+       struc%as=0.0d0
+       struc%avw=0.0d0
+       struc%awald=0.0d0
+       struc%dist=0.0d0
+       struc%gam=0.0d0
+       struc%gmax=0.0d0
+       struc%ldist=0
+       struc%nabc=0
+       struc%ng=0
+       struc%nkd=0
+       struc%nkdmx=0
+       struc%nkq=0
+       struc%nkqmx=0
+       struc%npgrp=0
+       struc%nsgrp=0
+       struc%oag=0
+       struc%obgv=0
+       struc%ocg=0
+       struc%ocy=0
+       struc%odlv=0
+       struc%ogv=0
+       struc%oidxcg=0
+       struc%oips0=0
+       struc%oistab=0
+       struc%ojcg=0
+       struc%okv=0
+       struc%opos=0
+       struc%oqlv=0
+       struc%osymgr=0
+       struc%plat=0.0d0
+       struc%plat0=0.0d0
+       struc%plat2=0.0d0
+       struc%plate=0.0d0
+       struc%platl=0.0d0
+       struc%platr=0.0d0
+       struc%qlat=0.0d0
+       struc%rpad=0.0d0
+       struc%slat=0.0d0
+       struc%tol=0.0d0
+       struc%tolft=0.0d0
+       struc%vol=0.0d0
+       end subroutine ulat_init
+
+       subroutine umix_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_mix):: struc
+       struc%size= umix_size()
+       struc%b=0.0d0
+       struc%bl=0.0d0
+       struc%bv=0.0d0
+       struc%elind=0.0d0
+       struc%fn=0.0d0
+       struc%kill=0
+       struc%lxpot=0
+       struc%mmix=0
+       struc%mode=0
+       struc%model=0
+       struc%n=0
+       struc%nitu=0
+       struc%nmix=0
+       struc%nsave=0
+       struc%r=0.0d0
+       struc%rms1=0.0d0
+       struc%rms2=0.0d0
+       struc%tj=0.0d0
+       struc%tolu=0.0d0
+       struc%umix=0.0d0
+       struc%w=0.0d0
+       struc%wc=0.0d0
+       end subroutine umix_init
+
+       subroutine umove_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_move):: struc
+       struc%size= umove_size()
+       struc%ct=0.0d0
+       struc%gyro=0.0d0
+       struc%kt=0.0d0
+       struc%modt=0
+       struc%nmodt=0
+       struc%prmint=0.0d0
+       struc%tnow=0.0d0
+       struc%ts=0.0d0
+       struc%tsequ=0.0d0
+       struc%tstot=0.0d0
+       end subroutine umove_init
+
+       subroutine uoptic_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_optic):: struc
+       struc%size= uoptic_size()
+       struc%axes=0
+       struc%cll=0
+       struc%cln=0
+       struc%cls=0
+       struc%clsite=0
+       struc%esciss=0.0d0
+       struc%mode=0
+       struc%nchi2=0
+       struc%ne=0
+       struc%ocrng=0
+       struc%unrng=0
+       struc%window=0.0d0
+       end subroutine uoptic_init
+
+       subroutine uordn_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_ordn):: struc
+       struc%size= uordn_size()
+       struc%efre=0.0d0
+       struc%mode=0
+       struc%ncl=0
+       struc%ndofh=0
+       struc%rmaxg=0.0d0
+       end subroutine uordn_init
+
+       subroutine upot_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_pot):: struc
+       struc%size= upot_size()
+       struc%bfield=0.0d0
+       struc%nlma=0
+       struc%nlml=0
+       struc%nrhos=0
+       struc%obxc=0
+       struc%ogrrme=0
+       struc%omad=0
+       struc%oorhat=0
+       struc%opmpol=0
+       struc%opnu=0
+       struc%opp=0
+       struc%opprel=0
+       struc%oqc=0
+       struc%oqnu=0
+       struc%oqpp=0
+       struc%oqt=0
+       struc%orhos=0
+       struc%orhrmx=0
+       struc%osmpot=0
+       struc%osmrho=0
+       struc%osop=0
+       struc%ovdif=0
+       struc%oves=0
+       struc%ovintr=0
+       struc%ovrmax=0
+       struc%vconst=0.0d0
+       struc%vmtz=0.0d0
+       struc%vmtz0=0.0d0
+       end subroutine upot_init
+
+       subroutine uspec_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_spec):: struc
+       struc%size= uspec_size()
+       struc%z=0.0d0
+       struc%mass=0.0d0
+       struc%rmt=0.0d0
+       struc%ntorb=0
+       struc%naug=0
+       struc%norb=0
+       struc%rsmfa=0.0d0
+       struc%rsma=0.0d0
+       struc%rg=0.0d0
+       struc%lmxa=0
+       struc%kmxh=0
+       struc%lmxl=0
+       struc%kmxt=0
+       struc%rsmv=0.0d0
+       struc%norp=0
+       struc%coreh=0.0d0
+       struc%coreq=0.0d0
+       struc%a=0.0d0
+       struc%nr=0
+       struc%eref=0.0d0
+       struc%etf=0.0d0
+       struc%beta=0.0d0
+       struc%lfoca=0
+       struc%ctail=0.0d0
+       struc%etail=0.0d0
+       struc%name=0.0d0
+       struc%orhoc=0
+       struc%stc=0.0d0
+       struc%lmxb=0
+       struc%lmxf=0
+       struc%stni=0.0d0
+       struc%stnm=0.0d0
+       struc%rham=0.0d0
+       struc%rfoca=0.0d0
+       struc%dv=0.0d0
+       struc%mxcst=0
+       struc%group=0
+       struc%grp2=0
+       struc%nxi=0
+       struc%qc=0.0d0
+       struc%lmxpb=0
+       struc%pb1=0.0d0
+       struc%pb2=0.0d0
+       struc%colxbs=0.0d0
+       struc%lxi=0
+       struc%radxbs=0.0d0
+       struc%rcut=0.0d0
+       struc%rint=0.0d0
+       struc%eh3=0.0d0
+       struc%rs3=0.0d0
+       struc%vmtz=0.0d0
+       struc%kmxv=0
+       struc%rcfa=0.0d0
+       struc%p=0.0d0
+       struc%q=0.0d0
+       struc%alpha=0.0d0
+       struc%idmod=0
+       struc%idxdn=0
+       struc%hcr=0.0d0
+       struc%exi=0.0d0
+       struc%ngcut=0
+       struc%qpol=0.0d0
+       struc%chfa=0.0d0
+       struc%orbp=0.0d0
+       struc%enu=0.0d0
+       struc%pz=0.0d0
+       struc%idu=0
+       struc%uh=0.0d0
+       struc%jh=0.0d0
+       struc%iq1=0
+       struc%ivso=0
+       struc%ehvl=0.0d0
+       struc%vso=0.0d0
+       end subroutine uspec_init
+
+       subroutine usite_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_site):: struc
+       struc%size= usite_size()
+       struc%bfield=0.0d0
+       struc%clabel=0.0d0
+       struc%class=0
+       struc%cli=0
+       struc%delta=0.0d0
+       struc%dpole=0.0d0
+       struc%eula=0.0d0
+       struc%force=0.0d0
+       struc%mpole=0.0d0
+       struc%ndelta=0
+       struc%norb=0
+       struc%ov0=0
+       struc%ov1=0
+       struc%pl=0
+       struc%plv=0
+       struc%pnu=0.0d0
+       struc%pos=0.0d0
+       struc%pos0=0.0d0
+       struc%pz=0.0d0
+       struc%relax=0
+       struc%sid=0
+       struc%spec=0
+       struc%vel=0.0d0
+       struc%vshft=0.0d0
+       end subroutine usite_init
+
+       subroutine ustr_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_str):: struc
+       struc%size= ustr_size()
+       struc%adec=0.0d0
+       struc%amode=0
+       struc%drwats=0.0d0
+       struc%iinv=0.0d0
+       struc%ivl=0
+       struc%kaps=0.0d0
+       struc%lequiv=0
+       struc%lmaxw=0
+       struc%loka=0
+       struc%lshow=0
+       struc%mxnbr=0
+       struc%nalf=0
+       struc%nbisi=0
+       struc%ncupl=0
+       struc%ndust=0
+       struc%nitab=0
+       struc%nkaps=0
+       struc%nttab=0
+       struc%rfit=0.0d0
+       struc%rmax=0.0d0
+       struc%rmaxg=0.0d0
+       struc%skmsh=0.0d0
+       struc%wztcf=0.0d0
+       end subroutine ustr_init
+
+       subroutine utb_init (struc)
+       use m_struc_def
+       use m_struc_func
+       implicit none
+       type(s_tb):: struc
+       struc%size= utb_size()
+       struc%alam=0.0d0
+       struc%alsc=0.0d0
+       struc%ebfit=0.0d0
+       struc%fmode=0
+       struc%nbfit=0
+       struc%rmfit=0.0d0
+       end subroutine utb_init
+
