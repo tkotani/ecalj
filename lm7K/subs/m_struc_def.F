@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 20:41:28.261949
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-21 13:13:55.679960
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -840,7 +840,8 @@ CCHSTRUC       integer(8)   ::   oeula ! not used because of undef
 CCHSTRUC       integer(8)   ::   olmxa ! not used because of undef
 CCHSTRUC       integer(8)   ::   omagf ! not used because of undef
       integer(8)   ::   ontabs
-      integer(8)   ::   ooffH
+CCHSTRUC       integer(8)   ::   ooffH
+       integer , pointer ::  iv_p_ooffH (:)
       integer(8)   ::   oqsig
       real(8)   ::   oveps
       real(8)   ::   pmax(10)
@@ -2921,8 +2922,7 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%ontabs, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%ooffH, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip iv_p_ooffH(:) because it is a pointer.
        call mpi_bcast(struc%oqsig, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%oveps, 1,MPI_REAL8
@@ -4463,7 +4463,6 @@ C$$$        end subroutine utb
        struc%oiaxs=0
        struc%oindxo=0
        struc%ontabs=0
-       struc%ooffH=0
        struc%oqsig=0
        struc%oveps=0.0d0
        struc%pmax=0.0d0

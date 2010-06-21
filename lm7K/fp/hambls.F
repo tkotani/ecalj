@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,ooffh
 CSFCPP#define F90 1
       subroutine hambls(mode,nbas,ssite,sspec,slat,sham,isp,ispc,q,k1,
      .k2,k3,qsig,nqsig,smpot,vconst,osig,otau,oppi,lcplxp,lso,alfa,
@@ -202,7 +203,10 @@ C ... Local parameters
      .wt(4),swt,dq,emin,emax,fasig,fbsig,asig,bsig,xx,sigp(10)
       equivalence (emin,sigp(3)),(emax,sigp(5))
       equivalence (asig,sigp(6)),(bsig,sigp(7))
-      integer oiprmb,ontabs,oiaxs,ohrs,ooffH
+Cchp1       integer oiprmb,ontabs,oiaxs,ohrs,ooffH
+       integer:: oiprmb , ontabs , oiaxs , ohrs 
+       integer,pointer :: iv_p_ooffh(:)
+
       integer i,j,lrsig,ipr,iprm(nqsig),ipiv(ndimh),dinv,nev,ndim1
       integer hreal,nl,nglob,mxorb,nttabs,ival,nsp,ndhrs,nsim,moditp,
      .mxitrp,n123(4),off1,nspc,ndimhx,lwsig
@@ -272,7 +276,9 @@ C ... Setup for Bloch transform
       ontabs=sham%ontabs
       oiaxs=sham%oiaxs
       ohrs=sham%ohrs
-      ooffH=sham%ooffH
+Cchp1       ooffH=sham%ooffH
+       iv_p_ooffh => sham%iv_p_ooffh 
+
 
 C     hreal=1 -> sig(T) is real
       hreal = 0

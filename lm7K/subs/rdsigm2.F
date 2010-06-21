@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,ooffh
       subroutine seneinterp(nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
      &nk1,nk2,nk3,sfz) !,qin,isp,sene)
 
@@ -30,8 +31,12 @@ C ... Local parameters
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
-      integer:: og , oag , oqp , ooffh , oiprmb , opos , ontabs , oiaxs 
-     ., ohrs , ohrss , oistab , oqsig
+Cchp1       integer:: og , oag , oqp , ooffh , oiprmb , opos , ontabs , oiaxs 
+Cchp1      ., ohrs , ohrss , oistab , oqsig
+       integer:: og , oag , oqp , oiprmb , opos , ontabs , oiaxs , ohrs 
+     . , ohrss , oistab , oqsig 
+       integer,pointer :: iv_p_ooffh(:)
+
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)
       real(8) ,allocatable :: wgt_rv(:)
@@ -157,7 +162,9 @@ C ... Command-line switches for input sigma and defaults
 
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
-      ooffH=sham%ooffH
+Cchp1       ooffH=sham%ooffH
+       iv_p_ooffh => sham%iv_p_ooffh 
+
       oiprmb=sham%oindxo
       i_copy_size=size(sham%sigp)
       call dcopy(i_copy_size,sham%sigp,1,sigp,1)
@@ -291,9 +298,14 @@ C      print *, '!!'; i = 1000*0 + 10*hreal + 0
       if (mod(lssym,4) .ge. 2) i = 10*hreal + 0
       if (ltrans) i = i + 10000
       print *,' go to hft2rs i=',i
-      call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,1,nsp,nbas,w(og),w(oag),
-     .nsgrp,rsrnge,w(ooffH),1,nbas,ndimh,ndimh,w,plat,w(opos),ontabs,
-     .oiaxs,ndhrs,w)
+Cchp1       call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,1,nsp,nbas,w(og),w(oag),
+Cchp1      .nsgrp,rsrnge,w(ooffH),1,nbas,ndimh,ndimh,w,plat,w(opos),ontabs,
+Cchp1      .oiaxs,ndhrs,w)
+       call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 , 
+     . nsp , nbas , w ( og ) , w ( oag ) , nsgrp , rsrnge , iv_p_ooffh 
+     . , 1 , nbas , ndimh , ndimh , w , plat , w ( opos ) , ontabs , 
+     . oiaxs , ndhrs , w ) 
+
       nttabs = ival(w(ontabs),nbas+1)
 C     Allocate memory for hrs
       if (hreal .eq. 1) then
@@ -553,9 +565,14 @@ C     .  ,nsgrps,rsrnge,w(ooffH),ib,ib,nlmaa,ndimh,w(osfz),plat,
 C     .  w(opos),ontabs,
 C     .  oiaxs,ndhrs,w(ohrs))
 C ... titus
-          call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,isp,nsp,nbas,w(og),w(oag),
-     .    nsgrps,rsrnge,w(ooffH),1,nbas,ndimh,ndimh, sfz(1,1,1,1,1,isp),plat,w(opos), !,w(osfz),plat,w(opos)
-     .    ontabs,oiaxs,ndhrs,w(ohrs))
+Cchp1           call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,isp,nsp,nbas,w(og),w(oag),
+Cchp1      .    nsgrps,rsrnge,w(ooffH),1,nbas,ndimh,ndimh, sfz(1,1,1,1,1,isp),plat,w(opos), !,w(osfz),plat,w(opos)
+Cchp1      .    ontabs,oiaxs,ndhrs,w(ohrs))
+           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
+     .     , nsp , nbas , w ( og ) , w ( oag ) , nsgrps , rsrnge , iv_p_ooffh 
+     .     , 1 , nbas , ndimh , ndimh , sfz ( 1 , 1 , 1 , 1 , 1 , isp ) 
+     .     , plat , w ( opos ) , ontabs , oiaxs , ndhrs , w ( ohrs ) ) 
+
 
 C      print *, 'print out sigma(T)'
 C      call pvtrof(w(ohrs),ndhrs,nsp,nk1,nk2,nk3,w(oiaxs),1,
@@ -1090,8 +1107,12 @@ C ... Local parameters
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
-      integer:: og , oag , ooffh , oiprmb , opos , ontabs , oiaxs , 
-     .ohrs , ohrss , oistab , osigm2 , oqsig , odelt , oistb2
+Cchp1       integer:: og , oag , ooffh , oiprmb , opos , ontabs , oiaxs , 
+Cchp1      .ohrs , ohrss , oistab , osigm2 , oqsig , odelt , oistb2
+       integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs , 
+     . ohrss , oistab , osigm2 , oqsig , odelt , oistb2 
+       integer,pointer :: iv_p_ooffh(:)
+
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)
       real(8) ,allocatable :: qp_rv(:)

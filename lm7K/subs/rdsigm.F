@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,ooffh
       subroutine rdsigm(mode,nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
      .lwsig)
 
@@ -186,8 +187,12 @@ C ... Local parameters
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
       equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
-      integer:: og , oag , oqp , ooffh , oiprmb , opos , ontabs , oiaxs 
-     ., ohrs , ohrss , oistab , oqsig 
+Cchp1       integer:: og , oag , oqp , ooffh , oiprmb , opos , ontabs , oiaxs 
+Cchp1      ., ohrs , ohrss , oistab , oqsig 
+       integer:: og , oag , oqp , oiprmb , opos , ontabs , oiaxs , ohrs 
+     . , ohrss , oistab , oqsig 
+       integer,pointer :: iv_p_ooffh(:)
+
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)
       real(8) ,allocatable :: wgt_rv(:)
@@ -301,7 +306,9 @@ C ... Command-line switches for input sigma and defaults
 
       i_copy_size=size(sham%ldham)
       call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
-      ooffH=sham%ooffH
+Cchp1       ooffH=sham%ooffH
+       iv_p_ooffh => sham%iv_p_ooffh 
+
       oiprmb=sham%oindxo
       i_copy_size=size(sham%sigp)
       call dcopy(i_copy_size,sham%sigp,1,sigp,1)
@@ -559,9 +566,14 @@ C      print *, '!!'; i = 1000*0 + 10*hreal + 0
       if (mod(lssym,4) .ge. 2) i = 10*hreal + 0
       if (ltrans) i = i + 10000
       if(debugmode()>0) print *,' go to hft2rs i=',i
-      call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,1,nsp,nbas,w(og),w(oag),
-     .nsgrp,rsrnge,w(ooffH),1,nbas,ndimh,ndimh,w,plat,w(opos),ontabs,
-     .oiaxs,ndhrs,w)
+Cchp1       call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,1,nsp,nbas,w(og),w(oag),
+Cchp1      .nsgrp,rsrnge,w(ooffH),1,nbas,ndimh,ndimh,w,plat,w(opos),ontabs,
+Cchp1      .oiaxs,ndhrs,w)
+       call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 , 
+     . nsp , nbas , w ( og ) , w ( oag ) , nsgrp , rsrnge , iv_p_ooffh 
+     . , 1 , nbas , ndimh , ndimh , w , plat , w ( opos ) , ontabs , 
+     . oiaxs , ndhrs , w ) 
+
       nttabs = ival(w(ontabs),nbas+1)
 C     Allocate memory for hrs
       if (hreal .eq. 1) then
@@ -754,11 +766,16 @@ C     .    w(ogstar),ifac,lidim,ndimh,nlmaa,ndimh,nlmaa,nspc,qb,
 C     .    w(osigm),w(owk),
 C     .    w(owk),w(osfz),w(osfz1))
 C ... titus
-            call hamfb3 ( nbas , nl , w ( ooffh ) , w ( oiprmb ) , i , w 
-     .      ( opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , 
-     .      w ( oistab ) , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh 
-     .      , ndimh , ndimh , nspc , qb , sigm_zv , wk_zv , wk_zv 
-     .      , sfz_zv ) 
+Cchp1             call hamfb3 ( nbas , nl , w ( ooffh ) , w ( oiprmb ) , i , w 
+Cchp1      .      ( opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , 
+Cchp1      .      w ( oistab ) , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh 
+Cchp1      .      , ndimh , ndimh , nspc , qb , sigm_zv , wk_zv , wk_zv 
+Cchp1      .      , sfz_zv ) 
+             call hamfb3 ( nbas , nl , iv_p_ooffh , w ( oiprmb ) , i , w ( 
+     .       opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , w ( 
+     .       oistab ) , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh , ndimh 
+     .       , ndimh , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
+
 
           enddo
 
@@ -785,10 +802,15 @@ C     .  ,nsgrps,rsrnge,w(ooffH),ib,ib,nlmaa,ndimh,w(osfz),plat,
 C     .  w(opos),ontabs,
 C     .  oiaxs,ndhrs,w(ohrs))
 C ... titus
-          call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
-     .    , nsp , nbas , w ( og ) , w ( oag ) , nsgrps , rsrnge , w ( ooffh 
-     .    ) , 1 , nbas , ndimh , ndimh , sfz_zv , plat , w ( opos ) 
-     .    , ontabs , oiaxs , ndhrs , w ( ohrs ) ) 
+Cchp1           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
+Cchp1      .    , nsp , nbas , w ( og ) , w ( oag ) , nsgrps , rsrnge , w ( ooffh 
+Cchp1      .    ) , 1 , nbas , ndimh , ndimh , sfz_zv , plat , w ( opos ) 
+Cchp1      .    , ontabs , oiaxs , ndhrs , w ( ohrs ) ) 
+           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
+     .     , nsp , nbas , w ( og ) , w ( oag ) , nsgrps , rsrnge , iv_p_ooffh 
+     .     , 1 , nbas , ndimh , ndimh , sfz_zv , plat , w ( opos ) , ontabs 
+     .     , oiaxs , ndhrs , w ( ohrs ) ) 
+
 
 
 C      print *, 'print out sigma(T)'

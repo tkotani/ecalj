@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,offh
+Cchp1 cmdvar= integer,iv_p_,ooffh
       subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas,iprmb,ldim,qplist,nkp,siginit) !from showbs
 
       use m_struc_def  !Cgetarg
@@ -348,7 +350,11 @@ C ... Needed for iostr
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
 
-      integer obas,offH,oidxsh,oipc,oips,oo,opp,oeula,opti,obs,omagf
+Cchp1       integer obas,offH,oidxsh,oipc,oips,oo,opp,oeula,opti,obs,omagf
+       integer:: obas , oidxsh , oipc , oips , oo , opp , oeula , opti 
+     . , obs , omagf 
+       integer,pointer :: iv_p_offh(:)
+
       logical ltmp,iostr,bittst,adnf
       character*80 outs,gfopts
       double precision qss(4),vmtz,pnu(n0,2),pz(n0,2),alat,tolgv
@@ -398,7 +404,10 @@ c       lpgf = int(sctrl%lpgf(1))
         nspx = 1
       endif
       ndim = nbasp * nl**2 * nkaph
-      call defi(offH, -n0H*nkap0*(nbasp+1))
+Cchp1       call defi(offH, -n0H*nkap0*(nbasp+1))
+       allocate(iv_p_offh(abs(-n0h*nkap0*(nbasp+1))))
+       if (-n0h*nkap0*(nbasp+1)<0) iv_p_offh(:)=0
+
       call defi(oidxsh,ndim+3)
       stdo = lgunit(1)
 
@@ -423,8 +432,11 @@ C --- Hamiltonian offsets, orbital permutation table ---
       if (mod(pwmode,10) .eq. 2) then
         call info0(20,0,0,' suham: LMTO basis will be excluded')
       else
-        call makidx(nl,nkaph,1,nbasp,0,sspec,w(oips),w(offH),w(oidxsh),
-     .  ldham)
+Cchp1         call makidx(nl,nkaph,1,nbasp,0,sspec,w(oips),w(offH),w(oidxsh),
+Cchp1      .  ldham)
+         call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , w ( oips ) 
+     .   , iv_p_offh , w ( oidxsh ) , ldham ) 
+
       endif
 C     Default value for hamiltonian dimension
 
@@ -440,7 +452,9 @@ C ... Make rest of ldham
       ldham(8) = nspx
 
       sham%ndofH=nbasp+1
-      sham%ooffH=offH
+Cchp1       sham%ooffH=offH
+       sham%iv_p_ooffh => iv_p_offh 
+
       sham%oindxo=oidxsh
       i_copy_size=size(sham%ldham)
       call ii8copy(i_copy_size,ldham,1,sham%ldham,1)
