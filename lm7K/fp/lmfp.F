@@ -2,7 +2,7 @@
      .sspec,ssite,sstr,smove,sarray,sstrn)
 
       use m_struc_def  !Cgetarg
-
+      use m_struc_func, only: mpibc1_s_lat
 C- LM-FP self-consistency loop
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -725,7 +725,8 @@ C   ... Write positions array from site structure
           call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
         enddo
 
-        call mpibc1(slat,nint(slat%size),4,.false.,'lmfp','slat')
+cki        call mpibc1(slat,nint(slat%size),4,.false.,'lmfp','slat')
+        call mpibc1_s_lat(slat,.false.,'lmfp','slat')
         if (k .lt. 0) then
           irs(1) = 0
           goto 10

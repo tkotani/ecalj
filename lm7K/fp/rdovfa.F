@@ -1,7 +1,7 @@
       subroutine rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,orhoat)
 
       use m_struc_def  !Cgetarg
-
+      use m_struc_func , only: mpibc1_s_spec
 C- Read and overlap free atom densities.
 C  Also allocates orhoca with free-atom core density.
 C ----------------------------------------------------------------------
@@ -207,7 +207,11 @@ C ...   Pack into sspec
 C     Wait for all proccesses to synchronize
       i = mpipid(3)
 C     Re-broadcast entire species structure, and arrays used below
-      call mpibc1(sspec,nspec*nint(sspec(1)%size),4,0,'rdovfa','sspec')
+cki      call mpibc1(sspec,nspec*nint(sspec(1)%size),4,0,'rdovfa','sspec')
+      do i_spec=1,nspec
+      call mpibc1_s_spec(sspec(i_spec),.false.,'rdovfa','sspec')
+      enddo
+
       if (procid .eq. master) then
         call fclose(ifi)
       endif

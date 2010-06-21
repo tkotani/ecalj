@@ -3,7 +3,7 @@
      .fid,nbas,nat,nspec,orhoat,qnu,nit,lbin,ifi)
 
       use m_struc_def  !Cgetarg
-
+      use m_struc_func 
 C- I/O for charge density
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -1140,12 +1140,22 @@ C   ... MPI broadcast all structures
 C        if (procid .eq. master) then
 C          sttime = MPI_WTIME()
 C        endif
-        call mpibc1(ssite,nint(ssite(1)%size)*nbas,4,mlog,'iors','ssite')
-        call mpibc1(sspec,nint(sspec(1)%size)*nspec,4,mlog,'iors','sspec')
-        call mpibc1(sctrl,nint(sctrl%size),4,mlog,'iors','sctrl')
-        call mpibc1(slat,nint(slat%size),4,mlog,'iors','slat')
-        call mpibc1(spot,nint(spot%size),4,mlog,'iors','spot')
-        call mpibc1(sbz,nint(sbz%size),4,mlog,'iors','sbz')
+cki        call mpibc1(ssite,nint(ssite(1)%size)*nbas,4,mlog,'iors','ssite')
+        do i_site=1,nbas
+        call mpibc1_s_site(ssite(i_site),mlog,'iors','ssite')
+        enddo
+cki        call mpibc1(sspec,nint(sspec(1)%size)*nspec,4,mlog,'iors','sspec')
+        do i_spec=1,nspec
+        call mpibc1_s_spec(sspec(i_spec),mlog,'iors','sspec')
+        enddo
+cki        call mpibc1(sctrl,nint(sctrl%size),4,mlog,'iors','sctrl')
+        call mpibc1_s_ctrl(sctrl,mlog,'iors','sctrl')
+cki        call mpibc1(slat,nint(slat%size),4,mlog,'iors','slat')
+        call mpibc1_s_lat(slat,mlog,'iors','slat')
+cki        call mpibc1(spot,nint(spot%size),4,mlog,'iors','spot')
+        call mpibc1_s_pot(spot,mlog,'iors','spot')
+cki        call mpibc1(sbz,nint(sbz%size),4,mlog,'iors','sbz')
+        call mpibc1_s_bz(sbz,mlog,'iors','sbz')
         if (mode .eq. 1) then
         elseif (mode .eq. 0) then
           call mpibc1(qnu,3*n0*nsp*nbas,4,mlog,'iors','qnu')

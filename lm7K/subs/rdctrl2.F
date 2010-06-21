@@ -164,6 +164,8 @@ Cki     .  v_ssite,v_sstr,v_sarry,v_smove,v_stb
       type(s_spec),pointer:: v_sspec(:)
       type(s_site),pointer:: v_ssite(:)
 
+      integer:: i_spec
+
       character  prgnam*(*), sstrn*(*)
 c      character toksw(0:30)*(*), vrsion*6
 C     character  vrsion*6
@@ -1823,8 +1825,12 @@ c       v_sham%lham=(int(v_sctrl%lham))
         endif
       endif
 C     Broadcast spec structure to fix floating orbitals case
-      call mpibc1(v_sspec,nspec*nint(dval(v_sspec,1)),4,0,
+cki      call mpibc1(v_sspec,nspec*nint(dval(v_sspec,1)),4,0,
+       do i_spec=1,nspec
+       call mpibc1_s_spec(v_sspec(i_spec),.false.,
      .'rdctrl','sspec')
+       enddo
+       
 
 C --- Debugging printout ---
       if (io_help == 0 .and. io_show > 1) then
