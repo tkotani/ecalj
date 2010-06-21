@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite,sarray)
 
       use m_struc_def  !Cgetarg
@@ -83,8 +84,12 @@ C Local variables
       integer idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
      .nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
      .ldist,nggen,ngmx,stdo,nglob,incli !npadl,npadr,
-      integer:: oclabl , oics , oips , oistab , onrc , onrcp , opos 
-     ., oipc , oipcp , oiwk , oag , osymgr , aginv
+Cchp1       integer:: oclabl , oics , oips , oistab , onrc , onrcp , opos 
+Cchp1      ., oipc , oipcp , oiwk , oag , osymgr , aginv
+       integer:: oics , oips , oistab , onrc , onrcp , opos , oipc , 
+     . oipcp , oiwk , oag , osymgr , aginv 
+       real(8),pointer :: rv_p_oclabl(:)
+
       integer ,allocatable :: nrspc_iv(:)
       real(8) ,allocatable :: pos2_rv(:)
       integer ,allocatable :: ips2_iv(:)
@@ -327,10 +332,17 @@ C ... poke ipc into ssite
 
 C --- Create nrc and class labels ---
       if (mod(mode/10,10) .eq. 2 .or. mod(mode/10,10) .eq. 4) then
-        call defrr(oclabl, nclspp)
+Cchp1         call defrr(oclabl, nclspp)
+         allocate(rv_p_oclabl(abs(nclspp)))
+         if (nclspp<0) rv_p_oclabl(:)=0.0d0
+
         call defi (onrcp,  nclspp)
-        call pvsym2(3,2*nbasp-nbas,nclspp,w(oics),w(oipcp),nspec,slabl,
-     .  ssite,w(oclabl),w(onrcp))
+Cchp1         call pvsym2(3,2*nbasp-nbas,nclspp,w(oics),w(oipcp),nspec,slabl,
+Cchp1      .  ssite,w(oclabl),w(onrcp))
+         call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , w ( oics ) , w 
+     .   ( oipcp ) , nspec , slabl , ssite , rv_p_oclabl , w ( onrcp ) 
+     .   ) 
+
 C$$$     if (nclasp .eq. nclass) then !we only treat nclasp=nclass case. takao Apr2010
         onrc = onrcp
 C$$$     else
@@ -341,7 +353,8 @@ C$$$C          call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
 C$$$C          call awrit2('%n:1i',' ',100,6,nclspp,w(onrcp))
 C$$$     endif
       else
-        oclabl = 0
+cki        oclabl = 0
+        nullify(rv_p_oclabl)
         onrcp = 0
       endif
 
@@ -360,7 +373,9 @@ C --- Cleanup: poke class and symmetry info into structures ---
 
       sarray%oics=oics
       sarray%oipc=oipc
-      sarray%oclabl=oclabl
+Cchp1       sarray%oclabl=oclabl
+       sarray%rv_p_oclabl => rv_p_oclabl 
+
       sarray%nclasp=nclasp
       sarray%onrc=onrc
 

@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite,sstr,
      .sarray,sbz,slabl,sstrn,mode,wksize)
 
@@ -94,12 +95,19 @@ C ... Local parameters
      .nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, !npadl,npadr,
      .iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,
      .ngmx,nsgrp
-      integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-     ., opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
-     ., owk , owk2 , oclabl , opos , oqlv , odlv , orham , oamsh , 
-cki     .onrmsh , oalpha , oaamom , onpr , os , ormx , oip , oips , opgfsl 
-     .onrmsh , oalpha  , onpr , os , ormx , oip , oips , opgfsl 
-     ., ontab , oiax , og , oag , mxclas , oics
+Cchp1       integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
+Cchp1      ., opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
+Cchp1      ., owk , owk2 , oclabl , opos , oqlv , odlv , orham , oamsh , 
+Cchp1 cki     .onrmsh , oalpha , oaamom , onpr , os , ormx , oip , oips , opgfsl 
+Cchp1      .onrmsh , oalpha  , onpr , os , ormx , oip , oips , opgfsl 
+Cchp1      ., ontab , oiax , og , oag , mxclas , oics
+       integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
+     . , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
+     . , owk , owk2 , opos , oqlv , odlv , orham , oamsh , onrmsh , 
+     . oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
+     . , og , oag , mxclas , oics 
+       real(8),pointer :: rv_p_oclabl(:)
+
       real(8) ,allocatable :: pos2_rv(:)
       real(8) ,allocatable :: rmt_rv(:)
       integer ,allocatable :: lock_iv(:)
@@ -149,7 +157,9 @@ c      if (lpgf .gt. 0 .and. lpgf .lt. 10) lpbc = 11
 
       oinitc=sarray%ohave
       oics=sarray%oics
-      oclabl=sarray%oclabl
+Cchp1       oclabl=sarray%oclabl
+       rv_p_oclabl => sarray%rv_p_oclabl 
+
       onrc=sarray%onrc
 ccc
 
@@ -383,8 +393,12 @@ C --- Show neighbors by shell ---
         outs = ' '
         j = 8
         if (cmdopt('--shell',j-1,0,outs)) then
-          call shoshl(outs(j:),nbas,w(opos),plat,mxnbr,z,slabl,
-     .    w(oclabl),w(oips),w(oipc),w(oves),w(oeula),nclass)
+Cchp1           call shoshl(outs(j:),nbas,w(opos),plat,mxnbr,z,slabl,
+Cchp1      .    w(oclabl),w(oips),w(oipc),w(oves),w(oeula),nclass)
+           call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
+     .     , z , slabl , rv_p_oclabl , w ( oips ) , w ( oipc ) , w ( oves 
+     .     ) , w ( oeula ) , nclass ) 
+
         endif
 
 C --- Show angles between neighbors ---
@@ -456,8 +470,12 @@ C --- Print overlaps, optionally minimize wrt spec'd sites ---
         if (swtmp) i = 7
         j = 1
         if (iprint() .lt. 30) j = 0
-        call ovmin(outs(i:),nbas,nbasp,alat,plat,rmax,rmax,
-     .  w(oclabl),w(oipc),modep,z,ontab,oiax,w(opos),j)
+Cchp1         call ovmin(outs(i:),nbas,nbasp,alat,plat,rmax,rmax,
+Cchp1      .  w(oclabl),w(oipc),modep,z,ontab,oiax,w(opos),j)
+         call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
+     .   , rmax , rv_p_oclabl , w ( oipc ) , modep , z , ontab , oiax 
+     .   , w ( opos ) , j ) 
+
 C ... Write positions to file
         if (cmdopt('--wpos=',7,0,outs))
      .  call iopos(T,0,outs(8:),nbasp,w(opos))
@@ -687,9 +705,13 @@ Ctakao_ZeroClear_NotRequiered          if (mxclas<0) lockc_rv(:)=0.0d0
         call spec2c ( nspec , nclass , ics , rmt_rv , rmtc_rv , 
      .  z , zc_rv , lock_iv , lockc_rv )
 
-        call findes ( sctrl , alat , w ( oclabl ) , nbas , nclass , nl 
-     .  , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-     .  , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
+Cchp1         call findes ( sctrl , alat , w ( oclabl ) , nbas , nclass , nl 
+Cchp1      .  , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+Cchp1      .  , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
+         call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
+     .   , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+     .   , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
+
 
 
       endif

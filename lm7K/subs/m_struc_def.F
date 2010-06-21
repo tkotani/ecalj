@@ -1,12 +1,13 @@
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 20:41:28.261949
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
       module m_struc_def
 
       type s_ri
-      integer ::  t
-      integer(8) ::  i
-      real(8) ::  r
+      integer  ::   t
+      integer(8)  ::   i
+      real(8)  ::   r
       end type
 
 Cr --- explanation of  ubz ---
@@ -83,36 +84,36 @@ C 28  46  4       stnr  1
 C 29  47  4          w  1
 C 30  48  4       zval  1
       type s_bz
-      real(8) ::  size
-      real(8)  ::  def
-      real(8)  ::  dosw(2)
-      real(8)  ::  ef
-      real(8)  ::  efmax
-      real(8)  ::  fsmom
-      real(8)  ::  lcond(4)
-      integer(8)  ::  lio
-      integer(8)  ::  lmet
-      integer(8)  ::  lmull
-      integer(8)  ::  lopt
-      integer(8)  ::  lshft(3)
-      integer(8)  ::  n
-      integer(8)  ::  ndos
-      integer(8)  ::  nevmx
-      integer(8)  ::  nkabc(3)
-      integer(8)  ::  nkp
-      integer(8)  ::  ntet
-CCHSTRUC       integer(8)  ::  odos ! not used because of undef
-      integer(8)  ::  oidtet
-      integer(8)  ::  oipq
-CCHSTRUC       integer(8)  ::  opdos ! not used because of undef
-      integer(8)  ::  oqp
-      integer(8)  ::  ostar
-      integer(8)  ::  owtkp
-      real(8)  ::  range
-      real(8)  ::  semsh(10)
-      real(8)  ::  stnr
-      real(8)  ::  w
-      real(8)  ::  zval
+      real(8)  ::   size
+      real(8)   ::   def
+      real(8)   ::   dosw(2)
+      real(8)   ::   ef
+      real(8)   ::   efmax
+      real(8)   ::   fsmom
+      real(8)   ::   lcond(4)
+      integer(8)   ::   lio
+      integer(8)   ::   lmet
+      integer(8)   ::   lmull
+      integer(8)   ::   lopt
+      integer(8)   ::   lshft(3)
+      integer(8)   ::   n
+      integer(8)   ::   ndos
+      integer(8)   ::   nevmx
+      integer(8)   ::   nkabc(3)
+      integer(8)   ::   nkp
+      integer(8)   ::   ntet
+CCHSTRUC       integer(8)   ::   odos ! not used because of undef
+      integer(8)   ::   oidtet
+      integer(8)   ::   oipq
+CCHSTRUC       integer(8)   ::   opdos ! not used because of undef
+      integer(8)   ::   oqp
+      integer(8)   ::   ostar
+      integer(8)   ::   owtkp
+      real(8)   ::   range
+      real(8)   ::   semsh(10)
+      real(8)   ::   stnr
+      real(8)   ::   w
+      real(8)   ::   zval
       end type s_bz
 
 Cr --- explanation of  uarray ---
@@ -186,38 +187,39 @@ C 30  31  2      ostni  1 possible_structure
 C 31  32  2       ozos  1 possible_structure
 C 32  33 -1       size  1
       type s_array
-      real(8) ::  size
-      integer(8)  ::  ncl
-      integer(8)  ::  nclasp
-      integer(8)  ::  nofgl
-      integer(8)  ::  nofgr
-      integer(8)  ::  npadl
-      integer(8)  ::  npadr
-      integer(8)  ::  npl
-      integer(8)  ::  oclabl
-CCHSTRUC       integer(8)  ::  ocllst ! not used because of undef
-CCHSTRUC       integer(8)  ::  oclp ! not used because of undef
-CCHSTRUC       integer(8)  ::  oclssl ! not used because of undef
-      integer(8)  ::  ogroup
-CCHSTRUC       integer(8)  ::  ogrp2 ! not used because of undef
-      integer(8)  ::  ohave
-      integer(8)  ::  oics
-CCHSTRUC       integer(8)  ::  oifrlx ! not used because of undef
-      integer(8)  ::  oipc
-      integer(8)  ::  oipcp
-      integer(8)  ::  oips
-CCHSTRUC       integer(8)  ::  omxcst ! not used because of undef
-      integer(8)  ::  onrc
-      integer(8)  ::  onrcp
-CCHSTRUC       integer(8)  ::  opgfsl ! not used because of undef
-CCHSTRUC       integer(8)  ::  opgfvl ! not used because of undef
-CCHSTRUC       integer(8)  ::  opgord ! not used because of undef
-CCHSTRUC       integer(8)  ::  opgplp ! not used because of undef
-      integer(8)  ::  opos
-      integer(8)  ::  ormax
-CCHSTRUC       integer(8)  ::  osordn ! not used because of undef
-CCHSTRUC       integer(8)  ::  ostni ! not used because of undef
-CCHSTRUC       integer(8)  ::  ozos ! not used because of undef
+      real(8)  ::   size
+      integer(8)   ::   ncl
+      integer(8)   ::   nclasp
+      integer(8)   ::   nofgl
+      integer(8)   ::   nofgr
+      integer(8)   ::   npadl
+      integer(8)   ::   npadr
+      integer(8)   ::   npl
+CCHSTRUC       integer(8)   ::   oclabl
+       real(8) , pointer ::  rv_p_oclabl (:)
+CCHSTRUC       integer(8)   ::   ocllst ! not used because of undef
+CCHSTRUC       integer(8)   ::   oclp ! not used because of undef
+CCHSTRUC       integer(8)   ::   oclssl ! not used because of undef
+      integer(8)   ::   ogroup
+CCHSTRUC       integer(8)   ::   ogrp2 ! not used because of undef
+      integer(8)   ::   ohave
+      integer(8)   ::   oics
+CCHSTRUC       integer(8)   ::   oifrlx ! not used because of undef
+      integer(8)   ::   oipc
+      integer(8)   ::   oipcp
+      integer(8)   ::   oips
+CCHSTRUC       integer(8)   ::   omxcst ! not used because of undef
+      integer(8)   ::   onrc
+      integer(8)   ::   onrcp
+CCHSTRUC       integer(8)   ::   opgfsl ! not used because of undef
+CCHSTRUC       integer(8)   ::   opgfvl ! not used because of undef
+CCHSTRUC       integer(8)   ::   opgord ! not used because of undef
+CCHSTRUC       integer(8)   ::   opgplp ! not used because of undef
+      integer(8)   ::   opos
+      integer(8)   ::   ormax
+CCHSTRUC       integer(8)   ::   osordn ! not used because of undef
+CCHSTRUC       integer(8)   ::   ostni ! not used because of undef
+CCHSTRUC       integer(8)   ::   ozos ! not used because of undef
       end type s_array
 
 Cr --- explanation of  uctrl ---
@@ -454,62 +456,62 @@ C 54  84  4        tol  3
 C 55  87  4     wsrmax  1
 C 56  88  4       zbak  2
       type s_ctrl
-      real(8) ::  size
-      real(8)  ::  defm(6)
-      real(8)  ::  elin
-      integer(8)  ::  lasa
-      integer(8)  ::  lbas
-      integer(8)  ::  lcd
-      integer(8)  ::  lcgf
-      integer(8)  ::  ldos
-      integer(8)  ::  lfp
-      integer(8)  ::  lfrce
-      integer(8)  ::  lgen3
-      integer(8)  ::  lham
-      integer(8)  ::  lmet
-      integer(8)  ::  lncol
-      integer(8)  ::  loptc
-      integer(8)  ::  lordn
-      integer(8)  ::  lpgf(2)
-      integer(8)  ::  lqp
-      integer(8)  ::  lrel
-      integer(8)  ::  lrs
-      integer(8)  ::  lscr
-      integer(8)  ::  lstonr(3)
-      integer(8)  ::  lstr
-      integer(8)  ::  lsx
-      integer(8)  ::  ltb
-      integer(8)  ::  lves
-      integer(8)  ::  lxcf
-      integer(8)  ::  maxit
-      real(8)  ::  mdprm(6)
-      integer(8)  ::  modep(3)
-      integer(8)  ::  nbas
-      integer(8)  ::  nbasp
-      integer(8)  ::  nclass
-      integer(8)  ::  nesabc(3)
-      integer(8)  ::  nitmv
-      integer(8)  ::  nl
-      integer(8)  ::  nmap
-      integer(8)  ::  npl
-      integer(8)  ::  nsite
-      integer(8)  ::  nspec
-      integer(8)  ::  nspin
-      integer(8)  ::  nvario
-      real(8)  ::  omax1(3)
-      real(8)  ::  omax2(3)
-      integer(8)  ::  pfloat
-      integer(8)  ::  quit
-      real(8)  ::  rmaxes
-      real(8)  ::  rmines
-      real(8)  ::  sclwsr
-      integer(8)  ::  sdmod
-      real(8)  ::  sdprm(5)
-      real(8)  ::  sdxsi(4)
-      integer(8)  ::  smalit(2)
-      real(8)  ::  tol(3)
-      real(8)  ::  wsrmax
-      real(8)  ::  zbak(2)
+      real(8)  ::   size
+      real(8)   ::   defm(6)
+      real(8)   ::   elin
+      integer(8)   ::   lasa
+      integer(8)   ::   lbas
+      integer(8)   ::   lcd
+      integer(8)   ::   lcgf
+      integer(8)   ::   ldos
+      integer(8)   ::   lfp
+      integer(8)   ::   lfrce
+      integer(8)   ::   lgen3
+      integer(8)   ::   lham
+      integer(8)   ::   lmet
+      integer(8)   ::   lncol
+      integer(8)   ::   loptc
+      integer(8)   ::   lordn
+      integer(8)   ::   lpgf(2)
+      integer(8)   ::   lqp
+      integer(8)   ::   lrel
+      integer(8)   ::   lrs
+      integer(8)   ::   lscr
+      integer(8)   ::   lstonr(3)
+      integer(8)   ::   lstr
+      integer(8)   ::   lsx
+      integer(8)   ::   ltb
+      integer(8)   ::   lves
+      integer(8)   ::   lxcf
+      integer(8)   ::   maxit
+      real(8)   ::   mdprm(6)
+      integer(8)   ::   modep(3)
+      integer(8)   ::   nbas
+      integer(8)   ::   nbasp
+      integer(8)   ::   nclass
+      integer(8)   ::   nesabc(3)
+      integer(8)   ::   nitmv
+      integer(8)   ::   nl
+      integer(8)   ::   nmap
+      integer(8)   ::   npl
+      integer(8)   ::   nsite
+      integer(8)   ::   nspec
+      integer(8)   ::   nspin
+      integer(8)   ::   nvario
+      real(8)   ::   omax1(3)
+      real(8)   ::   omax2(3)
+      integer(8)   ::   pfloat
+      integer(8)   ::   quit
+      real(8)   ::   rmaxes
+      real(8)   ::   rmines
+      real(8)   ::   sclwsr
+      integer(8)   ::   sdmod
+      real(8)   ::   sdprm(5)
+      real(8)   ::   sdxsi(4)
+      integer(8)   ::   smalit(2)
+      real(8)   ::   tol(3)
+      real(8)   ::   wsrmax
+      real(8)   ::   zbak(2)
       end type s_ctrl
 
 Cr --- explanation of  ugw ---
@@ -566,25 +568,25 @@ C 17  21  4      qoffp  1
 C 18  22  2      rdsig  1
 C 19  23 -1       size  1
       type s_gw
-      real(8) ::  size
-      real(8)  ::  delre(2)
-      real(8)  ::  deltaw
-      real(8)  ::  deltax
-      real(8)  ::  ecuts
-      real(8)  ::  gcutb
-      real(8)  ::  gcutx
-      real(8)  ::  gsmear
-      integer(8)  ::  lgw
-      integer(8)  ::  lmxpb
-      integer(8)  ::  mksig
-      integer(8)  ::  nband
-      integer(8)  ::  nime
-      integer(8)  ::  nkabc(3)
-      real(8)  ::  pb1 !string
-      real(8)  ::  pb2 !string
-      real(8)  ::  pbtol
-      real(8)  ::  qoffp
-      integer(8)  ::  rdsig
+      real(8)  ::   size
+      real(8)   ::   delre(2)
+      real(8)   ::   deltaw
+      real(8)   ::   deltax
+      real(8)   ::   ecuts
+      real(8)   ::   gcutb
+      real(8)   ::   gcutx
+      real(8)   ::   gsmear
+      integer(8)   ::   lgw
+      integer(8)   ::   lmxpb
+      integer(8)   ::   mksig
+      integer(8)   ::   nband
+      integer(8)   ::   nime
+      integer(8)   ::   nkabc(3)
+      real(8)   ::   pb1 !string
+      real(8)   ::   pb2 !string
+      real(8)   ::   pbtol
+      real(8)   ::   qoffp
+      integer(8)   ::   rdsig
       end type s_gw
 
 Cr --- explanation of  uham ---
@@ -798,62 +800,62 @@ C 54 128 -1       size  1
 C 55 129  4      thrpv  1
 C 56 130  2      udiag  1
       type s_ham
-      real(8) ::  size
-      real(8)  ::  alfsi
-      real(8)  ::  amgm
-      integer(8)  ::  bandw
-      real(8)  ::  dabc(3)
-      real(8)  ::  ehf
-      real(8)  ::  ehk
-      real(8)  ::  elind
-      real(8)  ::  eterms(20)
-      integer(8)  ::  hord
-      real(8)  ::  kmto(6)
-      integer(8)  ::  lasa
-      integer(8)  ::  ldham(16)
-      integer(8)  ::  lgen3
-      integer(8)  ::  lham
-      integer(8)  ::  lmaxu
-      integer(8)  ::  lmxax
-      integer(8)  ::  lncol
-      integer(8)  ::  lsig
-      integer(8)  ::  ltb
-      integer(8)  ::  lxcf
-      integer(8)  ::  nbf
-      integer(8)  ::  ndham
-      integer(8)  ::  ndhrs
-      integer(8)  ::  ndofH
-      integer(8)  ::  neula
-      integer(8)  ::  nkaph
-      integer(8)  ::  nlibu
-      integer(8)  ::  nmto
-      integer(8)  ::  npwmin
-      integer(8)  ::  npwpad
-      integer(8)  ::  nqsig
-CCHSTRUC       integer(8)  ::  obdots ! not used because of undef
-CCHSTRUC       integer(8)  ::  oeula ! not used because of undef
-      integer(8)  ::  ohrs
-      integer(8)  ::  oiaxs
-      integer(8)  ::  oindxo
-CCHSTRUC       integer(8)  ::  olmxa ! not used because of undef
-CCHSTRUC       integer(8)  ::  omagf ! not used because of undef
-      integer(8)  ::  ontabs
-      integer(8)  ::  ooffH
-      integer(8)  ::  oqsig
-      real(8)  ::  oveps
-      real(8)  ::  pmax(10)
-      real(8)  ::  pmin(10)
-      real(8)  ::  pwemax
-      real(8)  ::  pwemin
-      integer(8)  ::  pwmode
-      real(8)  ::  qpoff(3)
-      real(8)  ::  qss(4)
-      real(8)  ::  rsrnge
-      real(8)  ::  rsstol
-      real(8)  ::  seref
-      real(8)  ::  sigp(10)
-      real(8)  ::  thrpv
-      integer(8)  ::  udiag
+      real(8)  ::   size
+      real(8)   ::   alfsi
+      real(8)   ::   amgm
+      integer(8)   ::   bandw
+      real(8)   ::   dabc(3)
+      real(8)   ::   ehf
+      real(8)   ::   ehk
+      real(8)   ::   elind
+      real(8)   ::   eterms(20)
+      integer(8)   ::   hord
+      real(8)   ::   kmto(6)
+      integer(8)   ::   lasa
+      integer(8)   ::   ldham(16)
+      integer(8)   ::   lgen3
+      integer(8)   ::   lham
+      integer(8)   ::   lmaxu
+      integer(8)   ::   lmxax
+      integer(8)   ::   lncol
+      integer(8)   ::   lsig
+      integer(8)   ::   ltb
+      integer(8)   ::   lxcf
+      integer(8)   ::   nbf
+      integer(8)   ::   ndham
+      integer(8)   ::   ndhrs
+      integer(8)   ::   ndofH
+      integer(8)   ::   neula
+      integer(8)   ::   nkaph
+      integer(8)   ::   nlibu
+      integer(8)   ::   nmto
+      integer(8)   ::   npwmin
+      integer(8)   ::   npwpad
+      integer(8)   ::   nqsig
+CCHSTRUC       integer(8)   ::   obdots ! not used because of undef
+CCHSTRUC       integer(8)   ::   oeula ! not used because of undef
+      integer(8)   ::   ohrs
+      integer(8)   ::   oiaxs
+      integer(8)   ::   oindxo
+CCHSTRUC       integer(8)   ::   olmxa ! not used because of undef
+CCHSTRUC       integer(8)   ::   omagf ! not used because of undef
+      integer(8)   ::   ontabs
+      integer(8)   ::   ooffH
+      integer(8)   ::   oqsig
+      real(8)   ::   oveps
+      real(8)   ::   pmax(10)
+      real(8)   ::   pmin(10)
+      real(8)   ::   pwemax
+      real(8)   ::   pwemin
+      integer(8)   ::   pwmode
+      real(8)   ::   qpoff(3)
+      real(8)   ::   qss(4)
+      real(8)   ::   rsrnge
+      real(8)   ::   rsstol
+      real(8)   ::   seref
+      real(8)   ::   sigp(10)
+      real(8)   ::   thrpv
+      integer(8)   ::   udiag
       end type s_ham
 
 Cr --- explanation of  ulat ---
@@ -950,49 +952,49 @@ C 41 119  4        tol  1
 C 42 120  4      tolft  1
 C 43 121  4        vol  1
       type s_lat
-      real(8) ::  size
-      real(8)  ::  alat
-      real(8)  ::  as
-      real(8)  ::  avw
-      real(8)  ::  awald
-      real(8)  ::  dist(9)
-      real(8)  ::  gam(4)
-      real(8)  ::  gmax
-      integer(8)  ::  ldist
-      integer(8)  ::  nabc(3)
-      integer(8)  ::  ng
-      integer(8)  ::  nkd
-      integer(8)  ::  nkdmx
-      integer(8)  ::  nkq
-      integer(8)  ::  nkqmx
-      integer(8)  ::  npgrp
-      integer(8)  ::  nsgrp
-      integer(8)  ::  oag
-      integer(8)  ::  obgv
-      integer(8)  ::  ocg
-      integer(8)  ::  ocy
-      integer(8)  ::  odlv
-      integer(8)  ::  ogv
-      integer(8)  ::  oidxcg
-      integer(8)  ::  oips0
-      integer(8)  ::  oistab
-      integer(8)  ::  ojcg
-      integer(8)  ::  okv
-      integer(8)  ::  opos
-      integer(8)  ::  oqlv
-      integer(8)  ::  osymgr
-      real(8)  ::  plat(9)
-      real(8)  ::  plat0(9)
-      real(8)  ::  plat2(9)
-      real(8)  ::  plate(9)
-      real(8)  ::  platl(9)
-      real(8)  ::  platr(9)
-      real(8)  ::  qlat(9)
-      real(8)  ::  rpad
-      real(8)  ::  slat(9)
-      real(8)  ::  tol
-      real(8)  ::  tolft
-      real(8)  ::  vol
+      real(8)  ::   size
+      real(8)   ::   alat
+      real(8)   ::   as
+      real(8)   ::   avw
+      real(8)   ::   awald
+      real(8)   ::   dist(9)
+      real(8)   ::   gam(4)
+      real(8)   ::   gmax
+      integer(8)   ::   ldist
+      integer(8)   ::   nabc(3)
+      integer(8)   ::   ng
+      integer(8)   ::   nkd
+      integer(8)   ::   nkdmx
+      integer(8)   ::   nkq
+      integer(8)   ::   nkqmx
+      integer(8)   ::   npgrp
+      integer(8)   ::   nsgrp
+      integer(8)   ::   oag
+      integer(8)   ::   obgv
+      integer(8)   ::   ocg
+      integer(8)   ::   ocy
+      integer(8)   ::   odlv
+      integer(8)   ::   ogv
+      integer(8)   ::   oidxcg
+      integer(8)   ::   oips0
+      integer(8)   ::   oistab
+      integer(8)   ::   ojcg
+      integer(8)   ::   okv
+      integer(8)   ::   opos
+      integer(8)   ::   oqlv
+      integer(8)   ::   osymgr
+      real(8)   ::   plat(9)
+      real(8)   ::   plat0(9)
+      real(8)   ::   plat2(9)
+      real(8)   ::   plate(9)
+      real(8)   ::   platl(9)
+      real(8)   ::   platr(9)
+      real(8)   ::   qlat(9)
+      real(8)   ::   rpad
+      real(8)   ::   slat(9)
+      real(8)   ::   tol
+      real(8)   ::   tolft
+      real(8)   ::   vol
       end type s_lat
 
 Cr --- explanation of  umix ---
@@ -1049,29 +1051,29 @@ C 21  33  4       umix  1
 C 22  34  4        w..  3
 C 23  37  4         wc  1
       type s_mix
-      real(8) ::  size
-      real(8)  ::  b
-      real(8)  ::  bl
-      real(8)  ::  bv
-      real(8)  ::  elind
-      real(8)  ::  fn !string
-      integer(8)  ::  kill
-      integer(8)  ::  lxpot
-      integer(8)  ::  mmix
-      integer(8)  ::  mode
-      integer(8)  ::  model
-      integer(8)  ::  n
-      integer(8)  ::  nitu
-      integer(8)  ::  nmix
-      integer(8)  ::  nsave
-      real(8)  ::  r(3) !string
-      real(8)  ::  rms1
-      real(8)  ::  rms2
-      real(8)  ::  tj(10)
-      real(8)  ::  tolu
-      real(8)  ::  umix
-      real(8)  ::  w(3)
-      real(8)  ::  wc
+      real(8)  ::   size
+      real(8)   ::   b
+      real(8)   ::   bl
+      real(8)   ::   bv
+      real(8)   ::   elind
+      real(8)   ::   fn !string
+      integer(8)   ::   kill
+      integer(8)   ::   lxpot
+      integer(8)   ::   mmix
+      integer(8)   ::   mode
+      integer(8)   ::   model
+      integer(8)   ::   n
+      integer(8)   ::   nitu
+      integer(8)   ::   nmix
+      integer(8)   ::   nsave
+      real(8)   ::   r(3) !string
+      real(8)   ::   rms1
+      real(8)   ::   rms2
+      real(8)   ::   tj(10)
+      real(8)   ::   tolu
+      real(8)   ::   umix
+      real(8)   ::   w(3)
+      real(8)   ::   wc
       end type s_mix
 
 Cr --- explanation of  umove ---
@@ -1111,17 +1113,17 @@ C  9  33  4         ts  1
 C 10  34  4      tsequ  1
 C 11  35  4      tstot  1
       type s_move
-      real(8) ::  size
-      real(8)  ::  ct(3)
-      real(8)  ::  gyro
-      real(8)  ::  kt
-      integer(8)  ::  modt(3)
-      integer(8)  ::  nmodt
-      real(8)  ::  prmint(20)
-      real(8)  ::  tnow
-      real(8)  ::  ts
-      real(8)  ::  tsequ
-      real(8)  ::  tstot
+      real(8)  ::   size
+      real(8)   ::   ct(3)
+      real(8)   ::   gyro
+      real(8)   ::   kt
+      integer(8)   ::   modt(3)
+      integer(8)   ::   nmodt
+      real(8)   ::   prmint(20)
+      real(8)   ::   tnow
+      real(8)   ::   ts
+      real(8)   ::   tsequ
+      real(8)   ::   tstot
       end type s_move
 
 Cr --- explanation of  uoptic ---
@@ -1156,19 +1158,19 @@ C 11  30 -1       size  1
 C 12  31  2      unrng  2
 C 13  33  4     window  2
       type s_optic
-      real(8) ::  size
-      integer(8)  ::  axes(18)
-      integer(8)  ::  cll
-      integer(8)  ::  cln
-      integer(8)  ::  cls
-      integer(8)  ::  clsite
-      real(8)  ::  esciss
-      integer(8)  ::  mode
-      integer(8)  ::  nchi2
-      integer(8)  ::  ne
-      integer(8)  ::  ocrng(2)
-      integer(8)  ::  unrng(2)
-      real(8)  ::  window(2)
+      real(8)  ::   size
+      integer(8)   ::   axes(18)
+      integer(8)   ::   cll
+      integer(8)   ::   cln
+      integer(8)   ::   cls
+      integer(8)   ::   clsite
+      real(8)   ::   esciss
+      integer(8)   ::   mode
+      integer(8)   ::   nchi2
+      integer(8)   ::   ne
+      integer(8)   ::   ocrng(2)
+      integer(8)   ::   unrng(2)
+      real(8)   ::   window(2)
       end type s_optic
 
 Cr --- explanation of  uordn ---
@@ -1203,17 +1205,17 @@ C  9  10  2     ooffch  1 possible_structure
 C 10  11  4      rmaxg  3
 C 11  14 -1       size  1
       type s_ordn
-      real(8) ::  size
-      real(8)  ::  efre
-      integer(8)  ::  mode
-      integer(8)  ::  ncl
-      integer(8)  ::  ndofh
-CCHSTRUC       integer(8)  ::  oclp ! not used because of undef
-CCHSTRUC       integer(8)  ::  oclssl ! not used because of undef
-CCHSTRUC       integer(8)  ::  oiaxg ! not used because of undef
-CCHSTRUC       integer(8)  ::  omapgv ! not used because of undef
-CCHSTRUC       integer(8)  ::  ooffch ! not used because of undef
-      real(8)  ::  rmaxg(3)
+      real(8)  ::   size
+      real(8)   ::   efre
+      integer(8)   ::   mode
+      integer(8)   ::   ncl
+      integer(8)   ::   ndofh
+CCHSTRUC       integer(8)   ::   oclp ! not used because of undef
+CCHSTRUC       integer(8)   ::   oclssl ! not used because of undef
+CCHSTRUC       integer(8)   ::   oiaxg ! not used because of undef
+CCHSTRUC       integer(8)   ::   omapgv ! not used because of undef
+CCHSTRUC       integer(8)   ::   ooffch ! not used because of undef
+      real(8)   ::   rmaxg(3)
       end type s_ordn
 
 Cr --- explanation of  upot ---
@@ -1346,64 +1348,64 @@ C 56  60  4     vconst  3
 C 57  63  4       vmtz  1
 C 58  64  4      vmtz0  1
       type s_pot
-      real(8) ::  size
-      real(8)  ::  bfield(4)
-      integer(8)  ::  nlma
-      integer(8)  ::  nlml
-      integer(8)  ::  nrhos
-CCHSTRUC       integer(8)  ::  oaamom ! not used because of undef
-      integer(8)  ::  obxc
-CCHSTRUC       integer(8)  ::  odddpf ! not used because of undef
-CCHSTRUC       integer(8)  ::  oddpf ! not used because of undef
-CCHSTRUC       integer(8)  ::  oddpfr ! not used because of undef
-CCHSTRUC       integer(8)  ::  odel ! not used because of undef
-CCHSTRUC       integer(8)  ::  odpf ! not used because of undef
-CCHSTRUC       integer(8)  ::  odpfr ! not used because of undef
-CCHSTRUC       integer(8)  ::  ofes ! not used because of undef
-CCHSTRUC       integer(8)  ::  ogma ! not used because of undef
-CCHSTRUC       integer(8)  ::  ogmar ! not used because of undef
-      integer(8)  ::  ogrrme
-CCHSTRUC       integer(8)  ::  ohab ! not used because of undef
-CCHSTRUC       integer(8)  ::  oivso ! not used because of undef
-      integer(8)  ::  omad
-      integer(8)  ::  oorhat
-CCHSTRUC       integer(8)  ::  opalp ! not used because of undef
-CCHSTRUC       integer(8)  ::  opapg ! not used because of undef
-CCHSTRUC       integer(8)  ::  opdel ! not used because of undef
-CCHSTRUC       integer(8)  ::  opf ! not used because of undef
-CCHSTRUC       integer(8)  ::  opfnc ! not used because of undef
-CCHSTRUC       integer(8)  ::  opfr ! not used because of undef
-      integer(8)  ::  opmpol
-      integer(8)  ::  opnu
-      integer(8)  ::  opp
-CCHSTRUC       integer(8)  ::  oppi ! not used because of undef
-CCHSTRUC       integer(8)  ::  oppn ! not used because of undef
-      integer(8)  ::  opprel
-CCHSTRUC       integer(8)  ::  opti ! not used because of undef
-      integer(8)  ::  oqc
-CCHSTRUC       integer(8)  ::  oqmom ! not used because of undef
-      integer(8)  ::  oqnu
-      integer(8)  ::  oqpp
-      integer(8)  ::  oqt
-      integer(8)  ::  orhos
-      integer(8)  ::  orhrmx
-CCHSTRUC       integer(8)  ::  osab ! not used because of undef
-CCHSTRUC       integer(8)  ::  osgw ! not used because of undef
-      integer(8)  ::  osmpot
-      integer(8)  ::  osmrho
-      integer(8)  ::  osop
-CCHSTRUC       integer(8)  ::  osoptc ! not used because of undef
-CCHSTRUC       integer(8)  ::  osrout ! not used because of undef
-CCHSTRUC       integer(8)  ::  otau ! not used because of undef
-CCHSTRUC       integer(8)  ::  ovab ! not used because of undef
-      integer(8)  ::  ovdif
-      integer(8)  ::  oves
-      integer(8)  ::  ovintr
-      integer(8)  ::  ovrmax
-CCHSTRUC       integer(8)  ::  ovshf ! not used because of undef
-      real(8)  ::  vconst(3)
-      real(8)  ::  vmtz
-      real(8)  ::  vmtz0
+      real(8)  ::   size
+      real(8)   ::   bfield(4)
+      integer(8)   ::   nlma
+      integer(8)   ::   nlml
+      integer(8)   ::   nrhos
+CCHSTRUC       integer(8)   ::   oaamom ! not used because of undef
+      integer(8)   ::   obxc
+CCHSTRUC       integer(8)   ::   odddpf ! not used because of undef
+CCHSTRUC       integer(8)   ::   oddpf ! not used because of undef
+CCHSTRUC       integer(8)   ::   oddpfr ! not used because of undef
+CCHSTRUC       integer(8)   ::   odel ! not used because of undef
+CCHSTRUC       integer(8)   ::   odpf ! not used because of undef
+CCHSTRUC       integer(8)   ::   odpfr ! not used because of undef
+CCHSTRUC       integer(8)   ::   ofes ! not used because of undef
+CCHSTRUC       integer(8)   ::   ogma ! not used because of undef
+CCHSTRUC       integer(8)   ::   ogmar ! not used because of undef
+      integer(8)   ::   ogrrme
+CCHSTRUC       integer(8)   ::   ohab ! not used because of undef
+CCHSTRUC       integer(8)   ::   oivso ! not used because of undef
+      integer(8)   ::   omad
+      integer(8)   ::   oorhat
+CCHSTRUC       integer(8)   ::   opalp ! not used because of undef
+CCHSTRUC       integer(8)   ::   opapg ! not used because of undef
+CCHSTRUC       integer(8)   ::   opdel ! not used because of undef
+CCHSTRUC       integer(8)   ::   opf ! not used because of undef
+CCHSTRUC       integer(8)   ::   opfnc ! not used because of undef
+CCHSTRUC       integer(8)   ::   opfr ! not used because of undef
+      integer(8)   ::   opmpol
+      integer(8)   ::   opnu
+      integer(8)   ::   opp
+CCHSTRUC       integer(8)   ::   oppi ! not used because of undef
+CCHSTRUC       integer(8)   ::   oppn ! not used because of undef
+      integer(8)   ::   opprel
+CCHSTRUC       integer(8)   ::   opti ! not used because of undef
+      integer(8)   ::   oqc
+CCHSTRUC       integer(8)   ::   oqmom ! not used because of undef
+      integer(8)   ::   oqnu
+      integer(8)   ::   oqpp
+      integer(8)   ::   oqt
+      integer(8)   ::   orhos
+      integer(8)   ::   orhrmx
+CCHSTRUC       integer(8)   ::   osab ! not used because of undef
+CCHSTRUC       integer(8)   ::   osgw ! not used because of undef
+      integer(8)   ::   osmpot
+      integer(8)   ::   osmrho
+      integer(8)   ::   osop
+CCHSTRUC       integer(8)   ::   osoptc ! not used because of undef
+CCHSTRUC       integer(8)   ::   osrout ! not used because of undef
+CCHSTRUC       integer(8)   ::   otau ! not used because of undef
+CCHSTRUC       integer(8)   ::   ovab ! not used because of undef
+      integer(8)   ::   ovdif
+      integer(8)   ::   oves
+      integer(8)   ::   ovintr
+      integer(8)   ::   ovrmax
+CCHSTRUC       integer(8)   ::   ovshf ! not used because of undef
+      real(8)   ::   vconst(3)
+      real(8)   ::   vmtz
+      real(8)   ::   vmtz0
       end type s_pot
 
 Cr --- explanation of  uspec ---
@@ -1574,80 +1576,80 @@ C 72 337  2       ivso  4
 C 73 341  4       ehvl 10
 C 74 341  4        vso  4
       type s_spec
-      real(8) ::  size
-      real(8)  ::  z
-      real(8)  ::  mass
-      real(8)  ::  rmt
-      integer(8)  ::  ntorb
-      integer(8)  ::  naug
-      integer(8)  ::  norb
-      real(8)  ::  rsmfa
-      real(8)  ::  rsma
-      real(8)  ::  rg
-      integer(8)  ::  lmxa
-      integer(8)  ::  kmxh
-      integer(8)  ::  lmxl
-      integer(8)  ::  kmxt
-      real(8)  ::  rsmv
-      integer(8)  ::  norp
-      real(8)  ::  coreh !string
-      real(8)  ::  coreq(2)
-      real(8)  ::  a
-      integer(8)  ::  nr
-      real(8)  ::  eref
-      real(8)  ::  etf
-      real(8)  ::  beta
-      integer(8)  ::  lfoca
-      real(8)  ::  ctail
-      real(8)  ::  etail
-      real(8)  ::  name !string
-      integer(8)  ::  orhoc
-      real(8)  ::  stc
-      integer(8)  ::  lmxb
-      integer(8)  ::  lmxf
-      real(8)  ::  stni
-      real(8)  ::  stnm
-      real(8)  ::  rham
-      real(8)  ::  rfoca
-      real(8)  ::  dv
-      integer(8)  ::  mxcst
-      integer(8)  ::  group
-      integer(8)  ::  grp2
-      integer(8)  ::  nxi
-      real(8)  ::  qc
-      integer(8)  ::  lmxpb
-      real(8)  ::  pb1 !string
-      real(8)  ::  pb2 !string
-      real(8)  ::  colxbs(3)
-      integer(8)  ::  lxi
-      real(8)  ::  radxbs
-      real(8)  ::  rcut
-      real(8)  ::  rint
-      real(8)  ::  eh3
-      real(8)  ::  rs3
-      real(8)  ::  vmtz
-      integer(8)  ::  kmxv
-      real(8)  ::  rcfa(2)
-      real(8)  ::  p(20)
-      real(8)  ::  q(20)
-      real(8)  ::  alpha(10)
-      integer(8)  ::  idmod(10)
-      integer(8)  ::  idxdn(30)
-      real(8)  ::  hcr(10)
-      real(8)  ::  exi(10)
-      integer(8)  ::  ngcut(30)
-      real(8)  ::  qpol(10)
-      real(8)  ::  chfa(20)
-      real(8)  ::  orbp(60)
-      real(8)  ::  enu(10)
-      real(8)  ::  pz(20)
-      integer(8)  ::  idu(4)
-      real(8)  ::  uh(4)
-      real(8)  ::  jh(4)
-      integer(8)  ::  iq1(4)
-      integer(8)  ::  ivso(4)
-      real(8)  ::  ehvl(10)
-      real(8)  ::  vso(4)
+      real(8)  ::   size
+      real(8)   ::   z
+      real(8)   ::   mass
+      real(8)   ::   rmt
+      integer(8)   ::   ntorb
+      integer(8)   ::   naug
+      integer(8)   ::   norb
+      real(8)   ::   rsmfa
+      real(8)   ::   rsma
+      real(8)   ::   rg
+      integer(8)   ::   lmxa
+      integer(8)   ::   kmxh
+      integer(8)   ::   lmxl
+      integer(8)   ::   kmxt
+      real(8)   ::   rsmv
+      integer(8)   ::   norp
+      real(8)   ::   coreh !string
+      real(8)   ::   coreq(2)
+      real(8)   ::   a
+      integer(8)   ::   nr
+      real(8)   ::   eref
+      real(8)   ::   etf
+      real(8)   ::   beta
+      integer(8)   ::   lfoca
+      real(8)   ::   ctail
+      real(8)   ::   etail
+      real(8)   ::   name !string
+      integer(8)   ::   orhoc
+      real(8)   ::   stc
+      integer(8)   ::   lmxb
+      integer(8)   ::   lmxf
+      real(8)   ::   stni
+      real(8)   ::   stnm
+      real(8)   ::   rham
+      real(8)   ::   rfoca
+      real(8)   ::   dv
+      integer(8)   ::   mxcst
+      integer(8)   ::   group
+      integer(8)   ::   grp2
+      integer(8)   ::   nxi
+      real(8)   ::   qc
+      integer(8)   ::   lmxpb
+      real(8)   ::   pb1 !string
+      real(8)   ::   pb2 !string
+      real(8)   ::   colxbs(3)
+      integer(8)   ::   lxi
+      real(8)   ::   radxbs
+      real(8)   ::   rcut
+      real(8)   ::   rint
+      real(8)   ::   eh3
+      real(8)   ::   rs3
+      real(8)   ::   vmtz
+      integer(8)   ::   kmxv
+      real(8)   ::   rcfa(2)
+      real(8)   ::   p(20)
+      real(8)   ::   q(20)
+      real(8)   ::   alpha(10)
+      integer(8)   ::   idmod(10)
+      integer(8)   ::   idxdn(30)
+      real(8)   ::   hcr(10)
+      real(8)   ::   exi(10)
+      integer(8)   ::   ngcut(30)
+      real(8)   ::   qpol(10)
+      real(8)   ::   chfa(20)
+      real(8)   ::   orbp(60)
+      real(8)   ::   enu(10)
+      real(8)   ::   pz(20)
+      integer(8)   ::   idu(4)
+      real(8)   ::   uh(4)
+      real(8)   ::   jh(4)
+      integer(8)   ::   iq1(4)
+      integer(8)   ::   ivso(4)
+      real(8)   ::   ehvl(10)
+      real(8)   ::   vso(4)
       end type s_spec
 
 Cr --- explanation of  usite ---
@@ -1710,33 +1712,33 @@ C 25  83  2       spec  1
 C 26  84  4        vel  3
 C 27  87  4      vshft  1
       type s_site
-      real(8) ::  size
-      real(8)  ::  bfield(3)
-      real(8)  ::  clabel !string
-      integer(8)  ::  class
-      integer(8)  ::  cli
-      real(8)  ::  delta(6)
-      real(8)  ::  dpole(3)
-      real(8)  ::  eula(3)
-      real(8)  ::  force(3)
-      real(8)  ::  mpole
-      integer(8)  ::  ndelta
-      integer(8)  ::  norb
-CCHSTRUC       integer(8)  ::  offh ! not used because of undef
-CCHSTRUC       integer(8)  ::  orho ! not used because of undef
-      integer(8)  ::  ov0
-      integer(8)  ::  ov1
-      integer(8)  ::  pl
-      integer(8)  ::  plv
-      real(8)  ::  pnu(20)
-      real(8)  ::  pos(3)
-      real(8)  ::  pos0(3)
-      real(8)  ::  pz(20)
-      integer(8)  ::  relax(3)
-      integer(8)  ::  sid
-      integer(8)  ::  spec
-      real(8)  ::  vel(3)
-      real(8)  ::  vshft
+      real(8)  ::   size
+      real(8)   ::   bfield(3)
+      real(8)   ::   clabel !string
+      integer(8)   ::   class
+      integer(8)   ::   cli
+      real(8)   ::   delta(6)
+      real(8)   ::   dpole(3)
+      real(8)   ::   eula(3)
+      real(8)   ::   force(3)
+      real(8)   ::   mpole
+      integer(8)   ::   ndelta
+      integer(8)   ::   norb
+CCHSTRUC       integer(8)   ::   offh ! not used because of undef
+CCHSTRUC       integer(8)   ::   orho ! not used because of undef
+      integer(8)   ::   ov0
+      integer(8)   ::   ov1
+      integer(8)   ::   pl
+      integer(8)   ::   plv
+      real(8)   ::   pnu(20)
+      real(8)   ::   pos(3)
+      real(8)   ::   pos0(3)
+      real(8)   ::   pz(20)
+      integer(8)   ::   relax(3)
+      integer(8)   ::   sid
+      integer(8)   ::   spec
+      real(8)   ::   vel(3)
+      real(8)   ::   vshft
       end type s_site
 
 Cr --- explanation of  ustr ---
@@ -1823,36 +1825,36 @@ C 28  40 -1       size  1
 C 29  41  4      skmsh  6
 C 30  47  4      wztcf  1
       type s_str
-      real(8) ::  size
-      real(8)  ::  adec
-      integer(8)  ::  amode
-      real(8)  ::  drwats
-      real(8)  ::  iinv(5)
-      integer(8)  ::  ivl
-      real(8)  ::  kaps(6)
-      integer(8)  ::  lequiv
-      integer(8)  ::  lmaxw
-      integer(8)  ::  loka
-      integer(8)  ::  lshow
-      integer(8)  ::  mxnbr
-      integer(8)  ::  nalf
-      integer(8)  ::  nbisi(3)
-      integer(8)  ::  ncupl
-      integer(8)  ::  ndust
-      integer(8)  ::  nitab
-      integer(8)  ::  nkaps
-      integer(8)  ::  nttab
-CCHSTRUC       integer(8)  ::  oadot ! not used because of undef
-CCHSTRUC       integer(8)  ::  oalp ! not used because of undef
-CCHSTRUC       integer(8)  ::  oiax ! not used because of undef
-CCHSTRUC       integer(8)  ::  ontab ! not used because of undef
-CCHSTRUC       integer(8)  ::  os ! not used because of undef
-CCHSTRUC       integer(8)  ::  osdot ! not used because of undef
-      real(8)  ::  rfit
-      real(8)  ::  rmax
-      real(8)  ::  rmaxg
-      real(8)  ::  skmsh(6)
-      real(8)  ::  wztcf
+      real(8)  ::   size
+      real(8)   ::   adec
+      integer(8)   ::   amode
+      real(8)   ::   drwats
+      real(8)   ::   iinv(5)
+      integer(8)   ::   ivl
+      real(8)   ::   kaps(6)
+      integer(8)   ::   lequiv
+      integer(8)   ::   lmaxw
+      integer(8)   ::   loka
+      integer(8)   ::   lshow
+      integer(8)   ::   mxnbr
+      integer(8)   ::   nalf
+      integer(8)   ::   nbisi(3)
+      integer(8)   ::   ncupl
+      integer(8)   ::   ndust
+      integer(8)   ::   nitab
+      integer(8)   ::   nkaps
+      integer(8)   ::   nttab
+CCHSTRUC       integer(8)   ::   oadot ! not used because of undef
+CCHSTRUC       integer(8)   ::   oalp ! not used because of undef
+CCHSTRUC       integer(8)   ::   oiax ! not used because of undef
+CCHSTRUC       integer(8)   ::   ontab ! not used because of undef
+CCHSTRUC       integer(8)   ::   os ! not used because of undef
+CCHSTRUC       integer(8)   ::   osdot ! not used because of undef
+      real(8)   ::   rfit
+      real(8)   ::   rmax
+      real(8)   ::   rmaxg
+      real(8)   ::   skmsh(6)
+      real(8)   ::   wztcf
       end type s_str
 
 Cr --- explanation of  utb ---
@@ -1878,13 +1880,13 @@ C  5   7  2      nbfit  2
 C  6   9  4      rmfit  2
 C  7  11 -1       size  1
       type s_tb
-      real(8) ::  size
-      real(8)  ::  alam
-      real(8)  ::  alsc
-      real(8)  ::  ebfit(2)
-      integer(8)  ::  fmode
-      integer(8)  ::  nbfit(2)
-      real(8)  ::  rmfit(2)
+      real(8)  ::   size
+      real(8)   ::   alam
+      real(8)   ::   alsc
+      real(8)   ::   ebfit(2)
+      integer(8)   ::   fmode
+      integer(8)   ::   nbfit(2)
+      real(8)   ::   rmfit(2)
       end type s_tb
       end module m_struc_def
 
@@ -2335,6 +2337,8 @@ C         n=n+2
 #endif  /* MPIADDRESS*/
       end function utb_size
 
+
+
        subroutine mpibc1_s_ri(struc,mlog,funnam,label)
        use m_struc_def, only: s_ri
        implicit none
@@ -2529,8 +2533,7 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%npl, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oclabl, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip rv_p_oclabl(:) because it is a pointer.
        call mpi_bcast(struc%ogroup, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%ohave, 1,MPI_INTEGER8
@@ -4243,6 +4246,23 @@ C$$$          stop
 C$$$        endif
 C$$$        end subroutine utb
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
        subroutine uri_init (struc)
        use m_struc_def
        use m_struc_func
@@ -4301,7 +4321,6 @@ C$$$        end subroutine utb
        struc%npadl=0
        struc%npadr=0
        struc%npl=0
-       struc%oclabl=0
        struc%ogroup=0
        struc%ohave=0
        struc%oics=0

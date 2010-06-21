@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine asados(prgnam,sbz,sctrl,sham,slat,sspec,ssite,sarray)
 
       use m_struc_def  !Cgetarg
@@ -96,8 +97,12 @@ C ... Local variables
       character*120 outs,sopts,dc*1,wtfn
       logical bittst,T,F,ltet,bzmap,lgors,lmet,cmdopt,tbdos,TBU,totdos,
      .lcond,lrange,lidos,lfp
-      integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
-     ., oipq , oclabl
+Cchp1       integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
+Cchp1      ., oipq , oclabl
+       integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
+     . , oipq 
+       real(8),pointer :: rv_p_oclabl(:)
+
       real(8) ,allocatable :: dos_rv(:)
       real(8) ,allocatable :: doswt_rv(:)
       real(8) ,allocatable :: eband_rv(:)
@@ -155,7 +160,9 @@ c       lham=sctrl%lham
       ormax=sarray%ormax
 
 
-      oclabl=sarray%oclabl
+Cchp1       oclabl=sarray%oclabl
+       rv_p_oclabl => sarray%rv_p_oclabl 
+
 
 
       avw=slat%avw
@@ -341,8 +348,11 @@ C         DOS for a prescribed list of classes only
               else
                 j1 = m+2
               endif
-              call clist(lstyle,sopts(j1:j2),w(oclabl),z,nclass,nlstc,
-     .        lsite)
+Cchp1               call clist(lstyle,sopts(j1:j2),w(oclabl),z,nclass,nlstc,
+Cchp1      .        lsite)
+               call clist ( lstyle , sopts ( j1:j2 ) , rv_p_oclabl , z , nclass 
+     .         , nlstc , lsite ) 
+
             else
               goto 999
             endif

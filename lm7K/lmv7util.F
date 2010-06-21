@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oclabl
 C For lmdos and lmchk. Single core mode only. No MPI modes.
       program lmfutil
 C- Main program for lmf and so on.
@@ -507,9 +508,15 @@ Cgetarg      .  slat(1),sbz(1),sstr(1)
 C Local variables
       logical lgors,cmdopt
       character*80 strn,clabl*8
-      integer obxc,oinitc,opnu,oqnu,oqc,oqt,oves,ovdif,orhrmx,ovrmax,
-     .orhos,osop,ogroup,ovintr,opp,opprel,oifrlx,oivso,oipc,oclabl,
-     .opos,oics,ozos,ormax,opmpol,oqpp,ogrrme,n0
+Cchp1       integer obxc,oinitc,opnu,oqnu,oqc,oqt,oves,ovdif,orhrmx,ovrmax,
+Cchp1      .orhos,osop,ogroup,ovintr,opp,opprel,oifrlx,oivso,oipc,oclabl,
+Cchp1      .opos,oics,ozos,ormax,opmpol,oqpp,ogrrme,n0
+       integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
+     . , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , opprel 
+     . , oifrlx , oivso , oipc , opos , oics , ozos , ormax , opmpol 
+     . , oqpp , ogrrme , n0 
+       real(8),pointer :: rv_p_oclabl(:)
+
       parameter (n0=10)
       integer nbas,nclass,nspec,nl,nsp,nlspc,igets,nclasp,i1,i2,nmap,ic,
      .is,ib,iclbsj,idmod(n0),iprint,lmx,nclspp,nqpp,lnsph,isw,neula,
@@ -1104,9 +1111,14 @@ C Local variables
      .aiogen,aiosop,aiorme,aiocor,aiomp,lrell,lgen
       logical havepq,havepp,haveso,haveop,haveva,havemp,
      .readpq,readpp,readso,readop,readva,readmp
-      integer opnu,oqnu,orhrmx,ovrmax,opp,opprel,oves,ova,omp,osop,olpp,
-     .olppr,olsop,olgrme,olva,olmp,opot,ocor,oics,ohave,oclabl,onrc,
-     .ogrrme,n0,nglob
+Cchp1       integer opnu,oqnu,orhrmx,ovrmax,opp,opprel,oves,ova,omp,osop,olpp,
+Cchp1      .olppr,olsop,olgrme,olva,olmp,opot,ocor,oics,ohave,oclabl,onrc,
+Cchp1      .ogrrme,n0,nglob
+       integer:: opnu , oqnu , orhrmx , ovrmax , opp , opprel , oves 
+     . , ova , omp , osop , olpp , olppr , olsop , olgrme , olva , olmp 
+     . , opot , ocor , oics , ohave , onrc , ogrrme , n0 , nglob 
+       real(8),pointer :: rv_p_oclabl(:)
+
       parameter(n0=10)
       integer ic,is,lmx,k,nl,nsp,ifi,jfi,fopn,lmxx,nspx,nrx,nr,
      .idmod(n0),isw,bitand,i2,nclasp,iclbsj,icmap,jc,nbas,nclass,
@@ -1166,7 +1178,9 @@ Cgetarg       call upack('array nclasp oclabl ohave oics',sarray,nclasp,oclabl,
 Cgetarg      .  ohave,oics,0)
       
       nclasp=sarray%nclasp
-      oclabl=sarray%oclabl
+Cchp1       oclabl=sarray%oclabl
+       rv_p_oclabl => sarray%rv_p_oclabl 
+
       ohave=sarray%ohave
       oics=sarray%oics
 
@@ -1217,7 +1231,9 @@ C   --- Open the atom file ---
         outs1 = ' '
         outs2 = ' '
         outs3 = ' '
-        call r8tos8(dval(w(oclabl),ic),clabl)
+Cchp1         call r8tos8(dval(w(oclabl),ic),clabl)
+         call r8tos8 ( dval ( rv_p_oclabl , ic ) , clabl ) 
+
         if (mode00 .ne. 3) then
 c#if ONE_ATOM_UNIT
           ifi = fopn(clabl)
