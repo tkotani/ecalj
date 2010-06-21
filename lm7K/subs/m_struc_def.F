@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-21 19:58:32.456834
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-21 20:33:55.387420
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -204,7 +204,8 @@ CCHSTRUC       integer(8)   ::   oclssl ! not used because of undef
       integer(8)   ::   ogroup
 CCHSTRUC       integer(8)   ::   ogrp2 ! not used because of undef
       integer(8)   ::   ohave
-      integer(8)   ::   oics
+CCHSTRUC       integer(8)   ::   oics
+       integer , pointer ::  iv_p_oics (:)
 CCHSTRUC       integer(8)   ::   oifrlx ! not used because of undef
       integer(8)   ::   oipc
       integer(8)   ::   oipcp
@@ -2540,8 +2541,7 @@ Cstruc_makeinit.py skip rv_p_oclabl(:) because it is a pointer.
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%ohave, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oics, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip iv_p_oics(:) because it is a pointer.
        call mpi_bcast(struc%oipc, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%oipcp, 1,MPI_INTEGER8
@@ -4322,7 +4322,6 @@ C$$$        end subroutine utb
        struc%npl=0
        struc%ogroup=0
        struc%ohave=0
-       struc%oics=0
        struc%oipc=0
        struc%oipcp=0
        struc%oips=0

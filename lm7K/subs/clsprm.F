@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oqp
       subroutine clsprm(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,
      .sstr,sstrn)
@@ -71,10 +72,16 @@ C     implicit none
 C Local variables
       logical lgors,cmdopt
       character*80 strn,clabl*8
-      integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
-     ., orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx 
-     ., oivso , oipc , oclabl , opos , oics , ozos , ormax , opmpol 
-     ., oqpp , ogrrme , n0
+Cchp1       integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
+Cchp1      ., orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx 
+Cchp1      ., oivso , oipc , oclabl , opos , oics , ozos , ormax , opmpol 
+Cchp1      ., oqpp , ogrrme , n0
+       integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
+     . , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx 
+     . , oivso , oipc , oclabl , opos , ozos , ormax , opmpol , oqpp 
+     . , ogrrme , n0 
+       integer,pointer :: iv_p_oics(:)
+
 c       real(8) ,allocatable :: pprel_rv(:)
 
       parameter (n0=10)
@@ -124,12 +131,16 @@ c         pprel_rv(:)=0.0d0
         call defdr(ovrmax,-2*nclspp)
 C       call defdr(oqnu,-3*nlspc)
 
-        oics=sarray%oics
+Cchp1         oics=sarray%oics
+         iv_p_oics => sarray%iv_p_oics 
+
 
 c takao sp2cls is replaced.
 c        call sp2cls('spec rmt',sspec,w(oics),1,1,nclspp,ormax)
         allocate( ics(nclspp) )
-        call icopy(nclspp,w(oics),1,ics,1)
+Cchp1         call icopy(nclspp,w(oics),1,ics,1)
+         call icopy ( nclspp , iv_p_oics , 1 , ics , 1 ) 
+
         print *,' qqqqq ics=',ics
         call defdr(ormax,nclspp)
         call dcopy(nclspp,sspec(ics(1:nclspp))%rmt,1,w(ormax),1)

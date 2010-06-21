@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite,sarray)
 
@@ -86,13 +87,19 @@ C Local variables
      .ldist,nggen,ngmx,stdo,nglob,incli !npadl,npadr,
 Cchp1       integer:: oclabl , oics , oips , oistab , onrc , onrcp , opos 
 Cchp1      ., oipc , oipcp , oiwk , oag , osymgr , aginv
-       integer:: oics , oips , oistab , onrc , onrcp , opos , oipc , 
-     . oipcp , oiwk , oag , osymgr , aginv 
+Cchp1        integer:: oics , oips , oistab , onrc , onrcp , opos , oipc , 
+Cchp1      . oipcp , oiwk , oag , osymgr , aginv 
+        integer:: oips , oistab , onrc , onrcp , opos , oipc , oipcp 
+     .  , oiwk , oag , osymgr , aginv 
+        integer,pointer :: iv_p_oics(:)
+
        real(8),pointer :: rv_p_oclabl(:)
 
       integer ,allocatable :: nrspc_iv(:)
       real(8) ,allocatable :: pos2_rv(:)
       integer ,allocatable :: ips2_iv(:)
+
+      integer,allocatable:: iv_a_tmp(:)
 
       parameter (T=.true., F=.false., ngnmx=10)
       character*120 gens,strn*72
@@ -122,7 +129,10 @@ C ... For memory allocation of class data, assume initially nclass=nbas
       call defrr(oag,   3*ngmx)
       call defrr(osymgr,9*ngmx)
       call defi(oipc,  nsite)
-      call defi(oics,  nsite)
+Cchp1       call defi(oics,  nsite)
+       allocate(iv_p_oics(abs(nsite)))
+       if (nsite<0) iv_p_oics(:)=0
+
       allocate(nrspc_iv(nbas))
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) nrspc_iv(:)=0
 
@@ -255,8 +265,12 @@ C --- Split species into classes ---
       call defi(onrc, nspec)
       call icopy(nsite,w(oips),1,w(oipc),1)
 
-      call splcls(mod(mode/10,10).eq.4,w(opos),nbas,nsgrp,w(oistab),
-     .nspec,slabl,nclass,w(oipc),w(oics),w(onrc))
+Cchp1       call splcls(mod(mode/10,10).eq.4,w(opos),nbas,nsgrp,w(oistab),
+Cchp1      .nspec,slabl,nclass,w(oipc),w(oics),w(onrc))
+       call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
+     . , nsgrp , w ( oistab ) , nspec , slabl , nclass , w ( oipc ) 
+     . , iv_p_oics , w ( onrc ) ) 
+
 ccccccccccc
       print *,'zzz nclass=',nclass
 cccccccccc
@@ -289,7 +303,12 @@ C$$$        call icopy(nsite,w(oipc),1,w(oipcp),1)
 C$$$        call icopy(npadl+npadr,w(oipc+nbas),1,w(oipc+nbasp),1)
 C$$$      else
 C   ... Reallocate arrays as permanent arrays
-      call redfi(oics,   nclspp)
+Cchp1       call redfi(oics,   nclspp)
+       i_data_size=size(iv_p_oics); allocate(iv_a_tmp(i_data_size))
+       iv_a_tmp=iv_p_oics; deallocate(iv_p_oics)
+       i_data_size=min(i_data_size,nclspp); allocate(iv_p_oics(nclspp))
+       iv_p_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+
       oipcp = oipc
 C$$$      endif
 
@@ -339,9 +358,12 @@ Cchp1         call defrr(oclabl, nclspp)
         call defi (onrcp,  nclspp)
 Cchp1         call pvsym2(3,2*nbasp-nbas,nclspp,w(oics),w(oipcp),nspec,slabl,
 Cchp1      .  ssite,w(oclabl),w(onrcp))
-         call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , w ( oics ) , w 
-     .   ( oipcp ) , nspec , slabl , ssite , rv_p_oclabl , w ( onrcp ) 
-     .   ) 
+Cchp1          call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , w ( oics ) , w 
+Cchp1      .   ( oipcp ) , nspec , slabl , ssite , rv_p_oclabl , w ( onrcp ) 
+Cchp1      .   ) 
+          call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , w ( 
+     .    oipcp ) , nspec , slabl , ssite , rv_p_oclabl , w ( onrcp ) ) 
+
 
 C$$$     if (nclasp .eq. nclass) then !we only treat nclasp=nclass case. takao Apr2010
         onrc = onrcp
@@ -371,7 +393,9 @@ C --- Cleanup: poke class and symmetry info into structures ---
       sarray%oipcp=oipcp
 
 
-      sarray%oics=oics
+Cchp1       sarray%oics=oics
+       sarray%iv_p_oics => iv_p_oics 
+
       sarray%oipc=oipc
 Cchp1       sarray%oclabl=oclabl
        sarray%rv_p_oclabl => rv_p_oclabl 

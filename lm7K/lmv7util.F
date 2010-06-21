@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oclabl
 C For lmdos and lmchk. Single core mode only. No MPI modes.
       program lmfutil
@@ -511,10 +512,16 @@ C Local variables
 Cchp1       integer obxc,oinitc,opnu,oqnu,oqc,oqt,oves,ovdif,orhrmx,ovrmax,
 Cchp1      .orhos,osop,ogroup,ovintr,opp,opprel,oifrlx,oivso,oipc,oclabl,
 Cchp1      .opos,oics,ozos,ormax,opmpol,oqpp,ogrrme,n0
-       integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
-     . , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , opprel 
-     . , oifrlx , oivso , oipc , opos , oics , ozos , ormax , opmpol 
-     . , oqpp , ogrrme , n0 
+Cchp1        integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
+Cchp1      . , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , opprel 
+Cchp1      . , oifrlx , oivso , oipc , opos , oics , ozos , ormax , opmpol 
+Cchp1      . , oqpp , ogrrme , n0 
+        integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
+     .  , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , opprel 
+     .  , oifrlx , oivso , oipc , opos , ozos , ormax , opmpol , oqpp 
+     .  , ogrrme , n0 
+        integer,pointer :: iv_p_oics(:)
+
        real(8),pointer :: rv_p_oclabl(:)
 
       parameter (n0=10)
@@ -573,12 +580,16 @@ C       call defdr(oqnu,-3*nlspc)
 Cgetarg...info...           integer :: oics , integer(8) :: sarray%oics 1
 Cgetarg         call upack1('array oics',sarray,oics)
         
-        oics=sarray%oics
+Cchp1         oics=sarray%oics
+         iv_p_oics => sarray%iv_p_oics 
+
 
 c takao sp2cls is replaced.
 c        call sp2cls('spec rmt',sspec,w(oics),1,1,nclspp,ormax)
         allocate( ics(nclspp) )
-        call icopy(nclspp,w(oics),1,ics,1)
+Cchp1         call icopy(nclspp,w(oics),1,ics,1)
+         call icopy ( nclspp , iv_p_oics , 1 , ics , 1 ) 
+
         print *,' qqqqq ics=',ics
         call defdr(ormax,nclspp)
         call dcopy(nclspp,sspec(ics(1:nclspp))%rmt,1,w(ormax),1)
@@ -1114,9 +1125,14 @@ C Local variables
 Cchp1       integer opnu,oqnu,orhrmx,ovrmax,opp,opprel,oves,ova,omp,osop,olpp,
 Cchp1      .olppr,olsop,olgrme,olva,olmp,opot,ocor,oics,ohave,oclabl,onrc,
 Cchp1      .ogrrme,n0,nglob
-       integer:: opnu , oqnu , orhrmx , ovrmax , opp , opprel , oves 
-     . , ova , omp , osop , olpp , olppr , olsop , olgrme , olva , olmp 
-     . , opot , ocor , oics , ohave , onrc , ogrrme , n0 , nglob 
+Cchp1        integer:: opnu , oqnu , orhrmx , ovrmax , opp , opprel , oves 
+Cchp1      . , ova , omp , osop , olpp , olppr , olsop , olgrme , olva , olmp 
+Cchp1      . , opot , ocor , oics , ohave , onrc , ogrrme , n0 , nglob 
+        integer:: opnu , oqnu , orhrmx , ovrmax , opp , opprel , oves 
+     .  , ova , omp , osop , olpp , olppr , olsop , olgrme , olva , olmp 
+     .  , opot , ocor , ohave , onrc , ogrrme , n0 , nglob 
+        integer,pointer :: iv_p_oics(:)
+
        real(8),pointer :: rv_p_oclabl(:)
 
       parameter(n0=10)
@@ -1182,7 +1198,9 @@ Cchp1       oclabl=sarray%oclabl
        rv_p_oclabl => sarray%rv_p_oclabl 
 
       ohave=sarray%ohave
-      oics=sarray%oics
+Cchp1       oics=sarray%oics
+       iv_p_oics => sarray%iv_p_oics 
+
 
       lrel = nglob('lrel')
 
@@ -1206,8 +1224,11 @@ c      if (procid .eq. 0) then
       if (i2 .eq. 0) i2 = nclasp
 c     call awrit2('%n:1i',' ',100,6,nclasp,w(oics))
       do  10  ic = ic1, i2
-        is = w(oics+ic-1)
-        icmap = iclbsj(is,w(oics),-nclasp,1)
+cki        is = w(oics+ic-1)
+        is=iv_p_oics(ic)
+Cchp1         icmap = iclbsj(is,w(oics),-nclasp,1)
+         icmap = iclbsj ( is , iv_p_oics , - nclasp , 1 ) 
+
         if (icmap .eq. ic .or. mode00 .eq. 0) icmap = 0
 Cgetarg...info...           integer :: lmx , integer(8) :: sspec%lmxa 1
 Cgetarg...info...           integer :: idmod(n0) , integer(8) :: sspec%idmod 10

@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oqp
 Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine asados(prgnam,sbz,sctrl,sham,slat,sspec,ssite,sarray)
@@ -102,7 +103,10 @@ Cchp1       integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp
 Cchp1      ., oipq , oclabl
 Cchp1        integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
 Cchp1      . , oipq 
-        integer:: ogstar , oics , oidtet , oipc , ormax , owtkp , oipq 
+Cchp1         integer:: ogstar , oics , oidtet , oipc , ormax , owtkp , oipq 
+         integer:: ogstar , oidtet , oipc , ormax , owtkp , oipq 
+         integer,pointer :: iv_p_oics(:)
+
         real(8),pointer :: rv_p_oqp(:)
 
        real(8),pointer :: rv_p_oclabl(:)
@@ -159,7 +163,9 @@ c       lham=sctrl%lham
 
 
       nclasp=sarray%nclasp
-      oics=sarray%oics
+Cchp1       oics=sarray%oics
+       iv_p_oics => sarray%iv_p_oics 
+
       oipc=sarray%oipc
       ormax=sarray%ormax
 
@@ -190,7 +196,9 @@ C ... Class-dependent arrays
 
 c     call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
       allocate(ics(nclasp),z(nclasp))
-      call icopy(nclasp,w(oics),1,ics,1)
+Cchp1       call icopy(nclasp,w(oics),1,ics,1)
+       call icopy ( nclasp , iv_p_oics , 1 , ics , 1 ) 
+
       do i=1,nclasp
         z(i)=sspec(ics(i))%z
       enddo

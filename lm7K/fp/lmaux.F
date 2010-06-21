@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite,sstr,
      .sarray,sbz,slabl,sstrn,mode,wksize)
@@ -101,11 +102,18 @@ Cchp1      ., owk , owk2 , oclabl , opos , oqlv , odlv , orham , oamsh ,
 Cchp1 cki     .onrmsh , oalpha , oaamom , onpr , os , ormx , oip , oips , opgfsl 
 Cchp1      .onrmsh , oalpha  , onpr , os , ormx , oip , oips , opgfsl 
 Cchp1      ., ontab , oiax , og , oag , mxclas , oics
-       integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-     . , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
-     . , owk , owk2 , opos , oqlv , odlv , orham , oamsh , onrmsh , 
-     . oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
-     . , og , oag , mxclas , oics 
+Cchp1        integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
+Cchp1      . , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
+Cchp1      . , owk , owk2 , opos , oqlv , odlv , orham , oamsh , onrmsh , 
+Cchp1      . oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
+Cchp1      . , og , oag , mxclas , oics 
+        integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
+     .  , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
+     .  , owk , owk2 , opos , oqlv , odlv , orham , oamsh , onrmsh , 
+     .  oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
+     .  , og , oag , mxclas 
+        integer,pointer :: iv_p_oics(:)
+
        real(8),pointer :: rv_p_oclabl(:)
 
       real(8) ,allocatable :: pos2_rv(:)
@@ -156,7 +164,9 @@ C     lpbc = 0 for pbc in 3 dimensions, 11 pgf padded geometry
 c      if (lpgf .gt. 0 .and. lpgf .lt. 10) lpbc = 11
 
       oinitc=sarray%ohave
-      oics=sarray%oics
+Cchp1       oics=sarray%oics
+       iv_p_oics => sarray%iv_p_oics 
+
 Cchp1       oclabl=sarray%oclabl
        rv_p_oclabl => sarray%rv_p_oclabl 
 
@@ -216,7 +226,9 @@ ctakao
 c      call sp2cls('spec lmxa',sspec,w(oics),1,1,nclasp,olmx) --->lmxa
 c      call sp2cls('spec z',sspec,w(oics),1,1,nclasp,oz)
       allocate(ics(1:nclasp),lmxa(nclasp),z(nclasp))
-      call icopy(nclasp,w(oics),1,ics,1)
+Cchp1       call icopy(nclasp,w(oics),1,ics,1)
+       call icopy ( nclasp , iv_p_oics , 1 , ics , 1 ) 
+
       lmxa(1:nclasp) = sspec(ics(1:nclasp))%lmxa
       z   (1:nclasp) = sspec(ics(1:nclasp))%z
       print *,' lmxa=',lmxa
