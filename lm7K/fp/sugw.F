@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oqsig
 #define V2 1
       subroutine sugw(ssite,sspec,slat,sham,nbas,ndham,
      .smpot,vconst,lcplxp,osig,otau,oppi,ppn,vrmt,
@@ -198,7 +199,9 @@ C ... For PW basis
 
 C ... for reading self-energy
       integer nqsig
-      integer oqsig
+Cchp1       integer oqsig
+       real(8),pointer :: rv_p_oqsig(:)
+
 
 C ... for band plotting
       real(8),allocatable :: ovvx(:,:,:)
@@ -258,9 +261,11 @@ C --- Setup ---
 C     lsig = 0
 
       nqsig=sham%nqsig
-      oqsig=sham%oqsig
+Cchp1       oqsig=sham%oqsig
+       rv_p_oqsig => sham%rv_p_oqsig 
 
-      if (oqsig .eq. 0) oqsig = 1
+
+cki      if (oqsig .eq. 0) oqsig = 1
 C     lshft(1) = 0
 C     lshft(2) = 0
 C     lshft(3) = 0
@@ -903,9 +908,14 @@ C   --- LDA + sigma Hamiltonian for this qp ---
           lpdiag = 0
           i = lrsig*10 + 1
           ispc = min(isp,nspc)
-          call hambls(i,nbas,ssite,sspec,slat,sham,isp,ispc,qp,k1,k2,k3,
-     .    w(oqsig),nqsig,smpot,vconst,osig,otau,oppi,lcplxp,0,alfa,
-     .    ndimh,napw,w(oigv2),ham,ovl,i2)
+Cchp1           call hambls(i,nbas,ssite,sspec,slat,sham,isp,ispc,qp,k1,k2,k3,
+Cchp1      .    w(oqsig),nqsig,smpot,vconst,osig,otau,oppi,lcplxp,0,alfa,
+Cchp1      .    ndimh,napw,w(oigv2),ham,ovl,i2)
+           call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
+     .     ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
+     .     , osig , otau , oppi , lcplxp , 0 , alfa , ndimh , napw , w ( 
+     .     oigv2 ) , ham , ovl , i2 ) 
+
           if (i .eq. -1) lpdiag = 2
 
 C   --- Branch job = 1 : make cphi, matrix elements ---

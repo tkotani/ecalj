@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oqp
       subroutine mkqp(sctrl,sbz,slat,gettet,lnoirr,lreduc,lgstar)
 
       use m_struc_def  !Cgetarg
@@ -48,9 +49,14 @@ C ... Passed parameters
 
 C ... Local parameters
       logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
-      integer fopna,mxkp,nfilqp,nkp,nkxyz(3),nsgrp,npgrp,lshft(3),
-     .lpbc,ntet,i,oidtet,oqp,owtkp,ogstar,oipq,owk,osymgr,
-     .iprint,igets,stdo,nglob
+Cchp1       integer fopna,mxkp,nfilqp,nkp,nkxyz(3),nsgrp,npgrp,lshft(3),
+Cchp1      .lpbc,ntet,i,oidtet,oqp,owtkp,ogstar,oipq,owk,osymgr,
+Cchp1      .iprint,igets,stdo,nglob
+       integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
+     . , lshft(3) , lpbc , ntet , i , oidtet , owtkp , ogstar , oipq 
+     . , owk , osymgr , iprint , igets , stdo , nglob 
+       real(8),pointer :: rv_p_oqp(:)
+
       double precision plat(3,3),qlat(3,3),vol
       character prgnam*4, outs*80
 
@@ -109,15 +115,21 @@ C ... Read qp from disk
         else
           ntet = 0
         endif
-        call defdr(oqp,3*nkp)
+Cchp1         call defdr(oqp,3*nkp)
+         allocate(rv_p_oqp(abs(3*nkp)))
+         if (3*nkp<0) rv_p_oqp(:)=0.0d0
+
         call defdr(owtkp,-nkp)
         if (ntet .gt. 0) then
           call defi(oidtet,ntet*5)
         else
           call defi(oidtet,1)
         endif
-        call getqp(2,nfilqp,nkp,nkxyz,lshft,ntet,w(oqp),w(owtkp),
-     .  w(oidtet))
+Cchp1         call getqp(2,nfilqp,nkp,nkxyz,lshft,ntet,w(oqp),w(owtkp),
+Cchp1      .  w(oidtet))
+         call getqp ( 2 , nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp 
+     .   , w ( owtkp ) , w ( oidtet ) ) 
+
 
         call fclose(nfilqp)
         if (iprint() .ge. 20) call
@@ -139,7 +151,10 @@ C ... Make the qp list from bzmesh
 #if TRSYMM
         call dvset(w(owtkp),1,1,dble(nsgrp))
 #endif
-        call defdr(oqp,3*mxkp)
+Cchp1         call defdr(oqp,3*mxkp)
+         allocate(rv_p_oqp(abs(3*mxkp)))
+         if (3*mxkp<0) rv_p_oqp(:)=0.0d0
+
         call defi(oipq,6*mxkp)
         call dinv33(plat,1,qlat,vol)
 
@@ -161,9 +176,13 @@ C   ... Restrict BZ to two dimensions
    10   continue
         call ivset(w(ogstar),1,1,lgstar)
         call info0(20,0,0,' ')
-        call bzmesh(plat,qlat,nkxyz(1),nkxyz(2),nkxyz(3),llshft,
-     .  w(osymgr),npgrp,w(oipq),w(oqp),w(owtkp),nkp,mxkp,w(ogstar),
-     .  lpbc)
+Cchp1         call bzmesh(plat,qlat,nkxyz(1),nkxyz(2),nkxyz(3),llshft,
+Cchp1      .  w(osymgr),npgrp,w(oipq),w(oqp),w(owtkp),nkp,mxkp,w(ogstar),
+Cchp1      .  lpbc)
+         call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
+     .   ( 3 ) , llshft , w ( osymgr ) , npgrp , w ( oipq ) , rv_p_oqp 
+     .   , w ( owtkp ) , nkp , mxkp , w ( ogstar ) , lpbc ) 
+
 
 C   ... Sanity check
 c        if (lsx .and. lshft(1)+lshft(2)+lshft(3) .gt. 0) call
@@ -176,13 +195,20 @@ C   ... Remake, with exactly allocated arrays, ipq on top
 #if TRSYMM
         call dvset(w(owtkp),1,1,dble(nsgrp))
 #endif
-        call defdr(oqp,3*nkp)
+Cchp1         call defdr(oqp,3*nkp)
+         allocate(rv_p_oqp(abs(3*nkp)))
+         if (3*nkp<0) rv_p_oqp(:)=0.0d0
+
         call defi(oipq,6*mxkp)
         call pshpr(0)
         call ivset(w(ogstar),1,1,lgstar)
-        call bzmesh(plat,qlat,nkxyz(1),nkxyz(2),nkxyz(3),llshft,
-     .  w(osymgr),npgrp,w(oipq),w(oqp),w(owtkp),nkp,mxkp,w(ogstar),
-     .  lpbc)
+Cchp1         call bzmesh(plat,qlat,nkxyz(1),nkxyz(2),nkxyz(3),llshft,
+Cchp1      .  w(osymgr),npgrp,w(oipq),w(oqp),w(owtkp),nkp,mxkp,w(ogstar),
+Cchp1      .  lpbc)
+         call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
+     .   ( 3 ) , llshft , w ( osymgr ) , npgrp , w ( oipq ) , rv_p_oqp 
+     .   , w ( owtkp ) , nkp , mxkp , w ( ogstar ) , lpbc ) 
+
         call poppr
 
 C   ... Hang on to ipq if (a) call tetirr below or (b) lipq
@@ -222,7 +248,9 @@ C     call prmx('qp',w(oqp),3,3,nkp)
       sbz%nkp=nkp
       i_copy_size=size(sbz%nkabc)
       call ii8copy(i_copy_size,nkxyz,1,sbz%nkabc,1)
-      sbz%oqp=oqp
+Cchp1       sbz%oqp=oqp
+       sbz%rv_p_oqp => rv_p_oqp 
+
       sbz%owtkp=owtkp
       sbz%ostar=ogstar
 
@@ -240,8 +268,11 @@ C --- Write q-points to disc ---
       if ( iand(2,int(sbz%lio)) .ne.0 ) then
 
         nfilqp = fopna('QPTS',-1,0)
-        call getqp(2,-nfilqp,nkp,nkxyz,lshft,ntet,w(oqp),w(owtkp),
-     .  w(oidtet))
+Cchp1         call getqp(2,-nfilqp,nkp,nkxyz,lshft,ntet,w(oqp),w(owtkp),
+Cchp1      .  w(oidtet))
+         call getqp ( 2 , - nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp 
+     .   , w ( owtkp ) , w ( oidtet ) ) 
+
         call fclose(nfilqp)
       endif
 

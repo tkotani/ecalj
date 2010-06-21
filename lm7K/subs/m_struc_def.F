@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-21 13:13:55.679960
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-21 19:58:32.456834
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -106,7 +106,8 @@ CCHSTRUC       integer(8)   ::   odos ! not used because of undef
       integer(8)   ::   oidtet
       integer(8)   ::   oipq
 CCHSTRUC       integer(8)   ::   opdos ! not used because of undef
-      integer(8)   ::   oqp
+CCHSTRUC       integer(8)   ::   oqp
+       real(8) , pointer ::  rv_p_oqp (:)
       integer(8)   ::   ostar
       integer(8)   ::   owtkp
       real(8)   ::   range
@@ -842,7 +843,8 @@ CCHSTRUC       integer(8)   ::   omagf ! not used because of undef
       integer(8)   ::   ontabs
 CCHSTRUC       integer(8)   ::   ooffH
        integer , pointer ::  iv_p_ooffH (:)
-      integer(8)   ::   oqsig
+CCHSTRUC       integer(8)   ::   oqsig
+       real(8) , pointer ::  rv_p_oqsig (:)
       real(8)   ::   oveps
       real(8)   ::   pmax(10)
       real(8)   ::   pmin(10)
@@ -2459,8 +2461,7 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%oipq, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oqp, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip rv_p_oqp(:) because it is a pointer.
        call mpi_bcast(struc%ostar, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%owtkp, 1,MPI_INTEGER8
@@ -2923,8 +2924,7 @@ C ... Passed parameters
        call mpi_bcast(struc%ontabs, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_ooffH(:) because it is a pointer.
-       call mpi_bcast(struc%oqsig, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip rv_p_oqsig(:) because it is a pointer.
        call mpi_bcast(struc%oveps, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
        i_data_size=size(struc%pmax) ! pmax(10)
@@ -4298,7 +4298,6 @@ C$$$        end subroutine utb
        struc%ntet=0
        struc%oidtet=0
        struc%oipq=0
-       struc%oqp=0
        struc%ostar=0
        struc%owtkp=0
        struc%range=0.0d0
@@ -4463,7 +4462,6 @@ C$$$        end subroutine utb
        struc%oiaxs=0
        struc%oindxo=0
        struc%ontabs=0
-       struc%oqsig=0
        struc%oveps=0.0d0
        struc%pmax=0.0d0
        struc%pmin=0.0d0

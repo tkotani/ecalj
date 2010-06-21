@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oqp
       subroutine clsprm(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,
      .sstr,sstrn)
 

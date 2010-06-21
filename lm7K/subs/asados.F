@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oqp
 Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine asados(prgnam,sbz,sctrl,sham,slat,sspec,ssite,sarray)
 
@@ -99,8 +100,11 @@ C ... Local variables
      .lcond,lrange,lidos,lfp
 Cchp1       integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
 Cchp1      ., oipq , oclabl
-       integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
-     . , oipq 
+Cchp1        integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
+Cchp1      . , oipq 
+        integer:: ogstar , oics , oidtet , oipc , ormax , owtkp , oipq 
+        real(8),pointer :: rv_p_oqp(:)
+
        real(8),pointer :: rv_p_oclabl(:)
 
       real(8) ,allocatable :: dos_rv(:)
@@ -428,10 +432,16 @@ Ctakao_ZeroClear_NotRequiered          if (npln<0) z_rv(:)=0.0d0
         allocate(ew_rv(abs(-2*npln*nwmx)))
         if (-2*npln*nwmx<0) ew_rv(:)=0.0d0
 
-        call defdr(oqp, 3*nkp)
-        call getbzp ( nfilqp , npln , nwmx , nkp , nw_iv , ew_rv 
-     .  , nq_iv , vx_rv , vy_rv , x_rv , y_rv , z , w 
-     .  ( oqp ) )
+Cchp1         call defdr(oqp, 3*nkp)
+         allocate(rv_p_oqp(abs(3*nkp)))
+         if (3*nkp<0) rv_p_oqp(:)=0.0d0
+
+Cchp1         call getbzp ( nfilqp , npln , nwmx , nkp , nw_iv , ew_rv 
+Cchp1      .  , nq_iv , vx_rv , vy_rv , x_rv , y_rv , z , w 
+Cchp1      .  ( oqp ) )
+         call getbzp ( nfilqp , npln , nwmx , nkp , nw_iv , ew_rv , nq_iv 
+     .   , vx_rv , vy_rv , x_rv , y_rv , z , rv_p_oqp ) 
+
 
         wtbzm = 2d0 / nsp
 C        if (preskp) then
@@ -647,7 +657,9 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
         nkp=sbz%nkp
         i_copy_size=size(sbz%nkabc)
         call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
-        oqp=sbz%oqp
+Cchp1         oqp=sbz%oqp
+         rv_p_oqp => sbz%rv_p_oqp 
+
         owtkp=sbz%owtkp
         ogstar=sbz%ostar
 
@@ -660,11 +672,16 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
 Ctakao_ZeroClear_NotRequiered          if (npts*nsp*nchan<0) dos_rv(:)=0.0d0
 
         if (nblst .eq. 0) nblst = nevmx
-        call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
-     .  ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , w ( 
-     .  oqp ) , w ( oipq ) , w ( ogstar ) , iblst , eband_rv , cvec 
-     .  ( 1 ) , doswt_rv , npts , emin , emax , lidos , wk_rv , 
-     .  dos_rv )
+Cchp1         call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
+Cchp1      .  ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , w ( 
+Cchp1      .  oqp ) , w ( oipq ) , w ( ogstar ) , iblst , eband_rv , cvec 
+Cchp1      .  ( 1 ) , doswt_rv , npts , emin , emax , lidos , wk_rv , 
+Cchp1      .  dos_rv )
+         call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
+     .   ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , rv_p_oqp 
+     .   , w ( oipq ) , w ( ogstar ) , iblst , eband_rv , cvec ( 1 ) , 
+     .   doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
+
 
         del = 0d0
 C --- make DOS or NOS ---

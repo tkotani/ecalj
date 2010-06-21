@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,oqsig
+Cchp1 cmdvar= real(8),rv_p_,oqp
 Cchp1 cmdvar= integer,iv_p_,ooffh
       subroutine rdsigm(mode,nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge,
      .lwsig)
@@ -189,8 +191,16 @@ C ... Local parameters
       equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
 Cchp1       integer:: og , oag , oqp , ooffh , oiprmb , opos , ontabs , oiaxs 
 Cchp1      ., ohrs , ohrss , oistab , oqsig 
-       integer:: og , oag , oqp , oiprmb , opos , ontabs , oiaxs , ohrs 
-     . , ohrss , oistab , oqsig 
+Cchp1        integer:: og , oag , oqp , oiprmb , opos , ontabs , oiaxs , ohrs 
+Cchp1      . , ohrss , oistab , oqsig 
+Cchp1         integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs , 
+Cchp1      .  ohrss , oistab , oqsig 
+         integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs , 
+     .   ohrss , oistab 
+         real(8),pointer :: rv_p_oqsig(:)
+
+        real(8),pointer :: rv_p_oqp(:)
+
        integer,pointer :: iv_p_ooffh(:)
 
       integer ,allocatable :: gstar_iv(:)
@@ -588,8 +598,14 @@ c      stop 'xxxxxxxxxxxxxxxx takao test1 in rdsigm.F xxxxxxxxxx'
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
-      call defrr(oqsig,3*mxkp)
-      call defdr(oqp,3*mxkp)
+Cchp1       call defrr(oqsig,3*mxkp)
+       allocate(rv_p_oqsig(abs(3*mxkp)))
+       if (3*mxkp<0) rv_p_oqsig(:)=0.0d0
+
+Cchp1       call defdr(oqp,3*mxkp)
+       allocate(rv_p_oqp(abs(3*mxkp)))
+       if (3*mxkp<0) rv_p_oqp(:)=0.0d0
+
       allocate(gstar_iv(abs(-mxkp-1)))
       if (-mxkp-1<0) gstar_iv(:)=0
 
@@ -603,20 +619,29 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
 
       call info(20,1,0,
      .' q-points in full BZ where sigma calculable ...',0,0)
-      call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-     .ipq_iv , w ( oqsig ) , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+Cchp1       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+Cchp1      .ipq_iv , w ( oqsig ) , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     . ipq_iv , rv_p_oqsig , wgt_rv , nqsig , mxkp , 0 , 0 ) 
+
 
 
       sham%nqsig=nqsig
-      sham%oqsig=oqsig
+Cchp1       sham%oqsig=oqsig
+       sham%rv_p_oqsig => rv_p_oqsig 
+
 
       call dpzero ( wgt_rv , mxkp ) 
 
       call info2(20,0,0,
      .' Irr. qp for which sigma is calculated ...',0,0)
-      call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
-     ., nsgrps , ipq_iv , w ( oqp ) , wgt_rv , nqps , mxkp , 
-     .gstar_iv , 0 ) 
+Cchp1       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+Cchp1      ., nsgrps , ipq_iv , w ( oqp ) , wgt_rv , nqps , mxkp , 
+Cchp1      .gstar_iv , 0 ) 
+       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+     . , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv 
+     . , 0 ) 
+
 
       call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
 C     call prmx('q for which sigma is read',w(oqp),3,3,nqp)
@@ -688,10 +713,14 @@ ccccccccccccccccccccccccc
             read(ifis) qp,  eseavr !june2009  add eseavr
             print *,' uuu2 iq1 eseavr=',iq1,eseavr
             call dpscop(qp,tmp,3,1,1,1d0)
-            call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
+Cchp1             call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
+             call dpsadd ( tmp , rv_p_oqp , 3 , 1 , 3 * iq1 - 2 , - 1d0 ) 
+
             call dpsadd(tmp,qoffi,3,1,1,-1d0)
             if (.not. latvec(1,tolq,plat,tmp)) then
-              call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
+Cchp1               call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
+               call dpscop ( rv_p_oqp , tmp , 3 , 3 * iq1 - 2 , 1 , 1d0 ) 
+
               if (lssym .ge. 4) then
                 call info5(20,0,0,' rdsigm (warning) qp %i : '//
      .          'expected%3;8,4D read%3;8,4D',iq1,tmp,qp,0,0)
@@ -731,10 +760,14 @@ ccccccccccccccccccccccccccccccccccccc
             if (alf(2) .ne. 0d0) then
               read(ifis2) qp
               call dpscop(qp,tmp,3,1,1,1d0)
-              call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
+Cchp1               call dpsadd(tmp,w(oqp),3,1,3*iq1-2,-1d0)
+               call dpsadd ( tmp , rv_p_oqp , 3 , 1 , 3 * iq1 - 2 , - 1d0 ) 
+
               call dpsadd(tmp,qoffi,3,1,1,-1d0)
               if (abs(tmp(1))+abs(tmp(2))+abs(tmp(3)) .gt. tolq) then
-                call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
+Cchp1                 call dpscop(w(oqp),tmp,3,3*iq1-2,1,1d0)
+                 call dpscop ( rv_p_oqp , tmp , 3 , 3 * iq1 - 2 , 1 , 1d0 ) 
+
                 if (lssym .ge. 4) then
                   call info5(20,0,0,' rdsigm (warning) qp %i : '//
      .            'expected%3;8,4D read%3;8,4D (file sigm1)',iq1,tmp,qp,
@@ -852,15 +885,21 @@ C     if (alf(1) .ne. 1 .or. alf(2) .ne. 0 .or. .true.) then
         if (lssym .ge. 4) j1 = 2
         if (procid .eq. master) then
           call dpzero(tmp,3)
-          call chksgr(j1,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
-     .    w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,i,w(oqp),
-     .    nbas,0,rotm,w)
+Cchp1           call chksgr(j1,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
+Cchp1      .    w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,i,w(oqp),
+Cchp1      .    nbas,0,rotm,w)
+           call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+     .     , hreal , w ( oiprmb ) , nttabs , w ( oiaxs ) , w ( ohrs ) , 
+     .     ndhrs , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w ) 
+
         endif
       endif
 
       if ( .not. ( cmdopt ( '--wsig' , 6 , 0 , outs ) .or.cmdopt ( 
      .'-wsig' , 5 , 0 , outs ) ) ) then 
-        call rlse(oqp)
+Cchp1         call rlse(oqp)
+         if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
+
       endif 
 
 
@@ -968,11 +1007,16 @@ C        if (lnwmsh .or. ltmp) then
               i_copy_size=size(sbz%lshft)
               call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
               nqp=sbz%nkp
-              oqp=sbz%oqp
+Cchp1               oqp=sbz%oqp
+               rv_p_oqp => sbz%rv_p_oqp 
+
 
 
               mxkp = nk1*nk2*nk3
-              call defdr(oqp,3*mxkp)
+Cchp1               call defdr(oqp,3*mxkp)
+               allocate(rv_p_oqp(abs(3*mxkp)))
+               if (3*mxkp<0) rv_p_oqp(:)=0.0d0
+
               allocate(gstar_iv(abs(-mxkp-1)))
               if (-mxkp-1<0) gstar_iv(:)=0
 
@@ -992,21 +1036,29 @@ C        if (lnwmsh .or. ltmp) then
               if (lfbzout) then
                 call info0(20,1,0,
      .          ' Creating sigma for new mesh, full BZ (file sigm2) ...')
-                call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-     .          ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , 0 , 0 ) 
+Cchp1                 call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+Cchp1      .          ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , 0 , 0 ) 
+                 call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     .           ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 ) 
+
 
               else
                 call info0(20,1,0,
      .          ' Creating sigma for new mesh (file sigm2) ...')
-                call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
-     .          , nsgrp , ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , gstar_iv 
-     .          , 0 ) 
+Cchp1                 call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+Cchp1      .          , nsgrp , ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , gstar_iv 
+Cchp1      .          , 0 ) 
+                 call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+     .           , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv 
+     .           , 0 ) 
+
 
 
               endif
 
             elseif (lfbzout) then
-              oqp = oqsig
+cki              oqp = oqsig
+              rv_p_oqp => rv_p_oqsig
               nqp = nqsig
               call info2(20,1,0,
      .        ' Creating sigma for full BZ, %i qp (file sigm2) ...',nqp,0)
@@ -1043,14 +1095,22 @@ C       call prmx('q for which sigm is written',w(oqp),3,3,nqp)
             if (lqoffo .ne. 0) then
 C         call prmx('qp',w(oqp),3,3,nqp)
               do  i = 1, nqp
-                call dmsadd(w(oqp),1,qoffo,1,1,3,1,1,3*i-2,1,1d0)
+Cchp1                 call dmsadd(w(oqp),1,qoffo,1,1,3,1,1,3*i-2,1,1d0)
+                 call dmsadd ( rv_p_oqp , 1 , qoffo , 1 , 1 , 3 , 1 , 1 , 3 * 
+     .           i - 2 , 1 , 1d0 ) 
+
               enddo
 C         call prmx('qp',w(oqp),3,3,nqp)
             endif
-            call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
-     .      , hreal , w ( oiprmb ) , nttabs , w ( oiaxs ) , w ( ohrs ) , 
-     .      ndhrs , rsstol , nqp , w ( oqp ) , nbas , lrot , rotm , delt_rv 
-     .      ) 
+Cchp1             call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
+Cchp1      .      , hreal , w ( oiprmb ) , nttabs , w ( oiaxs ) , w ( ohrs ) , 
+Cchp1      .      ndhrs , rsstol , nqp , w ( oqp ) , nbas , lrot , rotm , delt_rv 
+Cchp1      .      ) 
+             call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
+     .       , hreal , w ( oiprmb ) , nttabs , w ( oiaxs ) , w ( ohrs ) , 
+     .       ndhrs , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv 
+     .       ) 
+
 
             call fclose(ifis2)
             call rx0('done writing sigma, file sigm2')
@@ -1080,7 +1140,9 @@ C ... Transformations done by caller: write qp list to disk
           i_copy_size=size(sbz%lshft)
           call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
           nqp=sbz%nkp
-          oqp=sbz%oqp
+Cchp1           oqp=sbz%oqp
+           rv_p_oqp => sbz%rv_p_oqp 
+
 
           call info2(20,0,0,
      .    ' Transform sigma on new k-mesh:  '//
@@ -1090,7 +1152,10 @@ C ... Transformations done by caller: write qp list to disk
         if (lfbzout) then
           mxkp = nk1*nk2*nk3
           call info(20,0,0,' rdsigm: use full BZ (%i q-points)...',mxkp,0)
-          call defdr(oqp,3*mxkp)
+Cchp1           call defdr(oqp,3*mxkp)
+           allocate(rv_p_oqp(abs(3*mxkp)))
+           if (3*mxkp<0) rv_p_oqp(:)=0.0d0
+
           allocate(ipq_iv(mxkp))
           if (mxkp<0) ipq_iv(:)=0
 
@@ -1108,8 +1173,11 @@ C   ... Make is,ifac,qb,qlat
           call pshpr(0)
           call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
           call poppr
-          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
-     .    ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , 0 , 0 ) 
+Cchp1           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+Cchp1      .    ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , 0 , 0 ) 
+           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w , 0 , 
+     .     ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 ) 
+
 
 C       call pack2('bz nkp oqp',sbz,nqp,oqp)
           if (allocated(delt_rv)) deallocate(delt_rv)
@@ -1121,14 +1189,20 @@ C ... Write points to disk, shifting by qoffo
         if (lqoffo .ne. 0) then
 C       call prmx('qp',w(oqp),3,3,nqp)
           do  i = 1, nqp
-            call dmsadd(w(oqp),1,qoffo,1,1,3,1,1,3*i-2,1,1d0)
+Cchp1             call dmsadd(w(oqp),1,qoffo,1,1,3,1,1,3*i-2,1,1d0)
+             call dmsadd ( rv_p_oqp , 1 , qoffo , 1 , 1 , 3 , 1 , 1 , 3 * 
+     .       i - 2 , 1 , 1d0 ) 
+
           enddo
 C       call prmx('qp',w(oqp),3,3,nqp)
         endif
 
         call info0(30,0,0,' RDSIGM: writing data to file QPTS ...')
         ifiz = fopna('qpts',-1,0)
-        call getqp(1,-ifiz,nqp,nkxyz,lshft,0,w(oqp),w,w)
+Cchp1         call getqp(1,-ifiz,nqp,nkxyz,lshft,0,w(oqp),w,w)
+         call getqp ( 1 , - ifiz , nqp , nkxyz , lshft , 0 , rv_p_oqp 
+     .   , w , w ) 
+
 
         if (lfbzout) then
           if (allocated(ipq_iv)) deallocate(ipq_iv)

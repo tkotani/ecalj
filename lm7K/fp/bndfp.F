@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,oqsig
+Cchp1 cmdvar= real(8),rv_p_,oqp
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau,
      .ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,
      .ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit,evl,frc,
@@ -247,8 +249,12 @@ C ... Local parameters
      ., lekkl 
       real(8) ,allocatable :: dos_rv(:)
 
-      integer:: oevl , os , oidtet , owtkb , oswtk , owtkp , oorhat 
-     ., osoptc , osmpot , osmrho , oqp 
+Cchp1       integer:: oevl , os , oidtet , owtkb , oswtk , owtkp , oorhat 
+Cchp1      ., osoptc , osmpot , osmrho , oqp 
+       integer:: oevl , os , oidtet , owtkb , oswtk , owtkp , oorhat 
+     . , osoptc , osmpot , osmrho 
+       real(8),pointer :: rv_p_oqp(:)
+
       real(8) ,allocatable :: fh_rv(:)
       real(8) ,allocatable :: fes1_rv(:)
       real(8) ,allocatable :: fes2_rv(:)
@@ -355,7 +361,9 @@ C #endif
 
 C For self-energy
       integer nqsig
-      integer oqsig
+Cchp1       integer oqsig
+       real(8),pointer :: rv_p_oqsig(:)
+
 
       integer oidxsh,nbasp
 
@@ -595,7 +603,9 @@ c      print *,' w=',esmear
       def=sbz%def
 
 
-      oqp=sbz%oqp
+Cchp1       oqp=sbz%oqp
+       rv_p_oqp => sbz%rv_p_oqp 
+
       owtkp=sbz%owtkp
 
       ltet = ntet .gt. 0
@@ -1054,7 +1064,10 @@ C MPIK: Setup to assemble all k-points into single list with qp table
 
         call suqlsm(i)
 C       Re-allocate qp and evl arrays
-        call defrr(oqp,  3*nkp)
+Cchp1         call defrr(oqp,  3*nkp)
+         allocate(rv_p_oqp(abs(3*nkp)))
+         if (3*nkp<0) rv_p_oqp(:)=0.0d0
+
 c        call defrr(oevl, ndham*nsp*nkp)
         if (epsovl .ne. 0) then
           allocate(eomin_rv(nsp*nkp))
@@ -1081,14 +1094,19 @@ C       iq = running index to big qp list, i1 = index to current line
               call suqlst ( plbopt , 1 , ndhamx , ef0 , i , w , nfbn , ifbls_iv 
      .        , i2 , qp , onesp ) 
 
-              call dpscop(qp,w(oqp),3,1,3*iq-2,1d0)
+Cchp1               call dpscop(qp,w(oqp),3,1,3*iq-2,1d0)
+               call dpscop ( qp , rv_p_oqp , 3 , 1 , 3 * iq - 2 , 1d0 ) 
+
             enddo
             call poppr
             call suqlsm(i)
             if (i .ne. 3) goto 199
           endif
         endif
-        call mpibc1(w(oqp),3*nkp,4,.false.,'bndfp','qp')
+Cchp1         call mpibc1(w(oqp),3*nkp,4,.false.,'bndfp','qp')
+         call mpibc1 ( rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp' 
+     .   ) 
+
 #endif
       endif
 
@@ -1142,7 +1160,9 @@ C --- Get qplist. This is only for no MPI mode yet...
      .    , nkp , qp , onesp ) 
 
         else
-          call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
+Cchp1           call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
+           call dpscop ( rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 ) 
+
         endif
         qplist(:,iq)=qp
       enddo
@@ -1328,6 +1348,9 @@ c      nsmidb = ndham
 
       do 2010 iq = iqini, iqend
 #if MPIK
+#ifdef KINODEBUG
+        write(*,'(a,i3,5i5)')'debug iq=',procid,iq,iqini,iqend
+#endif
         if (iq .eq. kpproc(procid)) then
           if (mlog) then
             call gettime(datim)
@@ -1353,7 +1376,9 @@ c          call dpscop(w(oqp),qp,3,3*iq-2,1,1d0)
 c        endif
         qp=qplist(:,iq)
 #else
-        call dpscop(w(oqp),qp,3,3*iq-2,1,1d0) !this should be modified as in non-MPIK mode.
+Cchp1         call dpscop(w(oqp),qp,3,3*iq-2,1,1d0) !this should be modified as in non-MPIK mode.
+         call dpscop ( rv_p_oqp , qp , 3 , 3 * iq - 2 , 1 , 1d0 ) 
+
 #endif
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1437,9 +1462,13 @@ c              call defi(oigv2,3*napw)
 C   ... Make Hamiltonian and overlap matrices
 
             nqsig=sham%nqsig
-            oqsig=sham%oqsig
+Cchp1             oqsig=sham%oqsig
+             rv_p_oqsig => sham%rv_p_oqsig 
 
-            if (oqsig .eq. 0) oqsig = 1
+#ifdef KINODEBUG
+             write(*,'(a,i3,i3,i12)')'oqsig=',procid,iq,%loc(rv_p_oqsig)
+#endif
+cki            if (oqsig .eq. 0) oqsig = 1
 
             ispc = min(isp,nspc) !nspc=2 for non-colinier case
             !nspc=1
@@ -1739,9 +1768,14 @@ c      endif
 c      if (lrsig .eq. 0) goto 999
             else
 C ... Interpolation of sene= \Sigm-Vxc at given q.
-              call hambls(i,nbas,ssite,sspec,slat,sham,isp,ispc,qp,k1,k2,k3,
-     .        w(oqsig),nqsig,w(osmpot),vconst,osig,otau,oppi,lcplxp,lso,
-     .        alfa,ndimh,napw,igv2x,hamm,ovlm,ismidb)
+Cchp1               call hambls(i,nbas,ssite,sspec,slat,sham,isp,ispc,qp,k1,k2,k3,
+Cchp1      .        w(oqsig),nqsig,w(osmpot),vconst,osig,otau,oppi,lcplxp,lso,
+Cchp1      .        alfa,ndimh,napw,igv2x,hamm,ovlm,ismidb)
+               call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
+     .         ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , w ( osmpot ) 
+     .         , vconst , osig , otau , oppi , lcplxp , lso , alfa , ndimh , 
+     .         napw , igv2x , hamm , ovlm , ismidb ) 
+
 c        nsmidb = min(nsmidb,ismidb) !????
               if(sigmamode) deallocate(sene)
               print *,' end of hambls mode=',i
@@ -2251,14 +2285,14 @@ c        if (ot .ne. os) call rlse(ot)
               if (allocated(t_zv)) deallocate(t_zv)
             endif 
 
-            if( debug) print *, 'tttttttttt 9999999999999999999'
+            if( debug) print *, 'tttttttttt 9999999999999999999',procid,iq
 
 C end loop over isp (main loop in parallel mode)
    30       continue
             deallocate(igv2x)
           endif
         enddo
-        if( debug) print *, 'tttttttttt 9999999999999999999 2'
+        if( debug) print *, 'tttttttttt 9999999999999999999 2',procid,iq
 
 c        call rlse(oh)
 C end loop over iq (main loop in parallel mode)
@@ -2266,7 +2300,7 @@ c      enddo
         deallocate(hamm,ovlm)!,hamsom)
  2010 continue
 
-      if( debug) print *, 'tttttttttt 9999999999999999999 3'
+      if( debug) print *, 'tttttttttt 9999999999999999999 3',procid,iq
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c 2011 continue
@@ -3008,7 +3042,9 @@ Cki
 c      call xxxbfp ! Patch to avoid PGI compiler bug on AMD processor
       if (allocated(ifbls_iv)) deallocate(ifbls_iv)
 #if MPIK
-      call rlse(oqp)
+Cchp1       call rlse(oqp)
+cki       if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
+
 #endif
       call rlse(oevl)
       end subroutine bndfp
