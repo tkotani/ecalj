@@ -1,3 +1,4 @@
+Cchp1 cmdvar= complex(8),zv_p_,osmpot
 Cchp1 cmdvar= real(8),iv_p_,oistab
 Cchp1 cmdvar= real(8),iv_p_,oips0
       subroutine lmfp(prgnam,sbz,sctrl,sham,spot,slat,smix,
@@ -110,7 +111,10 @@ C ... Local variables
      .k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,nbas,nat,
      .nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .stdo,pdim,lsc
-      integer:: oorhat , opos , osmpot , osmrho , o
+Cchp1       integer:: oorhat , opos , osmpot , osmrho , o
+       integer:: oorhat , opos , osmrho , o 
+       complex(8),pointer :: zv_p_osmpot(:)
+
       real(8) ,allocatable :: evl_rv(:)
       real(8) ,allocatable :: frc_rv(:)
       real(8) ,allocatable :: ftot_rv(:)
@@ -545,7 +549,9 @@ c        print *,'eee 333=',spot%osmrho
 
       oorhat=spot%oorhat
       osmrho=spot%osmrho
-      osmpot=spot%osmpot
+Cchp1       osmpot=spot%osmpot
+       zv_p_osmpot => spot%zv_p_osmpot 
+
 
       allocate(ftot_rv(3*nbas))
 Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) ftot_rv(:)=0.0d0

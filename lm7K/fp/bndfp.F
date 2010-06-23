@@ -1,3 +1,4 @@
+Cchp1 cmdvar= complex(8),zv_p_,osmpot
 Cchp1 cmdvar= integer,iv_p_,oiprmb
 Cchp1 cmdvar= integer,iv_p_,oidxsh
 Cchp1 cmdvar= integer,iv_p_,oindxo
@@ -257,8 +258,12 @@ Cchp1       integer:: oevl , os , oidtet , owtkb , oswtk , owtkp , oorhat
 Cchp1      ., osoptc , osmpot , osmrho , oqp 
 Cchp1        integer:: oevl , os , oidtet , owtkb , oswtk , owtkp , oorhat 
 Cchp1      . , osoptc , osmpot , osmrho 
-        integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
-     .  , osmpot , osmrho 
+Cchp1         integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
+Cchp1      .  , osmpot , osmrho 
+         integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
+     .   , osmrho 
+         complex(8),pointer :: zv_p_osmpot(:)
+
         real(8),pointer :: rv_p_owtkp(:)
 
        real(8),pointer :: rv_p_oqp(:)
@@ -529,7 +534,9 @@ c      print *,'ttt fxstsigm=',fxst('sigm')
 
       oorhat=spot%oorhat
       osmrho=spot%osmrho
-      osmpot=spot%osmpot
+Cchp1       osmpot=spot%osmpot
+       zv_p_osmpot => spot%zv_p_osmpot 
+
 c       osoptc=spot%osoptc
 
 C     icls = igets('optic cls',w(osoptc))
@@ -769,12 +776,18 @@ c          stop 'xxxxxxxxxxxxxxxx'
 ccccccccccccccccccccccccc
 
       call togpr()
-      call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
-     ., lcplxp , k1 , k2 , k3 , w ( osmrho ) , w ( oorhat ) , qbg , 
-     .w ( osmpot ) , qmom_rv , vconst , vrmt , osig , otau , oppi 
-     ., ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc 
-     ., gpot0_rv , vval_rv , fes1_rv , i , vorb , nlibu , 
-     .lmaxu , lldau , 0 ) 
+Cchp1       call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
+Cchp1      ., lcplxp , k1 , k2 , k3 , w ( osmrho ) , w ( oorhat ) , qbg , 
+Cchp1      .w ( osmpot ) , qmom_rv , vconst , vrmt , osig , otau , oppi 
+Cchp1      ., ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc 
+Cchp1      ., gpot0_rv , vval_rv , fes1_rv , i , vorb , nlibu , 
+Cchp1      .lmaxu , lldau , 0 ) 
+       call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
+     . , lcplxp , k1 , k2 , k3 , w ( osmrho ) , w ( oorhat ) , qbg , 
+     . zv_p_osmpot , qmom_rv , vconst , vrmt , osig , otau , oppi , 
+     . ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv , 
+     . vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , 0 ) 
+
 
       call togpr()
 
@@ -929,9 +942,13 @@ c       osgw=spot%osgw
         nchan=spot%nlma
 
 C ... Modes 0..4
-        call sugw ( ssite , sspec , slat , sham , nbas , ndham , w ( 
-     .  osmpot ) , vconst , lcplxp , osig , otau , oppi , ppnl_rv 
-     .  , vrmt , spotx , osigx , otaux , oppix , jobgw ) 
+Cchp1         call sugw ( ssite , sspec , slat , sham , nbas , ndham , w ( 
+Cchp1      .  osmpot ) , vconst , lcplxp , osig , otau , oppi , ppnl_rv 
+Cchp1      .  , vrmt , spotx , osigx , otaux , oppix , jobgw ) 
+         call sugw ( ssite , sspec , slat , sham , nbas , ndham , zv_p_osmpot 
+     .   , vconst , lcplxp , osig , otau , oppi , ppnl_rv , vrmt , spotx 
+     .   , osigx , otaux , oppix , jobgw ) 
+
 
         deallocate(spotx)
 c        call rlse(oqmom)
@@ -1763,9 +1780,14 @@ ccccc     if (mod(mode,10) .eq. 0) then
               print *,' --- hambl --- sigmamode=',sigmamode
               jx = 0
               if (lso == 1) jx = 10
-              call hambl(jx,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,
-     .        w(osmpot),vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igv2x,
-     .        hamm(1,1,ispc),ovlm(1,1,ispc),hamm(1,1,3))
+Cchp1               call hambl(jx,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,
+Cchp1      .        w(osmpot),vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igv2x,
+Cchp1      .        hamm(1,1,ispc),ovlm(1,1,ispc),hamm(1,1,3))
+               call hambl ( jx , nbas , ssite , sspec , slat , sham , isp , 
+     .         qp , k1 , k2 , k3 , zv_p_osmpot , vconst , osig , otau , oppi 
+     .         , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 , 1 , ispc 
+     .         ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) ) 
+
               if(sigmamode) hamm(:,:,ispc) = hamm(:,:,ispc)+sene
               if(sigmamode) deallocate(sene)
 ccccc     .    h(1,1,ispc),s(1,1,ispc),h(1,1,3))
@@ -1793,10 +1815,15 @@ C ... Interpolation of sene= \Sigm-Vxc at given q.
 Cchp1               call hambls(i,nbas,ssite,sspec,slat,sham,isp,ispc,qp,k1,k2,k3,
 Cchp1      .        w(oqsig),nqsig,w(osmpot),vconst,osig,otau,oppi,lcplxp,lso,
 Cchp1      .        alfa,ndimh,napw,igv2x,hamm,ovlm,ismidb)
-               call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
-     .         ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , w ( osmpot ) 
-     .         , vconst , osig , otau , oppi , lcplxp , lso , alfa , ndimh , 
-     .         napw , igv2x , hamm , ovlm , ismidb ) 
+Cchp1                call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
+Cchp1      .         ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , w ( osmpot ) 
+Cchp1      .         , vconst , osig , otau , oppi , lcplxp , lso , alfa , ndimh , 
+Cchp1      .         napw , igv2x , hamm , ovlm , ismidb ) 
+                call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
+     .          ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , zv_p_osmpot , 
+     .          vconst , osig , otau , oppi , lcplxp , lso , alfa , ndimh , napw 
+     .          , igv2x , hamm , ovlm , ismidb ) 
+
 
 c        nsmidb = min(nsmidb,ismidb) !????
               if(sigmamode) deallocate(sene)
@@ -2272,13 +2299,21 @@ Cchp1      .          , ldos , lekkl , k1 , k2 , k3 , w ( osmpot ) , vconst , os
 Cchp1      .          , otau , oppi , lcplxp , numq , qval - qbg , t_zv , evl , 
 Cchp1      .          nevl , ef0 , def , esmear , emin , emax , ndos , dos_rv , 
 Cchp1      .          srout_zv , sumqv , sumev , oqkkl , oeqkkl , frc ) 
-                 call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
-     .           , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
-     .           , lwtkb , w ( owtkb ) , lswtk , w ( oswtk ) , iq , lfrce , ldos 
-     .           , lekkl , k1 , k2 , k3 , w ( osmpot ) , vconst , osig , otau 
-     .           , oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl , ef0 
-     .           , def , esmear , emin , emax , ndos , dos_rv , srout_zv , sumqv 
-     .           , sumev , oqkkl , oeqkkl , frc ) 
+Cchp1                  call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
+Cchp1      .           , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+Cchp1      .           , lwtkb , w ( owtkb ) , lswtk , w ( oswtk ) , iq , lfrce , ldos 
+Cchp1      .           , lekkl , k1 , k2 , k3 , w ( osmpot ) , vconst , osig , otau 
+Cchp1      .           , oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl , ef0 
+Cchp1      .           , def , esmear , emin , emax , ndos , dos_rv , srout_zv , sumqv 
+Cchp1      .           , sumev , oqkkl , oeqkkl , frc ) 
+                  call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
+     .            , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+     .            , lwtkb , w ( owtkb ) , lswtk , w ( oswtk ) , iq , lfrce , ldos 
+     .            , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , osig , otau , 
+     .            oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl , ef0 , 
+     .            def , esmear , emin , emax , ndos , dos_rv , srout_zv , sumqv 
+     .            , sumev , oqkkl , oeqkkl , frc ) 
+
 
 
 C          print 399,iq,frc(3,1),frc(3,1)-dum
@@ -2986,9 +3021,13 @@ C   ... Evaluate KS total energy and output magnetic moment
         if (leks .ge. 1) then
           call togpr()
 c          print *,'vvv takao mkekin 000 --- oldpot x newrho'
-          call mkekin ( nbas , ldim , ssite , sspec , slat , sham , osig 
-     .    , otau , oppi , lcplxp , oqkkl , k1 , k2 , k3 , vconst , w ( 
-     .    osmpot ) , srout_zv , sev , sumtv ) 
+Cchp1           call mkekin ( nbas , ldim , ssite , sspec , slat , sham , osig 
+Cchp1      .    , otau , oppi , lcplxp , oqkkl , k1 , k2 , k3 , vconst , w ( 
+Cchp1      .    osmpot ) , srout_zv , sev , sumtv ) 
+           call mkekin ( nbas , ldim , ssite , sspec , slat , sham , osig 
+     .     , otau , oppi , lcplxp , oqkkl , k1 , k2 , k3 , vconst , zv_p_osmpot 
+     .     , srout_zv , sev , sumtv ) 
+
 
 
 ccccccccccccccccccccccccc
@@ -3007,12 +3046,18 @@ ccccccccccccccccccccc
 
 ctakao sep2009
 c          call pshpr(ipr-4)
-          call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
-     .    , lcplxp , k1 , k2 , k3 , srout_zv , orhat1 , qbg , w ( osmpot 
-     .    ) , qmom_rv , vconst , vrmt , osig , otau , oppi , ppnl_rv 
-     .    , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .    , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau 
-     .    , 0 ) 
+Cchp1           call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
+Cchp1      .    , lcplxp , k1 , k2 , k3 , srout_zv , orhat1 , qbg , w ( osmpot 
+Cchp1      .    ) , qmom_rv , vconst , vrmt , osig , otau , oppi , ppnl_rv 
+Cchp1      .    , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+Cchp1      .    , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau 
+Cchp1      .    , 0 ) 
+           call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
+     .     , lcplxp , k1 , k2 , k3 , srout_zv , orhat1 , qbg , zv_p_osmpot 
+     .     , qmom_rv , vconst , vrmt , osig , otau , oppi , ppnl_rv , hab_rv 
+     .     , vab_rv , sab_rv , qval , qsc , gpot0_rv , vval_rv , fes2_rv 
+     .     , 0 , vorb , nlibu , lmaxu , lldau , 0 ) 
+
 
 ccccccccccccccccccccccccccccccccccc
 ctakao test mkekin repeat

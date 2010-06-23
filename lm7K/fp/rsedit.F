@@ -1,3 +1,5 @@
+Cchp1 cmdvar= complex(8),zv_p_,osmpt2
+Cchp1 cmdvar= complex(8),zv_p_,osmpot
 
 c---> takao modified this by hand after Kino's del_pack.
 c   python getarg.py < file.F > x
@@ -89,7 +91,13 @@ C ... Local parameters
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 c      integer ospec1,ospec2,osite1,osite2,oslat2,ospot2,
 c     .  oorh2,osmrh2,osmpt2,osmrho,osmpot,oorhat,oqmom
-      integer:: osmrh2 , osmpt2 , osmrho , osmpot , oorhat
+Cchp1       integer:: osmrh2 , osmpt2 , osmrho , osmpot , oorhat
+Cchp1        integer:: osmrh2 , osmpt2 , osmrho , oorhat 
+        integer:: osmrh2 , osmrho , oorhat 
+        complex(8),pointer :: zv_p_osmpt2(:)
+
+       complex(8),pointer :: zv_p_osmpot(:)
+
       integer ,allocatable :: orh2_iv(:)
       real(8) ,allocatable :: qmom_rv(:)
 
@@ -152,7 +160,9 @@ c      call dcopy(nint(spot(1)),spot,1,w(ospot2),1)
 C     Get pointers for density
 
       osmrho=spot%osmrho
-      osmpot=spot%osmpot
+Cchp1       osmpot=spot%osmpot
+       zv_p_osmpot => spot%zv_p_osmpot 
+
       oorhat=spot%oorhat
 
 C     call upack('pot osmrho oorhat',spot,oorh2,osmrh2,0,0,0)
@@ -320,10 +330,15 @@ C       Make space for smooth density
 
           call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
           call defcc(osmrh2, -k1*k2*k3*nsp)
-          call defcc(osmpt2, -k1*k2*k3*nsp)
+Cchp1           call defcc(osmpt2, -k1*k2*k3*nsp)
+           allocate(zv_p_osmpt2(abs(-k1*k2*k3*nsp)))
+           if (-k1*k2*k3*nsp<0) zv_p_osmpt2(:)=0.0d0
+
 
           spot2%osmrho=osmrh2
-          spot2%osmpot=osmpt2
+Cchp1           spot2%osmpot=osmpt2
+           spot2%zv_p_osmpot => zv_p_osmpt2 
+
 
 C       Pack volume
 C       call shstru('spec',w(ospec2),1,nspeck(2))
