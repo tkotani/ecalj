@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-23 16:06:48.013063
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-23 16:19:21.029203
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -987,7 +987,8 @@ C 43 121  4        vol  1
       integer(8)   ::   ojcg
       integer(8)   ::   okv
       integer(8)   ::   opos
-      integer(8)   ::   oqlv
+CCHSTRUC       integer(8)   ::   oqlv
+       real(8) , pointer ::  rv_p_oqlv (:)
       integer(8)   ::   osymgr
       real(8)   ::   plat(9)
       real(8)   ::   plat0(9)
@@ -3061,8 +3062,7 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%opos, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oqlv, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip rv_p_oqlv(:) because it is a pointer.
        call mpi_bcast(struc%osymgr, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
        i_data_size=size(struc%plat) ! plat(9)
@@ -4509,7 +4509,6 @@ C$$$        end subroutine utb
        struc%ojcg=0
        struc%okv=0
        struc%opos=0
-       struc%oqlv=0
        struc%osymgr=0
        struc%plat=0.0d0
        struc%plat0=0.0d0

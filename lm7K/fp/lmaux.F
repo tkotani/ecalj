@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oqlv
 Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite,sstr,
@@ -107,11 +108,18 @@ Cchp1      . , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax
 Cchp1      . , owk , owk2 , opos , oqlv , odlv , orham , oamsh , onrmsh , 
 Cchp1      . oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
 Cchp1      . , og , oag , mxclas , oics 
-        integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-     .  , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
-     .  , owk , owk2 , opos , oqlv , odlv , orham , oamsh , onrmsh , 
-     .  oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
-     .  , og , oag , mxclas 
+Cchp1         integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
+Cchp1      .  , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
+Cchp1      .  , owk , owk2 , opos , oqlv , odlv , orham , oamsh , onrmsh , 
+Cchp1      .  oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
+Cchp1      .  , og , oag , mxclas 
+         integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
+     .   , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
+     .   , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha 
+     .   , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax , og 
+     .   , oag , mxclas 
+         real(8),pointer :: rv_p_oqlv(:)
+
         integer,pointer :: iv_p_oics(:)
 
        real(8),pointer :: rv_p_oclabl(:)
@@ -216,7 +224,9 @@ c       call dcopy(i_copy_size,slat%plat2,1,plat2,1)
       nkd=slat%nkd
       odlv=slat%odlv
       nkq=slat%nkq
-      oqlv=slat%oqlv
+Cchp1       oqlv=slat%oqlv
+       rv_p_oqlv => slat%rv_p_oqlv 
+
 
 
       mxnbr=sstr%mxnbr

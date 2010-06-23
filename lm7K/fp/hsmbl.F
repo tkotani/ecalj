@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oqlv
       subroutine hsmbl(p,rsm,e,q,lmax,cy,slat,hsm,hsmp)
 
       use m_struc_def  !Cgetarg
@@ -31,7 +32,10 @@ C ... Passed parameters
 
       double complex hsm(1),hsmp(1)
 C ... Local parameters
-      integer nkd,nkq,odlv,oqlv,ilm,l,m
+Cchp1       integer nkd,nkq,odlv,oqlv,ilm,l,m
+       integer:: nkd , nkq , odlv , ilm , l , m 
+       real(8),pointer :: rv_p_oqlv(:)
+
       double precision alat,p1(3),plat(9),qlat(9),sp,pi,rwald,awald,asm,
      .tol,vol
       double complex cfac,phase
@@ -63,16 +67,24 @@ C      p1 = p
       nkd=slat%nkd
       nkq=slat%nkq
       odlv=slat%odlv
-      oqlv=slat%oqlv
+Cchp1       oqlv=slat%oqlv
+       rv_p_oqlv => slat%rv_p_oqlv 
+
 
       rwald = 1d0/awald
       asm = 1d0/rsm
 
       if (rsm .lt. rwald) then
-        call hsmblq(p1,e,q,awald,lmax,alat,w(oqlv),nkq,vol,hsm,hsmp)
+Cchp1         call hsmblq(p1,e,q,awald,lmax,alat,w(oqlv),nkq,vol,hsm,hsmp)
+         call hsmblq ( p1 , e , q , awald , lmax , alat , rv_p_oqlv , 
+     .   nkq , vol , hsm , hsmp ) 
+
         call hsmbld(p1,rsm,e,q,awald,lmax,alat,w(odlv),nkd,hsm,hsmp)
       else
-        call hsmblq(p1,e,q,asm,lmax,alat,w(oqlv),nkq,vol,hsm,hsmp)
+Cchp1         call hsmblq(p1,e,q,asm,lmax,alat,w(oqlv),nkq,vol,hsm,hsmp)
+         call hsmblq ( p1 , e , q , asm , lmax , alat , rv_p_oqlv , nkq 
+     .   , vol , hsm , hsmp ) 
+
       endif
 
 C ... Multiply by phase to undo shortening

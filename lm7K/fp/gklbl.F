@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oqlv
 CSFCPP#define F90 1
       subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,slat,gkl)
 
@@ -29,7 +30,11 @@ C ... Passed parameters
       double complex gkl(0:k0,nlm)
 C ... Local parameters
       double complex cfac,phase
-      integer ilm,k,ll,lmax,nkd,nkq,odlv,oqlv,owk,l,m
+Cchp1       integer ilm,k,ll,lmax,nkd,nkq,odlv,oqlv,owk,l,m
+       integer:: ilm , k , ll , lmax , nkd , nkq , odlv , owk , l , 
+     . m 
+       real(8),pointer :: rv_p_oqlv(:)
+
       double precision alat,awald,pi,sp,vol,plat(9),qlat(9),p1(3),rwald
 CSFCPP#if F90
       real(8),allocatable:: wk(:)
@@ -55,7 +60,9 @@ C ... Heap
       nkd=slat%nkd
       nkq=slat%nkq
       odlv=slat%odlv
-      oqlv=slat%oqlv
+Cchp1       oqlv=slat%oqlv
+       rv_p_oqlv => slat%rv_p_oqlv 
+
 
 
 C ... Shorten p, multiply by corresponding phase later
@@ -68,7 +75,10 @@ C ... Shorten p, multiply by corresponding phase later
 C ... If the smoothing radius is larger than the Ewald parameter,
 C     make the summation in reciprocal space, else in real space
       if (rsm .ge. rwald) then
-        call gklblq(p1,rsm,q,kmax,nlm,k0,alat,w(oqlv),nkq,vol,gkl)
+Cchp1         call gklblq(p1,rsm,q,kmax,nlm,k0,alat,w(oqlv),nkq,vol,gkl)
+         call gklblq ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_oqlv 
+     .   , nkq , vol , gkl ) 
+
       else
 CSFCPP#if F90
         allocate(wk((kmax+1)*(lmax+1)))

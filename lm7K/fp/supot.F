@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oqlv
 #define FP 1
       subroutine supot(mode,sctrl,slat,spot)
 
@@ -29,9 +30,15 @@ C ... Passed parameters
       type(s_pot)::spot
 
 C ... Local parameters
-      integer nbas,nbasp,nbaspp,nsp,omad,opos,nkd,nkq,odlv,oqlv,igets,
-     .ngabc(3),n1,n2,n3,k1,k2,k3,ngmx,ogv,okv,ng,osmrho,osmpot,oorhat,
-     .oips0,obgv,ngrp,og,oag,iprint
+Cchp1       integer nbas,nbasp,nbaspp,nsp,omad,opos,nkd,nkq,odlv,oqlv,igets,
+Cchp1      .ngabc(3),n1,n2,n3,k1,k2,k3,ngmx,ogv,okv,ng,osmrho,osmpot,oorhat,
+Cchp1      .oips0,obgv,ngrp,og,oag,iprint
+       integer:: nbas , nbasp , nbaspp , nsp , omad , opos , nkd , nkq 
+     . , odlv , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx 
+     . , ogv , okv , ng , osmrho , osmpot , oorhat , oips0 , obgv , 
+     . ngrp , og , oag , iprint 
+       real(8),pointer :: rv_p_oqlv(:)
+
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision awald,alat,vol,plat(9),gmax,xx
 C ... Heap
@@ -54,7 +61,9 @@ C ... Heap
       nkd=slat%nkd
       nkq=slat%nkq
       odlv=slat%odlv
-      oqlv=slat%oqlv
+Cchp1       oqlv=slat%oqlv
+       rv_p_oqlv => slat%rv_p_oqlv 
+
 
 
       nbaspp = 2*nbasp - nbas
@@ -62,8 +71,11 @@ C ... Heap
 C --- Monopole Madelung matrix ---
       if (mod(mode,10) .eq. 1) then
         call defdr(omad,nbaspp**2)
-        call madmat(nbaspp,w(opos),awald,alat,vol,w(odlv),nkd,
-     .  w(oqlv),nkq,w(omad))
+Cchp1         call madmat(nbaspp,w(opos),awald,alat,vol,w(odlv),nkd,
+Cchp1      .  w(oqlv),nkq,w(omad))
+         call madmat ( nbaspp , w ( opos ) , awald , alat , vol , w ( 
+     .   odlv ) , nkd , rv_p_oqlv , nkq , w ( omad ) ) 
+
 
         spot%omad=omad
 

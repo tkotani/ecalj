@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oqlv
       subroutine lattic(slat,sctrl,ssite,sarray)
 
       use m_struc_def  !Cgetarg
@@ -39,7 +40,12 @@ C ... Passed parameters
       type(s_array)::sarray
 
 C ... Local parameters
-      integer ldist,lmxst,nkd,nkdmx,nkq,nkqmx,nbas,odlv,oqlv,opos
+Cchp1       integer ldist,lmxst,nkd,nkdmx,nkq,nkqmx,nbas,odlv,oqlv,opos
+       integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas , 
+     . odlv , opos 
+       real(8),pointer :: rv_p_oqlv(:)
+       real(8),allocatable:: rv_a_tmp(:)
+
       integer nbaspp,npadl,npadr
       double precision alat,awald,awald0,gam(4),gx,gy,gz,gt,tol,vol,
      .xx1,xx2,dotprd,pi,rpad,
@@ -137,10 +143,17 @@ c        endif
       endif
 
       call defrr(odlv,  3*nkdmx)
-      call defrr(oqlv,  3*nkqmx)
+Cchp1       call defrr(oqlv,  3*nkqmx)
+       allocate(rv_p_oqlv(abs(3*nkqmx)))
+       if (3*nkqmx<0) rv_p_oqlv(:)=0.0d0
+
       lmxst = 6
-      call lattc(awald0,tol,rpad,alat,alat,plat0,gx,gy,gz,gt,plat,qlat,
-     .lmxst,vol,awald,w(odlv),nkd,w(oqlv),nkq,nkdmx,nkqmx)
+Cchp1       call lattc(awald0,tol,rpad,alat,alat,plat0,gx,gy,gz,gt,plat,qlat,
+Cchp1      .lmxst,vol,awald,w(odlv),nkd,w(oqlv),nkq,nkdmx,nkqmx)
+       call lattc ( awald0 , tol , rpad , alat , alat , plat0 , gx , 
+     . gy , gz , gt , plat , qlat , lmxst , vol , awald , w ( odlv ) 
+     . , nkd , rv_p_oqlv , nkq , nkdmx , nkqmx ) 
+
 
 c      if (nbaspp .gt. nbas) then
 c        if (cos(pi*xx1/180) .lt. 0) call rx('lattic:  '//
@@ -166,15 +179,22 @@ c       call dcopy(i_copy_size,platl,1,slat%platl,1)
 c       i_copy_size=size(slat%platr)
 c       call dcopy(i_copy_size,platr,1,slat%platr,1)
 
-      call redfrr(oqlv,3*nkq)
-      call defps2(odlv,oqlv)
+Cchp1       call redfrr(oqlv,3*nkq)
+       i_data_size=size(rv_p_oqlv); allocate(rv_a_tmp(i_data_size))
+       rv_a_tmp=rv_p_oqlv; deallocate(rv_p_oqlv)
+       i_data_size=min(i_data_size,3*nkq); allocate(rv_p_oqlv(3*nkq))
+       rv_p_oqlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
+
+cki      call defps2(odlv,oqlv)
       call redfrr(odlv,3*nkd)
 
       slat%awald=awald
       slat%nkd=nkd
       slat%nkq=nkq
       slat%odlv=odlv
-      slat%oqlv=oqlv
+Cchp1       slat%oqlv=oqlv
+       slat%rv_p_oqlv => rv_p_oqlv 
+
 
 
       i_copy_size=size(slat%dist)

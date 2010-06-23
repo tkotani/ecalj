@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oqlv
 CSFCPP#define F90 1
       subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,slat,hkl)
 
@@ -31,7 +32,11 @@ C ... Passed parameters
 
       double complex hkl(0:k0,nlm)
 C ... Local parameters
-      integer nlm0,ilm,job,k,ll,lmax,nkd,nkq,nrx,odlv,oqlv,owk,oyl
+Cchp1       integer nlm0,ilm,job,k,ll,lmax,nkd,nkq,nrx,odlv,oqlv,owk,oyl
+       integer:: nlm0 , ilm , job , k , ll , lmax , nkd , nkq , nrx 
+     . , odlv , owk , oyl 
+       real(8),pointer :: rv_p_oqlv(:)
+
       parameter (nlm0=144)
       double precision alat,awald,fpi,pi,sp,tol,vol,plat(3,3),
      .qlat(3,3),p1(3)
@@ -80,15 +85,21 @@ C ... Alternatively, use vectorized equivalents (about 2x faster)
       nkd=slat%nkd
       nkq=slat%nkq
       odlv=slat%odlv
-      oqlv=slat%oqlv
+Cchp1       oqlv=slat%oqlv
+       rv_p_oqlv => slat%rv_p_oqlv 
+
 
       nrx = max(nkd,nkq)
 CSFCPP#if F90
 c      print *,'hklbl:aaa'
       allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
 c      print *,'hklbl:bbb'
-      call hsmq(1,0,ll(nlm),e,rsm,0000,q,p1,nrx,nlm,wk,yl,
-     .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,hsm,hsmp)
+Cchp1       call hsmq(1,0,ll(nlm),e,rsm,0000,q,p1,nrx,nlm,wk,yl,
+Cchp1      .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,hsm,hsmp)
+       call hsmq ( 1 , 0 , ll ( nlm ) , e , rsm , 0000 , q , p1 , nrx 
+     . , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , w ( odlv ) 
+     . , nkd , vol , hsm , hsmp ) 
+
       if (rsm .gt. faca/awald) then
         call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, hkl)
       else
