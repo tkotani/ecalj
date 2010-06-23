@@ -90,7 +90,7 @@ FFLAGS_NONE = -132 -g -cm -WB   -cpp $(CPP_SW) $(module)
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
-CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT  -DMPIK 
+CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASGETTIMEOFDAY  -DHASGETENVQQ  -DHASSETENVQQ  -DHASIFPORT  -DMPIK  -DKINODEBUG
 #
 #MPI  case add  -UMPE -UMPIK -DMPI 
 #
