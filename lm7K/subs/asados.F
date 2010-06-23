@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oipq
 Cchp1 cmdvar= real(8),rv_p_,owtkp
 Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oqp
@@ -106,7 +107,10 @@ Cchp1        integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp
 Cchp1      . , oipq 
 Cchp1         integer:: ogstar , oics , oidtet , oipc , ormax , owtkp , oipq 
 Cchp1          integer:: ogstar , oidtet , oipc , ormax , owtkp , oipq 
-          integer:: ogstar , oidtet , oipc , ormax , oipq 
+Cchp1           integer:: ogstar , oidtet , oipc , ormax , oipq 
+           integer:: ogstar , oidtet , oipc , ormax 
+           integer,pointer :: iv_p_oipq(:)
+
           real(8),pointer :: rv_p_owtkp(:)
 
          integer,pointer :: iv_p_oics(:)
@@ -682,7 +686,9 @@ Cchp1         owtkp=sbz%owtkp
 
         ntet=sbz%ntet
         oidtet=sbz%oidtet
-        oipq=sbz%oipq
+Cchp1         oipq=sbz%oipq
+         iv_p_oipq => sbz%iv_p_oipq 
+
 
         allocate(dos_rv(npts*nsp*nchan))
 Ctakao_ZeroClear_NotRequiered          if (npts*nsp*nchan<0) dos_rv(:)=0.0d0
@@ -693,10 +699,15 @@ Cchp1      .  ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , w (
 Cchp1      .  oqp ) , w ( oipq ) , w ( ogstar ) , iblst , eband_rv , cvec 
 Cchp1      .  ( 1 ) , doswt_rv , npts , emin , emax , lidos , wk_rv , 
 Cchp1      .  dos_rv )
-         call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
-     .   ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , rv_p_oqp 
-     .   , w ( oipq ) , w ( ogstar ) , iblst , eband_rv , cvec ( 1 ) , 
-     .   doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
+Cchp1          call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
+Cchp1      .   ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , rv_p_oqp 
+Cchp1      .   , w ( oipq ) , w ( ogstar ) , iblst , eband_rv , cvec ( 1 ) , 
+Cchp1      .   doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
+          call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
+     .    ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , rv_p_oqp 
+     .    , iv_p_oipq , w ( ogstar ) , iblst , eband_rv , cvec ( 1 ) , 
+     .    doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
+
 
 
         del = 0d0

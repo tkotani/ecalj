@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-23 17:54:23.961050
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-23 18:05:10.075159
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -104,7 +104,8 @@ C 30  48  4       zval  1
       integer(8)   ::   ntet
 CCHSTRUC       integer(8)   ::   odos ! not used because of undef
       integer(8)   ::   oidtet
-      integer(8)   ::   oipq
+CCHSTRUC       integer(8)   ::   oipq
+       integer , pointer ::  iv_p_oipq (:)
 CCHSTRUC       integer(8)   ::   opdos ! not used because of undef
 CCHSTRUC       integer(8)   ::   oqp
        real(8) , pointer ::  rv_p_oqp (:)
@@ -2470,8 +2471,7 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%oidtet, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oipq, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip iv_p_oipq(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_oqp(:) because it is a pointer.
        call mpi_bcast(struc%ostar, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
@@ -4297,7 +4297,6 @@ C$$$        end subroutine utb
        struc%nkp=0
        struc%ntet=0
        struc%oidtet=0
-       struc%oipq=0
        struc%ostar=0
        struc%range=0.0d0
        struc%semsh=0.0d0
