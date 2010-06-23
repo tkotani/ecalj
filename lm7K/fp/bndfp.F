@@ -1,3 +1,6 @@
+Cchp1 cmdvar= integer,iv_p_,oiprmb
+Cchp1 cmdvar= integer,iv_p_,oidxsh
+Cchp1 cmdvar= integer,iv_p_,oindxo
 Cchp1 cmdvar= real(8),rv_p_,owtkp
 Cchp1 cmdvar= real(8),rv_p_,oqsig
 Cchp1 cmdvar= real(8),rv_p_,oqp
@@ -324,8 +327,12 @@ C     for CLS
       complex(8) ,allocatable :: ausc_zv(:)
 
 C     for Mulliken
-      integer:: oiprmb , moddos , nsites , lsites(nbx) , nchan , ng 
-     ., iomoms , nchmx , lmdim , lmxch 
+Cchp1       integer:: oiprmb , moddos , nsites , lsites(nbx) , nchan , ng 
+Cchp1      ., iomoms , nchmx , lmdim , lmxch 
+       integer:: moddos , nsites , lsites(nbx) , nchan , ng , iomoms 
+     . , nchmx , lmdim , lmxch 
+       integer,pointer :: iv_p_oiprmb(:)
+
       real(8) ,allocatable :: doswt_rv(:)
       integer ,allocatable :: chan_iv(:),chan0_iv(:)
 
@@ -370,7 +377,10 @@ Cchp1       integer oqsig
        real(8),pointer :: rv_p_oqsig(:)
 
 
-      integer oidxsh,nbasp
+Cchp1       integer oidxsh,nbasp
+       integer:: nbasp 
+       integer,pointer :: iv_p_oidxsh(:)
+
 
 C     Data statements
       data T /.true./ F /.false./
@@ -1191,10 +1201,15 @@ c this block is just to get list of qp. suqlst should be cleaned up in future.
         nl=sctrl%nl
 
 
-        oidxsh=sham%oindxo
+Cchp1         oidxsh=sham%oindxo
+         iv_p_oidxsh => sham%iv_p_oindxo 
+
 
         print *,'goto gen_hamindex nkp=',nkp
-        call gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbasp,w(oidxsh),ldim,qplist,nkp,siginit)
+Cchp1         call gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbasp,w(oidxsh),ldim,qplist,nkp,siginit)
+         call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl , 
+     .   nbasp , iv_p_oidxsh , ldim , qplist , nkp , siginit ) 
+
         write(6,*)
         write(6,*) ' --- Hamiltonian index ---'
         write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
@@ -2145,11 +2160,17 @@ C   --- Mulliken analysis and partial DOS ---
                     doswt_rv(:)=0.0d0
 
 
-                    oiprmb=sham%oindxo
+Cchp1                     oiprmb=sham%oindxo
+                     iv_p_oiprmb => sham%iv_p_oindxo 
 
-                    call mullmf ( nbas , ssite , sspec , w ( oiprmb ) , t_zv , 
-     .              ndimh , nspc , iq , jsp , moddos , nsites , lsites , lmxch , 
-     .              nchan , chan_iv , lmdim , ndham , doswt_rv ) 
+
+Cchp1                     call mullmf ( nbas , ssite , sspec , w ( oiprmb ) , t_zv , 
+Cchp1      .              ndimh , nspc , iq , jsp , moddos , nsites , lsites , lmxch , 
+Cchp1      .              nchan , chan_iv , lmdim , ndham , doswt_rv ) 
+                     call mullmf ( nbas , ssite , sspec , iv_p_oiprmb , t_zv , ndimh 
+     .               , nspc , iq , jsp , moddos , nsites , lsites , lmxch , nchan 
+     .               , chan_iv , lmdim , ndham , doswt_rv ) 
+
 
                     call iomomn(.true.,2,.false.,1,nspc,1,1,i)
                     i1 = iomoms ( - nfilem , nl , nsp , nspc , nkp , ndimh , i , 

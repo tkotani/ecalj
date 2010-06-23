@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oiprmb
+Cchp1 cmdvar= integer,iv_p_,oindxo
 Cchp1 cmdvar= real(8),rv_p_,oqsig
 Cchp1 cmdvar= real(8),rv_p_,oqp
 Cchp1 cmdvar= integer,iv_p_,ooffh
@@ -195,8 +197,11 @@ Cchp1        integer:: og , oag , oqp , oiprmb , opos , ontabs , oiaxs , ohrs
 Cchp1      . , ohrss , oistab , oqsig 
 Cchp1         integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs , 
 Cchp1      .  ohrss , oistab , oqsig 
-         integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs , 
-     .   ohrss , oistab 
+Cchp1          integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs , 
+Cchp1      .   ohrss , oistab 
+          integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss , oistab 
+          integer,pointer :: iv_p_oiprmb(:)
+
          real(8),pointer :: rv_p_oqsig(:)
 
         real(8),pointer :: rv_p_oqp(:)
@@ -319,7 +324,9 @@ C ... Command-line switches for input sigma and defaults
 Cchp1       ooffH=sham%ooffH
        iv_p_ooffh => sham%iv_p_ooffh 
 
-      oiprmb=sham%oindxo
+Cchp1       oiprmb=sham%oindxo
+       iv_p_oiprmb => sham%iv_p_oindxo 
+
       i_copy_size=size(sham%sigp)
       call dcopy(i_copy_size,sham%sigp,1,sigp,1)
       rsstol=sham%rsstol
@@ -550,7 +557,10 @@ C     Sanity checks
       oag=slat%oag
 
 C     Get leading dimension of hrs
-      call offsHp(w(oiprmb),1,nbas,2,0,ndimh,0,ndhrs)
+Cchp1       call offsHp(w(oiprmb),1,nbas,2,0,ndimh,0,ndhrs)
+       call offshp ( iv_p_oiprmb , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs 
+     . ) 
+
 C     Setup for FFT
       call fftz30(nk1,nk2,nk3,k1,k2,k3)
       if (nk1.ne.k1 .or. nk2.ne.k2 .or. nk3.ne.k3) call rx(
@@ -804,10 +814,15 @@ Cchp1      .      ( opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv ,
 Cchp1      .      w ( oistab ) , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh 
 Cchp1      .      , ndimh , ndimh , nspc , qb , sigm_zv , wk_zv , wk_zv 
 Cchp1      .      , sfz_zv ) 
-             call hamfb3 ( nbas , nl , iv_p_ooffh , w ( oiprmb ) , i , w ( 
-     .       opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , w ( 
-     .       oistab ) , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh , ndimh 
-     .       , ndimh , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
+Cchp1              call hamfb3 ( nbas , nl , iv_p_ooffh , w ( oiprmb ) , i , w ( 
+Cchp1      .       opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , w ( 
+Cchp1      .       oistab ) , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh , ndimh 
+Cchp1      .       , ndimh , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
+              call hamfb3 ( nbas , nl , iv_p_ooffh , iv_p_oiprmb , i , w ( 
+     .        opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , w ( 
+     .        oistab ) , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh , ndimh 
+     .        , ndimh , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
+
 
 
           enddo
@@ -888,9 +903,13 @@ C     if (alf(1) .ne. 1 .or. alf(2) .ne. 0 .or. .true.) then
 Cchp1           call chksgr(j1,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
 Cchp1      .    w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,i,w(oqp),
 Cchp1      .    nbas,0,rotm,w)
-           call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
-     .     , hreal , w ( oiprmb ) , nttabs , w ( oiaxs ) , w ( ohrs ) , 
-     .     ndhrs , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w ) 
+Cchp1            call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+Cchp1      .     , hreal , w ( oiprmb ) , nttabs , w ( oiaxs ) , w ( ohrs ) , 
+Cchp1      .     ndhrs , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w ) 
+            call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+     .      , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , w ( ohrs ) , ndhrs 
+     .      , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w ) 
+
 
         endif
       endif
@@ -934,10 +953,15 @@ C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         call istbpm ( w ( oistab ) , nbas , nsgrp , istb2_iv ) 
 
         nl = nglob('nl')
-        call rsmsym ( i , plat , mxorb , w ( oiprmb ) , ndimh , nbas 
-     .  , w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
-     .  ) , w ( og ) , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , w 
-     .  ( ohrs ) ) 
+Cchp1         call rsmsym ( i , plat , mxorb , w ( oiprmb ) , ndimh , nbas 
+Cchp1      .  , w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
+Cchp1      .  ) , w ( og ) , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , w 
+Cchp1      .  ( ohrs ) ) 
+         call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
+     .   w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
+     .   ) , w ( og ) , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , w ( ohrs 
+     .   ) ) 
+
 
         if (allocated(istb2_iv)) deallocate(istb2_iv)
         call rlse(ohrss)
@@ -957,9 +981,13 @@ C   ... Check how well symmetrized FT replicates sigma(k) at file qp
             call info0(20,0,0,' skipping check of symmetrized sigma'//
      .      ' (sigma scaled) ')
           else
-            call chksgr(0,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
-     .      w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,i,0,
-     .      nbas,0,rotm,w)
+Cchp1             call chksgr(0,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
+Cchp1      .      w(oiprmb),nttabs,w(oiaxs),w(ohrs),ndhrs,rsstol,i,0,
+Cchp1      .      nbas,0,rotm,w)
+             call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+     .       , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , w ( ohrs ) , ndhrs 
+     .       , rsstol , i , 0 , nbas , 0 , rotm , w ) 
+
           endif
         endif
 
@@ -987,13 +1015,21 @@ C ... lwsig=0 modes that internally transform sigma, save and exit
             if (lonesp .eq. 1) then
               if (nsp .eq. 1) call rx(
      .        'onesp option nonsensical unless sigma file is spin pol')
-              call siged(1,nbas,nsp,ndhrs,plat,w(opos),ndimh,w(oiprmb),
-     .        hreal,w(ontabs),w(oiaxs),w(ohrs))
+Cchp1               call siged(1,nbas,nsp,ndhrs,plat,w(opos),ndimh,w(oiprmb),
+Cchp1      .        hreal,w(ontabs),w(oiaxs),w(ohrs))
+               call siged ( 1 , nbas , nsp , ndhrs , plat , w ( opos ) , ndimh 
+     .         , iv_p_oiprmb , hreal , w ( ontabs ) , w ( oiaxs ) , w ( ohrs 
+     .         ) ) 
+
             endif
 
             if (ledit .eq. 1) then
-              call siged(0,nbas,nsp,ndhrs,plat,w(opos),ndimh,w(oiprmb),
-     .        hreal,w(ontabs),w(oiaxs),w(ohrs))
+Cchp1               call siged(0,nbas,nsp,ndhrs,plat,w(opos),ndimh,w(oiprmb),
+Cchp1      .        hreal,w(ontabs),w(oiaxs),w(ohrs))
+               call siged ( 0 , nbas , nsp , ndhrs , plat , w ( opos ) , ndimh 
+     .         , iv_p_oiprmb , hreal , w ( ontabs ) , w ( oiaxs ) , w ( ohrs 
+     .         ) ) 
+
             endif
 
 C       Handle case q-mesh for file output differs from file input
@@ -1106,10 +1142,14 @@ Cchp1             call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2
 Cchp1      .      , hreal , w ( oiprmb ) , nttabs , w ( oiaxs ) , w ( ohrs ) , 
 Cchp1      .      ndhrs , rsstol , nqp , w ( oqp ) , nbas , lrot , rotm , delt_rv 
 Cchp1      .      ) 
-             call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
-     .       , hreal , w ( oiprmb ) , nttabs , w ( oiaxs ) , w ( ohrs ) , 
-     .       ndhrs , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv 
-     .       ) 
+Cchp1              call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
+Cchp1      .       , hreal , w ( oiprmb ) , nttabs , w ( oiaxs ) , w ( ohrs ) , 
+Cchp1      .       ndhrs , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv 
+Cchp1      .       ) 
+              call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
+     .        , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , w ( ohrs ) , ndhrs 
+     .        , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv ) 
+
 
 
             call fclose(ifis2)

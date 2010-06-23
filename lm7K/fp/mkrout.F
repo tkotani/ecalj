@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oiprmb
+Cchp1 cmdvar= integer,iv_p_,oindxo
       subroutine mkrout(ssite,sspec,slat,sham,nbas,nsp,nlmto,lekkl,
      .oqkkl,oeqkkl,orhoat,hab,sab,qbyl,hbyl,lrout)
 
@@ -66,10 +68,16 @@ C ... Passed parameters
       type(s_lat)::slat
 
 C ... Local parameters
-      integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-     ., lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-     .nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
-     .orhoca , ov0 , ov01 , oiprmb , stdo , igetss
+Cchp1       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+Cchp1      ., lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+Cchp1      .nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
+Cchp1      .orhoca , ov0 , ov01 , oiprmb , stdo , igetss
+       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+     . , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+     . nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
+     . orhoca , ov0 , ov01 , stdo , igetss 
+       integer,pointer :: iv_p_oiprmb(:)
+
       real(8) ,allocatable :: dmatl_rv(:)
       real(8) ,allocatable :: dh_rv(:)
       real(8) ,allocatable :: dp_rv(:)
@@ -126,7 +134,9 @@ C ... Setup
       ocy=slat%ocy
 
 
-      oiprmb=sham%oindxo
+Cchp1       oiprmb=sham%oindxo
+       iv_p_oiprmb => sham%iv_p_oindxo 
+
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,sham%eterms,1,eterms,1)
 
@@ -167,7 +177,10 @@ C --- Start loop over atoms ---
 
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
-        call orbl(ib,0,nlmto,w(oiprmb),norb,ltab,ktab,xx,offl,xx)
+Cchp1         call orbl(ib,0,nlmto,w(oiprmb),norb,ltab,ktab,xx,offl,xx)
+         call orbl ( ib , 0 , nlmto , iv_p_oiprmb , norb , ltab , ktab 
+     .   , xx , offl , xx ) 
+
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
 
 

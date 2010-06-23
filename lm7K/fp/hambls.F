@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oiprmb
+Cchp1 cmdvar= integer,iv_p_,oindxo
 Cchp1 cmdvar= integer,iv_p_,ooffh
 CSFCPP#define F90 1
       subroutine hambls(mode,nbas,ssite,sspec,slat,sham,isp,ispc,q,k1,
@@ -204,7 +206,10 @@ C ... Local parameters
       equivalence (emin,sigp(3)),(emax,sigp(5))
       equivalence (asig,sigp(6)),(bsig,sigp(7))
 Cchp1       integer oiprmb,ontabs,oiaxs,ohrs,ooffH
-       integer:: oiprmb , ontabs , oiaxs , ohrs 
+Cchp1        integer:: oiprmb , ontabs , oiaxs , ohrs 
+        integer:: ontabs , oiaxs , ohrs 
+        integer,pointer :: iv_p_oiprmb(:)
+
        integer,pointer :: iv_p_ooffh(:)
 
       integer i,j,lrsig,ipr,iprm(nqsig),ipiv(ndimh),dinv,nev,ndim1
@@ -294,7 +299,9 @@ C     hreal=1 -> sig(T) is real
 
       call dinv33(plat,1,qlat,swt)
 
-      oiprmb=sham%oindxo
+Cchp1       oiprmb=sham%oindxo
+       iv_p_oiprmb => sham%iv_p_oindxo 
+
       i_copy_size=size(sham%sigp)
       call dcopy(i_copy_size,sham%sigp,1,sigp,1)
 
@@ -310,9 +317,13 @@ c        allocate(e(ndimh))
 C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-        call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-     .  w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
-     .  ss(1,1),w,w)
+Cchp1         call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
+Cchp1      .  w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
+Cchp1      .  ss(1,1),w,w)
+         call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
+     .   , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
+
         h(:,:,ispc) = h(:,:,ispc) + ss
 C         call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
 C      .    z0,F,e,ndimh,zqi)
@@ -385,9 +396,13 @@ C       call rx0('done')
 C   ... Bloch transform sigm(RS)-sigm(k).  This is step B in Remarks
 C       Call to bloch : 104110=perm orb, transpose, no add, c*16
         i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
-        call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-     .  w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
-     .  s(1,1,ispc),w,w)
+Cchp1         call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
+Cchp1      .  w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
+Cchp1      .  s(1,1,ispc),w,w)
+         call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
+     .   , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
+
 
 ccccccccccccccccccc
 ctakaox
@@ -701,9 +716,13 @@ C       call zprm('h(lda)',2,h,ndimh,ndimh,ndimh)
 C       call zprm('s(lda)',2,s,ndimh,ndimh,ndimh)
 C       Call to bloch : 104110=perm orb, transpose, add, c*16
           i = 100000 + 4000 + 40*(1-hreal) + 100 + 10
-          call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-     .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
-     .    h(1,1,ispc),w,w)
+Cchp1           call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
+Cchp1      .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
+Cchp1      .    h(1,1,ispc),w,w)
+           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .     , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
+     .     , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
+
 C       call zprm('h+sigm-vxc',2,h(1,1,ispc),ndimh,ndimh,ndimh)
           goto 999
         endif
@@ -807,8 +826,12 @@ C       hqi <- z(qpi) z(q)^-1
 C       sqi <- sigma(qpi)
 C       Call to bloch : 104010=perm orb, transpose, c*16
           i = 100000 + 4000 + 40*(1-hreal) + 10
-          call bloch(i,qpi(1,j),nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-     .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,sqi,w,w)
+Cchp1           call bloch(i,qpi(1,j),nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
+Cchp1      .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,sqi,w,w)
+           call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
+     .     , 1 , nttabs , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , 
+     .     ndimh , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
+
 C       call zprm('sig at qpi',2,sqi,ndimh,ndimh,ndimh)
 
 C       zqi <- (z(qpi) z(q)^-1)+ sigma(qpi)
@@ -904,7 +927,10 @@ C ... Passed parameters
 
       double complex zq(ndimh,nspc,ndimh,nspc),sig(ndimh,ndimh,2)
 C ... Local parameters
-      integer oiprmb,ontabs,oiaxs,ohrs
+Cchp1       integer oiprmb,ontabs,oiaxs,ohrs
+       integer:: ontabs , oiaxs , ohrs 
+       integer,pointer :: iv_p_oiprmb(:)
+
       integer i,lrsig,ipr,jsp,ksp
       integer hreal,nl,nglob,mxorb,nttabs,ival,ndhrs,nevec,ndimhx
       logical T,F
@@ -933,7 +959,9 @@ C ... Setup for Bloch transform
       ontabs=sham%ontabs
       oiaxs=sham%oiaxs
       ohrs=sham%ohrs
-      oiprmb=sham%oindxo
+Cchp1       oiprmb=sham%oindxo
+       iv_p_oiprmb => sham%iv_p_oindxo 
+
 
 C     hreal=1 -> sig(T) is real
       hreal = 0
@@ -956,9 +984,13 @@ C     Call to bloch : 104110=perm orb, transpose, no add, c*16
         if (nspc .eq. 2) ksp = jsp
 C     collinear case:     ksp = isp, jsp=1
 C     noncollinear case:  ksp=1..2,  jsp=1..2
-        call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
-     .  w(ohrs),ndhrs,ksp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
-     .  sig(1,1,jsp),w,w)
+Cchp1         call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
+Cchp1      .  w(ohrs),ndhrs,ksp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
+Cchp1      .  sig(1,1,jsp),w,w)
+         call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , ksp , nsp , ndimh , ndimh 
+     .   , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
+
       enddo
 C     Convert sig to full matrix with zero off-diagonal spin blocks
       if (nspc .eq. 2) then

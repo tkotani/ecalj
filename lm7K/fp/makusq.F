@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oiprmb
+Cchp1 cmdvar= integer,iv_p_,oindxo
       subroutine makusq(mode,ssite,sspec,slat,sham,nbas,nsites,isite,
      .nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
      .aus)
@@ -105,7 +107,9 @@ C ... Local parameters
       integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0),rsma,a,rmt
       integer igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
-      integer:: oiprmb
+Cchp1       integer:: oiprmb
+       integer,pointer :: iv_p_oiprmb(:)
+
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: fh_rv(:)
       real(8) ,allocatable :: xh_rv(:)
@@ -135,7 +139,9 @@ C --- Start loop over atoms ---
         is = int(ssite(ib)%spec)
 
 
-        oiprmb=sham%oindxo
+Cchp1         oiprmb=sham%oindxo
+         iv_p_oiprmb => sham%iv_p_oindxo 
+
 
 
         rsma=sspec(is)%rsma
@@ -191,12 +197,18 @@ Ctakao_ZeroClear_NotRequiered          if ((lmxa+1)*(kmax+1)<0) dp_rv(:)=0.0d0
      .  , xp_rv , vp_rv , dp_rv )
 
 C   --- Add to the coefficient for the projection onto (u,s) for this site
-        call pusq1 ( mode , ib , isp , nspc , w ( oiprmb ) , nlmax , 
-     .  lmxh , nbas , ssite , sspec , slat , q , ndham , ndimh , napw 
-     .  , igvapw , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv 
-     .  , ppnl ( 1 , 1 , 1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , 
-     .  aus ( 1 , 1 , 2 , 1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq 
-     .  ) )
+Cchp1         call pusq1 ( mode , ib , isp , nspc , w ( oiprmb ) , nlmax , 
+Cchp1      .  lmxh , nbas , ssite , sspec , slat , q , ndham , ndimh , napw 
+Cchp1      .  , igvapw , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv 
+Cchp1      .  , ppnl ( 1 , 1 , 1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , 
+Cchp1      .  aus ( 1 , 1 , 2 , 1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq 
+Cchp1      .  ) )
+         call pusq1 ( mode , ib , isp , nspc , iv_p_oiprmb , nlmax , lmxh 
+     .   , nbas , ssite , sspec , slat , q , ndham , ndimh , napw , igvapw 
+     .   , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , 
+     .   1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , aus ( 1 , 1 , 2 , 
+     .   1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq ) ) 
+
 
         if (allocated(dp_rv)) deallocate(dp_rv)
         if (allocated(vp_rv)) deallocate(vp_rv)

@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oiprmb
+Cchp1 cmdvar= integer,iv_p_,oindxo
       subroutine hambl(mode,nbas,ssite,sspec,slat,sham,isp,q,k1,k2,k3,
      .smpot,vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igvapw,
      .h,s,hso)
@@ -75,7 +77,9 @@ C ... Passed parameters
       double complex hso(ndimh,ndimh)
 C ... Local parameters
       integer mode0,mode1,ipr
-      integer oiprmb
+Cchp1       integer oiprmb
+       integer,pointer :: iv_p_oiprmb(:)
+
       double precision vavg
 C     double precision plat(3,3)
 C ... for sigma
@@ -90,7 +94,9 @@ C ... Heap
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
 
-      oiprmb=sham%oindxo
+Cchp1       oiprmb=sham%oindxo
+       iv_p_oiprmb => sham%iv_p_oindxo 
+
 
 
 C ... Initialization of quantities to be computed
@@ -101,8 +107,12 @@ C ... Skip LDA H, S
       if (mode0 .gt. 1) goto 100
 
 C --- Augmentation part of hamiltonian and overlap ---
-      call augmbl(mode0+10*mode1,ssite,sspec,slat,isp,lcplxp,q,
-     .osig,otau,oppi,w(oiprmb),ndimh,napw,igvapw,h,hso,s)
+Cchp1       call augmbl(mode0+10*mode1,ssite,sspec,slat,isp,lcplxp,q,
+Cchp1      .osig,otau,oppi,w(oiprmb),ndimh,napw,igvapw,h,hso,s)
+       call augmbl ( mode0 + 10 * mode1 , ssite , sspec , slat , isp 
+     . , lcplxp , q , osig , otau , oppi , iv_p_oiprmb , ndimh , napw 
+     . , igvapw , h , hso , s ) 
+
 
 C --- Add alfa S+ S ---
       if (dabs(alfa) .gt. 1d-10 .and. mode0 .eq. 0)  then
@@ -118,13 +128,19 @@ C     call pvhmb1(1,slat,k1,k2,k3,smpot,-vavg)
 C --- Smoothed hamiltonian and overlap, S and T done analytically ---
 C     print *, '!!'; s = 0
 
-      call smhsbl(mode0,ssite,sspec,slat,vavg+vconst,q,ndimh,w(oiprmb),
-     .napw,igvapw,h,s)
+Cchp1       call smhsbl(mode0,ssite,sspec,slat,vavg+vconst,q,ndimh,w(oiprmb),
+Cchp1      .napw,igvapw,h,s)
+       call smhsbl ( mode0 , ssite , sspec , slat , vavg + vconst , 
+     . q , ndimh , iv_p_oiprmb , napw , igvapw , h , s ) 
+
 C     call zprm('s',12,s,ndimh,ndimh,ndimh)
 
       if (mode0 .eq. 1) goto 100
-      call hsibl(ssite,sspec,slat,k1,k2,k3,smpot,isp,q,ndimh,w(oiprmb),
-     .napw,igvapw,h)
+Cchp1       call hsibl(ssite,sspec,slat,k1,k2,k3,smpot,isp,q,ndimh,w(oiprmb),
+Cchp1      .napw,igvapw,h)
+       call hsibl ( ssite , sspec , slat , k1 , k2 , k3 , smpot , isp 
+     . , q , ndimh , iv_p_oiprmb , napw , igvapw , h ) 
+
 
 C ... Restore istl potential
 C      call pvhmb1(1,slat,k1,k2,k3,smpot,vavg)

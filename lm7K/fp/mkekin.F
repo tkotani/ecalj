@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oiprmb
+Cchp1 cmdvar= integer,iv_p_,oindxo
       subroutine mkekin(nbas,ndimh,ssite,sspec,slat,sham,osig,otau,oppi,
      .lcplxp,oqkkl,k1,k2,k3,vconst,smpot,smrho,sumev,sumtv)
 
@@ -152,8 +154,12 @@ C ... Passed parameters
 C ... Local parameters
       integer ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3,
      .ngabc(3),nglob,nkap0,nlma,nlmh,norb,nsp,nspc,stdo,lso,isw
-      integer oiprmb,oppihh,oppihp,oppipp,oqhh,oqhp,oqpp,osighh,osighp,
-     .osigpp,otauhh,otauhp,otaupp
+Cchp1       integer oiprmb,oppihh,oppihp,oppipp,oqhh,oqhp,oqpp,osighh,osighp,
+Cchp1      .osigpp,otauhh,otauhp,otaupp
+       integer:: oppihh , oppihp , oppipp , oqhh , oqhp , oqpp , osighh 
+     . , osighp , osigpp , otauhh , otauhp , otaupp 
+       integer,pointer :: iv_p_oiprmb(:)
+
       logical lgors
       parameter (n0=10,nkap0=3)
       integer nkaph,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
@@ -179,7 +185,9 @@ C ... Heap
       vol=slat%vol
 
 
-      oiprmb=sham%oindxo
+Cchp1       oiprmb=sham%oindxo
+       iv_p_oiprmb => sham%iv_p_oindxo 
+
 
       lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
      .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
@@ -218,7 +226,10 @@ C --- Integral rhout*veff, part from augmentation ---
 
         if (lmxa .eq. -1) goto 10
 
-        call orbl(ib,0,ndimh,w(oiprmb),norb,ltab,ktab,xx,offl,xx)
+Cchp1         call orbl(ib,0,ndimh,w(oiprmb),norb,ltab,ktab,xx,offl,xx)
+         call orbl ( ib , 0 , ndimh , iv_p_oiprmb , norb , ltab , ktab 
+     .   , xx , offl , xx ) 
+
 C       Block into groups of consecutive l
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
 

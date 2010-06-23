@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oiprmb
+Cchp1 cmdvar= integer,iv_p_,oindxo
 Cchp1 cmdvar= real(8),rv_p_,oqsig
 #define V2 1
       subroutine sugw(ssite,sspec,slat,sham,nbas,ndham,
@@ -162,7 +164,10 @@ C ... Local parameters
      .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,nsp,nspc,
      .stdo
 C     integer lshft(3)
-      integer:: og , oiprmb , ov0
+Cchp1       integer:: og , oiprmb , ov0
+       integer:: og , ov0 
+       integer,pointer :: iv_p_oiprmb(:)
+
       complex(8) ,allocatable :: aus_zv(:)
       real(8) ,allocatable :: ww_rv(:)
 
@@ -327,7 +332,9 @@ C ... Count number of atoms : exclude floating orbitals
 
       napw = 0
 
-      oiprmb=sham%oindxo
+Cchp1       oiprmb=sham%oindxo
+       iv_p_oiprmb => sham%iv_p_oindxo 
+
 
 
       i_copy_size=size(sham%ldham)
@@ -379,7 +386,10 @@ C   ... Create file LATTC
           lmxa ( i ) = int(sspec(ips(i))%lmxa)
 
           if (lmxa(i) .gt. -1) then
-            call orbl(i,0,ldim,w(oiprmb),norb,ltab,ktab,xx,offl,i1)
+Cchp1             call orbl(i,0,ldim,w(oiprmb),norb,ltab,ktab,xx,offl,i1)
+             call orbl ( i , 0 , ldim , iv_p_oiprmb , norb , ltab , ktab , 
+     .       xx , offl , i1 ) 
+
             write(ifi,"(3i10)") i1
           endif
         enddo
@@ -1137,9 +1147,13 @@ c            inn = qlatinv*(qp-q)
 c            write(6,"('goto pwmat: qlatinv*(qp-q)=',3f13.5,3i5)")
 c     &        matmul(qlatinv,qp-q),inn
 
-              call pwmat(slat,ssite,sspec,nbas,ndimh,napw,w(oigv2),
-c     .        w(oiprmb),qx,ngp,nlmax,ngvecp,gmax,ppovl,phovl)
-     .        w(oiprmb),q,ngp,nlmax,ngvecp,gmax,inn,ppovl,phovl)
+Cchp1               call pwmat(slat,ssite,sspec,nbas,ndimh,napw,w(oigv2),
+Cchp1 c     .        w(oiprmb),qx,ngp,nlmax,ngvecp,gmax,ppovl,phovl)
+Cchp1      .        w(oiprmb),q,ngp,nlmax,ngvecp,gmax,inn,ppovl,phovl)
+               call pwmat ( slat , ssite , sspec , nbas , ndimh , napw , w ( 
+     .         oigv2 ) , iv_p_oiprmb , q , ngp , nlmax , ngvecp , gmax , inn 
+     .         , ppovl , phovl ) 
+
               if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
               if(debug) print *,'sss: phovl=',sum(abs(phovl))
               if(debug) print *,'sss: evec =',sum(abs(evec))

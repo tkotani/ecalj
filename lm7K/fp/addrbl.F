@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oidxsh
+Cchp1 cmdvar= integer,iv_p_,oindxo
 CSFCPP#define F90 1
       subroutine addrbl(ssite,sspec,slat,sham,isp,nsp,nspc,q,wtkp,ndham,
      .ndimh,napw,igapw,lmet,lrout,lwtkb,wtkb,lswtk,swtk,iq,lfrce,ldos,
@@ -111,8 +113,12 @@ C ... Passed parameters
       double complex evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),
      .smpot(k1,k2,k3,isp)
 C ... Local parameters
-      integer i,k,nevec,nbas,nglob,ngabc(3),n1,n2,n3,oidxsh,ndimhx,
-     .lmxax,lmxa,nlmax,nlmto,ig
+Cchp1       integer i,k,nevec,nbas,nglob,ngabc(3),n1,n2,n3,oidxsh,ndimhx,
+Cchp1      .lmxax,lmxa,nlmax,nlmto,ig
+       integer:: i , k , nevec , nbas , nglob , ngabc(3) , n1 , n2 , 
+     . n3 , ndimhx , lmxax , lmxa , nlmax , nlmto , ig 
+       integer,pointer :: iv_p_oidxsh(:)
+
       double precision vavg,wgt,alat,qlat(3,3),tpiba,vol
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 CSFCPP#if F90
@@ -147,7 +153,9 @@ CSFCPP#if ! (F90 | AUTO_ARRAY)
 CSFCPP      if (ndimhx.gt.ndimx) call rxi('addrbl: increase ndimx to',ndimh)
 CSFCPP#endif
 
-      oidxsh=sham%oindxo
+Cchp1       oidxsh=sham%oindxo
+       iv_p_oidxsh => sham%iv_p_oindxo 
+
 
 C     Setup for PW part of basis
 
@@ -218,8 +226,12 @@ C        print *, '!! smpot=vavg'; smpot=vavg
 C       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
 
         if (nlmto .gt. 0) then
-          call fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,w(oidxsh),
-     .    numq,nevec,evl(1,isp),evec,ewgt,f)
+Cchp1           call fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,w(oidxsh),
+Cchp1      .    numq,nevec,evl(1,isp),evec,ewgt,f)
+           call fsmbl ( nbas , ssite , sspec , slat , vavg , q , ndimh , 
+     .     nlmto , iv_p_oidxsh , numq , nevec , evl ( 1 , isp ) , evec , 
+     .     ewgt , f ) 
+
         endif
 C        print *, 'after fsmbl'
 C        do  i = 1, 3
@@ -231,10 +243,14 @@ C        enddo
 
           vol=slat%vol
 
-          call fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,w(oidxsh),numq,
-     .    nevec,evl(1,isp),evec,ewgt,
-     .    napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,dsqrt(vol),
-     .    f)
+Cchp1           call fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,w(oidxsh),numq,
+Cchp1      .    nevec,evl(1,isp),evec,ewgt,
+Cchp1      .    napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,dsqrt(vol),
+Cchp1      .    f)
+           call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , iv_p_oidxsh 
+     .     , numq , nevec , evl ( 1 , isp ) , evec , ewgt , napw , qpgv 
+     .     , qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f ) 
+
 C        print *, 'after fsmblpw'
 C        do  i = 1, 3
 C          print 543, f(:,i)
@@ -246,8 +262,12 @@ C     print *, '!!'; call dpzero(f,9)
 
 C ... Add to smooth density
       if (lrout .gt. 0) then
-        call rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,napw,
-     .  igapw,w(oidxsh),numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
+Cchp1         call rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,napw,
+Cchp1      .  igapw,w(oidxsh),numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
+         call rsibl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
+     .   iq , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
+     .   , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f ) 
+
 C       call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
       endif
 C      print *, 'after rsibl'
@@ -257,9 +277,14 @@ C      enddo
 
 C ... Add to local density coefficients
       if (lrout .gt. 0) then
-        call rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,nspc,
-     .  napw,igapw,w(oidxsh),numq,nevec,evec,ewgt,evl,osig,otau,oppi,
-     .  lcplxp,lekkl,oqkkl,oeqkkl,f)
+Cchp1         call rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,nspc,
+Cchp1      .  napw,igapw,w(oidxsh),numq,nevec,evec,ewgt,evl,osig,otau,oppi,
+Cchp1      .  lcplxp,lekkl,oqkkl,oeqkkl,f)
+         call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q , 
+     .   ndham , ndimh , nspc , napw , igapw , iv_p_oidxsh , numq , nevec 
+     .   , evec , ewgt , evl , osig , otau , oppi , lcplxp , lekkl , oqkkl 
+     .   , oeqkkl , f ) 
+
 C       call zprm3('smrho after rlocbl',0,smrho,k1,k2,k3)
       endif
 
