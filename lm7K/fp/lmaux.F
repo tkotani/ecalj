@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ovrmax
+Cchp1 cmdvar= real(8),rv_p_,oves
 Cchp1 cmdvar= real(8),rv_p_,oqlv
 Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oclabl
@@ -113,11 +115,24 @@ Cchp1      .  , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax
 Cchp1      .  , owk , owk2 , opos , oqlv , odlv , orham , oamsh , onrmsh , 
 Cchp1      .  oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
 Cchp1      .  , og , oag , mxclas 
-         integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-     .   , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
-     .   , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha 
-     .   , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax , og 
-     .   , oag , mxclas 
+Cchp1          integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
+Cchp1      .   , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , oves , ovrmax 
+Cchp1      .   , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha 
+Cchp1      .   , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax , og 
+Cchp1      .   , oag , mxclas 
+Cchp1           integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
+Cchp1      .    , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , ovrmax , 
+Cchp1      .    owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha , 
+Cchp1      .    onpr , os , ormx , oip , oips , opgfsl , ontab , oiax , og , 
+Cchp1      .    oag , mxclas 
+           integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
+     .     , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 
+     .     , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , os , 
+     .     ormx , oip , oips , opgfsl , ontab , oiax , og , oag , mxclas 
+           real(8),pointer :: rv_p_ovrmax(:)
+
+          real(8),pointer :: rv_p_oves(:)
+
          real(8),pointer :: rv_p_oqlv(:)
 
         integer,pointer :: iv_p_oics(:)
@@ -209,8 +224,12 @@ c       call dcopy(i_copy_size,sham%qss,1,qss,1)
 
 cki      oaamom=spot%oaamom
       orhrmx=spot%orhrmx
-      oves=spot%oves
-      ovrmax=spot%ovrmax
+Cchp1       oves=spot%oves
+       rv_p_oves => spot%rv_p_oves 
+
+Cchp1       ovrmax=spot%ovrmax
+       rv_p_ovrmax => spot%rv_p_ovrmax 
+
 
 
       avw=slat%avw
@@ -417,9 +436,13 @@ C --- Show neighbors by shell ---
         if (cmdopt('--shell',j-1,0,outs)) then
 Cchp1           call shoshl(outs(j:),nbas,w(opos),plat,mxnbr,z,slabl,
 Cchp1      .    w(oclabl),w(oips),w(oipc),w(oves),w(oeula),nclass)
-           call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
-     .     , z , slabl , rv_p_oclabl , w ( oips ) , w ( oipc ) , w ( oves 
-     .     ) , w ( oeula ) , nclass ) 
+Cchp1            call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
+Cchp1      .     , z , slabl , rv_p_oclabl , w ( oips ) , w ( oipc ) , w ( oves 
+Cchp1      .     ) , w ( oeula ) , nclass ) 
+            call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
+     .      , z , slabl , rv_p_oclabl , w ( oips ) , w ( oipc ) , rv_p_oves 
+     .      , w ( oeula ) , nclass ) 
+
 
         endif
 

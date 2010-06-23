@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-23 17:34:48.411354
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-23 17:54:23.961050
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -1408,10 +1408,14 @@ CCHSTRUC       integer(8)   ::   osoptc ! not used because of undef
 CCHSTRUC       integer(8)   ::   osrout ! not used because of undef
 CCHSTRUC       integer(8)   ::   otau ! not used because of undef
 CCHSTRUC       integer(8)   ::   ovab ! not used because of undef
-      integer(8)   ::   ovdif
-      integer(8)   ::   oves
-      integer(8)   ::   ovintr
-      integer(8)   ::   ovrmax
+CCHSTRUC       integer(8)   ::   ovdif
+       real(8) , pointer ::  rv_p_ovdif (:)
+CCHSTRUC       integer(8)   ::   oves
+       real(8) , pointer ::  rv_p_oves (:)
+CCHSTRUC       integer(8)   ::   ovintr
+       real(8) , pointer ::  rv_p_ovintr (:)
+CCHSTRUC       integer(8)   ::   ovrmax
+       real(8) , pointer ::  rv_p_ovrmax (:)
 CCHSTRUC       integer(8)   ::   ovshf ! not used because of undef
       real(8)   ::   vconst(3)
       real(8)   ::   vmtz
@@ -3469,14 +3473,10 @@ Cstruc_makeinit.py skip zv_p_osmpot(:) because it is a pointer.
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%osop, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%ovdif, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oves, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%ovintr, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%ovrmax, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip rv_p_ovdif(:) because it is a pointer.
+Cstruc_makeinit.py skip rv_p_oves(:) because it is a pointer.
+Cstruc_makeinit.py skip rv_p_ovintr(:) because it is a pointer.
+Cstruc_makeinit.py skip rv_p_ovrmax(:) because it is a pointer.
        i_data_size=size(struc%vconst) ! vconst(3)
        call mpi_bcast(struc%vconst, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -4629,10 +4629,6 @@ C$$$        end subroutine utb
        struc%orhrmx=0
        struc%osmrho=0
        struc%osop=0
-       struc%ovdif=0
-       struc%oves=0
-       struc%ovintr=0
-       struc%ovrmax=0
        struc%vconst=0.0d0
        struc%vmtz=0.0d0
        struc%vmtz0=0.0d0

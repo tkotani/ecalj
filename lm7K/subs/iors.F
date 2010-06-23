@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oves
 #define FP 1
       integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
      .fid,nbas,nat,nspec,orhoat,qnu,nit,lbin,ifi)
@@ -139,8 +140,12 @@ C ... Local parameters
      .lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel,lrel0,n11,n21,
      .n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
      .nxi,nat0,ibaug
-      integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
-     ., stdo , isw , osmrho , oves
+Cchp1       integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
+Cchp1      ., stdo , isw , osmrho , oves
+       integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
+     . , stdo , isw , osmrho 
+       real(8),pointer :: rv_p_oves(:)
+
       complex(8) ,allocatable :: h_zv(:)
       real(8) ,allocatable :: rwgt_rv(:)
 
@@ -922,11 +927,17 @@ C           call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
                 read(jfi,43) vrmax(1)
    43           format(12x,f11.7)
 
-                oves=spot%oves
+Cchp1                 oves=spot%oves
+                 rv_p_oves => spot%rv_p_oves 
 
-                call dvset(w(oves),ic,ic,vrmax)
 
-                spot%oves=oves
+Cchp1                 call dvset(w(oves),ic,ic,vrmax)
+                 call dvset ( rv_p_oves , ic , ic , vrmax ) 
+
+
+Cchp1                 spot%oves=oves
+                 spot%rv_p_oves => rv_p_oves 
+
 
               endif
               if ( lrs ( 3 ) .eq.0 ) then
@@ -1389,9 +1400,13 @@ C             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
               call aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
      .        idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
 
-              oves=spot%oves
+Cchp1               oves=spot%oves
+               rv_p_oves => spot%rv_p_oves 
 
-              vrmax(1) = dval(w(oves),ic)
+
+Cchp1               vrmax(1) = dval(w(oves),ic)
+               vrmax ( 1 ) = dval ( rv_p_oves , ic ) 
+
               write(jfi,143) vrmax(1)
   143         format('  Ves(rmax)=',f11.7)
 C             Not yet; for future versions

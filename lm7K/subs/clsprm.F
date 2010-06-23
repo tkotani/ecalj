@@ -1,3 +1,7 @@
+Cchp1 cmdvar= real(8),rv_p_,ovrmax
+Cchp1 cmdvar= real(8),rv_p_,ovintr
+Cchp1 cmdvar= real(8),rv_p_,oves
+Cchp1 cmdvar= real(8),rv_p_,ovdif
 Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oqp
       subroutine clsprm(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,
@@ -76,10 +80,32 @@ Cchp1       integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif
 Cchp1      ., orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx 
 Cchp1      ., oivso , oipc , oclabl , opos , oics , ozos , ormax , opmpol 
 Cchp1      ., oqpp , ogrrme , n0
-       integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
-     . , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx 
-     . , oivso , oipc , oclabl , opos , ozos , ormax , opmpol , oqpp 
-     . , ogrrme , n0 
+Cchp1        integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , ovdif 
+Cchp1      . , orhrmx , ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx 
+Cchp1      . , oivso , oipc , oclabl , opos , ozos , ormax , opmpol , oqpp 
+Cchp1      . , ogrrme , n0 
+Cchp1         integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , oves , orhrmx 
+Cchp1      .  , ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx , oivso 
+Cchp1      .  , oipc , oclabl , opos , ozos , ormax , opmpol , oqpp , ogrrme 
+Cchp1      .  , n0 
+Cchp1          integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
+Cchp1      .   ovrmax , orhos , osop , ogroup , ovintr , opp , oifrlx , oivso 
+Cchp1      .   , oipc , oclabl , opos , ozos , ormax , opmpol , oqpp , ogrrme 
+Cchp1      .   , n0 
+Cchp1           integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
+Cchp1      .    ovrmax , orhos , osop , ogroup , opp , oifrlx , oivso , oipc 
+Cchp1      .    , oclabl , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0 
+           integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
+     .     orhos , osop , ogroup , opp , oifrlx , oivso , oipc , oclabl 
+     .     , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0 
+           real(8),pointer :: rv_p_ovrmax(:)
+
+          real(8),pointer :: rv_p_ovintr(:)
+
+         real(8),pointer :: rv_p_oves(:)
+
+        real(8),pointer :: rv_p_ovdif(:)
+
        integer,pointer :: iv_p_oics(:)
 
 c       real(8) ,allocatable :: pprel_rv(:)
@@ -125,10 +151,19 @@ c         pprel_rv(:)=0.0d0
         call defdr(oqt,-nclasp)
         call defi (oinitc,-nclasp)
         call defi (ogroup,-2*nclasp)
-        call defdr(oves,-nclspp)
-        call defdr(ovdif,-nclspp)
+Cchp1         call defdr(oves,-nclspp)
+         allocate(rv_p_oves(abs(-nclspp)))
+         if (-nclspp<0) rv_p_oves(:)=0.0d0
+
+Cchp1         call defdr(ovdif,-nclspp)
+         allocate(rv_p_ovdif(abs(-nclspp)))
+         if (-nclspp<0) rv_p_ovdif(:)=0.0d0
+
         call defdr(orhrmx,-nclspp)
-        call defdr(ovrmax,-2*nclspp)
+Cchp1         call defdr(ovrmax,-2*nclspp)
+         allocate(rv_p_ovrmax(abs(-2*nclspp)))
+         if (-2*nclspp<0) rv_p_ovrmax(:)=0.0d0
+
 C       call defdr(oqnu,-3*nlspc)
 
 Cchp1         oics=sarray%oics
@@ -157,9 +192,15 @@ Cchp1         call icopy(nclspp,w(oics),1,ics,1)
         spot%oqt=oqt
 
 
-        spot%oves=oves
-        spot%ovdif=ovdif
-        spot%ovrmax=ovrmax
+Cchp1         spot%oves=oves
+         spot%rv_p_oves => rv_p_oves 
+
+Cchp1         spot%ovdif=ovdif
+         spot%rv_p_ovdif => rv_p_ovdif 
+
+Cchp1         spot%ovrmax=ovrmax
+         spot%rv_p_ovrmax => rv_p_ovrmax 
+
         spot%orhrmx=orhrmx
         spot%opp=opp
 
@@ -201,8 +242,13 @@ c         if ( iand(3,int(sctrl%lsx)) .ne.0 .or. iand(-1,int(sctrl%lscr)) .ne.0
 c     .   ) then
 c         if ( iand(-1,int(sctrl%lscr)) .ne.0  ) then
         if ( int(sctrl%lscr) .ne.0  ) then
-          call defdr(ovintr,-nclasp*(nl*nsp)**2)
-          spot%ovintr=ovintr
+Cchp1           call defdr(ovintr,-nclasp*(nl*nsp)**2)
+           allocate(rv_p_ovintr(abs(-nclasp*(nl*nsp)**2)))
+           if (-nclasp*(nl*nsp)**2<0) rv_p_ovintr(:)=0.0d0
+
+Cchp1           spot%ovintr=ovintr
+           spot%rv_p_ovintr => rv_p_ovintr 
+
 
         endif
 c         lnsph = isw ( iand(32,int(sctrl%lasa)) .ne.0 )
@@ -404,14 +450,29 @@ C ... Allocate ASA arrays
      .  3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
 
 
-        oves=spot%oves
-        ovdif=spot%ovdif
-        ovrmax=spot%ovrmax
+Cchp1         oves=spot%oves
+         rv_p_oves => spot%rv_p_oves 
+
+Cchp1         ovdif=spot%ovdif
+         rv_p_ovdif => spot%rv_p_ovdif 
+
+Cchp1         ovrmax=spot%ovrmax
+         rv_p_ovrmax => spot%rv_p_ovrmax 
+
         orhrmx=spot%orhrmx
 
-        call dpscop(w(oves),w(oves),i1,nclass+1,nclasp+1,1d0)
-        call dpscop(w(ovdif),w(ovdif),i1,nclass+1,nclasp+1,1d0)
-        call dpscop(w(ovrmax),w(ovrmax),i1,nclass+1,nclasp+1,1d0)
+Cchp1         call dpscop(w(oves),w(oves),i1,nclass+1,nclasp+1,1d0)
+         call dpscop ( rv_p_oves , rv_p_oves , i1 , nclass + 1 , nclasp 
+     .   + 1 , 1d0 ) 
+
+Cchp1         call dpscop(w(ovdif),w(ovdif),i1,nclass+1,nclasp+1,1d0)
+         call dpscop ( rv_p_ovdif , rv_p_ovdif , i1 , nclass + 1 , nclasp 
+     .   + 1 , 1d0 ) 
+
+Cchp1         call dpscop(w(ovrmax),w(ovrmax),i1,nclass+1,nclasp+1,1d0)
+         call dpscop ( rv_p_ovrmax , rv_p_ovrmax , i1 , nclass + 1 , nclasp 
+     .   + 1 , 1d0 ) 
+
         call dpscop(w(orhrmx),w(orhrmx),i1,nclass+1,nclasp+1,1d0)
 
       else
