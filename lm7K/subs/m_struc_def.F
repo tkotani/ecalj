@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-21 20:33:55.387420
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-23 15:49:01.009385
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -109,7 +109,8 @@ CCHSTRUC       integer(8)   ::   opdos ! not used because of undef
 CCHSTRUC       integer(8)   ::   oqp
        real(8) , pointer ::  rv_p_oqp (:)
       integer(8)   ::   ostar
-      integer(8)   ::   owtkp
+CCHSTRUC       integer(8)   ::   owtkp
+       real(8) , pointer ::  rv_p_owtkp (:)
       real(8)   ::   range
       real(8)   ::   semsh(10)
       real(8)   ::   stnr
@@ -2465,8 +2466,7 @@ C ... Passed parameters
 Cstruc_makeinit.py skip rv_p_oqp(:) because it is a pointer.
        call mpi_bcast(struc%ostar, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%owtkp, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip rv_p_owtkp(:) because it is a pointer.
        call mpi_bcast(struc%range, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
        i_data_size=size(struc%semsh) ! semsh(10)
@@ -4299,7 +4299,6 @@ C$$$        end subroutine utb
        struc%oidtet=0
        struc%oipq=0
        struc%ostar=0
-       struc%owtkp=0
        struc%range=0.0d0
        struc%semsh=0.0d0
        struc%stnr=0.0d0

@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,owtkp
 Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oqp
 Cchp1 cmdvar= real(8),rv_p_,oclabl
@@ -104,7 +105,10 @@ Cchp1      ., oipq , oclabl
 Cchp1        integer:: ogstar , oics , oidtet , oipc , oqp , ormax , owtkp 
 Cchp1      . , oipq 
 Cchp1         integer:: ogstar , oics , oidtet , oipc , ormax , owtkp , oipq 
-         integer:: ogstar , oidtet , oipc , ormax , owtkp , oipq 
+Cchp1          integer:: ogstar , oidtet , oipc , ormax , owtkp , oipq 
+          integer:: ogstar , oidtet , oipc , ormax , oipq 
+          real(8),pointer :: rv_p_owtkp(:)
+
          integer,pointer :: iv_p_oics(:)
 
         real(8),pointer :: rv_p_oqp(:)
@@ -386,7 +390,9 @@ C     List of irreducible qp, tetrahedra, ipq
       nkp=sbz%nkp
       ntet=sbz%ntet
       oidtet=sbz%oidtet
-      owtkp=sbz%owtkp
+Cchp1       owtkp=sbz%owtkp
+       rv_p_owtkp => sbz%rv_p_owtkp 
+
 
 
 C ... bzmap setup
@@ -668,7 +674,9 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
 Cchp1         oqp=sbz%oqp
          rv_p_oqp => sbz%rv_p_oqp 
 
-        owtkp=sbz%owtkp
+Cchp1         owtkp=sbz%owtkp
+         rv_p_owtkp => sbz%rv_p_owtkp 
+
         ogstar=sbz%ostar
 
 
@@ -705,9 +713,13 @@ C --- make DOS or NOS ---
 C   ... dosspl reads bands and moms on the fly to save work space
         else
           call rxx(nchds.ne.nchan,'sampline not set for subchannels')
-          call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder , 
-     .    width , nkp , w ( owtkp ) , eband_rv , doswt_rv , npts 
-     .    , emin , emax , lidos , wk_rv , dos_rv )
+Cchp1           call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder , 
+Cchp1      .    width , nkp , w ( owtkp ) , eband_rv , doswt_rv , npts 
+Cchp1      .    , emin , emax , lidos , wk_rv , dos_rv )
+           call dosspl ( nfilem , nbandx , nsp , nspc , nchan , norder , 
+     .     width , nkp , rv_p_owtkp , eband_rv , doswt_rv , npts , emin 
+     .     , emax , lidos , wk_rv , dos_rv ) 
+
 
           del = norder+width
         endif

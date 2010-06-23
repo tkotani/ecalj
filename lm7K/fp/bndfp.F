@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,owtkp
 Cchp1 cmdvar= real(8),rv_p_,oqsig
 Cchp1 cmdvar= real(8),rv_p_,oqp
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau,
@@ -251,8 +252,12 @@ C ... Local parameters
 
 Cchp1       integer:: oevl , os , oidtet , owtkb , oswtk , owtkp , oorhat 
 Cchp1      ., osoptc , osmpot , osmrho , oqp 
-       integer:: oevl , os , oidtet , owtkb , oswtk , owtkp , oorhat 
-     . , osoptc , osmpot , osmrho 
+Cchp1        integer:: oevl , os , oidtet , owtkb , oswtk , owtkp , oorhat 
+Cchp1      . , osoptc , osmpot , osmrho 
+        integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
+     .  , osmpot , osmrho 
+        real(8),pointer :: rv_p_owtkp(:)
+
        real(8),pointer :: rv_p_oqp(:)
 
       real(8) ,allocatable :: fh_rv(:)
@@ -606,7 +611,9 @@ c      print *,' w=',esmear
 Cchp1       oqp=sbz%oqp
        rv_p_oqp => sbz%rv_p_oqp 
 
-      owtkp=sbz%owtkp
+Cchp1       owtkp=sbz%owtkp
+       rv_p_owtkp => sbz%rv_p_owtkp 
+
 
       ltet = ntet .gt. 0
       lwndow = cmdopt('--window=',9,0,strn)
@@ -1936,9 +1943,13 @@ C$$$#endif
 
                 if (ldim .ne. ndham) call
      .          rx('blsig needs separate dim for wtkp,evec')
-                call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
-     .          , plat , qp , lwtkb , qval - qbg , iq , w ( owtkp ) , w ( owtkb 
-     .          ) , ndimh , t_zv , ww_zv ) 
+Cchp1                 call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
+Cchp1      .          , plat , qp , lwtkb , qval - qbg , iq , w ( owtkp ) , w ( owtkb 
+Cchp1      .          ) , ndimh , t_zv , ww_zv ) 
+                 call blsig ( 1 + lrsig * 10 , nbas , sham , isp , nsp , nspc 
+     .           , plat , qp , lwtkb , qval - qbg , iq , rv_p_owtkp , w ( owtkb 
+     .           ) , ndimh , t_zv , ww_zv ) 
+
 
                 deallocate(ww_zv)
 
@@ -2233,13 +2244,21 @@ C       Accumulate output density and sampling DOS
 C       Even if no output rho, still call addrbl to make DOS when lmet=4
               elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
 C         dum=frc(3,1)
-                call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
-     .          , qp , w ( owtkp ) , ndham , ndimh , napw , igv2x , lmet 
-     .          , lrout , lwtkb , w ( owtkb ) , lswtk , w ( oswtk ) , iq , lfrce 
-     .          , ldos , lekkl , k1 , k2 , k3 , w ( osmpot ) , vconst , osig 
-     .          , otau , oppi , lcplxp , numq , qval - qbg , t_zv , evl , 
-     .          nevl , ef0 , def , esmear , emin , emax , ndos , dos_rv , 
-     .          srout_zv , sumqv , sumev , oqkkl , oeqkkl , frc ) 
+Cchp1                 call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
+Cchp1      .          , qp , w ( owtkp ) , ndham , ndimh , napw , igv2x , lmet 
+Cchp1      .          , lrout , lwtkb , w ( owtkb ) , lswtk , w ( oswtk ) , iq , lfrce 
+Cchp1      .          , ldos , lekkl , k1 , k2 , k3 , w ( osmpot ) , vconst , osig 
+Cchp1      .          , otau , oppi , lcplxp , numq , qval - qbg , t_zv , evl , 
+Cchp1      .          nevl , ef0 , def , esmear , emin , emax , ndos , dos_rv , 
+Cchp1      .          srout_zv , sumqv , sumev , oqkkl , oeqkkl , frc ) 
+                 call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
+     .           , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+     .           , lwtkb , w ( owtkb ) , lswtk , w ( oswtk ) , iq , lfrce , ldos 
+     .           , lekkl , k1 , k2 , k3 , w ( osmpot ) , vconst , osig , otau 
+     .           , oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl , ef0 
+     .           , def , esmear , emin , emax , ndos , dos_rv , srout_zv , sumqv 
+     .           , sumev , oqkkl , oeqkkl , frc ) 
+
 
 C          print 399,iq,frc(3,1),frc(3,1)-dum
 C  399     format(' after addrbl: frc(3,1)=',i4,2f12.6)
@@ -2711,10 +2730,17 @@ C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
         else
           dosrng = 8
           if (mpsord .lt. 0) dosrng = 16
-          call bzwtsf(ndham,ndham,nsp,nspc,nkabc(1),nkabc(2),nkabc(3),
-     .    nkp,ntet,w(oidtet),qval-qbg,fsmom,lmet.ne.0,ltet,mpsord,
-     .    ndos,dabs(esmear-mpsord),dosrng,w(owtkp),w(oevl),efmax,
-     .    lswtk,w(oswtk),eferm,sev,w(owtkb),sumqv(1,2),lwtkb)
+Cchp1           call bzwtsf(ndham,ndham,nsp,nspc,nkabc(1),nkabc(2),nkabc(3),
+Cchp1      .    nkp,ntet,w(oidtet),qval-qbg,fsmom,lmet.ne.0,ltet,mpsord,
+Cchp1      .    ndos,dabs(esmear-mpsord),dosrng,w(owtkp),w(oevl),efmax,
+Cchp1      .    lswtk,w(oswtk),eferm,sev,w(owtkb),sumqv(1,2),lwtkb)
+           call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+     .     ( 2 ) , nkabc ( 3 ) , nkp , ntet , w ( oidtet ) , qval - qbg 
+     .     , fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - 
+     .     mpsord ) , dosrng , rv_p_owtkp , w ( oevl ) , efmax , lswtk , 
+     .     w ( oswtk ) , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb 
+     .     ) 
+
 
 C         Store val charge & magnetic moment in sumqv(1..2)
           if (lmet .ne. 4) then
@@ -2818,13 +2844,21 @@ c          allocate(dos_rv(3*ndos))
             del = 0d0
           else
             if (mpsord .ge. 100) mpsord = mod(mpsord,100)
-            if ( ndos0 .gt. 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx 
-     .      , w ( owtkp ) , w ( oevl ) , mpsord , dabs ( esmear - mpsord 
-     .      ) , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
+Cchp1             if ( ndos0 .gt. 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx 
+Cchp1      .      , w ( owtkp ) , w ( oevl ) , mpsord , dabs ( esmear - mpsord 
+Cchp1      .      ) , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
+             if ( ndos0 .gt. 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx 
+     .       , rv_p_owtkp , w ( oevl ) , mpsord , dabs ( esmear - mpsord ) 
+     .       , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
 
-            if ( ndos0 .lt. 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx 
-     .      , w ( owtkp ) , w ( oevl ) , mpsord , dabs ( esmear - mpsord 
-     .      ) , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
+
+Cchp1             if ( ndos0 .lt. 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx 
+Cchp1      .      , w ( owtkp ) , w ( oevl ) , mpsord , dabs ( esmear - mpsord 
+Cchp1      .      ) , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
+             if ( ndos0 .lt. 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx 
+     .       , rv_p_owtkp , w ( oevl ) , mpsord , dabs ( esmear - mpsord ) 
+     .       , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
+
 
             del = mpsord+dabs(esmear-mpsord)
           endif
