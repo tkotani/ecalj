@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),iv_p_,oips0
 Cchp1 cmdvar= real(8),rv_p_,oqlv
 #define FP 1
       subroutine supot(mode,sctrl,slat,spot)
@@ -33,10 +34,16 @@ C ... Local parameters
 Cchp1       integer nbas,nbasp,nbaspp,nsp,omad,opos,nkd,nkq,odlv,oqlv,igets,
 Cchp1      .ngabc(3),n1,n2,n3,k1,k2,k3,ngmx,ogv,okv,ng,osmrho,osmpot,oorhat,
 Cchp1      .oips0,obgv,ngrp,og,oag,iprint
-       integer:: nbas , nbasp , nbaspp , nsp , omad , opos , nkd , nkq 
-     . , odlv , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx 
-     . , ogv , okv , ng , osmrho , osmpot , oorhat , oips0 , obgv , 
-     . ngrp , og , oag , iprint 
+Cchp1        integer:: nbas , nbasp , nbaspp , nsp , omad , opos , nkd , nkq 
+Cchp1      . , odlv , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx 
+Cchp1      . , ogv , okv , ng , osmrho , osmpot , oorhat , oips0 , obgv , 
+Cchp1      . ngrp , og , oag , iprint 
+        integer:: nbas , nbasp , nbaspp , nsp , omad , opos , nkd , nkq 
+     .  , odlv , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx 
+     .  , ogv , okv , ng , osmrho , osmpot , oorhat , obgv , ngrp , og 
+     .  , oag , iprint 
+        integer,pointer :: iv_p_oips0(:)
+
        real(8),pointer :: rv_p_oqlv(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -126,16 +133,24 @@ C       call prmx('gv',w(ogv),ngmx,ng,3)
 
 
 C   ... Setup for symmetrization
-        call defi (oips0,   ng)
+Cchp1         call defi (oips0,   ng)
+         allocate(iv_p_oips0(abs(ng)))
+         if (ng<0) iv_p_oips0(:)=0.0d0
+
         call defcc(obgv,    ng)
 
         ngrp=slat%nsgrp
         og=slat%osymgr
         oag=slat%oag
 
-        call sgvsym(ngrp,w(og),w(oag),ng,w(ogv),w(oips0),w(obgv))
+Cchp1         call sgvsym(ngrp,w(og),w(oag),ng,w(ogv),w(oips0),w(obgv))
+         call sgvsym ( ngrp , w ( og ) , w ( oag ) , ng , w ( ogv ) , 
+     .   iv_p_oips0 , w ( obgv ) ) 
 
-        slat%oips0=oips0
+
+Cchp1         slat%oips0=oips0
+         slat%iv_p_oips0 => iv_p_oips0 
+
         slat%obgv=obgv
 
 

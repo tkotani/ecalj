@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),iv_p_,oistab
+Cchp1 cmdvar= real(8),iv_p_,oips0
       subroutine lmfp(prgnam,sbz,sctrl,sham,spot,slat,smix,
      .sspec,ssite,sstr,smove,sarray,sstrn)
 
@@ -142,7 +144,10 @@ C ... for relaxation
 cki, for rlse and allocate oindrx
       integer,allocatable:: iv_tmp(:)
 
-      integer:: oistab , oag , og
+Cchp1       integer:: oistab , oag , og
+       integer:: oag , og 
+       integer,pointer :: iv_p_oistab(:)
+
       real(8) ,allocatable :: shr_rv(:)
 
       double precision mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2),
@@ -621,7 +626,9 @@ C     Check for LDA+U ... return nlibu > 0 if any U blocks
 C       need group info to symmetrize site density matrix
 
         ng=slat%nsgrp
-        oistab=slat%oistab
+Cchp1         oistab=slat%oistab
+         iv_p_oistab => slat%iv_p_oistab 
+
         og=slat%osymgr
 
 C       defaults
@@ -632,9 +639,13 @@ C       defaults
         if (umix .eq. 0) umix = 1
 C       if (tolu .eq. 0d0) tolu = 1d-4
 C       initialize density matrix for LDA+U
-        call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
-     .  , lldau_iv , ng , w ( og ) , w ( oistab ) , w ( odmatu ) , 
-     .  w ( ovorb ) )
+Cchp1         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
+Cchp1      .  , lldau_iv , ng , w ( og ) , w ( oistab ) , w ( odmatu ) , 
+Cchp1      .  w ( ovorb ) )
+         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
+     .   , lldau_iv , ng , w ( og ) , iv_p_oistab , w ( odmatu ) , w ( 
+     .   ovorb ) ) 
+
 
       endif
 C     end LDA+U  initialization section
@@ -847,9 +858,13 @@ C --- Make and diagonalize hamiltonian, make new charge density ---
 
 C ... check convergence of dmatu and update it and vorb if necessary
       if (nlibu .gt. 0 .and. maxit .gt. 0 .and. lrout .gt. 0) then
-        call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
-     .  , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
-     .  , lldau_iv , ng , w ( og ) , w ( oistab ) )
+Cchp1         call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
+Cchp1      .  , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
+Cchp1      .  , lldau_iv , ng , w ( og ) , w ( oistab ) )
+         call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
+     .   , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
+     .   , lldau_iv , ng , w ( og ) , iv_p_oistab ) 
+
 
       endif
 
@@ -1002,7 +1017,9 @@ C       Restore lattice symmetry to machine precision
           if (cmdopt('--fixpos',8,0,strn)) then
 
             ng=slat%nsgrp
-            oistab=slat%oistab
+Cchp1             oistab=slat%oistab
+             iv_p_oistab => slat%iv_p_oistab 
+
             oag=slat%oag
             og=slat%osymgr
 
@@ -1013,7 +1030,10 @@ C         call shoist(w(oistab),nbas,w(oag),w(og),ng)
             endif
             if (strn(9:9) .ne. ':' .or.
      .      .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
-            call fixpos(w(opos),nbas,fptol,ng,plat,w(og),w(oag),w(oistab))
+Cchp1             call fixpos(w(opos),nbas,fptol,ng,plat,w(og),w(oag),w(oistab))
+             call fixpos ( w ( opos ) , nbas , fptol , ng , plat , w ( og 
+     .       ) , w ( oag ) , iv_p_oistab ) 
+
           endif
 
 C       Write updated positions to bsmv file

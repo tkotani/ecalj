@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),iv_p_,oistab
 Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oclabl
       subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite,sarray)
@@ -89,8 +90,12 @@ Cchp1       integer:: oclabl , oics , oips , oistab , onrc , onrcp , opos
 Cchp1      ., oipc , oipcp , oiwk , oag , osymgr , aginv
 Cchp1        integer:: oics , oips , oistab , onrc , onrcp , opos , oipc , 
 Cchp1      . oipcp , oiwk , oag , osymgr , aginv 
-        integer:: oips , oistab , onrc , onrcp , opos , oipc , oipcp 
-     .  , oiwk , oag , osymgr , aginv 
+Cchp1         integer:: oips , oistab , onrc , onrcp , opos , oipc , oipcp 
+Cchp1      .  , oiwk , oag , osymgr , aginv 
+         integer:: oips , onrc , onrcp , opos , oipc , oipcp , oiwk , 
+     .   oag , osymgr , aginv 
+         integer,pointer :: iv_p_oistab(:)
+
         integer,pointer :: iv_p_oics(:)
 
        real(8),pointer :: rv_p_oclabl(:)
@@ -186,7 +191,10 @@ C --- Generate space group ---
 
 C ... When generating the group the basis may become enlarged ...
 C     copy larger files relevant arrays to larger workspace
-      call defi (oistab,(ngmx+1)*nbas)
+Cchp1       call defi (oistab,(ngmx+1)*nbas)
+       allocate(iv_p_oistab(abs((ngmx+1)*nbas)))
+       if ((ngmx+1)*nbas<0) iv_p_oistab(:)=0.0d0
+
 C     call defi (oistb2,(ngmx+1)*nbas)
       allocate(ips2_iv(ngmx*nbas))
 Ctakao_ZeroClear_NotRequiered        if (ngmx*nbas<0) ips2_iv(:)=0
@@ -198,10 +206,15 @@ Ctakao_ZeroClear_NotRequiered        if (3*ngmx*nbas<0) pos2_rv(:)=0.0d0
 
       call dcopy ( 3 * nbas , w ( opos ) , 1 , pos2_rv , 1 )
 
-      call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
-     ., nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
-     ., nrspc_iv , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen 
-     ., ssymgr , nggen , isym , w ( oistab ) )
+Cchp1       call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
+Cchp1      ., nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
+Cchp1      ., nrspc_iv , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen 
+Cchp1      ., ssymgr , nggen , isym , w ( oistab ) )
+       call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
+     . , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
+     . , nrspc_iv , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen , 
+     . ssymgr , nggen , isym , iv_p_oistab ) 
+
 
       if (nbas .gt. nbas0) call rxs('gensym: the basis was enlarged.',
      .' Check group operations.')
@@ -267,9 +280,13 @@ C --- Split species into classes ---
 
 Cchp1       call splcls(mod(mode/10,10).eq.4,w(opos),nbas,nsgrp,w(oistab),
 Cchp1      .nspec,slabl,nclass,w(oipc),w(oics),w(onrc))
-       call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
-     . , nsgrp , w ( oistab ) , nspec , slabl , nclass , w ( oipc ) 
-     . , iv_p_oics , w ( onrc ) ) 
+Cchp1        call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
+Cchp1      . , nsgrp , w ( oistab ) , nspec , slabl , nclass , w ( oipc ) 
+Cchp1      . , iv_p_oics , w ( onrc ) ) 
+        call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
+     .  , nsgrp , iv_p_oistab , nspec , slabl , nclass , w ( oipc ) , 
+     .  iv_p_oics , w ( onrc ) ) 
+
 
 ccccccccccc
       print *,'zzz nclass=',nclass
@@ -314,9 +331,15 @@ C$$$      endif
 
 C ... Remake istab
       if (mod(mode,10) .eq. 2) then
-        call defi(oistab,  npgrp*nbas)
+Cchp1         call defi(oistab,  npgrp*nbas)
+         allocate(iv_p_oistab(abs(npgrp*nbas)))
+         if (npgrp*nbas<0) iv_p_oistab(:)=0.0d0
+
       else
-        call defi(oistab,  nsgrp*nbas)
+Cchp1         call defi(oistab,  nsgrp*nbas)
+         allocate(iv_p_oistab(abs(nsgrp*nbas)))
+         if (nsgrp*nbas<0) iv_p_oistab(:)=0.0d0
+
       endif
       call dinv33(plat,1,qlat,xx)
 C     call prmx('pos',w(opos),3,3,nbas)
@@ -326,8 +349,11 @@ C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
 C      call symtbl(0,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
 C     .  w(oistab))
 C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
-      call symtbl(1,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
-     .w(oistab))
+Cchp1       call symtbl(1,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
+Cchp1      .w(oistab))
+       call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr 
+     . ) , w ( oag ) , nsgrp , qlat , iv_p_oistab ) 
+
 C     Debugging check
 C     call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
 C     call symtbl(0,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
@@ -339,8 +365,11 @@ C     stop
 
 C   ... For each i*grpop fix translation ag to be that of grpop
       if (mod(mode,10) .eq. 2) then
-        if (aginv(w(osymgr),nsgrp,npgrp,nbas,w(oag),w(oistab)) .ne. 0)
-     .  call rx('bug in mksym')
+Cchp1         if (aginv(w(osymgr),nsgrp,npgrp,nbas,w(oag),w(oistab)) .ne. 0)
+Cchp1      .  call rx('bug in mksym')
+         if ( aginv ( w ( osymgr ) , nsgrp , npgrp , nbas , w ( oag ) 
+     .   , iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
+
       endif
 
 C ... poke ipc into ssite
@@ -408,7 +437,9 @@ c     call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
 
       slat%npgrp=npgrp
       slat%nsgrp=nsgrp
-      slat%oistab=oistab
+Cchp1       slat%oistab=oistab
+       slat%iv_p_oistab => iv_p_oistab 
+
       slat%oag=oag
       slat%osymgr=osymgr
 

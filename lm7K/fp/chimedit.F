@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),iv_p_,oistab
       subroutine chimedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
      .nbas,nat,nspec)
 
@@ -117,7 +118,10 @@ C ... Local parameters
       integer nkxyz(3),mxkp,nk1,nk2,nk3,k1,k2,k3
       equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer nmag,nmagf,magat(100),magatf(100),ix(10),nmbas
-      integer:: opos , oistab , og , oag
+Cchp1       integer:: opos , oistab , og , oag
+       integer:: opos , og , oag 
+       integer,pointer :: iv_p_oistab(:)
+
       integer ,allocatable :: gstar_iv(:)
       real(8) ,allocatable :: wgt_rv(:)
 
@@ -160,7 +164,9 @@ C --- Setup ---
 
 
       nsgrp=slat%nsgrp
-      oistab=slat%oistab
+Cchp1       oistab=slat%oistab
+       iv_p_oistab => slat%iv_p_oistab 
+
       og=slat%osymgr
       oag=slat%oag
 

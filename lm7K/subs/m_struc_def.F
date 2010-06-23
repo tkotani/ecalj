@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-23 16:19:21.029203
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-23 17:20:25.817163
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -982,8 +982,10 @@ C 43 121  4        vol  1
       integer(8)   ::   odlv
       integer(8)   ::   ogv
       integer(8)   ::   oidxcg
-      integer(8)   ::   oips0
-      integer(8)   ::   oistab
+CCHSTRUC       integer(8)   ::   oips0
+       integer , pointer ::  iv_p_oips0 (:)
+CCHSTRUC       integer(8)   ::   oistab
+       integer , pointer ::  iv_p_oistab (:)
       integer(8)   ::   ojcg
       integer(8)   ::   okv
       integer(8)   ::   opos
@@ -3052,10 +3054,8 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%oidxcg, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oips0, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oistab, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip iv_p_oips0(:) because it is a pointer.
+Cstruc_makeinit.py skip iv_p_oistab(:) because it is a pointer.
        call mpi_bcast(struc%ojcg, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%okv, 1,MPI_INTEGER8
@@ -4504,8 +4504,6 @@ C$$$        end subroutine utb
        struc%odlv=0
        struc%ogv=0
        struc%oidxcg=0
-       struc%oips0=0
-       struc%oistab=0
        struc%ojcg=0
        struc%okv=0
        struc%opos=0

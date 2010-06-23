@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),iv_p_,oistab
 Cchp1 cmdvar= integer,iv_p_,oiprmb
 Cchp1 cmdvar= integer,iv_p_,oindxo
 Cchp1 cmdvar= real(8),rv_p_,oqsig
@@ -199,7 +200,10 @@ Cchp1         integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs ,
 Cchp1      .  ohrss , oistab , oqsig 
 Cchp1          integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs , 
 Cchp1      .   ohrss , oistab 
-          integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss , oistab 
+Cchp1           integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss , oistab 
+           integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss 
+           integer,pointer :: iv_p_oistab(:)
+
           integer,pointer :: iv_p_oiprmb(:)
 
          real(8),pointer :: rv_p_oqsig(:)
@@ -552,7 +556,9 @@ C     Sanity checks
 
 
       nsgrp=slat%nsgrp
-      oistab=slat%oistab
+Cchp1       oistab=slat%oistab
+       iv_p_oistab => slat%iv_p_oistab 
+
       og=slat%osymgr
       oag=slat%oag
 
@@ -818,10 +824,15 @@ Cchp1              call hamfb3 ( nbas , nl , iv_p_ooffh , w ( oiprmb ) , i , w (
 Cchp1      .       opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , w ( 
 Cchp1      .       oistab ) , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh , ndimh 
 Cchp1      .       , ndimh , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
-              call hamfb3 ( nbas , nl , iv_p_ooffh , iv_p_oiprmb , i , w ( 
-     .        opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , w ( 
-     .        oistab ) , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh , ndimh 
-     .        , ndimh , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
+Cchp1               call hamfb3 ( nbas , nl , iv_p_ooffh , iv_p_oiprmb , i , w ( 
+Cchp1      .        opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , w ( 
+Cchp1      .        oistab ) , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh , ndimh 
+Cchp1      .        , ndimh , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
+               call hamfb3 ( nbas , nl , iv_p_ooffh , iv_p_oiprmb , i , w ( 
+     .         opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , iv_p_oistab 
+     .         , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh , ndimh , ndimh 
+     .         , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
+
 
 
 
@@ -950,7 +961,9 @@ C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         allocate(istb2_iv(nsgrp*nbas))
         if (nsgrp*nbas<0) istb2_iv(:)=0
 
-        call istbpm ( w ( oistab ) , nbas , nsgrp , istb2_iv ) 
+Cchp1         call istbpm ( w ( oistab ) , nbas , nsgrp , istb2_iv ) 
+         call istbpm ( iv_p_oistab , nbas , nsgrp , istb2_iv ) 
+
 
         nl = nglob('nl')
 Cchp1         call rsmsym ( i , plat , mxorb , w ( oiprmb ) , ndimh , nbas 

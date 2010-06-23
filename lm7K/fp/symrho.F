@@ -1,3 +1,6 @@
+Cchp1 cmdvar= real(8),iv_p_,oistab
+Cchp1 cmdvar= real(8),iv_p_,oips0
+Cchp1 cmdvar= real(8),iv_p_,oips0
       subroutine symrho(ssite,sspec,slat,lf,smrho,orhoat,qbyl,hbyl,f)
 
       use m_struc_def  !Cgetarg
@@ -107,9 +110,14 @@ C ... Passed parameters
       type(s_lat)::slat
 
 C ... Local parameters
-      integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
-     ., lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , oag , ocg 
-     ., ocy , og , oidxcg , ojcg , igetss , mxint , oistab , ival
+Cchp1       integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
+Cchp1      ., lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , oag , ocg 
+Cchp1      ., ocy , og , oidxcg , ojcg , igetss , mxint , oistab , ival
+       integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
+     . , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , oag , ocg 
+     . , ocy , og , oidxcg , ojcg , igetss , mxint , ival 
+       integer,pointer :: iv_p_oistab(:)
+
       integer ,allocatable :: ipa_iv(:)
       integer ,allocatable :: ipc_iv(:)
       integer ,allocatable :: ips_iv(:)
@@ -138,7 +146,9 @@ C ... Heap
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      oistab=slat%oistab
+Cchp1       oistab=slat%oistab
+       iv_p_oistab => slat%iv_p_oistab 
+
 
 
       ngrp=slat%nsgrp
@@ -210,8 +220,11 @@ C   ... Make the projectors; make to at least to l=1 for forces
           allocate(sym_rv(nlmx*nlmx*nrclas))
 Ctakao_ZeroClear_NotRequiered          if (nlmx*nlmx*nrclas<0) sym_rv(:)=0.0d0
 
-          call symprj ( nrclas , nlmx , ngrp , nbas , w ( oistab ) , w 
-     .    ( og ) , w ( oag ) , plat , qlat , pos_rv , sym_rv )
+Cchp1           call symprj ( nrclas , nlmx , ngrp , nbas , w ( oistab ) , w 
+Cchp1      .    ( og ) , w ( oag ) , plat , qlat , pos_rv , sym_rv )
+           call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , w ( 
+     .     og ) , w ( oag ) , plat , qlat , pos_rv , sym_rv ) 
+
 
 
 C   ... Apply the projectors to rhoat
@@ -383,8 +396,12 @@ C ... Passed parameters
 
       double complex smrho(k1,k2,k3,nsp)
 C ... Local parameters
-      integer:: n1 , n2 , n3 , ng , ngrp , obgv , ogv , oips0 , okv 
-     ., ngabc(3) , isp
+Cchp1       integer:: n1 , n2 , n3 , ng , ngrp , obgv , ogv , oips0 , okv 
+Cchp1      ., ngabc(3) , isp
+       integer:: n1 , n2 , n3 , ng , ngrp , obgv , ogv , okv , ngabc(3) 
+     . , isp 
+       integer,pointer :: iv_p_oips0(:)
+
       complex(8) ,allocatable :: csym_zv(:)
       complex(8) ,allocatable :: cv_zv(:)
 
@@ -403,7 +420,9 @@ C ... Heap
 
 
       ngrp=slat%nsgrp
-      oips0=slat%oips0
+Cchp1       oips0=slat%oips0
+       iv_p_oips0 => slat%iv_p_oips0 
+
       obgv=slat%obgv
 
       if (ngrp .gt. 1) then
@@ -420,8 +439,11 @@ C       call zprm3('smrho before poke',smrho,k1,k2,k3)
           call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smrho ( 1 , 
      .    1 , 1 , isp ) , cv_zv )
 
-          call gvsym ( ng , w ( ogv ) , w ( oips0 ) , w ( obgv ) , cv_zv 
-     .    , csym_zv )
+Cchp1           call gvsym ( ng , w ( ogv ) , w ( oips0 ) , w ( obgv ) , cv_zv 
+Cchp1      .    , csym_zv )
+           call gvsym ( ng , w ( ogv ) , iv_p_oips0 , w ( obgv ) , cv_zv 
+     .     , csym_zv ) 
+
 
           call dpadd ( csym_zv , cv_zv , 1 , ng * 2 , - 1d0 )
 

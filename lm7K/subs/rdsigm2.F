@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),iv_p_,oistab
 Cchp1 cmdvar= integer,iv_p_,oiprmb
 Cchp1 cmdvar= integer,iv_p_,oindxo
 Cchp1 cmdvar= real(8),rv_p_,oqsig
@@ -43,7 +44,10 @@ Cchp1         integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs ,
 Cchp1      .  ohrss , oistab , oqsig 
 Cchp1          integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs , 
 Cchp1      .   ohrss , oistab 
-          integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss , oistab 
+Cchp1           integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss , oistab 
+           integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss 
+         integer,pointer :: iv_p_oistab(:)
+
           integer,pointer :: iv_p_oiprmb(:)
 
          real(8),pointer :: rv_p_oqsig(:)
@@ -284,7 +288,9 @@ C     Sanity checks
 
 
       nsgrp=slat%nsgrp
-      oistab=slat%oistab
+Cchp1       oistab=slat%oistab
+       iv_p_oistab => slat%iv_p_oistab 
+
       og=slat%osymgr
       oag=slat%oag
 
@@ -705,7 +711,9 @@ C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         allocate(istb2_iv(nsgrp*nbas))
 Ctakao_ZeroClear_NotRequiered          if (nsgrp*nbas<0) istb2_iv(:)=0
 
-        call istbpm ( w ( oistab ) , nbas , nsgrp , istb2_iv )
+Cchp1         call istbpm ( w ( oistab ) , nbas , nsgrp , istb2_iv )
+         call istbpm ( iv_p_oistab , nbas , nsgrp , istb2_iv ) 
+
 
         nl = nglob('nl')
 Cchp1         call rsmsym ( i , plat , mxorb , w ( oiprmb ) , ndimh , nbas 
@@ -1222,8 +1230,12 @@ Cchp1        integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs ,
 Cchp1      . ohrss , oistab , osigm2 , oqsig , odelt , oistb2 
 Cchp1         integer:: og , oag , oiprmb , opos , ontabs , oiaxs , ohrs , 
 Cchp1      .  ohrss , oistab , osigm2 , odelt , oistb2 
-         integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss , oistab 
-     .   , osigm2 , odelt , oistb2 
+Cchp1          integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss , oistab 
+Cchp1      .   , osigm2 , odelt , oistb2 
+          integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss , osigm2 
+     .    , odelt , oistb2 
+         integer,pointer :: iv_p_oistab(:)
+
          integer,pointer :: iv_p_oiprmb(:)
 
         real(8),pointer :: rv_p_oqsig(:)
@@ -1458,7 +1470,9 @@ C     Sanity checks
 
 
       nsgrp=slat%nsgrp
-      oistab=slat%oistab
+Cchp1       oistab=slat%oistab
+       iv_p_oistab => slat%iv_p_oistab 
+
       og=slat%osymgr
       oag=slat%oag
 
