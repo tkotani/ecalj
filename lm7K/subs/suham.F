@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oips
 Cchp1 cmdvar= integer,iv_p_,oidxsh
 Cchp1 cmdvar= integer,iv_p_,oiprmb
 Cchp1 cmdvar= integer,iv_p_,oindxo
@@ -356,8 +357,11 @@ C ... Needed for iostr
 Cchp1       integer obas,offH,oidxsh,oipc,oips,oo,opp,oeula,opti,obs,omagf
 Cchp1        integer:: obas , oidxsh , oipc , oips , oo , opp , oeula , opti 
 Cchp1      . , obs , omagf 
-        integer:: obas , oipc , oips , oo , opp , oeula , opti , obs 
-     .  , omagf 
+Cchp1         integer:: obas , oipc , oips , oo , opp , oeula , opti , obs 
+Cchp1      .  , omagf 
+         integer:: obas , oipc , oo , opp , oeula , opti , obs , omagf 
+         integer,pointer :: iv_p_oips(:)
+
         integer,pointer :: iv_p_oidxsh(:)
 
        integer,pointer :: iv_p_offh(:)
@@ -376,7 +380,9 @@ c      integer :: sigswitch
 
 C --- Setup ---
 
-      oips=sarray%oips
+Cchp1       oips=sarray%oips
+       iv_p_oips => sarray%iv_p_oips 
+
       oipc=sarray%oipc
 
 
@@ -446,8 +452,11 @@ Cchp1         call makidx(nl,nkaph,1,nbasp,0,sspec,w(oips),w(offH),w(oidxsh),
 Cchp1      .  ldham)
 Cchp1          call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , w ( oips ) 
 Cchp1      .   , iv_p_offh , w ( oidxsh ) , ldham ) 
-          call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , w ( oips ) 
-     .    , iv_p_offh , iv_p_oidxsh , ldham ) 
+Cchp1           call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , w ( oips ) 
+Cchp1      .    , iv_p_offh , iv_p_oidxsh , ldham ) 
+           call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , iv_p_oips 
+     .     , iv_p_offh , iv_p_oidxsh , ldham ) 
+
 
 
       endif

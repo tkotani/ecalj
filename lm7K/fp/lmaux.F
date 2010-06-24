@@ -1,3 +1,6 @@
+Cchp1 cmdvar= integer,iv_p_,owk
+Cchp1 cmdvar= integer,iv_p_,onrc
+Cchp1 cmdvar= integer,iv_p_,oips
 Cchp1 cmdvar= real(8),rv_p_,orhrmx
 Cchp1 cmdvar= real(8),rv_p_,oqt
 Cchp1 cmdvar= real(8),rv_p_,oqnu
@@ -161,10 +164,26 @@ Cchp1                  integer:: oeold , oeula , oipc , olmx , onrc , opold , or
 Cchp1      .           , ormax , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , 
 Cchp1      .           oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
 Cchp1      .           , og , oag , mxclas 
-                  integer:: oeold , oeula , oipc , olmx , onrc , opold , ormax 
-     .            , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha 
-     .            , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax , og 
-     .            , oag , mxclas 
+Cchp1                   integer:: oeold , oeula , oipc , olmx , onrc , opold , ormax 
+Cchp1      .            , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha 
+Cchp1      .            , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax , og 
+Cchp1      .            , oag , mxclas 
+Cchp1                    integer:: oeold , oeula , oipc , olmx , onrc , opold , ormax 
+Cchp1      .             , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha 
+Cchp1      .             , onpr , os , ormx , oip , opgfsl , ontab , oiax , og , oag , 
+Cchp1      .             mxclas 
+Cchp1                     integer:: oeold , oeula , oipc , olmx , opold , ormax , owk , 
+Cchp1      .              owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , 
+Cchp1      .              os , ormx , oip , opgfsl , ontab , oiax , og , oag , mxclas 
+                     integer:: oeold , oeula , oipc , olmx , opold , ormax , owk2 
+     .               , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , os , 
+     .               ormx , oip , opgfsl , ontab , oiax , og , oag , mxclas 
+                     integer,pointer :: iv_p_owk(:)
+
+                    integer,pointer :: iv_p_onrc(:)
+
+                   integer,pointer :: iv_p_oips(:)
+
                   real(8),pointer :: rv_p_orhrmx(:)
 
                  real(8),pointer :: rv_p_oqt(:)
@@ -245,7 +264,9 @@ Cchp1       oics=sarray%oics
 Cchp1       oclabl=sarray%oclabl
        rv_p_oclabl => sarray%rv_p_oclabl 
 
-      onrc=sarray%onrc
+Cchp1       onrc=sarray%onrc
+       iv_p_onrc => sarray%iv_p_onrc 
+
 ccc
 
 
@@ -258,7 +279,9 @@ c       opgfsl=sarray%opgfsl
 
       opos=sarray%opos
       oipc=sarray%oipc
-      oips=sarray%oips
+Cchp1       oips=sarray%oips
+       iv_p_oips => sarray%iv_p_oips 
+
 
 
 c       oeula=sham%oeula
@@ -453,9 +476,12 @@ Ctakao_ZeroClear_NotRequiered          if (nspec<0) rmt_rv(:)=0.0d0
           else
             call rx('LMAUX: not implemented for lpbc>1')
           endif
-          call makrm0 ( 101 , nspec , nbas , alat , plat , w ( opos ) , 
-     .    slabl , w ( oips ) , modep , lock_iv , zz_rv , rmt_rv 
-     .    )
+Cchp1           call makrm0 ( 101 , nspec , nbas , alat , plat , w ( opos ) , 
+Cchp1      .    slabl , w ( oips ) , modep , lock_iv , zz_rv , rmt_rv 
+Cchp1      .    )
+           call makrm0 ( 101 , nspec , nbas , alat , plat , w ( opos ) , 
+     .     slabl , iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
+
 
 C   ... Scale sphere radii satisfying constraints
 
@@ -465,9 +491,13 @@ C   ... Scale sphere radii satisfying constraints
           call dcopy(i_copy_size,sctrl%omax2,1,omax2,1)
           wsrmax=sctrl%wsrmax
 
-          call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , w ( opos 
-     .    ) , w ( oips ) , modep , slabl , zz_rv , lock_iv , 1d0 
-     .    , wsrmax , omax1 , omax2 , rmt_rv )
+Cchp1           call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , w ( opos 
+Cchp1      .    ) , w ( oips ) , modep , slabl , zz_rv , lock_iv , 1d0 
+Cchp1      .    , wsrmax , omax1 , omax2 , rmt_rv )
+           call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , w ( opos 
+     .     ) , iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
+     .     , omax1 , omax2 , rmt_rv ) 
+
 
           i_copy_size=1;
           do i_spackv=1,nspec
@@ -509,9 +539,13 @@ Cchp1      .    w(oclabl),w(oips),w(oipc),w(oves),w(oeula),nclass)
 Cchp1            call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
 Cchp1      .     , z , slabl , rv_p_oclabl , w ( oips ) , w ( oipc ) , w ( oves 
 Cchp1      .     ) , w ( oeula ) , nclass ) 
-            call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
-     .      , z , slabl , rv_p_oclabl , w ( oips ) , w ( oipc ) , rv_p_oves 
-     .      , w ( oeula ) , nclass ) 
+Cchp1             call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
+Cchp1      .      , z , slabl , rv_p_oclabl , w ( oips ) , w ( oipc ) , rv_p_oves 
+Cchp1      .      , w ( oeula ) , nclass ) 
+             call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
+     .       , z , slabl , rv_p_oclabl , iv_p_oips , w ( oipc ) , rv_p_oves 
+     .       , w ( oeula ) , nclass ) 
+
 
 
         endif
@@ -519,7 +553,10 @@ Cchp1      .     ) , w ( oeula ) , nclass )
 C --- Show angles between neighbors ---
         j = 9
         if (cmdopt('--angles',j-1,0,outs)) then
-          call shoang(outs(j:),nbas,w(opos),plat,mxnbr,slabl,w(oips))
+Cchp1           call shoang(outs(j:),nbas,w(opos),plat,mxnbr,slabl,w(oips))
+           call shoang ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
+     .     , slabl , iv_p_oips ) 
+
         endif
 
 C --- Check whether basis w(opos) differs from site file by translation ---
@@ -554,8 +591,11 @@ Ctakao_ZeroClear_NotRequiered          if (nbas<0) ips2_iv(:)=0
 
           call defrr(og,   9*ngmx)
           call symlat(plat,ngrp,w(og),j)
-          j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , w ( oips 
-     .    ) , w ( opos ) , ips2_iv , pos2_rv )
+Cchp1           j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , w ( oips 
+Cchp1      .    ) , w ( opos ) , ips2_iv , pos2_rv )
+           j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , iv_p_oips 
+     .     , w ( opos ) , ips2_iv , pos2_rv ) 
+
 
           call fexit(j,1,' Exit %i lmchk --basis= ...',j)
         endif
@@ -571,7 +611,9 @@ C     qlat = (plat+)^-1
             call dpscop(w(opos),xv,3,3*i-2,1,1d0)
 C       posp+ = (plat)^-1 pos+
             call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
-            ip = ival(w(oips),i)
+Cchp1             ip = ival(w(oips),i)
+             ip = ival ( iv_p_oips , i ) 
+
             print 345, i, slabl(ip), (xv(j),j=1,3), (xv(3+j),j=1,3)
   345       format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
           enddo
@@ -812,9 +854,17 @@ Ctakao_ZeroClear_NotRequiered          if (mxclas<0) rmtc_rv(:)=0.0d0
         allocate(lockc_rv(mxclas))
 Ctakao_ZeroClear_NotRequiered          if (mxclas<0) lockc_rv(:)=0.0d0
 
-        owk = onrc
-        call defi(onrc,mxclas)
-        call icopy(nclass,w(owk),1,w(onrc),1)
+cki        owk = onrc
+        iv_p_owk => iv_p_onrc
+Cchp1         call defi(onrc,mxclas)
+         allocate(iv_p_onrc(abs(mxclas)))
+         if (mxclas<0) iv_p_onrc(:)=0
+
+Cchp1         call icopy(nclass,w(owk),1,w(onrc),1)
+Cchp1          call icopy ( nclass , w ( owk ) , 1 , iv_p_onrc , 1 ) 
+          call icopy ( nclass , iv_p_owk , 1 , iv_p_onrc , 1 ) 
+
+
 
         if (nclass .ge. mxclas) call rx('lmaux: increase mxclas')
         call spec2c ( nspec , nclass , ics , rmt_rv , rmtc_rv , 
@@ -823,9 +873,13 @@ Ctakao_ZeroClear_NotRequiered          if (mxclas<0) lockc_rv(:)=0.0d0
 Cchp1         call findes ( sctrl , alat , w ( oclabl ) , nbas , nclass , nl 
 Cchp1      .  , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
 Cchp1      .  , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
-         call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
-     .   , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-     .   , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
+Cchp1          call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
+Cchp1      .   , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+Cchp1      .   , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
+          call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
+     .    , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+     .    , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
+
 
 
 

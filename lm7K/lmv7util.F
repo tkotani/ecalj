@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,osop
 Cchp1 cmdvar= real(8),rv_p_,opprel
 Cchp1 cmdvar= real(8),rv_p_,orhrmx
 Cchp1 cmdvar= real(8),rv_p_,orhos
@@ -584,8 +585,12 @@ Cchp1                        integer:: orhrmx , osop , ogroup , opprel , oifrlx 
 Cchp1      .                 oipc , opos , ozos , ormax , n0 
 Cchp1                         integer:: osop , ogroup , opprel , oifrlx , oivso , oipc , opos 
 Cchp1      .                  , ozos , ormax , n0 
-                         integer:: osop , ogroup , oifrlx , oivso , oipc , opos , ozos 
-     .                   , ormax , n0 
+Cchp1                          integer:: osop , ogroup , oifrlx , oivso , oipc , opos , ozos 
+Cchp1      .                   , ormax , n0 
+                          integer:: ogroup , oifrlx , oivso , oipc , opos , ozos , ormax 
+     .                    , n0 
+                          real(8),pointer :: rv_p_osop(:)
+
                          real(8),pointer :: rv_p_opprel(:)
 
                         real(8),pointer :: rv_p_orhrmx(:)
@@ -818,7 +823,10 @@ Cchp1           call defdr(orhos,2*3*4*nrhos*nclasp)
            allocate(rv_p_orhos(abs(2*3*4*nrhos*nclasp)))
            if (2*3*4*nrhos*nclasp<0) rv_p_orhos(:)=0.0d0
 
-          call defdr(osop,-nlspc*nsp*9)
+Cchp1           call defdr(osop,-nlspc*nsp*9)
+           allocate(rv_p_osop(abs(-nlspc*nsp*9)))
+           if (-nlspc*nsp*9<0) rv_p_osop(:)=0.0d0
+
 Cchp1           call defdr(obxc,-3*nclasp)
            allocate(rv_p_obxc(abs(-3*nclasp)))
            if (-3*nclasp<0) rv_p_obxc(:)=0.0d0
@@ -836,7 +844,9 @@ Cchp1           spot%orhos=orhos
 Cchp1           spot%obxc=obxc 
            spot%rv_p_obxc => rv_p_obxc 
 
-          spot%osop=osop 
+Cchp1           spot%osop=osop 
+           spot%rv_p_osop => rv_p_osop 
+
         endif
 
 cki        ogrrme = 0
@@ -1398,8 +1408,12 @@ Cchp1                  integer:: orhrmx , opprel , osop , olpp , olppr , olsop ,
 Cchp1      .           , olva , olmp , opot , ocor , onrc , n0 , nglob 
 Cchp1                   integer:: opprel , osop , olpp , olppr , olsop , olgrme , olva 
 Cchp1      .            , olmp , opot , ocor , onrc , n0 , nglob 
-                   integer:: osop , olpp , olppr , olsop , olgrme , olva , olmp 
-     .             , opot , ocor , onrc , n0 , nglob 
+Cchp1                    integer:: osop , olpp , olppr , olsop , olgrme , olva , olmp 
+Cchp1      .             , opot , ocor , onrc , n0 , nglob 
+                    integer:: olpp , olppr , olsop , olgrme , olva , olmp , opot 
+     .              , ocor , onrc , n0 , nglob 
+                    real(8),pointer :: rv_p_osop(:)
+
                    real(8),pointer :: rv_p_opprel(:)
 
                   real(8),pointer :: rv_p_orhrmx(:)
@@ -1457,7 +1471,9 @@ Cchp1       opp=spot%opp
 Cchp1       opprel=spot%opprel
        rv_p_opprel => spot%rv_p_opprel 
 
-      osop=spot%osop
+Cchp1       osop=spot%osop
+       rv_p_osop => spot%rv_p_osop 
+
 Cchp1       ogrrme=spot%ogrrme
        rv_p_ogrrme => spot%rv_p_ogrrme 
 
@@ -1660,11 +1676,16 @@ Cchp1           call dpscop(w(omp),w(olmp),k,1+(jc-1)*k,1,1d0)
 Cchp1         call pvaioc(w(ohave),4,ic,icmap,haveso,jc)
          call pvaioc ( iv_p_ohave , 4 , ic , icmap , haveso , jc ) 
 
-        haveso = haveso .and. osop.gt. 0
+cki        haveso = haveso .and. osop.gt. 0
+        haveso = haveso .and. associated(rv_p_osop)
         readso = .not. haveso .or. mode00 .eq. 2 .and. jc .ne. ic
-        readso = readso .and. osop .gt. 0 .and. mode00 .lt. 3
+cki        readso = readso .and. osop .gt. 0 .and. mode00 .lt. 3
+        readso = readso .and. associated(rv_p_osop) .and. mode00 .lt. 3
         if (haveso) then
-          call dpscop(w(osop),w(olsop),k,1+(jc-1)*k,1,1d0)
+Cchp1           call dpscop(w(osop),w(olsop),k,1+(jc-1)*k,1,1d0)
+           call dpscop ( rv_p_osop , w ( olsop ) , k , 1 + ( jc - 1 ) * 
+     .     k , 1 , 1d0 ) 
+
           if (ic.ne.jc) call awrit0('%a sop,',outs1,len(outs1),0)
         endif
         k = 16*nl*nsp
@@ -1740,7 +1761,8 @@ C             call dmcpy(pdf,n0,1,pnuloc,nl,1,nl,nsp)
      .      ifi)
             if (readpp) call awrit0('%a pp,',outs2,len(outs2),0)
           endif
-          if (readso .and. osop .gt. 0) then
+cki          if (readso .and. osop .gt. 0) then
+          if (readso .and. associated(rv_p_osop) ) then
             readso = aiosop(clabl,w(olsop),nl,lmx,nsp,ifi)
             if (readso) call awrit0('%a so,',outs2,len(outs2),0)
           endif
@@ -1823,8 +1845,13 @@ Cchp1      .    call dpscop(w(olmp),w(omp),k,1,1+(ic-1)*k,1d0)
      .     1d0 ) 
 
           k = nl*nsp*nsp*9
-          if ((haveso .or. readso) .and. osop .gt. 0)
-     .    call dpscop(w(olsop),w(osop),k,1,1+(ic-1)*k,1d0)
+cki          if ((haveso .or. readso) .and. osop .gt. 0)
+Cchp1           if ((haveso .or. readso) .and. associated(rv_p_osop ))
+Cchp1      .    call dpscop(w(olsop),w(osop),k,1,1+(ic-1)*k,1d0)
+           if ( ( haveso .or. readso ) .and. associated ( rv_p_osop ) ) 
+     .     call dpscop ( w ( olsop ) , rv_p_osop , k , 1 , 1 + ( ic - 1 
+     .     ) * k , 1d0 ) 
+
           k = 16*nl*nsp
 Cchp1           if ((haveop .or. readop) .and. associated(rv_p_ogrrme))
 Cchp1      .    call dpscop(w(olgrme),w(ogrrme),k,1,1+(ic-1)*k,1d0)

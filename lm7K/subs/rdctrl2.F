@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oips
       module m_rdctrl2_func
       contains
       subroutine rdctrl2(recrd,recln,nrecs,
@@ -203,7 +204,10 @@ c     &  uctrl_size,ulat_size,uham_size,uarray_size,upot_size,ustr_size
 c
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
       real(8):: seref
-      integer:: ib,ispec,opos,oips
+Cchp1       integer:: ib,ispec,opos,oips
+       integer:: ib , ispec , opos 
+       integer,pointer :: iv_p_oips(:)
+
 
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -1798,16 +1802,24 @@ c         call spacks_copy('p',v_ssite(i)%clabel,ib,ib,spid,ispec)
       v_sham%seref=seref
 c
       call defrr(opos,3*nsite)
-      call defi(oips,nsite)
+Cchp1       call defi(oips,nsite)
+       allocate(iv_p_oips(abs(nsite)))
+       if (nsite<0) iv_p_oips(:)=0
+
       do i_spackv=1,nsite
         i_copy_size=3
         call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
         i_copy_size=1
-        call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+Cchp1         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
+         call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec 
+     .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oips ) 
+
       enddo
       v_slat%opos=opos
       v_sarry%opos=opos
-      v_sarry%oips=oips
+Cchp1       v_sarry%oips=oips
+       v_sarry%iv_p_oips => iv_p_oips 
+
 
 
 c       v_sham%lham=(int(v_sctrl%lham))

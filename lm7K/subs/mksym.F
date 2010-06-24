@@ -1,3 +1,6 @@
+Cchp1 cmdvar= integer,iv_p_,onrcp
+Cchp1 cmdvar= integer,iv_p_,onrc
+Cchp1 cmdvar= integer,iv_p_,oips
 Cchp1 cmdvar= real(8),iv_p_,oistab
 Cchp1 cmdvar= integer,iv_p_,oics
 Cchp1 cmdvar= real(8),rv_p_,oclabl
@@ -92,8 +95,19 @@ Cchp1        integer:: oics , oips , oistab , onrc , onrcp , opos , oipc ,
 Cchp1      . oipcp , oiwk , oag , osymgr , aginv 
 Cchp1         integer:: oips , oistab , onrc , onrcp , opos , oipc , oipcp 
 Cchp1      .  , oiwk , oag , osymgr , aginv 
-         integer:: oips , onrc , onrcp , opos , oipc , oipcp , oiwk , 
-     .   oag , osymgr , aginv 
+Cchp1          integer:: oips , onrc , onrcp , opos , oipc , oipcp , oiwk , 
+Cchp1      .   oag , osymgr , aginv 
+Cchp1           integer:: onrc , onrcp , opos , oipc , oipcp , oiwk , oag , osymgr 
+Cchp1      .    , aginv 
+Cchp1            integer:: onrcp , opos , oipc , oipcp , oiwk , oag , osymgr , 
+Cchp1      .     aginv 
+            integer:: opos , oipc , oipcp , oiwk , oag , osymgr , aginv 
+            integer,pointer :: iv_p_onrcp(:)
+
+           integer,pointer :: iv_p_onrc(:)
+
+          integer,pointer :: iv_p_oips(:)
+
          integer,pointer :: iv_p_oistab(:)
 
         integer,pointer :: iv_p_oics(:)
@@ -143,7 +157,9 @@ Ctakao_ZeroClear_NotRequiered        if (nbas<0) nrspc_iv(:)=0
 
 
       opos=sarray%opos
-      oips=sarray%oips
+Cchp1       oips=sarray%oips
+       iv_p_oips => sarray%iv_p_oips 
+
 
 C     call defi(oips,nbas)
 C     call defrr(opos,3*nbas)
@@ -202,7 +218,9 @@ Ctakao_ZeroClear_NotRequiered        if (ngmx*nbas<0) ips2_iv(:)=0
       allocate(pos2_rv(3*ngmx*nbas))
 Ctakao_ZeroClear_NotRequiered        if (3*ngmx*nbas<0) pos2_rv(:)=0.0d0
 
-      call icopy ( nbas , w ( oips ) , 1 , ips2_iv , 1 )
+Cchp1       call icopy ( nbas , w ( oips ) , 1 , ips2_iv , 1 )
+       call icopy ( nbas , iv_p_oips , 1 , ips2_iv , 1 ) 
+
 
       call dcopy ( 3 * nbas , w ( opos ) , 1 , pos2_rv , 1 )
 
@@ -275,17 +293,26 @@ C --- Printout of symmetry operations ---
       if (mod(mode/10,10) .eq. 0) goto 100
 
 C --- Split species into classes ---
-      call defi(onrc, nspec)
-      call icopy(nsite,w(oips),1,w(oipc),1)
+Cchp1       call defi(onrc, nspec)
+       allocate(iv_p_onrc(abs(nspec)))
+       if (nspec<0) iv_p_onrc(:)=0
+
+Cchp1       call icopy(nsite,w(oips),1,w(oipc),1)
+       call icopy ( nsite , iv_p_oips , 1 , w ( oipc ) , 1 ) 
+
 
 Cchp1       call splcls(mod(mode/10,10).eq.4,w(opos),nbas,nsgrp,w(oistab),
 Cchp1      .nspec,slabl,nclass,w(oipc),w(oics),w(onrc))
 Cchp1        call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
 Cchp1      . , nsgrp , w ( oistab ) , nspec , slabl , nclass , w ( oipc ) 
 Cchp1      . , iv_p_oics , w ( onrc ) ) 
-        call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
-     .  , nsgrp , iv_p_oistab , nspec , slabl , nclass , w ( oipc ) , 
-     .  iv_p_oics , w ( onrc ) ) 
+Cchp1         call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
+Cchp1      .  , nsgrp , iv_p_oistab , nspec , slabl , nclass , w ( oipc ) , 
+Cchp1      .  iv_p_oics , w ( onrc ) ) 
+         call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
+     .   , nsgrp , iv_p_oistab , nspec , slabl , nclass , w ( oipc ) , 
+     .   iv_p_oics , iv_p_onrc ) 
+
 
 
 ccccccccccc
@@ -384,18 +411,25 @@ Cchp1         call defrr(oclabl, nclspp)
          allocate(rv_p_oclabl(abs(nclspp)))
          if (nclspp<0) rv_p_oclabl(:)=0.0d0
 
-        call defi (onrcp,  nclspp)
+Cchp1         call defi (onrcp,  nclspp)
+         allocate(iv_p_onrcp(abs(nclspp)))
+         if (nclspp<0) iv_p_onrcp(:)=0
+
 Cchp1         call pvsym2(3,2*nbasp-nbas,nclspp,w(oics),w(oipcp),nspec,slabl,
 Cchp1      .  ssite,w(oclabl),w(onrcp))
 Cchp1          call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , w ( oics ) , w 
 Cchp1      .   ( oipcp ) , nspec , slabl , ssite , rv_p_oclabl , w ( onrcp ) 
 Cchp1      .   ) 
-          call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , w ( 
-     .    oipcp ) , nspec , slabl , ssite , rv_p_oclabl , w ( onrcp ) ) 
+Cchp1           call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , w ( 
+Cchp1      .    oipcp ) , nspec , slabl , ssite , rv_p_oclabl , w ( onrcp ) ) 
+           call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , w ( 
+     .     oipcp ) , nspec , slabl , ssite , rv_p_oclabl , iv_p_onrcp ) 
+
 
 
 C$$$     if (nclasp .eq. nclass) then !we only treat nclasp=nclass case. takao Apr2010
-        onrc = onrcp
+cki        onrc = onrcp
+        iv_p_onrc => iv_p_onrcp
 C$$$     else
 C$$$          call defi (onrc,   nclasp)
 C$$$          call icopy(nclasp,w(onrcp),1,w(onrc),1)
@@ -406,7 +440,8 @@ C$$$     endif
       else
 cki        oclabl = 0
         nullify(rv_p_oclabl)
-        onrcp = 0
+cki        onrcp = 0
+        nullify(iv_p_onrcp)
       endif
 
 C       call awrit2('%n:1i',' ',100,6,nsite,w(oipc))
@@ -418,7 +453,9 @@ C --- Cleanup: poke class and symmetry info into structures ---
       sctrl%nclass=nclass
 
 
-      sarray%onrcp=onrcp
+Cchp1       sarray%onrcp=onrcp
+       sarray%iv_p_onrcp => iv_p_onrcp 
+
       sarray%oipcp=oipcp
 
 
@@ -430,7 +467,9 @@ Cchp1       sarray%oclabl=oclabl
        sarray%rv_p_oclabl => rv_p_oclabl 
 
       sarray%nclasp=nclasp
-      sarray%onrc=onrc
+Cchp1       sarray%onrc=onrc
+       sarray%iv_p_onrc => iv_p_onrc 
+
 
 c     call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
   100 continue

@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oips
       subroutine mcasim(sctrl,sarray,sspec,slat,smove,sstrn)
 
       use m_struc_def  !Cgetarg
@@ -31,9 +32,14 @@ C ... Passed parameters
 
 C Local
       logical cmdopt
-      integer:: i , i1 , i2 , igets , iosiga , j , lpbc , ltype(2) 
-     ., nbas , nbasp , nspec , nttab , ntype(2) , oiax , oiprm , oips 
-     ., ontab , opgfsl , opos
+Cchp1       integer:: i , i1 , i2 , igets , iosiga , j , lpbc , ltype(2) 
+Cchp1      ., nbas , nbasp , nspec , nttab , ntype(2) , oiax , oiprm , oips 
+Cchp1      ., ontab , opgfsl , opos
+       integer:: i , i1 , i2 , igets , iosiga , j , lpbc , ltype(2) 
+     . , nbas , nbasp , nspec , nttab , ntype(2) , oiax , oiprm , ontab 
+     . , opgfsl , opos 
+       integer,pointer :: iv_p_oips(:)
+
       real(8) ,allocatable :: epair_rv(:)
       real(8) ,allocatable :: esite_rv(:)
       integer ,allocatable :: ipair_iv(:)
@@ -68,7 +74,9 @@ C ... Heap
 
 
 c       opgfsl=sarray%opgfsl
-      oips=sarray%oips
+Cchp1       oips=sarray%oips
+       iv_p_oips => sarray%iv_p_oips 
+
       opos=sarray%opos
 
       allocate(rham_rv(nspec))
@@ -99,9 +107,13 @@ C --- Make iax and rtab ---
       mxcsiz = 0
 c      call pairs(nbas,nbasp,alat,plat,w(orham),w(opos),
 c     .  w(oips),i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
-      call pairs ( nbas , nbasp , alat , plat , rham_rv , w ( opos 
-     .) , w ( oips ) , i , j , w_dummy , nttab , ontab , oiax , mxcsiz 
-     .)
+Cchp1       call pairs ( nbas , nbasp , alat , plat , rham_rv , w ( opos 
+Cchp1      .) , w ( oips ) , i , j , w_dummy , nttab , ontab , oiax , mxcsiz 
+Cchp1      .)
+       call pairs ( nbas , nbasp , alat , plat , rham_rv , w ( opos 
+     . ) , iv_p_oips , i , j , w_dummy , nttab , ontab , oiax , mxcsiz 
+     . ) 
+
 
       allocate(rtab_rv(3*nttab))
 Ctakao_ZeroClear_NotRequiered        if (3*nttab<0) rtab_rv(:)=0.0d0
@@ -128,10 +140,14 @@ Ctakao_ZeroClear_NotRequiered        if (nttab<0) ipair_iv(:)=0
       ntype(2) = 1
       ltype(1) = 1
       ltype(2) = 1
-      call suemph ( sspec , sstrn ( i1:i2 ) , w ( ontab ) , w ( oiax 
-     .) , rtab_rv , nbasp , nttab , w ( oips ) , ntype , ltype , 
-     .htype , esite_rv , isite_iv , epair_rv , ipair_iv 
-     .)
+Cchp1       call suemph ( sspec , sstrn ( i1:i2 ) , w ( ontab ) , w ( oiax 
+Cchp1      .) , rtab_rv , nbasp , nttab , w ( oips ) , ntype , ltype , 
+Cchp1      .htype , esite_rv , isite_iv , epair_rv , ipair_iv 
+Cchp1      .)
+       call suemph ( sspec , sstrn ( i1:i2 ) , w ( ontab ) , w ( oiax 
+     . ) , rtab_rv , nbasp , nttab , iv_p_oips , ntype , ltype , htype 
+     . , esite_rv , isite_iv , epair_rv , ipair_iv ) 
+
 
 
 C --- sigmas, permutation table from file; if missing create and exit---
@@ -148,27 +164,41 @@ Ctakao_ZeroClear_NotRequiered        if (nbasp<0) sigl_iv(:)=0
       allocate(sigma_iv(nbasp))
 Ctakao_ZeroClear_NotRequiered        if (nbasp<0) sigma_iv(:)=0
 
-      if ( iosiga ( 0 , 'sigma' , nbasp , w ( oips ) , sigl_iv , 
-     .sigb_iv , w ( oiprm ) , w ( opos ) ) .lt. 0 ) then
+Cchp1       if ( iosiga ( 0 , 'sigma' , nbasp , w ( oips ) , sigl_iv , 
+Cchp1      .sigb_iv , w ( oiprm ) , w ( opos ) ) .lt. 0 ) then
+       if ( iosiga ( 0 , 'sigma' , nbasp , iv_p_oips , sigl_iv , sigb_iv 
+     . , w ( oiprm ) , w ( opos ) ) .lt. 0 ) then 
+
 
 C       Initial permutation table
         do  10  i = 1, nbasp
           w(oiprm+i-1) = i
    10   continue
 C       Both sigb and sigl have same convention for now
-        call mcasms ( 0 , 1 , nbas , w ( oips ) , sigb_iv )
+Cchp1         call mcasms ( 0 , 1 , nbas , w ( oips ) , sigb_iv )
+         call mcasms ( 0 , 1 , nbas , iv_p_oips , sigb_iv ) 
 
-        call mcasms ( 0 , 1 , nbas , w ( oips ) , sigl_iv )
 
-        i = iosiga ( 1 , 'sigma' , nbasp , w ( oips ) , sigl_iv , 
-     .  sigb_iv , w ( oiprm ) , w ( opos ) )
+Cchp1         call mcasms ( 0 , 1 , nbas , w ( oips ) , sigl_iv )
+         call mcasms ( 0 , 1 , nbas , iv_p_oips , sigl_iv ) 
+
+
+Cchp1         i = iosiga ( 1 , 'sigma' , nbasp , w ( oips ) , sigl_iv , 
+Cchp1      .  sigb_iv , w ( oiprm ) , w ( opos ) )
+         i = iosiga ( 1 , 'sigma' , nbasp , iv_p_oips , sigl_iv , sigb_iv 
+     .   , w ( oiprm ) , w ( opos ) ) 
+
 
         call rx0(' wrote new sigma file')
       endif
 
-      call mcasm2 ( smove , w ( ontab ) , w ( oiax ) , nbasp , nttab 
-     ., w ( oips ) , esite_rv , epair_rv , sigma_iv , w ( 
-     .oiprm ) , iprmi_iv , sigb_iv , sigl_iv )
+Cchp1       call mcasm2 ( smove , w ( ontab ) , w ( oiax ) , nbasp , nttab 
+Cchp1      ., w ( oips ) , esite_rv , epair_rv , sigma_iv , w ( 
+Cchp1      .oiprm ) , iprmi_iv , sigb_iv , sigl_iv )
+       call mcasm2 ( smove , w ( ontab ) , w ( oiax ) , nbasp , nttab 
+     . , iv_p_oips , esite_rv , epair_rv , sigma_iv , w ( oiprm ) , 
+     . iprmi_iv , sigb_iv , sigl_iv ) 
+
 
 
 Cki#error, have return with len(w_varlist)>0 at line 152
@@ -186,8 +216,11 @@ Cki#error, have return with len(w_varlist)>0 at line 152
         return
       endif
 
-      i = iosiga ( 1 , outs ( 9: ) , nbasp , w ( oips ) , sigl_iv 
-     ., sigb_iv , w ( oiprm ) , w ( opos ) )
+Cchp1       i = iosiga ( 1 , outs ( 9: ) , nbasp , w ( oips ) , sigl_iv 
+Cchp1      ., sigb_iv , w ( oiprm ) , w ( opos ) )
+       i = iosiga ( 1 , outs ( 9: ) , nbasp , iv_p_oips , sigl_iv , 
+     . sigb_iv , w ( oiprm ) , w ( opos ) ) 
+
 
 
       if (allocated(rham_rv)) deallocate(rham_rv)
