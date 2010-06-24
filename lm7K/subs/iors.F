@@ -1,3 +1,4 @@
+Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= real(8),rv_p_,oves
 #define FP 1
       integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
@@ -142,8 +143,12 @@ C ... Local parameters
      .nxi,nat0,ibaug
 Cchp1       integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
 Cchp1      ., stdo , isw , osmrho , oves
-       integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
-     . , stdo , isw , osmrho 
+Cchp1        integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
+Cchp1      . , stdo , isw , osmrho 
+        integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
+     .  , stdo , isw 
+        complex(8),pointer :: zv_p_osmrho(:)
+
        real(8),pointer :: rv_p_oves(:)
 
       complex(8) ,allocatable :: h_zv(:)
@@ -213,7 +218,9 @@ C     ndyn = igets('move size',smove)
       if (mode .eq. 1) then
         call fftz30(n1,n2,n3,k1,k2,k3)
 
-        osmrho=spot%osmrho
+Cchp1         osmrho=spot%osmrho
+         zv_p_osmrho => spot%zv_p_osmrho 
+
 
       endif
       ffmt = '(5f15.10)'
@@ -402,9 +409,17 @@ C   ... FP mesh density
               call ii8copy(i_copy_size,ngabc,1,slat%nabc,1)
 
               call fftz30(n1,n2,n3,k1,k2,k3)
-              call defcc (osmrho,-k1*k2*k3*nsp)
-              call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
-              call rlse(osmrho)
+Cchp1               call defcc (osmrho,-k1*k2*k3*nsp)
+               allocate(zv_p_osmrho(abs(-k1*k2*k3*nsp)))
+               if (-k1*k2*k3*nsp<0) zv_p_osmrho(:)=0.0d0
+
+Cchp1               call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
+               call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_p_osmrho 
+     .         , lbin , jfi ) 
+
+Cchp1               call rlse(osmrho)
+               if (associated(zv_p_osmrho)) deallocate(zv_p_osmrho)
+
 
             elseif (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
 c          if (ipr .ge. 10) write(stdo,450) n11,n21,n31,n1,n2,n3
@@ -412,15 +427,23 @@ cccccccccccccccccc
 c          write(6,*)'yyyyyyyy 222111',n11,n21,n31,n1,n2,n3,k1,k2,k3
 c          write(6,*)'yyyyyyyy 222444',nsp0,lbin,jfi,osmrho
 cccccccccccccccccc
-              call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
+Cchp1               call dpdftr(n1,n2,n3,k1,k2,k3,nsp0,w(osmrho),lbin,jfi)
+               call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_p_osmrho 
+     .         , lbin , jfi ) 
+
               if (nsp .gt. nsp0) then
 C           call zprm3('smrho before split',0,w(osmrho),k1,k2,k3)
 cccccccccccccccccc
 c          write(6,*)'yyyyyyyy 222333'
 cccccccccccccccccc
                 i = k1*k2*k3*2
-                call dscal(i,0.5d0,w(osmrho),1)
-                call dpscop(w(osmrho),w(osmrho),i,1,1+i,1d0)
+Cchp1                 call dscal(i,0.5d0,w(osmrho),1)
+                 call dscal ( i , 0.5d0 , zv_p_osmrho , 1 ) 
+
+Cchp1                 call dpscop(w(osmrho),w(osmrho),i,1,1+i,1d0)
+                 call dpscop ( zv_p_osmrho , zv_p_osmrho , i , 1 , 1 + i , 1d0 
+     .           ) 
+
 C           call zprm3('smrho after split',0,w(osmrho),k1,k2,k3*2)
               endif
 c   ... or read and remesh
@@ -444,8 +467,11 @@ C           call zprm3('smrho before split',0,w(oh),k1,k2,k3)
               call pshpr(50)
               i = 0
               if (n1 .eq. 2*n11 .and. n2 .eq. 2*n21 .and. n3 .eq. 2*n31) i=3
-              call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , 
-     .        k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , w ( osmrho ) )
+Cchp1               call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , 
+Cchp1      .        k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , w ( osmrho ) )
+               call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 , 
+     .         k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho ) 
+
               call poppr
               if (allocated(h_zv)) deallocate(h_zv)
 
@@ -457,10 +483,16 @@ C   ... If cell volume changed, scale smooth density to maintain charge
               if (ipr .ge. 10) write(stdo,460) vol0,vfac
   460         format(9x,'volume changed from',f8.2,
      .        ' :  scale smooth density by',f8.4)
-              call dpcopy(w(osmrho),w(osmrho),1,2*k1*k2*k3*nsp,vfac)
+Cchp1               call dpcopy(w(osmrho),w(osmrho),1,2*k1*k2*k3*nsp,vfac)
+               call dpcopy ( zv_p_osmrho , zv_p_osmrho , 1 , 2 * k1 * k2 * k3 
+     .         * nsp , vfac ) 
+
             endif
           endif
-          call mpibc1(w(osmrho),2*k1*k2*k3*nsp,4,mlog,'iors','smrho')
+Cchp1           call mpibc1(w(osmrho),2*k1*k2*k3*nsp,4,mlog,'iors','smrho')
+           call mpibc1 ( zv_p_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog 
+     .     , 'iors' , 'smrho' ) 
+
   115     continue
 #else
           call rx('smooth density not implemented')
@@ -1252,7 +1284,10 @@ C   --- Write smooth charge density ---
           write(jfi,721) 'smooth density'
           write(jfi,ifmt) n1,n2,n3
         endif
-        call dpdftr(n1,n2,n3,k1,k2,k3,nsp,w(osmrho),lbin,-jfi)
+Cchp1         call dpdftr(n1,n2,n3,k1,k2,k3,nsp,w(osmrho),lbin,-jfi)
+         call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , zv_p_osmrho 
+     .   , lbin , - jfi ) 
+
 #endif
 
 C   --- Write information related to dynamics ---

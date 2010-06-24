@@ -1,3 +1,4 @@
+Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= complex(8),zv_p_,osmpot
 Cchp1 cmdvar= real(8),iv_p_,oips0
 Cchp1 cmdvar= real(8),rv_p_,oqlv
@@ -43,10 +44,15 @@ Cchp1         integer:: nbas , nbasp , nbaspp , nsp , omad , opos , nkd , nkq
 Cchp1      .  , odlv , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx 
 Cchp1      .  , ogv , okv , ng , osmrho , osmpot , oorhat , obgv , ngrp , og 
 Cchp1      .  , oag , iprint 
-         integer:: nbas , nbasp , nbaspp , nsp , omad , opos , nkd , nkq 
-     .   , odlv , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx 
-     .   , ogv , okv , ng , osmrho , oorhat , obgv , ngrp , og , oag , 
-     .   iprint 
+Cchp1          integer:: nbas , nbasp , nbaspp , nsp , omad , opos , nkd , nkq 
+Cchp1      .   , odlv , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx 
+Cchp1      .   , ogv , okv , ng , osmrho , oorhat , obgv , ngrp , og , oag , 
+Cchp1      .   iprint 
+          integer:: nbas , nbasp , nbaspp , nsp , omad , opos , nkd , nkq 
+     .    , odlv , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx 
+     .    , ogv , okv , ng , oorhat , obgv , ngrp , og , oag , iprint 
+          complex(8),pointer :: zv_p_osmrho(:)
+
          complex(8),pointer :: zv_p_osmpot(:)
 
         integer,pointer :: iv_p_oips0(:)
@@ -130,14 +136,19 @@ C   ... Make list of lattice vectors within cutoff
 
 C       call prmx('gv',w(ogv),ngmx,ng,3)
 
-        call defcc(osmrho, -k1*k2*k3*nsp)
+Cchp1         call defcc(osmrho, -k1*k2*k3*nsp)
+         allocate(zv_p_osmrho(abs(-k1*k2*k3*nsp)))
+         if (-k1*k2*k3*nsp<0) zv_p_osmrho(:)=0.0d0
+
 Cchp1         call defcc(osmpot, -k1*k2*k3*nsp)
          allocate(zv_p_osmpot(abs(-k1*k2*k3*nsp)))
          if (-k1*k2*k3*nsp<0) zv_p_osmpot(:)=0.0d0
 
         call defi(oorhat,3*nbaspp)
 
-        spot%osmrho=osmrho
+Cchp1         spot%osmrho=osmrho
+         spot%zv_p_osmrho => zv_p_osmrho 
+
 Cchp1         spot%osmpot=osmpot
          spot%zv_p_osmpot => zv_p_osmpot 
 

@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 12:04:31.304901
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 12:17:46.883178
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -1404,7 +1404,8 @@ CCHSTRUC       integer(8)   ::   osab ! not used because of undef
 CCHSTRUC       integer(8)   ::   osgw ! not used because of undef
 CCHSTRUC       integer(8)   ::   osmpot
        complex(8) , pointer ::  zv_p_osmpot (:)
-      integer(8)   ::   osmrho
+CCHSTRUC       integer(8)   ::   osmrho
+       complex(8) , pointer ::  zv_p_osmrho (:)
       integer(8)   ::   osop
 CCHSTRUC       integer(8)   ::   osoptc ! not used because of undef
 CCHSTRUC       integer(8)   ::   osrout ! not used because of undef
@@ -3469,8 +3470,7 @@ C ... Passed parameters
        call mpi_bcast(struc%orhrmx, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip zv_p_osmpot(:) because it is a pointer.
-       call mpi_bcast(struc%osmrho, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip zv_p_osmrho(:) because it is a pointer.
        call mpi_bcast(struc%osop, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_ovdif(:) because it is a pointer.
@@ -4625,7 +4625,6 @@ C$$$        end subroutine utb
        struc%oqt=0
        struc%orhos=0
        struc%orhrmx=0
-       struc%osmrho=0
        struc%osop=0
        struc%vconst=0.0d0
        struc%vmtz=0.0d0

@@ -1,3 +1,4 @@
+Cchp1 cmdvar= complex(8),zv_p_,osmrho
       subroutine rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,orhoat)
 
       use m_struc_def  !Cgetarg
@@ -47,10 +48,16 @@ C ... Local parameters
       double precision rsmfa(nspec),pnu(n0,2),exi(n0,nspec),
      .hfc(n0,2,nspec),hfct(n0,2,nspec)
       character*8 spid(nspec),spidr
-      integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-     .k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
-     ., nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
-     ., ov1 , ng , ogv , okv , iofa , osmrho , kcor , lcor
+Cchp1       integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
+Cchp1      .k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
+Cchp1      ., nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
+Cchp1      ., ov1 , ng , ogv , okv , iofa , osmrho , kcor , lcor
+       integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
+     . k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
+     . , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
+     . , ov1 , ng , ogv , okv , iofa , kcor , lcor 
+       complex(8),pointer :: zv_p_osmrho(:)
+
       real(8) ,allocatable :: rwgt_rv(:)
       complex(8) ,allocatable :: cv_zv(:)
 
@@ -71,7 +78,9 @@ C ... Heap
       nsp   = nglob('nsp')
       msg   = '         File mismatch:'
 
-      osmrho=spot%osmrho
+Cchp1       osmrho=spot%osmrho
+       zv_p_osmrho => spot%zv_p_osmrho 
+
 
       procid = mpipid(1)
 C     numprocs = mpipid(0)
@@ -329,8 +338,11 @@ c        call wkchk('qqq: aaa')
 c        print *,' qqq: okv ocv osmrho=', okv,ocv,osmrho
 ccccccccccccccc
 
-      call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cv_zv 
-     ., w ( osmrho ) )
+Cchp1       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cv_zv 
+Cchp1      ., w ( osmrho ) )
+       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cv_zv , zv_p_osmrho 
+     . ) 
+
 
 
 ccccccccccccccc
@@ -346,13 +358,25 @@ ccccccccccccccc
 
 
 C ... FFT to real-space mesh
-      call fftz3(w(osmrho),n1,n2,n3,k1,k2,k3,nsp,0,1)
+Cchp1       call fftz3(w(osmrho),n1,n2,n3,k1,k2,k3,nsp,0,1)
+       call fftz3 ( zv_p_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
+     . , 0 , 1 ) 
+
 C ... Add compensating uniform electron density to compensate background
-      call addbkgsm(w(osmrho),k1,k2,k3,nsp,qbg,vol,-1d0)
+Cchp1       call addbkgsm(w(osmrho),k1,k2,k3,nsp,qbg,vol,-1d0)
+       call addbkgsm ( zv_p_osmrho , k1 , k2 , k3 , nsp , qbg , vol 
+     . , - 1d0 ) 
+
 C ... integrate
-      call mshint(vol,nsp,n1,n2,n3,k1,k2,k3,w(osmrho),sum1,sum2)
+Cchp1       call mshint(vol,nsp,n1,n2,n3,k1,k2,k3,w(osmrho),sum1,sum2)
+       call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho 
+     . , sum1 , sum2 ) 
+
       if (nsp .eq. 2) then
-        call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmrho),smom,sum2)
+Cchp1         call mshint(vol,1,n1,n2,n3,k1,k2,k3,w(osmrho),smom,sum2)
+         call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho 
+     .   , smom , sum2 ) 
+
         smom = 2*smom - sum1
       endif
 C --- Set up local densities using rmt from atm file ---

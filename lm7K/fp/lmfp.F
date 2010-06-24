@@ -1,3 +1,4 @@
+Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= complex(8),zv_p_,osmpot
 Cchp1 cmdvar= real(8),iv_p_,oistab
 Cchp1 cmdvar= real(8),iv_p_,oips0
@@ -112,7 +113,10 @@ C ... Local variables
      .nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .stdo,pdim,lsc
 Cchp1       integer:: oorhat , opos , osmpot , osmrho , o
-       integer:: oorhat , opos , osmrho , o 
+Cchp1        integer:: oorhat , opos , osmrho , o 
+        integer:: oorhat , opos , o 
+        complex(8),pointer :: zv_p_osmrho(:)
+
        complex(8),pointer :: zv_p_osmpot(:)
 
       real(8) ,allocatable :: evl_rv(:)
@@ -548,7 +552,9 @@ ccccccccccccc
 c        print *,'eee 333=',spot%osmrho
 
       oorhat=spot%oorhat
-      osmrho=spot%osmrho
+Cchp1       osmrho=spot%osmrho
+       zv_p_osmrho => spot%zv_p_osmrho 
+
 Cchp1       osmpot=spot%osmpot
        zv_p_osmpot => spot%zv_p_osmpot 
 
@@ -757,7 +763,10 @@ C         If no force switch set, use default
             sctrl%lfrce=1
           endif
 
-          call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
+Cchp1           call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
+           call smshft ( ssite , sspec , slat , sctrl , sham , w ( oorhat 
+     .     ) , zv_p_osmrho ) 
+
 C         Restore force switch
           if ( k .eq. 0 ) then
 
@@ -888,7 +897,10 @@ C$$$      endif
 C --- Write smoothed charge density for contour plotting ---
       if (procid .eq. master) then
         if (cmdopt('--wden',6,0,strn)) then
-          call ioden(strn(7:),slat,ssite,sspec,w(oorhat),w(osmrho))
+Cchp1           call ioden(strn(7:),slat,ssite,sspec,w(oorhat),w(osmrho))
+           call ioden ( strn ( 7: ) , slat , ssite , sspec , w ( oorhat 
+     .     ) , zv_p_osmrho ) 
+
         endif
 
 C --- Write restart file (skip if --quit=band) ---
@@ -1131,7 +1143,10 @@ C       If explicitly told to read from atom files after atom movmment
 C       Else, use self-consistent
           else if (.not. lshr) then
             irs(1) = 3
-            call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
+Cchp1             call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
+             call smshft ( ssite , sspec , slat , sctrl , sham , w ( oorhat 
+     .       ) , zv_p_osmrho ) 
+
           endif
 
 C   ... Write restart file (to include new positions)

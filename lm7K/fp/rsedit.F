@@ -1,3 +1,5 @@
+Cchp1 cmdvar= complex(8),zv_p_,osmrh2
+Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= complex(8),zv_p_,osmpt2
 Cchp1 cmdvar= complex(8),zv_p_,osmpot
 
@@ -93,7 +95,13 @@ c      integer ospec1,ospec2,osite1,osite2,oslat2,ospot2,
 c     .  oorh2,osmrh2,osmpt2,osmrho,osmpot,oorhat,oqmom
 Cchp1       integer:: osmrh2 , osmpt2 , osmrho , osmpot , oorhat
 Cchp1        integer:: osmrh2 , osmpt2 , osmrho , oorhat 
-        integer:: osmrh2 , osmrho , oorhat 
+Cchp1         integer:: osmrh2 , osmrho , oorhat 
+Cchp1          integer:: osmrh2 , oorhat 
+          integer:: oorhat 
+          complex(8),pointer :: zv_p_osmrh2(:)
+
+         complex(8),pointer :: zv_p_osmrho(:)
+
         complex(8),pointer :: zv_p_osmpt2(:)
 
        complex(8),pointer :: zv_p_osmpot(:)
@@ -159,7 +167,9 @@ c      call dcopy(nint(spot(1)),spot,1,w(ospot2),1)
 
 C     Get pointers for density
 
-      osmrho=spot%osmrho
+Cchp1       osmrho=spot%osmrho
+       zv_p_osmrho => spot%zv_p_osmrho 
+
 Cchp1       osmpot=spot%osmpot
        zv_p_osmpot => spot%zv_p_osmpot 
 
@@ -242,9 +252,14 @@ C         Make space for smooth density
           call i8icopy(i_copy_size,slat2%nabc,1,ngabc2,1)
 
           call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-          call defcc(osmrh2, -k1*k2*k3*nsp)
+Cchp1           call defcc(osmrh2, -k1*k2*k3*nsp)
+           allocate(zv_p_osmrh2(abs(-k1*k2*k3*nsp)))
+           if (-k1*k2*k3*nsp<0) zv_p_osmrh2(:)=0.0d0
 
-          spot2%osmrho=osmrh2
+
+Cchp1           spot2%osmrho=osmrh2
+           spot2%zv_p_osmrho => zv_p_osmrh2 
+
 
           allocate(orh2_iv(3*nbask(2)))
 Ctakao_ZeroClear_NotRequiered            if (3*nbask(2)<0) orh2_iv(:)=0
@@ -329,13 +344,18 @@ C       Make space for smooth density
           call i8icopy(i_copy_size,slat2%nabc,1,ngabc2,1)
 
           call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-          call defcc(osmrh2, -k1*k2*k3*nsp)
+Cchp1           call defcc(osmrh2, -k1*k2*k3*nsp)
+           allocate(zv_p_osmrh2(abs(-k1*k2*k3*nsp)))
+           if (-k1*k2*k3*nsp<0) zv_p_osmrh2(:)=0.0d0
+
 Cchp1           call defcc(osmpt2, -k1*k2*k3*nsp)
            allocate(zv_p_osmpt2(abs(-k1*k2*k3*nsp)))
            if (-k1*k2*k3*nsp<0) zv_p_osmpt2(:)=0.0d0
 
 
-          spot2%osmrho=osmrh2
+Cchp1           spot2%osmrho=osmrh2
+           spot2%zv_p_osmrho => zv_p_osmrh2 
+
 Cchp1           spot2%osmpot=osmpt2
            spot2%zv_p_osmpot => zv_p_osmpt2 
 
@@ -357,8 +377,11 @@ C       call shstru('site',w(osite2),1,nbask(2))
 
         call info0(1,1,0,' Second Density:')
         call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-        call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv 
-     .  , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
+Cchp1         call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv 
+Cchp1      .  , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
+         call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv , 
+     .   slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
+
 
 
         goto 10
@@ -407,8 +430,11 @@ C       call shstru('site',w(osite2),1,nbask(2))
         call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
         call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
-        call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
-     .  slat,w(osmrho),k1,k2,k3)
+Cchp1         call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
+Cchp1      .  slat,w(osmrho),k1,k2,k3)
+         call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
+     .   ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+
 
 C ... write atomic densities to file
       elseif (outs(1:7) .eq. 'wrhoat ') then
@@ -426,8 +452,11 @@ C ... show
      .    '%i sites, %i species',nbask(1),nspeck(1))
 C          call upack1('lat nabc',slat,ngabc)
           call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
-          call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
-     .    slat,w(osmrho),k1,k2,k3)
+Cchp1           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
+Cchp1      .    slat,w(osmrho),k1,k2,k3)
+           call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
+     .     ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+
         endif
 
         if (have2s) then
@@ -435,8 +464,11 @@ C          call upack1('lat nabc',slat,ngabc)
      .    '%i sites, %i species',nbask(2),nspeck(2))
 
           call fftz30(ngabc2(1),ngabc2(2),ngabc2(3),k1,k2,k3)
-          call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv 
-     .    , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
+Cchp1           call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv 
+Cchp1      .    , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
+           call prsed2 ( nbask ( 2 ) , nsp , ssite2 , sspec2 , orh2_iv , 
+     .     slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
+
 
         endif
 
@@ -498,12 +530,17 @@ C       Carry out operation on 1st or second density
           if (lexch .eq. 1) then
             ix(1) = nbask(1); ix(2) = nbask(1)
             if (havers) then
-              call prsed1(im*10+isync,1,nlst,ix,nsp,
-     .        ssite1,sspec1,w(oorhat),
-     .        ssite1,sspec1,w(oorhat),
-     .        w(osmrho),ngabc(1),ngabc(2),ngabc(3),
-     .        w(osmrho),ngabc(1),ngabc(2),ngabc(3),
-     .        fac,lfail)
+Cchp1               call prsed1(im*10+isync,1,nlst,ix,nsp,
+Cchp1      .        ssite1,sspec1,w(oorhat),
+Cchp1      .        ssite1,sspec1,w(oorhat),
+Cchp1      .        w(osmrho),ngabc(1),ngabc(2),ngabc(3),
+Cchp1      .        w(osmrho),ngabc(1),ngabc(2),ngabc(3),
+Cchp1      .        fac,lfail)
+               call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
+     .         , sspec1 , w ( oorhat ) , ssite1 , sspec1 , w ( oorhat ) , zv_p_osmrho 
+     .         , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrho , ngabc 
+     .         ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , fac , lfail ) 
+
               if (lfail) then
                 call info0(0,0,0,' Densities failed to synchronize')
                 goto 98
@@ -515,10 +552,15 @@ C       Carry out operation on 1st or second density
           else
             ix(1) = nbask(2); ix(2) = nbask(2)
             if (have2s) then
-              call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
-     .        , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , w ( osmrh2 
-     .        ) , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , w ( osmrh2 ) 
-     .        , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail )
+Cchp1               call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
+Cchp1      .        , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , w ( osmrh2 
+Cchp1      .        ) , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , w ( osmrh2 ) 
+Cchp1      .        , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail )
+               call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
+     .         , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , zv_p_osmrh2 
+     .         , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , zv_p_osmrh2 , 
+     .         ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
+
 
             else
               if (lfail) then
@@ -562,16 +604,22 @@ C       Carry out operation on 1st or second density
           call word(outs,3,j1,j2)
           if (outs(j1:j2) .eq. '1') then
             if (havers) then
-              call prsed4(k,nbask(1),nspeck(1),nsp,ssite1,sspec1,
-     .        w(oorhat),slat,w(osmrho),k1,k2,k3)
+Cchp1               call prsed4(k,nbask(1),nspeck(1),nsp,ssite1,sspec1,
+Cchp1      .        w(oorhat),slat,w(osmrho),k1,k2,k3)
+               call prsed4 ( k , nbask ( 1 ) , nspeck ( 1 ) , nsp , ssite1 , 
+     .         sspec1 , w ( oorhat ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+
             else
               call info0(0,0,0,' no rst data ... cannot do: '//trim(outs))
               goto 10
             endif
           elseif (outs(j1:j2) .eq. '2') then
             if (have2s) then
-              call prsed4 ( k , nbask ( 2 ) , nspeck ( 2 ) , nsp , ssite2 , 
-     .        sspec2 , orh2_iv , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
+Cchp1               call prsed4 ( k , nbask ( 2 ) , nspeck ( 2 ) , nsp , ssite2 , 
+Cchp1      .        sspec2 , orh2_iv , slat2 , w ( osmrh2 ) , k1 , k2 , k3 )
+               call prsed4 ( k , nbask ( 2 ) , nspeck ( 2 ) , nsp , ssite2 , 
+     .         sspec2 , orh2_iv , slat2 , zv_p_osmrh2 , k1 , k2 , k3 ) 
+
 
             else
               call info0(0,0,0,' no 2nd density... cannot do: '//
@@ -685,11 +733,21 @@ C             Check that elements in list are within range
 
 C        call upack1('lat nabc',slat,ngabc)
 C        call upack1('lat nabc',w(oslat2),ngabc2)
-        call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
-     .  , sspec1 , w ( oorhat ) , ssite2 , sspec2 , orh2_iv , w ( 
-     .  osmrho ) , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , w ( osmrh2 
-     .  ) , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail 
-     .  )
+Cchp1         call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
+Cchp1      .  , sspec1 , w ( oorhat ) , ssite2 , sspec2 , orh2_iv , w ( 
+Cchp1      .  osmrho ) , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , w ( osmrh2 
+Cchp1      .  ) , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail 
+Cchp1      .  )
+Cchp1          call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
+Cchp1      .   , sspec1 , w ( oorhat ) , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
+Cchp1      .   , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , w ( osmrh2 ) , ngabc2 
+Cchp1      .   ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
+          call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
+     .    , sspec1 , w ( oorhat ) , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
+     .    , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
+     .    ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
+
+
 
         if (lfail) then
           call info0(0,0,0,' Densities failed to synchronize')
@@ -699,8 +757,11 @@ C        call upack1('lat nabc',w(oslat2),ngabc2)
 C         call upack1('lat nabc',slat,ngabc)
           call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
           call info0(1,1,0,' New density from rs file:')
-          call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
-     .    slat,w(osmrho),k1,k2,k3)
+Cchp1           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
+Cchp1      .    slat,w(osmrho),k1,k2,k3)
+           call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
+     .     ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+
         endif
 
         deallocate(ilst)
