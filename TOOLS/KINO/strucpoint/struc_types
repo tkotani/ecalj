@@ -1,0 +1,130 @@
+# grep 'struc= sv' err.* | gawk -f element.awk    |sort |uniq > types 
+# oics by hand 
+# owtkp by hand
+#oqp by hand, bndfp.F , rlse(oqp) is strange
+s_array oclabl real(8) #
+s_array ocllst undef # unchange debug
+s_array oclp undef # unchange debug
+s_array oclssl undef # unchange debug
+s_array ogroup integer # unchange notused
+s_array ogrp2 undef # unchange debug
+s_array ohave integer #
+s_array oics integer #
+s_array oifrlx undef # unchange debug
+s_array oipc integer # unchange findes
+s_array oipcp integer # unchange findes
+s_array oips integer #
+s_array omxcst undef # unchange debug
+s_array onrc integer #
+s_array onrcp integer #
+s_array opgfsl undef # unchange debug
+s_array opgfvl undef # unchange debug
+s_array opgord undef # unchange debug
+s_array opgplp undef # unchange debug
+s_array opos real(8) # unchange findes
+s_array ormax real(8) #
+s_array osordn undef # unchange debug
+s_array ostni undef # unchange debug
+s_array ozos undef # unchange debug
+s_bz odos undef # unchange debug
+s_bz oidtet integer #
+s_bz oipq integer #
+s_bz opdos undef # unchange debug
+s_bz oqp real(8) #
+s_bz ostar integer #
+s_bz owtkp real(8) #
+s_ctrl omax1 real(8) # unchange real(8)
+s_ctrl omax2 real(8) # unchange real(8)
+s_ham obdots undef # unchange debug
+s_ham oeula undef # unchange debug
+s_ham ohrs real(8) #
+s_ham oiaxs integer # unchange hft2rs
+s_ham oindxo integer #
+s_ham olmxa undef # unchange debug
+s_ham omagf undef # unchange debug
+s_ham ontabs integer # unchange from_rdsigm
+s_ham ooffh integer #
+s_ham oqsig real(8) #
+s_ham oveps real(8) # unchange real(8)
+s_lat oag real(8) #
+s_lat obgv complex(8) #
+s_lat ocg real(8) #
+s_lat ocy real(8) #
+s_lat odlv real(8) #
+s_lat ogv real(8) #
+s_lat oidxcg integer #
+s_lat oips0 integer #
+s_lat oistab integer #
+s_lat ojcg integer #
+s_lat okv integer #
+s_lat opos real(8) # unchange findes
+s_lat oqlv real(8) #
+s_lat osymgr real(8) #
+s_optic ocrng undef # unchange debug
+s_ordn oclp undef # unchange debug
+s_ordn oclssl undef # unchange debug
+s_ordn oiaxg undef # unchange debug
+s_ordn omapgv undef # unchange debug
+s_ordn ooffch undef # unchange debug
+s_pot oaamom undef # unchange debug
+s_pot obxc real(8) #
+s_pot odddpf undef # unchange debug
+s_pot oddpf undef # unchange debug
+s_pot oddpfr undef # unchange debug
+s_pot odel undef # unchange debug
+s_pot odpf undef # unchange debug
+s_pot odpfr undef # unchange debug
+s_pot ofes undef # unchange debug
+s_pot ogma undef # unchange debug
+s_pot ogmar undef # unchange debug
+s_pot ogrrme real(8) #
+s_pot ohab undef # unchange debug
+s_pot oivso undef # unchange debug
+s_pot omad real(8) #
+s_pot oorhat integer #
+s_pot opalp undef # unchange debug
+s_pot opapg undef # unchange debug
+s_pot opdel undef # unchange debug
+s_pot opf undef # unchange debug
+s_pot opfnc undef # unchange debug
+s_pot opfr undef # unchange debug
+s_pot opmpol real(8) #
+s_pot opnu real(8) #
+s_pot opp real(8) #
+s_pot oppi undef # unchange debug
+s_pot oppn undef # unchange debug
+s_pot opprel real(8) #
+s_pot opti undef # unchange debug
+s_pot oqc real(8) #
+s_pot oqmom undef # unchange debug
+s_pot oqnu real(8) #
+s_pot oqpp real(8) #
+s_pot oqt real(8) #
+s_pot orhos real(8) #
+s_pot orhrmx real(8) #
+s_pot osab undef # unchange debug
+s_pot osgw undef # unchange debug
+s_pot osmpot complex(8) #
+s_pot osmrho complex(8) #
+s_pot osop real(8) #
+s_pot osoptc undef # unchange debug
+s_pot osrout undef # unchange debug
+s_pot otau undef # unchange debug
+s_pot ovab undef # unchange debug
+s_pot ovdif real(8) #
+s_pot oves real(8) #
+s_pot ovintr real(8) #
+s_pot ovrmax real(8) #
+s_pot ovshf undef # unchange debug
+s_site offh undef # unchange debug
+s_site orho undef # unchange debug
+s_site ov0 real(8) #
+s_site ov1 real(8) #
+s_spec orbp real(8) # unchange real(8)
+s_spec orhoc real(8) # unchange rdovfa, target is array orhoca(:)
+s_str oadot undef # unchange debug
+s_str oalp undef # unchange debug
+s_str oiax undef # unchange debug
+s_str ontab undef # unchange debug
+s_str os undef # unchange debug
+s_str osdot undef # unchange debug
