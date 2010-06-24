@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 15:35:51.390065
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 16:14:42.601747
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -1775,8 +1775,10 @@ C 27  87  4      vshft  1
       integer(8)   ::   norb
 CCHSTRUC       integer(8)   ::   offh ! not used because of undef
 CCHSTRUC       integer(8)   ::   orho ! not used because of undef
-      integer(8)   ::   ov0
-      integer(8)   ::   ov1
+CCHSTRUC       integer(8)   ::   ov0
+       real(8) , pointer ::  rv_p_ov0 (:)
+CCHSTRUC       integer(8)   ::   ov1
+       real(8) , pointer ::  rv_p_ov1 (:)
       integer(8)   ::   pl
       integer(8)   ::   plv
       real(8)   ::   pnu(20)
@@ -3768,10 +3770,8 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%norb, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%ov0, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%ov1, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip rv_p_ov0(:) because it is a pointer.
+Cstruc_makeinit.py skip rv_p_ov1(:) because it is a pointer.
        call mpi_bcast(struc%pl, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%plv, 1,MPI_INTEGER8
@@ -4697,8 +4697,6 @@ C$$$        end subroutine utb
        struc%mpole=0.0d0
        struc%ndelta=0
        struc%norb=0
-       struc%ov0=0
-       struc%ov1=0
        struc%pl=0
        struc%plv=0
        struc%pnu=0.0d0

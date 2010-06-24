@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ov1
+Cchp1 cmdvar= real(8),rv_p_,ov0
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= real(8),rv_p_,oves
 #define FP 1
@@ -145,8 +147,16 @@ Cchp1       integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit
 Cchp1      ., stdo , isw , osmrho , oves
 Cchp1        integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
 Cchp1      . , stdo , isw , osmrho 
-        integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
-     .  , stdo , isw 
+Cchp1         integer:: orhoca , ov0 , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit 
+Cchp1      .  , stdo , isw 
+Cchp1          integer:: orhoca , ov1 , ngabc(3) , n1 , n2 , n3 , lgunit , stdo 
+Cchp1      .   , isw 
+          integer:: orhoca , ngabc(3) , n1 , n2 , n3 , lgunit , stdo , 
+     .    isw 
+          real(8),pointer :: rv_p_ov1(:)
+
+         real(8),pointer :: rv_p_ov0(:)
+
         complex(8),pointer :: zv_p_osmrho(:)
 
        real(8),pointer :: rv_p_oves(:)
@@ -893,7 +903,10 @@ C     --- Allocate and read arrays for local density and potential ---
           nlml0 = (lmxl0+1)**2
           nlml = (lmxl+1)**2
 
-          call defrr(ov0,           nr*nsp)
+Cchp1           call defrr(ov0,           nr*nsp)
+           allocate(rv_p_ov0(abs(nr*nsp)))
+           if (nr*nsp<0) rv_p_ov0(:)=0.0d0
+
 C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
           if (mode .eq. 1 .or. mode .eq. -2) then
             if (nr .ne. nr0)
@@ -901,7 +914,10 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
             call defrr(orhoat(1,ib),  nr*nlml*nsp)
             call defrr(orhoat(2,ib),  nr*nlml*nsp)
             call defrr(orhoat(3,ib),  nr*nsp)
-            call defrr(ov1,           nr*nsp)
+Cchp1             call defrr(ov1,           nr*nsp)
+             allocate(rv_p_ov1(abs(nr*nsp)))
+             if (nr*nsp<0) rv_p_ov1(:)=0.0d0
+
 
             if (procid .eq. master) then
               if (.not. lbin) read(jfi,*)
@@ -919,12 +935,22 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
               if (.not. lbin) read(jfi,*)
               call dpdbyl(w(orhoat(3,ib)),nr0,1,1,nsp0,nsp,lbin,jfi)
               if (.not. lbin) read(jfi,*)
-              call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
+Cchp1               call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
+               call dpdbyl ( rv_p_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
+     .         ) 
+
               if (.not. lbin) read(jfi,*)
-              call dpdbyl(w(ov1),nr0,1,1,nsp0,nsp,lbin,jfi)
+Cchp1               call dpdbyl(w(ov1),nr0,1,1,nsp0,nsp,lbin,jfi)
+               call dpdbyl ( rv_p_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
+     .         ) 
+
               if (nsp0 .lt. nsp) then
-                call dscal(nr0*2,2d0,w(ov0),1)
-                call dscal(nr0*2,2d0,w(ov1),1)
+Cchp1                 call dscal(nr0*2,2d0,w(ov0),1)
+                 call dscal ( nr0 * 2 , 2d0 , rv_p_ov0 , 1 ) 
+
+Cchp1                 call dscal(nr0*2,2d0,w(ov1),1)
+                 call dscal ( nr0 * 2 , 2d0 , rv_p_ov1 , 1 ) 
+
               endif
 C           call prmx('iors: v0',w(ov0),nr0,nr0,nsp)
             endif
@@ -935,7 +961,9 @@ C           endif
 
             if (mode .eq. -2) then
               call rlse(orhoat(1,ib))
-              call rlse(ov0)
+Cchp1               call rlse(ov0)
+               if (associated(rv_p_ov0)) deallocate(rv_p_ov0)
+
 
             else
               call mpibc1(w(orhoat(1,ib)),nr*nlml*nsp,4,mlog,'iors',
@@ -944,8 +972,14 @@ C           endif
      .        'rhoat(2)')
               call mpibc1(w(orhoat(3,ib)),nr*nlml*nsp,4,mlog,'iors',
      .        'rhoat(3)')
-              call mpibc1(w(ov0),nr*nsp,4,mlog,'iors','v0')
-              call mpibc1(w(ov1),nr*nsp,4,mlog,'iors','v1')
+Cchp1               call mpibc1(w(ov0),nr*nsp,4,mlog,'iors','v0')
+               call mpibc1 ( rv_p_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' 
+     .         ) 
+
+Cchp1               call mpibc1(w(ov1),nr*nsp,4,mlog,'iors','v1')
+               call mpibc1 ( rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' 
+     .         ) 
+
             endif
 C     ... ASA sphere densities
           else
@@ -994,8 +1028,12 @@ C     ... store data in strucs
           sspec(is)%qc=qc
 
 
-          ssite(ib)%ov0=ov0
-          ssite(ib)%ov1=ov1
+Cchp1           ssite(ib)%ov0=ov0
+           ssite(ib)%rv_p_ov0 => rv_p_ov0 
+
+Cchp1           ssite(ib)%ov1=ov1
+           ssite(ib)%rv_p_ov1 => rv_p_ov1 
+
 
    20     continue
         enddo
@@ -1363,8 +1401,12 @@ C   --- Write information for local densities ---
           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-          ov0=ssite(ib)%ov0
-          ov1=ssite(ib)%ov1
+Cchp1           ov0=ssite(ib)%ov0
+           rv_p_ov0 => ssite(ib)%rv_p_ov0 
+
+Cchp1           ov1=ssite(ib)%ov1
+           rv_p_ov1 => ssite(ib)%rv_p_ov1 
+
 
           if (lmxa .eq. -1) goto 120
 
@@ -1419,9 +1461,15 @@ C     ... Write arrays for local density and potential
             if (.not. lbin) write(jfi,'('' rhoc'')')
             call dpdbyl(w(orhoat(3,ib)),nr,1,1,nsp,nsp,lbin,-jfi)
             if (.not. lbin) write(jfi,'('' v0'')')
-            call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
+Cchp1             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
+             call dpdbyl ( rv_p_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
+     .       ) 
+
             if (.not. lbin) write(jfi,'('' v1'')')
-            call dpdbyl(w(ov1),nr,1,1,nsp,nsp,lbin,-jfi)
+Cchp1             call dpdbyl(w(ov1),nr,1,1,nsp,nsp,lbin,-jfi)
+             call dpdbyl ( rv_p_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
+     .       ) 
+
           else
             if (lbin) then
               call rx('iors not ready for this mode')

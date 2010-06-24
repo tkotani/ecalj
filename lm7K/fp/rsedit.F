@@ -1,3 +1,9 @@
+Cchp1 cmdvar= real(8),rv_p_,ov01
+Cchp1 cmdvar= real(8),rv_p_,ov11
+Cchp1 cmdvar= real(8),rv_p_,ov02
+Cchp1 cmdvar= real(8),rv_p_,ov12
+Cchp1 cmdvar= real(8),rv_p_,ov1
+Cchp1 cmdvar= real(8),rv_p_,ov0
 Cchp1 cmdvar= integer,iv_p_,oorhat
 Cchp1 cmdvar= complex(8),zv_p_,osmrh2
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
@@ -1004,7 +1010,19 @@ C ... Passed parameters
 C ... Local parameters
       integer il,ib,jb,is,js,lmxa,lmxl,lmxa2,lmxl2,nr1,nr2,nrmx
       integer nglob,stdo,ipr,nlml1,nlml2,isync,im,n0
-      integer ov01,ov11,ov02,ov12,orhoc1,orhoc2
+Cchp1       integer ov01,ov11,ov02,ov12,orhoc1,orhoc2
+Cchp1        integer:: ov01 , ov11 , ov02 , orhoc1 , orhoc2 
+Cchp1         integer:: ov01 , ov11 , orhoc1 , orhoc2 
+Cchp1          integer:: ov01 , orhoc1 , orhoc2 
+          integer:: orhoc1 , orhoc2 
+          real(8),pointer :: rv_p_ov01(:)
+
+         real(8),pointer :: rv_p_ov11(:)
+
+        real(8),pointer :: rv_p_ov02(:)
+
+       real(8),pointer :: rv_p_ov12(:)
+
       integer ,allocatable:: flgspc(:)
       parameter (nrmx=1501,n0=10)
       double precision rmt1,rmt2,a1,a2,rofi(nrmx),pnu(n0,2),pnu2(n0,2)
@@ -1090,15 +1108,23 @@ C ... Heap
         is=site1(ib)%spec
         i_copy_size=size(site1(ib)%pnu)
         call dcopy(i_copy_size,site1(ib)%pnu,1,pnu,1)
-        ov01=site1(ib)%ov0
-        ov11=site1(ib)%ov1
+Cchp1         ov01=site1(ib)%ov0
+         rv_p_ov01 => site1(ib)%rv_p_ov0 
+
+Cchp1         ov11=site1(ib)%ov1
+         rv_p_ov11 => site1(ib)%rv_p_ov1 
+
 
 
         js=site2(jb)%spec
         i_copy_size=size(site2(jb)%pnu)
         call dcopy(i_copy_size,site2(jb)%pnu,1,pnu2,1)
-        ov02=site2(jb)%ov0
-        ov12=site2(jb)%ov1
+Cchp1         ov02=site2(jb)%ov0
+         rv_p_ov02 => site2(jb)%rv_p_ov0 
+
+Cchp1         ov12=site2(jb)%ov1
+         rv_p_ov12 => site2(jb)%rv_p_ov1 
+
 
 
         lmxa=spec1(is)%lmxa
@@ -1172,8 +1198,20 @@ C       Smooth local density and site core density: modified if im>=4
 C       Potentials v0,v1: modified if 2's bit im set
         if (mod(im,4) .ge. 2) then
           if (isync .lt. 2) then
-            call lcrho(nr1,nsp,1,1,fac(1),fac(2),w(ov01),w(ov02))
-            call lcrho(nr1,nsp,1,1,fac(1),fac(2),w(ov11),w(ov12))
+Cchp1             call lcrho(nr1,nsp,1,1,fac(1),fac(2),w(ov01),w(ov02))
+Cchp1              call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , w ( 
+Cchp1      .       ov01 ) , rv_p_ov02 ) 
+              call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_ov01 
+     .        , rv_p_ov02 ) 
+
+
+Cchp1             call lcrho(nr1,nsp,1,1,fac(1),fac(2),w(ov11),w(ov12))
+Cchp1              call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , w ( 
+Cchp1      .       ov11 ) , rv_p_ov12 ) 
+              call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_ov11 
+     .        , rv_p_ov12 ) 
+
+
           else
             call rx('not ready for this swap')
           endif
@@ -1453,7 +1491,13 @@ C ... Local parameters
       integer ib,is,nr,lmxa,lmxl,lmxb,nlml,ipr,nglob,stdo,im,mode0
       double precision z,qc,rg,a,rmt,rsma
       double precision pi,srfpi,y0,rofi(nrmx),rwgt(nrmx),pnu(n0,2)
-      integer ov0,ov1,orhoca
+Cchp1       integer ov0,ov1,orhoca
+Cchp1        integer:: ov1 , orhoca 
+        integer:: orhoca 
+        real(8),pointer :: rv_p_ov1(:)
+
+       real(8),pointer :: rv_p_ov0(:)
+
       character spid*8
 C ... Heap
       integer w(1)
@@ -1493,8 +1537,12 @@ C     .  5x,'mtrue',5x,'q2        m2')
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-        ov0=ssite(ib)%ov0
-        ov1=ssite(ib)%ov1
+Cchp1         ov0=ssite(ib)%ov0
+         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+
+Cchp1         ov1=ssite(ib)%ov1
+         rv_p_ov1 => ssite(ib)%rv_p_ov1 
+
 
 C        call upack2('site pz',ssite,ib,pnz)
 
@@ -1543,13 +1591,25 @@ C       Restore rho-up,rho-down from rho, up-down
 C       Potentials v0,v1: modified if 2's bit im set
         if (mod(im,4) .ge. 2) then
 C         call prmx('v0',w(ov0),nr,nr,2)
-          call splrho(30,nsp,nr,1,w(ov0),w,w)
-          call prsed5(mode0,w(ov0),nr,1,nsp)
-          call splrho(31,nsp,nr,1,w(ov0),w,w)
+Cchp1           call splrho(30,nsp,nr,1,w(ov0),w,w)
+           call splrho ( 30 , nsp , nr , 1 , rv_p_ov0 , w , w ) 
+
+Cchp1           call prsed5(mode0,w(ov0),nr,1,nsp)
+           call prsed5 ( mode0 , rv_p_ov0 , nr , 1 , nsp ) 
+
+Cchp1           call splrho(31,nsp,nr,1,w(ov0),w,w)
+           call splrho ( 31 , nsp , nr , 1 , rv_p_ov0 , w , w ) 
+
 C         call prmx('v0',w(ov0),nr,nr,2)
-          call splrho(30,nsp,nr,1,w(ov1),w,w)
-          call prsed5(mode0,w(ov1),nr,1,nsp)
-          call splrho(31,nsp,nr,1,w(ov1),w,w)
+Cchp1           call splrho(30,nsp,nr,1,w(ov1),w,w)
+           call splrho ( 30 , nsp , nr , 1 , rv_p_ov1 , w , w ) 
+
+Cchp1           call prsed5(mode0,w(ov1),nr,1,nsp)
+           call prsed5 ( mode0 , rv_p_ov1 , nr , 1 , nsp ) 
+
+Cchp1           call splrho(31,nsp,nr,1,w(ov1),w,w)
+           call splrho ( 31 , nsp , nr , 1 , rv_p_ov1 , w , w ) 
+
         endif
 
 C       pnu v0,v1: modified if 1's bit im set

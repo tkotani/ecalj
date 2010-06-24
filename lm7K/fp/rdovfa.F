@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ov1
+Cchp1 cmdvar= real(8),rv_p_,ov0
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
@@ -62,10 +64,22 @@ Cchp1         integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 ,
 Cchp1      .  k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
 Cchp1      .  , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
 Cchp1      .  , ov1 , ng , okv , iofa , kcor , lcor 
-         integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-     .   k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
-     .   , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
-     .   , ov1 , ng , iofa , kcor , lcor 
+Cchp1          integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
+Cchp1      .   k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
+Cchp1      .   , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
+Cchp1      .   , ov1 , ng , iofa , kcor , lcor 
+Cchp1           integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
+Cchp1      .    k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
+Cchp1      .    , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov1 
+Cchp1      .    , ng , iofa , kcor , lcor 
+           integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
+     .     k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
+     .     , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng 
+     .     , iofa , kcor , lcor 
+           real(8),pointer :: rv_p_ov1(:)
+
+          real(8),pointer :: rv_p_ov0(:)
+
          integer,pointer :: iv_p_okv(:)
 
         real(8),pointer :: rv_p_ogv(:)
@@ -266,8 +280,14 @@ C     .      orca)
         call defrr (orhoat(1,ib),  nr*nlml*nsp)
         call defrr (orhoat(2,ib),  nr*nlml*nsp)
         call defrr (orhoat(3,ib),  nr*nsp)
-        call defrr (ov0,           nr*nsp)
-        call defrr (ov1,           nr*nsp)
+Cchp1         call defrr (ov0,           nr*nsp)
+         allocate(rv_p_ov0(abs(nr*nsp)))
+         if (nr*nsp<0) rv_p_ov0(:)=0.0d0
+
+Cchp1         call defrr (ov1,           nr*nsp)
+         allocate(rv_p_ov1(abs(nr*nsp)))
+         if (nr*nsp<0) rv_p_ov1(:)=0.0d0
+
 
 C       Core magnetic moment (possible if magnetized core hole)
         if (nsp .eq. 2 .and. lmxl .gt. -1) then
@@ -296,8 +316,14 @@ Ctakao_ZeroClear_NotRequiered            if (nr<0) rwgt_rv(:)=0.0d0
         endif
 
         if (lmxl .gt. -1) then
-          call dpcopy(w(ov0a(is)),  w(ov0),  1,nr*nsp,1d0)
-          call dpcopy(w(ov0a(is)),  w(ov1),  1,nr*nsp,1d0)
+Cchp1           call dpcopy(w(ov0a(is)),  w(ov0),  1,nr*nsp,1d0)
+           call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov0 , 1 , nr * nsp , 1d0 
+     .     ) 
+
+Cchp1           call dpcopy(w(ov0a(is)),  w(ov1),  1,nr*nsp,1d0)
+           call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov1 , 1 , nr * nsp , 1d0 
+     .     ) 
+
           call dpcopy(w(orhoca(is)),w(orhoat(3,ib)),1,nr*nsp,1d0)
 
           if (lfoc .eq. 0) then
@@ -321,8 +347,12 @@ Ctakao_ZeroClear_NotRequiered              if (nr<0) rwgt_rv(:)=0.0d0
         endif
 
 
-        ssite(ib)%ov0=ov0
-        ssite(ib)%ov1=ov1
+Cchp1         ssite(ib)%ov0=ov0
+         ssite(ib)%rv_p_ov0 => rv_p_ov0 
+
+Cchp1         ssite(ib)%ov1=ov1
+         ssite(ib)%rv_p_ov1 => rv_p_ov1 
+
 
         ztot = ztot+z
         ctot = ctot+qc

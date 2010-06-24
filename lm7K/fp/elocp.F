@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ov0
       subroutine elocp(nbas,nsp,ssite,sspec,job)
 
       use m_struc_def  !Cgetarg
@@ -38,7 +39,9 @@ C ... Local parameters
      .nr,nrmx,nrspec,nspec,stdo
       parameter (nrmx=1501, nkap0=3)
       integer lh(nkap0),nkape,nkaph,idamax
-      integer:: ov0
+Cchp1       integer:: ov0
+       real(8),pointer :: rv_p_ov0(:)
+
       integer ,allocatable :: ips_iv(:)
 
       double precision z,a,rmt,rs3,eh3,vmtz,xx
@@ -65,7 +68,9 @@ C --- Find val, slo, K.E. for all sites ---
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-        ov0=ssite(ib)%ov0
+Cchp1         ov0=ssite(ib)%ov0
+         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+
 
 
         i_copy_size=size(ssite(ib)%pz)
@@ -90,8 +95,12 @@ C --- Find val, slo, K.E. for all sites ---
         eloc = .true.
 
         call radmsh(rmt,a,nr,rofi)
-        call loctsh(1101,spid,z,a,nr,nr,nsp,lmxa,rofi,w(ov0),
-     .  pnu,pnz,xx,xx,vmtz,vsel(1,1,ib),rsml,ehl)
+Cchp1         call loctsh(1101,spid,z,a,nr,nr,nsp,lmxa,rofi,w(ov0),
+Cchp1      .  pnu,pnz,xx,xx,vmtz,vsel(1,1,ib),rsml,ehl)
+         call loctsh ( 1101 , spid , z , a , nr , nr , nsp , lmxa , rofi 
+     .   , rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
+     .   , rsml , ehl ) 
+
    10   continue
       enddo
 

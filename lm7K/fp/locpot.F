@@ -1,3 +1,6 @@
+Cchp1 cmdvar= real(8),rv_p_,ov01
+Cchp1 cmdvar= real(8),rv_p_,ov1
+Cchp1 cmdvar= real(8),rv_p_,ov0
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocg
@@ -173,8 +176,16 @@ Cchp1      . ojcg , oidxcg
 Cchp1         integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
 Cchp1      .  , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , ov0 , nlml , 
 Cchp1      .  ojcg 
-         integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
-     .   , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , ov0 , nlml 
+Cchp1          integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
+Cchp1      .   , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , ov0 , nlml 
+Cchp1           integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
+Cchp1      .    , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , nlml 
+           integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
+     .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml 
+           real(8),pointer :: rv_p_ov01(:)
+
+          real(8),pointer :: rv_p_ov0(:)
+
          integer,pointer :: iv_p_ojcg(:)
 
         integer,pointer :: iv_p_oidxcg(:)
@@ -251,8 +262,12 @@ C$&  MP_SCHEDTYPE=RUNTIME
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-        ov0=ssite(ib)%ov0
-        ov01=ssite(ib)%ov1
+Cchp1         ov0=ssite(ib)%ov0
+         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+
+Cchp1         ov01=ssite(ib)%ov1
+         rv_p_ov01 => ssite(ib)%rv_p_ov1 
+
 
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
@@ -356,13 +371,19 @@ C   ... Write true potential to file vtrue.ib
 C   ... Update the potential used to define basis set
         if (lfltwf) then
           do  i = 0, nsp-1
-            call dpscop(v1,w(ov0),nr,1+nr*nlml*i,1+nr*i,y0)
+Cchp1             call dpscop(v1,w(ov0),nr,1+nr*nlml*i,1+nr*i,y0)
+             call dpscop ( v1 , rv_p_ov0 , nr , 1 + nr * nlml * i , 1 + nr 
+     .       * i , y0 ) 
+
           enddo
         endif
 
 C   ... Store the potential used in mkrout to calculate the core
         do  i = 0, nsp-1
-          call dpscop(v1,w(ov01),nr,1+nr*nlml*i,1+nr*i,y0)
+Cchp1           call dpscop(v1,w(ov01),nr,1+nr*nlml*i,1+nr*i,y0)
+           call dpscop ( v1 , rv_p_ov01 , nr , 1 + nr * nlml * i , 1 + nr 
+     .     * i , y0 ) 
+
         enddo
 
 C   ... Accumulate terms for LDA total energy
@@ -463,14 +484,23 @@ Cchp1      .      , lmaxu , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib )
 Cchp1      .      , otau ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) 
 Cchp1      .      , hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 
 Cchp1      .      1 , 1 , ib ) ) 
-             call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-     .       , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
-     .       , w ( ov0 ) , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi 
-     .       , lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , 
-     .       lmaxu , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib ) , 
-     .       otau ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
-     .       hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 
-     .       , 1 , ib ) ) 
+Cchp1              call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
+Cchp1      .       , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
+Cchp1      .       , w ( ov0 ) , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi 
+Cchp1      .       , lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , 
+Cchp1      .       lmaxu , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib ) , 
+Cchp1      .       otau ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
+Cchp1      .       hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 
+Cchp1      .       , 1 , ib ) ) 
+              call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
+     .        , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
+     .        , rv_p_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
+     .        lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
+     .        , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib ) , otau ( 
+     .        1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , hab ( 
+     .        1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 , 1 , 
+     .        ib ) ) 
+
 
 
 

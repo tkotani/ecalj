@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ov0
       subroutine pnunew(nbas,nsp,ssite,sspec,pmin,pmax,lfrzw,hab,sab,
      .qbyl,hbyl)
 
@@ -52,8 +53,12 @@ C ... Passed parameters
 
 C ... Local parameters
       logical lpz,lfrzv,lfrzz
-      integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
-     .l , ipqn , m , isp , ov0 , nr , nn , mxcst
+Cchp1       integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
+Cchp1      .l , ipqn , m , isp , ov0 , nr , nn , mxcst
+       integer:: idmod(n0) , stdo , lgunit , ipr , ib , is , lmxa , 
+     . l , ipqn , m , isp , nr , nn , mxcst 
+       real(8),pointer :: rv_p_ov0(:)
+
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: gp_rv(:)
       real(8) ,allocatable :: rofi_rv(:)
@@ -82,7 +87,9 @@ C --- For each site, do ---
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-        ov0=ssite(ib)%ov0
+Cchp1         ov0=ssite(ib)%ov0
+         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+
 
 
         lmxa=sspec(is)%lmxa
@@ -136,8 +143,11 @@ Ctakao_ZeroClear_NotRequiered              if (nr*2<0) rofi_rv(:)=0.0d0
               allocate(v0i_rv(nr))
 Ctakao_ZeroClear_NotRequiered              if (nr<0) v0i_rv(:)=0.0d0
 
-              call dpscop ( w ( ov0 ) , v0i_rv , nr , 1 + nr * ( isp - 1 
-     .        ) , 1 , 1d0 )
+Cchp1               call dpscop ( w ( ov0 ) , v0i_rv , nr , 1 + nr * ( isp - 1 
+Cchp1      .        ) , 1 , 1d0 )
+               call dpscop ( rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
+     .         1 , 1d0 ) 
+
 
 
               if (mod(idmod(m),10) .eq. 3) then

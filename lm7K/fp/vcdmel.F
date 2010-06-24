@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ov0
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
@@ -82,7 +83,9 @@ Cchp1        integer:: ocg , ojcg , oidxcg , ocy , ov0
 Cchp1         integer:: ojcg , oidxcg , ocy , ov0 
 Cchp1          integer:: ojcg , oidxcg , ov0 
 Cchp1           integer:: ojcg , ov0 
-           integer:: ov0 
+Cchp1            integer:: ov0 
+            real(8),pointer :: rv_p_ov0(:)
+
            integer,pointer :: iv_p_ojcg(:)
 
           integer,pointer :: iv_p_oidxcg(:)
@@ -139,7 +142,9 @@ Cchp1       ocy=slat%ocy
         !call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         !pnu(1:n0,1:2)= ssite(ib)%pnu(1:n0,1:2)
         call dcopy(n0*2,ssite(ib)%pnu,1,pnu,1)
-        ov0=ssite(ib)%ov0
+Cchp1         ov0=ssite(ib)%ov0
+         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+
         !i_copy_size=size(ssite(ib)%pz)
         !call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
         !pnz(1:n0,1:2)= ssite(ib)%pz(1:n0,1:2)
@@ -178,9 +183,13 @@ Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 105
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 105
 Cdelw1         call makusp(n0,z,nsp,rmt,lmxa,w(ov0),a,nr,xx,xx,pnu,pnz,rsml,
 Cdelw1      .  ehl,w(oul),w(osl),w(ogz),w(oruu),w(orus),w(orss))
-        call makusp ( n0 , z , nsp , rmt , lmxa , w ( ov0 ) , a , nr 
-     .  , xx , xx , pnu , pnz , rsml , ehl , rv_w_oul , rv_w_osl , rv_w_ogz 
-     .  , rv_w_oruu , rv_w_orus , rv_w_orss ) 
+Cchp1         call makusp ( n0 , z , nsp , rmt , lmxa , w ( ov0 ) , a , nr 
+Cchp1      .  , xx , xx , pnu , pnz , rsml , ehl , rv_w_oul , rv_w_osl , rv_w_ogz 
+Cchp1      .  , rv_w_oruu , rv_w_orus , rv_w_orss ) 
+         call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr , 
+     .   xx , xx , pnu , pnz , rsml , ehl , rv_w_oul , rv_w_osl , rv_w_ogz 
+     .   , rv_w_oruu , rv_w_orus , rv_w_orss ) 
+
 
 C   --- Matrix elements of u,s with core
         call skpblb(clabl,8,j)
@@ -194,9 +203,13 @@ Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
 Cdelw1         call pvcdm1(ncls,lcls,w(og),z,lmxa,w(ov0),a,nr,w(orofi),
 Cdelw1      .  w(oul),w(osl),nsp,lmxax,ume(0,1,i),sme(0,1,i))
-        call pvcdm1 ( ncls , lcls , rv_w_og , z , lmxa , w ( ov0 ) , 
-     .  a , nr , rv_w_orofi , rv_w_oul , rv_w_osl , nsp , lmxax , ume 
-     .  ( 0 , 1 , i ) , sme ( 0 , 1 , i ) ) 
+Cchp1         call pvcdm1 ( ncls , lcls , rv_w_og , z , lmxa , w ( ov0 ) , 
+Cchp1      .  a , nr , rv_w_orofi , rv_w_oul , rv_w_osl , nsp , lmxax , ume 
+Cchp1      .  ( 0 , 1 , i ) , sme ( 0 , 1 , i ) ) 
+         call pvcdm1 ( ncls , lcls , rv_w_og , z , lmxa , rv_p_ov0 , a 
+     .   , nr , rv_w_orofi , rv_w_oul , rv_w_osl , nsp , lmxax , ume ( 
+     .   0 , 1 , i ) , sme ( 0 , 1 , i ) ) 
+
 
 Cdelw1 rlse name= orofi old_list= orofi oul osl ogz oruu orus orss og 
 Cdelw1 rlse name= orofi new_list= (None)

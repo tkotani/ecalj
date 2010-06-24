@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ov0
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= integer,iv_p_,oiprmb
@@ -168,7 +169,9 @@ C ... Local parameters
 C     integer lshft(3)
 Cchp1       integer:: og , oiprmb , ov0
 Cchp1        integer:: og , ov0 
-        integer:: ov0 
+Cchp1         integer:: ov0 
+         real(8),pointer :: rv_p_ov0(:)
+
         real(8),pointer :: rv_p_og(:)
 
        integer,pointer :: iv_p_oiprmb(:)
@@ -588,7 +591,9 @@ C   ... Atom data (gwa)
           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-          ov0=ssite(ib)%ov0
+Cchp1           ov0=ssite(ib)%ov0
+           rv_p_ov0 => ssite(ib)%rv_p_ov0 
+
 
 
           a=sspec(is)%a
@@ -599,15 +604,23 @@ C   ... Atom data (gwa)
           lmaxa = int(sspec(is)%lmxa)
 
           if (lmaxa .gt. -1) then
-            call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
-     .      i1,ncore,konfig,ecore,w,w)
+Cchp1             call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
+Cchp1      .      i1,ncore,konfig,ecore,w,w)
+             call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl 
+     .       , rmt ( ib ) , z , rv_p_ov0 , i1 , ncore , konfig , ecore , w 
+     .       , w ) 
+
             allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
             allocate(gval(nr,2,0:lmaxa,nphimx,nsp))
             call dpzero(gval,nr*2*(1+lmaxa)*nphimx*nsp)
 C         Create augmented wave functions for this atom
             call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
-            call atwf(03,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
-     .      nphimx,ncore,konfig,ecore,gcore,gval)
+Cchp1             call atwf(03,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(ib),z,w(ov0),
+Cchp1      .      nphimx,ncore,konfig,ecore,gcore,gval)
+             call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl 
+     .       , rmt ( ib ) , z , rv_p_ov0 , nphimx , ncore , konfig , ecore 
+     .       , gcore , gval ) 
+
 C         Header data for this atom
             b = rmt(ib)/(dexp(a*nr-a)-1d0)
             call radmsh(rmt(ib),a,nr,rofi)

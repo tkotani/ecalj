@@ -1,3 +1,6 @@
+Cchp1 cmdvar= real(8),rv_p_,ov01
+Cchp1 cmdvar= real(8),rv_p_,ov1
+Cchp1 cmdvar= real(8),rv_p_,ov0
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
@@ -92,10 +95,20 @@ Cchp1           integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc
 Cchp1      .    , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
 Cchp1      .    nr , ncore , ojcg , oqhh , oqhp , oqpp , orhoca , ov0 , ov01 
 Cchp1      .    , stdo , igetss 
-           integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-     .     , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-     .     nr , ncore , oqhh , oqhp , oqpp , orhoca , ov0 , ov01 , stdo 
-     .     , igetss 
+Cchp1            integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+Cchp1      .     , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+Cchp1      .     nr , ncore , oqhh , oqhp , oqpp , orhoca , ov0 , ov01 , stdo 
+Cchp1      .     , igetss 
+Cchp1             integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+Cchp1      .      , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+Cchp1      .      nr , ncore , oqhh , oqhp , oqpp , orhoca , ov01 , stdo , igetss 
+             integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+     .       , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+     .       nr , ncore , oqhh , oqhp , oqpp , orhoca , stdo , igetss 
+             real(8),pointer :: rv_p_ov01(:)
+
+            real(8),pointer :: rv_p_ov0(:)
+
            integer,pointer :: iv_p_ojcg(:)
 
           integer,pointer :: iv_p_oidxcg(:)
@@ -223,8 +236,12 @@ Cchp1         call orbl(ib,0,nlmto,w(oiprmb),norb,ltab,ktab,xx,offl,xx)
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-        ov0=ssite(ib)%ov0
-        ov01=ssite(ib)%ov1
+Cchp1         ov0=ssite(ib)%ov0
+         rv_p_ov0 => ssite(ib)%rv_p_ov0 
+
+Cchp1         ov01=ssite(ib)%ov1
+         rv_p_ov01 => ssite(ib)%rv_p_ov1 
+
 
 
         i_copy_size=size(ssite(ib)%pz)
@@ -304,9 +321,13 @@ Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rus_rv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered          if (nr*(lmxa+1)*2*nsp<0) rss_rv(:)=0.0d0
 
           call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
-          call makusp ( n0 , z , nsp , rmt , lmxa , w ( ov0 ) , a , nr 
-     .    , xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
-     .    , ruu_rv , rus_rv , rss_rv )
+Cchp1           call makusp ( n0 , z , nsp , rmt , lmxa , w ( ov0 ) , a , nr 
+Cchp1      .    , xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
+Cchp1      .    , ruu_rv , rus_rv , rss_rv )
+           call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr , 
+     .     xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv , ruu_rv 
+     .     , rus_rv , rss_rv ) 
+
 
 
 C   ... Contracted density matrix as coffs to products of (u,s,gz)
@@ -460,9 +481,13 @@ C       Contribution to mag outsite rmt: extrapolate tail to infinity
 C   --- Make new core density and core eigenvalue sum ---
         if (lfoc .eq. 0) then
           call pshpr(ipr+11)
-          call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv 
-     .    , w ( ov01 ) , kcor , lcor , qcor , smec , smtc , w ( orhoat 
-     .    ( 3 , ib ) ) , ncore , 0d0 , 0d0 )
+Cchp1           call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv 
+Cchp1      .    , w ( ov01 ) , kcor , lcor , qcor , smec , smtc , w ( orhoat 
+Cchp1      .    ( 3 , ib ) ) , ncore , 0d0 , 0d0 )
+           call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , rv_p_ov01 
+     .     , kcor , lcor , qcor , smec , smtc , w ( orhoat ( 3 , ib ) ) 
+     .     , ncore , 0d0 , 0d0 ) 
+
 
           call poppr
 C     ... here if v0 used to make core... then effectively frozen
