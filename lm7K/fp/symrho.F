@@ -1,3 +1,6 @@
+Cchp1 cmdvar= integer,iv_p_,okv
+Cchp1 cmdvar= integer,iv_p_,ojcg
+Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
@@ -127,9 +130,19 @@ Cchp1      .  , og , oidxcg , ojcg , igetss , mxint , ival
 Cchp1          integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
 Cchp1      .   , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , ocy , og 
 Cchp1      .   , oidxcg , ojcg , igetss , mxint , ival 
-          integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
-     .    , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , og , oidxcg 
-     .    , ojcg , igetss , mxint , ival 
+Cchp1           integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
+Cchp1      .    , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , og , oidxcg 
+Cchp1      .    , ojcg , igetss , mxint , ival 
+Cchp1            integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
+Cchp1      .     , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , og , ojcg 
+Cchp1      .     , igetss , mxint , ival 
+            integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
+     .      , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , og , igetss 
+     .      , mxint , ival 
+            integer,pointer :: iv_p_ojcg(:)
+
+           integer,pointer :: iv_p_oidxcg(:)
+
           real(8),pointer :: rv_p_ocy(:)
 
          real(8),pointer :: rv_p_ocg(:)
@@ -159,8 +172,12 @@ C ... Heap
 Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-      ojcg=slat%ojcg
-      oidxcg=slat%oidxcg
+Cchp1       ojcg=slat%ojcg
+       iv_p_ojcg => slat%iv_p_ojcg 
+
+Cchp1       oidxcg=slat%oidxcg
+       iv_p_oidxcg => slat%iv_p_oidxcg 
+
 Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
@@ -430,7 +447,10 @@ Cchp1      ., ngabc(3) , isp
 Cchp1        integer:: n1 , n2 , n3 , ng , ngrp , obgv , ogv , okv , ngabc(3) 
 Cchp1      . , isp 
 Cchp1         integer:: n1 , n2 , n3 , ng , ngrp , ogv , okv , ngabc(3) , isp 
-         integer:: n1 , n2 , n3 , ng , ngrp , okv , ngabc(3) , isp 
+Cchp1          integer:: n1 , n2 , n3 , ng , ngrp , okv , ngabc(3) , isp 
+          integer:: n1 , n2 , n3 , ng , ngrp , ngabc(3) , isp 
+          integer,pointer :: iv_p_okv(:)
+
          real(8),pointer :: rv_p_ogv(:)
 
         complex(8),pointer :: zv_p_obgv(:)
@@ -453,7 +473,9 @@ C ... Heap
 Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-      okv=slat%okv
+Cchp1       okv=slat%okv
+       iv_p_okv => slat%iv_p_okv 
+
 
 
       ngrp=slat%nsgrp
@@ -475,8 +497,11 @@ Ctakao_ZeroClear_NotRequiered          if (ng<0) csym_zv(:)=0.0d0
         call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 C       call zprm3('smrho before poke',smrho,k1,k2,k3)
         do  isp = 1, nsp
-          call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smrho ( 1 , 
-     .    1 , 1 , isp ) , cv_zv )
+Cchp1           call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smrho ( 1 , 
+Cchp1      .    1 , 1 , isp ) , cv_zv )
+           call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smrho ( 1 , 
+     .     1 , 1 , isp ) , cv_zv ) 
+
 
 Cchp1           call gvsym ( ng , w ( ogv ) , w ( oips0 ) , w ( obgv ) , cv_zv 
 Cchp1      .    , csym_zv )
@@ -492,8 +517,11 @@ Cchp1      .      , csym_zv )
 
           call dpadd ( csym_zv , cv_zv , 1 , ng * 2 , - 1d0 )
 
-          call gvaddf ( ng , w ( okv ) , k1 , k2 , k3 , csym_zv , smrho 
-     .    ( 1 , 1 , 1 , isp ) )
+Cchp1           call gvaddf ( ng , w ( okv ) , k1 , k2 , k3 , csym_zv , smrho 
+Cchp1      .    ( 1 , 1 , 1 , isp ) )
+           call gvaddf ( ng , iv_p_okv , k1 , k2 , k3 , csym_zv , smrho 
+     .     ( 1 , 1 , 1 , isp ) ) 
+
 
 C         call zprm3('smrho after poke',smrho,k1,k2,k3)
         enddo

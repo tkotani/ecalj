@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ojcg
+Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocg
       subroutine locpot(nbas,nsp,lso,lcplxp,ssite,sspec,slat,orhoat,
      .qmom,vval,gpot0,osig,otau,oppi,ppnl,hab,vab,sab,vvesat,
@@ -165,9 +167,18 @@ C ... for core hole
 Cchp1       integer i,stdo,nglob,ipr,iprint,j1,ib,is,lmxl,
 Cchp1      .lmxa,nr,lmxb,kmax,lfoc,nrml,ov01,ov0,nlml,ocg,
 Cchp1      .ojcg,oidxcg
-       integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
-     . , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , ov0 , nlml , 
-     . ojcg , oidxcg 
+Cchp1        integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
+Cchp1      . , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , ov0 , nlml , 
+Cchp1      . ojcg , oidxcg 
+Cchp1         integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
+Cchp1      .  , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , ov0 , nlml , 
+Cchp1      .  ojcg 
+         integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
+     .   , lmxa , nr , lmxb , kmax , lfoc , nrml , ov01 , ov0 , nlml 
+         integer,pointer :: iv_p_ojcg(:)
+
+        integer,pointer :: iv_p_oidxcg(:)
+
        real(8),pointer :: rv_p_ocg(:)
 
 C$    integer iiv0(nbas),nvl
@@ -423,8 +434,12 @@ C     ... Use effective potentials with modified xc
 Cchp1           ocg=slat%ocg
            rv_p_ocg => slat%rv_p_ocg 
 
-          ojcg=slat%ojcg
-          oidxcg=slat%oidxcg
+Cchp1           ojcg=slat%ojcg
+           iv_p_ojcg => slat%iv_p_ojcg 
+
+Cchp1           oidxcg=slat%oidxcg
+           iv_p_oidxcg => slat%iv_p_oidxcg 
+
 
 Cchp1           call augmat(z,rmt,rsma,lmxa,pnu,pnz,kmax,nlml,a,nr,nsp,lso,
 Cchp1      .    rofi,rwgt,w(ocg),w(ojcg),w(oidxcg),w(ov0),v1,v2,gpotb,
@@ -432,14 +447,32 @@ Cchp1      .    gpot0(j1),nkaph,nkapi,lmxb,lh,eh,rsmh,ehl,rsml,rs3,vmtz,
 Cchp1      .    lcplxp,lmaxu,vorb,lldau(ib),iblu,idu,
 Cchp1      .    osig(1,ib),otau(1,ib),oppi(1,ib),ppnl(1,1,1,ib),
 Cchp1      .    hab(1,1,1,ib),vab(1,1,1,ib),sab(1,1,1,ib))
-           call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
-     .     , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , w ( ojcg ) , 
-     .     w ( oidxcg ) , w ( ov0 ) , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph 
-     .     , nkapi , lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp 
-     .     , lmaxu , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib ) 
-     .     , otau ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) 
-     .     , hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 
-     .     1 , 1 , ib ) ) 
+Cchp1            call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
+Cchp1      .     , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , w ( ojcg ) , 
+Cchp1      .     w ( oidxcg ) , w ( ov0 ) , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph 
+Cchp1      .     , nkapi , lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp 
+Cchp1      .     , lmaxu , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib ) 
+Cchp1      .     , otau ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) 
+Cchp1      .     , hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 
+Cchp1      .     1 , 1 , ib ) ) 
+Cchp1             call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
+Cchp1      .      , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , w ( ojcg ) , 
+Cchp1      .      iv_p_oidxcg , w ( ov0 ) , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph 
+Cchp1      .      , nkapi , lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp 
+Cchp1      .      , lmaxu , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib ) 
+Cchp1      .      , otau ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) 
+Cchp1      .      , hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 
+Cchp1      .      1 , 1 , ib ) ) 
+             call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml 
+     .       , a , nr , nsp , lso , rofi , rwgt , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg 
+     .       , w ( ov0 ) , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi 
+     .       , lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , 
+     .       lmaxu , vorb , lldau ( ib ) , iblu , idu , osig ( 1 , ib ) , 
+     .       otau ( 1 , ib ) , oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
+     .       hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 
+     .       , 1 , ib ) ) 
+
+
 
         endif
 

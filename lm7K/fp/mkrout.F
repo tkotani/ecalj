@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ojcg
+Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
 Cchp1 cmdvar= integer,iv_p_,oiprmb
@@ -82,10 +84,22 @@ Cchp1         integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc
 Cchp1      .  , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
 Cchp1      .  nr , ncore , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , orhoca 
 Cchp1      .  , ov0 , ov01 , stdo , igetss 
-         integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-     .   , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-     .   nr , ncore , oidxcg , ojcg , oqhh , oqhp , oqpp , orhoca , ov0 
-     .   , ov01 , stdo , igetss 
+Cchp1          integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+Cchp1      .   , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+Cchp1      .   nr , ncore , oidxcg , ojcg , oqhh , oqhp , oqpp , orhoca , ov0 
+Cchp1      .   , ov01 , stdo , igetss 
+Cchp1           integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+Cchp1      .    , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+Cchp1      .    nr , ncore , ojcg , oqhh , oqhp , oqpp , orhoca , ov0 , ov01 
+Cchp1      .    , stdo , igetss 
+           integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+     .     , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+     .     nr , ncore , oqhh , oqhp , oqpp , orhoca , ov0 , ov01 , stdo 
+     .     , igetss 
+           integer,pointer :: iv_p_ojcg(:)
+
+          integer,pointer :: iv_p_oidxcg(:)
+
          real(8),pointer :: rv_p_ocy(:)
 
         real(8),pointer :: rv_p_ocg(:)
@@ -145,8 +159,12 @@ C ... Setup
 Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-      ojcg=slat%ojcg
-      oidxcg=slat%oidxcg
+Cchp1       ojcg=slat%ojcg
+       iv_p_ojcg => slat%iv_p_ojcg 
+
+Cchp1       oidxcg=slat%oidxcg
+       iv_p_oidxcg => slat%iv_p_oidxcg 
+
 Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
@@ -310,10 +328,20 @@ Cchp1      .    ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab
 Cchp1      .    , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
 Cchp1      .    , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
 Cchp1      .    )
-           call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , w 
-     .     ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-     .     , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
-     .     , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
+Cchp1            call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , w 
+Cchp1      .     ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
+Cchp1      .     , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
+Cchp1      .     , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
+Cchp1             call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , w 
+Cchp1      .      ( ojcg ) , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , 
+Cchp1      .      blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv , 
+Cchp1      .      vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
+             call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , iv_p_ojcg 
+     .       , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , w 
+     .       ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv , vp_rv , 
+     .       dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
+
+
 
 
 C        call prmx('dmatl',w(odmatl),(lmxa+1)**2,(lmxa+1)**2,nlml*nsp*9)
@@ -373,10 +401,20 @@ Cchp1      .      w ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab
 Cchp1      .      , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
 Cchp1      .      , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
 Cchp1      .      )
-             call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , w 
-     .       ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-     .       , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
-     .       , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
+Cchp1              call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , w 
+Cchp1      .       ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
+Cchp1      .       , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
+Cchp1      .       , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
+Cchp1               call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , w 
+Cchp1      .        ( ojcg ) , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , 
+Cchp1      .        blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv , 
+Cchp1      .        vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
+               call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , iv_p_ojcg 
+     .         , iv_p_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks , w 
+     .         ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv , vp_rv , 
+     .         dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
+
+
 
 
             call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , w 

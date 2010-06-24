@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ojcg
+Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
 Cdelw1 var ['orofi', '1', 'orofi', 'nr', 'real(8)', 'rv_w_', 'vcdmel']
@@ -78,7 +80,13 @@ Cdelw1       integer ocg,ojcg,oidxcg,ocy,ov0,orofi,oul,osl,ogz,oruu,orus,orss,
 Cdelw1      .og,os
 Cchp1        integer:: ocg , ojcg , oidxcg , ocy , ov0 
 Cchp1         integer:: ojcg , oidxcg , ocy , ov0 
-         integer:: ojcg , oidxcg , ov0 
+Cchp1          integer:: ojcg , oidxcg , ov0 
+Cchp1           integer:: ojcg , ov0 
+           integer:: ov0 
+           integer,pointer :: iv_p_ojcg(:)
+
+          integer,pointer :: iv_p_oidxcg(:)
+
          real(8),pointer :: rv_p_ocy(:)
 
         real(8),pointer :: rv_p_ocg(:)
@@ -110,10 +118,14 @@ Cchp1       ocg=slat%ocg
 
 Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 67
 Cdelw1 do not change ojcg because of ['undef', 'wvar', 'wref']
-      ojcg=slat%ojcg
+Cchp1       ojcg=slat%ojcg
+       iv_p_ojcg => slat%iv_p_ojcg 
+
 Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 68
 Cdelw1 do not change oidxcg because of ['undef', 'wvar', 'wref']
-      oidxcg=slat%oidxcg
+Cchp1       oidxcg=slat%oidxcg
+       iv_p_oidxcg => slat%iv_p_oidxcg 
+
 Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
@@ -230,10 +242,20 @@ Cchp1                call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , au
 Cchp1      .         ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
 Cchp1      .         , isp , i ) , lcls , w ( ocg ) , w ( ojcg ) , w ( oidxcg ) , 
 Cchp1      .         rv_w_os ) 
-                call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
-     .          ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
-     .          , isp , i ) , lcls , rv_p_ocg , w ( ojcg ) , w ( oidxcg ) , rv_w_os 
-     .          ) 
+Cchp1                 call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
+Cchp1      .          ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
+Cchp1      .          , isp , i ) , lcls , rv_p_ocg , w ( ojcg ) , w ( oidxcg ) , rv_w_os 
+Cchp1      .          ) 
+Cchp1                  call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
+Cchp1      .           ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
+Cchp1      .           , isp , i ) , lcls , rv_p_ocg , w ( ojcg ) , iv_p_oidxcg , rv_w_os 
+Cchp1      .           ) 
+                  call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
+     .            ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
+     .            , isp , i ) , lcls , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg , rv_w_os 
+     .            ) 
+
+
 
 
             endif

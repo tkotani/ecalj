@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine mixrho(ssite,sspec,slat,nsp,iter,mixmod,qval,elind,
      .orhnew,orhold,k1,k2,k3,dmxp,smrnew,smrho)
@@ -200,7 +201,10 @@ C ... Local parameters
      .kkk,nnnew,nnmix,ngabc(3),igetss,fopna,broy,nx,
      .nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
 Cchp1       integer:: ng0 , ocn , ogv , okv , oa , oaa , owk , oqkl
-       integer:: ng0 , ocn , okv , oa , oaa , owk , oqkl 
+Cchp1        integer:: ng0 , ocn , okv , oa , oaa , owk , oqkl 
+        integer:: ng0 , ocn , oa , oaa , owk , oqkl 
+        integer,pointer :: iv_p_okv(:)
+
        real(8),pointer :: rv_p_ogv(:)
 
       integer ,allocatable :: ips0_iv(:)
@@ -307,7 +311,9 @@ ccccccccccccccccccccccccccccccccc
 Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-      okv=slat%okv
+Cchp1       okv=slat%okv
+       iv_p_okv => slat%iv_p_okv 
+
       vol=slat%vol
 
       alat = slat%alat
@@ -408,7 +414,10 @@ C ... 2. cn <- (smrnew - smrho)(G)
       call dcopy(kkk*2,smrnew,1,w(owk),1)
       call dpadd(w(owk),smrho,1,kkk*2,-1d0)
       call fftz3(w(owk),n1,n2,n3,k1,k2,k3,1,0,-1)
-      call gvgetf(ng,1,w(okv),k1,k2,k3,w(owk),w(ocn))
+Cchp1       call gvgetf(ng,1,w(okv),k1,k2,k3,w(owk),w(ocn))
+       call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w ( owk ) , 
+     . w ( ocn ) ) 
+
       call rlse(owk)
 
 
@@ -449,7 +458,10 @@ Cchp1       call lindsc(2,ng,w(ogv),tpiba,elinl,w(ocn))
 
 C ... 5. Add cn = screening charge into smrnew
       call defcc(owk,kkk)
-      call gvputf(ng,1,w(okv),k1,k2,k3,w(ocn),w(owk))
+Cchp1       call gvputf(ng,1,w(okv),k1,k2,k3,w(ocn),w(owk))
+       call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w ( ocn ) , 
+     . w ( owk ) ) 
+
       call fftz3(w(owk),n1,n2,n3,k1,k2,k3,1,0,1)
 C     call zprm3('unscreened smrnew',0,smrnew,k1,k2,k3)
       call dpadd(smrnew,w(owk),1,kkk*2,1d0)
@@ -620,7 +632,10 @@ Ctakao_ZeroClear_NotRequiered        if (ng*2*nsp<0) co_rv(:)=0.0d0
       call defrr(owk,kkk*2*nsp)
       call dpcopy(smrnew,w(owk),1,kkk*2*nsp,1d0)
       call fftz3(w(owk),n1,n2,n3,k1,k2,k3,nsp,0,-1)
-      call gvgetf(ng,nsp,w(okv),k1,k2,k3,w(owk),w(ocn))
+Cchp1       call gvgetf(ng,nsp,w(okv),k1,k2,k3,w(owk),w(ocn))
+       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w ( owk ) 
+     . , w ( ocn ) ) 
+
 C     call zprm('cn-u',2,w(ocn),ng,ng,nsp)
 Cchp1       call lgstar ( 1 , ng , nsp , w ( ogv ) , i , ips0_iv , w ( 
 Cchp1      .ocn ) )
@@ -633,8 +648,11 @@ C     call lgstar(2,ng,nsp,w(ogv),i,w(oips0),w(ocn))
 C     call zprm('cn-u',2,w(ocn),ng,ng,nsp)
       call dpcopy(smrho,w(owk),1,kkk*2*nsp,1d0)
       call fftz3(w(owk),n1,n2,n3,k1,k2,k3,nsp,0,-1)
-      call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , w ( owk ) 
-     ., co_rv )
+Cchp1       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , w ( owk ) 
+Cchp1      ., co_rv )
+       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w ( owk ) 
+     . , co_rv ) 
+
 
 C     call zprm('co-u',2,w(oco),ng,ng,nsp)
 Cchp1       call lgstar ( 1 , ng , nsp , w ( ogv ) , i , ips0_iv , co_rv 
@@ -786,10 +804,15 @@ Cchp1       call pvmix7 ( ssite , sspec , nbas , nsp , nda , w ( oa ) , n1
 Cchp1      ., n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w 
 Cchp1      .( oqkl ) , ng , ng0 , w ( okv ) , ips0_iv , w ( ogv ) , co_rv 
 Cchp1      ., w ( owk ) , orhold , smrho )
-       call pvmix7 ( ssite , sspec , nbas , nsp , nda , w ( oa ) , n1 
-     . , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w 
-     . ( oqkl ) , ng , ng0 , w ( okv ) , ips0_iv , rv_p_ogv , co_rv 
-     . , w ( owk ) , orhold , smrho ) 
+Cchp1        call pvmix7 ( ssite , sspec , nbas , nsp , nda , w ( oa ) , n1 
+Cchp1      . , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w 
+Cchp1      . ( oqkl ) , ng , ng0 , w ( okv ) , ips0_iv , rv_p_ogv , co_rv 
+Cchp1      . , w ( owk ) , orhold , smrho ) 
+        call pvmix7 ( ssite , sspec , nbas , nsp , nda , w ( oa ) , n1 
+     .  , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w 
+     .  ( oqkl ) , ng , ng0 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , 
+     .  w ( owk ) , orhold , smrho ) 
+
 
 
 

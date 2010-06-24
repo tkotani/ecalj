@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= real(8),rv_p_,ocy
       subroutine smvxcm(ssite,sspec,slat,nbas,lfrce,k1,k2,k3,smrho,
@@ -103,8 +104,12 @@ Cchp1      ., okv , ocy , lfoc1 , lfoc2 , iprint , excsan
 Cchp1      ., lxcfun , nglob , nsp
 Cchp1        integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , ogv 
 Cchp1      . , okv , lfoc1 , lfoc2 , iprint , excsan , lxcfun , nglob , nsp 
-        integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , okv 
-     .  , lfoc1 , lfoc2 , iprint , excsan , lxcfun , nglob , nsp 
+Cchp1         integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , okv 
+Cchp1      .  , lfoc1 , lfoc2 , iprint , excsan , lxcfun , nglob , nsp 
+         integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , lfoc1 
+     .   , lfoc2 , iprint , excsan , lxcfun , nglob , nsp 
+         integer,pointer :: iv_p_okv(:)
+
         real(8),pointer :: rv_p_ogv(:)
 
        real(8),pointer :: rv_p_ocy(:)
@@ -132,7 +137,9 @@ c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
 Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-      okv=slat%okv
+Cchp1       okv=slat%okv
+       iv_p_okv => slat%iv_p_okv 
+
       vol=slat%vol
       alat=slat%alat
       vol=slat%vol
@@ -156,8 +163,11 @@ Cchp1      .cgh1_zv , cgh2_zv , lfoc1 , lfoc2 )
 C ... smrho_w = smrho + smoothed core from foca hankel heads
       k123 = 2*k1*k2*k3
       if (lfoc1 .eq. 1) then
-        call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh1_zv 
-     .  , smrho_w ) !w ( osmrho ) )
+Cchp1         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh1_zv 
+Cchp1      .  , smrho_w ) !w ( osmrho ) )
+         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w 
+     .   ) 
+
         call fftz3(smrho_w,n1,n2,n3,k1,k2,k3,1,0,1)
         if (nsp .eq. 2) then
           call dscal(k123,.5d0,smrho_w,1)
@@ -214,8 +224,11 @@ C   ... Assemble core tails for linearized treatment on mesh
 C       w(osmcor) = portion of core treated perturbatively
 c        osmcor = osmrho
         allocate(smcor_w(k1*k2*k3*nsp))
-        call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh2_zv 
-     .  , smcor_w) !w ( osmcor ) )
+Cchp1         call gvputf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , cgh2_zv 
+Cchp1      .  , smcor_w) !w ( osmcor ) )
+         call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh2_zv , smcor_w 
+     .   ) 
+
 
         call fftz3(smcor_w,n1,n2,n3,k1,k2,k3,1,0,1)
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,smcor_w,sum1,sum2)
@@ -262,8 +275,11 @@ C --- Force from foca sm-head; cgh1 is workspace ---
         call dpzero(f,3*nbas)
         if (lfoc1.gt.0 .or. lfoc2.gt.0) then
           call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-          call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smvxc , cgh1_zv 
-     .    )
+Cchp1           call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smvxc , cgh1_zv 
+Cchp1      .    )
+           call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
+     .     ) 
+
 
 Cchp1           call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , w ( ocy 
 Cchp1      .    ) , ng , w ( ogv ) , cgh1_zv , f )

@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
 CSFCPP#define F90 1
       subroutine rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,
@@ -105,9 +106,14 @@ C ... Local parameters
       parameter (n0=10,nkap0=3,nermx=100,npmx=128)
 Cchp1       integer nspec,ngabc(3),n1,n2,n3,nrt,net,ng,nglob,ltop,
 Cchp1      .nlmtop,ogv,ogq,og2,ohe,ohr,oyl,oylw,oiv,okv,iprint
-       integer:: nspec , ngabc(3) , n1 , n2 , n3 , nrt , net , ng , 
-     . nglob , ltop , nlmtop , ogq , og2 , ohe , ohr , oyl , oylw , 
-     . oiv , okv , iprint 
+Cchp1        integer:: nspec , ngabc(3) , n1 , n2 , n3 , nrt , net , ng , 
+Cchp1      . nglob , ltop , nlmtop , ogq , og2 , ohe , ohr , oyl , oylw , 
+Cchp1      . oiv , okv , iprint 
+        integer:: nspec , ngabc(3) , n1 , n2 , n3 , nrt , net , ng , 
+     .  nglob , ltop , nlmtop , ogq , og2 , ohe , ohr , oyl , oylw , 
+     .  oiv , iprint 
+        integer,pointer :: iv_p_okv(:)
+
        real(8),pointer :: rv_p_ogv(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -181,7 +187,9 @@ C ... First setup
 Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-      okv=slat%okv
+Cchp1       okv=slat%okv
+       iv_p_okv => slat%iv_p_okv 
+
       vol=slat%vol
 
 
@@ -195,14 +203,20 @@ Cchp1       call defrr(ogv, ng*3)
        allocate(rv_p_ogv(abs(ng*3)))
        if (ng*3<0) rv_p_ogv(:)=0.0d0
 
-      call defi (okv, ng*3)
+Cchp1       call defi (okv, ng*3)
+       allocate(iv_p_okv(abs(ng*3)))
+       if (ng*3<0) iv_p_okv(:)=0
+
       call defi (oiv, ng*3)
 C      call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1009,ng,ng,w(okv),
 C     .  w(ogv),w(oiv),w(oiv))
 Cchp1       call gvlist(alat,plat,q,n1,n2,n3,gmax,509,ng,ng,w(okv),w(ogv),
 Cchp1      .w(oiv),w(oiv))
-       call gvlist ( alat , plat , q , n1 , n2 , n3 , gmax , 509 , ng 
-     . , ng , w ( okv ) , rv_p_ogv , w ( oiv ) , w ( oiv ) ) 
+Cchp1        call gvlist ( alat , plat , q , n1 , n2 , n3 , gmax , 509 , ng 
+Cchp1      . , ng , w ( okv ) , rv_p_ogv , w ( oiv ) , w ( oiv ) ) 
+        call gvlist ( alat , plat , q , n1 , n2 , n3 , gmax , 509 , ng 
+     .  , ng , iv_p_okv , rv_p_ogv , w ( oiv ) , w ( oiv ) ) 
+
 
       call poppr
       call tcx('gvlist')
@@ -339,12 +353,21 @@ C   ... Add together total smooth wavefunction
 
 C   ... Add to real-space mesh, optionally make smpot*psi for forces
 #if MPI | OPENMP
-        call rsibl2(ng,nspc,nvec,psi,n1,n2,n3,k1,k2,k3,w(okv),numq,
-     .  ewgt(1,ivec),lfrce,smpot(1,1,1,isp),psir,xsmrho,vpsi)
+Cchp1         call rsibl2(ng,nspc,nvec,psi,n1,n2,n3,k1,k2,k3,w(okv),numq,
+Cchp1      .  ewgt(1,ivec),lfrce,smpot(1,1,1,isp),psir,xsmrho,vpsi)
+         call rsibl2 ( ng , nspc , nvec , psi , n1 , n2 , n3 , k1 , k2 
+     .   , k3 , iv_p_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
+     .   1 , 1 , 1 , isp ) , psir , xsmrho , vpsi ) 
+
 #else
-        call rsibl2(ng,nspc,nvec,psi,n1,n2,n3,k1,k2,k3,w(okv),numq,
-     .  ewgt(1,ivec),lfrce,smpot(1,1,1,isp),psir,smrho(1,1,1,1,isp),
-     .  vpsi)
+Cchp1         call rsibl2(ng,nspc,nvec,psi,n1,n2,n3,k1,k2,k3,w(okv),numq,
+Cchp1      .  ewgt(1,ivec),lfrce,smpot(1,1,1,isp),psir,smrho(1,1,1,1,isp),
+Cchp1      .  vpsi)
+         call rsibl2 ( ng , nspc , nvec , psi , n1 , n2 , n3 , k1 , k2 
+     .   , k3 , iv_p_okv , numq , ewgt ( 1 , ivec ) , lfrce , smpot ( 
+     .   1 , 1 , 1 , isp ) , psir , smrho ( 1 , 1 , 1 , 1 , isp ) , vpsi 
+     .   ) 
+
 #endif
 
 C    --- Add to forces ---

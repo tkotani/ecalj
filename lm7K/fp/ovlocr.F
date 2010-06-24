@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ojcg
+Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
       subroutine ovlocr(nbas,ssite,sspec,slat,nxi0,nxi,exi,hfc,rsmfa,
@@ -45,9 +47,17 @@ Cchp1      .nlml,nr,ocg,ocy,oidxcg,ojcg,nsp,nglob,i
 Cchp1        integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
 Cchp1      . , lgunit , lmxl , nlmh , nlml , nr , ocy , oidxcg , ojcg , nsp 
 Cchp1      . , nglob , i 
-        integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
-     .  , lgunit , lmxl , nlmh , nlml , nr , oidxcg , ojcg , nsp , nglob 
-     .  , i 
+Cchp1         integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
+Cchp1      .  , lgunit , lmxl , nlmh , nlml , nr , oidxcg , ojcg , nsp , nglob 
+Cchp1      .  , i 
+Cchp1          integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
+Cchp1      .   , lgunit , lmxl , nlmh , nlml , nr , ojcg , nsp , nglob , i 
+          integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
+     .    , lgunit , lmxl , nlmh , nlml , nr , nsp , nglob , i 
+          integer,pointer :: iv_p_ojcg(:)
+
+         integer,pointer :: iv_p_oidxcg(:)
+
         real(8),pointer :: rv_p_ocy(:)
 
        real(8),pointer :: rv_p_ocg(:)
@@ -87,8 +97,12 @@ C ... Heap
 Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-      ojcg=slat%ojcg
-      oidxcg=slat%oidxcg
+Cchp1       ojcg=slat%ojcg
+       iv_p_ojcg => slat%iv_p_ojcg 
+
+Cchp1       oidxcg=slat%oidxcg
+       iv_p_oidxcg => slat%iv_p_oidxcg 
+
 Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
@@ -174,9 +188,17 @@ Cchp1      .      nlml,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b)
 Cchp1              call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
 Cchp1      .       , kmxv , nlml , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , w ( ocy 
 Cchp1      .       ) , slat , b ) 
-              call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
-     .        , kmxv , nlml , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy 
-     .        , slat , b ) 
+Cchp1               call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
+Cchp1      .        , kmxv , nlml , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy 
+Cchp1      .        , slat , b ) 
+Cchp1                call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
+Cchp1      .         , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , w ( ojcg ) , rv_p_ocy 
+Cchp1      .         , slat , b ) 
+                call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
+     .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy 
+     .          , slat , b ) 
+
+
 
 
             call dpzero(b0,(kmxv+1)*nlmh)

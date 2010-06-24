@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 15:10:44.805185
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 15:26:41.856470
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -996,13 +996,16 @@ CCHSTRUC       integer(8)   ::   odlv
        real(8) , pointer ::  rv_p_odlv (:)
 CCHSTRUC       integer(8)   ::   ogv
        real(8) , pointer ::  rv_p_ogv (:)
-      integer(8)   ::   oidxcg
+CCHSTRUC       integer(8)   ::   oidxcg
+       integer , pointer ::  iv_p_oidxcg (:)
 CCHSTRUC       integer(8)   ::   oips0
        integer , pointer ::  iv_p_oips0 (:)
 CCHSTRUC       integer(8)   ::   oistab
        integer , pointer ::  iv_p_oistab (:)
-      integer(8)   ::   ojcg
-      integer(8)   ::   okv
+CCHSTRUC       integer(8)   ::   ojcg
+       integer , pointer ::  iv_p_ojcg (:)
+CCHSTRUC       integer(8)   ::   okv
+       integer , pointer ::  iv_p_okv (:)
       integer(8)   ::   opos
 CCHSTRUC       integer(8)   ::   oqlv
        real(8) , pointer ::  rv_p_oqlv (:)
@@ -3073,14 +3076,11 @@ Cstruc_makeinit.py skip rv_p_ocg(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_ocy(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_odlv(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_ogv(:) because it is a pointer.
-       call mpi_bcast(struc%oidxcg, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip iv_p_oidxcg(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_oips0(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_oistab(:) because it is a pointer.
-       call mpi_bcast(struc%ojcg, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%okv, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip iv_p_ojcg(:) because it is a pointer.
+Cstruc_makeinit.py skip iv_p_okv(:) because it is a pointer.
        call mpi_bcast(struc%opos, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_oqlv(:) because it is a pointer.
@@ -4488,9 +4488,6 @@ C$$$        end subroutine utb
        struc%nkqmx=0
        struc%npgrp=0
        struc%nsgrp=0
-       struc%oidxcg=0
-       struc%ojcg=0
-       struc%okv=0
        struc%opos=0
        struc%osymgr=0
        struc%plat=0.0d0

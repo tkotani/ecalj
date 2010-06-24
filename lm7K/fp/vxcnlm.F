@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,
      .repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
@@ -51,7 +52,9 @@ C ... Local parameters
       integer ip,i,i1,i2,i3,lcut,ng,np,ipr,n1,n2,n3,ngabc(3)
 c      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 Cchp1       integer ogv,okv
-       integer:: okv 
+Cchp1        integer:: okv 
+        integer,pointer :: iv_p_okv(:)
+
        real(8),pointer :: rv_p_ogv(:)
 
       double precision alat,vol,xx
@@ -76,7 +79,9 @@ c      call upack('lat alat vol',slat,alat,vol,0,0,0)
 Cchp1       ogv   =slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-      okv   =slat%okv
+Cchp1       okv   =slat%okv
+       iv_p_okv => slat%iv_p_okv 
+
       alat  =slat%alat
       vol   =slat%vol
       np = k1*k2*k3
@@ -95,9 +100,13 @@ c      print *,'vxcnlm xxx 000111',n1,n2,n3,k1,k2,k3
 C       call zprm3('smrho(isp=%i)',i,smrho(1,1,1,i),n1,n2,n3)
 Cchp1         call grfmsh(601,alat,ng,w(ogv),w(okv),k1,k2,k3,n1,n2,n3,
 Cchp1      .  smrho(1,1,1,i),zgrho(1,1,i),zggrho(1,i))
-         call grfmsh ( 601 , alat , ng , rv_p_ogv , w ( okv ) , k1 , k2 
-     .   , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1 
-     .   , i ) , zggrho ( 1 , i ) ) 
+Cchp1          call grfmsh ( 601 , alat , ng , rv_p_ogv , w ( okv ) , k1 , k2 
+Cchp1      .   , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1 
+Cchp1      .   , i ) , zggrho ( 1 , i ) ) 
+          call grfmsh ( 601 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
+     .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1 
+     .    , i ) , zggrho ( 1 , i ) ) 
+
 
 C       call zprm3('gradx smrho(isp=%i)',i,zgrho(1,1,i),n1,n2,n3)
 C       call zprm3('grady smrho(isp=%i)',i,zgrho(1,2,i),n1,n2,n3)
@@ -137,8 +146,11 @@ C     Use zggrho as complex work array
 C       call zprm3('|grad rho_i|',0,zggrho(1,i),n1,n2,n3)
 Cchp1         call grfmsh(201,alat,ng,w(ogv),w(okv),k1,k2,k3,n1,n2,n3,
 Cchp1      .  zggrho,gzgrho(1,1,i),xx)
-         call grfmsh ( 201 , alat , ng , rv_p_ogv , w ( okv ) , k1 , k2 
-     .   , k3 , n1 , n2 , n3 , zggrho , gzgrho ( 1 , 1 , i ) , xx ) 
+Cchp1          call grfmsh ( 201 , alat , ng , rv_p_ogv , w ( okv ) , k1 , k2 
+Cchp1      .   , k3 , n1 , n2 , n3 , zggrho , gzgrho ( 1 , 1 , i ) , xx ) 
+          call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2 
+     .    , k3 , n1 , n2 , n3 , zggrho , gzgrho ( 1 , 1 , i ) , xx ) 
+
 
 
 C        call zprm3('gradx |grad rho_%i|',i,gzgrho(1,1,i),n1,n2,n3)

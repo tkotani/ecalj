@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ojcg
+Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
 CSFCPP#define F90 1
@@ -168,7 +170,12 @@ C ... Local parameters
       integer nbas,nglob,nlmto
 Cchp1       integer ocg,ocy,oidxcg,ojcg
 Cchp1        integer:: ocy , oidxcg , ojcg 
-        integer:: oidxcg , ojcg 
+Cchp1         integer:: oidxcg , ojcg 
+Cchp1          integer:: ojcg 
+          integer,pointer :: iv_p_ojcg(:)
+
+         integer,pointer :: iv_p_oidxcg(:)
+
         real(8),pointer :: rv_p_ocy(:)
 
        real(8),pointer :: rv_p_ocg(:)
@@ -231,8 +238,12 @@ C --- Setup ---
 Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-      ojcg=slat%ojcg
-      oidxcg=slat%oidxcg
+Cchp1       ojcg=slat%ojcg
+       iv_p_ojcg => slat%iv_p_ojcg 
+
+Cchp1       oidxcg=slat%oidxcg
+       iv_p_oidxcg => slat%iv_p_oidxcg 
+
 Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
@@ -372,10 +383,20 @@ Cchp1                  call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 
 Cchp1      .           i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
 Cchp1      .           , nlms , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , w ( ocy ) , slat 
 Cchp1      .           , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
-                  call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
-     .            i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
-     .            , nlms , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy , slat 
-     .            , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
+Cchp1                   call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+Cchp1      .            i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
+Cchp1      .            , nlms , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy , slat 
+Cchp1      .            , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
+Cchp1                    call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+Cchp1      .             i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
+Cchp1      .             , nlms , rv_p_ocg , iv_p_oidxcg , w ( ojcg ) , rv_p_ocy , slat 
+Cchp1      .             , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
+                    call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+     .              i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
+     .              , nlms , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy , slat 
+     .              , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
+
+
 
 
 

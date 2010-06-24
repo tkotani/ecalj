@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,okv
       subroutine ioden(sopts,slat,ssite,sspec,orhat,smrho)
 
       use m_struc_def  !Cgetarg
@@ -111,7 +112,10 @@ C ... Passed parameters
 C ... Local parameters
       integer ngabc(3),n1,n2,n3,k1,k2,k3,kmax
       integer kkk,lgunit,ng,nglob,nsp,nwk,stdo,modrhg,nbas,i
-      integer:: okv , opos , oz
+Cchp1       integer:: okv , opos , oz
+       integer:: opos , oz 
+       integer,pointer :: iv_p_okv(:)
+
       complex(8) ,allocatable :: cn_zv(:)
       complex(8) ,allocatable :: psrho_zv(:)
       complex(8) ,allocatable :: wk_zv(:)
@@ -138,7 +142,9 @@ C ... Unpack and setup
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-      okv=slat%okv
+Cchp1       okv=slat%okv
+       iv_p_okv => slat%iv_p_okv 
+
       vol=slat%vol
 
 ccccccccccccccccccccccccccccc
@@ -186,8 +192,11 @@ Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cn_zv(:)=0.0d0
       call fftz3 ( psrho_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp 
      ., 0 , - 1 )
 
-      call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , psrho_zv 
-     ., cn_zv )
+Cchp1       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , psrho_zv 
+Cchp1      ., cn_zv )
+       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , psrho_zv , 
+     . cn_zv ) 
+
 
       xx0 = dval ( cn_zv , 1 )
 
@@ -218,8 +227,11 @@ C ... Add sum of local gaussian densities to mesh density
 
 C ... FFT (n0 + gaussians) (G) to real-space mesh
       if (modrhg .ge. 0) then
-        call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cn_zv 
-     .  , psrho_zv )
+Cchp1         call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cn_zv 
+Cchp1      .  , psrho_zv )
+         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cn_zv , psrho_zv 
+     .   ) 
+
 
         call awrit2('%N ioden : local densities + envelope density,'
      .  //' Qloc=%,6;6d  Q=%,6;6d',' ',80,stdo,(xx-xx0)*vol,xx*vol)

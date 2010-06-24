@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= real(8),rv_p_,odlv
 Cchp1 cmdvar= complex(8),zv_p_,obgv
@@ -72,9 +73,14 @@ Cchp1      .        , okv , ng , ngrp , og , iprint
 Cchp1                integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
 Cchp1      .         , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ogv , okv , 
 Cchp1      .         ng , ngrp , og , iprint 
-                integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
-     .          , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , okv , ng , 
-     .          ngrp , og , iprint 
+Cchp1                 integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
+Cchp1      .          , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , okv , ng , 
+Cchp1      .          ngrp , og , iprint 
+                 integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
+     .           , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , 
+     .           og , iprint 
+                 integer,pointer :: iv_p_okv(:)
+
                 real(8),pointer :: rv_p_ogv(:)
 
                real(8),pointer :: rv_p_odlv(:)
@@ -173,11 +179,17 @@ Cchp1         call defrr(ogv, ngmx*3)
          allocate(rv_p_ogv(abs(ngmx*3)))
          if (ngmx*3<0) rv_p_ogv(:)=0.0d0
 
-        call defi (okv, ngmx*3)
+Cchp1         call defi (okv, ngmx*3)
+         allocate(iv_p_okv(abs(ngmx*3)))
+         if (ngmx*3<0) iv_p_okv(:)=0
+
 Cchp1         call gvlist(alat,plat,w,n1,n2,n3,gmax,8,ngmx,ng,w(okv),
 Cchp1      .  w(ogv),xx,xx)
-         call gvlist ( alat , plat , w , n1 , n2 , n3 , gmax , 8 , ngmx 
-     .   , ng , w ( okv ) , rv_p_ogv , xx , xx ) 
+Cchp1          call gvlist ( alat , plat , w , n1 , n2 , n3 , gmax , 8 , ngmx 
+Cchp1      .   , ng , w ( okv ) , rv_p_ogv , xx , xx ) 
+          call gvlist ( alat , plat , w , n1 , n2 , n3 , gmax , 8 , ngmx 
+     .    , ng , iv_p_okv , rv_p_ogv , xx , xx ) 
+
 
         if (ng .ne. ngmx) call rx('supot: bug in gvlist')
 
@@ -186,7 +198,9 @@ Cchp1      .  w(ogv),xx,xx)
 Cchp1         slat%ogv=ogv
          slat%rv_p_ogv => rv_p_ogv 
 
-        slat%okv=okv
+Cchp1         slat%okv=okv
+         slat%iv_p_okv => iv_p_okv 
+
         slat%gmax=gmax
         i_copy_size=size(slat%nabc)
         call ii8copy(i_copy_size,ngabc,1,slat%nabc,1)

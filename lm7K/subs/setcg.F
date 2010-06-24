@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ojcg
+Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
       subroutine setcg(slat,lmxcg,lmxcy)
@@ -11,7 +13,13 @@ C     implicit none
 
 Cchp1       integer lnjcg,lnxcg,nlm,ocy,ocg,ojcg,oidxcg
 Cchp1        integer:: lnjcg , lnxcg , nlm , ocy , ojcg , oidxcg 
-        integer:: lnjcg , lnxcg , nlm , ojcg , oidxcg 
+Cchp1         integer:: lnjcg , lnxcg , nlm , ojcg , oidxcg 
+Cchp1          integer:: lnjcg , lnxcg , nlm , ojcg 
+          integer:: lnjcg , lnxcg , nlm 
+          integer,pointer :: iv_p_ojcg(:)
+
+         integer,pointer :: iv_p_oidxcg(:)
+
         real(8),pointer :: rv_p_ocy(:)
 
        real(8),pointer :: rv_p_ocg(:)
@@ -43,22 +51,36 @@ Cchp1       call defrr (ocg,      lnjcg)
        allocate(rv_p_ocg(abs(lnjcg)))
        if (lnjcg<0) rv_p_ocg(:)=0.0d0
 
-      call defi  (ojcg,     lnjcg)
-      call defi  (oidxcg,   lnxcg)
+Cchp1       call defi  (ojcg,     lnjcg)
+       allocate(iv_p_ojcg(abs(lnjcg)))
+       if (lnjcg<0) iv_p_ojcg(:)=0
+
+Cchp1       call defi  (oidxcg,   lnxcg)
+       allocate(iv_p_oidxcg(abs(lnxcg)))
+       if (lnxcg<0) iv_p_oidxcg(:)=0
+
 
 Cchp1       call sylmnc(w(ocy),lmxcy)
        call sylmnc ( rv_p_ocy , lmxcy ) 
 
 Cchp1       call scg(lmxcg,w(ocg),w(oidxcg),w(ojcg))
-       call scg ( lmxcg , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) ) 
+Cchp1        call scg ( lmxcg , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) ) 
+Cchp1         call scg ( lmxcg , rv_p_ocg , iv_p_oidxcg , w ( ojcg ) ) 
+         call scg ( lmxcg , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg ) 
+
+
 
 
 
 Cchp1       slat%ocg=ocg
        slat%rv_p_ocg => rv_p_ocg 
 
-      slat%ojcg=ojcg
-      slat%oidxcg=oidxcg
+Cchp1       slat%ojcg=ojcg
+       slat%iv_p_ojcg => iv_p_ojcg 
+
+Cchp1       slat%oidxcg=oidxcg
+       slat%iv_p_oidxcg => iv_p_oidxcg 
+
 Cchp1       slat%ocy=ocy
        slat%rv_p_ocy => rv_p_ocy 
 

@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine smshft(ssite,sspec,slat,sctrl,sham,orhoat,smrho)
 
@@ -57,7 +58,9 @@ C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
      .n2,n3,nbas,ng,ngabc(3),nglob,nsp
 Cchp1       integer:: ogv , okv
-       integer:: okv 
+Cchp1        integer:: okv 
+        integer,pointer :: iv_p_okv(:)
+
        real(8),pointer :: rv_p_ogv(:)
 
       complex(8) ,allocatable :: cgr_zv(:)
@@ -97,7 +100,9 @@ C --- Setup and printout ---
 Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-      okv=slat%okv
+Cchp1       okv=slat%okv
+       iv_p_okv => slat%iv_p_okv 
+
       vol=slat%vol
 
       call fftz30(n1,n2,n3,k1,k2,k3)
@@ -108,8 +113,11 @@ C ... Hold on to original smrho (cgr)
 Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cgr_zv(:)=0.0d0
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-      call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smrho , cgr_zv 
-     .)
+Cchp1       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , smrho , cgr_zv 
+Cchp1      .)
+       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv 
+     . ) 
+
 
 
 C --- Shift in unscreened density at the two positions ---
@@ -177,8 +185,11 @@ C        call dscal(2*ng,.001d0,w(ocgs),1)
       endif
 
 C ... Debugging: show delta smrho
-      call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cgs_zv 
-     ., smrho )
+Cchp1       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cgs_zv 
+Cchp1      ., smrho )
+       call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho 
+     . ) 
+
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 C      call zprm3('screened delta smrho',0,smrho,k1,k2,k3)
@@ -193,8 +204,11 @@ C --- Add shift to smrho, ensuring no shift in <rho> ---
       enddo
       call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
 
-      call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cgr_zv 
-     ., smrho )
+Cchp1       call gvputf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , cgr_zv 
+Cchp1      ., smrho )
+       call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho 
+     . ) 
+
 
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 

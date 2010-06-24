@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ojcg
+Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
       subroutine fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,iprmb,
@@ -83,9 +85,19 @@ Cchp1      .ivec,m,nglob,ocg,ocy,oidxcg,ojcg,nlm1,nlm2
 Cchp1        integer:: i1 , i2 , ib1 , ib2 , ilm1 , ilm2 , io1 , io2 , iq 
 Cchp1      . , is1 , is2 , l1 , l2 , ik1 , ik2 , ivec , m , nglob , ocy , 
 Cchp1      . oidxcg , ojcg , nlm1 , nlm2 
-        integer:: i1 , i2 , ib1 , ib2 , ilm1 , ilm2 , io1 , io2 , iq 
-     .  , is1 , is2 , l1 , l2 , ik1 , ik2 , ivec , m , nglob , oidxcg 
-     .  , ojcg , nlm1 , nlm2 
+Cchp1         integer:: i1 , i2 , ib1 , ib2 , ilm1 , ilm2 , io1 , io2 , iq 
+Cchp1      .  , is1 , is2 , l1 , l2 , ik1 , ik2 , ivec , m , nglob , oidxcg 
+Cchp1      .  , ojcg , nlm1 , nlm2 
+Cchp1          integer:: i1 , i2 , ib1 , ib2 , ilm1 , ilm2 , io1 , io2 , iq 
+Cchp1      .   , is1 , is2 , l1 , l2 , ik1 , ik2 , ivec , m , nglob , ojcg , 
+Cchp1      .   nlm1 , nlm2 
+          integer:: i1 , i2 , ib1 , ib2 , ilm1 , ilm2 , io1 , io2 , iq 
+     .    , is1 , is2 , l1 , l2 , ik1 , ik2 , ivec , m , nglob , nlm1 , 
+     .    nlm2 
+          integer,pointer :: iv_p_ojcg(:)
+
+         integer,pointer :: iv_p_oidxcg(:)
+
         real(8),pointer :: rv_p_ocy(:)
 
        real(8),pointer :: rv_p_ocg(:)
@@ -139,8 +151,12 @@ C --- Setup ---
 Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-      ojcg=slat%ojcg
-      oidxcg=slat%oidxcg
+Cchp1       ojcg=slat%ojcg
+       iv_p_ojcg => slat%iv_p_ojcg 
+
+Cchp1       oidxcg=slat%oidxcg
+       iv_p_oidxcg => slat%iv_p_oidxcg 
+
 Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
@@ -209,11 +225,23 @@ Cchp1      .         i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nl
 Cchp1      .         , nlms , k0 , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , w ( ocy 
 Cchp1      .         ) , slat , s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 
 Cchp1      .         , i2 ) ) 
-                call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
-     .          i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
-     .          , nlms , k0 , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy 
-     .          , slat , s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 
-     .          , i2 ) ) 
+Cchp1                 call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+Cchp1      .          i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
+Cchp1      .          , nlms , k0 , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy 
+Cchp1      .          , slat , s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 
+Cchp1      .          , i2 ) ) 
+Cchp1                  call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+Cchp1      .           i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
+Cchp1      .           , nlms , k0 , rv_p_ocg , iv_p_oidxcg , w ( ojcg ) , rv_p_ocy 
+Cchp1      .           , slat , s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 
+Cchp1      .           , i2 ) ) 
+                  call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+     .            i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
+     .            , nlms , k0 , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy , 
+     .            slat , s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 , 
+     .            i2 ) ) 
+
+
 
 
             enddo

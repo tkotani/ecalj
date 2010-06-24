@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= real(8),rv_p_,ocy
       subroutine smves(mode,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,
@@ -157,9 +158,14 @@ Cchp1      .nlm , nsp , ocy , ogv , okv , stdo , j1 , j2 , j3
 Cchp1        integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
 Cchp1      . , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
 Cchp1      . nlm , nsp , ogv , okv , stdo , j1 , j2 , j3 
-        integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
-     .  , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
-     .  nlm , nsp , okv , stdo , j1 , j2 , j3 
+Cchp1         integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
+Cchp1      .  , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
+Cchp1      .  nlm , nsp , okv , stdo , j1 , j2 , j3 
+         integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
+     .   , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
+     .   nlm , nsp , stdo , j1 , j2 , j3 
+         integer,pointer :: iv_p_okv(:)
+
         real(8),pointer :: rv_p_ogv(:)
 
        real(8),pointer :: rv_p_ocy(:)
@@ -191,7 +197,9 @@ C ... Setup
 Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-      okv=slat%okv
+Cchp1       okv=slat%okv
+       iv_p_okv => slat%iv_p_okv 
+
       vol=slat%vol
 
 
@@ -219,8 +227,11 @@ C     call msh21c(1,ssite,sspec,slat,ng,w(ogv),w(okv),k1,k2,k3,smrho)
 C --- Estatic potential of smooth density without gaussians ---
 Cchp1       call vesft ( slat , ng , w ( ogv ) , w ( okv ) , cv_zv , k1 
 Cchp1      ., k2 , k3 , smrho , smpot , u00 )
-       call vesft ( slat , ng , rv_p_ogv , w ( okv ) , cv_zv , k1 , 
-     . k2 , k3 , smrho , smpot , u00 ) 
+Cchp1        call vesft ( slat , ng , rv_p_ogv , w ( okv ) , cv_zv , k1 , 
+Cchp1      . k2 , k3 , smrho , smpot , u00 ) 
+        call vesft ( slat , ng , rv_p_ogv , iv_p_okv , cv_zv , k1 , k2 
+     .  , k3 , smrho , smpot , u00 ) 
+
 
 
 
@@ -238,9 +249,13 @@ Cchp1      .)
 Cchp1        call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
 Cchp1      . ng , w ( ogv ) , w ( okv ) , cv_zv , cg1_zv , cgsum_zv , k1 , 
 Cchp1      . k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
-        call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
-     .  ng , rv_p_ogv , w ( okv ) , cv_zv , cg1_zv , cgsum_zv , k1 , 
-     .  k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
+Cchp1         call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
+Cchp1      .  ng , rv_p_ogv , w ( okv ) , cv_zv , cg1_zv , cgsum_zv , k1 , 
+Cchp1      .  k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
+         call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
+     .   ng , rv_p_ogv , iv_p_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+     .   , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
+
 
 
 
@@ -250,8 +265,11 @@ Cchp1      . k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
 C ... Compute e.s. potential at MT boundary
 Cchp1       call mshvmt ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
 Cchp1      .w ( okv ) , cv_zv , k1 , k2 , k3 , smpot , vval )
-       call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , w 
-     . ( okv ) , cv_zv , k1 , k2 , k3 , smpot , vval ) 
+Cchp1        call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , w 
+Cchp1      . ( okv ) , cv_zv , k1 , k2 , k3 , smpot , vval ) 
+        call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , iv_p_okv 
+     .  , cv_zv , k1 , k2 , k3 , smpot , vval ) 
+
 
 
       call symvvl(nbas,ssite,sspec,slat,vval,vrmt)

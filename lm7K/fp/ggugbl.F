@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ojcg
+Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
       subroutine ggugbl(p1,p2,rsm1,rsm2,nlm1,nlm2,ndim1,ndim2,slat,s,ds)
@@ -37,7 +39,13 @@ C ... Passed parameters
 C ... Local parameters
 Cchp1       integer ocg,ojcg,oidxcg,ocy,kmax,kdim,ilm2,ilm1
 Cchp1        integer:: ojcg , oidxcg , ocy , kmax , kdim , ilm2 , ilm1 
-        integer:: ojcg , oidxcg , kmax , kdim , ilm2 , ilm1 
+Cchp1         integer:: ojcg , oidxcg , kmax , kdim , ilm2 , ilm1 
+Cchp1          integer:: ojcg , kmax , kdim , ilm2 , ilm1 
+          integer:: kmax , kdim , ilm2 , ilm1 
+          integer,pointer :: iv_p_ojcg(:)
+
+         integer,pointer :: iv_p_oidxcg(:)
+
         real(8),pointer :: rv_p_ocy(:)
 
        real(8),pointer :: rv_p_ocg(:)
@@ -50,8 +58,12 @@ C ... Heap
 Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-      ojcg=slat%ojcg
-      oidxcg=slat%oidxcg
+Cchp1       ojcg=slat%ojcg
+       iv_p_ojcg => slat%iv_p_ojcg 
+
+Cchp1       oidxcg=slat%oidxcg
+       iv_p_oidxcg => slat%iv_p_oidxcg 
+
 Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
@@ -63,9 +75,17 @@ Cchp1      .w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
 Cchp1        call gfigbl ( p1 , p2 , rsm1 , rsm2 , nlm1 , nlm2 , kmax , ndim1 
 Cchp1      . , ndim2 , kdim , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , w ( ocy 
 Cchp1      . ) , slat , s , ds ) 
-        call gfigbl ( p1 , p2 , rsm1 , rsm2 , nlm1 , nlm2 , kmax , ndim1 
-     .  , ndim2 , kdim , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy 
-     .  , slat , s , ds ) 
+Cchp1         call gfigbl ( p1 , p2 , rsm1 , rsm2 , nlm1 , nlm2 , kmax , ndim1 
+Cchp1      .  , ndim2 , kdim , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy 
+Cchp1      .  , slat , s , ds ) 
+Cchp1          call gfigbl ( p1 , p2 , rsm1 , rsm2 , nlm1 , nlm2 , kmax , ndim1 
+Cchp1      .   , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg , w ( ojcg ) , rv_p_ocy 
+Cchp1      .   , slat , s , ds ) 
+          call gfigbl ( p1 , p2 , rsm1 , rsm2 , nlm1 , nlm2 , kmax , ndim1 
+     .    , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy 
+     .    , slat , s , ds ) 
+
+
 
 
 

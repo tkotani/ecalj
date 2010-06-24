@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,orhat,kmax,ng,cg)
 
@@ -74,7 +75,10 @@ C ... Local parameters
       integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nglob,nlm,
      .nlmtop,nspec,ngabc(3),lfoc,modgkl
 Cchp1       integer:: ogv , okv , nsp
-       integer:: okv , nsp 
+Cchp1        integer:: okv , nsp 
+        integer:: nsp 
+        integer,pointer :: iv_p_okv(:)
+
        real(8),pointer :: rv_p_ogv(:)
 
       real(8) ,allocatable :: qkl_rv(:)
@@ -112,7 +116,9 @@ C ... Heap
 Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-      okv=slat%okv
+Cchp1       okv=slat%okv
+       iv_p_okv => slat%iv_p_okv 
+
       vol=slat%vol
 
       nspec = nglob('nspec')

@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ojcg
+Cchp1 cmdvar= integer,iv_p_,oidxcg
 Cchp1 cmdvar= real(8),rv_p_,ocy
 Cchp1 cmdvar= real(8),rv_p_,ocg
 c#define F90 1
@@ -127,8 +129,16 @@ Cchp1       integer ia,isa,kmax,lmxa,lmxha,nbas,nglob,nlma,
 Cchp1      .nlmha,nkaph,ocg,ocy,oidxcg,ojcg,mode1,nlmto
 Cchp1        integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
 Cchp1      . , nlmha , nkaph , ocy , oidxcg , ojcg , mode1 , nlmto 
-        integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
-     .  , nlmha , nkaph , oidxcg , ojcg , mode1 , nlmto 
+Cchp1         integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
+Cchp1      .  , nlmha , nkaph , oidxcg , ojcg , mode1 , nlmto 
+Cchp1          integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
+Cchp1      .   , nlmha , nkaph , ojcg , mode1 , nlmto 
+          integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
+     .    , nlmha , nkaph , mode1 , nlmto 
+          integer,pointer :: iv_p_ojcg(:)
+
+         integer,pointer :: iv_p_oidxcg(:)
+
         real(8),pointer :: rv_p_ocy(:)
 
        real(8),pointer :: rv_p_ocg(:)
@@ -184,8 +194,12 @@ C --- Setup ---
 Cchp1       ocg=slat%ocg
        rv_p_ocg => slat%rv_p_ocg 
 
-      ojcg=slat%ojcg
-      oidxcg=slat%oidxcg
+Cchp1       ojcg=slat%ojcg
+       iv_p_ojcg => slat%iv_p_ojcg 
+
+Cchp1       oidxcg=slat%oidxcg
+       iv_p_oidxcg => slat%iv_p_oidxcg 
+
 Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
@@ -264,9 +278,17 @@ Cchp1      .  napw,igapw,b,xx)
 Cchp1          call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
 Cchp1      .   ) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
 Cchp1      .   q , kmax , nlma , ndimh , napw , igapw , b , xx ) 
-          call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
-     .    ) , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q 
-     .    , kmax , nlma , ndimh , napw , igapw , b , xx ) 
+Cchp1           call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
+Cchp1      .    ) , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q 
+Cchp1      .    , kmax , nlma , ndimh , napw , igapw , b , xx ) 
+Cchp1            call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
+Cchp1      .     , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+Cchp1      .     kmax , nlma , ndimh , napw , igapw , b , xx ) 
+            call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
+     .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
+     .      kmax , nlma , ndimh , napw , igapw , b , xx ) 
+
+
 
 
 C$$$#else

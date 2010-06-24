@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine dfrce(ssite,sspec,slat,sctrl,k1,k2,k3,nvl,
      .orhoat,orhat1,elind,qmom,smrho,smrout,dfh)
@@ -84,7 +85,10 @@ C Local variables
      .ip,m,i,ngabc(3),ltop,nspec,nlmtop,igets,igetss,nn,lgunit,stdo
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 Cchp1       integer:: ogv , okv , ocdv , ocdn , ocdn0 , ocs , osn
-       integer:: okv , ocdv , ocdn , ocdn0 , ocs , osn 
+Cchp1        integer:: okv , ocdv , ocdn , ocdn0 , ocs , osn 
+        integer:: ocdv , ocdn , ocdn0 , ocs , osn 
+        integer,pointer :: iv_p_okv(:)
+
        real(8),pointer :: rv_p_ogv(:)
 
       complex(8) ,allocatable :: ceps_zv(:)
@@ -155,7 +159,9 @@ C --- Setup ---
 Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
 
-      okv=slat%okv
+Cchp1       okv=slat%okv
+       iv_p_okv => slat%iv_p_okv 
+
       vol=slat%vol
 
 
@@ -233,8 +239,11 @@ Ctakao_ZeroClear_NotRequiered        if (nn<0) smro_zv(:)=0.0d0
       call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 
      ., - 1 )
 
-      call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smro_zv 
-     ., cvin_zv )
+Cchp1       call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smro_zv 
+Cchp1      ., cvin_zv )
+       call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
+     . ) 
+
 
       call pvdf4 ( ssite , sspec , slat , qmom , ng , g2_rv , yl_rv 
      ., w ( ocs ) , w ( osn ) , iv_iv , qlat , cvin_zv )
@@ -299,8 +308,11 @@ C     call zprm3('drho',0,w(osmro),k1,k2,k3)
       call fftz3 ( dvxc_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp , 
      .0 , - 1 )
 
-      call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , dvxc_zv 
-     ., cdvx_zv )
+Cchp1       call gvgetf ( ng , nsp , w ( okv ) , k1 , k2 , k3 , dvxc_zv 
+Cchp1      ., cdvx_zv )
+       call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , dvxc_zv , 
+     . cdvx_zv ) 
+
 
 
 C --- Cnomi = (n0_out(q) - n0_in(q)) ---
@@ -308,8 +320,11 @@ C --- Cnomi = (n0_out(q) - n0_in(q)) ---
      ., - 1 )
 
 c     call zprm3('FFT smrout-smrin',w(osmro),k1,k2,k3*nsp)
-      call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smro_zv 
-     ., cnomi_zv )
+Cchp1       call gvgetf ( ng , 1 , w ( okv ) , k1 , k2 , k3 , smro_zv 
+Cchp1      ., cnomi_zv )
+       call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cnomi_zv 
+     . ) 
+
 
 C     dqsmo = vol*dval(w(ocnomi),1)
 
