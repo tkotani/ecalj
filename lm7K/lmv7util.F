@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oinitc
+Cchp1 cmdvar= integer,iv_p_,ohave
 Cchp1 cmdvar= real(8),rv_p_,ovrmax
 Cchp1 cmdvar= real(8),rv_p_,ova
 Cchp1 cmdvar= real(8),rv_p_,ovintr
@@ -536,9 +538,14 @@ Cchp1      .    , n0
 Cchp1            integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
 Cchp1      .     ovrmax , orhos , osop , ogroup , opp , opprel , oifrlx , oivso 
 Cchp1      .     , oipc , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0 
-            integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
-     .      orhos , osop , ogroup , opp , opprel , oifrlx , oivso , oipc 
-     .      , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0 
+Cchp1             integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
+Cchp1      .      orhos , osop , ogroup , opp , opprel , oifrlx , oivso , oipc 
+Cchp1      .      , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0 
+             integer:: obxc , opnu , oqnu , oqc , oqt , orhrmx , orhos , osop 
+     .       , ogroup , opp , opprel , oifrlx , oivso , oipc , opos , ozos 
+     .       , ormax , opmpol , oqpp , ogrrme , n0 
+             integer,pointer :: iv_p_oinitc(:)
+
             real(8),pointer :: rv_p_ovrmax(:)
 
            real(8),pointer :: rv_p_ovintr(:)
@@ -597,7 +604,10 @@ C ... Allocate ASA arrays
         call defdr(opprel,-32*nl*nl*max(nclspp,nspec))
         call defdr(oqc,-nclasp)
         call defdr(oqt,-nclasp)
-        call defi (oinitc,-nclasp)
+Cchp1         call defi (oinitc,-nclasp)
+         allocate(iv_p_oinitc(abs(-nclasp)))
+         if (-nclasp<0) iv_p_oinitc(:)=0
+
         call defi (ogroup,-2*nclasp)
 Cchp1         call defdr(oves,-nclspp)
          allocate(rv_p_oves(abs(-nclspp)))
@@ -638,7 +648,9 @@ Cgetarg      .    oinitc,0,0)
         
         sarray%ogroup=ogroup 
         sarray%ormax=ormax 
-        sarray%ohave=oinitc 
+Cchp1         sarray%ohave=oinitc 
+         sarray%iv_p_ohave => iv_p_oinitc 
+
 
 Cgetarg...info...           integer :: opnu , integer(8) :: spot%opnu 1
 Cgetarg...info...           integer :: oqnu , integer(8) :: spot%oqnu 1
@@ -1199,9 +1211,14 @@ Cchp1      .   opot , ocor , ohave , onrc , ogrrme , n0 , nglob
 Cchp1           integer:: opnu , oqnu , orhrmx , ovrmax , opp , opprel , omp 
 Cchp1      .    , osop , olpp , olppr , olsop , olgrme , olva , olmp , opot , 
 Cchp1      .    ocor , ohave , onrc , ogrrme , n0 , nglob 
-           integer:: opnu , oqnu , orhrmx , opp , opprel , omp , osop , 
-     .     olpp , olppr , olsop , olgrme , olva , olmp , opot , ocor , ohave 
-     .     , onrc , ogrrme , n0 , nglob 
+Cchp1            integer:: opnu , oqnu , orhrmx , opp , opprel , omp , osop , 
+Cchp1      .     olpp , olppr , olsop , olgrme , olva , olmp , opot , ocor , ohave 
+Cchp1      .     , onrc , ogrrme , n0 , nglob 
+            integer:: opnu , oqnu , orhrmx , opp , opprel , omp , osop , 
+     .      olpp , olppr , olsop , olgrme , olva , olmp , opot , ocor , onrc 
+     .      , ogrrme , n0 , nglob 
+            integer,pointer :: iv_p_ohave(:)
+
            real(8),pointer :: rv_p_ovrmax(:)
 
           real(8),pointer :: rv_p_ova(:)
@@ -1280,7 +1297,9 @@ Cgetarg      .  ohave,oics,0)
 Cchp1       oclabl=sarray%oclabl
        rv_p_oclabl => sarray%rv_p_oclabl 
 
-      ohave=sarray%ohave
+Cchp1       ohave=sarray%ohave
+       iv_p_ohave => sarray%iv_p_ohave 
+
 Cchp1       oics=sarray%oics
        iv_p_oics => sarray%iv_p_oics 
 
@@ -1348,7 +1367,9 @@ c#endif
 
 C  --- Copy what is passed through to holding arrays ---
         k = nl*nsp
-        call pvaioc(w(ohave),1,ic,icmap,havepq,jc)
+Cchp1         call pvaioc(w(ohave),1,ic,icmap,havepq,jc)
+         call pvaioc ( iv_p_ohave , 1 , ic , icmap , havepq , jc ) 
+
         readpq = .not. havepq .or. mode00 .eq. 2 .and. jc .ne. ic
         readpq = readpq .and. mode00 .lt. 3
         if (havepq) then
@@ -1362,7 +1383,9 @@ Cchp1           call dpscop(w(ovrmax),vrmax,2,2*jc-1,1,1d0)
           if (ic.ne.jc) call awrit0('%a pq,',outs1,len(outs1),0)
         endif
         k = 6*nl*nsp
-        call pvaioc(w(ohave),2,ic,icmap,havepp,jc)
+Cchp1         call pvaioc(w(ohave),2,ic,icmap,havepp,jc)
+         call pvaioc ( iv_p_ohave , 2 , ic , icmap , havepp , jc ) 
+
         readpp = .not. havepp .or. mode00 .eq. 2 .and. jc .ne. ic
         readpp = readpp .and. mode00 .lt. 3
         if (havepp) then
@@ -1377,7 +1400,9 @@ Cchp1           call dpscop(w(oves),ves,1,jc,1,1d0)
           if (ic.ne.jc) call awrit0('%a pp,',outs1,len(outs1),0)
         endif
         k = (nl*nsp)**2
-        call pvaioc(w(ohave),8,ic,icmap,haveva,jc)
+Cchp1         call pvaioc(w(ohave),8,ic,icmap,haveva,jc)
+         call pvaioc ( iv_p_ohave , 8 , ic , icmap , haveva , jc ) 
+
 cki        haveva = haveva .and. ova .gt. 0
         haveva = haveva .and. associated(rv_p_ova)
         readva = .not. haveva .or. mode00 .eq. 2 .and. jc .ne. ic
@@ -1391,7 +1416,9 @@ Cchp1           call dpscop(w(ova),w(olva),k,1+(jc-1)*k,1,1d0)
           if (ic.ne.jc) call awrit0('%a va,',outs1,len(outs1),0)
         endif
         k = nl**2*(2*nl-1)*3*nsp
-        call pvaioc(w(ohave),16,ic,icmap,havemp,jc)
+Cchp1         call pvaioc(w(ohave),16,ic,icmap,havemp,jc)
+         call pvaioc ( iv_p_ohave , 16 , ic , icmap , havemp , jc ) 
+
         havemp = havemp .and. omp .gt. 0
         readmp = .not. havemp .or. mode00 .eq. 2 .and. jc .ne. ic
         readmp = readmp .and. omp .gt. 0 .and. mode00 .lt. 3
@@ -1400,7 +1427,9 @@ Cchp1           call dpscop(w(ova),w(olva),k,1+(jc-1)*k,1,1d0)
           if (ic.ne.jc) call awrit0('%a mp,',outs1,len(outs1),0)
         endif
         k = nl*nsp*nsp*9
-        call pvaioc(w(ohave),4,ic,icmap,haveso,jc)
+Cchp1         call pvaioc(w(ohave),4,ic,icmap,haveso,jc)
+         call pvaioc ( iv_p_ohave , 4 , ic , icmap , haveso , jc ) 
+
         haveso = haveso .and. osop.gt. 0
         readso = .not. haveso .or. mode00 .eq. 2 .and. jc .ne. ic
         readso = readso .and. osop .gt. 0 .and. mode00 .lt. 3
@@ -1409,7 +1438,9 @@ Cchp1           call dpscop(w(ova),w(olva),k,1+(jc-1)*k,1,1d0)
           if (ic.ne.jc) call awrit0('%a sop,',outs1,len(outs1),0)
         endif
         k = 16*nl*nsp
-        call pvaioc(w(ohave),32,ic,icmap,haveop,jc)
+Cchp1         call pvaioc(w(ohave),32,ic,icmap,haveop,jc)
+         call pvaioc ( iv_p_ohave , 32 , ic , icmap , haveop , jc ) 
+
         haveop = haveop .and. ogrrme .gt. 0
         readop = .not. haveop .or. mode00 .eq. 2 .and. jc .ne. ic
         readop = readop .and. ogrrme .gt. 0 .and. mode00 .lt. 3
@@ -1493,13 +1524,15 @@ cki          if (readva .and. ova .gt. 0) then
           endif
 
 C     ... Update what parameters are available
-          w(ohave+ic-1) = isw(haveop.or.readop)*32+
+cki          w(ohave+ic-1) = isw(haveop.or.readop)*32+
+          iv_p_ohave(ic) = isw(haveop.or.readop)*32+
      .    isw(havemp.or.readmp)*16+
      .    isw(haveva.or.readva)*8 +
      .    isw(haveso.or.readso)*4 +
      .    isw(havepp.or.readpp)*2 +
      .    isw(havepq.or.readpq)*1 +
-     .    w(ohave+ic-1) - bitand(w(ohave+ic-1),63)
+cki     .    w(ohave+ic-1) - bitand(w(ohave+ic-1),63)
+     .    iv_p_ohave(ic) - bitand(iv_p_ohave(ic),63)
 
           k = nl*nsp
           if (havepq .or. readpq) then

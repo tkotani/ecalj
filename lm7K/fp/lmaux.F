@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oinitc
+Cchp1 cmdvar= integer,iv_p_,ohave
 Cchp1 cmdvar= real(8),rv_p_,ovrmax
 Cchp1 cmdvar= real(8),rv_p_,oves
 Cchp1 cmdvar= real(8),rv_p_,oqlv
@@ -125,10 +127,16 @@ Cchp1      .    , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , ovrmax ,
 Cchp1      .    owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha , 
 Cchp1      .    onpr , os , ormx , oip , oips , opgfsl , ontab , oiax , og , 
 Cchp1      .    oag , mxclas 
-           integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
-     .     , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 
-     .     , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , os , 
-     .     ormx , oip , oips , opgfsl , ontab , oiax , og , oag , mxclas 
+Cchp1            integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu 
+Cchp1      .     , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 
+Cchp1      .     , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , os , 
+Cchp1      .     ormx , oip , oips , opgfsl , ontab , oiax , og , oag , mxclas 
+            integer:: oeold , oeula , oipc , olmx , onrc , opnu , opold , 
+     .      opp , oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 , opos , 
+     .      odlv , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip 
+     .      , oips , opgfsl , ontab , oiax , og , oag , mxclas 
+            integer,pointer :: iv_p_oinitc(:)
+
            real(8),pointer :: rv_p_ovrmax(:)
 
           real(8),pointer :: rv_p_oves(:)
@@ -186,7 +194,9 @@ C     lpbc = 0 for pbc in 3 dimensions, 11 pgf padded geometry
       lpbc = 0
 c      if (lpgf .gt. 0 .and. lpgf .lt. 10) lpbc = 11
 
-      oinitc=sarray%ohave
+Cchp1       oinitc=sarray%ohave
+       iv_p_oinitc => sarray%iv_p_ohave 
+
 Cchp1       oics=sarray%oics
        iv_p_oics => sarray%iv_p_oics 
 

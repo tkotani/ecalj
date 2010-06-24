@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,ohave
 Cchp1 cmdvar= real(8),rv_p_,ovrmax
 Cchp1 cmdvar= real(8),rv_p_,ovintr
 Cchp1 cmdvar= real(8),rv_p_,oves
@@ -183,7 +184,9 @@ Cchp1         call icopy(nclspp,w(oics),1,ics,1)
 
         sarray%ogroup=ogroup
         sarray%ormax=ormax
-        sarray%ohave=oinitc
+Cchp1         sarray%ohave=oinitc
+         sarray%iv_p_ohave => iv_p_oinitc 
+
 
 
         spot%opnu=opnu
