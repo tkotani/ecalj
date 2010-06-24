@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,odlv
 Cchp1 cmdvar= real(8),rv_p_,oqlv
 CSFCPP#define F90 1
       subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,slat,hkl)
@@ -33,8 +34,12 @@ C ... Passed parameters
       double complex hkl(0:k0,nlm)
 C ... Local parameters
 Cchp1       integer nlm0,ilm,job,k,ll,lmax,nkd,nkq,nrx,odlv,oqlv,owk,oyl
-       integer:: nlm0 , ilm , job , k , ll , lmax , nkd , nkq , nrx 
-     . , odlv , owk , oyl 
+Cchp1        integer:: nlm0 , ilm , job , k , ll , lmax , nkd , nkq , nrx 
+Cchp1      . , odlv , owk , oyl 
+        integer:: nlm0 , ilm , job , k , ll , lmax , nkd , nkq , nrx 
+     .  , owk , oyl 
+        real(8),pointer :: rv_p_odlv(:)
+
        real(8),pointer :: rv_p_oqlv(:)
 
       parameter (nlm0=144)
@@ -84,7 +89,9 @@ C ... Alternatively, use vectorized equivalents (about 2x faster)
 
       nkd=slat%nkd
       nkq=slat%nkq
-      odlv=slat%odlv
+Cchp1       odlv=slat%odlv
+       rv_p_odlv => slat%rv_p_odlv 
+
 Cchp1       oqlv=slat%oqlv
        rv_p_oqlv => slat%rv_p_oqlv 
 
@@ -96,16 +103,23 @@ c      print *,'hklbl:aaa'
 c      print *,'hklbl:bbb'
 Cchp1       call hsmq(1,0,ll(nlm),e,rsm,0000,q,p1,nrx,nlm,wk,yl,
 Cchp1      .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,hsm,hsmp)
-       call hsmq ( 1 , 0 , ll ( nlm ) , e , rsm , 0000 , q , p1 , nrx 
-     . , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , w ( odlv ) 
-     . , nkd , vol , hsm , hsmp ) 
+Cchp1        call hsmq ( 1 , 0 , ll ( nlm ) , e , rsm , 0000 , q , p1 , nrx 
+Cchp1      . , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , w ( odlv ) 
+Cchp1      . , nkd , vol , hsm , hsmp ) 
+        call hsmq ( 1 , 0 , ll ( nlm ) , e , rsm , 0000 , q , p1 , nrx 
+     .  , nlm , wk , yl , awald , alat , rv_p_oqlv , nkq , rv_p_odlv 
+     .  , nkd , vol , hsm , hsmp ) 
+
 
       if (rsm .gt. faca/awald) then
         call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, hkl)
       else
         job = 2
-        call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
-     .  yl,wk,job,hkl)
+Cchp1         call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
+Cchp1      .  yl,wk,job,hkl)
+         call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat , 
+     .   rv_p_odlv , nkd , nrx , yl , wk , job , hkl ) 
+
       endif
       deallocate(wk,yl)
 CSFCPP#else

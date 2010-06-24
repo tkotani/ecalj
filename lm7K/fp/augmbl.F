@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ocy
+Cchp1 cmdvar= real(8),rv_p_,ocg
 c#define F90 1
       subroutine augmbl(mode,ssite,sspec,slat,isp,lcplxp,q,
      .osig,otau,oppi,iprmb,ndimh,
@@ -121,8 +123,16 @@ c#else
 c      double complex b(lofb*ndimh),b0(lofb*nlmbx),bos(lofb)
 c#endif
       double complex g(lofb)
-      integer ia,isa,kmax,lmxa,lmxha,nbas,nglob,nlma,
-     .nlmha,nkaph,ocg,ocy,oidxcg,ojcg,mode1,nlmto
+Cchp1       integer ia,isa,kmax,lmxa,lmxha,nbas,nglob,nlma,
+Cchp1      .nlmha,nkaph,ocg,ocy,oidxcg,ojcg,mode1,nlmto
+Cchp1        integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
+Cchp1      . , nlmha , nkaph , ocy , oidxcg , ojcg , mode1 , nlmto 
+        integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
+     .  , nlmha , nkaph , oidxcg , ojcg , mode1 , nlmto 
+        real(8),pointer :: rv_p_ocy(:)
+
+       real(8),pointer :: rv_p_ocg(:)
+
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
 c#ifndef F90
 c      integer ib,is,ik,nlmh
@@ -171,10 +181,14 @@ C --- Setup ---
       mode1 = mod(mode/10,10)
       nlmto = ndimh-napw
 
-      ocg=slat%ocg
+Cchp1       ocg=slat%ocg
+       rv_p_ocg => slat%rv_p_ocg 
+
       ojcg=slat%ojcg
       oidxcg=slat%oidxcg
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
 
 
       alat=slat%alat
@@ -244,9 +258,17 @@ C   --- Make strux to expand all orbitals at site ia ---
 c#if F90
 C Check ...
 C        allocate (b(0:kmax,nlma,ndimh))
-        call bstrux(0,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
-     .  iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,
-     .  napw,igapw,b,xx)
+Cchp1         call bstrux(0,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
+Cchp1      .  iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,
+Cchp1      .  napw,igapw,b,xx)
+Cchp1          call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
+Cchp1      .   ) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
+Cchp1      .   q , kmax , nlma , ndimh , napw , igapw , b , xx ) 
+          call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
+     .    ) , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q 
+     .    , kmax , nlma , ndimh , napw , igapw , b , xx ) 
+
+
 C$$$#else
 C$$$C       Zero out strux to eliminate contributions from local orbitals
 C$$$        call dpzero(b,(kmax+1)*nlma*ndimh*2)

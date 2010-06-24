@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine suham2(sctrl,slat,sspec,ssite,sham,spot,sstrn)
 
       use m_struc_def  !Cgetarg
@@ -43,7 +44,10 @@ C ... Passed parameters
 C ... Local parameters
       integer nspec,lfp,nglob
 C ... Needed for
-      integer ng,ogv,i
+Cchp1       integer ng,ogv,i
+       integer:: ng , i 
+       real(8),pointer :: rv_p_ogv(:)
+
       double precision alat,tolgv,dum
 
       integer w(1)
@@ -61,11 +65,16 @@ C --- FP setup ---
         if (i .ge. 100) then
 
           ng=slat%ng
-          ogv=slat%ogv
+Cchp1           ogv=slat%ogv
+           rv_p_ogv => slat%rv_p_ogv 
+
           alat=slat%alat
           tolgv=slat%tolft
 
-          call sugcut(2,nspec,sspec,alat,ng,w(ogv),tolgv)
+Cchp1           call sugcut(2,nspec,sspec,alat,ng,w(ogv),tolgv)
+           call sugcut ( 2 , nspec , sspec , alat , ng , rv_p_ogv , tolgv 
+     .     ) 
+
         endif
       endif
 

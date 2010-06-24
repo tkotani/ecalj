@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,odlv
+Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= real(8),rv_p_,ormax
 Cchp1 cmdvar= integer,iv_p_,owk
 Cchp1 cmdvar= integer,iv_p_,onrc
@@ -179,9 +181,19 @@ Cchp1      .              os , ormx , oip , opgfsl , ontab , oiax , og , oag , m
 Cchp1                      integer:: oeold , oeula , oipc , olmx , opold , ormax , owk2 
 Cchp1      .               , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , os , 
 Cchp1      .               ormx , oip , opgfsl , ontab , oiax , og , oag , mxclas 
-                      integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
-     .                odlv , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip 
-     .                , opgfsl , ontab , oiax , og , oag , mxclas 
+Cchp1                       integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
+Cchp1      .                odlv , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip 
+Cchp1      .                , opgfsl , ontab , oiax , og , oag , mxclas 
+Cchp1                        integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
+Cchp1      .                 odlv , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip 
+Cchp1      .                 , opgfsl , ontab , oiax , og , mxclas 
+                        integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
+     .                  orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl 
+     .                  , ontab , oiax , og , mxclas 
+                        real(8),pointer :: rv_p_odlv(:)
+
+                       real(8),pointer :: rv_p_oag(:)
+
                       real(8),pointer :: rv_p_ormax(:)
 
                      integer,pointer :: iv_p_owk(:)
@@ -336,7 +348,9 @@ c       call dcopy(i_copy_size,slat%plat2,1,plat2,1)
 
 
       nkd=slat%nkd
-      odlv=slat%odlv
+Cchp1       odlv=slat%odlv
+       rv_p_odlv => slat%rv_p_odlv 
+
       nkq=slat%nkq
 Cchp1       oqlv=slat%oqlv
        rv_p_oqlv => slat%rv_p_oqlv 
@@ -833,7 +847,9 @@ C --- Empty sphere finder ---
 
         nsgrp=slat%nsgrp
         og=slat%osymgr
-        oag=slat%oag
+Cchp1         oag=slat%oag
+         rv_p_oag => slat%rv_p_oag 
+
 
         allocate(z_rv(nspec))
 Ctakao_ZeroClear_NotRequiered          if (nspec<0) z_rv(:)=0.0d0
@@ -893,9 +909,13 @@ Cchp1      .  , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
 Cchp1          call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
 Cchp1      .   , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
 Cchp1      .   , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
-          call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
-     .    , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-     .    , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
+Cchp1           call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
+Cchp1      .    , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+Cchp1      .    , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
+           call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
+     .     , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+     .     , rv_p_oag , lockc_rv , rmtc_rv , zc_rv ) 
+
 
 
 

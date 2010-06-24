@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,odlv
 Cchp1 cmdvar= real(8),rv_p_,oqlv
       subroutine hsmbl(p,rsm,e,q,lmax,cy,slat,hsm,hsmp)
 
@@ -33,7 +34,10 @@ C ... Passed parameters
       double complex hsm(1),hsmp(1)
 C ... Local parameters
 Cchp1       integer nkd,nkq,odlv,oqlv,ilm,l,m
-       integer:: nkd , nkq , odlv , ilm , l , m 
+Cchp1        integer:: nkd , nkq , odlv , ilm , l , m 
+        integer:: nkd , nkq , ilm , l , m 
+        real(8),pointer :: rv_p_odlv(:)
+
        real(8),pointer :: rv_p_oqlv(:)
 
       double precision alat,p1(3),plat(9),qlat(9),sp,pi,rwald,awald,asm,
@@ -66,7 +70,9 @@ C      p1 = p
 
       nkd=slat%nkd
       nkq=slat%nkq
-      odlv=slat%odlv
+Cchp1       odlv=slat%odlv
+       rv_p_odlv => slat%rv_p_odlv 
+
 Cchp1       oqlv=slat%oqlv
        rv_p_oqlv => slat%rv_p_oqlv 
 
@@ -79,7 +85,10 @@ Cchp1         call hsmblq(p1,e,q,awald,lmax,alat,w(oqlv),nkq,vol,hsm,hsmp)
          call hsmblq ( p1 , e , q , awald , lmax , alat , rv_p_oqlv , 
      .   nkq , vol , hsm , hsmp ) 
 
-        call hsmbld(p1,rsm,e,q,awald,lmax,alat,w(odlv),nkd,hsm,hsmp)
+Cchp1         call hsmbld(p1,rsm,e,q,awald,lmax,alat,w(odlv),nkd,hsm,hsmp)
+         call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , rv_p_odlv 
+     .   , nkd , hsm , hsmp ) 
+
       else
 Cchp1         call hsmblq(p1,e,q,asm,lmax,alat,w(oqlv),nkq,vol,hsm,hsmp)
          call hsmblq ( p1 , e , q , asm , lmax , alat , rv_p_oqlv , nkq 

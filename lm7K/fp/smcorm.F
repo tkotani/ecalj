@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ocy
       subroutine smcorm(nbas,ssite,sspec,slat,ng,gv,
      .cgh1,cgh2,lfoc1,lfoc2)
 
@@ -40,7 +41,10 @@ C ... Passed parameters
 
       double complex cgh1(ng),cgh2(ng)
 C ... Local parameters
-      integer k0,nlmx,kmax,ib,is,lfoc,i,ocy
+Cchp1       integer k0,nlmx,kmax,ib,is,lfoc,i,ocy
+       integer:: k0 , nlmx , kmax , ib , is , lfoc , i 
+       real(8),pointer :: rv_p_ocy(:)
+
       double precision tau(3),v(3),alat,vol,qcorg,qcorh,qsc,cofg,cofh,
      .ceh,rfoc,z
 C     integer stdo,iprint,lgunit
@@ -54,7 +58,9 @@ C     stdo = lgunit(1)
 
       alat=slat%alat
       vol=slat%vol
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
 
       kmax = 0
 
@@ -81,7 +87,10 @@ C  351   format(' qc=',f12.6,'   lfoc',i2,'   qcorg,qcorh',2f12.6)
               v(1) = gv(i,1)
               v(2) = gv(i,2)
               v(3) = gv(i,3)
-              call hklft(v,rfoc,ceh,tau,alat,kmax,1,k0,w(ocy),gkl)
+Cchp1               call hklft(v,rfoc,ceh,tau,alat,kmax,1,k0,w(ocy),gkl)
+               call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_p_ocy 
+     .         , gkl ) 
+
               cgh1(i) = cgh1(i) + cofh*gkl(0,1)/vol
             enddo
           else if (lfoc .eq. 2) then
@@ -90,7 +99,10 @@ C  351   format(' qc=',f12.6,'   lfoc',i2,'   qcorg,qcorh',2f12.6)
               v(1) = gv(i,1)
               v(2) = gv(i,2)
               v(3) = gv(i,3)
-              call hklft(v,rfoc,ceh,tau,alat,kmax,1,k0,w(ocy),gkl)
+Cchp1               call hklft(v,rfoc,ceh,tau,alat,kmax,1,k0,w(ocy),gkl)
+               call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_p_ocy 
+     .         , gkl ) 
+
               cgh2(i) = cgh2(i) + cofh*gkl(0,1)/vol
             enddo
           endif

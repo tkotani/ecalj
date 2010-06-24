@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oag
 CSFCPP#define F90 1
       subroutine mshvmt(nbas,ssite,sspec,slat,ng,gv,
      .kv,cv,k1,k2,k3,smpot,vval)
@@ -216,8 +217,12 @@ C ... Local parameters
       integer ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,stdo,iv0
       integer ipc(nbas),ips(nbas),lmxl(nbas)
       double precision pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
-      integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , og , oag 
-     ., nn , iclbas
+Cchp1       integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , og , oag 
+Cchp1      ., nn , iclbas
+       integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , og , nn 
+     . , iclbas 
+       real(8),pointer :: rv_p_oag(:)
+
       real(8) ,allocatable :: qwk_rv(:)
       real(8) ,allocatable :: sym_rv(:)
 
@@ -232,7 +237,9 @@ C ... Heap
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       ngrp=slat%nsgrp
       og=slat%osymgr
-      oag=slat%oag
+Cchp1       oag=slat%oag
+       rv_p_oag => slat%rv_p_oag 
+
 
       i_copy_size=1;
       do i_spackv=1,nbas
@@ -272,8 +279,11 @@ Ctakao_ZeroClear_NotRequiered          if (nlml<0) qwk_rv(:)=0.0d0
             allocate(sym_rv(nlml*nlml*nrclas))
 Ctakao_ZeroClear_NotRequiered          if (nlml*nlml*nrclas<0) sym_rv(:)=0.0d0
 
-            call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , w ( 
-     .      og ) , w ( oag ) , qwk_rv , ipa , sym_rv , vval , nn )
+Cchp1             call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , w ( 
+Cchp1      .      og ) , w ( oag ) , qwk_rv , ipa , sym_rv , vval , nn )
+             call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , w ( 
+     .       og ) , rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
+
 
             if (allocated(sym_rv)) deallocate(sym_rv)
             if (allocated(qwk_rv)) deallocate(qwk_rv)

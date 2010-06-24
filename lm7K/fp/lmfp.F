@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= integer,iv_p_,oorhat
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= complex(8),zv_p_,osmpot
@@ -157,7 +158,10 @@ cki, for rlse and allocate oindrx
       integer,allocatable:: iv_tmp(:)
 
 Cchp1       integer:: oistab , oag , og
-       integer:: oag , og 
+Cchp1        integer:: oag , og 
+        integer:: og 
+        real(8),pointer :: rv_p_oag(:)
+
        integer,pointer :: iv_p_oistab(:)
 
       real(8) ,allocatable :: shr_rv(:)
@@ -1060,7 +1064,9 @@ C       Restore lattice symmetry to machine precision
 Cchp1             oistab=slat%oistab
              iv_p_oistab => slat%iv_p_oistab 
 
-            oag=slat%oag
+Cchp1             oag=slat%oag
+             rv_p_oag => slat%rv_p_oag 
+
             og=slat%osymgr
 
 C         call shoist(w(oistab),nbas,w(oag),w(og),ng)
@@ -1071,8 +1077,11 @@ C         call shoist(w(oistab),nbas,w(oag),w(og),ng)
             if (strn(9:9) .ne. ':' .or.
      .      .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
 Cchp1             call fixpos(w(opos),nbas,fptol,ng,plat,w(og),w(oag),w(oistab))
-             call fixpos ( w ( opos ) , nbas , fptol , ng , plat , w ( og 
-     .       ) , w ( oag ) , iv_p_oistab ) 
+Cchp1              call fixpos ( w ( opos ) , nbas , fptol , ng , plat , w ( og 
+Cchp1      .       ) , w ( oag ) , iv_p_oistab ) 
+              call fixpos ( w ( opos ) , nbas , fptol , ng , plat , w ( og 
+     .        ) , rv_p_oag , iv_p_oistab ) 
+
 
           endif
 

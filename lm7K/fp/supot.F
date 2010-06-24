@@ -1,3 +1,7 @@
+Cchp1 cmdvar= real(8),rv_p_,ogv
+Cchp1 cmdvar= real(8),rv_p_,odlv
+Cchp1 cmdvar= complex(8),zv_p_,obgv
+Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= integer,iv_p_,oorhat
 Cchp1 cmdvar= real(8),rv_p_,omad
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
@@ -56,9 +60,29 @@ Cchp1      .    , ogv , okv , ng , oorhat , obgv , ngrp , og , oag , iprint
 Cchp1            integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , odlv 
 Cchp1      .     , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ogv 
 Cchp1      .     , okv , ng , oorhat , obgv , ngrp , og , oag , iprint 
-            integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , odlv 
-     .      , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ogv 
-     .      , okv , ng , obgv , ngrp , og , oag , iprint 
+Cchp1             integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , odlv 
+Cchp1      .      , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ogv 
+Cchp1      .      , okv , ng , obgv , ngrp , og , oag , iprint 
+Cchp1              integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , odlv 
+Cchp1      .       , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ogv 
+Cchp1      .       , okv , ng , obgv , ngrp , og , iprint 
+Cchp1               integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , odlv 
+Cchp1      .        , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ogv 
+Cchp1      .        , okv , ng , ngrp , og , iprint 
+Cchp1                integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
+Cchp1      .         , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ogv , okv , 
+Cchp1      .         ng , ngrp , og , iprint 
+                integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
+     .          , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , okv , ng , 
+     .          ngrp , og , iprint 
+                real(8),pointer :: rv_p_ogv(:)
+
+               real(8),pointer :: rv_p_odlv(:)
+
+              complex(8),pointer :: zv_p_obgv(:)
+
+             real(8),pointer :: rv_p_oag(:)
+
             integer,pointer :: iv_p_oorhat(:)
 
            real(8),pointer :: rv_p_omad(:)
@@ -92,7 +116,9 @@ C ... Heap
       awald=slat%awald
       nkd=slat%nkd
       nkq=slat%nkq
-      odlv=slat%odlv
+Cchp1       odlv=slat%odlv
+       rv_p_odlv => slat%rv_p_odlv 
+
 Cchp1       oqlv=slat%oqlv
        rv_p_oqlv => slat%rv_p_oqlv 
 
@@ -110,8 +136,11 @@ Cchp1         call madmat(nbaspp,w(opos),awald,alat,vol,w(odlv),nkd,
 Cchp1      .  w(oqlv),nkq,w(omad))
 Cchp1          call madmat ( nbaspp , w ( opos ) , awald , alat , vol , w ( 
 Cchp1      .   odlv ) , nkd , rv_p_oqlv , nkq , w ( omad ) ) 
-          call madmat ( nbaspp , w ( opos ) , awald , alat , vol , w ( 
-     .    odlv ) , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
+Cchp1           call madmat ( nbaspp , w ( opos ) , awald , alat , vol , w ( 
+Cchp1      .    odlv ) , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
+           call madmat ( nbaspp , w ( opos ) , awald , alat , vol , rv_p_odlv 
+     .     , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
+
 
 
 
@@ -140,15 +169,23 @@ c        call pshpr(iprint()-0)
         call fftz30(n1,n2,n3,k1,k2,k3)
 
 C   ... Make list of lattice vectors within cutoff
-        call defrr(ogv, ngmx*3)
+Cchp1         call defrr(ogv, ngmx*3)
+         allocate(rv_p_ogv(abs(ngmx*3)))
+         if (ngmx*3<0) rv_p_ogv(:)=0.0d0
+
         call defi (okv, ngmx*3)
-        call gvlist(alat,plat,w,n1,n2,n3,gmax,8,ngmx,ng,w(okv),
-     .  w(ogv),xx,xx)
+Cchp1         call gvlist(alat,plat,w,n1,n2,n3,gmax,8,ngmx,ng,w(okv),
+Cchp1      .  w(ogv),xx,xx)
+         call gvlist ( alat , plat , w , n1 , n2 , n3 , gmax , 8 , ngmx 
+     .   , ng , w ( okv ) , rv_p_ogv , xx , xx ) 
+
         if (ng .ne. ngmx) call rx('supot: bug in gvlist')
 
 
         slat%ng=ng
-        slat%ogv=ogv
+Cchp1         slat%ogv=ogv
+         slat%rv_p_ogv => rv_p_ogv 
+
         slat%okv=okv
         slat%gmax=gmax
         i_copy_size=size(slat%nabc)
@@ -185,21 +222,37 @@ Cchp1         call defi (oips0,   ng)
          allocate(iv_p_oips0(abs(ng)))
          if (ng<0) iv_p_oips0(:)=0.0d0
 
-        call defcc(obgv,    ng)
+Cchp1         call defcc(obgv,    ng)
+         allocate(zv_p_obgv(abs(ng)))
+         if (ng<0) zv_p_obgv(:)=0.0d0
+
 
         ngrp=slat%nsgrp
         og=slat%osymgr
-        oag=slat%oag
+Cchp1         oag=slat%oag
+         rv_p_oag => slat%rv_p_oag 
+
 
 Cchp1         call sgvsym(ngrp,w(og),w(oag),ng,w(ogv),w(oips0),w(obgv))
-         call sgvsym ( ngrp , w ( og ) , w ( oag ) , ng , w ( ogv ) , 
-     .   iv_p_oips0 , w ( obgv ) ) 
+Cchp1          call sgvsym ( ngrp , w ( og ) , w ( oag ) , ng , w ( ogv ) , 
+Cchp1      .   iv_p_oips0 , w ( obgv ) ) 
+Cchp1           call sgvsym ( ngrp , w ( og ) , rv_p_oag , ng , w ( ogv ) , iv_p_oips0 
+Cchp1      .    , w ( obgv ) ) 
+Cchp1            call sgvsym ( ngrp , w ( og ) , rv_p_oag , ng , w ( ogv ) , iv_p_oips0 
+Cchp1      .     , zv_p_obgv ) 
+            call sgvsym ( ngrp , w ( og ) , rv_p_oag , ng , rv_p_ogv , iv_p_oips0 
+     .      , zv_p_obgv ) 
+
+
+
 
 
 Cchp1         slat%oips0=oips0
          slat%iv_p_oips0 => iv_p_oips0 
 
-        slat%obgv=obgv
+Cchp1         slat%obgv=obgv
+         slat%zv_p_obgv => zv_p_obgv 
+
 
 
       endif

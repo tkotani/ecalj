@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,orhat,kmax,ng,cg)
 
       use m_struc_def  !Cgetarg
@@ -72,7 +73,10 @@ C ... Passed parameters
 C ... Local parameters
       integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nglob,nlm,
      .nlmtop,nspec,ngabc(3),lfoc,modgkl
-      integer:: ogv , okv , nsp
+Cchp1       integer:: ogv , okv , nsp
+       integer:: okv , nsp 
+       real(8),pointer :: rv_p_ogv(:)
+
       real(8) ,allocatable :: qkl_rv(:)
       real(8) ,allocatable :: cs_rv(:)
       real(8) ,allocatable :: g_rv(:)
@@ -105,7 +109,9 @@ C ... Heap
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng1=slat%ng
-      ogv=slat%ogv
+Cchp1       ogv=slat%ogv
+       rv_p_ogv => slat%rv_p_ogv 
+
       okv=slat%okv
       vol=slat%vol
 
@@ -139,8 +145,11 @@ Ctakao_ZeroClear_NotRequiered        if (ng<0) g2_rv(:)=0.0d0
       allocate(g_rv(ng*3))
 Ctakao_ZeroClear_NotRequiered        if (ng*3<0) g_rv(:)=0.0d0
 
-      call suylg ( ltop , alat , ng , w ( ogv ) , g_rv , g2_rv 
-     ., yl_rv )
+Cchp1       call suylg ( ltop , alat , ng , w ( ogv ) , g_rv , g2_rv 
+Cchp1      ., yl_rv )
+       call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
+     . ) 
+
 
       if (allocated(g_rv)) deallocate(g_rv)
 
@@ -148,7 +157,9 @@ Ctakao_ZeroClear_NotRequiered        if (ng*3<0) g_rv(:)=0.0d0
       allocate(iv_iv(ng*3))
 Ctakao_ZeroClear_NotRequiered        if (ng*3<0) iv_iv(:)=0
 
-      call suphs0 ( plat , ng , w ( ogv ) , iv_iv )
+Cchp1       call suphs0 ( plat , ng , w ( ogv ) , iv_iv )
+       call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
+
 
       allocate(cs_rv(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) cs_rv(:)=0.0d0

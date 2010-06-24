@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine mixrho(ssite,sspec,slat,nsp,iter,mixmod,qval,elind,
      .orhnew,orhold,k1,k2,k3,dmxp,smrnew,smrho)
 
@@ -198,7 +199,10 @@ C ... Local parameters
      .lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nmix,nda,mxsav,ifi,nlm0,
      .kkk,nnnew,nnmix,ngabc(3),igetss,fopna,broy,nx,
      .nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
-      integer:: ng0 , ocn , ogv , okv , oa , oaa , owk , oqkl
+Cchp1       integer:: ng0 , ocn , ogv , okv , oa , oaa , owk , oqkl
+       integer:: ng0 , ocn , okv , oa , oaa , owk , oqkl 
+       real(8),pointer :: rv_p_ogv(:)
+
       integer ,allocatable :: ips0_iv(:)
       real(8) ,allocatable :: co_rv(:)
       complex(8) ,allocatable :: cg1_zv(:)
@@ -300,7 +304,9 @@ ccccccccccccccccccccccccccccccccc
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-      ogv=slat%ogv
+Cchp1       ogv=slat%ogv
+       rv_p_ogv => slat%rv_p_ogv 
+
       okv=slat%okv
       vol=slat%vol
 
@@ -437,7 +443,9 @@ C     call dpzero(w(ocn),ng*2)
 
 C ... 4. Make cn = screening charge = (eps^-1 - 1) (n_out - n_in)
       tpiba = 2*pi/alat
-      call lindsc(2,ng,w(ogv),tpiba,elinl,w(ocn))
+Cchp1       call lindsc(2,ng,w(ogv),tpiba,elinl,w(ocn))
+       call lindsc ( 2 , ng , rv_p_ogv , tpiba , elinl , w ( ocn ) ) 
+
 
 C ... 5. Add cn = screening charge into smrnew
       call defcc(owk,kkk)
@@ -492,8 +500,11 @@ C --- 7. Project cn = screening density into local densities ---
       allocate(fkl_zv((k0+1)*nlm0*nbas))
 Ctakao_ZeroClear_NotRequiered        if ((k0+1)*nlm0*nbas<0) fkl_zv(:)=0.0d0
 
-      call ftlxp ( nbas , ssite , sspec , alat , ng , w ( ogv ) , w 
-     .( ocn ) , k0 , nlm0 , fkl_zv )
+Cchp1       call ftlxp ( nbas , ssite , sspec , alat , ng , w ( ogv ) , w 
+Cchp1      .( ocn ) , k0 , nlm0 , fkl_zv )
+       call ftlxp ( nbas , ssite , sspec , alat , ng , rv_p_ogv , w 
+     . ( ocn ) , k0 , nlm0 , fkl_zv ) 
+
 
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
@@ -594,7 +605,9 @@ C ... Find and include number of smooth mesh points.
       allocate(ips0_iv(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) ips0_iv(:)=0
 
-      call lgstar ( 0 , ng , 1 , w ( ogv ) , ng0 , ips0_iv , w )
+Cchp1       call lgstar ( 0 , ng , 1 , w ( ogv ) , ng0 , ips0_iv , w )
+       call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , w ) 
+
 
 C     if (ng .ne. (ng0-1)*2+1) call rx('bug in mixrho')
       nda = nda + 2*ng0
@@ -609,8 +622,11 @@ Ctakao_ZeroClear_NotRequiered        if (ng*2*nsp<0) co_rv(:)=0.0d0
       call fftz3(w(owk),n1,n2,n3,k1,k2,k3,nsp,0,-1)
       call gvgetf(ng,nsp,w(okv),k1,k2,k3,w(owk),w(ocn))
 C     call zprm('cn-u',2,w(ocn),ng,ng,nsp)
-      call lgstar ( 1 , ng , nsp , w ( ogv ) , i , ips0_iv , w ( 
-     .ocn ) )
+Cchp1       call lgstar ( 1 , ng , nsp , w ( ogv ) , i , ips0_iv , w ( 
+Cchp1      .ocn ) )
+       call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w ( ocn 
+     . ) ) 
+
 
 C     call zprm('cn-c',2,w(ocn),ng,ng0,nsp)
 C     call lgstar(2,ng,nsp,w(ogv),i,w(oips0),w(ocn))
@@ -621,8 +637,10 @@ C     call zprm('cn-u',2,w(ocn),ng,ng,nsp)
      ., co_rv )
 
 C     call zprm('co-u',2,w(oco),ng,ng,nsp)
-      call lgstar ( 1 , ng , nsp , w ( ogv ) , i , ips0_iv , co_rv 
-     .)
+Cchp1       call lgstar ( 1 , ng , nsp , w ( ogv ) , i , ips0_iv , co_rv 
+Cchp1      .)
+       call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , co_rv ) 
+
 
 ccccccccccc
 c      print *,'vvv lgstar i=',i
@@ -764,10 +782,15 @@ C      call prrmsh('rho2, ante 7',w(orofi),w(orhold(2,1)),nr,nr,nlml*nsp)
 
 C ... 14. Poke mixed smooth and local densities into smrho,rhoold
       call defcc(owk,kkk)
-      call pvmix7 ( ssite , sspec , nbas , nsp , nda , w ( oa ) , n1 
-     ., n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w 
-     .( oqkl ) , ng , ng0 , w ( okv ) , ips0_iv , w ( ogv ) , co_rv 
-     ., w ( owk ) , orhold , smrho )
+Cchp1       call pvmix7 ( ssite , sspec , nbas , nsp , nda , w ( oa ) , n1 
+Cchp1      ., n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w 
+Cchp1      .( oqkl ) , ng , ng0 , w ( okv ) , ips0_iv , w ( ogv ) , co_rv 
+Cchp1      ., w ( owk ) , orhold , smrho )
+       call pvmix7 ( ssite , sspec , nbas , nsp , nda , w ( oa ) , n1 
+     . , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w 
+     . ( oqkl ) , ng , ng0 , w ( okv ) , ips0_iv , rv_p_ogv , co_rv 
+     . , w ( owk ) , orhold , smrho ) 
+
 
 
       call rlse(oa)

@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ocy
+Cchp1 cmdvar= real(8),rv_p_,ocg
 Cchp1 cmdvar= integer,iv_p_,oiprmb
 Cchp1 cmdvar= integer,iv_p_,oindxo
       subroutine mkrout(ssite,sspec,slat,sham,nbas,nsp,nlmto,lekkl,
@@ -72,10 +74,22 @@ Cchp1       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc
 Cchp1      ., lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
 Cchp1      .nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
 Cchp1      .orhoca , ov0 , ov01 , oiprmb , stdo , igetss
-       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-     . , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-     . nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
-     . orhoca , ov0 , ov01 , stdo , igetss 
+Cchp1        integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+Cchp1      . , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+Cchp1      . nr , ncore , ocg , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , 
+Cchp1      . orhoca , ov0 , ov01 , stdo , igetss 
+Cchp1         integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+Cchp1      .  , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+Cchp1      .  nr , ncore , ocy , oidxcg , ojcg , oqhh , oqhp , oqpp , orhoca 
+Cchp1      .  , ov0 , ov01 , stdo , igetss 
+         integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+     .   , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+     .   nr , ncore , oidxcg , ojcg , oqhh , oqhp , oqpp , orhoca , ov0 
+     .   , ov01 , stdo , igetss 
+         real(8),pointer :: rv_p_ocy(:)
+
+        real(8),pointer :: rv_p_ocg(:)
+
        integer,pointer :: iv_p_oiprmb(:)
 
       real(8) ,allocatable :: dmatl_rv(:)
@@ -128,10 +142,14 @@ C ... Setup
       sums1 = 0
       call tcn('mkrout')
 
-      ocg=slat%ocg
+Cchp1       ocg=slat%ocg
+       rv_p_ocg => slat%rv_p_ocg 
+
       ojcg=slat%ojcg
       oidxcg=slat%oidxcg
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
 
 
 Cchp1       oiprmb=sham%oindxo
@@ -287,11 +305,16 @@ C   ... Contracted density matrix as coffs to products of (u,s,gz)
           allocate(dmatl_rv(abs(-(lmxa+1)**2*nlml*nsp*9)))
           if (-(lmxa+1)**2*nlml*nsp*9<0) dmatl_rv(:)=0.0d0
 
-          call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , w ( ocg ) , w 
-     .    ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-     .    , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
-     .    , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
-     .    )
+Cchp1           call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , w ( ocg ) , w 
+Cchp1      .    ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
+Cchp1      .    , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
+Cchp1      .    , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
+Cchp1      .    )
+           call mkrou1 ( nsp , nlmh , nlma , nlml , kmax , rv_p_ocg , w 
+     .     ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
+     .     , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
+     .     , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
+
 
 C        call prmx('dmatl',w(odmatl),(lmxa+1)**2,(lmxa+1)**2,nlml*nsp*9)
 
@@ -345,11 +368,16 @@ C       Remake hbyl from energy-weighted density matrix
 
             call dpzero ( cpp_rv , k )
 
-            call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , w ( ocg ) , 
-     .      w ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
-     .      , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
-     .      , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
-     .      )
+Cchp1             call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , w ( ocg ) , 
+Cchp1      .      w ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
+Cchp1      .      , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
+Cchp1      .      , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv 
+Cchp1      .      )
+             call mkrou1 ( nsp , nlmh , nlma , nlml1 , kmax , rv_p_ocg , w 
+     .       ( ojcg ) , w ( oidxcg ) , nkaph , nkapi , norb , ltab , ktab 
+     .       , blks , w ( oqhh ) , w ( oqhp ) , w ( oqpp ) , vh_rv , dh_rv 
+     .       , vp_rv , dp_rv , chh_rv , chp_rv , cpp_rv , dmatl_rv ) 
+
 
             call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , w 
      .      , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , w )

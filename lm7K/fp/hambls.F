@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ohrs
 Cchp1 cmdvar= integer,iv_p_,oiprmb
 Cchp1 cmdvar= integer,iv_p_,oindxo
 Cchp1 cmdvar= integer,iv_p_,ooffh
@@ -207,7 +208,10 @@ C ... Local parameters
       equivalence (asig,sigp(6)),(bsig,sigp(7))
 Cchp1       integer oiprmb,ontabs,oiaxs,ohrs,ooffH
 Cchp1        integer:: oiprmb , ontabs , oiaxs , ohrs 
-        integer:: ontabs , oiaxs , ohrs 
+Cchp1         integer:: ontabs , oiaxs , ohrs 
+         integer:: ontabs , oiaxs 
+         real(8),pointer :: rv_p_ohrs(:)
+
         integer,pointer :: iv_p_oiprmb(:)
 
        integer,pointer :: iv_p_ooffh(:)
@@ -280,7 +284,9 @@ C ... Setup for Bloch transform
       ndhrs=sham%ndhrs
       ontabs=sham%ontabs
       oiaxs=sham%oiaxs
-      ohrs=sham%ohrs
+Cchp1       ohrs=sham%ohrs
+       rv_p_ohrs => sham%rv_p_ohrs 
+
 Cchp1       ooffH=sham%ooffH
        iv_p_ooffh => sham%iv_p_ooffh 
 
@@ -320,9 +326,13 @@ C       Call to bloch : 104110=perm orb, transpose, no add, c*16
 Cchp1         call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
 Cchp1      .  w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
 Cchp1      .  ss(1,1),w,w)
-         call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
-     .   , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
+Cchp1          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cchp1      .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
+Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
+          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .    , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
+
 
         h(:,:,ispc) = h(:,:,ispc) + ss
 C         call zhevx(ndimh,ndimh,h(1,1,ispc),s(1,1,ispc),1,T,ndimh,9d9,i,
@@ -399,9 +409,13 @@ C       Call to bloch : 104110=perm orb, transpose, no add, c*16
 Cchp1         call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
 Cchp1      .  w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
 Cchp1      .  s(1,1,ispc),w,w)
-         call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
-     .   , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
+Cchp1          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cchp1      .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
+Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
+          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .    , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
+
 
 
 ccccccccccccccccccc
@@ -719,9 +733,13 @@ C       Call to bloch : 104110=perm orb, transpose, add, c*16
 Cchp1           call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
 Cchp1      .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
 Cchp1      .    h(1,1,ispc),w,w)
-           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .     , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
-     .     , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
+Cchp1            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cchp1      .     , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
+Cchp1      .     , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
+            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .      , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .      , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
+
 
 C       call zprm('h+sigm-vxc',2,h(1,1,ispc),ndimh,ndimh,ndimh)
           goto 999
@@ -828,9 +846,13 @@ C       Call to bloch : 104010=perm orb, transpose, c*16
           i = 100000 + 4000 + 40*(1-hreal) + 10
 Cchp1           call bloch(i,qpi(1,j),nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
 Cchp1      .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,sqi,w,w)
-           call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
-     .     , 1 , nttabs , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , 
-     .     ndimh , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
+Cchp1            call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
+Cchp1      .     , 1 , nttabs , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , 
+Cchp1      .     ndimh , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
+            call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
+     .      , 1 , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , 
+     .      ndimh , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
+
 
 C       call zprm('sig at qpi',2,sqi,ndimh,ndimh,ndimh)
 
@@ -928,7 +950,10 @@ C ... Passed parameters
       double complex zq(ndimh,nspc,ndimh,nspc),sig(ndimh,ndimh,2)
 C ... Local parameters
 Cchp1       integer oiprmb,ontabs,oiaxs,ohrs
-       integer:: ontabs , oiaxs , ohrs 
+Cchp1        integer:: ontabs , oiaxs , ohrs 
+        integer:: ontabs , oiaxs 
+        real(8),pointer :: rv_p_ohrs(:)
+
        integer,pointer :: iv_p_oiprmb(:)
 
       integer i,lrsig,ipr,jsp,ksp
@@ -958,7 +983,9 @@ C ... Setup for Bloch transform
       ndhrs=sham%ndhrs
       ontabs=sham%ontabs
       oiaxs=sham%oiaxs
-      ohrs=sham%ohrs
+Cchp1       ohrs=sham%ohrs
+       rv_p_ohrs => sham%rv_p_ohrs 
+
 Cchp1       oiprmb=sham%oindxo
        iv_p_oiprmb => sham%iv_p_oindxo 
 
@@ -987,9 +1014,13 @@ C     noncollinear case:  ksp=1..2,  jsp=1..2
 Cchp1         call bloch(i,q,nl,plat,mxorb,w(oiprmb),1,nttabs,w(oiaxs),
 Cchp1      .  w(ohrs),ndhrs,ksp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,
 Cchp1      .  sig(1,1,jsp),w,w)
-         call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , ksp , nsp , ndimh , ndimh 
-     .   , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
+Cchp1          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cchp1      .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , ksp , nsp , ndimh , ndimh 
+Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
+          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+     .    , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
+
 
       enddo
 C     Convert sig to full matrix with zero off-diagonal spin blocks

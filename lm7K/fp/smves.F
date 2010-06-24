@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ogv
+Cchp1 cmdvar= real(8),rv_p_,ocy
       subroutine smves(mode,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,
      .vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,
      .vrmt,qbg)
@@ -149,9 +151,19 @@ C ... Passed parameters
 
       double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
 C ... Local parameters
-      integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
-     ., lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
-     .nlm , nsp , ocy , ogv , okv , stdo , j1 , j2 , j3
+Cchp1       integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
+Cchp1      ., lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
+Cchp1      .nlm , nsp , ocy , ogv , okv , stdo , j1 , j2 , j3
+Cchp1        integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
+Cchp1      . , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
+Cchp1      . nlm , nsp , ogv , okv , stdo , j1 , j2 , j3 
+        integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
+     .  , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
+     .  nlm , nsp , okv , stdo , j1 , j2 , j3 
+        real(8),pointer :: rv_p_ogv(:)
+
+       real(8),pointer :: rv_p_ocy(:)
+
       complex(8) ,allocatable :: cg1_zv(:)
       complex(8) ,allocatable :: cgsum_zv(:)
       complex(8) ,allocatable :: cv_zv(:)
@@ -176,12 +188,16 @@ C ... Setup
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-      ogv=slat%ogv
+Cchp1       ogv=slat%ogv
+       rv_p_ogv => slat%rv_p_ogv 
+
       okv=slat%okv
       vol=slat%vol
 
 
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
 
 
 C     Electrostatics depend only on total spin density
@@ -201,8 +217,11 @@ C     debugging ... one-center expansion of smrho
 C     call msh21c(1,ssite,sspec,slat,ng,w(ogv),w(okv),k1,k2,k3,smrho)
 
 C --- Estatic potential of smooth density without gaussians ---
-      call vesft ( slat , ng , w ( ogv ) , w ( okv ) , cv_zv , k1 
-     ., k2 , k3 , smrho , smpot , u00 )
+Cchp1       call vesft ( slat , ng , w ( ogv ) , w ( okv ) , cv_zv , k1 
+Cchp1      ., k2 , k3 , smrho , smpot , u00 )
+       call vesft ( slat , ng , rv_p_ogv , w ( okv ) , cv_zv , k1 , 
+     . k2 , k3 , smrho , smpot , u00 ) 
+
 
 
 C ... Add estatic potential of compensating gaussians to smpot
@@ -212,17 +231,28 @@ Ctakao_ZeroClear_NotRequiered        if (ng<0) cg1_zv(:)=0.0d0
       allocate(cgsum_zv(ng))
 Ctakao_ZeroClear_NotRequiered        if (ng<0) cgsum_zv(:)=0.0d0
 
-      call vesgcm ( nbas , ssite , sspec , slat , w ( ocy ) , qmom 
-     ., ng , w ( ogv ) , w ( okv ) , cv_zv , cg1_zv , cgsum_zv 
-     ., k1 , k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt 
-     .)
+Cchp1       call vesgcm ( nbas , ssite , sspec , slat , w ( ocy ) , qmom 
+Cchp1      ., ng , w ( ogv ) , w ( okv ) , cv_zv , cg1_zv , cgsum_zv 
+Cchp1      ., k1 , k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt 
+Cchp1      .)
+Cchp1        call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
+Cchp1      . ng , w ( ogv ) , w ( okv ) , cv_zv , cg1_zv , cgsum_zv , k1 , 
+Cchp1      . k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
+        call vesgcm ( nbas , ssite , sspec , slat , rv_p_ocy , qmom , 
+     .  ng , rv_p_ogv , w ( okv ) , cv_zv , cg1_zv , cgsum_zv , k1 , 
+     .  k2 , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt ) 
+
+
 
       if (ipr .ge. 40) write (stdo,230) (ib,(f(m,ib),m=1,3),ib=1,nbas)
   230 format(/' after vesgcomp: forces are:'/(i4,3f12.6))
 
 C ... Compute e.s. potential at MT boundary
-      call mshvmt ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
-     .w ( okv ) , cv_zv , k1 , k2 , k3 , smpot , vval )
+Cchp1       call mshvmt ( nbas , ssite , sspec , slat , ng , w ( ogv ) , 
+Cchp1      .w ( okv ) , cv_zv , k1 , k2 , k3 , smpot , vval )
+       call mshvmt ( nbas , ssite , sspec , slat , ng , rv_p_ogv , w 
+     . ( okv ) , cv_zv , k1 , k2 , k3 , smpot , vval ) 
+
 
       call symvvl(nbas,ssite,sspec,slat,vval,vrmt)
       if (allocated(cgsum_zv)) deallocate(cgsum_zv)

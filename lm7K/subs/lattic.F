@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,odlv
 Cchp1 cmdvar= real(8),rv_p_,oqlv
       subroutine lattic(slat,sctrl,ssite,sarray)
 
@@ -41,8 +42,12 @@ C ... Passed parameters
 
 C ... Local parameters
 Cchp1       integer ldist,lmxst,nkd,nkdmx,nkq,nkqmx,nbas,odlv,oqlv,opos
-       integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas , 
-     . odlv , opos 
+Cchp1        integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas , 
+Cchp1      . odlv , opos 
+        integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas , 
+     .  opos 
+        real(8),pointer :: rv_p_odlv(:)
+
        real(8),pointer :: rv_p_oqlv(:)
        real(8),allocatable:: rv_a_tmp(:)
 
@@ -142,7 +147,10 @@ c        endif
         dist(3,3) = 1
       endif
 
-      call defrr(odlv,  3*nkdmx)
+Cchp1       call defrr(odlv,  3*nkdmx)
+       allocate(rv_p_odlv(abs(3*nkdmx)))
+       if (3*nkdmx<0) rv_p_odlv(:)=0.0d0
+
 Cchp1       call defrr(oqlv,  3*nkqmx)
        allocate(rv_p_oqlv(abs(3*nkqmx)))
        if (3*nkqmx<0) rv_p_oqlv(:)=0.0d0
@@ -150,9 +158,13 @@ Cchp1       call defrr(oqlv,  3*nkqmx)
       lmxst = 6
 Cchp1       call lattc(awald0,tol,rpad,alat,alat,plat0,gx,gy,gz,gt,plat,qlat,
 Cchp1      .lmxst,vol,awald,w(odlv),nkd,w(oqlv),nkq,nkdmx,nkqmx)
-       call lattc ( awald0 , tol , rpad , alat , alat , plat0 , gx , 
-     . gy , gz , gt , plat , qlat , lmxst , vol , awald , w ( odlv ) 
-     . , nkd , rv_p_oqlv , nkq , nkdmx , nkqmx ) 
+Cchp1        call lattc ( awald0 , tol , rpad , alat , alat , plat0 , gx , 
+Cchp1      . gy , gz , gt , plat , qlat , lmxst , vol , awald , w ( odlv ) 
+Cchp1      . , nkd , rv_p_oqlv , nkq , nkdmx , nkqmx ) 
+        call lattc ( awald0 , tol , rpad , alat , alat , plat0 , gx , 
+     .  gy , gz , gt , plat , qlat , lmxst , vol , awald , rv_p_odlv 
+     .  , nkd , rv_p_oqlv , nkq , nkdmx , nkqmx ) 
+
 
 
 c      if (nbaspp .gt. nbas) then
@@ -186,12 +198,19 @@ Cchp1       call redfrr(oqlv,3*nkq)
        rv_p_oqlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
 
 cki      call defps2(odlv,oqlv)
-      call redfrr(odlv,3*nkd)
+Cchp1       call redfrr(odlv,3*nkd)
+       i_data_size=size(rv_p_odlv); allocate(rv_a_tmp(i_data_size))
+       rv_a_tmp=rv_p_odlv; deallocate(rv_p_odlv)
+       i_data_size=min(i_data_size,3*nkd); allocate(rv_p_odlv(3*nkd))
+       rv_p_odlv(:i_data_size)=rv_a_tmp(:i_data_size); deallocate(rv_a_tmp)
+
 
       slat%awald=awald
       slat%nkd=nkd
       slat%nkq=nkq
-      slat%odlv=odlv
+Cchp1       slat%odlv=odlv
+       slat%rv_p_odlv => rv_p_odlv 
+
 Cchp1       slat%oqlv=oqlv
        slat%rv_p_oqlv => rv_p_oqlv 
 

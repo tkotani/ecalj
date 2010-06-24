@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ocy
+Cchp1 cmdvar= real(8),rv_p_,ocg
       subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,
      .ndim2,slat,wk,dwk,s,ds)
 
@@ -37,7 +39,15 @@ C ... Passed parameters
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3),
      .wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
 C ... Local parameters
-      integer ocg,ojcg,oidxcg,ocy,kmax,kdim,i2,i1,lmxx,nlmx,l,ll
+Cchp1       integer ocg,ojcg,oidxcg,ocy,kmax,kdim,i2,i1,lmxx,nlmx,l,ll
+Cchp1        integer:: ojcg , oidxcg , ocy , kmax , kdim , i2 , i1 , lmxx 
+Cchp1      . , nlmx , l , ll 
+        integer:: ojcg , oidxcg , kmax , kdim , i2 , i1 , lmxx , nlmx 
+     .  , l , ll 
+        real(8),pointer :: rv_p_ocy(:)
+
+       real(8),pointer :: rv_p_ocg(:)
+
       parameter (lmxx=6,nlmx=(lmxx+1)**2)
       double precision add,pi,q(3),fpi,vol,gam1,gam2,xx1,xx2
       double precision zer(0:lmxx),bet1(nlmx),fac(nlmx)
@@ -49,21 +59,41 @@ C ... Heap
 
       pi = 4d0*datan(1d0)
 
-      ocg=slat%ocg
+Cchp1       ocg=slat%ocg
+       rv_p_ocg => slat%rv_p_ocg 
+
       ojcg=slat%ojcg
       oidxcg=slat%oidxcg
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
       vol=slat%vol
 
       kmax = 0
       kdim = 0
       if (nlm1 .gt. nlmx) call rx('hhugbl: increase lmxx')
 
-      call hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,ndim1,
-     .ndim2,kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
+Cchp1       call hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,ndim1,
+Cchp1      .ndim2,kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
+Cchp1        call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 
+Cchp1      . , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , w ( oidxcg 
+Cchp1      . ) , w ( ojcg ) , w ( ocy ) , slat , s , ds ) 
+        call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 
+     .  , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , w ( oidxcg 
+     .  ) , w ( ojcg ) , rv_p_ocy , slat , s , ds ) 
 
-      call hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,zer,nlm1,nlm2,kmax,ndim1,
-     .ndim2,kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,wk,dwk)
+
+
+Cchp1       call hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,zer,nlm1,nlm2,kmax,ndim1,
+Cchp1      .ndim2,kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,wk,dwk)
+Cchp1        call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , zer , nlm1 
+Cchp1      . , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , w ( oidxcg 
+Cchp1      . ) , w ( ojcg ) , w ( ocy ) , slat , wk , dwk ) 
+        call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , zer , nlm1 
+     .  , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , w ( oidxcg 
+     .  ) , w ( ojcg ) , rv_p_ocy , slat , wk , dwk ) 
+
+
 
       do  i2 = 1, nlm2
         if (mode .eq. 0) then

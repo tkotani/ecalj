@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= integer,iv_p_,onrcp
 Cchp1 cmdvar= integer,iv_p_,onrc
 Cchp1 cmdvar= integer,iv_p_,oips
@@ -101,7 +102,10 @@ Cchp1           integer:: onrc , onrcp , opos , oipc , oipcp , oiwk , oag , osym
 Cchp1      .    , aginv 
 Cchp1            integer:: onrcp , opos , oipc , oipcp , oiwk , oag , osymgr , 
 Cchp1      .     aginv 
-            integer:: opos , oipc , oipcp , oiwk , oag , osymgr , aginv 
+Cchp1             integer:: opos , oipc , oipcp , oiwk , oag , osymgr , aginv 
+             integer:: opos , oipc , oipcp , oiwk , osymgr , aginv 
+             real(8),pointer :: rv_p_oag(:)
+
             integer,pointer :: iv_p_onrcp(:)
 
            integer,pointer :: iv_p_onrc(:)
@@ -145,7 +149,10 @@ C ... Re-entry when ngmx was increased
     5 continue
 
 C ... For memory allocation of class data, assume initially nclass=nbas
-      call defrr(oag,   3*ngmx)
+Cchp1       call defrr(oag,   3*ngmx)
+       allocate(rv_p_oag(abs(3*ngmx)))
+       if (3*ngmx<0) rv_p_oag(:)=0.0d0
+
       call defrr(osymgr,9*ngmx)
       call defi(oipc,  nsite)
 Cchp1       call defi(oics,  nsite)
@@ -228,10 +235,15 @@ Cchp1       call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas
 Cchp1      ., nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
 Cchp1      ., nrspc_iv , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen 
 Cchp1      ., ssymgr , nggen , isym , w ( oistab ) )
-       call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
-     . , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
-     . , nrspc_iv , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen , 
-     . ssymgr , nggen , isym , iv_p_oistab ) 
+Cchp1        call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
+Cchp1      . , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
+Cchp1      . , nrspc_iv , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen , 
+Cchp1      . ssymgr , nggen , isym , iv_p_oistab ) 
+        call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
+     .  , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
+     .  , nrspc_iv , nsgrp , w ( osymgr ) , rv_p_oag , ngen , gen , ssymgr 
+     .  , nggen , isym , iv_p_oistab ) 
+
 
 
       if (nbas .gt. nbas0) call rxs('gensym: the basis was enlarged.',
@@ -243,7 +255,9 @@ Cchp1      ., ssymgr , nggen , isym , w ( oistab ) )
         if (allocated(pos2_rv)) deallocate(pos2_rv)
         if (allocated(ips2_iv)) deallocate(ips2_iv)
         if (allocated(nrspc_iv)) deallocate(nrspc_iv)
-        call rlse(oag)
+Cchp1         call rlse(oag)
+         if (associated(rv_p_oag)) deallocate(rv_p_oag)
+
 
         goto 5
       endif
@@ -378,8 +392,11 @@ C     .  w(oistab))
 C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
 Cchp1       call symtbl(1,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
 Cchp1      .w(oistab))
-       call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr 
-     . ) , w ( oag ) , nsgrp , qlat , iv_p_oistab ) 
+Cchp1        call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr 
+Cchp1      . ) , w ( oag ) , nsgrp , qlat , iv_p_oistab ) 
+        call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr 
+     .  ) , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
+
 
 C     Debugging check
 C     call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
@@ -394,8 +411,11 @@ C   ... For each i*grpop fix translation ag to be that of grpop
       if (mod(mode,10) .eq. 2) then
 Cchp1         if (aginv(w(osymgr),nsgrp,npgrp,nbas,w(oag),w(oistab)) .ne. 0)
 Cchp1      .  call rx('bug in mksym')
-         if ( aginv ( w ( osymgr ) , nsgrp , npgrp , nbas , w ( oag ) 
-     .   , iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
+Cchp1          if ( aginv ( w ( osymgr ) , nsgrp , npgrp , nbas , w ( oag ) 
+Cchp1      .   , iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
+          if ( aginv ( w ( osymgr ) , nsgrp , npgrp , nbas , rv_p_oag , 
+     .    iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
+
 
       endif
 
@@ -479,7 +499,9 @@ c     call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
 Cchp1       slat%oistab=oistab
        slat%iv_p_oistab => iv_p_oistab 
 
-      slat%oag=oag
+Cchp1       slat%oag=oag
+       slat%rv_p_oag => rv_p_oag 
+
       slat%osymgr=osymgr
 
 

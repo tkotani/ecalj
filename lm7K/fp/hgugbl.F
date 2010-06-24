@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ocy
+Cchp1 cmdvar= real(8),rv_p_,ocg
       subroutine hgugbl(p1,p2,rsm1,rsm2,e1,nlm1,nlm2,ndim1,ndim2,slat,
      .s,ds)
 
@@ -33,7 +35,13 @@ C ... Passed parameters
 
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3)
 C ... Local parameters
-      integer ocg,ojcg,oidxcg,ocy,kmax,kdim,ilm2,ilm1
+Cchp1       integer ocg,ojcg,oidxcg,ocy,kmax,kdim,ilm2,ilm1
+Cchp1        integer:: ojcg , oidxcg , ocy , kmax , kdim , ilm2 , ilm1 
+        integer:: ojcg , oidxcg , kmax , kdim , ilm2 , ilm1 
+        real(8),pointer :: rv_p_ocy(:)
+
+       real(8),pointer :: rv_p_ocg(:)
+
       double precision q(3),e2,vol
 C ... Heap
       integer w(1)
@@ -41,18 +49,30 @@ C ... Heap
       data q /0d0,0d0,0d0/
 
 
-      ocg=slat%ocg
+Cchp1       ocg=slat%ocg
+       rv_p_ocg => slat%rv_p_ocg 
+
       ojcg=slat%ojcg
       oidxcg=slat%oidxcg
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
       vol=slat%vol
 
       kmax = 0
       kdim = 0
       e2 = 0d0
 
-      call hhigbl(0,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,ndim1,ndim2,
-     .kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
+Cchp1       call hhigbl(0,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,ndim1,ndim2,
+Cchp1      .kdim,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,s,ds)
+Cchp1        call hhigbl ( 0 , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 
+Cchp1      . , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , w ( oidxcg 
+Cchp1      . ) , w ( ojcg ) , w ( ocy ) , slat , s , ds ) 
+        call hhigbl ( 0 , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1 
+     .  , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , w ( oidxcg 
+     .  ) , w ( ojcg ) , rv_p_ocy , slat , s , ds ) 
+
+
 
       do  ilm2 = 1, nlm2
         do  ilm1 = 1, nlm1

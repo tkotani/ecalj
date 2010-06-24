@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ogv
+Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= integer,iv_p_,oips
 Cchp1 cmdvar= integer,iv_p_,oidxsh
 Cchp1 cmdvar= integer,iv_p_,oiprmb
@@ -37,7 +39,10 @@ C Passed parameters
 c      integer nkaph,iprma(*)
       integer iprmb(*),nl
 C Local parameters
-      integer nkap0,n0, oag,og,ibas,k
+Cchp1       integer nkap0,n0, oag,og,ibas,k
+       integer:: nkap0 , n0 , og , ibas , k 
+       real(8),pointer :: rv_p_oag(:)
+
 c      parameter (nkap0=3,n0=10)
       integer l,ndim,ipr,nglob,nbas,ldim,off,offs,
      .specw,fieldw,iorb,offsi,ib,is,opos,norb
@@ -62,7 +67,9 @@ c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
       integer:: i_copy_size,i_spacks,i_spackv
 C
 
-      oag=slat%oag
+Cchp1       oag=slat%oag
+       rv_p_oag => slat%rv_p_oag 
+
       og=slat%osymgr
       ngrp=slat%nsgrp
 
@@ -136,7 +143,9 @@ c ... reverse maping of offset-index for hamiltonian
 C ... symmetry operation
       allocate(symops(3,3,ngrp),ag(3,ngrp))
       call dcopy(ngrp*9,w(og),1,symops,1)
-      call dcopy(ngrp*3,w(oag),1,ag,1)
+Cchp1       call dcopy(ngrp*3,w(oag),1,ag,1)
+       call dcopy ( ngrp * 3 , rv_p_oag , 1 , ag , 1 ) 
+
 
       allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
       do ib=1,nbas
@@ -350,7 +359,10 @@ C ... Local parameters
 
 C ... Needed for iostr
       double precision ckbas,cksumf,kap2(10)
-      integer:: oalph , oiax , ontab , os , ng , ogv
+Cchp1       integer:: oalph , oiax , ontab , os , ng , ogv
+       integer:: oalph , oiax , ontab , os , ng 
+       real(8),pointer :: rv_p_ogv(:)
+
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
 
@@ -538,11 +550,16 @@ C         Find largest lmxa
      .nvi,nvl,lmxax,0,0)
 
       ng=slat%ng
-      ogv=slat%ogv
+Cchp1       ogv=slat%ogv
+       rv_p_ogv => slat%rv_p_ogv 
+
       alat=slat%alat
       tolgv=slat%tolft
 
-      call sugcut(1,nspec,sspec,alat,ng,w(ogv),tolgv)
+Cchp1       call sugcut(1,nspec,sspec,alat,ng,w(ogv),tolgv)
+       call sugcut ( 1 , nspec , sspec , alat , ng , rv_p_ogv , tolgv 
+     . ) 
+
 
 C   ... PW setup : estimate upper bound to number of G vectors
 C       to set up upper bound to hamiltonian dimension
@@ -627,16 +644,24 @@ Ctakao_ZeroClear_NotRequiered              if (3*npw<0) igv2_iv(:)=0
           allocate(kv_iv(3*npw))
 Ctakao_ZeroClear_NotRequiered              if (3*npw<0) kv_iv(:)=0
 
-          call defrr(ogv,3*npw)
+Cchp1           call defrr(ogv,3*npw)
+           allocate(rv_p_ogv(abs(3*npw)))
+           if (3*npw<0) rv_p_ogv(:)=0.0d0
+
           call pshpr(iprint())
           if (iprint() .ge. 50) call setpr(100)
-          call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , 
-     .    8 + 2 , npw , npw , kv_iv , w ( ogv ) , xx , igv2_iv )
+Cchp1           call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , 
+Cchp1      .    8 + 2 , npw , npw , kv_iv , w ( ogv ) , xx , igv2_iv )
+           call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 , 
+     .     8 + 2 , npw , npw , kv_iv , rv_p_ogv , xx , igv2_iv ) 
+
 
           call poppr
           if (allocated(kv_iv)) deallocate(kv_iv)
           if (allocated(igv2_iv)) deallocate(igv2_iv)
-          call rlse(ogv)
+Cchp1           call rlse(ogv)
+           if (associated(rv_p_ogv)) deallocate(rv_p_ogv)
+
 
         endif
       endif

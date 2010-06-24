@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
       subroutine rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,orhoat)
 
@@ -52,10 +53,16 @@ Cchp1       integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 ,
 Cchp1      .k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
 Cchp1      ., nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
 Cchp1      ., ov1 , ng , ogv , okv , iofa , osmrho , kcor , lcor
-       integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-     . k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
-     . , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
-     . , ov1 , ng , ogv , okv , iofa , kcor , lcor 
+Cchp1        integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
+Cchp1      . k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
+Cchp1      . , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
+Cchp1      . , ov1 , ng , ogv , okv , iofa , kcor , lcor 
+        integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
+     .  k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
+     .  , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ov0 
+     .  , ov1 , ng , okv , iofa , kcor , lcor 
+        real(8),pointer :: rv_p_ogv(:)
+
        complex(8),pointer :: zv_p_osmrho(:)
 
       real(8) ,allocatable :: rwgt_rv(:)
@@ -319,14 +326,19 @@ C     end loop over sites
 C --- Overlap smooth hankels to get smooth interstitial density ---
 
       ng=slat%ng
-      ogv=slat%ogv
+Cchp1       ogv=slat%ogv
+       rv_p_ogv => slat%rv_p_ogv 
+
       okv=slat%okv
 
       allocate(cv_zv(ng*nsp))
 Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cv_zv(:)=0.0d0
 
-      call ovlpfa ( ssite , slat , nbas , nxi , n0 , exi , hfc , rsmfa 
-     ., ng , ng , w ( ogv ) , cv_zv )
+Cchp1       call ovlpfa ( ssite , slat , nbas , nxi , n0 , exi , hfc , rsmfa 
+Cchp1      ., ng , ng , w ( ogv ) , cv_zv )
+       call ovlpfa ( ssite , slat , nbas , nxi , n0 , exi , hfc , rsmfa 
+     . , ng , ng , rv_p_ogv , cv_zv ) 
+
 
 
 ccccccccccccccc

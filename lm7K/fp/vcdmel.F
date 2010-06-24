@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ocy
+Cchp1 cmdvar= real(8),rv_p_,ocg
 Cdelw1 var ['orofi', '1', 'orofi', 'nr', 'real(8)', 'rv_w_', 'vcdmel']
 Cdelw1 var ['oul', '1', 'oul', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'vcdmel']
 Cdelw1 var ['osl', '1', 'osl', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'vcdmel']
@@ -74,7 +76,13 @@ Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'oidxcg', 'vcdmel']
 Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'ov0', 'vcdmel']
 Cdelw1       integer ocg,ojcg,oidxcg,ocy,ov0,orofi,oul,osl,ogz,oruu,orus,orss,
 Cdelw1      .og,os
-       integer:: ocg , ojcg , oidxcg , ocy , ov0 
+Cchp1        integer:: ocg , ojcg , oidxcg , ocy , ov0 
+Cchp1         integer:: ojcg , oidxcg , ocy , ov0 
+         integer:: ojcg , oidxcg , ov0 
+         real(8),pointer :: rv_p_ocy(:)
+
+        real(8),pointer :: rv_p_ocg(:)
+
        real(8) ,allocatable :: rv_w_orofi(:)
        real(8) ,allocatable :: rv_w_oul(:)
        real(8) ,allocatable :: rv_w_osl(:)
@@ -97,14 +105,18 @@ C ... Heap
       ehl=0d0  !call dpzero(ehl,n0)
 Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 66
 Cdelw1 do not change ocg because of ['undef', 'wvar', 'wref']
-      ocg=slat%ocg
+Cchp1       ocg=slat%ocg
+       rv_p_ocg => slat%rv_p_ocg 
+
 Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 67
 Cdelw1 do not change ojcg because of ['undef', 'wvar', 'wref']
       ojcg=slat%ojcg
 Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 68
 Cdelw1 do not change oidxcg because of ['undef', 'wvar', 'wref']
       oidxcg=slat%oidxcg
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
 
       do  i = 1, nsite
         ib = isite(i)
@@ -214,10 +226,15 @@ Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 137
 Cdelw1               call pvcdm2(i,nsite,ndham,ndimh,nlma,nlmax,
 Cdelw1      .        aus(1,1,1,isp,i,iq),ume(0,isp,i),sme(0,isp,i),
 Cdelw1      .        lcls,w(ocg),w(ojcg),w(oidxcg),w(os))
-               call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
-     .         ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
-     .         , isp , i ) , lcls , w ( ocg ) , w ( ojcg ) , w ( oidxcg ) , 
-     .         rv_w_os ) 
+Cchp1                call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
+Cchp1      .         ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
+Cchp1      .         , isp , i ) , lcls , w ( ocg ) , w ( ojcg ) , w ( oidxcg ) , 
+Cchp1      .         rv_w_os ) 
+                call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
+     .          ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 
+     .          , isp , i ) , lcls , rv_p_ocg , w ( ojcg ) , w ( oidxcg ) , rv_w_os 
+     .          ) 
+
 
             endif
           enddo

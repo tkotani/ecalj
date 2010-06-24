@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,odlv
 Cchp1 cmdvar= real(8),rv_p_,oqlv
 CSFCPP#define F90 1
       subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,slat,gkl)
@@ -31,8 +32,11 @@ C ... Passed parameters
 C ... Local parameters
       double complex cfac,phase
 Cchp1       integer ilm,k,ll,lmax,nkd,nkq,odlv,oqlv,owk,l,m
-       integer:: ilm , k , ll , lmax , nkd , nkq , odlv , owk , l , 
-     . m 
+Cchp1        integer:: ilm , k , ll , lmax , nkd , nkq , odlv , owk , l , 
+Cchp1      . m 
+        integer:: ilm , k , ll , lmax , nkd , nkq , owk , l , m 
+        real(8),pointer :: rv_p_odlv(:)
+
        real(8),pointer :: rv_p_oqlv(:)
 
       double precision alat,awald,pi,sp,vol,plat(9),qlat(9),p1(3),rwald
@@ -59,7 +63,9 @@ C ... Heap
 
       nkd=slat%nkd
       nkq=slat%nkq
-      odlv=slat%odlv
+Cchp1       odlv=slat%odlv
+       rv_p_odlv => slat%rv_p_odlv 
+
 Cchp1       oqlv=slat%oqlv
        rv_p_oqlv => slat%rv_p_oqlv 
 
@@ -82,7 +88,10 @@ Cchp1         call gklblq(p1,rsm,q,kmax,nlm,k0,alat,w(oqlv),nkq,vol,gkl)
       else
 CSFCPP#if F90
         allocate(wk((kmax+1)*(lmax+1)))
-        call gklbld(p1,rsm,q,kmax,nlm,k0,alat,w(odlv),nkd,wk,gkl)
+Cchp1         call gklbld(p1,rsm,q,kmax,nlm,k0,alat,w(odlv),nkd,wk,gkl)
+         call gklbld ( p1 , rsm , q , kmax , nlm , k0 , alat , rv_p_odlv 
+     .   , nkd , wk , gkl ) 
+
         deallocate(wk)
 CSFCPP#else
 CSFCPP        call defrr(owk, (kmax+1)*(lmax+1))

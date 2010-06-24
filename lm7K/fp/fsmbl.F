@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ocy
+Cchp1 cmdvar= real(8),rv_p_,ocg
       subroutine fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,iprmb,
      .numq,nevec,evl,evec,ewgt,f)
 
@@ -76,8 +78,18 @@ c#endif
 C ... Local parameters
       integer nlms,k0,n0,nkap0
       parameter (nlms=25, k0=1, n0=10, nkap0=3)
-      integer i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,iq,is1,is2,l1,l2,ik1,ik2,
-     .ivec,m,nglob,ocg,ocy,oidxcg,ojcg,nlm1,nlm2
+Cchp1       integer i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,iq,is1,is2,l1,l2,ik1,ik2,
+Cchp1      .ivec,m,nglob,ocg,ocy,oidxcg,ojcg,nlm1,nlm2
+Cchp1        integer:: i1 , i2 , ib1 , ib2 , ilm1 , ilm2 , io1 , io2 , iq 
+Cchp1      . , is1 , is2 , l1 , l2 , ik1 , ik2 , ivec , m , nglob , ocy , 
+Cchp1      . oidxcg , ojcg , nlm1 , nlm2 
+        integer:: i1 , i2 , ib1 , ib2 , ilm1 , ilm2 , io1 , io2 , iq 
+     .  , is1 , is2 , l1 , l2 , ik1 , ik2 , ivec , m , nglob , oidxcg 
+     .  , ojcg , nlm1 , nlm2 
+        real(8),pointer :: rv_p_ocy(:)
+
+       real(8),pointer :: rv_p_ocg(:)
+
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2,nlm21,nlm22,nlm11,nlm12
       integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
      .blks1(n0*nkap0),ntab1(n0*nkap0)
@@ -124,10 +136,14 @@ C --- Setup ---
 
       nbas  = nglob('nbas')
 
-      ocg=slat%ocg
+Cchp1       ocg=slat%ocg
+       rv_p_ocg => slat%rv_p_ocg 
+
       ojcg=slat%ojcg
       oidxcg=slat%oidxcg
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
 
 
 C --- Loop over first and second site indices ---
@@ -185,9 +201,21 @@ C     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
               nlm2 = (lh2(i2)+1)**2
               if (nlm1 .gt. nlms .or. nlm2 .gt. nlms)
      .        call rx('fsmbl: increase nlms')
-              call hhigbl(11,p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),
-     .        e2(1,i2),nlm1,nlm2,1,nlms,nlms,k0,w(ocg),w(oidxcg),
-     .        w(ojcg),w(ocy),slat,s(1,1,0,i1,i2),ds(1,1,0,1,i1,i2))
+Cchp1               call hhigbl(11,p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),
+Cchp1      .        e2(1,i2),nlm1,nlm2,1,nlms,nlms,k0,w(ocg),w(oidxcg),
+Cchp1      .        w(ojcg),w(ocy),slat,s(1,1,0,i1,i2),ds(1,1,0,1,i1,i2))
+Cchp1                call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+Cchp1      .         i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
+Cchp1      .         , nlms , k0 , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , w ( ocy 
+Cchp1      .         ) , slat , s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 
+Cchp1      .         , i2 ) ) 
+                call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+     .          i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
+     .          , nlms , k0 , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy 
+     .          , slat , s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 
+     .          , i2 ) ) 
+
+
             enddo
           enddo
 

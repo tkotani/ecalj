@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ocy
+Cchp1 cmdvar= real(8),rv_p_,ocg
 Cchp1 cmdvar= integer,iv_p_,oiprmb
 Cchp1 cmdvar= integer,iv_p_,oindxo
       subroutine makusq(mode,ssite,sspec,slat,sham,nbas,nsites,isite,
@@ -311,7 +313,13 @@ C ... Local parameters
       integer nkap0,nlmxx
       parameter (nkap0=3,nlmxx=121)
       integer lh(nkap0)
-      integer:: ocg , ojcg , oidxcg , ocy
+Cchp1       integer:: ocg , ojcg , oidxcg , ocy
+Cchp1        integer:: ojcg , oidxcg , ocy 
+        integer:: ojcg , oidxcg 
+        real(8),pointer :: rv_p_ocy(:)
+
+       real(8),pointer :: rv_p_ocg(:)
+
       complex(8) ,allocatable :: b_zv(:)
       complex(8) ,allocatable :: a_zv(:)
 
@@ -326,10 +334,14 @@ C ... Heap
 
       call tcn ('pusq1')
 
-      ocg=slat%ocg
+Cchp1       ocg=slat%ocg
+       rv_p_ocg => slat%rv_p_ocg 
+
       ojcg=slat%ojcg
       oidxcg=slat%oidxcg
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
 
 
       isa=ssite(ia)%spec
@@ -358,9 +370,17 @@ C --- Make strux to expand all orbitals at site ia ---
       allocate(b_zv((kmax+1)*nlma*ndimh))
 Ctakao_ZeroClear_NotRequiered        if ((kmax+1)*nlma*ndimh<0) b_zv(:)=0.0d0
 
-      call bstrux ( 2 , slat , ssite , sspec , w ( ocg ) , w ( oidxcg 
-     .) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
-     .q , kmax , nlma , ndimh , napw , igvapw , b_zv , w )
+Cchp1       call bstrux ( 2 , slat , ssite , sspec , w ( ocg ) , w ( oidxcg 
+Cchp1      .) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
+Cchp1      .q , kmax , nlma , ndimh , napw , igvapw , b_zv , w )
+Cchp1        call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
+Cchp1      . ) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
+Cchp1      . q , kmax , nlma , ndimh , napw , igvapw , b_zv , w ) 
+        call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
+     .  ) , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q 
+     .  , kmax , nlma , ndimh , napw , igvapw , b_zv , w ) 
+
+
 
 
 C     In noncollinear case, isp=1 always => need internal ispc=1..2

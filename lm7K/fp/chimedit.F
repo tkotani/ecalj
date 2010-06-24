@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= real(8),iv_p_,oistab
       subroutine chimedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
      .nbas,nat,nspec)
@@ -119,7 +120,10 @@ C ... Local parameters
       equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer nmag,nmagf,magat(100),magatf(100),ix(10),nmbas
 Cchp1       integer:: opos , oistab , og , oag
-       integer:: opos , og , oag 
+Cchp1        integer:: opos , og , oag 
+        integer:: opos , og 
+        real(8),pointer :: rv_p_oag(:)
+
        integer,pointer :: iv_p_oistab(:)
 
       integer ,allocatable :: gstar_iv(:)
@@ -168,7 +172,9 @@ Cchp1       oistab=slat%oistab
        iv_p_oistab => slat%iv_p_oistab 
 
       og=slat%osymgr
-      oag=slat%oag
+Cchp1       oag=slat%oag
+       rv_p_oag => slat%rv_p_oag 
+
 
 
 C     should be from sgw?

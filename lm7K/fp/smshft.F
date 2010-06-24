@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine smshft(ssite,sspec,slat,sctrl,sham,orhoat,smrho)
 
       use m_struc_def  !Cgetarg
@@ -55,7 +56,10 @@ C ... Passed parameters
 C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
      .n2,n3,nbas,ng,ngabc(3),nglob,nsp
-      integer:: ogv , okv
+Cchp1       integer:: ogv , okv
+       integer:: okv 
+       real(8),pointer :: rv_p_ogv(:)
+
       complex(8) ,allocatable :: cgr_zv(:)
       complex(8) ,allocatable :: cgs_zv(:)
       complex(8) ,allocatable :: cwk_zv(:)
@@ -90,7 +94,9 @@ C --- Setup and printout ---
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-      ogv=slat%ogv
+Cchp1       ogv=slat%ogv
+       rv_p_ogv => slat%rv_p_ogv 
+
       okv=slat%okv
       vol=slat%vol
 
@@ -114,8 +120,11 @@ Ctakao_ZeroClear_NotRequiered        if (ng*nsp<0) cgs_zv(:)=0.0d0
 Ctakao_ZeroClear_NotRequiered        if (ng<0) cwk_zv(:)=0.0d0
 
       kmax = 0
-      call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
-     .w ( ogv ) , orhoat , cwk_zv , cgs_zv , job )
+Cchp1       call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
+Cchp1      .w ( ogv ) , orhoat , cwk_zv , cgs_zv , job )
+       call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng , 
+     . rv_p_ogv , orhoat , cwk_zv , cgs_zv , job ) 
+
 
       if (allocated(cwk_zv)) deallocate(cwk_zv)
 
@@ -155,8 +164,10 @@ C       Compute elind if not given
 
 C        call lindxx(122,n1,n2,n3,k1,k2,k3,ng,w(okv),w(ocgs),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
-        call lindsc ( 2 , ng , w ( ogv ) , tpiba , elind , cgs_zv 
-     .  )
+Cchp1         call lindsc ( 2 , ng , w ( ogv ) , tpiba , elind , cgs_zv 
+Cchp1      .  )
+         call lindsc ( 2 , ng , rv_p_ogv , tpiba , elind , cgs_zv ) 
+
 
 C        call dscal(2*ng,.001d0,w(ocgs),1)
 

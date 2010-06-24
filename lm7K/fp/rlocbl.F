@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ocy
+Cchp1 cmdvar= real(8),rv_p_,ocg
 CSFCPP#define F90 1
       subroutine rlocbl(ssite,sspec,slat,lfrce,nbas,isp,q,ndham,ndimh,
      .nspc,napw,igvapw,iprmb,numq,nevec,evec,ewgt,evl,osig,otau,oppi,
@@ -133,7 +135,13 @@ C ... Local parameters or process-shared variables
       integer is,nlmbx,nlmx,ktop0,npmx,nkap0,n0
       parameter (nlmbx=25, npmx=32, nkap0=3, n0=10)
       integer kmaxx,nlmax,igetss,mp,nglob,nlmto
-      integer ocg,ocy,oidxcg,ojcg
+Cchp1       integer ocg,ocy,oidxcg,ojcg
+Cchp1        integer:: ocy , oidxcg , ojcg 
+        integer:: oidxcg , ojcg 
+        real(8),pointer :: rv_p_ocy(:)
+
+       real(8),pointer :: rv_p_ocg(:)
+
       integer oib(npmx),oidb(npmx),oixf(npmx),o
       double precision alat,qlat(3,3)
 C ... Local process-specific variables
@@ -186,10 +194,14 @@ C ... Heap
 C --- Setup ---
       nkaph = nglob('nkaph')
 
-      ocg=slat%ocg
+Cchp1       ocg=slat%ocg
+       rv_p_ocg => slat%rv_p_ocg 
+
       ojcg=slat%ojcg
       oidxcg=slat%oidxcg
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
 
       call defi(o,1)
 C ... Find maximum sizes needed to allocate strux; allocate them
@@ -298,9 +310,19 @@ C   --- Strux to expand all orbitals and their gradients at site ia ---
         oxf = oixf(ip)
 
 CSFCPP#if F90
-        call bstrux(1,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
-     .  iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igvapw,w(ob),
-     .  w(odb))
+Cchp1         call bstrux(1,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
+Cchp1      .  iprmb,nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igvapw,w(ob),
+Cchp1      .  w(odb))
+Cchp1          call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
+Cchp1      .   ) , w ( ojcg ) , w ( ocy ) , iprmb , nbas , ia , pa , rsma , 
+Cchp1      .   q , kmax , nlma , ndimh , napw , igvapw , w ( ob ) , w ( odb 
+Cchp1      .   ) ) 
+          call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , w ( oidxcg 
+     .    ) , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q 
+     .    , kmax , nlma , ndimh , napw , igvapw , w ( ob ) , w ( odb ) 
+     .    ) 
+
+
 CSFCPP#else
 CSFCPPC       Zero out strux to eliminate contributions from local orbitals
 CSFCPP        call dpzero(w(ob),(kmax+1)*nlma*ndimh*2)

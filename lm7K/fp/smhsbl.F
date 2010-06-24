@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ocy
+Cchp1 cmdvar= real(8),rv_p_,ocg
 CSFCPP#define F90 1
       subroutine smhsbl(mode,ssite,sspec,slat,vavg,q,ndimh,iprmb,
      .napw,igapw,h,s)
@@ -164,7 +166,13 @@ C ... Local parameters
       integer nlms,kdim,n0,nkap0
       parameter (nlms=25, kdim=1, n0=10, nkap0=3)
       integer nbas,nglob,nlmto
-      integer ocg,ocy,oidxcg,ojcg
+Cchp1       integer ocg,ocy,oidxcg,ojcg
+Cchp1        integer:: ocy , oidxcg , ojcg 
+        integer:: oidxcg , ojcg 
+        real(8),pointer :: rv_p_ocy(:)
+
+       real(8),pointer :: rv_p_ocg(:)
+
       integer i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2
       integer ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),norb1,ik1,
@@ -220,10 +228,14 @@ C --- Setup ---
       nlmto = ndimh-napw
       nbas  = nglob('nbas')
 
-      ocg=slat%ocg
+Cchp1       ocg=slat%ocg
+       rv_p_ocg => slat%rv_p_ocg 
+
       ojcg=slat%ojcg
       oidxcg=slat%oidxcg
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
 
 
 C ... Setup below needed for PWs
@@ -353,9 +365,19 @@ C     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
                 nlm2 = (lh2(i2)+1)**2
                 if (nlm1 .gt. nlms .or. nlm2 .gt. nlms)
      .          call rx('smhsbl: increase nlms')
-                call hhibl(11,p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),
-     .          e2(1,i2),nlm1,nlm2,1,nlms,nlms,w(ocg),w(oidxcg),w(ojcg),
-     .          w(ocy),slat,s0(1,1,0,i1,i2))
+Cchp1                 call hhibl(11,p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),
+Cchp1      .          e2(1,i2),nlm1,nlm2,1,nlms,nlms,w(ocg),w(oidxcg),w(ojcg),
+Cchp1      .          w(ocy),slat,s0(1,1,0,i1,i2))
+Cchp1                  call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+Cchp1      .           i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
+Cchp1      .           , nlms , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , w ( ocy ) , slat 
+Cchp1      .           , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
+                  call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
+     .            i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms 
+     .            , nlms , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy , slat 
+     .            , s0 ( 1 , 1 , 0 , i1 , i2 ) ) 
+
+
 
 C              print *, '!!'; k0=1
 C              call hhigbl(11,p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),

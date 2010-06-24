@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ogv
       subroutine dfrce(ssite,sspec,slat,sctrl,k1,k2,k3,nvl,
      .orhoat,orhat1,elind,qmom,smrho,smrout,dfh)
       use m_struc_def  !Cgetarg
@@ -82,7 +83,10 @@ C Local variables
       integer nbas,job,n1,n2,n3,ng,iprint,nsp,nglob,ib,is,lmxl,iv0,nlm,
      .ip,m,i,ngabc(3),ltop,nspec,nlmtop,igets,igetss,nn,lgunit,stdo
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      integer:: ogv , okv , ocdv , ocdn , ocdn0 , ocs , osn
+Cchp1       integer:: ogv , okv , ocdv , ocdn , ocdn0 , ocs , osn
+       integer:: okv , ocdv , ocdn , ocdn0 , ocs , osn 
+       real(8),pointer :: rv_p_ogv(:)
+
       complex(8) ,allocatable :: ceps_zv(:)
       complex(8) ,allocatable :: cnomi_zv(:)
       complex(8) ,allocatable :: smro_zv(:)
@@ -148,7 +152,9 @@ C --- Setup ---
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-      ogv=slat%ogv
+Cchp1       ogv=slat%ogv
+       rv_p_ogv => slat%rv_p_ogv 
+
       okv=slat%okv
       vol=slat%vol
 
@@ -197,15 +203,20 @@ Ctakao_ZeroClear_NotRequiered        if (ng<0) g2_rv(:)=0.0d0
       allocate(g_rv(ng*3))
 Ctakao_ZeroClear_NotRequiered        if (ng*3<0) g_rv(:)=0.0d0
 
-      call suylg ( ltop , alat , ng , w ( ogv ) , g_rv , g2_rv 
-     ., yl_rv )
+Cchp1       call suylg ( ltop , alat , ng , w ( ogv ) , g_rv , g2_rv 
+Cchp1      ., yl_rv )
+       call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv 
+     . ) 
+
 
       if (allocated(g_rv)) deallocate(g_rv)
 
       allocate(iv_iv(ng*3))
 Ctakao_ZeroClear_NotRequiered        if (ng*3<0) iv_iv(:)=0
 
-      call suphs0 ( plat , ng , w ( ogv ) , iv_iv )
+Cchp1       call suphs0 ( plat , ng , w ( ogv ) , iv_iv )
+       call suphs0 ( plat , ng , rv_p_ogv , iv_iv ) 
+
 
 
 C --- Make ves(rhoin,q) ---
@@ -331,8 +342,10 @@ C --- Lindhard dielectric function ---
         tpiba = 2*pi/alat
 C        call lindxx(123,n1,n2,n3,k1,k2,k3,ng,w(okv),w(oceps),w(ogv),
 C     .    tpiba,elind,w,w,w,w)
-        call lindsc ( 3 , ng , w ( ogv ) , tpiba , elind , ceps_zv 
-     .  )
+Cchp1         call lindsc ( 3 , ng , w ( ogv ) , tpiba , elind , ceps_zv 
+Cchp1      .  )
+         call lindsc ( 3 , ng , rv_p_ogv , tpiba , elind , ceps_zv ) 
+
 
       endif
 
@@ -432,11 +445,17 @@ C$      ip  = mp_my_threadnum()+1
         ocdn0 = oicdn0(ip)
         ocdv = oicdv(ip)
 
-        call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
-     .  , qmout_rv , ng , w ( ogv ) , g2_rv , yl_rv , w ( ocs 
-     .  ) , w ( osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv 
-     .  , w ( ocdn0 ) , w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv 
-     .  , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
+Cchp1         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
+Cchp1      .  , qmout_rv , ng , w ( ogv ) , g2_rv , yl_rv , w ( ocs 
+Cchp1      .  ) , w ( osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv 
+Cchp1      .  , w ( ocdn0 ) , w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv 
+Cchp1      .  , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
+         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
+     .   , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , w ( ocs ) , w ( 
+     .   osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv , w ( ocdn0 ) , 
+     .   w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv , orhoat ( 1 , ib 
+     .   ) , fes1 , fes2 , fxc ) 
+
 
 
 C        call gvputf(ng,1,w(okv),k1,k2,k3,w(ocdn),smpot)

@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,ocy
+Cchp1 cmdvar= real(8),rv_p_,ocg
       subroutine ovlocr(nbas,ssite,sspec,slat,nxi0,nxi,exi,hfc,rsmfa,
      .orhofa,orhoat,sqloc,slmom)
 
@@ -38,8 +40,18 @@ C ... Passed parameters
 C ... Local parameters
       integer nrmx,nlmx,ktop0,stdo
       parameter(nrmx=1501,nlmx=64,ktop0=25)
-      integer ib,ipr,iprint,is,jb,je,js,kmxv,lfoca,lgunit,lmxl,nlmh,
-     .nlml,nr,ocg,ocy,oidxcg,ojcg,nsp,nglob,i
+Cchp1       integer ib,ipr,iprint,is,jb,je,js,kmxv,lfoca,lgunit,lmxl,nlmh,
+Cchp1      .nlml,nr,ocg,ocy,oidxcg,ojcg,nsp,nglob,i
+Cchp1        integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
+Cchp1      . , lgunit , lmxl , nlmh , nlml , nr , ocy , oidxcg , ojcg , nsp 
+Cchp1      . , nglob , i 
+        integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
+     .  , lgunit , lmxl , nlmh , nlml , nr , oidxcg , ojcg , nsp , nglob 
+     .  , i 
+        real(8),pointer :: rv_p_ocy(:)
+
+       real(8),pointer :: rv_p_ocg(:)
+
       double precision ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,
      .rmt,rsmh,rsmv,z,amom
       double precision a,rofi(nrmx),rwgt(nrmx),rhohd(nrmx*2),p1(3),
@@ -72,10 +84,14 @@ C ... Heap
       mlog = cmdopt('--mlog',6,0,strn)
 #endif
 
-      ocg=slat%ocg
+Cchp1       ocg=slat%ocg
+       rv_p_ocg => slat%rv_p_ocg 
+
       ojcg=slat%ojcg
       oidxcg=slat%oidxcg
-      ocy=slat%ocy
+Cchp1       ocy=slat%ocy
+       rv_p_ocy => slat%rv_p_ocy 
+
 
 
 C --- Loop over sites where density is made ---
@@ -153,8 +169,16 @@ C   ... Loop over other sites, add up tail expansion
             rsmh = rsmfa(js)
             eh   = exi(je,js)
             nlmh = 1
-            call hxpbl(p2,p1,q,rsmh,rsmv,eh,kmxv,nlmh,nlml,kmxv,
-     .      nlml,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b)
+Cchp1             call hxpbl(p2,p1,q,rsmh,rsmv,eh,kmxv,nlmh,nlml,kmxv,
+Cchp1      .      nlml,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b)
+Cchp1              call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
+Cchp1      .       , kmxv , nlml , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , w ( ocy 
+Cchp1      .       ) , slat , b ) 
+              call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml 
+     .        , kmxv , nlml , rv_p_ocg , w ( oidxcg ) , w ( ojcg ) , rv_p_ocy 
+     .        , slat , b ) 
+
+
             call dpzero(b0,(kmxv+1)*nlmh)
             if (ib .eq. jb) call hxpos(rsmh,rsmv,eh,kmxv,nlmh,kmxv,b0)
             do  i = 1, nsp
