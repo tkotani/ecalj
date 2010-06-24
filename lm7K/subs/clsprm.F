@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,opp
+Cchp1 cmdvar= real(8),rv_p_,opnu
 Cchp1 cmdvar= real(8),rv_p_,ogrrme
 Cchp1 cmdvar= integer,iv_p_,ohave
 Cchp1 cmdvar= real(8),rv_p_,ovrmax
@@ -100,9 +102,19 @@ Cchp1      .    , oclabl , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0
 Cchp1            integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
 Cchp1      .     orhos , osop , ogroup , opp , oifrlx , oivso , oipc , oclabl 
 Cchp1      .     , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0 
-            integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
-     .      orhos , osop , ogroup , opp , oifrlx , oivso , oipc , oclabl 
-     .      , opos , ozos , ormax , opmpol , oqpp , n0 
+Cchp1             integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
+Cchp1      .      orhos , osop , ogroup , opp , oifrlx , oivso , oipc , oclabl 
+Cchp1      .      , opos , ozos , ormax , opmpol , oqpp , n0 
+Cchp1              integer:: obxc , oinitc , oqnu , oqc , oqt , orhrmx , orhos , 
+Cchp1      .       osop , ogroup , opp , oifrlx , oivso , oipc , oclabl , opos , 
+Cchp1      .       ozos , ormax , opmpol , oqpp , n0 
+              integer:: obxc , oinitc , oqnu , oqc , oqt , orhrmx , orhos , 
+     .        osop , ogroup , oifrlx , oivso , oipc , oclabl , opos , ozos 
+     .        , ormax , opmpol , oqpp , n0 
+              real(8),pointer :: rv_p_opp(:)
+
+             real(8),pointer :: rv_p_opnu(:)
+
             real(8),pointer :: rv_p_ogrrme(:)
 
            real(8),pointer :: rv_p_ovrmax(:)
@@ -147,9 +159,15 @@ C ... Heap
 
 C ... Allocate ASA arrays
       if (mod(mode,10) .eq. 1) then
-        call defdr(opnu,-nlspc)
+Cchp1         call defdr(opnu,-nlspc)
+         allocate(rv_p_opnu(abs(-nlspc)))
+         if (-nlspc<0) rv_p_opnu(:)=0.0d0
+
         call defdr(oqnu,-3*nlspc)
-        call defdr(opp,-6*nlspc)
+Cchp1         call defdr(opp,-6*nlspc)
+         allocate(rv_p_opp(abs(-6*nlspc)))
+         if (-6*nlspc<0) rv_p_opp(:)=0.0d0
+
 cCdelw1         call defdr(opprel,-32*nl*nl*max(nclspp,nspec))
 c         allocate(pprel_rv(32*nl*nl*max(nclspp,nspec)))
 c         pprel_rv(:)=0.0d0
@@ -195,7 +213,9 @@ Cchp1         sarray%ohave=oinitc
 
 
 
-        spot%opnu=opnu
+Cchp1         spot%opnu=opnu
+         spot%rv_p_opnu => rv_p_opnu 
+
         spot%oqnu=oqnu
         spot%oqc=oqc
         spot%oqt=oqt
@@ -211,7 +231,9 @@ Cchp1         spot%ovrmax=ovrmax
          spot%rv_p_ovrmax => rv_p_ovrmax 
 
         spot%orhrmx=orhrmx
-        spot%opp=opp
+Cchp1         spot%opp=opp
+         spot%rv_p_opp => rv_p_opp 
+
 
 C       Even in collinear case, bxc might be written to
 c        call defdr(obxc,-3*nclasp)
@@ -453,11 +475,16 @@ C ... Allocate ASA arrays
 
         i1 = nclasp-nclass
 
-        opnu=spot%opnu
+Cchp1         opnu=spot%opnu
+         rv_p_opnu => spot%rv_p_opnu 
+
         oqnu=spot%oqnu
 
-        call dpscop(w(opnu),w(opnu),nl*nsp*i1,
-     .  nl*nsp*nclass+1,nl*nsp*nclasp+1,1d0)
+Cchp1         call dpscop(w(opnu),w(opnu),nl*nsp*i1,
+Cchp1      .  nl*nsp*nclass+1,nl*nsp*nclasp+1,1d0)
+         call dpscop ( rv_p_opnu , rv_p_opnu , nl * nsp * i1 , nl * nsp 
+     .   * nclass + 1 , nl * nsp * nclasp + 1 , 1d0 ) 
+
         call dpscop(w(oqnu),w(oqnu),3*nl*nsp*i1,
      .  3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
 

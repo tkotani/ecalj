@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oorhat
 Cchp1 cmdvar= complex(8),zv_p_,osmrh2
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= complex(8),zv_p_,osmpt2
@@ -97,7 +98,9 @@ Cchp1       integer:: osmrh2 , osmpt2 , osmrho , osmpot , oorhat
 Cchp1        integer:: osmrh2 , osmpt2 , osmrho , oorhat 
 Cchp1         integer:: osmrh2 , osmrho , oorhat 
 Cchp1          integer:: osmrh2 , oorhat 
-          integer:: oorhat 
+Cchp1           integer:: oorhat 
+           integer,pointer :: iv_p_oorhat(:)
+
           complex(8),pointer :: zv_p_osmrh2(:)
 
          complex(8),pointer :: zv_p_osmrho(:)
@@ -173,7 +176,9 @@ Cchp1       osmrho=spot%osmrho
 Cchp1       osmpot=spot%osmpot
        zv_p_osmpot => spot%zv_p_osmpot 
 
-      oorhat=spot%oorhat
+Cchp1       oorhat=spot%oorhat
+       iv_p_oorhat => spot%iv_p_oorhat 
+
 
 C     call upack('pot osmrho oorhat',spot,oorh2,osmrh2,0,0,0)
 C     Allocate space for second density
@@ -390,8 +395,11 @@ C ... Read restart file
       elseif (outs(1:4).eq.'rsb ' .or. outs(1:4).eq.'rsa ' .or.
      .outs(1:3).eq.'rs' .or. outs(1:5).eq.'rsfa ') then
         if (outs(1:5) .eq. 'rsfa ') then
-          call rdovfa(nbask(1),nspeck(1),ssite1,sspec1,slat,spot,
-     .    qbg,w(oorhat))
+Cchp1           call rdovfa(nbask(1),nspeck(1),ssite1,sspec1,slat,spot,
+Cchp1      .    qbg,w(oorhat))
+           call rdovfa ( nbask ( 1 ) , nspeck ( 1 ) , ssite1 , sspec1 , 
+     .     slat , spot , qbg , iv_p_oorhat ) 
+
           fileid = 'rsedit overlap fa densities'
         else
           call word(outs,2,j1,j2)
@@ -414,8 +422,12 @@ C ... Read restart file
           endif
           call info0(10,0,-1,
      .    ' rsedit: read restart file "'//trim(fn)//'"')
-          k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
-     .    nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,ifi)
+Cchp1           k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
+Cchp1      .    nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,ifi)
+           k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
+     .     fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , iv_p_oorhat 
+     .     , w , nit , lbin , ifi ) 
+
 C       call shstru('spec',w(ospec2),1,nspeck(2))
 C       call shstru('site',w(osite2),1,nbask(2))
           call fclose(ifi)
@@ -432,15 +444,21 @@ C       call shstru('site',w(osite2),1,nbask(2))
         call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
 Cchp1         call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
 Cchp1      .  slat,w(osmrho),k1,k2,k3)
-         call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
-     .   ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+Cchp1          call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
+Cchp1      .   ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+          call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , iv_p_oorhat 
+     .    , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+
 
 
 C ... write atomic densities to file
       elseif (outs(1:7) .eq. 'wrhoat ') then
 
         if (havers) then
-          call prsed3(nbask(1),nsp,ssite1,sspec1,w(oorhat))
+Cchp1           call prsed3(nbask(1),nsp,ssite1,sspec1,w(oorhat))
+           call prsed3 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , iv_p_oorhat 
+     .     ) 
+
         else
           call info0(0,0,0,' no rst file read ... nothing writtten')
         endif
@@ -454,8 +472,11 @@ C          call upack1('lat nabc',slat,ngabc)
           call fftz30(ngabc(1),ngabc(2),ngabc(3),k1,k2,k3)
 Cchp1           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
 Cchp1      .    slat,w(osmrho),k1,k2,k3)
-           call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
-     .     ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+Cchp1            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
+Cchp1      .     ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , iv_p_oorhat 
+     .      , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+
 
         endif
 
@@ -536,10 +557,15 @@ Cchp1      .        ssite1,sspec1,w(oorhat),
 Cchp1      .        w(osmrho),ngabc(1),ngabc(2),ngabc(3),
 Cchp1      .        w(osmrho),ngabc(1),ngabc(2),ngabc(3),
 Cchp1      .        fac,lfail)
-               call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
-     .         , sspec1 , w ( oorhat ) , ssite1 , sspec1 , w ( oorhat ) , zv_p_osmrho 
-     .         , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrho , ngabc 
-     .         ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , fac , lfail ) 
+Cchp1                call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
+Cchp1      .         , sspec1 , w ( oorhat ) , ssite1 , sspec1 , w ( oorhat ) , zv_p_osmrho 
+Cchp1      .         , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrho , ngabc 
+Cchp1      .         ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , fac , lfail ) 
+                call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
+     .          , sspec1 , iv_p_oorhat , ssite1 , sspec1 , iv_p_oorhat , zv_p_osmrho 
+     .          , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrho , ngabc 
+     .          ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , fac , lfail ) 
+
 
               if (lfail) then
                 call info0(0,0,0,' Densities failed to synchronize')
@@ -606,8 +632,11 @@ C       Carry out operation on 1st or second density
             if (havers) then
 Cchp1               call prsed4(k,nbask(1),nspeck(1),nsp,ssite1,sspec1,
 Cchp1      .        w(oorhat),slat,w(osmrho),k1,k2,k3)
-               call prsed4 ( k , nbask ( 1 ) , nspeck ( 1 ) , nsp , ssite1 , 
-     .         sspec1 , w ( oorhat ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+Cchp1                call prsed4 ( k , nbask ( 1 ) , nspeck ( 1 ) , nsp , ssite1 , 
+Cchp1      .         sspec1 , w ( oorhat ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+                call prsed4 ( k , nbask ( 1 ) , nspeck ( 1 ) , nsp , ssite1 , 
+     .          sspec1 , iv_p_oorhat , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+
 
             else
               call info0(0,0,0,' no rst data ... cannot do: '//trim(outs))
@@ -742,10 +771,15 @@ Cchp1          call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite
 Cchp1      .   , sspec1 , w ( oorhat ) , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
 Cchp1      .   , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , w ( osmrh2 ) , ngabc2 
 Cchp1      .   ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
-          call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
-     .    , sspec1 , w ( oorhat ) , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
-     .    , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
-     .    ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
+Cchp1           call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
+Cchp1      .    , sspec1 , w ( oorhat ) , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
+Cchp1      .    , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
+Cchp1      .    ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
+           call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
+     .     , sspec1 , iv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
+     .     , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
+     .     ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
+
 
 
 
@@ -759,8 +793,11 @@ C         call upack1('lat nabc',slat,ngabc)
           call info0(1,1,0,' New density from rs file:')
 Cchp1           call prsed2(nbask(1),nsp,ssite1,sspec1,w(oorhat),
 Cchp1      .    slat,w(osmrho),k1,k2,k3)
-           call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
-     .     ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+Cchp1            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , w ( oorhat 
+Cchp1      .     ) , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+            call prsed2 ( nbask ( 1 ) , nsp , ssite1 , sspec1 , iv_p_oorhat 
+     .      , slat , zv_p_osmrho , k1 , k2 , k3 ) 
+
 
         endif
 
@@ -782,8 +819,12 @@ C ... Save
         endif
         call info0(10,0,-1,
      .  ' rsedit: write restart file "'//trim(fn)//'"')
-        k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
-     .  nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,-ifi)
+Cchp1         k = iors(1,sctrl,ssite1,sspec1,slat,spot,sbz,fileid,
+Cchp1      .  nbask(1),natk(1),nspeck(1),w(oorhat),w,nit,lbin,-ifi)
+         k = iors ( 1 , sctrl , ssite1 , sspec1 , slat , spot , sbz , 
+     .   fileid , nbask ( 1 ) , natk ( 1 ) , nspeck ( 1 ) , iv_p_oorhat 
+     .   , w , nit , lbin , - ifi ) 
+
 
         lnsave = .false.
 

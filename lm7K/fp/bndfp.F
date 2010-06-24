@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oorhat
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= complex(8),zv_p_,osmpot
 Cchp1 cmdvar= integer,iv_p_,oiprmb
@@ -263,7 +264,10 @@ Cchp1         integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc
 Cchp1      .  , osmpot , osmrho 
 Cchp1          integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
 Cchp1      .   , osmrho 
-          integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
+Cchp1           integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
+           integer:: oevl , os , oidtet , owtkb , oswtk , osoptc 
+           integer,pointer :: iv_p_oorhat(:)
+
           complex(8),pointer :: zv_p_osmrho(:)
 
          complex(8),pointer :: zv_p_osmpot(:)
@@ -536,7 +540,9 @@ c      print *,'ttt fxstsigm=',fxst('sigm')
       endif
 
 
-      oorhat=spot%oorhat
+Cchp1       oorhat=spot%oorhat
+       iv_p_oorhat => spot%iv_p_oorhat 
+
 Cchp1       osmrho=spot%osmrho
        zv_p_osmrho => spot%zv_p_osmrho 
 
@@ -719,11 +725,17 @@ Cchp1      .    , qmom_rv , vconst , vrmt , osigx , otaux , oppix , ppnl_rv
 Cchp1      .    , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
 Cchp1      .    , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau 
 Cchp1      .    , 0 ) 
-           call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 , 
-     .     lcplxp , k1 , k2 , k3 , zv_p_osmrho , w ( oorhat ) , qbg , spotx 
-     .     , qmom_rv , vconst , vrmt , osigx , otaux , oppix , ppnl_rv , 
-     .     hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv , vval_rv , 
-     .     fes1_rv , i , vorb , nlibu , lmaxu , lldau , 0 ) 
+Cchp1            call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 , 
+Cchp1      .     lcplxp , k1 , k2 , k3 , zv_p_osmrho , w ( oorhat ) , qbg , spotx 
+Cchp1      .     , qmom_rv , vconst , vrmt , osigx , otaux , oppix , ppnl_rv , 
+Cchp1      .     hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv , vval_rv , 
+Cchp1      .     fes1_rv , i , vorb , nlibu , lmaxu , lldau , 0 ) 
+            call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 , 
+     .      lcplxp , k1 , k2 , k3 , zv_p_osmrho , iv_p_oorhat , qbg , spotx 
+     .      , qmom_rv , vconst , vrmt , osigx , otaux , oppix , ppnl_rv , 
+     .      hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv , vval_rv , 
+     .      fes1_rv , i , vorb , nlibu , lmaxu , lldau , 0 ) 
+
 
 
           call togpr()
@@ -799,11 +811,17 @@ Cchp1      . , lcplxp , k1 , k2 , k3 , w ( osmrho ) , w ( oorhat ) , qbg ,
 Cchp1      . zv_p_osmpot , qmom_rv , vconst , vrmt , osig , otau , oppi , 
 Cchp1      . ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv , 
 Cchp1      . vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , 0 ) 
-        call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
-     .  , lcplxp , k1 , k2 , k3 , zv_p_osmrho , w ( oorhat ) , qbg , 
-     .  zv_p_osmpot , qmom_rv , vconst , vrmt , osig , otau , oppi , 
-     .  ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv , 
-     .  vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , 0 ) 
+Cchp1         call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
+Cchp1      .  , lcplxp , k1 , k2 , k3 , zv_p_osmrho , w ( oorhat ) , qbg , 
+Cchp1      .  zv_p_osmpot , qmom_rv , vconst , vrmt , osig , otau , oppi , 
+Cchp1      .  ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv , 
+Cchp1      .  vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , 0 ) 
+         call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce 
+     .   , lcplxp , k1 , k2 , k3 , zv_p_osmrho , iv_p_oorhat , qbg , zv_p_osmpot 
+     .   , qmom_rv , vconst , vrmt , osig , otau , oppi , ppnl_rv , hab_rv 
+     .   , vab_rv , sab_rv , qval , qsc , gpot0_rv , vval_rv , fes1_rv 
+     .   , i , vorb , nlibu , lmaxu , lldau , 0 ) 
+
 
 
 
@@ -2977,9 +2995,13 @@ C --- Assemble output density ---
       allocate(hbyl_rv(n0*nbas*nsp))
 C     --window: Put output density into orhat and smrho, and exit
       if (lwndow) then
-        call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
-     .  , lekkl , oqkkl , oeqkkl , w ( oorhat ) , hab_rv , sab_rv 
-     .  , qbyl_rv , hbyl_rv , lrout ) 
+Cchp1         call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
+Cchp1      .  , lekkl , oqkkl , oeqkkl , w ( oorhat ) , hab_rv , sab_rv 
+Cchp1      .  , qbyl_rv , hbyl_rv , lrout ) 
+         call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
+     .   , lekkl , oqkkl , oeqkkl , iv_p_oorhat , hab_rv , sab_rv , qbyl_rv 
+     .   , hbyl_rv , lrout ) 
+
 
 Cchp1         call zcopy ( k1 * k2 * k3 * nsp , srout_zv , 1 , w ( osmrho 
 Cchp1      .  ) , 1 ) 
@@ -2989,8 +3011,11 @@ Cchp1      .  ) , 1 )
 
 Cchp1         call symrho ( ssite , sspec , slat , lfrce , w ( osmrho ) , w 
 Cchp1      .  ( oorhat ) , qbyl_rv , hbyl_rv , frc ) 
-         call symrho ( ssite , sspec , slat , lfrce , zv_p_osmrho , w 
-     .   ( oorhat ) , qbyl_rv , hbyl_rv , frc ) 
+Cchp1          call symrho ( ssite , sspec , slat , lfrce , zv_p_osmrho , w 
+Cchp1      .   ( oorhat ) , qbyl_rv , hbyl_rv , frc ) 
+          call symrho ( ssite , sspec , slat , lfrce , zv_p_osmrho , iv_p_oorhat 
+     .    , qbyl_rv , hbyl_rv , frc ) 
+
 
 
         goto 999
@@ -3038,9 +3063,13 @@ C   ... Correction to harris force
 Cchp1         call dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 , nvl 
 Cchp1      .  , w ( oorhat ) , orhat1 , elind , qmom_rv , w ( osmrho ) , 
 Cchp1      .  srout_zv , fh_rv ) 
-         call dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 , nvl 
-     .   , w ( oorhat ) , orhat1 , elind , qmom_rv , zv_p_osmrho , srout_zv 
-     .   , fh_rv ) 
+Cchp1          call dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 , nvl 
+Cchp1      .   , w ( oorhat ) , orhat1 , elind , qmom_rv , zv_p_osmrho , srout_zv 
+Cchp1      .   , fh_rv ) 
+          call dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 , nvl 
+     .    , iv_p_oorhat , orhat1 , elind , qmom_rv , zv_p_osmrho , srout_zv 
+     .    , fh_rv ) 
+
 
 
 
@@ -3125,9 +3154,13 @@ C   --- Mix input and output densities ---
 Cchp1         call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2 
 Cchp1      .  ) , qval - qbg , elind , orhat1 , w ( oorhat ) , k1 , k2 , k3 
 Cchp1      .  , dmxp , srout_zv , w ( osmrho ) ) 
-         call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2 
-     .   ) , qval - qbg , elind , orhat1 , w ( oorhat ) , k1 , k2 , k3 
-     .   , dmxp , srout_zv , zv_p_osmrho ) 
+Cchp1          call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2 
+Cchp1      .   ) , qval - qbg , elind , orhat1 , w ( oorhat ) , k1 , k2 , k3 
+Cchp1      .   , dmxp , srout_zv , zv_p_osmrho ) 
+          call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2 
+     .    ) , qval - qbg , elind , orhat1 , iv_p_oorhat , k1 , k2 , k3 
+     .    , dmxp , srout_zv , zv_p_osmrho ) 
+
 
 
 

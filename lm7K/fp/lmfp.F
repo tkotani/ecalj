@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oorhat
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= complex(8),zv_p_,osmpot
 Cchp1 cmdvar= real(8),iv_p_,oistab
@@ -114,7 +115,10 @@ C ... Local variables
      .stdo,pdim,lsc
 Cchp1       integer:: oorhat , opos , osmpot , osmrho , o
 Cchp1        integer:: oorhat , opos , osmrho , o 
-        integer:: oorhat , opos , o 
+Cchp1         integer:: oorhat , opos , o 
+         integer:: opos , o 
+         integer,pointer :: iv_p_oorhat(:)
+
         complex(8),pointer :: zv_p_osmrho(:)
 
        complex(8),pointer :: zv_p_osmpot(:)
@@ -551,7 +555,9 @@ C ... Unpack or allocate some permanent arrays
 ccccccccccccc
 c        print *,'eee 333=',spot%osmrho
 
-      oorhat=spot%oorhat
+Cchp1       oorhat=spot%oorhat
+       iv_p_oorhat => spot%iv_p_oorhat 
+
 Cchp1       osmrho=spot%osmrho
        zv_p_osmrho => spot%zv_p_osmrho 
 
@@ -708,7 +714,10 @@ C           3              read nothing (data already input)
    10 continue
 C     Harris-Foulkes -> always overlap free-atom densities
       if (irs(1) .eq. 0) then
-        call rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,w(oorhat))
+Cchp1         call rdovfa(nbas,nspec,ssite,sspec,slat,spot,qbg,w(oorhat))
+         call rdovfa ( nbas , nspec , ssite , sspec , slat , spot , qbg 
+     .   , iv_p_oorhat ) 
+
         nit1 = 0
       elseif (mod(irs(1),4) .ge. 1 .and. mod(irs(1),4) .le. 2) then
         lbin = .not. bittst(irs(1),2)
@@ -723,8 +732,11 @@ ctakao BZ_W is
         bz_w=sbz%w
 
 c        print *,'yyyyyyy goto iors osmrho=',spot%osmrho
-        k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,
-     .  nspec,w(oorhat),w,nit1,lbin,ifi)
+Cchp1         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,fileid,nbas,nat,
+Cchp1      .  nspec,w(oorhat),w,nit1,lbin,ifi)
+         k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+     .   , nbas , nat , nspec , iv_p_oorhat , w , nit1 , lbin , ifi ) 
+
 c        print *,'yyyyyyyyyy end of iors'
 ctakao
 
@@ -764,8 +776,11 @@ C         If no force switch set, use default
           endif
 
 Cchp1           call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
-           call smshft ( ssite , sspec , slat , sctrl , sham , w ( oorhat 
-     .     ) , zv_p_osmrho ) 
+Cchp1            call smshft ( ssite , sspec , slat , sctrl , sham , w ( oorhat 
+Cchp1      .     ) , zv_p_osmrho ) 
+            call smshft ( ssite , sspec , slat , sctrl , sham , iv_p_oorhat 
+     .      , zv_p_osmrho ) 
+
 
 C         Restore force switch
           if ( k .eq. 0 ) then
@@ -898,8 +913,11 @@ C --- Write smoothed charge density for contour plotting ---
       if (procid .eq. master) then
         if (cmdopt('--wden',6,0,strn)) then
 Cchp1           call ioden(strn(7:),slat,ssite,sspec,w(oorhat),w(osmrho))
-           call ioden ( strn ( 7: ) , slat , ssite , sspec , w ( oorhat 
-     .     ) , zv_p_osmrho ) 
+Cchp1            call ioden ( strn ( 7: ) , slat , ssite , sspec , w ( oorhat 
+Cchp1      .     ) , zv_p_osmrho ) 
+            call ioden ( strn ( 7: ) , slat , ssite , sspec , iv_p_oorhat 
+     .      , zv_p_osmrho ) 
+
 
         endif
 
@@ -927,8 +945,12 @@ C       call p_dyn_ef(s_dyn, ef0,def,esmear)
             endif
             call upacks('strn jobid',i,j)
             fileid = 'lmfp:  ' // sstrn(i:j)
-            k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
-     .      fileid,nbas,nat,nspec,w(oorhat),w,iter,lbin,-ifi)
+Cchp1             k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
+Cchp1      .      fileid,nbas,nat,nspec,w(oorhat),w,iter,lbin,-ifi)
+             k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+     .       , nbas , nat , nspec , iv_p_oorhat , w , iter , lbin , - ifi 
+     .       ) 
+
             call fclose(ifi)
           endif
         endif
@@ -1144,8 +1166,11 @@ C       Else, use self-consistent
           else if (.not. lshr) then
             irs(1) = 3
 Cchp1             call smshft(ssite,sspec,slat,sctrl,sham,w(oorhat),w(osmrho))
-             call smshft ( ssite , sspec , slat , sctrl , sham , w ( oorhat 
-     .       ) , zv_p_osmrho ) 
+Cchp1              call smshft ( ssite , sspec , slat , sctrl , sham , w ( oorhat 
+Cchp1      .       ) , zv_p_osmrho ) 
+              call smshft ( ssite , sspec , slat , sctrl , sham , iv_p_oorhat 
+     .        , zv_p_osmrho ) 
+
 
           endif
 
@@ -1154,8 +1179,12 @@ C   ... Write restart file (to include new positions)
             ifi = fopna('rst',-1,4)
             call upacks('strn jobid',i,j)
             fileid = 'lmfp:  ' // sstrn(i:j)
-            k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
-     .      fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
+Cchp1             k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
+Cchp1      .      fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
+             k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+     .       , nbas , nat , nspec , iv_p_oorhat , w , iter , .true. , - ifi 
+     .       ) 
+
             call fclose(ifi)
           endif
 
@@ -1325,8 +1354,12 @@ C ... Write restart file (to include new positions)
         ifi = fopna('rst',-1,4)
         call upacks('strn jobid',i,j)
         fileid = 'lmfp:  ' // sstrn(i:j)
-        k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
-     .  fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
+Cchp1         k = iors(1,sctrl,ssite,sspec,slat,spot,sbz,
+Cchp1      .  fileid,nbas,nat,nspec,w(oorhat),w,iter,.true.,-ifi)
+         k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid 
+     .   , nbas , nat , nspec , iv_p_oorhat , w , iter , .true. , - ifi 
+     .   ) 
+
         call fclose(ifi)
       endif
 

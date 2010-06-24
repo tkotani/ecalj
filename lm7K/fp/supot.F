@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oorhat
+Cchp1 cmdvar= real(8),rv_p_,omad
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= complex(8),zv_p_,osmpot
 Cchp1 cmdvar= real(8),iv_p_,oips0
@@ -48,9 +50,19 @@ Cchp1          integer:: nbas , nbasp , nbaspp , nsp , omad , opos , nkd , nkq
 Cchp1      .   , odlv , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx 
 Cchp1      .   , ogv , okv , ng , osmrho , oorhat , obgv , ngrp , og , oag , 
 Cchp1      .   iprint 
-          integer:: nbas , nbasp , nbaspp , nsp , omad , opos , nkd , nkq 
-     .    , odlv , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx 
-     .    , ogv , okv , ng , oorhat , obgv , ngrp , og , oag , iprint 
+Cchp1           integer:: nbas , nbasp , nbaspp , nsp , omad , opos , nkd , nkq 
+Cchp1      .    , odlv , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx 
+Cchp1      .    , ogv , okv , ng , oorhat , obgv , ngrp , og , oag , iprint 
+Cchp1            integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , odlv 
+Cchp1      .     , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ogv 
+Cchp1      .     , okv , ng , oorhat , obgv , ngrp , og , oag , iprint 
+            integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , odlv 
+     .      , igets , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ogv 
+     .      , okv , ng , obgv , ngrp , og , oag , iprint 
+            integer,pointer :: iv_p_oorhat(:)
+
+           real(8),pointer :: rv_p_omad(:)
+
           complex(8),pointer :: zv_p_osmrho(:)
 
          complex(8),pointer :: zv_p_osmpot(:)
@@ -90,14 +102,22 @@ Cchp1       oqlv=slat%oqlv
 
 C --- Monopole Madelung matrix ---
       if (mod(mode,10) .eq. 1) then
-        call defdr(omad,nbaspp**2)
+Cchp1         call defdr(omad,nbaspp**2)
+         allocate(rv_p_omad(abs(nbaspp**2)))
+         if (nbaspp**2<0) rv_p_omad(:)=0.0d0
+
 Cchp1         call madmat(nbaspp,w(opos),awald,alat,vol,w(odlv),nkd,
 Cchp1      .  w(oqlv),nkq,w(omad))
-         call madmat ( nbaspp , w ( opos ) , awald , alat , vol , w ( 
-     .   odlv ) , nkd , rv_p_oqlv , nkq , w ( omad ) ) 
+Cchp1          call madmat ( nbaspp , w ( opos ) , awald , alat , vol , w ( 
+Cchp1      .   odlv ) , nkd , rv_p_oqlv , nkq , w ( omad ) ) 
+          call madmat ( nbaspp , w ( opos ) , awald , alat , vol , w ( 
+     .    odlv ) , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
 
 
-        spot%omad=omad
+
+Cchp1         spot%omad=omad
+         spot%rv_p_omad => rv_p_omad 
+
 
       endif
 
@@ -144,7 +164,10 @@ Cchp1         call defcc(osmpot, -k1*k2*k3*nsp)
          allocate(zv_p_osmpot(abs(-k1*k2*k3*nsp)))
          if (-k1*k2*k3*nsp<0) zv_p_osmpot(:)=0.0d0
 
-        call defi(oorhat,3*nbaspp)
+Cchp1         call defi(oorhat,3*nbaspp)
+         allocate(iv_p_oorhat(abs(3*nbaspp)))
+         if (3*nbaspp<0) iv_p_oorhat(:)=0
+
 
 Cchp1         spot%osmrho=osmrho
          spot%zv_p_osmrho => zv_p_osmrho 
@@ -152,7 +175,9 @@ Cchp1         spot%osmrho=osmrho
 Cchp1         spot%osmpot=osmpot
          spot%zv_p_osmpot => zv_p_osmpot 
 
-        spot%oorhat=oorhat
+Cchp1         spot%oorhat=oorhat
+         spot%iv_p_oorhat => iv_p_oorhat 
+
 
 
 C   ... Setup for symmetrization

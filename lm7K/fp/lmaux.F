@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,opp
+Cchp1 cmdvar= real(8),rv_p_,opnu
 Cchp1 cmdvar= integer,iv_p_,oinitc
 Cchp1 cmdvar= integer,iv_p_,ohave
 Cchp1 cmdvar= real(8),rv_p_,ovrmax
@@ -131,10 +133,22 @@ Cchp1            integer:: oeold , oeula , oinitc , oipc , olmx , onrc , opnu
 Cchp1      .     , opold , opp , oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 
 Cchp1      .     , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , os , 
 Cchp1      .     ormx , oip , oips , opgfsl , ontab , oiax , og , oag , mxclas 
-            integer:: oeold , oeula , oipc , olmx , onrc , opnu , opold , 
-     .      opp , oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 , opos , 
-     .      odlv , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip 
-     .      , oips , opgfsl , ontab , oiax , og , oag , mxclas 
+Cchp1             integer:: oeold , oeula , oipc , olmx , onrc , opnu , opold , 
+Cchp1      .      opp , oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 , opos , 
+Cchp1      .      odlv , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip 
+Cchp1      .      , oips , opgfsl , ontab , oiax , og , oag , mxclas 
+Cchp1              integer:: oeold , oeula , oipc , olmx , onrc , opold , opp , 
+Cchp1      .       oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 , opos , odlv 
+Cchp1      .       , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , 
+Cchp1      .       oips , opgfsl , ontab , oiax , og , oag , mxclas 
+              integer:: oeold , oeula , oipc , olmx , onrc , opold , oqc , 
+     .        oqnu , oqt , orhrmx , ormax , owk , owk2 , opos , odlv , orham 
+     .        , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , oips , opgfsl 
+     .        , ontab , oiax , og , oag , mxclas 
+              real(8),pointer :: rv_p_opp(:)
+
+             real(8),pointer :: rv_p_opnu(:)
+
             integer,pointer :: iv_p_oinitc(:)
 
            real(8),pointer :: rv_p_ovrmax(:)
@@ -225,9 +239,13 @@ c       i_copy_size=size(sham%qss)
 c       call dcopy(i_copy_size,sham%qss,1,qss,1)
 
 
-      opnu=spot%opnu
+Cchp1       opnu=spot%opnu
+       rv_p_opnu => spot%rv_p_opnu 
+
       oqnu=spot%oqnu
-      opp=spot%opp
+Cchp1       opp=spot%opp
+       rv_p_opp => spot%rv_p_opp 
+
       oqc=spot%oqc
       oqt=spot%oqt
 
@@ -289,8 +307,11 @@ C ... Read from restart file
 
         if (irs(1) .gt. 0) then
           ifi = fopna('rsta',-1,0)
-          call asars(0,sctrl,ssite,sspec,slat,spot,sbz,
-     .    w(opnu),w(oqnu),.false.,ifi)
+Cchp1           call asars(0,sctrl,ssite,sspec,slat,spot,sbz,
+Cchp1      .    w(opnu),w(oqnu),.false.,ifi)
+           call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz , 
+     .     rv_p_opnu , w ( oqnu ) , .false. , ifi ) 
+
           call fclr('rsta',ifi)
 C         call shoctl(sctrl,sspec,spot,sarray,F,stdo)
 C         call rx('done')
