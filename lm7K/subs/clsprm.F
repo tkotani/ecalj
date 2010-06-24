@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ogrrme
 Cchp1 cmdvar= integer,iv_p_,ohave
 Cchp1 cmdvar= real(8),rv_p_,ovrmax
 Cchp1 cmdvar= real(8),rv_p_,ovintr
@@ -96,9 +97,14 @@ Cchp1      .   , n0
 Cchp1           integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
 Cchp1      .    ovrmax , orhos , osop , ogroup , opp , oifrlx , oivso , oipc 
 Cchp1      .    , oclabl , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0 
-           integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
-     .     orhos , osop , ogroup , opp , oifrlx , oivso , oipc , oclabl 
-     .     , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0 
+Cchp1            integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
+Cchp1      .     orhos , osop , ogroup , opp , oifrlx , oivso , oipc , oclabl 
+Cchp1      .     , opos , ozos , ormax , opmpol , oqpp , ogrrme , n0 
+            integer:: obxc , oinitc , opnu , oqnu , oqc , oqt , orhrmx , 
+     .      orhos , osop , ogroup , opp , oifrlx , oivso , oipc , oclabl 
+     .      , opos , ozos , ormax , opmpol , oqpp , n0 
+            real(8),pointer :: rv_p_ogrrme(:)
+
            real(8),pointer :: rv_p_ovrmax(:)
 
           real(8),pointer :: rv_p_ovintr(:)
@@ -234,12 +240,15 @@ c        endif
         spot%osop=i_dummy !osop
 
 
-        ogrrme = 0
+cki        ogrrme = 0
+          nullify(rv_p_ogrrme)
 c         if ( int(sctrl%loptc) .gt. 0 ) call defrr ( ogrrme , -16 * nl
 c     .   * nsp * nclasp )
 
 
-        spot%ogrrme=ogrrme
+Cchp1         spot%ogrrme=ogrrme
+         spot%rv_p_ogrrme => rv_p_ogrrme 
+
 
 c         if ( iand(3,int(sctrl%lsx)) .ne.0 .or. iand(-1,int(sctrl%lscr)) .ne.0
 c     .   ) then
