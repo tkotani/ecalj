@@ -1,3 +1,10 @@
+Cchp1 cmdvar= real(8),rv_p_,opprel
+Cchp1 cmdvar= real(8),rv_p_,orhrmx
+Cchp1 cmdvar= real(8),rv_p_,orhos
+Cchp1 cmdvar= real(8),rv_p_,oqt
+Cchp1 cmdvar= real(8),rv_p_,oqpp
+Cchp1 cmdvar= real(8),rv_p_,oqnu
+Cchp1 cmdvar= real(8),rv_p_,oqc
 Cchp1 cmdvar= real(8),rv_p_,omp
 Cchp1 cmdvar= real(8),rv_p_,opp
 Cchp1 cmdvar= real(8),rv_p_,opnu
@@ -562,9 +569,37 @@ Cchp1      .          , oqpp , n0
 Cchp1                  integer:: oqnu , oqc , oqt , orhrmx , orhos , osop , ogroup , 
 Cchp1      .           opp , opprel , oifrlx , oivso , oipc , opos , ozos , ormax , 
 Cchp1      .           oqpp , n0 
-                  integer:: oqnu , oqc , oqt , orhrmx , orhos , osop , ogroup , 
-     .            opprel , oifrlx , oivso , oipc , opos , ozos , ormax , oqpp , 
-     .            n0 
+Cchp1                   integer:: oqnu , oqc , oqt , orhrmx , orhos , osop , ogroup , 
+Cchp1      .            opprel , oifrlx , oivso , oipc , opos , ozos , ormax , oqpp , 
+Cchp1      .            n0 
+Cchp1                    integer:: oqnu , oqt , orhrmx , orhos , osop , ogroup , opprel 
+Cchp1      .             , oifrlx , oivso , oipc , opos , ozos , ormax , oqpp , n0 
+Cchp1                     integer:: oqt , orhrmx , orhos , osop , ogroup , opprel , oifrlx 
+Cchp1      .              , oivso , oipc , opos , ozos , ormax , oqpp , n0 
+Cchp1                      integer:: oqt , orhrmx , orhos , osop , ogroup , opprel , oifrlx 
+Cchp1      .               , oivso , oipc , opos , ozos , ormax , n0 
+Cchp1                       integer:: orhrmx , orhos , osop , ogroup , opprel , oifrlx , 
+Cchp1      .                oivso , oipc , opos , ozos , ormax , n0 
+Cchp1                        integer:: orhrmx , osop , ogroup , opprel , oifrlx , oivso , 
+Cchp1      .                 oipc , opos , ozos , ormax , n0 
+Cchp1                         integer:: osop , ogroup , opprel , oifrlx , oivso , oipc , opos 
+Cchp1      .                  , ozos , ormax , n0 
+                         integer:: osop , ogroup , oifrlx , oivso , oipc , opos , ozos 
+     .                   , ormax , n0 
+                         real(8),pointer :: rv_p_opprel(:)
+
+                        real(8),pointer :: rv_p_orhrmx(:)
+
+                       real(8),pointer :: rv_p_orhos(:)
+
+                      real(8),pointer :: rv_p_oqt(:)
+
+                     real(8),pointer :: rv_p_oqpp(:)
+
+                    real(8),pointer :: rv_p_oqnu(:)
+
+                   real(8),pointer :: rv_p_oqc(:)
+
                   real(8),pointer :: rv_p_opp(:)
 
                  real(8),pointer :: rv_p_opnu(:)
@@ -633,14 +668,26 @@ Cchp1         call defdr(opnu,-nlspc)
          allocate(rv_p_opnu(abs(-nlspc)))
          if (-nlspc<0) rv_p_opnu(:)=0.0d0
 
-        call defdr(oqnu,-3*nlspc)
+Cchp1         call defdr(oqnu,-3*nlspc)
+         allocate(rv_p_oqnu(abs(-3*nlspc)))
+         if (-3*nlspc<0) rv_p_oqnu(:)=0.0d0
+
 Cchp1         call defdr(opp,-6*nlspc)
          allocate(rv_p_opp(abs(-6*nlspc)))
          if (-6*nlspc<0) rv_p_opp(:)=0.0d0
 
-        call defdr(opprel,-32*nl*nl*max(nclspp,nspec))
-        call defdr(oqc,-nclasp)
-        call defdr(oqt,-nclasp)
+Cchp1         call defdr(opprel,-32*nl*nl*max(nclspp,nspec))
+         allocate(rv_p_opprel(abs(-32*nl*nl*max(nclspp,nspec))))
+         if (-32*nl*nl*max(nclspp,nspec)<0) rv_p_opprel(:)=0.0d0
+
+Cchp1         call defdr(oqc,-nclasp)
+         allocate(rv_p_oqc(abs(-nclasp)))
+         if (-nclasp<0) rv_p_oqc(:)=0.0d0
+
+Cchp1         call defdr(oqt,-nclasp)
+         allocate(rv_p_oqt(abs(-nclasp)))
+         if (-nclasp<0) rv_p_oqt(:)=0.0d0
+
 Cchp1         call defi (oinitc,-nclasp)
          allocate(iv_p_oinitc(abs(-nclasp)))
          if (-nclasp<0) iv_p_oinitc(:)=0
@@ -654,7 +701,10 @@ Cchp1         call defdr(ovdif,-nclspp)
          allocate(rv_p_ovdif(abs(-nclspp)))
          if (-nclspp<0) rv_p_ovdif(:)=0.0d0
 
-        call defdr(orhrmx,-nclspp)
+Cchp1         call defdr(orhrmx,-nclspp)
+         allocate(rv_p_orhrmx(abs(-nclspp)))
+         if (-nclspp<0) rv_p_orhrmx(:)=0.0d0
+
 Cchp1         call defdr(ovrmax,-2*nclspp)
          allocate(rv_p_ovrmax(abs(-2*nclspp)))
          if (-2*nclspp<0) rv_p_ovrmax(:)=0.0d0
@@ -698,9 +748,15 @@ Cgetarg         call pack5('pot opnu oqnu oqc oqt',spot,opnu,oqnu,oqc,oqt,0)
 Cchp1         spot%opnu=opnu 
          spot%rv_p_opnu => rv_p_opnu 
 
-        spot%oqnu=oqnu 
-        spot%oqc=oqc 
-        spot%oqt=oqt 
+Cchp1         spot%oqnu=oqnu 
+         spot%rv_p_oqnu => rv_p_oqnu 
+
+Cchp1         spot%oqc=oqc 
+         spot%rv_p_oqc => rv_p_oqc 
+
+Cchp1         spot%oqt=oqt 
+         spot%rv_p_oqt => rv_p_oqt 
+
 
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 Cgetarg...info...           integer :: ovdif , integer(8) :: spot%ovdif 1
@@ -719,7 +775,9 @@ Cchp1         spot%ovdif=ovdif
 Cchp1         spot%ovrmax=ovrmax 
          spot%rv_p_ovrmax => rv_p_ovrmax 
 
-        spot%orhrmx=orhrmx 
+Cchp1         spot%orhrmx=orhrmx 
+         spot%rv_p_orhrmx => rv_p_orhrmx 
+
 Cchp1         spot%opp=opp 
          spot%rv_p_opp => rv_p_opp 
 
@@ -733,7 +791,9 @@ Cgetarg...info...           integer :: opprel , integer(8) :: spot%opprel 1
 Cgetarg...info...           integer :: obxc , integer(8) :: spot%obxc 1
 Cgetarg         call pack5('pot opprel obxc nrhos',spot,opprel,obxc,0,0,0)
         
-        spot%opprel=opprel 
+Cchp1         spot%opprel=opprel 
+         spot%rv_p_opprel => rv_p_opprel 
+
 Cchp1         spot%obxc=obxc 
          spot%rv_p_obxc => rv_p_obxc 
 
@@ -754,7 +814,10 @@ Cgetarg           call upack2('ham neula nbf',sham,neula,nbf)
 Cchp1           call rlse(obxc)
            if (associated(rv_p_obxc)) deallocate(rv_p_obxc)
 
-          call defdr(orhos,2*3*4*nrhos*nclasp)
+Cchp1           call defdr(orhos,2*3*4*nrhos*nclasp)
+           allocate(rv_p_orhos(abs(2*3*4*nrhos*nclasp)))
+           if (2*3*4*nrhos*nclasp<0) rv_p_orhos(:)=0.0d0
+
           call defdr(osop,-nlspc*nsp*9)
 Cchp1           call defdr(obxc,-3*nclasp)
            allocate(rv_p_obxc(abs(-3*nclasp)))
@@ -767,7 +830,9 @@ Cgetarg...info...           integer :: osop , integer(8) :: spot%osop 1
 Cgetarg           call pack5('pot nrhos orhos obxc osop',spot,
 Cgetarg      .      nrhos,orhos,obxc,osop,0)
           spot%nrhos=nrhos 
-          spot%orhos=orhos 
+Cchp1           spot%orhos=orhos 
+           spot%rv_p_orhos => rv_p_orhos 
+
 Cchp1           spot%obxc=obxc 
            spot%rv_p_obxc => rv_p_obxc 
 
@@ -823,15 +888,22 @@ Cchp1           call defrr(opmpol,-(2*nl-1)*nl**2*3*nsp*nclasp)
 
           i1 = nl**2
           nqpp = (i1*(i1+1))/2
-          call defrr(oqpp,2*nqpp*4*nsp*nbas)
-          call dvset(w(oqpp),1,1,-1d0)
+Cchp1           call defrr(oqpp,2*nqpp*4*nsp*nbas)
+           allocate(rv_p_oqpp(abs(2*nqpp*4*nsp*nbas)))
+           if (2*nqpp*4*nsp*nbas<0) rv_p_oqpp(:)=0.0d0
+
+Cchp1           call dvset(w(oqpp),1,1,-1d0)
+           call dvset ( rv_p_oqpp , 1 , 1 , - 1d0 ) 
+
 Cgetarg...info...           integer :: opmpol , integer(8) :: spot%opmpol 1
 Cgetarg...info...           integer :: oqpp , integer(8) :: spot%oqpp 1
 Cgetarg           call pack2('pot opmpol oqpp',spot,opmpol,oqpp)
 Cchp1           spot%opmpol=opmpol 
            spot%rv_p_opmpol => rv_p_opmpol 
 
-          spot%oqpp=oqpp 
+Cchp1           spot%oqpp=oqpp 
+           spot%rv_p_oqpp => rv_p_oqpp 
+
           call ioqpp(.false.,sctrl,spot)
         endif
 
@@ -1017,15 +1089,20 @@ Cgetarg         call upack('pot opnu oqnu',spot,opnu,oqnu,0,0,0)
 Cchp1         opnu=spot%opnu
          rv_p_opnu => spot%rv_p_opnu 
 
-        oqnu=spot%oqnu
+Cchp1         oqnu=spot%oqnu
+         rv_p_oqnu => spot%rv_p_oqnu 
+
 
 Cchp1         call dpscop(w(opnu),w(opnu),nl*nsp*i1,
 Cchp1      .  nl*nsp*nclass+1,nl*nsp*nclasp+1,1d0)
          call dpscop ( rv_p_opnu , rv_p_opnu , nl * nsp * i1 , nl * nsp 
      .   * nclass + 1 , nl * nsp * nclasp + 1 , 1d0 ) 
 
-        call dpscop(w(oqnu),w(oqnu),3*nl*nsp*i1,
-     .  3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
+Cchp1         call dpscop(w(oqnu),w(oqnu),3*nl*nsp*i1,
+Cchp1      .  3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
+         call dpscop ( rv_p_oqnu , rv_p_oqnu , 3 * nl * nsp * i1 , 3 * 
+     .   nl * nsp * nclass + 1 , 3 * nl * nsp * nclasp + 1 , 1d0 ) 
+
 
 Cgetarg...info...           integer :: oves , integer(8) :: spot%oves 1
 Cgetarg...info...           integer :: ovdif , integer(8) :: spot%ovdif 1
@@ -1043,7 +1120,9 @@ Cchp1         ovdif=spot%ovdif
 Cchp1         ovrmax=spot%ovrmax
          rv_p_ovrmax => spot%rv_p_ovrmax 
 
-        orhrmx=spot%orhrmx
+Cchp1         orhrmx=spot%orhrmx
+         rv_p_orhrmx => spot%rv_p_orhrmx 
+
 
 Cchp1         call dpscop(w(oves),w(oves),i1,nclass+1,nclasp+1,1d0)
          call dpscop ( rv_p_oves , rv_p_oves , i1 , nclass + 1 , nclasp 
@@ -1057,7 +1136,10 @@ Cchp1         call dpscop(w(ovrmax),w(ovrmax),i1,nclass+1,nclasp+1,1d0)
          call dpscop ( rv_p_ovrmax , rv_p_ovrmax , i1 , nclass + 1 , nclasp 
      .   + 1 , 1d0 ) 
 
-        call dpscop(w(orhrmx),w(orhrmx),i1,nclass+1,nclasp+1,1d0)
+Cchp1         call dpscop(w(orhrmx),w(orhrmx),i1,nclass+1,nclasp+1,1d0)
+         call dpscop ( rv_p_orhrmx , rv_p_orhrmx , i1 , nclass + 1 , nclasp 
+     .   + 1 , 1d0 ) 
+
 
       else
         call rxi('clsprp: bad mode',mode)
@@ -1094,7 +1176,11 @@ C ... Heap
       integer w(1)
       common /w/ w
 C ... Local parameters
-      integer i1,i2,nbas,nl,nsp,igets,ifi,oqpp,fopna,rdm,ipr
+Cchp1       integer i1,i2,nbas,nl,nsp,igets,ifi,oqpp,fopna,rdm,ipr
+       integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , fopna , rdm 
+     . , ipr 
+       real(8),pointer :: rv_p_oqpp(:)
+
 
       call getpr(ipr)
 Cgetarg...info...           integer :: nbas , integer(8) :: sctrl%nbas 1
@@ -1109,19 +1195,29 @@ Cgetarg       call upack('ctrl nbas nl nspin',sctrl,nbas,nl,nsp,0,0)
       i1 = nl**2*(nl**2+1)
       i2 = 4*nsp*nbas
 Cgetarg       oqpp = igets('pot oqpp',spot)
-      oqpp = int(spot%oqpp) 
+Cchp1       oqpp = spot%oqpp
+       rv_p_oqpp => spot%rv_p_oqpp 
+
 
       ifi = fopna('qpp',-1,4+8)
 
       if (lio) then
-        call ywrm(1,'lmasa',1,ifi,' ',w(oqpp),1,i1,i1,i2)
+Cchp1         call ywrm(1,'lmasa',1,ifi,' ',w(oqpp),1,i1,i1,i2)
+         call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , rv_p_oqpp , 1 , i1 
+     .   , i1 , i2 ) 
+
         if (ipr .ge. 30) print *, 'IOQPP:  wrote qpp to disk'
       else
         if (ipr .ge. 30) print *, 'IOQPP:  reading qpp from disk ...'
         call pshpr(0)
-        if (rdm(ifi,2,i1*i2,' ',w(oqpp),i1,i2) .lt. 0) then
+Cchp1         if (rdm(ifi,2,i1*i2,' ',w(oqpp),i1,i2) .lt. 0) then
+         if ( rdm ( ifi , 2 , i1 * i2 , ' ' , rv_p_oqpp , i1 , i2 ) .lt. 
+     .   0 ) then 
+
           if (ipr .ge. 0) print *,'IOQPP:  (warning) failed to qpp file'
-          call dvset(w(oqpp),1,1,-1d0)
+Cchp1           call dvset(w(oqpp),1,1,-1d0)
+           call dvset ( rv_p_oqpp , 1 , 1 , - 1d0 ) 
+
         endif
         call poppr
       endif
@@ -1296,8 +1392,20 @@ Cchp1      .        olppr , olsop , olgrme , olva , olmp , opot , ocor , onrc , 
 Cchp1      .        , nglob 
 Cchp1                integer:: oqnu , orhrmx , opprel , omp , osop , olpp , olppr 
 Cchp1      .         , olsop , olgrme , olva , olmp , opot , ocor , onrc , n0 , nglob 
-                integer:: oqnu , orhrmx , opprel , osop , olpp , olppr , olsop 
-     .          , olgrme , olva , olmp , opot , ocor , onrc , n0 , nglob 
+Cchp1                 integer:: oqnu , orhrmx , opprel , osop , olpp , olppr , olsop 
+Cchp1      .          , olgrme , olva , olmp , opot , ocor , onrc , n0 , nglob 
+Cchp1                  integer:: orhrmx , opprel , osop , olpp , olppr , olsop , olgrme 
+Cchp1      .           , olva , olmp , opot , ocor , onrc , n0 , nglob 
+Cchp1                   integer:: opprel , osop , olpp , olppr , olsop , olgrme , olva 
+Cchp1      .            , olmp , opot , ocor , onrc , n0 , nglob 
+                   integer:: osop , olpp , olppr , olsop , olgrme , olva , olmp 
+     .             , opot , ocor , onrc , n0 , nglob 
+                   real(8),pointer :: rv_p_opprel(:)
+
+                  real(8),pointer :: rv_p_orhrmx(:)
+
+                 real(8),pointer :: rv_p_oqnu(:)
+
                 real(8),pointer :: rv_p_omp(:)
 
                real(8),pointer :: rv_p_opp(:)
@@ -1346,7 +1454,9 @@ Cgetarg      .  ogrrme,0)
 Cchp1       opp=spot%opp
        rv_p_opp => spot%rv_p_opp 
 
-      opprel=spot%opprel
+Cchp1       opprel=spot%opprel
+       rv_p_opprel => spot%rv_p_opprel 
+
       osop=spot%osop
 Cchp1       ogrrme=spot%ogrrme
        rv_p_ogrrme => spot%rv_p_ogrrme 
@@ -1362,8 +1472,12 @@ Cgetarg      .  ovrmax,0)
 Cchp1       opnu=spot%opnu
        rv_p_opnu => spot%rv_p_opnu 
 
-      oqnu=spot%oqnu
-      orhrmx=spot%orhrmx
+Cchp1       oqnu=spot%oqnu
+       rv_p_oqnu => spot%rv_p_oqnu 
+
+Cchp1       orhrmx=spot%orhrmx
+       rv_p_orhrmx => spot%rv_p_orhrmx 
+
 Cchp1       ovrmax=spot%ovrmax
        rv_p_ovrmax => spot%rv_p_ovrmax 
 
@@ -1474,8 +1588,13 @@ Cchp1           call dpscop(w(opnu),pnuloc,k,1+(jc-1)*k,1,1d0)
            call dpscop ( rv_p_opnu , pnuloc , k , 1 + ( jc - 1 ) * k , 1 
      .     , 1d0 ) 
 
-          call dpscop(w(oqnu),qnuloc,3*k,1+(jc-1)*3*k,1,1d0)
-          call dpscop(w(orhrmx),rhrmx,1,jc,1,1d0)
+Cchp1           call dpscop(w(oqnu),qnuloc,3*k,1+(jc-1)*3*k,1,1d0)
+           call dpscop ( rv_p_oqnu , qnuloc , 3 * k , 1 + ( jc - 1 ) * 3 
+     .     * k , 1 , 1d0 ) 
+
+Cchp1           call dpscop(w(orhrmx),rhrmx,1,jc,1,1d0)
+           call dpscop ( rv_p_orhrmx , rhrmx , 1 , jc , 1 , 1d0 ) 
+
 Cchp1           call dpscop(w(ovrmax),vrmax,2,2*jc-1,1,1d0)
            call dpscop ( rv_p_ovrmax , vrmax , 2 , 2 * jc - 1 , 1 , 1d0 
      .     ) 
@@ -1495,7 +1614,10 @@ Cchp1           call dpscop(w(opp),w(olpp),k,1+(jc-1)*k,1,1d0)
 
           if (lrel .eq. 2) then
             k = 4*nl*2*nl*2*2
-            call dpscop(w(opprel),w(olppr),k,1+(jc-1)*k,1,1d0)
+Cchp1             call dpscop(w(opprel),w(olppr),k,1+(jc-1)*k,1,1d0)
+             call dpscop ( rv_p_opprel , w ( olppr ) , k , 1 + ( jc - 1 ) 
+     .       * k , 1 , 1d0 ) 
+
           endif
 Cchp1           call dpscop(w(oves),ves,1,jc,1,1d0)
            call dpscop ( rv_p_oves , ves , 1 , jc , 1 , 1d0 ) 
@@ -1655,8 +1777,13 @@ Cchp1             call dpscop(pnuloc,w(opnu),k,1,1+(ic-1)*k,1d0)
              call dpscop ( pnuloc , rv_p_opnu , k , 1 , 1 + ( ic - 1 ) * k 
      .       , 1d0 ) 
 
-            call dpscop(qnuloc,w(oqnu),3*k,1,1+(ic-1)*3*k,1d0)
-            call dpscop(rhrmx,w(orhrmx),1,1,ic,1d0)
+Cchp1             call dpscop(qnuloc,w(oqnu),3*k,1,1+(ic-1)*3*k,1d0)
+             call dpscop ( qnuloc , rv_p_oqnu , 3 * k , 1 , 1 + ( ic - 1 ) 
+     .       * 3 * k , 1d0 ) 
+
+Cchp1             call dpscop(rhrmx,w(orhrmx),1,1,ic,1d0)
+             call dpscop ( rhrmx , rv_p_orhrmx , 1 , 1 , ic , 1d0 ) 
+
 Cchp1             call dpscop(vrmax,w(ovrmax),2,1,2*ic-1,1d0)
              call dpscop ( vrmax , rv_p_ovrmax , 2 , 1 , 2 * ic - 1 , 1d0 
      .       ) 
@@ -1670,7 +1797,10 @@ Cchp1             call dpscop(w(olpp),w(opp),k,1,1+(ic-1)*k,1d0)
 
             if (lrel .eq. 2) then
               k = 4*nl*2*nl*2*2
-              call dpscop(w(olppr),w(opprel),k,1,1+(ic-1)*k,1d0)
+Cchp1               call dpscop(w(olppr),w(opprel),k,1,1+(ic-1)*k,1d0)
+               call dpscop ( w ( olppr ) , rv_p_opprel , k , 1 , 1 + ( ic - 
+     .         1 ) * k , 1d0 ) 
+
             endif
 Cchp1             call dpscop(ves,w(oves),1,1,ic,1d0)
              call dpscop ( ves , rv_p_oves , 1 , 1 , ic , 1d0 ) 

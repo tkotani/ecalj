@@ -1,3 +1,9 @@
+Cchp1 cmdvar= real(8),rv_p_,orhrmx
+Cchp1 cmdvar= real(8),rv_p_,oqt
+Cchp1 cmdvar= real(8),rv_p_,oqpp
+Cchp1 cmdvar= real(8),rv_p_,oqnu
+Cchp1 cmdvar= real(8),rv_p_,oqc
+Cchp1 cmdvar= real(8),rv_p_,opprel
 Cchp1 cmdvar= real(8),rv_p_,opp
 Cchp1 cmdvar= real(8),rv_p_,opnu
 Cchp1 cmdvar= real(8),rv_p_,ogrrme
@@ -108,9 +114,32 @@ Cchp1      .      , opos , ozos , ormax , opmpol , oqpp , n0
 Cchp1              integer:: obxc , oinitc , oqnu , oqc , oqt , orhrmx , orhos , 
 Cchp1      .       osop , ogroup , opp , oifrlx , oivso , oipc , oclabl , opos , 
 Cchp1      .       ozos , ormax , opmpol , oqpp , n0 
-              integer:: obxc , oinitc , oqnu , oqc , oqt , orhrmx , orhos , 
-     .        osop , ogroup , oifrlx , oivso , oipc , oclabl , opos , ozos 
-     .        , ormax , opmpol , oqpp , n0 
+Cchp1               integer:: obxc , oinitc , oqnu , oqc , oqt , orhrmx , orhos , 
+Cchp1      .        osop , ogroup , oifrlx , oivso , oipc , oclabl , opos , ozos 
+Cchp1      .        , ormax , opmpol , oqpp , n0 
+Cchp1                integer:: obxc , oinitc , oqnu , oqt , orhrmx , orhos , osop 
+Cchp1      .         , ogroup , oifrlx , oivso , oipc , oclabl , opos , ozos , ormax 
+Cchp1      .         , opmpol , oqpp , n0 
+Cchp1                 integer:: obxc , oinitc , oqt , orhrmx , orhos , osop , ogroup 
+Cchp1      .          , oifrlx , oivso , oipc , oclabl , opos , ozos , ormax , opmpol 
+Cchp1      .          , oqpp , n0 
+Cchp1                  integer:: obxc , oinitc , oqt , orhrmx , orhos , osop , ogroup 
+Cchp1      .           , oifrlx , oivso , oipc , oclabl , opos , ozos , ormax , opmpol 
+Cchp1      .           , n0 
+Cchp1                   integer:: obxc , oinitc , orhrmx , orhos , osop , ogroup , oifrlx 
+Cchp1      .            , oivso , oipc , oclabl , opos , ozos , ormax , opmpol , n0 
+                   integer:: obxc , oinitc , orhos , osop , ogroup , oifrlx , oivso 
+     .             , oipc , oclabl , opos , ozos , ormax , opmpol , n0 
+                   real(8),pointer :: rv_p_orhrmx(:)
+
+                  real(8),pointer :: rv_p_oqt(:)
+
+                 real(8),pointer :: rv_p_oqpp(:)
+
+                real(8),pointer :: rv_p_oqnu(:)
+
+               real(8),pointer :: rv_p_oqc(:)
+
               real(8),pointer :: rv_p_opp(:)
 
              real(8),pointer :: rv_p_opnu(:)
@@ -163,7 +192,10 @@ Cchp1         call defdr(opnu,-nlspc)
          allocate(rv_p_opnu(abs(-nlspc)))
          if (-nlspc<0) rv_p_opnu(:)=0.0d0
 
-        call defdr(oqnu,-3*nlspc)
+Cchp1         call defdr(oqnu,-3*nlspc)
+         allocate(rv_p_oqnu(abs(-3*nlspc)))
+         if (-3*nlspc<0) rv_p_oqnu(:)=0.0d0
+
 Cchp1         call defdr(opp,-6*nlspc)
          allocate(rv_p_opp(abs(-6*nlspc)))
          if (-6*nlspc<0) rv_p_opp(:)=0.0d0
@@ -172,8 +204,14 @@ cCdelw1         call defdr(opprel,-32*nl*nl*max(nclspp,nspec))
 c         allocate(pprel_rv(32*nl*nl*max(nclspp,nspec)))
 c         pprel_rv(:)=0.0d0
 
-        call defdr(oqc,-nclasp)
-        call defdr(oqt,-nclasp)
+Cchp1         call defdr(oqc,-nclasp)
+         allocate(rv_p_oqc(abs(-nclasp)))
+         if (-nclasp<0) rv_p_oqc(:)=0.0d0
+
+Cchp1         call defdr(oqt,-nclasp)
+         allocate(rv_p_oqt(abs(-nclasp)))
+         if (-nclasp<0) rv_p_oqt(:)=0.0d0
+
         call defi (oinitc,-nclasp)
         call defi (ogroup,-2*nclasp)
 Cchp1         call defdr(oves,-nclspp)
@@ -184,7 +222,10 @@ Cchp1         call defdr(ovdif,-nclspp)
          allocate(rv_p_ovdif(abs(-nclspp)))
          if (-nclspp<0) rv_p_ovdif(:)=0.0d0
 
-        call defdr(orhrmx,-nclspp)
+Cchp1         call defdr(orhrmx,-nclspp)
+         allocate(rv_p_orhrmx(abs(-nclspp)))
+         if (-nclspp<0) rv_p_orhrmx(:)=0.0d0
+
 Cchp1         call defdr(ovrmax,-2*nclspp)
          allocate(rv_p_ovrmax(abs(-2*nclspp)))
          if (-2*nclspp<0) rv_p_ovrmax(:)=0.0d0
@@ -216,9 +257,15 @@ Cchp1         sarray%ohave=oinitc
 Cchp1         spot%opnu=opnu
          spot%rv_p_opnu => rv_p_opnu 
 
-        spot%oqnu=oqnu
-        spot%oqc=oqc
-        spot%oqt=oqt
+Cchp1         spot%oqnu=oqnu
+         spot%rv_p_oqnu => rv_p_oqnu 
+
+Cchp1         spot%oqc=oqc
+         spot%rv_p_oqc => rv_p_oqc 
+
+Cchp1         spot%oqt=oqt
+         spot%rv_p_oqt => rv_p_oqt 
+
 
 
 Cchp1         spot%oves=oves
@@ -230,7 +277,9 @@ Cchp1         spot%ovdif=ovdif
 Cchp1         spot%ovrmax=ovrmax
          spot%rv_p_ovrmax => rv_p_ovrmax 
 
-        spot%orhrmx=orhrmx
+Cchp1         spot%orhrmx=orhrmx
+         spot%rv_p_orhrmx => rv_p_orhrmx 
+
 Cchp1         spot%opp=opp
          spot%rv_p_opp => rv_p_opp 
 
@@ -238,7 +287,9 @@ Cchp1         spot%opp=opp
 C       Even in collinear case, bxc might be written to
 c        call defdr(obxc,-3*nclasp)
 
-        spot%opprel=i_dummy !opprel
+Cchp1         spot%opprel=i_dummy !opprel
+         spot%rv_p_opprel => rv_p_i_dummy 
+
 c         spot%obxc=obxc
 c         spot%nrhos=0
 
@@ -294,10 +345,17 @@ C   ... Allocate memory for, attempt to read qpp from file
           call defrr(opmpol,-(2*nl-1)*nl**2*3*nsp*nclasp)
           i1 = nl**2
           nqpp = (i1*(i1+1))/2
-          call defrr(oqpp,2*nqpp*4*nsp*nbas)
-          call dvset(w(oqpp),1,1,-1d0)
+Cchp1           call defrr(oqpp,2*nqpp*4*nsp*nbas)
+           allocate(rv_p_oqpp(abs(2*nqpp*4*nsp*nbas)))
+           if (2*nqpp*4*nsp*nbas<0) rv_p_oqpp(:)=0.0d0
+
+Cchp1           call dvset(w(oqpp),1,1,-1d0)
+           call dvset ( rv_p_oqpp , 1 , 1 , - 1d0 ) 
+
           spot%opmpol=opmpol
-          spot%oqpp=oqpp
+Cchp1           spot%oqpp=oqpp
+           spot%rv_p_oqpp => rv_p_oqpp 
+
           call ioqpp(.false.,sctrl,spot)
         endif
 
@@ -478,15 +536,20 @@ C ... Allocate ASA arrays
 Cchp1         opnu=spot%opnu
          rv_p_opnu => spot%rv_p_opnu 
 
-        oqnu=spot%oqnu
+Cchp1         oqnu=spot%oqnu
+         rv_p_oqnu => spot%rv_p_oqnu 
+
 
 Cchp1         call dpscop(w(opnu),w(opnu),nl*nsp*i1,
 Cchp1      .  nl*nsp*nclass+1,nl*nsp*nclasp+1,1d0)
          call dpscop ( rv_p_opnu , rv_p_opnu , nl * nsp * i1 , nl * nsp 
      .   * nclass + 1 , nl * nsp * nclasp + 1 , 1d0 ) 
 
-        call dpscop(w(oqnu),w(oqnu),3*nl*nsp*i1,
-     .  3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
+Cchp1         call dpscop(w(oqnu),w(oqnu),3*nl*nsp*i1,
+Cchp1      .  3*nl*nsp*nclass+1,3*nl*nsp*nclasp+1,1d0)
+         call dpscop ( rv_p_oqnu , rv_p_oqnu , 3 * nl * nsp * i1 , 3 * 
+     .   nl * nsp * nclass + 1 , 3 * nl * nsp * nclasp + 1 , 1d0 ) 
+
 
 
 Cchp1         oves=spot%oves
@@ -498,7 +561,9 @@ Cchp1         ovdif=spot%ovdif
 Cchp1         ovrmax=spot%ovrmax
          rv_p_ovrmax => spot%rv_p_ovrmax 
 
-        orhrmx=spot%orhrmx
+Cchp1         orhrmx=spot%orhrmx
+         rv_p_orhrmx => spot%rv_p_orhrmx 
+
 
 Cchp1         call dpscop(w(oves),w(oves),i1,nclass+1,nclasp+1,1d0)
          call dpscop ( rv_p_oves , rv_p_oves , i1 , nclass + 1 , nclasp 
@@ -512,7 +577,10 @@ Cchp1         call dpscop(w(ovrmax),w(ovrmax),i1,nclass+1,nclasp+1,1d0)
          call dpscop ( rv_p_ovrmax , rv_p_ovrmax , i1 , nclass + 1 , nclasp 
      .   + 1 , 1d0 ) 
 
-        call dpscop(w(orhrmx),w(orhrmx),i1,nclass+1,nclasp+1,1d0)
+Cchp1         call dpscop(w(orhrmx),w(orhrmx),i1,nclass+1,nclasp+1,1d0)
+         call dpscop ( rv_p_orhrmx , rv_p_orhrmx , i1 , nclass + 1 , nclasp 
+     .   + 1 , 1d0 ) 
+
 
       else
         call rxi('clsprp: bad mode',mode)
@@ -547,7 +615,11 @@ C ... Heap
       integer w(1)
       common /w/ w
 C ... Local parameters
-      integer i1,i2,nbas,nl,nsp,igets,ifi,oqpp,fopna,rdm,ipr
+Cchp1       integer i1,i2,nbas,nl,nsp,igets,ifi,oqpp,fopna,rdm,ipr
+       integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , fopna , rdm 
+     . , ipr 
+       real(8),pointer :: rv_p_oqpp(:)
+
 
       call getpr(ipr)
 
@@ -557,19 +629,30 @@ C ... Local parameters
 
       i1 = nl**2*(nl**2+1)
       i2 = 4*nsp*nbas
-      oqpp = int(spot%oqpp)
+cki      oqpp = int(spot%oqpp)
+Cchp1       oqpp = spot%oqpp
+       rv_p_oqpp => spot%rv_p_oqpp 
+
 
       ifi = fopna('qpp',-1,4+8)
 
       if (lio) then
-        call ywrm(1,'lmasa',1,ifi,' ',w(oqpp),1,i1,i1,i2)
+Cchp1         call ywrm(1,'lmasa',1,ifi,' ',w(oqpp),1,i1,i1,i2)
+         call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , rv_p_oqpp , 1 , i1 
+     .   , i1 , i2 ) 
+
         if (ipr .ge. 30) print *, 'IOQPP:  wrote qpp to disk'
       else
         if (ipr .ge. 30) print *, 'IOQPP:  reading qpp from disk ...'
         call pshpr(0)
-        if (rdm(ifi,2,i1*i2,' ',w(oqpp),i1,i2) .lt. 0) then
+Cchp1         if (rdm(ifi,2,i1*i2,' ',w(oqpp),i1,i2) .lt. 0) then
+         if ( rdm ( ifi , 2 , i1 * i2 , ' ' , rv_p_oqpp , i1 , i2 ) .lt. 
+     .   0 ) then 
+
           if (ipr .ge. 0) print *,'IOQPP:  (warning) failed to qpp file'
-          call dvset(w(oqpp),1,1,-1d0)
+Cchp1           call dvset(w(oqpp),1,1,-1d0)
+           call dvset ( rv_p_oqpp , 1 , 1 , - 1d0 ) 
+
         endif
         call poppr
       endif

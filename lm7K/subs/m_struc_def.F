@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 13:00:30.897363
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 13:32:00.858908
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -1398,15 +1398,22 @@ CCHSTRUC       integer(8)   ::   opp
        real(8) , pointer ::  rv_p_opp (:)
 CCHSTRUC       integer(8)   ::   oppi ! not used because of undef
 CCHSTRUC       integer(8)   ::   oppn ! not used because of undef
-      integer(8)   ::   opprel
+CCHSTRUC       integer(8)   ::   opprel
+       real(8) , pointer ::  rv_p_opprel (:)
 CCHSTRUC       integer(8)   ::   opti ! not used because of undef
-      integer(8)   ::   oqc
+CCHSTRUC       integer(8)   ::   oqc
+       real(8) , pointer ::  rv_p_oqc (:)
 CCHSTRUC       integer(8)   ::   oqmom ! not used because of undef
-      integer(8)   ::   oqnu
-      integer(8)   ::   oqpp
-      integer(8)   ::   oqt
-      integer(8)   ::   orhos
-      integer(8)   ::   orhrmx
+CCHSTRUC       integer(8)   ::   oqnu
+       real(8) , pointer ::  rv_p_oqnu (:)
+CCHSTRUC       integer(8)   ::   oqpp
+       real(8) , pointer ::  rv_p_oqpp (:)
+CCHSTRUC       integer(8)   ::   oqt
+       real(8) , pointer ::  rv_p_oqt (:)
+CCHSTRUC       integer(8)   ::   orhos
+       real(8) , pointer ::  rv_p_orhos (:)
+CCHSTRUC       integer(8)   ::   orhrmx
+       real(8) , pointer ::  rv_p_orhrmx (:)
 CCHSTRUC       integer(8)   ::   osab ! not used because of undef
 CCHSTRUC       integer(8)   ::   osgw ! not used because of undef
 CCHSTRUC       integer(8)   ::   osmpot
@@ -3455,20 +3462,13 @@ Cstruc_makeinit.py skip iv_p_oorhat(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_opmpol(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_opnu(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_opp(:) because it is a pointer.
-       call mpi_bcast(struc%opprel, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oqc, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oqnu, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oqpp, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oqt, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%orhos, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%orhrmx, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip rv_p_opprel(:) because it is a pointer.
+Cstruc_makeinit.py skip rv_p_oqc(:) because it is a pointer.
+Cstruc_makeinit.py skip rv_p_oqnu(:) because it is a pointer.
+Cstruc_makeinit.py skip rv_p_oqpp(:) because it is a pointer.
+Cstruc_makeinit.py skip rv_p_oqt(:) because it is a pointer.
+Cstruc_makeinit.py skip rv_p_orhos(:) because it is a pointer.
+Cstruc_makeinit.py skip rv_p_orhrmx(:) because it is a pointer.
 Cstruc_makeinit.py skip zv_p_osmpot(:) because it is a pointer.
 Cstruc_makeinit.py skip zv_p_osmrho(:) because it is a pointer.
        call mpi_bcast(struc%osop, 1,MPI_INTEGER8
@@ -4611,13 +4611,6 @@ C$$$        end subroutine utb
        struc%nlma=0
        struc%nlml=0
        struc%nrhos=0
-       struc%opprel=0
-       struc%oqc=0
-       struc%oqnu=0
-       struc%oqpp=0
-       struc%oqt=0
-       struc%orhos=0
-       struc%orhrmx=0
        struc%osop=0
        struc%vconst=0.0d0
        struc%vmtz=0.0d0

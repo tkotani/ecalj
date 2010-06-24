@@ -1,3 +1,7 @@
+Cchp1 cmdvar= real(8),rv_p_,orhrmx
+Cchp1 cmdvar= real(8),rv_p_,oqt
+Cchp1 cmdvar= real(8),rv_p_,oqnu
+Cchp1 cmdvar= real(8),rv_p_,oqc
 Cchp1 cmdvar= real(8),rv_p_,opp
 Cchp1 cmdvar= real(8),rv_p_,opnu
 Cchp1 cmdvar= integer,iv_p_,oinitc
@@ -141,10 +145,34 @@ Cchp1              integer:: oeold , oeula , oipc , olmx , onrc , opold , opp ,
 Cchp1      .       oqc , oqnu , oqt , orhrmx , ormax , owk , owk2 , opos , odlv 
 Cchp1      .       , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , 
 Cchp1      .       oips , opgfsl , ontab , oiax , og , oag , mxclas 
-              integer:: oeold , oeula , oipc , olmx , onrc , opold , oqc , 
-     .        oqnu , oqt , orhrmx , ormax , owk , owk2 , opos , odlv , orham 
-     .        , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , oips , opgfsl 
-     .        , ontab , oiax , og , oag , mxclas 
+Cchp1               integer:: oeold , oeula , oipc , olmx , onrc , opold , oqc , 
+Cchp1      .        oqnu , oqt , orhrmx , ormax , owk , owk2 , opos , odlv , orham 
+Cchp1      .        , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , oips , opgfsl 
+Cchp1      .        , ontab , oiax , og , oag , mxclas 
+Cchp1                integer:: oeold , oeula , oipc , olmx , onrc , opold , oqnu , 
+Cchp1      .         oqt , orhrmx , ormax , owk , owk2 , opos , odlv , orham , oamsh 
+Cchp1      .         , onrmsh , oalpha , onpr , os , ormx , oip , oips , opgfsl , 
+Cchp1      .         ontab , oiax , og , oag , mxclas 
+Cchp1                 integer:: oeold , oeula , oipc , olmx , onrc , opold , oqt , 
+Cchp1      .          orhrmx , ormax , owk , owk2 , opos , odlv , orham , oamsh , onrmsh 
+Cchp1      .          , oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
+Cchp1      .          , og , oag , mxclas 
+Cchp1                  integer:: oeold , oeula , oipc , olmx , onrc , opold , orhrmx 
+Cchp1      .           , ormax , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , 
+Cchp1      .           oalpha , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax 
+Cchp1      .           , og , oag , mxclas 
+                  integer:: oeold , oeula , oipc , olmx , onrc , opold , ormax 
+     .            , owk , owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha 
+     .            , onpr , os , ormx , oip , oips , opgfsl , ontab , oiax , og 
+     .            , oag , mxclas 
+                  real(8),pointer :: rv_p_orhrmx(:)
+
+                 real(8),pointer :: rv_p_oqt(:)
+
+                real(8),pointer :: rv_p_oqnu(:)
+
+               real(8),pointer :: rv_p_oqc(:)
+
               real(8),pointer :: rv_p_opp(:)
 
              real(8),pointer :: rv_p_opnu(:)
@@ -242,16 +270,24 @@ c       call dcopy(i_copy_size,sham%qss,1,qss,1)
 Cchp1       opnu=spot%opnu
        rv_p_opnu => spot%rv_p_opnu 
 
-      oqnu=spot%oqnu
+Cchp1       oqnu=spot%oqnu
+       rv_p_oqnu => spot%rv_p_oqnu 
+
 Cchp1       opp=spot%opp
        rv_p_opp => spot%rv_p_opp 
 
-      oqc=spot%oqc
-      oqt=spot%oqt
+Cchp1       oqc=spot%oqc
+       rv_p_oqc => spot%rv_p_oqc 
+
+Cchp1       oqt=spot%oqt
+       rv_p_oqt => spot%rv_p_oqt 
+
 
 
 cki      oaamom=spot%oaamom
-      orhrmx=spot%orhrmx
+Cchp1       orhrmx=spot%orhrmx
+       rv_p_orhrmx => spot%rv_p_orhrmx 
+
 Cchp1       oves=spot%oves
        rv_p_oves => spot%rv_p_oves 
 
@@ -309,8 +345,11 @@ C ... Read from restart file
           ifi = fopna('rsta',-1,0)
 Cchp1           call asars(0,sctrl,ssite,sspec,slat,spot,sbz,
 Cchp1      .    w(opnu),w(oqnu),.false.,ifi)
-           call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz , 
-     .     rv_p_opnu , w ( oqnu ) , .false. , ifi ) 
+Cchp1            call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz , 
+Cchp1      .     rv_p_opnu , w ( oqnu ) , .false. , ifi ) 
+            call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz , 
+     .      rv_p_opnu , rv_p_oqnu , .false. , ifi ) 
+
 
           call fclr('rsta',ifi)
 C         call shoctl(sctrl,sspec,spot,sarray,F,stdo)
