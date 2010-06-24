@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ormax
 Cchp1 cmdvar= real(8),rv_p_,osop
 Cchp1 cmdvar= real(8),rv_p_,opprel
 Cchp1 cmdvar= real(8),rv_p_,orhrmx
@@ -587,8 +588,11 @@ Cchp1                         integer:: osop , ogroup , opprel , oifrlx , oivso 
 Cchp1      .                  , ozos , ormax , n0 
 Cchp1                          integer:: osop , ogroup , oifrlx , oivso , oipc , opos , ozos 
 Cchp1      .                   , ormax , n0 
-                          integer:: ogroup , oifrlx , oivso , oipc , opos , ozos , ormax 
-     .                    , n0 
+Cchp1                           integer:: ogroup , oifrlx , oivso , oipc , opos , ozos , ormax 
+Cchp1      .                    , n0 
+                           integer:: ogroup , oifrlx , oivso , oipc , opos , ozos , n0 
+                           real(8),pointer :: rv_p_ormax(:)
+
                           real(8),pointer :: rv_p_osop(:)
 
                          real(8),pointer :: rv_p_opprel(:)
@@ -729,8 +733,14 @@ Cchp1         call icopy(nclspp,w(oics),1,ics,1)
          call icopy ( nclspp , iv_p_oics , 1 , ics , 1 ) 
 
         print *,' qqqqq ics=',ics
-        call defdr(ormax,nclspp)
-        call dcopy(nclspp,sspec(ics(1:nclspp))%rmt,1,w(ormax),1)
+Cchp1         call defdr(ormax,nclspp)
+         allocate(rv_p_ormax(abs(nclspp)))
+         if (nclspp<0) rv_p_ormax(:)=0.0d0
+
+Cchp1         call dcopy(nclspp,sspec(ics(1:nclspp))%rmt,1,w(ormax),1)
+         call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , rv_p_ormax 
+     .   , 1 ) 
+
 
 Cgetarg...info...           integer :: ogroup , integer(8) :: sarray%ogroup 1
 Cgetarg...info...           integer :: ormax , integer(8) :: sarray%ormax 1
@@ -739,7 +749,9 @@ Cgetarg         call pack5('array ogroup ormax ohave',sarray,ogroup,ormax,
 Cgetarg      .    oinitc,0,0)
         
         sarray%ogroup=ogroup 
-        sarray%ormax=ormax 
+Cchp1         sarray%ormax=ormax 
+         sarray%rv_p_ormax => rv_p_ormax 
+
 Cchp1         sarray%ohave=oinitc 
          sarray%iv_p_ohave => iv_p_oinitc 
 

@@ -1,3 +1,7 @@
+Cchp1 cmdvar= integer,iv_p_,ogstar
+Cchp1 cmdvar= integer,iv_p_,ostar
+Cchp1 cmdvar= integer,iv_p_,oidtet
+Cchp1 cmdvar= real(8),rv_p_,ormax
 Cchp1 cmdvar= integer,iv_p_,oipq
 Cchp1 cmdvar= real(8),rv_p_,owtkp
 Cchp1 cmdvar= integer,iv_p_,oics
@@ -108,7 +112,16 @@ Cchp1      . , oipq
 Cchp1         integer:: ogstar , oics , oidtet , oipc , ormax , owtkp , oipq 
 Cchp1          integer:: ogstar , oidtet , oipc , ormax , owtkp , oipq 
 Cchp1           integer:: ogstar , oidtet , oipc , ormax , oipq 
-           integer:: ogstar , oidtet , oipc , ormax 
+Cchp1            integer:: ogstar , oidtet , oipc , ormax 
+Cchp1             integer:: ogstar , oidtet , oipc 
+Cchp1              integer:: ogstar , oipc 
+              integer:: oipc 
+              integer,pointer :: iv_p_ogstar(:)
+
+             integer,pointer :: iv_p_oidtet(:)
+
+            real(8),pointer :: rv_p_ormax(:)
+
            integer,pointer :: iv_p_oipq(:)
 
           real(8),pointer :: rv_p_owtkp(:)
@@ -175,7 +188,9 @@ Cchp1       oics=sarray%oics
        iv_p_oics => sarray%iv_p_oics 
 
       oipc=sarray%oipc
-      ormax=sarray%ormax
+Cchp1       ormax=sarray%ormax
+       rv_p_ormax => sarray%rv_p_ormax 
+
 
 
 Cchp1       oclabl=sarray%oclabl
@@ -393,7 +408,9 @@ C     List of irreducible qp, tetrahedra, ipq
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
       nkp=sbz%nkp
       ntet=sbz%ntet
-      oidtet=sbz%oidtet
+Cchp1       oidtet=sbz%oidtet
+       iv_p_oidtet => sbz%iv_p_oidtet 
+
 Cchp1       owtkp=sbz%owtkp
        rv_p_owtkp => sbz%rv_p_owtkp 
 
@@ -681,11 +698,15 @@ Cchp1         oqp=sbz%oqp
 Cchp1         owtkp=sbz%owtkp
          rv_p_owtkp => sbz%rv_p_owtkp 
 
-        ogstar=sbz%ostar
+Cchp1         ogstar=sbz%ostar
+         iv_p_ogstar => sbz%iv_p_ostar 
+
 
 
         ntet=sbz%ntet
-        oidtet=sbz%oidtet
+Cchp1         oidtet=sbz%oidtet
+         iv_p_oidtet => sbz%iv_p_oidtet 
+
 Cchp1         oipq=sbz%oipq
          iv_p_oipq => sbz%iv_p_oipq 
 
@@ -703,10 +724,20 @@ Cchp1          call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz
 Cchp1      .   ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , rv_p_oqp 
 Cchp1      .   , w ( oipq ) , w ( ogstar ) , iblst , eband_rv , cvec ( 1 ) , 
 Cchp1      .   doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
-          call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
-     .    ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , rv_p_oqp 
-     .    , iv_p_oipq , w ( ogstar ) , iblst , eband_rv , cvec ( 1 ) , 
-     .    doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
+Cchp1           call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
+Cchp1      .    ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , rv_p_oqp 
+Cchp1      .    , iv_p_oipq , w ( ogstar ) , iblst , eband_rv , cvec ( 1 ) , 
+Cchp1      .    doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
+Cchp1            call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
+Cchp1      .     ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , rv_p_oqp 
+Cchp1      .     , iv_p_oipq , w ( ogstar ) , iblst , eband_rv , cvec ( 1 ) , 
+Cchp1      .     doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
+            call contet ( icond , nbandx , nsp , nspx , nblst , nchan , nkxyz 
+     .      ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , rv_p_oqp 
+     .      , iv_p_oipq , iv_p_ogstar , iblst , eband_rv , cvec ( 1 ) , doswt_rv 
+     .      , npts , emin , emax , lidos , wk_rv , dos_rv ) 
+
+
 
 
 
@@ -714,10 +745,14 @@ Cchp1      .   doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv )
 C --- make DOS or NOS ---
       else
         if (ltet) then
-          call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1 
-     .    ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , eband_rv 
-     .    , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv 
-     .    )
+Cchp1           call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1 
+Cchp1      .    ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , w ( oidtet ) , eband_rv 
+Cchp1      .    , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv 
+Cchp1      .    )
+           call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1 
+     .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , iv_p_oidtet , eband_rv 
+     .     , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv ) 
+
 
           del = 0d0
 

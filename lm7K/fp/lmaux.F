@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,ormax
 Cchp1 cmdvar= integer,iv_p_,owk
 Cchp1 cmdvar= integer,iv_p_,onrc
 Cchp1 cmdvar= integer,iv_p_,oips
@@ -175,9 +176,14 @@ Cchp1      .             mxclas
 Cchp1                     integer:: oeold , oeula , oipc , olmx , opold , ormax , owk , 
 Cchp1      .              owk2 , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , 
 Cchp1      .              os , ormx , oip , opgfsl , ontab , oiax , og , oag , mxclas 
-                     integer:: oeold , oeula , oipc , olmx , opold , ormax , owk2 
-     .               , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , os , 
-     .               ormx , oip , opgfsl , ontab , oiax , og , oag , mxclas 
+Cchp1                      integer:: oeold , oeula , oipc , olmx , opold , ormax , owk2 
+Cchp1      .               , opos , odlv , orham , oamsh , onrmsh , oalpha , onpr , os , 
+Cchp1      .               ormx , oip , opgfsl , ontab , oiax , og , oag , mxclas 
+                      integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
+     .                odlv , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip 
+     .                , opgfsl , ontab , oiax , og , oag , mxclas 
+                      real(8),pointer :: rv_p_ormax(:)
+
                      integer,pointer :: iv_p_owk(:)
 
                     integer,pointer :: iv_p_onrc(:)
@@ -274,7 +280,9 @@ c       npadl=sarray%npadl
 c       npadr=sarray%npadr
       nclasp=sarray%nclasp
 c       opgfsl=sarray%opgfsl
-      ormax=sarray%ormax
+Cchp1       ormax=sarray%ormax
+       rv_p_ormax => sarray%rv_p_ormax 
+
 
 
       opos=sarray%opos
@@ -514,17 +522,26 @@ c        call sp2cls('spec rmt',sspec,ics,1,1,nclspp,ormax)
           do i=1,nclspp
             rmax(i) =sspec(ics(i))%rmt
           enddo
-          call defdr(ormax,nclspp)
-          call dcopy(nclspp,rmax,1,w(ormax),1)
+Cchp1           call defdr(ormax,nclspp)
+           allocate(rv_p_ormax(abs(nclspp)))
+           if (nclspp<0) rv_p_ormax(:)=0.0d0
 
-          sarray%ormax=ormax
+Cchp1           call dcopy(nclspp,rmax,1,w(ormax),1)
+           call dcopy ( nclspp , rmax , 1 , rv_p_ormax , 1 ) 
+
+
+Cchp1           sarray%ormax=ormax
+           sarray%rv_p_ormax => rv_p_ormax 
+
           ifx=1
         endif
 
 c-------
         if(ifx==0) then
           allocate(rmax(nclasp))
-          call dcopy(nclasp,w(ormax),1,rmax,1)
+Cchp1           call dcopy(nclasp,w(ormax),1,rmax,1)
+           call dcopy ( nclasp , rv_p_ormax , 1 , rmax , 1 ) 
+
         endif
 
 c

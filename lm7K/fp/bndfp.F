@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oidtet
 Cchp1 cmdvar= integer,iv_p_,oorhat
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
 Cchp1 cmdvar= complex(8),zv_p_,osmpot
@@ -265,7 +266,10 @@ Cchp1      .  , osmpot , osmrho
 Cchp1          integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
 Cchp1      .   , osmrho 
 Cchp1           integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
-           integer:: oevl , os , oidtet , owtkb , oswtk , osoptc 
+Cchp1            integer:: oevl , os , oidtet , owtkb , oswtk , osoptc 
+            integer:: oevl , os , owtkb , oswtk , osoptc 
+            integer,pointer :: iv_p_oidtet(:)
+
            integer,pointer :: iv_p_oorhat(:)
 
           complex(8),pointer :: zv_p_osmrho(:)
@@ -613,7 +617,9 @@ C ... for BZ integration
       call i8icopy(i_copy_size,sbz%nkabc,1,nkabc,1)
       nkp=sbz%nkp
       ntet=sbz%ntet
-      oidtet=sbz%oidtet
+Cchp1       oidtet=sbz%oidtet
+       iv_p_oidtet => sbz%iv_p_oidtet 
+
       lmet=sbz%lmet
 
 
@@ -2804,14 +2810,22 @@ C --- BZ integration for fermi level, band sum and qp weights ---
           allocate(ww_rv(ndham*nsp*nkp))
 
           eferm = min(dosw(1),dosw(2))
-          call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
-     .    ) , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
-     .    eferm , 2 , ntet , w ( oidtet ) , sev , dum ) 
+Cchp1           call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
+Cchp1      .    ) , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
+Cchp1      .    eferm , 2 , ntet , w ( oidtet ) , sev , dum ) 
+           call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
+     .     ) , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , eferm 
+     .     , 2 , ntet , iv_p_oidtet , sev , dum ) 
+
 
 C         call prmx('w(min)',w(oww),ndham,ndham,nkp*nsp)
           eferm = max(dosw(1),dosw(2))
-          call bzints(nkabc(1),nkabc(2),nkabc(3),w(oevl),w(owtkb),nkp,
-     .    ndham,ndham,nsp,xv,xv,xv,1,eferm,2,ntet,w(oidtet),sev,dum)
+Cchp1           call bzints(nkabc(1),nkabc(2),nkabc(3),w(oevl),w(owtkb),nkp,
+Cchp1      .    ndham,ndham,nsp,xv,xv,xv,1,eferm,2,ntet,w(oidtet),sev,dum)
+           call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
+     .     ) , w ( owtkb ) , nkp , ndham , ndham , nsp , xv , xv , xv , 
+     .     1 , eferm , 2 , ntet , iv_p_oidtet , sev , dum ) 
+
 C         call prmx('w(max)',w(owtkb),ndham,ndham,nkp*nsp)
           call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , w ( owtkb 
      .    ) , 1 ) 
@@ -2826,12 +2840,18 @@ Cchp1           call bzwtsf(ndham,ndham,nsp,nspc,nkabc(1),nkabc(2),nkabc(3),
 Cchp1      .    nkp,ntet,w(oidtet),qval-qbg,fsmom,lmet.ne.0,ltet,mpsord,
 Cchp1      .    ndos,dabs(esmear-mpsord),dosrng,w(owtkp),w(oevl),efmax,
 Cchp1      .    lswtk,w(oswtk),eferm,sev,w(owtkb),sumqv(1,2),lwtkb)
-           call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-     .     ( 2 ) , nkabc ( 3 ) , nkp , ntet , w ( oidtet ) , qval - qbg 
-     .     , fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - 
-     .     mpsord ) , dosrng , rv_p_owtkp , w ( oevl ) , efmax , lswtk , 
-     .     w ( oswtk ) , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb 
-     .     ) 
+Cchp1            call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+Cchp1      .     ( 2 ) , nkabc ( 3 ) , nkp , ntet , w ( oidtet ) , qval - qbg 
+Cchp1      .     , fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - 
+Cchp1      .     mpsord ) , dosrng , rv_p_owtkp , w ( oevl ) , efmax , lswtk , 
+Cchp1      .     w ( oswtk ) , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb 
+Cchp1      .     ) 
+            call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+     .      ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
+     .      fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
+     .      ) , dosrng , rv_p_owtkp , w ( oevl ) , efmax , lswtk , w ( oswtk 
+     .      ) , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb ) 
+
 
 
 C         Store val charge & magnetic moment in sumqv(1..2)
@@ -2925,10 +2945,15 @@ c          allocate(dos_rv(3*ndos))
           if (iprint()>=30) call awrit1('%x%N ... Generating %?#n<0#'
      .    //'integrated#total# DOS',' ',80,lgunit(1),ndos0)
           if (ltet) then
-            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
-     .      ) , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw ( 
-     .      2 ) , dos_rv , ndos , eferm , 1 , ntet , w ( oidtet ) , dum 
-     .      , dum ) 
+Cchp1             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
+Cchp1      .      ) , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw ( 
+Cchp1      .      2 ) , dos_rv , ndos , eferm , 1 , ntet , w ( oidtet ) , dum 
+Cchp1      .      , dum ) 
+             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
+     .       ) , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw ( 
+     .       2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_p_oidtet , dum , 
+     .       dum ) 
+
 
             if ( ndos0 .gt. 0 ) call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
      .      , nspx , 0 , dos_rv ) 

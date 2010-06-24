@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 14:25:11.804848
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 14:43:27.220055
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -103,13 +103,15 @@ C 30  48  4       zval  1
       integer(8)   ::   nkp
       integer(8)   ::   ntet
 CCHSTRUC       integer(8)   ::   odos ! not used because of undef
-      integer(8)   ::   oidtet
+CCHSTRUC       integer(8)   ::   oidtet
+       integer , pointer ::  iv_p_oidtet (:)
 CCHSTRUC       integer(8)   ::   oipq
        integer , pointer ::  iv_p_oipq (:)
 CCHSTRUC       integer(8)   ::   opdos ! not used because of undef
 CCHSTRUC       integer(8)   ::   oqp
        real(8) , pointer ::  rv_p_oqp (:)
-      integer(8)   ::   ostar
+CCHSTRUC       integer(8)   ::   ostar
+       integer , pointer ::  iv_p_ostar (:)
 CCHSTRUC       integer(8)   ::   owtkp
        real(8) , pointer ::  rv_p_owtkp (:)
       real(8)   ::   range
@@ -224,7 +226,8 @@ CCHSTRUC       integer(8)   ::   opgfvl ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgord ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgplp ! not used because of undef
       integer(8)   ::   opos
-      integer(8)   ::   ormax
+CCHSTRUC       integer(8)   ::   ormax
+       real(8) , pointer ::  rv_p_ormax (:)
 CCHSTRUC       integer(8)   ::   osordn ! not used because of undef
 CCHSTRUC       integer(8)   ::   ostni ! not used because of undef
 CCHSTRUC       integer(8)   ::   ozos ! not used because of undef
@@ -2489,12 +2492,10 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%ntet, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oidtet, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip iv_p_oidtet(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_oipq(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_oqp(:) because it is a pointer.
-       call mpi_bcast(struc%ostar, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip iv_p_ostar(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_owtkp(:) because it is a pointer.
        call mpi_bcast(struc%range, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -2579,8 +2580,7 @@ Cstruc_makeinit.py skip iv_p_onrc(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_onrcp(:) because it is a pointer.
        call mpi_bcast(struc%opos, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%ormax, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip rv_p_ormax(:) because it is a pointer.
 
       if (mlog) then
         call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
@@ -4296,8 +4296,6 @@ C$$$        end subroutine utb
        struc%nkabc=0
        struc%nkp=0
        struc%ntet=0
-       struc%oidtet=0
-       struc%ostar=0
        struc%range=0.0d0
        struc%semsh=0.0d0
        struc%stnr=0.0d0
@@ -4322,7 +4320,6 @@ C$$$        end subroutine utb
        struc%oipc=0
        struc%oipcp=0
        struc%opos=0
-       struc%ormax=0
        end subroutine uarray_init
 
        subroutine uctrl_init (struc)

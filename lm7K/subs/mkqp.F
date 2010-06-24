@@ -1,3 +1,6 @@
+Cchp1 cmdvar= integer,iv_p_,ogstar
+Cchp1 cmdvar= integer,iv_p_,ostar
+Cchp1 cmdvar= integer,iv_p_,oidtet
 Cchp1 cmdvar= integer,iv_p_,owk
 Cchp1 cmdvar= integer,iv_p_,oipq
 Cchp1 cmdvar= real(8),rv_p_,owtkp
@@ -64,9 +67,19 @@ Cchp1      .  osymgr , iprint , igets , stdo , nglob
 Cchp1          integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
 Cchp1      .   , lshft(3) , lpbc , ntet , i , oidtet , ogstar , owk , osymgr 
 Cchp1      .   , iprint , igets , stdo , nglob 
-          integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
-     .    , lshft(3) , lpbc , ntet , i , oidtet , ogstar , osymgr , iprint 
-     .    , igets , stdo , nglob 
+Cchp1           integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
+Cchp1      .    , lshft(3) , lpbc , ntet , i , oidtet , ogstar , osymgr , iprint 
+Cchp1      .    , igets , stdo , nglob 
+Cchp1            integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
+Cchp1      .     , lshft(3) , lpbc , ntet , i , ogstar , osymgr , iprint , igets 
+Cchp1      .     , stdo , nglob 
+            integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
+     .      , lshft(3) , lpbc , ntet , i , osymgr , iprint , igets , stdo 
+     .      , nglob 
+            integer,pointer :: iv_p_ogstar(:)
+
+           integer,pointer :: iv_p_oidtet(:)
+
           integer,pointer :: iv_p_owk(:)
 
          integer,pointer :: iv_p_oipq(:)
@@ -74,6 +87,8 @@ Cchp1      .   , iprint , igets , stdo , nglob
         real(8),pointer :: rv_p_owtkp(:)
 
        real(8),pointer :: rv_p_oqp(:)
+
+       integer,allocatable :: iv_a_tmp(:)
 
       double precision plat(3,3),qlat(3,3),vol
       character prgnam*4, outs*80
@@ -86,7 +101,8 @@ C ... Heap
 
 C ... Setup
       ntet = 0
-      oidtet = 1
+cki      oidtet = 1
+      nullify(iv_p_oidtet)
       stdo = nglob('stdo')
 
       i_copy_size=size(sbz%nkabc)
@@ -142,16 +158,25 @@ Cchp1         call defdr(owtkp,-nkp)
          if (-nkp<0) rv_p_owtkp(:)=0.0d0
 
         if (ntet .gt. 0) then
-          call defi(oidtet,ntet*5)
+Cchp1           call defi(oidtet,ntet*5)
+           allocate(iv_p_oidtet(abs(ntet*5)))
+           if (ntet*5<0) iv_p_oidtet(:)=0
+
         else
-          call defi(oidtet,1)
+Cchp1           call defi(oidtet,1)
+           allocate(iv_p_oidtet(abs(1)))
+           if (1<0) iv_p_oidtet(:)=0
+
         endif
 Cchp1         call getqp(2,nfilqp,nkp,nkxyz,lshft,ntet,w(oqp),w(owtkp),
 Cchp1      .  w(oidtet))
 Cchp1          call getqp ( 2 , nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp 
 Cchp1      .   , w ( owtkp ) , w ( oidtet ) ) 
-          call getqp ( 2 , nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp 
-     .    , rv_p_owtkp , w ( oidtet ) ) 
+Cchp1           call getqp ( 2 , nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp 
+Cchp1      .    , rv_p_owtkp , w ( oidtet ) ) 
+           call getqp ( 2 , nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp 
+     .     , rv_p_owtkp , iv_p_oidtet ) 
+
 
 
 
@@ -167,9 +192,15 @@ C ... Make the qp list from bzmesh
       else
         mxkp = nkxyz(1)*nkxyz(2)*nkxyz(3)
         if (lgstar .eq. 0) then
-          call defi(ogstar,-1)
+Cchp1           call defi(ogstar,-1)
+           allocate(iv_p_ogstar(abs(-1)))
+           if (-1<0) iv_p_ogstar(:)=0
+
         else
-          call defi(ogstar,-mxkp-1)
+Cchp1           call defi(ogstar,-mxkp-1)
+           allocate(iv_p_ogstar(abs(-mxkp-1)))
+           if (-mxkp-1<0) iv_p_ogstar(:)=0
+
         endif
 Cchp1         call defdr(owtkp,-mxkp)
          allocate(rv_p_owtkp(abs(-mxkp)))
@@ -206,7 +237,9 @@ C   ... Restrict BZ to two dimensions
         do  10  i = 1, 3
           llshft(i) = lshft(i) .ne. 0
    10   continue
-        call ivset(w(ogstar),1,1,lgstar)
+Cchp1         call ivset(w(ogstar),1,1,lgstar)
+         call ivset ( iv_p_ogstar , 1 , 1 , lgstar ) 
+
         call info0(20,0,0,' ')
 Cchp1         call bzmesh(plat,qlat,nkxyz(1),nkxyz(2),nkxyz(3),llshft,
 Cchp1      .  w(osymgr),npgrp,w(oipq),w(oqp),w(owtkp),nkp,mxkp,w(ogstar),
@@ -217,9 +250,13 @@ Cchp1      .   , w ( owtkp ) , nkp , mxkp , w ( ogstar ) , lpbc )
 Cchp1           call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
 Cchp1      .    ( 3 ) , llshft , w ( osymgr ) , npgrp , w ( oipq ) , rv_p_oqp 
 Cchp1      .    , rv_p_owtkp , nkp , mxkp , w ( ogstar ) , lpbc ) 
-           call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
-     .     ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
-     .     , rv_p_owtkp , nkp , mxkp , w ( ogstar ) , lpbc ) 
+Cchp1            call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
+Cchp1      .     ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
+Cchp1      .     , rv_p_owtkp , nkp , mxkp , w ( ogstar ) , lpbc ) 
+            call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
+     .      ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
+     .      , rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
+
 
 
 
@@ -251,7 +288,9 @@ Cchp1         call defi(oipq,6*mxkp)
          if (6*mxkp<0) iv_p_oipq(:)=0
 
         call pshpr(0)
-        call ivset(w(ogstar),1,1,lgstar)
+Cchp1         call ivset(w(ogstar),1,1,lgstar)
+         call ivset ( iv_p_ogstar , 1 , 1 , lgstar ) 
+
 Cchp1         call bzmesh(plat,qlat,nkxyz(1),nkxyz(2),nkxyz(3),llshft,
 Cchp1      .  w(osymgr),npgrp,w(oipq),w(oqp),w(owtkp),nkp,mxkp,w(ogstar),
 Cchp1      .  lpbc)
@@ -261,9 +300,13 @@ Cchp1      .   , w ( owtkp ) , nkp , mxkp , w ( ogstar ) , lpbc )
 Cchp1           call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
 Cchp1      .    ( 3 ) , llshft , w ( osymgr ) , npgrp , w ( oipq ) , rv_p_oqp 
 Cchp1      .    , rv_p_owtkp , nkp , mxkp , w ( ogstar ) , lpbc ) 
-           call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
-     .     ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
-     .     , rv_p_owtkp , nkp , mxkp , w ( ogstar ) , lpbc ) 
+Cchp1            call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
+Cchp1      .     ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
+Cchp1      .     , rv_p_owtkp , nkp , mxkp , w ( ogstar ) , lpbc ) 
+            call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
+     .      ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
+     .      , rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
+
 
 
 
@@ -281,7 +324,10 @@ cki          oipq = -999
 
 C   ... Generate inequivalent tetrahedra
         if (ltet .and. .not. lnoirr) then
-          call defi(oidtet,mxkp*30)
+Cchp1           call defi(oidtet,mxkp*30)
+           allocate(iv_p_oidtet(abs(mxkp*30)))
+           if (mxkp*30<0) iv_p_oidtet(:)=0
+
 C     ... Save a copy of ipq since tetirr destroys this array
           if (lipq) then
 cki            owk = oipq
@@ -298,10 +344,18 @@ Cchp1              call icopy ( 6 * mxkp , w ( owk ) , 1 , iv_p_oipq , 1 )
           endif
 Cchp1           call tetirr(qlat,nkxyz(1),nkxyz(2),nkxyz(3),w(oipq),ntet,
 Cchp1      .    w(oidtet))
-           call tetirr ( qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) 
-     .     , iv_p_oipq , ntet , w ( oidtet ) ) 
+Cchp1            call tetirr ( qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) 
+Cchp1      .     , iv_p_oipq , ntet , w ( oidtet ) ) 
+            call tetirr ( qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 ) 
+     .      , iv_p_oipq , ntet , iv_p_oidtet ) 
 
-          call redfi(oidtet,ntet*5)
+
+Cchp1           call redfi(oidtet,ntet*5)
+           i_data_size=size(iv_p_oidtet); allocate(iv_a_tmp(i_data_size))
+           iv_a_tmp=iv_p_oidtet; deallocate(iv_p_oidtet)
+           i_data_size=min(i_data_size,ntet*5); allocate(iv_p_oidtet(ntet*5))
+           iv_p_oidtet(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+
 C     ... Unless ipq still needed, throw it away
           if (lipq) then
 cki            oipq = owk
@@ -330,11 +384,15 @@ Cchp1       sbz%oqp=oqp
 Cchp1       sbz%owtkp=owtkp
        sbz%rv_p_owtkp => rv_p_owtkp 
 
-      sbz%ostar=ogstar
+Cchp1       sbz%ostar=ogstar
+       sbz%iv_p_ostar => iv_p_ogstar 
+
 
 
       sbz%ntet=ntet
-      sbz%oidtet=oidtet
+Cchp1       sbz%oidtet=oidtet
+       sbz%iv_p_oidtet => iv_p_oidtet 
+
 
 cki      if ( oipq .gt. 0 ) then
 
@@ -352,8 +410,11 @@ Cchp1         call getqp(2,-nfilqp,nkp,nkxyz,lshft,ntet,w(oqp),w(owtkp),
 Cchp1      .  w(oidtet))
 Cchp1          call getqp ( 2 , - nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp 
 Cchp1      .   , w ( owtkp ) , w ( oidtet ) ) 
-          call getqp ( 2 , - nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp 
-     .    , rv_p_owtkp , w ( oidtet ) ) 
+Cchp1           call getqp ( 2 , - nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp 
+Cchp1      .    , rv_p_owtkp , w ( oidtet ) ) 
+           call getqp ( 2 , - nfilqp , nkp , nkxyz , lshft , ntet , rv_p_oqp 
+     .     , rv_p_owtkp , iv_p_oidtet ) 
+
 
 
         call fclose(nfilqp)
