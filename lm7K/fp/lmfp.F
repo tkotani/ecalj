@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,og
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= integer,iv_p_,oorhat
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
@@ -159,7 +161,9 @@ cki, for rlse and allocate oindrx
 
 Cchp1       integer:: oistab , oag , og
 Cchp1        integer:: oag , og 
-        integer:: og 
+Cchp1         integer:: og 
+         real(8),pointer :: rv_p_og(:)
+
         real(8),pointer :: rv_p_oag(:)
 
        integer,pointer :: iv_p_oistab(:)
@@ -651,7 +655,9 @@ C       need group info to symmetrize site density matrix
 Cchp1         oistab=slat%oistab
          iv_p_oistab => slat%iv_p_oistab 
 
-        og=slat%osymgr
+Cchp1         og=slat%osymgr
+         rv_p_og => slat%rv_p_osymgr 
+
 
 C       defaults
 
@@ -664,9 +670,13 @@ C       initialize density matrix for LDA+U
 Cchp1         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
 Cchp1      .  , lldau_iv , ng , w ( og ) , w ( oistab ) , w ( odmatu ) , 
 Cchp1      .  w ( ovorb ) )
-         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
-     .   , lldau_iv , ng , w ( og ) , iv_p_oistab , w ( odmatu ) , w ( 
-     .   ovorb ) ) 
+Cchp1          call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
+Cchp1      .   , lldau_iv , ng , w ( og ) , iv_p_oistab , w ( odmatu ) , w ( 
+Cchp1      .   ovorb ) ) 
+          call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
+     .    , lldau_iv , ng , rv_p_og , iv_p_oistab , w ( odmatu ) , w ( 
+     .    ovorb ) ) 
+
 
 
       endif
@@ -895,9 +905,13 @@ C ... check convergence of dmatu and update it and vorb if necessary
 Cchp1         call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
 Cchp1      .  , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
 Cchp1      .  , lldau_iv , ng , w ( og ) , w ( oistab ) )
-         call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
-     .   , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
-     .   , lldau_iv , ng , w ( og ) , iv_p_oistab ) 
+Cchp1          call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
+Cchp1      .   , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
+Cchp1      .   , lldau_iv , ng , w ( og ) , iv_p_oistab ) 
+          call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
+     .    , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
+     .    , lldau_iv , ng , rv_p_og , iv_p_oistab ) 
+
 
 
       endif
@@ -1067,7 +1081,9 @@ Cchp1             oistab=slat%oistab
 Cchp1             oag=slat%oag
              rv_p_oag => slat%rv_p_oag 
 
-            og=slat%osymgr
+Cchp1             og=slat%osymgr
+             rv_p_og => slat%rv_p_osymgr 
+
 
 C         call shoist(w(oistab),nbas,w(oag),w(og),ng)
             j = 8+1
@@ -1079,8 +1095,11 @@ C         call shoist(w(oistab),nbas,w(oag),w(og),ng)
 Cchp1             call fixpos(w(opos),nbas,fptol,ng,plat,w(og),w(oag),w(oistab))
 Cchp1              call fixpos ( w ( opos ) , nbas , fptol , ng , plat , w ( og 
 Cchp1      .       ) , w ( oag ) , iv_p_oistab ) 
-              call fixpos ( w ( opos ) , nbas , fptol , ng , plat , w ( og 
-     .        ) , rv_p_oag , iv_p_oistab ) 
+Cchp1               call fixpos ( w ( opos ) , nbas , fptol , ng , plat , w ( og 
+Cchp1      .        ) , rv_p_oag , iv_p_oistab ) 
+               call fixpos ( w ( opos ) , nbas , fptol , ng , plat , rv_p_og 
+     .         , rv_p_oag , iv_p_oistab ) 
+
 
 
           endif

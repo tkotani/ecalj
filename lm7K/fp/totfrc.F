@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,og
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),iv_p_,oistab
 Cchp1 cmdvar= real(8),iv_p_,oips0
       subroutine totfrc(nbas,ssite,slat,leks,fes1,fes2,dfhf,f)
@@ -34,8 +36,12 @@ C ... Passed parameters
 C ... Local parameters
 Cchp1       integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , oistab 
 Cchp1      ., og , ibmx , isw
-       integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , og 
-     . , ibmx , isw 
+Cchp1        integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , og 
+Cchp1      . , ibmx , isw 
+        integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , ibmx 
+     .  , isw 
+        real(8),pointer :: rv_p_og(:)
+
       integer,pointer :: iv_p_oistab(:)
 
       real(8) ,allocatable :: wk_rv(:)
@@ -118,7 +124,9 @@ C     Symmetrize forces to machine precision
 Cchp1       oistab=slat%oistab
        iv_p_oistab => slat%iv_p_oistab 
 
-      og=slat%osymgr
+Cchp1       og=slat%osymgr
+       rv_p_og => slat%rv_p_osymgr 
+
 
       if (ng .gt. 1) then
         call info(30,1,0,' Symmetrize forces ...',0,0)
@@ -127,8 +135,11 @@ Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) wk_rv(:)=0.0d0
 
 Cchp1         call symfor ( nbas , 1 , w ( og ) , ng , w ( oistab ) , wk_rv 
 Cchp1      .  , f )
-         call symfor ( nbas , 1 , w ( og ) , ng , iv_p_oistab , wk_rv 
-     .   , f ) 
+Cchp1          call symfor ( nbas , 1 , w ( og ) , ng , iv_p_oistab , wk_rv 
+Cchp1      .   , f ) 
+          call symfor ( nbas , 1 , rv_p_og , ng , iv_p_oistab , wk_rv , 
+     .    f ) 
+
 
 
         if (allocated(wk_rv)) deallocate(wk_rv)

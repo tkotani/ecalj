@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,og
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= integer,iv_p_,oips
@@ -40,7 +42,10 @@ c      integer nkaph,iprma(*)
       integer iprmb(*),nl
 C Local parameters
 Cchp1       integer nkap0,n0, oag,og,ibas,k
-       integer:: nkap0 , n0 , og , ibas , k 
+Cchp1        integer:: nkap0 , n0 , og , ibas , k 
+        integer:: nkap0 , n0 , ibas , k 
+        real(8),pointer :: rv_p_og(:)
+
        real(8),pointer :: rv_p_oag(:)
 
 c      parameter (nkap0=3,n0=10)
@@ -70,7 +75,9 @@ C
 Cchp1       oag=slat%oag
        rv_p_oag => slat%rv_p_oag 
 
-      og=slat%osymgr
+Cchp1       og=slat%osymgr
+       rv_p_og => slat%rv_p_osymgr 
+
       ngrp=slat%nsgrp
 
 
@@ -142,7 +149,9 @@ c ... reverse maping of offset-index for hamiltonian
 
 C ... symmetry operation
       allocate(symops(3,3,ngrp),ag(3,ngrp))
-      call dcopy(ngrp*9,w(og),1,symops,1)
+Cchp1       call dcopy(ngrp*9,w(og),1,symops,1)
+       call dcopy ( ngrp * 9 , rv_p_og , 1 , symops , 1 ) 
+
 Cchp1       call dcopy(ngrp*3,w(oag),1,ag,1)
        call dcopy ( ngrp * 3 , rv_p_oag , 1 , ag , 1 ) 
 

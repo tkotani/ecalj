@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,og
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,oag
 CSFCPP#define F90 1
       subroutine mshvmt(nbas,ssite,sspec,slat,ng,gv,
@@ -219,8 +221,11 @@ C ... Local parameters
       double precision pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
 Cchp1       integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , og , oag 
 Cchp1      ., nn , iclbas
-       integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , og , nn 
-     . , iclbas 
+Cchp1        integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , og , nn 
+Cchp1      . , iclbas 
+        integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , nn , iclbas 
+        real(8),pointer :: rv_p_og(:)
+
        real(8),pointer :: rv_p_oag(:)
 
       real(8) ,allocatable :: qwk_rv(:)
@@ -236,7 +241,9 @@ C ... Heap
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       ngrp=slat%nsgrp
-      og=slat%osymgr
+Cchp1       og=slat%osymgr
+       rv_p_og => slat%rv_p_osymgr 
+
 Cchp1       oag=slat%oag
        rv_p_oag => slat%rv_p_oag 
 
@@ -281,8 +288,11 @@ Ctakao_ZeroClear_NotRequiered          if (nlml*nlml*nrclas<0) sym_rv(:)=0.0d0
 
 Cchp1             call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , w ( 
 Cchp1      .      og ) , w ( oag ) , qwk_rv , ipa , sym_rv , vval , nn )
-             call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , w ( 
-     .       og ) , rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
+Cchp1              call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , w ( 
+Cchp1      .       og ) , rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
+              call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , rv_p_og 
+     .        , rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
+
 
 
             if (allocated(sym_rv)) deallocate(sym_rv)

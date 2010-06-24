@@ -1,4 +1,4 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 15:26:41.856470
+Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 15:35:51.390065
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
@@ -1009,7 +1009,8 @@ CCHSTRUC       integer(8)   ::   okv
       integer(8)   ::   opos
 CCHSTRUC       integer(8)   ::   oqlv
        real(8) , pointer ::  rv_p_oqlv (:)
-      integer(8)   ::   osymgr
+CCHSTRUC       integer(8)   ::   osymgr
+       real(8) , pointer ::  rv_p_osymgr (:)
       real(8)   ::   plat(9)
       real(8)   ::   plat0(9)
       real(8)   ::   plat2(9)
@@ -3084,8 +3085,7 @@ Cstruc_makeinit.py skip iv_p_okv(:) because it is a pointer.
        call mpi_bcast(struc%opos, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_oqlv(:) because it is a pointer.
-       call mpi_bcast(struc%osymgr, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+Cstruc_makeinit.py skip rv_p_osymgr(:) because it is a pointer.
        i_data_size=size(struc%plat) ! plat(9)
        call mpi_bcast(struc%plat, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -4489,7 +4489,6 @@ C$$$        end subroutine utb
        struc%npgrp=0
        struc%nsgrp=0
        struc%opos=0
-       struc%osymgr=0
        struc%plat=0.0d0
        struc%plat0=0.0d0
        struc%plat2=0.0d0

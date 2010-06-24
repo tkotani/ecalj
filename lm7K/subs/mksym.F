@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= integer,iv_p_,onrcp
 Cchp1 cmdvar= integer,iv_p_,onrc
@@ -103,7 +104,10 @@ Cchp1      .    , aginv
 Cchp1            integer:: onrcp , opos , oipc , oipcp , oiwk , oag , osymgr , 
 Cchp1      .     aginv 
 Cchp1             integer:: opos , oipc , oipcp , oiwk , oag , osymgr , aginv 
-             integer:: opos , oipc , oipcp , oiwk , osymgr , aginv 
+Cchp1              integer:: opos , oipc , oipcp , oiwk , osymgr , aginv 
+              integer:: opos , oipc , oipcp , oiwk , aginv 
+              real(8),pointer :: rv_p_osymgr(:)
+
              real(8),pointer :: rv_p_oag(:)
 
             integer,pointer :: iv_p_onrcp(:)
@@ -153,7 +157,10 @@ Cchp1       call defrr(oag,   3*ngmx)
        allocate(rv_p_oag(abs(3*ngmx)))
        if (3*ngmx<0) rv_p_oag(:)=0.0d0
 
-      call defrr(osymgr,9*ngmx)
+Cchp1       call defrr(osymgr,9*ngmx)
+       allocate(rv_p_osymgr(abs(9*ngmx)))
+       if (9*ngmx<0) rv_p_osymgr(:)=0.0d0
+
       call defi(oipc,  nsite)
 Cchp1       call defi(oics,  nsite)
        allocate(iv_p_oics(abs(nsite)))
@@ -239,10 +246,15 @@ Cchp1        call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas
 Cchp1      . , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
 Cchp1      . , nrspc_iv , nsgrp , w ( osymgr ) , w ( oag ) , ngen , gen , 
 Cchp1      . ssymgr , nggen , isym , iv_p_oistab ) 
-        call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
-     .  , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
-     .  , nrspc_iv , nsgrp , w ( osymgr ) , rv_p_oag , ngen , gen , ssymgr 
-     .  , nggen , isym , iv_p_oistab ) 
+Cchp1         call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
+Cchp1      .  , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
+Cchp1      .  , nrspc_iv , nsgrp , w ( osymgr ) , rv_p_oag , ngen , gen , ssymgr 
+Cchp1      .  , nggen , isym , iv_p_oistab ) 
+         call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
+     .   , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
+     .   , nrspc_iv , nsgrp , rv_p_osymgr , rv_p_oag , ngen , gen , ssymgr 
+     .   , nggen , isym , iv_p_oistab ) 
+
 
 
 
@@ -289,7 +301,10 @@ C --- Add inversion to point group ---
         gen(5,ngen) = -1
         gen(9,ngen) = -1
         call pshpr(iprint()-40)
-        call grpgen(gen(1,ngen),1,w(osymgr),npgrp,ngmx)
+Cchp1         call grpgen(gen(1,ngen),1,w(osymgr),npgrp,ngmx)
+         call grpgen ( gen ( 1 , ngen ) , 1 , rv_p_osymgr , npgrp , ngmx 
+     .   ) 
+
         call poppr
         incli = npgrp-nsgrp
       endif
@@ -394,8 +409,11 @@ Cchp1       call symtbl(1,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
 Cchp1      .w(oistab))
 Cchp1        call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr 
 Cchp1      . ) , w ( oag ) , nsgrp , qlat , iv_p_oistab ) 
-        call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr 
-     .  ) , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
+Cchp1         call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr 
+Cchp1      .  ) , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
+         call symtbl ( 1 , fptol , nbas , w , w ( opos ) , rv_p_osymgr 
+     .   , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
+
 
 
 C     Debugging check
@@ -413,8 +431,11 @@ Cchp1         if (aginv(w(osymgr),nsgrp,npgrp,nbas,w(oag),w(oistab)) .ne. 0)
 Cchp1      .  call rx('bug in mksym')
 Cchp1          if ( aginv ( w ( osymgr ) , nsgrp , npgrp , nbas , w ( oag ) 
 Cchp1      .   , iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
-          if ( aginv ( w ( osymgr ) , nsgrp , npgrp , nbas , rv_p_oag , 
-     .    iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
+Cchp1           if ( aginv ( w ( osymgr ) , nsgrp , npgrp , nbas , rv_p_oag , 
+Cchp1      .    iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
+           if ( aginv ( rv_p_osymgr , nsgrp , npgrp , nbas , rv_p_oag , 
+     .     iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
+
 
 
       endif
@@ -502,7 +523,9 @@ Cchp1       slat%oistab=oistab
 Cchp1       slat%oag=oag
        slat%rv_p_oag => rv_p_oag 
 
-      slat%osymgr=osymgr
+Cchp1       slat%osymgr=osymgr
+       slat%rv_p_osymgr => rv_p_osymgr 
+
 
 
       end subroutine mksym

@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,og
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= real(8),rv_p_,ogv
 Cchp1 cmdvar= real(8),rv_p_,odlv
@@ -76,9 +78,14 @@ Cchp1      .         ng , ngrp , og , iprint
 Cchp1                 integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
 Cchp1      .          , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , okv , ng , 
 Cchp1      .          ngrp , og , iprint 
-                 integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
-     .           , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , 
-     .           og , iprint 
+Cchp1                  integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
+Cchp1      .           , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , 
+Cchp1      .           og , iprint 
+                  integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
+     .            , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , 
+     .            iprint 
+                  real(8),pointer :: rv_p_og(:)
+
                  integer,pointer :: iv_p_okv(:)
 
                 real(8),pointer :: rv_p_ogv(:)
@@ -242,7 +249,9 @@ Cchp1         call defcc(obgv,    ng)
 
 
         ngrp=slat%nsgrp
-        og=slat%osymgr
+Cchp1         og=slat%osymgr
+         rv_p_og => slat%rv_p_osymgr 
+
 Cchp1         oag=slat%oag
          rv_p_oag => slat%rv_p_oag 
 
@@ -254,8 +263,11 @@ Cchp1           call sgvsym ( ngrp , w ( og ) , rv_p_oag , ng , w ( ogv ) , iv_p
 Cchp1      .    , w ( obgv ) ) 
 Cchp1            call sgvsym ( ngrp , w ( og ) , rv_p_oag , ng , w ( ogv ) , iv_p_oips0 
 Cchp1      .     , zv_p_obgv ) 
-            call sgvsym ( ngrp , w ( og ) , rv_p_oag , ng , rv_p_ogv , iv_p_oips0 
-     .      , zv_p_obgv ) 
+Cchp1             call sgvsym ( ngrp , w ( og ) , rv_p_oag , ng , rv_p_ogv , iv_p_oips0 
+Cchp1      .      , zv_p_obgv ) 
+             call sgvsym ( ngrp , rv_p_og , rv_p_oag , ng , rv_p_ogv , iv_p_oips0 
+     .       , zv_p_obgv ) 
+
 
 
 

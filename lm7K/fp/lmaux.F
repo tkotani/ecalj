@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,og
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,odlv
 Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= real(8),rv_p_,ormax
@@ -187,9 +189,14 @@ Cchp1      .                , opgfsl , ontab , oiax , og , oag , mxclas
 Cchp1                        integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
 Cchp1      .                 odlv , orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip 
 Cchp1      .                 , opgfsl , ontab , oiax , og , mxclas 
-                        integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
-     .                  orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl 
-     .                  , ontab , oiax , og , mxclas 
+Cchp1                         integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
+Cchp1      .                  orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl 
+Cchp1      .                  , ontab , oiax , og , mxclas 
+                         integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
+     .                   orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl 
+     .                   , ontab , oiax , mxclas 
+                         real(8),pointer :: rv_p_og(:)
+
                         real(8),pointer :: rv_p_odlv(:)
 
                        real(8),pointer :: rv_p_oag(:)
@@ -620,12 +627,20 @@ Ctakao_ZeroClear_NotRequiered          if (nbas<0) ips2_iv(:)=0
           enddo
 
 
-          call defrr(og,   9*ngmx)
-          call symlat(plat,ngrp,w(og),j)
+Cchp1           call defrr(og,   9*ngmx)
+           allocate(rv_p_og(abs(9*ngmx)))
+           if (9*ngmx<0) rv_p_og(:)=0.0d0
+
+Cchp1           call symlat(plat,ngrp,w(og),j)
+           call symlat ( plat , ngrp , rv_p_og , j ) 
+
 Cchp1           j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , w ( oips 
 Cchp1      .    ) , w ( opos ) , ips2_iv , pos2_rv )
-           j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , iv_p_oips 
-     .     , w ( opos ) , ips2_iv , pos2_rv ) 
+Cchp1            j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , iv_p_oips 
+Cchp1      .     , w ( opos ) , ips2_iv , pos2_rv ) 
+            j = cmplat ( nbas , plat , plat , ngrp , rv_p_og , iv_p_oips 
+     .      , w ( opos ) , ips2_iv , pos2_rv ) 
+
 
 
           call fexit(j,1,' Exit %i lmchk --basis= ...',j)
@@ -846,7 +861,9 @@ C --- Empty sphere finder ---
       if (getdig(mode,7,2) .ne. 0) then
 
         nsgrp=slat%nsgrp
-        og=slat%osymgr
+Cchp1         og=slat%osymgr
+         rv_p_og => slat%rv_p_osymgr 
+
 Cchp1         oag=slat%oag
          rv_p_oag => slat%rv_p_oag 
 
@@ -912,9 +929,13 @@ Cchp1      .   , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
 Cchp1           call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
 Cchp1      .    , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
 Cchp1      .    , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
-           call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
-     .     , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-     .     , rv_p_oag , lockc_rv , rmtc_rv , zc_rv ) 
+Cchp1            call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
+Cchp1      .     , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+Cchp1      .     , rv_p_oag , lockc_rv , rmtc_rv , zc_rv ) 
+            call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
+     .      , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , rv_p_og , 
+     .      rv_p_oag , lockc_rv , rmtc_rv , zc_rv ) 
+
 
 
 

@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,og
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= integer,iv_p_,oiprmb
 Cchp1 cmdvar= integer,iv_p_,oindxo
 Cchp1 cmdvar= real(8),rv_p_,oqsig
@@ -165,7 +167,10 @@ C ... Local parameters
      .stdo
 C     integer lshft(3)
 Cchp1       integer:: og , oiprmb , ov0
-       integer:: og , ov0 
+Cchp1        integer:: og , ov0 
+        integer:: ov0 
+        real(8),pointer :: rv_p_og(:)
+
        integer,pointer :: iv_p_oiprmb(:)
 
       complex(8) ,allocatable :: aus_zv(:)
@@ -252,7 +257,9 @@ C --- Setup ---
 
       npgrp=slat%npgrp
       nsgrp=slat%nsgrp
-      og=slat%osymgr
+Cchp1       og=slat%osymgr
+       rv_p_og => slat%rv_p_osymgr 
+
 
       call fftz30(n1,n2,n3,k1,k2,k3)
       stdo = lgunit(1)
@@ -372,7 +379,9 @@ C --- Make files SYMOPS, LATTC, CLASS, NLAindx, ldima ---
         call info(30,1,1,
      .  ' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
 C   ... Create file SYMOPS
-        call wsymops(w(og),nsgrp)
+Cchp1         call wsymops(w(og),nsgrp)
+         call wsymops ( rv_p_og , nsgrp ) 
+
 C   ... Create file LATTC
         allocate(ips(nbas),lmxa(nbas),bas(3,nbas))
         i_copy_size=1;

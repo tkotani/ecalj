@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,og
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= real(8),rv_p_,ohrs
 Cchp1 cmdvar= real(8),iv_p_,oistab
@@ -205,7 +207,10 @@ Cchp1      .   ohrss , oistab
 Cchp1           integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss , oistab 
 Cchp1            integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss 
 Cchp1             integer:: og , oag , opos , ontabs , oiaxs , ohrss 
-             integer:: og , opos , ontabs , oiaxs , ohrss 
+Cchp1              integer:: og , opos , ontabs , oiaxs , ohrss 
+              integer:: opos , ontabs , oiaxs , ohrss 
+              real(8),pointer :: rv_p_og(:)
+
              real(8),pointer :: rv_p_oag(:)
 
             real(8),pointer :: rv_p_ohrs(:)
@@ -567,7 +572,9 @@ C     Sanity checks
 Cchp1       oistab=slat%oistab
        iv_p_oistab => slat%iv_p_oistab 
 
-      og=slat%osymgr
+Cchp1       og=slat%osymgr
+       rv_p_og => slat%rv_p_osymgr 
+
 Cchp1       oag=slat%oag
        rv_p_oag => slat%rv_p_oag 
 
@@ -609,10 +616,15 @@ Cchp1        call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 ,
 Cchp1      . nsp , nbas , w ( og ) , w ( oag ) , nsgrp , rsrnge , iv_p_ooffh 
 Cchp1      . , 1 , nbas , ndimh , ndimh , w , plat , w ( opos ) , ontabs , 
 Cchp1      . oiaxs , ndhrs , w ) 
-        call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 , 
-     .  nsp , nbas , w ( og ) , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
-     .  , 1 , nbas , ndimh , ndimh , w , plat , w ( opos ) , ontabs , 
-     .  oiaxs , ndhrs , w ) 
+Cchp1         call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 , 
+Cchp1      .  nsp , nbas , w ( og ) , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
+Cchp1      .  , 1 , nbas , ndimh , ndimh , w , plat , w ( opos ) , ontabs , 
+Cchp1      .  oiaxs , ndhrs , w ) 
+         call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 , 
+     .   nsp , nbas , rv_p_og , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
+     .   , 1 , nbas , ndimh , ndimh , w , plat , w ( opos ) , ontabs , 
+     .   oiaxs , ndhrs , w ) 
+
 
 
       nttabs = ival(w(ontabs),nbas+1)
@@ -675,9 +687,13 @@ Cchp1       sham%oqsig=oqsig
 Cchp1       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
 Cchp1      ., nsgrps , ipq_iv , w ( oqp ) , wgt_rv , nqps , mxkp , 
 Cchp1      .gstar_iv , 0 ) 
-       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
-     . , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv 
-     . , 0 ) 
+Cchp1        call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+Cchp1      . , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv 
+Cchp1      . , 0 ) 
+        call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
+     .  , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv 
+     .  , 0 ) 
+
 
 
       call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
@@ -853,10 +869,15 @@ Cchp1                call hamfb3 ( nbas , nl , iv_p_ooffh , iv_p_oiprmb , i , w 
 Cchp1      .         opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , iv_p_oistab 
 Cchp1      .         , w ( og ) , w ( oag ) , gstar_iv , ifac , ndimh , ndimh , ndimh 
 Cchp1      .         , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
-                call hamfb3 ( nbas , nl , iv_p_ooffh , iv_p_oiprmb , i , w ( 
-     .          opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , iv_p_oistab 
-     .          , w ( og ) , rv_p_oag , gstar_iv , ifac , ndimh , ndimh , ndimh 
-     .          , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
+Cchp1                 call hamfb3 ( nbas , nl , iv_p_ooffh , iv_p_oiprmb , i , w ( 
+Cchp1      .          opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , iv_p_oistab 
+Cchp1      .          , w ( og ) , rv_p_oag , gstar_iv , ifac , ndimh , ndimh , ndimh 
+Cchp1      .          , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
+                 call hamfb3 ( nbas , nl , iv_p_ooffh , iv_p_oiprmb , i , w ( 
+     .           opos ) , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv , iv_p_oistab 
+     .           , rv_p_og , rv_p_oag , gstar_iv , ifac , ndimh , ndimh , ndimh 
+     .           , nspc , qb , sigm_zv , wk_zv , wk_zv , sfz_zv ) 
+
 
 
 
@@ -899,10 +920,15 @@ Cchp1             call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp
 Cchp1      .      , nsp , nbas , w ( og ) , w ( oag ) , nsgrps , rsrnge , iv_p_ooffh 
 Cchp1      .      , 1 , nbas , ndimh , ndimh , sfz_zv , plat , w ( opos ) , ontabs 
 Cchp1      .      , oiaxs , ndhrs , rv_p_ohrs ) 
-             call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
-     .       , nsp , nbas , w ( og ) , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
-     .       , 1 , nbas , ndimh , ndimh , sfz_zv , plat , w ( opos ) , ontabs 
-     .       , oiaxs , ndhrs , rv_p_ohrs ) 
+Cchp1              call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
+Cchp1      .       , nsp , nbas , w ( og ) , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
+Cchp1      .       , 1 , nbas , ndimh , ndimh , sfz_zv , plat , w ( opos ) , ontabs 
+Cchp1      .       , oiaxs , ndhrs , rv_p_ohrs ) 
+              call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
+     .        , nsp , nbas , rv_p_og , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
+     .        , 1 , nbas , ndimh , ndimh , sfz_zv , plat , w ( opos ) , ontabs 
+     .        , oiaxs , ndhrs , rv_p_ohrs ) 
+
 
 
 
@@ -1028,10 +1054,15 @@ Cchp1          call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas ,
 Cchp1      .   w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
 Cchp1      .   ) , w ( og ) , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , w ( ohrs 
 Cchp1      .   ) ) 
-          call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
-     .    w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
-     .    ) , w ( og ) , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , rv_p_ohrs 
-     .    ) 
+Cchp1           call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
+Cchp1      .    w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
+Cchp1      .    ) , w ( og ) , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , rv_p_ohrs 
+Cchp1      .    ) 
+           call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
+     .     w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
+     .     ) , rv_p_og , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , rv_p_ohrs 
+     .     ) 
+
 
 
 
@@ -1174,9 +1205,13 @@ Cchp1      .          ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , 0 , 0 )
 Cchp1                 call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
 Cchp1      .          , nsgrp , ipq_iv , w ( oqp ) , wgt_rv , nqp , mxkp , gstar_iv 
 Cchp1      .          , 0 ) 
-                 call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
-     .           , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv 
-     .           , 0 ) 
+Cchp1                  call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+Cchp1      .           , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv 
+Cchp1      .           , 0 ) 
+                  call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
+     .            , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv 
+     .            , 0 ) 
+
 
 
 

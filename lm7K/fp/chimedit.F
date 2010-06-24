@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,og
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= real(8),iv_p_,oistab
       subroutine chimedit(sopts,mode,sctrl,ssite,sspec,slat,spot,sbz,
@@ -121,7 +123,10 @@ C ... Local parameters
       integer nmag,nmagf,magat(100),magatf(100),ix(10),nmbas
 Cchp1       integer:: opos , oistab , og , oag
 Cchp1        integer:: opos , og , oag 
-        integer:: opos , og 
+Cchp1         integer:: opos , og 
+         integer:: opos 
+         real(8),pointer :: rv_p_og(:)
+
         real(8),pointer :: rv_p_oag(:)
 
        integer,pointer :: iv_p_oistab(:)
@@ -171,7 +176,9 @@ C --- Setup ---
 Cchp1       oistab=slat%oistab
        iv_p_oistab => slat%iv_p_oistab 
 
-      og=slat%osymgr
+Cchp1       og=slat%osymgr
+       rv_p_og => slat%rv_p_osymgr 
+
 Cchp1       oag=slat%oag
        rv_p_oag => slat%rv_p_oag 
 
@@ -286,9 +293,12 @@ C ... Number of k-points
 
           call info2(20,0,0,' Irr. qp ...',0,0)
           allocate(qp(3,nq))
-          call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
-     .    , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 
-     .    )
+Cchp1           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , w ( og ) 
+Cchp1      .    , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 
+Cchp1      .    )
+           call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_p_og 
+     .     , nsgrp , ipq , qp , wgt_rv , nq , mxkp , gstar_iv , 0 ) 
+
 
           lqp = 4
           call rx('irr still in progress')

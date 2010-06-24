@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,og
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= integer,iv_p_,okv
 Cchp1 cmdvar= integer,iv_p_,ojcg
 Cchp1 cmdvar= integer,iv_p_,oidxcg
@@ -136,9 +138,14 @@ Cchp1      .    , ojcg , igetss , mxint , ival
 Cchp1            integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
 Cchp1      .     , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , og , ojcg 
 Cchp1      .     , igetss , mxint , ival 
-            integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
-     .      , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , og , igetss 
-     .      , mxint , ival 
+Cchp1             integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
+Cchp1      .      , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , og , igetss 
+Cchp1      .      , mxint , ival 
+             integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
+     .       , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , igetss , 
+     .       mxint , ival 
+             real(8),pointer :: rv_p_og(:)
+
             integer,pointer :: iv_p_ojcg(:)
 
            integer,pointer :: iv_p_oidxcg(:)
@@ -193,7 +200,9 @@ Cchp1       oistab=slat%oistab
 
 
       ngrp=slat%nsgrp
-      og=slat%osymgr
+Cchp1       og=slat%osymgr
+       rv_p_og => slat%rv_p_osymgr 
+
 Cchp1       oag=slat%oag
        rv_p_oag => slat%rv_p_oag 
 
@@ -267,8 +276,11 @@ Cchp1           call symprj ( nrclas , nlmx , ngrp , nbas , w ( oistab ) , w
 Cchp1      .    ( og ) , w ( oag ) , plat , qlat , pos_rv , sym_rv )
 Cchp1            call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , w ( 
 Cchp1      .     og ) , w ( oag ) , plat , qlat , pos_rv , sym_rv ) 
-            call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , w ( 
-     .      og ) , rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
+Cchp1             call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , w ( 
+Cchp1      .      og ) , rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
+             call symprj ( nrclas , nlmx , ngrp , nbas , iv_p_oistab , rv_p_og 
+     .       , rv_p_oag , plat , qlat , pos_rv , sym_rv ) 
+
 
 
 

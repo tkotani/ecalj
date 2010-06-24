@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= integer,iv_p_,ogstar
 Cchp1 cmdvar= integer,iv_p_,ostar
 Cchp1 cmdvar= integer,iv_p_,oidtet
@@ -73,9 +74,13 @@ Cchp1      .    , igets , stdo , nglob
 Cchp1            integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
 Cchp1      .     , lshft(3) , lpbc , ntet , i , ogstar , osymgr , iprint , igets 
 Cchp1      .     , stdo , nglob 
-            integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
-     .      , lshft(3) , lpbc , ntet , i , osymgr , iprint , igets , stdo 
-     .      , nglob 
+Cchp1             integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
+Cchp1      .      , lshft(3) , lpbc , ntet , i , osymgr , iprint , igets , stdo 
+Cchp1      .      , nglob 
+             integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
+     .       , lshft(3) , lpbc , ntet , i , iprint , igets , stdo , nglob 
+             real(8),pointer :: rv_p_osymgr(:)
+
             integer,pointer :: iv_p_ogstar(:)
 
            integer,pointer :: iv_p_oidtet(:)
@@ -115,7 +120,9 @@ cki      oidtet = 1
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       nsgrp=slat%nsgrp
       npgrp=slat%npgrp
-      osymgr=slat%osymgr
+Cchp1       osymgr=slat%osymgr
+       rv_p_osymgr => slat%rv_p_osymgr 
+
 
 c       lpgf = int(sctrl%lpgf(1))
 
@@ -253,9 +260,13 @@ Cchp1      .    , rv_p_owtkp , nkp , mxkp , w ( ogstar ) , lpbc )
 Cchp1            call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
 Cchp1      .     ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
 Cchp1      .     , rv_p_owtkp , nkp , mxkp , w ( ogstar ) , lpbc ) 
-            call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
-     .      ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
-     .      , rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
+Cchp1             call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
+Cchp1      .      ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
+Cchp1      .      , rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
+             call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
+     .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp , 
+     .       rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
+
 
 
 
@@ -303,9 +314,13 @@ Cchp1      .    , rv_p_owtkp , nkp , mxkp , w ( ogstar ) , lpbc )
 Cchp1            call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
 Cchp1      .     ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
 Cchp1      .     , rv_p_owtkp , nkp , mxkp , w ( ogstar ) , lpbc ) 
-            call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
-     .      ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
-     .      , rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
+Cchp1             call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
+Cchp1      .      ( 3 ) , llshft , w ( osymgr ) , npgrp , iv_p_oipq , rv_p_oqp 
+Cchp1      .      , rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
+             call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz 
+     .       ( 3 ) , llshft , rv_p_osymgr , npgrp , iv_p_oipq , rv_p_oqp , 
+     .       rv_p_owtkp , nkp , mxkp , iv_p_ogstar , lpbc ) 
+
 
 
 
