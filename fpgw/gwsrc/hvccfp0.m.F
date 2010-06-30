@@ -92,7 +92,10 @@ c---
       complex(8):: pval,pslo,phasex
       real(8)::absqq,qqx(3), epsmx
       integer(4):: nnmx ,ngcnn,ngbo
-      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
+cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
+      integer(4):: ifgb0vec_a,ifgb0vec_b
+      logical:: is_mix0vec
+
 
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
@@ -1057,10 +1060,12 @@ c Mix0vec ---------------------------------
           if(wqt(iqx-nqibz)==0d0) then
 
 C --- To get the vector <Mixed basis| q=0> --------------
-            if(is_mix0vec()==0) then     !used original befor oct2006
+cki            if(is_mix0vec()==0) then     !used original befor oct2006
+            if(.not.is_mix0vec()) then     !used original befor oct2006
               ifgb0vec_a =ifgb0vec
               ifgb0vec_b =ifgb0vec1
-            elseif(is_mix0vec()==1) then !oct2006 new case
+cki            elseif(is_mix0vec()==1) then !oct2006 new case
+            else
 ! ismix0vec=1 is to avoid problem at BZ boundary when is_mix0vec()=0.
 ! See switch.F ---> this is not used now.
               ifgb0vec_a =ifgb0vec1
