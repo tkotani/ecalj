@@ -40,7 +40,8 @@ C ... Passed parameters
       integer procid, master, mpipid
       integer nbas,nspec,orhoat(3,nbas)
       real(8):: qbg
-      type(s_site)::ssite(*)
+cki      type(s_site)::ssite(*)
+      type(s_site)::ssite(nbas)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
       type(s_pot)::spot

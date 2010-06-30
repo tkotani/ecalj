@@ -128,7 +128,8 @@ C ... Passed parameters
       integer mode,nbas,nat,nspec,nit,ifi,orhoat(3,nbas),n0
       parameter (n0=10)
       type(s_ctrl)::sctrl
-      type(s_site)::ssite(*)
+cki      type(s_site)::ssite(*)
+      type(s_site)::ssite(nbas)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
       type(s_pot)::spot

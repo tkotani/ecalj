@@ -48,7 +48,8 @@ C ... Passed parameters
       parameter(n0=10,nab=9)
       real(8):: pmin(n0) , pmax(n0) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) 
      ., sab(nab,n0,nsp,nbas) , hab(nab,n0,nsp,nbas)
-      type(s_site)::ssite(*)
+cki      type(s_site)::ssite(*)
+      type(s_site)::ssite(nbas)
       type(s_spec)::sspec(*)
 
 C ... Local parameters

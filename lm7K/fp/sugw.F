@@ -149,7 +149,8 @@ C ... Passed parameters
       integer osigx(3,nbas),otaux(3,nbas),oppix(3,nbas)
       real(8):: rsml(n0) , ehl(n0) , ppn(nppn,n0,nbas) , vconst , smpot(1) 
      ., spotx(1) , vrmt(nbas)
-      type(s_site)::ssite(*)
+cki      type(s_site)::ssite(*)
+      type(s_site)::ssite(nbas)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
       type(s_ham)::sham

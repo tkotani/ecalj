@@ -29,7 +29,8 @@ C     implicit none
 C ... Passed parameters
       integer nbas,nsp,job,n0
       parameter (n0=10)
-      type(s_site)::ssite(*)
+cki      type(s_site)::ssite(*)
+      type(s_site)::ssite(nbas)
       type(s_spec)::sspec(*)
 
 C ... Local parameters

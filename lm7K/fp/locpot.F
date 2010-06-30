@@ -132,7 +132,8 @@ C ... Passed parameters
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       parameter (n0=10,nppn=12,nab=9)
       real(8):: qmom(1) , vval(1)
-      type(s_site)::ssite(*)
+cki      type(s_site)::ssite(*)
+      type(s_site)::ssite(nbas)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
 

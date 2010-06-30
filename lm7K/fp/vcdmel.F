@@ -62,7 +62,8 @@ C Passed Parameters
       integer isite(nsite),iclsl(nsite),iclsn(nsite)
       real(8):: ef , evl(ndham,nsp,nq)
       type(s_ctrl)::sctrl
-      type(s_site)::ssite(*)
+cki      type(s_site)::ssite(*)
+      type(s_site)::ssite(nsite)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
 
