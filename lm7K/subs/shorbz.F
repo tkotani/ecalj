@@ -58,7 +58,7 @@ C we are looking for shortest vectors
           !print *,'ik nlat0',nlat0(:,ik)
         endif
       enddo
-      write(6,"('pin=',3f8.3,' nmax=',3i4,' nout=',i3)")pin, nmax(1:3),nout
+      !write(6,"('pin=',3f8.3,' nmax=',3i4,' nout=',i3)")pin, nmax(1:3),nout
       deallocate(rnorm,nlat0)
       return
 

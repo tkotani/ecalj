@@ -1797,21 +1797,21 @@ C     double precision dval,rmskm(100),rmsmx
 
 C ... This is the result of linear mixing, q=0 smooth rho
 C     sqmix = a(1,0,1)*beta + a(1,0,2)*(1-beta)
-      real(8):: aaa(nda)
+      real(8),allocatable:: aaa(:)
 
 ccccccccccccccccccccccccccccccccccccccccc
 c takao simple mixing test
 c      print *,' vvv: takao simple mixing test'
-c      aaa = a(:,0,2)
+c      allocate(aaa(nda))
 c      aaa = .2d0*a(:,0,1)+.8d0*a(:,0,2)
 c      aaa = .40d0*a(:,0,1)+.6d0*a(:,0,2)
-
 c      aaa = .9d0*a(:,0,1)+.1d0*a(:,0,2)
 c      aaa = 1.d0*a(:,0,1)+.0d0*a(:,0,2)
 c       aaa = .5d0*a(:,0,1)+.5d0*a(:,0,2)
 c      aaa = .8d0*a(:,0,1)+.2d0*a(:,0,2)
 c      call dcopy(nda,aaa,1,a(1,0,1),1)
 c      call dcopy(nda,aaa,1,a(1,0,2),1)
+c      deallocate(aaa)
 c      return
 cccccccccccccccccccccccccccccccccccccccccc
 

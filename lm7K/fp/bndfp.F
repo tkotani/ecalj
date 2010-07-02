@@ -430,7 +430,7 @@ ctakao
       real(8):: qpo(3),qpx(3)
 
       integer:: iqini,iqend
-      complex(8),allocatable:: spotx(:,:,:,:)
+      complex(8),allocatable:: spotx(:,:,:,:),smrhobk(:)
 
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
@@ -3145,9 +3145,9 @@ ccccccccccccccccccccccccccccccccccc
 ctakao test mkekin repeat
 c          print *,'vvv takao mkekin repeat 001x ---newpot x newrho'
 c          call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
-c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osrout),sev,sumtvxxx)
-c          print *,'vvv takao mkekin repeat 001 --- newpot x oldrho'
-c          call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
+c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),srout_zv,sev,sumtvxxx)
+c         print *,'vvv takao mkekin repeat 001 --- newpot x oldrho'
+c         call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
 c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sev,sumtvxxx)
 c          print *,'vvv takao mkekin repeat 002 --- oldpot x oldrho'
 c          call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
@@ -3176,6 +3176,12 @@ C   --- Mix input and output densities ---
 #if MPE
         ierr = MPE_LOG_EVENT(EVENT_START_MIXRHO,procid,"mixrho")
 #endif
+cccccccccccccccccccccc
+cc          print *,'vvv takao mkekin copy test xxx1---'
+cc          allocate(smrhobk(k1*k2*k3*2))
+cc1          call dcopy(k1*k2*k3*4,w(osmrho),1,smrhobk,1)
+cc2          call dcopy(k1*k2*k3*2,srout_zv,1,smrhobk,1)
+ccccccccccccccccccccccc
 Cchp1         call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2 
 Cchp1      .  ) , qval - qbg , elind , orhat1 , w ( oorhat ) , k1 , k2 , k3 
 Cchp1      .  , dmxp , srout_zv , w ( osmrho ) ) 
@@ -3186,13 +3192,13 @@ Cchp1      .   , dmxp , srout_zv , zv_p_osmrho )
      .    ) , qval - qbg , elind , orhat1 , iv_p_oorhat , k1 , k2 , k3 
      .    , dmxp , srout_zv , zv_p_osmrho ) 
 
-
-
-
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat
+cc          print *,'vvv takao mkekin copy test xxx2---'
+cc          call dcopy(k1*k2*k3*2,smrhobk,1,w(osmrho),1)
+cc          deallocate(smrhobk)
 c          print *,'vvv takao mkekin repeat 2 ---'
-c          call dcopy(k1*k2*k3*2,w(osmpotbk),1,w(osmpot),1)
+c          call dcopy(k1*k2*k3*4,w(osmpotbk),1,w(osmpot),1)
 c          call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
 c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sev,sumtvxxx)
 c          stop 'xxxxxxxxxxxxxxxx'

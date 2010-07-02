@@ -118,6 +118,7 @@ cccccccccccccc
       real(8) ,allocatable :: gg_rv(:)
       real(8) ,allocatable :: kk_rv(:)
       real(8) ,allocatable :: iwk_rv(:)
+      integer,allocatable:: nlatout(:,:)
 cccccccccccccc
 
 C ... Setup
@@ -160,34 +161,43 @@ C --- Loop through g vectors, shorten, count and keep if within gmax ---
       if(fullmesh()) then !kino's path. Something wrong
         ! ---> Kino think this is OK even for fullmesh()=F.
         ! But this path did not go through make check.
-
+        noutmx=48 
+        call shortn3_initialize(qlat1) !initialization for shoten3
+        allocate(nlatout(3,noutmx))
         do  21  j1 = 0, n1-1
           do  21  j2 = 0, n2-1
             do  21  j3 = 0, n3-1
-              n_gslist=0
-              do 21 if1=0,1
-                do 21 if2=0,1
-                  do 21 if3=0,1
-                    gsflags=(/if1,if2,if3/)
-                    qpg(1) = j1*qlat(1,1) + j2*qlat(1,2) + j3*qlat(1,3) + q(1)
-                    qpg(2) = j1*qlat(2,1) + j2*qlat(2,2) + j3*qlat(2,3) + q(2)
-                    qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
-                    call shorbzm(gsflags,qpg,gs,qlat1,plat1)
-                    do i_gslist=1,n_gslist
-                      if ( gs(1).eq.gslist(1,i_gslist) .and.
-     .                gs(2).eq.gslist(2,i_gslist) .and.
-     .                gs(3).eq.gslist(3,i_gslist) ) then
-                        goto 21
-                      endif
-                    enddo
-                    n_gslist=n_gslist+1
-                    gslist(1:3,n_gslist)=gs(1:3)
+c              n_gslist=0
+c              do 21 if1=0,1
+c                do 21 if2=0,1
+c                  do 21 if3=0,1
+c                    gsflags=(/if1,if2,if3/)
+c                    qpg(1) = j1*qlat(1,1) + j2*qlat(1,2) + j3*qlat(1,3) + q(1)
+c                    qpg(2) = j1*qlat(2,1) + j2*qlat(2,2) + j3*qlat(2,3) + q(2)
+c                    qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
+
+                    qpg= (/j1, j2, j3/) + matmul(q,plat(:,:))
+                    qpg= (/ qpg(1)/dble(n1), qpg(2)/dble(n2), qpg(3)/dble(n3) /) 
+                    call shortn3(qpg, noutmx, nout,nlatout)
+                    gs= matmul(qlat1(:,:), (qpg+nlatout(:,1))) ! We use first nlatout only.
+                                                               !--->This may numerically break crystal symmetry (very slightly).
+                                                               !shortn3 requires shotn3_init in advance.
+c                    call shorbzm(gsflags,qpg,gs,qlat1,plat1)
+c                    do i_gslist=1,n_gslist
+c                      if ( gs(1).eq.gslist(1,i_gslist) .and.
+c     .                gs(2).eq.gslist(2,i_gslist) .and.
+c     .                gs(3).eq.gslist(3,i_gslist) ) then
+c                        goto 21
+c                      endif
+c                    enddo
+c                    n_gslist=n_gslist+1
+c                    gslist(1:3,n_gslist)=gs(1:3)
 c        if (n_gslist>1)then
-c          write(stdo,'(a,3f15.5)')'new gs=',gs
+c                    write(6,'(a,i5,3f15.5)')'new gs=',n_gslist,gs
 c        endif
 
-C        print 333, j1,j2,j3,gs(1)+tau(1),gs(2)+tau(2),gs(3)+tau(3)
-C  333   format(3i4,3f12.6)
+c        print 333, j1,j2,j3,gs !+tau(1),gs(2)+tau(2),gs(3)+tau(3)
+c  333   format(3i4,3f12.6)
                     gg = (gs(1)**2+gs(2)**2+gs(3)**2)
                     if (gg .le. gmax2) then
                       ig = ig+1
@@ -247,7 +257,7 @@ c#endif
                       endif
                     endif
    21   continue
-
+        deallocate(nlatout)
       else
 
         do  20  j1 = 0, n1-1

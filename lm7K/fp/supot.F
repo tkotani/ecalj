@@ -142,8 +142,8 @@ Cchp1       oqlv=slat%oqlv
 C --- Monopole Madelung matrix ---
       if (mod(mode,10) .eq. 1) then
 Cchp1         call defdr(omad,nbaspp**2)
-         allocate(rv_p_omad(abs(nbaspp**2)))
-         if (nbaspp**2<0) rv_p_omad(:)=0.0d0
+         allocate(rv_p_omad(nbaspp**2))
+         rv_p_omad(:)=0.0d0
 
 Cchp1         call madmat(nbaspp,w(opos),awald,alat,vol,w(odlv),nkd,
 Cchp1      .  w(oqlv),nkq,w(omad))
@@ -184,11 +184,11 @@ c        call pshpr(iprint()-0)
 C   ... Make list of lattice vectors within cutoff
 Cchp1         call defrr(ogv, ngmx*3)
          allocate(rv_p_ogv(abs(ngmx*3)))
-         if (ngmx*3<0) rv_p_ogv(:)=0.0d0
+c         if (ngmx*3<0) rv_p_ogv(:)=0.0d0
 
 Cchp1         call defi (okv, ngmx*3)
          allocate(iv_p_okv(abs(ngmx*3)))
-         if (ngmx*3<0) iv_p_okv(:)=0
+c         if (ngmx*3<0) iv_p_okv(:)=0
 
 Cchp1         call gvlist(alat,plat,w,n1,n2,n3,gmax,8,ngmx,ng,w(okv),
 Cchp1      .  w(ogv),xx,xx)
@@ -215,16 +215,17 @@ Cchp1         slat%okv=okv
 C       call prmx('gv',w(ogv),ngmx,ng,3)
 
 Cchp1         call defcc(osmrho, -k1*k2*k3*nsp)
-         allocate(zv_p_osmrho(abs(-k1*k2*k3*nsp)))
-         if (-k1*k2*k3*nsp<0) zv_p_osmrho(:)=0.0d0
+         allocate(zv_p_osmrho(k1*k2*k3*nsp))
+c         if (-k1*k2*k3*nsp<0) zv_p_osmrho(:)=0.0d0
+         zv_p_osmrho(:)=0d0
 
 Cchp1         call defcc(osmpot, -k1*k2*k3*nsp)
-         allocate(zv_p_osmpot(abs(-k1*k2*k3*nsp)))
-         if (-k1*k2*k3*nsp<0) zv_p_osmpot(:)=0.0d0
+         allocate(zv_p_osmpot(k1*k2*k3*nsp))
+         zv_p_osmpot(:)=0.0d0
 
 Cchp1         call defi(oorhat,3*nbaspp)
-         allocate(iv_p_oorhat(abs(3*nbaspp)))
-         if (3*nbaspp<0) iv_p_oorhat(:)=0
+         allocate(iv_p_oorhat(3*nbaspp))
+         iv_p_oorhat(:)=0
 
 
 Cchp1         spot%osmrho=osmrho
@@ -240,12 +241,12 @@ Cchp1         spot%oorhat=oorhat
 
 C   ... Setup for symmetrization
 Cchp1         call defi (oips0,   ng)
-         allocate(iv_p_oips0(abs(ng)))
-         if (ng<0) iv_p_oips0(:)=0.0d0
+         allocate(iv_p_oips0(ng))
+         iv_p_oips0(:)=0.0d0
 
 Cchp1         call defcc(obgv,    ng)
-         allocate(zv_p_obgv(abs(ng)))
-         if (ng<0) zv_p_obgv(:)=0.0d0
+         allocate(zv_p_obgv(ng))
+         zv_p_obgv(:)=0.0d0
 
 
         ngrp=slat%nsgrp

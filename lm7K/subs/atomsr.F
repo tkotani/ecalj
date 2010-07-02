@@ -239,7 +239,7 @@ C       call prrmsh('vh atom ',rofi,v,nr,nr,nsp)
         vnucl = v(1,1)
 C       Exchange-correlation potential
         if (last .and. iprint() .ge. 50) call pshpr(80)
-        print *,'xxx goto vxc0sp'
+c        print *,'xxx goto vxc0sp'
         call vxc0sp(a,b,rofi,rhoin,nr,v,rho0,reps,rmu,nsp,exrmax)
         if (last .and. iprint() .ge. 50) call poppr
 C       Get rhrmx, exrmax

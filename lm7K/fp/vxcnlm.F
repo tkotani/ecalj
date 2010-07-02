@@ -193,6 +193,7 @@ C       call prm3 ('rho_%i',i,rho(1,i),n1,n2,n3)
 C       call prm3 ('lap-rho_%i',i,ggr(1,i),n1,n2,n3)
       enddo
 
+      print *,'lxcg =',lxcg
       if (lxcg .gt. 2) then
         call vxcgga(lxcg,np,nsp,rho,rho(1,nsp),agr(1,1),agr(1,nsp),
      .  ggr(1,1),ggr(1,nsp),agr(1,2*nsp-1),agr(1,4),
@@ -209,10 +210,11 @@ C       call prm3 ('lap-rho_%i',i,ggr(1,i),n1,n2,n3)
      .    gagr(1,1),gagr(1,nsp),vnl,vnl(1,1,1,nsp),enl)
         endif
       endif
+
 C      call prm3('enl',i,enl,n1,n2,n3)
-C      do  i = 1, nsp
-C        call prm3('vnl(isp=%i)',i,vnl(1,1,1,i),n1,n2,n3)
-C      enddo
+c      do  i = 1, nsp
+c        call prm3('vnl(isp=%i)',i,vnl(1,1,1,i),n1,n2,n3)
+c      enddo
 
 C --- Make nonlocal reps, rmu ---
       do  i = 1, nsp

@@ -2124,7 +2124,7 @@ C --- Brillouin Zone ---
       nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgn,nm),bz_ndos,def_i4=1001,
      .note='No. DOS points (sampling integration, and lmdos)')
 
-      xx = 2d0
+      xx = 5d0
 c      if (ltbe) xx = 5d0
       nm='BZ_EFMAX'; call gtv(trim(nm),tksw(prgn,nm),bz_efmax,
      .def_r8=xx,note='Find evecs up to efmax')
