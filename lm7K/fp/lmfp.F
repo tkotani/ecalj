@@ -175,7 +175,8 @@ Cchp1         integer:: og
       parameter (nm=3)
 C ... for LDA+U
       integer nlibu,lmaxu
-      integer:: odmatu , ovorb , odmato
+c      integer:: odmatu , ovorbdmat , odmato
+      complex(8),allocatable::vorbdmat(:),dmatu(:),dmato(:)
       integer ,allocatable :: lldau_iv(:)
 
       double precision tolu
@@ -559,29 +560,16 @@ C ... Quit if --quit=ham given
 
 C --- Setup for iterations in a self-consistency cycle ---
 C ... Unpack or allocate some permanent arrays
-
-ccccccccccccc
-c        print *,'eee 333=',spot%osmrho
-
 Cchp1       oorhat=spot%oorhat
-       iv_p_oorhat => spot%iv_p_oorhat 
-
+      iv_p_oorhat => spot%iv_p_oorhat 
 Cchp1       osmrho=spot%osmrho
-       zv_p_osmrho => spot%zv_p_osmrho 
-
+      zv_p_osmrho => spot%zv_p_osmrho 
 Cchp1       osmpot=spot%osmpot
-       zv_p_osmpot => spot%zv_p_osmpot 
-
+      zv_p_osmpot => spot%zv_p_osmpot 
 
       allocate(ftot_rv(3*nbas))
-Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) ftot_rv(:)=0.0d0
-
-
       ndham=sham%ndham
-
       allocate(evl_rv(ndham*2))
-Ctakao_ZeroClear_NotRequiered        if (ndham*2<0) evl_rv(:)=0.0d0
-
 
 C ... Set various switches
 C     Whether forces, and how to calculate non Helman-Feynman corr.
@@ -625,62 +613,43 @@ C     Sanity checks
         maxit = 1
       endif
 
-ccccccccccccccc
-c        call upack('lat ng',slat,ng,0,0,0,0)
-c        print *,'qqq: 0000 lmfp lat ng=',ng
-c        stop 'xxxxxxx'
-ccccccccccccccc
-
 C... LDA+U initialization
-      allocate(lldau_iv(abs(-nbas)))
-      if (-nbas<0) lldau_iv(:)=0
-
-      call defrr(ovorb,1)
-      call defrr(odmatu,1)
-      call defrr(odmato,1)
+      allocate(lldau_iv(nbas))
+      lldau_iv(:)=0
 C     Check for LDA+U ... return nlibu > 0 if any U blocks
-      call suldau ( nbas , sspec , ssite , nlibu , lmaxu , lldau_iv 
-     .)
-
+      call suldau ( nbas , sspec , ssite , nlibu , lmaxu , lldau_iv )
       if (nlibu .gt. 0) then
-        call rlse(ovorb)
-
         i = nsp*nlibu*(lmaxu*2+1)**2
-        call defcc(ovorb,-i)
-        call defcc(odmatu,-i)
-        call defcc(odmato,-i)
+      else
+        i = 1 
+      endif
+      allocate(vorbdmat(i),dmatu(i),dmato(i))
+      vorbdmat = 0d0
+      dmatu = 0d0
+      dmato = 0d0
+      if (nlibu > 0) then
 C       need group info to symmetrize site density matrix
-
         ng=slat%nsgrp
 Cchp1         oistab=slat%oistab
-         iv_p_oistab => slat%iv_p_oistab 
-
+        iv_p_oistab => slat%iv_p_oistab 
 Cchp1         og=slat%osymgr
-         rv_p_og => slat%rv_p_osymgr 
-
-
-C       defaults
-
+        rv_p_og => slat%rv_p_osymgr 
         umix=smix%umix
         tolu=smix%tolu
-
         if (umix .eq. 0) umix = 1
 C       if (tolu .eq. 0d0) tolu = 1d-4
 C       initialize density matrix for LDA+U
 Cchp1         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
 Cchp1      .  , lldau_iv , ng , w ( og ) , w ( oistab ) , w ( odmatu ) , 
-Cchp1      .  w ( ovorb ) )
+Cchp1      .  w ( ovorbdmat ) )
 Cchp1          call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
 Cchp1      .   , lldau_iv , ng , w ( og ) , iv_p_oistab , w ( odmatu ) , w ( 
-Cchp1      .   ovorb ) ) 
+Cchp1      .   ovorbdmat ) ) 
           call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 
-     .    , lldau_iv , ng , rv_p_og , iv_p_oistab , w ( odmatu ) , w ( 
-     .    ovorb ) ) 
-
-
-
+     .    , lldau_iv , ng , rv_p_og , iv_p_oistab , dmatu , vorbdmat ) 
       endif
 C     end LDA+U  initialization section
+
 
 C ... Invoke the restart editor
       if (cmdopt('--rsedit',8,0,strn)) then
@@ -882,9 +851,11 @@ C       call prmx('shortened basis vectors',w(opos),3,3,nbas)
 
 C     Hang on to previous site density matrix for this iteration
       if (nlibu .gt. 0) then
-        i = nsp*nlibu*(lmaxu*2+1)**2
-        call zcopy(i,w(odmatu),1,w(odmato),1)
-        call dpzero(w(odmatu),2*i)
+c        i = nsp*nlibu*(lmaxu*2+1)**2
+c        call zcopy(i,w(odmatu),1,w(odmato),1)
+c        call dpzero(w(odmatu),2*i)
+        dmato=dmatu
+        dmatu=0d0
       endif
 
 C --- Make and diagonalize hamiltonian, make new charge density ---
@@ -897,19 +868,19 @@ C --- Make and diagonalize hamiltonian, make new charge density ---
       call bndfp ( nbas , nsp , nlibu , lmaxu , lldau_iv , ssite 
      ., sspec , slat , sctrl , sham , spot , sbz , sstrn , ndham , 
      .leks , lrout , lfrce , lpnu , dmxp , iter , maxit , evl_rv 
-     ., frc_rv , w ( odmatu ) , w ( ovorb ) , llmfgw )
+     ., frc_rv , dmatu, vorbdmat, llmfgw )
 
 
-C ... check convergence of dmatu and update it and vorb if necessary
+C ... check convergence of dmatu and update it and vorbdmat if necessary
       if (nlibu .gt. 0 .and. maxit .gt. 0 .and. lrout .gt. 0) then
 Cchp1         call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
-Cchp1      .  , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
+Cchp1      .  , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorbdmat ) , tolu , umix 
 Cchp1      .  , lldau_iv , ng , w ( og ) , w ( oistab ) )
 Cchp1          call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
-Cchp1      .   , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
+Cchp1      .   , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorbdmat ) , tolu , umix 
 Cchp1      .   , lldau_iv , ng , w ( og ) , iv_p_oistab ) 
           call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
-     .    , 0 , w ( odmatu ) , w ( odmato ) , w ( ovorb ) , tolu , umix 
+     .    , 0 , dmatu , dmato, vorbdmat, tolu , umix 
      .    , lldau_iv , ng , rv_p_og , iv_p_oistab ) 
 
 
@@ -1362,7 +1333,8 @@ C     A little memory leakage rel to 1st pass, but not so serious
       if (allocated(evl_rv)) deallocate(evl_rv)
       if (allocated(ftot_rv)) deallocate(ftot_rv)
       if (allocated(shr_rv)) deallocate(shr_rv)
-      call rlse(ovorb)
+c      call rlse(ovorbdmat)
+      deallocate(vorbdmat,dmato,dmatu)
 
       call lattic(slat,sctrl,ssite,sarray)
       allocate(shr_rv(1))

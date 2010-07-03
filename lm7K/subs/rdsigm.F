@@ -208,7 +208,7 @@ Cchp1           integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss , oist
 Cchp1            integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss 
 Cchp1             integer:: og , oag , opos , ontabs , oiaxs , ohrss 
 Cchp1              integer:: og , opos , ontabs , oiaxs , ohrss 
-              integer:: opos , ontabs , oiaxs , ohrss 
+              integer:: opos , ontabs , oiaxs !, ohrss 
               real(8),pointer :: rv_p_og(:)
 
              real(8),pointer :: rv_p_oag(:)
@@ -266,7 +266,8 @@ C ... Heap
       common /w/ w
 
       real(8):: eseavr
-      integer:: debugmode
+      integer:: debugmode,nhrss
+      real(8),allocatable::hrss(:)
 ccccccccccccccccccccccccccccccc
 c      integer:: oss
 ccccccccccccccccccccccccccccccc
@@ -1018,20 +1019,22 @@ C     However, neighbor table was generated for nsgrps, and may be
 C     increase if nsgrp>nsgrps.  This branch will fail in that case.
       if (mod(lrsig,4) .ge. 2 .and. nsgrp .gt. 1) then
 
-C       Allocate memory for hrs
-        if (hreal .eq. 1) then
-          call defdr(ohrss,ndhrs**2*nttabs*nsp)
-Cchp1           call dcopy(ndhrs**2*nttabs*nsp*1,w(ohrs),1,w(ohrss),1)
-           call dcopy ( ndhrs * * 2 * nttabs * nsp * 1 , rv_p_ohrs , 1 , 
-     .     w ( ohrss ) , 1 ) 
+cC       Allocate memory for hrs
+c        if (hreal .eq. 1) then
+c          call defdr(ohrss,ndhrs**2*nttabs*nsp)
+cCchp1           call dcopy(ndhrs**2*nttabs*nsp*1,w(ohrs),1,w(ohrss),1)
+c           call dcopy ( ndhrs * * 2 * nttabs * nsp * 1 , rv_p_ohrs , 1 , 
+c     .     w ( ohrss ) , 1 ) 
+c        else
+c          call defdc(ohrss,ndhrs**2*nttabs*nsp)
+cCchp1           call dcopy(ndhrs**2*nttabs*nsp*2,w(ohrs),1,w(ohrss),1)
+c           call dcopy ( ndhrs * * 2 * nttabs * nsp * 2 , rv_p_ohrs , 1 , 
+c     .     w ( ohrss ) , 1 ) 
+c        endif
+        nhrss= size(rv_p_ohrs)
+        allocate(hrss(nhrss))
+        hrss = rv_p_ohrs
 
-        else
-          call defdc(ohrss,ndhrs**2*nttabs*nsp)
-Cchp1           call dcopy(ndhrs**2*nttabs*nsp*2,w(ohrs),1,w(ohrss),1)
-           call dcopy ( ndhrs * * 2 * nttabs * nsp * 2 , rv_p_ohrs , 1 , 
-     .     w ( ohrss ) , 1 ) 
-
-        endif
         mxorb = nglob('mxorb')
 C       10s digit distributes ri-rj pairs to avg (ri-rj),(rj-ri) pairs
 C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
@@ -1058,14 +1061,12 @@ Cchp1      .    ) , w ( og ) , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , rv_p_ohr
 Cchp1      .    ) 
            call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
      .     w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
-     .     ) , rv_p_og , istb2_iv , nsgrp , ndhrs , w ( ohrss ) , rv_p_ohrs 
+     .     ) , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss, rv_p_ohrs 
      .     ) 
 
-
-
-
         if (allocated(istb2_iv)) deallocate(istb2_iv)
-        call rlse(ohrss)
+c        call rlse(ohrss)
+        deallocate(hrss)
 
 
 C        Debugging

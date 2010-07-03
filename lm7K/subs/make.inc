@@ -56,7 +56,6 @@ subs_list:=\
 	f100.o \
 	f102.o \
 	fermi.o \
-	findes.o \
 	fixef0.o \
 	fixpos.o \
 	fovlp.o \
@@ -107,7 +106,6 @@ subs_list:=\
 	iosave.o \
 	iosite.o \
 	iosits.o \
-	iostr.o \
 	latlim.o \
 	lattc.o \
 	lattdf.o \
@@ -124,7 +122,6 @@ subs_list:=\
 	makrm0.o \
 	makrot.o \
 	makrwf.o \
-	mcasim.o \
 	mchan.o \
 	mkcond.o \
 	mkplat.o \

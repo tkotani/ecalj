@@ -857,91 +857,68 @@ C$$$        endif
 C$$$        deallocate(ssite2)
 C$$$      endif
 
-C --- Empty sphere finder ---
-      if (getdig(mode,7,2) .ne. 0) then
 
-        nsgrp=slat%nsgrp
-Cchp1         og=slat%osymgr
-         rv_p_og => slat%rv_p_osymgr 
+c takao give up empty sphere finder because we will throw away empty sphere in future.
+C$$$C --- Empty sphere finder --- 
+C$$$      if (getdig(mode,7,2) .ne. 0) then
+C$$$        nsgrp=slat%nsgrp
+C$$$Cchp1         og=slat%osymgr
+C$$$         rv_p_og => slat%rv_p_osymgr 
+C$$$Cchp1         oag=slat%oag
+C$$$         rv_p_oag => slat%rv_p_oag 
+C$$$        allocate(z_rv(nspec))
+C$$$Ctakao_ZeroClear_NotRequiered          if (nspec<0) z_rv(:)=0.0d0
+C$$$        i_copy_size=1;
+C$$$        do i_spackv=1,nspec
+C$$$          call spackv_array_copy_r8_r8('u',sspec(i_spackv)%z,i_copy_size,i_spackv+1-1,z)
+C$$$        enddo
+C$$$        allocate(rmt_rv(nspec))
+C$$$Ctakao_ZeroClear_NotRequiered          if (nspec<0) rmt_rv(:)=0.0d0
+C$$$        i_copy_size=1;
+C$$$        do i_spackv=1,nspec
+C$$$          call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rmt 
+C$$$     .    , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
+C$$$        enddo
+C$$$        allocate(lock_iv(abs(-nspec)))
+C$$$        if (-nspec<0) lock_iv(:)=0
+C$$$        do  i = 1, nspec
+C$$$          call ivset ( lock_iv , i , i , bitand ( int ( sspec ( i ) 
+C$$$     .    %mxcst ) , 2 ) )
+C$$$        enddo
+C$$$        allocate(zc_rv(mxclas))
+C$$$Ctakao_ZeroClear_NotRequiered          if (mxclas<0) zc_rv(:)=0.0d0
+C$$$        allocate(rmtc_rv(mxclas))
+C$$$Ctakao_ZeroClear_NotRequiered          if (mxclas<0) rmtc_rv(:)=0.0d0
+C$$$        allocate(lockc_rv(mxclas))
+C$$$Ctakao_ZeroClear_NotRequiered          if (mxclas<0) lockc_rv(:)=0.0d0
+C$$$cki        owk = onrc
+C$$$        iv_p_owk => iv_p_onrc
+C$$$Cchp1         call defi(onrc,mxclas)
+C$$$         allocate(iv_p_onrc(abs(mxclas)))
+C$$$         if (mxclas<0) iv_p_onrc(:)=0
+C$$$Cchp1         call icopy(nclass,w(owk),1,w(onrc),1)
+C$$$Cchp1          call icopy ( nclass , w ( owk ) , 1 , iv_p_onrc , 1 ) 
+C$$$          call icopy ( nclass , iv_p_owk , 1 , iv_p_onrc , 1 ) 
+C$$$        if (nclass .ge. mxclas) call rx('lmaux: increase mxclas')
+C$$$        call spec2c ( nspec , nclass , ics , rmt_rv , rmtc_rv , 
+C$$$     .  z , zc_rv , lock_iv , lockc_rv )
+C$$$Cchp1         call findes ( sctrl , alat , w ( oclabl ) , nbas , nclass , nl 
+C$$$Cchp1      .  , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+C$$$Cchp1      .  , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
+C$$$Cchp1          call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
+C$$$Cchp1      .   , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+C$$$Cchp1      .   , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
+C$$$Cchp1           call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
+C$$$Cchp1      .    , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+C$$$Cchp1      .    , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
+C$$$Cchp1            call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
+C$$$Cchp1      .     , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
+C$$$Cchp1      .     , rv_p_oag , lockc_rv , rmtc_rv , zc_rv ) 
+C$$$c            call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
+C$$$c     .      , iv_p_onrc , mxclas , nsgrp , w(opos) , w(oipc) , plat , rv_p_og , 
+C$$$c     .      rv_p_oag , lockc_rv , rmtc_rv , zc_rv ) 
+C$$$      endif
 
-Cchp1         oag=slat%oag
-         rv_p_oag => slat%rv_p_oag 
-
-
-        allocate(z_rv(nspec))
-Ctakao_ZeroClear_NotRequiered          if (nspec<0) z_rv(:)=0.0d0
-
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_r8_r8('u',sspec(i_spackv)%z,i_copy_size,i_spackv+1-1,z)
-        enddo
-
-        allocate(rmt_rv(nspec))
-Ctakao_ZeroClear_NotRequiered          if (nspec<0) rmt_rv(:)=0.0d0
-
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rmt 
-     .    , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
-
-        enddo
-
-        allocate(lock_iv(abs(-nspec)))
-        if (-nspec<0) lock_iv(:)=0
-
-        do  i = 1, nspec
-          call ivset ( lock_iv , i , i , bitand ( int ( sspec ( i ) 
-     .    %mxcst ) , 2 ) )
-
-
-        enddo
-        allocate(zc_rv(mxclas))
-Ctakao_ZeroClear_NotRequiered          if (mxclas<0) zc_rv(:)=0.0d0
-
-        allocate(rmtc_rv(mxclas))
-Ctakao_ZeroClear_NotRequiered          if (mxclas<0) rmtc_rv(:)=0.0d0
-
-        allocate(lockc_rv(mxclas))
-Ctakao_ZeroClear_NotRequiered          if (mxclas<0) lockc_rv(:)=0.0d0
-
-cki        owk = onrc
-        iv_p_owk => iv_p_onrc
-Cchp1         call defi(onrc,mxclas)
-         allocate(iv_p_onrc(abs(mxclas)))
-         if (mxclas<0) iv_p_onrc(:)=0
-
-Cchp1         call icopy(nclass,w(owk),1,w(onrc),1)
-Cchp1          call icopy ( nclass , w ( owk ) , 1 , iv_p_onrc , 1 ) 
-          call icopy ( nclass , iv_p_owk , 1 , iv_p_onrc , 1 ) 
-
-
-
-        if (nclass .ge. mxclas) call rx('lmaux: increase mxclas')
-        call spec2c ( nspec , nclass , ics , rmt_rv , rmtc_rv , 
-     .  z , zc_rv , lock_iv , lockc_rv )
-
-Cchp1         call findes ( sctrl , alat , w ( oclabl ) , nbas , nclass , nl 
-Cchp1      .  , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-Cchp1      .  , w ( oag ) , lockc_rv , rmtc_rv , zc_rv )
-Cchp1          call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
-Cchp1      .   , w ( onrc ) , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-Cchp1      .   , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
-Cchp1           call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
-Cchp1      .    , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-Cchp1      .    , w ( oag ) , lockc_rv , rmtc_rv , zc_rv ) 
-Cchp1            call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
-Cchp1      .     , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , w ( og ) 
-Cchp1      .     , rv_p_oag , lockc_rv , rmtc_rv , zc_rv ) 
-            call findes ( sctrl , alat , rv_p_oclabl , nbas , nclass , nl 
-     .      , iv_p_onrc , mxclas , nsgrp , opos , oipc , plat , rv_p_og , 
-     .      rv_p_oag , lockc_rv , rmtc_rv , zc_rv ) 
-
-
-
-
-
-
-      endif
 ctakao
       deallocate(ics,lmxa,z)
       if (allocated(lockc_rv)) deallocate(lockc_rv)

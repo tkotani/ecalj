@@ -113,7 +113,7 @@ C ... Local parameters
       integer ngabc(3),n1,n2,n3,k1,k2,k3,kmax
       integer kkk,lgunit,ng,nglob,nsp,nwk,stdo,modrhg,nbas,i
 Cchp1       integer:: okv , opos , oz
-       integer:: opos , oz 
+       integer:: opos !, oz 
        integer,pointer :: iv_p_okv(:)
 
       complex(8) ,allocatable :: cn_zv(:)
@@ -127,7 +127,7 @@ C ... Heap
       integer w(1)
       common /w/ w
 C ... External calls
-      external awrit2,dcopy,defcc,defrr,fclose,fftz3,fftz30,gvgetf,
+      external awrit2,dcopy,fclose,fftz3,fftz30,gvgetf,
      .gvputf,icopy,ioden2,ivset,mkils0,mkilst,nwordg,poppr,
      .pshpr,rhgcmp,rhomom,rx,upack,upack2
 
@@ -159,12 +159,12 @@ ccccccccccccccccccccccccccccc
       alat=slat%alat
       opos=slat%opos
 
-      call defrr(oz,nbas)
-      do ib = 1,nbas
-        is = int(ssite(ib)%spec)
-c        w(oz-2+ib*2)=sspec(is)%z !but Kino's email on 5June2010.
-        call dcopy(1,sspec(is)%z,1,w(oz-2+ib*2),1)
-      enddo
+c      call defrr(oz,nbas)
+c      do ib = 1,nbas
+c        is = int(ssite(ib)%spec)
+cc        w(oz-2+ib*2)=sspec(is)%z !but Kino's email on 5June2010.
+c        call dcopy(1,sspec(is)%z,1,w(oz-2+ib*2),1)
+c      enddo
       call fftz30(n1,n2,n3,k1,k2,k3)
       kkk = k1*k2*k3
       kmax = 3
@@ -270,7 +270,7 @@ Ctakao_ZeroClear_NotRequiered        if (nwk**2*nsp<0) wk_zv(:)=0.0d0
       if (allocated(wk_zv)) deallocate(wk_zv)
       if (allocated(psrho_zv)) deallocate(psrho_zv)
 
-      call rlse(oz)
+c      call rlse(oz)
 
 
 C ... Restore smrho+, smrho-

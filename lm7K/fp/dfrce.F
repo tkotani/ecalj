@@ -86,7 +86,7 @@ C Local variables
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 Cchp1       integer:: ogv , okv , ocdv , ocdn , ocdn0 , ocs , osn
 Cchp1        integer:: okv , ocdv , ocdn , ocdn0 , ocs , osn 
-        integer:: ocdv , ocdn , ocdn0 , ocs , osn 
+c        integer:: ocdv , ocdn , ocdn0 , ocs , osn 
         integer,pointer :: iv_p_okv(:)
 
        real(8),pointer :: rv_p_ogv(:)
@@ -110,9 +110,10 @@ Cchp1        integer:: okv , ocdv , ocdn , ocdn0 , ocs , osn
 
       double precision vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind,
      .fes1(3),fes2(3),fxc(3),c,avgdf(3)
-      integer npmx,mp
-      parameter (npmx=32)
-      integer oicdn(npmx),oicdn0(npmx),oicdv(npmx),oics(npmx),oisn(npmx)
+      integer mp
+c      integer npmx,mp
+c      parameter (npmx=32)
+c      integer oicdn(npmx),oicdn0(npmx),oicdv(npmx),oics(npmx),oisn(npmx)
 #if MPI | MPIK
       integer, dimension(:), allocatable :: bproc, iiv0
       integer pid,jb
@@ -127,6 +128,7 @@ C     double precision dqsmo,dval
 C ... Heap
       integer w(1)
       common /w/ w
+      real(8),allocatable:: cs_(:),sn_(:)
 
       job = int(sctrl%lfrce)
 
@@ -232,8 +234,9 @@ C --- Make ves(rhoin,q) ---
       allocate(smro_zv(nn))
 Ctakao_ZeroClear_NotRequiered        if (nn<0) smro_zv(:)=0.0d0
 
-      call defrr(ocs, ng)
-      call defrr(osn, ng)
+c      call defrr(ocs, ng)
+c      call defrr(osn, ng)
+      allocate(cs_(ng), sn_(ng))
       call dpcopy ( smrho , smro_zv , 1 , 2 * nn , 1d0 )
 
       if ( nsp.eq.2 ) call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , 
@@ -247,49 +250,32 @@ Cchp1      ., cvin_zv )
        call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , smro_zv , cvin_zv 
      . ) 
 
-
       call pvdf4 ( ssite , sspec , slat , qmom , ng , g2_rv , yl_rv 
-     ., w ( ocs ) , w ( osn ) , iv_iv , qlat , cvin_zv )
+     ., cs_ , sn_ , iv_iv , qlat , cvin_zv )
 
 C     call gvputf(ng,1,w(okv),k1,k2,k3,w(ocvin),w(osmro))
 C     call zprm3('ves(input rho)',0,w(osmro),k1,k2,k3)
       if (allocated(smro_zv)) deallocate(smro_zv)
-      call rlse(ocs)
-
+c      call rlse(ocs)
+      deallocate(cs_,sn_)
 
 C --- Make dVxc(in)/dn ---
       allocate(dvxc_zv(nn*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) dvxc_zv(:)=0.0d0
-
       allocate(smro_zv(nn*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) smro_zv(:)=0.0d0
-
       allocate(vxcp_zv(nn*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) vxcp_zv(:)=0.0d0
-
       allocate(vxcm_zv(nn*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) vxcm_zv(:)=0.0d0
-
       allocate(wk1_zv(nn*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) wk1_zv(:)=0.0d0
-
       allocate(wk2_zv(nn*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) wk2_zv(:)=0.0d0
-
       allocate(wk3_zv(nn*nsp))
-Ctakao_ZeroClear_NotRequiered        if (nn*nsp<0) wk3_zv(:)=0.0d0
-
       call dpcopy ( smrho , smro_zv , 1 , 2 * nn * nsp , 1d0 )
-
       call pvdf2 ( nbas , nsp , ssite , sspec , slat , n1 , n2 , n3 
      ., k1 , k2 , k3 , smro_zv , vxcp_zv , vxcm_zv , wk1_zv 
      ., wk2_zv , wk3_zv , dvxc_zv )
-
-      if (allocated(wk3_zv)) deallocate(wk3_zv)
-      if (allocated(wk2_zv)) deallocate(wk2_zv)
-      if (allocated(wk1_zv)) deallocate(wk1_zv)
-      if (allocated(vxcm_zv)) deallocate(vxcm_zv)
-      if (allocated(vxcp_zv)) deallocate(vxcp_zv)
+      deallocate(wk3_zv)
+      deallocate(wk2_zv)
+      deallocate(wk1_zv)
+      deallocate(vxcm_zv)
+      deallocate(vxcp_zv)
 
 
 C --- cdvx = FFT ((n0_out-n0_in) dVxc/dn) ---
@@ -408,13 +394,14 @@ C$ 12 continue
       mp = 1
 C$    mp=mp_numthreads()
 C$    if(npmx.lt.mp) call rxi('rsif_q: increase npmx, needed',mp)
-      do  14  ip = 1, min(nbas,mp)
-        call defcc(oicdn(ip),  ng)
-        call defcc(oicdn0(ip), ng*nsp)
-        call defcc(oicdv(ip),  ng)
-        call defrr(oics(ip), ng)
-        call defrr(oisn(ip), ng)
-   14 continue
+
+c      do  14  ip = 1, min(nbas,mp)
+c        call defcc(oicdn(ip),  ng)
+c        call defcc(oicdn0(ip), ng*nsp)
+c        call defcc(oicdv(ip),  ng)
+c        call defrr(oics(ip), ng)
+c        call defrr(oisn(ip), ng)
+c   14 continue
 
 C ... Estimate shift in density for each site, and corresponding force
       ip = 1
@@ -457,22 +444,26 @@ C$&        MP_SCHEDTYPE=RUNTIME
         nlm = (lmxl+1)**2
 C$      iv0 = iiv0(ib)
 C$      ip  = mp_my_threadnum()+1
-        ocs = oics(ip)
-        osn = oisn(ip)
-        ocdn = oicdn(ip)
-        ocdn0 = oicdn0(ip)
-        ocdv = oicdv(ip)
+c        ocs = oics(ip)
+c        osn = oisn(ip)
+c        ocdn = oicdn(ip)
+c        ocdn0 = oicdn0(ip)
+c        ocdv = oicdv(ip)
 
 Cchp1         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
 Cchp1      .  , qmout_rv , ng , w ( ogv ) , g2_rv , yl_rv , w ( ocs 
 Cchp1      .  ) , w ( osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv 
 Cchp1      .  , w ( ocdn0 ) , w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv 
 Cchp1      .  , orhoat ( 1 , ib ) , fes1 , fes2 , fxc )
+c         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
+c     .   , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , w ( ocs ) , w ( 
+c     .   osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv , w ( ocdn0 ) , 
+c     .   w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv , orhoat ( 1 , ib 
+c     .   ) , fes1 , fes2 , fxc ) 
          call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom 
-     .   , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv , w ( ocs ) , w ( 
-     .   osn ) , iv_iv , qlat , 0 , cnomi_zv , ceps_zv , w ( ocdn0 ) , 
-     .   w ( ocdn ) , w ( ocdv ) , cdvx_zv , cvin_zv , orhoat ( 1 , ib 
-     .   ) , fes1 , fes2 , fxc ) 
+     .   , qmout_rv , ng , rv_p_ogv , g2_rv , yl_rv 
+     .   , iv_iv , qlat , 0 , cnomi_zv , ceps_zv  
+     .   , cdvx_zv , cvin_zv , orhoat ( 1 , ib ) , fes1 , fes2 , fxc ) 
 
 
 
@@ -561,18 +552,21 @@ C ... Shift all forces to make avg correction zero
       if (allocated(cvin_zv)) deallocate(cvin_zv)
       if (allocated(cnomi_zv)) deallocate(cnomi_zv)
       if (allocated(ceps_zv)) deallocate(ceps_zv)
-      call rlse(oicdn)
+c      call rlse(oicdn)
 
       call tcx('dfrce')
       end subroutine dfrce
 
 
+c      subroutine pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,qmout,ng,gv,
+c     .g2,yl,cs,sn,iv,qlat,kmax,cnomin,ceps,cdn0,cdn,cdv,cdvxc,cvin,
+c     .orhoat,fes1,fes2,fxc)
       subroutine pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,qmout,ng,gv,
-     .g2,yl,cs,sn,iv,qlat,kmax,cnomin,ceps,cdn0,cdn,cdv,cdvxc,cvin,
+     .g2,yl,iv,qlat,kmax,cnomin,ceps,cdvxc,cvin,
      .orhoat,fes1,fes2,fxc)
 
       use m_struc_def  !Cgetarg
-
+c need to modify texts.
 C- Estimate shift in local density for one site
 C ----------------------------------------------------------------------
 Ci Inputs
