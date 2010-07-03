@@ -42,22 +42,25 @@ C     integer ntab(nbas+1),iax(niax,1)
       character sovmin*(*)
 C static:
       double precision alato,plato(9),xx
-      integer nbaso,nbaspo,mxlst,nlst,opos,oz,ormax,oips,modeo(3),
+      integer nbaso,nbaspo,mxlst,nlst,modeo(3), !opos,ormax,oz oips,
      .ontabo,oiaxo,novl
       parameter (mxlst=256)
       integer ilst(mxlst)
-      common /ovstat/ plato,alato,nbaso,nbaspo,nlst,ilst,opos,oz,
-     .ormax,oips,modeo,ontabo,oiaxo
+c      common /ovstat/ plato,alato,nbaso,nbaspo,nlst,ilst,opos,oz,
+c     .ormax,oips,modeo,ontabo,oiaxo
+
 C heap:
       integer w(1)
       common /w/ w
 C Local parameters
       double precision fovl,xtol,gtol,dxmn,dxmx,ovcall,fovmx
       double precision wk(0:27)
-      integer i1mach,isw,op,og,ir,i,j,j1,j2,ls,m,lstyle,
-     .iv,parg,olist,nlstc,mxint,nclass,ib,ic,iclbsj,maxit,ipr,n
+      integer i1mach,isw,ir,i,j,j1,j2,ls,m,lstyle, !op
+     .iv,parg,nlstc,mxint,nclass,ib,ic,iclbsj,maxit,ipr,n
       character dc*1
       external ovcall,mxint
+      integer,allocatable:: olist(:)
+      real(8),allocatable:: w_opos(:,:),w_oz(:),w_ormax(:),w_oips(:),w_op(:)
 
 C --- Print out positions and overlaps ---
       call getpr(ipr)
@@ -108,12 +111,13 @@ C   ... Parse special arguments
 C   ... List of all sites to move
         if (lstyle .gt. 0) then
           nclass = mxint(nbas,ips)
-          call defi(olist, nclass)
+c          call defi(olist, nclass)
+          allocate(olist(nclass))
           call clist(lstyle,sovmin(j1:j2+1),dclabl,z,nclass,nlstc,
-     .    w(olist))
+     .    olist)
           nlst = 0
           do  12  i = 1, nlstc
-            ic = w(olist+i-1)
+            ic = olist(i) !w(olist+i-1)
             do  14  j = 1, nbas
               ib = iclbsj(ic,ips,-nbas,j)
               if (ib .lt. 0) goto 12
@@ -121,6 +125,7 @@ C   ... List of all sites to move
               ilst(nlst) = ib
    14       continue
    12     continue
+          deallocate(olist)
         elseif (sovmin(j1:j1+1) .eq. 'z ' .or.
      .  sovmin(j1:j1+1) .eq. 'Z ') then
           nlst = 0
@@ -148,38 +153,51 @@ C  ...  set up static block for ovcall
         nbaspo = nbasp
         ontabo = ontab
         oiaxo = oiax
-        call defrr(opos,3*nbasp)
-        call dpcopy(pos,w(opos),1,3*nbasp,1d0)
+
+c        call defrr(opos,3*nbasp)
+        allocate(w_opos(3,nbasp))
+        call dpcopy(pos,w_opos,1,3*nbasp,1d0)
         nclass = mxint(nbas,ips)
-        call defrr(oz,nclass)
-        call dpcopy(z,w(oz),1,nclass,1d0)
-        call defrr(ormax,nbasp)
-        call dpcopy(rmax,w(ormax),1,nbasp,1d0)
-        call defi(oips,nbasp)
-        call icopy(nbasp,ips,1,w(oips),1)
+c        call defrr(oz,nclass)
+        allocate(w_oz(nclass))
+        call dpcopy(z,w_oz,1,nclass,1d0)
+c        call defrr(ormax,nbasp)
+        allocate(w_ormax(nbasp))
+        call dpcopy(rmax,w_ormax,1,nbasp,1d0)
+c        call defi(oips,nbasp)
+        allocate(w_oips(nbasp))
+        call icopy(nbasp,ips,1,w_oips,1)
         call icopy(3,mode,1,modeo,1)
         call dpcopy(plat,plato,1,9,1d0)
 
 C  ...  initialization for gradzr call
         n = 3*nlst
-        call defrr(op,-10*n)
-        call defrr(og,n)
+c        call defrr(op,-10*n)
+c        call defrr(og,n)
+        allocate(w_op(10*n))
+        w_op=0d0
         ir = 0
         do  20  i = 1, nlst
           j = ilst(i)
-          call dpscop(w(opos),w(op),3,3*j-2,3*i-2,1d0)
+          call dpscop(w_opos,w_op,3,3*j-2,3*i-2,1d0)
    20   continue
-        xx = ovcall(n,0d0,w(op),ir)
+        xx = ovcall(n,0d0,w_op,ir,
+     &  plato,alato,nbaso,nbaspo,nlst,ilst,w_opos,w_oz,
+     .  w_ormax,w_oips,modeo,ontabo,oiaxo)
+
         call pshpr(ipr-5)
-   22   call gradzr(n,w(op),w,dxmn,dxmx,xtol,gtol,1.0d0,wk,isw,ir)
-        xx = ovcall(n,0d0,w(op),ir)
+   22   call gradzr(n,w_op,w,dxmn,dxmx,xtol,gtol,1.0d0,wk,isw,ir)
+        xx = ovcall(n,0d0,w_op,ir,
+     &  plato,alato,nbaso,nbaspo,nlst,ilst,w_opos,w_oz,
+     .  w_ormax,w_oips,modeo,ontabo,oiaxo)
+
         if (ir .lt. 0) goto 22
         call poppr
 
 C ...   Update positions
         do  30  i = 1, nlst
           j = ilst(i)
-          call dpscop(w(op),pos,3,3*i-2,3*j-2,1d0)
+          call dpscop(w_op,pos,3,3*i-2,3*j-2,1d0)
    30   continue
 
 C --- Print out updated positions and overlaps ---
@@ -197,7 +215,10 @@ C --- Print out updated positions and overlaps ---
 
       end subroutine ovmin
 
-      double precision function ovcall(n,x,p,ir)
+
+      double precision function ovcall(n,x,p,ir,
+     &  plato,alato,nbaso,nbaspo,nlst,ilst,w_opos,w_oz,
+     .  w_ormax,w_oips,modeo,ontabo,oiaxo)
 
 C- Generic function call for projection grad fovl in a spec'd direction
 Ci x,p,ir see gradzr
@@ -206,12 +227,12 @@ C     implicit none
       double precision x,p(3*n)
 C static:
       double precision alato,plato(9)
-      integer nbaso,nbaspo,mxlst,nlst,opos,oz,ormax,oips,modeo(3),oposb,
+      integer nbaso,nbaspo,mxlst,nlst,modeo(3),oposb, !oz ormax, oips,
      .ontabo,oiaxo,novl,novlp,novlm
       parameter (mxlst=256)
       integer ilst(mxlst)
-      common /ovstat/ plato,alato,nbaso,nbaspo,nlst,ilst,opos,oz,
-     .ormax,oips,modeo,ontabo,oiaxo
+c      common /ovstat/ plato,alato,nbaso,nbaspo,nlst,ilst,opos,oz,
+c     .ormax,oips,modeo,ontabo,oiaxo
 C heap:
       integer w(1)
       common /w/ w
@@ -222,53 +243,56 @@ C     character*8 clabl(10)
       double precision fovl,ddot,dx,val,fovp,fovm,pos(3),xx,fov0
       character*120 outs
       parameter (dx=1d-4)
+      real(8):: w_opos(*),w_oz(*),w_oips(*)
+      real(8),allocatable:: w_oposb(:,:)
 
 C ... Save pos, other initialization
       call getpr(ipr)
-      call defrr(oposb,3*nbaspo)
-      call dpcopy(w(opos),w(oposb),1,3*nbaspo,1d0)
+c      call defrr(oposb,3*nbaspo)
+      allocate(w_oposb(3,nbaspo))
+      call dpcopy(w_opos,w(oposb),1,3*nbaspo,1d0)
       call pshpr(0)
 
       do  12  i = 1, nlst
         j = ilst(i)
-        call dpscop(p,w(opos),3,3*i-2,3*j-2,1d0)
+        call dpscop(p,w_opos,3,3*i-2,3*j-2,1d0)
    12 continue
 
-      call ovlchk(nbaso,nbaspo,w(opos),alato,w(ormax),0d0,0d0,
-     .w(oips),modeo,plato,fovl,xx)
-      call fovlp(1,nbaso,w(ontabo),w(oiaxo),plato,w(opos),w(oips),alato,
-     .w(ormax),w(oz),6d0,1d0,.75d0,.5d0,xx,fovl,novl)
+      call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
+     .w_oips,modeo,plato,fovl,xx)
+      call fovlp(1,nbaso,w(ontabo),w(oiaxo),plato,w_opos,w_oips,alato,
+     .w_ormax,w_oz,6d0,1d0,.75d0,.5d0,xx,fovl,novl)
 
       if (fovl .eq. 0) then
         print *, 'ovmin: no spheres overlap:'
         call poppr
-C        call fovlp(1,nbaso,w(ontabo),w(oiaxo),plato,w(opos),w(oips),
-C     .    alato,w(ormax),w(oz),6d0,1d0,.75d0,.5d0,xx,fovl,novl)
-        call ovlchk(nbaso,nbaspo,w(opos),alato,w(ormax),0d0,0d0,
-     .  w(oips),modeo,plato,fovp,xx)
+C        call fovlp(1,nbaso,w(ontabo),w(oiaxo),plato,w_opos,w_oips,
+C     .    alato,w_ormax,w(oz),6d0,1d0,.75d0,.5d0,xx,fovl,novl)
+        call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
+     .  w_oips,modeo,plato,fovp,xx)
         if (cmdopt('--wpos=',7,0,outs))
-     .  call iopos(.true.,0,outs(8:),nbaso,w(opos))
+     .  call iopos(.true.,0,outs(8:),nbaso,w_opos)
         call rx('ovmin: no spheres overlap')
       endif
 
 C ... Gradient of fovl wrt pos
       do  20  i = 1, nlst
         j = ilst(i)
-        call fovlp(j,j,w(ontabo),w(oiaxo),plato,w(opos),w(oips),
-     .  alato,w(ormax),w(oz),6d0,1d0,.75d0,.5d0,xx,fov0,novl0)
+        call fovlp(j,j,w(ontabo),w(oiaxo),plato,w_opos,w_oips,
+     .  alato,w_ormax,w_oz,6d0,1d0,.75d0,.5d0,xx,fov0,novl0)
         do  20  ix = 1, 3
           val = p(3*i-3+ix)
-          call dvset(w(opos),3*j-3+ix,3*j-3+ix,val+dx)
-C        call ovlchk(nbaso,nbaspo,w(opos),alato,w(ormax),0d0,0d0,
-C     .    w(oips),modeo,plato,fovp,xx)
-          call fovlp(j,j,w(ontabo),w(oiaxo),plato,w(opos),w(oips),
-     .    alato,w(ormax),w(oz),6d0,1d0,.75d0,.5d0,xx,fovp,novlp)
-          call dvset(w(opos),3*j-3+ix,3*j-3+ix,val-dx)
-C        call ovlchk(nbaso,nbaspo,w(opos),alato,w(ormax),0d0,0d0,
-C     .    w(oips),modeo,plato,fovm,xx)
-          call fovlp(j,j,w(ontabo),w(oiaxo),plato,w(opos),w(oips),
-     .    alato,w(ormax),w(oz),6d0,1d0,.75d0,.5d0,xx,fovm,novlm)
-          call dvset(w(opos),3*j-3+ix,3*j-3+ix,val)
+          call dvset(w_opos,3*j-3+ix,3*j-3+ix,val+dx)
+C        call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
+C     .    w_oips,modeo,plato,fovp,xx)
+          call fovlp(j,j,w(ontabo),w(oiaxo),plato,w_opos,w_oips,
+     .    alato,w_ormax,w_oz,6d0,1d0,.75d0,.5d0,xx,fovp,novlp)
+          call dvset(w_opos,3*j-3+ix,3*j-3+ix,val-dx)
+C        call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
+C     .    w_oips,modeo,plato,fovm,xx)
+          call fovlp(j,j,w(ontabo),w(oiaxo),plato,w_opos,w_oips,
+     .    alato,w_ormax,w_oz,6d0,1d0,.75d0,.5d0,xx,fovm,novlm)
+          call dvset(w_opos,3*j-3+ix,3*j-3+ix,val)
           fovp = fovl + 2*(fovp-fov0)
           fovm = fovl + 2*(fovm-fov0)
           p(n+3*i-3+ix) = dlog(fovp/fovm)/2/dx
@@ -283,7 +307,7 @@ C     .    w(oips),modeo,plato,fovm,xx)
      .  'glf.x %;4g',' ',80,lgunit(2),x,fovl/novl,dlog(fovl/novl),
      .  dsqrt(ddot(n,p(n+1),1,p(n+1),1)),ddot(n,p(n+1),1,p(2*n+1),1))
         do  30  i = 1, nbaspo
-          call dpscop(w(opos),pos,3,3*i-2,1,1d0)
+          call dpscop(w_opos,pos,3,3*i-2,1,1d0)
           write(lgunit(2),140) pos
   140     format(3f12.6)
    30   continue
@@ -291,11 +315,11 @@ C     .    w(oips),modeo,plato,fovm,xx)
       endif
 
 C      call prmx('grad fovl',p(1+n),n,n,1)
-C      call prmx('pos now',w(opos),3,3,nbaspo)
+C      call prmx('pos now',w_opos,3,3,nbaspo)
 
 C ... restore pos
-      call dpcopy(w(oposb),w(opos),1,3*nbaspo,1d0)
-      call rlse(oposb)
+      call dpcopy(w_oposb,w_opos,1,3*nbaspo,1d0)
+c      call rlse(oposb)
       call poppr
 
       end function ovcall

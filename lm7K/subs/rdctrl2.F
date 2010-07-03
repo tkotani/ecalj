@@ -208,6 +208,8 @@ Cchp1       integer:: ib,ispec,opos,oips
        integer:: ib , ispec , opos 
        integer,pointer :: iv_p_oips(:)
 
+      integer,allocatable:: wowk(:)
+
 
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -272,7 +274,7 @@ C --- Read input parameters from contents of rcd ---
         call cexit(0,1)
       endif
 
-      call defrr(owk,1)
+c      call defrr(owk,1)
 C     Set switches depending type of program
       lbas = 0
       lcd = 0
@@ -1519,16 +1521,16 @@ C$$$       if ( iand(-1,int(v_sctrl%lpgf(1))) .ne.0 ) ix ( 3 ) = 0
 
 
 C ... Count LDA+U blocks (printout only)
-      call defi(owk,-nbas)
+c      call defi(owk,-nbas)
+      allocate(wowk(nbas))
+      wowk=0
       call pshpr(0)
-      call suldau(nbas,v_sspec,v_ssite,nlibu,k,w(owk))
-
+      call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
       v_sham%nlibu=nlibu
       v_sham%lmaxu=k
-
       call poppr
-      call rlse(owk)
-
+c      call rlse(owk)
+      deallocate(wowk)
 
 C     Free arrays used to read input
       deallocate(pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,

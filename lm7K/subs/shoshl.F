@@ -42,18 +42,18 @@ C Local parameters
       integer niax
       parameter (niax=10)
       logical lves,leula,a2bin
-      double precision avwsr,avw,range,xx,stdo
+      double precision avwsr,avw,range,xx,stdo,wdummy
       integer:: ontab , olstc
       real(8) ,allocatable :: wk_rv(:)
       real(8) ,allocatable :: rtab_rv(:)
       integer ,allocatable :: lst1_iv(:)
-      integer ,allocatable :: lst2_iv(:)
+      integer ,allocatable :: lst2_iv(:), w_oiax(:)
       real(8) ,allocatable :: dist_rv(:)
       real(8) ,allocatable :: mark_rv(:)
 
-      integer npr(2),mxnbr,ib,ic,oiax,iclbsj,j,j1,j2,lstyle,ival,
+      integer npr(2),mxnbr,ib,ic,iclbsj,j,j1,j2,lstyle,ival,
      .scrwid,ltab,nlstc,nlst1,nlst2,mxcsiz,iprint,ifi,fopn,lgunit,
-     .ldisp,lnn
+     .ldisp,lnn,oiax
       character*8  dc*1
       parameter (scrwid=120)
 C heap:
@@ -68,7 +68,7 @@ C --- Parse modifiers ---
       lstyle = 1
       range = 2
       nlstc = 0
-      olstc = 1
+c      olstc = 1
       ltab = 0
       nlst1 = 0
       nlst2 = 0
@@ -193,8 +193,8 @@ C --- Show shells for each class ---
       else
         mxnbr = mxnbr0
       endif
-      call defi(oiax,niax*mxnbr)
-      allocate(wk_rv(mxnbr))
+c      call defi(oiax,niax*mxnbr)
+      allocate(wk_rv(mxnbr),w_oiax(niax*mxnbr))
 Ctakao_ZeroClear_NotRequiered        if (mxnbr<0) wk_rv(:)=0.0d0
 
       avw = avwsr(plat,1d0,xx,nbas)
@@ -209,13 +209,12 @@ c     call pshprt(50)
 
         endif
         call nghbor ( nbas , plat , bas , range , range , ib , mxnbr 
-     .  , npr , w ( oiax ) , wk_rv )
+     .  , npr , w_oiax , wk_rv )
 
-        call xxsho(npr(1),nbas,plat,bas,w(oiax),ipc,dclabl,nlstc,
-     .  w(olstc),lves,ves,leula,eula,z)
+        call xxsho(npr(1),nbas,plat,bas,w_oiax,ipc,dclabl,nlstc,
+     .  wdummy,lves,ves,leula,eula,z)
    20 continue
-      if (allocated(wk_rv)) deallocate(wk_rv)
-      call rlse(oiax)
+      deallocate(wk_rv,w_oiax) !call rlse(oiax)
 
 Cki#error, have return with len(w_varlist)>0 at line 178
       if (allocated(lst1_iv)) deallocate(lst1_iv)
@@ -391,20 +390,20 @@ C ... Passed parameters
 C ... Local parameters
       double precision avwsr,avw,range,xx,zz
       integer:: npr(2) , mxnbr , ib , nshell , nmxshl , niax , j , 
-     .j1 , j2 , nspec , mxint , nsites , oslist , nbonds , ilst , parg 
+     .j1 , j2 , nspec , mxint , nsites ,  nbonds ,  parg  !oslist ,ilst ,
      ., m , iv(10) , ilast
       integer ,allocatable :: iax_iv(:)
       real(8) ,allocatable :: wk_rv(:)
       integer ,allocatable :: num_iv(:)
       real(8) ,allocatable :: ang_rv(:)
       real(8) ,allocatable :: d_rv(:)
-      integer ,allocatable :: blist_iv(:)
+      integer ,allocatable :: blist_iv(:),slist(:)
 
       parameter (niax=10)
       character dc*1
 C ... Heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 C ... External calls
       external defdr,defi,nghbor,nwordg,pvang1,pvang2,rlse,rxs
 
@@ -413,8 +412,8 @@ C ... Setup
       nspec = mxint(nbas,ips)
       nsites = 0
       nbonds = 0
-      call defi(oslist,nbas)
-      allocate(blist_iv(nbas))
+c      call defi(oslist,nbas)
+      allocate(blist_iv(nbas),slist(nbas))
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) blist_iv(:)=0
 
 
@@ -442,7 +441,7 @@ C         Site list
           elseif (sopts(j1:j1+4) .eq. 'sites') then
             if (sopts(j1+5:j1+5) .eq. '=') sopts(j1+5:j1+5) = dc
             call baslst(0,10,sopts(j1+5:),ilast,ips,nbas,slabl,zz,0,' ',
-     .      xx,nsites,w(oslist))
+     .      xx,nsites,slist)
 
 C         Bond list
           elseif (sopts(j1:j1+4) .eq. 'bonds') then
@@ -470,12 +469,13 @@ Ctakao_ZeroClear_NotRequiered        if (mxnbr<0) wk_rv(:)=0.0d0
       avw = avwsr(plat,1d0,xx,nbas)
 
 C --- For every site in list, generate tables of bond angles ---
-      ilst = 0
+c      ilst = 0
       do  ib = 1, nbas
         if (nsites .gt. 0) then
-          if (w(oslist+ilst) .ne. ib) goto 31
+c          if (w(oslist+ilst) .ne. ib) goto 31
+          if (slist(ib) .ne. ib) goto 31
         endif
-        ilst = ilst+1
+c        ilst = ilst+1
 
 C   ... Get neighbor lists
 
@@ -515,9 +515,9 @@ C   ... Print bond angles
       enddo
       if (allocated(wk_rv)) deallocate(wk_rv)
       if (allocated(iax_iv)) deallocate(iax_iv)
-      if (allocated(blist_iv)) deallocate(blist_iv)
-      call rlse(oslist)
-
+      deallocate(blist_iv)
+c      call rlse(oslist)
+      deallocate(slist)
       return
 
   999 call rxs('shoang: failed to parse ',sopts)

@@ -81,8 +81,11 @@ C mmix: max no. prior iterations available from disk.
       character outs*80,fnam*8
       double precision wt(3),rmsdel,rms2,wc,beta,beta0,elind,rms2f
 C heap:
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
+
+      real(8),allocatable:: woa(:),w_oa(:),w_oaa(:)
+
 
 C ... MPI: only master does mixing
       procid = mpipid(1)
@@ -107,13 +110,15 @@ C --- Count number of mixing elements; get rms err for parmxp ---
         nda = nda + nx
 C ... this call reads nothing from disk since mxsav=0
         nmix = 0
-        call defdr(oa,-nda*(0+2)*2)
+c        call defdr(oa,-nda*(0+2)*2)
+        allocate(woa(nda*(0+2)*2))
+        woa=0d0
         call pqmxio(nmix,nmix,1,.true.,nclass,nl,nsp,nx,lmx,
-     .  pnu,pold,qnu,qold,xnew,xold,cnst,nda,w(oa),na,rms2)
+     .  pnu,pold,qnu,qold,xnew,xold,cnst,nda,woa,na,rms2)
 C     if (na .ne. nda) call fexit2(-1,1,
 C    .  'Exit -1 PQMIX: na=%i but nda=%i',na,nda)
-        call rlse(oa)
-
+c        call rlse(oa)
+        deallocate(woa)
 
 C --- Iteration-dependent mixing parameters ---
         broy  = dmxp(1)
@@ -166,9 +171,11 @@ C --- Determine number of previous iterations available from disk ---
    30   continue
 
 C --- Copy new P,Q into work a, read prior iter from disk ---
-        call defdr(oa,-nda*(mxsav+2)*2)
+c        call defdr(oa,-nda*(mxsav+2)*2)
+        allocate(w_oa(nda*(mxsav+2)*2))
+        w_oa=0d0
         call pqmxio(mmix,mxsav,ifi,.true.,nclass,nl,nsp,nx,lmx,
-     .  pnu,pold,qnu,qold,xnew,xold,cnst,nda,w(oa),na,rms2)
+     .  pnu,pold,qnu,qold,xnew,xold,cnst,nda,w_oa,na,rms2)
 
 C --- Initial printout ---
         if (iprint() .ge. 20) then
@@ -188,7 +195,7 @@ C --- Save updated P,Q on disk ---
         rewind ifi
         write(ifi) min(mmix+1,mxsav), na
         call pqmxio(mmix+1,mxsav,-ifi,.true.,nclass,nl,nsp,nx,lmx,
-     .  pnu,pold,qnu,qold,xnew,xold,cnst,nda,w(oa),na,rms2)
+     .  pnu,pold,qnu,qold,xnew,xold,cnst,nda,w_oa,na,rms2)
         if (nkill .lt. 0) then
           if (iprint() .ge. 20) then
             outs = '    ...  deleting file '//fnam
@@ -206,42 +213,45 @@ C --- Spin polarized case: shuffle average and delta moments ---
           if (wt(1) .ne. 0) naa = naa+npq
           if (wt(2) .ne. 0) naa = naa+npq
           if (wt(3) .ne. 0) naa = naa+nx
-          call defdr(oaa,-naa*(mxsav+2)*2)
-          call pqsclf(0,nda,npq,npq*nsp,(nsp-1)*npq,nx,naa,mxsav,wt,w(oa),
-     .    w(oaa),rms2f)
+c          call defdr(oaa,-naa*(mxsav+2)*2)
+          allocate(w_oaa(naa*(mxsav+2)*2))
+          call pqsclf(0,nda,npq,npq*nsp,(nsp-1)*npq,nx,naa,mxsav,wt,w_oa,
+     .    w_oaa,rms2f)
         else
-          oaa = oa
+c          oaa = oa
           naa = na
+          allocate(w_oaa(naa*(mxsav+2)*2))
+          w_oaa=w_oa
         endif
 
 C --- Broyden mixing, Duane Johnson's approach ---
         if (broy .eq. 1 .and. mmix .ne. 0)
-     .  call pqmixb(naa,nmix,mmix,mxsav,beta,wc,rms2,w(oaa),dmxp(16))
+     .  call pqmixb(naa,nmix,mmix,mxsav,beta,wc,rms2,w_oaa,dmxp(16))
 
 C --- Broyden mixing, old style ---
 C      if (broy .and. mmix .ne. 0)
-C     .  call pqmixb(naa,nmix,mmix,mxsav,wc,rms2,w(oaa),dmxp(16))
+C     .  call pqmixb(naa,nmix,mmix,mxsav,wc,rms2,w_oaa,dmxp(16))
 
         if (broy .eq. 2)
-     .  call pqmixc(naa,nmix,mmix,mxsav,beta,rms2,w(oaa),dmxp(16))
+     .  call pqmixc(naa,nmix,mmix,mxsav,beta,rms2,w_oaa,dmxp(16))
 
 C --- Anderson mixing ---
         beta0 = beta
         if (broy .eq. 0 .or.
      .  (broy .eq. 1 .and. (mmix .eq. 0 .or. nmix .eq. 0))) then
-          call pqmixa(naa,nmix,mmix,mxsav,beta,rms2,w(oaa),dmxp(16))
+          call pqmixa(naa,nmix,mmix,mxsav,beta,rms2,w_oaa,dmxp(16))
           broy = 0
         endif
 
 C --- Spin polarized case: undo shuffle ---
         if (nsp .eq. 2 .or. nx .gt. 0) then
-          call pqsclb(nda,npq,npq*nsp,(nsp-1)*npq,nx,naa,mxsav,wt,w(oa),
-     .    w(oaa))
+          call pqsclb(nda,npq,npq*nsp,(nsp-1)*npq,nx,naa,mxsav,wt,w_oa,
+     .    w_oaa)
         endif
 
 C --- Copy mixed P,Q from holding array into P,Q arrays ---
         call pqmxup(na,mxsav,nclass,nl,nsp,nx,lmx,pnu,qnu,xnew,
-     .  pold,qold,xold,cnst,nda,w(oa),rms2)
+     .  pold,qold,xold,cnst,nda,w_oa,rms2)
 
 C --- Clean up and exit ---
         if (nmix .lt. 0) dmxp(7) = -nmix
@@ -252,7 +262,8 @@ C --- Clean up and exit ---
         dmxp(14) = broy
         dmxp(15) = beta
         if (broy .eq. 1) dmxp(15) = 1
-        call rlse(oa)
+c        call rlse(oa)
+        deallocate(w_oa,w_oaa)
 
         dmxp(25) = 0
         if (wt(1) .ne. 0 .or. wt(2) .ne. 0) dmxp(25) = 1
@@ -514,8 +525,8 @@ C     implicit none
       double precision tjmax
       parameter (tjmax = 10d0)
 c heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 
 C ... default nmix
       if (nmix .lt. 0) nmix = 2
@@ -746,8 +757,8 @@ C     implicit none
 
 
 c heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 
 C --- Allocate some arrays ---
       allocate(xmp1_rv(nda))
@@ -891,8 +902,8 @@ C Local variables
 
       integer ir,imix,jmix,km,iprint,i1mach,i,idx,idamax
 c heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 
 C --- Allocate some arrays ---
       allocate(p_rv(nda*6))
