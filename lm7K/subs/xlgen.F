@@ -37,10 +37,11 @@ C ... Passed parameters
       double precision plat(3,3),vecs(3,1),rmax,rmax2
 C ... Local parameters
       double precision rsqr,v2,vj(3)
-      integer i,j,k,imx(3),nv,m,ivck(3),iprint,oiwk,owk,lgunit,iv,jv
-      integer w(1)
-      common /w/ w
-
+      integer i,j,k,imx(3),nv,m,ivck(3),iprint,lgunit,iv,jv,oiwk,owk
+c      integer w(1)
+c      common /w/ w
+      integer,allocatable:: w_oiwk(:)
+      real(8),allocatable:: w_owk(:)
 C     call setpr(110)
 
 C --- Setup ---
@@ -136,18 +137,23 @@ C --- Add plat if ivck ne 0 ---
           nv = 3*nv
 
 C   ... Find and eliminate any replicas
-          call defi(oiwk,nv)
-          call dvshel(3,nv,vecs,w(oiwk),1)
+c          call defi(oiwk,nv)
+c          call dvshel(3,nv,vecs,w(oiwk),1)
+          allocate(w_oiwk(nv))
+          call dvshel(3,nv,vecs,w_oiwk,1)
 *       call awrit2('%n:1i',' ',80,6,nv,w(oiwk))
           k = 0
 C   ... Mark any replica iv by iwk(i) -> -iv
           do  32  i = nv-1, 1, -1
-            iv = w(oiwk+i) + 1
-            jv = w(oiwk+i-1) + 1
+c            iv = w(oiwk+i) + 1
+c            jv = w(oiwk+i-1) + 1
+            iv = w_oiwk(i+1) + 1
+            jv = w_oiwk(i) + 1
             v2 = (vecs(1,iv)-vecs(1,jv))**2 +
      .      (vecs(2,iv)-vecs(2,jv))**2 + 
      .      (vecs(3,iv)-vecs(3,jv))**2
-            if (v2 .lt. 1d-10) w(oiwk+i) = -iv
+c            if (v2 .lt. 1d-10) w(oiwk+i) = -iv
+            if (v2 .lt. 1d-10) w_oiwk(i+1) = -iv
    32     continue
 
 C   ... Flag vectors with radius > rmax2
@@ -155,12 +161,15 @@ C   ... Flag vectors with radius > rmax2
             rsqr = rmax2*rmax2
             k = 0
             do  37  i = 0, nv-1
-              if (w(oiwk+i) .ge. 0) then
-                iv = w(oiwk+i) + 1
+c              if (w(oiwk+i) .ge. 0) then
+c                iv = w(oiwk+i) + 1
+              if (w_oiwk(i+1) .ge. 0) then
+                iv = w_oiwk(i+1) + 1
                 v2 = vecs(1,iv)**2 + vecs(2,iv)**2 + vecs(3,iv)**2
                 if (v2 .gt. rsqr) then
                   if (iv .lt. 0) call rx('bug in xlgen')
-                  w(oiwk+i) = -iv
+c                  w(oiwk+i) = -iv
+                  w_oiwk(i+1) = -iv
                   k = k+1
                 endif
               endif
@@ -170,18 +179,21 @@ C         print *, 'rpad reduced nv by',k
 C       call prmx('unsorted vecs',vecs,3,3,nv)
 
 C   ... Make a sorted list of replicas (any of iwk < 0)
-          call ishell(nv,w(oiwk))
+          call ishell(nv,w_oiwk)
+c          call ishell(nv,w(oiwk))
 C   ... For each replica, put lastmost vec into replica's place
           k = nv
           do  34  i = 0, nv-1
-            iv = -w(oiwk+i)
+c            iv = -w(oiwk+i)
+            iv = -w_oiwk(i+1)
             if (iv .le. 0) goto 35
             call dpcopy(vecs(1,k),vecs(1,iv),1,3,1d0)
             k = k-1
    34     continue
    35     continue
           nv = k
-          call rlse(oiwk)
+c          call rlse(oiwk)
+          deallocate(w_oiwk)
         endif
       endif
 C     call prmx('after purging vecs',vecs,3,3,nv)
@@ -191,12 +203,16 @@ C     call prmx('after purging vecs',vecs,3,3,nv)
 
 C --- Sort vectors by increasing length ---
       if (mod(opts/10,10) .eq. 1) then
-        call defi(oiwk,nv)
-        call dvshel(3,nv,vecs,w(oiwk),11)
-*       call awrit2('%n:1i',' ',80,6,nv,w(oiwk))
-        call defi(owk,nv*3)
-        call dvperm(3,nv,vecs,w(owk),w(oiwk),.true.)
-        call rlse(oiwk)
+c        call defi(oiwk,nv)
+c        call dvshel(3,nv,vecs,w(oiwk),11)
+c        call defi(owk,nv*3)
+c        call dvperm(3,nv,vecs,w(owk),w(oiwk),.true.)
+c        call rlse(oiwk)
+        allocate(w_oiwk(nv))
+        call dvshel(3,nv,vecs,w_oiwk,11)
+        allocate(w_owk(nv*3))
+        call dvperm(3,nv,vecs,w_owk,w_oiwk,.true.)
+        deallocate(w_owk,w_oiwk)
       endif
 
 C --- Printout ---
