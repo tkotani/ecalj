@@ -34,12 +34,13 @@ C ... Passed parameters
       character*8 slabl(nspec)
       double precision z(nspec)
 C ... Local parameters
-      integer iv0,ival,is,i,j,ls,oilst,j1,j2
+      integer iv0,ival,is,i,j,ls,j1,j2
       logical a2bin,sw
       character alabl*8
+      integer,allocatable:: ilst(:)
 C ... Heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 C ... External calls
       external clrsyv,defi,hunti,ishell,lodsyv,mkils0,mkilst,numsyv,
      .nwordg,rlse,rxi,rxs,tokmat
@@ -53,21 +54,27 @@ C -- lstyle=1 ---
 c   10 continue
       case(10)
         call mkils0(strlst,nlist,i)
-        call defi(oilst, nlist)
-        call mkilst(strlst,nlist,w(oilst))
+c        call defi(oilst, nlist)
+        allocate(ilst(nlist))
+        call mkilst(strlst,nlist,ilst) !w(oilst))
         if (nlist .eq. 0) return
-        call ishell(nlist,w(oilst))
-        list(1) = w(oilst)
+        call ishell(nlist,ilst) !w(oilst))
+        list(1) = ilst(1) !w(oilst)
         j = 1
         do  i = 2, nlist
-          if (w(oilst+i-1) .gt. list(j)
-     .    .and. w(oilst+i-1) .le. nspec) then
+c          if (w(oilst+i-1) .gt. list(j)
+c     .    .and. w(oilst+i-1) .le. nspec) then
+c            j = j+1
+c            list(j) = w(oilst+i-1)
+          if (ilst(i) .gt. list(j)
+     .    .and. ilst(i) .le. nspec) then
             j = j+1
-            list(j) = w(oilst+i-1)
+            list(j) = ilst(i)
           endif
         enddo
         nlist = j
-        call rlse(oilst)
+c        call rlse(oilst)
+        deallocate(ilst)
         return
 
 C --- lstyle=2 ---
