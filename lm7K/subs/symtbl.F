@@ -26,12 +26,13 @@ C Passed parameters
       integer ipc(1),istab(nbas,1)
       double precision pos(3,1),g(9,1),ag(3,1),qlat(9),tol
 C Local variables
-      integer ib,ic,ig,jb,jc,mode1,mode10,oiwk
+      integer ib,ic,ig,jb,jc,mode1,mode10 !,oiwk
       double precision tol0,tol1
       parameter (tol0=1d-5)
 C ... Heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
+      integer,allocatable:: w_oiwk(:)
 
       if (ng .eq. 0) return
       mode1 = mod(mode,10)
@@ -64,23 +65,26 @@ C --- Make atom transformation table ---
       if (mode10 .eq. 0) return
 
 C --- Check atom classes ---
-      call defi(oiwk, nbas)
+c      call defi(oiwk, nbas)
+      allocate(w_oiwk(nbas))
       do  50  ib = 1, nbas
         ic = ipc(ib)
-        call iinit(w(oiwk),nbas)
+c        call iinit(w(oiwk),nbas)
+        w_oiwk=0
         do  30  ig = 1, ng
-          w(oiwk+istab(ib,ig)-1) = 1
+c          w(oiwk+istab(ib,ig)-1) = 1
+          w_oiwk(istab(ib,ig)) = 1
    30   continue
         do  40  jb = 1, nbas
-          if (w(oiwk+jb-1) .eq. 1) goto 40
+c          if (w(oiwk+jb-1) .eq. 1) goto 40
+          if (w_oiwk(jb) .eq. 1) goto 40
           jc = ipc(jb)
           if (ic .eq. jc) call fexit2(-1,111,' Exit -1 SYMTBL:  '//
      .    'site ib=%i in same class as inequivalent site jb=%i',ib,jb)
    40   continue
    50 continue
-      call rlse(oiwk)
-
-
+c      call rlse(oiwk)
+      deallocate(w_oiwk)
       end
 
       subroutine istbpm(istab,nbas,ng,istab2)
