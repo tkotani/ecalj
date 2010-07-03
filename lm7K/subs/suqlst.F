@@ -172,12 +172,14 @@ C ... MPI
 ctakao
       real(8)::qlx(3)
 C ... Heap
-      integer w(1)
-      common /w/ w
-      common /suqlsd/
-     .q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
-     .iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
+c      integer w(1)
+c      common /w/ w
+c      common /suqlsd/
+c     .q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
+c     .iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
+      common /suqlsd2/ql,ifib,mode,iq,nblst,iblst,fmlong,nqx,nqy
       save evsav
+      real(8),allocatable:: w_oqp(:,:)
 
       procid = mpipid(1)
       master = 0
@@ -371,9 +373,12 @@ C         Flag that prior block already completed: nq>0
           j = 3
           if (rdm(ifiq,10000,0,' ',xx,j,nq) .ne. 1) call
      .    rx('suqlst:  bad qp file')
-          call defrr(oqp,3*nq)
+
+c          call defrr(oqp,3*nq)
+          allocate(w_oqp(3,nq))
+
           rewind ifiq
-          j = rdm(ifiq,10000,3*nq,' ',w(oqp),j,nq)
+          j = rdm(ifiq,10000,3*nq,' ',w_oqp,j,nq)
           call awrit1('%N suqlst: read %i qp from file '//fn//
      .    '%a',' ',80,stdo,nq)
           if (j .ne. 1) call rx('suqlst: failed to read qp')
@@ -435,7 +440,7 @@ C --- Generate qp for this iq, depending on mode ---
           qp(2) = xx*q2(2) + (1-xx)*q1(2)
           qp(3) = xx*q2(3) + (1-xx)*q1(3)
         elseif (mode .eq. 2) then
-          call dpscop(w(oqp),qp,3,iq*3-2,1,1d0)
+          call dpscop(w_oqp,qp,3,iq*3-2,1,1d0)
         elseif (mode .eq. 3) then
 C         Inner Loop:  excursions in y; outer loop: excursions in x
           j = mod(iq-1,nqy)
@@ -462,6 +467,7 @@ C         Inner Loop:  excursions in y; outer loop: excursions in x
 C       Hold onto local copy of qp
         call dcopy(3,qp,1,ql,1)
       endif
+      if(allocated(w_oqp)) deallocate(w_oqp)
       return
 
 C --- No more qp blocks: cleanup ---
@@ -481,6 +487,7 @@ C --- No more qp blocks: cleanup ---
 C       call xxxbnd(w(oev),nblst,nqx,nqy,ifib)
 C       return
       endif
+      if(allocated(w_oqp)) deallocate(w_oqp)
       return
 
 C --- Error exit ---
@@ -680,12 +687,15 @@ C ... Local parameters
       logical fmlong
       integer i,iprint,j,j1,k,nglob,stdo
       integer iblst(100),ifib,ifiq,iq,mode,nblst,nevn,nqx,nqy
-      integer oqp
+c      integer oqp
       double precision x1,x2,y1,y2,evmxn,evmnn,
      .q1(3),q2(3),ql(3),vectx(3),vecty(3),vect3(3)
-      common /suqlsd/
-     .q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
-     .iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
+
+c      common /suqlsd/
+c     .q1,q2,ql,evmxn,evmnn,ifiq,ifib,mode,iq,oqp,nevn,nblst,
+c     .iblst,fmlong,nqx,nqy,x1,x2,y1,y2,vectx,vecty,vect3
+      common /suqlsd2/ql,ifib,mode,iq,nblst,iblst,fmlong,nqx,nqy
+
       integer ipiv(ndimhx)
       real(8),allocatable :: evsav(:,:,:,:)
       complex(8),allocatable:: evecc(:,:),work(:,:)
