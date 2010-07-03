@@ -358,19 +358,16 @@ Cchp1      .  oiaxs , ndhrs , w )
      .   oiaxs , ndhrs , w ) 
 
 
-
       nttabs = ival(w(ontabs),nbas+1)
 C     Allocate memory for hrs
       if (hreal .eq. 1) then
 Cchp1         call defdr(ohrs,-ndhrs**2*nttabs*nsp)
-         allocate(rv_p_ohrs(abs(-ndhrs**2*nttabs*nsp)))
-         if (-ndhrs**2*nttabs*nsp<0) rv_p_ohrs(:)=0.0d0
-
+         allocate(rv_p_ohrs(ndhrs**2*nttabs*nsp))
+         rv_p_ohrs(:)=0d0
       else
 Cchp1         call defdc(ohrs,-ndhrs**2*nttabs*nsp)
-         allocate(rv_p_ohrs(abs(-2*ndhrs**2*nttabs*nsp)))
-         if (-ndhrs**2*nttabs*nsp<0) rv_p_ohrs(:)=0.0d0
-
+         allocate(rv_p_ohrs(2*ndhrs**2*nttabs*nsp))
+         rv_p_ohrs(:)=0d0
       endif
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---

@@ -43,6 +43,7 @@
 # $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
 # -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
 LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
+
 #
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
 # I had a problem in zgemm in pwmat for 4.2.0. Wrong normchk.dia
@@ -58,7 +59,7 @@ LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 #          /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
 #          /usr/lib64/atlas/libatlas.so.3 -lfftw3
 
-#LIBLOC= -lfftw3 -mkl -lifcore -lguide -pthread
+LIBLOC= -lfftw3 -mkl -lifcore -lguide -pthread
 
 
 ### acml  is from http://developer.amd.com/cpu/Libraries/acml/downloads/pages/default.aspx#downloads

@@ -52,7 +52,6 @@ subs_list:=\
 	drr2.o \
 	dstrbp.o \
 	dvdos.o \
-	easypbe.o \
 	efrng2.o \
 	f100.o \
 	f102.o \

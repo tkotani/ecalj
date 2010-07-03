@@ -82,12 +82,13 @@ exe= ecaldir+'/fpgw/exec/'
 print 'exe=',exe
 print 'testdir=',testdir
 print 'ecal directory=',ecaldir
-dat=raw_input(' --- Is ecal diretory OK? (return or name of directory. or edit testgw.py) --- ')
-if(dat==''):
-	pass
-else:
-	ecaldir=dat
-	print 'ecal=',ecaldir
+print ' --- Is ecal diretory OK? (return or name of directory. or edit testgw.py '
+#dat=raw_input(' --- Is ecal diretory OK? (return or name of directory. or edit testgw.py) --- ')
+#if(dat==''):
+#	pass
+#else:
+#	ecaldir=dat
+#	print 'ecal=',ecaldir
 
 ### Definition of tests
 testname=[]

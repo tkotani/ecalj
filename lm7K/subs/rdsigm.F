@@ -631,14 +631,12 @@ Cchp1      .  oiaxs , ndhrs , w )
 C     Allocate memory for hrs
       if (hreal .eq. 1) then
 Cchp1         call defdr(ohrs,-ndhrs**2*nttabs*nsp)
-         allocate(rv_p_ohrs(abs(-ndhrs**2*nttabs*nsp)))
-         if (-ndhrs**2*nttabs*nsp<0) rv_p_ohrs(:)=0.0d0
-
+         allocate(rv_p_ohrs(ndhrs**2*nttabs*nsp))
+         rv_p_ohrs(:)=0d0
       else
 Cchp1         call defdc(ohrs,-ndhrs**2*nttabs*nsp)
-         allocate(rv_p_ohrs(abs(-ndhrs**2*nttabs*nsp)))
-         if (-ndhrs**2*nttabs*nsp<0) rv_p_ohrs(:)=0.0d0
-
+         allocate(rv_p_ohrs(2*ndhrs**2*nttabs*nsp))
+         rv_p_ohrs(:)=0d0
       endif
 
 c      stop 'xxxxxxxxxxxxxxxx takao test1 in rdsigm.F xxxxxxxxxx'
