@@ -53,7 +53,7 @@ Cu   21 Jun 00 spin polarized
 Cu   18 Jun 98 adapted from nfp dfrce.f
 Cu   16 Jun 98 MvS parallelized for SGI
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
 #if MPI | MPIK
       include "mpif.h"
@@ -153,8 +153,9 @@ C ... Heap
 
 C --- Setup ---
 
-      i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+c      i_copy_size=size(slat%nabc)
+c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      ngabc=slat%nabc
       ng=slat%ng
 Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
@@ -166,10 +167,12 @@ Cchp1       okv=slat%okv
 
 
       alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat,1)
+c      i_copy_size=size(slat%qlat)
+c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      plat=slat%plat
+      qlat=slat%qlat
 
       c = 1000
       stdo = lgunit(1)
@@ -631,8 +634,9 @@ C ... Heap
 
       call tcn('pvdf1')
 
-      i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+c      i_copy_size=size(slat%nabc)
+c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      ngabc=slat%nabc
       alat=slat%alat
       vol=slat%vol
 
@@ -653,9 +657,9 @@ C     tpiba = 2*pi/alat
       call dpzero(gpot0,nlmx*3)
 
       is=ssite(ib)%spec
-      i_copy_size=size(ssite(ib)%pos)
-      call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-
+c      i_copy_size=size(ssite(ib)%pos)
+c      call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
+      tau=ssite(ib)%pos(1:3)
       call suphas(q0,tau,ng,iv,n1,n2,n3,qlat,cs,sn)
 
 C --- Unscreened rigid charge density shift, job 1, in cdn0 ---

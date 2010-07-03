@@ -1011,15 +1011,15 @@ CCHSTRUC       integer(8)   ::   oqlv
        real(8) , pointer ::  rv_p_oqlv (:)
 CCHSTRUC       integer(8)   ::   osymgr
        real(8) , pointer ::  rv_p_osymgr (:)
-      real(8)   ::   plat(9)
-      real(8)   ::   plat0(9)
-      real(8)   ::   plat2(9)
-      real(8)   ::   plate(9)
-      real(8)   ::   platl(9)
-      real(8)   ::   platr(9)
-      real(8)   ::   qlat(9)
+      real(8)   ::   plat(3,3)
+      real(8)   ::   plat0(3,3)
+      real(8)   ::   plat2(3,3)
+      real(8)   ::   plate(3,3)
+      real(8)   ::   platl(3,3)
+      real(8)   ::   platr(3,3)
+      real(8)   ::   qlat(3,3)
       real(8)   ::   rpad
-      real(8)   ::   slat(9)
+      real(8)   ::   slat(3,3)
       real(8)   ::   tol
       real(8)   ::   tolft
       real(8)   ::   vol
