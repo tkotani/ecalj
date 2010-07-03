@@ -1,3 +1,4 @@
+C oevl -> evlall
 Cchp1 cmdvar= integer,iv_p_,oidtet
 Cchp1 cmdvar= integer,iv_p_,oorhat
 Cchp1 cmdvar= complex(8),zv_p_,osmrho
@@ -257,17 +258,17 @@ C ... Local parameters
      ., lekkl 
       real(8) ,allocatable :: dos_rv(:)
 
-Cchp1       integer:: oevl , os , oidtet , owtkb , oswtk , owtkp , oorhat 
+Cchp1       integer:: oevlall , os , oidtet , owtkb , oswtk , owtkp , oorhat 
 Cchp1      ., osoptc , osmpot , osmrho , oqp 
-Cchp1        integer:: oevl , os , oidtet , owtkb , oswtk , owtkp , oorhat 
+Cchp1        integer:: oevlall , os , oidtet , owtkb , oswtk , owtkp , oorhat 
 Cchp1      . , osoptc , osmpot , osmrho 
-Cchp1         integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
+Cchp1         integer:: oevlall , os , oidtet , owtkb , oswtk , oorhat , osoptc 
 Cchp1      .  , osmpot , osmrho 
-Cchp1          integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
+Cchp1          integer:: oevlall , os , oidtet , owtkb , oswtk , oorhat , osoptc 
 Cchp1      .   , osmrho 
-Cchp1           integer:: oevl , os , oidtet , owtkb , oswtk , oorhat , osoptc 
-Cchp1            integer:: oevl , os , oidtet , owtkb , oswtk , osoptc 
-            integer:: oevl , os , owtkb , oswtk , osoptc 
+Cchp1           integer:: oevlall , os , oidtet , owtkb , oswtk , oorhat , osoptc 
+Cchp1            integer:: oevlall , os , oidtet , owtkb , oswtk , osoptc 
+            integer::  os , owtkb , oswtk , osoptc  !oevlall ,
             integer,pointer :: iv_p_oidtet(:)
 
            integer,pointer :: iv_p_oorhat(:)
@@ -431,6 +432,7 @@ ctakao
 
       integer:: iqini,iqend
       complex(8),allocatable:: spotx(:,:,:,:),smrhobk(:)
+      real(8),allocatable:: evlall(:,:,:)
 
 C     call wkfast(.false.)
       if (maxit .eq. 0) return
@@ -875,7 +877,9 @@ C       endif
      .elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
       dmxp(33) = elind
 
-      call defrr(oevl, ndham*nsp*nkp)
+c      call defrr(oevlall, ndham*nsp*nkp)
+      allocate( evlall(ndham,nsp,nkp))
+
 C --- Setup for BZ integration ---
       if (plbnd .eq. 0) then
 
@@ -885,7 +889,7 @@ cccccccccccccccccccccc
 
 
         call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
-c     .    nevmx,lwtkb,eferm,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
+c     .    nevmx,lwtkb,eferm,oevlall,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
      .  nevmx,lwtkb,eferm,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
      .  dabs(esmear-mpsord))
 
@@ -1144,7 +1148,7 @@ Cchp1         call defrr(oqp,  3*nkp)
          allocate(rv_p_oqp(abs(3*nkp)))
          if (3*nkp<0) rv_p_oqp(:)=0.0d0
 
-c        call defrr(oevl, ndham*nsp*nkp)
+c        call defrr(oevlall, ndham*nsp*nkp)
         if (epsovl .ne. 0) then
           allocate(eomin_rv(nsp*nkp))
         endif
@@ -1399,7 +1403,7 @@ ctakao
 C Start k and isp loop (first loop in parallel mode)
 C     h,s,evecs are dimensioned ndimh in this loop (may be q dependent)
 C     evl is dimensioned evl(ndham,2)
-C     w(oevl), w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
+C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
 #if MPE & MPIK
       ierr = MPE_LOG_EVENT(EVENT_START_KLOOP,procid,"k-loop")
 #endif
@@ -2176,7 +2180,7 @@ c##### !MPIK
 C   ... Save data for this qp to moments file
             if (plbnd .eq. 0) then
 C   ... Copy eigenvalues into array containing ev for all qp
-              call dpscop(evl(1,jsp),w(oevl),ndhamx,
+              call dpscop(evl(1,jsp),evlall,ndhamx,
      .        1,1+ndham*(jsp-1+isqp),1d0)
 #if MPIK
               if (epsovl .ne. 0) then
@@ -2188,8 +2192,8 @@ C   ... Copy eigenvalues into array containing ev for all qp
 
               if( debug) print *, 'tttttttttt 22222'
 
-C        call prmx('ev',w(oevl),ndham,ndham,isqp+2)
-C        call prmx('ev',w(oevl),ndham,ndham,nkp*nsp)
+C        call prmx('ev',evlall,ndham,ndham,isqp+2)
+C        call prmx('ev',evlall,ndham,ndham,nkp*nsp)
 
 
 
@@ -2386,7 +2390,7 @@ c          call suqlsw(nevl,jsp,i,evl(1,jsp))
 #else
 C   ... Save evals for this qp
             elseif (plbnd .ne. 0) then
-              call dpscop(evl(1,jsp),w(oevl),ndhamx,
+              call dpscop(evl(1,jsp),evlall,ndhamx,
      .        1,1+ndham*(jsp-1+isqp),1d0)
               if (epsovl .ne. 0) then
                 call dpscop ( eomin , eomin_rv , 1 , 1 , 1 + ( jsp - 1 + isqp 
@@ -2485,7 +2489,7 @@ C     You can't do this until you have all the evals.
       sttime = MPI_WTIME()
 
 C     Share bands among all processors
-      call xmpbnd(kpproc,ndham,nkp,nsp,w(oevl))
+      call xmpbnd(kpproc,ndham,nkp,nsp,evlall)
       if (epsovl .ne. 0) then
         call xmpbnd ( kpproc , 1 , nkp , nsp , eomin_rv ) 
 
@@ -2593,7 +2597,7 @@ C         isp serves as a flag for the noncollinear case
               if ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) then
                 jsp = isp
                 if (ispc .eq. 2) jsp = 1
-                call dpscop(w(oevl),evl(1,jsp),ndhamx,
+                call dpscop(evlall,evl(1,jsp),ndhamx,
      .          1+ndham*(jsp-1+isqp),1,1d0)
                 if (mod(i1,10) .ne. 1) call pshpr(iprint()-6)
                 call info5(30,0,0,' bndfp:  kpt %i of %i, k=%3:2,5;5d',
@@ -2630,7 +2634,7 @@ C       isp serves as a flag for the noncollinear case
           if ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) then
             jsp = isp
             if (ispc .eq. 2) jsp = 1
-            call dpscop(w(oevl),evl(1,jsp),ndhamx,
+            call dpscop(evlall,evl(1,jsp),ndhamx,
      .      1+ndham*(jsp-1+isqp),1,1d0)
             if (epsovl .ne. 0) then
               call dpscop ( eomin_rv , eomin , 1 , 1 + ( jsp - 1 + isqp 
@@ -2810,20 +2814,20 @@ C --- BZ integration for fermi level, band sum and qp weights ---
           allocate(ww_rv(ndham*nsp*nkp))
 
           eferm = min(dosw(1),dosw(2))
-Cchp1           call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
+Cchp1           call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevlall 
 Cchp1      .    ) , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
 Cchp1      .    eferm , 2 , ntet , w ( oidtet ) , sev , dum ) 
-           call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
-     .     ) , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , eferm 
+           call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
+     .     , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , eferm 
      .     , 2 , ntet , iv_p_oidtet , sev , dum ) 
 
 
 C         call prmx('w(min)',w(oww),ndham,ndham,nkp*nsp)
           eferm = max(dosw(1),dosw(2))
-Cchp1           call bzints(nkabc(1),nkabc(2),nkabc(3),w(oevl),w(owtkb),nkp,
+Cchp1           call bzints(nkabc(1),nkabc(2),nkabc(3),w(oevlall),w(owtkb),nkp,
 Cchp1      .    ndham,ndham,nsp,xv,xv,xv,1,eferm,2,ntet,w(oidtet),sev,dum)
-           call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
-     .     ) , w ( owtkb ) , nkp , ndham , ndham , nsp , xv , xv , xv , 
+           call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
+     .     , w ( owtkb ) , nkp , ndham , ndham , nsp , xv , xv , xv , 
      .     1 , eferm , 2 , ntet , iv_p_oidtet , sev , dum ) 
 
 C         call prmx('w(max)',w(owtkb),ndham,ndham,nkp*nsp)
@@ -2838,18 +2842,18 @@ C         call prmx('w',w(owtkb),ndham,ndham,nkp*nsp)
           if (mpsord .lt. 0) dosrng = 16
 Cchp1           call bzwtsf(ndham,ndham,nsp,nspc,nkabc(1),nkabc(2),nkabc(3),
 Cchp1      .    nkp,ntet,w(oidtet),qval-qbg,fsmom,lmet.ne.0,ltet,mpsord,
-Cchp1      .    ndos,dabs(esmear-mpsord),dosrng,w(owtkp),w(oevl),efmax,
+Cchp1      .    ndos,dabs(esmear-mpsord),dosrng,w(owtkp),w(oevlall),efmax,
 Cchp1      .    lswtk,w(oswtk),eferm,sev,w(owtkb),sumqv(1,2),lwtkb)
 Cchp1            call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
 Cchp1      .     ( 2 ) , nkabc ( 3 ) , nkp , ntet , w ( oidtet ) , qval - qbg 
 Cchp1      .     , fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - 
-Cchp1      .     mpsord ) , dosrng , rv_p_owtkp , w ( oevl ) , efmax , lswtk , 
+Cchp1      .     mpsord ) , dosrng , rv_p_owtkp , w ( oevlall ) , efmax , lswtk , 
 Cchp1      .     w ( oswtk ) , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb 
 Cchp1      .     ) 
             call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .      ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
      .      fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-     .      ) , dosrng , rv_p_owtkp , w ( oevl ) , efmax , lswtk , w ( oswtk 
+     .      ) , dosrng , rv_p_owtkp , evlall  , efmax , lswtk , w ( oswtk 
      .      ) , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb ) 
 
 
@@ -2945,12 +2949,12 @@ c          allocate(dos_rv(3*ndos))
           if (iprint()>=30) call awrit1('%x%N ... Generating %?#n<0#'
      .    //'integrated#total# DOS',' ',80,lgunit(1),ndos0)
           if (ltet) then
-Cchp1             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
+Cchp1             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevlall 
 Cchp1      .      ) , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw ( 
 Cchp1      .      2 ) , dos_rv , ndos , eferm , 1 , ntet , w ( oidtet ) , dum 
 Cchp1      .      , dum ) 
-             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , w ( oevl 
-     .       ) , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw ( 
+             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
+     .       , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw ( 
      .       2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_p_oidtet , dum , 
      .       dum ) 
 
@@ -2962,18 +2966,18 @@ Cchp1      .      , dum )
           else
             if (mpsord .ge. 100) mpsord = mod(mpsord,100)
 Cchp1             if ( ndos0 .gt. 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx 
-Cchp1      .      , w ( owtkp ) , w ( oevl ) , mpsord , dabs ( esmear - mpsord 
+Cchp1      .      , w ( owtkp ) , w ( oevlall ) , mpsord , dabs ( esmear - mpsord 
 Cchp1      .      ) , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
              if ( ndos0 .gt. 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx 
-     .       , rv_p_owtkp , w ( oevl ) , mpsord , dabs ( esmear - mpsord ) 
+     .       , rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .       , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
 
 
 Cchp1             if ( ndos0 .lt. 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx 
-Cchp1      .      , w ( owtkp ) , w ( oevl ) , mpsord , dabs ( esmear - mpsord 
+Cchp1      .      , w ( owtkp ) , w ( oevlall ) , mpsord , dabs ( esmear - mpsord 
 Cchp1      .      ) , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
              if ( ndos0 .lt. 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx 
-     .       , rv_p_owtkp , w ( oevl ) , mpsord , dabs ( esmear - mpsord ) 
+     .       , rv_p_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .       , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv ) 
 
 
@@ -3005,7 +3009,7 @@ C --- Core-level spectroscopy ---
           eferm=sbz%ef
 
           call vcdmel ( sctrl , ssite , sspec , slat , nlmax , ndham , 
-     .    ndimh , nkp , nsp , nspc , eferm , w ( oevl ) , ausc_zv , 
+     .    ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , 
      .    nsites , isite , iclsl , iclsn ) 
 
           call rx0('done generating core level spectra')
@@ -3242,7 +3246,8 @@ Cchp1       call rlse(oqp)
 cki       if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
 
 #endif
-      call rlse(oevl)
+c      call rlse(oevlall)
+      deallocate(evlall)
       end subroutine bndfp
 
 
