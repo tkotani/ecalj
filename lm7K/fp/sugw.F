@@ -1449,7 +1449,7 @@ C       File write
 
           endif
         enddo ! Loop over spins
-        deallocate(ham,ovl,evec,vxc,cphi,cphin)
+        deallocate(ham,ovl,evec,vxc,cphi,cphin,igv2)
         if (bandmode .and. jobb .eq. 0) deallocate(geig)
       enddo ! Loop over qp
       if (jobb .ne. 5) then
