@@ -205,7 +205,7 @@ CCHSTRUC       integer(8)   ::   oclabl
 CCHSTRUC       integer(8)   ::   ocllst ! not used because of undef
 CCHSTRUC       integer(8)   ::   oclp ! not used because of undef
 CCHSTRUC       integer(8)   ::   oclssl ! not used because of undef
-      integer(8)   ::   ogroup
+c      integer(8)   ::   ogroup
 CCHSTRUC       integer(8)   ::   ogrp2 ! not used because of undef
 CCHSTRUC       integer(8)   ::   ohave
        integer , pointer ::  iv_p_ohave (:)
@@ -2580,8 +2580,8 @@ C ... Passed parameters
        call mpi_bcast(struc%npl, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_oclabl(:) because it is a pointer.
-       call mpi_bcast(struc%ogroup, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+c       call mpi_bcast(struc%ogroup, 1,MPI_INTEGER8
+c     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_ohave(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_oics(:) because it is a pointer.
        call mpi_bcast(struc%oipc, 1,MPI_INTEGER8
@@ -4316,7 +4316,7 @@ C$$$        end subroutine utb
        struc%npadl=0
        struc%npadr=0
        struc%npl=0
-       struc%ogroup=0
+c       struc%ogroup=0
        struc%oipc=0
        struc%oipcp=0
        struc%opos=0

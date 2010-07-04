@@ -1,5 +1,8 @@
       subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
-     .grh,ggrh,agrh,grgagr,exc,vxc)
+     . exc,vxc)
+c      subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
+c     .grh,ggrh,agrh,grgagr,exc,vxc)
+ctakao automatic array version
 C- Gradient correction to vxc, exc for a mesh of points.
 C ----------------------------------------------------------------------
 Ci Inputs

@@ -93,7 +93,7 @@ Cu   27 Aug 01 Extended to local orbitals.
 Cu   17 Jun 00 spin polarized
 Cu   25 May 00 Adapted from nfp rloc_q.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
 #if MPI
       include "mpif.h"
@@ -135,8 +135,8 @@ C ... Local parameters or process-shared variables
 #endif
 
       integer is,nlmbx,nlmx,ktop0,npmx,nkap0,n0
-      parameter (nlmbx=25, npmx=32, nkap0=3, n0=10)
-      integer kmaxx,nlmax,igetss,mp,nglob,nlmto
+      parameter (nlmbx=25,  nkap0=3, n0=10) !npmx=32,
+      integer kmaxx,nlmax,igetss,nglob,nlmto !mp,
 Cchp1       integer ocg,ocy,oidxcg,ojcg
 Cchp1        integer:: ocy , oidxcg , ojcg 
 Cchp1         integer:: oidxcg , ojcg 
@@ -149,7 +149,7 @@ Cchp1          integer:: ojcg
 
        real(8),pointer :: rv_p_ocg(:)
 
-      integer oib(npmx),oidb(npmx),oixf(npmx),o
+c      integer oib(npmx),oidb(npmx),oixf(npmx),o
       double precision alat,qlat(3,3)
 C ... Local process-specific variables
       integer ia,isa,ivec,kmax,lmxa,nlma,ip,oxf,
@@ -175,6 +175,7 @@ C ... Heap
       integer w(1)
       common /w/ w
       integer:: iaini,iaend
+      complex(8),allocatable::w_ob(:),w_odb(:),w_oxf(:)
 
 #if MPI
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
@@ -214,7 +215,7 @@ Cchp1       ocy=slat%ocy
        rv_p_ocy => slat%rv_p_ocy 
 
 
-      call defi(o,1)
+c      call defi(o,1)
 C ... Find maximum sizes needed to allocate strux; allocate them
       nlmax = 0
       kmaxx = 0
@@ -233,8 +234,9 @@ C ... Find maximum sizes needed to allocate strux; allocate them
 C     Needed for PW part
 
       alat=slat%alat
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+c      i_copy_size=size(slat%qlat)
+c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      qlat=slat%qlat
 
       pi = 4d0*datan(1d0)
       tpiba = 2d0*pi/alat
@@ -255,13 +257,20 @@ CSFCPP#endif
       if (kmaxx .gt. ktop0) call rxi('rlocbl: ktop0.lt.kmax=',kmax)
 
 C ... Allocate workspace for strux
-      mp = 1
+c      mp = 1
 C$    mp = mp_numthreads()
-      do  ip = 1, mp
-        call defcc(oib(ip), ndimh*nlmax*(kmaxx+1))
-        call defcc(oidb(ip),ndimh*nlmax*(kmaxx+1)*3)
-        if (lfrce .ne. 0) call defrr(oixf(ip),-3*nbas*numq)
-      enddo
+
+      allocate(w_ob(ndimh*nlmax*(kmaxx+1)))
+      allocate(w_odb(ndimh*nlmax*(kmaxx+1)*3))
+      if (lfrce .ne. 0) then
+        allocate(w_oxf(3*nbas*numq))
+        w_oxf=0d0
+      endif  
+c      do  ip = 1, mp
+c        call defcc(oib(ip), ndimh*nlmax*(kmaxx+1))
+c        call defcc(oidb(ip),ndimh*nlmax*(kmaxx+1)*3)
+c        if (lfrce .ne. 0) call defrr(oixf(ip),-3*nbas*numq)
+c      enddo
 
 C --- Loop over augmentation sites ---
 #if MPI
@@ -291,9 +300,9 @@ c      do  ia = bproc(procid), bproc(procid+1)-1
 C$      ip=mp_my_threadnum()+1
 
         isa=ssite(ia)%spec
-        i_copy_size=size(ssite(ia)%pos)
-        call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
-
+c        i_copy_size=size(ssite(ia)%pos)
+c        call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
+        pa=ssite(ia)%pos(1:3)
 
         lmxa=sspec(isa)%lmxa
         lmxha=sspec(isa)%lmxb
@@ -316,9 +325,9 @@ C$      ip=mp_my_threadnum()+1
         osighp = osig(2,ia)
 
 C   --- Strux to expand all orbitals and their gradients at site ia ---
-        ob = oib(ip)
-        odb = oidb(ip)
-        oxf = oixf(ip)
+c        ob = oib(ip)
+c        odb = oidb(ip)
+c        oxf = oixf(ip)
 
 CSFCPP#if F90
 Cchp1         call bstrux(1,slat,ssite,sspec,w(ocg),w(oidxcg),w(ojcg),w(ocy),
@@ -337,7 +346,7 @@ Cchp1      .     , w ( ojcg ) , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
 Cchp1      .     kmax , nlma , ndimh , napw , igvapw , w ( ob ) , w ( odb ) ) 
             call bstrux ( 1 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg 
      .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q , 
-     .      kmax , nlma , ndimh , napw , igvapw , w ( ob ) , w ( odb ) ) 
+     .      kmax , nlma , ndimh , napw , igvapw , w_ob , w_odb ) 
 
 
 
@@ -394,7 +403,7 @@ C       whereas ispc is spin index in the noncoll case, but 1 for coll.
             ksp = max(ispc,isp)
 
 C     ... Pkl expansion of eigenvector
-            call rlocb1(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),cPkL)
+            call rlocb1(ndimh,nlma,kmax,evec(1,ispc,ivec),w_ob,cPkL)
 
 C      ... needed for off-diagonal density matrix ... comment out now
 C          if (nspc .eq. 2 .and. ispc .eq. 1) then
@@ -435,8 +444,8 @@ C     ... Contribution to forces
               call rxx(nspc.ne.1,'forces not implemented in noncoll case')
               call flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto,
      .        ndimh,iprmb,ksp,evl(ivec,isp),evec(1,ispc,ivec),ewgt(1,
-     .        ivec),numq,cPkL,w(odb),da,wk,w(oppipp),w(oppipp),
-     .        w(osigpp),w(oppihp),w(oppihp),w(osighp),lcplxp,w(oxf))
+     .        ivec),numq,cPkL,w_odb,da,wk,w(oppipp),w(oppipp),
+     .        w(osigpp),w(oppihp),w(oppihp),w(osighp),lcplxp,w_oxf)
             endif
           enddo
         enddo
@@ -499,7 +508,8 @@ C ... end loop over ia
       enddo
       if (lfrce .ne. 0) then
         allocate(buffer(3*nbas*numq), stat=ierr)
-        call MPI_ALLREDUCE(w(oixf(1)),buffer,3*nbas*numq,
+c        call MPI_ALLREDUCE(w(oixf(1)),buffer,3*nbas*numq,
+        call MPI_ALLREDUCE(w_oxf,buffer,3*nbas*numq,
      .  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         if (mlog) then
           call gettime(datim)
@@ -517,18 +527,20 @@ C ... end loop over ia
 #endif
 #else
       if (lfrce .ne. 0) then
-        do  ip = 1, mp
-          call daxpy(3*nbas*numq,1d0,w(oixf(ip)),1,f,1)
-        enddo
+ctakao think mp=1 is assumed in this routine 3rdJune2010
+c        do  ip = 1, mp
+          call daxpy(3*nbas*numq,1d0,w_oxf,1,f,1)
+c        enddo
       endif
 #endif
 
 CSFCPP#if F90
       deallocate(cPkL,da,wk)
 CSFCPP#endif
-      call rlse(o)
+c      call rlse(o)
+      deallocate(w_ob,w_odb)
+      if(lfrce /=0) deallocate(w_oxf)
       call tcx('rlocbl')
-
       end subroutine rlocbl
 
 

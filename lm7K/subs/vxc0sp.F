@@ -145,13 +145,14 @@ C --- Integrals ---
 
 C --- Gradient correction ---
       if (lxcg /= 0) then
-        allocate(grh_rv(nrmx*nsp))
-        allocate(ggrh_rv(nrmx*nsp))
-        allocate(agrh_rv(nrmx*(3*nsp-2)))
-        allocate(grgag_rv(nrmx*(2*nsp-1)))
-        call vxcgr2 ( nr , nsp , nrmx , rofi , rp , grh_rv , ggrh_rv 
-     .  , agrh_rv , grgag_rv , exc , vxc )
-        deallocate(grgag_rv,agrh_rv,ggrh_rv,grh_rv)
+c        allocate(grh_rv(nrmx*nsp))
+c        allocate(ggrh_rv(nrmx*nsp))
+c        allocate(agrh_rv(nrmx*(3*nsp-2)))
+c        allocate(grgag_rv(nrmx*(2*nsp-1)))
+c        call vxcgr2 ( nr , nsp , nrmx , rofi , rp , grh_rv , ggrh_rv 
+c     .  , agrh_rv , grgag_rv , exc , vxc )
+c        deallocate(grgag_rv,agrh_rv,ggrh_rv,grh_rv)
+        call vxcgr2 ( nr , nsp , nrmx , rofi , rp , exc , vxc )
 
 C ...   Redo integrals, with gradient correction
         do  24  i  = 1, nsp

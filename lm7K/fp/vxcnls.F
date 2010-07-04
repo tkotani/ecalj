@@ -146,16 +146,19 @@ C --- Do gradient in blocks nr-incn..nr, nr-2*incn..nr-incn ... ---
       vhold = (vxcnl(ir0,1,1)+vxcnl(ir0,1,nsp))/2
 
 C ...   Gradient-corrected Vxc for points between ir0 and ir1
-      call defrr(oagrp,nri*np*(3*nsp-2))
-      call defrr(ogagrp,nri*np*nsp*3)
-      call defrr(ovxcp,nri*np*nsp)
-      call defrr(oexcp,nri*np*nsp)
-      call defrr(owk,nr)
-      call defrr(owkl,nri*nlm*nsp)
-      call xxcnls(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp,
-     .wp,w(owkl),rp,ggrp,grp,agrl,w(oagrp),w(ogagrp),rl,rwgt,lcut,
-     .w(ovxcp),w(oexcp),vxcnl,excnl,sumnl)
-      call rlse(oagrp)
+c      call defrr(oagrp,nri*np*(3*nsp-2))
+c      call defrr(ogagrp,nri*np*nsp*3)
+c      call defrr(ovxcp,nri*np*nsp)
+c      call defrr(oexcp,nri*np*nsp)
+c      call defrr(owk,nr)
+c      call defrr(owkl,nri*nlm*nsp)
+c      call xxcnls(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp,
+c     .wp,w(owkl),rp,ggrp,grp,agrl,w(oagrp),w(ogagrp),rl,rwgt,lcut,
+c     .w(ovxcp),w(oexcp),vxcnl,excnl,sumnl)
+      call xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,ylwp,
+     . wp,rp,ggrp,grp,agrl,rl,rwgt,lcut,
+     . vxcnl,excnl,sumnl)
+c      call rlse(oagrp)
       ir1 = ir0-1
 
 C ... Check rmu to determine largest lmax next pass
@@ -227,8 +230,11 @@ C     .       ' V_0(R)=',f15.6,'  nloc VXC_0(R)=',f12.6)
 C     call poppr
       end
 
-      subroutine xxcnls(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,
-     .ylwp,wp,wkl,rp,ggrp,grp,agrl,agrp,gagrp,rl,rwgt,lcut,vxcp,excp,
+c      subroutine xxcnls(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,
+c     .ylwp,wp,wkl,rp,ggrp,grp,agrl,agrp,gagrp,rl,rwgt,lcut,vxcp,excp,
+c     .vxcnl,excnl,sumnl)
+      subroutine xxcnls2(lxcg,lmax,ir0,ir1,nr,np,nlm,nsp,nn,ri,yl,gyl,
+     .ylwp,wp,wkl,rp,ggrp,grp,agrl,rl,rwgt,lcut,
      .vxcnl,excnl,sumnl)
 C     implicit none
       integer ir0,ir1,nr,np,nlm,nsp,nn,lmax,lcut,lxcg

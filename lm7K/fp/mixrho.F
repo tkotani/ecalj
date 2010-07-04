@@ -169,7 +169,7 @@ Cu   22 Mar 01 Bug fix for case mixing string is empty
 Cu   22 Jun 00 spin polarized
 Cu   30 May 00 Adapted from nfp mix_rho
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
 #if MPI | MPIK
       include "mpif.h"
@@ -202,7 +202,7 @@ C ... Local parameters
      .nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
 Cchp1       integer:: ng0 , ocn , ogv , okv , oa , oaa , owk , oqkl
 Cchp1        integer:: ng0 , ocn , okv , oa , oaa , owk , oqkl 
-        integer:: ng0 , ocn , oa , oaa , owk , oqkl 
+        integer:: ng0 !,  oa , oaa !, ocn ,owk , oqkl 
         integer,pointer :: iv_p_okv(:)
 
        real(8),pointer :: rv_p_ogv(:)
@@ -231,6 +231,9 @@ C ... Heap
       common /w/ w
 
       complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
+      complex(8),allocatable:: w_ocn(:),w_oqkl(:)
+      real(8),allocatable:: w_oa(:),w_oaa(:)
+
 C     print *, '!!' ; call pshpr(40)
       if (mixmod .eq. 'none') return
       call tcn('mixrho')
@@ -305,8 +308,9 @@ c      print *,'vvv mixrho locmix=',locmix
 ccccccccccccccccccccccccccccccccc
       qmix(2) = 0
 
-      i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+c      i_copy_size=size(slat%nabc)
+c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      ngabc=slat%nabc
       ng=slat%ng
 Cchp1       ogv=slat%ogv
        rv_p_ogv => slat%rv_p_ogv 
@@ -409,15 +413,16 @@ C ... <smrout-smrhoin> and <(smrout-smrhoin)**2>, unscreened smrout
    12 continue
 
 C ... 2. cn <- (smrnew - smrho)(G)
-      call defcc(ocn, ng)
+c      call defcc(ocn, ng)
 c      call defcc(owk, kkk)
-      allocate(w_owk(kkk))
+      allocate(w_ocn(ng),w_owk(kkk))
       call dcopy(kkk*2,smrnew,1,w_owk,1)
       call dpadd(w_owk,smrho,1,kkk*2,-1d0)
       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,-1)
 Cchp1       call gvgetf(ng,1,w(okv),k1,k2,k3,w_owk,w(ocn))
        call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_owk , 
-     . w (ocn) ) 
+c     . w (ocn) ) 
+     . w_ocn ) 
 c      call rlse(owk)
        deallocate(w_owk)
 
@@ -442,8 +447,8 @@ C     call zprm3('input local densities (r)',0,smrnew,k1,k2,k3)
 C ... Add output-input difference in gaussian rho to make total rho
 C     call dpzero(w(ocn),ng*2)
 c      if (.true.) then
-       call daxpy ( 2 * ng , 1d0 , cg2_zv , 1 , w(ocn) , 1 )
-       call daxpy ( 2 * ng , - 1d0 , cg1_zv , 1 , w(ocn) , 1 )
+       call daxpy ( 2 * ng ,   1d0 , cg2_zv , 1 , w_ocn , 1 )
+       call daxpy ( 2 * ng , - 1d0 , cg1_zv , 1 , w_ocn , 1 )
 c      endif
       if (allocated(cg2_zv)) deallocate(cg2_zv)
       if (allocated(cg1_zv)) deallocate(cg1_zv)
@@ -452,14 +457,14 @@ c      endif
 C ... 4. Make cn = screening charge = (eps^-1 - 1) (n_out - n_in)
       tpiba = 2*pi/alat
 Cchp1       call lindsc(2,ng,w(ogv),tpiba,elinl,w(ocn))
-       call lindsc ( 2 , ng , rv_p_ogv , tpiba , elinl , w(ocn) ) 
+       call lindsc ( 2 , ng , rv_p_ogv , tpiba , elinl , w_ocn ) 
 
 
 C ... 5. Add cn = screening charge into smrnew
 c      call defcc(owk,kkk)
        allocate(w_owk(kkk))
 Cchp1       call gvputf(ng,1,w(okv),k1,k2,k3,w(ocn),w_owk)
-       call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w(ocn) , 
+       call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_ocn , 
      . w_owk ) 
 
       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,1)
@@ -515,8 +520,8 @@ Ctakao_ZeroClear_NotRequiered        if ((k0+1)*nlm0*nbas<0) fkl_zv(:)=0.0d0
 
 Cchp1       call ftlxp ( nbas , ssite , sspec , alat , ng , w(ogv) , w 
 Cchp1      .( ocn) , k0 , nlm0 , fkl_zv)
-       call ftlxp ( nbas , ssite , sspec , alat , ng , rv_p_ogv , w 
-     . ( ocn) , k0 , nlm0 , fkl_zv) 
+       call ftlxp ( nbas , ssite , sspec , alat , ng , rv_p_ogv ,  
+     . w_ocn , k0 , nlm0 , fkl_zv) 
 
 
       do  ib = 1, nbas
@@ -586,8 +591,8 @@ C       stop
 
       enddo                     ! Loop over sites
       if (allocated(fkl_zv)) deallocate(fkl_zv)
-      call rlse(ocn)
-
+c      call rlse(ocn)
+      deallocate(w_ocn)
 
 C --- Fancy mixing of smoothed + some representation of local rho ---
 C ... Count number of elts from local densities for fancy mixing scheme
@@ -626,8 +631,10 @@ C     if (ng .ne. (ng0-1)*2+1) call rx('bug in mixrho')
       nda = nda + 2*ng0
 
 C ... 8. FFT smooth densities -> rho(G) for mixing
-      call defrr(ocn,ng*2*nsp)
-      allocate(co_rv(ng*2*nsp))
+c      call defrr(ocn,ng*2*nsp)
+c      allocate(co_rv(ng*2*nsp))
+c      call defrr(ocn,ng*2*nsp)
+      allocate(w_ocn(ng*nsp),co_rv(ng*2*nsp))
 Ctakao_ZeroClear_NotRequiered        if (ng*2*nsp<0) co_rv(:)=0.0d0
 
 c      call defrr(owk,kkk*2*nsp)
@@ -636,12 +643,12 @@ c      call defrr(owk,kkk*2*nsp)
       call fftz3(w_owk,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 Cchp1       call gvgetf(ng,nsp,w(okv),k1,k2,k3,w_owk,w(ocn))
        call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , w_owk 
-     . , w(ocn)) 
+     . , w_ocn) 
 
 C     call zprm('cn-u',2,w(ocn),ng,ng,nsp)
 Cchp1       call lgstar ( 1 , ng , nsp , w(ogv) , i , ips0_iv , w ( 
 Cchp1      .ocn))
-       call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w (ocn)) 
+       call lgstar ( 1 , ng , nsp , rv_p_ogv , i , ips0_iv , w_ocn) 
 
 
 C     call zprm('cn-c',2,w(ocn),ng,ng0,nsp)
@@ -668,11 +675,19 @@ C     call zprm('co-c',2,w(oco),ng,ng0,nsp)
 c      call rlse(owk)
        deallocate(w_owk)
 
-      call defrr(oa,-nda*nsp*(mxsav+2)*2)
+c      call defrr(oa,-nda*nsp*(mxsav+2)*2)
+       allocate(w_oa(nda*nsp*(mxsav+2)*2))
+       w_oa=0d0
 
 C ... Allocate memory for coffs to G_kL expansion of rho
-      oqkl = 1
-      if (locmix .ge. 2) call defcc(oqkl,-(kmxr+1)*nlm0*nsp*4*nbas)
+c      oqkl = 1
+c      if (locmix .ge. 2) call defcc(oqkl,-(kmxr+1)*nlm0*nsp*4*nbas)
+      if(locmix .ge. 2) then
+        allocate(w_oqkl((kmxr+1)*nlm0*nsp*4*nbas))
+        w_oqkl=0d0
+      else
+        allocate(w_oqkl(1))
+      endif
 
 C --- 9. Read prior iterations from disk; update with current iter ---
       if (procid .eq. master) then
@@ -694,8 +709,9 @@ C     NB: For now, nx must be zero
       k9 = 10
       call pvmix5 ( nmix , mxsav , fnam , ifi , .true. , rmsdel , locmix 
      ., k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , orhold , orhnew 
-     ., co_rv , w(ocn) , ng , ng0 , 0 , nda , w(oa) , w ( 
-     .oqkl) , rms2 , nmixr)
+     ., co_rv , w_ocn , ng , ng0 , 0 , nda , w_oa ,  
+c     .  w (oqkl) , rms2 , nmixr)
+     .  w_oqkl , rms2 , nmixr)
 
 
 C     debugging check
@@ -719,8 +735,9 @@ C      stop
 C ... Write this and prior iterations onto disk
       call pvmix5 ( nmix , mxsav , fnam , - ifi , .true. , rmsdel , 
      .locmix , k9 , nbas , kmxr , nlm0 , ssite , sspec , nsp , orhold 
-     ., orhnew , co_rv , w(ocn) , ng , ng0 , 0 , nda , w(oa 
-     .) , w(oqkl) , rms2 , nmixr)
+     ., orhnew , co_rv , w_ocn , ng , ng0 , 0 , nda , w_oa
+c     ., w(oqkl) , rms2 , nmixr)
+     ., w_oqkl , rms2 , nmixr)
 
       if (nkill .lt. 0) then
         if (ipr .ge. 20) then
@@ -751,7 +768,8 @@ C    .  sumo*fac,sumu*fac,sums*fac,rms,summ*fac
 
 C --- 10. Linear mixing of local densities  ---
       call pvmix3(ssite,sspec,nbas,nsp,beta,locmix,wt,kmxr,nlm0,
-     .k9,w(oqkl),orhold,orhnew,difx)
+c     .k9,w(oqkl),orhold,orhnew,difx)
+     .k9,w_oqkl,orhold,orhnew,difx)
       difxu = difx
 
 C --- 11. Spin polarized case: separate weighting for spin channels ---
@@ -769,9 +787,11 @@ C       FP     nda*nsp       0       naa      nda            naa
         if (wt(3) .ne. 0) naa = naa+nx
         offx = 0                !offset to extra elements (none now)
         off2 = (nsp-1)*nda      !offset to spin down part of a
-        call defdr(oaa,-naa*(mxsav+2)*2)
+c        call defdr(oaa,-naa*(mxsav+2)*2)
+        allocate(w_oaa(naa*(mxsav+2)*2))
+        w_oaa=0d0
         call pqsclf(0,nda*nsp,nda,offx,off2,nx,naa,mxsav,wt,
-     .  w(oa),w(oaa),rms2f)
+     .  w_oa,w_oaa,rms2f)
         if (wt(1)*wt(2) .ne. 0) then
 C          rms2f = rms2f * 2
         else
@@ -779,22 +799,24 @@ C          rms2f = rms2f * 2
      .    '  Constrained rms DQ=%1,3;3e',wt,rms2f)
           rmsdel = rms2f
         endif
-      else
-        oaa = oa
-        naa = nda
-      endif
-
 C --- 12. Mix the soup of densities ---
-      beta0 = beta
-      call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w(oaa))
-
+        beta0 = beta
+        call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oaa)
 C ... 13. Restore matrix a to rho+, rho-
-      if (nsp .eq. 2 .or. nx .gt. 0) then
-        call pqsclb(nda*nsp,nda,offx,off2,nx,naa,mxsav,wt,w(oa),w(oaa))
-        call pqsclc(nda*nsp,nda*nsp,nx,mxsav,w(oa))
-        call rlse(oaa)
-
+c       if (nsp .eq. 2 .or. nx .gt. 0) then
+        call pqsclb(nda*nsp,nda,offx,off2,nx,naa,mxsav,wt,w_oa,w_oaa)
+        call pqsclc(nda*nsp,nda*nsp,nx,mxsav,w_oa)
+c       call rlse(oaa)
+        deallocate(w_oaa)
+c       endif
+      else
+c        oaa = oa
+        naa = nda
+C --- 12. Mix the soup of densities ---
+        beta0 = beta
+        call pvmix6(broy,nmix,nmixr,mxsav,beta,wc,naa,w_oa)
       endif
+
 
 C      nlml = 16
 C      call prrmsh('rho1, ante 7',w(orofi),w(orhold(1,1)),nr,nr,nlml*nsp)
@@ -811,14 +833,18 @@ Cchp1        call pvmix7 ( ssite , sspec , nbas , nsp , nda , w(oa) , n1
 Cchp1      . , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 , w 
 Cchp1      . ( oqkl) , ng , ng0 , w(okv) , ips0_iv , rv_p_ogv , co_rv 
 Cchp1      . , w_owk , orhold , smrho) 
-        call pvmix7 ( ssite , sspec , nbas , nsp , nda , w(oa) , n1 
+        call pvmix7 ( ssite , sspec , nbas , nsp , nda , w_oa , n1 
      .  , n2 , n3 , k1 , k2 , k3 , locmix , wt , k9 , kmxr , nlm0 ,  
-     .  w(oqkl) , ng , ng0 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , 
+c     .  w(oqkl) , ng , ng0 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , 
+     .  w_oqkl , ng , ng0 , iv_p_okv , ips0_iv , rv_p_ogv , co_rv , 
      .  w_owk , orhold , smrho) 
-      deallocate(w_owk)
-      call rlse(oa)
+      deallocate(w_oqkl)
+
+      deallocate(w_owk,w_oa)
+c      call rlse(oa)
       if (allocated(co_rv)) deallocate(co_rv)
-      call rlse(ocn)
+c      call rlse(ocn)
+      deallocate(w_ocn)
       if (allocated(ips0_iv)) deallocate(ips0_iv)
 
 
@@ -1027,6 +1053,9 @@ ccccccccccccccccccccccccccccccccc
       end subroutine mixrho
 
 
+
+
+
       subroutine pvmix3(ssite,sspec,nbas,nsp,beta,locmix,wt,kmxr,nlm0,
      .k9,qkl,orhold,orhnew,difx)
 
@@ -1084,19 +1113,19 @@ C ... Passed parameters
 
 C ... Local parameters
       integer ib,is,igetss,nr,nlml,m,lmxl,k9l
-      integer:: orsm(4) , i
+      integer::  i !orsm(4) ,
       real(8) ,allocatable :: ri_rv(:)
       real(8) ,allocatable :: rwgt_rv(:)
-
       double precision a,rmt,rg,difa,rf
 C ... Heap
       integer w(1)
       common /w/ w
+      real(8),allocatable:: w_orsm(:,:)
+      real(8):: wdummy
 
       difx  = 0
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
 
         a=sspec(is)%a
         nr=sspec(is)%nr
@@ -1108,32 +1137,30 @@ C ... Heap
         if (lmxl .eq. -1) goto 10
         nlml = (lmxl+1)**2
         allocate(ri_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) ri_rv(:)=0.0d0
-
         allocate(rwgt_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
-
         call radmsh ( rmt , a , nr , ri_rv)
-
         call radwgt ( rmt , a , nr , rwgt_rv)
-
         rf = rmt/3
+c
+        if (locmix .ge. 2) then
+          allocate(w_orsm(nr*nlml*nsp,4))
+        else
+          allocate(w_orsm(1,4)) !dummy
+        endif
 
         do  m = 1, 4
           if (locmix .ge. 2) then
 C           Generate on a mesh the smooth density to be subtracted
-            call defrr(orsm(m),nr*nlml*nsp)
+c            call defrr(orsm(m),nr*nlml*nsp)
             i = 1001
             if (wt(1) .eq. 0) i = 11001
             if (wt(2) .eq. 0) i = 21001
             call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , ri_rv 
-     .      , rwgt_rv , kmxr , nlm0 , w , qkl ( 0 , 1 , 1 , m , ib) , 
-     .      w(orsm ( m)) , w , difa)
-
+     .      , rwgt_rv , kmxr , nlm0 , wdummy , qkl ( 0 , 1 , 1 , m , ib) , 
+     .      w_orsm(1,m) , wdummy , difa)
 
 C           Undo scaling of rho1+rho2 for linear mix
             if (locmix .eq. 3 .and. (m .eq. 2 .or. m .eq. 4)) then
-
 C             qlk(1,2) -> scaled rho1+rho2, rho1-rho2
 C             qkl(3,4) -> scaled rhn1+rhn2, rhn1-rhn2
 C             if (m .eq. 2) print *, m, 'old'
@@ -1144,16 +1171,14 @@ C             call prrmsh('scaled rhosm1-2 from qkl',w(ori),w(orsm(m)),
 C     .         nr,nr,nlml*nsp)
               k9l = k9 - mod(k9,10)
               call pvmix9 ( k9l , - 1 , nr , nlml * nsp , 0 , rf , ri_rv 
-     .        , w(orsm ( m - 1)) , w(orsm ( m)))
-
+     .        , w_orsm(1,m-1) , w_orsm(1,m))
 C             call prrmsh('unscaled rhosm1+2',w(ori),w(orsm(m-1)),
 C     .         nr,nr,nlml*nsp)
 C             call prrmsh('unscaled rhosm1-2',w(ori),w(orsm(m)),
 C     .         nr,nr,nlml*nsp)
             endif
-
           else
-            orsm(m) = 1
+            w_orsm(1,m) = 1
           endif
         enddo
 
@@ -1167,19 +1192,17 @@ C        call pvmix8(i,nr,nlml,nsp,w(orsm(3)),w(orsm(4)))
 
 C   ... Linear mix, this site
         call pvmix4 ( nr , nlml , nsp , ri_rv , locmix , wt , beta 
-     .  , ib , w(orsm ( 1)) , w(orsm ( 2)) , w(orsm ( 3)) 
-     .  , w(orsm ( 4)) , w(orhold ( 1 , ib)) , w(orhold ( 2 
-     .  , ib)) , w(orhold ( 3 , ib)) , w(orhnew ( 1 , ib)) 
-     .  , w(orhnew ( 2 , ib)) , w(orhnew ( 3 , ib)) , rwgt_rv 
-     .  , difa)
+     .  , ib , w_orsm(1,1) , w_orsm(1,2) , w_orsm(1,3) , w_orsm(1, 4) 
+     &  , w(orhold(1,ib)) , w(orhold(2,ib)), w(orhold (3,ib)) , w(orhnew(1,ib)) 
+     .  , w(orhnew(2,ib)) , w(orhnew (3,ib)) , rwgt_rv , difa)
 
         difx  = dmax1(difx,difa)
 
         if (allocated(rwgt_rv)) deallocate(rwgt_rv)
         if (allocated(ri_rv)) deallocate(ri_rv)
 Cki#error, rlse?  orsm = ['orsm(4)', 'integer']
-        call rlse(orsm(1))
-
+c        call rlse(orsm(1))
+        deallocate(w_orsm)
    10   continue
       enddo
       end subroutine pvmix3
@@ -1909,6 +1932,7 @@ C ... Local parameters
 C ... Heap
       integer w(1)
       common /w/ w
+      real(8),allocatable:: w_orsm(:,:)
 
 C ... Restore mixed smoothed density
       do  i = 1, nsp
@@ -1931,7 +1955,6 @@ C ... Update local densities
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
 
-
         aat=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
@@ -1939,20 +1962,12 @@ C ... Update local densities
 
         if (lmxl .eq. -1) cycle
         rf = rmt/3
-
-        rg=sspec(is)%rg
-
+        rg = sspec(is)%rg
         nlml = (lmxl+1)**2
         allocate(rofi_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rofi_rv(:)=0.0d0
-
         allocate(rwgt_rv(nr))
-Ctakao_ZeroClear_NotRequiered          if (nr<0) rwgt_rv(:)=0.0d0
-
         call radmsh ( rmt , aat , nr , rofi_rv)
-
         call radwgt ( rmt , aat , nr , rwgt_rv)
-
 
 C       Scale rho1+rho2 to match scaled spherical parts and sm parts
 C       call prrmsh('1 mix7a',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
@@ -1980,8 +1995,9 @@ C   ... Mixing mode 2,3: add mixed sm density to existing rhold
 
 C         call prrmsh('1 scale',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
           np = (1+kmxr)*nlml
+          allocate(w_orsm(nr*nlml*nsp,2))
           do  m = 1, 2
-            call defrr(orsm(m),nr*nlml*nsp)
+c            call defrr(orsm(m),nr*nlml*nsp)
             do  i = 1, nsp
               call dpscop(a(na+np*(m-1),i),qkl(0,1,i,m,ib),np,1,1,1d0)
             enddo
@@ -1990,18 +2006,17 @@ C         call prrmsh('1 scale',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)
             if (wt(2) .eq. 0) i = 21001
             call pkl2ro ( i , 1 , rg , kmxr , nr , nlml , nsp , rofi_rv 
      .      , rwgt_rv , kmxr , nlm0 , w , qkl ( 0 , 1 , 1 , m , ib) , 
-     .      w(orsm ( m)) , w , xx)
-
+     .      w_orsm (1, m) , w , xx)
           enddo
 C         Don't undo scaling of smoothed density since rho1+rho2 scaled
 C          call pvmix9(k9l,-1,nr,nlml*nsp,0,rf,w(orofi),
 C     .      w(orsm(1)),w(orsm(2)))
 C         Add to rhold(1,2)
-          call daxpy(nr*nlml*nsp,1d0,w(orsm(1)),1,w(orhold(1,ib)),1)
-          call daxpy(nr*nlml*nsp,1d0,w(orsm(2)),1,w(orhold(2,ib)),1)
-          call rlse(orsm(2))
-          call rlse(orsm(1))
-
+          call daxpy(nr*nlml*nsp,1d0,w_orsm(1,1),1,w(orhold(1,ib)),1)
+          call daxpy(nr*nlml*nsp,1d0,w_orsm(1,2),1,w(orhold(2,ib)),1)
+          deallocate(w_orsm)
+c          call rlse(orsm(2))
+c          call rlse(orsm(1))
           na = na + 2*np
         endif
 C       call prrmsh('1 mix7d',w(orofi),w(orhold(1,ib)),nr,nr,nlml*nsp)

@@ -701,7 +701,7 @@ Cchp1         call defi (oinitc,-nclasp)
          allocate(iv_p_oinitc(abs(-nclasp)))
          if (-nclasp<0) iv_p_oinitc(:)=0
 
-        call defi (ogroup,-2*nclasp)
+c        call defi (ogroup,-2*nclasp)
 Cchp1         call defdr(oves,-nclspp)
          allocate(rv_p_oves(abs(-nclspp)))
          if (-nclspp<0) rv_p_oves(:)=0.0d0
@@ -748,7 +748,7 @@ Cgetarg...info...           integer :: oinitc , integer(8) :: sarray%ohave 1
 Cgetarg         call pack5('array ogroup ormax ohave',sarray,ogroup,ormax,
 Cgetarg      .    oinitc,0,0)
         
-        sarray%ogroup=ogroup 
+c        sarray%ogroup=ogroup 
 Cchp1         sarray%ormax=ormax 
          sarray%rv_p_ormax => rv_p_ormax 
 
@@ -1422,8 +1422,7 @@ Cchp1                   integer:: opprel , osop , olpp , olppr , olsop , olgrme 
 Cchp1      .            , olmp , opot , ocor , onrc , n0 , nglob 
 Cchp1                    integer:: osop , olpp , olppr , olsop , olgrme , olva , olmp 
 Cchp1      .             , opot , ocor , onrc , n0 , nglob 
-                    integer:: olpp , olppr , olsop , olgrme , olva , olmp , opot 
-     .              , ocor , onrc , n0 , nglob 
+                    integer::  onrc , n0 , nglob !olpp , olppr , olsop , olgrme , olva , olmp , opot  , ocor ,
                     real(8),pointer :: rv_p_osop(:)
 
                    real(8),pointer :: rv_p_opprel(:)
@@ -1460,6 +1459,8 @@ c      integer mpipid,procid
       double precision rhrmx,vrmax(2),ves,z,rmxx,ax,qc,dq,vrmxx(2),
      .sumec,sumtc,sumev,thrpv,ekin,utot,rhoeps,etot,a,rmax,dval,
      .zbak(2),dgets,pdf(n0,2),qdf(n0,2),pnuloc(100),qnuloc(100)
+
+      real(8):: olpp(100),olppr(3000),olsop(500),olgrme(500),olva(100),olmp(3000),opot(3000),ocor(3000)
 
 Cgetarg...info...           integer :: nl , integer(8) :: sctrl%nl 1
 Cgetarg...info...           integer :: nsp , integer(8) :: sctrl%nspin 1
@@ -1552,15 +1553,15 @@ C ... MPI: only master does sphere program
 c      procid = mpipid(1)
 c      if (procid .eq. 0) then
 
-      olppr = 1
-      call defdr(olpp,100)
-      call defdr(olppr,3000)
-      call defdr(olsop,500)
-      call defdr(olgrme,500)
-      call defdr(olva,100)
-      call defdr(olmp,3000)
-      call defdr(opot,3000)
-      call defdr(ocor,3000)
+c      olppr = 1
+c      call defdr(olpp,100)
+c      call defdr(olppr,3000)
+c      call defdr(olsop,500)
+c      call defdr(olgrme,500)
+c      call defdr(olva,100)
+c      call defdr(olmp,3000)
+c      call defdr(opot,3000)
+c      call defdr(ocor,3000)
       i2 = ic2
       if (i2 .eq. 0) i2 = nclasp
 c     call awrit2('%n:1i',' ',100,6,nclasp,w(oics))
@@ -1637,13 +1638,13 @@ Cchp1         call pvaioc(w(ohave),2,ic,icmap,havepp,jc)
         readpp = readpp .and. mode00 .lt. 3
         if (havepp) then
 Cchp1           call dpscop(w(opp),w(olpp),k,1+(jc-1)*k,1,1d0)
-           call dpscop ( rv_p_opp , w ( olpp ) , k , 1 + ( jc - 1 ) * k 
+           call dpscop ( rv_p_opp , olpp , k , 1 + ( jc - 1 ) * k 
      .     , 1 , 1d0 ) 
 
           if (lrel .eq. 2) then
             k = 4*nl*2*nl*2*2
 Cchp1             call dpscop(w(opprel),w(olppr),k,1+(jc-1)*k,1,1d0)
-             call dpscop ( rv_p_opprel , w ( olppr ) , k , 1 + ( jc - 1 ) 
+             call dpscop ( rv_p_opprel , olppr , k , 1 + ( jc - 1 ) 
      .       * k , 1 , 1d0 ) 
 
           endif
@@ -1663,7 +1664,7 @@ cki        readva = readva .and. ova .gt. 0 .and. mode00 .lt. 3
         readva = readva .and. associated(rv_p_ova) .and. mode00 .lt. 3
         if (haveva) then
 Cchp1           call dpscop(w(ova),w(olva),k,1+(jc-1)*k,1,1d0)
-           call dpscop ( rv_p_ova , w ( olva ) , k , 1 + ( jc - 1 ) * k 
+           call dpscop ( rv_p_ova , olva , k , 1 + ( jc - 1 ) * k 
      .     , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a va,',outs1,len(outs1),0)
@@ -1679,7 +1680,7 @@ cki        readmp = readmp .and. omp .gt. 0 .and. mode00 .lt. 3
         readmp = readmp .and. associated(rv_p_omp) .and. mode00 .lt. 3
         if (havemp) then
 Cchp1           call dpscop(w(omp),w(olmp),k,1+(jc-1)*k,1,1d0)
-           call dpscop ( rv_p_omp , w ( olmp ) , k , 1 + ( jc - 1 ) * k 
+           call dpscop ( rv_p_omp , olmp , k , 1 + ( jc - 1 ) * k 
      .     , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a mp,',outs1,len(outs1),0)
@@ -1695,7 +1696,7 @@ cki        readso = readso .and. osop .gt. 0 .and. mode00 .lt. 3
         readso = readso .and. associated(rv_p_osop) .and. mode00 .lt. 3
         if (haveso) then
 Cchp1           call dpscop(w(osop),w(olsop),k,1+(jc-1)*k,1,1d0)
-           call dpscop ( rv_p_osop , w ( olsop ) , k , 1 + ( jc - 1 ) * 
+           call dpscop ( rv_p_osop , olsop , k , 1 + ( jc - 1 ) * 
      .     k , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a sop,',outs1,len(outs1),0)
@@ -1711,7 +1712,7 @@ cki        readop = readop .and. ogrrme .gt. 0 .and. mode00 .lt. 3
         readop = readop .and. associated(rv_p_ogrrme) .and. mode00 .lt. 3
         if (haveop) then
 Cchp1           call dpscop(w(ogrrme),w(olgrme),k,1+(jc-1)*k,1,1d0)
-           call dpscop ( rv_p_ogrrme , w ( olgrme ) , k , 1 + ( jc - 1 ) 
+           call dpscop ( rv_p_ogrrme , olgrme , k , 1 + ( jc - 1 ) 
      .     * k , 1 , 1d0 ) 
 
           if (ic.ne.jc) call awrit0('%a opp,',outs1,len(outs1),0)
@@ -1730,9 +1731,9 @@ C     ... Pick up GEN and POT, if available, to save again
           if (scat(iabs(ifi),'POT:',':',.true.)) then
             read(ifi,102) nr,nsp,a,rmax
   102       format(2i5,2f12.5)
-            lpot = aiopot(nr,nsp,a,rmax,-99d0,w(opot),ifi)
+            lpot = aiopot(nr,nsp,a,rmax,-99d0,opot,ifi)
           endif
-          lcor = aiocor(nr,nsp,a,rmxx,w(ocor),sumec,sumtc,ifi)
+          lcor = aiocor(nr,nsp,a,rmxx,ocor,sumec,sumtc,ifi)
 
           rewind ifi
           jfi = -ifi
@@ -1740,14 +1741,14 @@ C     ... Pick up GEN and POT, if available, to save again
      .    dq,vrmxx,sumec,sumev,thrpv,ekin,utot,rhoeps,etot,jfi)
           if (havepq) sw = aiomom(clabl,pnuloc,qnuloc,idmod,
      .    nl,lmx,nsp,rhrmx,vrmax,jfi)
-          if (havepp) sw = aiopar(clabl,lrel,w(olpp),w(olppr),ves,nl,
+          if (havepp) sw = aiopar(clabl,lrel,olpp,olppr,ves,nl,
      .    lmx,nsp,jfi)
-          if (haveva) sw = aiova(clabl,w(olva),nl,lmx,nsp,jfi)
-          if (havemp) sw = aiomp(clabl,w(olmp),nl,2*nl-2,nsp,jfi)
-          if (haveso) sw = aiosop(clabl,w(olsop),nl,lmx,nsp,jfi)
-          if (haveop) sw = aiorme(clabl,w(olgrme),nl,nsp,jfi)
-          if (lpot)   sw = aiopot(nr,nsp,a,rmax,-99d0,w(opot),jfi)
-          if (lcor) lcor = aiocor(nr,nsp,a,rmxx,w(ocor),sumec,sumtc,jfi)
+          if (haveva) sw = aiova(clabl,olva,nl,lmx,nsp,jfi)
+          if (havemp) sw = aiomp(clabl,olmp,nl,2*nl-2,nsp,jfi)
+          if (haveso) sw = aiosop(clabl,olsop,nl,lmx,nsp,jfi)
+          if (haveop) sw = aiorme(clabl,olgrme,nl,nsp,jfi)
+          if (lpot)   sw = aiopot(nr,nsp,a,rmax,-99d0,opot,jfi)
+          if (lcor) lcor = aiocor(nr,nsp,a,rmxx,ocor,sumec,sumtc,jfi)
 
 C   --- File READ ---
         else
@@ -1769,28 +1770,28 @@ C             call dmcpy(pdf,n0,1,pnuloc,nl,1,nl,nsp)
             endif
           endif
           if (readpp) then
-            readpp = aiopar(clabl,lrel,w(olpp),w(olppr),ves,nl,lmx,nsp,
+            readpp = aiopar(clabl,lrel,olpp,olppr,ves,nl,lmx,nsp,
      .      ifi)
             if (readpp) call awrit0('%a pp,',outs2,len(outs2),0)
           endif
 cki          if (readso .and. osop .gt. 0) then
           if (readso .and. associated(rv_p_osop) ) then
-            readso = aiosop(clabl,w(olsop),nl,lmx,nsp,ifi)
+            readso = aiosop(clabl,olsop,nl,lmx,nsp,ifi)
             if (readso) call awrit0('%a so,',outs2,len(outs2),0)
           endif
 cki          if (readop .and. ogrrme .gt. 0) then
           if (readop .and. associated(rv_p_ogrrme)) then
-            readop = aiorme(clabl,w(olgrme),nl,nsp,ifi)
+            readop = aiorme(clabl,olgrme,nl,nsp,ifi)
             if (readop) call awrit0('%a op,',outs2,len(outs2),0)
           endif
 cki          if (readva .and. ova .gt. 0) then
           if (readva .and. associated(rv_p_ova) ) then
-            readva = aiova(clabl,w(olva),nl,lmx,nsp,ifi)
+            readva = aiova(clabl,olva,nl,lmx,nsp,ifi)
             if (readva) call awrit0('%a va,',outs2,len(outs2),0)
           endif
 cki          if (readmp .and. omp .gt. 0) then
           if (readmp .and. associated(rv_p_omp) ) then
-            readmp = aiomp(clabl,w(olmp),nl,2*nl-2,nsp,ifi)
+            readmp = aiomp(clabl,olmp,nl,2*nl-2,nsp,ifi)
             if (readmp) call awrit0('%a mp,',outs2,len(outs2),0)
           endif
 
@@ -1826,13 +1827,13 @@ Cchp1             call dpscop(vrmax,w(ovrmax),2,1,2*ic-1,1d0)
           k = 6*nl*nsp
           if (havepp .or. readpp) then
 Cchp1             call dpscop(w(olpp),w(opp),k,1,1+(ic-1)*k,1d0)
-             call dpscop ( w ( olpp ) , rv_p_opp , k , 1 , 1 + ( ic - 1 ) 
+             call dpscop ( olpp , rv_p_opp , k , 1 , 1 + ( ic - 1 ) 
      .       * k , 1d0 ) 
 
             if (lrel .eq. 2) then
               k = 4*nl*2*nl*2*2
 Cchp1               call dpscop(w(olppr),w(opprel),k,1,1+(ic-1)*k,1d0)
-               call dpscop ( w ( olppr ) , rv_p_opprel , k , 1 , 1 + ( ic - 
+               call dpscop ( olppr , rv_p_opprel , k , 1 , 1 + ( ic - 
      .         1 ) * k , 1d0 ) 
 
             endif
@@ -1845,7 +1846,7 @@ cki          if ((haveva .or. readva) .and. ova .gt. 0)
 Cchp1           if ((haveva .or. readva) .and. associated(rv_p_ova) ) 
 Cchp1      .    call dpscop(w(olva),w(ova),k,1,1+(ic-1)*k,1d0)
            if ( ( haveva .or. readva ) .and. associated ( rv_p_ova ) ) call 
-     .     dpscop ( w ( olva ) , rv_p_ova , k , 1 , 1 + ( ic - 1 ) * k , 
+     .     dpscop ( olva  , rv_p_ova , k , 1 , 1 + ( ic - 1 ) * k , 
      .     1d0 ) 
 
           k = nl**2*(2*nl-1)*3*nsp
@@ -1853,7 +1854,7 @@ cki          if ((havemp .or. readmp) .and. omp .gt. 0)
 Cchp1           if ((havemp .or. readmp) .and. associated(rv_p_omp) )
 Cchp1      .    call dpscop(w(olmp),w(omp),k,1,1+(ic-1)*k,1d0)
            if ( ( havemp .or. readmp ) .and. associated ( rv_p_omp ) ) call 
-     .     dpscop ( w ( olmp ) , rv_p_omp , k , 1 , 1 + ( ic - 1 ) * k , 
+     .     dpscop ( olmp  , rv_p_omp , k , 1 , 1 + ( ic - 1 ) * k , 
      .     1d0 ) 
 
           k = nl*nsp*nsp*9
@@ -1861,14 +1862,14 @@ cki          if ((haveso .or. readso) .and. osop .gt. 0)
 Cchp1           if ((haveso .or. readso) .and. associated(rv_p_osop ))
 Cchp1      .    call dpscop(w(olsop),w(osop),k,1,1+(ic-1)*k,1d0)
            if ( ( haveso .or. readso ) .and. associated ( rv_p_osop ) ) 
-     .     call dpscop ( w ( olsop ) , rv_p_osop , k , 1 , 1 + ( ic - 1 
+     .     call dpscop ( olsop  , rv_p_osop , k , 1 , 1 + ( ic - 1 
      .     ) * k , 1d0 ) 
 
           k = 16*nl*nsp
 Cchp1           if ((haveop .or. readop) .and. associated(rv_p_ogrrme))
 Cchp1      .    call dpscop(w(olgrme),w(ogrrme),k,1,1+(ic-1)*k,1d0)
            if ( ( haveop .or. readop ) .and. associated ( rv_p_ogrrme ) 
-     .     ) call dpscop ( w ( olgrme ) , rv_p_ogrrme , k , 1 , 1 + ( ic 
+     .     ) call dpscop ( olgrme  , rv_p_ogrrme , k , 1 , 1 + ( ic 
      .     - 1 ) * k , 1d0 ) 
 
         endif
@@ -1899,7 +1900,7 @@ Cchp1      .    call dpscop(w(olgrme),w(ogrrme),k,1,1+(ic-1)*k,1d0)
         endif
    10 continue
 C     call awrit2('%n:1i',' ',100,6,nclasp,w(ohave))
-      call rlse(olpp)
+c      call rlse(olpp)
 C     End of MPI master-only branch
 c      endif
       end subroutine aiocls 

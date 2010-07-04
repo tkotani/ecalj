@@ -204,7 +204,8 @@ CSFCPP#endif
 #if MPI
       double complex, dimension(:,:), allocatable :: hbuf, sbuf
       integer, dimension(:,:), allocatable :: index
-      integer obuff
+      complex(8),allocatable::w_obuff(:)
+c      integer obuff
 #endif
 c#if MPE
 cC Event numbers:
@@ -517,9 +518,9 @@ C ... end loop over ib1
         ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
 #endif
         if (mode .eq. 0) then
-          call defcc(obuff, ndimh*ndimh)
-
-          call MPI_ALLREDUCE(hbuf,w(obuff),2*ndimh*ndimh,
+c          call defcc(obuff, ndimh*ndimh)
+          allocate(w_obuff(ndimh*ndimh))
+          call MPI_ALLREDUCE(hbuf,w_obuff,2*ndimh*ndimh,
      .    MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
           if (mlog) then
             call gettime(datim)
@@ -528,9 +529,9 @@ C ... end loop over ib1
      .      ' allreduce h ndimh=%i',' ',256,lgunit(3),
      .      procid,numprocs,ndimh)
           endif
-          call daxpy(2*ndimh*ndimh,1d0,w(obuff),1,h,1)
+          call daxpy(2*ndimh*ndimh,1d0,w_obuff,1,h,1)
         endif
-        call MPI_ALLREDUCE(sbuf,w(obuff),2*ndimh*ndimh,
+        call MPI_ALLREDUCE(sbuf,w_obuff,2*ndimh*ndimh,
      .  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         if (mlog) then
           call gettime(datim)
@@ -539,8 +540,9 @@ C ... end loop over ib1
      .    ' allreduce s ndimh=%i',' ',256,lgunit(3),
      .    procid,numprocs,ndimh)
         endif
-        call daxpy(2*ndimh*ndimh,1d0,w(obuff),1,s,1)
-        call rlse(obuff)
+        call daxpy(2*ndimh*ndimh,1d0,w_obuff,1,s,1)
+        deallocate(w_obuff)
+c        call rlse(obuff)
         deallocate(index, stat=ierr)
         deallocate(hbuf, stat=ierr)
         deallocate(sbuf, stat=ierr)

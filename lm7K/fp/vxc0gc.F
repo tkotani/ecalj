@@ -65,13 +65,14 @@ C      print *, 'rl,l=0'
 C      call prmr(21,rofi,rp,1)
 
 C --- Gradient correction ---
-      call defrr(ogrh , nrmx*nsp)
-      call defrr(oggrh, nrmx*nsp)
-      call defrr(oagrh, nrmx*(3*nsp-2))
-      call defrr(ogrgag,nrmx*(2*nsp-1))
-      call vxcgr2(nr,nsp,nr,rofi,rp,w(ogrh),w(oggrh),
-     .w(oagrh),w(ogrgag),exc,vxc)
-      call rlse(ogrh)
+c      call defrr(ogrh , nrmx*nsp)
+c      call defrr(oggrh, nrmx*nsp)
+c      call defrr(oagrh, nrmx*(3*nsp-2))
+c      call defrr(ogrgag,nrmx*(2*nsp-1))
+c      call vxcgr2(nr,nsp,nr,rofi,rp,w(ogrh),w(oggrh),
+c     .w(oagrh),w(ogrgag),exc,vxc)
+      call vxcgr2(nr,nsp,nr,rofi,rp, exc,vxc)
+c      call rlse(ogrh)
       do  24  i  = 1, nsp
         rep(i) = 0d0
         rmu(i) = 0d0
