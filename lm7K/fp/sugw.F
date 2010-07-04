@@ -205,7 +205,7 @@ Cchp1         integer:: ov0
 #endif
 
 C ... For PW basis
-      integer:: oigv2
+c      integer:: oigv2
       integer ,allocatable :: kv_iv(:)
 
       integer pwmode,napw
@@ -232,8 +232,8 @@ C      real(8),allocatable:: evl_(:,:)
 C      complex(8),allocatable:: evec_(:,:),cphi_(:,:,:),pwz_(:,:)
 
 C ... Heap
-      integer w(1)
-      common /w/ w
+c      integer w(1)
+c      common /w/ w
 
       real(8):: dnn(3),qlatinv(3,3),qout(3),qtarget(3),qrr(3),axx,bxx,qxxx(3),qxx1(3),qxx2(3)
       integer:: inn(3),iqzz,nqzz,iiiii
@@ -242,7 +242,7 @@ C ... Heap
       complex(8),allocatable:: evecout(:,:),evecr(:,:)
 
       real(8),allocatable:: qzz(:,:)
-
+      integer,allocatable:: igv2(:,:)
 C --- Setup ---
       print *,'sugw:'
       call getpr(ipr)
@@ -875,13 +875,14 @@ c          call pshpr(101)
           call gvlst2(alat,plat,xx,0,0,0,pwgmin,pwgmax,0,
      .    0,0,napw,dum,dum,dum,dum)
           call poppr
-          call defi(oigv2,3*napw)
+c          call defi(oigv2,3*napw)
+          allocate(igv2(3,napw))
           allocate(kv_iv(3*napw))
 Ctakao_ZeroClear_NotRequiered            if (3*napw<0) kv_iv(:)=0
 
           call pshpr(iprint()-10)
           call gvlst2 ( alat , plat , xx , 0 , 0 , 0 , pwgmin , pwgmax 
-     .    , 0 , 2 , 0 , napw , kv_iv , dum , dum , w ( oigv2 ) )
+     .    , 0 , 2 , 0 , napw , kv_iv , dum , dum , igv2 )
 
           if (allocated(kv_iv)) deallocate(kv_iv)
 
@@ -896,7 +897,8 @@ cc          call poppr
           endif
         else
           ndimh = ldim
-          oigv2 = 1
+c          oigv2 = 1
+          allocate(igv2(1,1)) !dummy
         endif
 
 C   ... Must pass shortened qp to pwmat in APW case
@@ -915,11 +917,11 @@ c$$$        endif
 C   --- vxc <- LDA Hamiltonian without vxc for this qp ---
           alfa = 0
           call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,spotx,
-     .    vconst,osigx,otaux,oppix,lcplxp,alfa,ndimh,napw,w(oigv2),
+     .    vconst,osigx,otaux,oppix,lcplxp,alfa,ndimh,napw,igv2,
      .    vxc,ovl,w)
 C   --- LDA Hamiltonian and overlap matrices for this qp ---
           call hambl(0,nbas,ssite,sspec,slat,sham,isp,qp,k1,k2,k3,smpot,
-     .    vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,w(oigv2),ham,
+     .    vconst,osig,otau,oppi,lcplxp,alfa,ndimh,napw,igv2,ham,
      .    ovl,w)
 C   --- vxc <- LDA vxc ---
           vxc = ham - vxc
@@ -943,11 +945,11 @@ C   --- LDA + sigma Hamiltonian for this qp ---
           ispc = min(isp,nspc)
 Cchp1           call hambls(i,nbas,ssite,sspec,slat,sham,isp,ispc,qp,k1,k2,k3,
 Cchp1      .    w(oqsig),nqsig,smpot,vconst,osig,otau,oppi,lcplxp,0,alfa,
-Cchp1      .    ndimh,napw,w(oigv2),ham,ovl,i2)
+Cchp1      .    ndimh,napw,igv2,ham,ovl,i2)
            call hambls ( i , nbas , ssite , sspec , slat , sham , isp , 
      .     ispc , qp , k1 , k2 , k3 , rv_p_oqsig , nqsig , smpot , vconst 
-     .     , osig , otau , oppi , lcplxp , 0 , alfa , ndimh , napw , w ( 
-     .     oigv2 ) , ham , ovl , i2 ) 
+     .     , osig , otau , oppi , lcplxp , 0 , alfa , ndimh , napw ,  
+     .     igv2 , ham , ovl , i2 ) 
 
           if (i .eq. -1) lpdiag = 2
 
@@ -1113,7 +1115,7 @@ C   --- Project wf into augmentation spheres, Kotani conventions ---
             if (-nlmax*ndham*3*nsp*nbas<0) aus_zv(:)=0.0d0
 
             call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
-     .      0 , nlmax , ndham , ndimh , napw , w ( oigv2 ) , nev , nsp , 
+     .      0 , nlmax , ndham , ndimh , napw , igv2 , nev , nsp , 
      .      nspc , isp , 1 , qp , evec , ppn , aus_zv )
 
             call gwcphi ( ssite , sspec , isp , nsp , nlmax , ndham , nev 
@@ -1170,11 +1172,11 @@ c            inn = qlatinv*(qp-q)
 c            write(6,"('goto pwmat: qlatinv*(qp-q)=',3f13.5,3i5)")
 c     &        matmul(qlatinv,qp-q),inn
 
-Cchp1               call pwmat(slat,ssite,sspec,nbas,ndimh,napw,w(oigv2),
+Cchp1               call pwmat(slat,ssite,sspec,nbas,ndimh,napw,igv2,
 Cchp1 c     .        w(oiprmb),qx,ngp,nlmax,ngvecp,gmax,ppovl,phovl)
 Cchp1      .        w(oiprmb),q,ngp,nlmax,ngvecp,gmax,inn,ppovl,phovl)
-               call pwmat ( slat , ssite , sspec , nbas , ndimh , napw , w ( 
-     .         oigv2 ) , iv_p_oiprmb , q , ngp , nlmax , ngvecp , gmax , inn 
+               call pwmat ( slat , ssite , sspec , nbas , ndimh , napw ,  
+     .         igv2 , iv_p_oiprmb , q , ngp , nlmax , ngvecp , gmax , inn 
      .         , ppovl , phovl ) 
 
               if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
