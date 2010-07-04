@@ -148,10 +148,13 @@ CSFCPP#endif
 #endif
 
 C ... Heap
-      integer w(1)
-      common /w/ w
-
+c      integer w(1)
+c      common /w/ w
       integer:: ivecini,ivecend
+      integer,allocatable:: w_oiv(:)
+      real(8),allocatable:: w_ogq(:),w_oyl(:),w_oylw(:),w_og2(:),w_ohe(:),w_ohr(:)
+      complex(8),allocatable:: w_osmbuf(:)
+      real(8),allocatable:: w_ofrbuf(:)
 C     call wkprnt(1)
 
       nproc  = mpipid(0)
@@ -201,13 +204,15 @@ C     call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1000,0,ng,xx,xx,xx,xx)
       call gvlist(alat,plat,q,n1,n2,n3,gmax,500,0,ng,xx,xx,xx,xx)
 Cchp1       call defrr(ogv, ng*3)
        allocate(rv_p_ogv(abs(ng*3)))
-       if (ng*3<0) rv_p_ogv(:)=0.0d0
-
+       rv_p_ogv(:)=0.0d0
 Cchp1       call defi (okv, ng*3)
        allocate(iv_p_okv(abs(ng*3)))
-       if (ng*3<0) iv_p_okv(:)=0
+       iv_p_okv(:)=0
 
-      call defi (oiv, ng*3)
+c
+c      call defi (oiv, ng*3)
+       allocate(w_oiv(ng*3))
+
 C      call gvlst2(alat,plat,q,n1,n2,n3,0d0,gmax,0,1009,ng,ng,w(okv),
 C     .  w(ogv),w(oiv),w(oiv))
 Cchp1       call gvlist(alat,plat,q,n1,n2,n3,gmax,509,ng,ng,w(okv),w(ogv),
@@ -215,7 +220,7 @@ Cchp1      .w(oiv),w(oiv))
 Cchp1        call gvlist ( alat , plat , q , n1 , n2 , n3 , gmax , 509 , ng 
 Cchp1      . , ng , w ( okv ) , rv_p_ogv , w ( oiv ) , w ( oiv ) ) 
         call gvlist ( alat , plat , q , n1 , n2 , n3 , gmax , 509 , ng 
-     .  , ng , iv_p_okv , rv_p_ogv , w ( oiv ) , w ( oiv ) ) 
+     .  , ng , iv_p_okv , rv_p_ogv , w_oiv , w_oiv ) 
 
 
       call poppr
@@ -226,7 +231,7 @@ C     For PW basis ... for now.
 CSFCPP#if F90
         allocate(ivp(napw))
 CSFCPP#endif
-        call gvgvcomp(ng,w(oiv),napw,igapw,ivp)
+        call gvgvcomp(ng,w_oiv,napw,igapw,ivp)
       else
 CSFCPP#if F90
         allocate(ivp(1))
@@ -238,21 +243,25 @@ C --- Tables of energies, rsm, indices to them ---
 
 C --- Allocate and occupy arrays for yl, energy factors, rsm factors ---
       nlmtop = (ltop+1)**2
-      call defrr(ogq, ng*3)
-      call defrr(oyl, ng*nlmtop)
-      call defrr(oylw,ng*nlmtop)
-      call defrr(og2, ng)
-      call defrr(ohe, ng*net)
-      call defrr(ohr, ng*nrt)
+c      call defrr(ogq, ng*3)
+c      call defrr(oyl, ng*nlmtop)
+c      call defrr(oylw,ng*nlmtop)
+c      call defrr(og2, ng)
+c      call defrr(ohe, ng*net)
+c      call defrr(ohr, ng*nrt)
+
+      allocate(w_ogq(ng*3), w_oyl(ng*nlmtop), w_oylw(ng*nlmtop), w_og2(ng), w_ohe(ng*net), w_ohr(ng*nrt))
+
       call dpzero(q0,3)
       if (nlmto .gt. 0) then
 Cchp1         call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,w(ogv),w(ogq),
-Cchp1      .  w(og2),w(oyl),w(ohe),w(ohr))
+Cchp1      .  w(og2),w_oyl,w_ohe,w_ohr)
          call hsibl1 ( net , etab , nrt , rtab , ltop , alat , q0 , ng 
-     .   , rv_p_ogv , w ( ogq ) , w ( og2 ) , w ( oyl ) , w ( ohe ) , 
-     .   w ( ohr ) ) 
+     .   , rv_p_ogv , w_ogq , w_og2 , w_oyl , w_ohe , 
+     .   w_ohr ) 
 
       endif
+      deallocate(w_og2)
 
 C ... Allocate local arrays; setup for fast phase factors
 C     Setup already done in gvlst2
@@ -344,8 +353,8 @@ c        nvec = min(nblk, nevec-ivec+1)
 
 CSFCPP#if F90
 C   ... Add together total smooth wavefunction
-        call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-     .  n3,qlat,cosi,sini,w(oyl),w(oylw),w(ohe),w(ohr),wk,
+        call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w_ogq,w_oiv,n1,n2,
+     .  n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr,wk,
      .  wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,numq,
      .  ewgt,ivec,nvec,evec,w,psi,w)
         call rsiblp(ng,ndimh,nlmto,nspc,napw,ivp,nvec,dsqrt(vol),
@@ -373,13 +382,13 @@ Cchp1      .  vpsi)
 C    --- Add to forces ---
         if (lfrce .ne. 0) then
 #if MPI | OPENMP
-          call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-     .    n3,qlat,cosi,sini,w(oyl),w(oylw),w(ohe),w(ohr),
+          call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w_ogq,w_oiv,n1,n2,
+     .    n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr,
      .    wk,wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
      .    numq,ewgt,ivec,nvec,evec,vpsi,psi,fr)
 #else
-          call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-     .    n3,qlat,cosi,sini,w(oyl),w(oylw),w(ohe),w(ohr),
+          call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w_ogq,w_oiv,n1,n2,
+     .    n3,qlat,cosi,sini,w_oyl,w_oylw,w_ohe,w_ohr,
      .    wk,wk2,vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
      .    numq,ewgt,ivec,nvec,evec,vpsi,psi,f)
 #endif
@@ -388,7 +397,7 @@ C    --- Add to forces ---
 CSFCPP#else
 CSFCPPC   ... Add together total smooth wavefunction
 CSFCPP        call rsibl1(0,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-CSFCPP     .  n3,qlat,w(ocos),w(osin),w(oyl),w(oylw),w(ohe),w(ohr),w(opsi0),
+CSFCPP     .  n3,qlat,w(ocos),w(osin),w(oyl),w_oylw,w_ohe,w_ohr,w(opsi0),
 CSFCPP     .  w(owk2),vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,numq,
 CSFCPP     .  ewgt,ivec,nvec,evec,w,w(opsi),w)
 CSFCPP        call rsiblp(ng,ndimh,nlmto,nspc,napw,ivp,nvec,dsqrt(vol),
@@ -402,7 +411,7 @@ CSFCPP
 CSFCPPC    --- Add to forces ---
 CSFCPP        if (lfrce .ne. 0) then
 CSFCPP          call rsibl1(1,ssite,sspec,q,nbas,iprmb,ng,w(ogq),w(oiv),n1,n2,
-CSFCPP     .    n3,qlat,w(ocos),w(osin),w(oyl),w(oylw),w(ohe),w(ohr),
+CSFCPP     .    n3,qlat,w(ocos),w(osin),w(oyl),w_oylw,w_ohe,w_ohr,
 CSFCPP     .    w(opsi0),w(owk2),vol,iprt,ipet,etab,rtab,ndimh,nlmto,nspc,
 CSFCPP     .    numq,ewgt,ivec,nvec,evec,w(ovpsi),w(opsi),f)
 CSFCPP        endif
@@ -432,8 +441,10 @@ CSFCPP#endif
       ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
       ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
 #endif
-      call defcc(osmbuf, k1*k2*k3*numq*nspc)
-      call MPI_ALLREDUCE(xsmrho,w(osmbuf),2*k1*k2*k3*numq*nspc,
+
+c      call defcc(osmbuf, k1*k2*k3*numq*nspc)
+      allocate(w_osmbuf(k1*k2*k3*numq*nspc))
+      call MPI_ALLREDUCE(xsmrho,w_osmbuf,2*k1*k2*k3*numq*nspc,
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
       if (mlog) then
         call gettime(datim)
@@ -442,12 +453,15 @@ CSFCPP#endif
      .  ' allreduce smrho',' ',256,lgunit(3),
      .  procid,nproc)
       endif
-      call daxpy(2*k1*k2*k3*numq*nspc,1d0,w(osmbuf),1,
+      call daxpy(2*k1*k2*k3*numq*nspc,1d0,w_osmbuf,1,
      .smrho(1,1,1,1,isp),1)
-      call rlse(osmbuf)
+c      call rlse(osmbuf)
+      deallocate(w_osmbuf)
+
       if (lfrce .ne. 0) then
-        call defrr(ofrbuf, 3*nbas*numq)
-        call MPI_ALLREDUCE(fr,w(ofrbuf),3*nbas*numq,
+c        call defrr(ofrbuf, 3*nbas*numq)
+        allocate(w_ofrbuf(3*nbas*numq))
+        call MPI_ALLREDUCE(fr,w_ofrbuf,3*nbas*numq,
      .  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         if (mlog) then
           call gettime(datim)
@@ -456,8 +470,9 @@ CSFCPP#endif
      .    ' allreduce f',' ',256,lgunit(3),
      .    procid,nproc)
         endif
-        call daxpy(3*nbas*numq,1d0,w(ofrbuf),1,f,1)
-        call rlse(ofrbuf)
+        call daxpy(3*nbas*numq,1d0,w_ofrbuf,1,f,1)
+c        call rlse(ofrbuf)
+        deallocate(w_ofrbuf)
       endif
 CC kino's fix at feb27-2009
 CC     deallocate(xsmrho,fr)
