@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ontab
+Cchp1 cmdvar= integer,iv_p_,oiax
 Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= integer,iv_p_,oipc
 Cchp1 cmdvar= real(8),rv_p_,og
@@ -25,7 +27,8 @@ Cchp1 cmdvar= real(8),rv_p_,oclabl
      .sarray,sbz,slabl,sstrn,mode,wksize)
 
       use m_struc_def  !Cgetarg
-
+      use m_pairs
+      use m_ovmin , only: ovmin 
 C- Auxilliary programs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -200,9 +203,18 @@ Cchp1      .                   , ontab , oiax , mxclas
 Cchp1                           integer:: oeold , oeula , olmx , opold , owk2 , opos , orham 
 Cchp1      .                    , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , 
 Cchp1      .                    ontab , oiax , mxclas 
-                           integer:: oeold , oeula , olmx , opold , owk2 , orham , oamsh 
-     .                     , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , ontab , 
-     .                     oiax , mxclas 
+Cchp1                            integer:: oeold , oeula , olmx , opold , owk2 , orham , oamsh 
+Cchp1      .                     , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , ontab , 
+Cchp1      .                     oiax , mxclas 
+Cchp1                             integer:: oeold , oeula , olmx , opold , owk2 , orham , oamsh 
+Cchp1      .                      , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , ontab , 
+Cchp1      .                      mxclas 
+                             integer:: oeold , oeula , olmx , opold , owk2 , orham , oamsh 
+     .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas 
+                             integer,pointer :: iv_p_ontab(:)
+
+                            integer,pointer :: iv_p_oiax(:)
+
                            real(8),pointer :: rv_p_opos(:)
 
                           integer,pointer :: iv_p_oipc(:)
@@ -266,7 +278,8 @@ C ... Heap
       common /w/ w
 
 ctakao
-      integer:: ifx,w_dummy=1
+cki      integer:: ifx,w_dummy=1
+      integer:: ifx,w_dummy(1)=1
       integer,allocatable:: ics(:)
       integer,allocatable:: lmxa(:)
 c      real(8),allocatable::idmod(:,:), z(:),amsh(:),rmax(:), nrmsh(:)
@@ -454,8 +467,8 @@ c      call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
 c     .  -1,i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
 Cchp1         call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
 Cchp1      .  -1,i,j,w_dummy,nttab,ontab,oiax,mxcsiz)
-         call pairs ( nbas , nbasp , alat , plat , rmaxs / 2 , rv_p_opos 
-     .   , - 1 , i , j , w_dummy , nttab , ontab , oiax , mxcsiz ) 
+         call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , rv_p_opos 
+     .   , (/- 1/) , i , j , w_dummy , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
 
         call poppr
 
@@ -726,7 +739,7 @@ Cchp1           call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax
 Cchp1      .    , rmax , rv_p_oclabl , iv_p_oipc , modep , z , ontab , oiax , 
 Cchp1      .    w ( opos ) , j ) 
            call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
-     .     , rmax , rv_p_oclabl , iv_p_oipc , modep , z , ontab , oiax , 
+     .     , rmax , rv_p_oclabl , iv_p_oipc , modep , z , iv_p_ontab , iv_p_oiax , 
      .     rv_p_opos , j ) 
 
 

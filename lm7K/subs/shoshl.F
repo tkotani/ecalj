@@ -1,6 +1,9 @@
+Cchp1 cmdvar= integer,iv_p_,ontab
+Cchp1 cmdvar= integer,iv_p_,oiax
+Cchp1 cmdvar= integer,iv_p_,ontabs
       subroutine shoshl(sopts,nbas,bas,plat,mxnbr0,z,slabl,dclabl,ips,
      .ipc,ves,eula,nclass)
-
+      use m_pairs
 C- Print nearest-neighbor shells
 C ----------------------------------------------------------------
 Ci Inputs
@@ -43,7 +46,10 @@ C Local parameters
       parameter (niax=10)
       logical lves,leula,a2bin
       double precision avwsr,avw,range,xx,stdo,wdummy
-      integer:: ontab , olstc
+Cchp1       integer:: ontab , olstc
+       integer:: olstc 
+       integer,pointer :: iv_p_ontab(:)
+
       real(8) ,allocatable :: wk_rv(:)
       real(8) ,allocatable :: rtab_rv(:)
       integer ,allocatable :: lst1_iv(:)
@@ -51,9 +57,14 @@ C Local parameters
       real(8) ,allocatable :: dist_rv(:)
       real(8) ,allocatable :: mark_rv(:)
 
-      integer npr(2),mxnbr,ib,ic,iclbsj,j,j1,j2,lstyle,ival,
-     .scrwid,ltab,nlstc,nlst1,nlst2,mxcsiz,iprint,ifi,fopn,lgunit,
-     .ldisp,lnn,oiax
+Cchp1       integer npr(2),mxnbr,ib,ic,iclbsj,j,j1,j2,lstyle,ival,
+Cchp1      .scrwid,ltab,nlstc,nlst1,nlst2,mxcsiz,iprint,ifi,fopn,lgunit,
+Cchp1      .ldisp,lnn,oiax
+       integer:: npr(2) , mxnbr , ib , ic , iclbsj , j , j1 , j2 , lstyle 
+     . , ival , scrwid , ltab , nlstc , nlst1 , nlst2 , mxcsiz , iprint 
+     . , ifi , fopn , lgunit , ldisp , lnn 
+       integer,pointer :: iv_p_oiax(:)
+
       character*8  dc*1
       parameter (scrwid=120)
 C heap:
@@ -159,19 +170,26 @@ C --- Print neighbor table for each site ---
       if (ltab .ne. 0) then
         mxcsiz = 0
         call pshpr(iprint()-20)
-        call pairs(nbas,nbas,1d0,plat,range/2*(1+1d-6),bas,
-     .  -1,3,-1,w,nttab,ontab,oiax,mxcsiz)
+        call pairs(nbas,nbas,1d0,plat,(/range/2*(1+1d-6)/),bas,
+     .  (/-1/),3,-1,w,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
         call poppr
         allocate(rtab_rv(3*nttab))
 Ctakao_ZeroClear_NotRequiered          if (3*nttab<0) rtab_rv(:)=0.0d0
 
-        call mkrtab ( 000 , 1d0 , plat , bas , w ( oiax ) , nttab , bas 
-     .  , rtab_rv )
+Cchp1         call mkrtab ( 000 , 1d0 , plat , bas , w ( oiax ) , nttab , bas 
+Cchp1      .  , rtab_rv )
+         call mkrtab ( 000 , 1d0 , plat , bas , iv_p_oiax , nttab , bas 
+     .   , rtab_rv ) 
+
 
 C       if (ldisp .eq. 1) ltab = 2
-        call psho1 ( ldisp * 10 + ltab , lnn , w ( oiax ) , nbas , nttab 
-     .  , nlst1 , lst1_iv , nlst2 , lst2_iv , rtab_rv , plat 
-     .  , bas , dist_rv , mark_rv , ipc , dclabl , ifi )
+Cchp1         call psho1 ( ldisp * 10 + ltab , lnn , w ( oiax ) , nbas , nttab 
+Cchp1      .  , nlst1 , lst1_iv , nlst2 , lst2_iv , rtab_rv , plat 
+Cchp1      .  , bas , dist_rv , mark_rv , ipc , dclabl , ifi )
+         call psho1 ( ldisp * 10 + ltab , lnn , iv_p_oiax , nbas , nttab 
+     .   , nlst1 , lst1_iv , nlst2 , lst2_iv , rtab_rv , plat , bas , 
+     .   dist_rv , mark_rv , ipc , dclabl , ifi ) 
+
 
 
 Cki#error ERROR, try to release name= ontab ,but list does not have  ontab at linenumber= 151 list= olst1 olst2 odist omark ortab

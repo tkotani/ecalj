@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ontabs
+Cchp1 cmdvar= integer,iv_p_,oiaxs
 Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
@@ -210,7 +212,12 @@ Cchp1            integer:: og , oag , opos , ontabs , oiaxs , ohrs , ohrss
 Cchp1             integer:: og , oag , opos , ontabs , oiaxs , ohrss 
 Cchp1              integer:: og , opos , ontabs , oiaxs , ohrss 
 Cchp1               integer:: opos , ontabs , oiaxs !, ohrss 
-               integer:: ontabs , oiaxs 
+Cchp1                integer:: ontabs , oiaxs 
+Cchp1                 integer:: ontabs 
+                 integer,pointer :: iv_p_ontabs(:)
+
+                integer,pointer :: iv_p_oiaxs(:)
+
                real(8),pointer :: rv_p_opos(:)
 
               real(8),pointer :: rv_p_og(:)
@@ -633,13 +640,15 @@ Cchp1      .   , 1 , nbas , ndimh , ndimh , w , plat , w ( opos ) , ontabs ,
 Cchp1      .   oiaxs , ndhrs , w ) 
           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 , 
      .    nsp , nbas , rv_p_og , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
-     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , ontabs , 
-     .    oiaxs , ndhrs , w ) 
+     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , iv_p_ontabs , 
+     .    iv_p_oiaxs , ndhrs , w ) 
 
 
 
 
-      nttabs = ival(w(ontabs),nbas+1)
+Cchp1       nttabs = ival(w(ontabs),nbas+1)
+       nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
+
 C     Allocate memory for hrs
       if (hreal .eq. 1) then
 Cchp1         call defdr(ohrs,-ndhrs**2*nttabs*nsp)
@@ -945,8 +954,8 @@ Cchp1      .        , 1 , nbas , ndimh , ndimh , sfz_zv , plat , w ( opos ) , on
 Cchp1      .        , oiaxs , ndhrs , rv_p_ohrs ) 
                call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp 
      .         , nsp , nbas , rv_p_og , rv_p_oag , nsgrps , rsrnge , iv_p_ooffh 
-     .         , 1 , nbas , ndimh , ndimh , sfz_zv , plat , rv_p_opos , ontabs 
-     .         , oiaxs , ndhrs , rv_p_ohrs ) 
+     .         , 1 , nbas , ndimh , ndimh , sfz_zv , plat , rv_p_opos , iv_p_ontabs 
+     .         , iv_p_oiaxs , ndhrs , rv_p_ohrs ) 
 
 
 
@@ -976,8 +985,12 @@ C     exit of MPI master loop
 
 
       sham%ndhrs=ndhrs
-      sham%ontabs=ontabs
-      sham%oiaxs=oiaxs
+Cchp1       sham%ontabs=ontabs
+       sham%iv_p_ontabs => iv_p_ontabs 
+
+Cchp1       sham%oiaxs=oiaxs
+       sham%iv_p_oiaxs => iv_p_oiaxs 
+
 Cchp1       sham%ohrs=ohrs
        sham%rv_p_ohrs => rv_p_ohrs 
 
@@ -1004,9 +1017,13 @@ Cchp1      .     ndhrs , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w )
 Cchp1             call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
 Cchp1      .      , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , w ( ohrs ) , ndhrs 
 Cchp1      .      , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w ) 
-             call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
-     .       , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs 
-     .       , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w ) 
+Cchp1              call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+Cchp1      .       , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs 
+Cchp1      .       , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w ) 
+              call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+     .        , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+     .        , rsstol , i , rv_p_oqp , nbas , 0 , rotm , w ) 
+
 
 
 
@@ -1084,9 +1101,17 @@ Cchp1            call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas ,
 Cchp1      .     w ( opos ) , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
 Cchp1      .     ) , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss, rv_p_ohrs 
 Cchp1      .     ) 
-            call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
-     .      rv_p_opos , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
-     .      ) , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
+Cchp1             call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
+Cchp1      .      rv_p_opos , nl , nsp , 1 , nttabs , w ( ontabs ) , w ( oiaxs 
+Cchp1      .      ) , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
+Cchp1              call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
+Cchp1      .       rv_p_opos , nl , nsp , 1 , nttabs , w ( ontabs ) , iv_p_oiaxs 
+Cchp1      .       , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
+              call rsmsym ( i , plat , mxorb , iv_p_oiprmb , ndimh , nbas , 
+     .        rv_p_opos , nl , nsp , 1 , nttabs , iv_p_ontabs , iv_p_oiaxs 
+     .        , rv_p_og , istb2_iv , nsgrp , ndhrs , hrss , rv_p_ohrs ) 
+
+
 
 
         if (allocated(istb2_iv)) deallocate(istb2_iv)
@@ -1114,9 +1139,13 @@ Cchp1      .      nbas,0,rotm,w)
 Cchp1              call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
 Cchp1      .       , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , w ( ohrs ) , ndhrs 
 Cchp1      .       , rsstol , i , 0 , nbas , 0 , rotm , w ) 
-              call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
-     .        , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs 
-     .        , rsstol , i , 0 , nbas , 0 , rotm , w ) 
+Cchp1               call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+Cchp1      .        , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs 
+Cchp1      .        , rsstol , i , 0 , nbas , 0 , rotm , w ) 
+               call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis 
+     .         , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+     .         , rsstol , i , 0 , nbas , 0 , rotm , w ) 
+
 
 
           endif
@@ -1160,9 +1189,17 @@ Cchp1      .         ) )
 Cchp1                 call siged ( 1 , nbas , nsp , ndhrs , plat , w ( opos ) , ndimh 
 Cchp1      .          , iv_p_oiprmb , hreal , w ( ontabs ) , w ( oiaxs ) , rv_p_ohrs 
 Cchp1      .          ) 
-                 call siged ( 1 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
-     .           , iv_p_oiprmb , hreal , w ( ontabs ) , w ( oiaxs ) , rv_p_ohrs 
-     .           ) 
+Cchp1                  call siged ( 1 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
+Cchp1      .           , iv_p_oiprmb , hreal , w ( ontabs ) , w ( oiaxs ) , rv_p_ohrs 
+Cchp1      .           ) 
+Cchp1                   call siged ( 1 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
+Cchp1      .            , iv_p_oiprmb , hreal , w ( ontabs ) , iv_p_oiaxs , rv_p_ohrs 
+Cchp1      .            ) 
+                   call siged ( 1 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
+     .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
+     .             ) 
+
+
 
 
 
@@ -1177,9 +1214,17 @@ Cchp1      .         ) )
 Cchp1                 call siged ( 0 , nbas , nsp , ndhrs , plat , w ( opos ) , ndimh 
 Cchp1      .          , iv_p_oiprmb , hreal , w ( ontabs ) , w ( oiaxs ) , rv_p_ohrs 
 Cchp1      .          ) 
-                 call siged ( 0 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
-     .           , iv_p_oiprmb , hreal , w ( ontabs ) , w ( oiaxs ) , rv_p_ohrs 
-     .           ) 
+Cchp1                  call siged ( 0 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
+Cchp1      .           , iv_p_oiprmb , hreal , w ( ontabs ) , w ( oiaxs ) , rv_p_ohrs 
+Cchp1      .           ) 
+Cchp1                   call siged ( 0 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
+Cchp1      .            , iv_p_oiprmb , hreal , w ( ontabs ) , iv_p_oiaxs , rv_p_ohrs 
+Cchp1      .            ) 
+                   call siged ( 0 , nbas , nsp , ndhrs , plat , rv_p_opos , ndimh 
+     .             , iv_p_oiprmb , hreal , iv_p_ontabs , iv_p_oiaxs , rv_p_ohrs 
+     .             ) 
+
+
 
 
 
@@ -1306,9 +1351,13 @@ Cchp1      .       )
 Cchp1               call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
 Cchp1      .        , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , w ( ohrs ) , ndhrs 
 Cchp1      .        , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv ) 
-               call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
-     .         , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs 
-     .         , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv ) 
+Cchp1                call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
+Cchp1      .         , hreal , iv_p_oiprmb , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs 
+Cchp1      .         , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv ) 
+                call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2 
+     .          , hreal , iv_p_oiprmb , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs 
+     .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv ) 
+
 
 
 

@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ontab
+Cchp1 cmdvar= integer,iv_p_,oiax
       subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,  nlat,qwgt)
 c find
 c
@@ -296,9 +298,10 @@ c sorting of ea
       enddo
       end
 
-
+      module m_pairs
+      contains
       subroutine pairs(nbas,nbasp,alat,plat,rmax,baspp,ipsp,nd,iltab,
-     .pltab,nttab,ontab,oiax,mxcsiz)
+     .pltab,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
 C- Allocate memory for and create neighbor table for a crystal
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -330,12 +333,20 @@ Co   w(oiax) :iax array; see pairc, below where it is generated
 Co   mxcsiz  :size of the largest cluster encountered
 C ----------------------------------------------------------------------
 C     implicit none
-      integer nbas,nbasp,ipsp(1),pltab(1),nttab,ontab,oiax,nd,iltab
+Cchp1       integer nbas,nbasp,ipsp(1),pltab(1),nttab,ontab,oiax,nd,iltab
+Cchp1        integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , ontab , 
+Cchp1      . nd , iltab 
+        integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , nd , iltab 
+        integer,pointer :: iv_p_ontab(:)
+
+       integer,pointer :: iv_p_oiax(:)
+
       double precision alat,plat(9),rmax(1),baspp(3,1)
 C Local variables
       double precision avw,avwsr,vol
       integer:: modep(3) , nbaspp , mxcsiz , mxnbr , i , niax , isw
       real(8) ,allocatable :: wk_rv(:)
+      integer,allocatable:: iv_a_tmp(:)
 
       parameter (niax=10)
 C heap:
@@ -348,8 +359,14 @@ C ... Estimate an upper bound to the size of the neighbor table
       avw = avwsr(plat,alat,vol,nbas)
       mxnbr = 3*(2*rmax(1)/avw)**3*nbasp
       if (mxcsiz .gt. 0) mxnbr = mxcsiz
-      call defi(ontab, nbasp+1)
-      call defi(oiax, -niax*mxnbr)
+Cchp1       call defi(ontab, nbasp+1)
+       allocate(iv_p_ontab(abs(nbasp+1)))
+       if (nbasp+1<0) iv_p_ontab(:)=0
+
+Cchp1       call defi(oiax, -niax*mxnbr)
+       allocate(iv_p_oiax(abs(-niax*mxnbr)))
+       if (-niax*mxnbr<0) iv_p_oiax(:)=0
+
       allocate(wk_rv(3*mxnbr))
 Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) wk_rv(:)=0.0d0
 
@@ -361,16 +378,30 @@ Ctakao_ZeroClear_NotRequiered        if (3*mxnbr<0) wk_rv(:)=0.0d0
 C ... This makes the neighbor table
       nttab = mxnbr
       isw = 0
-      call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat , 
-     .plat , baspp , baspp , rmax , iltab , pltab , nttab , w ( ontab 
-     .) , w ( oiax ) , wk_rv , mxcsiz )
+Cchp1       call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat , 
+Cchp1      .plat , baspp , baspp , rmax , iltab , pltab , nttab , w ( ontab 
+Cchp1      .) , w ( oiax ) , wk_rv , mxcsiz )
+Cchp1        call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat , 
+Cchp1      . plat , baspp , baspp , rmax , iltab , pltab , nttab , w ( ontab 
+Cchp1      . ) , iv_p_oiax , wk_rv , mxcsiz ) 
+        call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat , 
+     .  plat , baspp , baspp , rmax , iltab , pltab , nttab , iv_p_ontab 
+     .  , iv_p_oiax , wk_rv , mxcsiz ) 
+
+
 
 
 C ... Allocate iax to proper size
-      call redfi(oiax, niax*nttab)
+Cchp1       call redfi(oiax, niax*nttab)
+       i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
+       iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
+       i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
+       iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+
       if (allocated(wk_rv)) deallocate(wk_rv)
 
-      end
+      end subroutine pairs
+      end module m_pairs
 
       subroutine pairc(ib1,ib2,nbasp,mode,isw,ips,alat,plat,pos,ctr,
      .range,iltab,pltabp,nttab,ntab,iax,rtab,mxcsiz)

@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,ontabs
+Cchp1 cmdvar= integer,iv_p_,oiaxs
 Cchp1 cmdvar= real(8),rv_p_,ohrs
 Cchp1 cmdvar= integer,iv_p_,oiprmb
 Cchp1 cmdvar= integer,iv_p_,oindxo
@@ -209,7 +211,12 @@ C ... Local parameters
 Cchp1       integer oiprmb,ontabs,oiaxs,ohrs,ooffH
 Cchp1        integer:: oiprmb , ontabs , oiaxs , ohrs 
 Cchp1         integer:: ontabs , oiaxs , ohrs 
-         integer:: ontabs , oiaxs 
+Cchp1          integer:: ontabs , oiaxs 
+Cchp1           integer:: ontabs 
+           integer,pointer :: iv_p_ontabs(:)
+
+          integer,pointer :: iv_p_oiaxs(:)
+
          real(8),pointer :: rv_p_ohrs(:)
 
         integer,pointer :: iv_p_oiprmb(:)
@@ -282,8 +289,12 @@ c      if (napw .gt. 0) call rx('hambls not implemented for PWs')
 C ... Setup for Bloch transform
 
       ndhrs=sham%ndhrs
-      ontabs=sham%ontabs
-      oiaxs=sham%oiaxs
+Cchp1       ontabs=sham%ontabs
+       iv_p_ontabs => sham%iv_p_ontabs 
+
+Cchp1       oiaxs=sham%oiaxs
+       iv_p_oiaxs => sham%iv_p_oiaxs 
+
 Cchp1       ohrs=sham%ohrs
        rv_p_ohrs => sham%rv_p_ohrs 
 
@@ -296,7 +307,9 @@ C     hreal=1 -> sig(T) is real
       if (lrsig .ge. 4) hreal = 1
       nl = nglob('nl')
       mxorb = nglob('mxorb')
-      nttabs = ival(w(ontabs),nbas+1)
+Cchp1       nttabs = ival(w(ontabs),nbas+1)
+       nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
+
       nsp  = nglob('nsp')
       call isanrg(isp,1,nsp,'hambl:','isp',T)
 
@@ -329,9 +342,13 @@ Cchp1      .  ss(1,1),w,w)
 Cchp1          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
 Cchp1      .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
 Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
-          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .    , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
+Cchp1           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cchp1      .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+Cchp1      .    , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
+           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .     , 0 , ndimh , 0 , ndimh , 0 , ss ( 1 , 1 ) , w , w ) 
+
 
 
         h(:,:,ispc) = h(:,:,ispc) + ss
@@ -412,9 +429,13 @@ Cchp1      .  s(1,1,ispc),w,w)
 Cchp1          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
 Cchp1      .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
 Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
-          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .    , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
+Cchp1           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cchp1      .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+Cchp1      .    , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
+           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .     , 0 , ndimh , 0 , ndimh , 0 , s ( 1 , 1 , ispc ) , w , w ) 
+
 
 
 
@@ -736,9 +757,13 @@ Cchp1      .    h(1,1,ispc),w,w)
 Cchp1            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
 Cchp1      .     , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , ndimh , ndimh 
 Cchp1      .     , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
-            call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .      , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
-     .      , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
+Cchp1             call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cchp1      .      , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+Cchp1      .      , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
+             call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .       , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh , ndimh 
+     .       , 0 , ndimh , 0 , ndimh , 0 , h ( 1 , 1 , ispc ) , w , w ) 
+
 
 
 C       call zprm('h+sigm-vxc',2,h(1,1,ispc),ndimh,ndimh,ndimh)
@@ -849,9 +874,13 @@ Cchp1      .    w(ohrs),ndhrs,isp,nsp,ndimh,ndimh,0,ndimh,0,ndimh,0,sqi,w,w)
 Cchp1            call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
 Cchp1      .     , 1 , nttabs , w ( oiaxs ) , w ( ohrs ) , ndhrs , isp , nsp , 
 Cchp1      .     ndimh , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
-            call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
-     .      , 1 , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , 
-     .      ndimh , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
+Cchp1             call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
+Cchp1      .      , 1 , nttabs , w ( oiaxs ) , rv_p_ohrs , ndhrs , isp , nsp , 
+Cchp1      .      ndimh , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
+             call bloch ( i , qpi ( 1 , j ) , nl , plat , mxorb , iv_p_oiprmb 
+     .       , 1 , nttabs , iv_p_oiaxs , rv_p_ohrs , ndhrs , isp , nsp , ndimh 
+     .       , ndimh , 0 , ndimh , 0 , ndimh , 0 , sqi , w , w ) 
+
 
 
 C       call zprm('sig at qpi',2,sqi,ndimh,ndimh,ndimh)
@@ -951,7 +980,12 @@ C ... Passed parameters
 C ... Local parameters
 Cchp1       integer oiprmb,ontabs,oiaxs,ohrs
 Cchp1        integer:: ontabs , oiaxs , ohrs 
-        integer:: ontabs , oiaxs 
+Cchp1         integer:: ontabs , oiaxs 
+Cchp1          integer:: ontabs 
+          integer,pointer :: iv_p_ontabs(:)
+
+         integer,pointer :: iv_p_oiaxs(:)
+
         real(8),pointer :: rv_p_ohrs(:)
 
        integer,pointer :: iv_p_oiprmb(:)
@@ -981,8 +1015,12 @@ C ... Heap
 C ... Setup for Bloch transform
 
       ndhrs=sham%ndhrs
-      ontabs=sham%ontabs
-      oiaxs=sham%oiaxs
+Cchp1       ontabs=sham%ontabs
+       iv_p_ontabs => sham%iv_p_ontabs 
+
+Cchp1       oiaxs=sham%oiaxs
+       iv_p_oiaxs => sham%iv_p_oiaxs 
+
 Cchp1       ohrs=sham%ohrs
        rv_p_ohrs => sham%rv_p_ohrs 
 
@@ -995,7 +1033,9 @@ C     hreal=1 -> sig(T) is real
       if (lrsig .ge. 4) hreal = 1
       nl = nglob('nl')
       mxorb = nglob('mxorb')
-      nttabs = ival(w(ontabs),nbas+1)
+Cchp1       nttabs = ival(w(ontabs),nbas+1)
+       nttabs = ival ( iv_p_ontabs , nbas + 1 ) 
+
       call isanrg(isp,1,nsp,'blsig:','isp',T)
       ndimhx = ndimh*nspc
 
@@ -1017,9 +1057,13 @@ Cchp1      .  sig(1,1,jsp),w,w)
 Cchp1          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
 Cchp1      .   , w ( oiaxs ) , w ( ohrs ) , ndhrs , ksp , nsp , ndimh , ndimh 
 Cchp1      .   , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
-          call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
-     .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
-     .    , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
+Cchp1           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+Cchp1      .    , w ( oiaxs ) , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+Cchp1      .    , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
+           call bloch ( i , q , nl , plat , mxorb , iv_p_oiprmb , 1 , nttabs 
+     .     , iv_p_oiaxs , rv_p_ohrs , ndhrs , ksp , nsp , ndimh , ndimh 
+     .     , 0 , ndimh , 0 , ndimh , 0 , sig ( 1 , 1 , jsp ) , w , w ) 
+
 
 
       enddo

@@ -850,12 +850,14 @@ CCHSTRUC       integer(8)   ::   obdots ! not used because of undef
 CCHSTRUC       integer(8)   ::   oeula ! not used because of undef
 CCHSTRUC       integer(8)   ::   ohrs
        real(8) , pointer ::  rv_p_ohrs (:)
-      integer(8)   ::   oiaxs
+cki      integer(8)   ::   oiaxs
+       integer, pointer :: iv_p_oiaxs(:)
 CCHSTRUC       integer(8)   ::   oindxo
        integer , pointer ::  iv_p_oindxo (:)
 CCHSTRUC       integer(8)   ::   olmxa ! not used because of undef
 CCHSTRUC       integer(8)   ::   omagf ! not used because of undef
-      integer(8)   ::   ontabs
+cki      integer(8)   ::   ontabs
+       integer, pointer :: iv_p_ontabs(:)
 CCHSTRUC       integer(8)   ::   ooffH
        integer , pointer ::  iv_p_ooffH (:)
 CCHSTRUC       integer(8)   ::   oqsig
@@ -2959,11 +2961,11 @@ C ... Passed parameters
        call mpi_bcast(struc%nqsig, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_ohrs(:) because it is a pointer.
-       call mpi_bcast(struc%oiaxs, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+cki       call mpi_bcast(struc%oiaxs, 1,MPI_INTEGER8
+cki     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_oindxo(:) because it is a pointer.
-       call mpi_bcast(struc%ontabs, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+cki       call mpi_bcast(struc%ontabs, 1,MPI_INTEGER8
+cki     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_ooffH(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_oqsig(:) because it is a pointer.
        call mpi_bcast(struc%oveps, 1,MPI_REAL8
@@ -4453,8 +4455,8 @@ cki       struc%opos=0
        struc%npwmin=0
        struc%npwpad=0
        struc%nqsig=0
-       struc%oiaxs=0
-       struc%ontabs=0
+cki       struc%oiaxs=0
+cki       struc%ontabs=0
        struc%oveps=0.0d0
        struc%pmax=0.0d0
        struc%pmin=0.0d0

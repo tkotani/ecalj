@@ -42,7 +42,7 @@
 # $(HOME)/kit/numericallib/LAPACK.intel11/blas_LinuxCore2.a \
 # $(HOME)/kit/numericallib/LAPACK.intel11/tmglib_LinuxCore2.a \
 # -L/opt/intel/fce/10.1.013/lib -lifcore -lguide -pthread
-LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
+LIBLOC= /opt/acml4.4.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide 
 
 #
 #LIBLOC= -static -lmkl_lapack64 -lmkl_em64t -lguide -lfftw3
@@ -59,7 +59,7 @@ LIBLOC= /opt/acml4.2.0/ifort64_mp/lib/libacml_mp.a -lfftw3 -lguide
 #          /usr/lib64/atlas/libf77blas.so.3 /usr/lib64/atlas/libcblas.so.3 \
 #          /usr/lib64/atlas/libatlas.so.3 -lfftw3
 
-LIBLOC= -lfftw3 -mkl -lifcore -lguide -pthread
+#LIBLOC= -lfftw3 -mkl -lifcore -lguide -pthread
 
 
 ### acml  is from http://developer.amd.com/cpu/Libraries/acml/downloads/pages/default.aspx#downloads
@@ -433,7 +433,7 @@ $(fp_obj_path)/hsmbl.o  : fp/hsmbl.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hsmbl.o fp/hsmbl.F
 $(fp_obj_path)/ioden.o  : fp/ioden.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/ioden.o fp/ioden.F
-$(fp_obj_path)/lmaux.o  : fp/lmaux.F $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/lmaux.o  : fp/lmaux.F $(moddir)/m_struc_def.mod  $(moddir)/m_pairs.mod $(moddir)/m_ovmin.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/lmaux.o fp/lmaux.F
 $(fp_obj_path)/lmfopb.o  : fp/lmfopb.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/lmfopb.o fp/lmfopb.F
@@ -534,3 +534,17 @@ $(sla_obj_path)/fsubs.o  : slatsm/fsubs.F
 
 $(subs_obj_path)/veecomp.o: subs/veecomp.F
 	$(FC) $(FFLAGS_LESS2) -c  -o $(subs_obj_path)/veecomp.o subs/veecomp.F 
+
+
+$(subs_obj_path)/hft2rs.o: subs/hft2rs.F $(moddir)/m_pairs.mod
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/hft2rs.o  subs/hft2rs.F
+
+$(subs_obj_path)/shoshl.o: subs/shoshl.F $(moddir)/m_pairs.mod
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/shoshl.o  subs/shoshl.F
+
+
+$(subs_obj_path)/pairc.o $(moddir)/m_pairs.mod : subs/pairc.F
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/pairc.o subs/pairc.F
+
+$(subs_obj_path)/ovmin.o $(moddir)/ovmin.o :  subs/ovmin.F
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ovmin.o subs/ovmin.F

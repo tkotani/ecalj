@@ -416,7 +416,7 @@ $(fp_obj_path)/hsmbl.o  : fp/hsmbl.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hsmbl.o fp/hsmbl.F
 $(fp_obj_path)/ioden.o  : fp/ioden.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/ioden.o fp/ioden.F
-$(fp_obj_path)/lmaux.o  : fp/lmaux.F $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/lmaux.o  : fp/lmaux.F $(moddir)/m_struc_def.mod  $(moddir)/m_pairs.mod $(moddir)/m_ovmin.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/lmaux.o fp/lmaux.F
 $(fp_obj_path)/lmfopb.o  : fp/lmfopb.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/lmfopb.o fp/lmfopb.F
@@ -514,3 +514,17 @@ $(subs_obj_path)/struc_strn.o  : subs/struc_strn.F $(moddir)/m_sstrnsname.mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/struc_strn.o subs/struc_strn.F
 $(sla_obj_path)/fsubs.o  : slatsm/fsubs.F 
 	$(FC) $(FFLAGS) -c  -o $(sla_obj_path)/fsubs.o slatsm/fsubs.F
+
+$(subs_obj_path)/hft2rs.o: subs/hft2rs.F $(moddir)/m_pairs.mod
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/hft2rs.o  subs/hft2rs.F
+
+$(subs_obj_path)/shoshl.o: subs/shoshl.F $(moddir)/m_pairs.mod
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/shoshl.o  subs/shoshl.F
+
+
+$(subs_obj_path)/pairc.o $(moddir)/m_pairs.mod : subs/pairc.F
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/pairc.o subs/pairc.F
+
+$(subs_obj_path)/ovmin.o $(moddir)/ovmin.o :  subs/ovmin.F
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ovmin.o subs/ovmin.F
+

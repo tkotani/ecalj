@@ -1,6 +1,10 @@
+Cchp1 cmdvar= integer,iv_p_,oiax
+Cchp1 cmdvar= integer,iv_p_,ontab
+Cchp1 cmdvar= integer,iv_p_,ontabs
       subroutine hft2rs(mode,n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
-     .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,ontab,oiax,ndhrs,
+     .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,iv_p_ontab,iv_p_oiax,ndhrs,
      .hrs)
+      use m_pairs
 C- Fourier transform of a matrix to real-space representation
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -151,13 +155,18 @@ C ... Passed parameters
       integer nkap0,n0H,niax
       parameter (nkap0=3,n0H=5,niax=10)
       integer offH(n0H,nkap0,1)
-      integer oiax,ontab
+Cchp1       integer oiax,ontab
+Cchp1        integer:: oiax 
+        integer,pointer :: iv_p_oiax(:)
+
+       integer,pointer :: iv_p_ontab(:)
+
       double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*),qoff(3)
       double complex hq(k1,k2,k3,idim,jdim,nsp),hrs(ndhrs,ndhrs,nsp,1)
 C ... Local parameters
       integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,
      .nvtot
-      integer ,allocatable :: iwk_iv(:)
+      integer ,allocatable :: iwk_iv(:),iv_a_tmp(:)
 
       double precision dmx(2)
 #if DEBUG
@@ -168,7 +177,7 @@ C ... Heap
       integer w(1)
       common /w/ w
 C ... External calls
-      external defi,fftz3,getpr,hft2r1,hft2r3,info,pairs,poppr, !fftz3s,
+      external defi,fftz3,getpr,hft2r1,hft2r3,info,poppr, !fftz3s,
      .ppair1,pshpr,redfi,rlse,tcn,tcx
 
       call tcn('hft2rs')
@@ -189,8 +198,8 @@ C --- Mode 0 (setup) make and reduce iax table ---
 C   ... pair table for rs hamiltonian
         call pshpr(min(ipr-10,30))
         mxcsiz = 0
-        call pairs(nbas,nbas,1d0,plat,range/2,pos,
-     .  -1,3,-1,w,nttab,ontab,oiax,mxcsiz)
+        call pairs(nbas,nbas,1d0,plat,(/range/2/),pos,
+     .  (/-1/),3,-1,w,nttab,iv_p_ontab,iv_p_oiax,mxcsiz)
         call poppr
 
 C   ... Standard Bloch transform doesn't require mapping to mesh
@@ -199,9 +208,19 @@ C   ... Standard Bloch transform doesn't require mapping to mesh
 C     ... Mark all members in iax table with vector in sfz (for FFT)
           nviax = 0
           nvtot = 0
-          call hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,1,nbas,
-     .    offH,idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,
-     .    nviax,nvtot,dmx)
+Cchp1           call hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,1,nbas,
+Cchp1      .    offH,idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,
+Cchp1      .    nviax,nvtot,dmx)
+Cchp1            call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
+Cchp1      .     , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos 
+Cchp1      .     , iv_p_ontab , w ( oiax ) , qoff , ndhrs , hrs , nviax , nvtot 
+Cchp1      .     , dmx ) 
+            call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
+     .      , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos 
+     .      , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , nviax , nvtot 
+     .      , dmx ) 
+
+
           call info(30,0,0,' hft2rs: found %i connecting vectors out'//
      .    ' of %i possible for FFT',nviax,nvtot)
 
@@ -214,8 +233,14 @@ C     ... Reduce iax table to elements on mesh in common with pairc
 Ctakao_ZeroClear_NotRequiered            if ((niax+1)*mxcsiz<0) iwk_iv(:)=0
 
 C         nttabs = nttab
-          call hft2r3 ( 1 , nbas , iwk_iv , w ( ontab ) , w ( oiax ) 
-     .    , nttab , mxcsiz )
+Cchp1           call hft2r3 ( 1 , nbas , iwk_iv , w ( ontab ) , w ( oiax ) 
+Cchp1      .    , nttab , mxcsiz )
+Cchp1            call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , w ( oiax ) , nttab 
+Cchp1      .     , mxcsiz ) 
+            call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , iv_p_oiax , nttab 
+     .      , mxcsiz ) 
+
+
 
 C         call hft2r3(1,nbas,w(oiwk),w(ontab),w(oiax),nttab,mxcsiz)
           if (allocated(iwk_iv)) deallocate(iwk_iv)
@@ -228,30 +253,58 @@ C   ... Add pairs so that any ri-rj has corresponding rj-ri
           if (mode3 .eq. 2) i = 111
 C         nttabs = nttab
           nttab = nttab*3
-          call redfi(oiax,niax*nttab)
+Cchp1           call redfi(oiax,niax*nttab)
+           i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
+           iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
+           i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
+           iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+
           call pshpr(ipr)
-          call symiax(i,plat,nbas,pos,g,ag,nsgrp,w(ontab),w(oiax),
-     .    nttab,mxcsiz)
+Cchp1           call symiax(i,plat,nbas,pos,g,ag,nsgrp,w(ontab),w(oiax),
+Cchp1      .    nttab,mxcsiz)
+Cchp1            call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_p_ontab 
+Cchp1      .     , w ( oiax ) , nttab , mxcsiz ) 
+            call symiax ( i , plat , nbas , pos , g , ag , nsgrp , iv_p_ontab 
+     .      , iv_p_oiax , nttab , mxcsiz ) 
+
+
           call poppr
 
 C     ... Fill out iax(6,7,10)
           call pshpr(0)
-          call ppair1(0,1,nbas,nbas,-1,1d0,plat,pos,range/2,
-     .    nttab,w(ontab),w(oiax),mxcsiz)
+Cchp1           call ppair1(0,1,nbas,nbas,-1,1d0,plat,pos,range/2,
+Cchp1      .    nttab,w(ontab),w(oiax),mxcsiz)
+Cchp1            call ppair1 ( 0 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos , 
+Cchp1      .     range / 2 , nttab , iv_p_ontab , w ( oiax ) , mxcsiz ) 
+            call ppair1 ( 0 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos , 
+     .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
+
+
           call poppr
         endif
 
 
 C   ... iax is now complete ... reallocate array
-        call redfi(oiax,niax*nttab)
+Cchp1         call redfi(oiax,niax*nttab)
+         i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
+         iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
+         i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
+         iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+
 
 C       Printout of pairs table
 C       ipr = 70
 C       call pshpr(ipr)
         if (ipr .gt. 40) then
           call pshpr(ipr-10)
-          call ppair1(20,1,nbas,nbas,-1,1d0,plat,pos,range/2,
-     .    nttab,w(ontab),w(oiax),mxcsiz)
+Cchp1           call ppair1(20,1,nbas,nbas,-1,1d0,plat,pos,range/2,
+Cchp1      .    nttab,w(ontab),w(oiax),mxcsiz)
+Cchp1            call ppair1 ( 20 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos , 
+Cchp1      .     range / 2 , nttab , iv_p_ontab , w ( oiax ) , mxcsiz ) 
+            call ppair1 ( 20 , 1 , nbas , nbas , - 1 , 1d0 , plat , pos , 
+     .      range / 2 , nttab , iv_p_ontab , iv_p_oiax , mxcsiz ) 
+
+
           call poppr
         endif
         goto 999
@@ -268,9 +321,19 @@ C       Scale by phase for offset k-mesh
 C        call hft2rp(0,lshft,n1,n2,n3,k1,k2,k3,idim,jdim,hq)
 C        call yprm('hfbz(FT)+phase',3,hq,0,k1*k2*k3,k1*k2*k3,idim*jdim)
 
-        call hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,1,nbas,offH,
-     .  idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,nviax,
-     .  nvtot,dmx)
+Cchp1         call hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,1,nbas,offH,
+Cchp1      .  idim,jdim,hq,plat,pos,w(ontab),w(oiax),qoff,ndhrs,hrs,nviax,
+Cchp1      .  nvtot,dmx)
+Cchp1          call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
+Cchp1      .   , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos 
+Cchp1      .   , iv_p_ontab , w ( oiax ) , qoff , ndhrs , hrs , nviax , nvtot 
+Cchp1      .   , dmx ) 
+          call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
+     .    , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos 
+     .    , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , nviax , nvtot 
+     .    , dmx ) 
+
+
         call info5(30,0,0,' hft2rs created hrs:  ndhrs=%i  '//
      .  'max Re(hrs) = %;3g  max Im(hrs) = %;3g',ndhrs,dmx,dmx(2),0,0)
       elseif (mode0 .eq. 1 .and. mode2 .eq. 1) then
