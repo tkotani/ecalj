@@ -1656,7 +1656,8 @@ C 74 341  4        vso  4
       real(8)   ::   ctail
       real(8)   ::   etail
       real(8)   ::   name !string
-      integer(8)   ::   orhoc
+cki      integer(8)   ::   orhoc
+      real(8), pointer :: rv_p_orhoc(:)
       real(8)   ::   stc
       integer(8)   ::   lmxb
       integer(8)   ::   lmxf
@@ -3587,8 +3588,8 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%name, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%orhoc, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+cki       call mpi_bcast(struc%orhoc, 1,MPI_INTEGER8
+cki     , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%stc, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
        call mpi_bcast(struc%lmxb, 1,MPI_INTEGER8
@@ -4635,7 +4636,7 @@ cki       struc%opos=0
        struc%ctail=0.0d0
        struc%etail=0.0d0
        struc%name=0.0d0
-       struc%orhoc=0
+cki       struc%orhoc=0
        struc%stc=0.0d0
        struc%lmxb=0
        struc%lmxf=0

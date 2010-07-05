@@ -1,3 +1,7 @@
+Cchp1 cmdvar= real(8),rv_p_,orhoca
+Cchp1 cmdvar= real(8),rv_p_,orhoc2
+Cchp1 cmdvar= real(8),rv_p_,orhoc1
+Cchp1 cmdvar= real(8),rv_p_,orhoc
 Cchp1 cmdvar= real(8),rv_p_,ov01
 Cchp1 cmdvar= real(8),rv_p_,ov11
 Cchp1 cmdvar= real(8),rv_p_,ov02
@@ -1021,7 +1025,12 @@ Cchp1       integer ov01,ov11,ov02,ov12,orhoc1,orhoc2
 Cchp1        integer:: ov01 , ov11 , ov02 , orhoc1 , orhoc2 
 Cchp1         integer:: ov01 , ov11 , orhoc1 , orhoc2 
 Cchp1          integer:: ov01 , orhoc1 , orhoc2 
-          integer:: orhoc1 , orhoc2 
+Cchp1           integer:: orhoc1 , orhoc2 
+Cchp1            integer:: orhoc2 
+            real(8),pointer :: rv_p_orhoc2(:)
+
+           real(8),pointer :: rv_p_orhoc1(:)
+
           real(8),pointer :: rv_p_ov01(:)
 
          real(8),pointer :: rv_p_ov11(:)
@@ -1239,13 +1248,23 @@ C       Pnu modified if 1's bit im set
 C       Species core density modified if im ge 4
         if (im .ge. 4 .and. flgspc(is) .eq. 0) then
 
-          orhoc1=spec1(is)%orhoc
+Cchp1           orhoc1=spec1(is)%orhoc
+           rv_p_orhoc1 => spec1(is)%rv_p_orhoc 
 
 
-          orhoc2=spec2(js)%orhoc
+
+Cchp1           orhoc2=spec2(js)%orhoc
+           rv_p_orhoc2 => spec2(js)%rv_p_orhoc 
+
 
           if (isync .lt. 2) then
-            call lcrho(nr1,nsp,1,1,fac(1),fac(2),w(orhoc1),w(orhoc2))
+Cchp1             call lcrho(nr1,nsp,1,1,fac(1),fac(2),w(orhoc1),w(orhoc2))
+Cchp1              call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_orhoc1 
+Cchp1      .       , w ( orhoc2 ) ) 
+              call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , rv_p_orhoc1 
+     .        , rv_p_orhoc2 ) 
+
+
           else
             call rx('not ready for this swap')
           endif
@@ -1501,7 +1520,9 @@ C ... Local parameters
       double precision pi,srfpi,y0,rofi(nrmx),rwgt(nrmx),pnu(n0,2)
 Cchp1       integer ov0,ov1,orhoca
 Cchp1        integer:: ov1 , orhoca 
-        integer:: orhoca 
+Cchp1         integer:: orhoca 
+         real(8),pointer :: rv_p_orhoca(:)
+
         real(8),pointer :: rv_p_ov1(:)
 
        real(8),pointer :: rv_p_ov0(:)
@@ -1641,12 +1662,20 @@ C     Species core density modified if im ge 4
         do  is = 1, nspec
 
 
-          orhoca=sspec(is)%orhoc
+Cchp1           orhoca=sspec(is)%orhoc
+           rv_p_orhoca => sspec(is)%rv_p_orhoc 
+
           nr=sspec(is)%nr
 
-          call splrho(30,nsp,nr,1,w(orhoca),w,w)
-          call prsed5(mode0,w(orhoca),nr,1,nsp)
-          call splrho(31,nsp,nr,1,w(orhoca),w,w)
+Cchp1           call splrho(30,nsp,nr,1,w(orhoca),w,w)
+           call splrho ( 30 , nsp , nr , 1 , rv_p_orhoca , w , w ) 
+
+Cchp1           call prsed5(mode0,w(orhoca),nr,1,nsp)
+           call prsed5 ( mode0 , rv_p_orhoca , nr , 1 , nsp ) 
+
+Cchp1           call splrho(31,nsp,nr,1,w(orhoca),w,w)
+           call splrho ( 31 , nsp , nr , 1 , rv_p_orhoca , w , w ) 
+
 
         enddo
       endif

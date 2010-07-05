@@ -49,7 +49,8 @@ cki      type(s_site)::ssite(*)
 C ... Local parameters
       integer nrmx, n0
       parameter ( nrmx=1501, n0=10 )
-      integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
+cki      integer nxi(nspec),orhofa(nspec),ov0a(nspec),orhoca(nspec)
+      integer nxi(nspec),orhofa(nspec),ov0a(nspec)
       double precision rsmfa(nspec),pnu(n0,2),exi(n0,nspec),
      .hfc(n0,2,nspec),hfct(n0,2,nspec)
       character*8 spid(nspec),spidr
@@ -139,7 +140,9 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
       endif
       do  10  is = 1, nspec
         call defrr(orhofa(is),   -nrmx*nsp)
-        call defrr(orhoca(is),   -nrmx*nsp)
+cki        call defrr(orhoca(is),   -nrmx*nsp)
+        allocate(sspec(is)%rv_p_orhoc(   nrmx*nsp) )
+        sspec(is)%rv_p_orhoc=0.0d0
         call defrr(ov0a(is),     -nrmx*nsp)
         do i_spacks=is,is
           call spacks_copy('u',sspec(i_spacks)%name,is,is,spid(is),i_spacks)
@@ -172,13 +175,15 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
             ceh=0
             stc=0
             call rlse(ov0a(is))
-            call rlse(orhoca(is))
+cki            call rlse(orhoca(is))
+            deallocate(sspec(is)%rv_p_orhoc)
             call rlse(orhofa(is))
           else
             lfail = 
      .      (iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),
      .      hfct(1,1,is),rsmfa(is),z0,rmt0,a0,nr0,qc,ccof,
-     .      ceh,stc,w(orhofa(is)),w(orhoca(is)),w(ov0a(is)),ifi)
+cki     .      ceh,stc,w(orhofa(is)),sspec(is)%orhoc,w(ov0a(is)),ifi)
+     .      ceh,stc,w(orhofa(is)),sspec(is)%rv_p_orhoc,w(ov0a(is)),ifi)
      .      .lt. 0)
           endif
         endif
@@ -194,7 +199,7 @@ C   ... Broadcast file data
         call mpibc1(rsmfa(is),1,4,mlog,'rdovfa','rsmfa')
         call mpibc1(a0,1,4,mlog,'rdovfa','a0')
         call mpibc1(w(orhofa(is)),nr0*nsp,4,mlog,'rdovfa','rhofa')
-        call mpibc1(w(orhoca(is)),nr0*nsp,4,mlog,'rdovfa','rhoca')
+        call mpibc1(sspec(is)%rv_p_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
         call mpibc1(w(ov0a(is)),nr0*nsp,4,mlog,'rdovfa','v0a')
         i = mpipid(3)
 
@@ -239,7 +244,7 @@ C ...   Pack into sspec
         sspec(is)%ctail=ccof
         sspec(is)%etail=ceh
         sspec(is)%stc=stc
-        sspec(is)%orhoc=orhoca(is)
+cki        sspec(is)%orhoc=orhoca(is)
 
    10 continue
 C     Wait for all proccesses to synchronize
@@ -297,11 +302,9 @@ Ctakao_ZeroClear_NotRequiered            if (nr<0) rwgt_rv(:)=0.0d0
 
           call radwgt ( rmt , a , nr , rwgt_rv )
 
-          call radsum ( nr , nr , 1 , nsp , rwgt_rv , w ( orhoca ( is 
-     .    ) ) , sum )
+          call radsum ( nr , nr , 1 , nsp , rwgt_rv , sspec(is)%rv_p_orhoc , sum )
 
-          call radsum ( nr , nr , 1 , 1 , rwgt_rv , w ( orhoca ( is 
-     .    ) ) , sum1 )
+          call radsum ( nr , nr , 1 , 1 , rwgt_rv , sspec(is)%rv_p_orhoc , sum1 )
 
           sum2 = sum - sum1
           call gtpcor(sspec,is,kcor,lcor,qcor)
@@ -325,7 +328,7 @@ Cchp1           call dpcopy(w(ov0a(is)),  w(ov1),  1,nr*nsp,1d0)
            call dpcopy ( w ( ov0a ( is ) ) , rv_p_ov1 , 1 , nr * nsp , 1d0 
      .     ) 
 
-          call dpcopy(w(orhoca(is)),w(orhoat(3,ib)),1,nr*nsp,1d0)
+          call dpcopy(sspec(is)%rv_p_orhoc,w(orhoat(3,ib)),1,nr*nsp,1d0)
 
           if (lfoc .eq. 0) then
             allocate(rwgt_rv(nr))

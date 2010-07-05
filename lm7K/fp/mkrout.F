@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,orhoca
+Cchp1 cmdvar= real(8),rv_p_,orhoc
 Cchp1 cmdvar= real(8),rv_p_,ov01
 Cchp1 cmdvar= real(8),rv_p_,ov1
 Cchp1 cmdvar= real(8),rv_p_,ov0
@@ -103,9 +105,14 @@ Cchp1      .     , igetss
 Cchp1             integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
 Cchp1      .      , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
 Cchp1      .      nr , ncore , oqhh , oqhp , oqpp , orhoca , ov01 , stdo , igetss 
-             integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
-     .       , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-     .       nr , ncore , oqhh , oqhp , oqpp , orhoca , stdo , igetss 
+Cchp1              integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+Cchp1      .       , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+Cchp1      .       nr , ncore , oqhh , oqhp , oqpp , orhoca , stdo , igetss 
+              integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
+     .        , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
+     .        nr , ncore , oqhh , oqhp , oqpp , stdo , igetss 
+              real(8),pointer :: rv_p_orhoca(:)
+
              real(8),pointer :: rv_p_ov01(:)
 
             real(8),pointer :: rv_p_ov0(:)
@@ -221,7 +228,9 @@ C --- Start loop over atoms ---
 
         lmxh=sspec(is)%lmxb
         stc0=sspec(is)%stc
-        orhoca=sspec(is)%orhoc
+Cchp1         orhoca=sspec(is)%orhoc
+         rv_p_orhoca => sspec(is)%rv_p_orhoc 
+
 
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
 
@@ -504,7 +513,10 @@ C         smec = smec+sum
   288     format(' foca..  use smtc = ',f14.6)
           sumtc = sumtc + stc0
           sumt0 = sumt0 + stc0
-          call dpcopy(w(orhoca),w(orhoat(3,ib)),1,nr*nsp,1d0)
+Cchp1           call dpcopy(w(orhoca),w(orhoat(3,ib)),1,nr*nsp,1d0)
+           call dpcopy ( rv_p_orhoca , w ( orhoat ( 3 , ib ) ) , 1 , nr 
+     .     * nsp , 1d0 ) 
+
         endif
 
         if (allocated(dmatl_rv)) deallocate(dmatl_rv)

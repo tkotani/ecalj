@@ -1,3 +1,5 @@
+Cchp1 cmdvar= real(8),rv_p_,orhoca
+Cchp1 cmdvar= real(8),rv_p_,orhoc
       subroutine corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,
      .rfoc,z)
 
@@ -60,7 +62,10 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
 
 C ... Local parameters
-      integer n0,lfoc,orhoca,lmxb,l
+Cchp1       integer n0,lfoc,orhoca,lmxb,l
+       integer:: n0 , lfoc , lmxb , l 
+       real(8),pointer :: rv_p_orhoca(:)
+
       parameter (n0=10)
       double precision ccof,fpi,q0,q1,qc,rmt,rsm,srfpi,stc,y0,x0(0:n0),
      .xi(0:n0),dgetss,pnu(2*n0),pz(2*n0)
@@ -80,7 +85,9 @@ C ... Extract parameters including qc and qsc
       ccof=sspec(is)%ctail
       ceh=sspec(is)%etail
       stc=sspec(is)%stc
-      orhoca=sspec(is)%orhoc
+Cchp1       orhoca=sspec(is)%orhoc
+       rv_p_orhoca => sspec(is)%rv_p_orhoc 
+
 
 
       lmxb=sspec(is)%lmxb
