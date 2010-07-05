@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,oag
@@ -124,7 +125,9 @@ C ... Local parameters
 Cchp1       integer:: opos , oistab , og , oag
 Cchp1        integer:: opos , og , oag 
 Cchp1         integer:: opos , og 
-         integer:: opos 
+Cchp1          integer:: opos 
+          real(8),pointer :: rv_p_opos(:)
+
          real(8),pointer :: rv_p_og(:)
 
         real(8),pointer :: rv_p_oag(:)
@@ -169,7 +172,9 @@ C --- Setup ---
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
-      opos=slat%opos
+Cchp1       opos=slat%opos
+       rv_p_opos => slat%rv_p_opos 
+
 
 
       nsgrp=slat%nsgrp
@@ -189,7 +194,9 @@ C     should be from sgw?
       i_copy_size=size(sbz%nkabc)
       call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
 
-      call dcopy(3*nbas,w(opos),1,pos,1)
+Cchp1       call dcopy(3*nbas,w(opos),1,pos,1)
+       call dcopy ( 3 * nbas , rv_p_opos , 1 , pos , 1 ) 
+
       call pshpr(0)
       llshft = .false.
       call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)

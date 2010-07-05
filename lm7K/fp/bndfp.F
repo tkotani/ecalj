@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,opos
 C oevl -> evlall
 Cchp1 cmdvar= integer,iv_p_,oidtet
 Cchp1 cmdvar= integer,iv_p_,oorhat
@@ -410,7 +411,10 @@ ctakao
       logical :: nexist,sigmamode,ok, newsigmasw
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2
-      integer :: nhmax,nknknk,npairmx,opos,jx,nsp_dummy,ndimh_dummy
+Cchp1       integer :: nhmax,nknknk,npairmx,opos,jx,nsp_dummy,ndimh_dummy
+       integer:: nhmax , nknknk , npairmx , jx , nsp_dummy , ndimh_dummy 
+       real(8),pointer :: rv_p_opos(:)
+
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:)
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) !,hamsom(:,:)
       real(8):: rrr(3)
@@ -1367,9 +1371,13 @@ c      deallocate(range)
 c
         allocate(npair(nbas,nbas),pos(3,nbas))
 
-        opos=slat%opos
+Cchp1         opos=slat%opos
+         rv_p_opos => slat%rv_p_opos 
 
-        call dcopy(nbas*3,w(opos),1,pos,1)
+
+Cchp1         call dcopy(nbas*3,w(opos),1,pos,1)
+         call dcopy ( nbas * 3 , rv_p_opos , 1 , pos , 1 ) 
+
         npairmx=nk1*nk2*nk3*2
         do
           npairmx= npairmx + nk1*nk2*nk3*.5

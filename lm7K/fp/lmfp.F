@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,oag
@@ -119,7 +120,10 @@ C ... Local variables
 Cchp1       integer:: oorhat , opos , osmpot , osmrho , o
 Cchp1        integer:: oorhat , opos , osmrho , o 
 Cchp1         integer:: oorhat , opos , o 
-         integer:: opos , o 
+Cchp1          integer:: opos , o 
+          integer:: o 
+          real(8),pointer :: rv_p_opos(:)
+
          integer,pointer :: iv_p_oorhat(:)
 
         complex(8),pointer :: zv_p_osmrho(:)
@@ -378,7 +382,9 @@ C       Shorten site positions
 
         i_copy_size=size(slat%plat)
         call dcopy(i_copy_size,slat%plat,1,plat,1)
-        opos=slat%opos
+Cchp1         opos=slat%opos
+         rv_p_opos => slat%rv_p_opos 
+
 
         if (.not. cmdopt('--shorten=no',12,0,strn)) then
 C       unpack from site structure
@@ -396,11 +402,16 @@ Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) pos2_rv(:)=0.0d0
           ix(2) = 2
           ix(3) = 2
           call info0(50,1,0,' lmfp : shortening basis vectors ... ')
-          call shorps ( nbas , plat , ix , pos2_rv , w ( opos ) )
+Cchp1           call shorps ( nbas , plat , ix , pos2_rv , w ( opos ) )
+           call shorps ( nbas , plat , ix , pos2_rv , rv_p_opos ) 
+
 
           i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbaspp
-            call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cchp1             call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+             call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
+     .       , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+
           enddo
 
 C       Debugging printout
@@ -446,7 +457,9 @@ C     Initial shear was already folded into plat
 
       i_copy_size=size(slat%gam)
       call dcopy(i_copy_size,slat%gam,1,gam,1)
-      opos=slat%opos
+Cchp1       opos=slat%opos
+       rv_p_opos => slat%rv_p_opos 
+
 
       gam1 = gam(4)
       gam(4) = 1
@@ -520,7 +533,9 @@ Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) pos2_rv(:)=0.0d0
 
           j = 1
           call ivset(ix,1,3,j)
-          call shorps ( nbas , plat , ix , w ( opos ) , pos2_rv )
+Cchp1           call shorps ( nbas , plat , ix , w ( opos ) , pos2_rv )
+           call shorps ( nbas , plat , ix , rv_p_opos , pos2_rv ) 
+
 
           call iobsm0 ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv 
      .    , ifi )
@@ -736,11 +751,16 @@ C         irs(1) = irs(1) - mod(irs(1),4)
 
 C   ... Write positions array from site structure
 
-        opos=slat%opos
+Cchp1         opos=slat%opos
+         rv_p_opos => slat%rv_p_opos 
+
 
         i_copy_size=size(ssite(1)%pos)
         do i_spackv=1,nbaspp
-          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cchp1           call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+           call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+     .     , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+
         enddo
 
 cki        call mpibc1(slat,nint(slat%size),4,.false.,'lmfp','slat')
@@ -830,16 +850,25 @@ Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) pos2_rv(:)=0.0d0
         ix(1) = 2
         ix(2) = 2
         ix(3) = 2
-        call shorps ( - nbas , plat , ix , pos2_rv , w ( opos ) )
+Cchp1         call shorps ( - nbas , plat , ix , pos2_rv , w ( opos ) )
+         call shorps ( - nbas , plat , ix , pos2_rv , rv_p_opos ) 
+
 
         call info0(20,1,-1,
      .  ' lmfp  : write shortening vectors to file shorps ...')
-        call iopos(.true.,1,'shorps',nbas,w(opos))
-        call shorps ( nbas , plat , ix , pos2_rv , w ( opos ) )
+Cchp1         call iopos(.true.,1,'shorps',nbas,w(opos))
+         call iopos ( .true. , 1 , 'shorps' , nbas , rv_p_opos ) 
+
+Cchp1         call shorps ( nbas , plat , ix , pos2_rv , w ( opos ) )
+         call shorps ( nbas , plat , ix , pos2_rv , rv_p_opos ) 
+
 
         i_copy_size=size(ssite(1)%pos)
         do i_spackv=1,nbaspp
-          call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cchp1           call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+           call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
+     .     , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+
         enddo
 
 C       Debugging printout
@@ -1006,10 +1035,16 @@ C --- Molecular statics ---
         if (nitrlx .gt. 0 .and. lsc .le. 2) then
           call cppos(1,nbas,ssite)
 C       Buglet: this eats up a little memory.  Never released.
-          call defrr(opos,3*nbas)
+Cchp1           call defrr(opos,3*nbas)
+           allocate(rv_p_opos(abs(3*nbas)))
+           if (3*nbas<0) rv_p_opos(:)=0.0d0
+
           i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbas
-            call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cchp1             call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+             call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+     .       , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+
           enddo
 
 
@@ -1036,9 +1071,13 @@ C       Buglet: this eats up a little memory.  Never released.
             endif
 
           else
-            call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv 
-     .      , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , 
-     .      w ( opos ) , icom )
+Cchp1             call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv 
+Cchp1      .      , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , 
+Cchp1      .      w ( opos ) , icom )
+             call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv 
+     .       , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , rv_p_opos 
+     .       , icom ) 
+
 
           endif
 
@@ -1068,8 +1107,11 @@ Cchp1              call fixpos ( w ( opos ) , nbas , fptol , ng , plat , w ( og
 Cchp1      .       ) , w ( oag ) , iv_p_oistab ) 
 Cchp1               call fixpos ( w ( opos ) , nbas , fptol , ng , plat , w ( og 
 Cchp1      .        ) , rv_p_oag , iv_p_oistab ) 
-               call fixpos ( w ( opos ) , nbas , fptol , ng , plat , rv_p_og 
-     .         , rv_p_oag , iv_p_oistab ) 
+Cchp1                call fixpos ( w ( opos ) , nbas , fptol , ng , plat , rv_p_og 
+Cchp1      .         , rv_p_oag , iv_p_oistab ) 
+                call fixpos ( rv_p_opos , nbas , fptol , ng , plat , rv_p_og 
+     .          , rv_p_oag , iv_p_oistab ) 
+
 
 
 
@@ -1085,7 +1127,9 @@ Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) pos2_rv(:)=0.0d0
 
             j = 1
             call ivset(ix,1,3,j)
-            call shorps ( nbas , plat , ix , w ( opos ) , pos2_rv )
+Cchp1             call shorps ( nbas , plat , ix , w ( opos ) , pos2_rv )
+             call shorps ( nbas , plat , ix , rv_p_opos , pos2_rv ) 
+
 
             call iobsmv ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv 
      .      , - ifi )
@@ -1097,7 +1141,10 @@ Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) pos2_rv(:)=0.0d0
 C       repack updated positions in site structure
           i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbas
-            call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cchp1             call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+             call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
+     .       , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+
           enddo
 
 
@@ -1128,8 +1175,11 @@ C        if (itrlx .eq. nitrlx .and. icom .eq. -1) then
               call info0(20,1,0,' lmfp: restore positions for minimum g')
 
 C           call prmx('initial positions',w(opos),3,3,nbas)
-              call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , 
-     .        p_rv , w ( opos ) )
+Cchp1               call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , 
+Cchp1      .        p_rv , w ( opos ) )
+               call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , p_rv 
+     .         , rv_p_opos ) 
+
 
 C           call prmx('minimum-g positions',w(opos),3,3,nbas)
             else
@@ -1149,7 +1199,10 @@ C           call prmx('minimum-g positions',w(opos),3,3,nbas)
 C         Repack updated positions in site structure
             i_copy_size=size(ssite(1)%pos)
             do i_spackv=1,nbas
-              call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cchp1               call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+               call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
+     .         , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+
             enddo
 
 
@@ -1197,8 +1250,11 @@ C   ... Write positions to file
             allocate(wk_rv(3*nbas))
 Ctakao_ZeroClear_NotRequiered            if (3*nbas<0) wk_rv(:)=0.0d0
 
-            call rdistn ( w ( opos ) , wk_rv , nbas , gam ( 1 ) , gam 
-     .      ( 2 ) , gam ( 3 ) , 1 / gam1 )
+Cchp1             call rdistn ( w ( opos ) , wk_rv , nbas , gam ( 1 ) , gam 
+Cchp1      .      ( 2 ) , gam ( 3 ) , 1 / gam1 )
+             call rdistn ( rv_p_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
+     .       ) , gam ( 3 ) , 1 / gam1 ) 
+
 
             call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
 
@@ -1242,10 +1298,16 @@ C   ... Exit when maximum number of iterations encountered
 C ... Write positions to file
       if (cmdopt('--wpos=',7,0,strn) .or.
      .cmdopt('--wpos:mode1:',13,0,strn)) then
-        call defrr(opos,3*nbas)
+Cchp1         call defrr(opos,3*nbas)
+         allocate(rv_p_opos(abs(3*nbas)))
+         if (3*nbas<0) rv_p_opos(:)=0.0d0
+
         i_copy_size=size(ssite(1)%pos)
         do i_spackv=1,nbas
-          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cchp1           call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+           call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+     .     , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+
         enddo
 
 
@@ -1255,8 +1317,11 @@ C ... Write positions to file
         allocate(wk_rv(3*nbas))
 Ctakao_ZeroClear_NotRequiered          if (3*nbas<0) wk_rv(:)=0.0d0
 
-        call rdistn ( w ( opos ) , wk_rv , nbas , gam ( 1 ) , gam 
-     .  ( 2 ) , gam ( 3 ) , 1 / gam1 )
+Cchp1         call rdistn ( w ( opos ) , wk_rv , nbas , gam ( 1 ) , gam 
+Cchp1      .  ( 2 ) , gam ( 3 ) , 1 / gam1 )
+         call rdistn ( rv_p_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
+     .   ) , gam ( 3 ) , 1 / gam1 ) 
+
 
         if (cmdopt('--wpos:mode1:',13,0,strn)) then
           call iopos ( .true. , 1 , strn ( 14: ) , nbas , wk_rv )
@@ -1268,7 +1333,9 @@ C         call fclr(strn(14:),-1)
 C         call fclr(strn(8:),-1)
         endif
         if (allocated(wk_rv)) deallocate(wk_rv)
-        call rlse(opos)
+Cchp1         call rlse(opos)
+         if (associated(rv_p_opos)) deallocate(rv_p_opos)
+
 
       endif
 
@@ -1302,20 +1369,31 @@ C     undo original transformation = P P_0^-1
 Ctakao_ZeroClear_NotRequiered        if (3*nbas<0) pos2_rv(:)=0.0d0
 
       call dinv33(plat,0,xv,xv(10))
-      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , w ( opos 
-     .) , 3 , 0d0 , pos2_rv , 3 )
+Cchp1       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , w ( opos 
+Cchp1      .) , 3 , 0d0 , pos2_rv , 3 )
+       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , rv_p_opos 
+     . , 3 , 0d0 , pos2_rv , 3 ) 
+
 
 C     Simultaneously pack in lat->pos and site->pos
 
-      opos=slat%opos
+Cchp1       opos=slat%opos
+       rv_p_opos => slat%rv_p_opos 
 
-      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv 
-     ., 3 , 0d0 , w ( opos ) , 3 )
+
+Cchp1       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv 
+Cchp1      ., 3 , 0d0 , w ( opos ) , 3 )
+       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv 
+     . , 3 , 0d0 , rv_p_opos , 3 ) 
+
 
 C     call prmx('positions for plat0',w(opos),3,3,nbas)
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
-        call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cchp1         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+         call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
+     .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+
       enddo
 
       call cppos(1,nbas,ssite)

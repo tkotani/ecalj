@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= integer,iv_p_,oipc
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
@@ -196,9 +197,14 @@ Cchp1      .                  , ontab , oiax , og , mxclas
 Cchp1                          integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
 Cchp1      .                   orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl 
 Cchp1      .                   , ontab , oiax , mxclas 
-                          integer:: oeold , oeula , olmx , opold , owk2 , opos , orham 
-     .                    , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , 
-     .                    ontab , oiax , mxclas 
+Cchp1                           integer:: oeold , oeula , olmx , opold , owk2 , opos , orham 
+Cchp1      .                    , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , 
+Cchp1      .                    ontab , oiax , mxclas 
+                           integer:: oeold , oeula , olmx , opold , owk2 , orham , oamsh 
+     .                     , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , ontab , 
+     .                     oiax , mxclas 
+                           real(8),pointer :: rv_p_opos(:)
+
                           integer,pointer :: iv_p_oipc(:)
 
                          real(8),pointer :: rv_p_og(:)
@@ -310,7 +316,9 @@ Cchp1       ormax=sarray%ormax
 
 
 
-      opos=sarray%opos
+Cchp1       opos=sarray%opos
+       rv_p_opos => sarray%rv_p_opos 
+
 Cchp1       oipc=sarray%oipc
        iv_p_oipc => sarray%iv_p_oipc 
 
@@ -394,7 +402,9 @@ Cchp1       call icopy(nclasp,w(oics),1,ics,1)
 
       j = 10
       if (cmdopt('--shorten',j-1,0,outs)) then
-        call shorps(nbasp,plat,modep,w(opos),w(opos))
+Cchp1         call shorps(nbasp,plat,modep,w(opos),w(opos))
+         call shorps ( nbasp , plat , modep , rv_p_opos , rv_p_opos ) 
+
       endif
 
 C ... Read from restart file
@@ -442,8 +452,11 @@ C ... Get neighbor table iax for each atom in the cluster
         call pshpr(iprint()-20)
 c      call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
 c     .  -1,i,j,w(opgfsl),nttab,ontab,oiax,mxcsiz)
-        call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
-     .  -1,i,j,w_dummy,nttab,ontab,oiax,mxcsiz)
+Cchp1         call pairs(nbas,nbasp,alat,plat,rmaxs/2,w(opos),
+Cchp1      .  -1,i,j,w_dummy,nttab,ontab,oiax,mxcsiz)
+         call pairs ( nbas , nbasp , alat , plat , rmaxs / 2 , rv_p_opos 
+     .   , - 1 , i , j , w_dummy , nttab , ontab , oiax , mxcsiz ) 
+
         call poppr
 
 C --- Print out a few superlattice vectors ---
@@ -516,8 +529,11 @@ Ctakao_ZeroClear_NotRequiered          if (nspec<0) rmt_rv(:)=0.0d0
 Cchp1           call makrm0 ( 101 , nspec , nbas , alat , plat , w ( opos ) , 
 Cchp1      .    slabl , w ( oips ) , modep , lock_iv , zz_rv , rmt_rv 
 Cchp1      .    )
-           call makrm0 ( 101 , nspec , nbas , alat , plat , w ( opos ) , 
-     .     slabl , iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
+Cchp1            call makrm0 ( 101 , nspec , nbas , alat , plat , w ( opos ) , 
+Cchp1      .     slabl , iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
+            call makrm0 ( 101 , nspec , nbas , alat , plat , rv_p_opos , 
+     .      slabl , iv_p_oips , modep , lock_iv , zz_rv , rmt_rv ) 
+
 
 
 C   ... Scale sphere radii satisfying constraints
@@ -531,9 +547,13 @@ C   ... Scale sphere radii satisfying constraints
 Cchp1           call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , w ( opos 
 Cchp1      .    ) , w ( oips ) , modep , slabl , zz_rv , lock_iv , 1d0 
 Cchp1      .    , wsrmax , omax1 , omax2 , rmt_rv )
-           call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , w ( opos 
-     .     ) , iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
-     .     , omax1 , omax2 , rmt_rv ) 
+Cchp1            call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , w ( opos 
+Cchp1      .     ) , iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
+Cchp1      .     , omax1 , omax2 , rmt_rv ) 
+            call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_p_opos 
+     .      , iv_p_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
+     .      , omax1 , omax2 , rmt_rv ) 
+
 
 
           i_copy_size=1;
@@ -591,9 +611,13 @@ Cchp1      .      , w ( oeula ) , nclass )
 Cchp1              call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
 Cchp1      .       , z , slabl , rv_p_oclabl , iv_p_oips , w ( oipc ) , rv_p_oves 
 Cchp1      .       , w ( oeula ) , nclass ) 
-              call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
-     .        , z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , rv_p_oves 
-     .        , w ( oeula ) , nclass ) 
+Cchp1               call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
+Cchp1      .        , z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , rv_p_oves 
+Cchp1      .        , w ( oeula ) , nclass ) 
+               call shoshl ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr , 
+     .         z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , rv_p_oves , 
+     .         w ( oeula ) , nclass ) 
+
 
 
 
@@ -604,8 +628,11 @@ C --- Show angles between neighbors ---
         j = 9
         if (cmdopt('--angles',j-1,0,outs)) then
 Cchp1           call shoang(outs(j:),nbas,w(opos),plat,mxnbr,slabl,w(oips))
-           call shoang ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
-     .     , slabl , iv_p_oips ) 
+Cchp1            call shoang ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
+Cchp1      .     , slabl , iv_p_oips ) 
+            call shoang ( outs ( j: ) , nbas , rv_p_opos , plat , mxnbr , 
+     .      slabl , iv_p_oips ) 
+
 
         endif
 
@@ -650,8 +677,11 @@ Cchp1           j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , w ( oips
 Cchp1      .    ) , w ( opos ) , ips2_iv , pos2_rv )
 Cchp1            j = cmplat ( nbas , plat , plat , ngrp , w ( og ) , iv_p_oips 
 Cchp1      .     , w ( opos ) , ips2_iv , pos2_rv ) 
-            j = cmplat ( nbas , plat , plat , ngrp , rv_p_og , iv_p_oips 
-     .      , w ( opos ) , ips2_iv , pos2_rv ) 
+Cchp1             j = cmplat ( nbas , plat , plat , ngrp , rv_p_og , iv_p_oips 
+Cchp1      .      , w ( opos ) , ips2_iv , pos2_rv ) 
+             j = cmplat ( nbas , plat , plat , ngrp , rv_p_og , iv_p_oips 
+     .       , rv_p_opos , ips2_iv , pos2_rv ) 
+
 
 
 
@@ -666,7 +696,9 @@ C ... Write positions in Cartesian coordinates and as multiples plat
 C     qlat = (plat+)^-1
           call dinv33(plat,1,qlat,xx)
           do  i = 1, nbas
-            call dpscop(w(opos),xv,3,3*i-2,1,1d0)
+Cchp1             call dpscop(w(opos),xv,3,3*i-2,1,1d0)
+             call dpscop ( rv_p_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 ) 
+
 C       posp+ = (plat)^-1 pos+
             call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
 Cchp1             ip = ival(w(oips),i)
@@ -690,14 +722,21 @@ Cchp1      .  w(oclabl),w(oipc),modep,z,ontab,oiax,w(opos),j)
 Cchp1          call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
 Cchp1      .   , rmax , rv_p_oclabl , w ( oipc ) , modep , z , ontab , oiax 
 Cchp1      .   , w ( opos ) , j ) 
-          call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
-     .    , rmax , rv_p_oclabl , iv_p_oipc , modep , z , ontab , oiax , 
-     .    w ( opos ) , j ) 
+Cchp1           call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
+Cchp1      .    , rmax , rv_p_oclabl , iv_p_oipc , modep , z , ontab , oiax , 
+Cchp1      .    w ( opos ) , j ) 
+           call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
+     .     , rmax , rv_p_oclabl , iv_p_oipc , modep , z , ontab , oiax , 
+     .     rv_p_opos , j ) 
+
 
 
 C ... Write positions to file
-        if (cmdopt('--wpos=',7,0,outs))
-     .  call iopos(T,0,outs(8:),nbasp,w(opos))
+Cchp1         if (cmdopt('--wpos=',7,0,outs))
+Cchp1      .  call iopos(T,0,outs(8:),nbasp,w(opos))
+         if ( cmdopt ( '--wpos=' , 7 , 0 , outs ) ) call iopos ( t , 0 
+     .   , outs ( 8: ) , nbasp , rv_p_opos ) 
+
 
 C ... Inner products between Euler angles
 c      if (mod(lncol,2) .eq. 1) then

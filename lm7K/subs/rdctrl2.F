@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= integer,iv_p_,oips
       module m_rdctrl2_func
       contains
@@ -205,7 +206,10 @@ c
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
       real(8):: seref
 Cchp1       integer:: ib,ispec,opos,oips
-       integer:: ib , ispec , opos 
+Cchp1        integer:: ib , ispec , opos 
+        integer:: ib , ispec 
+        real(8),pointer :: rv_p_opos(:)
+
        integer,pointer :: iv_p_oips(:)
 
       integer,allocatable:: wowk(:)
@@ -1803,22 +1807,32 @@ c         call spacks_copy('p',v_ssite(i)%clabel,ib,ib,spid,ispec)
       enddo
       v_sham%seref=seref
 c
-      call defrr(opos,3*nsite)
+Cchp1       call defrr(opos,3*nsite)
+       allocate(rv_p_opos(abs(3*nsite)))
+       if (3*nsite<0) rv_p_opos(:)=0.0d0
+
 Cchp1       call defi(oips,nsite)
        allocate(iv_p_oips(abs(nsite)))
        if (nsite<0) iv_p_oips(:)=0
 
       do i_spackv=1,nsite
         i_copy_size=3
-        call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cchp1         call spackv_array_copy_r8_r8('u',v_ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+         call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos 
+     .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+
         i_copy_size=1
 Cchp1         call spackv_array_copy_i8_i('u',v_ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,w(oips))
          call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec 
      .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oips ) 
 
       enddo
-      v_slat%opos=opos
-      v_sarry%opos=opos
+Cchp1       v_slat%opos=opos
+       v_slat%rv_p_opos => rv_p_opos 
+
+Cchp1       v_sarry%opos=opos
+       v_sarry%rv_p_opos => rv_p_opos 
+
 Cchp1       v_sarry%oips=oips
        v_sarry%iv_p_oips => iv_p_oips 
 

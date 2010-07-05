@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= integer,iv_p_,oipc
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
@@ -50,8 +51,12 @@ Cchp1        integer:: nkap0 , n0 , og , ibas , k
        real(8),pointer :: rv_p_oag(:)
 
 c      parameter (nkap0=3,n0=10)
-      integer l,ndim,ipr,nglob,nbas,ldim,off,offs,
-     .specw,fieldw,iorb,offsi,ib,is,opos,norb
+Cchp1       integer l,ndim,ipr,nglob,nbas,ldim,off,offs,
+Cchp1      .specw,fieldw,iorb,offsi,ib,is,opos,norb
+       integer:: l , ndim , ipr , nglob , nbas , ldim , off , offs , 
+     . specw , fieldw , iorb , offsi , ib , is , norb 
+       real(8),pointer :: rv_p_opos(:)
+
 c     .  ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
 c      logical lprmib
 c      character sout*120,spid*8,fmt*20,spdlab*7,lsym*1
@@ -84,7 +89,9 @@ Cchp1       og=slat%osymgr
 
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
-      opos=slat%opos
+Cchp1       opos=slat%opos
+       rv_p_opos => slat%rv_p_opos 
+
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
       alat=slat%alat
@@ -164,8 +171,11 @@ Cchp1       call dcopy(ngrp*3,w(oag),1,ag,1)
 
       enddo
 c ... get space group information
-      call mptauof(symops,ngrp,plat,nbas,w(opos),iclasst
-     o,miat,tiat,invgx,shtvg )
+Cchp1       call mptauof(symops,ngrp,plat,nbas,w(opos),iclasst
+Cchp1      o,miat,tiat,invgx,shtvg )
+       call mptauof ( symops , ngrp , plat , nbas , rv_p_opos , iclasst 
+     . , miat , tiat , invgx , shtvg ) 
+
 c ... get rotation matrix dlmm
       allocate( dlmm( -lxx:lxx, -lxx:lxx, 0:lxx, ngrp))
       call rotdlmm(symops,ngrp, lxx+1, dlmm)

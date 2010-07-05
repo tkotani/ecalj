@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= integer,iv_p_,okv
       subroutine ioden(sopts,slat,ssite,sspec,orhat,smrho)
 
@@ -113,7 +114,9 @@ C ... Local parameters
       integer ngabc(3),n1,n2,n3,k1,k2,k3,kmax
       integer kkk,lgunit,ng,nglob,nsp,nwk,stdo,modrhg,nbas,i
 Cchp1       integer:: okv , opos , oz
-       integer:: opos !, oz 
+Cchp1        integer:: opos !, oz 
+        real(8),pointer :: rv_p_opos(:)
+
        integer,pointer :: iv_p_okv(:)
 
       complex(8) ,allocatable :: cn_zv(:)
@@ -157,7 +160,9 @@ ccccccccccccccccccccccccccccc
 
 
       alat=slat%alat
-      opos=slat%opos
+Cchp1       opos=slat%opos
+       rv_p_opos => slat%rv_p_opos 
+
 
 c      call defrr(oz,nbas)
 c      do ib = 1,nbas
@@ -171,8 +176,12 @@ c      enddo
       modrhg = 2
 c      call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),w(oz),k1,k2,k3,
 c     .ngabc,w,w,nwk,modrhg)
-      call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),sspec(ssite(1:nbas)%spec)%z,k1,k2,k3,
-     .ngabc,w,w,nwk,modrhg)
+Cchp1       call ioden2(0,sopts,nsp,plat,alat,nbas,w(opos),sspec(ssite(1:nbas)%spec)%z,k1,k2,k3,
+Cchp1      .ngabc,w,w,nwk,modrhg)
+       call ioden2 ( 0 , sopts , nsp , plat , alat , nbas , rv_p_opos 
+     . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
+     . , w , w , nwk , modrhg ) 
+
       call isanrg(modrhg,-3,2,'ioden','core option',.true.)
 
 C ... Overwrite smrho+, smrho- with smrho, smrho+ - smrho-
@@ -263,9 +272,13 @@ C ... File I/O
       allocate(wk_zv(nwk**2*nsp))
 Ctakao_ZeroClear_NotRequiered        if (nwk**2*nsp<0) wk_zv(:)=0.0d0
 
-      call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , w ( opos 
-     .) , sspec(ssite(1:nbas)%spec)%z , k1 , k2 , k3 , ngabc , psrho_zv , wk_zv 
-     ., nwk , modrhg )
+Cchp1       call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , w ( opos 
+Cchp1      .) , sspec(ssite(1:nbas)%spec)%z , k1 , k2 , k3 , ngabc , psrho_zv , wk_zv 
+Cchp1      ., nwk , modrhg )
+       call ioden2 ( 1 , sopts , nsp , plat , alat , nbas , rv_p_opos 
+     . , sspec ( ssite ( 1:nbas ) %spec ) %z , k1 , k2 , k3 , ngabc 
+     . , psrho_zv , wk_zv , nwk , modrhg ) 
+
 
       if (allocated(wk_zv)) deallocate(wk_zv)
       if (allocated(psrho_zv)) deallocate(psrho_zv)

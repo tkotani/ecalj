@@ -227,7 +227,8 @@ CCHSTRUC       integer(8)   ::   opgfsl ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgfvl ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgord ! not used because of undef
 CCHSTRUC       integer(8)   ::   opgplp ! not used because of undef
-      integer(8)   ::   opos
+cki      integer(8)   ::   opos
+         real(8), pointer :: rv_p_opos(:)
 CCHSTRUC       integer(8)   ::   ormax
        real(8) , pointer ::  rv_p_ormax (:)
 CCHSTRUC       integer(8)   ::   osordn ! not used because of undef
@@ -1008,7 +1009,8 @@ CCHSTRUC       integer(8)   ::   ojcg
        integer , pointer ::  iv_p_ojcg (:)
 CCHSTRUC       integer(8)   ::   okv
        integer , pointer ::  iv_p_okv (:)
-      integer(8)   ::   opos
+cki      integer(8)   ::   opos
+       real(8), pointer :: rv_p_opos(:)
 CCHSTRUC       integer(8)   ::   oqlv
        real(8) , pointer ::  rv_p_oqlv (:)
 CCHSTRUC       integer(8)   ::   osymgr
@@ -2593,8 +2595,8 @@ cki     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_oips(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_onrc(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_onrcp(:) because it is a pointer.
-       call mpi_bcast(struc%opos, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+cki       call mpi_bcast(struc%opos, 1,MPI_INTEGER8
+cki     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_ormax(:) because it is a pointer.
 
       if (mlog) then
@@ -3086,8 +3088,8 @@ Cstruc_makeinit.py skip iv_p_oips0(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_oistab(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_ojcg(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_okv(:) because it is a pointer.
-       call mpi_bcast(struc%opos, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+cki       call mpi_bcast(struc%opos, 1,MPI_INTEGER8
+cki     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_oqlv(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_osymgr(:) because it is a pointer.
        i_data_size=size(struc%plat) ! plat(9)
@@ -4321,7 +4323,7 @@ C$$$        end subroutine utb
 c       struc%ogroup=0
 cki       struc%oipc=0
 cki       struc%oipcp=0
-       struc%opos=0
+cki       struc%opos=0
        end subroutine uarray_init
 
        subroutine uctrl_init (struc)
@@ -4490,7 +4492,7 @@ cki       struc%oipcp=0
        struc%nkqmx=0
        struc%npgrp=0
        struc%nsgrp=0
-       struc%opos=0
+cki       struc%opos=0
        struc%plat=0.0d0
        struc%plat0=0.0d0
        struc%plat2=0.0d0

@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= real(8),rv_p_,odlv
 Cchp1 cmdvar= real(8),rv_p_,oqlv
       subroutine lattic(slat,sctrl,ssite,sarray)
@@ -44,8 +45,11 @@ C ... Local parameters
 Cchp1       integer ldist,lmxst,nkd,nkdmx,nkq,nkqmx,nbas,odlv,oqlv,opos
 Cchp1        integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas , 
 Cchp1      . odlv , opos 
-        integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas , 
-     .  opos 
+Cchp1         integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas , 
+Cchp1      .  opos 
+         integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas 
+         real(8),pointer :: rv_p_opos(:)
+
         real(8),pointer :: rv_p_odlv(:)
 
        real(8),pointer :: rv_p_oqlv(:)
@@ -127,15 +131,23 @@ C ... Apply specified linear transformation of lattice and basis vectors
       ldist=slat%ldist
       i_copy_size=size(slat%dist)
       call dcopy(i_copy_size,slat%dist,1,dist,1)
-      opos=slat%opos
+Cchp1       opos=slat%opos
+       rv_p_opos => slat%rv_p_opos 
+
 
 c      print *,'xxxxxxx2'
 C     call prmx('pos from lat',w(opos),3,3,nbaspp)
 
       if (abs(gt-1) .gt. 1d-10) then
-        call rdistn(w(opos),w(opos),nbaspp,gx,gy,gz,gt)
+Cchp1         call rdistn(w(opos),w(opos),nbaspp,gx,gy,gz,gt)
+         call rdistn ( rv_p_opos , rv_p_opos , nbaspp , gx , gy , gz , 
+     .   gt ) 
+
       elseif (ldist .ne. 0) then
-        call lattdf(ldist,dist,plat0,nbaspp,w(opos),0,0d0)
+Cchp1         call lattdf(ldist,dist,plat0,nbaspp,w(opos),0,0d0)
+         call lattdf ( ldist , dist , plat0 , nbaspp , rv_p_opos , 0 , 
+     .   0d0 ) 
+
 c        if (nbaspp .gt. nbas) then
 c          call lattdf(ldist,dist,platl,0,w,0,0d0)
 c          call lattdf(ldist,dist,platr,0,w,0,0d0)
@@ -221,7 +233,10 @@ Cchp1       slat%oqlv=oqlv
 
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbaspp
-        call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cchp1         call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+         call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
+     .   , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+
       enddo
 
 C     call prmx('repack pos',w(opos),3,3,nbaspp)

@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= integer,iv_p_,okv
@@ -81,9 +82,13 @@ Cchp1      .          ngrp , og , iprint
 Cchp1                  integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
 Cchp1      .           , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , 
 Cchp1      .           og , iprint 
-                  integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
-     .            , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , 
-     .            iprint 
+Cchp1                   integer:: nbas , nbasp , nbaspp , nsp , opos , nkd , nkq , igets 
+Cchp1      .            , ngabc(3) , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , 
+Cchp1      .            iprint 
+                   integer:: nbas , nbasp , nbaspp , nsp , nkd , nkq , igets , ngabc(3) 
+     .             , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , iprint 
+                   real(8),pointer :: rv_p_opos(:)
+
                   real(8),pointer :: rv_p_og(:)
 
                  integer,pointer :: iv_p_okv(:)
@@ -123,7 +128,9 @@ C ... Heap
 
       alat=slat%alat
       vol=slat%vol
-      opos=slat%opos
+Cchp1       opos=slat%opos
+       rv_p_opos => slat%rv_p_opos 
+
 
 
       awald=slat%awald
@@ -151,8 +158,11 @@ Cchp1          call madmat ( nbaspp , w ( opos ) , awald , alat , vol , w (
 Cchp1      .   odlv ) , nkd , rv_p_oqlv , nkq , w ( omad ) ) 
 Cchp1           call madmat ( nbaspp , w ( opos ) , awald , alat , vol , w ( 
 Cchp1      .    odlv ) , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
-           call madmat ( nbaspp , w ( opos ) , awald , alat , vol , rv_p_odlv 
-     .     , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
+Cchp1            call madmat ( nbaspp , w ( opos ) , awald , alat , vol , rv_p_odlv 
+Cchp1      .     , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
+            call madmat ( nbaspp , rv_p_opos , awald , alat , vol , rv_p_odlv 
+     .      , nkd , rv_p_oqlv , nkq , rv_p_omad ) 
+
 
 
 

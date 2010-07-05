@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,opos
 Cchp1 cmdvar= integer,iv_p_,oipcp
 Cchp1 cmdvar= integer,iv_p_,oipc
 Cchp1 cmdvar= real(8),rv_p_,osymgr
@@ -109,7 +110,10 @@ Cchp1             integer:: opos , oipc , oipcp , oiwk , oag , osymgr , aginv
 Cchp1              integer:: opos , oipc , oipcp , oiwk , osymgr , aginv 
 Cchp1               integer:: opos , oipc , oipcp , oiwk , aginv 
 Cchp1                integer:: opos , oipcp , oiwk , aginv 
-                integer:: opos , oiwk , aginv 
+Cchp1                 integer:: opos , oiwk , aginv 
+                 integer:: oiwk , aginv 
+                 real(8),pointer :: rv_p_opos(:)
+
                 integer,pointer :: iv_p_oipcp(:)
 
                integer,pointer :: iv_p_oipc(:)
@@ -181,7 +185,9 @@ Cchp1       call defi(oics,  nsite)
 Ctakao_ZeroClear_NotRequiered        if (nbas<0) nrspc_iv(:)=0
 
 
-      opos=sarray%opos
+Cchp1       opos=sarray%opos
+       rv_p_opos => sarray%rv_p_opos 
+
 Cchp1       oips=sarray%oips
        iv_p_oips => sarray%iv_p_oips 
 
@@ -247,7 +253,9 @@ Cchp1       call icopy ( nbas , w ( oips ) , 1 , ips2_iv , 1 )
        call icopy ( nbas , iv_p_oips , 1 , ips2_iv , 1 ) 
 
 
-      call dcopy ( 3 * nbas , w ( opos ) , 1 , pos2_rv , 1 )
+Cchp1       call dcopy ( 3 * nbas , w ( opos ) , 1 , pos2_rv , 1 )
+       call dcopy ( 3 * nbas , rv_p_opos , 1 , pos2_rv , 1 ) 
+
 
 Cchp1       call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
 Cchp1      ., nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
@@ -294,7 +302,10 @@ Cchp1         call rlse(oag)
 
         i_copy_size=size(ssite(1)%pos)
         do i_spackv=1,nbas
-          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+Cchp1           call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,w(opos))
+           call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+     .     , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
+
         enddo
 
       endif
@@ -354,9 +365,13 @@ Cchp1      .  iv_p_oics , w ( onrc ) )
 Cchp1          call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
 Cchp1      .   , nsgrp , iv_p_oistab , nspec , slabl , nclass , w ( oipc ) , 
 Cchp1      .   iv_p_oics , iv_p_onrc ) 
-          call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
-     .    , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
-     .    iv_p_oics , iv_p_onrc ) 
+Cchp1           call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
+Cchp1      .    , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
+Cchp1      .    iv_p_oics , iv_p_onrc ) 
+           call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_p_opos , nbas 
+     .     , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
+     .     iv_p_oics , iv_p_onrc ) 
+
 
 
 
@@ -429,8 +444,11 @@ Cchp1        call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr
 Cchp1      . ) , w ( oag ) , nsgrp , qlat , iv_p_oistab ) 
 Cchp1         call symtbl ( 1 , fptol , nbas , w , w ( opos ) , w ( osymgr 
 Cchp1      .  ) , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
-         call symtbl ( 1 , fptol , nbas , w , w ( opos ) , rv_p_osymgr 
-     .   , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
+Cchp1          call symtbl ( 1 , fptol , nbas , w , w ( opos ) , rv_p_osymgr 
+Cchp1      .   , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
+          call symtbl ( 1 , fptol , nbas , w , rv_p_opos , rv_p_osymgr 
+     .    , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
+
 
 
 
