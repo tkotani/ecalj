@@ -59,7 +59,8 @@ C     implicit none
 C ... Passed parameters
       integer is
       real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z
-      type(s_spec)::sspec(*)
+cki      type(s_spec)::sspec(*)
+      type(s_spec)::sspec(is)
 
 C ... Local parameters
 Cchp1       integer n0,lfoc,orhoca,lmxb,l

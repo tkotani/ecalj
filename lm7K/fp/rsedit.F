@@ -89,7 +89,8 @@ C ... Passed parameters
       parameter (n0=10)
       type(s_ctrl)::sctrl
       type(s_site)::ssite(*),ssite1(nbas), ssite2(nbas)
-      type(s_spec)::sspec(*),sspec1(nspec),sspec2(nspec)
+cki      type(s_spec)::sspec(*),sspec1(nspec),sspec2(nspec)
+      type(s_spec)::sspec(nspec),sspec1(nspec),sspec2(nspec)
       type(s_lat)::slat,slat2
       type(s_pot)::spot,spot2
       type(s_bz)::sbz
@@ -572,7 +573,8 @@ Cchp1      .         , sspec1 , w ( oorhat ) , ssite1 , sspec1 , w ( oorhat ) , 
 Cchp1      .         , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrho , ngabc 
 Cchp1      .         ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , fac , lfail ) 
 cki                call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
-                call prsed1 (nbas,nbas, im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
+                call prsed1 (nbas,nbas, nspec
+     .          ,  im * 10 + isync , 1 , nlst , ix , nsp , ssite1 
      .          , sspec1 , iv_p_oorhat , ssite1 , sspec1 , iv_p_oorhat , zv_p_osmrho 
      .          , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrho , ngabc 
      .          ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , fac , lfail ) 
@@ -594,7 +596,7 @@ Cchp1      .        , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , w ( osmrh2
 Cchp1      .        ) , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , w ( osmrh2 ) 
 Cchp1      .        , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail )
 cki               call prsed1 ( im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
-               call prsed1 (nbas,nbas, im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
+               call prsed1 (nbas,nbas,nspec, im * 10 + isync , 1 , nlst , ix , nsp , ssite2 
      .         , sspec2 , orh2_iv , ssite2 , sspec2 , orh2_iv , zv_p_osmrh2 
      .         , ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , zv_p_osmrh2 , 
      .         ngabc2 ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
@@ -788,7 +790,7 @@ Cchp1      .    , sspec1 , w ( oorhat ) , ssite2 , sspec2 , orh2_iv , zv_p_osmrh
 Cchp1      .    , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
 Cchp1      .    ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
 cki           call prsed1 ( im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
-           call prsed1 (nbas,nbas, im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
+           call prsed1 (nbas,nbas,nspec, im * 10 + isync , nlst , ilst , nbask , nsp , ssite1 
      .     , sspec1 , iv_p_oorhat , ssite2 , sspec2 , orh2_iv , zv_p_osmrho 
      .     , ngabc ( 1 ) , ngabc ( 2 ) , ngabc ( 3 ) , zv_p_osmrh2 , ngabc2 
      .     ( 1 ) , ngabc2 ( 2 ) , ngabc2 ( 3 ) , fac , lfail ) 
@@ -960,7 +962,7 @@ C ... help
 
 
 cki      subroutine prsed1(mode,nlst,ilst,nbask,nsp,site1,spec1,orh1,
-      subroutine prsed1(nsite1,nsite2,
+      subroutine prsed1(nsite1,nsite2,nspec,
      .mode,nlst,ilst,nbask,nsp,site1,spec1,orh1,
      .site2,spec2,orh2,
      .smrho,k11,k21,k31,
@@ -1010,11 +1012,13 @@ C ... Passed parameters
       integer orh1(3,*),orh2(3,*)
       real(8):: fac(2)
 cki
-      integer:: nsite1,nsite2
+      integer:: nsite1,nsite2,nspec
       type(s_site)::site1(nsite1)
-      type(s_spec)::spec1(*)
+cki      type(s_spec)::spec1(*)
+      type(s_spec)::spec1(nspec)
       type(s_site)::site2(nsite2)
-      type(s_spec)::spec2(*)
+cki      type(s_spec)::spec2(*)
+      type(s_spec)::spec2(nspec)
 
       double complex smrho(k11,k21,k31,nsp),smrh2(k12,k22,k32,nsp)
       logical lfail
@@ -1508,7 +1512,8 @@ C ... Passed parameters
       integer orhoat(3,nbas)
 cki      type(s_site)::ssite(*)
       type(s_site)::ssite(nbas)
-      type(s_spec)::sspec(*)
+cki      type(s_spec)::sspec(*)
+      type(s_spec)::sspec(nspec)
       type(s_lat)::slat
 
       double complex smrho(k1,k2,k3,nsp)

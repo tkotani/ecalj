@@ -42,7 +42,8 @@ C ... Passed parameters
       real(8):: qbg
 cki      type(s_site)::ssite(*)
       type(s_site)::ssite(nbas)
-      type(s_spec)::sspec(*)
+cki      type(s_spec)::sspec(*)
+      type(s_spec)::sspec(nspec)
       type(s_lat)::slat
       type(s_pot)::spot
 
