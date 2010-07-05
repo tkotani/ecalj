@@ -41,8 +41,8 @@ c      sigswitch=0
       end
 
       logical function fullmesh()
-c      fullmesh=.true.
-      fullmesh=.false.
+      fullmesh=.true.
+c      fullmesh=.false.
       end
 
 c      logical function nomshsiz()
