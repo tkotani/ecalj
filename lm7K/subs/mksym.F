@@ -1,3 +1,5 @@
+Cchp1 cmdvar= integer,iv_p_,oipcp
+Cchp1 cmdvar= integer,iv_p_,oipc
 Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,oag
 Cchp1 cmdvar= integer,iv_p_,onrcp
@@ -105,7 +107,13 @@ Cchp1            integer:: onrcp , opos , oipc , oipcp , oiwk , oag , osymgr ,
 Cchp1      .     aginv 
 Cchp1             integer:: opos , oipc , oipcp , oiwk , oag , osymgr , aginv 
 Cchp1              integer:: opos , oipc , oipcp , oiwk , osymgr , aginv 
-              integer:: opos , oipc , oipcp , oiwk , aginv 
+Cchp1               integer:: opos , oipc , oipcp , oiwk , aginv 
+Cchp1                integer:: opos , oipcp , oiwk , aginv 
+                integer:: opos , oiwk , aginv 
+                integer,pointer :: iv_p_oipcp(:)
+
+               integer,pointer :: iv_p_oipc(:)
+
               real(8),pointer :: rv_p_osymgr(:)
 
              real(8),pointer :: rv_p_oag(:)
@@ -161,7 +169,10 @@ Cchp1       call defrr(osymgr,9*ngmx)
        allocate(rv_p_osymgr(abs(9*ngmx)))
        if (9*ngmx<0) rv_p_osymgr(:)=0.0d0
 
-      call defi(oipc,  nsite)
+Cchp1       call defi(oipc,  nsite)
+       allocate(iv_p_oipc(abs(nsite)))
+       if (nsite<0) iv_p_oipc(:)=0
+
 Cchp1       call defi(oics,  nsite)
        allocate(iv_p_oics(abs(nsite)))
        if (nsite<0) iv_p_oics(:)=0
@@ -327,7 +338,9 @@ Cchp1       call defi(onrc, nspec)
        if (nspec<0) iv_p_onrc(:)=0
 
 Cchp1       call icopy(nsite,w(oips),1,w(oipc),1)
-       call icopy ( nsite , iv_p_oips , 1 , w ( oipc ) , 1 ) 
+Cchp1        call icopy ( nsite , iv_p_oips , 1 , w ( oipc ) , 1 ) 
+        call icopy ( nsite , iv_p_oips , 1 , iv_p_oipc , 1 ) 
+
 
 
 Cchp1       call splcls(mod(mode/10,10).eq.4,w(opos),nbas,nsgrp,w(oistab),
@@ -338,9 +351,13 @@ Cchp1      . , iv_p_oics , w ( onrc ) )
 Cchp1         call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
 Cchp1      .  , nsgrp , iv_p_oistab , nspec , slabl , nclass , w ( oipc ) , 
 Cchp1      .  iv_p_oics , w ( onrc ) ) 
-         call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
-     .   , nsgrp , iv_p_oistab , nspec , slabl , nclass , w ( oipc ) , 
-     .   iv_p_oics , iv_p_onrc ) 
+Cchp1          call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
+Cchp1      .   , nsgrp , iv_p_oistab , nspec , slabl , nclass , w ( oipc ) , 
+Cchp1      .   iv_p_oics , iv_p_onrc ) 
+          call splcls ( mod ( mode / 10 , 10 ) .eq.4 , w ( opos ) , nbas 
+     .    , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
+     .    iv_p_oics , iv_p_onrc ) 
+
 
 
 
@@ -382,7 +399,8 @@ Cchp1       call redfi(oics,   nclspp)
        i_data_size=min(i_data_size,nclspp); allocate(iv_p_oics(nclspp))
        iv_p_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
-      oipcp = oipc
+cki      oipcp = oipc
+        iv_p_oipcp => iv_p_oipc
 C$$$      endif
 
 C ... Remake istab
@@ -443,7 +461,10 @@ Cchp1      .    iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' )
 C ... poke ipc into ssite
       i_copy_size=1;
       do i_spackv=1,nbasp
-        call spackv_array_copy_i8_i('p',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
+Cchp1         call spackv_array_copy_i8_i('p',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,w(oipc))
+         call spackv_array_copy_i8_i ( 'p' , ssite ( i_spackv ) %class 
+     .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oipc ) 
+
       enddo
 
 C --- Create nrc and class labels ---
@@ -463,8 +484,11 @@ Cchp1      .   ( oipcp ) , nspec , slabl , ssite , rv_p_oclabl , w ( onrcp )
 Cchp1      .   ) 
 Cchp1           call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , w ( 
 Cchp1      .    oipcp ) , nspec , slabl , ssite , rv_p_oclabl , w ( onrcp ) ) 
-           call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , w ( 
-     .     oipcp ) , nspec , slabl , ssite , rv_p_oclabl , iv_p_onrcp ) 
+Cchp1            call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , w ( 
+Cchp1      .     oipcp ) , nspec , slabl , ssite , rv_p_oclabl , iv_p_onrcp ) 
+            call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , iv_p_oipcp 
+     .      , nspec , slabl , ssite , rv_p_oclabl , iv_p_onrcp ) 
+
 
 
 
@@ -497,13 +521,17 @@ C --- Cleanup: poke class and symmetry info into structures ---
 Cchp1       sarray%onrcp=onrcp
        sarray%iv_p_onrcp => iv_p_onrcp 
 
-      sarray%oipcp=oipcp
+Cchp1       sarray%oipcp=oipcp
+       sarray%iv_p_oipcp => iv_p_oipcp 
+
 
 
 Cchp1       sarray%oics=oics
        sarray%iv_p_oics => iv_p_oics 
 
-      sarray%oipc=oipc
+Cchp1       sarray%oipc=oipc
+       sarray%iv_p_oipc => iv_p_oipc 
+
 Cchp1       sarray%oclabl=oclabl
        sarray%rv_p_oclabl => rv_p_oclabl 
 

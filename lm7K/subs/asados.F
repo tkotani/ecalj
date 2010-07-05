@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oipc
 Cchp1 cmdvar= integer,iv_p_,ogstar
 Cchp1 cmdvar= integer,iv_p_,ostar
 Cchp1 cmdvar= integer,iv_p_,oidtet
@@ -115,7 +116,9 @@ Cchp1           integer:: ogstar , oidtet , oipc , ormax , oipq
 Cchp1            integer:: ogstar , oidtet , oipc , ormax 
 Cchp1             integer:: ogstar , oidtet , oipc 
 Cchp1              integer:: ogstar , oipc 
-              integer:: oipc 
+Cchp1               integer:: oipc 
+               integer,pointer :: iv_p_oipc(:)
+
               integer,pointer :: iv_p_ogstar(:)
 
              integer,pointer :: iv_p_oidtet(:)
@@ -187,7 +190,9 @@ c       lham=sctrl%lham
 Cchp1       oics=sarray%oics
        iv_p_oics => sarray%iv_p_oics 
 
-      oipc=sarray%oipc
+Cchp1       oipc=sarray%oipc
+       iv_p_oipc => sarray%iv_p_oipc 
+
 Cchp1       ormax=sarray%ormax
        rv_p_ormax => sarray%rv_p_ormax 
 
@@ -808,10 +813,14 @@ C     Loop over all sites (or classes)
 
           if (nsite .ne. 0) then
             ib = i
-            ic = ival(w(oipc),ib)
+Cchp1             ic = ival(w(oipc),ib)
+             ic = ival ( iv_p_oipc , ib ) 
+
           else
             ic = i
-            ib = iclbas(i,w(oipc))
+Cchp1             ib = iclbas(i,w(oipc))
+             ib = iclbas ( i , iv_p_oipc ) 
+
           endif
 
 C       Make a new nlo if channels are site-dependent

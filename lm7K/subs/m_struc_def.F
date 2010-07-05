@@ -212,8 +212,10 @@ CCHSTRUC       integer(8)   ::   ohave
 CCHSTRUC       integer(8)   ::   oics
        integer , pointer ::  iv_p_oics (:)
 CCHSTRUC       integer(8)   ::   oifrlx ! not used because of undef
-      integer(8)   ::   oipc
-      integer(8)   ::   oipcp
+cki      integer(8)   ::   oipc
+      integer, pointer :: iv_p_oipc(:)
+cki      integer(8)   ::   oipcp
+      integer, pointer :: iv_p_oipcp(:)
 CCHSTRUC       integer(8)   ::   oips
        integer , pointer ::  iv_p_oips (:)
 CCHSTRUC       integer(8)   ::   omxcst ! not used because of undef
@@ -2584,10 +2586,10 @@ c       call mpi_bcast(struc%ogroup, 1,MPI_INTEGER8
 c     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_ohave(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_oics(:) because it is a pointer.
-       call mpi_bcast(struc%oipc, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-       call mpi_bcast(struc%oipcp, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+cki       call mpi_bcast(struc%oipc, 1,MPI_INTEGER8
+cki     , , master, MPI_COMM_WORLD,ierr)
+cki       call mpi_bcast(struc%oipcp, 1,MPI_INTEGER8
+cki     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_oips(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_onrc(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_onrcp(:) because it is a pointer.
@@ -4317,8 +4319,8 @@ C$$$        end subroutine utb
        struc%npadr=0
        struc%npl=0
 c       struc%ogroup=0
-       struc%oipc=0
-       struc%oipcp=0
+cki       struc%oipc=0
+cki       struc%oipcp=0
        struc%opos=0
        end subroutine uarray_init
 

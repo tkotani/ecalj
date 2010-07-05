@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oipc
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,ogv
@@ -380,7 +381,10 @@ Cchp1        integer:: obas , oidxsh , oipc , oips , oo , opp , oeula , opti
 Cchp1      . , obs , omagf 
 Cchp1         integer:: obas , oipc , oips , oo , opp , oeula , opti , obs 
 Cchp1      .  , omagf 
-         integer:: obas , oipc , oo , opp , oeula , opti , obs , omagf 
+Cchp1          integer:: obas , oipc , oo , opp , oeula , opti , obs , omagf 
+          integer:: obas , oo , opp , oeula , opti , obs , omagf 
+          integer,pointer :: iv_p_oipc(:)
+
          integer,pointer :: iv_p_oips(:)
 
         integer,pointer :: iv_p_oidxsh(:)
@@ -404,7 +408,9 @@ C --- Setup ---
 Cchp1       oips=sarray%oips
        iv_p_oips => sarray%iv_p_oips 
 
-      oipc=sarray%oipc
+Cchp1       oipc=sarray%oipc
+       iv_p_oipc => sarray%iv_p_oipc 
+
 
 
       nbasp=sctrl%nbasp

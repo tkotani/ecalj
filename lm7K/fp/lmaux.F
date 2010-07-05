@@ -1,3 +1,4 @@
+Cchp1 cmdvar= integer,iv_p_,oipc
 Cchp1 cmdvar= real(8),rv_p_,og
 Cchp1 cmdvar= real(8),rv_p_,osymgr
 Cchp1 cmdvar= real(8),rv_p_,odlv
@@ -192,9 +193,14 @@ Cchp1      .                 , opgfsl , ontab , oiax , og , mxclas
 Cchp1                         integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
 Cchp1      .                  orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl 
 Cchp1      .                  , ontab , oiax , og , mxclas 
-                         integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
-     .                   orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl 
-     .                   , ontab , oiax , mxclas 
+Cchp1                          integer:: oeold , oeula , oipc , olmx , opold , owk2 , opos , 
+Cchp1      .                   orham , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl 
+Cchp1      .                   , ontab , oiax , mxclas 
+                          integer:: oeold , oeula , olmx , opold , owk2 , opos , orham 
+     .                    , oamsh , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , 
+     .                    ontab , oiax , mxclas 
+                          integer,pointer :: iv_p_oipc(:)
+
                          real(8),pointer :: rv_p_og(:)
 
                         real(8),pointer :: rv_p_odlv(:)
@@ -305,7 +311,9 @@ Cchp1       ormax=sarray%ormax
 
 
       opos=sarray%opos
-      oipc=sarray%oipc
+Cchp1       oipc=sarray%oipc
+       iv_p_oipc => sarray%iv_p_oipc 
+
 Cchp1       oips=sarray%oips
        iv_p_oips => sarray%iv_p_oips 
 
@@ -580,9 +588,13 @@ Cchp1      .     ) , w ( oeula ) , nclass )
 Cchp1             call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
 Cchp1      .      , z , slabl , rv_p_oclabl , w ( oips ) , w ( oipc ) , rv_p_oves 
 Cchp1      .      , w ( oeula ) , nclass ) 
-             call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
-     .       , z , slabl , rv_p_oclabl , iv_p_oips , w ( oipc ) , rv_p_oves 
-     .       , w ( oeula ) , nclass ) 
+Cchp1              call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
+Cchp1      .       , z , slabl , rv_p_oclabl , iv_p_oips , w ( oipc ) , rv_p_oves 
+Cchp1      .       , w ( oeula ) , nclass ) 
+              call shoshl ( outs ( j: ) , nbas , w ( opos ) , plat , mxnbr 
+     .        , z , slabl , rv_p_oclabl , iv_p_oips , iv_p_oipc , rv_p_oves 
+     .        , w ( oeula ) , nclass ) 
+
 
 
 
@@ -675,9 +687,13 @@ C --- Print overlaps, optionally minimize wrt spec'd sites ---
         if (iprint() .lt. 30) j = 0
 Cchp1         call ovmin(outs(i:),nbas,nbasp,alat,plat,rmax,rmax,
 Cchp1      .  w(oclabl),w(oipc),modep,z,ontab,oiax,w(opos),j)
-         call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
-     .   , rmax , rv_p_oclabl , w ( oipc ) , modep , z , ontab , oiax 
-     .   , w ( opos ) , j ) 
+Cchp1          call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
+Cchp1      .   , rmax , rv_p_oclabl , w ( oipc ) , modep , z , ontab , oiax 
+Cchp1      .   , w ( opos ) , j ) 
+          call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax 
+     .    , rmax , rv_p_oclabl , iv_p_oipc , modep , z , ontab , oiax , 
+     .    w ( opos ) , j ) 
+
 
 C ... Write positions to file
         if (cmdopt('--wpos=',7,0,outs))
