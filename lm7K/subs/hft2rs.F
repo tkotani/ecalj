@@ -1,6 +1,8 @@
 Cchp1 cmdvar= integer,iv_p_,oiax
 Cchp1 cmdvar= integer,iv_p_,ontab
 Cchp1 cmdvar= integer,iv_p_,ontabs
+      module m_hft2rs
+      contains
       subroutine hft2rs(mode,n1,n2,n3,k1,k2,k3,qoff,isp,nsp,nbas,g,ag,
      .nsgrp,range,offH,ia1,ia2,idim,jdim,hq,plat,pos,iv_p_ontab,iv_p_oiax,ndhrs,
      .hrs)
@@ -162,7 +164,8 @@ Cchp1        integer:: oiax
        integer,pointer :: iv_p_ontab(:)
 
       double precision plat(3,3),pos(3,*),range,g(9,*),ag(3,*),qoff(3)
-      double complex hq(k1,k2,k3,idim,jdim,nsp),hrs(ndhrs,ndhrs,nsp,1)
+      double complex hq(k1,k2,k3,idim,jdim,nsp)
+      real(8):: hrs(ndhrs,ndhrs,nsp,1)
 C ... Local parameters
       integer i,ipr,iset,mode0,mode1,mode2,mode3,mxcsiz,nttab,nviax,
      .nvtot
@@ -382,7 +385,9 @@ C$$$  393 format(9f12.6)
 C$$$      goto 998
 C$$$#endif
 
-      end
+      end subroutine hft2rs
+      end module m_hft2rs
+
       subroutine hft2r1(mode,n1,n2,n3,k1,k2,k3,isp,nsp,ia1,ia2,ib1,ib2,
      .offH,idim,jdim,hij,plat,pos,ntab,iax,qoff,ndhrs,hrs,nviax,nvtot,
      .dmx)

@@ -160,7 +160,7 @@ $(subs_obj_path)/rdctrl2.o $(moddir)/m_rdctrl2_func.mod  : subs/rdctrl2.F $(modd
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/rdctrl2.o subs/rdctrl2.F
 $(subs_obj_path)/rdctrlchk.o  : subs/rdctrlchk.F $(moddir)/m_gtv.mod $(moddir)/m_rdctrlchk.mod 
 	$(FC) $(FFLAGS) -c  -o $@  subs/rdctrlchk.F
-$(subs_obj_path)/rdsigm2.o  : subs/rdsigm2.F $(moddir)/m_hamindex.mod $(moddir)/m_struc_def.mod 
+$(subs_obj_path)/rdsigm2.o  : subs/rdsigm2.F $(moddir)/m_hamindex.mod $(moddir)/m_struc_def.mod  $(moddir)/m_hft2rs.mod 
 	$(FC) $(FFLAGS) -c  -o $@  subs/rdsigm2.F
 $(subs_obj_path)/rotwv.o  : subs/rotwv.F $(moddir)/m_hamindex.mod 
 	$(FC) $(FFLAGS) -c  -o $@  subs/rotwv.F
@@ -536,7 +536,7 @@ $(subs_obj_path)/veecomp.o: subs/veecomp.F
 	$(FC) $(FFLAGS_LESS2) -c  -o $(subs_obj_path)/veecomp.o subs/veecomp.F 
 
 
-$(subs_obj_path)/hft2rs.o: subs/hft2rs.F $(moddir)/m_pairs.mod
+$(subs_obj_path)/hft2rs.o $(moddir)/m_hft2rs.mod : subs/hft2rs.F $(moddir)/m_pairs.mod
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/hft2rs.o  subs/hft2rs.F
 
 $(subs_obj_path)/shoshl.o: subs/shoshl.F $(moddir)/m_pairs.mod

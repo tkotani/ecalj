@@ -15,7 +15,7 @@ Cchp1 cmdvar= integer,iv_p_,ooffh
      .lwsig)
 
       use m_struc_def  !Cgetarg
-
+      use m_hft2rs
 C- Read sigm(k) from file and generate sigm(R)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -266,6 +266,9 @@ C     integer os
 C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       double precision qk
       integer jj1,jj2,jj3,k
+
+      real(8):: rv_dummy(1)
+      complex(8):: zv_dummy(1)
 C.....titus
 C      integer ib,ib1,ib2,nlmaa,lidim,ldh,osfz1,nsp1
 C      integer nkap0,n0H
@@ -640,8 +643,8 @@ Cchp1      .   , 1 , nbas , ndimh , ndimh , w , plat , w ( opos ) , ontabs ,
 Cchp1      .   oiaxs , ndhrs , w ) 
           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 , 
      .    nsp , nbas , rv_p_og , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
-     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , iv_p_ontabs , 
-     .    iv_p_oiaxs , ndhrs , w ) 
+     .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_p_ontabs , 
+     .    iv_p_oiaxs , ndhrs , rv_dummy ) 
 
 
 

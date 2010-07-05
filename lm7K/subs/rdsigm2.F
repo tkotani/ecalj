@@ -15,7 +15,7 @@ Cchp1 cmdvar= integer,iv_p_,ooffh
      &nk1,nk2,nk3,sfz) !,qin,isp,sene)
 
       use m_struc_def  !Cgetarg
-
+      use m_hft2rs 
 C- takao. obtain sene at given q (qin).
 C
 Ci sfz
@@ -128,6 +128,8 @@ C ... Heap
       integer(4):: ndhamx,debugmode
       complex(8):: sene(ndimh,ndimh)
 
+      complex(8):: zv_dummy(1)
+      real(8):: rv_dummy(1)
 
       integer:: i_copy_size,nhrss
       real(8),allocatable::hrss(:)
@@ -374,8 +376,10 @@ Cchp1      .   , 1 , nbas , ndimh , ndimh , w , plat , w ( opos ) , ontabs ,
 Cchp1      .   oiaxs , ndhrs , w ) 
           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 , 
      .    nsp , nbas , rv_p_og , rv_p_oag , nsgrp , rsrnge , iv_p_ooffh 
-     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , iv_p_ontabs , 
-     .    iv_p_oiaxs , ndhrs , w ) 
+cki     .    , 1 , nbas , ndimh , ndimh , w , plat , rv_p_opos , iv_p_ontabs , 
+     .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_p_opos , iv_p_ontabs , 
+cki     .    iv_p_oiaxs , ndhrs , w ) 
+     .    iv_p_oiaxs , ndhrs , rv_dummy ) 
 
 
 
