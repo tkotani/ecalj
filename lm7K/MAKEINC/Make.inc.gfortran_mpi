@@ -63,7 +63,7 @@ FFLAGS_NONE = -g  -ffixed-line-length-132 $(CPP_SW) $(module)
 ###################################################
 # CPP switches (instead of old ccomp procedure
 ###################################################
-CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME -DHASGETENVIRONMENTVARIABLE  -DNOQUAD  -DNOT_OVERLAP_VAR -UMPIK -DMPI
+CPP_SW = -DHASIARGC  -DHASGETARG  -DFDATE  -DHASCPUTIME -DHASGETENVIRONMENTVARIABLE  -DNOQUAD  -DNOT_OVERLAP_VAR -DMPI -UMPI
 #
 #MPI  case add  
 #
@@ -112,6 +112,7 @@ $(subs_obj_path)/m_struc_func.o : subs/m_struc_func.F
 $(fp_obj_path)/rhogkl.o  : fp/rhogkl.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS_LESS) -c $< -o $@
 
+
 ################################################
 # archiver (maybe fixed).
 ################################################
@@ -151,7 +152,6 @@ LIBSLA  := slatsm/$(SLATSM)
 #LIBTB   = tb/$(TB)
 #LIBES := $(LIBSLA) $(LIBLOC)
 
-
 #???
 # $(LIBSUBS): $(subs_obj)   fails
 #	$(AR) $(ARFLAGS) $@ $(subs_obj)
@@ -172,7 +172,7 @@ $(fp_obj_path)/addrbl.o  : fp/addrbl.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/addrbl.o fp/addrbl.F
 $(fp_obj_path)/augmbl.o  : fp/augmbl.F $(moddir)/m_events.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/augmbl.o fp/augmbl.F
-$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod  $(moddir)/m_subzi.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/bndfp.o fp/bndfp.F
 $(fp_obj_path)/bstrux.o  : fp/bstrux.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/bstrux.o fp/bstrux.F
@@ -224,7 +224,7 @@ $(fp_obj_path)/hsmbl.o  : fp/hsmbl.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/hsmbl.o fp/hsmbl.F
 $(fp_obj_path)/ioden.o  : fp/ioden.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/ioden.o fp/ioden.F
-$(fp_obj_path)/lmaux.o  : fp/lmaux.F $(moddir)/m_struc_def.mod $(moddir)/m_pairs.mod $(moddir)/m_ovmin.mod
+$(fp_obj_path)/lmaux.o  : fp/lmaux.F $(moddir)/m_struc_def.mod  $(moddir)/m_pairs.mod $(moddir)/m_ovmin.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/lmaux.o fp/lmaux.F
 $(fp_obj_path)/lmfp.o  : fp/lmfp.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/lmfp.o fp/lmfp.F
@@ -428,6 +428,8 @@ $(subs_obj_path)/shoshl.o: subs/shoshl.F $(moddir)/m_pairs.mod
 $(subs_obj_path)/pairc.o $(moddir)/m_pairs.mod : subs/pairc.F
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/pairc.o subs/pairc.F
 
-$(subs_obj_path)/ovmin.o $(moddir)/ovmin.o :  subs/ovmin.F
+$(subs_obj_path)/ovmin.o $(moddir)/ovmin.mod :  subs/ovmin.F
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ovmin.o subs/ovmin.F
 
+$(subs_obj_path)/subzi.o $(moddir)/m_subzi.mod : subs/subzi.F
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/subzi.o subs/subzi.F

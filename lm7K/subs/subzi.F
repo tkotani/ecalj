@@ -1,8 +1,11 @@
+Cchp1 cmdvar= real(8),rv_p_,oswtk
 #define MPI 1
+      module m_subzi
+      contains
 c      subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
 c     .  lwtkb,efermi,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,esmear)
       subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
-     .lwtkb,efermi,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,esmear)
+     .lwtkb,efermi,owtkb,numq,lswtk,rv_p_oswtk,ef0,def,mpsord,esmear)
 C- Brillouin-integration setup
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -78,7 +81,10 @@ C     implicit none
 C ... Passed parameters
       logical ltet,lwt
       integer lmet,ndham,nsp,nspc,nkp,lwtkb,lswtk,numq,nevmx,mpsord
-      integer owtkb,oswtk
+Cchp1       integer owtkb,oswtk
+       integer:: owtkb 
+       real(8),pointer :: rv_p_oswtk(:)
+
       double precision zval,ef0,def,esmear,efermi
 C ... Local parameters
       integer ifi,fopna,lerr,iobzwt,iprint,stdo,lgunit,isw,n
@@ -125,10 +131,14 @@ C           Broadcast lwtkb,efermi,wtkb
         endif
       endif
       lswtk = -2
-      oswtk = 1
+cki      oswtk = 1
+      nullify(rv_p_oswtk)
       if (nspc .eq. 2) then
         if (lwtkb .eq. 1) lswtk = 1
-        call defrr(oswtk,ndham*nsp*nkp)
+Cchp1         call defrr(oswtk,ndham*nsp*nkp)
+         allocate(rv_p_oswtk(abs(ndham*nsp*nkp)))
+         if (ndham*nsp*nkp<0) rv_p_oswtk(:)=0.0d0
+
       endif
 
       if (nevmx .eq. 0) then
@@ -159,7 +169,9 @@ C ... Printout
         write(stdo,'(1x)')
       endif
 
-      end
+      end subroutine subzi
+      end module m_subzi
+
       integer function iobzwt(mode,nevx,nq,nsp,efermi,wtkb,ifi)
 C- File I/O of dos weights
 C ----------------------------------------------------------------------
@@ -233,5 +245,6 @@ C ... File write
         call info(20,1,0,' Saved qp weights ...',0,0)
       endif
       end
+
 
 

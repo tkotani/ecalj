@@ -150,7 +150,7 @@ $(subs_obj_path)/m_rdctrlchk.o $(moddir)/m_rdctrlchk.mod  : subs/m_rdctrlchk.F $
 $(subs_obj_path)/m_struc_def.o $(moddir)/m_struc_def.mod $(moddir)/m_struc_func.mod  : subs/m_struc_def.F 
 	$(FC) $(FFLAGS_NONE) -c $< -o $(subs_obj_path)/m_struc_def.o
 #################################
-$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod  $(moddir)/m_subzi.mod 
 	$(FC) $(FFLAGS) -c fp/bndfp.F -o $@	
 $(gwd_obj_path)/bndfp.o  : $(moddir)/m_rdctrl.mod $(moddir)/m_hamindex.mod $(moddir)/m_struc_def.mod  gwd/bndfp.F
 	$(FC) $(FFLAGS) -c gwd/bndfp.F -o $@
@@ -546,5 +546,9 @@ $(subs_obj_path)/shoshl.o: subs/shoshl.F $(moddir)/m_pairs.mod
 $(subs_obj_path)/pairc.o $(moddir)/m_pairs.mod : subs/pairc.F
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/pairc.o subs/pairc.F
 
-$(subs_obj_path)/ovmin.o $(moddir)/ovmin.o :  subs/ovmin.F
+$(subs_obj_path)/ovmin.o $(moddir)/ovmin.mod :  subs/ovmin.F
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ovmin.o subs/ovmin.F
+
+$(subs_obj_path)/subzi.o $(moddir)/m_subzi.mod : subs/subzi.F
+	 $(FC) $(FFLAGS) -c  -o $(subs_obj_path)/subzi.o subs/subzi.F
+

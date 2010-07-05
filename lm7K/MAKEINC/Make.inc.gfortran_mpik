@@ -172,7 +172,7 @@ $(fp_obj_path)/addrbl.o  : fp/addrbl.F $(moddir)/m_struc_def.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/addrbl.o fp/addrbl.F
 $(fp_obj_path)/augmbl.o  : fp/augmbl.F $(moddir)/m_events.mod $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/augmbl.o fp/augmbl.F
-$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod 
+$(fp_obj_path)/bndfp.o  : fp/bndfp.F $(moddir)/m_events.mod $(moddir)/m_hamindex.mod $(moddir)/m_rdctrl.mod $(moddir)/m_struc_def.mod  $(moddir)/m_subzi.mod
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/bndfp.o fp/bndfp.F
 $(fp_obj_path)/bstrux.o  : fp/bstrux.F $(moddir)/m_struc_def.mod 
 	$(FC) $(FFLAGS) -c  -o $(fp_obj_path)/bstrux.o fp/bstrux.F
@@ -428,6 +428,8 @@ $(subs_obj_path)/shoshl.o: subs/shoshl.F $(moddir)/m_pairs.mod
 $(subs_obj_path)/pairc.o $(moddir)/m_pairs.mod : subs/pairc.F
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/pairc.o subs/pairc.F
 
-$(subs_obj_path)/ovmin.o $(moddir)/ovmin.o :  subs/ovmin.F
+$(subs_obj_path)/ovmin.o $(moddir)/ovmin.mod :  subs/ovmin.F
 	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/ovmin.o subs/ovmin.F
 
+$(subs_obj_path)/subzi.o $(moddir)/m_subzi.mod : subs/subzi.F
+	$(FC) $(FFLAGS) -c  -o $(subs_obj_path)/subzi.o subs/subzi.F

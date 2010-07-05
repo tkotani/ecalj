@@ -1,3 +1,4 @@
+Cchp1 cmdvar= real(8),rv_p_,oswtk
 Cchp1 cmdvar= real(8),rv_p_,opos
 C oevl -> evlall
 Cchp1 cmdvar= integer,iv_p_,oidtet
@@ -23,6 +24,7 @@ Cchp1 cmdvar= real(8),rv_p_,oqp
 #if MPI | MPIK
       use m_events !Event numbers: include "events.ins"
 #endif
+      use m_subzi 
 C- One band pass, full-potential hamiltonian
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -269,7 +271,10 @@ Cchp1          integer:: oevlall , os , oidtet , owtkb , oswtk , oorhat , osoptc
 Cchp1      .   , osmrho 
 Cchp1           integer:: oevlall , os , oidtet , owtkb , oswtk , oorhat , osoptc 
 Cchp1            integer:: oevlall , os , oidtet , owtkb , oswtk , osoptc 
-            integer::  os , owtkb , oswtk , osoptc  !oevlall ,
+Cchp1             integer::  os , owtkb , oswtk , osoptc  !oevlall ,
+             integer:: os , owtkb , osoptc 
+             real(8),pointer :: rv_p_oswtk(:)
+
             integer,pointer :: iv_p_oidtet(:)
 
            integer,pointer :: iv_p_oorhat(:)
@@ -894,7 +899,7 @@ cccccccccccccccccccccc
 
         call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
 c     .    nevmx,lwtkb,eferm,oevlall,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
-     .  nevmx,lwtkb,eferm,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,
+     .  nevmx,lwtkb,eferm,owtkb,numq,lswtk,rv_p_oswtk,ef0,def,mpsord,
      .  dabs(esmear-mpsord))
 
         if (lwtkb .eq. -1)
@@ -1029,7 +1034,9 @@ C --- Start loop over k points; also, re-entry for second band pass ---
       if (lswtk .eq. 1) then
         efmax = 1d3
         nevmx = ndhamx
-        call dpzero(w(oswtk),ndhamx*nkp)
+Cchp1         call dpzero(w(oswtk),ndhamx*nkp)
+         call dpzero ( rv_p_oswtk , ndhamx * nkp ) 
+
       endif
 
 C --- Setup moments file : write header ---
@@ -2360,13 +2367,21 @@ Cchp1      .           , lekkl , k1 , k2 , k3 , w ( osmpot ) , vconst , osig , o
 Cchp1      .           , oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl , ef0 
 Cchp1      .           , def , esmear , emin , emax , ndos , dos_rv , srout_zv , sumqv 
 Cchp1      .           , sumev , oqkkl , oeqkkl , frc ) 
-                  call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
-     .            , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
-     .            , lwtkb , w ( owtkb ) , lswtk , w ( oswtk ) , iq , lfrce , ldos 
-     .            , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , osig , otau , 
-     .            oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl , ef0 , 
-     .            def , esmear , emin , emax , ndos , dos_rv , srout_zv , sumqv 
-     .            , sumev , oqkkl , oeqkkl , frc ) 
+Cchp1                   call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
+Cchp1      .            , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+Cchp1      .            , lwtkb , w ( owtkb ) , lswtk , w ( oswtk ) , iq , lfrce , ldos 
+Cchp1      .            , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , osig , otau , 
+Cchp1      .            oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl , ef0 , 
+Cchp1      .            def , esmear , emin , emax , ndos , dos_rv , srout_zv , sumqv 
+Cchp1      .            , sumev , oqkkl , oeqkkl , frc ) 
+                   call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc 
+     .             , qp , rv_p_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout 
+     .             , lwtkb , w ( owtkb ) , lswtk , rv_p_oswtk , iq , lfrce , ldos 
+     .             , lekkl , k1 , k2 , k3 , zv_p_osmpot , vconst , osig , otau , 
+     .             oppi , lcplxp , numq , qval - qbg , t_zv , evl , nevl , ef0 , 
+     .             def , esmear , emin , emax , ndos , dos_rv , srout_zv , sumqv 
+     .             , sumev , oqkkl , oeqkkl , frc ) 
+
 
 
 
@@ -2523,7 +2538,10 @@ C     Allreduce density-related quantities
      .  , 'bndfp' , 'smrho' ) 
 
         if (lswtk .eq. 1) then
-          call mpibc2(w(oswtk),ndhamx*nkp,4,mlog,'bndfp','swtk')
+Cchp1           call mpibc2(w(oswtk),ndhamx*nkp,4,mlog,'bndfp','swtk')
+           call mpibc2 ( rv_p_oswtk , ndhamx * nkp , 4 , mlog , 'bndfp' 
+     .     , 'swtk' ) 
+
         endif
 C     Allreduce qkkl
         nkaph = nglob('nkaph')
@@ -2858,11 +2876,17 @@ Cchp1      .     , fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear -
 Cchp1      .     mpsord ) , dosrng , rv_p_owtkp , w ( oevlall ) , efmax , lswtk , 
 Cchp1      .     w ( oswtk ) , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb 
 Cchp1      .     ) 
-            call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-     .      ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
-     .      fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-     .      ) , dosrng , rv_p_owtkp , evlall  , efmax , lswtk , w ( oswtk 
-     .      ) , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb ) 
+Cchp1             call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+Cchp1      .      ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
+Cchp1      .      fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
+Cchp1      .      ) , dosrng , rv_p_owtkp , evlall  , efmax , lswtk , w ( oswtk 
+Cchp1      .      ) , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb ) 
+             call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+     .       ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_p_oidtet , qval - qbg , 
+     .       fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
+     .       ) , dosrng , rv_p_owtkp , evlall , efmax , lswtk , rv_p_oswtk 
+     .       , eferm , sev , w ( owtkb ) , sumqv ( 1 , 2 ) , lwtkb ) 
+
 
 
 
