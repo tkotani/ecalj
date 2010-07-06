@@ -1,3 +1,5 @@
+Cchp3 cmdvar= type(s_rv1),sv_p_,orh2
+Cchp3 cmdvar= type(s_rv1),sv_p_,orh1
 Cchp3 cmdvar= type(s_rv1),sv_p_,orhoat
 Cchp1 cmdvar= real(8),rv_p_,orhoca
 Cchp1 cmdvar= real(8),rv_p_,orhoc2
@@ -963,12 +965,22 @@ C ... help
 
 
 cki      subroutine prsed1(mode,nlst,ilst,nbask,nsp,site1,spec1,orh1,
-      subroutine prsed1(nsite1,nsite2,nspec,
-     .mode,nlst,ilst,nbask,nsp,site1,spec1,orh1,
-     .site2,spec2,orh2,
-     .smrho,k11,k21,k31,
-     .smrh2,k12,k22,k32,
-     .fac,lfail)
+Cchp3       subroutine prsed1(nsite1,nsite2,nspec,
+Cchp3      .mode,nlst,ilst,nbask,nsp,site1,spec1,orh1,
+Cchp3      .site2,spec2,orh2,
+Cchp3      .smrho,k11,k21,k31,
+Cchp3      .smrh2,k12,k22,k32,
+Cchp3      .fac,lfail)
+Cchp3        subroutine prsed1 ( nsite1 , nsite2 , nspec , mode , nlst , ilst 
+Cchp3      . , nbask , nsp , site1 , spec1 , sv_p_orh1 , site2 , spec2 , orh2 
+Cchp3      . , smrho , k11 , k21 , k31 , smrh2 , k12 , k22 , k32 , fac , lfail 
+Cchp3      . ) 
+        subroutine prsed1 ( nsite1 , nsite2 , nspec , mode , nlst , ilst 
+     .  , nbask , nsp , site1 , spec1 , sv_p_orh1 , site2 , spec2 , sv_p_orh2 
+     .  , smrho , k11 , k21 , k31 , smrh2 , k12 , k22 , k32 , fac , lfail 
+     .  ) 
+
+
 
       use m_struc_def  !Cgetarg
 
@@ -1010,7 +1022,12 @@ C     implicit none
 C ... Passed parameters
       integer mode,nlst,ilst(nlst,2),nbask(2),nsp,
      .k11,k21,k31,k12,k22,k32
-      integer orh1(3,*),orh2(3,*)
+Cchp3       integer orh1(3,*),orh2(3,*)
+Cchp3        integer:: orh2(3,*) 
+        type(s_rv1) :: sv_p_orh2(3,*)
+
+       type(s_rv1) :: sv_p_orh1(3,*)
+
       real(8):: fac(2)
 cki
       integer:: nsite1,nsite2,nspec
@@ -1198,20 +1215,44 @@ C       Radial meshes must match
 C       True local density: modified for im=0 or im>3
         if (im .lt. 1 .or. im .ge. 4) then
           if (isync .lt. 2) then
-            call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
-     .      w(orh1(1,ib)),w(orh2(1,jb)))
+Cchp3             call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
+Cchp3      .      w(orh1(1,ib)),w(orh2(1,jb)))
+Cchp3              call lcrho ( nr1 , nsp , nlml1 , nlml2 , fac ( 1 ) , fac ( 2 
+Cchp3      .       ) , sv_p_orh1( 1 , ib )%v , w ( orh2 ( 1 , jb ) ) ) 
+              call lcrho ( nr1 , nsp , nlml1 , nlml2 , fac ( 1 ) , fac ( 2 
+     .        ) , sv_p_orh1 ( 1 , ib ) %v , sv_p_orh2( 1 , jb )%v ) 
+
+
           else
-            call swrho(isync/4,nr1,nsp,1,nlml1,nlml2,
-     .      w(orh1(1,ib)),w(orh2(1,jb)))
+Cchp3             call swrho(isync/4,nr1,nsp,1,nlml1,nlml2,
+Cchp3      .      w(orh1(1,ib)),w(orh2(1,jb)))
+Cchp3              call swrho ( isync / 4 , nr1 , nsp , 1 , nlml1 , nlml2 , sv_p_orh1( 1 , ib )%v 
+Cchp3      .       , w ( orh2 ( 1 , jb ) ) ) 
+              call swrho ( isync / 4 , nr1 , nsp , 1 , nlml1 , nlml2 , sv_p_orh1 
+     .        ( 1 , ib ) %v , sv_p_orh2( 1 , jb )%v ) 
+
+
           endif
         endif
 C       Smooth local density and site core density: modified if im>=4
         if (im .ge. 4) then
           if (isync .lt. 2) then
-            call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
-     .      w(orh1(2,ib)),w(orh2(2,jb)))
-            call lcrho(nr1,nsp,1,1,fac(1),fac(2),
-     .      w(orh1(3,ib)),w(orh2(3,jb)))
+Cchp3             call lcrho(nr1,nsp,nlml1,nlml2,fac(1),fac(2),
+Cchp3      .      w(orh1(2,ib)),w(orh2(2,jb)))
+Cchp3              call lcrho ( nr1 , nsp , nlml1 , nlml2 , fac ( 1 ) , fac ( 2 
+Cchp3      .       ) , sv_p_orh1( 2 , ib )%v , w ( orh2 ( 2 , jb ) ) ) 
+              call lcrho ( nr1 , nsp , nlml1 , nlml2 , fac ( 1 ) , fac ( 2 
+     .        ) , sv_p_orh1 ( 2 , ib ) %v , sv_p_orh2( 2 , jb )%v ) 
+
+
+Cchp3             call lcrho(nr1,nsp,1,1,fac(1),fac(2),
+Cchp3      .      w(orh1(3,ib)),w(orh2(3,jb)))
+Cchp3              call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , sv_p_orh1( 3 , ib )%v 
+Cchp3      .       , w ( orh2 ( 3 , jb ) ) ) 
+              call lcrho ( nr1 , nsp , 1 , 1 , fac ( 1 ) , fac ( 2 ) , sv_p_orh1 
+     .        ( 3 , ib ) %v , sv_p_orh2( 3 , jb )%v ) 
+
+
           else
             call rx('not ready for this swap')
           endif
