@@ -10,6 +10,10 @@ C Kino April2009.
       real(8)  ::   r
       end type
 
+      type s_rv1
+        real(8),pointer:: v(:)
+      end type s_rv1
+
 Cr --- explanation of  ubz ---
 Cr   off offe  name    purpose
 Cr    2    1   def      Uncertainty in Fermi level
